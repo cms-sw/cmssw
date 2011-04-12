@@ -12,6 +12,8 @@ public:
   GoodJetDisplacedJetTrigger(const pat::JetRef& patJet) {
 
   // Select good quality jets of high Pt, suitable for use in Exotica Displaced Jet Search.
+  // The kinematic cuts should be tight enough that these jets are likely to pass
+  // the kinematic requirements of the displaced jet trigger.
   // The constructor determines which of the cuts this jet passes.
 
   const double nPromptTk_Max = 2.5; // max. number of allowed prompt tracks in jet

@@ -35,7 +35,6 @@ displacedJetTagInfos = impactParameterTagInfos.clone (
 #    primaryVertex = cms.InputTag( "pixelVertices" ),    
     computeProbabilities = cms.bool( False ),
     computeGhostTrack = cms.bool( False ),
-#    maximumChiSquared = cms.double( 20.0 ),
     maximumTransverseImpactParameter = cms.double( 0.1 ),
     maximumLongitudinalImpactParameter = cms.double( 0.1 ),
     minimumNumberOfPixelHits = cms.int32( 2 ),

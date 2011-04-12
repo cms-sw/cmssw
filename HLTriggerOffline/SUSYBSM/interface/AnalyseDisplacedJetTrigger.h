@@ -89,8 +89,13 @@ private:
   // Book histograms to study performance of given trigger.
   void bookHistos(string trigName);
 
-  // Analyse triggers and return trigger objects for displaced jet triggers.
-  map<string, TriggerObjectRefVector> getTriggerInfo();
+  // Analyse triggers. For each displaced jet trigger (specified by name) return 
+  // a boolean indicating if it passed the trigger and the trigger objects it used.
+  map<string, pair<bool, TriggerObjectRefVector> > getTriggerInfo();
+
+  // Check if there is another jet in the event aside from this one which is likely
+  // to pass the kinematic requirements of the displaced jet trigger.
+  bool anotherGoodJet(pat::JetRef thisRecoJet);
 
   // Find closest trigger jet to reco jet, if any.
   TriggerObjectRef matchJets(pat::JetRef recoJet, const TriggerObjectRefVector& trigJets);
