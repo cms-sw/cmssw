@@ -16,6 +16,7 @@
 <use   name="DataFormats/MuonReco"/>
 <use   name="DataFormats/ParticleFlowReco"/>	
 <use   name="CondFormats/JetMETObjects"/>
+<use   name="RecoMuon/TrackingTools"/>
 <export>
   <lib   name="1"/>
 </export>
