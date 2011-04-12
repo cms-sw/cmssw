@@ -104,7 +104,7 @@ class ShapeBuilder(ModelBuilder):
             self.doVar("x[0,%d]" % self.out.maxbins); self.out.var("x").setBins(self.out.maxbins)
             self.out.binVar = self.out.var("x")
             self.out.binVars = ROOT.RooArgSet(self.out.binVar)
-        elif shapeTypes.count("RooDataSet") > 0 or shapeTYpes.count("TTree") > 0:
+        elif shapeTypes.count("RooDataSet") > 0 or shapeTypes.count("TTree") > 0:
             self.out.mode = "unbinned"
             if self.options.verbose: stderr.write("Will try to work with unbinned datasets\n")
             if self.options.verbose: stderr.write("Observables: %s\n" % str(shapeObs.keys()))
