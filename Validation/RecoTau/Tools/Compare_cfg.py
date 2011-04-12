@@ -64,7 +64,7 @@ process = cms.Process('MakingPlots')
 process.DQMStore = cms.Service("DQMStore")
 
 process.maxEvents = cms.untracked.PSet(            
-    input = cms.untracked.int32(0)         
+    input = cms.untracked.int32(1)         
 )
 
 process.source = cms.Source("EmptySource")
