@@ -22,7 +22,7 @@ set OLD_VERS=$2
 # 10: validation version is harvested, reference version is private
 # 11: both versions are harvested
 # Any other value is the same as 0
-set harvest=10
+set harvest=11
 
 #Check if base directory already exists
 if (-d ${NEW_VERS}_vs_${OLD_VERS}_RelVal) then
@@ -49,7 +49,7 @@ cp ../html_indices/RBX.html               RBX/index.html
 cd ../
 
 #Process MC TTbar
-root -b -q 'RelValMacro.C("'${OLD_VERS}_Startup'","'${NEW_VERS}_Startup'","'HcalRecHitValidationRelVal_TTbar_MC_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_TTbar_MC_${NEW_VERS}.root'","InputRelVal_Medium.txt",'${harvest}')'
+root -b -q 'RelValMacro.C("'${OLD_VERS}_MC'","'${NEW_VERS}_MC'","'HcalRecHitValidationRelVal_TTbar_MC_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_TTbar_MC_${NEW_VERS}.root'","InputRelVal_Medium.txt",'${harvest}')'
 
 mv *CaloTowers*.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/CaloTowers/
 mv RBX*gif          ${NEW_VERS}_vs_${OLD_VERS}_RelVal/RBX/
