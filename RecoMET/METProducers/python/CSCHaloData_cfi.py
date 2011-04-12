@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+
 # File: CSCHaloData_cfi.py
 # Original Author: R. Remington, The University of Florida
 # Description: Module to build CSCHaloData and put into the event
@@ -25,10 +26,25 @@ CSCHaloData = cms.EDProducer("CSCHaloDataProducer",
                              
                              # Higher Level Reco
                              CSCSegmentLabel= cms.InputTag("cscSegments"),
-                             CosmicMuonLabel= cms.InputTag("cosmicMuons"),
+                             CosmicMuonLabel= cms.InputTag("muonsFromCosmics"),
                              MuonLabel = cms.InputTag("muons"),
                              SALabel  =  cms.InputTag("standAloneMuons"),
 
+                             # Muon-Segment matching
+                             MatchParameters = cms.PSet(
+                                    CSCsegments = cms.InputTag("cscSegments"),
+                                    DTradius = cms.double(0.01),
+                                    DTsegments = cms.InputTag("dt4DSegments"),
+                                    TightMatchDT = cms.bool(False),
+                                    TightMatchCSC = cms.bool(True)
+                                    ),
+                             ServiceParameters = cms.PSet(
+                                     Propagators = cms.untracked.vstring('SteppingHelixPropagatorAny',
+                                                                         'PropagatorWithMaterial',
+                                                                         'PropagatorWithMaterialOpposite'),
+                                     RPCLayers = cms.bool(True)
+                                     ),
+                             
                              DetaParam = cms.double(0.1),
                              DphiParam = cms.double(1.00),
                              NormChi2Param = cms.double(8.),
@@ -49,6 +65,12 @@ CSCHaloData = cms.EDProducer("CSCHaloDataProducer",
                              RecHitTimeWindow = cms.double(25.),
 
                              # If this is Data, the expected collision bx will be 3 instead of 6
-                             #ExpectedBX = cms.int32(3)   # if Data
-                             ExpectedBX = cms.int32(6)   # if MC
+                             #ExpectedBX = cms.int32(3),   # if Data
+                             ExpectedBX = cms.int32(6),   # if MC
+
+                             # If this is halo we expect free inverse beta to be less than MaxFreeInverseBeta
+                             MaxFreeInverseBeta = cms.double(0.0),
+                             
+                             # If this is halo we expect ( T_outer_segment - T_inner_segment) to be less than MaxDtMuonSegment
+                             MaxDtMuonSegment = cms.double(-10.0)
                              )
