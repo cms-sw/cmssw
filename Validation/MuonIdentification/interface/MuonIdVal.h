@@ -13,7 +13,7 @@
 //
 // Original Author:  Jacob Ribnik
 //         Created:  Wed Apr 18 13:48:08 CDT 2007
-// $Id: MuonIdVal.h,v 1.7 2010/01/21 22:34:00 jribnik Exp $
+// $Id: MuonIdVal.h,v 1.8 2010/08/30 16:53:12 aeverett Exp $
 //
 //
 
@@ -37,6 +37,7 @@
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
 #include "DataFormats/MuonReco/interface/MuonCosmicCompatibility.h"
+#include "DataFormats/MuonReco/interface/MuonShower.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -74,6 +75,7 @@ class MuonIdVal : public edm::EDAnalyzer {
       edm::InputTag inputCSCSegmentCollection_;
       edm::InputTag inputMuonTimeExtraValueMap_;
       edm::InputTag inputMuonCosmicCompatibilityValueMap_;
+      edm::InputTag inputMuonShowerInformationValueMap_;
       bool useTrackerMuons_;
       bool useGlobalMuons_;
       bool useTrackerMuonsNotGlobalMuons_;
@@ -83,6 +85,7 @@ class MuonIdVal : public edm::EDAnalyzer {
       bool make2DPlots_;
       bool makeAllChamberPlots_;
       bool makeCosmicCompatibilityPlots_;
+      bool makeShowerInformationPlots_;
       std::string baseFolder_;
 
       edm::Handle<reco::MuonCollection> muonCollectionH_;
@@ -92,6 +95,7 @@ class MuonIdVal : public edm::EDAnalyzer {
       edm::Handle<reco::MuonTimeExtraMap> cscMuonTimeExtraValueMapH_;
       edm::Handle<reco::MuonTimeExtraMap> dtMuonTimeExtraValueMapH_;
       edm::Handle<edm::ValueMap<reco::MuonCosmicCompatibility> > muonCosmicCompatibilityValueMapH_;
+      edm::Handle<edm::ValueMap<reco::MuonShower> > muonShowerInformationValueMapH_;
       edm::ESHandle<GlobalTrackingGeometry> geometry_;
 
       // trackerMuon == 0; globalMuon == 1
@@ -157,6 +161,14 @@ class MuonIdVal : public edm::EDAnalyzer {
       MonitorElement* hOverlapCosmicCompat[4];
         
       // by station
+
+      //shower information
+      MonitorElement* hMuonShowerSizeT[4][4];
+      MonitorElement* hMuonShowerDeltaR[4][4];
+      MonitorElement* hMuonAllHits[4][4];
+      MonitorElement* hMuonHitsFromSegments[4][4];
+      MonitorElement* hMuonUncorrelatedHits[4][4];
+
       MonitorElement* hDTPullxPropErr[4][4];
       MonitorElement* hDTPulldXdZPropErr[4][4];
       MonitorElement* hDTPullyPropErr[4][3];

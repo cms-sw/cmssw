@@ -7,6 +7,7 @@ MuonIdVal::MuonIdVal(const edm::ParameterSet& iConfig)
    inputCSCSegmentCollection_ = iConfig.getParameter<edm::InputTag>("inputCSCSegmentCollection");
    inputMuonTimeExtraValueMap_ = iConfig.getParameter<edm::InputTag>("inputMuonTimeExtraValueMap");
    inputMuonCosmicCompatibilityValueMap_ = iConfig.getParameter<edm::InputTag>("inputMuonCosmicCompatibilityValueMap");
+   inputMuonShowerInformationValueMap_ = iConfig.getParameter<edm::InputTag>("inputMuonShowerInformationValueMap");
    useTrackerMuons_ = iConfig.getUntrackedParameter<bool>("useTrackerMuons");
    useGlobalMuons_ = iConfig.getUntrackedParameter<bool>("useGlobalMuons");
    useTrackerMuonsNotGlobalMuons_ = iConfig.getUntrackedParameter<bool>("useTrackerMuonsNotGlobalMuons");
@@ -16,6 +17,7 @@ MuonIdVal::MuonIdVal(const edm::ParameterSet& iConfig)
    make2DPlots_ = iConfig.getUntrackedParameter<bool>("make2DPlots");
    makeAllChamberPlots_ = iConfig.getUntrackedParameter<bool>("makeAllChamberPlots");
    makeCosmicCompatibilityPlots_ = iConfig.getUntrackedParameter<bool>("makeCosmicCompatibilityPlots");
+   makeShowerInformationPlots_ = iConfig.getUntrackedParameter<bool>("makeShowerInformationPlots");
    baseFolder_ = iConfig.getUntrackedParameter<std::string>("baseFolder");
 
    dbe_ = 0;
@@ -105,6 +107,25 @@ MuonIdVal::beginJob()
       // by station
       for(int station = 0; station < 4; ++station)
       {
+
+         if (makeShowerInformationPlots_) {
+             sprintf(name, "hMuonShowerSizeT%i", station+1);
+             sprintf(title, "Station %i itransverse cluster size", station+1);
+             hMuonShowerSizeT[i][station] = dbe_->book1D(name, title,1000,0,500);
+             sprintf(name, "hMuonShowerDeltaR%i", station+1);
+             sprintf(title, "Station %i deltaR", station+1);
+             hMuonShowerDeltaR[i][station] = dbe_->book1D(name, title,5000,0,0.5);
+             sprintf(name, "hMuonAllHits%i", station+1);
+             sprintf(title, "Station %i number of the 1D DT 2D CSC rechits", station+1);
+             hMuonAllHits[i][station] = dbe_->book1D(name, title,400,0,400);
+             sprintf(name, "hMuonHitsFromSegments%i", station+1);
+             sprintf(title, "Station %i used by 4D DT segments or 3D CSC hits", station+1);
+             hMuonHitsFromSegments[i][station] = dbe_->book1D(name, title,400,0,400);
+             sprintf(name, "hMuonUncorrelatedHits%i", station+1);
+             sprintf(title, "Station %i uncorrelated hits", station+1);
+             hMuonUncorrelatedHits[i][station] = dbe_->book1D(name, title,400,0,400);
+         }
+
          sprintf(name, "hDT%iPullxPropErr", station+1);
          sprintf(title, "DT Station %i Pull X w/ Propagation Error Only", station+1);
          hDTPullxPropErr[i][station] = dbe_->book1D(name, title, 100, -20., 20.);
@@ -273,6 +294,7 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(inputMuonTimeExtraValueMap_.label(), "csc", cscMuonTimeExtraValueMapH_);
    iEvent.getByLabel(inputMuonTimeExtraValueMap_.label(), "dt", dtMuonTimeExtraValueMapH_);
    iEvent.getByLabel(inputMuonCosmicCompatibilityValueMap_.label(), muonCosmicCompatibilityValueMapH_);
+   iEvent.getByLabel(inputMuonShowerInformationValueMap_.label(), muonShowerInformationValueMapH_);
   
    iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
 
@@ -375,6 +397,19 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          // by station
          for(int station = 0; station < 4; ++station)
          {
+         
+            if (makeShowerInformationPlots_) {
+                MuonRef muonRef(muonCollectionH_, muonIdx);
+                MuonShower muonShowerInformation = (*muonShowerInformationValueMapH_)[muonRef];
+  
+                hMuonShowerSizeT[i][station]->Fill((muonShowerInformation.stationShowerSizeT).at(station));
+                hMuonShowerDeltaR[i][station]->Fill((muonShowerInformation.stationShowerDeltaR.at(station)));
+                hMuonAllHits[i][station]->Fill((muonShowerInformation.nStationHits.at(station)));
+                hMuonHitsFromSegments[i][station]->Fill((muonShowerInformation.nStationCorrelatedHits.at(station)));
+                hMuonUncorrelatedHits[i][station]->Fill((muonShowerInformation.nStationHits.at(station)) - muonShowerInformation.nStationCorrelatedHits.at(station));
+            }
+
+
             Fill(hDTPullxPropErr[i][station], muon->pullX(station+1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, false));
             Fill(hDTPulldXdZPropErr[i][station], muon->pullDxDz(station+1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, false));
 
