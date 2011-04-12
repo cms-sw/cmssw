@@ -1,6 +1,16 @@
 '''This module collects some frequently used helper functions
 '''
 import time,ast,re,json,coral,array
+def flatten(obj):
+    '''Given nested lists or tuples, returns a single flattened list'''
+    result = []
+    for piece in obj:
+        if hasattr (piece, '__iter__') and not isinstance (piece, basestring):
+            result.extend( flatten (piece) )
+        else:
+            result.append (piece)
+    return result
+
 def guessUnit(inverseubval):
     '''
     input:
@@ -182,6 +192,8 @@ def unpackCLOBtoListstr(iStr,separator=','):
     return [i.strip() for i in iStr.strip().split(separator)]
     
 if __name__=='__main__':
+    nested=[[[1,2],[6,6,8]],[[3,4,5],[4,5]]]
+    print 'flattened ',flatten(nested)
     a=[1,2,3,4,5]
     for i,j in pairwise(a):
         if j :
