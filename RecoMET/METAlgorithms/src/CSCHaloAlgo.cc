@@ -20,9 +20,11 @@ CSCHaloAlgo::CSCHaloAlgo()
   max_outer_radius = 9999.;
   dphi_threshold = 999.;
   norm_chi2_threshold = 999.;
-  recHit_t0=200;
-  recHit_twindow=500;
+  recHit_t0=0.;
+  recHit_twindow=25.;
   expected_BX=3;
+  max_dt_muon_segment=-10.0;
+  max_free_inverse_beta=0.0;
   
   min_outer_theta = 0.;
   max_outer_theta = TMath::Pi();
@@ -33,19 +35,28 @@ CSCHaloAlgo::CSCHaloAlgo()
 }
 
 reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
-					 edm::Handle<reco::TrackCollection>& TheCSCTracks, 
+					 edm::Handle<reco::MuonCollection>& TheCosmicMuons,  
+					 const edm::Handle<reco::MuonTimeExtraMap> TheCSCTimeMap,
 					 edm::Handle<reco::MuonCollection>& TheMuons,
 					 edm::Handle<CSCSegmentCollection>& TheCSCSegments, 
 					 edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits,
 					 edm::Handle < L1MuGMTReadoutCollection >& TheL1GMTReadout,
 					 edm::Handle<edm::TriggerResults>& TheHLTResults,
-					 const edm::TriggerNames * triggerNames, const edm::Handle<CSCALCTDigiCollection>& TheALCTs)
+					 const edm::TriggerNames * triggerNames, const edm::Handle<CSCALCTDigiCollection>& TheALCTs,
+					 MuonSegmentMatcher *TheMatcher,  const edm::Event &TheEvent)
 {
   reco::CSCHaloData TheCSCHaloData;
-  if( TheCSCTracks.isValid() )
+  int imucount=0;
+  if( TheCosmicMuons.isValid() )
     {
-      for( reco::TrackCollection::const_iterator iTrack = TheCSCTracks->begin() ; iTrack != TheCSCTracks->end() ; iTrack++ )
+      short int n_tracks_small_beta=0;
+      short int n_tracks_small_dT=0;
+      short int n_tracks_small_dT_and_beta=0;
+      for( reco::MuonCollection::const_iterator iMuon = TheCosmicMuons->begin() ; iMuon != TheCosmicMuons->end() ; iMuon++, imucount++ )
 	{
+	  reco::TrackRef Track = iMuon->outerTrack();
+	  if(!Track) continue;
+
 	  bool StoreTrack = false;
 	  // Calculate global phi coordinate for central most rechit in the track
 	  float innermost_global_z = 1500.;
@@ -53,9 +64,9 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	  GlobalPoint InnerMostGlobalPosition(0.,0.,0.);  // smallest abs(z)
 	  GlobalPoint OuterMostGlobalPosition(0.,0.,0.);  // largest abs(z)
 	  int nCSCHits = 0;
-	  for(unsigned int j = 0 ; j < iTrack->extra()->recHits().size(); j++ )
+	  for(unsigned int j = 0 ; j < Track->extra()->recHits().size(); j++ )
 	    {
-	      edm::Ref<TrackingRecHitCollection> hit( iTrack->extra()->recHits(), j );
+	      edm::Ref<TrackingRecHitCollection> hit( Track->extra()->recHits(), j );
 	      if( !hit->isValid() ) continue;
 	      DetId TheDetUnitId(hit->geographicalId());
 	      if( TheDetUnitId.det() != DetId::Muon ) continue;
@@ -80,8 +91,48 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	      nCSCHits ++;
 	    }
 
+	  std::vector<const CSCSegment*> MatchedSegments = TheMatcher->matchCSC(*Track,TheEvent);
+	  // Find the inner and outer segments separately in case they don't agree completely with recHits
+	  // Plan for the possibility segments in both endcaps
+	  float InnerSegmentTime[2] = {0,0};
+	  float OuterSegmentTime[2] = {0,0};
+	  float innermost_seg_z[2] = {1500,1500};
+	  float outermost_seg_z[2] = {0,0};
+	  for (std::vector<const CSCSegment*>::const_iterator segment =MatchedSegments.begin();
+	       segment != MatchedSegments.end(); ++segment)
+	    {
+	      CSCDetId TheCSCDetId((*segment)->cscDetId());
+	      const CSCChamber* TheCSCChamber = TheCSCGeometry.chamber(TheCSCDetId);
+	      LocalPoint TheLocalPosition = (*segment)->localPosition();
+	      const GlobalPoint TheGlobalPosition = TheCSCChamber->toGlobal(TheLocalPosition);
+	      float z = TheGlobalPosition.z();
+	      int TheEndcap = TheCSCDetId.endcap();
+	      if( TMath::Abs(z) < innermost_seg_z[TheEndcap-1] )
+		{
+		  innermost_seg_z[TheEndcap-1] = TMath::Abs(z);
+		  InnerSegmentTime[TheEndcap-1] = (*segment)->time();
+		}
+	      if( TMath::Abs(z) > outermost_seg_z[TheEndcap-1] )
+		{
+		  outermost_seg_z[TheEndcap-1] = TMath::Abs(z);
+		  OuterSegmentTime[TheEndcap-1] = (*segment)->time();
+		}
+	    }
+
 	  if( nCSCHits < 3 ) continue; // This needs to be optimized, but is the minimum 
- 
+
+	  float dT_Segment = 0; // default safe value, looks like collision muon
+	 
+	  if( innermost_seg_z[0] < outermost_seg_z[0]) // two segments in ME+
+	    dT_Segment =  OuterSegmentTime[0]-InnerSegmentTime[0];
+	  if( innermost_seg_z[1] < outermost_seg_z[1]) // two segments in ME-
+	    {
+	      // replace the measurement if there weren't segments in ME+ or
+	      // if the track in ME- has timing more consistent with an incoming particle
+	      if (dT_Segment == 0.0 ||  OuterSegmentTime[1]-InnerSegmentTime[1] < dT_Segment)
+		dT_Segment = OuterSegmentTime[1]-InnerSegmentTime[1] ;
+	    }
+
 	  if( OuterMostGlobalPosition.x() == 0. || OuterMostGlobalPosition.y() == 0. || OuterMostGlobalPosition.z() == 0. ) 
 	    continue;
 	  if( InnerMostGlobalPosition.x() == 0. || InnerMostGlobalPosition.y() == 0. || InnerMostGlobalPosition.z() == 0. )
@@ -92,7 +143,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 
 	  float deta = TMath::Abs( OuterMostGlobalPosition.eta() - InnerMostGlobalPosition.eta() );
 	  float dphi = TMath::ACos( TMath::Cos( OuterMostGlobalPosition.phi() - InnerMostGlobalPosition.phi() ) ) ;
-	  float theta = iTrack->outerMomentum().theta();
+	  float theta = Track->outerMomentum().theta();
 	  float innermost_x = InnerMostGlobalPosition.x() ;
 	  float innermost_y = InnerMostGlobalPosition.y();
 	  float outermost_x = OuterMostGlobalPosition.x();
@@ -114,20 +165,34 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	    StoreTrack = false;
 	  if( outermost_r > max_outer_radius )
 	    StoreTrack  = false;
-	  if( iTrack->normalizedChi2() > norm_chi2_threshold )
+	  if( Track->normalizedChi2() > norm_chi2_threshold )
 	    StoreTrack = false;
-
-
 
 	  if( StoreTrack )
 	    {
 	      TheCSCHaloData.GetCSCTrackImpactPositions().push_back( InnerMostGlobalPosition );
-
-	      edm::Ref<TrackCollection> TheTrackRef( TheCSCTracks, iTrack - TheCSCTracks->begin() ) ;
-	      TheCSCHaloData.GetTracks().push_back( TheTrackRef );
+	      TheCSCHaloData.GetTracks().push_back( Track );
 	    }
+
+	  // Analyze the MuonTimeExtra information
+	  reco::MuonRef muonR(TheCosmicMuons,imucount);
+	  const reco::MuonTimeExtraMap & timeMapCSC = *TheCSCTimeMap;
+	  reco::MuonTimeExtra timecsc = timeMapCSC[muonR];
+	  float freeInverseBeta = timecsc.freeInverseBeta();
+
+	  if (dT_Segment < max_dt_muon_segment )
+	    n_tracks_small_dT++;
+	  if (freeInverseBeta < max_free_inverse_beta)
+	    n_tracks_small_beta++;
+	  if ((dT_Segment < max_dt_muon_segment) &&  (freeInverseBeta < max_free_inverse_beta))
+	    n_tracks_small_dT_and_beta++;
+
 	}
+
+      TheCSCHaloData.SetNIncomingTracks(n_tracks_small_dT,n_tracks_small_beta,n_tracks_small_dT_and_beta);
     }
+
+  
 
    if( TheHLTResults.isValid() )
      {
@@ -385,5 +450,4 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 
    return TheCSCHaloData;
 }
-
 

@@ -48,6 +48,8 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
+#include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
 #include "DataFormats/TrackingRecHit/interface/RecSegment.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
@@ -65,6 +67,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
+#include "RecoMuon/TrackingTools/interface/MuonSegmentMatcher.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
@@ -72,6 +75,7 @@
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Framework/interface/Event.h"
 
 namespace edm {
   class TriggerNames;
@@ -82,11 +86,13 @@ class CSCHaloAlgo {
  public:
   CSCHaloAlgo();
   ~CSCHaloAlgo(){}
-  reco::CSCHaloData Calculate(const CSCGeometry& TheCSCGeometry,edm::Handle<reco::TrackCollection>& TheCSCTracks, 
+  reco::CSCHaloData Calculate(const CSCGeometry& TheCSCGeometry,edm::Handle<reco::MuonCollection>& TheCosmicMuons, 
+			      const edm::Handle<reco::MuonTimeExtraMap> TheCSCTimeMap,
 			      edm::Handle<reco::MuonCollection>& TheMuons, edm::Handle<CSCSegmentCollection>& TheCSCSegments, 
 			      edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits,edm::Handle < L1MuGMTReadoutCollection >& TheL1GMTReadout,
 			      edm::Handle<edm::TriggerResults>& TheHLTResults, const edm::TriggerNames * triggerNames, 
-			      const edm::Handle<CSCALCTDigiCollection>& TheALCTs);
+			      const edm::Handle<CSCALCTDigiCollection>& TheALCTs, MuonSegmentMatcher *TheMatcher,
+			      const edm::Event &TheEvent);
 
   std::vector<edm::InputTag> vIT_HLTBit;
 
@@ -102,6 +108,8 @@ class CSCHaloAlgo {
   void SetMatchingDPhiThreshold(float x) { matching_dphi_threshold = x;}
   void SetMatchingDEtaThreshold(float x) { matching_deta_threshold = x;}
   void SetMatchingDWireThreshold(int x) { matching_dwire_threshold = x;}
+  void SetMaxDtMuonSegment(float x ){ max_dt_muon_segment = x;}
+  void SetMaxFreeInverseBeta(float x ){ max_free_inverse_beta = x;}
 
  private:
   float deta_threshold;
@@ -119,6 +127,8 @@ class CSCHaloAlgo {
   float matching_dphi_threshold;
   float matching_deta_threshold;
   int matching_dwire_threshold;
+  float max_dt_muon_segment;
+  float max_free_inverse_beta;
 
 };
 
