@@ -585,6 +585,9 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 		item.mean_x1  =(unsigned int)rd_ped.getPedMeanG1() ;
 		item.mean_x6  =(unsigned int)rd_ped.getPedMeanG6();
 		item.mean_x12 =(unsigned int)rd_ped.getPedMeanG12();
+		item.rms_x1  =0.5 ;
+		item.rms_x6  =1. ;
+		item.rms_x12  =1.2 ;
 		      
 		peds.insert(std::make_pair(ebdetid.rawId(),item));
 		++icells;
@@ -599,6 +602,9 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 		item.mean_x1  =(unsigned int)rd_ped.getPedMeanG1();
 		item.mean_x6  =(unsigned int)rd_ped.getPedMeanG6();
 		item.mean_x12 =(unsigned int)rd_ped.getPedMeanG12();
+		item.rms_x1  =0.5 ;
+		item.rms_x6  =1. ;
+		item.rms_x12  =1.2 ;
 		      
 		peds.insert(std::make_pair(eedetid.rawId(),item));
 		++icells;
@@ -1063,7 +1069,12 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	}
 	double G = lin.mult_[i]*pow(2,-(lin.shift_[i]+2)) ;
 	double g = G/sin(theta) ;
-	float val[] = {i,theta,G,g,coeff.pedestals_[i],lin.pedestal_[i]} ;// first arg = gainId (0 means gain12)
+	float val[] = { float(i),
+			float(theta),
+			float(G),
+			float(g),
+			float(coeff.pedestals_[i]),
+			float(lin.pedestal_[i])};// first arg = gainId (0 means gain12)
 	ntupleSpike->Fill(val) ;
       }
       linMap[xtalCCU] = lin ;
@@ -2414,7 +2425,7 @@ void EcalTPGParamBuilder::computeFineGrainEEParameters(uint & threshold, uint & 
 bool EcalTPGParamBuilder::realignBaseline(linStruc & lin, float forceBase12)
 {
   bool ok(true) ;
-  float base[3] = {forceBase12, lin.pedestal_[1], lin.pedestal_[2]} ;
+  float base[3] = {forceBase12, float(lin.pedestal_[1]), float(lin.pedestal_[2])} ;
   for (int i=1 ; i<3 ; i++) {
     if (lin.mult_[i]>0) {
       base[i] = float(lin.pedestal_[i]) - 
