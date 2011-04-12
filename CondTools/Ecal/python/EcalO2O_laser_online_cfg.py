@@ -54,6 +54,7 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalLaserAnalyzer",
     # or as a relative time w.r.t. now, using -N, where N is expressed in units
     # of hours
         maxtime = cms.string("-40"),
+    #   maxtime = cms.string("2011-12-12 23:59:59"),
         sequences = cms.string("16"),  
         OnlineDBUser = cms.string('CMS_ECAL_LASER_COND'),
     # debug must be False for production
