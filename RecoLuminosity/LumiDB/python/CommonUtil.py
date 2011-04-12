@@ -190,7 +190,22 @@ def unpackCLOBtoListstr(iStr,separator=','):
     unpack a large string to list of string
     '''
     return [i.strip() for i in iStr.strip().split(separator)]
-    
+
+def splitlistToRangeString (inPut):
+    result = []
+    first = inPut[0]
+    last = inPut[0]
+    result.append ([inPut[0]])
+    counter = 0
+    for i in inPut[1:]:
+        if i == last+1:
+            result[counter].append (i)
+        else:
+            counter += 1
+            result.append ([i])
+        last = i
+    return ', '.join (['['+str (min (x))+'-'+str (max (x))+']' for x in result])    
+
 if __name__=='__main__':
     nested=[[[1,2],[6,6,8]],[[3,4,5],[4,5]]]
     print 'flattened ',flatten(nested)
