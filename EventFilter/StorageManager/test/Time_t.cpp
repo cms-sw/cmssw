@@ -29,19 +29,18 @@ public:
 
 void testTime::testDifference()
 {
-  utils::time_point_t utilsTime = utils::getCurrentTime();
+  utils::TimePoint_t utilsTime = utils::getCurrentTime();
   struct tm utils_tm = boost::posix_time::to_tm(utilsTime);
-  time_t raw = time(0);
-  struct tm* raw_tm = gmtime(&raw);
-  time_t rawTime = mktime(raw_tm);
-  double timeDiff = difftime(rawTime,mktime(&utils_tm));
+  time_t utils_time = timegm(&utils_tm);
+  time_t raw_time = time(0);
+  double timeDiff = difftime(raw_time,utils_time);
 
   std::ostringstream msg;
   msg << std::setiosflags(std::ios::fixed)
-    << "Difference: rawtime " << rawTime
-    << "\t utilstime: " << utilsTime
+    << "rawtime:   " << asctime(gmtime(&raw_time))
+    << "  utilstime: " << asctime(gmtime(&utils_time))
     << std::resetiosflags(std::ios::fixed)
-    << "\t difference: " << timeDiff;
+    << "  difference: " << timeDiff << "s";
   CPPUNIT_ASSERT_MESSAGE(msg.str(), timeDiff<1);
 }
 

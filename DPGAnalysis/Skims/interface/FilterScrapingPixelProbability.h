@@ -57,6 +57,8 @@ private:
   bool select_other;
   double low_probability;              // Default is 0 which means less than ~10^{-15}.
   double low_probability_fraction_cut; // Default is 0.4.
+
+  edm::InputTag tracks_;
 };
 
 #endif

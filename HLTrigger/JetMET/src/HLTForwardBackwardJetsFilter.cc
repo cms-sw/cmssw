@@ -1,6 +1,6 @@
 /** \class HLTForwardBackwardJetsFilter
  *
- * $Id: HLTForwardBackwardJetsFilter.cc,v 1.5 2008/06/07 19:46:08 apana Exp $
+ * $Id: HLTForwardBackwardJetsFilter.cc,v 1.2 2011/02/11 20:55:24 wdd Exp $
  *
  *
  */
@@ -18,6 +18,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 //
 // constructors and destructor
@@ -25,7 +28,7 @@
 HLTForwardBackwardJetsFilter::HLTForwardBackwardJetsFilter(const edm::ParameterSet& iConfig)
 {
    inputTag_    = iConfig.getParameter< edm::InputTag > ("inputTag");
-   saveTag_     = iConfig.getUntrackedParameter<bool>("saveTag",false);
+   saveTag_     = iConfig.getUntrackedParameter<bool>("saveTag");
    minPt_       = iConfig.getParameter<double> ("minPt");
    minEta_ = iConfig.getParameter<double> ("minEta"); 
    maxEta_ = iConfig.getParameter<double> ("maxEta"); 
@@ -36,6 +39,16 @@ HLTForwardBackwardJetsFilter::HLTForwardBackwardJetsFilter(const edm::ParameterS
 
 HLTForwardBackwardJetsFilter::~HLTForwardBackwardJetsFilter(){}
 
+void
+HLTForwardBackwardJetsFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("inputTag",edm::InputTag("hltIterativeCone5CaloJetsRegional"));
+  desc.addUntracked<bool>("saveTag",false);
+  desc.add<double>("minPt",15.0);
+  desc.add<double>("minEta",3.0);
+  desc.add<double>("maxEta",5.1);
+  descriptions.add("hltForwardBackwardJetsFilter",desc);
+}
 
 // ------------ method called to produce the data  ------------
 bool

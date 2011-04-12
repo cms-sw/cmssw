@@ -1,4 +1,4 @@
-// $Id: ErrorStreamConfigurationInfo.cc,v 1.5 2010/08/06 20:24:30 wmtan Exp $
+// $Id: ErrorStreamConfigurationInfo.cc,v 1.6.2.1 2011/02/28 17:56:06 mommsen Exp $
 /// @file: ErrorStreamConfigurationInfo.cc
 
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
@@ -9,11 +9,11 @@ using stor::ErrorStreamConfigurationInfo;
 
 bool ErrorStreamConfigurationInfo::operator<(const ErrorStreamConfigurationInfo& other) const
 {
-  if ( _streamLabel != other.streamLabel() )
-    return ( _streamLabel < other.streamLabel() );
-  if ( _streamId != other.streamId() )
-    return ( _streamId < other.streamId() );
-  return ( _maxFileSizeMB < other.maxFileSizeMB() );
+  if ( streamLabel_ != other.streamLabel() )
+    return ( streamLabel_ < other.streamLabel() );
+  if ( streamId_ != other.streamId() )
+    return ( streamId_ < other.streamId() );
+  return ( maxFileSizeMB_ < other.maxFileSizeMB() );
 }
 
 std::ostream& stor::operator<<

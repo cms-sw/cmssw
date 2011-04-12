@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:21:45 EDT 2008
-// $Id: Context.h,v 1.20 2010/09/15 11:48:41 amraktad Exp $
+// $Id: Context.h,v 1.21 2010/11/26 20:24:47 amraktad Exp $
 //
 
 // system include files
@@ -35,6 +35,7 @@ class FWColorManager;
 class FWJobMetadataManager;
 class FWMagField;
 class FWGeometry;
+class FWBeamSpot;
 class CmsShowCommon;
 
 namespace fireworks {
@@ -75,6 +76,7 @@ public:
    TEveTrackPropagator* getMuonTrackPropagator()    const { return m_muonPropagator;    }
 
    FWMagField*          getField()             const { return m_magField; }
+   FWBeamSpot*          getBeamSpot()          const { return m_beamSpot; }
 
    TEveCaloDataHist*    getCaloData()   const { return m_caloData; }
    TEveCaloDataVec*     getCaloDataHF() const { return m_caloDataHF; }
@@ -121,6 +123,7 @@ private:
    TEveTrackPropagator  *m_muonPropagator;
 
    FWMagField           *m_magField;
+   FWBeamSpot           *m_beamSpot;
 
    CmsShowCommon        *m_commonPrefs;
 

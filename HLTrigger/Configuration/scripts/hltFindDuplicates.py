@@ -20,6 +20,22 @@ def whitelist(module):
   return module.label in whitelist_labels or module.type in whitelist_types
 
 
+def freeze(arg):
+  if type(arg) == dict:
+    return frozendict((k, freeze(v)) for (k, v) in arg.iteritems())
+  elif '__iter__' in dir(arg):
+    return tuple( freeze(v) for v in arg )
+  else:
+    return arg
+
+def unfreeze(arg):
+  if type(arg) == frozendict:
+    return dict((k, unfreeze(v)) for (k, v) in arg.iteritems())
+  elif '__iter__' in dir(arg):
+    return list( unfreeze(v) for v in arg )
+  else:
+    return arg
+
 def pythonize(arg):
   if 'parameters_' in dir(arg):
     arg = arg.parameters_()
@@ -65,7 +81,7 @@ class Module(object):
 
   def apply_rename(self, groups):
     modified = False
-    newparams = dict(self.params)
+    newparams = unfreeze(self.params)
     for label, (group, check) in groups.iteritems():
       for k, p in newparams.iteritems():
         if '__iter__' in dir(p):
@@ -164,6 +180,12 @@ def findDuplicates(process):
   for target, (group, regexp) in groups.iteritems():
     dump.write('s#\\<\\(%s\\)\\>#%s#\n' % ('\\|'.join(group), target))
   dump.close()
+
+  dump = open('groups.txt', 'w')
+  for target, (group, regexp) in groups.iteritems():
+    dump.write('#%s\n%s\n\n' % ( target, '\n'.join(group)))
+  dump.close()
+
 
 
 def main():

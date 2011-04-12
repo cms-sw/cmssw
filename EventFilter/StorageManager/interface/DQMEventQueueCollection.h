@@ -1,10 +1,11 @@
-// $Id: DQMEventQueueCollection.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
+// $Id: DQMEventQueueCollection.h,v 1.3.14.3 2011/02/23 09:27:07 mommsen Exp $
 /// @file: DQMEventQueueCollection.h 
 
-#ifndef StorageManager_DQMEventQueueCollection_h
-#define StorageManager_DQMEventQueueCollection_h
+#ifndef EventFilter_StorageManager_DQMEventQueueCollection_h
+#define EventFilter_StorageManager_DQMEventQueueCollection_h
 
-#include "EventFilter/StorageManager/interface/DQMEventRecord.h"
+#include "boost/shared_ptr.hpp"
+#include "EventFilter/StorageManager/interface/DQMTopLevelFolder.h"
 #include "EventFilter/StorageManager/interface/QueueCollection.h"
 
 namespace stor {
@@ -12,16 +13,17 @@ namespace stor {
   /**
    * A collection of ConcurrentQueue<DQMEventRecord>.
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:21 $
+   * $Author: mommsen $
+   * $Revision: 1.3.14.3 $
+   * $Date: 2011/02/23 09:27:07 $
    */
 
-  typedef QueueCollection<DQMEventRecord::GroupRecord> DQMEventQueueCollection;
-  
+  typedef QueueCollection<DQMTopLevelFolder::Record> DQMEventQueueCollection;
+  typedef boost::shared_ptr<DQMEventQueueCollection> DQMEventQueueCollectionPtr;
+
 } // namespace stor
 
-#endif // StorageManager_DQMEventQueueCollection_h 
+#endif // EventFilter_StorageManager_DQMEventQueueCollection_h 
 
 
 

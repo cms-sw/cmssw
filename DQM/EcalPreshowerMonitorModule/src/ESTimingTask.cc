@@ -12,6 +12,7 @@
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "CondFormats/DataRecord/interface/ESGainRcd.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/EcalPreshowerMonitorModule/interface/ESTimingTask.h"
@@ -28,8 +29,8 @@ using namespace std;
 // fit function
 Double_t fitf(Double_t *x, Double_t *par) {
 
-  Double_t wc = 0.07291;
-  Double_t n  = 1.798; // n-1 (in fact)
+  Double_t wc = par[2];
+  Double_t n  = par[3]; // n-1 (in fact)
   Double_t v1 = pow(wc/n*(x[0]-par[1]), n);
   Double_t v2 = TMath::Exp(n-wc*(x[0]-par[1]));
   Double_t v  = par[0]*v1*v2;
@@ -53,8 +54,8 @@ ESTimingTask::ESTimingTask(const edm::ParameterSet& ps) {
     for (int j = 0; j < 2; ++j) 
       hTiming_[i][j] = 0;
 
-  fit_ = new TF1("fit", fitf, -200, 200, 2);
-  fit_->SetParameters(50, 10);
+  fit_ = new TF1("fit", fitf, -200, 200, 4);
+  fit_->SetParameters(50, 10, 0, 0);
   
   dqmStore_->setCurrentFolder(prefixME_ + "/ESTimingTask");
   
@@ -90,6 +91,8 @@ void ESTimingTask::endJob() {
 }
 
 void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
+
+  set(iSetup);
 
    runNum_ = e.id().run();
    eCount_++;
@@ -128,14 +131,16 @@ void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
 
        double status = 0;
        if (adc[1] < 200) status = 1;
-       if (adc[0] > 20) status = 1;
+       if (fabs(adc[0]) > 10) status = 1;
        if (adc[1] < 0 || adc[2] < 0) status = 1;
        if (adc[0] > adc[1] || adc[0] > adc[2]) status = 1;
        if (adc[2] > adc[1]) status = 1;  
 
        if (int(status) == 0) {
 	 TGraph *gr = new TGraph(3, tx, adc);
-	 fit_->SetParameters(50, 10);
+	 fit_->SetParameters(50, 10, wc_, n_);
+	 fit_->FixParameter(2, wc_);
+	 fit_->FixParameter(3, n_);
 	 gr->Fit("fit", "MQ");
 	 fit_->GetParameters(para); 
 	 delete gr;
@@ -153,6 +158,23 @@ void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
 
    if (htESP_->GetEntries() > 0 && htESM_->GetEntries() > 0)
      h2DTiming_->Fill(htESM_->GetMean(), htESP_->GetMean());
+
+}
+
+void ESTimingTask::set(const edm::EventSetup& es) {
+  
+  es.get<ESGainRcd>().get(esgain_);
+  const ESGain *gain = esgain_.product();
+  
+  double ESGain = gain->getESGain();
+
+  if (ESGain == 1) { // LG
+    wc_ = 0.0837264;
+    n_  = 2.016;
+  } else { // HG
+    wc_ = 0.07291;
+    n_  = 1.798; 
+  }
 
 }
 

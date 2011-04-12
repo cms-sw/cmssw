@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.92 2010/10/28 14:27:01 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.93 2011/01/13 11:38:28 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -2332,15 +2332,26 @@ void FourVectorHLTOffline::selectElectrons(const edm::Event& iEvent, const edm::
     for( reco::GsfElectronCollection::const_iterator iter = eleHandle->begin(), iend = eleHandle->end(); iter != iend; ++iter )
     {
       
-      EcalClusterLazyTools lazyTool(iEvent, iSetup, recHitsEBTag_, recHitsEETag_); 
-      const reco::CaloCluster* bc = iter->superCluster()->seed().get(); // get the basic cluster
+      edm::Handle< EcalRecHitCollection > pEBRecHits;
+      iEvent.getByLabel( recHitsEBTag_, pEBRecHits );
+
+      edm::Handle< EcalRecHitCollection > pEERecHits;
+      iEvent.getByLabel( recHitsEETag_, pEERecHits );
+
+      if(pEBRecHits.isValid() && pEERecHits.isValid()) {
       
-      float eleMaxOver3x3 = ( lazyTool.eMax(*bc) / lazyTool.e3x3(*bc)  );
+        EcalClusterLazyTools lazyTool(iEvent, iSetup, recHitsEBTag_, recHitsEETag_); 
+        const reco::CaloCluster* bc = iter->superCluster()->seed().get(); // get the basic cluster
+      
+        float eleMaxOver3x3 = ( lazyTool.eMax(*bc) / lazyTool.e3x3(*bc)  );
+
+        if(eleMaxOver3x3 > eleMaxOver3x3_) continue;
+
+      }
 
       // Only ecalDriven electrons
       if(! iter->ecalDriven() ) continue;
 
-      if(eleMaxOver3x3 > eleMaxOver3x3_) continue;
 
       // Barrel 
       if(iter->isEB()) {

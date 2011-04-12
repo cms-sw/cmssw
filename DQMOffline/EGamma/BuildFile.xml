@@ -1,19 +1,10 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/EgammaReco"/>
-<use   name="DataFormats/EgammaCandidates"/>
-<use   name="DataFormats/EcalRecHit"/>
-<use   name="RecoEcal/EgammaCoreTools"/>
-<use   name="DataFormats/Math"/>
-<use   name="RecoEgamma/EgammaIsolationAlgos"/>
-<use   name="Geometry/CaloTopology"/>
-<use   name="Geometry/CaloGeometry"/>
-<use   name="DQMServices/Components"/>
-<use   name="DQMServices/Core"/>
-<use   name="HLTrigger/HLTcore"/>
-<use   name="clhep"/>
-<use   name="CommonTools/Statistics"/>
-<flags   EDM_PLUGIN="1"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DQMServices/Components"/>
+<use name="DQMServices/Core"/>
+
 <export>
-  <lib   name="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <lib name="1"/>
 </export>

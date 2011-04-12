@@ -1,0 +1,33 @@
+<?xml version='1.0'?>
+<xc:Partition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+              xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" 
+              xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
+
+<!-- SMProxyServer context -->
+  <!-- Declare a context that contains the application -->
+  <xc:Context id = "1" url="http://dvsrv-c2f37-01.cms:31110">
+
+    <!-- Declare a SMProxyServer application -->
+    <xc:Application class="SMProxyServer" id="30" instance="0" network="local">
+      <properties xmlns="urn:xdaq-application:SMProxyServer" xsi:type="soapenc:Struct">
+        <SMRegistrationList xsi:type="soapenc:Array" soapenc:arrayType="xsd:ur-type[4]">
+          <item soapenc:position="[0]" xsi:type="xsd:string">http://dvsrv-c2f37-01.cms:31100/urn:xdaq-application:lid=50</item>
+          <item soapenc:position="[1]" xsi:type="xsd:string">http://dvsrv-c2f37-02.cms:31100/urn:xdaq-application:lid=50</item>
+          <item soapenc:position="[2]" xsi:type="xsd:string">http://dvsrv-c2f37-01.cms:31101/urn:xdaq-application:lid=50</item>
+          <item soapenc:position="[3]" xsi:type="xsd:string">http://dvsrv-c2f37-02.cms:31101/urn:xdaq-application:lid=50</item>
+        </SMRegistrationList>
+        <consumerQueueSize  xsi:type="xsd:integer">10</consumerQueueSize>
+        <DQMconsumerQueueSize xsi:type="xsd:integer">10</DQMconsumerQueueSize>
+        <collateDQM         xsi:type="xsd:boolean">true</collateDQM>
+        <archiveDQM         xsi:type="xsd:boolean">true</archiveDQM>
+        <readyTimeDQM       xsi:type="xsd:integer">30</readyTimeDQM>
+        <archiveIntervalDQM xsi:type="xsd:integer">4</archiveIntervalDQM>
+        <useCompressionDQM  xsi:type="xsd:boolean">true</useCompressionDQM>
+        <compressionLevelDQM xsi:type="xsd:integer">1</compressionLevelDQM>
+      </properties>
+    </xc:Application>
+
+    <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterSMProxyServer.so</xc:Module>
+    </xc:Context>
+
+</xc:Partition>

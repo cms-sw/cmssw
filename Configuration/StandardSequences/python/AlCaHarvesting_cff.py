@@ -20,6 +20,9 @@ ALCAHARVESTBeamSpotByRun.AlcaBeamSpotHarvesterParameters.outputRecordName = cms.
 ALCAHARVESTBeamSpotByRun.metadataOfflineDropBox.destDB = cms.untracked.string("oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT")
 ALCAHARVESTBeamSpotByRun.metadataOfflineDropBox.tag    = cms.untracked.string("BeamSpotObjects_PCL_byRun_v0_offline")
 ALCAHARVESTBeamSpotByRun.metadataOfflineDropBox.DuplicateTagPROMPT    = cms.untracked.string("BeamSpotObjects_PCL_byRun_v0_prompt")
+ALCAHARVESTBeamSpotByRun.metadataOfflineDropBox.DuplicateTagHLT    = cms.untracked.string("BeamSpotObjects_PCL_byRun_v0_hlt")
+ALCAHARVESTBeamSpotByRun.metadataOfflineDropBox.IOVCheck   = cms.untracked.string("All")
+
 ALCAHARVESTBeamSpotByRun_dbOutput = cms.PSet(record = cms.string('BeamSpotObjectsRcdByRun'),
                                              tag = cms.string('BeamSpotObject_ByRun'),
                                              timetype   = cms.untracked.string('runnumber'))

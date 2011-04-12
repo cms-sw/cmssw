@@ -1,3 +1,77 @@
+2011-03-30 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-00-00
+	* Merge the new SM as of tag V07-02-00 (branch_3_10_x)
+	  into trunk.
+	* This tag requires IOPool/Streamer V07-01-00 or later.
+
+2011-03-30 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-02-01
+	* Take DQM event time stamp from event instead of recreating it wrongly.
+
+2011-03-30 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-02-00
+	* Configurable limit on memory consumption of the fragment store.
+	* Limit queue and fragment store memory consumption to 1GB
+	  for each entity.
+
+2011-03-29 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-01-03
+	* Protect static method in DQMHttpSource with static mutex
+	* Switch from xdaq::workloop to a ROOT TThread in DQMEventStore
+	  in order to enable the ROOT thread safety.
+	* Really use UTC for time comparison test to avoid issues with DST.
+
+2011-03-28 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-01-02
+	* Fix error message in case of wrong run number in DQM events.
+
+2011-03-23 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-01-01
+	* Reduced memory footprint for init messages from V06-07-03.
+	* Improved locking logic for DQM event store.
+	* Not starting the DQM event store work-loop for non-DQM consumers.
+
+2011-03-10 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-01-00
+	* Add Srecko's option 'dropOldLumisectionEvents' to EventStreamHttpReader.
+
+2011-03-09 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-00-01
+	* Re-add 'discardedDQMEvents' quantity to infospace.
+	* A couple of minor adjustments.
+
+2011-03-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-00-00
+	* Complete rework of event server part (from SMPSdev_branch)
+	* Conform to CMSSW naming conventions.
+	* Major cleanup of code and old files.
+
+2011-02-17 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-08-00
+	* Minimal changes wrt V06-07-02 for modified
+	  IOPool/Streamer V07-01-00
+
+2011-03-22 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-07-03
+	* Don't store all unique init msg ever received.
+	  It's enough to keep the ones from the current run keyed to output module.
+
+2011-02-02 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-07-02
+	* Fix missing update of 'stateName' in the infospaces.
+
 2011-01-14 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-07-01
