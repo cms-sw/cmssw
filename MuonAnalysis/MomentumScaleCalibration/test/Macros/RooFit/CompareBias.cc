@@ -19,7 +19,7 @@ public:
     doFit_ = false;
 
     TString fileNum1("0");
-    TString fileNum2("");
+    TString fileNum2("1");
 
     TString inputFileName("_MuScleFit.root");
     TString outputFileName("BiasCheck_");
@@ -67,8 +67,8 @@ public:
     //r.c. -----------------
 
 
-    // compare("MassVsPhiPlus", "uniform", -3.14, 3.14, "muon(+) #phi", "Mass (GeV)");
-    // compare("MassVsPhiMinus", "uniform", -3.14, 3.14, "muon(-) #phi", "Mass (GeV)");
+    compare("MassVsPhiPlus", "uniform", -3.14, 3.14, "muon(+) #phi", "Mass (GeV)");
+    compare("MassVsPhiMinus", "uniform", -3.14, 3.14, "muon(-) #phi", "Mass (GeV)");
 
     // compare("MassVsPhiPlus", "sinusoidal", -3.14, 3.14, "muon(+) #phi", "Mass (GeV)");
     // compare("MassVsPhiMinus", "sinusoidal", -3.14, 3.14, "muon(-) #phi", "Mass (GeV)");
