@@ -283,6 +283,9 @@ def lumiForRange(schema,inputRange,amodetag='PROTPHYS',beamstatus=None,beamenerg
         trgdataid=None
         hltdataid=None
         (lumidataid,trgdataid,hltdataid)=dataDML.guessAllDataIdByRun(schema,run)
+        if lumidataid is None or trgdataid is None or hltdataid is None:
+            result[run]=None
+            continue
         (lumirunnum,lumidata)=dataDML.lumiLSById(schema,lumidataid,beamstatus=beamstatus,withBXInfo=withBXInfo,bxAlgo=bxAlgo,withBeamIntensity=withBeamInfo)
         (trgrunnum,trgdata)=dataDML.trgLSById(schema,trgdataid,withblobdata=False)
         perrunresult=[]
@@ -295,8 +298,8 @@ def lumiForRange(schema,inputRange,amodetag='PROTPHYS',beamstatus=None,beamenerg
             instlumierror=perlsdata[2]
             calibratedlumi=instlumi*normval
             calibratedlumierror=instlumierror*normval
-            beamstatus=perlsdata[4]
-            beamenergy=perlsdata[5]
+            bstatus=perlsdata[4]
+            begev=perlsdata[5]
             numorbit=perlsdata[6]
             startorbit=perlsdata[7]
             timestamp=c.OrbitToTime(startTimeStr,startorbit,0)
@@ -312,7 +315,10 @@ def lumiForRange(schema,inputRange,amodetag='PROTPHYS',beamstatus=None,beamenerg
                     deadcount=trgdata[cmslsnum][0] ##subject to change !!
                     bitzerocount=trgdata[cmslsnum][1]
                     bitzeroprescale=trgdata[cmslsnum][2]
-                    deadfrac=float(deadcount)/(float(bitzerocount)*float(bitzeroprescale))
+                    if float(bitzerocount)*float(bitzeroprescale)==0.0:
+                        deadfrac=1.0
+                    else:
+                        deadfrac=float(deadcount)/(float(bitzerocount)*float(bitzeroprescale))
                     if deadfrac>1.0:
                         deadfrac=1.0  #artificial correction in case of deadfrac>1
                     recordedlumi=deliveredlumi*(1.0-deadfrac)
@@ -345,7 +351,7 @@ def lumiForRange(schema,inputRange,amodetag='PROTPHYS',beamstatus=None,beamenerg
                     b1intensitylist=CommonUtil.unpackBlobtoArray(beam1intensityblob,'f').tolist()
                     b2intensitylist=CommonUtil.unpackBlobtoArray(beam2intensityblob,'f').tolist()
                 beamdata=(bxindexlist,b1intensitylist,b2intensitylist)
-            perrunresult.append([lumilsnum,triggeredls,timestamp,beamstatus,beamenergy,deliveredlumi,recordedlumi,calibratedlumierror,bxdata,beamdata])
+            perrunresult.append([lumilsnum,triggeredls,timestamp,bstatus,begev,deliveredlumi,recordedlumi,calibratedlumierror,bxdata,beamdata])
         result[run]=perrunresult
     return result
        
@@ -398,8 +404,8 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
             instlumierror=perlsdata[2]
             calibratedlumi=instlumi*normval
             calibratedlumierror=instlumierror*normval
-            beamstatus=perlsdata[4]
-            beamenergy=perlsdata[5]
+            bstatus=perlsdata[4]
+            begev=perlsdata[5]
             numorbit=perlsdata[6]
             startorbit=perlsdata[7]
             timestamp=c.OrbitToUTCTimestamp(startTimeStr,numorbit)
@@ -509,7 +515,7 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                     beam1intensitylist=CommonUtil.unpackBlobtoArray(beam1intensityblob,'f').tolist()
                     beam2intensitylist=CommonUtil.unpackBlobtoArray(beam2intensityblob,'f').tolist()
                     beamdata=(bxindexlist,b1intensitylist,b2intensitylist)
-            perrunresult[(lumilsnum,cmslsnum)]=[timestamp,beamstatus,beamenergy,deliveredlumi,recordedlumi,calibratedlumierror,efflumidict,bxdata,beamdata]
+            perrunresult[(lumilsnum,cmslsnum)]=[timestamp,bstatus,begev,deliveredlumi,recordedlumi,calibratedlumierror,efflumidict,bxdata,beamdata]
             lumidata.clear() #clean lumi memory    
             trgdata.clear()
             hltdata.clear()

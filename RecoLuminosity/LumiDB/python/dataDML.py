@@ -804,8 +804,10 @@ def guessAllDataIdByRun(schema,runnum):
         del qHandle
         raise 
     del qHandle
-    return (max(lumiids),max(trgids),max(hltids))
-
+    if len(lumiids)>0 and len(trgids)>0 and len(hltids)>0:
+        return (max(lumiids),max(trgids),max(hltids))
+    else:
+        return (None,None,None)
 def guessnormIdByContext(schema,amodetag,egev1):
     '''
     get norm dataids by amodetag, egev if there are duplicates, pick max(dataid).Bypass full version lookups

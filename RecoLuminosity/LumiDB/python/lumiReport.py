@@ -121,7 +121,6 @@ def toScreenOverview(lumidata,isverbose):
     '''
     result=[]
     labels = [('Run', 'Delivered LS', 'Delivered','Selected LS','Recorded')]
-    totrowlabels = [('Delivered LS','Delivered','Selected LS','Recorded')]
     totaltable=[]
     totalDeliveredLS = 0
     totalSelectedLS = 0
@@ -140,16 +139,19 @@ def toScreenOverview(lumidata,isverbose):
         recordedData=[x[6] for x in lsdata if x[6] is not None]
         totrecorded=sum(recordedData)
         totalRecorded+=totrecorded
-        totalSelectedLS+=len(recordedData)
         (totrecordedlumi,recordedlumiunit)=CommonUtil.guessUnit(totrecorded)
         selectedcmsls=[x[1] for x in lsdata if x[1]!=0]
+        totalSelectedLS+=len(selectedcmsls)
         selectedlsStr = CommonUtil.splitlistToRangeString(selectedcmsls)
         result.append([str(run),str(nls),'%.3f'%(totdeliveredlumi)+' ('+deliveredlumiunit+')',selectedlsStr,'%.3f'%(totrecordedlumi)+' ('+recordedlumiunit+')'])
     print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
     print ' ==  =  Total : '
-    totaltable.append([totalDeliveredLS,totalDelivered,totalSelectedLS,totalRecorded])
+    (totalDeliveredVal,totalDeliveredUni)=CommonUtil.guessUnit(totalDelivered)
+    (totalRecordedVal,totalRecordedUni)=CommonUtil.guessUnit(totalRecorded)
+    totrowlabels = [('Delivered LS','Delivered('+totalDeliveredUni+')','Selected LS','Recorded('+totalRecordedUni+')')]
+    totaltable.append([str(totalDeliveredLS),'%.3f'%totalDeliveredVal,str(totalSelectedLS),'%.3f'%totalRecordedVal])
     print tablePrinter.indent (totrowlabels+totaltable, hasHeader = True, separateRows = False, prefix = '| ',
                                postfix = ' |', justify = 'right', delim = ' | ',
                                wrapfunc = lambda x: wrap_onspace (x, 20))
