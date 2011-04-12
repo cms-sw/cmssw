@@ -79,8 +79,8 @@ HBHENoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   const HcalNoiseSummary summary = *summary_h;
 
-  if(summary.HasBadRBXTS4TS5() == true) std::cout << "TS4TS5 rejection!" << std::endl;
-  else                                  std::cout << "TS4TS5 passing!" << std::endl;
+  //  if(summary.HasBadRBXTS4TS5() == true) std::cout << "TS4TS5 rejection!" << std::endl;
+  //  else                                  std::cout << "TS4TS5 passing!" << std::endl;
   
   if(summary.minE2Over10TS()<minRatio_) return false;
   if(summary.maxE2Over10TS()>maxRatio_) return false;
