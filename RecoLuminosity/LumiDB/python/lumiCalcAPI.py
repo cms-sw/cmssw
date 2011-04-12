@@ -288,6 +288,7 @@ def lumiForRange(schema,inputRange,amodetag='PROTPHYS',beamstatus=None,beamenerg
         perrunresult=[]
         for lumilsnum,perlsdata in lumidata.items():
             cmslsnum=perlsdata[0]
+            triggeredls=cmslsnum
             if lslist is not None and cmslsnum not in lslist:
                 continue
             instlumi=perlsdata[1]
@@ -305,14 +306,15 @@ def lumiForRange(schema,inputRange,amodetag='PROTPHYS',beamstatus=None,beamenerg
             recordedlumi=0.0
             if cmslsnum!=0:
                 if not trgdata.has_key(cmslsnum):
-                    recordedlumi=0.0 # no trigger
+                    triggeredls=0 #if no trigger, set back to non-cms-active ls
+                    recordedlumi=0.0 # no trigger->nobeam recordedlumi=None
                 else:
                     deadcount=trgdata[cmslsnum][0] ##subject to change !!
                     bitzerocount=trgdata[cmslsnum][1]
                     bitzeroprescale=trgdata[cmslsnum][2]
                     deadfrac=float(deadcount)/(float(bitzerocount)*float(bitzeroprescale))
                     if deadfrac>1.0:
-                        deadfrac=0.0  #artificial correction in case of trigger wrong prescale
+                        deadfrac=1.0  #artificial correction in case of deadfrac>1
                     recordedlumi=deliveredlumi*(1.0-deadfrac)
             bxdata=None
             if withBXInfo:
@@ -343,7 +345,7 @@ def lumiForRange(schema,inputRange,amodetag='PROTPHYS',beamstatus=None,beamenerg
                     b1intensitylist=CommonUtil.unpackBlobtoArray(beam1intensityblob,'f').tolist()
                     b2intensitylist=CommonUtil.unpackBlobtoArray(beam2intensityblob,'f').tolist()
                 beamdata=(bxindexlist,b1intensitylist,b2intensitylist)
-            perrunresult.append([lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,recordedlumi,calibratedlumierror,bxdata,beamdata])
+            perrunresult.append([lumilsnum,triggeredls,timestamp,beamstatus,beamenergy,deliveredlumi,recordedlumi,calibratedlumierror,bxdata,beamdata])
         result[run]=perrunresult
     return result
        

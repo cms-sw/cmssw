@@ -260,7 +260,9 @@ if __name__ == '__main__':
         session.transaction().start(True)
         result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,beamstatus=pbeammode,norm=normfactor)
         session.transaction().commit()
-        #print result
+        for run,rundata in result.items():
+           for lsdata in rundata:
+               print run,lsdata[1],lsdata[5],lsdata[6] 
         if not options.outputfile:
             lumiReport.toScreenOverview(result,options.verbose)
         else:

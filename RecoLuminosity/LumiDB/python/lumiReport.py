@@ -130,8 +130,9 @@ def toScreenOverview(lumidata,isverbose):
         nls=len(lsdata)
         totdelivered=sum([x[5] for x in lsdata])
         (totdeliveredlumi,deliveredlumiunit)=CommonUtil.guessUnit(totdelivered)
-        totrecorded=sum([x[6] for x in lsdata])
+        totrecorded=sum([x[6] for x in lsdata if x[6] is not None])
         (totrecordedlumi,recordedlumiunit)=CommonUtil.guessUnit(totrecorded)
+        print [x[1] for x in lsdata]
         selectedcmsls=[x[1] for x in lsdata if x[1]!=0]
         selectedlsStr = CommonUtil.splitlistToRangeString(selectedcmsls)
         result.append([str(run),str(nls),'%.3f'%(totdeliveredlumi)+' ('+deliveredlumiunit+')',selectedlsStr,'%.3f'%(totrecordedlumi)+' ('+recordedlumiunit+')'])
