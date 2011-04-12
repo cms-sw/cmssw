@@ -31,6 +31,12 @@ CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig)
   IT_SA   = iConfig.getParameter<edm::InputTag>("SALabel"); 
   IT_ALCT = iConfig.getParameter<edm::InputTag>("ALCTDigiLabel"); 
 
+  //Muon to Segment Matching
+  edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
+  TheService = new MuonServiceProxy(serviceParameters);
+  edm::ParameterSet matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
+  TheMatcher = new MuonSegmentMatcher(matchParameters, TheService);
+
   // Cosmic track selection parameters
   CSCAlgo.SetDetaThreshold( (float) iConfig.getParameter<double>("DetaParam"));
   CSCAlgo.SetDphiThreshold( (float) iConfig.getParameter<double>("DphiParam"));
@@ -38,6 +44,9 @@ CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig)
   CSCAlgo.SetMinMaxOuterRadius( (float) iConfig.getParameter<double>("OuterRMinParam"), (float) iConfig.getParameter<double>("OuterRMaxParam"));
   CSCAlgo.SetNormChi2Threshold( (float) iConfig.getParameter<double>("NormChi2Param") );
  
+
+  CSCAlgo.SetMaxDtMuonSegment( (float) iConfig.getParameter<double>("MaxDtMuonSegment") );
+  CSCAlgo.SetMaxFreeInverseBeta( (float) iConfig.getParameter<double>("MaxFreeInverseBeta") );
   CSCAlgo.SetExpectedBX( (short int) iConfig.getParameter<int>("ExpectedBX") );
   CSCAlgo.SetRecHitTime0( (float) iConfig.getParameter<double>("RecHitTime0") );
   CSCAlgo.SetRecHitTimeWindow( (float) iConfig.getParameter<double>("RecHitTimeWindow") );
@@ -45,6 +54,7 @@ CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig)
   CSCAlgo.SetMatchingDPhiThreshold( (float)iConfig.getParameter<double>("MatchingDPhiThreshold") );
   CSCAlgo.SetMatchingDEtaThreshold( (float)iConfig.getParameter<double>("MatchingDEtaThreshold") );
   CSCAlgo.SetMatchingDWireThreshold(iConfig.getParameter<int>("MatchingDWireThreshold") );
+
   produces<CSCHaloData>();
 }
 
@@ -54,11 +64,15 @@ void CSCHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
   edm::ESHandle<CSCGeometry> TheCSCGeometry;
   iSetup.get<MuonGeometryRecord>().get(TheCSCGeometry);
 
-  //Get CSC Stand-Alone Muons from Cosmic Reconstruction 
-  edm::Handle< reco::TrackCollection > TheCosmics;
+  //Get Muons Collection from Cosmic Reconstruction 
+  edm::Handle< reco::MuonCollection > TheCosmics;
   iEvent.getByLabel(IT_CosmicMuon, TheCosmics);
   
-  //Collision Muon Collection
+  //Get Muon Time Information from Cosmic Reconstruction
+  edm::Handle<reco::MuonTimeExtraMap> TheCSCTimeMap;
+  iEvent.getByLabel(IT_CosmicMuon.label(),"csc",TheCSCTimeMap);
+
+ //Collision Muon Collection
   edm::Handle< reco::MuonCollection> TheMuons;
   iEvent.getByLabel(IT_Muon, TheMuons);
 
@@ -87,7 +101,7 @@ void CSCHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
     triggerNames = &iEvent.triggerNames(*TheHLTResults);
   }
 
-  std::auto_ptr<CSCHaloData> TheCSCData(new CSCHaloData( CSCAlgo.Calculate(*TheCSCGeometry, TheCosmics, TheMuons, TheCSCSegments, TheCSCRecHits, TheL1GMTReadout, TheHLTResults, triggerNames, TheALCTs) ) );
+  std::auto_ptr<CSCHaloData> TheCSCData(new CSCHaloData( CSCAlgo.Calculate(*TheCSCGeometry, TheCosmics, TheCSCTimeMap, TheMuons, TheCSCSegments, TheCSCRecHits, TheL1GMTReadout, TheHLTResults, triggerNames, TheALCTs, TheMatcher, iEvent) ) );
   // Put it in the event                                                                                                                                                
   iEvent.put(TheCSCData);
   return;
