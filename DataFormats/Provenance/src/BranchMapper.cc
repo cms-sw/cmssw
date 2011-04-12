@@ -32,6 +32,13 @@ namespace edm {
   }
 
   void
+  BranchMapper::reset() {
+    entryInfoSet_.clear();
+    processHistoryID_=ProcessHistoryID();
+    reset_();
+  }
+  
+  void
   BranchMapper::insert(ProductProvenance const& entryInfo) {
     //NOTE:do not read provenance here because we only need the full
     // provenance when someone tries to access it not when doing the insert
