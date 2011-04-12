@@ -104,8 +104,17 @@ class ShapeBuilder(ModelBuilder):
             self.doVar("x[0,%d]" % self.out.maxbins); self.out.var("x").setBins(self.out.maxbins)
             self.out.binVar = self.out.var("x")
             self.out.binVars = ROOT.RooArgSet(self.out.binVar)
+        elif shapeTypes.count("RooDataSet") > 0 or shapeTYpes.count("TTree") > 0:
+            self.out.mode = "unbinned"
+            if self.options.verbose: stderr.write("Will try to work with unbinned datasets\n")
+            if self.options.verbose: stderr.write("Observables: %s\n" % str(shapeObs.keys()))
+            if len(shapeObs.keys()) != 1:
+                raise RuntimeError, "There's more than once choice of observables: %s\n" % str(shapeObs.keys())
+            self.out.binVars = shapeObs.values()[0]
+            self.out._import(self.out.binVars)
         else:
-            if self.options.verbose: stderr.write("Will try to make a combined dataset\n")
+            self.out.mode = "binned"
+            if self.options.verbose: stderr.write("Will try to make a binned dataset\n")
             if self.options.verbose: stderr.write("Observables: %s\n" % str(shapeObs.keys()))
             if len(shapeObs.keys()) != 1:
                 raise RuntimeError, "There's more than once choice of observables: %s\n" % str(shapeObs.keys())
@@ -121,7 +130,7 @@ class ShapeBuilder(ModelBuilder):
             for b in self.DC.bins: combiner.addSet(b, self.getData(b,self.options.dataname))
             self.out.data_obs = combiner.done(self.options.dataname,self.options.dataname)
             self.out._import(self.out.data_obs)
-        if self.out.mode == "unbinned":
+        elif self.out.mode == "unbinned":
             combiner = ROOT.CombDataSetFactory(self.out.obs, self.out.binCat)
             for b in self.DC.bins: combiner.addSet(b, self.getData(b,"data_obs"))
             self.out.data_obs = combiner.doneUnbinned("data_obs","data_obs")
