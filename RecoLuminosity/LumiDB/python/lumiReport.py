@@ -115,3 +115,36 @@ def toCSVLSDelivered(lumidata,filename,isverbose):
                 result.append([run,lumils,cmsls,delivered,lsts,beamstatus,beamenergy])
     r.writeRow(fieldnames)
     r.writeRows(result)
+
+def toScreenOverview(lumidata,isverbose):
+    '''
+    input:  {run:[lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,recordedlumi,calibratedlumierror,(bxidx,bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}
+    '''
+    result=[]
+    labels = [('Run', 'Delivered LS', 'Delivered','Selected LS','Recorded')]
+    totrawlabels = [('Delivered LS','Delivered','Selected LS','Recorded')]
+    for run in sorted(lumidata):
+        lsdata=lumidata[run]
+        if lsdata is None:
+            result.append([str(run),'n/a','n/a','n/a','n/a'])
+        nls=len(lsdata)
+        totdelivered=sum([x[5] for x in lsdata])
+        (totdeliveredlumi,deliveredlumiunit)=CommonUtil.guessUnit(totdelivered)
+        totrecorded=sum([x[6] for x in lsdata])
+        (totrecordedlumi,recordedlumiunit)=CommonUtil.guessUnit(totrecorded)
+        selectedcmsls=[x[1] for x in lsdata if x[1]!=0]
+        selectedlsStr = CommonUtil.splitlistToRangeString(selectedcmsls)
+        result.append([str(run),str(nls),'%.3f'%(totdeliveredlumi)+' ('+deliveredlumiunit+')',selectedlsStr,'%.3f'%(totrecordedlumi)+' ('+recordedlumiunit+')'])
+        print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
+                               prefix = '| ', postfix = ' |', justify = 'right',
+                               delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
+def toCSVBXInfo(lumidata,filename,bxcut=None,beamintensitycut=None,bxfield='bxlumi'):
+    '''
+    dump selected bxlumi or beam intensity as the last field
+    '''
+    if bxfields not in ['bxlumi','bxintensity']:
+        print 'not recognized bxfield'
+        return
+    pass
+
+

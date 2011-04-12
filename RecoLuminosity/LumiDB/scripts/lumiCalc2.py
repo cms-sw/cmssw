@@ -255,6 +255,16 @@ if __name__ == '__main__':
             lumiReport.toScreenTotDelivered(result,options.verbose)
         else:
             lumiReport.toCSVTotDelivered(result,options.outputfile,options.verbose)
+            
+    if options.action == 'recorded' or options.action == 'overview':
+        session.transaction().start(True)
+        result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,beamstatus=pbeammode,norm=normfactor)
+        session.transaction().commit()
+        #print result
+        if not options.outputfile:
+            lumiReport.toScreenOverview(result,options.verbose)
+        else:
+            pass
     if options.action == 'lumibyls':
         session.transaction().start(True)
         result=lumiCalcAPI.deliveredLumiForRange(session.nominalSchema(),irunlsdict,beamstatus=pbeammode,norm=normfactor)
@@ -263,6 +273,6 @@ if __name__ == '__main__':
             lumiReport.toScreenLSDelivered(result,options.verbose)
         else:
             lumiReport.toCSVLSDelivered(result,options.outputfile,options.verbose)
-   
+        
     del session
     del svc 

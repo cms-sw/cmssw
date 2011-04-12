@@ -224,7 +224,7 @@ def deliveredLumiForRange(schema,inputRange,amodetag=None,nominalegev=None,beams
     perbunchnormval=6.37
     #(normval,perbunchnormval)=_decidenorm(schema,norm=norm,amodetag=amodetag,nominalegev=nominalegev)
     instresult=instLumiForRange(schema,inputRange,beamstatus,withBXInfo,bxAlgo,withBeamIntensity,datatag)
-    print instresult
+    #print instresult
     #instLumiForRange should have aleady handled the selection,unpackblob
     for run,perrundata in instresult.items():
         if perrundata is None:
@@ -269,21 +269,23 @@ def lumiForRange(schema,inputRange,amodetag='PROTPHYS',beamstatus=None,beamenerg
            lumi unit: 1/ub
     '''
     result = {}
-    (normval,perbunchnormval)=_decidenorm(schema,norm=norm,amodetag=amodetag,nominalegev=nominalagev)
+    normval=6370
+    perbunchnormval=6.37
+    #(normval,perbunchnormval)=_decidenorm(schema,norm=norm,amodetag=amodetag,nominalegev=nominalagev)
     c=lumiTime.lumiTime()
-    for run,lslist in inputRange.items():
+    for run,lslist in inputRange.items():#loop over run
         if lslist is not None and len(lslist)==0:#no selected ls, do nothing for this run
-            result[run]={}
+            result[run]=[]
             continue
         cmsrunsummary=dataDML.runsummary(schema,run)
         startTimeStr=cmsrunsummary[6]
         lumidataid=None
         trgdataid=None
         hltdataid=None
-        (lumidataid,trgdataid,hltdataid)=dataDML.guessDataIdByRun(schema,run)
-        (lumirunnum,lumidata)=dataDML.lumiLSById(schema,lumidataid,beamstatus,beamenergy,beamenergyFluc,withBXInfo,bxAlgo,withBeamInfo)
+        (lumidataid,trgdataid,hltdataid)=dataDML.guessAllDataIdByRun(schema,run)
+        (lumirunnum,lumidata)=dataDML.lumiLSById(schema,lumidataid,beamstatus=beamstatus,withBXInfo=withBXInfo,bxAlgo=bxAlgo,withBeamIntensity=withBeamInfo)
         (trgrunnum,trgdata)=dataDML.trgLSById(schema,trgdataid,withblobdata=False)
-        perrunresult={}
+        perrunresult=[]
         for lumilsnum,perlsdata in lumidata.items():
             cmslsnum=perlsdata[0]
             if lslist is not None and cmslsnum not in lslist:
@@ -296,49 +298,52 @@ def lumiForRange(schema,inputRange,amodetag='PROTPHYS',beamstatus=None,beamenerg
             beamenergy=perlsdata[5]
             numorbit=perlsdata[6]
             startorbit=perlsdata[7]
-            timestamp=c.OrbitToUTCTimestamp(startTimeStr,numorbit,startorbit+numorbit,0)
+            timestamp=c.OrbitToTime(startTimeStr,startorbit,0)
             numbx=3564
             lslen=lslengthsec(numorbit,numbx)
             deliveredlumi=calibratedlumi*lslen
             recordedlumi=0.0
-            if cmslsnum!=0:                       
-                deadcount=trgdata[cmslsnum][0] ##subject to change !!
-                bitzerocount=trgdata[cmslsnum][1]
-                bitzeroprescale=trgdata[cmslsnum][2]
-                deadfrac=float(deadcount)/(float(bitzerocount)*float(bitzeroprescale))
-                if deadfrac>1.0:
-                    deadfrac=0.0  #artificial correction in case of trigger wrong prescale
-                recordedlumi=deliveredlumi*(1.0-deadfrac)
-                bxdata=None
-                if withBXInfo:
-                    bxvalueblob=lumidata[8]
-                    bxerrblob=lumidata[9]
-                    bxidxlist=[]
-                    bxvaluelist=[]
-                    bxerrorlist=[]
-                    if bxvalueblob is not None and bxerrblob is not None:
-                        bxvaluearray=CommonUtil.unpackBlobtoArray(bxvalueblob,'f')
-                        bxerrorarray=CommonUtil.unpackBlobtoArray(bxerrblob,'f')
-                        for idx,bxval in enumerate(bxvaluearray):
-                            if bxval*perbunchnormval>xingMinLum:
-                                bxidxlist.append(idx)
-                                bxvaluelist.append(bxval*perbunchnormval)
-                                bxerrorlist.append(bxerrorarray[idx]*perbunchnormval)
-                    bxdata=(bxidxlist,bxvaluelist,bxerrorlist)
-                beamdata=None
-                if withBeamInfo:
-                    bxindexblob=lumidata[10]
-                    beam1intensityblob=lumidata[11]
-                    beam2intensityblob=lumidata[12]
-                    bxindexlist=[]
-                    b1intensitylist=[]
-                    b2intensitylist=[]
-                    if bxindexblob is not None and beam1intensity is not None and beam2intensity is not None:
-                        bxindexlist=CommonUtil.unpackBlobtoArray(bxindexblob,'h').tolist()
-                        beam1intensitylist=CommonUtil.unpackBlobtoArray(beam1intensityblob,'f').tolist()
-                        beam2intensitylist=CommonUtil.unpackBlobtoArray(beam2intensityblob,'f').tolist()
+            if cmslsnum!=0:
+                if not trgdata.has_key(cmslsnum):
+                    recordedlumi=0.0 # no trigger
+                else:
+                    deadcount=trgdata[cmslsnum][0] ##subject to change !!
+                    bitzerocount=trgdata[cmslsnum][1]
+                    bitzeroprescale=trgdata[cmslsnum][2]
+                    deadfrac=float(deadcount)/(float(bitzerocount)*float(bitzeroprescale))
+                    if deadfrac>1.0:
+                        deadfrac=0.0  #artificial correction in case of trigger wrong prescale
+                    recordedlumi=deliveredlumi*(1.0-deadfrac)
+            bxdata=None
+            if withBXInfo:
+                bxvalueblob=lumidata[8]
+                bxerrblob=lumidata[9]
+                bxidxlist=[]
+                bxvaluelist=[]
+                bxerrorlist=[]
+                if bxvalueblob is not None and bxerrblob is not None:
+                    bxvaluearray=CommonUtil.unpackBlobtoArray(bxvalueblob,'f')
+                    bxerrorarray=CommonUtil.unpackBlobtoArray(bxerrblob,'f')
+                    for idx,bxval in enumerate(bxvaluearray):
+                        if bxval*perbunchnormval>xingMinLum:
+                            bxidxlist.append(idx)
+                            bxvaluelist.append(bxval*perbunchnormval)
+                            bxerrorlist.append(bxerrorarray[idx]*perbunchnormval)
+                bxdata=(bxidxlist,bxvaluelist,bxerrorlist)
+            beamdata=None
+            if withBeamInfo:
+                bxindexblob=lumidata[10]
+                beam1intensityblob=lumidata[11]
+                beam2intensityblob=lumidata[12]
+                bxindexlist=[]
+                b1intensitylist=[]
+                b2intensitylist=[]
+                if bxindexblob is not None and beam1intensity is not None and beam2intensity is not None:
+                    bxindexlist=CommonUtil.unpackBlobtoArray(bxindexblob,'h').tolist()
+                    b1intensitylist=CommonUtil.unpackBlobtoArray(beam1intensityblob,'f').tolist()
+                    b2intensitylist=CommonUtil.unpackBlobtoArray(beam2intensityblob,'f').tolist()
                 beamdata=(bxindexlist,b1intensitylist,b2intensitylist)
-        perrunresult.append([lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,recordedlumi,calibratedlumierror,bxdata,beamdata])
+            perrunresult.append([lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,recordedlumi,calibratedlumierror,bxdata,beamdata])
         result[run]=perrunresult
     return result
        
