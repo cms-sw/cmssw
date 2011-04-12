@@ -53,7 +53,10 @@ void popcon::EcalIntercalibHandler::getNewObjects()
 	std::cout << "retrieved last payload "  << std::endl;
 
 
-	EcalIntercalibConstant the_cal ;
+	EcalIntercalibConstant the_cal = 0. ; // relies on it being a float.
+	                                      // instead should perhaps
+	                                      // protect the next if when
+                                              // the EEDetId isn't valid?
 
 	int iX=50;
 	int iY=5;

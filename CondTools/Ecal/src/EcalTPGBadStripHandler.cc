@@ -198,7 +198,7 @@ void popcon::EcalTPGBadStripHandler::getNewObjects()
 	       	    	            
 		    rd_badStrip  = *p;
 		    
-	      	    int fed_num=rd_badStrip.getFedId();
+	      	    //int fed_num=rd_badStrip.getFedId();
 		    int tcc_num=rd_badStrip.getTCCId();
 		    int tt_num=rd_badStrip.getTTId();
 		    int strip_num=rd_badStrip.getStripId();
