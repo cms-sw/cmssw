@@ -13,7 +13,7 @@
 //
 // Original Author:  Thomas Reis,40 4-B24,+41227671567,
 //         Created:  Tue Mar 15 12:24:11 CET 2011
-// $Id: EmDQMFeeder.cc,v 1.1 2011/04/01 10:32:26 treis Exp $
+// $Id: EmDQMFeeder.cc,v 1.2 2011/04/08 16:08:39 aholz Exp $
 //
 //
 
@@ -68,13 +68,14 @@ class EmDQMFeeder : public edm::EDAnalyzer {
 
       std::vector<std::vector<std::string> > findEgammaPaths();
       std::vector<std::string> getFilterModules(const std::string&);
+      double getPrimaryEtCut(const std::string&);
 
-  std::vector<EmDQM*> emDQMmodules;
+      std::vector<EmDQM*> emDQMmodules;
 
-  static const unsigned TYPE_SINGLE_ELE = 0;
-  static const unsigned TYPE_DOUBLE_ELE = 1;
-  static const unsigned TYPE_SINGLE_PHOTON = 2;
-  static const unsigned TYPE_DOUBLE_PHOTON = 3;
+      static const unsigned TYPE_SINGLE_ELE = 0;
+      static const unsigned TYPE_DOUBLE_ELE = 1;
+      static const unsigned TYPE_SINGLE_PHOTON = 2;
+      static const unsigned TYPE_DOUBLE_PHOTON = 3;
 
 
 };
@@ -94,9 +95,7 @@ EmDQMFeeder::EmDQMFeeder(const edm::ParameterSet& iConfig_) :
   iConfig(iConfig_)
 {
    //now do what ever initialization is needed
-
    processName_ = iConfig_.getParameter<std::string>("processname");
-
 }
 
 
@@ -119,8 +118,9 @@ EmDQMFeeder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
-   for (unsigned i = 0; i < emDQMmodules.size(); ++i)
-     emDQMmodules[i]->analyze(iEvent, iSetup);
+   for (unsigned i = 0; i < emDQMmodules.size(); ++i) {
+      emDQMmodules[i]->analyze(iEvent, iSetup);
+   }
 
 // #ifdef THIS_IS_AN_EVENT_EXAMPLE
 //    Handle<ExampleData> pIn;
@@ -138,18 +138,22 @@ EmDQMFeeder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 EmDQMFeeder::beginJob()
 {
-  for (unsigned i = 0; i < emDQMmodules.size(); ++i)
-    emDQMmodules[i]->beginJob();
-
+//  std::cout << "EmDQMFeeder: beginJob" << std::endl;
+//  for (unsigned i = 0; i < emDQMmodules.size(); ++i) {
+//    std::cout << "EmDQM: beginJob for filter " << i  << std::endl;
+//    emDQMmodules[i]->beginJob();
+//  }
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 EmDQMFeeder::endJob() 
 {
-  for (unsigned i = 0; i < emDQMmodules.size(); ++i)
+  //std::cout << "EmDQMFeeder: endJob" << std::endl;
+  for (unsigned i = 0; i < emDQMmodules.size(); ++i) {
+    //std::cout << "EmDQM: endJob for filter " << i << std::endl;
     emDQMmodules[i]->endJob();
-
+  }
 }
 
 // ------------ method called when starting to processes a run  ------------
@@ -179,58 +183,82 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
       //std::cout << "Found " << egammaPaths[2].size() << " single photon paths" << std::endl;
       //std::cout << "Found " << egammaPaths[3].size() << " double photon paths" << std::endl;
 
-      //print filters of all egamma paths
       std::vector<std::string> filterModules;
-      for (unsigned int j=0; j < egammaPaths.size() ; j++) {
 
+      for (unsigned int j=0; j < egammaPaths.size() ; j++) {
 
          for (unsigned int i=0; i < egammaPaths.at(j).size() ; i++) {
 
-	   // get (absolute) index of this trigger 
+	   // get pathname of this trigger 
 	   const std::string pathName = egammaPaths.at(j).at(i);
-	   unsigned triggerIndex = hltConfig_.triggerIndex(pathName);
+           std::cout << "Path: " << pathName << std::endl;
 
-	   //--------------------	   
+           // get filters of the current path
+	   filterModules = getFilterModules(pathName);
+
+           //--------------------	   
 	   edm::ParameterSet paramSet;
-	   paramSet.addParameter("@module_label",pathName + "_DQM");
+
+	   paramSet.addParameter("@module_label", pathName + "_DQM");
 	   paramSet.addParameter("triggerobject", iConfig.getParameter<edm::InputTag>("triggerobject"));
 
- 	   paramSet.addParameter("reqNum", iConfig.getParameter<unsigned int>("reqNum"));
-	   paramSet.addParameter("pdgGen", iConfig.getParameter<int>("pdgGen"));
+ 	   //paramSet.addParameter("reqNum", iConfig.getParameter<unsigned int>("reqNum"));
+	   //paramSet.addParameter("pdgGen", iConfig.getParameter<int>("pdgGen"));
 	   paramSet.addParameter("genEtaAcc", iConfig.getParameter<double>("genEtaAcc"));
 	   paramSet.addParameter("genEtAcc", iConfig.getParameter<double>("genEtAcc"));
 
 	   // plotting parameters (untracked because they don't affect the physics)
-	   paramSet.addUntrackedParameter("genEtMin", iConfig.getUntrackedParameter<double>("genEtMin",0.));
-	   paramSet.addUntrackedParameter("PtMin",iConfig.getUntrackedParameter<double>("PtMin",0.));
-	   paramSet.addUntrackedParameter("PtMax",iConfig.getUntrackedParameter<double>("PtMax",1000.));
-	   paramSet.addUntrackedParameter("EtaMax",iConfig.getUntrackedParameter<double>("EtaMax", 2.7));
-	   paramSet.addUntrackedParameter("PhiMax",iConfig.getUntrackedParameter<double>("PhiMax", 3.15));
-	   paramSet.addUntrackedParameter("Nbins",iConfig.getUntrackedParameter<unsigned int>("Nbins",40));
-	   paramSet.addUntrackedParameter("minEtForEtaEffPlot",iConfig.getUntrackedParameter<unsigned int>("minEtForEtaEffPlot", 15));
-	   paramSet.addUntrackedParameter("useHumanReadableHistTitles",iConfig.getUntrackedParameter<bool>("useHumanReadableHistTitles", false));
+	   paramSet.addUntrackedParameter("genEtMin", getPrimaryEtCut(pathName));
+	   paramSet.addUntrackedParameter("PtMin", iConfig.getUntrackedParameter<double>("PtMin",0.));
+	   paramSet.addUntrackedParameter("PtMax", iConfig.getUntrackedParameter<double>("PtMax",1000.));
+	   paramSet.addUntrackedParameter("EtaMax", iConfig.getUntrackedParameter<double>("EtaMax", 2.7));
+	   paramSet.addUntrackedParameter("PhiMax", iConfig.getUntrackedParameter<double>("PhiMax", 3.15));
+	   paramSet.addUntrackedParameter("Nbins", iConfig.getUntrackedParameter<unsigned int>("Nbins",40));
+	   paramSet.addUntrackedParameter("minEtForEtaEffPlot", iConfig.getUntrackedParameter<unsigned int>("minEtForEtaEffPlot", 15));
+	   paramSet.addUntrackedParameter("useHumanReadableHistTitles", iConfig.getUntrackedParameter<bool>("useHumanReadableHistTitles", false));
 
 	   //preselction cuts 
-	   paramSet.addParameter("cutcollection",iConfig.getParameter<edm::InputTag>("cutcollection"));
-	   paramSet.addParameter("cutnum",iConfig.getParameter<int>("cutnum"));
+           switch (j) {
+              case TYPE_SINGLE_ELE:
+ 	         paramSet.addParameter("reqNum", (unsigned) 1);
+	         paramSet.addParameter("pdgGen", 11);
+                 paramSet.addParameter("cutcollection", edm::InputTag("fiducialWenu"));
+                 paramSet.addParameter("cutnum", 1);
+              case TYPE_DOUBLE_ELE:           
+ 	         paramSet.addParameter("reqNum", (unsigned) 2);
+	         paramSet.addParameter("pdgGen", 11);
+                 paramSet.addParameter("cutcollection", edm::InputTag("fiducialZee"));
+	         paramSet.addParameter("cutnum", 2);
+              case TYPE_SINGLE_PHOTON:           
+ 	         paramSet.addParameter("reqNum", (unsigned) 1);
+	         paramSet.addParameter("pdgGen", 22);
+                 paramSet.addParameter("cutcollection", edm::InputTag("fiducialGammaJet"));
+	         paramSet.addParameter("cutnum", 1);
+              case TYPE_DOUBLE_PHOTON:           
+ 	         paramSet.addParameter("reqNum", (unsigned) 2);
+	         paramSet.addParameter("pdgGen", 22);
+                 paramSet.addParameter("cutcollection", edm::InputTag("fiducialDiGamma"));
+	         paramSet.addParameter("cutnum", 2);
+           }
 	   //--------------------
 
-	   paramSet.addParameter("filters", std::vector<edm::ParameterSet>());
+	   // loop over filtermodules of current trigger path
+           for (std::vector<std::string>::iterator filter = filterModules.begin(); filter != filterModules.end(); ++filter) {
+              paramSet.addParameter("filters", std::vector<edm::ParameterSet>());
+           }
 
 	   emDQMmodules.push_back(new EmDQM(paramSet));
 
 	   // emDQMmodules.back()->beginRun(iRun, iSetup);
 	   emDQMmodules.back()->beginJob();
 	   
-	   std::cout << i<< std::endl;
-	   filterModules = getFilterModules(pathName);
-
          } // loop over all paths of this analysis type
 
       } // loop over analysis types (single ele etc.)
 
+      // print some parameter set for test purposes
       edm::ParameterSet pathPSet;
-
+      filterModules = getFilterModules(egammaPaths.at(0).at(3));
       pathPSet = hltConfig_.modulePSet(filterModules.at(5));
       std::cout << pathPSet.dump() << std::endl;
 
@@ -314,7 +342,6 @@ EmDQMFeeder::findEgammaPaths()
       }
       //std::cout << i << " triggerName: " << path << " containing " << hltConfig_.size(i) << " modules."<< std::endl;
    }
-   std::cout << std::endl;
    return Paths;
 }
 
@@ -325,7 +352,7 @@ EmDQMFeeder::getFilterModules(const std::string& path)
 {
    std::vector<std::string> filters;
 
-   std::cout << "Pathname: " << path << std::endl;
+   //std::cout << "Pathname: " << path << std::endl;
 
    // Loop over all modules in the path
    for (unsigned int i=0; i<hltConfig_.size(path); i++) {
@@ -337,11 +364,22 @@ EmDQMFeeder::getFilterModules(const std::string& path)
       // Find filters
       if (moduleEDMType.find("EDFilter") != std::string::npos || moduleType.find("Filter") != std::string::npos) {  // older samples may not have EDMType data included
          filters.push_back(module);
-         std::cout << i << "    moduleLabel: " << module << "    moduleType: " << moduleType << "    moduleEDMType: " << moduleEDMType << std::endl;
+         //std::cout << i << "    moduleLabel: " << module << "    moduleType: " << moduleType << "    moduleEDMType: " << moduleEDMType << std::endl;
       }
    }
    return filters;
 }
+
+//----------------------------------------------------------------------
+
+double
+EmDQMFeeder::getPrimaryEtCut(const std::string& path)
+{
+   double ret = 0.;
+
+   return ret;
+}
+
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(EmDQMFeeder);
