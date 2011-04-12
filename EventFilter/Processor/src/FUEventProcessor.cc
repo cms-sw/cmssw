@@ -27,10 +27,6 @@
 
 #include <boost/tokenizer.hpp>
 
-// to handle pt file descriptors left open at fork
-#include "pt/PeerTransportReceiver.h"
-#include "pt/PeerTransportAgent.h"
-
 #include "xcept/tools.h"
 #include "xgi/Method.h"
 
@@ -465,15 +461,7 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 	  if(retval != 0) perror("error");
 	  retval = pthread_mutex_init(&stop_lock_,0);
 	  if(retval != 0) perror("error");
-	  try{
-	    pt::PeerTransport * ptr =
-	      pt::getPeerTransportAgent()->getPeerTransport("http","soap",pt::Receiver);
-	    delete ptr;
-	  }
-	  catch (pt::exception::PeerTransportNotFound & e ){
-	    LOG4CPLUS_WARN(getApplicationLogger()," ***Slave Failed to shutdown ptHTTP");
-	  }
-	  fsm_.disableRcmsStateNotification();
+ 	  fsm_.disableRcmsStateNotification();
 	  return enableMPEPSlave();
 	  // the loop is broken in the child 
 	}
@@ -604,17 +592,26 @@ void FUEventProcessor::subWeb(xgi::Input  *in, xgi::Output *out)
       strcpy(msg1->mtext,meth.c_str());
       strcpy(msg1->mtext+meth.length(),ost.str().c_str());
       subs_[i].post(msg1,true);
+      unsigned int keep_supersleep_original_value = superSleepSec_.value_;
+      superSleepSec_.value_=10*keep_supersleep_original_value;
       MsgBuf msg(MAX_MSG_SIZE,MSQS_MESSAGE_TYPE_WEB);
       bool done = false;
       std::vector<char *>pieces;
       while(!done){
-	subs_[i].rcv(msg,true);
+	unsigned long retval1 = subs_[i].rcvNonBlocking(msg,true);
+	if(retval1 == MSGQ_MESSAGE_TYPE_RANGE){
+	  ::sleep(1);
+	  continue;
+	}
 	unsigned int nbytes = atoi(msg->mtext);
 	if(nbytes < MAX_PIPE_BUFFER_SIZE) done = true; // this will break the while loop
 	char *buf= new char[nbytes];
-	read(anonymousPipe_[PIPE_READ],buf,nbytes);
+	ssize_t retval = read(anonymousPipe_[PIPE_READ],buf,nbytes);
+	if(retval!=nbytes) std::cout 
+	  << "CAREFUL HERE, read less bytes than expected from pipe in subWeb" << std::endl;
 	pieces.push_back(buf);
       }
+      superSleepSec_.value_=keep_supersleep_original_value;
       for(unsigned int j = 0; j < pieces.size(); j++){
 	*out<<pieces[j];    // chain the buffers into the output strstream
 	delete[] pieces[j]; //make sure to release all buffers used for reading the pipe
@@ -986,14 +983,6 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		      if(retval != 0) perror("error");
 		      retval = pthread_mutex_init(&stop_lock_,0);
 		      if(retval != 0) perror("error");
-		      try{
-			pt::PeerTransport * ptr =
-			  pt::getPeerTransportAgent()->getPeerTransport("http","soap",pt::Receiver);
-			delete ptr;
-		      }
-		      catch (pt::exception::PeerTransportNotFound & e ){
-			LOG4CPLUS_WARN(getApplicationLogger()," ***Slave Failed to shutdown ptHTTP");
-		      }
 		      fsm_.disableRcmsStateNotification();
 		      fsm_.fireEvent("Stop",this); // need to set state in fsm first to allow stopDone transition
 		      fsm_.fireEvent("StopDone",this); // need to set state in fsm first to allow stopDone transition
@@ -1357,19 +1346,18 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	  { 
 	    // after each monitoring cycle check if we are in inconsistent state and exit if configured to do so  
 	    //	    std::cout << getpid() << "receivingAndMonitor: trying to acquire stop lock " << std::endl;
-	    int retval = pthread_mutex_lock(&stop_lock_);
-	    if(retval != 0) perror("error");
-	    //	    std::cout << getpid() << " stop lock acquired" << std::endl;
-	    bool running = fsm_.stateName()->toString()=="Enabled";
-	    pthread_mutex_unlock(&stop_lock_);
 	    if(data->Ms == edm::event_processor::sStopping || data->Ms == edm::event_processor::sError) 
-	      {    
-		::usleep(10000); 
-		//check the state again in case stop signal has arrived 
-		pthread_mutex_lock(&stop_lock_);
-		running = fsm_.stateName()->toString()=="Enabled";
-		pthread_mutex_unlock(&stop_lock_);
-		if(running){::sleep(5); exit(-1);}
+	      { 
+		bool running = true;
+		int count = 0;
+		while(running){
+		  int retval = pthread_mutex_lock(&stop_lock_);
+		  if(retval != 0) perror("error");
+		  running = fsm_.stateName()->toString()=="Enabled";
+		  if(count>5) exit(-1);
+		  pthread_mutex_unlock(&stop_lock_);
+		  if(running) {::sleep(1); count++;}
+		}
 	      }
 	    
 	  }
@@ -1525,7 +1513,7 @@ bool FUEventProcessor::enableClassic()
   }
   
   //  implementation moved to EPWrapper
-  //  startScalersWorkLoop();
+  //  startScalersWorkLoop(); // this is now not done any longer 
   localLog("-I- Start completed");
   return retval;
 }
@@ -1610,23 +1598,24 @@ void FUEventProcessor::stopSlavesAndAcknowledge()
     {
       pthread_mutex_lock(&stop_lock_);
       if(subs_[i].alive()>0)subs_[i].post(msg,false);
-
-      if(subs_[i].alive()<=0) 
-	{
-	  pthread_mutex_unlock(&stop_lock_);
-	  continue;
+      pthread_mutex_unlock(&stop_lock_);
+    }
+  for(unsigned int i = 0; i < subs_.size(); i++)
+    {
+      pthread_mutex_lock(&stop_lock_);
+      if(subs_[i].alive()>0){
+	try{
+	  subs_[i].rcv(msg1,false);
 	}
-      try{
-	subs_[i].rcv(msg1,false);
-      }
-      catch(evf::Exception &e){
-	std::ostringstream ost;
-	ost << "failed to get STOP - errno ->" << errno << " " << e.what(); 
-	reasonForFailedState_ = ost.str();
-	LOG4CPLUS_WARN(getApplicationLogger(),reasonForFailedState_);
-	fsm_.fireFailed(reasonForFailedState_,this);
-	localLog(reasonForFailedState_);
-	break;
+	catch(evf::Exception &e){
+	  std::ostringstream ost;
+	  ost << "failed to get STOP - errno ->" << errno << " " << e.what(); 
+	  reasonForFailedState_ = ost.str();
+	  LOG4CPLUS_WARN(getApplicationLogger(),reasonForFailedState_);
+	  fsm_.fireFailed(reasonForFailedState_,this);
+	  localLog(reasonForFailedState_);
+	  break;
+	}
       }
       pthread_mutex_unlock(&stop_lock_);
       if(msg1->mtype==MSQS_MESSAGE_TYPE_STOP)
@@ -1825,7 +1814,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.121 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.122 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

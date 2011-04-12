@@ -1,3 +1,11 @@
+2011-04-12 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-00
+	* change handling of socket FD after fork (moved to SubProcess)
+	* perform stop in two steps: first send signal to all live subprocesses
+	then wait for response
+	* improve handling of subweb requests
+
 2011-04-05 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V02-03-07
