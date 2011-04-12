@@ -12,7 +12,7 @@
 //
 // Original Author:  Leonard Apanasevich
 //         Created:  Wed Mar 25 16:01:27 CDT 2009
-// $Id: HLTHcalMETNoiseFilter.cc,v 1.13 2011/02/11 20:55:24 wdd Exp $
+// $Id: HLTHcalMETNoiseFilter.cc,v 1.14 2011/04/12 18:25:58 johnpaul Exp $
 //
 //
 
@@ -82,8 +82,8 @@ HLTHcalMETNoiseFilter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<int>("numRBXsToConsider",2);
   desc.add<bool>("needEMFCoincidence",true);
   desc.add<double>("minRBXEnergy",50.0);
-  desc.add<double>("minRatio",0.65);
-  desc.add<double>("maxRatio",0.98);
+  desc.add<double>("minRatio",-999.);
+  desc.add<double>("maxRatio",999.);
   desc.add<int>("minHPDHits",17);
   desc.add<int>("minRBXHits",999);
   desc.add<int>("minHPDNoOtherHits",10);
@@ -162,8 +162,7 @@ bool HLTHcalMETNoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
       else if(it->numZeros()>=minZeros_)                   passFilter=false;
       else if(it->minHighEHitTime()<minHighEHitTime_)      passFilter=false;
       else if(it->maxHighEHitTime()>maxHighEHitTime_)      passFilter=false;
-      // don't implement the TS5TS5 cut at all
-      //      else if(!it->PassTS4TS5())                           passFilter=false;
+      else if(!it->PassTS4TS5())                           passFilter=false;
 
       if(it->RBXEMF()<maxRBXEMF_) passEMF=false;
     }
@@ -178,6 +177,7 @@ bool HLTHcalMETNoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
 		   << "# Zeros=" << it->numZeros() << "; "
 		   << "min time=" << it->minHighEHitTime() << "; "
 		   << "max time=" << it->maxHighEHitTime() << "; "
+		   << "passTS4TS5=" << it->PassTS4TS5() << "; "
 		   << "RBX EMF=" << it->RBXEMF()
 		   << std::endl;
       return false;
