@@ -22,7 +22,6 @@ def toScreenTotDelivered(lumidata,isverbose):
         if len(beamenergyPerLS):
             avgbeamenergy=sum(beamenergyPerLS)/len(beamenergyPerLS)
         runstarttime=lsdata[0][2]
-        print runstarttime
         if isverbose:
             selectedls=[(x[0],x[1]) for x in lsdata]
             result.append([str(run),str(nls),'%.3f'%(totlumival)+' ('+lumiunit+')',runstarttime.strftime("%b %d %Y %H:%M:%S"),'%.3f'%(avgbeamenergy), str(selectedls)])
@@ -122,24 +121,41 @@ def toScreenOverview(lumidata,isverbose):
     '''
     result=[]
     labels = [('Run', 'Delivered LS', 'Delivered','Selected LS','Recorded')]
-    totrawlabels = [('Delivered LS','Delivered','Selected LS','Recorded')]
+    totrowlabels = [('Delivered LS','Delivered','Selected LS','Recorded')]
+    totaltable=[]
+    totalDeliveredLS = 0
+    totalSelectedLS = 0
+    totalDelivered = 0.0
+    totalRecorded = 0.0
     for run in sorted(lumidata):
         lsdata=lumidata[run]
         if lsdata is None:
             result.append([str(run),'n/a','n/a','n/a','n/a'])
         nls=len(lsdata)
-        totdelivered=sum([x[5] for x in lsdata])
+        deliveredData=[x[5] for x in lsdata]
+        totdelivered=sum(deliveredData)
+        totalDelivered+=totdelivered
+        totalDeliveredLS+=len(deliveredData)
         (totdeliveredlumi,deliveredlumiunit)=CommonUtil.guessUnit(totdelivered)
-        totrecorded=sum([x[6] for x in lsdata if x[6] is not None])
+        recordedData=[x[6] for x in lsdata if x[6] is not None]
+        totrecorded=sum(recordedData)
+        totalRecorded+=totrecorded
+        totalSelectedLS+=len(recordedData)
         (totrecordedlumi,recordedlumiunit)=CommonUtil.guessUnit(totrecorded)
-        print [x[1] for x in lsdata]
         selectedcmsls=[x[1] for x in lsdata if x[1]!=0]
         selectedlsStr = CommonUtil.splitlistToRangeString(selectedcmsls)
         result.append([str(run),str(nls),'%.3f'%(totdeliveredlumi)+' ('+deliveredlumiunit+')',selectedlsStr,'%.3f'%(totrecordedlumi)+' ('+recordedlumiunit+')'])
-        print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
+    print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
-def toCSVBXInfo(lumidata,filename,bxcut=None,beamintensitycut=None,bxfield='bxlumi'):
+    print ' ==  =  Total : '
+    totaltable.append([totalDeliveredLS,totalDelivered,totalSelectedLS,totalRecorded])
+    print tablePrinter.indent (totrowlabels+totaltable, hasHeader = True, separateRows = False, prefix = '| ',
+                               postfix = ' |', justify = 'right', delim = ' | ',
+                               wrapfunc = lambda x: wrap_onspace (x, 20))
+def toCSVOverview(lumidata,filename,isverbose):
+    pass
+def toCSVBXInfo(lumidata,filename,bxfield='bxlumi'):
     '''
     dump selected bxlumi or beam intensity as the last field
     '''

@@ -256,25 +256,26 @@ if __name__ == '__main__':
         else:
             lumiReport.toCSVTotDelivered(result,options.outputfile,options.verbose)
             
-    if options.action == 'recorded' or options.action == 'overview':
-        session.transaction().start(True)
-        result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,beamstatus=pbeammode,norm=normfactor)
-        session.transaction().commit()
-        for run,rundata in result.items():
+    if options.action == 'overview':
+       session.transaction().start(True)
+       result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,beamstatus=pbeammode,norm=normfactor)
+       session.transaction().commit()
+       for run,rundata in result.items():
            for lsdata in rundata:
                print run,lsdata[1],lsdata[5],lsdata[6] 
-        if not options.outputfile:
-            lumiReport.toScreenOverview(result,options.verbose)
-        else:
-            pass
+       if not options.outputfile:
+           lumiReport.toScreenOverview(result,options.verbose)
+       else:
+           lumiReport.toCSVOverview(result,options.outputfile)
+    if option.action == 'recorded':
+       pass
     if options.action == 'lumibyls':
-        session.transaction().start(True)
-        result=lumiCalcAPI.deliveredLumiForRange(session.nominalSchema(),irunlsdict,beamstatus=pbeammode,norm=normfactor)
-        session.transaction().commit()
-        if not options.outputfile:
-            lumiReport.toScreenLSDelivered(result,options.verbose)
-        else:
-            lumiReport.toCSVLSDelivered(result,options.outputfile,options.verbose)
-        
+       session.transaction().start(True)
+       result=lumiCalcAPI.deliveredLumiForRange(session.nominalSchema(),irunlsdict,beamstatus=pbeammode,norm=normfactor)
+       session.transaction().commit()
+       if not options.outputfile:
+           lumiReport.toScreenLSDelivered(result,options.verbose)
+       else:
+           lumiReport.toCSVLSDelivered(result,options.outputfile,options.verbose)
     del session
     del svc 
