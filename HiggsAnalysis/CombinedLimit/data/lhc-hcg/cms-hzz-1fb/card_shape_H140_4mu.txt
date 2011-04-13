@@ -1,0 +1,21 @@
+imax 1
+jmax 1
+kmax *
+---------------
+shapes * * ws_140_4mu.root workspace:$PROCESS
+shapes data_obs * ws_140_4mu.root workspace:TotPdfData 
+---------------
+bin 1
+observation 2
+------------------------------
+bin          1          1
+process      signal     background
+process      0          1
+rate         0.49         1.7
+--------------------------------
+lumi          lnN  1.05   1.05
+QCDscale_ggH  lnN  1.10   1.00
+QCDscale_ggVV lnN   -     1.30   QCD scale for ggVV
+CMS_eff_b     lnN  1.01   1.01   Anti B-tag efficiency
+alpha       param  1.2    0.4
+#sigma_sig   param  1.47   0.15
