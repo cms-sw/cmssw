@@ -53,7 +53,8 @@ LightPFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
        				reco::PFRecTrack::KF, 
        				i, trackRef );
       Trajectory FakeTraj;
-      bool valid = pfTransformer_->addPoints( pftrack, *trackRef, FakeTraj);
+      bool mymsgwarning = false;
+      bool valid = pfTransformer_->addPoints( pftrack, *trackRef, FakeTraj, mymsgwarning);
       if(valid)
 	PfTrColl->push_back(pftrack);		
 

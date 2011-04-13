@@ -46,7 +46,8 @@ PFTrackTransformer::~PFTrackTransformer(){
 bool 
 PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack, 
 			       const reco::Track& track,
-			       const Trajectory& traj) const {
+			       const Trajectory& traj,
+			       bool msgwarning) const {
   
   LogDebug("PFTrackTransformer")<<"Trajectory propagation started";
   using namespace reco;
@@ -169,7 +170,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 				      meanShower,
 				      math::XYZTLorentzVector(theOutParticle.momentum())));}
    else {
-     if (PT>5.)
+     if (PT>5. && msgwarning)
        LogWarning("PFTrackTransformer")<<"KF TRACK "<<pftrack<< " PROPAGATION TO THE ECAL HAS FAILED";
      PFTrajectoryPoint dummyECAL;
      pftrack.addPoint(dummyECAL); 
@@ -186,7 +187,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 					math::XYZPoint(theOutParticle.vertex()),
 					math::XYZTLorentzVector(theOutParticle.momentum())));
    else{
-     if (PT>5.)
+     if (PT>5.&& msgwarning)
        LogWarning("PFTrackTransformer")<<"KF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
      PFTrajectoryPoint dummyHCALentrance;
      pftrack.addPoint(dummyHCALentrance); 
@@ -199,7 +200,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 					math::XYZPoint(theOutParticle.vertex()),
 					math::XYZTLorentzVector(theOutParticle.momentum())));
    else{
-     if (PT>5.)
+     if (PT>5.&& msgwarning)
        LogWarning("PFTrackTransformer")<<"KF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL EXIT HAS FAILED";
      PFTrajectoryPoint dummyHCALexit;
      pftrack.addPoint(dummyHCALexit); 

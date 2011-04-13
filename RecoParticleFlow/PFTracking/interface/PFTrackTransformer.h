@@ -46,8 +46,9 @@ class PFTrackTransformer{
   /// Add points to a PFTrack. return false if a TSOS is invalid
   bool addPoints(reco::PFRecTrack& pftrack, 
 		 const reco::Track& track,
-		 const Trajectory& traj) const; 
-
+		 const Trajectory& traj,
+		 bool msgwarning = true) const; 
+  
   bool addPointsAndBrems(reco::GsfPFRecTrack& pftrack, 
 			 const reco::Track& track,
 			 const Trajectory& traj,
