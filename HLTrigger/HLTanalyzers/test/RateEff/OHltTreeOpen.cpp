@@ -3682,6 +3682,224 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
+   /*MuOnia 1e33*/
+else if (triggerName.CompareTo("OpenHLT_Dimuon6p5_Barrel_PsiPrime_v1") == 0)
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            TLorentzVector mu1;
+            TLorentzVector mu2;
+            TLorentzVector diMu;
+            const double muMass = 0.105658367;
+            int rc = 0;
+            for (int i=0; i<NohMuL3; i++)
+            {
+               for (int j=i+1; j<NohMuL3; j++)
+               {
+
+                  mu1.SetPtEtaPhiM(
+                        ohMuL3Pt[i],
+                        ohMuL3Eta[i],
+                        ohMuL3Phi[i],
+                        muMass);
+                  mu2.SetPtEtaPhiM(
+                        ohMuL3Pt[j],
+                        ohMuL3Eta[j],
+                        ohMuL3Phi[j],
+                        muMass);
+                  diMu = mu1 + mu2;
+                  int dimuCharge = (int) (ohMuL3Chg[i] + ohMuL3Chg[j]);
+                  float diMuMass = diMu.M();
+                  float diMuPt = diMu.Pt();
+                  float diMuRapidity = diMu.Rapidity();
+                  if (diMuMass > 3.35 && diMuMass < 4.0 && dimuCharge == 0 && diMuPt > 6.5 && fabs(diMuRapidity) < 1.3)
+                     rc++;
+               }
+            }
+            if (rc >= 1)
+            {
+               triggerBit[it] = true;
+            }
+         }
+      }
+   }
+   
+else if (triggerName.CompareTo("OpenHLT_Dimuon6p5_Jpsi_v1") == 0)
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            TLorentzVector mu1;
+            TLorentzVector mu2;
+            TLorentzVector diMu;
+            const double muMass = 0.105658367;
+            int rc = 0;
+            for (int i=0; i<NohMuL3; i++)
+            {
+               for (int j=i+1; j<NohMuL3; j++)
+               {
+
+                  mu1.SetPtEtaPhiM(
+                        ohMuL3Pt[i],
+                        ohMuL3Eta[i],
+                        ohMuL3Phi[i],
+                        muMass);
+                  mu2.SetPtEtaPhiM(
+                        ohMuL3Pt[j],
+                        ohMuL3Eta[j],
+                        ohMuL3Phi[j],
+                        muMass);
+                  diMu = mu1 + mu2;
+                  int dimuCharge = (int) (ohMuL3Chg[i] + ohMuL3Chg[j]);
+                  float diMuMass = diMu.M();
+                  float diMuPt = diMu.Pt();
+                  if (diMuMass > 2.5 && diMuMass < 4.0 && dimuCharge == 0 && diMuPt > 6.5)
+                     rc++;
+               }
+            }
+            if (rc >= 1)
+            {
+               triggerBit[it] = true;
+            }
+         }
+      }
+   }   
+   
+else if (triggerName.CompareTo("OpenHLT_Dimuon6p5_Barrel_Jpsi_v1") == 0)
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            TLorentzVector mu1;
+            TLorentzVector mu2;
+            TLorentzVector diMu;
+            const double muMass = 0.105658367;
+            int rc = 0;
+            for (int i=0; i<NohMuL3; i++)
+            {
+               for (int j=i+1; j<NohMuL3; j++)
+               {
+
+                  mu1.SetPtEtaPhiM(
+                        ohMuL3Pt[i],
+                        ohMuL3Eta[i],
+                        ohMuL3Phi[i],
+                        muMass);
+                  mu2.SetPtEtaPhiM(
+                        ohMuL3Pt[j],
+                        ohMuL3Eta[j],
+                        ohMuL3Phi[j],
+                        muMass);
+                  diMu = mu1 + mu2;
+                  int dimuCharge = (int) (ohMuL3Chg[i] + ohMuL3Chg[j]);
+                  float diMuMass = diMu.M();
+                  float diMuPt = diMu.Pt();
+                  float diMuRapidity = diMu.Rapidity();
+                  if (diMuMass > 2.5 && diMuMass < 4.0 && dimuCharge == 0 && diMuPt > 6.5 && fabs(diMuRapidity) < 1.3)
+                     rc++;
+               }
+            }
+            if (rc >= 1)
+            {
+               triggerBit[it] = true;
+            }
+         }
+      }
+   }    
+   
+else if (triggerName.CompareTo("OpenHLT_Dimuon0_Barrel_Upsilon_v1") == 0)
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            TLorentzVector mu1;
+            TLorentzVector mu2;
+            TLorentzVector diMu;
+            const double muMass = 0.105658367;
+            int rc = 0;
+            for (int i=0; i<NohMuL3; i++)
+            {
+               for (int j=i+1; j<NohMuL3; j++)
+               {
+
+                  mu1.SetPtEtaPhiM(
+                        ohMuL3Pt[i],
+                        ohMuL3Eta[i],
+                        ohMuL3Phi[i],
+                        muMass);
+                  mu2.SetPtEtaPhiM(
+                        ohMuL3Pt[j],
+                        ohMuL3Eta[j],
+                        ohMuL3Phi[j],
+                        muMass);
+                  diMu = mu1 + mu2;
+                  int dimuCharge = (int) (ohMuL3Chg[i] + ohMuL3Chg[j]);
+                  float diMuMass = diMu.M();
+                  float diMuRapidity = diMu.Rapidity();
+                  if (diMuMass > 8.5 && diMuMass < 11.5 && dimuCharge == 0 && fabs(diMuRapidity) < 1.3)
+                     rc++;
+               }
+            }
+            if (rc >= 1)
+            {
+               triggerBit[it] = true;
+            }
+         }
+      }
+   }    
+   
+
+   
+else if (triggerName.CompareTo("OpenHLT_Dimuon6p5_LowMass_v1") == 0)
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            TLorentzVector mu1;
+            TLorentzVector mu2;
+            TLorentzVector diMu;
+            const double muMass = 0.105658367;
+            int rc = 0;
+            for (int i=0; i<NohMuL3; i++)
+            {
+               for (int j=i+1; j<NohMuL3; j++)
+               {
+
+                  mu1.SetPtEtaPhiM(
+                        ohMuL3Pt[i],
+                        ohMuL3Eta[i],
+                        ohMuL3Phi[i],
+                        muMass);
+                  mu2.SetPtEtaPhiM(
+                        ohMuL3Pt[j],
+                        ohMuL3Eta[j],
+                        ohMuL3Phi[j],
+                        muMass);
+                  diMu = mu1 + mu2;
+                  int dimuCharge = (int) (ohMuL3Chg[i] + ohMuL3Chg[j]);
+                  float diMuMass = diMu.M();
+                  float diMuPt = diMu.Pt();
+                  if (diMuMass > 1.0 && diMuMass < 5.0 && dimuCharge == 0 && diMuPt > 6.5)
+                     rc++;
+               }
+            }
+            if (rc >= 1)
+            {
+               triggerBit[it] = true;
+            }
+         }
+      }
+   }    
+   
+   
+
+
    /* Electrons */
 
    else if (isL1SingleEGXTrigger(triggerName))
