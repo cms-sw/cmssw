@@ -19,23 +19,23 @@ def guessUnit(inverseubval):
         printable value (value(float),unit(str)) unit in [1/ub,1/nb,1/pb,1/fb]
     '''
     if inverseubval<1.0e3:
-        unitstring='1/ub'
+        unitstring='/ub'
         return (inverseubval,unitstring)
     if inverseubval>=1.0e3 and inverseubval<1.0e06:
         denomitor=1.0e3
-        unitstring='1/nb'
+        unitstring='/nb'
         return (float(inverseubval)/float(denomitor),unitstring)
     if inverseubval>=1.0e6 and inverseubval<1.0e9:
         denomitor=1.0e6
-        unitstring='1/pb'
+        unitstring='/pb'
         return (float(inverseubval)/float(denomitor),unitstring)
     if inverseubval>=1.0e9 and inverseubval<1.0e12:
         denomitor=1.0e9
-        unitstring='1/fb'
+        unitstring='/fb'
         return (float(inverseubval)/float(denomitor),unitstring)
     if inverseubval>=1.0e12 and inverseubval<1.0e15:
         denomitor=1.0e12
-        unitstring='1/ab'
+        unitstring='/ab'
         return (float(inverseubval)/float(denomitor),unitstring)
 def pairwise(lst):
     """
