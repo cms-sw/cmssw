@@ -19,7 +19,7 @@ AnalyzeBeamHalo = cms.EDAnalyzer("BeamHaloAnalyzer",
                                  CollisionMuonLabel = cms.InputTag("muons"),
                                  CollisionStandAloneMuonLabel  =  cms.InputTag("standAloneMuons"),
                                  BeamHaloMuonLabel = cms.InputTag("muonsBeamHaloEndCapsOnly"),
-                                 CosmicStandAloneMuonLabel = cms.InputTag("cosmicMuons"),
+                                 CosmicStandAloneMuonLabel = cms.InputTag("muonsFromCosmics"),
                                  SuperClusterLabel = cms.InputTag("correctedHybridSuperClusters"),
                                  PhotonLabel = cms.InputTag("photons"),
                                  CSCHaloDataLabel = cms.InputTag("CSCHaloData"),
@@ -31,7 +31,22 @@ AnalyzeBeamHalo = cms.EDAnalyzer("BeamHaloAnalyzer",
                                  TextFile = cms.string(""),
                                  DumpMET = cms.double(20.),
                                  folderName = cms.string("JetMET/BeamHalo"),
-                                 StandardDQM = cms.bool(True)
+                                 StandardDQM = cms.bool(True),
+                                 # Muon-Segment matching
+                                 MatchParameters = cms.PSet(
+                                     CSCsegments = cms.InputTag("cscSegments"),
+                                     DTradius = cms.double(0.01),
+                                     DTsegments = cms.InputTag("dt4DSegments"),
+                                     TightMatchDT = cms.bool(False),
+                                     TightMatchCSC = cms.bool(True)
+                                     ),
+                                 ServiceParameters = cms.PSet(
+                                     Propagators = cms.untracked.vstring('SteppingHelixPropagatorAny',
+                                                                          'PropagatorWithMaterial',
+                                                                          'PropagatorWithMaterialOpposite'),
+                                     RPCLayers = cms.bool(True)
+                                     ),
+                                 
                                  
 
 
