@@ -5,7 +5,7 @@
   \class    FilterWrapper FilterWrapper.h "PhysicsTools/UtilAlgos/interface/FilterWrapper.h"
   \brief    Wrapper class around a class of type BasicAnalyzer to "convert" it into a full EDFilter
 
-   This template class is a wrapper round classes of type BasicFilter as defined in in the 
+   This template class is a wrapper around classes of type BasicFilter as defined in in the 
    BasicFilter.h file of this package. From this class the wrapper expects the following 
    member functions:
    
