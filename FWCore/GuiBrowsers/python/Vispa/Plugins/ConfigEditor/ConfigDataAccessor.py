@@ -89,6 +89,8 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
               if isinstance(pth._seq, (sqt._SequenceCollection)):
                 for o in pth._seq._collection:
                     self._readRecursive(next_mother, o)
+            elif isinstance(pth, sqt._UnarySequenceOperator):
+                self._readRecursive(next_mother, pth._operand)
 	else:
             # for backwards-compatibility with CMSSW_3_10_X
             for i in dir(pth):
@@ -414,6 +416,10 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         if isinstance(value, cms.InputTag):
             pythonValue = value.value()
             this_inputtags += [(str(this_key), value.value())]
+        if isinstance(value, cms.VInputTag):
+            for i in range(len(value)):
+                pythonValue = value[i].value()
+                this_inputtags += [(str(this_key)+"["+str(i)+"]", value[i].value())]
 
     def _readInputTagsRecursive(self, this_parameters, start_key=""):
         """ Make list of inputtags from parameter dict """
