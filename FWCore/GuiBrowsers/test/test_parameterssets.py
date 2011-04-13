@@ -16,7 +16,10 @@ process.outpath = cms.EndPath(process.out)
 
 process.module1=cms.EDAnalyzer("Module1",
 inputtag1 = cms.InputTag("module3"),
-vinputtag1 = cms.untracked.VInputTag(cms.InputTag("module2"))
+vinputtag1 = cms.untracked.VInputTag(cms.InputTag("module2")),
+vinputtag2 = cms.untracked.VInputTag("module4")
 )
 process.module2=cms.EDAnalyzer("Module2")
-process.p=cms.Path(process.module1+~process.module2)
+process.module3=cms.EDAnalyzer("Module3")
+process.module4=cms.EDAnalyzer("Module4")
+process.p=cms.Path(process.module1+~process.module2+~process.module3+~process.module4)

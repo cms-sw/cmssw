@@ -408,7 +408,13 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
 
     def _addInputTag(self, value, this_key, this_inputtags):
         """ Add alls inputtags of value to a list """
-        if isinstance(value, list):
+        if isinstance(value, cms.VInputTag):
+            for i in range(len(value)):
+                if type(value[i])==str:
+                    self._addInputTag(cms.InputTag(value[i]), this_key+"["+str(i)+"]", this_inputtags)
+                else:
+                    self._addInputTag(value[i], this_key+"["+str(i)+"]", this_inputtags)
+        elif isinstance(value, list):
             for i in value:
                 self._addInputTag(i, this_key, this_inputtags)
         if hasattr(value, "parameters_"):
