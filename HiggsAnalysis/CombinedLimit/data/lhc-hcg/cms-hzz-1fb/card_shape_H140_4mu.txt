@@ -2,7 +2,8 @@ imax 1
 jmax 1
 kmax *
 ---------------
-shapes * * ws_140_4mu.root w:$PROCESS
+shapes *        * ws_140_4mu.root workspace:$PROCESS
+shapes data_obs * ws_140_4mu.root workspace:TotPdfData
 ---------------
 bin 1
 observation 2
