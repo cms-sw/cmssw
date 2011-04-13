@@ -4,7 +4,8 @@ jmax 1
 kmax *
 ---------------
 shapes *   * hgg140-shapes-combined-Unbinned.reparam.root w_all:$PROCESS_$CHANNEL
-shapes sig * hgg140-shapes-combined-Unbinned.reparam.root w_all:CMS_hgg_sig_$CHANNEL
+shapes MggSig * hgg140-shapes-combined-Unbinned.reparam.root w_all:CMS_hgg_sig_$CHANNEL
+shapes MggBkg * hgg140-shapes-combined-Unbinned.reparam.root w_all:CMS_hgg_bkg_$CHANNEL
 ---------------
 bin          cat0   cat1   cat2  cat3
 observation   472    767    537   689    
@@ -30,7 +31,7 @@ CMS_hgg_sig_m0_absShiftBadR9  param   0   1.0    # additional displacement for c
 CMS_hgg_sig_sigmaScaleEBEB    param   1   0.05   # multiplicative correction to sigmas in EB*EB category, good R9
 CMS_hgg_sig_sigmaScaleEEEX    param   1   0.07   # as above, in EE*EX
 CMS_hgg_sig_sigmaScaleBadR9   param   1   0.07   # extra correction for categories with bad R9
-CMS_hgg_bkg_cat0  param  -0.0262  0.002   # Mean and absolute uncertainty on background slope
-CMS_hgg_bkg_cat1  param  -0.0272  0.002   # Mean and absolute uncertainty on background slope
-CMS_hgg_bkg_cat2  param  -0.0201  0.002   # Mean and absolute uncertainty on background slope
-CMS_hgg_bkg_cat3  param  -0.0258  0.002   # Mean and absolute uncertainty on background slope
+CMS_hgg_bkg_slope_cat0  param  -0.0262  0.002   # Mean and absolute uncertainty on background slope
+CMS_hgg_bkg_slope_cat1  param  -0.0272  0.002   # Mean and absolute uncertainty on background slope
+CMS_hgg_bkg_slope_cat2  param  -0.0201  0.002   # Mean and absolute uncertainty on background slope
+CMS_hgg_bkg_slope_cat3  param  -0.0258  0.002   # Mean and absolute uncertainty on background slope
