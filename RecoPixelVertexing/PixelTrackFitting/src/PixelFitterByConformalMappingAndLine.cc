@@ -26,7 +26,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 #include "ConformalMappingFit.h"
-#include "PixelTrackBuilder.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackBuilder.h"
 #include "RZLine.h"
 
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"

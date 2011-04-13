@@ -33,7 +33,7 @@
 
 #include "RZLine.h"
 #include "CircleFromThreePoints.h"
-#include "PixelTrackBuilder.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackBuilder.h"
 #include "DataFormats/GeometryVector/interface/Pi.h"
 
 using namespace std;
