@@ -40,7 +40,7 @@ class TtSemiLepKinFitter : public TopKinFitter {
   ~TtSemiLepKinFitter();
 
   /// kinematic fit interface
-  template <class LeptonType> int fit(const std::vector<pat::Jet>& jets, const pat::Lepton<LeptonType>& leps, const pat::MET& met);
+  template <class LeptonType> int fit(const std::vector<pat::Jet>& jets, const pat::Lepton<LeptonType>& leps, const pat::MET& met, const double jetResolutionSmearFactor);
   // return hadronic b quark candidate
   const pat::Particle fittedHadB() const { return (fitter_->getStatus()==0 ? fittedHadB_ : pat::Particle()); };
   // return hadronic light quark candidate
@@ -54,7 +54,7 @@ class TtSemiLepKinFitter : public TopKinFitter {
   // return neutrino candidate
   const pat::Particle fittedNeutrino() const { return (fitter_->getStatus()==0 ? fittedNeutrino_ : pat::Particle()); };
   /// add kin fit information to the old event solution (in for legacy reasons)
-  TtSemiEvtSolution addKinFitInfo(TtSemiEvtSolution* asol);
+  TtSemiEvtSolution addKinFitInfo(TtSemiEvtSolution* asol, const double jetResolutionSmearFactor=1.);
   
  private:
   /// print fitter setup  
