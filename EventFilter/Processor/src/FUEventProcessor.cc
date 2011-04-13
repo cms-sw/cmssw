@@ -446,13 +446,17 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
   if(nbSubProcesses_.value_==0) return enableClassic();
   //protect manipulation of subprocess array
   pthread_mutex_lock(&start_lock_);
-  subs_.clear();
-  subs_.resize(nbSubProcesses_.value_);
-  pthread_mutex_unlock(&start_lock_);
+//   subs_.clear();
+//   subs_.resize(nbSubProcesses_.value_); // this should not be necessary
   pid_t retval = -1;
   for(unsigned int i=0; i<nbSubProcesses_.value_; i++)
     {
       subs_[i]=SubProcess(i,retval); //this will replace all the scattered variables
+    }
+  pthread_mutex_unlock(&start_lock_);
+
+  for(unsigned int i=0; i<nbSubProcesses_.value_; i++)
+    {
       retval = subs_[i].forkNew();
       if(retval==0)
 	{
@@ -971,6 +975,9 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		    ost1 << "-W- Dead Process in slot " << i << " reached maximum restart count"; 
 		    localLog(ost1.str());
 		    subs_[i].countdown()--;
+		    XCEPT_DECLARE(evf::Exception,
+				  sentinelException, ost1.str());
+		    notifyQualified("error",sentinelException);
 		    continue;
 		  }
 		  subs_[i].restartCount()++;
@@ -1092,10 +1099,7 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 			      << evtProcessor_.stateNameFromIndex(p->Ms) << " mstate="
 			      << evtProcessor_.moduleNameFromIndex(p->ms) 
 			      << " - Look into possible error messages from HLT process";
-			  XCEPT_DECLARE(evf::Exception,
-					sentinelException, ost.str());
-			  notifyQualified("error",sentinelException);
-			  subs_[i].setReportedInconsistent();
+			  LOG4CPLUS_WARN(getApplicationLogger(),ost.str());
 			}
 		      nbp->value_ += subs_[i].params().nbp;
 		      nba->value_  += subs_[i].params().nba;
@@ -1617,6 +1621,10 @@ void FUEventProcessor::stopSlavesAndAcknowledge()
 	  break;
 	}
       }
+      else {
+	pthread_mutex_unlock(&stop_lock_);
+	continue;
+      }
       pthread_mutex_unlock(&stop_lock_);
       if(msg1->mtype==MSQS_MESSAGE_TYPE_STOP)
 	while(subs_[i].alive()>0) ::usleep(10000);
@@ -1814,7 +1822,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.122 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.123 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

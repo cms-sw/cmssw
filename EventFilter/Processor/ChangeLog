@@ -1,5 +1,12 @@
 2011-04-12 Emilio Meschi <emilio.meschi@cern.ch>
 
+	* tag V02-04-01
+	* fix bug introduced in stopAndHalt by breaking stop of slaves in two steps
+	* fix bug in TriggerReportHelpers which decremented reference LS below zero after 2 restarts
+	* move sentinel message to after max restart is reached
+
+2011-04-12 Emilio Meschi <emilio.meschi@cern.ch>
+
 	* tag V02-04-00
 	* change handling of socket FD after fork (moved to SubProcess)
 	* perform stop in two steps: first send signal to all live subprocesses
