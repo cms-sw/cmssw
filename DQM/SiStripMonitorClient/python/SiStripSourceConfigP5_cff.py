@@ -13,6 +13,7 @@ SiStripMonitorDigi.xLumiProf = 3
 # removing some histograms
 SiStripMonitorDigi.TH1ADCsCoolestStrip.moduleswitchon = False
 SiStripMonitorDigi.TH1ADCsHottestStrip.moduleswitchon = False
+SiStripMonitorDigi.TH1DigiADCs.moduleswitchon = False
 SiStripMonitorDigi.TH1StripOccupancy.moduleswitchon = False
 
 # SiStripMonitorCluster ####
@@ -24,7 +25,10 @@ SiStripMonitorClusterReal.TProfTotalNumberOfClusters.subdetswitchon = True
 SiStripMonitorClusterReal.TProfClustersApvCycle.subdetswitchon = True
 # removing some histograms
 SiStripMonitorClusterReal.TH1NrOfClusterizedStrips.moduleswitchon = False
-SiStripMonitorClusterReal.TH1NrOfClusterizedStrips.moduleswitchon = False
+SiStripMonitorClusterReal.TH1ClusterNoise.moduleswitchon = False
+SiStripMonitorClusterReal.TH1ClusterStoN.moduleswitchon = False
+SiStripMonitorClusterReal.TH1ClusterCharge.moduleswitchon = False
+SiStripMonitorClusterReal.TH1ClusterWidth.moduleswitchon = False
 SiStripMonitorClusterReal.TH1ModuleLocalOccupancy.moduleswitchon = False
 
 # SiStripMonitorTrack ####
