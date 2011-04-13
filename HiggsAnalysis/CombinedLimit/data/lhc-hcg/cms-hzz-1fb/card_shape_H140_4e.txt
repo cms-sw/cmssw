@@ -6,7 +6,7 @@ shapes *        * ws_140_4e.root workspace:$PROCESS
 shapes data_obs * ws_140_4e.root workspace:TotPdfData
 ---------------
 bin 1
-observation 3
+observation 2
 ------------------------------
 bin          1          1
 process      signal     background
