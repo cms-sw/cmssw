@@ -1,15 +1,15 @@
 autoSkim = {
-    'MinimumBias':'MuonTrack+HSCP+BeamBkg+LogError+ValSkim+TPG',
+    'MinimumBias':'MuonTrack+BeamBkg+ValSkim+LogError+HSCP',
     'ZeroBias':'LogError',
     'Commissioning':'MuonDPG+LogError',
     'Cosmics':'CSC+CosmicSP+LogError',
-    'Mu' : 'WZMu+TPG+LogError+DiLeptonMu+SingleMu',    
-    'EG':'WZEG+LogError+DiLeptonEle+SuperCluster',
-    'Electron':'WZEG+LogError+DiLeptonEle',
+    'Mu' : 'WZMu+LogError+DiLeptonMu+SingleMu',    
+    'EG':'WZEG+WElectron+ZElectron+LogError+DiLeptonEle+SuperCluster',
+    'Electron':'WZEG+WElectron+ZElectron+LogError+DiLeptonEle',
     'Photon':'WZEG+LogError+SuperCluster',
-    'JetMETTau':'TPG+DiJet+Tau+LogError',
-    'JetMET':'DiJet+LogError',
-    'BTau':'Tau+LogError',
+    'JetMETTau':'LogError+DiJet+Tau',
+    'JetMET':'LogError+DiJet',
+    'BTau':'LogError+Tau',
     'Jet':'LogError+DiJet',
     'METFwd':'LogError'
     }
