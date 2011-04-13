@@ -21,6 +21,12 @@
 	  into trunk.
 	* This tag requires IOPool/Streamer V07-01-00 or later.
 
+2011-04-13 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-03-05
+	* Remove log message when resizing info-space vectors.
+	* Log state changes to help with debugging the stopping failures.
+
 2011-04-08 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V07-03-04
