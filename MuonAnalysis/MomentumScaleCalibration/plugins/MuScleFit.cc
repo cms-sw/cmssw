@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2011/03/23 16:14:34 $
-//  $Revision: 1.104 $
+//  $Date: 2011/03/31 15:57:45 $
+//  $Revision: 1.105 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -292,7 +292,7 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) :
     MuScleFitUtils::MuonTypeForCheckMassWindow = theMuonType_-1;
     MuScleFitUtils::MuonType = theMuonType_-1;
   }
-  else if(theMuonType_ == 0 || theMuonType_ == 4 || theMuonType_ >= 10 || theMuonType_==-1 || theMuonType_==-2 || theMuonType_==-3 || theMuonType_==-4) {
+  else if(theMuonType_ == 0 || theMuonType_ == 4 || theMuonType_ == 5 || theMuonType_ >= 10 || theMuonType_==-1 || theMuonType_==-2 || theMuonType_==-3 || theMuonType_==-4) {
     MuScleFitUtils::MuonTypeForCheckMassWindow = 2;
     MuScleFitUtils::MuonType = 2;
   }
