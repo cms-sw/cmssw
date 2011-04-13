@@ -64,6 +64,13 @@ BeamHaloAnalyzer::BeamHaloAnalyzer( const edm::ParameterSet& iConfig)
 
   FolderName = iConfig.getParameter<std::string>("folderName");
   DumpMET = iConfig.getParameter<double>("DumpMET");
+
+  //Muon to Segment Matching
+  edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
+  TheService = new MuonServiceProxy(serviceParameters);
+  edm::ParameterSet matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
+  TheMatcher = new MuonSegmentMatcher(matchParameters, TheService);
+
 }
 
 
@@ -143,6 +150,13 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
 	hCSCHaloData_NOutOfTimeTriggersMEMinus  = dqm->book1D("CSCHaloData_NOutOfTimeTriggersMEMinus", "", 20, -0.5, 19.5);
 	hCSCHaloData_NOutOfTimeTriggers  = dqm->book1D("CSCHaloData_NOutOfTimeTriggers", "", 20, -0.5, 19.5);
 	hCSCHaloData_NOutOfTimeHits  = dqm->book1D("CSCHaloData_NOutOfTimeHits", "", 60, -0.5, 59.5);
+	hCSCHaloData_NTracksSmalldT  = dqm->book1D("CSCHaloData_NTracksSmalldT", "", 15, -0.5, 14.5);
+	hCSCHaloData_NTracksSmallBeta  = dqm->book1D("CSCHaloData_NTracksSmallBeta", "", 15, -0.5, 14.5);
+	hCSCHaloData_NTracksSmallBetaAndSmalldT  = dqm->book1D("CSCHaloData_NTracksSmallBetaAndSmalldT", "", 15, -0.5, 14.5);
+	hCSCHaloData_NTracksSmalldTvsNHaloTracks = dqm->book2D("CSCHaloData_NTracksSmalldTvsNHaloTracks","",15, -0.5, 14.5,15, -0.5, 14.5);
+	hCSCHaloData_SegmentdT = dqm->book1D("CSCHaloData_SegmentdT","",100,-100,100);
+	hCSCHaloData_FreeInverseBeta = dqm->book1D("CSCHaloData_FreeInverseBeta","",80,-4,4);
+	hCSCHaloData_FreeInverseBetaVsSegmentdT = dqm->book2D("CSCHaloData_FreeInverseBetaVsSegmentdT","",100,-100,100,80,-4,4);
       }
     else 
       {
@@ -162,6 +176,13 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
 	hCSCHaloData_NOutOfTimeTriggersvsL1HaloExists  = dqm->book2D("CSCHaloData_NOutOfTimeTriggersvsL1HaloExists", "", 20, -0.5, 19.5, 2, -0.5, 1.5);
 	hCSCHaloData_NOutOfTimeTriggers  = dqm->book1D("CSCHaloData_NOutOfTimeTriggers", "", 20, -0.5, 19.5);
 	hCSCHaloData_NOutOfTimeHits  = dqm->book1D("CSCHaloData_NOutOfTimeHits", "", 60, -0.5, 59.5);
+	hCSCHaloData_NTracksSmalldT  = dqm->book1D("CSCHaloData_NTracksSmalldT", "", 15, -0.5, 14.5);
+	hCSCHaloData_NTracksSmallBeta  = dqm->book1D("CSCHaloData_NTracksSmallBeta", "", 15, -0.5, 14.5);
+	hCSCHaloData_NTracksSmallBetaAndSmalldT  = dqm->book1D("CSCHaloData_NTracksSmallBetaAndSmalldT", "", 15, -0.5, 14.5);
+	hCSCHaloData_NTracksSmalldTvsNHaloTracks = dqm->book2D("CSCHaloData_NTracksSmalldTvsNHaloTracks","",15, -0.5, 14.5,15, -0.5, 14.5);
+	hCSCHaloData_SegmentdT = dqm->book1D("CSCHaloData_SegmentdT","",100,-100,100);
+	hCSCHaloData_FreeInverseBeta = dqm->book1D("CSCHaloData_FreeInverseBeta","",80,-4,4);
+	hCSCHaloData_FreeInverseBetaVsSegmentdT = dqm->book2D("CSCHaloData_FreeInverseBetaVsSegmentdT","",100,-100,100,80,-4,4);
       }
 
     // GlobalHaloData
@@ -287,17 +308,23 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   iSetup.get<CaloGeometryRecord>().get(TheCaloGeometry);
 
   //Get Stand-alone Muons from Cosmic Muon Reconstruction
-  edm::Handle< reco::TrackCollection > TheCosmics;
+  edm::Handle< reco::MuonCollection > TheCosmics;
   iEvent.getByLabel(IT_CosmicStandAloneMuon, TheCosmics);
+  edm::Handle<reco::MuonTimeExtraMap> TheCSCTimeMap;
+  iEvent.getByLabel(IT_CosmicStandAloneMuon.label(),"csc",TheCSCTimeMap);
   bool CSCTrackPlus = false; bool CSCTrackMinus = false;
+  int imucount=0;
   if( TheCosmics.isValid() )
     {
-      for( reco::TrackCollection::const_iterator cosmic = TheCosmics ->begin() ; cosmic != TheCosmics->end() ; cosmic++ )
-	{
+      for( reco::MuonCollection::const_iterator iMuon = TheCosmics->begin() ; iMuon != TheCosmics->end() ; iMuon++, imucount++ )
+        {
+	  reco::TrackRef Track = iMuon->outerTrack();
+          if(!Track) continue;
+
 	  if( !CSCTrackPlus || !CSCTrackMinus )
             {
-              if( cosmic->eta() > 0 || cosmic->outerPosition().z() > 0  || cosmic->innerPosition().z() > 0 ) CSCTrackPlus = true ;
-	      else if( cosmic->eta() < 0 || cosmic->outerPosition().z() < 0 || cosmic->innerPosition().z() < 0) CSCTrackMinus = true;
+              if( Track->eta() > 0 || Track->outerPosition().z() > 0  || Track->innerPosition().z() > 0 ) CSCTrackPlus = true ;
+	      else if( Track->eta() < 0 || Track->outerPosition().z() < 0 || Track->innerPosition().z() < 0) CSCTrackMinus = true;
 	    }
 	  
 	  float innermost_phi = 0.;
@@ -309,9 +336,9 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  float innermost_x =0.;
 	  float innermost_y =0.;
 	  float innermost_r =0.;
-	  for(unsigned int j = 0 ; j < cosmic->extra()->recHits().size(); j++ )
+	  for(unsigned int j = 0 ; j < Track->extra()->recHits().size(); j++ )
 	    {
-	      edm::Ref<TrackingRecHitCollection> hit( cosmic->extra()->recHits(), j );
+	      edm::Ref<TrackingRecHitCollection> hit( Track->extra()->recHits(), j );
 	      DetId TheDetUnitId(hit->geographicalId());
 	      if( TheDetUnitId.det() != DetId::Muon ) continue;
 	      if( TheDetUnitId.subdetId() != MuonSubdetId::CSC ) continue;
@@ -342,8 +369,8 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  float deta = TMath::Abs( outermost_eta - innermost_eta );
 	  hExtra_CSCTrackInnerOuterDPhi -> Fill( dphi );
 	  hExtra_CSCTrackInnerOuterDEta -> Fill( deta ); 
-	  hExtra_CSCTrackChi2Ndof  -> Fill(cosmic->normalizedChi2() );
-	  hExtra_CSCTrackNHits     -> Fill(cosmic->numberOfValidHits() );
+	  hExtra_CSCTrackChi2Ndof  -> Fill(Track->normalizedChi2() );
+	  hExtra_CSCTrackNHits     -> Fill(Track->numberOfValidHits() );
 	  hExtra_InnerMostTrackHitR  ->Fill(innermost_r);
 	  hExtra_InnerMostTrackHitPhi ->Fill(innermost_phi);	  
 	  if( !StandardDQM )
@@ -355,6 +382,57 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      else 
 		hExtra_InnerMostTrackHitRMinusZ ->Fill(innermost_z, innermost_r);
 	    }
+
+	  std::vector<const CSCSegment*> MatchedSegments = TheMatcher->matchCSC(*Track,iEvent);
+	  // Find the inner and outer segments separately in case they don't agree completely with recHits
+	  // Plan for the possibility segments in both endcaps
+	  float InnerSegmentTime[2] = {0,0};
+	  float OuterSegmentTime[2] = {0,0};
+	  float innermost_seg_z[2] = {1500,1500};
+	  float outermost_seg_z[2] = {0,0};
+	  for (std::vector<const CSCSegment*>::const_iterator segment =MatchedSegments.begin();
+	       segment != MatchedSegments.end(); ++segment)
+	    {
+	      CSCDetId TheCSCDetId((*segment)->cscDetId());
+	      const CSCChamber* TheCSCChamber = TheCSCGeometry->chamber(TheCSCDetId);
+	      LocalPoint TheLocalPosition = (*segment)->localPosition();
+	      const GlobalPoint TheGlobalPosition = TheCSCChamber->toGlobal(TheLocalPosition);
+	      float z = TheGlobalPosition.z();
+	      int TheEndcap = TheCSCDetId.endcap();
+	      if( TMath::Abs(z) < innermost_seg_z[TheEndcap-1] )
+		{
+		  innermost_seg_z[TheEndcap-1] = TMath::Abs(z);
+		  InnerSegmentTime[TheEndcap-1] = (*segment)->time();
+		}
+	      if( TMath::Abs(z) > outermost_seg_z[TheEndcap-1] )
+		{
+		  outermost_seg_z[TheEndcap-1] = TMath::Abs(z);
+		  OuterSegmentTime[TheEndcap-1] = (*segment)->time();
+		}
+	    }
+
+	  float dT_Segment = 0; // default safe value, looks like collision muon
+	  if( innermost_seg_z[0] < outermost_seg_z[0]) // two segments in ME+
+	    dT_Segment =  OuterSegmentTime[0]-InnerSegmentTime[0];
+	  if( innermost_seg_z[1] < outermost_seg_z[1]) // two segments in ME-
+	    {
+	      // replace the measurement if there weren't segments in ME+ or
+	      // if the track in ME- has timing more consistent with an incoming particle
+	      if (dT_Segment == 0.0 ||  OuterSegmentTime[1]-InnerSegmentTime[1] < dT_Segment)
+		dT_Segment = OuterSegmentTime[1]-InnerSegmentTime[1] ;
+	    }
+	  hCSCHaloData_SegmentdT->Fill(dT_Segment);
+
+	  // Analyze the MuonTimeExtra information
+	  reco::MuonRef muonR(TheCosmics,imucount);
+	  if (TheCSCTimeMap.isValid()){
+	    const reco::MuonTimeExtraMap & timeMapCSC = *TheCSCTimeMap;
+	    reco::MuonTimeExtra timecsc = timeMapCSC[muonR];
+	    float freeInverseBeta = timecsc.freeInverseBeta();
+	    hCSCHaloData_FreeInverseBeta->Fill(freeInverseBeta);
+	    hCSCHaloData_FreeInverseBetaVsSegmentdT->Fill(dT_Segment,freeInverseBeta);
+	  }
+
 	}
     }
   
@@ -481,7 +559,13 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       hCSCHaloData_NOutOfTimeTriggers->Fill( CSCData.NOutOfTimeTriggers(HaloData::both) );
       hCSCHaloData_NOutOfTimeHits->Fill( CSCData.NOutOfTimeHits() );
       hCSCHaloData_NOutOfTimeTriggersvsL1HaloExists->Fill( CSCData.NOutOfTimeTriggers(HaloData::both), CSCData.NumberOfHaloTriggers(HaloData::both) >0 );
-    }
+      hCSCHaloData_NTracksSmalldT	     ->Fill( CSCData.NTracksSmalldT()	         );  
+      hCSCHaloData_NTracksSmallBeta          ->Fill( CSCData.NTracksSmallBeta()	         );
+      hCSCHaloData_NTracksSmallBetaAndSmalldT->Fill( CSCData.NTracksSmallBetaAndSmalldT());
+      hCSCHaloData_NTracksSmalldTvsNHaloTracks->Fill( CSCData.GetTracks().size(), CSCData.NTracksSmalldT()  );  
+
+
+  }
 
   //Get EcalHaloData 
   edm::Handle<reco::EcalHaloData> TheEcalHaloData;
