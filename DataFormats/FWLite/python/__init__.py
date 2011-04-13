@@ -110,12 +110,10 @@ class Handle:
         if not getByLabelSuccess:
             self._exception = RuntimeError ("getByLabel (%s, %s) failed" \
                                             % (self, labelString))
-            print "one", self._exception
             return
         if not self._wrapper.isPresent():
             self._exception = RuntimeError ("getByLabel (%s, %s) not present this event" \
                                             % (self, labelString))
-            print "two", self._exception
             return
         # if we're still here, then everything is happy.  Clear the exception
         self._exception = None
