@@ -1,5 +1,5 @@
 autoSkim = {
-    'MinimumBias':'MuonTrack+BeamBkg+ValSkim+LogError+HSCP',
+    'MinimumBias':'MuonTrack+BeamBkg+ValSkim+LogError+HSCPSD',
     'ZeroBias':'LogError',
     'Commissioning':'MuonDPG+LogError',
     'Cosmics':'CSC+CosmicSP+LogError',
