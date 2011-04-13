@@ -3,7 +3,7 @@ jmax 1
 kmax *
 ---------------
 shapes *        * ws_140_4mu.root workspace:$PROCESS
-shapes data_obs * ws_140_4mu.root workspace:TotPdfData
+shapes data_obs * ws_140_4mu.root workspace:backgroundData
 ---------------
 bin 1
 observation 1
