@@ -374,12 +374,19 @@ void FUResourceBroker::I2O_FU_TAKE_Callback(toolbox::mem::Reference* bufRef)
 //______________________________________________________________________________
 void FUResourceBroker::I2O_EVM_LUMISECTION_Callback(toolbox::mem::Reference* bufRef)
 {
+
+  I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *msg = 
+    (I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *)bufRef->getDataLocation();
+  if(msg->lumiSection==0){
+    LOG4CPLUS_ERROR(log_,"EOL message received for ls=0!!! ");
+    fsm_.fireFailed("EOL message received for ls=0!!! ",this);
+  }
   resourceTable_->postEndOfLumiSection(bufRef); // this method dummy for now
 //   I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *msg =
 //     (I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *)bufRef->getDataLocation();
   
 //   LOG4CPLUS_WARN(log_, "Received END-OF-LS from EVM for LS " << msg->lumiSection);
-
+  
 }
 
 
@@ -728,11 +735,14 @@ void FUResourceBroker::exportParameters()
   gui_->addMonitorCounter("nbPendingRequests",      &nbPendingRequests_);
   gui_->addMonitorCounter("nbReceivedEvents",       &nbReceivedEvents_);
   gui_->addMonitorCounter("nbSentEvents",           &nbSentEvents_);
-  gui_->addMonitorCounter("nbSentDqmEvents",        &nbSentDqmEvents_);
   gui_->addMonitorCounter("nbSentErrorEvents",      &nbSentErrorEvents_);
-  gui_->addMonitorCounter("nbPendingSMDiscards",    &nbPendingSMDiscards_);
-  gui_->addMonitorCounter("nbPendingSMDqmDiscards", &nbPendingSMDqmDiscards_);
   gui_->addMonitorCounter("nbDiscardedEvents",      &nbDiscardedEvents_);
+  gui_->addMonitorCounter("nbPendingSMDiscards",    &nbPendingSMDiscards_);
+
+  gui_->addMonitorCounter("nbSentDqmEvents",        &nbSentDqmEvents_);
+  gui_->addMonitorCounter("nbDqmDiscardReceived",   &nbDqmDiscardReceived_);
+  gui_->addMonitorCounter("nbPendingSMDqmDiscards", &nbPendingSMDqmDiscards_);
+
   gui_->addMonitorCounter("nbLostEvents",           &nbLostEvents_);
   gui_->addMonitorCounter("nbDataErrors",           &nbDataErrors_);
   gui_->addMonitorCounter("nbCrcErrors",            &nbCrcErrors_);
@@ -770,7 +780,6 @@ void FUResourceBroker::exportParameters()
   gui_->addDebugCounter("nbAllocateSent",           &nbAllocateSent_);
   gui_->addDebugCounter("nbTakeReceived",           &nbTakeReceived_);
   gui_->addDebugCounter("nbDataDiscardReceived",    &nbDataDiscardReceived_);
-  gui_->addDebugCounter("nbDqmDiscardReceived",     &nbDqmDiscardReceived_);
 
   gui_->exportParameters();
 

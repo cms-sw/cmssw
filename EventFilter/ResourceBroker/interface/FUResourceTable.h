@@ -253,6 +253,7 @@ namespace evf {
     bool               isReadyToShutDown_;
     bool               isActive_;
     bool               isHalting_;
+    bool               isStopping_;
     
     UInt_t             nbErrors_;
     UInt_t             nbCrcErrors_;

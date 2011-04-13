@@ -67,6 +67,7 @@ FUResourceTable::FUResourceTable(bool              segmentationMode,
   , isReadyToShutDown_(true)
   , isActive_(false)
   , isHalting_(false)
+  , isStopping_(false)
   , runNumber_(0xffffffff)
   , lock_(toolbox::BSem::FULL)
   , frb_(frb)
@@ -369,7 +370,7 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
     
     if (!isHalting_) {
       sendDiscard(buResourceId);
-      sendAllocate();
+      if(!isStopping_)sendAllocate();
     }
   }
   
@@ -568,7 +569,9 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef)
   }
   if (acceptSMDqmDiscard_[dqmIndex]>0) {
     acceptSMDqmDiscard_[dqmIndex]--;
-    if(nbPendingSMDqmDiscards_>0)nbPendingSMDqmDiscards_--;
+    if(nbPendingSMDqmDiscards_>0){
+      nbPendingSMDqmDiscards_--;
+    }
     else {
       LOG4CPLUS_WARN(log_,"Spurious??? DQM discard by StorageManager, index " << dqmIndex 
 		     << " cell state " << shmBuffer_->dqmState(dqmIndex) << " accept flag " << acceptSMDqmDiscard_[dqmIndex];);
@@ -601,6 +604,7 @@ void FUResourceTable::postEndOfLumiSection(MemRef_t* bufRef)
     (I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *)bufRef->getDataLocation();
   //make sure to fill up the shmem so no process will miss it
   // but processes will have to handle duplicates
+
   for(unsigned int i = 0; i < nbRawCells_; i++) 
     shmBuffer_->writeRawLumiSectionEvent(msg->lumiSection);
 }
@@ -661,6 +665,7 @@ void FUResourceTable::dumpEvent(FUShmRawCell* cell)
 //______________________________________________________________________________
 void FUResourceTable::stop()
 {
+  isStopping_ = true;
   shutDownClients();
 }
 
@@ -680,6 +685,16 @@ void FUResourceTable::shutDownClients()
   isReadyToShutDown_   = false;
   
   if (nbClientsToShutDown_==0) {
+    LOG4CPLUS_INFO(log_,"No clients to shut down. Checking if there are raw cells not assigned to any process yet");
+    UInt_t n=nbResources();
+    for (UInt_t i=0;i<n;i++) {
+      evt::State_t state=shmBuffer_->evtState(i);
+      if (state!=evt::EMPTY){
+	LOG4CPLUS_WARN(log_,"Schedule discard at STOP for orphaned event in state " 
+		       << state);
+	shmBuffer_->scheduleRawCellForDiscardServerSide(i);
+      }
+    }
     shmBuffer_->scheduleRawEmptyCellForDiscard();
   }
   else {
@@ -725,6 +740,7 @@ void FUResourceTable::resetCounters()
 
   sumOfSquares_          =0;
   sumOfSizes_            =0;
+  isStopping_            =false;
 }
 
 
@@ -988,7 +1004,9 @@ void FUResourceTable::sendDqmEvent(UInt_t   fuDqmId,
   else {
     sm_->sendDqmEvent(fuDqmId,runNumber,evtAtUpdate,folderId,
 		      fuProcessId,fuGuid,data,dataSize);
+
     nbPendingSMDqmDiscards_++;
+
     acceptSMDqmDiscard_[fuDqmId]++;
     if(acceptSMDqmDiscard_[fuDqmId]>1)
       LOG4CPLUS_WARN(log_,"DQM Cell " << fuDqmId << " being sent more than once for folder " 
