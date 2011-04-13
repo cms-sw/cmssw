@@ -43,8 +43,8 @@ class TkVoltageMapCreator : public edm::EDAnalyzer {
       // ----------member data ---------------------------
 
   const std::string _lvfile;
-  const std::string _hvfile;
   const std::string _lvtkmapname;
+  const std::string _hvfile;
   const std::string _hvtkmapname;
 
 };
