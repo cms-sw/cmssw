@@ -15,6 +15,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.outpath = cms.EndPath(process.out)
 
 process.module1=cms.EDAnalyzer("Module1",
+inputtag1 = cms.InputTag("module3"),
 vinputtag1 = cms.untracked.VInputTag(cms.InputTag("module2"))
 )
 process.module2=cms.EDAnalyzer("Module2")

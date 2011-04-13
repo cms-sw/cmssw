@@ -416,10 +416,6 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         if isinstance(value, cms.InputTag):
             pythonValue = value.value()
             this_inputtags += [(str(this_key), value.value())]
-        if isinstance(value, cms.VInputTag):
-            for i in range(len(value)):
-                pythonValue = value[i].value()
-                this_inputtags += [(str(this_key)+"["+str(i)+"]", value[i].value())]
 
     def _readInputTagsRecursive(self, this_parameters, start_key=""):
         """ Make list of inputtags from parameter dict """
