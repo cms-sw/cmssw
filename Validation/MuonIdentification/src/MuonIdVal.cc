@@ -110,19 +110,19 @@ MuonIdVal::beginJob()
 
          if (makeShowerInformationPlots_) {
              sprintf(name, "hMuonShowerSizeT%i", station+1);
-             sprintf(title, "Station %i itransverse cluster size", station+1);
+             sprintf(title, "Station %i Transverse Cluster Size", station+1);
              hMuonShowerSizeT[i][station] = dbe_->book1D(name, title,1000,0,500);
              sprintf(name, "hMuonShowerDeltaR%i", station+1);
-             sprintf(title, "Station %i deltaR", station+1);
+             sprintf(title, "Station %i DeltaR", station+1);
              hMuonShowerDeltaR[i][station] = dbe_->book1D(name, title,5000,0,0.5);
              sprintf(name, "hMuonAllHits%i", station+1);
-             sprintf(title, "Station %i number of the 1D DT 2D CSC rechits", station+1);
+             sprintf(title, "Station %i Number of 1D DT or 2D CSC RecHits", station+1);
              hMuonAllHits[i][station] = dbe_->book1D(name, title,400,0,400);
              sprintf(name, "hMuonHitsFromSegments%i", station+1);
-             sprintf(title, "Station %i used by 4D DT segments or 3D CSC hits", station+1);
+             sprintf(title, "Station %i Hits used by 4D DT or 3D CSC Segments", station+1);
              hMuonHitsFromSegments[i][station] = dbe_->book1D(name, title,400,0,400);
              sprintf(name, "hMuonUncorrelatedHits%i", station+1);
-             sprintf(title, "Station %i uncorrelated hits", station+1);
+             sprintf(title, "Station %i Uncorrelated Hits", station+1);
              hMuonUncorrelatedHits[i][station] = dbe_->book1D(name, title,400,0,400);
          }
 
