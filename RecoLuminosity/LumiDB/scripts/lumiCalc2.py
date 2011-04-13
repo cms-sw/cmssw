@@ -224,7 +224,7 @@ if __name__ == '__main__':
         reqHlt=False
         if options.action!='delivered' and  options.action!='status':
             reqTrg=True
-            if options.hltpath:
+            if options.action=='recorded':
                 reqHlt=True
         session.transaction().start(True)
         schema=session.nominalSchema()
@@ -235,6 +235,7 @@ if __name__ == '__main__':
             runlsbyfile=p.runsandls()
             for runinfile in sorted(runlsbyfile):
                 if runinfile not in runlist:
+                    irunlsdict[runinfile]=None
                     continue
                 irunlsdict[runinfile]=runlsbyfile[runinfile]
         else:
@@ -263,7 +264,7 @@ if __name__ == '__main__':
        if not options.outputfile:
            lumiReport.toScreenOverview(result,options.verbose)
        else:
-           lumiReport.toCSVOverview(result,options.outputfile)
+           lumiReport.toCSVOverview(result,options.outputfile,options.outputfile)
     if options.action == 'recorded':
        pass
     if options.action == 'lumibyls':

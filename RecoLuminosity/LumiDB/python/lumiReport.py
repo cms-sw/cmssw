@@ -155,8 +155,30 @@ def toScreenOverview(lumidata,isverbose):
     print tablePrinter.indent (totrowlabels+totaltable, hasHeader = True, separateRows = False, prefix = '| ',
                                postfix = ' |', justify = 'right', delim = ' | ',
                                wrapfunc = lambda x: wrap_onspace (x, 20))
+    
 def toCSVOverview(lumidata,filename,isverbose):
-    pass
+    result=[]
+    fieldnames = ['Run', 'DeliveredLS', 'Delivered(1/ub)','SelectedLS','Recorded(1/ub)']
+    r=csvReporter.csvReporter(filename)
+    for run in sorted(lumidata):
+        lsdata=lumidata[run]
+        if lsdata is None:
+            result.append([run,'n/a','n/a','n/a','n/a'])
+            continue
+        nls=len(lsdata)
+        deliveredData=[x[5] for x in lsdata]
+        recordedData=[x[6] for x in lsdata if x[6] is not None]
+        totdeliveredlumi=0.0
+        totrecordedlumi=0.0
+        if len(deliveredData)!=0:
+            totdeliveredlumi=sum(deliveredData)
+        if len(recordedData)!=0:
+            totrecordedlumi=sum(recordedData)
+        selectedcmsls=[x[1] for x in lsdata if x[1]!=0]
+        selectedlsStr = CommonUtil.splitlistToRangeString(selectedcmsls)
+        result.append([run,nls,totdeliveredlumi,selectedlsStr,totrecordedlumi])
+    r.writeRow(fieldnames)
+    r.writeRows(result)
 def toCSVBXInfo(lumidata,filename,bxfield='bxlumi'):
     '''
     dump selected bxlumi or beam intensity as the last field
