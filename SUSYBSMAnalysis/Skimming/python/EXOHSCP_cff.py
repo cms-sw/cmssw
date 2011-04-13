@@ -9,7 +9,7 @@ generalTracksSkim = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
     filter = True,
     applyBasicCuts = True,
     ptMin = TRACK_PT,
-    nHitMin = 5,
+    nHitMin = 8,
     chi2nMax = 10.,
 )
 
@@ -17,11 +17,13 @@ trackerSeq = cms.Sequence( generalTracksSkim)
 
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from RecoTracker.TrackProducer.TrackRefitters_cff import *
-TrackRefitter.src = "generalTracksSkim"
+TrackRefitterSkim = TrackRefitter.clone()
+TrackRefitterSkim.src = "generalTracksSkim"
 
-dedxNPHarm2 = cms.EDProducer("DeDxEstimatorProducer",
-    tracks                     = cms.InputTag("TrackRefitter"),
-    trajectoryTrackAssociation = cms.InputTag("TrackRefitter"),
+
+dedxSkimNPHarm2 = cms.EDProducer("DeDxEstimatorProducer",
+    tracks                     = cms.InputTag("TrackRefitterSkim"),
+    trajectoryTrackAssociation = cms.InputTag("TrackRefitterSkim"),
 
     estimator      = cms.string('generic'),
     exponent       = cms.double(-2.0),
@@ -41,21 +43,22 @@ dedxNPHarm2 = cms.EDProducer("DeDxEstimatorProducer",
 
 
 DedxFilter = cms.EDFilter("HSCPFilter",
-	 inputTrackCollection = cms.InputTag("TrackRefitter"),
-	 inputDedxCollection =  cms.InputTag("dedxNPHarm2"),
+     	 inputTrackCollection = cms.InputTag("TrackRefitterSkim"),
+	 inputDedxCollection =  cms.InputTag("dedxSkimNPHarm2"),
 	 trkPtMin = cms.double(TRACK_PT),
-	 dedxMin =cms.double(3.2),
+	 dedxMin =cms.double(3.5),
      dedxMaxLeft =cms.double(2.8),
-     ndedxHits = cms.int32(5),
+     ndedxHits = cms.int32(8),
      etaMin= cms.double(-2.4),
      etaMax= cms.double(2.4),
      chi2nMax = cms.double(10),
-     dxyMax = cms.double(0.5),
-     dzMax = cms.double(5)
-						  
+     dxyMax = cms.double(0.3),
+     dzMax = cms.double(3),
+     filter = cms.bool(True)
+
 )
 
-dedxSeq = cms.Sequence(offlineBeamSpot + TrackRefitter + dedxNPHarm2+DedxFilter)
+dedxSeq = cms.Sequence(offlineBeamSpot + TrackRefitterSkim + dedxSkimNPHarm2+DedxFilter)
 
 
 from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
@@ -172,7 +175,7 @@ exoticaRecoIsoPhotonSeq = cms.EDFilter("MonoPhotonSkimmer",
 )
 
 
-exoticaHSCPSeq = cms.Sequence( trackerSeq + dedxSeq+ecalSeq+hcalSeq+muonSeq+HSCPIsolation01+HSCPIsolation03+HSCPIsolation05)
+exoticaHSCPSeq = cms.Sequence(trackerSeq+dedxSeq+ecalSeq+hcalSeq+muonSeq+HSCPIsolation01+HSCPIsolation03+HSCPIsolation05)
 exoticaHSCPIsoPhotonSeq = cms.Sequence(exoticaRecoIsoPhotonSeq + trackerSeq+ecalSeq+hcalSeq+muonSeq+HSCPIsolation01+HSCPIsolation03+HSCPIsolation05)
 
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jie Chen
 //         Created:  Thu Apr 29 16:32:10 CDT 2010
-// $Id: HSCPFilter.cc,v 1.1 2010/05/04 06:06:41 jiechen Exp $
+// $Id: HSCPFilter.cc,v 1.2 2011/03/26 00:17:24 jiechen Exp $
 //
 //
 
@@ -58,6 +58,7 @@ class HSCPFilter : public edm::EDFilter {
       virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
+      bool filterFlag;
       edm::InputTag input_track_collection,input_dedx_collection;
       int ndedxHits;
       double dedxMin, dedxMaxLeft, trkPtMin,etaMin,etaMax,chi2nMax,dxyMax,dzMax;
@@ -78,6 +79,7 @@ class HSCPFilter : public edm::EDFilter {
 //
 HSCPFilter::HSCPFilter(const edm::ParameterSet& iConfig)
 {
+     filterFlag = iConfig.getParameter< bool >("filter");
      input_track_collection = iConfig.getParameter< edm::InputTag >("inputTrackCollection");    
 input_dedx_collection =  iConfig.getParameter< edm::InputTag >("inputDedxCollection");
      dedxMin = iConfig.getParameter< double >("dedxMin");
@@ -89,7 +91,6 @@ input_dedx_collection =  iConfig.getParameter< edm::InputTag >("inputDedxCollect
      chi2nMax = iConfig.getParameter< double >("chi2nMax");
      dxyMax = iConfig.getParameter< double >("dxyMax");
      dzMax = iConfig.getParameter< double >("dzMax");
-
 }
 
 
@@ -127,6 +128,8 @@ HSCPFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::VertexCollection> recoVertexHandle;
    iEvent.getByLabel("offlinePrimaryVertices", recoVertexHandle);
    reco::VertexCollection recoVertex = *recoVertexHandle;
+
+   if(!filterFlag) return true;
 
    if(recoVertex.size()<1) return false;
 
