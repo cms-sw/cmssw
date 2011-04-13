@@ -101,6 +101,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
         const edm::ParameterSet &psPulseShape = conf.getParameter<edm::ParameterSet>("pulseShapeParameters");
         hbhePulseShapeFlagSetter_ = new HBHEPulseShapeFlagSetter(
 								 psPulseShape.getParameter<double>("MinimumChargeThreshold"),
+								 psPulseShape.getParameter<double>("TS4TS5ChargeThreshold"),
 								 psPulseShape.getParameter<unsigned int>("TrianglePeakTS"),
 								 psPulseShape.getParameter<std::vector<double> >("LinearThreshold"),
 								 psPulseShape.getParameter<std::vector<double> >("LinearCut"),
@@ -112,6 +113,10 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 								 psPulseShape.getParameter<std::vector<double> >("RightSlopeCut"),
 								 psPulseShape.getParameter<std::vector<double> >("RightSlopeSmallThreshold"),
 								 psPulseShape.getParameter<std::vector<double> >("RightSlopeSmallCut"),
+								 psPulseShape.getParameter<std::vector<double> >("TS4TS5LowerThreshold"),
+								 psPulseShape.getParameter<std::vector<double> >("TS4TS5LowerCut"),
+								 psPulseShape.getParameter<std::vector<double> >("TS4TS5UpperThreshold"),
+								 psPulseShape.getParameter<std::vector<double> >("TS4TS5UpperCut"),
 								 psPulseShape.getParameter<bool>("UseDualFit"),
                          psPulseShape.getParameter<bool>("TriangleIgnoreSlow"));
       }  // if (setPulseShapeFlags_)
@@ -288,6 +293,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	// Set auxiliary flag
 	int auxflag=0;
         int fTS = firstAuxTS_;
+	if (fTS<0) fTS=0; // silly protection against time slice <0
 	for (int xx=fTS; xx<fTS+4 && xx<i->size();++xx)
 	  auxflag+=(i->sample(xx).adc())<<(7*(xx-fTS)); // store the time slices in the first 28 bits of aux, a set of 4 7-bit adc values
 	// bits 28 and 29 are reserved for capid of the first time slice saved in aux
@@ -295,6 +301,10 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	(rec->back()).setAux(auxflag);
 
 	(rec->back()).setFlags(0);  // this sets all flag bits to 0
+	// Set presample flag
+	if (fTS>0)
+	  (rec->back()).setFlagField((i->sample(fTS-1).adc()), HcalCaloFlagLabels::PresampleADC,7);
+
 	if (hbheTimingShapedFlagSetter_!=0)
 	  hbheTimingShapedFlagSetter_->SetTimingShapedFlags(rec->back());
 	if (setNoiseFlags_)
@@ -379,6 +389,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	// Set auxiliary flag
 	int auxflag=0;
         int fTS = firstAuxTS_;
+	if (fTS<0) fTS=0; //silly protection against negative time slice values
 	for (int xx=fTS; xx<fTS+4 && xx<i->size();++xx)
 	  auxflag+=(i->sample(xx).adc())<<(7*(xx-fTS)); // store the time slices in the first 28 bits of aux, a set of 4 7-bit adc values
 	// bits 28 and 29 are reserved for capid of the first time slice saved in aux
@@ -386,6 +397,10 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	(rec->back()).setAux(auxflag);
 
 	(rec->back()).setFlags(0);
+	// Fill Presample ADC flag
+	if (fTS>0)
+	  (rec->back()).setFlagField((i->sample(fTS-1).adc()), HcalCaloFlagLabels::PresampleADC,7);
+
 	if (setSaturationFlags_)
 	  saturationFlagSetter_->setSaturationFlag(rec->back(),*i);
 	if (correctTiming_)
@@ -451,6 +466,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	// Set auxiliary flag
 	int auxflag=0;
         int fTS = firstAuxTS_;
+	if (fTS<0) fTS=0; // silly protection against negative time slice values
 	for (int xx=fTS; xx<fTS+4 && xx<i->size();++xx)
 	  auxflag+=(i->sample(xx).adc())<<(7*(xx-fTS)); // store the time slices in the first 28 bits of aux, a set of 4 7-bit adc values
 	// bits 28 and 29 are reserved for capid of the first time slice saved in aux
@@ -459,6 +475,11 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 
 	// Clear flags
 	(rec->back()).setFlags(0);
+
+	// Fill Presample ADC flag
+	if (fTS>0)
+	  (rec->back()).setFlagField((i->sample(fTS-1).adc()), HcalCaloFlagLabels::PresampleADC,7);
+
 	// This calls the code for setting the HF noise bit determined from digi shape
 	if (setNoiseFlags_) 
 	  hfdigibit_->hfSetFlagFromDigi(rec->back(),*i,coder,calibrations,first,toadd);

@@ -35,7 +35,6 @@ FilterOutScraping::FilterOutScraping(const edm::ParameterSet& iConfig)
   debugOn     = iConfig.getUntrackedParameter<bool>("debugOn",false);
   thresh =  iConfig.getUntrackedParameter<double>("thresh",0.2);
   numtrack = iConfig.getUntrackedParameter<unsigned int>("numtrack",10);
-  tracks_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generalTracks"));
 }
 
 FilterOutScraping::~FilterOutScraping()
@@ -50,7 +49,7 @@ bool FilterOutScraping::filter( edm::Event& iEvent, const edm::EventSetup& iSetu
   // get GeneralTracks collection
 
   edm::Handle<reco::TrackCollection> tkRef;
-  iEvent.getByLabel(tracks_,tkRef);    
+  iEvent.getByLabel("generalTracks",tkRef);    
   const reco::TrackCollection* tkColl = tkRef.product();
 
   //std::cout << "Total Number of Tracks " << tkColl->size() << std::endl;

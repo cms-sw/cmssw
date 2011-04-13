@@ -33,5 +33,10 @@ for event in events:
     for loop in range (thing.size()):
         print thing.at (loop).a
 
+for i in xrange(events.size()):
+    if not events.to(i):
+        print "failed to go to index ",i
+        exit(1)
+
 print "Python test succeeded!"
 

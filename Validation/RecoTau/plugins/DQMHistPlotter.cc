@@ -958,7 +958,7 @@ void DQMHistPlotter::endJob()
       if ( histogram == NULL ) {
 	edm::LogError ("endJob") << " Failed to access dqmMonitorElement = " << dqmMonitorElementName_full <<","
 				 << " needed by drawJob = " << drawJobName << " --> histograms will NOT be plotted !!";
-	return;
+	continue;
       }
 
       if ( !histogram->GetSumw2N() ) histogram->Sumw2();

@@ -1,6 +1,6 @@
 <lcgdict>
 
-   <class name="reco::PFCandidate" ClassVersion="10">
+   <class name="reco::PFCandidate" ClassVersion="11">
      <field name="elementsInBlocks_" transient="true"/>
      <field name="getter_" transient="true"/>
      <field name="refsCollectionCache_" transient="true"/>

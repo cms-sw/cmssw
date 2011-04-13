@@ -244,11 +244,10 @@ SKIMStreamWZEG = cms.FilteredStream(
 
 #####################
 
-from DPGAnalysis.Skims.WMuSkim_cff import *
-from DPGAnalysis.Skims.ZMuSkim_cff import *
-ZMuSkimPath = cms.Path(diMuonSelSeq)
-WtcMetSkimPath = cms.Path(tcMetWMuNuSeq)
-WpfMetSkimPath = cms.Path(pfMetWMuNuSeq)
+from DPGAnalysis.Skims.WZMuSkim_cff import *
+ZMuSkimPath      = cms.Path(diMuonSelSeq)
+WtcMetSkimPath   = cms.Path(tcMetWMuNuSeq)
+WpfMetSkimPath   = cms.Path(pfMetWMuNuSeq)
 SKIMStreamWZMu   = cms.FilteredStream(
     responsible = 'Muon DPG-POG-MuEW',
     name = 'WZMu',
@@ -256,23 +255,6 @@ SKIMStreamWZMu   = cms.FilteredStream(
     content = skimContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
-    )
-SKIMStreamZMu   = cms.FilteredStream(
-    responsible = 'Muon DPG-POG-MuEW',
-    name = 'ZMu',
-    paths = (ZMuSkimPath),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
-SKIMStreamWMu   = cms.FilteredStream(
-    responsible = 'Muon DPG-POG-MuEW',
-    name = 'WMu',
-    paths = (WtcMetSkimPath, WpfMetSkimPath),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-
     )
 
 #####################
@@ -285,34 +267,5 @@ SKIMStreamTkSD = cms.FilteredStream(
     paths = ( TkSDSkimPath ),
     content = skimContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
+    dataTier = cms.untracked.string('RAW')
     )
-
-#####################
-
-from DPGAnalysis.Skims.WElectronSkim_cff import *
-WElectronPath = cms.Path( elecMetSeq )
-SKIMStreamWElectron = cms.FilteredStream(
-    responsible = 'Egamma POG',
-    name = 'WElectron',
-    paths = ( WElectronPath ),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
-
-#####################
-
-from DPGAnalysis.Skims.ZElectronSkim_cff import *
-ZElectronPathPhoton = cms.Path( tagPhotonSeq )
-ZElectronPathTrack = cms.Path( tagTrackSeq )
-ZElectronPathGsf = cms.Path( tagGsfSeq )
-SKIMStreamZElectron = cms.FilteredStream(
-    responsible = 'Egamma POG',
-    name = 'ZElectron',
-    paths = ( ZElectronPathPhoton, ZElectronPathTrack, ZElectronPathGsf ),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
-

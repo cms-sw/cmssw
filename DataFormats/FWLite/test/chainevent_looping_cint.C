@@ -86,10 +86,27 @@ if (i==0) {
 e.to(0);
 for (int j = 0; j<20; ++j) {
   int k = rand() % 10;
-  e.to(k);
-  edm::EventID id = e.id();
-  cout << "Entry " << k << " Run " << id.run() << " event " << id.event() << endl;
+  if(e.to(k)) {
+    edm::EventID id = e.id();
+    cout << "Entry " << k << " Run " << id.run() << " event " << id.event() << endl;
+  } else {
+    cout <<"Entry "<<k<<" is not valid"<<endl;
+  }
 }
+
+  e.to(0);
+  long size = e.size();
+  edm::EventID last;
+  for (long l = 0; l<size; ++l) {
+    e.to(l);
+    edm::EventID id = e.id();
+    cout << "Entry " << l << " Run " << id.run() << " event " << id.event() << endl;
+    if(last == id) {
+      returnValue = 1;
+      cout <<"duplicate event ("<<id.run()<<","<<id.event()<<") seen at index "<<l<<" while testing 'to'"<<endl;
+      break;
+    }
+  }
 
 exit(returnValue);
 }

@@ -10,30 +10,18 @@ WZMuHLTFilter.HLTPaths = ["HLT_Mu9","HLT_Mu11","HLT_Mu15","HLT_Mu15_v*"]
 ### Z -> MuMu candidates
 
 # Get muons of needed quality for Zs
-looseMuonsForZ = cms.EDFilter("MuonSelector",
+goodMuonsForZ = cms.EDFilter("MuonSelector",
                              src = cms.InputTag("muons"),
-                             cut = cms.string('pt > 10 && abs(eta)<2.4 && isGlobalMuon = 1 && isTrackerMuon = 1 && abs(innerTrack().dxy)<2.0'),
-                             filter = cms.bool(True)                                
-                             )
-
-tightMuonsForZ = cms.EDFilter("MuonSelector",
-                             src = cms.InputTag("looseMuonsForZ"),
-                             cut = cms.string('pt > 20'),
+                             cut = cms.string('pt > 20 && abs(eta)<2.4 && isGlobalMuon = 1 && isTrackerMuon = 1 && isolationR03().sumPt<3.0 && abs(innerTrack().dxy)<1.0'),
                              filter = cms.bool(True)                                
                              )
 
 # build Z-> MuMu candidates
 dimuons = cms.EDProducer("CandViewShallowCloneCombiner",
-                         checkCharge = cms.bool(False),
-                         cut = cms.string('mass > 30'),
-                         decay = cms.string("tightMuonsForZ looseMuonsForZ")
+                         checkCharge = cms.bool(True),
+                         cut = cms.string('mass > 60'),
+                         decay = cms.string("goodMuonsForZ@+ goodMuonsForZ@-")
                          )
-
-# Z filter
-dimuonsFilter = cms.EDFilter("CandViewCountFilter",
-                             src = cms.InputTag("dimuons"),
-                             minNumber = cms.uint32(1)
-                             )
 
 # Z filter
 dimuonsFilter = cms.EDFilter("CandViewCountFilter",
@@ -43,8 +31,7 @@ dimuonsFilter = cms.EDFilter("CandViewCountFilter",
 
 # Z Skim sequence
 diMuonSelSeq = cms.Sequence(WZMuHLTFilter *
-                            looseMuonsForZ *
-                            tightMuonsForZ *
+                            goodMuonsForZ *
                             dimuons *
                             dimuonsFilter
                             )

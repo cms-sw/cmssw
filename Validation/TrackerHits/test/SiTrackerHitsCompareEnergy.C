@@ -8,7 +8,7 @@ void SiTrackerHitsCompareEnergy()
  
  char*  cfilename = "TrackerHitHisto.root"; //current
  char*  rfilename = "../TrackerHitHisto.root";  //reference
- 
+
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
  delete gROOT->GetListOfFiles()->FindObject(cfilename); 
 
@@ -125,7 +125,6 @@ void SiTrackerHitsCompareEnergy()
        leg.AddEntry(rh1e[i],rver , "l");
        leg.AddEntry(ch1e[i],cver , "l");
        leg.Draw();
-       PrintEntries("TIB",i,rh1e[i],ch1e[i]);
 
 
      }
@@ -156,7 +155,6 @@ void SiTrackerHitsCompareEnergy()
        leg.AddEntry(rh1e[i],rver , "l");
        leg.AddEntry(ch1e[i],cver , "l");
        leg.Draw();
-       PrintEntries("TOB",i,rh1e[i],ch1e[i]);
 
      }
      if (ks1e[i] < 0.1) outfile << ch1e[i]->GetName() <<" KS probability = "<< ks1e[i] <<" "<<endl;
@@ -185,7 +183,6 @@ void SiTrackerHitsCompareEnergy()
        leg.AddEntry(rh1e[i],rver , "l");
        leg.AddEntry(ch1e[i],cver , "l");
        leg.Draw();
-       PrintEntries("TID",i,rh1e[i],ch1e[i]);
 
      }
      if (ks1e[i] < 0.1) outfile << ch1e[i]->GetName() <<" KS probability = "<< ks1e[i] <<" "<<endl;
@@ -214,7 +211,6 @@ void SiTrackerHitsCompareEnergy()
        leg.AddEntry(rh1e[i],rver , "l");
        leg.AddEntry(ch1e[i],cver , "l");
        leg.Draw();
-       PrintEntries("TEC",i,rh1e[i],ch1e[i]);
 
      }
      if (ks1e[i] < 0.1) outfile << ch1e[i]->GetName() <<" KS probability = "<< ks1e[i] <<" "<<endl;
@@ -243,7 +239,6 @@ void SiTrackerHitsCompareEnergy()
        leg.AddEntry(rh1e[i],rver , "l");
        leg.AddEntry(ch1e[i],cver , "l");
        leg.Draw();
-       PrintEntries("BPIX",i,rh1e[i],ch1e[i]);
 
      }
      if (ks1e[i] < 0.1) outfile << ch1e[i]->GetName() <<" KS probability = "<< ks1e[i] <<" "<<endl;
@@ -272,7 +267,6 @@ void SiTrackerHitsCompareEnergy()
        leg.AddEntry(rh1e[i],rver , "l");
        leg.AddEntry(ch1e[i],cver , "l");
        leg.Draw();
-       PrintEntries("FPIX",i,rh1e[i],ch1e[i]);
 
      }
      if (ks1e[i] < 0.1) outfile << ch1e[i]->GetName() <<" KS probability = "<< ks1e[i] <<" "<<endl;
@@ -321,11 +315,4 @@ void SiTrackerHitsCompareEnergy()
  FPIX->Print("eloss_FPIX_KS.gif");
  s->Print("eloss_summary_KS.gif");  
 
-}
-
-void PrintEntries(TString subd, int index, TH1* h1, TH1* h2) {
-  double n1 = h1->GetEntries();
-  double n2 = h2->GetEntries();
-  if ( fabs(n1-n2)> 0.1*n1 ) std::cout << "*** "; 
-  std::cout << subd << ", " << index << ", entries in ref.: " << n1 << "; entries in cur.: " << n2 << std::endl;
 }

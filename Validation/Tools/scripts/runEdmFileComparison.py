@@ -61,6 +61,9 @@ if __name__ == "__main__":
     parser.add_option ("--compRoot", dest="compRoot",
                        action="store_true", default=False,
                        help="Make compRoot files.")
+    parser.add_option ('--strictPairing', dest='strictPairing',
+                       action='store_true',
+                       help="Objects are paired uniquely by order in collection")
     parser.add_option ("--prefix", dest="prefix", type="string",
                        help="Prefix to prepend to logfile name")
     parser.add_option ("--regex", dest='regex', action="append",
@@ -298,6 +301,8 @@ if __name__ == "__main__":
                 compRootName = compRootPrefix + prettyName \
                                + '_' + prettyLabel + '.root'
                 fullCompareCmd += ' --compRoot=%s' % compRootName
+            if options.strictPairing:
+                fullCompareCmd += ' --strictPairing'
             if options.verbose:
                 print "comparing branch %s %s" % (name, obj.label())
             if options.verboseDebug:

@@ -72,10 +72,9 @@ class EcalTrigPrimFunctionalAlgo
 		      const EcalTPGLutIdMap * ecaltpgLut,
 		      const EcalTPGFineGrainEBIdMap * ecaltpgFineGrainEB,
 		      const EcalTPGFineGrainTowerEE * ecaltpgFineGrainTowerEE,
-		      const EcalTPGTowerStatus * ecaltpgBadTT,
-                      const EcalTPGSpike * ecaltpgSpike){
+		      const EcalTPGTowerStatus * ecaltpgBadTT){
    
-  etcp_->setPointers(ecaltpgFgEBGroup,ecaltpgLutGroup,ecaltpgLut,ecaltpgFineGrainEB,ecaltpgFineGrainTowerEE,ecaltpgBadTT,ecaltpgSpike);
+  etcp_->setPointers(ecaltpgFgEBGroup,ecaltpgLutGroup,ecaltpgLut,ecaltpgFineGrainEB,ecaltpgFineGrainTowerEE,ecaltpgBadTT);
   }
 
  private:

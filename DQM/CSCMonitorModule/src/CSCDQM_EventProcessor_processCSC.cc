@@ -18,7 +18,19 @@
 
 #include "DQM/CSCMonitorModule/interface/CSCDQM_EventProcessor.h"
 
+
+
 namespace cscdqm {
+
+    template<typename T> inline CSCCFEBDataWord const * const
+    timeSample( T const & data, int nCFEB,int nSample,int nLayer, int nStrip) { 
+         return data.cfebData(nCFEB)->timeSlice(nSample)->timeSample(nLayer,nStrip);
+    }
+
+    template<typename T> inline CSCCFEBTimeSlice const * const
+    timeSlice( T const & data, int nCFEB, int nSample) { return (CSCCFEBTimeSlice *)(data.cfebData(nCFEB)->timeSlice(nSample));}
+
+
 
   /**
    * @brief  Set a single bit in the 3D Histogram (aka EMU level event display). Checks if mo and x != null. 
@@ -1232,14 +1244,14 @@ namespace cscdqm {
     const int N_CFEBs = 5, N_Samples = 16, N_Layers = 6, N_Strips = 16;
     int ADC = 0, OutOffRange, Threshold = 30;
     /**  bool DebugCFEB = false; */
-    CSCCFEBData * cfebData[5];
-    CSCCFEBTimeSlice *  timeSlice[5][16];
-    CSCCFEBDataWord * timeSample[5][16][6][16];
+//     CSCCFEBData * cfebData[5];
+//     CSCCFEBTimeSlice *  timeSlice[5][16];
+//     CSCCFEBDataWord * timeSample[5][16][6][16];
     int Pedestal[5][6][16];
     std::pair<int,int> CellPeak[5][6][16];
     memset(CellPeak, 0, sizeof(CellPeak));
-    float PedestalError[5][6][16];
-    CSCCFEBSCAControllerWord scaControllerWord[5][16][6];
+//     float PedestalError[5][6][16];
+//     CSCCFEBSCAControllerWord scaControllerWord[5][16][6];
     bool CheckCFEB = true;
     /** --------------B */
     float Clus_Sum_Charge;
@@ -1287,9 +1299,9 @@ namespace cscdqm {
 
     for(int nCFEB = 0; nCFEB < N_CFEBs; ++nCFEB) {
 
-      cfebData[nCFEB] = data.cfebData(nCFEB);
-      if (cfebData[nCFEB] !=0) {
-        if (!cfebData[nCFEB]->check()) continue;
+//       cfebData[nCFEB] = data.cfebData(nCFEB);
+      if (data.cfebData(nCFEB) !=0) {
+        if (!data.cfebData(nCFEB)->check()) continue;
         /**                         CFEB Found */
         FEBunpacked = FEBunpacked +1; // Increment number of unpacked FED
         NumberOfUnpackedCFEBs = NumberOfUnpackedCFEBs + 1; // Increment number of unpaked CFEB
@@ -1313,7 +1325,7 @@ namespace cscdqm {
           CheckCFEB = false;
         }
         /** -------------B */
-        NmbTimeSamples= (cfebData[nCFEB])->nTimeSamples();
+        NmbTimeSamples= (data.cfebData(nCFEB))->nTimeSamples();
         /** -------------E */
         /** LOG_DEBUG <<  "NEvents = " << config->getNEvents(); */
         /** LOG_DEBUG <<  "Chamber ID = "<< cscTag << " Crate ID = "<< crateID << " DMB ID = " << dmbID << "nCFEB =" << nCFEB; */
@@ -1353,15 +1365,15 @@ namespace cscdqm {
           getCSCHisto(h::CSC_CFEB_PEDESTALRMS_SAMPLE_01_LYXX, crateID, dmbID, nLayer, mo_CFEB_PedestalRMS_Sample);
 
           for(int nSample = 0; nSample < NmbTimeSamples; ++nSample) {
-            timeSlice[nCFEB][nSample] = (CSCCFEBTimeSlice * )((cfebData[nCFEB])->timeSlice(nSample));
-            if (timeSlice[nCFEB][nSample] == 0) {
+//             timeSlice[nCFEB][nSample] = (CSCCFEBTimeSlice * )((cfebData[nCFEB])->timeSlice(nSample));
+            if (timeSlice(data, nCFEB, nSample) == 0) {
               LOG_WARN <<  "CFEB" << nCFEB << " nSample: " << nSample << " - B-Word";
               continue;
             }
 
             if (mo_CFEB_DMB_L1A_diff && !fCloseL1As ) {
               /**  if (mo_CFEB_DMB_L1A_diff)  */
-              int cfeb_dmb_l1a_diff = (int)((timeSlice[nCFEB][nSample]->get_L1A_number())-dmbHeader->l1a()%64);
+              int cfeb_dmb_l1a_diff = (int)((timeSlice(data, nCFEB, nSample)->get_L1A_number())-dmbHeader->l1a()%64);
               if (cfeb_dmb_l1a_diff != 0) {
     		L1A_out_of_sync = true;
               }
@@ -1375,20 +1387,20 @@ namespace cscdqm {
 
             /**  LOG_DEBUG <<  " nSample = " << nSample; */
             /**  for(int nLayer = 1; nLayer <= N_Layers; ++nLayer)  */
-            scaControllerWord[nCFEB][nSample][nLayer-1] = (timeSlice[nCFEB][nSample])->scaControllerWord(nLayer);
+//             scaControllerWord[nCFEB][nSample][nLayer-1] = timeSlice(cfebData, nCFEB, nSample)->scaControllerWord(nLayer);
 
-            TrigTime = (int)(scaControllerWord[nCFEB][nSample][nLayer-1]).trig_time;
+            TrigTime = (int)(timeSlice(data, nCFEB, nSample)->scaControllerWord(nLayer).trig_time);
             /** --------------B */
-            FreeCells = (timeSlice[nCFEB][nSample])->get_n_free_sca_blocks();
-            LCT_Pipe_Empty = (timeSlice[nCFEB][nSample])->get_lctpipe_empty();
-            LCT_Pipe_Full = (timeSlice[nCFEB][nSample])->get_lctpipe_full();
-            LCT_Pipe_Count = (timeSlice[nCFEB][nSample])->get_lctpipe_count();
-            L1_Pipe_Empty = (timeSlice[nCFEB][nSample])->get_l1pipe_empty();
-            L1_Pipe_Full = (timeSlice[nCFEB][nSample])->get_l1pipe_full();
+            FreeCells = timeSlice(data, nCFEB, nSample)->get_n_free_sca_blocks();
+            LCT_Pipe_Empty = timeSlice(data, nCFEB, nSample)->get_lctpipe_empty();
+            LCT_Pipe_Full = timeSlice(data, nCFEB, nSample)->get_lctpipe_full();
+            LCT_Pipe_Count = timeSlice(data, nCFEB, nSample)->get_lctpipe_count();
+            L1_Pipe_Empty = timeSlice(data, nCFEB, nSample)->get_l1pipe_empty();
+            L1_Pipe_Full = timeSlice(data, nCFEB, nSample)->get_l1pipe_full();
             /**  L1_Pipe_Count = (timeSlice[nCFEB][nSample])->get_L1A_number(); */
-            Buffer_Count = (timeSlice[nCFEB][nSample])->get_buffer_count();
+            Buffer_Count = timeSlice(data, nCFEB, nSample)->get_buffer_count();
 
-            SCA_BLK  = (int)(scaControllerWord[nCFEB][nSample][nLayer-1]).sca_blk;
+            SCA_BLK  = (int)(timeSlice(data, nCFEB, nSample)->scaControllerWord(nLayer).sca_blk);
             /**  LOG_DEBUG <<  "SCA BLOCK: Chamber=" << chamberID << " CFEB=" << nCFEB + 1 */
             /**   <<" TRIGTIME="<<TrigTime<<" TimeSlice="<<nSample+1<<" Layer="<<nLayer<<" SCA_BLK="<<SCA_BLK; */
 
@@ -1405,7 +1417,7 @@ namespace cscdqm {
             /**  Free SCA Cells */
             /**  if (getCSCHisto(h::CSC_CFEBXX_FREE_SCA_CELLS, crateID, dmbID, nCFEB + 1, mo))  */
             if (mo_CFEB_Free_SCA_Cells) {
-              if (scaControllerWord[nCFEB][nSample][nLayer-1].sca_full == 1) mo_CFEB_Free_SCA_Cells->Fill(-1);
+              if (timeSlice(data, nCFEB, nSample)->scaControllerWord(nLayer).sca_full == 1) mo_CFEB_Free_SCA_Cells->Fill(-1);
               mo_CFEB_Free_SCA_Cells->Fill(FreeCells);
             }
 
@@ -1428,17 +1440,17 @@ namespace cscdqm {
             /** --------------E */
             /**  LOG_DEBUG <<  "nCFEB " << nCFEB << " nSample " << nSample << " nLayer " << nLayer << " TrigTime " << TrigTime; */
             if(nSample == 0 && nLayer == 1) {
-              TrigTime = (int)(scaControllerWord[nCFEB][nSample][nLayer - 1]).trig_time;
+              TrigTime = (int)(timeSlice(data, nCFEB, nSample)->scaControllerWord(nLayer).trig_time);
               int k = 1;
               while (((TrigTime >> (k-1)) & 0x1) != 1 && k <= 8) {
                 k = k + 1;
               }
-              L1APhase = (int)(((scaControllerWord[nCFEB][nSample][nLayer - 1]).l1a_phase) & 0x1);
+              L1APhase = (int)((timeSlice(data, nCFEB, nSample)->scaControllerWord(nLayer).l1a_phase) & 0x1);
               UnpackedTrigTime = ((k << 1) & 0xE) + L1APhase;
 
               if (getCSCHisto(h::CSC_CFEBXX_L1A_SYNC_TIME, crateID, dmbID, nCFEB + 1, mo))
                 mo->Fill((int)UnpackedTrigTime);
-              LCTPhase = (int)(((scaControllerWord[nCFEB][nSample][nLayer-1]).lct_phase)&0x1);
+              LCTPhase = (int)((timeSlice(data, nCFEB, nSample)->scaControllerWord(nLayer).lct_phase)&0x1);
 
               if (getCSCHisto(h::CSC_CFEBXX_LCT_PHASE_VS_L1A_PHASE, crateID, dmbID, nCFEB + 1, mo))
                 mo->Fill(LCTPhase, L1APhase);
@@ -1462,10 +1474,10 @@ namespace cscdqm {
 
 
             for(int nStrip = 1; nStrip <= N_Strips; ++nStrip) {
-              timeSample[nCFEB][nSample][nLayer - 1][nStrip - 1]=(data.cfebData(nCFEB)->timeSlice(nSample))->timeSample(nLayer,nStrip);
-              ADC = (int) ((timeSample[nCFEB][nSample][nLayer - 1][nStrip - 1]->adcCounts) & 0xFFF);
+//               timeSample[nCFEB][nSample][nLayer - 1][nStrip - 1]=(data.cfebData(nCFEB)->timeSlice(nSample))->timeSample(nLayer,nStrip);
+	      ADC = (int) ((timeSample(data, nCFEB, nSample, nLayer, nStrip)->adcCounts) & 0xFFF);
               /**  LOG_DEBUG <<  " nStrip="<< dec << nStrip << " ADC=" << std::hex << ADC; */
-              OutOffRange = (int) ((timeSample[nCFEB][nSample][nLayer - 1][nStrip - 1]->adcOverflow) & 0x1);
+              OutOffRange = (int) ((timeSample(data, nCFEB, nSample, nLayer, nStrip)->adcOverflow) & 0x1);
 
               if(nSample == 0) { // nSample == 0
                 CellPeak[nCFEB][nLayer-1][nStrip-1] = std::make_pair(nSample,ADC);
@@ -1517,11 +1529,11 @@ namespace cscdqm {
                   /** if (getCSCHisto(h::CSC_CFEB_PEDESTAL__WITHRMS__SAMPLE_01_LYXX, crateID, dmbID, nLayer, mo))  */
                   if (mo_CFEB_Pedestal_withRMS_Sample) {
                     mo_CFEB_Pedestal_withRMS_Sample->Fill((int)(nCFEB * 16 + nStrip - 1), Pedestal[nCFEB][nLayer - 1][nStrip - 1]);
-                    PedestalError[nCFEB][nLayer - 1][nStrip - 1] = mo_CFEB_Pedestal_withRMS_Sample->GetBinError(nCFEB * 16 + nStrip);
+//                     PedestalError[nCFEB][nLayer - 1][nStrip - 1] = mo_CFEB_Pedestal_withRMS_Sample->GetBinError(nCFEB * 16 + nStrip);
 
                     /**  if (getCSCHisto(h::CSC_CFEB_PEDESTALRMS_SAMPLE_01_LYXX, crateID, dmbID, nLayer, mo))  */
                     if (mo_CFEB_PedestalRMS_Sample) {
-                      mo_CFEB_PedestalRMS_Sample->SetBinContent(nCFEB * 16 + nStrip - 1, PedestalError[nCFEB][nLayer - 1][nStrip - 1]);
+                      mo_CFEB_PedestalRMS_Sample->SetBinContent(nCFEB * 16 + nStrip - 1, mo_CFEB_Pedestal_withRMS_Sample->GetBinError(nCFEB * 16 + nStrip));
                       mo_CFEB_PedestalRMS_Sample->SetBinError(nCFEB * 16 + nStrip - 1, 0.00000000001);
                     }
                   }
@@ -1548,10 +1560,10 @@ namespace cscdqm {
                                                                                         
                 if (peak_adc - pedestal > Threshold) {
                   if (peak_sample >=1) {
-                    peak_sca_charge += ((timeSample[nCFEB][peak_sample-1][nLayer-1][nStrip-1]->adcCounts)&0xFFF)-pedestal;
+                    peak_sca_charge += ((timeSample(data, nCFEB, peak_sample-1, nLayer, nStrip)->adcCounts)&0xFFF)-pedestal;
                   }
                   if (peak_sample < NmbTimeSamples-1) {
-                    peak_sca_charge += ((timeSample[nCFEB][peak_sample+1][nLayer-1][nStrip-1]->adcCounts)&0xFFF)-pedestal;
+                    peak_sca_charge += ((timeSample(data, nCFEB, peak_sample+1, nLayer, nStrip)->adcCounts)&0xFFF)-pedestal;
                   }
                   mo_EventDisplay->SetBinContent(nLayer + 17, nCFEB * 16 + nStrip - 1, peak_sca_charge);
                   setEmuEventDisplayBit(mo_Emu_EventDisplay_Cathode, glChamberIndex, nCFEB * 16 + nStrip - 1, nLayer - 1);

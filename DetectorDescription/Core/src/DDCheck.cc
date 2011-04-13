@@ -1,4 +1,6 @@
 #include "DetectorDescription/Core/src/DDCheck.h"
+
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -6,6 +8,9 @@
 
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+
+//#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 bool DDCheckLP(const DDLogicalPart & lp, std::ostream & os)
 {

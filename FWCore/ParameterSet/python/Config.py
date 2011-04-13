@@ -693,10 +693,12 @@ class Process(object):
         endpathValidator = EndPathValidator()
         for triggername in triggerPaths:
             #self.paths_()[triggername].insertInto(processPSet, triggername, self.sequences_())
+            pathValidator.setLabel(triggername)
             self.paths_()[triggername].visit(pathValidator)
             self.paths_()[triggername].insertInto(processPSet, triggername, self.__dict__)
         for endpathname in endpaths:
             #self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.sequences_())
+            endpathValidator.setLabel(endpathname)
             self.endpaths_()[endpathname].visit(endpathValidator)
             self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.__dict__)
         processPSet.addVString(False, "@filters_on_endpaths", endpathValidator.filtersOnEndpaths)

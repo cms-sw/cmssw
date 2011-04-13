@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerEvent
 //
-// $Id: TriggerEvent.h,v 1.11 2010/12/16 18:39:17 vadler Exp $
+// $Id: TriggerEvent.h,v 1.12 2011/02/22 18:29:50 vadler Exp $
 //
 /**
   \class    pat::TriggerEvent TriggerEvent.h "DataFormats/PatCandidates/interface/TriggerEvent.h"
@@ -19,7 +19,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerEvent
 
   \author   Volker Adler
-  \version  $Id: TriggerEvent.h,v 1.11 2010/12/16 18:39:17 vadler Exp $
+  \version  $Id: TriggerEvent.h,v 1.12 2011/02/22 18:29:50 vadler Exp $
 */
 
 
@@ -253,7 +253,7 @@ namespace pat {
       /// Get a vector of references to all succeeding HLT filters
       TriggerFilterRefVector acceptedFilters() const;
 
-      /// Trigger objects and matches
+      /// Trigger objects
       /// Set the reference to the pat::TriggerObjectCollection in the event
       void setObjects( const edm::Handle< TriggerObjectCollection > & handleTriggerObjects ) { objects_ = TriggerObjectRefProd( handleTriggerObjects ); };
       /// Get a pointer to all trigger objects,

@@ -1,4 +1,4 @@
-// $Id: DQMEventStore.h,v 1.8.10.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: DQMEventStore.h,v 1.9 2011/03/07 15:31:31 mommsen Exp $
 /// @file: DQMEventStore.h 
 
 #ifndef EventFilter_StorageManager_DQMEventStore_h
@@ -7,11 +7,10 @@
 #include <map>
 #include <queue>
 
-#include "boost/shared_ptr.hpp"
-#include "boost/thread/mutex.hpp"
+#include <boost/thread/mutex.hpp>
 
-#include "toolbox/lang/Class.h"
-#include "toolbox/task/WaitingWorkLoop.h"
+#include "TThread.h"
+
 #include "xcept/Exception.h"
 #include "xdaq/ApplicationDescriptor.h"
 
@@ -39,12 +38,12 @@ namespace stor {
    * into DQMEventMsgViews.
    *
    * $Author: mommsen $
-   * $Revision: 1.8.10.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.9 $
+   * $Date: 2011/03/07 15:31:31 $
    */
 
   template<class EventType, class ConnectionType, class StateMachineType>  
-  class DQMEventStore : public toolbox::lang::Class
+  class DQMEventStore
   {
   public:
     
@@ -90,6 +89,12 @@ namespace stor {
     bool empty()
     { return store_.empty(); }
 
+    void moveToFailedState(xcept::Exception& sentinelException)
+    { (stateMachineType_->*moveToFailedState_)(sentinelException); }
+
+    bool doProcessCompletedTopLevelFolders()
+    { return processCompletedTopLevelFolders_; }
+    
     
   private:
 
@@ -98,19 +103,11 @@ namespace stor {
     DQMEventStore& operator=(DQMEventStore const&);
 
     void addDQMEventToStore(EventType const&);
-
     void addDQMEventToReadyToServe(EventType const&);
-
     DQMTopLevelFolderPtr makeDQMTopLevelFolder(EventType const&);
-
     DQMEventMsgView getDQMEventView(EventType const&);
-
     bool getNextReadyTopLevelFolder(DQMTopLevelFolderPtr&);
-
-    void startWorkLoop();
-
-    bool processCompletedTopLevelFolders(toolbox::task::WorkLoop*);
-
+    static void processCompletedTopLevelFolders(void* arg);
     bool handleNextCompletedTopLevelFolder();
 
     xdaq::ApplicationDescriptor* appDescriptor_;
@@ -124,10 +121,9 @@ namespace stor {
 
     typedef std::map<DQMKey, DQMTopLevelFolderPtr> DQMTopLevelFolderMap;
     DQMTopLevelFolderMap store_;
-    mutable boost::mutex storeMutex_;
+    static boost::mutex storeMutex_;
 
-    toolbox::task::WorkLoop* completedFolderWL_;
-    toolbox::task::ActionSignature* completedFolderAction_;
+    TThread* completedFolderThread_;
     bool processCompletedTopLevelFolders_;
 
     std::vector<unsigned char> tempEventArea_;

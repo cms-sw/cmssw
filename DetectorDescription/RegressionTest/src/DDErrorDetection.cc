@@ -1,6 +1,7 @@
 namespace std { } using namespace std;
 
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/src/DDCheck.h"
 #include <iostream>
 #include <fstream>
@@ -10,15 +11,14 @@ namespace std { } using namespace std;
 #include "DetectorDescription/Core/src/Solid.h"
 #include "DetectorDescription/Core/src/Material.h"
 #include "DetectorDescription/Core/src/Specific.h"
-
 //***** Explicit template instantiation of Singleton
 #include "DetectorDescription/Base/interface/Singleton.icc"
-
 template class DDI::Singleton<std::map<std::string,std::set<DDLogicalPart> > >;
 template class DDI::Singleton<std::map<std::string,std::set<DDMaterial> > >;
 template class DDI::Singleton<std::map<std::string,std::set<DDSolid> > >;
 template class DDI::Singleton<std::map<std::string,std::set<DDRotation> > >;
 template class DDI::Singleton<std::map<std::string,std::set<DDSpecifics> > >;
+
 
 //*****
 

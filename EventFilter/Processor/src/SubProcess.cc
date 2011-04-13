@@ -34,9 +34,9 @@ namespace evf{
     if(alive_ != 1) //i.e. process is no longer alive
       {
 	//save counters after last update
-	save_nbp_= prg_.nbp;
-	save_nba_= prg_.nba;
-	save_ndqm_ = prg_.dqm;
+	save_nbp_ = prg_.nbp;
+	save_nba_ = prg_.nba;
+	save_ndqm_  = prg_.dqm;
 	save_scalers_ = prg_.trp;
       }
   }

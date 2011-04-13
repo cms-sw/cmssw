@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.26.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: Configuration.h,v 1.27 2011/03/07 15:31:31 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -93,6 +93,7 @@ namespace stor
     unsigned int registrationQueueSize_;
     unsigned int streamQueueSize_;
     unsigned int streamQueueMemoryLimitMB_;
+    unsigned int fragmentStoreMemoryLimitMB_;
   };
 
   /**
@@ -158,8 +159,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.26.4.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.27 $
+   * $Date: 2011/03/07 15:31:31 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -369,6 +370,7 @@ namespace stor
     xdata::UnsignedInteger32 registrationQueueSize_;
     xdata::UnsignedInteger32 streamQueueSize_;
     xdata::UnsignedInteger32 streamQueueMemoryLimitMB_;
+    xdata::UnsignedInteger32 fragmentStoreMemoryLimitMB_;
 
     xdata::Double FPdeqWaitTime_;  // seconds
     xdata::Double DWdeqWaitTime_;  // seconds

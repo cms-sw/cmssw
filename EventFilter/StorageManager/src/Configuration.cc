@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.41.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: Configuration.cc,v 1.42 2011/03/07 15:31:32 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -223,12 +223,13 @@ namespace stor
   {
     queueConfigParamCopy_.commandQueueSize_ = 128;
     queueConfigParamCopy_.dqmEventQueueSize_ = 3072;
-    queueConfigParamCopy_.dqmEventQueueMemoryLimitMB_ = 9999;
+    queueConfigParamCopy_.dqmEventQueueMemoryLimitMB_ = 1024;
     queueConfigParamCopy_.fragmentQueueSize_ = 1024;
-    queueConfigParamCopy_.fragmentQueueMemoryLimitMB_ = 9999;
+    queueConfigParamCopy_.fragmentQueueMemoryLimitMB_ = 1024;
     queueConfigParamCopy_.registrationQueueSize_ = 128;
     queueConfigParamCopy_.streamQueueSize_ = 2048;
-    queueConfigParamCopy_.streamQueueMemoryLimitMB_ = 9999;
+    queueConfigParamCopy_.streamQueueMemoryLimitMB_ = 2048;
+    queueConfigParamCopy_.fragmentStoreMemoryLimitMB_ = 1024;
   }
 
   void Configuration::setWorkerThreadDefaults()
@@ -361,6 +362,7 @@ namespace stor
     registrationQueueSize_ = queueConfigParamCopy_.registrationQueueSize_;
     streamQueueSize_ = queueConfigParamCopy_.streamQueueSize_;
     streamQueueMemoryLimitMB_ = queueConfigParamCopy_.streamQueueMemoryLimitMB_;
+    fragmentStoreMemoryLimitMB_ = queueConfigParamCopy_.fragmentStoreMemoryLimitMB_;
 
     // bind the local xdata variables to the infospace
     infoSpace->fireItemAvailable("commandQueueSize", &commandQueueSize_);
@@ -371,6 +373,7 @@ namespace stor
     infoSpace->fireItemAvailable("registrationQueueSize", &registrationQueueSize_);
     infoSpace->fireItemAvailable("streamQueueSize", &streamQueueSize_);
     infoSpace->fireItemAvailable("streamQueueMemoryLimitMB", &streamQueueMemoryLimitMB_);
+    infoSpace->fireItemAvailable("fragmentStoreMemoryLimitMB", &fragmentStoreMemoryLimitMB_);
   }
 
   void Configuration::
@@ -499,6 +502,7 @@ namespace stor
     queueConfigParamCopy_.registrationQueueSize_ = registrationQueueSize_;
     queueConfigParamCopy_.streamQueueSize_ = streamQueueSize_;
     queueConfigParamCopy_.streamQueueMemoryLimitMB_ = streamQueueMemoryLimitMB_;
+    queueConfigParamCopy_.fragmentStoreMemoryLimitMB_ = fragmentStoreMemoryLimitMB_;
   }
 
   void Configuration::updateLocalWorkerThreadData()

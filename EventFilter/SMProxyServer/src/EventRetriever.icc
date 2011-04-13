@@ -1,4 +1,4 @@
-// $Id: EventRetriever.icc,v 1.1.4.2 2011/03/07 12:01:12 mommsen Exp $
+// $Id: EventRetriever.icc,v 1.1.4.4 2011/03/23 14:21:31 mommsen Exp $
 /// @file: EventRetriever.icc
 
 #include "EventFilter/SMProxyServer/interface/EventMsg.h"
@@ -70,7 +70,8 @@ namespace smproxy
       stor::utils::secondsToDuration(dataRetrieverParams_.connectTrySleepTime_);
     queueIDs_.push_back(consumer->queueId());
 
-    dqmEventStore_.setParameters(stateMachine->getConfiguration()->getDQMProcessingParams());
+    if ( boost::dynamic_pointer_cast<stor::DQMEventConsumerRegistrationInfo>(consumer) )
+      dqmEventStore_.setParameters(stateMachine->getConfiguration()->getDQMProcessingParams());
 
     thread_.reset(
       new boost::thread( boost::bind( &EventRetriever::activity, this, pset) )
@@ -83,6 +84,9 @@ namespace smproxy
   ~EventRetriever()
   {
     stop();
+    
+    boost::mutex::scoped_lock sl(queueIDsLock_);
+    queueIDs_.clear();
   }
   
   
@@ -164,9 +168,6 @@ namespace smproxy
 
     eventServers_.clear();
     connectionIDs_.clear();
-    
-    boost::mutex::scoped_lock sl(queueIDsLock_);
-    queueIDs_.clear();
   }
     
   
