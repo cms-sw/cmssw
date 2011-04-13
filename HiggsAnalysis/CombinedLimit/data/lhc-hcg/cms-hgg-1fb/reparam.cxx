@@ -21,8 +21,8 @@ void reparam(int ncat=4, int crop=0) {
     wAll->factory("CMS_hgg_sig_m0_absShiftBadR9[0]");
     wAll->factory("sum::CMS_hgg_sig_m0_cat0(mgg_sig_m0_cat0, CMS_hgg_sig_m0_absShiftEBEB)");
     wAll->factory("sum::CMS_hgg_sig_m0_cat1(mgg_sig_m0_cat1, CMS_hgg_sig_m0_absShiftEBEB, CMS_hgg_sig_m0_absShiftBadR9)");
-    wAll->factory("sum::CMS_hgg_sig_m0_cat2(mgg_sig_m0_cat0, CMS_hgg_sig_m0_absShiftEEEX)");
-    wAll->factory("sum::CMS_hgg_sig_m0_cat3(mgg_sig_m0_cat1, CMS_hgg_sig_m0_absShiftEEEX, CMS_hgg_sig_m0_absShiftBadR9)");
+    wAll->factory("sum::CMS_hgg_sig_m0_cat2(mgg_sig_m0_cat2, CMS_hgg_sig_m0_absShiftEEEX)");
+    wAll->factory("sum::CMS_hgg_sig_m0_cat3(mgg_sig_m0_cat3, CMS_hgg_sig_m0_absShiftEEEX, CMS_hgg_sig_m0_absShiftBadR9)");
     
     // (2) create new sigmas
     wAll->factory("CMS_hgg_sig_sigmaScaleEBEB[1]");
@@ -30,12 +30,12 @@ void reparam(int ncat=4, int crop=0) {
     wAll->factory("CMS_hgg_sig_sigmaScaleBadR9[1]");
     wAll->factory("prod::CMS_hgg_sig_sigma_cat0(mgg_sig_sigma_cat0, CMS_hgg_sig_sigmaScaleEBEB)");
     wAll->factory("prod::CMS_hgg_sig_sigma_cat1(mgg_sig_sigma_cat1, CMS_hgg_sig_sigmaScaleEBEB, CMS_hgg_sig_sigmaScaleBadR9)");
-    wAll->factory("prod::CMS_hgg_sig_sigma_cat2(mgg_sig_sigma_cat0, CMS_hgg_sig_sigmaScaleEEEX)");
-    wAll->factory("prod::CMS_hgg_sig_sigma_cat3(mgg_sig_sigma_cat1, CMS_hgg_sig_sigmaScaleEEEX, CMS_hgg_sig_sigmaScaleBadR9)");
+    wAll->factory("prod::CMS_hgg_sig_sigma_cat2(mgg_sig_sigma_cat2, CMS_hgg_sig_sigmaScaleEEEX)");
+    wAll->factory("prod::CMS_hgg_sig_sigma_cat3(mgg_sig_sigma_cat3, CMS_hgg_sig_sigmaScaleEEEX, CMS_hgg_sig_sigmaScaleBadR9)");
     wAll->factory("prod::CMS_hgg_sig_gsigma_cat0(mgg_sig_gsigma_cat0, CMS_hgg_sig_sigmaScaleEBEB)");
     wAll->factory("prod::CMS_hgg_sig_gsigma_cat1(mgg_sig_gsigma_cat1, CMS_hgg_sig_sigmaScaleEBEB, CMS_hgg_sig_sigmaScaleBadR9)");
-    wAll->factory("prod::CMS_hgg_sig_gsigma_cat2(mgg_sig_gsigma_cat0, CMS_hgg_sig_sigmaScaleEEEX)");
-    wAll->factory("prod::CMS_hgg_sig_gsigma_cat3(mgg_sig_gsigma_cat1, CMS_hgg_sig_sigmaScaleEEEX, CMS_hgg_sig_sigmaScaleBadR9)");
+    wAll->factory("prod::CMS_hgg_sig_gsigma_cat2(mgg_sig_gsigma_cat2, CMS_hgg_sig_sigmaScaleEEEX)");
+    wAll->factory("prod::CMS_hgg_sig_gsigma_cat3(mgg_sig_gsigma_cat3, CMS_hgg_sig_sigmaScaleEEEX, CMS_hgg_sig_sigmaScaleBadR9)");
     
     for (int c = 0; c < ncat; ++c) {
         wAll->factory(TString::Format("CMS_hgg_bkg_slope_cat%d[%g]", c, wAll->var(TString::Format("mgg_bkg_slope_cat%d",c))->getVal()));
