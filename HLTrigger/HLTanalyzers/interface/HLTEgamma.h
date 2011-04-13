@@ -183,7 +183,7 @@ private:
   float *photontrkiso, *photonecaliso, *photonhcaliso, *photonhovere, *photonClusShap, *photonr9id;
 
   float *hphotet, *hphoteta, *hphotphi, *hphoteiso, *hphothiso, *hphottiso, *hphothovereh;
-  float *heleet, *heleeta, *helephi, *heleE, *helep, *helehiso, *heletiso, *helehovereh, *heleeiso;
+  float *heleet, *heleeta, *helephi, *helevtxz, *heleE, *helep, *helehiso, *heletiso, *helehovereh, *heleeiso;
   float *hphotClusShap, *heleClusShap, *heleDeta, *heleDphi;
   float *hphotR9, *heleR9, *hphotR9ID, *heleR9ID;
   int *hphotl1iso, *helel1iso, *helePixelSeeds;
@@ -216,6 +216,7 @@ private:
     float phi;
     float E;
     float p;
+	 float vtxZ;
     float hcalIsol;
     float trackIsol;
     float ecalIsol;

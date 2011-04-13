@@ -71,8 +71,8 @@ private:
   float *muonpt, *muonphi, *muoneta, *muonet, *muone, *muonchi2NDF, *muoncharge,
   *muonTrkIsoR03, *muonECalIsoR03, *muonHCalIsoR03, *muonD0;
   int *muontype, *muonNValidTrkHits, *muonNValidMuonHits;
-  float *muonl2pt, *muonl2eta, *muonl2phi, *muonl2dr, *muonl2dz;
-  float *muonl3pt, *muonl3eta, *muonl3phi, *muonl3dr, *muonl3dz;
+  float *muonl2pt, *muonl2eta, *muonl2phi, *muonl2dr, *muonl2dz, *muonl2vtxz;
+  float *muonl3pt, *muonl3eta, *muonl3phi, *muonl3dr, *muonl3dz, *muonl3vtxz;
   float *muonl2novtxpt, *muonl2novtxeta, *muonl2novtxphi, *muonl2novtxdr, *muonl2novtxdz; 
   float *muonl2pterr, *muonl3pterr, *muonl2novtxpterr;
   int nmuon, nmu2cand, nmu3cand, nmu2novtxcand;
