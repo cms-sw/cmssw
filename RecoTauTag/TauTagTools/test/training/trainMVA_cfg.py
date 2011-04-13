@@ -215,7 +215,7 @@ process.signalRawTaus = process.combinatoricRecoTaus.clone(
         cms.PSet(
             name = cms.string("sipt"),
             plugin = cms.string("RecoTauImpactParameterSignificancePlugin"),
-            pvSrc = cms.InputTag("offlinePrimaryVertices"),
+            pvSrc = PFTauQualityCuts.primaryVertexSrc,
         )
     ),
 )
