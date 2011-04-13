@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 import HLTrigger.HLTfilters.triggerResultsFilter_cfi as hlt
 HSCPSD = hlt.triggerResultsFilter.clone()
 HSCPSD.triggerConditions = cms.vstring(
-    "HLT_StoppedHSCP*",
+    "HLT_StoppedHSCP*")
 #    "HLT_JetE*_NoBPTX_*",
 #    "HLT_JetE*_NoBPTX_NoHalo_*",
 #    "HLT_JetE*_NoBPTX3BX_NoHalo_*")
