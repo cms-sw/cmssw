@@ -28,7 +28,6 @@ namespace edm {
 
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
-      sigc::signal<void, ModuleDescription const&, double> newMeasurementSignal;
     private:
       int totalNumberCPUs_;
       double averageCoreSpeed_;
