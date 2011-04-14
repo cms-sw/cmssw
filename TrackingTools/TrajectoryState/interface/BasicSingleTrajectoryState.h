@@ -99,17 +99,6 @@ public:
     return theFreeState || theLocalParametersValid;
   }
 
-  static void notValid();
-
-  // bool hasError() const;
-  bool hasError() const {
-    return (theFreeState && theFreeState->hasError()) || theLocalErrorValid;
-  }
-
-  
-  void missingError(char const * where) const;
-
-
 
 // access global parameters/errors
   const GlobalTrajectoryParameters& globalParameters() const {
@@ -201,6 +190,16 @@ public:
                        const SurfaceSide side,
                        double weight ) ;
 private:
+
+  static void notValid() dso_internal;
+
+  // bool hasError() const;
+  bool hasError() const  dso_internal {
+    return (theFreeState && theFreeState->hasError()) || theLocalErrorValid;
+  }
+
+  
+  void missingError(char const * where) const dso_internal;
 
 // create global parameters and errors from local
   void checkGlobalParameters() const dso_internal;
