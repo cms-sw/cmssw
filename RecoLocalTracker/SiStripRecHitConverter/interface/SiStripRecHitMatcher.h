@@ -230,7 +230,11 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     }
   
 
+<<<<<<< SiStripRecHitMatcher.h
+    Vec3F offset = trdir.basicVector().v * positiononGluedini.basicVector().v.template get1<2>()/trdir.basicVector().v.template get1<2>();
+=======
     Vec3F offset = trdir.basicVector().v * positiononGluedini.basicVector().v.get1<2>()/trdir.basicVector().v.get1<2>();
+>>>>>>> 1.36
     
     
     Vec3F ret1 = positiononGluedini.basicVector().v - offset;
@@ -283,7 +287,11 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     LocalPoint positiononGluedini=gluedDetInvTrans.toLocal(globalpointini);
     LocalPoint positiononGluedend=gluedDetInvTrans.toLocal(globalpointend); 
     
+<<<<<<< SiStripRecHitMatcher.h
+    Vec3F offset = trdir.basicVector().v * positiononGluedini.basicVector().v.template get1<2>()/trdir.basicVector().v.template get1<2>();
+=======
     Vec3F offset = trdir.basicVector().v * positiononGluedini.basicVector().v.get1<2>()/trdir.basicVector().v.get1<2>();
+>>>>>>> 1.36
     
     
     Vec3F projini= positiononGluedini.basicVector().v - offset;
