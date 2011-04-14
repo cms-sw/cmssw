@@ -1,29 +1,30 @@
 import os,coral,datetime,fnmatch
 from RecoLuminosity.LumiDB import nameDealer,revisionDML,dataDML,lumiTime,CommonUtil,selectionParser,hltTrgSeedMapper
 
-#internal functions
-def _decidenorm(schema,norm=None,amodetag=None,nominalegev=None):
-    '''
-    output : (avgnorm,perbunchnorm)
-    '''
-    avgnorm=1.0
-    perbunchnorm=0.001
-    if not norm:
-        normid=dataDML.guessnormIdByContext(schema,amodetag,nominalegev)
-        if not normid:
-            raise ValueError('cannot find a normalization factor for the combined condition '+amodetag+' '+nominalegev)
-    else:
-        if isinstance(norm,str):
-            normid=dataDML.guessnormIdByName(schema,normname)
-            avgnorm=dataDML.luminormById(schema,normid)[2]
-            perbunchnorm=float(avgnorm)/1000.0
-        elif isinstance(norm,float) or isinstance(norm,int):
-            avgnorm=float(norm)
-            perbunchnorm=float(avgnorm)/1000.0
-        else:
-            raise ValueError('unexpected norm type')
-    return (avgnorm,perbunchnorm)
 
+#internal functions
+#
+#to decide on the norm value to use
+#
+def _getnorm(schema,norm):
+    if isinstance(norm,int) or isinstance(norm,float) or CommonUtil.is_floatstr(norm) or CommonUtil.is_intstr(norm):
+        return float(norm)
+    if not isinstance(norm,str):
+        raise ValueError('wrong parameter type')
+    normdataid=dataDML.guessnormIdByName(schema,norm)
+    normresult=dataDML.luminormById(schema,normdataid)
+    return normresult[2]
+def _decidenormFromContext(schema,amodetag,egev):
+    normdataid=dataDML.guessnormIdByContext(schema,amodetag,egev)
+    normresult=dataDML.luminormById(schema,normdataid)
+    return normresult[2]
+def _decidenormForRun(schema,run):
+    rundata=dataDML.runsummary(schema,run)
+    amodetagForRun=rundata[1]
+    egevForRun=rundata[2]
+    normdataid=dataDML.guessnormIdByContext(schema,amodetagForRun,egevForRun)
+    normresult=dataDML.luminormById(schema,normdataid)
+    return normresult[2]
 #public functions
 def runList(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=None,nominalEnergy=None,energyFlut=0.2,requiretrg=True,requirehlt=True):
     return dataDML.runList(schema,fillnum,runmin,runmax,startT,stopT,l1keyPattern,hltkeyPattern,amodetag,nominalEnergy,energyFlut,requiretrg,requirehlt)
@@ -159,14 +160,15 @@ def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bx
         result[run]=lsresult
     return result
 
-def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',withBeamInfo=False,norm=None,datatag=None):
+def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo='OCC1',withBeamInfo=False,norm=None,datatag=None):
     '''
     Inst luminosity after calibration
     input:
            inputRange  {run:[cmsls]} (required)
-           amodetag : accelerator mode for all the runs (optional) ['PROTPHYS','HIPHYS']
+           amodetag : accelerator mode for all the runs (optional) ['PROTPHYS','IONPHYS']
            beamstatus: LS filter on beamstatus (optional)
-           beamenergy: LS filter on beamenergy (optional)  beamenergy+-beamenergyFluc
+           amodetag: amodetag for  picking norm(optional)
+           egev: beamenergy for picking norm(optional)
            withBXInfo: get per bunch info (optional)
            bxAlgo: algoname for bx values (optional) ['OCC1','OCC2','ET']
            xingMinLum: cut on bx lumi value (optional)
@@ -178,17 +180,30 @@ def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,withBXInfo=Fals
            lumi unit: HZ/ub
     '''
     result = {}
-    normval=6370
-    perbunchnormval=6.37
+    normval=None
+    perbunchnormval=None
+    if norm:
+        normval=_getnorm(schema,norm)
+        perbunchnormval=float(normval)/float(1000)
+    elif amodetag and egev:
+        normval=_decidenormFromContex(schema,amodetag,egev)
+        perbunchnormval=float(normval)/float(1000)
     instresult=instLumiForRange(schema,inputRange,beamstatus,withBXInfo,bxAlgo,withBeamIntensity,datatag)
     for run,perrundata in instresult.items():
         if perrundata is None:
             result[run]=None
             continue
         result[run]={}
+        if not normval:#if norm cannot be decided , look for it according to context per run
+            normval=_decidenormForRun(schema,run)
+            perbunchnormval=float(normval)/float(1000)
+        if not normval:#still not found? resort to global default (should never come here)
+            normval=6370
+            perbunchnormval=6.37
+            print '[Warning] using default normalization '+str(normval)
         for (lumilsnum,cmslsnum),perlsdata in perrundata.items():
             timestamp=perlsdata[0]
-            beamstatus=perlsdata[1]
+            bs=perlsdata[1]
             beamenergy=perlsdata[2]
             calibratedlumi=perlsdata[3]*normval             
             calibratedlumierr=perlsdata[4]*normval
@@ -199,16 +214,17 @@ def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,withBXInfo=Fals
             if bxdata:
                 calibratedbxdata=([x*perbunchnormval for x in bxdata[0]],[x*perbunchnormval for x in bxdata[1]])
             intensitydata=perlsdata[8]             
-            result[run].append([lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,calibratedlumi,calibratedlumierr,startorbit,numorbit,calibfatedbxdata,intensitydata])
+            result[run].append([lumilsnum,cmslsnum,timestamp,bs,beamenergy,calibratedlumi,calibratedlumierr,startorbit,numorbit,calibfatedbxdata,intensitydata])
     return result
          
-def deliveredLumiForRange(schema,inputRange,amodetag=None,nominalegev=None,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',xingMinLum=None,withBeamIntensity=False,norm=None,datatag=None):
+def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo='OCC1',xingMinLum=None,withBeamIntensity=False,norm=None,datatag=None):
     '''
     input:
            inputRange  {run:[lsnum]} (required) [lsnum]==None means all ; [lsnum]==[] means selected ls 
            amodetag : accelerator mode for all the runs (optional) ['PROTPHYS','IONPHYS']
            beamstatus: LS filter on beamstatus (optional)
-           beamenergy: LS filter on beamenergy (optional)  beamenergy+-beamenergyFluc
+           amodetag: amodetag for  picking norm(optional)
+           egev: beamenergy for picking norm(optional)
            withBXInfo: get per bunch info (optional)
            bxAlgo: algoname for bx values (optional) ['OCC1','OCC2','ET']
            xingMinLum: cut on bx lumi value (optional)
@@ -220,17 +236,28 @@ def deliveredLumiForRange(schema,inputRange,amodetag=None,nominalegev=None,beams
            avg lumi unit: 1/ub
     '''
     result = {}
-    normval=6370
-    perbunchnormval=6.37
-    #(normval,perbunchnormval)=_decidenorm(schema,norm=norm,amodetag=amodetag,nominalegev=nominalegev)
+    normval=None
+    perbunchnormval=None
+    if norm:
+        normval=_getnorm(schema,norm)
+        perbunchnormval=float(normval)/float(1000)
+    elif amodetag and egev:
+        normval=_decidenormFromContex(schema,amodetag,egev)
+        perbunchnormval=float(normval)/float(1000)
     instresult=instLumiForRange(schema,inputRange,beamstatus,withBXInfo,bxAlgo,withBeamIntensity,datatag)
-    #print instresult
-    #instLumiForRange should have aleady handled the selection,unpackblob
+    #instLumiForRange should have aleady handled the selection,unpackblob    
     for run,perrundata in instresult.items():
         if perrundata is None:
             result[run]=None
             continue
         result[run]=[]
+        if not normval:#if norm cannot be decided , look for it according to context per run
+            normval=_decidenormForRun(schema,run)
+            perbunchnormval=float(normval)/float(1000)
+        if not normval:#still not found? resort to global default (should never come here)
+            normval=6370
+            perbunchnormval=6.37
+            print '[Warning] using default normalization '+str(normval)
         for perlsdata in perrundata:#loop over ls
             lumilsnum=perlsdata[0]
             cmslsnum=perlsdata[1]
@@ -251,13 +278,14 @@ def deliveredLumiForRange(schema,inputRange,amodetag=None,nominalegev=None,beams
             result[run].append([lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,calibratedlumierr,calibratedbxdata,intensitydata])
     return result
                        
-def lumiForRange(schema,inputRange,amodetag='PROTPHYS',beamstatus=None,beamenergy=None,beamenergyFluc=0.2,withBXInfo=False,bxAlgo='OCC1',xingMinLum=1.0e-4,withBeamInfo=False,norm=None,datatag=None):
+def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo='OCC1',xingMinLum=1.0e-4,withBeamInfo=False,norm=None,datatag=None):
     '''
     input:
            inputRange  {run:[cmsls]} (required)
            amodetag : accelerator mode for all the runs (optional) ['PROTPHYS','HIPHYS']
            beamstatus: LS filter on beamstatus (optional)
-           beamenergy: LS filter on beamenergy (optional)  beamenergy+-beamenergyFluc
+           amodetag: amodetag for  picking norm(optional)
+           egev: beamenergy for picking norm(optional)
            withBXInfo: get per bunch info (optional)
            bxAlgo: algoname for bx values (optional) ['OCC1','OCC2','ET']
            xingMinLum: cut on bx lumi value (optional)
@@ -269,9 +297,14 @@ def lumiForRange(schema,inputRange,amodetag='PROTPHYS',beamstatus=None,beamenerg
            lumi unit: 1/ub
     '''
     result = {}
-    normval=6370
-    perbunchnormval=6.37
-    #(normval,perbunchnormval)=_decidenorm(schema,norm=norm,amodetag=amodetag,nominalegev=nominalagev)
+    normval=None
+    perbunchnormval=None
+    if norm:
+        normval=_getnorm(schema,norm)
+        perbunchnormval=float(normval)/float(1000)
+    elif amodetag and egev:
+        normval=_decidenormFromContex(schema,amodetag,egev)
+        perbunchnormval=float(normval)/float(1000)
     c=lumiTime.lumiTime()
     for run,lslist in inputRange.items():#loop over run
         if lslist is not None and len(lslist)==0:#no selected ls, do nothing for this run
@@ -288,6 +321,15 @@ def lumiForRange(schema,inputRange,amodetag='PROTPHYS',beamstatus=None,beamenerg
             continue
         (lumirunnum,lumidata)=dataDML.lumiLSById(schema,lumidataid,beamstatus=beamstatus,withBXInfo=withBXInfo,bxAlgo=bxAlgo,withBeamIntensity=withBeamInfo)
         (trgrunnum,trgdata)=dataDML.trgLSById(schema,trgdataid,withblobdata=False)
+        
+        if not normval:#if norm cannot be decided , look for it according to context per run
+            normval=_decidenormForRun(schema,run)
+            perbunchnormval=float(normval)/float(1000)
+        if not normval:#still not found? resort to global default (should never come here)
+            normval=6370
+            perbunchnormval=6.37
+            print '[Warning] using default normalization '+str(normval)
+        
         perrunresult=[]
         for lumilsnum,perlsdata in lumidata.items():
             cmslsnum=perlsdata[0]

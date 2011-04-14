@@ -445,8 +445,8 @@ def lumiLSById(schema,dataid,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',with
             instlumi=cursor.currentRow()['instlumi'].data()
             instlumierr=cursor.currentRow()['instlumierr'].data()
             instlumiqlty=cursor.currentRow()['instlumiqlty'].data()
-            beamstatus=cursor.currentRow()['beamstatus'].data()
-            beamenergy=cursor.currentRow()['beamenergy'].data()
+            bs=cursor.currentRow()['beamstatus'].data()
+            begev=cursor.currentRow()['beamenergy'].data()
             numorbit=cursor.currentRow()['numorbit'].data()
             startorbit=cursor.currentRow()['startorbit'].data()
             bxinfo=None
@@ -469,7 +469,7 @@ def lumiLSById(schema,dataid,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',with
                     beaminfo=(bxindexblob,beam1intensity,beam2intensity)
             if not result.has_key(lumilsnum):
                 result[lumilsnum]=[]
-            result[lumilsnum].extend([cmslsnum,instlumi,instlumierr,instlumiqlty,beamstatus,beamenergy,numorbit,startorbit,bxinfo,beaminfo])           
+            result[lumilsnum].extend([cmslsnum,instlumi,instlumierr,instlumiqlty,bs,begev,numorbit,startorbit,bxinfo,beaminfo])           
     except :
         del qHandle
         raise 
