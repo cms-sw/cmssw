@@ -351,9 +351,9 @@ void popcon::EcalLaserHandler::getNewObjects()
 				   ss.str()));
 	}
 	is++;
-	if (m_fake) {
-	  delete apdpns_popcon;
-	}
+      }
+      if (m_fake) {
+	delete apdpns_popcon;
       }
       if ((iseq->second.size() > 0) && (!m_fake)) {
 	m_to_transfer.push_back(std::make_pair(apdpns_popcon, 
