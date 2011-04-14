@@ -5,34 +5,24 @@ process = cms.Process("electrons")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
 
-process.load("RecoEcal.Configuration.RecoEcal_cff")
-process.load("RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi")
-process.load("RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi")
-process.load("RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi")
-process.load("RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi")
-process.load("RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi")
-process.load("RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi")
-process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
-process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff")
-process.load("RecoTracker.TransientTrackingRecHit.TTRHBuilders_cff")
-process.load("RecoEgamma.EgammaElectronProducers.gsfElectronSequence_cff")
 
 process.source = cms.Source("PoolSource",
-    debugVerbosity = cms.untracked.uint32(1),
-    debugFlag = cms.untracked.bool(True),
+#    debugVerbosity = cms.untracked.uint32(1),
+#    debugFlag = cms.untracked.bool(True),
     fileNames = cms.untracked.vstring(
-       '/store/relval/CMSSW_3_0_0_pre2/RelValSingleElectronPt35/GEN-SIM-RECO/IDEAL_V9_v2/0001/081F51BD-6FB2-DD11-91C4-000423D94700.root',
-       '/store/relval/CMSSW_3_0_0_pre2/RelValSingleElectronPt35/GEN-SIM-RECO/IDEAL_V9_v2/0001/E2426349-1DB4-DD11-B4F7-001617DC1F70.root'
+       '/store/relval/CMSSW_4_1_2/RelValZEE/GEN-SIM-RECO/MC_311_V2-v1/0021/74BD0C87-9045-E011-93ED-001A92811724.root'
     )
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10)
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    outputCommands = cms.untracked.vstring('drop *', 
+    outputCommands = cms.untracked.vstring(
+        'drop *', 
         'keep recoSuperClusters*_*_*_*', 
         'keep *_iterativeCone5CaloJets_*_*', 
         'keep *_*_*_electrons', 
@@ -42,9 +32,15 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.Timing = cms.Service("Timing")
 
-process.p = cms.Path(process.siPixelRecHits*process.siStripMatchedRecHits*process.newSeedFromPairs*process.newSeedFromTriplets*process.newCombinedSeeds*process.ecalClusters*process.gsfElectronSequence)
+from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cfi import *
+from TrackingTools.GsfTracking.CkfElectronCandidateMaker_cff import *
+
+electronSeeds = cms.Sequence(ecalDrivenElectronSeeds)
+electronCkfTrackCandidates.src = cms.InputTag('electronSeeds')
+
+process.p = cms.Path(process.siPixelRecHits*process.siStripMatchedRecHits*process.iterTracking*process.newSeedFromPairs*process.newSeedFromTriplets*process.newCombinedSeeds*process.ecalClusters*process.gsfElectronSequence)
 
 process.outpath = cms.EndPath(process.out)
-process.GlobalTag.globaltag = 'MC_31X_V2'
+process.GlobalTag.globaltag = 'MC_311_V2::All'
 
 
