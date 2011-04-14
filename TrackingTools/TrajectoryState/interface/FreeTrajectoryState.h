@@ -139,12 +139,12 @@ public:
 private:
 
 
-  static void missingError();// dso_internal;
+  static void missingError(); // dso_internal;
 
 // convert curvilinear errors to cartesian
-  void createCartesianError(); // const  dso_internal;
+  void createCartesianError() const; // dso_internal;
 // convert cartesian errors to curvilinear
-  void createCurvilinearError(); // const dso_internal;
+  void createCurvilinearError() const; // dso_internal;
 
 private:
 
