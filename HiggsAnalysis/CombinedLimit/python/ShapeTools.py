@@ -17,8 +17,8 @@ class ShapeBuilder(ModelBuilder):
         if len(self.DC.bins) > 1:
             strexpr="channel[" + ",".join(["%s=%d" % (l,i) for i,l in enumerate(self.DC.bins)]) + "]";
             self.doVar(strexpr);
-            self.out.binCat = self.out.cat("channel");
-            stderr.write("Will use category 'channel' to identify the %d channels\n" % self.out.binCat.numTypes())
+            self.out.binCat = self.out.cat("CMS_channel");
+            stderr.write("Will use category 'CMS_channel' to identify the %d channels\n" % self.out.binCat.numTypes())
             self.out.obs = ROOT.RooArgSet()
             self.out.obs.add(self.out.binVars)
             self.out.obs.add(self.out.binCat)
@@ -118,8 +118,13 @@ class ShapeBuilder(ModelBuilder):
             if self.options.verbose: stderr.write("Will try to work with unbinned datasets\n")
             if self.options.verbose: stderr.write("Observables: %s\n" % str(shapeObs.keys()))
             if len(shapeObs.keys()) != 1:
-                raise RuntimeError, "There's more than once choice of observables: %s\n" % str(shapeObs.keys())
-            self.out.binVars = shapeObs.values()[0]
+                print shapeObs.keys()
+                self.out.binVars = ROOT.RooArgSet()
+                for obs in shapeObs.values():
+                     self.out.binVars.add(obs, False)
+                self.out.binVars.Print("V")
+            else:
+                self.out.binVars = shapeObs.values()[0]
             self.out._import(self.out.binVars)
         else:
             self.out.mode = "binned"
@@ -280,7 +285,7 @@ class ShapeBuilder(ModelBuilder):
                 else:
                     rds = ROOT.RooDataSet(name, name, obs)
                     if self.DC.obs[channel] == float(int(self.DC.obs[channel])):
-                        for i in range(self.DC.obs[channel]): rds.add(obs)
+                        for i in range(int(self.DC.obs[channel])): rds.add(obs)
                     else:
                         rds.add(obs, self.DC.obs[channel])
                     _cache[name] = rds
