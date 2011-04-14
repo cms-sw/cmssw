@@ -99,6 +99,15 @@ public:
    Float_t ohpfTauLeadPionPt[500];
    Float_t ohpfTauTrkIso[500];
    Float_t ohpfTauGammaIso[500];
+   Int_t           NohPFTau;
+   Float_t         pfTauEta[500];
+   Float_t         pfTauPhi[500];
+   Float_t         pfTauPt[500];
+   Float_t         pfTauJetPt[500];
+   Float_t         pfTauLeadTrackPt[500];
+   Float_t         pfTauLeadPionPt[500];
+   Int_t           pfTauTrkIso[500];
+   Int_t           pfTauGammaIso[500];
    Int_t NohBJetL2; //
    Float_t ohBJetL2Et[5000]; //[NohBJetL2] 
    Float_t ohBJetL2Energy[5000]; //[NohBJetL2]  
@@ -2929,6 +2938,15 @@ public:
    TBranch *b_ohAlcapi0etaClusAll; //! 
    TBranch *b_ohAlcapi0phiClusAll; //! 
    TBranch *b_ohAlcapi0s4s9ClusAll; //! 
+   TBranch        *b_NohPFTau;   //!
+   TBranch        *b_pfTauPt;   //!
+   TBranch        *b_pfTauEta;   //!
+   TBranch        *b_pfTauPhi;   //!
+   TBranch        *b_pfTauLeadTrackPt;   //!
+   TBranch        *b_pfTauLeadPionPt;   //!
+   TBranch        *b_pfTauTrkIso;   //!
+   TBranch        *b_pfTauGammaIso;   //!
+   TBranch        *b_pfTauJetPt;   //!
    TBranch *b_NohpfTau; //! 
    TBranch *b_ohpfTauPt; //! 
    TBranch *b_ohpfTauEta; //! 
@@ -5459,7 +5477,34 @@ public:
    int OpenHltTauMuonMatching(float eta, float phi);
    
    int OpenHltTauEleMatching(float eta, float phi);
+
+   int OpenHltTauMuonMatching_wMuonID(float eta, float phi, double ptl1, double ptl2, double ptl3, double dr, int iso);
+
+   int OpenHltTauEleMatching_wEleID(float eta, float phi, float Et, int L1iso,
+				    float Tisobarrel, float Tisoendcap,
+				    float Tisoratiobarrel, float Tisoratioendcap,
+				    float HisooverETbarrel, float HisooverETendcap,
+				    float EisooverETbarrel, float EisooverETendcap,
+				    float hoverebarrel, float hovereendcap,
+				    float clusshapebarrel, float clusshapeendcap,
+				    float r9barrel, float r9endcap,
+				    float detabarrel, float detaendcap,
+				    float dphibarrel, float dphiendcap);
+
    
+   int OpenHltPFTauPassedNoMuonIDNoEleID(float Et,float L25TrkPt, int L3TrkIso, int L3GammaIso,
+					 float mu_ptl1, float mu_ptl2, float mu_ptl3, float mu_dr, float mu_iso,
+					 float Et_ele, int L1iso,
+					 float Tisobarrel, float Tisoendcap,
+					 float Tisoratiobarrel, float Tisoratioendcap,
+					 float HisooverETbarrel, float HisooverETendcap,
+					 float EisooverETbarrel, float EisooverETendcap,
+					 float hoverebarrel, float hovereendcap,
+					 float clusshapebarrel, float clusshapeendcap,
+					 float r9barrel, float r9endcap,
+					 float detabarrel, float detaendcap,
+					 float dphibarrel, float dphiendcap);
+
    int OpenHltTauPFToCaloMatching(float eta, float phi);
    
    int OpenHltL1L2TauMatching(
@@ -6028,6 +6073,8 @@ public:
          int iso,
          double ptl3hi);
    
+   int OpenHltpfMHT(double pfMHTthreshold);
+
    int OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold);
    
    int OpenHltSumHTPassed(
@@ -6693,15 +6740,25 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("ohOniaTrackDz", ohOniaTrackDz, &b_ohOniaTrackDz);
    fChain->SetBranchAddress("ohOniaTrackHits", ohOniaTrackHits, &b_ohOniaTrackHits);
    fChain->SetBranchAddress("ohOniaTrackNormChi2", ohOniaTrackNormChi2, &b_ohOniaTrackNormChi2);
-   fChain->SetBranchAddress("NohpfTau", &NohpfTau, &b_NohpfTau);
-   fChain->SetBranchAddress("ohpfTauPt", ohpfTauPt, &b_ohpfTauPt);
-   fChain->SetBranchAddress("ohpfTauEta", ohpfTauEta, &b_ohpfTauEta);
-   fChain->SetBranchAddress("ohpfTauPhi", ohpfTauPhi, &b_ohpfTauPhi);
-   fChain->SetBranchAddress("ohpfTauLeadTrackPt", ohpfTauLeadTrackPt, &b_ohpfTauLeadTrackPt);
-   fChain->SetBranchAddress("ohpfTauLeadPionPt", ohpfTauLeadPionPt, &b_ohpfTauLeadPionPt);
-   fChain->SetBranchAddress("ohpfTauTrkIso", ohpfTauTrkIso, &b_ohpfTauTrkIso);
-   fChain->SetBranchAddress("ohpfTauGammaIso", ohpfTauGammaIso, &b_ohpfTauGammaIso);
-   fChain->SetBranchAddress("ohpfTauJetPt", ohpfTauJetPt, &b_ohpfTauJetPt);
+   /* fChain->SetBranchAddress("NohpfTau", &NohPFTau, &b_NohPFTau); */
+   /* fChain->SetBranchAddress("ohpfTauPt", pfTauPt, &b_pfTauPt); */
+   /* fChain->SetBranchAddress("ohpfTauEta", pfTauEta, &b_pfTauEta); */
+   /* fChain->SetBranchAddress("ohpfTauPhi", pfTauPhi, &b_pfTauPhi); */
+   /* fChain->SetBranchAddress("ohpfTauLeadTrackPt", pfTauLeadTrackPt, &b_pfTauLeadTrackPt); */
+   /* fChain->SetBranchAddress("ohpfTauLeadPionPt", pfTauLeadPionPt, &b_pfTauLeadPionPt); */
+   /* fChain->SetBranchAddress("ohpfTauTrkIso", pfTauTrkIso, &b_pfTauTrkIso); */
+   /* fChain->SetBranchAddress("ohpfTauGammaIso", pfTauGammaIso, &b_pfTauGammaIso); */
+   /* fChain->SetBranchAddress("ohpfTauJetPt", pfTauJetPt, &b_pfTauJetPt); */
+   fChain->SetBranchAddress("NohPFTau", &NohPFTau, &b_NohPFTau);
+   fChain->SetBranchAddress("pfTauPt", pfTauPt, &b_pfTauPt);
+   fChain->SetBranchAddress("pfTauEta", pfTauEta, &b_pfTauEta);
+   fChain->SetBranchAddress("pfTauPhi", pfTauPhi, &b_pfTauPhi);
+   fChain->SetBranchAddress("pfTauLeadTrackPt", pfTauLeadTrackPt, &b_pfTauLeadTrackPt);
+   fChain->SetBranchAddress("pfTauLeadPionPt", pfTauLeadPionPt, &b_pfTauLeadPionPt);
+   fChain->SetBranchAddress("pfTauTrkIso", pfTauTrkIso, &b_pfTauTrkIso);
+   fChain->SetBranchAddress("pfTauGammaIso", pfTauGammaIso, &b_pfTauGammaIso);
+   fChain->SetBranchAddress("pfTauJetPt", pfTauJetPt, &b_pfTauJetPt);
+
    fChain->SetBranchAddress("pfMHT", &pfMHT, &b_pfMHT);
    fChain->SetBranchAddress("NohPFJet", &NohPFJet, &b_NohPFJet);
    fChain->SetBranchAddress("pfJetPt", pfJetPt, &b_pfJetPt);
