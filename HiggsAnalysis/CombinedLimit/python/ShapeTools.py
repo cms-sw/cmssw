@@ -69,7 +69,16 @@ class ShapeBuilder(ModelBuilder):
                 if len(self.DC.obs) == 0 and p == self.options.dataname: continue
                 if p != self.options.dataname and self.DC.exp[b][p] == 0: continue
                 shape = self.getShape(b,p); norm = 0;
-                if shape.ClassName().startswith("TH1"):
+                if shape == None: # counting experiment
+                    if not self.out.var("CMS_fakeObs"): 
+                        self.doVar("CMS_fakeObs[0,1]");
+                        self.doSet("CMS_fakeObsSet","CMS_fakeObs");
+                        shapeObs["CMS_fakeObsSet"] = self.out.set("CMS_fakeObsSet")
+                    if p == self.options.dataname:
+                        shapeTypes.append("RooDataHist")
+                    else:
+                        shapeTypes.append("RooAbsPdf");
+                elif shape.ClassName().startswith("TH1"):
                     shapeTypes.append("TH1"); shapeBins.append(shape.GetNbinsX())
                     norm = shape.Integral()
                 elif shape.InheritsFrom("RooDataHist"):
@@ -150,6 +159,7 @@ class ShapeBuilder(ModelBuilder):
         elif self.DC.shapeMap["*"].has_key(process): names = self.DC.shapeMap["*"][process]
         elif self.DC.shapeMap["*"].has_key("*"):     names = self.DC.shapeMap["*"]["*"]
         else: raise KeyError, "Shape map has no entry for process '%s', channel '%s'" % (process,channel)
+        if len(names) == 1 and names[0] == "FAKE": return None
         if syst != "": names = [names[0], names[2]]
         else:          names = [names[0], names[1]]
         strmass = "%d" % self.options.mass if self.options.mass % 1 == 0 else str(self.options.mass)
@@ -189,12 +199,13 @@ class ShapeBuilder(ModelBuilder):
             if self.options.verbose: stderr.write("import (%s,%s) -> %s\n" % (finalNames[0],objname,ret.GetName()))
             _neverDelete.append(ret)
             return ret
-    def getData(self,channel,process,syst=""):
-        return self.shape2Data(self.getShape(channel,process,syst))
+    def getData(self,channel,process,syst="",_cache={}):
+        return self.shape2Data(self.getShape(channel,process,syst),channel,process)
     def getPdf(self,channel,process,_cache={}):
         if _cache.has_key((channel,process)): return _cache[(channel,process)]
         shapeNominal = self.getShape(channel,process)
-        nominalPdf = self.shape2Pdf(shapeNominal)
+        nominalPdf = self.shape2Pdf(shapeNominal,channel,process)
+        if shapeNominal == None: return nominalPdf # no point morphing a fake shape
         morphs = []; shapeAlgo = None
         for (syst,pdf,args,errline) in self.DC.systs:
             if not "shape" in pdf: continue
@@ -205,7 +216,7 @@ class ShapeBuilder(ModelBuilder):
                 shapeDown = self.getShape(channel,process,syst+"Down")
                 if shapeUp.ClassName()   != shapeNominal.ClassName(): raise RuntimeError, "Mismatched shape types for channel %s, process %s, syst" % (channel,process,syst)
                 if shapeDown.ClassName() != shapeNominal.ClassName(): raise RuntimeError, "Mismatched shape types for channel %s, process %s, syst" % (channel,process,syst)
-                morphs.append((syst,errline[channel][process],self.shape2Pdf(shapeUp),self.shape2Pdf(shapeDown)))
+                morphs.append((syst,errline[channel][process],self.shape2Pdf(shapeUp,channel,process),self.shape2Pdf(shapeDown,channel,process)))
         if len(morphs) == 0: return nominalPdf
         if shapeAlgo == "shapeN": stderr.write("Warning: the shapeN implementation in RooStats and L&S are different\n")
         pdfs = ROOT.RooArgList(nominalPdf)
@@ -226,8 +237,11 @@ class ShapeBuilder(ModelBuilder):
     def getExtraNorm(self,channel,process):
         terms = []
         shapeNominal = self.getShape(channel,process)
+        if shapeNominal == None: 
+            # FIXME no extra norm for dummy pdfs (could be changed)
+            return None
         if shapeNominal.InheritsFrom("RooAbsPdf"): 
-            # no extra norm for parametric pdfs (could be changed)
+            # FIXME no extra norm for parametric pdfs (could be changed)
             return None
         normNominal = 0
         if shapeNominal.InheritsFrom("TH1"): normNominal = shapeNominal.Integral()
@@ -252,7 +266,25 @@ class ShapeBuilder(ModelBuilder):
                 kappasScaled = [ pow(x, errline[channel][process]) for x in kappaDown,kappaUp ]
                 terms.append("AsymPow(%f,%f,%s)" % (kappasScaled[0], kappasScaled[1], syst))
         return ",".join(terms) if terms else None;
-    def shape2Data(self,shape,_cache={}):
+    def shape2Data(self,shape,channel,process,_cache={}):
+        if shape == None:
+            name = "shape_%s_%s" % (channel,process)
+            if not _cache.has_key(name):
+                obs = ROOT.RooArgSet(self.out.var("CMS_fakeObs"))
+                obs.setRealValue("CMS_fakeObs",0.5);
+                if self.out.mode == "binned":
+                    self.out.var("CMS_fakeObs").setBins(1)
+                    rdh = ROOT.RooDataHist(name, name, obs)
+                    rdh.set(obs, self.DC.obs[channel])
+                    _cache[name] = rdh
+                else:
+                    rds = ROOT.RooDataSet(name, name, obs)
+                    if self.DC.obs[channel] == float(int(self.DC.obs[channel])):
+                        for i in range(self.DC.obs[channel]): rds.add(obs)
+                    else:
+                        rds.add(obs, self.DC.obs[channel])
+                    _cache[name] = rds
+            return _cache[name]
         if not _cache.has_key(shape.GetName()):
             if shape.ClassName().startswith("TH1"):
                 rebinh1 = ROOT.TH1F(shape.GetName()+"_rebin", "", self.out.maxbins, 0.0, float(self.out.maxbins))
@@ -265,10 +297,15 @@ class ShapeBuilder(ModelBuilder):
                 return shape
             else: raise RuntimeError, "shape2Data not implemented for %s" % shape.ClassName()
         return _cache[shape.GetName()]
-    def shape2Pdf(self,shape,_cache={}):
+    def shape2Pdf(self,shape,channel,process,_cache={}):
+        if shape == None:
+            name = "shape_%s_%s" % (channel,process)
+            if not _cache.has_key(name):
+                _cache[name] = ROOT.RooUniform(name, name, ROOT.RooArgSet(self.out.var("CMS_fakeObs")))
+            return _cache[name]
         if not _cache.has_key(shape.GetName()+"Pdf"):
             if shape.ClassName().startswith("TH1"):
-                rdh = self.shape2Data(shape)
+                rdh = self.shape2Data(shape,channel,process)
                 rhp = self.doObj("%sPdf" % shape.GetName(), "HistPdf", "{x}, %s" % shape.GetName())
                 _cache[shape.GetName()+"Pdf"] = rhp
             elif shape.InheritsFrom("RooAbsPdf"):

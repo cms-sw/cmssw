@@ -30,7 +30,7 @@ def parseCard(file, options):
             nuisances = int(f[1]) if f[1] != "*" else -1
         if f[0] == "shapes":
             if not options.bin: raise RuntimeError, "Can use shapes only with binary output mode"
-            if len(f) < 5: raise RuntimeError, "Malformed shapes line"
+            if len(f) < 4: raise RuntimeError, "Malformed shapes line"
             if not ret.shapeMap.has_key(f[2]): ret.shapeMap[f[2]] = {}
             if ret.shapeMap[f[2]].has_key(f[1]): raise RuntimeError, "Duplicate definition for process '%s', channel '%s'" % (f[1], f[2])
             ret.shapeMap[f[2]][f[1]] = f[3:]
@@ -44,7 +44,10 @@ def parseCard(file, options):
                 ret.obs = dict([(b,ret.obs[i]) for i,b in enumerate(ret.bins)])
                 binline = []
         if f[0] == "bin": 
-            binline = f[1:] 
+            binline = []
+            for b in f[1:]:
+                if re.match("[0-9]+", b): b = "bin"+b
+                binline.append(b)
         if f[0] == "process": 
             if processline == []: # first line contains names
                 processline = f[1:]
