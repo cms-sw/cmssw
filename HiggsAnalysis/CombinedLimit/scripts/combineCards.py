@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import re
 from sys import argv
+import os.path
 from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("-s", "--stat",   dest="stat",    default=False, action="store_true")  # ignore systematic uncertainties to consider statistical uncertainties only
@@ -18,6 +19,7 @@ cmax = 5 # column width
 for ich,fname in enumerate(args):
     label = "ch%d" % (ich+1)
     if "=" in fname: (label,fname) = fname.split("=")
+    dirname = os.path.dirname(fname)
     file = open(fname, "r")
     DC = parseCard(file, options)
     singlebin = (len(DC.bins) == 1)
@@ -63,11 +65,13 @@ for ich,fname in enumerate(args):
             p2sMap  = DC.shapeMap[b]   if DC.shapeMap.has_key(b)   else {}
             p2sMapD = DC.shapeMap['*'] if DC.shapeMap.has_key('*') else {}
             for p, x in p2sMap.items():
-                xrep = [xi.replace("$CHANNEL",bout) for xi in x]
+                xrep = [xi.replace("$CHANNEL",b) for xi in x]
+                if xrep[0] != 'FAKE' and dirname != '': xrep[0] = dirname+"/"+xrep[0]
                 shapeLines.append((p,bout,xrep))
             for p, x in p2sMapD.items():
                 if p2sMap.has_key(p): continue
-                xrep = [xi.replace("$CHANNEL",bout) for xi in x]
+                xrep = [xi.replace("$CHANNEL",b) for xi in x]
+                if xrep[0] != 'FAKE' and dirname != '': xrep[0] = dirname+"/"+xrep[0]
                 shapeLines.append((p,bout,xrep))
     # combine observations, but remove line if any of the datacards doesn't have it
     if len(DC.obs) == 0:
