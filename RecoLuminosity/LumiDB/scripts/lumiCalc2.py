@@ -175,7 +175,7 @@ if __name__ == '__main__':
         os.environ['CORAL_AUTH_PATH'] = options.authpath
         
     pbeammode = None
-    normfactor=None
+    normfactor=options.normfactor
     if options.beammode=='stable':
         pbeammode    = 'STABLE BEAMS'
     if options.verbose:
@@ -190,7 +190,6 @@ if __name__ == '__main__':
         else:
             print 'Action: ',options.action
         if options.normfactor:
-            normfactor=options.normfactor
             if CommonUtil.is_floatstr(normfactor):
                 print '\tuse norm factor value ',normfactor                
             else:
@@ -250,7 +249,7 @@ if __name__ == '__main__':
                 print '\t%d : all'%run
     if options.action == 'delivered':
         session.transaction().start(True)
-        result=lumiCalcAPI.deliveredLumiForRange(session.nominalSchema(),irunlsdict,beamstatus=pbeammode,norm=normfactor)
+        result=lumiCalcAPI.deliveredLumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor)
         session.transaction().commit()
         if not options.outputfile:
             lumiReport.toScreenTotDelivered(result,options.verbose)
@@ -259,7 +258,7 @@ if __name__ == '__main__':
             
     if options.action == 'overview':
        session.transaction().start(True)
-       result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,beamstatus=pbeammode,norm=normfactor)
+       result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor)
        session.transaction().commit()
        if not options.outputfile:
            lumiReport.toScreenOverview(result,options.verbose)
@@ -267,7 +266,7 @@ if __name__ == '__main__':
            lumiReport.toCSVOverview(result,options.outputfile,options.outputfile)
     if options.action == 'lumibyls':
        session.transaction().start(True)
-       result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,beamstatus=pbeammode,norm=normfactor)
+       result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor)
        session.transaction().commit()
        if not options.outputfile:
            lumiReport.toScreenLumiByLS(result,options.verbose)
