@@ -376,7 +376,7 @@ ElectronLikelihood::result (const reco::GsfElectron &electron,
     return _EB0lt15lh->getRatio ("electrons",measurements,std::string (className)) ;
   else if (subdet==EcalBarrel && fabs(electron.eta())<=1.0 && thisPt>=15.)
     return _EB0gt15lh->getRatio ("electrons",measurements,std::string (className)) ;
-  if (subdet==EcalBarrel && fabs(electron.eta())>1.0 && thisPt<15.)
+  else if (subdet==EcalBarrel && fabs(electron.eta())>1.0 && thisPt<15.)
     return _EB1lt15lh->getRatio ("electrons",measurements,std::string (className)) ;
   else if (subdet==EcalBarrel && fabs(electron.eta())>1.0 && thisPt>=15.)
     return _EB1gt15lh->getRatio ("electrons",measurements,std::string (className)) ;
@@ -419,18 +419,18 @@ ElectronLikelihood::resultLog (const reco::GsfElectron &electron,
   float lh=-999.;
 
   if (subdet==EcalBarrel && fabs(electron.eta())<=1.0 && thisPt<15.)
-    return _EB0lt15lh->getRatio ("electrons",measurements,std::string (className)) ;
+    lh = _EB0lt15lh->getRatio ("electrons",measurements,std::string (className)) ;
   else if (subdet==EcalBarrel && fabs(electron.eta())<=1.0 && thisPt>=15.)
-    return _EB0gt15lh->getRatio ("electrons",measurements,std::string (className)) ;
-  if (subdet==EcalBarrel && fabs(electron.eta())>1.0 && thisPt<15.)
-    return _EB1lt15lh->getRatio ("electrons",measurements,std::string (className)) ;
+    lh = _EB0gt15lh->getRatio ("electrons",measurements,std::string (className)) ;
+  else if (subdet==EcalBarrel && fabs(electron.eta())>1.0 && thisPt<15.)
+    lh = _EB1lt15lh->getRatio ("electrons",measurements,std::string (className)) ;
   else if (subdet==EcalBarrel && fabs(electron.eta())>1.0 && thisPt>=15.)
-    return _EB1gt15lh->getRatio ("electrons",measurements,std::string (className)) ;
+    lh = _EB1gt15lh->getRatio ("electrons",measurements,std::string (className)) ;
   else if (subdet==EcalEndcap && thisPt<15.)
-    return _EElt15lh->getRatio ("electrons",measurements,std::string (className)) ;
+    lh = _EElt15lh->getRatio ("electrons",measurements,std::string (className)) ;
   else if (subdet==EcalEndcap && thisPt>=15.)
-    return _EEgt15lh->getRatio ("electrons",measurements,std::string (className)) ;
-  else return -999. ;
+    lh = _EEgt15lh->getRatio ("electrons",measurements,std::string (className)) ;
+  else lh = -999. ;
 
   if(lh<=0) return -20.;
   else if(lh==1) return 20.;
