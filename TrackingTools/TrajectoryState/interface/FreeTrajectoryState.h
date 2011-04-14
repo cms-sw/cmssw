@@ -12,6 +12,10 @@
 
 #include <iosfwd>
 
+#include "FWCore/Utilities/interface/Visibility.h"
+#include "FWCore/Utilities/interface/Likely.h"
+
+
 /** A 6-dimensional state vector of a helix given at some point in 
  *  space along the helix, and the associated error matrix.
  *  The error can be obtained in two different parametrizations:
@@ -90,26 +94,28 @@ public:
   double transverseCurvature() const {
     return theGlobalParameters.transverseCurvature();
   }
+
 // direct access
   bool hasCartesianError() const {return theCartesianErrorValid;}
   bool hasCurvilinearError() const {return theCurvilinearErrorValid;}
+
   bool hasError() const {
     return theCurvilinearErrorValid || theCartesianErrorValid;
   }
-  static void missingError();
+
 
   const GlobalTrajectoryParameters& parameters() const {
     return theGlobalParameters;
   }
   const CartesianTrajectoryError& cartesianError() const {
-    if (!hasError()) missingError();
-    if (!theCartesianErrorValid)
+    if unlikely(!hasError()) missingError();
+    if  unlikely(!theCartesianErrorValid)
       createCartesianError();
     return theCartesianError;
   }
   const CurvilinearTrajectoryError& curvilinearError() const {
-    if (!hasError()) missingError();
-    if (!theCurvilinearErrorValid)
+    if  unlikely(!hasError()) missingError();
+    if  unlikely(!theCurvilinearErrorValid)
       createCurvilinearError();
     return theCurvilinearError;
   }
@@ -131,18 +137,22 @@ public:
 // properties
   bool canReach(double radius) const;
 private:
+
+
+  static void missingError() dso_internal;
+
 // convert curvilinear errors to cartesian
-  void createCartesianError() const;
+  void createCartesianError() const  dso_internal;
 // convert cartesian errors to curvilinear
-  void createCurvilinearError() const;
+  void createCurvilinearError() const dso_internal;
 
 private:
 
   GlobalTrajectoryParameters  theGlobalParameters;
-  CartesianTrajectoryError    theCartesianError;
-  CurvilinearTrajectoryError  theCurvilinearError;
-  bool                        theCartesianErrorValid;
-  bool                        theCurvilinearErrorValid;
+  mutable CartesianTrajectoryError    theCartesianError;
+  mutable CurvilinearTrajectoryError  theCurvilinearError;
+  mutable bool                        theCartesianErrorValid;
+  mutable bool                        theCurvilinearErrorValid;
 
 };
 

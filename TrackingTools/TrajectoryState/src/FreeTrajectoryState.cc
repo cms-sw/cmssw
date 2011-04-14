@@ -20,10 +20,9 @@ void FreeTrajectoryState::createCartesianError() const{
   JacobianCurvilinearToCartesian curv2Cart(theGlobalParameters);
   const AlgebraicMatrix65& jac = curv2Cart.jacobian();
 
-  ((FreeTrajectoryState*)this)->theCartesianError = 
+  theCartesianError = 
     ROOT::Math::Similarity(jac, theCurvilinearError.matrix());
-
-  ((FreeTrajectoryState*)this)->theCartesianErrorValid = true;
+  theCartesianErrorValid = true;
 }
 
 // convert cartesian errors to curvilinear
@@ -32,15 +31,15 @@ void FreeTrajectoryState::createCurvilinearError() const{
   JacobianCartesianToCurvilinear cart2Curv(theGlobalParameters);
   const AlgebraicMatrix56& jac = cart2Curv.jacobian();
   
-  ((FreeTrajectoryState*)this)->theCurvilinearError = 
+  theCurvilinearError = 
     ROOT::Math::Similarity(jac, theCartesianError.matrix());
-  ((FreeTrajectoryState*)this)->theCurvilinearErrorValid = true;
+  theCurvilinearErrorValid = true;
 } 
 
 
 void FreeTrajectoryState::rescaleError(double factor) {
   bool zeroField = parameters().magneticFieldInInverseGeV(GlobalPoint(0,0,0)).mag2()==0;
-  if (zeroField) {
+  if unlikely(zeroField) {
     if (theCartesianErrorValid){
       if (!theCurvilinearErrorValid) createCurvilinearError();
       theCurvilinearError.zeroFieldScaling(factor*factor);
