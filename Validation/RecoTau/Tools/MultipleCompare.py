@@ -74,7 +74,7 @@ if ylabel != 'Efficiency' and ylabel != 'Fake rate' and ylabel != 'Significance'
 
 #Takes the position of all plots that were produced
 plotList = []
-parList = ['pt', 'eta', 'phi', 'energy']
+parList = ['pt', 'eta', 'phi', 'pileup']
 for attr in dir(validation.TauEfficiencies.plots):
     if type(getattr(validation.TauEfficiencies.plots,attr)) is cms.PSet:
         pset = getattr(validation.TauEfficiencies.plots,attr)
