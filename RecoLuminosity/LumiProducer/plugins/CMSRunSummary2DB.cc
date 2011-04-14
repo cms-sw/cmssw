@@ -307,7 +307,7 @@ namespace lumi{
       runData["STARTTIME"].data<coral::TimeStamp>()=result.startT;
       runData["STOPTIME"].data<coral::TimeStamp>()=result.stopT;
       runData["AMODETAG"].data<std::string>()=result.amodetag;
-      runData["EGEV"].data<int>()=result.egev;
+      runData["EGEV"].data<unsigned int>()=(unsigned int)result.egev;
       runData["L1KEY"].data<std::string>()=result.l1key;
       destruntable.dataEditor().insertRow(runData);
     }catch( const coral::Exception& er){
