@@ -38,6 +38,9 @@ class ElectronLikelihood {
   //! get the result of the algorithm
   float result (const reco::GsfElectron &electron, 
                 EcalClusterLazyTools) const ;
+  //! get the log-expanded result of the algorithm
+  float resultLog (const reco::GsfElectron &electron, 
+                   EcalClusterLazyTools) const ;
 
  private:
 
@@ -56,9 +59,9 @@ class ElectronLikelihood {
                     EcalClusterLazyTools) const ;
 
   //! likelihood below 15GeV/c
-  LikelihoodPdfProduct *_EBlt15lh, *_EElt15lh;
+  LikelihoodPdfProduct *_EB0lt15lh, *_EB1lt15lh, *_EElt15lh;
   //! likelihood above 15GeV/c
-  LikelihoodPdfProduct *_EBgt15lh, *_EEgt15lh;
+  LikelihoodPdfProduct *_EB0gt15lh, *_EB1gt15lh, *_EEgt15lh;
 
   //! general parameters of all the ele id algorithms
   LikelihoodSwitches m_eleIDSwitches ;
