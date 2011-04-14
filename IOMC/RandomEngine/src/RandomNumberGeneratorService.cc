@@ -64,7 +64,7 @@ namespace edm {
           << "states two different ways in the same process.\n";
       }
 
-      // The saveFileName and must correspond to a file name without any path specification.
+      // The saveFileName must correspond to a file name without any path specification.
       // Throw if that is not true.
       if (!saveFileName_.empty() && (saveFileName_.find("/") != std::string::npos)) {
         throw edm::Exception(edm::errors::Configuration)
@@ -339,9 +339,11 @@ namespace edm {
     RandomNumberGeneratorService::postForkReacquireResources(unsigned childIndex, unsigned kMaxChildren) {
       childIndex_ = childIndex;
 
-      std::ostringstream suffix;
-      suffix << "_" << childIndex;
-      saveFileName_ += suffix.str();
+      if (!saveFileName_.empty()) {
+        std::ostringstream suffix;
+        suffix << "_" << childIndex;
+        saveFileName_ += suffix.str();
+      }
     }
 
     // The next three functions contain the complex logic
