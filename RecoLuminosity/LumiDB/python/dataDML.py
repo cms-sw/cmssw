@@ -815,15 +815,19 @@ def guessnormIdByContext(schema,amodetag,egev1):
     '''
     luminormids=[]
     qHandle=schema.newQuery()
+    egevmin=egev1*0.95
+    egevmax=egev1*1.05
     try:
         qHandle.addToTableList( nameDealer.luminormTableName() )
         qHandle.addToOutputList('DATA_ID','normdataid')
-        qConditionStr='AMODETAG=:amodetag AND EGEV_1=:egev1'
+        qConditionStr='AMODETAG=:amodetag AND EGEV_1>=:egevmin AND  EGEV_1<=:egevmax'
         qCondition=coral.AttributeList()
         qCondition.extend('amodetag','string')
-        qCondition.extend('egev1','unsigned int')
+        qCondition.extend('egevmin','unsigned int')
+        qCondition.extend('egevmax','unsigned int')
         qCondition['amodetag'].setData(amodetag)
-        qCondition['egev1'].setData(egev1)
+        qCondition['egevmin'].setData(int(egevmin))
+        qCondition['egevmax'].setData(int(egevmax))
         qResult=coral.AttributeList()
         qResult.extend('normdataid','unsigned long long')
         qHandle.defineOutput(qResult)
