@@ -199,7 +199,7 @@ private:
   }
 
   
-  void missingError(char const * where) const dso_internal;
+  void missingError(char const * where) const; // dso_internal;
 
 // create global parameters and errors from local
   void checkGlobalParameters() const dso_internal;
