@@ -14,8 +14,6 @@
 <use   name="DataFormats/SiStripDetId"/>
 <use   name="DataFormats/TrackingRecHit"/>
 <use   name="DataFormats/TrackReco"/>
-<use   name="DataFormats/CSCRecHit"/>
-<use   name="DataFormats/DTRecHit"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/PluginManager"/>
