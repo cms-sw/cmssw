@@ -21,6 +21,11 @@ public:
   // construct
   TrajectoryStateOnSurface() {}
   /// Constructor from one of the basic states
+
+  // invalid state
+  explicit TrajectoryStateOnSurface(const Surface& aSurface);
+
+
   TrajectoryStateOnSurface( BasicTrajectoryState* p) : Base(p) {}
   /** Constructor from FTS and surface. For surfaces with material
    *  the side of the surface should be specified explicitely.

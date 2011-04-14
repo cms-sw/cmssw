@@ -4,9 +4,14 @@
 typedef BasicSingleTrajectoryState              BTSOS;
 
 TrajectoryStateOnSurface::
+TrajectoryStateOnSurface(const Surface& aSurface) :
+  Base( new BTSOS(aSurface)) {}
+
+TrajectoryStateOnSurface::
 TrajectoryStateOnSurface(const FreeTrajectoryState& fts,
 			 const Surface& aSurface, const SurfaceSide side) :
   Base( new BTSOS( fts, aSurface, side)) {}
+
 
 TrajectoryStateOnSurface::
 TrajectoryStateOnSurface(const GlobalTrajectoryParameters& gp,
