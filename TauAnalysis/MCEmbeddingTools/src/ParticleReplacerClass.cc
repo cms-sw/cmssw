@@ -1,5 +1,9 @@
 #include "TauAnalysis/MCEmbeddingTools/interface/ParticleReplacerClass.h"
 
+#include "GeneratorInterface/ExternalDecays/interface/DecayRandomEngine.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include "HepMC/IO_HEPEVT.h"
 
 #ifndef TXGIVE
@@ -82,6 +86,16 @@ ParticleReplacerClass::ParticleReplacerClass(const edm::ParameterSet& pset, bool
           outTree = fileService_->make<TTree>( "event_generation","This tree stores information about the event generation");
           outTree->Branch("attempts",&attempts,"attempts/I");
         }
+
+        edm::Service<RandomNumberGenerator> rng;
+        if(!rng.isAvailable()) {
+          throw cms::Exception("Configuration")
+            << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
+            "which appears to be absent.  Please add that service to your configuration\n"
+            "or remove the modules that require it." << std::endl;
+        } 
+        // this is a global variable defined in GeneratorInterface/ExternalDecays/src/ExternalDecayDriver.cc
+        decayRandomEngine = &rng->getEngine();
 
 	edm::LogInfo("Replacer") << "generatorMode = "<< generatorMode_<< "\n";
 	edm::LogInfo("Replacer") << "replacementMode = "<< replacementMode_<< "\n";
