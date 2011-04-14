@@ -15,7 +15,7 @@ class ShapeBuilder(ModelBuilder):
         if (self.options.verbose > 1): stderr.write("Using shapes: qui si parra' la tua nobilitate\n")
         self.prepareAllShapes();
         if len(self.DC.bins) > 1:
-            strexpr="channel[" + ",".join(["%s=%d" % (l,i) for i,l in enumerate(self.DC.bins)]) + "]";
+            strexpr="CMS_channel[" + ",".join(["%s=%d" % (l,i) for i,l in enumerate(self.DC.bins)]) + "]";
             self.doVar(strexpr);
             self.out.binCat = self.out.cat("CMS_channel");
             stderr.write("Will use category 'CMS_channel' to identify the %d channels\n" % self.out.binCat.numTypes())
