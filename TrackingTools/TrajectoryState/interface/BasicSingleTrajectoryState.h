@@ -194,7 +194,7 @@ private:
   static void notValid() dso_internal;
 
   // bool hasError() const;
-  bool hasError() const  dso_internal {
+  bool hasError() const {
     return (theFreeState && theFreeState->hasError()) || theLocalErrorValid;
   }
 
