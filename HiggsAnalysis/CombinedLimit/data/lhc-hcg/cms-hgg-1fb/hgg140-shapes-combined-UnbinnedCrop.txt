@@ -17,8 +17,8 @@ rate                     3.71      192.1      3.27      276.7      1.95      258
 -------------------------------
 lumi            lnN      1.04        -        1.04        -        1.04        -        1.04        -  # https://twiki.cern.ch/twiki/bin/view/CMS/HiggsWG/HiggsCombinationConventions
 #QCDscale_ggH   lnN  0.923/1.113     -    0.923/1.113     -    0.923/1.113     -    0.923/1.113     -  # https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNYellowReportPageAt7TeV (rev 29)
-QCDscale_ggH    lnN      1.095       -        1.095       -        1.095       -        1.095       -  # sqrt(1.11/(1-0.074))
-pdf_gg          lnN      1.078       -        1.078       -        1.078       -        1.078       -  # in log scale, it's symmetric
+QCDscale_ggH    lnN      1.10        -        1.10        -        1.10        -        1.10        -  # sqrt(1.11/(1-0.074))
+pdf_gg          lnN      1.08        -        1.08        -        1.08        -        1.08        -  # in log scale, it's symmetric
 CMS_eff_g       lnN      1.02        -        1.02        -        1.02        -        1.02        -  # Efficiency uncertainties
 #CMS_hgg_migr9  lnN      0.92        -        1.087       -        0.92        -        1.087       -  # Migration
 CMS_hgg_bg_corr lnN       -         1.005      -         1.005      -         1.005      -         1.005 # correlated effect due to not exponential background

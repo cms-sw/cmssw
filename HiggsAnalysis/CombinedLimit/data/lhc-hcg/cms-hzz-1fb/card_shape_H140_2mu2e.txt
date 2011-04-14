@@ -13,9 +13,11 @@ process      signal     background
 process      0          1
 rate         0.83       3.9
 --------------------------------
-lumi                  lnN    1.05   1.05
-QCDscale_ggH          lnN    1.10    -
-QCDscale_ggVV         lnN     -     1.30   QCD scale for ggVV
+lumi                  lnN    1.04   1.04   # MC-driven BG
+pdf_gg                lnN    1.08    -     # Signal dominated by gg->h->ZZ
+pdf_qqbar             lnN     -     1.02   # Background dominated by qq->ZZ
+QCDscale_ggH          lnN    1.10    -     # Signal dominated by gg->h->ZZ
+QCDscale_qqVV         lnN     -     1.03   # Background dominated by qq->ZZ
 CMS_eff_b             lnN    1.01   1.01   Anti B-tag efficiency
 CMS_zz2mu2e_alpha     param  0.75   0.2
 CMS_zz2mu2e_sigma_sig param  1.79   0.2
