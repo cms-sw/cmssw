@@ -136,6 +136,9 @@ namespace lumi{
       if(amd.size()==0&&amodes.size()!=0){
 	amd=*(amodes.begin());
       }
+      if(amd.size()==0){
+	 amd=std::string("PROTPHYS");//last resort
+      }
       //std::cout<<"amd "<<amd<<std::endl;
       result.amodetag=amd;
       delete amodetagQuery;
@@ -161,6 +164,9 @@ namespace lumi{
 	if(tmpgev>result.egev){
 	  result.egev=tmpgev;
 	}
+      }
+      if(result.egev==0){
+	 result.egev=3500;//last resort
       }
       delete egevQuery;
       
@@ -281,7 +287,7 @@ namespace lumi{
     }
     runinfosession->transaction().commit();
     delete runinfosession;
-    //std::cout<<"result for run "<<runnumber<<" : sequence : "<<result.sequence<<" : "<<result.hltkey<<" : hltkey : "<<result.hltkey<<" : fillnumber : "<<result.fillnumber<<std::endl; 
+    std::cout<<"result for run "<<runnumber<<" : sequence : "<<result.sequence<<" : hltkey : "<<result.hltkey<<" : fillnumber : "<<result.fillnumber<<" : l1key : "<<result.l1key<<" : amodetag :"<<result.amodetag<<" : egev : "<<result.egev<<std::endl; 
 
     //std::cout<<"connecting to dest "<<m_dest<<std::endl; 
     coral::ISessionProxy* destsession=svc->connect(m_dest,coral::Update);
@@ -300,6 +306,9 @@ namespace lumi{
       runData["HLTKEY"].data<std::string>()=result.hltkey;
       runData["STARTTIME"].data<coral::TimeStamp>()=result.startT;
       runData["STOPTIME"].data<coral::TimeStamp>()=result.stopT;
+      runData["AMODETAG"].data<std::string>()=result.amodetag;
+      runData["EGEV"].data<int>()=result.egev;
+      runData["L1KEY"].data<std::string>()=result.l1key;
       destruntable.dataEditor().insertRow(runData);
     }catch( const coral::Exception& er){
       std::cout<<"database problem "<<er.what()<<std::endl;
