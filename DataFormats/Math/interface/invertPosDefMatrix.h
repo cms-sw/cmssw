@@ -2,7 +2,8 @@
 #define DataFormat_Math_invertPosDefMatrix_H
 
 #include "Math/SMatrix.h"
-#include "DataFormats/Math/interface/CholeskyDecomp.h"
+#include "Math/CholeskyDecomp.h"
+// #include "DataFormats/Math/interface/CholeskyDecomp.h"
 
 template<typename T,unsigned int N>
 inline bool invertPosDefMatrix(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > & m) {
