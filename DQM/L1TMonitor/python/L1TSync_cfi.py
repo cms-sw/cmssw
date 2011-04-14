@@ -13,24 +13,67 @@ l1tSync = cms.EDAnalyzer("L1TSync",
   refPrescaleSet = cms.int32(0), 
 
   # Categories to process
-  categories = cms.PSet(
-    cms.PSet(
-      Mu     = cms.untracked.bool(True),
-      EG     = cms.untracked.bool(True),
-      IsoEG  = cms.untracked.bool(True),
-      Jet    = cms.untracked.bool(True),
-      CenJet = cms.untracked.bool(True),
-      ForJet = cms.untracked.bool(True),
-      TauJet = cms.untracked.bool(True),
-      ETM    = cms.untracked.bool(True),
-      ETT    = cms.untracked.bool(True),
-      HTT    = cms.untracked.bool(True),
-      HTM    = cms.untracked.bool(True),
-    ),
+  Categories = cms.PSet(
+
+      # Global parameters for algo selection
+      forceGlobalParameters = cms.bool(False),  # Force use of global over bit-by-bit parameters 
+      doGlobalAutoSelection = cms.bool(False),   # Do automatic/fixed algo selection for all monitored algos
+
+      Mu = cms.PSet(
+        monitor         = cms.bool(True),
+        doAutoSelection = cms.bool(True),
+        algo            = cms.string(""),
+      ),
+      EG = cms.PSet(
+        monitor         = cms.bool(True),
+        doAutoSelection = cms.bool(True),
+        algo            = cms.string("L1_SingleEG8"),
+      ),
+      IsoEG = cms.PSet( 
+        monitor         = cms.bool(True),
+        doAutoSelection = cms.bool(True),
+        algo            = cms.string(""),
+      ),
+      Jet = cms.PSet(
+        monitor         = cms.bool(True),
+        doAutoSelection = cms.bool(True),
+        algo            = cms.string(""),
+      ),
+      CenJet = cms.PSet(
+        monitor         = cms.bool(True),
+        doAutoSelection = cms.bool(True),
+        algo            = cms.string(""),
+      ),
+      ForJet = cms.PSet(
+        monitor         = cms.bool(True),
+        doAutoSelection = cms.bool(True),
+        algo            = cms.string(""),
+      ),
+      TauJet = cms.PSet(
+        monitor         = cms.bool(True),
+        doAutoSelection = cms.bool(True),
+        algo            = cms.string(""),
+      ),
+      ETM = cms.PSet(
+        monitor         = cms.bool(True),
+        doAutoSelection = cms.bool(True),
+        algo            = cms.string(""),
+      ),
+      ETT = cms.PSet(   
+        monitor         = cms.bool(True),
+        doAutoSelection = cms.bool(True),
+        algo            = cms.string(""),
+      ),
+      HTT = cms.PSet(   
+        monitor         = cms.bool(True),
+        doAutoSelection = cms.bool(True),
+        algo            = cms.string(""),
+      ),
+      HTM = cms.PSet(
+        monitor         = cms.bool(True),   
+        doAutoSelection = cms.bool(True),
+        algo            = cms.string(""),
+      ),
   ),
-
 )
-
-
-
 

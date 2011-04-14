@@ -2,7 +2,7 @@
 /*
  * \file L1TMenuHelper.cc
  *
- * $Date: 2011/03/10 15:12:25 $
+ * $Date: 2011/04/06 16:49:34 $
  * $Revision: 1.1 $
  * \author J. Pela, P. Musella
  *
@@ -14,7 +14,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
+//#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
+#include "HLTrigger/HLTanalyzers/test/RateEff/L1GtLogicParser.h"
 
 // L1Gt - Trigger Menu
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
@@ -70,10 +71,6 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
 
   map<string,string> out;
 
-  //FIXME: Minimum quality to select a muon object (to avoid beam halo trigger)
-  unsigned int  muMinQuality  = 4;
-  unsigned long muMinEtaRange = 0xffffffffffffffff;
-
   // Getting information from the menu
   const AlgorithmMap                            *theAlgoMap           = &m_l1GtMenu->gtAlgorithmAliasMap();
   const vector< vector<L1GtMuonTemplate> >      *vMuonConditions      = &m_l1GtMenu->vecMuonTemplate();
@@ -82,17 +79,7 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
 
   // Getting reference prescales
   const vector<int>& refPrescaleFactors = (*m_prescaleFactorsAlgoTrig).at(IndexRefPrescaleFactors); 
-  
-  cout << "Menu: " << m_l1GtMenu->gtTriggerMenuName() << endl;
-/*
-  cout << "START: Tiggers ----------------------------" << endl;
-  for (CItAlgo iAlgo = theAlgoMap->begin(); iAlgo!=theAlgoMap->end(); ++iAlgo){
 
-   cout << (iAlgo->second) << endl;
-
-  }
-  cout << "END: Tiggers ----------------------------" << endl;
-*/
   AlgorithmMap MyAlgos;
 
   map<string,SingleObjectCondition> myConditions;
@@ -115,22 +102,19 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
 
       // Selecting conditions that require single objects
       if(MuonCondition->condType() == Type1s && MuonCondition->nrObjects() == 1){
-        
-	cout << "muon eta range 0x" << hex << (*MuonCondition->objectParameter())[0].etaRange << dec << endl;
-        // Selecting conditions with objects with a minimum quality
-        if((*MuonCondition->objectParameter())[0].ptHighThreshold >= muMinQuality &&
-	   (*MuonCondition->objectParameter())[0].etaRange >= muMinEtaRange ){
 
-          SingleObjectCondition tCondition;
+        SingleObjectCondition tCondition;
  
-          tCondition.name              = MuonCondition->condName();
-          tCondition.conditionCategory = MuonCondition->condCategory();
-          tCondition.conditionType     = MuonCondition->condType();
-          tCondition.object            = MuonCondition->objectType()[0];
-          tCondition.threshold         = (*MuonCondition->objectParameter())[0].ptHighThreshold;
+        tCondition.name              = MuonCondition->condName();
+        tCondition.conditionCategory = MuonCondition->condCategory();
+        tCondition.conditionType     = MuonCondition->condType();
+        tCondition.object            = MuonCondition->objectType()[0];
+        tCondition.threshold         = (*MuonCondition->objectParameter())[0].ptHighThreshold;
+        tCondition.quality           = (*MuonCondition->objectParameter())[0].qualityRange;
+        tCondition.etaRange          = (*MuonCondition->objectParameter())[0].etaRange;
 
-          myConditions[MuonCondition->condName()] = tCondition;
-        }
+        myConditions[MuonCondition->condName()] = tCondition;
+
       }
     }
   }
@@ -139,8 +123,6 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
     for(unsigned int b=0 ; b<(*vCaloConditions)[a].size() ; b++){
 
       const L1GtCaloTemplate* CaloCondition = &(*vCaloConditions)[a][b];
-
-      //cout << (*CaloCondition) << endl;
 
       if(CaloCondition->condType() == Type1s && CaloCondition->nrObjects() == 1){
 
@@ -151,6 +133,8 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
         tCondition.conditionType     = CaloCondition->condType();
         tCondition.object            = CaloCondition->objectType()[0];
         tCondition.threshold         = (*CaloCondition->objectParameter())[0].etThreshold;
+        tCondition.quality           = 0;
+        tCondition.etaRange          = 0;
 
         myConditions[CaloCondition->condName()] = tCondition;
 
@@ -167,8 +151,7 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
           EnergySumCondition->condType() == TypeETM ||
           EnergySumCondition->condType() == TypeHTT ||
           EnergySumCondition->condType() == TypeHTM
-        ) &&
-          EnergySumCondition->nrObjects() == 1){
+        ) && EnergySumCondition->nrObjects() == 1){
 
         SingleObjectCondition tCondition;
  
@@ -177,63 +160,14 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
         tCondition.conditionType     = EnergySumCondition->condType();
         tCondition.object            = EnergySumCondition->objectType()[0];
         tCondition.threshold         = (*EnergySumCondition->objectParameter())[0].etThreshold;
+        tCondition.quality           = 0;
+        tCondition.etaRange          = 0;
 
         myConditions[EnergySumCondition->condName()] = tCondition;
 
       }
     }
   }
-
-
-  cout << "START: Condition Map ----------------------------" << endl;
-
-  for(map<string,SingleObjectCondition>::const_iterator i = myConditions.begin() ; myConditions.end() != i ; i++){
-
-    TString s0      = (*i).first;
-    TString s1      = enumToStringL1GtConditionCategory((*i).second.conditionCategory);
-    TString s2      = enumToStringL1GtConditionType    ((*i).second.conditionType);
-    TString s3      = enumToStringL1GtObject           ((*i).second.object);
-    unsigned int s4 = (*i).second.threshold;
-
-    printf("Condition=%30s cat=%20s type=%10s object=%10s threshold=%i\n",(const char*)s0,(const char*)s1,(const char*)s2,(const char*)s3,s4);
-
-  }
-
-  cout << "END:   Condition Map ----------------------------" << endl;
-
-  cout << "START:   Algo Map ----------------------------" << endl;
-  for (CItAlgo iAlgo = theAlgoMap->begin(); iAlgo!=theAlgoMap->end(); ++iAlgo){
-
-    int error;
-
-    TString      s0           = iAlgo->first;
-    unsigned int s1           = (iAlgo->second).algoBitNumber();
-    int          s2           = refPrescaleFactors[s1];
-    const int    s3           = myUtils.triggerMask(iAlgo->first,error);
-
-    printf("Alias=%45s bit=%4i prescale=%5i mask=%2i error=%5i\n",(const char*)s0,s1,s2,s3,error);  
-     
-    const L1GtAlgorithm *pAlgo = &(iAlgo->second);
-
-    for(unsigned int i=0; i<pAlgo->algoRpnVector().size() ; i++){
-
-      if(pAlgo->algoRpnVector()[i].operation == 32){
-        cout << "   * " << pAlgo->algoRpnVector()[i].operation << " " << pAlgo->algoRpnVector()[i].operand;
-
-        string AlgoCondition                                 = pAlgo->algoRpnVector()[i].operand;
-        map<string,SingleObjectCondition>::const_iterator t = myConditions.find(AlgoCondition);
-
-        if(t != myConditions.end()){
-          cout << " threshold=" << (*t).second.threshold;
-        }
-
-        cout << endl;
-
-      }
-    }
-  }
-
-  cout << "END:   Algo Map ----------------------------" << endl;
 
   for (CItAlgo iAlgo = theAlgoMap->begin(); iAlgo!=theAlgoMap->end(); ++iAlgo){
 
@@ -242,6 +176,9 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
     bool         algoIsValid  = true;
     unsigned int maxThreshold = 0;
     int          tAlgoMask    = myUtils.triggerMask(iAlgo->first,error);
+    L1GtObject   tObject      = Mu;  // FIXME: Initial dummy value
+    unsigned int tQuality     = 0;   // Only aplicable to Muons
+    unsigned int tEtaRange    = 0;
 
     // Objects associated
     bool isMu      = false;
@@ -287,7 +224,10 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
 
             // Updating value for the object with the maximum threshold for this triger          
             if(maxThreshold < (*ciCond).second.threshold){
-              maxThreshold = (*ciCond).second.threshold;
+               maxThreshold = (*ciCond).second.threshold;
+               tObject      = (*ciCond).second.object;
+               tQuality     = (*ciCond).second.quality;
+               tEtaRange    = (*ciCond).second.etaRange;
             }
 
             if     ((*ciCond).second.object == Mu)     {isMu      = true;}
@@ -306,7 +246,6 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
       }
     }    
 
-
     if(algoIsValid){
   
       SingleObjectTrigger tTrigger;
@@ -314,6 +253,10 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
       tTrigger.bit       = (iAlgo->second).algoBitNumber();
       tTrigger.prescale  = refPrescaleFactors[tTrigger.bit];
       tTrigger.threshold = maxThreshold;
+      tTrigger.object    = tObject;
+      tTrigger.quality   = tQuality;   // Only aplicable to Muons
+      tTrigger.etaRange  = tEtaRange;  // Only aplicable to Muons
+
 
       // Counting the number of different trigger conditions
       int nCond = 0;
@@ -363,249 +306,19 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
   string selTrigETM    = "Undefined";
   string selTrigHTT    = "Undefined";
   string selTrigHTM    = "Undefined";
+ 
+  if(vTrigMu    .size() > 0){sort(vTrigMu    .begin(),vTrigMu    .end()); selTrigMu     = vTrigMu    [0].alias;}
+  if(vTrigEG    .size() > 0){sort(vTrigEG    .begin(),vTrigEG    .end()); selTrigEG     = vTrigEG    [0].alias;}
+  if(vTrigIsoEG .size() > 0){sort(vTrigIsoEG .begin(),vTrigIsoEG .end()); selTrigIsoEG  = vTrigIsoEG [0].alias;}
+  if(vTrigJet   .size() > 0){sort(vTrigJet   .begin(),vTrigJet   .end()); selTrigJet    = vTrigJet   [0].alias;}
+  if(vTrigCenJet.size() > 0){sort(vTrigCenJet.begin(),vTrigCenJet.end()); selTrigCenJet = vTrigCenJet[0].alias;}
+  if(vTrigForJet.size() > 0){sort(vTrigForJet.begin(),vTrigForJet.end()); selTrigForJet = vTrigForJet[0].alias;}
+  if(vTrigTauJet.size() > 0){sort(vTrigTauJet.begin(),vTrigTauJet.end()); selTrigTauJet = vTrigTauJet[0].alias;}
+  if(vTrigETT   .size() > 0){sort(vTrigETT   .begin(),vTrigETT   .end()); selTrigETT    = vTrigETT   [0].alias;}
+  if(vTrigETM   .size() > 0){sort(vTrigETM   .begin(),vTrigETM   .end()); selTrigETM    = vTrigETM   [0].alias;}
+  if(vTrigHTT   .size() > 0){sort(vTrigHTT   .begin(),vTrigHTT   .end()); selTrigHTT    = vTrigHTT   [0].alias;}
+  if(vTrigHTM   .size() > 0){sort(vTrigHTM   .begin(),vTrigHTM   .end()); selTrigHTM    = vTrigHTM   [0].alias;}
 
-  cout << "START:   Final Selection ------------------------" << endl;
-  cout << "Category: Mu ------------------------------------" << endl;
-  unsigned int lowThreshold = 99999999;
-  int          lowPrescale  = 99999999;
-  for(unsigned int i=0 ; i<vTrigMu.size() ; i++){
-
-    if     (vTrigMu[i].prescale  <  lowPrescale) {
-      lowPrescale  = vTrigMu[i].prescale;
-      lowThreshold = vTrigMu[i].threshold;
-      selTrigMu    = vTrigMu[i].alias;
-    }
-    else if(vTrigMu[i].prescale  == lowPrescale && vTrigMu[i].threshold <  lowThreshold){
-      lowThreshold = vTrigMu[i].threshold;
-      selTrigMu    = vTrigMu[i].alias;
-    }
-      
-    cout << "Alias="      << vTrigMu[i].alias
-         << " bit="       << vTrigMu[i].bit
-         << " prescale="  << vTrigMu[i].prescale
-         << " threshold=" << vTrigMu[i].threshold << endl;
-  }
-  cout << "selected: " << selTrigMu << endl;
-
-  cout << "Category: EG ------------------------------------" << endl;
-  lowThreshold = 99999999;
-  lowPrescale  = 99999999;
-  for(unsigned int i=0 ; i<vTrigEG.size() ; i++){
-
-    if     (vTrigEG[i].prescale  <  lowPrescale){
-      lowPrescale  = vTrigEG[i].prescale;
-      lowThreshold = vTrigEG[i].threshold;
-      selTrigEG    = vTrigEG[i].alias;
-    }
-    else if(vTrigEG[i].prescale  == lowPrescale && vTrigEG[i].threshold <  lowThreshold){
-      lowThreshold = vTrigEG[i].threshold;
-      selTrigEG    = vTrigEG[i].alias;
-    }
-
-    cout << "Alias="      << vTrigEG[i].alias
-         << " bit="       << vTrigEG[i].bit
-         << " prescale="  << vTrigEG[i].prescale
-         << " threshold=" << vTrigEG[i].threshold << endl;
-  }
-  cout << "selected: " << selTrigEG << endl;
-
-  cout << "Category: IsoEG ---------------------------------" << endl;
-  lowThreshold = 99999999;
-  lowPrescale  = 99999999;
-  for(unsigned int i=0 ; i<vTrigIsoEG.size() ; i++){
-
-    if     (vTrigIsoEG[i].prescale < lowPrescale){
-      lowPrescale  = vTrigIsoEG[i].prescale;
-      lowThreshold = vTrigIsoEG[i].threshold;
-      selTrigIsoEG = vTrigIsoEG[i].alias;
-    }
-    else if(vTrigIsoEG[i].prescale == lowPrescale && vTrigIsoEG[i].threshold < lowThreshold){
-      lowThreshold = vTrigIsoEG[i].threshold;
-      selTrigIsoEG = vTrigIsoEG[i].alias;
-    }
-
-    cout << "Alias="      << vTrigIsoEG[i].alias
-         << " bit="       << vTrigIsoEG[i].bit
-         << " prescale="  << vTrigIsoEG[i].prescale
-         << " threshold=" << vTrigIsoEG[i].threshold << endl;
-  }
-  cout << "selected: " << selTrigIsoEG << endl;
-
-  cout << "Category: Jet -----------------------------------" << endl;
-  lowThreshold = 99999999;
-  lowPrescale  = 99999999;
-  for(unsigned int i=0 ; i<vTrigJet.size() ; i++){
-
-    if     (vTrigJet[i].prescale  <  lowPrescale){
-      lowPrescale  = vTrigJet[i].prescale;
-      lowThreshold = vTrigJet[i].threshold;
-      selTrigJet   = vTrigJet[i].alias;
-    }
-    else if(vTrigJet[i].prescale == lowPrescale && vTrigJet[i].threshold < lowThreshold){
-      lowThreshold = vTrigJet[i].threshold;
-      selTrigJet   = vTrigJet[i].alias;
-    }
-
-    cout << "Alias="      << vTrigJet[i].alias
-         << " bit="       << vTrigJet[i].bit
-         << " prescale="  << vTrigJet[i].prescale
-         << " threshold=" << vTrigJet[i].threshold << endl;
-  }
-  cout << "selected: " << selTrigJet << endl;
-
-  cout << "Category: CenJet --------------------------------" << endl;
-  lowThreshold = 99999999;
-  lowPrescale  = 99999999;
-  for(unsigned int i=0 ; i<vTrigCenJet.size() ; i++){
-
-    if     (vTrigCenJet[i].prescale < lowPrescale){
-      lowPrescale   = vTrigCenJet[i].prescale;
-      lowThreshold  = vTrigCenJet[i].threshold;
-      selTrigCenJet = vTrigCenJet[i].alias;
-    }
-    else if(vTrigCenJet[i].prescale == lowPrescale && vTrigCenJet[i].threshold < lowThreshold){
-      lowThreshold  = vTrigCenJet[i].threshold;
-      selTrigCenJet = vTrigCenJet[i].alias;
-    }
-
-    cout << "Alias="      << vTrigCenJet[i].alias
-         << " bit="       << vTrigCenJet[i].bit
-         << " prescale="  << vTrigCenJet[i].prescale
-         << " threshold=" << vTrigCenJet[i].threshold << endl;
-  }
-  cout << "selected: " << selTrigCenJet << endl;
-
-  cout << "Category: ForJet --------------------------------" << endl;
-  lowThreshold = 99999999;
-  lowPrescale  = 99999999;
-  for(unsigned int i=0 ; i<vTrigForJet.size() ; i++){
-
-    if     (vTrigForJet[i].prescale < lowPrescale){
-      lowPrescale   = vTrigForJet[i].prescale;
-      lowThreshold  = vTrigForJet[i].threshold;
-      selTrigForJet = vTrigForJet[i].alias;
-    }
-    else if(vTrigForJet[i].prescale  == lowPrescale && vTrigForJet[i].threshold < lowThreshold){
-      lowThreshold  = vTrigForJet[i].threshold;
-      selTrigForJet = vTrigForJet[i].alias;
-    }
-
-    cout << "Alias="      << vTrigForJet[i].alias
-         << " bit="       << vTrigForJet[i].bit
-         << " prescale="  << vTrigForJet[i].prescale
-         << " threshold=" << vTrigForJet[i].threshold << endl;
-  }
-  cout << "selected: " << selTrigForJet << endl;
-
-  cout << "Category: TauJet --------------------------------" << endl;
-  lowThreshold = 99999999;
-  lowPrescale  = 99999999;
-  for(unsigned int i=0 ; i<vTrigTauJet.size() ; i++){
-
-    if     (vTrigTauJet[i].prescale  <  lowPrescale) {
-      lowPrescale   = vTrigTauJet[i].prescale;
-      lowThreshold  = vTrigTauJet[i].threshold;
-      selTrigTauJet = vTrigTauJet[i].alias;
-    }
-    else if(vTrigTauJet[i].prescale  == lowPrescale && vTrigTauJet[i].threshold < lowThreshold){
-      lowThreshold  = vTrigTauJet[i].threshold;
-      selTrigTauJet = vTrigTauJet[i].alias;
-    }
-
-    cout << "Alias="      << vTrigTauJet[i].alias
-         << " bit="       << vTrigTauJet[i].bit
-         << " prescale="  << vTrigTauJet[i].prescale
-         << " threshold=" << vTrigTauJet[i].threshold << endl;
-  }
-  cout << "selected: " << selTrigTauJet << endl;
-
-  cout << "Category: ETT -----------------------------------" << endl;
-  lowThreshold = 99999999;
-  lowPrescale  = 99999999;
-  for(unsigned int i=0 ; i<vTrigETT.size() ; i++){
-
-    if     (vTrigETT[i].prescale  <  lowPrescale){
-      lowPrescale  = vTrigETT[i].prescale;
-      lowThreshold = vTrigETT[i].threshold;
-      selTrigETT   = vTrigETT[i].alias;
-    }
-    else if(vTrigETT[i].prescale  == lowPrescale && vTrigETT[i].threshold < lowThreshold){
-      lowThreshold = vTrigETT[i].threshold;
-      selTrigETT   = vTrigETT[i].alias;
-    }
-
-    cout << "Alias="      << vTrigETT[i].alias
-         << " bit="       << vTrigETT[i].bit
-         << " prescale="  << vTrigETT[i].prescale
-         << " threshold=" << vTrigETT[i].threshold << endl;
-  }
-  cout << "selected: " << selTrigETT << endl;
-
-  cout << "Category: ETM -----------------------------------" << endl;
-  lowThreshold = 99999999;
-  lowPrescale  = 99999999;
-  for(unsigned int i=0 ; i<vTrigETM.size() ; i++){
-
-    if     (vTrigETM[i].prescale  <  lowPrescale){
-      lowPrescale  = vTrigETM[i].prescale;
-      lowThreshold = vTrigETM[i].threshold;
-      selTrigETM   = vTrigETM[i].alias;
-    }
-    else if(vTrigETM[i].prescale == lowPrescale && vTrigETM[i].threshold < lowThreshold){
-      lowThreshold = vTrigETM[i].threshold;
-      selTrigETM   = vTrigETM[i].alias;
-    }
-
-    cout << "Alias="      << vTrigETM[i].alias
-         << " bit="       << vTrigETM[i].bit
-         << " prescale="  << vTrigETM[i].prescale
-         << " threshold=" << vTrigETM[i].threshold << endl;
-  }
-  cout << "selected: " << selTrigETM << endl;
-
-  cout << "Category: HTT -----------------------------------" << endl;
-  lowThreshold = 99999999;
-  lowPrescale  = 99999999;
-  for(unsigned int i=0 ; i<vTrigHTT.size() ; i++){
-
-    if     (vTrigHTT[i].prescale  <  lowPrescale){
-      lowPrescale  = vTrigHTT[i].prescale;
-      lowThreshold = vTrigHTT[i].threshold;
-      selTrigHTT   = vTrigHTT[i].alias;
-    }
-    else if(vTrigHTT[i].prescale == lowPrescale && vTrigHTT[i].threshold < lowThreshold){
-      lowThreshold = vTrigHTT[i].threshold;
-      selTrigHTT   = vTrigHTT[i].alias;
-    }
-
-    cout << "Alias="      << vTrigHTT[i].alias
-         << " bit="       << vTrigHTT[i].bit
-         << " prescale="  << vTrigHTT[i].prescale
-         << " threshold=" << vTrigHTT[i].threshold << endl;
-  }
-  cout << "selected: " << selTrigHTT << endl;
-
-  cout << "Category: HTM -----------------------------------" << endl;
-  lowThreshold = 99999999;
-  lowPrescale  = 99999999;
-  for(unsigned int i=0 ; i<vTrigHTM.size() ; i++){
-
-    if     (vTrigHTM[i].prescale < lowPrescale){
-      lowPrescale  = vTrigHTM[i].prescale;
-      lowThreshold = vTrigHTM[i].threshold;
-      selTrigHTM   = vTrigHTM[i].alias;
-    }
-    else if(vTrigHTM[i].prescale == lowPrescale && vTrigHTM[i].threshold < lowThreshold){
-      lowThreshold = vTrigHTM[i].threshold;
-      selTrigHTM   = vTrigHTM[i].alias;
-    }
-
-    cout << "Alias="      << vTrigHTM[i].alias
-         << " bit="       << vTrigHTM[i].bit
-         << " prescale="  << vTrigHTM[i].prescale
-         << " threshold=" << vTrigHTM[i].threshold << endl;
-  }
-  cout << "selected: " << selTrigHTM << endl;
   cout << "START:   Final Selection ------------------------" << endl;
   if(iCategories["Mu"])    {cout << "Mu:"     << selTrigMu << endl;}
   if(iCategories["EG"])    {cout << "EG:"     << selTrigEG << endl;}
@@ -633,6 +346,27 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
   if(iCategories["HTM"])   {out["HTM"]    = selTrigHTM;}
 
   return out;
+
+}
+
+map<string,string> L1TMenuHelper::testAlgos(map<string,string> iAlgos){
+
+  // Getting information from the menu
+  const AlgorithmMap *theAlgoMap = &m_l1GtMenu->gtAlgorithmAliasMap();
+
+  for(map<string,string>::const_iterator i = iAlgos.begin() ; iAlgos.end() != i ; i++){
+
+    string tCategory = (*i).first;
+    string tTrigger  = (*i).second;
+
+    if(tTrigger == "" ){iAlgos[tCategory] = "Undefined";}
+    else{
+      if(theAlgoMap->find(tTrigger) == theAlgoMap->end()){iAlgos[tCategory] = "Undefined (Wrong Name)";}
+    }
+
+  }
+
+  return iAlgos;
 
 }
 
@@ -695,7 +429,7 @@ string L1TMenuHelper::enumToStringL1GtConditionType(L1GtConditionType iCondition
     case TypeHfRingEtSums: out = "TypeHfRingEtSums"; break;
     case TypeBptx:         out = "TypeBptx";         break;
     case TypeExternal:     out = "TypeExternal";     break;
-    default:               out = "Unknown";      break;
+    default:               out = "Unknown";          break;
   };
 
   return out;
@@ -722,7 +456,7 @@ string L1TMenuHelper::enumToStringL1GtConditionCategory(L1GtConditionCategory iC
     case CondHfRingEtSums: out = "CondHfRingEtSums"; break;
     case CondBptx:         out = "CondBptx";         break;
     case CondExternal:     out = "CondExternal";     break;
-    default:               out = "Unknown";      break;
+    default:               out = "Unknown";          break;
   };
 
   return out;

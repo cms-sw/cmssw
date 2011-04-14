@@ -1,8 +1,8 @@
 /*
  * \file L1TRate.cc
  *
- * $Date:  $
- * $Revision:  $
+ * $Date: 2011/04/06 16:49:34 $
+ * $Revision: 1.1 $
  * \author J. Pela, P. Musella
  *
  */
@@ -228,22 +228,22 @@ void L1TRate::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
 
 void L1TRate::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
 
-  unsigned int eventLS = lumiBlock.id().luminosityBlock();
+  //unsigned int eventLS = lumiBlock.id().luminosityBlock();
 
-  cout << "Called endLuminosityBlock: " << eventLS << " will store rate for LS " <<  m_currentLS << endl;
+  //cout << "Called endLuminosityBlock: " << eventLS << " will store rate for LS " <<  m_currentLS << endl;
 
   for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
 
     string tTrigger = (*i).second;
 
-    cout << "Trigger: " << tTrigger << endl;
+    //cout << "Trigger: " << tTrigger << endl;
 
     // If trigger name is defined we get the rate fit parameters 
     if(tTrigger != "Undefined" && m_bufferInstLumi > 0){
 
       double AlgoXSec = m_bufferRate[tTrigger]/m_bufferInstLumi;
 
-      cout << "AlgoXSec: " << AlgoXSec << " Rate: " << m_bufferRate[tTrigger] << " InstLumi: " << m_bufferInstLumi << endl;
+      //cout << "AlgoXSec: " << AlgoXSec << " Rate: " << m_bufferRate[tTrigger] << " InstLumi: " << m_bufferInstLumi << endl;
 
       // Checking against Template function
       TF1* tTestFunction = (TF1*) m_xSecVsInstLumi[tTrigger]->getTProfile()->GetListOfFunctions()->First();
@@ -349,9 +349,9 @@ void L1TRate::analyze(const Event & iEvent, const EventSetup & eventSetup){
        m_currentLS                = scalLS;                    // Updating current LS
        m_processedLS[m_currentLS] = true;                      // Current LS as processed 
        m_bufferInstLumi           = itLScal->instantLumi();    // Getting instant lumi    
-       double tInstantLumiErr     = itLScal->instantLumiErr(); // Getting instant lumi error
+       //double tInstantLumiErr     = itLScal->instantLumiErr(); // Getting instant lumi error
 
-       cout << "EventLS=" << eventLS << " scalLS = " << scalLS << " Inst Lumi = " << m_bufferInstLumi << " +/- " << tInstantLumiErr << endl;
+       //cout << "EventLS=" << eventLS << " scalLS = " << scalLS << " Inst Lumi = " << m_bufferInstLumi << " +/- " << tInstantLumiErr << endl;
 
        Level1TriggerRates trigRates(*it,EventRun);
        
@@ -384,8 +384,7 @@ void L1TRate::analyze(const Event & iEvent, const EventSetup & eventSetup){
             double tPrescale = CurrentPrescaleFactors[m_algoBit[tTrigger]];
             //double tPrescale = tUtils.prescaleFactor(iEvent,tTrigger,tError);
 
-            cout << "Algo: " << tTrigger << " Prescale: " << tPrescale << " rate: " << tAlgoRate << " error: " // << tError 
-		 << endl;
+            //cout << "Algo: " << tTrigger << " Prescale: " << tPrescale << " rate: " << tAlgoRate << " error: " // << tError << endl;
 
             m_bufferRate[tTrigger] = tPrescale*tAlgoRate; 
 

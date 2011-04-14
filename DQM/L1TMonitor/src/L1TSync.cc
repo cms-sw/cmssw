@@ -1,8 +1,8 @@
 /*
  * \file L1TSync.cc
  *
- * $Date:  $
- * $Revision:  $
+ * $Date: 2011/04/06 16:49:34 $
+ * $Revision: 1.1 $
  * \author J. Pela, P. Musella
  *
  */
@@ -16,8 +16,6 @@
 // Not sure if needed
 #include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-
-
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
@@ -49,18 +47,133 @@ L1TSync::L1TSync(const ParameterSet & pset){
   m_refPrescaleSet      = pset.getParameter         <int>     ("refPrescaleSet");  
 
   // Getting which categories to monitor
-  ParameterSet Categories     = pset.getParameter< ParameterSet >("categories");  
-  m_inputCategories["Mu"]     = Categories.getUntrackedParameter<bool>("Mu"); 
-  m_inputCategories["EG"]     = Categories.getUntrackedParameter<bool>("EG"); 
-  m_inputCategories["IsoEG"]  = Categories.getUntrackedParameter<bool>("IsoEG"); 
-  m_inputCategories["Jet"]    = Categories.getUntrackedParameter<bool>("Jet"); 
-  m_inputCategories["CenJet"] = Categories.getUntrackedParameter<bool>("CenJet"); 
-  m_inputCategories["ForJet"] = Categories.getUntrackedParameter<bool>("ForJet"); 
-  m_inputCategories["TauJet"] = Categories.getUntrackedParameter<bool>("TauJet"); 
-  m_inputCategories["ETM"]    = Categories.getUntrackedParameter<bool>("ETM"); 
-  m_inputCategories["ETT"]    = Categories.getUntrackedParameter<bool>("ETT"); 
-  m_inputCategories["HTT"]    = Categories.getUntrackedParameter<bool>("HTT"); 
-  m_inputCategories["HTM"]    = Categories.getUntrackedParameter<bool>("HTM"); 
+  ParameterSet Categories = pset.getParameter< ParameterSet >("Categories");
+
+  bool forceGlobalParameters = Categories.getParameter<bool>("forceGlobalParameters");
+  bool doGlobalAutoSelection = Categories.getParameter<bool>("doGlobalAutoSelection");
+
+  ParameterSet CatMu      = Categories.getParameter<ParameterSet>("Mu");  
+  ParameterSet CatEG      = Categories.getParameter<ParameterSet>("EG");  
+  ParameterSet CatIsoEG   = Categories.getParameter<ParameterSet>("IsoEG");  
+  ParameterSet CatJet     = Categories.getParameter<ParameterSet>("Jet");  
+  ParameterSet CatCenJet  = Categories.getParameter<ParameterSet>("CenJet");  
+  ParameterSet CatForJet  = Categories.getParameter<ParameterSet>("ForJet");  
+  ParameterSet CatTauJet  = Categories.getParameter<ParameterSet>("TauJet");  
+  ParameterSet CatETM     = Categories.getParameter<ParameterSet>("ETT");  
+  ParameterSet CatETT     = Categories.getParameter<ParameterSet>("ETM");  
+  ParameterSet CatHTT     = Categories.getParameter<ParameterSet>("HTT");  
+  ParameterSet CatHTM     = Categories.getParameter<ParameterSet>("HTM");  
+
+  // --> Setting parameters related to which algos to monitor
+  // If global parameters are forced they take precedence over algo-by-algo parameters 
+  if(forceGlobalParameters){
+
+    // If global automatic selection if enable all categories set to be monitored will have
+    // their algos auto selected (the lowest prescale algo will be selected) 
+    if(doGlobalAutoSelection){
+ 
+      if(CatMu    .getParameter<bool>("monitor")){m_algoAutoSelect["Mu"]     = true;}else{m_algoAutoSelect["Mu"]     = false;}
+      if(CatEG    .getParameter<bool>("monitor")){m_algoAutoSelect["EG"]     = true;}else{m_algoAutoSelect["EG"]     = false;}
+      if(CatIsoEG .getParameter<bool>("monitor")){m_algoAutoSelect["IsoEG"]  = true;}else{m_algoAutoSelect["IsoEG"]  = false;}
+      if(CatJet   .getParameter<bool>("monitor")){m_algoAutoSelect["Jet"]    = true;}else{m_algoAutoSelect["Jet"]    = false;}
+      if(CatCenJet.getParameter<bool>("monitor")){m_algoAutoSelect["CenJet"] = true;}else{m_algoAutoSelect["CenJet"] = false;}
+      if(CatForJet.getParameter<bool>("monitor")){m_algoAutoSelect["ForJet"] = true;}else{m_algoAutoSelect["ForJet"] = false;}
+      if(CatTauJet.getParameter<bool>("monitor")){m_algoAutoSelect["TauJet"] = true;}else{m_algoAutoSelect["TauJet"] = false;}
+      if(CatETM   .getParameter<bool>("monitor")){m_algoAutoSelect["ETM"]    = true;}else{m_algoAutoSelect["ETM"]    = false;}
+      if(CatETT   .getParameter<bool>("monitor")){m_algoAutoSelect["ETT"]    = true;}else{m_algoAutoSelect["ETT"]    = false;}
+      if(CatHTM   .getParameter<bool>("monitor")){m_algoAutoSelect["HTM"]    = true;}else{m_algoAutoSelect["HTM"]    = false;}
+      if(CatHTT   .getParameter<bool>("monitor")){m_algoAutoSelect["HTT"]    = true;}else{m_algoAutoSelect["HTT"]    = false;}
+
+    // If global non-automatic selection is enable all categories set to be monitored will use
+    // user defined algos
+    }else{
+
+      m_algoAutoSelect["Mu"]     = false;
+      m_algoAutoSelect["EG"]     = false;
+      m_algoAutoSelect["IsoEG"]  = false;
+      m_algoAutoSelect["Jet"]    = false;
+      m_algoAutoSelect["CenJet"] = false;
+      m_algoAutoSelect["ForJet"] = false;
+      m_algoAutoSelect["TauJet"] = false;
+      m_algoAutoSelect["ETM"]    = false;
+      m_algoAutoSelect["ETT"]    = false;
+      m_algoAutoSelect["HTM"]    = false;
+      m_algoAutoSelect["HTT"]    = false;   
+
+      if(CatMu    .getParameter<bool>("monitor")){m_selectedTriggers["Mu"]        = CatMu    .getParameter<string>("algo");}
+      if(CatEG    .getParameter<bool>("monitor")){m_selectedTriggers["EG"]        = CatEG    .getParameter<string>("algo");}
+      if(CatIsoEG .getParameter<bool>("monitor")){m_selectedTriggers["IsoEG"]     = CatIsoEG .getParameter<string>("algo");}
+      if(CatJet   .getParameter<bool>("monitor")){m_selectedTriggers["Jet"]       = CatJet   .getParameter<string>("algo");}
+      if(CatCenJet.getParameter<bool>("monitor")){m_selectedTriggers["CenJet"]    = CatCenJet.getParameter<string>("algo");}
+      if(CatForJet.getParameter<bool>("monitor")){m_selectedTriggers["CatForJet"] = CatForJet.getParameter<string>("algo");}
+      if(CatTauJet.getParameter<bool>("monitor")){m_selectedTriggers["TauJet"]    = CatTauJet.getParameter<string>("algo");}
+      if(CatETM   .getParameter<bool>("monitor")){m_selectedTriggers["ETM"]       = CatETM   .getParameter<string>("algo");}
+      if(CatETT   .getParameter<bool>("monitor")){m_selectedTriggers["ETT"]       = CatETT   .getParameter<string>("algo");}
+      if(CatHTM   .getParameter<bool>("monitor")){m_selectedTriggers["HTM"]       = CatHTM   .getParameter<string>("algo");}
+      if(CatHTT   .getParameter<bool>("monitor")){m_selectedTriggers["HTT"]       = CatHTT   .getParameter<string>("algo");}
+
+    }
+
+  // If we are using algo-by-algo parametes we get them and set what is needed
+  }else{
+
+    if(CatMu.getParameter<bool>("monitor")){
+      m_algoAutoSelect["Mu"] = CatMu.getParameter<bool>("doAutoSelection");
+      if(!m_algoAutoSelect["Mu"]){m_selectedTriggers["Mu"] = CatMu.getParameter<string>("algo");}
+    }else{m_algoAutoSelect["Mu"] = false;}
+
+    if(CatEG.getParameter<bool>("monitor")){
+      m_algoAutoSelect["EG"] = CatEG.getParameter<bool>("doAutoSelection");
+      if(!m_algoAutoSelect["EG"]){m_selectedTriggers["EG"] = CatEG.getParameter<string>("algo");}
+    }else{m_algoAutoSelect["EG"] = false;}
+
+    if(CatIsoEG.getParameter<bool>("monitor")){
+      m_algoAutoSelect["IsoEG"] = CatIsoEG.getParameter<bool>("doAutoSelection");
+      if(!m_algoAutoSelect["IsoEG"]){m_selectedTriggers["IsoEG"] = CatIsoEG.getParameter<string>("algo");}
+    }else{m_algoAutoSelect["IsoEG"] = false;}
+
+    if(CatJet.getParameter<bool>("monitor")){
+      m_algoAutoSelect["Jet"] = CatJet.getParameter<bool>("doAutoSelection");
+      if(!m_algoAutoSelect["Jet"]){m_selectedTriggers["Jet"] = CatJet.getParameter<string>("algo");}
+    }else{m_algoAutoSelect["Jet"] = false;}
+
+    if(CatCenJet.getParameter<bool>("monitor")){
+      m_algoAutoSelect["CenJet"] = CatCenJet.getParameter<bool>("doAutoSelection");
+      if(!m_algoAutoSelect["CenJet"]){m_selectedTriggers["CenJet"] = CatCenJet.getParameter<string>("algo");}
+    }else{m_algoAutoSelect["CenJet"] = false;}
+
+    if(CatForJet.getParameter<bool>("monitor")){
+      m_algoAutoSelect["CatForJet"] = CatForJet.getParameter<bool>("doAutoSelection");
+      if(!m_algoAutoSelect["CatForJet"]){m_selectedTriggers["CatForJet"] = CatForJet.getParameter<string>("algo");}
+    }else{m_algoAutoSelect["CatForJet"] = false;}
+
+    if(CatTauJet.getParameter<bool>("monitor")){
+      m_algoAutoSelect["TauJet"] = CatTauJet.getParameter<bool>("doAutoSelection");
+      if(!m_algoAutoSelect["TauJet"]){m_selectedTriggers["TauJet"] = CatTauJet.getParameter<string>("algo");}
+    }else{m_algoAutoSelect["TauJet"] = false;}
+
+    if(CatETM.getParameter<bool>("monitor")){
+      m_algoAutoSelect["ETM"] = CatETM.getParameter<bool>("doAutoSelection");
+      if(!m_algoAutoSelect["ETM"]){m_selectedTriggers["ETM"] = CatETM.getParameter<string>("algo");}
+    }else{m_algoAutoSelect["ETM"] = false;}
+
+    if(CatETT.getParameter<bool>("monitor")){
+      m_algoAutoSelect["ETT"] = CatETT.getParameter<bool>("doAutoSelection");
+      if(!m_algoAutoSelect["ETT"]){m_selectedTriggers["ETT"] = CatETT.getParameter<string>("algo");}
+    }else{m_algoAutoSelect["ETT"] = false;}
+
+    if(CatHTM.getParameter<bool>("monitor")){
+      m_algoAutoSelect["HTM"] = CatHTM.getParameter<bool>("doAutoSelection");
+      if(!m_algoAutoSelect["HTM"]){m_selectedTriggers["HTM"] = CatHTM.getParameter<string>("algo");}
+    }else{m_algoAutoSelect["HTM"] = false;}
+
+    if(CatHTT.getParameter<bool>("monitor")){
+      m_algoAutoSelect["HTT"] = CatHTT.getParameter<bool>("doAutoSelection");
+      if(!m_algoAutoSelect["HTT"]){m_selectedTriggers["HTT"] = CatHTT.getParameter<string>("algo");}
+    }else{m_algoAutoSelect["HTT"] = false;}
+
+  }
+
 
   if (pset.getUntrackedParameter < bool > ("dqmStore", false)) {
     dbe = Service < DQMStore > ().operator->();
@@ -142,14 +255,23 @@ void L1TSync::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
   //const vector<int>& RefPrescaleFactors = (*ListsPrescaleFactors).at(m_refPrescaleSet);
 
   // FIXME:
+
   L1TMenuHelper myMenuHelper = L1TMenuHelper(iSetup);  
-  m_selectedTriggers         = myMenuHelper.getLUSOTrigger(m_inputCategories,m_refPrescaleSet);
+         
+  m_selectedTriggers = myMenuHelper.testAlgos(m_selectedTriggers);
+
+  map<string,string> tAutoSelTrig = myMenuHelper.getLUSOTrigger(m_algoAutoSelect,m_refPrescaleSet);
+  m_selectedTriggers.insert(tAutoSelTrig.begin(),tAutoSelTrig.end());
+
+  cout << "L1TSync Selected Trigger----------------" << endl;
 
   // Initializing DQM Monitor Elements
   for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
 
     string tCategory = (*i).first;
     string tTrigger  = (*i).second;
+
+    cout << "Category: " << tCategory << " Algo: " << tTrigger << endl;
 
     dbe->setCurrentFolder("L1T/L1TSync/AlgoVsBPTX/");
     m_algoVsBPTX[tTrigger] = dbe->book2D(tCategory, tTrigger+" - BPTX",maxNbins,-0.5,double(maxNbins)-0.5,5,-2.5,2.5);
@@ -177,19 +299,24 @@ void L1TSync::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
 
     string tTrigger = (*i).second;
 
-    // Getting events with 0 bx difference between BPTX and Algo for current LS
-    double CountSync = m_algoVsBPTX[tTrigger]->getBinContent(eventLS+1,3);
-    double CountAll  = 0;
+    if(tTrigger != "Undefined" && tTrigger != "Undefined (Wrong Name)"){
+
+      // Getting events with 0 bx difference between BPTX and Algo for current LS
+      double CountSync = m_algoVsBPTX[tTrigger]->getBinContent(eventLS+1,3);
+      double CountAll  = 0;
   
-    // Adding all entries for current LS
-    for(int a=1 ; a<6 ; a++){CountAll += m_algoVsBPTX[tTrigger]->getBinContent(eventLS+1,a);}
+      // Adding all entries for current LS
+      for(int a=1 ; a<6 ; a++){CountAll += m_algoVsBPTX[tTrigger]->getBinContent(eventLS+1,a);}
 
-    cout << "EndLS: " << eventLS << " All: " << CountAll << " CountSync: " << CountSync << endl;
+      // Filling this LS summary
+      if(CountAll > 0){
+        int ibin = m_algoVsBPTXSummary[tTrigger]->getTH1()->FindBin(eventLS);
+        m_algoVsBPTXSummary[tTrigger]->setBinContent(ibin,CountSync/CountAll);
+      }
 
-    // Filling this LS summary
-    if(CountAll > 0){
+    }else{
       int ibin = m_algoVsBPTXSummary[tTrigger]->getTH1()->FindBin(eventLS);
-      m_algoVsBPTXSummary[tTrigger]->setBinContent(ibin,CountSync/CountAll);
+      m_algoVsBPTXSummary[tTrigger]->setBinContent(ibin,-1);
     }
   }
 
@@ -223,7 +350,7 @@ void L1TSync::analyze(const Event & iEvent, const EventSetup & eventSetup){
 
     string tTrigger = (*i).second;
 
-    if(tTrigger != "Undefined"){
+    if(tTrigger != "Undefined" && tTrigger != "Undefined (Wrong Name)"){
 
       int  NAlgo = 0;  // Number of selected Algo triggers
       int  NBPTX = 0;  // Number of BPTX triggers

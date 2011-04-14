@@ -4,7 +4,7 @@
 /*
  * \file L1TSync.h
  *
- * $Date: 2011/03/10 18:12:25 $
+ * $Date: 2011/04/06 16:49:34 $
  * $Revision: 1.1 $
  * \author J. Pela
  *
@@ -33,6 +33,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <string>
 #include <vector>
 
 class L1TSync : public edm::EDAnalyzer {
@@ -75,7 +76,7 @@ class L1TSync : public edm::EDAnalyzer {
     std::map<TString,MonitorElement*>      m_algoVsBPTX;
     std::map<TString,MonitorElement*>      m_algoVsBPTXSummary;
 
-    std::map<std::string,bool>             m_inputCategories;     // Map of categories to monitor
+    std::map<std::string,bool>             m_algoAutoSelect;     // Map of categories to monitor
     std::map<std::string,std::string>      m_selectedTriggers;    // Map of what trigger to monitor for each category
 
     // Input tags
