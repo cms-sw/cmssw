@@ -341,14 +341,14 @@ BasicSingleTrajectoryState::update( const LocalTrajectoryParameters& p,
 
 void 
 BasicSingleTrajectoryState::rescaleError(double factor) {
-  if (!hasError()) missingError(" trying to rescale");    
+  if unlikely(!hasError()) missingError(" trying to rescale");    
   if (theFreeState)
     theFreeState->rescaleError(factor);
   
   if (theLocalErrorValid){
     //do it by hand if the free state is not around.
     bool zeroField =theField->inInverseGeV(GlobalPoint(0,0,0)).mag2()==0;
-    if (zeroField){
+    if unlikely(zeroField){
       AlgebraicSymMatrix55 errors=theLocalError.matrix();
       //scale the 0 indexed covariance by the square root of the factor
       for (unsigned int i=1;i!=5;++i)      errors(i,0)*=factor;

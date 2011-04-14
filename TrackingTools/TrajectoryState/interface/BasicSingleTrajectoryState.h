@@ -13,6 +13,7 @@
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
 
 #include "FWCore/Utilities/interface/Visibility.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 /// vvv DEBUG
 #include <iostream>
@@ -89,14 +90,15 @@ public:
 			      const MagneticField* field,
 			      double weight);
 
-/// construct invalid trajectory state (without parameters)
-  BasicSingleTrajectoryState(const Surface& aSurface);
+  /// construct invalid trajectory state (without parameters)
+  explicit BasicSingleTrajectoryState(const Surface& aSurface);
 
   virtual ~BasicSingleTrajectoryState();
 
   bool isValid() const {
     return theFreeState || theLocalParametersValid;
   }
+
   static void notValid();
 
   // bool hasError() const;
@@ -106,6 +108,8 @@ public:
 
   
   void missingError(char const * where) const;
+
+
 
 // access global parameters/errors
   const GlobalTrajectoryParameters& globalParameters() const {
@@ -130,11 +134,11 @@ public:
     return freeTrajectoryState(false)->transverseCurvature();
   }
   const CartesianTrajectoryError& cartesianError() const {
-    if(!hasError()) missingError(" accesing cartesian error.");
+    if unlikely(!hasError()) missingError(" accesing cartesian error.");
     return freeTrajectoryState()->cartesianError();
   }
   const CurvilinearTrajectoryError& curvilinearError() const {
-    if(!hasError()) missingError(" accesing curvilinearerror.");
+    if unlikely(!hasError()) missingError(" accesing curvilinearerror.");
     return freeTrajectoryState()->curvilinearError();
   }
 
@@ -145,8 +149,8 @@ public:
 
 // access local parameters/errors
   const LocalTrajectoryParameters& localParameters() const {
-    if (!isValid()) notValid();
-    if (!theLocalParametersValid)
+    if unlikely(!isValid()) notValid();
+    if unlikely(!theLocalParametersValid)
       createLocalParameters();
     return theLocalParameters;
   }
@@ -161,8 +165,8 @@ public:
   }
 
   const LocalTrajectoryError& localError() const {
-    if (!hasError()) missingError(" accessing local error.");
-    if (!theLocalErrorValid)
+    if unlikely(!hasError()) missingError(" accessing local error.");
+    if unlikely(!theLocalErrorValid)
       createLocalError();
     return theLocalError;
   }
