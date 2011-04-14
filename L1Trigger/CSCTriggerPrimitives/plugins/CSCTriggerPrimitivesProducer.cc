@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2010/08/04 10:17:38 $
-//   $Revision: 1.13 $
+//   $Date: 2010/08/04 14:48:27 $
+//   $Revision: 1.14 $
 //
 //   Modifications:
 //
@@ -40,6 +40,7 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
 
   wireDigiProducer_ = conf.getParameter<edm::InputTag>("CSCWireDigiProducer");
   compDigiProducer_ = conf.getParameter<edm::InputTag>("CSCComparatorDigiProducer");
+  skipbadchambers = conf.getUntrackedParameter<bool>("skipbadchambers",false);
 
   lctBuilder_ = new CSCTriggerPrimitivesBuilder(conf); // pass on the conf
 
@@ -118,12 +119,14 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
       << " requested in configuration, but not found in the event..."
       << " Skipping production of CSC TP digis +++\n";
   }
-
   // Fill output collections if valid input collections are available.
-  if (wireDigis.isValid() && compDigis.isValid()) {
-    lctBuilder_->build(pBadChambers.product(),
+  if (wireDigis.isValid() && compDigis.isValid()) {   
+    const CSCBadChambers* temp = skipbadchambers ? new CSCBadChambers : pBadChambers.product();
+    lctBuilder_->build(temp,
 		       wireDigis.product(), compDigis.product(),
 		       *oc_alct, *oc_clct, *oc_pretrig, *oc_lct, *oc_sorted_lct);
+    if (skipbadchambers)
+      delete temp;
   }
 
   // Put collections in event.

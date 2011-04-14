@@ -10,6 +10,8 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
     CSCComparatorDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi"),
     CSCWireDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
 
+    skipbadchamber = cms.untracked.bool(False),
+
     # Parameters common for all boards
     commonParam = cms.PSet(
         isTMB07 = cms.bool(True),

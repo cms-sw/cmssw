@@ -8,6 +8,8 @@ cscTriggerPrimitiveDigis.tmbParam.mpcBlockMe1a = 0
 cscTriggerPrimitiveDigis.alctParam07.verbosity = 2
 cscTriggerPrimitiveDigis.clctParam07.verbosity = 2
 cscTriggerPrimitiveDigis.tmbParam.verbosity = 2
+cscTriggerPrimitiveDigis.skipbadchambers = cms.untracked.bool(True)
+
 from L1TriggerConfig.L1CSCTPConfigProducers.L1CSCTriggerPrimitivesConfig_cff import *
 l1csctpconf.alctParamMTCC2.alctNplanesHitPretrig = 3
 l1csctpconf.alctParamMTCC2.alctNplanesHitAccelPretrig = 3
@@ -36,7 +38,8 @@ lctreader = cms.EDAnalyzer("CSCTriggerPrimitivesDQM",
                            #CSCSimHitProducer = cms.InputTag("MuonSimHits", "MuonCSCHits"), # Fast sim.
                            CSCComparatorDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi"),
                            CSCWireDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
-                           bad_chambers  = cms.untracked.vstring("ME+1/2/15","ME+1/1/20","ME-1/1/34","ME-2/2/03","ME-1/1/15","ME+1/2/36","ME+1/1/02"),
+                           bad_chambers  = cms.untracked.vstring("ME+1/2/15","ME+1/1/20","ME-1/1/34","ME-1/1/15","ME+1/2/36",
+                                                                 "ME+1/1/02","ME-1/1/30","ME+1/1/29","ME+1/1/03"),
                            bad_wires = cms.untracked.vstring("ME-1/1/4","ME-1/1/12","ME-1/1/36","ME-1/2/10","ME-2/2/11","ME-3/2/9"),
                            bad_strips = cms.untracked.vstring("ME+1/1/20","ME-1/1/34","ME-3/2/24")
                            )
