@@ -119,9 +119,21 @@ class ModelBuilder(ModelBuilderBase):
                     self.doObj("%s_Pdf" % n, "Gaussian", "%s, %s_In[%s], %s" % (n, n, args[0], args[1]))
                 globalobs.append("%s_In" % n)
             else: raise RuntimeError, "Unsupported pdf %s" % pdf
-        self.doSet("nuisances", ",".join(["%s"    % n for (n,p,a,e) in self.DC.systs]))
-        self.doObj("nuisancePdf", "PROD", ",".join(["%s_Pdf" % n for (n,p,a,e) in self.DC.systs]))
-        if globalobs:
+        if self.options.bin:
+            nuisPdfs = ROOT.RooArgList()
+            nuisVars = ROOT.RooArgSet()
+            for (n,p,a,e) in self.DC.systs:
+                nuisVars.add(self.out.var(n))
+                nuisPdfs.add(self.out.pdf(n+"_Pdf"))
+            self.out.defineSet("nuisances", nuisVars)
+            self.out.nuisPdf = ROOT.RooProdPdf("nuisancePdf", "nuisancePdf", nuisPdfs)
+            self.out._import(self.out.nuisPdf)
+            gobsVars = ROOT.RooArgSet()
+            for g in globalobs: gobsVars.add(self.out.var(g))
+            self.out.defineSet("globalObservables", gobsVars)
+        else: # doesn't work for too many nuisances :-(
+            self.doSet("nuisances", ",".join(["%s"    % n for (n,p,a,e) in self.DC.systs]))
+            self.doObj("nuisancePdf", "PROD", ",".join(["%s_Pdf" % n for (n,p,a,e) in self.DC.systs]))
             self.doSet("globalObservables", ",".join(globalobs))
     def doExpectedEvents(self):
         self.doComment(" --- Expected events in each bin, for each process ----")
