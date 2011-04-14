@@ -1,6 +1,16 @@
 import os,sys
 from RecoLuminosity.LumiDB import tablePrinter, csvReporter,CommonUtil
 from RecoLuminosity.LumiDB.wordWrappers import wrap_always, wrap_onspace, wrap_onspace_strict
+def toScreenNorm(normdata):
+    result=[]
+    labels=[('Name','amode','E(GeV)','Norm')]
+    print ' ==  = '
+    for name,thisnorm in normdata.items():
+        amodetag=str(thisnorm[0])
+        normval='%.2f'%thisnorm[1]
+        egev='%.0f'%thisnorm[2]
+        result.append([name,amodetag,egev,normval])
+    print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,prefix = '| ', postfix = ' |', justify = 'left',delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) ) 
 
 def toScreenTotDelivered(lumidata,isverbose):
     '''
