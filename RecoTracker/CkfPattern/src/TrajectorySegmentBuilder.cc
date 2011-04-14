@@ -22,6 +22,7 @@
 // #define DBG_TSB
 
 namespace {
+#ifdef STAT_TSB
   struct StatCount {
     long long totGroup;
     long long totSeg;
@@ -36,12 +37,18 @@ namespace {
      }
     void print() const {
       std::cout << "TrajectorySegmentBuilder stat\nGroup/Seg/Lock "
-		<< totGroup<<'/'<<totSeg<<'/'<<totLockHits
+    		<< totGroup<<'/'<<totSeg<<'/'<<totLockHits
 		<< std::endl;
     }
     StatCount() { zero();}
     ~StatCount() { print();}
   };
+
+#else
+  struct StatCount {
+    void incr(long long, long long, long long){}
+  };
+#endif
 
   StatCount statCount;
 
