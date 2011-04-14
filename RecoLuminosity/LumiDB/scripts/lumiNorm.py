@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os,sys
-from RecoLuminosity.LumiDB import dataDML,revisionDML,argparse,sessionManager
+from RecoLuminosity.LumiDB import dataDML,revisionDML,argparse,sessionManager,lumiReport
 
 ##############################
 ## ######################## ##
@@ -14,13 +14,13 @@ from RecoLuminosity.LumiDB import dataDML,revisionDML,argparse,sessionManager
 if __name__ == '__main__':
     parser=argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Lumi Normalization factor",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     allowedActions=['add','get','overview']
-    amodetagChoices=['PROTPHYS','HIPHYS']
-    egevChoices=['3500','450']
+    amodetagChoices=['PROTPHYS','IONPHYS']
+    egevChoices=['3500','450','1380']
     parser.add_argument('action',choices=allowedActions,help='command actions')
     parser.add_argument('-c',dest='connect',action='store',required=False,help='connect string to lumiDB,optional',default='frontier://LumiCalc/CMS_LUMI_PROD')
     parser.add_argument('-P',dest='authpath',action='store',help='path to authentication file,optional')
     parser.add_argument('-name',dest='name',action='store',help='lumi norm factor name')
-    parser.add_argument('-egev',dest='egev',action='store',default='3500',choices=egevChoices,help='nominal beam energy in GeV')
+    parser.add_argument('-egev',dest='egev',action='store',default='3500',help='single beam energy in GeV')
     parser.add_argument('-amodetag',dest='amodetag',action='store',default='PROTPHYS',choices=amodetagChoices,help='accelerator mode')
     parser.add_argument('-input',dest='input',action='store',help='input lumi value. Option for add action only')
     parser.add_argument('-tag',dest='tag',action='store',help='version of the norm factor')
@@ -76,11 +76,19 @@ if __name__ == '__main__':
             if options.name is not None:
                 normdataid=dataDML.guessnormIdByName(schema,options.name)
                 norm=dataDML.luminormById(schema,normdataid)
-                print 'norm for ',options.name,norm
+                nname=norm[0]
+                namodetag=norm[1]
+                nnormval=norm[2]
+                negev=norm[3]
+                lumiReport.toScreenNorm({nname:[namodetag,nnormval,negev]})
             else:
                 normdataid=dataDML.guessnormIdByContext(schema,options.amodetag,int(options.egev))
                 norm=dataDML.luminormById(schema,normdataid)
-                print 'norm for ',norm
+                nname=norm[0]
+                namodetag=norm[1]
+                nnormval=norm[2]
+                negev=norm[3]
+                lumiReport.toScreenNorm({nname:[namodetag,nnormval,negev]})
         session.transaction().commit()
     elif options.action=='overview':
         session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
@@ -88,7 +96,7 @@ if __name__ == '__main__':
         schema=session.nominalSchema()
         branchfilter=revisionDML.revisionsInBranchName(schema,'NORM')
         allnorms=dataDML.mostRecentLuminorms(schema,branchfilter)
-        print allnorms
+        lumiReport.toScreenNorm(allnorms)
         session.transaction().commit()
     del session
     del svc
