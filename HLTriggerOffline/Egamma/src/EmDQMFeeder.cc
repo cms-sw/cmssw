@@ -13,7 +13,7 @@
 //
 // Original Author:  Thomas Reis,40 4-B24,+41227671567,
 //         Created:  Tue Mar 15 12:24:11 CET 2011
-// $Id: EmDQMFeeder.cc,v 1.3 2011/04/12 11:54:03 treis Exp $
+// $Id: EmDQMFeeder.cc,v 1.4 2011/04/14 17:43:16 treis Exp $
 //
 //
 
@@ -23,6 +23,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <boost/regex.hpp>
+#include <boost/lexical_cast.hpp>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -216,7 +218,13 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 	    paramSet.addParameter("genEtAcc", iConfig.getParameter<double>("genEtAcc"));
 
 	    // plotting parameters (untracked because they don't affect the physics)
-	    paramSet.addUntrackedParameter("genEtMin", getPrimaryEtCut(pathName));
+            try {
+               paramSet.addUntrackedParameter("genEtMin", getPrimaryEtCut(pathName));
+            }
+            catch (...) {
+               std::cout << "Exception caught while generating the parameter set of the path '" << pathName << "' for use in EmDQM.  Will not include this path in the validation." << std::endl;
+               continue;
+            }
 	    paramSet.addUntrackedParameter("PtMin", iConfig.getUntrackedParameter<double>("PtMin",0.));
 	    paramSet.addUntrackedParameter("PtMax", iConfig.getUntrackedParameter<double>("PtMax",1000.));
 	    paramSet.addUntrackedParameter("EtaMax", iConfig.getUntrackedParameter<double>("EtaMax", 2.7));
@@ -324,7 +332,7 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
    } else {
       // if init returns FALSE, initialisation has NOT succeeded, which indicates a problem
       // with the file and/or code and needs to be investigated!
-      edm::LogError("EmDQMFeeder") << " HLT config extraction failure with process name " << processName_;
+      edm::LogError("EmDQMFeeder") << " HLT config extraction failure with process name '" << processName_ << "'.";
       // In this case, all access methods will return empty values!
    }
 }
@@ -430,9 +438,21 @@ EmDQMFeeder::getFilterModules(const std::string& path)
 double
 EmDQMFeeder::getPrimaryEtCut(const std::string& path)
 {
-   double ret = 0.;
+   double minEt = -1;
 
-   return ret;
+   boost::regex reg("^HLT_.*?([[:digit:]]+).*");
+
+   boost::smatch what;
+   if (boost::regex_match(path, what, reg, boost::match_extra))
+   {
+     minEt = boost::lexical_cast<double>(what[1]); 
+   }
+   else {
+     edm::LogError("EmDQMFeeder") << "Unable to determine a minimum Et from the path name '" << path << "'.";
+     throw "noMinEt";
+   }
+
+   return minEt;
 }
 
 
@@ -607,7 +627,7 @@ EmDQMFeeder::makePSetForEgammaGenericFilter(const std::string& pathName, const s
    //
    //        assert(inputType == getattr(self.process, module.nonIsoTag.moduleLabel).type_())
   if (inputType.compare(hltConfig_.moduleType(nonIsoTag.label()))) {
-    edm::LogError("EmDQMFeeder") << "C++ Type of isoTag '" << inputType << "' and nonIsoTag '" << hltConfig_.moduleType(nonIsoTag.label()) << "' are not the same for HLTEgammaGenericFilter '" << moduleName <<  "'";
+    edm::LogError("EmDQMFeeder") << "C++ Type of isoTag '" << inputType << "' and nonIsoTag '" << hltConfig_.moduleType(nonIsoTag.label()) << "' are not the same for HLTEgammaGenericFilter '" << moduleName <<  "'.";
     throw "inputTypeNonMatching";
   }
    //
@@ -700,7 +720,7 @@ EmDQMFeeder::makePSetForEgammaGenericFilter(const std::string& pathName, const s
    //        
    //        raise Exception("can't determine what the HLTEgammaGenericFilter '" + moduleName + "' should do: uses a collection produced by a module of C++ type '" + inputType + "'")
    //
-   edm::LogError("EmDQMFeeder") << "Can't determine what the HLTEgammaGenericFilter '" << moduleName <<  "' should do: uses a collection produced by a module of C++ type '" << inputType << "'";
+   edm::LogError("EmDQMFeeder") << "Can't determine what the HLTEgammaGenericFilter '" << moduleName <<  "' should do: uses a collection produced by a module of C++ type '" << inputType << "'.";
    throw "unknownC++Type";
 
   return retPSet;
@@ -747,7 +767,7 @@ EmDQMFeeder::makePSetForElectronGenericFilter(const std::string& pathName, const
     throw "noNonIsoTag";
   }
   if (inputType.compare(hltConfig_.moduleType(nonIsoTag.label()))) {
-    edm::LogError("EmDQMFeeder") << "C++ Type of isoTag '" << inputType << "' and nonIsoTag '" << hltConfig_.moduleType(nonIsoTag.label()) << "' are not the same for HLTElectronGenericFilter '" << moduleName <<  "'";
+    edm::LogError("EmDQMFeeder") << "C++ Type of isoTag '" << inputType << "' and nonIsoTag '" << hltConfig_.moduleType(nonIsoTag.label()) << "' are not the same for HLTElectronGenericFilter '" << moduleName <<  "'.";
     throw "inputTypeNonMatching";
   }
 
@@ -803,7 +823,7 @@ EmDQMFeeder::makePSetForElectronGenericFilter(const std::string& pathName, const
  
    //        raise Exception("can't determine what the HLTElectronGenericFilter '" + moduleName + "' should do: uses a collection produced by a module of C++ type '" + inputType + "'")
    //
-   edm::LogError("EmDQMFeeder") << "Can't determine what the HLTElectronGenericFilter '" << moduleName <<  "' should do: uses a collection produced by a module of C++ type '" << inputType << "'";
+   edm::LogError("EmDQMFeeder") << "Can't determine what the HLTElectronGenericFilter '" << moduleName <<  "' should do: uses a collection produced by a module of C++ type '" << inputType << "'.";
    throw "unknownC++Type";
 
   return retPSet;
