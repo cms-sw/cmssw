@@ -184,7 +184,7 @@ dbHostPort = 1521
 dbUserName = ''
 dbPassword = ''
 
-if (localDAQ == 1) | (liveCMS == 1) :
+if (localDAQ == 1) | (liveCMS == 1) | (liveECAL == 1) :
   try :
     file = open('/nfshome0/ecalpro/DQM/online-DQM/.cms_tstore.conf', 'r')
     for line in file :
@@ -776,11 +776,11 @@ if (localDAQ == 1) | (liveCMS == 1) :
 
 if (liveECAL == 1) :
   process.ecalBarrelMonitorClient.updateTime = 4
-  process.ecalBarrelMonitorClient.dbUpdateTime = 120
+  process.ecalBarrelMonitorClient.dbUpdateTime = 0
   process.ecalBarrelMonitorClient.resetFile = '/data/ecalod-disk01/dqm-data/reset/EB'
 
   process.ecalEndcapMonitorClient.updateTime = 4
-  process.ecalEndcapMonitorClient.dbUpdateTime = 120
+  process.ecalEndcapMonitorClient.dbUpdateTime = 0
   process.ecalEndcapMonitorClient.resetFile = '/data/ecalod-disk01/dqm-data/reset/EE'
 
 if (liveCMS == 1) :
