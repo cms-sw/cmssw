@@ -59,7 +59,7 @@ namespace reco {
 
     const Track & track() const;
 
-    TrackBaseRef trackBaseRef() const;
+    TrackBaseRef trackBaseRef() const { return TrackBaseRef();}
 
     TrajectoryStateClosestToBeamLine stateAtBeamLine() const;
 

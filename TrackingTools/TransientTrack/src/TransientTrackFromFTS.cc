@@ -4,7 +4,8 @@
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
-#include <iostream>
+// #include <iostream>
+#include "FWCore/Utilities/interface/Likely.h"
 
 using namespace reco;
 
@@ -64,13 +65,13 @@ void TransientTrackFromFTS::setBeamSpot(const BeamSpot& beamSpot)
 
 TrajectoryStateOnSurface TransientTrackFromFTS::impactPointState() const
 {
-  if (!initialTSOSAvailable) calculateTSOSAtVertex();
+  if unlikely(!initialTSOSAvailable) calculateTSOSAtVertex();
   return initialTSOS;
 }
 
 TrajectoryStateClosestToPoint TransientTrackFromFTS::impactPointTSCP() const
 {
-  if (!initialTSCPAvailable) {
+  if unlikely(!initialTSCPAvailable) {
     initialTSCP = builder(initialFTS, initialFTS.position());
     initialTSCPAvailable = true;
   }
@@ -90,13 +91,6 @@ TrajectoryStateOnSurface TransientTrackFromFTS::innermostMeasurementState() cons
 }
 
 
-TrackBaseRef TransientTrackFromFTS::trackBaseRef() const
-{
-  throw cms::Exception("LogicError") << 
-    "TransientTrack built from a FreeTrajectoryState (TransientTrackFromFTS) can not have an TrackBaseRef";
-}
-
-
 void TransientTrackFromFTS::calculateTSOSAtVertex() const
 {
   TransverseImpactPointExtrapolator tipe(theField);
@@ -113,7 +107,7 @@ TransientTrackFromFTS::stateOnSurface(const GlobalPoint & point) const
 
 const Track & TransientTrackFromFTS::track() const
 {
-  if (!trackAvailable) {
+  if unlikely(!trackAvailable) {
     GlobalPoint v = initialFTS.position();
     math::XYZPoint  pos( v.x(), v.y(), v.z() );
     GlobalVector p = initialFTS.momentum();
@@ -128,7 +122,7 @@ const Track & TransientTrackFromFTS::track() const
 
 TrajectoryStateClosestToBeamLine TransientTrackFromFTS::stateAtBeamLine() const
 {
-  if (!blStateAvailable) {
+  if unlikely(!blStateAvailable) {
     TSCBLBuilderNoMaterial blsBuilder;
     trajectoryStateClosestToBeamLine = blsBuilder(initialFTS, theBeamSpot);
     blStateAvailable = true;
