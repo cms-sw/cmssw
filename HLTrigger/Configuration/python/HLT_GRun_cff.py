@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/GRun/V15 (CMSSW_3_11_0_HLT20)
+# /dev/CMSSW_4_2_0/GRun/V16 (CMSSW_3_11_0_HLT20)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V15')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V16')
 )
 
 streams = cms.PSet( 
@@ -3944,8 +3944,8 @@ hltPFTauTagInfo = cms.EDProducer( "PFRecoTauTagInfoProducer",
     NeutrHadrCand_HcalclusMinEt = cms.double( 0.5 ),
     GammaCand_EcalclusMinEt = cms.double( 0.5 ),
     tkminPt = cms.double( 0.0 ),
-    tkminPixelHitsn = cms.int32( 2 ),
-    tkminTrackerHitsn = cms.int32( 5 ),
+    tkminPixelHitsn = cms.int32( 0 ),
+    tkminTrackerHitsn = cms.int32( 3 ),
     tkmaxipt = cms.double( 0.2 ),
     tkmaxChi2 = cms.double( 100.0 ),
     UsePVconstraint = cms.bool( True ),
@@ -13513,7 +13513,7 @@ hltPFMHT35Filter = cms.EDFilter( "HLTMhtHtFilter",
     etaJet = cms.vdouble( 9999.0, 9999.0 )
 )
 hlt2PFJet10 = cms.EDFilter( "HLT1Tau",
-    inputTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
+    inputTag = cms.InputTag( "hltAntiKT5ConvPFJetsForTaus" ),
     saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 10.0 ),
     MaxEta = cms.double( 2.5 ),
@@ -13543,9 +13543,9 @@ hltPFTaus = cms.EDProducer( "PFRecoTauProducer",
     TrackerSignalConeSize_min = cms.double( 0.0 ),
     TrackerSignalConeSize_max = cms.double( 0.2 ),
     TrackerIsolConeMetric = cms.string( "DR" ),
-    TrackerIsolConeSizeFormula = cms.string( "0.5" ),
+    TrackerIsolConeSizeFormula = cms.string( "0.4" ),
     TrackerIsolConeSize_min = cms.double( 0.0 ),
-    TrackerIsolConeSize_max = cms.double( 0.5 ),
+    TrackerIsolConeSize_max = cms.double( 0.6 ),
     ECALSignalConeMetric = cms.string( "DR" ),
     ECALSignalConeSizeFormula = cms.string( "0.2" ),
     ECALSignalConeSize_min = cms.double( 0.0 ),
@@ -13553,16 +13553,16 @@ hltPFTaus = cms.EDProducer( "PFRecoTauProducer",
     ECALIsolConeMetric = cms.string( "DR" ),
     ECALIsolConeSizeFormula = cms.string( "0.5" ),
     ECALIsolConeSize_min = cms.double( 0.0 ),
-    ECALIsolConeSize_max = cms.double( 0.5 ),
+    ECALIsolConeSize_max = cms.double( 0.6 ),
     HCALSignalConeMetric = cms.string( "DR" ),
-    HCALSignalConeSizeFormula = cms.string( "0.2" ),
+    HCALSignalConeSizeFormula = cms.string( "0.1" ),
     HCALSignalConeSize_min = cms.double( 0.0 ),
-    HCALSignalConeSize_max = cms.double( 0.5 ),
+    HCALSignalConeSize_max = cms.double( 0.6 ),
     HCALIsolConeMetric = cms.string( "DR" ),
     HCALIsolConeSizeFormula = cms.string( "0.5" ),
     HCALIsolConeSize_min = cms.double( 0.0 ),
-    HCALIsolConeSize_max = cms.double( 0.5 ),
-    Rphi = cms.double( 0.2 ),
+    HCALIsolConeSize_max = cms.double( 0.6 ),
+    Rphi = cms.double( 2.0 ),
     MaxEtInEllipse = cms.double( 2.0 ),
     AddEllipseGammas = cms.bool( False ),
     AreaMetric_recoElements_maxabsEta = cms.double( 2.5 ),
@@ -15329,70 +15329,10 @@ hltPFTauTrackFindingDiscriminator = cms.EDProducer( "PFRecoTauDiscriminationByLe
     UseOnlyChargedHadrons = cms.bool( True ),
     MinPtLeadingObject = cms.double( 0.0 )
 )
-hltPFTauTrackPt5Discriminator = cms.EDProducer( "PFRecoTauDiscriminationByLeadingObjectPtCut",
-    PFTauProducer = cms.InputTag( "hltPFTaus" ),
-    Prediscriminants = cms.PSet(  BooleanOperator = cms.string( "and" ) ),
-    UseOnlyChargedHadrons = cms.bool( True ),
-    MinPtLeadingObject = cms.double( 5.0 )
-)
-hltPFTauIsolationDiscriminator = cms.EDProducer( "PFRecoTauDiscriminationByIsolation",
-    PFTauProducer = cms.InputTag( "hltPFTaus" ),
-    Prediscriminants = cms.PSet(  BooleanOperator = cms.string( "and" ) ),
-    maximumSumPtCut = cms.double( 6.0 ),
-    maximumOccupancy = cms.uint32( 0 ),
-    relativeSumPtCut = cms.double( 0.0 ),
-    ApplyDiscriminationByECALIsolation = cms.bool( False ),
-    PVProducer = cms.InputTag( "hltPixelVertices" ),
-    applyOccupancyCut = cms.bool( True ),
-    applyRelativeSumPtCut = cms.bool( False ),
-    applySumPtCut = cms.bool( False ),
-    ApplyDiscriminationByTrackerIsolation = cms.bool( True ),
-    qualityCuts = cms.PSet( 
-      isolationQualityCuts = cms.PSet( 
-        minTrackHits = cms.uint32( 3 ),
-        minTrackPt = cms.double( 1.0 ),
-        maxTrackChi2 = cms.double( 100.0 ),
-        minTrackPixelHits = cms.uint32( 0 ),
-        minGammaEt = cms.double( 1.5 ),
-        useTracksInsteadOfPFHadrons = cms.bool( False ),
-        maxDeltaZ = cms.double( 0.2 ),
-        maxTransverseImpactParameter = cms.double( 0.05 )
-      ),
-      signalQualityCuts = cms.PSet( 
-        maxDeltaZ = cms.double( 0.5 ),
-        minTrackPt = cms.double( 0.0 ),
-        maxTrackChi2 = cms.double( 1000.0 ),
-        useTracksInsteadOfPFHadrons = cms.bool( False ),
-        minGammaEt = cms.double( 0.5 ),
-        minTrackPixelHits = cms.uint32( 0 ),
-        minTrackHits = cms.uint32( 3 ),
-        maxTransverseImpactParameter = cms.double( 0.2 )
-      )
-    )
-)
 hltSelectedPFTausTrackFinding = cms.EDFilter( "PFTauSelector",
     src = cms.InputTag( "hltPFTaus" ),
     discriminators = cms.VPSet( 
       cms.PSet(  discriminator = cms.InputTag( "hltPFTauTrackFindingDiscriminator" ),
-        selectionCut = cms.double( 0.5 )
-      )
-    )
-)
-hltSelectedPFTausTrackPt5 = cms.EDFilter( "PFTauSelector",
-    src = cms.InputTag( "hltPFTaus" ),
-    discriminators = cms.VPSet( 
-      cms.PSet(  discriminator = cms.InputTag( "hltPFTauTrackPt5Discriminator" ),
-        selectionCut = cms.double( 0.5 )
-      )
-    )
-)
-hltSelectedPFTausTrackFindingIsolation = cms.EDFilter( "PFTauSelector",
-    src = cms.InputTag( "hltPFTaus" ),
-    discriminators = cms.VPSet( 
-      cms.PSet(  discriminator = cms.InputTag( "hltPFTauTrackFindingDiscriminator" ),
-        selectionCut = cms.double( 0.5 )
-      ),
-      cms.PSet(  discriminator = cms.InputTag( "hltPFTauIsolationDiscriminator" ),
         selectionCut = cms.double( 0.5 )
       )
     )
@@ -15408,34 +15348,14 @@ hltSelectedPFTausTrackFindingLooseIsolation = cms.EDFilter( "PFTauSelector",
       )
     )
 )
-hltSelectedPFTausTrackPt5Isolation = cms.EDFilter( "PFTauSelector",
-    src = cms.InputTag( "hltPFTaus" ),
-    discriminators = cms.VPSet( 
-      cms.PSet(  discriminator = cms.InputTag( "hltPFTauTrackPt5Discriminator" ),
-        selectionCut = cms.double( 0.5 )
-      ),
-      cms.PSet(  discriminator = cms.InputTag( "hltPFTauIsolationDiscriminator" ),
-        selectionCut = cms.double( 0.5 )
-      )
-    )
-)
 hltConvPFTausTrackFinding = cms.EDProducer( "PFTauToJetProducer",
     Source = cms.InputTag( "hltSelectedPFTausTrackFinding" )
-)
-hltConvPFTausTrackFindingIsolation = cms.EDProducer( "PFTauToJetProducer",
-    Source = cms.InputTag( "hltSelectedPFTausTrackFindingIsolation" )
 )
 hltConvPFTausTrackFindingLooseIsolation = cms.EDProducer( "PFTauToJetProducer",
     Source = cms.InputTag( "hltSelectedPFTausTrackFindingLooseIsolation" )
 )
 hltConvPFTaus = cms.EDProducer( "PFTauToJetProducer",
     Source = cms.InputTag( "hltPFTaus" )
-)
-hltConvPFTausTrackPt5 = cms.EDProducer( "PFTauToJetProducer",
-    Source = cms.InputTag( "hltSelectedPFTausTrackPt5" )
-)
-hltConvPFTausTrackPt5Isolation = cms.EDProducer( "PFTauToJetProducer",
-    Source = cms.InputTag( "hltSelectedPFTausTrackPt5Isolation" )
 )
 hltPFTau20 = cms.EDFilter( "HLT1Tau",
     inputTag = cms.InputTag( "hltConvPFTaus" ),
@@ -19078,7 +18998,7 @@ HLTDoEGammaStartupSequence = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLT
 HLTDoEGammaHESequence = cms.Sequence( HLTDoLocalHcalWithoutHOSequence + hltL1IsolatedPhotonHcalForHE + hltL1NonIsolatedPhotonHcalForHE )
 HLTDoEGammaPixelSequence = cms.Sequence( HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltL1IsoStartUpElectronPixelSeeds + hltL1NonIsoStartUpElectronPixelSeeds )
 HLTPhoton20CaloIdVTIsoTMu8Sequence = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLTL1IsolatedEcalClustersSequence + HLTL1NonIsolatedEcalClustersSequence + hltL1IsoRecoEcalCandidate + hltL1NonIsoRecoEcalCandidate + hltEGRegionalL1MuOpenEG5 + hltEG20EtFilterMuOpenEG5 + hltL1IsoHLTClusterShape + hltL1NonIsoHLTClusterShape + hltPhoton20CaloIdVTIsoTMu8ClusterShapeFilter + hltL1IsolatedPhotonEcalIsol + hltL1NonIsolatedPhotonEcalIsol + hltPhoton20CaloIdVTIsoTMu8EcalIsoFilter + HLTDoLocalHcalWithoutHOSequence + hltL1IsolatedPhotonHcalForHE + hltL1NonIsolatedPhotonHcalForHE + hltPhoton20CaloIdVTIsoTMu8HEFilter + hltL1IsolatedPhotonHcalIsol + hltL1NonIsolatedPhotonHcalIsol + hltPhoton20CaloIdVTIsoTMu8HcalIsoFilter + HLTDoLocalPixelSequence + HLTDoLocalStripSequence + HLTL1IsoEgammaRegionalRecoTrackerSequence + HLTL1NonIsoEgammaRegionalRecoTrackerSequence + hltL1IsolatedPhotonHollowTrackIsol + hltL1NonIsolatedPhotonHollowTrackIsol + hltPhoton20CaloIdVTIsoTMu8TrackIsoFilter )
-HLTPFTauSequence = cms.Sequence( hltPFTauJetTracksAssociator + hltPFTauTagInfo + hltPFTaus + hltPFTauTrackFindingDiscriminator + hltPFTauTrackPt5Discriminator + hltPFTauLooseIsolationDiscriminator + hltPFTauIsolationDiscriminator + hltSelectedPFTausTrackFinding + hltSelectedPFTausTrackPt5 + hltSelectedPFTausTrackFindingIsolation + hltSelectedPFTausTrackFindingLooseIsolation + hltSelectedPFTausTrackPt5Isolation + hltConvPFTausTrackFinding + hltConvPFTausTrackFindingIsolation + hltConvPFTausTrackFindingLooseIsolation + hltConvPFTaus + hltConvPFTausTrackPt5 + hltConvPFTausTrackPt5Isolation )
+HLTPFTauSequence = cms.Sequence( hltPFTauJetTracksAssociator + hltPFTauTagInfo + hltPFTaus + hltPFTauTrackFindingDiscriminator + hltPFTauLooseIsolationDiscriminator + hltSelectedPFTausTrackFinding + hltSelectedPFTausTrackFindingLooseIsolation + hltConvPFTausTrackFinding + hltConvPFTausTrackFindingLooseIsolation + hltConvPFTaus )
 HLTBTagIPSequenceL25SingleTop = cms.Sequence( HLTDoLocalPixelSequence + HLTRecopixelvertexingSequence + hltGetJetsfromBJet30Central + hltSelectorJetsSingleTop + hltBLifetimeL25JetsSingleTop + hltBLifetimeL25AssociatorSingleTop + hltBLifetimeL25TagInfosSingleTop + hltBLifetimeL25BJetTagsSingleTop )
 HLTBTagIPSequenceL3SingleTop = cms.Sequence( HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltBLifetimeRegionalPixelSeedGeneratorSingleTop + hltBLifetimeRegionalCkfTrackCandidatesSingleTop + hltBLifetimeRegionalCtfWithMaterialTracksSingleTop + hltBLifetimeL3AssociatorSingleTop + hltBLifetimeL3TagInfosSingleTop + hltBLifetimeL3BJetTagsSingleTop )
 HLTDoubleMu5Ele8L1NonIsoHLTnonIsoSequence = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLTL1IsolatedEcalClustersSequence + HLTL1NonIsolatedEcalClustersSequence + hltL1IsoRecoEcalCandidate + hltL1NonIsoRecoEcalCandidate + hltEGRegionalL1MuOpenEG5 + hltEG8EtFilterMuOpenEG5 + HLTDoLocalHcalWithoutHOSequence + hltL1IsolatedPhotonHcalForHE + hltL1NonIsolatedPhotonHcalForHE + hltEG8HEFilterMuOpenEG5 + HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltL1IsoStartUpElectronPixelSeeds + hltL1NonIsoStartUpElectronPixelSeeds + hltEG8PixelMatchFilterMuOpenEG5 )
