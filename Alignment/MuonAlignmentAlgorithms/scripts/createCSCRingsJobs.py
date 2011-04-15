@@ -168,6 +168,10 @@ parser.add_option("--ring2only",
                   help="if invoked, use only ring 2 results to align all rings in corresponding disks",
                   action="store_true",
                   dest="ring2only")
+parser.add_option("--createMapNtuple",
+                  help="if invoked while mapplots are turned on, a special ntuple would be created",
+                  action="store_true",
+                  dest="createMapNtuple")
 parser.add_option("--inputInBlocks",
                   help="if invoked, assume that INPUTFILES provides a list of files already groupped into job blocks, -j has no effect in that case",
                   action="store_true",
@@ -214,6 +218,10 @@ maxEvents = options.maxEvents
 skipEvents = options.skipEvents
 validationLabel = options.validationLabel
 maxResSlopeY = options.maxResSlopeY
+
+createMapNtuple=False
+if options.createMapNtuple: createMapNtuple=True
+
 ring2only = ""
 if options.ring2only: ring2only = "--ring2only"
 inputInBlocks = ""
@@ -337,10 +345,12 @@ export ALIGNMENT_MAXRESSLOPEY=%(maxResSlopeY)s
 export ALIGNMENT_DO_DT='False'
 export ALIGNMENT_DO_CSC='True'
 export ALIGNMENT_JSON=%(json_file)s
+export ALIGNMENT_CREATEMAPNTUPLE=%(createMapNtuple)s
 
 if [ \"zzz$ALIGNMENT_JSON\" != \"zzz\" ]; then
   cp -f $ALIGNMENT_JSON $ALIGNMENT_CAFDIR/
 fi
+
 cp -f %(directory)sgather_cfg.py %(inputdbdir)s%(inputdb)s %(copytrackerdb)s $ALIGNMENT_CAFDIR/
 cd $ALIGNMENT_CAFDIR/
 ls -l
