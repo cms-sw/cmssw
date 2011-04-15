@@ -91,74 +91,74 @@ void ESTimingTask::endJob() {
 }
 
 void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
-
+  
   set(iSetup);
-
-   runNum_ = e.id().run();
-   eCount_++;
-
-   htESP_->Reset();
-   htESM_->Reset();
-
-   //Digis
-   int zside, plane, ix, iy, is;
-   double adc[3], para[10];
-   double tx[3] = {-5., 20., 45.};
-   Handle<ESDigiCollection> digis;
-   if ( e.getByLabel(digilabel_, digis) ) {
-
-     for (ESDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr) {
-       
-       ESDataFrame dataframe = (*digiItr);
-       ESDetId id = dataframe.id();
-       
-       zside = id.zside();
-       plane = id.plane();
-       ix = id.six();
-       iy = id.siy();
-       is = id.strip();
-
-       //if (zside==1 && plane==1 && ix==15 && iy==6) continue;       
-       if (zside==1 && plane==1 && ix==7 && iy==28) continue;       
-       if (zside==1 && plane==1 && ix==24 && iy==9 && is==21) continue;       
-       if (zside==-1 && plane==2 && ix==35 && iy==17 && is==23) continue;       
-
-       int i = (zside==1)? 0:1;
-       int j = plane-1;
-
-       for (int k=0; k<dataframe.size(); ++k) 
-	 adc[k] = dataframe.sample(k).adc();
-
-       double status = 0;
-       if (adc[1] < 200) status = 1;
-       if (fabs(adc[0]) > 10) status = 1;
-       if (adc[1] < 0 || adc[2] < 0) status = 1;
-       if (adc[0] > adc[1] || adc[0] > adc[2]) status = 1;
-       if (adc[2] > adc[1]) status = 1;  
-
-       if (int(status) == 0) {
-	 TGraph *gr = new TGraph(3, tx, adc);
-	 fit_->SetParameters(50, 10, wc_, n_);
-	 fit_->FixParameter(2, wc_);
-	 fit_->FixParameter(3, n_);
-	 gr->Fit("fit", "MQ");
-	 fit_->GetParameters(para); 
-	 delete gr;
-	 //cout<<"ADC : "<<zside<<" "<<plane<<" "<<ix<<" "<<iy<<" "<<is<<" "<<adc[0]<<" "<<adc[1]<<" "<<adc[2]<<" "<<para[1]<<endl;
-	 hTiming_[i][j]->Fill(para[1]);
-
-	 if (zside == 1) htESP_->Fill(para[1]);
-	 else if (zside == -1) htESM_->Fill(para[1]);
-       }
-
-     }
-   } else {
-     LogWarning("ESTimingTask") << digilabel_ << " not available";
-   }
-
-   if (htESP_->GetEntries() > 0 && htESM_->GetEntries() > 0)
-     h2DTiming_->Fill(htESM_->GetMean(), htESP_->GetMean());
-
+  
+  runNum_ = e.id().run();
+  eCount_++;
+  
+  htESP_->Reset();
+  htESM_->Reset();
+  
+  //Digis
+  int zside, plane, ix, iy, is;
+  double adc[3], para[10];
+  double tx[3] = {-5., 20., 45.};
+  Handle<ESDigiCollection> digis;
+  if ( e.getByLabel(digilabel_, digis) ) {
+    
+    for (ESDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr) {
+      
+      ESDataFrame dataframe = (*digiItr);
+      ESDetId id = dataframe.id();
+      
+      zside = id.zside();
+      plane = id.plane();
+      ix = id.six();
+      iy = id.siy();
+      is = id.strip();
+      
+      //if (zside==1 && plane==1 && ix==15 && iy==6) continue;       
+      if (zside==1 && plane==1 && ix==7 && iy==28) continue;       
+      if (zside==1 && plane==1 && ix==24 && iy==9 && is==21) continue;       
+      if (zside==-1 && plane==2 && ix==35 && iy==17 && is==23) continue;       
+      
+      int i = (zside==1)? 0:1;
+      int j = plane-1;
+      
+      for (int k=0; k<dataframe.size(); ++k) 
+	adc[k] = dataframe.sample(k).adc();
+      
+      double status = 0;
+      if (adc[1] < 200) status = 1;
+      if (fabs(adc[0]) > 10) status = 1;
+      if (adc[1] < 0 || adc[2] < 0) status = 1;
+      if (adc[0] > adc[1] || adc[0] > adc[2]) status = 1;
+      if (adc[2] > adc[1]) status = 1;  
+      
+      if (int(status) == 0) {
+	TGraph *gr = new TGraph(3, tx, adc);
+	fit_->SetParameters(50, 10, wc_, n_);
+	fit_->FixParameter(2, wc_);
+	fit_->FixParameter(3, n_);
+	gr->Fit("fit", "MQ");
+	fit_->GetParameters(para); 
+	delete gr;
+	//cout<<"ADC : "<<zside<<" "<<plane<<" "<<ix<<" "<<iy<<" "<<is<<" "<<adc[0]<<" "<<adc[1]<<" "<<adc[2]<<" "<<para[1]<<endl;
+	hTiming_[i][j]->Fill(para[1]);
+	
+	if (zside == 1) htESP_->Fill(para[1]);
+	else if (zside == -1) htESM_->Fill(para[1]);
+      }
+      
+    }
+  } else {
+    LogWarning("ESTimingTask") << digilabel_ << " not available";
+  }
+  
+  if (htESP_->GetEntries() > 0 && htESM_->GetEntries() > 0)
+    h2DTiming_->Fill(htESM_->GetMean(), htESP_->GetMean());
+  
 }
 
 void ESTimingTask::set(const edm::EventSetup& es) {
@@ -166,7 +166,7 @@ void ESTimingTask::set(const edm::EventSetup& es) {
   es.get<ESGainRcd>().get(esgain_);
   const ESGain *gain = esgain_.product();
   
-  double ESGain = gain->getESGain();
+  int ESGain = (int) gain->getESGain();
 
   if (ESGain == 1) { // LG
     wc_ = 0.0837264;
