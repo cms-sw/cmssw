@@ -30,7 +30,7 @@ HcalHF_PETalgorithm::HcalHF_PETalgorithm()
   long_Energy_Thresh.push_back(50);
   long_ET_Thresh.clear();
   long_ET_Thresh.push_back(0);
-  flagsToSkip_=0;
+  HcalAcceptSeverityLevel_=0;
 }
 
 HcalHF_PETalgorithm::HcalHF_PETalgorithm(std::vector<double> shortR, 
@@ -39,7 +39,7 @@ HcalHF_PETalgorithm::HcalHF_PETalgorithm(std::vector<double> shortR,
 					 std::vector<double> longR, 
 					 std::vector<double> longEnergyParams, 
 					 std::vector<double> longETParams,
-					 int flagsToSkip,
+					 int HcalAcceptSeverityLevel,
 					 std::vector<double> shortR29,
 					 std::vector<double> longR29)
 {
@@ -61,7 +61,7 @@ HcalHF_PETalgorithm::HcalHF_PETalgorithm(std::vector<double> shortR,
   long_Energy_Thresh=longEnergyParams;
   long_ET_Thresh=longETParams;
 
-  flagsToSkip_=flagsToSkip;
+  HcalAcceptSeverityLevel_=HcalAcceptSeverityLevel;
 }
 
 HcalHF_PETalgorithm::~HcalHF_PETalgorithm(){}
@@ -121,7 +121,13 @@ void HcalHF_PETalgorithm::HFSetFlagFromPET(HFRecHit& hf,
   HFRecHitCollection::const_iterator part=rec.find(partner);
   if (part!=rec.end())
     {
-      if ((flagsToSkip_&part->flags())==0)
+      HcalDetId neighbor(part->detid().rawId());
+      const uint32_t chanstat = myqual->getValues(neighbor)->getValue();
+      int SeverityLevel=mySeverity->getSeverityLevel(neighbor, part->flags(),
+						     chanstat);
+
+
+      if (SeverityLevel<=HcalAcceptSeverityLevel_) 
 	Ratio=(energy-part->energy())/(energy+part->energy());
     }
 

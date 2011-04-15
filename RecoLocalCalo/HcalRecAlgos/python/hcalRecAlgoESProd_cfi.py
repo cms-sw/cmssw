@@ -46,7 +46,6 @@ hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
                   RecHitFlags = cms.vstring('HBHEHpdHitMultiplicity', 'HBHEPulseShape', 'HOBit',
                                             'HFDigiTime',
                                             'HFInTimeWindow',
-                                            'HFS8S1Ratio',
                                             'ZDCBit', 'CalibrationBit',
                                             'TimingErrorBit'),
                   ChannelStatus = cms.vstring('')
@@ -54,6 +53,10 @@ hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
         # March 2010:  HFLongShort now tested, and should be excluded from CaloTowers by default
         cms.PSet( Level = cms.int32(11),
                   RecHitFlags = cms.vstring('HFLongShort',
+                                            # HFPET and HFS8S1Ratio feed HFLongShort, and should be at the same severity
+                                            'HFPET'
+                                            'HFS8S1Ratio',
+                                            '
                                             #'HFDigiTime'  # This should be set to 11 in data ONLY.  We can't set it to 11 by default, because default values should reflect MC settings, and the flag can't be used in MC
                                             ),
                   ChannelStatus = cms.vstring('')

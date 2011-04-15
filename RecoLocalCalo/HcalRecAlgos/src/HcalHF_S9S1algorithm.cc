@@ -39,7 +39,7 @@ HcalHF_S9S1algorithm::HcalHF_S9S1algorithm()
       ShortEnergyThreshold.push_back(EnergyDefault[0]);
       ShortETThreshold.push_back(blank[0]);
     }
-  flagsToSkip_=0;
+  HcalAcceptSeverityLevel_=0;
   isS8S1_=false; // S8S1 is almost the same as S9S1
 }
 
@@ -50,7 +50,7 @@ HcalHF_S9S1algorithm::HcalHF_S9S1algorithm(std::vector<double> short_optimumSlop
 					   std::vector<double> long_optimumSlope, 
 					   std::vector<double> long_Energy, 
 					   std::vector<double> long_ET,
-					   int flagsToSkip,
+					   int HcalAcceptSeverityLevel,
 					   bool isS8S1)
 
 {
@@ -76,7 +76,7 @@ HcalHF_S9S1algorithm::HcalHF_S9S1algorithm(std::vector<double> short_optimumSlop
   ShortEnergyThreshold=short_Energy;
   ShortETThreshold=short_ET;
 
-  flagsToSkip_=flagsToSkip;
+  HcalAcceptSeverityLevel_=HcalAcceptSeverityLevel;
   isS8S1_=isS8S1;
 } // HcalHF_S9S1algorithm constructor with parameters
 
@@ -148,8 +148,14 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
 	  HcalDetId neighbor(HcalForward, i,testphi,d);
 	  HFRecHitCollection::const_iterator neigh=rec.find(neighbor);
 	  // require that neighbor exists, and that it doesn't have a prior flag already set
-	  if (neigh!=rec.end() && ((flagsToSkip_&neigh->flags())==0))
-	    S9S1+=neigh->energy();
+	  if (neigh!=rec.end())
+	    {
+	      const uint32_t chanstat = myqual->getValues(neighbor)->getValue();
+	      int SeverityLevel=mySeverity->getSeverityLevel(neighbor, neigh->flags(),
+							     chanstat);
+	      if (SeverityLevel<=HcalAcceptSeverityLevel_)
+		S9S1+=neigh->energy();
+	    }
 	}
     }
 
@@ -169,8 +175,14 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
 	  // Look to see if neighbor is in rechit collection
 	  HcalDetId neighbor(HcalForward, ieta,testphi,d);
 	  HFRecHitCollection::const_iterator neigh=rec.find(neighbor);
-	  if (neigh!=rec.end() && ((flagsToSkip_&neigh->flags())==0))
-	    S9S1+=neigh->energy();
+	  if (neigh!=rec.end())
+	    {
+              const uint32_t chanstat = myqual->getValues(neighbor)->getValue();
+              int SeverityLevel=mySeverity->getSeverityLevel(neighbor, neigh->flags(),
+                                                             chanstat);
+              if (SeverityLevel<=HcalAcceptSeverityLevel_)
+                S9S1+=neigh->energy();
+            }
 	}
     }
   
@@ -180,8 +192,15 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
 	{
 	  HcalDetId neighbor(HcalForward, 39*abs(ieta)/ieta,(iphi+2)%72,d);  
 	  HFRecHitCollection::const_iterator neigh=rec.find(neighbor);
-	  if (neigh!=rec.end() && ((flagsToSkip_&neigh->flags())==0))
-	      S9S1+=neigh->energy();
+	  if (neigh!=rec.end())
+            {
+              const uint32_t chanstat = myqual->getValues(neighbor)->getValue();
+              int SeverityLevel=mySeverity->getSeverityLevel(neighbor, neigh->flags(),
+                                                             chanstat);
+              if (SeverityLevel<=HcalAcceptSeverityLevel_)
+                S9S1+=neigh->energy();
+            }
+
 	}
     }
     

@@ -15,8 +15,8 @@ class HcalSeverityLevelComputer;
    cell if the threshold exceeds a given maximum value R(Energy).
    Each cell must also pass ieta-dependent energy and ET cuts to be considered for flagging.
 
-   $Date: 2010/03/24 20:48:18 $
-   $Revision: 1.2 $
+   $Date: 2010/06/30 23:58:35 $
+   $Revision: 1.3 $
    \author J. Temple and D. Ferencek
 */
 
@@ -32,7 +32,7 @@ class HcalHF_S9S1algorithm {
 		       std::vector<double> long_optimumSlope, 
 		       std::vector<double> long_Energy, 
 		       std::vector<double> long_ET,
-		       int flagsToSkip,
+		       int HcalAcceptSeverityLevel,
 		       bool isS8S1);
 
   // Destructor
@@ -60,7 +60,7 @@ class HcalHF_S9S1algorithm {
   std::vector<double> ShortEnergyThreshold;
   std::vector<double> LongETThreshold;
   std::vector<double> ShortETThreshold;
-  int flagsToSkip_;
+  int HcalAcceptSeverityLevel_;
   bool isS8S1_;
 };
 
