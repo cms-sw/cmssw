@@ -9,7 +9,7 @@
 // Original Author:  Jim Pivarski
 //         Created:  Mon Nov 12 13:30:14 CST 2007
 //
-// $Id: $
+// $Id: AlignmentMonitorSegmentDifferences.cc,v 1.4 2011/02/15 23:23:44 khotilov Exp $
 
 // system include files
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h"
@@ -44,9 +44,11 @@ public:
 
 private:
   double m_minTrackPt;
+  double m_minTrackP;
   int m_minTrackerHits;
   double m_maxTrackerRedChi2;
   bool m_allowTIDTEC;
+  bool m_minNCrossedChambers;
   int m_minDT13Hits;
   int m_minDT2Hits;
   int m_minCSCHits;
@@ -97,9 +99,11 @@ private:
 AlignmentMonitorSegmentDifferences::AlignmentMonitorSegmentDifferences(const edm::ParameterSet& cfg)
    : AlignmentMonitorBase(cfg, "AlignmentMonitorSegmentDifferences")
    , m_minTrackPt(cfg.getParameter<double>("minTrackPt"))
+   , m_minTrackP(cfg.getParameter<double>("minTrackP"))
    , m_minTrackerHits(cfg.getParameter<int>("minTrackerHits"))
    , m_maxTrackerRedChi2(cfg.getParameter<double>("maxTrackerRedChi2"))
    , m_allowTIDTEC(cfg.getParameter<bool>("allowTIDTEC"))
+   , m_minNCrossedChambers(cfg.getParameter<int>("minNCrossedChambers"))
    , m_minDT13Hits(cfg.getParameter<int>("minDT13Hits"))
    , m_minDT2Hits(cfg.getParameter<int>("minDT2Hits"))
    , m_minCSCHits(cfg.getParameter<int>("minCSCHits"))
@@ -295,181 +299,196 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent, const e
 {
   edm::ESHandle<GlobalTrackingGeometry> globalGeometry;
   iSetup.get<GlobalTrackingGeometryRecord>().get(globalGeometry);
-
+  
   for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin();  trajtrack != trajtracks.end();  ++trajtrack)
   {
     const Trajectory* traj = (*trajtrack).first;
     const reco::Track* track = (*trajtrack).second;
-
-    if (track->pt() > m_minTrackPt)
+    
+    if (track->pt() > m_minTrackPt && track->p() > m_minTrackP)
     {
       double qoverpt = (track->charge() > 0 ? 1. : -1.) / track->pt();
       MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, traj, pNavigator(), 1000.);
-
+      std::vector<DetId> chamberIds = muonResidualsFromTrack.chamberIds();
+      
+      int nMuChambers = 0;
+      for (unsigned ch=0; ch<chamberIds.size(); ch++)  if (chamberIds[ch].det() == DetId::Muon)  nMuChambers++;
+      
       if (muonResidualsFromTrack.trackerNumHits() >= m_minTrackerHits  &&
           muonResidualsFromTrack.trackerRedChi2() < m_maxTrackerRedChi2  &&
-          (m_allowTIDTEC  ||  !muonResidualsFromTrack.contains_TIDTEC()))
+          (m_allowTIDTEC  ||  !muonResidualsFromTrack.contains_TIDTEC()) &&
+          nMuChambers >= m_minNCrossedChambers )
       {
-	std::vector<DetId> chamberIds = muonResidualsFromTrack.chamberIds();
-	for (std::vector<DetId>::const_iterator chamberId = chamberIds.begin();  chamberId != chamberIds.end();  ++chamberId)
+        for (std::vector<DetId>::const_iterator chamberId = chamberIds.begin();  chamberId != chamberIds.end();  ++chamberId)
         {
+          if (chamberId->det() != DetId::Muon  ) continue;
+          
           // **************** DT ****************
-	  if (m_doDT && chamberId->det() == DetId::Muon  &&  chamberId->subdetId() == MuonSubdetId::DT)
+          if (m_doDT  &&  chamberId->subdetId() == MuonSubdetId::DT)
           {
-	    MuonChamberResidual *dt13 = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kDT13);
-	    MuonChamberResidual *dt2 = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kDT2);
-	    
-	    if (dt13 != NULL  &&  dt13->numHits() >= m_minDT13Hits)
-	    {
-	      DTChamberId thisid(chamberId->rawId());
-	      for (std::vector<DetId>::const_iterator otherId = chamberIds.begin();  otherId != chamberIds.end();  ++otherId)
-	      {
-		if (otherId->det() == DetId::Muon  &&  otherId->subdetId() == MuonSubdetId::DT)
-		{
-		  DTChamberId thatid(otherId->rawId());
-		  if (thisid.rawId() != thatid.rawId()  &&  thisid.wheel() == thatid.wheel()  &&  thisid.sector() == thatid.sector())
-		  {
-		    MuonChamberResidual *dt13other = muonResidualsFromTrack.chamberResidual(*otherId, MuonChamberResidual::kDT13);
-		    if (dt13other != NULL  &&  dt13other->numHits() >= m_minDT13Hits)
-		    {
-		      double slopediff = 1000. * (dt13->global_resslope() - dt13other->global_resslope());
-		      double length = dt13->chamberAlignable()->surface().toGlobal(LocalPoint(0,0,0)).perp() - 
-			              dt13other->chamberAlignable()->surface().toGlobal(LocalPoint(0,0,0)).perp();
-		      double residdiff = 10. * (dt13->global_residual() + length*dt13->global_resslope() - dt13other->global_residual());
-
-		      int st = 0;
-		      if (thatid.station() - thisid.station() == 1) st = thisid.station();
-		      if (st>0)
-		      {
-			m_dt13_resid[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(qoverpt, residdiff);
-			m_dt13_slope[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(qoverpt, slopediff);
-			if (qoverpt > 0) {
-			  m_posdt13_resid[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(residdiff);
-			  m_posdt13_slope[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(slopediff);
-			}
-			else {
-			  m_negdt13_resid[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(residdiff);
-			  m_negdt13_slope[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(slopediff);
-			}
-		      }
-		    } // end other numhits
-		  } // end this near other
-		} // end other is DT
-	      } // end loop over other
-	    } // end if DT13
-
-	    if (dt2 != NULL  &&  dt2->numHits() >= m_minDT2Hits)
-	    {
-	      DTChamberId thisid(chamberId->rawId());
-	      for (std::vector<DetId>::const_iterator otherId = chamberIds.begin();  otherId != chamberIds.end();  ++otherId)
-	      {
-		if (otherId->det() == DetId::Muon  &&  otherId->subdetId() == MuonSubdetId::DT)
-		{
-		  DTChamberId thatid(otherId->rawId());
-		  if (thisid.rawId() != thatid.rawId()  &&  thisid.wheel() == thatid.wheel()  &&  thisid.sector() == thatid.sector())
-		  {
-		    MuonChamberResidual *dt2other = muonResidualsFromTrack.chamberResidual(*otherId, MuonChamberResidual::kDT2);
-		    if (dt2other != NULL  &&  dt2other->numHits() >= m_minDT2Hits)
-		    {
-		      double slopediff = 1000. * (dt2->global_resslope() - dt2other->global_resslope());
-		      double length = dt2->chamberAlignable()->surface().toGlobal(LocalPoint(0,0,0)).perp() - 
-                                      dt2other->chamberAlignable()->surface().toGlobal(LocalPoint(0,0,0)).perp();
-		      double residdiff = 10. * (dt2->global_residual() + length*dt2->global_resslope() - dt2other->global_residual());
-
-		      int st = 0;
-		      if (thatid.station() - thisid.station() == 1) st = thisid.station();
-		      if (st>0)
-		      {
-			m_dt2_resid[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(qoverpt, residdiff);
-			m_dt2_slope[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(qoverpt, slopediff);
-			if (qoverpt > 0) {
-			  m_posdt2_resid[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(residdiff);
-			  m_posdt2_slope[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(slopediff);
-			}
-			else {
-			  m_negdt2_resid[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(residdiff);
-			  m_negdt2_slope[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(slopediff);
-			}
-		      }
-		    } // end other numhits
-		  } // end this near other
-		} // end other is DT
-	      } // end loop over other
-	    } // end if DT2
-	  } // end if DT
-
-          // **************** CSC ****************
-	  else if (m_doCSC && chamberId->det() == DetId::Muon  &&  chamberId->subdetId() == MuonSubdetId::CSC)
-          {
-	    MuonChamberResidual *csc = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kCSC);
-	    if (csc->numHits() >= m_minCSCHits)
+            MuonChamberResidual *dt13 = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kDT13);
+            MuonChamberResidual *dt2 = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kDT2);
+            
+            if (dt13 != NULL  &&  dt13->numHits() >= m_minDT13Hits)
             {
-	      CSCDetId thisid(chamberId->rawId());
-	      for (std::vector<DetId>::const_iterator otherId = chamberIds.begin();  otherId != chamberIds.end();  ++otherId)
+              DTChamberId thisid(chamberId->rawId());
+              for (std::vector<DetId>::const_iterator otherId = chamberIds.begin();  otherId != chamberIds.end();  ++otherId)
               {
-		if (otherId->det() == DetId::Muon  &&  otherId->subdetId() == MuonSubdetId::CSC)
+                if (otherId->det() == DetId::Muon  &&  otherId->subdetId() == MuonSubdetId::DT)
                 {
-		  CSCDetId thatid(otherId->rawId());
-		  if (thisid.rawId() != thatid.rawId()  &&  thisid.endcap() == thatid.endcap())
+                  DTChamberId thatid(otherId->rawId());
+                  if (thisid.rawId() != thatid.rawId()  &&  thisid.wheel() == thatid.wheel()  &&  thisid.sector() == thatid.sector())
                   {
-		    MuonChamberResidual *cscother = muonResidualsFromTrack.chamberResidual(*otherId, MuonChamberResidual::kCSC);
-		    if (cscother != NULL  &&  cscother->numHits() >= m_minCSCHits)
+                    MuonChamberResidual *dt13other = muonResidualsFromTrack.chamberResidual(*otherId, MuonChamberResidual::kDT13);
+                    if (dt13other != NULL  &&  dt13other->numHits() >= m_minDT13Hits)
                     {
-		      double slopediff = 1000. * (csc->global_resslope() - cscother->global_resslope());
-		      double length = csc->chamberAlignable()->surface().toGlobal(LocalPoint(0,0,0)).z() - 
+                      double slopediff = 1000. * (dt13->global_resslope() - dt13other->global_resslope());
+                      double length = dt13->chamberAlignable()->surface().toGlobal(LocalPoint(0,0,0)).perp() - 
+                                      dt13other->chamberAlignable()->surface().toGlobal(LocalPoint(0,0,0)).perp();
+                      double residdiff = 10. * (dt13->global_residual() + length*dt13->global_resslope() - dt13other->global_residual());
+                      
+                      int st = 0;
+                      if (thatid.station() - thisid.station() == 1) st = thisid.station();
+                      if (st>0)
+                      {
+                        m_dt13_resid[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(qoverpt, residdiff);
+                        m_dt13_slope[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(qoverpt, slopediff);
+                        if (qoverpt > 0) 
+                        {
+                          m_posdt13_resid[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(residdiff);
+                          m_posdt13_slope[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(slopediff);
+                        }
+                        else
+                        {
+                          m_negdt13_resid[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(residdiff);
+                          m_negdt13_slope[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(slopediff);
+                        }
+                      }
+                    } // end other numhits
+                  } // end this near other
+                } // end other is DT
+              } // end loop over other
+            } // end if DT13
+            
+            if (dt2 != NULL  &&  dt2->numHits() >= m_minDT2Hits)
+            {
+              DTChamberId thisid(chamberId->rawId());
+              for (std::vector<DetId>::const_iterator otherId = chamberIds.begin();  otherId != chamberIds.end();  ++otherId)
+              {
+                if (otherId->det() == DetId::Muon  &&  otherId->subdetId() == MuonSubdetId::DT)
+                {
+                  DTChamberId thatid(otherId->rawId());
+                  if (thisid.rawId() != thatid.rawId()  &&  thisid.wheel() == thatid.wheel()  &&  thisid.sector() == thatid.sector())
+                  {
+                    MuonChamberResidual *dt2other = muonResidualsFromTrack.chamberResidual(*otherId, MuonChamberResidual::kDT2);
+                    if (dt2other != NULL  &&  dt2other->numHits() >= m_minDT2Hits)
+                    {
+                      double slopediff = 1000. * (dt2->global_resslope() - dt2other->global_resslope());
+                      double length = dt2->chamberAlignable()->surface().toGlobal(LocalPoint(0,0,0)).perp() - 
+                                      dt2other->chamberAlignable()->surface().toGlobal(LocalPoint(0,0,0)).perp();
+                      double residdiff = 10. * (dt2->global_residual() + length*dt2->global_resslope() - dt2other->global_residual());
+                      
+                      int st = 0;
+                      if (thatid.station() - thisid.station() == 1) st = thisid.station();
+                      if (st>0)
+                      {
+                        m_dt2_resid[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(qoverpt, residdiff);
+                        m_dt2_slope[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(qoverpt, slopediff);
+                        if (qoverpt > 0) 
+                        {
+                          m_posdt2_resid[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(residdiff);
+                          m_posdt2_slope[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(slopediff);
+                        }
+                        else 
+                        {
+                          m_negdt2_resid[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(residdiff);
+                          m_negdt2_slope[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(slopediff);
+                        }
+                      }
+                    } // end other numhits
+                  } // end this near other
+                } // end other is DT
+              } // end loop over other
+            } // end if DT2
+          } // end if DT
+          
+          // **************** CSC ****************
+          else if (m_doCSC  &&  chamberId->subdetId() == MuonSubdetId::CSC)
+          {
+            MuonChamberResidual *csc = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kCSC);
+            if (csc->numHits() >= m_minCSCHits)
+            {
+              CSCDetId thisid(chamberId->rawId());
+              for (std::vector<DetId>::const_iterator otherId = chamberIds.begin();  otherId != chamberIds.end();  ++otherId)
+              {
+                if (otherId->det() == DetId::Muon  &&  otherId->subdetId() == MuonSubdetId::CSC)
+                {
+                  CSCDetId thatid(otherId->rawId());
+                  if (thisid.rawId() != thatid.rawId()  &&  thisid.endcap() == thatid.endcap())
+                  {
+                    MuonChamberResidual *cscother = muonResidualsFromTrack.chamberResidual(*otherId, MuonChamberResidual::kCSC);
+                    if (cscother != NULL  &&  cscother->numHits() >= m_minCSCHits)
+                    {
+                      double slopediff = 1000. * (csc->global_resslope() - cscother->global_resslope());
+                      double length = csc->chamberAlignable()->surface().toGlobal(LocalPoint(0,0,0)).z() - 
                                       cscother->chamberAlignable()->surface().toGlobal(LocalPoint(0,0,0)).z();
-		      double residdiff = 10. * (csc->global_residual() + length*csc->global_resslope() - cscother->global_residual());
-
-		      int thischamber = thisid.chamber();
-		      int thisring = thisid.ring();
-		      if (thisid.station() == 1  &&  (thisring == 1  ||  thisring == 4)) {
-			thischamber = (thischamber - 1) / 2 + 1;
-			thisring = 1;
-		      }
-
-		      if (thisring == thatid.ring()  &&  thischamber == thatid.chamber())
+                      double residdiff = 10. * (csc->global_residual() + length*csc->global_resslope() - cscother->global_residual());
+                      
+                      int thischamber = thisid.chamber();
+                      int thisring = thisid.ring();
+                      if (thisid.station() == 1  &&  (thisring == 1  ||  thisring == 4))
+                      {
+                        thischamber = (thischamber - 1) / 2 + 1;
+                        thisring = 1;
+                      }
+                      
+                      if (thisring == thatid.ring()  &&  thischamber == thatid.chamber())
                       {
                         bool inner = (thisring == 1);
                         bool outer = (thisring == 2);
                         int st = 0;
                         if (thatid.station() - thisid.station() == 1 && (inner || thisid.station()<3) ) st = thisid.station();
-
-			if (outer && st>0)
+                        
+                        if (outer && st>0)
                         {
-			  m_cscouter_resid[thisid.endcap()-1][thischamber-1][st-1]->Fill(qoverpt, residdiff);
-			  m_cscouter_slope[thisid.endcap()-1][thischamber-1][st-1]->Fill(qoverpt, slopediff);
-			  if (qoverpt > 0) {
-			    m_poscscouter_resid[thisid.endcap()-1][thischamber-1][st-1]->Fill(residdiff);
-			    m_poscscouter_slope[thisid.endcap()-1][thischamber-1][st-1]->Fill(slopediff);
-			  }
-			  else {
-			    m_negcscouter_resid[thisid.endcap()-1][thischamber-1][st-1]->Fill(residdiff);
-			    m_negcscouter_slope[thisid.endcap()-1][thischamber-1][st-1]->Fill(slopediff);
-			  }
-			}
-			if (inner && st>0)
+                          m_cscouter_resid[thisid.endcap()-1][thischamber-1][st-1]->Fill(qoverpt, residdiff);
+                          m_cscouter_slope[thisid.endcap()-1][thischamber-1][st-1]->Fill(qoverpt, slopediff);
+                          if (qoverpt > 0)
+                          {
+                            m_poscscouter_resid[thisid.endcap()-1][thischamber-1][st-1]->Fill(residdiff);
+                            m_poscscouter_slope[thisid.endcap()-1][thischamber-1][st-1]->Fill(slopediff);
+                          }
+                          else 
+                          {
+                            m_negcscouter_resid[thisid.endcap()-1][thischamber-1][st-1]->Fill(residdiff);
+                            m_negcscouter_slope[thisid.endcap()-1][thischamber-1][st-1]->Fill(slopediff);
+                          }
+                        }
+                        if (inner && st>0)
                         {
-			  m_cscinner_resid[thisid.endcap()-1][thischamber-1][st-1]->Fill(qoverpt, residdiff);
-			  m_cscinner_slope[thisid.endcap()-1][thischamber-1][st-1]->Fill(qoverpt, slopediff);
-			  if (qoverpt > 0) {
-			    m_poscscinner_resid[thisid.endcap()-1][thischamber-1][st-1]->Fill(residdiff);
-			    m_poscscinner_slope[thisid.endcap()-1][thischamber-1][st-1]->Fill(slopediff);
-			  }
-			  else {
-			    m_negcscinner_resid[thisid.endcap()-1][thischamber-1][st-1]->Fill(residdiff);
-			    m_negcscinner_slope[thisid.endcap()-1][thischamber-1][st-1]->Fill(slopediff);
-			  }
-			}
-		      } // end of same ring&chamber
-		    } // end other min numhits
-		  } // end this near other
-		} // end other is CSC
-	      } // end loop over other
-
-	    } // end if this min numhits
-	  } // end if CSC
-
-	} // end loop over chamberIds
+                          m_cscinner_resid[thisid.endcap()-1][thischamber-1][st-1]->Fill(qoverpt, residdiff);
+                          m_cscinner_slope[thisid.endcap()-1][thischamber-1][st-1]->Fill(qoverpt, slopediff);
+                          if (qoverpt > 0)
+                          {
+                            m_poscscinner_resid[thisid.endcap()-1][thischamber-1][st-1]->Fill(residdiff);
+                            m_poscscinner_slope[thisid.endcap()-1][thischamber-1][st-1]->Fill(slopediff);
+                          }
+                          else 
+                          {
+                            m_negcscinner_resid[thisid.endcap()-1][thischamber-1][st-1]->Fill(residdiff);
+                            m_negcscinner_slope[thisid.endcap()-1][thischamber-1][st-1]->Fill(slopediff);
+                          }
+                        }
+                      } // end of same ring&chamber
+                    } // end other min numhits
+                  } // end this near other
+                } // end other is CSC
+              } // end loop over other
+              
+            } // end if this min numhits
+          } // end if CSC
+          
+        } // end loop over chamberIds
       } // end if refit is okay
     } // end if track pT is within range
   } // end loop over tracks
