@@ -189,9 +189,17 @@ namespace mathSSE {
     void set(T f1, T f2) {
       arr[0] = f1; arr[1] = f2;
     }
+
+    template <int N>
+    Vec2 get1() const { 
+      return Vec2(arr[N],arr[N]);
+    }
+
+    /*
     Vec2 get1(unsigned int n) const {
       return Vec2(arr[n],arr[n]);
     }
+    */
 
     template<typename U> 
     Vec2(Vec2<U> v) {
@@ -230,9 +238,15 @@ namespace mathSSE {
     void set1(float f1) {
       arr[0] = f1; arr[1] = f1; arr[2] = f1; arr[3]=f1;
     }
+   template <int N>
+    Vec4 get1() const { 
+     return Vec4(arr[N],arr[N],arr[N],arr[N]);
+   }
+    /*
     Vec4 get1(unsigned int n) const {
       return Vec4(arr[n],arr[n],arr[n],arr[n]);
     }
+    */
 
     Vec2<T> xy() const { return  Vec2<T>(arr[0],arr[1]);}
     Vec2<T> zw() const { return  Vec2<T>(arr[2],arr[3]);}
@@ -423,10 +437,15 @@ namespace mathSSE {
       vec = _mm_set1_pd(f1);
     }
 
+    template <int N>
+    Vec2 get1() const { 
+      return Vec2(arr[N],arr[N]);
+    }
+    /*
     Vec2 get1(unsigned int n) const {
       return Vec2(arr[n],arr[n]);
     }
-   
+    */
     double operator[](unsigned int n) const {
       return arr[n];
     }

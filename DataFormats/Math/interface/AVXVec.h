@@ -64,10 +64,15 @@ namespace mathSSE {
      vec =  _mm256_set1_pd(f1);
     }
 
+    template<int N>
+    Vec4 get1() const {
+      return _mm256_set1_pd(arr[N]); //FIXME
+    }
+    /*
     Vec4 get1(unsigned int n) const { 
       return _mm256_set1_pd(arr[n]); //FIXME
     }
-
+    */
     double & operator[](unsigned int n) {
       return arr[n];
     }
