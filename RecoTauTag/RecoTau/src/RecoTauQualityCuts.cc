@@ -59,6 +59,19 @@ bool trkLongitudinalImpactParameter(const PFCandidate& cand,
   return difference <= cut;
 }
 
+bool minTrackVertexWeight(const PFCandidate& cand, const reco::VertexRef* pv,
+    double cut) {
+  if (pv->isNull()) {
+    edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in " <<
+        "RecoTauQualityCuts is invalid. - trkLongitudinalImpactParameter";
+    return false;
+  }
+  TrackRef trk = cand.trackRef();
+  if (!trk) return false;
+  double weight = (*pv)->trackWeight(trk);
+  return weight >= cut;
+}
+
 bool trkChi2(const PFCandidate& cand, double cut) {
   TrackRef trk = cand.trackRef();
   if (!trk) return false;
@@ -129,6 +142,28 @@ RecoTauQualityCuts::RecoTauQualityCuts(const edm::ParameterSet &qcuts) {
     chargedHadronCuts.push_back(boost::bind(
             qcuts::trkLongitudinalImpactParameter, _1, &pv_,
             qcuts.getParameter<double>("maxDeltaZ")));
+
+  // Useful for identifying PU in the event. NB the ! operator on boost:bind
+  // that negates the function.
+  if (qcuts.exists("minDeltaZ"))
+    chargedHadronCuts.push_back(!boost::bind(
+            qcuts::trkLongitudinalImpactParameter, _1, &pv_,
+            qcuts.getParameter<double>("maxDeltaZ")));
+
+  // Require tracks to contribute a minimum weight to the associated vertex.
+  if (qcuts.exists("minTrackVertexWeight")) {
+    chargedHadronCuts.push_back(boost::bind(
+          qcuts::minTrackVertexWeight, _1, &pv_,
+          qcuts.getParameter<double>("minTrackVertexWeight")));
+  }
+
+  // Make an inverted version.  ! is an operator that inverts boost::bind
+  // This quality cut is useful for finding the PU in the event.
+  if (qcuts.exists("maxTrackVertexWeight")) {
+    chargedHadronCuts.push_back(!boost::bind(
+          qcuts::minTrackVertexWeight, _1, &pv_,
+          qcuts.getParameter<double>("maxTrackVertexWeight")));
+  }
 
   // Build the QCuts for gammas
   if (qcuts.exists("minGammaEt"))
