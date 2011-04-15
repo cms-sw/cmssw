@@ -125,20 +125,11 @@ KinematicVertex::operator reco::Vertex()
 
   for (std::vector<RefCountedKinematicParticle>::const_iterator i = daughters.begin();
        i != daughters.end(); ++i) {
-
     const TransientTrackKinematicParticle * ttkp = dynamic_cast<const TransientTrackKinematicParticle * >(&(**i));
     if(ttkp != 0) {
-      const reco::TrackTransientTrack * ttt = dynamic_cast<const reco::TrackTransientTrack*>(ttkp->initialTransientTrack()->basicTransientTrack());
-      if ((ttt!=0) && (ttt->persistentTrackRef().isNonnull())) {
-	reco::TrackRef tr = ttt->persistentTrackRef();
-	vertex.add(reco::TrackBaseRef(tr), ttkp->refittedTransientTrack().track(), 1.);
-      } else {
-	const reco::GsfTransientTrack * ttt = dynamic_cast<const reco::GsfTransientTrack*>(ttkp->initialTransientTrack()->basicTransientTrack());
-	if ((ttt!=0) && (ttt->persistentTrackRef().isNonnull())) {
-	  reco::GsfTrackRef tr = ttt->persistentTrackRef();
-	  vertex.add(reco::TrackBaseRef(tr), ttkp->refittedTransientTrack().track(), 1.);
-	}
-      }
+      reco::TrackBaseRef tr = ttkp->initialTransientTrack()->trackBaseRef();
+      if (tr.isNonnull())
+	vertex.add(tr, ttkp->refittedTransientTrack().track(), 1.);
     }
   }
   return vertex;
