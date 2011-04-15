@@ -26,7 +26,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
-#include "RecoTracker/MeasurementDet/interface/OnDemandMeasurementTracker.h"
+#include "OnDemandMeasurementTracker.h"
 
 #include <string>
 #include <memory>

@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "MeasurementTracker.h"
 #include <boost/shared_ptr.hpp>
 
 class  MeasurementTrackerESProducer: public edm::ESProducer{
