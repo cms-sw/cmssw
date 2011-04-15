@@ -2,8 +2,8 @@
 #define Alignment_CommonAlignmentMonitor_AlignmentMonitorMuonSystemMap1D_H
 
 /** \class AlignmentMonitorMuonSystemMap1D
- *  $Date: 2009/10/24 20:37:10 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/02/11 23:18:27 $
+ *  $Revision: 1.4 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -43,9 +43,12 @@ private:
 
   double m_minTrackPt;
   double m_maxTrackPt;
+  double m_minTrackP;
+  double m_maxTrackP;
   int m_minTrackerHits;
   double m_maxTrackerRedChi2;
   bool m_allowTIDTEC;
+  int m_minNCrossedChambers;
   int m_minDT13Hits;
   int m_minDT2Hits;
   int m_minCSCHits;
@@ -62,6 +65,7 @@ private:
   long m_counter_event;
   long m_counter_track;
   long m_counter_trackpt;
+  long m_counter_trackp;
   long m_counter_trackokay;
   long m_counter_dt;
   long m_counter_13numhits;
