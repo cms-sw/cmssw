@@ -1,10 +1,25 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include <boost/bind.hpp>
 
 namespace reco { namespace tau {
+
+namespace {
+// Get the KF track if it exists.  Otherwise, see if it has a GSF track.
+const reco::TrackBaseRef getTrack(const PFCandidate& cand) {
+  if (cand.trackRef().isNonnull())
+    return reco::TrackBaseRef(cand.trackRef());
+  else if (cand.gsfTrackRef().isNonnull()) {
+    return reco::TrackBaseRef(cand.gsfTrackRef());
+  }
+  return reco::TrackBaseRef();
+}
+}
 
 // Quality cut implementations
 namespace qcuts {
@@ -19,13 +34,13 @@ bool etMin(const PFCandidate& cand, double cut) {
 
 bool trkPixelHits(const PFCandidate& cand, int cut) {
   // For some reason, the number of hits is signed
-  TrackRef trk = cand.trackRef();
+  TrackBaseRef trk = getTrack(cand);
   if (!trk) return false;
   return trk->hitPattern().numberOfValidPixelHits() >= cut;
 }
 
 bool trkTrackerHits(const PFCandidate& cand, int cut) {
-  TrackRef trk = cand.trackRef();
+  TrackBaseRef trk = getTrack(cand);
   if (!trk) return false;
   return trk->hitPattern().numberOfValidHits() >= cut;
 }
@@ -38,7 +53,7 @@ bool trkTransverseImpactParameter(const PFCandidate& cand,
         "RecoTauQualityCuts is invalid. - trkTransverseImpactParameter";
     return false;
   }
-  TrackRef trk = cand.trackRef();
+  TrackBaseRef trk = getTrack(cand);
   if (!trk) return false;
   return std::abs(trk->dxy((*pv)->position())) <= cut;
 }
@@ -51,7 +66,7 @@ bool trkLongitudinalImpactParameter(const PFCandidate& cand,
         "RecoTauQualityCuts is invalid. - trkLongitudinalImpactParameter";
     return false;
   }
-  TrackRef trk = cand.trackRef();
+  TrackBaseRef trk = getTrack(cand);
   if (!trk) return false;
   double difference = std::abs(trk->dz((*pv)->position()));
   //std::cout << "QCUTS LIP: track vz: " << trk->vz() <<
@@ -66,14 +81,14 @@ bool minTrackVertexWeight(const PFCandidate& cand, const reco::VertexRef* pv,
         "RecoTauQualityCuts is invalid. - trkLongitudinalImpactParameter";
     return false;
   }
-  TrackRef trk = cand.trackRef();
+  TrackBaseRef trk = getTrack(cand);
   if (!trk) return false;
   double weight = (*pv)->trackWeight(trk);
   return weight >= cut;
 }
 
 bool trkChi2(const PFCandidate& cand, double cut) {
-  TrackRef trk = cand.trackRef();
+  TrackBaseRef trk = getTrack(cand);
   if (!trk) return false;
   return trk->normalizedChi2() <= cut;
 }
