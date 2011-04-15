@@ -1,6 +1,6 @@
 #! /bin/bash
 
-HLT='/online/collisions/2011/5e32/v8.0/HLT'
+HLT='/online/collisions/2011/5e32/v8.1/HLT'
 L1T='L1GtTriggerMenu_L1Menu_Collisions2011_v1_mc,frontier://FrontierProd/CMS_COND_31X_L1T'
 
 hltGetConfiguration $HLT --process TEST --globaltag auto:startup   --full --offline --mc   --unprescale > offline_mc.py
