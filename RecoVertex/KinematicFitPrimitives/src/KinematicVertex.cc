@@ -2,8 +2,6 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticle.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicTree.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/TransientTrackKinematicParticle.h"
-#include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
-#include "TrackingTools/TransientTrack/interface/GsfTransientTrack.h"
 
 KinematicVertex::KinematicVertex()
 {vl = false;}
