@@ -303,7 +303,7 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
         normval=_getnorm(schema,norm)
         perbunchnormval=float(normval)/float(1000)
     elif amodetag and egev:
-        normval=_decidenormFromContex(schema,amodetag,egev)
+        normval=_decidenormFromContext(schema,amodetag,egev)
         perbunchnormval=float(normval)/float(1000)
     c=lumiTime.lumiTime()
     for run,lslist in inputRange.items():#loop over run

@@ -254,8 +254,7 @@ if __name__ == '__main__':
         if not options.outputfile:
             lumiReport.toScreenTotDelivered(result,options.verbose)
         else:
-            lumiReport.toCSVTotDelivered(result,options.outputfile,options.verbose)
-            
+            lumiReport.toCSVTotDelivered(result,options.outputfile,options.verbose)           
     if options.action == 'overview':
        session.transaction().start(True)
        result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor)
@@ -272,7 +271,7 @@ if __name__ == '__main__':
            lumiReport.toScreenLumiByLS(result,options.verbose)
        else:
            lumiReport.toCSVLumiByLS(result,options.outputfile,options.verbose)
-    if options.action == 'recorded':
+    if options.action == 'recorded':#recorded actually means effective because it needs to show all the hltpaths...
         pass
     del session
     del svc 
