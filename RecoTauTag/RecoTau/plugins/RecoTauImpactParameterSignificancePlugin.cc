@@ -34,22 +34,17 @@ class RecoTauImpactParameterSignificancePlugin : public RecoTauModifierPlugin {
     void operator()(PFTau& tau) const;
     virtual void beginEvent();
   private:
-    edm::InputTag pvSrc_;
+    RecoTauVertexAssociator vertexAssociator_;
     const TransientTrackBuilder *builder_;
-    const reco::Vertex* pv_;
 };
 
 RecoTauImpactParameterSignificancePlugin
 ::RecoTauImpactParameterSignificancePlugin(const edm::ParameterSet& pset)
-  :RecoTauModifierPlugin(pset) {
-  pvSrc_ = pset.getParameter<edm::InputTag>("pvSrc");
-}
+  :RecoTauModifierPlugin(pset),
+  vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts")){}
 
 void RecoTauImpactParameterSignificancePlugin::beginEvent() {
-  // Get primary vertex
-  edm::Handle<reco::VertexCollection> pvs;
-  evt()->getByLabel(pvSrc_, pvs);
-  pv_ = &((*pvs)[0]);
+  vertexAssociator_.setEvent(*evt());
   // Get tranisent track builder.
   edm::ESHandle<TransientTrackBuilder> myTransientTrackBuilder;
   evtSetup()->get<TransientTrackRecord>().get("TransientTrackBuilder",
@@ -65,10 +60,10 @@ void RecoTauImpactParameterSignificancePlugin::operator()(PFTau& tau) const {
       const TransientTrack track = builder_->build(leadTrack);
       GlobalVector direction(tau.jetRef()->px(), tau.jetRef()->py(),
                              tau.jetRef()->pz());
+      VertexRef pv = vertexAssociator_.associatedVertex(tau);
       // Compute the significance
       std::pair<bool,Measurement1D> ipsig =
-          //IPTools::signedTransverseImpactParameter(track, direction, *pv_);
-          IPTools::signedImpactParameter3D(track, direction, *pv_);
+          IPTools::signedImpactParameter3D(track, direction, *pv);
       if (ipsig.first)
         tau.setleadPFChargedHadrCandsignedSipt(ipsig.second.significance());
     }

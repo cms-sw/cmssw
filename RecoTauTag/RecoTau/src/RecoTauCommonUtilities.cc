@@ -12,42 +12,6 @@ typedef PFCandPtrs::iterator PFCandIter;
 
 namespace reco { namespace tau {
 
-// Find the vertex in [vertices] that is closest in Z to the lead track of the
-// jet.
-reco::VertexRef closestVertex(
-    const edm::Handle<reco::VertexCollection>& vertices,
-    const reco::PFJet& jet) {
-  // Take the first one if exists
-  reco::VertexRef selectedVertex = vertices->size() ?
-    reco::VertexRef(vertices, 0) : reco::VertexRef();
-  double minDZ = std::numeric_limits<double>::infinity();
-  // Find the lead charged object in the jet (true mean sort)
-  std::vector<PFCandidatePtr> tracks = pfChargedCands(jet, true);
-  if (!tracks.size())
-    return selectedVertex;
-  reco::TrackRef leadTrack = tracks[0]->trackRef();
-  if (leadTrack.isNull()) {
-    edm::LogError("NullTrackRefInLeadPFCharged")
-      << "The leading *charged* PF cand in the jet has an invalid TrackRef!"
-      << " LeadPFCand: " << *tracks[0];
-    return selectedVertex;
-  }
-  // Loop over all the vertices and check if they are closer in z to the
-  // current track.
-  //std::cout << "track is @ z = " << leadTrack->vz()
-    //<< " with pt: " << leadTrack->pt() << std::endl;
-  for (unsigned int ivtx = 0; ivtx < vertices->size(); ivtx++) {
-    reco::VertexRef pvCand(vertices, ivtx);
-    //std::cout << "checking vertex i @ z = " << pvCand->z() << std::endl;
-    double dz = std::abs(leadTrack->dz(pvCand->position()));
-    if (dz < minDZ) {
-      minDZ = dz;
-      selectedVertex = pvCand;
-    }
-  }
-  return selectedVertex;
-}
-
 std::vector<PFCandidatePtr>
 flattenPiZeros( const std::vector<RecoTauPiZero>& piZeros) {
   std::vector<PFCandidatePtr> output;

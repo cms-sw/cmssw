@@ -35,12 +35,6 @@ class SortPFCandsDescendingPt {
     }
 };
 
-// Find the vertex in [vertices] that is closest in Z to the lead track of the
-// jet.
-reco::VertexRef closestVertex(
-    const edm::Handle<reco::VertexCollection>& vertices,
-    const reco::PFJet& jet);
-
 /// Filter a collection of objects that are convertible to PFCandidatePtrs
 /// by PFCandidate ID
 template<typename Iterator> std::vector<PFCandidatePtr>

@@ -2,8 +2,12 @@
 #include <boost/foreach.hpp>
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
-#include "RecoTauTag/TauTagTools/interface/PFTauQualityCutWrapper.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
 #include "RecoTauTag/RecoTau/interface/ConeTools.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+
+#include "TMath.h"
 
 /* class PFRecoTauDiscriminationByIsolation
  * created : Jul 23 2007,
@@ -19,10 +23,10 @@ using namespace std;
 class PFRecoTauDiscriminationByIsolation :
   public PFTauDiscriminationProducerBase  {
   public:
-    explicit PFRecoTauDiscriminationByIsolation(
-        const edm::ParameterSet& pset):
+    explicit PFRecoTauDiscriminationByIsolation(const edm::ParameterSet& pset):
       PFTauDiscriminationProducerBase(pset),
-      qualityCuts_(pset.getParameter<edm::ParameterSet>("qualityCuts"))  {
+      qualityCutsPSet_(pset.getParameter<edm::ParameterSet>("qualityCuts")) {
+
         includeTracks_ = pset.getParameter<bool>(
             "ApplyDiscriminationByTrackerIsolation");
         includeGammas_ = pset.getParameter<bool>(
@@ -39,12 +43,30 @@ class PFRecoTauDiscriminationByIsolation :
         maximumRelativeSumPt_ = pset.getParameter<double>(
             "relativeSumPtCut");
 
-        pvProducer_ = pset.getParameter<edm::InputTag>("PVProducer");
-
         if (pset.exists("customOuterCone")) {
           customIsoCone_ = pset.getParameter<double>("customOuterCone");
         } else {
           customIsoCone_ = -1;
+        }
+
+        qcuts_.reset(new tau::RecoTauQualityCuts(
+            qualityCutsPSet_.getParameter<edm::ParameterSet>(
+            "isolationQualityCuts")));
+        vertexAssociator_.reset(
+            new tau::RecoTauVertexAssociator(qualityCutsPSet_));
+
+        applyDeltaBeta_ = false;
+        if (pset.exists("applyDeltaBetaCorrection")) {
+          pileupQcuts_.reset(new tau::RecoTauQualityCuts(
+              qualityCutsPSet_.getParameter<edm::ParameterSet>(
+                "pileupQualityCuts")));
+          applyDeltaBeta_ = pset.getParameter<bool>(
+              "applyDeltaBetaCorrection");
+          pfCandSrc_ = pset.getParameter<edm::InputTag>("particleFlowSrc");
+          deltaBetaCollectionCone_ = pset.getParameter<double>(
+              "isoConeSizeForDeltaBeta");
+          deltaBetaFactor_ = pset.getParameter<double>(
+              "deltaBetaFactor");
         }
       }
 
@@ -54,76 +76,97 @@ class PFRecoTauDiscriminationByIsolation :
     double discriminate(const PFTauRef& pfTau);
 
   private:
-    PFTauQualityCutWrapper qualityCuts_;
+    edm::ParameterSet qualityCutsPSet_;
+    std::auto_ptr<tau::RecoTauQualityCuts> qcuts_;
+    std::auto_ptr<tau::RecoTauQualityCuts> pileupQcuts_;
+    std::auto_ptr<tau::RecoTauVertexAssociator> vertexAssociator_;
 
     bool includeTracks_;
     bool includeGammas_;
-
     bool applyOccupancyCut_;
     uint32_t maximumOccupancy_;
-
     bool applySumPtCut_;
     double maximumSumPt_;
-
     bool applyRelativeSumPtCut_;
     double maximumRelativeSumPt_;
-
     double customIsoCone_;
 
-    edm::InputTag pvProducer_;
 
-    Vertex currentPV_;
-};
+    // PU subtraction parameters
+    bool applyDeltaBeta_;
+    edm::InputTag pfCandSrc_;
+    std::vector<reco::PFCandidateRef> pfCandidatesInEvent_;
+    double deltaBetaCollectionCone_;
+    double deltaBetaFactor_;
+  };
 
 void PFRecoTauDiscriminationByIsolation::beginEvent(const edm::Event& event,
     const edm::EventSetup& eventSetup) {
 
   // NB: The use of the PV in this context is necessitated by its use in
   // applying quality cuts to the different objects in the isolation cone
+  // The vertex associator contains the logic to select the appropriate vertex
+  // We need to pass it the event so it can load the vertices.
+  vertexAssociator_->setEvent(event);
 
-  // get the PV for this event
-  edm::Handle<VertexCollection> primaryVertices;
-  event.getByLabel(pvProducer_, primaryVertices);
-
-  // take the highest pt primary vertex in the event
-  if( primaryVertices->size() ) {
-    currentPV_ = *(primaryVertices->begin());
-  } else {
-    const double smearedPVsigmaY = 0.0015;
-    const double smearedPVsigmaX = 0.0015;
-    const double smearedPVsigmaZ = 0.005;
-    Vertex::Error SimPVError;
-    SimPVError(0,0) = smearedPVsigmaX*smearedPVsigmaX;
-    SimPVError(1,1) = smearedPVsigmaY*smearedPVsigmaY;
-    SimPVError(2,2) = smearedPVsigmaZ*smearedPVsigmaZ;
-    Vertex::Point blankVertex(0, 0, 0);
-
-    // note that the PFTau has its vertex set as the associated PV.  So if it
-    // doesn't exist, a fake vertex has already been created (about 0, 0, 0) w/
-    // the above width (gaussian)
-    currentPV_ = Vertex(blankVertex, SimPVError,1,1,1);
+  // If we are applying the delta beta correction, we need to get the PF
+  // candidates from the event so we can find the PU tracks.
+  pfCandidatesInEvent_.clear();
+  if (applyDeltaBeta_) {
+    std::cout << "Geting DB pf cands" << std::endl;
+    edm::Handle<reco::PFCandidateCollection> pfCandHandle_;
+    event.getByLabel(pfCandSrc_, pfCandHandle_);
+    pfCandidatesInEvent_.reserve(pfCandHandle_->size());
+    for (size_t i = 0; i < pfCandHandle_->size(); ++i) {
+      pfCandidatesInEvent_.push_back(
+          reco::PFCandidateRef(pfCandHandle_, i));
+    }
   }
 }
 
-double PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) {
+double
+PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) {
   // collect the objects we are working with (ie tracks, tracks+gammas, etc)
-  std::vector<LeafCandidate> isoObjects;
+  std::vector<PFCandidateRef> isoCharged;
+  std::vector<PFCandidateRef> isoNeutral;
+  std::vector<PFCandidateRef> isoPU;
 
-  if (includeTracks_) {
-    qualityCuts_.isolationChargedObjects(*pfTau, currentPV_, isoObjects);
+  // Get the primary vertex associated to this tau
+  reco::VertexRef pv = vertexAssociator_->associatedVertex(*pfTau);
+  // Let the quality cuts know which the vertex to use when applying selections
+  // on dz, etc.
+  qcuts_->setPV(pv);
+  if (pileupQcuts_.get()) {
+    pileupQcuts_->setPV(pv);
   }
 
-  if (includeGammas_) {
-    qualityCuts_.isolationGammaObjects(*pfTau, isoObjects);
+  BOOST_FOREACH(const reco::PFCandidateRef& cand,
+      pfTau->isolationPFChargedHadrCands()) {
+    if (qcuts_->filterRef(cand))
+      isoCharged.push_back(cand);
   }
+  BOOST_FOREACH(const reco::PFCandidateRef& cand,
+      pfTau->isolationPFGammaCands()) {
+    if (qcuts_->filterRef(cand))
+      isoNeutral.push_back(cand);
+  }
+  typedef reco::tau::cone::DeltaRPtrFilter<PFCandidateRef> DRFilter;
 
-  typedef reco::tau::cone::DeltaRFilter<LeafCandidate> DRFilter;
+  // If desired, get PU tracks.
+  if (applyDeltaBeta_) {
+    isoPU = pileupQcuts_->filterRefs(pfCandidatesInEvent_);
+    // Only select PU tracks inside the isolation cone.
+    DRFilter deltaBetaFilter(pfTau->p4(), 0, deltaBetaCollectionCone_);
+    std::remove_if(isoPU.begin(), isoPU.end(), std::not1(deltaBetaFilter));
+  }
 
   // Check if we want a custom iso cone
   if (customIsoCone_ >= 0.) {
     DRFilter filter(pfTau->p4(), 0, customIsoCone_);
     // Remove all the objects not in our iso cone
-    std::remove_if(isoObjects.begin(), isoObjects.end(), std::not1(filter));
+    std::remove_if(isoCharged.begin(), isoCharged.end(), std::not1(filter));
+    std::remove_if(isoNeutral.begin(), isoNeutral.end(), std::not1(filter));
+    std::remove_if(isoPU.begin(), isoPU.end(), std::not1(filter));
   }
 
   bool failsOccupancyCut     = false;
@@ -131,21 +174,33 @@ double PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) {
   bool failsRelativeSumPtCut = false;
 
   //--- nObjects requirement
-  failsOccupancyCut = ( isoObjects.size() > maximumOccupancy_ );
+  int neutrals = isoNeutral.size()-TMath::Nint(deltaBetaFactor_*isoPU.size());
+  if(neutrals<0) neutrals=0;
+
+  failsOccupancyCut = ( isoCharged.size()+neutrals > maximumOccupancy_ );
 
   //--- Sum PT requirement
   if( applySumPtCut_ || applyRelativeSumPtCut_ ) {
-    double totalPt = 0.0;
-    BOOST_FOREACH(const LeafCandidate& isoObject, isoObjects) {
-      totalPt += isoObject.pt();
+    double totalPt=0.0;
+    double chargedPt=0.0;
+    double puPt=0.0;
+    double neutralPt=0.0;
+    BOOST_FOREACH(const PFCandidateRef& isoObject, isoCharged) {
+      chargedPt += isoObject->pt();
     }
+    BOOST_FOREACH(const PFCandidateRef& isoObject, isoNeutral) {
+      neutralPt += isoObject->pt();
+    }
+    BOOST_FOREACH(const PFCandidateRef& isoObject, isoPU) {
+      puPt += isoObject->pt();
+    }
+    totalPt = chargedPt+max(neutralPt-deltaBetaFactor_*puPt,0.0);
 
     failsSumPtCut = (totalPt > maximumSumPt_);
 
     //--- Relative Sum PT requirement
     failsRelativeSumPtCut = (
-        (pfTau->pt() > 0 ? totalPt/pfTau->pt() : 0 )
-        > maximumRelativeSumPt_ );
+        (pfTau->pt() > 0 ? totalPt/pfTau->pt() : 0 ) > maximumRelativeSumPt_ );
   }
 
   bool fails = (applyOccupancyCut_ && failsOccupancyCut) ||
