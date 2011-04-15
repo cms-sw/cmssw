@@ -155,10 +155,15 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) {
 
   // If desired, get PU tracks.
   if (applyDeltaBeta_) {
-    isoPU = pileupQcuts_->filterRefs(chargedPFCandidatesInEvent_);
+    std::vector<PFCandidateRef> allPU =
+      pileupQcuts_->filterRefs(chargedPFCandidatesInEvent_);
     // Only select PU tracks inside the isolation cone.
     DRFilter deltaBetaFilter(pfTau->p4(), 0, deltaBetaCollectionCone_);
-    std::remove_if(isoPU.begin(), isoPU.end(), std::not1(deltaBetaFilter));
+    BOOST_FOREACH(const reco::PFCandidateRef& cand, allPU) {
+      if (!deltaBetaFilter(cand)) {
+        isoPU.push_back(cand);
+      }
+    }
   }
 
   // Check if we want a custom iso cone
