@@ -10,6 +10,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+// backward compatibility
+class SiStripRecHitMatcher;
+
 
 class MeasurementTracker : public MeasurementDetSystem {
 public:

@@ -10,7 +10,7 @@ firstStepTracksWithQuality = RecoTracker.FinalTrackSelectors.simpleTrackListMerg
 
 
 #switch this to 0 to get the new merging module
-if (1): 
+if (0): 
     # Track filtering and quality.
     #   input:    zeroStepTracksWithQuality,preMergingFirstStepTracksWithQuality,secStep,thStep,pixellessStep
     #   output:   generalTracks

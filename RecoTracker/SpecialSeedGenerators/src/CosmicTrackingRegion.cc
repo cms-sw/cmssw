@@ -13,10 +13,11 @@
 
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
 
-
-template <class T> T sqr( T t) {return t*t;}
-
+namespace {
+  template <class T> T sqr( T t) {return t*t;}
+}
 
 using namespace std;
 using namespace ctfseeding; 

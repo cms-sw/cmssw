@@ -14,6 +14,9 @@
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+
+
 NuclearInteractionFinder::NuclearInteractionFinder(const edm::EventSetup& es, const edm::ParameterSet& iConfig) :
 maxHits(iConfig.getParameter<int>("maxHits")),
 rescaleErrorFactor(iConfig.getParameter<double>("rescaleErrorFactor")),
