@@ -8,6 +8,7 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 
 class MeasurementTracker : public MeasurementDetSystem {
@@ -34,6 +35,10 @@ public:
 
   /// MeasurementDetSystem interface
   virtual const MeasurementDet*       idToDet(const DetId& id) const =0;
+
+
+  virtual void setClusterToSkip(const edm::InputTag & cluster, const edm::Event& event) const=0;
+  virtual void unsetClusterToSkip() const=0;
 
 
 protected:
