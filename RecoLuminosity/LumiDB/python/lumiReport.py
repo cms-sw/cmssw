@@ -242,7 +242,8 @@ def toCSVLumiByLS(lumidata,filename,isverbose):
     for run in sorted(lumidata):
         rundata=lumidata[run]
         if rundata is None:
-           result.append([run,'n/a','n/a','n/a','n/a','n/a','n/a'])
+            result.append([run,'n/a','n/a','n/a','n/a','n/a','n/a'])
+            continue
         for lsdata in rundata:
             lumilsnum=lsdata[0]
             cmslsnum=lsdata[1]
@@ -254,7 +255,43 @@ def toCSVLumiByLS(lumidata,filename,isverbose):
             result.append([run,lumilsnum,cmslsnum,ts.strftime('%b %d %Y %H:%M:%S'),bs,begev,deliveredlumi,recordedlumi])
     r.writeRow(fieldnames)
     r.writeRows(result)
+
+def toScreenTotEffective(lumidata,isverbose):
+    '''
+    input:  {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata]}
+    '''
+    result=[]#[run,hltpath,l1bitname,totefflumi]
+    for run in sorted(lumidata):
+        rundata=lumidata[run]
+        if rundata is None:
+            result.append([str(run),'n/a','n/a','n/a'])
+            continue
+        nls=len(rundata)
+        selectedcmslsStr=[x[1] for x in rundata if x[1]!=0]
+        totrecorded=sum([x[6] for x in rundata if x[6] is not None])
+        totefflumiDict={}
+        for lsdata in rundata:
+            efflumiDict=lsdata[8]# this ls has no such path?
+            if not efflumiDict:
+                continue
+            for hltpathname,pathdata in efflumiDict.items():
+                if not totefflumiDict.has_key(hltpathname):
+                    totefflumiDict[hltpathname]=0.0
+                lumival=pathdata[3]
+                if lumival:
+                    totefflumiDict[hltpathname]+=lumival
+        for name in sorted(totefflumiDict):
+            (efflumival,efflumiunit)=CommonUtil.guessUnit(totefflumiDict[name])
+            result.append([str(run),name,'%.3f'%efflumival+'('+efflumiunit+')'])
+    labels = [('Run','HLT path','Recorded')]
+    print ' ==  = '
+    print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
+                               prefix = '| ', postfix = ' |', justify = 'right',
+                               delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
     
+def toCSVTotEffective(lumidata,filename,isverbose):
+    pass
+
 def toCSVBXInfo(lumidata,filename,bxfield='bxlumi'):
     '''
     dump selected bxlumi or beam intensity as the last field

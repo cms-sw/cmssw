@@ -523,8 +523,11 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                                 l1prescale=trgprescalemap[l1bitname]#need to match double quoted string!
                         except KeyError:
                             l1prescale=None
-                        if l1prescale is not None and hltprescale is not None:
-                            efflumi=recordedlumi*l1prescale*hltprescale
+                        if l1prescale and hltprescale:
+                            if l1prescale!=0 and hltprescale!=0:
+                                efflumi=recordedlumi/(float(l1prescale)*float(hltprescale))
+                            else:
+                                efflumi=0.0
                         efflumidict[hpath]=[l1bitname,l1prescale,hltprescale,efflumi]                       
                 elif hltpathname is not None and hltpathpattern is None:  #get exact path
                     hltprescale=None
@@ -544,7 +547,10 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                     except KeyError:
                         l1prescale=None
                     if l1prescale and hltprescale:
-                        efflumi=recordedlumi*l1prescale*hltprescale
+                        if l1prescale!=0 and hltprescale!=0:
+                            efflumi=recordedlumi/(float(l1prescale)*float(hltprescale))
+                        else:
+                            efflumi=0.0
                     efflumidict[hltpathname]=[l1bitname,l1prescale,hltprescale,efflumi]
                     print efflumidict[hltpathname]
                 elif hltpathpattern is not None: #get paths matching fnmatch pattern
@@ -565,7 +571,10 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                             except KeyError:
                                 l1prescale=None
                             if l1prescale and hltprescale:
-                                efflumi=recordedlumi*l1prescale*hltprescale                           
+                                if l1prescale!=0 and hltprescale!=0:
+                                    efflumi=recordedlumi/(float(l1prescale)*float(hltprescale))
+                                else:
+                                    efflumi=0.0
                             efflumidict[hpath]=[l1bitname,l1prescale,hltprescale,efflumi]
             bxdata=None
             if withBXInfo:

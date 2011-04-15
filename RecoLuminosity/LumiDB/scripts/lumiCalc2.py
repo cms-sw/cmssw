@@ -201,10 +201,10 @@ if __name__ == '__main__':
               hltname=None
        result=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),irunlsdict,hltpathname=hltname,hltpathpattern=hltpat,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor)
        session.transaction().commit()
-       #if not options.outputfile:
-       #    lumiReport.toScreenEffective(result,options.verbose)
-       #else:
-       #    lumiReport.toCSVEffective(result,options.outputfile,options.verbose)
+       if not options.outputfile:
+           lumiReport.toScreenTotEffective(result,options.verbose)
+       else:
+           lumiReport.toCSVTotEffective(result,options.outputfile,options.verbose)
            
     del session
     del svc 
