@@ -97,10 +97,10 @@ int FUShmReader::fillRawData(EventID& eID,
     //shmBuffer_->setEvtState(newCell->index(),evt::PROCESSING);
     shmBuffer_->scheduleRawCellForDiscard(newCell->index());
     if(ls==0){
-      std::cout << getpid() << " GOT an EOL event for ls 0!!!" 
-		<< std::endl;
-      throw edm::Exception(errors::LogicError)
-        << "FUShmReader received an EOL event with ls = 0 !!!";
+      edm::LogError("ZeroLsCell") << getpid() 
+				  << " GOT an EOL event for ls 0!!!" 
+				  << std::endl;
+      return fillRawData(eID, tstamp, data);
     }
     return (-1)*ls;
   }

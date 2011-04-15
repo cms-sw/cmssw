@@ -446,8 +446,8 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
   if(nbSubProcesses_.value_==0) return enableClassic();
   //protect manipulation of subprocess array
   pthread_mutex_lock(&start_lock_);
-//   subs_.clear();
-//   subs_.resize(nbSubProcesses_.value_); // this should not be necessary
+  subs_.clear();
+  subs_.resize(nbSubProcesses_.value_); // this should not be necessary
   pid_t retval = -1;
   for(unsigned int i=0; i<nbSubProcesses_.value_; i++)
     {
@@ -1822,7 +1822,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.123 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.124 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

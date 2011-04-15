@@ -791,6 +791,7 @@ vector<string> FUResourceTable::cellStates() const
       evt::State_t state=shmBuffer_->evtState(i);
       if      (state==evt::EMPTY)      result.push_back("EMPTY");
       else if (state==evt::STOP)       result.push_back("STOP");
+      else if (state==evt::LUMISECTION)result.push_back("LUMISECTION");
       else if (state==evt::RAWWRITING) result.push_back("RAWWRITING");
       else if (state==evt::RAWWRITTEN) result.push_back("RAWWRITTEN");
       else if (state==evt::RAWREADING) result.push_back("RAWREADING");
