@@ -301,7 +301,7 @@ def trgLSById(schema,dataid,withblobdata=False):
         qHandle.addToOutputList('BITZEROPRESCALE','bitzeroprescale')
         qHandle.addToOutputList('DEADFRAC','deadfrac')
         if withblobdata:
-            qHandle.addToOutputList('PRESCALESBLOB','prescalesblob')
+            qHandle.addToOutputList('PRESCALEBLOB','prescalesblob')
             qHandle.addToOutputList('TRGCOUNTBLOB','trgcountblob')
         qConditionStr='DATA_ID=:dataid'
         qCondition=coral.AttributeList()
@@ -336,8 +336,8 @@ def trgLSById(schema,dataid,withblobdata=False):
             prescalesblob=None
             trgcountblob=None
             if withblobdata:
-                prescalesblob=cursor.currentRow()['prescalesblob']
-                trgcountblob=cursor.currentRow()['trgcountblob']
+                prescalesblob=cursor.currentRow()['prescalesblob'].data()
+                trgcountblob=cursor.currentRow()['trgcountblob'].data()
                 result[cmslsnum].extend([prescalesblob,trgcountblob])
     except:
         del qHandle
