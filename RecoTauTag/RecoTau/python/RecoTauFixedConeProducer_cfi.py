@@ -13,9 +13,8 @@ See PFT-08-001 for a description of the algorithm.
 
 _fixedConeRecoTausConfig = cms.PSet(
     name = cms.string("fixedCone"),
-    primaryVertexSrc = cms.InputTag("offlinePrimaryVertices"),
-    useClosestPV = cms.bool(True),
-    qualityCuts = PFTauQualityCuts.signalQualityCuts,
+    useClosestPV = cms.bool(False),
+    qualityCuts = PFTauQualityCuts,
     # If true, consider PFLeptons (e/mu) as charged hadrons.
     usePFLeptons = cms.bool(True),
     pfCandSrc = cms.InputTag("particleFlow"),

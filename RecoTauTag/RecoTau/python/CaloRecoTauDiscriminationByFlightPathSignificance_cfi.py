@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-#from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import *
+from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
 from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadTrack
 
 caloRecoTauDiscriminationByFlightPathSignificance = cms.EDProducer("CaloRecoTauDiscriminationByFlightPathSignificance",
@@ -12,6 +12,6 @@ caloRecoTauDiscriminationByFlightPathSignificance = cms.EDProducer("CaloRecoTauD
     flightPathSig	= cms.double(1.5),   # used only if threeProngSelection == true
     UsePVerror		= cms.bool(True),
 
-#    qualityCuts         = PFTauQualityCuts,# set the standard quality cuts
-    PVProducer          = cms.InputTag('offlinePrimaryVertices'), # needed for quality cuts
+    qualityCuts         = PFTauQualityCuts,# set the standard quality cuts
+    PVProducer          = PFTauQualityCuts.primaryVertexSrc # needed for quality cuts
 )

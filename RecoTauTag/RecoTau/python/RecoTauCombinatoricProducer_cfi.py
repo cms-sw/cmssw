@@ -67,9 +67,7 @@ _combinatoricTauConfig = cms.PSet(
     pfCandSrc = cms.InputTag("particleFlow"),
     usePFLeptons = cms.bool(True),
     isolationConeSize = cms.double(0.5),
-    qualityCuts = PFTauQualityCuts.signalQualityCuts,
-    primaryVertexSrc = cms.InputTag("offlinePrimaryVertices"),
-    useClosestPV = cms.bool(True),
+    qualityCuts = PFTauQualityCuts,
     decayModes = cms.VPSet(
         combinatoricDecayModeConfigs.config1prong0pi0,
         combinatoricDecayModeConfigs.config1prong1pi0,
@@ -94,7 +92,7 @@ combinatoricRecoTaus = cms.EDProducer(
         cms.PSet(
             name = cms.string("sipt"),
             plugin = cms.string("RecoTauImpactParameterSignificancePlugin"),
-            pvSrc = cms.InputTag("offlinePrimaryVertices"),
+            qualityCuts = PFTauQualityCuts,
         ),
         # Electron rejection
         cms.PSet(

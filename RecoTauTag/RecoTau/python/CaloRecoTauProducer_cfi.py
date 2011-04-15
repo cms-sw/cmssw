@@ -1,23 +1,23 @@
 import FWCore.ParameterSet.Config as cms
-
+from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
 caloRecoTauProducer = cms.EDProducer("CaloRecoTauProducer",
-                                     
+
     LeadTrack_minPt = cms.double(0.5),
     #string PVProducer = "pixelVertices"
-    PVProducer = cms.InputTag('offlinePrimaryVertices'),
-    ECALSignalConeSizeFormula = cms.string('0.15'), ## **       
+    PVProducer = PFTauQualityCuts.primaryVertexSrc,
+    ECALSignalConeSizeFormula = cms.string('0.15'), ## **
 
-    TrackerIsolConeMetric = cms.string('DR'), ## *  
+    TrackerIsolConeMetric = cms.string('DR'), ## *
 
-    TrackerSignalConeMetric = cms.string('DR'), ## *  
+    TrackerSignalConeMetric = cms.string('DR'), ## *
 
     ECALSignalConeSize_min = cms.double(0.0),
     ECALRecHit_minEt = cms.double(0.5),
-    MatchingConeMetric = cms.string('DR'), ## *  
+    MatchingConeMetric = cms.string('DR'), ## *
 
-    TrackerSignalConeSizeFormula = cms.string('0.07'), ## **   
+    TrackerSignalConeSizeFormula = cms.string('0.07'), ## **
 
-    MatchingConeSizeFormula = cms.string('0.10'), ## **   
+    MatchingConeSizeFormula = cms.string('0.10'), ## **
 
     TrackerIsolConeSize_min = cms.double(0.0),
     TrackerIsolConeSize_max = cms.double(0.6),
@@ -26,12 +26,12 @@ caloRecoTauProducer = cms.EDProducer("CaloRecoTauProducer",
     TrackerSignalConeSize_min = cms.double(0.0),
     ECALIsolConeSize_max = cms.double(0.6),
     AreaMetric_recoElements_maxabsEta = cms.double(2.5),
-    ECALIsolConeMetric = cms.string('DR'), ## *  
+    ECALIsolConeMetric = cms.string('DR'), ## *
 
-    ECALIsolConeSizeFormula = cms.string('0.50'), ## **         
+    ECALIsolConeSizeFormula = cms.string('0.50'), ## **
 
     JetPtMin = cms.double(0.0),
-    ECALSignalConeMetric = cms.string('DR'), ## * 
+    ECALSignalConeMetric = cms.string('DR'), ## *
 
     TrackLeadTrack_maxDZ = cms.double(1.0),
     Track_minPt = cms.double(0.5),

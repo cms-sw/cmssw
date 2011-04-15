@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadTrack
+from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
 
 pfRecoTauDiscriminationAgainstCaloMuon = cms.EDProducer("PFRecoTauDiscriminationAgainstCaloMuon",
-    
+
     # tau collection to discriminate
     PFTauProducer = cms.InputTag('pfRecoTauProducer'),
 
@@ -17,7 +18,7 @@ pfRecoTauDiscriminationAgainstCaloMuon = cms.EDProducer("PFRecoTauDiscrimination
     srcEcalRecHitsEndcap = cms.InputTag('ecalRecHit', 'EcalRecHitsEE'),
     srcHcalRecHits = cms.InputTag('hbhereco'),
 
-    srcVertex = cms.InputTag('offlinePrimaryVerticesWithBS'),
+    srcVertex = PFTauQualityCuts.primaryVertexSrc,
 
     minLeadTrackPt = cms.double(15.), # GeV
     minLeadTrackPtFraction = cms.double(0.8), # leadTrackPt/sumPtSignalTracks
@@ -26,7 +27,7 @@ pfRecoTauDiscriminationAgainstCaloMuon = cms.EDProducer("PFRecoTauDiscrimination
     dRhcal = cms.double(25.), # cm (size of cylinder around lead. track in which HCAL energy deposits are summed)
 
     maxEnEcal = cms.double(3.), # GeV
-    maxEnHcal = cms.double(8.), # GeV                                                    
+    maxEnHcal = cms.double(8.), # GeV
 
     maxEnToTrackRatio = cms.double(0.25)
 )

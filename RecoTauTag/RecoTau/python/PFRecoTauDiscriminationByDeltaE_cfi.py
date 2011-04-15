@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import *
 from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadTrack
 
 pfRecoTauDiscriminationByDeltaE = cms.EDProducer("PFRecoTauDiscriminationByDeltaE",
@@ -10,5 +9,5 @@ pfRecoTauDiscriminationByDeltaE = cms.EDProducer("PFRecoTauDiscriminationByDelta
     BooleanOutput	= cms.bool(True),
 
     deltaEmin		= cms.double(-0.15),
-    deltaEmax           = cms.double(1.0),  
+    deltaEmax           = cms.double(1.0),
 )

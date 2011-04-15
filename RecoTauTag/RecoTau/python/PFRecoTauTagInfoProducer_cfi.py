@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 import copy
+from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
 
 pfRecoTauTagInfoProducer = cms.EDProducer("PFRecoTauTagInfoProducer",
 
-    # These values set the minimum pt quality requirements 
+    # These values set the minimum pt quality requirements
     #  for the various constituent types
     ChargedHadrCand_tkminPt    = cms.double(0.5),  # charged PF objects
     tkminPt                    = cms.double(0.5),  # track (non-PF) objects
@@ -13,7 +14,7 @@ pfRecoTauTagInfoProducer = cms.EDProducer("PFRecoTauTagInfoProducer",
     # The size of the delta R cone used to collect objects from the jet
     ChargedHadrCand_AssociationCone   = cms.double(0.8),
 
-    PVProducer                    = cms.InputTag('offlinePrimaryVertices'),
+    PVProducer                    = PFTauQualityCuts.primaryVertexSrc,
     UsePVconstraint               = cms.bool(True),
     PFCandidateProducer           = cms.InputTag('particleFlow'),
     PFJetTracksAssociatorProducer = cms.InputTag('ak5PFJetTracksAssociatorAtVertex'),
@@ -26,7 +27,7 @@ pfRecoTauTagInfoProducer = cms.EDProducer("PFRecoTauTagInfoProducer",
     tkmaxipt          = cms.double(0.03),
 
     # Quality cuts for PFCharged Hadron candidates (taken from their underlying recTrack)
-    ChargedHadrCand_tkminTrackerHitsn = cms.int32(3), 
+    ChargedHadrCand_tkminTrackerHitsn = cms.int32(3),
     ChargedHadrCand_tkmaxChi2         = cms.double(100.0),
     ChargedHadrCand_tkmaxipt          = cms.double(0.03),
     ChargedHadrCand_tkminPixelHitsn   = cms.int32(0),

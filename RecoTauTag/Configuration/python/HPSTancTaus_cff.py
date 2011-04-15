@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 import RecoTauTag.RecoTau.RecoTauCleanerPlugins as cleaners
 from RecoTauTag.RecoTau.TauDiscriminatorTools import adaptTauDiscriminator, \
         producerIsTauTypeMapper
+from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
 import copy
 
 from RecoTauTag.RecoTau.hpstanc_transforms import transforms
@@ -202,7 +203,7 @@ hpsTancRequireDecayMode.decayMode.Producer = cms.InputTag(
 hpsTancTausDiscriminationByFlightPath = cms.EDProducer(
     "PFRecoTauDiscriminationByFlight",
     PFTauProducer = cms.InputTag("hpsTancTaus"),
-    vertexSource = cms.InputTag("offlinePrimaryVertices"),
+    vertexSource = PFTauQualityCuts.primaryVertexSrc,
     beamspot = cms.InputTag("offlineBeamSpot"),
     refitPV = cms.bool(True),
     Prediscriminants = cms.PSet(

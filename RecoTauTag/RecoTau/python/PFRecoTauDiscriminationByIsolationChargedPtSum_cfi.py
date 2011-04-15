@@ -7,21 +7,21 @@ from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadPion
 
 pfRecoTauDiscriminationByIsolationChargedSumPt = cms.EDProducer(
     "PFRecoTauDiscriminationByIsolation",
-    PFTauProducer = cms.InputTag('pfRecoTauProducer'), 
+    PFTauProducer = cms.InputTag('pfRecoTauProducer'),
 
     # Require leading pion ensures that: theee is at least one track above
-    # threshold (0.5 GeV) in the signal cone a track in the signal cone has 
+    # threshold (0.5 GeV) in the signal cone a track in the signal cone has
     # pT > 5 GeV
     Prediscriminants = requireLeadPion,
 
-    # Select which collections to use for isolation.  
-    ApplyDiscriminationByECALIsolation = cms.bool(False),  
-    ApplyDiscriminationByTrackerIsolation = cms.bool(True),   
+    # Select which collections to use for isolation.
+    ApplyDiscriminationByECALIsolation = cms.bool(False),
+    ApplyDiscriminationByTrackerIsolation = cms.bool(True),
 
-    applyOccupancyCut = cms.bool(False),  
+    applyOccupancyCut = cms.bool(False),
     maximumOccupancy = cms.uint32(1),
 
-    applySumPtCut = cms.bool(True),  
+    applySumPtCut = cms.bool(True),
     maximumSumPtCut = cms.double(8.0),
 
     applyRelativeSumPtCut = cms.bool(False),
@@ -29,5 +29,5 @@ pfRecoTauDiscriminationByIsolationChargedSumPt = cms.EDProducer(
 
     # Set the standard quality cuts on the isolation candidates
     qualityCuts = PFTauQualityCuts,
-    PVProducer = cms.InputTag('offlinePrimaryVertices'),  # need for Q cuts
+    PVProducer = PFTauQualityCuts.primaryVertexSrc  # need for Q cuts
 )

@@ -12,5 +12,5 @@ pfRecoTauDiscriminationByTauPolarization = cms.EDProducer("PFRecoTauDiscriminati
     rtau                = cms.double(0.8), # minimum value for the polarization variable
 
     qualityCuts         = PFTauQualityCuts,# set the standard quality cuts
-    PVProducer          = cms.InputTag('offlinePrimaryVertices'), # needed for quality cuts
+    PVProducer          = PFTauQualityCuts.primaryVertexSrc # needed for quality cuts
 )

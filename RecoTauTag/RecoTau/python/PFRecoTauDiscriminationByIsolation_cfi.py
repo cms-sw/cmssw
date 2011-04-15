@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import *
+from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
 from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadTrack
 
 pfRecoTauDiscriminationByIsolation = cms.EDProducer("PFRecoTauDiscriminationByIsolation",
@@ -25,7 +25,6 @@ pfRecoTauDiscriminationByIsolation = cms.EDProducer("PFRecoTauDiscriminationByIs
     relativeSumPtCut                      = cms.double(0.0),
 
     qualityCuts                           = PFTauQualityCuts,# set the standard quality cuts
-    PVProducer                            = cms.InputTag('offlinePrimaryVertices'), # needed for quality cuts
 )
 
 
