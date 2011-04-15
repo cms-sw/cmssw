@@ -1,3 +1,4 @@
+#ifndef __APPLE__
 #ifndef RFIO_ADAPTOR_RFIO_H
 # define RFIO_ADAPTOR_RFIO_H
 
@@ -47,3 +48,4 @@ extern "C"
 }
 
 #endif // RFIO_ADAPTOR_RFIO_H
+#endif // ! __APPLE__

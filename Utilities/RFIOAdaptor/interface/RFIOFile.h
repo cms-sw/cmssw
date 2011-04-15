@@ -1,3 +1,4 @@
+#ifndef __APPLE__
 #ifndef RFIO_ADAPTOR_RFIO_FILE_H
 #define RFIO_ADAPTOR_RFIO_FILE_H
 
@@ -56,3 +57,4 @@ private:
 };
 
 #endif // RFIO_ADAPTOR_RFIO_FILE_H
+#endif // ! __APPLE__
