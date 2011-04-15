@@ -74,14 +74,14 @@ namespace cms
     trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
     
     verbosity = conf_.getUntrackedParameter<int>("VerbosityLevel");
-    // FP420:
+    // FP420:(det=1,2)
     dn0   = conf_.getParameter<int>("NumberFP420Detectors");
     sn0   = conf_.getParameter<int>("NumberFP420Stations");
     pn0 = conf_.getParameter<int>("NumberFP420SPlanes");
     rn0 = 7;
     //rn0 = 3;
     
-    // HPS240:
+    // HPS240:(det=3,4)
     dh0   = conf_.getParameter<int>("NumberHPS240Detectors");
     sh0   = conf_.getParameter<int>("NumberHPS240Stations");
     ph0 = conf_.getParameter<int>("NumberHPS240SPlanes");
@@ -195,10 +195,16 @@ namespace cms
 	FP420NumberingScheme::unpackFP420Index(unitID, det, zside, sector, zmodule);
 	// below, the continues plane index should be (for even different sensor index zside)
 	//	unsigned int intindex = packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
-	unsigned int intindex = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
+	unsigned int intindex = 0;
+	if(det>2){
+	  intindex = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rh0, ph0, sh0, det, zside, sector, zmodule);
+	}
+	else if(det>0){
+	  intindex = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
+	}
 	//	int zScale=(rn0-1), sScale = (rn0-1)*(pn0-1), dScale = (rn0-1)*(pn0-1)*(sn0-1);
 	//	unsigned int intindex = dScale*(det - 1)+sScale*(sector - 1)+zScale*(zmodule - 1)+zside;
-
+	
 	if(verbosity>0) {
 	  double  losenergy = (*isim).energyLoss();
 	  std::cout <<" ===" << std::endl;
@@ -292,9 +298,14 @@ namespace cms
 	  // for (int zmodule=1; zmodule<pn0; zmodule++) {
 	  //  for (int zside=1; zside<rn0; zside++) {
 	  // <------
+	  unsigned int iu = 0;  
+	  if(det>2){
+	    iu = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rh0, ph0, sh0, det, zside, sector, zmodule);
+	  }
+	  else if(det>0){
+	    iu = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
+	  }
 	  
-	  unsigned int iu = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
-
 	  if(verbosity>0) {
 	    unsigned int index = theFP420NumberingScheme->FP420NumberingScheme::packFP420Index(det, zside, sector, zmodule);
 	    std::cout << " DigitizerFP420:       index = " <<  index <<  " iu = " << iu  << std::endl;
