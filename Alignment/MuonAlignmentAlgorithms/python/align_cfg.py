@@ -27,6 +27,21 @@ weightAlignment = (os.environ["ALIGNMENT_WEIGHTALIGNMENT"] == "True")
 minAlignmentHits = int(os.environ["ALIGNMENT_MINALIGNMENTHITS"])
 combineME11 = (os.environ["ALIGNMENT_COMBINEME11"] == "True")
 maxResSlopeY = float(os.environ["ALIGNMENT_MAXRESSLOPEY"])
+residualsModel = string(os.environ["ALIGNMENT_RESIDUALSMODEL"])
+peakNSigma = float(os.environ["ALILIGNMENT_PEAKNSIGMA"])
+
+# optionally do selective DT or CSC alignment
+doDT = True
+doCSC = True
+envDT = os.getenv("ALIGNMENT_DO_DT")
+envCSC = os.getenv("ALIGNMENT_DO_CSC")
+if envDT is not None and envCSC is not None:
+  if envDT=='True' and envCSC=='False':
+    doDT = True
+    doCSC = False
+  if envDT=='False' and envCSC=='True':
+    doDT = False
+    doCSC = True
 
 process = cms.Process("ALIGN")
 process.source = cms.Source("EmptySource")
@@ -49,7 +64,11 @@ process.looper.algoConfig.weightAlignment = weightAlignment
 process.looper.algoConfig.minAlignmentHits = minAlignmentHits
 process.looper.algoConfig.combineME11 = combineME11
 process.looper.algoConfig.maxResSlopeY = maxResSlopeY
-process.looper.algoConfig.residualsModel = cms.string("GaussPowerTails")
+process.looper.algoConfig.residualsModel = cms.string(residualsModel)
+process.looper.algoConfig.peakNSigma = peakNSigma
+process.looper.algoConfig.doDT = doDT
+process.looper.algoConfig.doCSC = doCSC
+
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string(globaltag)
