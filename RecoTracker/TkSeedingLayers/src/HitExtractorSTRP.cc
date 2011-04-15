@@ -93,7 +93,7 @@ bool HitExtractorSTRP::skipThis(TransientTrackingRecHit::ConstRecHitPointer & pt
 
 void HitExtractorSTRP::cleanedOfClusters( const edm::Event& ev, HitExtractor::Hits & hits,
 					  bool matched)const{
-  edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > stripClusterRefs;
+  edm::Handle<edmNew::DetSetVector<SiStripClusterRef> > stripClusterRefs;
   ev.getByLabel(theSkipClusters,stripClusterRefs);
   HitExtractor::Hits newHits;
   newHits.reserve(hits.size());
