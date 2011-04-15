@@ -11,7 +11,7 @@ using namespace reco;
 
 class PFRecoTauDiscriminationAgainstElectron : public PFTauDiscriminationProducerBase  {
    public:
-      explicit PFRecoTauDiscriminationAgainstElectron(const edm::ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig) {   
+      explicit PFRecoTauDiscriminationAgainstElectron(const edm::ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig) {
 
          emFraction_maxValue_              = iConfig.getParameter<double>("EmFraction_maxValue");
          applyCut_emFraction_              = iConfig.getParameter<bool>("ApplyCut_EmFraction");
@@ -43,13 +43,13 @@ class PFRecoTauDiscriminationAgainstElectron : public PFTauDiscriminationProduce
          applyCut_PFElectronMVA_           = iConfig.getParameter<bool>("ApplyCut_PFElectronMVA");
          pfelectronMVA_maxValue_           = iConfig.getParameter<double>("PFElectronMVA_maxValue");
 
-	 
+
 
          applyCut_ecalCrack_               = iConfig.getParameter<bool>("ApplyCut_EcalCrackCut");
 
          applyCut_bremCombined_            = iConfig.getParameter<bool>("ApplyCut_BremCombined");
          bremCombined_fraction_            = iConfig.getParameter<double>("BremCombined_Fraction");
-         bremCombined_maxHOP_              = iConfig.getParameter<double>("BremCombined_HOP"); 
+         bremCombined_maxHOP_              = iConfig.getParameter<double>("BremCombined_HOP");
          bremCombined_minMass_             = iConfig.getParameter<double>("BremCombined_Mass");
          bremCombined_stripSize_           = iConfig.getParameter<double>("BremCombined_StripSize");
 
@@ -57,26 +57,26 @@ class PFRecoTauDiscriminationAgainstElectron : public PFTauDiscriminationProduce
 
       double discriminate(const PFTauRef& pfTau);
 
-      ~PFRecoTauDiscriminationAgainstElectron(){} 
+      ~PFRecoTauDiscriminationAgainstElectron(){}
 
    private:
-      bool isInEcalCrack(double) const; 
+      bool isInEcalCrack(double) const;
       edm::InputTag PFTauProducer_;
       bool applyCut_emFraction_;
-      double emFraction_maxValue_;   
+      double emFraction_maxValue_;
       bool applyCut_hcalTotOverPLead_;
-      double hcalTotOverPLead_minValue_;   
+      double hcalTotOverPLead_minValue_;
       bool applyCut_hcalMaxOverPLead_;
-      double hcalMaxOverPLead_minValue_;   
+      double hcalMaxOverPLead_minValue_;
       bool applyCut_hcal3x3OverPLead_;
-      double hcal3x3OverPLead_minValue_;   
+      double hcal3x3OverPLead_minValue_;
 
       bool applyCut_EOverPLead_;
-      double EOverPLead_minValue_;   
-      double EOverPLead_maxValue_;   
+      double EOverPLead_minValue_;
+      double EOverPLead_maxValue_;
       bool applyCut_bremsRecoveryEOverPLead_;
-      double bremsRecoveryEOverPLead_minValue_;   
-      double bremsRecoveryEOverPLead_maxValue_;   
+      double bremsRecoveryEOverPLead_minValue_;
+      double bremsRecoveryEOverPLead_maxValue_;
 
       bool applyCut_electronPreID_;
 
@@ -87,9 +87,9 @@ class PFRecoTauDiscriminationAgainstElectron : public PFTauDiscriminationProduce
       double elecPreID1_HOverPLead_minValue_;
 
       bool applyCut_PFElectronMVA_;
-      double pfelectronMVA_maxValue_; 
+      double pfelectronMVA_maxValue_;
       bool applyCut_ecalCrack_;
-  
+
       bool   applyCut_bremCombined_;
       double bremCombined_fraction_;
       double bremCombined_maxHOP_;
@@ -110,23 +110,23 @@ double PFRecoTauDiscriminationAgainstElectron::discriminate(const PFTauRef& theP
     if( (*thePFTauRef).leadPFChargedHadrCand().isNull() )
     {
        return 0.;
-    } else 
-    { 
+    } else
+    {
        // Check if track goes to Ecal crack
        TrackRef myleadTk;
        myleadTk=(*thePFTauRef).leadPFChargedHadrCand()->trackRef();
        math::XYZPointF myleadTkEcalPos = (*thePFTauRef).leadPFChargedHadrCand()->positionAtECALEntrance();
        if(myleadTk.isNonnull())
-       { 
-          if (applyCut_ecalCrack_ && isInEcalCrack(myleadTkEcalPos.eta())) 
+       {
+          if (applyCut_ecalCrack_ && isInEcalCrack(myleadTkEcalPos.eta()))
           {
              return 0.;
           }
        }
     }
-    
+
     bool decision = false;
-    bool emfPass = true, htotPass = true, hmaxPass = true; 
+    bool emfPass = true, htotPass = true, hmaxPass = true;
     bool h3x3Pass = true, estripPass = true, erecovPass = true;
     bool epreidPass = true, epreid2DPass = true;
     bool mvaPass = true, bremCombinedPass = true;
@@ -165,7 +165,7 @@ double PFRecoTauDiscriminationAgainstElectron::discriminate(const PFTauRef& theP
 	erecovPass = false;
       } else {
 	erecovPass = true;
-      } 
+      }
     }
     if (applyCut_electronPreID_) {
       if ((*thePFTauRef).electronPreIDDecision()) {
@@ -174,7 +174,7 @@ double PFRecoTauDiscriminationAgainstElectron::discriminate(const PFTauRef& theP
 	epreidPass = true;
       }
     }
-      
+
     if (applyCut_electronPreID_2D_) {
       if (
 	  ((*thePFTauRef).electronPreIDDecision() &&
@@ -194,18 +194,22 @@ double PFRecoTauDiscriminationAgainstElectron::discriminate(const PFTauRef& theP
     if (applyCut_PFElectronMVA_) {
       if ((*thePFTauRef).electronPreIDOutput()>pfelectronMVA_maxValue_) {
 	mvaPass = false;
-      }  
+      }
     }
     if (applyCut_bremCombined_) {
+      if (thePFTauRef->leadPFChargedHadrCand()->trackRef().isNull()) {
+        // No KF track found
+        return 0;
+      }
       if(thePFTauRef->signalPFChargedHadrCands().size()==1 && thePFTauRef->signalPFGammaCands().size()==0) {
 	if(thePFTauRef->leadPFChargedHadrCand()->hcalEnergy()/thePFTauRef->leadPFChargedHadrCand()->trackRef()->p()<bremCombined_maxHOP_)
 	  bremCombinedPass = false;
       }
       else if(thePFTauRef->signalPFChargedHadrCands().size()==1 && thePFTauRef->signalPFGammaCands().size()>0) {
-	//calculate the brem ratio energy 
+	//calculate the brem ratio energy
 	float bremEnergy=0.;
 	float emEnergy=0.;
-	for(unsigned int Nc = 0 ;Nc < thePFTauRef->signalPFGammaCands().size();++Nc) 
+	for(unsigned int Nc = 0 ;Nc < thePFTauRef->signalPFGammaCands().size();++Nc)
 	  {
 	    PFCandidateRef cand = thePFTauRef->signalPFGammaCands().at(Nc);
 	    if(fabs(thePFTauRef->leadPFChargedHadrCand()->trackRef()->eta()-cand->eta())<bremCombined_stripSize_)
@@ -218,7 +222,7 @@ double PFRecoTauDiscriminationAgainstElectron::discriminate(const PFTauRef& theP
       }
     }
 
-    decision = emfPass && htotPass && hmaxPass && 
+    decision = emfPass && htotPass && hmaxPass &&
       h3x3Pass && estripPass && erecovPass && epreidPass && epreid2DPass && mvaPass &&bremCombinedPass;
 
     return (decision ? 1. : 0.);
@@ -226,9 +230,9 @@ double PFRecoTauDiscriminationAgainstElectron::discriminate(const PFTauRef& theP
 
 bool
 PFRecoTauDiscriminationAgainstElectron::isInEcalCrack(double eta) const
-{  
+{
   eta = fabs(eta);
-  return (eta < 0.018 || 
+  return (eta < 0.018 ||
 	  (eta>0.423 && eta<0.461) ||
 	  (eta>0.770 && eta<0.806) ||
 	  (eta>1.127 && eta<1.163) ||
