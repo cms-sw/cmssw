@@ -14,7 +14,8 @@ MuonAlignmentFromReference = cms.PSet(
     minTrackerHits = cms.int32(10),
     maxTrackerRedChi2 = cms.double(10.),
     allowTIDTEC = cms.bool(True),
-    minDT13Hits = cms.int32(8),
+    minNCrossedChambers = cms.int32(3),
+    minDT13Hits = cms.int32(7),
     minDT2Hits = cms.int32(4),
     minCSCHits = cms.int32(6),
 
@@ -35,5 +36,12 @@ MuonAlignmentFromReference = cms.PSet(
     # where reporting will go
     reportFileName = cms.string("MuonAlignmentFromReference_report.py"),  # Python-formatted output
 
-    maxResSlopeY = cms.double(10.)
+    maxResSlopeY = cms.double(10.),
+    
+    createNtuple = cms.bool(False),
+    
+    peakNSigma = cms.double(-1.),
+    
+    doDT = cms.bool(True),
+    doCSC = cms.bool(True)
     )
