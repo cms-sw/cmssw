@@ -56,7 +56,7 @@ hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
                                             # HFPET and HFS8S1Ratio feed HFLongShort, and should be at the same severity
                                             'HFPET'
                                             'HFS8S1Ratio',
-                                            '
+                                            
                                             #'HFDigiTime'  # This should be set to 11 in data ONLY.  We can't set it to 11 by default, because default values should reflect MC settings, and the flag can't be used in MC
                                             ),
                   ChannelStatus = cms.vstring('')

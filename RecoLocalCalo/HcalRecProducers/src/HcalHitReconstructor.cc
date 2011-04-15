@@ -148,7 +148,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 					     psS9S1.getParameter<std::vector<double> >("long_optimumSlope"),
 					     psS9S1.getParameter<std::vector<double> >("longEnergyParams"),
 					     psS9S1.getParameter<std::vector<double> >("longETParams"),
-					     psS9S1.getParameter<int>("flagsToSkip"),
+					     psS9S1.getParameter<int>("HcalAcceptSeverityLevel"),
 					     psS9S1.getParameter<bool>("isS8S1")
 					     );
 
@@ -159,7 +159,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 					     psS8S1.getParameter<std::vector<double> >("long_optimumSlope"),
 					     psS8S1.getParameter<std::vector<double> >("longEnergyParams"),
 					     psS8S1.getParameter<std::vector<double> >("longETParams"),
-					     psS8S1.getParameter<int>("flagsToSkip"),
+					     psS8S1.getParameter<int>("HcalAcceptSeverityLevel"),
 					     psS8S1.getParameter<bool>("isS8S1")
 					     );
 
@@ -170,7 +170,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 					    psPET.getParameter<std::vector<double> >("long_R"),
 					    psPET.getParameter<std::vector<double> >("longEnergyParams"),
 					    psPET.getParameter<std::vector<double> >("longETParams"),
-					    psPET.getParameter<int>("flagsToSkip"),
+					    psPET.getParameter<int>("HcalAcceptSeverityLevel"),
 					    psPET.getParameter<std::vector<double> >("short_R_29"),
 					    psPET.getParameter<std::vector<double> >("long_R_29")
 					    );
