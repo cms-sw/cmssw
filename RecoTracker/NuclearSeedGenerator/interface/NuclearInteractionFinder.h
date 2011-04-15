@@ -22,6 +22,7 @@
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
