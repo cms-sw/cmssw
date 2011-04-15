@@ -9,6 +9,7 @@
 #include "RecoJets/JetProducers/plugins/VirtualJetProducer.h"
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
 #include "RecoJets/JetProducers/interface/BackgroundEstimator.h"
+#include "RecoJets/JetProducers/interface/VirtualJetProducerHelper.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -29,6 +30,7 @@
 #include "DataFormats/JetReco/interface/PFClusterJetCollection.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include "fastjet/SISConePlugin.hh"
 #include "fastjet/CMSIterativeConePlugin.hh"
@@ -49,7 +51,7 @@ namespace reco {
   namespace helper {
     struct GreaterByPtPseudoJet {
       bool operator()( const fastjet::PseudoJet & t1, const fastjet::PseudoJet & t2 ) const {
-	return t1.perp() > t2.perp();
+        return t1.perp() > t2.perp();
       }
     };
 
@@ -116,7 +118,10 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   , restrictInputs_(false)
   , maxInputs_(99999999)
   , doAreaFastjet_ (iConfig.getParameter<bool>         ("doAreaFastjet"))
+  , doAreaDiskApprox_       (false)
+  , doOutputJets_           (true)
   , doRhoFastjet_  (iConfig.getParameter<bool>         ("doRhoFastjet"))
+  , voronoiRfact_           (-9)
   , doPUOffsetCorr_(iConfig.getParameter<bool>         ("doPUOffsetCorr"))
   , puWidth_(0)
   , nExclude_(0)
@@ -132,7 +137,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   //
   if (jetAlgorithm_=="SISCone") {
     fjPlugin_ = PluginPtr( new fastjet::SISConePlugin(rParam_,0.75,0,0.0,false,
-						      fastjet::SISConePlugin::SM_pttilde) );
+                                                      fastjet::SISConePlugin::SM_pttilde) );
     fjJetDefinition_= JetDefPtr( new fastjet::JetDefinition(&*fjPlugin_) );
   }
   else if (jetAlgorithm_=="IterativeCone") {
@@ -151,12 +156,12 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
     fjJetDefinition_= JetDefPtr(new fastjet::JetDefinition(fastjet::kt_algorithm,rParam_));
   else if (jetAlgorithm_=="CambridgeAachen")
     fjJetDefinition_= JetDefPtr(new fastjet::JetDefinition(fastjet::cambridge_algorithm,
-							   rParam_) );
+                                                           rParam_) );
   else if (jetAlgorithm_=="AntiKt")
     fjJetDefinition_= JetDefPtr( new fastjet::JetDefinition(fastjet::antikt_algorithm,rParam_) );
   else if (jetAlgorithm_=="GeneralizedKt")
     fjJetDefinition_= JetDefPtr( new fastjet::JetDefinition(fastjet::genkt_algorithm,
-							    rParam_,-2) );
+                                                            rParam_,-2) );
   else
     throw cms::Exception("Invalid jetAlgorithm")
       <<"Jet algorithm for VirtualJetProducer is invalid, Abort!\n";
@@ -169,7 +174,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
 
   if ( doPUOffsetCorr_ ) {
      if ( jetTypeE != JetType::CaloJet ) {
-	throw cms::Exception("InvalidInput") << "Can only offset correct jets of type CaloJet";
+        throw cms::Exception("InvalidInput") << "Can only offset correct jets of type CaloJet";
      }
      
      if(iConfig.exists("subtractorName")) puSubtractorName_  =  iConfig.getParameter<string> ("subtractorName");
@@ -183,6 +188,21 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
      }
   }
 
+  // do approximate disk-based area calculation => warn if conflicting request
+  if (iConfig.exists("doAreaDiskApprox")) {
+    doAreaDiskApprox_ = iConfig.getParameter<bool>("doAreaDiskApprox");
+    if (doAreaDiskApprox_ && doAreaFastjet_)
+      throw cms::Exception("Conflicting area calculations") << "Both the calculation of jet area via fastjet and via an analytical disk approximation have been requested. Please decide on one.\n";
+
+  }
+  // turn off jet collection output for speed
+  if (iConfig.exists("doOutputJets"))
+    doOutputJets_     = iConfig.getParameter<bool>("doOutputJets");
+  // Voronoi-based area calculation allows for an empirical scale factor
+  if (iConfig.exists("voronoiRfact"))
+    voronoiRfact_     = iConfig.getParameter<double>("voronoiRfact");
+
+
   // do fasjet area / rho calcluation? => accept corresponding parameters
   if ( doAreaFastjet_ || doRhoFastjet_ ) {
     // Eta range of jets to be considered for Rho calculation
@@ -194,9 +214,8 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
     int    activeAreaRepeats = iConfig.getParameter<int> ("Active_Area_Repeats");
     // default GhostArea 0.01
     double ghostArea = iConfig.getParameter<double> ("GhostArea");
-    fjActiveArea_ =  ActiveAreaSpecPtr(new fastjet::ActiveAreaSpec(ghostEtaMax,
-								   activeAreaRepeats,
-								   ghostArea));
+    if (voronoiRfact_ <= 0)
+      fjActiveArea_     = ActiveAreaSpecPtr(new fastjet::ActiveAreaSpec(ghostEtaMax,activeAreaRepeats,ghostArea));
     fjRangeDef_ = RangeDefPtr( new fastjet::RangeDefinition(rhoEtaMax) );
   } 
 
@@ -210,7 +229,8 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   string alias=iConfig.getUntrackedParameter<string>("alias",moduleLabel_);
 
   // make the "produces" statements
-  makeProduces( alias, jetCollInstanceName_ );
+  if ( doOutputJets_ )
+    makeProduces( alias, jetCollInstanceName_ );
 
   doFastJetNonUniform_ = false;
   if(iConfig.exists("doFastJetNonUniform")) doFastJetNonUniform_ = iConfig.getParameter<bool>   ("doFastJetNonUniform");
@@ -251,7 +271,7 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
 
   // For Pileup subtraction using offset correction:
   // set up geometry map
-  if ( doPUOffsetCorr_ ) {
+  if ( !doOutputJets_ && doPUOffsetCorr_ ) {
      subtractor_->setupGeometryMap(iEvent, iSetup);
   }
 
@@ -278,7 +298,7 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
 
   // For Pileup subtraction using offset correction:
   // Subtract pedestal. 
-  if ( doPUOffsetCorr_ ) {
+  if ( !doOutputJets_ && doPUOffsetCorr_ ) {
      subtractor_->reset(inputs_,fjInputs_,fjJets_);
      subtractor_->calculatePedestal(fjInputs_); 
      subtractor_->subtractPedestal(fjInputs_);    
@@ -288,7 +308,7 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   // Run algorithm. Will modify fjJets_ and allocate fjClusterSeq_. 
   // This will use fjInputs_
   runAlgorithm( iEvent, iSetup );
-  if ( doPUOffsetCorr_ ) {
+  if ( !doOutputJets_ && doPUOffsetCorr_ ) {
      subtractor_->setAlgorithm(fjClusterSeq_);
   }
 
@@ -341,7 +361,7 @@ void VirtualJetProducer::inputTowers( )
     }
     else {
       fjInputs_.push_back(fastjet::PseudoJet(input->px(),input->py(),input->pz(),
-					    input->energy()));
+                                            input->energy()));
     }
     fjInputs_.back().set_user_index(i - inBegin);
   }
@@ -367,11 +387,11 @@ bool VirtualJetProducer::isAnomalousTower(reco::CandidatePtr input)
 // This is pure virtual. 
 //______________________________________________________________________________
 // void VirtualJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup const& iSetup,
-// 				       std::vector<edm::Ptr<reco::Candidate> > const & inputs_);
+//                                        std::vector<edm::Ptr<reco::Candidate> > const & inputs_);
 
 //______________________________________________________________________________
 void VirtualJetProducer::copyConstituents(const vector<fastjet::PseudoJet>& fjConstituents,
-					  reco::Jet* jet)
+                                          reco::Jet* jet)
 {
   for (unsigned int i=0;i<fjConstituents.size();++i)
     jet->addDaughter(inputs_[fjConstituents[i].user_index()]);
@@ -390,6 +410,9 @@ VirtualJetProducer::getConstituents(const vector<fastjet::PseudoJet>&fjConstitue
   }
   return result;
 }
+
+
+//_____________________________________________________________________________
 
 void VirtualJetProducer::output(edm::Event & iEvent, edm::EventSetup const& iSetup)
 {
@@ -424,6 +447,51 @@ void VirtualJetProducer::output(edm::Event & iEvent, edm::EventSetup const& iSet
 template< typename T >
 void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& iSetup )
 {
+  if (doRhoFastjet_) {
+    // declare jet collection without the two jets, 
+    // for unbiased background estimation.
+    std::vector<fastjet::PseudoJet> fjexcluded_jets;
+    fjexcluded_jets=fjJets_;
+  
+    if(fjexcluded_jets.size()>2) fjexcluded_jets.resize(nExclude_);
+
+    if(doFastJetNonUniform_){
+      std::auto_ptr<std::vector<double> > rhos(new std::vector<double>);
+      std::auto_ptr<std::vector<double> > sigmas(new std::vector<double>);
+      int nEta = puCenters_.size();
+      rhos->reserve(nEta);
+      sigmas->reserve(nEta);
+      fastjet::ClusterSequenceAreaBase const* clusterSequenceWithArea =
+        dynamic_cast<fastjet::ClusterSequenceAreaBase const *> ( &*fjClusterSeq_ );
+
+
+      for(int ie = 0; ie < nEta; ++ie){
+        double eta = puCenters_[ie];
+        double etamin=eta-puWidth_;
+        double etamax=eta+puWidth_;
+        fastjet::RangeDefinition range_rho(etamin,etamax);
+        fastjet::BackgroundEstimator bkgestim(*clusterSequenceWithArea,range_rho);
+        bkgestim.set_excluded_jets(fjexcluded_jets);
+        rhos->push_back(bkgestim.rho());
+        sigmas->push_back(bkgestim.sigma());
+      }
+      iEvent.put(rhos,"rhos");
+      iEvent.put(sigmas,"sigmas");
+    }else{
+      std::auto_ptr<double> rho(new double(0.0));
+      std::auto_ptr<double> sigma(new double(0.0));
+      double mean_area = 0;
+     
+      fastjet::ClusterSequenceAreaBase const* clusterSequenceWithArea =
+        dynamic_cast<fastjet::ClusterSequenceAreaBase const *> ( &*fjClusterSeq_ );
+      clusterSequenceWithArea->get_median_rho_and_sigma(*fjRangeDef_,false,*rho,*sigma,mean_area);
+      iEvent.put(rho,"rho");
+      iEvent.put(sigma,"sigma");
+    }
+  } // doRhoFastjet_
+
+  if (!doOutputJets_)  return;   // the rest are not required if jets don't need to be output
+    
   // produce output jet collection
 
   using namespace reco;
@@ -431,13 +499,10 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
   std::auto_ptr<std::vector<T> > jets(new std::vector<T>() );
   jets->reserve(fjJets_.size());
 
-  // declare jet collection without the two jets, 
-  // for unbiased background estimation.
-  std::vector<fastjet::PseudoJet> fjexcluded_jets;
-  fjexcluded_jets=fjJets_;
 
-  if(fjexcluded_jets.size()>2) fjexcluded_jets.resize(nExclude_);
-      
+  // Distance between jet centers -- for disk-based area calculation
+  std::vector<std::vector<double> >   rij(fjJets_.size());
+
   for (unsigned int ijet=0;ijet<fjJets_.size();++ijet) {
     // allocate this jet
     T jet;
@@ -454,20 +519,38 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
     double jetArea=0.0;
     if ( doAreaFastjet_ ) {
       fastjet::ClusterSequenceArea const * clusterSequenceWithArea =
-	dynamic_cast<fastjet::ClusterSequenceArea const *>(&*fjClusterSeq_);
+        dynamic_cast<fastjet::ClusterSequenceArea const *>(&*fjClusterSeq_);
       jetArea = clusterSequenceWithArea->area(fjJet);
+    }
+    else if ( doAreaDiskApprox_ ) {
+      // Here it is assumed that fjJets_ is in decreasing order of pT, 
+      // which should happen in FastjetJetProducer::runAlgorithm() 
+      jetArea   = M_PI;
+      if (ijet) {
+        std::vector<double>&  distance  = rij[ijet];
+        distance.resize(ijet);
+        for (unsigned jJet = 0; jJet < ijet; ++jJet) {
+          distance[jJet]      = reco::deltaR(fjJets_[ijet],fjJets_[jJet]) / rParam_;
+          jetArea            -= reco::helper::VirtualJetProducerHelper::intersection(distance[jJet]);
+          for (unsigned kJet = 0; kJet < jJet; ++kJet) {
+            jetArea          += reco::helper::VirtualJetProducerHelper::intersection(distance[jJet], distance[kJet], rij[jJet][kJet]);
+          } // end loop over harder jets
+        } // end loop over harder jets
+      }
+      jetArea  *= rParam_;
+      jetArea  *= rParam_;
     }
     
     // write the specifics to the jet (simultaneously sets 4-vector, vertex).
     // These are overridden functions that will call the appropriate
     // specific allocator. 
     writeSpecific(jet,
-		  Particle::LorentzVector(fjJet.px(),
-					  fjJet.py(),
-					  fjJet.pz(),
-					  fjJet.E()),
-		  vertex_, 
-		  constituents, iSetup);
+                  Particle::LorentzVector(fjJet.px(),
+                                          fjJet.py(),
+                                          fjJet.pz(),
+                                          fjJet.E()),
+                  vertex_, 
+                  constituents, iSetup);
     
     jet.setJetArea (jetArea);
 
@@ -478,47 +561,13 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
     }
     
     // add to the list
-    jets->push_back(jet);	
+    jets->push_back(jet);        
   }
   
   // put the jets in the collection
   iEvent.put(jets);
   
-  if (doRhoFastjet_) {
-    if(doFastJetNonUniform_){
-      std::auto_ptr<std::vector<double> > rhos(new std::vector<double>);
-      std::auto_ptr<std::vector<double> > sigmas(new std::vector<double>);
-      int nEta = puCenters_.size();
-      rhos->reserve(nEta);
-      sigmas->reserve(nEta);
-      fastjet::ClusterSequenceArea const * clusterSequenceWithArea =
-	dynamic_cast<fastjet::ClusterSequenceArea const *> ( &*fjClusterSeq_ );
 
-      for(int ie = 0; ie < nEta; ++ie){
-	double eta = puCenters_[ie];
-	double etamin=eta-puWidth_;
-	double etamax=eta+puWidth_;
-	fastjet::RangeDefinition range_rho(etamin,etamax);
-	fastjet::BackgroundEstimator bkgestim(*clusterSequenceWithArea,range_rho);
-	bkgestim.set_excluded_jets(fjexcluded_jets);
-	rhos->push_back(bkgestim.rho());
-	sigmas->push_back(bkgestim.sigma());
-      }
-      iEvent.put(rhos,"rhos");
-      iEvent.put(sigmas,"sigmas");
-    }else{
-      std::auto_ptr<double> rho(new double(0.0));
-      std::auto_ptr<double> sigma(new double(0.0));
-      double mean_area = 0;
-     
-      fastjet::ClusterSequenceArea const * clusterSequenceWithArea =
-	dynamic_cast<fastjet::ClusterSequenceArea const *> ( &*fjClusterSeq_ );
-      clusterSequenceWithArea->get_median_rho_and_sigma(*fjRangeDef_,false,*rho,*sigma,mean_area);
-      iEvent.put(rho,"rho");
-      iEvent.put(sigma,"sigma");
-    }
-    
-  }
 }
 
 

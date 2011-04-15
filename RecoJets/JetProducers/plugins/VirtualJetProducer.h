@@ -137,8 +137,6 @@ protected:
   virtual std::vector<reco::CandidatePtr>
     getConstituents(const std::vector<fastjet::PseudoJet>&fjConstituents);
   
-  
-  
   //
   // member data
   //
@@ -160,9 +158,12 @@ protected:
 
   // for fastjet jet area calculation
   bool                  doAreaFastjet_;             // calculate area w/ fastjet?
+  bool                  doAreaDiskApprox_;          // calculate area w/ disk approximation (only makes sense for anti-KT)?
   // for fastjet rho calculation
+  bool                  doOutputJets_;              // fill jet collection (faster to turn off if only rho is required)
   bool                  doRhoFastjet_;              // calculate rho w/ fastjet?
   bool                  doFastJetNonUniform_;       // choice of eta-dependent PU calculation
+  double                voronoiRfact_;              // negative to calculate rho using active area (ghosts); otherwise calculates Voronoi area with this effective scale factor
   
   // for pileup offset correction
   bool                  doPUOffsetCorr_;            // add the pileup calculation from offset correction? 
