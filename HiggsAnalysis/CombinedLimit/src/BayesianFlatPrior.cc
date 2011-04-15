@@ -17,6 +17,15 @@ bool BayesianFlatPrior::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooSta
   RooArgSet  poi(*mc_s->GetParametersOfInterest());
   RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
   double rMax = r->getMax();
+  std::auto_ptr<RooStats::ModelConfig> mc_noNuis(0);
+  if (!withSystematics && mc_s->GetNuisanceParameters() != 0) {
+    mc_noNuis.reset(new RooStats::ModelConfig(w));
+    mc_noNuis->SetPdf(*mc_s->GetPdf());
+    mc_noNuis->SetObservables(*mc_s->GetObservables());
+    mc_noNuis->SetParametersOfInterest(*mc_s->GetParametersOfInterest());
+    mc_noNuis->SetPriorPdf(*mc_s->GetPriorPdf());
+    mc_s = mc_noNuis.get();
+  }
   for (;;) {
     BayesianCalculator bcalc(data, *mc_s);
     bcalc.SetLeftSideTailFraction(0);
@@ -34,7 +43,7 @@ bool BayesianFlatPrior::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooSta
         std::cout << "\n -- BayesianSimple -- " << "\n";
         std::cout << "Limit: " << r->GetName() << " < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
     }
-    if (verbose > 2) {
+    if (verbose > 200) {
       // FIXME!!!!!
       TCanvas c1("c1", "c1");
       std::auto_ptr<RooPlot> bcPlot(bcalc.GetPosteriorPlot(true, 0.1)); 
