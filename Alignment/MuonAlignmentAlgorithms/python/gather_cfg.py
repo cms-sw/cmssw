@@ -43,6 +43,15 @@ combineME11 = (os.environ["ALIGNMENT_COMBINEME11"] == "True")
 maxEvents = int(os.environ["ALIGNMENT_MAXEVENTS"])
 skipEvents = int(os.environ["ALIGNMENT_SKIPEVENTS"])
 maxResSlopeY = float(os.environ["ALIGNMENT_MAXRESSLOPEY"])
+preFilter = (os.environ["ALIGNMENT_PREFILTER"] == "True")
+
+minNCrossedChambers = 3
+
+# optionally: create ntuples along with tmp files 
+createAlignNtuple = False
+envNtuple = os.getenv("ALIGNMENT_CREATEALIGNNTUPLE")
+if envNtuple is not None:
+  if envNtuple=='True': createAlignNtuple = True
 
 # optionally: create a ntuple with MapPlot plugin
 createMapNtuple = False
@@ -99,6 +108,7 @@ else:
     skipEvents = cms.untracked.uint32(skipEvents))
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(maxEvents))
+process.options = cms.untracked.PSet(  wantSummary = cms.untracked.bool(True) )
 
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -117,11 +127,14 @@ process.looper.algoConfig.maxTrackP = maxTrackP
 process.looper.algoConfig.minTrackerHits = minTrackerHits
 process.looper.algoConfig.maxTrackerRedChi2 = maxTrackerRedChi2
 process.looper.algoConfig.allowTIDTEC = allowTIDTEC
+process.looper.algoConfig.minNCrossedChambers = minNCrossedChambers
 process.looper.algoConfig.twoBin = twoBin
 process.looper.algoConfig.weightAlignment = weightAlignment
 process.looper.algoConfig.minAlignmentHits = minAlignmentHits
 process.looper.algoConfig.combineME11 = combineME11
 process.looper.algoConfig.maxResSlopeY = maxResSlopeY
+process.looper.algoConfig.createNtuple = createAlignNtuple
+process.looper.algoConfig.minDT13Hits = 7
 
 process.looper.monitorConfig = cms.PSet(monitors = cms.untracked.vstring())
 
@@ -131,9 +144,12 @@ if mapplots:
     process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D = process.AlignmentMonitorMuonSystemMap1D
     process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.minTrackPt = cms.double(minTrackPt)
     process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.maxTrackPt = cms.double(maxTrackPt)
+    process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.minTrackP = cms.double(minTrackP)
+    process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.maxTrackP = cms.double(maxTrackP)
     process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.minTrackerHits = cms.int32(minTrackerHits)
     process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.maxTrackerRedChi2 = cms.double(maxTrackerRedChi2)
     process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.allowTIDTEC = cms.bool(allowTIDTEC)
+    process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.minNCrossedChambers = process.looper.algoConfig.minNCrossedChambers
     process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.minDT13Hits = process.looper.algoConfig.minDT13Hits
     process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.minDT2Hits = process.looper.algoConfig.minDT2Hits
     process.looper.monitorConfig.AlignmentMonitorMuonSystemMap1D.minCSCHits = process.looper.algoConfig.minCSCHits
@@ -146,9 +162,11 @@ if segdiffplots:
     process.looper.monitorConfig.monitors.append("AlignmentMonitorSegmentDifferences")
     process.looper.monitorConfig.AlignmentMonitorSegmentDifferences = process.AlignmentMonitorSegmentDifferences
     process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.minTrackPt = cms.double(minTrackPt)
+    process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.minTrackP = cms.double(minTrackP)
     process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.minTrackerHits = cms.int32(minTrackerHits)
     process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.maxTrackerRedChi2 = cms.double(maxTrackerRedChi2)
     process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.allowTIDTEC = cms.bool(allowTIDTEC)
+    process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.minNCrossedChambers = process.looper.algoConfig.minNCrossedChambers
     process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.minDT13Hits = process.looper.algoConfig.minDT13Hits
     process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.minDT2Hits = process.looper.algoConfig.minDT2Hits
     process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.minCSCHits = process.looper.algoConfig.minCSCHits
@@ -159,9 +177,12 @@ if curvatureplots:
     process.load("Alignment.CommonAlignmentMonitor.AlignmentMonitorMuonVsCurvature_cfi")
     process.looper.monitorConfig.monitors.append("AlignmentMonitorMuonVsCurvature")
     process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature = process.AlignmentMonitorMuonVsCurvature
+    #process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature.minTrackPt = cms.double(minTrackPt)
+    #process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature.minTrackP = cms.double(minTrackP)
     process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature.minTrackerHits = cms.int32(minTrackerHits)
     process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature.maxTrackerRedChi2 = cms.double(maxTrackerRedChi2)
     process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature.allowTIDTEC = cms.bool(allowTIDTEC)
+    process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature.minNCrossedChambers = process.looper.algoConfig.minNCrossedChambers
     process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature.minDT13Hits = process.looper.algoConfig.minDT13Hits
     process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature.minDT2Hits = process.looper.algoConfig.minDT2Hits
     process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature.minCSCHits = process.looper.algoConfig.minCSCHits
@@ -173,11 +194,21 @@ process.GlobalTag.globaltag = cms.string(globaltag)
 process.looper.applyDbAlignment = True
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
+process.load("Alignment.MuonAlignmentAlgorithms.MuonAlignmentPreFilter_cfi")
+process.MuonAlignmentPreFilter.minTrackPt = minTrackPt
+process.MuonAlignmentPreFilter.minTrackP = minTrackP
+process.MuonAlignmentPreFilter.minTrackerHits = minTrackerHits
+process.MuonAlignmentPreFilter.allowTIDTEC = allowTIDTEC
+
 if iscosmics:
-    process.Path = cms.Path(process.offlineBeamSpot * process.MuonAlignmentFromReferenceGlobalCosmicRefit)
+    process.MuonAlignmentPreFilter.tracksTag = cms.InputTag("ALCARECOMuAlGlobalCosmics:GlobalMuon")
+    if preFilter: process.Path = cms.Path(process.offlineBeamSpot * process.MuonAlignmentPreFilter * process.MuonAlignmentFromReferenceGlobalCosmicRefit)
+    else: process.Path = cms.Path(process.offlineBeamSpot * process.MuonAlignmentFromReferenceGlobalCosmicRefit)
     process.looper.tjTkAssociationMapTag = cms.InputTag("MuonAlignmentFromReferenceGlobalCosmicRefit:Refitted")
 else:
-    process.Path = cms.Path(process.offlineBeamSpot * process.MuonAlignmentFromReferenceGlobalMuonRefit)
+    process.MuonAlignmentPreFilter.tracksTag = cms.InputTag("ALCARECOMuAlCalIsolatedMu:GlobalMuon")
+    if preFilter: process.Path = cms.Path(process.offlineBeamSpot * process.MuonAlignmentPreFilter * process.MuonAlignmentFromReferenceGlobalMuonRefit)
+    else: process.Path = cms.Path(process.offlineBeamSpot * process.MuonAlignmentFromReferenceGlobalMuonRefit)
     process.looper.tjTkAssociationMapTag = cms.InputTag("MuonAlignmentFromReferenceGlobalMuonRefit:Refitted")
 
 process.MuonAlignmentFromReferenceInputDB.connect = cms.string("sqlite_file:%s" % inputdb)
