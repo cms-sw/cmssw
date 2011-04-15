@@ -44,6 +44,7 @@ hpsPFTauDiscriminationByVLooseIsolation = hpsPFTauDiscriminationByLooseIsolation
 hpsPFTauDiscriminationByVLooseIsolation.qualityCuts.isolationQualityCuts.minTrackPt = 1.5
 hpsPFTauDiscriminationByVLooseIsolation.qualityCuts.isolationQualityCuts.minGammaEt = 2.0
 hpsPFTauDiscriminationByVLooseIsolation.customOuterCone = cms.double(0.3)
+hpsPFTauDiscriminationByVLooseIsolation.isoConeSizeForDeltaBeta = cms.double(0.3)
 
 
 hpsPFTauDiscriminationByMediumIsolation = hpsPFTauDiscriminationByLooseIsolation.clone()
