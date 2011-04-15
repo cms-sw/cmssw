@@ -44,9 +44,9 @@ bool HitExtractorSTRP::ringRange(int ring) const
 }
 
 bool HitExtractorSTRP::skipThis(const SiStripRecHit2D * hit,
-				edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > & stripClusterRefs) const {
+				edm::Handle<edmNew::DetSetVector<SiStripClusterRef> > & stripClusterRefs) const {
   static DetId lastId=hit->geographicalId();
-  static edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef>::const_iterator f=stripClusterRefs->find(lastId.rawId());
+  static edmNew::DetSetVector<SiStripClusterRef>::const_iterator f=stripClusterRefs->find(lastId.rawId());
   if (hit->geographicalId()!=lastId){
     lastId=hit->geographicalId();
     f=stripClusterRefs->find(lastId.rawId());
@@ -69,7 +69,7 @@ void HitExtractorSTRP::project(TransientTrackingRecHit::ConstRecHitPointer & ptr
 }
 
 bool HitExtractorSTRP::skipThis(TransientTrackingRecHit::ConstRecHitPointer & ptr,
-				edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > & stripClusterRefs,
+				edm::Handle<edmNew::DetSetVector<SiStripClusterRef> > & stripClusterRefs,
 				TransientTrackingRecHit::ConstRecHitPointer & replaceMe) const {
   const SiStripMatchedRecHit2D * hit = (SiStripMatchedRecHit2D *) ptr->hit();
 
