@@ -36,8 +36,6 @@
 #include "fastjet/ATLASConePlugin.hh"
 #include "fastjet/CDFMidPointPlugin.hh"
 
-//#include "RecoJets/JetProducers/interface/ClusterSequenceVoronoiArea30.h"
-
 
 #include <iostream>
 #include <memory>
