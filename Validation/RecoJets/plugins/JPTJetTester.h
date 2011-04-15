@@ -4,12 +4,13 @@
 // Producer for validation histograms for JPTJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTester.h,v 1.2 2010/04/21 16:32:23 chjeong Exp $
+// $Id: JPTJetTester.h,v 1.3 2011/02/23 16:50:56 kovitang Exp $
 
 #include <string>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 namespace reco {
