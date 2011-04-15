@@ -32,24 +32,55 @@ PFTauQualityCutWrapper::isolationChargedObjects(const PFTau& pfTau, const Vertex
       }
    } else
    {
-      PFCandidateRefVector result = TauTagTools::filteredPFChargedHadrCands(pfTau.isolationPFChargedHadrCands(), 
+      PFCandidateRefVector preresult = TauTagTools::filteredPFChargedHadrCands(pfTau.isolationPFChargedHadrCands(), 
                                              isoQCuts.minTrackPt,
                                              isoQCuts.minTrackPixelHits,
                                              isoQCuts.minTrackHits,
                                              isoQCuts.maxTransverseImpactParameter,
                                              isoQCuts.maxTrackChi2,
-                                             isoQCuts.maxDeltaZ,
+ 	 			 	     10000.,				    //                                             isoQCuts.maxDeltaZ,
                                              pv,
                                              pv.position().z() ); //????
 
-      size_t nTracks = result.size();
-      for(size_t iTrack = 0; iTrack < nTracks; ++iTrack)
-      {
-         output.push_back(reco::LeafCandidate(result[iTrack]->charge(), result[iTrack]->p4()));
-      }
+
+      for(unsigned int i=0;i<preresult.size();++i)
+	if(preresult.at(i)->trackRef().isNonnull()) {
+	  //get the vertex weight and require to be >50%
+	  float w = pv.trackWeight(preresult.at(i)->trackRef());
+	  if(w>0.0) 
+	    output.push_back(reco::LeafCandidate(preresult.at(i)->charge(), preresult[i]->p4()));
+	  
+	}
+
+
    }
    
 }
+
+
+void
+PFTauQualityCutWrapper::isolationPUObjects(const PFTau& pfTau, const Vertex& pv, std::vector<reco::LeafCandidate>& output)
+{
+
+      PFCandidateRefVector preresult = TauTagTools::filteredPFChargedHadrCands(pfTau.isolationPFChargedHadrCands(), 
+				             isoQCuts.minGammaEt,0,0,1000.,100000,
+ 	 			 	     10000.,				    //                                             isoQCuts.maxDeltaZ,
+                                             pv,
+                                             pv.position().z() ); //????
+
+
+      for(unsigned int i=0;i<preresult.size();++i)
+	if(preresult.at(i)->trackRef().isNonnull()) {
+	  //get the vertex weight and require to be >50%
+	  float w = pv.trackWeight(preresult.at(i)->trackRef());
+	  if(w==0.0) 
+	    output.push_back(reco::LeafCandidate(preresult.at(i)->charge(), preresult[i]->p4()));
+	  
+	}
+   
+}
+
+
 
 void
 PFTauQualityCutWrapper::isolationGammaObjects(const PFTau& pfTau, std::vector<reco::LeafCandidate>& output)
@@ -94,21 +125,30 @@ PFTauQualityCutWrapper::signalChargedObjects(const PFTau& pfTau, const Vertex& p
       }
    } else
    {
-      PFCandidateRefVector result = TauTagTools::filteredPFChargedHadrCands(pfTau.signalPFChargedHadrCands(), 
+
+     //First perform basic filtering without vertex dz
+      PFCandidateRefVector preresult = TauTagTools::filteredPFChargedHadrCands(pfTau.signalPFChargedHadrCands(), 
+
                                              signalQCuts.minTrackPt,
                                              signalQCuts.minTrackPixelHits,
                                              signalQCuts.minTrackHits,
                                              signalQCuts.maxTransverseImpactParameter,
                                              signalQCuts.maxTrackChi2,
-                                             signalQCuts.maxDeltaZ,
+  				             10000.,   //                              signalQCuts.maxDeltaZ,
                                              pv,
                                              pv.position().z() ); //????
+      
+      //Now check the vertex association
+      for(unsigned int i=0;i<preresult.size();++i)
+	if(preresult.at(i)->trackRef().isNonnull()) {
+	  //get the vertex weight and require to be >50%
+	  float w = pv.trackWeight(preresult.at(i)->trackRef());
+	  if(w>0.0) 
+	    output.push_back(reco::LeafCandidate(preresult.at(i)->charge(), preresult[i]->p4()));
+    				   
+	}
+      
 
-      size_t nTracks = result.size();
-      for(size_t iTrack = 0; iTrack < nTracks; ++iTrack)
-      {
-         output.push_back(reco::LeafCandidate(result[iTrack]->charge(), result[iTrack]->p4()));
-      }
    }
    
 }
