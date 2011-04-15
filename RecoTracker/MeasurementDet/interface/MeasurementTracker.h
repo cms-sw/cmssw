@@ -11,6 +11,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 // backward compatibility
+#include "FWCore/Framework/interface/ESHandle.h"
+
 class SiStripRecHitMatcher;
 
 
