@@ -12,9 +12,10 @@
 /* class PFRecoTauDiscriminationByIsolation
  * created : Jul 23 2007,
  * revised : Thu Aug 13 14:44:40 PDT 2009
- * contributors : Ludovic Houchu (Ludovic.Houchu@cern.ch ; IPHC, Strasbourg),
- * Christian Veelken (veelken@fnal.gov ; UC Davis),
- *                Evan K. Friis (friis@physics.ucdavis.edu ; UC Davis)
+ * contributors : Ludovic Houchu (IPHC, Strasbourg),
+ *               Christian Veelken (UC Davis),
+*                Evan K. Friis (UC Davis)
+ *               Michalis Bachtis (UW Madison)
  */
 
 using namespace reco;
@@ -95,7 +96,7 @@ class PFRecoTauDiscriminationByIsolation :
     // PU subtraction parameters
     bool applyDeltaBeta_;
     edm::InputTag pfCandSrc_;
-    std::vector<reco::PFCandidateRef> pfCandidatesInEvent_;
+    std::vector<reco::PFCandidateRef> chargedPFCandidatesInEvent_;
     double deltaBetaCollectionCone_;
     double deltaBetaFactor_;
   };
@@ -111,15 +112,15 @@ void PFRecoTauDiscriminationByIsolation::beginEvent(const edm::Event& event,
 
   // If we are applying the delta beta correction, we need to get the PF
   // candidates from the event so we can find the PU tracks.
-  pfCandidatesInEvent_.clear();
+  chargedPFCandidatesInEvent_.clear();
   if (applyDeltaBeta_) {
-    std::cout << "Geting DB pf cands" << std::endl;
     edm::Handle<reco::PFCandidateCollection> pfCandHandle_;
     event.getByLabel(pfCandSrc_, pfCandHandle_);
-    pfCandidatesInEvent_.reserve(pfCandHandle_->size());
+    chargedPFCandidatesInEvent_.reserve(pfCandHandle_->size());
     for (size_t i = 0; i < pfCandHandle_->size(); ++i) {
-      pfCandidatesInEvent_.push_back(
-          reco::PFCandidateRef(pfCandHandle_, i));
+      reco::PFCandidateRef pfCand(pfCandHandle_, i);
+      if (pfCand->charge() != 0)
+        chargedPFCandidatesInEvent_.push_back(pfCand);
     }
   }
 }
@@ -154,7 +155,7 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) {
 
   // If desired, get PU tracks.
   if (applyDeltaBeta_) {
-    isoPU = pileupQcuts_->filterRefs(pfCandidatesInEvent_);
+    isoPU = pileupQcuts_->filterRefs(chargedPFCandidatesInEvent_);
     // Only select PU tracks inside the isolation cone.
     DRFilter deltaBetaFilter(pfTau->p4(), 0, deltaBetaCollectionCone_);
     std::remove_if(isoPU.begin(), isoPU.end(), std::not1(deltaBetaFilter));
