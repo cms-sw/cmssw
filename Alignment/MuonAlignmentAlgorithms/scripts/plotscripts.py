@@ -1219,6 +1219,10 @@ def plotmedians(reports1, reports2, selection=None, binsx=100, windowx=5., ceili
                     break
             if not found: continue
 
+	    #skip ME1/1a
+	    if r1.postal_address[0]=='CSC':
+	      if r1.postal_address[2]==1 and r1.postal_address[3]==4: continue
+
             if r1.status == "PASS" and r2.status == "PASS":
                 hmedianx_before.Fill(10.*eval("r1.%s_x" % whichx))
                 hmediandxdz_before.Fill(1000.*eval("r1.%s_dxdz" % whichdxdz))
@@ -1930,9 +1934,11 @@ def bellcurves(tfile, reports, name, twobin=True, suppressblue=False):
     ####
     chamber_x.SetAxisRange(-50., 50., "X")
     chamber_dxdz.SetAxisRange(-50., 50., "X")
+    chamber_alphax.SetAxisRange(-50., 50., "X")
     if not not chamber_y:
         chamber_y.SetAxisRange(-150., 150., "X")
-        chamber_dydz.SetAxisRange(-200., 200., "X")
+        chamber_dydz.SetAxisRange(-150., 150., "X")
+        chamber_alphay.SetAxisRange(-150., 150., "X")
     ####
 
     chamber_x.SetXTitle("Local x residual (mm)")
