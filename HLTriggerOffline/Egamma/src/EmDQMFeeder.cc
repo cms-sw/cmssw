@@ -13,7 +13,7 @@
 //
 // Original Author:  Thomas Reis,40 4-B24,+41227671567,
 //         Created:  Tue Mar 15 12:24:11 CET 2011
-// $Id: EmDQMFeeder.cc,v 1.5 2011/04/15 11:50:37 treis Exp $
+// $Id: EmDQMFeeder.cc,v 1.6 2011/04/15 17:45:16 treis Exp $
 //
 //
 
@@ -299,10 +299,10 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
                      filterVPSet.push_back(makePSetForEgammaGenericFilter(pathName, moduleLabel));
                      continue;
                   }
-                  //if (moduleType == "HLTEgammaGenericQuadraticFilter") {
-                  //   filterVPSet.push_back(makePSetForEgammaGenericQuadraticFilter(pathName, moduleLabel));
-                  //   continue;
-                  //}
+                  if (moduleType == "HLTEgammaGenericQuadraticFilter") {
+                     filterVPSet.push_back(makePSetForEgammaGenericQuadraticFilter(pathName, moduleLabel));
+                     continue;
+                  }
                   if (moduleType == "HLTElectronGenericFilter") {
                      filterVPSet.push_back(makePSetForElectronGenericFilter(pathName, moduleLabel));
                      continue;
