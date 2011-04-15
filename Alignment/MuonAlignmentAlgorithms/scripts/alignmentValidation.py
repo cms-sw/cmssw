@@ -931,7 +931,8 @@ if CPP_LOADED: ROOT.cleanUpHeap()
 # write distributions of medians plots
 
 if DO_MEDIAN:
-  plotmedians(iter1_reports, iterN_reports)
+  #plotmedians(iter1_reports, iterN_reports)
+  plotmedians(iter1_reports, iterN_reports,binsx=100, windowx=10., binsy=100, windowy=10., binsdxdz=100, windowdxdz=10., binsdydz=100, windowdydz=10.)
   c1.SaveAs(comdir+'medians.png')
 
 # perform diagnostic
