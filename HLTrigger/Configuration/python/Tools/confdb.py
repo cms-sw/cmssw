@@ -811,8 +811,14 @@ if 'GlobalTag' in %%(dict)s:
       # TODO: 5E32 paths for which a recovery should be attempted:
       self.options['paths'].append( "-HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT160_v*" )
       self.options['paths'].append( "-HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT160_v*" )
+      self.options['paths'].append( "-HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT150_v*" )
+      self.options['paths'].append( "-HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT150_v*" )
       self.options['paths'].append( "-HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v*")
       self.options['paths'].append( "-HLT_HT250_DoubleDisplacedJet60_v*" )
+      self.options['paths'].append( "-HLT_HT200_DoubleLooseIsoPFTau10_Trk3_PFMHT35_v*" )
+      self.options['paths'].append( "-HLT_HT250_DoubleLooseIsoPFTau10_Trk3_PFMHT35_v*" )
+      self.options['paths'].append( "-HLT_HT200_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT35_v*" )
+      self.options['paths'].append( "-HLT_HT250_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT35_v*" )
 
       # remove HLTAnalyzerEndpath from fastsim cff's
       if self.config.fragment:
