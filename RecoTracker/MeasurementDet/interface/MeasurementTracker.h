@@ -1,3 +1,4 @@
+#ifndef MeasurementTracker_H
 #define MeasurementTracker_H
 
 #include "TrackingTools/MeasurementDet/interface/MeasurementDetSystem.h"

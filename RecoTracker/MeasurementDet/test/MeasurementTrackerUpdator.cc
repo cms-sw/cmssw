@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Fri Mar 16 13:19:20 CDT 2007
-// $Id: MeasurementTrackerUpdator.cc,v 1.1 2007/10/18 08:26:38 vlimant Exp $
+// $Id: MeasurementTrackerUpdator.cc,v 1.2 2009/03/04 13:34:26 vlimant Exp $
 //
 //
 
@@ -29,6 +29,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 

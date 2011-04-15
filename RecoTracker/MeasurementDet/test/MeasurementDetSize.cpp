@@ -1,6 +1,6 @@
-#include "RecoTracker/MeasurementDet/interface/TkStripMeasurementDet.h"
-#include "RecoTracker/MeasurementDet/interface/TkPixelMeasurementDet.h"
-#include "RecoTracker/MeasurementDet/interface/TkGluedMeasurementDet.h"
+#include "RecoTracker/MeasurementDet/plugins/TkStripMeasurementDet.h"
+#include "RecoTracker/MeasurementDet/plugins/TkPixelMeasurementDet.h"
+#include "RecoTracker/MeasurementDet/plugins/TkGluedMeasurementDet.h"
 
 #include<iostream>
 

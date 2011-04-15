@@ -210,14 +210,14 @@ void OnDemandMeasurementTracker::update( const edm::Event& event) const
 
   if (!PixelOnDemand_) {
     LogDebug(category_)<<"pixel are not OnDemand. updating them a la MeasurmentTracker.";
-    MeasurementTracker::updatePixels(event);}
+    MeasurementTrackerImpl::updatePixels(event);}
   else{
     edm::LogError(category_)<<"trying to update siPixel as on-demand. Not Implemented yet.";
   }
 
   if (!StripOnDemand_) {
     LogDebug(category_)<<"strip are not OnDemand. updating them a la MeasurmentTracker.";
-    MeasurementTracker::updateStrips(event);}
+    MeasurementTrackerImpl::updateStrips(event);}
   else{
     LogDebug(category_)<<"strip are OnDemand. updating them a la OnDemandMeasurmentTracker."; 
     updateStrips(event);

@@ -83,7 +83,7 @@ namespace {
 }
 
 
-MeasurementTrackerImpl::MeasurementTracker(const edm::ParameterSet&              conf,
+MeasurementTrackerImpl::MeasurementTrackerImpl(const edm::ParameterSet&              conf,
 				       const PixelClusterParameterEstimator* pixelCPE,
 				       const StripClusterParameterEstimator* stripCPE,
 				       const SiStripRecHitMatcher*  hitMatcher,
@@ -114,7 +114,7 @@ MeasurementTrackerImpl::MeasurementTracker(const edm::ParameterSet&             
   LogDebug("MeasurementTracker")<<"skipping clusters: "<<selfUpdateSkipClusters_;
 }
 
-MeasurementTrackerImpl::~MeasurementTracker()
+MeasurementTrackerImpl::~MeasurementTrackerImpl()
 {
   for(vector<TkPixelMeasurementDet*>::const_iterator it=thePixelDets.begin(); it!=thePixelDets.end(); ++it){
     delete *it;

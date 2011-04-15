@@ -1,0 +1,73 @@
+
+
+namespace {  
+
+  template<typename Collector>
+  struct CollectorHelper {
+
+    Collector & m_collector;
+    GlobalVector const & glbDir;
+
+    CollectorHelper(Collector & i_collector,  GlobalVector const & i_glbDir) : 
+      m_collector(i_collector), glbDir(i_glbDir) {}
+    
+    inline static SiStripRecHit2D const & monoHit(TkGluedMeasurementDet::RecHitContainer::const_iterator monoHit) {
+      return *reinterpret_cast<const SiStripRecHit2D*>((**monoHit).hit());
+    }
+    
+    inline static SiStripRecHit2D const & stereoHit(std::vector<SiStripRecHit2D>::const_iterator iter) {
+      return *iter;
+    }
+
+    typename Collector::Collector & collector() { return m_collector.collector();}
+    
+    inline void closure( TkGluedMeasurementDet::RecHitContainer::const_iterator monoHit) {
+      if (m_collector.hasNewMatchedHits()) {
+	m_collector.clearNewMatchedHitsFlag();
+      } else {
+	m_collector.addProjected( **monoHit, glbDir );
+      }
+    }
+    
+  };
+
+}
+
+template<typename Collector>
+void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Collector & collector) const {
+
+
+  GlobalVector glbDir = (ts.isValid() ? ts.globalParameters().momentum() : position()-GlobalPoint(0,0,0));
+ 
+ //  static SiStripRecHitMatcher::SimpleHitCollection vsStereoHits;
+  // vsStereoHits.resize(simpleSteroHitsByValue.size());
+  //std::transform(simpleSteroHitsByValue.begin(), simpleSteroHitsByValue.end(), vsStereoHits.begin(), take_address());
+
+  RecHitContainer monoHits = theMonoDet->recHits( ts);
+  if (monoHits.empty()) {
+      // make stereo TTRHs and project them
+      projectOnGluedDet( collector, theStereoDet->recHits(ts), glbDir);
+      return;
+  }
+ 
+  // collect simple stereo hits
+  static std::vector<SiStripRecHit2D> simpleSteroHitsByValue;
+  simpleSteroHitsByValue.clear();
+  theStereoDet->simpleRecHits(ts, simpleSteroHitsByValue);
+  if (simpleSteroHitsByValue.empty()) {
+    projectOnGluedDet( collector, monoHits, glbDir);
+    return;
+  }
+
+  const GluedGeomDet* gluedDet = &specificGeomDet();
+  LocalVector trdir = (ts.isValid() ? ts.localDirection() : surface().toLocal( position()-GlobalPoint(0,0,0)));
+
+  CollectorHelper<Collector> chelper(collector, glbDir);
+  theMatcher->doubleMatch(monoHits.begin(), monoHits.end(),
+		       simpleSteroHitsByValue.begin(),  simpleSteroHitsByValue.end(), 
+		       gluedDet, trdir, chelper);
+ 
+  simpleSteroHitsByValue.clear();
+ 
+}
+   
