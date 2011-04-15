@@ -190,21 +190,21 @@ if __name__ == '__main__':
            lumiReport.toCSVLumiByLS(result,options.outputfile,options.verbose)
     if options.action == 'recorded':#recorded actually means effective because it needs to show all the hltpaths...
        session.transaction().start(True)
-       hltname=options.hltpathname
+       hltname=options.hltpath
+       print 'hltname ',hltname
        hltpat=None
-       if hltname :
+       if hltname is not None:
           if hltname=='*' or hltname=='all':
               hltname=None
-          else:
-              if [c in hltname for c in '*?[]']: #is a fnmatch pattern
-                  hltpat=hltname
-                  hltname=None
-       result=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),irunlsdict,hltpathname=hltname,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor)
+          elif 1 in [c in hltname for c in '*?[]']: #is a fnmatch pattern
+              hltpat=hltname
+              hltname=None
+       result=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),irunlsdict,hltpathname=hltname,hltpathpattern=hltpat,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor)
        session.transaction().commit()
-       if not options.outputfile:
-           lumiReport.toScreenEffective(result,options.verbose)
-       else:
-           lumiReport.toCSVEffective(result,options.outputfile,options.verbose)
+       #if not options.outputfile:
+       #    lumiReport.toScreenEffective(result,options.verbose)
+       #else:
+       #    lumiReport.toCSVEffective(result,options.outputfile,options.verbose)
            
     del session
     del svc 
