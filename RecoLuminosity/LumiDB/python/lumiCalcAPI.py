@@ -282,7 +282,6 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
     '''
     input:
            inputRange  {run:[cmsls]} (required)
-           amodetag : accelerator mode for all the runs (optional) ['PROTPHYS','HIPHYS']
            beamstatus: LS filter on beamstatus (optional)
            amodetag: amodetag for  picking norm(optional)
            egev: beamenergy for picking norm(optional)
@@ -306,7 +305,8 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
         normval=_decidenormFromContext(schema,amodetag,egev)
         perbunchnormval=float(normval)/float(1000)
     c=lumiTime.lumiTime()
-    for run,lslist in inputRange.items():#loop over run
+    for run in sorted(inputRange):#loop over run
+        lslist=inputRange[run]
         if lslist is not None and len(lslist)==0:#no selected ls, do nothing for this run
             result[run]=[]
             continue
@@ -397,15 +397,14 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
         result[run]=perrunresult
     return result
        
-def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None,amodetag='PROTPHYS',beamstatus=None,beamenergy=None,beamenergyFluc=0.2,withBXInfo=False,xingMinLum=1.0e-4,bxAlgo='OCC1',withBeamInfo=False,normname=None,datatag=None):
+def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None,amodetag=None,beamstatus=None,egev=None,withBXInfo=False,xingMinLum=1.0e-4,bxAlgo='OCC1',withBeamInfo=False,norm=None,datatag=None):
     '''
     input:
            inputRange  {run:[cmsls]} (required)
            hltpathname: selected hltpathname
-           hltpathpattern: regex select hltpaths
-           amodetag : accelerator mode for all the runs (optional) ['PROTPHYS','HIPHYS']
-           beamstatus: LS filter on beamstatus (optional)
-           beamenergy: LS filter on beamenergy (optional)  beamenergy+-beamenergyFluc
+           hltpathpattern: regex select hltpaths           
+           amodetag: amodetag for  picking norm(optional)
+           egev: beamenergy for picking norm(optional)
            withBXInfo: get per bunch info (optional)
            bxAlgo: algoname for bx values (optional) ['OCC1','OCC2','ET']
            xingMinLum: cut on bx lumi value (optional)
@@ -417,9 +416,17 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
            lumi unit: 1/ub
     '''
     result = {}
-    (normval,perbunchnormval)=_decidenorm(schema,norm=norm,amodetag=amodetag,nominalegev=nominalagev)
+    normval=None
+    perbunchnormval=None
+    if norm:
+        normval=_getnorm(schema,norm)
+        perbunchnormval=float(normval)/float(1000)
+    elif amodetag and egev:
+        normval=_decidenormFromContext(schema,amodetag,egev)
+        perbunchnormval=float(normval)/float(1000)
     c=lumiTime.lumiTime()
-    for run,lslist in inputRange.items():
+    for run in sorted(inputRange):
+        lslist=inputRange[run]
         if lslist is not None and len(lslist)==0:#no selected ls, do nothing for this run
             result[run]={}
             continue
@@ -429,7 +436,10 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
         trgdataid=None
         hltdataid=None
         (lumidataid,trgdataid,hltdataid)=dataDML.guessDataIdByRun(schema,run)
-        (lumirunnum,lumidata)=dataDML.lumiLSById(schema,lumidataid,beamstatus,beamenergy,beamenergyFluc,withBXInfo,bxAlgo,withBeamInfo)
+        if lumidataid is None or trgdataid is None or hltdataid is None:
+            result[run]=None
+            continue
+        (lumirunnum,lumidata)=dataDML.lumiLSById(schema,lumidataid,beamstatus)
         (trgrunnum,trgdata)=dataDML.trgLSById(schema,trgdataid,withblobdata=True)
         (hltrunnum,hltdata)=dataDML.hltLSById(schema,hltdataid)
         trgrundata=dataDML.trgRunById(schema,trgdataid)
@@ -438,6 +448,13 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
         hlttrgmap=dataDML.hlttrgMappingByrun(schema,run)
         pathnames=hltrundata[3].split(',')
         perrunresult={}
+        if not normval:#if norm cannot be decided , look for it according to context per run
+            normval=_decidenormForRun(schema,run)
+            perbunchnormval=float(normval)/float(1000)
+        if not normval:#still not found? resort to global default (should never come here)
+            normval=6370
+            perbunchnormval=6.37
+            print '[Warning] using default normalization '+str(normval)
         for lumilsnum,perlsdata in lumidata.items():
             cmslsnum=perlsdata[0]
             if lslist is not None and cmslsnum not in lslist:
@@ -462,7 +479,7 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
             bitzeroprescale=trgdata[cmslsnum][2]
             deadfrac=float(deadcount)/(float(bitzerocount)*float(bitzeroprescale))
             if deadfrac>1.0:
-                deadfrac=0.0  #artificial correction in case of trigger wrong prescale
+                deadfrac=1.0 
             recordedlumi=deliveredlumi*(1.0-deadfrac)
             efflumidict={}
             l1prescaleblob=trgdata[cmslsnum][4]

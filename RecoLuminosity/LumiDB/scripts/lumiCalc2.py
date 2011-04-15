@@ -7,89 +7,6 @@ from RecoLuminosity.LumiDB import sessionManager,lumiTime,inputFilesetParser,csv
 
 beamChoices=['PROTPHYS','IONPHYS']
 
-def getDeliveredPerLS(dbsession,inputRange,amodetag='PROTPHYS',beamstatus=None,beamenergy=None,beamenergyFluc=0.2,withBXInfo=False,bxAlgo='OCC1',xingMinLum=1.0e-4,withBeamInfo=False,normname=None,datatag=None):
-    '''
-    input:
-    output:#{run:[[lumilsnum,timestr,timestamp,delivered,(bxvalueblob,bxerrblob),(bxidx,b1intensity,b2intensity)],[]]}
-    '''
-    pass
-
-def getOverviewPerLS(dbsession,inputRange,amodetag='PROTPHYS',beamstatus=None,beamenergy=None,beamenergyFluc=0.2,withBXInfo=False,bxAlgo='OCC1',xingMinLum=1.0e-4,withBeamInfo=False,normname=None,datatag=None):
-    '''
-    input:
-    output:
-        {run:[[lumilsnum,cmslsnum,timestr,timestamp,delivered,recorded,(bxvalueblob,bxerrblob),(bxidx,b1intensity,b2intensity)],[]]}
-    '''
-    result={}
-    datacollector={}
-    if isinstance(inputRange, str):
-        datacollector[int(inputRange)]=[]
-    else:
-        for run in inputRange.runs():
-            datacollector[run]=[]
-    try:
-        dbsession.transaction().start(True)
-        schema=dbsession.nominalSchema()
-        for run in datacollector.keys():
-            runsummaryOut=[]  #[fillnum,sequence,hltkey,starttime,stoptime]
-            lumisummaryOut=[] #[[cmslsnum,instlumi,numorbit,startorbit,beamstatus,beamenergy,cmsalive]]
-            trgOut={} #{cmslsnum:[trgcount,deadtime,bitname,prescale]}
-            q=schema.newQuery()
-            runsummaryOut=lumiQueryAPI.runsummaryByrun(q,run)
-            del q
-            q=schema.newQuery()
-            lumisummaryOut=lumiQueryAPI.lumisummaryByrun(q,run,lumiversion)
-            del q
-            q=schema.newQuery()
-            trgOut=lumiQueryAPI.trgbitzeroByrun(q,run,)
-            del q
-            if len(runsummaryOut)!=0 and len(lumisummaryOut)!=0 and len(trgOut)!=0:
-                datacollector[run].append(runsummaryOut)
-                datacollector[run].append(lumisummaryOut)
-                datacollector[run].append(trgOut)
-        dbsession.transaction().commit()
-    except Exception, e:
-        dbsession.transaction().rollback()
-        del dbsession
-        raise Exception, 'lumiCalc.getPerLSData:'+str(e)
-    for run,perrundata in datacollector.items():
-        result[run]=[]
-        if len(perrundata)==0:
-            continue
-        runsummary=perrundata[0]
-        lumisummary=perrundata[1]
-        trg=perrundata[2]
-        starttimestr=runsummaryOut[3]
-        t=lumiTime.lumiTime()
-        for dataperls in lumisummary:
-            cmslsnum=dataperls[0]
-            instlumi=dataperls[1]
-            numorbit=dataperls[2]
-            dellumi=instlumi*float(numorbit)*3564.0*25.0e-09
-            startorbit=dataperls[3]
-            orbittime=t.OrbitToTime(starttimestr,startorbit)
-            orbittimestamp=time.mktime(orbittime.timetuple())+orbittime.microsecond/1e6
-            trgcount=0
-            deadtime=0
-            prescale=0
-            deadfrac=1.0
-            if trg.has_key(cmslsnum):
-                trgcount=trg[cmslsnum][0]
-                deadtime=trg[cmslsnum][1]
-                prescale=trg[cmslsnum][3]
-                if trgcount!=0 and prescale!=0:
-                    deadfrac=float(deadtime)/(float(trgcount)*float(prescale))
-                recordedlumi=dellumi*(1.0-deadfrac)
-            result[run].append( [cmslsnum,orbittime,orbittimestamp,dellumi,recordedlumi] )
-    return result
-
-def getEffectivePerLS(dbsession,inputRange,hltpathname=None,hltpathpattern=None,amodetag='PROTPHYS',beamstatus=None,beamenergy=None,beamenergyFluc=0.2,withBXInfo=False,xingMinLum=1.0e-4,bxAlgo='OCC1',withBeamInfo=False,normname=None,datatag=None):
-    '''
-    output:
-    {run:[[lumilsnum,cmslsnum,timestr,timestamp,delivered,recorded,effdict,(bxvalueblob,bxerrblob),(bxidx,b1intensity,b2intensity)],[]]}
-    '''
-    pass
-
 def getValidationData(dbsession,run=None,cmsls=None):
     '''retrieve validation data per run or all
     input: runnum, if not runnum, retrive all
@@ -272,6 +189,22 @@ if __name__ == '__main__':
        else:
            lumiReport.toCSVLumiByLS(result,options.outputfile,options.verbose)
     if options.action == 'recorded':#recorded actually means effective because it needs to show all the hltpaths...
-        pass
+       session.transaction().start(True)
+       hltname=options.hltpathname
+       hltpat=None
+       if hltname :
+          if hltname=='*' or hltname=='all':
+              hltname=None
+          else:
+              if [c in hltname for c in '*?[]']: #is a fnmatch pattern
+                  hltpat=hltname
+                  hltname=None
+       result=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),irunlsdict,hltpathname=hltname,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor)
+       session.transaction().commit()
+       if not options.outputfile:
+           lumiReport.toScreenEffective(result,options.verbose)
+       else:
+           lumiReport.toCSVEffective(result,options.outputfile,options.verbose)
+           
     del session
     del svc 
