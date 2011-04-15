@@ -87,9 +87,6 @@ namespace edm {
       collection_type data_;
       extra_type      extra_;
 
-      static ThreadSafeIndexedRegistry* instance_;
-
-      static boost::mutex registry_mutex;
     };
 
     template <typename T, typename E>
@@ -98,46 +95,6 @@ namespace edm {
     operator<< (std::ostream& os, ThreadSafeIndexedRegistry<T, E> const& reg) {
       reg.print(os);
       return os;
-    }
-
-    // ----------------------------------------------------------------------
-    // Declarations of static data for classes instantiated from the
-    // class template.
-
-    template <typename T, typename E>
-    ThreadSafeIndexedRegistry<T, E>* ThreadSafeIndexedRegistry<T, E>::instance_ = 0;
-
-    template <typename T, typename E>
-    boost::mutex ThreadSafeIndexedRegistry<T, E>::registry_mutex;
-
-    // ----------------------------------------------------------------------
-
-    template <typename T, typename E>
-    ThreadSafeIndexedRegistry<T, E>*
-    ThreadSafeIndexedRegistry<T, E>::instance() {
-      if (instance_ == 0) {
-	boost::mutex::scoped_lock lock(registry_mutex);
-	if (instance_ == 0) {
-	  static ThreadSafeIndexedRegistry<T, E> me;
-	  instance_ = &me;
-	}
-      }
-      return instance_;      
-    }
-
-    template <typename T, typename E>
-    void
-    ThreadSafeIndexedRegistry<T, E>::getMapped(size_type k, value_type& result) const {
-      boost::mutex::scoped_lock lock(registry_mutex);
-      result = data_[k];
-    }
-
-    template <typename T, typename E>
-    bool
-    ThreadSafeIndexedRegistry<T, E>::insertMapped(value_type const& v) {
-      boost::mutex::scoped_lock lock(registry_mutex);
-      data_.push_back(v);
-      return true;
     }
 
     template <typename T, typename E>

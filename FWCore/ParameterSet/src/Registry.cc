@@ -47,3 +47,5 @@ namespace edm {
 
 } // namespace edm
 
+#include "FWCore/Utilities/interface/ThreadSafeRegistry.icc"
+DEFINE_THREAD_SAFE_REGISTRY_INSTANCE(edm::pset::Registry)

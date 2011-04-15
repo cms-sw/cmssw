@@ -10,6 +10,7 @@
 
 #include "PhysicsTools/MVATrainer/interface/MVATrainer.h"
 #include "PhysicsTools/MVATrainer/interface/TrainProcessor.h"
+#include "PhysicsTools/MVAComputer/interface/ProcessRegistry.icc"
 
 EDM_REGISTER_PLUGINFACTORY(PhysicsTools::TrainProcessor::PluginFactory,
                            "PhysicsToolsMVATrainer");
@@ -166,3 +167,5 @@ TrainProcessor *ProcessRegistry<TrainProcessor, AtomicId,
 }
 
 } // namespace PhysicsTools
+template void PhysicsTools::ProcessRegistry<PhysicsTools::TrainProcessor, PhysicsTools::AtomicId, PhysicsTools::MVATrainer>::unregisterProcess(char const*);
+template void PhysicsTools::ProcessRegistry<PhysicsTools::TrainProcessor, PhysicsTools::AtomicId, PhysicsTools::MVATrainer>::registerProcess(char const*, PhysicsTools::ProcessRegistry<PhysicsTools::TrainProcessor, PhysicsTools::AtomicId, PhysicsTools::MVATrainer> const*);

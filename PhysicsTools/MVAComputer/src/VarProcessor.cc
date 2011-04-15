@@ -10,7 +10,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: VarProcessor.cc,v 1.7 2010/02/19 10:28:37 saout Exp $
+// $Id: VarProcessor.cc,v 1.8 2011/03/11 20:33:54 kukartse Exp $
 //
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -22,6 +22,7 @@
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"
 #include "PhysicsTools/MVAComputer/interface/Calibration.h"
 #include "PhysicsTools/MVAComputer/interface/BitSet.h"
+#include "PhysicsTools/MVAComputer/interface/ProcessRegistry.icc"
 
 // #define DEBUG_DERIV
 
@@ -230,3 +231,7 @@ void VarProcessor::deriv(double *input, int *conf, double *output,
 }
 
 } // namespace PhysicsTools
+
+// Force instantiation of its templated static methods.
+template void PhysicsTools::ProcessRegistry<PhysicsTools::VarProcessor, PhysicsTools::Calibration::VarProcessor, PhysicsTools::MVAComputer const>::unregisterProcess(char const*);
+template void PhysicsTools::ProcessRegistry<PhysicsTools::VarProcessor, PhysicsTools::Calibration::VarProcessor, PhysicsTools::MVAComputer const>::registerProcess(char const*, PhysicsTools::ProcessRegistry<PhysicsTools::VarProcessor, PhysicsTools::Calibration::VarProcessor, PhysicsTools::MVAComputer const> const*);

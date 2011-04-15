@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcessRegistry.h,v 1.7 2007/08/16 15:23:56 saout Exp $
+// $Id: ProcessRegistry.h,v 1.8 2009/05/11 16:01:16 saout Exp $
 //
 
 #include <string>
@@ -102,7 +102,5 @@ class ProcessRegistry {
 };
 
 } // namespace PhysicsTools
-
-#include "PhysicsTools/MVAComputer/interface/ProcessRegistry.icc"
 
 #endif // PhysicsTools_MVAComputer_ProcessRegistry_h

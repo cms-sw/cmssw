@@ -110,10 +110,6 @@ namespace edm {
 
       collection_type data_;
       extra_type      extra_;
-
-      static ThreadSafeRegistry* instance_;
-
-      static boost::mutex registry_mutex;
     };
 
     template <typename KEY, typename T, typename E>
@@ -122,76 +118,6 @@ namespace edm {
     operator<< (std::ostream& os, ThreadSafeRegistry<KEY,T,E> const& reg) {
       reg.print(os);
       return os;
-    }
-
-    // ----------------------------------------------------------------------
-    // Declarations of static data for classes instantiated from the
-    // class template.
-
-    template <typename KEY, typename T, typename E>
-    ThreadSafeRegistry<KEY,T,E>* ThreadSafeRegistry<KEY,T,E>::instance_ = 0;
-
-    template <typename KEY, typename T, typename E>
-    boost::mutex ThreadSafeRegistry<KEY,T,E>::registry_mutex;
-
-    // ----------------------------------------------------------------------
-
-    template <typename KEY, typename T, typename E>
-    ThreadSafeRegistry<KEY,T,E>*
-    ThreadSafeRegistry<KEY,T,E>::instance() {
-      if (instance_ == 0) {
-	boost::mutex::scoped_lock lock(registry_mutex);
-	if (instance_ == 0) {
-	  static ThreadSafeRegistry<KEY,T,E> me;
-	  instance_ = &me;
-	}
-      }
-      return instance_;      
-    }
-
-    template <typename KEY, typename T, typename E>
-    bool 
-    ThreadSafeRegistry<KEY,T,E>::getMapped(key_type const& k, value_type& result) const {
-      bool found;
-      const_iterator i;
-      {
-	// This scope limits the lifetime of the lock to the shorted
-	// required interval.
-	boost::mutex::scoped_lock lock(registry_mutex);
-	i = data_.find(k);
-	found = (i != data_.end());
-      }
-      if (found) result = i->second;
-      return found;
-    }
-
-    template <typename KEY, typename T, typename E>
-    typename ThreadSafeRegistry<KEY,T,E>::value_type const*
-    ThreadSafeRegistry<KEY,T,E>::getMapped(key_type const& k) const {
-      bool found;
-      const_iterator i;
-      {
-         // This scope limits the lifetime of the lock to the shorted
-         // required interval.
-         boost::mutex::scoped_lock lock(registry_mutex);
-         i = data_.find(k);
-         found = (i != data_.end());
-      }
-      return found ? &(i->second) : static_cast<value_type const*> (0);
-    }
-     
-    template <typename KEY, typename T, typename E>
-    bool 
-    ThreadSafeRegistry<KEY,T,E>::insertMapped(value_type const& v) {
-      bool newly_added = false;
-      boost::mutex::scoped_lock lock(registry_mutex);
-
-      key_type id = v.id();
-      if (data_.find(id) == data_.end()) {
-	  data_[id] = v;
-	  newly_added = true;
-      }
-      return newly_added;
     }
 
     template <typename KEY, typename T, typename E>
