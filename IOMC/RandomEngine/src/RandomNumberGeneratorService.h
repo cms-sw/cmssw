@@ -20,7 +20,7 @@
 #include <vector>
 #include <string>
 #include <stdint.h>
-#include <iosfwd>
+#include <fstream>
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -187,6 +187,7 @@ namespace edm {
       // the save file name has been recorded in the job report.
       std::string saveFileName_;
       bool saveFileNameRecorded_;
+      std::ofstream outFile_;
 
       // Keep the name of the file from which we restore the state
       // of all declared engines at the beginning of a run. A

@@ -32,7 +32,6 @@
 #include "IOMC/RandomEngine/src/TRandomAdaptor.h"
 
 #include <iostream>
-#include <fstream>
 #include <limits>
 #include <unistd.h>
 #include <sstream>
@@ -917,24 +916,27 @@ namespace edm {
     void
     RandomNumberGeneratorService::saveStatesToFile(std::string const& fileName)
     {
-      std::ofstream outFile;
-      outFile.open(fileName.c_str(), std::ofstream::out | std::ofstream::trunc);
-      if (!outFile) {
+      if (!outFile_.is_open()) {
+        outFile_.open(fileName.c_str(), std::ofstream::out | std::ofstream::trunc);
+      }
+      if (!outFile_) {
         throw edm::Exception(edm::errors::Configuration)
           << "Unable to open the file \""
           << fileName << "\" to save the state of the random engines.\n";
       }
-      outFile << "<RandomEngineStates>\n";
+      outFile_.seekp( 0, std::ios_base::beg);
+      outFile_ << "<RandomEngineStates>\n";
 
-      outFile << "<Event>\n";
-      writeStates(eventCache_, outFile);
-      outFile << "</Event>\n" ;
+      outFile_ << "<Event>\n";
+      writeStates(eventCache_, outFile_);
+      outFile_ << "</Event>\n" ;
 
-      outFile << "<Lumi>\n";
-      writeStates(lumiCache_, outFile);
-      outFile << "</Lumi>\n" ;
+      outFile_ << "<Lumi>\n";
+      writeStates(lumiCache_, outFile_);
+      outFile_ << "</Lumi>\n" ;
 
-      outFile << "</RandomEngineStates>\n" ;
+      outFile_ << "</RandomEngineStates>\n" ;
+      outFile_.flush();
     }
 
     void
