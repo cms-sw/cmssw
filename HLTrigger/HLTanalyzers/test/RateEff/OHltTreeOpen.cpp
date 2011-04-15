@@ -4306,44 +4306,44 @@ else if (triggerName.CompareTo("OpenHLT_Dimuon6p5_LowMass_v1") == 0)
             if (OpenHlt2ElectronsAsymSamHarperPassed(17., 0, // ET, L1isolation 
                   999.,
                   999., // Track iso barrel, Track iso endcap 
-                  999.,
-                  999., // Track/pT iso barrel, Track/pT iso endcap 
+                  0.2,
+                  0.2, // Track/pT iso barrel, Track/pT iso endcap 
                   0.2,
                   0.2, // H/ET iso barrel, H/ET iso endcap 
                   0.2,
                   0.2, // E/ET iso barrel, E/ET iso endcap 
-                  0.15,
-                  0.10, // H/E barrel, H/E endcap 
-                  0.014,
-                  0.035, // cluster shape barrel, cluster shape endcap 
+                  0.1,
+                  0.075, // H/E barrel, H/E endcap 
+                  0.011,
+                  0.031, // cluster shape barrel, cluster shape endcap 
                   //999., 999.,       // R9 barrel, R9 endcap 
                   0.98,
                   999., // R9 barrel, R9 endcap 
-                  999.,
-                  999., // Deta barrel, Deta endcap 
-                  999.,
-                  999., // Dphi barrel, Dphi endcap 
+                  0.01,
+                  0.01, // Deta barrel, Deta endcap 
+                  0.15,
+                  0.1, // Dphi barrel, Dphi endcap 
                   8.,
                   0, // ET, L1isolation 
                   999.,
                   999., // Track iso barrel, Track iso endcap 
-                  999.,
-                  999., // Track/pT iso barrel, Track/pT iso endcap 
+                  0.2,
+                  0.2, // Track/pT iso barrel, Track/pT iso endcap 
                   0.2,
                   0.2, // H/ET iso barrel, H/ET iso endcap 
                   0.2,
                   0.2, // E/ET iso barrel, E/ET iso endcap 
-                  0.15,
-                  0.10, // H/E barrel, H/E endcap 
-                  0.014,
-                  0.035, // cluster shape barrel, cluster shape endcap 
+                  0.1,
+                  0.075, // H/E barrel, H/E endcap 
+                  0.011,
+                  0.031, // cluster shape barrel, cluster shape endcap 
                   //999., 999.,       // R9 barrel, R9 endcap 
                   0.98,
                   999., // R9 barrel, R9 endcap 
-                  999.,
-                  999., // Deta barrel, Deta endcap 
-                  999.,
-                  999. // Dphi barrel, Dphi endcap 
+                  0.01,
+                  0.01, // Deta barrel, Deta endcap 
+                  0.15,
+                  0.1 // Dphi barrel, Dphi endcap 
             )>=1)
             {
                triggerBit[it] = true;
