@@ -8,6 +8,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/TrajectoryState/interface/TrackCharge.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 
 class GlobalTrajectoryParameters;
@@ -64,24 +65,25 @@ private:
 
   GlobalTrajectoryParameters gtpFromLocal( const Basic3DVector<double>& lpos,
 					   const Basic3DVector<double>& lmom,
-					   TrackCharge ch, const Surface& surf) const;
+					   TrackCharge ch, const Surface& surf) const dso_internal;
+
   GlobalTrajectoryParameters gtpFromVolumeLocal( const CartesianStateAdaptor& state, 
-						 TrackCharge charge) const;
+						 TrackCharge charge) const  dso_internal;
     
   RKLocalFieldProvider fieldProvider() const;
-  RKLocalFieldProvider fieldProvider( const Cylinder& cyl) const;
+  RKLocalFieldProvider fieldProvider( const Cylinder& cyl) const dso_internal;
 
-  PropagationDirection invertDirection( PropagationDirection dir) const;
+  PropagationDirection invertDirection( PropagationDirection dir) const dso_internal;
 
-  Basic3DVector<double> rkPosition( const GlobalPoint& pos) const;
-  Basic3DVector<double> rkMomentum( const GlobalVector& mom) const;
-  GlobalPoint           globalPosition( const Basic3DVector<double>& pos) const;
-  GlobalVector          globalMomentum( const Basic3DVector<double>& mom) const;
+  Basic3DVector<double> rkPosition( const GlobalPoint& pos) const dso_internal;
+  Basic3DVector<double> rkMomentum( const GlobalVector& mom) const dso_internal;
+  GlobalPoint           globalPosition( const Basic3DVector<double>& pos) const dso_internal;
+  GlobalVector          globalMomentum( const Basic3DVector<double>& mom) const dso_internal;
 
   GlobalParametersWithPath propagateParametersOnPlane( const FreeTrajectoryState& ts, 
-						       const Plane& plane) const;
+						       const Plane& plane) const dso_internal;
   GlobalParametersWithPath propagateParametersOnCylinder( const FreeTrajectoryState& ts, 
-							  const Cylinder& cyl) const;
+							  const Cylinder& cyl) const dso_internal;
 
 };
 
