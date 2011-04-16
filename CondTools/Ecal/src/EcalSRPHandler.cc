@@ -26,7 +26,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include "SimCalorimetry/EcalSelectiveReadoutProducers/interface/EcalSRCondTools.h"
-#include "GeneratorInterface/LHEInterface/src/XMLUtils.h"
 
 using namespace XERCES_CPP_NAMESPACE;
 using namespace xuti;
