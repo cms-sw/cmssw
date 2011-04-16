@@ -1,6 +1,7 @@
 #ifndef CylindricalState_H
 #define CylindricalState_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "RKSmallVector.h"
 
 #include <iostream>
@@ -17,7 +18,7 @@ The dependent variables are
 The coordinate system is externally defined
 */
 
-class CylindricalState {
+class dso_internal CylindricalState {
 public:
 
   typedef double                                   Scalar;

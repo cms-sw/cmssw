@@ -3,7 +3,7 @@
 
 class CartesianState;
 
-class RKCartesianDerivative {
+class dso_internal RKCartesianDerivative {
 public:
  
   virtual ~RKCartesianDerivative() {}

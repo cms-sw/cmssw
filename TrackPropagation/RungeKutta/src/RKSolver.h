@@ -1,6 +1,7 @@
 #ifndef RKSolver_H
 #define RKSolver_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "RKSmallVector.h"
 #include "RKDerivative.h"
 #include "RKDistance.h"
@@ -8,7 +9,7 @@
 /// ABC for Runge-Kutta solvers
 
 template <typename T, int N>
-class RKSolver {
+class dso_internal RKSolver {
 public:
 
     typedef T                                   Scalar;

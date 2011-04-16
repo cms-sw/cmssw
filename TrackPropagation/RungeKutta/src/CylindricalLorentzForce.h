@@ -1,12 +1,13 @@
 #ifndef CylindricalLorentzForce_H
 #define CylindricalLorentzForce_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "RKDerivative.h"
 
 class RKLocalFieldProvider;
 
 template <typename T, int N>
-class CylindricalLorentzForce : public RKDerivative<T,N> {
+class dso_internal CylindricalLorentzForce : public RKDerivative<T,N> {
 public:
 
     typedef RKDerivative<T,N>                   Base;

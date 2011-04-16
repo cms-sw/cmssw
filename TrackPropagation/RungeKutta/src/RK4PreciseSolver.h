@@ -1,11 +1,12 @@
 #ifndef RK4PreciseSolver_H
 #define RK4PreciseSolver_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "RKSolver.h"
 #include "Utilities/UI/interface/SimpleConfigurable.h"
 
 template <typename T, int N>
-class RK4PreciseSolver : public RKSolver<T,N> {
+class dso_internal RK4PreciseSolver : public RKSolver<T,N> {
 public:
 
     typedef RKSolver<T,N>                       Base;

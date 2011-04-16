@@ -1,12 +1,13 @@
 #ifndef CartesianLorentzForce_H
 #define CartesianLorentzForce_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "RKDerivative.h"
 #include "RKLocalFieldProvider.h"
 
 /// Derivative calculation for the 6D cartesian case.
 
-class CartesianLorentzForce : public RKDerivative<double,6> {
+class dso_internal CartesianLorentzForce : public RKDerivative<double,6> {
 public:
 
     typedef RKDerivative< double,6>             Base;

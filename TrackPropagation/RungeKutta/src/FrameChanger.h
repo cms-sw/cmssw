@@ -1,10 +1,11 @@
 #ifndef FrameChanger_H
 #define FrameChanger_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
-class FrameChanger {
+class dso_internal FrameChanger {
 public:
   /** Moves the first argument ("plane") to the reference frame given by the second 
    *  argument ("frame"). The returned frame is not positioned globally!

@@ -1,6 +1,7 @@
 #ifndef AnalyticalErrorPropagation_H
 #define AnalyticalErrorPropagation_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -11,7 +12,7 @@
 class Surface;
 
 
-class AnalyticalErrorPropagation {
+class dso_internal AnalyticalErrorPropagation {
 public:
 
     std::pair<TrajectoryStateOnSurface,double>

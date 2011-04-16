@@ -1,12 +1,13 @@
 #ifndef RKSmallVector_H
 #define RKSmallVector_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "DataFormats/GeometryVector/interface/PreciseFloatType.h"
 
 #include <iostream>
 
 template<typename T, int N> 
-class RKSmallVector {
+class dso_internal RKSmallVector {
 public:
   typedef T                                   Scalar;
 

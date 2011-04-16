@@ -1,10 +1,11 @@
 #ifndef CartesianState_H
 #define CartesianState_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "VectorDoublet.h"
 
-class CartesianState {
+class dso_internal CartesianState {
 public:
 
   typedef double                            Scalar;

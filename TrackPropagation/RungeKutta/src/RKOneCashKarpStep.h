@@ -1,6 +1,7 @@
 #ifndef RKOneCashKarpStep_H
 #define RKOneCashKarpStep_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "RKSmallVector.h"
 #include "RKDerivative.h"
 #include "RKDistance.h"
@@ -8,7 +9,7 @@
 #include <utility>
 
 template <typename T, int N>
-class RKOneCashKarpStep // : RKStepWithPrecision 
+class dso_internal RKOneCashKarpStep // : RKStepWithPrecision 
 {
 public:
 

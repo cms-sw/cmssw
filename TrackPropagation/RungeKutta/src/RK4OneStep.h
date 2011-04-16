@@ -1,11 +1,12 @@
 #ifndef RK4OneStep_H
 #define RK4OneStep_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "CartesianState.h"
 
 class RKCartesianDerivative;
 
-class RK4OneStep {
+class dso_internal RK4OneStep {
 public:
 
   CartesianState

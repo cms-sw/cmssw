@@ -1,12 +1,13 @@
 #ifndef RKOne4OrderStep_H
 #define RKOne4OrderStep_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "RK4OneStepTempl.h"
 
 #include <utility>
 
 template <typename T, int N>
-class RKOne4OrderStep {
+class dso_internal RKOne4OrderStep {
 public:
 
   typedef T                                   Scalar;

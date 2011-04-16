@@ -1,6 +1,7 @@
 #ifndef RKSolverTempl_H
 #define RKSolverTempl_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "RKSmallVector.h"
 #include "RKDerivative.h"
 #include "RKDistance.h"
@@ -12,7 +13,7 @@ template <typename T,
 	  template class Dist<typename, int>,
 	  template class StepWithPrec<typename, class, class, int>,
 	  int N>
-class RKSolverTempl {
+class dso_internal RKSolverTempl {
 public:
 
     typedef T                                   Scalar;

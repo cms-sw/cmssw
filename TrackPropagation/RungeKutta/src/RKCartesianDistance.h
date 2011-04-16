@@ -1,6 +1,7 @@
 #ifndef RKCartesianDistance_H
 #define RKCartesianDistance_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "RKDistance.h"
 #include "RKSmallVector.h"
 #include "CartesianStateAdaptor.h"
@@ -9,7 +10,7 @@
 
 /// Estimator of the distance between two state vectors, e.g. for convergence test
 
-class RKCartesianDistance : public RKDistance<double,6> {
+class dso_internal RKCartesianDistance : public RKDistance<double,6> {
 public:
  
   typedef double                                 Scalar;

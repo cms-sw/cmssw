@@ -1,6 +1,7 @@
 #ifndef PathToPlane2Order_H
 #define PathToPlane2Order_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "TrackingTools/GeomPropagators/interface/HelixPlaneCrossing.h"
 #include "CartesianState.h"
@@ -17,7 +18,7 @@
 
 class RKLocalFieldProvider;
 
-class PathToPlane2Order {
+class dso_internal PathToPlane2Order {
 public:
 
     typedef Plane::Scalar                                Scalar;

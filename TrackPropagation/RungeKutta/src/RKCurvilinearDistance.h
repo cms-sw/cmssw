@@ -1,11 +1,12 @@
 #ifndef RKCurvilinearDistance_H
 #define RKCurvilinearDistance_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "RKDistance.h"
 #include "RKSmallVector.h"
 
 template <typename T, int N>
-class RKCurvilinearDistance : public RKDistance<T,N> {
+class dso_internal RKCurvilinearDistance : public RKDistance<T,N> {
 public:
  
   typedef T                                   Scalar;

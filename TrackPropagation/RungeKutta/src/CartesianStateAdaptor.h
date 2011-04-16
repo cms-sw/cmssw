@@ -1,7 +1,7 @@
 #ifndef CartesianStateAdaptor_H
 #define CartesianStateAdaptor_H
 
-class CartesianStateAdaptor {
+class dso_internal CartesianStateAdaptor {
 public:
 
     typedef double                            Scalar;

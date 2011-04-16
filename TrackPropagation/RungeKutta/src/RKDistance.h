@@ -1,10 +1,11 @@
 #ifndef RKDistance_H
 #define RKDistance_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "RKSmallVector.h"
 
 template <typename T, int N>
-class RKDistance {
+class dso_internal RKDistance {
 public:
  
   typedef T                                   Scalar;

@@ -1,6 +1,7 @@
 #ifndef CurvilinearState_H
 #define CurvilinearState_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "DataFormats/GeometryVector/interface/Basic2DVector.h"
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "VectorDoublet.h"
@@ -17,7 +18,7 @@ The dependent variables are
 The coordinate system is externally defined
 */
 
-class CurvilinearState {
+class dso_internal CurvilinearState {
 public:
 
   typedef double                            Scalar;

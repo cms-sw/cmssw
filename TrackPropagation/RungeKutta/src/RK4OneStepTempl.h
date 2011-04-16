@@ -1,11 +1,12 @@
 #ifndef RK4OneStepTempl_H
 #define RK4OneStepTempl_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "RKSmallVector.h"
 #include "RKDerivative.h"
 
 template <typename T, int N>
-class RK4OneStepTempl {
+class dso_internal RK4OneStepTempl {
  public:
 
     typedef T                                   Scalar;

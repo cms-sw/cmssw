@@ -1,6 +1,7 @@
 #ifndef RKAdaptiveSolver_H
 #define RKAdaptiveSolver_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "RKSolver.h"
 
 //#include "Utilities/UI/interface/SimpleConfigurable.h"
@@ -8,7 +9,7 @@
 template <typename T, 
 	  template <typename,int> class StepWithPrec, 
 	  int N>
-class RKAdaptiveSolver : public RKSolver<T,N> {
+class dso_internal RKAdaptiveSolver : public RKSolver<T,N> {
 public:
 
     typedef RKSolver<T,N>                       Base;

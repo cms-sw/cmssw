@@ -1,12 +1,13 @@
 #ifndef RKDerivative_H
 #define RKDerivative_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "RKSmallVector.h"
 
 /// Base class for derivative calculation. 
 
 template <typename T, int N>
-class RKDerivative {
+class dso_internal RKDerivative {
 public:
  
   typedef T                                   Scalar;

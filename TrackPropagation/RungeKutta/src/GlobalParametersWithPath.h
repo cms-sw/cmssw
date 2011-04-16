@@ -1,9 +1,10 @@
 #ifndef GlobalParametersWithPath_H
 #define GlobalParametersWithPath_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 
-class GlobalParametersWithPath {
+class dso_internal GlobalParametersWithPath {
 public:
   GlobalParametersWithPath() : gtp_(), s_(0), valid_(false) {}
   GlobalParametersWithPath( const GlobalTrajectoryParameters& gtp, double s) : 

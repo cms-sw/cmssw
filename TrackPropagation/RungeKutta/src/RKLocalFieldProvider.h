@@ -1,11 +1,12 @@
 #ifndef RKLocalFieldProvider_H
 #define RKLocalFieldProvider_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 
 class MagVolume;
 
-class RKLocalFieldProvider {
+class dso_internal RKLocalFieldProvider {
 public:
 
     typedef GloballyPositioned<float>            Frame;

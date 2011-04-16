@@ -1,12 +1,13 @@
 #ifndef RK4PreciseStep_H
 #define RK4PreciseStep_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "CartesianState.h"
 #include <utility>
 
 class RKCartesianDerivative;
 
-class RK4PreciseStep {
+class dso_internal RK4PreciseStep {
 public:
 
   CartesianState

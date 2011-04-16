@@ -1,10 +1,11 @@
 #ifndef VectorDoublet_H
 #define VectorDoublet_H
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "DataFormats/GeometryVector/interface/PreciseFloatType.h"
 
 template <class V1, class V2>
-class VectorDoublet {
+class dso_internal VectorDoublet {
 public:
 
   typedef typename V1::ScalarType Scalar1;
