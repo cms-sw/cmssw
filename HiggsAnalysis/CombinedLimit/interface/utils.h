@@ -4,6 +4,7 @@
 struct RooDataHist;
 struct RooAbsData;
 struct RooAbsPdf;
+struct RooArgSet;
 struct RooArgList;
 struct RooWorkspace;
 namespace RooStats { class ModelConfig; }
@@ -14,9 +15,16 @@ namespace utils {
     void printPdf(RooStats::ModelConfig &model) ;
     void printPdf(RooWorkspace *w, const char *pdfName) ;
 
+    /// Create a pdf which depends only on observables, and collect the other constraint terms
+    /// Will return 0 if it's all constraints, &pdf if it's all observables, or a new pdf if it's something mixed
+    /// In the last case, you're the owner of the returned pdf.
+    RooAbsPdf *factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgList &constraints);
+
     /// collect factors depending on observables in obsTerms, and all others in constraints
     void factorizePdf(RooStats::ModelConfig &model, RooAbsPdf &pdf, RooArgList &obsTerms, RooArgList &constraints, bool debug=false);
     RooAbsPdf *makeNuisancePdf(RooStats::ModelConfig &model, const char *name="nuisancePdf") ;
+
+    /// Note: doesn't recompose Simultaneous pdfs properly, for that use factorizePdf method
     RooAbsPdf *makeObsOnlyPdf(RooStats::ModelConfig &model, const char *name="obsPdf") ;
 }
 #endif

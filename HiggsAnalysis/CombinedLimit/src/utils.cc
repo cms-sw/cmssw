@@ -10,6 +10,7 @@
 #include <stdexcept>
 
 #include <TIterator.h>
+#include <TString.h>
 
 #include <RooAbsData.h>
 #include <RooAbsPdf.h>
@@ -70,6 +71,60 @@ void utils::printPdf(RooWorkspace *w, const char *pdfName) {
   std::cout << "PDF " << pdfName << " parameters." << std::endl;
   std::auto_ptr<RooArgSet> params(w->pdf(pdfName)->getVariables());
   params->Print("V");
+}
+
+RooAbsPdf *factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgList &constraints) {
+    const std::type_info & id = typeid(pdf);
+    if (id == typeid(RooProdPdf)) {
+        RooProdPdf *prod = dynamic_cast<RooProdPdf *>(&pdf);
+        RooArgList newFactors; RooArgSet newOwned;
+        RooArgList list(prod->pdfList());
+        bool needNew = false;
+        for (int i = 0, n = list.getSize(); i < n; ++i) {
+            RooAbsPdf *pdfi = (RooAbsPdf *) list.at(i);
+            RooAbsPdf *newpdf = factorizePdf(observables, *pdfi, constraints);
+            if (newpdf == 0) { needNew = true; continue; }
+            if (newpdf != pdfi) { needNew = true; newOwned.add(*newpdf); }
+            newFactors.add(*newpdf);
+        }
+        if (!needNew) return prod;
+        else if (newFactors.getSize() == 0) return 0;
+        RooProdPdf *ret = new RooProdPdf(TString::Format("%s_obsOnly", pdf.GetName()), "", newFactors);
+        ret->addOwnedComponents(newOwned);
+        return ret;
+    } else if (id == typeid(RooSimultaneous)) {
+        RooSimultaneous *sim  = dynamic_cast<RooSimultaneous *>(&pdf);
+        RooAbsCategoryLValue *cat = (RooAbsCategoryLValue *) sim->indexCat().Clone();
+        int nbins = cat->numBins((const char *)0);
+        TObjArray factorizedPdfs(nbins); RooArgSet newOwned;
+        bool needNew = false;
+        for (int ic = 0, nc = nbins; ic < nc; ++ic) {
+            cat->setBin(ic);
+            RooAbsPdf *pdfi = sim->getPdf(cat->getLabel());
+            RooAbsPdf *newpdf = factorizePdf(observables, *pdfi, constraints);
+            factorizedPdfs[ic] = newpdf;
+            if (newpdf == 0) { needNew = true; continue; }
+            if (newpdf != pdfi) { needNew = true; newOwned.add(*newpdf); }
+        }
+        RooSimultaneous *ret = sim;
+        if (needNew) {
+            ret = new RooSimultaneous(TString::Format("%s_obsOnly", pdf.GetName()), "", (RooAbsCategoryLValue&) sim->indexCat());
+            for (int ic = 0, nc = nbins; ic < nc; ++ic) {
+                cat->setBin(ic);
+                RooAbsPdf *newpdf = (RooAbsPdf *) factorizedPdfs[ic];
+                if (newpdf) ret->addPdf(*newpdf, cat->getLabel());
+            }
+            ret->addOwnedComponents(newOwned);
+        }
+        delete cat;
+        return ret;
+    } else if (pdf.dependsOn(observables)) {
+        return &pdf;
+    } else {
+        if (!constraints.contains(pdf)) constraints.add(pdf);
+        return 0;
+    }
+
 }
 
 void utils::factorizePdf(RooStats::ModelConfig &model, RooAbsPdf &pdf, RooArgList &obsTerms, RooArgList &constraints, bool debug) {
