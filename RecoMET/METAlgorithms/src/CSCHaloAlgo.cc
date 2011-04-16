@@ -188,15 +188,17 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	    n_tracks_small_dT_and_beta++;
 
 	}
-
       TheCSCHaloData.SetNIncomingTracks(n_tracks_small_dT,n_tracks_small_beta,n_tracks_small_dT_and_beta);
     }
+  else // collection is invalid
+    {
+      edm::LogWarning  ("InvalidInputTag") <<  " The Cosmic Muon collection does not appear to be in the event. These beam halo "
+					   << " identification variables will be empty" ;
+    }
 
-  
-
-   if( TheHLTResults.isValid() )
-     {
-       bool EventPasses = false;
+  if( TheHLTResults.isValid() )
+    {
+      bool EventPasses = false;
        for( unsigned int index = 0 ; index < vIT_HLTBit.size(); index++)
          {
            if( vIT_HLTBit[index].label().size() )
@@ -218,6 +220,11 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
        else
          TheCSCHaloData.SetHLTBit(false);
      }
+  else //  HLT results are not valid
+    {
+      edm::LogWarning  ("InvalidInputTag") << "The HLT results do not appear to be in the event. The beam halo HLT trigger "
+					   << "decision will not be used in the halo identification"; 
+    }
 
    if( TheL1GMTReadout.isValid() )
      {
@@ -314,6 +321,11 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	 }
        TheCSCHaloData.SetNumberOfHaloTriggers(PlusZ, MinusZ);
      }
+   else
+     {
+       edm::LogWarning  ("InvalidInputTag") << "The L1MuGMTReadoutCollection does not appear to be in the event. The L1 beam halo trigger "
+					    << "decision will not be used in the halo identification"; 
+     }
 
    // Loop over CSCALCTDigi collection to look for out-of-time chamber triggers 
    // A collision muon in real data should only have ALCTDigi::getBX() = 3 ( in MC, it will be 6 )
@@ -403,6 +415,11 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	     }
 	 }
      }
+   else
+     {
+       edm::LogWarning  ("InvalidInputTag") << "The CSCALCTDigiCollection does not appear to be in the event. The ALCT Digis will "
+					    << " not be used in the halo identification"; 
+     }
    TheCSCHaloData.SetNOutOfTimeTriggers(n_alctsP,n_alctsM);
 
    // Loop over the CSCRecHit2D collection to look for out-of-time recHits
@@ -445,6 +462,11 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	     }
 	   */
 	 }
+     }
+   else
+     {
+       edm::LogWarning  ("InvalidInputTag") << "The requested CSCRecHit2DCollection does not appear to be in the event. The CSC RecHit "
+					    << " variables used for halo identification will not be calculated or stored";
      }
    TheCSCHaloData.SetNOutOfTimeHits(n_recHitsP+n_recHitsM);
 
