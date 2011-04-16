@@ -3,6 +3,7 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/GeomPropagators/interface/HelixPlaneCrossing.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing2Order.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 /** Calculates intersections of a helix with planes of any orientation. */
 
@@ -49,7 +50,7 @@ private:
    */
   inline bool notAtSurface (const Plane&,
   			    const PositionTypeDouble&,
-			    const float) const;
+			    const float) const dso_internal;
 
 private:
   HelixArbitraryPlaneCrossing2Order theQuadraticCrossingFromStart;

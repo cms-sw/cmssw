@@ -3,6 +3,7 @@
 
 #include "TrackingTools/GeomPropagators/interface/HelixLineExtrapolation.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 /** Calculates intersections of a helix with planes of
  *  any orientation using a parabolic approximation. */
@@ -56,11 +57,11 @@ public:
 
 private:
   /// common part for propagation to point and line
-  virtual std::pair<bool,double> pathLengthFromCoefficients (const double ceq[4]) const;
+  virtual std::pair<bool,double> pathLengthFromCoefficients (const double ceq[4]) const dso_internal;
   /// Solutions of 3rd order equation
-  int solve3rdOrder (const double ceq[], double sol[]) const;
+  int solve3rdOrder (const double ceq[], double sol[]) const dso_internal;
   /// Solutions of 2nd order equation
-  int solve2ndOrder (const double ceq[], double sol[]) const;
+  int solve2ndOrder (const double ceq[], double sol[]) const dso_internal;
 
 private:
   const PositionTypeDouble thePosition;

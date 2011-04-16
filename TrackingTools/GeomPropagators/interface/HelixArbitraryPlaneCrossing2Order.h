@@ -2,6 +2,7 @@
 #define HELIXARBITRARYPLANECROSSING2ORDER_H_
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/GeomPropagators/interface/HelixPlaneCrossing.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 /** Calculates intersections of a helix with planes of
  *  any orientation using a parabolic approximation. */
@@ -70,7 +71,7 @@ private:
 
   /** Choice of one of two solutions according to the propagation direction.
    */
-  std::pair<bool,double> solutionByDirection(const double dS1,const double dS2) const;
+  std::pair<bool,double> solutionByDirection(const double dS1,const double dS2) const dso_internal;
 
 private:
   const double theX0,theY0,theZ0;

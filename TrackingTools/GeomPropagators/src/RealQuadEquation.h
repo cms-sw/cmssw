@@ -3,12 +3,13 @@
 
 #include <utility>
 #include <cmath>
+#include "FWCore/Utilities/interface/Visibility.h"
 
 /** A numericaly stable and as fast as can be quadratic equation solver.
  *  The equation has the form A*x^2 + B*x + C = 0
  */
 
-struct RealQuadEquation {
+struct dso_internal RealQuadEquation {
 
   bool hasSolution;
   double first;

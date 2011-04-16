@@ -6,6 +6,8 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
+#include "FWCore/Utilities/interface/Visibility.h"
+
 class Cylinder;
 
 /** Calculates the crossing of a helix with a barrel cylinder.
@@ -62,7 +64,7 @@ private:
   void chooseSolution( const Point& p1, const Point& p2,
 		       const PositionType& startingPos,
 		       const DirectionType& startingDir, 
-		       PropagationDirection propDir);
+		       PropagationDirection propDir) dso_internal;
 
 };
 

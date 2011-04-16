@@ -4,6 +4,7 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/GeomPropagators/interface/HelixLineExtrapolation.h"
 #include "TrackingTools/GeomPropagators/interface/HelixExtrapolatorToLine2Order.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 /** Calculates closest approach of a helix to a line or a point by 
  *  iterative use of a 2nd order expansion of the helix.
@@ -51,7 +52,7 @@ public:
 private:
   /// common functionality for extrapolation to line or point
   template <class T> 
-  std::pair<bool,double> genericPathLength (const T& object) const;
+  std::pair<bool,double> genericPathLength (const T& object) const dso_internal;
 
 private:
   const double theX0,theY0,theZ0;

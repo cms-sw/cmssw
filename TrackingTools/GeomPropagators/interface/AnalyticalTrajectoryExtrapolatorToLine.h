@@ -6,6 +6,8 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
+#include "FWCore/Utilities/interface/Visibility.h"
+
 class FreeTrajectoryState;
 class TrajectoryStateOnSurface;
 class Line;
@@ -43,14 +45,14 @@ public:
 private:
   /// extrapolation of (multi) TSOS
   TrajectoryStateOnSurface extrapolateFullState (const TrajectoryStateOnSurface tsos, 
-						 const Line& line) const;
+						 const Line& line) const dso_internal;
   /// extrapolation of (single) FTS
   TrajectoryStateOnSurface extrapolateSingleState (const FreeTrajectoryState& fts, 
-						   const Line& line) const;
+						   const Line& line) const dso_internal;
   /// the actual propagation to a new point & momentum vector
   bool propagateWithHelix (const IterativeHelixExtrapolatorToLine& extrapolator, 
 			   const Line& line,
-			   GlobalPoint& x, GlobalVector& p, double& s) const;
+			   GlobalPoint& x, GlobalVector& p, double& s) const dso_internal;
 
 private:
   DeepCopyPointerByClone<Propagator> thePropagator;
