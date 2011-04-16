@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/10/13 15:26:08 $
- *  $Revision: 1.28 $
+ *  $Date: 2010/10/13 15:30:50 $
+ *  $Revision: 1.29 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -30,7 +30,7 @@
 
 #include "MagneticField/Interpolation/interface/MagProviderInterpol.h"
 #include "MagneticField/Interpolation/interface/MFGridFactory.h"
-#include "MagneticField/Interpolation/interface/MFGrid3D.h"
+#include "MagneticField/Interpolation/interface/MFGrid.h"
 
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
@@ -562,7 +562,7 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
 				 vol->sides(), 
 				 interpolators[vol->magFile]);
 
-      const MFGrid3D* grid = dynamic_cast<const MFGrid3D*>(interpolators[vol->magFile]);
+      const MFGrid* grid = dynamic_cast<const MFGrid*>(interpolators[vol->magFile]);
       if (grid!=0) {
 	
 	Dimensions sizes = grid->dimensions();

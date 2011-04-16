@@ -1,6 +1,5 @@
 #include "VolumeGridTester.h"
 #include "MagneticField/Interpolation/interface/MFGrid.h"
-#include "MagneticField/Interpolation/interface/MFGrid3D.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 #include <iostream>
 #include <string>
@@ -17,7 +16,8 @@ bool VolumeGridTester::testInside() const
 //   if (lastName == volume_->name) return true; // skip multiple calls
 //   else lastName = volume_->name;
 
-  const MFGrid3D* grid = dynamic_cast<const MFGrid3D*>(magProvider_);
+
+  const MFGrid * grid = dynamic_cast<const MFGrid *>(magProvider_);
   if (grid == 0) {
     cout << "VolumeGridTester: magProvider is not a MFGrid3D, cannot test it..." << endl
 	 << "expected ";
