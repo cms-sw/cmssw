@@ -13,6 +13,7 @@
 
 #include "TrackingTools/MaterialEffects/interface/MaterialEffectsUpdator.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 class MediumProperties;
 
@@ -30,12 +31,12 @@ public:
 private:
   // here comes the actual computation of the values
   virtual void compute (const TrajectoryStateOnSurface&, 
-			const PropagationDirection) const;
+			const PropagationDirection) const dso_internal;
   // Internal routine for ionization acc. to Bethe-Bloch
-  void computeBetheBloch (const LocalVector&, const MediumProperties&) const;
+  void computeBetheBloch (const LocalVector&, const MediumProperties&) const dso_internal;
   // Internal routine for energy loss by electrons due to radiation
   void computeElectrons (const LocalVector&, const MediumProperties&,
-			 const PropagationDirection) const;
+			 const PropagationDirection) const dso_internal;
 
 };
 

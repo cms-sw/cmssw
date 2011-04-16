@@ -10,6 +10,7 @@
  */
 
 #include "TrackingTools/MaterialEffects/interface/MaterialEffectsUpdator.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 class MultipleScatteringUpdator : public MaterialEffectsUpdator 
 {
@@ -34,7 +35,7 @@ public:
 
 private:
   // here comes the actual computation of the values
-  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection) const;
+  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection) const dso_internal;
 
 
 private:  

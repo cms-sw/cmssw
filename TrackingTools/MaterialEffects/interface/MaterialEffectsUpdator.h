@@ -7,14 +7,16 @@
  *  in this class.
  *  Ported from ORCA.
  *
- *  $Date: 2010/04/22 12:19:04 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/04/22 16:58:45 $
+ *  $Revision: 1.12 $
  *  \author todorov, cerati
  */
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "FWCore/Utilities/interface/Visibility.h"
+
 class MaterialEffectsUpdator
 {  
 public:
@@ -59,10 +61,10 @@ public:
 
  private:
   // here comes the actual computation of the values
-  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection) const = 0;
+  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection) const dso_internal = 0;
 
   // check of arguments for use with cached values
-  bool newArguments (const TrajectoryStateOnSurface & TSoS, PropagationDirection  propDir) const;
+  bool newArguments (const TrajectoryStateOnSurface & TSoS, PropagationDirection  propDir) const dso_internal;
   
  private:
   double theMass;

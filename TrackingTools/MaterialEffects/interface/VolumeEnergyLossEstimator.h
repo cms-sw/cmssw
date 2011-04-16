@@ -8,6 +8,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/MaterialEffects/interface/VolumeMaterialEffectsEstimator.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 class VolumeMaterialEffectsEstimate;
 class VolumeMediumProperties;
@@ -31,10 +32,10 @@ public:
 private:
   void computeBetheBloch (const LocalVector& localP, double pathLength,
 			  const VolumeMediumProperties& medium,
-			  double& deltaP, double& deltaCov00) const;
+			  double& deltaP, double& deltaCov00) const dso_internal;
   void computeElectrons (const LocalVector& localP, double pathLength,
 			 const VolumeMediumProperties& medium,
-			 double& deltaP, double& deltaCov00) const;
+			 double& deltaP, double& deltaCov00) const dso_internal;
 };
 
 #endif

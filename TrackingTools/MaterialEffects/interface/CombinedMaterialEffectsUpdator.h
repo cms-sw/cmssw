@@ -13,6 +13,7 @@
 #include "TrackingTools/MaterialEffects/interface/MultipleScatteringUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/EnergyLossUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/MaterialEffectsUpdator.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 class CombinedMaterialEffectsUpdator : public MaterialEffectsUpdator
 {  
@@ -33,7 +34,7 @@ public:
 
  private:
   // here comes the actual computation of the values
-  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection) const;
+  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection) const dso_internal;
   
  private:
   // objects used for calculations of multiple scattering and energy loss
