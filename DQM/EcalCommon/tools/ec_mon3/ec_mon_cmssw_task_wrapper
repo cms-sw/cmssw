@@ -761,7 +761,7 @@ if (localDAQ == 1) | (globalDAQ == 1) :
 
   process.ecalEndcapMonitorClient.dbTagName = 'CMSSW-offline-private'
 
-if (localDAQ == 1) | (liveCMS == 1) :
+if (localDAQ == 1) | (liveCMS == 1) | (liveECAL == 1) :
   process.ecalBarrelMonitorClient.dbName = dbName
   process.ecalBarrelMonitorClient.dbHostName = dbHostName
   process.ecalBarrelMonitorClient.dbHostPort = dbHostPort
