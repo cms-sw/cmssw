@@ -1,4 +1,5 @@
 <bin   file="Grid1D_t.cpp">
+  <use   name="MagneticField/Interpolation"/>
   <flags NO_TESTRUN="1"/>
 </bin>
 <bin   file="Grid3D_t.cpp">
