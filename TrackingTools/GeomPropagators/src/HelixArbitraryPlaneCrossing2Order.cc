@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include <cfloat>
+#include "FWCore/Utilities/interface/Likely.h"
 
 HelixArbitraryPlaneCrossing2Order::HelixArbitraryPlaneCrossing2Order(const PositionType& point,
 								     const DirectionType& direction,
@@ -58,7 +59,7 @@ HelixArbitraryPlaneCrossing2Order::pathLength(const Plane& plane) {
   //   curvature, forward plane or direction perp. to plane)
   //
   double dS1,dS2;
-  if ( fabs(ceq1)>FLT_MIN ) {
+  if likely( fabs(ceq1)>FLT_MIN ) {
     double deq1 = ceq2*ceq2;
     double deq2 = ceq1*ceq3;
     if ( fabs(deq1)<FLT_MIN || fabs(deq2/deq1)>1.e-6 ) {
@@ -66,7 +67,7 @@ HelixArbitraryPlaneCrossing2Order::pathLength(const Plane& plane) {
       // Standard solution for quadratic equations
       //
       double deq = deq1+2*deq2;
-      if ( deq<0. )  return std::pair<bool,double>(false,0);
+      if likely( deq<0. )  return std::pair<bool,double>(false,0);
       double ceq = -0.5*(ceq2+(ceq2>0?1:-1)*sqrt(deq));
       dS1 = -2*(ceq/ceq1)*theSinThetaI;
       dS2 = (ceq3/ceq)*theSinThetaI;

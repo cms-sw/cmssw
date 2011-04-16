@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <iostream>
+#include "FWCore/Utilities/interface/Likely.h"
 
 HelixArbitraryPlaneCrossing::HelixArbitraryPlaneCrossing(const PositionType& point,
 							 const DirectionType& direction,
@@ -66,7 +67,7 @@ HelixArbitraryPlaneCrossing::pathLength(const Plane& plane) {
     //
     // return empty solution vector if no convergence after maxIterations iterations
     //
-    if ( --iteration<0 ) {
+    if unlikely( --iteration<0 ) {
       edm::LogInfo("HelixArbitraryPlaneCrossing") << "pathLength : no convergence";
       return std::pair<bool,double>(false,0);
     }
@@ -76,7 +77,7 @@ HelixArbitraryPlaneCrossing::pathLength(const Plane& plane) {
     // for subsequent passes.
     //
     std::pair<bool,double> deltaS2;
-    if ( first ) {
+    if unlikely( first ) {
       first = false;
       deltaS2 = theQuadraticCrossingFromStart.pathLength(plane);
     }
@@ -90,7 +91,7 @@ HelixArbitraryPlaneCrossing::pathLength(const Plane& plane) {
       deltaS2 = quadraticCrossing.pathLength(plane);
     }
      
-    if ( !deltaS2.first )  return deltaS2;
+    if unlikely( !deltaS2.first )  return deltaS2;
     //
     // Calculate and sort total pathlength (max. 2 solutions)
     //
@@ -100,7 +101,7 @@ HelixArbitraryPlaneCrossing::pathLength(const Plane& plane) {
       propDir = newDir;
     }
     else {
-      if ( newDir!=propDir )  return std::pair<bool,double>(false,0);
+      if unlikely( newDir!=propDir )  return std::pair<bool,double>(false,0);
     }
     //
     // Step forward by dSTotal.
@@ -130,7 +131,7 @@ HelixArbitraryPlaneCrossing::positionInDouble (double s) const {
   //
   // Calculate delta phi (if not already available)
   //
-  if ( s!=theCachedS ) {
+  if unlikely( s!=theCachedS ) {
     theCachedS = s;
     theCachedDPhi = theCachedS*theRho*theSinTheta;
     theCachedSDPhi = sin(theCachedDPhi);
@@ -178,7 +179,7 @@ HelixArbitraryPlaneCrossing::directionInDouble (double s) const {
   //
   // Calculate delta phi (if not already available)
   //
-  if ( s!=theCachedS ) {
+  if unlikely( s!=theCachedS ) {
     theCachedS = s;
     theCachedDPhi = theCachedS*theRho*theSinTheta;
     theCachedSDPhi = sin(theCachedDPhi);
