@@ -18,6 +18,7 @@ if len(args) == 0:
     exit(1)
 
 file = open(args[0], "r")
+options.fileName = args[0]
 
 from HiggsAnalysis.CombinedLimit.DatacardParser import *
 from HiggsAnalysis.CombinedLimit.ModelTools import *

@@ -1,6 +1,6 @@
 import ROOT
+import re
 from sys import stderr, stdout
-
 ROOFIT_EXPR = "expr"
 N_OBS_MAX   = 10000
 
@@ -10,15 +10,13 @@ class ModelBuilderBase():
         self.options = options
         self.out = stdout
         if options.bin:
-            if options.out != None:
-                    ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
-                    self.out = ROOT.RooWorkspace("w","w");
-                    self.out._import = getattr(self.out,"import") # workaround: import is a python keyword
-                    self.out.dont_delete = []
-                    if options.verbose == 0:
-                        ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.ERROR)
-            else:
-                raise RuntimeError, "You need to specify an output file when using binary mode";
+            if options.out == None: options.out = re.sub(".txt$","",options.fileName)+".root"
+            ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
+            self.out = ROOT.RooWorkspace("w","w");
+            self.out._import = getattr(self.out,"import") # workaround: import is a python keyword
+            self.out.dont_delete = []
+            if options.verbose == 0:
+                ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.ERROR)
         elif options.out != None:
             #stderr.write("Will save workspace to HLF file %s" % options.out)
             self.out = open(options.out, "w");
@@ -61,6 +59,9 @@ class ModelBuilder(ModelBuilderBase):
         if self.options.bin:
             self.doModelConfigs()
             if self.options.verbose > 1: self.out.Print("V")
+            if self.options.verbose > 2: 
+                print "Wrote GraphVizTree of model_s to ",self.options.out+".dot"
+                self.out.pdf("model_s").graphVizTree(self.options.out+".dot", "\\n")
     def doObservables(self):
         """create pdf_bin<X> and pdf_bin<X>_bonly for each bin"""
         raise RuntimeError, "Not implemented in ModelBuilder"
@@ -204,6 +205,7 @@ class ModelBuilder(ModelBuilderBase):
             mc.SetObservables(self.out.set("observables"))
             if len(self.DC.systs):  mc.SetNuisanceParameters(self.out.set("nuisances"))
             if self.out.set("globalObservables"): mc.SetGlobalObservables(self.out.set("globalObservables"))
+            if self.options.verbose > 1: mc.Print("V")
             self.out._import(mc, mc.GetName())
         self.out.writeToFile(self.options.out)
 
