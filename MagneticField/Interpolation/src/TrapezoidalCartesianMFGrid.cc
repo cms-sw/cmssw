@@ -1,13 +1,13 @@
 /** \file
  *
- *  $Date: 2009/08/17 09:06:05 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/08/17 09:16:31 $
+ *  $Revision: 1.7 $
  *  \author T. Todorov - updated N. Amapane (2008)
  */
 
-#include "MagneticField/Interpolation/src/TrapezoidalCartesianMFGrid.h"
-#include "MagneticField/Interpolation/src/binary_ifstream.h"
-#include "MagneticField/Interpolation/src/LinearGridInterpolator3D.h"
+#include "TrapezoidalCartesianMFGrid.h"
+#include "binary_ifstream.h"
+#include "LinearGridInterpolator3D.h"
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
 #include <iostream>
 

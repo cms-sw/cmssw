@@ -5,17 +5,18 @@
  *
  *  Interpolator for cylindrical grids type 5 or 6 (r,phi,z) 1/sin(phi) or 1/cos(phi)
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2008/04/09 20:16:04 $
+ *  $Revision: 1.2 $
  *  \author T. Todorov - updated 08 N. Amapane
  */
 
 
-#include "MagneticField/Interpolation/interface/MFGrid3D.h"
+#include "FWCore/Utilities/interface/Visibility.h"
+#include "MFGrid3D.h"
 
 class binary_ifstream;
 
-class SpecialCylindricalMFGrid : public MFGrid3D {
+class dso_internal SpecialCylindricalMFGrid : public MFGrid3D {
 public:
 
   /// Constructor. 

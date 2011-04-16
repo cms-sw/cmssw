@@ -2,8 +2,9 @@
 #define ZReflectedMFGrid_H
 
 #include "MagneticField/Interpolation/interface/MFGrid.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
-class ZReflectedMFGrid : public MFGrid {
+class dso_internal ZReflectedMFGrid : public MFGrid {
 public:
 
   ZReflectedMFGrid( const GloballyPositioned<float>& vol,

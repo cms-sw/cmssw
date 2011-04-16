@@ -1,4 +1,4 @@
-#include "MagneticField/Interpolation/src/Grid3D.h"
+#include "Grid3D.h"
 #include <iostream>
 
 

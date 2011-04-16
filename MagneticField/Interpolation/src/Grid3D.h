@@ -10,10 +10,11 @@
 
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "DataFormats/Math/interface/SSEVec.h"
-#include "MagneticField/Interpolation/src/Grid1D.h"
+#include "Grid1D.h"
 #include <vector>
+#include "FWCore/Utilities/interface/Visibility.h"
 
-class Grid3D {
+class dso_internal Grid3D {
 public:
 
  // typedef double   Scalar;

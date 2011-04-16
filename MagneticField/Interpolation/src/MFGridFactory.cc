@@ -1,13 +1,13 @@
 #include "MagneticField/Interpolation/interface/MFGridFactory.h"
-#include "MagneticField/Interpolation/src/binary_ifstream.h"
+#include "binary_ifstream.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 
-#include "MagneticField/Interpolation/src/RectangularCartesianMFGrid.h"
-#include "MagneticField/Interpolation/src/RectangularCylindricalMFGrid.h"
-#include "MagneticField/Interpolation/src/TrapezoidalCartesianMFGrid.h"
-#include "MagneticField/Interpolation/src/TrapezoidalCylindricalMFGrid.h"
-#include "MagneticField/Interpolation/src/SpecialCylindricalMFGrid.h"
-#include "MagneticField/Interpolation/src/CylinderFromSectorMFGrid.h"
+#include "RectangularCartesianMFGrid.h"
+#include "RectangularCylindricalMFGrid.h"
+#include "TrapezoidalCartesianMFGrid.h"
+#include "TrapezoidalCylindricalMFGrid.h"
+#include "SpecialCylindricalMFGrid.h"
+#include "CylinderFromSectorMFGrid.h"
 
 #include <iostream>
 

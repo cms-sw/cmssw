@@ -1,4 +1,4 @@
-#include "MagneticField/Interpolation/src/CylinderFromSectorMFGrid.h"
+#include "CylinderFromSectorMFGrid.h"
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
 #include <iostream>
 

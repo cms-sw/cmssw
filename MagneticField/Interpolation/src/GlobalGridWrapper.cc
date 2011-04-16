@@ -1,5 +1,5 @@
-#include "MagneticField/Interpolation/src/GlobalGridWrapper.h"
-#include "MagneticField/Interpolation/src/MagneticFieldGrid.h"
+#include "GlobalGridWrapper.h"
+#include "MagneticFieldGrid.h"
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
 
 using namespace std;

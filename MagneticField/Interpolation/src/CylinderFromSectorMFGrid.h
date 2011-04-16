@@ -2,8 +2,9 @@
 #define CylinderFromSectorMFGrid_H
 
 #include "MagneticField/Interpolation/interface/MFGrid.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
-class CylinderFromSectorMFGrid : public MFGrid {
+class dso_internal CylinderFromSectorMFGrid : public MFGrid {
 public:
 
   CylinderFromSectorMFGrid(const GloballyPositioned<float>& vol,

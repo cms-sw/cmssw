@@ -1,6 +1,6 @@
-#include "MagneticField/Interpolation/src/RectangularCylindricalMFGrid.h"
-#include "MagneticField/Interpolation/src/binary_ifstream.h"
-#include "MagneticField/Interpolation/src/LinearGridInterpolator3D.h"
+#include "RectangularCylindricalMFGrid.h"
+#include "binary_ifstream.h"
+#include "LinearGridInterpolator3D.h"
 #include <iostream>
 
 using namespace std;

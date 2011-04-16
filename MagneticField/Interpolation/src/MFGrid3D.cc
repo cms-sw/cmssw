@@ -1,4 +1,4 @@
-#include "MagneticField/Interpolation/interface/MFGrid3D.h"
+#include "MFGrid3D.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolumeOutsideValidity.h"
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
 

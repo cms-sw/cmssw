@@ -1,11 +1,12 @@
 #ifndef RectangularCylindricalMFGrid_H
 #define RectangularCylindricalMFGrid_H
 
-#include "MagneticField/Interpolation/interface/MFGrid3D.h"
+#include "FWCore/Utilities/interface/Visibility.h"
+#include "MFGrid3D.h"
 
 class binary_ifstream;
 
-class RectangularCylindricalMFGrid : public MFGrid3D {
+class dso_internal RectangularCylindricalMFGrid : public MFGrid3D {
 public:
 
   RectangularCylindricalMFGrid( binary_ifstream& istr, 

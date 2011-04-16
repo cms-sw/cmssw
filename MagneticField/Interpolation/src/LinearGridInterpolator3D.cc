@@ -1,6 +1,6 @@
-#include "MagneticField/Interpolation/src/LinearGridInterpolator3D.h"
-#include "MagneticField/Interpolation/src/Grid1D.h"
-#include "MagneticField/Interpolation/src/Grid3D.h"
+#include "LinearGridInterpolator3D.h"
+#include "Grid1D.h"
+#include "Grid3D.h"
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
 
 void

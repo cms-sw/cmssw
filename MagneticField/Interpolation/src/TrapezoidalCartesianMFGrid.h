@@ -7,17 +7,18 @@
  *  The grid must have uniform spacing in two coordinates and increasing spacing in the other.
  *  Increasing spacing is supported only for x and y for the time being
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2008/04/09 19:44:32 $
+ *  $Revision: 1.2 $
  *  \author T. Todorov
  */
 
-#include "MagneticField/Interpolation/interface/MFGrid3D.h"
-#include "MagneticField/Interpolation/src/Trapezoid2RectangleMappingX.h"
+#include "MFGrid3D.h"
+#include "Trapezoid2RectangleMappingX.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 class binary_ifstream;
 
-class TrapezoidalCartesianMFGrid : public MFGrid3D {
+class dso_internal TrapezoidalCartesianMFGrid : public MFGrid3D {
 public:
 
   TrapezoidalCartesianMFGrid( binary_ifstream& istr, 

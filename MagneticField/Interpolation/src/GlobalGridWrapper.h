@@ -6,12 +6,13 @@
  *  Generic interpolator that is a wrapper of MagneticFieldGrid, i.e.
  *  non-specialized/optimized for each kind of grid.
  *
- *  $Date: 2008/04/09 19:40:33 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/08/11 07:16:33 $
+ *  $Revision: 1.3 $
  *  \author T. Todorov
  */
 
 
+#include "FWCore/Utilities/interface/Visibility.h"
 #include "MagneticField/Interpolation/interface/MFGrid.h"
 
 #include <string>
@@ -19,7 +20,7 @@
 class binary_ifstream;
 class MagneticFieldGrid;
 
-class GlobalGridWrapper : public MFGrid {
+class dso_internal GlobalGridWrapper : public MFGrid {
 public:
 
   GlobalGridWrapper(  const GloballyPositioned<float>& vol,

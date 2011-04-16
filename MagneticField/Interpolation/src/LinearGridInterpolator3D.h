@@ -5,22 +5,24 @@
  *
  *  Linear interpolation in a regular 3D grid.
  *
- *  $Date: 2010/10/18 22:34:16 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/10/22 18:24:02 $
+ *  $Revision: 1.12 $
  *  \author T. Todorov 
  */
 
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
-#include "MagneticField/Interpolation/src/Grid1D.h"
-#include "MagneticField/Interpolation/src/Grid3D.h"
+#include "Grid1D.h"
+#include "Grid3D.h"
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
+#include "FWCore/Utilities/interface/Visibility.h"
+
 
 #ifdef DEBUG_LinearGridInterpolator3D
 #include <iostream>
-#include "MagneticField/Interpolation/src/InterpolationDebug.h"
+#include "InterpolationDebug.h"
 #endif
 
-class LinearGridInterpolator3D {
+class dso_internal LinearGridInterpolator3D {
 public:
 
   typedef Grid3D::ValueType ValueType;

@@ -2,8 +2,9 @@
 #define Grid1D_H
 #include <cmath>
 #include <algorithm>
+#include "FWCore/Utilities/interface/Visibility.h"
 
-class Grid1D {
+class dso_internal Grid1D {
 public:
 
   typedef float   Scalar;

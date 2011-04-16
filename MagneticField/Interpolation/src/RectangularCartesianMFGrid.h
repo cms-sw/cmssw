@@ -1,11 +1,12 @@
 #ifndef RectangularCartesianMFGrid_H
 #define RectangularCartesianMFGrid_H
 
-#include "MagneticField/Interpolation/interface/MFGrid3D.h"
+#include "FWCore/Utilities/interface/Visibility.h"
+#include "MFGrid3D.h"
 
 class binary_ifstream;
 
-class RectangularCartesianMFGrid : public MFGrid3D {
+class dso_internal RectangularCartesianMFGrid : public MFGrid3D {
 public:
 
   RectangularCartesianMFGrid( binary_ifstream& istr, 
