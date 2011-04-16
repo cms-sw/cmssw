@@ -1,7 +1,7 @@
 # Template used by the UploadAll.py scripts to generate the cfgs for the DummyPrinter
 # The only templated value is TAGNAME (e.g TAGNAME -> SiStripApvGain).
 # To generate manually a cfg from this file please do for example:
-# cat DummyCondDBReaderTemplate_cfg.py | sed -e "s@TAGNAME@SiStripApvGain@" > DummyCondDBReader_SiStripApvGain_cfg.py
+# cat DummyCondDBReaderTemplate_cfg.py | sed -e "s@TAGNAME@SiStripApvGain@" | sed -e "s@RCDNAME@SiStripApvGainRcd@" > DummyCondDBReader_SiStripApvGain_cfg.py
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Reader")
@@ -11,6 +11,9 @@ process.MessageLogger = cms.Service(
     debugModules = cms.untracked.vstring('reader'),
     threshold = cms.untracked.string('INFO'),
     # Warning: debug output can be of ~ 250Mb for Noise and Pedestals
+    # Use this to see only the additional information
+    # threshold = cms.untracked.string('WARNING'),
+    # Use this to see both info and additional info
     # threshold = cms.untracked.string('DEBUG'),
     destinations = cms.untracked.vstring('TAGNAMEReader_Ideal.log')
 )

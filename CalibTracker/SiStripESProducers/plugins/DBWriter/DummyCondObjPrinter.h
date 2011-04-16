@@ -54,7 +54,7 @@ void DummyCondObjPrinter<TObject,TRecord>::analyze(const edm::Event& e, const ed
   esobj->printDebug(sDebug);
 
   edm::LogInfo("DummyCondObjPrinter") << "\nPrintSummary \n" << sSummary.str()  << std::endl;
-  LogDebug("DummyCondObjPrinter") << "\nPrintDebug \n" << sDebug.str()  << std::endl;
+  edm::LogWarning("DummyCondObjPrinter") << "\nPrintDebug \n" << sDebug.str()  << std::endl;
 }
 
 #endif
