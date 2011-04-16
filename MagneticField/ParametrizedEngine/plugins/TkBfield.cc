@@ -1,4 +1,4 @@
-#include <MagneticField/ParametrizedEngine/src/TkBfield.h>
+#include "TkBfield.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 

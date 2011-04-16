@@ -1,15 +1,15 @@
 /** \file
  *
- *  $Date: 2008/05/06 12:11:37 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/10/21 14:36:56 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane
  */
 
-#include <MagneticField/ParametrizedEngine/src/PolyFit3DParametrizedMagneticField.h>
+#include "PolyFit3DParametrizedMagneticField.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-#include <MagneticField/ParametrizedEngine/src/BFit3D.h>
+#include "BFit3D.h"
 
 
 using namespace std;

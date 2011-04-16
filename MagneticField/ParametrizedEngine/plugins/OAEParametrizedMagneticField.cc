@@ -3,7 +3,7 @@
  *  \author N. Amapane - CERN
  */
 
-#include <MagneticField/ParametrizedEngine/src/OAEParametrizedMagneticField.h>
+#include "OAEParametrizedMagneticField.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 

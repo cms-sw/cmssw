@@ -1,15 +1,15 @@
 /** \file
  *
- *  $Date: 2008/11/14 10:37:17 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/10/21 14:36:55 $
+ *  $Revision: 1.2 $
  *  \author Massimiliano Chiorboli, updated NA 03/08
  */
 
 #include "MagneticField/ParametrizedEngine/plugins/ParametrizedMagneticFieldProducer.h"
-#include "MagneticField/ParametrizedEngine/src/OAEParametrizedMagneticField.h"
-#include "MagneticField/ParametrizedEngine/src/OAE85lParametrizedMagneticField.h"
-#include "MagneticField/ParametrizedEngine/src/PolyFit2DParametrizedMagneticField.h"
-#include "MagneticField/ParametrizedEngine/src/PolyFit3DParametrizedMagneticField.h"
+#include "OAEParametrizedMagneticField.h"
+#include "OAE85lParametrizedMagneticField.h"
+#include "PolyFit2DParametrizedMagneticField.h"
+#include "PolyFit3DParametrizedMagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"

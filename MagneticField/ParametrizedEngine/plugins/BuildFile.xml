@@ -4,6 +4,6 @@
 <use   name="MagneticField/Engine"/>
 <use   name="MagneticField/ParametrizedEngine"/>
 <use   name="MagneticField/Records"/>
-<library   file="ParametrizedMagneticFieldProducer.cc">
+<library   file="*.cc" name="MagneticFieldParametrizedEnginePlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

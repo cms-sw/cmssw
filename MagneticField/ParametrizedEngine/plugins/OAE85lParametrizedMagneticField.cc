@@ -1,11 +1,11 @@
 /** \file
  *
- *  $Date: 2008/04/23 14:43:29 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/05/06 12:11:37 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - CERN
  */
 
-#include <MagneticField/ParametrizedEngine/src/OAE85lParametrizedMagneticField.h>
+#include "OAE85lParametrizedMagneticField.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
