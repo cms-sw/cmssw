@@ -1,13 +1,11 @@
 /** \file
  *
- *  $Date: 2009/05/23 22:52:55 $
- *  $Revision: 1.6 $
+ *  $Date: 2011/04/16 09:58:21 $
+ *  $Revision: 1.7 $
  *  \author Nicola Amapane 11/08
  */
 
 #include "MagneticField/GeomBuilder/plugins/AutoMagneticFieldESProducer.h"
-
-#include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
 
 #include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
 
