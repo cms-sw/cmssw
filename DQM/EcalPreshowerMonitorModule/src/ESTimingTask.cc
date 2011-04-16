@@ -27,13 +27,13 @@ using namespace edm;
 using namespace std;
 
 // fit function
-Double_t fitf(Double_t *x, Double_t *par) {
+double fitf(double *x, double *par) {
 
-  Double_t wc = par[2];
-  Double_t n  = par[3]; // n-1 (in fact)
-  Double_t v1 = pow(wc/n*(x[0]-par[1]), n);
-  Double_t v2 = TMath::Exp(n-wc*(x[0]-par[1]));
-  Double_t v  = par[0]*v1*v2;
+  double wc = par[2];
+  double n  = par[3]; // n-1 (in fact)
+  double v1 = pow(wc/n*(x[0]-par[1]), n);
+  double v2 = TMath::Exp(n-wc*(x[0]-par[1]));
+  double v  = par[0]*v1*v2;
 
   if (x[0] < par[1]) v = 0;
 
@@ -48,15 +48,15 @@ ESTimingTask::ESTimingTask(const edm::ParameterSet& ps) {
   
   dqmStore_	= Service<DQMStore>().operator->();
   eCount_ = 0;
+
+  fit_ = new TF1("fitShape", fitf, -200, 200, 4);
+  fit_->SetParameters(50, 10, 0, 0);
   
   //Histogram init  
   for (int i = 0; i < 2; ++i)
     for (int j = 0; j < 2; ++j) 
       hTiming_[i][j] = 0;
-
-  fit_ = new TF1("fit", fitf, -200, 200, 4);
-  fit_->SetParameters(50, 10, 0, 0);
-  
+ 
   dqmStore_->setCurrentFolder(prefixME_ + "/ESTimingTask");
   
   //Booking Histograms
@@ -93,7 +93,7 @@ void ESTimingTask::endJob() {
 void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   
   set(iSetup);
-  
+
   runNum_ = e.id().run();
   eCount_++;
   
@@ -103,7 +103,7 @@ void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   //Digis
   int zside, plane, ix, iy, is;
   double adc[3], para[10];
-  double tx[3] = {-5., 20., 45.};
+  //double tx[3] = {-5., 20., 45.};
   Handle<ESDigiCollection> digis;
   if ( e.getByLabel(digilabel_, digis) ) {
     
@@ -137,18 +137,32 @@ void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
       if (adc[2] > adc[1]) status = 1;  
       
       if (int(status) == 0) {
+
+	double A1 = adc[1];
+	double A2 = adc[2];
+	double DeltaT = 25.;
+	double aaa = (A2 > 0 && A1 > 0) ? log(A2/A1)/n_ : 20.; // if A1=0, t0=20
+	double bbb = wc_/n_*DeltaT;
+	double ccc= exp(aaa+bbb);
+
+	double t0 = (2.-ccc)/(1.-ccc) * DeltaT - 5;
+	hTiming_[i][j]->Fill(t0);
+	//cout<<"t0 : "<<t0<<endl;
+	/*
 	TGraph *gr = new TGraph(3, tx, adc);
 	fit_->SetParameters(50, 10, wc_, n_);
 	fit_->FixParameter(2, wc_);
 	fit_->FixParameter(3, n_);
-	gr->Fit("fit", "MQ");
+	fit_->Print();
+	gr->Fit("fitShape", "MQ");
 	fit_->GetParameters(para); 
 	delete gr;
-	//cout<<"ADC : "<<zside<<" "<<plane<<" "<<ix<<" "<<iy<<" "<<is<<" "<<adc[0]<<" "<<adc[1]<<" "<<adc[2]<<" "<<para[1]<<endl;
-	hTiming_[i][j]->Fill(para[1]);
-	
-	if (zside == 1) htESP_->Fill(para[1]);
-	else if (zside == -1) htESM_->Fill(para[1]);
+	//hTiming_[i][j]->Fill(para[1]);
+	*/
+	//cout<<"ADC : "<<zside<<" "<<plane<<" "<<ix<<" "<<iy<<" "<<is<<" "<<adc[0]<<" "<<adc[1]<<" "<<adc[2]<<" "<<para[1]<<" "<<wc_<<" "<<n_<<endl;
+
+	if (zside == 1) htESP_->Fill(t0);
+	else if (zside == -1) htESM_->Fill(t0);
       }
       
     }
@@ -162,7 +176,8 @@ void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
 }
 
 void ESTimingTask::set(const edm::EventSetup& es) {
-  
+
+ 
   es.get<ESGainRcd>().get(esgain_);
   const ESGain *gain = esgain_.product();
   
@@ -176,6 +191,9 @@ void ESTimingTask::set(const edm::EventSetup& es) {
     n_  = 1.798; 
   }
 
+  //cout<<"gain : "<<ESGain<<endl;
+  //cout<<wc_<<" "<<n_<<endl;
+ 
 }
 
 //define this as a plug-in
