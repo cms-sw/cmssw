@@ -42,7 +42,7 @@ class ShapeBuilder(ModelBuilder):
                     bgpdfs.add(pdf); bgcoeffs.add(coeff)
             sum_s = ROOT.RooAddPdf("pdf_bin%s"       % b, "",   pdfs,   coeffs)
             sum_b = ROOT.RooAddPdf("pdf_bin%s_bonly" % b, "", bgpdfs, bgcoeffs)
-            self.out._import(sum_s, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
+            self.out._import(sum_s, ROOT.RooFit.RenameConflictNodes(b))
             self.out._import(sum_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
     def doCombination(self):
         prefix = "modelObs" if len(self.DC.systs) else "model" # if no systematics, we build directly the model
@@ -51,7 +51,7 @@ class ShapeBuilder(ModelBuilder):
                 simPdf = ROOT.RooSimultaneous(prefix+postfixOut, prefix+postfixOut, self.out.binCat)
                 for b in self.DC.bins:
                     simPdf.addPdf(self.out.pdf("pdf_bin%s%s" % (b,postfixIn)), b)
-                self.out._import(simPdf, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence(), ROOT.RooFit.Silence())
+                self.out._import(simPdf)
         else:
             self.out._import(self.out.pdf("pdf_bin%s"       % self.DC.bins[0]).clone(prefix+"_s"), ROOT.RooFit.Silence())
             self.out._import(self.out.pdf("pdf_bin%s_bonly" % self.DC.bins[0]).clone(prefix+"_b"), ROOT.RooFit.Silence())
@@ -151,7 +151,10 @@ class ShapeBuilder(ModelBuilder):
     ## -------------------------------------
     ## -------- Low level helpers ----------
     ## -------------------------------------
-    def getShape(self,channel,process,syst="",_fileCache={},_neverDelete=[]):
+    def getShape(self,channel,process,syst="",_fileCache={},_cache={}):
+        if _cache.has_key((channel,process,syst)): 
+            if self.options.verbose: print "recyling (%s,%s,%s) -> %s\n" % (channel,process,syst,_cache[(channel,process,syst)].GetName())
+            return _cache[(channel,process,syst)];
         bentry = None
         if self.DC.shapeMap.has_key(channel): bentry = self.DC.shapeMap[channel]
         elif self.DC.shapeMap.has_key("*"):   bentry = self.DC.shapeMap["*"]
@@ -176,10 +179,12 @@ class ShapeBuilder(ModelBuilder):
             if not wsp: raise RuntimeError, "Failed to find %s in file %s (from pattern %s, %s)" % (wname,finalNames[0],names[1],names[0])
             if wsp.ClassName() == "RooWorkspace":
                 ret = wsp.data(oname)
-                if ret: return ret;
-                ret = wsp.pdf(oname)
-                if ret: return ret;
-                raise RuntimeError, "Object %s in workspace %s in file %s does not exist or it's neither a data nor a pdf" % (oname, wname, finalNames[0])
+                if not ret: ret = wsp.pdf(oname)
+                if not ret: raise RuntimeError, "Object %s in workspace %s in file %s does not exist or it's neither a data nor a pdf" % (oname, wname, finalNames[0])
+                ret.SetName("shape_%s_%s%s" % (process,channel, "_"+syst if syst else ""))
+                _cache[(channel,process,syst)] = ret
+                if self.options.verbose: print "import (%s,%s) -> %s\n" % (finalNames[0],objname,ret.GetName())
+                return ret;
             elif wsp.ClassName() == "TTree":
                 ##If it is a tree we will convert it in RooDataSet . Then we can decide if we want to build a
                 ##RooKeysPdf or if we want to use it as an unbinned dataset 
@@ -188,19 +193,18 @@ class ShapeBuilder(ModelBuilder):
                 #Check if it is weighted
                 self.doVar("__WEIGHT__[0.,1000.]")
                 rds = ROOT.RooDataSet("shape_%s_%s%s" % (process,channel, "_"+syst if syst else ""), "shape_%s_%s%s" % (process,channel, "_"+syst if syst else ""),wsp,ROOT.RooArgSet(self.out.var(oname)),"","__WEIGHT__")
-                rds.var=oname
-                if self.options.verbose: stderr.write("import (%s,%s) -> %s\n" % (finalNames[0],wname,rds.GetName()))
-                _neverDelete.append(rds)
+                rds.var = oname
+                _cache[(channel,process,syst)] = rds
+                if self.options.verbose: print "import (%s,%s) -> %s\n" % (finalNames[0],wname,rds.GetName())
                 return rds
             else:
                 raise RuntimeError, "Object %s in file %s has unrecognized type %s" (wname, finalNames[0], wsp.ClassName())
         else: # histogram
             ret = file.Get(objname);
             if not ret: raise RuntimeError, "Failed to find %s in file %s (from pattern %s, %s)" % (objname,finalNames[0],names[1],names[0])
-            if ret in _neverDelete: return ret
             ret.SetName("shape_%s_%s%s" % (process,channel, "_"+syst if syst else ""))
-            if self.options.verbose: stderr.write("import (%s,%s) -> %s\n" % (finalNames[0],objname,ret.GetName()))
-            _neverDelete.append(ret)
+            if self.options.verbose: print "import (%s,%s) -> %s\n" % (finalNames[0],objname,ret.GetName())
+            _cache[(channel,process,syst)] = ret
             return ret
     def getData(self,channel,process,syst="",_cache={}):
         return self.shape2Data(self.getShape(channel,process,syst),channel,process)
@@ -322,7 +326,7 @@ class ShapeBuilder(ModelBuilder):
                 self.out._import(rkp)
                 _cache[shape.GetName()+"Pdf"] = rkp
             else: 
-                raise RuntimeError, "shape2Data not implemented for %s (%s)" % (shape.ClassName())
+                raise RuntimeError, "shape2Pdf not implemented for %s" % shape.ClassName()
         return _cache[shape.GetName()+"Pdf"]
     def argSetToString(self,argset):
         names = []
