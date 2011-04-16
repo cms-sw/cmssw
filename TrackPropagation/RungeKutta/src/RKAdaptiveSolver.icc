@@ -1,4 +1,4 @@
-#include "TrackPropagation/RungeKutta/interface/RKAdaptiveSolver.h"
+#include "RKAdaptiveSolver.h"
 #include <cmath>
 
 inline double signum( double d) {return d>=0 ? 1.0 : -1.0;}

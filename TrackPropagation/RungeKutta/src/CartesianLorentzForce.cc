@@ -1,6 +1,6 @@
 
-#include "TrackPropagation/RungeKutta/interface/CartesianLorentzForce.h"
-#include "TrackPropagation/RungeKutta/interface/CartesianStateAdaptor.h"
+#include "CartesianLorentzForce.h"
+#include "CartesianStateAdaptor.h"
 
 CartesianLorentzForce::Vector
 CartesianLorentzForce::operator()( Scalar z, const Vector& state) const

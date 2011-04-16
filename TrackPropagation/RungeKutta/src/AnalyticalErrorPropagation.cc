@@ -1,4 +1,4 @@
-#include "TrackPropagation/RungeKutta/interface/AnalyticalErrorPropagation.h"
+#include "AnalyticalErrorPropagation.h"
 
 #include "TrackingTools/AnalyticalJacobians/interface/AnalyticalCurvilinearJacobian.h"
 #include "TrackingTools/TrajectoryState/interface/SurfaceSideDefinition.h"

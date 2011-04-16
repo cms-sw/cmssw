@@ -1,4 +1,4 @@
-#include "TrackPropagation/RungeKutta/interface/RKLocalFieldProvider.h"
+#include "RKLocalFieldProvider.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume.h"
 

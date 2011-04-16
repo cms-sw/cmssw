@@ -1,7 +1,7 @@
-#include "TrackPropagation/RungeKutta/interface/CylindricalLorentzForce.h"
-#include "TrackPropagation/RungeKutta/interface/CylindricalState.h"
-#include "TrackPropagation/RungeKutta/interface/RKLocalFieldProvider.h"
-#include "TrackPropagation/RungeKutta/interface/CylindricalState.h"
+#include "CylindricalLorentzForce.h"
+#include "CylindricalState.h"
+#include "RKLocalFieldProvider.h"
+#include "CylindricalState.h"
 
 #include <exception>
 

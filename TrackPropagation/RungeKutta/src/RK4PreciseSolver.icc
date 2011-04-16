@@ -1,5 +1,5 @@
-#include "TrackPropagation/RungeKutta/interface/RK4PreciseSolver.h"
-#include "TrackPropagation/RungeKutta/interface/RK4OneStepTempl.h"
+#include "RK4PreciseSolver.h"
+#include "RK4OneStepTempl.h"
 #include <cmath>
 
 inline double signum( double d) {return d>=0 ? 1.0 : -1.0;}

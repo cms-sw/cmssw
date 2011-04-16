@@ -1,6 +1,6 @@
-#include "TrackPropagation/RungeKutta/interface/PathToPlane2Order.h"
-#include "TrackPropagation/RungeKutta/interface/RKLocalFieldProvider.h"
-#include "TrackPropagation/RungeKutta/interface/FrameChanger.h"
+#include "PathToPlane2Order.h"
+#include "RKLocalFieldProvider.h"
+#include "FrameChanger.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 
 #include <iostream>
