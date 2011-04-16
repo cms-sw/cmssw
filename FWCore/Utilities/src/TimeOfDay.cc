@@ -2,7 +2,6 @@
 #include <iomanip>
 #include <locale>
 #include <ostream>
-#include <sys/time.h>
 #include <time.h>
 
 namespace {
@@ -33,7 +32,7 @@ namespace edm {
     std::time_put<char, Iter> const& tp = std::use_facet<std::time_put<char, Iter> >(std::locale());
     int precision = os.precision();
     Iter begin(os);
-    if (precision == 0) {
+    if(precision == 0) {
       char const pattern[] = "%d-%b-%Y %H:%M:%S %Z";
       tp.put(begin, os, ' ', &timebuf, pattern, pattern + sizeof(pattern) - 1);
     } else {

@@ -1,5 +1,5 @@
-#ifndef RandomEngine_RandomNumberGeneratorService_h
-#define RandomEngine_RandomNumberGeneratorService_h
+#ifndef IOMC_RandomEngine_RandomNumberGeneratorService_h
+#define IOMC_RandomEngine_RandomNumberGeneratorService_h
 
 /** \class edm::service::RandomNumberGeneratorService
 
@@ -12,33 +12,33 @@
 */
 
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "SimDataFormats/RandomEngine/interface/RandomEngineState.h"
 
 #include "boost/shared_ptr.hpp"
 
-#include <map>
-#include <vector>
-#include <string>
-#include <stdint.h>
 #include <fstream>
+#include <map>
+#include <stdint.h>
+#include <string>
+#include <vector>
+
+class RandomEngineState;
 
 namespace CLHEP {
   class HepRandomEngine;
 }
 
 namespace edm {
-  class ParameterSet;
-  class ModuleDescription;
-  class LuminosityBlock;
+  class ActivityRegistry;
+  class ConfigurationDescriptions;
   class Event;
   class EventSetup;
-  class ConfigurationDescriptions;
-  class ActivityRegistry;
+  class LuminosityBlock;
+  class ModuleDescription;
+  class ParameterSet;
 
   namespace service {
 
-    class RandomNumberGeneratorService : public RandomNumberGenerator
-    {      
+    class RandomNumberGeneratorService : public RandomNumberGenerator {
 
     public:
 
@@ -46,12 +46,12 @@ namespace edm {
       virtual ~RandomNumberGeneratorService();
 
       /// Use this to get the random number engine, this is the only function most users should call.
-      virtual CLHEP::HepRandomEngine& getEngine() const;    
+      virtual CLHEP::HepRandomEngine& getEngine() const;
 
       /// Exists for backward compatibility.
       virtual uint32_t mySeed() const;
 
-      static void fillDescriptions(ConfigurationDescriptions & descriptions);
+      static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
       // The following functions should not be used by general users.  They
       // should only be called by code designed to work with the service while
@@ -66,7 +66,6 @@ namespace edm {
       virtual void preBeginLumi(LuminosityBlock const& lumi);
       void postBeginLumi(LuminosityBlock const& lumi, EventSetup const& es);
       virtual void postEventRead(Event const& event);
-
 
       void preModuleConstruction(ModuleDescription const& description);
       void postModuleConstruction(ModuleDescription const& description);
@@ -117,7 +116,7 @@ namespace edm {
       void readFromEvent(Event const& event);
       bool backwardCompatibilityRead(Event const& event);
 
-      void snapShot(std::vector<RandomEngineState> & cache);
+      void snapShot(std::vector<RandomEngineState>& cache);
       void restoreFromCache(std::vector<RandomEngineState> const& cache);
 
       void checkEngineType(std::string const& typeFromConfig,
@@ -126,21 +125,21 @@ namespace edm {
 
       void saveStatesToFile(std::string const& fileName);
       void writeStates(std::vector<RandomEngineState> const& v,
-                       std::ofstream & outFile);
+                       std::ofstream& outFile);
       void writeVector(VUint32 const& v,
-                       std::ofstream & outFile);
+                       std::ofstream& outFile);
       std::string constructSaveFileName();
 
       void readEventStatesFromTextFile(std::string const& fileName);
       void readLumiStatesFromTextFile(std::string const& fileName);
       void readStatesFromFile(std::string const& fileName,
-                              std::vector<RandomEngineState> & cache,
+                              std::vector<RandomEngineState>& cache,
                               std::string const& whichStates);
-      bool readEngineState(std::istream &is,
-                           std::vector<RandomEngineState> & cache,
-                           std::string const& whichStates, 
-                           bool & saveToCache);
-      void readVector(std::istream &is, unsigned numItems, std::vector<uint32_t> & v);
+      bool readEngineState(std::istream& is,
+                           std::vector<RandomEngineState>& cache,
+                           std::string const& whichStates,
+                           bool& saveToCache);
+      void readVector(std::istream& is, unsigned numItems, std::vector<uint32_t>& v);
 
       void startNewSequencesForEvents();
 

@@ -30,7 +30,6 @@
 #include "Reflex/Type.h"
 #include "Cintex/Cintex.h"
 #include "TClass.h"
-#include "RVersion.h"
 
 // We cannot use the MessageLogger here because this is also used by standalones that do not have the logger.
 
