@@ -20,7 +20,7 @@ JetPlusTrackZSPCorJetIcone5 = cms.EDProducer(
     tagNameOffset = cms.vstring(),
     PU = cms.int32(-1),
     FixedPU = cms.int32(0),
-    UseZSP = cms.bool(True),
+    UseZSP = cms.bool(False),
     srcPVs  = cms.InputTag('offlinePrimaryVertices'),
     alias = cms.untracked.string('JetPlusTrackZSPCorJetIcone5')
     )
@@ -38,7 +38,7 @@ JetPlusTrackZSPCorJetAntiKt5 = cms.EDProducer(
     tagNameOffset = cms.vstring(),
     PU = cms.int32(-1),
     FixedPU = cms.int32(0),
-    UseZSP = cms.bool(True),
+    UseZSP = cms.bool(False),
     srcPVs  = cms.InputTag('offlinePrimaryVertices'),    
     alias = cms.untracked.string('JetPlusTrackZSPCorJetAntiKt5')
     )
@@ -59,7 +59,7 @@ JetPlusTrackZSPCorJetSiscone5 = cms.EDProducer(
     tagNameOffset = cms.vstring(),
     PU = cms.int32(-1),
     FixedPU = cms.int32(0),
-    UseZSP = cms.bool(True),
+    UseZSP = cms.bool(False),
     srcPVs  = cms.InputTag('offlinePrimaryVertices'),    
     alias = cms.untracked.string('JetPlusTrackZSPCorJetSiscone5')
     )
