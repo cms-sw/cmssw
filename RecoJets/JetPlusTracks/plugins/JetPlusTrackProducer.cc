@@ -13,7 +13,7 @@
 //
 // Original Author:  Olga Kodolova,40 R-A12,+41227671273,
 //         Created:  Fri Feb 19 10:14:02 CET 2010
-// $Id: JetPlusTrackProducer.cc,v 1.3 2010/05/05 13:58:08 kodolova Exp $
+// $Id: JetPlusTrackProducer.cc,v 1.4 2010/05/05 14:00:50 kodolova Exp $
 //
 //
 
@@ -69,7 +69,7 @@ JetPlusTrackProducer::JetPlusTrackProducer(const edm::ParameterSet& iConfig)
    vectorial_ = iConfig.getParameter<bool>("VectorialCorrection");
    useZSP = iConfig.getParameter<bool>("UseZSP");
    mJPTalgo  = new JetPlusTrackCorrector(iConfig);
-   mZSPalgo  = new ZSPJPTJetCorrector(iConfig);
+   if(useZSP) mZSPalgo  = new ZSPJPTJetCorrector(iConfig);
  
    produces<reco::JPTJetCollection>().setBranchAlias(alias); 
    
