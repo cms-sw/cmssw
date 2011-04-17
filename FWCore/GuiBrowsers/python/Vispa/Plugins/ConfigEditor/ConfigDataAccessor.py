@@ -401,7 +401,10 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         if hasattr(object, "parameters_"):
             this_parameters = object.parameters_().items()
         elif hasattr(object, "_seq"):
-            this_parameters = [('sequence', object._seq.dumpSequencePython())]
+            if hasattr(object._seq,"dumpSequencePython"):
+                this_parameters = [('sequence', object._seq.dumpSequencePython())]
+            else:
+                this_parameters = [('sequence', 'WARNING: object was removed from a sequence.')]
         if hasattr(object, "tarlabel_"):
             this_parameters += [('tarlabel', object.tarlabel_())]
         return this_parameters
@@ -437,10 +440,10 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
     def inputTags(self, object):
         """ Make list of inputtags from parameter dict """
         if not object in self._inputTagsDict.keys():
-	    try:
+            try:
                 self._inputTagsDict[object]=self._readInputTagsRecursive(self.parameters(object))
-	    except TypeError:
-	        return []
+            except TypeError:
+                return []
         return self._inputTagsDict[object]
 
     def uses(self, object):
