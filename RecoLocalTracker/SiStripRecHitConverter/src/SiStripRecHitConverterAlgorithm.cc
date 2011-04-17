@@ -55,17 +55,22 @@ run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > input, products& output)
 void SiStripRecHitConverterAlgorithm::
 run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > inputhandle, products& output, LocalVector trackdirection)
 {
+  edmNew::DetSetVector<SiStripCluster>::const_iterator dse = inputhandle->end();
   for (edmNew::DetSetVector<SiStripCluster>::const_iterator 
-	 DS = inputhandle->begin(); DS != inputhandle->end(); DS++ ) {     if(!useModule(DS->id())) continue;
+	 DS = inputhandle->begin(); DS != dse; ++DS ) {     
+
+    if(!useModule(DS->id())) continue;
 
     Collector collector = StripSubdetector(DS->id()).stereo()  
       ? Collector(*output.stereo, DS->id()) 
       : Collector(*output.rphi,   DS->id());
+
     bool bad128StripBlocks[6]; fillBad128StripBlocks( DS->id(), bad128StripBlocks);
     
-
     for(edmNew::DetSet<SiStripCluster>::const_iterator 
-	  cluster = DS->begin();  cluster != DS->end(); ++cluster ) {     if(isMasked(*cluster,bad128StripBlocks)) continue;
+	  cluster = DS->begin();  cluster != DS->end(); ++cluster ) {     
+
+      if(isMasked(*cluster,bad128StripBlocks)) continue;
 
       StripClusterParameterEstimator::LocalValues parameters = 	parameterestimator->localParameters(*cluster,*(tracker->idToDetUnit(DS->id())));
       collector.push_back(SiStripRecHit2D( parameters.first, parameters.second, DS->id(), edmNew::makeRefTo(inputhandle,cluster) ));
