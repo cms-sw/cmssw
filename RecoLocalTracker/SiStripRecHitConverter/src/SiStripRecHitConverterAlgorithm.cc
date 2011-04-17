@@ -68,7 +68,7 @@ run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > inputhandle, products& ou
 
     bool bad128StripBlocks[6]; fillBad128StripBlocks( id, bad128StripBlocks);
     
-    auto const & du = *(tracker->idToDetUnit(id));
+    GeomDetUnit const & du = *(tracker->idToDetUnit(id));
     edmNew::DetSet<SiStripCluster>::const_iterator cle = (*DS).end();
     for(edmNew::DetSet<SiStripCluster>::const_iterator 
 	  cluster = (*DS).begin();  cluster != cle; ++cluster ) {     
