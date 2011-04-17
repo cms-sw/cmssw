@@ -1,5 +1,6 @@
 #include "FWCore/MessageService/test/PSetTestClient_A.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <string>
