@@ -1,4 +1,4 @@
-// $Id: ConversionTools.cc,v 1.1 2010/06/08 20:17:28 bendavid Exp $
+// $Id: ConversionTools.cc,v 1.1 2011/04/15 20:00:11 bendavid Exp $
 
 #include <TMath.h>
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
@@ -27,7 +27,7 @@ bool ConversionTools::isGoodConversion(const Conversion &conv, const math::XYZPo
   if (!vtx.isValid()) return false;
 
   //fit probability
-  if (TMath::Prob( vtx.chi2(),  vtx.ndof() )>probMin) return false;
+  if (TMath::Prob( vtx.chi2(),  vtx.ndof() )<probMin) return false;
 
   //compute transverse decay length
   math::XYZVector mom(conv.refittedPairMomentum()); 
@@ -51,13 +51,14 @@ bool ConversionTools::isGoodConversion(const Conversion &conv, const math::XYZPo
 bool ConversionTools::matchesConversion(const reco::GsfElectron &ele, const reco::Conversion &conv, bool allowCkfMatch)
 {
 
-  edm::RefToBase<reco::Track> gsfref(ele.gsfTrack());
-  edm::RefToBase<reco::Track> ckfref(ele.closestCtfTrackRef());
+  //check if a given GsfElectron matches a given conversion (no quality cuts applied)
+  //matching is always attempted through the gsf track ref, and optionally attempted through the
+  //closest ctf track ref
 
   const std::vector<edm::RefToBase<reco::Track> > &convTracks = conv.tracks();
   for (std::vector<edm::RefToBase<reco::Track> >::const_iterator it=convTracks.begin(); it!=convTracks.end(); ++it) {
-    if ( gsfref.isNonnull() && gsfref==*it) return true;
-    else if ( allowCkfMatch && ckfref.isNonnull() && ckfref==*it ) return true;
+    if ( ele.gsfTrack().isNonnull() && ele.gsfTrack().id()==it->id() && ele.gsfTrack().key()==it->key()) return true;
+    else if ( allowCkfMatch && ele.closestCtfTrackRef().isNonnull() && ele.closestCtfTrackRef().id()==it->id() && ele.closestCtfTrackRef().key()==it->key() ) return true;
   }
 
   return false;
@@ -65,6 +66,12 @@ bool ConversionTools::matchesConversion(const reco::GsfElectron &ele, const reco
 
 //--------------------------------------------------------------------------------------------------
 bool ConversionTools::matchesConversion(const reco::SuperCluster &sc, const reco::Conversion &conv, float dRMax, float dEtaMax, float dPhiMax) {
+
+  //check if a given SuperCluster matches a given conversion (no quality cuts applied)
+  //matching is geometric between conversion momentum and vector joining conversion vertex
+  //to supercluster position
+
+
   math::XYZVector mom(conv.refittedPairMomentum());
   
   math::XYZPoint scpos(sc.position());
@@ -89,11 +96,13 @@ bool ConversionTools::matchesConversion(const reco::SuperCluster &sc, const reco
 bool ConversionTools::matchesConversion(const edm::RefToBase<reco::Track> &trk, const reco::Conversion &conv)
 {
 
+  //check if given track matches given conversion (matching by ref)
+
   if (trk.isNull()) return false;
 
   const std::vector<edm::RefToBase<reco::Track> > &convTracks = conv.tracks();
   for (std::vector<edm::RefToBase<reco::Track> >::const_iterator it=convTracks.begin(); it!=convTracks.end(); ++it) {
-    if (trk==*it) return true;
+    if (trk.id()==it->id() && trk.key()==it->key()) return true;
   }
 
   return false;
@@ -102,13 +111,33 @@ bool ConversionTools::matchesConversion(const edm::RefToBase<reco::Track> &trk, 
 //--------------------------------------------------------------------------------------------------
 bool ConversionTools::matchesConversion(const reco::TrackRef &trk, const reco::Conversion &conv)
 {
-  return matchesConversion(edm::RefToBase<reco::Track>(trk), conv);
+
+  //check if given track matches given conversion (matching by ref)
+
+  if (trk.isNull()) return false;
+
+  const std::vector<edm::RefToBase<reco::Track> > &convTracks = conv.tracks();
+  for (std::vector<edm::RefToBase<reco::Track> >::const_iterator it=convTracks.begin(); it!=convTracks.end(); ++it) {
+    if (trk.id()==it->id() && trk.key()==it->key()) return true;
+  }
+
+  return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 bool ConversionTools::matchesConversion(const reco::GsfTrackRef &trk, const reco::Conversion &conv)
 {
-  return matchesConversion(edm::RefToBase<reco::Track>(trk), conv);
+
+  //check if given track matches given conversion (matching by ref)
+
+  if (trk.isNull()) return false;
+
+  const std::vector<edm::RefToBase<reco::Track> > &convTracks = conv.tracks();
+  for (std::vector<edm::RefToBase<reco::Track> >::const_iterator it=convTracks.begin(); it!=convTracks.end(); ++it) {
+    if (trk.id()==it->id() && trk.key()==it->key()) return true;
+  }
+
+  return false;
 }
 
 
@@ -158,8 +187,10 @@ bool ConversionTools::hasMatchedConversion(const reco::SuperCluster &sc,
                   const edm::Handle<reco::ConversionCollection> &convCol,
                   const math::XYZPoint &beamspot, float dRMax, float dEtaMax, float dPhiMax, float lxyMin, float probMin, uint nHitsBeforeVtxMax)
 {
-  ConversionRef match;
   
+  //check if a given SuperCluster matches to at least one conversion candidate in the
+  //collection which also passes the selection cuts
+
   for (ConversionCollection::const_iterator it = convCol->begin(); it!=convCol->end(); ++it) {
     if (!matchesConversion(sc, *it)) continue;
     if (!isGoodConversion(*it,beamspot,lxyMin,probMin,nHitsBeforeVtxMax)) continue;
@@ -180,6 +211,8 @@ reco::ConversionRef ConversionTools::matchedConversion(const reco::GsfElectron &
   //check if a given electron candidate matches to at least one conversion candidate in the
   //collection which also passes the selection cuts, optionally match with the closestckf track in
   //in addition to just the gsf track (enabled in default arguments)
+  //If multiple conversions are found, returned reference corresponds to minimum
+  //conversion radius
   
   ConversionRef match;
   
@@ -205,6 +238,8 @@ reco::ConversionRef ConversionTools::matchedConversion(const reco::TrackRef &trk
 {
   //check if a given track matches to at least one conversion candidate in the
   //collection which also passes the selection cuts
+  //If multiple conversions are found, returned reference corresponds to minimum
+  //conversion radius
   
   ConversionRef match;
 
@@ -230,6 +265,12 @@ reco::ConversionRef ConversionTools::matchedConversion(const reco::SuperCluster 
                   const edm::Handle<reco::ConversionCollection> &convCol,
                   const math::XYZPoint &beamspot, float dRMax, float dEtaMax, float dPhiMax, float lxyMin, float probMin, uint nHitsBeforeVtxMax)
 {
+
+  //check if a given SuperCluster matches to at least one conversion candidate in the
+  //collection which also passes the selection cuts
+  //If multiple conversions are found, returned reference corresponds to minimum
+  //conversion radius
+
   ConversionRef match;
   
   double minRho = 999.;
@@ -251,6 +292,9 @@ reco::ConversionRef ConversionTools::matchedConversion(const reco::SuperCluster 
 bool ConversionTools::hasMatchedPromptElectron(const reco::SuperClusterRef &sc, const edm::Handle<reco::GsfElectronCollection> &eleCol,
                    const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, float lxyMin, float probMin, uint nHitsBeforeVtxMax)
 {
+
+  //check if a given SuperCluster matches to at least one GsfElectron having zero expected inner hits
+  //and not matching any conversion in the collection passing the quality cuts
 
   if (sc.isNull()) return false;
   
@@ -278,6 +322,9 @@ bool ConversionTools::hasMatchedPromptElectron(const reco::SuperClusterRef &sc, 
 reco::GsfElectronRef ConversionTools::matchedPromptElectron(const reco::SuperClusterRef &sc, const edm::Handle<reco::GsfElectronCollection> &eleCol,
                    const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, float lxyMin, float probMin, uint nHitsBeforeVtxMax)
 {
+
+  //check if a given SuperCluster matches to at least one GsfElectron having zero expected inner hits
+  //and not matching any conversion in the collection passing the quality cuts
 
   GsfElectronRef match;
 
