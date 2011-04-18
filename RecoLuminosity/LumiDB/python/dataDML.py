@@ -176,7 +176,7 @@ def mostRecentLuminorms(schema,branchfilter):
     select e.name,max(n.data_id),r.revision_id , n.amodetag,n.norm_1,n.egev_1,n.norm_2,n.egev_2 from luminorms_entries e,luminorms_rev r,luminorms n where n.entry_id=e.entry_id and n.data_id=r.data_id and r.revision_id>=min(branchfilter) and r.revision_id<=max(branchfilter) group by e.entry_name,r.revision_id,n.amodetag,n.norm_1,n.egev_1,n.norm_2,n.egev_2;
     output {norm_name:[data_id,amodetag,norm_1,egev_1,norm_2,egev_2]}
     '''
-    print branchfilter
+    #print branchfilter
     result={}
     entry2datamap={}
     branchmin=0
