@@ -106,7 +106,7 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	    //        me["hCaloEz"]                 = dbe_->book1D("METTask_CaloEz","METTask_CaloEz",2001,-500,501);
 	    me["hCaloMETSig"]             = dbe_->book1D("METTask_CaloMETSig","METTask_CaloMETSig",25,-0.5,24.5);
 	    me["hCaloMET"]                = dbe_->book1D("METTask_CaloMET","METTask_CaloMET",1000,-0.5,1999.5);
-	    me["hCaloMETPhi"]             = dbe_->book1D("METTask_CaloMETPhi","METTask_CaloMETPhi",80,-4,4);
+	    me["hCaloMETPhi"]             = dbe_->book1D("METTask_CaloMETPhi","METTask_CaloMETPhi",40,-4,4);
 	    me["hCaloSumET"]              = dbe_->book1D("METTask_CaloSumET","METTask_CaloSumET",800,-0.5,7999.5);   //10GeV
 	    me["hCaloMaxEtInEmTowers"]    = dbe_->book1D("METTask_CaloMaxEtInEmTowers","METTask_CaloMaxEtInEmTowers",600,-0.5,2999.5);   //5GeV
 	    me["hCaloMaxEtInHadTowers"]   = dbe_->book1D("METTask_CaloMaxEtInHadTowers","METTask_CaloMaxEtInHadTowers",600,-.05,2999.5);  //5GeV
@@ -138,7 +138,7 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	    //me["hCaloEz"]                 = dbe_->book1D("METTask_CaloEz","METTask_CaloEz",2001,-500,501);
 	    me["hCaloMETSig"]             = dbe_->book1D("METTask_CaloMETSig","METTask_CaloMETSig",51,0,51);
 	    me["hCaloMET"]                = dbe_->book1D("METTask_CaloMET","METTask_CaloMET",2001,0,2001);
-	    me["hCaloMETPhi"]             = dbe_->book1D("METTask_CaloMETPhi","METTask_CaloMETPhi",80,-4,4);
+	    me["hCaloMETPhi"]             = dbe_->book1D("METTask_CaloMETPhi","METTask_CaloMETPhi",40,-4,4);
 	    me["hCaloSumET"]              = dbe_->book1D("METTask_CaloSumET","METTask_CaloSumET",10001,0,10001);
 	    me["hCaloMaxEtInEmTowers"]    = dbe_->book1D("METTask_CaloMaxEtInEmTowers","METTask_CaloMaxEtInEmTowers",4001,0,4001);
  	    me["hCaloMaxEtInHadTowers"]   = dbe_->book1D("METTask_CaloMaxEtInHadTowers","METTask_CaloMaxEtInHadTowers",4001,0,4001);
@@ -174,7 +174,7 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	    //        me["hGenEz"]                  = dbe_->book1D("METTask_GenEz","METTask_GenEz",2001,-500,501);
 	    me["hGenMETSig"]              = dbe_->book1D("METTask_GenMETSig","METTask_GenMETSig",51,0,51);
 	    me["hGenMET"]                 = dbe_->book1D("METTask_GenMET","METTask_GenMET", 2000,-0.5,1999.5);
-	    me["hGenMETPhi"]              = dbe_->book1D("METTask_GenMETPhi","METTask_GenMETPhi",80,-4,4);
+	    me["hGenMETPhi"]              = dbe_->book1D("METTask_GenMETPhi","METTask_GenMETPhi",40,-4,4);
 	    me["hGenSumET"]               = dbe_->book1D("METTask_GenSumET","METTask_GenSumET",1000,-0.5,9999.5);
 
 	    me["hNeutralEMEtFraction"]    = dbe_->book1D("METTask_GenNeutralEMEtFraction", "METTask_GenNeutralEMEtFraction", 120, 0.0, 1.2 );
@@ -193,7 +193,7 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	       //me["hGenEz"]                  = dbe_->book1D("METTask_GenEz","METTask_GenEz",2001,-500,501);
 	       me["hGenMETSig"]              = dbe_->book1D("METTask_GenMETSig","METTask_GenMETSig",51,0,51);
 	       me["hGenMET"]                 = dbe_->book1D("METTask_GenMET","METTask_GenMET",2001,0,2001);
-	       me["hGenMETPhi"]              = dbe_->book1D("METTask_GenMETPhi","METTask_GenMETPhi",80,-4,4);
+	       me["hGenMETPhi"]              = dbe_->book1D("METTask_GenMETPhi","METTask_GenMETPhi",40,-4,4);
 	       me["hGenSumET"]               = dbe_->book1D("METTask_GenSumET","METTask_GenSumET",10001,0,10001);
 	       me["hNeutralEMEtFraction"]    = dbe_->book1D("METTask_GenNeutralEMEtFraction", "METTask_GenNeutralEMEtFraction", 120, 0.0, 1.2 );
 	       me["hNeutralHadEtFraction"]   = dbe_->book1D("METTask_GenNeutralHadEtFraction", "METTask_GenNeutralHadEtFraction", 120, 0.0, 1.2 );
@@ -215,7 +215,7 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	    //me["hEz"]                 = dbe_->book1D("METTask_Ez","METTask_Ez",1000,-999.5,999.5);
 	    me["hMETSig"]             = dbe_->book1D("METTask_METSig","METTask_METSig",50,-0.5,49.5);
 	    me["hMET"]                = dbe_->book1D("METTask_MET","METTask_MET",1000,-0.5,1999.5);
-	    me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",80,-4,4);
+	    me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",40,-4,4);
 	    me["hSumET"]              = dbe_->book1D("METTask_SumET","METTask_SumET",1000,0,9999.5);   
 	    
 	  }
@@ -227,7 +227,7 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	    //me["hEz"]                 = dbe_->book1D("METTask_Ez","METTask_Ez",2001,-500,501);
 	    me["hMETSig"]             = dbe_->book1D("METTask_METSig","METTask_METSig",51,0,51);
 	    me["hMET"]                = dbe_->book1D("METTask_MET","METTask_MET",2001,0,2001);
-	    me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",80,-4,4);
+	    me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",40,-4,4);
 	    me["hSumET"]              = dbe_->book1D("METTask_SumET","METTask_SumET",4001,0,4001);
 
 	  }
@@ -243,7 +243,7 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	    //        me["hEz"]                 = dbe_->book1D("METTask_Ez","METTask_Ez",2001,-500,501);
 	    me["hMETSig"]             = dbe_->book1D("METTask_METSig","METTask_METSig",51,0,51);
 	    me["hMET"]                = dbe_->book1D("METTask_MET","METTask_MET",1000,-0.5,1999.5);
-	    me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",80,-4,4);
+	    me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",40,-4,4);
 	    me["hSumET"]              = dbe_->book1D("METTask_SumET","METTask_SumET",1000,-0.50,9999.5);     
 	    
 	    me["hMETResolution_GenMETTrue"]      = dbe_->book1D("METTask_METResolution_GenMETTrue","METTask_METResolution_GenMETTrue", 500,-500,500); 
@@ -262,7 +262,7 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	    //me["hEz"]                 = dbe_->book1D("METTask_Ez","METTask_Ez",2001,-500,501);
 	    me["hMETSig"]             = dbe_->book1D("METTask_METSig","METTask_METSig",51,0,51);
 	    me["hMET"]                = dbe_->book1D("METTask_MET","METTask_MET",2001,0,2001);
-	    me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",80,-4,4);
+	    me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",40,-4,4);
 	    me["hSumET"]              = dbe_->book1D("METTask_SumET","METTask_SumET",4001,0,4001);
 
 	    me["hMETResolution_GenMETTrue"]      = dbe_->book1D("METTask_METResolution_GenMETTrue","METTask_METResolution_GenMETTrue",2000,-1000,1000);
@@ -284,7 +284,7 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	    me["hMEy"]                = dbe_->book1D("METTask_MEy","METTask_MEy",1000,-999.5,999.5);
 	    me["hMETSig"]             = dbe_->book1D("METTask_METSig","METTask_METSig",51,0,51);
 	    me["hMET"]                = dbe_->book1D("METTask_MET","METTask_MET",1000,-0.5,1999.5);
-	    me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",80,-4,4);
+	    me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",40,-4,4);
 	    me["hSumET"]              = dbe_->book1D("METTask_SumET","METTask_SumET",1000,-0.50,9999.5);     
 	   
 	    me["hMExCorrection"]       = dbe_->book1D("METTask_MExCorrection","METTask_MExCorrection", 1000, -500.0,500.0);
@@ -342,7 +342,7 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	    me["hMEy"]                = dbe_->book1D("METTask_MEy","METTask_MEy",2001,-500,501);
 	    me["hMETSig"]             = dbe_->book1D("METTask_METSig","METTask_METSig",51,0,51);
 	    me["hMET"]                = dbe_->book1D("METTask_MET","METTask_MET",2001,0,2001);
-	    me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",80,-4,4);
+	    me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",40,-4,4);
 	    me["hSumET"]              = dbe_->book1D("METTask_SumET","METTask_SumET",4001,0,4001);
 	    me["hMExCorrection"]      = dbe_->book1D("METTask_MExCorrection","METTask_MExCorrection", 2000, -500.0,500.0);
 	    me["hMEyCorrection"]      = dbe_->book1D("METTask_MEyCorrection","METTask_MEyCorrection", 2000, -500.0,500.0);

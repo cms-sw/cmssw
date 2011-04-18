@@ -4,12 +4,13 @@
 # MET RunRelVal script
 # by: Michael Schmitt and Bobby Scurlock (The University of Florida)
 ##### Modification by : Ronny Remington (UF) 6/12/08
+##### Modification by : Dayong Wang 12/2009
 ##### This script will validate all 12 met collections, both calotower thresholds, ECAL, and HCAL : Takes 14 mins to run over all layers for a given sample
-##### For more basic validation of just raw calomet collection, SchemeB calotower thresholds, ECAL, and HCAL, use RunRelValBasic.sh 
+
+
 # user input area:
 
-dirlist="QCD_Pt_80_120 QCD_Pt_3000_3500 Wjet_Pt_80_120 TTbar LM1_sfts QCD_FlatPt_15_3000"
-#dirlist="MinBias QCD_Pt_120_170"
+dirlist="QCD_Pt_80_120 TTbar LM1_sfts QCD_FlatPt_15_3000"
 
 CaloMetList="met metNoHF metHO metNoHFHO metOpt metOptNoHF metOptHO metOptNoHFHO"
 tcMetList="tcMet"
@@ -18,30 +19,20 @@ CaloTowerList="SchemeB"
 MCaloTowerList="SchemeB Optimized"
 
 
+datadirNew="/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/RelVal/CMSSW_4_2_x"
+datadirRef="/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/RelVal/CMSSW_4_2_x"
 
-# datadirRef="/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/RelVal/CMSSW_3_8_x"
-# datadirNew="/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/RelVal/CMSSW_3_8_x"
+datadirRef="/tmp/wangdy/4_2_0_pre7"
+datadirNew="/tmp/wangdy/4_2_0"
 
-datadirRef="/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/RelVal/CMSSW_3_9_x"
-datadirNew="/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/RelVal/CMSSW_3_9_x"
+release_ref="4_2_0_pre7"
+release_new="4_2_0"
 
-datadirRef="/afs/cern.ch/cms/CAF/CMSPHYS/PHYS_JETMET/wangdy/CMSSW_3_9_0_pre6/src/Validation/RecoMET/test/FullSim"
-datadirNew="/afs/cern.ch/cms/CAF/CMSPHYS/PHYS_JETMET/wangdy/CMSSW_3_9_0_pre6/src/Validation/RecoMET/test/FullSim"
-
-# release_ref="3_9_0_pre6"
-# release_new="3_9_0_pre6"
-
-release_ref="3_9_0_pre4"
-release_new="3_9_0_pre5"
-
-# cond_ref="nogflash"
-# cond_new="gflash"
-
-cond_ref="MC_38Y_V11"
-cond_new="MC_39Y_V0"
-
+cond_ref="MC_42_V6"
+cond_new="MC_42_V9"
 
 # error handling
+
 function fail { echo "$0: line $LINENO: exit status $?"; exit 1; }
 
 trap fail ERR;
@@ -74,6 +65,10 @@ if [ $isFastFull -eq 1 ]; then
     release_ref=$release"_FullSim";
     release_new=$release"_FastSim";
 fi
+# ## for 64bits 
+#     release=$release_new;
+#     release_ref=$release"_32bit";
+#     release_new=$release"_64bit";
 
 echo $isFullFull $isFastFull $isFastFast $dirlist
 
@@ -181,33 +176,34 @@ cat html/SummaryTable-Bottom.html >> index.html;
 for i in $dirlist; do
 
   # enter area
-  echo "Validating Sample:  $i"; cd "$i"
-#  refRoot=$datadirRef/RelVal"$i"__CMSSW_3_5_0_pre2-MC_3XY_V14-v1__GEN-SIM-RECO/run_1/nevents_9000/DQM_V0001_R000000001__RelVal"$i"__CMSSW_3_5_0_pre2-MC_3XY_V14-v1__GEN-SIM-RECO_1.root;
-#  newRoot=$datadirNew/RelVal"$i"__CMSSW_3_5_0_pre5-MC_3XY_V20-v1__GEN-SIM-RECO/run_1/nevents_9000/DQM_V0001_R000000001__RelVal"$i"__CMSSW_3_5_0_pre5-MC_3XY_V20-v1__GEN-SIM-RECO_1.root;
-#  refRoot=$datadirRef/RelVal"$i"__CMSSW_3_5_0_pre3-MC_3XY_V15-v1__GEN-SIM-RECO/run_1/nevents_9000/DQM_V0001_R000000001__RelVal"$i"__CMSSW_3_5_0_pre3-MC_3XY_V15-v1__GEN-SIM-RECO_1.root;
-#  refRoot=$datadirRef/DQM_V0001_R000000001__RelVal"$i"__CMSSW_"$release_ref"-"$cond_ref"__GEN-SIM-RECO.root;
-#  newRoot=$datadirNew/DQM_V0001_R000000001__RelVal"$i"__CMSSW_"$release_new"-"$cond_new"__GEN-SIM-RECO.root;
-
   if [ $islocal -eq 1 ]; then
 
-      refRoot=$datadirRef/"$cond_ref"/METTester_data_$i.root;
-      newRoot=$datadirNew/"$cond_new"/METTester_data_$i.root;
+      refRoot=$datadirRef/METTester_data_$i.root;
+      newRoot=$datadirNew/METTester_data_$i.root;
   fi
 
   if [ $isFullFull -eq 1 ]; then
-      refRoot=$datadirRef/DQM_V000?_R000000001__RelVal"$i"__CMSSW_"$release_ref"-"$cond_ref"-v1__GEN-SIM-RECO.root;
-      newRoot=$datadirNew/DQM_V000?_R000000001__RelVal"$i"__CMSSW_"$release_new"-"$cond_new"-v1__GEN-SIM-RECO.root;
+      refRoot=$datadirRef/DQM_V000?_R000000001__RelVal"$i"__CMSSW_"$release_ref"-"$cond_ref"-v?__*.root;
+      newRoot=$datadirNew/DQM_V000?_R000000001__RelVal"$i"__CMSSW_"$release_new"-"$cond_new"-v?__*.root;
+# ## for 64 vs 32 bit
+#       refRoot=$datadirRef/DQM_V000?_R000000001__RelVal"$i"__CMSSW_"$release"-"$cond_ref"-v?__GEN-SIM-RECO.root;
+#       newRoot=$datadirNew/DQM_V000?_R000000001__RelVal"$i"__CMSSW_"$release"-"$cond_new"-v?__GEN-SIM-RECO.root;
+
+
   fi
   
   if [ $isFastFast -eq 1 ]; then
-      refRoot=$datadirRef/DQM_V000?_R000000001__RelVal"$i"__CMSSW_"$release_ref"-"$cond_ref"_FastSim-v1__GEN-SIM-DIGI-RECO.root;
-      newRoot=$datadirNew/DQM_V000?_R000000001__RelVal"$i"__CMSSW_"$release_new"-"$cond_new"_FastSim-v1__GEN-SIM-DIGI-RECO.root;
+
+      refRoot=$datadirRef/DQM_V000?_R000000001__RelVal"$i"__CMSSW_"$release_ref"-"$cond_ref"_FastSim-v?__GEN-SIM-DIGI-RECO.root;
+      refRoot=$datadirRef/DQM_V000?_R000000001__RelVal"$i"__CMSSW_"$release_ref"-"$cond_ref"_FastSim_64bit-v?__GEN-SIM-DIGI-RECO.root;
+      newRoot=$datadirNew/DQM_V000?_R000000001__RelVal"$i"__CMSSW_"$release_new"-"$cond_new"_FastSim-v?__GEN-SIM-DIGI-RECO.root;
   fi
 
   if [ $isFastFull -eq 1 ]; then
       echo "!!!!!!!!!!!!!!   " $isFastFull  $release; 
-      refRoot=$datadirRef/DQM_V000?_R000000001__RelVal"$i"__CMSSW_"$release"-"$cond_new"-v1__GEN-SIM-RECO.root;
-      newRoot=$datadirNew/DQM_V000?_R000000001__RelVal"$i"__CMSSW_"$release"-"$cond_new"_FastSim-v1__GEN-SIM-DIGI-RECO.root;
+      refRoot=$datadirRef/DQM_V000?_R000000001__RelVal"$i"__CMSSW_"$release"-"$cond_new"-v?__GEN-SIM-RECO.root;
+      refRoot=$datadirRef/DQM_V000?_R000000001__RelVal"$i"__CMSSW_"$release"-"$cond_new"-v?__DQM.root;
+      newRoot=$datadirNew/DQM_V000?_R000000001__RelVal"$i"__CMSSW_"$release"-"$cond_new"_FastSim-v?__GEN-SIM-DIGI-RECO.root;
   fi
 
   echo $refRoot;

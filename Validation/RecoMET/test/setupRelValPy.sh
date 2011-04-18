@@ -9,8 +9,7 @@ Directory=${current_area}/FullSim/
 mkdir $Directory -p
 
 #======= Define list of samples that you will be validating ========#
-#dirlist="QCD_Pt_80_120 QCD_Pt_3000_3500 Wjet_Pt_80_120 LM1_sfts TTbar QCD_FlatPt_15_3000"
-dirlist=" MinBias QCD_Pt_120_170 ts  QCD_FlatPt_15_3000"
+dirlist="QCD_Pt_80_120 LM1_sfts TTbar QCD_FlatPt_15_3000"
 
 #======= Define list of modules that will be run for each sample ========#
 RunPath="fileSaver, calotoweroptmaker, analyzeRecHits, analyzecaloTowers, analyzeGenMET, analyzeGenMETFromGenJets, analyzeHTMET, analyzeCaloMET, analyzeTCMET,OB analyzePFMET"
@@ -18,9 +17,9 @@ RunPath="fileSaver, calotoweroptmaker, analyzeRecHits, analyzecaloTowers, analyz
 
 echo "Run path = {" $RunPath "}"
 
-cmssw_version="3_7_1"
-condition="MC_37Y_V4-v1"
-globalTag="MC_37Y_V4::All"
+cmssw_version="4_2_1"
+condition="MC_42_V10-v1"
+globalTag="MC_42_V10::All"
 
 #==========================================#
 cd $current_area

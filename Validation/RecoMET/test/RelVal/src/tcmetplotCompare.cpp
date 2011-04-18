@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
   hd = pc->AddHistoData("MEx");  hd->SetType(2);
   hd = pc->AddHistoData("nMus"); hd->SetType(0);
   hd = pc->AddHistoData("nMusAsPis"); hd->SetType(0);
-  hd = pc->AddHistoData("muonSAhits"); hd->SetType(0);
+//  hd = pc->AddHistoData("muonSAhits"); hd->SetType(0);
   hd = pc->AddHistoData("nEls"); hd->SetType(0);
   hd = pc->AddHistoData("fracTracks"); hd->SetType(0);
   hd = pc->AddHistoData("trackQuality"); hd->SetType(0);
