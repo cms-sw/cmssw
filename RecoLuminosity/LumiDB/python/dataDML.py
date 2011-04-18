@@ -11,14 +11,16 @@ import array
 #==============================
 def runList(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=None,nominalEnergy=None,energyFlut=0.2,requiretrg=True,requirehlt=True):
     '''
-    select runnum from cmsrunsummary r,lumidata l,trgdata t,hltdata h where r.runnum=l.runnum and l.runnum=t.runnum and t.runnum=h.runnum and r.fillnum=:fillnum and r.runnum>:runmin and r.runnum<:runmax and r.starttime>=:startT and r.stopTime<=:stopT and r.amodetag=:amodetag and regexp_like(r.l1key,:l1keypattern) and regexp_like(hltkey,:hltkeypattern) and l.nominalEnergy>=:nominalEnergy*(1-energyFlut) and l.nominalEnergy<=:nominalEnergy*(1+energyFlut)
+    select runnum,starttime from cmsrunsummary r,lumidata l,trgdata t,hltdata h where r.runnum=l.runnum and l.runnum=t.runnum and t.runnum=h.runnum and r.fillnum=:fillnum and r.runnum>:runmin and r.runnum<:runmax and r.amodetag=:amodetag and regexp_like(r.l1key,:l1keypattern) and regexp_like(hltkey,:hltkeypattern) and l.nominalEnergy>=:nominalEnergy*(1-energyFlut) and l.nominalEnergy<=:nominalEnergy*(1+energyFlut)
     '''
     result=[]
+    timelesslist=[]
     qHandle=schema.newQuery()
     r=nameDealer.cmsrunsummaryTableName()
     l=nameDealer.lumidataTableName()
     t=nameDealer.trgdataTableName()
     h=nameDealer.hltdataTableName()
+    lute=lumiTime.lumiTime()
     try:
         qHandle.addToTableList(r)
         qHandle.addToTableList(l)
@@ -42,22 +44,22 @@ def runList(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l
             qConditionStr+=' and '+r+'.runnum<=:runmax'
             qCondition.extend('runmax','unsigned int')
             qCondition['runmax'].setData(runmax)
-        if startT:
-            timeformat='%m/%d/%y %H:%M:%S'
-            qConditionStr+=' and '+r+'.starttime>=:startT'
-            qCondition.extend('startT','time stamp')
-            t=lumiTime.lumiTime()
-            start=t.StrToDatetime(startT,customfm=timeformat)
-            startCoralTimestamp=coral.TimeStamp(start.year,start.month,start.day,start.hour,start.minute,start.second,0)
-            qCondition['startT'].setData(startCoralTimestamp)            
-        if stopT:
-            timeformat='%m/%d/%y %H:%M:%S'
-            qConditionStr+=' and '+r+'.stoptime<=:stopT'            
-            qCondition.extend('stopT','time stamp')
-            t=lumiTime.lumiTime()
-            stop=t.StrToDatetime(stopT,customfm=timeformat)
-            stopCoralTimestamp=coral.TimeStamp(stop.year,stop.month,stop.day,stop.hour,stop.minute,stop.second,0)
-            qCondition['stopT'].setData(stopCoralTimestamp)
+        #if startT:
+        #    timeformat='%m/%d/%y %H:%M:%S'
+        #    qConditionStr+=' and '+r+'.starttime>=:startT'
+        #    qCondition.extend('startT','time stamp')
+        #    t=lumiTime.lumiTime()
+        #    start=t.StrToDatetime(startT,customfm=timeformat)
+        #    startCoralTimestamp=coral.TimeStamp(start.year,start.month,start.day,start.hour,start.minute,start.second,0)
+        #    qCondition['startT'].setData(startCoralTimestamp)            
+        #if stopT:
+        #    timeformat='%m/%d/%y %H:%M:%S'
+        #    qConditionStr+=' and '+r+'.stoptime<=:stopT'            
+        #    qCondition.extend('stopT','time stamp')
+        #    t=lumiTime.lumiTime()
+        #    stop=t.StrToDatetime(stopT,customfm=timeformat)
+        #    stopCoralTimestamp=coral.TimeStamp(stop.year,stop.month,stop.day,stop.hour,stop.minute,stop.second,0)
+        #    qCondition['stopT'].setData(stopCoralTimestamp)
         if amodetag:
             qConditionStr+=' and '+r+'.amodetag=:amodetag'
             qCondition.extend('amodetag','string')
@@ -80,12 +82,36 @@ def runList(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l
             qCondition['emax'].setData(emax)
         qResult=coral.AttributeList()
         qResult.extend('runnum','unsigned int')
+        qResult.extend('starttime','string')
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         qHandle.addToOutputList(r+'.RUNNUM','runnum')
+        qHandle.addToOutputList('TO_CHAR('+r+'.STARTTIME,\'MM/DD/YY HH24:MI:SS\')','starttime')
         cursor=qHandle.execute()
+        
         while cursor.next():
-            result.append(cursor.currentRow()['runnum'].data())
+            starttimeStr=cursor.currentRow()['starttime'].data()
+            runnum=cursor.currentRow()['runnum'].data()
+            minTime=None
+            maxTime=None
+            if startT and stopT:
+                minTime=lute.StrToDatetime(startT,customfm='%m/%d/%y %H:%M:%S')
+                maxTime=lute.StrToDatetime(stopT,customfm='%m/%d/%y %H:%M:%S')
+                runTime=lute.StrToDatetime(starttimeStr,customfm='%m/%d/%y %H:%M:%S')
+                if runTime>=minTime and runTime<=maxTime:
+                    result.append(runnum)
+            elif startT is not None:
+                minTime=lute.StrToDatetime(startT,customfm='%m/%d/%y %H:%M:%S')
+                runTime=lute.StrToDatetime(starttimeStr,customfm='%m/%d/%y %H:%M:%S')
+                if runTime>=minTime:
+                    result.append(runnum)
+            elif stopT is not None:
+                maxTime=lute.StrToDatetime(stopT,customfm='%m/%d/%y %H:%M:%S')
+                runTime=lute.StrToDatetime(starttimeStr,customfm='%m/%d/%y %H:%M:%S')
+                if runTime<=maxTime:
+                    result.append(runnum)
+            else:
+                result.append(runnum)
     except :
         del qHandle
         raise
