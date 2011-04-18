@@ -181,17 +181,30 @@ if __name__ == '__main__':
        else:
            lumiReport.toCSVOverview(result,options.outputfile,options.outputfile)
     if options.action == 'lumibyls':
-       session.transaction().start(True)
-       result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor)
-       session.transaction().commit()
-       if not options.outputfile:
-           lumiReport.toScreenLumiByLS(result,options.verbose)
+       if not options.hltpath:
+           session.transaction().start(True)
+           result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor)
+           session.transaction().commit()
+           if not options.outputfile:
+               lumiReport.toScreenLumiByLS(result,options.verbose)
+           else:
+               lumiReport.toCSVLumiByLS(result,options.outputfile,options.verbose)
        else:
-           lumiReport.toCSVLumiByLS(result,options.outputfile,options.verbose)
+           if hltname=='*' or hltname=='all':
+               hltname=None
+           elif 1 in [c in hltname for c in '*?[]']: #is a fnmatch pattern
+              hltpat=hltname
+              hltname=None
+           session.transaction().start(True)
+           result=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),irunlsdict,hltpathname=hltname,hltpathpattern=hltpat,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor)
+           session.transaction().commit()
+           if not options.outputfile:
+               lumiReport.toScreenLSEffective(result,options.verbose)
+           else:
+               lumiReport.toCSVLSEffective(result,options.outputfile,options.verbose)
     if options.action == 'recorded':#recorded actually means effective because it needs to show all the hltpaths...
        session.transaction().start(True)
        hltname=options.hltpath
-       print 'hltname ',hltname
        hltpat=None
        if hltname is not None:
           if hltname=='*' or hltname=='all':

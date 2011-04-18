@@ -261,15 +261,16 @@ def toScreenTotEffective(lumidata,isverbose):
     input:  {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata]}
     '''
     result=[]#[run,hltpath,l1bitname,totefflumi]
-    for run in sorted(lumidata):
+    totdict={}#{hltpath:[nls,toteff]}
+    for run in sorted(lumidata):#loop over runs
         rundata=lumidata[run]
         if rundata is None:
             result.append([str(run),'n/a','n/a','n/a'])
             continue
-        nls=len(rundata)
         selectedcmslsStr=[x[1] for x in rundata if x[1]!=0]
         totrecorded=sum([x[6] for x in rundata if x[6] is not None])
         totefflumiDict={}
+        pathmap={}
         for lsdata in rundata:
             efflumiDict=lsdata[8]# this ls has no such path?
             if not efflumiDict:
@@ -277,21 +278,68 @@ def toScreenTotEffective(lumidata,isverbose):
             for hltpathname,pathdata in efflumiDict.items():
                 if not totefflumiDict.has_key(hltpathname):
                     totefflumiDict[hltpathname]=0.0
+                    pathmap[hltpathname]='n/a'                
                 lumival=pathdata[3]
+                if not totdict.has_key(hltpathname):
+                    totdict[hltpathname]=[0,0.0]
+                if lsdata[1]!=0:
+                    totdict[hltpathname][0]+=1   
                 if lumival:
+                    totdict[hltpathname][1]+=lumival
                     totefflumiDict[hltpathname]+=lumival
+                    pathmap[hltpathname]=pathdata[0]
         for name in sorted(totefflumiDict):
             (efflumival,efflumiunit)=CommonUtil.guessUnit(totefflumiDict[name])
-            result.append([str(run),name,'%.3f'%efflumival+'('+efflumiunit+')'])
-    labels = [('Run','HLT path','Recorded')]
+            result.append([str(run),name,pathmap[name],'%.3f'%efflumival+'('+efflumiunit+')'])
+    labels = [('Run','HLTpath','L1bit','Effective')]
     print ' ==  = '
     print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
-    
+    print ' ==  =  Total : '
+    lastrowlabels=[('HLTPath','SelectedLS','Effective')]
+    totresult=[]
+    for hname in sorted(totdict):
+        hdata=totdict[hname]
+        totnls=hdata[0]
+        (toteffval,toteffunit)=CommonUtil.guessUnit(hdata[1])
+        totresult.append([hname,str(totnls),'%.2f'%toteffval+'('+toteffunit+')'])
+    print tablePrinter.indent (lastrowlabels+totresult, hasHeader = True, separateRows = False,
+                               prefix = '| ', postfix = ' |', justify = 'right',
+                               delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
+        
 def toCSVTotEffective(lumidata,filename,isverbose):
-    pass
-
+    result=[]#[run,hltpath,l1bitname,totefflumi]
+    r=csvReporter.csvReporter(filename)
+    for run in sorted(lumidata):#loop over runs
+        rundata=lumidata[run]
+        if rundata is None:
+            result.append([str(run),'n/a','n/a','n/a'])
+            continue
+        selectedcmslsStr=[x[1] for x in rundata if x[1]!=0]
+        totrecorded=sum([x[6] for x in rundata if x[6] is not None])
+        totefflumiDict={}
+        pathmap={}
+        for lsdata in rundata:
+            efflumiDict=lsdata[8]# this ls has no such path?
+            if not efflumiDict:
+                continue
+            for hltpathname,pathdata in efflumiDict.items():
+                if not totefflumiDict.has_key(hltpathname):
+                    totefflumiDict[hltpathname]=0.0
+                    pathmap[hltpathname]='n/a'                
+                lumival=pathdata[3]
+                if lumival:
+                    totefflumiDict[hltpathname]+=lumival
+                    if pathdata[0] is None:
+                        pathmap[hltpathname]='n/a'
+                    else:
+                        pathmap[hltpathname]=pathdata[0].replace('\"','')
+        for name in sorted(totefflumiDict):
+            result.append([run,name,pathmap[name],totefflumiDict[name]])
+    fieldnames=['Run','HLTpath','L1bit','Effective(/ub)']
+    r.writeRow(fieldnames)
+    r.writeRows(result)
 def toCSVBXInfo(lumidata,filename,bxfield='bxlumi'):
     '''
     dump selected bxlumi or beam intensity as the last field

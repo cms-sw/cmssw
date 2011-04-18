@@ -242,7 +242,7 @@ def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=N
         normval=_getnorm(schema,norm)
         perbunchnormval=float(normval)/float(1000)
     elif amodetag and egev:
-        normval=_decidenormFromContex(schema,amodetag,egev)
+        normval=_decidenormFromContext(schema,amodetag,egev)
         perbunchnormval=float(normval)/float(1000)
     instresult=instLumiForRange(schema,inputRange,beamstatus,withBXInfo,bxAlgo,withBeamIntensity,datatag)
     #instLumiForRange should have aleady handled the selection,unpackblob    
@@ -415,8 +415,6 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
     result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata]}
            lumi unit: 1/ub
     '''
-    print 'hltpathname ',hltpathname
-    print 'hltpathpattern ',hltpathpattern
     result = {}
     normval=None
     perbunchnormval=None
@@ -534,7 +532,6 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                     l1prescale=None
                     efflumi=None
                     l1seedexpr=hlttrgmap[hltpathname]
-                    print l1seedexpr
                     for pathidx,nm in enumerate(pathnames):
                         if nm==hltpathname:
                             hltprescale=hltprescalearray[pathidx]
@@ -543,7 +540,6 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                         l1bitname=hltTrgSeedMapper.findUniqueSeed(hltpathname,l1seedexpr)
                         if l1bitname:
                             l1prescale=trgprescalemap[l1bitname]
-                            print l1prescale
                     except KeyError:
                         l1prescale=None
                     if l1prescale and hltprescale:
@@ -552,7 +548,6 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                         else:
                             efflumi=0.0
                     efflumidict[hltpathname]=[l1bitname,l1prescale,hltprescale,efflumi]
-                    print efflumidict[hltpathname]
                 elif hltpathpattern is not None: #get paths matching fnmatch pattern
                     for hpath,l1seexexpr in hlttrgmap.items():
                         hltprescale=None
