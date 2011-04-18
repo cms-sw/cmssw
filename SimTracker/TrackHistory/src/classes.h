@@ -1,3 +1,4 @@
+#include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
@@ -13,7 +14,8 @@ struct dictionary
 
     std::vector<TrackCategories> dummy01;
     std::vector<VertexCategories> dummy02;
-
+    edm::Wrapper<std::vector<TrackCategories> > dummy03;
+    edm::Wrapper<std::vector<VertexCategories> > dummy04;
 };
 }
 
