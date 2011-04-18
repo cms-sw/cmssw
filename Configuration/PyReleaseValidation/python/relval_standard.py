@@ -58,7 +58,7 @@ workflows[37] = ['', ['LM1_sfts','DIGI1','RECO1']]
 workflows[38] = ['', ['QCD_FlatPt_15_3000','DIGI1','RECO1']]
 
 workflows[9]  = ['', ['Higgs200ChargedTaus','DIGI2','RECO2']]
-workflows[13] = ['', ['QCD_Pt_3000_3500_2','DIGI2','RECO2']]
+workflows[13] = ['QCD_Pt_3000_3500', ['QCD_Pt_3000_3500_2','DIGI2','RECO2']]
 workflows[23] = ['', ['JpsiMM','DIGI2','RECO2']]
 workflows[25] = ['TTbar', ['TTbar2','DIGI2','RECO2','ALCATT2']]
 workflows[26] = ['', ['WE','DIGI2','RECO2']]
