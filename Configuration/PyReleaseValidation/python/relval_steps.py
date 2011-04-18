@@ -174,7 +174,7 @@ step1['ZEE2INPUT']={'INPUT':InputInfo(dataSet='/RelValZEE/CMSSW_4_3_0_pre2-START
 step1['ZTTINPUT']={'INPUT':InputInfo(dataSet='/RelValZTT/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='ZTTrv',location='STD')}
 step1['H130GGgluonfusionINPUT']={'INPUT':InputInfo(dataSet='/RelValH130GGgluonfusion/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='H130GGgluonfusionrv',location='STD')}
 step1['PhotonJets_Pt_10INPUT']={'INPUT':InputInfo(dataSet='/RelValPhotonJets_Pt_10/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='PhotonJets_Pt_10rv',location='STD')}
-step1['QQH1352T_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_Tauola_cfi/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='QQH1352T_Tauola_cfirv',location='STD')}
+step1['QQH1352T_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_Tauola/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='QQH1352T_Tauolarv',location='STD')}
 
 step1['Cosmics']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','--relval':'666000,7400','--scenario':'cosmics'},step1Defaults])
 step1['BeamHalo']=merge([{'cfg':'BeamHalo_cfi.py','--scenario':'cosmics'},K9by100,step1Defaults])
