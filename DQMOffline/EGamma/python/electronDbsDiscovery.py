@@ -20,6 +20,9 @@
 #     castor: use rfdir
 #     lsf: use dbs lsf
 #     local: look within electronDbsDiscovery.txt
+#   DBS_CASTOR_DIR: top dir to scrutiny when the strategy is "castor"
+#     for relvals: '/store/relval/${DBS_RELEASE}/${DBS_SAMPLE}/${DBS_TIER}/${DBS_COND}/'
+#     for harvested dqm: '/store/unmerged/dqm/${DBS_SAMPLE}-${DBS_RELEASE}-${DBS_COND}-DQM-DQMHarvest-OfflineDQM'
 #
 # In DBS_COND, DBS_TIER and DBS_TIER_SECONDARY,
 # one can use wildcard *.
@@ -27,6 +30,11 @@
 
 #import httplib, urllib, urllib2, types, string, os, sys
 import os, sys
+
+if len(sys.argv) > 1:
+  os.environ['DBS_STRATEGY'] = sys.argv[1]
+elif not os.environ.has_key('DBS_STRATEGY'):
+  os.environ['DBS_STRATEGY'] = "search"
 
 if not os.environ.has_key('DBS_RELEASE'):
   os.environ['DBS_RELEASE'] = "Any"
@@ -36,8 +44,6 @@ if not os.environ.has_key('DBS_RUN'):
   os.environ['DBS_RUN'] = "Any"
 if not os.environ.has_key('DBS_TIER_SECONDARY'):
   os.environ['DBS_TIER_SECONDARY'] = ""
-if not os.environ.has_key('DBS_STRATEGY'):
-  os.environ['DBS_STRATEGY'] = "search"
 
 def common_search(dbs_tier):
 
@@ -54,24 +60,22 @@ def common_search(dbs_tier):
       
   elif os.environ['DBS_STRATEGY'] == "castor":
   
-    castor_dir = '/castor/cern.ch/cms/store/relval/'+os.environ['DBS_RELEASE']+'/'+os.environ['DBS_SAMPLE']+'/'+os.environ['DBS_TIER']+'/'+os.environ['DBS_COND']+'/'
-    if __name__ == "__main__":
-      print 'castor dir:',castor_dir
+    castor_dir = os.environ['DBS_CASTOR_DIR']
     result = []
-    data = os.popen('rfdir '+castor_dir)
+    data = os.popen('rfdir /castor/cern.ch/cms'+castor_dir)
     subdirs = data.readlines()
     data.close()
     datalines = []
     for line in subdirs:
       line = line.rstrip()
       subdir = line.split()[8]
-      data = os.popen('rfdir '+castor_dir+'/'+subdir)
+      data = os.popen('rfdir /castor/cern.ch/cms'+castor_dir+'/'+subdir)
       datalines = data.readlines()
       for line in datalines:
         line = line.rstrip()
         file = line.split()[8]
         if file != "":
-          result.append('/store/relval/'+os.environ['DBS_RELEASE']+'/'+os.environ['DBS_SAMPLE']+'/'+os.environ['DBS_TIER']+'/'+os.environ['DBS_COND']+'/'+subdir+'/'+file)
+          result.append(castor_dir+'/'+subdir+'/'+file)
       data.close()
       
   elif os.environ['DBS_STRATEGY'] == "lsf":
