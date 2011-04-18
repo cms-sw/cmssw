@@ -3,22 +3,36 @@
 #include <algorithm>
 #include <boost/bind.hpp>
 
-
 namespace cond {
   
+  IOVSequence::IOVSequence() : 
+    m_iovs(),
+    m_timetype(-1),
+    m_lastTill(0),
+    m_notOrdered(false), 
+    m_metadata(""),
+    m_payloadClasses(),
+    m_sorted(0) {}
   
-  IOVSequence::IOVSequence() : m_notOrdered(false), m_sorted(0) {}
-  
-  IOVSequence::IOVSequence(cond::TimeType ttype) :
-    m_timetype(ttype), m_lastTill(timeTypeSpecs[ttype].endValue),
-    m_notOrdered(false), m_metadata(" "),  m_sorted(0) {}
-    
+  IOVSequence::IOVSequence( cond::TimeType ttype ) :
+    m_iovs(),
+    m_timetype(ttype),
+    m_lastTill(timeTypeSpecs[ttype].endValue),
+    m_notOrdered(false), 
+    m_metadata(" "),
+    m_payloadClasses(),
+    m_sorted(0) {}
 
-
-  IOVSequence::IOVSequence(int type, cond::Time_t till, 
+  IOVSequence::IOVSequence(int ttype, 
+                           cond::Time_t till, 
 			   std::string const& imetadata) :
-    m_timetype(type), m_lastTill(till),m_notOrdered(false),
-    m_metadata(imetadata),  m_sorted(0) {}
+    m_iovs(),
+    m_timetype(ttype),
+    m_lastTill(till),
+    m_notOrdered(false), 
+    m_metadata(imetadata),
+    m_payloadClasses(),
+    m_sorted(0) {}
     
   IOVSequence::~IOVSequence(){
     delete m_sorted;
@@ -31,6 +45,7 @@ namespace cond {
     m_lastTill(rh.m_lastTill),
     m_notOrdered(rh.m_notOrdered),
     m_metadata(rh.m_metadata),
+    m_payloadClasses(rh.m_payloadClasses),
     m_sorted(0) {}
   
   IOVSequence & IOVSequence::operator=(IOVSequence const & rh) {
@@ -41,6 +56,7 @@ namespace cond {
     m_lastTill=rh.m_lastTill;
     m_notOrdered=rh.m_notOrdered;
     m_metadata = rh.m_metadata;
+    m_payloadClasses = rh.m_payloadClasses;
     return *this;
   }
 
@@ -49,6 +65,7 @@ namespace cond {
     // m_provenance.get();
     // m_description.get();
     // m_userMetadata.get();
+    m_iovs.load();
   }
   
   IOVSequence::Container const & IOVSequence::iovs() const {
@@ -58,6 +75,7 @@ namespace cond {
   }
 
   IOVSequence::Container const & IOVSequence::sortMe() const {
+    m_iovs.load();
     delete m_sorted; // shall not be necessary;
     Container * local = new Container(m_iovs);
     std::sort(local->begin(), local->end(), boost::bind(std::less<cond::Time_t>(),
@@ -70,9 +88,11 @@ namespace cond {
 
 
   size_t IOVSequence::add(cond::Time_t time, 
-			  std::string const & wrapperToken) {
+			  std::string const & token,
+                          std::string const & payloadClassName ) {
     if (!piovs().empty() && ( m_notOrdered || time<piovs().back().sinceTime())) disorder();
-    piovs().push_back(Item(time, wrapperToken));
+    piovs().push_back(Item(time, token));
+    m_payloadClasses.insert( payloadClassName );
     return piovs().size()-1;
   }
   
@@ -109,4 +129,19 @@ namespace cond {
     delete m_sorted; m_sorted=0;
   }
 
+  void IOVSequence::swapTokens( ora::ITokenParser& parser ) const {
+    for( IOVSequence::const_iterator iT = m_iovs.begin();
+         iT != m_iovs.end(); ++iT ){
+      iT->swapToken( parser );
+    }
+  }
+
+  void IOVSequence::swapOIds( ora::ITokenWriter& writer ) const {
+    for( IOVSequence::const_iterator iT = m_iovs.begin();
+         iT != m_iovs.end(); ++iT ){
+      iT->swapOId( writer );
+    }
+  }
+
 }
+

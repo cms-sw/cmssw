@@ -3,14 +3,15 @@
 #include "CondFormats/Common/interface/UpdateStamp.h"
 #include "CondFormats/Common/interface/IOVElement.h"
 #include "CondFormats/Common/interface/Time.h"
-#include <vector>
-#include <string>
-#include "CondCore/ORA/interface/PVector.h"
-
 #include "CondFormats/Common/interface/IOVProvenance.h"
 #include "CondFormats/Common/interface/IOVDescription.h"
 #include "CondFormats/Common/interface/IOVUserMetaData.h"
 
+#include "CondCore/ORA/interface/QueryableVector.h"
+
+#include <vector>
+#include <string>
+#include <set>
 
 namespace cond {
 
@@ -22,14 +23,14 @@ namespace cond {
   class IOVSequence : public  UpdateStamp{
   public:
     typedef cond::IOVElement Item;
-    typedef ora::PVector<Item> Container;
+    typedef ora::QueryableVector<Item> Container;
     typedef Container::iterator iterator;
     typedef Container::const_iterator const_iterator;
 
     IOVSequence();
 
     // the real default constructor...
-    explicit IOVSequence(cond::TimeType ttype);
+    explicit IOVSequence( cond::TimeType ttype );
 
     // constructor for the editor
     IOVSequence(int type, cond::Time_t till, std::string const& imetadata);
@@ -40,8 +41,7 @@ namespace cond {
     IOVSequence & operator=(IOVSequence const & rh);
 
     // append a new item, return position of last inserted entry
-    size_t add(cond::Time_t time, 
-	       std::string const & wrapperToken);
+    size_t add(cond::Time_t time, std::string const & token, std::string const& payloadClassName );
 
     // remove last entry, return position of last entry still valid
     size_t truncate();
@@ -64,28 +64,32 @@ namespace cond {
 
     void updateLastTill(cond::Time_t till) { m_lastTill=till;}
 
-    
   public:
     Container const & iovs() const;
 
     // if true the "sorted" sequence is not guaranted to be the same as in previous version
     bool notOrdered() const { return m_notOrdered;}
+
+    std::string const & metadata() const { return m_metadata;}
+
+    std::set<std::string> const& payloadClasses() const { return m_payloadClasses; }
     
-    std::string const & metadataToken() const { return m_metadata;}
-
-
-    // void set_description(cond::IOVDescription * id) { m_description = id;}
-
-    // cond::IOVDescription const & description() const {return *m_description;}
-
-
     void loadAll() const;
 
   public:
 
     // the real persistent container...
-    Container & piovs() { return m_iovs;}
-    Container const & piovs() const { return m_iovs;}
+    Container & piovs() { 
+      m_iovs.load();
+      return m_iovs;
+    }
+    Container const & piovs() const { 
+      m_iovs.load();
+      return m_iovs;
+    }
+
+    void swapTokens( ora::ITokenParser& parser ) const;
+    void swapOIds( ora::ITokenWriter& writer ) const;
 
   private:
     
@@ -100,20 +104,9 @@ namespace cond {
     Container m_iovs;
     int m_timetype;
     cond::Time_t m_lastTill;
-
     bool m_notOrdered;
-
     std::string m_metadata; // FIXME not used???
-
-    // to describe history and be used as provenance
-    // pool::PolyPtr<cond::IOVProvenance> m_provenance;
-
-    // keep list of types, list of keywords, 
-    // pool::PolyPtr<cond::IOVDescription> m_description;
-
-    // for the user
-    // pool::PolyPtr<cond::IOVUserMetaData> m_userMetadata;
-
+    std::set<std::string> m_payloadClasses;
     mutable Container * m_sorted;
 
   };
