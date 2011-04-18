@@ -165,7 +165,7 @@ step1['QQH1352T_Tauola']=genS('QQH1352T_Tauola_7TeV_cfi',K9by100)
 
 step1['MinBias2INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='MinBiasrv',location='STD')}
 step1['Higgs200ChargedTausINPUT']={'INPUT':InputInfo(dataSet='/RelValHiggs200ChargedTaus/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='Higgs200ChargedTausrv',location='STD')}
-step1['QCD_Pt_3000_3500_2INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_3000_3500/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='QCD_Pt_3000_3500rv',location='STD')}
+step1['QCD_Pt_3000_3500_2INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_3000_3500_2/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='QCD_Pt_3000_3500rv',location='STD')}
 step1['QCD_Pt_80_120_2INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_80_120/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='QCD_Pt_80_120rv',location='STD')}
 step1['JpsiMMINPUT']={'INPUT':InputInfo(dataSet='/RelValJpsiMM/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='JpsiMMrv',location='STD')}
 step1['TTbar2INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='ttbarrv',location='STD')}
