@@ -256,6 +256,81 @@ def toCSVLumiByLS(lumidata,filename,isverbose):
     r.writeRow(fieldnames)
     r.writeRows(result)
 
+def toScreenLSEffective(lumidata,isverbose):
+    '''
+    input:  {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata]}
+    '''
+    result=[]#[run,ls,hltpath,l1bitname,hltpresc,l1presc,efflumi]
+    for run in sorted(lumidata):#loop over runs
+        rundata=lumidata[run]
+        if rundata is None:
+            result.append([str(run),'n/a','n/a','n/a','n/a','n/a','n/a','n/a'])
+            continue
+        for lsdata in rundata:
+            efflumiDict=lsdata[8]# this ls has no such path?
+            if not efflumiDict:
+                continue
+            cmslsnum=lsdata[1]
+            recorded=lsdata[6]
+            if not recorded:
+                recorded=0.0
+            for hltpathname in sorted(efflumiDict):
+                pathdata=efflumiDict[hltpathname]
+                l1name=pathdata[0]
+                if l1name is None:
+                    l1name='n/a'
+                else:
+                    l1name=l1name.replace('"','')
+                l1prescale=pathdata[1]
+                hltprescale=pathdata[2]
+                lumival=pathdata[3]
+                if lumival is not None:
+                    result.append([str(run),str(cmslsnum),hltpathname,l1name,str(hltprescale),str(l1prescale),'%.2f'%recorded,'%.2f'%lumival])
+                else:
+                    result.append([str(run),str(cmslsnum),hltpathname,l1name,str(hltprescale),str(l1prescale),'%.2f'%recorded,'n/a'])
+    labels = [('Run','LS','HLTpath','L1bit','HLTpresc','L1presc','Recorded(/ub)','Effective(/ub)')]
+    print ' ==  = '
+    print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
+                               prefix = '| ', postfix = ' |', justify = 'right',
+                               delim = ' | ', wrapfunc = lambda x: wrap_onspace_strict(x,22) )
+def toCSVLSEffective(lumidata,filename,isverbose):
+    '''
+    input:  {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata]}
+    '''
+    result=[]#[run,ls,hltpath,l1bitname,hltpresc,l1presc,efflumi]
+    r=csvReporter.csvReporter(filename)
+    
+    for run in sorted(lumidata):#loop over runs
+        rundata=lumidata[run]
+        if rundata is None:
+            result.append([str(run),'n/a','n/a','n/a','n/a','n/a','n/a','n/a'])
+            continue
+        for lsdata in rundata:
+            efflumiDict=lsdata[8]# this ls has no such path?
+            if not efflumiDict:
+                continue
+            cmslsnum=lsdata[1]
+            recorded=lsdata[6]
+            if not recorded:
+                recorded=0.0
+            for hltpathname in sorted(efflumiDict):
+                pathdata=efflumiDict[hltpathname]
+                l1name=pathdata[0]
+                if l1name is None:
+                    l1name='n/a'
+                else:
+                    l1name=l1name.replace('"','')
+                l1prescale=pathdata[1]
+                hltprescale=pathdata[2]
+                lumival=pathdata[3]
+                if lumival is not None:
+                    result.append([run,cmslsnum,hltpathname,l1name,hltprescale,l1prescale,recorded,lumival])
+                else:
+                    result.append([run,cmslsnum,hltpathname,l1name,hltprescale,l1prescale,recorded,'n/a'])
+    fieldnames = ['Run','LS','HLTpath','L1bit','HLTpresc','L1presc','Recorded(/ub)','Effective(/ub)']
+    r.writeRow(fieldnames)
+    r.writeRows(result)
+
 def toScreenTotEffective(lumidata,isverbose):
     '''
     input:  {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata]}
@@ -295,7 +370,7 @@ def toScreenTotEffective(lumidata,isverbose):
     print ' ==  = '
     print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
-                               delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
+                               delim = ' | ', wrapfunc = lambda x: wrap_onspace_strict(x,22) )
     print ' ==  =  Total : '
     lastrowlabels=[('HLTPath','SelectedLS','Effective')]
     totresult=[]
@@ -307,7 +382,7 @@ def toScreenTotEffective(lumidata,isverbose):
     print tablePrinter.indent (lastrowlabels+totresult, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
-        
+    
 def toCSVTotEffective(lumidata,filename,isverbose):
     result=[]#[run,hltpath,l1bitname,totefflumi]
     r=csvReporter.csvReporter(filename)

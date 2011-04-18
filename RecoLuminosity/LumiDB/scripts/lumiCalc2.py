@@ -190,6 +190,8 @@ if __name__ == '__main__':
            else:
                lumiReport.toCSVLumiByLS(result,options.outputfile,options.verbose)
        else:
+           hltname=options.hltpath
+           hltpat=None
            if hltname=='*' or hltname=='all':
                hltname=None
            elif 1 in [c in hltname for c in '*?[]']: #is a fnmatch pattern
