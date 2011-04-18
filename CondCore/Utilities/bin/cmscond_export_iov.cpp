@@ -71,7 +71,6 @@ int cond::ExportIOVUtilities::execute(){
   bool doLog = hasOptionValue("logDB");
   bool debug=hasDebug();
   bool outOfOrder = hasOptionValue("outOfOrder");
-  bool exportMapping = hasOptionValue("exportMapping");
 
   std::string sourceiovtoken("");
   std::string destiovtoken("");
@@ -97,8 +96,7 @@ int cond::ExportIOVUtilities::execute(){
   if(debug){
     std::cout<<"source iov type "<<sourceiovtype<<std::endl;
   }
-  std::string payloadContainer=iovmanager.payloadContainerName(sourceiovtoken);
-  
+
   // find tag in destination
   cond::DbScopedTransaction transaction(destdb);
   transaction.start(false);
@@ -136,6 +134,7 @@ int cond::ExportIOVUtilities::execute(){
   if (newIOV) a.usertext+= "new tag;";
   
   if (newIOV) {
+    /***
     // store payload mapping
     if (exportMapping) {
       bool stored = destdb.importMapping( sourceConnect, payloadContainer );
@@ -145,6 +144,7 @@ int cond::ExportIOVUtilities::execute(){
 	std::cout<< "payload mapping " << (stored ? "" : "not ") << "stored"<<std::endl;
       if (stored) a.usertext+="mapping stored;";
     }
+    ****/
   }
   
   {
@@ -171,19 +171,23 @@ int cond::ExportIOVUtilities::execute(){
   ::sleep(1);
 
   // grab info
-  IOVProxy iov(destdb, destiovtoken, true, false);
+  // call IOV proxy with keep open option: it is required to lookup the payload class. A explicit commit will be needed at the end.
+  IOVProxy iov(destdb, destiovtoken, true, true);
   std::string const & timetypestr = cond::timeTypeSpecs[sourceiovtype].name;
   cond::TagInfo result;
   result.name=destTag;
   result.token=destiovtoken;
   result.size=iov.size();
+  std::string lastPayloadClass("");
   if (result.size>0) {
     // get last object
     iov.tail(1);
     cond::IOVElementProxy last = *iov.begin();
     result.lastInterval = cond::ValidityInterval(last.since(), last.till());
     result.lastPayloadToken=last.token();
+    lastPayloadClass = destdb.classNameForItem( result.lastPayloadToken );
   }
+  destdb.transaction().commit();
   
   {
     std::ostringstream ss;
@@ -193,7 +197,7 @@ int cond::ExportIOVUtilities::execute(){
   
   if (doLog){
     logdb->getWriteLock();
-    logdb->logOperationNow(a,destConnect,result.lastPayloadToken,destTag,timetypestr,result.size-1,since);
+    logdb->logOperationNow(a,destConnect,lastPayloadClass,result.lastPayloadToken,destTag,timetypestr,result.size-1,since);
     logdb->releaseWriteLock();
   }
 

@@ -30,6 +30,14 @@ namespace cond {
 	  transaction.start(false);
 	else transaction.start(true);
 	iov = poolDb.getTypedObject<cond::IOVSequence>( m_token );
+        // loading the lazy-loading Queryable vector...
+        iov->loadAll();
+        //**** temporary for the schema transition
+        if( poolDb.isOldSchema() ){
+          PoolTokenParser parser(  poolDb.storage() ); 
+          iov->swapTokens( parser );
+        }
+        //****
 	transaction.commit();
 	/*
 	  if (!iov->iovs().empty() && !m_nolib) {
@@ -60,7 +68,7 @@ namespace cond {
     }
     m_since =  v.iovs()[i].sinceTime();
     m_till  =  (i+1==v.iovs().size()) ? v.lastTill() : v.iovs()[i+1].sinceTime()-1;
-    m_token = v.iovs()[i].wrapperToken();
+    m_token = v.iovs()[i].token();
   }
 
   IOVProxy::IterHelp::IterHelp(impl::IOVImpl & impl) :
@@ -131,12 +139,9 @@ namespace cond {
   }
 
   
-  std::string 
-  IOVProxy::payloadContainerName() const{
-    // FIXME move to metadata
-    std::string payloadtokstr=iov().iovs().front().wrapperToken();
-    std::pair<std::string,int> oidData = parseToken( payloadtokstr );
-    return oidData.first;
+  std::set<std::string> const& 
+  IOVProxy::payloadClasses() const{
+    return iov().payloadClasses();
   }
 
   std::string 

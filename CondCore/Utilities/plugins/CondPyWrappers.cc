@@ -42,7 +42,7 @@ namespace {
     //topinit();    
     cond::IOVProxy iov = db.iov(tag);
     if (0==iov.size()) return std::string();
-    return pyInfo(iov.begin()->wrapperToken())->resource();
+    return pyInfo(iov.begin()->token())->resource();
   }
 
   std::string moduleNameByToken(std::string const & token) {
@@ -80,9 +80,8 @@ namespace {
 				       l.iovtag,
 				       l.iovtimetype,
 				       l.payloadIdx,
-				       l.payloadName,
+				       l.payloadClass,
 				       l.payloadToken,
-				       l.payloadContainer,
 				       l.exectime,
 				       l.execmessage
 				       );
@@ -127,9 +126,8 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .def_readonly("iovtag",  &cond::LogDBEntry::iovtag)
     .def_readonly("iovtimetype",   &cond::LogDBEntry::iovtimetype)
     .def_readonly("payloadIdx",   &cond::LogDBEntry::payloadIdx)
-    .def_readonly("payloadName",   &cond::LogDBEntry::payloadName)
+    .def_readonly("payloadClass",   &cond::LogDBEntry::payloadClass)
     .def_readonly("payloadToken",   &cond::LogDBEntry::payloadToken)
-    .def_readonly("payloadContainer",   &cond::LogDBEntry::payloadContainer)
     .def_readonly("exectime",   &cond::LogDBEntry::exectime)
     .def_readonly("execmessage",  &cond::LogDBEntry::execmessage)
     ;
@@ -163,7 +161,7 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
   class_<cond::IOVElementProxy>("IOVElement", init<>())
     .def("since", &cond::IOVElementProxy::since)
     .def("till", &cond::IOVElementProxy::till)
-    .def("payloadToken", &cond::IOVElementProxy::wrapperToken, return_value_policy<copy_const_reference>())
+    .def("payloadToken", &cond::IOVElementProxy::token, return_value_policy<copy_const_reference>())
     ;
   
   enum_<cond::TimeType>("timetype")
@@ -180,7 +178,6 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .def("head", &cond::IOVProxy::head)
     .def("tail", &cond::IOVProxy::tail)
     .def("timetype", &cond::IOVProxy::timetype)
-    .def("payloadContainerName", &cond::IOVProxy::payloadContainerName)
     .def("comment", &cond::IOVProxy::comment)
     .def("revision",&cond::IOVProxy::revision)
     .def("timestamp",&cond::IOVProxy::timestamp)

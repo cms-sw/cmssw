@@ -77,28 +77,31 @@ if (verbose)
 	
 
   unsigned int counter=0;
-  std::string payloadContainer=iov.payloadContainerName();
+  std::set<std::string> const&  payloadClasses=iov.payloadClasses();
   std::cout<<"Tag "<<tag;
   if (verbose) { 
     std::cout << "\nStamp: " << iov.iov().comment()
 	      << "; time " <<  cond::time::to_boost(iov.iov().timestamp())
 	      << "; revision " << iov.iov().revision();
     std::cout <<"\nTimeType " << cond::timeTypeSpecs[iov.timetype()].name
-	      <<"\nPayloadContainerName "<<payloadContainer<<"\n"
 	      <<"since \t till \t payloadToken"<<std::endl;
   }
   for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
     if (verbose)
       std::cout<<ioviterator->since() << " \t "<<ioviterator->till() <<" \t "
-	       <<ioviterator->wrapperToken()<<std::endl;
+	       <<ioviterator->token()<<std::endl;
     
-    ora::Object obj = session.getObject(ioviterator->wrapperToken());
+    ora::Object obj = session.getObject(ioviterator->token());
     std::ostringstream ss; ss << tag << '_' << ioviterator->since(); 
     if (multi) xml = TFile::Open(std::string(ss.str()+".xml").c_str(),"recreate");
     xml->WriteObjectAny(obj.address(),obj.typeName().c_str(), ss.str().c_str());
     ++counter;
     if (multi)  xml->Close();
     obj.destruct();
+  }
+  std::cout <<" PayloadClasses: "<<std::endl;
+  for( std::set<std::string>::const_iterator iCl = payloadClasses.begin(); iCl !=payloadClasses.end(); iCl++){
+    std::cout <<*iCl<<std::endl;
   }
   if (!multi) xml->Close();
   if (verbose)  std::cout<<"Total # of payload objects: "<<counter<<std::endl;

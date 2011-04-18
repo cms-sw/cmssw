@@ -26,7 +26,7 @@ namespace {
   }
 
   void print(cond::IOVElementProxy const & e) {
-    std::cout<<"oid "<< oid(e.wrapperToken())
+    std::cout<<"oid "<< oid(e.token())
 	     <<", since "<< e.since()
 	     <<", till "<< e.till()
 	     << std::endl;
@@ -39,7 +39,7 @@ namespace {
 	     <<": since "<< iov.first
 	     <<", till "<< iov.second;
     if (data.isValid()) 
-      std::cout    <<". Message "<< data().wrapperToken()
+      std::cout    <<". Message "<< data().token()
 		   <<", since "<< data().sinceTime();
     else 
       std::cout << ". No data";
@@ -52,7 +52,7 @@ namespace {
 	      <<": since "<< iov.first
 	      <<", till "<< iov.second;
     if (data.isValid()) 
-      std::cout    <<". Message "<< data().wrapperToken()
+      std::cout    <<". Message "<< data().token()
 		   <<", since "<< data().sinceTime();
     else 
       std::cout << ". No data";

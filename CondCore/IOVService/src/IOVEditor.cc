@@ -2,8 +2,6 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
 #include "CondFormats/Common/interface/IOVSequence.h"
-//#include "POOLCore/Token.h"
-//#include "StorageSvc/DbReflex.h"
 #include<ostream>
 #include<sstream>
 
@@ -11,18 +9,22 @@ namespace cond {
 
   IOVEditor::~IOVEditor(){}
 
-  IOVEditor::IOVEditor( cond::DbSession& dbSess):m_dbSess(dbSess),
-						 m_isActive(false){
+  IOVEditor::IOVEditor( cond::DbSession& dbSess):
+    m_dbSess(dbSess),
+    m_token(""),
+    m_isActive(false){
   }
 
   IOVEditor::IOVEditor( cond::DbSession& dbSess,
-			const std::string& token
-			):m_dbSess(dbSess),m_token(token),
-			  m_isActive(false){
+			const std::string& token ):
+    m_dbSess(dbSess),
+    m_token(token),
+    m_isActive(false){
   }
   
-  IOVSequence & IOVEditor::iov(){ return *m_iov;}
-
+  IOVSequence & IOVEditor::iov(){ 
+    return *m_iov;
+  }
 
   void IOVEditor::debugInfo(std::ostream & co) const {
     co << "IOVEditor: ";
@@ -54,7 +56,8 @@ namespace cond {
     throw cond::Exception(out.str());
   }
 
-  void IOVEditor::reportError(std::string message, cond::Time_t time) const {
+  void IOVEditor::reportError( std::string message, 
+                               cond::Time_t time) const {
     std::ostringstream out;
     out << "Error in";
     debugInfo(out);
@@ -64,19 +67,20 @@ namespace cond {
 
 
   // create empty default sequence
-  void IOVEditor::create(cond::TimeType timetype) {
+  void IOVEditor::create( cond::TimeType timetype ) {
     if(!m_token.empty()){
       // problem??
       reportError("cond::IOVEditor::create cannot create a IOV using an initialized Editor");
     }
 
     m_iov.reset( new cond::IOVSequence(timetype) );
-    m_token = m_dbSess.storeObject( m_iov.get(), cond::IOVNames::container());
+    flushInserts();
     m_isActive=true;
 
   }
 
-  void IOVEditor::create(cond::TimeType timetype,cond::Time_t lastTill) {
+  void IOVEditor::create(  cond::TimeType timetype,
+                           cond::Time_t lastTill ) {
     if(!m_token.empty()){
       // problem??
       reportError("cond::IOVEditor::create cannot create a IOV using an initialized Editor");
@@ -85,23 +89,53 @@ namespace cond {
     if(!validTime(lastTill, timetype))
       reportError("cond::IOVEditor::create time not in global range",lastTill);
     
-    m_iov.reset( new cond::IOVSequence((int)timetype,lastTill," ") );
-    m_token = m_dbSess.storeObject( m_iov.get(),cond::IOVNames::container());
+    m_iov.reset( new cond::IOVSequence((int)timetype,lastTill, " ") );
+    flushInserts();
     m_isActive=true;
+  }
+   
+  void IOVEditor::loadData( const std::string& token ){
+    if( token.empty()){
+      // problem?
+      reportError("cond::IOVEditor::loadData cannot load empty token");
+    }
+    m_iov = m_dbSess.getTypedObject<cond::IOVSequence>( token );
+    // lazy-loading for QVector
+    m_iov->loadAll();
+    //**** temporary for the schema transition
+    if( m_dbSess.isOldSchema() ){
+      PoolTokenParser parser(  m_dbSess.storage() ); 
+      m_iov->swapTokens( parser );
+    }
+    //****
+  }
+ 
+  void IOVEditor::flushInserts(){
+    m_dbSess.createDatabase();
+    // ***** TEMPORARY FOR TRANSITION PHASE
+    if( m_dbSess.isOldSchema() ){
+      PoolTokenWriter writer( m_dbSess.storage() );
+      m_iov->swapOIds( writer );
+    }
+    // *****
+     m_token = m_dbSess.storeObject( m_iov.get(), cond::IOVNames::container() );   
+  }
+    
+  void IOVEditor::flushUpdates(){
+    // ***** TEMPORARY FOR TRANSITION PHASE
+    if( m_dbSess.isOldSchema() ){
+      PoolTokenWriter writer( m_dbSess.storage() );
+      m_iov->swapOIds( writer );
+    }
+    // *****
+     m_dbSess.updateObject( m_iov.get(), m_token );   
   }
     
   void IOVEditor::init(){
-    if(m_token.empty()){
-      // problem?
-      reportError("cond::IOVEditor::init cannot init w/o token change");
-    }
-    
-    m_iov = m_dbSess.getTypedObject<cond::IOVSequence>(m_token);
+    loadData( m_token );
     m_isActive=true;
-    
   }
-  
-    
+
   Time_t IOVEditor::firstSince() const {
     return m_iov->firstSince();
   }
@@ -115,7 +149,8 @@ namespace cond {
   }
   
   
-  bool IOVEditor::validTime(cond::Time_t time, cond::TimeType timetype) const {
+  bool IOVEditor::validTime( cond::Time_t time, 
+                             cond::TimeType timetype) const {
     return time>=timeTypeSpecs[timetype].beginValue && time<=timeTypeSpecs[timetype].endValue;   
     
   }
@@ -128,8 +163,7 @@ namespace cond {
   
   unsigned int
   IOVEditor::insert( cond::Time_t tillTime,
-		     const std::string& payloadToken
-		     ){
+		     const std::string& payloadToken ){
     if(!m_isActive) this->init();
     
     if( m_iov->iovs().empty() ) 
@@ -142,14 +176,15 @@ namespace cond {
       reportError("cond::IOVEditor::insert IOV not in range",tillTime);
     
     cond::Time_t newSince=lastTill()+1;
-    unsigned int ret = m_iov->add(newSince, payloadToken);
-    updateClosure(tillTime);
-    m_dbSess.updateObject( m_iov.get(), m_token );
+    std::string payloadClassName = m_dbSess.classNameForItem( payloadToken );
+    unsigned int ret = m_iov->add(newSince, payloadToken, payloadClassName);
+    m_iov->updateLastTill(tillTime);
+    flushUpdates();
     return ret;
   }
   
   void 
-  IOVEditor::bulkAppend(std::vector< std::pair<cond::Time_t,std::string> >& values){
+  IOVEditor::bulkAppend(std::vector< std::pair<cond::Time_t, std::string > >& values){
     if (values.empty()) return;
     if(!m_isActive) this->init();
     cond::Time_t firstTime = values.front().first;
@@ -166,10 +201,10 @@ namespace cond {
      reportError("cond::IOVEditor::bulkInsert IOV not in range",firstTime);
 
    for(std::vector< std::pair<cond::Time_t,std::string> >::const_iterator it=values.begin(); it!=values.end(); ++it){
-     //     m_iov->iov.insert(m_iov->iov.end(), values.begin(), values.end());
-     m_iov->add(it->first,it->second);
+     std::string payloadClassName = m_dbSess.classNameForItem( it->second );    
+     m_iov->add(it->first,it->second,payloadClassName );
    }
-   m_dbSess.updateObject( m_iov.get(), m_token );
+   flushUpdates();
   }
 
   void 
@@ -188,15 +223,20 @@ namespace cond {
       ( !m_iov->iovs().empty() && firstTime<=m_iov->iovs().back().sinceTime()) 
       )    reportError("cond::IOVEditor::bulkInsert IOV not in range",firstTime);
 
-   m_dbSess.updateObject( m_iov.get(), m_token );
- }
-  
+   for(std::vector< cond::IOVElement >::const_iterator it=values.begin(); it!=values.end(); ++it){
+     std::string payloadClassName = m_dbSess.classNameForItem( it->token() );     
+     m_iov->add(it->sinceTime(),it->token(),payloadClassName );
+   }
+
+   flushUpdates();
+  }
 
   void 
-  IOVEditor::stamp(std::string const & icomment, bool append) {
+  IOVEditor::stamp( std::string const & icomment, 
+                    bool append) {
     if(!m_isActive) this->init();
     m_iov->stamp(icomment, append);
-    m_dbSess.updateObject( m_iov.get(), m_token );
+    flushUpdates();
   }
 
 
@@ -205,13 +245,12 @@ namespace cond {
     if( m_token.empty() ) reportError("cond::IOVEditor::updateClosure cannot change non-existing IOV index");
     if(!m_isActive) this->init();
     m_iov->updateLastTill(newtillTime);
-    m_dbSess.updateObject( m_iov.get(), m_token );
+    flushUpdates();
   }
   
   unsigned int 
   IOVEditor::append( cond::Time_t sinceTime,
-		     const std::string&payloadToken
-		     ){
+		     const std::string& payloadToken ){
     if( m_token.empty() ) {
       reportError("cond::IOVEditor::appendIOV cannot append to non-existing IOV index");
     }
@@ -221,8 +260,7 @@ namespace cond {
     }
 
     if(!validTime(sinceTime))
-      reportError("cond::IOVEditor::append time not in global range",sinceTime);
-    
+      reportError("cond::IOVEditor::append time not in global range",sinceTime);  
     
     if(  !m_iov->iovs().empty() ){
       //range check in case 
@@ -233,19 +271,17 @@ namespace cond {
     }
 
     // does it make sense? (in case of mixed till and since insertions...)
-    if (lastTill()<=sinceTime) updateClosure(timeTypeSpecs[timetype()].endValue);
-    unsigned int ret = m_iov->add(sinceTime,payloadToken);
-    m_dbSess.updateObject( m_iov.get(), m_token );
+    if (lastTill()<=sinceTime) m_iov->updateLastTill( timeTypeSpecs[timetype()].endValue );
+    std::string payloadClassName = m_dbSess.classNameForItem( payloadToken );   
+    unsigned int ret = m_iov->add(sinceTime,payloadToken, payloadClassName );
+    flushUpdates();
     return ret;
   }
 
  
   unsigned int 
  IOVEditor::freeInsert( cond::Time_t sinceTime ,
-			const std::string& payloadToken
-			){
-    // reportError("cond::IOVEditor::freeInsert not supported yet");
-    
+			const std::string& payloadToken ){
     if( m_token.empty() ) {
       reportError("cond::IOVEditor::freeInsert cannot append to non-existing IOV index");
     }
@@ -268,10 +304,10 @@ namespace cond {
 
 
      // does it make sense? (in case of mixed till and since insertions...)
-   if (lastTill()<sinceTime) updateClosure(timeTypeSpecs[timetype()].endValue);
-   unsigned int ret = m_iov->add(sinceTime,payloadToken);
-   
-   m_dbSess.updateObject( m_iov.get(), m_token );
+   if (lastTill()<sinceTime) m_iov->updateLastTill( timeTypeSpecs[timetype()].endValue );
+   std::string payloadClassName = m_dbSess.classNameForItem( payloadToken );   
+   unsigned int ret = m_iov->add(sinceTime,payloadToken, payloadClassName );
+   flushUpdates();
    return ret;
   }
 
@@ -282,7 +318,7 @@ namespace cond {
     if(!m_isActive) this->init();
     if (m_iov->piovs().empty()) return 0;
     if(withPayload){
-      std::string tokenStr = m_iov->piovs().back().wrapperToken();
+      std::string tokenStr = m_iov->piovs().back().token();
       m_dbSess.deleteObject( tokenStr );
     }
     unsigned int ret = m_iov->truncate();
@@ -301,7 +337,7 @@ namespace cond {
       IOVSequence::const_iterator payloadIt;
       IOVSequence::const_iterator payloadItEnd=m_iov->piovs().end();
       for(payloadIt=m_iov->piovs().begin();payloadIt!=payloadItEnd;++payloadIt){
-        tokenStr=payloadIt->wrapperToken();
+        tokenStr=payloadIt->token();
         m_dbSess.deleteObject( tokenStr );
       }
     }
@@ -312,10 +348,9 @@ namespace cond {
   void 
   IOVEditor::import( const std::string& sourceIOVtoken ){
     if( !m_token.empty() ) reportError("cond::IOVEditor::import IOV sequence already exists, cannot import");
-    m_iov = m_dbSess.getTypedObject<cond::IOVSequence>(sourceIOVtoken);
+    loadData( sourceIOVtoken );
     //m_token=m_iov.toString();
     m_token=sourceIOVtoken;
   }
-  
 
 }

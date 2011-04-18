@@ -31,9 +31,12 @@ int main(){
     editor->append(1,token);
     std::string iovtok=editor->token();
     std::cout<<"iov token "<<iovtok<<std::endl;
-    std::string cname=iovmanager.payloadContainerName(iovtok);
+    std::set<std::string> cnames=iovmanager.payloadClasses(iovtok );
     pooldb.transaction().commit();
-    std::cout<<"Payload Container Name: "<<cname<<std::endl;
+    std::cout<<"Payload Class Names: "<<std::endl;
+    for( std::set<std::string>::iterator iC = cnames.begin(); iC != cnames.end(); ++iC ){
+      std::cout << *iC <<std::endl;
+    }
     delete editor;
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;

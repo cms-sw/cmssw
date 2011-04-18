@@ -216,7 +216,11 @@ cond::service::PoolDBOutputService::currentTime() const{
 }
 
 void 
-cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken, cond::Time_t firstSinceTime, cond::Time_t firstTillTime,const std::string& recordName, bool withlogging){
+cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken, 
+                                                  cond::Time_t firstSinceTime, 
+                                                  cond::Time_t firstTillTime,
+                                                  const std::string& recordName, 
+                                                  bool withlogging){
   Record& myrecord=this->lookUpRecord(recordName);
   if (!m_dbstarted) this->initDB();
   if(!myrecord.m_isNewTag) throw cond::Exception(myrecord.m_tag + " is not a new tag from PoolDBOutputService::createNewIOV");
@@ -227,6 +231,7 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
   }
  
   std::string objToken;
+  std::string objClass;
   unsigned int payloadIdx=0;
   try{
     cond::DbScopedTransaction transaction(m_session);
@@ -235,6 +240,7 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
     cond::IOVEditor editor(m_session);
     editor.create(myrecord.m_timetype, firstTillTime);
     objToken = payloadToken(m_session,myrecord.m_withWrapper);
+    objClass = m_session.classNameForItem( objToken );
     unsigned int payloadIdx=editor.append(firstSinceTime, objToken);
     iovToken=editor.token();
     editor.stamp(cond::userInfo(),false);
@@ -258,13 +264,13 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
     if(withlogging){
       std::string destconnect=m_session.connectionString();
       cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
-      m_logdb->logOperationNow(a,destconnect,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx,firstSinceTime);
+      m_logdb->logOperationNow(a,destconnect,objClass,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx,firstSinceTime);
     }
   }catch(const std::exception& er){ 
     if(withlogging){
       std::string destconnect=m_session.connectionString();
       cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
-      m_logdb->logFailedOperationNow(a,destconnect,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx,firstSinceTime,std::string(er.what()));
+      m_logdb->logFailedOperationNow(a,destconnect,objClass,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx,firstSinceTime,std::string(er.what()));
       m_logdb->releaseWriteLock();
     }
     throw cond::Exception(std::string(er.what()) + " from PoolDBOutputService::createNewIOV ");
@@ -288,24 +294,26 @@ cond::service::PoolDBOutputService::add( GetToken const & payloadToken,
   }
 
   std::string objToken;
+  std::string objClass;
   unsigned int payloadIdx=0;
 
   try{
     cond::DbScopedTransaction transaction(m_session);
     transaction.start(false);
     objToken = payloadToken(m_session,myrecord.m_withWrapper);
+    objClass = m_session.classNameForItem( objToken );
     payloadIdx= appendIOV(m_session,myrecord,objToken,time);
     transaction.commit();
     if(withlogging){
       std::string destconnect=m_session.connectionString();
       cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
-      m_logdb->logOperationNow(a,destconnect,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx,time);
+      m_logdb->logOperationNow(a,destconnect,objClass,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx,time);
     }
   }catch(const std::exception& er){
     if(withlogging){
       std::string destconnect=m_session.connectionString();
       cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
-      m_logdb->logFailedOperationNow(a,destconnect,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx,time,std::string(er.what()));
+      m_logdb->logFailedOperationNow(a,destconnect,objClass,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx,time,std::string(er.what()));
       m_logdb->releaseWriteLock();
     }
     throw cond::Exception(std::string(er.what()) + " from PoolDBOutputService::add ");

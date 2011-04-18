@@ -38,7 +38,6 @@ namespace cond {
     cond::Time_t since() const {return m_since;}
     cond::Time_t till() const {return m_till;}
     std::string const & token() const {return m_token;}
-    std::string const & wrapperToken() const {return m_token;}
     cond::DbSession& db() const { return m_dbSession; }
 
   private:
@@ -107,7 +106,7 @@ namespace cond {
     int size() const;
     IOV const & iov() const;
     TimeType timetype() const;
-    std::string payloadContainerName() const;
+    std::set<std::string> const& payloadClasses() const;
     std::string comment() const;
     int revision() const;
     cond::Time_t timestamp() const;

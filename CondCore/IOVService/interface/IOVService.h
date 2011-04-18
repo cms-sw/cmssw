@@ -23,8 +23,8 @@ namespace cond{
     std::pair<cond::Time_t, cond::Time_t>
     validity( const std::string& iovToken, cond::Time_t currenttime );
     
-    std::string payloadContainerName( const std::string& iovtoken );
-    
+    std::set<std::string> payloadClasses( const std::string& iovtoken );
+
     cond::TimeType timeType( const std::string& iovToken );
     
     void deleteAll( bool withPayload=false );

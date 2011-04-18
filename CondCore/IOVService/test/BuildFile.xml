@@ -24,5 +24,3 @@
 </bin>
 <use   name="cppunit"/>
 <use   name="boost"/>
-<bin   file="migrateIOV_t.cpp">
-</bin>

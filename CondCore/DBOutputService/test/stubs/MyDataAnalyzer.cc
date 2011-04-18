@@ -76,9 +76,8 @@ void MyDataAnalyzer::endJob(){
     std::cout<<"iovtag "<<result.iovtag<<"\n";
     std::cout<<"iovtimetype "<<result.iovtimetype<<"\n";
     std::cout<<"payloadIdx "<<result.payloadIdx<<"\n";
-    std::cout<<"payloadName "<<result.payloadName<<"\n";
+    std::cout<<"payloadClass "<<result.payloadClass<<"\n";
     std::cout<<"payloadToken "<<result.payloadToken<<"\n";
-    std::cout<<"payloadContainer "<<result.payloadContainer<<"\n";
     std::cout<<"exectime "<<result.exectime<<"\n";
     std::cout<<"execmessage "<<result.execmessage<<std::endl;
     //example for retrieving tag info

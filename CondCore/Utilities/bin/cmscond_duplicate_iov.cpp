@@ -101,6 +101,7 @@ int cond::DuplicateIOVUtilities::execute(){
   destDb.transaction().start(true);
   cond::IOVService iovmanager( destDb );
   std::string payload = iovmanager.payloadToken(iovtoken,from);
+  std::string payloadClass = destDb.classNameForItem( payload );
   destDb.transaction().commit();
   if (payload.empty()) {
     std::cerr <<"[Error] no payload found for time " << from << std::endl;
@@ -182,7 +183,7 @@ int cond::DuplicateIOVUtilities::execute(){
   
   if (doLog){
     logdb->getWriteLock();
-    logdb->logOperationNow(a,destConnect,payload,destTag,timetypestr,size,since);
+    logdb->logOperationNow(a,destConnect,payloadClass,payload,destTag,timetypestr,size,since);
     logdb->releaseWriteLock();
   }
 

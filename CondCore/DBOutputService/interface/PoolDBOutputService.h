@@ -75,25 +75,24 @@ namespace cond{
     template<typename T>
     struct GetTokenFromPointer : public GetToken {
       
+      static
+      std::string classNameForPointer( T* pointer ){
+        if(!pointer) return classNameForTypeId( typeid(T) );
+        return classNameForTypeId( typeid(*pointer) );
+      }
+
       GetTokenFromPointer(T * p, Summary * s=0) :
 	m_p(p), m_s(s){}
       
-      static std::string classNameForPointer( T* pointer ){
-	if(!pointer) return classNameForTypeId( typeid(T) );
-	return classNameForTypeId( typeid(*pointer) );
-      }
       virtual std::string operator()(cond::DbSession& pooldb, bool /* withWrapper */) const {
 	std::string className = classNameForPointer( m_p );
 	boost::shared_ptr<T> sptr( m_p );
 	return pooldb.storeObject(m_p,className);
       }
-        T* m_p;
+      T* m_p;
       cond::Summary * m_s;
-      //const std::string& m_recordName;
     };
-    
-    
-    
+
     
     class PoolDBOutputService{
     public:
@@ -122,9 +121,7 @@ namespace cond{
       
       // BW-compatible signature
       template<typename T>
-      void writeOne(T * payload,
-		    Time_t time, const std::string& recordName, 
-                    bool withlogging=false) {
+      void writeOne( T * payload, Time_t time, const std::string& recordName, bool withlogging=false ) {
         this->writeOne<T>(payload, 0, time, recordName, withlogging);
       }
 
@@ -132,9 +129,7 @@ namespace cond{
        * The ONE and ONLY interface supported in future!
        */
       template<typename T>
-      void writeOne(T * payload, Summary * summary, 
-		    Time_t time, const std::string& recordName, 
-                    bool withlogging=false) {
+      void writeOne( T * payload, Summary * summary, Time_t time, const std::string& recordName, bool withlogging=false) {
 	if (isNewTagRequest(recordName) ){
 	  createNewIOV<T>(payload, summary,
                           time, endOfTime(), recordName, withlogging);
@@ -154,7 +149,7 @@ namespace cond{
 			 cond::Time_t firstTillTime,
 			 const std::string& recordName,
                          bool withlogging=false){
-        this->createNewIOV(firstPayloadObj, 0, firstSinceTime, firstTillTime, recordName,withlogging);
+        this->createNewIOV(firstPayloadObj, 0, firstSinceTime, firstTillTime, recordName, withlogging);
       }
       
       //
@@ -162,11 +157,13 @@ namespace cond{
       // Note: user looses the ownership of the pointer to the payloadObj
       // The payload object will be stored as well
       // 
-      template<typename T> void createNewIOV( T* firstPayloadObj,  Summary * summary,
-                                              cond::Time_t firstSinceTime,
-                                              cond::Time_t firstTillTime,
-                                              const std::string& recordName,
-                                              bool withlogging=false){
+      template<typename T> 
+      void createNewIOV( T* firstPayloadObj,  
+                         Summary * summary,
+                         cond::Time_t firstSinceTime,
+                         cond::Time_t firstTillTime,
+                         const std::string& recordName,
+                         bool withlogging=false ){
         createNewIOV( GetTokenFromPointer<T>(firstPayloadObj, summary),
                       firstSinceTime,
                       firstTillTime,

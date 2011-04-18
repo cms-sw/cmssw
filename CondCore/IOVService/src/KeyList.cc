@@ -15,7 +15,7 @@ namespace cond {
       if (keys[i]!=0) {
         IOVSequence::const_iterator p = m_sequence.iov().findSince(keys[i]);
 	if (p!=m_sequence.iov().iovs().end()) { 
-	  m_data[i] = m_sequence.db().getTypedObject<Base>( (*p).wrapperToken() );
+	  m_data[i] = m_sequence.db().getTypedObject<Base>( (*p).token() );
 	}
       }
     }

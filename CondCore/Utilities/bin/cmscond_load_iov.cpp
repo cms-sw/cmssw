@@ -18,9 +18,9 @@ namespace{
       typedef std::pair<cond::Time_t, std::string> Item;
       std::string tag;
       cond::TimeType timetype;
-      std::string contName;
       std::vector<Item> values;
       cond::Time_t lastTill;
+      
 
       void parseInputFile(std::fstream& file){
         std::string dummy;
@@ -30,16 +30,12 @@ namespace{
 
         file >> dummy >> tag;
         file >> dummy >> timename;
-        timetype = cond::findSpecs(timename).type;
-        file >> dummy >> contName;
         char buff[1024];
         file.getline(buff,1024);
         file.getline(buff,1024);
-        char p;
-        while(file) {
-          file.get(p); if (p=='T') break;
-          file.putback(p);
-          file >> since >> till >> token;  file.getline(buff,1024);
+        timetype = cond::findSpecs(timename).type;
+	while(!file.eof()) {
+	  file >> since >> till >> token;
           values.push_back(Item(since,token));
         }
         lastTill = till;
@@ -83,9 +79,6 @@ int cond::LoadIOVUtilities::execute(){
   cond::DbScopedTransaction transaction(session);
   transaction.start(false);
 
-  //session.initializeMapping( cond::IOVNames::iovMappingVersion(),
-  //                           cond::IOVNames::iovMappingXML() );
-   
   cond::IOVEditor editor(session);
   editor.create(parser.timetype,parser.lastTill);
   editor.bulkAppend(parser.values);
