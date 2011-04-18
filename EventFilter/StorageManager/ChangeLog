@@ -21,6 +21,16 @@
 	  into trunk.
 	* This tag requires IOPool/Streamer V07-01-00 or later.
 
+2011-04-18 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-03-06
+	* Hopefully correct way to cancel the ROOT TThread.
+	* Back port a couple of changes from trunk:
+	  - Improved accounting of dropped events in ConcurrentQueue
+	  - Safer handling of stream records in SM hyperdaq page
+	  - Remove consumerPriority from demoSystem config files
+	* Remove logging of state changes.
+
 2011-04-13 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V07-03-05
