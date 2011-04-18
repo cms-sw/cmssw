@@ -104,7 +104,8 @@ Configuration[ruleName] = {}
 
 Configuration[ruleName]['description'] = 'Search for "pragma" statement in *.c, *.cc, *.cxx, *.h files'
 Configuration[ruleName]['filesToMatch'] = ['*.h', '*.c', '*.cc', '*.cxx']
-Configuration[ruleName]['exceptPaths'] = ['*/*LinkDef.h']#could be file name, dir, fileName:line. Path should be only from that directory in which we are searching
+Configuration[ruleName]['exceptPaths'] = ['*/*LinkDef.h',
+                                          'FWCore/Utilities/*/*:.*:#\s*pragma\s+GCC\s+visibility\s+(push\\(default\\)|pop)\s*$',]#could be file name, dir, fileName:line. Path should be only from that directory in which we are searching
 Configuration[ruleName]['skip']  = [comment]
 Configuration[ruleName]['filter'] = '#\s*pragma\s' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
