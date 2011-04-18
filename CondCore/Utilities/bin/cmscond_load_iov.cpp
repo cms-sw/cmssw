@@ -22,23 +22,25 @@ namespace{
       cond::Time_t lastTill;
       
 
-      void parseInputFile(std::fstream& file){
+      bool parseInputFile(std::fstream& file){
         std::string dummy;
         std::string timename;
         cond::Time_t since, till;
         std::string token;
 
         file >> dummy >> tag;
+        if( dummy != "Tag:" ) return false;
         file >> dummy >> timename;
-        char buff[1024];
-        file.getline(buff,1024);
-        file.getline(buff,1024);
+        if( dummy != "TimeType:" ) return false;
+        file >> dummy;
+        if( dummy != "Elements:" ) return false; 
         timetype = cond::findSpecs(timename).type;
-	while(!file.eof()) {
-	  file >> since >> till >> token;
+	while(file >> since >> till >> token ) {
           values.push_back(Item(since,token));
         }
+        
         lastTill = till;
+        return true;
       }
 
   };
@@ -70,9 +72,10 @@ int cond::LoadIOVUtilities::execute(){
   std::fstream inputFile;
   inputFile.open(inputFileName.c_str(), std::fstream::in);
   Parser parser;
-  parser.parseInputFile(inputFile);
+  bool okFile =  parser.parseInputFile(inputFile);
   inputFile.close();
   
+  if( !okFile ) throw UtilitiesError("The input file is not in the expected format.");  
   std::string iovtoken("");
 
   cond::DbSession session = openDbSession("connect");
@@ -91,6 +94,7 @@ int cond::LoadIOVUtilities::execute(){
     std::cout<<"source iov token "<<iovtoken<<std::endl;
     std::cout<<"source iov timetype "<<parser.timetype<<std::endl;
   }
+  std::cout << "Created IOV with "<<parser.values.size()<<" element(s)."<<std::endl; 
   return 0;
 }
 

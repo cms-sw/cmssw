@@ -54,13 +54,13 @@ int cond::ExportIOVUtilities::execute(){
     
   std::string sourceConnect = getOptionValue<std::string>("sourceConnect");
   std::string destConnect = getOptionValue<std::string>("destConnect");
-  
+
   std::string destTag = getOptionValue<std::string>("destTag");
   std::string inputTag(destTag);
   if( hasOptionValue("inputTag") ) inputTag = getOptionValue<std::string>("inputTag");
   std::string usertext("no user comments");
   if( hasOptionValue("usertext")) usertext = getOptionValue<std::string>("usertext");
-  std::string logConnect = getOptionValue<std::string>("logDB");
+  bool doLog = hasOptionValue("logDB");
 
   cond::Time_t since = std::numeric_limits<cond::Time_t>::min();
   if( hasOptionValue("beginTime" )) since = getOptionValue<cond::Time_t>("beginTime");
@@ -68,7 +68,6 @@ int cond::ExportIOVUtilities::execute(){
   if( hasOptionValue("endTime" )) till = getOptionValue<cond::Time_t>("endTime");
   
   std::string sqlOutputFileName("sqlmonitoring.out");
-  bool doLog = hasOptionValue("logDB");
   bool debug=hasDebug();
   bool outOfOrder = hasOptionValue("outOfOrder");
 
