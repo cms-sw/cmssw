@@ -33,8 +33,6 @@
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
 
-using namespace oracle::occi;
-
 namespace edm {
   class ParameterSet;
   class Event;
