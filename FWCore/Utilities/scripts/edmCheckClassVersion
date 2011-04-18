@@ -1,0 +1,195 @@
+#!  /usr/bin/env python
+import string
+from optparse import OptionParser
+
+class XmlParser(object):
+    """Parses a classes_def.xml file looking for class declarations that contain
+    ClassVersion attributes. Once found looks for sub-elements named 'version'
+    which contain the ClassVersion to checksum mappings.
+    """
+    
+    #The following are constants used to describe what data is kept
+    # in which index in the 'classes' member data
+    originalNameIndex=0
+    classVersionIndex=1
+    versionsToChecksumIndex = 2
+    
+    def __init__(self,filename):
+        self._file = filename
+        self.classes = dict()
+        self._presentClass = None
+        self.readClassesDefXML()
+    def readClassesDefXML(self):
+        import xml.parsers.expat
+        p = xml.parsers.expat.ParserCreate()
+        p.StartElementHandler = self.start_element
+        p.EndElementHandler = self.end_element
+        f = open(self._file)
+        # Replace any occurence of <>& in the attribute values by the xml parameter
+        rxml, nxml = f.read(), ''
+        q1,q2 = 0,0
+        for c in rxml :
+            if   (q1 or q2) and c == '<' : nxml += '&lt;'
+            elif (q1 or q2) and c == '>' : nxml += '&gt;'
+            # elif (q1 or q2) and c == '&' : nxml += '&amp;'
+            else                         : nxml += c
+            if c == '"' : q1 = not q1
+            if c == "'" : q2 = not q2
+        try : p.Parse(nxml)
+        except xml.parsers.expat.ExpatError, e :
+            print '--->> edmCheckClassVersion: ERROR: parsing selection file ',self._file
+            print '--->> edmCheckClassVersion: ERROR: Error is:', e
+            raise
+        f.close()
+    def start_element(self,name,attrs):
+        if name in ('class','struct'):
+            if 'name' in attrs:
+                if 'ClassVersion' in attrs:
+                    normalizedName = self.genNName(attrs['name'])
+                    self.classes[normalizedName]=[attrs['name'],string.atol(attrs['ClassVersion']),[]]
+                    self._presentClass=normalizedName
+        if name == 'version':
+            self.classes[self._presentClass][XmlParser.versionsToChecksumIndex].append([string.atol(attrs['ClassVersion']),
+                                                                                    string.atol(attrs['checksum'])])
+        pass
+    def end_element(self,name):
+        if name in ('class','struct'):
+            self._presentClass = None
+    def genNName(self, name ):
+        n_name = string.join(name.split())
+        for e in [ ['long long unsigned int', 'unsigned long long'],
+                   ['long long int',          'long long'],
+                   ['unsigned short int',     'unsigned short'],
+                   ['short unsigned int',     'unsigned short'],
+                   ['short int',              'short'],
+                   ['long unsigned int',      'unsigned long'],
+                   ['unsigned long int',      'unsigned long'],
+                   ['long int',               'long'],
+                   ['std::string',            'std::basic_string<char>']] :
+            n_name = n_name.replace(e[0],e[1])
+        n_name = n_name.replace(' ','')
+        return n_name
+
+#The following are error codes returned from checkClass
+noError = 0
+errorRootDoesNotMatchClassDef =1
+errorMustUpdateClassVersion=2
+errorMustAddChecksum=3
+def checkClass(name,version,versionsToChecksums):
+    c = ROOT.TClass.GetClass(name)
+    if not c:
+        raise RuntimeError("failed to load dictionary for class '"+name+"'")
+    classChecksum = c.GetCheckSum()
+    classVersion = c.GetClassVersion()
+
+    #does this version match what is in the file?
+    if version != classVersion:
+        return (errorRootDoesNotMatchClassDef,classChecksum)
+
+
+    #is the version already in our list?
+    found = False
+    
+    for v,cs in versionsToChecksums:
+        if v == version:
+            found = True
+            if classChecksum != cs:
+                return (errorMustUpdateClassVersion,classChecksum)
+            break
+    if not found:
+        return (errorMustAddChecksum,classChecksum)
+    return (noError,classChecksum)
+
+#Setup the options
+from optparse import OptionParser
+oparser = OptionParser()
+oparser.add_option("-l","--lib", dest="library",
+                   help="specify the library to load. If not set classes are found using the PluginManager")
+oparser.add_option("-x","--xml_file", dest="xmlfile",default="./classes_def.xml",
+                   help="the classes_def.xml file to read")
+oparser.add_option("-g","--generate_new",dest="generate", action="store_true",default=False,
+                   help="instead of issuing errors, generate a new classes_def.xml file.")
+
+(options,args)=oparser.parse_args()
+
+import ROOT
+if options.library is None:
+    if 0 != ROOT.gSystem.Load("libFWCoreFWLite"):
+        raise RuntimeError("failed to load libFWCoreFWLite")
+    ROOT.AutoLibraryLoader.enable()
+else:
+    if 0 != ROOT.gSystem.Load("libCintex"):
+        raise RuntimeError("failed to load libCintex")
+    ROOT.Cintex.Enable()
+    if 0 != ROOT.gSystem.Load(options.library):
+        raise RuntimeError("failed to load library '"+options.library+"'")
+
+
+p = XmlParser(options.xmlfile)
+#print p.classes
+foundErrors = dict()
+for name,info in p.classes.iteritems():
+#    print name
+    errorCode,classChecksum = checkClass(name,info[XmlParser.classVersionIndex],info[XmlParser.versionsToChecksumIndex])
+    if errorCode != noError:
+        foundErrors[name]=(errorCode,classChecksum)
+
+foundRootDoesNotMatchError = False
+originalToNormalizedNames = dict()
+for name,retValues in foundErrors.iteritems():
+    origName = p.classes[name][XmlParser.originalNameIndex]
+    originalToNormalizedNames[origName]=name
+    code = retValues[0]
+    classVersion = p.classes[name][XmlParser.classVersionIndex]
+    classChecksum = retValues[1]
+    if code == errorRootDoesNotMatchClassDef:
+        foundRootDoesNotMatchError=True
+        print "error: for class '"+name+"' ROOT says the ClassVersion is "+str(classVersion)+" but classes_def.xml says it is "+str(version)+". Are you sure everything compiled correctly?"
+    elif code == errorMustUpdateClassVersion and not options.generate:
+        print "error: class '"+name+"' has a different checksum for ClassVersion "+str(classVersion)+". Increment ClassVersion to "+str(classVersion+1)+" and assign it to checksum "+str(classChecksum)
+    elif not options.generate:
+        print "error:class '"+name+"' needs to include the following as part of its 'class' declaration"
+        print '   <version ClassVersion="'+str(classVersion)+'" checksum="'+str(classChecksum)+'"/>'
+
+
+if options.generate and not foundRootDoesNotMatchError:
+    f = open(options.xmlfile)
+    outFile = open('classes_def.xml.generated','w')
+    out = ''
+    for l in f.readlines():
+        newLine = l
+        if -1 != l.find('<class') and -1 != l.find('ClassVersion'):
+            splitArgs = l.split('"')
+            name = splitArgs[1]
+            normName = originalToNormalizedNames.get(name,None)
+            if normName is not None:
+                indent = l.find('<')
+                #this is a class with a problem
+                classVersion = p.classes[normName][XmlParser.classVersionIndex]
+                code,checksum = foundErrors[normName]
+                hasNoSubElements = (-1 != l.find('/>'))
+                if code == errorMustUpdateClassVersion:
+                    classVersion += 1
+                    parts = splitArgs[:]
+                    indexToClassVersion = 0
+                    for p in parts:
+                        indexToClassVersion +=1
+                        if -1 != p.find('ClassVersion'):
+                            break
+                    parts[indexToClassVersion]=str(classVersion)
+                    newLine = '"'.join(parts)
+
+                if hasNoSubElements:
+                    newLine = newLine.replace('/','')
+                out +=newLine
+                newLine =' '*indent+' <version ClassVersion="'+str(classVersion)+'" checksum="'+str(checksum)+'"/>\n'
+                if hasNoSubElements:
+                    out += newLine
+                    newLine=' '*indent+'</class>\n'
+        out +=newLine
+
+    outFile.writelines(out)
+
+if (len(foundErrors)>0 and not options.generate) or (options.generate and foundRootDoesNotMatchError):
+   exit(1)
+
