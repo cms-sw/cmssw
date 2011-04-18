@@ -6,7 +6,7 @@ hltMonMuDQM = cms.EDAnalyzer("HLTMuonDQMSource",
     MonitorDaemon = cms.untracked.bool(True),
     reqNum = cms.uint32(1),
     DaqMonitorBEInterface = cms.untracked.bool(True),
-    TrigResultInput = cms.InputTag('TriggerResults','','HLT'),
+    TrigResultInput = cms.InputTag('TriggerResults','','HLTonline'),
     filters = cms.VPSet(
     	# L1 muon
 	cms.PSet(
@@ -16,17 +16,17 @@ hltMonMuDQM = cms.EDAnalyzer("HLTMuonDQMSource",
     	# L2 muon
 	cms.PSet(
 		directoryName = cms.string('L2PassThrough'),
-		triggerBits = cms.vstring('HLT_L2Mu10_v1','HLT_L2Mu20_v1')
+		triggerBits = cms.vstring('HLT_L2Mu10_v2','HLT_L2Mu20_v2')
 	),
     	# L3 muon
 	cms.PSet(
 		directoryName = cms.string('L3Triggers'),
-		triggerBits = cms.vstring('HLT_Mu12_v1','HLT_Mu15_v2','HLT_Mu20_v1','HLT_Mu24_v1','HLT_Mu30_v1','HLT_Mu3_v3')
+		triggerBits = cms.vstring('HLT_Mu20_v2','HLT_Mu24_v2','HLT_Mu30_v2','HLT_Mu3_v4','HLT_Mu5_v4','HLT_Mu8_v2','HLT_IsoMu12_v2','HLT_IsoMu15_v6','HLT_IsoMu17_v6','HLT_IsoMu24_v2','HLT_IsoMu30_v2')
 	),
     	# DoubleMu
 	cms.PSet(
 		directoryName = cms.string('DoubleMu'),
-		triggerBits = cms.vstring('HLT_L1DoubleMu0_v1','HLT_L2DoubleMu0_v2','HLT_DoubleMu3_v3','HLT_DoubleMu6_v1','HLT_DoubleMu7_v1')
+		triggerBits = cms.vstring('HLT_L1DoubleMu0_v1','HLT_L2DoubleMu0_v2','HLT_DoubleMu3_v4','HLT_DoubleMu6_v2','HLT_DoubleMu7_v2')
 	),
 	# No tracker
 	cms.PSet(
