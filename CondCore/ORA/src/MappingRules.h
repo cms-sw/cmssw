@@ -35,6 +35,9 @@ namespace ora {
       /// class related parameters
       static std::string mappingPropertyNameInDictionary();
       static bool isMappedToBlob(const std::string& mappingProperty);
+      static std::string persistencyPropertyNameInDictionary();
+      static bool isLooseOnReading(const std::string& persistencyProperty );
+      static bool isLooseOnWriting(const std::string& persistencyProperty );
       static std::string classId( const std::string& className, const std::string& classVersion );      
       static std::string classVersionFromId( const std::string& classId );
       static std::string baseIdForClass( const std::string& className );

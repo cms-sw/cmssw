@@ -145,8 +145,8 @@ bool ora::DatabaseSession::exists(){
   return m_transactionCache->dbExists();
 }
 
-void ora::DatabaseSession::create(){
-  m_schema->create();
+void ora::DatabaseSession::create( const std::string& userSchemaVersion ){
+  m_schema->create( userSchemaVersion );
   m_transactionCache->setDbExists( true );
 }
 
@@ -166,8 +166,21 @@ void ora::DatabaseSession::open(){
                                                                   iC->second.numberOfObjects, *this ) );
       m_transactionCache->addContainer( iC->second.id, iC->first, container );
     }
+    m_schema->mainTable().getParameters( m_transactionCache->dbParams() );
     m_transactionCache->setLoaded();
   }
+}
+
+std::string ora::DatabaseSession::schemaVersion( bool userSchema ){
+  std::map<std::string,std::string>& params = m_transactionCache->dbParams();
+  std::string version("");
+  std::string paramName = IMainTable::versionParameterName();
+  if(userSchema ) paramName = IMainTable::userSchemaVersionParameterName();
+  std::map<std::string,std::string>::const_iterator iPar = params.find( paramName );
+  if( iPar != params.end() ){
+    version = iPar->second;
+  }
+  return version;
 }
 
 ora::Handle<ora::DatabaseContainer> ora::DatabaseSession::addContainer( const std::string& containerName,

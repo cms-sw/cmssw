@@ -3,6 +3,7 @@
 
 #include "Object.h"
 #include "OId.h"
+#include "Version.h"
 #include "Container.h"
 #include "Configuration.h"
 #include "DatabaseUtility.h"
@@ -48,6 +49,9 @@ namespace ora {
     ///
     Configuration& configuration();
 
+    ///
+    ora::Version schemaVersion( bool userSchema=false );
+
     /// 
     bool connect( const std::string& connectionString, bool readOnly=false );
     
@@ -67,7 +71,7 @@ namespace ora {
     bool exists();
 
     /// 
-    bool create();
+    bool create( std::string userSchemaVersion = std::string("") );
 
     /// 
     bool drop();

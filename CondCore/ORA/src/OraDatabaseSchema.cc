@@ -14,7 +14,7 @@
 #include "CoralBase/Attribute.h"
 
 std::string ora::OraMainTable::version(){
-  static std::string s_version("V1.0");
+  static std::string s_version("1.1.0");
   return s_version;
 }
 
@@ -38,6 +38,19 @@ ora::OraMainTable::OraMainTable( coral::ISchema& dbSchema ):
 }
 
 ora::OraMainTable::~OraMainTable(){
+}
+
+void ora::OraMainTable::setParameter( const std::string& paramName, 
+                                      const std::string& paramValue ){
+  if( !paramName.empty() && !paramValue.empty() ){
+    coral::ITable& table = m_schema.tableHandle( tableName() );
+    coral::AttributeList dataToInsert;
+    dataToInsert.extend<std::string>( parameterNameColumn());
+    dataToInsert.extend<std::string>( parameterValueColumn());
+    dataToInsert[ parameterNameColumn() ].data<std::string>() = paramName;
+    dataToInsert[ parameterValueColumn() ].data<std::string>() = paramValue;
+    table.dataEditor().insertRow( dataToInsert );
+  }
 }
 
 bool ora::OraMainTable::getParameters( std::map<std::string,std::string>& dest ){
@@ -1223,8 +1236,9 @@ bool ora::OraDatabaseSchema::exists(){
   return true;
 }
 
-void ora::OraDatabaseSchema::create(){
+void ora::OraDatabaseSchema::create( const std::string& userSchemaVersion ){
   m_mainTable.create();
+  m_mainTable.setParameter( IMainTable::userSchemaVersionParameterName(), userSchemaVersion );
   m_sequenceTable.create();
   m_mappingVersionTable.create();
   m_mappingElementTable.create();

@@ -90,13 +90,9 @@ cond::Logger::createLogDBIfNonExist(){
 			   coral::AttributeSpecification::typeNameForType<std::string>() );
   description.setNotNullConstraint(std::string("IOVTIMETYPE"));
 
-  description.insertColumn(std::string("PAYLOADCONTAINER"),
+  description.insertColumn(std::string("PAYLOADCLASS"),
 	  coral::AttributeSpecification::typeNameForType<std::string>() );
-  description.setNotNullConstraint(std::string("PAYLOADCONTAINER"));
-
-  description.insertColumn(std::string("PAYLOADNAME"),
-	  coral::AttributeSpecification::typeNameForType<std::string>() );
-  description.setNotNullConstraint(std::string("PAYLOADNAME"));
+  description.setNotNullConstraint(std::string("PAYLOADCLASS"));
 
   description.insertColumn(std::string("PAYLOADTOKEN"),
 	  coral::AttributeSpecification::typeNameForType<std::string>() );
@@ -128,6 +124,7 @@ void
 cond::Logger::logOperationNow(
 			      const cond::UserLogInfo& userlogInfo,
 			      const std::string& destDB,
+                              const std::string& payloadClass,
 			      const std::string& payloadToken,
 			      const std::string& iovtag,
 			      const std::string& iovtimetype,
@@ -144,12 +141,13 @@ cond::Logger::logOperationNow(
   }
   unsigned long long targetLogId=m_sequenceManager->incrementId(LogDBNames::LogTableName());
   //insert log record with the new id
-  this->insertLogRecord(targetLogId,now,destDB,payloadToken,userlogInfo,iovtag,iovtimetype,payloadIdx,lastSince,"OK");
+  this->insertLogRecord(targetLogId,now,destDB,payloadClass,payloadToken,userlogInfo,iovtag,iovtimetype,payloadIdx,lastSince,"OK");
 }
 void 
 cond::Logger::logFailedOperationNow(
 			       const cond::UserLogInfo& userlogInfo,
 			       const std::string& destDB,
+                               const std::string& payloadClass,
 			       const std::string& payloadToken,
 			       const std::string& iovtag,
 			       const std::string& iovtimetype,
@@ -166,7 +164,7 @@ cond::Logger::logFailedOperationNow(
   }
   unsigned long long targetLogId=m_sequenceManager->incrementId(LogDBNames::LogTableName());
   //insert log record with the new id
-  this->insertLogRecord(targetLogId,now,destDB,payloadToken,userlogInfo,iovtag,iovtimetype,payloadIdx,lastSince,exceptionMessage);
+  this->insertLogRecord(targetLogId,now,destDB,payloadClass,payloadToken,userlogInfo,iovtag,iovtimetype,payloadIdx,lastSince,exceptionMessage);
 }
 
 void 
@@ -202,9 +200,8 @@ cond::Logger::LookupLastEntryByProvenance(const std::string& provenance,
     query->defineOutputType( cond::LogDBNames::LogTableName()+".PAYLOADINDEX", "unsigned int" );
     query->addToOutputList( cond::LogDBNames::LogTableName()+".LASTSINCE" );
     query->defineOutputType( cond::LogDBNames::LogTableName()+".LASTSINCE", "unsigned long long" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADNAME" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADCLASS" );
     query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADTOKEN" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADCONTAINER" );
     query->addToOutputList( cond::LogDBNames::LogTableName()+".EXECTIME" );
     query->addToOutputList( cond::LogDBNames::LogTableName()+".EXECMESSAGE" );
     
@@ -228,9 +225,8 @@ cond::Logger::LookupLastEntryByProvenance(const std::string& provenance,
       logentry.iovtimetype=row[cond::LogDBNames::LogTableName()+".IOVTIMETYPE"].data<std::string>();
       logentry.payloadIdx=row[cond::LogDBNames::LogTableName()+".PAYLOADINDEX"].data<unsigned int>();
       logentry.lastSince=row[cond::LogDBNames::LogTableName()+".LASTSINCE"].data<unsigned long long>();
-      logentry.payloadName=row[cond::LogDBNames::LogTableName()+".PAYLOADNAME"].data<std::string>();
+      logentry.payloadClass=row[cond::LogDBNames::LogTableName()+".PAYLOADCLASS"].data<std::string>();
       logentry.payloadToken=row[cond::LogDBNames::LogTableName()+".PAYLOADTOKEN"].data<std::string>();
-      logentry.payloadContainer=row[cond::LogDBNames::LogTableName()+".PAYLOADCONTAINER"].data<std::string>();
       logentry.exectime=row[cond::LogDBNames::LogTableName()+".EXECTIME"].data<std::string>();
       logentry.execmessage=row[cond::LogDBNames::LogTableName()+".EXECMESSAGE"].data<std::string>();
       
@@ -284,9 +280,8 @@ cond::Logger::LookupLastEntryByTag( const std::string& iovtag,
     query->defineOutputType( cond::LogDBNames::LogTableName()+".PAYLOADINDEX", "unsigned int" );
     query->addToOutputList( cond::LogDBNames::LogTableName()+".LASTSINCE" );
     query->defineOutputType( cond::LogDBNames::LogTableName()+".LASTSINCE", "unsigned long long" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADNAME" );
+    query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADCLASS" );
     query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADTOKEN" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADCONTAINER" );
     query->addToOutputList( cond::LogDBNames::LogTableName()+".EXECTIME" );
     query->addToOutputList( cond::LogDBNames::LogTableName()+".EXECMESSAGE" );
     
@@ -310,9 +305,8 @@ cond::Logger::LookupLastEntryByTag( const std::string& iovtag,
       logentry.iovtimetype=row[cond::LogDBNames::LogTableName()+".IOVTIMETYPE"].data<std::string>();
       logentry.payloadIdx=row[cond::LogDBNames::LogTableName()+".PAYLOADINDEX"].data<unsigned int>();
       logentry.lastSince=row[cond::LogDBNames::LogTableName()+".LASTSINCE"].data<unsigned long long>();
-      logentry.payloadName=row[cond::LogDBNames::LogTableName()+".PAYLOADNAME"].data<std::string>();
+      logentry.payloadClass=row[cond::LogDBNames::LogTableName()+".PAYLOADCLASS"].data<std::string>();
       logentry.payloadToken=row[cond::LogDBNames::LogTableName()+".PAYLOADTOKEN"].data<std::string>();
-      logentry.payloadContainer=row[cond::LogDBNames::LogTableName()+".PAYLOADCONTAINER"].data<std::string>();
       logentry.exectime=row[cond::LogDBNames::LogTableName()+".EXECTIME"].data<std::string>();
       logentry.execmessage=row[cond::LogDBNames::LogTableName()+".EXECMESSAGE"].data<std::string>();
       
@@ -331,6 +325,7 @@ void
 cond::Logger::insertLogRecord(unsigned long long logId,
 			      const std::string& utctime,
 			      const std::string& destDB,
+                              const std::string& payloadClass,
 			      const std::string& payloadToken,
 			      const cond::UserLogInfo& userLogInfo,
 			      const std::string& iovtag,
@@ -339,14 +334,11 @@ cond::Logger::insertLogRecord(unsigned long long logId,
 			      unsigned long long  lastSince,
 			      const std::string& exceptionMessage){
   try{
-    std::string containerName=parseToken(payloadToken).first;
-    std::string payloadName=containerName; //now container and real class are assumed equal
     coral::AttributeList rowData;
     rowData.extend<unsigned long long>("LOGID");
     rowData.extend<std::string>("EXECTIME");
-    rowData.extend<std::string>("PAYLOADCONTAINER");
     rowData.extend<std::string>("DESTINATIONDB");
-    rowData.extend<std::string>("PAYLOADNAME");
+    rowData.extend<std::string>("PAYLOADCLASS");
     rowData.extend<std::string>("PAYLOADTOKEN");
     rowData.extend<std::string>("PROVENANCE");
     rowData.extend<std::string>("USERTEXT");
@@ -357,9 +349,8 @@ cond::Logger::insertLogRecord(unsigned long long logId,
     rowData.extend<std::string>("EXECMESSAGE");
     rowData["LOGID"].data< unsigned long long >() = logId;
     rowData["EXECTIME"].data< std::string >() = utctime;
-    rowData["PAYLOADCONTAINER"].data< std::string >() = containerName;
     rowData["DESTINATIONDB"].data< std::string >() = destDB;
-    rowData["PAYLOADNAME"].data< std::string >() = payloadName;
+    rowData["PAYLOADCLASS"].data< std::string >() = payloadClass;
     rowData["PAYLOADTOKEN"].data< std::string >() = payloadToken;
     rowData["PROVENANCE"].data< std::string >() = userLogInfo.provenance;
     rowData["USERTEXT"].data< std::string >() = userLogInfo.usertext;

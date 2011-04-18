@@ -12,7 +12,10 @@
 #include "RelationalAccess/ISessionProxy.h"
 
 namespace cond {
-  
+
+  static const char* THIS_SCHEMA_VERSION = "2.0.0";   
+  static const char* CHANGE_SCHEMA_VERSION = "2.0.0";
+
   inline std::auto_ptr<cond::TechnologyProxy> buildTechnologyProxy(const std::string&userconnect, 
 								   const DbConnection& connection){
     std::string protocol;
@@ -26,8 +29,6 @@ namespace cond {
     }else{
       throw cond::Exception(userconnect +":connection string format error");
     }
-    //std::cout<<"userconnect "<<userconnect<<std::endl;
-    //std::cout<<"protocol "<<protocol<<std::endl;  
     std::auto_ptr<cond::TechnologyProxy> ptr(cond::TechnologyProxyFactory::get()->create(protocol));
     (*ptr).initialize(userconnect,connection);
     return ptr;
@@ -69,7 +70,8 @@ namespace cond {
           ora::IBlobStreamingService* blobStreamer = cond::BlobStreamerPluginFactory::get()->create(  blobStreamingService );
           if(!blobStreamer) throw cond::Exception("DbSession::open: cannot find required plugin. No instance of ora::IBlobStreamingService has been loaded..");
           database->configuration().setBlobStreamingService( blobStreamer );
-          database->configuration().properties().setFlag( ora::Configuration::automaticDatabaseCreation() );
+          //database->configuration().properties().setFlag( ora::Configuration::automaticDatabaseCreation() );
+          database->configuration().properties().setFlag( ora::Configuration::automaticContainerCreation() );
           // open the db connection
           technologyProxy = buildTechnologyProxy(connectionString, *connection);
           std::string connStr = (*technologyProxy).getRealConnectString();
@@ -167,6 +169,23 @@ ora::Database& cond::DbSession::storage(){
   return *m_implementation->database;
 }
 
+bool cond::DbSession::createDatabase(){
+  bool created = false;
+  if ( !storage().exists() ){
+    created = true;
+    storage().create( std::string(THIS_SCHEMA_VERSION) );
+  }  
+  return created;
+}
+
+bool cond::DbSession::isOldSchema()
+{
+  ora::Version dbVer = storage().schemaVersion();
+  if (dbVer == ora::Version::poolSchemaVersion()) return true;
+  dbVer = storage().schemaVersion( true );
+  return dbVer < ora::Version::fromString( std::string( CHANGE_SCHEMA_VERSION ) );
+}
+
 coral::ISchema& cond::DbSession::schema( const std::string& schemaName )
 {
   return storage().storageAccessSession().get().schema( schemaName );
@@ -194,33 +213,63 @@ bool cond::DbSession::importMapping( const std::string& sourceConnectionString,
 std::string cond::DbSession::storeObject( const ora::Object& object, const std::string& containerName  ){
   ora::OId oid = storage().insertItem( containerName, object );
   storage().flush();
-  int oid0 = oid.containerId(); // no clue why in POOL contId does not start from 0...
-  return writeToken( containerName, oid0, oid.itemId(), object.typeName() );
+  return oid.toString();
 }
 
 ora::Object  cond::DbSession::getObject( const std::string& objectId ){
-  std::pair<std::string,int> oidData = parseToken( objectId );
-  ora::Container cont = storage().containerHandle(  oidData.first );
-  return cont.fetchItem( oidData.second );
+  ora::OId oid;
+  oid.fromString( objectId );
+  return storage().fetchItem( oid );
 }
 
 bool cond::DbSession::deleteObject( const std::string& objectId ){
-  std::pair<std::string,int> oidData = parseToken( objectId );
-  ora::Container cont = storage().containerHandle(  oidData.first );
-  cont.erase( oidData.second );
-  cont.flush();
+  ora::OId oid;
+  oid.fromString( objectId );
+  storage().erase( oid );
+  storage().flush();
   return true;
 }
 
 std::string cond::DbSession::importObject( cond::DbSession& fromDatabase, const std::string& objectId ){
-  std::pair<std::string,int> oidData = parseToken( objectId );
+  ora::OId oid;
+  oid.fromString( objectId );
   ora::Object data = fromDatabase.getObject( objectId );
-  std::string tok = storeObject( data, oidData.first );
+  ora::Container cont = fromDatabase.storage().containerHandle( oid.containerId() );
+  std::string ret = storeObject( data, cont.name() );
   data.destruct();
-  return tok;
+  return ret;
+}
+
+std::string cond::DbSession::classNameForItem( const std::string& objectId ){
+  ora::OId oid;
+  oid.fromString( objectId );
+  std::string ret("");
+  if( !oid.isInvalid() ){
+    ora::Container cont = storage().containerHandle( oid.containerId() );
+    ret = cont.className();
+  }
+  return ret; 
 }
 
 void cond::DbSession::flush(){
   storage().flush();
 }
 
+cond::PoolTokenParser::PoolTokenParser( ora::Database& db ):
+  m_db( db ){
+}
+
+ora::OId cond::PoolTokenParser::parse( const std::string& poolToken ){
+  std::pair<std::string,int> oidData = parseToken( poolToken );
+  ora::Container cont = m_db.containerHandle(  oidData.first );
+  return ora::OId( cont.id(), oidData.second );
+}
+
+cond::PoolTokenWriter::PoolTokenWriter( ora::Database& db ):
+  m_db( db ){
+}
+
+std::string cond::PoolTokenWriter::write( const ora::OId& oid ){
+  ora::Container cont = m_db.containerHandle( oid.containerId() );
+  return writeToken( cont.name(), oid.containerId(), oid.itemId(), cont.className() );
+}

@@ -12,6 +12,11 @@ std::string ora::IMainTable::versionParameterName(){
   return s_name;
 }
 
+std::string ora::IMainTable::userSchemaVersionParameterName(){
+  static std::string s_name("USER_SCHEMA_VERSION");
+  return s_name;
+}
+
 ora::MappingRawElement::MappingRawElement():
   scopeName(""),
   variableName(""),

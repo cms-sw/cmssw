@@ -27,8 +27,10 @@ namespace ora {
   class IMainTable: public IDatabaseTable {
     public:
     static std::string versionParameterName();
+    static std::string userSchemaVersionParameterName();
     public:
     virtual ~IMainTable(){}
+    virtual void setParameter( const std::string& paramName, const std::string& paramValue ) = 0;
     virtual bool getParameters( std::map<std::string,std::string>& destination ) = 0;
     virtual std::string schemaVersion() = 0;
   };
@@ -134,7 +136,7 @@ namespace ora {
     }
 
     virtual bool exists() = 0;
-    virtual void create() = 0;
+    virtual void create( const std::string& userSchemaVersion ) = 0;
     virtual void drop() = 0;
 
     virtual IMainTable& mainTable() = 0;

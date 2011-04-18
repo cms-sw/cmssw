@@ -14,6 +14,8 @@
 // externals
 #include "RelationalAccess/IBulkOperation.h"
 #include "Reflex/Member.h"
+#include "Reflex/Base.h"
+#include "CoralBase/Attribute.h"
 
 namespace ora {
 
@@ -21,17 +23,43 @@ namespace ora {
     public:
       QVReader( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema ):
         m_objectType( objectType ),
+        m_localElement(),
+        m_reader( ClassUtils::containerSubType(objectType,"store_base_type"), mapping, contSchema ){
+        m_localElement.clear();
+        InputRelationalData dummy;
+        m_reader.build( m_localElement,dummy ); 
+      }
+
+    void read( const std::vector<int>& fullId, void* destinationAddress){
+     m_reader.select( fullId[0] );
+      std::vector<int> recordId;
+      for(size_t i=1;i<fullId.size();i++) {
+         recordId.push_back( fullId[i] );
+      }
+      m_reader.setRecordId(recordId);
+      m_reader.read( destinationAddress );
+    } 
+
+    private:
+      Reflex::Type m_objectType;
+      DataElement m_localElement;
+      PVectorReader m_reader;
+  };
+
+  class QVQueryMaker {
+    public:
+      QVQueryMaker( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema ):
+        m_objectType( objectType ),
         m_mappingElement( mapping ),
         m_schema( contSchema ),
         m_recordId(),
         m_localElement(),
         m_query(),
         m_arrayHandler(),
-        m_dataReader(),
         m_oid(-1){
       }
 
-      ~QVReader(){
+      ~QVQueryMaker(){
       }
       
       bool build(){
@@ -51,11 +79,11 @@ namespace ora {
           m_query->addOrderId( recIdCols[ i ] );
         }
 
-        Reflex::Type storeBaseType = ClassUtils::containerSubType(m_objectType,"store_base_type");
+        Reflex::Type storeBaseType = ClassUtils::containerSubType(m_objectType,"range_store_base_type");
         if( !storeBaseType ){
-          throwException( "Missing dictionary information for the store base type of the container \"" +
+          throwException( "Missing dictionary information for the range store base type of the container \"" +
                           m_objectType.Name(Reflex::SCOPED) + "\"",
-                          "QueryableVectorReadBuffer::build" );          
+                          "QVQueryMaker::build" );          
         }
         
         m_arrayHandler.reset( ArrayHandlerFactory::newArrayHandler( storeBaseType ) );
@@ -66,14 +94,14 @@ namespace ora {
         if ( ! valueType ||!valueResolvedType ) {
           throwException( "Missing dictionary information for the content type of the container \"" +
                           m_objectType.Name(Reflex::SCOPED) + "\"",
-                          "QueryableVectorReadBuffer::build" );
+                          "QVQueryMaker::build" );
         }
         std::string valueName = valueType.Name();
         // Retrieve the relevant mapping element
         MappingElement::iterator iMe = m_mappingElement.find( valueName );
         if ( iMe == m_mappingElement.end() ) {
           throwException( "Item for \"" + valueName + "\" not found in the mapping element",
-                          "QueryableVectorReadBuffer::build" );
+                          "QVQueryMaker::build" );
         }
 
         m_dataReader.reset( streamerFactory.newReader( valueResolvedType, iMe->second ) );
@@ -103,26 +131,26 @@ namespace ora {
             MappingElement::iterator iElem = mappingElement.find("value_type");
             if ( iElem == mappingElement.end() ) {
               throwException( "Item for element \"value_type\" not found in the mapping element",
-                              "QueryableVectorReadBuffer::setQueryCondition" );
+                              "QVQueryMaker::setQueryCondition" );
             }
             MappingElement& valueTypeElement = iElem->second;
             if( valueTypeElement.elementType()==MappingElement::Primitive ){
               if(varName!="value_type"){
                 throwException( "Item for element \"" + varName + "\" not found in the mapping element",
-                                "QueryableVectorReadBuffer::setQueryCondition" );
+                                "QVQueryMaker::setQueryCondition" );
               }
               colName = valueTypeElement.columnNames()[0];
             } else if( valueTypeElement.elementType()==MappingElement::Object ){
               MappingElement::iterator iInnerElem = valueTypeElement.find(varName);
               if ( iInnerElem == valueTypeElement.end() ) {
                 throwException( "Item for element \"" + varName + "\" not found in the mapping element",
-                                "QueryableVectorReadBuffer::setQueryCondition" );
+                                "QVQueryMaker::setQueryCondition" );
               }
               colName = iInnerElem->second.columnNames()[0];
             } else {
               throwException( "Queries cannot be executed on types mapped on "+
                               MappingElement::elementTypeAsString(valueTypeElement.elementType()),
-                              "QueryableVectorReadBuffer::setQueryCondition" );
+                              "QVQueryMaker::setQueryCondition" );
             }
             selColumn << colName<<"_"<<i;
             whereData.extend(selColumn.str(),selection.data()[iItem->first].specification().type());
@@ -135,26 +163,6 @@ namespace ora {
 
         // add the resulting condition clause
         queryData.whereClause()+=cond.str();
-      }
-      
-
-      void select( const std::vector<int>& fullId ){
-        if(!m_query.get()){
-          throwException("The reader has not been built.",
-                         "QVReader::select");
-        }
-
-        m_oid = fullId[0];
-        m_recordId.clear();
-        for(size_t i=1;i<fullId.size();i++) {
-          m_recordId.push_back( fullId[i] );
-        }
-        // allocate the element for the index...
-        m_recordId.push_back( 0 );
-
-        coral::AttributeList& whereData = m_query->whereData();
-        whereData[ m_mappingElement.pkColumn() ].data<int>() = fullId[0];
-        m_query->execute();
       }
       
       void select( const std::vector<int>& fullId, const Selection& selection ){
@@ -207,8 +215,7 @@ namespace ora {
         return result;
       }
       
-
-      void read(void* address){
+      void executeAndLoad(void* address){
 
         if(!m_query.get()){
           throwException("The reader has not been built.",
@@ -219,13 +226,13 @@ namespace ora {
         if ( ! firstMember ) {
           throwException( "Could not retrieve the data member \"first\" of the class \"" +
                           iteratorDereferenceReturnType.Name(Reflex::SCOPED) + "\"",
-                          "QueryableVectorReadBuffer::read" );
+                          "QVQueryMakerAndLoad::read" );
         }
         Reflex::Member secondMember = iteratorDereferenceReturnType.MemberByName( "second" );
         if ( ! secondMember ) {
           throwException( "Could not retrieve the data member \"second\" of the class \"" +
                           iteratorDereferenceReturnType.Name(Reflex::SCOPED) + "\"",
-                          "QueryableVectorReadBuffer::read" );
+                          "QVQueryMakerAndLoad::read" );
         }
 
         m_arrayHandler->clear( address );
@@ -255,7 +262,7 @@ namespace ora {
           if ( !inserted ) {
             throwException( "Could not insert a new element in the array type \"" +
                             m_objectType.Name(Reflex::SCOPED|Reflex::FINAL) + "\"",
-                            "QueryableVectorReadBuffer::read" );
+                            "QVQueryMakerAndLoad::executeAndLoad" );
           }
           ++i;
         }
@@ -275,20 +282,21 @@ namespace ora {
       int m_oid;
   };  
 
-  class RelationalVectorLoader: public IVectorLoader {
+  class QueryableVectorLoader: public IVectorLoader {
 
       public:
 
         // constructor
-      RelationalVectorLoader( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema,
+      QueryableVectorLoader( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema,
                               const std::vector<int>& fullId ):
         m_isValid(true),
         m_reader( objectType, mapping, contSchema ),
+        m_queryMaker( objectType, mapping, contSchema ),
         m_identity(fullId){
       }
 
       // destructor
-      virtual ~RelationalVectorLoader(){
+      virtual ~QueryableVectorLoader(){
       }
 
       public:
@@ -297,9 +305,7 @@ namespace ora {
       bool load(void* address) const {
         bool ret = false;
         if(m_isValid) {
-          m_reader.build();
-          m_reader.select( m_identity );
-          m_reader.read( address );
+          m_reader.read( m_identity, address );
           ret = true;
         }
         return ret;
@@ -308,9 +314,9 @@ namespace ora {
       bool loadSelection(const Selection& selection, void* address) const {
         bool ret = false;
         if(m_isValid) {
-          m_reader.build();
-          m_reader.select( m_identity, selection );
-          m_reader.read( address );
+          m_queryMaker.build();
+          m_queryMaker.select( m_identity, selection );
+          m_queryMaker.executeAndLoad( address );
           ret = true;
         }
         return ret;
@@ -319,7 +325,7 @@ namespace ora {
       size_t getSelectionCount( const Selection& selection ) const {
         size_t ret = 0;
         if(m_isValid) {
-          ret = m_reader.selectionCount( m_identity, selection );
+          ret = m_queryMaker.selectionCount( m_identity, selection );
         }
         return ret;
       }
@@ -335,6 +341,7 @@ namespace ora {
       private:
         bool m_isValid;
         mutable QVReader m_reader;
+        mutable QVQueryMaker m_queryMaker;
         std::vector<int> m_identity;
     };
   
@@ -344,151 +351,47 @@ ora::QueryableVectorWriter::QueryableVectorWriter( const Reflex::Type& objectTyp
                                                    MappingElement& mapping,
                                                    ContainerSchema& contSchema ):
   m_objectType( objectType ),
-  m_mappingElement( mapping ),
-  m_schema( contSchema ),
-  m_recordId(),
+  m_offset( 0 ),
   m_localElement(),
-  m_offset(0),
-  m_insertOperation( 0 ),
-  m_arrayHandler(){
+  m_writer(ClassUtils::containerSubType(objectType,"store_base_type"), mapping, contSchema ){
 }
 
-  ora::QueryableVectorWriter::~QueryableVectorWriter(){
+ora::QueryableVectorWriter::~QueryableVectorWriter(){
 }
 
 bool ora::QueryableVectorWriter::build( DataElement& offset,
                                         IRelationalData& data,
                                         RelationalBuffer& operationBuffer ){
-  m_localElement.clear();
-  m_recordId.clear();
-  // allocate for the index...
-  m_recordId.push_back(0);
-    
-  RelationalStreamerFactory streamerFactory( m_schema );
-  
-  // first open the insert on the extra table...
-  m_insertOperation = &operationBuffer.newMultiRecordInsert( m_mappingElement.tableName() );
-  const std::vector<std::string>& columns = m_mappingElement.columnNames();
-  if( !columns.size() ){
-    throwException( "Id columns not found in the mapping.",
-                    "QueryableVectorWriter::build");    
-  }
-  for( size_t i=0; i<columns.size(); i++ ){
-    m_insertOperation->addId( columns[ i ] );
-  }
-
   m_offset = &offset;
-
-  Reflex::Type storeBaseType = ClassUtils::containerSubType(m_objectType,"store_base_type");
-  if( !storeBaseType ){
-    throwException( "Missing dictionary information for the store base type of the container \"" +
-                    m_objectType.Name(Reflex::SCOPED|Reflex::FINAL) + "\"",
-                    "QueryableVectorWriter::build" );    
-  }
-  
-  m_arrayHandler.reset( ArrayHandlerFactory::newArrayHandler( storeBaseType ) );
-  
-  Reflex::Type valueType = ClassUtils::containerValueType(m_objectType);
-  Reflex::Type valueResolvedType = ClassUtils::resolvedType(valueType);
-  // Check the component type
-  if ( ! valueType || !valueResolvedType ) {
-    throwException( "Missing dictionary information for the content type of the container \"" +
-                    m_objectType.Name(Reflex::SCOPED|Reflex::FINAL) + "\"",
-                    "QueryableVectorWriter::build" );
-  }
-  
-  std::string valueName = valueType.Name();
-  // Retrieve the relevant mapping element
-  MappingElement::iterator iMe = m_mappingElement.find( valueName );
-  if ( iMe == m_mappingElement.end() ) {
-    throwException( "Item for \"" + valueName + "\" not found in the mapping element",
-                    "QueryableVectorWriter::build" );
-  }
-
-  m_dataWriter.reset( streamerFactory.newWriter( valueResolvedType, iMe->second ) );
-  m_dataWriter->build( m_localElement, *m_insertOperation, operationBuffer );
-  return true;
+  m_localElement.clear();
+  return m_writer.build( m_localElement, data, operationBuffer );
 }
 
-  void ora::QueryableVectorWriter::setRecordId( const std::vector<int>& identity ){
-  m_recordId.clear();
-  for(size_t i=0;i<identity.size();i++) {
-    m_recordId.push_back( identity[i] );
-  }
-  m_recordId.push_back( 0 );
+void ora::QueryableVectorWriter::setRecordId( const std::vector<int>& identity ){
+  m_writer.setRecordId( identity );
 }
       
 void ora::QueryableVectorWriter::write( int oid,
                                         const void* inputData ){
-
   if(!m_offset){
     throwException("The streamer has not been built.",
                    "QueryableVectorWriter::write");
   }
-
-  const std::vector<std::string>& columns = m_mappingElement.columnNames();
-  if( columns.size() != m_recordId.size()+1){
-    throwException( "Object id elements provided are not matching with the mapped id columns.",
-                    "QueryableVectorWriter::write");
-  }
-  
   void* vectorAddress = m_offset->address( inputData );
   Reflex::Object vectorObj( m_objectType,const_cast<void*>(vectorAddress));
   vectorObj.Invoke("load",0);
   void* storageAddress = 0;
   vectorObj.Invoke("storageAddress",storageAddress);
-  
-  // Use the iterator to loop over the elements of the container.
-  size_t containerSize = m_arrayHandler->size( storageAddress  );
-  size_t persistentSize = m_arrayHandler->persistentSize( storageAddress  );
-
-  if ( containerSize == 0 || containerSize < persistentSize ) return;
-
-  size_t startElementIndex = m_arrayHandler->startElementIndex( storageAddress );
-
-  std::auto_ptr<IArrayIteratorHandler> iteratorHandler( m_arrayHandler->iterate( storageAddress ) );
-  const Reflex::Type& iteratorDereferenceReturnType = iteratorHandler->returnType();
-  Reflex::Member secondMember = iteratorDereferenceReturnType.MemberByName( "second" );
-  if ( ! secondMember ) {
-    throwException( "Could not retrieve the data member \"second\" for the class \"" +
-                    iteratorDereferenceReturnType.Name(Reflex::SCOPED) + "\"",
-                    "QueryableVectorWriter::write" );
-  }
-
-  InsertCache& bulkInsert = m_insertOperation->setUp( containerSize-startElementIndex+1 );
-
-  for ( size_t iIndex = startElementIndex; iIndex < containerSize; ++iIndex ) {
-
-    m_recordId[m_recordId.size()-1] = iIndex;
-    coral::AttributeList& dataBuff = m_insertOperation->data();
-
-    dataBuff[ columns[0] ].data<int>() = oid;
-    for( size_t i = 1;i < columns.size(); i++ ){
-      dataBuff[ columns[i] ].data<int>() = m_recordId[i-1];
-    }
-
-
-    void* objectReference = iteratorHandler->object();
-    void* componentData = static_cast< char* >( objectReference ) + secondMember.Offset();
-
-    m_dataWriter->setRecordId( m_recordId );
-    m_dataWriter->write( oid, componentData );
-
-    bulkInsert.processNextIteration();
-    
-    // Increment the iterator
-    iteratorHandler->increment();
-  }
-
-  // execute the insert...
-  m_arrayHandler->finalize( const_cast<void*>( storageAddress ) );
+  m_writer.write( oid, storageAddress );
 }
 
 ora::QueryableVectorUpdater::QueryableVectorUpdater(const Reflex::Type& objectType,
                                                     MappingElement& mapping,
                                                     ContainerSchema& contSchema ):
-  m_buffer( 0 ),
-  m_writer( objectType, mapping, contSchema ){
+  m_objectType( objectType ),
+  m_offset( 0 ),
+  m_localElement(),
+  m_updater( ClassUtils::containerSubType(objectType,"store_base_type"), mapping, contSchema ){
 }
 
 ora::QueryableVectorUpdater::~QueryableVectorUpdater(){
@@ -497,40 +400,29 @@ ora::QueryableVectorUpdater::~QueryableVectorUpdater(){
 bool ora::QueryableVectorUpdater::build( DataElement& offset,
                                          IRelationalData& relationalData,
                                          RelationalBuffer& operationBuffer){
-  m_buffer = &operationBuffer;
-  return m_writer.build( offset, relationalData, operationBuffer );
+  m_offset = &offset;
+  m_localElement.clear();
+  return m_updater.build( m_localElement, relationalData, operationBuffer );
 }
 
 void ora::QueryableVectorUpdater::setRecordId( const std::vector<int>& identity ){
-  m_writer.setRecordId( identity );
+  m_updater.setRecordId( identity );
 }
 
 void ora::QueryableVectorUpdater::update( int oid,
                                           const void* data ){
-  if( !m_writer.dataElement() ){
+  if(!m_offset){
     throwException("The streamer has not been built.",
                    "QueryableVectorUpdater::update");
   }
-  
-  void* vectorAddress = m_writer.dataElement()->address( data );
-  Reflex::Object vectorObj( m_writer.objectType(),const_cast<void*>(vectorAddress));
+  void* vectorAddress = m_offset->address( data );
+  Reflex::Object vectorObj( m_objectType,const_cast<void*>(vectorAddress));
   vectorObj.Invoke("load",0);
   void* storageAddress = 0;
   vectorObj.Invoke("storageAddress",storageAddress);
+  m_updater.update( oid, storageAddress );
+}  
   
-  IArrayHandler& arrayHandler = *m_writer.arrayHandler();
-  
-  size_t arraySize = arrayHandler.size(storageAddress);
-  size_t persistentSize = arrayHandler.persistentSize(storageAddress);
-  if(persistentSize>arraySize){
-    deleteArrayElements( m_writer.mapping(), oid, arraySize, *m_buffer );
-  }
-  m_writer.write( oid, data );
-}
-  
-
-  
-
 ora::QueryableVectorReader::QueryableVectorReader(const Reflex::Type& objectType,
                                                   MappingElement& mapping,
                                                   ContainerSchema& contSchema ):
@@ -574,13 +466,20 @@ void ora::QueryableVectorReader::read( void* destinationData ) {
                    "QueryableVectorReader::read");
   }
 
-  void* arrayAddress = m_dataElement->address( destinationData );
+  // finding the address (on the instance) where to install the loader
+  Reflex::Member loaderMember = m_objectType.DataMemberByName("m_loader");
+  if(!loaderMember){
+    throwException("The loader member has not been found.",
+                   "QueryableVectorReader::read");     
+  }
+  DataElement& loaderMemberElement = m_dataElement->addChild( loaderMember.Offset(), 0 );
+  void* loaderAddress = loaderMemberElement.address( destinationData );
 
-  boost::shared_ptr<IVectorLoader> loader( new RelationalVectorLoader( m_objectType, m_mapping, m_schema, m_tmpIds ) );
+  // creating and registering the new loader to assign
+  boost::shared_ptr<IVectorLoader> loader( new QueryableVectorLoader( m_objectType, m_mapping, m_schema, m_tmpIds ) );
   m_loaders.push_back(loader);
-
-  LoaderClient* client = static_cast<LoaderClient*>( arrayAddress );
-  client->install( loader );  
+  // installing the loader
+  *(static_cast<boost::shared_ptr<IVectorLoader>*>( loaderAddress )) = loader;
 }
 
 void ora::QueryableVectorReader::clear(){

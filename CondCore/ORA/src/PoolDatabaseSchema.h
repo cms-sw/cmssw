@@ -47,10 +47,12 @@ namespace ora {
 
   class PoolMainTable: public IMainTable {
     public:
+    static std::string version();
     static std::string tableName();
     public:
     explicit PoolMainTable( coral::ISchema& dbSchema );
     virtual ~PoolMainTable();
+    void setParameter( const std::string& paramName, const std::string& paramValue );
     bool getParameters( std::map<std::string,std::string>& destination );
     std::string schemaVersion();
     public:
@@ -232,7 +234,7 @@ namespace ora {
     virtual ~PoolDatabaseSchema();
 
     bool exists();
-    void create();
+    void create( const std::string& userSchemaVersion );
     void drop();
 
     IMainTable& mainTable();

@@ -1,7 +1,7 @@
 #ifndef INCLUDE_ORA_QUERYABLEVECTORSTREAMER_H
 #define INCLUDE_ORA_QUERYABLEVECTORSTREAMER_H
 
-#include "IRelationalStreamer.h"
+#include "PVectorStreamer.h"
 #include "DataElement.h"
 //
 #include <memory>
@@ -28,24 +28,12 @@ namespace ora {
       bool build( DataElement& offset, IRelationalData& relationalData, RelationalBuffer& operationBuffer );
       void setRecordId( const std::vector<int>& identity );
       void write( int oid,const void* data );
-    public:
-      Reflex::Type& objectType();
-      MappingElement& mapping();
-      DataElement* dataElement();
-      IArrayHandler* arrayHandler();
-
     private:
       Reflex::Type m_objectType;
-      MappingElement& m_mappingElement;
-      ContainerSchema& m_schema;
-      std::vector<int> m_recordId;
-      DataElement m_localElement;
-
-    private:
       DataElement* m_offset;
-      MultiRecordInsertOperation* m_insertOperation;
-      std::auto_ptr<IArrayHandler> m_arrayHandler;
-      std::auto_ptr<IRelationalWriter> m_dataWriter;
+      DataElement m_localElement;
+    private:  
+      PVectorWriter m_writer;
   };
   
   class QueryableVectorUpdater : public IRelationalUpdater {
@@ -61,8 +49,11 @@ namespace ora {
     void update( int oid,const void* data );
 
     private:
-    RelationalBuffer* m_buffer;
-    QueryableVectorWriter m_writer;
+      Reflex::Type m_objectType;
+      DataElement* m_offset;
+      DataElement m_localElement;
+    private:
+    PVectorUpdater m_updater;
   };
 
   class QueryableVectorReader : public IRelationalReader {
@@ -109,30 +100,6 @@ namespace ora {
   }; 
 
   
-}
-
-inline
-Reflex::Type&
-ora::QueryableVectorWriter::objectType(){
-  return m_objectType;
-}
-
-inline
-ora::MappingElement&
-ora::QueryableVectorWriter::mapping(){
-  return m_mappingElement;
-}
-
-inline
-ora::DataElement*
-ora::QueryableVectorWriter::dataElement(){
-  return m_offset;
-}
-
-inline
-ora::IArrayHandler*
-ora::QueryableVectorWriter::arrayHandler(){
-  return m_arrayHandler.get();
 }
 
 #endif

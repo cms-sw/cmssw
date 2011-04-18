@@ -3,7 +3,7 @@
 
 ora::Exception::Exception( const std::string& message,
                            const std::string& methodName ):
-  cms::Exception( message+" from "+methodName )
+  cms::Exception( "Condition_ORA", message+" from "+methodName )
 {}
 
 namespace ora {

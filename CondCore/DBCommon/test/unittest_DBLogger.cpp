@@ -72,7 +72,7 @@ int main(){
   }else{
     std::cout<<"1. table lock failed"<<std::endl;
   }
-  mylogger.logOperationNow(a,constr,tok1,"mytag1","runnumber",0,1);
+  mylogger.logOperationNow(a,constr,std::string("Pedestals"),tok1,"mytag1","runnumber",0,1);
   std::cout<<"1. waiting"<<std::endl;
   sleep(5);
   std::cout<<"1. stop waiting"<<std::endl;
@@ -89,7 +89,7 @@ int main(){
   std::cout<<"1. waiting"<<std::endl;
   sleep(5);
   std::cout<<"1. stop waiting"<<std::endl;
-  mylogger.logFailedOperationNow(a,constr,tok1,"mytag1","runnumber",1,1,"EOOROR");
+  mylogger.logFailedOperationNow(a,constr,std::string("Pedestals"),tok1,"mytag1","runnumber",1,1,"EOOROR");
   std::cout<<"1. waiting"<<std::endl;
   sleep(5);
   std::cout<<"1. stop waiting"<<std::endl;
@@ -108,7 +108,7 @@ int main(){
   std::cout<<"1. waiting"<<std::endl;
   sleep(5);
   std::cout<<"1. stop waiting"<<std::endl;
-  mylogger.logOperationNow(a,constr,tok2,"mytag","runnumber",1,2);
+  mylogger.logOperationNow(a,constr,std::string("Pedestals"),tok2,"mytag","runnumber",1,2);
   std::cout<<"1. waiting"<<std::endl;
   sleep(5);
   std::cout<<"1. stop waiting"<<std::endl;

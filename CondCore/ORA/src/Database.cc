@@ -126,10 +126,10 @@ bool ora::Database::exists(){
   return m_impl->m_session->exists();
 }
 
-bool ora::Database::create(){
+bool ora::Database::create( std::string userSchemaVersion ){
   bool created = false;
   if( !exists()){
-    m_impl->m_session->create();
+    m_impl->m_session->create( userSchemaVersion );
     created = true;
   }
   return created;
@@ -160,6 +160,14 @@ void ora::Database::open( bool writingAccess /*=false*/){
     }
   }
   m_impl->m_session->open();
+}
+
+ora::Version ora::Database::schemaVersion( bool userSchema ){
+  checkTransaction();
+  if( !m_impl->m_session->exists() ){
+    throwException("Database does not exists in \""+m_impl->m_session->connectionString()+"\"","Database::schemaVersion");
+  }
+  return Version::fromString( m_impl->m_session->schemaVersion( userSchema ) );
 }
 
 std::set< std::string > ora::Database::containers() {

@@ -7,7 +7,7 @@
 #include "CondCore/ORA/test/Serializer.h"
 #include <cstdlib>
 #include <iostream>
-
+#include <algorithm>
 #include "classes.h"
 
 int main(){
@@ -166,7 +166,7 @@ int main(){
       ora::Range<SM> rg3 = iV->select(sel);
       std::cout << "**range rg3 size="<<rg3.size()<<std::endl;
       unsigned int i=0;
-      for(ora::Range<SM>::const_iterator iR=rg3.begin();
+      for(ora::Range<SM>::iterator iR=rg3.begin();
           iR!=rg3.end();++iR){
         std::cout << "##Rg3 ("<<i<<") SM["<<iR.index()<<"]="<<iR->m_id<<std::endl;
         i++;
@@ -214,6 +214,9 @@ int main(){
     pv2.clear ( );
     if(pv0==pv1) {  }
     if(pv0!=pv1) { }
+
+    ora::QueryableVector<int> mq;
+    std::sort( mq.begin(),mq.end());
 
   } catch ( const ora::Exception& exc ){
     std::cout << "### ############# ERROR: "<<exc.what()<<std::endl;

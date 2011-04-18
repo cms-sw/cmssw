@@ -3,14 +3,24 @@
 #include <cstdio>
 #include <cstring>
 
-static const char* fmtContId = "[CID=%08X]";
-static const char* fmtItemId = "[OID=%08X]";
+static const char* OIDFMT = "%04X-%08X";
+static const size_t OIDSIZ = 13;
+
+bool ora::OId::isOId( const std::string& input ){
+  ora::OId tmp;
+  return tmp.fromString( input );
+}
 
 ora::OId::OId():
   m_containerId(-1),
   m_itemId(-1){
 }
 
+ora::OId::OId( const std::pair<int,int>& oidPair ):
+  m_containerId( oidPair.first ),
+  m_itemId( oidPair.second ){
+}
+  
 ora::OId::OId( int contId, int itemId ):
   m_containerId( contId),
   m_itemId( itemId ){
@@ -45,34 +55,32 @@ int ora::OId::itemId() const{
   return m_itemId;
 }
 
-std::string ora::OId::toString(){
-  std::string str("");
-  char text[128];
-  ::sprintf(text, fmtContId, m_containerId);
-  str += text;
-  ::sprintf(text, fmtItemId, m_itemId);
-  str += text;
-  return str;
+std::string ora::OId::toString() const {
+  char text[OIDSIZ];
+  ::sprintf(text, OIDFMT, m_containerId, m_itemId );
+  return std::string(text);
 }
 
-void ora::OId::fromString( const std::string& source ){
-  std::string tmp = source;
-  for(char* p1 = (char*)tmp.c_str(); p1; p1 = ::strchr(++p1,'[')) {
-    char* p2 = ::strchr(p1, '=');
-    char* p3 = ::strchr(p1, ']');
-    if ( p2 && p3 )   {
-      if ( ::strncmp(fmtContId, p1, 4) == 0 )  {
-        ::sscanf(p1, fmtContId, &m_containerId );
-      }
-      else if ( ::strncmp(fmtItemId, p1, 4) == 0 )  {
-        ::sscanf(p1, fmtItemId, &m_itemId );
-      }
-      else    {
-        *p3 = *p2 = 0;
-      }
-      *p3 = ']';
-      *p2 = '=';
-    }
-  }
+bool ora::OId::fromString( const std::string& source ){
+  if(source.size()>OIDSIZ) return false; // constraint relaxed...
+  const char* ptr = source.c_str();
+  if( ::sscanf( ptr, OIDFMT, &m_containerId, &m_itemId )==2 ) return true;
+  return false;
 }
 
+void ora::OId::toOutputStream( std::ostream& os ) const {
+  os << this->toString();
+}
+
+void ora::OId::reset() {
+  m_containerId = -1;
+  m_itemId = -1;
+}
+
+bool ora::OId::isInvalid() const {
+  return (m_containerId == -1 || m_itemId == -1);
+}
+
+std::pair<int,int> ora::OId::toPair() const {
+  return std::make_pair( m_containerId, m_itemId );
+}

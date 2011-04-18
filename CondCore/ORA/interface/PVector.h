@@ -36,7 +36,7 @@ namespace ora {
 
     typedef typename std::vector<Tp>::value_type value_type;
 
-    // pool specific typedef
+    // ora specific typedef
     typedef typename std::vector<Tp> store_type;
 
     public:

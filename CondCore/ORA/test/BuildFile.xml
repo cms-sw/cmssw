@@ -8,6 +8,8 @@
 </library>
 <bin   file="testORABasicException.cc" name="testORABasicException">
 </bin>
+<bin   file="testOId.cc" name="testOId">
+</bin>
 <bin   file="testORAInit.cc" name="testORAInit">
 </bin>
 <bin   file="testORA_0.cc" name="testORA_0">

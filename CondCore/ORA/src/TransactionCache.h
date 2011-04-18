@@ -37,6 +37,8 @@ namespace ora {
 
     const std::map<int, Handle<DatabaseContainer> >& containers();
 
+    std::map<std::string,std::string>& dbParams();
+
     void setUtility( Handle<DatabaseUtilitySession>& utility );
 
     Handle<DatabaseUtilitySession> utility();
@@ -57,6 +59,7 @@ namespace ora {
     std::pair<bool,bool> m_dbExists;
     std::map<std::string, int> m_containersByName;
     std::map<int, Handle<DatabaseContainer> > m_containersById;
+    std::map<std::string,std::string> m_dbParams;
     Handle<DatabaseUtilitySession> m_utility;
     bool m_loaded;
     std::map<std::string,boost::weak_ptr<void> > m_namedRefCache;

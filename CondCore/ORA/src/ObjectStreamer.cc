@@ -8,6 +8,19 @@
 #include "Reflex/Base.h"
 #include "Reflex/Member.h"
 
+namespace ora {
+
+  bool isLoosePersistencyDataMember( const Reflex::Member& dataMember ){
+    std::string persistencyType("");
+    Reflex::PropertyList memberProps = dataMember.Properties();
+    if( memberProps.HasProperty(ora::MappingRules::persistencyPropertyNameInDictionary())){
+       persistencyType = memberProps.PropertyAsString(ora::MappingRules::persistencyPropertyNameInDictionary());
+    }
+    return ora::MappingRules::isLooseOnWriting( persistencyType ) || ora::MappingRules::isLooseOnReading( persistencyType ) ;
+  }
+
+}
+
 ora::ObjectStreamerBase::ObjectStreamerBase( const Reflex::Type& objectType,
                                              MappingElement& mapping,
                                              ContainerSchema& contSchema ):
@@ -49,13 +62,16 @@ void ora::ObjectStreamerBase::buildBaseDataMembers( DataElement& dataElement,
       std::string dataMemberName = MappingRules::scopedVariableName( dataMember.Name(), scope );
       // Retrieve the relevant mapping element
       MappingElement::iterator iDataMemberMapping = m_mapping.find( dataMemberName );
-      if ( iDataMemberMapping == m_mapping.end() ) {
-        throwException( "Data member \"" + dataMemberName +
-                        "\" not found in the mapping element of variable \""+m_mapping.variableName()+"\".",
-                        "ObjectStreamerBase::buildBaseDataMembers" );
+      if ( iDataMemberMapping != m_mapping.end() ) {
+        MappingElement& dataMemberMapping = iDataMemberMapping->second;
+        processDataMember( dataMemberElement, relationalData, dataMemberType, dataMemberMapping, operationBuffer );
+      } else {
+        if( !isLoosePersistencyDataMember( dataMember ) ){
+	  throwException( "Data member \"" + dataMemberName +
+                          "\" not found in the mapping element of variable \""+m_mapping.variableName()+"\".",
+                          "ObjectStreamerBase::buildBaseDataMembers" );
+	}
       }
-      MappingElement& dataMemberMapping = iDataMemberMapping->second;
-      processDataMember( dataMemberElement, relationalData, dataMemberType, dataMemberMapping, operationBuffer );
     }
   }
   
@@ -95,13 +111,16 @@ bool ora::ObjectStreamerBase::buildDataMembers( DataElement& dataElement,
     
     // Retrieve the relevant mapping element
     MappingElement::iterator idataMemberMapping = m_mapping.find( dataMemberName );
-    if ( idataMemberMapping == m_mapping.end() ) {
-      throwException( "Data member \"" + dataMemberName +
-                      "\" not found in the mapping element of variable \""+m_mapping.variableName()+"\".",
-                      "ObjectStreamerBase::buildDataMembers" );
+    if ( idataMemberMapping != m_mapping.end() ) {
+      MappingElement& dataMemberMapping = idataMemberMapping->second;
+      processDataMember( dataMemberElement, relationalData, dataMemberType, dataMemberMapping, operationBuffer );
+    } else {
+      if(!isLoosePersistencyDataMember( dataMember ) ){
+        throwException( "Data member \"" + dataMemberName +
+                        "\" not found in the mapping element of variable \""+m_mapping.variableName()+"\".",
+                        "ObjectStreamerBase::buildDataMembers" );
+      }
     }
-    MappingElement& dataMemberMapping = idataMemberMapping->second;
-    processDataMember( dataMemberElement, relationalData, dataMemberType, dataMemberMapping, operationBuffer );
   }
   return true;
 }

@@ -42,6 +42,22 @@ ora::MappingRules::isMappedToBlob(const std::string& mappingProperty){
   return (mappingProperty == "Blob" || mappingProperty == "blob" || mappingProperty == "BLOB" );
 }
 
+std::string 
+ora::MappingRules::persistencyPropertyNameInDictionary(){
+  static std::string s_propertyName("persistency");
+  return s_propertyName;
+}
+
+bool
+ora::MappingRules::isLooseOnReading(const std::string& persistencyProperty){
+  return (persistencyProperty == "loose_on_reading" || persistencyProperty == "LOOSE_ON_READING" ); 
+}
+
+bool
+ora::MappingRules::isLooseOnWriting(const std::string& persistencyProperty){
+  return (persistencyProperty == "loose_on_writing" || persistencyProperty == "LOOSE_ON_WRITING" ); 
+}
+
 std::string
 ora::MappingRules::classId( const std::string& className,
                             const std::string& classVersion ){

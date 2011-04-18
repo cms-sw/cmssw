@@ -42,7 +42,6 @@
   <class name="testORA::SE"/>
   <class name="std::pair<size_t,testORA::SM>"/>
   <class name="std::vector<std::pair<size_t, testORA::SM> >"/>
-  <class name="ora::PVector<std::pair<size_t, testORA::SM> >"/>
   <class name="ora::QueryableVector<testORA::SM>"/>
   <class name="testORA::SF"/>
   <class name="testORA::IBase"/>

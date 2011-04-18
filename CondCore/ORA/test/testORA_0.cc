@@ -6,7 +6,6 @@
 #include "CondCore/ORA/test/Serializer.h"
 #include <cstdlib>
 #include <iostream>
-//#include <typeinfo>
 
 int main(){
   // writing...
@@ -25,10 +24,10 @@ int main(){
     ora::ScopedTransaction trans0( db.transaction() );
     trans0.start( false );
     bool exists = db.exists();
-    if(!exists){
-      std::cout << "#### creating db..."<<std::endl;
-      db.create();
+    if(exists){
+      db.drop();
     }
+    db.create();
     std::set< std::string > conts = db.containers();
     std::cout << "#### creating containers..."<<std::endl;
     if( conts.find( "Cont0" )!= conts.end() ) db.dropContainer( "Cont0" );
@@ -245,6 +244,7 @@ int main(){
       boost::shared_ptr<std::string> s = iter1.get<std::string>();
       std::cout << " **** Cont="<<contH1.name()<<" val="<<*s<<std::endl;
     }
+    std::cout <<"#### Database schema version="<<db.schemaVersion()<<std::endl;
     db.drop();
     trans5.commit();
     db.disconnect();

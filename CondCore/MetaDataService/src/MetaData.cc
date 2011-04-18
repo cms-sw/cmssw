@@ -1,6 +1,5 @@
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/ORA/interface/Database.h"
-#include "CondCore/ORA/interface/PoolToken.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "RelationalAccess/SchemaException.h"
 #include <memory>
@@ -36,11 +35,12 @@ cond::MetaData::~MetaData(){
 bool 
 cond::MetaData::addMapping(const std::string& name, 
                            const std::string& iovtoken, 
-                           cond::TimeType timetype ){
+                           cond::TimeType ){
   try{
-    std::pair<std::string,int> oid = parseToken( iovtoken );
-    ora::Container cont = m_userSession.storage().containerHandle( oid.first );
-    cont.setItemName( name, oid.second );
+    if(!m_userSession.storage().exists()) return false;
+    ora::OId oid;
+    oid.fromString( iovtoken );
+    m_userSession.storage().setObjectName( name, oid );
   }catch( const coral::DuplicateEntryInUniqueKeyException& er ){
     mdDuplicateEntryError("addMapping",name);
   }catch(std::exception& er){
@@ -53,14 +53,12 @@ const std::string
 cond::MetaData::getToken( const std::string& name ) const{
   bool ok=false;
   std::string iovtoken("");
-  if(!m_userSession.storage().exists())
-    return iovtoken;
+  if(!m_userSession.storage().exists()) return iovtoken;
   try{
     ora::OId oid;
     ok = m_userSession.storage().getItemId( name, oid );
     if(ok) {
-      ora::Container cont = m_userSession.storage().containerHandle( oid.containerId() );
-      iovtoken = writeToken( cont.name(), oid.containerId(), oid.itemId(), cont.className() );  
+      iovtoken = oid.toString();
     }
   }catch(const std::exception& er){
     mdError("MetaData::getToken", name,er.what() );
@@ -71,8 +69,7 @@ cond::MetaData::getToken( const std::string& name ) const{
 
 bool cond::MetaData::hasTag( const std::string& name ) const{
   bool result=false;
-  if(!m_userSession.storage().exists())
-    return result;
+  if(!m_userSession.storage().exists()) return result;
   try{
     ora::OId oid;
     result = m_userSession.storage().getItemId( name, oid );

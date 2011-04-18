@@ -16,6 +16,7 @@ namespace ora {
     public:
     explicit OraMainTable( coral::ISchema& dbSchema );
     virtual ~OraMainTable();
+    void setParameter( const std::string& paramName, const std::string& paramValue );
     bool getParameters( std::map<std::string,std::string>& destination );
     std::string schemaVersion();
     public:
@@ -190,7 +191,7 @@ namespace ora {
     virtual ~OraDatabaseSchema();
     
     bool exists();
-    void create();
+    void create( const std::string& userSchemaVersion );
     void drop();
 
     IMainTable& mainTable();

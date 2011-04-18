@@ -2,11 +2,14 @@
 #define INCLUDE_ORA_SELECTION_H
 
 //
+#include <string>
 #include <vector>
-// externals
-#include "CoralBase/AttributeList.h"
-#include "CoralBase/Exception.h"
-#include "CoralBase/Attribute.h"
+#include <typeinfo>
+#include <memory>
+
+namespace coral {
+  class AttributeList;
+}
 
 namespace ora    {
 
@@ -26,9 +29,15 @@ namespace ora    {
 
     virtual ~Selection();
 
+    Selection( const Selection& rhs );
+
+    Selection& operator=( const Selection& rhs );
+
     void addIndexItem( int startIndex, int endIndex=endOfRange );
     
     template <typename Prim> void addDataItem(const std::string& dataMemberName, SelectionItemType stype, Prim selectionData);
+
+    void addUntypedDataItem( const std::string& dataMemberName, SelectionItemType stype, const std::type_info& primitiveType, void* data );
 
     bool isEmpty() const;
     
@@ -43,16 +52,13 @@ namespace ora    {
     private:
 
     std::vector<std::pair<std::string,std::string> > m_items;
-    coral::AttributeList m_data;
+    std::auto_ptr<coral::AttributeList> m_data;
   };
   
 }
 
 template <typename Prim> void ora::Selection::addDataItem(const std::string& dataMemberName, ora::SelectionItemType stype, Prim selectionData){
-  std::string varName = uniqueVariableName( dataMemberName );
-  m_items.push_back(std::make_pair(varName,selectionTypes()[stype]));
-  m_data.extend<Prim>(varName);
-  m_data[varName].data<Prim>()=selectionData;
+  addUntypedDataItem( dataMemberName, stype, typeid( Prim ), &selectionData );
 }
 
 #endif  // 

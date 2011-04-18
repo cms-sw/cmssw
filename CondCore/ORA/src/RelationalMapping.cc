@@ -523,6 +523,15 @@ ora::ObjectMapping::~ObjectMapping(){
 }
 
 namespace ora {
+
+  bool isLoosePersistencyOnWriting( const Reflex::Member& dataMember ){
+    std::string persistencyType("");
+    Reflex::PropertyList memberProps = dataMember.Properties();
+    if( memberProps.HasProperty(ora::MappingRules::persistencyPropertyNameInDictionary())){
+       persistencyType = memberProps.PropertyAsString(ora::MappingRules::persistencyPropertyNameInDictionary());
+    }
+    return ora::MappingRules::isLooseOnWriting( persistencyType );
+  }
   
   void processBaseClasses( MappingElement& mappingElement,
                            const Reflex::Type& objType,
@@ -541,7 +550,7 @@ namespace ora {
       for ( size_t j=0; j< baseType.DataMemberSize(); j++){
         Reflex::Member baseMember = baseType.DataMemberAt(j);
         // Skip the transient and the static ones
-        if ( baseMember.IsTransient() || baseMember.IsStatic() ) continue;
+        if ( baseMember.IsTransient() || baseMember.IsStatic() || isLoosePersistencyOnWriting( baseMember ) ) continue;
         // Retrieve the data member type
         Reflex::Type type = ClassUtils::resolvedType( baseMember.TypeOf() );
         Reflex::Type declaringType = ClassUtils::resolvedType( baseMember.DeclaringType());
@@ -589,7 +598,7 @@ void ora::ObjectMapping::process( MappingElement& parentElement,
 
     Reflex::Member objectMember = m_type.DataMemberAt(i);
     // Skip the transient and the static ones
-    if ( objectMember.IsTransient() || objectMember.IsStatic() ) continue;
+    if ( objectMember.IsTransient() || objectMember.IsStatic() || isLoosePersistencyOnWriting( objectMember )) continue;
 
     // Retrieve the field type
     Reflex::Type type = ClassUtils::resolvedType( objectMember.TypeOf() );

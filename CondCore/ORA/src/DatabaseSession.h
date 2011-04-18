@@ -64,11 +64,13 @@ namespace ora {
     
     bool exists();
 
-    void create();
+    void create( const std::string& userSchemaVersion = std::string("") );
 
     void drop();
 
     void open();
+   
+    std::string schemaVersion( bool userSchema );
 
     Handle<DatabaseContainer> createContainer( const std::string& containerName, const Reflex::Type& type );
 

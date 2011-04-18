@@ -38,6 +38,11 @@ ora::STLContainerWriter::~STLContainerWriter(){
 bool ora::STLContainerWriter::build( DataElement& offset,
                                      IRelationalData&,
                                      RelationalBuffer& operationBuffer ){
+  if( !m_objectType ){
+    throwException( "Missing dictionary information for the type of the container \"" +
+                    m_objectType.Name(Reflex::SCOPED|Reflex::FINAL) + "\"",
+                    "STLContainerWriter::build" );
+  }
   m_localElement.clear();
   m_recordId.clear();
   // allocate for the index...

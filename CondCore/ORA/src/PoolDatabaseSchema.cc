@@ -19,6 +19,11 @@
 namespace ora {
 }
 
+std::string ora::PoolMainTable::version(){
+  static std::string s_version("POOL");
+  return s_version;
+}
+
 std::string ora::PoolMainTable::tableName(){
   static std::string s_name("POOL_RSS_DB");
   return s_name;
@@ -31,8 +36,13 @@ ora::PoolMainTable::PoolMainTable( coral::ISchema& dbSchema ):
 ora::PoolMainTable::~PoolMainTable(){
 }
 
-bool ora::PoolMainTable::getParameters( std::map<std::string,std::string>& ){
-  return false;
+void ora::PoolMainTable::setParameter( const std::string&, 
+                                       const std::string& ){
+}
+
+bool ora::PoolMainTable::getParameters( std::map<std::string,std::string>& dest){
+  dest.insert(std::make_pair( IMainTable::versionParameterName(), version() ) );
+  return true;
 }
 
 std::string ora::PoolMainTable::schemaVersion(){
@@ -1310,7 +1320,7 @@ bool ora::PoolDatabaseSchema::exists(){
   return true;
 }
 
-void ora::PoolDatabaseSchema::create(){
+void ora::PoolDatabaseSchema::create( const std::string& ){
   throwException( "POOL database cannot be created.","PoolDatabaseSchema::create");  
 }
 

@@ -6,7 +6,6 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 
-
 //
 // Package:    CondCore/DBCommon
 // Class:      DbSession
@@ -21,16 +20,12 @@ namespace coral {
   class ISessionProxy;
 }
 
-namespace pool {
-  class IDataSvc;
-}
-
 namespace cond{
 
   class DbTransaction;
   class DbConnection;
   class SessionImpl;
-  
+
   /*
   **/
   class DbSession{
@@ -61,11 +56,14 @@ namespace cond{
 
     DbTransaction& transaction();
 
+    bool createDatabase();
+
+    // TEMPORARY, for the IOV schema changeover.
+    bool isOldSchema();
+
     coral::ISchema& schema(const std::string& schemaName);
 
     coral::ISchema& nominalSchema();
-
-    //bool initializeMapping(const std::string& mappingVersion, const std::string& xmlStream);
 
     bool deleteMapping( const std::string& mappingVersion );
 
@@ -84,6 +82,8 @@ namespace cond{
 
     std::string importObject( cond::DbSession& fromDatabase, const std::string& objectId );
 
+    std::string classNameForItem( const std::string& objectId );
+
     void flush();
     
     ora::Database& storage();
@@ -95,10 +95,30 @@ namespace cond{
     boost::shared_ptr<SessionImpl> m_implementation;
   };
 
+  class PoolTokenParser : public ora::ITokenParser {
+    public:
+    explicit PoolTokenParser( ora::Database& db );
+    ~PoolTokenParser(){
+    }
+    ora::OId parse( const std::string& poolToken );
+    private:
+    ora::Database& m_db;
+  };
+
+  class PoolTokenWriter : public ora::ITokenWriter {
+    public:
+    explicit PoolTokenWriter( ora::Database& db );
+    ~PoolTokenWriter(){
+    }
+    std::string write( const ora::OId& oid );
+    private:
+    ora::Database& m_db;
+  };
+
   template <typename T> inline boost::shared_ptr<T> DbSession::getTypedObject( const std::string& objectId ){
-    std::pair<std::string,int> oidData = parseToken( objectId );
-    ora::Container cont = storage().containerHandle(  oidData.first );
-    return cont.fetch<T>( oidData.second );
+    ora::OId oid;
+    oid.fromString( objectId );
+    return storage().fetch<T>( oid );
   }
 
   template <typename T> inline std::string DbSession::storeObject( const T* object,
@@ -107,9 +127,7 @@ namespace cond{
     if( object ){
       ora::OId oid = storage().insert( containerName, *object );
       storage().flush();
-      ora::Container cont = storage().containerHandle( containerName );
-      int oid0 = cont.id(); // contID does not start from 0...
-      ret =  writeToken( containerName, oid0, oid.itemId(), cont.className() );
+      ret =  oid.toString();
     }
     return ret;
   }
@@ -118,10 +136,10 @@ namespace cond{
                                                              const std::string& objectId ){
     bool ret = false;
     if( object ){
-      std::pair<std::string,int> oidData = parseToken( objectId );
-      ora::Container cont = storage().containerHandle( oidData.first );
-      cont.update( oidData.second, *object );
-      cont.flush();
+      ora::OId oid;
+      oid.fromString( objectId );
+      storage().update( oid, *object );
+      storage().flush();
       ret =  true;
     }
     return ret;

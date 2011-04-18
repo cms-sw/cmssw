@@ -1,22 +1,116 @@
 #ifndef INCLUDE_ORA_QUERYABLEVECTOR_H
 #define INCLUDE_ORA_QUERYABLEVECTOR_H
 
-#include "QueryableVectorData.h"
 #include "Selection.h"
+#include "PVector.h"
+// externals
+#include <boost/shared_ptr.hpp>
 
 namespace ora {
-  
-  template <typename Tp> class Range {
+
+  class IVectorLoader {
     public:
 
-    typedef const Tp& const_reference;
-    typedef CIterator<Tp> const_iterator;
-    typedef CRIterator<Tp> const_reverse_iterator;
+    // destructor
+    virtual ~IVectorLoader(){
+    }
+
+    public:
+
+    // triggers the data loading
+    virtual bool load(void* address) const=0;
+
+    virtual bool loadSelection(const ora::Selection& selection, void* address) const=0;
+
+    virtual size_t getSelectionCount( const ora::Selection& selection ) const=0;
+
+    // invalidates the current loader. Called by the underlying service at his destruction time.
+    virtual void invalidate()=0;
+
+    // queries the validity of the current relation with the underlying storage system
+    virtual bool isValid() const=0;
+
+  };
+  
+  template <typename Tp> class RangeIterator {
+    public:
+    typedef typename std::vector<std::pair<size_t,Tp> >::const_iterator embedded_iterator;
+
+    public:
+    RangeIterator( embedded_iterator vectorIterator);
+      
+    RangeIterator( const RangeIterator& rhs );
+
+    RangeIterator& operator=( const RangeIterator& rhs );
+
+    virtual ~RangeIterator();
+
+    bool operator==( const RangeIterator& rhs ) const;
+
+    bool operator!=( const RangeIterator& rhs ) const;
+
+    RangeIterator& operator++();
+
+    RangeIterator operator++(int);
+
+    RangeIterator operator+(int i);
+
+    RangeIterator operator-(int i);
+
+    size_t index() const;
+
+    const Tp* operator->() const;
+    const Tp& operator*() const;
+
+    private:
+    embedded_iterator m_vecIterator;
+  };
+
+  template <typename Tp> class RangeReverseIterator {
+    public:
+    typedef typename std::vector<std::pair<size_t,Tp> >::const_reverse_iterator embedded_iterator;
+
+    public:
+    RangeReverseIterator( embedded_iterator vectorIterator);
+      
+    RangeReverseIterator( const RangeReverseIterator& rhs );
+
+    RangeReverseIterator& operator=( const RangeReverseIterator& rhs );
+
+    virtual ~RangeReverseIterator();
+
+    bool operator==( const RangeReverseIterator& rhs ) const;
+
+    bool operator!=( const RangeReverseIterator& rhs ) const;
+
+    RangeReverseIterator& operator++();
+
+    RangeReverseIterator operator++(int);
+
+    RangeReverseIterator operator+(int i);
+
+    RangeReverseIterator operator-(int i);
+
+    size_t index() const;
+
+    const Tp* operator->() const;
+    const Tp& operator*() const;
+       
+    private:
+    embedded_iterator m_vecIterator;
+  };
+
+  template <typename Tp> class Range {
+    public:
+    typedef const Tp& reference;
+    typedef RangeIterator<Tp> iterator;
+    typedef RangeReverseIterator<Tp> reverse_iterator;
+    typedef std::vector<std::pair<size_t,Tp> > store_base_type;
 
     public:
     Range();
 
-    explicit Range(boost::shared_ptr<QueryableVectorData<Tp> >& data);
+    explicit Range(boost::shared_ptr<store_base_type>& data);
 
     Range(const Range& rhs);
 
@@ -24,13 +118,13 @@ namespace ora {
 
     Range& operator=(const Range& rhs);
 
-    const_iterator begin() const;
+    iterator begin() const;
 
-    const_iterator end() const;
+    iterator end() const;
 
-    const_reverse_iterator rbegin() const;
+    reverse_iterator rbegin() const;
 
-    const_reverse_iterator rend() const;
+    reverse_iterator rend() const;
 
     size_t size() const;
 
@@ -40,13 +134,17 @@ namespace ora {
       
     private:
 
-    boost::shared_ptr<QueryableVectorData<Tp> > m_data;
+    boost::shared_ptr<store_base_type> m_data;
   };
   
-  template <typename Tp> class Query: public LoaderClient {
+  template <typename Tp> class Query {
     public:
     explicit Query(boost::shared_ptr<IVectorLoader>& loader);
+
+    Query(const Query<Tp>& rhs);
     
+    Query& operator=(const Query<Tp>& rhs);
+
     virtual ~Query(){
     }
     
@@ -58,26 +156,27 @@ namespace ora {
 
     private:
     Selection m_selection;
+    boost::shared_ptr<IVectorLoader> m_loader;
   };
   
-  template <typename Tp> class QueryableVector: public LoaderClient {
+  template <typename Tp> class QueryableVector {
  
     public:
 
-    // std::vector like typedefs
-    typedef Tp& reference;
-    typedef const Tp& const_reference;
-    typedef Iterator<Tp> iterator;
-    typedef CIterator<Tp> const_iterator;
-    typedef RIterator<Tp> reverse_iterator;
-    typedef CRIterator<Tp> const_reverse_iterator;
-    typedef typename std::vector<Tp>::value_type value_type;
-    // pool specific typedefs    
-    typedef Query<Tp> pquery;
-    typedef Range<Tp> prange;
-    typedef typename QueryableVectorData<Tp>::store_item_type store_item_type;
-    typedef typename QueryableVectorData<Tp>::store_base_type store_base_type;
-    typedef typename QueryableVectorData<Tp>::store_type store_type;
+    // typedefs forwarded to std::vector
+    typedef typename PVector<Tp>::size_type size_type;
+    typedef typename PVector<Tp>::const_reference const_reference;
+    typedef typename PVector<Tp>::reference reference;
+    typedef typename PVector<Tp>::const_iterator const_iterator;
+    typedef typename PVector<Tp>::iterator iterator;
+    typedef typename PVector<Tp>::const_reverse_iterator const_reverse_iterator;
+    typedef typename PVector<Tp>::reverse_iterator reverse_iterator;
+    typedef typename PVector<Tp>::value_type value_type;
+
+    // ora specific typedef
+    typedef PVector<Tp> store_base_type;
+    //typedef typename PVector<Tp>::store_type store_type;
+    typedef std::vector<std::pair<size_t,Tp> > range_store_base_type;
 
     public:
     // default constructor
@@ -169,7 +268,6 @@ namespace ora {
     bool operator!=(const QueryableVector& vec) const;
 
     public:
-
     // access to persistent size
     size_t persistentSize() const;
 
@@ -178,14 +276,13 @@ namespace ora {
     void load() const;
 
     private:
-
     void initialize() const;
 
     private:
-
-    boost::shared_ptr<QueryableVectorData<Tp> > m_data;
+    boost::shared_ptr<store_base_type> m_data;
     bool m_isLocked;
     mutable bool m_isLoaded;
+    mutable boost::shared_ptr<IVectorLoader> m_loader;
 
 };
 
