@@ -5,8 +5,8 @@
 /** \class Histograms
  *  Collection of histograms for DT RecHit and Segment test.
  *
- *  $Date: 2010/09/14 15:19:28 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/09/17 07:48:11 $
+ *  $Revision: 1.12 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -22,8 +22,7 @@
 #include <string>
 #include <iostream>
 #include <math.h>
-using namespace std;
-using namespace edm;
+
 //---------------------------------------------------------------------------------------
 /// A set of histograms of residuals and pulls for 1D RecHits
 class HRes1DHit{
