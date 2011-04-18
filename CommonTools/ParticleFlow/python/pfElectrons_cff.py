@@ -7,7 +7,8 @@ from CommonTools.ParticleFlow.ParticleSelectors.pfSelectedElectrons_cfi import *
 from CommonTools.ParticleFlow.Isolation.pfElectronIsolation_cff import *
 from CommonTools.ParticleFlow.Isolation.pfIsolatedElectrons_cfi import *
 
-
+pfElectrons = pfIsolatedElectrons.clone()
+pfElectrons.combinedIsolationCut = 999
 
 pfElectronSequence = cms.Sequence(
     pfAllElectrons +
@@ -18,7 +19,8 @@ pfElectronSequence = cms.Sequence(
     # computing isolation variables:
     pfElectronIsolationSequence +
     # selecting isolated electrons:
-    pfIsolatedElectrons 
+    pfIsolatedElectrons +
+    pfElectrons 
     )
 
 
