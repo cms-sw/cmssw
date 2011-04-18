@@ -26,7 +26,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -148,6 +148,10 @@ process.thMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
 process.thMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
 process.fourthMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
 process.fifthMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+
+## when using the SV producer fix from later CMSSW_4_2_1 tag
+process.secondaryVertexTagInfos.beamSpotTag = cms.InputTag('offlineBeamSpot')
+process.ghostTrackVertexTagInfos.beamSpotTag = cms.InputTag('offlineBeamSpot')
 
 process.ReadLocalMeasurement = cms.EDAnalyzer("StdHitNtuplizer",
    src = cms.InputTag("siPixelRecHits"),
