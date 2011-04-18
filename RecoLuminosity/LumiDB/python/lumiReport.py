@@ -17,6 +17,9 @@ def toScreenTotDelivered(lumidata,isverbose):
     input:  {run:[lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,calibratedlumierror,(bxidx,bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}
     '''
     result=[]
+    totls=0
+    totdelivered=0.0
+    totaltable=[]
     for run in sorted(lumidata):
         lsdata=lumidata[run]
         if lsdata is None:
@@ -25,7 +28,9 @@ def toScreenTotDelivered(lumidata,isverbose):
                 result.extend(['n/a'])
             continue
         nls=len(lsdata)
+        totls+=nls
         totlumi=sum([x[5] for x in lsdata])
+        totdelivered+=totlumi
         (totlumival,lumiunit)=CommonUtil.guessUnit(totlumi)
         beamenergyPerLS=[float(x[4]) for x in lsdata]
         avgbeamenergy=0.0
@@ -34,9 +39,9 @@ def toScreenTotDelivered(lumidata,isverbose):
         runstarttime=lsdata[0][2]
         if isverbose:
             selectedls=[(x[0],x[1]) for x in lsdata]
-            result.append([str(run),str(nls),'%.3f'%(totlumival)+' ('+lumiunit+')',runstarttime.strftime("%b %d %Y %H:%M:%S"),'%.1f'%(avgbeamenergy), str(selectedls)])
+            result.append([str(run),str(nls),'%.3f'%(totlumival)+' ('+lumiunit+')',runstarttime.strftime("%m/%d/%y %H:%M:%S"),'%.1f'%(avgbeamenergy), str(selectedls)])
         else:
-            result.append([str(run),str(nls),'%.3f'%(totlumival)+' ('+lumiunit+')',runstarttime.strftime("%b %d %Y %H:%M:%S"),'%.1f'%(avgbeamenergy)])
+            result.append([str(run),str(nls),'%.3f'%(totlumival)+' ('+lumiunit+')',runstarttime.strftime("%m/%d/%y %H:%M:%S"),'%.1f'%(avgbeamenergy)])
     print ' ==  = '
     if isverbose:
         labels = [('Run', 'Total LS', 'Delivered','Start Time','E(GeV)','Selected LS')]
@@ -48,6 +53,14 @@ def toScreenTotDelivered(lumidata,isverbose):
         print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,40) )
+    print ' ==  =  Total : '
+    (totalDeliveredVal,totalDeliveredUni)=CommonUtil.guessUnit(totdelivered)
+    totrowlabels = [('Delivered LS','Delivered('+totalDeliveredUni+')')]
+    totaltable.append([str(totls),'%.3f'%totalDeliveredVal])
+    print tablePrinter.indent (totrowlabels+totaltable, hasHeader = True, separateRows = False, prefix = '| ',
+                               postfix = ' |', justify = 'right', delim = ' | ',
+                               wrapfunc = lambda x: wrap_onspace (x, 20))
+    
 def toCSVTotDelivered(lumidata,filename,isverbose):
     '''
     input:  {run:[lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,calibratedlumierror,(bxidx,bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}
@@ -73,9 +86,9 @@ def toCSVTotDelivered(lumidata,filename,isverbose):
         runstarttime=lsdata[0][2]
         if isverbose:
             selectedls=[(x[0],x[1]) for x in lsdata]
-            result.append([run,nls,totlumival,runstarttime.strftime("%b %d %Y %H:%M:%S"),avgbeamenergy, str(selectedls)])
+            result.append([run,nls,totlumival,runstarttime.strftime("%m/%d/%y %H:%M:%S"),avgbeamenergy, str(selectedls)])
         else:
-            result.append([run,nls,totlumival,runstarttime.strftime("%b %d %Y %H:%M:%S"),avgbeamenergy])
+            result.append([run,nls,totlumival,runstarttime.strftime("%m/%d/%y %H:%M:%S"),avgbeamenergy])
         r.writeRow(fieldnames)
         r.writeRows(result)
 def toScreenLSDelivered(lumidata,isverbose):
@@ -96,7 +109,7 @@ def toScreenLSDelivered(lumidata,isverbose):
                 beamstatus=lsdata[3]
                 beamenergy=lsdata[4]
                 delivered=lsdata[5]
-                result.append([str(run),str(lumils),str(cmsls),'%.3f'%delivered,lsts.strftime('%b %d %Y %H:%M:%S'),beamstatus,'%.1f'%beamenergy])
+                result.append([str(run),str(lumils),str(cmsls),'%.3f'%delivered,lsts.strftime('%m/%d/%y %H:%M:%S'),beamstatus,'%.1f'%beamenergy])
     labels = [('Run','lumils','cmsls','Delivered(/ub)','UTCTime','Beam Status','E(GeV)')]
     print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
@@ -211,7 +224,7 @@ def toScreenLumiByLS(lumidata,isverbose):
             begev=lsdata[4]
             deliveredlumi=lsdata[5]
             recordedlumi=lsdata[6]
-            result.append([str(run),str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%b %d %Y %H:%M:%S'),bs,'%.1f'%begev,'%.2f'%deliveredlumi,'%.2f'%recordedlumi])
+            result.append([str(run),str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,'%.1f'%begev,'%.2f'%deliveredlumi,'%.2f'%recordedlumi])
             totalDelivered+=deliveredlumi
             totalRecorded+=recordedlumi
             totalSelectedLS+=1
@@ -252,7 +265,7 @@ def toCSVLumiByLS(lumidata,filename,isverbose):
             begev=lsdata[4]
             deliveredlumi=lsdata[5]
             recordedlumi=lsdata[6]
-            result.append([run,lumilsnum,cmslsnum,ts.strftime('%b %d %Y %H:%M:%S'),bs,begev,deliveredlumi,recordedlumi])
+            result.append([run,lumilsnum,cmslsnum,ts.strftime('%m/%d/%y %H:%M:%S'),bs,begev,deliveredlumi,recordedlumi])
     r.writeRow(fieldnames)
     r.writeRows(result)
 

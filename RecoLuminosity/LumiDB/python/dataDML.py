@@ -43,13 +43,21 @@ def runList(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l
             qCondition.extend('runmax','unsigned int')
             qCondition['runmax'].setData(runmax)
         if startT:
+            timeformat='%m/%d/%y %H:%M:%S'
             qConditionStr+=' and '+r+'.starttime>=:startT'
-            qCondition.extend('start','time stamp')
-            qCondition['startT'].setData(startT)
+            qCondition.extend('startT','time stamp')
+            t=lumiTime.lumiTime()
+            start=t.StrToDatetime(startT,customfm=timeformat)
+            startCoralTimestamp=coral.TimeStamp(start.year,start.month,start.day,start.hour,start.minute,start.second,0)
+            qCondition['startT'].setData(startCoralTimestamp)            
         if stopT:
-            qConditionStr+=' and '+r+'.stoptime<=:stopT'
-            qCondition.extend('stop','time stamp')
-            qCondition['stop'].setData(stopT)
+            timeformat='%m/%d/%y %H:%M:%S'
+            qConditionStr+=' and '+r+'.stoptime<=:stopT'            
+            qCondition.extend('stopT','time stamp')
+            t=lumiTime.lumiTime()
+            stop=t.StrToDatetime(stopT,customfm=timeformat)
+            stopCoralTimestamp=coral.TimeStamp(stop.year,stop.month,stop.day,stop.hour,stop.minute,stop.second,0)
+            qCondition['stopT'].setData(stopCoralTimestamp)
         if amodetag:
             qConditionStr+=' and '+r+'.amodetag=:amodetag'
             qCondition.extend('amodetag','string')
@@ -391,8 +399,8 @@ def lumiLSById(schema,dataid,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',with
         lls=nameDealer.lumisummaryv2TableName()
         qHandle.addToTableList(lls)
         qHandle.addToOutputList('RUNNUM','runnum')
-        qHandle.addToOutputList('CMSLSNUM','cmslsnum')
         qHandle.addToOutputList('LUMILSNUM','lumilsnum')
+        qHandle.addToOutputList('CMSLSNUM','cmslsnum')
         qHandle.addToOutputList('INSTLUMI','instlumi')
         qHandle.addToOutputList('INSTLUMIERROR','instlumierr')
         qHandle.addToOutputList('INSTLUMIQUALITY','instlumiqlty')
@@ -400,7 +408,6 @@ def lumiLSById(schema,dataid,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',with
         qHandle.addToOutputList('BEAMENERGY','beamenergy')
         qHandle.addToOutputList('NUMORBIT','numorbit')
         qHandle.addToOutputList('STARTORBIT','startorbit')
-        qHandle.addToOutputList('BEAMENERGY','beamenergy')#beamenergy per LS
         if withBXInfo:
             qHandle.addToOutputList('BXLUMIVALUE_'+bxAlgo,'bxvalue')
             qHandle.addToOutputList('BXLUMIERROR_'+bxAlgo,'bxerror')
@@ -412,15 +419,15 @@ def lumiLSById(schema,dataid,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',with
         qConditionStr='DATA_ID=:dataid'
         qCondition=coral.AttributeList()
         qCondition.extend('dataid','unsigned long long')
-        qCondition['dataid'].setData(dataid)
+        qCondition['dataid'].setData(int(dataid))
         if beamstatus:
             qConditionStr+=' and BEAMSTATUS=:beamstatus'
             qCondition.extend('beamstatus','string')
             qCondition['beamstatus'].setData(beamstatus)
         qResult=coral.AttributeList()
         qResult.extend('runnum','unsigned int')
-        qResult.extend('cmslsnum','unsigned int')
         qResult.extend('lumilsnum','unsigned int')
+        qResult.extend('cmslsnum','unsigned int')
         qResult.extend('instlumi','float')
         qResult.extend('instlumierr','float')
         qResult.extend('instlumiqlty','short')
@@ -440,8 +447,8 @@ def lumiLSById(schema,dataid,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',with
         cursor=qHandle.execute()
         while cursor.next():
             runnum=cursor.currentRow()['runnum'].data()
-            cmslsnum=cursor.currentRow()['cmslsnum'].data()
             lumilsnum=cursor.currentRow()['lumilsnum'].data()
+            cmslsnum=cursor.currentRow()['cmslsnum'].data()
             instlumi=cursor.currentRow()['instlumi'].data()
             instlumierr=cursor.currentRow()['instlumierr'].data()
             instlumiqlty=cursor.currentRow()['instlumiqlty'].data()
