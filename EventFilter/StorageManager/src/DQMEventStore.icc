@@ -1,4 +1,4 @@
-// $Id: DQMEventStore.icc,v 1.3 2011/03/30 15:16:48 mommsen Exp $
+// $Id: DQMEventStore.icc,v 1.4 2011/04/04 12:03:30 mommsen Exp $
 /// @file: DQMEventStore.icc
 
 #include "TROOT.h"
@@ -60,15 +60,9 @@ namespace stor {
   {
     boost::mutex::scoped_lock sl(storeMutex_);
 
+    stopProcessingCompletedTopLevelFolders();
     store_.clear();
-    processCompletedTopLevelFolders_ = false;
     tempEventArea_.clear();
-    if ( completedFolderThread_ )
-    {
-      TThread::Delete(completedFolderThread_);
-      delete completedFolderThread_;
-      completedFolderThread_ = 0;
-    }
   }
   
   template<class EventType, class ConnectionType, class StateMachineType>  
@@ -78,9 +72,10 @@ namespace stor {
   {
     boost::mutex::scoped_lock sl(storeMutex_);
 
-    processCompletedTopLevelFolders_ = false;
+    stopProcessingCompletedTopLevelFolders();
     while ( handleNextCompletedTopLevelFolder() ) {}
     store_.clear();
+    tempEventArea_.clear();
   }
   
   template<class EventType, class ConnectionType, class StateMachineType>  
@@ -91,11 +86,6 @@ namespace stor {
     clear();
     dqmParams_ = dqmParams;
     processCompletedTopLevelFolders_ = true;
-    if ( completedFolderThread_ )
-    {
-      TThread::Delete(completedFolderThread_);
-      delete completedFolderThread_;
-    }
     completedFolderThread_ =
       new TThread((void(*) (void *))
         &DQMEventStore<EventType,ConnectionType,StateMachineType>::
@@ -233,6 +223,20 @@ namespace stor {
     return true;
   }
 
+  template<class EventType, class ConnectionType, class StateMachineType>  
+  void
+  DQMEventStore<EventType,ConnectionType,StateMachineType>::
+  stopProcessingCompletedTopLevelFolders()
+  {
+    processCompletedTopLevelFolders_ = false;
+    if ( completedFolderThread_ )
+    {
+      completedFolderThread_->Join();
+      completedFolderThread_->CleanUp(); //deletes the thread object
+      completedFolderThread_ = 0;
+    }
+  }
+  
 } // namespace stor
 
 

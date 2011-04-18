@@ -1,4 +1,4 @@
-// $Id: DQMEventStore.h,v 1.10 2011/03/30 15:16:48 mommsen Exp $
+// $Id: DQMEventStore.h,v 1.11 2011/04/04 12:03:30 mommsen Exp $
 /// @file: DQMEventStore.h 
 
 #ifndef EventFilter_StorageManager_DQMEventStore_h
@@ -36,8 +36,8 @@ namespace stor {
    * into DQMEventMsgViews.
    *
    * $Author: mommsen $
-   * $Revision: 1.10 $
-   * $Date: 2011/03/30 15:16:48 $
+   * $Revision: 1.11 $
+   * $Date: 2011/04/04 12:03:30 $
    */
 
   template<class EventType, class ConnectionType, class StateMachineType>  
@@ -108,6 +108,7 @@ namespace stor {
     bool getNextReadyTopLevelFolder(DQMTopLevelFolderPtr&);
     static void processCompletedTopLevelFolders(void* arg);
     bool handleNextCompletedTopLevelFolder();
+    void stopProcessingCompletedTopLevelFolders();
 
     xdaq::ApplicationDescriptor* appDescriptor_;
     DQMProcessingParams dqmParams_;
