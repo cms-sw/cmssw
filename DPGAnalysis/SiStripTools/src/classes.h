@@ -5,11 +5,14 @@
 #include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
 #include "DPGAnalysis/SiStripTools/interface/APVCyclePhaseCollection.h"
 
-//#include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 
 namespace { 
   struct dictionary {
     TinyEventCollection dummycoll;
+    edm::Wrapper<TinyEventCollection> dummywrappedcoll;
+    edm::Wrapper<EventWithHistory>  dummywrappedEWH;
+    edm::Wrapper<APVCyclePhaseCollection> dummywrappedAPVC;
   };
 }
 

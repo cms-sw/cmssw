@@ -1,6 +1,11 @@
 <lcgdict>
   <class name="TinyEvent"/>
+  <!-- persistent="false" qualifier for non-wrappers is deprecated. Will be removed when no longer needed.-->
   <class name="std::vector<TinyEvent>" persistent="false"/>
   <class name="EventWithHistory" persistent="false"/>
   <class name="APVCyclePhaseCollection" persistent="false"/>
+
+  <class name="edm::Wrapper<std::vector<TinyEvent> >" persistent="false"/>
+  <class name="edm::Wrapper<EventWithHistory>" persistent="false"/>
+  <class name="edm::Wrapper<APVCyclePhaseCollection>" persistent="false"/>
 </lcgdict>
