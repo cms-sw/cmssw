@@ -173,7 +173,7 @@ void ElectronAnalyzer::book()
 //  h1_charge = bookH1("charge","ele charge",5,-2.,2.,"charge");
   h1_vertexPt_barrel = bookH1("vertexPt_barrel","ele transverse momentum in barrel",nbinpt,0.,ptmax,"p_{T vertex} (GeV/c)");
   h1_vertexPt_endcaps = bookH1("vertexPt_endcaps","ele transverse momentum in endcaps",nbinpt,0.,ptmax,"p_{T vertex} (GeV/c)");
-//  h1_vertexEta = bookH1("vertexEta","ele momentum #eta",nbineta,etamin,etamax,"#eta");
+  h1_vertexEta = bookH1("vertexEta","ele momentum #eta",nbineta,etamin,etamax,"#eta");
 //  h1_vertexPhi = bookH1("vertexPhi","ele  momentum #phi",nbinphi,phimin,phimax,"#phi (rad)");
   h2_vertexEtaVsPhi = bookH2("vertexEtaVsPhi","ele momentum #eta vs #phi",nbineta2D,etamin,etamax,nbinphi2D,phimin,phimax,"#eta","#phi (rad)");
 //  h1_vertexX = bookH1("vertexX","ele vertex x",nbinxyz,-0.1,0.1,"x (cm)");
@@ -237,7 +237,7 @@ void ElectronAnalyzer::book()
 //  h2_dPhiEleCl_propOutVsPt = bookH2("dPhiEleCl_propOutVsPt","ele #phi_{EleCl} - #phi_{tr}, prop from outermost vs pt",nbinpt2D,0.,ptmax,nbindphimatch,dphimatchmin,dphimatchmax,"p_{T} (GeV/c)","#phi_{elecl} - #phi_{tr} (rad)");
   h1_Hoe_barrel = bookH1("Hoe_barrel","ele hadronic energy / em energy, in barrel", nbinhoe, hoemin, hoemax,"H/E","Events","ELE_LOGY E1 P") ;
   h1_Hoe_endcaps = bookH1("Hoe_endcaps","ele hadronic energy / em energy, in endcaps", nbinhoe, hoemin, hoemax,"H/E","Events","ELE_LOGY E1 P") ;
-  py_HoeVsPhi = bookP1("HoeVsPhi","ele hadronic energy / em energy vs #phi",nbinphi2D,phimin,phimax,hoemin,hoemax,"#phi (rad)","<H/E>","ELE_LOGY E1 P") ;
+  py_HoeVsPhi = bookP1("HoeVsPhi","ele hadronic energy / em energy vs #phi",nbinphi2D,phimin,phimax,hoemin,hoemax,"#phi (rad)","<H/E>","E1 P") ;
 //  h2_HoeVsPt = bookH2("HoeVsPt","ele hadronic energy / em energy vs pt",nbinpt2D,0.,ptmax,nbinhoe,hoemin,hoemax,"p_{T} (GeV/c)","<H/E>","ELE_LOGY COLZ") ;
   h1_sclSigEtaEta_barrel = bookH1("sclSigEtaEta_barrel","ele supercluster sigma ieta ieta in barrel",100,0.,0.05,"sietaieta");
   h1_sclSigEtaEta_endcaps = bookH1("sclSigEtaEta_endcaps","ele supercluster sigma ieta ieta in endcaps",100,0.,0.05,"sietaieta");
@@ -299,13 +299,13 @@ void ElectronAnalyzer::book()
 //  h1_matchingObject_P = bookH1withSumw2("matchingObject_P",matchingObjectType+" p",nbinp,0.,pmax,"E_{SC} (GeV)");
   h1_matchingObject_Pt = bookH1withSumw2("matchingObject_Pt",matchingObjectType+" pt",nbinpteff,5.,ptmax,"pt_{SC} (GeV/c)");
   h1_matchingObject_Phi = bookH1withSumw2("matchingObject_Phi",matchingObjectType+" #phi",nbinphi,phimin,phimax,"#phi (rad)");
-  h1_matchingObject_Z = bookH1withSumw2("matchingObject_Z",matchingObjectType+" z",nbinxyz,-25,25,"z (cm)");
+//  h1_matchingObject_Z = bookH1withSumw2("matchingObject_Z",matchingObjectType+" z",nbinxyz,-25,25,"z (cm)");
 
   h1_matchedObject_Eta = bookH1withSumw2("matchedObject_Eta","Efficiency vs matching SC #eta",nbineta,etamin,etamax,"#eta_{SC}");
 //  h1_matchedObject_AbsEta = bookH1withSumw2("matchedObject_AbsEta","Efficiency vs matching SC |#eta|",nbineta/2,0.,2.5,"|#eta|_{SC}");
   h1_matchedObject_Pt = bookH1withSumw2("matchedObject_Pt","Efficiency vs matching SC E_{T}",nbinpteff,5.,ptmax,"pt_{SC} (GeV/c)");
   h1_matchedObject_Phi = bookH1withSumw2("matchedObject_Phi","Efficiency vs matching SC #phi",nbinphi,phimin,phimax,"#phi (rad)");
-  h1_matchedObject_Z = bookH1withSumw2("matchedObject_Z","Efficiency vs matching SC z",nbinxyz,-25,25,"z (cm)");
+//  h1_matchedObject_Z = bookH1withSumw2("matchedObject_Z","Efficiency vs matching SC z",nbinxyz,-25,25,"z (cm)");
 
 //  // classes
 //  h1_matchedEle_eta = bookH1( "matchedEle_eta", "ele electron #eta",  nbineta/2,0.0,etamax,"#eta");
@@ -373,7 +373,7 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
     // basic quantities
     if (gsfIter->isEB()) h1_vertexPt_barrel->Fill( gsfIter->pt() );
     if (gsfIter->isEE()) h1_vertexPt_endcaps->Fill( gsfIter->pt() );
-//    h1_vertexEta->Fill( gsfIter->eta() );
+    h1_vertexEta->Fill( gsfIter->eta() );
 //    h1_vertexPhi->Fill( gsfIter->phi() );
     h2_vertexEtaVsPhi->Fill( gsfIter->eta(), gsfIter->phi() );
 //    h1_vertexX->Fill( gsfIter->vertex().x() );
@@ -529,7 +529,7 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
 //    h1_matchingObject_P->Fill( moIter->energy() );
     h1_matchingObject_Pt->Fill( moIter->energy()/cosh(moIter->eta()) );
     h1_matchingObject_Phi->Fill( moIter->phi() );
-    h1_matchingObject_Z->Fill(  moIter->z() );
+//    h1_matchingObject_Z->Fill(  moIter->z() );
 
     bool okGsfFound = false ;
     double gsfOkRatio = 999999999. ;
@@ -589,7 +589,7 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
     //  h1_matchedObject_AbsEta->Fill( std::abs(moIter->eta()) );
       h1_matchedObject_Pt->Fill( moIter->energy()/cosh(moIter->eta()) );
       h1_matchedObject_Phi->Fill( moIter->phi() );
-      h1_matchedObject_Z->Fill( moIter->z() );
+    //  h1_matchedObject_Z->Fill( moIter->z() );
 
       //classes
     //  int eleClass = bestGsfElectron.classification() ;

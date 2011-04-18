@@ -52,7 +52,7 @@ void ElectronOfflineClient::finalize()
     bookH1andDivide("etaEff","matchedObject_Eta","matchingObject_Eta","#eta","Efficiency","efficiency vs #eta") ;
   //  bookH1andDivide("absEtaEff","matchedObject_AbsEta","matchingObject_AbsEta","|#eta|","Efficiency","efficiency vs |#eta|") ;
     bookH1andDivide("phiEff","matchedObject_Phi","matchingObject_Phi","#phi (rad)","Efficiency","efficiency vs #phi") ;
-    bookH1andDivide("zEff","matchedObject_Z","matchingObject_Z","z (cm)","Efficiency","efficiency vs z") ;
+//    bookH1andDivide("zEff","matchedObject_Z","matchingObject_Z","z (cm)","Efficiency","efficiency vs z") ;
    }
   else
    {
@@ -60,19 +60,19 @@ void ElectronOfflineClient::finalize()
     bookH1andDivide("etaEff","matchedObject_Eta","matchingObject_Eta","#eta","Efficiency",effHistoTitle_) ;
   //  bookH1andDivide("absEtaEff","matchedObject_AbsEta","matchingObject_AbsEta","|#eta|","Efficiency",effHistoTitle_) ;
     bookH1andDivide("phiEff","matchedObject_Phi","matchingObject_Phi","#phi (rad)","Efficiency",effHistoTitle_) ;
-    bookH1andDivide("zEff","matchedObject_Z","matchingObject_Z","z (cm)","Efficiency",effHistoTitle_) ;
+//    bookH1andDivide("zEff","matchedObject_Z","matchingObject_Z","z (cm)","Efficiency",effHistoTitle_) ;
    }
 
   remove("matchedObject_Pt") ;
   remove("matchedObject_Eta") ;
 //  remove("matchedObject_AbsEta") ;
   remove("matchedObject_Phi") ;
-  remove("matchedObject_Z") ;
+//  remove("matchedObject_Z") ;
 
   remove("matchingObject_Pt") ;
   remove("matchingObject_Eta") ;
 //  remove("matchingObject_AbsEta") ;
   remove("matchingObject_Phi") ;
-  remove("matchingObject_Z") ;
+//  remove("matchingObject_Z") ;
  }
 

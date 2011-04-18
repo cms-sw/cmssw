@@ -168,6 +168,7 @@ void ElectronTagProbeAnalyzer::book()
   // basic quantities
   h1_vertexPt_barrel = bookH1("vertexPt_barrel","ele transverse momentum in barrel",nbinpt,0.,ptmax,"p_{T vertex} (GeV/c)");
   h1_vertexPt_endcaps = bookH1("vertexPt_endcaps","ele transverse momentum in endcaps",nbinpt,0.,ptmax,"p_{T vertex} (GeV/c)");
+  h1_vertexEta = bookH1("vertexEta","ele momentum #eta",nbineta,etamin,etamax,"#eta");
   h2_vertexEtaVsPhi = bookH2("vertexEtaVsPhi","ele momentum #eta vs #phi",nbineta2D,etamin,etamax,nbinphi2D,phimin,phimax,"#eta","#phi (rad)");
   h2_vertexXvsY = bookH2("vertexXvsY","ele vertex x vs y",nbinxyz2D,-0.1,0.1,nbinxyz2D,-0.1,0.1,"x (cm)","y (cm)" );
   h1_vertexZ = bookH1("vertexZ","ele vertex z",nbinxyz,-25, 25,"z (cm)" );
@@ -236,12 +237,12 @@ void ElectronTagProbeAnalyzer::book()
   h1_matchingObject_Eta = bookH1withSumw2("matchingObject_Eta",matchingObjectType+" #eta",nbineta,etamin,etamax,"#eta_{SC}");
   h1_matchingObject_Pt = bookH1withSumw2("matchingObject_Pt",matchingObjectType+" pt",nbinpteff,5.,ptmax);
   h1_matchingObject_Phi = bookH1withSumw2("matchingObject_Phi",matchingObjectType+" phi",nbinphi,phimin,phimax);
-  h1_matchingObject_Z = bookH1withSumw2("matchingObject_Z",matchingObjectType+" z",nbinxyz,-25,25);
+  //h1_matchingObject_Z = bookH1withSumw2("matchingObject_Z",matchingObjectType+" z",nbinxyz,-25,25);
 
   h1_matchedObject_Eta = bookH1withSumw2("matchedObject_Eta","Efficiency vs matching SC #eta",nbineta,etamin,etamax);
   h1_matchedObject_Pt = bookH1withSumw2("matchedObject_Pt","Efficiency vs matching SC E_{T}",nbinpteff,5.,ptmax);
   h1_matchedObject_Phi = bookH1withSumw2("matchedObject_Phi","Efficiency vs matching SC phi",nbinphi,phimin,phimax);
-  h1_matchedObject_Z = bookH1withSumw2("matchedObject_Z","Efficiency vs matching SC z",nbinxyz,-25,25);
+  //h1_matchedObject_Z = bookH1withSumw2("matchedObject_Z","Efficiency vs matching SC z",nbinxyz,-25,25);
 
  }
 
@@ -328,7 +329,7 @@ void ElectronTagProbeAnalyzer::analyze( const edm::Event& iEvent, const edm::Eve
       h1_matchingObject_Eta->Fill( moIter->eta() );
       h1_matchingObject_Pt->Fill( moIter->energy()/cosh(moIter->eta()) );
       h1_matchingObject_Phi->Fill( moIter->phi() );
-      h1_matchingObject_Z->Fill(  moIter->z() );
+      //h1_matchingObject_Z->Fill(  moIter->z() );
 
       reco::GsfElectron bestGsfElectron;
       reco::SuperClusterRef sclProbeRef;
@@ -383,6 +384,7 @@ void ElectronTagProbeAnalyzer::analyze( const edm::Event& iEvent, const edm::Eve
         // basic quantities
         if (bestGsfElectron.isEB()) h1_vertexPt_barrel->Fill( bestGsfElectron.pt() );
         if (bestGsfElectron.isEE()) h1_vertexPt_endcaps->Fill( bestGsfElectron.pt() );
+        h1_vertexEta->Fill( bestGsfElectron.eta() );
         h2_vertexEtaVsPhi->Fill( bestGsfElectron.eta(), bestGsfElectron.phi() );
         h2_vertexXvsY->Fill( bestGsfElectron.vertex().x(), bestGsfElectron.vertex().y() );
         h1_vertexZ->Fill( bestGsfElectron.vertex().z() );
@@ -474,7 +476,7 @@ void ElectronTagProbeAnalyzer::fillMatchedHistos
 //  h1_matchedObject_AbsEta->Fill( std::abs(moIter->eta()) );
   h1_matchedObject_Pt->Fill( moIter->energy()/cosh(moIter->eta()) );
   h1_matchedObject_Phi->Fill( moIter->phi() );
-  h1_matchedObject_Z->Fill( moIter->z() );
+  //h1_matchedObject_Z->Fill( moIter->z() );
 
   //classes
 //  int eleClass = electron.classification() ;

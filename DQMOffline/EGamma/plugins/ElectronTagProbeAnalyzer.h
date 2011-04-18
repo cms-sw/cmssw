@@ -165,7 +165,7 @@ class ElectronTagProbeAnalyzer : public ElectronDqmAnalyzerBase
 //    MonitorElement * h1_vertexP ;
 //    MonitorElement * h1_Et ;
 //    MonitorElement * h1_vertexTIP ;
-//    MonitorElement * h1_vertexEta ;
+    MonitorElement * h1_vertexEta ;
 //    MonitorElement * h1_vertexPhi ;
 //    MonitorElement * h1_vertexX ;
 //    MonitorElement * h1_vertexY ;
@@ -295,7 +295,7 @@ class ElectronTagProbeAnalyzer : public ElectronDqmAnalyzerBase
 //    MonitorElement * h1_matchedObject_AbsEta ;
     MonitorElement * h1_matchedObject_Pt ;
     MonitorElement * h1_matchedObject_Phi ;
-    MonitorElement * h1_matchedObject_Z ;
+//    MonitorElement * h1_matchedObject_Z ;
 
 //    MonitorElement * h1_matchingObject_Num ;
     MonitorElement * h1_matchingObject_Eta ;
@@ -303,7 +303,7 @@ class ElectronTagProbeAnalyzer : public ElectronDqmAnalyzerBase
 //    MonitorElement * h1_matchingObject_P ;
     MonitorElement * h1_matchingObject_Pt ;
     MonitorElement * h1_matchingObject_Phi ;
-    MonitorElement * h1_matchingObject_Z ;
+//    MonitorElement * h1_matchingObject_Z ;
 
  } ;
 
