@@ -14232,12 +14232,12 @@ vector<int> OHltTree::VectorOpenHlt1PhotonPassed(
                   {
                      if ( (TMath::Abs(ohPhotEta[i]) < 1.479
                            && ohPhotHiso[i] < HisoBR + 0.0025*ohPhotEt[i] 
-                           && ohEleClusShap[i] < ClusShapEB
+                           && ohPhotClusShap[i] < ClusShapEB
                            && ohPhotR9[i] < R9)
                            ||
                            (1.479 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.65 
                            && ohPhotHiso[i] < HisoEC + 0.0025*ohPhotEt[i]
-                           && ohEleClusShap[i] < ClusShapEC))
+                           && ohPhotClusShap[i] < ClusShapEC))
                      {
                         float EcalEnergy = ohPhotEt[i]/(sin(2*atan(exp(0-ohPhotEta[i]))));
                         if ( (TMath::Abs(ohPhotEta[i]) < 1.479
@@ -14406,13 +14406,13 @@ vector<int> OHltTree::VectorOpenHlt1PhotonPassedR9ID(
                   {
                      if ((TMath::Abs(ohPhotEta[i]) < 1.479
                            && ohPhotHiso[i] < HisoBR + 0.005*ohPhotEt[i]
-                           && ohEleClusShap[i] < ClusShapEB
+                           && ohPhotClusShap[i] < ClusShapEB
                            && ohPhotR9[i] < R9) 
                            || 
                            (1.479 < TMath::Abs(ohPhotEta[i]) 
                            && TMath::Abs(ohPhotEta[i]) < 2.65 
                            && ohPhotHiso[i] < HisoEC + 0.005*ohPhotEt[i] 
-                           && ohEleClusShap[i] < ClusShapEC))
+                           && ohPhotClusShap[i] < ClusShapEC))
                      {
                         float EcalEnergy = ohPhotEt[i]/(sin(2*atan(exp(0-ohPhotEta[i]))));
                         if (ohPhotHforHoverE[i]/EcalEnergy < HoverE)
