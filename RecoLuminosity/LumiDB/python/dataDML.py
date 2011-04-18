@@ -270,13 +270,13 @@ def trgRunById(schema,dataid):
         cursor=qHandle.execute()
         while cursor.next():
             runnum=cursor.currentRow()['runnum'].data()
-            print 'runnum ',runnum
+            #print 'runnum ',runnum
             source=cursor.currentRow()['source'].data()
-            print 'source ',source
+            #print 'source ',source
             bitzeroname=cursor.currentRow()['bitzeroname'].data()
-            print 'bitzeroname ',bitzeroname
+            #print 'bitzeroname ',bitzeroname
             bitnameclob=cursor.currentRow()['bitnameclob'].data()
-            print 'bitnameclob ',bitnameclob
+            #print 'bitnameclob ',bitnameclob
             #print 'bitnameclob ',bitnameclob
             result.extend([runnum,source,bitzeroname,bitnameclob])
     except :
@@ -970,7 +970,7 @@ def addNormToBranch(schema,normname,amodetag,norm1,egev1,optionalnormdata,branch
     output:
        (revision_id,entry_id,data_id)
     '''
-    print 'branchinfo ',branchinfo
+    #print 'branchinfo ',branchinfo
     norm2=None
     if optionalnormdata.has_key('norm2'):
         norm2=optionalnormdata['norm2']
