@@ -64,9 +64,9 @@ if __name__ == '__main__':
     parser.add_argument('-fill',dest='fillnum',action='store',default=None,required=False,help='fill number (optional) ')
     parser.add_argument('-amodetag',dest='amodetag',action='store',choices=amodetagChoices,required=False,help='specific accelerator mode choices [PROTOPHYS,IONPHYS] (optional)')
     parser.add_argument('-beamenergy',dest='beamenergy',action='store',type=float,default=None,help='nominal beam energy in GeV')
-    parser.add_argument('-beamfluctuation',dest='beamfluctuation',type=float,action='store',default=0.02,required=False,help='fluctuation in fraction allowed to nominal beam energy, default 0.02, to be used together with -beamenergy  (optional)')
-    parser.add_argument('-begin',dest='begin',action='store',default=None,required=False,help='run selection begin time, mm/dd/yy hh:mm:ss.00 (optional)')
-    parser.add_argument('-end',dest='end',action='store',default=None,required=False,help='run selection stop time, mm/dd/yy hh:mm:ss.00 (optional)')    
+    parser.add_argument('-beamfluctuation',dest='beamfluctuation',type=float,action='store',default=0.2,required=False,help='fluctuation in fraction allowed to nominal beam energy, default 0.2, to be used together with -beamenergy  (optional)')
+    parser.add_argument('-begin',dest='begin',action='store',default=None,required=False,help='run selection begin time, mm/dd/yy hh:mm:ss (optional)')
+    parser.add_argument('-end',dest='end',action='store',default=None,required=False,help='run selection stop time, mm/dd/yy hh:mm:ss (optional)')    
     #
     #optional args to filter ls
     #
@@ -219,7 +219,6 @@ if __name__ == '__main__':
        if not options.outputfile:
            lumiReport.toScreenTotEffective(result,options.verbose)
        else:
-           lumiReport.toCSVTotEffective(result,options.outputfile,options.verbose)
-           
+           lumiReport.toCSVTotEffective(result,options.outputfile,options.verbose)           
     del session
     del svc 
