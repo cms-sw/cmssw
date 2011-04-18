@@ -13,7 +13,7 @@
 //
 // Original Author:  Thomas Reis,40 4-B24,+41227671567,
 //         Created:  Tue Mar 15 12:24:11 CET 2011
-// $Id: EmDQMFeeder.cc,v 1.6 2011/04/15 17:45:16 treis Exp $
+// $Id: EmDQMFeeder.cc,v 1.7 2011/04/15 18:06:37 treis Exp $
 //
 //
 
@@ -178,11 +178,11 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
       // if init returns TRUE, initialisation has succeeded!
 
       // Output general information on the menu
-      std::cout << "inited=" << hltConfig_.inited() << std::endl;
-      std::cout << "changed=" << hltConfig_.changed() << std::endl;
-      std::cout << "processName=" << hltConfig_.processName() << std::endl;
-      std::cout << "tableName=" << hltConfig_.tableName() << std::endl;
-      std::cout << "size=" << hltConfig_.size() << std::endl << std::endl;
+      edm::LogPrint("EmDQMFeeder") << "inited=" << hltConfig_.inited();
+      edm::LogPrint("EmDQMFeeder") << "changed=" << hltConfig_.changed();
+      edm::LogPrint("EmDQMFeeder") << "processName=" << hltConfig_.processName();
+      edm::LogPrint("EmDQMFeeder") << "tableName=" << hltConfig_.tableName();
+      edm::LogPrint("EmDQMFeeder") << "size=" << hltConfig_.size();
 
       // All electron and photon paths
       std::vector<std::vector<std::string> > egammaPaths = findEgammaPaths();
@@ -198,7 +198,7 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
          for (unsigned int i=0; i < egammaPaths.at(j).size() ; i++) {
             // get pathname of this trigger 
 	    const std::string pathName = egammaPaths.at(j).at(i);
-            std::cout << "Path: " << pathName << std::endl;
+            edm::LogPrint("EmDQMFeeder") << "Path: " << pathName;
 
             // get filters of the current path
             filterModules = getFilterModules(pathName);
@@ -215,11 +215,11 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 	    paramSet.addParameter("genEtAcc", iConfig.getParameter<double>("genEtAcc"));
 
 	    // plotting parameters (untracked because they don't affect the physics)
-            try {
-               paramSet.addUntrackedParameter("genEtMin", getPrimaryEtCut(pathName));
-            }
-            catch (...) {
-               std::cout << "Exception caught while generating the parameter set of the path '" << pathName << "' for use in EmDQM.  Will not include this path in the validation." << std::endl;
+            double genEtMin = getPrimaryEtCut(pathName);
+            if (genEtMin >= 0) {
+               paramSet.addUntrackedParameter("genEtMin", genEtMin);
+            } else {
+               edm::LogWarning("EmDQMFeeder") << "Pathname: '" << pathName << "':  Unable to determine a minimum Et. Will not include this path in the validation.";
                continue;
             }
 	    paramSet.addUntrackedParameter("PtMin", iConfig.getUntrackedParameter<double>("PtMin",0.));
@@ -258,62 +258,83 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
             }
 	    //--------------------
 
-            try {
-               std::vector<edm::ParameterSet> filterVPSet;
 
-	       // loop over filtermodules of current trigger path
-               for (std::vector<std::string>::iterator filter = filterModules.begin(); filter != filterModules.end(); ++filter) {
-	          std::string moduleType = hltConfig_.modulePSet(*filter).getParameter<std::string>("@module_type");
-	          std::string moduleLabel = hltConfig_.modulePSet(*filter).getParameter<std::string>("@module_label");
+            std::vector<edm::ParameterSet> filterVPSet;
+            edm::ParameterSet filterPSet;
 
-                  // first check if it is one filter we are not interrested in
-                  if (moduleType == "Pythia6GeneratorFilter" ||
-                      moduleType == "HLTTriggerTypeFilter" ||
-                      moduleType == "HLTLevel1Activity" ||
-                      moduleType == "HLTPrescaler" ||
-                      moduleType == "HLTBool")
-                     continue;
+            // loop over filtermodules of current trigger path
+            for (std::vector<std::string>::iterator filter = filterModules.begin(); filter != filterModules.end(); ++filter) {
+               std::string moduleType = hltConfig_.modulePSet(*filter).getParameter<std::string>("@module_type");
+               std::string moduleLabel = hltConfig_.modulePSet(*filter).getParameter<std::string>("@module_label");
 
-                  // now check for the known filter types
-                  if (moduleType == "HLTLevel1GTSeed") {
-                     filterVPSet.push_back(makePSetForL1SeedFilter(moduleLabel));
-                     continue;
-                  }
-                  if (moduleType == "HLTEgammaL1MatchFilterRegional") {
-                     filterVPSet.push_back(makePSetForL1SeedToSuperClusterMatchFilter(moduleLabel));
-                     continue;
-                  }
-                  if (moduleType == "HLTEgammaEtFilter") {
-                     filterVPSet.push_back(makePSetForEtFilter(moduleLabel));
-                     continue;
-                  }
-                  if (moduleType == "HLTElectronOneOEMinusOneOPFilterRegional") {
-                     filterVPSet.push_back(makePSetForOneOEMinusOneOPFilter(moduleLabel));
-                     continue;
-                  }
-                  if (moduleType == "HLTElectronPixelMatchFilter") {
-                     filterVPSet.push_back(makePSetForPixelMatchFilter(moduleLabel));
-                     continue;
-                  }
-                  if (moduleType == "HLTEgammaGenericFilter") {
-                     filterVPSet.push_back(makePSetForEgammaGenericFilter(pathName, moduleLabel));
-                     continue;
-                  }
-                  if (moduleType == "HLTEgammaGenericQuadraticFilter") {
-                     filterVPSet.push_back(makePSetForEgammaGenericQuadraticFilter(pathName, moduleLabel));
-                     continue;
-                  }
-                  if (moduleType == "HLTElectronGenericFilter") {
-                     filterVPSet.push_back(makePSetForElectronGenericFilter(pathName, moduleLabel));
-                     continue;
-                  }
-                  std::cout << "No parameter set for filter '" << moduleLabel << "' with filter type '" << moduleType << "' added. Module will not be analyzed." << std::endl;
-               } // end loop over filter modules of current trigger path
+               // first check if it is one filter we are not interrested in
+               if (moduleType == "Pythia6GeneratorFilter" ||
+                   moduleType == "HLTTriggerTypeFilter" ||
+                   moduleType == "HLTLevel1Activity" ||
+                   moduleType == "HLTPrescaler" ||
+                   moduleType == "HLTBool")
+                  continue;
 
+               // now check for the known filter types
+               if (moduleType == "HLTLevel1GTSeed") {
+                  filterPSet = makePSetForL1SeedFilter(moduleLabel);
+               }
+               else if (moduleType == "HLTEgammaL1MatchFilterRegional") {
+                  filterPSet = makePSetForL1SeedToSuperClusterMatchFilter(moduleLabel);
+               }
+               else if (moduleType == "HLTEgammaEtFilter") {
+                  filterPSet = makePSetForEtFilter(moduleLabel);
+               }
+               else if (moduleType == "HLTElectronOneOEMinusOneOPFilterRegional") {
+                  filterPSet = makePSetForOneOEMinusOneOPFilter(moduleLabel);
+               }
+               else if (moduleType == "HLTElectronPixelMatchFilter") {
+                  filterPSet = makePSetForPixelMatchFilter(moduleLabel);
+               }
+               else if (moduleType == "HLTEgammaGenericFilter") {
+                  filterPSet = makePSetForEgammaGenericFilter(pathName, moduleLabel);
+               }
+               else if (moduleType == "HLTEgammaGenericQuadraticFilter") {
+                  filterPSet = makePSetForEgammaGenericQuadraticFilter(pathName, moduleLabel);
+               }
+               else if (moduleType == "HLTElectronGenericFilter") {
+                  filterPSet = makePSetForElectronGenericFilter(pathName, moduleLabel);
+               }
+               else if (moduleType == "HLTGlobalSumsMET"
+                        || moduleType == "HLTMhtHtFilter"
+                        || moduleType == "HLTJetTag"
+                        || moduleType == "HLT1CaloJet"
+                        || moduleType == "HLT1CaloBJet"
+                        || moduleType == "HLT1Tau"
+                        || moduleType == "PFTauSelector"
+                        || moduleType == "EtMinCaloJetSelector"
+                        || moduleType == "LargestEtCaloJetSelector"
+                        //|| moduleType == "HLT2ElectronTau"
+                        //|| moduleType == "HLTEgammaTriggerFilterObjectWrapper"
+                        //|| moduleType == "HLTEgammaDoubleEtDeltaPhiFilter"
+                        //|| moduleType == "HLTEgammaDoubleLegCombFilter"
+                        //|| moduleType == "HLTPMMassFilter"
+                        //|| moduleType == "HLTHcalTowerFilter"
+                        //|| moduleType == "HLT1Photon"
+                       )
+                  continue;
+               else {
+                  edm::LogWarning("EmDQMFeeder")  << "No parameter set for filter '" << moduleLabel << "' with filter type '" << moduleType << "' added. Module will not be analyzed.";
+                  continue;
+               }
+
+               // something went wrong when the parameter set is empty. 
+               if (!filterPSet.empty())
+                  filterVPSet.push_back(filterPSet);
+               else
+                  break;
+            } // end loop over filter modules of current trigger path
+
+            // do not include this path when an empty filterPSet is detected.
+            if (!filterPSet.empty())
                paramSet.addParameter<std::vector<edm::ParameterSet> >("filters", filterVPSet);
-            }
-            catch (...) {
-               std::cout << "Exception caught while generating the parameter set of the path '" << pathName << "' for use in EmDQM.  Will not include this path in the validation." << std::endl;
+            else {
+               edm::LogPrint("EmDQMFeeder") << "Will not include this path in the validation due to errors while generating the parameter set.";
                continue;
             }
 
@@ -450,10 +471,6 @@ EmDQMFeeder::getPrimaryEtCut(const std::string& path)
    {
      minEt = boost::lexical_cast<double>(what[1]); 
    }
-   else {
-     edm::LogError("EmDQMFeeder") << "Unable to determine a minimum Et from the path name '" << path << "'.";
-     throw "noMinEt";
-   }
 
    return minEt;
 }
@@ -557,10 +574,6 @@ EmDQMFeeder::makePSetForEgammaGenericFilter(const std::string& pathName, const s
   //   H/E filter                             hltL1NonIsoHLTNonIsoSingleElectronEt17TighterEleIdIsolHEFilter
   //   HCAL isolation filter                  hltL1NonIsoHLTNonIsoSingleElectronEt17TighterEleIdIsolHcalIsolFilter
 
-  // the type of object to look for seems to be the
-  // same for all uses of HLTEgammaGenericFilter
-  retPSet.addParameter<int>("theHLTOutputTypes", trigger::TriggerCluster);  
-
   // infer the type of filter by the type of the producer which
   // generates the collection used to cut on this
   edm::InputTag isoTag = hltConfig_.modulePSet(moduleName).getParameter<edm::InputTag>("isoTag");
@@ -575,19 +588,24 @@ EmDQMFeeder::makePSetForEgammaGenericFilter(const std::string& pathName, const s
   // same type of module
 
   // first check that the non-iso tag is non-empty
-  if (nonIsoTag.label().empty()) {
-    edm::LogError("EmDQMFeeder") << "nonIsoTag of HLTEgammaGenericFilter '" << moduleName <<  "' is empty.";
-    throw "noNonIsoTag";
-  }
-  if (inputType != hltConfig_.moduleType(nonIsoTag.label())) {
-    edm::LogError("EmDQMFeeder") << "C++ Type of isoTag '" << inputType << "' and nonIsoTag '" << hltConfig_.moduleType(nonIsoTag.label()) << "' are not the same for HLTEgammaGenericFilter '" << moduleName <<  "'.";
-    throw "inputTypeNonMatching";
-  }
+  //if (nonIsoTag.label().empty()) {
+  //  edm::LogError("EmDQMFeeder") << "nonIsoTag of HLTEgammaGenericFilter '" << moduleName <<  "' is empty.";
+  //  return retPSet;
+  //}
+  //if (inputType != hltConfig_.moduleType(nonIsoTag.label())) {
+  //  edm::LogError("EmDQMFeeder") << "C++ Type of isoTag '" << inputType << "' and nonIsoTag '" << hltConfig_.moduleType(nonIsoTag.label()) << "' are not the same for HLTEgammaGenericFilter '" << moduleName <<  "'.";
+  //  return retPSet;
+  //}
   //--------------------
+
+  // the type of object to look for seems to be the
+  // same for all uses of HLTEgammaGenericFilter
+  retPSet.addParameter<int>("theHLTOutputTypes", trigger::TriggerCluster);  
 
   std::vector<edm::InputTag> isoCollections;
   isoCollections.push_back(isoTag);
-  isoCollections.push_back(nonIsoTag);
+  if (!nonIsoTag.label().empty())
+     isoCollections.push_back(nonIsoTag);
 
   //--------------------
   // the following cases seem to have identical PSets ?
@@ -653,10 +671,8 @@ EmDQMFeeder::makePSetForEgammaGenericFilter(const std::string& pathName, const s
     return retPSet;
   }
 
-   edm::LogError("EmDQMFeeder") << "Can't determine what the HLTEgammaGenericFilter '" << moduleName <<  "' should do: uses a collection produced by a module of C++ type '" << inputType << "'.";
-   throw "unknownC++Type";
-
-  return retPSet;
+  edm::LogError("EmDQMFeeder") << "Can't determine what the HLTEgammaGenericFilter '" << moduleName <<  "' should do: uses a collection produced by a module of C++ type '" << inputType << "'.";
+  return edm::ParameterSet();
 }
 
 //----------------------------------------------------------------------
@@ -673,10 +689,6 @@ EmDQMFeeder::makePSetForEgammaGenericQuadraticFilter(const std::string& pathName
   //   H/E filter                             hltL1NonIsoHLTNonIsoSingleElectronEt17TighterEleIdIsolHEFilter
   //   HCAL isolation filter                  hltL1NonIsoHLTNonIsoSingleElectronEt17TighterEleIdIsolHcalIsolFilter
 
-  // the type of object to look for seems to be the
-  // same for all uses of HLTEgammaGenericFilter
-  retPSet.addParameter<int>("theHLTOutputTypes", trigger::TriggerCluster);  
-
   // infer the type of filter by the type of the producer which
   // generates the collection used to cut on this
   edm::InputTag isoTag = hltConfig_.modulePSet(moduleName).getParameter<edm::InputTag>("isoTag");
@@ -691,19 +703,24 @@ EmDQMFeeder::makePSetForEgammaGenericQuadraticFilter(const std::string& pathName
   // same type of module
 
   // first check that the non-iso tag is non-empty
-  if (nonIsoTag.label().empty()) {
-    edm::LogError("EmDQMFeeder") << "nonIsoTag of HLTEgammaGenericFilter '" << moduleName <<  "' is empty.";
-    throw "noNonIsoTag";
-  }
-  if (inputType != hltConfig_.moduleType(nonIsoTag.label())) {
-    edm::LogError("EmDQMFeeder") << "C++ Type of isoTag '" << inputType << "' and nonIsoTag '" << hltConfig_.moduleType(nonIsoTag.label()) << "' are not the same for HLTEgammaGenericFilter '" << moduleName <<  "'.";
-    throw "inputTypeNonMatching";
-  }
+  //if (nonIsoTag.label().empty()) {
+  //  edm::LogError("EmDQMFeeder") << "nonIsoTag of HLTEgammaGenericFilter '" << moduleName <<  "' is empty.";
+  //  return retPSet;
+  //}
+  //if (inputType != hltConfig_.moduleType(nonIsoTag.label())) {
+  //  edm::LogError("EmDQMFeeder") << "C++ Type of isoTag '" << inputType << "' and nonIsoTag '" << hltConfig_.moduleType(nonIsoTag.label()) << "' are not the same for HLTEgammaGenericFilter '" << moduleName <<  "'.";
+  //  return retPSet;
+  //}
   //--------------------
+
+  // the type of object to look for seems to be the
+  // same for all uses of HLTEgammaGenericFilter
+  retPSet.addParameter<int>("theHLTOutputTypes", trigger::TriggerCluster);  
 
   std::vector<edm::InputTag> isoCollections;
   isoCollections.push_back(isoTag);
-  isoCollections.push_back(nonIsoTag);
+  if (!nonIsoTag.label().empty())
+     isoCollections.push_back(nonIsoTag);
 
   //--------------------
   // the following cases seem to have identical PSets ?
@@ -769,10 +786,20 @@ EmDQMFeeder::makePSetForEgammaGenericQuadraticFilter(const std::string& pathName
     return retPSet;
   }
 
-   edm::LogError("EmDQMFeeder") << "Can't determine what the HLTEgammaGenericQuadraticFilter '" << moduleName <<  "' should do: uses a collection produced by a module of C++ type '" << inputType << "'.";
-   throw "unknownC++Type";
+  //--------------------
+  // Photon track isolation
+  //--------------------
+  if (inputType == "EgammaHLTPhotonTrackIsolationProducersRegional") {
+    retPSet.addParameter<std::vector<double> >("PlotBounds", std::vector<double>(2, 0.0));
+    retPSet.addParameter<edm::InputTag>("HLTCollectionLabels", edm::InputTag(moduleName, "", processName_));
+    retPSet.addParameter<std::vector<edm::InputTag> >("IsoCollections", isoCollections);
+    //retPSet.addParameter<int>("theHLTOutputTypes", trigger::TriggerCluster);
 
-  return retPSet;
+    return retPSet;
+  }
+
+  edm::LogError("EmDQMFeeder") << "Can't determine what the HLTEgammaGenericQuadraticFilter '" << moduleName <<  "' should do: uses a collection produced by a module of C++ type '" << inputType << "'.";
+  return edm::ParameterSet();
 }
 
 
@@ -788,10 +815,6 @@ EmDQMFeeder::makePSetForElectronGenericFilter(const std::string& pathName, const
   // deta filter      hltL1NonIsoHLTNonIsoSingleElectronEt17TighterEleIdIsolDetaFilter
   // dphi filter      hltL1NonIsoHLTNonIsoSingleElectronEt17TighterEleIdIsolDphiFilter
   // track isolation  hltL1NonIsoHLTNonIsoSingleElectronEt17TighterEleIdIsolTrackIsolFilter
-  //
-  // the type of object to look for seems to be the
-  // same for all uses of HLTEgammaGenericFilter
-  retPSet.addParameter<int>("theHLTOutputTypes", trigger::TriggerElectron);
 
   // infer the type of filter by the type of the producer which
   // generates the collection used to cut on this
@@ -805,19 +828,24 @@ EmDQMFeeder::makePSetForElectronGenericFilter(const std::string& pathName, const
   //--------------------
   // sanity check: non-isolated path should be produced by the
   // same type of module
-  if (nonIsoTag.label().empty()) {
-    edm::LogError("EmDQMFeeder") << "nonIsoTag of HLTElectronGenericFilter '" << moduleName <<  "' is empty.";
-    throw "noNonIsoTag";
-  }
-  if (inputType != hltConfig_.moduleType(nonIsoTag.label())) {
-    edm::LogError("EmDQMFeeder") << "C++ Type of isoTag '" << inputType << "' and nonIsoTag '" << hltConfig_.moduleType(nonIsoTag.label()) << "' are not the same for HLTElectronGenericFilter '" << moduleName <<  "'.";
-    throw "inputTypeNonMatching";
-  }
+  //if (nonIsoTag.label().empty()) {
+  //  edm::LogError("EmDQMFeeder") << "nonIsoTag of HLTElectronGenericFilter '" << moduleName <<  "' is empty.";
+  //  return retPSet;
+  //}
+  //if (inputType != hltConfig_.moduleType(nonIsoTag.label())) {
+  //  edm::LogError("EmDQMFeeder") << "C++ Type of isoTag '" << inputType << "' and nonIsoTag '" << hltConfig_.moduleType(nonIsoTag.label()) << "' are not the same for HLTElectronGenericFilter '" << moduleName <<  "'.";
+  //  return retPSet;
+  //}
   //--------------------
+
+  // the type of object to look for seems to be the
+  // same for all uses of HLTEgammaGenericFilter
+  retPSet.addParameter<int>("theHLTOutputTypes", trigger::TriggerElectron);
 
   std::vector<edm::InputTag> isoCollections;
   isoCollections.push_back(isoTag);
-  isoCollections.push_back(nonIsoTag);
+  if (!nonIsoTag.label().empty())
+     isoCollections.push_back(nonIsoTag);
 
   //--------------------
   // the following cases seem to have identical PSets ?
@@ -850,10 +878,8 @@ EmDQMFeeder::makePSetForElectronGenericFilter(const std::string& pathName, const
     return retPSet;
   }
  
-   edm::LogError("EmDQMFeeder") << "Can't determine what the HLTElectronGenericFilter '" << moduleName <<  "' should do: uses a collection produced by a module of C++ type '" << inputType << "'.";
-   throw "unknownC++Type";
-
-  return retPSet;
+  edm::LogError("EmDQMFeeder") << "Can't determine what the HLTElectronGenericFilter '" << moduleName <<  "' should do: uses a collection produced by a module of C++ type '" << inputType << "'.";
+  return edm::ParameterSet();
 }
 
 //----------------------------------------------------------------------
