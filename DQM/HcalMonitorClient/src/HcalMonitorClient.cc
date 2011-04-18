@@ -1,8 +1,8 @@
 /*
  * \file HcalMonitorClient.cc
  * 
- * $Date: 2010/12/09 15:58:26 $
- * $Revision: 1.100 $
+ * $Date: 2011/04/12 18:25:42 $
+ * $Revision: 1.101 $
  * \author J. Temple
  * 
  */
@@ -410,6 +410,12 @@ void HcalMonitorClient::endRun(void)
 
 void HcalMonitorClient::endRun(const edm::Run& r, const edm::EventSetup& c) 
 {
+  // Set values here, because the "analyze" method occasionally times out, 
+  // which keeps the endRun() call from being made.  This causes endJob to
+  // crash, since end_run_ is still set to false at that point.
+  begin_run_ = false;
+  end_run_   = true;
+
   this->analyze();
   this->endRun();
 }
