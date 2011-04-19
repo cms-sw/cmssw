@@ -223,7 +223,7 @@ void DCULVRVoltagesDat::writeArrayDB(const std::map< EcalLogicID, DCULVRVoltages
 	float u=dataitem->getVFE5_A();
 	float t=dataitem->getVCC();
 	float r=dataitem->getVFE4_5_D();
-	float p=dataitem->getVFE1_2_3_D();
+	float pi=dataitem->getVFE1_2_3_D();
 	float l=dataitem->getBuffer();
 	float m=dataitem->getFenix();
 	float n=dataitem->getV43_A();
@@ -239,7 +239,7 @@ void DCULVRVoltagesDat::writeArrayDB(const std::map< EcalLogicID, DCULVRVoltages
 	uu[count]=u;
 	tt[count]=t;
 	rr[count]=r;
-	pp[count]=p;
+	pp[count]=pi;
 	ll[count]=l;
 	mm[count]=m;
 	nn[count]=n;

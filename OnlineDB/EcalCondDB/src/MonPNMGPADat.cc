@@ -192,7 +192,7 @@ void MonPNMGPADat::writeArrayDB(const std::map< EcalLogicID, MonPNMGPADat >* dat
 	float u=dataitem->getPedMeanG1();
 	float t=dataitem->getPedRMSG1();
 	float r=dataitem->getPedMeanG16();
-	float p=dataitem->getPedRMSG16();
+	float pi=dataitem->getPedRMSG16();
 	int statu=dataitem->getTaskStatus();
 
 
@@ -204,7 +204,7 @@ void MonPNMGPADat::writeArrayDB(const std::map< EcalLogicID, MonPNMGPADat >* dat
 	uu[count]=u;
 	tt[count]=t;
 	rr[count]=r;
-	pp[count]=p;
+	pp[count]=pi;
 	st[count]=statu;
 
 
