@@ -43,6 +43,7 @@ cond::DuplicateIOVUtilities::DuplicateIOVUtilities():Utilities("cmscond_duplicat
   addOption<std::string>("destTag","d","destination tag (if different than source tag)");
   addOption<cond::Time_t>("fromTime","f","a valid time of payload to append (required)");
   addOption<cond::Time_t>("sinceTime","s","since time of new iov(required)");
+  addOption<std::string>("usertext","x","user text, to be included in usertext column (optional, must be enclosed in double quotes)");
 }
 
 cond::DuplicateIOVUtilities::~DuplicateIOVUtilities(){
@@ -58,6 +59,9 @@ int cond::DuplicateIOVUtilities::execute(){
   bool doLog = hasOptionValue("logDB");
   bool debug = hasDebug();
   std::string destConnect = getOptionValue<std::string>("connect" );
+
+  std::string usertext("no user comments");
+  if( hasOptionValue("usertext")) usertext = getOptionValue<std::string>("usertext");
   
   cond::DbSession destDb = openDbSession( "connect" );
 
@@ -71,38 +75,30 @@ int cond::DuplicateIOVUtilities::execute(){
     std::cout << "dest   tag  " << destTag << std::endl;
   }  
     
+  cond::IOVService sourceIOVsvc(destDb);
+  cond::IOVService destIOVsvc(destDb);
   // find tag
-  {
-    destDb.transaction().start(true);
-    cond::MetaData  metadata(destDb);
-    {
-      iovtoken = metadata.getToken(sourceTag);
-      if(iovtoken.empty()) 
-	throw std::runtime_error(std::string("tag ")+sourceTag+std::string(" not found") );
-      cond::IOVService iovmanager(destDb);
-      iovtype=iovmanager.timeType(iovtoken);
-      timetypestr = cond::timeTypeSpecs[iovtype].name;
-    }
-    if( metadata.hasTag(destTag) ){
-      destiovtoken=metadata.getToken(destTag);
-      cond::IOVService iovmanager( destDb );
-      if (iovtype!=iovmanager.timeType(destiovtoken)) {
-        throw std::runtime_error("iov type in source and dest differs");
-      }
-    }
-    destDb.transaction().commit();
-    if(debug){
-      std::cout<<"source iov token "<< iovtoken<<std::endl;
-      std::cout<<"dest   iov token "<< destiovtoken<<std::endl;
-      std::cout<<"iov type "<<  timetypestr<<std::endl;
+  cond::DbScopedTransaction transaction(destDb);
+  transaction.start(false);
+  cond::MetaData  metadata(destDb);
+  iovtoken = metadata.getToken(sourceTag);
+  if(iovtoken.empty()) 
+    throw std::runtime_error(std::string("tag ")+sourceTag+std::string(" not found") );
+  iovtype=sourceIOVsvc.timeType(iovtoken);
+  timetypestr = cond::timeTypeSpecs[iovtype].name;
+  if( metadata.hasTag(destTag) ){
+    destiovtoken=metadata.getToken(destTag);
+    if (iovtype!=destIOVsvc.timeType(destiovtoken)) {
+      throw std::runtime_error("iov type in source and dest differs");
     }
   }
-
-  destDb.transaction().start(true);
-  cond::IOVService iovmanager( destDb );
-  std::string payload = iovmanager.payloadToken(iovtoken,from);
+  if(debug){
+    std::cout<<"source iov token "<< iovtoken<<std::endl;
+    std::cout<<"dest   iov token "<< destiovtoken<<std::endl;
+    std::cout<<"iov type "<<  timetypestr<<std::endl;
+  }
+  std::string payload = sourceIOVsvc.payloadToken(iovtoken,from);
   std::string payloadClass = destDb.classNameForItem( payload );
-  destDb.transaction().commit();
   if (payload.empty()) {
     std::cerr <<"[Error] no payload found for time " << from << std::endl;
     return 1;
@@ -144,41 +140,31 @@ int cond::DuplicateIOVUtilities::execute(){
   a.usertext="duplicateIOV V1.0;";
   {
     std::ostringstream ss;
-    ss << "from="<< from <<", since="<< since <<";";
+    ss << "From="<< from <<"; Since="<< since <<"; " << usertext;
     a.usertext +=ss.str();
   }
 
   // create if does not exist;
   if (newIOV) {
     cond::IOVEditor editor(destDb);
-    cond::DbScopedTransaction transaction(destDb);
-    transaction.start(false);
     editor.create(iovtype);
     destiovtoken=editor.token();
     editor.append(since,payload);
-    transaction.commit();
-  } else {
-    //append it
-    cond::IOVEditor editor(destDb,destiovtoken);
-    cond::DbScopedTransaction transaction(destDb);
-    transaction.start(false);
-    editor.append(since,payload);
-    editor.stamp(cond::userInfo(),false);
-    transaction.commit();
-  }
-
-  if (newIOV) {
-    cond::DbScopedTransaction transaction(destDb);
     cond::MetaData destMetadata( destDb );
-    transaction.start(false);
     destMetadata.addMapping(destTag,destiovtoken,iovtype);
     if(debug){
       std::cout<<"dest iov token "<<destiovtoken<<std::endl;
       std::cout<<"dest iov type "<<iovtype<<std::endl;
     }
-    transaction.commit();
+  } else {
+    //append it
+    cond::IOVEditor editor(destDb,destiovtoken);
+    editor.append(since,payload);
+    editor.stamp(cond::userInfo(),false);
   }
   
+  transaction.commit();
+
   ::sleep(1);
   
   if (doLog){
