@@ -6,7 +6,7 @@ patElectrons = cms.EDProducer("PATElectronProducer",
 
     # use particle flow instead of std reco    
     useParticleFlow  =  cms.bool( False ),
-    pfElectronSource = cms.InputTag("pfElectrons"),
+    pfElectronSource = cms.InputTag("pfIsolatedElectrons"),
                                     
     # user data to add
     userData = cms.PSet(
