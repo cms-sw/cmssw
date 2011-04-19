@@ -42,7 +42,7 @@ class forkit(Thread):
             print "Config file "+python_config_filename+ " created"
             sys.exit(0)
         else:
-            commandString = options.prefix+" cmsRun"
+            commandString = options.prefix+" cmsRun "+options.suffix
             print "Starting "+commandString+' '+python_config_filename
             commands = commandString.lstrip().split()
             os.execvpe(commands[0],commands+[python_config_filename],os.environ)
