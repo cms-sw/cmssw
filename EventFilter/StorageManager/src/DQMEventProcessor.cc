@@ -1,4 +1,4 @@
-// $Id: DQMEventProcessor.cc,v 1.14 2011/03/30 15:16:48 mommsen Exp $
+// $Id: DQMEventProcessor.cc,v 1.15 2011/04/04 12:03:30 mommsen Exp $
 /// @file: DQMEventProcessor.cc
 
 #include "toolbox/task/WorkLoopFactory.h"
@@ -35,6 +35,8 @@ namespace stor {
   app_(app),
   sharedResources_(sr),
   actionIsActive_(true),
+  latestLumiSection_(0),
+  discardDQMUpdatesForOlderLS_(0),
   dqmEventStore_
   (
     app->getApplicationDescriptor(),
@@ -133,12 +135,27 @@ namespace stor {
       utils::Duration_t elapsedTime = utils::getCurrentTime() - startTime;
       sharedResources_->statisticsReporter_->getThroughputMonitorCollection().
         addDQMEventProcessorIdleSample(elapsedTime);
-      sharedResources_->statisticsReporter_->getThroughputMonitorCollection().
-        addPoppedDQMEventSample(dqmEvent.first.memoryUsed());
-      sharedResources_->statisticsReporter_->getDQMEventMonitorCollection().
-        getDroppedDQMEventCountsMQ().addSample(dqmEvent.second);
-      
-      dqmEventStore_.addDQMEvent(dqmEvent.first);
+
+      if (
+        (discardDQMUpdatesForOlderLS_ > 0) &&
+        (dqmEvent.first.lumiSection() + discardDQMUpdatesForOlderLS_ < latestLumiSection_)
+      )
+        // subtracting unsigned quantities might not yield the right result!
+      {
+        // discard very old LS
+        sharedResources_->statisticsReporter_->getDQMEventMonitorCollection().
+          getDroppedDQMEventCountsMQ().addSample(dqmEvent.second + 1);        
+      }
+      else
+      {
+        sharedResources_->statisticsReporter_->getThroughputMonitorCollection().
+          addPoppedDQMEventSample(dqmEvent.first.memoryUsed());
+        sharedResources_->statisticsReporter_->getDQMEventMonitorCollection().
+          getDroppedDQMEventCountsMQ().addSample(dqmEvent.second);
+        
+        latestLumiSection_ = std::max(latestLumiSection_, dqmEvent.first.lumiSection());
+        dqmEventStore_.addDQMEvent(dqmEvent.first);
+      }
     }
     else
     {
@@ -157,6 +174,7 @@ namespace stor {
       {
         timeout_ = newTimeoutValue;
         dqmEventStore_.setParameters(dqmParams);
+        discardDQMUpdatesForOlderLS_ = dqmParams.discardDQMUpdatesForOlderLS_;
       }
       if (requests.endOfRun)
       {

@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.27 2011/03/07 15:31:31 mommsen Exp $
+// $Id: Configuration.h,v 1.28 2011/03/30 15:16:48 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -63,6 +63,7 @@ namespace stor
     utils::Duration_t readyTimeDQM_;
     bool useCompressionDQM_;
     int compressionLevelDQM_;
+    unsigned int discardDQMUpdatesForOlderLS_;
   };
 
   /**
@@ -159,8 +160,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.27 $
-   * $Date: 2011/03/07 15:31:31 $
+   * $Revision: 1.28 $
+   * $Date: 2011/03/30 15:16:48 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -361,6 +362,7 @@ namespace stor
     xdata::Integer readyTimeDQM_;  // seconds
     xdata::Boolean useCompressionDQM_;
     xdata::Integer compressionLevelDQM_;
+    xdata::UnsignedInteger32 discardDQMUpdatesForOlderLS_;
 
     xdata::UnsignedInteger32 commandQueueSize_;
     xdata::UnsignedInteger32 dqmEventQueueSize_;

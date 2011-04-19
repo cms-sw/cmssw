@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.42 2011/03/07 15:31:32 mommsen Exp $
+// $Id: Configuration.cc,v 1.43 2011/03/30 15:16:48 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -207,6 +207,7 @@ namespace stor
     dqmParamCopy_.readyTimeDQM_ = boost::posix_time::seconds(120);
     dqmParamCopy_.useCompressionDQM_ = true;
     dqmParamCopy_.compressionLevelDQM_ = 1;
+    dqmParamCopy_.discardDQMUpdatesForOlderLS_ = 16;
   }
 
   void Configuration::setEventServingDefaults()
@@ -318,12 +319,14 @@ namespace stor
     readyTimeDQM_ = dqmParamCopy_.readyTimeDQM_.total_seconds();
     useCompressionDQM_ = dqmParamCopy_.useCompressionDQM_;
     compressionLevelDQM_ = dqmParamCopy_.compressionLevelDQM_;
+    discardDQMUpdatesForOlderLS_ = dqmParamCopy_.discardDQMUpdatesForOlderLS_;
 
     // bind the local xdata variables to the infospace
     infoSpace->fireItemAvailable("collateDQM", &collateDQM_);
     infoSpace->fireItemAvailable("readyTimeDQM", &readyTimeDQM_);
     infoSpace->fireItemAvailable("useCompressionDQM", &useCompressionDQM_);
     infoSpace->fireItemAvailable("compressionLevelDQM", &compressionLevelDQM_);
+    infoSpace->fireItemAvailable("discardDQMUpdatesForOlderLS", &discardDQMUpdatesForOlderLS_);
   }
 
   void Configuration::
@@ -468,6 +471,7 @@ namespace stor
       boost::posix_time::seconds( static_cast<int>(readyTimeDQM_) );
     dqmParamCopy_.useCompressionDQM_ = useCompressionDQM_;
     dqmParamCopy_.compressionLevelDQM_ = compressionLevelDQM_;
+    dqmParamCopy_.discardDQMUpdatesForOlderLS_ = discardDQMUpdatesForOlderLS_;
   }
 
   void Configuration::updateLocalEventServingData()
