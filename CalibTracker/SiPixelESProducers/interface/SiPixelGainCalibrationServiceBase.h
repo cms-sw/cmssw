@@ -78,7 +78,7 @@ class SiPixelGainCalibrationServicePayloadGetter : public SiPixelGainCalibration
   float   getPedestalByColumn(const uint32_t& detID,const int& col, const int& row, bool& isDeadColumn, bool& isNoisyColumn) ;
   float   getGainByColumn(const uint32_t& detID,const int& col, const int& row, bool& isDeadColumn, bool& isNoisyColumn) ;
 
-  void    throwExepctionForBadRead(std::string payload, const uint32_t& detID, const int& col, const int& row, double value) const;
+  void    throwExepctionForBadRead(std::string payload, const uint32_t& detID, const int& col, const int& row, double value = -1) const;
 
  private:
 
@@ -286,7 +286,7 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
 }
 
 template<class thePayloadObject, class theDBRecordType>
-void SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::throwExepctionForBadRead(std::string payload, const uint32_t& detID, const int& col, const int& row, const double value = -1) const
+void SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::throwExepctionForBadRead(std::string payload, const uint32_t& detID, const int& col, const int& row, const double value) const
 {
    std::cerr << "[SiPixelGainCalibrationServicePayloadGetter::SiPixelGainCalibrationServicePayloadGetter]"
       << "[SiPixelGainCalibrationServicePayloadGetter] ERROR - Slow down, speed racer! You have tried to read the ped/gain on a pixel that is flagged as dead/noisy. For payload: " << payload << "  DETID: " 
