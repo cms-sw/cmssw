@@ -102,7 +102,8 @@ void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   
   //Digis
   int zside, plane, ix, iy, is;
-  double adc[3], para[10];
+  double adc[3];
+  //  double para[10];
   //double tx[3] = {-5., 20., 45.};
   Handle<ESDigiCollection> digis;
   if ( e.getByLabel(digilabel_, digis) ) {
