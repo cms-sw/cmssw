@@ -20,5 +20,5 @@ pfIsolatedMuons  = cms.EDFilter(
     # not used when isCombined=False
     # default value for combined relative with DR={0.4,0.4,0.4}
     # and weight={1.,1.,1.}; optimised for Z->mu,mu
-    combinedIsolationCut = cms.double(0.15) 
+    combinedIsolationCut = cms.double(0.20) 
     )
