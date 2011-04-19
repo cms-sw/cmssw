@@ -531,10 +531,12 @@ bool isQuadJetX_IsoPFTauX_PFMHTXTrigger(TString triggerName, vector<double> &thr
 }
 
 
-bool isR0XU_MRXUTrigger(TString triggerName, vector<double> &thresholds)
+
+
+bool isR0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
 {
 
-   TString pattern = "(OpenHLT_R0([0-9]+)U_MR([0-9]+)U{1})$";
+   TString pattern = "(OpenHLT_R0([0-9]+)_MR([0-9]+)_Jet([0-9]+){1})$";
    TPRegexp matchThreshold(pattern);
 
    if (matchThreshold.MatchB(triggerName))
@@ -542,8 +544,10 @@ bool isR0XU_MRXUTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdR = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       double thresholdMR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdJet = (((TObjString *)subStrL->At(4))->GetString()).Atof();
       thresholds.push_back(thresholdR/100.);
       thresholds.push_back(thresholdMR);
+      thresholds.push_back(thresholdJet);
       delete subStrL;
       return true;
    }
@@ -551,10 +555,10 @@ bool isR0XU_MRXUTrigger(TString triggerName, vector<double> &thresholds)
       return false;
 }
 
-bool isR0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
+bool isR0X_MRX_BTagTrigger(TString triggerName, vector<double> &thresholds)
 {
 
-   TString pattern = "(OpenHLT_R0([0-9]+)_MR([0-9]+){1})$";
+   TString pattern = "(OpenHLT_R0([0-9]+)_MR([0-9]+)_Jet([0-9]+)_BTagIP{1})$";
    TPRegexp matchThreshold(pattern);
 
    if (matchThreshold.MatchB(triggerName))
@@ -562,69 +566,190 @@ bool isR0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdR = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       double thresholdMR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdJet = (((TObjString *)subStrL->At(4))->GetString()).Atof();
       thresholds.push_back(thresholdR/100.);
       thresholds.push_back(thresholdMR);
+      thresholds.push_back(thresholdJet);
+      delete subStrL;
       return true;
    }
    else
       return false;
 }
 
-bool isR0X_MRXBTagTrigger(TString triggerName, vector<double> &thresholds)
+bool isPhotonX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
 {
 
-   TString pattern = "(OpenHLT_R0([0-9]+)_MR([0-9]+)_BTag{1})$";
+   TString pattern = "(OpenHLT_Photon([0-9]+)_CaloIdL_R0([0-9]+)_MR([0-9]+)_Jet([0-9]+){1})$";
+   TPRegexp matchThreshold(pattern);
+
+   if (matchThreshold.MatchB(triggerName)) 
+     {
+       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+       double thresholdPhoton = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+       double thresholdR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+       double thresholdMR = (((TObjString *)subStrL->At(4))->GetString()).Atof();
+       double thresholdJet = (((TObjString *)subStrL->At(5))->GetString()).Atof();
+       thresholds.push_back(thresholdR/100.);
+       thresholds.push_back(thresholdMR);
+      thresholds.push_back(thresholdJet);
+      thresholds.push_back(thresholdPhoton);
+      delete subStrL;
+      return true;
+     }
+   else
+     return false;
+}
+
+bool isDoublePhotonX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
+{
+
+  TString pattern = "(OpenHLT_DoublePhoton([0-9]+)_R0([0-9]+)_MR([0-9]+)_Jet([0-9]+){1})$";
+  TPRegexp matchThreshold(pattern);
+
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdPhoton = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdMR = (((TObjString *)subStrL->At(4))->GetString()).Atof();
+      double thresholdJet = (((TObjString *)subStrL->At(5))->GetString()).Atof();
+      thresholds.push_back(thresholdR/100.);
+      thresholds.push_back(thresholdMR);
+      thresholds.push_back(thresholdJet);
+      thresholds.push_back(thresholdPhoton);
+      delete subStrL;
+      return true;
+   }
+   else
+      return false;
+}
+
+bool isMuX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
+{
+
+   TString pattern = "(OpenHLT_Mu([0-9]+)_R0([0-9]+)_MR([0-9]+){1})$";
    TPRegexp matchThreshold(pattern);
 
    if (matchThreshold.MatchB(triggerName))
    {
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
-      double thresholdR = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      double thresholdMR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdMu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdMR = (((TObjString *)subStrL->At(4))->GetString()).Atof();
       thresholds.push_back(thresholdR/100.);
       thresholds.push_back(thresholdMR);
+      thresholds.push_back(thresholdMu);
+      delete subStrL;
       return true;
    }
    else
       return false;
 }
-bool isMu8_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
+
+bool isEleLX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
 {
 
-   TString pattern = "(OpenHLT_Mu8_R0([0-9]+)_MR([0-9]+){1})$";
+   TString pattern = "(OpenHLT_Ele([0-9]+)_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R0([0-9]+)_MR([0-9]+){1})$";
    TPRegexp matchThreshold(pattern);
 
    if (matchThreshold.MatchB(triggerName))
    {
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
-      double thresholdR = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      double thresholdMR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdEle = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdMR = (((TObjString *)subStrL->At(4))->GetString()).Atof();
       thresholds.push_back(thresholdR/100.);
       thresholds.push_back(thresholdMR);
+      thresholds.push_back(thresholdEle);
+      delete subStrL;
       return true;
    }
    else
       return false;
 }
-bool isEle10_Loose_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
+
+bool isEleTX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
 {
 
-   TString pattern = "(OpenHLT_Ele10_CaloIdL_TrkIdVL_CaloIsoVL_TrkIsoVL_R0([0-9]+)_MR([0-9]+){1})$";
+   TString pattern = "(OpenHLT_Ele([0-9]+)_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_R0([0-9]+)_MR([0-9]+){1})$";
    TPRegexp matchThreshold(pattern);
 
    if (matchThreshold.MatchB(triggerName))
    {
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
-      double thresholdR = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      double thresholdMR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdEle = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdMR = (((TObjString *)subStrL->At(4))->GetString()).Atof();
       thresholds.push_back(thresholdR/100.);
       thresholds.push_back(thresholdMR);
+      thresholds.push_back(thresholdEle);
+      delete subStrL;
       return true;
    }
    else
       return false;
 }
 
+bool isMuX_MR0XTrigger(TString triggerName, vector<double> &thresholds)
+{
+
+   TString pattern = "(OpenHLT_Mu([0-9]+)_MR([0-9]+){1})$";
+   TPRegexp matchThreshold(pattern);
+
+   if (matchThreshold.MatchB(triggerName))
+   {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdMu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdMR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdMR);
+      thresholds.push_back(thresholdMu);
+      delete subStrL;
+      return true;
+   }
+   else
+      return false;
+}
+
+bool isEleLX_MR0XTrigger(TString triggerName, vector<double> &thresholds)
+{
+
+   TString pattern = "(OpenHLT_Ele([0-9]+)_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_MR([0-9]+){1})$";
+   TPRegexp matchThreshold(pattern);
+
+   if (matchThreshold.MatchB(triggerName))
+   {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdEle = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdMR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdMR);
+      thresholds.push_back(thresholdEle);
+      delete subStrL;
+      return true;
+   }
+   else
+      return false;
+}
+
+bool isEleTX_MR0XTrigger(TString triggerName, vector<double> &thresholds)
+{
+
+   TString pattern = "(OpenHLT_Ele([0-9]+)_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_MR([0-9]+){1})$";
+   TPRegexp matchThreshold(pattern);
+
+   if (matchThreshold.MatchB(triggerName))
+   {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdEle = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdMR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdMR);
+      thresholds.push_back(thresholdEle);
+      delete subStrL;
+      return true;
+   }
+   else
+      return false;
+}
 
 bool isR0XTrigger(TString triggerName, vector<double> &thresholds)
 {
@@ -661,6 +786,8 @@ bool isMRXTrigger(TString triggerName, vector<double> &thresholds)
    else
       return false;
 }
+
+
 
 bool isPT12U_XUTrigger(TString triggerName, vector<double> &thresholds)
 {
@@ -1948,12 +2075,11 @@ void OHltTree::CheckOpenHlt(
    }
 
    /****RX(U)_MRX(U)************/
-
-   else if (isR0XU_MRXUTrigger(triggerName, thresholds))
+  else if (isR0X_MRXTrigger(triggerName, thresholds))
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
-         if (OpenHltRUPassed(thresholds[0], thresholds[1], false, 7, 30.)>0)
+         if (OpenHltRPassed(thresholds[0], thresholds[1], false, 7, thresholds[2])>0)
          {
             if (prescaleResponse(menu, cfg, rcounter, it))
             {
@@ -1963,89 +2089,252 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
- else if (isR0X_MRXTrigger(triggerName, thresholds))
+   else if (isR0X_MRX_BTagTrigger(triggerName, thresholds) )
+     {
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	 {
+	   if (OpenHltRPassed(thresholds[0], thresholds[1], false, 7, thresholds[2])>0)
+	     {
+	       bool bjet=false;
+	       for(int i=0; i<NohBJetL2Corrected;i++){
+		 if((ohBJetL2CorrectedEt[i] > 40. )
+		    && (fabs(ohBJetL2CorrectedEta[i]) <  2.4)                                                                         
+		    //		    && (ohBJetIPL25Tag[i] > 0.0)                                                                                    
+		    && (ohBJetIPL3Tag[i]  > 4.0) ){
+		   bjet = true;                                                                                                     
+		 }
+	       }
+	       if(bjet) 
+		 {
+		   if (prescaleResponse(menu, cfg, rcounter, it)) 
+		     {
+		       triggerBit[it] = true;
+		     }
+		 }
+	     }
+	 }
+     }
+   
+   else if (isPhotonX_R0X_MRXTrigger(triggerName, thresholds))
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
-         if (OpenHltRPassed(thresholds[0], thresholds[1], false, 7, 56.)>0)
+         if (OpenHltRPassed(thresholds[0], thresholds[1], false, 7, thresholds[2])>0)
          {
-            if (prescaleResponse(menu, cfg, rcounter, it))
+	   if (prescaleResponse(menu, cfg, rcounter, it))
             {
-               triggerBit[it] = true;
-            }
+	      if (OpenHltPhoCuts(thresholds[3], 0.15, 0.10, 0.014, 0.034, 999, 999) >= 1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
          }
       }
    }
 
-
- else if (isR0X_MRXBTagTrigger(triggerName, thresholds))
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-         if (OpenHltRBTagPassed(thresholds[0], thresholds[1], false, 7, 56.)>0)
-         {
-            if (prescaleResponse(menu, cfg, rcounter, it))
-            {
-               triggerBit[it] = true;
-            }
+   else if (isDoublePhotonX_R0X_MRXTrigger(triggerName, thresholds))
+     {
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	 {
+	   if (OpenHltRPassed(thresholds[0], thresholds[1], false, 7, thresholds[2])>0)
+	     {
+	       if (prescaleResponse(menu, cfg, rcounter, it))
+		 {
+		   if (OpenHlt1PhotonSamHarperPassed(thresholds[3], 0, // ET, L1isolation
+						     999.,
+						     999., // Track iso barrel, Track iso endcap
+						     999.,
+						     999., // Track/pT iso barrel, Track/pT iso endcap
+						     999.,
+						     999., // H iso barrel, H iso endcap
+						     999.,
+						     999., // E iso barrel, E iso endcap
+						     0.15,
+						     0.10, // H/E barrel, H/E endcap
+						     999.,
+						     999., // cluster shape barrel, cluster shape endcap
+						     0.98,
+						     999., // R9 barrel, R9 endcap
+						     999.,
+						     999., // Deta barrel, Deta endcap
+						     999.,
+						     999. // Dphi barrel, Dphi endcap
+						     )>=2)
+		     {
+		       triggerBit[it] = true;
+		     }
+		 }
          }
-      }
-   }
- else if (isMu8_R0X_MRXTrigger(triggerName, thresholds))
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-         if (OpenHltRPassed(thresholds[0], thresholds[1], false, 7, 56.)>0
-	     && OpenHlt1MuonPassed(3., 3., 8., 2., 0)>=1)
+	 }
+     }
+   
+   else if (isMuX_R0X_MRXTrigger(triggerName, thresholds))
+     {
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	 {
+	   if (prescaleResponse(menu, cfg, rcounter, it))
+	     {
+	       if (OpenHlt1MuonPassed(3., 4., thresholds[2], 2., 0)>=1)
+		 {
+		   if (OpenHltRPassed(thresholds[0], thresholds[1], false, 7, 40.)>0)
+		     triggerBit[it] = true;
+		 }
+	     }
+	 }
+     }
+   else if (isMuX_MR0XTrigger(triggerName, thresholds))
+     {
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
          {
-            if (prescaleResponse(menu, cfg, rcounter, it))
-            {
-               triggerBit[it] = true;
-            }
+           if (prescaleResponse(menu, cfg, rcounter, it))
+             {
+               if (OpenHlt1MuonPassed(3., 4., thresholds[1], 2., 0)>=1)
+                 {
+                   if (OpenHltRPassed(0, thresholds[0], false, 7, 40.)>0)
+                     triggerBit[it] = true;
+                 }
+             }
          }
-      }
-   }
- else if (isEle10_Loose_R0X_MRXTrigger(triggerName, thresholds))
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-         if (OpenHltRPassed(thresholds[0], thresholds[1], false, 7, 56.)>0
-	     && OpenHlt1ElectronSamHarperPassed(10., 0, // ET, L1isolation 
-						 999.,
-						 999., // Track iso barrel, Track iso endcap 
-						 0.2,
-						 0.2, // Track/pT iso barrel, Track/pT iso endcap 
-						 0.2,
-						 0.2, // H/ET iso barrel, H/ET iso endcap 
-						 0.2,
-						 0.2, // E/ET iso barrel, E/ET iso endcap 
-						 0.15,
-						 0.10, // H/E barrel, H/E endcap 
-						 0.014,
-						 0.035, // cluster shape barrel, cluster shape endcap 
-						 0.98,
-						 1.0, // R9 barrel, R9 endcap 
-						 0.01,
-						 0.01, // Deta barrel, Deta endcap 
-						 0.15,
-						 0.10 // Dphi barrel, Dphi endcap 
-						 )>=1)
+     }
+
+   else if (isEleLX_R0X_MRXTrigger(triggerName, thresholds))
+     {
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
          {
-            if (prescaleResponse(menu, cfg, rcounter, it))
-            {
-               triggerBit[it] = true;
-            }
+           if (prescaleResponse(menu, cfg, rcounter, it))
+             {
+	       if ( (OpenHlt1ElectronSamHarperPassed(thresholds[2], 0, // ET, L1isolation 
+						     999.,
+						     999., // Track iso barrel, Track iso endcap 
+						     0.2,
+						     0.2, // Track/pT iso barrel, Track/pT iso endcap 
+						     0.2,
+						     0.2, // H/ET iso barrel, H/ET iso endcap 
+						     0.2,
+						     0.2, // E/ET iso barrel, E/ET iso endcap 
+						     0.15,
+						     0.10, // H/E barrel, H/E endcap 
+						     0.014,
+						     0.035, // cluster shape barrel, cluster shape endcap 
+						     0.98,
+						     1.0, // R9 barrel, R9 endcap 
+						     0.01,
+						     0.01, // Deta barrel, Deta endcap 
+						     0.15,
+						     0.10 // Dphi barrel, Dphi endcap 
+						     )>=1))
+                 {
+		   if (OpenHltRPassed(thresholds[0], thresholds[1], false, 7, 40.)>0)
+                     triggerBit[it] = true;
+                 }
+             }
          }
-      }
-   }
-
-
-
+     }
+   else if (isEleTX_R0X_MRXTrigger(triggerName, thresholds))
+     {
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+         {
+           if (prescaleResponse(menu, cfg, rcounter, it))
+             {
+	       if (OpenHlt1ElectronSamHarperPassed(thresholds[2], 0, // ET, L1isolation 
+						   999.,
+						   999., // Track iso barrel, Track iso endcap 
+						   0.2,
+						   0.2, // Track/pT iso barrel, Track/pT iso endcap 
+						   0.2,
+						   0.2, // H/ET iso barrel, H/ET iso endcap 
+						   0.2,
+						   0.2, // E/ET iso barrel, E/ET iso endcap 
+						   0.1,
+						   0.075, // H/E barrel, H/E endcap 
+						   0.011,
+						   0.031, // cluster shape barrel, cluster shape endcap 
+						   0.98,
+						   1.0, // R9 barrel, R9 endcap 
+						   0.008,
+						   0.008, // Deta barrel, Deta endcap 
+						   0.07,
+						   0.05 // Dphi barrel, Dphi endcap 
+						   )>=1)
+		 
+                 {
+		   if (OpenHltRPassed(thresholds[0], thresholds[1], false, 7, 40.)>0)
+                     triggerBit[it] = true;
+                 }
+             }
+         }
+     }
+   else if (isEleLX_MR0XTrigger(triggerName, thresholds))
+     {
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+         {
+           if (prescaleResponse(menu, cfg, rcounter, it))
+             {
+	       if ( (OpenHlt1ElectronSamHarperPassed(thresholds[1], 0, // ET, L1isolation 
+						     999.,
+						     999., // Track iso barrel, Track iso endcap 
+						     0.2,
+						     0.2, // Track/pT iso barrel, Track/pT iso endcap 
+						     0.2,
+						     0.2, // H/ET iso barrel, H/ET iso endcap 
+						     0.2,
+						     0.2, // E/ET iso barrel, E/ET iso endcap 
+						     0.15,
+						     0.10, // H/E barrel, H/E endcap 
+						     0.014,
+						     0.035, // cluster shape barrel, cluster shape endcap 
+						     0.98,
+						     1.0, // R9 barrel, R9 endcap 
+						     0.01,
+						     0.01, // Deta barrel, Deta endcap 
+						     0.15,
+						     0.10 // Dphi barrel, Dphi endcap 
+						     )>=1))
+                 {
+		   if (OpenHltRPassed(0., thresholds[0], false, 7, 40.)>0)
+                     triggerBit[it] = true;
+                 }
+             }
+         }
+     }
+   else if (isEleTX_MR0XTrigger(triggerName, thresholds))
+     {
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+         {
+           if (prescaleResponse(menu, cfg, rcounter, it))
+             {
+	       if (OpenHlt1ElectronSamHarperPassed(thresholds[2], 0, // ET, L1isolation                                                                                                                                                                           
+                                                   999.,
+                                                   999., // Track iso barrel, Track iso endcap     
+                                                   0.2,
+                                                   0.2, // Track/pT iso barrel, Track/pT iso endcap
+                                                   0.2,
+                                                   0.2, // H/ET iso barrel, H/ET iso endcap
+                                                   0.2,
+                                                   0.2, // E/ET iso barrel, E/ET iso endcap
+                                                   0.1,
+                                                   0.075, // H/E barrel, H/E endcap                
+                                                   0.011,
+                                                   0.031, // cluster shape barrel, cluster shape endcap
+                                                   0.98,
+                                                   1.0, // R9 barrel, R9 endcap                        
+                                                   0.008,
+                                                   0.008, // Deta barrel, Deta endcap                  
+                                                   0.07,
+                                                   0.05 // Dphi barrel, Dphi endcap
+                                                   )>=1)
+                 {
+		   if (OpenHltRPassed(0., thresholds[0], false, 7, 40.)>0)
+                     triggerBit[it] = true;
+                 }
+             }
+         }
+     }
  else if (isR0XTrigger(triggerName, thresholds))
    {
      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
        {
-         if (OpenHltRPassed(thresholds[0], 0., false, 7, 56.)>0)
+         if (OpenHltRPassed(thresholds[0], 0., false, 7, 40.)>0)
 	   {
 	     if (prescaleResponse(menu, cfg, rcounter, it))
 	       {
@@ -2059,7 +2348,7 @@ void OHltTree::CheckOpenHlt(
    {
      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
        {
-         if (OpenHltRPassed(0., thresholds[0], false, 7, 56.)>0)
+         if (OpenHltRPassed(0., thresholds[0], false, 7, 40.)>0)
 	   {
 	     if (prescaleResponse(menu, cfg, rcounter, it))
 	       {
@@ -2070,7 +2359,7 @@ void OHltTree::CheckOpenHlt(
    }
 
 
-
+ 
    /* Muons */
    else if (isL1SingleMuXTrigger(triggerName))
    {
@@ -11290,157 +11579,6 @@ int OHltTree::OpenHlt1CorJetPassedEleRemoval(
 }
 
 
-int OHltTree::OpenHltRUPassed(
-      float Rmin,
-      float MRmin,
-      bool MRP,
-      int NJmax,
-      float jetPt)
-{
-   //make a list of the vectors
-   vector<TLorentzVector*> JETS;
-
-   for (int i=0; i<NrecoJetCal; i++)
-   {
-      if (fabs(recoJetCalEta[i])>=3 || recoJetCalPt[i] < jetPt)
-         continue; // require jets with eta<3
-      TLorentzVector* tmp = new TLorentzVector();
-      tmp->SetPtEtaPhiE(
-            recoJetCalPt[i],
-            recoJetCalEta[i],
-            recoJetCalPhi[i],
-            recoJetCalE[i]);
-
-      JETS.push_back(tmp);
-   }
-
-   int jetsSize = 0;
-   jetsSize = JETS.size();
-
-   //Now make the hemispheres
-   //for this simulation, we will used TLorentzVectors, although this is probably not
-   //possible online
-   if (jetsSize<2)
-      return 0;
-   if (NJmax!=-1 && jetsSize > NJmax)
-      return 1;
-   int N_comb = 1; // compute the number of combinations of jets possible
-   for (int i = 0; i < jetsSize; i++)
-   { // this is code is kept as close as possible
-      N_comb *= 2; //to Chris' code for validation
-   }
-   TLorentzVector j1, j2;
-   double M_min = 9999999999.0;
-   double dHT_min = 99999999.0;
-   int j_count;
-   for (int i=0; i<N_comb; i++)
-   {
-      TLorentzVector j_temp1, j_temp2;
-      int itemp = i;
-      j_count = N_comb/2;
-      int count = 0;
-      while (j_count > 0)
-      {
-         if (itemp/j_count == 1)
-         {
-            j_temp1 += *(JETS.at(count));
-         }
-         else
-         {
-            j_temp2 += *(JETS.at(count));
-         }
-         itemp -= j_count*(itemp/j_count);
-         j_count /= 2;
-         count++;
-      }
-      double M_temp = j_temp1.M2()+j_temp2.M2();
-      if (M_temp < M_min)
-      {
-         M_min = M_temp;
-         j1= j_temp1;
-         j2= j_temp2;
-      }
-      double dHT_temp = fabs(j_temp1.E()-j_temp2.E());
-      if (dHT_temp < dHT_min)
-      {
-         dHT_min = dHT_temp;
-         //deltaHT = dHT_temp;
-      }
-   }
-
-   j1.SetPtEtaPhiM(j1.Pt(), j1.Eta(), j1.Phi(), 0.0);
-   j2.SetPtEtaPhiM(j2.Pt(), j2.Eta(), j2.Phi(), 0.0);
-
-   if (j2.Pt() > j1.Pt())
-   {
-      TLorentzVector temp = j1;
-      j1 = j2;
-      j2 = temp;
-   }
-   //Done Calculating Hemispheres
-   //Now we can check if the event is of type R or R'
-
-   double num = j1.P()-j2.P();
-   double den = j1.Pz()-j2.Pz();
-   if (fabs(num)==fabs(den))
-      return 0; //ignore if beta=1
-   if (fabs(num)<fabs(den) && MRP)
-      return 0; //num<den ==> R event
-   if (fabs(num)>fabs(den) && !MRP)
-      return 0; // num>den ==> R' event
-
-   //now we can calculate MTR
-   TVector3 met;
-   met.SetPtEtaPhi(recoMetCal, 0, recoMetCalPhi);
-   double MTR = sqrt(0.5*(met.Mag()*(j1.Pt()+j2.Pt()) - met.Dot(j1.Vect()
-         +j2.Vect())));
-
-   //calculate MR or MRP
-   double MR=0;
-   if (!MRP)
-   { //CALCULATE MR
-      double temp = (j1.P()*j2.Pz()-j2.P()*j1.Pz())*(j1.P()*j2.Pz()-j2.P()
-            *j1.Pz());
-      temp /= (j1.Pz()-j2.Pz())*(j1.Pz()-j2.Pz())-(j1.P()-j2.P())*(j1.P()
-            -j2.P());
-      MR = 2.*sqrt(temp);
-   }
-   else
-   { //CALCULATE MRP   
-      double jaP = j1.Pt()*j1.Pt() +j1.Pz()*j2.Pz()-j1.P()*j2.P();
-      double jbP = j2.Pt()*j2.Pt() +j1.Pz()*j2.Pz()-j1.P()*j2.P();
-      jbP *= -1.;
-      double den = sqrt((j1.P()-j2.P())*(j1.P()-j2.P())-(j1.Pz()-j2.Pz())
-            *(j1.Pz()-j2.Pz()));
-
-      jaP /= den;
-      jbP /= den;
-
-      double temp = jaP*met.Dot(j2.Vect())/met.Mag() + jbP*met.Dot(j1.Vect())
-            /met.Mag();
-      temp = temp*temp;
-
-      den = (met.Dot(j1.Vect()+j2.Vect())/met.Mag())*(met.Dot(j1.Vect()
-            +j2.Vect())/met.Mag())-(jaP-jbP)*(jaP-jbP);
-
-      if (den <= 0.0)
-         return 0.;
-
-      temp /= den;
-      temp = 2.*sqrt(temp);
-
-      double bR = (jaP-jbP)/(met.Dot(j1.Vect()+j2.Vect())/met.Mag());
-      double gR = 1./sqrt(1.-bR*bR);
-
-      temp *= gR;
-
-      MR = temp;
-   }
-   if (MR<MRmin || float(MTR)/float(MR)<Rmin)
-      return 0;
-
-   return 1;
-}
 
 int OHltTree::OpenHltRPassed(
       float Rmin,
@@ -11449,13 +11587,19 @@ int OHltTree::OpenHltRPassed(
       int NJmax,
       float jetPt)
 {
+
+  bool goodR  = false;
+  bool goodRp = false;
+
+  bool foundOneR  = false;
+  bool foundOneRp = false;
+
    //make a list of the vectors
    vector<TLorentzVector*> JETS;
 
    for (int i=0; i<NrecoJetCorCal; i++)
    {
-      if (fabs(recoJetCorCalEta[i])>=3 || recoJetCorCalPt[i] < jetPt)
-         continue; // require jets with eta<3
+      if (fabs(recoJetCorCalEta[i])>=3 || recoJetCorCalPt[i] < jetPt)  continue; // require jets with eta<3
       TLorentzVector* tmp = new TLorentzVector();
       tmp->SetPtEtaPhiE(
             recoJetCorCalPt[i],
@@ -11466,8 +11610,7 @@ int OHltTree::OpenHltRPassed(
       JETS.push_back(tmp);
    }
 
-   int jetsSize = 0;
-   jetsSize = JETS.size();
+   int jetsSize = JETS.size();
 
    //Now make the hemispheres
    //for this simulation, we will used TLorentzVectors, although this is probably not
@@ -11481,9 +11624,10 @@ int OHltTree::OpenHltRPassed(
    { // this is code is kept as close as possible
       N_comb *= 2; //to Chris' code for validation
    }
-   TLorentzVector j1, j2;
-   double M_min = 9999999999.0;
-   double dHT_min = 99999999.0;
+   TLorentzVector j1R,  j2R;
+   TLorentzVector j1Rp, j2Rp;
+   double M_minR  = 9999999999.0;
+   double M_minRp = 9999999999.0;
    int j_count;
    for (int i=0; i<N_comb; i++)
    {
@@ -11506,274 +11650,97 @@ int OHltTree::OpenHltRPassed(
          count++;
       }
       double M_temp = j_temp1.M2()+j_temp2.M2();
-      if (M_temp < M_min)
+      double beta_temp = fabs(j_temp1.P()-j_temp2.P())/fabs(j_temp1.Pz()-j_temp2.Pz());
+      if (M_temp < M_minR && beta_temp < 1.)
       {
-         M_min = M_temp;
-         j1= j_temp1;
-         j2= j_temp2;
+	foundOneR = true;
+	M_minR = M_temp;
+	j1R= j_temp1;
+	j2R= j_temp2;
       }
-      double dHT_temp = fabs(j_temp1.E()-j_temp2.E());
-      if (dHT_temp < dHT_min)
+      if (M_temp < M_minRp && 1./beta_temp < 1.)
       {
-         dHT_min = dHT_temp;
-         //deltaHT = dHT_temp;
+	foundOneRp = true;
+	M_minRp = M_temp;
+	j1Rp = j_temp1;
+	j2Rp = j_temp2;
       }
    }
 
-   j1.SetPtEtaPhiM(j1.Pt(), j1.Eta(), j1.Phi(), 0.0);
-   j2.SetPtEtaPhiM(j2.Pt(), j2.Eta(), j2.Phi(), 0.0);
-
-   if (j2.Pt() > j1.Pt())
-   {
-      TLorentzVector temp = j1;
-      j1 = j2;
-      j2 = temp;
-   }
-   //Done Calculating Hemispheres
-   //Now we can check if the event is of type R or R'
-
-   double num = j1.P()-j2.P();
-   double den = j1.Pz()-j2.Pz();
-   if (fabs(num)==fabs(den))
-      return 0; //ignore if beta=1
-   if (fabs(num)<fabs(den) && MRP)
-      return 0; //num<den ==> R event
-   if (fabs(num)>fabs(den) && !MRP)
-      return 0; // num>den ==> R' event
-
-   //now we can calculate MTR
    TVector3 met;
    met.SetPtEtaPhi(recoMetCal, 0, recoMetCalPhi);
-   double MTR = sqrt(0.5*(met.Mag()*(j1.Pt()+j2.Pt()) - met.Dot(j1.Vect()
-         +j2.Vect())));
 
-   //calculate MR or MRP
-   double MR=0;
-   if (!MRP)
-   { //CALCULATE MR
-      double temp = (j1.P()*j2.Pz()-j2.P()*j1.Pz())*(j1.P()*j2.Pz()-j2.P()
-            *j1.Pz());
-      temp /= (j1.Pz()-j2.Pz())*(j1.Pz()-j2.Pz())-(j1.P()-j2.P())*(j1.P()
-            -j2.P());
-      MR = 2.*sqrt(temp);
+   if(foundOneR) {
+
+     //CALCULATE MR
+     j1R.SetPtEtaPhiM(j1R.Pt(), j1R.Eta(), j1R.Phi(), 0.0);
+     j2R.SetPtEtaPhiM(j2R.Pt(), j2R.Eta(), j2R.Phi(), 0.0);
+
+     if (j2R.Pt() > j1R.Pt())
+       {
+	 TLorentzVector temp = j1R;
+	 j1R = j2R;
+	 j2R = temp;
+       }
+     
+     //now we can calculate MTR
+     double MTR = sqrt(0.5*(met.Mag()*(j1R.Pt()+j2R.Pt()) - met.Dot(j1R.Vect()+j2R.Vect())));
+
+     double MR=0;
+     double temp = (j1R.P()*j2R.Pz()-j2R.P()*j1R.Pz())*(j1R.P()*j2R.Pz()-j2R.P()
+						    *j1R.Pz());
+     temp /= (j1R.Pz()-j2R.Pz())*(j1R.Pz()-j2R.Pz())-(j1R.P()-j2R.P())*(j1R.P()
+									-j2R.P());
+     MR = 2.*sqrt(temp);     
+     
+     if (MR>=MRmin && float(MTR)/float(MR)>=Rmin) goodR = true;
    }
-   else
-   { //CALCULATE MRP   
-      double jaP = j1.Pt()*j1.Pt() +j1.Pz()*j2.Pz()-j1.P()*j2.P();
-      double jbP = j2.Pt()*j2.Pt() +j1.Pz()*j2.Pz()-j1.P()*j2.P();
-      jbP *= -1.;
-      double den = sqrt((j1.P()-j2.P())*(j1.P()-j2.P())-(j1.Pz()-j2.Pz())
-            *(j1.Pz()-j2.Pz()));
 
-      jaP /= den;
-      jbP /= den;
+   if(goodR) return 1;
 
-      double temp = jaP*met.Dot(j2.Vect())/met.Mag() + jbP*met.Dot(j1.Vect())
-            /met.Mag();
-      temp = temp*temp;
+   if(foundOneRp) {
 
-      den = (met.Dot(j1.Vect()+j2.Vect())/met.Mag())*(met.Dot(j1.Vect()
-            +j2.Vect())/met.Mag())-(jaP-jbP)*(jaP-jbP);
+     //CALCULATE MRP   
+     double jaP = j1Rp.Pt()*j1Rp.Pt() +j1Rp.Pz()*j2Rp.Pz()-j1Rp.P()*j2Rp.P();
+     double jbP = j2Rp.Pt()*j2Rp.Pt() +j1Rp.Pz()*j2Rp.Pz()-j1Rp.P()*j2Rp.P();
+     jbP *= -1.;
+     double den = sqrt((j1Rp.P()-j2Rp.P())*(j1Rp.P()-j2Rp.P())-(j1Rp.Pz()-j2Rp.Pz())
+		       *(j1Rp.Pz()-j2Rp.Pz()));
+     
+     jaP /= den;
+     jbP /= den;
+     
+     double temp = jaP*met.Dot(j2Rp.Vect())/met.Mag() + jbP*met.Dot(j1Rp.Vect())
+       /met.Mag();
+     temp = temp*temp;
+     
+     den = (met.Dot(j1Rp.Vect()+j2Rp.Vect())/met.Mag())*(met.Dot(j1Rp.Vect()
+								 +j2Rp.Vect())/met.Mag())-(jaP-jbP)*(jaP-jbP);
+     
+     if (den <= 0.0)  return 0.;
+     
+     temp /= den;
+     temp = 2.*sqrt(temp);
+     
+     double bR = (jaP-jbP)/(met.Dot(j1Rp.Vect()+j2Rp.Vect())/met.Mag());
+     double gR = 1./sqrt(1.-bR*bR);
+     
+     temp *= gR;
+     
+     double MRP = temp;
+     //now we can calculate MTR
+     double MTR = sqrt(0.5*(met.Mag()*(j1R.Pt()+j2R.Pt()) - met.Dot(j1R.Vect()+j2R.Vect())));
 
-      if (den <= 0.0)
-         return 0.;
-
-      temp /= den;
-      temp = 2.*sqrt(temp);
-
-      double bR = (jaP-jbP)/(met.Dot(j1.Vect()+j2.Vect())/met.Mag());
-      double gR = 1./sqrt(1.-bR*bR);
-
-      temp *= gR;
-
-      MR = temp;
+     if (MRP>=MRmin && float(MTR)/float(MRP)>=Rmin) goodRp = true;
    }
-   if (MR<MRmin || float(MTR)/float(MR)<Rmin)
-      return 0;
 
-   return 1;
+   if(goodRp) return 1;
+
+   return 0;
 }
 
-int OHltTree::OpenHltRBTagPassed(
-      float Rmin,
-      float MRmin,
-      bool MRP,
-      int NJmax,
-      float jetPt,
-      bool qcd,
-      bool pfmht)
-{
-   //make a list of the vectors
-   vector<TLorentzVector*> JETS;
-   bool bjet=false;
-   for(int i=0; i<NohBJetL2Corrected;i++){
-     if(
-	(ohBJetL2CorrectedEnergy[i] > jetPt)
-	&& (fabs(ohBJetL2CorrectedEta[i]) <  3)
-	&& (ohBJetIPL25Tag[i] > 0.0)
-	&& (ohBJetIPL3Tag[i]  > 4.0) ){
-       bjet = true;
-     }
-	  
-   }
-   if(!bjet)
-     return 0;
-   for (int i=0; i<NrecoJetCorCal; i++)
-   {
-      if (fabs(recoJetCorCalEta[i])>=3 || recoJetCorCalPt[i] < jetPt)
-         continue; // require jets with eta<3
-      if( (recoJetCorCalEMF[i] < 1e-6) || (recoJetCorCalN90[i] < 2) )
-	continue; // jet ID
-      TLorentzVector* tmp = new TLorentzVector();
-      tmp->SetPtEtaPhiE(
-            recoJetCorCalPt[i],
-            recoJetCorCalEta[i],
-            recoJetCorCalPhi[i],
-            recoJetCorCalE[i]);
 
-      JETS.push_back(tmp);
-   }
 
-   int jetsSize = 0;
-   jetsSize = JETS.size();
-
-   //Now make the hemispheres
-   //for this simulation, we will used TLorentzVectors, although this is probably not
-   //possible online
-   if (jetsSize<2)
-      return 0;
-   if (NJmax!=-1 && jetsSize > NJmax)
-      return 1;
-   int N_comb = 1; // compute the number of combinations of jets possible
-   for (int i = 0; i < jetsSize; i++)
-   { // this is code is kept as close as possible
-      N_comb *= 2; //to Chris' code for validation
-   }
-   TLorentzVector j1, j2;
-   double M_min = 9999999999.0;
-   double dHT_min = 99999999.0;
-   int j_count;
-   for (int i=0; i<N_comb; i++)
-   {
-      TLorentzVector j_temp1, j_temp2;
-      int itemp = i;
-      j_count = N_comb/2;
-      int count = 0;
-      while (j_count > 0)
-      {
-         if (itemp/j_count == 1)
-         {
-            j_temp1 += *(JETS.at(count));
-         }
-         else
-         {
-            j_temp2 += *(JETS.at(count));
-         }
-         itemp -= j_count*(itemp/j_count);
-         j_count /= 2;
-         count++;
-      }
-      double M_temp = j_temp1.M2()+j_temp2.M2();
-      if (M_temp < M_min)
-      {
-         M_min = M_temp;
-         j1= j_temp1;
-         j2= j_temp2;
-      }
-      double dHT_temp = fabs(j_temp1.E()-j_temp2.E());
-      if (dHT_temp < dHT_min)
-      {
-         dHT_min = dHT_temp;
-         //deltaHT = dHT_temp;
-      }
-   }
-
-   j1.SetPtEtaPhiM(j1.Pt(), j1.Eta(), j1.Phi(), 0.0);
-   j2.SetPtEtaPhiM(j2.Pt(), j2.Eta(), j2.Phi(), 0.0);
-
-   if (j2.Pt() > j1.Pt())
-   {
-      TLorentzVector temp = j1;
-      j1 = j2;
-      j2 = temp;
-   }
-   //Done Calculating Hemispheres
-   //Now we can check if the event is of type R or R'
-
-   double num = j1.P()-j2.P();
-   double den = j1.Pz()-j2.Pz();
-   if (fabs(num)==fabs(den))
-      return 0; //ignore if beta=1
-   if (fabs(num)<fabs(den) && MRP)
-      return 0; //num<den ==> R event
-   if (fabs(num)>fabs(den) && !MRP)
-      return 0; // num>den ==> R' event
-
-   if(qcd){                                                                                                         
-     if(fabs(j1.DeltaPhi(j2)) > 2.8) return 0;                                                                           
-     if(fabs(num)/fabs(den) >= 0.98) return 0;                                                                           
-   }  
-   //now we can calculate MTR
-   TVector3 met;
-   if(!pfmht)
-     met.SetPtEtaPhi(recoMetCal, 0, recoMetCalPhi);
-   else{
-     float mhtx=0,mhty=0;
-     for(int i=0;i<NohPFJet;i++){
-       mhtx-=pfJetPt[i]*cos(pfJetPhi[i]);
-       mhty-=pfJetPt[i]*sin(pfJetPhi[i]);
-     }
-     met.SetPtEtaPhi(sqrt(mhtx*mhtx+mhty*mhty),0,atan(mhty/mhtx));
-   }
-   double MTR = sqrt(0.5*(met.Mag()*(j1.Pt()+j2.Pt()) - met.Dot(j1.Vect()
-         +j2.Vect())));
-
-   //calculate MR or MRP
-   double MR=0;
-   if (!MRP)
-   { //CALCULATE MR
-      double temp = (j1.P()*j2.Pz()-j2.P()*j1.Pz())*(j1.P()*j2.Pz()-j2.P()
-            *j1.Pz());
-      temp /= (j1.Pz()-j2.Pz())*(j1.Pz()-j2.Pz())-(j1.P()-j2.P())*(j1.P()
-            -j2.P());
-      MR = 2.*sqrt(temp);
-   }
-   else
-   { //CALCULATE MRP   
-      double jaP = j1.Pt()*j1.Pt() +j1.Pz()*j2.Pz()-j1.P()*j2.P();
-      double jbP = j2.Pt()*j2.Pt() +j1.Pz()*j2.Pz()-j1.P()*j2.P();
-      jbP *= -1.;
-      double den = sqrt((j1.P()-j2.P())*(j1.P()-j2.P())-(j1.Pz()-j2.Pz())
-            *(j1.Pz()-j2.Pz()));
-
-      jaP /= den;
-      jbP /= den;
-
-      double temp = jaP*met.Dot(j2.Vect())/met.Mag() + jbP*met.Dot(j1.Vect())
-            /met.Mag();
-      temp = temp*temp;
-
-      den = (met.Dot(j1.Vect()+j2.Vect())/met.Mag())*(met.Dot(j1.Vect()
-            +j2.Vect())/met.Mag())-(jaP-jbP)*(jaP-jbP);
-
-      if (den <= 0.0)
-         return 0.;
-
-      temp /= den;
-      temp = 2.*sqrt(temp);
-
-      double bR = (jaP-jbP)/(met.Dot(j1.Vect()+j2.Vect())/met.Mag());
-      double gR = 1./sqrt(1.-bR*bR);
-
-      temp *= gR;
-
-      MR = temp;
-   }
-   if (MR<MRmin || float(MTR)/float(MR)<Rmin)
-      return 0;
-
-   return 1;
-}
 
 
 int OHltTree::OpenHlt1MuonPassed(
