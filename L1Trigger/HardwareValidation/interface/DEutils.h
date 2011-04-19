@@ -41,7 +41,7 @@ struct DEutils {
 
   std::string print(col_cit) const;
   bool is_empty(col_cit) const;
-  std::string GetName(int) const;
+  std::string GetName(int i = 0) const;
 
   L1DataEmulDigi DEDigi(col_cit itd, col_cit itm, int ctype);
   
@@ -1365,7 +1365,7 @@ inline std::string DEutils<L1CSCSPStatusDigiCollection_>::print(col_cit it) cons
 /// --- name candidate ---
 
 template <typename T> 
-std::string DEutils<T>::GetName(int i=0) const {
+std::string DEutils<T>::GetName(int i) const {
 
   const int nlabel = 16;
   if(!(i<nlabel)) 

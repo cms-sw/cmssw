@@ -58,10 +58,10 @@ class DEcompare {
   } 
   */
 
-  bool do_compare(std::ofstream&,int);
-  bool CompareCollections(std::ofstream&,int);
+  bool do_compare(std::ofstream&,int dump = 0);
+  bool CompareCollections(std::ofstream&,int dump = 0);
   bool SortCollections(cand_vec& dg, cand_vec& eg, cand_vec& db, cand_vec& eb);
-  bool DumpCandidate(col_cit itd, col_cit itm, std::ofstream&, int);
+  bool DumpCandidate(col_cit itd, col_cit itm, std::ofstream&, int mode = 0);
   int get_ncand(typeT) const;
   int get_ncand(int i) const {
     if(debug_ && (i<0 || i>2) )
@@ -103,7 +103,7 @@ class DEcompare {
 };
 
 template <typename T> 
-bool DEcompare<T>::do_compare(std::ofstream& os, int dump=0) {
+bool DEcompare<T>::do_compare(std::ofstream& os, int dump) {
   if(debug_)
     std::cout << " DEcompare::do_compare... " 
 	      << GetName() << "\n" << std::flush;
@@ -129,7 +129,7 @@ int DEcompare<T>::get_ncand(typeT col) const {
 }
 
 template <typename T> 
-bool DEcompare<T>::CompareCollections(std::ofstream& os, int dump = 0) {
+bool DEcompare<T>::CompareCollections(std::ofstream& os, int dump) {
 
   if(debug_)
     std::cout << " DEcompare::CompareCollections...\n"<< std::flush; 
@@ -308,7 +308,7 @@ bool DEcompare<T>::SortCollections(cand_vec& data_good, cand_vec& emul_good,
 }
 
 template <typename T> 
-bool DEcompare<T>::DumpCandidate(col_cit itd, col_cit itm, std::ofstream& os, int mode=0) {
+bool DEcompare<T>::DumpCandidate(col_cit itd, col_cit itm, std::ofstream& os, int mode) {
   if(mode!=2)
     os << "   data: " << print(itd);
   if(mode!=1)
