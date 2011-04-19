@@ -5,6 +5,7 @@
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EventSetupRecordKey.h>
 #include <FWCore/Framework/interface/ESHandle.h>
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
