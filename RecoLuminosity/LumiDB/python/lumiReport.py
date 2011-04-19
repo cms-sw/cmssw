@@ -154,6 +154,7 @@ def toScreenOverview(lumidata,isverbose):
         lsdata=lumidata[run]
         if lsdata is None:
             result.append([str(run),'n/a','n/a','n/a','n/a'])
+            continue
         nls=len(lsdata)
         deliveredData=[x[5] for x in lsdata]
         totdelivered=sum(deliveredData)
