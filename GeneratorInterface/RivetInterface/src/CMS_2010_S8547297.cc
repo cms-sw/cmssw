@@ -76,25 +76,6 @@ namespace Rivet {
     void analyze(const Event& event) {
       const double weight = event.weight();
 
-// This "trigger" is commented out for now - a HF tower is not defined on particle level
-// better: turn off Single Diffraction in the MC
-//AK       const FinalState& hadronic = applyProjection<FinalState>(event, "HFS");
-//AK       double HFEsumplus = 0.0;
-//AK       double HFEsumminus = 0.0;
-//AK       foreach (const Particle& p, hadronic.particles()) {
-//AK         double Ehad = p.momentum().E();      	
-//AK         double etahad = p.momentum().eta();
-//AK       
-//AK         if(etahad < 5.2  && etahad > 3.15 )
-//AK            HFEsumplus = HFEsumplus + Ehad;
-//AK         
-//AK         if(etahad > -5.2  && etahad < -3.15 )
-//AK            HFEsumminus = HFEsumminus + Ehad;
-//AK         
-//AK        }
-//AK 	if (!(HFEsumplus > 3.0 && HFEsumminus > 3.0)) vetoEvent;
-
-
       //charge particles
       const ChargedFinalState& charged = applyProjection<ChargedFinalState>(event, "CFS");
       if (charged.particles().size()<1) {
