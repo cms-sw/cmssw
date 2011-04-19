@@ -110,6 +110,12 @@ private:
 
 private:
 
+
+  // Config parameters
+  double nPromptTkMax_;
+  double ptMin_;
+  double etaMax_;
+
   Handle<JetCollection> patJets_;
   Handle<TriggerEvent> patTriggerEvent_;
   Handle<reco::VertexCollection> primaryVertex_;

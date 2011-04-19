@@ -51,9 +51,10 @@ hltESPPromptTrackCounting = cms.ESProducer("PromptTrackCountingESProducer",
 
     maximumDistanceToJetAxis = cms.double(999999.0),
     deltaR = cms.double(-1.0), ## use cut from JTA
-
+    deltaRmin = cms.double( 0.0 ),
+                                           
     maximumDecayLength = cms.double(999999.0),
-    # Warning, this cuts on absolute impact parameter significance
+    maxImpactParameter = cms.double( 0.03 ),                                           
     maxImpactParameterSig = cms.double(999999.0),
     trackQualityClass = cms.string("any"),
 #    trackQualityClass = cms.string("goodIterative"),

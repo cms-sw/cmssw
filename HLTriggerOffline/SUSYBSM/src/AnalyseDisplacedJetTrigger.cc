@@ -22,17 +22,24 @@
 #include <exception>
 
 AnalyseDisplacedJetTrigger::AnalyseDisplacedJetTrigger(const edm::ParameterSet& iConfig)
-// : 
+ : 
+   nPromptTkMax_(iConfig.getParameter<double> ("nPromptTkMax")),
+   ptMin_(iConfig.getParameter<double> ("ptMin")),
+   etaMax_(iConfig.getParameter<double> ("etaMax"))
 
-  //  datasetNameString_(iConfig.getParameter< vector<string> > ("datasetName")),
-    //  dataPeriod_(iConfig.getParameter<int> ("dataPeriod")),
+   //  datasetNameString_(iConfig.getParameter< vector<string> > ("datasetName")),
+   //  dataPeriod_(iConfig.getParameter<int> ("dataPeriod")),
 {  
+  // Define offline cuts used to select good jets.
+  GoodJetDisplacedJetTrigger::setCuts(nPromptTkMax_, ptMin_, etaMax_);
+
+  // Book some histos.
   dbe_ = Service < DQMStore > ().operator->();
   if ( ! dbe_ ) {
     LogWarning("AnalyseDisplacedJetTrigger") << "ERROR: unable to get DQMStore service?";
   }
     
-  trigEffi_ = dbe_->bookProfile("trigEffi","Trigger efficiency",40,0.5,40.5,-9.9,9.9);
+  trigEffi_ = dbe_->bookProfile("trigEffi","Trigger efficiency",50,0.5,50.5,-9.9,9.9);
 }
 
 void AnalyseDisplacedJetTrigger::beginRun(const edm::Run& run, const edm::EventSetup& c) {
@@ -319,6 +326,7 @@ TriggerObjectRef AnalyseDisplacedJetTrigger::matchJets(pat::JetRef recoJet, cons
    map<string, pair<bool, TriggerObjectRefVector> >  trigJetsInAllTrigs;
 
   if (patTriggerEvent_->wasRun()) {    
+
     // Loop over all triggers and note which ones fired.
     const pat::TriggerPathCollection& trigPaths = *(patTriggerEvent_->paths());
     unsigned int nTrig = trigPaths.size();
