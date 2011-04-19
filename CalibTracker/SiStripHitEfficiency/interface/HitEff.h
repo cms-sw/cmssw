@@ -25,6 +25,8 @@
 #include "RecoTracker/SingleTrackPattern/interface/CosmicTrajectoryBuilder.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
+
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -33,8 +35,8 @@
 #include <vector>
 #include "TTree.h"
 #include <iostream>
-#include "stdlib.h"
-#include "stdio.h"
+#include <cstdlib>
+#include <cstdio>
 #include "Riostream.h"
 #include "TRandom2.h"
 

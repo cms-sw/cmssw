@@ -13,7 +13,7 @@
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
-#include "RecoTracker/MeasurementDet/interface/RecHitPropagator.h"
+// #include "RecoTracker/MeasurementDet/interface/RecHitPropagator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TrackingRecHitProjector.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/ProjectedRecHit2D.h"
 
