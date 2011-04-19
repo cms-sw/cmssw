@@ -62,9 +62,8 @@ namespace popcon{
 	     << this->logDBEntry().iovtag<< "\n"
 	     << this->logDBEntry().iovtimetype<< "\n"
 	     << this->logDBEntry().payloadIdx<< "\n"
-	     << this->logDBEntry().payloadName<< "\n"
+	     << this->logDBEntry().payloadClass<< "\n"
 	     << this->logDBEntry().payloadToken<< "\n"
-	     << this->logDBEntry().payloadContainer<< "\n"
 	     << this->logDBEntry().exectime<< "\n"
 	     << this->logDBEntry().execmessage<< "\n"
 	     << "\n\n-- user text " << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of("@")) ;
@@ -113,7 +112,7 @@ namespace popcon{
 	edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") 
 	  << "[isTransferNeeded] the selected conditions are already uploaded in the last iov ("  
 	  << this->tagInfo().lastInterval.first << ") open for the object " 
-	  << this->logDBEntry().payloadName << " in the db " 
+	  << this->logDBEntry().payloadClass << " in the db " 
 	  << this->logDBEntry().destinationDB << " parameters: "  << ss_logdb.str() << "\n NO TRANSFER NEEDED";
 	return false;
       }

@@ -92,7 +92,6 @@ int cond::AlignSplitIOV::execute()
 
   cond::IOVService iovmanager(sourcedb);
   sourceiovtype = iovmanager.timeType(sourceiovtoken);
-  std::string payloadContainer = iovmanager.payloadContainerName(sourceiovtoken);
 
   if (verbose)
     std::cout << "source iov type " << sourceiovtype << std::endl;

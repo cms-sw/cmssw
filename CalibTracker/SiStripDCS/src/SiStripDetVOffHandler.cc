@@ -37,9 +37,8 @@ void popcon::SiStripDetVOffHandler::getNewObjects()
 	  << logDBEntry().iovtag           << "\n"
 	  << logDBEntry().iovtimetype      << "\n"
 	  << logDBEntry().payloadIdx       << "\n"
-	  << logDBEntry().payloadName      << "\n"
+	  << logDBEntry().payloadClass     << "\n"
 	  << logDBEntry().payloadToken     << "\n"
-	  << logDBEntry().payloadContainer << "\n"
 	  << logDBEntry().exectime         << "\n"
 	  << logDBEntry().execmessage      << "\n"
 	  << "\n\n-- user text " << userText;

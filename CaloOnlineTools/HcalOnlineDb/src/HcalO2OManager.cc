@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
-// $Id: HcalO2OManager.cc,v 1.37 2010/08/05 13:11:39 innocent Exp $
+// $Id: HcalO2OManager.cc,v 1.38 2010/08/06 20:24:13 wmtan Exp $
 //
 
 
@@ -113,7 +113,6 @@ int HcalO2OManager::getListOfPoolIovs(std::vector<uint32_t> & out,
      token=metadata_svc.getToken(tag);
      cond::IOVProxy iov(session, token, !details, details);
      unsigned int counter=0;
-     std::string payloadContainer=iov.payloadContainerName();
      
      for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
        out.push_back(ioviterator->since());
