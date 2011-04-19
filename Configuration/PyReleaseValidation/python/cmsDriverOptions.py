@@ -137,7 +137,12 @@ expertSettings.add_option("--no_output",
 expertSettings.add_option("--prefix",
                           help="Specify a prefix to the cmsRun command.",
                           default="",
-                          dest="prefix")  
+                          dest="prefix")
+
+expertSettings.add_option("--suffix",
+                          help="Specify a suffix to the cmsRun command.",
+                          default="",
+                          dest="suffix")  
 
 expertSettings.add_option("--relval",
                           help="Set total number of events and events per job.", #this does not get used but get parsed in the command by DatOps

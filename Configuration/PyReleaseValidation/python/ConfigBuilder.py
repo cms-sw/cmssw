@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.305 $"
+__version__ = "$Revision: 1.306 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -32,7 +32,7 @@ defaultOptions.evt_type = ""
 defaultOptions.filein = []
 defaultOptions.secondfilein = ""
 defaultOptions.customisation_file = ""
-defaultOptions.customisation_commands = ""
+defaultOptions.customise_commands = ""
 defaultOptions.inline_custom=False
 defaultOptions.particleTable = 'pythiapdt'
 defaultOptions.particleTableList = ['pythiapdt','pdt']
@@ -1400,7 +1400,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.305 $"),
+                                            (version=cms.untracked.string("$Revision: 1.306 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
