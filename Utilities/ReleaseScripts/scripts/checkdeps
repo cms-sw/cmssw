@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: checkdeps,v 1.11 2010/04/12 08:18:33 muzaffar Exp $
+# $Id: checkdeps,v 1.12 2010/06/14 13:04:50 muzaffar Exp $
 #
 # Created by: David Lange
 #             LLNL
@@ -23,6 +23,7 @@ my $checkout=0;
 my $checkpython=0;
 my $checkheader=0;
 my $checkbuildfile=0;
+my $printFileNames=0;
  
 foreach my $arg (@ARGV) {
     if ( $arg eq "-a" ) {
@@ -40,6 +41,9 @@ foreach my $arg (@ARGV) {
     elsif ( $arg eq "-b" ) {
 	$checkbuildfile=1;
     }
+    elsif ( $arg eq "-f" ) {
+	$printFileNames=1;
+    }
     else{
 	print "checkdeps:\n";
 	print "   Utility to check your local development area against the CMSSW release.\n";
@@ -50,6 +54,7 @@ foreach my $arg (@ARGV) {
 	print "   -p look for python modules and their dependencies  (ON by default)\n";
 	print "   -h look for header files and their dependencies    (ON by default)\n";
 	print "   -b look for BuildFile files and their dependencies (OFF by default)\n";
+	print "   -f print name of changed file name instead of type of dependency (OFF by default)\n";
 	print "   -a will add/checkout the packages into your development area\n";
 	print "   -q will pass -Q option to cvs to make it quiet\n\n";
 	exit;
@@ -145,7 +150,7 @@ foreach my $file (@changedFiles) {
 	    my $scope="header";
 	    if ($file=~/\.py$/o){$scope="python";}
 	    elsif($file=~/BuildFile(\.xml|)$/o){$scope="buildfile";}
-	    $recompileList{$recompile}{$scope}=1;
+	    $recompileList{$recompile}{$scope}=$file;
 	}
     }
 }
@@ -162,7 +167,11 @@ else{
 my $exitcode=0;
 if ( $len > 0 ) {
     foreach my $pk (@t) {
-	print "$pk (",join(", ",sort keys %{$recompileList{$pk}}),")\n";
+	if ( $printFileNames == 1 ) {
+	    print "$pk (",join(", ",sort values %{$recompileList{$pk}}),")\n";
+	} else {
+	    print "$pk (",join(", ",sort keys %{$recompileList{$pk}}),")\n";
+	}
     }
     if ( $checkout == 1 ) {
 	chdir("$maindir");
