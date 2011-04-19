@@ -5,7 +5,6 @@
 // 
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:44:26 EDT 2006
-// $Id: EDLooperBase.cc,v 1.2 2010/09/01 18:26:27 chrjones Exp $
 
 #include "FWCore/Framework/interface/EDLooperBase.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -15,7 +14,6 @@
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ScheduleInfo.h"
@@ -64,7 +62,7 @@ namespace edm {
   EDLooperBase::prepareForNextLoop(eventsetup::EventSetupProvider* esp) {
     ++iCounter_;
 
-    const std::set<edm::eventsetup::EventSetupRecordKey>& keys = modifyingRecords();
+    std::set<edm::eventsetup::EventSetupRecordKey> const& keys = modifyingRecords();
     for_all(keys,
       boost::bind(&eventsetup::EventSetupProvider::resetRecordPlusDependentRecords,
                   esp, _1));

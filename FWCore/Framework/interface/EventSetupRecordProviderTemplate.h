@@ -20,7 +20,6 @@
 //
 
 // system include files
-#include "boost/shared_ptr.hpp"
 #include "boost/type_traits/is_base_and_derived.hpp"
 #include "boost/mpl/begin_end.hpp"
 #include "boost/mpl/deref.hpp"
@@ -53,7 +52,7 @@ namespace edm {
       //Handle the case where a Record has dependencies
       template <typename T>
       struct FindDependenciesFromDependentRecord {
-         inline static void dependentRecords( std::set<EventSetupRecordKey>& oSet)  {
+         inline static void dependentRecords(std::set<EventSetupRecordKey>& oSet)  {
             typedef typename T::list_type list_type;
             const  typename boost::mpl::begin<list_type>::type * begin(0);
             const  typename boost::mpl::end<list_type>::type * end(0);
@@ -91,7 +90,7 @@ namespace edm {
          //virtual ~EventSetupRecordProviderTemplate();
          
          // ---------- const member functions ---------------------
-         const EventSetupRecord& record() const {return record_;}
+         EventSetupRecord const& record() const {return record_;}
          
          // ---------- static member functions --------------------
          
@@ -103,9 +102,9 @@ namespace edm {
          EventSetupRecord& record() { return record_; }
          
       private:
-         EventSetupRecordProviderTemplate(const EventSetupRecordProviderTemplate&); // stop default
+         EventSetupRecordProviderTemplate(EventSetupRecordProviderTemplate const&); // stop default
          
-         const EventSetupRecordProviderTemplate& operator=(const EventSetupRecordProviderTemplate&); // stop default
+         EventSetupRecordProviderTemplate const& operator=(EventSetupRecordProviderTemplate const&); // stop default
          
          // ---------- member data --------------------------------
          T record_;

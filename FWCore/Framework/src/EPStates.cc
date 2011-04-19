@@ -1,7 +1,6 @@
 
 #include "FWCore/Framework/src/EPStates.h"
 #include "FWCore/Framework/interface/IEventProcessor.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 #include <exception>
 #include <sstream>

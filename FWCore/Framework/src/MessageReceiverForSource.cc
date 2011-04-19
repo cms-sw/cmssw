@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec 30 10:09:50 CST 2010
-// $Id: MessageReceiverForSource.cc,v 1.1 2011/01/02 19:50:58 chrjones Exp $
 //
 
 // system include files
@@ -20,7 +19,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/MessageReceiverForSource.h"
-#include "FWCore/Framework/src/MessageForSource.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 using namespace edm::multicore;
@@ -48,7 +46,7 @@ m_startIndex(0),
 m_numberOfConsecutiveIndices(0),
 m_numberToSkip(0),
 m_forkedChildIndex(iChildIndex),
-m_numberOfIndicesToSkip( iNumberOfSequentialEvents*(iNumberOfChildren-1) ),
+m_numberOfIndicesToSkip(iNumberOfSequentialEvents*(iNumberOfChildren-1)),
 m_originalConsecutiveIndices(iNumberOfSequentialEvents)
 {
 }
@@ -94,7 +92,7 @@ MessageReceiverForSource::receive()
    MessageForSource message;
    errno = 0;
    int value = msgrcv(m_queueID, &message, MessageForSource::sizeForBuffer(), MessageForSource::messageType(), 0);
-   if (value < 0 ) {
+   if (value < 0) {
       m_numberOfConsecutiveIndices=0;
       throw cms::Exception("MulticoreCommunicationFailure")<<"failed to receive data from controller: errno="<<errno<<" : "<<strerror(errno);
    }

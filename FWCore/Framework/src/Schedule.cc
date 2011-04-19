@@ -1,7 +1,6 @@
 #include "FWCore/Framework/interface/Schedule.h"
 
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -14,11 +13,11 @@
 #include "FWCore/Framework/src/WorkerInPath.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
 #include "FWCore/Framework/src/WorkerT.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 #include "FWCore/Utilities/interface/ReflexTools.h"
 

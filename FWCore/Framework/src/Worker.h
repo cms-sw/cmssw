@@ -22,7 +22,6 @@ the worker is reset().
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/Framework/interface/Actions.h"
