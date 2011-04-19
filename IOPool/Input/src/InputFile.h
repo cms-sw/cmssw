@@ -7,15 +7,15 @@ Holder for an input TFile.
 ----------------------------------------------------------------------*/
 #include "FWCore/MessageLogger/interface/JobReport.h"
 
-#include "Rtypes.h"
 #include "TFile.h"
-#include "TObject.h"
 
 #include "boost/scoped_ptr.hpp"
 #include "boost/utility.hpp"
 
 #include <string>
 #include <vector>
+
+class TObject;
 
 namespace edm {
   class InputFile : private boost::noncopyable {

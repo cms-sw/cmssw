@@ -3,7 +3,6 @@
 
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
@@ -166,7 +165,7 @@ namespace edm {
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
         // Let's check why
         static const char* okerror  = "One of the export branch";
-        if (  strncmp(cloner.GetWarning(),okerror,strlen(okerror)) == 0 ) {
+        if (strncmp(cloner.GetWarning(), okerror, strlen(okerror)) == 0) {
           // That's fine we will handle it;
         }
         else {
