@@ -1,5 +1,5 @@
 
-// $Id: LumiSummary.cc,v 1.21 2010/10/12 10:54:59 xiezhen Exp $
+// $Id: LumiSummary.cc,v 1.22 2011/02/21 18:08:45 matevz Exp $
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
@@ -54,7 +54,7 @@ LumiSummary::liveFrac() const {
 float
 LumiSummary::lumiSectionLength() const {
   //numorbits*3564*25e-09
-  return numorbit_*3564.0*25.0*10e-9;
+  return numorbit_*3564.0*25.0e-9;
 }
 unsigned int 
 LumiSummary::lsNumber() const{
