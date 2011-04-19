@@ -62,7 +62,7 @@ void HeavyFlavorHarvesting::calculateEfficiency(const ParameterSet& pset){
 //get hold of numerator and denominator histograms
   vector<string> numDenEffMEnames = pset.getUntrackedParameter<vector<string> >("NumDenEffMEnames");
   if(numDenEffMEnames.size()!=3){
-    LogDebug("HLTriggerOfflineHeavyFlavor") << "NumDenEffMEnames must have three names"<<endl;
+    LogError("HLTriggerOfflineHeavyFlavor") << "NumDenEffMEnames must have three names"<<endl;
     return;
   }
   string denMEname = myDQMrootFolder+"/"+numDenEffMEnames[1];
@@ -70,14 +70,14 @@ void HeavyFlavorHarvesting::calculateEfficiency(const ParameterSet& pset){
   MonitorElement *denME = dqmStore->get(denMEname);
   MonitorElement *numME = dqmStore->get(numMEname);
   if(denME==0 || numME==0){
-    LogDebug("HLTriggerOfflineHeavyFlavor") << "Could not find MEs: "<<denMEname<<" or "<<numMEname<<endl;
+    LogError("HLTriggerOfflineHeavyFlavor") << "Could not find MEs: "<<denMEname<<" or "<<numMEname<<endl;
     return;
   }
   TH1 *den = denME->getTH1();
   TH1 *num = numME->getTH1();
   //check compatibility of the histograms  
   if( den->GetNbinsX() != num->GetNbinsX() || den->GetNbinsY() != num->GetNbinsY() ||  den->GetNbinsZ() != num->GetNbinsZ() ){
-    LogDebug("HLTriggerOfflineHeavyFlavor") << "Monitoring elements "<<numMEname<<" and "<<denMEname<<"are incompatible"<<endl;
+    LogError("HLTriggerOfflineHeavyFlavor") << "Monitoring elements "<<numMEname<<" and "<<denMEname<<"are incompatible"<<endl;
     return;
   }
   //figure out the directory and efficiency name  
@@ -130,12 +130,12 @@ void HeavyFlavorHarvesting::calculateEfficiency1D( TH1* num, TH1* den, string ef
   for(int i=1;i<=num->GetNbinsX();i++){
     double e, low, high;
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
-    if (int(den->GetBinContent(i))>0.) e= int(num->GetBinContent(i))/int(den->GetBinContent(i));
+    if (int(den->GetBinContent(i))>0.) e= double(num->GetBinContent(i))/double(den->GetBinContent(i));
     else e=0.;
-    low=TEfficiency::Wilson((int)den->GetBinContent(i),(int)num->GetBinContent(i),0.683,false);
-    high=TEfficiency::Wilson((int)den->GetBinContent(i),(int)num->GetBinContent(i),0.683,true);
+    low=TEfficiency::Wilson((double)den->GetBinContent(i),(double)num->GetBinContent(i),0.683,false);
+    high=TEfficiency::Wilson((double)den->GetBinContent(i),(double)num->GetBinContent(i),0.683,true);
 #else
-    Efficiency( (int)num->GetBinContent(i), (int)den->GetBinContent(i), 0.683, e, low, high );
+    Efficiency( (double)num->GetBinContent(i), (double)den->GetBinContent(i), 0.683, e, low, high );
 #endif
     double err = e-low>high-e ? e-low : high-e;
     //here is the trick to store info in TProfile:
@@ -168,12 +168,12 @@ void HeavyFlavorHarvesting::calculateEfficiency2D( TH2F* num, TH2F* den, string 
   for(int i=0;i<num->GetSize();i++){
     double e, low, high;
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
-    if (int(den->GetBinContent(i))>0.) e= int(num->GetBinContent(i))/int(den->GetBinContent(i));
+    if (int(den->GetBinContent(i))>0.) e= double(num->GetBinContent(i))/double(den->GetBinContent(i));
     else e=0.;
-    low=TEfficiency::Wilson((int)den->GetBinContent(i),(int)num->GetBinContent(i),0.683,false);
-    high=TEfficiency::Wilson((int)den->GetBinContent(i),(int)num->GetBinContent(i),0.683,true);
+    low=TEfficiency::Wilson((double)den->GetBinContent(i),(double)num->GetBinContent(i),0.683,false);
+    high=TEfficiency::Wilson((double)den->GetBinContent(i),(double)num->GetBinContent(i),0.683,true);
 #else
-    Efficiency( (int)num->GetBinContent(i), (int)den->GetBinContent(i), 0.683, e, low, high );
+    Efficiency( (double)num->GetBinContent(i), (double)den->GetBinContent(i), 0.683, e, low, high );
 #endif
     double err = e-low>high-e ? e-low : high-e;
     //here is the trick to store info in TProfile:
