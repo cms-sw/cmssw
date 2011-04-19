@@ -128,8 +128,7 @@ clusterDetSetsIdentical(const edmNew::DetSet<SiStripCluster>& L, const edmNew::D
 bool ClusterizerUnitTester::
 clustersIdentical(const SiStripCluster& L, const SiStripCluster& R) {
   return
-    L.geographicalId() == R.geographicalId()
-    && L.firstStrip() == R.firstStrip() 
+    L.firstStrip() == R.firstStrip() 
     && L.amplitudes().size() == R.amplitudes().size()
     && inner_product(L.amplitudes().begin(), L.amplitudes().end(), R.amplitudes().begin(), 
 		     bool(true), std::logical_and<bool>(), std::equal_to<uint16_t>() );
