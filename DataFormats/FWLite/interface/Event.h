@@ -66,7 +66,7 @@
 
 // forward declarations
 namespace edm {
-   class EDProduct;
+   class WrapperHolder;
    class ProductRegistry;
    class BranchDescription;
    class EDProductGetter;
@@ -93,7 +93,7 @@ namespace fwlite {
          virtual ~Event();
 
          ///Advance to next event in the TFile
-         const Event& operator++();
+         Event const& operator++();
 
          ///Find index of given event-id
          Long64_t indexFromEventId(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
@@ -107,25 +107,25 @@ namespace fwlite {
          bool to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
 
          /// Go to the very first Event.
-         const Event& toBegin();
+         Event const& toBegin();
       
          // ---------- const member functions ---------------------
          ///Return the branch name in the TFile which contains the data 
-         virtual const std::string getBranchNameFor(const std::type_info&,
-                                                    const char* iModuleLabel,
-                                                    const char* iProductInstanceLabel,
-                                                    const char* iProcessName) const;
+         virtual std::string const getBranchNameFor(std::type_info const&,
+                                                    char const* iModuleLabel,
+                                                    char const* iProductInstanceLabel,
+                                                    char const* iProcessName) const;
 
          using fwlite::EventBase::getByLabel;
          /// This function should only be called by fwlite::Handle<>
-         virtual bool getByLabel(const std::type_info&, const char*, const char*, const char*, void*) const;
-         //void getByBranchName(const std::type_info&, const char*, void*&) const;
+         virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const;
+         //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
          ///Properly setup for edm::Ref, etc and then call TTree method
          void       draw(Option_t* opt);
-         Long64_t   draw(const char* varexp, const TCut& selection, Option_t* option = "", Long64_t nentries = 1000000000, Long64_t firstentry = 0);
-         Long64_t   draw(const char* varexp, const char* selection, Option_t* option = "", Long64_t nentries = 1000000000, Long64_t firstentry = 0); 
-         Long64_t   scan(const char* varexp = "", const char* selection = "", Option_t* option = "", Long64_t nentries = 1000000000, Long64_t firstentry = 0);
+         Long64_t   draw(char const* varexp, const TCut& selection, Option_t* option = "", Long64_t nentries = 1000000000, Long64_t firstentry = 0);
+         Long64_t   draw(char const* varexp, char const* selection, Option_t* option = "", Long64_t nentries = 1000000000, Long64_t firstentry = 0); 
+         Long64_t   scan(char const* varexp = "", char const* selection = "", Option_t* option = "", Long64_t nentries = 1000000000, Long64_t firstentry = 0);
 
          bool isValid() const;
          operator bool () const;
@@ -136,15 +136,15 @@ namespace fwlite {
 
          virtual edm::EventAuxiliary const& eventAuxiliary() const;
 
-         const std::vector<edm::BranchDescription>& getBranchDescriptions() const {
+         std::vector<edm::BranchDescription> const& getBranchDescriptions() const {
             return branchMap_.getBranchDescriptions();
          }
-         const std::vector<std::string>& getProcessHistory() const;
+         std::vector<std::string> const& getProcessHistory() const;
          TFile* getTFile() const {
             return branchMap_.getFile();
          }
 
-         edm::EDProduct const* getByProductID(edm::ProductID const&) const;
+         edm::WrapperHolder getByProductID(edm::ProductID const&) const;
 
          virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
 
@@ -154,7 +154,7 @@ namespace fwlite {
          fwlite::Run             const& getRun() const;
 
          // ---------- static member functions --------------------
-         static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);
+         static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);
 
 
       private:
@@ -162,14 +162,14 @@ namespace fwlite {
          friend class ChainEvent;
          friend class EventHistoryGetter;
 
-         Event(const Event&); // stop default
+         Event(Event const&); // stop default
 
-         const Event& operator=(const Event&); // stop default
+         Event const& operator=(Event const&); // stop default
 
          const edm::ProcessHistory& history() const;
          void updateAux(Long_t eventIndex) const;
          void fillParameterSetRegistry() const;
-         void setGetter( boost::shared_ptr<edm::EDProductGetter> getter ) { return dataHelper_.setGetter(getter);}
+         void setGetter(boost::shared_ptr<edm::EDProductGetter> getter) { return dataHelper_.setGetter(getter);}
 
          // ---------- member data --------------------------------
          TFile* file_;
@@ -181,7 +181,7 @@ namespace fwlite {
          mutable fwlite::BranchMapReader branchMap_;
 
          //takes ownership of the strings used by the DataKey keys in data_
-         mutable std::vector<const char*> labels_;
+         mutable std::vector<char const*> labels_;
          mutable edm::ProcessHistoryMap historyMap_;
          mutable std::vector<edm::EventProcessHistoryID> eventProcessHistoryIDs_;
          mutable std::vector<std::string> procHistoryNames_;

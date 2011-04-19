@@ -1,8 +1,10 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/interface/Group.h"
-#include "FWCore/Utilities/interface/EDMException.h"
+
+#include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "FWCore/Framework/interface/Group.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
   RunPrincipal::RunPrincipal(
@@ -17,11 +19,11 @@ namespace edm {
   RunPrincipal::fillRunPrincipal(
     boost::shared_ptr<BranchMapper> mapper,
     boost::shared_ptr<DelayedReader> rtrv) {
-    if (productRegistry().anyProductProduced()) {
+    if(productRegistry().anyProductProduced()) {
       checkProcessHistory();
     }
     fillPrincipal(aux_->processHistoryID(), mapper, rtrv);
-    if (productRegistry().anyProductProduced()) {
+    if(productRegistry().anyProductProduced()) {
       addToProcessHistory();
     }
     mapper->processHistoryID() = processHistoryID();
@@ -33,11 +35,11 @@ namespace edm {
   void 
   RunPrincipal::put(
 	ConstBranchDescription const& bd,
-	std::auto_ptr<EDProduct> edp,
+	WrapperHolder const& edp,
 	std::auto_ptr<ProductProvenance> productProvenance) {
 
     assert(bd.produced());
-    if (edp.get() == 0) {
+    if(!edp.isValid()) {
       throw edm::Exception(edm::errors::InsertFailure,"Null Pointer")
 	<< "put: Cannot put because auto_ptr to product is null."
 	<< "\n";
@@ -53,8 +55,8 @@ namespace edm {
   RunPrincipal::readImmediate() const {
     for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
       Group const& g = **i;
-      if (!g.branchDescription().produced()) {
-        if (!g.productUnavailable()) {
+      if(!g.branchDescription().produced()) {
+        if(!g.productUnavailable()) {
           resolveProductImmediate(g);
         }
       }
@@ -64,14 +66,14 @@ namespace edm {
 
   void
   RunPrincipal::resolveProductImmediate(Group const& g) const {
-    if (g.branchDescription().produced()) return; // nothing to do.
+    if(g.branchDescription().produced()) return; // nothing to do.
 
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(g.branchDescription());
-    std::auto_ptr<EDProduct> edp(store()->getProduct(bk, this));
+    WrapperHolder edp(store()->getProduct(bk, g.productData().getInterface(), this));
 
     // Now fix up the Group
-    if (edp.get() != 0) {
+    if(edp.isValid()) {
       putOrMerge(edp, &g);
     }
   }
@@ -82,7 +84,7 @@ namespace edm {
     ProcessHistoryRegistry::instance()->getMapped(aux_->processHistoryID(), ph);
     std::string const& processName = processConfiguration().processName();
     for (ProcessHistory::const_iterator it = ph.begin(), itEnd = ph.end(); it != itEnd; ++it) {
-      if (processName == it->processName()) {
+      if(processName == it->processName()) {
 	throw edm::Exception(errors::Configuration, "Duplicate Process")
 	  << "The process name " << processName << " was previously used on these products.\n"
 	  << "Please modify the configuration file to use a distinct process name.\n";

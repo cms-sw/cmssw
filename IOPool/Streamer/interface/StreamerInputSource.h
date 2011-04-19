@@ -51,9 +51,9 @@ namespace edm {
      * Returns the actual size of the uncompressed data.
      * Errors are reported by throwing exceptions.
      */
-    static unsigned int uncompressBuffer(unsigned char *inputBuffer,
+    static unsigned int uncompressBuffer(unsigned char* inputBuffer,
                                          unsigned int inputSize,
-                                         std::vector<unsigned char> &outputBuffer,
+                                         std::vector<unsigned char>& outputBuffer,
                                          unsigned int expectedFullSize);
   protected:
     static void declareStreamers(SendDescs const& descs);
@@ -70,7 +70,7 @@ namespace edm {
       ProductGetter();
       virtual ~ProductGetter();
 
-      virtual EDProduct const* getIt(edm::ProductID const& id) const;
+      virtual WrapperHolder getIt(edm::ProductID const& id) const;
 
       void setEventPrincipal(EventPrincipal *ep);
 

@@ -93,13 +93,13 @@ namespace edm {
   void
   EventPrincipal::put(
         ConstBranchDescription const& bd,
-        std::auto_ptr<EDProduct> edp,
+        WrapperHolder const& edp,
         std::auto_ptr<ProductProvenance> productProvenance) {
 
     assert(bd.produced());
-    if(edp.get() == 0) {
+    if(!edp.isValid()) {
       throw Exception(errors::InsertFailure, "Null Pointer")
-        << "put: Cannot put because auto_ptr to product is null."
+        << "put: Cannot put because ptr to product is null."
         << "\n";
     }
     branchMapperPtr()->insert(*productProvenance);
@@ -113,13 +113,14 @@ namespace edm {
   void
   EventPrincipal::putOnRead(
         ConstBranchDescription const& bd,
-        std::auto_ptr<EDProduct> edp,
+        void const* product,
         std::auto_ptr<ProductProvenance> productProvenance) {
 
     assert(!bd.produced());
     branchMapperPtr()->insert(*productProvenance);
     Group *g = getExistingGroup(bd.branchID());
     assert(g);
+    WrapperHolder const edp(product, g->productData().getInterface());
     checkUniquenessAndType(edp, g);
     // Group assumes ownership
     g->putProduct(edp, productProvenance);
@@ -141,7 +142,7 @@ namespace edm {
 
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(g.branchDescription());
-    std::auto_ptr<EDProduct> edp(store()->getProduct(bk, this));
+    WrapperHolder edp(store()->getProduct(bk, g.productData().getInterface(), this));
 
     // Now fix up the Group
     checkUniquenessAndType(edp, &g);
@@ -202,12 +203,12 @@ namespace edm {
         << "onDemand production failed to produce it.\n";
       return BasicHandle(whyFailed);
     }
-    return BasicHandle(g->product(), g->provenance());
+    return BasicHandle(g->productData());
   }
 
-  EDProduct const *
+  WrapperHolder
   EventPrincipal::getIt(ProductID const& pid) const {
-    return getByProductID(pid).wrapper();
+    return getByProductID(pid).wrapperHolder();
   }
 
   Provenance

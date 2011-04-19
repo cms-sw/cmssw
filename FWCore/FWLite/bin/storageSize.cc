@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 20 09:50:58 CST 2011
-// $Id: storageSize.cc,v 1.1 2011/01/20 16:57:40 chrjones Exp $
+// $Id: storageSize.cc,v 1.2 2011/01/20 20:00:22 chrjones Exp $
 //
 
 // system include files
@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
       return 1;
    }
    
-   std::string className( vm[kClassNameOpt].as<std::string>());
+   std::string className(vm[kClassNameOpt].as<std::string>());
    
    AutoLibraryLoader::enable();
 

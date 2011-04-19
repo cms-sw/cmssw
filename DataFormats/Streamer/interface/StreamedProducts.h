@@ -24,27 +24,32 @@
 #include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 
+#include "TClassRef.h"
+
 namespace edm {
 
-  class EDProduct;
   // ------------------------------------------
 
   class StreamedProduct {
   public:
-    StreamedProduct() : prod_(0), desc_(0), status_(productstatus::neverCreated()), parents_(0) {}
+    StreamedProduct() : desc_(0), status_(productstatus::neverCreated()), parents_(0), prod_(0), classRef_() {}
     explicit StreamedProduct(BranchDescription const& desc) :
-      prod_(0), desc_(&desc), status_(productstatus::neverCreated()), parents_(0) {}
+      desc_(&desc), status_(productstatus::neverCreated()), parents_(0), prod_(0), classRef_() {}
 
-    StreamedProduct(EDProduct const* prod,
+    StreamedProduct(void const* prod,
                     BranchDescription const& desc,
                     ProductStatus status,
                     std::vector<BranchID> const* parents);
 
-    EDProduct const* prod() const {return prod_;}
     BranchDescription const* desc() const {return desc_;}
     BranchID branchID() const {return desc_->branchID();}
     ProductStatus status() const {return status_;}
     std::vector<BranchID> const* parents() const {return parents_;}
+    void* prod() {return prod_;}
+    TClassRef const& classRef() const {return classRef_;}
+    void allocateForReading();
+    void setNewClassType();
+    void clearClassType();
 
    void clear() {
      prod_= 0;
@@ -56,10 +61,11 @@ namespace edm {
   }
 
   private:
-    EDProduct const* prod_;
     BranchDescription const* desc_;
     ProductStatus status_;
     std::vector<BranchID> const* parents_;
+    void* prod_;
+    TClassRef classRef_;
   };
 
   // ------------------------------------------

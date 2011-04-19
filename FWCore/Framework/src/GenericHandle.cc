@@ -23,17 +23,13 @@ void convert_handle(BasicHandle const& orig,
     result.setWhyFailed(orig.whyFailed());
     return;
   }
-  EDProduct const* originalWrap = orig.wrapper();
-  if (originalWrap == 0)
+  WrapperHolder originalWrap = orig.wrapperHolder();
+  if(!originalWrap.isValid()) {
     throw edm::Exception(edm::errors::InvalidReference,"NullPointer")
       << "edm::BasicHandle has null pointer to Wrapper";
+  }
   
-  //Since a pointer to an EDProduct is not necessarily the same as a pointer to the actual type
-  // (compilers are allowed to offset the two) we must get our object via a two step process
-  Reflex::Object edproductObject(Reflex::Type::ByTypeInfo(typeid(EDProduct)), const_cast<EDProduct*>(originalWrap));
-  assert(edproductObject != Reflex::Object());
-  
-  Reflex::Object wrap(edproductObject.CastObject(edproductObject.DynamicType()));
+  Reflex::Object wrap(Reflex::Type::ByTypeInfo(originalWrap.wrappedTypeInfo()), const_cast<void*>(originalWrap.wrapper()));
   assert(wrap != Reflex::Object());
   
   Reflex::Object product(wrap.Get("obj"));
@@ -63,7 +59,7 @@ void convert_handle(BasicHandle const& orig,
 template<>
 bool
 edm::Event::getByLabel<GenericObject>(std::string const& label,
-                                      const std::string& productInstanceName,
+                                      std::string const& productInstanceName,
                                       Handle<GenericObject>& result) const
 {
   BasicHandle bh = provRecorder_.getByLabel_(TypeID(result.type().TypeInfo()), label, productInstanceName, std::string());

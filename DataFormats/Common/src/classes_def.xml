@@ -1,5 +1,4 @@
 <lcgdict>
- <class name="edm::EDProduct"/>
  <class name="edm::EDProductGetter"/>
  <class name="edm::RefCore" ClassVersion="10">
    <field name="prodPtr_" transient = "true"/>

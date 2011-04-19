@@ -25,17 +25,15 @@ To check validity, one can use the isValid() function.
 #include <algorithm>
 
 namespace edm {
-  class EDProduct;
-
   class OrphanHandleBase {
   public:
-    OrphanHandleBase () :
+    OrphanHandleBase() :
       product_(), id_(ProductID()) {
     }
 
-    OrphanHandleBase (void const* prod, ProductID const& id) :
+    OrphanHandleBase(void const* prod, ProductID const& id) :
       product_(prod), id_(id) {
-      assert (prod);
+      assert(prod);
     }
 
     ~OrphanHandleBase() {}

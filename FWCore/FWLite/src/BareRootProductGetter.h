@@ -4,7 +4,7 @@
 //
 // Package:     FWLite
 // Class  :     BareRootProductGetter
-// 
+//
 /**\class BareRootProductGetter BareRootProductGetter.h FWCore/FWLite/interface/BareRootProductGetter.h
 
  Description: <one line class summary>
@@ -18,58 +18,56 @@
 //         Created:  Tue May 23 11:03:27 EDT 2006
 //
 
-// system include files
-#include <map>
-#include "boost/shared_ptr.hpp"
-#include "Rtypes.h"
-
 // user include files
 #include "DataFormats/Common/interface/EDProductGetter.h"
-#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/WrapperHolder.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
+
+// system include files
+#include "Rtypes.h"
+#include <map>
 
 // forward declarations
 class TBranch;
 class TFile;
 class TTree;
 
-class BareRootProductGetter : public edm::EDProductGetter
-{
+class BareRootProductGetter : public edm::EDProductGetter {
 
    public:
       BareRootProductGetter();
       virtual ~BareRootProductGetter();
 
       // ---------- const member functions ---------------------
-      virtual edm::EDProduct const* getIt(edm::ProductID const&) const;
-      
+      virtual edm::WrapperHolder getIt(edm::ProductID const&) const;
+
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
 
       struct Buffer {
-        Buffer(edm::EDProduct* iProd, TBranch* iBranch, void* iAddress,
+        Buffer(edm::WrapperHolder const& iProd, TBranch* iBranch, void* iAddress,
                TClass* iClass) :
         product_(iProd), branch_(iBranch), address_(iAddress), eventEntry_(-1),
         class_(iClass) {}
         Buffer() : product_(), branch_(), address_(), eventEntry_(-1),class_(0) {}
-        
-        boost::shared_ptr<edm::EDProduct const> product_;
+
+        edm::WrapperHolder product_;
         TBranch* branch_;
         void* address_; //the address to pass to Root since as of 5.13 they cache that info
         Long_t eventEntry_; //the event Entry used with the last GetEntry call
         TClass* class_;
       };
    private:
-      BareRootProductGetter(const BareRootProductGetter&); // stop default
+      BareRootProductGetter(BareRootProductGetter const&); // stop default
 
-      const BareRootProductGetter& operator=(const BareRootProductGetter&); // stop default
+      BareRootProductGetter const& operator=(BareRootProductGetter const&); // stop default
 
       // ---------- member data --------------------------------
       void setupNewFile(TFile*) const;
-      TBranch* findBranch(const edm::ProductID& ) const;
-      Buffer* createNewBuffer(const edm::ProductID& ) const;
-      
+      TBranch* findBranch(edm::ProductID const&) const;
+      Buffer* createNewBuffer(edm::ProductID const&) const;
+
 //      mutable TFile* presentFile_;
 //      mutable TTree* eventTree_;
 //      mutable Long_t eventEntry_;
@@ -79,6 +77,5 @@ class BareRootProductGetter : public edm::EDProductGetter
       mutable IdToBuffers idToBuffers_;
       mutable fwlite::BranchMapReader branchMap_;
 };
-
 
 #endif

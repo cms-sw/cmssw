@@ -23,14 +23,14 @@
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/ConvertHandle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-
+#include "DataFormats/Common/interface/WrapperInterface.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
 
@@ -55,15 +55,15 @@ namespace edm {
 
   private:
 
-    virtual BasicHandle getByLabelImpl(const std::type_info& iWrapperType, const std::type_info& iProductType, const InputTag& iTag) const = 0;
+    virtual BasicHandle getByLabelImpl(WrapperInterfaceBase const* wrapperInterfaceBase, std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const = 0;
 
   };
 
-   template <class T>
+   template<typename T>
    bool
-   RunBase::getByLabel(const InputTag& tag, Handle<T>& result) const {
+   RunBase::getByLabel(InputTag const& tag, Handle<T>& result) const {
       result.clear();
-      BasicHandle bh = this->getByLabelImpl(typeid(edm::Wrapper<T>), typeid(T), tag);
+      BasicHandle bh = this->getByLabelImpl(edm::Wrapper<T>::getInterface(), typeid(Wrapper<T>), typeid(T), tag);
       convert_handle(bh, result);  // throws on conversion error
       if (bh.failedToGet()) {
          return false;

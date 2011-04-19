@@ -46,13 +46,11 @@ namespace edm {
         branchDescription_(prod),
         productBranch_(0),
         provenanceBranch_(0),
-        classCache_(0),
-        offsetToEDProduct_(0) {}
+        classCache_(0) {}
       ConstBranchDescription branchDescription_;
       TBranch* productBranch_;
       TBranch* provenanceBranch_; // For backward compatibility
       mutable TClass* classCache_;
-      mutable Int_t offsetToEDProduct_;
     };
     typedef std::map<BranchKey const, BranchInfo> BranchMap;
     Int_t getEntry(TBranch* branch, EntryNumber entryNumber);

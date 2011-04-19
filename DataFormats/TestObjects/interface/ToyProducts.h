@@ -21,8 +21,11 @@ namespace edmtest {
 
   // Toy products
 
-  struct DummyProduct
-  {};
+  struct ProductWithNoDictionary {
+  };
+
+  struct DummyProduct {
+  };
 
   struct IntProduct {
     explicit IntProduct(int i = 0) : value(i) {}
@@ -36,6 +39,7 @@ namespace edmtest {
     ~TransientIntProduct() {}
     
     int value;
+    ProductWithNoDictionary dummy;
   };
 
   struct Int16_tProduct {

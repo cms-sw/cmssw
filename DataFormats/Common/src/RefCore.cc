@@ -2,8 +2,8 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include <cassert>
-#include <ostream>
 #include <iostream>
+#include <ostream>
 
 namespace edm {
 
@@ -16,7 +16,7 @@ namespace edm {
       transient_(transient)
       {}
 
-  EDProduct const*
+  WrapperHolder
   RefCore::getProductPtr(std::type_info const& type) const {
     // The following invariant would be nice to establish in all
     // constructors, but we can not be sure that the context in which
@@ -54,9 +54,12 @@ namespace edm {
 	<< "The calling code must be modified to establish a functioning EDProducterGetter\n"
         << "for the context in which this call is mode\n";
     }
-    EDProduct const* product = productGetter()->getIt(tId);
-    if (product == 0) {
+    WrapperHolder product = productGetter()->getIt(tId);
+    if (!product.isValid()) {
       productNotFoundException(type);
+    }
+    if(!(type == product.dynamicTypeInfo())) {
+      wrongTypeException(type, product.dynamicTypeInfo());
     }
     return product;
   }
@@ -92,7 +95,7 @@ namespace edm {
   bool
   RefCore::isAvailable() const {
     ProductID tId = id();
-    return productPtr() != 0 || (tId.isValid() && productGetter() != 0 && productGetter()->getIt(tId) != 0);
+    return productPtr() != 0 || (tId.isValid() && productGetter() != 0 && productGetter()->getIt(tId).isValid());
   }
 
   void

@@ -12,13 +12,7 @@ is the DataBlock.
 
 ----------------------------------------------------------------------*/
 
-#include "boost/scoped_ptr.hpp"
-#include "boost/shared_ptr.hpp"
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
-
+#include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
@@ -26,6 +20,13 @@ is the DataBlock.
 #include "FWCore/Framework/interface/NoDelayedReader.h"
 #include "FWCore/Framework/interface/Principal.h"
 
+#include "boost/scoped_ptr.hpp"
+#include "boost/shared_ptr.hpp"
+
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace edm {
   class EventID;
@@ -118,15 +119,15 @@ namespace edm {
 
     void put(
         ConstBranchDescription const& bd,
-        std::auto_ptr<EDProduct> edp,
+        WrapperHolder const& edp,
         std::auto_ptr<ProductProvenance> productProvenance);
 
     void putOnRead(
         ConstBranchDescription const& bd,
-        std::auto_ptr<EDProduct> edp,
+        void const* product,
         std::auto_ptr<ProductProvenance> productProvenance);
 
-    virtual EDProduct const* getIt(ProductID const& pid) const;
+    WrapperHolder getIt(ProductID const& pid) const;
 
     ProductID branchIDToProductID(BranchID const& bid) const;
 

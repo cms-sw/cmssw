@@ -158,12 +158,11 @@ void testRef::comparisonTest() {
 
 namespace {
    struct TestGetter : public edm::EDProductGetter {
-      EDProduct const* hold_;
-      EDProduct const* getIt(ProductID const&) const {
+      WrapperHolder hold_;
+      WrapperHolder getIt(ProductID const&) const {
          return hold_;
       }
-
-      TestGetter() : hold_(0) {}
+      TestGetter() : hold_() {}
    };
 
    struct IntValue {
@@ -181,7 +180,7 @@ void testRef::getTest() {
 
    edm::Wrapper<IntCollection> wrapper(ptr);
    TestGetter tester;
-   tester.hold_ = &wrapper;
+   tester.hold_ = WrapperHolder(&wrapper, wrapper.getInterface());
 
    ProductID const pid(1, 1);
 
@@ -193,8 +192,8 @@ void testRef::getTest() {
    ref0.refCore().setProductGetter(&tester);
    ref0.refCore().setProductPtr(0);
    ref0.setPtr(0);
-   CPPUNIT_ASSERT( !ref0.hasProductCache());
-   CPPUNIT_ASSERT( !ref0.hasCache());
+   CPPUNIT_ASSERT(!ref0.hasProductCache());
+   CPPUNIT_ASSERT(!ref0.hasCache());
 
    Ref<IntCollection> ref1(handle, 1);
    ref1.refCore().setProductGetter(&tester);
@@ -227,23 +226,23 @@ void testRef::getTest() {
    //std::cerr << ">>> RefToBaseProd from Handle" << std::endl;
    RefToBaseProd<IntValue> refToBaseProd2(handle);
    //std::cerr << ">>> checking View from RefToBaseProd" << std::endl;
-   const View<IntValue> & vw = * refToBaseProd0;
+   const View<IntValue>& vw = * refToBaseProd0;
    //std::cerr << ">>> checking View not empty" << std::endl;
-   CPPUNIT_ASSERT( ! vw.empty() );
+   CPPUNIT_ASSERT(! vw.empty());
    //std::cerr << ">>> checking View size" << std::endl;
-   CPPUNIT_ASSERT( vw.size() == 2 );
+   CPPUNIT_ASSERT(vw.size() == 2);
    //std::cerr << ">>> checking View element #0" << std::endl;
-   CPPUNIT_ASSERT( vw[0].value_ == ref0->value_ );
+   CPPUNIT_ASSERT(vw[0].value_ == ref0->value_);
    //std::cerr << ">>> checking View element #1" << std::endl;
-   CPPUNIT_ASSERT( vw[1].value_ == ref1->value_ );
+   CPPUNIT_ASSERT(vw[1].value_ == ref1->value_);
    //std::cerr << ">>> RefToBaseProd from View" << std::endl;
    RefToBaseProd<IntValue> refToBaseProd3(vw);
    //std::cerr << ">>> checking ref. not empty" << std::endl;
-   CPPUNIT_ASSERT( ! refToBaseProd3->empty() );
+   CPPUNIT_ASSERT(! refToBaseProd3->empty());
    //std::cerr << ">>> checking ref. size" << std::endl;
-   CPPUNIT_ASSERT( refToBaseProd3->size() == 2 );
+   CPPUNIT_ASSERT(refToBaseProd3->size() == 2);
    //std::cerr << ">>> checking ref. element #0" << std::endl;
-   CPPUNIT_ASSERT( (*refToBaseProd3)[0].value_ == ref0->value_ );
+   CPPUNIT_ASSERT((*refToBaseProd3)[0].value_ == ref0->value_);
    //std::cerr << ">>> checking ref. element #1" << std::endl;
-   CPPUNIT_ASSERT( (*refToBaseProd3)[1].value_ == ref1->value_ );
+   CPPUNIT_ASSERT((*refToBaseProd3)[1].value_ == ref1->value_);
 }

@@ -123,7 +123,7 @@ namespace edm {
     // true).
 
     //Check that previousParentageId is still good by seeing if previousParentage matches gotBranchIDs_
-    bool sameAsPrevious=( (0 != previousParentage) && (previousParentage->size() == gotBranchIDs_.size()) );
+    bool sameAsPrevious=((0 != previousParentage) && (previousParentage->size() == gotBranchIDs_.size()));
     if (record_parents && !gotBranchIDs_.empty()) {
       gotBranchIDVector.reserve(gotBranchIDs_.size());
       std::vector<BranchID>::const_iterator itPrevious;
@@ -153,7 +153,7 @@ namespace edm {
       assert(!sameAsPrevious);
       previousParentageId = &temp;
     }
-    while(pit!=pie) {
+    while(pit != pie) {
       // set provenance
       std::auto_ptr<ProductProvenance> productProvenancePtr;
       if(!sameAsPrevious) {
@@ -169,10 +169,9 @@ namespace edm {
                                                                                       productstatus::present(),
                                                                                       *previousParentageId));
       }
-      std::auto_ptr<EDProduct> pr(pit->first);
+      ep.put(*pit->second, pit->first, productProvenancePtr);
       // Ownership has passed, so clear the pointer.
-      pit->first = 0;
-      ep.put(*pit->second, pr, productProvenancePtr);
+      pit->first.reset(); 
       ++pit;
     }
 
@@ -196,7 +195,7 @@ size_t
   }
 
   BasicHandle
-  Event::getByLabelImpl(const std::type_info& iWrapperType, const std::type_info& iProductType, const InputTag& iTag) const {
+  Event::getByLabelImpl(WrapperInterfaceBase const* wrapperInterfaceBase, std::type_info const& iWrapperType, std::type_info const& iProductType, const InputTag& iTag) const {
     BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType),iTag);
     if (h.isValid()) {
       addToGotBranchIDs(*(h.provenance()));
@@ -224,7 +223,7 @@ size_t
                  process);
 
     getByLabel(tag, hTriggerResults);
-    if ( !hTriggerResults.isValid() ) {
+    if (!hTriggerResults.isValid()) {
       return TriggerResultsByName(0,0);
     }
     edm::TriggerNames const* names = triggerNames_(*hTriggerResults);

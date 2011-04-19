@@ -31,7 +31,7 @@ namespace fwlite {
 //
 // constructors and destructor
 //
-ChainEvent::ChainEvent(const std::vector<std::string>& iFileNames):
+ChainEvent::ChainEvent(std::vector<std::string> const& iFileNames):
   fileNames_(),
   file_(),
   event_(),
@@ -67,7 +67,7 @@ ChainEvent::ChainEvent(const std::vector<std::string>& iFileNames):
     switchToFile(0);
 }
 
-// ChainEvent::ChainEvent(const ChainEvent& rhs)
+// ChainEvent::ChainEvent(ChainEvent const& rhs)
 // {
 //    // do actual copying here;
 // }
@@ -79,7 +79,7 @@ ChainEvent::~ChainEvent()
 //
 // assignment operators
 //
-// const ChainEvent& ChainEvent::operator=(const ChainEvent& rhs)
+// ChainEvent const& ChainEvent::operator=(ChainEvent const& rhs)
 // {
 //   //An exception safe implementation is
 //   ChainEvent temp(rhs);
@@ -92,7 +92,7 @@ ChainEvent::~ChainEvent()
 // member functions
 //
 
-const ChainEvent&
+ChainEvent const&
 ChainEvent::operator++()
 {
    if(eventIndex_ != static_cast<Long64_t>(fileNames_.size())-1)
@@ -136,7 +136,7 @@ ChainEvent::to(Long64_t iIndex)
    }
 
    // adjust to entry # in this file
-   return event_->to( iIndex-accumulatedSize_[offsetIndex] );
+   return event_->to(iIndex-accumulatedSize_[offsetIndex]);
 }
 
 
@@ -154,7 +154,7 @@ ChainEvent::to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::Eve
 {
 
    // First try this file
-   if ( event_->to( run, lumi, event ) )
+   if (event_->to(run, lumi, event))
    {
       // found it, return
       return true;
@@ -166,15 +166,15 @@ ChainEvent::to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::Eve
       Long64_t thisFile = eventIndex_;
       std::vector<std::string>::const_iterator filesBegin = fileNames_.begin(),
          filesEnd = fileNames_.end(), ifile = filesBegin;
-      for ( ; ifile != filesEnd; ++ifile )
+      for (; ifile != filesEnd; ++ifile)
       {
          // skip the "first" file that we tried
-         if ( ifile - filesBegin != thisFile )
+         if (ifile - filesBegin != thisFile)
          {
             // switch to the next file
-            switchToFile( ifile - filesBegin );
+            switchToFile(ifile - filesBegin);
             // check that tree for the desired event
-            if ( event_->to( run, lumi, event ) )
+            if (event_->to(run, lumi, event))
             {
                // found it, return
                return true;
@@ -195,7 +195,7 @@ ChainEvent::to(edm::RunNumber_t run, edm::EventNumber_t event)
 
 /** Go to the very first Event*/
 
-const ChainEvent&
+ChainEvent const&
 ChainEvent::toBegin()
 {
    if (eventIndex_ != 0)
@@ -213,28 +213,28 @@ ChainEvent::switchToFile(Long64_t iIndex)
   TFile *tfilePtr = TFile::Open(fileNames_[iIndex].c_str());
   file_ = boost::shared_ptr<TFile>(tfilePtr);
   gROOT->GetListOfFiles()->Remove(tfilePtr);
-  event_ = boost::shared_ptr<Event>( new Event(file_.get()));
+  event_ = boost::shared_ptr<Event>(new Event(file_.get()));
 }
 
 //
 // const member functions
 //
-const std::string
-ChainEvent::getBranchNameFor(const std::type_info& iType,
-                             const char* iModule,
-                             const char* iInstance,
-                             const char* iProcess) const
+std::string const
+ChainEvent::getBranchNameFor(std::type_info const& iType,
+                             char const* iModule,
+                             char const* iInstance,
+                             char const* iProcess) const
 {
   return event_->getBranchNameFor(iType,iModule,iInstance,iProcess);
 }
 
-const std::vector<edm::BranchDescription>&
+std::vector<edm::BranchDescription> const&
 ChainEvent::getBranchDescriptions() const
 {
   return event_->getBranchDescriptions();
 }
 
-const std::vector<std::string>&
+std::vector<std::string> const&
 ChainEvent::getProcessHistory() const
 {
   return event_->getProcessHistory();
@@ -258,18 +258,18 @@ fwlite::Run const& ChainEvent::getRun()
 
 
 bool
-ChainEvent::getByLabel(const std::type_info& iType,
-                       const char* iModule,
-                       const char* iInstance,
-                       const char* iProcess,
+ChainEvent::getByLabel(std::type_info const& iType,
+                       char const* iModule,
+                       char const* iInstance,
+                       char const* iProcess,
                        void* iValue) const
 {
-  return event_->getByLabel(iType,iModule,iInstance,iProcess,iValue);
+  return event_->getByLabel(iType, iModule, iInstance, iProcess, iValue);
 }
 
-edm::EDProduct const* ChainEvent::getByProductID(edm::ProductID const& iID) const
+edm::WrapperHolder ChainEvent::getByProductID(edm::ProductID const& iID) const
 {
-  return event_->getByProductID( iID );
+  return event_->getByProductID(iID);
 }
 
 bool
@@ -318,10 +318,10 @@ ChainEvent::triggerResultsByName(std::string const& process) const {
 // static member functions
 //
 void
-ChainEvent::throwProductNotFoundException(const std::type_info& iType,
-                                          const char* iModule,
-                                          const char* iInstance,
-                                          const char* iProcess) {
+ChainEvent::throwProductNotFoundException(std::type_info const& iType,
+                                          char const* iModule,
+                                          char const* iInstance,
+                                          char const* iProcess) {
   Event::throwProductNotFoundException(iType,iModule,iInstance,iProcess);
 }
 }

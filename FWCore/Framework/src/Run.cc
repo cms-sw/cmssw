@@ -1,5 +1,4 @@
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/NoDelayedReader.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
@@ -85,10 +84,9 @@ namespace edm {
 	std::auto_ptr<ProductProvenance> runEntryInfoPtr(
 		new ProductProvenance(pit->second->branchID(),
 				    productstatus::present()));
-        std::auto_ptr<EDProduct> pr(pit->first);
+	rp.put(*pit->second, pit->first, runEntryInfoPtr);
         // Ownership has passed, so clear the pointer.
-        pit->first = 0;
-	rp.put(*pit->second, pr, runEntryInfoPtr);
+        pit->first.reset();
 	++pit;
     }
 
@@ -107,9 +105,9 @@ namespace edm {
   }
 
   BasicHandle
-  Run::getByLabelImpl(const std::type_info& iWrapperType, const std::type_info& iProductType, const InputTag& iTag) const {
+  Run::getByLabelImpl(WrapperInterfaceBase const* wrapperInterfaceBase, std::type_info const& iWrapperType, std::type_info const& iProductType, const InputTag& iTag) const {
     BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType),iTag);
-    if (h.isValid()) {
+    if(h.isValid()) {
       addToGotBranchIDs(*(h.provenance()));
     }
     return h;

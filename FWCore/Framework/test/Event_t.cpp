@@ -1,11 +1,44 @@
-
 /*----------------------------------------------------------------------
 
 Test program for edm::Event.
 
 ----------------------------------------------------------------------*/
-#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/RunAuxiliary.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
+#include "DataFormats/TestObjects/interface/Thing.h"
+#include "DataFormats/TestObjects/interface/ToyProducts.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/interface/Selector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/GetPassID.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
+#include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
+
+#include "Cintex/Cintex.h"
+
 #include <cppunit/extensions/HelperMacros.h>
+
+#include "boost/shared_ptr.hpp"
 
 #include <algorithm>
 #include <fstream>
@@ -16,37 +49,6 @@ Test program for edm::Event.
 #include <string>
 #include <typeinfo>
 #include <vector>
-
-#include "boost/shared_ptr.hpp"
-
-#include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "DataFormats/Provenance/interface/ProcessHistory.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
-#include "DataFormats/Provenance/interface/EventAuxiliary.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
-#include "DataFormats/Provenance/interface/RunAuxiliary.h"
-#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
-#include "DataFormats/TestObjects/interface/Thing.h"
-#include "DataFormats/TestObjects/interface/ToyProducts.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/RunPrincipal.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/OrphanHandle.h"
-#include "DataFormats/Common/interface/Wrapper.h"
-#include "FWCore/Framework/interface/Selector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/Algorithms.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/GetPassID.h"
-#include "FWCore/Version/interface/GetReleaseVersion.h"
-#include "FWCore/Utilities/interface/GlobalIdentifier.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
 using namespace edm;
 
@@ -167,7 +169,7 @@ testEvent::registerProduct(std::string const& tag,
                            productInstanceName,
                            localModuleDescription,
                            product_type
-                          );
+                        );
 
   moduleDescriptions_[tag] = localModuleDescription;
   availableProducts_->addProduct(branch);
@@ -244,7 +246,7 @@ testEvent::testEvent() :
                            productInstanceName,
                            *currentModuleDescription_,
                            product_type
-                          );
+                        );
 
   availableProducts_->addProduct(branch);
 
@@ -258,6 +260,7 @@ testEvent::~testEvent() {
 
 void testEvent::setUp() {
 
+  ROOT::Cintex::Cintex::Enable();
   // First build a fake process history, that says there
   // were previous processes named "EARLY" and "LATE".
   // This takes several lines of code but other than
@@ -353,8 +356,7 @@ void testEvent::getBySelectorFromEmpty() {
   CPPUNIT_ASSERT(!currentEvent_->get(byModuleLabel, nonesuch));
   CPPUNIT_ASSERT(!nonesuch.isValid());
   CPPUNIT_ASSERT(nonesuch.failedToGet());
-  CPPUNIT_ASSERT_THROW(*nonesuch,
-                       cms::Exception);
+  CPPUNIT_ASSERT_THROW(*nonesuch, cms::Exception);
 }
 
 void testEvent::putAnIntProduct() {
@@ -614,8 +616,7 @@ void testEvent::getByLabel() {
   size_t cachedOffset = 0;
   int fillCount = -1;
 
-  BasicHandle bh =
-    principal_->getByLabel(TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "LATE", cachedOffset, fillCount);
+  BasicHandle bh = principal_->getByLabel(TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "LATE", cachedOffset, fillCount);
   convert_handle(bh, h);
   CPPUNIT_ASSERT(h->value == 100);
   BasicHandle bh2(principal_->getByLabel(TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "nomatch", cachedOffset, fillCount));

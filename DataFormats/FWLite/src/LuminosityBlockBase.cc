@@ -1,4 +1,4 @@
-// -*- C++ -*-
+// a))*- C++ -*-
 //
 // Package:     DataFormats/FWLite
 // Class  :     LuminosityBlockBase
@@ -21,22 +21,13 @@
 
 // user include files
 #include "DataFormats/FWLite/interface/LuminosityBlockBase.h"
+#include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
-namespace {
-   //This is used by the shared_ptr required to be passed to BasicHandle to keep the shared_ptr from doing the delete
-   struct null_deleter
-   {
-      void operator()(void const *) const
-      {
-      }
-   };
-}
 static const edm::ProductID s_id;
-static edm::ConstBranchDescription s_branch = edm::ConstBranchDescription( edm::BranchDescription() );
-static const edm::Provenance s_prov(boost::shared_ptr<edm::ConstBranchDescription>(&s_branch, null_deleter()) ,s_id);
-
+static edm::ConstBranchDescription s_branch = edm::ConstBranchDescription(edm::BranchDescription());
+static const edm::Provenance s_prov(boost::shared_ptr<edm::ConstBranchDescription>(&s_branch, edm::do_nothing_deleter()), s_id);
 
 namespace fwlite
 {
@@ -49,14 +40,14 @@ namespace fwlite
    }
 
    edm::BasicHandle
-   LuminosityBlockBase::getByLabelImpl(const std::type_info& iWrapperInfo, const std::type_info& /*iProductInfo*/, const edm::InputTag& iTag) const
+   LuminosityBlockBase::getByLabelImpl(edm::WrapperInterfaceBase const* wrapperInterfaceBase, std::type_info const& iWrapperInfo, std::type_info const& /*iProductInfo*/, const edm::InputTag& iTag) const
    {
-      edm::EDProduct* prod=0;
+      void* prod = 0;
       void* prodPtr = &prod;
       getByLabel(iWrapperInfo,
                  iTag.label().c_str(),
-                 iTag.instance().empty()?static_cast<const char*>(0):iTag.instance().c_str(),
-                 iTag.process().empty()?static_cast<const char*> (0):iTag.process().c_str(),
+                 iTag.instance().empty()?static_cast<char const*>(0):iTag.instance().c_str(),
+                 iTag.process().empty()?static_cast<char const*> (0):iTag.process().c_str(),
                  prodPtr);
       if(0==prod) {
          edm::TypeID productType(iWrapperInfo);
@@ -71,7 +62,7 @@ namespace fwlite
          edm::BasicHandle failed(whyFailed);
          return failed;
       }
-      edm::BasicHandle value(boost::shared_ptr<edm::EDProduct>(prod,null_deleter()),&s_prov);
+      edm::BasicHandle value(prod, wrapperInterfaceBase, &s_prov);
       return value;
    }
 }

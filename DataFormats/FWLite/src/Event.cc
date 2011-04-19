@@ -60,7 +60,7 @@ namespace fwlite {
             public:
                 ProductGetter(Event* iEvent) : event_(iEvent) {}
 
-                edm::EDProduct const*
+                edm::WrapperHolder
                 getIt(edm::ProductID const& iID) const {
                     return event_->getByProductID(iID);
                 }
@@ -99,7 +99,7 @@ namespace fwlite {
     //got this logic from IOPool/Input/src/RootFile.cc
 
     TTree* eventTree = branchMap_.getEventTree();
-    if(fileVersion_ >= 3 ) {
+    if(fileVersion_ >= 3) {
       auxBranch_ = eventTree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InEvent).c_str());
       if(0 == auxBranch_) {
         throw cms::Exception("NoEventAuxilliary") << "The TTree "
@@ -126,13 +126,13 @@ namespace fwlite {
 
 }
 
-// Event::Event(const Event& rhs)
+// Event::Event(Event const& rhs)
 // {
 //    // do actual copying here;
 // }
 
 Event::~Event() {
-  for(std::vector<const char*>::iterator it = labels_.begin(), itEnd = labels_.end();
+  for(std::vector<char const*>::iterator it = labels_.begin(), itEnd = labels_.end();
       it != itEnd;
       ++it) {
     delete [] *it;
@@ -143,7 +143,7 @@ Event::~Event() {
 //
 // assignment operators
 //
-// const Event& Event::operator=(const Event& rhs) {
+// Event const& Event::operator=(Event const& rhs) {
 //   //An exception safe implementation is
 //   Event temp(rhs);
 //   swap(rhs);
@@ -155,7 +155,7 @@ Event::~Event() {
 // member functions
 //
 
-const Event&
+Event const&
 Event::operator++() {
    Long_t eventIndex = branchMap_.getEventEntry();
    if(eventIndex < size()) {
@@ -201,7 +201,7 @@ Event::to(const edm::EventID &id) {
    return to(id.run(), id.luminosityBlock(), id.event());
 }
 
-const Event&
+Event const&
 Event::toBegin() {
    branchMap_.updateEvent(0);
    return *this;
@@ -214,15 +214,15 @@ void       Event::draw(Option_t* opt) {
    GetterOperate op(dataHelper_.getter());
    branchMap_.getEventTree()->Draw(opt);
 }
-Long64_t   Event::draw(const char* varexp, const TCut& selection, Option_t* option, Long64_t nentries, Long64_t firstentry) {
+Long64_t   Event::draw(char const* varexp, const TCut& selection, Option_t* option, Long64_t nentries, Long64_t firstentry) {
    GetterOperate op(dataHelper_.getter());
    return branchMap_.getEventTree()->Draw(varexp,selection,option,nentries,firstentry);
 }
-Long64_t   Event::draw(const char* varexp, const char* selection, Option_t* option, Long64_t nentries, Long64_t firstentry) {
+Long64_t   Event::draw(char const* varexp, char const* selection, Option_t* option, Long64_t nentries, Long64_t firstentry) {
    GetterOperate op(dataHelper_.getter());
    return branchMap_.getEventTree()->Draw(varexp,selection,option,nentries,firstentry);
 }
-Long64_t   Event::scan(const char* varexp, const char* selection, Option_t* option, Long64_t nentries, Long64_t firstentry) {
+Long64_t   Event::scan(char const* varexp, char const* selection, Option_t* option, Long64_t nentries, Long64_t firstentry) {
    GetterOperate op(dataHelper_.getter());
    return branchMap_.getEventTree()->Scan(varexp,selection,option,nentries,firstentry);
 }
@@ -251,7 +251,7 @@ Event::atEnd() const {
 }
 
 
-const std::vector<std::string>&
+std::vector<std::string> const&
 Event::getProcessHistory() const {
   if (procHistoryNames_.empty()) {
     const edm::ProcessHistory& h = history();
@@ -264,20 +264,21 @@ Event::getProcessHistory() const {
 }
 
 
-const std::string
-Event::getBranchNameFor(const std::type_info& iInfo,
-                  const char* iModuleLabel,
-                  const char* iProductInstanceLabel,
-                  const char* iProcessLabel) const {
+std::string const
+Event::getBranchNameFor(std::type_info const& iInfo,
+                  char const* iModuleLabel,
+                  char const* iProductInstanceLabel,
+                  char const* iProcessLabel) const {
     return dataHelper_.getBranchNameFor(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel);
 }
 
 
 bool
-Event::getByLabel(const std::type_info& iInfo,
-                  const char* iModuleLabel,
-                  const char* iProductInstanceLabel,
-                  const char* iProcessLabel,
+Event::getByLabel(
+                  std::type_info const& iInfo,
+                  char const* iModuleLabel,
+                  char const* iProductInstanceLabel,
+                  char const* iProcessLabel,
                   void* oData) const {
     if(atEnd()) {
         throw cms::Exception("OffEnd") << "You have requested data past the last event";
@@ -370,7 +371,7 @@ Event::history() const {
 }
 
 
-edm::EDProduct const*
+edm::WrapperHolder
 Event::getByProductID(edm::ProductID const& iID) const {
   Long_t eventIndex = branchMap_.getEventEntry();
   return dataHelper_.getByProductID(iID, eventIndex);
@@ -420,7 +421,7 @@ Event::fillParameterSetRegistry() const {
     TBranch* b = meta->GetBranch(edm::poolNames::parameterSetMapBranchName().c_str());
     b->SetAddress(&psetMapPtr);
     b->GetEntry(0);
-  } else if( 0 == (psetTree = dynamic_cast<TTree *>(branchMap_.getFile()->Get(edm::poolNames::parameterSetsTreeName().c_str())))) {
+  } else if(0 == (psetTree = dynamic_cast<TTree *>(branchMap_.getFile()->Get(edm::poolNames::parameterSetsTreeName().c_str())))) {
     throw cms::Exception("NoParameterSetMapTree")
     << "The TTree "
     << edm::poolNames::parameterSetsTreeName() << " could not be found in the file.";
@@ -453,8 +454,8 @@ edm::TriggerResultsByName
 Event::triggerResultsByName(std::string const& process) const {
 
   fwlite::Handle<edm::TriggerResults> hTriggerResults;
-  hTriggerResults.getByLabel(*this,"TriggerResults","",process.c_str());
-  if ( !hTriggerResults.isValid()) {
+  hTriggerResults.getByLabel(*this, "TriggerResults", "", process.c_str());
+  if (!hTriggerResults.isValid()) {
     return edm::TriggerResultsByName(0,0);
   }
 
@@ -470,7 +471,7 @@ Event::triggerResultsByName(std::string const& process) const {
 // static member functions
 //
 void
-Event::throwProductNotFoundException(const std::type_info& iType, const char* iModule, const char* iProduct, const char* iProcess) {
+Event::throwProductNotFoundException(std::type_info const& iType, char const* iModule, char const* iProduct, char const* iProcess) {
     edm::TypeID type(iType);
   throw edm::Exception(edm::errors::ProductNotFound) << "A branch was found for \n  type ='" << type.className() << "'\n  module='" << iModule
     << "'\n  productInstance='" << ((0!=iProduct)?iProduct:"") << "'\n  process='" << ((0 != iProcess) ? iProcess : "") << "'\n"
@@ -484,7 +485,7 @@ fwlite::LuminosityBlock const& Event::getLuminosityBlock() const {
     lumi_ = boost::shared_ptr<fwlite::LuminosityBlock> (
              new fwlite::LuminosityBlock(boost::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()),
              runFactory_)
-            );
+          );
   }
   edm::RunNumber_t             run  = eventAuxiliary().run();
   edm::LuminosityBlockNumber_t lumi = eventAuxiliary().luminosityBlock();

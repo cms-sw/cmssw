@@ -1,18 +1,17 @@
+#include "DataFormats/Common/interface/ConvertHandle.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 
 namespace edm {
-  class EDProduct;
   namespace handleimpl {
     void throwInvalidReference() {
-      throw edm::Exception(edm::errors::InvalidReference,"NullPointer")
+      throw Exception(errors::InvalidReference, "NullPointer")
         << "edm::BasicHandle has null pointer to Wrapper";
     }
 
-    void throwConvertTypeError(EDProduct const* product) {
-      throw edm::Exception(edm::errors::LogicError,"ConvertType")
-        << "edm::Wrapper converting from EDProduct to "
-        << typeid(*product).name();
+    void throwConvertTypeError(std::type_info const& expected, std::type_info const& actual) {
+      throw Exception(errors::LogicError, "TypeMismatch")
+        << "edm::BasicHandle contains a product of type " << actual.name() << ".\n"
+        << "A type of " << expected.name() << "was expected.";
     }
   }
 }

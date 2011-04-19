@@ -23,12 +23,15 @@
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 
+#include "DataFormats/Common/interface/BasicHandle.h"
+#include "DataFormats/Common/interface/ConvertHandle.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/WrapperInterface.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Common/interface/BasicHandle.h"
-#include "DataFormats/Common/interface/Handle.h"
 
 //#include "FWCore/Framework/interface/PrincipalGetAdapter.h"
 //#include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -62,34 +65,34 @@ namespace edm {
 
     virtual edm::LuminosityBlockAuxiliary const& luminosityBlockAuxiliary() const = 0;
 
-/*    template <typename PROD>
+/*    template<typename PROD>
     bool
     get(SelectorBase const&, Handle<PROD>& result) const;
 
-    template <typename PROD>
+    template<typename PROD>
     bool
     getByLabel(std::string const& label, Handle<PROD>& result) const;
 
-    template <typename PROD>
+    template<typename PROD>
     bool
     getByLabel(std::string const& label,
                std::string const& productInstanceName,
                Handle<PROD>& result) const;
 */
     /// same as above, but using the InputTag class
-    template <typename PROD>
+    template<typename PROD>
     bool
     getByLabel(InputTag const& tag, Handle<PROD>& result) const;
 /*
-    template <typename PROD>
+    template<typename PROD>
     void
     getMany(SelectorBase const&, std::vector<Handle<PROD> >& results) const;
 
-    template <typename PROD>
+    template<typename PROD>
     bool
     getByType(Handle<PROD>& result) const;
 
-    template <typename PROD>
+    template<typename PROD>
     void
     getManyByType(std::vector<Handle<PROD> >& results) const;
 
@@ -99,12 +102,12 @@ namespace edm {
     }
 
     ///Put a new product.
-    template <typename PROD>
+    template<typename PROD>
     void
     put(std::auto_ptr<PROD> product) {put<PROD>(product, std::string());}
 
     ///Put a new product with a 'product instance name'
-    template <typename PROD>
+    template<typename PROD>
     void
     put(std::auto_ptr<PROD> product, std::string const& productInstanceName);
 
@@ -146,11 +149,11 @@ namespace edm {
     LuminosityBlockAuxiliary const& aux_;
     boost::shared_ptr<Run const> const run_;
 */
-    virtual BasicHandle getByLabelImpl(const std::type_info& iWrapperType, const std::type_info& iProductType, const InputTag& iTag) const = 0;
+    virtual BasicHandle getByLabelImpl(WrapperInterfaceBase const* wrapperInterfaceBase, std::type_info const& iWrapperType, std::type_info const& iProductType, const InputTag& iTag) const = 0;
 
   };
 /*
-  template <typename PROD>
+  template<typename PROD>
   void
   LuminosityBlock::put(std::auto_ptr<PROD> product, std::string const& productInstanceName) {
     if (product.get() == 0) {                // null pointer is illegal
@@ -169,26 +172,27 @@ namespace edm {
       provRecorder_.getBranchDescription(TypeID(*product), productInstanceName);
 
     Wrapper<PROD> *wp(new Wrapper<PROD>(product));
+    WrapperHolder edp(wp, wp->getInterface());
 
-    putProducts().push_back(std::make_pair(wp, &desc));
+    putProducts().push_back(std::make_pair(edp, &desc));
 
     // product.release(); // The object has been copied into the Wrapper.
     // The old copy must be deleted, so we cannot release ownership.
   }
 
-  template <typename PROD>
+  template<typename PROD>
   bool
   LuminosityBlock::get(SelectorBase const& sel, Handle<PROD>& result) const {
     return provRecorder_.get(sel,result);
   }
 
-  template <typename PROD>
+  template<typename PROD>
   bool
   LuminosityBlock::getByLabel(std::string const& label, Handle<PROD>& result) const {
     return provRecorder_.getByLabel(label,result);
   }
 
-  template <typename PROD>
+  template<typename PROD>
   bool
   LuminosityBlock::getByLabel(std::string const& label,
                   std::string const& productInstanceName,
@@ -197,35 +201,35 @@ namespace edm {
   }
 
   /// same as above, but using the InputTag class
-  template <typename PROD>
+  template<typename PROD>
   bool
   LuminosityBlock::getByLabel(InputTag const& tag, Handle<PROD>& result) const {
     return provRecorder_.getByLabel(tag,result);
   }
 
-  template <typename PROD>
+  template<typename PROD>
   void
   LuminosityBlock::getMany(SelectorBase const& sel, std::vector<Handle<PROD> >& results) const {
     return provRecorder_.getMany(sel,results);
   }
 
-  template <typename PROD>
+  template<typename PROD>
   bool
   LuminosityBlock::getByType(Handle<PROD>& result) const {
     return provRecorder_.getByType(result);
   }
 
-  template <typename PROD>
+  template<typename PROD>
   void
   LuminosityBlock::getManyByType(std::vector<Handle<PROD> >& results) const {
     return provRecorder_.getManyByType(results);
   }
 */
-   template <class T>
+   template<class T>
    bool
    LuminosityBlockBase::getByLabel(const InputTag& tag, Handle<T>& result) const {
       result.clear();
-      BasicHandle bh = this->getByLabelImpl(typeid(edm::Wrapper<T>), typeid(T), tag);
+      BasicHandle bh = this->getByLabelImpl(edm::Wrapper<T>::getInterface(), typeid(Wrapper<T>), typeid(T), tag);
       convert_handle(bh, result);  // throws on conversion error
       if (bh.failedToGet()) {
          return false;

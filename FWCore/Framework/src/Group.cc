@@ -4,14 +4,14 @@
 
 #include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+
+#include <cassert>
 
 using Reflex::Type;
 using Reflex::TypeTemplate;
 
 namespace edm {
-
   Group::Group() {}
 
   Group::~Group() {}
@@ -23,26 +23,29 @@ namespace edm {
 
   void
   ProducedGroup::putProduct_(
-        std::auto_ptr<EDProduct> edp,
+        WrapperHolder const& edp,
         boost::shared_ptr<ProductProvenance> productProvenance) {
     if(product()) {
       throw Exception(errors::InsertFailure)
-          << "Attempt to insert more than one product on branch " << groupData().branchDescription()->branchName() << "\n";
+          << "Attempt to insert more than one product on branch " << productData().branchDescription()->branchName() << "\n";
     }
     assert(branchDescription().produced());
-    assert(edp.get() != 0);
+    assert(edp.isValid());
     assert(!provenance()->productProvenanceResolved());
     assert(status() != Present);
     assert(status() != Uninitialized);
     setProductProvenance(productProvenance);
     assert(provenance()->productProvenanceResolved());
-    groupData().product_.reset(edp.release());  // Group takes ownership
+    if(productData().getInterface() != 0) {
+      assert(productData().getInterface() == edp.interface());
+    }
+    productData().wrapper_ = edp.product();
     status_() = Present;
   }
 
   void
   ProducedGroup::mergeProduct_(
-        std::auto_ptr<EDProduct> edp,
+        WrapperHolder const& edp,
         boost::shared_ptr<ProductProvenance> productProvenance) {
     assert(provenance()->productProvenanceResolved());
     assert(status() == Present);
@@ -57,18 +60,18 @@ namespace edm {
   }
 
   void
-  ProducedGroup::mergeProduct_(std::auto_ptr<EDProduct> edp) const {
+  ProducedGroup::mergeProduct_(WrapperHolder const& edp) const {
     assert(0);
   }
 
   void
-  ProducedGroup::putProduct_(std::auto_ptr<EDProduct> edp) const {
+  ProducedGroup::putProduct_(WrapperHolder const& edp) const {
     assert(0);
   }
 
   void
   InputGroup::putProduct_(
-        std::auto_ptr<EDProduct> edp,
+        WrapperHolder const& edp,
         boost::shared_ptr<ProductProvenance> productProvenance) {
     assert(!product());
     assert(!provenance()->productProvenanceResolved());
@@ -79,13 +82,13 @@ namespace edm {
 
   void
   InputGroup::mergeProduct_(
-        std::auto_ptr<EDProduct> edp,
+        WrapperHolder const& edp,
         boost::shared_ptr<ProductProvenance> productProvenance) {
     assert(0);
   }
 
   void
-  InputGroup::mergeProduct_(std::auto_ptr<EDProduct> edp) const {
+  InputGroup::mergeProduct_(WrapperHolder const& edp) const {
     mergeTheProduct(edp);
   }
 
@@ -95,17 +98,17 @@ namespace edm {
   }
 
   void
-  InputGroup::putProduct_(std::auto_ptr<EDProduct> edp) const {
+  InputGroup::putProduct_(WrapperHolder const& edp) const {
     assert(!product());
     setProduct(edp);
   }
 
   void
-  Group::mergeTheProduct(std::auto_ptr<EDProduct> edp) const {
-    if(product()->isMergeable()) {
-      product()->mergeProduct(edp.get());
-    } else if(product()->hasIsProductEqual()) {
-      if(!product()->isProductEqual(edp.get())) {
+  Group::mergeTheProduct(WrapperHolder const& edp) const {
+    if(wrapper().isMergeable()) {
+      wrapper().mergeProduct(edp.wrapper());
+    } else if(wrapper().hasIsProductEqual()) {
+      if(!wrapper().isProductEqual(edp.wrapper())) {
         LogError("RunLumiMerging")
               << "Group::mergeGroup\n"
               << "Two run/lumi products for the same run/lumi which should be equal are not\n"
@@ -128,30 +131,18 @@ namespace edm {
   }
 
   void
-  GroupData::checkType(EDProduct const& prod) const {
-    // Check if the types match.
-    TypeID typeID(prod.dynamicTypeInfo());
-    if(typeID != branchDescription()->typeID()) {
-      // Types do not match.
-      throw Exception(errors::EventCorruption)
-          << "Product on branch " << branchDescription()->branchName() << " is of wrong type.\n"
-          << "It is supposed to be of type " << branchDescription()->className() << ".\n"
-          << "It is actually of type " << typeID.className() << ".\n";
-    }
-  }
-
-  void
-  InputGroup::setProduct(std::auto_ptr<EDProduct> prod) const {
+  InputGroup::setProduct(WrapperHolder const& prod) const {
     assert (!product());
-    if(prod.get() == 0 || !prod->isPresent()) {
+    if(!prod.isValid() || !prod.isPresent()) {
       setProductUnavailable();
     }
-    groupData().product_.reset(prod.release());  // Group takes ownership
+    assert(productData().getInterface() == prod.interface() || !prod.isValid());
+    productData().wrapper_ = prod.product();
   }
 
   void
   Group::setProductProvenance(boost::shared_ptr<ProductProvenance> prov) const {
-    groupData().prov_.setProductProvenance(prov);
+    productData().prov_.setProductProvenance(prov);
   }
 
   // This routine returns true if it is known that currently there is no real product.
@@ -164,7 +155,7 @@ namespace edm {
     }
     // If there is a product, we know if it is real or a dummy.
     if(product()) {
-      bool unavailable = !(product()->isPresent());
+      bool unavailable = !(wrapper().isPresent());
       if(unavailable) {
         setProductUnavailable();
       }
@@ -181,7 +172,7 @@ namespace edm {
     // If unscheduled production, the product is potentially available.
     if(onDemand()) return false;
     // The product is available if and only if a product has been put.
-    bool unavailable = !(product() && product()->isPresent());
+    bool unavailable = !(product() && wrapper().isPresent());
     assert (!productstatus::presenceUnknown(status()));
     assert(unavailable == productstatus::notPresent(status()));
     return unavailable;
@@ -192,7 +183,7 @@ namespace edm {
     // If this product is from a the current process,
     // the provenance is available if and only if a product has been put.
     if(branchDescription().produced()) {
-      return product() && product()->isPresent();
+      return product() && wrapper().isPresent();
     }
     // If this product is from a prior process, the provenance is available,
     // although the per event part may have been dropped.
@@ -201,24 +192,37 @@ namespace edm {
 
   Type
   Group::productType() const {
-    return Type::ByTypeInfo(typeid(*product()));
+    return Type::ByTypeInfo(wrapper().interface()->wrappedTypeInfo());
+  }
+
+  void
+  Group::reallyCheckType(WrapperHolder const& prod) const {
+    // Check if the types match.
+    TypeID typeID(prod.dynamicTypeInfo());
+    if(typeID != branchDescription().typeID()) {
+      // Types do not match.
+      throw Exception(errors::EventCorruption)
+          << "Product on branch " << branchDescription().branchName() << " is of wrong type.\n"
+          << "It is supposed to be of type " << branchDescription().className() << ".\n"
+          << "It is actually of type " << typeID.className() << ".\n";
+    }
   }
 
   void
   Group::setProvenance(boost::shared_ptr<BranchMapper> mapper, ProductID const& pid) {
-    //assert(!groupData().prov_);
-    groupData().prov_.setProductID(pid);
-    groupData().prov_.setStore(mapper);
+    //assert(!productData().prov_);
+    productData().prov_.setProductID(pid);
+    productData().prov_.setStore(mapper);
   }
 
   void
   Group::setProvenance(boost::shared_ptr<BranchMapper> mapper) {
-    groupData().prov_.setStore(mapper);
+    productData().prov_.setStore(mapper);
   }
 
   Provenance*
   Group::provenance() const {
-    return &(groupData().prov_);
+    return &(productData().prov_);
   }
 
   void

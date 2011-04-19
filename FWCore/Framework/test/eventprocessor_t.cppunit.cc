@@ -23,6 +23,8 @@ Test of the EventProcessor class.
 
 #include "cppunit/extensions/HelperMacros.h"
 
+#include "Cintex/Cintex.h"
+
 #include "boost/regex.hpp"
 
 #include <exception>
@@ -46,6 +48,7 @@ class testeventprocessor: public CppUnit::TestFixture {
  public:
 
   void setUp() {
+    ROOT::Cintex::Cintex::Enable();
     m_handler = std::auto_ptr<edm::AssertHandler>(new edm::AssertHandler());
     sleep_secs_ = 0;
   }

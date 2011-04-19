@@ -24,8 +24,9 @@ namespace edm {
 
 
   void
-  principal_get_adapter_detail::deleter::operator()(std::pair<EDProduct*, ConstBranchDescription const*> const p) const {
-    delete p.first;
+  principal_get_adapter_detail::deleter::operator()(std::pair<WrapperHolder, ConstBranchDescription const*> const p) const {
+    WrapperHolder* edp = const_cast<WrapperHolder*>(&p.first);
+    edp->reset();
   }
 
   void
@@ -120,7 +121,7 @@ namespace edm {
                                             BasicHandle& result) const {
     Selector sel(ModuleLabelSelector(label) &&
                  ProductInstanceNameSelector(productInstanceName) &&
-                 ProcessNameSelector(processName) );
+                 ProcessNameSelector(processName));
 
     int n = principal_.getMatchingSequence(typeID,
   				   sel,

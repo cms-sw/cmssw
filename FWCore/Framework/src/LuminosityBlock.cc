@@ -17,45 +17,41 @@ namespace edm {
     for_all(putProducts_, principal_get_adapter_detail::deleter());
   }
 
-  LuminosityBlockPrincipal &
+  LuminosityBlockPrincipal&
   LuminosityBlock::luminosityBlockPrincipal() {
-    return dynamic_cast<LuminosityBlockPrincipal &>(provRecorder_.principal());
+    return dynamic_cast<LuminosityBlockPrincipal&>(provRecorder_.principal());
   }
 
-  LuminosityBlockPrincipal const &
+  LuminosityBlockPrincipal const&
   LuminosityBlock::luminosityBlockPrincipal() const {
     return dynamic_cast<LuminosityBlockPrincipal const&>(provRecorder_.principal());
   }
 
   Provenance
-  LuminosityBlock::getProvenance(BranchID const& bid) const
-  {
+  LuminosityBlock::getProvenance(BranchID const& bid) const {
     return luminosityBlockPrincipal().getProvenance(bid);
   }
 
   void
-  LuminosityBlock::getAllProvenance(std::vector<Provenance const*> & provenances) const
-  {
+  LuminosityBlock::getAllProvenance(std::vector<Provenance const*>& provenances) const {
     luminosityBlockPrincipal().getAllProvenance(provenances);
   }
-
 
   void
   LuminosityBlock::commit_() {
     // fill in guts of provenance here
-    LuminosityBlockPrincipal & lbp = luminosityBlockPrincipal();
+    LuminosityBlockPrincipal& lbp = luminosityBlockPrincipal();
     ProductPtrVec::iterator pit(putProducts().begin());
     ProductPtrVec::iterator pie(putProducts().end());
 
-    while(pit!=pie) {
+    while(pit != pie) {
 	// set provenance
 	std::auto_ptr<ProductProvenance> lumiEntryInfoPtr(
 		new ProductProvenance(pit->second->branchID(),
 				    productstatus::present()));
-        std::auto_ptr<EDProduct> pr(pit->first);
+	lbp.put(*pit->second, pit->first, lumiEntryInfoPtr);
         // Ownership has passed, so clear the pointer.
-        pit->first = 0;
-	lbp.put(*pit->second, pr, lumiEntryInfoPtr);
+        pit->first.reset();
 	++pit;
     }
 
@@ -74,7 +70,7 @@ namespace edm {
   }
 
   BasicHandle
-  LuminosityBlock::getByLabelImpl(const std::type_info& iWrapperType, const std::type_info& iProductType, const InputTag& iTag) const {
+  LuminosityBlock::getByLabelImpl(WrapperInterfaceBase const* wrapperInterfaceBase, std::type_info const& iWrapperType, std::type_info const& iProductType, const InputTag& iTag) const {
     BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType),iTag);
     if (h.isValid()) {
       addToGotBranchIDs(*(h.provenance()));

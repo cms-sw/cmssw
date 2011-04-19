@@ -6,8 +6,7 @@
 Handle: Non-owning "smart pointer" for reference to EDProducts and
 their Provenances.
 
-This is a very preliminary version, and lacks safety features and
-elegance.
+This is a very preliminary version, and lacks safety features and elegance.
 
 If the pointed-to object or provenance destroyed, use of the
 Handle becomes undefined. There is no way to query the Handle to
@@ -25,6 +24,7 @@ If failedToGet() returns false but isValid() is also false then no attempt
 
 ----------------------------------------------------------------------*/
 
+#include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 
 #include "boost/shared_ptr.hpp"
@@ -35,28 +35,28 @@ namespace cms {
 
 namespace edm {
   class ConstBranchDescription;
-  class EDProduct;
+  class WrapperInterfaceBase;
   class OutputHandle {
   public:
     OutputHandle() :
-      wrap_(0),
+      product_(),
       desc_(0),
       productProvenance_() {}
 
     OutputHandle(OutputHandle const& h) :
-      wrap_(h.wrap_),
+      product_(h.product_),
       desc_(h.desc_),
       productProvenance_(h.productProvenance_),
       whyFailed_(h.whyFailed_){}
 
-    OutputHandle(EDProduct const* prod, ConstBranchDescription const* desc, boost::shared_ptr<ProductProvenance> productProvenance) :
-      wrap_(prod),
+    OutputHandle(WrapperHolder const& product, ConstBranchDescription const* desc, boost::shared_ptr<ProductProvenance> productProvenance) :
+      product_(product),
       desc_(desc),
       productProvenance_(productProvenance) {}
 
     ///Used when the attempt to get the data failed
     OutputHandle(boost::shared_ptr<cms::Exception> const& iWhyFailed):
-      wrap_(0),
+      product_(),
       desc_(0),
       productProvenance_(),
       whyFailed_(iWhyFailed) {}
@@ -65,7 +65,7 @@ namespace edm {
 
     void swap(OutputHandle& other) {
       using std::swap;
-      std::swap(wrap_, other.wrap_);
+      std::swap(product_, other.product_);
       std::swap(desc_, other.desc_);
       std::swap(productProvenance_, other.productProvenance_);
       swap(whyFailed_,other.whyFailed_);
@@ -79,15 +79,19 @@ namespace edm {
     }
 
     bool isValid() const {
-      return wrap_ && desc_ &&productProvenance_;
+      return product_.isValid() && desc_ &&productProvenance_;
     }
 
     bool failedToGet() const {
       return 0 != whyFailed_.get();
     }
     
-    EDProduct const* wrapper() const {
-      return wrap_;
+    void const* wrapper() const {
+      return product_.wrapper();
+    }
+
+    WrapperHolder product() const {
+      return product_;
     }
 
     boost::shared_ptr<cms::Exception> whyFailed() const {
@@ -107,7 +111,7 @@ namespace edm {
     }
 
   private:
-    EDProduct const* wrap_;
+    WrapperHolder product_;
     ConstBranchDescription const* desc_;
     boost::shared_ptr<ProductProvenance> productProvenance_;
     boost::shared_ptr<cms::Exception> whyFailed_;

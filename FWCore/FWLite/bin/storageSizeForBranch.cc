@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan 20 09:50:58 CST 2011
-// $Id: storageSizeForBranch.cc,v 1.1 2011/02/02 15:20:32 chrjones Exp $
+// $Id: storageSizeForBranch.cc,v 1.2 2011/02/02 15:46:08 chrjones Exp $
 //
 
 // system include files
@@ -85,8 +85,8 @@ int main(int argc, char* argv[])
       return 1;
    }
    
-   std::string branchName( vm[kBranchNameOpt].as<std::string>());
-   std::string fileName( vm[kFileNameOpt].as<std::string>());
+   std::string branchName(vm[kBranchNameOpt].as<std::string>());
+   std::string fileName(vm[kFileNameOpt].as<std::string>());
    
    TFile* file = TFile::Open(fileName.c_str());
    if (0 == file) {

@@ -9,7 +9,6 @@
 // Original Author:  Chris Jones
 //         Created:  Tue May 23 11:03:31 EDT 2006
 //
-
 // system include files
 
 #include "TFile.h"
@@ -68,7 +67,7 @@ BareRootProductGetter::~BareRootProductGetter()
 //
 // const member functions
 //
-edm::EDProduct const*
+edm::WrapperHolder
 BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
   // std::cout <<"getIt called"<<std::endl;
   TFile* currentFile = dynamic_cast<TFile*>(gROOT->GetListOfFiles()->Last());
@@ -84,27 +83,27 @@ BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
 	<<"file: '"<< branchMap_.getFile()->GetName()
 	<<"'\n Please check that the file is a standard CMS ROOT format.\n"
 	<<"If the above is not the file you expect then please open your data file after all other files.";
-    return 0;
+     return edm::WrapperHolder();
   }
   Long_t eventEntry = eventTree->GetReadEntry();
   // std::cout << "eventEntry " << eventEntry << std::endl;
   branchMap_.updateEvent(eventEntry);
-  if( eventEntry < 0 ) {
+  if(eventEntry < 0) {
      throw cms::Exception("GetEntryNotCalled") 
 	<<"please call GetEntry for the 'Events' TTree for each event in order to make edm::Ref's work."
 	<<"\n Also be sure to call 'SetAddress' for all Branches after calling the GetEntry."
 	;
-    return 0;
+     return edm::WrapperHolder();
   }
 
   Buffer* buffer = 0;
   IdToBuffers::iterator itBuffer = idToBuffers_.find(iID);
   // std::cout << "Buffers" << std::endl;
-  if( itBuffer == idToBuffers_.end() ) {
+  if(itBuffer == idToBuffers_.end()) {
     buffer = createNewBuffer(iID);
     // std::cout << "buffer " << buffer << std::endl;
-    if( 0 == buffer ) {
-      return 0;
+    if(0 == buffer) {
+       return edm::WrapperHolder();
     }
   } else {
     buffer = &(itBuffer->second);
@@ -113,46 +112,47 @@ BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
      throw cms::Exception("NullBuffer")
 	<<"Found a null buffer which is supposed to hold the data item."
 	<<"\n Please contact developers since this message should not happen.";
-    return 0;
+    return edm::WrapperHolder();
   }
   if(0==buffer->branch_) {
      throw cms::Exception("NullBranch")
 	<<"The TBranch which should hold the data item is null."
 	<<"\n Please contact the developers since this message should not happen.";
-    return 0;
+    return edm::WrapperHolder();
   }
   if(buffer->eventEntry_ != eventEntry) {
     //NOTE: Need to reset address because user could have set the address themselves
     //std::cout <<"new event"<<std::endl;
     
+    edm::WrapperInterfaceBase const* interface = branchMap_.productToBranch(iID).getInterface();
     //ROOT WORKAROUND: Create new objects so any internal data cache will get cleared
     void* address = buffer->class_->New();
     
-    static TClass* edproductTClass = TClass::GetClass( typeid(edm::EDProduct)); 
-    edm::EDProduct* prod = reinterpret_cast<edm::EDProduct*>( buffer->class_->DynamicCast(edproductTClass,address,true));
-    if(0 == prod) {
+    boost::shared_ptr<void const> object(address, edm::WrapperHolder::EDProductDeleter(interface));  
+    edm::WrapperHolder prod = edm::WrapperHolder(object, interface);
+    if(!prod.isValid()) {
       cms::Exception("FailedConversion")
       <<"failed to convert a '"<<buffer->class_->GetName()
-      <<"' to a edm::EDProduct."
+      <<"' to a edm::WrapperHolder."
       <<"Please contact developers since something is very wrong.";
     }
     buffer->address_ = address;
-    buffer->product_ = boost::shared_ptr<edm::EDProduct const>(prod);
+    buffer->product_ = prod;
     //END WORKAROUND
     
     address = &(buffer->address_);
-    buffer->branch_->SetAddress( address );
+    buffer->branch_->SetAddress(address);
 
-    buffer->branch_->GetEntry( eventEntry );
+    buffer->branch_->GetEntry(eventEntry);
     buffer->eventEntry_=eventEntry;
   }
-  if(0 == buffer->product_.get()) {
+  if(!buffer->product_.isValid()) {
      throw cms::Exception("BranchGetEntryFailed")
 	<<"Calling GetEntry with index "<<eventEntry
 	<<"for branch "<<buffer->branch_->GetName()<<" failed.";
   }
 
-  return buffer->product_.get();
+  return buffer->product_;
 }
 
 BareRootProductGetter::Buffer* 
@@ -161,15 +161,15 @@ BareRootProductGetter::createNewBuffer(const edm::ProductID& iID) const
   //find the branch
   edm::BranchDescription bdesc = branchMap_.productToBranch(iID);
 
-  TBranch* branch= branchMap_.getEventTree()->GetBranch( bdesc.branchName().c_str() );
-  if( 0 == branch) {
+  TBranch* branch= branchMap_.getEventTree()->GetBranch(bdesc.branchName().c_str());
+  if(0 == branch) {
      //we do not thrown on missing branches since 'getIt' should not throw under that condition
     return 0;
   }
   //find the class type
-  const std::string fullName = edm::wrappedClassName(bdesc.className());
+  std::string const fullName = edm::wrappedClassName(bdesc.className());
   Reflex::Type classType = Reflex::Type::ByName(fullName);
-  if( classType == Reflex::Type() ) {
+  if(classType == Reflex::Type()) {
     cms::Exception("MissingDictionary") 
        <<"could not find dictionary for type '"<<fullName<<"'"
        <<"\n Please make sure all the necessary libraries are available.";
@@ -180,17 +180,17 @@ BareRootProductGetter::createNewBuffer(const edm::ProductID& iID) const
   /*
   //use reflex to create an instance of it
   Reflex::Object wrapperObj = classType.Construct();
-  if( 0 == wrapperObj.Address() ) {
+  if(0 == wrapperObj.Address()) {
     cms::Exception("FailedToCreate") <<"could not create an instance of '"<<fullName<<"'";
     return 0;
   }
       
-  Reflex::Object edProdObj = wrapperObj.CastObject( Reflex::Type::ByName("edm::EDProduct") );
+  Reflex::Object edProdObj = wrapperObj.CastObject(Reflex::Type::ByName("edm::WrapperHolder"));
   
-  edm::EDProduct* prod = reinterpret_cast<edm::EDProduct*>(edProdObj.Address());
+  edm::WrapperHolder* prod = reinterpret_cast<edm::WrapperHolder*>(edProdObj.Address());
   */
   TClass* rootClassType=TClass::GetClass(classType.TypeInfo());
-  if( 0 == rootClassType) {
+  if(0 == rootClassType) {
     throw cms::Exception("MissingRootDictionary")
     <<"could not find a ROOT dictionary for type '"<<fullName<<"'"
     <<"\n Please make sure all the necessary libraries are available.";
@@ -198,12 +198,13 @@ BareRootProductGetter::createNewBuffer(const edm::ProductID& iID) const
   }
   void* address = rootClassType->New();
   
-  static TClass* edproductTClass = TClass::GetClass( typeid(edm::EDProduct)); 
-  edm::EDProduct* prod = reinterpret_cast<edm::EDProduct*>( rootClassType->DynamicCast(edproductTClass,address,true));
-  if(0 == prod) {
+  //static TClass* edproductTClass = TClass::GetClass(typeid(edm::WrapperHolder)); 
+  //edm::WrapperHolder* prod = reinterpret_cast<edm::WrapperHolder*>(rootClassType->DynamicCast(edproductTClass,address,true));
+  edm::WrapperHolder prod = edm::WrapperHolder(address, bdesc.getInterface());
+  if(!prod.isValid()) {
      cms::Exception("FailedConversion")
 	<<"failed to convert a '"<<fullName
-	<<"' to a edm::EDProduct."
+	<<"' to a edm::WrapperHolder."
 	<<"Please contact developers since something is very wrong.";
   }
 
@@ -215,7 +216,7 @@ BareRootProductGetter::createNewBuffer(const edm::ProductID& iID) const
   //As of 5.13 ROOT expects the memory address held by the pointer passed to
   // SetAddress to be valid forever
   address = &(idToBuffers_[iID].address_);
-  branch->SetAddress( address );
+  branch->SetAddress(address);
   
   return &(idToBuffers_[iID]);
 }

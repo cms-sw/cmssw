@@ -25,8 +25,11 @@ If failedToGet() returns false but isValid() is also false then no attempt
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Common/interface/ProductData.h"
+#include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/WrapperInterfaceBase.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -35,7 +38,6 @@ namespace cms {
 }
 
 namespace edm {
-  class EDProduct;
   template <typename T> class Wrapper;
 
   class BasicHandle {
@@ -49,9 +51,14 @@ namespace edm {
       prov_(h.prov_),
       whyFailed_(h.whyFailed_){}
 
-    BasicHandle(boost::shared_ptr<EDProduct const> prod, Provenance const* prov) :
-      product_(prod), prov_(prov) {
+    BasicHandle(void const* prod, WrapperInterfaceBase const* interface, Provenance const* prov) :
+      product_(WrapperHolder(prod, interface)),
+      prov_(prov_) {
+    }
 
+    BasicHandle(ProductData const& productData) :
+      product_(WrapperHolder(productData.wrapper_, productData.getInterface())),
+      prov_(&productData.prov_) {
     }
 
     ///Used when the attempt to get the data failed
@@ -77,19 +84,27 @@ namespace edm {
     }
 
     bool isValid() const {
-      return product_ && prov_;
+      return product_.wrapper() != 0 && prov_ != 0;
     }
 
     bool failedToGet() const {
       return 0 != whyFailed_.get();
     }
     
-    EDProduct const* wrapper() const {
-      return product_.get();
+    WrapperInterfaceBase const* interface() const {
+      return product_.interface();
     }
 
-    boost::shared_ptr<EDProduct const> product() const {
+    void const* wrapper() const {
+      return product_.wrapper();
+    }
+
+    WrapperHolder wrapperHolder() const {
       return product_;
+    }
+
+    boost::shared_ptr<void const> product() const {
+      return product_.product();
     }
 
     Provenance const* provenance() const {
@@ -104,7 +119,7 @@ namespace edm {
       return whyFailed_;
     }
   private:
-    boost::shared_ptr<EDProduct const> product_;
+    WrapperHolder product_;
     Provenance const* prov_;
     boost::shared_ptr<cms::Exception> whyFailed_;
   };

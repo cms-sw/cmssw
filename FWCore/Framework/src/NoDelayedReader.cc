@@ -2,17 +2,19 @@
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/NoDelayedReader.h"
+
+#include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
   NoDelayedReader::~NoDelayedReader() {}
 
-  std::auto_ptr<EDProduct>
-  NoDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* ep) const {
+  WrapperHolder
+  NoDelayedReader::getProduct_(BranchKey const& k, WrapperInterfaceBase const*, EDProductGetter const* ep) const {
     EventPrincipal const* epr = dynamic_cast<EventPrincipal const*>(ep);
     if (epr) {
       throw edm::Exception(errors::LogicError,"NoDelayedReader")

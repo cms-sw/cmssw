@@ -17,25 +17,28 @@ pointer to a Group, when queried.
 (Historical note: prior to April 2007 this class was named DataBlockImpl)
 
 ----------------------------------------------------------------------*/
+#include "DataFormats/Common/interface/BasicHandle.h"
+#include "DataFormats/Common/interface/ConvertHandle.h"
+#include "DataFormats/Common/interface/EDProductGetter.h"
+#include "DataFormats/Common/interface/OutputHandle.h"
+#include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/WrapperHolder.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "DataFormats/Provenance/interface/ProductTransientIndex.h"
+#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
+#include "DataFormats/Provenance/interface/TransientProductLookupMap.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Group.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+#include "boost/iterator/filter_iterator.hpp"
+#include "boost/shared_ptr.hpp"
+
 #include <map>
 #include <memory>
 #include <set>
 #include <string>
 #include <vector>
-
-#include "boost/iterator/filter_iterator.hpp"
-#include "boost/shared_ptr.hpp"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
-#include "DataFormats/Provenance/interface/ProductTransientIndex.h"
-#include "DataFormats/Common/interface/EDProductGetter.h"
-#include "DataFormats/Common/interface/BasicHandle.h"
-#include "DataFormats/Common/interface/OutputHandle.h"
-#include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Provenance/interface/ProcessHistory.h"
-#include "FWCore/Framework/interface/Group.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Provenance/interface/TransientProductLookupMap.h"
 
 namespace edm {
    struct FilledGroupPtr {
@@ -55,7 +58,7 @@ namespace edm {
     typedef std::string ProcessName;
 
     Principal(boost::shared_ptr<ProductRegistry const> reg,
-	      ProcessConfiguration const& pc,
+              ProcessConfiguration const& pc,
               BranchType bt);
 
     virtual ~Principal();
@@ -84,20 +87,20 @@ namespace edm {
                                SelectorBase const& s) const;
 
     BasicHandle  getByLabel(TypeID const& tid,
-			    std::string const& label,
-			    std::string const& productInstanceName,
-			    std::string const& processName,
-			    size_t& cachedOffset,
-			    int& fillCount) const;
+                            std::string const& label,
+                            std::string const& productInstanceName,
+                            std::string const& processName,
+                            size_t& cachedOffset,
+                            int& fillCount) const;
 
     void getMany(TypeID const& tid,
-		 SelectorBase const&,
-		 BasicHandleVec& results) const;
+                 SelectorBase const&,
+                 BasicHandleVec& results) const;
 
     BasicHandle  getByType(TypeID const& tid) const;
 
     void getManyByType(TypeID const& tid,
-		 BasicHandleVec& results) const;
+                 BasicHandleVec& results) const;
 
     // Return a BasicHandle to the product which:
     //   1. is a sequence,
@@ -106,8 +109,8 @@ namespace edm {
     //      this value_type,
     //   4. and which matches the given selector
     size_t getMatchingSequence(TypeID const& typeID,
-			        SelectorBase const& selector,
-			        BasicHandle& result) const;
+                               SelectorBase const& selector,
+                               BasicHandle& result) const;
 
     ProcessHistory const& processHistory() const {
       return *processHistoryPtr_;
@@ -144,7 +147,7 @@ namespace edm {
 
     SharedConstGroupPtr const getGroup(BranchID const& oid,
                                        bool resolveProd,
-				       bool fillOnDemand) const;
+                                       bool fillOnDemand) const;
   protected:
     ProcessHistory& processHistoryUpdate() {
       return *processHistoryPtr_;
@@ -159,8 +162,8 @@ namespace edm {
     Group* getExistingGroup(Group const& g);
 
     SharedConstGroupPtr const getGroupByIndex(ProductTransientIndex const& oid,
-                                        bool resolveProd,
-                                        bool fillOnDemand) const;
+                                              bool resolveProd,
+                                              bool fillOnDemand) const;
 
     // Make my DelayedReader get the EDProduct for a Group or
     // trigger unscheduled execution if required.  The Group is
@@ -172,16 +175,16 @@ namespace edm {
     void swapBase(Principal&);
 
     // throws if the pointed to product is already in the Principal.
-    void checkUniquenessAndType(std::auto_ptr<EDProduct>& prod, Group const* group) const;
+    void checkUniquenessAndType(WrapperHolder const& prod, Group const* group) const;
 
-    void putOrMerge(std::auto_ptr<EDProduct> prod, Group const* group) const;
+    void putOrMerge(WrapperHolder const& prod, Group const* group) const;
 
-    void putOrMerge(std::auto_ptr<EDProduct> prod, std::auto_ptr<ProductProvenance> prov, Group* group);
+    void putOrMerge(WrapperHolder const& prod, std::auto_ptr<ProductProvenance> prov, Group* group);
 
     void setProcessHistory(Principal const& principal);
 
   private:
-    virtual EDProduct const* getIt(ProductID const&) const;
+    virtual WrapperHolder getIt(ProductID const&) const;
 
     virtual bool unscheduledFill(std::string const& moduleLabel) const = 0;
 
@@ -189,23 +192,23 @@ namespace edm {
     typedef TransientProductLookupMap TypeLookup;
 
     size_t findGroup(TypeID const& typeID,
-		     TypeLookup const& typeLookup,
-		     SelectorBase const& selector,
-		     BasicHandle& result) const;
+                     TypeLookup const& typeLookup,
+                     SelectorBase const& selector,
+                     BasicHandle& result) const;
 
     bool findGroupByLabel(TypeID const& typeID,
-			  TypeLookup const& typeLookup,
-			  std::string const& moduleLabel,
-			  std::string const& productInstanceName,
-			  std::string const& processName,
-			  size_t& cachedOffset,
-			  int& fillCount,
-			  BasicHandle& result) const;
+                          TypeLookup const& typeLookup,
+                          std::string const& moduleLabel,
+                          std::string const& productInstanceName,
+                          std::string const& processName,
+                          size_t& cachedOffset,
+                          int& fillCount,
+                          BasicHandle& result) const;
 
     size_t findGroups(TypeID const& typeID,
-		      TypeLookup const& typeLookup,
-		      SelectorBase const& selector,
-		      BasicHandleVec& results) const;
+                      TypeLookup const& typeLookup,
+                      SelectorBase const& selector,
+                      BasicHandleVec& results) const;
 
     // defaults to no-op unless overridden in derived class.
     virtual void resolveProduct_(Group const& g, bool fillOnDemand) const {}
@@ -232,7 +235,7 @@ namespace edm {
     boost::shared_ptr<DelayedReader> store_;
 
     // Used to check for duplicates.  The same product instance must not be in more than one group.
-    mutable std::set<EDProduct *> productPtrs_;
+    mutable std::set<void const*> productPtrs_;
 
     BranchType branchType_;
   };
@@ -243,7 +246,11 @@ namespace edm {
   getProductByTag(Principal const& ep, InputTag const& tag) {
     TypeID tid = TypeID(typeid(PROD));
     ep.maybeFlushCache(tid, tag);
-    return boost::dynamic_pointer_cast<Wrapper<PROD> const>(ep.getByLabel(tid, tag.label(), tag.instance(), tag.process(), tag.cachedOffset(), tag.fillCount()).product());
+    BasicHandle bh = ep.getByLabel(tid, tag.label(), tag.instance(), tag.process(), tag.cachedOffset(), tag.fillCount());
+    if(!(bh.interface()->dynamicTypeInfo() == typeid(PROD))) {
+      handleimpl::throwConvertTypeError(typeid(PROD), bh.interface()->dynamicTypeInfo());
+    }
+    return boost::static_pointer_cast<Wrapper<PROD> const>(bh.product());
   }
 }
 #endif

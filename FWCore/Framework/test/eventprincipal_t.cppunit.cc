@@ -3,45 +3,47 @@
 Test of the EventPrincipal class.
 
 ----------------------------------------------------------------------*/
-#include <map>
-#include <memory>
-#include <stdexcept>
-#include <string>
-#include <typeinfo>
-
-#include "boost/shared_ptr.hpp"
-
-#include <cppunit/extensions/HelperMacros.h>
-
+#include "DataFormats/Common/interface/BasicHandle.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
-#include "DataFormats/Provenance/interface/Parentage.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
-#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
-#include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
-#include "DataFormats/Common/interface/BasicHandle.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/Selector.h"
-#include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
-#include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
+#include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
+
+#include "Cintex/Cintex.h"
+
+#include <cppunit/extensions/HelperMacros.h>
+
+#include "boost/shared_ptr.hpp"
+
+#include <map>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <typeinfo>
 
 class test_ep: public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(test_ep);
@@ -73,11 +75,11 @@ private:
                              std::string const& processName,
                              edm::ParameterSet const& moduleParams,
                              std::string const& release = edm::getReleaseVersion(),
-                             std::string const& pass = edm::getPassID() );
+                             std::string const& pass = edm::getPassID());
   boost::shared_ptr<edm::BranchDescription>
   fake_single_process_branch(std::string const& tag,
                              std::string const& processName,
-                             std::string const& productInstanceName = std::string() );
+                             std::string const& productInstanceName = std::string());
 
   std::map<std::string, boost::shared_ptr<edm::BranchDescription> >    branchDescriptions_;
   std::map<std::string, boost::shared_ptr<edm::ProcessConfiguration> > processConfigurations_;
@@ -93,7 +95,6 @@ private:
 // registration of the test so that the runner can find it
 
 CPPUNIT_TEST_SUITE_REGISTRATION(test_ep);
-
 
 //----------------------------------------------------------------------
 
@@ -146,6 +147,7 @@ test_ep::fake_single_process_branch(std::string const& tag,
 }
 
 void test_ep::setUp() {
+  ROOT::Cintex::Cintex::Enable();
   edm::BranchIDListHelper::clearRegistries();
 
   // Making a functional EventPrincipal is not trivial, so we do it
@@ -164,9 +166,13 @@ void test_ep::setUp() {
 
   // Put products we'll look for into the EventPrincipal.
   {
+
     typedef edmtest::DummyProduct PRODUCT_TYPE;
     typedef edm::Wrapper<PRODUCT_TYPE> WDP;
-    std::auto_ptr<edm::EDProduct> product(new WDP(std::auto_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)));
+    edm::WrapperInterfaceBase const* interface = WDP::getInterface();
+
+    boost::shared_ptr<void const> wdp(new WDP(std::auto_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)), edm::WrapperHolder::EDProductDeleter(interface));
+    edm::WrapperHolder product(wdp, interface);
 
     std::string tag("rick");
     assert(branchDescriptions_[tag]);
@@ -299,4 +305,3 @@ void test_ep::failgetProvenanceTest() {
   edm::BranchID id;
   CPPUNIT_ASSERT_THROW(pEvent_->getProvenance(id), edm::Exception);
 }
-

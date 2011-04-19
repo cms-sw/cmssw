@@ -10,20 +10,21 @@ uses input sources to retrieve EDProducts from external storage.
 
 #include <memory>
 #include "boost/shared_ptr.hpp"
-#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/WrapperHolder.h"
 
 namespace edm {
   struct BranchKey;
   class EDProductGetter;
+  class WrapperInterfaceBase;
   class DelayedReader {
   public:
     virtual ~DelayedReader();
-    std::auto_ptr<EDProduct> getProduct(BranchKey const& k, EDProductGetter const* ep) {
-      return getProduct_(k, ep);
+    WrapperHolder getProduct(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) {
+      return getProduct_(k, interface, ep);
     }
     void mergeReaders(boost::shared_ptr<DelayedReader> other) {mergeReaders_(other);}
   private:
-    virtual std::auto_ptr<EDProduct> getProduct_(BranchKey const& k, EDProductGetter const* ep) const = 0;
+    virtual WrapperHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const = 0;
     virtual void mergeReaders_(boost::shared_ptr<DelayedReader>) {}
   };
 }

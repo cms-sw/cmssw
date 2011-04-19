@@ -63,7 +63,7 @@ namespace fwlite {
     //got this logic from IOPool/Input/src/RootFile.cc
 
     TTree* runTree = branchMap_->getRunTree();
-    if(fileVersion_ >= 3 ) {
+    if(fileVersion_ >= 3) {
       auxBranch_ = runTree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InRun).c_str());
       if(0==auxBranch_) {
         throw cms::Exception("NoRunAuxilliary")<<"The TTree "
@@ -104,7 +104,7 @@ namespace fwlite {
     //got this logic from IOPool/Input/src/RootFile.cc
 
     TTree* runTree = branchMap_->getRunTree();
-    if(fileVersion_ >= 3 ) {
+    if(fileVersion_ >= 3) {
       auxBranch_ = runTree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InRun).c_str());
       if(0==auxBranch_) {
         throw cms::Exception("NoRunAuxilliary")<<"The TTree "
@@ -125,7 +125,7 @@ namespace fwlite {
     }
     branchMap_->updateRun(0);
 
-//     if(fileVersion_ >= 7 ) {
+//     if(fileVersion_ >= 7) {
 //       eventHistoryTree_ = dynamic_cast<TTree*>(iFile->Get(edm::poolNames::eventHistoryTreeName().c_str()));
 //     }
 
@@ -134,7 +134,7 @@ namespace fwlite {
 
 Run::~Run()
 {
-  for(std::vector<const char*>::iterator it = labels_.begin(), itEnd=labels_.end();
+  for(std::vector<char const*>::iterator it = labels_.begin(), itEnd=labels_.end();
       it != itEnd;
       ++it) {
     delete [] *it;
@@ -206,20 +206,21 @@ Run::atEnd() const
 }
 
 
-const std::string
-Run::getBranchNameFor(const std::type_info& iInfo,
-                  const char* iModuleLabel,
-                  const char* iProductInstanceLabel,
-                  const char* iProcessLabel) const
+std::string const
+Run::getBranchNameFor(std::type_info const& iInfo,
+                  char const* iModuleLabel,
+                  char const* iProductInstanceLabel,
+                  char const* iProcessLabel) const
 {
     return dataHelper_.getBranchNameFor(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel);
 }
 
 bool
-Run::getByLabel(const std::type_info& iInfo,
-                  const char* iModuleLabel,
-                  const char* iProductInstanceLabel,
-                  const char* iProcessLabel,
+Run::getByLabel(
+                  std::type_info const& iInfo,
+                  char const* iModuleLabel,
+                  char const* iProductInstanceLabel,
+                  char const* iProcessLabel,
                   void* oData) const
 {
     if(atEnd()) {
@@ -313,7 +314,7 @@ Run::history() const
 }
 
 
-edm::EDProduct const*
+edm::WrapperHolder
 Run::getByProductID(edm::ProductID const& iID) const
 {
   Long_t runIndex = branchMap_->getRunEntry();
@@ -325,7 +326,7 @@ Run::getByProductID(edm::ProductID const& iID) const
 // static member functions
 //
 void
-Run::throwProductNotFoundException(const std::type_info& iType, const char* iModule, const char* iProduct, const char* iProcess)
+Run::throwProductNotFoundException(std::type_info const& iType, char const* iModule, char const* iProduct, char const* iProcess)
 {
     edm::TypeID type(iType);
   throw edm::Exception(edm::errors::ProductNotFound)<<"A branch was found for \n  type ='"<<type.className()<<"'\n  module='"<<iModule

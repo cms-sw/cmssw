@@ -40,7 +40,7 @@
 
 // forward declarations
 namespace edm {
-   class EDProduct;
+   class WrapperHolder;
    class ProductRegistry;
    class BranchDescription;
    class EDProductGetter;
@@ -71,15 +71,15 @@ namespace fwlite {
          const Run& toBegin();
 
          // ---------- const member functions ---------------------
-         virtual const std::string getBranchNameFor(const std::type_info&,
-                                                    const char*,
-                                                    const char*,
-                                                    const char*) const;
+         virtual std::string const getBranchNameFor(std::type_info const&,
+                                                    char const*,
+                                                    char const*,
+                                                    char const*) const;
 
          // This function should only be called by fwlite::Handle<>
          using fwlite::RunBase::getByLabel;
-         virtual bool getByLabel(const std::type_info&, const char*, const char*, const char*, void*) const;
-         //void getByBranchName(const std::type_info&, const char*, void*&) const;
+         virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const;
+         //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
          bool isValid() const;
          operator bool () const;
@@ -89,16 +89,16 @@ namespace fwlite {
 
          virtual edm::RunAuxiliary const& runAuxiliary() const;
 
-         const std::vector<edm::BranchDescription>& getBranchDescriptions() const {
+         std::vector<edm::BranchDescription> const& getBranchDescriptions() const {
             return branchMap_->getBranchDescriptions();
          }
 
-//       void setGetter( //Copy from Event if needed
+//       void setGetter(//Copy from Event if needed
 
-         edm::EDProduct const* getByProductID(edm::ProductID const&) const;
+         edm::WrapperHolder getByProductID(edm::ProductID const&) const;
 
          // ---------- static member functions --------------------
-         static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);
+         static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);
 
          // ---------- member functions ---------------------------
 
@@ -117,7 +117,7 @@ namespace fwlite {
          mutable boost::shared_ptr<BranchMapReader> branchMap_;
 
          //takes ownership of the strings used by the DataKey keys in data_
-         mutable std::vector<const char*> labels_;
+         mutable std::vector<char const*> labels_;
          mutable edm::ProcessHistoryMap historyMap_;
          mutable std::vector<std::string> procHistoryNames_;
          mutable edm::RunAuxiliary aux_;

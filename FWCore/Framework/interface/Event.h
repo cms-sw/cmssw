@@ -18,6 +18,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/BasicHandle.h"
+#include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
@@ -65,12 +66,12 @@ namespace edm {
     RunNumber_t
     run() const {return id().run();}
 
-    template <typename PROD>
+    template<typename PROD>
     bool
     get(ProductID const& oid, Handle<PROD>& result) const;
 
     // Template member overload to deal with Views.
-    template <typename ELEMENT>
+    template<typename ELEMENT>
     bool
     get(ProductID const& oid, Handle<View<ELEMENT> >& result) const ;
 
@@ -79,71 +80,71 @@ namespace edm {
     ProcessHistoryID const& processHistoryID() const;
 
     ///Put a new product.
-    template <typename PROD>
+    template<typename PROD>
     OrphanHandle<PROD>
     put(std::auto_ptr<PROD> product) {return put<PROD>(product, std::string());}
 
     ///Put a new product with a 'product instance name'
-    template <typename PROD>
+    template<typename PROD>
     OrphanHandle<PROD>
     put(std::auto_ptr<PROD> product, std::string const& productInstanceName);
 
     ///Returns a RefProd to a product before that product has been placed into the Event.
     /// The RefProd (and any Ref's made from it) will no work properly until after the
     /// Event has been committed (which happens after leaving the EDProducer::produce method)
-    template <typename PROD>
+    template<typename PROD>
     RefProd<PROD>
     getRefBeforePut() {return getRefBeforePut<PROD>(std::string());}
 
-    template <typename PROD>
+    template<typename PROD>
     RefProd<PROD>
     getRefBeforePut(std::string const& productInstanceName);
 
-    template <typename PROD>
+    template<typename PROD>
     bool
     get(SelectorBase const& sel, Handle<PROD>& result) const;
 
-    template <typename PROD>
+    template<typename PROD>
     bool
     getByLabel(InputTag const& tag, Handle<PROD>& result) const;
 
-    template <typename PROD>
+    template<typename PROD>
     bool
     getByLabel(std::string const& label, Handle<PROD>& result) const;
 
-    template <typename PROD>
+    template<typename PROD>
     bool
     getByLabel(std::string const& label, std::string const& productInstanceName, Handle<PROD>& result) const;
 
-    template <typename PROD>
+    template<typename PROD>
     void
     getMany(SelectorBase const& sel, std::vector<Handle<PROD> >& results) const;
 
-    template <typename PROD>
+    template<typename PROD>
     bool
     getByType(Handle<PROD>& result) const;
 
-    template <typename PROD>
+    template<typename PROD>
     void
     getManyByType(std::vector<Handle<PROD> >& results) const;
 
     // Template member overload to deal with Views.
-    template <typename ELEMENT>
+    template<typename ELEMENT>
     bool
     getByLabel(std::string const& label,
                Handle<View<ELEMENT> >& result) const;
 
-    template <typename ELEMENT>
+    template<typename ELEMENT>
     bool
     getByLabel(std::string const& label,
                std::string const& productInstanceName,
                Handle<View<ELEMENT> >& result) const;
 
-    template <typename ELEMENT>
+    template<typename ELEMENT>
     bool
     getByLabel(InputTag const& tag, Handle<View<ELEMENT> >& result) const;
 
-    template <typename ELEMENT>
+    template<typename ELEMENT>
     void
     fillView_(BasicHandle& bh,
               Handle<View<ELEMENT> >& result) const;
@@ -172,7 +173,7 @@ namespace edm {
     virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
     virtual TriggerResultsByName triggerResultsByName(std::string const& process) const;
 
-    typedef std::vector<std::pair<EDProduct*, ConstBranchDescription const*> > ProductPtrVec;
+    typedef std::vector<std::pair<WrapperHolder, ConstBranchDescription const*> > ProductPtrVec;
 
   private:
     EventPrincipal const&
@@ -185,7 +186,7 @@ namespace edm {
     makeProductID(ConstBranchDescription const& desc) const;
 
     //override used by EventBase class
-    virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;
+    virtual BasicHandle getByLabelImpl(WrapperInterfaceBase const* wrapperInterfaceBase, std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;
 
     // commit_() is called to complete the transaction represented by
     // this PrincipalGetAdapter. The friendships required seems gross, but any
@@ -237,44 +238,44 @@ namespace edm {
   // The following functions objects are used by Event::put, under the
   // control of a metafunction if, to put the given pair into the
   // right collection.
-  template <typename PROD>
+  template<typename PROD>
   struct RecordInParentless {
     typedef Event::ProductPtrVec ptrvec_t;
     void do_it(ptrvec_t& ignored,
                ptrvec_t& used,
-               Wrapper<PROD>* wp,
+               WrapperHolder const& edp,
                ConstBranchDescription const* desc) const {
-      used.push_back(std::make_pair(wp, desc));
+      used.push_back(std::make_pair(edp, desc));
     }
   };
 
-  template <typename PROD>
+  template<typename PROD>
   struct RecordInParentfull {
     typedef Event::ProductPtrVec ptrvec_t;
 
     void do_it(ptrvec_t& used,
                ptrvec_t& ignored,
-               Wrapper<PROD>* wp,
+               WrapperHolder const& edp,
                ConstBranchDescription const* desc) const {
-      used.push_back(std::make_pair(wp, desc));
+      used.push_back(std::make_pair(edp, desc));
     }
   };
 
 
-  template <typename PROD>
+  template<typename PROD>
   bool
   Event::get(ProductID const& oid, Handle<PROD>& result) const {
     result.clear();
     BasicHandle bh = this->getByProductID_(oid);
     convert_handle(bh, result);  // throws on conversion error
-    if (bh.failedToGet()) {
+    if(bh.failedToGet()) {
       return false;
     }
     addToGotBranchIDs(*bh.provenance());
     return true;
   }
 
-  template <typename ELEMENT>
+  template<typename ELEMENT>
   bool
   Event::get(ProductID const& oid, Handle<View<ELEMENT> >& result) const {
       result.clear();
@@ -293,10 +294,10 @@ namespace edm {
       return true;
   }
 
-  template <typename PROD>
+  template<typename PROD>
   OrphanHandle<PROD>
   Event::put(std::auto_ptr<PROD> product, std::string const& productInstanceName) {
-    if (product.get() == 0) {                // null pointer is illegal
+    if(product.get() == 0) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, productInstanceName);
     }
@@ -311,25 +312,28 @@ namespace edm {
     ConstBranchDescription const& desc =
       provRecorder_.getBranchDescription(TypeID(*product), productInstanceName);
 
-    Wrapper<PROD>* wp(new Wrapper<PROD>(product));
+    WrapperInterfaceBase const* interface = Wrapper<PROD>::getInterface();
+
+    boost::shared_ptr<void const> wp(new Wrapper<PROD>(product), WrapperHolder::EDProductDeleter(interface));
+    WrapperHolder edp(wp, interface);
 
     typename boost::mpl::if_c<detail::has_donotrecordparents<PROD>::value,
       RecordInParentless<PROD>,
       RecordInParentfull<PROD> >::type parentage_recorder;
     parentage_recorder.do_it(putProducts(),
                              putProductsWithoutParents(),
-                             wp,
+                             edp,
                              &desc);
 
-    //    putProducts().push_back(std::make_pair(wp, &desc));
+    //  putProducts().push_back(std::make_pair(edp, &desc));
 
     // product.release(); // The object has been copied into the Wrapper.
     // The old copy must be deleted, so we cannot release ownership.
 
-    return(OrphanHandle<PROD>(wp->product(), makeProductID(desc)));
+    return(OrphanHandle<PROD>(static_cast<Wrapper<PROD> const*>(edp.wrapper())->product(), makeProductID(desc)));
   }
 
-  template <typename PROD>
+  template<typename PROD>
   RefProd<PROD>
   Event::getRefBeforePut(std::string const& productInstanceName) {
     PROD* p = 0;
@@ -340,85 +344,85 @@ namespace edm {
     return RefProd<PROD>(makeProductID(desc), provRecorder_.prodGetter());
   }
 
-  template <typename PROD>
+  template<typename PROD>
   bool
   Event::get(SelectorBase const& sel, Handle<PROD>& result) const {
     bool ok = provRecorder_.get(sel, result);
-    if (ok) {
+    if(ok) {
       addToGotBranchIDs(*result.provenance());
     }
     return ok;
   }
 
-  template <typename PROD>
+  template<typename PROD>
   bool
   Event::getByLabel(InputTag const& tag, Handle<PROD>& result) const {
     bool ok = provRecorder_.getByLabel(tag, result);
-    if (ok) {
+    if(ok) {
       addToGotBranchIDs(*result.provenance());
     }
     return ok;
   }
 
-  template <typename PROD>
+  template<typename PROD>
   bool
   Event::getByLabel(std::string const& label, Handle<PROD>& result) const {
     bool ok = provRecorder_.getByLabel(label, result);
-    if (ok) {
+    if(ok) {
       addToGotBranchIDs(*result.provenance());
     }
     return ok;
   }
 
-  template <typename PROD>
+  template<typename PROD>
   bool
   Event::getByLabel(std::string const& label,
                     std::string const& productInstanceName,
                     Handle<PROD>& result) const {
     bool ok = provRecorder_.getByLabel(label, productInstanceName, result);
-    if (ok) {
+    if(ok) {
       addToGotBranchIDs(*result.provenance());
     }
     return ok;
   }
 
-  template <typename PROD>
+  template<typename PROD>
   void
   Event::getMany(SelectorBase const& sel, std::vector<Handle<PROD> >& results) const {
     provRecorder_.getMany(sel, results);
-    for (typename std::vector<Handle<PROD> >::const_iterator it = results.begin(), itEnd = results.end();
+    for(typename std::vector<Handle<PROD> >::const_iterator it = results.begin(), itEnd = results.end();
         it != itEnd; ++it) {
       addToGotBranchIDs(*it->provenance());
     }
   }
 
-  template <typename PROD>
+  template<typename PROD>
   bool
   Event::getByType(Handle<PROD>& result) const {
     bool ok = provRecorder_.getByType(result);
-    if (ok) {
+    if(ok) {
       addToGotBranchIDs(*result.provenance());
     }
     return ok;
   }
 
-  template <typename PROD>
+  template<typename PROD>
   void
   Event::getManyByType(std::vector<Handle<PROD> >& results) const {
     provRecorder_.getManyByType(results);
-    for (typename std::vector<Handle<PROD> >::const_iterator it = results.begin(), itEnd = results.end();
+    for(typename std::vector<Handle<PROD> >::const_iterator it = results.begin(), itEnd = results.end();
         it != itEnd; ++it) {
       addToGotBranchIDs(*it->provenance());
     }
   }
 
-  template <typename ELEMENT>
+  template<typename ELEMENT>
   bool
   Event::getByLabel(std::string const& moduleLabel, Handle<View<ELEMENT> >& result) const {
     return getByLabel(moduleLabel, std::string(), result);
   }
 
-  template <typename ELEMENT>
+  template<typename ELEMENT>
   bool
   Event::getByLabel(std::string const& moduleLabel,
                     std::string const& productInstanceName,
@@ -433,7 +437,7 @@ namespace edm {
                                                            productInstanceName,
                                                            bh);
 
-    if (nFound == 0) {
+    if(nFound == 0) {
       boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound));
       *whyFailed
         << "getByLabel: Found zero products matching all criteria\n"
@@ -444,7 +448,7 @@ namespace edm {
       result.swap(temp);
       return false;
     }
-    if (nFound > 1) {
+    if(nFound > 1) {
       Exception e(errors::ProductNotFound);
       e << "getByLabel: Found more than one product matching all criteria\n"
         << "Looking for sequence of type: " << typeID << "\n"
@@ -457,11 +461,11 @@ namespace edm {
     return true;
   }
 
-  template <typename ELEMENT>
+  template<typename ELEMENT>
     bool
     Event::getByLabel(InputTag const& tag, Handle<View<ELEMENT> >& result) const {
     result.clear();
-    if (tag.process().empty()) {
+    if(tag.process().empty()) {
       return getByLabel(tag.label(), tag.instance(), result);
     } else {
       TypeID typeID(typeid(ELEMENT));
@@ -473,7 +477,7 @@ namespace edm {
                                                              tag.process(),
                                                              bh);
 
-      if (nFound == 0) {
+      if(nFound == 0) {
         boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound));
         *whyFailed
           << "getByLabel: Found zero products matching all criteria\n"
@@ -485,7 +489,7 @@ namespace edm {
         result.swap(temp);
         return false;
       }
-      if (nFound > 1) {
+      if(nFound > 1) {
         Exception e (errors::ProductNotFound);
         e << "getByLabel: Found more than one product matching all criteria\n"
           << "Looking for sequence of type: " << typeID << "\n"
@@ -501,7 +505,7 @@ namespace edm {
     return false;
   }
 
-  template <typename ELEMENT>
+  template<typename ELEMENT>
   void
   Event::fillView_(BasicHandle& bh, Handle<View<ELEMENT> >& result) const {
     std::vector<void const*> pointersToElements;
@@ -510,7 +514,7 @@ namespace edm {
     helper_vector_ptr helpers;
     // the following must initialize the
     //  shared pointer and fill the helper vector
-    bh.wrapper()->fillView(bh.id(), pointersToElements, helpers);
+    bh.interface()->fillView(bh.wrapper(), bh.id(), pointersToElements, helpers);
 
     boost::shared_ptr<View<ELEMENT> >
       newview(new View<ELEMENT>(pointersToElements, helpers));

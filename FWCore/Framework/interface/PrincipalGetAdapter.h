@@ -41,7 +41,7 @@ event.getByLabel("market", "apple", fruits);
 Putting Data
 
 \code
-std::auto_ptr<AppleCollection> pApples( new AppleCollection );
+std::auto_ptr<AppleCollection> pApples(new AppleCollection);
   
 //fill the collection
 ...
@@ -49,7 +49,7 @@ event.put(pApples);
 \endcode
 
 \code
-std::auto_ptr<FruitCollection> pFruits( new FruitCollection );
+std::auto_ptr<FruitCollection> pFruits(new FruitCollection);
 
 //fill the collection
 ...
@@ -63,14 +63,14 @@ NOTE: The edm::RefProd returned will not work until after the
 edm::PrincipalGetAdapter has been committed (which happens after the
 EDProducer::produce method has ended)
 \code
-std::auto_ptr<AppleCollection> pApples( new AppleCollection);
+std::auto_ptr<AppleCollection> pApples(new AppleCollection);
 
 edm::RefProd<AppleCollection> refApples = event.getRefBeforePut<AppleCollection>();
 
 //do loop and fill collection
-for(unsigned int index = 0; ..... ) {
+for(unsigned int index = 0; .....) {
 ....
-apples->push_back( Apple(...) );
+apples->push_back(Apple(...));
   
 //create an edm::Ref to the new object
 edm::Ref<AppleCollection> ref(refApples, index);
@@ -105,7 +105,7 @@ namespace edm {
 
   namespace principal_get_adapter_detail {
     struct deleter {
-      void operator()(std::pair<EDProduct*, ConstBranchDescription const*> const p) const;
+      void operator()(std::pair<WrapperHolder, ConstBranchDescription const*> const p) const;
     };
     void
     throwOnPutOfNullProduct(char const* principalType, TypeID const& productType, std::string const& productInstanceName);
@@ -262,7 +262,7 @@ namespace edm {
   // no such member function.
 
   namespace detail {
-    typedef char (& no_tag )[1]; // type indicating FALSE
+    typedef char (& no_tag)[1]; // type indicating FALSE
     typedef char (& yes_tag)[2]; // type indicating TRUE
 
     // Definitions forthe following struct and function templates are

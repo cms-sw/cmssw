@@ -24,6 +24,7 @@ namespace edm {
     void checkDicts(BranchDescription const& productDesc) {
       if(productDesc.transient()) {
         checkDictionaries(productDesc.fullClassName(), true);
+        checkDictionaries(wrappedClassName(productDesc.fullClassName()), true);
       } else {
         checkDictionaries(wrappedClassName(productDesc.fullClassName()), false);
       }

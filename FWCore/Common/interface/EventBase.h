@@ -21,21 +21,22 @@
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 
-// system include files
-#include <typeinfo>
-#include <string>
-
 // user include files
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/ConvertHandle.h"
-#include "DataFormats/Common/interface/Wrapper.h"
 
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "DataFormats/Common/interface/ConvertHandle.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/WrapperInterface.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+// system include files
+#include <string>
+#include <typeinfo>
 
 namespace edm {
 
@@ -49,8 +50,8 @@ namespace edm {
       virtual ~EventBase();
       
       // ---------- const member functions ---------------------
-      template <class T>
-      bool getByLabel(const InputTag&, Handle<T>&) const;
+      template<typename T>
+      bool getByLabel(InputTag const&, Handle<T>&) const;
       
       // AUX functions.
       edm::EventID id() const {return eventAuxiliary().id();}
@@ -61,7 +62,7 @@ namespace edm {
       edm::EventAuxiliary::ExperimentType experimentType() const {return eventAuxiliary().experimentType();}
       int bunchCrossing() const {return eventAuxiliary().bunchCrossing();}
       int orbitNumber() const {return eventAuxiliary().orbitNumber();}
-      virtual edm::EventAuxiliary const& eventAuxiliary() const =0;
+      virtual edm::EventAuxiliary const& eventAuxiliary() const = 0;
 
       virtual TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const = 0;
       virtual TriggerResultsByName triggerResultsByName(std::string const& process) const = 0;
@@ -71,20 +72,20 @@ namespace edm {
       static TriggerNames const* triggerNames_(edm::TriggerResults const& triggerResults);
 
    private:
-      //EventBase(const EventBase&); // allow default
+      //EventBase(EventBase const&); // allow default
       
-      //const EventBase& operator=(const EventBase&); // allow default
+      //EventBase const& operator=(EventBase const&); // allow default
       
-      virtual BasicHandle getByLabelImpl(const std::type_info& iWrapperType, const std::type_info& iProductType, const InputTag& iTag) const = 0;
+      virtual BasicHandle getByLabelImpl(WrapperInterfaceBase const* wrapperInterfaceBase, std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const = 0;
       // ---------- member data --------------------------------
       
    };
 
-   template <class T>
+   template<typename T>
    bool 
-   EventBase::getByLabel(const InputTag& tag, Handle<T>& result) const {
+   EventBase::getByLabel(InputTag const& tag, Handle<T>& result) const {
       result.clear();
-      BasicHandle bh = this->getByLabelImpl(typeid(edm::Wrapper<T>), typeid(T), tag);
+      BasicHandle bh = this->getByLabelImpl(edm::Wrapper<T>::getInterface(), typeid(edm::Wrapper<T>), typeid(T), tag);
       convert_handle(bh, result);  // throws on conversion error
       if (bh.failedToGet()) {
          return false;

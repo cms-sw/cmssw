@@ -7,13 +7,12 @@
 #include "InputFile.h"
 #include "ProvenanceAdaptor.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/EventEntryInfo.h"
-#include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
@@ -29,7 +28,6 @@
 #include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Sources/interface/EventSkipperByID.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
@@ -49,11 +47,11 @@
 #include "TROOT.h"
 #include "Rtypes.h"
 #include "TClass.h"
+#include "TString.h"
 #include "TTree.h"
 #include "TTreeCache.h"
 
 #include <algorithm>
-#include <map>
 #include <list>
 
 namespace edm {
@@ -1524,12 +1522,14 @@ namespace edm {
 
     // Drop on input mergeable run and lumi products, this needs to be invoked for secondary file input
     if(secondaryFile) {
+      TString tString;
       for(ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
         BranchDescription const& prod = it->second;
         if(prod.branchType() != InEvent) {
           TClass *cp = gROOT->GetClass(prod.wrappedName().c_str());
-          boost::shared_ptr<EDProduct> dummy(static_cast<EDProduct *>(cp->New()));
-          if(dummy->isMergeable()) {
+          void* dummy = cp->New();
+          WrapperHolder edp(dummy, prod.getInterface());
+          if(edp.isMergeable()) {
             treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
             ProductRegistry::ProductList::iterator icopy = it;
             ++it;

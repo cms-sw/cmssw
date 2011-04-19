@@ -12,7 +12,7 @@ namespace edm {
   public:
     virtual ~NoDelayedReader();
   private:
-    virtual std::auto_ptr<EDProduct> getProduct_(BranchKey const& k, EDProductGetter const* ep) const;
+    virtual WrapperHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const;
   };
 }
 #endif

@@ -7,13 +7,13 @@ RefCore: The component of edm::Ref containing the product ID and product getter.
 
 ----------------------------------------------------------------------*/
 #include "DataFormats/Common/interface/EDProductGetter.h"
+#include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 
 #include <algorithm>
 #include <typeinfo>
 
 namespace edm {
-  class EDProduct;
   class RefCore {
   public:
     RefCore() : processIndex_(0),productIndex_(0), prodPtr_(0),prodGetter_(0),clientCache_(0),transient_() {}
@@ -46,7 +46,7 @@ namespace edm {
 
     void setProductGetter(EDProductGetter const* prodGetter) const;
 
-    EDProduct const* getProductPtr(std::type_info const& type) const;
+    WrapperHolder getProductPtr(std::type_info const& type) const;
 
     void productNotFoundException(std::type_info const& type) const;
 
@@ -63,8 +63,8 @@ namespace edm {
     void pushBackItem(RefCore const& productToBeInserted, bool checkPointer);
 
     //the client ptr allows templated classes which hold a RefCore to use for a transient cache
-    const void* clientCache() const { return clientCache_;}
-    const void*& mutableClientCache() { return clientCache_;}
+    void const* clientCache() const { return clientCache_;}
+    void const*& mutableClientCache() { return clientCache_;}
     
     struct CheckTransientOnWrite {
       explicit CheckTransientOnWrite(bool iValue=false): transient_(iValue) {}
@@ -102,12 +102,12 @@ namespace edm {
   inline
   bool
   operator<(RefCore const& lhs, RefCore const& rhs) {
-    return lhs.isTransient() ? (rhs.isTransient() ? lhs.productPtr() < rhs.productPtr() : false ) : (rhs.isTransient() ? true : lhs.id() < rhs.id());
+    return lhs.isTransient() ? (rhs.isTransient() ? lhs.productPtr() < rhs.productPtr() : false) : (rhs.isTransient() ? true : lhs.id() < rhs.id());
   }
 
   inline 
   void
-  RefCore::swap( RefCore & other ) {
+  RefCore::swap(RefCore & other) {
     std::swap(processIndex_, other.processIndex_);
     std::swap(productIndex_, other.productIndex_);
     std::swap(prodPtr_, other.prodPtr_);

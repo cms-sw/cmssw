@@ -36,10 +36,11 @@ namespace fwlite
 
          virtual ~LuminosityBlockBase();
 
-         virtual bool getByLabel (const std::type_info&,
-                                  const char*,
-                                  const char*,
-                                  const char*,
+         virtual bool getByLabel(
+                                  std::type_info const&,
+                                  char const*,
+                                  char const*,
+                                  char const*,
                                   void*) const = 0;
          using edm::LuminosityBlockBase::getByLabel;
 
@@ -54,7 +55,7 @@ namespace fwlite
 
       private:
 
-         virtual edm::BasicHandle getByLabelImpl(const std::type_info&, const std::type_info&, const edm::InputTag&) const;
+         virtual edm::BasicHandle getByLabelImpl(edm::WrapperInterfaceBase const*, std::type_info const&, std::type_info const&, const edm::InputTag&) const;
    };
 } // fwlite namespace
 

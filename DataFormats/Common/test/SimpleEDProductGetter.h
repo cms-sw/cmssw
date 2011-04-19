@@ -1,48 +1,47 @@
-#ifndef DATAFORMAT_COMMON_TEST_SIMPLEEDPRODUCTGETTER_H
-#define DATAFORMAT_COMMON_TEST_SIMPLEEDPRODUCTGETTER_H
+#ifndef DataFormats_Common_SimpleEDProductGetter_h
+#define DataFormats_Common_SimpleEDProductGetter_h
+
+#include "boost/shared_ptr.hpp"
+
+#include "DataFormats/Common/interface/WrapperHolder.h"
+#include "DataFormats/Common/interface/EDProductGetter.h"
+#include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Provenance/interface/WrapperInterfaceBase.h"
 
 #include <map>
 #include <memory>
 
-#include "boost/shared_ptr.hpp"
+class SimpleEDProductGetter : public edm::EDProductGetter {
+public:
 
-#include "DataFormats/Common/interface/EDProductGetter.h"
-#include "DataFormats/Common/interface/Wrapper.h"
+  typedef std::map<edm::ProductID, edm::WrapperHolder> map_t;
 
-
-class SimpleEDProductGetter : public edm::EDProductGetter
-{
- public:
-
-  typedef std::map<edm::ProductID, boost::shared_ptr<edm::EDProduct> > map_t;
-  template <class T>
-  void 
-  addProduct(edm::ProductID const& id, std::auto_ptr<T> p)
-  {
+  template<typename T>
+  void
+  addProduct(edm::ProductID const& id, std::auto_ptr<T> p) {
     typedef edm::Wrapper<T> wrapper_t;
-
-    boost::shared_ptr<wrapper_t> product(new wrapper_t(p));
-    database[id] = product;    
+    edm::WrapperInterfaceBase const* interface = wrapper_t::getInterface();
+    boost::shared_ptr<void const> wrapper(new wrapper_t(p), edm::WrapperHolder::EDProductDeleter(interface));
+    database[id] = edm::WrapperHolder(wrapper, interface);
   }
 
-  size_t size() const 
-  { return database.size(); }
+  size_t size() const {
+    return database.size();
+  }
 
-  virtual edm::EDProduct const* getIt(edm::ProductID const& id) const
-  { 
+  virtual edm::WrapperHolder getIt(edm::ProductID const& id) const {
     map_t::const_iterator i = database.find(id);
     if (i == database.end()) {
       edm::Exception e(edm::errors::ProductNotFound, "InvalidID");
-      e << "No product with ProductID " 
-        << id 
+      e << "No product with ProductID "
+        << id
         << " is available from this EDProductGetter\n";
       e.raise();
     }
-    return i->second.get();
+    return i->second;
   }
 
- private:
+private:
   map_t database;
 };
-
 #endif

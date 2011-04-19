@@ -1,21 +1,18 @@
 /*
- *  $Id: DetSetVector_t.cpp,v 1.18.4.1 2008/11/04 19:24:08 wmtan Exp $
  *  CMSSW
- *
  */
+
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/TestHandle.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 #include <algorithm>
 #include <cassert>
-//#include <iostream>
 #include <iterator>
 #include <ostream>
 #include <stdexcept>
 #include <vector>
-
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/Common/interface/TestHandle.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
 
 using namespace edm;
 
@@ -25,9 +22,8 @@ using namespace edm;
 
 struct Empty { };
 
-template <class BASE>
-class ValueT : public BASE
-{
+template<typename BASE>
+class ValueT : public BASE {
  public:
   // VALUES must be default constructible
   ValueT() : d_(0.0) {}
@@ -60,8 +56,7 @@ typedef edm::DoNotSortUponInsertion DNS;
 
 template <>
 bool
-ValueT<DNS>::operator< (ValueT<DNS> const& other) const
-{
+ValueT<DNS>::operator< (ValueT<DNS> const& other) const {
   throw std::logic_error("You can't sort me!");
 }
 
@@ -83,8 +78,7 @@ typedef ValueT<Empty> Value;
 
 template <class BASE>
 std::ostream&
-operator<< (std::ostream& os, ValueT<BASE> const& v)
-{
+operator<< (std::ostream& os, ValueT<BASE> const& v) {
   os << " val: " << v.val();
   return os;
 }
@@ -93,32 +87,28 @@ operator<< (std::ostream& os, ValueT<BASE> const& v)
 typedef edm::DetSetVector<Value> coll_type;
 typedef coll_type::detset        detset;
 
-void check_outer_collection_order(coll_type const& c)
-{
+void check_outer_collection_order(coll_type const& c) {
   if (c.size() < 2) return;
   coll_type::const_iterator i = c.begin();
   coll_type::const_iterator e = c.end();
   // Invariant: sequence from prev to i is correctly ordered
   coll_type::const_iterator prev(i);
   ++i;
-  for (; i != e; ++i, ++prev)
-    {
+  for (; i != e; ++i, ++prev) {
       // We don't use CPPUNIT_ASSERT because it gives us grossly
       // insufficient context if a failure occurs.
       assert(prev->id < i->id);
     }
 }
 
-void check_inner_collection_order(detset const& d)
-{
+void check_inner_collection_order(detset const& d) {
   if (d.data.size() < 2) return;
   detset::const_iterator i = d.data.begin();
   detset::const_iterator e = d.data.end();
   // Invariant: sequence from prev to i is correctly ordered
   detset::const_iterator prev(i);
   ++i;
-  for (; i != e; ++i, ++prev)
-    {
+  for (; i != e; ++i, ++prev) {
       // We don't use CPPUNIT_ASSERT because it gives us grossly
       // insufficient context if a failure occurs.
       //
@@ -128,8 +118,7 @@ void check_inner_collection_order(detset const& d)
     }
 }
 
-void printDetSet(detset const& ds, std::ostream& os)
-{
+void printDetSet(detset const& ds, std::ostream& os) {
   os << "size: " << ds.data.size() << '\n'
      << "values: ";
   std::copy(ds.data.begin(), ds.data.end(),
@@ -137,26 +126,22 @@ void printDetSet(detset const& ds, std::ostream& os)
 }
 
 
-void sanity_check(coll_type const& c)
-{
+void sanity_check(coll_type const& c) {
   check_outer_collection_order(c);
-  for (coll_type::const_iterator i = c.begin(), e = c.end(); i!=e; ++i)
-    {
+  for (coll_type::const_iterator i = c.begin(), e = c.end(); i!=e; ++i) {
 //       printDetSet(*i, std::cerr);
 //       std::cerr << '\n';
       check_inner_collection_order(*i);
     }
 }
 
-void check_ids(coll_type const& c)
-{
+void check_ids(coll_type const& c) {
   // Long way to get all ids...
   std::vector<det_id_type> all_ids;
   for (coll_type::const_iterator i = c.begin(),
 	 e = c.end();
        i !=  e;
-       ++i)
-    {
+       ++i) {
       all_ids.push_back(i->id);
     }
   assert(c.size() == all_ids.size());
@@ -167,8 +152,7 @@ void check_ids(coll_type const& c)
 }
 
 
-void detsetTest()
-{
+void detsetTest() {
   //std::cerr << "\nStart DetSetVector_t detsetTest()\n";
   detset d;
   Value v1(1.1);
@@ -181,20 +165,17 @@ void detsetTest()
   //std::cerr << "\nEnd DetSetVector_t detsetTest()\n";
 }
 
-namespace
-{
+namespace {
   template<class T>
-  struct DSVGetter : edm::EDProductGetter
-  {
+  struct DSVGetter : edm::EDProductGetter {
     DSVGetter() : edm::EDProductGetter(), prod_(0) {}
-    virtual EDProduct const*
-    getIt(ProductID const&) const { return prod_; }
+    virtual WrapperHolder
+    getIt(ProductID const&) const {return WrapperHolder(prod_, prod_->getInterface());}
     edm::Wrapper<T> const* prod_;
   };
 }
 
-void refTest()
-{
+void refTest() {
   coll_type c;
   detset d3;
   Value v1(1.1);
@@ -267,8 +248,7 @@ void refTest()
 
 }
 
-void work()
-{
+void work() {
   detsetTest();
   refTest();
 
@@ -412,11 +392,10 @@ void work()
   }
   {
     // Make sure we can swap in a vector.
-    const unsigned int numDetSets = 20;
-    const unsigned int detSetSize = 14;
+    unsigned int const numDetSets = 20;
+    unsigned int const detSetSize = 14;
     std::vector<detset> v;
-    for (unsigned int i = 0; i < numDetSets; ++i)
-      {
+    for (unsigned int i = 0; i < numDetSets; ++i) {
 	detset    d(i);
 	for (unsigned int j = 0; j < detSetSize; ++j)
 	  {
@@ -441,10 +420,7 @@ void work()
   }
 }
 
-
-
-int main()
-{
+int main() {
   int rc = -1;
   try {
       work();

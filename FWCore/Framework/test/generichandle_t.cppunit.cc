@@ -3,10 +3,6 @@
 Test of the EventPrincipal class.
 
 ----------------------------------------------------------------------*/
-#include <string>
-#include <iostream>
-#include <memory>
-
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
@@ -19,16 +15,24 @@ Test of the EventPrincipal class.
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "DataFormats/Provenance/interface/WrapperInterfaceBase.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/GenericHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 
-#include "FWCore/Framework/interface/GenericHandle.h"
+#include "Cintex/Cintex.h"
+
 #include <cppunit/extensions/HelperMacros.h>
+
+#include <iostream>
+#include <memory>
+#include <string>
 
 // This is a gross hack, to allow us to test the event
 namespace edm {
@@ -45,7 +49,9 @@ CPPUNIT_TEST(getbyLabelTest);
 CPPUNIT_TEST(failWrongType);
 CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp(){}
+  void setUp(){
+    ROOT::Cintex::Cintex::Enable();
+  }
   void tearDown(){}
   void failgetbyLabelTest();
   void failWrongType();
@@ -118,8 +124,11 @@ void testGenericHandle::getbyLabelTest() {
 
   typedef edmtest::DummyProduct DP;
   typedef edm::Wrapper<DP> WDP;
+  edm::WrapperInterfaceBase const* interface = WDP::getInterface();
+
   std::auto_ptr<DP> pr(new DP);
-  std::auto_ptr<edm::EDProduct> pprod(new WDP(pr));
+  boost::shared_ptr<void const> wdp(new WDP(pr), edm::WrapperHolder::EDProductDeleter(interface));
+  edm::WrapperHolder pprod(wdp, interface);
   std::string label("fred");
   std::string productInstanceName("Rick");
 
@@ -145,7 +154,7 @@ void testGenericHandle::getbyLabelTest() {
                                  productInstanceName,
                                  modDesc,
                                  dummytype
-                                );
+                              );
 
   product.init();
 

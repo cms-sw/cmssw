@@ -30,7 +30,7 @@
 
 // forward declarations
 namespace edm {
-  class EDProduct;
+  class WrapperHolder;
   class ProductRegistry;
   class BranchDescription;
   class EDProductGetter;
@@ -47,10 +47,10 @@ namespace fwlite {
 
    public:
 
-      ChainEvent(const std::vector<std::string>& iFileNames);
+      ChainEvent(std::vector<std::string> const& iFileNames);
       virtual ~ChainEvent();
 
-      const ChainEvent& operator++();
+      ChainEvent const& operator++();
 
       ///Go to the event at index iIndex
       bool to(Long64_t iIndex);
@@ -62,18 +62,18 @@ namespace fwlite {
       bool to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
 
       // Go to the very first Event.
-      const ChainEvent& toBegin();
+      ChainEvent const& toBegin();
 
       // ---------- const member functions ---------------------
-      virtual const std::string getBranchNameFor(const std::type_info&,
-                                                 const char*,
-                                                 const char*,
-                                                 const char*) const;
+      virtual std::string const getBranchNameFor(std::type_info const&,
+                                                 char const*,
+                                                 char const*,
+                                                 char const*) const;
 
       // This function should only be called by fwlite::Handle<>
-      virtual bool getByLabel(const std::type_info&, const char*,
-                              const char*, const char*, void*) const;
-      //void getByBranchName(const std::type_info&, const char*, void*&) const;
+      virtual bool getByLabel(std::type_info const&, char const*,
+                              char const*, char const*, void*) const;
+      //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
       bool isValid() const;
       operator bool() const;
@@ -83,8 +83,8 @@ namespace fwlite {
 
       virtual edm::EventAuxiliary const& eventAuxiliary() const;
 
-      const std::vector<edm::BranchDescription>& getBranchDescriptions() const;
-      const std::vector<std::string>& getProcessHistory() const;
+      std::vector<edm::BranchDescription> const& getBranchDescriptions() const;
+      std::vector<std::string> const& getProcessHistory() const;
       TFile* getTFile() const {
         return event_->getTFile();
       }
@@ -92,22 +92,22 @@ namespace fwlite {
       Long64_t eventIndex() const { return eventIndex_; }
       virtual Long64_t fileIndex() const { return eventIndex_; }
 
-      void setGetter( boost::shared_ptr<edm::EDProductGetter> getter ){
-         event_->setGetter( getter );
+      void setGetter(boost::shared_ptr<edm::EDProductGetter> getter){
+         event_->setGetter(getter);
       }
 
-      Event const * event() const { return &*event_; }
+      Event const* event() const { return &*event_; }
 
       virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
       void fillParameterSetRegistry() const;
       virtual edm::TriggerResultsByName triggerResultsByName(std::string const& process) const;
 
       // ---------- static member functions --------------------
-      static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);
+      static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);
 
       // ---------- member functions ---------------------------
 
-      edm::EDProduct const* getByProductID(edm::ProductID const&) const;
+      edm::WrapperHolder getByProductID(edm::ProductID const&) const;
       fwlite::LuminosityBlock const& getLuminosityBlock();
       fwlite::Run             const& getRun();
 
@@ -115,9 +115,9 @@ namespace fwlite {
 
       friend class MultiChainEvent;
 
-      ChainEvent(const Event&); // stop default
+      ChainEvent(Event const&); // stop default
 
-      const ChainEvent& operator=(const Event&); // stop default
+      ChainEvent const& operator=(Event const&); // stop default
 
       void findSizes();
       void switchToFile(Long64_t);

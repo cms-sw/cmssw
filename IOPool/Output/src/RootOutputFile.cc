@@ -632,7 +632,8 @@ namespace edm {
                 Principal const& principal,
                 ProductProvenanceVector* productProvenanceVecPtr) {
 
-    std::vector<boost::shared_ptr<EDProduct> > dummies;
+    typedef std::vector<std::pair<TClass*, void const*> > Dummies;
+    Dummies dummies;
 
     bool const fastCloning = (branchType == InEvent) && (whyNotFastClonable_ == FileBlock::CanFastClone);
 
@@ -653,7 +654,7 @@ namespace edm {
       bool getProd = (produced || !fastCloning ||
          treePointers_[branchType]->uncloned(i->branchDescription_->branchName()));
 
-      EDProduct const* product = 0;
+      void const* product = 0;
       OutputHandle const oh = principal.getForOutput(id, getProd);
       if(keepProvenance && oh.productProvenance()) {
         provenanceToKeep.insert(*oh.productProvenance());
@@ -666,9 +667,8 @@ namespace edm {
           // No product with this ID is in the event.
           // Add a null product.
           TClass* cp = gROOT->GetClass(i->branchDescription_->wrappedName().c_str());
-          boost::shared_ptr<EDProduct> dummy(static_cast<EDProduct*>(cp->New()));
-          dummies.push_back(dummy);
-          product = dummy.get();
+          product = cp->New();
+          dummies.push_back(std::make_pair(cp, product));
         }
         i->product_ = product;
       }
@@ -682,6 +682,8 @@ namespace edm {
     productProvenanceVecPtr->assign(provenanceToKeep.begin(), provenanceToKeep.end());
     treePointers_[branchType]->fillTree();
     productProvenanceVecPtr->clear();
+    for(Dummies::iterator it = dummies.begin(), itEnd = dummies.end(); it != itEnd; ++it) {
+      it->first->Destructor(const_cast<void *>(it->second));
+    }
   }
-
 }

@@ -8,7 +8,7 @@ RefCoreGet: Free function to get the pointer to a referenced product.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/RefCore.h"
-#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace edm {
@@ -20,12 +20,8 @@ namespace edm {
     getProductPtr_(RefCore const& ref) {
       //if (isNull()) throwInvalidReference();
       assert (!ref.isTransient());
-      EDProduct const* product = ref.getProductPtr(typeid(T));
-      Wrapper<T> const* wrapper = dynamic_cast<Wrapper<T> const*>(product);
-
-      if (wrapper == 0) {
-        ref.wrongTypeException(typeid(T), typeid(*product));
-      }
+      WrapperHolder product = ref.getProductPtr(typeid(T));
+      Wrapper<T> const* wrapper = static_cast<Wrapper<T> const*>(product.wrapper());
       ref.setProductPtr(wrapper->product());
       return wrapper->product();
     }
@@ -34,8 +30,8 @@ namespace edm {
   template <typename T>
   inline
   T const*
-  getProduct(RefCore const & ref) {
-    T const* p = static_cast<T const *>(ref.productPtr());
+  getProduct(RefCore const& ref) {
+    T const* p = static_cast<T const*>(ref.productPtr());
     if (p != 0) return p;
     if (ref.isTransient()) {
       ref.nullPointerForTransientException(typeid(T));

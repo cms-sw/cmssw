@@ -17,6 +17,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 
 ----------------------------------------------------------------------*/
 
+#include "DataFormats/Common/interface/WrapperHolder.h"
 #include "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Common/interface/RunBase.h"
@@ -111,9 +112,9 @@ namespace edm {
     runPrincipal();
 
     // Override version from RunBase class
-    virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;
+    virtual BasicHandle getByLabelImpl(WrapperInterfaceBase const* wrapperInterfaceBase, std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;
 
-    typedef std::vector<std::pair<EDProduct*, ConstBranchDescription const*> > ProductPtrVec;
+    typedef std::vector<std::pair<WrapperHolder, ConstBranchDescription const*> > ProductPtrVec;
     ProductPtrVec& putProducts() {return putProducts_;}
     ProductPtrVec const& putProducts() const {return putProducts_;}
 
@@ -156,9 +157,10 @@ namespace edm {
     ConstBranchDescription const& desc =
       provRecorder_.getBranchDescription(TypeID(*product), productInstanceName);
 
-    Wrapper<PROD> *wp(new Wrapper<PROD>(product));
-
-    putProducts().push_back(std::make_pair(wp, &desc));
+    WrapperInterfaceBase const* interface = Wrapper<PROD>::getInterface();
+    boost::shared_ptr<void const> wp(new Wrapper<PROD>(product), WrapperHolder::EDProductDeleter(interface));
+    WrapperHolder edp(wp, interface);
+    putProducts().push_back(std::make_pair(edp, &desc));
 
     // product.release(); // The object has been copied into the Wrapper.
     // The old copy must be deleted, so we cannot release ownership.

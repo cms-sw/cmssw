@@ -36,6 +36,9 @@ namespace edm {
   class ProductProvenance;
   class Provenance {
   public:
+    Provenance() : branchDescription_(), productID_(), productProvenancePtr_(), store_() {
+    }
+
     Provenance(boost::shared_ptr<ConstBranchDescription> const& p, ProductID const& pid);
 
     ~Provenance() {}
@@ -45,7 +48,7 @@ namespace edm {
 
     BranchDescription const& branchDescription() const {return branchDescription_->me();}
     ConstBranchDescription const& constBranchDescription() const {return *branchDescription_;}
-    boost::shared_ptr<ConstBranchDescription> const &  constBranchDescriptionPtr() const {return branchDescription_;}
+    boost::shared_ptr<ConstBranchDescription> const& constBranchDescriptionPtr() const {return branchDescription_;}
     
     bool productProvenanceResolved() const {
       return productProvenancePtr_;

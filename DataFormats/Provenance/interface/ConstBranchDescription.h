@@ -56,6 +56,7 @@ namespace edm {
     std::string const& branchName() const {return ptr_->branchName();}
     BranchType const& branchType() const {return ptr_->branchType();}
     std::string const& wrappedName() const {return ptr_->wrappedName();}
+    WrapperInterfaceBase const* getInterface() const {return ptr_->getInterface();}
 
     BranchDescription const& me() const {return *ptr_;}
 

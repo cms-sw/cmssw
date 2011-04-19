@@ -38,6 +38,8 @@ Test of the EventPrincipal class.
 #include "FWCore/Framework/interface/Event.h"
 #undef private
 
+#include "Cintex/Cintex.h"
+
 #include <cppunit/extensions/HelperMacros.h>
 
 class testEventGetRefBeforePut: public CppUnit::TestFixture {
@@ -46,7 +48,9 @@ CPPUNIT_TEST(failGetProductNotRegisteredTest);
 CPPUNIT_TEST(getRefTest);
 CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp(){}
+  void setUp(){
+    ROOT::Cintex::Cintex::Enable();
+  }
   void tearDown(){}
   void failGetProductNotRegisteredTest();
   void getRefTest();
@@ -120,7 +124,7 @@ void testEventGetRefBeforePut::getRefTest() {
                                  productInstanceName,
                                  modDesc,
                                  dummytype
-                                );
+                              );
 
   product.init();
 

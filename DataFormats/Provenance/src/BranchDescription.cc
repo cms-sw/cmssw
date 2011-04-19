@@ -4,10 +4,15 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
+
+#include "TROOT.h"
+#include "TMethodCall.h"
+
 #include <ostream>
 #include <sstream>
 #include <stdlib.h>
 
+class TClass;
 /*----------------------------------------------------------------------
 
 
@@ -26,6 +31,7 @@ namespace edm {
     transient_(false),
     type_(),
     typeID_(),
+    wrapperInterfaceBase_(0),
     splitLevel_(),
     basketSize_() {
    }
@@ -75,7 +81,7 @@ namespace edm {
 
   void
   BranchDescription::initBranchName() const {
-    if (!branchName().empty()) {
+    if(!branchName().empty()) {
       return;  // already called
     }
     throwIfInvalid_();
@@ -83,22 +89,22 @@ namespace edm {
     char const underscore('_');
     char const period('.');
 
-    if (friendlyClassName_.find(underscore) != std::string::npos) {
+    if(friendlyClassName_.find(underscore) != std::string::npos) {
       throw cms::Exception("IllegalCharacter") << "Class name '" << friendlyClassName()
       << "' contains an underscore ('_'), which is illegal in the name of a product.\n";
     }
 
-    if (moduleLabel_.find(underscore) != std::string::npos) {
+    if(moduleLabel_.find(underscore) != std::string::npos) {
       throw cms::Exception("IllegalCharacter") << "Module label '" << moduleLabel()
       << "' contains an underscore ('_'), which is illegal in a module label.\n";
     }
 
-    if (productInstanceName_.find(underscore) != std::string::npos) {
+    if(productInstanceName_.find(underscore) != std::string::npos) {
       throw cms::Exception("IllegalCharacter") << "Product instance name '" << productInstanceName()
       << "' contains an underscore ('_'), which is illegal in a product instance name.\n";
     }
 
-    if (processName_.find(underscore) != std::string::npos) {
+    if(processName_.find(underscore) != std::string::npos) {
       throw cms::Exception("IllegalCharacter") << "Process name '" << processName()
       << "' contains an underscore ('_'), which is illegal in a process name.\n";
     }
@@ -116,7 +122,7 @@ namespace edm {
     branchName() += processName();
     branchName() += period;
 
-    if (!branchID_.isValid()) {
+    if(!branchID_.isValid()) {
       branchID_.setID(branchName());
     }
   }
@@ -125,7 +131,7 @@ namespace edm {
   BranchDescription::initFromDictionary() const {
     Reflex::Type null;
 
-    if (type() != null) {
+    if(type() != null) {
       return;  // already initialized;
     }
 
@@ -134,30 +140,28 @@ namespace edm {
     wrappedName() = wrappedClassName(fullClassName());
 
     Reflex::Type t = Reflex::Type::ByName(fullClassName());
-    if (t == null) {
+    if(t == null) {
       splitLevel() = invalidSplitLevel;
       basketSize() = invalidBasketSize;
       transient() = false;
       return;
     }
-    Reflex::PropertyList p = t.Properties();
-    transient() = (p.HasProperty("persistent") ? p.PropertyAsString("persistent") == std::string("false") : false);
-    if (transient()) {
-      splitLevel() = invalidSplitLevel;
-      basketSize() = invalidBasketSize;
-      type() = t;
-      return;
-    }
     type() = Reflex::Type::ByName(wrappedName());
-    if (type() == null) {
+    if(type() == null) {
       splitLevel() = invalidSplitLevel;
       basketSize() = invalidBasketSize;
       return;
     }
     Reflex::PropertyList wp = type().Properties();
-    if (wp.HasProperty("splitLevel")) {
+    transient() = (wp.HasProperty("persistent") ? wp.PropertyAsString("persistent") == std::string("false") : false);
+    if(transient()) {
+      splitLevel() = invalidSplitLevel;
+      basketSize() = invalidBasketSize;
+      return;
+    }
+    if(wp.HasProperty("splitLevel")) {
       splitLevel() = strtol(wp.PropertyAsString("splitLevel").c_str(), 0, 0);
-      if (splitLevel() < 0) {
+      if(splitLevel() < 0) {
         throw cms::Exception("IllegalSplitLevel") << "' An illegal ROOT split level of " <<
         splitLevel() << " is specified for class " << wrappedName() << ".'\n";
       }
@@ -165,9 +169,9 @@ namespace edm {
     } else {
       splitLevel() = invalidSplitLevel;
     }
-    if (wp.HasProperty("basketSize")) {
+    if(wp.HasProperty("basketSize")) {
       basketSize() = strtol(wp.PropertyAsString("basketSize").c_str(), 0, 0);
-      if (basketSize() <= 0) {
+      if(basketSize() <= 0) {
         throw cms::Exception("IllegalBasketSize") << "' An illegal ROOT basket size of " <<
         basketSize() << " is specified for class " << wrappedName() << "'.\n";
       }
@@ -179,7 +183,7 @@ namespace edm {
   ParameterSetID const&
     BranchDescription::psetID() const {
     assert(!parameterSetIDs().empty());
-    if (parameterSetIDs().size() != 1) {
+    if(parameterSetIDs().size() != 1) {
       throw cms::Exception("Ambiguous")
         << "Your application requires all events on Branch '" << branchName()
         << "'\n to have the same provenance. This file has events with mixed provenance\n"
@@ -193,8 +197,8 @@ namespace edm {
     parameterSetIDs().insert(other.parameterSetIDs().begin(), other.parameterSetIDs().end());
     moduleNames().insert(other.moduleNames().begin(), other.moduleNames().end());
     branchAliases_.insert(other.branchAliases().begin(), other.branchAliases().end());
-    if (splitLevel() == invalidSplitLevel) splitLevel() = other.splitLevel();
-    if (basketSize() == invalidBasketSize) basketSize() = other.basketSize();
+    if(splitLevel() == invalidSplitLevel) splitLevel() = other.splitLevel();
+    if(basketSize() == invalidBasketSize) basketSize() = other.basketSize();
   }
 
   void
@@ -218,22 +222,22 @@ namespace edm {
 
   void
   BranchDescription::throwIfInvalid_() const {
-    if (branchType_ >= NumBranchTypes)
+    if(branchType_ >= NumBranchTypes)
       throwExceptionWithText("Illegal BranchType detected");
 
-    if (moduleLabel_.empty())
+    if(moduleLabel_.empty())
       throwExceptionWithText("Module label is not allowed to be empty");
 
-    if (processName_.empty())
+    if(processName_.empty())
       throwExceptionWithText("Process name is not allowed to be empty");
 
-    if (fullClassName_.empty())
+    if(fullClassName_.empty())
       throwExceptionWithText("Full class name is not allowed to be empty");
 
-    if (friendlyClassName_.empty())
+    if(friendlyClassName_.empty())
       throwExceptionWithText("Friendly class name is not allowed to be empty");
 
-    if (produced() && !parameterSetID().isValid())
+    if(produced() && !parameterSetID().isValid())
       throwExceptionWithText("Invalid ParameterSetID detected");
   }
 
@@ -246,28 +250,28 @@ namespace edm {
 
   bool
   operator<(BranchDescription const& a, BranchDescription const& b) {
-    if (a.processName() < b.processName()) return true;
-    if (b.processName() < a.processName()) return false;
-    if (a.fullClassName() < b.fullClassName()) return true;
-    if (b.fullClassName() < a.fullClassName()) return false;
-    if (a.friendlyClassName() < b.friendlyClassName()) return true;
-    if (b.friendlyClassName() < a.friendlyClassName()) return false;
-    if (a.productInstanceName() < b.productInstanceName()) return true;
-    if (b.productInstanceName() < a.productInstanceName()) return false;
-    if (a.moduleLabel() < b.moduleLabel()) return true;
-    if (b.moduleLabel() < a.moduleLabel()) return false;
-    if (a.branchType() < b.branchType()) return true;
-    if (b.branchType() < a.branchType()) return false;
-    if (a.branchID() < b.branchID()) return true;
-    if (b.branchID() < a.branchID()) return false;
-    if (a.parameterSetIDs() < b.parameterSetIDs()) return true;
-    if (b.parameterSetIDs() < a.parameterSetIDs()) return false;
-    if (a.moduleNames() < b.moduleNames()) return true;
-    if (b.moduleNames() < a.moduleNames()) return false;
-    if (a.branchAliases() < b.branchAliases()) return true;
-    if (b.branchAliases() < a.branchAliases()) return false;
-    if (a.present() < b.present()) return true;
-    if (b.present() < a.present()) return false;
+    if(a.processName() < b.processName()) return true;
+    if(b.processName() < a.processName()) return false;
+    if(a.fullClassName() < b.fullClassName()) return true;
+    if(b.fullClassName() < a.fullClassName()) return false;
+    if(a.friendlyClassName() < b.friendlyClassName()) return true;
+    if(b.friendlyClassName() < a.friendlyClassName()) return false;
+    if(a.productInstanceName() < b.productInstanceName()) return true;
+    if(b.productInstanceName() < a.productInstanceName()) return false;
+    if(a.moduleLabel() < b.moduleLabel()) return true;
+    if(b.moduleLabel() < a.moduleLabel()) return false;
+    if(a.branchType() < b.branchType()) return true;
+    if(b.branchType() < a.branchType()) return false;
+    if(a.branchID() < b.branchID()) return true;
+    if(b.branchID() < a.branchID()) return false;
+    if(a.parameterSetIDs() < b.parameterSetIDs()) return true;
+    if(b.parameterSetIDs() < a.parameterSetIDs()) return false;
+    if(a.moduleNames() < b.moduleNames()) return true;
+    if(b.moduleNames() < a.moduleNames()) return false;
+    if(a.branchAliases() < b.branchAliases()) return true;
+    if(b.branchAliases() < a.branchAliases()) return false;
+    if(a.present() < b.present()) return true;
+    if(b.present() < a.present()) return false;
     return false;
   }
 
@@ -297,7 +301,7 @@ namespace edm {
         std::string const& fileName,
         BranchDescription::MatchMode m) {
     std::ostringstream differences;
-    if (a.branchName() != b.branchName()) {
+    if(a.branchName() != b.branchName()) {
       differences << "Branch name '" << b.branchName() << "' does not match '" << a.branchName() << "'.\n";
       // Need not compare components of branch name individually.
       // (a.friendlyClassName() != b.friendlyClassName())
@@ -305,31 +309,48 @@ namespace edm {
       // (a.productInstanceName() != b.productInstanceName())
       // (a.processName() != b.processName())
     }
-    if (a.branchType() != b.branchType()) {
+    if(a.branchType() != b.branchType()) {
       differences << "Branch '" << b.branchName() << "' is a(n) '" << b.branchType() << "' branch\n";
       differences << "    in file '" << fileName << "', but a(n) '" << a.branchType() << "' branch in previous files.\n";
     }
-    if (a.branchID() != b.branchID()) {
+    if(a.branchID() != b.branchID()) {
       differences << "Branch '" << b.branchName() << "' has a branch ID of '" << b.branchID() << "'\n";
       differences << "    in file '" << fileName << "', but '" << a.branchID() << "' in previous files.\n";
     }
-    if (a.fullClassName() != b.fullClassName()) {
+    if(a.fullClassName() != b.fullClassName()) {
       differences << "Products on branch '" << b.branchName() << "' have type '" << b.fullClassName() << "'\n";
       differences << "    in file '" << fileName << "', but '" << a.fullClassName() << "' in previous files.\n";
     }
-    if (!b.dropped() && a.dropped()) {
+    if(!b.dropped() && a.dropped()) {
       differences << "Branch '" << a.branchName() << "' was dropped in the first input file but is present in '" << fileName << "'.\n";
     }
-    if (m == BranchDescription::Strict) {
-        if (b.parameterSetIDs().size() > 1) {
+    if(m == BranchDescription::Strict) {
+        if(b.parameterSetIDs().size() > 1) {
           differences << "Branch '" << b.branchName() << "' uses more than one parameter set in file '" << fileName << "'.\n";
-        } else if (a.parameterSetIDs().size() > 1) {
+        } else if(a.parameterSetIDs().size() > 1) {
           differences << "Branch '" << a.branchName() << "' uses more than one parameter set in previous files.\n";
-        } else if (a.parameterSetIDs() != b.parameterSetIDs()) {
+        } else if(a.parameterSetIDs() != b.parameterSetIDs()) {
           differences << "Branch '" << b.branchName() << "' uses different parameter sets in file '" << fileName << "'.\n";
           differences << "    than in previous files.\n";
         }
     }
     return differences.str();
+  }
+
+  WrapperInterfaceBase const*
+  BranchDescription::getInterface() const {
+    if(wrapperInterfaceBase() == 0) {
+      // This could be done in init(), but we only want to do it on demand, for performance reasons.
+      TClass* cp = gROOT->GetClass(wrappedName().c_str());
+      assert(cp != 0);
+      std::auto_ptr<TMethodCall> methodCall(new TMethodCall);
+      methodCall->Init(cp, "getInterface", "");
+      void* p = 0;
+      Long_t ret = 0L;
+      methodCall->Execute(p, ret);
+      wrapperInterfaceBase() = reinterpret_cast<WrapperInterfaceBase*>(ret);
+      assert(wrapperInterfaceBase() != 0);
+    }
+    return wrapperInterfaceBase();
   }
 }

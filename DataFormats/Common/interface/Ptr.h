@@ -18,20 +18,20 @@
 //         Created:  Thu Oct 18 14:41:33 CEST 2007
 //
 
+// user include files
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
+#include "DataFormats/Common/interface/WrapperHolder.h"
+#include "DataFormats/Common/interface/EDProductGetter.h"
+#include "DataFormats/Common/interface/GetProduct.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/RefCore.h"
+#include "DataFormats/Common/interface/TestHandle.h"
+#include "DataFormats/Common/interface/traits.h"
+
 // system include files
 #include "boost/type_traits/is_base_of.hpp"
 #include "boost/utility/enable_if.hpp"
-
-// user include files
-#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
-#include "DataFormats/Common/interface/RefCore.h"
-#include "DataFormats/Common/interface/traits.h"
-#include "DataFormats/Common/interface/GetProduct.h"
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/Common/interface/EDProductGetter.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/OrphanHandle.h"
-#include "DataFormats/Common/interface/TestHandle.h"
 
 // forward declarations
 namespace edm {
@@ -41,7 +41,7 @@ namespace edm {
   public:
 
     typedef unsigned long key_type;
-    typedef T   value_type;
+    typedef T value_type;
 
     // General purpose constructor from handle.
     template <typename C>
@@ -199,11 +199,11 @@ namespace edm {
     void getData_() const {
       if(!hasProductCache() && 0 != productGetter()) {
         void const* ad = 0;
-        EDProduct const* prod = productGetter()->getIt(core_.id());
-        if(prod == 0) {
-	  core_.productNotFoundException(typeid(T));
+        WrapperHolder prod = productGetter()->getIt(core_.id());
+        if(!prod.isValid()) {
+          core_.productNotFoundException(typeid(T));
         }
-        prod->setPtr(typeid(T), key_, ad);
+        prod.setPtr(typeid(T), key_, ad);
         core_.setProductPtr(ad);
       }
     }

@@ -20,27 +20,27 @@
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 
-// system include files
-#include <typeinfo>
-#include <map>
-#include <vector>
-#include <memory>
-#include <cstring>
-#include "boost/shared_ptr.hpp"
-
 // user include files
-#include "FWCore/Utilities/interface/TypeID.h"
+#include "DataFormats/Common/interface/EDProductGetter.h"
+#include "DataFormats/FWLite/interface/HistoryGetterBase.h"
 #include "DataFormats/FWLite/interface/InternalDataKey.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
-#include "DataFormats/FWLite/interface/HistoryGetterBase.h"
+
+// system include files
+#include "boost/shared_ptr.hpp"
+
+#include <cstring>
+#include <map>
+#include <memory>
+#include <typeinfo>
+#include <vector>
 
 // forward declarations
 class TTreeCache;
 class TTree;
 
 namespace fwlite {
-    class DataGetterHelper
-    {
+    class DataGetterHelper {
 
         public:
 //            DataGetterHelper() {};
@@ -52,24 +52,24 @@ namespace fwlite {
             virtual ~DataGetterHelper();
 
             // ---------- const member functions ---------------------
-            virtual const std::string getBranchNameFor(const std::type_info&,
-                                                        const char*,
-                                                        const char*,
-                                                        const char*) const;
+            virtual std::string const getBranchNameFor(std::type_info const&,
+                                                        char const*,
+                                                        char const*,
+                                                        char const*) const;
 
             // This function should only be called by fwlite::Handle<>
-            virtual bool getByLabel(const std::type_info&, const char*, const char*, const char*, void*, Long_t) const;
-            edm::EDProduct const* getByProductID(edm::ProductID const&, Long_t) const;
+            virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*, Long_t) const;
+            edm::WrapperHolder getByProductID(edm::ProductID const&, Long_t) const;
 
             // ---------- static member functions --------------------
-            static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);
+            static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);
 
             // ---------- member functions ---------------------------
 
-            void setGetter( boost::shared_ptr<edm::EDProductGetter> getter ) {
+            void setGetter(boost::shared_ptr<edm::EDProductGetter> getter) {
                 getter_ = getter;
             }
-       
+
             edm::EDProductGetter* getter() {
                return getter_.get();
             }
@@ -78,7 +78,7 @@ namespace fwlite {
             DataGetterHelper(const DataGetterHelper&); // stop default
 
             const DataGetterHelper& operator=(const DataGetterHelper&); // stop default
-            internal::Data& getBranchDataFor(const std::type_info&, const char*, const char*, const char*) const;
+            internal::Data& getBranchDataFor(std::type_info const&, char const*, char const*, char const*) const;
             void getBranchData(edm::EDProductGetter*, Long64_t, internal::Data&) const;
 
             // ---------- member data --------------------------------
@@ -86,7 +86,7 @@ namespace fwlite {
             mutable boost::shared_ptr<BranchMapReader> branchMap_;
             typedef std::map<internal::DataKey, boost::shared_ptr<internal::Data> > KeyToDataMap;
             mutable KeyToDataMap data_;
-            mutable std::vector<const char*> labels_;
+            mutable std::vector<char const*> labels_;
             const edm::ProcessHistory& history() const;
 
             mutable std::map<edm::ProductID,boost::shared_ptr<internal::Data> > idToData_;

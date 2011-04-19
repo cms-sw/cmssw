@@ -5,7 +5,7 @@
   
 ProductRegistryHelper: 
 
-$Id: ProductRegistryHelper.h,v 1.13 2007/06/14 17:52:15 wmtan Exp $
+$Id: ProductRegistryHelper.h,v 1.14 2008/02/12 21:46:26 chrjones Exp $
 
 
 ----------------------------------------------------------------------*/
@@ -16,7 +16,7 @@ $Id: ProductRegistryHelper.h,v 1.13 2007/06/14 17:52:15 wmtan Exp $
 #include <list>
 
 namespace edm {
-  class EDProduct;
+  class WrapperHolder;
   class ModuleDescription;
   class ProductRegistry;
   class ProductRegistryHelper {

@@ -18,6 +18,8 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 
 ----------------------------------------------------------------------*/
 
+#include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/WrapperHolder.h"
 #include "FWCore/Common/interface/LuminosityBlockBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/PrincipalGetAdapter.h"
@@ -103,9 +105,9 @@ namespace edm {
     luminosityBlockPrincipal();
 
     // Override version from LuminosityBlockBase class
-    virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;
+    virtual BasicHandle getByLabelImpl(WrapperInterfaceBase const* wrapperInterfaceBase, std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;
 
-    typedef std::vector<std::pair<EDProduct*, ConstBranchDescription const*> > ProductPtrVec;
+    typedef std::vector<std::pair<WrapperHolder, ConstBranchDescription const*> > ProductPtrVec;
     ProductPtrVec& putProducts() {return putProducts_;}
     ProductPtrVec const& putProducts() const {return putProducts_;}
 
@@ -134,7 +136,7 @@ namespace edm {
   template <typename PROD>
   void
   LuminosityBlock::put(std::auto_ptr<PROD> product, std::string const& productInstanceName) {
-    if (product.get() == 0) {                // null pointer is illegal
+    if(product.get() == 0) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("LuminosityBlock", typeID, productInstanceName);
     }
@@ -149,27 +151,28 @@ namespace edm {
     ConstBranchDescription const& desc =
       provRecorder_.getBranchDescription(TypeID(*product), productInstanceName);
 
-    Wrapper<PROD> *wp(new Wrapper<PROD>(product));
-
-    putProducts().push_back(std::make_pair(wp, &desc));
+    WrapperInterfaceBase const* interface = Wrapper<PROD>::getInterface();
+    boost::shared_ptr<void const> wp(new Wrapper<PROD>(product), WrapperHolder::EDProductDeleter(interface));
+    WrapperHolder edp(wp, interface);
+    putProducts().push_back(std::make_pair(edp, &desc));
 
     // product.release(); // The object has been copied into the Wrapper.
     // The old copy must be deleted, so we cannot release ownership.
   }
 
-  template <typename PROD>
+  template<typename PROD>
   bool
   LuminosityBlock::get(SelectorBase const& sel, Handle<PROD>& result) const {
     return provRecorder_.get(sel,result);
   }
 
-  template <typename PROD>
+  template<typename PROD>
   bool
   LuminosityBlock::getByLabel(std::string const& label, Handle<PROD>& result) const {
     return provRecorder_.getByLabel(label,result);
   }
 
-  template <typename PROD>
+  template<typename PROD>
   bool
   LuminosityBlock::getByLabel(std::string const& label,
                   std::string const& productInstanceName,
@@ -178,25 +181,25 @@ namespace edm {
   }
 
   /// same as above, but using the InputTag class
-  template <typename PROD>
+  template<typename PROD>
   bool
   LuminosityBlock::getByLabel(InputTag const& tag, Handle<PROD>& result) const {
     return provRecorder_.getByLabel(tag,result);
   }
 
-  template <typename PROD>
+  template<typename PROD>
   void
   LuminosityBlock::getMany(SelectorBase const& sel, std::vector<Handle<PROD> >& results) const {
     return provRecorder_.getMany(sel,results);
   }
 
-  template <typename PROD>
+  template<typename PROD>
   bool
   LuminosityBlock::getByType(Handle<PROD>& result) const {
     return provRecorder_.getByType(result);
   }
 
-  template <typename PROD>
+  template<typename PROD>
   void
   LuminosityBlock::getManyByType(std::vector<Handle<PROD> >& results) const {
     return provRecorder_.getManyByType(results);

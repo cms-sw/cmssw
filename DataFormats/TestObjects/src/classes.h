@@ -21,6 +21,7 @@ namespace {
 struct dictionary {
   edm::Wrapper<edmtest::DummyProduct> dummyw12;
   edm::Wrapper<edmtest::IntProduct> dummyw13;
+  edm::Wrapper<edmtest::TransientIntProduct> dummyw13t;
   edm::Wrapper<edmtest::DoubleProduct> dummyw14;
   edm::Wrapper<edmtest::StringProduct> dummyw15;
   edm::Wrapper<edmtest::SCSimpleProduct> dummyw16;

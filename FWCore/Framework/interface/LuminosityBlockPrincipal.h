@@ -86,7 +86,7 @@ namespace edm {
 
     void put(
 	ConstBranchDescription const& bd,
-	std::auto_ptr<EDProduct> edp,
+	WrapperHolder const& edp,
 	std::auto_ptr<ProductProvenance> productProvenance);
 
     void readImmediate() const;

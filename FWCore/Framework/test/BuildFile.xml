@@ -123,7 +123,7 @@
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
 </library>
-<bin   name="TestFWCoreFramework" file="testRunner.cpp,DummySource.cc,callback_t.cppunit.cc,datakey_t.cppunit.cc,dependentrecord_t.cppunit.cc,esproducer_t.cppunit.cc,esproducts_t.cppunit.cc,eventsetupplugin_t.cppunit.cc,eventsetuprecord_t.cppunit.cc,eventsetup_t.cppunit.cc,fullchain_t.cppunit.cc,interval_t.cppunit.cc,proxyfactoryproducer_t.cppunit.cc,maker2_t.cppunit.cc,maker_t.cppunit.cc,iovsyncvalue_t.cppunit.cc,productregistry.cppunit.cc,edproducer_productregistry_callback.cc,generichandle_t.cppunit.cc,event_getrefbeforeput_t.cppunit.cc,intersectingiovrecordintervalfinder_t.cppunit.cc">
+<bin   name="TestFWCoreFramework" file="testRunner.cpp,DummySource.cc,callback_t.cppunit.cc,datakey_t.cppunit.cc,dependentrecord_t.cppunit.cc,esproducer_t.cppunit.cc,esproducts_t.cppunit.cc,eventsetupplugin_t.cppunit.cc,eventsetuprecord_t.cppunit.cc,eventsetup_t.cppunit.cc,fullchain_t.cppunit.cc,interval_t.cppunit.cc,proxyfactoryproducer_t.cppunit.cc,maker2_t.cppunit.cc,maker_t.cppunit.cc,iovsyncvalue_t.cppunit.cc,productregistry.cppunit.cc,edproducer_productregistry_callback.cc,event_getrefbeforeput_t.cppunit.cc,intersectingiovrecordintervalfinder_t.cppunit.cc,generichandle_t.cppunit.cc">
   <lib   name="FWCoreFrameworkTestDummyForEventSetup"/>
   <use   name="DataFormats/Common"/>
   <use   name="DataFormats/Provenance"/>
@@ -132,6 +132,7 @@
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/Utilities"/>
   <use   name="FWCore/Version"/>
+  <use   name="rootcintex"/>
   <use   name="cppunit"/>
 </bin>
 <bin   name="TestFWCoreFrameworkeventprocessor" file="testRunner.cpp,eventprocessor_t.cppunit.cc,eventprocessor2_t.cppunit.cc,stubs/TestBeginEndJobAnalyzer.cc">
@@ -139,6 +140,7 @@
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ServiceRegistry"/>
   <use   name="FWCore/Utilities"/>
+  <use   name="rootcintex"/>
   <use   name="cppunit"/>
 </bin>
 <bin   name="TestFWCoreFrameworkeventprincipal" file="testRunner.cpp,eventprincipal_t.cppunit.cc">
@@ -149,6 +151,7 @@
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/Utilities"/>
   <use   name="FWCore/Version"/>
+  <use   name="rootcintex"/>
   <use   name="cppunit"/>
 </bin>
 <bin   name="TestFWCoreFrameworkEvent" file="Event_t.cpp">
@@ -159,6 +162,7 @@
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/Utilities"/>
   <use   name="FWCore/Version"/>
+  <use   name="rootcintex"/>
   <use   name="cppunit"/>
 </bin>
 <bin   name="TestFWCoreFrameworkView" file="View_t.cpp">

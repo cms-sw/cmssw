@@ -1,7 +1,7 @@
 <lcgdict>
  <class name="edmtest::DummyProduct"/>
  <class name="edmtest::IntProduct"/>
- <class name="edmtest::TransientIntProduct" persistent="false"/>
+ <class name="edmtest::TransientIntProduct"/>
  <class name="edmtest::Int16_tProduct"/>
  <class name="edmtest::DoubleProduct"/>
  <class name="edmtest::StringProduct"/>
@@ -33,6 +33,7 @@
  </class>
  <class name="edm::Wrapper<edmtest::DummyProduct>"/>
  <class name="edm::Wrapper<edmtest::IntProduct>"/>
+ <class name="edm::Wrapper<edmtest::TransientIntProduct>" persistent="false"/>
  <class name="edm::Wrapper<edmtest::Int16_tProduct>"/>
  <class name="edm::Wrapper<edmtest::DoubleProduct>"/>
  <class name="edm::Wrapper<edmtest::StringProduct>"/>

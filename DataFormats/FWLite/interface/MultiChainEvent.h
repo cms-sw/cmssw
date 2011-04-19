@@ -30,7 +30,7 @@
 
 // forward declarations
 namespace edm {
-  class EDProduct;
+  class WrapperHolder;
   class ProductRegistry;
   class BranchDescription;
   class EDProductGetter;
@@ -55,9 +55,9 @@ class MultiChainEvent: public EventBase
       typedef std::pair<edm::EventID, edm::EventID> event_id_range;
       typedef std::map<event_id_range, Long64_t>    sec_file_range_index_map;
 
-      MultiChainEvent(const std::vector<std::string>& iFileNames1,
-		      const std::vector<std::string>& iFileNames2,
-		      bool useSecFileMapSorted = false );
+      MultiChainEvent(std::vector<std::string> const& iFileNames1,
+		      std::vector<std::string> const& iFileNames2,
+		      bool useSecFileMapSorted = false);
       virtual ~MultiChainEvent();
 
       const MultiChainEvent& operator++();
@@ -75,15 +75,15 @@ class MultiChainEvent: public EventBase
       const MultiChainEvent& toBegin();
 
       // ---------- const member functions ---------------------
-      virtual const std::string getBranchNameFor(const std::type_info&,
-                                                 const char*,
-                                                 const char*,
-                                                 const char*) const;
+      virtual std::string const getBranchNameFor(std::type_info const&,
+                                                 char const*,
+                                                 char const*,
+                                                 char const*) const;
 
       /** This function should only be called by fwlite::Handle<>*/
-      virtual bool getByLabel(const std::type_info&, const char*,
-                              const char*, const char*, void*) const;
-      //void getByBranchName(const std::type_info&, const char*, void*&) const;
+      virtual bool getByLabel(std::type_info const&, char const*,
+                              char const*, char const*, void*) const;
+      //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
       bool isValid() const;
       operator bool() const;
@@ -93,8 +93,8 @@ class MultiChainEvent: public EventBase
 
       virtual edm::EventAuxiliary const& eventAuxiliary() const;
 
-      const std::vector<edm::BranchDescription>& getBranchDescriptions() const;
-      const std::vector<std::string>& getProcessHistory() const;
+      std::vector<edm::BranchDescription> const& getBranchDescriptions() const;
+      std::vector<std::string> const& getProcessHistory() const;
       TFile* getTFile() const {
         return event1_->getTFile();
       }
@@ -123,22 +123,22 @@ class MultiChainEvent: public EventBase
       virtual edm::TriggerResultsByName triggerResultsByName(std::string const& process) const;
 
       // ---------- static member functions --------------------
-      static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);
+      static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);
 
       // return the two chain events
-      ChainEvent const * primary  () const { return &*event1_;}
-      ChainEvent const * secondary() const { return &*event2_;}
+      ChainEvent const* primary  () const { return &*event1_;}
+      ChainEvent const* secondary() const { return &*event2_;}
 
       // ---------- member functions ---------------------------
 
-      edm::EDProduct const* getByProductID(edm::ProductID const&) const;
+      edm::WrapperHolder getByProductID(edm::ProductID const&) const;
 
 
    private:
 
-      MultiChainEvent(const Event&); // stop default
+      MultiChainEvent(Event const&); // stop default
 
-      const MultiChainEvent& operator= (const Event&); // stop default
+      const MultiChainEvent& operator= (Event const&); // stop default
 
       ///Go to the event from secondary files at index iIndex
       bool toSec(Long64_t iIndex);

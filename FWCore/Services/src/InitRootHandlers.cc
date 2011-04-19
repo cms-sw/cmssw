@@ -3,6 +3,7 @@
 #include "DataFormats/Common/interface/CacheStreamers.h"
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "DataFormats/Provenance/interface/TransientStreamer.h"
+#include "DataFormats/Streamer/interface/StreamedProductStreamer.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -103,7 +104,7 @@ namespace {
           (el_location.find("Fit") != std::string::npos) ||
           (el_location.find("TDecompChol::Solve") != std::string::npos) ||
           (el_location.find("THistPainter::PaintInit") != std::string::npos) ||
-          (el_location.find("TGClient::GetFontByName") != std::string::npos) ) {
+          (el_location.find("TGClient::GetFontByName") != std::string::npos)) {
         el_severity = edm::ELseverityLevel::ELsev_info;
       }
 
@@ -197,6 +198,7 @@ namespace edm {
       setCacheStreamers();
       setTransientStreamers();
       setRefCoreStreamer();
+      setStreamedProductStreamer();
 
       // Load the library containing dictionaries for std:: classes (e.g. std::vector<int>)
       if (ROOT::Reflex::Type()== Reflex::Type::ByName("std::vector<std::vector<unsigned int> >")) {

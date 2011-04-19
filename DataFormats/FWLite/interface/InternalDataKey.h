@@ -20,10 +20,10 @@
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "TBranch.h"
-#include "Reflex/Object.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+
+#include "Reflex/Object.h"
+#include "TBranch.h"
 
 #include <cstring>
 
@@ -36,9 +36,9 @@ namespace fwlite {
             // This means something else is responsible for the pointers remaining
             // valid for the time for which the pointers are still in use
             DataKey(const edm::TypeID& iType,
-                    const char* iModule,
-                    const char* iProduct,
-                    const char* iProcess) :
+                    char const* iModule,
+                    char const* iProduct,
+                    char const* iProcess) :
                type_(iType),
                module_(iModule!=0? iModule:kEmpty()),
                product_(iProduct!=0?iProduct:kEmpty()),
@@ -47,43 +47,43 @@ namespace fwlite {
             ~DataKey() {
             }
 
-            bool operator<( const DataKey& iRHS) const {
-               if( type_ < iRHS.type_) {
+            bool operator<(const DataKey& iRHS) const {
+               if(type_ < iRHS.type_) {
                   return true;
                }
-               if( iRHS.type_ < type_ ) {
+               if(iRHS.type_ < type_) {
                   return false;
                }
                int comp = std::strcmp(module_,iRHS.module_);
-               if( 0!= comp) {
-                  return comp <0;
+               if(0 != comp) {
+                  return comp < 0;
                }
                comp = std::strcmp(product_,iRHS.product_);
-               if( 0!= comp) {
-                  return comp <0;
+               if(0 != comp) {
+                  return comp < 0;
                }
                comp = std::strcmp(process_,iRHS.process_);
-               return comp <0;
+               return comp < 0;
             }
-            const char* kEmpty()  const {return "";}
-            const char* module()  const {return module_;}
-            const char* product() const {return product_;}
-            const char* process() const {return process_;}
+            char const* kEmpty()  const {return "";}
+            char const* module()  const {return module_;}
+            char const* product() const {return product_;}
+            char const* process() const {return process_;}
             const edm::TypeID& typeID() const {return type_;}
 
          private:
             edm::TypeID type_;
-            const char* module_;
-            const char* product_;
-            const char* process_;
+            char const* module_;
+            char const* product_;
+            char const* process_;
       };
 
       struct Data {
             TBranch* branch_;
             Long64_t lastProduct_;
-            Reflex::Object obj_;
-            void * pObj_; //ROOT requires the address of the pointer be stable
-            edm::EDProduct* pProd_;
+            Reflex::Object obj_; // For wrapped object
+            void * pObj_; // pointer to pProd_.  ROOT requires the address of the pointer be stable
+            void * pProd_; // pointer to wrapped product
 
             ~Data() {
                obj_.Destruct();

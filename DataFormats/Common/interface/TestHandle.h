@@ -24,7 +24,6 @@ To check validity, one can use the isValid() function.
 #include "DataFormats/Common/interface/OrphanHandleBase.h"
 
 namespace edm {
-  class EDProduct;
 
   template <typename T>
   class TestHandle : public OrphanHandleBase {

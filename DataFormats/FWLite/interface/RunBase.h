@@ -36,17 +36,18 @@ namespace fwlite
 
          virtual ~RunBase();
 
-         virtual bool getByLabel (const std::type_info&,
-                                  const char*,
-                                  const char*,
-                                  const char*,
+         virtual bool getByLabel(
+                                  std::type_info const&,
+                                  char const*,
+                                  char const*,
+                                  char const*,
                                   void*) const = 0;
          using edm::RunBase::getByLabel;
 
-//          virtual const std::string getBranchNameFor (const std::type_info&,
-//                                                      const char*,
-//                                                      const char*,
-//                                                      const char*) const = 0;
+//          virtual std::string const getBranchNameFor (std::type_info const&,
+//                                                      char const*,
+//                                                      char const*,
+//                                                      char const*) const = 0;
 
          virtual bool atEnd() const = 0;
 
@@ -59,7 +60,7 @@ namespace fwlite
 
       private:
 
-         virtual edm::BasicHandle getByLabelImpl(const std::type_info&, const std::type_info&, const edm::InputTag&) const;
+         virtual edm::BasicHandle getByLabelImpl(edm::WrapperInterfaceBase const*, std::type_info const&, std::type_info const&, const edm::InputTag&) const;
    };
 } // fwlite namespace
 

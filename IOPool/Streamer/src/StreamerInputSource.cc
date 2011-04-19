@@ -368,13 +368,12 @@ namespace edm {
                                    *spi->parents()));
 
         if(spi->prod() != 0) {
-          std::auto_ptr<EDProduct> aprod(const_cast<EDProduct*>(spi->prod()));
           FDEBUG(10) << "addgroup next " << spi->branchID() << std::endl;
-          eventPrincipalCache()->putOnRead(branchDesc, aprod, productProvenance);
+          eventPrincipalCache()->putOnRead(branchDesc, spi->prod(), productProvenance);
           FDEBUG(10) << "addgroup done" << std::endl;
         } else {
           FDEBUG(10) << "addgroup empty next " << spi->branchID() << std::endl;
-          eventPrincipalCache()->putOnRead(branchDesc, std::auto_ptr<EDProduct>(), productProvenance);
+          eventPrincipalCache()->putOnRead(branchDesc, spi->prod(), productProvenance);
           FDEBUG(10) << "addgroup empty done" << std::endl;
         }
         spi->clear();
@@ -394,9 +393,9 @@ namespace edm {
    * Errors are reported by throwing exceptions.
    */
   unsigned int
-  StreamerInputSource::uncompressBuffer(unsigned char *inputBuffer,
+  StreamerInputSource::uncompressBuffer(unsigned char* inputBuffer,
                                         unsigned int inputSize,
-                                        std::vector<unsigned char> &outputBuffer,
+                                        std::vector<unsigned char>& outputBuffer,
                                         unsigned int expectedFullSize) {
     unsigned long origSize = expectedFullSize;
     unsigned long uncompressedSize = expectedFullSize*1.1;
@@ -453,9 +452,9 @@ namespace edm {
 
   StreamerInputSource::ProductGetter::~ProductGetter() {}
 
-  EDProduct const*
+  WrapperHolder
   StreamerInputSource::ProductGetter::getIt(ProductID const& id) const {
-    return eventPrincipal_ ? eventPrincipal_->getIt(id) : 0;
+    return eventPrincipal_ ? eventPrincipal_->getIt(id) : WrapperHolder();
   }
 
   void

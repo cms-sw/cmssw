@@ -283,18 +283,15 @@ void testPtr::comparisonTest() {
 */
 }
 
-
 namespace {
    struct TestGetter : public edm::EDProductGetter {
-      EDProduct const* hold_;
-      EDProduct const* getIt(ProductID const&) const {
+      WrapperHolder hold_;
+      WrapperHolder getIt(ProductID const&) const {
          return hold_;
       }
-
-      TestGetter() : hold_(0) {}
+      TestGetter() : hold_() {}
    };
 }
-
 
 void testPtr::getTest() {
    typedef std::vector<IntValue> IntCollection;
@@ -305,7 +302,7 @@ void testPtr::getTest() {
 
    edm::Wrapper<IntCollection> wrapper(ptr);
    TestGetter tester;
-   tester.hold_ = &wrapper;
+   tester.hold_ = WrapperHolder(&wrapper, wrapper.getInterface());
 
    ProductID const pid(1, 1);
 
@@ -314,7 +311,7 @@ void testPtr::getTest() {
    OrphanHandle<IntCollection> handle(wptr, pid);
 
    Ptr<IntValue> ref0(pid, 0,&tester);
-   CPPUNIT_ASSERT( !ref0.hasProductCache());
+   CPPUNIT_ASSERT(!ref0.hasProductCache());
 
    Ptr<IntValue> ref1(pid, 1, &tester);
 
@@ -338,7 +335,7 @@ void testPtr::getTest() {
      
      edm::Wrapper<SDCollection> wrapper(ptr);
      TestGetter tester;
-     tester.hold_ = &wrapper;
+     tester.hold_ = WrapperHolder(&wrapper, wrapper.getInterface());
      
      ProductID const pid(1, 1);
      
@@ -347,7 +344,7 @@ void testPtr::getTest() {
      OrphanHandle<SDCollection> handle(wptr, pid);
      
      Ptr<IntValue> ref0(pid, 0,&tester);
-     CPPUNIT_ASSERT( !ref0.hasProductCache());
+     CPPUNIT_ASSERT(!ref0.hasProductCache());
      
      Ptr<IntValue> ref1(pid, 1, &tester);
      
@@ -362,7 +359,7 @@ void testPtr::getTest() {
    
    {
       TestGetter tester;
-      tester.hold_ = 0;
+      tester.hold_ = WrapperHolder();
       ProductID const pid(1, 1);
 
       Ptr<IntValue> ref0(pid, 0,&tester);

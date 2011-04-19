@@ -1,5 +1,6 @@
 #include "FWCore/Framework/interface/SubProcess.h"
 
+#include "DataFormats/Common/interface/ProductData.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
@@ -7,12 +8,9 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 
 #include <cassert>
@@ -289,11 +287,11 @@ namespace edm {
       boost::shared_ptr<Group const> parentGroup = parentPrincipal.getGroup((*it)->branchID(), false, false);
       if(parentGroup) {
         // Make copy of parent group data
-        GroupData parentData = parentGroup->groupData();
+        ProductData parentData = parentGroup->productData();
         boost::shared_ptr<Group const> group = principal.getGroup((*it)->branchID(), false, false);
         if(group) {
           // Swap copy with this group data
-          GroupData& thisData = const_cast<GroupData&>(group->groupData());
+          ProductData& thisData = const_cast<ProductData&>(group->productData());
           thisData.swap(parentData);
           // Sets unavailable flag, if known that product is not available
           group->productUnavailable();

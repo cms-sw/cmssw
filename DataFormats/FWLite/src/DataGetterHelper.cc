@@ -21,7 +21,7 @@
 #include "TTree.h"
 #include "TTreeCache.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/WrapperHolder.h"
 
 #include "FWCore/FWLite/interface/setRefStreamer.h"
 
@@ -117,7 +117,7 @@ namespace fwlite {
 
 
     static
-    TBranch* findBranch(TTree* iTree, const std::string& iMainLabels, const std::string& iProcess) {
+    TBranch* findBranch(TTree* iTree, std::string const& iMainLabels, std::string const& iProcess) {
         std::string branchName(iMainLabels);
         branchName+=iProcess;
         //branchName+=".obj";
@@ -141,9 +141,7 @@ namespace fwlite {
         iData.branch_->SetAddress(&(iData.pObj_));
         //If a REF to this was requested in the past, we might as well do the work now
         if(0!=iData.pProd_) {
-            //The type is the same so the offset will be the same
-            void* p = iData.pProd_;
-            iData.pProd_ = reinterpret_cast<edm::EDProduct*>(static_cast<char*>(iData.obj_.Address())+(static_cast<char*>(p)-static_cast<char*>(obj.Address())));
+            iData.pProd_ = iData.obj_.Address();
         }
         obj.Destruct();
         //END OF WORK AROUND
@@ -165,19 +163,19 @@ namespace fwlite {
 
 
     internal::Data&
-    DataGetterHelper::getBranchDataFor(const std::type_info& iInfo,
-                    const char* iModuleLabel,
-                    const char* iProductInstanceLabel,
-                    const char* iProcessLabel) const
+    DataGetterHelper::getBranchDataFor(std::type_info const& iInfo,
+                    char const* iModuleLabel,
+                    char const* iProductInstanceLabel,
+                    char const* iProcessLabel) const
     {
         edm::TypeID type(iInfo);
         internal::DataKey key(type, iModuleLabel, iProductInstanceLabel, iProcessLabel);
 
         boost::shared_ptr<internal::Data> theData;
         DataMap::iterator itFind = data_.find(key);
-        if(itFind == data_.end() ) {
+        if(itFind == data_.end()) {
             //see if such a branch actually exists
-            const std::string sep("_");
+            std::string const sep("_");
             //CHANGE: If this fails, need to lookup the the friendly name which was used to write the file
             std::string name(type.friendlyClassName());
             name +=sep+std::string(key.module());
@@ -189,7 +187,7 @@ namespace fwlite {
 
             if (0==iProcessLabel || iProcessLabel==key.kEmpty() ||
                 strlen(iProcessLabel)==0) {
-                const std::string* lastLabel=0;
+                std::string const* lastLabel=0;
                 //have to search in reverse order since newest are on the bottom
                 const edm::ProcessHistory& h = DataGetterHelper::history();
                 for (edm::ProcessHistory::const_reverse_iterator iproc = h.rbegin(), eproc = h.rend();
@@ -244,7 +242,7 @@ namespace fwlite {
             }
             internal::DataKey newKey(edm::TypeID(iInfo),newModule,newProduct,newProcess);
 
-            if(0 == theData.get() ) {
+            if(0 == theData.get()) {
                 //We do not already have this data as another key
 
                 //Use Reflex to create an instance of the object to be used as a buffer
@@ -257,7 +255,7 @@ namespace fwlite {
                 if(obj.Address() == 0) {
                     throw cms::Exception("ConstructionFailed")<<"failed to construct an instance of "<<rType.Name();
                 }
-                boost::shared_ptr<internal::Data> newData(new internal::Data() );
+                boost::shared_ptr<internal::Data> newData(new internal::Data());
                 newData->branch_ = branch;
                 newData->obj_ = obj;
                 newData->lastProduct_=-1;
@@ -281,11 +279,11 @@ namespace fwlite {
         return *(itFind->second);
     }
 
-    const std::string
-    DataGetterHelper::getBranchNameFor(const std::type_info& iInfo,
-                    const char* iModuleLabel,
-                    const char* iProductInstanceLabel,
-                    const char* iProcessLabel) const
+    std::string const
+    DataGetterHelper::getBranchNameFor(std::type_info const& iInfo,
+                    char const* iModuleLabel,
+                    char const* iProductInstanceLabel,
+                    char const* iProcessLabel) const
     {
         internal::Data& theData =
             DataGetterHelper::getBranchDataFor(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel);
@@ -297,10 +295,10 @@ namespace fwlite {
     }
 
     bool
-    DataGetterHelper::getByLabel(const std::type_info& iInfo,
-                    const char* iModuleLabel,
-                    const char* iProductInstanceLabel,
-                    const char* iProcessLabel,
+    DataGetterHelper::getByLabel(std::type_info const& iInfo,
+                    char const* iModuleLabel,
+                    char const* iProductInstanceLabel,
+                    char const* iProcessLabel,
                     void* oData, Long_t index) const
     {
         // Maintain atEnd() check in parent classes
@@ -318,28 +316,28 @@ namespace fwlite {
             *pOData = theData.obj_.Address();
         }
 
-        if ( 0 == *pOData ) return false;
+        if (0 == *pOData) return false;
         else return true;
     }
 
 
-    edm::EDProduct const*
+    edm::WrapperHolder
     DataGetterHelper::getByProductID(edm::ProductID const& iID, Long_t index) const
     {
+        edm::BranchDescription bDesc = branchMap_->productToBranch(iID);
         std::map<edm::ProductID,boost::shared_ptr<internal::Data> >::const_iterator itFound = idToData_.find(iID);
-        if(itFound == idToData_.end() ) {
-            edm::BranchDescription bDesc = branchMap_->productToBranch(iID);
+        if(itFound == idToData_.end()) {
 
             if (!bDesc.branchID().isValid()) {
-                return 0;
+                return edm::WrapperHolder();
             }
 
             //Calculate the key from the branch description
-            Reflex::Type type( Reflex::Type::ByName(edm::wrappedClassName(bDesc.fullClassName())));
-            assert( Reflex::Type() != type) ;
+            Reflex::Type type(Reflex::Type::ByName(edm::wrappedClassName(bDesc.fullClassName())));
+            assert(Reflex::Type() != type) ;
 
             //Only the product instance label may be empty
-            const char* pIL = bDesc.productInstanceName().c_str();
+            char const* pIL = bDesc.productInstanceName().c_str();
             if(pIL[0] == 0) {
                 pIL = 0;
             }
@@ -359,7 +357,7 @@ namespace fwlite {
                             k.process(),
                             &dummy, index);
                 if (0 == dummy) {
-                    return 0;
+                    return edm::WrapperHolder();
                 }
                 itData = data_.find(k);
                 assert(itData != data_.end());
@@ -373,19 +371,14 @@ namespace fwlite {
             getBranchData(getter_.get(), index, *(itFound->second));
         }
         if(0==itFound->second->pProd_) {
-            //need to convert pointer to proper type
-            static Reflex::Type sEDProd( Reflex::Type::ByTypeInfo(typeid(edm::EDProduct)));
-            //assert( sEDProd != Reflex::Type() );
-            Reflex::Object edProdObj = itFound->second->obj_.CastObject( sEDProd );
-
-            itFound->second->pProd_ = reinterpret_cast<edm::EDProduct*>(edProdObj.Address());
+            itFound->second->pProd_ = itFound->second->obj_.Address();
 
             if(0==itFound->second->pProd_) {
-                cms::Exception("FailedConversion")
-                    <<"failed to convert a '"<<itFound->second->obj_.TypeOf().Name()<<"' to a edm::EDProduct";
+              return edm::WrapperHolder();
             }
         }
-        return itFound->second->pProd_;
+        //return itFound->second->pProd_;
+        return edm::WrapperHolder(itFound->second->pProd_, bDesc.getInterface());
     }
 
 
@@ -398,7 +391,7 @@ namespace fwlite {
     // static member functions
     //
     void
-    DataGetterHelper::throwProductNotFoundException(const std::type_info& iType, const char* iModule, const char* iProduct, const char* iProcess)
+    DataGetterHelper::throwProductNotFoundException(std::type_info const& iType, char const* iModule, char const* iProduct, char const* iProcess)
     {
         edm::TypeID type(iType);
         throw edm::Exception(edm::errors::ProductNotFound)<<"A branch was found for \n  type ='"<<type.className()<<"'\n  module='"<<iModule

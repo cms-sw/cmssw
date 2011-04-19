@@ -102,7 +102,7 @@ Event::put<GenericObjectOwner>(std::auto_ptr<GenericObjectOwner> product, std::s
    provRecorder_.getBranchDescription(TypeID(product->object().TypeOf().TypeInfo()), productInstanceName);
    
    Reflex::Type const wrapperType=Reflex::Type::ByName(wrappedClassName(desc.fullClassName()));
-   if(wrapperType == Reflex::Type() ) {
+   if(wrapperType == Reflex::Type()) {
       throw edm::Exception(errors::DictionaryNotFound, "NoWrapperDictionary")
       << "Event::put: the class type '" << desc.fullClassName()
       << "' was passed to put but the Reflex dictionary for the required class '"
@@ -122,8 +122,8 @@ Event::put<GenericObjectOwner>(std::auto_ptr<GenericObjectOwner> product, std::s
    //ownership was transfered to the wrapper
    product.release();
 
-   static Reflex::Type s_edproductType(Reflex::Type::ByTypeInfo(typeid(EDProduct)));
-   EDProduct *wp(reinterpret_cast<EDProduct*>(oWrapper.CastObject(s_edproductType).Address()));
+   //static Reflex::Type s_edproductType(Reflex::Type::ByTypeInfo(typeid(EDProduct)));
+   WrapperHolder wp(oWrapper.Address(), desc.getInterface());
    putProducts().push_back(std::make_pair(wp, &desc));
    
    // product.release(); // The object has been copied into the Wrapper.

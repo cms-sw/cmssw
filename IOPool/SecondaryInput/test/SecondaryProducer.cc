@@ -5,34 +5,34 @@
 //--------------------------------------------
 
 #include "IOPool/SecondaryInput/test/SecondaryProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/InputSourceDescription.h"
-#include "FWCore/Sources/interface/VectorInputSourceFactory.h"
+#include "DataFormats/Common/interface/ConvertHandle.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/InputSourceDescription.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Sources/interface/VectorInputSourceFactory.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 
 namespace edm {
 
   // Constructor
   // make secondary input source
   SecondaryProducer::SecondaryProducer(ParameterSet const& pset) :
-	secInput_(makeSecInput(pset)),
-	sequential_(pset.getUntrackedParameter<bool>("sequential", false)),
-	specified_(pset.getUntrackedParameter<bool>("specified", false)),
-	firstEvent_(true),
-	firstLoop_(true),
-	expectedEventNumber_(1) {
+        secInput_(makeSecInput(pset)),
+        sequential_(pset.getUntrackedParameter<bool>("sequential", false)),
+        specified_(pset.getUntrackedParameter<bool>("specified", false)),
+        firstEvent_(true),
+        firstLoop_(true),
+        expectedEventNumber_(1) {
     produces<edmtest::ThingCollection>();
     produces<edmtest::OtherThingCollection>("testUserTag");
   }
 
   // Virtual destructor needed.
   SecondaryProducer::~SecondaryProducer() {}
-
 
   // Functions that get called by framework every event
   void SecondaryProducer::produce(Event& e, EventSetup const&) {
@@ -43,13 +43,13 @@ namespace edm {
     VectorInputSource::EventPrincipalVector result;
     unsigned int fileSequenceNumber;
 
-    if (sequential_) {
+    if(sequential_) {
       secInput_->readManySequential(1, result, fileSequenceNumber);
-      if (result.empty()) {
+      if(result.empty()) {
         secInput_->rewind();
         secInput_->readManySequential(1, result, fileSequenceNumber);
       }
-    } else if (specified_) {
+    } else if(specified_) {
       std::vector<EventID> events;
       // Just for simplicity, we use the event ID from the primary to read the secondary.
       events.push_back(e.id());
@@ -60,9 +60,13 @@ namespace edm {
 
     EventPrincipal *p = &**result.begin();
     EventNumber_t en = p->id().event();
-    EDProduct const* ep = p->getByType(TypeID(typeid(TC))).wrapper();
-    assert(ep);
-    WTC const* wtp = dynamic_cast<WTC const*>(ep);
+    BasicHandle bh = p->getByType(TypeID(typeid(TC)));
+    assert(bh.isValid());
+    if(!(bh.interface()->dynamicTypeInfo() == typeid(TC))) {
+      handleimpl::throwConvertTypeError(typeid(TC), bh.interface()->dynamicTypeInfo());
+    }
+    WTC const* wtp = static_cast<WTC const*>(bh.wrapper());
+
     assert(wtp);
     TC const* tp = wtp->product();
     std::auto_ptr<TC> thing(new TC(*tp));
@@ -70,14 +74,14 @@ namespace edm {
     // Put output into event
     e.put(thing);
 
-    if (!sequential_ && !specified_ && firstLoop_ && en == 1) {
+    if(!sequential_ && !specified_ && firstLoop_ && en == 1) {
       expectedEventNumber_ = 1;
       firstLoop_ = false;
     }
-    if (firstEvent_) {
+    if(firstEvent_) {
       firstEvent_ = false;
-      if (!sequential_ && !specified_) {
-	expectedEventNumber_ = en;
+      if(!sequential_ && !specified_) {
+        expectedEventNumber_ = en;
       }
     }
     assert (expectedEventNumber_ == en);

@@ -42,7 +42,7 @@ namespace edm {
     virtual ~RootDelayedReader();
 
   private:
-    virtual std::auto_ptr<EDProduct> getProduct_(BranchKey const& k, EDProductGetter const* ep) const;
+    virtual WrapperHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const;
     virtual void mergeReaders_(boost::shared_ptr<DelayedReader> other) {nextReader_ = other;}
     BranchMap const& branches() const {return *branches_;}
     iterator branchIter(BranchKey const& k) const {return branches().find(k);}

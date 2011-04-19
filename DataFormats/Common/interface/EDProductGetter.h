@@ -2,62 +2,58 @@
 #define DataFormats_Common_EDProductGetter_h
 // -*- C++ -*-
 //
-// Package:     EDProduct
 // Class  :     EDProductGetter
-// 
+//
 /**\class EDProductGetter EDProductGetter.h DataFormats/Common/interface/EDProductGetter.h
 
  Description: Abstract base class used internally by the RefBase to obtain the EDProduct from the Event
 
  Usage:
     This is used internally by the edm::Ref classes.
-
 */
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov  1 15:06:31 EST 2005
-// $Id: EDProductGetter.h,v 1.9 2010/03/23 18:50:34 chrjones Exp $
 //
+
+// user include files
+#include "DataFormats/Common/interface/WrapperHolder.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 // system include files
 #include "boost/utility.hpp"
 
-// user include files
-#include "DataFormats/Provenance/interface/ProductID.h"
-
 // forward declarations
 
 namespace edm {
-   class EDProduct;
    class EDProductGetter : private boost::noncopyable {
 
    public:
-   
-      EDProductGetter();
-      virtual ~EDProductGetter();
 
-      // ---------- const member functions ---------------------
-      virtual EDProduct const* getIt(ProductID const&) const = 0;
-      
-      // ---------- member functions ---------------------------
+     EDProductGetter();
+     virtual ~EDProductGetter();
 
-      ProductID oldToNewProductID(ProductID const& oldProductID) const {
-	if (oldProductID.oldID() == 0) return oldProductID;
-	return oldToNewProductID_(oldProductID);
-      }
-     
+     // ---------- const member functions ---------------------
+     virtual WrapperHolder getIt(ProductID const&) const = 0;
+
+     // ---------- member functions ---------------------------
+
+     ProductID oldToNewProductID(ProductID const& oldProductID) const {
+       if(oldProductID.oldID() == 0) return oldProductID;
+       return oldToNewProductID_(oldProductID);
+     }
+
      ///These can only be used internally by the framework
      static EDProductGetter const* switchProductGetter(EDProductGetter const*);
-     static void assignEDProductGetter(EDProductGetter const* &);
+     static void assignEDProductGetter(EDProductGetter const*&);
 
 private:
-      virtual ProductID oldToNewProductID_(ProductID const& oldProductID) const;
-      // ---------- member data --------------------------------
-      
+     virtual ProductID oldToNewProductID_(ProductID const& oldProductID) const;
+     // ---------- member data --------------------------------
+
    };
 
    EDProductGetter const*
    mustBeNonZero(EDProductGetter const* prodGetter, std::string refType, ProductID const& productID);
 }
-
 #endif

@@ -1,5 +1,6 @@
 <use   name="DataFormats/Provenance"/>
 <use   name="DataFormats/Common"/>
+<use   name="DataFormats/Streamer"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/PluginManager"/>
