@@ -178,7 +178,7 @@ void popcon::EcalLaserHandler::getNewObjects()
     payload->getTimeMap();
   std::cout << "payload->getTimeMap():  OK " << std::endl;
   std::cout << "Last Object in Offline DB has SINCE = "  << max_since
-	    << " -> " << max_since_tm.microsTime() 
+	    << " -> " << max_since_tm.cmsNanoSeconds() 
 	    << " (" << max_since_tm << ")"
 	    << " and  SIZE = " << tagInfo().size
 	    << std::endl;
@@ -194,12 +194,12 @@ void popcon::EcalLaserHandler::getNewObjects()
       t_min=timestamp.t1;
     }
   }
-  
+
   std::cout <<"WOW: we just retrieved the last valid record from DB "
 	    << std::endl;
-  //  std::cout <<"Its tmin is "<< Tm((t_min.value() >> 32)*1000000)
+  //std::cout <<"Its tmin is "<< Tm((t_min.value() >> 32)*1000000)
   std::cout <<"Its tmin is "<< Tm(t_min.value())
-	    << std::endl;
+  	    << std::endl;
 
   // connect to the database 
   try {
@@ -291,6 +291,11 @@ void popcon::EcalLaserHandler::getNewObjects()
   }
   //  Tm tmin = Tm((t_min.value() >> 32)*1000000);
   Tm tmin = Tm(t_min.value());
+  Tm strunz;
+  strunz.setToString("2011-04-14 00:00:00");
+  if (tmin < strunz) {
+    tmin = strunz;
+  }
 
   if (tmax <= (tmin + 12000)) {
     // 3 days buffer
@@ -326,9 +331,9 @@ void popcon::EcalLaserHandler::getNewObjects()
 	apdpnpair_temp.p2 = is->second.p[1];
 	apdpnpair_temp.p3 = is->second.p[2];
 	EcalLaserAPDPNRatios::EcalLaserTimeStamp timestamp_temp;
-	timestamp_temp.t1 = edm::Timestamp(is->second.t[0].microsTime());
-	timestamp_temp.t2 = edm::Timestamp(is->second.t[1].microsTime());
-	timestamp_temp.t3 = edm::Timestamp(is->second.t[2].microsTime());
+	timestamp_temp.t1 = edm::Timestamp(is->second.t[0].cmsNanoSeconds());
+	timestamp_temp.t2 = edm::Timestamp(is->second.t[1].cmsNanoSeconds());
+	timestamp_temp.t3 = edm::Timestamp(is->second.t[2].cmsNanoSeconds());
 	apdpns_popcon->setValue(detids[is->first], apdpnpair_temp);
 	if (logicId2Lmr.find(is->first) != logicId2Lmr.end()) {
 	  int hashedIndex = logicId2Lmr[is->first] - 1;
