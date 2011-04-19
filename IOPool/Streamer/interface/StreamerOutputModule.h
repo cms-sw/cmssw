@@ -1,12 +1,11 @@
 #ifndef IOPool_Streamer_StreamerOutputModule_h
 #define IOPool_Streamer_StreamerOutputModule_h
 
-#include "IOPool/Streamer/interface/StreamerOutputModuleBase.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "IOPool/Streamer/interface/StreamerOutputModuleBase.h"
 
 namespace edm {
-  template <class Consumer>
+  template<typename Consumer>
   class StreamerOutputModule : public StreamerOutputModuleBase {
 
   /** Consumers are suppose to provide
@@ -32,43 +31,41 @@ namespace edm {
     std::auto_ptr<Consumer> c_;
   }; //end-of-class-def
 
- 
-
-  template <class Consumer>
+  template<typename Consumer>
   StreamerOutputModule<Consumer>::StreamerOutputModule(ParameterSet const& ps) :
     StreamerOutputModuleBase(ps),
     c_(new Consumer(ps)) {
   }
 
-  template <class Consumer>
+  template<typename Consumer>
   StreamerOutputModule<Consumer>::~StreamerOutputModule() {}
 
-  template <class Consumer>
+  template<typename Consumer>
   void
   StreamerOutputModule<Consumer>::start() const {
     c_->start();
   }
   
-  template <class Consumer>
+  template<typename Consumer>
   void
   StreamerOutputModule<Consumer>::stop() const {
     c_->stop();
   }
 
-  template <class Consumer>
+  template<typename Consumer>
   void
   StreamerOutputModule<Consumer>::doOutputHeader(InitMsgBuilder const& init_message) const {
     c_->doOutputHeader(init_message);
   }
    
 //______________________________________________________________________________
-  template <class Consumer>
+  template<typename Consumer>
   void
   StreamerOutputModule<Consumer>::doOutputEvent(EventMsgBuilder const& msg) const {
     c_->doOutputEvent(msg); // You can't use msg in StreamerOutputModule after this point
   }
 
-  template <class Consumer>
+  template<typename Consumer>
   void
   StreamerOutputModule<Consumer>::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
@@ -79,4 +76,3 @@ namespace edm {
 } // end of namespace-edm
 
 #endif
-

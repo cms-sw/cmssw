@@ -5,21 +5,16 @@
 // Package:     Services
 // Class  :     Timing
 //
-//
 // Original Author:  Jim Kowalkowski
 //
 
 /*
-
 Changes Log 1: 2009/01/14 10:29:00, Natalia Garcia Nebot
 	Modified the service to add some new measurements:
 		- Average time per event (cpu and wallclock)
                 - Fastest time per event (cpu and wallclock)
                 - Slowest time per event (cpu and wallclock)
 */
-
-
-#include "sigc++/signal.h"
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"

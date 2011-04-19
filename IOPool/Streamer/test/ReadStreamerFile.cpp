@@ -27,7 +27,6 @@ Disclaimer: Most of the code here is randomly written during
 #include "IOPool/Streamer/interface/DumpTools.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
-#include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/StreamerInputFile.h"
 
 #include <iostream>
@@ -70,7 +69,7 @@ int readMultipleStreams() {
     edm::StreamerInputFile stream_reader(streamFiles);
 
     std::cout << "Trying to Read The Init message from Streamer File: "
-         << "teststreamfile0.dat" << std::endl;
+              << "teststreamfile0.dat" << std::endl;
 
     InitMsgView const* init = stream_reader.startMessage();
     std::cout << "\n\n-------------INIT---------------------" << std::endl;
@@ -79,9 +78,9 @@ int readMultipleStreams() {
 
     while(stream_reader.next()) {
        if(stream_reader.newHeader()) {
-             std::cout << "File Boundary has just been crossed, a new file is read" << std::endl;
-             std::cout << "A new INIT Message is available" << std::endl;
-             std::cout << "Event from next file is also avialble" << std::endl;
+          std::cout << "File Boundary has just been crossed, a new file is read" << std::endl;
+          std::cout << "A new INIT Message is available" << std::endl;
+          std::cout << "Event from next file is also avialble" << std::endl;
        }
        std::cout << "----------EVENT-----------" << std::endl;
        EventMsgView const* eview = stream_reader.currentRecord();
@@ -89,7 +88,7 @@ int readMultipleStreams() {
        ++evCount;
     }
 
-   std::cout << " TOTAL Events Read: " <<evCount<< std::endl;
+    std::cout << " TOTAL Events Read: " <<evCount<< std::endl;
   } catch(cms::Exception& e){
      std::cerr << "Exception caught:  "
                << e.what()
@@ -100,8 +99,8 @@ int readMultipleStreams() {
 }
 
 void help() {
-        std::cout << "Valid options are: " << std::endl;
-        std::cout << "single, multi, all" << std::endl;
+   std::cout << "Valid options are: " << std::endl;
+   std::cout << "single, multi, all" << std::endl;
 }
 
 int main(int argc, char* argv[]){

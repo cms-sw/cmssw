@@ -10,9 +10,6 @@
 // CPU.h: v 1.0 2009/01/08 11:27:50
 //
 
-#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
-#include "sigc++/signal.h"
-
 namespace edm {
   class ActivityRegistry;
   class Event;

@@ -2,9 +2,8 @@
 #define IOPool_Streamer_StreamerOutputModuleBase_h
 
 #include "FWCore/Framework/interface/OutputModule.h"
-#include "IOPool/Streamer/interface/StreamSerializer.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "IOPool/Streamer/interface/StreamSerializer.h"
 #include <memory>
 #include <vector>
 
