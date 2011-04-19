@@ -2,6 +2,7 @@
 #define INCLUDE_ORA_EXCEPTION_H
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include <typeinfo>
 
 namespace ora {
 
