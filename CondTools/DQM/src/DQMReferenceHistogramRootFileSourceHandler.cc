@@ -39,9 +39,8 @@ namespace popcon {
 	     << ",\n iovtag " << this->logDBEntry().iovtag
 	     << ",\n timetype " << this->logDBEntry().iovtimetype
 	     << ",\n payload index " << this->logDBEntry().payloadIdx
-	     << ",\n payload name " << this->logDBEntry().payloadName 
+	     << ",\n payload class " << this->logDBEntry().payloadClass 
 	     << ",\n payload token " << this->logDBEntry().payloadToken
-	     << ",\n payload container " << this->logDBEntry().payloadContainer 
 	     << ",\n execution time " << this->logDBEntry().exectime
 	     << ",\n execution message " << this->logDBEntry().execmessage
 	     << std::endl;
@@ -58,7 +57,7 @@ namespace popcon {
 	<< "[DQMReferenceHistogramRootFileSourceHandler::getNewObjects] \nthe current starting iov " << m_since
 	<< "\nis not compatible with the last iov ("  
 	<< this->tagInfo().lastInterval.first << ") open for the object " 
-	<< this->logDBEntry().payloadName << " \nin the db " 
+	<< this->logDBEntry().payloadClass << " \nin the db " 
 	<< this->logDBEntry().destinationDB << " \n NO TRANSFER NEEDED"
 	<< std::endl;
       return;
