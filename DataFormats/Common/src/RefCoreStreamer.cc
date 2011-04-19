@@ -2,7 +2,6 @@
 #include "DataFormats/Common/interface/RefCore.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "TROOT.h"
-#include "TStreamerInfo.h"
 #include <ostream>
 #include <cassert>
 #include <iostream>

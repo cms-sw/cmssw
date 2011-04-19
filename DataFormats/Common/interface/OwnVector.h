@@ -6,6 +6,7 @@
 #include "DataFormats/Common/interface/fillPtrVector.h"
 #include "DataFormats/Common/interface/PostReadFixupTrait.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/setPtr.h"
 #include "DataFormats/Common/interface/traits.h"
 
 #if defined CMS_USE_DEBUGGING_ALLOCATOR
@@ -107,7 +108,7 @@ namespace edm {
     OwnVector();
     OwnVector(size_type);
     OwnVector(OwnVector const&);
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+#if defined(__GXX_EXPERIMENTAL_CXX0X__)
     OwnVector(OwnVector&&);
 #endif
 
@@ -122,9 +123,9 @@ namespace edm {
     reference operator[](size_type);
     const_reference operator[](size_type) const;
 
-    OwnVector<T, P> & operator=(OwnVector<T, P> const&);
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
-    OwnVector<T, P> & operator=(OwnVector<T, P>&&);
+    OwnVector<T, P>& operator=(OwnVector<T, P> const&);
+#if defined(__GXX_EXPERIMENTAL_CXX0X__)
+    OwnVector<T, P>& operator=(OwnVector<T, P>&&);
 #endif
 
 
@@ -147,7 +148,7 @@ namespace edm {
     void sort(S s);
     void sort();
 
-    void swap(OwnVector<T, P> & other);
+    void swap(OwnVector<T, P>& other);
 
     void fillView(ProductID const& id,
                   std::vector<void const*>& pointers,
@@ -202,9 +203,9 @@ namespace edm {
     fixup_ = o.fixup_;
   }
 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+#if defined(__GXX_EXPERIMENTAL_CXX0X__)
   template<typename T, typename P>
-  inline OwnVector<T, P>::OwnVector(OwnVector<T, P> && o)  {
+  inline OwnVector<T, P>::OwnVector(OwnVector<T, P>&& o)  {
     data_.swap(o.data_);
     fixup_ = o.fixup_;
   }
@@ -216,15 +217,15 @@ namespace edm {
   }
 
   template<typename T, typename P>
-  inline OwnVector<T, P> & OwnVector<T, P>::operator=(OwnVector<T, P> const& o) {
+  inline OwnVector<T, P>& OwnVector<T, P>::operator=(OwnVector<T, P> const& o) {
     OwnVector<T,P> temp(o);
     swap(temp);
     return *this;
   }
 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+#if defined(__GXX_EXPERIMENTAL_CXX0X__)
   template<typename T, typename P>
-  inline OwnVector<T, P> & OwnVector<T, P>::operator=(OwnVector<T, P> && o) {
+  inline OwnVector<T, P>& OwnVector<T, P>::operator=(OwnVector<T, P>&& o) {
     data_.swap(o.data_);
     fixup_ = o.fixup_;
     return *this;
@@ -385,7 +386,7 @@ namespace edm {
   template<typename T, typename P>
   inline void OwnVector<T, P>::destroy() {
     typename base::const_iterator b = data_.begin(), e = data_.end();
-    for( typename base::const_iterator i = b; i != e; ++ i )
+    for(typename base::const_iterator i = b; i != e; ++ i)
       delete * i;
   }
 
@@ -414,7 +415,7 @@ namespace edm {
     fixup();
     touch();
     typename base::iterator b = first.i, e = last.i;
-    for( typename base::iterator i = b; i != e; ++ i )
+    for(typename base::iterator i = b; i != e; ++ i)
       delete * i;
     return iterator(data_.erase(b, e));
   }

@@ -12,18 +12,15 @@
  */
 
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-
-#include "DataFormats/Common/interface/traits.h"
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/Common/interface/RefProd.h"
-#include "DataFormats/Common/interface/RefToBaseProd.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/Common/interface/FillView.h"
 #include "DataFormats/Common/interface/CommonExceptions.h"
-
+#include "DataFormats/Common/interface/FillView.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/RefToBaseProd.h"
+#include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "boost/static_assert.hpp"
 

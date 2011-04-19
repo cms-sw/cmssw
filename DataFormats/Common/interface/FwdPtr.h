@@ -18,28 +18,27 @@
 //         Created:  Fri Feb  5 14:58:49 CST 2010
 //
 
+// user include files
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
+#include "DataFormats/Common/interface/EDProductGetter.h"
+#include "DataFormats/Common/interface/GetProduct.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/Common/interface/RefCore.h"
+#include "DataFormats/Common/interface/TestHandle.h"
+#include "DataFormats/Common/interface/traits.h"
+
+#include "FWCore/Utilities/interface/EDMException.h"
+
 // system include files
 #include "boost/type_traits/is_base_of.hpp"
 #include "boost/utility/enable_if.hpp"
 
-// user include files
-#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
-#include "DataFormats/Common/interface/RefCore.h"
-#include "DataFormats/Common/interface/Ptr.h"
-#include "DataFormats/Common/interface/traits.h"
-#include "DataFormats/Common/interface/GetProduct.h"
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/Common/interface/EDProductGetter.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/OrphanHandle.h"
-#include "DataFormats/Common/interface/TestHandle.h"
-
-#include "FWCore/Utilities/interface/EDMException.h"
-
 // forward declarations
 namespace edm {
-  template <typename T>
-    class FwdPtr {
+  template<typename T>
+  class FwdPtr {
     friend class FwdPtrVectorBase;
   public:
     
@@ -47,16 +46,16 @@ namespace edm {
     typedef T   value_type;
     
     // General purpose constructor from two Ptrs.
-    template <typename C>
-    FwdPtr( Ptr<C> f, Ptr<C> b):
+    template<typename C>
+    FwdPtr(Ptr<C> f, Ptr<C> b):
     ptr_(f), backPtr_(b)
     {}
     
-  FwdPtr():
+  FwdPtr() :
     ptr_(), backPtr_()
       {}
     
-  FwdPtr(FwdPtr<T> const& iOther):
+  FwdPtr(FwdPtr<T> const& iOther) :
     ptr_(iOther.ptr_), backPtr_(iOther.backPtr_)
       {}
     
@@ -108,7 +107,7 @@ namespace edm {
 
     /// Accessor for product getter.
     EDProductGetter const* productGetter() const {
-      if ( ptr_.productGetter() ) return ptr_.productGetter();
+      if (ptr_.productGetter()) return ptr_.productGetter();
       else return backPtr_.productGetter();
     }
 
@@ -121,8 +120,8 @@ namespace edm {
     
     void const* product() const {return 0;}
     
-    Ptr<value_type> const & ptr() const { return ptr_;}
-    Ptr<value_type> const & backPtr() const { return backPtr_;}
+    Ptr<value_type> const& ptr() const { return ptr_;}
+    Ptr<value_type> const& backPtr() const { return backPtr_;}
       
     //Used by ROOT storage
     CMS_CLASS_VERSION(10)
@@ -133,32 +132,31 @@ namespace edm {
   };
   
 
-  template <typename T>
+  template<typename T>
   inline
   bool
   operator==(FwdPtr<T> const& lhs, FwdPtr<T> const& rhs) {
-    return ( lhs.ptr() == rhs.ptr() ||
+    return (lhs.ptr() == rhs.ptr() ||
 	     lhs.backPtr() == rhs.ptr() ||
 	     lhs.ptr() == rhs.backPtr() ||
-	     lhs.backPtr() == rhs.backPtr() );
+	     lhs.backPtr() == rhs.backPtr());
   }
 
-  template <typename T>
+  template<typename T>
   inline
   bool
   operator!=(FwdPtr<T> const& lhs, FwdPtr<T> const& rhs) {
     return !(lhs == rhs);
   }
 
-  template <typename T>
+  template<typename T>
   inline
   bool
   operator<(FwdPtr<T> const& lhs, FwdPtr<T> const& rhs) {
     /// The ordering of integer keys guarantees that the ordering of FwdPtrs within
     /// a collection will be identical to the ordering of the referenced objects in the collection.
-    return ( lhs.ptr() < rhs.ptr()  );
+    return (lhs.ptr() < rhs.ptr());
   }
 
 }
-
 #endif
