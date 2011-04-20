@@ -19,51 +19,23 @@ TString ME::granularity[ME::iSizeG] = {
 };
 
 TString ME::APDPrimVar[ME::iSizeAPD] = {
-  "FLAG", "MEAN", "RMS", "M3", "NEVT", 
-  "APD_OVER_PNA_MEAN", "APD_OVER_PNA_RMS", "APD_OVER_PNA_M3","APD_OVER_PNA_NEVT",
-  "APD_OVER_PNB_MEAN", "APD_OVER_PNB_RMS", "APD_OVER_PNB_M3", "APD_OVER_PNB_NEVT",
-  "APD_OVER_PN_MEAN", "APD_OVER_PN_RMS", "APD_OVER_PN_M3","APD_OVER_PN_NEVT",
-  "APD_OVER_PNACOR_MEAN", "APD_OVER_PNACOR_RMS", "APD_OVER_PNACOR_M3","APD_OVER_PNACOR_NEVT",
-  "APD_OVER_PNBCOR_MEAN", "APD_OVER_PNBCOR_RMS", "APD_OVER_PNBCOR_M3", "APD_OVER_PNBCOR_NEVT",
-  "APD_OVER_PNCOR_MEAN", "APD_OVER_PNCOR_RMS", "APD_OVER_PNCOR_M3","APD_OVER_PNCOR_NEVT",
-  "APD_OVER_APDA_MEAN", "APD_OVER_APDA_RMS", "APD_OVER_APDA_M3","APD_OVER_APDA_NEVT", 
-  "APD_OVER_APDB_MEAN", "APD_OVER_APDB_RMS", "APD_OVER_APDB_M3","APD_OVER_APDB_NEVT", 
-  "APD_OVER_PNACORABFIT_MEAN", "APD_OVER_PNACORABFIT_RMS", "APD_OVER_PNACORABFIT_M3","APD_OVER_PNACORABFIT_NEVT",
-  "APD_OVER_PNBCORABFIT_MEAN", "APD_OVER_PNBCORABFIT_RMS", "APD_OVER_PNBCORABFIT_M3", "APD_OVER_PNBCORABFIT_NEVT",
-  "APD_OVER_PNCORABFIT_MEAN", "APD_OVER_PNCORABFIT_RMS", "APD_OVER_PNCORABFIT_M3","APD_OVER_PNCORABFIT_NEVT",
-  "APD_OVER_PNACORABFIX_MEAN", "APD_OVER_PNACORABFIX_RMS", "APD_OVER_PNACORABFIX_M3","APD_OVER_PNACORABFIX_NEVT",
-  "APD_OVER_PNBCORABFIX_MEAN", "APD_OVER_PNBCORABFIX_RMS", "APD_OVER_PNBCORABFIX_M3", "APD_OVER_PNBCORABFIX_NEVT",
-  "APD_OVER_PNCORABFIX_MEAN", "APD_OVER_PNCORABFIX_RMS", "APD_OVER_PNCORABFIX_M3","APD_OVER_PNCORABFIX_NEVT",
-  "SHAPE_COR_APD", "ALPHA", "BETA",
+  "FLAG", "MEAN", "RMS", "M3", 
+  "APD_OVER_PNA_MEAN", "APD_OVER_PNA_RMS", "APD_OVER_PNA_M3",
+  "APD_OVER_PNB_MEAN", "APD_OVER_PNB_RMS", "APD_OVER_PNB_M3",
+  "APD_OVER_PN_MEAN", "APD_OVER_PN_RMS", "APD_OVER_PN_M3",
+  "SHAPE_COR", "ALPHA", "BETA",
   "TIME_MEAN", "TIME_RMS", "TIME_M3", "TIME_NEVT" 
 };
 
-TString ME::NLSVar[ME::iSizeNLS] = {
-  "MEAN", "RMS", "NEVT", "NORM","ENORM" , "FLAG",
-  "CLS_MEAN", "CLS_RMS", "CLS_NEVT", "CLS_NORM","CLS_ENORM", "CLS_FLAG"
-};
-
-TString ME::MIDPrimVar[ME::iSizeMID] = {
-  "MID_MEAN", "MID_RMS", "MID_NEVT" 
-	 "MIDA_MEAN", "MIDA_RMS", "MIDA_NEVT" 
-	 "MIDB_MEAN", "MIDB_RMS", "MIDB_NEVT"
-	 "APD_OVER_PNTMPCOR_MEAN", "APD_OVER_PNTMPCOR_RMS", "APD_OVER_PNTMPCOR_NEVT" 
-	 "APD_OVER_PNATMPCOR_MEAN", "APD_OVER_PNATMPCOR_RMS", "APD_OVER_PNATMPCOR_NEVT" 
-	 "APD_OVER_PNBTMPCOR_MEAN", "APD_OVER_PNBTMPCOR_RMS", "APD_OVER_PNBTMPCOR_NEVT"
-};
-
-//TString ME::NLSRefVar[ME::iSizeNLSRef] = {
-//  "RUN","LB","START_LOW", " START_HIGH"
-//};
-
 TString ME::PNPrimVar[ME::iSizePN] = {
-  "FLAG", "MEAN", "RMS", "M3", "NEVT",
-  "PNA_OVER_PNB_MEAN", "PNA_OVER_PNB_RMS", "PNA_OVER_PNB_M3", "SHAPE_COR_PN"
+  "FLAG", "MEAN", "RMS", "M3", 
+  "PNA_OVER_PNB_MEAN", "PNA_OVER_PNB_RMS", "PNA_OVER_PNB_M3",
 };
+
 TString ME::MTQPrimVar[ME::iSizeMTQ] = {
   "FIT_METHOD", 
   "MTQ_AMPL", "MTQ_TIME", "MTQ_RISE", 
-  "MTQ_FWHM", "MTQ_FW10", "MTQ_FW05", "MTQ_SLIDING"
+  "MTQ_FWHM", "MTQ_FW20", "MTQ_FW80", "MTQ_SLIDING"
 };
 
 TString ME::TPAPDPrimVar[ME::iSizeTPAPD] = {
@@ -105,15 +77,6 @@ ME::primPath( int lmr )
   out_ += "/";
   return out_;
 }
-TString
-ME::nlsPath( int lmr )
-{
-  TString out_(getenv("MENLSSTORE"));
-  out_ += "/";
-  out_ += ME::smName(lmr);
-  out_ += "/";
-  return out_;
-}
 
 TString 
 ME::path()
@@ -145,40 +108,6 @@ ME::rootFileName( ME::Header header, ME::Settings settings )
     {
       outfile_ += "_testPulse"; 
     }
-  outfile_ += "_";      outfile_ += header.rundir.c_str();
-  outfile_ += "_TS";    outfile_ += header.ts_beg;
-  outfile_ += ".root";
-  return outfile_;
-}
-
-TString
-ME::rootNLSFileName( ME::Header header, ME::Settings settings )
-{
-
-  TString outfile_;
-
-  if( settings.type != ME::iLaser ){
-    cout<< " Wrong type for NLS file name "<<settings.type<<" "<< ME::iLaser << endl; 
-    return 0;
-  }
-  
-  // get the laser monitoring region and super-module
-  int lmr_   = ME::lmr( header.dcc, header.side );
-  outfile_ = nlsPath( lmr_ );
-  outfile_ += "LMF_";
-  outfile_ += ME::smName( lmr_ );
-  outfile_ += "_"; outfile_ += header.side; 
-  outfile_ += "_NLS"; 
-  
-  switch( settings.wavelength )
-    {
-    case iBlue:   outfile_ += "_BlueLaser"; break;
-    case iGreen:  outfile_ += "_GreenLaser";  break;
-    case iRed:    outfile_ += "_RedLaser";  break;
-    case iIRed:   outfile_ += "_IRedLaser";  break;
-    default: break;
-    }
-
   outfile_ += "_";      outfile_ += header.rundir.c_str();
   outfile_ += "_TS";    outfile_ += header.ts_beg;
   outfile_ += ".root";
@@ -720,12 +649,9 @@ ME::pn( int ilmr, int ilmmod, ME::PN ipn )
 {
   std::pair<int,int> pnpair_(0,0);
   std::pair<int,int> mempair_ = memFromLmr(ilmr);
-  std::pair<int, int> dccside= dccAndSide( ilmr );
-  int dcc=dccside.first;
-
   if( isBarrel( ilmr ) )
     {
-      pnpair_=MEEBGeom::pn( ilmmod , dcc ); // dcc in case of inversions
+      pnpair_=MEEBGeom::pn( ilmmod );
     }
   else
     {

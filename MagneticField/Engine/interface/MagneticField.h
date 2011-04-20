@@ -5,8 +5,8 @@
  *
  *  Base class for the different implementation of magnetic field engines.
  *
- *  $Date: 2009/05/23 22:57:42 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/03/19 10:27:05 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - CERN
  */
 
@@ -30,14 +30,10 @@ class MagneticField
   virtual GlobalVector inTesla (const GlobalPoint& gp) const = 0;
 
   /// Field value ad specified global point, in KGauss
-  GlobalVector inKGauss(const GlobalPoint& gp) const  {
-    return inTesla(gp) * 10.F;
-  }
+  virtual GlobalVector inKGauss(const GlobalPoint& gp) const;
 
   /// Field value ad specified global point, in 1/Gev
-  GlobalVector inInverseGeV(const GlobalPoint& gp) const {
-    return inTesla(gp) * 2.99792458e-3F;
-  }
+  virtual GlobalVector inInverseGeV(const GlobalPoint& gp) const;
 
   /// True if the point is within the region where the concrete field
   // engine is defined.

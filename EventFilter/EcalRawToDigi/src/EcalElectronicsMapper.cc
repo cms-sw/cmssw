@@ -12,7 +12,6 @@ numbTriggerTSamples_(numbTriggerTSamples),
 mappingBuilder_(0)
 {
   resetPointers();
-  setupGhostMap();
 }
 
 void EcalElectronicsMapper::resetPointers(){
@@ -664,81 +663,8 @@ void EcalElectronicsMapper::fillMaps(){
   //<< " tt: " << tTandPs_[tccId][psCounter][0]
   //<< " ps: " << tTandPs_[tccId][psCounter][1]
   //<< std::endl;
-// } }
+//} }
 
-}
-
-
-void EcalElectronicsMapper::setupGhostMap()
-{
-  // number of 'ghost' VFEs
-  const int n = 44;
-  
-  // here is a list of all 'ghost' VFEs
-  // in format {FED, CCU, VFE}
-  const struct {int FED, CCU, VFE;} v[n] = {
-    {601, 10, 5},
-    {601, 34, 3},
-    {601, 34, 4},
-    {601, 34, 5},
-    {602, 32, 5},
-    {603, 12, 5},
-    {603, 30, 5},
-    {604, 12, 5},
-    {604, 30, 5},
-    {605, 32, 5},
-    {606, 10, 5},
-    {606, 34, 3},
-    {606, 34, 4},
-    {606, 34, 5},
-    {608, 27, 3},
-    {608, 27, 4},
-    {608, 27, 5},
-    {608,  3, 3},
-    {608,  3, 4},
-    {608,  3, 5},
-    {608, 30, 5},
-    {608,  6, 5},
-    {646, 10, 5},
-    {646, 34, 3},
-    {646, 34, 4},
-    {646, 34, 5},
-    {647, 32, 5},
-    {648, 12, 5},
-    {648, 30, 5},
-    {649, 12, 5},
-    {649, 30, 5},
-    {650, 32, 5},
-    {651, 10, 5},
-    {651, 34, 3},
-    {651, 34, 4},
-    {651, 34, 5},
-    {653, 27, 3},
-    {653, 27, 4},
-    {653, 27, 5},
-    {653,  3, 3},
-    {653,  3, 4},
-    {653,  3, 5},
-    {653, 30, 5},
-    {653,  6, 5}
-  };
-  
-  for (int i = 0; i < n; ++i)
-    ghost_[v[i].FED][v[i].CCU][v[i].VFE] = true;
-}
-
-bool EcalElectronicsMapper::isGhost(const int FED, const int CCU, const int VFE)
-{
-  if (ghost_.find(FED) == ghost_.end())
-    return false;
-  
-  if (ghost_[FED].find(CCU) == ghost_[FED].end())
-    return false;
-  
-  if (ghost_[FED][CCU].find(VFE) == ghost_[FED][CCU].end())
-    return false;
-  
-  return true;
 }
 
 // number of readout channels (TT in EB, SC in EE) in a DCC

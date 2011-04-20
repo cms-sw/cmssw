@@ -1,5 +1,5 @@
 //
-// $Id: PATObject.h,v 1.30 2010/06/16 15:40:51 vadler Exp $
+// $Id: PATObject.h,v 1.32 2011/02/07 19:51:23 vadler Exp $
 //
 
 #ifndef DataFormats_PatCandidates_PATObject_h
@@ -15,7 +15,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Volker Adler, Sal Rappoccio
-  \version  $Id: PATObject.h,v 1.30 2010/06/16 15:40:51 vadler Exp $
+  \version  $Id: PATObject.h,v 1.32 2011/02/07 19:51:23 vadler Exp $
 */
 
 
@@ -62,50 +62,132 @@ namespace pat {
       /// reference to original object. Returns a null reference if not available
       const edm::Ptr<reco::Candidate> & originalObjectRef() const;
 
-      /// embedded trigger matches
-      /// duplicated functions using char* instead of std::string are needed in order to work properly in CINT command lines
+      /// access to embedded trigger matches:
+      /// duplicated functions using 'char*' instead of 'std::string' are needed in order to work properly in CINT command lines;
+      /// duplicated functions using 'unsigned' instead of 'bool' are needed in order to work properly in the cut string parser;
+
+      /// get all matched trigger objects
       const TriggerObjectStandAloneCollection & triggerObjectMatches() const { return triggerObjectMatchesEmbedded_; };
-      const TriggerObjectStandAlone           * triggerObjectMatch( const size_t idx = 0 ) const;
-      // trigger object types are defined in enum trigger::TriggerObjectType (DataFormats/HLTReco/interface/TriggerTypeDefs.h)
-      const TriggerObjectStandAloneCollection   triggerObjectMatchesByType( const trigger::TriggerObjectType triggerObjectType ) const;
-      const TriggerObjectStandAlone           * triggerObjectMatchByType( const trigger::TriggerObjectType triggerObjectType, const size_t idx = 0 ) const;
-      const TriggerObjectStandAloneCollection   triggerObjectMatchesByType( const unsigned triggerObjectType ) const {
-        return triggerObjectMatchesByType( trigger::TriggerObjectType( triggerObjectType ) );
-      };
-      const TriggerObjectStandAlone           * triggerObjectMatchByType( const unsigned triggerObjectType, const size_t idx = 0 ) const {
-        return triggerObjectMatchByType( trigger::TriggerObjectType( triggerObjectType ), idx );
-      };
-      // for backward compatibility
-      const TriggerObjectStandAloneCollection   triggerObjectMatchesByFilterID( const unsigned triggerObjectType ) const {
+      /// get one matched trigger object by index
+      const TriggerObjectStandAlone * triggerObjectMatch( const size_t idx = 0 ) const;
+      /// get all matched trigger objects of a certain type;
+      /// trigger object types are defined in 'enum trigger::TriggerObjectType' (DataFormats/HLTReco/interface/TriggerTypeDefs.h)
+      const TriggerObjectStandAloneCollection triggerObjectMatchesByType( const trigger::TriggerObjectType triggerObjectType ) const;
+      const TriggerObjectStandAloneCollection triggerObjectMatchesByType( const unsigned triggerObjectType ) const {
         return triggerObjectMatchesByType( trigger::TriggerObjectType( triggerObjectType ) );
       };
       // for backward compatibility
-      const TriggerObjectStandAlone           * triggerObjectMatchByFilterID( const unsigned triggerObjectType, const size_t idx = 0 ) const {
+      const TriggerObjectStandAloneCollection triggerObjectMatchesByFilterID( const unsigned triggerObjectType ) const {
+        return triggerObjectMatchesByType( trigger::TriggerObjectType( triggerObjectType ) );
+      };
+      /// get one matched trigger object of a certain type by index
+      const TriggerObjectStandAlone * triggerObjectMatchByType( const trigger::TriggerObjectType triggerObjectType, const size_t idx = 0 ) const;
+      const TriggerObjectStandAlone * triggerObjectMatchByType( const unsigned triggerObjectType, const size_t idx = 0 ) const {
         return triggerObjectMatchByType( trigger::TriggerObjectType( triggerObjectType ), idx );
       };
-      const TriggerObjectStandAloneCollection   triggerObjectMatchesByCollection( const std::string & coll ) const;
-      const TriggerObjectStandAloneCollection   triggerObjectMatchesByCollection( const char        * coll ) const {
+      // for backward compatibility
+      const TriggerObjectStandAlone * triggerObjectMatchByFilterID( const unsigned triggerObjectType, const size_t idx = 0 ) const {
+        return triggerObjectMatchByType( trigger::TriggerObjectType( triggerObjectType ), idx );
+      };
+      /// get all matched trigger objects from a certain collection
+      const TriggerObjectStandAloneCollection triggerObjectMatchesByCollection( const std::string & coll ) const;
+      // for RooT command line
+      const TriggerObjectStandAloneCollection triggerObjectMatchesByCollection( const char * coll ) const {
         return triggerObjectMatchesByCollection( std::string( coll ) );
       };
-      const TriggerObjectStandAlone           * triggerObjectMatchByCollection( const std::string & coll, const size_t idx = 0 ) const;
-      const TriggerObjectStandAlone           * triggerObjectMatchByCollection( const char        * coll, const size_t idx = 0 ) const {
+      /// get one matched trigger object from a certain collection by index
+      const TriggerObjectStandAlone * triggerObjectMatchByCollection( const std::string & coll, const size_t idx = 0 ) const;
+      // for RooT command line
+      const TriggerObjectStandAlone * triggerObjectMatchByCollection( const char * coll, const size_t idx = 0 ) const {
         return triggerObjectMatchByCollection( std::string( coll ), idx );
       };
-      const TriggerObjectStandAloneCollection   triggerObjectMatchesByFilter( const std::string & labelFilter ) const;
-      const TriggerObjectStandAloneCollection   triggerObjectMatchesByFilter( const char        * labelFilter ) const {
+      /// get all matched L1 objects used in a succeeding object combination of a certain L1 condition
+      const TriggerObjectStandAloneCollection triggerObjectMatchesByCondition( const std::string & nameCondition ) const;
+      // for RooT command line
+      const TriggerObjectStandAloneCollection triggerObjectMatchesByCondition( const char * nameCondition ) const {
+        return triggerObjectMatchesByCondition( std::string( nameCondition ) );
+      };
+      /// get one matched L1 object used in a succeeding object combination of a certain L1 condition by index
+      const TriggerObjectStandAlone * triggerObjectMatchByCondition( const std::string & nameCondition, const size_t idx = 0 ) const;
+      // for RooT command line
+      const TriggerObjectStandAlone * triggerObjectMatchByCondition( const char * nameCondition, const size_t idx = 0 ) const {
+        return triggerObjectMatchByCondition( std::string( nameCondition ), idx );
+      };
+      /// get all matched L1 objects used in a succeeding object combination of a condition in a certain L1 (physics) algorithm;
+      /// if 'algoCondAccepted' is set to 'true' (default), only objects used in succeeding conditions of succeeding algorithms are considered
+      /// ("firing" objects)
+      const TriggerObjectStandAloneCollection triggerObjectMatchesByAlgorithm( const std::string & nameAlgorithm, const bool algoCondAccepted = true ) const;
+      // for RooT command line
+      const TriggerObjectStandAloneCollection triggerObjectMatchesByAlgorithm( const char * nameAlgorithm, const bool algoCondAccepted = true ) const {
+        return triggerObjectMatchesByAlgorithm( std::string( nameAlgorithm ), algoCondAccepted );
+      };
+      // for the cut string parser
+      const TriggerObjectStandAloneCollection triggerObjectMatchesByAlgorithm( const std::string & nameAlgorithm, const unsigned algoCondAccepted ) const {
+        return triggerObjectMatchesByAlgorithm( nameAlgorithm, bool( algoCondAccepted ) );
+      };
+      // for RooT command line and the cut string parser
+      const TriggerObjectStandAloneCollection triggerObjectMatchesByAlgorithm( const char * nameAlgorithm, const unsigned algoCondAccepted ) const {
+        return triggerObjectMatchesByAlgorithm( std::string( nameAlgorithm ), bool( algoCondAccepted ) );
+      };
+      /// get one matched L1 object used in a succeeding object combination of a condition in a certain L1 (physics) algorithm by index;
+      /// if 'algoCondAccepted' is set to 'true' (default), only objects used in succeeding conditions of succeeding algorithms are considered
+      /// ("firing" objects)
+      const TriggerObjectStandAlone * triggerObjectMatchByAlgorithm( const std::string & nameAlgorithm, const bool algoCondAccepted = true, const size_t idx = 0 ) const;
+      // for RooT command line
+      const TriggerObjectStandAlone * triggerObjectMatchByAlgorithm( const char * nameAlgorithm, const bool algoCondAccepted = true, const size_t idx = 0 ) const {
+        return triggerObjectMatchByAlgorithm( std::string( nameAlgorithm ), algoCondAccepted, idx );
+      };
+      // for the cut string parser
+      const TriggerObjectStandAlone * triggerObjectMatchByAlgorithm( const std::string & nameAlgorithm, const unsigned algoCondAccepted, const size_t idx = 0 ) const {
+        return triggerObjectMatchByAlgorithm( nameAlgorithm, bool( algoCondAccepted ), idx );
+      };
+      // for RooT command line and the cut string parser
+      const TriggerObjectStandAlone * triggerObjectMatchByAlgorithm( const char * nameAlgorithm, const unsigned algoCondAccepted, const size_t idx = 0 ) const {
+        return triggerObjectMatchByAlgorithm( std::string( nameAlgorithm ), bool( algoCondAccepted ), idx );
+      };
+      /// get all matched HLT objects used in a certain HLT filter
+      const TriggerObjectStandAloneCollection triggerObjectMatchesByFilter( const std::string & labelFilter ) const;
+      // for RooT command line
+      const TriggerObjectStandAloneCollection triggerObjectMatchesByFilter( const char * labelFilter ) const {
         return triggerObjectMatchesByFilter( std::string( labelFilter ) );
       };
-      const TriggerObjectStandAlone           * triggerObjectMatchByFilter( const std::string & labelFilter, const size_t idx = 0 ) const;
-      const TriggerObjectStandAlone           * triggerObjectMatchByFilter( const char        * labelFilter, const size_t idx = 0 ) const {
+      /// get one matched HLT object used in a certain HLT filter by index
+      const TriggerObjectStandAlone * triggerObjectMatchByFilter( const std::string & labelFilter, const size_t idx = 0 ) const;
+      // for RooT command line
+      const TriggerObjectStandAlone * triggerObjectMatchByFilter( const char * labelFilter, const size_t idx = 0 ) const {
         return triggerObjectMatchByFilter( std::string( labelFilter ), idx );
       };
-      const TriggerObjectStandAloneCollection   triggerObjectMatchesByPath( const std::string & namePath, const bool pathLastFilterAccepted = false ) const;
-      const TriggerObjectStandAloneCollection   triggerObjectMatchesByPath( const char        * namePath, const bool pathLastFilterAccepted = false ) const {
+      /// get all matched HLT objects used in a certain HLT path;
+      /// if 'pathLastFilterAccepted' is set to 'true' (default), only objects used in the finalfilter of succeeding path are considered
+      /// ("firing" objects)
+      const TriggerObjectStandAloneCollection triggerObjectMatchesByPath( const std::string & namePath, const bool pathLastFilterAccepted = true ) const;
+      // for RooT command line
+      const TriggerObjectStandAloneCollection triggerObjectMatchesByPath( const char * namePath, const bool pathLastFilterAccepted = true ) const {
         return triggerObjectMatchesByPath( std::string( namePath ), pathLastFilterAccepted );
       };
-      const TriggerObjectStandAlone           * triggerObjectMatchByPath( const std::string & namePath, const bool pathLastFilterAccepted = false, const size_t idx = 0 ) const;
-      const TriggerObjectStandAlone           * triggerObjectMatchByPath( const char        * namePath, const bool pathLastFilterAccepted = false, const size_t idx = 0 ) const {
+      // for the cut string parser
+      const TriggerObjectStandAloneCollection triggerObjectMatchesByPath( const std::string & namePath, const unsigned pathLastFilterAccepted ) const {
+        return triggerObjectMatchesByPath( namePath, bool( pathLastFilterAccepted ) );
+      };
+      // for RooT command line and the cut string parser
+      const TriggerObjectStandAloneCollection triggerObjectMatchesByPath( const char * namePath, const unsigned pathLastFilterAccepted ) const {
+        return triggerObjectMatchesByPath( std::string( namePath ), bool( pathLastFilterAccepted ) );
+      };
+      /// get one matched HLT object used in a certain HLT path by index;
+      /// if 'pathLastFilterAccepted' is set to 'true' (default), only objects used in the finalfilter of succeeding path are considered
+      /// ("firing" objects)
+      const TriggerObjectStandAlone * triggerObjectMatchByPath( const std::string & namePath, const bool pathLastFilterAccepted = true, const size_t idx = 0 ) const;
+      // for RooT command line
+      const TriggerObjectStandAlone * triggerObjectMatchByPath( const char * namePath, const bool pathLastFilterAccepted = true, const size_t idx = 0 ) const {
         return triggerObjectMatchByPath( std::string( namePath ), pathLastFilterAccepted, idx );
+      };
+      // for the cut string parser
+      const TriggerObjectStandAlone * triggerObjectMatchByPath( const std::string & namePath, const unsigned pathLastFilterAccepted, const size_t idx = 0 ) const {
+        return triggerObjectMatchByPath( namePath, bool( pathLastFilterAccepted ), idx );
+      };
+      // for RooT command line and the cut string parser
+      const TriggerObjectStandAlone * triggerObjectMatchByPath( const char * namePath, const unsigned pathLastFilterAccepted, const size_t idx = 0 ) const {
+        return triggerObjectMatchByPath( std::string( namePath ), bool( pathLastFilterAccepted ), idx );
       };
       /// add a trigger match
       void addTriggerObjectMatch( const TriggerObjectStandAlone & trigObj ) { triggerObjectMatchesEmbedded_.push_back( trigObj ); };
@@ -432,6 +514,46 @@ namespace pat {
       if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasCollection( coll ) ) {
         refs.push_back( i );
       }
+    }
+    if ( idx >= refs.size() ) return 0;
+    TriggerObjectStandAloneRef ref( &triggerObjectMatchesEmbedded_, refs.at( idx ) );
+    return ref.isNonnull() ? ref.get() : 0;
+  }
+
+  template <class ObjectType>
+  const TriggerObjectStandAloneCollection PATObject<ObjectType>::triggerObjectMatchesByCondition( const std::string & nameCondition ) const {
+    TriggerObjectStandAloneCollection matches;
+    for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
+      if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasConditionName( nameCondition ) ) matches.push_back( *( triggerObjectMatch( i ) ) );
+    }
+    return matches;
+  }
+
+  template <class ObjectType>
+  const TriggerObjectStandAlone * PATObject<ObjectType>::triggerObjectMatchByCondition( const std::string & nameCondition, const size_t idx ) const {
+    std::vector< size_t > refs;
+    for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
+      if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasConditionName( nameCondition ) ) refs.push_back( i );
+    }
+    if ( idx >= refs.size() ) return 0;
+    TriggerObjectStandAloneRef ref( &triggerObjectMatchesEmbedded_, refs.at( idx ) );
+    return ref.isNonnull() ? ref.get() : 0;
+  }
+
+  template <class ObjectType>
+  const TriggerObjectStandAloneCollection PATObject<ObjectType>::triggerObjectMatchesByAlgorithm( const std::string & nameAlgorithm, const bool algoCondAccepted ) const {
+    TriggerObjectStandAloneCollection matches;
+    for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
+      if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasAlgorithmName( nameAlgorithm, algoCondAccepted ) ) matches.push_back( *( triggerObjectMatch( i ) ) );
+    }
+    return matches;
+  }
+
+  template <class ObjectType>
+  const TriggerObjectStandAlone * PATObject<ObjectType>::triggerObjectMatchByAlgorithm( const std::string & nameAlgorithm, const bool algoCondAccepted, const size_t idx ) const {
+    std::vector< size_t > refs;
+    for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
+      if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasAlgorithmName( nameAlgorithm, algoCondAccepted ) ) refs.push_back( i );
     }
     if ( idx >= refs.size() ) return 0;
     TriggerObjectStandAloneRef ref( &triggerObjectMatchesEmbedded_, refs.at( idx ) );

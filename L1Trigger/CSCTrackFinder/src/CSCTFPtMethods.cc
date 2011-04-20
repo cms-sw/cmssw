@@ -208,22 +208,6 @@ const double CSCTFPtMethods::A_sig14Rare[3][15] =
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0.00080261760198784384054, 0.00063696047781503656055, 0.00065139580093967995589, 0.00069639579902228165072, 0, 0}
   };
 
-
-const double CSCTFPtMethods::A_mu51[4][15] =
-  {
-     {-0.30205049387075266765, -0.19825408793401680385, -0.10259572704977054647, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-     {0.39029489236430164878, -0.99999999999950184293, -0.99999999991334242999, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-     {-0.0082240407388394932281, -0.008489109806000837144, -0.0096722775887914218262, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-     {1.4884036315353963431, -2.8577685774096766025, -3.1123617094902709113, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-  };
-
-const double CSCTFPtMethods::A_sig51[3][15] =
-  {
-     {0.013883456707760059509, 0.011790507803505339071, 2.4609763012162222395e-15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-     {0.33358000572065177325, 0.19837044850549298558, 0.21329994540971500272, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-     {0.0026062373849642236565, 0.0026272077989507240485, 0.0025484832112267707081, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-  };
-
 const double CSCTFPtMethods::A_mu52[4][15] = 
   {
     {0, -0.31934822512291188845, -0.24671378669106625026, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -237,50 +221,6 @@ const double CSCTFPtMethods::A_sig52[3][15] =
     {0, 0.31662456185786602703, 0.25320436095234394314, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0.0026259453672001680305, 0.0027192866432913216992, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
   };
-
-const double CSCTFPtMethods::A_mu53[4][15] =
-  {
-    {0, 0, -0.2362111548723856147, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0.58675988413655344456, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, -0.0074765217760223816323, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 1.392910355886719076, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-  };
-
-const double CSCTFPtMethods::A_sig53[3][15] =
-  {
-    {0, 0, 0.010082748878246528337, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0.37397019929001934502, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0.002686637834141298968, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-  };
-
-/// DT correlation
-const double CSCTFPtMethods::A_rho512[5][15] =
-  {
-    {0, -1.3270643828972497058, -0.40947841616853780655, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 2.025201781399017964, 0.58089265964690128818, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, -0.73760841017029699085, -0.060534778841327505083, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0.077735281441295198124, -0.017952905037001157251, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0.005510074476231469412, 0.26061236699994605459, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-  };
-const double CSCTFPtMethods::A_rho513[5][15] =
-  {
-    {0, 0, 0.18116780706048338234, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, -0.10826967270771679919, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0.033488168126484141318, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, -0.0040355575386412517735, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, -0.4934185910548575249, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-  };
-const double CSCTFPtMethods::A_rho523[5][15] =
-  {
-    {0, 0, -1.9080285362497979573, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 3.2540326879755121503, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, -1.2246911037569772063, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0.13624286476587679773, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0.24605674796105389546, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-  };
-
-
-
 const double CSCTFPtMethods::A_mu23[4][15] = 
   {
 
@@ -721,7 +661,7 @@ double CSCTFPtMethods::Likelihood(double *phi12, double *phi23, double *par_m12,
    }
 
 
-float CSCTFPtMethods::Pt2Stn2010(int type, float eta, float dphi, int fr, int method) const 
+float CSCTFPtMethods::Pt2Stn2010(int type, float eta, float dphi, int fr) const 
 {
     if(fabs(eta) >= 2.4) eta = 2.35;  
     double PTsolv = 1.; // for muon plus hypothesis
@@ -841,18 +781,8 @@ float CSCTFPtMethods::Pt2Stn2010(int type, float eta, float dphi, int fr, int me
                    par_sig1[2] = A_sig14Rare[2][iETA1];
                  }
           break;
-          case 11 : // b1-3
-                 if(iETA1 != 2)iETA1 = 2;
-                 par1[0] = A_mu53[0][iETA1];
-                 par1[1] = A_mu53[1][iETA1];
-                 par1[2] = A_mu53[2][iETA1];
-                 par1[3] = A_mu53[3][iETA1];
-                 par_sig1[0] = A_sig53[0][iETA1];
-                 par_sig1[1] = A_sig53[1][iETA1];
-                 par_sig1[2] = A_sig53[2][iETA1];
-                
-          break;
-          case 12 :  //1-2-b1 = 2-b1 for pt_method < 10, for pt_method > 10: b1-2
+          case 12 :  //1-2-b1 = 2-b1
+          case 14 :  //2-b1
                  if(iETA1 < 1)iETA1 = 1;
                  if(iETA1 > 2)iETA1 = 2;
                  par1[0] = A_mu52[0][iETA1];
@@ -862,29 +792,6 @@ float CSCTFPtMethods::Pt2Stn2010(int type, float eta, float dphi, int fr, int me
                  par_sig1[0] = A_sig52[0][iETA1];
                  par_sig1[1] = A_sig52[1][iETA1];
                  par_sig1[2] = A_sig52[2][iETA1];
-          break;
-          case 14 :  //2-b1 for pt_method < 10 and b1-1 for pt_method > 10
-                 if(method < 10){
-                    if(iETA1 < 1)iETA1 = 1;
-                    if(iETA1 > 2)iETA1 = 2;
-                 }
-                 par1[0] = A_mu52[0][iETA1];
-                 par1[1] = A_mu52[1][iETA1];
-                 par1[2] = A_mu52[2][iETA1];
-                 par1[3] = A_mu52[3][iETA1];
-                 par_sig1[0] = A_sig52[0][iETA1];
-                 par_sig1[1] = A_sig52[1][iETA1];
-                 par_sig1[2] = A_sig52[2][iETA1];
-                 if(method > 10){
-                    if(iETA1 > 2)iETA1 = 2;
-                    par1[0] = A_mu51[0][iETA1];
-                    par1[1] = A_mu51[1][iETA1];
-                    par1[2] = A_mu51[2][iETA1];
-                    par1[3] = A_mu51[3][iETA1];
-                    par_sig1[0] = A_sig51[0][iETA1];
-                    par_sig1[1] = A_sig51[1][iETA1];
-                    par_sig1[2] = A_sig51[2][iETA1];
-                 }
           break;
           //default:
           //return 0.0;
@@ -1010,7 +917,7 @@ float CSCTFPtMethods::Pt2Stn2010(int type, float eta, float dphi, int fr, int me
           PTsolv = PTsolv*1.2;
           if(PTsolv > 137.5) PTsolv = 137.5;
           if(fabs(dphi) <= 0.002 && PTsolv < 120.)PTsolv = 140.;
-          if( fabs(dphi) <= 0.01 && (type == 11 || type == 12 || type == 14) && PTsolv < 120.)PTsolv = 140.;
+          if( fabs(dphi) <= 0.01 && (type == 12 || type == 14) && PTsolv < 120.)PTsolv = 140.;
           dphi = - dphi; //return to correct sing dphi
 
     } //if(fabs(eta_TracMy) 
@@ -1020,15 +927,12 @@ float CSCTFPtMethods::Pt2Stn2010(int type, float eta, float dphi, int fr, int me
     if(Pt > 10 && fabs(dphi) >= 0.1 ) std::cout << "iF = 0 for dphi = " << dphi <<" and Pt = " << Pt << std::endl;
                                                                     
     //if(Pt > 100 && (type == 12 || type == 14) && fabs(eta) <= 1.2 && dphi > 0.015 )std::cout << "dphi = " << dphi << " eta = " << eta << std::endl; 
-    //if(Pt < 10 && (type == 12 || type == 14) && fabs(eta) <= 1.2 && dphi < 0.01)std::cout << "dphi = " << dphi << " eta = " << eta <<   std::endl; 
+    if(Pt < 10 && (type == 12 || type == 14) && fabs(eta) <= 1.2 && dphi < 0.01)std::cout << "dphi = " << dphi << " eta = " << eta <<   std::endl; 
     //      return (Pt>0.0) ? Pt : 0.0;
-
-    float Pt_min = trigger_scale->getPtScale()->getLowEdge(1);// 0 GeV
-    if(method > 10) Pt_min = trigger_scale->getPtScale()->getLowEdge(3);// 2 GeV 
-
-    return (Pt > Pt_min)  ? Pt : Pt_min;
+    return (Pt>trigger_scale->getPtScale()->getLowEdge(1)) ? Pt 
+    : trigger_scale->getPtScale()->getLowEdge(1);
 }
-float CSCTFPtMethods::Pt3Stn2010(int type, float eta, float dphi1, float dphi2, int fr, int method) const 
+float CSCTFPtMethods::Pt3Stn2010(int type, float eta, float dphi1, float dphi2, int fr ) const 
 {
 
     if(fabs(eta) >= 2.4)eta = 2.35;
@@ -1205,76 +1109,6 @@ float CSCTFPtMethods::Pt3Stn2010(int type, float eta, float dphi1, float dphi2, 
                  par_sig2[1] = A_sig34[1][iETA1];
                  par_sig2[2] = A_sig34[2][iETA1];
           break;
-          case 11 : // b1-1-3
-                 if(iETA1 != 2)iETA1 = 2;
-                 par1[0] = A_mu51[0][iETA1];
-                 par1[1] = A_mu51[1][iETA1];
-                 par1[2] = A_mu51[2][iETA1];
-                 par1[3] = A_mu51[3][iETA1];
-                 par_sig1[0] = A_sig51[0][iETA1];
-                 par_sig1[1] = A_sig51[1][iETA1];
-                 par_sig1[2] = A_sig51[2][iETA1];
-                 par_rho[0] = A_rho513[0][iETA1]; 
-                 par_rho[1] = A_rho513[0][iETA1]; 
-                 par_rho[2] = A_rho513[0][iETA1]; 
-                 par_rho[3] = A_rho513[0][iETA1]; 
-                 par_rho[4] = A_rho513[0][iETA1]; 
-
-                 par2[0] = A_mu13Rare[0][iETA1];
-                 par2[1] = A_mu13Rare[1][iETA1];
-                 par2[2] = A_mu13Rare[2][iETA1];
-                 par2[3] = A_mu13Rare[3][iETA1];
-                 par_sig2[0] = A_sig13Rare[0][iETA1];
-                 par_sig2[1] = A_sig13Rare[1][iETA1];
-                 par_sig2[2] = A_sig13Rare[2][iETA1];
-          break;
-          case 12 : // b1-2-3
-                 if(iETA1 != 2)iETA1 = 2;
-                 par1[0] = A_mu52[0][iETA1];
-                 par1[1] = A_mu52[1][iETA1];
-                 par1[2] = A_mu52[2][iETA1];
-                 par1[3] = A_mu52[3][iETA1];
-                 par_sig1[0] = A_sig52[0][iETA1];
-                 par_sig1[1] = A_sig52[1][iETA1];
-                 par_sig1[2] = A_sig52[2][iETA1];
-                 par_rho[0] = A_rho523[0][iETA1];
-                 par_rho[1] = A_rho523[0][iETA1];
-                 par_rho[2] = A_rho523[0][iETA1];
-                 par_rho[3] = A_rho523[0][iETA1];
-                 par_rho[4] = A_rho523[0][iETA1];
-                 
-                 par2[0] = A_mu23[0][iETA1];
-                 par2[1] = A_mu23[1][iETA1];
-                 par2[2] = A_mu23[2][iETA1];
-                 par2[3] = A_mu23[3][iETA1];
-                 par_sig2[0] = A_sig23[0][iETA1];
-                 par_sig2[1] = A_sig23[1][iETA1];
-                 par_sig2[2] = A_sig23[2][iETA1];
-          break;
-          case 14 : // b1-1-2-(3)
-                 if(iETA1 < 1)iETA1 = 1;
-                 if(iETA1 > 2)iETA1 = 2;
-                 par1[0] = A_mu51[0][iETA1];
-                 par1[1] = A_mu51[1][iETA1];
-                 par1[2] = A_mu51[2][iETA1];
-                 par1[3] = A_mu51[3][iETA1];
-                 par_sig1[0] = A_sig51[0][iETA1];
-                 par_sig1[1] = A_sig51[1][iETA1];
-                 par_sig1[2] = A_sig51[2][iETA1];
-                 par_rho[0] = A_rho512[0][iETA1];
-                 par_rho[1] = A_rho512[0][iETA1];
-                 par_rho[2] = A_rho512[0][iETA1];
-                 par_rho[3] = A_rho512[0][iETA1];
-                 par_rho[4] = A_rho512[0][iETA1];
-                 
-                 par2[0] = A_mu12Rare[0][iETA1];
-                 par2[1] = A_mu12Rare[1][iETA1];
-                 par2[2] = A_mu12Rare[2][iETA1];
-                 par2[3] = A_mu12Rare[3][iETA1];
-                 par_sig2[0] = A_sig12Rare[0][iETA1];
-                 par_sig2[1] = A_sig12Rare[1][iETA1];
-                 par_sig2[2] = A_sig12Rare[2][iETA1]; 
-          break;
           //default:
           //return 0.0;
           }
@@ -1286,8 +1120,8 @@ float CSCTFPtMethods::Pt3Stn2010(int type, float eta, float dphi1, float dphi2, 
             if(type == 2 || type == 3) type = 6; // 1-2-3(or 4) -> 1-2 
             if(type == 4) type = 7; // 1-3-4 -> 1-3
             if(type == 5) type = 8; // 2-3-4 -> 2-3
-            if(type == 11) type = 14; // b1-1-3 -> b1-1 for pt_method > 10
-            Pt = Pt2Stn2010(type, eta, dphi1, fr, method);
+            if(type == 12) type = 14; //1-2-b1 -> 2-b1 
+            Pt = Pt2Stn2010(type, eta, dphi1, fr);
           }
         else 
           {
@@ -1413,11 +1247,10 @@ float CSCTFPtMethods::Pt3Stn2010(int type, float eta, float dphi1, float dphi2, 
           } // end 2 or 3 station method
     }}
            // if ( fabs(static_cast<double>(dphi2))>0.004 ) std::cout << "Pt = " << Pt << " Mode = " << type << " dphi1 = " << dphi1 << " dphi2 = " << dphi2 << std::endl;
-
-    float Pt_min = trigger_scale->getPtScale()->getLowEdge(1);// 0 GeV
-    if(method > 10) Pt_min = trigger_scale->getPtScale()->getLowEdge(3);// 2 GeV 
-
-    return (Pt > Pt_min)  ? Pt : Pt_min;
+        if (Pt<trigger_scale->getPtScale()->getLowEdge(1)) 
+          Pt = trigger_scale->getPtScale()->getLowEdge(1);
+    
+    return Pt;
 }
 
 // These arrays contain mean dphi values for each pt and eta bin.  

@@ -1,8 +1,8 @@
-// $Id: I2OChain.h,v 1.9 2010/04/30 07:44:16 mommsen Exp $
+// $Id: I2OChain.h,v 1.10.4.4 2011/03/01 08:30:49 mommsen Exp $
 /// @file: I2OChain.h 
 
-#ifndef StorageManager_I2OChain_h
-#define StorageManager_I2OChain_h
+#ifndef EventFilter_StorageManager_I2OChain_h
+#define EventFilter_StorageManager_I2OChain_h
 
 #include <vector>
 
@@ -10,13 +10,13 @@
 #include "toolbox/mem/Reference.h"
 
 #include "IOPool/Streamer/interface/HLTInfo.h"
+#include "EventFilter/StorageManager/interface/QueueID.h"
 #include "EventFilter/StorageManager/interface/StreamID.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
 
 
 namespace stor {
 
-  class QueueID;
   class DQMKey;
 
 
@@ -28,8 +28,8 @@ namespace stor {
    * the last instance of I2OChain goes out of scope.
    *
    * $Author: mommsen $
-   * $Revision: 1.9 $
-   * $Date: 2010/04/30 07:44:16 $
+   * $Revision: 1.10.4.4 $
+   * $Date: 2011/03/01 08:30:49 $
    */
 
 
@@ -162,7 +162,7 @@ namespace stor {
        A negative value indicates that an error occurred when fetching 
        the time from the operating system.
      */
-    utils::time_point_t creationTime() const;
+    utils::TimePoint_t creationTime() const;
 
     /**
        Returns the time when the last fragment was added to the I2OChain.
@@ -172,7 +172,7 @@ namespace stor {
        A negative value indicates that an error occurred when fetching 
        the time from the operating system.
      */
-    utils::time_point_t lastFragmentTime() const;
+    utils::TimePoint_t lastFragmentTime() const;
 
     /**
        Returns the stale window start time.  This is the time that
@@ -183,12 +183,12 @@ namespace stor {
        A negative value indicates that an error occurred when fetching 
        the time from the operating system.
      */
-    utils::time_point_t staleWindowStartTime() const;
+    utils::TimePoint_t staleWindowStartTime() const;
 
     /**
-       Add the duration_t in seconds to the stale window start time 
+       Add the Duration_t in seconds to the stale window start time 
      */
-    void addToStaleWindowStartTime(const utils::duration_t);
+    void addToStaleWindowStartTime(const utils::Duration_t);
 
     /**
        Sets the stale window start time to "now".
@@ -252,7 +252,7 @@ namespace stor {
        should only be used for testing which consumers have been tagged,
        *not* for for modifying the list of tags.
     */
-    std::vector<QueueID> getEventConsumerTags() const;
+    QueueIDs getEventConsumerTags() const;
 
     /**
        Returns the list of DQM event consumers (queue IDs) that
@@ -262,7 +262,7 @@ namespace stor {
        should only be used for testing which consumers have been tagged,
        *not* for for modifying the list of tags.
     */
-    std::vector<QueueID> getDQMEventConsumerTags() const;
+    QueueIDs getDQMEventConsumerTags() const;
 
     /**
        Returns the message code for the chain. Valid values
@@ -552,12 +552,12 @@ namespace stor {
 
   private:
 
-    boost::shared_ptr<detail::ChainData> _data;
+    boost::shared_ptr<detail::ChainData> data_;
   };
   
 } // namespace stor
 
-#endif // StorageManager_I2OChain_h 
+#endif // EventFilter_StorageManager_I2OChain_h 
 
 
 /// emacs configuration
