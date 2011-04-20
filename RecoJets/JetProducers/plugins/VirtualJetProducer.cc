@@ -239,6 +239,14 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
     puWidth_ = iConfig.getParameter<double>("puWidth");
     nExclude_ = iConfig.getParameter<unsigned int>("nExclude");
   }
+
+  useDeterministicSeed_ = false;
+  minSeed_ = 0;
+  if ( iConfig.exists("useDeterministicSeed") ) {
+    useDeterministicSeed_ = iConfig.getParameter<bool>("useDeterministicSeed");
+    minSeed_ =              iConfig.getParameter<unsigned int>("minSeed");
+  }
+
   produces<std::vector<double> >("rhos");
   produces<std::vector<double> >("sigmas");
   produces<double>("rho");
@@ -259,6 +267,20 @@ VirtualJetProducer::~VirtualJetProducer()
 //______________________________________________________________________________
 void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
 {
+
+  // If requested, set the fastjet random seed to a deterministic function
+  // of the run/lumi/event. 
+  // NOTE!!! The fastjet random number sequence is a global singleton.
+  // Thus, we have to create an object and get access to the global singleton
+  // in order to change it. 
+  if ( useDeterministicSeed_ ) {
+    fastjet::GhostedAreaSpec gas;
+    std::vector<int> seeds(2);
+    seeds[0] = std::max(iEvent.id().run(),minSeed_ + 3) + 3 * iEvent.id().event();
+    seeds[1] = std::max(iEvent.id().run(),minSeed_ + 5) + 5 * iEvent.id().event();
+    gas.set_random_status(seeds);
+  }
+
   LogDebug("VirtualJetProducer") << "Entered produce\n";
   //determine signal vertex
   vertex_=reco::Jet::Point(0,0,0);

@@ -26,6 +26,8 @@ PFClusterJetParameters = cms.PSet(
     GhostArea           = cms.double(0.01),
     Ghost_EtaMax        = cms.double( 5.0),
     Rho_EtaMax          = cms.double( 4.4),
-    voronoiRfact        = cms.double(-0.9)
+    voronoiRfact        = cms.double(-0.9),
+    useDeterministicSeed= cms.bool( True ),
+    minSeed             = cms.uint32( 14327 )
 )
  

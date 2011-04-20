@@ -34,5 +34,7 @@ TrackJetParameters = cms.PSet(
     # minimum number of degrees of freedom to call a PV a good vertex
     MinVtxNdof          = cms.int32(5),
     # maximum z distance to origin to call a PV a good vertex
-    MaxVtxZ             = cms.double(15.)
+    MaxVtxZ             = cms.double(15.),
+    useDeterministicSeed= cms.bool( True ),
+    minSeed             = cms.uint32( 14327 )
 )
