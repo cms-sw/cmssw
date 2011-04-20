@@ -27,8 +27,8 @@ weightAlignment = (os.environ["ALIGNMENT_WEIGHTALIGNMENT"] == "True")
 minAlignmentHits = int(os.environ["ALIGNMENT_MINALIGNMENTHITS"])
 combineME11 = (os.environ["ALIGNMENT_COMBINEME11"] == "True")
 maxResSlopeY = float(os.environ["ALIGNMENT_MAXRESSLOPEY"])
-residualsModel = string(os.environ["ALIGNMENT_RESIDUALSMODEL"])
-peakNSigma = float(os.environ["ALILIGNMENT_PEAKNSIGMA"])
+residualsModel = os.environ["ALIGNMENT_RESIDUALSMODEL"]
+peakNSigma = float(os.environ["ALIGNMENT_PEAKNSIGMA"])
 
 # optionally do selective DT or CSC alignment
 doDT = True
