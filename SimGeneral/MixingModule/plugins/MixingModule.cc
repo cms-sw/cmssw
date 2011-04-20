@@ -378,7 +378,12 @@ namespace edm
     //Makin' a list:
     for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
       bunchCrossingList.push_back(bunchCrossing);
-      numInteractionList.push_back(((pileup_[0])[bunchCrossing-minBunch_]).size());
+      if(!doit_[0]) {
+        numInteractionList.push_back(0);
+      }
+      else {
+        numInteractionList.push_back(((pileup_[0])[bunchCrossing-minBunch_]).size());
+      }
     }
 
     
