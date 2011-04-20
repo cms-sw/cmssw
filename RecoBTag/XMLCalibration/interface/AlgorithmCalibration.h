@@ -119,7 +119,7 @@ bool AlgorithmCalibration<T,CO>::readCategories()
 	  CO * obj =readObject(n1->getFirstChild());
           if(obj) 
            {
-                addEntry(*cat,*obj);  
+                this->addEntry(*cat,*obj);  
                 delete obj;  
            }
           delete cat;
