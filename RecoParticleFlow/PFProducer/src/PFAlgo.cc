@@ -863,6 +863,24 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       reco::PFClusterRef clusterRef = elements[thisEcal].clusterRef();
       if ( debug_ ) std::cout << " is associated to " << elements[thisEcal] << std::endl;
 
+      // Set ECAL energy for muons
+      if ( thisIsAMuon ) { 
+	(*pfCandidates_)[tmpi[0]].setEcalEnergy( clusterRef->energy(),
+						 std::min(clusterRef->energy(), muonECAL_[0]) );
+	(*pfCandidates_)[tmpi[0]].setHcalEnergy( 0., 0. );
+	(*pfCandidates_)[tmpi[0]].setPs1Energy( 0 );
+	(*pfCandidates_)[tmpi[0]].setPs2Energy( 0 );
+	(*pfCandidates_)[tmpi[0]].addElementInBlock( blockref, kTrack[0] );
+      }
+      
+      double slopeEcal = 1.;
+      bool connectedToEcal = false;
+      unsigned iEcal = 99999;
+      double calibEcal = 0.;
+      double calibHcal = 0.;
+      double totalEcal = thisIsAMuon ? -muonECAL_[0] : 0.;
+      double totalHcal = 0.;
+
       // Consider charged particles closest to the same ECAL cluster
       std::multimap<double, unsigned> sortedTracks;
       block.associatedElements( thisEcal,  linkData,
@@ -889,10 +907,13 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				  reco::PFBlock::LINKTEST_ALL );
 	if ( sortedECAL.begin()->second != thisEcal ) continue;
 
+	// Check if this track is a muon
+	bool thatIsAMuon = PFMuonAlgo::isMuon(elements[jTrack]);
+
 	// Check if this track is not a fake
 	bool rejectFake = false;
 	reco::TrackRef trackRef = elements[jTrack].trackRef();
-	if ( trackRef->ptError() > ptError_) { 
+	if ( !thatIsAMuon && trackRef->ptError() > ptError_) { 
 	  double deficit = trackMomentum + trackRef->p() - clusterRef->energy();
 	  double resol = nSigmaTRACK_*neutralHadronEnergyResolution(trackMomentum+trackRef->p(),
 								    clusterRef->positionREP().Eta());
@@ -913,12 +934,17 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	// Otherwise, add this track momentum to the total track momentum
 	/* */
 	// reco::TrackRef trackRef = elements[jTrack].trackRef();
-	if ( debug_ ) 
-	  std::cout << "Track momentum increased from " << trackMomentum << " GeV "; 
-	trackMomentum += trackRef->p();
-	if ( debug_ ) {
-	  std::cout << "to " << trackMomentum << " GeV." << std::endl; 
-	  std::cout << "with " << elements[jTrack] << std::endl;
+	if ( !thatIsAMuon ) {	
+	  if ( debug_ ) 
+	    std::cout << "Track momentum increased from " << trackMomentum << " GeV "; 
+	  trackMomentum += trackRef->p();
+	  if ( debug_ ) {
+	    std::cout << "to " << trackMomentum << " GeV." << std::endl; 
+	    std::cout << "with " << elements[jTrack] << std::endl;
+	  }
+	} else { 
+	  totalEcal -= muonECAL_[0];
+	  totalEcal = std::max(totalEcal, 0.);
 	}
 
 	// And create a charged particle candidate !
@@ -926,15 +952,16 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	kTrack.push_back(jTrack);
 	active[jTrack] = false;
 
+	if ( thatIsAMuon ) { 
+	  (*pfCandidates_)[tmpi.back()].setEcalEnergy(clusterRef->energy(),
+						      std::min(clusterRef->energy(),muonECAL_[0]));
+	  (*pfCandidates_)[tmpi.back()].setHcalEnergy( 0., 0. );
+	  (*pfCandidates_)[tmpi.back()].setPs1Energy( 0 );
+	  (*pfCandidates_)[tmpi.back()].setPs2Energy( 0 );
+	  (*pfCandidates_)[tmpi.back()].addElementInBlock( blockref, kTrack.back() );
+	}
       }
 
-      double slopeEcal = 1.;
-      bool connectedToEcal = false;
-      unsigned iEcal = 99999;
-      double calibEcal = 0.;
-      double calibHcal = 0.;
-      double totalEcal = thisIsAMuon ? -muonECAL_[0] : 0.;
-      double totalHcal = 0.;
 
       if ( debug_ ) std::cout << "Loop over all associated ECAL clusters" << std::endl; 
       // Loop over all ECAL linked clusters ordered by increasing distance.
@@ -1111,18 +1138,16 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    (*pfCandidates_)[tmpj].addElementInBlock( blockref, kTrack[ic] ); 
 	} // End neutral energy
 
+	// Set elements in blocks and ECAL energies to all tracks
       	for (unsigned ic=0; ic<tmpi.size();++ic) { 
 	  
-	  double fraction = (*pfCandidates_)[tmpi[ic]].trackRef()->p()/trackMomentum;
-	  
-	  
-	  double ecalCal = trackMomentum*fraction;
-	  double ecalRaw = trackMomentum*fraction;
+	  // Skip muons
+	  if ( (*pfCandidates_)[tmpi[ic]].particleId() == reco::PFCandidate::mu ) continue; 
 
-	  if (!bNeutralProduced){
-	    ecalCal = calibEcal*fraction;
-	    ecalRaw = totalEcal*fraction;
-	  }
+	  double fraction = (*pfCandidates_)[tmpi[ic]].trackRef()->p()/trackMomentum;
+	  double ecalCal = bNeutralProduced ? 
+	    (calibEcal-neutralEnergy*slopeEcal)*fraction : calibEcal*fraction;
+	  double ecalRaw = totalEcal*fraction;
 
 	  if (debug_) cout << "The fraction after photon supression is " << fraction << " calibrated ecal = " << ecalCal << endl;
 
