@@ -152,7 +152,7 @@ void TtSemiLepKinFitter::setupFitter()
 }
 
 template <class LeptonType>
-int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton<LeptonType>& lepton, const pat::MET& neutrino, const double jetResolutionSmearFactor = 1.)
+int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton<LeptonType>& lepton, const pat::MET& neutrino, const double jetEnergyResolutionSmearFactor = 1.)
 {
   if( jets.size()<4 )
     throw edm::Exception( edm::errors::Configuration, "Cannot run the TtSemiLepKinFitter with less than 4 jets" );
@@ -172,16 +172,21 @@ int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton
   TLorentzVector p4Neutrino( neutrino.px(), neutrino.py(), 0, neutrino.et() );
 
   // initialize covariance matrices
-  // as covM contains resolution^2
-  // the correction of jet resolutions
-  // is just *jetResolutionSmearFactor^2
   CovarianceMatrix covM;
-  TMatrixD m1 = jetResolutionSmearFactor * jetResolutionSmearFactor * covM.setupMatrix(hadP, jetParam_);
-  TMatrixD m2 = jetResolutionSmearFactor * jetResolutionSmearFactor * covM.setupMatrix(hadQ, jetParam_);
-  TMatrixD m3 = jetResolutionSmearFactor * jetResolutionSmearFactor * covM.setupMatrix(hadB, jetParam_, "bjets");
-  TMatrixD m4 = jetResolutionSmearFactor * jetResolutionSmearFactor * covM.setupMatrix(lepB, jetParam_, "bjets");
-  TMatrixD m5 = covM.setupMatrix(lepton,   lepParam_);
+  TMatrixD m1 = covM.setupMatrix(hadP, jetParam_);
+  TMatrixD m2 = covM.setupMatrix(hadQ, jetParam_);
+  TMatrixD m3 = covM.setupMatrix(hadB, jetParam_, "bjets");
+  TMatrixD m4 = covM.setupMatrix(lepB, jetParam_, "bjets");
+  TMatrixD m5 = covM.setupMatrix(lepton  , lepParam_);
   TMatrixD m6 = covM.setupMatrix(neutrino, metParam_);
+
+  // as covM contains resolution^2
+  // the correction of jet energy resolutions
+  // is just *jetEnergyResolutionSmearFactor^2
+  m1(0,0)*=jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
+  m2(0,0)*=jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
+  m3(0,0)*=jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
+  m4(0,0)*=jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
 
   // set the kinematics of the objects to be fitted
   hadP_->setIni4Vec( &p4HadP );
@@ -225,7 +230,7 @@ int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton
   return fitter_->getStatus();
 }
 
-TtSemiEvtSolution TtSemiLepKinFitter::addKinFitInfo(TtSemiEvtSolution* asol, const double jetResolutionSmearFactor) 
+TtSemiEvtSolution TtSemiLepKinFitter::addKinFitInfo(TtSemiEvtSolution* asol, const double jetEnergyResolutionSmearFactor) 
 {
 
   TtSemiEvtSolution fitsol(*asol);
@@ -238,8 +243,8 @@ TtSemiEvtSolution TtSemiLepKinFitter::addKinFitInfo(TtSemiEvtSolution* asol, con
   jets[TtSemiLepEvtPartons::LepB     ] = fitsol.getCalLepb();
 
   // perform the fit, either using the electron or the muon
-  if(fitsol.getDecay() == "electron") fit( jets, fitsol.getCalLepe(), fitsol.getCalLepn(), jetResolutionSmearFactor);
-  if(fitsol.getDecay() == "muon"    ) fit( jets, fitsol.getCalLepm(), fitsol.getCalLepn(), jetResolutionSmearFactor);
+  if(fitsol.getDecay() == "electron") fit( jets, fitsol.getCalLepe(), fitsol.getCalLepn(), jetEnergyResolutionSmearFactor);
+  if(fitsol.getDecay() == "muon"    ) fit( jets, fitsol.getCalLepm(), fitsol.getCalLepn(), jetEnergyResolutionSmearFactor);
   
   // add fitted information to the solution
   if (fitter_->getStatus() == 0) {

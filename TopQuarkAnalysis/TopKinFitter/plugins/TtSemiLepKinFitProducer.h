@@ -65,7 +65,7 @@ class TtSemiLepKinFitProducer : public edm::EDProducer {
   double mW_;
   double mTop_;
   /// smear factor for jet resolutions
-  double jetResolutionSmearFactor_;
+  double jetEnergyResolutionSmearFactor_;
 
   TtSemiLepKinFitter* fitter;
 
@@ -90,23 +90,23 @@ TtSemiLepKinFitProducer<LeptonCollection>::TtSemiLepKinFitProducer(const edm::Pa
   leps_                    (cfg.getParameter<edm::InputTag>("leps")),
   mets_                    (cfg.getParameter<edm::InputTag>("mets")),
   match_                   (cfg.getParameter<edm::InputTag>("match")),
-  useOnlyMatch_            (cfg.getParameter<bool>         ("useOnlyMatch"            )),
-  bTagAlgo_                (cfg.getParameter<std::string>  ("bTagAlgo"                )),
-  minBTagValueBJet_        (cfg.getParameter<double>       ("minBDiscBJets"           )),
-  maxBTagValueNonBJet_     (cfg.getParameter<double>       ("maxBDiscLightJets"       )),
-  useBTag_                 (cfg.getParameter<bool>         ("useBTagging"             )),
-  maxNJets_                (cfg.getParameter<int>          ("maxNJets"                )),
-  maxNComb_                (cfg.getParameter<int>          ("maxNComb"                )),
-  maxNrIter_               (cfg.getParameter<unsigned>     ("maxNrIter"               )),
-  maxDeltaS_               (cfg.getParameter<double>       ("maxDeltaS"               )),
-  maxF_                    (cfg.getParameter<double>       ("maxF"                    )),
-  jetParam_                (cfg.getParameter<unsigned>     ("jetParametrisation"      )),
-  lepParam_                (cfg.getParameter<unsigned>     ("lepParametrisation"      )),
-  metParam_                (cfg.getParameter<unsigned>     ("metParametrisation"      )),
-  constraints_             (cfg.getParameter<std::vector<unsigned> >("constraints"    )),
-  mW_                      (cfg.getParameter<double>       ("mW"                      )),
-  mTop_                    (cfg.getParameter<double>       ("mTop"                    )),
-  jetResolutionSmearFactor_(cfg.getParameter<double>       ("jetResolutionSmearFactor"))
+  useOnlyMatch_            (cfg.getParameter<bool>         ("useOnlyMatch"        )),
+  bTagAlgo_                (cfg.getParameter<std::string>  ("bTagAlgo"            )),
+  minBTagValueBJet_        (cfg.getParameter<double>       ("minBDiscBJets"       )),
+  maxBTagValueNonBJet_     (cfg.getParameter<double>       ("maxBDiscLightJets"   )),
+  useBTag_                 (cfg.getParameter<bool>         ("useBTagging"         )),
+  maxNJets_                (cfg.getParameter<int>          ("maxNJets"            )),
+  maxNComb_                (cfg.getParameter<int>          ("maxNComb"            )),
+  maxNrIter_               (cfg.getParameter<unsigned>     ("maxNrIter"           )),
+  maxDeltaS_               (cfg.getParameter<double>       ("maxDeltaS"           )),
+  maxF_                    (cfg.getParameter<double>       ("maxF"                )),
+  jetParam_                (cfg.getParameter<unsigned>     ("jetParametrisation"  )),
+  lepParam_                (cfg.getParameter<unsigned>     ("lepParametrisation"  )),
+  metParam_                (cfg.getParameter<unsigned>     ("metParametrisation"  )),
+  constraints_             (cfg.getParameter<std::vector<unsigned> >("constraints")),
+  mW_                      (cfg.getParameter<double>       ("mW"                  )),
+  mTop_                    (cfg.getParameter<double>       ("mTop"                )),
+  jetEnergyResolutionSmearFactor_(cfg.getParameter<double> ("jetEnergyResolutionSmearFactor"))
 
 {
   fitter = new TtSemiLepKinFitter(param(jetParam_), param(lepParam_), param(metParam_), maxNrIter_, maxDeltaS_, maxF_,
@@ -268,7 +268,7 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
 	jetCombi[TtSemiLepEvtPartons::LepB     ] = (*jets)[combi[TtSemiLepEvtPartons::LepB     ]];
 
 	// do the kinematic fit
-	int status = fitter->fit(jetCombi, (*leps)[0], (*mets)[0], jetResolutionSmearFactor_);
+	int status = fitter->fit(jetCombi, (*leps)[0], (*mets)[0], jetEnergyResolutionSmearFactor_);
 
 	if( status == 0 ) { // only take into account converged fits
 	  KinFitResult result;
