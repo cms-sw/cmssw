@@ -203,6 +203,7 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
 	  //	  unsigned int detID = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
 	  if (verbosity > 0) {
 	    std::cout << " FP420ClusterMain:1 run loop   index no  iu = " << detID  << std::endl;
+	    std::cout << " FP420ClusterMain: det, zside, sector, zmodule = " << det  << zside  << sector  << zmodule  << std::endl;
 	  }	  
 	  // Y:
 	  if (xytype ==1) {
@@ -238,15 +239,16 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
 	  //digiRange = input.get(detID);
 	  // }
 	  
-	  if (verbosity > 0) {
-	    std::cout << " FP420ClusterMain: input->get DONE dcollector.size()=" << dcollector.size() << std::endl;
-	  }	  
-	  
 	  DigiCollectionFP420::ContainerIterator sort_begin = digiRange.first;
 	  DigiCollectionFP420::ContainerIterator sort_end = digiRange.second;
 	  for ( ;sort_begin != sort_end; ++sort_begin ) {
 	    dcollector.push_back(*sort_begin);
 	  } // for
+
+	  if (verbosity > 0) {
+	    std::cout << " FP420ClusterMain: input->get DONE dcollector.size()=" << dcollector.size() << std::endl;
+	  }	  
+
 	  if (dcollector.size()>0) {
 	    
 	    DigiCollectionFP420::ContainerIterator digiRangeIteratorBegin = digiRange.first;
@@ -338,7 +340,7 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
 		    //   if (dcollector.size()>0){
 		    collector = threeThresholdHPS240_->clusterizeDetUnitPixels(digiRangeIteratorBegin,digiRangeIteratorEnd,detID,vnoise,xytype,verbosity);
 		    //   }
-		    if (verbosity > 0) {std::cout << " HPS240ClusterMain:6 threeThreshold OK " << std::endl;}	  
+		    if (verbosity > 0) {std::cout << " HPS240ClusterMain:6 threeThreshold OK, cluster collector size= " << collector.size()  << std::endl;}	  
 
 		  } else {
 		    //Case of Noise and BadElectrode flags access from DB
@@ -531,7 +533,7 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
       }   // for
       
       //     end of check of access to the strip collection
-      std::cout <<"=======            HPS240ClusterMain:                    end of check     " << std::endl;
+      std::cout <<"=======            FP420ClusterMain:                    end of check     " << std::endl;
           
   }// if (verbosit
   
