@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.96 2011/03/29 11:20:18 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.97 2011/04/06 14:48:45 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -726,7 +726,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     const int hltIndex = fTriggerObj->filterIndex(filterTag);
     if ( hltIndex >= fTriggerObj->sizeFilters() ) {
 
-      LogTrace("FourVectorHLTOffline") << "WTF no index "<< index << " of that name " << filterTag << endl;
+      LogTrace("FourVectorHLTOffline") << "WTF no index "<< hltIndex << " of that name " << filterTag << endl;
       continue; // not in this event
 
     }
