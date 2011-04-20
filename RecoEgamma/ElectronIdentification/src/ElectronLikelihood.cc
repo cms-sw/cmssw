@@ -1,6 +1,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+
 #include "RecoEgamma/ElectronIdentification/interface/ElectronLikelihood.h"
 #include <iostream>
 
@@ -329,11 +331,14 @@ ElectronLikelihood::getInputVar (const reco::GsfElectron &electron,
   if (m_eleIDSwitches.m_useDeltaEta) measurements.push_back ( electron.deltaEtaSuperClusterTrackAtVtx () ) ;
   if (m_eleIDSwitches.m_useEoverP) measurements.push_back ( electron.eSuperClusterOverP () ) ;
   if (m_eleIDSwitches.m_useHoverE) measurements.push_back ( electron.hadronicOverEm () ) ;
-  std::vector<float> vCov = myEcalCluster.covariances(*(electron.superCluster()->seed())) ;
+  std::vector<float> vCov = myEcalCluster.localCovariances(*(electron.superCluster()->seed())) ;
   if (m_eleIDSwitches.m_useSigmaEtaEta) measurements.push_back ( sqrt (vCov[0]) );
   if (m_eleIDSwitches.m_useSigmaPhiPhi) measurements.push_back ( sqrt (vCov[2]) );
   if(m_eleIDSwitches.m_useFBrem) measurements.push_back( electron.fbrem() );
-  if(m_eleIDSwitches.m_useOneOverEMinusOneOverP) measurements.push_back( 1.0/(electron.eSuperClusterOverP() * electron.p()) - 1.0/electron.p() );
+  // 1/E - 1/P calculated consistently with the variables used to make the PDFs
+  reco::GsfTrackRef trkRef = electron.get<reco::GsfTrackRef>();
+  float OneOverEMinusOneOverP = 1.0/(electron.eSuperClusterOverP() * trkRef->p()) - 1.0/trkRef->p();
+  if(m_eleIDSwitches.m_useOneOverEMinusOneOverP) measurements.push_back( OneOverEMinusOneOverP );
 
 }
 
