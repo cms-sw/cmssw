@@ -41,5 +41,7 @@ PFTauQualityCuts = cms.PSet(
     ),
     # The central definition of primary vertex source.
     primaryVertexSrc = cms.InputTag("offlinePrimaryVerticesDA"),
-    useClosestPV = cms.bool(False),
+    # Possible algorithms are: highestPtInEvent, closestInDeltaZ,
+    # highestWeightForLeadTrack
+    pvFindingAlgo = cms.string("closestInDeltaZ"),
 )

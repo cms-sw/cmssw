@@ -1,5 +1,8 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
 
+#include <functional>
+#include <boost/foreach.hpp>
+
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -11,61 +14,85 @@
 namespace reco { namespace tau {
 
 namespace {
-// Find the vertex in [vertices] that is closest in Z to the lead track of the
-// jet.
-reco::VertexRef closestVertex(
-    const edm::Handle<reco::VertexCollection>& vertices,
-    const reco::PFJet& jet) {
-  // Take the first one if exists
-  reco::VertexRef selectedVertex = vertices->size() ?
-    reco::VertexRef(vertices, 0) : reco::VertexRef();
-  double minDZ = std::numeric_limits<double>::infinity();
-  // Find the lead charged object in the jet (true mean sort)
+
+// Get the highest pt track in a jet.
+// Get the KF track if it exists.  Otherwise, see if it has a GSF track.
+const reco::TrackBaseRef getLeadTrack(const PFJet& jet) {
   std::vector<PFCandidatePtr> tracks = pfChargedCands(jet, true);
   if (!tracks.size())
-    return selectedVertex;
-  const reco::Track* leadTrack = NULL;
-
-  if (tracks[0]->trackRef().isNonnull()) {
-    leadTrack = tracks[0]->trackRef().get();
-  } else if (tracks[0]->gsfTrackRef().isNonnull()) {
-    const reco::GsfTrack* gsfTrack = tracks[0]->gsfTrackRef().get();
-    leadTrack = static_cast<const reco::Track*>(gsfTrack);
+    return reco::TrackBaseRef();
+  PFCandidatePtr cand = tracks[0];
+  if (cand->trackRef().isNonnull())
+    return reco::TrackBaseRef(cand->trackRef());
+  else if (cand->gsfTrackRef().isNonnull()) {
+    return reco::TrackBaseRef(cand->gsfTrackRef());
   }
-  // Try to get the gsfTrack if possible
-  if (!leadTrack) {
-    edm::LogError("NullTrackRefInLeadPFCharged")
-      << "The leading *charged* PF cand in the jet has an invalid TrackRef!"
-      << " LeadPFCand: " << *tracks[0];
-    return selectedVertex;
-  }
-  // Loop over all the vertices and check if they are closer in z to the
-  // current track.
-  for (unsigned int ivtx = 0; ivtx < vertices->size(); ivtx++) {
-    reco::VertexRef pvCand(vertices, ivtx);
-    double dz = std::abs(leadTrack->dz(pvCand->position()));
-    if (dz < minDZ) {
-      minDZ = dz;
-      selectedVertex = pvCand;
-    }
-  }
-  return selectedVertex;
+  return reco::TrackBaseRef();
 }
+
+// Define functors which extract the relevant information from a collection of
+// vertices.
+class DZtoTrack : public std::unary_function<double, reco::VertexRef> {
+  public:
+    DZtoTrack(const reco::TrackBaseRef& trk):trk_(trk){}
+    double operator()(const reco::VertexRef& vtx) const {
+      if (!trk_ || !vtx) {
+        return std::numeric_limits<double>::infinity();
+      }
+      return std::abs(trk_->dz(vtx->position()));
+    }
+  private:
+    const reco::TrackBaseRef trk_;
+};
+
+class TrackWeightInVertex : public std::unary_function<double, reco::VertexRef>
+{
+  public:
+    TrackWeightInVertex(const reco::TrackBaseRef& trk):trk_(trk){}
+    double operator()(const reco::VertexRef& vtx) const {
+      if (!trk_ || !vtx) {
+        return 0.0;
+      }
+      return vtx->trackWeight(trk_);
+    }
+  private:
+    const reco::TrackBaseRef trk_;
+};
+
 }
 
 RecoTauVertexAssociator::RecoTauVertexAssociator(
     const edm::ParameterSet& pset) {
-  if (!pset.exists("primaryVertexSrc") || !pset.exists("useClosestPV")) {
-    edm::LogError("VertexAssociatorMisconfigured")
-      << "The RecoTauVertexAssociator was not passed one of the"
-      << " required arguments" << std::endl;
-  }
   vertexTag_ = pset.getParameter<edm::InputTag>("primaryVertexSrc");
-  useClosest_ = pset.getParameter<bool>("useClosestPV");
+  std::string algorithm = pset.getParameter<std::string>("pvFindingAlgo");
+  if (algorithm == "highestPtInEvent") {
+    algo_ = kHighestPtInEvent;
+  } else if (algorithm == "closestInDeltaZ") {
+    algo_ = kClosestDeltaZ;
+  } else if (algorithm == "highestWeightForLeadTrack") {
+    algo_ = kHighestWeigtForLeadTrack;
+  } else {
+    throw cms::Exception("BadVertexAssociatorConfig")
+      << "The algorithm specified for tau-vertex association "
+      << algorithm << " is invalid. Options are: "  << std::endl
+      <<  "highestPtInEvent,"
+      <<  "closestInDeltaZ,"
+      <<  "or highestWeightForLeadTrack." << std::endl;
+  }
 }
 
 void RecoTauVertexAssociator::setEvent(const edm::Event& evt) {
-  evt.getByLabel(vertexTag_, vertices_);
+  edm::Handle<reco::VertexCollection> verticesH_;
+  evt.getByLabel(vertexTag_, verticesH_);
+  vertices_.clear();
+  vertices_.reserve(verticesH_->size());
+  for(size_t i = 0; i < verticesH_->size(); ++i) {
+    vertices_.push_back(reco::VertexRef(verticesH_, i));
+  }
+  if (!vertices_.size()) {
+    edm::LogError("NoPV") << "There is no primary vertex in the event!!!"
+      << std::endl;
+  }
 }
 
 reco::VertexRef
@@ -75,15 +102,41 @@ RecoTauVertexAssociator::associatedVertex(const PFTau& tau) const {
 
 reco::VertexRef
 RecoTauVertexAssociator::associatedVertex(const PFJet& jet) const {
-  if (useClosest_) {
-    return closestVertex(vertices_, jet);
-  } else {
-    // Just take the first vertex
-    if (vertices_->size()) {
-      return reco::VertexRef(vertices_, 0);
+  if (algo_ == kHighestPtInEvent) {
+    if (vertices_.size())
+      return vertices_[0];
+    else
+      return reco::VertexRef();
+  } else if (algo_ == kClosestDeltaZ) {
+    double closestDistance = std::numeric_limits<double>::infinity();
+    reco::VertexRef closestVertex;
+    DZtoTrack dzComputer(getLeadTrack(jet));
+    // Find the vertex that has the lowest DZ to the lead track
+    BOOST_FOREACH(const reco::VertexRef& vtx, vertices_) {
+      double dz = dzComputer(vtx);
+      if (dz < closestDistance) {
+        closestDistance = dz;
+        closestVertex = vtx;
+      }
     }
+    return closestVertex;
+  } else if (algo_ == kHighestWeigtForLeadTrack) {
+    double largestWeight = 0.;
+    reco::VertexRef heaviestVertex;
+    // Find the vertex that gives the lead track the highest weight.
+    TrackWeightInVertex weightComputer(getLeadTrack(jet));
+    // Find the vertex that has the lowest DZ to the lead track
+    BOOST_FOREACH(const reco::VertexRef& vtx, vertices_) {
+      double weight = weightComputer(vtx);
+      if (weight > largestWeight) {
+        largestWeight = weight;
+        heaviestVertex = vtx;
+      }
+    }
+    return heaviestVertex;
   }
-  return reco::VertexRef();
+  throw cms::Exception("BadVertexAssociatorConfig")
+    << "No suitable vertex association algo was found." << std::endl;
 }
 
 }}
