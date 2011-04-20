@@ -4,6 +4,10 @@ from Validation.RecoTau.ValidateTausOnZTT_cff import *
 import copy
 import Validation.RecoTau.ValidationUtils as Utils
 
+#------------------------------------------------------------
+#                     Producing Num e Denom
+#------------------------------------------------------------
+
 def PrintSeq(seq, tau=False):
     scanner = Utils.Scanner()
     seq.visit(scanner)
@@ -14,7 +18,7 @@ def PrintSeq(seq, tau=False):
 
 def SetSignalPars(module):
     module.ExtensionName = (module.ExtensionName.value()+"_Signal")
-    RefCollection = "zttKinemSelection"
+    module.RefCollection = "zttKinemSelection"
 
 def SetFakePars(module):
     module.ExtensionName = (module.ExtensionName.value()+"_Fakes")
@@ -23,9 +27,8 @@ def SetFakePars(module):
 pfTauRunDQMValidation = cms.Sequence()
 
 tauGenJets = copy.deepcopy(tauGenJets)
-zttDenominator = copy.deepcopy(objectTypeSelectedTauValDenominator)
-zttKinemSelection= copy.deepcopy(kinematicSelectedTauValDenominator)
-zttKinemSelection.src = cms.InputTag("zttDenominator")
+zttDenominator = objectTypeSelectedTauValDenominator.clone()
+zttKinemSelection= kinematicSelectedTauValDenominator.clone(src = cms.InputTag("zttDenominator"))
 
 zttModifier = ApplyFunctionToSequence(SetSignalPars)
 TauValNumeratorAndDenominator.visit(zttModifier)        
@@ -34,9 +37,8 @@ pfTauRunDQMValidation += TauValNumeratorAndDenominator
 from Validation.RecoTau.ValidateTausOnQCD_cff import *
 
 genParticlesForJetsQCD= genParticlesForJets.clone()
-qcdDenominator = copy.deepcopy(objectTypeSelectedTauValDenominator)
-qcdKinemSelection= copy.deepcopy(kinematicSelectedTauValDenominator)
-qcdKinemSelection.src = cms.InputTag("qcdDenominator")
+qcdDenominator = objectTypeSelectedTauValDenominator.clone()
+qcdKinemSelection= kinematicSelectedTauValDenominator.clone(src = cms.InputTag("qcdDenominator"))
 
 qcdModifier = ApplyFunctionToSequence(SetFakePars)
 TauValNumeratorAndDenominator2.visit(qcdModifier)        
@@ -50,6 +52,11 @@ produceDenoms = cms.Sequence(
     *qcdDenominator
     *qcdKinemSelection
     )
+
+#-------------------------------------------------------------------------------------------------------
+#                     Producing Efficiencies (postValidation)
+#-------------------------------------------------------------------------------------------------------
+
 
 plotPsetSignal = Utils.SetPlotSequence(TauValNumeratorAndDenominator)
 plotPsetFake = Utils.SetPlotSequence(TauValNumeratorAndDenominator2)
@@ -90,7 +97,7 @@ def SetFakePlotSet(module):
             for monitorEl in subset.plots.dqmMonitorElements:
                 correcectME = monitorEl[13:]
                 lastUnderscore = correcectME.rfind('_',0,correcectME.rfind('/'))
-                correcectME = correcectME[:lastUnderscore]+'_Signal'+correcectME[lastUnderscore:]
+                correcectME = correcectME[:lastUnderscore]+'_Fakes'+correcectME[lastUnderscore:]
                 mEs.append(correcectME)
             subset.plots.dqmMonitorElements = cms.vstring(mEs)
 

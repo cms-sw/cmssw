@@ -565,7 +565,8 @@ void DQMHistPlotter::cfgEntryDrawJob::print() const
 
 DQMHistPlotter::DQMHistPlotter(const edm::ParameterSet& cfg)
 {
-  std::cout << "<DQMHistPlotter::DQMHistPlotter>:" << std::endl;
+  if( verbosity)
+    std::cout << "<DQMHistPlotter::DQMHistPlotter>:" << std::endl;
 
   toFile_ = cfg.getParameter<bool>("PrintToFile");
   cfgError_ = 0;
@@ -875,7 +876,8 @@ DQMHistPlotter::DQMHistPlotter(const edm::ParameterSet& cfg)
     cfgError_ = 1;
   }
 
-  std::cout << "done." << std::endl;
+  if( verbosity )
+    std::cout << "done." << std::endl;
 }
 
 DQMHistPlotter::~DQMHistPlotter() 
@@ -890,7 +892,8 @@ void DQMHistPlotter::analyze(const edm::Event&, const edm::EventSetup&)
 
 void DQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
 {
-  std::cout << "<DQMHistPlotter::endJob>:" << std::endl;
+  if( verbosity )
+    std::cout << "<DQMHistPlotter::endJob>:" << std::endl;
 
 //--- check that configuration parameters contain no errors
   if ( cfgError_ ) {
@@ -936,7 +939,8 @@ void DQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
   for ( std::list<cfgEntryDrawJob>::const_iterator drawJob = drawJobs_.begin(); 
 	drawJob != drawJobs_.end(); ++drawJob ) {
     const std::string& drawJobName = drawJob->name_;
-    std::cout << "--> processing drawJob " << drawJobName << "..." << std::endl;
+    if( verbosity )
+      std::cout << "--> processing drawJob " << drawJobName << "..." << std::endl;
 
 //--- prepare internally used histogram data-structures
     TH1* stackedHistogram_sum = NULL;
@@ -950,11 +954,13 @@ void DQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
 	  plot != drawJob->plots_.end(); ++plot ) {
 
       std::string dqmMonitorElementName_full = dqmDirectoryName(std::string(dqmRootDirectory)).append(plot->dqmMonitorElement_);
-      std::cout << " dqmMonitorElementName_full = " << dqmMonitorElementName_full << std::endl;
+      if( verbosity )
+	std::cout << " dqmMonitorElementName_full = " << dqmMonitorElementName_full << std::endl;
       MonitorElement* dqmMonitorElement = dqmStore.get(dqmMonitorElementName_full);
 
       TH1* histogram = dqmMonitorElement->getTH1F();
-      std::cout<<"Got Histogram "<<std::endl;
+      if(verbosity)
+	std::cout<<"Got Histogram "<<std::endl;
       //      TH1* histogram = ( dqmMonitorElement ) ? dynamic_cast<TH1*>(dqmMonitorElement->getTH1()->Clone()) : NULL;
       //histogramsToDelete.push_back(histogram);
 
@@ -1159,10 +1165,10 @@ void DQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
     canvas.Update();
     //pad.Update();
 
-    if ( indOutputFileName_ != "" ) {
+    if ( indOutputFileName_ != "" && toFile_) {
       int errorFlag = 0;
       std::string modIndOutputFileName = replace_string(indOutputFileName_, plotKeyword, drawJobName, 1, 1, errorFlag);
-      if ( !errorFlag && toFile_ ) {
+      if ( !errorFlag ) {
 	std::string fullFileName = ( outputFilePath_ != "" ) ? 
 	  std::string(outputFilePath_).append("/").append(modIndOutputFileName) : modIndOutputFileName;
 	canvas.Print(fullFileName.data());
@@ -1187,7 +1193,8 @@ void DQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
 
 //--- close postscript file
   canvas.Clear();
-  std::cout << "done." << std::endl;
+  if(verbosity)
+    std::cout << "done." << std::endl;
   if ( ps ) ps->Close();
   delete ps;
 }

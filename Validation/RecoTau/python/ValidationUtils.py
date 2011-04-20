@@ -47,7 +47,7 @@ def NameVariable(analyzer, discriminatorLabel=None):
         elif analyzer.ExtensionName.pythonValue()[1:-1] == "":
             first='PFTauHighEfficiency'
         else:
-            print 'Case not found check the available cases in Validation/RecoTau/python/ValidationUtils.py -- NameVariable'
+            #print 'Case not found check the available cases in Validation/RecoTau/python/ValidationUtils.py -- NameVariable'
             first=analyzer.TauProducer.pythonValue()[1:-1]+analyzer.ExtensionName.pythonValue()[1:-1]
     elif analyzer.TauProducer.pythonValue()[1:-1] == 'hpsPFTauProducer':
         first='HPS'
@@ -56,7 +56,7 @@ def NameVariable(analyzer, discriminatorLabel=None):
     elif analyzer.TauProducer.pythonValue()[1:-1] == 'caloRecoTauProducer':
         first='CaloTau'
     else:
-        print 'Case not found check the available cases in Validation/RecoTau/python/ValidationUtils.py -- NameVariable'
+        #print 'Case not found check the available cases in Validation/RecoTau/python/ValidationUtils.py -- NameVariable'
         first=analyzer.TauProducer.pythonValue()[1:-1]+analyzer.ExtensionName.pythonValue()[1:-1]
     
     if discriminatorLabel == None:
