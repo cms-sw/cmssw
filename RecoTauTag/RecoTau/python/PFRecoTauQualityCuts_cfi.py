@@ -7,8 +7,8 @@ PFTauQualityCuts = cms.PSet(
     signalQualityCuts = cms.PSet(
         minTrackPt                   = cms.double(0.5),  # filter PFChargedHadrons below given pt
         maxTrackChi2                 = cms.double(100.), # require track Chi2
-        maxTransverseImpactParameter = cms.double(1000), # w.r.t. PV
-        maxDeltaZ                    = cms.double(1000),  # w.r.t. PV
+        maxTransverseImpactParameter = cms.double(0.03), # w.r.t. PV
+        maxDeltaZ                    = cms.double(0.2),  # w.r.t. PV
         minTrackVertexWeight         = cms.double(10e-4), # Tracks weight in vertex
         minTrackPixelHits            = cms.uint32(0),    # pixel-only hits (note that these cuts are turned off,
         # the tracking cuts might be higher)
@@ -19,8 +19,8 @@ PFTauQualityCuts = cms.PSet(
     isolationQualityCuts = cms.PSet(
         minTrackPt                   = cms.double(1.0),
         maxTrackChi2                 = cms.double(100.),
-        maxTransverseImpactParameter = cms.double(1000),
-        maxDeltaZ                    = cms.double(1000),
+        maxTransverseImpactParameter = cms.double(0.03),
+        maxDeltaZ                    = cms.double(0.2),
         minTrackVertexWeight         = cms.double(10e-4), # Tracks weight in vertex
         minTrackPixelHits            = cms.uint32(0),
         minTrackHits                 = cms.uint32(8),
@@ -30,11 +30,11 @@ PFTauQualityCuts = cms.PSet(
     pileupQualityCuts = cms.PSet(
         minTrackPt                   = cms.double(1.5),
         maxTrackChi2                 = cms.double(100.),
-        maxTransverseImpactParameter = cms.double(1000),
-        maxDeltaZ                    = cms.double(1000),
-        # NB that this cut is inverted w.r.t. signal and isolation cuts!
-        # maxTrack instead of minTrack
+        maxTransverseImpactParameter = cms.double(0.03),
+        # NB that these cuts are inverted w.r.t. signal and isolation cuts!
+        # maxTrack instead of minTrack, minDZ instead of maxDZ
         maxTrackVertexWeight         = cms.double(10e-4),
+        minDeltaZ                    = cms.double(0.2),
         minTrackPixelHits            = cms.uint32(0),
         minTrackHits                 = cms.uint32(3),
         minGammaEt                   = cms.double(1.5),

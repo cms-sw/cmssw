@@ -163,7 +163,7 @@ RecoTauQualityCuts::RecoTauQualityCuts(const edm::ParameterSet &qcuts) {
   if (qcuts.exists("minDeltaZ"))
     chargedHadronCuts.push_back(!boost::bind(
             qcuts::trkLongitudinalImpactParameter, _1, &pv_,
-            qcuts.getParameter<double>("maxDeltaZ")));
+            qcuts.getParameter<double>("minDeltaZ")));
 
   // Require tracks to contribute a minimum weight to the associated vertex.
   if (qcuts.exists("minTrackVertexWeight")) {
