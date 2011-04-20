@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V16 (CMSSW_3_11_0_HLT20)
+# /dev/CMSSW_4_2_0/HIon/V17 (CMSSW_3_11_0_HLT20)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V16')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V17')
 )
 
 process.streams = cms.PSet( 
@@ -1632,25 +1632,27 @@ process.MessageLogger = cms.Service( "MessageLogger",
         reportEvery = cms.untracked.int32( 1 ),
         limit = cms.untracked.int32( 10000000 )
       ),
-      threshold = cms.untracked.string( "INFO" )
+      threshold = cms.untracked.string( "INFO" ),
     ),
-    cout = cms.untracked.PSet(  threshold = cms.untracked.string( "ERROR" ) ),
+    cout = cms.untracked.PSet( 
+      threshold = cms.untracked.string( "ERROR" ),
+    ),
     errors = cms.untracked.PSet( 
       threshold = cms.untracked.string( "INFO" ),
-      placeholder = cms.untracked.bool( True )
+      placeholder = cms.untracked.bool( True ),
     ),
     warnings = cms.untracked.PSet( 
       threshold = cms.untracked.string( "INFO" ),
-      placeholder = cms.untracked.bool( True )
+      placeholder = cms.untracked.bool( True ),
     ),
     infos = cms.untracked.PSet( 
       threshold = cms.untracked.string( "INFO" ),
       Root_NoDictionary = cms.untracked.PSet(  limit = cms.untracked.int32( 0 ) ),
-      placeholder = cms.untracked.bool( True )
+      placeholder = cms.untracked.bool( True ),
     ),
     debugs = cms.untracked.PSet( 
       threshold = cms.untracked.string( "INFO" ),
-      placeholder = cms.untracked.bool( True )
+      placeholder = cms.untracked.bool( True ),
     ),
     fwkJobReports = cms.untracked.vstring( 'FrameworkJobReport' ),
     FrameworkJobReport = cms.untracked.PSet( 
@@ -1658,27 +1660,31 @@ process.MessageLogger = cms.Service( "MessageLogger",
       FwkJob = cms.untracked.PSet(  limit = cms.untracked.int32( 10000000 ) )
     ),
     suppressWarning = cms.untracked.vstring( 'hltOnlineBeamSpot',
-      'hltPixelTracksForMinBias',
+      'hltL3MuonsOIState',
+      'hltSiPixelDigis',
+      'hltL3MuonsOIHit',
       'hltPixelTracksForHighMult',
       'hltHITPixelTracksHE',
       'hltHITPixelTracksHB',
+      'hltLightPFTracksForTaus',
       'hltSiPixelClusters',
+      'hltL3MuonsIOHit',
       'hltPixelTracks' ),
-    threshold = cms.untracked.string( "INFO" )
+    threshold = cms.untracked.string( "INFO" ),
 )
 process.MicroStateService = cms.Service( "MicroStateService",
 )
 process.ModuleWebRegistry = cms.Service( "ModuleWebRegistry",
 )
 process.PrescaleService = cms.Service( "PrescaleService",
-    lvl1DefaultLabel = cms.untracked.string( "1000E30" ),
-    lvl1Labels = cms.vstring( '1000E30',
-      '700E30',
-      '500E30',
-      '300E30',
-      '200E30',
-      '140E30',
-      '100E30',
+    lvl1DefaultLabel = cms.untracked.string( "1e33" ),
+    lvl1Labels = cms.vstring( '1e33',
+      '7e32',
+      '5e32',
+      '3e32',
+      '2e32',
+      '1.4e32',
+      '1e32',
       'Cosmics' ),
     prescaleTable = cms.VPSet( 
       cms.PSet(  pathName = cms.string( "HLT_HIZeroBias" ),
@@ -4407,10 +4413,7 @@ process.hltPreExpressOutput = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltPreExpressOutputSmart = cms.EDFilter( "TriggerResultsFilter",
-    triggerConditions = cms.vstring( 'HLT_HIMinBiasHfOrBSC',
-      'HLT_HIL2DoubleMu3',
-      'HLT_HIPhoton30_Cleaned_Core',
-      'HLT_HIJet75U' ),
+    triggerConditions = cms.vstring(  ),
     hltResults = cms.InputTag( "TriggerResults" ),
     l1tResults = cms.InputTag( "hltGtDigis" ),
     l1tIgnoreMask = cms.bool( False ),
@@ -4666,6 +4669,7 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltAlCaPi0RecHitsFilter_*_*',
       'keep *_hltAntiKT5CaloJets_*_*',
       'keep *_hltAntiKT5L2L3CorrCaloJets_*_*',
+      'keep *_hltAntiKT5PFJetsForTaus_*_*',
       'keep *_hltAntiKT5PFJets_*_*',
       'keep *_hltBSoftMuonDiJet110Mu5L3FilterByDR_*_*',
       'keep *_hltBSoftMuonDiJet110Mu5SelL3BJetTagsByDR_*_*',
@@ -4698,6 +4702,8 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltFilterL2EtCutSingleIsoPFTau35Trk20MET45_*_*',
       'keep *_hltFilterSingleIsoPFTau35Trk20LeadTrackPt20_*_*',
       'keep *_hltFilterSingleIsoPFTau35Trk20MET45LeadTrack20MET45IsolationL1HLTMatched_*_*',
+      'keep *_hltHITIPTCorrectorHB_*_*',
+      'keep *_hltHITIPTCorrectorHE_*_*',
       'keep *_hltIsolPixelTrackProdHB_*_*',
       'keep *_hltIsolPixelTrackProdHE_*_*',
       'keep *_hltL1HLTDoubleIsoPFTau20Trk5JetsMatch_*_*',
@@ -4749,6 +4755,7 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltPFTauJetTracksAssociator_*_*',
       'keep *_hltPFTauTagInfo_*_*',
       'keep *_hltPFTauTightIso35Track_*_*',
+      'keep *_hltParticleFlowForTaus_*_*',
       'keep *_hltParticleFlow_*_*',
       'keep *_hltPixelMatchElectronsL1Iso_*_*',
       'keep *_hltPixelMatchElectronsL1NonIso_*_*',
@@ -4847,6 +4854,7 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep *_hltAlCaPi0RecHitsFilter_*_*',
       'keep *_hltAntiKT5CaloJets_*_*',
       'keep *_hltAntiKT5L2L3CorrCaloJets_*_*',
+      'keep *_hltAntiKT5PFJetsForTaus_*_*',
       'keep *_hltAntiKT5PFJets_*_*',
       'keep *_hltBSoftMuonDiJet110Mu5L3FilterByDR_*_*',
       'keep *_hltBSoftMuonDiJet110Mu5SelL3BJetTagsByDR_*_*',
@@ -4885,8 +4893,10 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep *_hltL1sL1SingleEG12_*_*',
       'keep *_hltL1sL1SingleMu10_*_*',
       'keep *_hltL1sSingleIsoTau35Trk20MET45_*_*',
+      'keep *_hltL2MuonCandidatesNoVtx_*_*',
       'keep *_hltL2Muons_*_*',
       'keep *_hltL2TauJets_*_*',
+      'keep *_hltL3MuonCandidatesNoVtx_*_*',
       'keep *_hltL3Muons_*_*',
       'keep *_hltL3TkTracksFromL2_*_*',
       'keep *_hltMet_*_*',
@@ -4903,6 +4913,7 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep *_hltPFTauJetTracksAssociator_*_*',
       'keep *_hltPFTauTagInfo_*_*',
       'keep *_hltPFTauTightIso35Track_*_*',
+      'keep *_hltParticleFlowForTaus_*_*',
       'keep *_hltParticleFlow_*_*',
       'keep *_hltPixelMatchElectronsL1Iso_*_*',
       'keep *_hltPixelMatchElectronsL1NonIso_*_*',
