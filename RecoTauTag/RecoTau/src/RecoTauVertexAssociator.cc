@@ -102,27 +102,22 @@ RecoTauVertexAssociator::associatedVertex(const PFTau& tau) const {
 
 reco::VertexRef
 RecoTauVertexAssociator::associatedVertex(const PFJet& jet) const {
+  reco::VertexRef output = vertices_.size() ? vertices_[0] : reco::VertexRef();
   if (algo_ == kHighestPtInEvent) {
-    if (vertices_.size())
-      return vertices_[0];
-    else
-      return reco::VertexRef();
+    return output;
   } else if (algo_ == kClosestDeltaZ) {
     double closestDistance = std::numeric_limits<double>::infinity();
-    reco::VertexRef closestVertex;
     DZtoTrack dzComputer(getLeadTrack(jet));
     // Find the vertex that has the lowest DZ to the lead track
     BOOST_FOREACH(const reco::VertexRef& vtx, vertices_) {
       double dz = dzComputer(vtx);
       if (dz < closestDistance) {
         closestDistance = dz;
-        closestVertex = vtx;
+        output = vtx;
       }
     }
-    return closestVertex;
   } else if (algo_ == kHighestWeigtForLeadTrack) {
     double largestWeight = 0.;
-    reco::VertexRef heaviestVertex;
     // Find the vertex that gives the lead track the highest weight.
     TrackWeightInVertex weightComputer(getLeadTrack(jet));
     // Find the vertex that has the lowest DZ to the lead track
@@ -130,13 +125,11 @@ RecoTauVertexAssociator::associatedVertex(const PFJet& jet) const {
       double weight = weightComputer(vtx);
       if (weight > largestWeight) {
         largestWeight = weight;
-        heaviestVertex = vtx;
+        output = vtx;
       }
     }
-    return heaviestVertex;
   }
-  throw cms::Exception("BadVertexAssociatorConfig")
-    << "No suitable vertex association algo was found." << std::endl;
+  return output;
 }
 
 }}
