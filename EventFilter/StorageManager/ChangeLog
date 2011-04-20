@@ -21,6 +21,15 @@
 	  into trunk.
 	* This tag requires IOPool/Streamer V07-01-00 or later.
 
+2011-04-20 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-04-00
+	* Discard DQM updates older than 16 LS. This number is configurable with
+	  'discardDQMUpdatesForOlderLS'. Setting it to 0 will disable the feature.
+	* Don't raise unwantedEvents alarm on first occurrence.
+	* Fix reporting of number of copy/inject workers in case that this number
+	  has not been determined.
+
 2011-04-18 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V07-03-06
