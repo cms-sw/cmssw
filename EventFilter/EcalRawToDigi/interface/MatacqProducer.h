@@ -20,7 +20,7 @@
 #include "EventFilter/EcalRawToDigi/interface/MatacqRawEvent.h"
 #include "EventFilter/EcalRawToDigi/src/MatacqDataFormatter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#incldue "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <string>
 #include <inttypes.h>
