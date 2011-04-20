@@ -8,7 +8,7 @@ hpsSelectionDiscriminator = cms.EDProducer(
     Prediscriminants = noPrediscriminants,
     matchingCone = cms.double(0.1),
     minTauPt = cms.double(0.0),
-    coneSizeFormula = cms.string("max(min(0.5, 2.8/pt()),0.05)"),
+    coneSizeFormula = cms.string("max(min(0.1, 2.8/pt()),0.05)"),
     decayModes = cms.VPSet(
         cms.PSet(
             nCharged = cms.uint32(1),
