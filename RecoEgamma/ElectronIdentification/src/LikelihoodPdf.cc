@@ -99,19 +99,33 @@ LikelihoodPdf::getVal(float x, std::string gsfClass,
   float prob=-1;
 
   if(normalized)
-    prob=thePdf->value(x)/thePdf->normalization();
+    // using thePdf->normalization() neglects the overflows... calculating it manually.
+    // prob=thePdf->value(x)/thePdf->normalization();
+    prob=thePdf->value(x)/normalization(thePdf);
   else
     prob=thePdf->value(x);
 
   edm::LogInfo("LikelihoodPdf") << "sanity check: PDF name = " << _name
-				<< " for species = " << _species
-				<< " for class = " << gsfClass 
-				<< " bin content = " << thePdf->binContent(thePdf->findBin(x))
-				<< " normalization = " << thePdf->normalization()
-				<< " prob = " << prob;
+                                << " for species = " << _species
+                                << " for class = " << gsfClass 
+                                << " bin content = " << thePdf->binContent(thePdf->findBin(x))
+                                << " normalization (std) = " << thePdf->normalization()
+                                << " normalization (manual) = " << normalization(thePdf)
+                                << " prob = " << prob;
   edm::LogInfo("LikelihoodPdf") << "From likelihood with ecalsubdet = " << _ecalsubdet
-				<< " ptbin = " << _ptbin;
+                                << " ptbin = " << _ptbin;
  
 
   return prob;
+}
+
+// Histogram::normalization() gives the integral excluding the over-underflow...
+float
+LikelihoodPdf::normalization(const PhysicsTools::Calibration::HistogramF *thePdf) {
+  int nBins = thePdf->numberOfBins();
+  float sum=0.;
+  for(int i=0; i<=nBins+1; i++) {
+    sum += thePdf->binContent(i);
+  }
+  return sum;
 }
