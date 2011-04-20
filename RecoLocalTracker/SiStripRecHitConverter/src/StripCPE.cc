@@ -13,7 +13,7 @@ StripCPE::StripCPE( edm::ParameterSet & conf,
 		    const SiStripLorentzAngle& LorentzAngle,
 		    const SiStripConfObject& confObj,
 		    const SiStripLatency& latency)
-  : peakMode_( 47==latency.singleMode() ), 
+  : peakMode_(latency.singleReadOutMode() == 1),
     geom_(geom),
     magfield_(mag),
     LorentzAngleMap_(LorentzAngle)
@@ -64,17 +64,17 @@ localParameters( const SiStripCluster& cluster) const {
   StripCPE::Param const & p = param(cluster.geographicalId());
   const float barycenter = cluster.barycenter();
   const float fullProjection = p.coveredStrips( p.drift + LocalVector(0,0,-p.thickness), LocalPoint(barycenter,0,0));
-  const float strip = barycenter - 0.5f * (1-shift[p.moduleGeom]) * fullProjection;
+  const float strip = barycenter - 0.5 * (1-shift[p.moduleGeom]) * fullProjection;
 
   return std::make_pair( p.topology->localPosition(strip),
-			 p.topology->localError(strip, 1.f/12.f) );
+			 p.topology->localError(strip, 1/12.) );
 }
 
 float StripCPE::Param::
 coveredStrips(const LocalVector& lvec, const LocalPoint& lpos) const {  
   return 
-    ( topology->measurementPosition(lpos + 0.5f*lvec) 
-    - topology->measurementPosition(lpos - 0.5f*lvec)).x();
+    topology->measurementPosition(lpos + 0.5*lvec).x() 
+    - topology->measurementPosition(lpos - 0.5*lvec).x();
 }
 
 LocalVector StripCPE::
@@ -85,7 +85,7 @@ driftDirection(const StripGeomDetUnit* det) const {
   
   float dir_x = -tanLorentzAnglePerTesla * lbfield.y();
   float dir_y =  tanLorentzAnglePerTesla * lbfield.x();
-  float dir_z =  1.f; // E field always in z direction
+  float dir_z =  1.; // E field always in z direction
   
   return LocalVector(dir_x,dir_y,dir_z);
 }
@@ -102,7 +102,7 @@ fillParam(StripCPE::Param & p, const GeomDetUnit *  det) {
   const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
   const Bounds& bounds = stripdet->specificSurface().bounds();
   
-  p.maxLength = std::sqrt( std::pow(bounds.length(),2.f)+std::pow(bounds.width(),2.f) );
+  p.maxLength = std::sqrt( std::pow(bounds.length(),2)+std::pow(bounds.width(),2) );
   p.thickness = bounds.thickness();
   p.drift = driftDirection(stripdet) * p.thickness;
   p.topology=(StripTopology*)(&stripdet->topology());    
@@ -111,8 +111,8 @@ fillParam(StripCPE::Param & p, const GeomDetUnit *  det) {
   
   const RadialStripTopology* rtop = dynamic_cast<const RadialStripTopology*>(&stripdet->specificType().specificTopology());
   p.pitch_rel_err2 = (rtop) 
-    ? pow( 0.5f * rtop->angularWidth() * rtop->stripLength()/rtop->localPitch(LocalPoint(0,0,0)), 2.f) / 12.f
-    : 0.f;
+    ? pow( 0.5 * rtop->angularWidth() * rtop->stripLength()/rtop->localPitch(LocalPoint(0,0,0)), 2) / 12.
+    : 0;
   
   return p;
 }

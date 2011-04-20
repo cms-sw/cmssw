@@ -1,4 +1,4 @@
-// $Id: Failed.cc,v 1.14 2010/01/28 13:40:47 mommsen Exp $
+// $Id: Failed.cc,v 1.15.6.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: Failed.cc
 
 #include "EventFilter/StorageManager/interface/Exception.h"
@@ -25,7 +25,7 @@ void Failed::do_entryActionWork()
   // This should have been done by the Halting/Stopping entry actions,
   // but if we Fail, we need to do it here. No harm if we do it twice.
   outermost_context().getSharedResources()->
-    _diskWriterResources->requestStreamDestruction();
+    diskWriterResources_->requestStreamDestruction();
 }
 
 Failed::Failed( my_context c ): my_base(c)
@@ -39,7 +39,7 @@ void Failed::do_exitActionWork()
   outermost_context().updateHistory( tr );
 
   outermost_context().getSharedResources()->
-    _statisticsReporter->getStateMachineMonitorCollection().clearStatusMessage();
+    statisticsReporter_->getStateMachineMonitorCollection().clearStatusMessage();
 }
 
 Failed::~Failed()

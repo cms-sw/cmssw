@@ -1,4 +1,4 @@
-// $Id: Running.cc,v 1.8 2009/09/29 07:57:56 mommsen Exp $
+// $Id: Running.cc,v 1.9.6.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: Running.cc
 
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
@@ -32,21 +32,21 @@ void Running::do_entryActionWork()
 
   // Configure event distributor
   EventDistributor* ed = outermost_context().getEventDistributor();
-  EvtStrConfigListPtr evtCfgList = sharedResources->_configuration->
+  EvtStrConfigListPtr evtCfgList = sharedResources->configuration_->
     getCurrentEventStreamConfig();
-  ErrStrConfigListPtr errCfgList = sharedResources->_configuration->
+  ErrStrConfigListPtr errCfgList = sharedResources->configuration_->
     getCurrentErrorStreamConfig();
   ed->registerEventStreams(evtCfgList);
   ed->registerErrorStreams(errCfgList);
 
   // Clear old consumer registrations:
-  sharedResources->_registrationCollection->clearRegistrations();
+  sharedResources->registrationCollection_->clearRegistrations();
   ed->clearConsumers();
-  sharedResources->_eventConsumerQueueCollection->removeQueues();
-  sharedResources->_dqmEventConsumerQueueCollection->removeQueues();
+  sharedResources->eventQueueCollection_->removeQueues();
+  sharedResources->dqmEventQueueCollection_->removeQueues();
 
   // Enable consumer registration:
-  sharedResources->_registrationCollection->enableConsumerRegistration();
+  sharedResources->registrationCollection_->enableConsumerRegistration();
 }
 
 Running::~Running()
@@ -64,17 +64,17 @@ void Running::do_exitActionWork()
     outermost_context().getSharedResources();
 
   // Disable consumer registration:
-  sharedResources->_registrationCollection->disableConsumerRegistration();
+  sharedResources->registrationCollection_->disableConsumerRegistration();
 
   // Clear consumer queues
-  sharedResources->_eventConsumerQueueCollection->clearQueues();
-  sharedResources->_dqmEventConsumerQueueCollection->clearQueues();
+  sharedResources->eventQueueCollection_->clearQueues();
+  sharedResources->dqmEventQueueCollection_->clearQueues();
 
   // Clear the queues
-  sharedResources->_fragmentQueue->clear();
-  sharedResources->_streamQueue->clear();
-  sharedResources->_dqmEventQueue->clear();
-  sharedResources->_registrationQueue->clear();
+  sharedResources->fragmentQueue_->clear();
+  sharedResources->streamQueue_->clear();
+  sharedResources->dqmEventQueue_->clear();
+  sharedResources->registrationQueue_->clear();
 
   // Clear any fragments left in the fragment store
   outermost_context().getFragmentStore()->clear();

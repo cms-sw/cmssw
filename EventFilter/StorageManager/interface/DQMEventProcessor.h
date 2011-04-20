@@ -1,8 +1,8 @@
-// $Id: DQMEventProcessor.h,v 1.4 2009/08/28 16:41:49 mommsen Exp $
+// $Id: DQMEventProcessor.h,v 1.6 2011/03/07 15:31:31 mommsen Exp $
 /// @file: DQMEventProcessor.h 
 
-#ifndef StorageManager_DQMEventProcessor_h
-#define StorageManager_DQMEventProcessor_h
+#ifndef EventFilter_StorageManager_DQMEventProcessor_h
+#define EventFilter_StorageManager_DQMEventProcessor_h
 
 #include "toolbox/lang/Class.h"
 #include "toolbox/task/WaitingWorkLoop.h"
@@ -11,6 +11,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "EventFilter/StorageManager/interface/DQMEventStore.h"
+#include "EventFilter/StorageManager/interface/I2OChain.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 
 
@@ -30,8 +31,8 @@ namespace stor {
    * to disk every N lumi-sections.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/08/28 16:41:49 $
+   * $Revision: 1.6 $
+   * $Date: 2011/03/07 15:31:31 $
    */
   
   class DQMEventProcessor : public toolbox::lang::Class
@@ -69,39 +70,28 @@ namespace stor {
     void processNextDQMEvent();
 
     /**
-     * Retrieves all available complete DQMEventRecord
-     * adds it to the consumer queues
-     */    
-    void processCompleteDQMEventRecords();
-
-    /**
-     * Write all data to disk if needed, purge instances,
-     * and process all completed DQM records
+     * Purge instances and process all completed DQM records
      */    
     void endOfRun();
-
-    /**
-     * Check if all directories needed for the DQM histogram output are available.
-     * Throws a stor::execption::NoSuchDirectory when a directory does not exist.
-     */
-    void checkDirectories(DQMProcessingParams const&) const;
  
 
-    xdaq::Application*        _app;
-    SharedResourcesPtr        _sharedResources;
+    xdaq::Application* app_;
+    SharedResourcesPtr sharedResources_;
 
-    boost::posix_time::time_duration _timeout;
-    bool                      _actionIsActive;
+    boost::posix_time::time_duration timeout_;
+    bool actionIsActive_;
+    uint32_t latestLumiSection_;
+    unsigned int discardDQMUpdatesForOlderLS_;
 
-    toolbox::task::WorkLoop*  _processWL;      
+    toolbox::task::WorkLoop* processWL_;      
 
-    DQMEventStore             _dqmEventStore;
+    DQMEventStore<I2OChain,InitMsgCollection,SharedResources> dqmEventStore_;
 
   };
   
 } // namespace stor
 
-#endif // StorageManager_DQMEventProcessor_h 
+#endif // EventFilter_StorageManager_DQMEventProcessor_h 
 
 
 /// emacs configuration

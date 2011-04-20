@@ -52,15 +52,19 @@ def getLumiOrderByLS(dbsession,c,runList,selectionDict,hltpath='',beamstatus=Non
             del q
             if len(lumiinfobyrun)!=0: #if lumionly has qualified data means trg has no data
                 print 'warning request run ',runnum,' has no trigger data, calculate delivered only'
-            for perlsdata in lumiinfobyrun:
-                cmslsnum=perlsdata[0]
-                instlumi=perlsdata[1]
-                norbit=perlsdata[2]
-                startorbit=perlsdata[3]
-                lsstarttime=t.OrbitToTime(runstarttimeStr,startorbit)
-                lslength=t.bunchspace_s*t.nbx*norbit
-                delivered=instlumi*lslength
-                result.append([runnum,runstarttimeStr,cmslsnum,lsstarttime,delivered,0.0])
+                for perlsdata in lumiinfobyrun:
+                    cmslsnum=perlsdata[0]
+                    instlumi=perlsdata[1]
+                    norbit=perlsdata[2]
+                    startorbit=perlsdata[3]
+                    lsstarttime=t.OrbitToTime(runstarttimeStr,startorbit)
+                    lslength=t.bunchspace_s*t.nbx*norbit
+                    delivered=instlumi*lslength
+                    result.append([runnum,runstarttimeStr,cmslsnum,lsstarttime,delivered,0.0])
+            else:
+                #print 'run '+str(runnum)+' has no qualified data '
+                lsstarttime=t.OrbitToTime(runstarttimeStr,0)
+                result.append([runnum,runstarttimeStr,1,lsstarttime,0.0,0.0])
         else:
             norbits=lumitrginfo.values()[0][1]
             lslength=t.bunchspace_s*t.nbx*norbits
@@ -73,7 +77,8 @@ def getLumiOrderByLS(dbsession,c,runList,selectionDict,hltpath='',beamstatus=Non
                 prescale=valuelist[-1]
                 lsstarttime=t.OrbitToTime(runstarttimeStr,startorbit)        
                 if len(selectionDict)!=0 and not (cmslsnum in selectionDict[runnum]):
-                   #if there's a selection list but cmslsnum is not selected,skip                  
+                   #if there's a selection list but cmslsnum is not selected,set to 0
+                   result.append([runnum,runstarttimeStr,cmslsnum,lsstarttime,0.0,0.0])
                    continue
                 delivered=instlumi*lslength
                 if valuelist[5]==0:#bitzero==0 means no beam,do nothing
@@ -355,10 +360,10 @@ def main():
     #print 'runList ',runList
     #print 'runDict ', runDict
     
-    fig=Figure(figsize=(8,6),dpi=100)
+    fig=Figure(figsize=(6,4.5),dpi=100)
     m=matplotRender.matplotRender(fig)
     
-    logfig=Figure(figsize=(8,6),dpi=100)
+    logfig=Figure(figsize=(6.8,4.5),dpi=100)
     mlog=matplotRender.matplotRender(logfig)
     
     if args.action == 'run':
@@ -437,7 +442,6 @@ def main():
         mlog.plotSumX_Time(xdata,ydata,minTime,maxTime,hltpath=hltpath,annotateBoundaryRunnum=args.annotateboundary,yscale='log')
     elif args.action == 'perday':
         daydict={}#{day:[[run,cmslsnum,lsstarttime,delivered,recorded]]}
-        #print 'input selectionDict ',selectionDict
         lumibyls=getLumiOrderByLS(session,c,runList,selectionDict,hltpath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation)
         #print 'lumibyls ',lumibyls
         #lumibyls [[runnumber,runstarttime,lsnum,lsstarttime,delivered,recorded,recordedinpath]]
@@ -455,7 +459,6 @@ def main():
             if not daydict.has_key(day):
                 daydict[day]=[]
             daydict[day].append([delivered,recorded])
-        #print 'daydict ',daydict
         days=daydict.keys()
         days.sort()
         daymin=days[0]
@@ -465,6 +468,8 @@ def main():
         resultbyday['Delivered']=[]
         resultbyday['Recorded']=[]
         #for day in days:
+        #print 'day min ',daymin
+        #print 'day max ',daymax
         for day in range(daymin,daymax+1):
             if not daydict.has_key(day):
                 delivered=0.0

@@ -8,6 +8,7 @@
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/GsfTracking/interface/TrajGsfTrackAssociation.h"
 #include "TrackingTools/GsfTracking/interface/GsfTrackConstraintAssociation.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
@@ -35,7 +36,7 @@ GsfTrackRefitter::GsfTrackRefitter(const edm::ParameterSet& iConfig):
   produces<reco::GsfTrackExtraCollection>().setBranchAlias( alias_ + "GsfTrackExtras" );
   produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
   produces<std::vector<Trajectory> >() ;
-  produces<TrajTrackAssociationCollection>();
+  produces<TrajGsfTrackAssociationCollection>();
 
 }
 

@@ -1,11 +1,12 @@
-// $Id: AlarmHandler.h,v 1.6 2009/09/29 08:04:54 mommsen Exp $
+// $Id: AlarmHandler.h,v 1.8 2011/03/07 15:31:31 mommsen Exp $
 /// @file: AlarmHandler.h 
 
-#ifndef StorageManager_AlarmHandler_h
-#define StorageManager_AlarmHandler_h
+#ifndef EventFilter_StorageManager_AlarmHandler_h
+#define EventFilter_StorageManager_AlarmHandler_h
 
 #include <string>
 
+#include "boost/shared_ptr.hpp"
 #include "boost/thread/mutex.hpp"
 
 #include "xcept/Exception.h"
@@ -19,8 +20,8 @@ namespace stor {
    * Helper class to handle sentinel alarming
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2009/09/29 08:04:54 $
+   * $Revision: 1.8 $
+   * $Date: 2011/03/07 15:31:31 $
    */
 
   class AlarmHandler
@@ -64,6 +65,12 @@ namespace stor {
     */
     void clearAllAlarms();
 
+    /**
+      Return the application logger
+    */
+    Logger& getLogger() const
+    { return app_->getApplicationLogger(); }
+
 
   private:
 
@@ -74,16 +81,18 @@ namespace stor {
       xcept::Exception&
     );
 
-    xdaq::Application* _app;
-    xdata::InfoSpace* _alarmInfoSpace;
+    xdaq::Application* app_;
+    xdata::InfoSpace* alarmInfoSpace_;
 
-    mutable boost::mutex _mutex;
+    mutable boost::mutex mutex_;
 
   };
   
+  typedef boost::shared_ptr<AlarmHandler> AlarmHandlerPtr;
+
 } // namespace stor
 
-#endif // StorageManager_AlarmHandler_h 
+#endif // EventFilter_StorageManager_AlarmHandler_h 
 
 
 /// emacs configuration

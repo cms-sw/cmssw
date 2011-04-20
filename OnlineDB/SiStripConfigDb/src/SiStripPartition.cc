@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripPartition.cc,v 1.19 2009/09/03 17:04:49 lowette Exp $
+// Last commit: $Id: SiStripPartition.cc,v 1.18 2009/04/06 16:57:28 lowette Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripPartition.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -26,9 +26,9 @@ SiStripPartition::SiStripPartition() :
   fecVersion_(0,0),
   dcuVersion_(0,0),
   psuVersion_(0,0),
-  //#ifdef USING_DATABASE_MASKING
+#ifdef USING_DATABASE_MASKING
   maskVersion_(0,0),
-				  //#endif
+#endif
   globalAnalysisV_(0),
   runTableVersion_(0,0),
   fastCablingV_(0,0),
@@ -58,9 +58,9 @@ SiStripPartition::SiStripPartition( std::string partition ) :
   fecVersion_(0,0),
   dcuVersion_(0,0),
   psuVersion_(0,0),
-  //#ifdef USING_DATABASE_MASKING
+#ifdef USING_DATABASE_MASKING
   maskVersion_(0,0),
-				  //#endif
+#endif
   globalAnalysisV_(0),
   runTableVersion_(0,0),
   fastCablingV_(0,0),
@@ -92,9 +92,9 @@ SiStripPartition::SiStripPartition( const SiStripPartition& input ) :
   fecVersion_( input.fecVersion() ),
   dcuVersion_( input.dcuVersion() ),
   psuVersion_( input.psuVersion() ),
-  //#ifdef USING_DATABASE_MASKING
+#ifdef USING_DATABASE_MASKING
   maskVersion_( input.maskVersion() ),
-				  //#endif
+#endif
   globalAnalysisV_( input.globalAnalysisVersion() ),
   runTableVersion_( input.runTableVersion() ),
   fastCablingV_( input.fastCablingVersion() ),
@@ -125,9 +125,9 @@ SiStripPartition& SiStripPartition::operator= ( const SiStripPartition& input ){
   fecVersion_ = input.fecVersion();
   dcuVersion_ = input.dcuVersion();
   psuVersion_ = input.psuVersion();
-  //#ifdef USING_DATABASE_MASKING
+#ifdef USING_DATABASE_MASKING
   maskVersion_ = input.maskVersion();
-  //#endif
+#endif
   globalAnalysisV_ = input.globalAnalysisVersion();
   runTableVersion_ = input.runTableVersion();
   fastCablingV_ = input.fastCablingVersion();
@@ -158,9 +158,9 @@ bool SiStripPartition::operator== ( const SiStripPartition& input ) const {
 	   fecVersion_ == input.fecVersion() &&
 	   dcuVersion_ == input.dcuVersion() &&
 	   psuVersion_ == input.psuVersion() &&
-	   //#ifdef USING_DATABASE_MASKING
+#ifdef USING_DATABASE_MASKING
 	   maskVersion_ == input.maskVersion() &&
-	   //#endif
+#endif
 	   globalAnalysisV_ == input.globalAnalysisVersion() &&
 	   runTableVersion_ == input.runTableVersion() &&
 	   fastCablingV_ == input.fastCablingVersion() &&
@@ -204,9 +204,9 @@ void SiStripPartition::reset() {
   fecVersion_ = std::make_pair(0,0);
   dcuVersion_ = std::make_pair(0,0);
   psuVersion_ = std::make_pair(0,0);
-  //#ifdef USING_DATABASE_MASKING
+#ifdef USING_DATABASE_MASKING
   maskVersion_ = std::make_pair(0,0);
-  //#endif
+#endif
   
   globalAnalysisV_ = 0;
   runTableVersion_ = std::make_pair(0,0);
@@ -240,9 +240,9 @@ void SiStripPartition::pset( const edm::ParameterSet& pset ) {
   fecVersion_ = versions( pset.getUntrackedParameter< std::vector<uint32_t> >( "FecVersion", tmp1 ) );
   dcuVersion_ = versions( pset.getUntrackedParameter< std::vector<uint32_t> >( "DcuDetIdsVersion", tmp1 ) );
   psuVersion_ = versions( pset.getUntrackedParameter< std::vector<uint32_t> >( "DcuPsuMapVersion", tmp1 ) );
-  //#ifdef USING_DATABASE_MASKING
+#ifdef USING_DATABASE_MASKING
   maskVersion_ = versions( pset.getUntrackedParameter< std::vector<uint32_t> >( "MaskVersion", tmp1 ) );
-  //#endif
+#endif
 
   std::vector<uint32_t> tmp2(2,0);
   globalAnalysisV_ = pset.getUntrackedParameter<uint32_t>( "GlobalAnalysisVersion", 0 );
@@ -343,14 +343,14 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 	  psuVersion_.first = (*istate)->getDcuPsuMapVersionMajorId();
 	  psuVersion_.second = (*istate)->getDcuPsuMapVersionMinorId(); 
 	}
-	//#ifdef USING_DATABASE_MASKING
+#ifdef USING_DATABASE_MASKING
 	if ( !forceVersions_ &&
 	     !maskVersion_.first &&
 	     !maskVersion_.second ) { 
 	  maskVersion_.first = (*istate)->getMaskVersionMajorId();
 	  maskVersion_.second = (*istate)->getMaskVersionMinorId(); 
 	}
-	//#endif
+#endif
 	
 	// Retrieve global and local versions 
 	if ( forceCurrentState_ || globalAnalysisV_ ) { // use global version (or current state)
@@ -510,10 +510,10 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 	    psuVersion_.first = run->getDcuPsuMapVersionMajorId();
 	    psuVersion_.second = run->getDcuPsuMapVersionMinorId(); 
 	    
-	    //#ifdef USING_DATABASE_MASKING
+#ifdef USING_DATABASE_MASKING
 	    maskVersion_.first = run->getMaskVersionMajorId();
 	    maskVersion_.second = run->getMaskVersionMinorId(); 
-	    //#endif
+#endif
 	    
 	    // Check run type
 	    uint16_t type = run->getModeId( run->getMode() );
@@ -733,12 +733,12 @@ void SiStripPartition::print( std::stringstream& ss, bool using_db ) const {
        << "  FEC major/minor vers       : " << fecVersion_.first << "." << fecVersion_.second << std::endl
        << "  FED major/minor vers       : " << fedVersion_.first << "." << fedVersion_.second << std::endl
        << "  DCU-DetId map maj/min vers : " << dcuVersion_.first << "." << dcuVersion_.second << std::endl
-      //#ifdef USING_DATABASE_MASKING
+#ifdef USING_DATABASE_MASKING
        << "  DCU-PSU map maj/min vers   : " << psuVersion_.first << "." << psuVersion_.second << std::endl
        << "  Mask maj/min vers          : " << maskVersion_.first << "." << maskVersion_.second << std::endl;
-    //#else
-    //       << "  DCU-PSU map maj/min vers   : " << psuVersion_.first << "." << psuVersion_.second << std::endl;
-    //#endif
+#else
+       << "  DCU-PSU map maj/min vers   : " << psuVersion_.first << "." << psuVersion_.second << std::endl;
+#endif
 
     ss << "  Global analysis version    : " << globalAnalysisV_ << std::endl;
 

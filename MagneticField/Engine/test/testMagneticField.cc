@@ -1,8 +1,8 @@
 /** \file
  *  A simple example of ho to access the magnetic field.
  *
- *  $Date: 2008/04/23 12:05:05 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/04/09 16:46:11 $
+ *  $Revision: 1.13 $
  *  \author N. Amapane - CERN
  */
 
@@ -149,7 +149,7 @@ void testMagneticField::validate(string filename, string type) {
     GlobalPoint gp;
     if (type=="rpz_m") { // assume rpz file with units in m.
       gp = GlobalPoint(GlobalPoint::Cylindrical(px*100.,py,pz*100.));
-    } else if (type=="xyz_m") { // assume xyz file with units in m.
+    } else if (type=="xyz_m") { // assume rpz file with units in m.
       gp = GlobalPoint(px*100., py*100., pz*100.);
     } else { // assume x,y,z with units in cm
       gp = GlobalPoint(px, py, pz);      

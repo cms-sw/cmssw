@@ -1,8 +1,8 @@
-// $Id: Notifier.h,v 1.7 2009/07/20 13:06:10 mommsen Exp $
+// $Id: Notifier.h,v 1.8.12.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: Notifier.h 
 
-#ifndef StorageManager_Notifier_h
-#define StorageManager_Notifier_h
+#ifndef EventFilter_StorageManager_Notifier_h
+#define EventFilter_StorageManager_Notifier_h
 
 #include <string>
 
@@ -16,8 +16,8 @@ namespace stor
     Interface class for handling RCMS notifier
     
     $Author: mommsen $
-    $Revision: 1.7 $
-    $Date: 2009/07/20 13:06:10 $
+    $Revision: 1.8.12.1 $
+    $Date: 2011/03/07 11:33:04 $
   */
 
   class Notifier
@@ -42,9 +42,9 @@ namespace stor
 
   };
 
-}
+} // namespace stor
 
-#endif // StorageManager_Notifier_h
+#endif // EventFilter_StorageManager_Notifier_h
 
 
 /// emacs configuration

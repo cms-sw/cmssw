@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
     
-gctemu = cms.EDAnalyzer("L1GctTest",
+gctemu = cms.EDFilter("L1GctTest",
     doElectrons = cms.untracked.bool(False),
     doSingleEvent = cms.untracked.bool(False),
     doEnergyAlgos = cms.untracked.bool(False),

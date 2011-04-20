@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 13:42:13 CEST 2010
-// $Id: FWHFView.cc,v 1.10 2010/09/21 15:25:15 amraktad Exp $
+// $Id: FWHFView.cc,v 1.11 2010/09/21 17:20:55 amraktad Exp $
 //
 
 // system include files
@@ -75,7 +75,7 @@ FWHFView::~FWHFView()
    
 
 void
-FWHFView::setContext(fireworks::Context& context)
+FWHFView::setContext(const fireworks::Context& context)
 {  
    FWLegoViewBase::setContext(context);
 

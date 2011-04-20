@@ -235,7 +235,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         OnlyLong        = cms.bool(True),
         LambdaMean      = cms.double(350.0),
         CheckSurvive    = cms.bool(False),
-        ApplyFiducialCut= cms.bool(True),
+        ApplyFiducialCut= cms.bool(False),
         ParametrizeLast = cms.untracked.bool(False)
     ),
     HFShowerLibrary = cms.PSet(
@@ -289,7 +289,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         Verbosity                      = cms.untracked.int32(0)
     ),
     CastorShowerLibrary =  cms.PSet(
-        FileName  = cms.FileInPath('SimG4CMS/Forward/data/castorShowerLibrary.root'),
+        FileName  = cms.FileInPath('SimG4CMS/Forward/data/castorShowerLibrary_QFBE.root'),
         BranchEvt = cms.untracked.string('hadShowerLibInfo.'),
         BranchEM  = cms.untracked.string('emParticles.'),
         BranchHAD = cms.untracked.string('hadParticles.'),

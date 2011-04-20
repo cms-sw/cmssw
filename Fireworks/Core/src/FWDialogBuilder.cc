@@ -379,7 +379,7 @@ FWDialogBuilder::addTextEntry(const char *defaultText,
 FWDialogBuilder &
 FWDialogBuilder::addNumberEntry(float defaultValue, size_t digits,
                                 TGNumberFormat::EStyle style,
-                                size_t min, size_t max,
+                                int min, int max,
                                 TGNumberEntry **out /*= 0*/)
 {
    TGNumberEntry *entry = new TGNumberEntry(nextFrame(), defaultValue, 

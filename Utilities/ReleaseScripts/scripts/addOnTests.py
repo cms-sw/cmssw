@@ -40,10 +40,10 @@ class testit(Thread):
             commandbase = command.replace(' ','_').replace('/','_')
             logfile='%s.log' % commandbase[:150].replace("'",'').replace('../','')
             
-            if os.path.exists( os.path.join(os.environ['CMS_PATH'],'sw','cmsset_default.sh') ) :
-                executable = 'source $CMS_PATH/sw/cmsset_default.sh; eval `scram run -sh`;'
-            else:
+            if os.path.exists( os.path.join(os.environ['CMS_PATH'],'cmsset_default.sh') ) :
                 executable = 'source $CMS_PATH/cmsset_default.sh; eval `scram run -sh`;'
+            else:
+                executable = 'source $CMS_PATH/sw/cmsset_default.sh; eval `scram run -sh`;'
             # only if needed! executable += 'export FRONTIER_FORCERELOAD=long;' # force reload of db
             executable += 'cd '+self.dirName+';'
             executable += '%s > %s 2>&1' %(command, logfile)

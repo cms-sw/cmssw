@@ -1,4 +1,6 @@
 #include "SubProcess.h"
+#include "FileDescriptorHandler.h"
+
 namespace evf{
 
   SubProcess &SubProcess::operator=(const SubProcess &b)
@@ -34,9 +36,9 @@ namespace evf{
     if(alive_ != 1) //i.e. process is no longer alive
       {
 	//save counters after last update
-	save_nbp_= prg_.nbp;
-	save_nba_= prg_.nba;
-	save_ndqm_ = prg_.dqm;
+	save_nbp_ = prg_.nbp;
+	save_nba_ = prg_.nba;
+	save_ndqm_  = prg_.dqm;
 	save_scalers_ = prg_.trp;
       }
   }
@@ -69,6 +71,7 @@ namespace evf{
       {
 	//	  freopen(filename,"w",stdout); // send all console output from children to /dev/null
 	freopen("/dev/null","w",stderr);
+	FileDescriptorHandler a; //handle socket file descriptors left open at fork
 	sqm_ = new SlaveQueue(monitor_queue_offset_+ind_);
 	sqs_ = new SlaveQueue(ind_);
       }

@@ -51,7 +51,6 @@ namespace evf{
   FWEPWrapper::FWEPWrapper(log4cplus::Logger &log, unsigned int instance) 
     : evtProcessor_(0)
     , serviceToken_()
-    , slaveServiceToken_()
     , servicesDone_(false)
     , epInitialized_(false)
     , prescaleSvc_(0)
@@ -61,7 +60,6 @@ namespace evf{
     , hasModuleWebRegistry_(false)
     , hasServiceWebRegistry_(false)
     , monitorInfoSpace_(0) 
-    , monitorInfoSpaceAlt_(0) 
     , monitorInfoSpaceLegend_(0) 
     , timeoutOnStop_(10)
     , monSleepSec_(1)
@@ -75,6 +73,11 @@ namespace evf{
     , lsid_(0)
     , psid_(0)
     , lsTimeOut_(100000000)
+    , lumiSectionIndex_(1)
+    , prescaleSetIndex_(0)
+    , lastLumiPrescaleIndex_(0)
+    , lsTimedOut_(false)
+    , lsToBeRecovered_(true)
     , scalersUpdateAttempted_(0)
     , scalersUpdateCounter_(0)
     , lumiSectionsCtr_(lsRollSize_+1)
@@ -89,6 +92,9 @@ namespace evf{
     names_.push_back("lumiSectionIndex");
     names_.push_back("prescaleSetIndex");
     names_.push_back("scalersTable");
+    namesStatusLegenda_.push_back("macroStateLegenda");
+    namesStatusLegenda_.push_back("microStateLegenda");
+    namesScalersLegenda_.push_back("scalersLegenda");
     //some initialization of state data
     epMAltState_ = -1;
     epmAltState_ = -1;
@@ -104,15 +110,25 @@ namespace evf{
     applicationInfoSpace_->fireItemAvailable("timeoutOnStop",           &timeoutOnStop_);
     applicationInfoSpace_->fireItemAvailable("lsTimeOut",               &lsTimeOut_);
 
-    monitorInfoSpace_->fireItemAvailable("macroStateLegenda",            &macro_state_legend_);
-    monitorInfoSpace_->fireItemAvailable("microStateLegenda",            &micro_state_legend_);
+    applicationInfoSpace_->fireItemAvailable("lumiSectionIndex",        &lumiSectionIndex_);
+    applicationInfoSpace_->fireItemAvailable("prescaleSetIndex",        &prescaleSetIndex_);
+    applicationInfoSpace_->fireItemAvailable("lastLumiPrescaleIndex",   &lastLumiPrescaleIndex_);
+    applicationInfoSpace_->fireItemAvailable("lsTimedOut",              &lsTimedOut_);
+    applicationInfoSpace_->fireItemAvailable("lsToBeRecovered",         &lsToBeRecovered_);
+
+    monitorLegendaInfoSpace_->fireItemAvailable("macroStateLegenda",           &macro_state_legend_);
+    monitorLegendaInfoSpace_->fireItemAvailable("microStateLegenda",           &micro_state_legend_);
 
     monitorInfoSpace_->fireItemAvailable("epMacroState",                &epMState_);
     monitorInfoSpace_->fireItemAvailable("epMicroState",                &epmState_);
 
     xdata::Table &stbl = trh_.getTable(); 
     scalersInfoSpace_->fireItemAvailable("scalersTable", &stbl);
-    scalersInfoSpace_->fireItemAvailable("scalersLegenda", trh_.getPathLegenda());
+    scalersInfoSpace_->fireItemAvailable("lumiSectionIndex",      &lumiSectionIndex_);
+    scalersInfoSpace_->fireItemAvailable("prescaleSetIndex",      &prescaleSetIndex_);
+    scalersInfoSpace_->fireItemAvailable("lastLumiPrescaleIndex", &lastLumiPrescaleIndex_);
+    scalersLegendaInfoSpace_->fireItemAvailable("scalersLegenda", trh_.getPathLegenda());    
+
     scalersComplete_.addColumn("instance", "unsigned int 32");
     scalersComplete_.addColumn("lsid", "unsigned int 32");
     scalersComplete_.addColumn("psid", "unsigned int 32");
@@ -346,7 +362,7 @@ namespace evf{
     const edm::ParameterSet *prescaleSvcConfig = internal::findService(*pServiceSets,"PrescaleService");
     if(prescaleSvc_ != 0 && prescaleSvcConfig !=0) prescaleSvc_->reconfigure(*prescaleSvcConfig);
   
-    monitorInfoSpace_->lock();
+    monitorLegendaInfoSpace_->lock();
     //fill microstate legenda information
     descs_ = evtProcessor_->getAllModuleDescriptions();
 
@@ -394,13 +410,21 @@ namespace evf{
     if(instanceZero){
       micro_state_legend_ = oss2.str().c_str();
     }
-    monitorInfoSpace_->unlock();
+    monitorLegendaInfoSpace_->unlock();
+    try{
+      monitorLegendaInfoSpace_->fireItemGroupChanged(namesStatusLegenda_,0);
+      scalersLegendaInfoSpace_->fireItemGroupChanged(namesScalersLegenda_,0);
+      ::usleep(10);
+    }
+    catch(xdata::exception::Exception &e)
+      {
+	LOG4CPLUS_ERROR(log_, "Exception from fireItemGroupChanged: " << e.what());
+      }
     LOG4CPLUS_INFO(log_," edm::EventProcessor configuration finished.");
     edm::TriggerReport tr;
     evtProcessor_->getTriggerReport(tr);
     trh_.formatReportTable(tr,descs_,pathTable_,instanceZero);
     epInitialized_ = true;
-    //    startMonitoringWorkLoop();
     return;
   }
 
@@ -565,26 +589,8 @@ namespace evf{
 	  LOG4CPLUS_INFO(log_,
 			 "exception when trying to get service MicroStateService");
 	}
-	try{
-	  xdata::Serializable *lsid = applicationInfoSpace_->find("lumiSectionIndex");
-	  if(lsid!=0){
-	    lsid_ = ((xdata::UnsignedInteger32*)lsid)->value_;
-	  }
-	}
-	catch(xdata::exception::Exception e){
-	  lsid_ = 0;
-	}
-	xdata::Serializable *psid = 0;
-	try{
-	  psid = applicationInfoSpace_->find("prescaleSetIndex");
-	  if(psid!=0) {
-	    psid_ = ((xdata::UnsignedInteger32*)psid)->value_;
-	  }
-	}
-	catch(xdata::exception::Exception e){
-	  psid_ = 0;
-	}
-
+	lsid_ = lumiSectionIndex_.value_;
+	psid_ = prescaleSetIndex_.value_;
       }
     if(mss) 
       {
@@ -637,38 +643,14 @@ namespace evf{
     }
 
     xdata::Table::iterator it = scalersComplete_.begin();
-    try{
-      xdata::Serializable *lsid = applicationInfoSpace_->find("lumiSectionIndex");
-      xdata::Serializable *psid = applicationInfoSpace_->find("prescaleSetIndex");
-      if(psid) {
-	ps = ((xdata::UnsignedInteger32*)(psid))->value_;
-	if(prescaleSvc_ != 0) prescaleSvc_->setIndex(ps);
-	it->setField("psid",*psid);
-      }
-
-      if(lsid) {
-	ls = ((xdata::UnsignedInteger32*)(lsid))->value_;
-	localLsIncludingTimeOuts_.value_ = ls;
-	it->setField("lsid", localLsIncludingTimeOuts_);
-
-      }
-    }
-    catch(xdata::exception::Exception e){
-      LOG4CPLUS_ERROR(log_,
-		     "exception when obtaining ls or ps id");
-      if(useLock){
-	mwr->closeBackDoor("DaqSource");
-      }
-      return false;
-    }
-    catch(...){
-      LOG4CPLUS_ERROR(log_,
-		     "unknown exception when obtaining ls or ps id");
-      if(useLock){
-	mwr->closeBackDoor("DaqSource");
-      }
-      return false;
-    }
+    ps = lastLumiPrescaleIndex_.value_;
+    //	if(prescaleSvc_ != 0) prescaleSvc_->setIndex(ps);
+    it->setField("psid",lastLumiPrescaleIndex_);
+    psid_ = prescaleSetIndex_.value_;
+    if(prescaleSvc_ != 0) prescaleSvc_->setIndex(psid_);
+    ls = lumiSectionIndex_.value_;
+    localLsIncludingTimeOuts_.value_ = ls;
+    it->setField("lsid", localLsIncludingTimeOuts_);
 
     lsTriplet lst;
     lst.ls = localLsIncludingTimeOuts_.value_;
@@ -714,9 +696,10 @@ namespace evf{
     //    trh_.printReportTable();
     scalersUpdateAttempted_++;
     try{
-      scalersInfoSpace_->lock();
+      //      scalersInfoSpace_->unlock();
       scalersInfoSpace_->fireItemGroupChanged(names_,0);
-      scalersInfoSpace_->unlock();
+      ::usleep(10);
+      //      scalersInfoSpace_->lock();
     }
     catch(xdata::exception::Exception &e)
       {
@@ -1152,7 +1135,6 @@ namespace evf{
     lsTriplet lst;
     lst.ls = tr->lumiSection;
     lsid_ = tr->lumiSection;
-    psid_ = tr->prescaleIndex;
     lst.proc = tr->eventSummary.totalEvents;
     lst.acc = tr->eventSummary.totalEventsPassed;
     xdata::Serializable *psid = 0;
@@ -1165,10 +1147,11 @@ namespace evf{
 	lsp = ((xdata::UnsignedInteger32*)lsid); 
 	lsp->value_= tr->lumiSection;
       }
-      psid = applicationInfoSpace_->find("prescaleSetIndex");
+      psid = applicationInfoSpace_->find("lastLumiPrescaleIndex");
       if(psid!=0) {
 	psp = ((xdata::UnsignedInteger32*)psid);
-	psp->value_ = tr->prescaleIndex;
+	if(tr->eventSummary.totalEvents != 0)
+	  psp->value_ = tr->prescaleIndex;
       }
       nbs  = applicationInfoSpace_->find("nbSubProcesses");
       nbsr = applicationInfoSpace_->find("nbSubProcessesReporting");
