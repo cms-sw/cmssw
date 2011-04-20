@@ -13,7 +13,7 @@
 //
 // Original Author:  Thomas Reis,40 4-B24,+41227671567,
 //         Created:  Tue Mar 15 12:24:11 CET 2011
-// $Id: EmDQMFeeder.cc,v 1.7 2011/04/15 18:06:37 treis Exp $
+// $Id: EmDQMFeeder.cc,v 1.8 2011/04/18 14:51:57 treis Exp $
 //
 //
 
@@ -78,9 +78,9 @@ class EmDQMFeeder : public edm::EDAnalyzer {
       edm::ParameterSet makePSetForEtFilter(const std::string&);
       edm::ParameterSet makePSetForOneOEMinusOneOPFilter(const std::string&);
       edm::ParameterSet makePSetForPixelMatchFilter(const std::string&);
-      edm::ParameterSet makePSetForEgammaGenericFilter(const std::string&, const std::string&);
-      edm::ParameterSet makePSetForEgammaGenericQuadraticFilter(const std::string&, const std::string&);
-      edm::ParameterSet makePSetForElectronGenericFilter(const std::string&, const std::string&);
+      edm::ParameterSet makePSetForEgammaGenericFilter(const std::string&);
+      edm::ParameterSet makePSetForEgammaGenericQuadraticFilter(const std::string&);
+      edm::ParameterSet makePSetForElectronGenericFilter(const std::string&);
 
       std::vector<EmDQM*> emDQMmodules;
 
@@ -292,13 +292,13 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
                   filterPSet = makePSetForPixelMatchFilter(moduleLabel);
                }
                else if (moduleType == "HLTEgammaGenericFilter") {
-                  filterPSet = makePSetForEgammaGenericFilter(pathName, moduleLabel);
+                  filterPSet = makePSetForEgammaGenericFilter(moduleLabel);
                }
                else if (moduleType == "HLTEgammaGenericQuadraticFilter") {
-                  filterPSet = makePSetForEgammaGenericQuadraticFilter(pathName, moduleLabel);
+                  filterPSet = makePSetForEgammaGenericQuadraticFilter(moduleLabel);
                }
                else if (moduleType == "HLTElectronGenericFilter") {
-                  filterPSet = makePSetForElectronGenericFilter(pathName, moduleLabel);
+                  filterPSet = makePSetForElectronGenericFilter(moduleLabel);
                }
                else if (moduleType == "HLTGlobalSumsMET"
                         || moduleType == "HLTMhtHtFilter"
@@ -563,7 +563,7 @@ EmDQMFeeder::makePSetForPixelMatchFilter(const std::string& moduleName)
 //----------------------------------------------------------------------
 
 edm::ParameterSet 
-EmDQMFeeder::makePSetForEgammaGenericFilter(const std::string& pathName, const std::string& moduleName)
+EmDQMFeeder::makePSetForEgammaGenericFilter(const std::string& moduleName)
 {
   edm::ParameterSet retPSet;
 
@@ -678,7 +678,7 @@ EmDQMFeeder::makePSetForEgammaGenericFilter(const std::string& pathName, const s
 //----------------------------------------------------------------------
 
 edm::ParameterSet 
-EmDQMFeeder::makePSetForEgammaGenericQuadraticFilter(const std::string& pathName, const std::string& moduleName)
+EmDQMFeeder::makePSetForEgammaGenericQuadraticFilter(const std::string& moduleName)
 {
   edm::ParameterSet retPSet;
 
@@ -806,7 +806,7 @@ EmDQMFeeder::makePSetForEgammaGenericQuadraticFilter(const std::string& pathName
 //----------------------------------------------------------------------
 
 edm::ParameterSet
-EmDQMFeeder::makePSetForElectronGenericFilter(const std::string& pathName, const std::string& moduleName)
+EmDQMFeeder::makePSetForElectronGenericFilter(const std::string& moduleName)
 {
   edm::ParameterSet retPSet;
 
