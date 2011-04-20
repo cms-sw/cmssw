@@ -1,8 +1,13 @@
-// $Id$
+// $Id: EcalTools.cc,v 1.1 2011/01/12 14:46:27 argiro Exp $
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 float EcalTools::swissCross( const DetId& id, 
 			     const EcalRecHitCollection & recHits, 
@@ -45,6 +50,55 @@ float EcalTools::swissCross( const DetId& id,
 }
 
 
+bool EcalTools::isNextToDead( const DetId& id, const edm::EventSetup& es){
+  
+  if (deadNeighbour(id,es, 1, 0)) return true;
+  if (deadNeighbour(id,es,-1, 0)) return true;
+  if (deadNeighbour(id,es, 0, 1)) return true;
+  if (deadNeighbour(id,es, 0,-1)) return true;
+ 
+  return false;
+}
+
+
+bool EcalTools::deadNeighbour(const DetId& id, const edm::EventSetup& es, 
+			      int dx, int dy){
+
+  // define dead as channelStatus>11
+  // I know, it's hardwired ...
+  const int chStatusThreshold = 11;
+  
+  DetId nid;
+  if( id.subdetId() == EcalBarrel) nid = EBDetId::offsetBy( id, dx, dy );
+  else if( id.subdetId() == EcalEndcap) nid = EEDetId::offsetBy( id, dx, dy );
+
+  if (nid) return (getChannelStatus(nid,es)>=chStatusThreshold );
+  
+  return false;
+  
+}
+
+uint16_t EcalTools::getChannelStatus(const DetId& id, const edm::EventSetup& es){
+  
+
+  edm::ESHandle<EcalChannelStatus> chStatus;
+  es.get<EcalChannelStatusRcd>().get(chStatus);
+
+  EcalChannelStatus::const_iterator chIt = chStatus->find( id );
+  uint16_t dbStatus = 0;
+  if ( chIt != chStatus->end() ) {
+    dbStatus = chIt->getStatusCode();
+  } else {
+    edm::LogError("EcalDBError") 
+      << "No channel status found for xtal " 
+      << id.rawId() 
+      << "! something wrong with EcalChannelStatus in your DB? ";
+  }
+  return dbStatus;
+
+}
+
+
 float EcalTools::recHitE( const DetId id, 
 			  const EcalRecHitCollection & recHits,
 			  int di, int dj )
@@ -75,4 +129,15 @@ float EcalTools::recHitApproxEt( const DetId id, const EcalRecHitCollection &rec
     return recHitE( id, recHits ) / cosh( EBDetId::approxEta( id ) );
   }
   return 0;
+}
+
+
+bool isNextToBoundary(const DetId& id){
+
+  if ( id.subdetId() == EcalBarrel ) 
+    return EBDetId::isNextToBoundary(EBDetId(id));
+  else  if ( id.subdetId() == EcalEndcap )
+    return EEDetId::isNextToBoundary(EEDetId(id));
+
+  return false;
 }
