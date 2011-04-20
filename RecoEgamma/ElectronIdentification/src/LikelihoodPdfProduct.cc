@@ -116,7 +116,7 @@ LikelihoodPdfProduct::getSpeciesProb(const char* specName,
     LikelihoodSpecies* species = *specItr;
     if(strcmp(species->getName(),specName)==0) {
       for(unsigned int ipdf=0; ipdf< species->getListOfPdfs().size(); ipdf++) {
-	bareProb*=species->getListOfPdfs().at(ipdf)->getVal(measurements.at(ipdf),gsfClass);
+        bareProb*=species->getListOfPdfs().at(ipdf)->getVal(measurements.at(ipdf),gsfClass);
       }
       priorWeight=species->getPrior();
       break;
