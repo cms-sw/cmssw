@@ -5,9 +5,6 @@ MASTER="/dev/CMSSW_4_2_0/HLT"        # no explicit version, take te most recent
 TARGET="/dev/CMSSW_4_2_0/\$TABLE"    # no explicit version, take te most recent
 TABLES="GRun HIon"                   # $TABLE in the above variable will be expanded to these TABLES
 
-# "static" configurations
-HLT5E32v62="/online/collisions/2011/5e32/v6.2/HLT"
-
 # print extra messages ?
 VERBOSE=false
 
@@ -39,17 +36,11 @@ GETDATASETS=$(findHltScript getDatasets.py)
 function getConfigForCVS() {
   local CONFIG="$1"
   local NAME="$2"
-  local TYPE="$2"
-  if [ "$3" ]; then
-    TYPE="$3"
-    log "    dumping HLT cff for $NAME (type \"$TYPE\")"
-  else
-    log "    dumping HLT cff for $NAME"
-  fi
+  log "    dumping HLT cff for $NAME"
 
   # do not use any L1 override
-  hltGetConfiguration --cff --offline --mc   $CONFIG --type $TYPE > HLT_${NAME}_cff.py
-  hltGetConfiguration --cff --offline --data $CONFIG --type $TYPE > HLT_${NAME}_data_cff.py
+  hltGetConfiguration --cff --offline --mc   $CONFIG --type $NAME > HLT_${NAME}_cff.py
+  hltGetConfiguration --cff --offline --data $CONFIG --type $NAME > HLT_${NAME}_data_cff.py
 }
 
 function getContentForCVS() {
@@ -101,7 +92,7 @@ hash -r
 # for things in CMSSW CVS
 echo "Extracting CVS python dumps"
 rm -f HLT*_cff.py
-getConfigForCVS  $MASTER "FULL"
+getConfigForCVS  $MASTER FULL
 getContentForCVS $MASTER
 for TABLE in $TABLES; do
   getConfigForCVS $(eval echo $TARGET) $TABLE
@@ -109,15 +100,12 @@ done
 for TABLE in "GRun"; do
   getDatasetsForCVS $(eval echo $TARGET) HLTrigger_Datasets_cff.py
 done
-# "static" menus in CVS
-getConfigForCVS $HLT5E32v62 "5E32v62" "GRun"
-
 log "Done"
 ls -l HLT_*_cff.py HLTrigger_EventContent_cff.py HLTrigger_Datasets_cff.py
 mv -f HLT_*_cff.py HLTrigger_EventContent_cff.py HLTrigger_Datasets_cff.py ../python/
 echo
 
-# for things now also in CMSSW CVS
+# for things now also in CMSSW CVS:
 echo "Extracting full configurations"
 rm -f OnData_HLT_*.py
 rm -f OnLine_HLT_*.py
