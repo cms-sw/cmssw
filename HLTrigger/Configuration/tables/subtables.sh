@@ -3,7 +3,7 @@
 # utility functions used to generate HLT tables from master table in ConfDB
 #
 
-CONFDB_TAG="V01-05-36"
+CONFDB_TAG="V01-05-41"
 
 function cleanup() {
   local TABLES="$@"
