@@ -172,7 +172,7 @@ step1['TTbar2INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_4_3_0_pre2-S
 step1['WEINPUT']={'INPUT':InputInfo(dataSet='/RelValWE/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='WErv',location='STD')}
 step1['WMINPUT']={'INPUT':InputInfo(dataSet='/RelValWM/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='WMrv',location='STD')}
 step1['ZEE2INPUT']={'INPUT':InputInfo(dataSet='/RelValZEE/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='ZEErv',location='STD')}
-step1['ZMMINPUT']={'INPUT':InputInfo(dataSet='/RelValZMM/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM,label='ZMMrv',location='STD')}
+step1['ZMMINPUT']={'INPUT':InputInfo(dataSet='/RelValZMM/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='ZMMrv',location='STD')}
 step1['ZTTINPUT']={'INPUT':InputInfo(dataSet='/RelValZTT/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='ZTTrv',location='STD')}
 step1['H130GGgluonfusionINPUT']={'INPUT':InputInfo(dataSet='/RelValH130GGgluonfusion/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='H130GGgluonfusionrv',location='STD')}
 step1['PhotonJets_Pt_10INPUT']={'INPUT':InputInfo(dataSet='/RelValPhotonJets_Pt_10/CMSSW_4_3_0_pre2-START42_V9-v1/GEN-SIM',label='PhotonJets_Pt_10rv',location='STD')}
