@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.39.4.3 2011/04/13 08:55:41 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.41 2011/04/18 15:18:57 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <stdio.h>
@@ -194,8 +194,15 @@ namespace stor {
     Stats stats;
     getStats(stats);
     
-    copyWorkers_ = static_cast<xdata::UnsignedInteger32>(stats.numberOfCopyWorkers);
-    injectWorkers_ = static_cast<xdata::UnsignedInteger32>(stats.numberOfInjectWorkers);
+    if (stats.numberOfCopyWorkers > 0)
+      copyWorkers_ = static_cast<xdata::UnsignedInteger32>(stats.numberOfCopyWorkers);
+    else
+      copyWorkers_ = 0;
+
+    if (stats.numberOfInjectWorkers > 0)
+      injectWorkers_ = static_cast<xdata::UnsignedInteger32>(stats.numberOfInjectWorkers);
+    else
+      injectWorkers_ = 0;
     
     sataBeastStatus_ = stats.sataBeastStatus;
     numberOfDisks_ = nLogicalDisks_;
