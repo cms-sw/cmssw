@@ -623,7 +623,7 @@ def DBdiff(database1, database2, reports1, reports2, window=10., selection=None,
             f.SetLineColor(ROOT.kBlue)
         for h, f in (hx, fx), (hy, fy), (hz, fz), (hphix, fphix), (hphiy, fphiy), (hphiz, fphiz):
             h.SetAxisRange(0, 1.1*max(h.GetMaximum(), f.GetMaximum()), "Y")
-	c1.Clear()
+        c1.Clear()
         c1.Divide(3, 2)
         c1.GetPad(1).cd(); hx.Draw(); fx.Draw("same")
         c1.GetPad(2).cd(); hy.Draw(); fy.Draw("same")
@@ -1161,10 +1161,10 @@ def plotmedians(reports1, reports2, selection=None, binsx=100, windowx=5., ceili
     tdrStyle.SetStatW(0.40)
     tdrStyle.SetStatFontSize(0.05)
 
-    global hmediandxdz_after, hmediandxdz_aftercopy, hmediandxdz_before, hmediandxdz_beforecopy, \
-           hmediandydz_after, hmediandydz_aftercopy, hmediandydz_before, hmediandydz_beforecopy, \
-           hmedianx_after, hmedianx_aftercopy, hmedianx_before, hmedianx_beforecopy, \
-           hmediany_after, hmediany_aftercopy, hmediany_before, hmediany_beforecopy, tlegend 
+    global hmediandxdz_after, hmediandxdz_before, hmediandxdz_beforecopy, \
+           hmediandydz_after, hmediandydz_before, hmediandydz_beforecopy, \
+           hmedianx_after, hmedianx_before, hmedianx_beforecopy, \
+           hmediany_after, hmediany_before, hmediany_beforecopy, tlegend 
 
     hmedianx_before = ROOT.TH1F("hmedianx_before", "", binsx, -windowx, windowx)
     hmediany_before = ROOT.TH1F("hmediany_before", "", binsy, -windowy, windowy)
@@ -1219,9 +1219,9 @@ def plotmedians(reports1, reports2, selection=None, binsx=100, windowx=5., ceili
                     break
             if not found: continue
 
-	    #skip ME1/1a
-	    if r1.postal_address[0]=='CSC':
-	      if r1.postal_address[2]==1 and r1.postal_address[3]==4: continue
+            #skip ME1/1a
+            if r1.postal_address[0]=='CSC':
+              if r1.postal_address[2]==1 and r1.postal_address[3]==4: continue
 
             if r1.status == "PASS" and r2.status == "PASS":
                 hmedianx_before.Fill(10.*eval("r1.%s_x" % whichx))
@@ -1253,19 +1253,6 @@ def plotmedians(reports1, reports2, selection=None, binsx=100, windowx=5., ceili
     hmediandxdz_after.SetFillColor(ROOT.kYellow)
     hmediandydz_after.SetFillColor(ROOT.kYellow)
 
-    hmedianx_aftercopy = hmedianx_after.Clone()
-    hmediany_aftercopy = hmediany_after.Clone()
-    hmediandxdz_aftercopy = hmediandxdz_after.Clone()
-    hmediandydz_aftercopy = hmediandydz_after.Clone()
-    hmedianx_aftercopy.GetXaxis().SetLabelColor(ROOT.kWhite)
-    hmediany_aftercopy.GetXaxis().SetLabelColor(ROOT.kWhite)
-    hmediandxdz_aftercopy.GetXaxis().SetLabelColor(ROOT.kWhite)
-    hmediandydz_aftercopy.GetXaxis().SetLabelColor(ROOT.kWhite)
-    hmedianx_aftercopy.GetYaxis().SetLabelColor(ROOT.kWhite)
-    hmediany_aftercopy.GetYaxis().SetLabelColor(ROOT.kWhite)
-    hmediandxdz_aftercopy.GetYaxis().SetLabelColor(ROOT.kWhite)
-    hmediandydz_aftercopy.GetYaxis().SetLabelColor(ROOT.kWhite)
-
     hmedianx_after.SetXTitle("median(#Deltax) (mm)")
     hmediany_after.SetXTitle("median(#Deltay) (mm)")
     hmediandxdz_after.SetXTitle("median(#Deltadx/dz) (mrad)")
@@ -1275,16 +1262,16 @@ def plotmedians(reports1, reports2, selection=None, binsx=100, windowx=5., ceili
     hmediandxdz_after.GetXaxis().CenterTitle()
     hmediandydz_after.GetXaxis().CenterTitle()
 
-    if ceilingx is not None: hmedianx_aftercopy.SetAxisRange(0., ceilingx, "Y")
-    if ceilingy is not None: hmediany_aftercopy.SetAxisRange(0., ceilingy, "Y")
-    if ceilingdxdz is not None: hmediandxdz_aftercopy.SetAxisRange(0., ceilingdxdz, "Y")
-    if ceilingdydz is not None: hmediandydz_aftercopy.SetAxisRange(0., ceilingdydz, "Y")
+    if ceilingx is not None: hmedianx_after.SetAxisRange(0., ceilingx, "Y")
+    if ceilingy is not None: hmediany_after.SetAxisRange(0., ceilingy, "Y")
+    if ceilingdxdz is not None: hmediandxdz_after.SetAxisRange(0., ceilingdxdz, "Y")
+    if ceilingdydz is not None: hmediandydz_after.SetAxisRange(0., ceilingdydz, "Y")
 
     c1.Clear()
     c1.Divide(2, 2)
 
     c1.GetPad(1).cd()
-    hmedianx_aftercopy.Draw()
+    hmedianx_after.Draw()
     hmedianx_before.Draw("same")
     hmedianx_after.Draw("same")
     hmedianx_beforecopy.Draw("same")
@@ -1298,35 +1285,35 @@ def plotmedians(reports1, reports2, selection=None, binsx=100, windowx=5., ceili
     tlegend.Draw()
 
     c1.GetPad(2).cd()
-    hmediandxdz_aftercopy.Draw()
+    hmediandxdz_after.Draw()
     hmediandxdz_before.Draw("same")
     hmediandxdz_after.Draw("same")
     hmediandxdz_beforecopy.Draw("same")
     hmediandxdz_after.Draw("axissame")
 
     c1.GetPad(3).cd()
-    hmediany_aftercopy.Draw()
+    hmediany_after.Draw()
     hmediany_before.Draw("same")
     hmediany_after.Draw("same")
     hmediany_beforecopy.Draw("same")
     hmediany_after.Draw("axissame")
 
     c1.GetPad(4).cd()
-    hmediandydz_aftercopy.Draw()
+    hmediandydz_after.Draw()
     hmediandydz_before.Draw("same")
     hmediandydz_after.Draw("same")
     hmediandydz_beforecopy.Draw("same")
     hmediandydz_after.Draw("axissame")
 
-    return hmediandxdz_after, hmediandxdz_aftercopy, hmediandxdz_before, hmediandxdz_beforecopy, \
-           hmediandydz_after, hmediandydz_aftercopy, hmediandydz_before, hmediandydz_beforecopy, \
-           hmedianx_after, hmedianx_aftercopy, hmedianx_before, hmedianx_beforecopy, \
-           hmediany_after, hmediany_aftercopy, hmediany_before, hmediany_beforecopy, tlegend 
+    return hmediandxdz_after, hmediandxdz_before, hmediandxdz_beforecopy, \
+           hmediandydz_after, hmediandydz_before, hmediandydz_beforecopy, \
+           hmedianx_after,    hmedianx_before, hmedianx_beforecopy, \
+           hmediany_after,    hmediany_before, hmediany_beforecopy, tlegend 
 
 ######################################################################################################
 
 def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title="", 
-            widebins=False, fitsine=False, fitline=False, reset_palette=False, fitsawteeth=False, fitpeaks=False):
+            widebins=False, fitsine=False, fitline=False, reset_palette=False, fitsawteeth=False, fitpeaks=False, peaksbins=5):
     tdrStyle.SetOptTitle(1)
     tdrStyle.SetTitleBorderSize(0)
     tdrStyle.SetOptStat(0)
@@ -1352,7 +1339,7 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
     hhh  = hdir+hpref
 
     hist2d = tfiles[0].Get(hhh+"_2d").Clone(hpref+"_2d_")
-    
+ 
     for tfile in tfiles[1:]:
         hist2d.Add(tfile.Get(hhh+"_2d"))
 
@@ -1382,28 +1369,35 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
                 hist.SetBinContent(i/skip+1, 0.)
                 hist.SetBinError(i/skip+1, 0.)
 
+        htmp = ROOT.gROOT.FindObject(the2d.GetName()+"_peaks")
+        if htmp != None: htmp.Delete()
+        
         hpeaks = the2d.ProjectionX(the2d.GetName()+"_peaks")
         hpeaks.Reset()
-        hpeaks.Rebin(5)
-        skip_peaks = 5;
-        for i in xrange(0, int(the2d.GetNbinsX()), skip_peaks):
-            tmp = the2d.ProjectionY("tmp", i+1, i + skip_peaks)
+        hpeaks.Rebin(peaksbins)
+        for i in xrange(0, int(the2d.GetNbinsX()), peaksbins):
+            tmp = the2d.ProjectionY("tmp", i+1, i + peaksbins)
             nn = tmp.GetEntries()
             
             drange = tmp.GetRMS()
-            if nn<50: drange = 2*drange
+            drange = 2.5*drange
             fgaus = ROOT.TF1("fgaus","gaus", tmp.GetMean() - drange, tmp.GetMean() + drange)
-            
+            fgaus.SetParameter(0,nn)
+            fgaus.SetParameter(1,tmp.GetMean())
+            fgaus.SetParameter(2,tmp.GetRMS())
+            #print "  ", i, nn, tmp.GetMean() , drange, "[", tmp.GetMean() - drange, tmp.GetMean() + drange, ']'
+                
             if nn > 10:     # good to fit
-              tmp.Fit("fgaus","ERNQ")
-              hpeaks.SetBinContent(i/skip_peaks+1, fgaus.GetParameter(1))
-              hpeaks.SetBinError(i/skip_peaks+1, fgaus.GetParError(1))
+              fr = tmp.Fit("fgaus","RNSQ")
+              #print "       ", fgaus.GetParameter(1), " +- ", fgaus.GetParError(1), "   fitres = " , fr.Status() , fr.CovMatrixStatus()
+              hpeaks.SetBinContent(i/peaksbins+1, fgaus.GetParameter(1))
+              hpeaks.SetBinError(i/peaksbins+1, fgaus.GetParError(1))
             elif nn > 1. and tmp.GetRMS() > 0: # use mean
-              hpeaks.SetBinContent(i/skip_peaks+1, tmp.GetMean())
+              hpeaks.SetBinContent(i/peaksbins+1, tmp.GetMean())
               hpeaks.SetBinError(i/skip_peaks+1, ROOT.TMath.StudentQuantile(0.841345,nn) * tmp.GetRMS() / sqrt(nn))
             else:
-              hpeaks.SetBinContent(i/skip_peaks+1, 0.)
-              hpeaks.SetBinError(i/skip_peaks+1, 0.)
+              hpeaks.SetBinContent(i/peaksbins+1, 0.)
+              hpeaks.SetBinError(i/peaksbins+1, 0.)
         
     else:
         raise Exception
@@ -1441,7 +1435,8 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
     hpeaks.SetMarkerColor(ROOT.kRed)
     hpeaks.SetLineColor(ROOT.kRed)
     hpeaks.SetLineWidth(2)
-    if fitpeaks: hpeaks.Draw("same")
+    #if fitpeaks: hpeaks.Draw("same")
+    hpeaks.Draw("same")
 
     if fitsine and "vsphi" in name:
         global fitsine_const, fitsine_sin, fitsine_cos, fitsine_chi2, fitsine_ndf
