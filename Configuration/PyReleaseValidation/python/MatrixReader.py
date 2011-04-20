@@ -202,6 +202,7 @@ class MatrixReader(object):
                     line += ' ++ none' 
                 if inputInfo :
                     line += ' ++ REALDATA: '+inputInfo.dataSet
+                    if inputInfo.run!=0: line += ', RUN:'+str(inputInfo.run)
                     line += ', FILES: ' +str(inputInfo.files)
                     line += ', EVENTS: '+str(inputInfo.events)
                     line += ', LABEL: ' +inputInfo.label
