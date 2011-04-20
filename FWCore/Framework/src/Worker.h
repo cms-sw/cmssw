@@ -26,6 +26,7 @@ the worker is reset().
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
