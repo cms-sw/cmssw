@@ -1,5 +1,8 @@
 #include "SUSYBSMAnalysis/HSCP/interface/BetaCalculatorRPC.h"
 
+using namespace susybsm;
+
+
 BetaCalculatorRPC::BetaCalculatorRPC(const edm::ParameterSet& iConfig){
 
   rpcRecHitsLabel = iConfig.getParameter<edm::InputTag>("rpcRecHits");

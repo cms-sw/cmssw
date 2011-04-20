@@ -19,15 +19,11 @@
 
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
 
-using namespace edm;
-using namespace reco;
-using namespace susybsm;
-
 
 class  BetaCalculatorTK{
    public:
       BetaCalculatorTK(const edm::ParameterSet& iConfig);
-      void  addInfoToCandidate(HSCParticle& candidate, edm::Event& iEvent, const edm::EventSetup& iSetup);
+      void  addInfoToCandidate(susybsm::HSCParticle& candidate, edm::Event& iEvent, const edm::EventSetup& iSetup);
 
       edm::InputTag m_dedxEstimator1Tag;
       edm::InputTag m_dedxEstimator2Tag;

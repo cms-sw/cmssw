@@ -1,5 +1,9 @@
 #include "SUSYBSMAnalysis/HSCP/interface/BetaCalculatorMUON.h"
 
+using namespace edm;
+using namespace reco;
+using namespace susybsm;
+
 BetaCalculatorMUON::BetaCalculatorMUON(const edm::ParameterSet& iConfig){
 //   m_muontiming_dt       = iConfig.getParameter<InputTag >("muontimingDt"      );
 //   m_muontiming_csc      = iConfig.getParameter<InputTag >("muontimingCsc"     );

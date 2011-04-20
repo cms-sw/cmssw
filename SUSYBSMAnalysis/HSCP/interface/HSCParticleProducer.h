@@ -14,7 +14,7 @@
 // Original Author:  Rizzi Andrea
 // Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCParticleProducer.h,v 1.4 2010/05/01 15:40:47 querten Exp $
+// $Id: HSCParticleProducer.h,v 1.5 2010/12/16 17:08:02 querten Exp $
 
 
 // system include files
@@ -53,7 +53,6 @@
 //
 // class decleration
 //
-using namespace susybsm;
 class HSCParticleProducer : public edm::EDFilter {
   public:
     explicit HSCParticleProducer(const edm::ParameterSet&);
@@ -64,7 +63,7 @@ class HSCParticleProducer : public edm::EDFilter {
     virtual bool filter(edm::Event&, const edm::EventSetup&);
     virtual void endJob() ;
 
-    std::vector<HSCParticle> getHSCPSeedCollection(edm::Handle<reco::TrackCollection>& trackCollectionHandle,  edm::Handle<reco::MuonCollection>& muonCollectionHandle);
+    std::vector<susybsm::HSCParticle> getHSCPSeedCollection(edm::Handle<reco::TrackCollection>& trackCollectionHandle,  edm::Handle<reco::MuonCollection>& muonCollectionHandle);
 
     // ----------member data ---------------------------
     bool          Filter_;

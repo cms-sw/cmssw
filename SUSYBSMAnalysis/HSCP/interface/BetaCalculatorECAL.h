@@ -28,13 +28,11 @@
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPCaloInfo.h"
 
-using namespace susybsm;
-
 class BetaCalculatorECAL {
 
    public:
        BetaCalculatorECAL(const edm::ParameterSet& iConfig);
-       void  addInfoToCandidate(HSCParticle& candidate, edm::Handle<reco::TrackCollection>& tracks, edm::Event& iEvent, const edm::EventSetup& iSetup, HSCPCaloInfo& caloInfo);
+       void  addInfoToCandidate(susybsm::HSCParticle& candidate, edm::Handle<reco::TrackCollection>& tracks, edm::Event& iEvent, const edm::EventSetup& iSetup, susybsm::HSCPCaloInfo& caloInfo);
 
    private:
        int getDetailedTrackLengthInXtals(std::map<int,GlobalPoint>& trackExitPositionMap,

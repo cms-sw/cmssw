@@ -15,15 +15,10 @@
 
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
 
-using namespace edm;
-using namespace reco;
-using namespace susybsm;
-
-
 class  CandidateSelector{
    public:
       CandidateSelector(const edm::ParameterSet& iConfig);
-      bool isSelected(HSCParticle& candidate);
+      bool isSelected(susybsm::HSCParticle& candidate);
 
       bool  isTrack;
       bool  isMuon;

@@ -1,5 +1,12 @@
 #include "SUSYBSMAnalysis/HSCP/interface/CandidateSelector.h"
 
+using namespace edm;
+using namespace reco;
+using namespace susybsm;
+
+
+
+
 CandidateSelector::CandidateSelector(const edm::ParameterSet& iConfig){
    isTrack               = iConfig.getParameter<bool>   ("onlyConsiderTrack");
    isMuon                = iConfig.getParameter<bool>   ("onlyConsiderMuon");

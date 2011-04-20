@@ -1,5 +1,10 @@
 #include "SUSYBSMAnalysis/HSCP/interface/BetaCalculatorTK.h"
 
+using namespace edm;
+using namespace reco;
+using namespace susybsm;
+
+
 BetaCalculatorTK::BetaCalculatorTK(const edm::ParameterSet& iConfig){
 /*
   m_dedxEstimator1Tag     = iConfig.getParameter<edm::InputTag>("dedxEstimator1");

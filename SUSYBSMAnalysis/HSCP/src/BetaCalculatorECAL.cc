@@ -13,6 +13,8 @@
 
 #include "SUSYBSMAnalysis/HSCP/interface/BetaCalculatorECAL.h"
 
+using namespace susybsm;
+
 BetaCalculatorECAL::BetaCalculatorECAL(const edm::ParameterSet& iConfig) :
   EBRecHitCollection_ (iConfig.getParameter<edm::InputTag>("EBRecHitCollection")),
   EERecHitCollection_ (iConfig.getParameter<edm::InputTag>("EERecHitCollection"))
