@@ -356,7 +356,7 @@ def doMapPlotsDT(dt_basedir, tfiles_plotting):
   (1 .. 12) for stations 1-3.
   It could be incorporated into an EXTENDED general DT chambers map (extended by adding an
   identifier "ALL" in column1 for wheel number)."""
-
+  
   for wheel in DT_TYPES:
     if wheel[1]=="ALL": continue
     for station in wheel[2]:
@@ -364,20 +364,21 @@ def doMapPlotsDT(dt_basedir, tfiles_plotting):
       label = "DTvsphi_st%dwh%s" % (int(station[1]), wheelLetter(int(wheel[1])))
       htitle = "wheel %+d, station %s" % (int(wheel[1]), station[1])
       #mapplot(tfiles_plotting, label, "x", window=25., title=htitle, fitsawteeth=True,fitsine=True)
-      mapplot(tfiles_plotting, label, "x", window=25., title=htitle, fitsine=True,fitpeaks=True)
+      mapplot(tfiles_plotting, label, "x", window=25., title=htitle, fitsine=True,fitpeaks=True,peaksbins=4)
       c1.SaveAs(pdir+'map_DTvsphi_x.png')
       #mapplot(tfiles_plotting, label, "dxdz", window=25., title=htitle, fitsawteeth=True,fitsine=True)
-      mapplot(tfiles_plotting, label, "dxdz", window=25., title=htitle)
+      mapplot(tfiles_plotting, label, "dxdz", window=25., title=htitle,peaksbins=4)
       c1.SaveAs(pdir+'map_DTvsphi_dxdz.png')
 
       if station[1]=='4': continue
       #mapplot(tfiles_plotting, label, "y", window=25., title=htitle, fitsawteeth=True,fitsine=True)
-      mapplot(tfiles_plotting, label, "y", window=25., title=htitle)
+      mapplot(tfiles_plotting, label, "y", window=25., title=htitle,peaksbins=4)
       c1.SaveAs(pdir+'map_DTvsphi_y.png')
       #mapplot(tfiles_plotting, label, "dydz", window=25., title=htitle, fitsawteeth=True,fitsine=True)
-      mapplot(tfiles_plotting, label, "dydz", window=25., title=htitle)
+      mapplot(tfiles_plotting, label, "dydz", window=25., title=htitle,peaksbins=4)
       c1.SaveAs(pdir+'map_DTvsphi_dydz.png')
 
+  
   qcount=0
   for wheel in DT_TYPES:
     if wheel[1]!="ALL": continue
@@ -389,15 +390,15 @@ def doMapPlotsDT(dt_basedir, tfiles_plotting):
         pdir = dt_basedir+'/'+wheel[0]+'/'+station[1]+'/'+ssector+'/'
         label = "DTvsz_st%ssec%s" % (station[1], ssector)
         htitle = "station %s, sector %d" % (station[1], sector)
-        mapplot(tfiles_plotting, label, "x", window=25., title=htitle)
+        mapplot(tfiles_plotting, label, "x", window=25., title=htitle, peaksbins=3)
         c1.SaveAs(pdir+'map_DTvsz_x.png')
-        mapplot(tfiles_plotting, label, "dxdz", window=25., title=htitle)
+        mapplot(tfiles_plotting, label, "dxdz", window=25., title=htitle, peaksbins=3)
         c1.SaveAs(pdir+'map_DTvsz_dxdz.png')
         
         if station[1]=='4': continue
-        mapplot(tfiles_plotting, label, "y", window=25., title=htitle)
+	mapplot(tfiles_plotting, label, "y", window=25., title=htitle, peaksbins=3)
         c1.SaveAs(pdir+'map_DTvsz_y.png')
-        mapplot(tfiles_plotting, label, "dydz", window=25., title=htitle)
+        mapplot(tfiles_plotting, label, "dydz", window=25., title=htitle, peaksbins=3)
         c1.SaveAs(pdir+'map_DTvsz_dydz.png')
   
   saveTestResultsMap(options.runLabel)
@@ -923,7 +924,9 @@ c1 = ROOT.TCanvas("c1","c1",800,600)
 
 set_palette("blues")
 
+print "--- ITERATION 1 ---"
 if not SINGLE_ITERATION: doIterationPlots(iteration1, tfiles1_plotting, iter1_tfile, iter1_reports)
+print "--- ITERATION N ---"
 doIterationPlots(iterationN, tfilesN_plotting, iterN_tfile, iterN_reports)
 
 if CPP_LOADED: ROOT.cleanUpHeap()
