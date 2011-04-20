@@ -69,7 +69,6 @@ reducedRecHits = cms.Sequence ( reducedEcalRecHitsSequence * reducedHcalRecHitsS
 
 highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
                              particleFlowReco*
-                             reducedRecHits*
                              egammaHighLevelRecoPostPF*
                              jetHighLevelReco*
                              tautagging*
@@ -78,7 +77,9 @@ highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
                              recoPFMET*
                              PFTau*
                              regionalCosmicTracksSeq*
-                             muoncosmichighlevelreco)
+                             muoncosmichighlevelreco*
+                             reducedRecHits
+                             )
 
 
 from FWCore.Modules.logErrorHarvester_cfi import *

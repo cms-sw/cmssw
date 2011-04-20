@@ -7,5 +7,6 @@ pfPileUp = cms.EDProducer(
     Vertices = cms.InputTag("offlinePrimaryVertices"),
     # pile-up identification now enabled by default. To be studied for jets
     Enable = cms.bool(True),
-    verbose = cms.untracked.bool(False)
+    verbose = cms.untracked.bool(False),
+    checkClosestZVertex = cms.bool(True)
     )

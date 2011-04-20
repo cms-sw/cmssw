@@ -6,7 +6,9 @@ RecoEcalFEVT = cms.PSet(
         #selected digis
         'keep *_selectDigi_*_*',
 	# Hits
-	'keep *_reducedEcalRecHits*_*_*', 
+	'keep *_reducedEcalRecHitsEB_*_*',
+        'keep *_reducedEcalRecHitsEE_*_*',
+        'keep *_reducedEcalRecHitsES_*_*', 
         'keep *_interestingEcalDetId*_*_*', 
         'keep *_ecalWeightUncalibRecHit_*_*', 
         'keep *_ecalPreshowerRecHit_*_*', 
@@ -29,7 +31,9 @@ RecoEcalRECO = cms.PSet(
         #selected digis
         'keep *_selectDigi_*_*',
 	# Hits
-	'keep EcalRecHitsSorted_reducedEcalRecHits*_*_*',
+	'keep EcalRecHitsSorted_reducedEcalRecHitsEE_*_*',
+        'keep EcalRecHitsSorted_reducedEcalRecHitsEB_*_*',
+        'keep EcalRecHitsSorted_reducedEcalRecHitsES_*_*',
 	# Barrel clusters
         'keep *_hybridSuperClusters_*_*',
         'keep recoSuperClusters_correctedHybridSuperClusters_*_*',
@@ -53,7 +57,9 @@ RecoEcalAOD = cms.PSet(
         #selected digis
         'keep *_selectDigi_*_*',
 	# Hits
-        'keep EcalRecHitsSorted_reducedEcalRecHits*_*_*', 
+        'keep EcalRecHitsSorted_reducedEcalRecHitsEB_*_*',
+        'keep EcalRecHitsSorted_reducedEcalRecHitsEE_*_*',
+        'keep EcalRecHitsSorted_reducedEcalRecHitsES_*_*',
 	# Barrel clusters (uncleaned only in separate collections)
         'keep recoSuperClusters_correctedHybridSuperClusters_*_*',
         'keep recoCaloClusters_hybridSuperClusters_*_*',

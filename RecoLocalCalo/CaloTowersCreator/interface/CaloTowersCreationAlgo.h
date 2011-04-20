@@ -35,8 +35,8 @@ class DetId;
 
 /** \class CaloTowersCreationAlgo
   *  
-  * $Date: 2010/01/12 21:18:50 $
-  * $Revision: 1.18 $
+  * $Date: 2010/11/24 19:52:15 $
+  * $Revision: 1.19 $
   * \author R. Wilkinson - Caltech
   */
 
@@ -82,14 +82,14 @@ public:
     double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
     double HOthresholdPlus2, double HOthresholdMinus2, 
     double HF1threshold, double HF2threshold,
-    std::vector<double> EBGrid, std::vector<double> EBWeights,
-    std::vector<double> EEGrid, std::vector<double> EEWeights,
-    std::vector<double> HBGrid, std::vector<double> HBWeights,
-    std::vector<double> HESGrid, std::vector<double> HESWeights,
-    std::vector<double> HEDGrid, std::vector<double> HEDWeights,
-    std::vector<double> HOGrid, std::vector<double> HOWeights,
-    std::vector<double> HF1Grid, std::vector<double> HF1Weights,
-    std::vector<double> HF2Grid, std::vector<double> HF2Weights,
+    const std::vector<double> & EBGrid, const std::vector<double> & EBWeights,
+    const std::vector<double> & EEGrid, const std::vector<double> & EEWeights,
+    const std::vector<double> & HBGrid, const std::vector<double> & HBWeights,
+    const std::vector<double> & HESGrid, const std::vector<double> & HESWeights,
+    const std::vector<double> & HEDGrid, const std::vector<double> & HEDWeights,
+    const std::vector<double> & HOGrid, const std::vector<double> & HOWeights,
+    const std::vector<double> & HF1Grid, const std::vector<double> & HF1Weights,
+    const std::vector<double> & HF2Grid, const std::vector<double> & HF2Weights,
     double EBweight, double EEweight,
     double HBweight, double HESweight, double HEDweight, 
     double HOweight, double HF1weight, double HF2weight,
@@ -192,9 +192,9 @@ public:
   GlobalPoint hadSegmentShwrPos(DetId detId, float fracDepth);
   // "effective" point for the EM/HAD shower in CaloTower
   //  position based on non-zero energy cells
-  GlobalPoint hadShwrPos(std::vector<std::pair<DetId,double> >& metaContains,
+  GlobalPoint hadShwrPos(const std::vector<std::pair<DetId,double> >& metaContains,
     float fracDepth, double hadE);
-  GlobalPoint emShwrPos(std::vector<std::pair<DetId,double> >& metaContains, 
+  GlobalPoint emShwrPos(const std::vector<std::pair<DetId,double> >& metaContains, 
     float fracDepth, double totEmE);
 
   // overloaded function to get had position based on all had cells in the tower
@@ -202,7 +202,7 @@ public:
   GlobalPoint hadShwPosFromCells(DetId frontCell, DetId backCell, float fracDepth);
 
   // for Chris
-  GlobalPoint emShwrLogWeightPos(std::vector<std::pair<DetId,double> >& metaContains, 
+  GlobalPoint emShwrLogWeightPos(const std::vector<std::pair<DetId,double> >& metaContains, 
     float fracDepth, double totEmE);
 
 
@@ -301,9 +301,6 @@ private:
   // Switches and paramters for CaloTower 4-momentum assignment
   // "depth" variables do not affect all algorithms 
   int theMomConstrMethod;
-  double theMomEmDepth;
-  double theMomHadDepth;
-
   double theMomHBDepth;
   double theMomHEDepth;
   double theMomEBDepth;
@@ -312,7 +309,8 @@ private:
   // compactify timing info
   int compactTime(float time);
 
-  CaloTower convert(const CaloTowerDetId& id, const MetaTower& mt);
+  void convert(const CaloTowerDetId& id, const MetaTower& mt, CaloTowerCollection & collection);
+  
 
   // internal map
   typedef std::map<CaloTowerDetId, MetaTower> MetaTowerMap;
@@ -320,7 +318,8 @@ private:
 
   // Number of channels in the tower that were not used in RecHit production (dead/off,...).
   // These channels are added to the other "bad" channels found in the recHit collection. 
-  std::map<CaloTowerDetId, int> hcalDropChMap;
+  typedef std::map<CaloTowerDetId, int> HcalDropChMap;
+  HcalDropChMap hcalDropChMap;
 
   // clasification of channels in tower construction: the category definition is
   // affected by the setting in the configuration file

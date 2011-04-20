@@ -1,4 +1,4 @@
-// $Id: DQMHttpSource.h,v 1.9.18.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: DQMHttpSource.h,v 1.11 2011/03/07 15:31:32 mommsen Exp $
 /// @file: DQMHttpSource.h
 
 #ifndef StorageManager_DQMHttpSource_h
@@ -13,6 +13,8 @@
 #include "FWCore/Sources/interface/RawInputSource.h"
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
 
+#include <boost/thread/mutex.hpp>
+
 #include <memory>
 
 
@@ -23,8 +25,8 @@ namespace edm
     the StorageManager or SMProxyServer to get DQM (histogram) data.
     
     $Author: mommsen $
-    $Revision: 1.9.18.1 $
-    $Date: 2011/03/07 11:33:04 $
+    $Revision: 1.9.18.2 $
+    $Date: 2011/03/29 15:59:29 $
   */
 
   class DQMHttpSource : public edm::RawInputSource
@@ -52,6 +54,7 @@ namespace edm
     DQMStore* dqmStore_;
     stor::EventServerProxy<stor::DQMEventConsumerRegistrationInfo> dqmEventServerProxy_;
 
+    static boost::mutex mutex_;
   };
 
 } // namespace edm

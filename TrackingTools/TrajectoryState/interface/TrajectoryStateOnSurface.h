@@ -89,10 +89,6 @@ public:
 
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
 
- TrajectoryStateOnSurface(TrajectoryStateOnSurface const & rh) :
-    Base(rh){}
-
-
   TrajectoryStateOnSurface(TrajectoryStateOnSurface && rh) :
     Base(std::forward<Base>(rh)){}
     
@@ -100,12 +96,6 @@ public:
     Base::swap(rh);
     return *this;
   }
-
- TrajectoryStateOnSurface & operator=(TrajectoryStateOnSurface const & rh) {
-    Base::operator=(rh);
-    return *this;
-  }
-
 
 #endif
 

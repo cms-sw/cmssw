@@ -203,8 +203,7 @@
       common /hyfpar/ bgen,nbcol,npart,npyt,nhyd
       common /hyflow/ ytfl,ylfl,Tf,fpart
       common /hyjpar/ ptmin,sigin,sigjet,nhsel,ishad,njet
-      common /pypars/ mstp(200),parp(200),msti(200),pari(200)
-      save /pypars/,/pyjets/,/pydat3/,/hyjets/,/hyipar/,/hyfpar/,
+      save /pyjets/,/pydat3/,/hyjets/,/hyipar/,/hyfpar/,
      +     /hyflow/,/hyjpar/,/hypyin/
 
 * reset lujets and hyjets arrays before event generation 
@@ -448,9 +447,7 @@ c       urf=vradf*rrf/reff**2                  !square transverse profile
        ifbp=0                                    ! fix impact parameter 
        bfixp=RA*bgen 
        Ap=AW                                     ! atomic weight            
-
-       xhardestPtHat=-0.1
-
+ 
        do ihard=1,njet       
         mstp(111)=0
 
@@ -491,7 +488,7 @@ c        mstj(41)=0                           ! vacuum showering off
            
         call pyexec                         ! hadronization done 
 c        call pyedit(2)                      ! remove partons & leave hadrons 
-       if(pari(17).gt.xhardestPtHat) xhardestPtHat = pari(17)
+
 
 * fill array of final particles                                                                                                       
 #ifndef  __HIROOT_FORTRAN_ONLY__
@@ -533,7 +530,6 @@ c     write(*,*) ihard," ",nhj
       end if
       njet=njet-nshad
 
-      pari(17)=xhardestPtHat
       return
       end
 

@@ -72,6 +72,15 @@ rm -f tmp.log
 echo "`date` : setting TSC IOVs" >& tmp.log
 tscKey=`$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh -t ${l1Key}`
 echo "`date` : parsed tscKey = ${tscKey}" >> tmp.log 2>&1
+
+# Check if o2o-tscKey.sh is running.  If so, wait 15 seconds to prevent simultaneous writing ot ORCON.
+if [ -f o2o-tscKey.lock ]
+    then
+    echo "o2o-tscKey.sh currently running.  Wait 15 seconds...." >> tmp.log 2>&1
+    sleep 15
+    echo "Resuming process." >> tmp.log 2>&1
+fi
+
 $CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-iov.sh -x ${centralRel} ${run} ${tscKey} >> tmp.log 2>&1
 o2ocode1=$?
 

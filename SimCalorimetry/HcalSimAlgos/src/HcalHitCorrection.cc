@@ -19,17 +19,13 @@ void HcalHitCorrection::fillChargeSums(MixCollection<PCaloHit> & hits)
   for(MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
       hitItr != hits.end(); ++hitItr)
   {
-    HcalDetId hcalDetId(hitItr->id());
-    if(hcalDetId.subdet() == HcalBarrel || hcalDetId.subdet() == HcalEndcap || hcalDetId.subdet() == HcalOuter )
-    {
-      LogDebug("HcalHitCorrection") << "HcalHitCorrection::Hit 0x" << std::hex
-        				  << hitItr->id() << std::dec;
-      int tbin = timeBin(*hitItr);
-      LogDebug("HcalHitCorrection") << "HcalHitCorrection::Hit tbin" << tbin;
-      if(tbin >= 0 && tbin < 10) 
-      {  
-        theChargeSumsForTimeBin[tbin][DetId(hitItr->id())] += charge(*hitItr);
-      }
+    LogDebug("HcalHitCorrection") << "HcalHitCorrection::Hit 0x" << std::hex
+				  << hitItr->id() << std::dec;
+    int tbin = timeBin(*hitItr);
+    LogDebug("HcalHitCorrection") << "HcalHitCorrection::Hit tbin" << tbin;
+    if(tbin >= 0 && tbin < 10) 
+    {  
+      theChargeSumsForTimeBin[tbin][DetId(hitItr->id())] += charge(*hitItr);
     }
   }
 }

@@ -41,10 +41,6 @@ ClassImp(MEMultiVarPanel)
   fHframe1->AddFrame( fVframe1, fHint5 );
   fVframe2 = new TGVerticalFrame( fHframe1, 0, 0, 0 );
   fHframe1->AddFrame( fVframe2, fHint5 );
-  fVframe3 = new TGVerticalFrame( fHframe1, 0, 0, 0 );
-  fHframe1->AddFrame( fVframe3, fHint5 );
-  fVframe4 = new TGVerticalFrame( fHframe1, 0, 0, 0 );
-  fHframe1->AddFrame( fVframe4, fHint5 );
 
   TGVerticalFrame* fVframe = fVframe1;
 
@@ -54,9 +50,7 @@ ClassImp(MEMultiVarPanel)
       f_ComboBox.resize( MusEcal::iSizeLV, 0 );
       for( int jj=0; jj<MusEcal::iSizeLV; jj++ )
 	{
-	  if( jj>=10 && jj<22 ) fVframe = fVframe2;
-	  if( jj>=22 && jj<34) fVframe = fVframe3;
-	  if( jj>=34 ) fVframe = fVframe4;
+	  if( jj>8 ) fVframe = fVframe2;
 	  f_GroupFrame[jj] = new TGGroupFrame( fVframe, "", kHorizontalFrame | kRaisedFrame );
 	  f_GroupFrame[jj]->SetTitle( MusEcal::historyVarName[jj] );
 	  fVframe->AddFrame( f_GroupFrame[jj] );

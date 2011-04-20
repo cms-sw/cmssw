@@ -23,6 +23,9 @@
 #include "TSystem.h"
 
 namespace edm {
+  namespace {
+    std::string const streamerInfo = std::string("StreamerInfo");
+  }
   RootInputFileSequence::RootInputFileSequence(
                 ParameterSet const& pset,
                 PoolSource const& input,
@@ -64,7 +67,7 @@ namespace edm {
     usingGoToEvent_(false) {
 
     //we now allow the site local config to specify what the TTree cache size should be
-    edm::Service<edm::SiteLocalConfig> pSLC;
+    Service<SiteLocalConfig> pSLC;
     if(treeCacheSize_ != 0U && pSLC.isAvailable() && pSLC->sourceTTreeCacheSize()) {
       treeCacheSize_ = *(pSLC->sourceTTreeCacheSize());
     }
@@ -172,8 +175,13 @@ namespace edm {
     }
     catch (cms::Exception const& e) {
       if(!skipBadFiles  && !hasFallbackUrl) {
-        throw edm::Exception(edm::errors::FileOpenError) << e.explainSelf() << "\n" <<
-           "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
+        if(e.explainSelf().find(streamerInfo) != std::string::npos) {
+          throw Exception(errors::FileReadError) << e.explainSelf() << "\n" <<
+            "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " could not be read properly.\n" <<
+            "Possibly the format is incompatible with the current release.\n";
+        }
+        throw Exception(errors::FileOpenError) << e.explainSelf() << "\n" <<
+           "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found, could not be opened, or is corrupted.\n";
       }
     }
     if(!filePtr && (hasFallbackUrl)) {
@@ -184,8 +192,13 @@ namespace edm {
       }
       catch (cms::Exception const& e) {
         if(!skipBadFiles) {
-          throw edm::Exception(edm::errors::FileOpenError) << e.explainSelf() << "\n" <<
-             "RootInputFileSequence::initFile(): Input fallback file " << fallbackName << " was not found or could not be opened.\n";
+          if(e.explainSelf().find(streamerInfo) != std::string::npos) {
+            throw Exception(errors::FileReadError) << e.explainSelf() << "\n" <<
+              "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " could not be read properly.\n" <<
+              "Possibly the format is incompatible with the current release.\n";
+          }
+          throw Exception(errors::FileOpenError) << e.explainSelf() << "\n" <<
+             "RootInputFileSequence::initFile(): Input fallback file " << fallbackName << " was not found, could not be opened, or is corrupted.\n";
         }
       }
     }
@@ -207,7 +220,7 @@ namespace edm {
          (primaryFiles_ ? "primaryFiles" : "secondaryFiles") : "mixingFiles");
     } else {
       if(!skipBadFiles) {
-        throw edm::Exception(edm::errors::FileOpenError) <<
+        throw Exception(errors::FileOpenError) <<
            "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
       }
       LogWarning("") << "Input file: " << fileIter_->fileName() << " was not found or could not be opened, and will be skipped.\n";
@@ -239,7 +252,7 @@ namespace edm {
                                                             parametersMustMatch_,
                                                             branchesMustMatch_);
       if(!mergeInfo.empty()) {
-        throw edm::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::nextFile()") << mergeInfo;
+        throw Exception(errors::MismatchedInputFiles,"RootInputFileSequence::nextFile()") << mergeInfo;
       }
       if (productRegistry()->size() > size) {
         cache.adjustIndexesAfterProductRegistryAddition();
@@ -269,7 +282,7 @@ namespace edm {
                                                             parametersMustMatch_,
                                                             branchesMustMatch_);
       if(!mergeInfo.empty()) {
-        throw edm::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::previousEvent()") << mergeInfo;
+        throw Exception(errors::MismatchedInputFiles,"RootInputFileSequence::previousEvent()") << mergeInfo;
       }
       if (productRegistry()->size() > size) {
         cache.adjustIndexesAfterProductRegistryAddition();
@@ -558,7 +571,7 @@ namespace edm {
   void
   RootInputFileSequence::readManyRandom(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
     if(0 != number && (fileIterEnd_ == fileIterBegin_) ) {
-      throw edm::Exception(edm::errors::Configuration) << "RootInputFileSequence::readManyRandom(): no input files specified.\n";
+      throw Exception(errors::Configuration) << "RootInputFileSequence::readManyRandom(): no input files specified.\n";
     }
     result.reserve(number);
     if (!flatDistribution_) {
@@ -576,7 +589,7 @@ namespace edm {
       }
       eventsRemainingInFile_ = rootFile_->eventTree().entries();
       if(eventsRemainingInFile_ == 0) {
-        throw edm::Exception(edm::errors::NotFound) <<
+        throw Exception(errors::NotFound) <<
            "RootInputFileSequence::readManyRandom_(): Secondary Input file " << fileIter_->fileName() << " contains no events.\n";
       }
       rootFile_->setAtEventEntry(flatDistribution_->fireInt(eventsRemainingInFile_));
@@ -600,7 +613,7 @@ namespace edm {
   void
   RootInputFileSequence::readManySequential(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
     if(0 != number && (fileIterEnd_ == fileIterBegin_) ) {
-      throw edm::Exception(edm::errors::Configuration) << "RootInputFileSequence::readManySequential(): no input files specified.\n";
+      throw Exception(errors::Configuration) << "RootInputFileSequence::readManySequential(): no input files specified.\n";
     }
     result.reserve(number);
     skipBadFiles_ = false;
@@ -641,7 +654,7 @@ namespace edm {
     for (std::vector<EventID>::const_iterator it = events.begin(), itEnd = events.end(); it != itEnd; ++it) {
       bool found = skipToItem(it->run(), it->luminosityBlock(), it->event());
       if (!found) {
-        throw edm::Exception(edm::errors::NotFound) <<
+        throw Exception(errors::NotFound) <<
            "RootInputFileSequence::readManySpecified_(): Secondary Input file " <<
            fileIter_->fileName() <<
            " does not contain specified event:\n" << *it << "\n";
@@ -649,7 +662,7 @@ namespace edm {
       boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(rootFile_->productRegistry(), processConfiguration()));
       EventPrincipal* ev = rootFile_->readCurrentEvent(*ep);
       if (ev == 0) {
-        throw edm::Exception(edm::errors::EventCorruption) <<
+        throw Exception(errors::EventCorruption) <<
            "RootInputFileSequence::readManySpecified_(): Secondary Input file " <<
            fileIter_->fileName() <<
            " contains specified event " << *it << " that cannot be read.\n";

@@ -25,6 +25,12 @@ if ylabel != 'Efficiency' and ylabel != 'Fake rate':
     sys.exit()
 toPlot = sys.argv[4:]
 
+maxLog = 3
+for option in toPlot:
+    if(option.find('maxLog=') != -1):
+        maxLog= float(option[option.find('=')+1:])
+        toPlot.remove(option)
+
 #Takes the position of all plots that were produced
 plotList = []
 parList = ['pt', 'eta', 'phi', 'energy']
@@ -38,11 +44,11 @@ for attr in dir(validation.TauEfficiencies.plots):
 histoList = []
 for plot in toPlot:
     for path in plotList:
-        if Match(plot,path):
+        if Match(plot.lower(),path.lower()):
             histoList.append(path)
 
 print histoList
-legend = TLegend(0.6,0.72,0.6+0.39,0.72+0.17)
+legend = TLegend(0.6,0.82,0.6+0.39,0.82+0.17)
 legend.SetHeader('')
 canvas = TCanvas('MultiPlot','MultiPlot',validation.standardDrawingStuff.canvasSizeX.value(),validation.standardDrawingStuff.canvasSizeY.value())
 colors = [2,3,4,6,5,7,28,1,2,3,4,6,5,7,28,1,2,3,4,6,5,7,28,1,2,3,4,6,5,7,28,1,2,3,4,6,5,7,28,1]
@@ -65,21 +71,22 @@ for histoPath,color in zip(histoList,colors):
         first = False
         testH.Draw('ex0')
         if ylabel=='Fake rate':
-            testH.GetYaxis().SetRangeUser(0.001,3)
+            testH.GetYaxis().SetRangeUser(0.001,maxLog)
             canvas.SetLogy()
             canvas.Update()
     else:
-        testH.Draw('same ex0')
+        testH.Draw('same ex0 l')
     refH = refFile.Get(histoPath)
     if type(refH) != TH1F:
         print 'Ref plot not found! It will not be plotted!'
         continue
     refH.SetLineColor(color)
     refH.SetLineWidth(1)
+    refH.DrawCopy('same hist')
     refH.SetFillColor(color)
     refH.SetFillStyle(3001)
     refH.Draw('same e3')
 legend.Draw()
-canvas.Print('MultipleCompare.jpg')
+canvas.Print('MultipleCompare.pdf')
 
 

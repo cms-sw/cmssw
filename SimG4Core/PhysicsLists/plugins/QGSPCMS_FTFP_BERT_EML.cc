@@ -11,8 +11,8 @@
 #include "G4NeutronTrackingCut.hh"
 
 #include "G4DataQuestionaire.hh"
-#include "HadronPhysicsQGSP_FTFP_BERT.hh"
-//#include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSPCMS_FTFP_BERT.h"
+//#include "HadronPhysicsQGSP_FTFP_BERT.hh"
+#include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSPCMS_FTFP_BERT.h"
 
 #include <string>
 
@@ -51,8 +51,8 @@ QGSPCMS_FTFP_BERT_EML::QGSPCMS_FTFP_BERT_EML(G4LogicalVolumeToDDLogicalPartMap& 
 
     // Hadron Physics
     G4bool quasiElastic=true;
-    //    RegisterPhysics( new HadronPhysicsQGSPCMS_FTFP_BERT("hadron",quasiElastic)); 
-    RegisterPhysics( new HadronPhysicsQGSP_FTFP_BERT("hadron",quasiElastic));
+    RegisterPhysics( new HadronPhysicsQGSPCMS_FTFP_BERT("hadron",quasiElastic)); 
+    // RegisterPhysics( new HadronPhysicsQGSP_FTFP_BERT("hadron",quasiElastic));
   
     // Stopping Physics
     RegisterPhysics( new G4QStoppingPhysics("stopping"));

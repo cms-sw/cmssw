@@ -489,7 +489,7 @@ class Events:
         """Jumps to event entryIndex"""
         if self._veryFirstTime:
             self._createFWLiteEvent()
-        self._event.to ( long(entryIndex) )
+        return self._event.to ( long(entryIndex) )
 
         
     def toBegin (self):

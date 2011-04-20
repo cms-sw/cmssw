@@ -95,10 +95,12 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , asSupervisor_(0)
   , supervising_(false)
   , monitorInfoSpace_(0)
+  , monitorLegendaInfoSpace_(0)
   , applicationInfoSpace_(0)
   , nbProcessed(0)
   , nbAccepted(0)
   , scalersInfoSpace_(0)
+  , scalersLegendaInfoSpace_(0)
   , wlScalers_(0)
   , asScalers_(0)
   , wlScalersActive_(false)
@@ -111,6 +113,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , vulture_(0)
   , vp_(0)
   , cpustat_(0)
+  , ratestat_(0)
 {
   using namespace utils;
 
@@ -176,11 +179,13 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   
   // initialize monitoring infospace
 
-  std::stringstream oss2;
-  oss2<<"urn:xdaq-monitorable-"<<class_.toString();
-  std::string monInfoSpaceName=oss2.str();
+  std::string monInfoSpaceName="evf-eventprocessor-status-monitor";
   toolbox::net::URN urn = this->createQualifiedInfoSpace(monInfoSpaceName);
   monitorInfoSpace_ = xdata::getInfoSpaceFactory()->get(urn.toString());
+
+  std::string monLegendaInfoSpaceName="evf-eventprocessor-status-legenda";
+  urn = this->createQualifiedInfoSpace(monLegendaInfoSpaceName);
+  monitorLegendaInfoSpace_ = xdata::getInfoSpaceFactory()->get(urn.toString());
 
   
   monitorInfoSpace_->fireItemAvailable("url",                      &url_            );
@@ -191,17 +196,21 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
 
   monitorInfoSpace_->fireItemAvailable("squidPresent",             &squidPresent_   );
 
-  std::stringstream oss3;
-  oss3<<"urn:xdaq-scalers-"<<class_.toString();
-  std::string monInfoSpaceName2=oss3.str();
-  toolbox::net::URN urn2 = this->createQualifiedInfoSpace(monInfoSpaceName2);
+  std::string scalersInfoSpaceName="evf-eventprocessor-scalers-monitor";
+  urn = this->createQualifiedInfoSpace(scalersInfoSpaceName);
+  scalersInfoSpace_ = xdata::getInfoSpaceFactory()->get(urn.toString());
 
-  xdata::InfoSpace *scalersInfoSpace_ = xdata::getInfoSpaceFactory()->get(urn2.toString());
-  evtProcessor_.setScalersInfoSpace(scalersInfoSpace_);
+  std::string scalersLegendaInfoSpaceName="evf-eventprocessor-scalers-legenda";
+  urn = this->createQualifiedInfoSpace(scalersLegendaInfoSpaceName);
+  scalersLegendaInfoSpace_ = xdata::getInfoSpaceFactory()->get(urn.toString());
+
+
+
+  evtProcessor_.setScalersInfoSpace(scalersInfoSpace_,scalersLegendaInfoSpace_);
   scalersInfoSpace_->fireItemAvailable("instance", &instance_);
 
   evtProcessor_.setApplicationInfoSpace(ispace);
-  evtProcessor_.setMonitorInfoSpace(monitorInfoSpace_);
+  evtProcessor_.setMonitorInfoSpace(monitorInfoSpace_,monitorLegendaInfoSpace_);
   evtProcessor_.publishConfigAndMonitorItems(nbSubProcesses_.value_!=0);
 
   //subprocess state vectors for MP
@@ -310,7 +319,6 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
     + (hasServiceWebRegistry_.value_ ? 0x4 : 0) 
     + (hasModuleWebRegistry_.value_ ? 0x2 : 0) 
     + (hasPrescaleService_.value_ ? 0x1 : 0);
-
   if(nbSubProcesses_.value_==0) 
     {
       spMStates_.setSize(1); 
@@ -336,20 +344,26 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 	configuration_ = evtProcessor_.configuration();
 	if(nbSubProcesses_.value_==0) evtProcessor_.startMonitoringWorkLoop(); 
 	evtProcessor_->beginJob(); 
-	if(cpustat_) delete cpustat_;
+	if(cpustat_) {delete cpustat_; cpustat_=0;}
 	cpustat_ = new CPUStat(evtProcessor_.getNumberOfMicrostates(),
 			       iDieUrl_.value_);
+	if(ratestat_) {delete ratestat_; ratestat_=0;}
+	ratestat_ = new RateStat(iDieUrl_.value_);
 	if(iDieStatisticsGathering_.value_){
 	  try{
 	    cpustat_->sendLegenda(evtProcessor_.getmicromap());
+	    xdata::Serializable *legenda = scalersLegendaInfoSpace_->find("scalersLegenda");
+	    if(legenda !=0){
+	      std::string slegenda = ((xdata::String*)legenda)->value_;
+	      ratestat_->sendLegenda(slegenda);
+	    }
+
 	  }
 	  catch(evf::Exception &e){
 	    LOG4CPLUS_INFO(getApplicationLogger(),"coud not send legenda"
 			   << e.what());
 	  }
 	}
-	if(ratestat_) delete ratestat_;
-	ratestat_ = new RateStat(iDieUrl_.value_);
 	
 	fsm_.fireEvent("ConfigureDone",this);
 	LOG4CPLUS_INFO(getApplicationLogger(),"Finished configuring!");
@@ -408,23 +422,25 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
   std::string cfg = configString_.toString(); evtProcessor_.init(smap,cfg);
 
   if(!epInitialized_){
-    if(cpustat_) delete cpustat_;
+    evtProcessor_->beginJob(); 
+    if(cpustat_) {delete cpustat_; cpustat_=0;}
     cpustat_ = new CPUStat(evtProcessor_.getNumberOfMicrostates(),
 			   iDieUrl_.value_);
     if(iDieStatisticsGathering_.value_){
       try{
 	cpustat_->sendLegenda(evtProcessor_.getmicromap());
-//       xdata::Serializable *legenda = scalersInfoSpace_->find("scalersLegenda");
-//       if(legenda !=0){
-// 	std::string slegenda = ((xdata::String*)legenda)->value_;
-// 	ratestat_->sendLegenda(slegenda);
+	xdata::Serializable *legenda = scalersInfoSpace_->find("scalersLegenda");
+	if(legenda !=0){
+	  std::string slegenda = ((xdata::String*)legenda)->value_;
+	  ratestat_->sendLegenda(slegenda);
+       }
       }
       catch(evf::Exception &e){
 	LOG4CPLUS_INFO(getApplicationLogger(),"coud not send legenda"
 		       << e.what());
       }
     }
-    if(ratestat_) delete ratestat_;
+    if(ratestat_) {delete ratestat_; ratestat_=0;}
     ratestat_ = new RateStat(iDieUrl_.value_);
     epInitialized_ = true;
   }
@@ -719,7 +735,7 @@ void FUEventProcessor::scalersWeb(xgi::Input  *in, xgi::Output *out)
   out->getHTTPResponseHeader().addHeader( "Content-Transfer-Encoding",
 					  "binary" );
   if(evtProcessor_ != 0){
-    out->write( (char*)(evtProcessor_.getPackedTriggerReport()->mtext), sizeof(TriggerReportStatic) );
+    out->write( (char*)(evtProcessor_.getPackedTriggerReportAsStruct()), sizeof(TriggerReportStatic) );
   }
 }
 
@@ -728,7 +744,7 @@ void FUEventProcessor::pathNames(xgi::Input  *in, xgi::Output *out)
 {
 
   if(evtProcessor_ != 0){
-    xdata::Serializable *legenda = scalersInfoSpace_->find("scalersLegenda");
+    xdata::Serializable *legenda = scalersLegendaInfoSpace_->find("scalersLegenda");
     if(legenda !=0){
       std::string slegenda = ((xdata::String*)legenda)->value_;
       *out << slegenda << std::endl;
@@ -1081,13 +1097,17 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 			  notifyQualified("error",sentinelException);
 			  subs_[i].setReportedInconsistent();
 			}
-		      ((xdata::UnsignedInteger32*)nbProcessed)->value_ += p->nbp;
-		      ((xdata::UnsignedInteger32*)nbAccepted)->value_  += p->nba;
+		      nbp->value_ += subs_[i].params().nbp;
+		      nba->value_  += subs_[i].params().nba;
 		      if(dqm)dqm->value_ += p->dqm;
 		      nbTotalDQM_ +=  p->dqm;
 		      scalersUpdates_ += p->trp;
 		      if(p->ls > ls->value_) ls->value_ = p->ls;
 		      if(p->ps != ps->value_) ps->value_ = p->ps;
+		    }
+		    else{
+		      nbp->value_ += subs_[i].get_save_nbp();
+		      nba->value_ += subs_[i].get_save_nba();
 		    }
 		  } 
 		  catch(evf::Exception &e){
@@ -1098,7 +1118,11 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		    
 		}
 	      else
-		nbdead_++;
+		{
+		  nbp->value_ += subs_[i].get_save_nbp();
+		  nba->value_ += subs_[i].get_save_nba();
+		  nbdead_++;
+		}
 	    }
 	}
       
@@ -1262,9 +1286,8 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
   //  cpustat_->printStat();
   if(iDieStatisticsGathering_.value_){
     try{
-      std::cout << "sending stats to iDie " << std::endl;
       cpustat_ ->sendStat(evtProcessor_.getLumiSectionReferenceIndex());
-      ratestat_->sendStat((char*)(evtProcessor_.getPackedTriggerReport()->mtext),
+      ratestat_->sendStat((unsigned char*)(evtProcessor_.getPackedTriggerReportAsStruct()),
 			  sizeof(TriggerReportStatic),
 			  evtProcessor_.getLumiSectionReferenceIndex());
     }catch(evf::Exception &e){
@@ -1788,7 +1811,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.117 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.119 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

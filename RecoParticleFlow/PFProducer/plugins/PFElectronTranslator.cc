@@ -21,6 +21,8 @@
 PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet & iConfig) {
   inputTagPFCandidates_ 
     = iConfig.getParameter<edm::InputTag>("PFCandidate");
+  inputTagPFCandidateElectrons_ 
+    = iConfig.getParameter<edm::InputTag>("PFCandidateElectron");
   inputTagGSFTracks_
     = iConfig.getParameter<edm::InputTag>("GSFTracks");
 
@@ -106,7 +108,7 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
   gsfPFCandidateIndex_.clear();
   gsfElectronCoreRefs_.clear();
   scMap_.clear();
-  gsfMvaMap_.clear();
+
  
   // loop on the candidates 
   //CC@@
@@ -122,7 +124,6 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
     if(cand.gsfTrackRef().isNull()) continue;
     // Note that -1 will still cut some total garbage candidates 
     // Fill the MVA map
-    gsfMvaMap_[cand.gsfTrackRef()]=cand.mva_e_pi();	  
     if(cand.mva_e_pi()<MVACut_) continue;
 
     GsfTrackRef_.push_back(cand.gsfTrackRef());
@@ -348,8 +349,24 @@ void PFElectronTranslator::createSuperClusterGsfMapRefs(const edm::OrphanHandle<
 }
 
 
-void PFElectronTranslator::fillMVAValueMap(edm::Event& iEvent, edm::ValueMap<float>::Filler & filler) const
+void PFElectronTranslator::fillMVAValueMap(edm::Event& iEvent, edm::ValueMap<float>::Filler & filler) 
 {
+  gsfMvaMap_.clear();
+  edm::Handle<reco::PFCandidateCollection> pfCandidates;
+  bool status=fetchCandidateCollection(pfCandidates, 
+				       inputTagPFCandidateElectrons_, 
+				       iEvent );
+  
+  unsigned ncand=(status)?pfCandidates->size():0;
+  for( unsigned i=0; i<ncand; ++i ) {
+    
+    const reco::PFCandidate& cand = (*pfCandidates)[i];    
+    if(cand.particleId()!=reco::PFCandidate::e) continue; 
+    if(cand.gsfTrackRef().isNull()) continue;
+    // Fill the MVA map
+    gsfMvaMap_[cand.gsfTrackRef()]=cand.mva_e_pi();	  
+  }
+  
   edm::Handle<reco::GsfTrackCollection> gsfTracks;
   fetchGsfCollection(gsfTracks,
 		     inputTagGSFTracks_,
@@ -368,6 +385,7 @@ void PFElectronTranslator::fillMVAValueMap(edm::Event& iEvent, edm::ValueMap<flo
 	}
       else
 	{
+	  //	  std::cout <<  " Value " << itcheck->second << std::endl;
 	  values.push_back(itcheck->second);      
 	}
     }
