@@ -14,11 +14,11 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: PreshowerDetIdAssociator.h,v 1.4 2010/02/18 14:35:48 dmytro Exp $
+// $Id: PreshowerDetIdAssociator.h,v 1.1 2011/04/07 09:12:02 innocent Exp $
 //
 //
 
-#include "TrackingTools/TrackAssociator/interface/CaloDetIdAssociator.h"
+#include "CaloDetIdAssociator.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 class PreshowerDetIdAssociator: public CaloDetIdAssociator{

@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.44 2011/03/20 11:55:10 innocent Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.46 2011/04/07 09:03:04 innocent Exp $
 //
 //
 
@@ -74,9 +74,11 @@
 #include "Math/VectorUtil.h"
 #include <algorithm>
 
-#include "TrackingTools/TrackAssociator/interface/CaloDetIdAssociator.h"
-#include "TrackingTools/TrackAssociator/interface/EcalDetIdAssociator.h"
-#include "TrackingTools/TrackAssociator/interface/PreshowerDetIdAssociator.h"
+#include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
+#include "TrackingTools/TrackAssociator/interface/DetIdInfo.h"
+// #include "TrackingTools/TrackAssociator/interface/CaloDetIdAssociator.h"
+// #include "TrackingTools/TrackAssociator/interface/EcalDetIdAssociator.h"
+// #include "TrackingTools/TrackAssociator/interface/PreshowerDetIdAssociator.h"
 // #include "Utilities/Timing/interface/TimerStack.h"
 
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"

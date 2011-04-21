@@ -15,11 +15,11 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: HODetIdAssociator.h,v 1.5 2010/02/18 15:45:41 dmytro Exp $
+// $Id: HODetIdAssociator.h,v 1.1 2011/04/07 09:12:02 innocent Exp $
 //
 //
 
-#include "TrackingTools/TrackAssociator/interface/CaloDetIdAssociator.h"
+#include "CaloDetIdAssociator.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 class HODetIdAssociator: public CaloDetIdAssociator{
  public:

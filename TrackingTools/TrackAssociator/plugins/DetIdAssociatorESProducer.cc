@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Thu Oct  4 02:28:48 CEST 2007
-// $Id$
+// $Id: DetIdAssociatorESProducer.cc,v 1.4 2009/09/06 16:34:57 dmytro Exp $
 //
 //
 
@@ -27,7 +27,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
-#include "TrackingTools/TrackAssociator/interface/DetIdAssociatorFactory.h"
+#include "DetIdAssociatorFactory.h"
 
 #include "TrackingTools/Records/interface/DetIdAssociatorRecord.h"
 

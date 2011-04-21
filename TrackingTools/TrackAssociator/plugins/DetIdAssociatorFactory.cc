@@ -1,5 +1,5 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-#include "TrackingTools/TrackAssociator/interface/DetIdAssociatorFactory.h"
+#include "DetIdAssociatorFactory.h"
 
 EDM_REGISTER_PLUGINFACTORY(DetIdAssociatorFactory, "DetIdAssociatorFactory");
 
