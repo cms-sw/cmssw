@@ -42,22 +42,33 @@ class ShapeBuilder(ModelBuilder):
                     bgpdfs.add(pdf); bgcoeffs.add(coeff)
             sum_s = ROOT.RooAddPdf("pdf_bin%s"       % b, "",   pdfs,   coeffs)
             sum_b = ROOT.RooAddPdf("pdf_bin%s_bonly" % b, "", bgpdfs, bgcoeffs)
-            self.out._import(sum_s, ROOT.RooFit.RenameConflictNodes(b))
-            self.out._import(sum_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
+            if len(self.DC.systs):
+                # rename the pdfs
+                sum_s.SetName("pdf_bin%s_nuis" % b); sum_b.SetName("pdf_bin%s_bonly_nuis" % b)
+                # now we multiply by all the nuisances, but avoiding nested products
+                # so we first make a list of all nuisances plus the RooAddPdf
+                sumPlusNuis_s = ROOT.RooArgList(self.out.nuisPdfs); sumPlusNuis_s.add(sum_s)
+                sumPlusNuis_b = ROOT.RooArgList(self.out.nuisPdfs); sumPlusNuis_b.add(sum_b)
+                # then make RooProdPdf and import it
+                pdf_s = ROOT.RooProdPdf("pdf_bin%s"       % b, "", sumPlusNuis_s) 
+                pdf_b = ROOT.RooProdPdf("pdf_bin%s_bonly" % b, "", sumPlusNuis_b) 
+                self.out._import(pdf_s, ROOT.RooFit.RenameConflictNodes(b))
+                self.out._import(pdf_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
+            else:
+                self.out._import(sum_s, ROOT.RooFit.RenameConflictNodes(b))
+                self.out._import(sum_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
     def doCombination(self):
-        prefix = "modelObs" if len(self.DC.systs) else "model" # if no systematics, we build directly the model
+        ## Contrary to Number-counting models, here each channel PDF already contains the nuisances
+        ## So we just have to build the combined pdf
         if len(self.DC.bins) > 1:
             for (postfixIn,postfixOut) in [ ("","_s"), ("_bonly","_b") ]:
-                simPdf = ROOT.RooSimultaneous(prefix+postfixOut, prefix+postfixOut, self.out.binCat)
+                simPdf = ROOT.RooSimultaneous("model"+postfixOut, "model"+postfixOut, self.out.binCat)
                 for b in self.DC.bins:
                     simPdf.addPdf(self.out.pdf("pdf_bin%s%s" % (b,postfixIn)), b)
                 self.out._import(simPdf)
         else:
-            self.out._import(self.out.pdf("pdf_bin%s"       % self.DC.bins[0]).clone(prefix+"_s"), ROOT.RooFit.Silence())
-            self.out._import(self.out.pdf("pdf_bin%s_bonly" % self.DC.bins[0]).clone(prefix+"_b"), ROOT.RooFit.Silence())
-        if len(self.DC.systs): # multiply by nuisances if needed
-            self.doObj("model_s", "PROD", "modelObs_s, nuisancePdf")
-            self.doObj("model_b", "PROD", "modelObs_b, nuisancePdf")
+            self.out._import(self.out.pdf("pdf_bin%s"       % self.DC.bins[0]).clone("model_s"), ROOT.RooFit.Silence())
+            self.out._import(self.out.pdf("pdf_bin%s_bonly" % self.DC.bins[0]).clone("model_b"), ROOT.RooFit.Silence())
 
     ## --------------------------------------
     ## -------- High level helpers ----------

@@ -129,6 +129,7 @@ class ModelBuilder(ModelBuilderBase):
             self.out.defineSet("nuisances", nuisVars)
             self.out.nuisPdf = ROOT.RooProdPdf("nuisancePdf", "nuisancePdf", nuisPdfs)
             self.out._import(self.out.nuisPdf)
+            self.out.nuisPdfs = nuisPdfs
             gobsVars = ROOT.RooArgSet()
             for g in globalobs: gobsVars.add(self.out.var(g))
             self.out.defineSet("globalObservables", gobsVars)
