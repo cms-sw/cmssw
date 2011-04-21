@@ -142,8 +142,6 @@ class GlobalMuonRefitter {
 
     RefitDirection theRefitDirection;
 
-    std::vector<int> theDYTthrs;	
-
     std::string theFitterName;
     edm::ESHandle<TrajectoryFitter> theFitter;
   
