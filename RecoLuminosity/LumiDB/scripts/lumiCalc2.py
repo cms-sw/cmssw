@@ -225,10 +225,10 @@ if __name__ == '__main__':
     if options.action == 'lumibylsXing':
        session.transaction().start(True)
        result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,xingMinLum=options.xingMinLum,withBeamInfo=False,withBXInfo=True,bxAlgo=options.xingAlgo)
+       session.transaction().commit()           
        if not options.outputfile:
            lumiReport.toScreenLumiByLS(result,options.verbose)
        else:
            lumiReport.toCSVLumiByLSXing(result,options.outputfile)
-       session.transaction().commit()           
     del session
     del svc 
