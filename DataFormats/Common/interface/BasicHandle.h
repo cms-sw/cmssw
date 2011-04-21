@@ -53,7 +53,7 @@ namespace edm {
 
     BasicHandle(void const* prod, WrapperInterfaceBase const* interface, Provenance const* prov) :
       product_(WrapperHolder(prod, interface)),
-      prov_(prov_) {
+      prov_(prov) {
     }
 
     BasicHandle(ProductData const& productData) :
