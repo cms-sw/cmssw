@@ -1,4 +1,4 @@
-// $Id: DQMEventProcessor.cc,v 1.15 2011/04/04 12:03:30 mommsen Exp $
+// $Id: DQMEventProcessor.cc,v 1.16 2011/04/19 16:01:53 mommsen Exp $
 /// @file: DQMEventProcessor.cc
 
 #include "toolbox/task/WorkLoopFactory.h"
@@ -191,6 +191,7 @@ namespace stor {
   void DQMEventProcessor::endOfRun()
   {
     dqmEventStore_.purge();
+    latestLumiSection_ = 0;
   }
     
 } // namespace stor
