@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.cc,v 1.16 2011/04/14 12:52:48 mommsen Exp $
+// $Id: StreamsMonitorCollection.cc,v 1.17 2011/04/18 15:18:57 mommsen Exp $
 /// @file: StreamsMonitorCollection.cc
 
 #include <string>
@@ -229,33 +229,48 @@ namespace stor {
     
     boost::mutex::scoped_lock sl(streamRecordsMutex_);
     
-    const size_t statsCount = streamRecords_.size();
-    const size_t infospaceCount = streamNames_.size();
-
-    if ( statsCount != infospaceCount )
-    {
-      streamNames_.resize(statsCount);
-      eventsPerStream_.resize(statsCount);
-      ratePerStream_.resize(statsCount);
-      bandwidthPerStream_.resize(statsCount);
-    }
-
-    for (size_t i=0; i < statsCount; ++i)
+    streamNames_.clear();
+    eventsPerStream_.clear();
+    ratePerStream_.clear();
+    bandwidthPerStream_.clear();
+    
+    streamNames_.reserve(streamRecords_.size());
+    eventsPerStream_.reserve(streamRecords_.size());
+    ratePerStream_.reserve(streamRecords_.size());
+    bandwidthPerStream_.reserve(streamRecords_.size());
+    
+    for (
+      StreamRecordList::const_iterator
+        it = streamRecords_.begin(), itEnd = streamRecords_.end();
+      it != itEnd;
+      ++it
+    )
     {
       MonitoredQuantity::Stats streamVolumeStats;
-      streamRecords_.at(i)->volume.getStats(streamVolumeStats);
+      (*it)->volume.getStats(streamVolumeStats);
       MonitoredQuantity::Stats streamBandwidthStats;
-      streamRecords_.at(i)->bandwidth.getStats(streamBandwidthStats);
-
-      streamNames_.at(i) = static_cast<xdata::String>(streamRecords_.at(i)->streamName);
-      eventsPerStream_.at(i) = static_cast<xdata::UnsignedInteger32>(
-        streamVolumeStats.getSampleCount(MonitoredQuantity::FULL)
+      (*it)->bandwidth.getStats(streamBandwidthStats);
+      
+      streamNames_.push_back(
+        static_cast<xdata::String>( (*it)->streamName )
       );
-      ratePerStream_.at(i) = static_cast<xdata::Double>(
-        streamVolumeStats.getSampleRate(MonitoredQuantity::RECENT)
+      
+      eventsPerStream_.push_back(
+        static_cast<xdata::UnsignedInteger32>(
+          streamVolumeStats.getSampleCount(MonitoredQuantity::FULL)
+        )
       );
-      bandwidthPerStream_.at(i) = static_cast<xdata::Double>(
-        streamBandwidthStats.getValueRate(MonitoredQuantity::RECENT)
+      
+      ratePerStream_.push_back(
+        static_cast<xdata::Double>(
+          streamVolumeStats.getSampleRate(MonitoredQuantity::RECENT)
+        )
+      );
+      
+      bandwidthPerStream_.push_back(
+        static_cast<xdata::Double>(
+          streamBandwidthStats.getValueRate(MonitoredQuantity::RECENT)
+        )
       );
     }
   }

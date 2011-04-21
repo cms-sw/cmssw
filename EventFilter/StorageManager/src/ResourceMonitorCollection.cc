@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.41 2011/04/18 15:18:57 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.42 2011/04/20 07:59:34 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <stdio.h>
@@ -207,23 +207,33 @@ namespace stor {
     sataBeastStatus_ = stats.sataBeastStatus;
     numberOfDisks_ = nLogicalDisks_;
     
-    const size_t statsCount = stats.diskUsageStatsList.size();
-    const size_t infospaceCount = diskPaths_.size();
-
-    if ( statsCount != infospaceCount )
+    diskPaths_.clear();
+    totalDiskSpace_.clear();
+    usedDiskSpace_.clear();
+    
+    diskPaths_.reserve(stats.diskUsageStatsList.size());
+    totalDiskSpace_.reserve(stats.diskUsageStatsList.size());
+    usedDiskSpace_.reserve(stats.diskUsageStatsList.size());
+    
+    for (DiskUsageStatsPtrList::const_iterator
+           it = stats.diskUsageStatsList.begin(),
+           itEnd = stats.diskUsageStatsList.end();
+         it != itEnd;
+         ++it)
     {
-      diskPaths_.resize(statsCount);
-      totalDiskSpace_.resize(statsCount);
-      usedDiskSpace_.resize(statsCount);
-    }
-
-    for (size_t i=0; i < statsCount; ++i)
-    {
-      diskPaths_.at(i) = static_cast<xdata::String>(stats.diskUsageStatsList.at(i)->pathName);
-      totalDiskSpace_.at(i) = static_cast<xdata::UnsignedInteger32>(
-        static_cast<unsigned int>(stats.diskUsageStatsList.at(i)->diskSize * 1024));
-      usedDiskSpace_.at(i) = static_cast<xdata::UnsignedInteger32>(
-        static_cast<unsigned int>(stats.diskUsageStatsList.at(i)->absDiskUsage * 1024));
+      diskPaths_.push_back(
+        static_cast<xdata::String>( (*it)->pathName )
+      );
+      totalDiskSpace_.push_back(
+        static_cast<xdata::UnsignedInteger32>(
+          static_cast<unsigned int>( (*it)->diskSize * 1024 )
+        )
+      );
+      usedDiskSpace_.push_back(
+        static_cast<xdata::UnsignedInteger32>( 
+          static_cast<unsigned int>( (*it)->absDiskUsage * 1024 )
+        )
+      );
     }
     
     calcDiskUsage();

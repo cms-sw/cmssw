@@ -1,3 +1,11 @@
+2011-04-XX Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-02-00
+	* Fixed ROOT TThread handling from tag V07-03-06 (branch_3_10_x).
+	* Merge changes from tags V07-03-04 and V07-04-00 (branch_3_10_x)
+	  into trunk.
+	* Safer handling of stream records in SM hyperdaq page.
+
 2011-04-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-01-01
@@ -24,7 +32,7 @@
 2011-04-21 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V07-04-01
-	* Reset latest LS seen for DQM message discards at run stop.
+	* Reset latest LS seen for DQM message at run stop.
 
 2011-04-20 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
