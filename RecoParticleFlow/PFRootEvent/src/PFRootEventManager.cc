@@ -972,7 +972,6 @@ void PFRootEventManager::readOptions(const char* file,
   double sumPtTrackIsoForEgammaSC_endcap;
   unsigned int nTrackIsoForEgammaSC;
   double coneTrackIsoForEgammaSC;
-  bool useEGammaElectrons;
   options_->GetOpt("particle_flow","useEGammaSupercluster",useEGammaSupercluster);
   options_->GetOpt("particle_flow","sumEtEcalIsoForEgammaSC_barrel",sumEtEcalIsoForEgammaSC_barrel);
   options_->GetOpt("particle_flow","sumEtEcalIsoForEgammaSC_endcap",sumEtEcalIsoForEgammaSC_endcap);
@@ -981,7 +980,7 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("particle_flow","sumPtTrackIsoForEgammaSC_endcap",sumPtTrackIsoForEgammaSC_endcap);
   options_->GetOpt("particle_flow","nTrackIsoForEgammaSC",nTrackIsoForEgammaSC);
   options_->GetOpt("particle_flow","coneTrackIsoForEgammaSC",coneTrackIsoForEgammaSC);
-  options_->GetOpt("particle_flow","useEGammaElectrons",useEGammaElectrons);
+  options_->GetOpt("particle_flow","useEGammaElectrons",useEGElectrons_);
 
   //--ab: get calibration factors for HF:
   bool calibHF_use = false;
@@ -1108,6 +1107,10 @@ void PFRootEventManager::readOptions(const char* file,
     options_->GetOpt("particle_flow", "electronID_mvaWeightFile", 
 		     mvaWeightFileEleID);
     mvaWeightFileEleID = expand(mvaWeightFileEleID);
+
+    std::string egammaElectronstagname;
+    options_->GetOpt("particle_flow","egammaElectrons",egammaElectronstagname);
+    egammaElectronsTag_ =  edm::InputTag(egammaElectronstagname);
     
     try { 
       pfAlgo_.setPFEleParameters(mvaEleCut,
@@ -1124,7 +1127,7 @@ void PFRootEventManager::readOptions(const char* file,
 				 coneTrackIsoForEgammaSC,
 				 applyCrackCorrections,
 				 usePFSCEleCalib,
-				 useEGammaElectrons,
+				 useEGElectrons_,
 				 useEGammaSupercluster);
     }
     catch( std::exception& err ) {
@@ -2001,6 +2004,7 @@ bool PFRootEventManager::readFromSimulation(int entry) {
         <<entry << " " << primaryVerticesTag_<<endl;
   }
 
+
   bool foundPFV = iEvent.getByLabel(pfNuclearTrackerVertexTag_,pfNuclearTrackerVertexHandle_);
   if ( foundPFV ) { 
     pfNuclearTrackerVertex_ = *pfNuclearTrackerVertexHandle_;
@@ -2091,6 +2095,18 @@ bool PFRootEventManager::readFromSimulation(int entry) {
       cerr <<"PFRootEventManager::ProcessEntry : photon collection not found : " 
 	   << entry << " " << photonTag_ << endl;
     }
+  }
+
+  if(useEGElectrons_) {
+    bool foundElectrons = iEvent.getByLabel(egammaElectronsTag_,egammaElectronHandle_);
+    if ( foundElectrons) {
+      std::cout << " Found collection " << std::endl;
+      egammaElectrons_ = *egammaElectronHandle_;
+    } else
+      {
+	cerr <<"PFRootEventManager::ProcessEntry : electron collection not found : "
+	     << entry << " " << egammaElectronsTag_ << endl;
+      }
   }
 
   bool foundgenJets = iEvent.getByLabel(genJetsTag_,genJetsHandle_);
@@ -2813,6 +2829,8 @@ void PFRootEventManager::particleFlow() {
   pfBlocks_ = pfBlockAlgo_.transferBlocks();
 
   pfAlgo_.setPFVertexParameters(true, primaryVertices_); 
+  if(useEGElectrons_)
+    pfAlgo_.setEGElectronCollection(egammaElectrons_);
 
   pfAlgo_.reconstructParticles( *pfBlocks_.get() );
   //   pfAlgoOther_.reconstructParticles( blockh );

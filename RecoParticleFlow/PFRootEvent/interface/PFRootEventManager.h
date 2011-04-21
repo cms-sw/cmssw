@@ -528,6 +528,11 @@ class PFRootEventManager {
   edm::InputTag gsfrecTracksTag_;
   reco::GsfPFRecTrackCollection  gsfrecTracks_; 
   
+  // egamma electrons
+  edm::Handle<reco::GsfElectronCollection> egammaElectronHandle_;
+  edm::InputTag egammaElectronsTag_;
+  reco::GsfElectronCollection egammaElectrons_;
+
   /// reconstructed secondary GSF tracks
   edm::Handle<reco::GsfPFRecTrackCollection> convBremGsfrecTracksHandle_;
   edm::InputTag convBremGsfrecTracksTag_;
@@ -832,6 +837,9 @@ class PFRootEventManager {
 
   /// Use EGPhotons
   bool useEGPhotons_;
+
+  /// Use EGElectrons
+  bool useEGElectrons_;
 
   /// Use HLT tracking
   bool useAtHLT;

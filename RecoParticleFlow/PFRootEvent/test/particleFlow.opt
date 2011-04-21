@@ -413,6 +413,7 @@ particle_flow   convID_mvaWeightFile   /afs/cern.ch/cms/data/CMSSW/RecoParticleF
 particle_flow   useEGPhotons 1
 particle_flow   photonSelection 10 2.0 0.001 4.2 0.003 2.2 0.001 0.05
 
+// EG
 
 // Max sumET in ECAL in the block and in the cone to allow the use of the egamma supercluser
 // Low values correspond to a tigh selection
@@ -426,7 +427,9 @@ particle_flow	sumPtTrackIsoForEgammaSC_endcap   4.0
 // Max number of track in the block and in the cone to allow the use of the egamma supercluser
 particle_flow	nTrackIsoForEgammaSC              2
 particle_flow   coneTrackIsoForEgammaSC          0.3
-
+// Pre-selected electrons
+//particle_flow   egammaElectrons         ecalDrivenGsfElectrons::PROD   
+particle_flow   egammaElectrons         dummy
 
 // PF Converted Bremsstrahlung recovery and EG supercluster
 particle_flow   useConvBremGsfTracks    0
