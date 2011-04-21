@@ -665,7 +665,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 						//cout << "First match loop, eS: " << eS << ", dS" << dS << endl;
 						if( (eDtStub[0][eS]==dDtStub[0][dS]) && (eDtStub[1][eS]==dDtStub[1][dS]) && (eDtStub[6][eS]!=1) && (dDtStub[6][dS]!=1) )
 						{
-							cout << "Passed fist matching." << endl;
+							//cout << "Passed fist matching." << endl;
 							eDtStub[5][eS] = dS;
 							eDtStub[6][eS] = 1;
 							dDtStub[5][dS] = eS;
@@ -681,13 +681,13 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 	{
 		for(int dS2=0; dS2<dDtCounter; dS2++)
 		{
-			cout << "1: " << eDtStub[2][eS2] << ", " << dDtStub[2][dS2] << ", " << eDtStub[3][eS2] << ", " << dDtStub[3][dS2] << ", " << eDtStub[4][eS2] << ", " << dDtStub[4][dS2] << endl;
+			//cout << "1: " << eDtStub[2][eS2] << ", " << dDtStub[2][dS2] << ", " << eDtStub[3][eS2] << ", " << dDtStub[3][dS2] << ", " << eDtStub[4][eS2] << ", " << dDtStub[4][dS2] << endl;
 			if( (eDtStub[2][eS2]==dDtStub[2][dS2]) && (eDtStub[3][eS2]==dDtStub[3][dS2]) && (eDtStub[4][eS2]==dDtStub[4][dS2]) )
 			{
-				cout << "2: " << dDtStub[7][eS2] << ", " << dDtStub[7][dS2] << ", " << abs(eDtStub[0][eS2]-dDtStub[0][dS2]) << ", " << ", " << eDtStub[6][eS2] << ", " << dDtStub[6][dS2] << endl;
+				//cout << "2: " << dDtStub[7][eS2] << ", " << dDtStub[7][dS2] << ", " << abs(eDtStub[0][eS2]-dDtStub[0][dS2]) << ", " << ", " << eDtStub[6][eS2] << ", " << dDtStub[6][dS2] << endl;
 				if( ((dDtStub[7][eS2]==-55) || (dDtStub[7][dS2]>(abs(eDtStub[0][eS2]-dDtStub[0][dS2]))) ) && (eDtStub[6][eS2]!=1) && (dDtStub[6][dS2]!=1)  )
 				{
-					cout << "Imperfect match found" << endl;
+					//cout << "Imperfect match found" << endl;
 					dDtStub[5][dS2] = eS2;
 					dDtStub[6][dS2] = 2;
 					eDtStub[5][eS2] = dS2;
