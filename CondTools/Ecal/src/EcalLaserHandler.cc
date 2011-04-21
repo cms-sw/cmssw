@@ -285,22 +285,27 @@ void popcon::EcalLaserHandler::getNewObjects()
   if (m_maxtime[0] == '-') {
     // this is a time relative to now
     tmax.setToCurrentLocalTime();
+    if (m_debug) {
+      std::cout << "Subtracting " << m_maxtime.substr(1) << " hours "
+		<< "to " << tmax.str() << std::endl;
+      std::cout << "tmax was " << tmax.microsTime() << " ns" << std::endl;
+    }
     tmax -= atoi(m_maxtime.substr(1).c_str())*3600;//
+    if (m_debug) {
+      std::cout << "tmax is  " << tmax.microsTime() << " ns" << std::endl;
+    }
   } else {
     tmax.setToString(m_maxtime);
   }
   //  Tm tmin = Tm((t_min.value() >> 32)*1000000);
   Tm tmin = Tm(t_min.value());
+  /*
   Tm strunz;
-  strunz.setToString("2011-04-14 00:00:00");
+  strunz.setToString("2011-04-11 20:50:08");
   if (tmin < strunz) {
     tmin = strunz;
   }
-
-  if (tmax <= (tmin + 12000)) {
-    // 3 days buffer
-    tmax += 86400 * 3;
-  }
+  */
 
   if (m_debug) {
     std::cout << "Tmin: " << tmin << std::endl;
