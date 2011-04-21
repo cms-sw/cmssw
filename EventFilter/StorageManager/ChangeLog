@@ -2,8 +2,8 @@
 
 	* tag V08-02-00
 	* Fixed ROOT TThread handling from tag V07-03-06 (branch_3_10_x).
-	* Merge changes from tags V07-03-04 and V07-04-00 (branch_3_10_x)
-	  into trunk.
+	* Merge changes from tags V07-03-04, V07-04-00, and V07-04-01
+	  (branch_3_10_x) into trunk.
 	* Safer handling of stream records in SM hyperdaq page.
 
 2011-04-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
