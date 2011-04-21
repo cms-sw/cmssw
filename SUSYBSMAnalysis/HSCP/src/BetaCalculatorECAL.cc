@@ -219,32 +219,7 @@ std::vector<SteppingHelixStateInfo> BetaCalculatorECAL::calcEcalDeposit(const Fr
    prop -> setMaterialMode(false); 
    prop -> applyRadX0Correction(true);
 
-   // Build the necklace
-   CachedTrajectory neckLace;
-   neckLace.setStateAtIP(trackOrigin);
-   neckLace.reset_trajectory();
-   neckLace.setPropagator(prop);
-   neckLace.setPropagationStep(0.1);
-   neckLace.setMinDetectorRadius(minR);
-   neckLace.setMinDetectorLength(minZ*2.);
-   neckLace.setMaxDetectorRadius(maxR);
-   neckLace.setMaxDetectorLength(maxZ*2.);
-
-   // Propagate track
-   bool isPropagationSuccessful = neckLace.propagateAll(trackOrigin);
-
-   if (!isPropagationSuccessful)
-   {
-     //std::cout << ">>>>>> calcEcalDeposits::propagateAll::failed " << "<<<<<<" << std::endl;
-     //std::cout << "innerOrigin = " << glbTrackInnerOrigin.position() << "   innerR = " << innerR << std::endl; 
-     return std::vector<SteppingHelixStateInfo> () ;
-   }
-
-   std::vector<SteppingHelixStateInfo> complicatePoints;
-   neckLace.getTrajectory(complicatePoints, associator.volume(), 500);
-   //std::cerr << "necklace size = " << complicatePoints.size() << std::endl;
-
-   return complicatePoints;
+   return propagateThoughFromIP(trackOrigin,prop,associator.volume(), 500,0.1,minR,minZ,maxR,maxZ);
 }
 
 int BetaCalculatorECAL::getDetailedTrackLengthInXtals(std::map<int,GlobalPoint>& trackExitPositionMap,
