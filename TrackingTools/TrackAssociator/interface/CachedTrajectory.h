@@ -18,7 +18,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CachedTrajectory.h,v 1.17 2011/04/07 14:44:54 innocent Exp $
+// $Id: CachedTrajectory.h,v 1.18 2011/04/07 16:18:28 innocent Exp $
 //
 //
 
@@ -33,7 +33,8 @@
 #include "FWCore/Utilities/interface/Visibility.h"
 
 class CachedTrajectory {
- public:
+ private:
+   friend class TrackDetectorAssociator;
    CachedTrajectory();
    enum TrajectorType { IpToEcal, IpToHcal, IpToHO, FullTrajectory };
    enum WideTrajectoryType { Ecal, Hcal, HO };
