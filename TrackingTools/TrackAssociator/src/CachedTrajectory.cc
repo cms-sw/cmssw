@@ -3,7 +3,7 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.26 2011/04/07 09:03:04 innocent Exp $
+// $Id: CachedTrajectory.cc,v 1.27 2011/04/21 06:58:12 innocent Exp $
 //
 //
 
@@ -31,18 +31,13 @@ propagateThoughFromIP(const SteppingHelixStateInfo& state,const Propagator* prop
    neckLace.setMaxDetectorLength(maxZ*2.);
 
    // Propagate track
-   bool isPropagationSuccessful = neckLace.propagateAll(trackOrigin);
+   bool isPropagationSuccessful = neckLace.propagateAll(state);
 
    if (!isPropagationSuccessful)
-   {
-     //std::cout << ">>>>>> calcEcalDeposits::propagateAll::failed " << "<<<<<<" << std::endl;
-     //std::cout << "innerOrigin = " << glbTrackInnerOrigin.position() << "   innerR = " << innerR << std::endl; 
      return std::vector<SteppingHelixStateInfo> () ;
-   }
 
    std::vector<SteppingHelixStateInfo> complicatePoints;
    neckLace.getTrajectory(complicatePoints, volume, nsteps);
-   //std::cerr << "necklace size = " << complicatePoints.size() << std::endl;
 
    return complicatePoints;
 
