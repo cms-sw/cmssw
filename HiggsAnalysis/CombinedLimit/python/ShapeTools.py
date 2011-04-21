@@ -173,7 +173,7 @@ class ShapeBuilder(ModelBuilder):
         if not _fileCache.has_key(finalNames[0]): _fileCache[finalNames[0]] = ROOT.TFile.Open(finalNames[0])
         file = _fileCache[finalNames[0]]; objname = finalNames[1]
         if not file: raise RuntimeError, "Cannot open file %s (from pattern %s)" % (finalNames[0],names[0])
-        if ":" in objname: # workspace:obj or ttree:xvar
+        if ":" in objname: # workspace:obj or ttree:xvar or th1::xvar
             (wname, oname) = objname.split(":")
             wsp = file.Get(wname)
             if not wsp: raise RuntimeError, "Failed to find %s in file %s (from pattern %s, %s)" % (wname,finalNames[0],names[1],names[0])
@@ -196,6 +196,19 @@ class ShapeBuilder(ModelBuilder):
                 rds.var = oname
                 _cache[(channel,process,syst)] = rds
                 if self.options.verbose: print "import (%s,%s) -> %s\n" % (finalNames[0],wname,rds.GetName())
+                return rds
+            elif wsp.InheritsFrom("TH1"):
+                ##If it is a Histogram we will convert it in RooDataSet preserving the bins 
+                if not wsp: raise RuntimeError, "Failed to find %s in file %s (from pattern %s, %s)" % (wname,finalNames[0],names[1],names[0])
+                name = "shape_%s_%s%s" % (process,channel, "_"+syst if syst else "")
+                # don't make it twice
+                for X in _neverDelete:
+                    if X.InheritsFrom("TNamed") and X.GetName() == name: return X
+                self.doVar("%s[%f,%f]" % (oname,wsp.GetXaxis().GetXmin(),wsp.GetXaxis().GetXmax()))
+                rds = ROOT.RooDataHist(name, name, ROOT.RooArgList(self.out.var(oname)), wsp)
+                rds.var = oname
+                if self.options.verbose: stderr.write("import (%s,%s) -> %s\n" % (finalNames[0],wname,rds.GetName()))
+                _neverDelete.append(rds)
                 return rds
             else:
                 raise RuntimeError, "Object %s in file %s has unrecognized type %s" (wname, finalNames[0], wsp.ClassName())
@@ -237,6 +250,9 @@ class ShapeBuilder(ModelBuilder):
                 coeffs.add(self.doObj("%s_scaled_%s_%s" % (syst,channel,process), "prod","%s, %s" % (scale,syst)))
                 if scale < minscale: minscale = scale
         qrange = minscale; qalgo = 0;
+        if shapeAlgo[-1] == "*": 
+            qalgo = 100
+            shapeAlgo = shapeAlgo[:-1]
         if shapeAlgo == "shapeL": qrange = 0;
         elif shapeAlgo == "shapeN": qalgo = -1;
         _cache[(channel,process)] = ROOT.VerticalInterpPdf("shape_%s_%s_morph" % (channel,process), "", pdfs, coeffs, qrange, qalgo)
