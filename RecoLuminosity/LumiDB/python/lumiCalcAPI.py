@@ -86,7 +86,7 @@ def trgForRange(schema,inputRange,trgbitname=None,trgbitnamepattern=None,datatag
     '''
     pass
 
-def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bxAlgo='OCC1',withBeamIntensity=False,datatag=None):
+def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bxAlgo=None,withBeamIntensity=False,datatag=None):
     '''
     input:
            inputRange  {lumidataid:[cmsls]} (required)
@@ -160,7 +160,7 @@ def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bx
         result[run]=lsresult
     return result
 
-def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo='OCC1',withBeamInfo=False,norm=None,datatag=None):
+def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo=None,withBeamInfo=False,norm=None,datatag=None):
     '''
     Inst luminosity after calibration
     input:
@@ -217,7 +217,7 @@ def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,e
             result[run].append([lumilsnum,cmslsnum,timestamp,bs,beamenergy,calibratedlumi,calibratedlumierr,startorbit,numorbit,calibfatedbxdata,intensitydata])
     return result
          
-def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo='OCC1',xingMinLum=None,withBeamIntensity=False,norm=None,datatag=None):
+def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,norm=None,datatag=None):
     '''
     input:
            inputRange  {run:[lsnum]} (required) [lsnum]==None means all ; [lsnum]==[] means selected ls 
@@ -278,7 +278,7 @@ def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=N
             result[run].append([lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,calibratedlumierr,calibratedbxdata,intensitydata])
     return result
                        
-def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo='OCC1',xingMinLum=None,withBeamInfo=False,norm=None,datatag=None):
+def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamInfo=False,norm=None,datatag=None):
     '''
     input:
            inputRange  {run:[cmsls]} (required)
@@ -401,7 +401,7 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
         result[run]=perrunresult
     return result
        
-def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None,amodetag=None,beamstatus=None,egev=None,withBXInfo=False,xingMinLum=1.0e-4,bxAlgo='OCC1',withBeamInfo=False,norm=None,datatag=None):
+def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None,amodetag=None,beamstatus=None,egev=None,withBXInfo=False,xingMinLum=0.0,bxAlgo=None,withBeamInfo=False,norm=None,datatag=None):
     '''
     input:
            inputRange  {run:[cmsls]} (required)

@@ -38,6 +38,7 @@ if __name__ == '__main__':
     allowedActions = ['overview', 'delivered', 'recorded', 'lumibyls','lumibylsXing','status']
     beamModeChoices = [ "stable", "quiet", "either"]
     amodetagChoices = [ "PROTPHYS","IONPHYS" ]
+    xingAlgoChoices =[ "OCC1","OCC2","ET"]
     #
     # parse arguments
     #  
@@ -70,7 +71,8 @@ if __name__ == '__main__':
     #
     #optional args to filter ls
     #
-    parser.add_argument('-xingMinLum', dest = 'xingMinLum', type=float,default=1e-03,required=False,help='Minimum luminosity considered for lumibylsXing action')
+    parser.add_argument('-xingMinLum', dest = 'xingMinLum', type=float,default=1e-03,required=False,help='Minimum luminosity considered for lumibylsXing action, default=1e-03')
+    parser.add_argument('-xingAlgo', dest = 'xingAlgo', default='OCC1',required=False,help='algorithm name for per-bunch lumi ')
     #
     #optional args for data and normalization version control
     #
@@ -222,7 +224,7 @@ if __name__ == '__main__':
            lumiReport.toCSVTotEffective(result,options.outputfile,options.verbose)
     if options.action == 'lumibylsXing':
        session.transaction().start(True)
-       result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,xingMinLum=options.xingMinLum,withBeamInfo=False,withBXInfo=True,bxAlgo='OCC1')
+       result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,xingMinLum=options.xingMinLum,withBeamInfo=False,withBXInfo=True,bxAlgo=options.xingAlgo)
        if not options.outputfile:
            lumiReport.toScreenLumiByLS(result,options.verbose)
        else:
