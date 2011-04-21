@@ -1,6 +1,6 @@
 #include "CondCore/ORA/interface/Exception.h"
 #include "CondCore/ORA/interface/Selection.h"
-#include "CondCore/ORA/interface/QueryableVectorData.h"
+#include "CondCore/ORA/interface/QueryableVector.h"
 #include "QueryableVectorStreamer.h"
 #include "MultiRecordInsertOperation.h"
 #include "RelationalStreamerFactory.h"
