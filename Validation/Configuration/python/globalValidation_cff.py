@@ -29,12 +29,14 @@ from Validation.RecoParticleFlow.PFJetValidation_cff  import *
 from Validation.RecoParticleFlow.PFMETValidation_cff import *
 from Validation.RPCRecHits.rpcRecHitValidation_cfi import *
 from Validation.DTRecHits.DTRecHitQuality_cfi import *
+from Validation.RecoTau.DQMMCValidation_cfi import *
 
 
 # filter/producer "pre-" sequence for globalValidation
 globalPrevalidation = cms.Sequence( 
     tracksValidationSelectors
   * photonPrevalidationSequence
+  * produceDenoms
 )
 
 # filter/producer "pre-" sequence for validation_preprod
@@ -70,4 +72,5 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + pfMETValidationSequence
                                  + rpcRecHitValidation_step
 				 + dtLocalRecoValidation_no2D
+                                 + pfTauRunDQMValidation
 )

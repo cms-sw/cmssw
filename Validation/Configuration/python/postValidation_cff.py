@@ -9,6 +9,7 @@ from Validation.EventGenerator.PostProcessor_cff import *
 from Validation.RecoEgamma.photonPostProcessor_cff import *
 from Validation.RecoParticleFlow.PFValidationClient_cff import *
 from Validation.RPCRecHits.postValidation_cfi import *
+from Validation.RecoTau.DQMMCValidation_cfi import *
 
 
 postValidation = cms.Sequence(
@@ -20,6 +21,7 @@ postValidation = cms.Sequence(
     + photonPostProcessor    
     + pfJetClient + pfMETClient
     + rpcRecHitPostValidation_step
+    + runTauEff + makeBetterPlots
 )
 
 postValidation_preprod = cms.Sequence(
