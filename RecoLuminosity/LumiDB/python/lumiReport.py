@@ -429,13 +429,35 @@ def toCSVTotEffective(lumidata,filename,isverbose):
     fieldnames=['Run','HLTpath','L1bit','Effective(/ub)']
     r.writeRow(fieldnames)
     r.writeRows(result)
-def toCSVBXInfo(lumidata,filename,bxfield='bxlumi'):
+def toCSVLumiByLSXing(lumidata,filename):
     '''
-    dump selected bxlumi or beam intensity as the last field
+    input:{run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata]}
+    output:
+    fieldnames=['Run','CMSLS','Delivered(/ub)','Recorded(/ub)','BX']
     '''
-    if bxfields not in ['bxlumi','bxintensity']:
-        print 'not recognized bxfield'
-        return
-    pass
+    result=[]
+    fieldnames=['run','ls','delivered(/ub)','recorded(/ub)','bx']
+    r=csvReporter.csvReporter(filename)
+    for run in sorted(lumidata):
+        rundata=lumidata[run]
+        if rundata is None:
+            result.append([run,'n/a','n/a','n/a','n/a'])
+            continue
+        for lsdata in rundata:
+            cmslsnum=lsdata[1]
+            deliveredlumi=lsdata[5]
+            recordedlumi=lsdata[6]
+            #print lsdata[8]
+            (bxidxlist,bxvaluelist,bxerrorlist)=lsdata[8]
+            bxresult=[]
+            if bxidxlist and bxvaluelist:
+                bxinfo=CommonUtil.transposed([bxidxlist,bxvaluelist])
+                bxresult=CommonUtil.flatten([run,cmslsnum,deliveredlumi,recordedlumi,bxinfo])
+                result.append(bxresult)
+            else:
+                result.append([run,cmslsnum,deliveredlumi,recordedlumi])
+    r.writeRow(fieldnames)
+    r.writeRows(result)
+    
 
 

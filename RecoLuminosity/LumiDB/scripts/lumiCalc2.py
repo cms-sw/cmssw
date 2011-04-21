@@ -219,6 +219,14 @@ if __name__ == '__main__':
        if not options.outputfile:
            lumiReport.toScreenTotEffective(result,options.verbose)
        else:
-           lumiReport.toCSVTotEffective(result,options.outputfile,options.verbose)           
+           lumiReport.toCSVTotEffective(result,options.outputfile,options.verbose)
+    if options.action == 'lumibylsXing':
+       session.transaction().start(True)
+       result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,xingMinLum=options.xingMinLum,withBeamInfo=False,withBXInfo=True,bxAlgo='OCC1')
+       if not options.outputfile:
+           lumiReport.toScreenLumiByLS(result,options.verbose)
+       else:
+           lumiReport.toCSVLumiByLSXing(result,options.outputfile)
+       session.transaction().commit()           
     del session
     del svc 

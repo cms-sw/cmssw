@@ -278,7 +278,7 @@ def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=N
             result[run].append([lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,calibratedlumierr,calibratedbxdata,intensitydata])
     return result
                        
-def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo='OCC1',xingMinLum=1.0e-4,withBeamInfo=False,norm=None,datatag=None):
+def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo='OCC1',xingMinLum=None,withBeamInfo=False,norm=None,datatag=None):
     '''
     input:
            inputRange  {run:[cmsls]} (required)
@@ -366,12 +366,16 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
                     recordedlumi=deliveredlumi*(1.0-deadfrac)
             bxdata=None
             if withBXInfo:
-                bxvalueblob=lumidata[8]
-                bxerrblob=lumidata[9]
+                bxinfo=perlsdata[8]
+                bxvalueblob=None
+                bxerrblob=None
+                if bxinfo:
+                    bxvalueblob=bxinfo[0]
+                    bxerrblob=bxinfo[1]
                 bxidxlist=[]
                 bxvaluelist=[]
                 bxerrorlist=[]
-                if bxvalueblob is not None and bxerrblob is not None:
+                if bxvalueblob and bxerrblob:
                     bxvaluearray=CommonUtil.unpackBlobtoArray(bxvalueblob,'f')
                     bxerrorarray=CommonUtil.unpackBlobtoArray(bxerrblob,'f')
                     for idx,bxval in enumerate(bxvaluearray):
@@ -382,9 +386,9 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
                 bxdata=(bxidxlist,bxvaluelist,bxerrorlist)
             beamdata=None
             if withBeamInfo:
-                bxindexblob=lumidata[10]
-                beam1intensityblob=lumidata[11]
-                beam2intensityblob=lumidata[12]
+                bxindexblob=perlsdata[10]
+                beam1intensityblob=perlsdata[11]
+                beam2intensityblob=perlsdata[12]
                 bxindexlist=[]
                 b1intensitylist=[]
                 b2intensitylist=[]
