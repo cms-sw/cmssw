@@ -14196,17 +14196,17 @@ vector<int> OHltTree::VectorOpenHlt1PhotonPassed(
          {
             if (ohPhotL1iso[i] >= L1iso)
             {
-               if (ohPhotTiso[i] < Tiso + 0.001*ohPhotEt[i])
+               if (ohPhotTiso[i] < Tiso + 0.002*ohPhotEt[i])
                {
-                  if (ohPhotEiso[i] < Eiso + 0.006*ohPhotEt[i])
+                  if (ohPhotEiso[i] < Eiso + 0.012*ohPhotEt[i])
                   {
                      if ( (TMath::Abs(ohPhotEta[i]) < 1.479
-                           && ohPhotHiso[i] < HisoBR + 0.0025*ohPhotEt[i] 
+                           && ohPhotHiso[i] < HisoBR + 0.0050*ohPhotEt[i] 
                            && ohPhotClusShap[i] < ClusShapEB
                            && ohPhotR9[i] < R9)
                            ||
                            (1.479 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.65 
-                           && ohPhotHiso[i] < HisoEC + 0.0025*ohPhotEt[i]
+                           && ohPhotHiso[i] < HisoEC + 0.0050*ohPhotEt[i]
                            && ohPhotClusShap[i] < ClusShapEC))
                      {
                         float EcalEnergy = ohPhotEt[i]/(sin(2*atan(exp(0-ohPhotEta[i]))));
