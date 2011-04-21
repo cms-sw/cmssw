@@ -2,7 +2,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTester.cc,v 1.10 2011/03/21 12:52:13 kovitang Exp $
+// $Id: JPTJetTester.cc,v 1.11 2011/04/21 12:31:27 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -417,23 +417,23 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
     mpTRatio_2700_3500_d = dbe->bookProfile("pTRatio_2700_3500_d", "pTRatio_d_2700<pt<3500",
                                           etaBins, etaMin, etaMax, 0., 5., " ");
     mpTResponse = dbe->bookProfile("pTResponse", "pTResponse",
-				log10PtBins, log10PtMin, log10PtMax, 100, 0.,5., " ");
+				log10PtBins, log10PtMin, log10PtMax, 100, 0.8,1.2, " ");
     mpTResponseB_d = dbe->bookProfile("pTResponseB_d", "pTResponse_d_0<|eta|<1.3",
-                                   log10PtBins, log10PtMin, log10PtMax, 0, 5, " ");
+				      log10PtBins, log10PtMin, log10PtMax, 0.8, 1.2, " ");
     mpTResponseE_d = dbe->bookProfile("pTResponseE_d", "pTResponse_d_1.3<|eta|<3.0",
-                                   log10PtBins, log10PtMin, log10PtMax, 0, 5, " ");
+                                   log10PtBins, log10PtMin, log10PtMax, 0.8, 1.2, " ");
     mpTResponseF_d = dbe->bookProfile("pTResponseF_d", "pTResponse_d_3.0<|eta|<5.0",
-                                   log10PtBins, log10PtMin, log10PtMax, 0, 5, " ");
+                                   log10PtBins, log10PtMin, log10PtMax, 0.8, 1.2, " ");
     mpTResponse_60_120_d    = dbe->bookProfile("pTResponse_60_120_d", "pTResponse_d_60<pT<120",
-                                          etaBins, etaMin, etaMax, 0., 5., " ");
+                                          etaBins, etaMin, etaMax, 0.8, 1.2, " ");
     mpTResponse_200_300_d   = dbe->bookProfile("pTResponse_200_300_d", "pTResponse_d_200<pT<300",
-                                          etaBins, etaMin, etaMax, 0., 5., " ");
+                                          etaBins, etaMin, etaMax, 0.8, 1.2, " ");
     mpTResponse_600_900_d   = dbe->bookProfile("pTResponse_600_900_d", "pTResponse_d_600<pT<900",
-                                          etaBins, etaMin, etaMax, 0., 5., " ");
+                                          etaBins, etaMin, etaMax, 0.8, 1.2, " ");
     mpTResponse_2700_3500_d = dbe->bookProfile("pTResponse_2700_3500_d", "pTResponse_d_2700<pt<3500",
-					       etaBins, etaMin, etaMax, 0., 5., " ");
+					       etaBins, etaMin, etaMax, 0.8, 1.2, " ");
     mpTResponse_30_d = dbe->bookProfile("pTResponse_30_d", "pTResponse_d_pt>30",
-					       etaBins, etaMin, etaMax, 0., 5., " ");
+					       etaBins, etaMin, etaMax, 0.8, 1.2, " ");
   } // if (dbe)
 
   if (mOutputFile.empty ()) {

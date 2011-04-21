@@ -279,19 +279,28 @@ double makeGifHists4 (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::st
   int hibin=fHist->GetNbinsX()+1;
   double hiedge = fHist->GetBinLowEdge(hibin);
 
+  if(std::string(fRefHist->GetName()).find("pTResponse")!=std::string::npos)
+  {
   fRefHist->SetMaximum(1.2);
   fRefHist->SetMinimum(0.8);
+  }
 
   if (lowedge==0.5 && hiedge==3.75){
     fRefHist->GetXaxis()->SetTickLength(0);
     fRefHist->GetXaxis()->SetLabelSize(0);
     TGaxis *axis = new TGaxis(0.5,0.0,3.75,0.0,3.1622766,5623.41325,50510,"G");
     fRefHist->Draw ();
+    if(std::string(fRefHist->GetName()).find("pTResponse")!=std::string::npos)
+      {
+	TGaxis *axis2 = new TGaxis(0.5,0.8,3.75,0.8,3.1622766,5623.41325,50510,"G");
+	axis2->Draw();
+      } else{
     axis->Draw();
+    }
   } else {
     fRefHist->Draw ();
   }
-
+   
   fHist->Draw ("e1p,same");
   std::string filename = name + ".gif";
   fCanvas->Print (filename.c_str());
