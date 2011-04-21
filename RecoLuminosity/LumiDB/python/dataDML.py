@@ -487,7 +487,7 @@ def lumiLSById(schema,dataid,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',with
             bxerrblob=None
             if withBXInfo:
                 bxvalueblob=cursor.currentRow()['bxvalue'].data()
-                bxerrblob==cursor.currentRow()['bxerror'].data()
+                bxerrblob=cursor.currentRow()['bxerror'].data()
                 if bxvalueblob and bxerrblob:
                     bxinfo=(bxvalueblob,bxerrblob)
             bxindexblob=None
