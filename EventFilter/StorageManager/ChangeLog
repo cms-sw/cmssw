@@ -21,6 +21,11 @@
 	  into trunk.
 	* This tag requires IOPool/Streamer V07-01-00 or later.
 
+2011-04-21 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-04-01
+	* Reset latest LS seen for DQM message discards at run stop.
+
 2011-04-20 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V07-04-00
