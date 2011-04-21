@@ -1,7 +1,7 @@
 
     
 class InputInfo(object):
-    def __init__(self,label,dataSet,run=0,files=1000,events=2000000,location='CAF') :
+    def __init__(self,dataSet,label='',run=0,files=1000,events=2000000,location='CAF') :
         self.run = run
         self.files = files
         self.events = events
@@ -96,8 +96,8 @@ step1['Wjet_Pt_3000_3500']=gen('Wjet_Pt_3000_3500_7TeV_cfi',K9by100)
 step1['LM1_sfts']=gen('LM1_sfts_7TeV_cfi',K9by100)
 step1['QCD_FlatPt_15_3000']=gen('QCDForPF_7TeV_cfi',K9by100)
 
-step1['MinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='MinBiasrv',location='STD')}
-step1['QCD_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_3000_3500/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='QCD_Pt_3000_3500rv',location='STD')}
+step1['MinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',location='STD')}
+step1['QCD_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_3000_3500/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='',location='STD')}
 step1['QCD_Pt_80_120INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_80_120/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='QCD_Pt_80_120rv',location='STD')}
 step1['SingleElectronPt10INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt10/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='SingleElectronPt10rv',location='STD')}
 step1['SingleElectronPt35INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt35/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='SingleElectronPt35rv',location='STD')}

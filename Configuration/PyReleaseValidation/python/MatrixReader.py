@@ -164,7 +164,7 @@ class MatrixReader(object):
         
         return
 
-    def showRaw(self, useInput, refRel='CMSSW_4_2_0_pre2', fromScratch=None, what='all'):
+    def showRaw(self, useInput, refRel='CMSSW_4_2_0_pre2', fromScratch=None, what='all',step1Only=False):
 
         for matrixFile in self.files:
 
@@ -196,11 +196,13 @@ class MatrixReader(object):
                 if '+' in stepNames:
                     step1,otherSteps = stepNames.split('+',1)
                 line = num + ' ++ '+ wfName 
-                if otherSteps:
+                if otherSteps and not step1Only:
                     line += ' ++ ' +otherSteps.replace('+',',')
                 else:
                     line += ' ++ none' 
                 if inputInfo :
+                    #skip the samples from INPUT when step1Only is on
+                    if step1Only: continue
                     line += ' ++ REALDATA: '+inputInfo.dataSet
                     if inputInfo.run!=0: line += ', RUN:'+str(inputInfo.run)
                     line += ', FILES: ' +str(inputInfo.files)
@@ -214,6 +216,8 @@ class MatrixReader(object):
                 outFile.write(line+'\n')
 
             outFile.write('\n'+'\n')
+            if step1Only: continue
+            
             for stepName in self.relvalModule.step2.keys():
                 cfg,input,cmd = self.makeCmd(self.relvalModule.step2[stepName])
                 line = 'STEP2 ++ ' +stepName + ' @@@ cmsDriver.py step2 ' +cmd

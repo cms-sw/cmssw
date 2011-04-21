@@ -7,10 +7,10 @@ from Configuration.PyReleaseValidation.MatrixRunner import MatrixRunner
         
 # ================================================================================
 
-def showRaw(useInput=None, refRel='', fromScratch=None, what='standard') :
+def showRaw(useInput=None, refRel='', fromScratch=None, what='standard',step1Only=False) :
 
     mrd = MatrixReader()
-    mrd.showRaw(useInput, refRel, fromScratch, what)
+    mrd.showRaw(useInput, refRel, fromScratch, what, step1Only)
 
     return 0
         
@@ -122,7 +122,7 @@ if __name__ == '__main__':
     import getopt
     
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hj:sl:nqo:d:i:r:", ['help',"nproc=",'selected','list=','showMatrix','only=','data=','useInput=','raw=', 'refRelease=','fromScratch='])
+        opts, args = getopt.getopt(sys.argv[1:], "hj:sl:nqo:d:i:r:", ['help',"nproc=",'selected','list=','showMatrix','only=','data=','useInput=','raw=', 'refRelease=','fromScratch=','step1'])
     except getopt.GetoptError, e:
         print "unknown option", str(e)
         sys.exit(2)
@@ -142,6 +142,7 @@ if __name__ == '__main__':
     data = None
     raw  = None
     refRel = ''
+    step1Only=False
     for opt, arg in opts :
         if opt in ('-h','--help'):
             usage()
@@ -166,6 +167,8 @@ if __name__ == '__main__':
             data = arg.split(',')
         if opt in ('-r','--raw') :
             raw = arg
+        if opt in ('--step1'):
+            step1Only=True
             
     # some sanity checking:
     if useInput and useInput != 'all' :
@@ -175,7 +178,7 @@ if __name__ == '__main__':
                 sys.exit(-1)
         
     if raw and show:
-        ret = showRaw(useInput=useInput, refRel=refRel,fromScratch=fromScratch, what=raw)
+        ret = showRaw(useInput=useInput, refRel=refRel,fromScratch=fromScratch, what=raw, step1Only=step1Only)
         sys.exit(ret)
 
     ret = 0
