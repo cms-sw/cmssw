@@ -3,7 +3,7 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.24 2010/10/03 17:25:10 elmer Exp $
+// $Id: CachedTrajectory.cc,v 1.26 2011/04/07 09:03:04 innocent Exp $
 //
 //
 
@@ -15,6 +15,40 @@
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
 #include <deque>
 #include <algorithm>
+
+std::vector<SteppingHelixStateInfo> 
+propagateThoughFromIP(const SteppingHelixStateInfo& state,const Propagator* prop,
+		      const FiducialVolume& volume,int nsteps,
+		      float step, float minR, float minZ, float maxR, float maxZ) {
+   CachedTrajectory neckLace;
+   neckLace.setStateAtIP(state);
+   neckLace.reset_trajectory();
+   neckLace.setPropagator(prop);
+   neckLace.setPropagationStep(0.1);
+   neckLace.setMinDetectorRadius(minR);
+   neckLace.setMinDetectorLength(minZ*2.);
+   neckLace.setMaxDetectorRadius(maxR);
+   neckLace.setMaxDetectorLength(maxZ*2.);
+
+   // Propagate track
+   bool isPropagationSuccessful = neckLace.propagateAll(trackOrigin);
+
+   if (!isPropagationSuccessful)
+   {
+     //std::cout << ">>>>>> calcEcalDeposits::propagateAll::failed " << "<<<<<<" << std::endl;
+     //std::cout << "innerOrigin = " << glbTrackInnerOrigin.position() << "   innerR = " << innerR << std::endl; 
+     return std::vector<SteppingHelixStateInfo> () ;
+   }
+
+   std::vector<SteppingHelixStateInfo> complicatePoints;
+   neckLace.getTrajectory(complicatePoints, volume, nsteps);
+   //std::cerr << "necklace size = " << complicatePoints.size() << std::endl;
+
+   return complicatePoints;
+
+}
+
+
 
 CachedTrajectory::CachedTrajectory():propagator_(0){
    reset_trajectory();
