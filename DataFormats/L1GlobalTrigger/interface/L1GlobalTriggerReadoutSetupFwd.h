@@ -24,6 +24,10 @@
 
 // user include files
 //   base class
+//
+//   for compatibility reasons; L1GtObject moved to separate file
+#include "DataFormats/L1GlobalTrigger/interface/L1GtObject.h"
+
 // forward declarations
 
 /// typedefs
@@ -51,26 +55,5 @@ typedef boost::uint32_t CaloMissingEtWord;
 // code jet count = 31 indicate overflow condition
 typedef std::vector<unsigned> CaloJetCountsWord;
 
-/// GT objects
-enum L1GtObject
-{
-    Mu,
-    NoIsoEG,
-    IsoEG,
-    CenJet,
-    ForJet,
-    TauJet,
-    ETM,
-    ETT,
-    HTT,
-    HTM,
-    JetCounts,
-    HfBitCounts,
-    HfRingEtSums,
-    TechTrig,
-    Castor,
-    BPTX,
-    GtExternal
-};
 
 #endif /*L1GlobalTrigger_L1GlobalTriggerReadoutSetupFwd_h*/
