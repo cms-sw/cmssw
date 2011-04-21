@@ -21,6 +21,15 @@ egammaSuperClusterAnalyzer.endcapRawSuperClusterCollection = cms.InputTag("islan
 egammaSuperClusterAnalyzer.endcapCorSuperClusterCollection = cms.InputTag("correctedIslandEndcapSuperClusters")
 #egammaSuperClusterAnalyzer.endcapPreSuperClusterCollection = cms.InputTag("islandEndcapSuperClustersWithPreshower") #to be implemented: only multi5x5 for now
 
+
+# prevalidation sequence for all EDFilters and EDProducers
+globalPrevalidationHI = cms.Sequence(
+    hiTrackPrevalidation
+  * hiRecoMuonPrevalidation
+
+)
+
+
 globalValidationHI = cms.Sequence(
     trackerHitsValidation      
     #+ trackerDigisValidation   # simSiDigis not in RAWDEBUG

@@ -30,4 +30,8 @@ for filterpset in HLT_HIPhoton15_DQM.filters:
     for isocollections in getattr(filterpset,'IsoCollections'):
         isocollections.setProcessName(hltlabel)
 
-hiEgammaValidationSequence = cms.Sequence(cms.ignore(higenp)*cms.ignore(hifiducial)*HLT_HIPhoton15_DQM)
+# prevalidation sequence for filters / producers
+hiEgammaPrevalidationSequence = cms.Sequence( higenp * hifiducial )
+
+# validation sequence
+hiEgammaValidationSequence = cms.Sequence( HLT_HIPhoton15_DQM )

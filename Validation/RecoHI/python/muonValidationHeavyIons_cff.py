@@ -84,8 +84,12 @@ hiMuonValidation_seq = cms.Sequence(
 
 #----------------------------------------
 
+# HI muon prevalidation
+hiRecoMuonPrevalidation = cms.Sequence(
+    cutsRecoTrkMuons
+  * cutsTpMuons
+  * hiMuonAssociation_seq
+)
+
 # HI muon validation sequence
-hiRecoMuonValidation = cms.Sequence(cms.ignore(cutsRecoTrkMuons) *
-                                    cms.ignore(cutsTpMuons) *
-                                    hiMuonAssociation_seq *
-                                    hiMuonValidation_seq)    
+hiRecoMuonValidation = cms.Sequence( hiMuonValidation_seq )    
