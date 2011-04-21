@@ -15,7 +15,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2008
-// $Id: TauTagValidation.cc,v 1.21 2011/03/24 11:42:09 mverzett Exp $
+// $Id: TauTagValidation.cc,v 1.22 2011/04/06 12:17:44 mverzett Exp $
 //
 //
 // user include files
@@ -184,11 +184,11 @@ void TauTagValidation::beginJob()
       }
   }
 
-  for ( std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++) 
-    {
-      cerr<< " "<< it->getParameter<string>("discriminator") << " "<< it->getParameter<double>("selectionCut") << endl;
+//   for ( std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++) 
+//     {
+//       cerr<< " "<< it->getParameter<string>("discriminator") << " "<< it->getParameter<double>("selectionCut") << endl;
       
-    }
+//     }
 }
 
 // -- method called to produce fill all the histograms --------------------
