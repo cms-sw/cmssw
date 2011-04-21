@@ -31,7 +31,7 @@ l1temuEventInfoClient = cms.EDAnalyzer("L1TEMUEventInfoClient",
                         SystemFolder = cms.string(""),
                         QualityTestName = cms.vstring("L1EmulatorECALErrorFlagQT"),
                         QualityTestHist = cms.vstring("ETPErrorFlag"),
-                        QualityTestSummaryEnabled = cms.vuint32(1)                       
+                        QualityTestSummaryEnabled = cms.vuint32(0)                       
                         ),
                     cms.PSet(
                         SystemLabel = cms.string("HCAL"),
@@ -40,7 +40,7 @@ l1temuEventInfoClient = cms.EDAnalyzer("L1TEMUEventInfoClient",
                         SystemFolder = cms.string(""),
                         QualityTestName = cms.vstring("L1EmulatorHCALErrorFlagQT"),
                         QualityTestHist = cms.vstring("HTPErrorFlag"),
-                        QualityTestSummaryEnabled = cms.vuint32(1)                       
+                        QualityTestSummaryEnabled = cms.vuint32(0)                       
                         ),
                     cms.PSet(
                         SystemLabel = cms.string("RCT"),
@@ -67,7 +67,7 @@ l1temuEventInfoClient = cms.EDAnalyzer("L1TEMUEventInfoClient",
                         SystemFolder = cms.string(""),
                         QualityTestName = cms.vstring("L1EmulatorDTTPGErrorFlagQT"),
                         QualityTestHist = cms.vstring("DTPErrorFlag"),
-                        QualityTestSummaryEnabled = cms.vuint32(1)                       
+                        QualityTestSummaryEnabled = cms.vuint32(0)                       
                         ),
                     cms.PSet(
                         SystemLabel = cms.string("DTTF"),
