@@ -4,7 +4,7 @@
 // Producer for validation histograms for JPTJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTester.h,v 1.2 2010/04/21 16:32:23 chjeong Exp $
+// $Id: JPTJetTesterUnCorr.h,v 1.1 2011/02/23 16:57:16 kovitang Exp $
 
 #include <string>
 
@@ -206,6 +206,9 @@ private:
   MonitorElement* mpTScaleB_d;
   MonitorElement* mpTScaleE_d;
   MonitorElement* mpTScaleF_d;
+  MonitorElement* mpTScalePhiB_d;
+  MonitorElement* mpTScalePhiE_d;
+  MonitorElement* mpTScalePhiF_d;
 
   MonitorElement* mpTScale_60_120_s;
   MonitorElement* mpTScale_200_300_s;

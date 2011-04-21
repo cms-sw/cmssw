@@ -20,16 +20,8 @@
   <td>
  <a href="#pTRatio">pTRatio</a>
  </td>
- <td> 
- <a href="#Electron">Electron</a>
- </td>
- </td>
- <td> 
- <a href="#Muon">Muon</a>
- </td>
- </td>
- <td> 
- <a href="#Pion">Pion</a>
+ <td>
+ <a href="#pTResponse">pTResponse</a>
  </td>
  <td> 
  <a href="#Misc">Misc</a>
@@ -65,9 +57,6 @@ Red line filled histogram is for reference.<br>
 <td>
 <a href="E_80.gif"><img src="thumb.E_80.gif.jpg" alt=""> </a>
 </td>
-<td>
-<a href="E_3000.gif"><img src="thumb.E_3000.gif.jpg" alt=""></a>
-</td>
 </tr>
 
 <tr>
@@ -75,10 +64,7 @@ Red line filled histogram is for reference.<br>
 jet energy (0-500GeV)
 </td>
 <td>
-jet energy (0-4500GeV)
-</td>
-<td>
-jet energy (0-6000GeV)
+jet energy (0-5000GeV)
 </td>
 </tr>
 
@@ -90,9 +76,6 @@ jet energy (0-6000GeV)
 <td>
 <a href="P_80.gif"><img src="thumb.P_80.gif.jpg" alt=""> </a>
 </td>
-<td>
-<a href="P_3000.gif"><img src="thumb.P_3000.gif.jpg" alt=""> </a>
-</td>
 </tr>
 
 <tr>
@@ -100,10 +83,7 @@ jet energy (0-6000GeV)
 jet momentum (0-500GeV)
 </td>
 <td>
-jet momentum (0-4500GeV)
-</td>
-<td>
-jet momentum (0-6000GeV)
+jet momentum (0-5000GeV)
 </td>
 </tr>
 
@@ -116,17 +96,11 @@ jet momentum (0-6000GeV)
 <td>
 <a href="Pt_80.gif"><img src="thumb.Pt_80.gif.jpg" alt=""> </a>
 </td>
-<td>
-<a href="Pt_3000.gif"><img src="thumb.Pt_3000.gif.jpg" alt=""> </a>
-</td>
 </tr>
 
 <tr>
 <td>
-jet pT (0-50GeV)
-</td>
-<td>
-jet pT (0-140GeV)
+jet pT (0-150GeV)
 </td>
 <td>
 jet pT (0-4000GeV)
@@ -142,20 +116,14 @@ jet pT (0-4000GeV)
 <td>
 <a href="Mass_80.gif"><img src="thumb.Mass_80.gif.jpg" alt=""> </a>
 </td>
-<td>
-<a href="Mass_3000.gif"><img src="thumb.Mass_3000.gif.jpg" alt=""> </a>
-</td>
 </tr>
 
 <tr>
 <td>
-jet mass (0-25GeV)
+jet mass (0-200GeV)
 </td>
 <td>
-jet mass (0-120GeV)
-</td>
-<td>
-jet mass (0-1500GeV)
+jet mass (0-500GeV)
 </td>
 </tr>
 
@@ -209,17 +177,6 @@ Phi (Fine bin, pt > 10.0 GeV)
 </td>
 </tr>
 
-<tr>
-<td>
-<a href="Constituents.gif"><img src="thumb.Constituents.gif.jpg" alt=""> </a>
-</td>
-<td>
-<a href="N90.gif"><img src="thumb.N90.gif.jpg" alt=""> </a>
-</td>
-<td>
-<img src="spacer.gif" alt="">
-</td>
-</tr>
 
 </table>
 <!--- 
@@ -228,7 +185,7 @@ Phi (Fine bin, pt > 10.0 GeV)
 <a name="pTScale">
 <hr>
 <h2>pT Scale</h2> pT Scale = pT(calo)/pT(gen) <br>
-In the pT scale vs jet pT/eta plots,
+In the pT scale vs jet Phi, pT, and eta plots,
 the black histogram is for new, and 
 the red histogram is for reference.<br>
 <p>
@@ -254,17 +211,54 @@ the red histogram is for reference.<br>
 <tr>
 
 <td>
-pTScale: 
+pTScale Vs pT: 
 0<|eta|<1.3
 </td>
 
 <td>
-pTScale: 
+pTScale Vs pT: 
 1.3<|eta|<3.0
 </td>
 
 <td>
-pTScale: 
+pTScale Vs pT: 
+3.0<|eta|<5.0
+</td>
+</tr>
+</table>
+
+<table border="1">
+<tr>
+</tr>
+
+<tr>
+<td>
+<a href="pTScalePhi_d_0<|eta|<1.3.gif"><img src="pTScalePhi_d_0<|eta|<1.3.gif" width="400" alt=""></a>
+</td>
+
+<td>
+<a href="pTScalePhi_d_1.3<|eta|<3.0.gif"><img src="pTScalePhi_d_1.3<|eta|<3.0.gif" width="400" alt=""></a>
+</td>
+
+<td>
+<a href="pTScalePhi_d_3.0<|eta|<5.0.gif"><img src="pTScalePhi_d_3.0<|eta|<5.0.gif" width="400" alt=""></a>
+</td>
+
+</tr>
+<tr>
+
+<td>
+pTScale Vs Phi: 
+0<|eta|<1.3
+</td>
+
+<td>
+pTScale Vs Phi: 
+1.3<|eta|<3.0
+</td>
+
+<td>
+pTScale Vs Phi: 
 3.0<|eta|<5.0
 </td>
 </tr>
@@ -282,11 +276,11 @@ pTScale:
 
 <tr>
 <td>
-pTScale: 
+pTScale Vs Eta: 
 60 < pT < 120
 </td>
 <td>
-pTScale: 
+pTScale Vs Eta: 
 200 < pT < 300
 </td>
 </tr>
@@ -302,11 +296,11 @@ pTScale:
 
 <tr>
 <td>
-pTScale: 
+pTScale Vs Eta: 
 600 < pT < 900
 </td>
 <td>
-pTScale: 
+pTScale Vs Eta: 
 2700 < pT < 3500
 </td>
 </tr>
@@ -453,17 +447,11 @@ L2L3 Correction <br>
 <td>
 <a href="CorrPt_80.gif"><img src="thumb.CorrPt_80.gif.jpg" alt=""> </a>
 </td>
-<td>
-<a href="CorrPt_3000.gif"><img src="thumb.CorrPt_3000.gif.jpg" alt=""> </a>
-</td>
 </tr>
 
 <tr>
 <td>
-Corrected jet pT (0-50GeV)
-</td>
-<td>
-Corrected jet pT (0-140GeV)
+Corrected jet pT (0-150GeV)
 </td>
 <td>
 Corrected jet pT (0-4000GeV)
@@ -614,205 +602,127 @@ pTRatio:
 
 </table>
 
+<!--- 
+===================================================================================
+--->
+
+<a name="pTResponse">
+<hr>
+<h2>pT Response</h2> pT Response = Corrected pT/Gen pT<br>
+It is the the ratio of momenta of the corrected jets 
+and their match gen jets<br>
+In the pT Response vs jet pT/eta plots,
+the black histogram is for new, and 
+the red histogram is for reference.<br>
+<p>
+
+<table border="1">
+<tr>
+</tr>
+
+<tr>
+<td>
+<a href="pTResponse.gif"><img src="thumb.pTResponse.gif.jpg" alt=""></a>
+</td>
+<td>
+<a href="pTResponse_d_pt>30.gif"><img src="thumb.pTResponse_d_pt>30.gif.jpg" alt=""></a>
+</td>
+<!--<td>
+<img src="spacer.gif" alt="">
+</td>-->
+</tr>
+
+<tr>
+<td>
+pTResponse =  
+Corrected jet pT/Gen jet pT
+</td>
+<td>
+pTResponse of Gen jet pT>30
+</td>
+<!--<td>
+<img src="spacer.gif" alt="">
+</td>-->
+</tr>
+</table>
+
+<table border="1">
+<tr>
+<td>
+<a href="pTResponse_d_0<|eta|<1.3.gif"><img src="pTResponse_d_0<|eta|<1.3.gif" width="400" alt=""></a>
+</td>
+
+<td>
+<a href="pTResponse_d_1.3<|eta|<3.0.gif"><img src="pTResponse_d_1.3<|eta|<3.0.gif" width="400" alt=""></a>
+</td>
+
+<td>
+<a href="pTResponse_d_3.0<|eta|<5.0.gif"><img src="pTResponse_d_3.0<|eta|<5.0.gif" width="400" alt=""></a>
+</td>
+
+</tr>
+<tr>
+
+<td>
+pTResponse:
+0<|eta|<1.3
+</td>
+
+<td>
+pTResponse:
+1.3<|eta|<3.0
+</td>
+<td>
+pTResponse:
+3.0<|eta|<5.0
+</td>
+</tr>
+</table>
+
+<table border="1">
+<tr>
+<td>
+<a href="pTResponse_d_60<pT<120.gif"><img src="pTResponse_d_60<pT<120.gif" width="400" alt=""> </a>
+</td>
+<td>
+<a href="pTResponse_d_200<pT<300.gif"><img src="pTResponse_d_200<pT<300.gif" width="400" alt=""></a>
+</td>
+</tr>
+
+<tr>
+<td>
+pTResponse:
+60 < pT < 120
+</td>
+<td>
+pTResponse:
+200 < pT < 300
+</td>
+</tr>
+
+<tr>
+<td>
+<a href="pTResponse_d_600<pT<900.gif"><img src="pTResponse_d_600<pT<900.gif" width="400" alt=""> </a>
+</td>
+<td>
+<a href="pTResponse_d_2700<pt<3500.gif"><img src="pTResponse_d_2700<pt<3500.gif" width="400" alt=""></a>
+</td>
+</tr>
+
+<tr>
+<td>
+pTResponse:
+600 < pT < 900
+</td>
+<td>
+pTResponse:
+2700 < pT < 3500
+</td>
+</tr>
+
+</table>
+
 <!---
-===================================================================================
---->
-
-<!--- 
-===================================================================================
---->
-
-
-
-<a name="Electron">
-<hr>
-<h2>Electron</h2>
-
-<br>
-<p>
-
-<table border="1">
-
-<tr>
-<td>
-<a href="PtFractionElecInVertexInCalo.gif"><img src="thumb.PtFractionElecInVertexInCalo.gif.jpg" alt=""> </a>
-</td>
-<td>
-<a href="PtFractionElecInVertexOutCalo.gif"><img src="thumb.PtFractionElecInVertexOutCalo.gif.jpg" alt=""> </a>
-</td>
-<td>
-<a href="PtFractionElecOutVertexInCalo.gif"><img src="thumb.PtFractionElecOutVertexInCalo.gif.jpg" alt=""> </a>
-</td>
-</tr>
-
-<tr>
-<td>
-PtFraction of Electron In Vertex In Calo
-</td>
-<td>
-PtFraction of Electron In Vertex Out Calo
-</td>
-<td>
-PtFraction of Electron OutV ertex In Calo
-</td>
-</tr>
-
-
-<tr>
-<td>
-<a href="MultiplicityElecInVertexInCalo.gif"><img src="thumb.MultiplicityElecInVertexInCalo.gif.jpg" alt=""> </a>
-</td>
-<td>
-<a href="MultiplicityElecInVertexOutCalo.gif"><img src="thumb.MultiplicityElecInVertexOutCalo.gif.jpg" alt=""> </a>
-</td>
-<td>
-<a href="MultiplicityElecOutVertexInCalo.gif"><img src="thumb.MultiplicityElecOutVertexInCalo.gif.jpg" alt=""> </a>
-</td>
-</tr>
-
-<tr>
-<td>
-MultiplicityElecInVertexInCalo
-</td>
-<td>
-MultiplicityElecInVertexOutCalo
-</td>
-<td>
-MultiplicityElecOutVertexInCalo
-</td>
-</tr>
-
-</table>
-
-<!--- 
-===================================================================================
---->
-
-<a name="Muon">
-<hr>
-<h2>Muon</h2>
-
-<br>
-<p>
-
-<table border="1">
-
-
-<tr>
-<td>
-<a href="PtFractionMuonInVertexInCalo.gif"><img src="thumb.PtFractionMuonInVertexInCalo.gif.jpg" alt="">  </a>
-</td>
-<td>
-<a href="PtFractionMuonInVertexOutCalo.gif"><img src="thumb.PtFractionMuonInVertexOutCalo.gif.jpg" alt=""> </a>
-</td>
-<td>
-<a href="PtFractionMuonOutVertexInCalo.gif"><img src="thumb.PtFractionMuonOutVertexInCalo.gif.jpg" alt=""> </a>
-</td>
-</tr>
-
-<tr>
-<td>
-PtFraction of Muon In Vertex In Calo
-</td>
-<td>
-PtFraction of Muon In Vertex Out Calo
-</td>
-<td>
-PtFraction of Muon Out Vertex In Calo
-</td>
-</tr>
-
-<tr>
-<td>
-<a href="MultiplicityMuonInVertexInCalo.gif"><img src="thumb.MultiplicityMuonInVertexInCalo.gif.jpg" alt=""> </a>
-</td>
-<td>
-<a href="MultiplicityMuonInVertexOutCalo.gif"><img src="thumb.MultiplicityMuonInVertexOutCalo.gif.jpg" alt=""> </a>
-</td>
-<td>
-<a href="MultiplicityMuonOutVertexInCalo.gif"><img src="thumb.MultiplicityMuonOutVertexInCalo.gif.jpg" alt=""> </a>
-</td>
-</tr>
-
-<tr>
-<td>
-MultiplicityMuonInVertexInCalo
-</td>
-<td>
-MultiplicityMuonInVertexOutCalo
-</td>
-<td>
-MultiplicityMuonOutVertexInCalo
-</td>
-</tr>
-
-</table>
-
-
-<!--- 
-===================================================================================
---->
-
-<a name="Pion">
-<hr>
-<h2>Pion</h2>
-
-<br>
-<p>
-
-<table border="1">
-
-
-<tr>
-<td>
-<a href="PtFractionPionInVertexInCalo.gif"><img src="thumb.PtFractionPionInVertexInCalo.gif.jpg" alt=""> </a>
-</td>
-<td>
-<a href="PtFractionPionInVertexOutCalo.gif"><img src="thumb.PtFractionPionInVertexOutCalo.gif.jpg" alt=""> </a>
-</td>
-<td>
-<a href="PtFractionPionOutVertexInCalo.gif"><img src="thumb.PtFractionPionOutVertexInCalo.gif.jpg" alt=""> </a>
-</td>
-</tr>
-
-<tr>
-<td>
-PtFraction of Pion In Vertex In Calo
-</td>
-<td>
-PtFraction of Pion In Vertex Out Calo
-</td>
-<td>
-PtFraction of Pion Out Vertex In Calo
-</td>
-</tr>
-
-<tr>
-<td>
-<a href="MultiplicityPionInVertexInCalo.gif"><img src="thumb.MultiplicityPionInVertexInCalo.gif.jpg" alt=""> </a>
-</td>
-<td>
-<a href="MultiplicityPionInVertexOutCalo.gif"><img src="thumb.MultiplicityPionInVertexOutCalo.gif.jpg" alt=""> </a>
-</td>
-<td>
-<a href="MultiplicityPionOutVertexInCalo.gif"><img src="thumb.MultiplicityPionOutVertexInCalo.gif.jpg" alt=""> </a>
-</td>
-</tr>
-
-<tr>
-<td>
-MultiplicityPionInVertexInCalo
-</td>
-<td>
-MultiplicityPionInVertexOutCalo
-</td>
-<td>
-MultiplicityPionOutVertexInCalo
-</td>
-</tr>
-
-</table>
-<!--- 
 ===================================================================================
 --->
 
@@ -820,31 +730,6 @@ MultiplicityPionOutVertexInCalo
 <hr>
 <h2>Miscellaneous</h2>
 <table border="1">
-
-<tr>
-<td>
-<a href="EFirst.gif"><img src="thumb.EFirst.gif.jpg" alt=""> </a>
-</td>
-<td>
-<a href="EFirst_80.gif"><img src="thumb.EFirst_80.gif.jpg" alt=""> </a>
-</td>
-<td>
-<a href="EFirst_3000.gif"><img src="thumb.EFirst_3000.gif.jpg" alt=""> </a>
-</td>
-</tr>
-
-<tr>
-<td>
-leading jet energy (0-1000GeV)
-</td>
-<td>
-leading jet energy (0-180GeV)
-</td>
-<td>
-leading jet energy (0-4000GeV)
-</td>
-</tr>
-
 
 <tr>
 <td>
@@ -859,10 +744,10 @@ leading jet energy (0-4000GeV)
 
 <tr>
 <td>
-leading jet pT (0-1000GeV)
+leading jet pT (0-50GeV)
 </td>
 <td>
-leading jet pT (0-180GeV)
+leading jet pT (0-140GeV)
 </td>
 <td>
 leading jet pT (0-4000GeV)
@@ -1005,20 +890,14 @@ Number of jets (|eta| > 1.3, pT > 10 GeV)
 <td>
 <a href="GenPt_80.gif"><img src="thumb.GenPt_80.gif.jpg" alt=""> </a>
 </td>
-<td>
-<a href="GenPt_3000.gif"><img src="thumb.GenPt_3000.gif.jpg" alt=""> </a>
-</td>
 </tr>
 
 <tr>
 <td>
-pT of GenJet ( 0-50GeV)
+pT of GenJet ( 0-150GeV)
 </td>
 <td>
-pT of Genjet ( 0-140GeV)
-</td>
-<td>
-pT of GenJet (0-1500GeV)
+pT of Genjet ( 0-1500GeV)
 </td>
 </tr>
 

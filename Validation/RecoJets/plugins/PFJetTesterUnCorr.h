@@ -4,7 +4,7 @@
 // Producer for validation histograms for PFJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by Chiyoung.Jeong Feb 2, 2010
-// $Id: PFJetTester.h,v 1.7 2010/04/21 16:33:57 chjeong Exp $
+// $Id: PFJetTesterUnCorr.h,v 1.1 2011/02/23 16:57:16 kovitang Exp $
 
 #include <string>
 
@@ -208,6 +208,9 @@ private:
   MonitorElement* mpTScaleB_d;
   MonitorElement* mpTScaleE_d;
   MonitorElement* mpTScaleF_d;
+  MonitorElement* mpTScalePhiB_d;
+  MonitorElement* mpTScalePhiE_d;
+  MonitorElement* mpTScalePhiF_d;
 
   MonitorElement* mpTScale_60_120_s;
   MonitorElement* mpTScale_200_300_s;

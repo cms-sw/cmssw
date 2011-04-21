@@ -44,7 +44,7 @@ process.source = cms.Source("PoolSource",
 
     fileNames = cms.untracked.vstring(
 
-'file:/afs/cern.ch/user/k/kovitang/scratch0/TTbar_3_9_4_784E93C0-33F8-DF11-9C13-001A92811708.root'
+'rfio:/castor/cern.ch/user/k/kovitang/TTbar_3_9_4_784E93C0-33F8-DF11-9C13-001A92811708.root'
 
     )
 

@@ -4,7 +4,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.h,v 1.17 2009/12/18 20:45:13 wmtan Exp $
+// $Id: CaloJetTesterUnCorr.h,v 1.1 2011/02/23 16:57:16 kovitang Exp $
 
 #include <string>
 
@@ -182,6 +182,9 @@ private:
   MonitorElement* mpTScaleB_d;
   MonitorElement* mpTScaleE_d;
   MonitorElement* mpTScaleF_d;
+  MonitorElement* mpTScalePhiB_d;
+  MonitorElement* mpTScalePhiE_d;
+  MonitorElement* mpTScalePhiF_d;
 
   MonitorElement* mpTScale_60_120_s;
   MonitorElement* mpTScale_200_300_s;
