@@ -24,7 +24,6 @@
 #include <iomanip>
 
 // user include files
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
@@ -71,7 +70,17 @@ L1GtHwValidation::L1GtHwValidation(const edm::ParameterSet& paramSet) :
                     "L1GctDataInputTag")),
             //
             m_dirName(paramSet.getUntrackedParameter("DirName", std::string(
-                    "L1Trigger/L1ExtraDQM/source"))),
+                    "L1TEMU/GTexpert"))),
+            //
+            m_excludeCondCategTypeObject(paramSet.getParameter<std::vector<edm::ParameterSet> >(
+                    "ExcludeCondCategTypeObject")),
+            //
+            m_excludeAlgoTrigByName(paramSet.getParameter<std::vector<std::string> >(
+                    "ExcludeAlgoTrigByName")),
+            //
+            m_excludeAlgoTrigByBit(paramSet.getParameter<std::vector<int> >(
+                    "ExcludeAlgoTrigByBit")),
+            //
             // initialize counters
             m_nrDataEventError(0),
             m_nrEmulEventError(0),
@@ -89,6 +98,41 @@ L1GtHwValidation::L1GtHwValidation(const edm::ParameterSet& paramSet) :
             //
             m_nrEvJob(0), m_nrEvRun(0) {
 
+
+    for (std::vector<edm::ParameterSet>::const_iterator
+            itExclud  = m_excludeCondCategTypeObject.begin();
+            itExclud != m_excludeCondCategTypeObject.end();
+            ++itExclud) {
+
+        if (!(itExclud->getParameter<std::string> ("ExcludedCondCategory")).empty()) {
+
+            m_excludedCondCategory.push_back(l1GtConditionCategoryStringToEnum(
+                    itExclud->getParameter<std::string>("ExcludedCondCategory")));
+
+        } else {
+            m_excludedCondCategory.push_back(CondNull);
+        }
+
+        if (!(itExclud->getParameter<std::string>("ExcludedCondType")).empty() ) {
+
+            m_excludedCondType.push_back(l1GtConditionTypeStringToEnum(
+                    itExclud->getParameter<std::string> ("ExcludedCondType")));
+
+        } else {
+            m_excludedCondType.push_back(TypeNull);
+        }
+
+        if (!(itExclud->getParameter<std::string>("ExcludedL1GtObject")).empty() ) {
+
+            m_excludedL1GtObject.push_back(l1GtObjectStringToEnum(
+                    itExclud->getParameter<std::string> ("ExcludedL1GtObject")));
+
+        }  else {
+            m_excludedL1GtObject.push_back(ObjNull);
+        }
+    }
+
+
     LogDebug("L1GtHwValidation")
             << "\nInput tag for the L1 GT DAQ hardware record:       "
             << m_l1GtDataDaqInputTag
@@ -100,6 +144,8 @@ L1GtHwValidation::L1GtHwValidation(const edm::ParameterSet& paramSet) :
             << m_l1GtEmulEvmInputTag
             << "\nInput tag for the L1 GCT hardware record:          "
             << m_l1GctDataInputTag << std::endl;
+
+    // FIXME print in debug mode ExcludeCondCategTypeObject, ExcludeAlgoTrigByName, etc
 
     m_dbe = edm::Service<DQMStore>().operator->();
     if (m_dbe == 0) {
@@ -194,6 +240,29 @@ void L1GtHwValidation::beginRun(const edm::Run& iRun,
 
         for (int iRec = 0; iRec < NumberOfGtRecords; ++iRec) {
             for (int iBxInEvent = 0; iBxInEvent < TotalBxInEvent; ++iBxInEvent) {
+
+
+                // convert [0, TotalBxInEvent] to [-X, +X]
+                int iIndex = iBxInEvent - ((TotalBxInEvent + 1) / 2 - 1);
+                int hIndex = (iIndex + 16) % 16;
+
+                std::stringstream ss;
+                std::string str;
+                ss << std::uppercase << std::hex << hIndex;
+                ss >> str;
+
+                if (iRec == 0) {
+                    if (m_dbe) {
+                        m_dbe->setCurrentFolder(m_dirName + "/DAQ/BxInEvent_" + str);
+                    }
+
+                } else {
+                    if (m_dbe) {
+                        m_dbe->setCurrentFolder(m_dirName + "/EVM/BxInEvent_" + str);
+                    }
+                }
+
+
                 m_fdlDataAlgoDecision[iBxInEvent][iRec]->setBinLabel(
                         algBitNumber + 1, algName, 1);
                 m_fdlDataAlgoDecisionPrescaled[iBxInEvent][iRec]->setBinLabel(
@@ -204,8 +273,6 @@ void L1GtHwValidation::beginRun(const edm::Run& iRun,
                         algBitNumber + 1, algName, 1);
                 m_fdlDataAlgoDecision_NoMatch[iBxInEvent][iRec]->setBinLabel(
                         algBitNumber + 1, algName, 1);
-                m_fdlDataAlgoDecision_Err[iRec]->setBinLabel(algBitNumber + 1,
-                        algName, 1);
 
                 m_fdlEmulAlgoDecision[iBxInEvent][iRec]->setBinLabel(
                         algBitNumber + 1, algName, 1);
@@ -217,8 +284,6 @@ void L1GtHwValidation::beginRun(const edm::Run& iRun,
                         algBitNumber + 1, algName, 1);
                 m_fdlEmulAlgoDecision_NoMatch[iBxInEvent][iRec]->setBinLabel(
                         algBitNumber + 1, algName, 1);
-                m_fdlEmulAlgoDecision_Err[iRec]->setBinLabel(algBitNumber + 1,
-                        algName, 1);
 
                 m_fdlDataEmulAlgoDecision[iBxInEvent][iRec]->setBinLabel(
                         algBitNumber + 1, algName, 1);
@@ -226,11 +291,33 @@ void L1GtHwValidation::beginRun(const edm::Run& iRun,
                         algBitNumber + 1, algName, 1);
                 m_fdlDataEmulAlgoDecisionUnprescaled[iBxInEvent][iRec]->setBinLabel(
                         algBitNumber + 1, algName, 1);
+                m_fdlDataEmulAlgoDecisionUnprescaledAllowed[iBxInEvent][iRec]->setBinLabel(
+                        algBitNumber + 1, algName, 1);
                 m_fdlDataEmulAlgoDecisionMask[iBxInEvent][iRec]->setBinLabel(
                         algBitNumber + 1, algName, 1);
-                m_fdlDataEmulAlgoDecision_Err[iRec]->setBinLabel(algBitNumber
-                        + 1, algName, 1);
             }
+
+
+            if (iRec == 0) {
+                if (m_dbe) {
+                    m_dbe->setCurrentFolder(m_dirName + "/DAQ/");
+                }
+
+            } else {
+                if (m_dbe) {
+                    m_dbe->setCurrentFolder(m_dirName + "/EVM/");
+                }
+            }
+
+
+            m_fdlDataAlgoDecision_Err[iRec]->setBinLabel(algBitNumber + 1,
+                    algName, 1);
+
+            m_fdlEmulAlgoDecision_Err[iRec]->setBinLabel(algBitNumber + 1,
+                    algName, 1);
+
+            m_fdlDataEmulAlgoDecision_Err[iRec]->setBinLabel(algBitNumber
+                    + 1, algName, 1);
         }
 
         //
@@ -319,12 +406,17 @@ void L1GtHwValidation::compareGTFE(const edm::Event& iEvent,
         const edm::EventSetup& evSetup, const L1GtfeWord& gtfeBlockData,
         const L1GtfeWord& gtfeBlockEmul, const int iRec) {
 
-    //
     std::string recString;
     if (iRec == 0) {
         recString = "DAQ";
+        if (m_dbe) {
+            m_dbe->setCurrentFolder(m_dirName + "/DAQ/");
+        }
     } else {
         recString = "EVM";
+        if (m_dbe) {
+            m_dbe->setCurrentFolder(m_dirName + "/EVM/");
+        }
     }
 
     if (gtfeBlockData == gtfeBlockEmul) {
@@ -540,8 +632,14 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
     std::string recString;
     if (iRec == 0) {
         recString = "DAQ";
+        if (m_dbe) {
+            m_dbe->setCurrentFolder(m_dirName + "/DAQ/");
+        }
     } else {
         recString = "EVM";
+        if (m_dbe) {
+            m_dbe->setCurrentFolder(m_dirName + "/EVM/");
+        }
     }
 
     if (fdlBlockData == fdlBlockEmul) {
@@ -978,6 +1076,13 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
                     if (prescaleFactor == 1) {
                         m_fdlDataEmulAlgoDecisionUnprescaled[histIndex][iRec]->Fill(
                                 iBit);
+
+                        // fill a histogram for allowed algorithm triggers only
+                        if (!excludedAlgo(iBit)) {
+                            m_fdlDataEmulAlgoDecisionUnprescaledAllowed[histIndex][iRec]->Fill(
+                                    iBit);
+                        }
+
                     } else {
                         m_fdlDataEmulAlgoDecisionPrescaled[histIndex][iRec]->Fill(
                                 iBit);
@@ -1631,6 +1736,11 @@ void L1GtHwValidation::compareDaqRecord(const edm::Event& iEvent,
     // fill the m_gtErrorFlag histogram (only for L1 GT DAQ record)
 
 
+    if (m_dbe) {
+        m_dbe->setCurrentFolder(m_dirName);
+    }
+
+
     if (m_agree) {
         m_gtErrorFlag->Fill(0.0001);
     }
@@ -1777,8 +1887,15 @@ void L1GtHwValidation::bookHistograms() {
         std::string recString;
         if (iRec == 0) {
             recString = "Daq_";
+            if (m_dbe) {
+                m_dbe->setCurrentFolder(m_dirName + "/DAQ/");
+            }
+
         } else {
             recString = "Evm_";
+            if (m_dbe) {
+                m_dbe->setCurrentFolder(m_dirName + "/EVM/");
+            }
         }
 
         std::string hName;
@@ -1811,6 +1928,17 @@ void L1GtHwValidation::bookHistograms() {
             std::string str;
             ss << std::uppercase << std::hex << hIndex;
             ss >> str;
+
+            if (iRec == 0) {
+                if (m_dbe) {
+                    m_dbe->setCurrentFolder(m_dirName + "/DAQ/BxInEvent_" + str);
+                }
+
+            } else {
+                if (m_dbe) {
+                    m_dbe->setCurrentFolder(m_dirName + "/EVM/BxInEvent_" + str);
+                }
+            }
 
             hName = recString + "FdlDataEmul_" + str;
             histName = hName.c_str();
@@ -1972,6 +2100,19 @@ void L1GtHwValidation::bookHistograms() {
             histTitle = hTitle.c_str();
 
             m_fdlDataEmulAlgoDecisionUnprescaled[iHist][iRec] = m_dbe->book1D(
+                    histName, histTitle, numberAlgoTriggers, 0.,
+                    numberAlgoTriggers);
+
+            //
+            hName = recString + "DataEmul_AlgoDecision_Unprescaled_Allowed_" + str;
+            histName = hName.c_str();
+
+            hTitle
+                    = "Data vs emul: unprescaled algorithms not excluded with non-matching decision for BxInEvent = "
+                            + str;
+            histTitle = hTitle.c_str();
+
+            m_fdlDataEmulAlgoDecisionUnprescaledAllowed[iHist][iRec] = m_dbe->book1D(
                     histName, histTitle, numberAlgoTriggers, 0.,
                     numberAlgoTriggers);
 
@@ -2223,6 +2364,17 @@ void L1GtHwValidation::bookHistograms() {
 
         }
 
+        if (iRec == 0) {
+            if (m_dbe) {
+                m_dbe->setCurrentFolder(m_dirName + "/DAQ/");
+            }
+
+        } else {
+            if (m_dbe) {
+                m_dbe->setCurrentFolder(m_dirName + "/EVM/");
+            }
+        }
+
         hName = recString + "FdlDataEmul_Err";
         histName = hName.c_str();
 
@@ -2303,6 +2455,10 @@ void L1GtHwValidation::bookHistograms() {
 
     }
 
+    if (m_dbe) {
+        m_dbe->setCurrentFolder(m_dirName);
+    }
+
     //
     m_excludedAlgorithmsAgreement = m_dbe->book1D(
             "ExcludedAlgorithmsFromAgreement",
@@ -2323,10 +2479,71 @@ void L1GtHwValidation::bookHistograms() {
 
 }
 
+bool L1GtHwValidation::matchCondCategory(
+        const L1GtConditionCategory& conditionCategory,
+        const L1GtConditionCategory& excludedCategory) {
+
+    bool matchValue = false;
+
+    if (excludedCategory == CondNull) {
+        matchValue = true;
+    } else {
+        if (conditionCategory == excludedCategory) {
+            matchValue = true;
+        }
+    }
+
+    return matchValue;
+}
+
+
+bool L1GtHwValidation::matchCondType(const L1GtConditionType& conditionType,
+        const L1GtConditionType& excludedType) {
+
+    bool matchValue = false;
+
+    if (excludedType == TypeNull) {
+        matchValue = true;
+    } else {
+        if (conditionType == excludedType) {
+            matchValue = true;
+        }
+    }
+
+    return matchValue;
+}
+
+
+bool L1GtHwValidation::matchCondL1GtObject(
+        const std::vector<L1GtObject>& condObjects,
+        const L1GtObject& excludedObject) {
+
+    bool matchValue = false;
+
+    if (excludedObject == ObjNull) {
+
+        matchValue = true;
+
+    } else {
+
+        for (std::vector<L1GtObject>::const_iterator itCondObj =
+                condObjects.begin(); itCondObj != condObjects.end(); ++itCondObj) {
+
+            if ((*itCondObj) == excludedObject) {
+
+                matchValue = true;
+
+            }
+        }
+    }
+
+    return matchValue;
+
+}
+
+
 void L1GtHwValidation::excludedAlgoList() {
 
-    // exclude all algorithms containing external conditions
-    // FIXME: remove it after proper input of external conditions is available
 
     const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
     (const_cast<L1GtTriggerMenu*> (m_l1GtMenu))->buildGtConditionMap(); //...ugly
@@ -2344,10 +2561,10 @@ void L1GtHwValidation::excludedAlgoList() {
                 (itAlgo->second).algoRpnVector();
         size_t aRpnVectorSize = aRpnVector.size();
 
-        bool algWithExternalCondition = false;
+        bool algWithExcludedCondition = false;
         bool algWithConditionNotInMap = false;
 
-        // loop over RpnVector and check for each condition the object type
+        // loop over RpnVector and check each conditions against list of excluded conditions
         for (size_t opI = 0; opI < aRpnVectorSize; ++opI) {
 
             const std::string& cndName = (aRpnVector[opI]).operand;
@@ -2357,17 +2574,45 @@ void L1GtHwValidation::excludedAlgoList() {
 
                 CItCond itCond = conditionMap.find(cndName);
                 if (itCond != conditionMap.end()) {
-                    const std::vector<L1GtObject>& objType =
-                            (itCond->second)->objectType();
 
-                    for (std::vector<L1GtObject>::const_iterator itObj =
-                            objType.begin(); itObj != objType.end(); ++itObj) {
+                    const L1GtConditionCategory& cCateg =  (itCond->second)->condCategory();
+                    const L1GtConditionType& cType =  (itCond->second)->condType();
+                    const std::vector<L1GtObject>& objType = (itCond->second)->objectType();
 
-                        if (*itObj == GtExternal) {
+                    // condition index in the m_excludedCondCategory, m_excludedCondType, m_excludedL1GtObject vectors
+                    int iCond = -1;
 
-                            algWithExternalCondition = true;
+                    for (std::vector<L1GtConditionCategory>::const_iterator
+                            itCateg  = m_excludedCondCategory.begin();
+                            itCateg != m_excludedCondCategory.end(); ++itCateg) {
+
+                        iCond++;
+
+                        bool matchCondCategoryValue = matchCondCategory(cCateg, (*itCateg));
+                        bool matchCondTypeValue = matchCondType(cType, m_excludedCondType.at(iCond));
+                        bool matchCondL1GtObjectValue = matchCondL1GtObject(objType, m_excludedL1GtObject.at(iCond));
+
+                        LogTrace("L1GtHwValidation")
+                                << "\n  "
+                                << "Algorithm: " << algName
+                                << " Condition: " << cndName
+                                << "\n  "
+                                << "Category:  " << l1GtConditionCategoryEnumToString(cCateg)
+                                << "; excluded: " << l1GtConditionCategoryEnumToString((*itCateg))
+                                << "\n  "
+                                << "Type:      " << l1GtConditionTypeEnumToString(cType)
+                                << "; excluded: " << l1GtConditionTypeEnumToString(m_excludedCondType.at(iCond))
+                                << "\n  "
+                                << "Object excluded: " << l1GtObjectEnumToString(m_excludedL1GtObject.at(iCond))
+                                << std::endl;
+
+
+                        if (matchCondCategoryValue && matchCondTypeValue && matchCondL1GtObjectValue) {
+
+                            algWithExcludedCondition = true;
 
                         }
+
                     }
 
                     foundCond = true;
@@ -2402,22 +2647,54 @@ void L1GtHwValidation::excludedAlgoList() {
                     << "\n  data versus emulator." << std::endl;
         }
 
-        if (algWithExternalCondition) {
+        if (algWithExcludedCondition) {
 
             m_excludedAlgoList.push_back(algBitNumber);
 
             LogTrace("L1GtHwValidation") << "\n Algorithm " << algName
                     << " (bit number " << algBitNumber
-                    << ") contains a GtExternal condition."
+                    << ") contains an excluded condition."
                     << "\n  Add it to list of algorithms excluded from comparison"
                     << "\n  data versus emulator." << std::endl;
 
         }
 
-    }
+        // add algorithm triggers from ExcludeAlgoTrigByName
+        for (std::vector<std::string>::const_iterator
+                itExcl = m_excludeAlgoTrigByName.begin();
+                itExcl!= m_excludeAlgoTrigByName.end(); ++itExcl) {
 
-    // excluded trigger via input parameters
-    // FIXME implement it eventually
+            if ((*itExcl) == algName) {
+
+                m_excludedAlgoList.push_back(algBitNumber);
+
+                LogTrace("L1GtHwValidation") << "\n Algorithm " << algName
+                        << " (bit number " << algBitNumber
+                        << ")\n  added to list of algorithms excluded from comparison"
+                        << " \n  data versus emulator by ExcludeAlgoTrigByName." << std::endl;
+            }
+
+        }
+
+
+        // add algorithm triggers from ExcludeAlgoTrigByBit
+        for (std::vector<int>::const_iterator
+                itExcl = m_excludeAlgoTrigByBit.begin();
+                itExcl!= m_excludeAlgoTrigByBit.end(); ++itExcl) {
+
+            if ((*itExcl) == algBitNumber) {
+
+                m_excludedAlgoList.push_back(algBitNumber);
+
+                LogTrace("L1GtHwValidation") << "\n Algorithm " << algName
+                        << " (bit number " << algBitNumber
+                        << ")\n  added to list of algorithms excluded from comparison"
+                        << " \n  data versus emulator by ExcludeAlgoTrigByBit." << std::endl;
+            }
+
+        }
+
+    }
 
 }
 

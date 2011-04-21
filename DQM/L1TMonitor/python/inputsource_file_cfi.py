@@ -12,7 +12,8 @@ dataType = 'RAW'
 
 
 # runNumber for RAW only 
-runNumber = 143657
+runNumber = 161312
+#runNumber = 143657
 #runNumber = 137028
 
 maxNumberEvents = 5000
@@ -51,6 +52,17 @@ if dataType == 'RAW' :
         readFiles.extend( [
             '/store/data/Run2010A/MinimumBias/RAW/v1/000/143/657/00FB1636-91AE-DF11-B177-001D09F248F8.root',
             '/store/data/Run2010A/MinimumBias/RAW/v1/000/143/657/023EB128-51AE-DF11-96D3-001D09F24682.root'
+            ] );
+
+        secFiles.extend([
+            ])    
+   
+    elif runNumber == 161312 : 
+    
+        readFiles.extend( [
+            '/store/data/Run2011A/MinimumBias/RAW/v1/000/161/312/FEE65985-EF55-E011-A137-001617E30F50.root',
+            '/store/data/Run2011A/MinimumBias/RAW/v1/000/161/312/F4E4E71A-E755-E011-B7BA-001617E30CC8.root',
+            '/store/data/Run2011A/MinimumBias/RAW/v1/000/161/312/F442D1A6-D755-E011-A93F-003048F01E88.root'
             ] );
 
         secFiles.extend([
