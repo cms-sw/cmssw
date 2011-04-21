@@ -1,28 +1,21 @@
 import FWCore.ParameterSet.Config as cms
 
-interestingEcalDetIdEB = cms.EDProducer("InterestingDetIdCollectionProducer",
+import RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi
+
+interestingEcalDetIdEB = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
     basicClustersLabel = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
-    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-    etaSize = cms.int32(5),
-    interestingDetIdCollection = cms.string(''),
-    phiSize = cms.int32(5)
-)
+    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB")
+    )
 
-interestingEcalDetIdEBU = cms.EDProducer("InterestingDetIdCollectionProducer",
+interestingEcalDetIdEBU = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
     basicClustersLabel = cms.InputTag("hybridSuperClusters","uncleanOnlyHybridBarrelBasicClusters"),
-    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-    etaSize = cms.int32(5),
-    interestingDetIdCollection = cms.string(''),
-    phiSize = cms.int32(5)
-)
+    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB")
+    )
 
-interestingEcalDetIdEE = cms.EDProducer("InterestingDetIdCollectionProducer",
+interestingEcalDetIdEE = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
     basicClustersLabel = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
-    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
-    etaSize = cms.int32(5),
-    interestingDetIdCollection = cms.string(''),
-    phiSize = cms.int32(5)
-)
+    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE")
+    )
 
 # rechits associated to high pt tracks for HSCP
 
@@ -45,7 +38,7 @@ reducedEcalRecHitsEB = cms.EDProducer("ReducedRecHitCollectionProducer",
             cms.InputTag("interestingEleIsoDetIdEB"),
             cms.InputTag("interestingGamIsoDetIdEB"),
             # tau
-            cms.InputTag("caloRecoTauProducer"),
+            #cms.InputTag("caloRecoTauProducer"),
             #pf
             cms.InputTag("pfElectronInterestingEcalDetIdEB"),
             # muons
@@ -65,7 +58,7 @@ reducedEcalRecHitsEE = cms.EDProducer("ReducedRecHitCollectionProducer",
             cms.InputTag("interestingEleIsoDetIdEE"),
             cms.InputTag("interestingGamIsoDetIdEE"),
             # tau
-            cms.InputTag("caloRecoTauProducer"),
+            #cms.InputTag("caloRecoTauProducer"),
             #pf
             cms.InputTag("pfElectronInterestingEcalDetIdEE"),
             # muons
@@ -76,8 +69,21 @@ reducedEcalRecHitsEE = cms.EDProducer("ReducedRecHitCollectionProducer",
     reducedHitsCollection = cms.string('')
 )
 
+reducedEcalRecHitsES = cms.EDProducer("ReducedESRecHitCollectionProducer",
+                                      scEtThreshold = cms.double(15),
+                                      EcalRecHitCollectionES = cms.InputTag('ecalPreshowerRecHit','EcalRecHitsES'),
+                                      EndcapSuperClusterCollection = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower'),
+                                      OutputLabel_ES = cms.string(''),
+                                      interestingDetIds = cms.VInputTag()
+                                      )
 
 #selected digis
 from RecoEcal.EgammaClusterProducers.ecalDigiSelector_cff import *
 
-reducedEcalRecHitsSequence = cms.Sequence(interestingEcalDetIdEB*interestingEcalDetIdEBU*interestingEcalDetIdEE*interestingTrackEcalDetIds*reducedEcalRecHitsEB*reducedEcalRecHitsEE*seldigis)
+reducedEcalRecHitsSequence = cms.Sequence(interestingEcalDetIdEB*interestingEcalDetIdEBU*
+                                          interestingEcalDetIdEE*
+                                          interestingTrackEcalDetIds*
+                                          reducedEcalRecHitsEB*
+                                          reducedEcalRecHitsEE*
+                                          seldigis*
+                                          reducedEcalRecHitsES)

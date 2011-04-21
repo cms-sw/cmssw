@@ -12,7 +12,8 @@ hcalDeadCellMonitor=cms.EDAnalyzer("HcalDeadCellMonitor",
                                    skipOutOfOrderLS       = cms.untracked.bool(True),
                                    NLumiBlocks            = cms.untracked.int32(4000),
                                    makeDiagnostics        = cms.untracked.bool(False),
-                                   BadChannelStatusMask   = cms.untracked.int32(((1<<5) | (1<<1 | 1<<15))), # dead cells mask: up to 03.01.2001 dead cells were masked as 0x20, now changed to 0x8002
+
+                                   BadChannelStatusMask   = cms.untracked.int32((1<<5) | (1<<1)), # dead cells mask: up to 03.01.2001 dead cells masks keep changing... expect a final version soon.
                                    # Dead Cell Monitor-specific Info
                                    
                                    # Input collections
@@ -23,7 +24,7 @@ hcalDeadCellMonitor=cms.EDAnalyzer("HcalDeadCellMonitor",
                                    # minimum number of events necessary for lumi-block-based checking to commence
                                    minDeadEventCount      = cms.untracked.int32(1000),
 
-                                   excludeHORing2         = cms.untracked.bool(False),
+                                   excludeHORing2         = cms.untracked.bool(True),
                                    #booleans for dead cell tests
                                    test_digis             = cms.untracked.bool(True), # test for recent missing digis
                                    test_rechits           = cms.untracked.bool(True), # test for missing rechits

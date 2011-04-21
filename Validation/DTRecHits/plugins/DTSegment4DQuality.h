@@ -5,17 +5,13 @@
  *  Basic analyzer class which accesses 4D DTSegments
  *  and plot resolution comparing reconstructed and simulated quantities
  *
- *  $Date: 2009/11/04 17:25:17 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/06/08 15:17:24 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "Histograms.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <vector>
 #include <map>
@@ -43,22 +39,20 @@ public:
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
   // Write the histos to file
   void endJob();
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-			  edm::EventSetup const& c);
 
 protected:
 
 private: 
 
   // The file which will store the histos
-  //TFile *theFile;
+  TFile *theFile;
   // Switch for debug output
   bool debug;
   // Root file name
   std::string rootFileName;
   //Labels to read from event
-  edm::InputTag simHitLabel;
-  edm::InputTag segment4DLabel;
+  std::string simHitLabel;
+  std::string segment4DLabel;
   //Sigma resolution on position
   double sigmaResX;
   double sigmaResY;
@@ -75,9 +69,6 @@ private:
   HEff4DHit *hEff_W0;
   HEff4DHit *hEff_W1;
   HEff4DHit *hEff_W2;
-  DQMStore* dbe_;
-  bool doall;
-  bool local;
 };
 
 #endif

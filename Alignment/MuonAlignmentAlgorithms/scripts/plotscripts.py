@@ -9,10 +9,7 @@ try:
 except ImportError:
   import simplejson as json
 
-# sign conventions and some dimensions
-from signConventions import *
-
-# common muon types structures
+# my common muon types structures
 from mutypes import *
 
 CPP_LOADED = False
@@ -287,22 +284,58 @@ set_palette()
 ######################################################################################################
 ## sector phi edges in: me11 me12 me13 me14 me21 me22 me31 me32 me41 me42 mb1 mb2 mb3 mb4
 ## index:               0    1    2    3    4    5    6    7    8    9    10  11  12  13
-
-#phiedgesCSC36 = [pi/180.*(-175. + 10.*i) for i in range(36)]
-#phiedgesCSC18 = [pi/180.*(-175. + 20.*i) for i in range(18)]
-phiedgesCSC36 = [pi/180.*(-5. + 10.*i) for i in range(36)]
-phiedgesCSC18 = [pi/180.*(-5. + 20.*i) for i in range(18)]
 phiedges = [
-   phiedgesCSC36,
-   phiedgesCSC36,
-   phiedgesCSC36,
-   phiedgesCSC36,
-   phiedgesCSC18,
-   phiedgesCSC36,
-   phiedgesCSC18,
-   phiedgesCSC36,
-   phiedgesCSC18,
-   phiedgesCSC36,
+   [0.087266462599716474, 0.26179938550504211, 0.43633230751381297, 0.61086524309298951, 0.78539818789089832, 0.95993106410343132,
+    1.13446400890134, 1.3089969444805165, 1.4835298664892873, 1.6580627893946129, 1.8325957122999386, 2.0071286343087094,
+    2.1816615698878858, 2.3561945146857948, 2.5307273908983277, 2.7052603356962366, 2.8797932712754131, 3.0543261932841839,
+    -3.0543261909900767, -2.8797932680847511, -2.7052603460759803, -2.5307274104968038, -2.3561944656988949, -2.181661589486362,
+    -2.0071286446884531, -1.8325957091092766, -1.6580627871005058, -1.4835298641951802, -1.3089969412898546, -1.1344640192810838,
+    -0.95993108370190716, -0.78539813890399834, -0.61086526269146535, -0.43633231789355653, -0.26179938231437999, -0.087266460305609153],
+   [0.087266462599716474, 0.26179938297741073, 0.43633231700542385, 0.61086526005981812, 0.78539815872971441, 0.95993109326461523,
+    1.1344639919345114, 1.3089969349889057, 1.4835298690169187, 1.6580627893946129, 1.8325957097723073, 2.0071286438003204, 
+    2.1816615868547147, 2.3561944855246111, 2.5307274200595118, 2.7052603187294082, 2.879793261783802, 3.0543261958118153, 
+    -3.0543261909900767, -2.8797932706123825, -2.7052603365843693, -2.5307273935299754, -2.356194494860079, -2.1816615603251783,
+    -2.0071286616552819, -1.8325957186008877, -1.6580627845728746, -1.4835298641951802, -1.308996943817486, -1.1344640097894729,
+    -0.95993106673507855, -0.78539816806518226, -0.61086523353028144, -0.43633233486038514, -0.26179939180599088, -0.087266457777977771],
+   [0.087266462599716474, 0.26179938235213535, 0.43633230952414037, 0.61086523916470359, 0.78539817763669606, 0.95993107435763347,
+    1.1344640128296259, 1.3089969424701891, 1.4835298696421941, 1.6580627893946129, 1.832595709147032, 2.0071286363190368,
+    2.1816615659596001, 2.3561945044315924, 2.53072740115253, 2.7052603396245227, 2.8797932692650856, 3.0543261964370907,
+    -3.0543261909900767, -2.8797932712376579, -2.7052603440656529, -2.53072741442509, -2.3561944759530973, -2.1816615792321596,
+    -2.0071286407601674, -1.8325957111196041, -1.6580627839475992, -1.4835298641951802, -1.3089969444427614, -1.1344640172707563,
+    -0.95993108763019308, -0.7853981491582005, -0.61086525243726308, -0.43633231396527061, -0.2617993843247074, -0.087266457152702412],
+   [0.087266462599716474, 0.26179938550504211, 0.43633230751381297, 0.61086524309298951, 0.78539818789089832, 0.95993106410343132,
+    1.13446400890134, 1.3089969444805165, 1.4835298664892873, 1.6580627893946129, 1.8325957122999386, 2.0071286343087094,
+    2.1816615698878858, 2.3561945146857948, 2.5307273908983277, 2.7052603356962366, 2.8797932712754131, 3.0543261932841839,
+    -3.0543261909900767, -2.8797932680847511, -2.7052603460759803, -2.5307274104968038, -2.3561944656988949, -2.181661589486362,
+    -2.0071286446884531, -1.8325957091092766, -1.6580627871005058, -1.4835298641951802, -1.3089969412898546, -1.1344640192810838,
+    -0.95993108370190716, -0.78539813890399834, -0.61086526269146535, -0.43633231789355653, -0.26179938231437999, -0.087266460305609153],
+   [0.26179938481428705, 0.6108652193791777, 0.95993108859688125, 1.3089969578145848, 1.6580627923794755, 2.0071286538798305,
+    2.356194498693418, 2.7052603320901376, 3.0543261769037247, -2.8797932687755066, -2.5307274342106156, -2.1816615649929121,
+    -1.8325956957752083, -1.4835298612103178, -1.1344639997099626, -0.78539815489637521, -0.43633232149965551, -0.087266476686068212],
+   [0.087266462599716474, 0.26179938871066555, 0.43633231557670243, 0.61086524129631259, 0.785398172964478, 0.95993107902985153,
+    1.1344640106980168, 1.308996936417627, 1.483529863283664, 1.6580627893946129, 1.8325957155055621, 2.0071286423715993,
+    2.1816615680912093, 2.3561944997593747, 2.5307274058247482, 2.7052603374929136, 2.8797932632125236, 3.0543261900785605,
+    -3.0543261909900767, -2.8797932648791278, -2.7052603380130908, -2.5307274122934809, -2.3561944806253154, -2.1816615745599419,
+    -2.0071286428917765, -1.8325957171721663, -1.6580627903061294, -1.4835298641951802, -1.3089969380842312, -1.1344640112181943,
+    -0.95993108549858397, -0.78539815383041856, -0.61086524776504503, -0.43633231609687961, -0.26179939037726946, -0.087266463511232586],
+   [0.26179938498198485, 0.61086523665761272, 0.95993108859688125, 1.3089969405361499, 1.6580627922117777, 2.0071286313120122,
+    2.3561944778405319, 2.7052603529430232, 3.0543261994715434, -2.8797932686078087, -2.530727416932181, -2.1816615649929121,
+    -1.8325957130536434, -1.4835298613780155, -1.1344640222777811, -0.78539817574926085, -0.43633230064676976, -0.087266454118249653],
+   [0.087266462599716474, 0.26179938871066555, 0.43633231557670243, 0.61086524129631259, 0.785398172964478, 0.95993107902985153,
+    1.1344640106980168, 1.308996936417627, 1.483529863283664, 1.6580627893946129, 1.8325957155055621, 2.0071286423715993,
+    2.1816615680912093, 2.3561944997593747, 2.5307274058247482, 2.7052603374929136, 2.8797932632125236, 3.0543261900785605,
+    -3.0543261909900767, -2.8797932648791278, -2.7052603380130908, -2.5307274122934809, -2.3561944806253154, -2.1816615745599419,
+    -2.0071286428917765, -1.8325957171721663, -1.6580627903061294, -1.4835298641951802, -1.3089969380842312, -1.1344640112181943,
+    -0.95993108549858397, -0.78539815383041856, -0.61086524776504503, -0.43633231609687961, -0.26179939037726946, -0.087266463511232586],
+   [0.26179938879942166, 0.61086525092924071, 0.95993108859688125, 1.3089969262645218, 1.6580627883943408, 2.0071286288299772, 
+    2.3561945088997609, 2.7052603218837943, 3.0543262019535784, -2.8797932647903717, -2.5307274026605526, -2.1816615649929121, 
+    -1.8325957273252713, -1.4835298651954525, -1.1344640247598159, -0.785398144690032, -0.43633233170599861, -0.087266451636214853],
+   [0.087266462599716474, 0.26179938871066555, 0.43633231557670243, 0.61086524129631259, 0.785398172964478, 0.95993107902985153,
+    1.1344640106980168, 1.308996936417627, 1.483529863283664, 1.6580627893946129, 1.8325957155055621, 2.0071286423715993,
+    2.1816615680912093, 2.3561944997593747, 2.5307274058247482, 2.7052603374929136, 2.8797932632125236, 3.0543261900785605,
+    -3.0543261909900767, -2.8797932648791278, -2.7052603380130908, -2.5307274122934809, -2.3561944806253154, -2.1816615745599419,
+    -2.0071286428917765, -1.8325957171721663, -1.6580627903061294, -1.4835298641951802, -1.3089969380842312, -1.1344640112181943,
+    -0.95993108549858397, -0.78539815383041856, -0.61086524776504503, -0.43633231609687961, -0.26179939037726946, -0.087266463511232586],
    [0.35228048120123945, 0.87587781482541827, 1.3994776462193192, 1.923076807996136, 2.4466741416203148, 2.970273973014216,
     -2.7893121723885534, -2.2657148387643748, -1.7421150073704739, -1.2185158455936571, -0.69491851196947851, -0.17131868057557731],
    [0.22000706229660855, 0.74360690430428489, 1.267204926935573, 1.7908033890915052, 2.3144032310991816, 2.8380012537304697,
@@ -414,25 +447,6 @@ def philines(name, window, abscissa):
             philine_labels.append(ROOT.TText(phi-0.35+littlebit, -0.9*window, label))
             philine_labels[-1].Draw()
         philine_labels.append(ROOT.TText(-2.9, -0.75*window, "Sector:"))
-        philine_labels[-1].Draw()
-    if "CSC" in name: # DT labels
-        philine_labels = []
-        edges = edges[:]
-        edges.sort()
-        labels = [" 1", " 2", " 3", " 4", " 5", " 6", " 7", " 8", " 9", "10", "11", "12", "13", "14", "15", "16", "17", "18",
-                  "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36"]
-        #else: 
-        #    labels = [" 8", " 9", "10", "11", "12", " 1", " 2", " 3", " 4", " 5", " 6"]
-        #    edges = edges[1:]
-        for phi, label in zip(edges, labels):
-            littlebit = 0.
-            #if label in (" 7", " 9", "14", "10", "11"): littlebit = 0.05
-            philine_labels.append(ROOT.TText(phi+littlebit, -0.9*window, label))
-            philine_labels[-1].SetTextFont(42)
-            philine_labels[-1].SetTextSize(0.028)
-            philine_labels[-1].Draw()
-        philine_labels.append(ROOT.TText(0, -0.78*window, "Chamber:"))
-        philine_labels[-1].SetTextSize(0.035)
         philine_labels[-1].Draw()
 
 def zlines(window, abscissa):
@@ -1125,16 +1139,10 @@ def writeDQMReport(fname_dqm, run_name):
   ff.close()
 
 
-def doTests(reports, pic_ids, fname_base, fname_dqm, run_name):
+def doTests(reports,fname_base, fname_dqm, run_name):
   # find available baseline
-  dts = []
-  cscs = []
-  if len(reports)>0:
-    dts  = availableCellsDT(reports)
-    cscs = availableCellsCSC(reports)
-  elif len(pic_ids)>0:
-    dts  = [id for id in pic_ids if 'MB' in id]
-    cscs = [id for id in pic_ids if 'ME' in id]
+  dts = availableCellsDT(reports)
+  cscs = availableCellsCSC(reports)
   mulist = ['Run: '+run_name,['ALL',['MU']],['DT',dts],['CSC',cscs]]
   ff = open(fname_base,mode="w")
   print >>ff, "var MU_LIST = ["
@@ -1154,8 +1162,8 @@ def doTests(reports, pic_ids, fname_base, fname_dqm, run_name):
 
 ######################################################################################################
 
-def plotmedians(reports1, reports2, selection=None, binsx=100, windowx=5., ceilingx=None, binsy=100, windowy=5., 
-                ceilingy=None, binsdxdz=100, windowdxdz=5., ceilingdxdz=None, binsdydz=100, windowdydz=5., ceilingdydz=None, 
+def plotmedians(reports1, reports2, selection=None, binsx=50, windowx=3., ceilingx=None, binsy=50, windowy=3., 
+                ceilingy=None, binsdxdz=50, windowdxdz=3., ceilingdxdz=None, binsdydz=50, windowdydz=3., ceilingdydz=None, 
                 r1text=" before", r2text=" after", which="median"):
     tdrStyle.SetOptStat("emrou")
     tdrStyle.SetStatW(0.40)
@@ -1322,7 +1330,7 @@ def plotmedians(reports1, reports2, selection=None, binsx=100, windowx=5., ceili
 ######################################################################################################
 
 def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title="", 
-            widebins=False, fitsine=False, fitline=False, reset_palette=False, fitsawteeth=False, fitpeaks=False):
+            widebins=False, fitsine=False, fitline=False, reset_palette=False, fitsawteeth=False):
     tdrStyle.SetOptTitle(1)
     tdrStyle.SetTitleBorderSize(0)
     tdrStyle.SetOptStat(0)
@@ -1347,24 +1355,39 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
     hpref= "%s_%s" % (name, param)
     hhh  = hdir+hpref
 
+    prof = tfiles[0].Get(hhh+"_prof").Clone(hpref+"_prof_")
+    profPos = tfiles[0].Get(hhh+"_profPos").Clone(hpref+"_profPos_")
+    profNeg = tfiles[0].Get(hhh+"_profNeg").Clone(hpref+"_profNeg_")
+    weights = tfiles[0].Get(hhh+"_weights").Clone(hpref+"_weights_")
+    valweights = tfiles[0].Get(hhh+"_valweights").Clone(hpref+"_valweights_")
     hist2d = tfiles[0].Get(hhh+"_2d").Clone(hpref+"_2d_")
+    hist2dweight = tfiles[0].Get(hhh+"_2dweight").Clone(hpref+"_2dweight_")
     
     for tfile in tfiles[1:]:
+        prof.Add(tfile.Get(hhh+"_prof"))
+        profPos.Add(tfile.Get(hhh+"_profPos"))
+        profNeg.Add(tfile.Get(hhh+"_profNeg"))
+        weights.Add(tfile.Get(hhh+"_weights"))
+        valweights.Add(tfile.Get(hhh+"_valweights"))
         hist2d.Add(tfile.Get(hhh+"_2d"))
+        hist2dweight.Add(tfile.Get(hhh+"_2dweight"))
 
-    if mode == "from2d":
-        the2d = hist2d
-        
-        hist = the2d.ProjectionX()
+    if mode == "plain":
+        hist = prof
+
+    elif mode in ("from2d", "from2dweight"):
+        if mode == "from2d": the2d = hist2d
+        else: the2d = hist2dweight
+
+        hist = weights.Clone()
         hist.Reset()
-        
         skip = 1
         if widebins:
             hist.Rebin(10)
             skip = 10
 
         #f = ROOT.TF1("g", "gaus", -40., 40)
-        for i in xrange(0, int(the2d.GetNbinsX()), skip):
+        for i in xrange(0, int(weights.GetNbinsX()), skip):
             tmp = the2d.ProjectionY("tmp", i+1, i + skip)
             if tmp.GetEntries() > 1:
                 #tmp.Fit("g","LNq")
@@ -1377,30 +1400,25 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
                 #hist.SetBinError(i/skip+1, 1000.)
                 hist.SetBinContent(i/skip+1, 0.)
                 hist.SetBinError(i/skip+1, 0.)
-
-        hpeaks = the2d.ProjectionX(the2d.GetName()+"_peaks")
-        hpeaks.Reset()
-        hpeaks.Rebin(5)
-        skip_peaks = 5;
-        for i in xrange(0, int(the2d.GetNbinsX()), skip_peaks):
-            tmp = the2d.ProjectionY("tmp", i+1, i + skip_peaks)
-            nn = tmp.GetEntries()
-            
-            drange = tmp.GetRMS()
-            if nn<50: drange = 2*drange
-            fgaus = ROOT.TF1("fgaus","gaus", tmp.GetMean() - drange, tmp.GetMean() + drange)
-            
-            if nn > 10:     # good to fit
-              tmp.Fit("fgaus","ERNQ")
-              hpeaks.SetBinContent(i/skip_peaks+1, fgaus.GetParameter(1))
-              hpeaks.SetBinError(i/skip_peaks+1, fgaus.GetParError(1))
-            elif nn > 1. and tmp.GetRMS() > 0: # use mean
-              hpeaks.SetBinContent(i/skip_peaks+1, tmp.GetMean())
-              hpeaks.SetBinError(i/skip_peaks+1, ROOT.TMath.StudentQuantile(0.841345,nn) * tmp.GetRMS() / sqrt(nn))
-            else:
-              hpeaks.SetBinContent(i/skip_peaks+1, 0.)
-              hpeaks.SetBinError(i/skip_peaks+1, 0.)
         
+    elif mode == "weighted":
+        if weights.GetEntries() == 0:
+            averageweight = 0.
+        else:
+            sumofweights = 0.
+            for i in xrange(0, int(weights.GetNbinsX())+2):
+                sumofweights += weights.GetBinContent(i)
+            averageweight = sumofweights / weights.GetEntries()
+        hist = weights.Clone()
+        for i in xrange(1, int(weights.GetNbinsX())+1):
+            if weights.GetBinContent(i) > 0:
+                thisweight = weights.GetBinContent(i) / averageweight
+                hist.SetBinContent(i, valweights.GetBinContent(i) / thisweight)
+                hist.SetBinError(i, sqrt(1. / thisweight))
+            else:
+                hist.SetBinContent(i, 2000.)
+                hist.SetBinError(i, 1000.)
+
     else:
         raise Exception
 
@@ -1432,24 +1450,12 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
     if widebins: hist.Draw("samee1")
     else: hist.Draw("same")
 
-    hpeaks.SetMarkerStyle(20)
-    hpeaks.SetMarkerSize(0.9)
-    hpeaks.SetMarkerColor(ROOT.kRed)
-    hpeaks.SetLineColor(ROOT.kRed)
-    hpeaks.SetLineWidth(2)
-    if fitpeaks: hpeaks.Draw("same")
-
     if fitsine and "vsphi" in name:
         global fitsine_const, fitsine_sin, fitsine_cos, fitsine_chi2, fitsine_ndf
-        if 'CSC' in name:
-          f = ROOT.TF1("f", "[0] + [1]*sin(x) + [2]*cos(x)", -pi/180.*5., pi*(2.-5./180.))
-        else:
-          f = ROOT.TF1("f", "[0] + [1]*sin(x) + [2]*cos(x)", -pi, pi)
-        f.SetLineColor(ROOT.kRed)
-        f.SetLineWidth(2)
+        f = ROOT.TF1("f", "[0] + [1]*sin(x) + [2]*cos(x)", -pi, pi)
         #hist.Fit(f,"N")
-        if fitpeaks: hpeaks.Fit(f,"NE")
-        else: hist.Fit(f,"NE")
+        hist.Fit(f,"NE")
+        f.SetLineColor(ROOT.kRed)
         fitsine_const = f.GetParameter(0), f.GetParError(0)
         fitsine_sin = f.GetParameter(1), f.GetParError(1)
         fitsine_cos = f.GetParameter(2), f.GetParError(2)
@@ -1458,19 +1464,11 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
         global MAP_RESULTS_FITSIN
         MAP_RESULTS_FITSIN[id] = {'a':fitsine_const, 'sin': fitsine_sin, 'cos': fitsine_cos, 'chi2': fitsine_chi2, 'ndf': fitsine_ndf}
         f.Draw("same")
-        global fitsine_ttext, fitsine_etext
-        text_xposition = -1.
-        if 'CSC' in name: text_xposition = 2.
-        fitsine_ttext = ROOT.TLatex(text_xposition, 0.8*window, 
-                "%+.3f %+.3f sin#phi %+.3f cos#phi" % (fitsine_const[0], fitsine_sin[0], fitsine_cos[0]))
+        global fitsine_ttext
+        fitsine_ttext = ROOT.TLatex(-1., 0.8*window, 
+                "%.3g %+.3g sin(#phi) %+.3g cos(#phi)" % (fitsine_const[0], fitsine_sin[0], fitsine_cos[0]))
         fitsine_ttext.SetTextColor(ROOT.kRed)
-        fitsine_ttext.SetTextSize(0.05)
         fitsine_ttext.Draw()
-        fitsine_etext = ROOT.TLatex(text_xposition, 0.70*window, 
-                " #pm%.3f    #pm%.3f            #pm%.3f" % (fitsine_const[1], fitsine_sin[1], fitsine_cos[1]))
-        fitsine_etext.SetTextColor(ROOT.kRed)
-        fitsine_etext.SetTextSize(0.045)
-        fitsine_etext.Draw()
 
     if fitline:
         f = ROOT.TF1("f", "[0] + [1]*x", -1000., 1000.)
@@ -1495,11 +1493,6 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
     if "vsphi" in name: 
         if not widebins: philines(name, window, abscissa)
         if abscissa is None:
-          if 'CSC' in name:
-            tline1 = ROOT.TLine(-pi/180.*5., 0, pi*(2.-5./180.), 0); tline1.Draw()
-            tline2 = ROOT.TLine(-pi/180.*5., -window, pi*(2.-5./180.), -window); tline2.SetLineWidth(2); tline2.Draw()
-            tline3 = ROOT.TLine(-pi/180.*5., window, pi*(2.-5./180.), window); tline3.Draw()
-          else:
             tline1 = ROOT.TLine(-pi, 0, pi, 0); tline1.Draw()
             tline2 = ROOT.TLine(-pi, -window, pi, -window); tline2.SetLineWidth(2); tline2.Draw()
             tline3 = ROOT.TLine(-pi, window, pi, window); tline3.Draw()
@@ -1579,7 +1572,7 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
     
     #ROOT.SetOwnership(hist,False)
     ROOT.SetOwnership(hist2d,False)
-    ROOT.SetOwnership(hist,False)
+    ROOT.SetOwnership(hist2dweight,False)
     ROOT.SetOwnership(tline1,False)
     ROOT.SetOwnership(tline2,False)
     ROOT.SetOwnership(tline3,False)
@@ -1928,7 +1921,7 @@ def bellcurves(tfile, reports, name, twobin=True, suppressblue=False):
     ddt[2] = 1./ddt[0]*((ddt[0]-1)*ddt[2] + t3-t2)
 
     ####
-    chamber_x.SetAxisRange(-50., 50., "X")
+    chamber_x.SetAxisRange(-30., 30., "X")
     chamber_dxdz.SetAxisRange(-50., 50., "X")
     if not not chamber_y:
         chamber_y.SetAxisRange(-150., 150., "X")
@@ -2708,13 +2701,13 @@ def segdiff(tfiles, component, pair, **args):
         station1 = int(str(pair)[0])
         station2 = int(str(pair)[1])
         phi1 = signConventions["CSC", endcapnum, station1, ring, chamber][4]
-        phi2 = signConventions["CSC", endcapnum, station2, ring, chamber][4]
+        phi2 = signConventions["CSC", endcapnum, station1, ring, chamber][4]
         if abs(phi1 - phi2) > 1.:
             if phi1 > phi2: phi1 -= 2.*pi
             else: phi1 += 2.*pi
         phi = (phi1 + phi2) / 2.
-        while (phi < -pi*5./180.): phi += 2.*pi
-        while (phi > pi*(2.-5./180.)): phi -= 2.*pi
+        while (phi < -pi): phi += 2.*pi
+        while (phi > pi): phi -= 2.*pi
 
     else: raise Exception
 
@@ -2955,107 +2948,3 @@ def segdiffvsphi(tfiles, reports, component, wheel, window=5., excludesectors=()
     tlegend.Draw()
 
 
-def segdiffvsphicsc(tfiles, component, pair, window=5., **args):
-    tdrStyle.SetOptTitle(1)
-    tdrStyle.SetTitleBorderSize(1)
-    tdrStyle.SetTitleFontSize(0.05)
-
-    if not component[0:3] == "csc": Exception
-    
-    endcap = args["endcap"]
-    if endcap=="m":
-      endcapnum=2
-      endcapsign="-"
-    elif endcap=="p":
-      endcapnum=1
-      endcapsign="+"
-    else: raise Exception
-    
-    station1 = int(str(pair)[0])
-    station2 = int(str(pair)[1])
-    if not station2-station1==1: raise Exception
-    
-    rings = [1,2]
-    if station2==4: rings = [1]
-    
-    
-    global htemp, gtemp_1, gtemp2_1, gtemp_2, gtemp2_2, tlegend
-    htemp = ROOT.TH1F("htemp", "", 1, -pi*5./180., pi*(2.-5./180.))
-    gtemp_1_phi, gtemp_1_val, gtemp_1_err, gtemp_1_val2, gtemp_1_err2 = [], [], [], [], []
-    gtemp_2_phi, gtemp_2_val, gtemp_2_err, gtemp_2_val2, gtemp_2_err2 = [], [], [], [], []
-    
-    for ring in rings:
-      chambers = xrange(1,37)
-      if ring == 1: chambers = xrange(1,19)
-      
-      for chamber in chambers:
-        phi, val, err, val2, err2, fit1, fit2, fit3 = segdiff(tfiles, component, pair, endcap=endcap, ring=ring, chamber=chamber)
-        if fit1 == 0 and fit2 == 0 and fit3 == 0:
-          if ring==1:
-            gtemp_1_phi.append(phi)
-            gtemp_1_val.append(val)
-            gtemp_1_err.append(err)
-            gtemp_1_val2.append(val2)
-            gtemp_1_err2.append(err2)
-          if ring==2:
-            gtemp_2_phi.append(phi)
-            gtemp_2_val.append(val)
-            gtemp_2_err.append(err)
-            gtemp_2_val2.append(val2)
-            gtemp_2_err2.append(err2)
-
-    #print "len(gtemp_12_phi) ", len(gtemp_12_phi)
-    #print "len(gtemp_23_phi) ",len(gtemp_23_phi)
-    #print "len(gtemp_34_phi) ",len(gtemp_34_phi)
-    if len(gtemp_1_phi) > 0:
-        gtemp_1 = ROOT.TGraphErrors(len(gtemp_1_phi), array.array("d", gtemp_1_phi), array.array("d", gtemp_1_val), 
-                                     array.array("d", [0.] * len(gtemp_1_phi)), array.array("d", gtemp_1_err))
-        gtemp2_1 = ROOT.TGraphErrors(len(gtemp_1_phi), array.array("d", gtemp_1_phi), array.array("d", gtemp_1_val2), 
-                                      array.array("d", [0.] * len(gtemp_1_phi)), array.array("d", gtemp_1_err2))
-    if len(gtemp_2_phi) > 0:
-        gtemp_2 = ROOT.TGraphErrors(len(gtemp_2_phi), array.array("d", gtemp_2_phi), array.array("d", gtemp_2_val), 
-                                     array.array("d", [0.] * len(gtemp_2_phi)), array.array("d", gtemp_2_err))
-        gtemp2_2 = ROOT.TGraphErrors(len(gtemp_2_phi), array.array("d", gtemp_2_phi), array.array("d", gtemp_2_val2), 
-                                      array.array("d", [0.] * len(gtemp_2_phi)), array.array("d", gtemp_2_err2))
-
-    if len(gtemp_1_phi) > 0:
-        gtemp_1.SetMarkerStyle(20);  gtemp_1.SetMarkerSize(1.);  
-        gtemp_1.SetMarkerColor(ROOT.kBlue);  gtemp_1.SetLineColor(ROOT.kBlue)
-        gtemp2_1.SetMarkerStyle(24); gtemp2_1.SetMarkerSize(1.); 
-        gtemp2_1.SetMarkerColor(ROOT.kBlue); gtemp2_1.SetLineColor(ROOT.kBlue)
-    if len(gtemp_2_phi) > 0:
-        gtemp_2.SetMarkerStyle(21);  gtemp_2.SetMarkerSize(1.);  
-        gtemp_2.SetMarkerColor(ROOT.kRed);  gtemp_2.SetLineColor(ROOT.kRed)
-        gtemp2_2.SetMarkerStyle(25); gtemp2_2.SetMarkerSize(1.); 
-        gtemp2_2.SetMarkerColor(ROOT.kRed); gtemp2_2.SetLineColor(ROOT.kRed)
-
-    htemp.SetTitle("ME%s%d - ME%s%d" % (endcapsign,station2,endcapsign,station1))
-    htemp.SetAxisRange(-window, window, "Y")
-    htemp.SetXTitle("Average #phi of pair (rad)")
-    if component == "csc_resid": htemp.SetYTitle("#Delta(r#phi)^{local} (mm)")
-    if component == "csc_slope": htemp.SetYTitle("#Deltad(r#phi)/dz^{local} (mrad)")
-    htemp.GetXaxis().CenterTitle()
-    htemp.GetYaxis().CenterTitle()
-    htemp.GetYaxis().SetTitleOffset(0.75)
-
-    c1.Clear()
-    htemp.Draw()
-    if len(gtemp_1_phi) > 0:
-        gtemp_1.Draw("p")
-        gtemp2_1.Draw("p")
-    if len(gtemp_2_phi) > 0:
-        gtemp_2.Draw("p")
-        gtemp2_2.Draw("p")
-
-    tlegend = ROOT.TLegend(0.5, 0.72, 0.9, 0.92)
-    tlegend.SetBorderSize(0)
-    tlegend.SetFillColor(ROOT.kWhite)
-    if len(gtemp_1_phi) > 0:
-        tlegend.AddEntry(gtemp_1, "ring 1 (mean: %4.2f, RMS: %4.2f)" % (mean(gtemp_1_val), stdev(gtemp_1_val)), "pl")
-    if len(gtemp_2_phi) > 0:
-        tlegend.AddEntry(gtemp_2, "ring 2 (mean: %4.2f, RMS: %4.2f)" % (mean(gtemp_2_val), stdev(gtemp_2_val)), "pl")
-    #if len(gtemp_12_phi) > 0:
-    #    tlegend.AddEntry(gtemp_12, "total mean: %4.2f, total RMS: %4.2f" % \
-    #                               (mean(gtemp_12_val + gtemp_23_val + gtemp_34_val), 
-    #                               stdev(gtemp_12_val + gtemp_23_val + gtemp_34_val)), "")
-    tlegend.Draw()

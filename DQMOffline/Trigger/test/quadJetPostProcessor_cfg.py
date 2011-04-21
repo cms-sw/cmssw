@@ -7,7 +7,7 @@ process = cms.Process("EDMtoMEConvert")
 #process.load("DQMServices.Components.EDMtoMEConverter_cff")
 process.load('Configuration/StandardSequences/EDMtoMEAtJobEnd_cff')
 process.load("DQMServices.Components.DQMEnvironment_cfi")
-process.load("DQMOffline.Trigger.MuonPostProcessor_cff")
+process.load("DQMOffline.Trigger.MuonPostProcessor_cfi")
 #process.load("DQMOffline.Trigger.BPAGPostProcessor_cff")
 #process.load("DQMOffline.Trigger.QuadJetPostProcessor_cfi")
 process.load("DQMServices.Components.DQMStoreStats_cfi")
@@ -77,3 +77,6 @@ process.path = cms.Path(process.EDMtoME * process.hLTMuonPostVal)
 #process.path = cms.Path(process.EDMtoME*process.bPAGPostProcessor*process.dqmStoreStats)
 
 process.endpath = cms.EndPath(process.dqmSaver)
+
+
+

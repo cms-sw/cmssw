@@ -305,7 +305,6 @@ class GenObject (object):
             # we don't want a diff class for this
             diffClass = ''
             contClass = ''
-        
         return goClass + diffClass + contClass
 
 
@@ -633,19 +632,6 @@ class GenObject (object):
                     if len (pieces) < 1:
                         continue
                     fillname, pieces = pieces[0], pieces[1:]
-                    ## parts = GenObject._dotRE.split (fillname)
-                    ## partsList = []
-                    ## for part in parts:
-                    ##     parenMatch = GenObject._parenRE.search (part)
-                    ##     mode   = GenObject._objFunc.obj
-                    ##     parens = []
-                    ##     if parenMatch:
-                    ##         part   = parenMatch.group (1)
-                    ##         mode   = GenObject._objFunc.func
-                    ##         parens = \
-                    ##                GenObject._convertStringToParameters \
-                    ##                (parenMatch.group (2))
-                    ##     partsList.append(  (part, mode, parens) )
                     # I don't yet have any options available here, but
                     # I'm keeping the code here for when I add them.
                     optionsDict = {}
@@ -725,16 +711,6 @@ class GenObject (object):
             partsList = ntDict[0]
             # start off with the original object
             obj = GenObject.evaluateFunction (origObj, partsList, debug)
-            ## for part in partsList:
-            ##     if debug: warn (part, spaces=15)
-            ##     obj = getattr (obj, part[0])
-            ##     if debug: warn (obj, spaces=15)
-            ##     # if this is a function instead of a data member, make
-            ##     # sure you call it with its arguments:
-            ##     if GenObject._objFunc.func == part[1]:
-            ##         # Arguments are stored as a list in part[2]
-            ##         obj = obj (*part[2])
-            ##         if debug: warn (obj, spaces=18)
             if debug: warn (obj, spaces=12)
             setattr (genObj, genVar, obj)
         # Do I need to store the index of this object?
@@ -1152,6 +1128,36 @@ class GenObject (object):
         equivList = GenObject._equivDict[objName]
         firstDict = {}
         secondDict = {}
+        # let's see if we're only using 'index' and nothing else
+        if GenObject._kitchenSinkDict.get ('strictPairing') or \
+               equivList == [('index', 0)]:
+            # we're only matching on index, nothing else matters
+            matchedSet = set (zip ( range( min (len1, len2) ),
+                                    range( min (len1, len2) ) ) )
+            if len1 > len2:
+                # since main pairing goes from 0..len2-1, we now want
+                # to go from len2..len1 inclusive
+                noMatch1Set = set (range(len2, len1 + 1))
+            else:
+                noMatch1Set = set()
+            if len2 > len1:
+                # same logic as above
+                noMatch2Set = set (range(len1, len2 + 1))
+            else:
+                noMatch2Set = set()
+            return matchedSet, noMatch1Set, noMatch2Set
+        ##  # If we're still here, that means that we aren't matching on
+        ##  # just index.  Instead of jumping to O(N^2), let's assume that
+        ##  # both branches have everything in order and try to pair like
+        ##  # that.  Anything not paired will be checked in a third pass.
+        ##  unpairedFirst  = []
+        ##  unpairedSecond = []
+        ##  for index in xrange( min (len1, len2) ):
+        ##      obj1 = vec1[index1]
+        ##      total = 0.
+        ##      obj2 = vec2[index2]
+        ##      ok = True
+        
         # First, look for vec2 objects that are equivalent to a
         # given vec1 object.
         for index1 in xrange (len1):
@@ -1353,7 +1359,6 @@ class GenObject (object):
             if diffOutputName:
                 GenObject._key2re (reTuple,
                                    GenObject._rootClassDict['runevent'])
-            #print 'retuple', reTuple
             if debug: warn ('event1', blankLines = 3)
             event1 = GenObject.loadEventFromTree (chain1, ree1 [reTuple])
             if debug: warn ('event2', blankLines = 3)
@@ -1378,6 +1383,7 @@ class GenObject (object):
                     continue
                 if GenObject.isSingleton (objName):
                     # I'll add this in later.  For now, just skip it
+                    print "singleton"
                     continue
                 # Get ready to calculate root diff object if necessary
                 rootObj = 0
@@ -1419,9 +1425,10 @@ class GenObject (object):
                 # the proper items:                
                 for pair in sorted(list(matchedSet)):
                     if diffOutputName:
-                        rootObj.diff.push_back ( GenObject._rootDiffObject \
-                                                 ( vec1[ pair[1 - 1] ],
-                                                   vec2[ pair[2 - 1] ] ) )
+                        rootDiffObj = GenObject._rootDiffObject \
+                                      ( vec1[ pair[1 - 1] ],
+                                        vec2[ pair[2 - 1] ] ) 
+                        rootObj.diff.push_back ( rootDiffObj )
                     problems = GenObject.\
                                compareTwoItems (vec1[ pair[1 - 1] ],
                                                 vec2[ pair[2 - 1] ])

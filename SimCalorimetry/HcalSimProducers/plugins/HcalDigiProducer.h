@@ -17,9 +17,6 @@ public:
 
   /**Produces the EDM products,*/
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
-  virtual void beginRun(edm::Run&, edm::EventSetup const&);
-  virtual void endRun(edm::Run&, edm::EventSetup const&);
-
 
 private:
   HcalDigitizer theDigitizer;

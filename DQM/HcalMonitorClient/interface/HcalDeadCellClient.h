@@ -36,6 +36,8 @@ class HcalDeadCellClient : public HcalBaseDQClient {
   int nevts_;
 
   int HBpresent_, HEpresent_, HOpresent_, HFpresent_;
+  bool excludeHOring2_backup_; // this value is used for excludeHOring2 if it can't be read directly from the DQM file
+
 };
 
 #endif

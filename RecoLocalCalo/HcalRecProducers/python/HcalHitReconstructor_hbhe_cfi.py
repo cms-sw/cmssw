@@ -49,6 +49,7 @@ hbheprereco = cms.EDProducer(
                                     TimingEnergyThreshold = cms.double(30.)),
 
     pulseShapeParameters = cms.PSet(MinimumChargeThreshold = cms.double(20),
+                                    TS4TS5ChargeThreshold = cms.double(70),
                                     TrianglePeakTS = cms.uint32(4),
                                     LinearThreshold = cms.vdouble(20, 70),
                                     LinearCut = cms.vdouble(-2, -0.054),
@@ -60,6 +61,11 @@ hbheprereco = cms.EDProducer(
                                     RightSlopeCut = cms.vdouble(6.2, 5.5, 4.75, 4.38, 4.15),
                                     RightSlopeSmallThreshold = cms.vdouble(60, 80, 110, 140, 200),
                                     RightSlopeSmallCut = cms.vdouble(1.05, 1.135, 1.175, 1.19, 1.17),
+                                    MinimumTS4TS5Threshold = cms.double(100),
+                                    TS4TS5UpperThreshold = cms.vdouble(70, 90, 100, 400),
+                                    TS4TS5UpperCut = cms.vdouble(1, 0.8, 0.75, 0.72),
+                                    TS4TS5LowerThreshold = cms.vdouble(100, 120, 160, 200, 300, 500),
+                                    TS4TS5LowerCut = cms.vdouble(-1, -0.7, -0.5, -0.4, -0.3, 0.1),
                                     UseDualFit = cms.bool(False),
                                     TriangleIgnoreSlow = cms.bool(False)),
 

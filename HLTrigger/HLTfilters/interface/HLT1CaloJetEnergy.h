@@ -8,8 +8,8 @@
  *  single jet requirement with an Energy threshold (not Et!)
  *  Based on HLTSinglet
  *
- *  $Date: 2009/03/26 07:36:18 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/03/25 12:51:17 $
+ *  $Revision: 1.3 $
  *
  *  \author Jim Brooke
  *
@@ -17,10 +17,6 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include<vector>
-
-namespace edm {
-   class ConfigurationDescriptions;
-}
 
 //
 // class declaration
@@ -32,7 +28,6 @@ class HLT1CaloJetEnergy : public HLTFilter {
 
       explicit HLT1CaloJetEnergy(const edm::ParameterSet&);
       ~HLT1CaloJetEnergy();
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:

@@ -29,6 +29,7 @@ Implementation:
 
 
 class CaloTopology;
+class EcalSeverityLevelAlgo;
 
 class InterestingDetIdCollectionProducer : public edm::EDProducer {
    public:
@@ -48,6 +49,8 @@ class InterestingDetIdCollectionProducer : public edm::EDProducer {
       int minimalPhiSize_;
       const CaloTopology* caloTopology_;
 
+      int severityLevel_;
+      const EcalSeverityLevelAlgo * severity_;
 };
 
 #endif

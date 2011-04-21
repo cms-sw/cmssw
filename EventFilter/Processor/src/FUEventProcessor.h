@@ -218,6 +218,7 @@ namespace evf
     bool                             supervising_;
 
     xdata::InfoSpace*                monitorInfoSpace_;
+    xdata::InfoSpace*                monitorLegendaInfoSpace_;
     xdata::InfoSpace*                applicationInfoSpace_;
     pthread_mutex_t                  stop_lock_;
     pthread_mutex_t                  start_lock_;
@@ -228,6 +229,7 @@ namespace evf
 
     // flahslist variables, scalers
     xdata::InfoSpace                *scalersInfoSpace_;
+    xdata::InfoSpace                *scalersLegendaInfoSpace_;
 
     //scalers workloop
     toolbox::task::WorkLoop         *wlScalers_;      

@@ -16,7 +16,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman (fblekman)
 //         Created:  Fri Mar 11 13:20:18 CET 2011
-// $Id: HLTMonSimpleBTag.h,v 1.1 2011/03/15 18:53:43 fblekman Exp $
+// $Id: HLTMonSimpleBTag.h,v 1.2 2011/03/16 12:55:50 fblekman Exp $
 //
 //
 
@@ -68,8 +68,8 @@ private:
 
   void calcEff(void);
   
-  std::string makeEffName(std::string trig1, std::string trig2){std::string result="eff_"+trig1+"_passedanddivby_"+trig2; return result;}
-  std::string makeEffNumeratorName(std::string trig1, std::string trig2){std::string result="eff_"+trig1+"_passed_"+trig2; return result;}
+  std::string makeEffName(std::string trig1, std::string trig2){std::string result="effRelative_"+trig1+"_passedanddivby_"+trig2; return result;}
+  std::string makeEffNumeratorName(std::string trig1, std::string trig2){std::string result="selected_"+trig1+"_passed_"+trig2; return result;}
   
   void doEffCalc(MonitorElement *eff, MonitorElement *num, MonitorElement *denom);
   // ----------member data --------------------------- 

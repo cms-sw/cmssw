@@ -17,6 +17,8 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 
 InterestingDetIdCollectionProducer::InterestingDetIdCollectionProducer(const edm::ParameterSet& iConfig) 
@@ -34,7 +36,8 @@ InterestingDetIdCollectionProducer::InterestingDetIdCollectionProducer(const edm
  
    //register your products
   produces< DetIdCollection > (interestingDetIdCollection_) ;
-  
+
+  severityLevel_ = iConfig.getParameter<int>("severityLevel");
 }
 
 
@@ -46,6 +49,10 @@ void InterestingDetIdCollectionProducer::beginRun (edm::Run & run, const edm::Ev
   edm::ESHandle<CaloTopology> theCaloTopology;
   iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
   caloTopology_ = &(*theCaloTopology); 
+
+  edm::ESHandle<EcalSeverityLevelAlgo> sevLv;
+  iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevLv);
+  severity_ = sevLv.product();
 }
 
 // ------------ method called to produce the data  ------------
@@ -119,7 +126,10 @@ InterestingDetIdCollectionProducer::produce (edm::Event& iEvent,
                      ) {
                           detIdCollection->push_back( it->id() );
                   }
-          }
+          }else if ( severityLevel_>=0 && severity_->severityLevel(*it) >=severityLevel_){
+	    detIdCollection->push_back( it->id() );
+	  }
+
   }
   
   //  std::cout << "Interesting DetId Collection size is " << detIdCollection->size() <<  " BCs are " << pClusters->size() << std::endl;

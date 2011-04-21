@@ -452,14 +452,18 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent, HORecHitCollection &h
       // Check if it is above the threshold
       if(hcalRecHits_[cellhashedindex]<threshold_[0]) continue; 
 
+      const HcalDetId&  detid=theDetIds_[cellhashedindex];
+      int ieta = detid.ieta();
+      
+      // Force  only Ring#0 to remain
+      if(ieta > 4 || ieta < -4 ) continue;
+
       float energy=hcalRecHits_[cellhashedindex];
       // apply RespCorr
       energy *= myRespCorr->getValues(theDetIds_[cellhashedindex])->getValue();
 
       // poor man saturation
       if(energy>sat_[cellhashedindex]) energy=sat_[cellhashedindex];
-
-      const HcalDetId&  detid=theDetIds_[cellhashedindex];
 
       hoHits.push_back(HORecHit(detid,energy,0));
     }
@@ -621,6 +625,7 @@ unsigned HcalRecHitsMaker::noisifySubdet(std::vector<float>& theMap, std::vector
 	{
 	  cellindex = (unsigned)(random_->flatShoot()*ncells);
 	  cellhashedindex = thecells[cellindex];
+
 	  if(hcalRecHits_[cellhashedindex]==0.) // new cell
 	    {
 	      hcalRecHits_[cellhashedindex]=myGT->shoot();
@@ -694,10 +699,14 @@ double HcalRecHitsMaker::noiseInfCfromDB(const HcalDbService * conditions,const 
   double ssqq_4 = pedWidth->getSigma(3,3);
 
   // correction factors (hb,he,ho,hf)
-  static float corrfac[4]={1.39,1.32,1.53,3.76};
+  static float corrfac[4]={1.39,1.32,1.17,3.76};
 
   int sub   = detId.subdet();
-  
+
+  // HO: only Ring#0 matters 
+  int ieta  = detId.ieta();
+  if (sub == 3 && abs (ieta) > 4) return 0.;   
+
   // effective RecHits (for this particular detId) noise calculation :
   
   double sig_sq_mean =  0.25 * ( ssqq_1 + ssqq_2 + ssqq_3 + ssqq_4);

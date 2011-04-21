@@ -1,4 +1,4 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.36 2009/04/06 16:57:28 lowette Exp $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.35 2009/04/03 16:11:53 lowette Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
@@ -38,10 +38,10 @@ SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions(
 							       tmp1,
 							       iter->second.fecVersion().first,
 							       iter->second.fecVersion().second,
-							       //#ifdef USING_DATABASE_MASKING
+#ifdef USING_DATABASE_MASKING
 							       iter->second.maskVersion().first,
 							       iter->second.maskVersion().second,
-							       //#endif
+#endif
 							       false ); //@@ do not get DISABLED devices
 	    
 	    // Make local copy 

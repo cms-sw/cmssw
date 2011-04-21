@@ -28,8 +28,8 @@ namespace reco {
 // class definition
 //
 
-class HcalNoiseSummary {
-
+class HcalNoiseSummary
+{
   friend class reco::HcalNoiseInfoProducer; // allows this class to fill the info
 
  public:
@@ -108,6 +108,24 @@ class HcalNoiseSummary {
   float isolatedNoiseSumE(void) const;
   float isolatedNoiseSumEt(void) const;
 
+  int numFlatNoiseChannels(void) const;
+  float flatNoiseSumE(void) const;
+  float flatNoiseSumEt(void) const;
+
+  int numSpikeNoiseChannels(void) const;
+  float spikeNoiseSumE(void) const;
+  float spikeNoiseSumEt(void) const;
+
+  int numTriangleNoiseChannels(void) const;
+  float triangleNoiseSumE(void) const;
+  float triangleNoiseSumEt(void) const;
+
+  int numTS4TS5NoiseChannels(void) const;
+  float TS4TS5NoiseSumE(void) const;
+  float TS4TS5NoiseSumEt(void) const;
+
+  bool HasBadRBXTS4TS5(void) const;
+
   // reference to problematic jets
   edm::RefVector<reco::CaloJetCollection> problematicJets(void) const;
 
@@ -132,6 +150,16 @@ class HcalNoiseSummary {
   int nproblemRBXs_;
   int nisolnoise_;
   float isolnoisee_, isolnoiseet_;
+  int nflatnoise_;
+  float flatnoisee_, flatnoiseet_;
+  int nspikenoise_;
+  float spikenoisee_, spikenoiseet_;
+  int ntrianglenoise_;
+  float trianglenoisee_, trianglenoiseet_;
+  int nts4ts5noise_;
+  float ts4ts5noisee_, ts4ts5noiseet_;
+
+  bool hasBadRBXTS4TS5_;
 
   edm::RefVector<reco::CaloJetCollection> problemjets_;
 
