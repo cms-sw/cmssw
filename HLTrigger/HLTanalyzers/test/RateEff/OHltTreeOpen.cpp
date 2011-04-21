@@ -8922,7 +8922,8 @@ else if (triggerName.CompareTo("OpenHLT_Dimuon6p5_LowMass_v1") == 0)
                   999,
                   999,
                   999,
-                  0.05,
+                  0.15, //H/E EB
+		  0.10, // H/E EC
                   0.98);
 
             if (firstVector.size()>=2)
@@ -8936,7 +8937,8 @@ else if (triggerName.CompareTo("OpenHLT_Dimuon6p5_LowMass_v1") == 0)
                            999,
                            999,
                            999,
-                           0.05,
+                           0.15, //H/E EB
+			   0.10, //H/E EC
                            0.98);
 
                if (secondVector.size()>=1)
@@ -8978,7 +8980,8 @@ else if (triggerName.CompareTo("OpenHLT_Dimuon6p5_LowMass_v1") == 0)
                            999,
                            999,
                            999,
-                           0.05,
+                           0.15,
+			   0.10,
                            0.98);
                if (secondVector.size()>=1)
                {
@@ -9759,9 +9762,9 @@ int OHltTree::OpenHlt1PhotonSamHarperPassed(
             < endcapeta)
          isendcap = 1;
 
-      float quadraticEcalIsol = ohPhotEiso[i] + (0.012 * ohPhotEt[i]);
-      float quadraticHcalIsol = ohPhotHiso[i] + (0.005 * ohPhotEt[i]);
-      float quadraticTrackIsol = ohPhotTiso[i] + (0.002 * ohPhotEt[i]);
+      float quadraticEcalIsol = ohPhotEiso[i] - (0.012 * ohPhotEt[i]);
+      float quadraticHcalIsol = ohPhotHiso[i] - (0.005 * ohPhotEt[i]);
+      float quadraticTrackIsol = ohPhotTiso[i] - (0.002 * ohPhotEt[i]);
 
       if (ohPhotEt[i] > Et)
       {
@@ -9847,9 +9850,9 @@ vector<int> OHltTree::VectorOpenHlt1PhotonSamHarperPassed(
             < endcapeta)
          isendcap = 1;
 
-      float quadraticEcalIsol = ohPhotEiso[i] + (0.012 * ohPhotEt[i]);
-      float quadraticHcalIsol = ohPhotHiso[i] + (0.005 * ohPhotEt[i]);
-      float quadraticTrackIsol = ohPhotTiso[i] + (0.002 * ohPhotEt[i]);
+      float quadraticEcalIsol = ohPhotEiso[i] - (0.012 * ohPhotEt[i]);
+      float quadraticHcalIsol = ohPhotHiso[i] - (0.005 * ohPhotEt[i]);
+      float quadraticTrackIsol = ohPhotTiso[i] - (0.002 * ohPhotEt[i]);
 
       if (ohPhotEt[i] > Et)
       {
@@ -14353,14 +14356,25 @@ vector<int> OHltTree::VectorOpenHlt1PhotonPassedR9ID(
       float Eiso,
       float HisoBR,
       float HisoEC,
-      float HoverE,
+      float HoverEEB,
+      float HoverEEC,
       float R9,
       float ClusShapEB,
       float ClusShapEC)
 {
    vector<int> rc;
+   float barreleta = 1.479;
+   float endcapeta = 2.65;
+
    for (int i=0; i<NohPhot; i++)
    {
+      int isbarrel = 0;
+      int isendcap = 0;
+      if (TMath::Abs(ohPhotEta[i]) < barreleta)
+         isbarrel = 1;
+      if (barreleta < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < endcapeta)
+         isendcap = 1;
+
       if (ohPhotEt[i] > Et)
       {
          if (TMath::Abs(ohPhotEta[i]) < 2.65)
@@ -14371,18 +14385,19 @@ vector<int> OHltTree::VectorOpenHlt1PhotonPassedR9ID(
                {
                   if (ohPhotEiso[i] < Eiso + 0.012*ohPhotEt[i])
                   {
-                     if ((TMath::Abs(ohPhotEta[i]) < 1.479
+                      if (((isbarrel)
                            && ohPhotHiso[i] < HisoBR + 0.005*ohPhotEt[i]
-                           && ohPhotClusShap[i] < ClusShapEB
-                           && ohPhotR9[i] < R9) 
-                           || 
-                           (1.479 < TMath::Abs(ohPhotEta[i]) 
-                           && TMath::Abs(ohPhotEta[i]) < 2.65 
-                           && ohPhotHiso[i] < HisoEC + 0.005*ohPhotEt[i] 
-                           && ohPhotClusShap[i] < ClusShapEC))
+                           && ohEleClusShap[i] < ClusShapEB
+                           && ohPhotR9[i] < R9)
+                           ||
+                           ((isendcap) &&
+                           ohPhotHiso[i] < HisoEC + 0.005*ohPhotEt[i]
+                           && ohEleClusShap[i] < ClusShapEC))
                      {
                         float EcalEnergy = ohPhotEt[i]/(sin(2*atan(exp(0-ohPhotEta[i]))));
-                        if (ohPhotHforHoverE[i]/EcalEnergy < HoverE)
+                        float ohPhotHoverE = ohPhotHforHoverE[i]/EcalEnergy;
+                        if ( ((isbarrel) && (ohPhotHoverE < HoverEEB))
+                               || ((isendcap) && (ohPhotHoverE < HoverEEC)))
                            if (ohPhotR9ID[i] > R9ID)
                               if (ohPhotL1Dupl[i] == false) // remove double-counted L1 SCs  
                                  rc.push_back(i);
