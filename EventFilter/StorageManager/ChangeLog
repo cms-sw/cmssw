@@ -1,4 +1,4 @@
-2011-04-XX Remi Mommsen <Remigius.Mommsen@cern.ch>
+2011-04-21 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-02-00
 	* Fixed ROOT TThread handling from tag V07-03-06 (branch_3_10_x).
