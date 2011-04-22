@@ -47,10 +47,10 @@ HBHEPulseShapeFlagSetter::HBHEPulseShapeFlagSetter(double MinimumChargeThreshold
    std::vector<double> RightSlopeCut,
    std::vector<double> RightSlopeSmallThreshold, 
    std::vector<double> RightSlopeSmallCut,
-   std::vector<double> TS4TS5UpperCut,
-   std::vector<double> TS4TS5UpperThreshold,
-   std::vector<double> TS4TS5LowerCut,
    std::vector<double> TS4TS5LowerThreshold,
+   std::vector<double> TS4TS5LowerCut,
+   std::vector<double> TS4TS5UpperThreshold,
+   std::vector<double> TS4TS5UpperCut,
    bool UseDualFit, 
    bool TriangleIgnoreSlow)
 {
