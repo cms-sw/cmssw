@@ -117,7 +117,6 @@ def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath='',beamstatus=N
             if runnum<max(selectionDict.keys()):
                 result[runnum]=[0.0,0.0,0.0]
             continue
-        #print 'looking for run ',runnum
         q=dbsession.nominalSchema().newQuery()
         totallumi=lumiQueryAPI.lumisumByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation) #q1
         del q
@@ -142,8 +141,8 @@ def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath='',beamstatus=N
                 instlumi=perlsdata[1]
                 norbit=perlsdata[2]
                 lslength=t.bunchspace_s*t.nbx*norbit
-                delivered=instlumi*lslength
-                result[runnum]=[delivered,0.0,0.0]
+                delivered+=instlumi*lslength
+            result[runnum]=[delivered,0.0,0.0]
             #result[runnum]=[0.0,0.0,0.0]
             #if c.VERBOSE: print 'request run ',runnum,' has no trigger, skip'
         else:
@@ -352,7 +351,7 @@ def main():
         session.transaction().commit()
         runList=runDict.keys()
         del qHandle
-        #print runDict
+        #print 'run list: ',runDict
     else:
         print 'unsupported action ',args.action
         exit
@@ -443,7 +442,6 @@ def main():
     elif args.action == 'perday':
         daydict={}#{day:[[run,cmslsnum,lsstarttime,delivered,recorded]]}
         lumibyls=getLumiOrderByLS(session,c,runList,selectionDict,hltpath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation)
-        #print 'lumibyls ',lumibyls
         #lumibyls [[runnumber,runstarttime,lsnum,lsstarttime,delivered,recorded,recordedinpath]]
         if args.outputfile:
             reporter=csvReporter.csvReporter(ofilename)
