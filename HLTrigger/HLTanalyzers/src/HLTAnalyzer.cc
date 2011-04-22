@@ -29,7 +29,9 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     // their names and types, and access them to initialize internal
     // variables. Example as follows:
     std::cout << " Beginning HLTAnalyzer Analysis " << std::endl;
-    
+
+    hltjets_          = conf.getParameter<edm::InputTag> ("hltjets");
+    hltcorjets_       = conf.getParameter<edm::InputTag> ("hltcorjets");    
     recjets_          = conf.getParameter<edm::InputTag> ("recjets");
     reccorjets_       = conf.getParameter<edm::InputTag> ("reccorjets");
     genjets_          = conf.getParameter<edm::InputTag> ("genjets");
@@ -209,6 +211,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     
     // These declarations create handles to the types of records that you want
     // to retrieve from event "iEvent".
+    edm::Handle<reco::CaloJetCollection>              hltjets;
+    edm::Handle<reco::CaloJetCollection>              hltcorjets;
     edm::Handle<reco::CaloJetCollection>              recjets;
     edm::Handle<reco::CaloJetCollection>              reccorjets;
     edm::Handle<reco::GenJetCollection>               genjets;
@@ -347,6 +351,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     reco::BeamSpot::Point BSPosition(0,0,0);
     BSPosition = recoBeamSpotHandle->position();
     
+    getCollection( iEvent, missing, hltjets,         hltjets_,           kHLTjets );
+    getCollection( iEvent, missing, hltcorjets,      hltcorjets_,        kHLTCorjets );
     getCollection( iEvent, missing, recjets,         recjets_,           kRecjets );
     getCollection( iEvent, missing, reccorjets,      reccorjets_,        kRecCorjets );
     getCollection( iEvent, missing, genjets,         genjets_,           kGenjets );
@@ -477,6 +483,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     
     // run the analysis, passing required event fragments
     jet_analysis_.analyze(
+			  hltjets,
+			  hltcorjets,
                           recjets,
                           reccorjets,
                           genjets,

@@ -66,8 +66,10 @@ public:
     void setup(const edm::ParameterSet& pSet, TTree* tree);
     
     /** Analyze the Data */
-    void analyze(const edm::Handle<reco::CaloJetCollection>      & recojets,
-                 const edm::Handle<reco::CaloJetCollection>      & corjets,
+    void analyze(const edm::Handle<reco::CaloJetCollection>      & ohjets,
+                 const edm::Handle<reco::CaloJetCollection>      & ohcorjets,
+		 const edm::Handle<reco::CaloJetCollection>      & recojets,
+		 const edm::Handle<reco::CaloJetCollection>      & recocorjets,
                  const edm::Handle<reco::GenJetCollection>       & gjets,
                  const edm::Handle<reco::CaloMETCollection>      & rmets,
                  const edm::Handle<reco::GenMETCollection>       & gmets,
@@ -94,14 +96,21 @@ public:
 private:
     
     // Tree variables
-    float *jcalpt, *jcalphi, *jcaleta, *jcale, *jcalemf, *jcaln90;
-    float *jcorcalpt, *jcorcalphi, *jcorcaleta, *jcorcale, *jcorcalemf, *jcorcaln90;
+    float *jhcalpt, *jhcalphi, *jhcaleta, *jhcale, *jhcalemf, *jhcaln90;
+    float *jhcorcalpt, *jhcorcalphi, *jhcorcaleta, *jhcorcale, *jhcorcalemf, *jhcorcaln90;
+
+    float *jrcalpt, *jrcalphi, *jrcaleta, *jrcale, *jrcalemf, *jrcaln90;
+    float *jrcorcalpt, *jrcorcalphi, *jrcorcaleta, *jrcorcale, *jrcorcalemf, *jrcorcaln90;
+
     float *jgenpt, *jgenphi, *jgeneta, *jgene;
     float *towet, *toweta, *towphi, *towen, *towem, *towhd, *towoe;
     float mcalmet,mcalphi,mcalsum;
     float htcalet,htcalphi,htcalsum;
     float mgenmet,mgenphi,mgensum;
-    int njetcal,ncorjetcal,njetgen,ntowcal;
+
+    int njetgen,ntowcal;
+    int nhjetcal,nhcorjetcal;
+    int nrjetcal,nrcorjetcal;
     
     // Taus
     float *l2tauemiso, *l25tauPt;

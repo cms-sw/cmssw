@@ -1545,15 +1545,15 @@ void OHltTree::CheckOpenHlt(
             int rc2 = 0;
 
             // Loop over all oh jets, select events where both pT of a pair are above threshold and in HF+ and HF-
-            for (int i=0; i<NrecoJetCal; i++)
+            for (int i=0; i<NohJetCal; i++)
             {
-               if (recoJetCalPt[i]/0.7 > thresholds[0] && recoJetCalEta[i]
-                     > 3.0 && recoJetCalEta[i] < 5.1)
+               if (ohJetCalPt[i]/0.7 > thresholds[0] && ohJetCalEta[i]
+                     > 3.0 && ohJetCalEta[i] < 5.1)
                { // Jet pT/eta cut
                   ++rc1;
                }
-               if (recoJetCalPt[i]/0.7 > thresholds[0] && recoJetCalEta[i]
-                     > -5.1 && recoJetCalEta[i] < -3.0)
+               if (ohJetCalPt[i]/0.7 > thresholds[0] && ohJetCalEta[i]
+                     > -5.1 && ohJetCalEta[i] < -3.0)
                { // Jet pT/eta cut
                   ++rc2;
                }
@@ -1579,15 +1579,15 @@ void OHltTree::CheckOpenHlt(
             int rc2 = 0;
 
             // Loop over all oh jets, select events where both pT of a pair are above threshold and in HF+ and HF-
-            for (int i=0; i<NrecoJetCorCal; i++)
+            for (int i=0; i<NohJetCorCal; i++)
             {
-               if (recoJetCorCalPt[i] > thresholds[0]
-                     && recoJetCorCalEta[i] > 3.0 && recoJetCorCalEta[i] < 5.1)
+               if (ohJetCorCalPt[i] > thresholds[0]
+                     && ohJetCorCalEta[i] > 3.0 && ohJetCorCalEta[i] < 5.1)
                { // Jet pT/eta cut
                   ++rc1;
                }
-               if (recoJetCorCalPt[i] > thresholds[0]
-                     && recoJetCorCalEta[i] > -5.1 && recoJetCorCalEta[i]
+               if (ohJetCorCalPt[i] > thresholds[0]
+                     && ohJetCorCalEta[i] > -5.1 && ohJetCorCalEta[i]
                      < -3.0)
                { // Jet pT/eta cut
                   ++rc2;
@@ -1663,15 +1663,15 @@ void OHltTree::CheckOpenHlt(
             double rcHFminusEnergy = 0;
 
             // First loop over all jets and find a pair above threshold and with DeltaPhi/pi > 0.5
-            for (int i=0; i<NrecoJetCal; i++)
+            for (int i=0; i<NohJetCal; i++)
             {
-               if (recoJetCalPt[i]>thresholds[0])
+               if (ohJetCalPt[i]>thresholds[0])
                { // Jet pT cut 
-                  for (int j=0; j<NrecoJetCal && j!=i; j++)
+                  for (int j=0; j<NohJetCal && j!=i; j++)
                   {
-                     if (recoJetCalPt[j]>thresholds[0])
+                     if (ohJetCalPt[j]>thresholds[0])
                      {
-                        double Dphi=fabs(recoJetCalPhi[i]-recoJetCalPhi[j]);
+                        double Dphi=fabs(ohJetCalPhi[i]-ohJetCalPhi[j]);
                         if (Dphi>3.14159)
                            Dphi=2.0*(3.14159)-Dphi;
                         if (Dphi>0.5*3.14159)
@@ -1715,15 +1715,15 @@ void OHltTree::CheckOpenHlt(
             double rcHFminusEnergy = 0;
 
             // First loop over all jets and find a pair above threshold and with DeltaPhi/pi > 0.5
-            for (int i=0; i<NrecoJetCorCal; i++)
+            for (int i=0; i<NohJetCorCal; i++)
             {
-               if (recoJetCorCalPt[i]>thresholds[0])
+               if (ohJetCorCalPt[i]>thresholds[0])
                { // Jet pT cut 
-                  for (int j=0; j<NrecoJetCorCal && j!=i; j++)
+                  for (int j=0; j<NohJetCorCal && j!=i; j++)
                   {
-                     if (recoJetCorCalPt[j]>thresholds[0])
+                     if (ohJetCorCalPt[j]>thresholds[0])
                      {
-                        double Dphi=fabs(recoJetCorCalPhi[i]-recoJetCorCalPhi[j]);
+                        double Dphi=fabs(ohJetCorCalPhi[i]-ohJetCorCalPhi[j]);
                         if (Dphi>3.14159)
                            Dphi=2.0*(3.14159)-Dphi;
                         if (Dphi>0.5*3.14159)
@@ -1768,15 +1768,15 @@ void OHltTree::CheckOpenHlt(
             double rcHFminusEnergy = 0;
 
             // First loop over all jets and find a pair above threshold and with DeltaPhi/pi > 0.5 
-            for (int i=0; i<NrecoJetCal; i++)
+            for (int i=0; i<NohJetCal; i++)
             {
-               if (recoJetCalPt[i]>thresholds[0])
+               if (ohJetCalPt[i]>thresholds[0])
                { // Jet pT cut  
-                  for (int j=0; j<NrecoJetCal && j!=i; j++)
+                  for (int j=0; j<NohJetCal && j!=i; j++)
                   {
-                     if (recoJetCalPt[j]>thresholds[0])
+                     if (ohJetCalPt[j]>thresholds[0])
                      {
-                        double Dphi=fabs(recoJetCalPhi[i]-recoJetCalPhi[j]);
+                        double Dphi=fabs(ohJetCalPhi[i]-ohJetCalPhi[j]);
                         if (Dphi>3.14159)
                            Dphi=2.0*(3.14159)-Dphi;
                         if (Dphi>0.5*3.14159)
@@ -1820,15 +1820,15 @@ void OHltTree::CheckOpenHlt(
             double rcHFminusEnergy = 0;
 
             // First loop over all jets and find a pair above threshold and with DeltaPhi/pi > 0.5 
-            for (int i=0; i<NrecoJetCorCal; i++)
+            for (int i=0; i<NohJetCorCal; i++)
             {
-               if (recoJetCorCalPt[i]>thresholds[0])
+               if (ohJetCorCalPt[i]>thresholds[0])
                { // Jet pT cut  
-                  for (int j=0; j<NrecoJetCorCal && j!=i; j++)
+                  for (int j=0; j<NohJetCorCal && j!=i; j++)
                   {
-                     if (recoJetCorCalPt[j]>thresholds[0])
+                     if (ohJetCorCalPt[j]>thresholds[0])
                      {
-                        double Dphi=fabs(recoJetCorCalPhi[i]-recoJetCorCalPhi[j]);
+                        double Dphi=fabs(ohJetCorCalPhi[i]-ohJetCorCalPhi[j]);
                         if (Dphi>3.14159)
                            Dphi=2.0*(3.14159)-Dphi;
                         if (Dphi>0.5*3.14159)
@@ -9146,14 +9146,13 @@ void OHltTree::PrintOhltVariables(int level, int type)
       break;
 
    case jet:
-      cout << "oh: number of recoJetCal = " << NrecoJetCal << endl;
-      for (int i=0; i<NrecoJetCal; i++)
+      cout << "oh: number of ohJetCal = " << NohJetCal << endl;
+      for (int i=0; i<NohJetCal; i++)
       {
-         cout << "recoJetCalE["<<i<<"] = " << recoJetCalE[i] << endl;
-         cout << "recoJetCalEt["<<i<<"] = " << recoJetCalEt[i] << endl;
-         cout << "recoJetCalPt["<<i<<"] = " << recoJetCalPt[i] << endl;
-         cout << "recoJetCalPhi["<<i<<"] = " << recoJetCalPhi[i] << endl;
-         cout << "recoJetCalEta["<<i<<"] = " << recoJetCalEta[i] << endl;
+         cout << "ohJetCalE["<<i<<"] = " << ohJetCalE[i] << endl;
+         cout << "ohJetCalPt["<<i<<"] = " << ohJetCalPt[i] << endl;
+         cout << "ohJetCalPhi["<<i<<"] = " << ohJetCalPhi[i] << endl;
+         cout << "ohJetCalEta["<<i<<"] = " << ohJetCalEta[i] << endl;
       }
       break;
 
@@ -9455,14 +9454,14 @@ int OHltTree::OpenHltTauEleMatching_wEleID(float eta, float phi, float Et, int L
 
 int OHltTree::OpenHltTauPFToCaloMatching(float eta, float phi)
 {
-   for (int j=0; j<NrecoJetCal; j++)
+   for (int j=0; j<NohJetCal; j++)
    {
-      if (recoJetCalPt[j]<8)
+      if (ohJetCalPt[j]<8)
          continue;
-      double deltaphi = fabs(phi-recoJetCalPhi[j]);
+      double deltaphi = fabs(phi-ohJetCalPhi[j]);
       if (deltaphi > 3.14159)
          deltaphi = (2.0 * 3.14159) - deltaphi;
-      double deltaeta = fabs(eta-recoJetCalEta[j]);
+      double deltaeta = fabs(eta-ohJetCalEta[j]);
 
       if (deltaeta<0.3 && deltaphi<0.3)
          return 1;
@@ -11217,20 +11216,20 @@ int OHltTree::OpenHlt1ElectronHTPassed(
       return 0;
 
    float sumHT=0;
-   for (int i=0; i<NrecoJetCal; i++)
+   for (int i=0; i<NohJetCal; i++)
    {
-      if (recoJetCalPt[i] < jetThreshold)
+      if (ohJetCalPt[i] < jetThreshold)
          continue;
       bool jetPass=true;
       for (unsigned int iEle = 0; iEle<PassedElectrons.size(); iEle++)
       {
-         float dphi = ohElePhi[PassedElectrons.at(iEle)] - recoJetCalPhi[i];
-         float deta = ohEleEta[PassedElectrons.at(iEle)] - recoJetCalEta[i];
+         float dphi = ohElePhi[PassedElectrons.at(iEle)] - ohJetCalPhi[i];
+         float deta = ohEleEta[PassedElectrons.at(iEle)] - ohJetCalEta[i];
          if (dphi*dphi+deta*deta<dr*dr) // require electron not in any jet
             jetPass=false;
       }
       if (jetPass)
-         sumHT+=(recoJetCalE[i]/cosh(recoJetCalEta[i]));
+         sumHT+=(ohJetCalE[i]/cosh(ohJetCalEta[i]));
    }
    if (sumHT>HT)
       return 1;
@@ -11279,20 +11278,20 @@ int OHltTree::OpenHlt1ElectronEleIDHTPassed(
       return 0;
 
    float sumHT=0;
-   for (int i=0; i<NrecoJetCal; i++)
+   for (int i=0; i<NohJetCal; i++)
    {
-      if (recoJetCalPt[i] < jetThreshold)
+      if (ohJetCalPt[i] < jetThreshold)
          continue;
       bool jetPass=true;
       for (unsigned int iEle = 0; iEle<PassedElectrons.size(); iEle++)
       {
-         float dphi = ohElePhi[PassedElectrons.at(iEle)] - recoJetCalPhi[i];
-         float deta = ohEleEta[PassedElectrons.at(iEle)] - recoJetCalEta[i];
+         float dphi = ohElePhi[PassedElectrons.at(iEle)] - ohJetCalPhi[i];
+         float deta = ohEleEta[PassedElectrons.at(iEle)] - ohJetCalEta[i];
          if (dphi*dphi+deta*deta<dr*dr) // require electron not in any jet
             jetPass=false;
       }
       if (jetPass)
-         sumHT+=(recoJetCalE[i]/cosh(recoJetCalEta[i]));
+         sumHT+=(ohJetCalE[i]/cosh(ohJetCalEta[i]));
    }
    if (sumHT>HT)
       return 1;
@@ -11476,10 +11475,10 @@ int OHltTree::OpenHlt1CorJetPassedEleRemoval(
    int rc = 0;
 
    //Loop over all oh corrected jets
-   for (int j = 0; j < NrecoJetCorCal; j++)
+   for (int j = 0; j < NohJetCorCal; j++)
    {
 
-     if (recoJetCorCalPt[j] > jetPt && fabs(recoJetCorCalEta[j]) < jetEta && OpenJetID(j))
+     if (ohJetCorCalPt[j] > jetPt && fabs(ohJetCorCalEta[j]) < jetEta && OpenJetID(j))
       { // PT, eta and JetID cuts
 
          bool isOverlapping = false;
@@ -11543,12 +11542,12 @@ int OHltTree::OpenHlt1CorJetPassedEleRemoval(
                                                            (isendcap && ohEleDphi[i] < dphiendcap))
                                                       {
 
-                                                         double deltaphi = fabs(recoJetCorCalPhi[j] -ohElePhi[i]);
+                                                         double deltaphi = fabs(ohJetCorCalPhi[j] -ohElePhi[i]);
                                                          if (deltaphi > 3.14159)
                                                             deltaphi = (2.0 * 3.14159) - deltaphi;
 
-                                                         double deltaRJetEle = sqrt((recoJetCorCalEta[j]-ohEleEta[i])
-                                                                                   *(recoJetCorCalEta[j]-ohEleEta[i])
+                                                         double deltaRJetEle = sqrt((ohJetCorCalEta[j]-ohEleEta[i])
+                                                                                   *(ohJetCorCalEta[j]-ohEleEta[i])
                                                                                    + (deltaphi *deltaphi));
 
                                                          if (deltaRJetEle < drcut)
@@ -11600,15 +11599,15 @@ int OHltTree::OpenHltRPassed(
    //make a list of the vectors
    vector<TLorentzVector*> JETS;
 
-   for (int i=0; i<NrecoJetCorCal; i++)
+   for (int i=0; i<NohJetCorCal; i++)
    {
-      if (fabs(recoJetCorCalEta[i])>=3 || recoJetCorCalPt[i] < jetPt)  continue; // require jets with eta<3
+      if (fabs(ohJetCorCalEta[i])>=3 || ohJetCorCalPt[i] < jetPt)  continue; // require jets with eta<3
       TLorentzVector* tmp = new TLorentzVector();
       tmp->SetPtEtaPhiE(
-            recoJetCorCalPt[i],
-            recoJetCorCalEta[i],
-            recoJetCorCalPhi[i],
-            recoJetCorCalE[i]);
+            ohJetCorCalPt[i],
+            ohJetCorCalEta[i],
+            ohJetCorCalPhi[i],
+            ohJetCorCalE[i]);
 
       JETS.push_back(tmp);
    }
@@ -11970,17 +11969,17 @@ int OHltTree::OpenHlt1MuonIsoJetPassed(
 
                   // Loop over all oh corrected jets    
                   float minDR = 100.;
-                  for (int j=0; j <NrecoJetCorCal; j++)
+                  for (int j=0; j <NohJetCorCal; j++)
                   {
-                     if (recoJetCorCalPt[j]>JetPt && fabs(recoJetCorCalEta[j])
+                     if (ohJetCorCalPt[j]>JetPt && fabs(ohJetCorCalEta[j])
                            <JetEta)
                      { // Jet pT cut
                         double deltaphi =
-                              fabs(recoJetCorCalPhi[j]-ohMuL3Phi[i]);
+                              fabs(ohJetCorCalPhi[j]-ohMuL3Phi[i]);
                         if (deltaphi > 3.14159)
                            deltaphi = (2.0 * 3.14159) - deltaphi;
-                        float deltaRMuJet = sqrt((recoJetCorCalEta[j]
-                              -ohMuL3Eta[i])*(recoJetCorCalEta[j]-ohMuL3Eta[i])
+                        float deltaRMuJet = sqrt((ohJetCorCalEta[j]
+                              -ohMuL3Eta[i])*(ohJetCorCalEta[j]-ohMuL3Eta[i])
                               + (deltaphi*deltaphi));
                         if (deltaRMuJet < minDR)
                         {
@@ -13363,10 +13362,10 @@ int OHltTree::OpenHltMuTrackPassed_Ups(
 
 bool OHltTree::OpenJetID(int jetindex)
 {
-	if (jetindex>=NrecoJetCorCal) return false;
+	if (jetindex>=NohJetCorCal) return false;
 	bool jetID = true ; //jetID is true by default
-	if (fabs(recoJetCorCalEta[jetindex])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
-       jetID =  (recoJetCorCalEMF[jetindex] > 1.0E-6) && (recoJetCorCalEMF[jetindex] < 999.0) && recoJetCorCalN90[jetindex]>=2;
+	if (fabs(ohJetCorCalEta[jetindex])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
+       jetID =  (ohJetCorCalEMF[jetindex] > 1.0E-6) && (ohJetCorCalEMF[jetindex] < 999.0) && ohJetCorCalN90[jetindex]>=2;
      }
 	return jetID;
 
@@ -13378,9 +13377,9 @@ int OHltTree::OpenHlt1JetPassed(double pt)
    int rc = 0;
 
    // Loop over all oh jets 
-   for (int i=0; i<NrecoJetCal; i++)
+   for (int i=0; i<NohJetCal; i++)
    {
-      if (recoJetCalPt[i]>pt)
+      if (ohJetCalPt[i]>pt)
       { // Jet pT cut
          rc++;
       }
@@ -13394,9 +13393,9 @@ int OHltTree::OpenHlt1JetPassed(double pt, double etamax)
    int rc = 0;
    //ccla
    // Loop over all oh jets 
-   for (int i=0; i<NrecoJetCal; i++)
+   for (int i=0; i<NohJetCal; i++)
    {
-      if (recoJetCalPt[i]>pt && fabs(recoJetCalEta[i])<etamax)
+      if (ohJetCalPt[i]>pt && fabs(ohJetCalEta[i])<etamax)
       { // Jet pT cut
          rc++;
       }
@@ -13414,10 +13413,10 @@ int OHltTree::OpenHlt1JetPassed(
    int rc = 0;
    //ccla
    // Loop over all oh jets 
-   for (int i=0; i<NrecoJetCal; i++)
+   for (int i=0; i<NohJetCal; i++)
    {
-      if (recoJetCalPt[i]>pt && fabs(recoJetCalEta[i])<etamax
-            && recoJetCalEMF[i] > emfmin && recoJetCalEMF[i] < emfmax)
+      if (ohJetCalPt[i]>pt && fabs(ohJetCalEta[i])<etamax
+            && ohJetCalEMF[i] > emfmin && ohJetCalEMF[i] < emfmax)
       { // Jet pT cut
          rc++;
       }
@@ -13431,9 +13430,9 @@ int OHltTree::OpenHlt1CorJetPassedNoJetID(double pt)
    int rc = 0;
 
    // Loop over all oh corrected jets
-   for (int i=0; i<NrecoJetCorCal; i++)
+   for (int i=0; i<NohJetCorCal; i++)
    {
-     if ( recoJetCorCalPt[i]>pt)
+     if ( ohJetCorCalPt[i]>pt)
       { // Jet pT cut
          rc++;
       }
@@ -13447,9 +13446,9 @@ int OHltTree::OpenHlt1CorJetPassed(double pt)
    int rc = 0;
 
    // Loop over all oh corrected jets
-   for (int i=0; i<NrecoJetCorCal; i++)
+   for (int i=0; i<NohJetCorCal; i++)
    {
-     if (OpenJetID(i) && recoJetCorCalPt[i]>pt)
+     if (OpenJetID(i) && ohJetCorCalPt[i]>pt)
       { // Jet pT cut
          rc++;
       }
@@ -13464,9 +13463,9 @@ int OHltTree::OpenHlt1CorJetPassed(double pt, double etamax)
   int rc = 0;
 
   // Loop over all oh corrected jets
-  for (int i=0; i<NrecoJetCorCal; i++)
+  for (int i=0; i<NohJetCorCal; i++)
     {
-      if (OpenJetID(i) && recoJetCorCalPt[i]>pt && fabs(recoJetCorCalEta[i])<etamax)
+      if (OpenJetID(i) && ohJetCorCalPt[i]>pt && fabs(ohJetCorCalEta[i])<etamax)
 	  { // Jet pT cut
 	    rc++;
 	  }
@@ -13479,23 +13478,23 @@ int OHltTree::OpenHltDiJetAvePassed(double pt)
   int rc = 0;
 
   // Loop over all oh jets, select events where the *average* pT of a pair is above threshold
-  //std::cout << "FL: NrecoJetCal = " << NrecoJetCal << std::endl;
-  for (int i=0; i<NrecoJetCal; i++)
+  //std::cout << "FL: NohJetCal = " << NohJetCal << std::endl;
+  for (int i=0; i<NohJetCal; i++)
     {
       bool jetID0 = true ; //jetID is true by default
-      if (fabs(recoJetCalEta[i])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
-	jetID0 =  (recoJetCalEMF[i] > 1.0E-6) && (recoJetCalEMF[i] < 999.0) && recoJetCalN90[i]>=2;
+      if (fabs(ohJetCalEta[i])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
+	jetID0 =  (ohJetCalEMF[i] > 1.0E-6) && (ohJetCalEMF[i] < 999.0) && ohJetCalN90[i]>=2;
       }
       if (!jetID0) continue;
-      for (int j=0; j<NrecoJetCal && j!=i; j++)
+      for (int j=0; j<NohJetCal && j!=i; j++)
 	{
 	  bool jetID1 = true ; //jetID is true by default
-	  if (fabs(recoJetCalEta[i])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
-	    jetID1 =  (recoJetCalEMF[i] > 1.0E-6) && (recoJetCalEMF[i] < 999.0) && recoJetCalN90[i]>=2;
+	  if (fabs(ohJetCalEta[i])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
+	    jetID1 =  (ohJetCalEMF[i] > 1.0E-6) && (ohJetCalEMF[i] < 999.0) && ohJetCalN90[i]>=2;
 	  }
-	  if (jetID1 && (recoJetCalPt[i]+recoJetCalPt[j])/2.0 > pt)
+	  if (jetID1 && (ohJetCalPt[i]+ohJetCalPt[j])/2.0 > pt)
 	    { // Jet pT cut 
-	      //      if((recoJetCalE[i]/cosh(recoJetCalEta[i])+recoJetCalE[j]/cosh(recoJetCalEta[j]))/2.0 > pt) {
+	      //      if((ohJetCalE[i]/cosh(ohJetCalEta[i])+ohJetCalE[j]/cosh(ohJetCalEta[j]))/2.0 > pt) {
 	      rc++;
 	    }
 	}
@@ -13509,23 +13508,23 @@ int OHltTree::OpenHltCorDiJetAvePassed(double pt)
   int rc = 0;
 
   // Loop over all oh jets, select events where the *average* pT of a pair is above threshold
-  //std::cout << "FL: NrecoJetCal = " << NrecoJetCal << std::endl;
-  for (int i=0; i<NrecoJetCorCal; i++)
+  //std::cout << "FL: NohJetCal = " << NohJetCal << std::endl;
+  for (int i=0; i<NohJetCorCal; i++)
     {
       bool jetID0 = true ; //jetID is true by default
-      if (fabs(recoJetCorCalEta[i])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
-	jetID0 =  (recoJetCorCalEMF[i] > 1.0E-6) && (recoJetCorCalEMF[i] < 999.0) && recoJetCorCalN90[i]>=2;
+      if (fabs(ohJetCorCalEta[i])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
+	jetID0 =  (ohJetCorCalEMF[i] > 1.0E-6) && (ohJetCorCalEMF[i] < 999.0) && ohJetCorCalN90[i]>=2;
       }
       if (!jetID0) continue;
-      for (int j=0; j<NrecoJetCal && j!=i; j++)
+      for (int j=0; j<NohJetCal && j!=i; j++)
 	{
 	  bool jetID1 = true ; //jetID is true by default
-	  if (fabs(recoJetCorCalEta[i])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
-	    jetID1 =  (recoJetCorCalEMF[i] > 1.0E-6) && (recoJetCorCalEMF[i] < 999.0) && recoJetCorCalN90[i]>=2;
+	  if (fabs(ohJetCorCalEta[i])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
+	    jetID1 =  (ohJetCorCalEMF[i] > 1.0E-6) && (ohJetCorCalEMF[i] < 999.0) && ohJetCorCalN90[i]>=2;
 	  }
-	  if (jetID1 && (recoJetCorCalPt[i]+recoJetCorCalPt[j])/2.0 > pt)
+	  if (jetID1 && (ohJetCorCalPt[i]+ohJetCorCalPt[j])/2.0 > pt)
 	    { // Jet pT cut 
-	      //      if((recoJetCalE[i]/cosh(recoJetCalEta[i])+recoJetCalE[j]/cosh(recoJetCalEta[j]))/2.0 > pt) {
+	      //      if((ohJetCalE[i]/cosh(ohJetCalEta[i])+ohJetCalE[j]/cosh(ohJetCalEta[j]))/2.0 > pt) {
 	      rc++;
 	    }
 	}
@@ -13540,9 +13539,9 @@ int OHltTree::OpenHltQuadCorJetPassed(double pt)
    int rc = 0;
 
    // Loop over all oh jets
-   for (int i=0; i<NrecoJetCorCal; i++)
+   for (int i=0; i<NohJetCorCal; i++)
    {
-     if (recoJetCorCalPt[i] > pt && fabs(recoJetCorCalEta[i]) < 5.0)
+     if (ohJetCorCalPt[i] > pt && fabs(ohJetCorCalEta[i]) < 5.0)
       { // Jet pT cut
          //std::cout << "FL: fires the jet pt cut" << std::endl;
          njet++;
@@ -13563,9 +13562,9 @@ int OHltTree::OpenHltQuadJetPassed(double pt)
    int rc = 0;
 
    // Loop over all oh jets
-   for (int i=0; i<NrecoJetCal; i++)
+   for (int i=0; i<NohJetCal; i++)
    {
-     if (recoJetCalPt[i] > pt && fabs(recoJetCalEta[i]) < 5.0)
+     if (ohJetCalPt[i] > pt && fabs(ohJetCalEta[i]) < 5.0)
       { // Jet pT cut
          njet++;
       }
@@ -13585,9 +13584,9 @@ int OHltTree::OpenHltQuadJetPassedPlusTauPFId(
    int njet = 0;
    int rc = 0;
    bool foundPFTau = false;
-   for (int i=0; i<NrecoJetCorCal; i++)
+   for (int i=0; i<NohJetCorCal; i++)
    {
-      if (recoJetCorCalPt[i] > pt && fabs(recoJetCorCalEta[i]) < etaJet)
+      if (ohJetCorCalPt[i] > pt && fabs(ohJetCorCalEta[i]) < etaJet)
       { // Jet pT cut 
          njet++;
          for (int j=0; j<NohpfTau; j++)
@@ -13598,8 +13597,8 @@ int OHltTree::OpenHltQuadJetPassedPlusTauPFId(
                   && ohpfTauGammaIso[j] <1)
             {
 
-               float deltaEta = ohpfTauEta[j] - recoJetCorCalEta[i];
-               float deltaPhi = ohpfTauPhi[j] - recoJetCorCalPhi[i];
+               float deltaEta = ohpfTauEta[j] - ohJetCorCalEta[i];
+               float deltaPhi = ohpfTauPhi[j] - ohJetCorCalPhi[i];
 
                if (fabs(deltaPhi)>3.141592654)
                   deltaPhi = 6.283185308-fabs(deltaPhi);
@@ -13642,12 +13641,12 @@ int OHltTree::OpenHltFwdCorJetPassed(double esum)
    double gap = 0.;
 
    // Loop over all oh jets, count the sum of energy deposited in HF 
-   for (int i=0; i<NrecoJetCorCal; i++)
+   for (int i=0; i<NohJetCorCal; i++)
    {
-      if (((recoJetCorCalEta[i] > 3.0 && recoJetCorCalEta[i] < 5.0)
-            || (recoJetCorCalEta[i] < -3.0 && recoJetCorCalEta[i] > -5.0)))
+      if (((ohJetCorCalEta[i] > 3.0 && ohJetCorCalEta[i] < 5.0)
+            || (ohJetCorCalEta[i] < -3.0 && ohJetCorCalEta[i] > -5.0)))
       {
-         gap+=recoJetCorCalE[i];
+         gap+=ohJetCorCalE[i];
       }
    }
 
@@ -13666,12 +13665,12 @@ int OHltTree::OpenHltFwdJetPassed(double esum)
    double gap = 0.;
 
    // Loop over all oh jets, count the sum of energy deposited in HF 
-   for (int i=0; i<NrecoJetCal; i++)
+   for (int i=0; i<NohJetCal; i++)
    {
-      if (((recoJetCalEta[i] > 3.0 && recoJetCalEta[i] < 5.0)
-            || (recoJetCalEta[i] < -3.0 && recoJetCalEta[i] > -5.0)))
+      if (((ohJetCalEta[i] > 3.0 && ohJetCalEta[i] < 5.0)
+            || (ohJetCalEta[i] < -3.0 && ohJetCalEta[i] > -5.0)))
       {
-         gap+=recoJetCalE[i];
+         gap+=ohJetCalE[i];
       }
    }
 
@@ -13694,13 +13693,13 @@ int OHltTree::OpenHltHTJetNJPassed(
    double sumHT = 0.;
 
    // Loop over all oh jets, sum up the energy  
-   for (int i=0; i<NrecoJetCal; ++i)
+   for (int i=0; i<NohJetCal; ++i)
    {
-      if (recoJetCalPt[i] >= jetthreshold && fabs(recoJetCalEta[i])<etamax)
+      if (ohJetCalPt[i] >= jetthreshold && fabs(ohJetCalEta[i])<etamax)
       {
-         //sumHT+=recoJetCalPt[i];
+         //sumHT+=ohJetCalPt[i];
          njets++;
-         sumHT+=(recoJetCalE[i]/cosh(recoJetCalEta[i]));
+         sumHT+=(ohJetCalE[i]/cosh(ohJetCalEta[i]));
       }
    }
 
@@ -13714,12 +13713,12 @@ int OHltTree::OpenHltMHT(double MHTthreshold, double jetthreshold, double etathr
 {
    int rc = 0;
    double mhtx=0., mhty=0.;
-   for (int i=0; i<NrecoJetCorCal; ++i)
+   for (int i=0; i<NohJetCorCal; ++i)
    {
-      if (OpenJetID(i) && recoJetCorCalPt[i] >= jetthreshold && fabs(recoJetCorCalEta[i]) < etathreshold)
+      if (OpenJetID(i) && ohJetCorCalPt[i] >= jetthreshold && fabs(ohJetCorCalEta[i]) < etathreshold)
       {
-         mhtx-=recoJetCorCalPt[i]*cos(recoJetCorCalPhi[i]);
-         mhty-=recoJetCorCalPt[i]*sin(recoJetCorCalPhi[i]);
+         mhtx-=ohJetCorCalPt[i]*cos(ohJetCorCalPhi[i]);
+         mhty-=ohJetCorCalPt[i]*sin(ohJetCorCalPhi[i]);
       }
    }
    if (sqrt(mhtx*mhtx+mhty*mhty)>MHTthreshold)
@@ -13733,12 +13732,12 @@ int OHltTree::OpenHltMHTU(double MHTthreshold, double jetthreshold, double etath
 {
    int rc = 0;
    double mhtx=0., mhty=0.;
-   for (int i=0; i<NrecoJetCal; ++i)
+   for (int i=0; i<NohJetCal; ++i)
    {
-      if (recoJetCalPt[i] >= jetthreshold && fabs(recoJetCalEta[i]) < etathreshold)
+      if (ohJetCalPt[i] >= jetthreshold && fabs(ohJetCalEta[i]) < etathreshold)
       {
-         mhtx-=recoJetCalPt[i]*cos(recoJetCalPhi[i]);
-         mhty-=recoJetCalPt[i]*sin(recoJetCalPhi[i]);
+         mhtx-=ohJetCalPt[i]*cos(ohJetCalPhi[i]);
+         mhty-=ohJetCalPt[i]*sin(ohJetCalPhi[i]);
       }
    }
    if (sqrt(mhtx*mhtx+mhty*mhty)>MHTthreshold)
@@ -13754,15 +13753,15 @@ int OHltTree::OpenHltPT12U(double PT12threshold, double jetthreshold)
    int rc = 0;
    int njets = 0;
    double pt12tx=0., pt12ty=0.;
-   for (int i=0; i<NrecoJetCal; ++i)
+   for (int i=0; i<NohJetCal; ++i)
    {
-      if ((recoJetCalPt[i] >= jetthreshold) && (fabs(recoJetCalEta[i]) <3))
+      if ((ohJetCalPt[i] >= jetthreshold) && (fabs(ohJetCalEta[i]) <3))
       {
          njets++;
          if (njets<3)
          {
-            pt12tx-=recoJetCalPt[i]*cos(recoJetCalPhi[i]);
-            pt12ty-=recoJetCalPt[i]*sin(recoJetCalPhi[i]);
+            pt12tx-=ohJetCalPt[i]*cos(ohJetCalPhi[i]);
+            pt12ty-=ohJetCalPt[i]*sin(ohJetCalPhi[i]);
          }
       }
    }
@@ -13779,16 +13778,16 @@ int OHltTree::OpenHltPT12(double PT12threshold, double jetthreshold)
    int rc = 0;
    int njets = 0;
    double pt12tx=0., pt12ty=0.;
-   for (int i=0; i<NrecoJetCorCal; ++i)
+   for (int i=0; i<NohJetCorCal; ++i)
    {
-      if ((recoJetCorCalPt[i] >= jetthreshold)
-            && (fabs(recoJetCorCalEta[i]) <3))
+      if ((ohJetCorCalPt[i] >= jetthreshold)
+            && (fabs(ohJetCorCalEta[i]) <3))
       {
          njets++;
          if (njets<3)
          {
-            pt12tx-=recoJetCorCalPt[i]*cos(recoJetCorCalPhi[i]);
-            pt12ty-=recoJetCorCalPt[i]*sin(recoJetCorCalPhi[i]);
+            pt12tx-=ohJetCorCalPt[i]*cos(ohJetCorCalPhi[i]);
+            pt12ty-=ohJetCorCalPt[i]*sin(ohJetCorCalPhi[i]);
          }
       }
    }
@@ -13806,13 +13805,13 @@ int OHltTree::OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold)
    double sumHT = 0.;
 
    // Loop over all oh jets, sum up the energy  
-   for (int i=0; i<NrecoJetCal; ++i)
+   for (int i=0; i<NohJetCal; ++i)
    {
-      if (recoJetCalPt[i] >= jetthreshold)
+      if (ohJetCalPt[i] >= jetthreshold)
       {
-         //sumHT+=recoJetCorCalPt[i];
+         //sumHT+=ohJetCorCalPt[i];
 
-         sumHT+=(recoJetCalE[i]/cosh(recoJetCalEta[i]));
+         sumHT+=(ohJetCalE[i]/cosh(ohJetCalEta[i]));
       }
    }
 
@@ -13828,13 +13827,13 @@ int OHltTree::OpenHltSumCorHTPassed(double sumHTthreshold, double jetthreshold, 
    double sumHT = 0.;
 
    // Loop over all oh jets, sum up the energy  
-   for (int i=0; i<NrecoJetCorCal; ++i)
+   for (int i=0; i<NohJetCorCal; ++i)
    {
-		 if (OpenJetID(i) && recoJetCorCalPt[i] >= jetthreshold && fabs(recoJetCorCalEta[i]) < etathreshold)
+		 if (OpenJetID(i) && ohJetCorCalPt[i] >= jetthreshold && fabs(ohJetCorCalEta[i]) < etathreshold)
       {
          //sumHT+=recoJetCorCorCalPt[i];
 
-         sumHT+=(recoJetCorCalE[i]/cosh(recoJetCorCalEta[i]));
+         sumHT+=(ohJetCorCalE[i]/cosh(ohJetCorCalEta[i]));
       }
    }
 
@@ -13852,13 +13851,13 @@ int OHltTree::OpenHltMeffU(double Meffthreshold, double jetthreshold, double eta
    //HT
    double sumHT = 0.;  
    
-   for (int i=0; i<NrecoJetCal; ++i)
+   for (int i=0; i<NohJetCal; ++i)
      {
-       if (recoJetCalPt[i] >= jetthreshold && fabs(recoJetCalEta[i]) < etathreshold)
+       if (ohJetCalPt[i] >= jetthreshold && fabs(ohJetCalEta[i]) < etathreshold)
 	 {
-	   mhtx-=recoJetCalPt[i]*cos(recoJetCalPhi[i]);
-	   mhty-=recoJetCalPt[i]*sin(recoJetCalPhi[i]);
-	   sumHT+=(recoJetCalE[i]/cosh(recoJetCalEta[i]));
+	   mhtx-=ohJetCalPt[i]*cos(ohJetCalPhi[i]);
+	   mhty-=ohJetCalPt[i]*sin(ohJetCalPhi[i]);
+	   sumHT+=(ohJetCalE[i]/cosh(ohJetCalEta[i]));
 	 }
      }
 
@@ -13877,13 +13876,13 @@ int OHltTree::OpenHltMeff(double Meffthreshold, double jetthreshold, double etat
    double mhtx=0., mhty=0.;
    //HT
    double sumHT = 0.;   
-   for (int i=0; i<NrecoJetCorCal; ++i)
+   for (int i=0; i<NohJetCorCal; ++i)
      {
-       if (OpenJetID(i) && recoJetCorCalPt[i] >= jetthreshold && fabs(recoJetCorCalEta[i]) < etathreshold)
+       if (OpenJetID(i) && ohJetCorCalPt[i] >= jetthreshold && fabs(ohJetCorCalEta[i]) < etathreshold)
 	 {
-	   mhtx-=recoJetCorCalPt[i]*cos(recoJetCorCalPhi[i]);
-	   mhty-=recoJetCorCalPt[i]*sin(recoJetCorCalPhi[i]);
-	   sumHT+=recoJetCorCalPt[i];
+	   mhtx-=ohJetCorCalPt[i]*cos(ohJetCorCalPhi[i]);
+	   mhty-=ohJetCorCalPt[i]*sin(ohJetCorCalPhi[i]);
+	   sumHT+=ohJetCorCalPt[i];
 	 }
      }
 
@@ -13904,14 +13903,14 @@ int OHltTree::OpenHltSumHTPassed(
    double sumHT = 0.;
 
    // Loop over all oh jets, sum up the energy  
-   for (int i=0; i<NrecoJetCal; ++i)
+   for (int i=0; i<NohJetCal; ++i)
    {
-      if (recoJetCalPt[i] >= jetthreshold && fabs(recoJetCalEta[i])
+      if (ohJetCalPt[i] >= jetthreshold && fabs(ohJetCalEta[i])
             < etajetthreshold)
       {
-         //sumHT+=recoJetCorCalPt[i];
+         //sumHT+=ohJetCorCalPt[i];
 
-         sumHT+=(recoJetCalE[i]/cosh(recoJetCalEta[i]));
+         sumHT+=(ohJetCalE[i]/cosh(ohJetCalEta[i]));
       }
    }
 
@@ -13932,15 +13931,15 @@ int OHltTree::OpenHltSumHTPassed(
    int Njet = 0.;
 
    // Loop over all oh jets, sum up the energy  
-   for (int i=0; i<NrecoJetCal; ++i)
+   for (int i=0; i<NohJetCal; ++i)
    {
-      if (recoJetCalPt[i] >= jetthreshold && fabs(recoJetCalEta[i])
+      if (ohJetCalPt[i] >= jetthreshold && fabs(ohJetCalEta[i])
             < etajetthreshold)
       {
-         //sumHT+=recoJetCorCalPt[i];
+         //sumHT+=ohJetCorCalPt[i];
          Njet++;
 
-         sumHT+=(recoJetCalE[i]/cosh(recoJetCalEta[i]));
+         sumHT+=(ohJetCalE[i]/cosh(ohJetCalEta[i]));
       }
    }
 
@@ -13959,16 +13958,16 @@ int OHltTree::OpenHltHT_AlphaT(double HT,double betaT, double Jet){
   if(betaT < 10.){betaT /= 10.;}
   if(betaT >10.){betaT /= 100.;}
   // cout << "Beta Value is " << betaT << endl;
-  for (int i=0; i<NrecoJetCorCal; i++){
+  for (int i=0; i<NohJetCorCal; i++){
     double mHT = 0.;
     double aT = 0.;
-    if(recoJetCorCalEta[i] < 3.0 && (recoJetCorCalE[i]/cosh(recoJetCorCalEta[i])) > Jet ){ // Make ht and mHT for each jet in loop
-      ht += (recoJetCorCalE[i]/cosh(recoJetCorCalEta[i])); // HT
-      mhtx-=((recoJetCorCalE[i]/cosh(recoJetCorCalEta[i]))*cos(recoJetCorCalPhi[i]));
-      mhty-=((recoJetCorCalE[i]/cosh(recoJetCorCalEta[i]))*sin(recoJetCorCalPhi[i]));
+    if(ohJetCorCalEta[i] < 3.0 && (ohJetCorCalE[i]/cosh(ohJetCorCalEta[i])) > Jet ){ // Make ht and mHT for each jet in loop
+      ht += (ohJetCorCalE[i]/cosh(ohJetCorCalEta[i])); // HT
+      mhtx-=((ohJetCorCalE[i]/cosh(ohJetCorCalEta[i]))*cos(ohJetCorCalPhi[i]));
+      mhty-=((ohJetCorCalE[i]/cosh(ohJetCorCalEta[i]))*sin(ohJetCorCalPhi[i]));
       mHT = sqrt(mhty*mhty + mhtx*mhtx); // Make MHT
       nJets++;
-      dht += ( nJets < 2 ? (recoJetCorCalE[i]/cosh(recoJetCorCalEta[i])) : -1.* (recoJetCorCalE[i]/cosh(recoJetCorCalEta[i])) ); // Ripped from rob for DHT
+      dht += ( nJets < 2 ? (ohJetCorCalE[i]/cosh(ohJetCorCalEta[i])) : -1.* (ohJetCorCalE[i]/cosh(ohJetCorCalEta[i])) ); // Ripped from rob for DHT
   if ( nJets == 2 || nJets == 3 ) {
     aT = ( ht - fabs(dht) ) / ( 2. * sqrt( ( ht*ht ) - ( mHT*mHT ) ) ); // calc alphaT
   } else if ( nJets > 3 ) {
@@ -14066,36 +14065,36 @@ int OHltTree::OpenHltMhtOverHTPassed(
    double newHT = 0.;
    double mhtx = 0., mhty = 0.;
    int nJets = 0;
-   for (int i=0; i<NrecoJetCal; i++)
+   for (int i=0; i<NohJetCal; i++)
    {
-      if (recoJetCalPt[i]>HtJetThreshold)
+      if (ohJetCalPt[i]>HtJetThreshold)
       {
          nJets++;
       }
    }
-   if ( (recoJetCalE[0]/cosh(recoJetCalEta[0])) > HardJetThreshold
-         && (recoJetCalE[1]/cosh(recoJetCalEta[1])) > HardJetThreshold)
+   if ( (ohJetCalE[0]/cosh(ohJetCalEta[0])) > HardJetThreshold
+         && (ohJetCalE[1]/cosh(ohJetCalEta[1])) > HardJetThreshold)
    {
       if (nJets > NoJets)
       {
-         //loop over NrecoJetCal to calculate a new HT for jets above inputJetPt
-         for (int i=0; i<NrecoJetCal; i++)
+         //loop over NohJetCal to calculate a new HT for jets above inputJetPt
+         for (int i=0; i<NohJetCal; i++)
          {
-            if (fabs(recoJetCalEta[i]) > 3.)
+            if (fabs(ohJetCalEta[i]) > 3.)
             {
                continue;
             }
-            if ((recoJetCalE[i]/cosh(recoJetCalEta[i])) > MhtJetThreshold)
+            if ((ohJetCalE[i]/cosh(ohJetCalEta[i])) > MhtJetThreshold)
             {
-               mhtx-=((recoJetCalE[i]/cosh(recoJetCalEta[i]))
-                     *cos(recoJetCalPhi[i]));
-               mhty-=((recoJetCalE[i]/cosh(recoJetCalEta[i]))
-                     *sin(recoJetCalPhi[i]));
+               mhtx-=((ohJetCalE[i]/cosh(ohJetCalEta[i]))
+                     *cos(ohJetCalPhi[i]));
+               mhty-=((ohJetCalE[i]/cosh(ohJetCalEta[i]))
+                     *sin(ohJetCalPhi[i]));
 
             }
-            if ( (recoJetCalE[i]/cosh(recoJetCalEta[i])) > HtJetThreshold)
+            if ( (ohJetCalE[i]/cosh(ohJetCalEta[i])) > HtJetThreshold)
             {
-               newHT+=((recoJetCalE[i]/cosh(recoJetCalEta[i])));
+               newHT+=((ohJetCalE[i]/cosh(ohJetCalEta[i])));
             }
          }
       }
@@ -14109,8 +14108,8 @@ int OHltTree::OpenHltMhtOverHTPassed(
       }
       if (nJets == 2)
       {
-         if ( (newHT - fabs( (recoJetCalE[0]/cosh(recoJetCalEta[0])
-               - (recoJetCalE[1]/cosh(recoJetCalEta[1])))))/(2*sqrt(newHT*newHT
+         if ( (newHT - fabs( (ohJetCalE[0]/cosh(ohJetCalEta[0])
+               - (ohJetCalE[1]/cosh(ohJetCalEta[1])))))/(2*sqrt(newHT*newHT
                - (mhtx*mhtx+mhty*mhty))) > sqrt(1.
                / (4.*(1.-(MHTovHT*MHTovHT)))))
          {
@@ -14132,24 +14131,24 @@ int OHltTree::OpenHltMhtOverHTPassedHTthresh(double HT, double MHTovHT)
    double newHT = 0.;
    double mhtx = 0., mhty = 0.;
    int nJets = 0;
-   for (int i=0; i<NrecoJetCal; i++)
+   for (int i=0; i<NohJetCal; i++)
    {
-      if ((recoJetCalE[i]/cosh(recoJetCalEta[i]))>30.)
+      if ((ohJetCalE[i]/cosh(ohJetCalEta[i]))>30.)
       {
          nJets++;
       }
    }
-   //loop over NrecoJetCal to calculate a new HT for jets above inputJetPt
-   for (int i=0; i<NrecoJetCal; i++)
+   //loop over NohJetCal to calculate a new HT for jets above inputJetPt
+   for (int i=0; i<NohJetCal; i++)
    {
-      if ((recoJetCalE[i]/cosh(recoJetCalEta[i])) > 20.)
+      if ((ohJetCalE[i]/cosh(ohJetCalEta[i])) > 20.)
       {
-         mhtx-=((recoJetCalE[i]/cosh(recoJetCalEta[i]))*cos(recoJetCalPhi[i]));
-         mhty-=((recoJetCalE[i]/cosh(recoJetCalEta[i]))*sin(recoJetCalPhi[i]));
+         mhtx-=((ohJetCalE[i]/cosh(ohJetCalEta[i]))*cos(ohJetCalPhi[i]));
+         mhty-=((ohJetCalE[i]/cosh(ohJetCalEta[i]))*sin(ohJetCalPhi[i]));
       }
-      if ((recoJetCalE[i]/cosh(recoJetCalEta[i])) > 30.)
+      if ((ohJetCalE[i]/cosh(ohJetCalEta[i])) > 30.)
       {
-         newHT+=((recoJetCalE[i]/cosh(recoJetCalEta[i])));
+         newHT+=((ohJetCalE[i]/cosh(ohJetCalEta[i])));
       }
    }
    // }//end calculation of new HT
@@ -14162,8 +14161,8 @@ int OHltTree::OpenHltMhtOverHTPassedHTthresh(double HT, double MHTovHT)
    }
    if (nJets == 2)
    {
-      if ( (newHT - fabs( (recoJetCalE[0]/cosh(recoJetCalEta[0])
-            - (recoJetCalE[1]/cosh(recoJetCalEta[1])))))/(2*sqrt(newHT*newHT
+      if ( (newHT - fabs( (ohJetCalE[0]/cosh(ohJetCalEta[0])
+            - (ohJetCalE[1]/cosh(ohJetCalEta[1])))))/(2*sqrt(newHT*newHT
             - (mhtx*mhtx+mhty*mhty))) > sqrt(1. / (4.*(1.-(MHTovHT*MHTovHT)))))
       {
          rc++;
@@ -14481,31 +14480,31 @@ int OHltTree::OpenHltCleanedDiJetPassed(
 
    if ( (cor == false) && (algo == "Calo"))
    {
-      NohJet = NrecoJetCal;
+      NohJet = NohJetCal;
       for (int ohJetIt = 0; ohJetIt < NohJet; ++ohJetIt)
       {
-         ohJetEta[ohJetIt] = recoJetCalEta[ohJetIt];
-         ohJetPhi[ohJetIt] = recoJetCalPhi[ohJetIt];
-         ohJetEt[ohJetIt] = recoJetCalE[ohJetIt] * sin(2.*atan(exp(-1.
-               *recoJetCalEta[ohJetIt])));
-         ohJetE[ohJetIt] = recoJetCalE[ohJetIt];
-         ohJetEMF[ohJetIt] = recoJetCalEMF[ohJetIt];
-         ohJetN90[ohJetIt] = recoJetCalN90[ohJetIt];
+         ohJetEta[ohJetIt] = ohJetCalEta[ohJetIt];
+         ohJetPhi[ohJetIt] = ohJetCalPhi[ohJetIt];
+         ohJetEt[ohJetIt] = ohJetCalE[ohJetIt] * sin(2.*atan(exp(-1.
+               *ohJetCalEta[ohJetIt])));
+         ohJetE[ohJetIt] = ohJetCalE[ohJetIt];
+         ohJetEMF[ohJetIt] = ohJetCalEMF[ohJetIt];
+         ohJetN90[ohJetIt] = ohJetCalN90[ohJetIt];
       }
    }
 
    if ( (cor == true) && (algo == "Calo"))
    {
-      NohJet = NrecoJetCorCal;
+      NohJet = NohJetCorCal;
       for (int ohJetIt = 0; ohJetIt < NohJet; ++ohJetIt)
       {
-         ohJetEta[ohJetIt] = recoJetCorCalEta[ohJetIt];
-         ohJetPhi[ohJetIt] = recoJetCorCalPhi[ohJetIt];
-         ohJetEt[ohJetIt] = recoJetCorCalE[ohJetIt] * sin(2.*atan(exp(-1.
-               *recoJetCorCalEta[ohJetIt])));
-         ohJetE[ohJetIt] = recoJetCorCalE[ohJetIt];
-         ohJetEMF[ohJetIt] = recoJetCorCalEMF[ohJetIt];
-         ohJetN90[ohJetIt] = recoJetCorCalN90[ohJetIt];
+         ohJetEta[ohJetIt] = ohJetCorCalEta[ohJetIt];
+         ohJetPhi[ohJetIt] = ohJetCorCalPhi[ohJetIt];
+         ohJetEt[ohJetIt] = ohJetCorCalE[ohJetIt] * sin(2.*atan(exp(-1.
+               *ohJetCorCalEta[ohJetIt])));
+         ohJetE[ohJetIt] = ohJetCorCalE[ohJetIt];
+         ohJetEMF[ohJetIt] = ohJetCorCalEMF[ohJetIt];
+         ohJetN90[ohJetIt] = ohJetCorCalN90[ohJetIt];
       }
    }
 
@@ -14852,22 +14851,22 @@ int OHltTree::OpenHltQuadJetCORPassedPlusTauPFIdNewIso(double pt, double etaJet,
   bool foundPFTau=false;
   float deltaR_L1=1000;
   float deltaR_L1Tau=1000;
-  for(int i=0;i<NrecoJetCorCal;i++){
+  for(int i=0;i<NohJetCorCal;i++){
 
-    if(recoJetCorCalPt[i]>pt&&fabs(recoJetCorCalEta[i])<etaJet){
+    if(ohJetCorCalPt[i]>pt&&fabs(ohJetCorCalEta[i])<etaJet){
 
       for(int k=0;k<NL1CenJet;k++){
 
-	float deltaETA=recoJetCorCalEta[i]-L1CenJetEta[k];
-	float deltaPHI=recoJetCorCalPhi[i]-L1CenJetPhi[k];
+	float deltaETA=ohJetCorCalEta[i]-L1CenJetEta[k];
+	float deltaPHI=ohJetCorCalPhi[i]-L1CenJetPhi[k];
 	if(fabs(deltaPHI)>3.141592654)deltaPHI=6.283185308-fabs(deltaPHI);
 	float deltaR_L1_J=sqrt(pow(deltaETA,2)+pow(deltaPHI,2));
 	if(deltaR_L1_J<deltaR_L1)deltaR_L1=deltaR_L1_J;
       }
       for(int s=0;s<NL1Tau;s++){
 
-	float deltaETA_Tau=recoJetCorCalEta[i]-L1TauEta[s];
-	float deltaPHI_Tau=recoJetCorCalPhi[i]-L1TauPhi[s];
+	float deltaETA_Tau=ohJetCorCalEta[i]-L1TauEta[s];
+	float deltaPHI_Tau=ohJetCorCalPhi[i]-L1TauPhi[s];
 	if(fabs(deltaPHI_Tau)>3.141592654)deltaPHI_Tau=6.283185308-fabs(deltaPHI_Tau);
 	float deltaR_L1Tau_T=sqrt(pow(deltaETA_Tau,2)+pow(deltaPHI_Tau,2));
 	if(deltaR_L1Tau_T<deltaR_L1Tau)deltaR_L1Tau=deltaR_L1Tau_T;
@@ -14880,8 +14879,8 @@ int OHltTree::OpenHltQuadJetCORPassedPlusTauPFIdNewIso(double pt, double etaJet,
 
 	      if(ohpfTauPt[j]>ptTau  && ohpfTauLeadTrackPt[j]>=5 && fabs(ohpfTauEta[j])<2.5 && ohpfTauTrkIso[j]<1.0 && ohpfTauGammaIso[j]<1.5)
 		{
-		  float deltaEta=ohpfTauEta[j]-recoJetCorCalEta[i];
-		  float deltaPhi=ohpfTauPhi[j]-recoJetCorCalPhi[i];
+		  float deltaEta=ohpfTauEta[j]-ohJetCorCalEta[i];
+		  float deltaPhi=ohpfTauPhi[j]-ohJetCorCalPhi[i];
 		  if(fabs(deltaPhi)>3.141592654)deltaPhi=6.283185308-fabs(deltaPhi);
 		  float deltaR=sqrt(pow(deltaEta,2)+pow(deltaPhi,2));
 		  if(deltaR<0.3){foundPFTau=true;}

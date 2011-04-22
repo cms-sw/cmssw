@@ -4,6 +4,8 @@
 extern const char * kSubEventMap;
 extern const char * kRecjets;
 extern const char * kRecCorjets;
+extern const char * kHLTjets;
+extern const char * kHLTCorjets;
 extern const char * kGenjets;
 extern const char * kRecmet;
 extern const char * kGenmet;
