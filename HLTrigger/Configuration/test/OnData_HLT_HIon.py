@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V17 (CMSSW_3_11_0_HLT20)
+# /dev/CMSSW_4_2_0/HIon/V18 (CMSSW_3_11_0_HLT20)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V17')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V18')
 )
 
 process.streams = cms.PSet( 
@@ -4919,6 +4919,8 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep *_hltPixelMatchElectronsL1NonIso_*_*',
       'keep *_hltRpcRecHits_*_*',
       'keep *_hltSingleMu15L3Filtered15_*_*',
+      'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep FEDRawDataCollection_source_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep recoRecoEcalCandidatesToValuefloatAssociation_hltL1IsoHLTClusterShape_*_*',
       'keep recoRecoEcalCandidatesToValuefloatAssociation_hltL1IsolatedPhotonEcalIsol_*_*',

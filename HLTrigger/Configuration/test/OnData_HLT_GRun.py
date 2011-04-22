@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V17 (CMSSW_3_11_0_HLT20)
+# /dev/CMSSW_4_2_0/GRun/V18 (CMSSW_3_11_0_HLT20)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V17')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V18')
 )
 
 process.streams = cms.PSet( 
@@ -2456,6 +2456,9 @@ process.PrescaleService = cms.Service( "PrescaleService",
       '1e32',
       'Cosmics' ),
     prescaleTable = cms.VPSet( 
+      cms.PSet(  pathName = cms.string( "HLT_Activity_Ecal_SC7_v2" ),
+        prescales = cms.vuint32( 100, 80, 60, 35, 21, 14, 7, 1 )
+      ),
       cms.PSet(  pathName = cms.string( "HLT_L1SingleJet16_v1" ),
         prescales = cms.vuint32( 17, 17, 17, 17, 17, 17, 17, 1 )
       ),
@@ -2748,7 +2751,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 15, 15, 15, 15, 15, 15, 15, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_L1_Interbunch_BSC_v1" ),
-        prescales = cms.vuint32( 20, 20, 20, 20, 20, 20, 20, 1 )
+        prescales = cms.vuint32( 100, 100, 100, 100, 100, 100, 100, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_IsoTrackHE_v3" ),
         prescales = cms.vuint32( 12, 8, 6, 4, 2, 2, 1, 1 )
@@ -21616,6 +21619,8 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep *_hltPixelMatchElectronsL1NonIso_*_*',
       'keep *_hltRpcRecHits_*_*',
       'keep *_hltSingleMu15L3Filtered15_*_*',
+      'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep FEDRawDataCollection_source_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep recoRecoEcalCandidatesToValuefloatAssociation_hltL1IsoHLTClusterShape_*_*',
       'keep recoRecoEcalCandidatesToValuefloatAssociation_hltL1IsolatedPhotonEcalIsol_*_*',
