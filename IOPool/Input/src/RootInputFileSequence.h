@@ -53,7 +53,7 @@ namespace edm {
     void endJob();
     InputSource::ItemType getNextItemType();
     bool skipEvents(int offset, PrincipalCache& cache);
-    bool goToEvent(EventID const& eventID, PrincipalCache& cache);
+    bool goToEvent(EventID const& eventID);
     bool skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event);
     void rewind_();
     void reset(PrincipalCache& cache);

@@ -6,20 +6,15 @@
 
 #include <dlfcn.h>
 
-struct Sym
-{
+struct Sym {
   typedef void* address_type;
 
-  Sym(Dl_info const& info, void* addr) :
+  Sym(Dl_info const& /*info*/, void* addr) :
     name_(),
     library_(),
     id_(),
-    addr_(reinterpret_cast<address_type>(addr))
-  {
-    
+    addr_(reinterpret_cast<address_type>(addr)) {
   }
-
-
 
   Sym() :
     name_(),
@@ -34,7 +29,7 @@ struct Sym
     id_(id),
     addr_()
   { }
-  
+
   std::string  name_;
   std::string  library_;
   int          id_;
@@ -42,22 +37,21 @@ struct Sym
 
   static int next_id_;
 
-  bool 
+  bool
   operator<(address_type b) const
   { return addr_ < b; }
 
-  bool 
+  bool
   operator<(const Sym& b) const
   { return addr_ < b.addr_; }
 };
 
 std::ostream&
-operator<< (std::ostream& os, Sym const& s);
+operator<<(std::ostream& os, Sym const& s);
 
-inline 
-bool 
+inline
+bool
 operator<(Sym::address_type a, const Sym& b)
 { return a < b.addr_; }
 
-
-#endif 
+#endif

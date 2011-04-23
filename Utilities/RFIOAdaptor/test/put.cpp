@@ -8,7 +8,7 @@
 #include <iostream>
 #include <iomanip>
 
-int main (int, char **argv)
+int main (int, char **)
 {
   try
   {

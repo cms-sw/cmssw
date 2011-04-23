@@ -1,8 +1,3 @@
-#include "TFile.h"
-#include "TTree.h"
-#include "TError.h"
-#include "Cintex/Cintex.h"
-
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/History.h"
@@ -25,17 +20,21 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "Cintex/Cintex.h"
+#include "TError.h"
+#include "TFile.h"
+#include "TTree.h"
+
+#include "boost/program_options.hpp"
+#include "boost/scoped_ptr.hpp"
+
 #include <assert.h>
 #include <iostream>
 #include <memory>
-#include <sstream>
 #include <map>
-#include <vector>
 #include <set>
-
-#include "boost/scoped_ptr.hpp"
-
-#include "boost/program_options.hpp"
+#include <sstream>
+#include <vector>
 
 typedef std::map<std::string, std::vector<edm::BranchDescription> > IdToBranches;
 typedef std::map<std::pair<std::string, std::string>, IdToBranches> ModuleToIdBranches;
@@ -381,7 +380,7 @@ public:
                    std::string const& findMatch);
 
   // Write the provenenace information to the given stream.
-  void dump(std::ostream& os);
+  void dump();
   void printErrors(std::ostream& os);
   int exitCode() const;
 
@@ -425,7 +424,7 @@ ProvenanceDumper::ProvenanceDumper(std::string const& filename,
 }
 
 void
-ProvenanceDumper::dump(std::ostream& os) {
+ProvenanceDumper::dump() {
   work_();
 }
 
@@ -902,7 +901,7 @@ int main(int argc, char* argv[]) {
   ProvenanceDumper dumper(fileName, showDependencies, excludeESModules, showAllModules, findMatch);
   int exitCode(0);
   try {
-    dumper.dump(std::cout);
+    dumper.dump();
   }
   catch (cms::Exception const& x) {
     std::cerr << "cms::Exception caught\n";

@@ -21,7 +21,7 @@ PSetTestClient_A::PSetTestClient_A( edm::ParameterSet const & p)
 }
 
 void
-  PSetTestClient_A::analyze( edm::Event      const & e
+  PSetTestClient_A::analyze( edm::Event      const & /*unused*/
                             , edm::EventSetup const & /*unused*/
                               )
 {

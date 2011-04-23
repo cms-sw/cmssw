@@ -2,22 +2,22 @@
 // Test code for the ParameterSetDescription and ParameterDescription
 // classes.
 
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
-#include "FWCore/ParameterSet/interface/ParameterDescriptionBase.h"
-#include "FWCore/ParameterSet/interface/IfExistsDescription.h"
-#include "FWCore/ParameterSet/interface/AllowedLabelsDescription.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "FWCore/ParameterSet/interface/AllowedLabelsDescription.h"
+#include "FWCore/ParameterSet/interface/IfExistsDescription.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterDescriptionBase.h"
+#include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
-#include <vector>
-#include <string>
 #include <cassert>
 #include <iostream>
+#include <string>
+#include <vector>
 
 namespace testParameterSetDescription {
 
@@ -29,10 +29,9 @@ namespace testParameterSetDescription {
     assert(node.exists(pset) == exists);
     assert(node.partiallyExists(pset) == exists);
     assert(node.howManyXORSubNodesExist(pset) == (exists ? 1 : 0));
-    if (validates) {
+    if(validates) {
       psetDesc.validate(pset);
-    }
-    else {
+    } else {
       try {
         psetDesc.validate(pset);
         assert(0);
@@ -1229,7 +1228,7 @@ namespace testParameterSetDescription {
 
 }
 
-int main(int argc, char* argv[]) {
+int main(int, char**) {
 
   std::cout << "Running TestFWCoreParameterSetDescription from parameterSetDescription_t.cc" << std::endl;
 
@@ -1512,20 +1511,20 @@ int main(int argc, char* argv[]) {
   testDescriptions.push_back(psetDesc);
   testDescriptions.push_back(psetDesc);
 
-  for (int i = 0; i < 3; ++i) {
+  for(int i = 0; i < 3; ++i) {
 
     edm::ParameterSetDescription nestLevel2;
 
     // for the first test do not put a parameter in the description
     // so there will be an extra parameter in the ParameterSet and
     // validation should fail.
-    if (i > 0) par = nestLevel2.add<int>("intLevel2a", 1);
+    if(i > 0) par = nestLevel2.add<int>("intLevel2a", 1);
 
     // for the next test validation should pass
 
     // For the last test add an extra required parameter in the
     // description that is not in the ParameterSet.
-    if (i == 2) par = nestLevel2.add<int>("intLevel2extra", 11);
+    if(i == 2) par = nestLevel2.add<int>("intLevel2extra", 11);
 
     par = nestLevel2.addUntracked<int>("intLevel2b", 1);
     par = nestLevel2.addOptional<int>("intLevel2c", 1);

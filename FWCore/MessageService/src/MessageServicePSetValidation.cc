@@ -8,7 +8,6 @@
 //
 // Original Author:  M. Fischler
 //         Created:  Wed May 20 2009
-// $Id: MessageServicePSetValidation.cc,v 1.5 2011/01/21 16:18:29 wmtan Exp $
 //
 // Change log
 //

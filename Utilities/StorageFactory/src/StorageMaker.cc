@@ -10,12 +10,12 @@ StorageMaker::~StorageMaker (void)
 {}
 
 void
-StorageMaker::stagein (const std::string &proto,
-                       const std::string &path)
+StorageMaker::stagein (const std::string &/*proto*/,
+                       const std::string &/*path*/)
 {}
 
 void
-StorageMaker::setTimeout (unsigned int timeout)
+StorageMaker::setTimeout (unsigned int /*timeout*/)
 {}
 
 bool

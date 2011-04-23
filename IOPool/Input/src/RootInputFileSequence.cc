@@ -432,7 +432,7 @@ namespace edm {
   }
 
   bool
-  RootInputFileSequence::goToEvent(EventID const& eventID, PrincipalCache& cache) {
+  RootInputFileSequence::goToEvent(EventID const& eventID) {
     usingGoToEvent_ = true;
     if (rootFile_) {
       if (rootFile_->goToEvent(eventID)) {

@@ -9,7 +9,7 @@ namespace edm {
       pset_(pset), services_(pset_->popVParameterSet(std::string("services")).release()) {
   }
 
-  ProcessDesc::ProcessDesc(std::string const& config) :
+  ProcessDesc::ProcessDesc(std::string const&) :
       pset_(new ParameterSet),
       services_(new std::vector<ParameterSet>()) {
     throw Exception(errors::Configuration,"Old config strings no longer accepted");

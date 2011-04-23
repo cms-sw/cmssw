@@ -1,6 +1,6 @@
 #include "Utilities/StorageFactory/test/Test.h"
 
-int main (int, char **argv)
+int main (int, char **/*argv*/)
 {
   initTest();
 

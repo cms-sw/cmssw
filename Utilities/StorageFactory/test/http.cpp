@@ -2,7 +2,7 @@
 #include "Utilities/StorageFactory/interface/Storage.h"
 #include <cassert>
 
-int main (int, char **argv)
+int main (int, char **/*argv*/)
 {
   initTest();
 

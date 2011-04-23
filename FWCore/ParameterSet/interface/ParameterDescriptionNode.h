@@ -6,7 +6,7 @@
 // in a ParameterSet.  It is also a base class for
 // other more complex logical structures which describe
 // which combinations of parameters are allowed to be
-// in a ParameterSet. 
+// in a ParameterSet.
 
 #include "FWCore/Utilities/interface/value_ptr.h"
 
@@ -75,7 +75,7 @@ namespace edm {
     virtual ParameterDescriptionNode* clone() const = 0;
 
     std::string const& comment() const { return comment_; }
-    void setComment(std::string const & value);
+    void setComment(std::string const& value);
     void setComment(char const* value);
 
     // The validate function should do one of three things, find that the
@@ -83,15 +83,15 @@ namespace edm {
     // or throw.  The only exception to this rule occurs when the argument
     // named "optional" is true, which should only be possible for the
     // top level nodes of a ParameterSetDescription.  When a parameter is
-    // found or inserted its label is added into the list of validatedLabels. 
-    void validate(ParameterSet & pset,
-                  std::set<std::string> & validatedLabels,
+    // found or inserted its label is added into the list of validatedLabels.
+    void validate(ParameterSet& pset,
+                  std::set<std::string>& validatedLabels,
                   bool optional) const {
       validate_(pset, validatedLabels, optional);
     }
 
     // As long as it has default values, this will attempt to write
-    // parameters associated with a node into a cfi file that is 
+    // parameters associated with a node into a cfi file that is
     // being automatically generated.  It is quite possible for
     // to produce a cfi that will fail validation.  In some cases,
     // this will imply the user is required to supply certain missing
@@ -100,26 +100,26 @@ namespace edm {
     // ParameterSetDescription where the algorithm fails to write
     // a valid cfi, in some cases the description can be so pathological
     // that it is impossible to write a cfi that will pass validation.
-    void writeCfi(std::ostream & os,
-                  bool & startWithComma,
+    void writeCfi(std::ostream& os,
+                  bool& startWithComma,
                   int indentation,
-                  bool & wroteSomething) const {
+                  bool& wroteSomething) const {
       writeCfi_(os, startWithComma, indentation, wroteSomething);
     }
 
     // Print out the description in human readable format
-    void print(std::ostream & os,
+    void print(std::ostream& os,
                bool optional,
                bool writeToCfi,
-               DocFormatHelper & dfh);
+               DocFormatHelper& dfh);
 
     bool hasNestedContent() {
       return hasNestedContent_();
     }
 
-    void printNestedContent(std::ostream & os,
+    void printNestedContent(std::ostream& os,
                             bool optional,
-                            DocFormatHelper & dfh);
+                            DocFormatHelper& dfh);
 
     // The next three functions are only called by the logical nodes
     // on their subnodes.  When executing these functions, the
@@ -127,7 +127,7 @@ namespace edm {
 
     // Usually checks to see if a parameter exists in the configuration, but
     // if the node is a logical node, then it returns the value of the logical
-    // expression. 
+    // expression.
     bool exists(ParameterSet const& pset) const {
       return exists_(pset);
     }
@@ -173,11 +173,11 @@ namespace edm {
         validation, then the insertion could make more than one of the
         possibilities evaluate true.  This must be checked for after the
         insertions occur. The behavior is to throw a Configuration exception
-        if this problem is encountered.  (Example: (A && B) ^ (A && C) where
+        if this problem is encountered. (Example: (A && B) ^ (A && C) where
         C already exists in the ParameterSet but A and B do not.  A and B
         get inserted by the algorithm, because it tries to make the first
         possibility true when all fail without insertion.  Then both
-        parts of the "exclusive or" pass, which is a validation failure). 
+        parts of the "exclusive or" pass, which is a validation failure).
 
         - Another potential problem is that a parameter insertion related
         to one ParameterDescription could match unrelated wildcards causing
@@ -196,7 +196,7 @@ namespace edm {
         pattern of any wildcard that requires a match.  And further this
         could not apply to wildcards on different branches of a ParameterSwitch
         or "exclusive or".)
- 
+
     These restrictions have the additional benefit that the things they prohibit
     would tend to confuse a user trying to configure a module or a module developer
     writing the code to extract the parameters from a ParameterSet.  These rules
@@ -207,41 +207,41 @@ namespace edm {
     The names and types in a nested ParameterSet will not interfere with names
     in the containing ParameterSet.
     */
-    void checkAndGetLabelsAndTypes(std::set<std::string> & usedLabels,
-                                   std::set<ParameterTypes> & parameterTypes,
-                                   std::set<ParameterTypes> & wildcardTypes) const {
+    void checkAndGetLabelsAndTypes(std::set<std::string>& usedLabels,
+                                   std::set<ParameterTypes>& parameterTypes,
+                                   std::set<ParameterTypes>& wildcardTypes) const {
       checkAndGetLabelsAndTypes_(usedLabels, parameterTypes, wildcardTypes);
     }
 
-    static void printSpaces(std::ostream & os, int n);
+    static void printSpaces(std::ostream& os, int n);
 
   protected:
 
-    virtual void checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
-                                            std::set<ParameterTypes> & parameterTypes,
-                                            std::set<ParameterTypes> & wildcardTypes) const = 0;
+    virtual void checkAndGetLabelsAndTypes_(std::set<std::string>& usedLabels,
+                                            std::set<ParameterTypes>& parameterTypes,
+                                            std::set<ParameterTypes>& wildcardTypes) const = 0;
 
-    virtual void validate_(ParameterSet & pset,
-                           std::set<std::string> & validatedLabels,
+    virtual void validate_(ParameterSet& pset,
+                           std::set<std::string>& validatedLabels,
                            bool optional) const = 0;
 
-    virtual void writeCfi_(std::ostream & os,
-                           bool & startWithComma,
+    virtual void writeCfi_(std::ostream& os,
+                           bool& startWithComma,
                            int indentation,
-                           bool & wroteSomething) const = 0;
+                           bool& wroteSomething) const = 0;
 
-    virtual void print_(std::ostream & os,
-                        bool optional,
-                        bool writeToCfi,
-                        DocFormatHelper & dfh) { }
+    virtual void print_(std::ostream&,
+                        bool /*optional*/,
+                        bool /*writeToCfi*/,
+                        DocFormatHelper&) { }
 
     virtual bool hasNestedContent_() {
       return false;
     }
 
-    virtual void printNestedContent_(std::ostream & os,
-                                     bool optional,
-                                     DocFormatHelper & dfh) { }
+    virtual void printNestedContent_(std::ostream&,
+                                     bool /*optional*/,
+                                     DocFormatHelper&) { }
 
     virtual bool exists_(ParameterSet const& pset) const = 0;
 
@@ -253,9 +253,8 @@ namespace edm {
   };
 
   template <>
-  struct value_ptr_traits<ParameterDescriptionNode>
-  {
-    static ParameterDescriptionNode * clone( ParameterDescriptionNode const * p ) { return p->clone(); }
+  struct value_ptr_traits<ParameterDescriptionNode> {
+    static ParameterDescriptionNode* clone(ParameterDescriptionNode const* p) { return p->clone(); }
   };
 
   // operator>> ---------------------------------------------

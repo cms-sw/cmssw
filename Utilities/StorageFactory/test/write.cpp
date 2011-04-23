@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <pwd.h>
 
-int main (int, char **argv)
+int main (int, char **/*argv*/)
 {
   initTest();
 

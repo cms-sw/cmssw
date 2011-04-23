@@ -112,7 +112,7 @@ namespace edm {
     std::cout << "UUID: " << fid.fid() << std::endl;
   }
 
-  static void preIndexIntoFilePrintEventLists(TFile* tfl, FileFormatVersion const& fileFormatVersion, TTree *metaDataTree) {
+  static void preIndexIntoFilePrintEventLists(TFile*, FileFormatVersion const& fileFormatVersion, TTree *metaDataTree) {
     FileIndex fileIndex;
     FileIndex *findexPtr = &fileIndex;
     if (metaDataTree->FindBranch(poolNames::fileIndexBranchName().c_str()) != 0) {

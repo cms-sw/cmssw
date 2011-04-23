@@ -150,19 +150,19 @@ LocalCacheFile::readv(IOPosBuffer *into, IOSize n)
 }
 
 IOSize
-LocalCacheFile::write(const void *from, IOSize n)
+LocalCacheFile::write(const void */*from*/, IOSize)
 { nowrite("write"); return 0; }
 
 IOSize
-LocalCacheFile::write(const void *from, IOSize n, IOOffset pos)
+LocalCacheFile::write(const void */*from*/, IOSize, IOOffset /*pos*/)
 { nowrite("write"); return 0; }
 
 IOSize
-LocalCacheFile::writev(const IOBuffer *from, IOSize n)
+LocalCacheFile::writev(const IOBuffer */*from*/, IOSize)
 { nowrite("writev"); return 0; }
 
 IOSize
-LocalCacheFile::writev(const IOPosBuffer *from, IOSize n)
+LocalCacheFile::writev(const IOPosBuffer */*from*/, IOSize)
 { nowrite("writev"); return 0; }
 
 IOOffset
@@ -170,7 +170,7 @@ LocalCacheFile::position(IOOffset offset, Relative whence)
 { return file_->position(offset, whence); }
 
 void
-LocalCacheFile::resize(IOOffset size)
+LocalCacheFile::resize(IOOffset /*size*/)
 { nowrite("resize"); }
 
 void

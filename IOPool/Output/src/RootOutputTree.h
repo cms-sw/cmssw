@@ -26,7 +26,6 @@ namespace edm {
   public:
     RootOutputTree(boost::shared_ptr<TFile> filePtr,
                    BranchType const& branchType,
-                   int bufSize,
                    int splitLevel,
                    int treeMaxVirtualSize);
 
@@ -94,7 +93,7 @@ namespace edm {
       tree_->SetAutoFlush(size);
     }
   private:
-    static void fillTTree(TTree* tree, std::vector<TBranch*> const& branches);
+    static void fillTTree(std::vector<TBranch*> const& branches);
 // We use bare pointers for pointers to some ROOT entities.
 // Root owns them and uses bare pointers internally.
 // Therefore, using smart pointers here will do no good.

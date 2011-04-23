@@ -71,7 +71,7 @@ namespace edm {
     };
 
     WrapperHolder
-    FWLiteDelayedReader::getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const {
+    FWLiteDelayedReader::getProduct_(BranchKey const& k, WrapperInterfaceBase const* /*interface*/, EDProductGetter const* /*ep*/) const {
       ProductRegistry::ProductList::const_iterator itFind= reg_->productList().find(k);
       if(itFind == reg_->productList().end()) {
         throw Exception(errors::ProductNotFound) << "could not find entry for product " << k;

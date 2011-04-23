@@ -27,7 +27,7 @@ namespace edm {
    class ActivityRegistry;
 
    namespace service {
-      inline bool isProcessWideService(void const* service) {
+      inline bool isProcessWideService(void const* /*service*/) {
         return false;
       }
    }
@@ -68,7 +68,6 @@ private:
          ServiceMakerBase const& operator=(ServiceMakerBase const&); // stop default
 
          // ---------- member data --------------------------------
-
       };
    }
 }

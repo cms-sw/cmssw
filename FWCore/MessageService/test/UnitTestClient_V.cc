@@ -10,7 +10,7 @@ namespace edmtest
 {
 
 void
-  UTC_V1::analyze( edm::Event      const & e
+  UTC_V1::analyze( edm::Event      const & /*unused*/
                             , edm::EventSetup const & /*unused*/
                               )
 {
@@ -35,7 +35,7 @@ void
 }
 
 void
-  UTC_V1::beginRun(edm::Run const& r, edm::EventSetup const&  es)
+  UTC_V1::beginRun(edm::Run const& /*unused*/, edm::EventSetup const& /*unused*/)
 {
   edm::LogInfo("cat_BR")   << "T1 beginRun info with identifier " 
   			     << identifier << " event " << ev;
@@ -45,7 +45,7 @@ void
 
 void
   UTC_V1::beginLuminosityBlock
-  		(edm::LuminosityBlock const& lb, edm::EventSetup const& es )
+  		(edm::LuminosityBlock const& /*unused*/, edm::EventSetup const& /*unused*/)
 {
   edm::LogWarning("cat_BL")   << "T1 beginLumi warning with identifier " 
   			     << identifier << " event " << ev;
@@ -54,7 +54,7 @@ void
 }
 
 void
-  UTC_V2::analyze( edm::Event      const & e
+  UTC_V2::analyze( edm::Event      const & /*unused*/
                             , edm::EventSetup const & /*unused*/
                               )
 {

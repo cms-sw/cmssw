@@ -259,7 +259,7 @@ namespace edm {
 
   bool
   PoolSource::goToEvent_(EventID const& eventID) {
-    return primaryFileSequence_->goToEvent(eventID, principalCache());
+    return primaryFileSequence_->goToEvent(eventID);
   }
 
   void

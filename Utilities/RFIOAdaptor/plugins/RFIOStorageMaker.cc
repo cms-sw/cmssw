@@ -166,7 +166,7 @@ public:
     free(resp);
   }
 
-  virtual bool check (const std::string &proto,
+  virtual bool check (const std::string &/*proto*/,
 		      const std::string &path,
 		      IOOffset *size = 0)
   {

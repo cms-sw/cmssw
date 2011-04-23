@@ -11,12 +11,13 @@
 //
 
 #include "FWCore/ParameterSet/interface/ParameterDescriptionBase.h"
+
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 
 namespace edm {
 
@@ -27,10 +28,9 @@ namespace edm {
     :label_(iLabel),
      type_(iType),
      isTracked_(isTracked),
-     hasDefault_(hasDefault)
-  {
+     hasDefault_(hasDefault) {
     if(label_.empty()) {
-      throw edm::Exception(errors::LogicError)
+      throw Exception(errors::LogicError)
         << "Empty string used as a label for a parameter.  This is\n"
            "not allowed.\n";
     }
@@ -43,10 +43,9 @@ namespace edm {
     :label_(iLabel),
      type_(iType),
      isTracked_(isTracked),
-     hasDefault_(hasDefault)
-  {
-    if (label_.empty()) {
-      throw edm::Exception(errors::LogicError)
+     hasDefault_(hasDefault) {
+    if(label_.empty()) {
+      throw Exception(errors::LogicError)
         << "Empty string used as a label for a parameter.  This is\n"
            "not allowed.\n";
     }
@@ -58,12 +57,12 @@ namespace edm {
   ParameterDescriptionBase::throwParameterWrongTrackiness() const {
     std::string tr("a tracked");
     std::string shouldBe("untracked");
-    if (isTracked()) {
+    if(isTracked()) {
       tr = "an untracked";
       shouldBe = "tracked";
     }
 
-    throw edm::Exception(errors::Configuration)
+    throw Exception(errors::Configuration)
       << "In the configuration, parameter \"" << label() << "\" is defined "
       "as " << tr << " " << parameterTypeEnumToString(type()) << ".\n"
       << "It should be " << shouldBe << ".\n";
@@ -72,9 +71,9 @@ namespace edm {
   void
   ParameterDescriptionBase::throwParameterWrongType() const {
     std::string tr("an untracked");
-    if (isTracked()) tr = "a tracked";
+    if(isTracked()) tr = "a tracked";
 
-    throw edm::Exception(errors::Configuration)
+    throw Exception(errors::Configuration)
       << "Parameter \"" << label() << "\" should be defined "
       "as " << tr << " " << parameterTypeEnumToString(type()) << ".\n"
       << "The type in the configuration is incorrect.\n";
@@ -84,9 +83,9 @@ namespace edm {
   ParameterDescriptionBase::throwMissingRequiredNoDefault() const {
 
     std::string tr("untracked");
-    if (isTracked()) tr = "tracked";
+    if(isTracked()) tr = "tracked";
 
-    throw edm::Exception(errors::Configuration)
+    throw Exception(errors::Configuration)
       << "Missing required parameter.  It should have label \""
       << label() << "\" and have type \""
       << tr << " " << parameterTypeEnumToString(type()) << "\".\n"
@@ -96,37 +95,34 @@ namespace edm {
 
   void
   ParameterDescriptionBase::
-  checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
-                             std::set<ParameterTypes> & parameterTypes,
-                             std::set<ParameterTypes> & wildcardTypes) const {
+  checkAndGetLabelsAndTypes_(std::set<std::string>& usedLabels,
+                             std::set<ParameterTypes>& parameterTypes,
+                             std::set<ParameterTypes>& /*wildcardTypes*/) const {
     usedLabels.insert(label());
     parameterTypes.insert(type());
   }
 
   void
   ParameterDescriptionBase::
-  validate_(ParameterSet & pset,
-            std::set<std::string> & validatedLabels,
+  validate_(ParameterSet& pset,
+            std::set<std::string>& validatedLabels,
             bool optional) const {
 
     bool exists = exists_(pset, isTracked());
 
-    if (exists) {
+    if(exists) {
       validatedLabels.insert(label());
-    }
-    else if (exists_(pset, !isTracked())) {
+    } else if(exists_(pset, !isTracked())) {
       throwParameterWrongTrackiness();
-    }
-    else if (pset.exists(label())) {
+    } else if(pset.exists(label())) {
       throwParameterWrongType();
     }
 
-    if (!exists && !optional) {
-      if (hasDefault()) {
+    if(!exists && !optional) {
+      if(hasDefault()) {
         insertDefault_(pset);
         validatedLabels.insert(label());
-      }
-      else {
+      } else {
         throwMissingRequiredNoDefault();
       }
     }
@@ -134,15 +130,15 @@ namespace edm {
 
   void
   ParameterDescriptionBase::
-  writeCfi_(std::ostream & os,
-           bool & startWithComma,
+  writeCfi_(std::ostream& os,
+           bool& startWithComma,
            int indentation,
-           bool & wroteSomething) const {
+           bool& wroteSomething) const {
 
-    if (!hasDefault()) return;
+    if(!hasDefault()) return;
 
     wroteSomething = true;
-    if (startWithComma) os << ",";
+    if(startWithComma) os << ",";
     startWithComma = true;
 
     os << "\n";
@@ -150,7 +146,7 @@ namespace edm {
 
     os << label()
        << " = cms.";
-    if (!isTracked()) os << "untracked.";
+    if(!isTracked()) os << "untracked.";
     os << parameterTypeEnumToString(type())
        << "(";
     writeCfi_(os, indentation);
@@ -159,35 +155,31 @@ namespace edm {
 
   void
   ParameterDescriptionBase::
-  print_(std::ostream & os,
+  print_(std::ostream& os,
          bool optional,
-	 bool writeToCfi,
-         DocFormatHelper & dfh)
-  {
-    if (dfh.pass() == 0) {
+         bool writeToCfi,
+         DocFormatHelper& dfh) {
+    if(dfh.pass() == 0) {
       dfh.setAtLeast1(label().size());
-      if (isTracked()) {
+      if(isTracked()) {
         dfh.setAtLeast2(parameterTypeEnumToString(type()).size());
-      }
-      else {
+      } else {
         dfh.setAtLeast2(parameterTypeEnumToString(type()).size() + 10U);
       }
-      if (optional) {
+      if(optional) {
         dfh.setAtLeast3(8U);
       }
-    }
-    else {
+    } else {
 
-      if (dfh.brief()) {
+      if(dfh.brief()) {
         std::ios::fmtflags oldFlags = os.flags();
 
         dfh.indent(os);
         os << std::left << std::setw(dfh.column1()) << label() << " ";
 
-        if (isTracked()) {
+        if(isTracked()) {
           os << std::setw(dfh.column2()) << parameterTypeEnumToString(type());
-        }
-        else {
+        } else {
           std::stringstream ss;
           ss << "untracked ";
           ss << parameterTypeEnumToString(type());
@@ -196,35 +188,32 @@ namespace edm {
         os << " ";
 
         os << std::setw(dfh.column3());
-        if (optional) {
+        if(optional) {
           os << "optional";
-        }
-        else {
+        } else {
           os << "";
         }
         os << " ";
         os.flags(oldFlags);
         printDefault_(os, writeToCfi, dfh);
-      }
-      // not brief
-      else {
-
+      } else {
+        // not brief
         dfh.indent(os);
         os << label() << "\n";
 
         dfh.indent2(os);
         os << "type: ";
-        if (!isTracked()) os << "untracked ";
-        
+        if(!isTracked()) os << "untracked ";
+
         os << parameterTypeEnumToString(type()) << " ";
 
-        if (optional)  os << "optional";
+        if(optional)  os << "optional";
         os << "\n";
 
         dfh.indent2(os);
         printDefault_(os, writeToCfi, dfh);
 
-        if (!comment().empty()) {
+        if(!comment().empty()) {
           DocFormatHelper::wrapAndPrintText(os,
                                             comment(),
                                             dfh.startColumn2(),
@@ -237,25 +226,22 @@ namespace edm {
 
   void
   ParameterDescriptionBase::
-  printDefault_(std::ostream & os,
+  printDefault_(std::ostream& os,
                   bool writeToCfi,
-                  DocFormatHelper & dfh) {
-    if (!dfh.brief()) os << "default: ";
-    if (writeToCfi && hasDefault()) {
-      if (hasNestedContent()) {
+                  DocFormatHelper& dfh) {
+    if(!dfh.brief()) os << "default: ";
+    if(writeToCfi && hasDefault()) {
+      if(hasNestedContent()) {
         os << "see Section " << dfh.section()
            << "." << dfh.counter();
-      }
-      else {
-        if (dfh.brief()) {
+      } else {
+        if(dfh.brief()) {
           writeDoc_(os, dfh.indentation());
-        }
-        else {
+        } else {
           writeDoc_(os, dfh.startColumn2());
         }
       }
-    }
-    else {
+    } else {
       os << "none (do not write to cfi)";
     }
     os << "\n";
@@ -263,11 +249,11 @@ namespace edm {
 
   void
   ParameterDescriptionBase::
-  printNestedContent_(std::ostream & os,
-                      bool optional,
-                      DocFormatHelper & dfh) {
+  printNestedContent_(std::ostream& os,
+                      bool /*optional*/,
+                      DocFormatHelper& dfh) {
     int indentation = dfh.indentation();
-    if (dfh.parent() != DocFormatHelper::TOP) {
+    if(dfh.parent() != DocFormatHelper::TOP) {
       indentation -= DocFormatHelper::offsetSectionContent();
     }
 
@@ -276,7 +262,7 @@ namespace edm {
        << " " << label() << " default contents: ";
     writeDoc_(os, indentation + 2);
     os << "\n";
-    if (!dfh.brief()) os << "\n";
+    if(!dfh.brief()) os << "\n";
   }
 
   bool
@@ -288,6 +274,6 @@ namespace edm {
   int
   ParameterDescriptionBase::
   howManyXORSubNodesExist_(ParameterSet const& pset) const {
-    return exists(pset) ? 1 : 0; 
+    return exists(pset) ? 1 : 0;
   }
 }

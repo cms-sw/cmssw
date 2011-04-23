@@ -25,7 +25,6 @@ namespace edm {
     RootOutputTree::RootOutputTree(
                    boost::shared_ptr<TFile> filePtr,
                    BranchType const& branchType,
-                   int bufSize,
                    int splitLevel,
                    int treeMaxVirtualSize) :
       filePtr_(filePtr),
@@ -211,7 +210,7 @@ namespace edm {
   }
 
   void
-  RootOutputTree::fillTTree(TTree* tree, std::vector<TBranch*> const& branches) {
+  RootOutputTree::fillTTree(std::vector<TBranch*> const& branches) {
     for_all(branches, boost::bind(&TBranch::Fill, _1));
   }
 
@@ -241,9 +240,9 @@ namespace edm {
   void
   RootOutputTree::fillTree() const {
     if (currentlyFastCloning_) {
-      if (!fastCloneAuxBranches_)fillTTree(tree_, auxBranches_);
-      fillTTree(tree_, producedBranches_);
-      fillTTree(tree_, unclonedReadBranches_);
+      if (!fastCloneAuxBranches_)fillTTree(auxBranches_);
+      fillTTree(producedBranches_);
+      fillTTree(unclonedReadBranches_);
     } else {
       tree_->Fill();
     }
