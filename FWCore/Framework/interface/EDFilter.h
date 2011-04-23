@@ -73,12 +73,12 @@ namespace edm {
     virtual bool endRun(Run&, EventSetup const&){return true;}
     virtual bool beginLuminosityBlock(LuminosityBlock&, EventSetup const&){return true;}
     virtual bool endLuminosityBlock(LuminosityBlock&, EventSetup const&){return true;}
-    virtual void respondToOpenInputFile(FileBlock const& fb) {}
-    virtual void respondToCloseInputFile(FileBlock const& fb) {}
-    virtual void respondToOpenOutputFiles(FileBlock const& fb) {}
-    virtual void respondToCloseOutputFiles(FileBlock const& fb) {}
+    virtual void respondToOpenInputFile(FileBlock const&) {}
+    virtual void respondToCloseInputFile(FileBlock const&) {}
+    virtual void respondToOpenOutputFiles(FileBlock const&) {}
+    virtual void respondToCloseOutputFiles(FileBlock const&) {}
     virtual void preForkReleaseResources() {}
-    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {}
+    virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
      
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;

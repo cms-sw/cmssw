@@ -34,7 +34,7 @@ namespace edm {
 
 
   void
-  EventEntryDescription::write(std::ostream& os) const {
+  EventEntryDescription::write(std::ostream&) const {
     // This is grossly inadequate, but it is not critical for the
     // first pass.
   }

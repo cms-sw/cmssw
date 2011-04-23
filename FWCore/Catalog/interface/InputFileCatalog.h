@@ -40,7 +40,7 @@ namespace edm {
     }
     
   private:
-    void init(std::vector<std::string> const& fileNames, std::string const& override, std::string const& overrideFallback, bool noThrow);
+    void init(std::string const& override, std::string const& overrideFallback, bool noThrow);
     void findFile(std::string & pfn, std::string & fallbackPfn, std::string const& lfn, bool noThrow);
     std::vector<std::string> logicalFileNames_;
     std::vector<std::string> fileNames_;

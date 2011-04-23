@@ -18,15 +18,16 @@
 //         Created:  Mon Apr 27 13:40:06 CDT 2009
 //
 
+// user include files
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
+
 // system include files
-#include <iostream>
-#include <string>
 #include "boost/mpl/begin_end.hpp"
 #include "boost/mpl/deref.hpp"
 #include "boost/mpl/next.hpp"
 
-// user include files
-#include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include <iostream>
+#include <string>
 
 // forward declarations
 
@@ -34,19 +35,19 @@ namespace edm {
    namespace eventsetup {
      struct DependentRecordTag;
    }
-   template <typename RecordT>
+   template<typename RecordT>
    void print_eventsetup_record_dependencies(std::ostream& oStream, std::string const& iIndent = std::string());
    
-   template< typename T>
-   void print_eventsetup_record_dependencies(std::ostream& oStream,
+   template<typename T>
+   void print_eventsetup_record_dependencies(std::ostream&,
                                              std::string,
                                              T const*,
-                                             T const*)  { }
+                                             T const*) { }
 
    template<typename TFirst, typename TEnd>
    void print_eventsetup_record_dependencies(std::ostream& oStream, 
                                              std::string iIndent,
-                                             TFirst const*, TEnd const* iEnd)  {
+                                             TFirst const*, TEnd const* iEnd) {
       iIndent +=" ";
       print_eventsetup_record_dependencies<typename boost::mpl::deref<TFirst>::type>(oStream,iIndent);
       typename boost::mpl::next< TFirst >::type const* next(0);
@@ -58,7 +59,7 @@ namespace edm {
       boost::mpl::true_ inherits_from_DependentRecordTag(edm::eventsetup::DependentRecordTag const*) { return boost::mpl::true_();}
    }
 
-   template <typename RecordT>
+   template<typename RecordT>
    void print_eventsetup_record_dependencies_recursive(std::ostream& oStream, std::string const& iIndent, boost::mpl::true_) {
       typedef typename  RecordT::list_type list_type;
       
@@ -67,18 +68,17 @@ namespace edm {
       print_eventsetup_record_dependencies(oStream, iIndent, begin, end);
    }
 
-   template <typename RecordT>
-   void print_eventsetup_record_dependencies_recursive(std::ostream& oStream, std::string const&, boost::mpl::false_) {
+   template<typename RecordT>
+   void print_eventsetup_record_dependencies_recursive(std::ostream&, std::string const&, boost::mpl::false_) {
       return;
    }
    
-   template <typename RecordT>
+   template<typename RecordT>
    void print_eventsetup_record_dependencies(std::ostream& oStream, std::string const& iIndent) {
       oStream<<iIndent<<edm::eventsetup::EventSetupRecordKey::makeKey<RecordT>().name()<<std::endl;
       
       print_eventsetup_record_dependencies_recursive<RecordT>(oStream, iIndent, rec_dep::inherits_from_DependentRecordTag(static_cast<RecordT const*>(0)));
    }
 }
-
 
 #endif

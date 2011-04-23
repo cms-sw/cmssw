@@ -5,8 +5,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 namespace edmtest {
-  HistProducer::HistProducer(edm::ParameterSet const& iConfig)
-  {
+  HistProducer::HistProducer(edm::ParameterSet const&) {
     produces<TH1F>();
     //produces<ThingWithHist>();
   }

@@ -3,8 +3,9 @@
 
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
-#include <string>
+
 #include <memory>
+#include <string>
 
 namespace edm {
   class ProductID;
@@ -21,7 +22,7 @@ namespace edm {
     // edm::Ref to an element of type T in a collection in the Event;
     // the purpose of this abstraction is to hide the type of the
     // collection from code that can not know about that type.
-    // 
+    //
     //------------------------------------------------------------------
     template <typename T>
     class BaseHolder {
@@ -53,7 +54,7 @@ namespace edm {
       // true. If not, write the name of the type I really contain to
       // msg, and return false.
       virtual bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
-					  std::string& msg) const = 0;
+                                          std::string& msg) const = 0;
       virtual std::auto_ptr<RefHolderBase> holder() const = 0;
 
       virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const = 0;
@@ -61,7 +62,7 @@ namespace edm {
 
       virtual EDProductGetter const* productGetter() const = 0;
       virtual bool hasProductCache() const = 0;
-      virtual void const * product() const = 0;
+      virtual void const* product() const = 0;
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
@@ -73,7 +74,7 @@ namespace edm {
     protected:
       // We want the following called only by derived classes.
       BaseHolder(BaseHolder const& other);
-      BaseHolder& operator= (BaseHolder const& rhs);
+      BaseHolder& operator=(BaseHolder const& rhs);
 
     private:
     };
@@ -83,32 +84,29 @@ namespace edm {
     //------------------------------------------------------------------
 
     template <typename T>
-    BaseHolder<T>::BaseHolder() 
-    { }
+    BaseHolder<T>::BaseHolder() {
+    }
 
     template <typename T>
-    BaseHolder<T>::BaseHolder(BaseHolder const& other)
-    {
+    BaseHolder<T>::BaseHolder(BaseHolder const& /*other*/) {
       // Nothing to do.
     }
 
     template <typename T>
     BaseHolder<T>&
-    BaseHolder<T>::operator= (BaseHolder<T> const& other)
-    {
+    BaseHolder<T>::operator=(BaseHolder<T> const& /*other*/) {
       // No data to assign.
       return *this;
     }
 
     template <typename T>
-    BaseHolder<T>::~BaseHolder()
-    {
+    BaseHolder<T>::~BaseHolder() {
       // nothing to do.
     }
 
     template <typename T>
     void
-    BaseHolder<T>::swap(BaseHolder<T>& other) {
+    BaseHolder<T>::swap(BaseHolder<T>& /*other*/) {
       // nothing to do.
     }
 

@@ -1,5 +1,5 @@
-#ifndef Framework_GenericHandle_h
-#define Framework_GenericHandle_h
+#ifndef FWCore_Framework_GenericHandle_h
+#define FWCore_Framework_GenericHandle_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -26,31 +26,31 @@
 //         Created:  Sat Jan  7 15:40:43 EST 2006
 //
 
+// user include files
+#include "FWCore/Framework/interface/Event.h"
+
+#include "Reflex/Object.h"
+
 // system include files
 #include <string>
-
-// user include files
-#include "Reflex/Object.h"
-#include "FWCore/Framework/interface/Event.h"
 
 // forward declarations
 namespace edm {
    ///This class is just a 'tag' used to allow a specialization of edm::Handle
-struct GenericObject
-{
+struct GenericObject {
 };
 
 template<>
 class Handle<GenericObject> {
 public:
-      ///Throws exception if iName is not a known C++ class type
-      Handle(std::string const& iName) : 
-        type_(Reflex::Type::ByName(iName)), prod_(), prov_(0) {
-           if(type_ == Reflex::Type()) {
-              Exception::throwThis(errors::NotFound,
-		"Handle<GenericObject> told to use uknown type '",
-		iName.c_str(),
-		"'.\n Please check spelling or that a module uses this type in the job.");
+    ///Throws exception if iName is not a known C++ class type
+    Handle(std::string const& iName) : 
+       type_(Reflex::Type::ByName(iName)), prod_(), prov_(0) {
+          if(type_ == Reflex::Type()) {
+             Exception::throwThis(errors::NotFound,
+             "Handle<GenericObject> told to use uknown type '",
+             iName.c_str(),
+             "'.\n Please check spelling or that a module uses this type in the job.");
            }
            if(type_.IsTypedef()){
               //For a 'Reflex::Typedef' the 'toType' method returns the actual type
@@ -61,7 +61,7 @@ public:
         }
    
    ///Throws exception if iType is invalid
-   Handle(Reflex::Type const& iType):
+   Handle(Reflex::Type const& iType) :
       type_(iType), prod_(), prov_(0) {
          if(iType == Reflex::Type()) {
             Exception::throwThis(errors::NotFound, "Handle<GenericObject> given an invalid Reflex::Type");
@@ -78,10 +78,10 @@ public:
    type_(h.type_),
    prod_(h.prod_),
    prov_(h.prov_),
-   whyFailed_(h.whyFailed_)
-   { }
+   whyFailed_(h.whyFailed_) {
+   }
    
-   Handle(Reflex::Object const& prod, Provenance const* prov, ProductID const& pid):
+   Handle(Reflex::Object const& prod, Provenance const* prov, ProductID const&):
    type_(prod.TypeOf()),
    prod_(prod),
    prov_(prov) { 
@@ -92,8 +92,7 @@ public:
    
       //~Handle();
       
-   void swap(Handle<GenericObject>& other)
-   {
+   void swap(Handle<GenericObject>& other) {
       // use unqualified swap for user defined classes
       using std::swap;
       swap(type_, other.type_);
@@ -103,8 +102,7 @@ public:
    }
    
    
-   Handle<GenericObject>& operator=(Handle<GenericObject> const& rhs)
-   {
+   Handle<GenericObject>& operator=(Handle<GenericObject> const& rhs) {
       Handle<GenericObject> temp(rhs);
       this->swap(temp);
       return *this;
@@ -158,9 +156,9 @@ edm::Event::getByLabel<GenericObject>(std::string const& label,
                                       std::string const& productInstanceName,
                                       Handle<GenericObject>& result) const;
 
-template <> 	 
-bool 	 
-edm::Event::getByLabel(edm::InputTag const& tag, Handle<GenericObject>& result) const; 	 
+template <>
+bool
+edm::Event::getByLabel(edm::InputTag const& tag, Handle<GenericObject>& result) const;
 
 }
 #endif

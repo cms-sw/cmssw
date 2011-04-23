@@ -9,30 +9,29 @@
 //
 
 
+// user include files
+#include "DataFormats/Provenance/interface/EventRange.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 // system include files
 #include <memory>
 
-// user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
-#include "DataFormats/Provenance/interface/EventRange.h"
 //
 // class decleration
 //
 
 class TestPSetAnalyzer : public edm::EDAnalyzer {
    public:
-      explicit TestPSetAnalyzer(const edm::ParameterSet&);
+      explicit TestPSetAnalyzer(edm::ParameterSet const&);
       ~TestPSetAnalyzer();
 
 
    private:
       virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void analyze(edm::Event const&, edm::EventSetup const&);
       virtual void endJob() ;
 
       edm::LuminosityBlockID                 testLumi_;
@@ -57,9 +56,7 @@ class TestPSetAnalyzer : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-TestPSetAnalyzer::TestPSetAnalyzer(const edm::ParameterSet& iConfig)
-
-{
+TestPSetAnalyzer::TestPSetAnalyzer(edm::ParameterSet const& iConfig) {
 
     testLumi_             = iConfig.getParameter<edm::LuminosityBlockID>("testLumi");
     testVLumi_            = iConfig.getParameter<std::vector<edm::LuminosityBlockID> >("testVLumi");
@@ -72,18 +69,18 @@ TestPSetAnalyzer::TestPSetAnalyzer(const edm::ParameterSet& iConfig)
     std::cout << "LRange PSet test "  << testLRange_ << std::endl;
     std::cout << "ERange PSet test "  << testERange_ << std::endl;
 
-    for (std::vector<edm::LuminosityBlockID>::const_iterator i = testVLumi_.begin();
-         i !=  testVLumi_.end(); ++i) {
+    for(std::vector<edm::LuminosityBlockID>::const_iterator i = testVLumi_.begin();
+        i !=  testVLumi_.end(); ++i) {
       std::cout << "VLumi PSet test " << *i << std::endl;
     }
 
-    for (std::vector<edm::LuminosityBlockRange>::const_iterator i = testVLRange_.begin();
-         i !=  testVLRange_.end(); ++i) {
+    for(std::vector<edm::LuminosityBlockRange>::const_iterator i = testVLRange_.begin();
+        i !=  testVLRange_.end(); ++i) {
       std::cout << "VLRange PSet test " << *i << std::endl;
     }
 
-    for (std::vector<edm::EventRange>::const_iterator i = testVERange_.begin();
-         i !=  testVERange_.end(); ++i) {
+    for(std::vector<edm::EventRange>::const_iterator i = testVERange_.begin();
+        i !=  testVERange_.end(); ++i) {
       std::cout << "VERange PSet test " << *i << std::endl;
     }
 
@@ -91,15 +88,10 @@ TestPSetAnalyzer::TestPSetAnalyzer(const edm::ParameterSet& iConfig)
 
 }
 
-
-TestPSetAnalyzer::~TestPSetAnalyzer()
-{
-
+TestPSetAnalyzer::~TestPSetAnalyzer() {
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
 }
-
 
 //
 // member functions
@@ -107,15 +99,12 @@ TestPSetAnalyzer::~TestPSetAnalyzer()
 
 // ------------ method called to for each event  ------------
 void
-TestPSetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+TestPSetAnalyzer::analyze(edm::Event const&, edm::EventSetup const&) {
    using namespace edm;
-
-
 
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
    Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
+   iEvent.getByLabel("example", pIn);
 #endif
 
 #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
@@ -124,11 +113,9 @@ TestPSetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 #endif
 }
 
-
 // ------------ method called once each job just before starting event loop  ------------
 void
-TestPSetAnalyzer::beginJob()
-{
+TestPSetAnalyzer::beginJob() {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

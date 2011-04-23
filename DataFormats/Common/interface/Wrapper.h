@@ -141,19 +141,19 @@ namespace edm {
 
   template <typename T>
   struct DoNotSetPtr {
-    void operator()(T const&,
-                    std::type_info const&,
-                    unsigned long,
-                    void const*& oPtr) const {
+    void operator()(T const& /*obj*/,
+                    std::type_info const& /*iToType*/,
+                    unsigned long /*iIndex*/,
+                    void const*& /*oPtr*/) const {
       Exception::throwThis(errors::ProductDoesNotSupportPtr,
         "The product type ",
         typeid(T).name(),
         "\ndoes not support edm::Ptr\n");
     }
-    void operator()(T const& obj,
-                    std::type_info const& iToType,
-                    std::vector<unsigned long> const& iIndex,
-                    std::vector<void const*>& oPtr) const {
+    void operator()(T const& /*obj*/,
+                    std::type_info const& /*iToType*/,
+                    std::vector<unsigned long> const& /*iIndexes*/,
+                    std::vector<void const*>& /*oPtrs*/) const {
       Exception::throwThis(errors::ProductDoesNotSupportPtr,
         "The product type ",
         typeid(T).name(),
@@ -169,7 +169,7 @@ namespace edm {
     typename boost::mpl::if_c<has_setPtr<T>::value,
     DoSetPtr<T>,
     DoNotSetPtr<T> >::type maybe_filler;
-    maybe_filler(this->obj,iToType,iIndex,oPtr);
+    maybe_filler(this->obj, iToType, iIndex, oPtr);
   }
 
   template <typename T>
@@ -179,7 +179,7 @@ namespace edm {
     typename boost::mpl::if_c<has_setPtr<T>::value,
     DoSetPtr<T>,
     DoNotSetPtr<T> >::type maybe_filler;
-    maybe_filler(this->obj,iToType,iIndices,oPtr);
+    maybe_filler(this->obj, iToType, iIndices, oPtr);
   }
 
   // This is an attempt to optimize for speed, by avoiding the copying
@@ -200,12 +200,12 @@ namespace edm {
 #ifndef __REFLEX__
   template <typename T>
   struct IsMergeable {
-    bool operator()(T const& a) const { return true; }
+    bool operator()(T const&) const { return true; }
   };
 
   template <typename T>
   struct IsNotMergeable {
-    bool operator()(T const& a) const { return false; }
+    bool operator()(T const&) const { return false; }
   };
 
   template <typename T>
@@ -215,17 +215,17 @@ namespace edm {
 
   template <typename T>
   struct DoNotMergeProduct {
-    bool operator()(T& a, T const& b) { return true; }
+    bool operator()(T&, T const&) { return true; }
   };
 
   template <typename T>
   struct DoHasIsProductEqual {
-    bool operator()(T const& a) const { return true; }
+    bool operator()(T const&) const { return true; }
   };
 
   template <typename T>
   struct DoNotHasIsProductEqual {
-    bool operator()(T const& a) const { return false; }
+    bool operator()(T const&) const { return false; }
   };
 
   template <typename T>
@@ -235,7 +235,7 @@ namespace edm {
 
   template <typename T>
   struct DoNotIsProductEqual {
-    bool operator()(T const& a, T const& b) const { return true; }
+    bool operator()(T const&, T const&) const { return true; }
   };
 #endif
 
@@ -375,7 +375,7 @@ namespace edm {
     template<typename T>
     struct ViewFiller<RefToBaseVector<T> > {
       static void fill(RefToBaseVector<T> const& obj,
-                       ProductID const& id,
+                       ProductID const&,
                        std::vector<void const*>& pointers,
                        helper_vector_ptr & helpers) {
         std::auto_ptr<helper_vector> h = obj.vectorHolder();
@@ -391,7 +391,7 @@ namespace edm {
     template<typename T>
     struct ViewFiller<PtrVector<T> > {
       static void fill(PtrVector<T> const& obj,
-                       ProductID const& id,
+                       ProductID const&,
                        std::vector<void const*>& pointers,
                        helper_vector_ptr & helpers) {
         std::auto_ptr<helper_vector> h(new reftobase::RefVectorHolder<PtrVector<T> >(obj));

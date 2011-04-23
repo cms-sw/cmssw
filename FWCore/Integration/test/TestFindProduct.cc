@@ -12,26 +12,24 @@
 // If the sum does not match there is an error message and
 // an abort.
 
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/TestObjects/interface/ToyProducts.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/Event.h"
 
 #include <iostream>
 #include <vector>
 
-namespace edmtest 
-{
-  class TestFindProduct : public edm::EDAnalyzer
-  {
+namespace edmtest {
+  class TestFindProduct : public edm::EDAnalyzer {
   public:
 
     explicit TestFindProduct(edm::ParameterSet const& pset);
     virtual ~TestFindProduct();
-    
+
     virtual void analyze(edm::Event const& e, edm::EventSetup const& es);
     virtual void endJob();
 
@@ -49,19 +47,17 @@ namespace edmtest
   TestFindProduct::TestFindProduct(edm::ParameterSet const& pset) :
     inputTags_(pset.getUntrackedParameter<std::vector<edm::InputTag> >("inputTags")),
     expectedSum_(pset.getUntrackedParameter<int>("expectedSum", 0)),
-    sum_(0)
-  {
+    sum_(0) {
   }
 
   TestFindProduct::~TestFindProduct() {}
 
   void
-  TestFindProduct::analyze(edm::Event const& e, edm::EventSetup const& es)
-  {
+  TestFindProduct::analyze(edm::Event const& e, edm::EventSetup const&) {
     edm::Handle<IntProduct> h;
 
-    for (std::vector<edm::InputTag>::const_iterator iter = inputTags_.begin(),
-	   iEnd = inputTags_.end();
+    for(std::vector<edm::InputTag>::const_iterator iter = inputTags_.begin(),
+         iEnd = inputTags_.end();
          iter != iEnd;
          ++iter) {
       e.getByLabel(*iter, h);
@@ -70,10 +66,9 @@ namespace edmtest
   }
 
   void
-  TestFindProduct::endJob()
-  {
+  TestFindProduct::endJob() {
     std::cout << "TestFindProduct sum = " << sum_ << std::endl;
-    if (expectedSum_ != 0 && sum_ != expectedSum_) {
+    if(expectedSum_ != 0 && sum_ != expectedSum_) {
       std::cerr << "TestFindProduct: Sum of test object values does not equal expected value" << std::endl;
       abort();
     }

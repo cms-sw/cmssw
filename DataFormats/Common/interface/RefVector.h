@@ -2,36 +2,35 @@
 #define DataFormats_Common_RefVector_h
 
 /*----------------------------------------------------------------------
-  
-RefVector: A template for a vector of interproduct references.
-	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.40 2011/02/24 20:20:48 wmtan Exp $
+RefVector: A template for a vector of interproduct references.
+        Each vector element is a reference to a member of the same product.
 
 ----------------------------------------------------------------------*/
 
-#include <vector>
-#include <stdexcept>
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
-#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/FillView.h"
-#include "DataFormats/Common/interface/RefVectorBase.h"
+#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefHolderBase.h"
-#include "DataFormats/Common/interface/RefVectorIterator.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/RefTraits.h"
+#include "DataFormats/Common/interface/RefVectorBase.h"
+#include "DataFormats/Common/interface/RefVectorIterator.h"
 #include "DataFormats/Common/interface/RefVectorTraits.h"
+#include "DataFormats/Common/interface/traits.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+
+#include <stdexcept>
+#include <vector>
 
 namespace edm {
 
-  template <typename T>
+  template<typename T>
   T const* getProduct(RefCore const& ref);
 
-  template <typename C, 
-	    typename T = typename refhelper::ValueTrait<C>::value, 
-	    typename F = typename refhelper::FindTrait<C, T>::value>
+  template<typename C,
+            typename T = typename refhelper::ValueTrait<C>::value,
+            typename F = typename refhelper::FindTrait<C, T>::value>
   class RefVector {
   public:
     typedef C                               collection_type;
@@ -50,15 +49,16 @@ namespace edm {
     // size_type is the type of the index into the RefVector
     typedef typename KeyVec::size_type      size_type;
     typedef RefVectorBase<key_type>         contents_type;
-    
+
     /// Default constructor needed for reading from persistent
     /// store. Not for direct use.
     RefVector() : refVector_() {}
 
     RefVector(ProductID const& id) : refVector_(id) {}
     /// Add a Ref<C, T> to the RefVector
-    void push_back(value_type const& ref) 
-    {refVector_.pushBack(ref.refCore(), ref.key());}
+    void push_back(value_type const& ref) {
+      refVector_.pushBack(ref.refCore(), ref.key());
+    }
 
     /// Retrieve an element of the RefVector
     value_type const operator[](size_type idx) const {
@@ -137,8 +137,8 @@ namespace edm {
     bool hasProductCache() const {return refVector_.refCore().productPtr() != 0;}
 
     void fillView(ProductID const& id,
-		  std::vector<void const*>& pointers,		 
-		  helper_vector& helpers) const;
+                  std::vector<void const*>& pointers,
+                  helper_vector& helpers) const;
 
     //Needed for ROOT storage
     CMS_CLASS_VERSION(10)
@@ -146,14 +146,14 @@ namespace edm {
     contents_type refVector_;
   };
 
-  template <typename C, typename T, typename F>
+  template<typename C, typename T, typename F>
   inline
   void
   RefVector<C, T, F>::swap(RefVector<C, T, F> & other) {
     refVector_.swap(other.refVector_);
   }
 
-  template <typename C, typename T, typename F>
+  template<typename C, typename T, typename F>
   inline
   RefVector<C, T, F>&
   RefVector<C, T, F>::operator=(RefVector<C, T, F> const& rhs) {
@@ -162,19 +162,18 @@ namespace edm {
     return *this;
   }
 
-  template <typename C, typename T, typename F>
+  template<typename C, typename T, typename F>
   inline
   void
   swap(RefVector<C, T, F> & a, RefVector<C, T, F> & b) {
     a.swap(b);
   }
 
-  template <typename C, typename T, typename F>
+  template<typename C, typename T, typename F>
   void
-  RefVector<C,T,F>::fillView(ProductID const& id,
-			     std::vector<void const*>& pointers,
-			     helper_vector& helpers) const
-  {
+  RefVector<C,T,F>::fillView(ProductID const&,
+                             std::vector<void const*>& pointers,
+                             helper_vector& helpers) const {
     typedef Ref<C,T,F>                     ref_type;
     typedef reftobase::RefHolder<ref_type> holder_type;
 
@@ -182,109 +181,102 @@ namespace edm {
     helpers.reserve(this->size());
 
     size_type key = 0;
-    for (const_iterator i=begin(), e=end(); i!=e; ++i, ++key) {
+    for(const_iterator i=begin(), e=end(); i!=e; ++i, ++key) {
       member_type const* address = i->isNull() ? 0 : &**i;
       pointers.push_back(address);
-      holder_type h(ref_type(i->id(), address, i->key(), product() ));
-      helpers.push_back( & h );	
+      holder_type h(ref_type(i->id(), address, i->key(), product()));
+      helpers.push_back(&h);
     }
   }
 
-
-  template <typename C, typename T, typename F>
+  template<typename C, typename T, typename F>
   inline
   void
   fillView(RefVector<C,T,F> const& obj,
-	   ProductID const& id,
-	   std::vector<void const*>& pointers,
-	   helper_vector& helpers)
-  {
+           ProductID const& id,
+           std::vector<void const*>& pointers,
+           helper_vector& helpers) {
     obj.fillView(id, pointers, helpers);
   }
 
-  template <typename C, typename T, typename F>
-  struct has_fillView<edm::RefVector<C,T,F> >
-  {
+  template<typename C, typename T, typename F>
+  struct has_fillView<RefVector<C,T,F> > {
     static bool const value = true;
   };
 
-  template <typename C, typename T, typename F>
+  template<typename C, typename T, typename F>
   inline
   bool
   operator==(RefVector<C, T, F> const& lhs, RefVector<C, T, F> const& rhs) {
     return lhs.refVector() == rhs.refVector();
   }
 
-  template <typename C, typename T, typename F>
+  template<typename C, typename T, typename F>
   inline
   bool
   operator!=(RefVector<C, T, F> const& lhs, RefVector<C, T, F> const& rhs) {
     return !(lhs == rhs);
   }
 
-  template <typename C, typename T, typename F>
+  template<typename C, typename T, typename F>
   inline
-  typename RefVector<C, T, F>::iterator 
+  typename RefVector<C, T, F>::iterator
   RefVector<C, T, F>::erase(iterator const& pos) {
     typename contents_type::keys_type::size_type index = pos - begin();
-    typename contents_type::keys_type::iterator newPos = 
+    typename contents_type::keys_type::iterator newPos =
       refVector_.eraseAtIndex(index);
     RefCore const& prod = refVector_.refCore();
     //return typename RefVector<C, T, F>::iterator(prod, newPos);
     return iterator(prod, newPos);
   }
 
-  template <typename C, typename T, typename F>
+  template<typename C, typename T, typename F>
   typename RefVector<C, T, F>::const_iterator RefVector<C, T, F>::begin() const {
     return iterator(refVector_.refCore(), refVector_.keys().begin());
   }
-  
-  template <typename C, typename T, typename F>
+
+  template<typename C, typename T, typename F>
   typename RefVector<C, T, F>::const_iterator RefVector<C, T, F>::end() const {
     return iterator(refVector_.refCore(), refVector_.keys().end());
   }
 
-  template <typename C, typename T, typename F>
+  template<typename C, typename T, typename F>
   std::ostream&
-  operator<< (std::ostream& os, RefVector<C,T,F> const& r)
-  {
-    for (typename RefVector<C,T,F>::const_iterator
-	   i = r.begin(),
-	   e = r.end();
-	 i != e;
-	 ++i)
-      {
-	os << *i << '\n';
+  operator<<(std::ostream& os, RefVector<C,T,F> const& r) {
+    for(typename RefVector<C,T,F>::const_iterator
+           i = r.begin(),
+           e = r.end();
+           i != e;
+           ++i) {
+        os << *i << '\n';
       }
     return os;
   }
-
 }
 
 #include "DataFormats/Common/interface/RefCoreGet.h"
 
 namespace edm {
 
-  template <typename C, typename T, typename F>
+  template<typename C, typename T, typename F>
   C const* RefVector<C,T,F>::product() const {
     return isNull() ? 0 : edm::template getProduct<C>(refVector_.refCore());
   }
-
 }
 
 #include "DataFormats/Common/interface/GetProduct.h"
 namespace edm {
   namespace detail {
-    
+
     template<typename C, typename T, typename F>
     struct GetProduct<RefVector<C, T, F> > {
       typedef T element_type;
       typedef typename RefVector<C, T, F>::const_iterator iter;
-      static const element_type * address( const iter & i ) {
-	return &**i;
+      static element_type const* address(iter const& i) {
+        return &**i;
       }
-      static const C * product( const RefVector<C, T, F> & coll ) {
-	return coll.product();
+      static C const* product(RefVector<C, T, F> const& coll) {
+        return coll.product();
       }
     };
   }

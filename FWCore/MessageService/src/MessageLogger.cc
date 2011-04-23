@@ -346,7 +346,7 @@ MessageLogger::establishModuleCtor(ModuleDescription const & desc,
 } // establishModuleCtor
 
 void
-MessageLogger::unEstablishModule(ModuleDescription const & desc, 
+MessageLogger::unEstablishModule(ModuleDescription const & /*unused*/, 
 			         const char*  state)
 {
       // std::cerr << "unestablishModule( " << desc.moduleName() << ") "
@@ -514,7 +514,7 @@ void MessageLogger::postFile()
 
 void
 MessageLogger::preEventProcessing( const edm::EventID& iID
-                                 , const edm::Timestamp& iTime )
+                                 , const edm::Timestamp& /*unused*/ )
 {
   std::ostringstream ost;
   curr_event_ = iID;
@@ -534,7 +534,7 @@ MessageLogger::postEventProcessing(const Event&, const EventSetup&)
 
 void
 MessageLogger::preBeginRun( const edm::RunID& iID
-                          , const edm::Timestamp& iTime )	// change log 14
+                          , const edm::Timestamp& /*unused*/)	// change log 14
 {
   std::ostringstream ost;
   ost << "Run: " << iID.run();
@@ -608,7 +608,7 @@ void MessageLogger::postProcessPath(std::string const&,HLTPathStatus const&)
 
 void
 MessageLogger::preEndRun( const edm::RunID& iID
-                        , const edm::Timestamp& iTime )
+                        , const edm::Timestamp& /*unused*/)
 {
   std::ostringstream ost;
   ost << "End Run: " << iID.run();
@@ -624,7 +624,7 @@ void MessageLogger::postEndRun(const Run&, const EventSetup&)
 
 void
 MessageLogger::preBeginLumi( const edm::LuminosityBlockID& iID
-                          , const edm::Timestamp& iTime )
+                          , const edm::Timestamp& /*unused*/)
 {
   std::ostringstream ost;
   ost << "Run: " << iID.run() << " Lumi: " << iID.luminosityBlock();
@@ -640,7 +640,7 @@ void MessageLogger::postBeginLumi(const LuminosityBlock&, const EventSetup&)
 
 void
 MessageLogger::preEndLumi( const edm::LuminosityBlockID& iID
-                        , const edm::Timestamp& iTime )
+                        , const edm::Timestamp& /*unused*/)
 {
   std::ostringstream ost;
   ost << "Run: " << iID.run() << " Lumi: " << iID.luminosityBlock();

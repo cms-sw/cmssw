@@ -180,7 +180,7 @@ namespace edm {
       virtual void mergeProduct_(WrapperHolder const& edp, boost::shared_ptr<ProductProvenance> productProvenance);
       virtual void mergeProduct_(WrapperHolder const& edp) const;
       virtual bool putOrMergeProduct_() const;
-      virtual void checkType_(WrapperHolder const& prod) const {}
+      virtual void checkType_(WrapperHolder const&) const {}
       virtual void resetStatus() {productIsUnavailable_ = false;}
       virtual bool onDemand_() const {return false;}
       virtual bool productUnavailable_() const;

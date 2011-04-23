@@ -478,7 +478,7 @@ class Suppress_LogDebug_
   // will produce absolutely no executable code.
 public:
   template< class T >
-    Suppress_LogDebug_ &operator<< (T const & t) { return *this; }	// Change log 12
+    Suppress_LogDebug_ &operator<< (T const&) { return *this; }	// Change log 12
     Suppress_LogDebug_ &operator<< (std::ostream&(*)(std::ostream&)) { return *this; }	// Change log 12
     Suppress_LogDebug_ &operator<< (std::ios_base&(*)(std::ios_base&)) { return *this; } // Change log 12
 };  // Suppress_LogDebug_

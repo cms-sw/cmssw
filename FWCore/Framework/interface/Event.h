@@ -241,7 +241,7 @@ namespace edm {
   template<typename PROD>
   struct RecordInParentless {
     typedef Event::ProductPtrVec ptrvec_t;
-    void do_it(ptrvec_t& ignored,
+    void do_it(ptrvec_t& /*ignored*/,
                ptrvec_t& used,
                WrapperHolder const& edp,
                ConstBranchDescription const* desc) const {
@@ -254,7 +254,7 @@ namespace edm {
     typedef Event::ProductPtrVec ptrvec_t;
 
     void do_it(ptrvec_t& used,
-               ptrvec_t& ignored,
+               ptrvec_t& /*ignored*/,
                WrapperHolder const& edp,
                ConstBranchDescription const* desc) const {
       used.push_back(std::make_pair(edp, desc));

@@ -11,7 +11,7 @@ namespace edm {
     branchListIndexMapper_() {}
 
   bool
-  BranchIDListHelper:: updateFromInput(BranchIDLists const& bidlists, std::string const& fileName) {
+  BranchIDListHelper:: updateFromInput(BranchIDLists const& bidlists, std::string const& /*fileName*/) {
     bool unchanged = true;
     BranchIDListRegistry& breg = *BranchIDListRegistry::instance();
     BranchIDListRegistry::collection_type& bdata = breg.data();

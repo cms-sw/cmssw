@@ -8,11 +8,6 @@ output stream.
 
 ----------------------------------------------------------------------*/
 
-#include <vector>
-
-#include "boost/array.hpp"
-#include "boost/utility.hpp"
-
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -24,7 +19,11 @@ output stream.
 #include "FWCore/Framework/interface/GroupSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
+#include "boost/array.hpp"
+#include "boost/utility.hpp"
+
 #include <string>
+#include <vector>
 
 namespace edm {
 
@@ -177,19 +176,19 @@ namespace edm {
     virtual void write(EventPrincipal const& e) = 0;
     virtual void beginJob(){}
     virtual void endJob(){}
-    virtual void beginRun(RunPrincipal const& r){}
-    virtual void endRun(RunPrincipal const& r){}
-    virtual void writeRun(RunPrincipal const& r) = 0;
-    virtual void beginLuminosityBlock(LuminosityBlockPrincipal const& lb){}
-    virtual void endLuminosityBlock(LuminosityBlockPrincipal const& lb){}
-    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const& lb) = 0;
-    virtual void openFile(FileBlock const& fb) {}
-    virtual void respondToOpenInputFile(FileBlock const& fb) {}
-    virtual void respondToCloseInputFile(FileBlock const& fb) {}
-    virtual void respondToOpenOutputFiles(FileBlock const& fb) {}
-    virtual void respondToCloseOutputFiles(FileBlock const& fb) {}
+    virtual void beginRun(RunPrincipal const&){}
+    virtual void endRun(RunPrincipal const&){}
+    virtual void writeRun(RunPrincipal const&) = 0;
+    virtual void beginLuminosityBlock(LuminosityBlockPrincipal const&){}
+    virtual void endLuminosityBlock(LuminosityBlockPrincipal const&){}
+    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const&) = 0;
+    virtual void openFile(FileBlock const&) {}
+    virtual void respondToOpenInputFile(FileBlock const&) {}
+    virtual void respondToCloseInputFile(FileBlock const&) {}
+    virtual void respondToOpenOutputFiles(FileBlock const&) {}
+    virtual void respondToCloseOutputFiles(FileBlock const&) {}
     virtual void preForkReleaseResources() {}
-    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {}
+    virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
 
     virtual bool isFileOpen() const { return true; }
 

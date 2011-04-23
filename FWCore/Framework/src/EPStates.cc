@@ -2,10 +2,10 @@
 #include "FWCore/Framework/src/EPStates.h"
 #include "FWCore/Framework/interface/IEventProcessor.h"
 
+#include <cassert>
 #include <exception>
 #include <sstream>
 #include <string>
-#include <cassert>
 
 namespace statemachine {
   namespace {
@@ -34,16 +34,16 @@ namespace statemachine {
   FileMode Machine::fileMode() const { return fileMode_; }
   EmptyRunLumiMode Machine::emptyRunLumiMode() const { return emptyRunLumiMode_; }
 
-  void Machine::startingNewLoop(File const& file) {
+  void Machine::startingNewLoop(File const&) {
     ep_->startingNewLoop();
   }
 
-  void Machine::startingNewLoop(Stop const& stop) {
-    if (ep_->alreadyHandlingException()) return;
+  void Machine::startingNewLoop(Stop const&) {
+    if(ep_->alreadyHandlingException()) return;
     ep_->startingNewLoop();
   }
 
-  void Machine::rewindAndPrepareForNextLoop(Restart const& restart) {
+  void Machine::rewindAndPrepareForNextLoop(Restart const&) {
     ep_->prepareForNextLoop();
     ep_->rewindInput();
   }
@@ -58,17 +58,17 @@ namespace statemachine {
     exitCalled_(false) { }
 
   void HandleFiles::exit() {
-    if (ep_.alreadyHandlingException()) return;
+    if(ep_.alreadyHandlingException()) return;
     exitCalled_ = true;
     closeFiles();
   }
 
   HandleFiles::~HandleFiles() {
-    if (!exitCalled_) {
+    if(!exitCalled_) {
       try {
         closeFiles();
       }
-      catch (...) {
+      catch(...) {
         std::string message("Another exception was caught while trying to clean up files after the primary fatal exception.\n");
         ep_.setExceptionMessageFiles(message);
       }
@@ -91,29 +91,26 @@ namespace statemachine {
   }
 
   bool HandleFiles::shouldWeCloseOutput() {
-    if (context<Machine>().fileMode() == NOMERGE) return true;
+    if(context<Machine>().fileMode() == NOMERGE) return true;
     return ep_.shouldWeCloseOutput();
   }
 
-  EndingLoop::EndingLoop(my_context ctx) : 
-    my_base(ctx),
-    ep_(context<Machine>().ep())
-  { 
-    if (ep_.alreadyHandlingException() || ep_.endOfLoop()) post_event(Stop());
+  EndingLoop::EndingLoop(my_context ctx) :
+      my_base(ctx),
+      ep_(context<Machine>().ep()) {
+    if(ep_.alreadyHandlingException() || ep_.endOfLoop()) post_event(Stop());
     else post_event(Restart());
   }
 
   EndingLoop::~EndingLoop() { }
 
-  sc::result EndingLoop::react(Stop const&)
-  {
+  sc::result EndingLoop::react(Stop const&) {
     return terminate();
   }
 
-  Error::Error(my_context ctx) : 
-    my_base(ctx),
-    ep_(context<Machine>().ep())
-  { 
+  Error::Error(my_context ctx) :
+      my_base(ctx),
+      ep_(context<Machine>().ep()) {
     post_event(Stop());
     ep_.doErrorStuff();
   }
@@ -124,20 +121,17 @@ namespace statemachine {
   class NewInputAndOutputFiles;
 
   FirstFile::FirstFile(my_context ctx) :
-    my_base(ctx),
-    ep_(context<Machine>().ep())
-  { 
+      my_base(ctx),
+      ep_(context<Machine>().ep()) {
     openFiles();
   }
 
   FirstFile::~FirstFile() { }
 
-  sc::result FirstFile::react(File const& file)
-  {
-    if (context<HandleFiles>().shouldWeCloseOutput()) {
+  sc::result FirstFile::react(File const&) {
+    if(context<HandleFiles>().shouldWeCloseOutput()) {
       return transit<NewInputAndOutputFiles>();
-    }
-    else {
+    } else {
       return transit<HandleNewInputFile1>();
     }
   }
@@ -150,39 +144,33 @@ namespace statemachine {
     ep_.respondToOpenOutputFiles();
   }
 
-  HandleNewInputFile1::HandleNewInputFile1(my_context ctx) : 
-    my_base(ctx)
-  { 
+  HandleNewInputFile1::HandleNewInputFile1(my_context ctx) :
+      my_base(ctx) {
     context<HandleFiles>().goToNewInputFile();
   }
 
   HandleNewInputFile1::~HandleNewInputFile1() { }
 
-  sc::result HandleNewInputFile1::react(File const& file)
-  {
-    if (context<HandleFiles>().shouldWeCloseOutput()) {
+  sc::result HandleNewInputFile1::react(File const&) {
+    if(context<HandleFiles>().shouldWeCloseOutput()) {
       return transit<NewInputAndOutputFiles>();
-    }
-    else {
+    } else {
       return transit<HandleNewInputFile1>();
     }
   }
 
-  NewInputAndOutputFiles::NewInputAndOutputFiles(my_context ctx) : 
-    my_base(ctx),
-    ep_(context<Machine>().ep())
-  { 
+  NewInputAndOutputFiles::NewInputAndOutputFiles(my_context ctx) :
+      my_base(ctx),
+      ep_(context<Machine>().ep()) {
     goToNewInputAndOutputFiles();
   }
 
   NewInputAndOutputFiles::~NewInputAndOutputFiles() { }
 
-  sc::result NewInputAndOutputFiles::react(File const& file)
-  {
-    if (context<HandleFiles>().shouldWeCloseOutput()) {
+  sc::result NewInputAndOutputFiles::react(File const&) {
+    if(context<HandleFiles>().shouldWeCloseOutput()) {
       return transit<NewInputAndOutputFiles>();
-    }
-    else {
+    } else {
       return transit<HandleNewInputFile1>();
     }
   }
@@ -201,7 +189,7 @@ namespace statemachine {
     ep_.respondToOpenOutputFiles();
   }
 
-  HandleRuns::HandleRuns(my_context ctx) : 
+  HandleRuns::HandleRuns(my_context ctx) :
     my_base(ctx),
     ep_(context<Machine>().ep()),
     exitCalled_(false),
@@ -210,17 +198,17 @@ namespace statemachine {
     runException_(false) { }
 
   void HandleRuns::exit() {
-    if (ep_.alreadyHandlingException()) return;
+    if(ep_.alreadyHandlingException()) return;
     exitCalled_ = true;
     finalizeRun();
   }
 
   HandleRuns::~HandleRuns() {
-    if (!exitCalled_) {
+    if(!exitCalled_) {
       try {
         finalizeRun();
       }
-      catch (...) {
+      catch(...) {
         std::string message("Another exception was caught while trying to clean up runs after the primary fatal exception.\n");
         ep_.setExceptionMessageRuns(message);
       }
@@ -237,7 +225,7 @@ namespace statemachine {
     currentRun_ = ep_.readAndCacheRun();
     runException_ = false;
 
-    if (context<Machine>().emptyRunLumiMode() != doNotHandleEmptyRunsAndLumis) {
+    if(context<Machine>().emptyRunLumiMode() != doNotHandleEmptyRunsAndLumis) {
       beginRun(currentRun());
     }
   }
@@ -264,23 +252,22 @@ namespace statemachine {
 
   void HandleRuns::finalizeRun() {
 
-    if (runException_) return;
+    if(runException_) return;
     runException_ = true;
 
-    if (beginRunCalled_) endRun(currentRun());
+    if(beginRunCalled_) endRun(currentRun());
     ep_.writeRun(currentRun_);
     ep_.deleteRunFromCache(currentRun_);
     currentRun_ = INVALID_RUN;
-    runException_ = false;   
+    runException_ = false;
   }
 
   void HandleRuns::beginRunIfNotDoneAlready() {
-    if (!beginRunCalled_) beginRun(currentRun());
+    if(!beginRunCalled_) beginRun(currentRun());
   }
 
   NewRun::NewRun(my_context ctx) :
-    my_base(ctx)
-  { 
+      my_base(ctx) {
     assert(context<HandleRuns>().currentRun() == INVALID_RUN);
     context<HandleRuns>().setupCurrentRun();
 
@@ -292,26 +279,23 @@ namespace statemachine {
 
   NewRun::~NewRun() { }
 
-  sc::result NewRun::react(Run const& run)
-  {
-    if (run == context<HandleRuns>().currentRun()) {
+  sc::result NewRun::react(Run const& run) {
+    if(run == context<HandleRuns>().currentRun()) {
       return transit<ContinueRun1>();
     }
     context<HandleRuns>().finalizeRun();
     return transit<NewRun>();
   }
 
-  sc::result NewRun::react(File const& file)
-  {
-    if (!context<HandleFiles>().shouldWeCloseOutput()) {
+  sc::result NewRun::react(File const&) {
+    if(!context<HandleFiles>().shouldWeCloseOutput()) {
       return transit<HandleNewInputFile2>();
     }
     return forward_event();
   }
 
-  HandleNewInputFile2::HandleNewInputFile2(my_context ctx) : 
-    my_base(ctx)
-  { 
+  HandleNewInputFile2::HandleNewInputFile2(my_context ctx) :
+      my_base(ctx) {
     context<HandleFiles>().goToNewInputFile();
     checkInvariant();
   }
@@ -325,31 +309,27 @@ namespace statemachine {
     return true;
   }
 
-  sc::result HandleNewInputFile2::react(Run const& run)
-  {
+  sc::result HandleNewInputFile2::react(Run const& run) {
     checkInvariant();
 
-    if (context<HandleRuns>().currentRun() != run) {
+    if(context<HandleRuns>().currentRun() != run) {
       return transit<NewRun, HandleRuns, Run>(&HandleRuns::finalizeRun, run);
-    }
-    else {
+    } else {
       return transit<ContinueRun1>();
     }
   }
 
-  sc::result HandleNewInputFile2::react(File const& file)
-  {
+  sc::result HandleNewInputFile2::react(File const&) {
     checkInvariant();
-    if (!context<HandleFiles>().shouldWeCloseOutput()) {
+    if(!context<HandleFiles>().shouldWeCloseOutput()) {
       return transit<HandleNewInputFile2>();
     }
     return forward_event();
   }
 
   ContinueRun1::ContinueRun1(my_context ctx) :
-    my_base(ctx),
-    ep_(context<Machine>().ep())
-  { 
+      my_base(ctx),
+      ep_(context<Machine>().ep()) {
     ep_.readAndCacheRun();
     checkInvariant();
   }
@@ -363,21 +343,18 @@ namespace statemachine {
     return true;
   }
 
-  sc::result ContinueRun1::react(Run const& run)
-  {
+  sc::result ContinueRun1::react(Run const& run) {
     checkInvariant();
-    if (context<HandleRuns>().currentRun() != run) {
+    if(context<HandleRuns>().currentRun() != run) {
       return transit<NewRun, HandleRuns, Run>(&HandleRuns::finalizeRun, run);
-    }
-    else {
+    } else {
       return transit<ContinueRun1>();
     }
   }
 
-  sc::result ContinueRun1::react(File const& file)
-  {
+  sc::result ContinueRun1::react(File const&) {
     checkInvariant();
-    if (!context<HandleFiles>().shouldWeCloseOutput()) {
+    if(!context<HandleFiles>().shouldWeCloseOutput()) {
       return transit<HandleNewInputFile2>();
     }
     return forward_event();
@@ -390,34 +367,33 @@ namespace statemachine {
   }
 
   HandleLumis::HandleLumis(my_context ctx) :
-    my_base(ctx),
-    ep_(context<Machine>().ep()),
-    exitCalled_(false),
-    currentLumiEmpty_(true),
-    currentLumi_(InvalidLumiID),
-    lumiException_(false)
-  { 
+      my_base(ctx),
+      ep_(context<Machine>().ep()),
+      exitCalled_(false),
+      currentLumiEmpty_(true),
+      currentLumi_(InvalidLumiID),
+      lumiException_(false) {
     checkInvariant();
   }
 
   void HandleLumis::exit() {
-    if (ep_.alreadyHandlingException()) return;
+    if(ep_.alreadyHandlingException()) return;
     exitCalled_ = true;
     checkInvariant();
-    if (!lumiException_ && !context<HandleRuns>().runException()) {
+    if(!lumiException_ && !context<HandleRuns>().runException()) {
       finalizeLumi();
     }
   }
 
   HandleLumis::~HandleLumis() {
-    if (!exitCalled_) {
+    if(!exitCalled_) {
       try {
         checkInvariant();
-        if (!lumiException_ && !context<HandleRuns>().runException()) {
+        if(!lumiException_ && !context<HandleRuns>().runException()) {
           finalizeLumi();
         }
       }
-      catch (...) {
+      catch(...) {
         std::string message("Another exception was caught while trying to clean up lumis after the primary fatal exception.\n");
         ep_.setExceptionMessageLumis(message);
       }
@@ -436,11 +412,11 @@ namespace statemachine {
   void HandleLumis::setupCurrentLumi() {
 
     Run const& run = context<HandleRuns>().currentRun();
-    assert (run != INVALID_RUN);
+    assert(run != INVALID_RUN);
     lumiException_ = true;
     currentLumi_ = HandleLumis::LumiID(run.processHistoryID(), run.runNumber(), ep_.readAndCacheLumi());
 
-    if (context<Machine>().emptyRunLumiMode() == handleEmptyRunsAndLumis) {
+    if(context<Machine>().emptyRunLumiMode() == handleEmptyRunsAndLumis) {
       assert(context<HandleRuns>().beginRunCalled());
       ep_.beginLumi(currentLumi().processHistoryID(), currentLumi().run(), currentLumi().lumi());
     }
@@ -454,7 +430,7 @@ namespace statemachine {
 
     lumiException_ = true;
 
-    if (!currentLumiEmpty_ ||
+    if(!currentLumiEmpty_ ||
         context<Machine>().emptyRunLumiMode() == handleEmptyRunsAndLumis) {
       ep_.endLumi(currentLumi().processHistoryID(), currentLumi().run(), currentLumi().lumi());
     }
@@ -467,9 +443,9 @@ namespace statemachine {
   }
 
   void HandleLumis::markLumiNonEmpty() {
-    if (currentLumiEmpty_) {
+    if(currentLumiEmpty_) {
 
-      if (context<Machine>().emptyRunLumiMode() != handleEmptyRunsAndLumis) {
+      if(context<Machine>().emptyRunLumiMode() != handleEmptyRunsAndLumis) {
         lumiException_ = true;
         ep_.beginLumi(currentLumi().processHistoryID(), currentLumi().run(), currentLumi().lumi());
         lumiException_ = false;
@@ -479,8 +455,7 @@ namespace statemachine {
   }
 
   FirstLumi::FirstLumi(my_context ctx) :
-    my_base(ctx)
-  { 
+      my_base(ctx) {
     context<HandleLumis>().setupCurrentLumi();
     checkInvariant();
   }
@@ -498,26 +473,23 @@ namespace statemachine {
     return true;
   }
 
-  sc::result FirstLumi::react(Lumi const& lumi)
-  {
-    if (lumi.id() == context<HandleLumis>().currentLumi().lumi()) {
+  sc::result FirstLumi::react(Lumi const& lumi) {
+    if(lumi.id() == context<HandleLumis>().currentLumi().lumi()) {
       return transit<ContinueLumi>();
     }
     return transit<AnotherLumi>();
   }
 
-  sc::result FirstLumi::react(File const& file)
-  {
+  sc::result FirstLumi::react(File const&) {
     checkInvariant();
-    if (!context<HandleFiles>().shouldWeCloseOutput()) {
+    if(!context<HandleFiles>().shouldWeCloseOutput()) {
       return transit<HandleNewInputFile3>();
     }
     return forward_event();
   }
 
   AnotherLumi::AnotherLumi(my_context ctx) :
-    my_base(ctx)
-  { 
+      my_base(ctx) {
     context<HandleLumis>().finalizeLumi();
     context<HandleLumis>().setupCurrentLumi();
     checkInvariant();
@@ -536,27 +508,24 @@ namespace statemachine {
     return true;
   }
 
-  sc::result AnotherLumi::react(Lumi const& lumi)
-  {
-    if (lumi.id() == context<HandleLumis>().currentLumi().lumi()) {
+  sc::result AnotherLumi::react(Lumi const& lumi) {
+    if(lumi.id() == context<HandleLumis>().currentLumi().lumi()) {
       return transit<ContinueLumi>();
     }
     return transit<AnotherLumi>();
   }
 
-  sc::result AnotherLumi::react(File const& file)
-  {
+  sc::result AnotherLumi::react(File const&) {
     checkInvariant();
-    if (!context<HandleFiles>().shouldWeCloseOutput()) {
+    if(!context<HandleFiles>().shouldWeCloseOutput()) {
       return transit<HandleNewInputFile3>();
     }
     return forward_event();
   }
 
   HandleEvent::HandleEvent(my_context ctx) :
-    my_base(ctx),
-    ep_(context<Machine>().ep())
-  { 
+      my_base(ctx),
+      ep_(context<Machine>().ep()) {
     readAndProcessEvent();
     checkInvariant();
   }
@@ -575,10 +544,9 @@ namespace statemachine {
     return true;
   }
 
-  sc::result HandleEvent::react(File const& file)
-  {
+  sc::result HandleEvent::react(File const&) {
     checkInvariant();
-    if (!context<HandleFiles>().shouldWeCloseOutput()) {
+    if(!context<HandleFiles>().shouldWeCloseOutput()) {
       return transit<HandleNewInputFile3>();
     }
     return forward_event();
@@ -587,7 +555,7 @@ namespace statemachine {
   void HandleEvent::readAndProcessEvent() {
     markNonEmpty();
     ep_.readAndProcessEvent();
-    if (ep_.shouldWeStop()) post_event(Stop());
+    if(ep_.shouldWeStop()) post_event(Stop());
   }
 
   void HandleEvent::markNonEmpty() {
@@ -597,8 +565,7 @@ namespace statemachine {
 
 
   HandleNewInputFile3::HandleNewInputFile3(my_context ctx) :
-    my_base(ctx)
-  { 
+      my_base(ctx) {
     context<HandleFiles>().goToNewInputFile();
     checkInvariant();
   }
@@ -615,29 +582,26 @@ namespace statemachine {
     return true;
   }
 
-  sc::result HandleNewInputFile3::react(Run const& run)
-  {
+  sc::result HandleNewInputFile3::react(Run const& run) {
     checkInvariant();
 
-    if (context<HandleRuns>().currentRun() == run) {
+    if(context<HandleRuns>().currentRun() == run) {
       return transit<ContinueRun2>();
     }
     return forward_event();
   }
 
-  sc::result HandleNewInputFile3::react(File const& file)
-  {
+  sc::result HandleNewInputFile3::react(File const&) {
     checkInvariant();
-    if (!context<HandleFiles>().shouldWeCloseOutput()) {
+    if(!context<HandleFiles>().shouldWeCloseOutput()) {
       return transit<HandleNewInputFile3>();
     }
     return forward_event();
   }
 
   ContinueRun2::ContinueRun2(my_context ctx) :
-    my_base(ctx),
-    ep_(context<Machine>().ep())
-  { 
+      my_base(ctx),
+      ep_(context<Machine>().ep()) {
     ep_.readAndCacheRun();
     checkInvariant();
   }
@@ -654,33 +618,28 @@ namespace statemachine {
     return true;
   }
 
-  sc::result ContinueRun2::react(Run const& run)
-  {
+  sc::result ContinueRun2::react(Run const& run) {
     checkInvariant();
-    if (context<HandleRuns>().currentRun() != run) {
+    if(context<HandleRuns>().currentRun() != run) {
       return forward_event();
-    }
-    else {
+    } else {
       return transit<ContinueRun2>();
     }
   }
 
-  sc::result ContinueRun2::react(Lumi const& lumi)
-  {
+  sc::result ContinueRun2::react(Lumi const& lumi) {
     checkInvariant();
 
-    if (context<HandleLumis>().currentLumi().lumi() != lumi.id()) {
+    if(context<HandleLumis>().currentLumi().lumi() != lumi.id()) {
       return transit<AnotherLumi>();
-    }
-    else {
+    } else {
       return transit<ContinueLumi>();
     }
   }
 
-  sc::result ContinueRun2::react(File const& file)
-  {
+  sc::result ContinueRun2::react(File const&) {
     checkInvariant();
-    if (!context<HandleFiles>().shouldWeCloseOutput()) {
+    if(!context<HandleFiles>().shouldWeCloseOutput()) {
       return transit<HandleNewInputFile3>();
     }
     return forward_event();
@@ -688,8 +647,7 @@ namespace statemachine {
 
   ContinueLumi::ContinueLumi(my_context ctx) :
     my_base(ctx),
-    ep_(context<Machine>().ep())
-  { 
+    ep_(context<Machine>().ep()) {
     ep_.readAndCacheLumi();
     checkInvariant();
   }
@@ -706,21 +664,18 @@ namespace statemachine {
     return true;
   }
 
-  sc::result ContinueLumi::react(Lumi const& lumi)
-  {
+  sc::result ContinueLumi::react(Lumi const& lumi) {
     checkInvariant();
-    if (context<HandleLumis>().currentLumi().lumi() != lumi.id()) {
+    if(context<HandleLumis>().currentLumi().lumi() != lumi.id()) {
       return transit<AnotherLumi>();
-    }
-    else {
+    } else {
       return transit<ContinueLumi>();
     }
   }
 
-  sc::result ContinueLumi::react(File const& file)
-  {
+  sc::result ContinueLumi::react(File const&) {
     checkInvariant();
-    if (!context<HandleFiles>().shouldWeCloseOutput()) {
+    if(!context<HandleFiles>().shouldWeCloseOutput()) {
       return transit<HandleNewInputFile3>();
     }
     return forward_event();

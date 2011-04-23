@@ -21,7 +21,7 @@ namespace edm {
     fallbackFileLocator_(),
     overrideFallbackFileLocator_() {
 
-    init(fileNames, override, "", noThrow);
+    init(override, "", noThrow);
   }
 
   InputFileCatalog::InputFileCatalog(std::vector<std::string> const& fileNames, std::string const& override, std::string const& overrideFallback, bool noThrow) :
@@ -34,12 +34,12 @@ namespace edm {
     fallbackFileLocator_(),
     overrideFallbackFileLocator_() {
 
-    init(fileNames, override, overrideFallback, noThrow);
+    init(override, overrideFallback, noThrow);
   }
 
   InputFileCatalog::~InputFileCatalog() {}
 
-  void InputFileCatalog::init(std::vector<std::string> const& fileNames, std::string const& inputOverride, std::string const& inputOverrideFallback, bool noThrow) {
+  void InputFileCatalog::init(std::string const& inputOverride, std::string const& inputOverrideFallback, bool noThrow) {
 
     fileCatalogItems_.reserve(fileNames_.size());
     typedef std::vector<std::string>::iterator iter;

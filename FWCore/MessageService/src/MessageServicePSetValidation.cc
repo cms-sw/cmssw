@@ -8,7 +8,7 @@
 //
 // Original Author:  M. Fischler
 //         Created:  Wed May 20 2009
-// $Id: MessageServicePSetValidation.cc,v 1.4 2010/07/24 14:15:31 wmtan Exp $
+// $Id: MessageServicePSetValidation.cc,v 1.5 2011/01/21 16:18:29 wmtan Exp $
 //
 // Change log
 //
@@ -202,7 +202,7 @@ suppressionLists ( ParameterSet const & pset )
 
 void 
 edm::service::MessageServicePSetValidation:: 
-vStringsCheck ( ParameterSet const & pset,std::string const & psetName ) 
+vStringsCheck ( ParameterSet const & pset,std::string const & /*psetName*/ ) 
 {
   vString vStrings = pset.getParameterNamesForType <vString> (false); 
   vString::const_iterator end = vStrings.end();

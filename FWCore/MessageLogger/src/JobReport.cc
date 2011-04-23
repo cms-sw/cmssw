@@ -37,23 +37,23 @@ namespace edm {
    */
   template <typename S, typename T>
   S& formatFile(T const& f, S& os) {
-    
-    if (f.fileHasBeenClosed) {
+
+    if(f.fileHasBeenClosed) {
       os << "\n<State  Value=\"closed\"/>";
     } else {
       os << "\n<State  Value=\"open\"/>";
     }
-    
+
     os << "\n<LFN>" << TiXmlText(f.logicalFileName) << "</LFN>";
     os << "\n<PFN>" << TiXmlText(f.physicalFileName) << "</PFN>";
     os << "\n<Catalog>" << TiXmlText(f.catalog) << "</Catalog>";
     os << "\n<ModuleLabel>" << TiXmlText(f.moduleLabel) << "</ModuleLabel>";
     os << "\n<GUID>" << f.guid << "</GUID>";
     os << "\n<Branches>";
-    for (std::vector<std::string>::const_iterator iBranch = f.branchNames.begin(),
-         iBranchEnd = f.branchNames.end();
-         iBranch != iBranchEnd;
-         ++iBranch) {
+    for(std::vector<std::string>::const_iterator iBranch = f.branchNames.begin(),
+        iBranchEnd = f.branchNames.end();
+        iBranch != iBranchEnd;
+        ++iBranch) {
       os << "\n  <Branch>" << TiXmlText(*iBranch) << "</Branch>";
     }
     os << "\n</Branches>";
@@ -106,7 +106,7 @@ namespace edm {
        << "\">\n";
 
     typedef std::set<unsigned int>::iterator iterator;
-    for (iterator il = rep.lumiSections.begin(), ilEnd = rep.lumiSections.end(); il != ilEnd; ++il) {
+    for(iterator il = rep.lumiSections.begin(), ilEnd = rep.lumiSections.end(); il != ilEnd; ++il) {
       os << "   <LumiSection ID=\"" << *il << "\"/>\n";
 
     }
@@ -141,14 +141,14 @@ namespace edm {
 //
 
     JobReport::InputFile& JobReport::JobReportImpl::getInputFileForToken(JobReport::Token t) {
-        if (t >= inputFiles_.size()) {
+        if(t >= inputFiles_.size()) {
             throw edm::Exception(edm::errors::LogicError)
               << "Access reported for input file with token "
               << t
               << " but no matching input file is found\n";
         }
 
-        if (inputFiles_[t].fileHasBeenClosed) {
+        if(inputFiles_[t].fileHasBeenClosed) {
             throw edm::Exception(edm::errors::LogicError)
               << "Access reported for input file with token "
               << t
@@ -162,13 +162,13 @@ namespace edm {
     }
 
     JobReport::OutputFile& JobReport::JobReportImpl::getOutputFileForToken(JobReport::Token t) {
-        if (t >= outputFiles_.size()) {
+        if(t >= outputFiles_.size()) {
             throw edm::Exception(edm::errors::LogicError)
               << "Access reported for output file with token "
               << t
               << " but no matching output file is found\n";
         }
-        if (outputFiles_[t].fileHasBeenClosed) {
+        if(outputFiles_[t].fileHasBeenClosed) {
             throw edm::Exception(edm::errors::LogicError)
               << "Access reported for output file with token "
               << t
@@ -188,7 +188,7 @@ namespace edm {
      */
     void JobReport::JobReportImpl::insertInputForOutputs(JobReport::Token t) {
         typedef std::vector<JobReport::OutputFile>::iterator iterator;
-        for (iterator outFile = outputFiles_.begin(), outFileEnd = outputFiles_.end(); outFile != outFileEnd; ++outFile) {
+        for(iterator outFile = outputFiles_.begin(), outFileEnd = outputFiles_.end(); outFile != outFileEnd; ++outFile) {
           outFile->contributingInputs.push_back(t);
         }
     }
@@ -200,8 +200,8 @@ namespace edm {
      */
     void JobReport::JobReportImpl::openInputFiles(std::vector<JobReport::Token>& result) {
         result.reserve(inputFiles_.size());
-        for (unsigned int i = 0; i < inputFiles_.size(); ++i) {
-          if (inputFiles_[i].fileHasBeenClosed == false) {
+        for(unsigned int i = 0; i < inputFiles_.size(); ++i) {
+          if(inputFiles_[i].fileHasBeenClosed == false) {
             result.push_back(i);
           }
         }
@@ -214,8 +214,8 @@ namespace edm {
      */
     void JobReport::JobReportImpl::openOutputFiles(std::vector<JobReport::Token>& result) {
         result.reserve(outputFiles_.size());
-        for (unsigned int i = 0; i < outputFiles_.size(); ++i) {
-          if (outputFiles_[i].fileHasBeenClosed == false) {
+        for(unsigned int i = 0; i < outputFiles_.size(); ++i) {
+          if(outputFiles_[i].fileHasBeenClosed == false) {
             result.push_back(i);
           }
         }
@@ -231,7 +231,7 @@ namespace edm {
         *ost_ << f ;
         *ost_ << "\n<Runs>";
         typedef std::map<JobReport::RunNumber, JobReport::RunReport>::const_iterator const_iterator;
-        for (const_iterator iRun = f.runReports.begin(), iRunEnd = f.runReports.end(); iRun != iRunEnd; ++iRun) {
+        for(const_iterator iRun = f.runReports.begin(), iRunEnd = f.runReports.end(); iRun != iRunEnd; ++iRun) {
           *ost_ << iRun->second;
         }
         *ost_ << "\n</Runs>\n";
@@ -256,19 +256,19 @@ namespace edm {
      *
      */
     void JobReport::JobReportImpl::writeOutputFile(JobReport::OutputFile const& f) {
-      if (ost_) {
+      if(ost_) {
         *ost_ << "\n<File>";
         *ost_ << f;
 
         *ost_ << "\n<Runs>";
         typedef std::map<JobReport::RunNumber, JobReport::RunReport>::const_iterator const_iterator;
-        for (const_iterator iRun = f.runReports.begin(), iRunEnd = f.runReports.end(); iRun != iRunEnd; ++iRun) {
+        for(const_iterator iRun = f.runReports.begin(), iRunEnd = f.runReports.end(); iRun != iRunEnd; ++iRun) {
           *ost_ << iRun->second;
         }
         *ost_ << "\n</Runs>\n";
 
         *ost_ << "\n<Inputs>";
-        for (std::vector<JobReport::Token>::const_iterator
+        for(std::vector<JobReport::Token>::const_iterator
           iInput = f.contributingInputs.begin(),
           iInputEnd = f.contributingInputs.end();
           iInput != iInputEnd; ++iInput) {
@@ -289,15 +289,15 @@ namespace edm {
      *  Called from JobReport dtor to flush any remaining open files
      */
     void JobReport::JobReportImpl::flushFiles(void) {
-      for (std::vector<JobReport::InputFile>::iterator ipos = inputFiles_.begin(), iposEnd = inputFiles_.end();
+      for(std::vector<JobReport::InputFile>::iterator ipos = inputFiles_.begin(), iposEnd = inputFiles_.end();
           ipos != iposEnd; ++ipos) {
-        if (!(ipos->fileHasBeenClosed)) {
+        if(!(ipos->fileHasBeenClosed)) {
           writeInputFile(*ipos);
         }
       }
-      for (std::vector<JobReport::OutputFile>::iterator opos = outputFiles_.begin(), oposEnd = outputFiles_.end();
+      for(std::vector<JobReport::OutputFile>::iterator opos = outputFiles_.begin(), oposEnd = outputFiles_.end();
           opos != oposEnd; ++opos) {
-        if (!(opos->fileHasBeenClosed)) {
+        if(!(opos->fileHasBeenClosed)) {
           writeOutputFile(*opos);
         }
       }
@@ -312,7 +312,7 @@ namespace edm {
   void JobReport::JobReportImpl::writeGeneratorInfo(void) {
     if(ost_) {
       *ost_ << "\n<GeneratorInfo>\n";
-      for (std::map<std::string, std::string>::iterator pos = generatorInfo_.begin(),
+      for(std::map<std::string, std::string>::iterator pos = generatorInfo_.begin(),
           posEnd = generatorInfo_.end();
           pos != posEnd;  ++pos) {
         std::ostringstream msg;
@@ -327,13 +327,13 @@ namespace edm {
   void JobReport::JobReportImpl::associateRun(unsigned int runNumber) {
     std::vector<Token> openFiles;
     openOutputFiles(openFiles);
-    for (std::vector<Token>::iterator iToken = openFiles.begin(), iTokenEnd = openFiles.end(); iToken != iTokenEnd; ++iToken) {
-      JobReport::OutputFile & theFile = outputFiles_[*iToken];
+    for(std::vector<Token>::iterator iToken = openFiles.begin(), iTokenEnd = openFiles.end(); iToken != iTokenEnd; ++iToken) {
+      JobReport::OutputFile& theFile = outputFiles_[*iToken];
 
       //
       // check run is known to file
       // if not, add a run report for that run
-      if (theFile.runReports.count(runNumber) == 0) {
+      if(theFile.runReports.count(runNumber) == 0) {
         JobReport::RunReport newReport = JobReport::RunReport();
         newReport.runNumber = runNumber;
         theFile.runReports.insert(
@@ -347,13 +347,13 @@ namespace edm {
   void JobReport::JobReportImpl::associateInputRun(unsigned int runNumber) {
     std::vector<Token> openFiles;
     openInputFiles(openFiles);
-    for (std::vector<Token>::iterator iToken = openFiles.begin(), iTokenEnd = openFiles.end(); iToken != iTokenEnd; ++iToken) {
-      JobReport::InputFile & theFile = inputFiles_[*iToken];
+    for(std::vector<Token>::iterator iToken = openFiles.begin(), iTokenEnd = openFiles.end(); iToken != iTokenEnd; ++iToken) {
+      JobReport::InputFile& theFile = inputFiles_[*iToken];
 
       //
       // check run is known to file
       // if not, add a run report for that run
-      if (theFile.runReports.count(runNumber) == 0) {
+      if(theFile.runReports.count(runNumber) == 0) {
         JobReport::RunReport newReport = JobReport::RunReport();
         newReport.runNumber = runNumber;
         theFile.runReports.insert(std::make_pair(runNumber, newReport));
@@ -365,16 +365,16 @@ namespace edm {
   void JobReport::JobReportImpl::associateLumiSection(unsigned int runNumber, unsigned int lumiSect) {
     std::vector<Token> openFiles;
     openOutputFiles(openFiles);
-    for (std::vector<Token>::iterator iToken = openFiles.begin(), iTokenEnd = openFiles.end(); iToken != iTokenEnd; ++iToken) {
+    for(std::vector<Token>::iterator iToken = openFiles.begin(), iTokenEnd = openFiles.end(); iToken != iTokenEnd; ++iToken) {
       //
       // Loop over all open output files
       //
-      JobReport::OutputFile & theFile = outputFiles_[*iToken];
+      JobReport::OutputFile& theFile = outputFiles_[*iToken];
 
       //
       // check run is known to file
       // if not, add a run report for that run
-      if (theFile.runReports.count(runNumber) == 0) {
+      if(theFile.runReports.count(runNumber) == 0) {
         JobReport::RunReport newReport = JobReport::RunReport();
         newReport.runNumber = runNumber;
         theFile.runReports.insert(std::make_pair(runNumber, newReport));
@@ -396,16 +396,16 @@ namespace edm {
   void JobReport::JobReportImpl::associateInputLumiSection(unsigned int runNumber, unsigned int lumiSect) {
     std::vector<Token> openFiles;
     openInputFiles(openFiles);
-    for (std::vector<Token>::iterator iToken = openFiles.begin(), iTokenEnd = openFiles.end(); iToken != iTokenEnd; ++iToken) {
+    for(std::vector<Token>::iterator iToken = openFiles.begin(), iTokenEnd = openFiles.end(); iToken != iTokenEnd; ++iToken) {
       //
       // Loop over all open input files
       //
-      JobReport::InputFile & theFile = inputFiles_[*iToken];
+      JobReport::InputFile& theFile = inputFiles_[*iToken];
 
       //
       // check run is known to file
       // if not, add a run report for that run
-      if (theFile.runReports.count(runNumber) == 0) {
+      if(theFile.runReports.count(runNumber) == 0) {
         JobReport::RunReport newReport = JobReport::RunReport();
         newReport.runNumber = runNumber;
         theFile.runReports.insert(std::make_pair(runNumber, newReport));
@@ -450,11 +450,11 @@ namespace edm {
         ++numberOfDigitsInIndex;
         numberOfChildren /= 10;
       }
-      if (numberOfDigitsInIndex == 0) {
+      if(numberOfDigitsInIndex == 0) {
         numberOfDigitsInIndex = 3; // Protect against zero numberOfChildren
       }
       std::string::size_type offset = jobReportFile.rfind('.');
-      if (offset == std::string::npos) {
+      if(offset == std::string::npos) {
         ofilename << jobReportFile;
         ofilename << '_' << std::setw(numberOfDigitsInIndex) << std::setfill('0') << childIndex;
       } else {
@@ -469,7 +469,7 @@ namespace edm {
     JobReport::parentBeforeFork(std::string const& jobReportFile, unsigned int numberOfChildren) {
       if(impl_->ost_) {
         *(impl_->ost_) << "<ChildProcessFiles>\n";
-        for (unsigned int i = 0; i < numberOfChildren; ++i) {
+        for(unsigned int i = 0; i < numberOfChildren; ++i) {
           std::ostringstream ofilename;
           toFileName(jobReportFile, i, numberOfChildren, ofilename);
           *(impl_->ost_) << "  <ChildProcessFile>" << ofilename.str() << "</ChildProcessFile>\n";
@@ -477,20 +477,20 @@ namespace edm {
         *(impl_->ost_) << "</ChildProcessFiles>\n";
         *(impl_->ost_) << "</FrameworkJobReport>\n";
         std::ofstream* p = dynamic_cast<std::ofstream *>(impl_->ost_);
-        if (p) {
+        if(p) {
           p->close();
         }
       }
     }
 
     void
-    JobReport::parentAfterFork(std::string const& jobReportFile) {
+    JobReport::parentAfterFork(std::string const& /*jobReportFile*/) {
     }
 
     void
     JobReport::childAfterFork(std::string const& jobReportFile, unsigned int childIndex, unsigned int numberOfChildren) {
-      std::ofstream* p = dynamic_cast<std::ofstream *>(impl_->ost_);
-      if (!p) return;
+      std::ofstream* p = dynamic_cast<std::ofstream*>(impl_->ost_);
+      if(!p) return;
       std::ostringstream ofilename;
       toFileName(jobReportFile, childIndex, numberOfChildren, ofilename);
       p->open(ofilename.str().c_str());
@@ -532,7 +532,7 @@ namespace edm {
     }
 
     void
-    JobReport::eventReadFromFile(JobReport::Token fileToken, unsigned int run, unsigned int) {
+    JobReport::eventReadFromFile(JobReport::Token fileToken, unsigned int /*run*/, unsigned int) {
       JobReport::InputFile& f = impl_->getInputFileForToken(fileToken);
       ++f.numEventsRead;
       //f.runsSeen.insert(run);
@@ -588,7 +588,7 @@ namespace edm {
     }
 
     void
-    JobReport::eventWrittenToFile(JobReport::Token fileToken, unsigned int run, unsigned int) {
+    JobReport::eventWrittenToFile(JobReport::Token fileToken, unsigned int /*run*/, unsigned int) {
       JobReport::OutputFile& f = impl_->getOutputFileForToken(fileToken);
       ++f.numEventsWritten;
       //f.runsSeen.insert(run);
@@ -688,7 +688,7 @@ namespace edm {
           << "  <FileName>" << TiXmlText(fileName) << "</FileName>\n";
 
       typedef std::map<std::string, std::string>::const_iterator const_iterator;
-      for (const_iterator pos = fileData.begin(), posEnd = fileData.end(); pos != posEnd; ++pos) {
+      for(const_iterator pos = fileData.begin(), posEnd = fileData.end(); pos != posEnd; ++pos) {
         msg <<  "  <" << pos->first
             <<  "  Value=\"" << pos->second  << "\" />"
             <<  "\n";
@@ -736,7 +736,7 @@ namespace edm {
       msg << "<MemoryService>\n";
 
       typedef std::vector<std::string>::const_iterator const_iterator;
-      for (const_iterator pos = memoryData.begin(), posEnd = memoryData.end(); pos != posEnd; ++pos) {
+      for(const_iterator pos = memoryData.begin(), posEnd = memoryData.end(); pos != posEnd; ++pos) {
         msg << *pos << "\n";
       }
       msg << "</MemoryService>\n";
@@ -750,7 +750,7 @@ namespace edm {
       std::ostream& msg = *(impl_->ost_);
       msg << "<MessageSummary>\n";
       typedef std::map<std::string, double>::const_iterator const_iterator;
-      for (const_iterator pos = messageData.begin(), posEnd = messageData.end(); pos != posEnd; ++pos) {
+      for(const_iterator pos = messageData.begin(), posEnd = messageData.end(); pos != posEnd; ++pos) {
         msg <<  "  <" << pos->first
         <<  "  Value=\"" << pos->second  << "\" />"
         <<  "\n";
@@ -838,14 +838,14 @@ namespace edm {
 
     typedef std::vector<JobReport::OutputFile>::iterator iterator;
 
-    for (iterator f = impl_->outputFiles_.begin(), fEnd = impl_->outputFiles_.end(); f != fEnd; ++f) {
+    for(iterator f = impl_->outputFiles_.begin(), fEnd = impl_->outputFiles_.end(); f != fEnd; ++f) {
 
       msg << "\n<File>";
       msg << *f;
 
       msg << "\n<LumiSections>";
       //typedef std::vector<JobReport::LumiSectionReport>::iterator Iter;
-      //for (Iter iLumi = f->lumiSections.begin(),
+      //for(Iter iLumi = f->lumiSections.begin(),
       //     iLumiEnd = f->lumiSections.end();
       //     iLumi != iLumiEnd;  ++iLumi) {
       //  msg << *iLumi;
@@ -853,9 +853,9 @@ namespace edm {
       //msg << "\n</LumiSections>\n";
       msg << "\n<Inputs>";
       typedef std::vector<JobReport::Token>::iterator iterator;
-      for (iterator iInput = f->contributingInputs.begin(),
-           iInputEnd = f->contributingInputs.end();
-           iInput != iInputEnd; ++iInput) {
+      for(iterator iInput = f->contributingInputs.begin(),
+          iInputEnd = f->contributingInputs.end();
+          iInput != iInputEnd; ++iInput) {
         JobReport::InputFile inpFile = impl_->inputFiles_[*iInput];
         msg << "\n<Input>";
         msg << "\n  <LFN>" << TiXmlText(inpFile.logicalFileName) << "</LFN>";

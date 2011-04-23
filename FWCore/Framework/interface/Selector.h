@@ -1,5 +1,5 @@
-#ifndef Framework_Selector_h
-#define Framework_Selector_h
+#ifndef FWCore_Framework_Selector_h
+#define FWCore_Framework_Selector_h
 
 /*----------------------------------------------------------------------
   
@@ -32,30 +32,27 @@ for every event.
 
 ----------------------------------------------------------------------*/
 
-#include <string>
+#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
+#include "FWCore/Framework/interface/SelectorBase.h"
+#include "FWCore/Utilities/interface/value_ptr.h"
 
 #include "boost/utility/enable_if.hpp"
 
-#include "FWCore/Framework/interface/SelectorBase.h"
-#include "FWCore/Utilities/interface/value_ptr.h"
-#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
+#include <string>
 
-namespace edm 
-{
+namespace edm {
   //------------------------------------------------------------------
   /// struct template has_match.
   /// Used to declare that a class has a match function.
   /// This is needed to work around a bug in GCC 3.2.x
   //------------------------------------------------------------------
-  template <class T>
-  struct has_match
-  {
-    static const bool value = boost::is_base_of<SelectorBase,T>::value;
+  template<typename T>
+  struct has_match {
+    static const bool value = boost::is_base_of<SelectorBase, T>::value;
   };
 
   template <>
-  struct has_match<SelectorBase>
-  {
+  struct has_match<SelectorBase> {
     static const bool value = true;
   };
 
@@ -69,25 +66,21 @@ namespace edm
   /// no ProcessNameSelector at all).
   //------------------------------------------------------------------
 
-  class ProcessNameSelector : public SelectorBase 
-  {
+  class ProcessNameSelector : public SelectorBase {
   public:
     ProcessNameSelector(const std::string& pn) :
-    pn_(pn.empty() ? std::string("*") : pn)
-      { }
+    pn_(pn.empty() ? std::string("*") : pn) {
+    }
     
-    virtual bool doMatch(ConstBranchDescription const& p) const 
-    {
+    virtual bool doMatch(ConstBranchDescription const& p) const {
       return (pn_=="*") || (p.processName() == pn_);
     }
 
-    virtual ProcessNameSelector* clone() const
-    {
+    virtual ProcessNameSelector* clone() const {
       return new ProcessNameSelector(*this);
     }
 
-    std::string const& name() const
-    {
+    std::string const& name() const {
       return pn_;
     }
 
@@ -102,20 +95,17 @@ namespace edm
   //
   //------------------------------------------------------------------
 
-  class ProductInstanceNameSelector : public SelectorBase
-  {
+  class ProductInstanceNameSelector : public SelectorBase {
   public:
     ProductInstanceNameSelector(const std::string& pin) :
-      pin_(pin)
-    { }
+      pin_(pin) {
+    }
     
-    virtual bool doMatch(ConstBranchDescription const& p) const 
-    {
+    virtual bool doMatch(ConstBranchDescription const& p) const {
       return p.productInstanceName() == pin_;
     }
 
-    virtual ProductInstanceNameSelector* clone() const
-    {
+    virtual ProductInstanceNameSelector* clone() const {
       return new ProductInstanceNameSelector(*this);
     }
   private:
@@ -129,20 +119,17 @@ namespace edm
   //
   //------------------------------------------------------------------
 
-  class ModuleLabelSelector : public SelectorBase
-  {
+  class ModuleLabelSelector : public SelectorBase {
   public:
     ModuleLabelSelector(const std::string& label) :
-      label_(label)
-    { }
+      label_(label) {
+    }
     
-    virtual bool doMatch(ConstBranchDescription const& p) const 
-    {
+    virtual bool doMatch(ConstBranchDescription const& p) const {
       return p.moduleLabel() == label_;
     }
 
-    virtual ModuleLabelSelector* clone() const
-    {
+    virtual ModuleLabelSelector* clone() const {
       return new ModuleLabelSelector(*this);
     }
   private:
@@ -156,19 +143,16 @@ namespace edm
   //
   //------------------------------------------------------------------
 
-  class MatchAllSelector : public SelectorBase
-  {
+  class MatchAllSelector : public SelectorBase {
   public:
-    MatchAllSelector()
-    { }
+    MatchAllSelector() {
+    }
     
-    virtual bool doMatch(ConstBranchDescription const& p) const 
-    {
+    virtual bool doMatch(ConstBranchDescription const&) const {
       return true;
     }
 
-    virtual MatchAllSelector* clone() const
-    {
+    virtual MatchAllSelector* clone() const {
       return new MatchAllSelector;
     }
   };
@@ -180,9 +164,8 @@ namespace edm
   //
   //----------------------------------------------------------
 
-  template <class A, class B>
-  class AndHelper
-  {
+  template<typename A, typename B>
+  class AndHelper {
   public:
     AndHelper(A const& a, B const& b) : a_(a), b_(b) { }
     bool match(ConstBranchDescription const& p) const { return a_.match(p) && b_.match(p); }  
@@ -191,18 +174,16 @@ namespace edm
     B b_;
   };
   
-  template <class A, class B>
-  struct has_match<AndHelper<A,B> >
-  {
+  template<typename A, typename B>
+  struct has_match<AndHelper<A, B> > {
     static const bool value = true;
   };
   
-  template <class A, class B>
+  template<typename A, typename B>
   typename boost::enable_if_c< has_match<A>::value && has_match<B>::value,
-			       AndHelper<A,B> >::type
-  operator&& (A const& a, B const& b)
-  {
-    return AndHelper<A,B>(a,b);
+			       AndHelper<A, B> >::type
+  operator&&(A const& a, B const& b) {
+    return AndHelper<A, B>(a, b);
   }
 
   //----------------------------------------------------------
@@ -212,9 +193,8 @@ namespace edm
   //
   //----------------------------------------------------------
 
-  template <class A, class B>
-  class OrHelper
-  {
+  template<typename A, typename B>
+  class OrHelper {
   public:
     OrHelper(A const& a, B const& b) : a_(a), b_(b) { }
     bool match(ConstBranchDescription const& p) const { return a_.match(p) || b_.match(p); }  
@@ -223,18 +203,16 @@ namespace edm
     B b_;
   };
   
-  template <class A, class B>
-  struct has_match<OrHelper<A,B> >
-  {
+  template<typename A, typename B>
+  struct has_match<OrHelper<A, B> > {
     static const bool value = true;
   };
   
-  template <class A, class B>
+  template<typename A, typename B>
   typename boost::enable_if_c< has_match<A>::value && has_match<B>::value,
-			       OrHelper<A,B> >::type
-  operator|| (A const& a, B const& b)
-  {
-    return OrHelper<A,B>(a,b);
+			       OrHelper<A, B> >::type
+  operator||(A const& a, B const& b) {
+    return OrHelper<A, B>(a, b);
   }
 
 
@@ -245,9 +223,8 @@ namespace edm
   //
   //----------------------------------------------------------
 
-  template <class A>
-  class NotHelper
-  {
+  template<typename A>
+  class NotHelper {
   public:
     explicit NotHelper(A const& a) : a_(a) { }
     bool match(ConstBranchDescription const& p) const { return ! a_.match(p); }
@@ -255,17 +232,15 @@ namespace edm
     A a_;
   };
   
-  template <class A>
+  template<typename A>
   typename boost::enable_if_c< has_match<A>::value,
 			       NotHelper<A> >::type
-  operator! (A const& a)
-  {
+  operator!(A const& a) {
     return NotHelper<A>(a);
   }
   
-  template <class A>
-  struct has_match<NotHelper<A> >
-  {
+  template<typename A>
+  struct has_match<NotHelper<A> > {
     static const bool value = true;
   };
 
@@ -276,9 +251,8 @@ namespace edm
   //
   //----------------------------------------------------------
 
-  template <class T>
-  class ComposedSelectorWrapper : public SelectorBase
-  {
+  template<typename T>
+  class ComposedSelectorWrapper : public SelectorBase {
   public:
     typedef T wrapped_type;
     explicit ComposedSelectorWrapper(T const& t) : expression_(t) { }
@@ -295,10 +269,9 @@ namespace edm
   //
   //----------------------------------------------------------
 
-  class Selector : public SelectorBase
-  {
+  class Selector : public SelectorBase {
   public:
-    template <class T> Selector(T const& expression);
+    template<typename T> Selector(T const& expression);
     void swap(Selector& other);
     virtual ~Selector();
     virtual Selector* clone() const;
@@ -309,12 +282,10 @@ namespace edm
     value_ptr<SelectorBase> sel_;
   };
 
-  template <class T>
+  template<typename T>
   Selector::Selector(T const& expression) :
-    sel_(new ComposedSelectorWrapper<T>(expression))
-  { }
-
-
+    sel_(new ComposedSelectorWrapper<T>(expression)) {
+    }
 }
 
 #endif

@@ -60,12 +60,12 @@ namespace edm {
   }
 
   void
-  ProducedGroup::mergeProduct_(WrapperHolder const& edp) const {
+  ProducedGroup::mergeProduct_(WrapperHolder const&) const {
     assert(0);
   }
 
   void
-  ProducedGroup::putProduct_(WrapperHolder const& edp) const {
+  ProducedGroup::putProduct_(WrapperHolder const&) const {
     assert(0);
   }
 
@@ -82,8 +82,8 @@ namespace edm {
 
   void
   InputGroup::mergeProduct_(
-        WrapperHolder const& edp,
-        boost::shared_ptr<ProductProvenance> productProvenance) {
+        WrapperHolder const&,
+        boost::shared_ptr<ProductProvenance>) {
     assert(0);
   }
 

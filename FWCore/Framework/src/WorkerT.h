@@ -7,31 +7,30 @@ WorkerT: Code common to all workers.
 
 ----------------------------------------------------------------------*/
 
-#include <memory>
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/src/Worker.h"
-#include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
+#include "FWCore/Framework/src/Worker.h"
+#include "FWCore/Framework/src/WorkerParams.h"
+
+#include <memory>
 
 namespace edm {
 
-  template <typename T>
+  template<typename T>
   class WorkerT : public Worker {
   public:
     typedef T ModuleType;
     typedef WorkerT<T> WorkerType;
     WorkerT(std::auto_ptr<T>,
-		   ModuleDescription const&,
-		   WorkerParams const&);
+            ModuleDescription const&,
+            WorkerParams const&);
 
     virtual ~WorkerT();
 
-
-  template <typename ModType>
-  static std::auto_ptr<T> makeModule(ModuleDescription const& md,
-					   ParameterSet const& pset) {
+  template<typename ModType>
+  static std::auto_ptr<T> makeModule(ModuleDescription const&,
+                                     ParameterSet const& pset) {
     std::auto_ptr<ModType> module = std::auto_ptr<ModType>(new ModType(pset));
     return std::auto_ptr<T>(module.release());
   }
@@ -73,11 +72,9 @@ namespace edm {
     std::auto_ptr<T> module_;
   };
 
-  template <typename T>
+  template<typename T>
   inline
-  WorkerT<T>::WorkerT(std::auto_ptr<T> ed,
-		 ModuleDescription const& md,
-		 WorkerParams const& wp) :
+  WorkerT<T>::WorkerT(std::auto_ptr<T> ed, ModuleDescription const& md, WorkerParams const& wp) :
     Worker(md, wp),
     module_(ed) {
     assert(module_.get() != 0);
@@ -85,103 +82,96 @@ namespace edm {
     module_->registerAnyProducts(module_.get(), wp.reg_);
   }
 
-  template <typename T>
+  template<typename T>
   WorkerT<T>::~WorkerT() {
   }
 
-
-  template <typename T>
+  template<typename T>
   bool 
-  WorkerT<T>::implDoBegin(EventPrincipal& ep, EventSetup const& c,
-			   CurrentProcessingContext const* cpc) {
+  WorkerT<T>::implDoBegin(EventPrincipal& ep, EventSetup const& c, CurrentProcessingContext const* cpc) {
     UnscheduledHandlerSentry s(ep.unscheduledHandler().get(), cpc);
     return module_->doEvent(ep, c, cpc);
   }
 
-  template <typename T>
+  template<typename T>
   bool 
-  WorkerT<T>::implDoEnd(EventPrincipal& , EventSetup const& ,
-			   CurrentProcessingContext const*) {
+  WorkerT<T>::implDoEnd(EventPrincipal&, EventSetup const&, CurrentProcessingContext const*) {
     return false;
   }
 
-  template <typename T>
+  template<typename T>
   bool
-  WorkerT<T>::implDoBegin(RunPrincipal& rp, EventSetup const& c,
-			   CurrentProcessingContext const* cpc) {
+  WorkerT<T>::implDoBegin(RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc) {
     return module_->doBeginRun(rp, c, cpc);
   }
 
-  template <typename T>
+  template<typename T>
   bool
-  WorkerT<T>::implDoEnd(RunPrincipal& rp, EventSetup const& c,
-			   CurrentProcessingContext const* cpc) {
+  WorkerT<T>::implDoEnd(RunPrincipal& rp, EventSetup const& c, CurrentProcessingContext const* cpc) {
     return module_->doEndRun(rp, c, cpc);
   }
 
-  template <typename T>
+  template<typename T>
   bool
-  WorkerT<T>::implDoBegin(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-			   CurrentProcessingContext const* cpc) {
+  WorkerT<T>::implDoBegin(LuminosityBlockPrincipal& lbp, EventSetup const& c, CurrentProcessingContext const* cpc) {
     return module_->doBeginLuminosityBlock(lbp, c, cpc);
   }
 
-  template <typename T>
+  template<typename T>
   bool
-  WorkerT<T>::implDoEnd(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-			   CurrentProcessingContext const* cpc) {
+  WorkerT<T>::implDoEnd(LuminosityBlockPrincipal& lbp, EventSetup const& c, CurrentProcessingContext const* cpc) {
     return module_->doEndLuminosityBlock(lbp, c, cpc);
   }
 
-  template <typename T>
+  template<typename T>
   std::string
   WorkerT<T>::workerType() const {
     return module_->workerType();
   }
 
-  template <typename T>
+  template<typename T>
   void
   WorkerT<T>::implBeginJob() {
     module_->doBeginJob();
   }
 
-  template <typename T>
+  template<typename T>
   void
   WorkerT<T>::implEndJob() {
     module_->doEndJob();
   }
 
-  template <typename T>
+  template<typename T>
   void
   WorkerT<T>::implRespondToOpenInputFile(FileBlock const& fb) {
     module_->doRespondToOpenInputFile(fb);
   }
 
-  template <typename T>
+  template<typename T>
   void
   WorkerT<T>::implRespondToCloseInputFile(FileBlock const& fb) {
     module_->doRespondToCloseInputFile(fb);
   }
 
-  template <typename T>
+  template<typename T>
   void
   WorkerT<T>::implRespondToOpenOutputFiles(FileBlock const& fb) {
     module_->doRespondToOpenOutputFiles(fb);
   }
 
-  template <typename T>
+  template<typename T>
   void
   WorkerT<T>::implRespondToCloseOutputFiles(FileBlock const& fb) {
     module_->doRespondToCloseOutputFiles(fb);
   }
 
-  template <typename T>
+  template<typename T>
   void 
   WorkerT<T>::implPreForkReleaseResources() {
     module_->doPreForkReleaseResources();
   }
 
-  template <typename T>
+  template<typename T>
   void 
   WorkerT<T>::implPostForkReacquireResources(unsigned int iChildIndex, 
                                             unsigned int iNumberOfChildren) {

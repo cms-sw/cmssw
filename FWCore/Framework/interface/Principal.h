@@ -211,7 +211,7 @@ namespace edm {
                       BasicHandleVec& results) const;
 
     // defaults to no-op unless overridden in derived class.
-    virtual void resolveProduct_(Group const& g, bool fillOnDemand) const {}
+    virtual void resolveProduct_(Group const&, bool /*fillOnDemand*/) const {}
 
     boost::shared_ptr<ProcessHistory> processHistoryPtr_;
 

@@ -44,7 +44,7 @@ class ValueT : public BASE {
 
 
   // VALUES must be LessThanComparable
-  bool operator< (ValueT const& other) const {return d_ < other.d_;}
+  bool operator<(ValueT const& other) const {return d_ < other.d_;}
 
   // The private stuff below is all implementation detail, and not
   // required by the concept VALUE.
@@ -54,9 +54,9 @@ class ValueT : public BASE {
 
 typedef edm::DoNotSortUponInsertion DNS;
 
-template <>
+template<>
 bool
-ValueT<DNS>::operator< (ValueT<DNS> const& other) const {
+ValueT<DNS>::operator<(ValueT<DNS> const& /*other*/) const {
   throw std::logic_error("You can't sort me!");
 }
 
@@ -76,9 +76,9 @@ typedef ValueT<Empty> Value;
 //
 //------------------------------------------------------
 
-template <class BASE>
+template<typename BASE>
 std::ostream&
-operator<< (std::ostream& os, ValueT<BASE> const& v) {
+operator<<(std::ostream& os, ValueT<BASE> const& v) {
   os << " val: " << v.val();
   return os;
 }
@@ -88,13 +88,13 @@ typedef edm::DetSetVector<Value> coll_type;
 typedef coll_type::detset        detset;
 
 void check_outer_collection_order(coll_type const& c) {
-  if (c.size() < 2) return;
+  if(c.size() < 2) return;
   coll_type::const_iterator i = c.begin();
   coll_type::const_iterator e = c.end();
   // Invariant: sequence from prev to i is correctly ordered
   coll_type::const_iterator prev(i);
   ++i;
-  for (; i != e; ++i, ++prev) {
+  for(; i != e; ++i, ++prev) {
       // We don't use CPPUNIT_ASSERT because it gives us grossly
       // insufficient context if a failure occurs.
       assert(prev->id < i->id);
@@ -102,13 +102,13 @@ void check_outer_collection_order(coll_type const& c) {
 }
 
 void check_inner_collection_order(detset const& d) {
-  if (d.data.size() < 2) return;
+  if(d.data.size() < 2) return;
   detset::const_iterator i = d.data.begin();
   detset::const_iterator e = d.data.end();
   // Invariant: sequence from prev to i is correctly ordered
   detset::const_iterator prev(i);
   ++i;
-  for (; i != e; ++i, ++prev) {
+  for(; i != e; ++i, ++prev) {
       // We don't use CPPUNIT_ASSERT because it gives us grossly
       // insufficient context if a failure occurs.
       //
@@ -122,13 +122,13 @@ void printDetSet(detset const& ds, std::ostream& os) {
   os << "size: " << ds.data.size() << '\n'
      << "values: ";
   std::copy(ds.data.begin(), ds.data.end(),
-	    std::ostream_iterator<detset::value_type>(os, " "));
+            std::ostream_iterator<detset::value_type>(os, " "));
 }
 
 
 void sanity_check(coll_type const& c) {
   check_outer_collection_order(c);
-  for (coll_type::const_iterator i = c.begin(), e = c.end(); i!=e; ++i) {
+  for(coll_type::const_iterator i = c.begin(), e = c.end(); i!=e; ++i) {
 //       printDetSet(*i, std::cerr);
 //       std::cerr << '\n';
       check_inner_collection_order(*i);
@@ -138,8 +138,8 @@ void sanity_check(coll_type const& c) {
 void check_ids(coll_type const& c) {
   // Long way to get all ids...
   std::vector<det_id_type> all_ids;
-  for (coll_type::const_iterator i = c.begin(),
-	 e = c.end();
+  for(coll_type::const_iterator i = c.begin(),
+       e = c.end();
        i !=  e;
        ++i) {
       all_ids.push_back(i->id);
@@ -166,7 +166,7 @@ void detsetTest() {
 }
 
 namespace {
-  template<class T>
+  template<typename T>
   struct DSVGetter : edm::EDProductGetter {
     DSVGetter() : edm::EDProductGetter(), prod_(0) {}
     virtual WrapperHolder
@@ -395,13 +395,12 @@ void work() {
     unsigned int const numDetSets = 20;
     unsigned int const detSetSize = 14;
     std::vector<detset> v;
-    for (unsigned int i = 0; i < numDetSets; ++i) {
-	detset    d(i);
-	for (unsigned int j = 0; j < detSetSize; ++j)
-	  {
-	    d.data.push_back(Value(100*i + 1.0/j));
-	  }
-	v.push_back(d);
+    for(unsigned int i = 0; i < numDetSets; ++i) {
+        detset    d(i);
+        for(unsigned int j = 0; j < detSetSize; ++j) {
+            d.data.push_back(Value(100*i + 1.0/j));
+        }
+        v.push_back(d);
       }
     assert(v.size() == numDetSets);
     coll_type c3(v);

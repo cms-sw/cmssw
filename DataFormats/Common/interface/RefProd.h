@@ -2,10 +2,8 @@
 #define DataFormats_Common_RefProd_h
 
 /*----------------------------------------------------------------------
-  
-Ref: A template for an interproduct reference to a product.
 
-$Id: RefProd.h,v 1.20 2009/11/04 15:30:20 wmtan Exp $
+Ref: A template for an interproduct reference to a product.
 
 ----------------------------------------------------------------------*/
 
@@ -35,20 +33,20 @@ $Id: RefProd.h,v 1.20 2009/11/04 15:30:20 wmtan Exp $
     bool isNonnull() const;			// true if an object is referenced
     bool isNull() const;			// equivalent to !isNonnull()
     bool operator!() const;			// equivalent to !isNonnull()
-----------------------------------------------------------------------*/ 
+----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
-#include "DataFormats/Common/interface/RefCore.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/TestHandle.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 namespace edm {
 
-  template <typename C>
+  template<typename C>
   class RefProd {
   public:
     typedef C product_type;
@@ -89,12 +87,12 @@ namespace edm {
       checkTypeAtCompileTime(handle.product());
     }
 
-    /// Constructor from Ref<C,T,F>
-    template <typename T, typename F>
+    /// Constructor from Ref<C, T, F>
+    template<typename T, typename F>
     explicit RefProd(Ref<C, T, F> const& ref);
 
-    /// Constructor from RefVector<C,T,F>
-    template <typename T, typename F>
+    /// Constructor from RefVector<C, T, F>
+    template<typename T, typename F>
     explicit RefProd(RefVector<C, T, F> const& ref);
 
     // Constructor for those users who do not have a product handle,
@@ -165,7 +163,7 @@ namespace edm {
   private:
     // Compile time check that the argument is a C* or C const*
     // or derived from it.
-    void checkTypeAtCompileTime(C const* ptr) {}
+    void checkTypeAtCompileTime(C const* /*ptr*/) {}
 
     RefCore product_;
   };
@@ -179,34 +177,34 @@ namespace edm {
   class RefVector;
 
   /// Constructor from Ref.
-  template <typename C>
-  template <typename T, typename F>
+  template<typename C>
+  template<typename T, typename F>
   inline
   RefProd<C>::RefProd(Ref<C, T, F> const& ref) :
-      product_(ref.id(), ref.hasProductCache() ?  ref.product() : 0, ref.productGetter(), ref.isTransient()) 
-  {  }
+      product_(ref.id(), ref.hasProductCache() ?  ref.product() : 0, ref.productGetter(), ref.isTransient()) {
+  }
 
   /// Constructor from RefVector.
-  template <typename C>
-  template <typename T, typename F>
+  template<typename C>
+  template<typename T, typename F>
   inline
   RefProd<C>::RefProd(RefVector<C, T, F> const& ref) :
-      product_(ref.id(), ref.hasProductCache() ?  ref.product() : 0, ref.productGetter(), ref.isTransient()) 
-  {  }
+      product_(ref.id(), ref.hasProductCache() ?  ref.product() : 0, ref.productGetter(), ref.isTransient()) {
+  }
 
   /// Dereference operator
-  template <typename C>
+  template<typename C>
   inline
   C const& RefProd<C>::operator*() const {
     return *(edm::template getProduct<C>(product_));
   }
 
   /// Member dereference operator
-  template <typename C>
+  template<typename C>
   inline
   C const* RefProd<C>::operator->() const {
     return edm::template getProduct<C>(product_);
-  } 
+  }
 
 
   template<typename C>
@@ -215,30 +213,30 @@ namespace edm {
     std::swap(product_, other.product_);
   }
 
-  template <typename C>
+  template<typename C>
   inline
   bool
-  operator== (RefProd<C> const& lhs, RefProd<C> const& rhs) {
+  operator==(RefProd<C> const& lhs, RefProd<C> const& rhs) {
     return lhs.refCore() == rhs.refCore();
-  }
-
-  template <typename C>
-  inline
-  bool
-  operator!= (RefProd<C> const& lhs, RefProd<C> const& rhs) {
-    return !(lhs == rhs);
-  }
-
-  template <typename C>
-  inline
-  bool
-  operator< (RefProd<C> const& lhs, RefProd<C> const& rhs) {
-    return (lhs.refCore() < rhs.refCore());
   }
 
   template<typename C>
   inline
-  void swap(edm::RefProd<C> const& lhs, edm::RefProd<C> const& rhs ) {
+  bool
+  operator!=(RefProd<C> const& lhs, RefProd<C> const& rhs) {
+    return !(lhs == rhs);
+  }
+
+  template<typename C>
+  inline
+  bool
+  operator<(RefProd<C> const& lhs, RefProd<C> const& rhs) {
+    return(lhs.refCore() < rhs.refCore());
+  }
+
+  template<typename C>
+  inline
+  void swap(RefProd<C> const& lhs, RefProd<C> const& rhs) {
     lhs.swap(rhs);
   }
 }
@@ -248,15 +246,15 @@ namespace edm {
 namespace edm {
   namespace reftobase {
 
-    template <typename T>
+    template<typename T>
     struct RefProdHolderToVector {
       static  std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() {
-	Exception::throwThis(errors::InvalidReference, "attempting to make a BaseVectorHolder<T> from a RefProd<C>.\n");
-	return std::auto_ptr<BaseVectorHolder<T> >();
+        Exception::throwThis(errors::InvalidReference, "attempting to make a BaseVectorHolder<T> from a RefProd<C>.\n");
+        return std::auto_ptr<BaseVectorHolder<T> >();
       }
       static std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
-	Exception::throwThis(errors::InvalidReference, "attempting to make a RefVectorHolderBase from a RefProd<C>.\n");
-	return std::auto_ptr<RefVectorHolderBase>();
+        Exception::throwThis(errors::InvalidReference, "attempting to make a RefVectorHolderBase from a RefProd<C>.\n");
+        return std::auto_ptr<RefVectorHolderBase>();
       }
     };
 
@@ -266,13 +264,13 @@ namespace edm {
     };
 
     struct RefProdRefHolderToRefVector {
-      static  std::auto_ptr<RefVectorHolderBase> makeVectorHolder() {
-	Exception::throwThis(errors::InvalidReference, "attempting to make a BaseVectorHolder<T> from a RefProd<C>.\n");
-	return std::auto_ptr<RefVectorHolderBase>();
+      static std::auto_ptr<RefVectorHolderBase> makeVectorHolder() {
+        Exception::throwThis(errors::InvalidReference, "attempting to make a BaseVectorHolder<T> from a RefProd<C>.\n");
+        return std::auto_ptr<RefVectorHolderBase>();
       }
-      static  std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
-	Exception::throwThis(errors::InvalidReference, "attempting to make a RefVectorHolderBase from a RefProd<C>.\n");
-	return std::auto_ptr<RefVectorHolderBase>();
+      static std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
+        Exception::throwThis(errors::InvalidReference, "attempting to make a RefVectorHolderBase from a RefProd<C>.\n");
+        return std::auto_ptr<RefVectorHolderBase>();
       }
     };
 

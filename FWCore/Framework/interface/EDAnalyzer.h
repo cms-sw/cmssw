@@ -58,12 +58,12 @@ namespace edm {
     virtual void endRun(Run const&, EventSetup const&){}
     virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&){}
     virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&){}
-    virtual void respondToOpenInputFile(FileBlock const& fb) {}
-    virtual void respondToCloseInputFile(FileBlock const& fb) {}
-    virtual void respondToOpenOutputFiles(FileBlock const& fb) {}
-    virtual void respondToCloseOutputFiles(FileBlock const& fb) {}
+    virtual void respondToOpenInputFile(FileBlock const&) {}
+    virtual void respondToCloseInputFile(FileBlock const&) {}
+    virtual void respondToOpenOutputFiles(FileBlock const&) {}
+    virtual void respondToCloseOutputFiles(FileBlock const&) {}
     virtual void preForkReleaseResources() {}
-    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {}
+    virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
 
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;

@@ -20,7 +20,6 @@
 
 // user include files
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
-#include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/GetProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -28,6 +27,7 @@
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/TestHandle.h"
 #include "DataFormats/Common/interface/traits.h"
+#include "DataFormats/Common/interface/WrapperHolder.h"
 
 // system include files
 #include "boost/type_traits/is_base_of.hpp"
@@ -35,7 +35,7 @@
 
 // forward declarations
 namespace edm {
-  template <typename T>
+  template<typename T>
   class Ptr {
      friend class PtrVectorBase;
   public:
@@ -44,13 +44,13 @@ namespace edm {
     typedef T value_type;
 
     // General purpose constructor from handle.
-    template <typename C>
-    Ptr(Handle<C> const& handle, key_type itemKey, bool setNow=true):
+    template<typename C>
+    Ptr(Handle<C> const& handle, key_type itemKey, bool /*setNow*/ = true):
     core_(handle.id(), getItem_(handle.product(), itemKey), 0, false), key_(itemKey) {}
 
     // General purpose constructor from orphan handle.
-    template <typename C>
-    Ptr(OrphanHandle<C> const& handle, key_type itemKey, bool setNow=true):
+    template<typename C>
+    Ptr(OrphanHandle<C> const& handle, key_type itemKey, bool /*setNow*/ = true):
     core_(handle.id(), getItem_(handle.product(), itemKey), 0, false), key_(itemKey) {}
 
     // General purpose "constructor" from a Ref.
@@ -64,16 +64,16 @@ namespace edm {
     // any object containing this Ptr.  Also, in the future work will
     // be done to throw an exception if an attempt is made to put any object
     // containing this Ptr into an event(or run or lumi).
-    template <typename C>
-    Ptr(C const* product, key_type itemKey, bool setNow=true):
+    template<typename C>
+    Ptr(C const* product, key_type itemKey, bool /*setNow*/ = true):
     core_(ProductID(), product != 0 ? getItem_(product,itemKey) : 0, 0, true),
-	 key_(product != 0 ? itemKey : key_traits<key_type>::value) {}
+    key_(product != 0 ? itemKey : key_traits<key_type>::value) {}
 
     // Constructor from test handle.
     // An exception will be thrown if an attempt is made to persistify
     // any object containing this Ptr.
-    template <typename C>
-    Ptr(TestHandle<C> const& handle, key_type itemKey, bool setNow=true):
+    template<typename C>
+    Ptr(TestHandle<C> const& handle, key_type itemKey, bool /*setNow*/ = true):
     core_(handle.id(), getItem_(handle.product(), itemKey), 0, true), key_(itemKey) {}
 
     /** Constructor for those users who do not have a product handle,
@@ -119,7 +119,7 @@ namespace edm {
     core_(iOther.id(),
           (iOther.hasProductCache() ? static_cast<T const*>(iOther.get()): static_cast<T const*>(0)),
           iOther.productGetter(),
-	  iOther.isTransient()),
+          iOther.isTransient()),
     key_(iOther.key()) {
     }
 
@@ -129,7 +129,7 @@ namespace edm {
     core_(iOther.id(),
           dynamic_cast<T const*>(iOther.get()),
           0,
-	  iOther.isTransient()),
+          iOther.isTransient()),
     key_(iOther.key()) {
     }
 
@@ -179,7 +179,7 @@ namespace edm {
     // ---------- member functions ---------------------------
 
     void const* product() const {return 0;}
-    
+
     //Used by ROOT storage
     CMS_CLASS_VERSION(10)
 
@@ -223,7 +223,7 @@ namespace edm {
   }
 
   /// Dereference operator
-  template <typename T>
+  template<typename T>
   inline
   T const&
   Ptr<T>::operator*() const {
@@ -232,7 +232,7 @@ namespace edm {
   }
 
   /// Member dereference operator
-  template <typename T>
+  template<typename T>
   inline
   T const*
   Ptr<T>::operator->() const {
@@ -240,21 +240,21 @@ namespace edm {
     return reinterpret_cast<T const*>(core_.productPtr());
   }
 
-  template <typename T>
+  template<typename T>
   inline
   bool
   operator==(Ptr<T> const& lhs, Ptr<T> const& rhs) {
     return lhs.refCore() == rhs.refCore() && lhs.key() == rhs.key();
   }
 
-  template <typename T>
+  template<typename T>
   inline
   bool
   operator!=(Ptr<T> const& lhs, Ptr<T> const& rhs) {
     return !(lhs == rhs);
   }
 
-  template <typename T>
+  template<typename T>
   inline
   bool
   operator<(Ptr<T> const& lhs, Ptr<T> const& rhs) {
