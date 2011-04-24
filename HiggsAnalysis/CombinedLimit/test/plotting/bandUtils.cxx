@@ -109,8 +109,8 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
                     double rms = 0;
                     for (int j = 0; j < nd; ++j) { rms += (mean-data[j])*(mean-data[j]); }
                     rms = sqrt(rms/(nd*(nd-1)));
-                    summer68 = mean + rms;
-                    winter68 = mean - rms;
+                    summer68 = mean - rms;
+                    winter68 = mean + rms;
                 }
                 break;
             case AdHoc:
