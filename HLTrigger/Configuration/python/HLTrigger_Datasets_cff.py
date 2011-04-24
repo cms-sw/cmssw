@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V18
+# /dev/CMSSW_4_2_0/GRun/V21
 
 import FWCore.ParameterSet.Config as cms
 
@@ -146,15 +146,15 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetJet_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetJet_selector.l1tResults = cms.InputTag('')
 streamA_datasetJet_selector.throw      = cms.bool(False)
-streamA_datasetJet_selector.triggerConditions = cms.vstring('HLT_DiJetAve110_v1', 
-    'HLT_DiJetAve150_v1', 
-    'HLT_DiJetAve190_v1', 
-    'HLT_DiJetAve240_v1', 
-    'HLT_DiJetAve300_v1', 
-    'HLT_DiJetAve30_v1', 
-    'HLT_DiJetAve370_v1', 
-    'HLT_DiJetAve60_v1', 
-    'HLT_DiJetAve80_v1', 
+streamA_datasetJet_selector.triggerConditions = cms.vstring('HLT_DiJetAve110_v2', 
+    'HLT_DiJetAve150_v2', 
+    'HLT_DiJetAve190_v2', 
+    'HLT_DiJetAve240_v2', 
+    'HLT_DiJetAve300_v2', 
+    'HLT_DiJetAve30_v2', 
+    'HLT_DiJetAve370_v2', 
+    'HLT_DiJetAve60_v2', 
+    'HLT_DiJetAve80_v2', 
     'HLT_Jet110_v2', 
     'HLT_Jet150_v2', 
     'HLT_Jet190_v2', 
