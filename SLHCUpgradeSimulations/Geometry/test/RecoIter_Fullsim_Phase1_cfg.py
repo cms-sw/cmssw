@@ -11,8 +11,8 @@ process = cms.Process('RECO')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-#process.load('Configuration.StandardSequences.MixingNoPileUp_cff')
-process.load("SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R39F16_cff")
+process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+#process.load("SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R39F16_cff")
 process.load("SLHCUpgradeSimulations.Geometry.PhaseI_cmsSimIdealGeometryXML_R39F16_cff")
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('SLHCUpgradeSimulations.Geometry.Digi_Phase1_cff')
@@ -23,12 +23,12 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.4 $'),
+    version = cms.untracked.string('$Revision: 1.5 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5)
+    input = cms.untracked.int32(-1)
 )
 process.options = cms.untracked.PSet(
   wantSummary = cms.untracked.bool(True)
@@ -36,17 +36,9 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("PoolSource",
-#    fileNames = cms.untracked.vstring(
-#    '/store/relval/CMSSW_3_6_3_SLHC1/RelValFourMuons/GEN-SIM-RAW/DESIGN_36_V10-v1/0021/F8F01ED5-B1BC-DF11-AABF-0026189438BC.root',
-#    '/store/relval/CMSSW_3_6_3_SLHC1/RelValFourMuons/GEN-SIM-RAW/DESIGN_36_V10-v1/0021/38041CE5-60BC-DF11-85EC-002618943970.root'  )
-    fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_6_3_SLHC1/RelValTTbar/GEN-SIM/DESIGN_36_V10_UpSimGeometry_special-v1/0031/F6363EDF-12CB-DF11-9206-0030486792F0.root')
-#    fileNames = cms.untracked.vstring(
-#    '/store/relval/CMSSW_3_6_3_SLHC1/RelValTTbar/GEN-SIM/DESIGN_36_V10_UpSimGeometry_special-v1/0031/B083C3B3-02CB-DF11-8196-00261894392B.root')
-#    fileNames = cms.untracked.vstring(
-#    '/store/relval/CMSSW_3_6_3_SLHC1_patch1/RelValTTbar/GEN-SIM/DESIGN_36_V10_PU_LowLumiPileUp_Gauss_special-v1/0666/F4E4B87D-D100-E011-A900-003048678FAE.root')
+#    fileNames = cms.untracked.vstring('file:FourMuPt_1_50_GEN_SIM.root')
+    fileNames = cms.untracked.vstring('file:FourMuPt_1_50_GEN_SIM_DESIGN.root')
 )
-
 # Output definition
 process.output = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
@@ -70,20 +62,21 @@ process.output.outputCommands = cms.untracked.vstring('drop *','keep *_MEtoEDMCo
 # Additional output definition
 
 # Other statements
-process.GlobalTag.globaltag = 'DESIGN_36_V10::All'
+#process.GlobalTag.globaltag = 'MC_42_V10::All'
+process.GlobalTag.globaltag = 'DESIGN42_V10::All'
 
 ### PhaseI Geometry and modifications ###############################################
 process.Timing =  cms.Service("Timing")
 ## no playback when doing digis
 #process.mix.playback = True
-#process.MessageLogger.destinations = cms.untracked.vstring("detailedInfo_fullph1geom")
+process.MessageLogger.destinations = cms.untracked.vstring("detailedInfo_fullph1geom")
 
 ### if pileup we need to set the number
-process.mix.input.nbPileupEvents = cms.PSet(
-  averageNumber = cms.double(50.0)
-)
+#process.mix.input.nbPileupEvents = cms.PSet(
+#  averageNumber = cms.double(50.0)
+#)
 ### if doing inefficiency at <PU>=50
-process.simSiPixelDigis.AddPixelInefficiency = 20
+#process.simSiPixelDigis.AddPixelInefficiency = 20
 ## also for strips TIB inefficiency if we want
 ## TIB1,2 inefficiency at 20%
 #process.simSiStripDigis.Inefficiency = 20
