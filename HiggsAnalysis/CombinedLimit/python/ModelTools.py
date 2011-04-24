@@ -1,5 +1,5 @@
 import ROOT
-import re
+import re, os
 from sys import stderr, stdout
 ROOFIT_EXPR = "expr"
 N_OBS_MAX   = 10000
@@ -17,6 +17,8 @@ class ModelBuilderBase():
             self.out.dont_delete = []
             if options.verbose == 0:
                 ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.ERROR)
+            if os.environ.has_key('ROOFITSYS'):
+                ROOT.gSystem.AddIncludePath(" -I%s/include " % os.environ['ROOFITSYS'])
         elif options.out != None:
             #stderr.write("Will save workspace to HLF file %s" % options.out)
             self.out = open(options.out, "w");

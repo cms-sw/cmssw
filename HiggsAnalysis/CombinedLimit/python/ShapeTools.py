@@ -8,6 +8,9 @@ class ShapeBuilder(ModelBuilder):
         ModelBuilder.__init__(self,datacard,options) 
         if not datacard.hasShapes: 
             raise RuntimeError, "You're using a ShapeBuilder for a model that has no shapes"
+        if options.libs:
+            for lib in options.libs:
+                ROOT.gSystem.Load(lib)
     ## ------------------------------------------
     ## -------- ModelBuilder interface ----------
     ## ------------------------------------------
