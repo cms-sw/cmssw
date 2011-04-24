@@ -73,7 +73,7 @@ void utils::printPdf(RooWorkspace *w, const char *pdfName) {
   params->Print("V");
 }
 
-RooAbsPdf *factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgList &constraints) {
+RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgList &constraints) {
     const std::type_info & id = typeid(pdf);
     if (id == typeid(RooProdPdf)) {
         RooProdPdf *prod = dynamic_cast<RooProdPdf *>(&pdf);
