@@ -207,22 +207,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   if (getenv("CMSSW_BASE")) {
       gSystem->AddIncludePath(TString::Format(" -I%s/src ", getenv("CMSSW_BASE")));
       if (verbose > 1) std::cout << "Adding " << getenv("CMSSW_BASE") << "/src to include path" << std::endl;
-      if (verbose > 1) std::cout << "CMSSW_BASE is set, so will try to get include dir for roofit from scram." << std::endl;
-      FILE *pipe = popen("scram tool tag roofitcore INCLUDE", "r"); 
-      if (pipe) {
-          char buff[1023];
-          if (fgets(buff, 1023, pipe)) {
-              if (buff[0] == '/') {
-                  // must also remove the line break
-                  int ilast = strlen(buff)-1;
-                  while (ilast > 0 && isspace(buff[ilast])) { buff[ilast--] = '\0'; }
-                  // then pass it to root
-                  gSystem->AddIncludePath(TString::Format(" -I%s ", buff));
-                  if (verbose > 1) std::cout << "Adding " << buff << " to include path" << std::endl;
-              } else { std::cout << "scram tool tag roofitcore INCLUDE returned " << buff << " which doesn't look like an include dir." << std::endl; }
-          } else { std::cerr << "Failed to read from pipe 'scram tool tag roofitcore INCLUDE'" << std::endl; }
-          pclose(pipe);
-      } else { std::cerr << "Failed to invoke 'scram tool tag roofitcore INCLUDE'" << std::endl; }
+  }
+  if (getenv("ROOFITSYS")) {
+      gSystem->AddIncludePath(TString::Format(" -I%s/include ", getenv("ROOFITSYS")));
+      if (verbose > 1) std::cout << "Adding " << getenv("ROOFITSYS") << "/include to include path" << std::endl;
   }
 
   if (verbose <= 1) RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
