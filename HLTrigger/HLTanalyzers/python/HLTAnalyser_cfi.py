@@ -83,7 +83,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     ### tau OpenHLT related objects
     HLTTau                          = cms.InputTag("TauOpenHLT"),
     HLTPFTau                        = cms.InputTag("hltPFTaus"),
-    HLTPFTauTightCone               = cms.InputTag("hltPFTausTightCone"),
+    HLTPFTauTightCone               = cms.InputTag("hltPFTausTightIso"),
     minPtChargedHadronsForTaus      = cms.double(1.5),
     minPtGammassForTaus             = cms.double(1.5),
 

@@ -1,7 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-from HLTrigger.HLTanalyzers.HLT_FULL_cff import hltEcalRawToRecHitFacility,hltEcalRegionalJetsFEDs,hltEcalRegionalJetsRecHit,HLTDoLocalHcalSequence,hltTowerMakerForJets,hltCaloTowersTau1Regional,hltIconeTau1Regional,hltCaloTowersTau2Regional,hltIconeTau2Regional,hltCaloTowersTau3Regional,hltIconeTau3Regional,hltCaloTowersTau4Regional,hltIconeTau4Regional,hltCaloTowersCentral1Regional,hltIconeCentral1Regional,hltCaloTowersCentral2Regional,hltIconeCentral2Regional,hltCaloTowersCentral3Regional,hltIconeCentral3Regional,hltCaloTowersCentral4Regional,hltIconeCentral4Regional,HLTDoLocalStripSequence
+from HLTrigger.HLTanalyzers.HLT_FULL_cff import hltEcalRawToRecHitFacility,hltEcalRegionalJetsFEDs,hltEcalRegionalJetsRecHit,HLTDoLocalHcalSequence,hltTowerMakerForJets,hltCaloTowersTau1Regional,hltIconeTau1Regional,hltCaloTowersTau2Regional,hltIconeTau2Regional,hltCaloTowersTau3Regional,hltIconeTau3Regional,hltCaloTowersTau4Regional,hltIconeTau4Regional,hltCaloTowersCentral1Regional,hltIconeCentral1Regional,hltCaloTowersCentral2Regional,hltIconeCentral2Regional,hltCaloTowersCentral3Regional,hltIconeCentral3Regional,hltCaloTowersCentral4Regional,hltIconeCentral4Regional,HLTDoLocalStripSequence,hltPFTausTightIso
 
 hltTauL1SeedFilter = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
@@ -367,9 +367,9 @@ hltPFTaus = cms.EDProducer( "PFRecoTauProducer",
  DataType = cms.string( "AOD" )
 )
 
-hltPFTausTightCone = hltPFTaus.clone()
-hltPFTausTightCone.TrackerSignalConeSizeFormula = cms.string( "0.15" )
-hltPFTausTightCone.ECALSignalConeSizeFormula = cms.string( "0.15" )
+#hltPFTausTightCone = hltPFTaus.clone()
+#hltPFTausTightCone.TrackerSignalConeSizeFormula = cms.string( "0.15" )
+#hltPFTausTightCone.ECALSignalConeSizeFormula = cms.string( "0.15" )
 
 #HLTPFTauSequence+= hltPFTausTightCone
 

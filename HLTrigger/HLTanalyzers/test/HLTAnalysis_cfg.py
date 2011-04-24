@@ -41,8 +41,8 @@ if (isData):
 #    GLOBAL_TAG='TESTL1_GR_P::All'    
     GLOBAL_TAG='GR_H_V15::All'
 else:
-    GLOBAL_TAG='START39_V8::All'
-    if (MENU == "GRun"): GLOBAL_TAG= 'START39_V8::All'
+    GLOBAL_TAG='START311_V2::All'
+    if (MENU == "GRun"): GLOBAL_TAG= 'START311_V2::All'
     
 ##################################################################
 
@@ -58,7 +58,7 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/data/Run2011A/SingleMu/RAW/v1/000/160/406/CA9EFACF-A14D-E011-ACB9-00304879EDEA.root'
+                                '/store/data/Run2011A/SingleMu/RAW/v1/000/160/406/CA9EFACF-A14D-E011-ACB9-00304879EDEA.root'
     )
 )
 
@@ -107,7 +107,7 @@ process.EcalEndcapGeometryEP.applyAlignment = True
 process.EcalPreshowerGeometryEP.applyAlignment = True
 
 # Add tight isolation PF taus
-process.HLTPFTauSequence += process.hltPFTausTightCone
+process.HLTPFTauSequence += process.hltPFTausTightIso
 
 if (MENU == "GRun"):
     # get the objects associated with the menu
