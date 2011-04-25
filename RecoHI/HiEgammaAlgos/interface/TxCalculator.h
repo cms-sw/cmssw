@@ -19,6 +19,8 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
+
+
 #define PI 3.141592653
 
 class TxCalculator
@@ -30,6 +32,10 @@ class TxCalculator
    double getTx(const reco::Photon clus, double i,double threshold, double innerDR=0);
    double getCTx(const reco::Photon clus, double i,double threshold, double innerDR=0);
    double getMPT(double ptCut=0, double etaCut=1000);
+
+   double getJurassicArea( double r1, double r2, double width) ;
+   double getJt(const reco::Photon cluster, double r1=0.4, double r2=0.04, double jWidth=0.015, double threshold=2);
+   double getJct(const reco::Photon cluster, double r1=0.4, double r2=0.04, double jWidth=0.015, double threshold=2);
    
  private:
    
