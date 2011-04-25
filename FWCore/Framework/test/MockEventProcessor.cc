@@ -1,4 +1,3 @@
-
 /*
 */
 
@@ -14,12 +13,11 @@ namespace {
     char id;
   };
 
-  std::istream & operator>>(std::istream & is, token & t) {
+  std::istream& operator>>(std::istream& is, token& t) {
     if(is >> t.id) is >> t.value;
     return is;
   }
 }
-
 namespace edm {
 
   MockEventProcessor::MockEventProcessor(std::string const& mockData,
@@ -38,65 +36,57 @@ namespace edm {
   }
 
   edm::MockEventProcessor::StatusCode
-  MockEventProcessor::runToCompletion(bool onlineStateTransitions) {
+  MockEventProcessor::runToCompletion(bool /*onlineStateTransitions*/) {
     statemachine::Machine myMachine(this,
                                     fileMode_,
                                     emptyRunLumiMode_);
 
-  
     myMachine.initiate();
 
     // Loop over the mock data items
     std::istringstream input(mockData_);
     token t;
-    while (input >> t) {
+    while(input >> t) {
 
       char ch = t.id;
 
-      if (ch == 'r') {
+      if(ch == 'r') {
         output_ << "    *** nextItemType: Run " << t.value << " ***\n";
         run_ = t.value;
         myMachine.process_event(statemachine::Run(ProcessHistoryID(), t.value));
-      }
-      else if (ch == 'l') {
+      } else if(ch == 'l') {
         output_ << "    *** nextItemType: Lumi " << t.value << " ***\n";
         lumi_ = t.value;
         myMachine.process_event(statemachine::Lumi(t.value));
-      }
-      else if (ch == 'e') {
+      } else if(ch == 'e') {
         output_ << "    *** nextItemType: Event ***\n";
         // a special value for test purposes only
-        if (t.value == 7) {
+        if(t.value == 7) {
           shouldWeStop_ = true;
           output_ << "    *** shouldWeStop will return true this event ***\n";
-        }
-        else {
+        } else {
           shouldWeStop_ = false;
         }
         myMachine.process_event(statemachine::Event());
-      }
-      else if (ch == 'f') {
+      } else if(ch == 'f') {
         output_ << "    *** nextItemType: File " << t.value << " ***\n";
         // a special value for test purposes only
-        if (t.value == 0) shouldWeCloseOutput_ = false;
+        if(t.value == 0) shouldWeCloseOutput_ = false;
         else shouldWeCloseOutput_ = true;
         myMachine.process_event(statemachine::File());
-      }
-      else if (ch == 's') {
+      } else if(ch == 's') {
         output_ << "    *** nextItemType: Stop " << t.value << " ***\n";
         // a special value for test purposes only
-        if (t.value == 0) shouldWeEndLoop_ = false;
+        if(t.value == 0) shouldWeEndLoop_ = false;
         else shouldWeEndLoop_ = true;
         myMachine.process_event(statemachine::Stop());
-      }
-      else if (ch == 'x') {
+      } else if(ch == 'x') {
         output_ << "    *** nextItemType: Restart " << t.value << " ***\n";
         shouldWeEndLoop_ = t.value;
         myMachine.process_event(statemachine::Restart());
       }
-
-      if (myMachine.terminated()) {
-	output_ << "The state machine reports it has been terminated\n";
+      if(myMachine.terminated()) {
+        output_ << "The state machine reports it has been terminated\n";
       }
     }
     return epSuccess;
@@ -104,7 +94,7 @@ namespace edm {
 
   // Not used, this one does nothing
   edm::MockEventProcessor::StatusCode
-  MockEventProcessor::runEventCount(int numberOfEventsToProcess) {
+  MockEventProcessor::runEventCount(int /*numberOfEventsToProcess*/) {
     return epSuccess;
   }
 
@@ -174,11 +164,11 @@ namespace edm {
     output_ << "\tendRun " << run.runNumber() << "\n";
   }
 
-  void MockEventProcessor::beginLumi(ProcessHistoryID const& phid, int run, int lumi) {
+  void MockEventProcessor::beginLumi(ProcessHistoryID const&, int run, int lumi) {
     output_ << "\tbeginLumi " << run << "/" << lumi << "\n";
   }
 
-  void MockEventProcessor::endLumi(ProcessHistoryID const& phid, int run, int lumi) {
+  void MockEventProcessor::endLumi(ProcessHistoryID const&, int run, int lumi) {
     output_ << "\tendLumi " << run << "/" << lumi << "\n";
   }
 
@@ -200,11 +190,11 @@ namespace edm {
     output_ << "\tdeleteRunFromCache " << run.runNumber() << "\n";
   }
 
-  void MockEventProcessor::writeLumi(ProcessHistoryID const& phid, int run, int lumi) {
+  void MockEventProcessor::writeLumi(ProcessHistoryID const&, int run, int lumi) {
     output_ << "\twriteLumi " << run << "/" << lumi << "\n";
   }
 
-  void MockEventProcessor::deleteLumiFromCache(ProcessHistoryID const& phid, int run, int lumi) {
+  void MockEventProcessor::deleteLumiFromCache(ProcessHistoryID const&, int run, int lumi) {
     output_ << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
   }
 
@@ -218,9 +208,9 @@ namespace edm {
     return shouldWeStop_;
   }
 
-  void MockEventProcessor::setExceptionMessageFiles(std::string& message) { }
-  void MockEventProcessor::setExceptionMessageRuns(std::string& message) { }
-  void MockEventProcessor::setExceptionMessageLumis(std::string& message) { }
+  void MockEventProcessor::setExceptionMessageFiles(std::string&) {}
+  void MockEventProcessor::setExceptionMessageRuns(std::string&) {}
+  void MockEventProcessor::setExceptionMessageLumis(std::string&) {}
 
   bool MockEventProcessor::alreadyHandlingException() const { return false; }
 }

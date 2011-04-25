@@ -8,28 +8,26 @@
 //
 // Original Author: David Dagenhart, Fermilab, February 2008
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/FileBlock.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/TestObjects/interface/Thing.h"
 #include "DataFormats/TestObjects/interface/ThingWithIsEqual.h"
 #include "DataFormats/TestObjects/interface/ThingWithMerge.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/FileBlock.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include <string>
-#include <vector>
+#include <cassert>
 #include <iostream>
 #include <memory>
-#include <cassert>
+#include <string>
+#include <vector>
 
 namespace edm {
   class EventSetup;
@@ -186,7 +184,7 @@ namespace edmtest {
   // -----------------------------------------------------------------
 
   void TestMergeResults::analyze(edm::Event const& e,edm::EventSetup const&) {
-    if (verbose_) edm::LogInfo("TestMergeResults") << "analyze";
+    if(verbose_) edm::LogInfo("TestMergeResults") << "analyze";
 
     edm::Run const& run = e.getRun();
     edm::LuminosityBlock const& lumi = e.getLuminosityBlock();
@@ -215,7 +213,7 @@ namespace edmtest {
     edm::InputTag tag7("thingWithMergeProducer", "endLumi");
     checkExpectedLumiProducts(index7_, expectedEndLumiNew_, tag7, "analyze", lumi);
 
-    if (expectedDroppedEvent_.size() > 0) {
+    if(expectedDroppedEvent_.size() > 0) {
       edm::InputTag tag("makeThingToBeDropped", "event", "PROD");
       e.getByLabel(tag, h_thingWithIsEqual);
       assert(h_thingWithIsEqual->a == expectedDroppedEvent_[0]);
@@ -226,10 +224,10 @@ namespace edmtest {
 
     // This one is used to test the merging step when a specific product
     // has been dropped or not created in some of the input files.
-    if (expectedDroppedEvent1_.size() > droppedIndex1_) {
+    if(expectedDroppedEvent1_.size() > droppedIndex1_) {
       edm::InputTag tag("makeThingToBeDropped1", "event", "PROD");
       e.getByLabel(tag, h_thingWithIsEqual);
-      if (expectedDroppedEvent1_[droppedIndex1_] == -1) {
+      if(expectedDroppedEvent1_[droppedIndex1_] == -1) {
         assert(!h_thingWithIsEqual.isValid());
       }
       else {
@@ -246,8 +244,8 @@ namespace edmtest {
     // in the Event rather than deleting it or writing a complete new test ...
     // It is actually convenient here, so maybe it is OK even if the module name
     // has nothing to do with this test.
-    if (parentIndex_ < expectedParents_.size()) {
-      
+    if(parentIndex_ < expectedParents_.size()) {
+
       edm::InputTag tag("thingWithMergeProducer", "event", "PROD");
       e.getByLabel(tag, h_thing);
       std::string expectedParent = expectedParents_[parentIndex_];
@@ -272,7 +270,7 @@ namespace edmtest {
     index1_ += 3;
     index5_ += 3;
 
-    if (verbose_) edm::LogInfo("TestMergeResults") << "beginRun";
+    if(verbose_) edm::LogInfo("TestMergeResults") << "beginRun";
 
     edm::InputTag tag("thingWithMergeProducer", "beginRun", "PROD");
     checkExpectedRunProducts(index0_, expectedBeginRunProd_, tag, "beginRun", run);
@@ -280,7 +278,7 @@ namespace edmtest {
     edm::InputTag tagnew("thingWithMergeProducer", "beginRun");
     checkExpectedRunProducts(index4_, expectedBeginRunNew_, tagnew, "beginRun", run);
 
-    if (expectedDroppedEvent_.size() > 1) {
+    if(expectedDroppedEvent_.size() > 1) {
       edm::InputTag tagd("makeThingToBeDropped", "beginRun", "PROD");
       run.getByLabel(tagd, h_thingWithIsEqual);
       assert(h_thingWithIsEqual->a == expectedDroppedEvent_[1]);
@@ -302,7 +300,7 @@ namespace edmtest {
     index1_ += 3;
     index5_ += 3;
 
-    if (verbose_) edm::LogInfo("TestMergeResults") << "endRun";
+    if(verbose_) edm::LogInfo("TestMergeResults") << "endRun";
 
     edm::InputTag tag("thingWithMergeProducer", "endRun", "PROD");
     checkExpectedRunProducts(index1_, expectedEndRunProd_, tag, "endRun", run);
@@ -310,7 +308,7 @@ namespace edmtest {
     edm::InputTag tagnew("thingWithMergeProducer", "endRun");
     checkExpectedRunProducts(index5_, expectedEndRunNew_, tagnew, "endRun", run);
 
-    if (expectedDroppedEvent_.size() > 2) {
+    if(expectedDroppedEvent_.size() > 2) {
       edm::InputTag tagd("makeThingToBeDropped", "endRun", "PROD");
       run.getByLabel(tagd, h_thingWithIsEqual);
       assert(h_thingWithIsEqual->a == expectedDroppedEvent_[2]);
@@ -327,7 +325,7 @@ namespace edmtest {
     index3_ += 3;
     index7_ += 3;
 
-    if (verbose_) edm::LogInfo("TestMergeResults") << "beginLuminosityBlock";
+    if(verbose_) edm::LogInfo("TestMergeResults") << "beginLuminosityBlock";
 
     edm::InputTag tag0("thingWithMergeProducer", "beginRun", "PROD");
     checkExpectedRunProducts(index0_, expectedBeginRunProd_, tag0, "beginLumi", lumi.getRun());
@@ -341,7 +339,7 @@ namespace edmtest {
     edm::InputTag tagnew("thingWithMergeProducer", "beginLumi");
     checkExpectedLumiProducts(index6_, expectedBeginLumiNew_, tagnew, "beginLumi", lumi);
 
-    if (expectedDroppedEvent_.size() > 3) {
+    if(expectedDroppedEvent_.size() > 3) {
       edm::InputTag tagd("makeThingToBeDropped", "beginLumi", "PROD");
       lumi.getByLabel(tagd, h_thingWithIsEqual);
       assert(h_thingWithIsEqual->a == expectedDroppedEvent_[3]);
@@ -362,7 +360,7 @@ namespace edmtest {
     index3_ += 3;
     index7_ += 3;
 
-    if (verbose_) edm::LogInfo("TestMergeResults") << "endLuminosityBlock";
+    if(verbose_) edm::LogInfo("TestMergeResults") << "endLuminosityBlock";
 
     edm::InputTag tag0("thingWithMergeProducer", "beginRun", "PROD");
     checkExpectedRunProducts(index0_, expectedBeginRunProd_, tag0, "endLumi", lumi.getRun());
@@ -376,7 +374,7 @@ namespace edmtest {
     edm::InputTag tagnew("thingWithMergeProducer", "endLumi");
     checkExpectedLumiProducts(index7_, expectedEndLumiNew_, tagnew, "endLumi", lumi);
 
-    if (expectedDroppedEvent_.size() > 4) {
+    if(expectedDroppedEvent_.size() > 4) {
       edm::InputTag tagd("makeThingToBeDropped", "endLumi", "PROD");
       lumi.getByLabel(tagd, h_thingWithIsEqual);
       assert(h_thingWithIsEqual->a == expectedDroppedEvent_[4]);
@@ -397,62 +395,60 @@ namespace edmtest {
     index6_ += 3;
     index7_ += 3;
 
+    if(verbose_) edm::LogInfo("TestMergeResults") << "respondToOpenInputFile";
 
-    if (verbose_) edm::LogInfo("TestMergeResults") << "respondToOpenInputFile";
-
-    if (!expectedInputFileNames_.empty()) {
-      if (expectedInputFileNames_.size() <= static_cast<unsigned>(nRespondToOpenInputFile_) ||
+    if(!expectedInputFileNames_.empty()) {
+      if(expectedInputFileNames_.size() <= static_cast<unsigned>(nRespondToOpenInputFile_) ||
           expectedInputFileNames_[nRespondToOpenInputFile_] != fb.fileName()) {
         std::cerr << "Error while testing merging of run/lumi products in TestMergeResults.cc\n"
                   << "Unexpected input filename, expected name = " << expectedInputFileNames_[nRespondToOpenInputFile_]
-                  << "    actual name = " << fb.fileName() << std::endl; 
+                  << "    actual name = " << fb.fileName() << std::endl;
         abort();
       }
     }
     ++nRespondToOpenInputFile_;
   }
 
-  void TestMergeResults::respondToCloseInputFile(edm::FileBlock const& fb) {
-    if (verbose_) edm::LogInfo("TestMergeResults") << "respondToCloseInputFile";
+  void TestMergeResults::respondToCloseInputFile(edm::FileBlock const&) {
+    if(verbose_) edm::LogInfo("TestMergeResults") << "respondToCloseInputFile";
     ++nRespondToCloseInputFile_;
     ++droppedIndex1_;
   }
 
-  void TestMergeResults::respondToOpenOutputFiles(edm::FileBlock const& fb) {
-    if (verbose_) edm::LogInfo("TestMergeResults") << "respondToOpenOutputFiles";
+  void TestMergeResults::respondToOpenOutputFiles(edm::FileBlock const&) {
+    if(verbose_) edm::LogInfo("TestMergeResults") << "respondToOpenOutputFiles";
     ++nRespondToOpenOutputFiles_;
   }
 
-  void TestMergeResults::respondToCloseOutputFiles(edm::FileBlock const& fb) {
-    if (verbose_) edm::LogInfo("TestMergeResults") << "respondToCloseOutputFiles";
+  void TestMergeResults::respondToCloseOutputFiles(edm::FileBlock const&) {
+    if(verbose_) edm::LogInfo("TestMergeResults") << "respondToCloseOutputFiles";
     ++nRespondToCloseOutputFiles_;
   }
 
   void TestMergeResults::endJob() {
-    if (verbose_) edm::LogInfo("TestMergeResults") << "endJob";
+    if(verbose_) edm::LogInfo("TestMergeResults") << "endJob";
 
-
-    if (expectedRespondToOpenInputFile_ > -1 && nRespondToOpenInputFile_ != expectedRespondToOpenInputFile_) {
+    if(expectedRespondToOpenInputFile_ > -1 && nRespondToOpenInputFile_ != expectedRespondToOpenInputFile_) {
       std::cerr << "Error while testing merging of run/lumi products in TestMergeResults.cc\n"
-              << "Unexpected number of calls to the function respondToOpenInputFile" << std::endl; 
+                << "Unexpected number of calls to the function respondToOpenInputFile" << std::endl;
       abort();
     }
 
-    if (expectedRespondToCloseInputFile_ > -1 && nRespondToCloseInputFile_ != expectedRespondToCloseInputFile_) {
+    if(expectedRespondToCloseInputFile_ > -1 && nRespondToCloseInputFile_ != expectedRespondToCloseInputFile_) {
       std::cerr << "Error while testing merging of run/lumi products in TestMergeResults.cc\n"
-              << "Unexpected number of calls to the function respondToCloseInputFile" << std::endl; 
+                << "Unexpected number of calls to the function respondToCloseInputFile" << std::endl;
       abort();
     }
 
-    if (expectedRespondToOpenOutputFiles_ > -1 && nRespondToOpenOutputFiles_ != expectedRespondToOpenOutputFiles_) {
+    if(expectedRespondToOpenOutputFiles_ > -1 && nRespondToOpenOutputFiles_ != expectedRespondToOpenOutputFiles_) {
       std::cerr << "Error while testing merging of run/lumi products in TestMergeResults.cc\n"
-              << "Unexpected number of calls to the function respondToOpenOutputFiles" << std::endl; 
+                << "Unexpected number of calls to the function respondToOpenOutputFiles" << std::endl;
       abort();
     }
 
-    if (expectedRespondToCloseOutputFiles_ > -1 && nRespondToCloseOutputFiles_ != expectedRespondToCloseOutputFiles_) {
+    if(expectedRespondToCloseOutputFiles_ > -1 && nRespondToCloseOutputFiles_ != expectedRespondToCloseOutputFiles_) {
       std::cerr << "Error while testing merging of run/lumi products in TestMergeResults.cc\n"
-              << "Unexpected number of calls to the function respondToCloseOutputFiles" << std::endl; 
+                << "Unexpected number of calls to the function respondToCloseOutputFiles" << std::endl;
       abort();
     }
   }
@@ -464,27 +460,30 @@ namespace edmtest {
                                              char const* functionName,
                                              edm::Run const& run) {
 
-    if ((index + 2) < expectedValues.size()) {
+    if((index + 2) < expectedValues.size()) {
 
       int expected = expectedValues[index];
-      if (expected != 0) {
+      if(expected != 0) {
         run.getByLabel(tag, h_thing);
-        if (h_thing->a != expected) 
+        if(h_thing->a != expected) {
           abortWithMessage(functionName, "Thing", tag, expected, h_thing->a);
+        }
       }
 
       expected = expectedValues[index + 1];
-      if (expected != 0) {
+      if(expected != 0) {
         run.getByLabel(tag, h_thingWithMerge);
-        if (h_thingWithMerge->a != expected) 
+        if(h_thingWithMerge->a != expected) {
           abortWithMessage(functionName, "ThingWithMerge", tag, expected, h_thingWithMerge->a);
+        }
       }
 
       expected = expectedValues[index + 2];
-      if (expected != 0) {
+      if(expected != 0) {
         run.getByLabel(tag, h_thingWithIsEqual);
-        if (h_thingWithIsEqual->a != expected) 
+        if(h_thingWithIsEqual->a != expected) {
           abortWithMessage(functionName, "ThingWithIsEqual", tag, expected, h_thingWithIsEqual->a);
+        }
       }
     }
   }
@@ -496,27 +495,30 @@ namespace edmtest {
                                               char const* functionName,
                                               edm::LuminosityBlock const& lumi) {
 
-    if ((index + 2) < expectedValues.size()) {
+    if((index + 2) < expectedValues.size()) {
 
       int expected = expectedValues[index];
-      if (expected != 0) {
+      if(expected != 0) {
         lumi.getByLabel(tag, h_thing);
-        if (h_thing->a != expected) 
+        if(h_thing->a != expected) {
           abortWithMessage(functionName, "Thing", tag, expected, h_thing->a);
+        }
       }
 
       expected = expectedValues[index + 1];
-      if (expected != 0) {
+      if(expected != 0) {
         lumi.getByLabel(tag, h_thingWithMerge);
-        if (h_thingWithMerge->a != expected) 
+        if(h_thingWithMerge->a != expected) {
           abortWithMessage(functionName, "ThingWithMerge", tag, expected, h_thingWithMerge->a);
+        }
       }
 
       expected = expectedValues[index + 2];
-      if (expected != 0) {
+      if(expected != 0) {
         lumi.getByLabel(tag, h_thingWithIsEqual);
-        if (h_thingWithIsEqual->a != expected) 
+        if(h_thingWithIsEqual->a != expected) {
           abortWithMessage(functionName, "ThingWithIsEqual", tag, expected, h_thingWithIsEqual->a);
+        }
       }
     }
   }
