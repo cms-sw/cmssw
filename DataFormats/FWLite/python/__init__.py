@@ -53,12 +53,16 @@ class Handle:
                   typeString,
                   **kwargs):
         """Initialize python handle wrapper """
-        self._type      = typeString
+        # turn off warnings
+        oldWarningLevel = ROOT.gErrorIgnoreLevel
+        ROOT.gErrorIgnoreLevel = ROOT.kError
+        self._type      = typeString 
         self._wrapper   = ROOT.edm.Wrapper (self._type)()
         self._typeInfo  = self._wrapper.typeInfo()
         self._exception = RuntimeError ("getByLabel not called for '%s'", self)
-        global options
         ROOT.SetOwnership (self._wrapper, False)
+        # restore warning state
+        ROOT.gErrorIgnoreLevel = oldWarningLevel
         # O.k.  This is a little weird.  We want a pointer to an EDM
         # wrapper, but we don't want the memory it is pointing to.
         # So, we've created it and grabbed the type info.  Since we
@@ -141,7 +145,7 @@ class Lumis:
             # it's a VarParsing object
             options = inputFiles
             self._maxLumis           = options.maxEvents
-            self._filenames           = options.inputFiles
+            self._filenames          = options.inputFiles
         else:
             # it's probably a single string
             self._filenames = [inputFiles]
@@ -154,8 +158,8 @@ class Lumis:
         if kwargs.has_key ('options'):
             options = kwargs ['options']
             self._maxLumis           = options.maxEvents
-            self._filenames           = options.inputFiles
-            self._secondaryFilenames  = options.secondaryInputFiles
+            self._filenames          = options.inputFiles
+            self._secondaryFilenames = options.secondaryInputFiles
             del kwargs['options']
         # Since we deleted the options as we used them, that means
         # that kwargs should be empty.  If it's not, that means that
