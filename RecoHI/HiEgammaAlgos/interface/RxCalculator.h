@@ -22,10 +22,10 @@ class RxCalculator
   
    RxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag hbheLabel, edm::InputTag hfLabel, edm::InputTag hoLabel) ;
   
-   double getRx (const reco::SuperClusterRef clus, double i, double threshold);
+   double getRx (const reco::SuperClusterRef clus, double i, double threshold, double innerR=0.15);
    double getRFx(const reco::SuperClusterRef clus, double i, double threshold);
    double getROx(const reco::SuperClusterRef clus, double i, double threshold);
-   double getCRx(const reco::SuperClusterRef clus, double i, double threshold); // background subtracted Rx
+   double getCRx(const reco::SuperClusterRef clus, double i, double threshold, double innerR=0.15); // background subtracted Rx
 
   private:
    
