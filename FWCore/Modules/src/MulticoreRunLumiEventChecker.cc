@@ -16,38 +16,34 @@
 //
 //
 
+// user include files
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
 // system include files
-#include <memory>
-#include <vector>
-#include <map>
+#include <boost/shared_ptr.hpp>
+
 #include <algorithm>
+#include <map>
+#include <memory>
+#include <signal.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <sys/signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <signal.h>
+#include <vector>
 
 #include <boost/thread/thread.hpp>
-#include <boost/shared_ptr.hpp>
-
-// user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "DataFormats/Provenance/interface/EventID.h"
-
-#include "FWCore/Utilities/interface/UnixSignalHandlers.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-
 //
 // class decleration
 //
@@ -57,7 +53,6 @@ public:
    explicit MulticoreRunLumiEventChecker(edm::ParameterSet const&);
    ~MulticoreRunLumiEventChecker();
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
 
 private:
    virtual void beginJob();
@@ -71,12 +66,12 @@ private:
    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es);
    virtual void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es);
 
-   void check(const edm::EventID& iID, bool isEvent);
+   void check(edm::EventID const& iID, bool isEvent);
    
    // ----------member data ---------------------------
    std::vector<edm::EventID> ids_;
    unsigned int index_;
-   std::map<edm::EventID,unsigned int> seenIDs_;
+   std::map<edm::EventID, unsigned int> seenIDs_;
 
    unsigned int multiProcessSequentialEvents_;
    unsigned int numberOfEventsLeftBeforeSearch_;
@@ -111,12 +106,9 @@ MulticoreRunLumiEventChecker::MulticoreRunLumiEventChecker(edm::ParameterSet con
 
 
 MulticoreRunLumiEventChecker::~MulticoreRunLumiEventChecker() {
-
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
 }
-
 
 //
 // member functions
@@ -124,9 +116,9 @@ MulticoreRunLumiEventChecker::~MulticoreRunLumiEventChecker() {
 
 namespace {
    struct CompareWithoutLumi {
-      CompareWithoutLumi( const edm::EventID& iThis):
+      CompareWithoutLumi(edm::EventID const& iThis):
       m_this(iThis) {}
-      bool operator()(const edm::EventID& iOther) {
+      bool operator()(edm::EventID const& iOther) {
          return m_this.run() == iOther.run() && m_this.event() == iOther.event();
       }
       edm::EventID m_this;
@@ -145,7 +137,7 @@ namespace {
    
    class Listener {
    public:
-      Listener( std::map<edm::EventID,unsigned int>* iToFill, int iQueueID, unsigned int iMaxChildren):
+      Listener(std::map<edm::EventID, unsigned int>* iToFill, int iQueueID, unsigned int iMaxChildren):
       fill_(iToFill),
       queueID_(iQueueID),
       maxChildren_(iMaxChildren),
@@ -154,11 +146,11 @@ namespace {
       void operator()(){
          for(;;) {
             MsgToListener rcvmsg;
-            if (msgrcv(queueID_, &rcvmsg, MsgToListener::sizeForBuffer(), MsgToListener::messageType(), 0) < 0) {
+            if(msgrcv(queueID_, &rcvmsg, MsgToListener::sizeForBuffer(), MsgToListener::messageType(), 0) < 0) {
                perror("failed to receive message from controller");
                exit(EXIT_FAILURE);
             }
-            if(rcvmsg.id.run() ==0) {
+            if(rcvmsg.id.run() == 0) {
                ++stoppedChildren_;
                if(stoppedChildren_ == maxChildren_) {
                   return;
@@ -177,17 +169,16 @@ namespace {
    };
 }
 
-
 void
 MulticoreRunLumiEventChecker::check(edm::EventID const& iEventID, bool iIsEvent) {
    if(mustSearch_) { 
-      if( 0 == numberOfEventsLeftBeforeSearch_) {
+      if(0 == numberOfEventsLeftBeforeSearch_) {
          if(iIsEvent) {
             numberOfEventsLeftBeforeSearch_ = multiProcessSequentialEvents_;
          }
          //the event must be after the last event in our list since multicore doesn't go backwards
-         //std::vector<edm::EventID>::iterator itFind= std::find_if(ids_.begin()+index_,ids_.end(), CompareWithoutLumi(iEventID));
-         std::vector<edm::EventID>::iterator itFind= std::find(ids_.begin()+index_,ids_.end(), iEventID);
+         //std::vector<edm::EventID>::iterator itFind= std::find_if(ids_.begin() + index_, ids_.end(), CompareWithoutLumi(iEventID));
+         std::vector<edm::EventID>::iterator itFind= std::find(ids_.begin() + index_, ids_.end(), iEventID);
          if(itFind == ids_.end()) {
             throw cms::Exception("MissedEvent") << "The event " << iEventID << "is not in the list.\n";
          }
@@ -199,14 +190,14 @@ MulticoreRunLumiEventChecker::check(edm::EventID const& iEventID, bool iIsEvent)
       MsgToListener sndmsg;
       sndmsg.id = iEventID;
       errno = 0;
-      int value = msgsnd(messageQueue_,&sndmsg, MsgToListener::sizeForBuffer(),0);
+      int value = msgsnd(messageQueue_, &sndmsg, MsgToListener::sizeForBuffer(), 0);
       if(value != 0) {
-         throw cms::Exception("MessageFailure")<<"Failed to send EventID message "<<strerror(errno);
+         throw cms::Exception("MessageFailure") << "Failed to send EventID message " << strerror(errno);
       }
    }
    
    if(index_ >= ids_.size()) {
-      throw cms::Exception("TooManyEvents")<<"Was passes "<<ids_.size()<<" EventIDs but have processed more events than that\n";
+      throw cms::Exception("TooManyEvents") << "Was passes " << ids_.size() << " EventIDs but have processed more events than that\n";
    }
    if(iEventID  != ids_[index_]) {
       throw cms::Exception("WrongEvent") << "Was expecting event " << ids_[index_] << " but was given " << iEventID << "\n";
@@ -216,27 +207,27 @@ MulticoreRunLumiEventChecker::check(edm::EventID const& iEventID, bool iIsEvent)
 
 // ------------ method called to for each event  ------------
 void
-MulticoreRunLumiEventChecker::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
-   check(iEvent.id(),true);
+MulticoreRunLumiEventChecker::analyze(edm::Event const& iEvent, edm::EventSetup const&) {
+   check(iEvent.id(), true);
 }
 
 void 
-MulticoreRunLumiEventChecker::beginRun(edm::Run const& run, edm::EventSetup const& es) {
-   check(edm::EventID(run.id().run(),0,0),false);   
+MulticoreRunLumiEventChecker::beginRun(edm::Run const& run, edm::EventSetup const&) {
+   check(edm::EventID(run.id().run(), 0, 0), false);   
 }
 void 
-MulticoreRunLumiEventChecker::endRun(edm::Run const& run, edm::EventSetup const& es) {
-   check(edm::EventID(run.id().run(),0,0),false);   
-}
-
-void 
-MulticoreRunLumiEventChecker::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) {
-   check(edm::EventID(lumi.id().run(),lumi.id().luminosityBlock(),0),false);   
+MulticoreRunLumiEventChecker::endRun(edm::Run const& run, edm::EventSetup const&) {
+   check(edm::EventID(run.id().run(), 0, 0), false);   
 }
 
 void 
-MulticoreRunLumiEventChecker::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) {
-   check(edm::EventID(lumi.id().run(),lumi.id().luminosityBlock(),0),false);   
+MulticoreRunLumiEventChecker::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) {
+   check(edm::EventID(lumi.id().run(), lumi.id().luminosityBlock(), 0), false);   
+}
+
+void 
+MulticoreRunLumiEventChecker::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) {
+   check(edm::EventID(lumi.id().run(), lumi.id().luminosityBlock(), 0), false);   
 }
 
 
@@ -251,30 +242,30 @@ MulticoreRunLumiEventChecker::endJob() {
    MsgToListener sndmsg;
    sndmsg.id = edm::EventID();
    errno = 0;
-   int value = msgsnd(messageQueue_,&sndmsg, MsgToListener::sizeForBuffer(),0);
+   int value = msgsnd(messageQueue_, &sndmsg, MsgToListener::sizeForBuffer(), 0);
    if(value != 0) {
-      throw cms::Exception("MessageFailure")<<"Failed to send finished message "<<strerror(errno)<<"\n";
+      throw cms::Exception("MessageFailure") << "Failed to send finished message " << strerror(errno) << "\n";
    }
    
    if(listenerThread_) {
       listenerThread_->join();
-      msgctl(messageQueue_, IPC_RMID,0);
+      msgctl(messageQueue_, IPC_RMID, 0);
       
-      std::set<edm::EventID> uniqueIDs(ids_.begin(),ids_.end());
+      std::set<edm::EventID> uniqueIDs(ids_.begin(), ids_.end());
       if(seenIDs_.size() != uniqueIDs.size()) {
-         throw cms::Exception("WrongNumberOfEvents")<<"Saw "<<seenIDs_.size()<<" events but was supposed to see "<<ids_.size()<<"\n";
+         throw cms::Exception("WrongNumberOfEvents") << "Saw " << seenIDs_.size() << " events but was supposed to see " << ids_.size() << "\n";
       }
       
       std::set<edm::EventID> duplicates;
-      for(std::map<edm::EventID,unsigned int>::iterator it = seenIDs_.begin(), itEnd = seenIDs_.end();
+      for(std::map<edm::EventID, unsigned int>::iterator it = seenIDs_.begin(), itEnd = seenIDs_.end();
           it != itEnd;
           ++it) {
-         if (it->second > 1 && it->first.event() != 0) {
+         if(it->second > 1 && it->first.event() != 0) {
             duplicates.insert(it->first);
          }
       }
-      if(duplicates.size() != 0 ) {
-         throw cms::Exception("DuplicateEvents")<<"saw "<<duplicates.size()<<" events\n";
+      if(duplicates.size() != 0) {
+         throw cms::Exception("DuplicateEvents") << "saw " << duplicates.size() << " events\n";
       }
    }
 }
@@ -292,13 +283,13 @@ void
 MulticoreRunLumiEventChecker::postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
    mustSearch_ = true;
    
-   if (0 == iChildIndex) {
+   if(0 == iChildIndex) {
       //NOTE: must temporarily disable signals so the new thread never tries to process a signal
       sigset_t oldset;
       edm::disableAllSigs(&oldset);
       
-      Listener listener(&seenIDs_,messageQueue_, iNumberOfChildren);
-      listenerThread_ = boost::shared_ptr<boost::thread>( new  boost::thread(listener)) ;
+      Listener listener(&seenIDs_, messageQueue_, iNumberOfChildren);
+      listenerThread_ = boost::shared_ptr<boost::thread>(new boost::thread(listener)) ;
       edm::reenableSigs(&oldset);
    }
 }
