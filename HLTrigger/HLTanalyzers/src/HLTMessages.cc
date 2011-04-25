@@ -98,4 +98,6 @@ const char * kIsoPixelTracksL3            = "L3 Iso Pixel Tracks";
 const char * kIsoPixelTracksL2            = "L2 Iso Pixel Tracks";
 const char * kIsoPixelTrackVertices       = "Pixel Vertices";
 const char * kPixelTracksL3               = "L3 Pixel Tracks"; 
-const char * kRecoVertices                = "Reconstructed vertices"; 
+const char * kRecoVerticesHLT             = "Reconstructed vertices, HLT"; 
+const char * kRecoVerticesOffline0        = "Reconstructed vertices, Offline0";
+const char * kRecoVerticesOffline1        = "Reconstructed vertices, Offline1";

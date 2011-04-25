@@ -70,7 +70,9 @@ private:
   HLTAlCa     alca_analysis_; 
   HLTTrack    track_analysis_;
   HLTInfo     hlt_analysis_;
-  RECOVertex  vrt_analysis_;
+  RECOVertex  vrt_analysisHLT_;
+  RECOVertex  vrt_analysisOffline0_;
+  RECOVertex  vrt_analysisOffline1_;
 
   int firstLumi_, lastLumi_, towerThreshold_;
   double xSection_, filterEff_, treeWeight;
@@ -164,7 +166,9 @@ private:
   edm::InputTag PixelTracksTagL3_; 
 
   // Reco vertex collection
-  edm::InputTag VertexTag_;
+  edm::InputTag VertexTagHLT_;
+  edm::InputTag VertexTagOffline0_;
+  edm::InputTag VertexTagOffline1_;
 
   int errCnt;
   const int errMax(){return 100;}

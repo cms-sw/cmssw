@@ -7,7 +7,7 @@ isData=1 # =1 running on real data, =0 running on MC
 
 
 OUTPUT_HIST='openhlt.root'
-NEVTS=-1
+NEVTS=200
 MENU="GRun" # GRun for data or MC with >= CMSSW_3_8_X
 isRelval=0 # =0 for running on MC RelVals, =0 for standard production MC, no effect for data 
 
@@ -56,9 +56,22 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(False)
 )
 
+## process.source = cms.Source("PoolSource",
+##     fileNames = cms.untracked.vstring(
+##                                 '/store/data/Run2011A/SingleMu/RAW/v1/000/160/406/CA9EFACF-A14D-E011-ACB9-00304879EDEA.root'
+##     )
+## )
+
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-                                '/store/data/Run2011A/SingleMu/RAW/v1/000/160/406/CA9EFACF-A14D-E011-ACB9-00304879EDEA.root'
+    '/store/data/Run2011A/Jet/RECO/PromptReco-v1/000/161/103/9CE9D4FC-AB56-E011-BB74-0030487CD6E6.root',
+    '/store/data/Run2011A/Jet/RECO/PromptReco-v1/000/161/103/9802528B-A456-E011-9133-0030487CAF5E.root',
+    '/store/data/Run2011A/Jet/RECO/PromptReco-v1/000/161/103/10F88E31-9F56-E011-9AEB-0030487CD14E.root'
+     ),
+    secondaryFileNames =  cms.untracked.vstring(
+    '/store/data/Run2011A/Jet/RAW/v1/000/161/103/E26D5DA4-8654-E011-A83F-001D09F28D4A.root',
+    '/store/data/Run2011A/Jet/RAW/v1/000/161/103/D68B264D-8054-E011-A7B2-001617E30D0A.root',
+    '/store/data/Run2011A/Jet/RAW/v1/000/161/103/8654BB88-8254-E011-B1A1-001617C3B65A.root'
     )
 )
 
@@ -88,9 +101,15 @@ process.load("HLTrigger.HLTanalyzers.HLTopen_cff")
 process.DQM = cms.Service( "DQM",)
 process.DQMStore = cms.Service( "DQMStore",)
 
+#offline vertices with deterministic annealing. Should become the default as of 4_2_0_pre7. Requires > V01-04-04      RecoVertex/PrimaryVertexProducer
+process.load("RecoVertex.Configuration.RecoVertex_cff")
+from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
+process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
+process.offlinePrimaryVerticesDA = process.offlinePrimaryVertices.clone()
+
 # Define the analyzer modules
 process.load("HLTrigger.HLTanalyzers.HLTAnalyser_cfi")
-process.analyzeThis = cms.Path( process.HLTBeginSequence + process.hltanalysis )
+process.analyzeThis = cms.Path( process.offlinePrimaryVerticesDA + process.HLTBeginSequence + process.hltanalysis )
 
 process.hltanalysis.RunParameters.HistogramFile=OUTPUT_HIST
 process.hltanalysis.xSection=XSECTION
@@ -100,6 +119,11 @@ process.hltanalysis.hltresults = cms.InputTag( 'TriggerResults','',WhichHLTProce
 process.hltanalysis.HLTProcessName = WhichHLTProcess
 process.hltanalysis.ht = "hltJet30Ht"
 process.hltanalysis.genmet = "genMetTrue"
+process.hltanalysis.PrimaryVerticesHLT = cms.InputTag('pixelVertices')
+process.hltanalysis.OfflinePrimaryVertices0 = cms.InputTag('offlinePrimaryVertices')
+process.hltanalysis.OfflinePrimaryVertices1 = cms.InputTag('offlinePrimaryVerticesDA')
+
+
 
 # Switch on ECAL alignment to be consistent with full HLT Event Setup
 process.EcalBarrelGeometryEP.applyAlignment = True
