@@ -51,15 +51,15 @@ int                  MaxEntry = -1;
 
 class stSignal{
    public:
-   string Type;
-   string Name;
-   string Legend;
+   std::string Type;
+   std::string Name;
+   std::string Legend;
    double Mass;
    double XSec;
    bool   MakePlot;
 
    stSignal(); 
-   stSignal(string Type_, string Name_, string Legend_, double Mass_, bool MakePlot_, double XSec_){Type=Type_; Name=Name_; Legend=Legend_; Mass=Mass_; MakePlot=MakePlot_; XSec=XSec_;}
+   stSignal(std::string Type_, std::string Name_, std::string Legend_, double Mass_, bool MakePlot_, double XSec_){Type=Type_; Name=Name_; Legend=Legend_; Mass=Mass_; MakePlot=MakePlot_; XSec=XSec_;}
 };
 
 
@@ -107,13 +107,13 @@ void GetSignalDefinition(std::vector<stSignal>& signals){
 }
 
 struct stMC{
-   string Name;
+   std::string Name;
    double ILumi;
    double MaxPtHat;
    double MaxEvent;
 
    stMC();
-   stMC(string Name_, double ILumi_, double MaxPtHat_, int MaxEvent_){Name = Name_; ILumi = ILumi_; MaxPtHat = MaxPtHat_; MaxEvent = MaxEvent_;}
+   stMC(std::string Name_, double ILumi_, double MaxPtHat_, int MaxEvent_){Name = Name_; ILumi = ILumi_; MaxPtHat = MaxPtHat_; MaxEvent = MaxEvent_;}
 };
 
 void GetMCDefinition(std::vector<stMC>& MC){
@@ -123,8 +123,8 @@ void GetMCDefinition(std::vector<stMC>& MC){
 }
 
 
-void GetInputFiles(std::vector<string>& inputFiles, string SampleName){
-   string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_1_3/11_03_30/";
+void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName){
+   std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_1_3/11_03_30/";
 
    if(SampleName=="Data"){
       inputFiles.push_back(BaseDirectory + "Data_RunA.root");

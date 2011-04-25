@@ -128,22 +128,22 @@ double deltaR(double eta1, double phi1, double eta2, double phi2) {
 }
 
 
-string LegendFromType(const string& InputPattern){
-   if(InputPattern.find("Type0",0)<string::npos){
-      return string("Tracker - Only");
-   }else if(InputPattern.find("Type1",0)<string::npos){
-      return string("Tracker + Muon");
+std::string LegendFromType(const std::string& InputPattern){
+   if(InputPattern.find("Type0",0)<std::string::npos){
+      return std::string("Tracker - Only");
+   }else if(InputPattern.find("Type1",0)<std::string::npos){
+      return std::string("Tracker + Muon");
    }else{
-      return string("Tracker + TOF");
+      return std::string("Tracker + TOF");
    }
 }
 
 
-void GetPredictionRescale(string InputPattern, double& Rescale, double& RMS, bool ForceRecompute=false)
+void GetPredictionRescale(std::string InputPattern, double& Rescale, double& RMS, bool ForceRecompute=false)
 {
    size_t CutIndex = InputPattern.find("/Type");
    InputPattern    = InputPattern.substr(0,CutIndex+7);
-   string Input    = InputPattern + "PredictionRescale.txt";
+   std::string Input    = InputPattern + "PredictionRescale.txt";
 
 
    FILE* pFile = fopen(Input.c_str(),"r");

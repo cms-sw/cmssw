@@ -2,18 +2,18 @@
 #ifndef HSCP_ANALYSIS_GLOBAL
 #define HSCP_ANALYSIS_GLOBAL
 
-string             dEdxS_Label     = "dedxASmi";
+std::string             dEdxS_Label     = "dedxASmi";
 double             dEdxS_UpLim     = 1.0;
-string             dEdxS_Legend    = "I_{as}";
-string             dEdxM_Label     = "dedxHarm2";
+std::string             dEdxS_Legend    = "I_{as}";
+std::string             dEdxM_Label     = "dedxHarm2";
 double             dEdxM_UpLim     = 30.0;
-string             dEdxM_Legend    = "I_{h} (MeV/cm)";
+std::string             dEdxM_Legend    = "I_{h} (MeV/cm)";
 double             dEdxK_Data      = 2.43;//25857;
 double             dEdxC_Data      = 2.92;//2.5497;
 double             dEdxK_MC        = 2.40;//2.5404;
 double             dEdxC_MC        = 2.95;//2.6433;
 
-string             TOF_Label       = "combined";
+std::string             TOF_Label       = "combined";
 
 
 double             PtHistoUpperBound   = 2000;
@@ -42,7 +42,7 @@ char		   TypeMode         = 0; //0 = All Candidates
 
 
 
-void InitdEdx(string dEdxS_Label_){
+void InitdEdx(std::string dEdxS_Label_){
    if(dEdxS_Label_=="dedxASmi" || dEdxS_Label_=="dedxNPASmi"){
       dEdxS_UpLim  = 1.0;
       dEdxS_Legend = "I_{as}";

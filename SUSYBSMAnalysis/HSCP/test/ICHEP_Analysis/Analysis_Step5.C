@@ -28,6 +28,7 @@
 #include "Analysis_PlotStructure.h"
 #include "Analysis_Samples.h"
 
+using namespace std;
 
 /////////////////////////// FUNCTION DECLARATION /////////////////////////////
 

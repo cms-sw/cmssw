@@ -3,7 +3,7 @@
 
 
 struct stPlots {
-   string Name;
+   std::string Name;
    TDirectory* Directory;
    TTree*      Tree;
    unsigned int NCuts;
@@ -80,12 +80,12 @@ struct stPlots {
    TH2F*  BS_TOFIm;        TH3F*  AS_TOFIm;   
 };
 
-void stPlots_Init(TFile* HistoFile, stPlots& st, string BaseName, unsigned int NCuts, bool SkipSelectionPlot=false)
+void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned int NCuts, bool SkipSelectionPlot=false)
 {
    st.Name = BaseName;
    st.NCuts = NCuts;
 
-   string Name;
+   std::string Name;
    Name = BaseName;               st.Directory = HistoFile->mkdir(Name.c_str(), Name.c_str()); 
    st.Directory->cd();
 
@@ -187,10 +187,10 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, string BaseName, unsigned int N
 }
 
 
-void stPlots_InitFromFile(TFile* HistoFile, stPlots& st, string BaseName, TFile* InputFile)
+void stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName, TFile* InputFile)
 {
    st.Name = BaseName;
-   string Name;
+   std::string Name;
    Name = BaseName;
 
    st.Directory = new TDirectory((Name+"ReadFromFile").c_str(), (Name+"ReadFromFile").c_str());
@@ -328,10 +328,10 @@ void stPlots_Dump(stPlots& st, FILE* pFile, int CutIndex){
 }
 
 
-void stPlots_Draw(stPlots& st, string SavePath, string LegendTitle, unsigned int CutIndex)
+void stPlots_Draw(stPlots& st, std::string SavePath, std::string LegendTitle, unsigned int CutIndex)
 {
    TObject** Histos = new TObject*[10];
-   std::vector<string> legend;
+   std::vector<std::string> legend;
    TCanvas* c1;
 
    char CutIndexStr[255];sprintf(CutIndexStr,"_%03i",CutIndex);
@@ -351,7 +351,7 @@ void stPlots_Draw(stPlots& st, string SavePath, string LegendTitle, unsigned int
    DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", dEdxS_Legend.c_str(), 0,0, 0,0, false);
    c1->SetLogz(true);
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,string("EtaIs_AS")+CutIndexStr, true);
+   SaveCanvas(c1,SavePath,std::string("EtaIs_AS")+CutIndexStr, true);
    delete Histos[0];
    delete c1;
 
@@ -369,7 +369,7 @@ void stPlots_Draw(stPlots& st, string SavePath, string LegendTitle, unsigned int
    DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", dEdxM_Legend.c_str(), 0,0, 0,0, false);
    c1->SetLogz(true);
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,string("EtaIm_AS")+CutIndexStr, true);
+   SaveCanvas(c1,SavePath,std::string("EtaIm_AS")+CutIndexStr, true);
    delete Histos[0];
    delete c1;
 
@@ -387,7 +387,7 @@ void stPlots_Draw(stPlots& st, string SavePath, string LegendTitle, unsigned int
    DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", "p (GeV/c)", 0,0, 0,0, false);
    c1->SetLogz(true);
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,string("EtaP_AS")+CutIndexStr, true);
+   SaveCanvas(c1,SavePath,std::string("EtaP_AS")+CutIndexStr, true);
    delete Histos[0];
    delete c1;
 
@@ -405,7 +405,7 @@ void stPlots_Draw(stPlots& st, string SavePath, string LegendTitle, unsigned int
    DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", "p_{T} (GeV/c)", 0,0, 0,0, false);
    c1->SetLogz(true);
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,string("EtaPt_AS")+CutIndexStr, true);
+   SaveCanvas(c1,SavePath,std::string("EtaPt_AS")+CutIndexStr, true);
    delete Histos[0];
    delete c1;
 
@@ -447,7 +447,7 @@ void stPlots_Draw(stPlots& st, string SavePath, string LegendTitle, unsigned int
    DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "p (GeV/c)", dEdxS_Legend.c_str(), 0,0, 0,0, false);
    c1->SetLogz(true);
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,string("PIs_AS")+CutIndexStr, true);
+   SaveCanvas(c1,SavePath,std::string("PIs_AS")+CutIndexStr, true);
    delete Histos[0];
    delete c1;
 
@@ -457,7 +457,7 @@ void stPlots_Draw(stPlots& st, string SavePath, string LegendTitle, unsigned int
    DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "p (GeV/c)", dEdxM_Legend.c_str(), 0,0, 0,15, false);
    c1->SetLogz(true);
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,string("PIm_AS")+CutIndexStr, true);
+   SaveCanvas(c1,SavePath,std::string("PIm_AS")+CutIndexStr, true);
    delete Histos[0];
    delete c1;
 
@@ -467,7 +467,7 @@ void stPlots_Draw(stPlots& st, string SavePath, string LegendTitle, unsigned int
    DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "p_{T} (GeV/c)", dEdxS_Legend.c_str(), 0,0, 0,0, false);
    c1->SetLogz(true);
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,string("PtIs_AS")+CutIndexStr, true);
+   SaveCanvas(c1,SavePath,std::string("PtIs_AS")+CutIndexStr, true);
    delete Histos[0];
    delete c1;
 
@@ -477,7 +477,7 @@ void stPlots_Draw(stPlots& st, string SavePath, string LegendTitle, unsigned int
    DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "p_{T} (GeV/c)", dEdxM_Legend.c_str(), 0,0, 0,15, false);
    c1->SetLogz(true);
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,string("PtIm_AS")+CutIndexStr, true);
+   SaveCanvas(c1,SavePath,std::string("PtIm_AS")+CutIndexStr, true);
    delete Histos[0];
    delete c1;
 
@@ -505,7 +505,7 @@ void stPlots_Draw(stPlots& st, string SavePath, string LegendTitle, unsigned int
    DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "1/#beta", dEdxS_Legend.c_str(), 0,0, 0,0, false);
    c1->SetLogz(true);
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,string("TOFIs_AS")+CutIndexStr, true);
+   SaveCanvas(c1,SavePath,std::string("TOFIs_AS")+CutIndexStr, true);
    delete Histos[0];
    delete c1;
 
@@ -515,16 +515,16 @@ void stPlots_Draw(stPlots& st, string SavePath, string LegendTitle, unsigned int
    DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "1/#beta", dEdxM_Legend.c_str(), 0,0, 0,15, false);
    c1->SetLogz(true);
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,string("TOFIm_AS")+CutIndexStr, true);
+   SaveCanvas(c1,SavePath,std::string("TOFIm_AS")+CutIndexStr, true);
    delete Histos[0];
    delete c1;
 }
 
-void stPlots_DrawComparison(string SavePath, string LegendTitle, unsigned int CutIndex, stPlots* st1, stPlots* st2=NULL, stPlots* st3=NULL, stPlots* st4=NULL, stPlots* st5=NULL, stPlots* st6=NULL, stPlots* st7=NULL)
+void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsigned int CutIndex, stPlots* st1, stPlots* st2=NULL, stPlots* st3=NULL, stPlots* st4=NULL, stPlots* st5=NULL, stPlots* st6=NULL, stPlots* st7=NULL)
 { 
    char CutIndexStr[255];sprintf(CutIndexStr,"_%03i",CutIndex);
 
-  std::vector<string> lg;
+  std::vector<std::string> lg;
   std::vector<stPlots*> st;
   if(st1)st.push_back(st1); 
   if(st2)st.push_back(st2);   
@@ -545,7 +545,7 @@ void stPlots_DrawComparison(string SavePath, string LegendTitle, unsigned int Cu
   }
    
    TH1** Histos = new TH1*[10];
-   std::vector<string> legend;
+   std::vector<std::string> legend;
    TCanvas* c1;
 
 
@@ -732,7 +732,7 @@ void stPlots_DrawComparison(string SavePath, string LegendTitle, unsigned int Cu
    DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,string("Is_AS")+CutIndexStr);
+   SaveCanvas(c1,SavePath,std::string("Is_AS")+CutIndexStr);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
 
@@ -743,7 +743,7 @@ void stPlots_DrawComparison(string SavePath, string LegendTitle, unsigned int Cu
    DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,string("Im_AS")+CutIndexStr);
+   SaveCanvas(c1,SavePath,std::string("Im_AS")+CutIndexStr);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
 
@@ -764,7 +764,7 @@ void stPlots_DrawComparison(string SavePath, string LegendTitle, unsigned int Cu
    DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,string("Pt_AS")+CutIndexStr);
+   SaveCanvas(c1,SavePath,std::string("Pt_AS")+CutIndexStr);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
 
@@ -785,7 +785,7 @@ void stPlots_DrawComparison(string SavePath, string LegendTitle, unsigned int Cu
    DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.35);
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,string("TOF_AS")+CutIndexStr, true);
+   SaveCanvas(c1,SavePath,std::string("TOF_AS")+CutIndexStr, true);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
 }

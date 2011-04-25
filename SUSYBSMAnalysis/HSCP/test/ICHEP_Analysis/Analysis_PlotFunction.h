@@ -8,12 +8,12 @@ int Marker[] = {23,22,21,20,29,27,2};
 int Style [] = {1,2,5,7,9,10};
 
 
-TObject* GetObjectFromPath(TDirectory* File, string Path, bool GetACopy=false)
+TObject* GetObjectFromPath(TDirectory* File, std::string Path, bool GetACopy=false)
 {
    size_t pos = Path.find("/");
    if(pos < 256){
-      string firstPart = Path.substr(0,pos);
-      string endPart   = Path.substr(pos+1,Path.length());
+      std::string firstPart = Path.substr(0,pos);
+      std::string endPart   = Path.substr(pos+1,Path.length());
       TDirectory* TMP = (TDirectory*)File->Get(firstPart.c_str());
       if(TMP!=NULL)return GetObjectFromPath(TMP,endPart,GetACopy);
 
@@ -29,23 +29,23 @@ TObject* GetObjectFromPath(TDirectory* File, string Path, bool GetACopy=false)
    
 }
 
-void MakeDirectories(string path){
+void MakeDirectories(std::string path){
    size_t pos = 0;
    
-   while(pos!=string::npos){
+   while(pos!=std::string::npos){
       pos = path.find("/",pos+1);
-      if(pos!=string::npos){
-         system( (string("mkdir ") + path.substr(0,pos)).c_str());
+      if(pos!=std::string::npos){
+         system( (std::string("mkdir ") + path.substr(0,pos)).c_str());
       }
    }
 }
 
-void SaveCanvas(TCanvas* c, string path, string name, bool OnlyPPNG=false){
-   string tmppath = path;
+void SaveCanvas(TCanvas* c, std::string path, std::string name, bool OnlyPPNG=false){
+   std::string tmppath = path;
    if(tmppath[tmppath.length()-1]!='/')tmppath += "_";
    tmppath += name;
 
-   string filepath;
+   std::string filepath;
    filepath = tmppath + ".png"; c->SaveAs(filepath.c_str()); if(OnlyPPNG)return;
    filepath = tmppath +  ".eps"; c->SaveAs(filepath.c_str());
    filepath = tmppath + ".C"  ; c->SaveAs(filepath.c_str());
@@ -76,7 +76,7 @@ void DrawPreliminary(double Lumi, double X=0.40, double Y=0.995, double W=0.82, 
    T->Draw("same");
 }
 
-void DrawLegend (TObject** Histos, std::vector<string> legend, string Title, string Style, double X=0.79, double Y=0.92, double W=0.20, double H=0.05)
+void DrawLegend (TObject** Histos, std::vector<std::string> legend, std::string Title, std::string Style, double X=0.79, double Y=0.92, double W=0.20, double H=0.05)
 {
    int    N             = legend.size();
    
@@ -110,7 +110,7 @@ void DrawLegend (TObject** Histos, std::vector<string> legend, string Title, str
 } 
 
 
-void DrawStatBox(TObject** Histos, std::vector<string> legend, bool Mean, double X=0.15, double Y=0.93, double W=0.15, double H=0.03)
+void DrawStatBox(TObject** Histos, std::vector<std::string> legend, bool Mean, double X=0.15, double Y=0.93, double W=0.15, double H=0.03)
 {  
    int    N             = legend.size();
    char   buffer[255];
@@ -142,7 +142,7 @@ void DrawStatBox(TObject** Histos, std::vector<string> legend, bool Mean, double
 
 
 
-void DrawTH2D(TH2D** Histos, std::vector<string> legend, string Style, string Xlegend, string Ylegend, double xmin, double xmax, double ymin, double ymax)
+void DrawTH2D(TH2D** Histos, std::vector<std::string> legend, std::string Style, std::string Xlegend, std::string Ylegend, double xmin, double xmax, double ymin, double ymax)
 {
    int    N             = legend.size();
    
@@ -169,7 +169,7 @@ void DrawTH2D(TH2D** Histos, std::vector<string> legend, string Style, string Xl
 }
 
 
-void DrawSuperposedHistos(TH1** Histos, std::vector<string> legend, string Style,  string Xlegend, string Ylegend, double xmin, double xmax, double ymin, double ymax, bool Normalize=false)
+void DrawSuperposedHistos(TH1** Histos, std::vector<std::string> legend, std::string Style,  std::string Xlegend, std::string Ylegend, double xmin, double xmax, double ymin, double ymax, bool Normalize=false)
 {
    int    N             = legend.size();
 
