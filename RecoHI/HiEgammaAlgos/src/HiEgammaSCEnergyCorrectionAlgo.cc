@@ -1,5 +1,5 @@
 //
-// $Id: HiEgammaSCEnergyCorrectionAlgo.cc,v 1.7 2010/11/14 09:52:42 innocent Exp $
+// $Id: HiEgammaSCEnergyCorrectionAlgo.cc,v 1.8 2010/11/14 14:22:01 innocent Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoHI/HiEgammaAlgos/interface/HiEgammaSCEnergyCorrectionAlgo.h"
@@ -136,6 +136,8 @@ HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::SuperCluster &cl,
          newEnergy = cl.rawEnergy();
       }
    }
+   
+   if (newEnergy > 2* cl.rawEnergy()) newEnergy = cl.rawEnergy();  // avoid very large correction due to the uncaptured brem
 
    // Create a new supercluster with the corrected energy 
    if (verbosity_ <= pINFO)
@@ -154,7 +156,7 @@ HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::SuperCluster &cl,
    corrCl.setFlags(cl.flags());
    corrCl.setPhiWidth(phiWidth);
    corrCl.setEtaWidth(etaWidth);
-
+   
    return corrCl;
 }
 
