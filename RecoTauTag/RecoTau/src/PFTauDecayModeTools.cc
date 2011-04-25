@@ -20,6 +20,18 @@ namespace {
     ("threeProngOther", reco::PFTau::kThreeProngNPiZero)
     ("electron", reco::PFTau::kNull)
     ("muon", reco::PFTau::kNull);
+
+  static std::map<reco::PFTau::hadronicDecayMode, std::string> dmInverter =
+    boost::assign::map_list_of
+    (reco::PFTau::kOneProng0PiZero, "oneProng0Pi0")
+    (reco::PFTau::kOneProng1PiZero, "oneProng1Pi0")
+    (reco::PFTau::kOneProng2PiZero, "oneProng2Pi0")
+    (reco::PFTau::kOneProngNPiZero, "oneProngOther")
+    (reco::PFTau::kThreeProng0PiZero, "threeProng0Pi0")
+    (reco::PFTau::kThreeProng1PiZero, "threeProng1Pi0")
+    (reco::PFTau::kThreeProngNPiZero, "threeProngOther")
+    (reco::PFTau::kNull, "unknown")
+    (reco::PFTau::kRareDecayMode, "rare");
 }
 
 unsigned int chargedHadronsInDecayMode(PFTau::hadronicDecayMode mode) {
@@ -56,6 +68,16 @@ PFTau::hadronicDecayMode translateGenDecayModeToReco(
   } else
     return reco::PFTau::kRareDecayMode;
 }
+
+std::string translateRecoDecayModeToGen(PFTau::hadronicDecayMode decayMode) {
+  std::map<reco::PFTau::hadronicDecayMode, std::string>::const_iterator
+    found = dmInverter.find(decayMode);
+  if (found != dmInverter.end()) {
+    return found->second;
+  } else
+    return "unknown";
+}
+
 
 PFTau::hadronicDecayMode getDecayMode(const reco::GenJet* genJet) {
   if (!genJet)
