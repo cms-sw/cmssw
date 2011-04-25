@@ -1,61 +1,60 @@
-#include "DataFormats/Provenance/interface/Provenance.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/Framework/interface/Event.h"
+
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
-#include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
 
 namespace edm {
 
-    Event::Event(EventPrincipal& ep, ModuleDescription const& md) :
-        provRecorder_(ep, md),
-        aux_(ep.aux()),
-        luminosityBlock_(new LuminosityBlock(ep.luminosityBlockPrincipal(), md)),
-        gotBranchIDs_(),
-        gotViews_() {
-    }
+  Event::Event(EventPrincipal& ep, ModuleDescription const& md) :
+      provRecorder_(ep, md),
+      aux_(ep.aux()),
+      luminosityBlock_(new LuminosityBlock(ep.luminosityBlockPrincipal(), md)),
+      gotBranchIDs_(),
+      gotViews_() {
+  }
 
-    Event::~Event() {
-     // anything left here must be the result of a failure
-     // let's record them as failed attempts in the event principal
-      for_all(putProducts_, principal_get_adapter_detail::deleter());
-    }
+  Event::~Event() {
+   // anything left here must be the result of a failure
+   // let's record them as failed attempts in the event principal
+    for_all(putProducts_, principal_get_adapter_detail::deleter());
+  }
 
-    EventPrincipal&
-    Event::eventPrincipal() {
-      return dynamic_cast<EventPrincipal&>(provRecorder_.principal());
-    }
+  EventPrincipal&
+  Event::eventPrincipal() {
+    return dynamic_cast<EventPrincipal&>(provRecorder_.principal());
+  }
 
-    EventPrincipal const&
-    Event::eventPrincipal() const {
-      return dynamic_cast<EventPrincipal const&>(provRecorder_.principal());
-    }
+  EventPrincipal const&
+  Event::eventPrincipal() const {
+    return dynamic_cast<EventPrincipal const&>(provRecorder_.principal());
+  }
 
-    ProductID
-    Event::makeProductID(ConstBranchDescription const& desc) const {
-      return eventPrincipal().branchIDToProductID(desc.branchID());
-    }
+  ProductID
+  Event::makeProductID(ConstBranchDescription const& desc) const {
+    return eventPrincipal().branchIDToProductID(desc.branchID());
+  }
 
-    Run const&
-    Event::getRun() const {
-      return getLuminosityBlock().getRun();
-    }
+  Run const&
+  Event::getRun() const {
+    return getLuminosityBlock().getRun();
+  }
 
-    EventSelectionIDVector const&
-    Event::eventSelectionIDs() const {
-      return eventPrincipal().eventSelectionIDs();
-    }
-
+  EventSelectionIDVector const&
+  Event::eventSelectionIDs() const {
+    return eventPrincipal().eventSelectionIDs();
+  }
 
   ProcessHistoryID const&
   Event::processHistoryID() const {
     return eventPrincipal().processHistoryID();
   }
-
 
   Provenance
   Event::getProvenance(BranchID const& bid) const {
@@ -78,7 +77,7 @@ namespace edm {
     // Get the ProcessHistory for this event.
     ProcessHistoryRegistry* phr = ProcessHistoryRegistry::instance();
     ProcessHistory ph;
-    if (!phr->getMapped(processHistoryID(), ph)) {
+    if(!phr->getMapped(processHistoryID(), ph)) {
       throw Exception(errors::NotFound)
         << "ProcessHistoryID " << processHistoryID()
         << " is claimed to describe " << id()
@@ -88,7 +87,7 @@ namespace edm {
 
     ProcessConfiguration config;
     bool process_found = ph.getConfigurationForProcess(processName, config);
-    if (process_found) {
+    if(process_found) {
       pset::Registry::instance()->getMapped(config.parameterSetID(), ps);
       assert(!ps.empty());
     }
@@ -100,10 +99,9 @@ namespace edm {
     return eventPrincipal().getByProductID(oid);
   }
 
-
   void
   Event::commit_(std::vector<BranchID>* previousParentage, ParentageID* previousParentageId) {
-    commit_aux(putProducts(), true,previousParentage,previousParentageId);
+    commit_aux(putProducts(), true, previousParentage, previousParentageId);
     commit_aux(putProductsWithoutParents(), false);
   }
 
@@ -123,26 +121,26 @@ namespace edm {
     // true).
 
     //Check that previousParentageId is still good by seeing if previousParentage matches gotBranchIDs_
-    bool sameAsPrevious=((0 != previousParentage) && (previousParentage->size() == gotBranchIDs_.size()));
-    if (record_parents && !gotBranchIDs_.empty()) {
+    bool sameAsPrevious = ((0 != previousParentage) && (previousParentage->size() == gotBranchIDs_.size()));
+    if(record_parents && !gotBranchIDs_.empty()) {
       gotBranchIDVector.reserve(gotBranchIDs_.size());
       std::vector<BranchID>::const_iterator itPrevious;
       if(previousParentage) {
         itPrevious = previousParentage->begin();
       }
-      for (BranchIDSet::const_iterator it = gotBranchIDs_.begin(), itEnd = gotBranchIDs_.end();
+      for(BranchIDSet::const_iterator it = gotBranchIDs_.begin(), itEnd = gotBranchIDs_.end();
           it != itEnd; ++it) {
         gotBranchIDVector.push_back(*it);
         if(sameAsPrevious) {
           if(*it != *itPrevious) {
-            sameAsPrevious=false;
+            sameAsPrevious = false;
           } else {
             ++itPrevious;
           }
         }
       }
       if(!sameAsPrevious && 0 != previousParentage) {
-        previousParentage->assign(gotBranchIDVector.begin(),gotBranchIDVector.end());
+        previousParentage->assign(gotBranchIDVector.begin(), gotBranchIDVector.end());
       }
     }
 
@@ -157,15 +155,13 @@ namespace edm {
       // set provenance
       std::auto_ptr<ProductProvenance> productProvenancePtr;
       if(!sameAsPrevious) {
-        productProvenancePtr = std::auto_ptr<ProductProvenance>(
-                                                                new ProductProvenance(pit->second->branchID(),
+        productProvenancePtr = std::auto_ptr<ProductProvenance>(new ProductProvenance(pit->second->branchID(),
                                                                                       productstatus::present(),
                                                                                       gotBranchIDVector));
         *previousParentageId = productProvenancePtr->parentageID();
-        sameAsPrevious=true;
+        sameAsPrevious = true;
       } else {
-        productProvenancePtr = std::auto_ptr<ProductProvenance>(
-                                                                new ProductProvenance(pit->second->branchID(),
+        productProvenancePtr = std::auto_ptr<ProductProvenance>(new ProductProvenance(pit->second->branchID(),
                                                                                       productstatus::present(),
                                                                                       *previousParentageId));
       }
@@ -189,25 +185,24 @@ namespace edm {
     return provRecorder_.processHistory();
   }
 
-size_t
+  size_t
   Event::size() const {
-    return putProducts().size()+provRecorder_.principal().size()+putProductsWithoutParents().size();
+    return putProducts().size() + provRecorder_.principal().size() + putProductsWithoutParents().size();
   }
 
   BasicHandle
-  Event::getByLabelImpl(WrapperInterfaceBase const* wrapperInterfaceBase, std::type_info const& iWrapperType, std::type_info const& iProductType, const InputTag& iTag) const {
-    BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType),iTag);
-    if (h.isValid()) {
+  Event::getByLabelImpl(WrapperInterfaceBase const*, std::type_info const&, std::type_info const& iProductType, const InputTag& iTag) const {
+    BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType), iTag);
+    if(h.isValid()) {
       addToGotBranchIDs(*(h.provenance()));
     }
     return h;
   }
 
   TriggerNames const&
-  Event::triggerNames(edm::TriggerResults const& triggerResults) const
-  {
+  Event::triggerNames(edm::TriggerResults const& triggerResults) const {
     edm::TriggerNames const* names = triggerNames_(triggerResults);
-    if (names != 0) return *names;
+    if(names != 0) return *names;
 
     throw cms::Exception("TriggerNamesNotFound")
       << "TriggerNames not found in ParameterSet registry";
@@ -223,8 +218,8 @@ size_t
                  process);
 
     getByLabel(tag, hTriggerResults);
-    if (!hTriggerResults.isValid()) {
-      return TriggerResultsByName(0,0);
+    if(!hTriggerResults.isValid()) {
+      return TriggerResultsByName(0, 0);
     }
     edm::TriggerNames const* names = triggerNames_(*hTriggerResults);
     return TriggerResultsByName(hTriggerResults.product(), names);

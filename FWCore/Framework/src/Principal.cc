@@ -1,18 +1,20 @@
 /**----------------------------------------------------------------------
   ----------------------------------------------------------------------*/
 
-#include <algorithm>
-#include <sstream>
-#include <stdexcept>
-#include <limits>
-#include <cstring>
-
 #include "FWCore/Framework/interface/Principal.h"
+
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/Selector.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+
+#include <algorithm>
+#include <cstring>
+#include <limits>
+#include <sstream>
+#include <stdexcept>
+
 //using boost::lambda::_1;
 
 namespace edm {
@@ -586,7 +588,7 @@ namespace edm {
   }
 
   WrapperHolder
-  Principal::getIt(ProductID const& pid) const {
+  Principal::getIt(ProductID const&) const {
     assert(0);
     return WrapperHolder();
   }

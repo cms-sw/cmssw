@@ -1209,7 +1209,7 @@ namespace edm {
   }
 
   void
-  EventProcessor::declareRunNumber(RunNumber_t runNumber) {
+  EventProcessor::declareRunNumber(RunNumber_t /*runNumber*/) {
     // inside of beginJob there is a check to see if it has been called before
     beginJob();
     changeState(mSetRun);

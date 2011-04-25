@@ -451,14 +451,13 @@ namespace edm {
   }
 
   bool
-  InputSource::goToEvent_(EventID const& eventID) {
+  InputSource::goToEvent_(EventID const&) {
     throw Exception(errors::LogicError)
       << "InputSource::goToEvent_()\n"
       << "Random access is not implemented for this type of Input Source\n"
       << "Contact a Framework Developer\n";
     return true;
   }
-
 
   void
   InputSource::rewind_() {

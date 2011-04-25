@@ -1,12 +1,13 @@
 #include "FWCore/Framework/interface/Run.h"
+
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
 namespace edm {
 
   Run::Run(RunPrincipal& rp, ModuleDescription const& md) :
-	provRecorder_(rp, md),
-	aux_(rp.aux()) {
+        provRecorder_(rp, md),
+        aux_(rp.aux()) {
   }
 
   Run::~Run() {
@@ -47,22 +48,22 @@ namespace edm {
     // Get the relevant ParameterSetIDs.
     // Need to fill these in.
     std::vector<ParameterSetID> psetIdsUsed;
-    for (std::vector<ProcessHistoryID>::const_iterator
-	   i = historyIDs.begin(),
-	   e = historyIDs.end();
-	 i != e;
-	 ++i) {
+    for(std::vector<ProcessHistoryID>::const_iterator
+           i = historyIDs.begin(),
+           e = historyIDs.end();
+         i != e;
+         ++i) {
       ProcessHistory temp;
       phreg->getMapped(*i, temp);
     }
 
     // Look up the ParameterSets for these IDs.
     pset::Registry* psreg = pset::Registry::instance();
-    for (std::vector<ParameterSetID>::const_iterator
-	   i = psetIdsUsed.begin(),
-	   e = psetIdsUsed.end();
-	 i != e;
-	 ++i) {
+    for(std::vector<ParameterSetID>::const_iterator
+           i = psetIdsUsed.begin(),
+           e = psetIdsUsed.end();
+         i != e;
+         ++i) {
       ParameterSet temp;
       psreg->getMapped(*i, temp);
       psets.push_back(temp);
@@ -80,14 +81,14 @@ namespace edm {
     ProductPtrVec::iterator pie(putProducts().end());
 
     while(pit != pie) {
-	// set provenance
-	std::auto_ptr<ProductProvenance> runEntryInfoPtr(
-		new ProductProvenance(pit->second->branchID(),
-				    productstatus::present()));
-	rp.put(*pit->second, pit->first, runEntryInfoPtr);
+        // set provenance
+        std::auto_ptr<ProductProvenance> runEntryInfoPtr(
+              new ProductProvenance(pit->second->branchID(),
+                                    productstatus::present()));
+        rp.put(*pit->second, pit->first, runEntryInfoPtr);
         // Ownership has passed, so clear the pointer.
         pit->first.reset();
-	++pit;
+        ++pit;
     }
 
     // the cleanup is all or none
@@ -105,13 +106,11 @@ namespace edm {
   }
 
   BasicHandle
-  Run::getByLabelImpl(WrapperInterfaceBase const* wrapperInterfaceBase, std::type_info const& iWrapperType, std::type_info const& iProductType, const InputTag& iTag) const {
-    BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType),iTag);
+  Run::getByLabelImpl(WrapperInterfaceBase const*, std::type_info const&, std::type_info const& iProductType, const InputTag& iTag) const {
+    BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType), iTag);
     if(h.isValid()) {
       addToGotBranchIDs(*(h.provenance()));
     }
     return h;
   }
-
-
 }

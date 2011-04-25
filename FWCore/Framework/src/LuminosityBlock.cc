@@ -1,4 +1,5 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
@@ -6,9 +7,9 @@
 namespace edm {
 
   LuminosityBlock::LuminosityBlock(LuminosityBlockPrincipal& lbp, ModuleDescription const& md) :
-	provRecorder_(lbp, md),
-	aux_(lbp.aux()),
-	run_(new Run(lbp.runPrincipal(), md)) {
+        provRecorder_(lbp, md),
+        aux_(lbp.aux()),
+        run_(new Run(lbp.runPrincipal(), md)) {
   }
 
   LuminosityBlock::~LuminosityBlock() {
@@ -45,14 +46,14 @@ namespace edm {
     ProductPtrVec::iterator pie(putProducts().end());
 
     while(pit != pie) {
-	// set provenance
-	std::auto_ptr<ProductProvenance> lumiEntryInfoPtr(
-		new ProductProvenance(pit->second->branchID(),
-				    productstatus::present()));
-	lbp.put(*pit->second, pit->first, lumiEntryInfoPtr);
+        // set provenance
+        std::auto_ptr<ProductProvenance> lumiEntryInfoPtr(
+                new ProductProvenance(pit->second->branchID(),
+                                    productstatus::present()));
+        lbp.put(*pit->second, pit->first, lumiEntryInfoPtr);
         // Ownership has passed, so clear the pointer.
         pit->first.reset();
-	++pit;
+        ++pit;
     }
 
     // the cleanup is all or none
@@ -70,14 +71,11 @@ namespace edm {
   }
 
   BasicHandle
-  LuminosityBlock::getByLabelImpl(WrapperInterfaceBase const* wrapperInterfaceBase, std::type_info const& iWrapperType, std::type_info const& iProductType, const InputTag& iTag) const {
-    BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType),iTag);
+  LuminosityBlock::getByLabelImpl(WrapperInterfaceBase const*, std::type_info const&, std::type_info const& iProductType, const InputTag& iTag) const {
+    BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType), iTag);
     if (h.isValid()) {
       addToGotBranchIDs(*(h.provenance()));
     }
     return h;
   }
-
-
-
 }
