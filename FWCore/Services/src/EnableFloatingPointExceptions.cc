@@ -11,13 +11,14 @@
 //
 
 #include "FWCore/Services/src/EnableFloatingPointExceptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/AllowedLabelsDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 #include <cassert>
 #include <fenv.h>
@@ -29,45 +30,42 @@
 //TAKEN FROM
 // http://public.kitware.com/Bug/file_download.php?file_id=3215&type=bug
 static int
-fegetexcept (void)
-{
+fegetexcept (void) {
   static fenv_t fenv;
 
   return fegetenv (&fenv) ? -1 : (fenv.__control & FE_ALL_EXCEPT);
 }
 
 static int
-feenableexcept (unsigned int excepts)
-{
+feenableexcept (unsigned int excepts) {
   static fenv_t fenv;
   unsigned int new_excepts = excepts & FE_ALL_EXCEPT,
                old_excepts;  // previous masks
 
-  if ( fegetenv (&fenv) ) return -1;
+  if(fegetenv (&fenv)) return -1;
   old_excepts = fenv.__control & FE_ALL_EXCEPT;
 
   // unmask
   fenv.__control &= ~new_excepts;
   fenv.__mxcsr   &= ~(new_excepts << 7);
 
-  return ( fesetenv (&fenv) ? -1 : old_excepts );
+  return (fesetenv (&fenv) ? -1 : old_excepts);
 }
 
 static int
-fedisableexcept (unsigned int excepts)
-{
+fedisableexcept (unsigned int excepts) {
   static fenv_t fenv;
   unsigned int new_excepts = excepts & FE_ALL_EXCEPT,
                old_excepts;  // all previous masks
 
-  if ( fegetenv (&fenv) ) return -1;
+  if(fegetenv (&fenv)) return -1;
   old_excepts = fenv.__control & FE_ALL_EXCEPT;
 
   // mask
   fenv.__control |= new_excepts;
   fenv.__mxcsr   |= new_excepts << 7;
 
-  return ( fesetenv (&fenv) ? -1 : old_excepts );
+  return (fesetenv (&fenv) ? -1 : old_excepts);
 }
 
 #endif
@@ -88,8 +86,8 @@ namespace edm {
       reportSettings_ = pset.getUntrackedParameter<bool>("reportSettings", false);
       bool precisionDouble = pset.getUntrackedParameter<bool>("setPrecisionDouble", true);
 
-      if (reportSettings_)  {
-        edm::LogVerbatim("FPE_Enable") << "\nSettings in EnableFloatingPointExceptions constructor";
+      if(reportSettings_)  {
+        LogVerbatim("FPE_Enable") << "\nSettings in EnableFloatingPointExceptions constructor";
         echoState();
       }
 
@@ -103,7 +101,7 @@ namespace edm {
 
       // Note that we must watch all of the transitions even if there are no module specific settings.
       // This is because the floating point environment may be modified by code outside of this service.
-      registry.watchPostEndJob(this,&EnableFloatingPointExceptions::postEndJob);
+      registry.watchPostEndJob(this, &EnableFloatingPointExceptions::postEndJob);
 
       registry.watchPreModuleBeginJob(this, &EnableFloatingPointExceptions::preModuleBeginJob);
       registry.watchPostModuleBeginJob(this, &EnableFloatingPointExceptions::postModuleBeginJob);
@@ -139,7 +137,7 @@ namespace edm {
       VString const empty_VString;
       VString moduleNames = pset.getUntrackedParameter<VString>("moduleNames", empty_VString);
 
-      for (VString::const_iterator it(moduleNames.begin()), itEnd = moduleNames.end(); it != itEnd; ++it) {
+      for(VString::const_iterator it(moduleNames.begin()), itEnd = moduleNames.end(); it != itEnd; ++it) {
         ParameterSet const& modulePSet = pset.getUntrackedParameterSet(*it, empty_PSet);
         bool enableDivByZeroEx  = modulePSet.getUntrackedParameter<bool>("enableDivByZeroEx", false);
         bool enableInvalidEx    = modulePSet.getUntrackedParameter<bool>("enableInvalidEx",   false);
@@ -147,20 +145,20 @@ namespace edm {
         bool enableUnderFlowEx  = modulePSet.getUntrackedParameter<bool>("enableUnderFlowEx", false);
 
         fpu_flags_type flags = 0;
-        if (enableDivByZeroEx) flags |= FE_DIVBYZERO;
-        if (enableInvalidEx)   flags |= FE_INVALID;
-        if (enableOverFlowEx)  flags |= FE_OVERFLOW;
-        if (enableUnderFlowEx) flags |= FE_UNDERFLOW;
+        if(enableDivByZeroEx) flags |= FE_DIVBYZERO;
+        if(enableInvalidEx)   flags |= FE_INVALID;
+        if(enableOverFlowEx)  flags |= FE_OVERFLOW;
+        if(enableUnderFlowEx) flags |= FE_UNDERFLOW;
         enableAndDisableExcept(flags);
 
         fpuState_ = fegetexcept();
         assert(flags == fpuState_);
 
-        if (reportSettings_) {
-          edm::LogVerbatim("FPE_Enable") << "\nSettings for module " << *it;
+        if(reportSettings_) {
+          LogVerbatim("FPE_Enable") << "\nSettings for module " << *it;
           echoState();
         }
-        if (*it == def) {
+        if(*it == def) {
           defaultState_ = fpuState_;
         }
         else {
@@ -172,8 +170,8 @@ namespace edm {
     void
     EnableFloatingPointExceptions::postEndJob() {
 
-      if (reportSettings_) {
-        edm::LogVerbatim("FPE_Enable") << "\nSettings after endJob ";
+      if(reportSettings_) {
+        LogVerbatim("FPE_Enable") << "\nSettings after endJob ";
         echoState();
       }
     }
@@ -264,16 +262,15 @@ namespace edm {
 
     void
     EnableFloatingPointExceptions::
-    fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
-      edm::ParameterSetDescription desc;
+    fillDescriptions(ConfigurationDescriptions & descriptions) {
+      ParameterSetDescription desc;
 
       desc.addUntracked<bool>("reportSettings", false)->setComment(
-        "Log FPE settings at different phases of the job."
-                                                               );
+        "Log FPE settings at different phases of the job.");
       desc.addUntracked<bool>("setPrecisionDouble", true)->setComment(
         "Set the FPU to use double precision");
 
-      edm::ParameterSetDescription validator;
+      ParameterSetDescription validator;
       validator.setComment("FPU exceptions to enable/disable for the requested module");
       validator.addUntracked<bool>("enableDivByZeroEx", false)->setComment(
         "Enable/disable exception for 'divide by zero'");
@@ -284,7 +281,7 @@ namespace edm {
       validator.addUntracked<bool>("enableUnderFlowEx", false)->setComment(
         "Enable/disable exception for numeric 'underflow' (value to small to be represented accurately)");
 
-      edm::AllowedLabelsDescription<edm::ParameterSetDescription> node("moduleNames", validator, false);
+      AllowedLabelsDescription<ParameterSetDescription> node("moduleNames", validator, false);
       node.setComment("Contains the names for PSets where the PSet name matches the label of a module for which you want to modify the FPE");
       desc.addNode(node);
 
@@ -305,7 +302,7 @@ namespace edm {
       std::string const& moduleLabel = description.moduleLabel();
       std::map<std::string, fpu_flags_type>::const_iterator iModule = stateMap_.find(moduleLabel);
 
-      if (iModule == stateMap_.end())  {
+      if(iModule == stateMap_.end())  {
         fpuState_ = defaultState_;
       }
       else {
@@ -314,8 +311,8 @@ namespace edm {
       enableAndDisableExcept(fpuState_);
       stateStack_.push(fpuState_);
 
-      if (reportSettings_) {
-        edm::LogVerbatim("FPE_Enable")
+      if(reportSettings_) {
+        LogVerbatim("FPE_Enable")
           << "\nSettings for module label \""
           << moduleLabel
           << "\" before "
@@ -333,8 +330,8 @@ namespace edm {
       fpuState_ = stateStack_.top();
       enableAndDisableExcept(fpuState_);
 
-      if (reportSettings_) {
-        edm::LogVerbatim("FPE_Enable")
+      if(reportSettings_) {
+        LogVerbatim("FPE_Enable")
           << "\nSettings for module label \""
           << description.moduleLabel()
           << "\" after "
@@ -343,20 +340,28 @@ namespace edm {
       }
     }
 
-    void
-    EnableFloatingPointExceptions::setPrecision(bool precisionDouble) {
 #ifdef __linux__
 #ifdef __i386__
-      if (precisionDouble) {
+    void
+    EnableFloatingPointExceptions::setPrecision(bool precisionDouble) {
+      if(precisionDouble) {
         fpu_control_t cw;
         _FPU_GETCW(cw);
 
         cw = (cw & ~_FPU_EXTENDED) | _FPU_DOUBLE;
         _FPU_SETCW(cw);
       }
-#endif
-#endif
     }
+#else
+    void
+    EnableFloatingPointExceptions::setPrecision(bool /*precisionDouble*/) {
+    }
+#endif
+#else
+    void
+    EnableFloatingPointExceptions::setPrecision(bool /*precisionDouble*/) {
+    }
+#endif
 
     void
     EnableFloatingPointExceptions::enableAndDisableExcept(fpu_flags_type target) {
@@ -366,42 +371,42 @@ namespace edm {
       fpu_flags_type exceptionsToEnable = 0;
       fpu_flags_type exceptionsToDisable = 0;
 
-      if (exceptionsToModify & FE_DIVBYZERO) {
-        if (target & FE_DIVBYZERO) {
+      if(exceptionsToModify & FE_DIVBYZERO) {
+        if(target & FE_DIVBYZERO) {
           exceptionsToEnable |= FE_DIVBYZERO;
         }
         else {
           exceptionsToDisable |= FE_DIVBYZERO;
         }
       }
-      if (exceptionsToModify & FE_INVALID) {
-        if (target & FE_INVALID) {
+      if(exceptionsToModify & FE_INVALID) {
+        if(target & FE_INVALID) {
           exceptionsToEnable |= FE_INVALID;
         }
         else {
           exceptionsToDisable |= FE_INVALID;
         }
       }
-      if (exceptionsToModify & FE_OVERFLOW) {
-        if (target & FE_OVERFLOW) {
+      if(exceptionsToModify & FE_OVERFLOW) {
+        if(target & FE_OVERFLOW) {
           exceptionsToEnable |= FE_OVERFLOW;
         }
         else {
           exceptionsToDisable |= FE_OVERFLOW;
         }
       }
-      if (exceptionsToModify & FE_UNDERFLOW) {
-        if (target & FE_UNDERFLOW) {
+      if(exceptionsToModify & FE_UNDERFLOW) {
+        if(target & FE_UNDERFLOW) {
           exceptionsToEnable |= FE_UNDERFLOW;
         }
         else {
           exceptionsToDisable |= FE_UNDERFLOW;
         }
       }
-      if (exceptionsToEnable != 0) {
+      if(exceptionsToEnable != 0) {
         feenableexcept(exceptionsToEnable);
       }
-      if (exceptionsToDisable != 0) {
+      if(exceptionsToDisable != 0) {
         fedisableexcept(exceptionsToDisable);
       }
     }
@@ -410,28 +415,28 @@ namespace edm {
     EnableFloatingPointExceptions::echoState() const {
       feclearexcept(FE_ALL_EXCEPT);
       fpu_flags_type femask = fegetexcept();
-      edm::LogVerbatim("FPE_Enable") << "Floating point exception mask is " 
+      LogVerbatim("FPE_Enable") << "Floating point exception mask is " 
 				 << std::showbase << std::hex << femask;
  
-      if (femask & FE_DIVBYZERO)
-        edm::LogVerbatim("FPE_Enable") << "\tDivByZero exception is on";
+      if(femask & FE_DIVBYZERO)
+        LogVerbatim("FPE_Enable") << "\tDivByZero exception is on";
       else
-        edm::LogVerbatim("FPE_Enable") << "\tDivByZero exception is off";
+        LogVerbatim("FPE_Enable") << "\tDivByZero exception is off";
   
-      if (femask & FE_INVALID)
-        edm::LogVerbatim("FPE_Enable") << "\tInvalid exception is on";
+      if(femask & FE_INVALID)
+        LogVerbatim("FPE_Enable") << "\tInvalid exception is on";
       else
-        edm::LogVerbatim("FPE_Enable") << "\tInvalid exception is off";
+        LogVerbatim("FPE_Enable") << "\tInvalid exception is off";
  
-      if (femask & FE_OVERFLOW)
-        edm::LogVerbatim("FPE_Enable") << "\tOverFlow exception is on";
+      if(femask & FE_OVERFLOW)
+        LogVerbatim("FPE_Enable") << "\tOverFlow exception is on";
       else
-        edm::LogVerbatim("FPE_Enable") << "\tOverflow exception is off";
+        LogVerbatim("FPE_Enable") << "\tOverflow exception is off";
   
-      if (femask & FE_UNDERFLOW)
-        edm::LogVerbatim("FPE_Enable") << "\tUnderFlow exception is on";
+      if(femask & FE_UNDERFLOW)
+        LogVerbatim("FPE_Enable") << "\tUnderFlow exception is on";
       else
-        edm::LogVerbatim("FPE_Enable") << "\tUnderFlow exception is off";
+        LogVerbatim("FPE_Enable") << "\tUnderFlow exception is off";
     }
 
   } // namespace edm
