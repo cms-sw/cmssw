@@ -278,6 +278,7 @@ double CxCalculator::getJc(const reco::SuperClusterRef cluster, double r1, doubl
       double dPhi = phi-SClusterPhi;
       if ( dPhi < -PI )    dPhi = dPhi + 2*PI ;
       if ( dPhi >  PI )    dPhi = dPhi - 2*PI ;
+      if ( fabs(dPhi) > PI )   cout << " error!!! dphi > 2pi   : " << dPhi << endl;
       double dR = sqrt(dEta*dEta+dPhi*dPhi);
       
       // Jurassic Cone /////
@@ -300,6 +301,7 @@ double CxCalculator::getJc(const reco::SuperClusterRef cluster, double r1, doubl
       double dPhi = phi-SClusterPhi;
       if ( dPhi < -PI )    dPhi = dPhi + 2*PI ;
       if ( dPhi >  PI )    dPhi = dPhi - 2*PI ;
+      if ( fabs(dPhi) >PI )   cout << " error!!! dphi > 2pi   : " << dPhi << endl;
       double dR = sqrt(dEta*dEta+dPhi*dPhi);
       // Jurassic Cone /////                                                                                                  
       if ( dR > r1 ) continue;

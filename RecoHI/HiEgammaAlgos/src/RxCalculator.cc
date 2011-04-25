@@ -50,7 +50,7 @@ RxCalculator::RxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSe
 } 
 
 
-double RxCalculator::getRx(const reco::SuperClusterRef cluster, double x, double threshold )
+double RxCalculator::getRx(const reco::SuperClusterRef cluster, double x, double threshold, double innerR )
 {
    using namespace edm;
    using namespace reco;
@@ -78,7 +78,9 @@ double RxCalculator::getRx(const reco::SuperClusterRef cluster, double x, double
       if (dPhi>PI) dPhi=2*PI-dPhi;
 
       double dR = sqrt(dEta * dEta + dPhi * dPhi);
-
+      // veto inner cone///////////////
+      if ( dR < innerR )  continue;
+      /////////////////////////////////
       if (dR<x*0.1) {
          double et = rechit.energy()/cosh(eta);
          if (et<threshold) et=0;
@@ -164,7 +166,7 @@ double RxCalculator::getRFx(const reco::SuperClusterRef cluster, double x, doubl
 }
 
 
-double RxCalculator::getCRx(const reco::SuperClusterRef cluster, double x, double threshold )
+double RxCalculator::getCRx(const reco::SuperClusterRef cluster, double x, double threshold, double innerR )
 {
    using namespace edm;
    using namespace reco;
@@ -196,9 +198,9 @@ double RxCalculator::getCRx(const reco::SuperClusterRef cluster, double x, doubl
          TotalEt += et;
       }
    }
-
-   double Rx = getRx(cluster,x,threshold);
-   double CRx = Rx - TotalEt / 40.0 * x;
-
+   
+   double Rx = getRx(cluster,x,threshold,innerR);
+   double CRx = Rx - TotalEt * (0.01*x*x - innerR*innerR) / (2 * 2 * 0.1 * x) ;
+   
    return CRx;
 }

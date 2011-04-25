@@ -163,6 +163,7 @@ double TxCalculator::getJt(const reco::Photon cluster, double r1, double r2, dou
 	 double dPhi = phi-SClusterPhi;
 	 if ( dPhi < -PI )    dPhi = dPhi + 2*PI ;
 	 if ( dPhi >  PI )    dPhi = dPhi - 2*PI ;
+	 if ( fabs(dPhi) >PI )   cout << " error!!! dphi > 2pi   : " << dPhi << endl;
 	 double dR = sqrt(dEta*dEta+dPhi*dPhi);
 	 // Jurassic Cone /////                                                                                                     
 	 if ( dR > r1 ) continue;
@@ -199,6 +200,7 @@ double TxCalculator::getJct(const reco::Photon cluster, double r1, double r2, do
          double dPhi = phi-SClusterPhi;
          if ( dPhi < -PI )    dPhi = dPhi + 2*PI ;
          if ( dPhi >  PI )    dPhi = dPhi - 2*PI ;
+	 if ( fabs(dPhi) >PI )   cout << " error!!! dphi > 2pi   : " << dPhi << endl;
          double dR = sqrt(dEta*dEta+dPhi*dPhi);
          
 
