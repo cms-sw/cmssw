@@ -204,8 +204,8 @@ public:
    Float_t ohBJetL2CorrectedPhi[10]; //[NohBJetL2Corrected] 
    Float_t ohBJetIPL25Tag[10]; //[NohBJetL2] 
    Float_t ohBJetIPL3Tag[10]; //[NohBJetL2] 
-   Float_t ohBJetIPLooseL25Tag[10]; //[NohBJetL2] 
-   Float_t ohBJetIPLooseL3Tag[10]; //[NohBJetL2] 
+   Float_t ohBJetIPL25TagSingleTrack[10]; //[NohBJetL2] 
+   Float_t ohBJetIPL3TagSingleTrack[10]; //[NohBJetL2] 
    Int_t ohBJetMuL25Tag[10]; //[NohBJetL2] 
    Float_t ohBJetMuL3Tag[10]; //[NohBJetL2] 
    Int_t ohBJetPerfL25Tag[10]; //[NohBJetL2] 
@@ -3283,8 +3283,8 @@ public:
    TBranch *b_ohBJetL2CorrectedPhi; //! 
    TBranch *b_ohBJetIPL25Tag; //! 
    TBranch *b_ohBJetIPL3Tag; //! 
-   TBranch *b_ohBJetIPLooseL25Tag; //! 
-   TBranch *b_ohBJetIPLooseL3Tag; //! 
+   TBranch *b_ohBJetIPL25TagSingleTrack; //! 
+   TBranch *b_ohBJetIPL3TagSingleTrack; //! 
    TBranch *b_ohBJetMuL25Tag; //! 
    TBranch *b_ohBJetMuL3Tag; //! 
    TBranch *b_ohBJetPerfL25Tag; //! 
@@ -7553,8 +7553,8 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("ohBJetL2CorrectedPhi", ohBJetL2CorrectedPhi, &b_ohBJetL2CorrectedPhi);
    fChain->SetBranchAddress("ohBJetIPL25Tag", ohBJetIPL25Tag, &b_ohBJetIPL25Tag);
    fChain->SetBranchAddress("ohBJetIPL3Tag", ohBJetIPL3Tag, &b_ohBJetIPL3Tag);
-   fChain->SetBranchAddress("ohBJetIPLooseL25Tag", ohBJetIPLooseL25Tag, &b_ohBJetIPLooseL25Tag);
-   fChain->SetBranchAddress("ohBJetIPLooseL3Tag", ohBJetIPLooseL3Tag, &b_ohBJetIPLooseL3Tag);
+   fChain->SetBranchAddress("ohBJetIPL25TagSingleTrack", ohBJetIPL25TagSingleTrack, &b_ohBJetIPL25TagSingleTrack);
+   fChain->SetBranchAddress("ohBJetIPL3TagSingleTrack", ohBJetIPL3TagSingleTrack, &b_ohBJetIPL3TagSingleTrack);
    fChain->SetBranchAddress("ohBJetMuL25Tag", ohBJetMuL25Tag, &b_ohBJetMuL25Tag);
    fChain->SetBranchAddress("ohBJetMuL3Tag", ohBJetMuL3Tag, &b_ohBJetMuL3Tag);
    fChain->SetBranchAddress("ohBJetPerfL25Tag", ohBJetPerfL25Tag, &b_ohBJetPerfL25Tag);
