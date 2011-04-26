@@ -102,7 +102,21 @@ def customise(process):
                     VarParsing.VarParsing.varType.int,         
                     "should I override beamspot in globaltag?")
 
-  options.parseArguments()
+  # Set this to REDIGI311X for Spring11 MC:
+  # (not actually used in this step but we define it so that both config files
+  # can be called with the same arguments):
+  options.register ('primaryProcess',
+                    'RECO', # default value
+                    VarParsing.VarParsing.multiplicity.singleton,
+                    VarParsing.VarParsing.varType.string,
+                    "original processName")
+
+  # Workaround so that edmConfigHash does not fail with this config file.
+  # cf. https://hypernews.cern.ch/HyperNews/CMS/get/crabFeedback/3852/1/1/1/1/1.html
+  import sys
+  if hasattr(sys, "argv") == True:
+    options.parseArguments()
+
   print "Setting mdtau to ", options.mdtau
   process.generator.ZTauTau.TauolaOptions.InputCards.mdtau = options.mdtau 
   process.newSource.ZTauTau.TauolaOptions.InputCards.mdtau = options.mdtau

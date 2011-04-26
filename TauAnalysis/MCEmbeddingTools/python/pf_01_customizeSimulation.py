@@ -172,7 +172,11 @@ def customise(process):
                     VarParsing.VarParsing.varType.string,
                     "original processName")
 
-  options.parseArguments()
+  # Workaround so that edmConfigHash does not fail with this config file.
+  # cf. https://hypernews.cern.ch/HyperNews/CMS/get/crabFeedback/3852/1/1/1/1/1.html
+  import sys
+  if hasattr(sys, "argv") == True:
+    options.parseArguments()
 
   # it should be the best solution to take the original beam spot for the
   # reconstruction of the new primary vertex
