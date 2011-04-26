@@ -13,7 +13,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.cc,v 1.21 2010/09/15 16:01:21 lacroix Exp $
+// $Id: Type1MET.cc,v 1.20 2010/08/19 18:18:47 lacroix Exp $
 //
 //
 
@@ -47,8 +47,6 @@ namespace cms
     
     inputUncorMetLabel  = iConfig.getParameter<std::string>("inputUncorMetLabel");
     inputUncorJetsLabel = iConfig.getParameter<std::string>("inputUncorJetsLabel");
-    edm::InputTag inputUncorUnlusteredLabelDefault("", "");
-    inputUncorUnlusteredLabel = iConfig.getUntrackedParameter<edm::InputTag> ("inputUncorUnlusteredLabel", inputUncorUnlusteredLabelDefault);
     correctorLabel   = iConfig.getParameter<std::string>("corrector");
     jetPTthreshold      = iConfig.getParameter<double>("jetPTthreshold");
     jetEMfracLimit      = iConfig.getParameter<double>("jetEMfracLimit");
@@ -99,18 +97,10 @@ namespace cms
       iEvent.getByLabel( inputUncorJetsLabel, inputUncorJets );
       const JetCorrector* corrector = JetCorrector::getJetCorrector (correctorLabel, iSetup);
 
-      Handle < PFCandidateCollection > inputUncorUnlustered;
-      if (useTypeII) {
-	iEvent.getByLabel(inputUncorUnlusteredLabel, inputUncorUnlustered);
-	  if (!inputUncorUnlustered.isValid()) {
-	   useTypeII = false;
-	  }
-      }
-
 	Handle<PFMETCollection> inputUncorMet;                     //Define Inputs
 	iEvent.getByLabel( inputUncorMetLabel,  inputUncorMet );     //Get Inputs
 	std::auto_ptr<METCollection> output( new METCollection() );  //Create empty output
-	alg_.run( *(inputUncorMet.product()), *corrector, *(inputUncorJets.product()), *(inputUncorUnlustered.product()),
+	alg_.run( *(inputUncorMet.product()), *corrector, *(inputUncorJets.product()), 
 		  jetPTthreshold, jetEMfracLimit, UscaleA, UscaleB, UscaleC, useTypeII, hasMuonsCorr,
                   *(inputMuons.product()), *(vm_muCorrData_h.product()),
 		  &*output );                                         //Invoke the algorithm

@@ -28,14 +28,13 @@ class EgammaRecHitIsolation {
   
   //constructors
   EgammaRecHitIsolation (double extRadius,
-                         double intRadius,
-                         double etaSlice,
-                         double etLow,
-                         double eLow,
-                         edm::ESHandle<CaloGeometry> ,
-                         CaloRecHitMetaCollectionV* ,
-                         const EcalSeverityLevelAlgo*,
-                         DetId::Detector detector);
+			 double intRadius,
+			 double etaSlice,
+			 double etLow,
+			 double eLow,
+			 edm::ESHandle<CaloGeometry> ,
+			 CaloRecHitMetaCollectionV* ,
+			 DetId::Detector detector);
   
   double getEtSum(const reco::Candidate * emObject) const {return getSum_(emObject,true);}
   double getEnergySum(const reco::Candidate * emObject) const{ return  getSum_(emObject,false);}
@@ -43,17 +42,16 @@ class EgammaRecHitIsolation {
   void setVetoClustered(bool b=true) { vetoClustered_ = b; }
   void doSpikeRemoval(const EcalRecHitCollection *const recHits, 
                       const EcalChannelStatus *const chStatus,
-                      const int &severityLevelCut = 3 /*0 - 4*/
-                      //const float &sevRecHitThresh = 5.0, /*GeV*/
-                      //const EcalSeverityLevelAlgo::SpikeId &id = EcalSeverityLevelAlgo::kSwissCross, /*kE1OverE9=0 or kSwissCross=1*/
-                      //const float &spIdThresh = 0.95
-                      ) { 
+                      const int &severityLevelCut = 3, /*0 - 4*/
+                      const float &sevRecHitThresh = 5.0, /*GeV*/
+                      const EcalSeverityLevelAlgo::SpikeId &id = EcalSeverityLevelAlgo::kSwissCross, /*kE1OverE9=0 or kSwissCross=1*/
+                      const float &spIdThresh = 0.95) { 
     ecalBarHits_ = recHits; 
     chStatus_ = chStatus;
     severityLevelCut_ = severityLevelCut;
-    //severityRecHitThreshold_ = sevRecHitThresh;
-    //spId_ = id;
-    //spIdThreshold_ = spIdThresh;
+    severityRecHitThreshold_ = sevRecHitThresh;
+    spId_ = id;
+    spIdThreshold_ = spIdThresh;
   }
 
   void doFlagChecks(const std::vector<int> v) {
@@ -77,19 +75,20 @@ class EgammaRecHitIsolation {
   
   edm::ESHandle<CaloGeometry>  theCaloGeom_ ;
   CaloRecHitMetaCollectionV* caloHits_ ;
-  const EcalSeverityLevelAlgo* sevLevel_;
 
   bool useNumCrystals_;
   bool vetoClustered_;
   const EcalRecHitCollection *ecalBarHits_;
   const EcalChannelStatus *chStatus_;
   int severityLevelCut_;
-  //float severityRecHitThreshold_;
-  //EcalSeverityLevelAlgo::SpikeId spId_;
-  //float spIdThreshold_;
+  float severityRecHitThreshold_;
+  EcalSeverityLevelAlgo::SpikeId spId_;
+  float spIdThreshold_;
   std::vector<int> v_chstatus_;
 
+
   const CaloSubdetectorGeometry* subdet_[2]; // barrel+endcap
+
 };
 
 #endif

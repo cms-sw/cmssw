@@ -14,8 +14,8 @@ process.source = cms.Source("PoolSource",
 )
 
 process.myProducerLabel = cms.EDProducer('prodname'
-@example_myparticle     , muons = cms.untracked.InputTag('muons')
-@example_myparticle     , electrons = cms.untracked.InputTag('pixelMatchGsfElectrons')
+@example_myparticle     , muons = cms.InputTag('muons')
+@example_myparticle     , electrons = cms.InputTag('pixelMatchGsfElectrons')
 )
 
 process.out = cms.OutputModule("PoolOutputModule",

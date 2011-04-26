@@ -9,8 +9,7 @@ OutALCARECOEcalCalEtaCalib_noDrop = cms.PSet(
         'keep *_ecalEtaCorrected_etaEcalRecHitsEB_*',
         'keep *_ecalEtaCorrected_etaEcalRecHitsEE_*',
         'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
-        'keep *_hltAlCaEtaRecHitsFilter_etaEcalRecHitsES_*',
-        'keep *_MEtoEDMConverter_*_*')
+        'keep *_hltAlCaEtaRecHitsFilter_etaEcalRecHitsES_*')
 )
 
 import copy

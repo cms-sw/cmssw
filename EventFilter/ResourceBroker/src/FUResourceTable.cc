@@ -81,12 +81,18 @@ FUResourceTable::FUResourceTable(bool              segmentationMode,
 FUResourceTable::~FUResourceTable()
 {
   clear();
-  wlSendData_->cancel();
-  wlSendDqm_->cancel();
-  wlDiscard_->cancel();
-  toolbox::task::getWorkLoopFactory()->removeWorkLoop("SendData","waiting");
-  toolbox::task::getWorkLoopFactory()->removeWorkLoop("SendDqm","waiting");
-  toolbox::task::getWorkLoopFactory()->removeWorkLoop("Discard","waiting");
+  if(wlSendData_){
+    wlSendData_->cancel();
+    toolbox::task::getWorkLoopFactory()->removeWorkLoop("SendData","waiting");
+  }
+  if(wlSendDqm_){
+    wlSendDqm_->cancel();
+    toolbox::task::getWorkLoopFactory()->removeWorkLoop("SendDqm","waiting");
+  }
+  if(wlDiscard_){
+    wlDiscard_->cancel();
+    toolbox::task::getWorkLoopFactory()->removeWorkLoop("Discard","waiting");
+  }
   shmdt(shmBuffer_);
   if (FUShmBuffer::releaseSharedMemory())
     LOG4CPLUS_INFO(log_,"SHARED MEMORY SUCCESSFULLY RELEASED.");
@@ -558,12 +564,13 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef)
     }
     if(nbPendingSMDqmDiscards_>0)nbPendingSMDqmDiscards_--;
     else {
-      LOG4CPLUS_ERROR(log_,"Spurious DQM discard by StorageManager, skip!");
+      LOG4CPLUS_WARN(log_,"Spurious DQM discard by StorageManager, skip!");
     }
 
   }
   else {
-    LOG4CPLUS_ERROR(log_,"Spurious DQM discard by StorageManager, skip!");
+    LOG4CPLUS_ERROR(log_,"Spurious DQM discard for cell " << dqmIndex 
+		    << " from StorageManager while cell is not in the right state");
   }
   
   if (isHalting_) {

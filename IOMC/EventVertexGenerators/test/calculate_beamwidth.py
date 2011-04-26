@@ -18,10 +18,11 @@ import math
 
 beam = input("beam energy in GeV: ")
 betastar = input("beta-star in m: ")
+normemittance = input("normalized emittance in m: ")
 
 gamma = beam/0.9383
 
-emittance = 3.75e-6/(gamma*math.sqrt(1.-1/(gamma*gamma)))
+emittance = normemittance/(gamma*math.sqrt(1.-1/(gamma*gamma)))
 
 width = math.sqrt(emittance*betastar)
 

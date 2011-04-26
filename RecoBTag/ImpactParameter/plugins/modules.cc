@@ -8,6 +8,7 @@
 #include "RecoBTag/ImpactParameter/plugins/TrackIPProducer.h"
 #include "RecoBTag/ImpactParameter/interface/NegativeTrackCountingComputer.h"
 #include "RecoBTag/ImpactParameter/interface/TrackCountingComputer.h"
+#include "RecoBTag/ImpactParameter/interface/PromptTrackCountingComputer.h"
 
 
 DEFINE_FWK_MODULE(TrackIPProducer);
@@ -27,3 +28,5 @@ typedef JetTagComputerESProducer<JetBProbabilityComputer>       JetBProbabilityE
 DEFINE_FWK_EVENTSETUP_MODULE(JetBProbabilityESProducer);
 
 
+typedef JetTagComputerESProducer<PromptTrackCountingComputer>  PromptTrackCountingESProducer;
+DEFINE_FWK_EVENTSETUP_MODULE(PromptTrackCountingESProducer);

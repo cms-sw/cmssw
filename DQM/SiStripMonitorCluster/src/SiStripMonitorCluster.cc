@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.73 2010/04/22 16:27:00 dutta Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.74 2010/05/06 08:24:37 dutta Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -53,11 +53,11 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) :
 
   // Detector Partitions
   SubDetPhasePartMap["TIB"]        = "TI";
-  SubDetPhasePartMap["TID_side_1"] = "TI";
-  SubDetPhasePartMap["TID_side_2"] = "TI";
+  SubDetPhasePartMap["TID__side__1"] = "TI";
+  SubDetPhasePartMap["TID__side__2"] = "TI";
   SubDetPhasePartMap["TOB"]        = "TO";
-  SubDetPhasePartMap["TEC_side_1"] = "TM";
-  SubDetPhasePartMap["TEC_side_2"] = "TP";
+  SubDetPhasePartMap["TEC__side__1"] = "TM";
+  SubDetPhasePartMap["TEC__side__2"] = "TP";
 
   //get on/off option for every cluster from cfi
   edm::ParameterSet ParametersnClusters =  conf_.getParameter<edm::ParameterSet>("TH1nClusters");

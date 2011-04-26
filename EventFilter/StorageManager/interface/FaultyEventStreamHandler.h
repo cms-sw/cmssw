@@ -1,8 +1,8 @@
-// $Id: FaultyEventStreamHandler.h,v 1.6 2010/03/19 13:24:30 mommsen Exp $
+// $Id: FaultyEventStreamHandler.h,v 1.1.4.2 2011/02/28 17:56:15 mommsen Exp $
 /// @file: FaultyEventStreamHandler.h 
 
-#ifndef StorageManager_FaultyEventStreamHandler_h
-#define StorageManager_FaultyEventStreamHandler_h
+#ifndef EventFilter_StorageManager_FaultyEventStreamHandler_h
+#define EventFilter_StorageManager_FaultyEventStreamHandler_h
 
 #include <string>
 
@@ -19,8 +19,8 @@ namespace stor {
    * Handle the faulty event stream written to disk.
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2010/03/19 13:24:30 $
+   * $Revision: 1.1.4.2 $
+   * $Date: 2011/02/28 17:56:15 $
    */
   
   class FaultyEventStreamHandler : public StreamHandler
@@ -41,13 +41,13 @@ namespace stor {
      * Return the stream label
      */
     virtual std::string streamLabel() const
-    { return _streamRecord->streamName; }
+    { return streamRecord_->streamName; }
 
     /**
      * Return the fraction-to-disk parameter
      */
     virtual double fractionToDisk() const
-    { return _streamRecord->fractionToDisk; }
+    { return streamRecord_->fractionToDisk; }
 
     /**
      * Get the file handler responsible for the event
@@ -66,13 +66,13 @@ namespace stor {
     { return 0; }
 
 
-    boost::shared_ptr<InitMsgCollection> _initMsgCollection;
+    InitMsgCollectionPtr initMsgCollection_;
 
   };
   
 } // namespace stor
 
-#endif // StorageManager_FaultyEventStreamHandler_h 
+#endif // EventFilter_StorageManager_FaultyEventStreamHandler_h 
 
 
 /// emacs configuration

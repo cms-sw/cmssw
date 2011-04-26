@@ -37,6 +37,13 @@ FWTrackResidualDetailView::FWTrackResidualDetailView ():
    m_invalidFill(3001),
    m_invalidCol(kRed)
 {
+   memset(m_det,        0, sizeof(m_det));
+   memset(res,          0, sizeof(res));
+   memset(hittype,      0, sizeof(hittype));
+   memset(stereo,       0, sizeof(stereo));
+   memset(substruct,    0, sizeof(substruct));
+   memset(subsubstruct, 0, sizeof(subsubstruct));
+   memset(m_detector,   0, sizeof(m_detector));
 }
 
 FWTrackResidualDetailView::~FWTrackResidualDetailView ()

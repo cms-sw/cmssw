@@ -1,4 +1,4 @@
-// $Id: DiscardManager.cc,v 1.4 2009/07/20 13:07:27 mommsen Exp $
+// $Id: DiscardManager.cc,v 1.5.10.1 2011/02/28 17:56:06 mommsen Exp $
 /// @file: DiscardManager.cc
 
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
@@ -16,9 +16,9 @@ using namespace stor;
 DiscardManager::DiscardManager(xdaq::ApplicationContext* ctx,
                                xdaq::ApplicationDescriptor* desc,
                                DataSenderMonitorCollection& dsmc):
-  _appContext(ctx),
-  _appDescriptor(desc),
-  _dataSenderMonCollection(dsmc)
+  appContext_(ctx),
+  appDescriptor_(desc),
+  dataSenderMonCollection_(dsmc)
 {
 }
 
@@ -33,8 +33,8 @@ void DiscardManager::configure()
         toolbox::mem::getMemoryPoolFactory()->findPool(poolURN);
       if (thePool != 0) 
         {
-          _pool = thePool;
-          _proxyCache.clear();
+          pool_ = thePool;
+          proxyCache_.clear();
         }
     }
   }
@@ -44,7 +44,7 @@ bool DiscardManager::sendDiscardMessage(I2OChain const& i2oMessage)
 {
   if (i2oMessage.messageCode() == Header::INVALID)
     {
-      _dataSenderMonCollection.incrementSkippedDiscardCount(i2oMessage);
+      dataSenderMonCollection_.incrementSkippedDiscardCount(i2oMessage);
       return false;
     }
 
@@ -54,7 +54,7 @@ bool DiscardManager::sendDiscardMessage(I2OChain const& i2oMessage)
   FUProxyPtr fuProxyPtr = getProxyFromCache(hltClassName, hltInstance);
   if (fuProxyPtr.get() == 0)
     {
-      _dataSenderMonCollection.incrementSkippedDiscardCount(i2oMessage);
+      dataSenderMonCollection_.incrementSkippedDiscardCount(i2oMessage);
       std::stringstream msg;
       msg << "Unable to find the resource broker corresponding to ";
       msg << "classname = \"";
@@ -69,12 +69,12 @@ bool DiscardManager::sendDiscardMessage(I2OChain const& i2oMessage)
       if (i2oMessage.messageCode() == Header::DQM_EVENT)
         {
           fuProxyPtr->sendDQMDiscard(rbBufferId);
-          _dataSenderMonCollection.incrementDQMDiscardCount(i2oMessage);
+          dataSenderMonCollection_.incrementDQMDiscardCount(i2oMessage);
         }
       else
         {
           fuProxyPtr->sendDataDiscard(rbBufferId);	
-          _dataSenderMonCollection.incrementDataDiscardCount(i2oMessage);
+          dataSenderMonCollection_.incrementDataDiscardCount(i2oMessage);
         }
     }
 
@@ -87,9 +87,9 @@ DiscardManager::getProxyFromCache(std::string hltClassName,
 {
   HLTSenderKey mapKey = std::make_pair(hltClassName, hltInstance);
   FUProxyMap::const_iterator cacheIter;
-  cacheIter = _proxyCache.find(mapKey);
+  cacheIter = proxyCache_.find(mapKey);
 
-  if (cacheIter != _proxyCache.end())
+  if (cacheIter != proxyCache_.end())
     {
       return cacheIter->second;
     }
@@ -98,7 +98,7 @@ DiscardManager::getProxyFromCache(std::string hltClassName,
       FUProxyPtr fuProxyPtr = makeNewFUProxy(hltClassName, hltInstance);
       if (fuProxyPtr.get() != 0)
         {
-          _proxyCache[mapKey] = fuProxyPtr;
+          proxyCache_[mapKey] = fuProxyPtr;
         }
       return fuProxyPtr;
     }
@@ -110,7 +110,7 @@ DiscardManager::makeNewFUProxy(std::string hltClassName,
 {
   FUProxyPtr proxyPtr;
   std::set<xdaq::ApplicationDescriptor*> setOfRBs=
-    _appContext->getDefaultZone()->
+    appContext_->getDefaultZone()->
     getApplicationDescriptors(hltClassName.c_str());
 
   std::set<xdaq::ApplicationDescriptor*>::iterator iter;
@@ -120,8 +120,8 @@ DiscardManager::makeNewFUProxy(std::string hltClassName,
     {
       if ((*iter)->getInstance() == hltInstance)
 	{
-          proxyPtr.reset(new stor::FUProxy(_appDescriptor, *iter,
-                                           _appContext, _pool));
+          proxyPtr.reset(new stor::FUProxy(appDescriptor_, *iter,
+                                           appContext_, pool_));
           break;
 	}
     }
