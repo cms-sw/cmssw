@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.42 2011/04/20 07:59:34 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.43 2011/04/21 14:00:05 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <stdio.h>
@@ -523,8 +523,7 @@ namespace stor {
       std::ostringstream msg;
       msg << "Failed to connect to SATA controller "
         << sataBeast << hostSuffix 
-        << " with user name '" << rmParams_.sataUser_
-        << "': " << std::string(&content[0]);
+        << ": " << std::string(&content[0]);
       XCEPT_DECLARE(stor::exception::SataBeast, ex, msg.str());
       alarmHandler_->notifySentinel(AlarmHandler::WARNING, ex);
       
