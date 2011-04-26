@@ -21,7 +21,7 @@ PFTauQualityCuts = cms.PSet(
         maxTrackChi2                 = cms.double(100.),
         maxTransverseImpactParameter = cms.double(0.03),
         maxDeltaZ                    = cms.double(0.2),
-        minTrackVertexWeight         = cms.double(10e-4), # Tracks weight in vertex
+        minTrackVertexWeight         = cms.double(-1), # Tracks weight in vertex
         minTrackPixelHits            = cms.uint32(0),
         minTrackHits                 = cms.uint32(8),
         minGammaEt                   = cms.double(1.5),
@@ -43,5 +43,5 @@ PFTauQualityCuts = cms.PSet(
     primaryVertexSrc = cms.InputTag("offlinePrimaryVerticesDA"),
     # Possible algorithms are: highestPtInEvent, closestInDeltaZ,
     # highestWeightForLeadTrack
-    pvFindingAlgo = cms.string("closestInDeltaZ"),
+    pvFindingAlgo = cms.string("highestPtInEvent"),
 )
