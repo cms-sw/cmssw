@@ -62,10 +62,6 @@ def customise(process):
   process.offlinePrimaryVerticesWithBS.TrackLabel = cms.InputTag("tmfTracks")
   process.offlinePrimaryVertices.TrackLabel = cms.InputTag("tmfTracks")
   process.muons.TrackExtractorPSet.inputTrackCollection = cms.InputTag("tmfTracks")
-  # it should be the best solution to take the original beam spot for the
-  # reconstruction of the new primary vertex
-  process.offlinePrimaryVertices.beamSpotLabel = cms.InputTag("offlineBeamSpot","","RECO")
-  process.offlinePrimaryVerticesWithBS.beamSpotLabel = cms.InputTag("offlineBeamSpot","","RECO")
   
   try:
   	process.metreco.remove(process.BeamHaloId)
@@ -169,9 +165,23 @@ def customise(process):
                     VarParsing.VarParsing.varType.int,
                     "should I override beamspot in globaltag?")
 
+  # Set this to REDIGI311X for Spring11 MC:
+  options.register ('primaryProcess',
+                    'RECO', # default value
+                    VarParsing.VarParsing.multiplicity.singleton,
+                    VarParsing.VarParsing.varType.string,
+                    "original processName")
+
+  options.parseArguments()
+
+  # it should be the best solution to take the original beam spot for the
+  # reconstruction of the new primary vertex
+  process.offlinePrimaryVertices.beamSpotLabel = cms.InputTag("offlineBeamSpot","",options.primaryProcess)
+  process.offlinePrimaryVerticesWithBS.beamSpotLabel = cms.InputTag("offlineBeamSpot","",options.primaryProcess)
 
   if options.overrideBeamSpot !=  0:
-    bs = cms.string("BeamSpotObjects_2009_LumiBased_v16_offline") # 38x data gt
+    bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v18_offline") # 41x data PR gt
+    #bs = cms.string("BeamSpotObjects_2009_LumiBased_v16_offline") # 38x data gt
     #bs = cms.string("BeamSpotObjects_2009_v14_offline") # 36x data gt
     #  tag = cms.string("Early10TeVCollision_3p8cm_31X_v1_mc_START"), # 35 default
     #  tag = cms.string("Realistic900GeVCollisions_10cm_STARTUP_v1_mc"), # 36 default
