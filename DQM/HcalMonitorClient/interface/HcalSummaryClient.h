@@ -47,6 +47,7 @@ class HcalSummaryClient : public HcalBaseDQClient {
   MonitorElement* EnoughEvents_;
   MonitorElement* MinEvents_;
   MonitorElement* MinErrorRate_;
+  MonitorElement* reportMapShift_;
   MonitorElement* reportMap_;
   MonitorElement* certificationMap_;
 
