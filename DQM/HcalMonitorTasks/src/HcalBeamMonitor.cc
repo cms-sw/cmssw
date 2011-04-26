@@ -1158,10 +1158,10 @@ void HcalBeamMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   if (Nentries==0) return;
 
 
-  HFlumi_total_deadcells->Fill(-1,-1,1); // counts good lumi sections in underflow bin
-  HFlumi_total_hotcells->Fill(-1,-1,1);
-  HFlumi_diag_deadcells->Fill(-1,-1,1); // counts good lumi sections in underflow bin
-  HFlumi_diag_hotcells->Fill(-1,-1,1);
+  HFlumi_total_deadcells->Fill(-1,-1,Nentries); // counts good lumi sections in underflow bin
+  HFlumi_total_hotcells->Fill(-1,-1,Nentries);
+  HFlumi_diag_deadcells->Fill(-1,-1,Nentries); // counts good lumi sections in underflow bin
+  HFlumi_diag_hotcells->Fill(-1,-1,Nentries);
 
   // ADD IETA MAP
   int ietamap[8]={-36,-35,-34,-33,33,34,35,36};
@@ -1265,8 +1265,8 @@ void HcalBeamMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     ring2status=0;
   else
     ring2status=1-1.*badring2/ring2totalchannels_;
-  HFlumi_Ring2Status_vs_LS->Fill(currentLS,ring2status);
-
+  HFlumi_Ring2Status_vs_LS->Fill(currentLS,ring2status);  
+  
   // Good status:  ring1 and ring2 status both > 90%
   int totalstatus=0;
   if (ring1status>0.9 && ring2status>0.9)
