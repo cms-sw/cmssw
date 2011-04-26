@@ -37,6 +37,7 @@
 #include "DataFormats/JetReco/interface/FFTPFJetCollection.h"
 #include "DataFormats/JetReco/interface/FFTTrackJetCollection.h"
 #include "DataFormats/JetReco/interface/FFTBasicJetCollection.h"
+#include "DataFormats/JetReco/interface/FFTJetPileupSummary.h"
 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/FwdRef.h" 
@@ -436,6 +437,10 @@ namespace {
     edm::PtrVector<reco::FFTJPTJet> ptrvgj_fft_7;
     edm::Association<reco::FFTJPTJetCollection> a_gj_fft_7;
     edm::Wrapper<edm::Association<reco::FFTJPTJetCollection> > w_a_gj_fft_7;
+
+    // Pile-up summary
+    reco::FFTJetPileupSummary r_fft_psumary;
+    edm::Wrapper<reco::FFTJetPileupSummary> wr_r_fft_psumary;
   };
 }
 #endif

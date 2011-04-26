@@ -417,4 +417,6 @@
    <class name="edm::Association<reco::FFTJPTJetCollection>" />
    <class name="edm::Wrapper<edm::Association<reco::FFTJPTJetCollection> >" />
 
+   <class name="reco::FFTJetPileupSummary" />
+   <class name="edm::Wrapper<reco::FFTJetPileupSummary>" />
 </lcgdict>
