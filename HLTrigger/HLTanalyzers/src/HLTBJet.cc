@@ -47,10 +47,6 @@ HLTBJet::HLTBJet()
   ohBJetIPL25TagSingleTrack = new float[kMaxBJets];
   ohBJetIPL3TagSingleTrack  = new float[kMaxBJets];
   
-  // set of variables for soft-muon-based b-tag
-  ohBJetMuL25Tag            = new int[kMaxBJets];          // do not optimize
-  ohBJetMuL3Tag             = new float[kMaxBJets];        // SoftMuonbyPt
-  
   // set of variables for b-tagging performance measurements
   // SoftMuonbyDR
   ohBJetPerfL25Tag          = new int[kMaxBJets];          // do not optimize 
@@ -79,8 +75,6 @@ void HLTBJet::clear()
   std::memset(ohBJetIPL25TagSingleTrack, '\0', kMaxBJets * sizeof(float));
   std::memset(ohBJetIPL3TagSingleTrack,  '\0', kMaxBJets * sizeof(float));
 
-  std::memset(ohBJetMuL25Tag,            '\0', kMaxBJets * sizeof(int));
-  std::memset(ohBJetMuL3Tag,             '\0', kMaxBJets * sizeof(float));
   std::memset(ohBJetPerfL25Tag,          '\0', kMaxBJets * sizeof(int));
   std::memset(ohBJetPerfL3Tag,           '\0', kMaxBJets * sizeof(int));
 }
@@ -112,8 +106,6 @@ void HLTBJet::setup(const edm::ParameterSet & config, TTree * tree)
     tree->Branch("ohBJetIPL25TagSingleTrack", ohBJetIPL25TagSingleTrack,      "ohBJetIPL25TagSingleTrack[NohBJetL2Corrected]/F");
     tree->Branch("ohBJetIPL3TagSingleTrack",  ohBJetIPL3TagSingleTrack,       "ohBJetIPL3TagSingleTrack[NohBJetL2Corrected]/F");
 
-    tree->Branch("ohBJetMuL25Tag",          ohBJetMuL25Tag,          "ohBJetMuL25Tag[NohBJetL2Corrected]/I");
-    tree->Branch("ohBJetMuL3Tag",           ohBJetMuL3Tag,           "ohBJetMuL3Tag[NohBJetL2Corrected]/F");
     tree->Branch("ohBJetPerfL25Tag",        ohBJetPerfL25Tag,        "ohBJetPerfL25Tag[NohBJetL2Corrected]/I");
     tree->Branch("ohBJetPerfL3Tag",         ohBJetPerfL3Tag,         "ohBJetPerfL3Tag[NohBJetL2Corrected]/I");
   }
@@ -126,8 +118,6 @@ void HLTBJet::analyze(
         const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL3,
         const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL25SingleTrack,
         const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL3SingleTrack,
-        const edm::Handle<reco::JetTagCollection> & softmuonBJetsL25,
-        const edm::Handle<reco::JetTagCollection> & softmuonBJetsL3,
         const edm::Handle<reco::JetTagCollection> & performanceBJetsL25,
         const edm::Handle<reco::JetTagCollection> & performanceBJetsL3,
         TTree * tree) 
@@ -148,9 +138,6 @@ void HLTBJet::analyze(
   if (correctedBJets.isValid() and lifetimeBJetsL25SingleTrack.isValid() and lifetimeBJetsL3SingleTrack.isValid())
     analyseLifetimeSingleTrack(* correctedBJets, * lifetimeBJetsL25SingleTrack, * lifetimeBJetsL3SingleTrack);
 
-  if (correctedBJets.isValid() and softmuonBJetsL25.isValid() and softmuonBJetsL3.isValid())
-    analyseSoftmuon(* correctedBJets, * softmuonBJetsL25, * softmuonBJetsL3);
-  
   if (correctedBJets.isValid() and performanceBJetsL25.isValid() and performanceBJetsL3.isValid())
     analysePerformance(* correctedBJets, * performanceBJetsL25, * performanceBJetsL3);
 
@@ -227,28 +214,6 @@ void HLTBJet::analyseLifetimeSingleTrack(
   for (size_t i = 0; i < size; i++) {
     ohBJetIPL25TagSingleTrack[i] = tagsL25[i].second;
     ohBJetIPL3TagSingleTrack[i]  = tagsL3[i].second;
-  }
-}
-
-void HLTBJet::analyseSoftmuon(
-    const edm::View<reco::Jet>   & jets, 
-    const reco::JetTagCollection & tagsL25, 
-    const reco::JetTagCollection & tagsL3)
-{
-  if (tagsL25.size() != jets.size()) {
-    edm::LogWarning("OpenHLT") << kBTagSoftmuonBJetsL25 << " collection has " << tagsL25.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
-    return;
-  }
-  if (tagsL3.size() != jets.size()) {
-    edm::LogWarning("OpenHLT") << kBTagSoftmuonBJetsL3 << " collection has " << tagsL3.size() << " elements, but " << jets.size() << " where expected from L2" << std::endl;
-    return;
-  }
-  // the jets need to be persistable, so .size() returns an 'unsigned int' to be stable across the architectures
-  // so, for the comparison, we cast back to size_t
-  size_t size = std::min(kMaxBJets, size_t(jets.size()) );
-  for (size_t i = 0; i < size; i++) {
-    ohBJetMuL25Tag[i] = (tagsL25[i].second > 0.) ? 1 : 0;
-    ohBJetMuL3Tag[i]  = tagsL3[i].second;
   }
 }
 

@@ -120,7 +120,6 @@ DoHLTTau = cms.Path(HLTBeginSequence +
 from HLTrigger.HLTanalyzers.OpenHLT_BJet_cff import *
 DoHLTBTag = cms.Path(
         HLTBeginSequence +
-    #    HLTBCommonL2recoSequence +
         OpenHLTBLifetimeL25recoSequence +
         OpenHLTBSoftMuonL25recoSequence +
         OpenHLTBLifetimeL3recoSequence +

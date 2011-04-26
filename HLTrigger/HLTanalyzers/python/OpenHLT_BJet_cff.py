@@ -11,9 +11,6 @@ from HLTrigger.HLTanalyzers.HLT_FULL_cff import *
 
 # L2.5 reco modules
 
-# BJetinputjetCollection="hltIterativeCone5CaloJets"
-# BJetinputjetCollection="hltAntiKT5CaloJets"
-#
 ###### Use corrected jets same as 5E32 Menu
 BJetinputjetCollection="hltAntiKT5L2L3CorrCaloJets"
 
@@ -26,7 +23,7 @@ openHltBLifetimeL25TagInfos.jetTracks = cms.InputTag("openHltBLifetimeL25Associa
 openHltBLifetimeL25BJetTags = copy.deepcopy(hltBLifetimeL25BJetTags)
 openHltBLifetimeL25BJetTags.tagInfos = cms.VInputTag(cms.InputTag("openHltBLifetimeL25TagInfos"))
 
-# Single Track TC
+# Modules specific to Single Track TC
 hltESPTrackCounting3D1st = cms.ESProducer( "TrackCountingESProducer",
                                            appendToDataLabel = cms.string( "" ),
                                            nthTrack = cms.int32( 1 ),
@@ -43,28 +40,13 @@ hltBLifetimeL25BJetTagsSingleTrack = cms.EDProducer( "JetTagProducer",
                                                      tagInfos = cms.VInputTag( 'hltBLifetimeL25TagInfos' )
                                                      )
 
-hltBLifetimeL25FilterSingleTrack = cms.EDFilter( "HLTJetTag",
-                                                 JetTag = cms.InputTag( "hltBLifetimeL25BJetTagsSingleTrack" ),
-                                                 MinTag = cms.double( 0.0 ),
-                                                 MaxTag = cms.double( 99999.0 ),
-                                                 MinJets = cms.int32( 1 ),
-                                                 SaveTag = cms.bool( False )
-                                                 )
 
 hltBLifetimeL3BJetTagsSingleTrack = cms.EDProducer( "JetTagProducer",
                                                     jetTagComputer = cms.string( "hltESPTrackCounting3D1st" ),
                                                     tagInfos = cms.VInputTag( 'hltBLifetimeL3TagInfos' )
                                                     )
 
-hltBLifetimeL3FilterSingleTrack = cms.EDFilter( "HLTJetTag",
-                                                JetTag = cms.InputTag( "hltBLifetimeL3BJetTagsSingleTrack" ),
-                                                MinTag = cms.double( 2.0 ),
-                                                MaxTag = cms.double( 99999.0 ),
-                                                MinJets = cms.int32( 1 ),
-                                                SaveTag = cms.bool( True )
-                                            )
-
-
+# Single Track TC
 openHltBLifetimeL25BJetTagsSingleTrack = copy.deepcopy(hltBLifetimeL25BJetTagsSingleTrack)
 openHltBLifetimeL25BJetTagsSingleTrack.tagInfos = cms.VInputTag(cms.InputTag("openHltBLifetimeL25TagInfos"))
 
@@ -78,7 +60,6 @@ OpenHLTBLifetimeL25recoSequence = cms.Sequence(
         openHltBLifetimeL25BJetTags )
 
 # L3 reco modules
-
 openHltBLifetimeRegionalPixelSeedGenerator = copy.deepcopy(hltBLifetimeRegionalPixelSeedGenerator)
 openHltBLifetimeRegionalPixelSeedGenerator.RegionFactoryPSet.RegionPSet.JetSrc = cms.InputTag(BJetinputjetCollection)
 
@@ -123,15 +104,12 @@ openHltBSoftmuonL25TagInfos = copy.deepcopy(hltBSoftMuonDiJet20L25TagInfos)
 openHltBSoftmuonL25TagInfos.jets = cms.InputTag(BJetinputjetCollection)
 
 #### BTagMu paths make use of SoftMuonByDR both at L2.5 and L3
-openHltBSoftmuonL25BJetTags = copy.deepcopy(hltBSoftMuonDiJet110L25BJetTagsByDR)
+openHltBSoftmuonL25BJetTags = copy.deepcopy(hltBSoftMuonDiJet20L25BJetTagsByDR)
 openHltBSoftmuonL25BJetTags.tagInfos = cms.VInputTag(cms.InputTag("openHltBSoftmuonL25TagInfos"))
 
 openHltBSoftmuonL3TagInfos = copy.deepcopy(hltBSoftMuonDiJet20Mu5SelL3TagInfos)
 openHltBSoftmuonL3TagInfos.jets = cms.InputTag(BJetinputjetCollection)
 openHltBSoftmuonL3TagInfos.leptons = cms.InputTag("hltL3Muons")  #Feed the entire L3Muons not the filtered ones
-
-#openHltBSoftmuonL3BJetTags = copy.deepcopy(hltBSoftMuon5SelL3BJetTagsByPt)
-#openHltBSoftmuonL3BJetTags.tagInfos = cms.VInputTag(cms.InputTag("openHltBSoftmuonL3TagInfos"))
 
 #### BTagMu paths make use of SoftMuonByDR both at L2.5 and L3
 openHltBPerfMeasL3BJetTags = copy.deepcopy(hltBSoftMuonDiJet20Mu5SelL3BJetTagsByDR)
@@ -144,7 +122,5 @@ OpenHLTBSoftMuonL25recoSequence = cms.Sequence(
 
 OpenHLTBSoftMuonL3recoSequence = cms.Sequence(
     HLTL3muonrecoNocandSequence +
-#    hltBSoftMuon5L3 + # do not cut on L3 muons
     openHltBSoftmuonL3TagInfos +
-#    openHltBSoftmuonL3BJetTags +
     openHltBPerfMeasL3BJetTags )

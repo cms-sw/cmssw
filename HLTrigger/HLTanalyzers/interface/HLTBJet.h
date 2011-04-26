@@ -24,8 +24,6 @@ public:
                const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL3,
                const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL25SingleTrack,
                const edm::Handle<reco::JetTagCollection> & lifetimeBJetsL3SingleTrack,
-               const edm::Handle<reco::JetTagCollection> & softmuonBJetsL25,
-               const edm::Handle<reco::JetTagCollection> & softmuonBJetsL3,
                const edm::Handle<reco::JetTagCollection> & performanceBJetsL25,
                const edm::Handle<reco::JetTagCollection> & performanceBJetsL3,
                TTree * tree);
@@ -43,11 +41,6 @@ private:
       const reco::JetTagCollection & tagsL3);
 
   void analyseLifetimeSingleTrack(
-      const edm::View<reco::Jet>   & jets, 
-      const reco::JetTagCollection & tagsL25, 
-      const reco::JetTagCollection & tagsL3);
-
-  void analyseSoftmuon(
       const edm::View<reco::Jet>   & jets, 
       const reco::JetTagCollection & tagsL25, 
       const reco::JetTagCollection & tagsL3);
@@ -80,10 +73,6 @@ private:
   // set of variables for lifetime-based b-tag Single Track
   float * ohBJetIPL25TagSingleTrack;
   float * ohBJetIPL3TagSingleTrack;
-  
-  // set of variables for soft-muon-based b-tag
-  int   * ohBJetMuL25Tag;           // do not optimize
-  float * ohBJetMuL3Tag;
   
   // set of variables for b-tagging performance measurements
   int   * ohBJetPerfL25Tag;         // do not optimize 

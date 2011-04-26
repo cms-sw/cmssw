@@ -107,8 +107,6 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     LifetimeBJetsL3                 = cms.InputTag("openHltBLifetimeL3BJetTags"),
     LifetimeBJetsL25SingleTrack     = cms.InputTag("openHltBLifetimeL25BJetTagsSingleTrack"),
     LifetimeBJetsL3SingleTrack      = cms.InputTag("openHltBLifetimeL3BJetTagsSingleTrack"),
-    SoftmuonBJetsL25                = cms.InputTag("openHltBSoftmuonL25BJetTags"),
-    SoftmuonBJetsL3                 = cms.InputTag("openHltBSoftmuonL3BJetTags"),
     PerformanceBJetsL25             = cms.InputTag("openHltBSoftmuonL25BJetTags"),
     PerformanceBJetsL3              = cms.InputTag("openHltBPerfMeasL3BJetTags"),
 
