@@ -38,7 +38,8 @@ class PFElectronSelector : public Selector<pat::Electron> {
     initialize( version, 
 		parameters.getParameter<double>("MVA"),
 		parameters.getParameter<double>("D0")  ,
-		parameters.getParameter<int>   ("MaxMissingHits")   ,
+		parameters.getParameter<int>   ("MaxMissingHits"),
+		parameters.getParameter<bool>  ("ConversionRejection"),
 		parameters.getParameter<double>("PFIso")
 		);
     if ( parameters.exists("cutsToIgnore") )
@@ -52,6 +53,7 @@ class PFElectronSelector : public Selector<pat::Electron> {
 		   double mva = 0.4,
 		   double d0 = 0.02,
 		   int nMissingHits = 1,
+		   bool convRej = true,
 		   double pfiso = 0.15 )
   {
     version_ = version; 
@@ -59,16 +61,19 @@ class PFElectronSelector : public Selector<pat::Electron> {
     push_back("MVA",       mva   );
     push_back("D0",        d0     );
     push_back("MaxMissingHits", nMissingHits  );
+    push_back("ConversionRejection" );
     push_back("PFIso",    pfiso );
 
     set("MVA");
     set("D0");
     set("MaxMissingHits");
+    set("ConversionRejection", convRej);
     set("PFIso");   
 
     indexMVA_            = index_type(&bits_, "MVA"          );
     indexD0_             = index_type(&bits_, "D0"           );
     indexMaxMissingHits_ = index_type(&bits_, "MaxMissingHits" );
+    indexConvRej_        = index_type(&bits_, "ConversionRejection" );
     indexPFIso_          = index_type(&bits_, "PFIso"       );
   }
 
@@ -93,6 +98,12 @@ class PFElectronSelector : public Selector<pat::Electron> {
     double missingHits = electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits() ;
     double corr_d0 = electron.dB();
 
+    // in >= 39x conversion rejection variables are accessible from Gsf electron
+    Double_t dist = electron.convDist(); // default value is -9999 if conversion partner not found
+    Double_t dcot = electron.convDcot(); // default value is -9999 if conversion partner not found
+    bool isConv = fabs(dist) < 0.02 && fabs(dcot) < 0.02;
+
+
     double chIso = electron.userIsolation(pat::PfChargedHadronIso);
     double nhIso = electron.userIsolation(pat::PfNeutralHadronIso);
     double gIso  = electron.userIsolation(pat::PfGammaIso);
@@ -103,6 +114,7 @@ class PFElectronSelector : public Selector<pat::Electron> {
     if ( mva           >  cut(indexMVA_,             double()) || ignoreCut(indexMVA_)              ) passCut(ret, indexMVA_ );
     if ( missingHits   <= cut(indexMaxMissingHits_,  double()) || ignoreCut(indexMaxMissingHits_)   ) passCut(ret, indexMaxMissingHits_  );
     if ( fabs(corr_d0) <  cut(indexD0_,              double()) || ignoreCut(indexD0_)               ) passCut(ret, indexD0_     );
+    if ( isConv                                                || ignoreCut(indexConvRej_)          ) passCut(ret, indexConvRej_     );
     if ( pfIso         <  cut(indexPFIso_,           double()) || ignoreCut(indexPFIso_)            ) passCut(ret, indexPFIso_ );
 
     setIgnored(ret);
@@ -118,6 +130,7 @@ class PFElectronSelector : public Selector<pat::Electron> {
   index_type indexMVA_;
   index_type indexMaxMissingHits_;
   index_type indexD0_;
+  index_type indexConvRej_;
   index_type indexPFIso_;
 
 

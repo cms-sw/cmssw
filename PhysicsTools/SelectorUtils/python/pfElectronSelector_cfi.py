@@ -6,5 +6,6 @@ pfElectronSelector = cms.PSet(
     MVA = cms.double(0.4),
     MaxMissingHits = cms.int32(1),
     D0 = cms.double(0.02),
+    ConversionRejection = cms.bool(True),
     PFIso = cms.double(0.15)
     )
