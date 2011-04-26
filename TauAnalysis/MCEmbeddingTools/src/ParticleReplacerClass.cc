@@ -337,8 +337,10 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const reco::MuonCo
 		}
 
 		if (generatorMode_ == "Tauola")	// TAUOLA
+		{
 			conv.write_event(evt);
 			tempevt=tauola_.decay(evt);
+		}
 
 		if (testEvent(tempevt))
 		{
