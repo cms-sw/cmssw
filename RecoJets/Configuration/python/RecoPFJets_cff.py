@@ -16,6 +16,7 @@ ca6PFJets = ca4PFJets.clone( rParam = 0.6 )
 
 #compute areas for Fastjet PU subtraction  
 kt6PFJets.doRhoFastjet = cms.bool(True)
+kt6PFJets.voronoiRfact = cms.double(0.9)
 ak5PFJets.doAreaFastjet = cms.bool(True)
 ak7PFJets.doAreaFastjet = cms.bool(True) 
 
