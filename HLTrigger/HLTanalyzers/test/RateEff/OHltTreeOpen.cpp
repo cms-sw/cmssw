@@ -14851,45 +14851,45 @@ int OHltTree::OpenHltQuadJetCORPassedPlusTauPFIdNewIso(double pt, double etaJet,
   bool foundPFTau=false;
   float deltaR_L1=1000;
   float deltaR_L1Tau=1000;
-  for(int i=0;i<NohJetCorCal;i++){
 
-    if(ohJetCorCalPt[i]>pt&&fabs(ohJetCorCalEta[i])<etaJet){
+  for(int i=0;i<NrecoJetCorCal;i++){
+    if(recoJetCorCalPt[i]>pt&&fabs(recoJetCorCalEta[i])<etaJet)
+      njet++;
+  }
 
-      for(int k=0;k<NL1CenJet;k++){
+  for(int j=0;j<NohpfTauTightCone;j++){
 
-	float deltaETA=ohJetCorCalEta[i]-L1CenJetEta[k];
-	float deltaPHI=ohJetCorCalPhi[i]-L1CenJetPhi[k];
-	if(fabs(deltaPHI)>3.141592654)deltaPHI=6.283185308-fabs(deltaPHI);
-	float deltaR_L1_J=sqrt(pow(deltaETA,2)+pow(deltaPHI,2));
-	if(deltaR_L1_J<deltaR_L1)deltaR_L1=deltaR_L1_J;
-      }
-      for(int s=0;s<NL1Tau;s++){
+    for(int k=0;k<NL1CenJet;k++){
 
-	float deltaETA_Tau=ohJetCorCalEta[i]-L1TauEta[s];
-	float deltaPHI_Tau=ohJetCorCalPhi[i]-L1TauPhi[s];
-	if(fabs(deltaPHI_Tau)>3.141592654)deltaPHI_Tau=6.283185308-fabs(deltaPHI_Tau);
-	float deltaR_L1Tau_T=sqrt(pow(deltaETA_Tau,2)+pow(deltaPHI_Tau,2));
-	if(deltaR_L1Tau_T<deltaR_L1Tau)deltaR_L1Tau=deltaR_L1Tau_T;
-      }
-      if(deltaR_L1<0.3||deltaR_L1Tau<0.3)
-	{
-	  njet++;
-	  for(int j=0;j<NohpfTau;j++)
-	    {
-
-	      if(ohpfTauPt[j]>ptTau  && ohpfTauLeadTrackPt[j]>=5 && fabs(ohpfTauEta[j])<2.5 && ohpfTauTrkIso[j]<1.0 && ohpfTauGammaIso[j]<1.5)
-		{
-		  float deltaEta=ohpfTauEta[j]-ohJetCorCalEta[i];
-		  float deltaPhi=ohpfTauPhi[j]-ohJetCorCalPhi[i];
-		  if(fabs(deltaPhi)>3.141592654)deltaPhi=6.283185308-fabs(deltaPhi);
-		  float deltaR=sqrt(pow(deltaEta,2)+pow(deltaPhi,2));
-		  if(deltaR<0.3){foundPFTau=true;}
-		}
-	    }
-	}
+      float deltaETA=ohpfTauTightConeEta[j]-L1CenJetEta[k];
+      float deltaPHI=ohpfTauTightConePhi[j]-L1CenJetPhi[k];
+      if(fabs(deltaPHI)>3.141592654)deltaPHI=6.283185308-fabs(deltaPHI);
+      float deltaR_L1_J=sqrt(pow(deltaETA,2)+pow(deltaPHI,2));
+      if(deltaR_L1_J<deltaR_L1)deltaR_L1=deltaR_L1_J;
     }
+    for(int s=0;s<NL1Tau;s++){
+
+      float deltaETA_Tau=ohpfTauTightConeEta[j]-L1TauEta[s];
+      float deltaPHI_Tau=ohpfTauTightConePhi[j]-L1TauPhi[s];
+
+      if(fabs(deltaPHI_Tau)>3.141592654)deltaPHI_Tau=6.283185308-fabs(deltaPHI_Tau);
+      float deltaR_L1Tau_T=sqrt(pow(deltaETA_Tau,2)+pow(deltaPHI_Tau,2));
+      if(deltaR_L1Tau_T<deltaR_L1Tau)deltaR_L1Tau=deltaR_L1Tau_T;
+    }
+
+    if(deltaR_L1<0.3||deltaR_L1Tau<0.3)
+      {
+	if(ohpfTauTightConePt[j]>ptTau  && ohpfTauTightConeLeadTrackPt[j]>=5 && fabs(ohpfTauTightConeEta[j])<2.5 && ohpfTauTightConeTrkIso[j]<1.0 &&
+	   ohpfTauTightConeGammaIso[j]<1.5)
+	  {
+	    foundPFTau=true;
+	  }
+      }
   }
   
-  if(njet>=4&&foundPFTau==true)
-    rc=1;return rc;
+  
+  if(njet>=4&&foundPFTau==true) rc=1;
+
+  return rc;
 }
+

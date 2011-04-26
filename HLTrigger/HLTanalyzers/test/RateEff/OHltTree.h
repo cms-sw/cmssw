@@ -109,6 +109,13 @@ public:
    Int_t ohTauL25Tiso[5000]; //[NohTau]
    Float_t ohTauL3Tpt[5000]; //[NohTau]
    Int_t ohTauL3Tiso[5000]; //[NohTau]
+   Int_t           NohpfTauTightCone; 
+   Float_t         ohpfTauTightConeEta[5000];   //[NohTau] 
+   Float_t         ohpfTauTightConePhi[5000];   //[NohTau] 
+   Float_t         ohpfTauTightConePt[5000];   //[NohTau] 
+   Float_t         ohpfTauTightConeLeadTrackPt[5000];   //[NoTau] 
+   Float_t         ohpfTauTightConeGammaIso[5000]; 
+   Float_t         ohpfTauTightConeTrkIso[5000]; 
    Int_t NohpfTau;
    Float_t ohpfTauEta[500];
    Float_t ohpfTauPhi[500];
@@ -3224,6 +3231,13 @@ public:
    TBranch *b_ohTauL25Tiso; //!
    TBranch *b_ohTauL3Tpt; //!
    TBranch *b_ohTauL3Tiso; //!
+   TBranch *b_NohpfTauTightCone;   //! 
+   TBranch *b_ohpfTauTightConeEta;  // ! 
+   TBranch *b_ohpfTauTightConePhi;  // ! 
+   TBranch *b_ohpfTauTightConePt;  // ! 
+   TBranch *b_ohpfTauTightConeLeadTrackPt;   //! 
+   TBranch *b_ohpfTauTightConeTrkIso; 
+   TBranch *b_ohpfTauTightConeGammaIso; 
    TBranch *b_NohBJetLife; //!
    TBranch *b_ohBJetLifeL2E; //!
    TBranch *b_ohBJetLifeL2ET; //!
@@ -7479,7 +7493,13 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("ohTauL25Tiso", ohTauL25Tiso, &b_ohTauL25Tiso);
    fChain->SetBranchAddress("ohTauL3Tpt", ohTauL3Tpt, &b_ohTauL3Tpt);
    fChain->SetBranchAddress("ohTauL3Tiso", ohTauL3Tiso, &b_ohTauL3Tiso);
-   //ccla
+   fChain->SetBranchAddress("NohpfTauTightCone", &NohpfTauTightCone, &b_NohpfTauTightCone); 
+   fChain->SetBranchAddress("ohpfTauTightConeEta", ohpfTauTightConeEta, &b_ohpfTauTightConeEta); 
+   fChain->SetBranchAddress("ohpfTauTightConePhi", ohpfTauTightConePhi, &b_ohpfTauTightConePhi); 
+   fChain->SetBranchAddress("ohpfTauTightConePt", ohpfTauTightConePt, &b_ohpfTauTightConePt); 
+   fChain->SetBranchAddress("ohpfTauTightConeLeadTrackPt", ohpfTauTightConeLeadTrackPt, &b_ohpfTauTightConeLeadTrackPt); 
+   fChain->SetBranchAddress("ohpfTauTightConeTrkIso", ohpfTauTightConeTrkIso, &b_ohpfTauTightConeTrkIso); 
+   fChain->SetBranchAddress("ohpfTauTightConeGammaIso", ohpfTauTightConeGammaIso, &b_ohpfTauTightConeGammaIso); 
    fChain->SetBranchAddress("recoNVrt", &recoNVrt, &b_recoNVrt);
    fChain->SetBranchAddress("recoVrtX", &recoVrtX, &b_recoVrtX);
    fChain->SetBranchAddress("recoVrtY", &recoVrtY, &b_recoVrtY);
