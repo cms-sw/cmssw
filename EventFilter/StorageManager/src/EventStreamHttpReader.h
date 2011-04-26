@@ -1,4 +1,4 @@
-// $Id: EventStreamHttpReader.h,v 1.22.10.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: EventStreamHttpReader.h,v 1.22.10.2 2011/03/10 09:00:16 mommsen Exp $
 /// @file: EventStreamHttpReader.h
 
 #ifndef StorageManager_EventStreamHttpReader_h
@@ -26,8 +26,8 @@ namespace edm
     framework input source. Currently we inherit from InputSource.
 
     $Author: mommsen $
-    $Revision: 1.22.10.1 $
-    $Date: 2011/03/07 11:33:05 $
+    $Revision: 1.22.10.2 $
+    $Date: 2011/03/10 09:00:16 $
   */
 
   class EventStreamHttpReader : public edm::StreamerInputSource
@@ -46,6 +46,9 @@ namespace edm
     void readHeader();
     
     stor::EventServerProxy<stor::EventConsumerRegistrationInfo> eventServerProxy_;
+
+    const bool dropOldLumisectionEvents_;
+    unsigned int lastLS_;
 
   };
 

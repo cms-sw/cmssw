@@ -134,21 +134,7 @@ void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const st
 
     G4String cloudname = name+"cloud";
     G4String cloudtype = pType+"cloud";
-    if(CustomPDGParser::s_isstopHadron(pdgCode))
-    {
     spectator = theParticleTable->FindParticle(1000006*sign);
-    }
-    else 
-    { 
-      if(CustomPDGParser::s_issbottomHadron(pdgCode)) {
-          spectator = theParticleTable->FindParticle(1000005*sign);
-      } 
-       else
-      {
-        spectator = 0;
-        edm::LogError("CustomPhysics")<< " Cannot find spectator parton";
-      }
-     }
     spectatormass = spectator->GetPDGMass();
     G4double cloudmass = mass-spectatormass/GeV;
     CustomParticle *tmpParticle  = new CustomParticle(

@@ -122,6 +122,8 @@ namespace evf{
     void setReasonForFailed(std::string r){reasonForFailed_ = r;}
     void setReportedInconsistent(){reported_inconsistent_ = true;}
     unsigned int &countdown(){return restart_countdown_;}
+    int get_save_nbp() const {return save_nbp_;}
+    int get_save_nba() const {return save_nba_;}
     static const unsigned int monitor_queue_offset_ = 200;
 
   private:

@@ -1,4 +1,4 @@
-// $Id: HLTMonSimpleBTag.cc,v 1.1 2011/03/15 18:53:43 fblekman Exp $
+// $Id: HLTMonSimpleBTag.cc,v 1.2 2011/03/16 12:55:50 fblekman Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -125,9 +125,10 @@ HLTMonSimpleBTag::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       name = fullname;
     }
     
-    LogDebug("Parameter") << "filter " << ia << ", full name = " << fullname
+    LogDebug("Parameter")  << "filter " << ia << ", full name = " << fullname
 			  << ", p = " << p 
 			  << ", abbreviated = " << name ;
+    //      std::cout << std::endl;
     // check that trigger is in 'watch list'
     PathInfoCollection::iterator pic = hltPaths_.find(name);
     if(pic==hltPaths_.end())
@@ -246,20 +247,20 @@ HLTMonSimpleBTag::beginJob()
       histoname = v->getName()+"_eta";
       title = v->getName()+" #eta";
       eta =  dbe->book1D(histoname.c_str(),
-			 title.c_str(),nBins_,-2.7,2.7);
+			 title.c_str(),nBins_/2,-2.7,2.7);
       
       histoname = v->getName()+"_phi";
       title = v->getName()+" #phi";
       phi =  dbe->book1D(histoname.c_str(),
-			 histoname.c_str(),nBins_,-3.14,3.14);
+			 histoname.c_str(),nBins_/2,-3.14,3.14);
       
       
       histoname = v->getName()+"_etaphi";
       title = v->getName()+" #eta vs #phi";
       etavsphi =  dbe->book2D(histoname.c_str(),
 			      title.c_str(),
-			      nBins_,-2.7,2.7,
-			      nBins_,-3.14, 3.14);
+			      nBins_/2,-2.7,2.7,
+			      nBins_/2,-3.14, 3.14);
       
       v->setHistos( et, eta, phi, etavsphi);
     }
@@ -277,20 +278,20 @@ HLTMonSimpleBTag::beginJob()
       histoname = v->getName()+"_eta";
       title = v->getName()+" #eta";
       eta =  dbe->book1D(histoname.c_str(),
-			 title.c_str(),nBins_,-2.7,2.7);
+			 title.c_str(),nBins_/2,-2.7,2.7);
       
       histoname = v->getName()+"_phi";
       title = v->getName()+" #phi";
       phi =  dbe->book1D(histoname.c_str(),
-			 histoname.c_str(),nBins_,-3.14,3.14);
+			 histoname.c_str(),nBins_/2,-3.14,3.14);
       
       
       histoname = v->getName()+"_etaphi";
       title = v->getName()+" #eta vs #phi";
       etavsphi =  dbe->book2D(histoname.c_str(),
 			      title.c_str(),
-			      nBins_,-2.7,2.7,
-			      nBins_,-3.14, 3.14);
+			      nBins_/2,-2.7,2.7,
+			      nBins_/2,-3.14, 3.14);
       
       v->setHistos( et, eta, phi, etavsphi);
     }

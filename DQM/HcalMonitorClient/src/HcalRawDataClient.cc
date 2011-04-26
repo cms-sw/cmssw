@@ -16,8 +16,8 @@
 /*
  * \file HcalRawDataClient.cc
  * 
- * $Date: 2010/11/17 19:17:43 $
- * $Revision: 1.8 $
+ * $Date: 2011/03/04 19:02:19 $
+ * $Revision: 1.9 $
  * \author J. St. John
  * \brief Hcal Raw Data Client class
  */
@@ -50,7 +50,7 @@ HcalRawDataClient::HcalRawDataClient(std::string myname, const edm::ParameterSet
   minevents_    = ps.getUntrackedParameter<int>("RawData_minevents",
 						ps.getUntrackedParameter<int>("minevents",1));
 
-  excludeHORing2_       = ps.getUntrackedParameter<bool>("RawData_excludeHORing2",false);
+  excludeHORing2_       = ps.getUntrackedParameter<bool>("excludeHOring2_backup",false);
 
   ProblemCells=0;
   ProblemCellsByDepth=0;
@@ -109,6 +109,22 @@ void HcalRawDataClient::calculateProblems()
 	}
     }
   enoughevents_=true;
+
+  // Try to read excludeHOring2 status from file
+  
+  MonitorElement* temp_exclude = dqmStore_->get(subdir_+"ExcludeHOring2");
+
+  // If value can't be read from file, keep the excludeHOring2_backup status
+  if (temp_exclude != 0)
+    {
+      if (temp_exclude->getIntValue()>0)
+	excludeHORing2_ = true;  
+      else
+	excludeHORing2_ = false;
+    }
+
+
+
   //Get the plots showing raw data errors,
   //fill problemcount[][][] 
   fillProblemCountArray();
@@ -546,7 +562,7 @@ void HcalRawDataClient::mapDCCproblem(int dcc, float n) {
       if (problemcount[myeta][myphi-1][mydepth-1]< n)
 	problemcount[myeta][myphi-1][mydepth-1]=n;
 
-      //exlcude the decommissioned HO ring2, except SiPMs 
+      //exclude the decommissioned HO ring2, except SiPMs 
       if(mydepth==4 && excludeHORing2_==true)
 	if (abs(HDI.ieta())>=11 && abs(HDI.ieta())<=15  && !isSiPM(HDI.ieta(),HDI.iphi(),mydepth))
 	  problemcount[myeta][myphi-1][mydepth-1] = 0.0;

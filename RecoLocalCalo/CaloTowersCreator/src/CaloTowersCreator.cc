@@ -3,7 +3,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoLocalCalo/CaloTowersCreator/interface/EScales.h"
-
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 // severity level for ECAL
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
@@ -189,8 +189,15 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
 
   algo_.begin(); // clear the internal buffer
 
-  algo_.makeHcalDropChMap();
-
+  // can't chain these in a big OR statement, or else it'll
+  // get triggered for each of the first three events
+  bool check1 = hcalSevLevelWatcher_.check(c);
+  bool check2 = hcalChStatusWatcher_.check(c);
+  bool check3 = caloTowerConstituentsWatcher_.check(c);
+  if(check1 || check2 || check3)
+  {
+    algo_.makeHcalDropChMap();
+  }
 
   // ----------------------------------------------------------
   // For ecal error handling need to 

@@ -1,5 +1,5 @@
 
-// $Id: LumiSummary.cc,v 1.21 2010/10/12 10:54:59 xiezhen Exp $
+// $Id: LumiSummary.cc,v 1.20 2010/10/12 10:45:49 xiezhen Exp $
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
@@ -30,18 +30,14 @@ unsigned long long
 LumiSummary::deadcount() const{
   return deadcount_;
 }
-unsigned long long
-LumiSummary::bitzerocount() const{
-  return bitzerocount_;
-}
 float 
 LumiSummary::deadFrac() const {
-  //definition: deadcount/bitzerocount
+  //definition: deadcount/bizerocount
   //if no trigger data, return deadfraction 1.0,mask out this LS
   //if bitzerocount=0, return -1.0 meaning no beam
   if (l1data_.size()==0) return 1.0;
-  if (bitzerocount_==0) return -1.0;
-  return float(deadcount_)/float(bitzerocount_);
+  if (l1data_.begin()->ratecount==0) return -1.0;
+  return float(deadcount_)/float(l1data_.begin()->ratecount*l1data_.begin()->prescale);
 }
 float 
 LumiSummary::liveFrac() const { 
@@ -72,6 +68,13 @@ bool
 LumiSummary::isValid() const {
   return (lumiversion_!="-1"); 
 }
+LumiSummary::L1   
+LumiSummary::l1info(const std::string& name) const{
+  for(std::vector<L1>::const_iterator it=l1data_.begin();it!=l1data_.end();++it){
+    if(it->triggername==name) return *it;
+  }
+  return LumiSummary::L1();
+}
 LumiSummary::L1  
 LumiSummary::l1info(unsigned int idx)const{
   return l1data_.at(idx);
@@ -80,6 +83,13 @@ LumiSummary::HLT
 LumiSummary::hltinfo(unsigned int idx) const {
   return hltdata_.at(idx);
 }
+LumiSummary::HLT  
+LumiSummary::hltinfo(const std::string& pathname) const {
+  for(std::vector<HLT>::const_iterator it=hltdata_.begin();it!=hltdata_.end();++it){
+    if(it->pathname==pathname) return *it;
+  }
+  return LumiSummary::HLT();
+}
 size_t
 LumiSummary::nTriggerLine()const{
   return l1data_.size();
@@ -87,6 +97,14 @@ LumiSummary::nTriggerLine()const{
 size_t
 LumiSummary::nHLTPath()const{
   return hltdata_.size();
+}
+std::vector<std::string>
+LumiSummary::HLTPaths()const{
+  std::vector<std::string> result;
+  for(std::vector<HLT>::const_iterator it=hltdata_.begin();it!=hltdata_.end();++it){
+    result.push_back(it->pathname);
+  }
+  return result;
 }
 float
 LumiSummary::avgInsRecLumi() const {
@@ -124,12 +142,8 @@ LumiSummary::setLumiData(float instlumi,float instlumierr,short lumiquality){
   lumisecqual_=lumiquality;
 }
 void 
-LumiSummary::setDeadCount(unsigned long long deadcount){
+LumiSummary::setDeadtime(unsigned long long deadcount){
   deadcount_=deadcount;
-}
-void 
-LumiSummary::setBitZeroCount(unsigned long long bitzerocount){
-  bitzerocount_=bitzerocount;
 }
 void 
 LumiSummary::setlsnumber(unsigned int lsnumber){
@@ -166,7 +180,6 @@ std::ostream& operator<<(std::ostream& s, const LumiSummary& lumiSummary) {
   s << "  avgInsDelLumiErr = " << lumiSummary.avgInsDelLumiErr() << "\n";
   s << "  lumiSecQual = " << lumiSummary.lumiSecQual() << "\n";
   s << "  deadCount = " << lumiSummary.deadcount() << "\n";
-  s << "  bitZeroCount = " << lumiSummary.bitzerocount() << "\n";
   s << "  deadFrac = " << (float)lumiSummary.deadFrac() << "\n";
   s << "  liveFrac = " << (float)lumiSummary.liveFrac() << "\n";
   s << "  lsNumber = " << lumiSummary.lsNumber() << "\n";
@@ -174,26 +187,37 @@ std::ostream& operator<<(std::ostream& s, const LumiSummary& lumiSummary) {
   s << "  numOrbit = " << lumiSummary.numOrbit() <<"\n";
   s << "  avgInsRecLumi = " << lumiSummary.avgInsRecLumi() << "\n";
   s << "  avgInsRecLumiErr = "  << lumiSummary.avgInsRecLumiErr() << "\n\n";
-  s << std::setw(15) << "l1nameidx";
+  s << std::setw(15) << "l1name";
+  s << std::setw(15) << "l1count";
   s << std::setw(15) << "l1prescale";
   s << "\n";
   size_t nTriggers=lumiSummary.nTriggerLine();
   size_t nHLTPath=lumiSummary.nHLTPath();
   for(unsigned int i = 0; i < nTriggers; ++i) {
     s << std::setw(15);
-    s << lumiSummary.l1info(i).triggernameidx;
+    s << lumiSummary.l1info(i).triggername;
+    
+    s << std::setw(15);
+    s << lumiSummary.l1info(i).ratecount;
+    
     s << std::setw(15);
     s << lumiSummary.l1info(i).prescale;
     s<<"\n";
   }
-  s << std::setw(15) << "hltpathidx";
+  s << std::setw(15) << "hltpath";
+  s << std::setw(15) << "hltcount";
   s << std::setw(15) << "hltprescale";
+  s << std::setw(15) << "hltinput";
   s << "\n";
   for(unsigned int i = 0; i < nHLTPath; ++i) {
     s << std::setw(15);
-    s << lumiSummary.hltinfo(i).pathnameidx;
+    s << lumiSummary.hltinfo(i).pathname;
+    s << std::setw(15);
+    s << lumiSummary.hltinfo(i).ratecount;
     s << std::setw(15);
     s << lumiSummary.hltinfo(i).prescale;
+    s << std::setw(15);
+    s << lumiSummary.hltinfo(i).inputcount;
     s << "\n";
   }
   return s << "\n";

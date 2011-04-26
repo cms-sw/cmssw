@@ -133,7 +133,6 @@ enum PFRefMasks {
 
 
 PFCandidate::PFCandidate() : 
-  particleId_( X ),
   ecalERatio_(1.),
   hcalERatio_(1.),
   rawEcalEnergy_(0.),
@@ -152,8 +151,7 @@ PFCandidate::PFCandidate() :
   getter_(0),storedRefsBitPattern_(0)
 {
   
-  //setPdgId( translateTypeToPdgId( particleId_ ) );
-  setPdgId(0);
+  setPdgId( translateTypeToPdgId( X ) );
   refsInfo_.reserve(3);
 }
 
@@ -166,10 +164,9 @@ PFCandidate::PFCandidate( const PFCandidatePtr& sourcePtr ) {
 
 PFCandidate::PFCandidate( Charge charge, 
 			  const LorentzVector & p4, 
-			  ParticleType particleId ) : 
+			  ParticleType partId ) : 
   
   CompositeCandidate(charge, p4), 
-  particleId_(particleId), 
   ecalERatio_(1.),
   hcalERatio_(1.),
   rawEcalEnergy_(0),
@@ -194,9 +191,9 @@ PFCandidate::PFCandidate( Charge charge,
   // proceed with various consistency checks
 
   // charged candidate: track ref and charge must be non null
-  if(  particleId_ == h || 
-       particleId_ == e || 
-       particleId_ == mu ) {
+  if(  partId == h || 
+       partId == e || 
+       partId == mu ) {
     
     if( charge == 0 ) {
       string err;
@@ -214,8 +211,7 @@ PFCandidate::PFCandidate( Charge charge,
 			   err.c_str() );
     } 
   }  
-  //  setPdgId( translateTypeToPdgId( particleId_ ) );
-  setPdgId(0);
+  setPdgId( translateTypeToPdgId( partId ) );
 }
 
 
@@ -235,6 +231,21 @@ void PFCandidate::addElementInBlock( const reco::PFBlockRef& blockref,
 }
 
 
+
+PFCandidate::ParticleType PFCandidate::translatePdgIdToType(int pdgid) const {
+  switch (std::abs(pdgid)) {
+  case 211: return h;
+  case 11: return e;
+  case 13: return mu;
+  case 22: return gamma;
+  case 130: return h0;
+  case 1: return h_HF;
+  case 2: return egamma_HF;
+  case 0: return X;  
+  default: return X;
+  }
+}
+
 int PFCandidate::translateTypeToPdgId( ParticleType type ) const {
   
   int thecharge = charge();
@@ -245,8 +256,8 @@ int PFCandidate::translateTypeToPdgId( ParticleType type ) const {
   case mu:    return thecharge*(-13);
   case gamma: return 22;
   case h0:    return 130; // K_L0
-  case h_HF:         return 130; // dummy pdg code 
-  case egamma_HF:    return 22;  // dummy pdg code
+  case h_HF:         return 1; // dummy pdg code 
+  case egamma_HF:    return 2;  // dummy pdg code
   case X: 
   default:    return 0;  
   }
@@ -254,7 +265,6 @@ int PFCandidate::translateTypeToPdgId( ParticleType type ) const {
 
 
 void PFCandidate::setParticleType( ParticleType type ) {
-  particleId_ = type;
   setPdgId( translateTypeToPdgId( type ) );
 }
 
@@ -412,7 +422,7 @@ void PFCandidate::setTrackRef(const reco::TrackRef& iRef) {
     err += "PFCandidate::setTrackRef: this is a neutral candidate! ";
     err += "particleId_=";
     char num[4];
-    sprintf( num, "%d", particleId_);
+    sprintf( num, "%d", particleId());
     err += num;
     
     throw cms::Exception("InconsistentReference",
@@ -444,16 +454,17 @@ reco::MuonRef PFCandidate::muonRef() const { GETREF(reco::Muon, kRefMuonMask, kR
 
 //////////////
 void PFCandidate::setGsfTrackRef(reco::GsfTrackRef const & iRef) {
-  if( particleId_ != e ) {
-    string err;
-    err += "PFCandidate::setGsfTrackRef: this is not an electron ! particleId_=";
-    char num[4];
-    sprintf( num, "%d", particleId_);
-    err += num;
-
-    throw cms::Exception("InconsistentReference",
-                         err.c_str() );
-  }
+//  Removed by F. Beaudette. Would like to be able to save the GsfTrackRef even for charged pions
+//  if( particleId() != e ) {
+//    string err;
+//    err += "PFCandidate::setGsfTrackRef: this is not an electron ! particleId_=";
+//    char num[4];
+//    sprintf( num, "%d", particleId());
+//    err += num;
+//
+//    throw cms::Exception("InconsistentReference",
+//                         err.c_str() );
+//  }
 
   storeRefInfo(kRefGsfTrackMask, kRefGsfTrackBit, iRef.isNonnull(), 
 	       iRef.refCore(), iRef.key(),iRef.productGetter());
@@ -465,11 +476,11 @@ reco::GsfTrackRef PFCandidate::gsfTrackRef() const { GETREF(reco::GsfTrack, kRef
 //////////////
 void PFCandidate::setDisplacedVertexRef(const reco::PFDisplacedVertexRef& iRef, Flags type) {
 
-  if( particleId_ != h ) {
+  if( particleId() != h ) {
     string err;
     err += "PFCandidate::setDisplacedVertexRef: this is not a hadron! particleId_=";
     char num[4];
-    sprintf( num, "%d", particleId_);
+    sprintf( num, "%d", particleId());
     err += num;
 
     throw cms::Exception("InconsistentReference",
@@ -519,11 +530,11 @@ reco::PFDisplacedVertexRef PFCandidate::displacedVertexRef(Flags type) const {
 
 //////////////
 void PFCandidate::setConversionRef(reco::ConversionRef const & iRef) {
-  if( particleId_ != gamma ) {
+  if( particleId() != gamma ) {
     string err;
     err += "PFCandidate::setConversionRef: this is not a (converted) photon ! particleId_=";
     char num[4];
-    sprintf( num, "%d", particleId_);
+    sprintf( num, "%d", particleId());
     err += num;
 
     throw cms::Exception("InconsistentReference",
@@ -590,11 +601,11 @@ reco::SuperClusterRef PFCandidate::superClusterRef() const {
 }
 
 void PFCandidate::setPhotonRef(const reco::PhotonRef& iRef) {
-  if( particleId_ != gamma && particleId_ != e) {
+  if( particleId() != gamma && particleId() != e) {
     string err;
     err += "PFCandidate::setSuperClusterRef: this is not an electron neither a photon ! particleId_=";
     char num[4];
-    sprintf( num, "%d", particleId_);
+    sprintf( num, "%d", particleId());
     err += num;
     
     throw cms::Exception("InconsistentReference", err.c_str() );
@@ -606,11 +617,11 @@ void PFCandidate::setPhotonRef(const reco::PhotonRef& iRef) {
 }
 
 void PFCandidate::setSuperClusterRef(const reco::SuperClusterRef& iRef) {
-  if( particleId_ != gamma && particleId_ != e) {
+  if( particleId() != gamma && particleId() != e) {
     string err;
     err += "PFCandidate::setSuperClusterRef: this is not an electron neither a photon ! particleId_=";
     char num[4];
-    sprintf( num, "%d", particleId_);
+    sprintf( num, "%d", particleId());
     err += num;
     
     throw cms::Exception("InconsistentReference", err.c_str() );

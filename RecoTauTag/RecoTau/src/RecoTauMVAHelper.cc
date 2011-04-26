@@ -3,6 +3,7 @@
 
 #include <boost/foreach.hpp>
 #include <boost/bind.hpp>
+#include <sstream>
 
 #include "CondFormats/DataRecord/interface/TauTagMVAComputerRcd.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
@@ -85,8 +86,12 @@ void RecoTauMVAHelper::fillValues(const reco::PFTauRef& tau) const {
     // Check for nans
     for(size_t instance = 0; instance < pluginOutput.size(); ++instance) {
       if (std::isnan(pluginOutput[instance])) {
-        edm::LogError("CorruptedMVAInput") << "A nan was detected in"
-            << " the tau MVA variable " << id << " returning zero instead!";
+        std::ostringstream error;
+        error << "A nan was detected in"
+            << " the tau MVA variable " << id << " returning zero instead!"
+            << " The PFTau: " << *tau << std::endl;
+        tau->dump(error);
+        edm::LogError("CorruptedMVAInput") << error.str();
         pluginOutput[instance] = 0.0;
       }
     }

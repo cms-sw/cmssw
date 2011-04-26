@@ -1,6 +1,6 @@
 // Commands executed in a GLOBAL scope, e.g. created hitograms aren't erased...
 void plot_HE(TString  inputfile="simevent_HE.root",
-	     TString outputfile="HE_histo.root",
+	     TString outputfile="HE_histo+es.root",
 	     Int_t drawmode = 2,
              TString    reffile="../data/HE_ref.root"){
  

@@ -9,5 +9,6 @@ dqmStoreStats = cms.EDAnalyzer("DQMStoreStats",
     runInEventLoop = cms.untracked.bool(False),
     runOnEndLumi = cms.untracked.bool(False),
     runOnEndRun = cms.untracked.bool(True),
-    runOnEndJob = cms.untracked.bool(False)
+    runOnEndJob = cms.untracked.bool(False),
+    dumpToFWJR = cms.untracked.bool(True)
 )

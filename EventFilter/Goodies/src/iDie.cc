@@ -20,6 +20,7 @@
 #include "cgicc/FormFile.h"
 #include "cgicc/HTMLClasses.h"
 
+#include "EventFilter/Utilities/interface/DebugUtils.h"
 
 using namespace evf;
 
@@ -247,6 +248,12 @@ void iDie::dumpTable(xgi::Input *in,xgi::Output *out)
 }
 
 //______________________________________________________________________________
+void iDie::iChokeMiniInterface(xgi::Input *in,xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+}
+
+//______________________________________________________________________________
 void iDie::iChoke(xgi::Input *in,xgi::Output *out)
   throw (xgi::exception::Exception)
 {
@@ -258,7 +265,8 @@ void iDie::iChoke(xgi::Input *in,xgi::Output *out)
 //   }
   std::cout << "iChoke, last_ls= " << last_ls_ << std::endl;
   if(last_ls_==0) return;
-  *out << "Last ls=" << last_ls_ << std::endl;
+  *out << "Last ls=" << last_ls_ << "Cpu statistics=" 
+       << cpuentries_[last_ls_-1] << std::endl;
   *out << "================" << std::endl;
   sorted_indices tmp(cpustat_[last_ls_-1]);
   //  std::sort(tmp.begin(),tmp.end());// figure out how to remap indices of legenda
@@ -295,13 +303,17 @@ void iDie::iChoke(xgi::Input *in,xgi::Output *out)
   for(int j = 0; j < trp_[last_ls_-1].trigPathsInMenu; j++)
     {
       for(i=begin; i < last_ls_; i++)
-	*out << std::setw(8) << trp_[i].trigPathSummaries[j].timesPassed << " ";
+	*out << std::setw(8) << trp_[i].trigPathSummaries[j].timesPassed << "("
+	     << trp_[i].trigPathSummaries[j].timesPassedL1 << ")("
+	     << trp_[i].trigPathSummaries[j].timesPassedPs << ") ";
+      *out << mappath_[j];
       *out << std::endl;
     }
   for(int j = 0; j < trp_[last_ls_-1].endPathsInMenu; j++)
     {
       for(i=begin; i < last_ls_; i++)
 	*out << std::setw(8) << trp_[i].endPathSummaries[j].timesPassed << " ";
+      *out << mappath_[j+trp_[last_ls_-1].trigPathsInMenu];
       *out << std::endl;
     }
 
@@ -379,7 +391,7 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
   if(el1.size()!=0)
     {
       unsigned int lsid = run;
-      parsePathHisto(el1[0].getStrippedValue().c_str(),lsid);
+      parsePathHisto((unsigned char*)(el1[0].getValue().c_str()),lsid);
     }
   el1.clear();
 
@@ -463,30 +475,27 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
 
 void iDie::parsePathLegenda(std::string leg)
 {
+  std::cout << "parsePathLegenda" << std::endl;
+  std::cout << leg << std::endl;
   mappath_.clear();
-  //  if(cpustat_) delete cpustat_;
   boost::char_separator<char> sep(",");
   boost::tokenizer<boost::char_separator<char> > tokens(leg, sep);
   for (boost::tokenizer<boost::char_separator<char> >::iterator tok_iter = tokens.begin();
        tok_iter != tokens.end(); ++tok_iter){
     mappath_.push_back((*tok_iter));
   }
-  //  cpustat_ = new int[nstates_];
-//   for(int i = 0; i < nstates_; i++)
-//     cpustat_[i]=0;	
-//   cpuentries_ = 0;
 }
 
-void iDie::parsePathHisto(const char *crp, unsigned int lsid)
+void iDie::parsePathHisto(const unsigned char *crp, unsigned int lsid)
 {
   std::cout << "parsePathHisto ls=" << lsid << std::endl; 
   TriggerReportStatic *trp = (TriggerReportStatic*)crp;
   if(lsid>=trp_.size()){
     trp_.resize(lsid);
-    trp_[lsid-1].reset();
+    funcs::reset(&trp_[lsid-1]);
     trpentries_.resize(lsid,0);
   }
-  trp_[lsid-1].addToReport(trp,lsid);
+  funcs::addToReport(&trp_[lsid-1],trp,lsid);
   trpentries_[lsid-1]++;
 }
 

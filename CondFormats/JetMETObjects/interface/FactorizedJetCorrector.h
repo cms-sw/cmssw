@@ -8,7 +8,6 @@
 
 #include <vector>
 #include <string>
-#include "TLorentzVector.h"
 
 class SimpleJetCorrector;
 class JetCorrectorParameters;
@@ -16,8 +15,8 @@ class JetCorrectorParameters;
 class FactorizedJetCorrector
 {
   public:
-    enum VarTypes   {kJetPt,kJetEta,kJetPhi,kJetE,kJetEMF,kRelLepPt,kPtRel,kNPV,kJetA,kRho,kJPTrawE,kJPTrawEt,kJPTrawEta,kJPTrawZSP};
-    enum LevelTypes {kL1,kL2,kL3,kL4,kL5,kL6,kL7,kL1fj,kL1JPT};
+    enum VarTypes   {kJetPt,kJetEta,kJetPhi,kJetE,kJetEMF,kRelLepPt,kPtRel,kNPV,kJetA,kRho};
+    enum LevelTypes {kL1,kL2,kL3,kL4,kL5,kL6,kL7,kL1fj};
     FactorizedJetCorrector();
     FactorizedJetCorrector(const std::string& fLevels, const std::string& fTags, const std::string& fOptions="");
     FactorizedJetCorrector(const std::vector<JetCorrectorParameters>& fParameters);
@@ -29,9 +28,7 @@ class FactorizedJetCorrector
     void setJetPhi      (float fE);
     void setJetEMF      (float fEMF); 
     void setJetA        (float fA);
-    void setRho         (float fRho);
-    void setJPTrawP4    (TLorentzVector fJPTrawP4);
-    void setJPTrawZSP   (float fJPTrawZSP);  
+    void setRho         (float fRho); 
     void setLepPx       (float fLepPx);
     void setLepPy       (float fLepPy);
     void setLepPz       (float fLepPz);
@@ -63,10 +60,6 @@ class FactorizedJetCorrector
     float mJetEMF; 
     float mJetA;
     float mRho;
-    float mJPTrawE;
-    float mJPTrawEt;
-    float mJPTrawEta; 
-    float mJPTrawZSP;
     float mLepPx;
     float mLepPy;
     float mLepPz;
@@ -79,8 +72,6 @@ class FactorizedJetCorrector
     bool  mIsJetEMFset; 
     bool  mIsJetAset;
     bool  mIsRhoset;
-    bool  mIsJPTrawP4set;
-    bool  mIsJPTrawZSPset;
     bool  mIsLepPxset;
     bool  mIsLepPyset;
     bool  mIsLepPzset;

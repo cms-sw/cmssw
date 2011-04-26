@@ -1,4 +1,4 @@
-// $Id: DQMHttpSource.cc,v 1.22.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: DQMHttpSource.cc,v 1.24 2011/03/07 15:31:32 mommsen Exp $
 /// @file: DQMHttpSource.cc
 
 #include "EventFilter/StorageManager/interface/CurlInterface.h"
@@ -15,7 +15,10 @@
 
 
 namespace edm
-{  
+{
+  boost::mutex DQMHttpSource::mutex_;
+  
+  
   DQMHttpSource::DQMHttpSource
   (
     const ParameterSet& pset,
@@ -62,6 +65,8 @@ namespace edm
     const bool overwrite
   )
   {
+    boost::mutex::scoped_lock sl(mutex_);
+
     edm::StreamDQMDeserializer deserializeWorker;
     std::auto_ptr<DQMEvent::TObjectTable> toTablePtr =
       deserializeWorker.deserializeDQMEvent(dqmEventMsgView);

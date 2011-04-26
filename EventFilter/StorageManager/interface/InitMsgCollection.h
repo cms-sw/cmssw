@@ -1,4 +1,4 @@
-// $Id: InitMsgCollection.h,v 1.12.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: InitMsgCollection.h,v 1.13 2011/03/07 15:31:32 mommsen Exp $
 /// @file: InitMsgCollection.h 
 
 #ifndef EventFilter_StorageManager_InitMsgCollection_h
@@ -22,8 +22,8 @@ namespace stor
      to event consumers and written to output streams.
 
      $Author: mommsen $
-     $Revision: 1.12.4.1 $
-     $Date: 2011/03/07 11:33:04 $
+     $Revision: 1.13 $
+     $Date: 2011/03/07 15:31:32 $
   */
 
   typedef std::vector<unsigned char> InitMsgBuffer;
@@ -100,14 +100,6 @@ namespace stor
     InitMsgSharedPtr getElementAt(const unsigned int index) const;
  
     /**
-     * Returns a shared pointer to all INIT messages in the collection
-     * or an empty pointer if no collections are stored.
-     *
-     * @return the InitMsgSharedPtr at the beginning of the full collection.
-     */
-    InitMsgSharedPtr getFullCollection() const { return serializedFullSet_; }
-
-    /**
      * Removes all entries from the collection.
      */
     void clear();
@@ -175,7 +167,6 @@ namespace stor
     typedef std::pair<InitMsgSharedPtr, size_t> InitMsgPtrAndCount;
     typedef std::vector<InitMsgPtrAndCount> InitMsgList;
     InitMsgList initMsgList_;
-    InitMsgSharedPtr serializedFullSet_;
 
     typedef std::map<uint32_t, std::string> OutModTable;
     OutModTable outModNameTable_;

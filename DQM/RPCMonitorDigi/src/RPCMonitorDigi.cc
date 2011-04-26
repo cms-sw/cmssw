@@ -127,7 +127,7 @@ void RPCMonitorDigi::endLuminosityBlock(edm::LuminosityBlock const& L, edm::Even
 
 
 void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setup ){
-  
+  dcs_ = true;
   //Check HV status
   this->makeDcsInfo(event);
   if( !dcs_){

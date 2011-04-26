@@ -11,8 +11,8 @@
 /*
  * \file HcalDeadCellClient.cc
  * 
- * $Date: 2010/11/10 20:01:34 $
- * $Revision: 1.71 $
+ * $Date: 2011/03/21 23:02:03 $
+ * $Revision: 1.73 $
  * \author J. Temple
  * \brief Dead Cell Client class
  */
@@ -20,6 +20,7 @@
 HcalDeadCellClient::HcalDeadCellClient(std::string myname)
 {
   name_=myname;
+  std::cout <<"MY NAME = "<<name_.c_str()<<std::endl;
 }
 
 HcalDeadCellClient::HcalDeadCellClient(std::string myname, const edm::ParameterSet& ps)
@@ -45,6 +46,9 @@ HcalDeadCellClient::HcalDeadCellClient(std::string myname, const edm::ParameterS
 						   ps.getUntrackedParameter<double>("minerrorrate",0.25));
   minevents_    = ps.getUntrackedParameter<int>("DeadCell_minevents",
 						ps.getUntrackedParameter<int>("minevents",1000));
+
+  excludeHOring2_backup_=ps.getUntrackedParameter<bool>("excludeHOring2_backup",false);  // this is used only if excludeHOring2 value from Dead Cell task can't be read
+
   ProblemCellsByDepth=0;
   ProblemCells=0;
 
@@ -58,11 +62,32 @@ void HcalDeadCellClient::analyze()
 
 void HcalDeadCellClient::calculateProblems()
 {
+
+
   if (debug_>2) std::cout <<"\t\tHcalDeadCellClient::calculateProblems()"<<std::endl;
-  if(!dqmStore_) return;
+  if(!dqmStore_) 
+    {
+      if (debug_>2) std::cout <<"DQM STORE DOESN'T EXIST"<<std::endl;
+      return;
+    }
 
   MonitorElement* temp_present;
 
+  temp_present=dqmStore_->get(subdir_+"ExcludeHOring2");
+  int excludeFromHOring2 = 0;
+  if (temp_present)
+    {
+      excludeFromHOring2 = temp_present->getIntValue();
+      if (debug_>2) 
+	std::cout <<"Read 'excludeFromHOring2' from HcalMonitorTask output; value = "<<excludeFromHOring2<<std::endl;
+    }
+  else
+    {
+      excludeHOring2_backup_==true ?  excludeFromHOring2=1 : excludeFromHOring2=0;
+      if (debug_>2) 
+	std::cout <<"Could not read excludeFromHOring2 from HcalMonitorTasks; using value from cfg file:  "<<excludeFromHOring2<<std::endl;
+    }
+  
   // Don't fill histograms if nothing from Hcal is present
   if (HBpresent_!=1)
     {
@@ -167,9 +192,13 @@ void HcalDeadCellClient::calculateProblems()
 	{
 	  int ieta=CalcIeta(eta,d+1);
 	  if (ieta==-9999) continue;
+
 	  for (int phi=0;phi<phibins;++phi)
 	    {
 	      problemvalue=0;
+	      // Don't count problems in HO ring 2 if the "excludeFromHOring2" bit is in use
+	      if (isHO(eta,d+1) && excludeFromHOring2>0 && isSiPM(ieta,phi+1,d+1)==false && abs(ieta)>10)
+		continue;
 
 	      // Never-present histogram is a boolean, with underflow bin = 1 (for each instance)
 	      // Offline DQM adds up never-present histograms from multiple outputs
@@ -179,6 +208,7 @@ void HcalDeadCellClient::calculateProblems()
 	      // If cell is never-present in all runs, then problemvalue = event
 	      if (DigiPresentByDepth[d]!=0 && DigiPresentByDepth[d]->GetBinContent(eta+1,phi+1)==0) 
 		problemvalue=totalevents;
+
 	      // Rec Hit presence test
 	      else if (RecHitsPresentByDepth[d]!=0)
 		{
@@ -194,7 +224,9 @@ void HcalDeadCellClient::calculateProblems()
 		  if (RecentMissingRecHitsByDepth[d]!=0)
 		    problemvalue+=RecentMissingRecHitsByDepth[d]->GetBinContent(eta+1,phi+1);
 		}
+	      
 	      if (problemvalue==0) continue;
+	      	      	      
 	      problemvalue/=totalevents; // problem value is a rate; should be between 0 and 1
 	      problemvalue = std::min(1.,problemvalue);
 	      
@@ -217,7 +249,6 @@ void HcalDeadCellClient::calculateProblems()
 		}
 	      ProblemCellsByDepth->depth[d]->setBinContent(eta+1,phi+1,problemvalue);
 	      if (ProblemCells!=0) ProblemCells->Fill(ieta+zside,phi+1,problemvalue);
-	      
 	    } // loop on phi
 	} // loop on eta
     } // loop on depth

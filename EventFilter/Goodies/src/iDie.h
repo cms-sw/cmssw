@@ -71,6 +71,8 @@ namespace evf {
       throw (xgi::exception::Exception);
     void iChoke(xgi::Input *in,xgi::Output *out)
       throw (xgi::exception::Exception);
+    void iChokeMiniInterface(xgi::Input *in,xgi::Output *out)
+      throw (xgi::exception::Exception);
     //AI
     void postEntry(xgi::Input*in,xgi::Output*out)
       throw (xgi::exception::Exception);
@@ -113,7 +115,7 @@ namespace evf {
     void parseModuleLegenda(std::string);
     void parseModuleHisto(const char *, unsigned int);
     void parsePathLegenda(std::string);
-    void parsePathHisto(const char *, unsigned int);
+    void parsePathHisto(const unsigned char *, unsigned int);
     //
     // member data
     //

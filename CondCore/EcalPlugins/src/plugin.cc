@@ -109,12 +109,6 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
 #include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
 
-#include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h"
-#include "CondFormats/DataRecord/interface/EcalTPGStripStatusRcd.h"
-
-#include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
-#include "CondFormats/DataRecord/interface/EcalTPGSpikeRcd.h"
-
 #include "CondFormats/EcalObjects/interface/EcalDCSTowerStatus.h"
 #include "CondFormats/DataRecord/interface/EcalDCSTowerStatusRcd.h"
 
@@ -166,8 +160,6 @@ REGISTER_PLUGIN(EcalTPGWeightGroupRcd,EcalTPGWeightGroup);
 REGISTER_PLUGIN(EcalTPGWeightIdMapRcd,EcalTPGWeightIdMap);
 REGISTER_PLUGIN(EcalTPGCrystalStatusRcd,EcalTPGCrystalStatus);
 REGISTER_PLUGIN(EcalTPGTowerStatusRcd,EcalTPGTowerStatus);
-REGISTER_PLUGIN(EcalTPGStripStatusRcd,EcalTPGStripStatus);
-REGISTER_PLUGIN(EcalTPGSpikeRcd,EcalTPGSpike);
 
 REGISTER_PLUGIN(EcalDCSTowerStatusRcd,EcalDCSTowerStatus);
 REGISTER_PLUGIN(EcalDAQTowerStatusRcd,EcalDAQTowerStatus);

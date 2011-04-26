@@ -2,15 +2,16 @@
  * \file DQMStoreStats.cc
  * \author Andreas Meyer
  * Last Update:
- * $Date: 2009/12/15 08:59:50 $
- * $Revision: 1.9 $
- * $Author: dellaric $
+ * $Date: 2010/01/18 14:52:31 $
+ * $Revision: 1.10 $
+ * $Author: olzem $
  *
  * Description: Print out statistics of histograms in DQMStore
 */
 
 #include "DQMServices/Components/src/DQMStoreStats.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
 
 using namespace std;
 using namespace edm;
@@ -42,9 +43,9 @@ DQMStoreStats::DQMStoreStats( const edm::ParameterSet& ps )
   runonendjob_    = ps.getUntrackedParameter<bool>( "runOnEndJob", false );
   runonendlumi_   = ps.getUntrackedParameter<bool>( "runOnEndLumi", false );
   runineventloop_ = ps.getUntrackedParameter<bool>( "runInEventLoop", false );
+  dumpToFWJR_     = ps.getUntrackedParameter<bool>( "dumpToFWJR", false );
 
   startingTime_ = time( 0 );
-
 }
 
 DQMStoreStats::~DQMStoreStats(){
@@ -130,28 +131,28 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
     switch( (*it)->kind() ) {
       
       // one-dim ME
-      case MonitorElement::DQM_KIND_TH1F: currentSubfolder.AddBinsF( (*it)->getNbinsX() ); break;
-      case MonitorElement::DQM_KIND_TH1S: currentSubfolder.AddBinsS( (*it)->getNbinsX() ); break;
-      case MonitorElement::DQM_KIND_TH1D: currentSubfolder.AddBinsD( (*it)->getNbinsX() ); break;
-      case MonitorElement::DQM_KIND_TPROFILE: currentSubfolder.AddBinsD( (*it)->getNbinsX() ); break;
+    case MonitorElement::DQM_KIND_TH1F: currentSubfolder.AddBinsF( (*it)->getNbinsX() ); break;
+    case MonitorElement::DQM_KIND_TH1S: currentSubfolder.AddBinsS( (*it)->getNbinsX() ); break;
+    case MonitorElement::DQM_KIND_TH1D: currentSubfolder.AddBinsD( (*it)->getNbinsX() ); break;
+    case MonitorElement::DQM_KIND_TPROFILE: currentSubfolder.AddBinsD( (*it)->getNbinsX() ); break;
 
       // two-dim ME
-      case MonitorElement::DQM_KIND_TH2F: currentSubfolder.AddBinsF( (*it)->getNbinsX() * (*it)->getNbinsY() ); break;
-      case MonitorElement::DQM_KIND_TH2S: currentSubfolder.AddBinsS( (*it)->getNbinsX() * (*it)->getNbinsY() ); break;
-      case MonitorElement::DQM_KIND_TH2D: currentSubfolder.AddBinsD( (*it)->getNbinsX() * (*it)->getNbinsY() ); break;
-      case MonitorElement::DQM_KIND_TPROFILE2D: currentSubfolder.AddBinsD( (*it)->getNbinsX() * (*it)->getNbinsY() ); break;
+    case MonitorElement::DQM_KIND_TH2F: currentSubfolder.AddBinsF( (*it)->getNbinsX() * (*it)->getNbinsY() ); break;
+    case MonitorElement::DQM_KIND_TH2S: currentSubfolder.AddBinsS( (*it)->getNbinsX() * (*it)->getNbinsY() ); break;
+    case MonitorElement::DQM_KIND_TH2D: currentSubfolder.AddBinsD( (*it)->getNbinsX() * (*it)->getNbinsY() ); break;
+    case MonitorElement::DQM_KIND_TPROFILE2D: currentSubfolder.AddBinsD( (*it)->getNbinsX() * (*it)->getNbinsY() ); break;
  
       // three-dim ME
-      case MonitorElement::DQM_KIND_TH3F: 
-	currentSubfolder.AddBinsF( (*it)->getNbinsX() * (*it)->getNbinsY() * (*it)->getNbinsZ() ); break;
+    case MonitorElement::DQM_KIND_TH3F: 
+      currentSubfolder.AddBinsF( (*it)->getNbinsX() * (*it)->getNbinsY() * (*it)->getNbinsZ() ); break;
 
-      default: {}
-	// here we have a DQM_KIND_INVALID, DQM_KIND_INT, DQM_KIND_REAL or DQM_KIND_STRING
-	// which we don't care much about. Alternatively:
+    default: {}
+      // here we have a DQM_KIND_INVALID, DQM_KIND_INT, DQM_KIND_REAL or DQM_KIND_STRING
+      // which we don't care much about. Alternatively:
 
-	//   std::cerr << "[DQMStoreStats::calcstats] ** WARNING: monitor element of kind: " 
-	// 	       << (*it)->kind() << ", name: \"" << (*it)->getName() << "\"\n"
-	// 	       << "  in path: \"" << path << "\" not considered." << std::endl;
+      //   std::cerr << "[DQMStoreStats::calcstats] ** WARNING: monitor element of kind: " 
+      // 	       << (*it)->kind() << ", name: \"" << (*it)->getName() << "\"\n"
+      // 	       << "  in path: \"" << path << "\" not considered." << std::endl;
     }
       
   } 
@@ -160,134 +161,194 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
 
   // OUTPUT
 
-  std::cout << endl;
-  std::cout << "===========================================================================================" << std::endl;
-  std::cout << "[DQMStoreStats::calcstats] -- Dumping stats results ";
-  if( mode == DQMStoreStats::considerAllME ) std::cout << "FOR ALL ME" << std::endl;
-  else if( mode == DQMStoreStats::considerOnlyLumiProductME ) std::cout << "FOR LUMI PRODUCTS ONLY" << std::endl;
-  std::cout << "===========================================================================================" << std::endl;
-  std::cout << endl;
+  if (!dumpToFWJR_)
+  {
+    std::cout << endl;
+    std::cout << "===========================================================================================" << std::endl;
+    std::cout << "[DQMStoreStats::calcstats] -- Dumping stats results ";
+    if( mode == DQMStoreStats::considerAllME ) std::cout << "FOR ALL ME" << std::endl;
+    else if( mode == DQMStoreStats::considerOnlyLumiProductME ) std::cout << "FOR LUMI PRODUCTS ONLY" << std::endl;
+    std::cout << "===========================================================================================" << std::endl;
+    std::cout << endl;
 
-  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
-  std::cout << "Configuration:" << std::endl;
-  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
-  std::cout << " > running ";
-  if (runonendrun_) std::cout << "on run end." << std::endl;
-  if (runonendlumi_) std::cout << "on lumi end." << std::endl;
-  if (runonendjob_) std::cout << "on job end." << std::endl;
-  if (runineventloop_) std::cout << "in event loop." << std::endl;
-  std::cout << " > pathNameMatch = \"" << pathnamematch_ << "\"" << std::endl;
-  std::cout << std::endl;
-
-  // dump folder structure
-  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
-  std::cout << "Top level folder tree:" << std::endl;
-  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
-  for( DQMStoreStatsTopLevel::const_iterator it0 = dqmStoreStatsTopLevel.begin(); it0 < dqmStoreStatsTopLevel.end(); ++it0 ) {
-    std::cout << it0->subsystemName_ << " (subsystem)" << std::endl;
-    
-    for( DQMStoreStatsSubsystem::const_iterator it1 = it0->begin(); it1 < it0->end(); ++it1 ) {
-      std::cout << "  |--> " << it1->subfolderName_ << " (subfolder)" << std::endl;
-    }
-    
-  }
-
-  // dump mem/bin table
-
-  unsigned int overallNHistograms = 0, overallNBins = 0, overallNBytes = 0;
-
-  std::cout << std::endl;
-  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
-  std::cout << "Detailed ressource usage information ";
-  if( mode == DQMStoreStats::considerAllME ) std::cout << "FOR ALL ME" << std::endl;
-  else if( mode == DQMStoreStats::considerOnlyLumiProductME ) std::cout << "FOR LUMI PRODUCTS ONLY" << std::endl;
-  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
-  std::cout << "subsystem/folder                  histograms     bins      bins per      MB        kB per" << std::endl;
-  std::cout << "                                   (total)     (total)    histogram    (total)   histogram  " << std::endl;
-  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
-  for( DQMStoreStatsTopLevel::const_iterator it0 = dqmStoreStatsTopLevel.begin(); it0 < dqmStoreStatsTopLevel.end(); ++it0 ) {
-    std::cout << it0->subsystemName_ << std::endl;
-    
-    unsigned int nHistograms = 0, nBins = 0, nBytes = 0;
-
-    for( DQMStoreStatsSubsystem::const_iterator it1 = it0->begin(); it1 < it0->end(); ++it1 ) {
-
-      // fixed-size working copy
-      std::string thisSubfolderName( it1->subfolderName_ );
-      if( thisSubfolderName.size() > 30 ) {
-	thisSubfolderName.resize( 30 );
-	thisSubfolderName.replace( thisSubfolderName.size() - 3, 3, 3, '.' );
-      }
-
-      std::cout << " -> " << std::setw( 30 ) << std::left << thisSubfolderName;
-      std::cout << std::setw( 7 ) << std::right << it1->totalHistos_;
-      std::cout << std::setw( 12 ) << std::right << it1->totalBins_;
-
-      // bins/histogram, need to catch nan if histos=0
-      if( it1->totalHistos_ ) {
-	std::cout << std::setw( 12 ) << std::right << std::setprecision( 3 ) << it1->totalBins_ / float( it1->totalHistos_ );
-      } 
-      else std::cout << std::setw( 12 ) << std::right << "-";
-
-      std::cout << std::setw( 12 ) << std::right << std::setprecision( 3 ) << it1->totalMemory_ / 1024. / 1000.;
-
-      // mem/histogram, need to catch nan if histos=0
-      if( it1->totalHistos_ ) {
-	std::cout << std::setw( 12 ) << std::right << std::setprecision( 3 ) << it1->totalMemory_ / 1024. / it1->totalHistos_;
-      }
-      else std::cout << std::setw( 12 ) << std::right << "-";
-
-      std::cout << std::endl;
-
-      // collect totals
-      nHistograms += it1->totalHistos_; 
-      nBins       += it1->totalBins_;   
-      nBytes      += it1->totalMemory_; 
-
-    }
-
-
-
-
-    overallNHistograms += nHistograms;
-    overallNBins       += nBins;
-    overallNBytes      += nBytes;
-
-    // display totals
-    std::cout << "    " << std::setw( 30 ) << std::left << "SUBSYSTEM TOTAL";
-    std::cout << std::setw( 7 ) << std::right << nHistograms;
-    std::cout << std::setw( 12 ) << std::right << nBins;
-    std::cout << std::setw( 12 ) << std::right << std::setprecision( 3 ) << nBins / float( nHistograms );
-    std::cout << std::setw( 12 ) << std::right << std::setprecision( 3 ) << nBytes / 1024. / 1000.;
-    std::cout << std::setw( 12 ) << std::right << std::setprecision( 3 ) << nBytes / 1024. / nHistograms;
+    std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "Configuration:" << std::endl;
+    std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << " > running ";
+    if (runonendrun_) std::cout << "on run end." << std::endl;
+    if (runonendlumi_) std::cout << "on lumi end." << std::endl;
+    if (runonendjob_) std::cout << "on job end." << std::endl;
+    if (runineventloop_) std::cout << "in event loop." << std::endl;
+    std::cout << " > pathNameMatch = \"" << pathnamematch_ << "\"" << std::endl;
     std::cout << std::endl;
+
+    // dump folder structure
+    std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "Top level folder tree:" << std::endl;
+    std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+    for( DQMStoreStatsTopLevel::const_iterator it0 = dqmStoreStatsTopLevel.begin(); it0 < dqmStoreStatsTopLevel.end(); ++it0 ) {
+      std::cout << it0->subsystemName_ << " (subsystem)" << std::endl;
+    
+      for( DQMStoreStatsSubsystem::const_iterator it1 = it0->begin(); it1 < it0->end(); ++it1 ) {
+	std::cout << "  |--> " << it1->subfolderName_ << " (subfolder)" << std::endl;
+      }
+    
+    }
+
+    // dump mem/bin table
+
+    unsigned int overallNHistograms = 0, overallNBins = 0, overallNBytes = 0;
+
+    std::cout << std::endl;
+    std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "Detailed ressource usage information ";
+    if( mode == DQMStoreStats::considerAllME ) std::cout << "FOR ALL ME" << std::endl;
+    else if( mode == DQMStoreStats::considerOnlyLumiProductME ) std::cout << "FOR LUMI PRODUCTS ONLY" << std::endl;
+    std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "subsystem/folder                  histograms     bins      bins per      MB        kB per" << std::endl;
+    std::cout << "                                   (total)     (total)    histogram    (total)   histogram  " << std::endl;
+    std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+    for( DQMStoreStatsTopLevel::const_iterator it0 = dqmStoreStatsTopLevel.begin(); it0 < dqmStoreStatsTopLevel.end(); ++it0 ) {
+      std::cout << it0->subsystemName_ << std::endl;
+    
+      unsigned int nHistograms = 0, nBins = 0, nBytes = 0;
+
+      for( DQMStoreStatsSubsystem::const_iterator it1 = it0->begin(); it1 < it0->end(); ++it1 ) {
+
+	// fixed-size working copy
+	std::string thisSubfolderName( it1->subfolderName_ );
+	if( thisSubfolderName.size() > 30 ) {
+	  thisSubfolderName.resize( 30 );
+	  thisSubfolderName.replace( thisSubfolderName.size() - 3, 3, 3, '.' );
+	}
+
+	std::cout << " -> " << std::setw( 30 ) << std::left << thisSubfolderName;
+	std::cout << std::setw( 7 ) << std::right << it1->totalHistos_;
+	std::cout << std::setw( 12 ) << std::right << it1->totalBins_;
+
+	// bins/histogram, need to catch nan if histos=0
+	if( it1->totalHistos_ ) {
+	  std::cout << std::setw( 12 ) << std::right << std::setprecision( 3 ) << it1->totalBins_ / float( it1->totalHistos_ );
+	} 
+	else std::cout << std::setw( 12 ) << std::right << "-";
+
+	std::cout << std::setw( 12 ) << std::right << std::setprecision( 3 ) << it1->totalMemory_ / 1024. / 1000.;
+
+	// mem/histogram, need to catch nan if histos=0
+	if( it1->totalHistos_ ) {
+	  std::cout << std::setw( 12 ) << std::right << std::setprecision( 3 ) << it1->totalMemory_ / 1024. / it1->totalHistos_;
+	}
+	else std::cout << std::setw( 12 ) << std::right << "-";
+
+	std::cout << std::endl;
+
+	// collect totals
+	nHistograms += it1->totalHistos_; 
+	nBins       += it1->totalBins_;   
+	nBytes      += it1->totalMemory_; 
+
+      }
+
+
+
+
+      overallNHistograms += nHistograms;
+      overallNBins       += nBins;
+      overallNBytes      += nBytes;
+
+      // display totals
+      std::cout << "    " << std::setw( 30 ) << std::left << "SUBSYSTEM TOTAL";
+      std::cout << std::setw( 7 ) << std::right << nHistograms;
+      std::cout << std::setw( 12 ) << std::right << nBins;
+      std::cout << std::setw( 12 ) << std::right << std::setprecision( 3 ) << nBins / float( nHistograms );
+      std::cout << std::setw( 12 ) << std::right << std::setprecision( 3 ) << nBytes / 1024. / 1000.;
+      std::cout << std::setw( 12 ) << std::right << std::setprecision( 3 ) << nBytes / 1024. / nHistograms;
+      std::cout << std::endl;
       
-    std::cout << ".........................................................................................." << std::endl;
+      std::cout << ".........................................................................................." << std::endl;
 
+    }
+
+
+    // dump total
+    std::cout << std::endl;
+    std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "Grand total ";
+    if( mode == DQMStoreStats::considerAllME ) std::cout << "FOR ALL ME:" << std::endl;
+    else if( mode == DQMStoreStats::considerOnlyLumiProductME ) std::cout << "FOR LUMI PRODUCTS ONLY:" << std::endl;
+    std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "Number of subsystems: " << dqmStoreStatsTopLevel.size() << std::endl;
+    std::cout << "Total number of histograms: " << overallNHistograms << " with: " << overallNBins << " bins alltogether" << std::endl;
+    std::cout << "Total memory occupied by histograms (excl. overhead): " << overallNBytes / 1024. / 1000. << " MB" << std::endl;
+
+
+
+    std::cout << endl;
+    std::cout << "===========================================================================================" << std::endl;
+    std::cout << "[DQMStoreStats::calcstats] -- End of output ";
+    if( mode == DQMStoreStats::considerAllME ) std::cout << "FOR ALL ME." << std::endl;
+    else if( mode == DQMStoreStats::considerOnlyLumiProductME ) std::cout << "FOR LUMI PRODUCTS ONLY." << std::endl;
+    std::cout << "===========================================================================================" << std::endl;
+    std::cout << endl;
   }
+  // Put together a simplified version of the complete dump that is
+  // sent to std::cout. Just dump the very basic information,
+  // i.e. summary for each folder, both for run and LS products.
+  else
+  {
+    edm::Service<edm::JobReport> jr;
+    // Do not even try if the FWJR service is not available.
+    if (!jr.isAvailable())
+      return 0;
+    // Prepare appropriate map to store FWJR output.
+    std::map<std::string, std::string> jrInfo;
+    unsigned int overallNHistograms = 0, overallNBins = 0, overallNBytes = 0;
+
+    jrInfo["Source"] = "DQMServices/Components";
+    jrInfo["FileClass"] = "DQMStoreStats";
+    if (runonendrun_)
+      jrInfo["DumpType"] = "EndRun";
+    if (runonendlumi_)
+      jrInfo["DumpType"] = "EndLumi";
+    if (runonendjob_)
+      jrInfo["DumpType"] = "EndJob";
+    if (runineventloop_)
+      jrInfo["DumpType"] = "EventLoop";
+    if( mode == DQMStoreStats::considerAllME )
+      jrInfo["Type"] = "RunProduct";
+    else if( mode == DQMStoreStats::considerOnlyLumiProductME )
+      jrInfo["Type"] = "LumiProduct";
 
 
-  // dump total
-  std::cout << std::endl;
-  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
-  std::cout << "Grand total ";
-  if( mode == DQMStoreStats::considerAllME ) std::cout << "FOR ALL ME:" << std::endl;
-  else if( mode == DQMStoreStats::considerOnlyLumiProductME ) std::cout << "FOR LUMI PRODUCTS ONLY:" << std::endl;
-  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
-  std::cout << "Number of subsystems: " << dqmStoreStatsTopLevel.size() << std::endl;
-  std::cout << "Total number of histograms: " << overallNHistograms << " with: " << overallNBins << " bins alltogether" << std::endl;
-  std::cout << "Total memory occupied by histograms (excl. overhead): " << overallNBytes / 1024. / 1000. << " MB" << std::endl;
+    jrInfo["pathNameMatch"] = pathnamematch_;
 
-
-
-  std::cout << endl;
-  std::cout << "===========================================================================================" << std::endl;
-  std::cout << "[DQMStoreStats::calcstats] -- End of output ";
-  if( mode == DQMStoreStats::considerAllME ) std::cout << "FOR ALL ME." << std::endl;
-  else if( mode == DQMStoreStats::considerOnlyLumiProductME ) std::cout << "FOR LUMI PRODUCTS ONLY." << std::endl;
-  std::cout << "===========================================================================================" << std::endl;
-  std::cout << endl;
-
+    for (DQMStoreStatsTopLevel::const_iterator it0 = dqmStoreStatsTopLevel.begin(); it0 < dqmStoreStatsTopLevel.end(); ++it0 )
+    {
+      unsigned int nHistograms = 0, nBins = 0, nBytes = 0;
+      for( DQMStoreStatsSubsystem::const_iterator it1 = it0->begin(); it1 < it0->end(); ++it1 ) {
+	// collect totals
+	nHistograms += it1->totalHistos_; 
+	nBins       += it1->totalBins_;   
+	nBytes      += it1->totalMemory_; 
+      }
+      overallNHistograms += nHistograms;
+      overallNBins       += nBins;
+      overallNBytes      += nBytes;
+      std::stringstream iss("");
+      iss << nHistograms;
+      jrInfo[it0->subsystemName_ + std::string("_h")] = iss.str();
+      iss.str("");iss<<nBins;
+      jrInfo[it0->subsystemName_ + std::string("_b")]  = iss.str();
+      iss.str("");iss<< (nBins / float( nHistograms ));
+      jrInfo[it0->subsystemName_ + std::string("_b_h")]    = iss.str();
+      iss.str("");iss<<nBytes / 1024. / 1024.;
+      jrInfo[it0->subsystemName_ + std::string("_MB")]    = iss.str();
+      iss.str("");iss<<nBytes / 1024. / nHistograms;
+      jrInfo[it0->subsystemName_ + std::string("_Kb_h")] = iss.str();
+    }
+    jr->reportAnalysisFile("DQMStatsReport", jrInfo);
+  }
+  
   return 0;
 
 }

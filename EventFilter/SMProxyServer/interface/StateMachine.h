@@ -1,4 +1,4 @@
-// $Id: StateMachine.h,v 1.1.4.2 2011/03/07 12:01:12 mommsen Exp $
+// $Id: StateMachine.h,v 1.1.4.3 2011/03/23 14:20:51 mommsen Exp $
 /// @file: StateMachine.h 
 
 #ifndef EventFilter_SMProxyServer_StateMachine_h
@@ -112,6 +112,7 @@ namespace smproxy
     void updateConfiguration();
     void setQueueSizes();
     void clearInitMsgCollection();
+    void resetStatistics();
     void clearConsumerRegistrations();
     void enableConsumerRegistration();
     void disableConsumerRegistration();
