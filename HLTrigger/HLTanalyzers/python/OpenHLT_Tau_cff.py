@@ -292,21 +292,6 @@ OpenHLTL25TauTrackIsolation = cms.Sequence( openhltL25TauJetTracksAssociator + o
 
 
 #Particle Flow
-#Modifying the trajFilter
-#trajFilterL3.maxNumberOfHits = cms.int32(100)
-#trajFilterL3.minPt = cms.double(0.5)
-
-#HLTRecoJetSequencePrePF = cms.Sequence( HLTDoCaloSequence + hltIterativeCone5CaloJets + hltIterativeCone5CaloJets8 )
-
-#HLTTrackReconstructionForJets = cms.Sequence( hltPFJetPixelSeeds + hltPFJetCkfTrackCandidates + hltPFJetCtfWithMaterialTracks +hltPFJetCkfTrackCandidatesHighPurity )
-#HLTPreshowerSequence = cms.Sequence( hltESRawToRecHitFacility + 
-#                                     hltEcalRegionalESRestFEDs + 
-#                                     hltESRecHitAll 
-#                                     )
-#HLTParticleFlowSequence = cms.Sequence( HLTPreshowerSequence + hltParticleFlowRecHitECAL + hltParticleFlowRecHitHCAL + hltParticleFlowRecHitPS + hltParticleFlowClusterECAL + hltParticleFlowClusterHCAL + hltParticleFlowClusterHFEM + hltParticleFlowClusterHFHAD + hltParticleFlowClusterPS + hltLightPFTracks + hltParticleFlowBlock + hltParticleFlow )
-#HLTPFJetsSequence = cms.Sequence( hltIcone5PFJets )
-#HLTPFJetTriggerSequence = cms.Sequence( HLTRecopixelvertexingSequence + HLTTrackReconstructionForJets + HLTParticleFlowSequence + HLTPFJetsSequence )
-#HLTPFTauSequence = cms.Sequence( hltPFTauJetTracksAssociator + hltPFTauTagInfo + hltPFTaus)
 
 #Particle Flow
 hltPFTaus = cms.EDProducer( "PFRecoTauProducer",
