@@ -534,8 +534,8 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
     // calcuate the jet area
     double jetArea=0.0;
     if ( doAreaFastjet_ ) {
-      fastjet::ClusterSequenceArea const * clusterSequenceWithArea =
-        dynamic_cast<fastjet::ClusterSequenceArea const *>(&*fjClusterSeq_);
+      fastjet::ClusterSequenceAreaBase const * clusterSequenceWithArea =
+        dynamic_cast<fastjet::ClusterSequenceAreaBase const *>(&*fjClusterSeq_);
       jetArea = clusterSequenceWithArea->area(fjJet);
     }
     else if ( doAreaDiskApprox_ ) {
