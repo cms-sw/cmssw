@@ -62,7 +62,7 @@ void HeavyFlavorHarvesting::calculateEfficiency(const ParameterSet& pset){
 //get hold of numerator and denominator histograms
   vector<string> numDenEffMEnames = pset.getUntrackedParameter<vector<string> >("NumDenEffMEnames");
   if(numDenEffMEnames.size()!=3){
-    LogError("HLTriggerOfflineHeavyFlavor") << "NumDenEffMEnames must have three names"<<endl;
+    LogDebug("HLTriggerOfflineHeavyFlavor") << "NumDenEffMEnames must have three names"<<endl;
     return;
   }
   string denMEname = myDQMrootFolder+"/"+numDenEffMEnames[1];
@@ -70,14 +70,14 @@ void HeavyFlavorHarvesting::calculateEfficiency(const ParameterSet& pset){
   MonitorElement *denME = dqmStore->get(denMEname);
   MonitorElement *numME = dqmStore->get(numMEname);
   if(denME==0 || numME==0){
-    LogError("HLTriggerOfflineHeavyFlavor") << "Could not find MEs: "<<denMEname<<" or "<<numMEname<<endl;
+    LogDebug("HLTriggerOfflineHeavyFlavor") << "Could not find MEs: "<<denMEname<<" or "<<numMEname<<endl;
     return;
   }
   TH1 *den = denME->getTH1();
   TH1 *num = numME->getTH1();
   //check compatibility of the histograms  
   if( den->GetNbinsX() != num->GetNbinsX() || den->GetNbinsY() != num->GetNbinsY() ||  den->GetNbinsZ() != num->GetNbinsZ() ){
-    LogError("HLTriggerOfflineHeavyFlavor") << "Monitoring elements "<<numMEname<<" and "<<denMEname<<"are incompatible"<<endl;
+    LogDebug("HLTriggerOfflineHeavyFlavor") << "Monitoring elements "<<numMEname<<" and "<<denMEname<<"are incompatible"<<endl;
     return;
   }
   //figure out the directory and efficiency name  
