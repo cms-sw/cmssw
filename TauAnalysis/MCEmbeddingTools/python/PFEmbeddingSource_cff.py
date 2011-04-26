@@ -36,7 +36,7 @@ filterEmptyEv = cms.EDFilter("EmptyEventsFilter",
 #)
 
 #inputColl = cms.InputTag("adaptedMuonsFromDiTauCands","zMusExtracted")
-inputColl = cms.InputTag("goldenZmumuCandidatesGe1IsoMuons")
+inputColl = cms.InputTag("goldenZmumuCandidatesGe2IsoMuons")
 
 dimuonsGlobal = cms.EDProducer('ZmumuPFEmbedder',
     tracks = cms.InputTag("generalTracks"),
