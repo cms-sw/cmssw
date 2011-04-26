@@ -67,5 +67,10 @@ class RecoTauQualityCuts {
     QCutFunc predicate_;
 };
 
+// Split an input set of quality cuts into those that need to be inverted
+// to select PU (the first member) and those that are general quality cuts.
+std::pair<edm::ParameterSet, edm::ParameterSet> factorizePUQCuts(
+    const edm::ParameterSet& inputSet);
+
 }}  // end reco::tau:: namespace
 #endif

@@ -35,4 +35,9 @@ pfRecoTauDiscriminationByIsolation = cms.EDProducer(
     isoConeSizeForDeltaBeta = cms.double(0.5),
     # The expected neutral contribution if the charged contribution is 1.0
     deltaBetaFactor = cms.double(0.38),
+    # By default, the pt threshold for tracks used to compute the DeltaBeta
+    # correction is taken as the gamma Et threshold from the isolation quality
+    # cuts.
+    # Uncommenting the parameter below allows this threshold to be overridden.
+    #deltaBetaPUTrackPtCutOverride = cms.double(1.5),
 )

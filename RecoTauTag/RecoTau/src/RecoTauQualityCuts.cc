@@ -158,26 +158,11 @@ RecoTauQualityCuts::RecoTauQualityCuts(const edm::ParameterSet &qcuts) {
             qcuts::trkLongitudinalImpactParameter, _1, &pv_,
             qcuts.getParameter<double>("maxDeltaZ")));
 
-  // Useful for identifying PU in the event. NB the ! operator on boost:bind
-  // that negates the function.
-  if (qcuts.exists("minDeltaZ"))
-    chargedHadronCuts.push_back(!boost::bind(
-            qcuts::trkLongitudinalImpactParameter, _1, &pv_,
-            qcuts.getParameter<double>("minDeltaZ")));
-
   // Require tracks to contribute a minimum weight to the associated vertex.
   if (qcuts.exists("minTrackVertexWeight")) {
     chargedHadronCuts.push_back(boost::bind(
           qcuts::minTrackVertexWeight, _1, &pv_,
           qcuts.getParameter<double>("minTrackVertexWeight")));
-  }
-
-  // Make an inverted version.  ! is an operator that inverts boost::bind
-  // This quality cut is useful for finding the PU in the event.
-  if (qcuts.exists("maxTrackVertexWeight")) {
-    chargedHadronCuts.push_back(!boost::bind(
-          qcuts::minTrackVertexWeight, _1, &pv_,
-          qcuts.getParameter<double>("maxTrackVertexWeight")));
   }
 
   // Build the QCuts for gammas
@@ -202,5 +187,25 @@ RecoTauQualityCuts::RecoTauQualityCuts(const edm::ParameterSet &qcuts) {
   // Build a final level predicate that works on any PFCand
   predicate_ = boost::bind(qcuts::mapAndCutByType, _1, boost::cref(qcuts_));
 }
+
+std::pair<edm::ParameterSet, edm::ParameterSet> factorizePUQCuts(
+    const edm::ParameterSet& input) {
+
+  edm::ParameterSet puCuts;
+  edm::ParameterSet nonPUCuts;
+
+  std::vector<std::string> inputNames = input.getParameterNames();
+  BOOST_FOREACH(const std::string& cut, inputNames) {
+    if (cut == "minTrackVertexWeight" || cut == "maxDeltaZ") {
+      puCuts.copyFrom(input, cut);
+    } else {
+      nonPUCuts.copyFrom(input, cut);
+    }
+  }
+  return std::make_pair(puCuts, nonPUCuts);
+}
+
+
+
 
 }}  // end namespace reco::tau

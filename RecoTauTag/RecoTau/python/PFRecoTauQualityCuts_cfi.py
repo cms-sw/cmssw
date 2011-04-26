@@ -27,18 +27,18 @@ PFTauQualityCuts = cms.PSet(
         minGammaEt                   = cms.double(1.5),
         useTracksInsteadOfPFHadrons  = cms.bool(False),
     ),
-    pileupQualityCuts = cms.PSet(
-        minTrackPt                   = cms.double(1.5),
-        maxTrackChi2                 = cms.double(100.),
-        maxTransverseImpactParameter = cms.double(0.03),
-        # NB that these cuts are inverted w.r.t. signal and isolation cuts!
-        # maxTrack instead of minTrack, minDZ instead of maxDZ
-        maxTrackVertexWeight         = cms.double(10e-4),
-        minDeltaZ                    = cms.double(0.2),
-        minTrackPixelHits            = cms.uint32(0),
-        minTrackHits                 = cms.uint32(3),
-        minGammaEt                   = cms.double(1.5),
-    ),
+    #pileupQualityCuts = cms.PSet(
+        #minTrackPt                   = cms.double(1.5),
+        #maxTrackChi2                 = cms.double(100.),
+        #maxTransverseImpactParameter = cms.double(0.03),
+        ## NB that these cuts are inverted w.r.t. signal and isolation cuts!
+        ## maxTrack instead of minTrack, minDZ instead of maxDZ
+        #maxTrackVertexWeight         = cms.double(10e-4),
+        #minDeltaZ                    = cms.double(0.2),
+        #minTrackPixelHits            = cms.uint32(0),
+        #minTrackHits                 = cms.uint32(3),
+        #minGammaEt                   = cms.double(1.5),
+    #),
     # The central definition of primary vertex source.
     primaryVertexSrc = cms.InputTag("offlinePrimaryVerticesDA"),
     # Possible algorithms are: highestPtInEvent, closestInDeltaZ,

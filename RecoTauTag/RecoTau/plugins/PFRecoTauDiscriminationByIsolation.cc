@@ -58,9 +58,35 @@ class PFRecoTauDiscriminationByIsolation :
 
         applyDeltaBeta_ = false;
         if (pset.exists("applyDeltaBetaCorrection")) {
-          pileupQcuts_.reset(new tau::RecoTauQualityCuts(
-              qualityCutsPSet_.getParameter<edm::ParameterSet>(
-                "pileupQualityCuts")));
+
+          edm::ParameterSet isoQCuts =
+            qualityCutsPSet_.getParameter<edm::ParameterSet>(
+            "isolationQualityCuts");
+
+          // Factorize the isolation QCuts into those that are used to
+          // select PU and those that are not.
+          std::pair<edm::ParameterSet, edm::ParameterSet> puFactorizedIsoQCuts =
+            reco::tau::factorizePUQCuts(isoQCuts);
+
+          // Determine the pt threshold for the PU tracks
+          // First check if the user specifies explicitly the cut.
+          if (pset.exists("deltaBetaPUTrackPtCutOverride")) {
+            puFactorizedIsoQCuts.second.addParameter<double>(
+                "minTrackPt",
+                pset.getParameter<double>("deltaBetaPUTrackPtCutOverride"));
+          } else {
+            // Secondly take it from the minGammaEt
+            puFactorizedIsoQCuts.second.addParameter<double>(
+                "minTrackPt",
+                isoQCuts.getParameter<double>("minGammaEt"));
+          }
+
+          pileupQcutsPUTrackSelection_.reset(new tau::RecoTauQualityCuts(
+                puFactorizedIsoQCuts.first));
+
+          pileupQcutsGeneralQCuts_.reset(new tau::RecoTauQualityCuts(
+                puFactorizedIsoQCuts.second));
+
           applyDeltaBeta_ = pset.getParameter<bool>(
               "applyDeltaBetaCorrection");
           pfCandSrc_ = pset.getParameter<edm::InputTag>("particleFlowSrc");
@@ -79,7 +105,11 @@ class PFRecoTauDiscriminationByIsolation :
   private:
     edm::ParameterSet qualityCutsPSet_;
     std::auto_ptr<tau::RecoTauQualityCuts> qcuts_;
-    std::auto_ptr<tau::RecoTauQualityCuts> pileupQcuts_;
+
+    // Inverted QCut which selects tracks with bad DZ/trackWeight
+    std::auto_ptr<tau::RecoTauQualityCuts> pileupQcutsPUTrackSelection_;
+    std::auto_ptr<tau::RecoTauQualityCuts> pileupQcutsGeneralQCuts_;
+
     std::auto_ptr<tau::RecoTauVertexAssociator> vertexAssociator_;
 
     bool includeTracks_;
@@ -137,33 +167,54 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) {
   // Let the quality cuts know which the vertex to use when applying selections
   // on dz, etc.
   qcuts_->setPV(pv);
-  if (pileupQcuts_.get()) {
-    pileupQcuts_->setPV(pv);
+  if (applyDeltaBeta_) {
+    pileupQcutsGeneralQCuts_->setPV(pv);
+    pileupQcutsPUTrackSelection_->setPV(pv);
+  }
+  // Load the tracks if they are being used.
+  if (includeTracks_) {
+    BOOST_FOREACH(const reco::PFCandidateRef& cand,
+        pfTau->isolationPFChargedHadrCands()) {
+      if (qcuts_->filterRef(cand))
+        isoCharged.push_back(cand);
+    }
   }
 
-  BOOST_FOREACH(const reco::PFCandidateRef& cand,
-      pfTau->isolationPFChargedHadrCands()) {
-    if (qcuts_->filterRef(cand))
-      isoCharged.push_back(cand);
-  }
-  BOOST_FOREACH(const reco::PFCandidateRef& cand,
-      pfTau->isolationPFGammaCands()) {
-    if (qcuts_->filterRef(cand))
-      isoNeutral.push_back(cand);
+  if (includeGammas_) {
+    BOOST_FOREACH(const reco::PFCandidateRef& cand,
+        pfTau->isolationPFGammaCands()) {
+      if (qcuts_->filterRef(cand))
+        isoNeutral.push_back(cand);
+    }
   }
   typedef reco::tau::cone::DeltaRPtrFilter<PFCandidateRef> DRFilter;
 
   // If desired, get PU tracks.
   if (applyDeltaBeta_) {
+    // First select by inverted the DZ/track weight cuts. True = invert
+    //std::cout << "Initial PFCands: " << chargedPFCandidatesInEvent_.size()
+    //  << std::endl;
+
     std::vector<PFCandidateRef> allPU =
-      pileupQcuts_->filterRefs(chargedPFCandidatesInEvent_);
+      pileupQcutsPUTrackSelection_->filterRefs(
+          chargedPFCandidatesInEvent_, true);
+
+    //std::cout << "After track cuts: " << allPU.size() << std::endl;
+
+    // Now apply the rest of the cuts, like pt, and TIP, tracker hits, etc
+    std::vector<PFCandidateRef> cleanPU =
+      pileupQcutsGeneralQCuts_->filterRefs(allPU);
+
+    //std::cout << "After cleaning cuts: " << cleanPU.size() << std::endl;
+
     // Only select PU tracks inside the isolation cone.
     DRFilter deltaBetaFilter(pfTau->p4(), 0, deltaBetaCollectionCone_);
-    BOOST_FOREACH(const reco::PFCandidateRef& cand, allPU) {
-      if (!deltaBetaFilter(cand)) {
+    BOOST_FOREACH(const reco::PFCandidateRef& cand, cleanPU) {
+      if (deltaBetaFilter(cand)) {
         isoPU.push_back(cand);
       }
     }
+    //std::cout << "After cone cuts: " << isoPU.size() << std::endl;
   }
 
   // Check if we want a custom iso cone
