@@ -433,7 +433,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
             bool quality = true;
 
-            if ( (dxy>dxyCut_) || (normalizedChi2>normalizedChi2Cut_) || (trackerHits<trackerHitsCut_) || (pixelHits<pixelHitsCut_) || (muonHits<muonHitsCut_) || (!mu.isTrackerMuon()) || (nMatches<nMatchesCut_) ) quality=false;
+            if ( (fabs(dxy)>dxyCut_) || (normalizedChi2>normalizedChi2Cut_) || (trackerHits<trackerHitsCut_) || (pixelHits<pixelHitsCut_) || (muonHits<muonHitsCut_) || (!mu.isTrackerMuon()) || (nMatches<nMatchesCut_) ) quality=false;
 
 
             LogDebug("") << "\t... dxy, normalizedChi2, muonhits, trackerHits, pixelHits, isTrackerMuon?, nMatches: " << dxy << " [cm], " << normalizedChi2 << ", " <<muonHits<<" , "<< trackerHits <<" , "<< pixelHits <<  ", " << mu.isTrackerMuon()<<", "<<nMatches;
