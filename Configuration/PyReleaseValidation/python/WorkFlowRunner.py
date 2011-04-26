@@ -116,7 +116,12 @@ class WorkFlowRunner(Thread):
                     retStep1 = -95
                 else:
                     try:
-                        inFile = lines[0].strip()
+                        toJoin=[]
+                        for aline in lines:
+                            if len(toJoin)>50: break
+                            toJoin.append(aline.strip())
+                        #inFile = lines[0].strip()
+                        inFile=','.join(toJoin)
                     except Exception, e:
                         print "ERROR determining file from DBS query: ", str(e)
                         inFile = "NoFileFoundInDBS"
