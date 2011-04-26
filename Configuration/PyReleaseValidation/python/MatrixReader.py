@@ -155,7 +155,7 @@ class MatrixReader(object):
                     cmd = 'DATAINPUT from '+inputInfo.dataSet+' on '+inputInfo.location
                     
                 if stepIndex > 0:
-                    cmd  = 'cmsDriver.py step'+str(stepIndex+1)+'.py '+opts
+                    cmd  = 'cmsDriver.py step'+str(stepIndex+1)+' '+opts
                     
                 stepCmds[stepIndex] = cmd
                 stepIndex += 1
