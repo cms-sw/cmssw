@@ -1,6 +1,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/ExprAlgo/interface/AlgoImpl.h"
 #include "DetectorDescription/ExprAlgo/interface/AlgoPos.h"
+#include <cstdio>
 
 AlgoImpl::AlgoImpl( AlgoPos * al, std::string label )
   : ParS_(al->ParS_),
