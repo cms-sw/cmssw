@@ -10,6 +10,16 @@ def customise(process):
   process._Process__name="HLT2"
   process.TFileService = cms.Service("TFileService",  fileName = cms.string("histo_simulation.root")          )
 
+  # Add the production filter sequence to all paths so that the empty event
+  # filter is actually applied and events with no HepMC product are skipped.
+  # Also add process.pgen for the generation_step which is not inserted by
+  # cmsDriver for some reason.
+  for path in process.paths: 
+    if path != 'generation_step':
+      getattr(process,path)._seq = process.ProductionFilterSequence*getattr(process,path)._seq
+    else:
+      getattr(process,path)._seq = getattr(process,path)._seq*cms.Sequence(process.pgen)
+
   try:
 	  outputModule = process.output
   except:
@@ -101,7 +111,8 @@ def customise(process):
 
   print "options.overrideBeamSpot", options.overrideBeamSpot
   if options.overrideBeamSpot != 0:
-    bs = cms.string("BeamSpotObjects_2009_LumiBased_v17_offline") # 38x data gt
+    bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v18_offline") # 41x data PR gt
+    #bs = cms.string("BeamSpotObjects_2009_LumiBased_v17_offline") # 38x data gt
     #bs = cms.string("BeamSpotObjects_2009_v14_offline") # 36x data gt
     #  tag = cms.string("Early10TeVCollision_3p8cm_31X_v1_mc_START"), # 35 default
     #  tag = cms.string("Realistic900GeVCollisions_10cm_STARTUP_v1_mc"), # 36 default
