@@ -89,23 +89,23 @@ hpsPFTauDiscriminationByTightMuonRejection.discriminatorOption = cms.string('noA
 # Define the HPS selection discriminator used in cleaning
 hpsSelectionDiscriminator.PFTauProducer = cms.InputTag("combinatoricRecoTaus")
 
-# Define discriminants to use for HPS cleaning
-hpsTightIsolationCleaner = hpsPFTauDiscriminationByTightIsolation.clone(
-    Prediscriminants = noPrediscriminants,
-    PFTauProducer = cms.InputTag("combinatoricRecoTaus"),
-)
-hpsMediumIsolationCleaner = hpsPFTauDiscriminationByMediumIsolation.clone(
-    Prediscriminants = noPrediscriminants,
-    PFTauProducer = cms.InputTag("combinatoricRecoTaus"),
-)
-hpsLooseIsolationCleaner = hpsPFTauDiscriminationByLooseIsolation.clone(
-    Prediscriminants = noPrediscriminants,
-    PFTauProducer = cms.InputTag("combinatoricRecoTaus"),
-)
-hpsVLooseIsolationCleaner = hpsPFTauDiscriminationByVLooseIsolation.clone(
-    Prediscriminants = noPrediscriminants,
-    PFTauProducer = cms.InputTag("combinatoricRecoTaus"),
-)
+# Define discriminants to use for HPS cleaning.
+#hpsTightIsolationCleaner = hpsPFTauDiscriminationByTightIsolation.clone(
+    #Prediscriminants = noPrediscriminants,
+    #PFTauProducer = cms.InputTag("combinatoricRecoTaus"),
+#)
+#hpsMediumIsolationCleaner = hpsPFTauDiscriminationByMediumIsolation.clone(
+    #Prediscriminants = noPrediscriminants,
+    #PFTauProducer = cms.InputTag("combinatoricRecoTaus"),
+#)
+#hpsLooseIsolationCleaner = hpsPFTauDiscriminationByLooseIsolation.clone(
+    #Prediscriminants = noPrediscriminants,
+    #PFTauProducer = cms.InputTag("combinatoricRecoTaus"),
+#)
+#hpsVLooseIsolationCleaner = hpsPFTauDiscriminationByVLooseIsolation.clone(
+    #Prediscriminants = noPrediscriminants,
+    #PFTauProducer = cms.InputTag("combinatoricRecoTaus"),
+#)
 
 import RecoTauTag.RecoTau.RecoTauCleanerPlugins as cleaners
 
@@ -129,10 +129,10 @@ hpsPFTauProducer = cms.EDProducer(
 
 produceHPSPFTaus = cms.Sequence(
     hpsSelectionDiscriminator
-    *hpsTightIsolationCleaner
-    *hpsMediumIsolationCleaner
-    *hpsLooseIsolationCleaner
-    *hpsVLooseIsolationCleaner
+    #*hpsTightIsolationCleaner
+    #*hpsMediumIsolationCleaner
+    #*hpsLooseIsolationCleaner
+    #*hpsVLooseIsolationCleaner
     *hpsPFTauProducer
 )
 
