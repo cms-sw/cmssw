@@ -30,6 +30,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Run.h"
 //#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "TFile.h"
 #include "TH1.h"
@@ -73,6 +74,11 @@ class Analyzer_minbias : public edm::EDAnalyzer {
      TH1F*       hCalo2[73][43];
      TH1F*       hCalo1mom2[73][43];
      TH1F*       hCalo2mom2[73][43];
+     TH1F*       hbheNoiseE;
+     TH1F*       hbheSignalE;
+     TH1F*       hfNoiseE;
+     TH1F*       hfSignalE;
+     
      TH2F*       hHBHEsize_vs_run; 
      TH2F*       hHFsize_vs_run;
   // Root tree members

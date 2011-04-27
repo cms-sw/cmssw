@@ -13,7 +13,11 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
-#include "FWCore/Framework/interface/Run.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 
 #include "TFile.h"
 #include "TH1.h"
@@ -23,7 +27,8 @@
 
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
-
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 using namespace std;
 using namespace reco;
 //
@@ -121,8 +126,8 @@ void Analyzer_minbias::beginJob()
 // Size of collections
 
    hHBHEsize_vs_run = new TH2F("hHBHEsize_vs_run","hHBHEsize_vs_run",500,111500.,112000.,6101,-100.5,6000.5);
-   hHFsize_vs_run = new TH2F("hHFsize_vs_run","hHFsize_vs_run",500,111500.,112000.,6101,-100.5,6000.5); 
-
+   hHFsize_vs_run = new TH2F("hHFsize_vs_run","hHFsize_vs_run",500,111500.,112000.,6101,-100.5,6000.5);
+   
    for(int i=1;i<73;i++){
     for(int j=1;j<43;j++){
 
@@ -176,6 +181,12 @@ void Analyzer_minbias::beginJob()
     } // j
    } // i
 
+
+    hbheNoiseE = new TH1F("hbheNoiseE","hbheNoiseE", 320, -10., 10.);
+    hfNoiseE = new TH1F("hfNoiseE","hfNoiseE", 320, -10., 10.);
+    hbheSignalE = new TH1F("hbheSignalE","hbheSignalE", 320, -10., 10.);
+    hfSignalE = new TH1F("hfSignalE","hfSignalE", 320, -10., 10.);
+    
 
    std::cout<<" After ordering Histos "<<std::endl;
 
@@ -299,10 +310,15 @@ void Analyzer_minbias::endJob()
    
    cout<<" Number of cells "<<ii<<endl; 
       
-   hOutputFile->Write() ;   
+   hOutputFile->Write();   
+
    hOutputFile->cd();
+   
+   myTree->Write();
+   
    hHBHEsize_vs_run->Write() ;
    hHFsize_vs_run->Write() ;
+
    for(int i=1;i<73;i++){
     for(int j=1;j<43;j++){
     hCalo1[i][j]->Write();
@@ -311,10 +327,16 @@ void Analyzer_minbias::endJob()
     hCalo2mom2[i][j]->Write();
    }
   }
-  
+
+    hbheNoiseE->Write() ;
+    hfNoiseE->Write() ;
+    hbheSignalE->Write() ;
+    hfSignalE->Write() ;
    
-   myTree->Write();
+
    hOutputFile->Close() ;
+   
+   cout<<" File is closed "<<endl;
    
    return ;
 }
@@ -347,9 +369,14 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 */
 
-   edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
-   iEvent.getByLabel("gtDigis", gtRecord);
-   
+  edm::ESHandle<L1GtTriggerMenu> menuRcd;
+  iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
+  const L1GtTriggerMenu* menu = menuRcd.product();
+  const AlgorithmMap& bitMap = menu->gtAlgorithmMap();
+
+    edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
+    iEvent.getByLabel("gtDigisAlCaMB", gtRecord);
+ 
    if (!gtRecord.isValid()) {
 
 //     LogDebug("L1GlobalTriggerRecordProducer")
@@ -358,9 +385,17 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 //       << "\n Returning empty L1GlobalTriggerRecord.\n\n"
 //       << std::endl;
       cout<<" No L1 trigger record "<<endl;
-//     return;
-   }
+   } else {
 
+  const DecisionWord dWord = gtRecord->decisionWord();
+
+  for (CItAlgo itAlgo = bitMap.begin(); itAlgo != bitMap.end(); itAlgo++)
+    {
+      bool decision=menu->gtAlgorithmResult(itAlgo->first,dWord);
+      if(decision == 1) std::cout<<" Trigger "<<itAlgo->first<<" "<<decision<<std::endl;
+    }
+
+  }
 
   const HcalRespCorrs* myRecalib=0;
   if( theRecalib ) {
@@ -487,6 +522,8 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 DetId id = (*hbheItr).detid(); 
 	 HcalDetId hid=HcalDetId(id);
  
+ 
+ 
          int mysu = ((hid).rawId()>>25)&0x7;
          if( hid.ieta() > 0 ) {
 	 theNSFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theNSFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()]+ 1.;
@@ -511,14 +548,21 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 }  
 	 
          if(hid.depth() == 1) {
-         if( hid.ieta() > 0 ) {
-          hCalo1[hid.iphi()][hid.ieta()]->Fill(energyhit-noise_pl[hid.iphi()][hid.ieta()]);
-          hCalo1mom2[hid.iphi()][hid.ieta()]->Fill(pow(energyhit,2));
-         } else {
-          hCalo2[hid.iphi()][abs(hid.ieta())]->Fill(energyhit-noise_min[hid.iphi()][abs(hid.ieta())]);
-          hCalo2mom2[hid.iphi()][abs(hid.ieta())]->Fill(pow(energyhit,2));
-         } // eta><0
+	   hbheNoiseE->Fill(energyhit);
+	
+           if(energyhit<-2.) std::cout<<" Run "<<rnnum<<" ieta,iphi "<<hid.ieta()<<" "<<hid.iphi()<<energyhit<<std::endl;
+ 
+        // if( hid.ieta() > 0 ) {
+        //  hCalo1[hid.iphi()][hid.ieta()]->Fill(energyhit-noise_pl[hid.iphi()][hid.ieta()]);
+        //  hCalo1mom2[hid.iphi()][hid.ieta()]->Fill(pow(energyhit,2));
+        // } else {
+        //  hCalo2[hid.iphi()][abs(hid.ieta())]->Fill(energyhit-noise_min[hid.iphi()][abs(hid.ieta())]);
+        //  hCalo2mom2[hid.iphi()][abs(hid.ieta())]->Fill(pow(energyhit,2));
+        // } // eta><0
+	
 	 } // depth=1
+	 
+	 
         } // HBHE_NS
 
 
@@ -564,14 +608,20 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 	 
          if(hid.depth() == 1) {
-         if( hid.ieta() > 0 ) {
+	 
+	 hbheSignalE->Fill(energyhit);
+         
+	 if( hid.ieta() > 0 ) {
           hCalo1[hid.iphi()][hid.ieta()]->Fill(energyhit);
           hCalo1mom2[hid.iphi()][hid.ieta()]->Fill(pow(energyhit,2));
          } else {
           hCalo2[hid.iphi()][abs(hid.ieta())]->Fill(energyhit);
           hCalo2mom2[hid.iphi()][abs(hid.ieta())]->Fill(pow(energyhit,2));
          } // eta><0
+	 
 	 } // depth=1
+	 
+	 
         } // HBHE_MB
 	
 // HF
@@ -586,7 +636,11 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 HFRecHit aHit(hbheItr->id(),hbheItr->energy()*icalconst,hbheItr->time());
 	 
          double energyhit = aHit.energy();
-	 
+//
+// Remove PMT hits
+//	 	 
+	 if(fabs(energyhit) > 40. ) continue;
+	 	 
 	 DetId id = (*hbheItr).detid(); 
 	 HcalDetId hid=HcalDetId(id);
  
@@ -614,14 +668,18 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 }  
 	 
          if(hid.depth() == 1) {
-         if( hid.ieta() > 0 ) {
-          hCalo1[hid.iphi()][hid.ieta()]->Fill(energyhit-noise_pl[hid.iphi()][hid.ieta()]);
-          hCalo1mom2[hid.iphi()][hid.ieta()]->Fill(pow(energyhit,2));
-         } else {
-          hCalo2[hid.iphi()][abs(hid.ieta())]->Fill(energyhit-noise_min[hid.iphi()][abs(hid.ieta())]);
-          hCalo2mom2[hid.iphi()][abs(hid.ieta())]->Fill(pow(energyhit,2));
-         } // eta><0
+	 hfNoiseE->Fill(energyhit);
+	    
+         //if( hid.ieta() > 0 ) {
+         // hCalo1[hid.iphi()][hid.ieta()]->Fill(energyhit-noise_pl[hid.iphi()][hid.ieta()]);
+         // hCalo1mom2[hid.iphi()][hid.ieta()]->Fill(pow(energyhit,2));
+         //} else {
+         // hCalo2[hid.iphi()][abs(hid.ieta())]->Fill(energyhit-noise_min[hid.iphi()][abs(hid.ieta())]);
+         // hCalo2mom2[hid.iphi()][abs(hid.ieta())]->Fill(pow(energyhit,2));
+         //} // eta><0
+	 
 	 } // depth=1
+	 
         } // HBHE_NS
 
 
@@ -637,6 +695,10 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 HFRecHit aHit(hbheItr->id(),hbheItr->energy()*icalconst,hbheItr->time());
 	 
          double energyhit = aHit.energy();
+//
+// Remove PMT hits
+//	 
+	 if(fabs(energyhit) > 40. ) continue;
 	 
 	 DetId id = (*hbheItr).detid(); 
 	 HcalDetId hid=HcalDetId(id);
@@ -665,19 +727,25 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 	 
          if(hid.depth() == 1) {
-         if( hid.ieta() > 0 ) {
+	    hfSignalE->Fill(energyhit);
+	    
+         if( hid.ieta() > 0 ) 
+	 {
           hCalo1[hid.iphi()][hid.ieta()]->Fill(energyhit);
           hCalo1mom2[hid.iphi()][hid.ieta()]->Fill(pow(energyhit,2));
-         } else {
+         } else 
+	 {
           hCalo2[hid.iphi()][abs(hid.ieta())]->Fill(energyhit);
           hCalo2mom2[hid.iphi()][abs(hid.ieta())]->Fill(pow(energyhit,2));
          } // eta><0
+	 
 	 } // depth=1
+	 
         } // HF_MB
 
    std::cout<<" Event is finished "<<std::endl;
 }
 }
 //define this as a plug-in
-//DEFINE_FWK_MODULE(Analyzer_minbias)
+//DEFINE_ANOTHER_FWK_MODULE(Analyzer_minbias)
 
