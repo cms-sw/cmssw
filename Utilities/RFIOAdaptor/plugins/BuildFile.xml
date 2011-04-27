@@ -4,7 +4,7 @@
   <use   name="FWCore/ServiceRegistry"/>
   <use   name="FWCore/Catalog"/>
   <use   name="FWCore/Utilities"/>
-  <flags   CPPFLAGS="-I$(CASTOR_BASE)/include/shift -I$(CASTOR_BASE)/include"/>
+  <use   name="castor_header"/>
   <flags   NO_LIB_CHECKING="yes"/>
   <flags   EDM_PLUGIN="1"/>
   <flags   cppflags="-D_FILE_OFFSET_BITS=64"/>
