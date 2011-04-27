@@ -1,3 +1,8 @@
+2011-04-27 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-03
+	* fix handling of filedescriptor close which was causing problems to frontierclient
+
 2011-04-15 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V02-04-02
