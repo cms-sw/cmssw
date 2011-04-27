@@ -4,13 +4,13 @@ gROOT->Reset();
 
 ifstream in;
 
-in.open("diffPedsOct_Feb.dat");
+in.open("diff_Peds_FileName");
 
 Int_t index;
 Float_t diffPeds;
 int i=0;
 Int_t nlines = 0;
-TFile *f = new TFile("diffPedsOct_Feb.root","RECREATE");
+TFile *f = new TFile("RootFile","RECREATE");
 
 TNtuple *ntuple = new TNtuple("DiffPeds","data from new ascii file","index:diffPeds");
 
@@ -28,3 +28,5 @@ std::cout<<" found nr of lines: "<<nlines<<std::endl;
 in.close();
 f->Write();
 }
+
+
