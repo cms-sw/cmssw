@@ -85,19 +85,19 @@ TopBottomClusterInfoProducer::produce(Event& iEvent, const EventSetup& iSetup)
       if (oldDSstripNew.empty()) continue; // skip empty detsets 
       for (edmNew::DetSet<SiStripCluster>::const_iterator clNew = oldDSstripNew.begin(); clNew != oldDSstripNew.end(); ++clNew) {
 	uint16_t firstStripNew = clNew->firstStrip();
-	uint32_t idStripNew = clNew->geographicalId();
+	uint32_t idStripNew = itdetNew->id();
 	//uint32_t keyNew = ((&*clNew) - firstOffsetStripNew);
 	//cout << "new strip index=" << keyNew << endl;
 	uint32_t keyOld=99999;
 	
 	const SiStripCluster * firstOffsetStripOld = & stripClustersOld->data().front();
-        edmNew::DetSetVector<SiStripCluster>::const_iterator itdetOld = stripClustersOld->find(oldDSstripNew.detId());
+        edmNew::DetSetVector<SiStripCluster>::const_iterator itdetOld = stripClustersOld->find(itdetNew->id());
         if (itdetOld != stripClustersOld->end()) {
 	  edmNew::DetSet<SiStripCluster> oldDSstripOld = *itdetOld;
 	  if (oldDSstripOld.empty()) continue; // skip empty detsets 
 	  for (edmNew::DetSet<SiStripCluster>::const_iterator clOld = oldDSstripOld.begin(); clOld != oldDSstripOld.end(); ++clOld) {
 	    uint16_t firstStripOld = clOld->firstStrip();
-	    uint32_t idStripOld = clOld->geographicalId();
+	    uint32_t idStripOld = itdetOld->id();
 	    if (idStripNew==idStripOld && firstStripNew==firstStripOld) {
 	      keyOld = ((&*clOld) - firstOffsetStripOld);
 	      //cout << "old strip index=" << keyOld << endl;
