@@ -12,12 +12,12 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CSCDBNoiseMatrixRcd'),
-        tag = cms.string('CSCDBNoiseMatrix_new_popcon')
+        tag = cms.string('CSCDBNoiseMatrix_express')
     )),
     #read from sqlite file
-    connect = cms.string('sqlite_file:DBNoiseMatrix.db'),
+    connect=cms.string("oracle://cms_orcon_prod/CMS_COND_31X_CSC"),
     DBParameters = cms.PSet(
-        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb'),
+        authenticationPath = cms.untracked.string('/nfshome0/popcondev/conddb/'),
         authenticationMethod = cms.untracked.uint32(1)
     )
 )

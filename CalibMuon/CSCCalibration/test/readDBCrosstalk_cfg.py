@@ -10,14 +10,14 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CSCDBCrosstalkRcd'),
-        tag = cms.string('CSCDBCrosstalk_new_popcon')
+        tag = cms.string('CSCDBCrosstalk_v2_express')
     )),
     #read from sqlite file
-    connect = cms.string('sqlite_file:DBCrossTalk.db'),
+    connect=cms.string("oracle://cms_orcon_prod/CMS_COND_31X_CSC"),
     #read from DB 
     #string connect = "frontier://FrontierDev/CMS_COND_CSC"
     DBParameters = cms.PSet(
-        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb'),
+        authenticationPath = cms.untracked.string('/nfshome0/popcondev/conddb/'),
         authenticationMethod = cms.untracked.uint32(1)
     )
 )
