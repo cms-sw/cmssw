@@ -1,4 +1,4 @@
-// $Id: HcalCorrPFCalculation.cc,v 1.24 2010/03/17 21:47:19 andrey Exp $
+// $Id: HcalCorrPFCalculation.cc,v 1.25 2010/04/23 19:47:11 andrey Exp $
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
@@ -266,7 +266,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
        phiParticle = (*p)->momentum().phi();
        etaParticle = (*p)->momentum().eta();
       double pt  = (*p)->momentum().perp();
-      mom_MC = (*p)->momentum().mag();
+      mom_MC = (*p)->momentum().rho();
       if(pt > maxPt) { npart++; maxPt = pt; phi_MC = phiParticle; eta_MC = etaParticle; }
       GlobalVector mom ((*p)->momentum().x(),(*p)->momentum().y(),(*p)->momentum().z());
       int charge = -1;
