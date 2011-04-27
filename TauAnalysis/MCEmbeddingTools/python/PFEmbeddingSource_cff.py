@@ -18,12 +18,19 @@ newSource.ZTauTau.TauolaOptions.InputCards.mdtau = cms.int32(0)
 newSource.ZTauTau.minVisibleTransverseMomentum = cms.untracked.double(0)
 
 
+
+#source = cms.Source("EmptySource")
+
 source = cms.Source("PoolSource",
         skipEvents = cms.untracked.uint32(0),
         fileNames = cms.untracked.vstring('file:/tmp/fruboes/Zmumu/patLayer1_fromAOD_PF2PAT_full.root')
 )
+
+
 if os.path.exists("/storage/6/zeise/temp/goldenZmumuEvents_RAW_RECO_9_1_EzB.root"):
 	source.fileNames=cms.untracked.vstring("file:/storage/6/zeise/temp/goldenZmumuEvents_RAW_RECO_9_1_EzB.root")
+if os.path.exists("/scratch/scratch0/tfruboes/2011.04.Embedding/CMSSW_4_1_4/DATA/goldenZmumu500.root"):
+	source.fileNames=cms.untracked.vstring("file:/scratch/scratch0/tfruboes/2011.04.Embedding/CMSSW_4_1_4/DATA/goldenZmumu500.root")
 
 filterEmptyEv = cms.EDFilter("EmptyEventsFilter",
     target = cms.untracked.int32(1),
@@ -50,3 +57,4 @@ generator.src = inputColl
 
 #ProductionFilterSequence = cms.Sequence(adaptedMuonsFromDiTauCands*dimuonsGlobal*generator*filterEmptyEv)
 ProductionFilterSequence = cms.Sequence(dimuonsGlobal*generator*filterEmptyEv)
+#ProductionFilterSequence = cms.Sequence(generator)

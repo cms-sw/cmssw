@@ -13,7 +13,7 @@
 //
 // Original Author:  Manuel Zeise
 //         Created:  Wed Oct 17 10:06:52 CEST 2007
-// $Id: EmptyEventsFilter.cc,v 1.6 2010/06/16 14:00:14 fruboes Exp $
+// $Id: EmptyEventsFilter.cc,v 1.7 2011/02/18 11:54:29 zeise Exp $
 //
 //
 
@@ -129,8 +129,9 @@ EmptyEventsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 // 	HepMC::GenEvent * evt = new HepMC::GenEvent(*(HepMCHandle->GetEvent()));
 // 	evt->print(std::cout);
 
-        if (!found)
+        if (!found) {
                 return false;
+        }
         else {
                 ++evSelected_;
                 return true;

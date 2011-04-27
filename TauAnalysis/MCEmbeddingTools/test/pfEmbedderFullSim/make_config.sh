@@ -5,13 +5,14 @@
 CONDITIONS=FrontierConditions_GlobalTag,START311_V1G1::All
 
 cmsDriver.py TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff \
-       -s GEN:ProductionFilterSequence,SIM,DIGI,L1,DIGI2RAW,HLT:GRun \
+       -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun \
        --no_exec \
        --conditions=${CONDITIONS} \
        --fileout=embedded_HLT.root  \
        --python_filename=embed_HLT.py \
        --customise=TauAnalysis/MCEmbeddingTools/pf_01_customize_HLT.py \
        -n -1
+
 
 cmsDriver.py embedded_HLT \
        --filein="file:embedded_HLT.root" \
