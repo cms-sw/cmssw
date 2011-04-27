@@ -114,13 +114,13 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     
     // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
     // This is consistent with innermost and outermost labels only for tracks from LHC collisions
-    size_t i = 0;
+    size_t ih = 0;
     if (theTraj->direction() == alongMomentum) {
       for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();
 	   j != transHits.end(); j ++ ) {
 	if ((**j).hit()!=0){
 	  TrackingRecHit * hit = (**j).hit()->clone();
-	  track.setHitPattern( * hit, i ++ );
+	  track.setHitPattern( * hit, ih ++ );
 	  selHits->push_back( hit );
 	  tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
 	}
@@ -130,7 +130,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
 	   j != transHits.begin()-1; --j ) {
 	if ((**j).hit()!=0){
 	  TrackingRecHit * hit = (**j).hit()->clone();
-	  track.setHitPattern( * hit, i ++ );
+	  track.setHitPattern( * hit, ih ++ );
 	  selHits->push_back( hit );
 	tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
 	}

@@ -120,7 +120,7 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
     reco::TrackExtra & tx = selTrackExtras->back();
 
 
-    size_t i = 0;
+    size_t ih = 0;
     // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
     // This is consistent with innermost and outermost labels only for tracks from LHC collisions
     if (theTraj->direction() == alongMomentum) {
@@ -128,7 +128,7 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
 	   j != transHits.end(); j ++ ) {
 	if ((**j).hit()!=0){
 	  TrackingRecHit * hit = (**j).hit()->clone();
-	  track.setHitPattern( * hit, i ++ );
+	  track.setHitPattern( * hit, ih ++ );
 	  selHits->push_back( hit );
 	  tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
 	}
@@ -138,7 +138,7 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
 	   j != transHits.begin()-1; --j ) {
 	if ((**j).hit()!=0){
 	  TrackingRecHit * hit = (**j).hit()->clone();
-	  track.setHitPattern( * hit, i ++ );
+	  track.setHitPattern( * hit, ih ++ );
 	  selHits->push_back( hit );
 	tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
 	}
