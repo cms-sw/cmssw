@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/CombDataSetFactory.h"
+#include "../interface/CombDataSetFactory.h"
 
 #include <cmath>
 

@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/MarkovChainMC.h"
+#include "../interface/MarkovChainMC.h"
 #include <stdexcept> 
 #include <cmath> 
 #include "RooRealVar.h"
@@ -12,11 +12,11 @@
 #include "RooStats/ProposalHelper.h"
 #include "RooStats/ProposalFunction.h"
 #include "RooStats/RooStatsUtils.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
-#include "HiggsAnalysis/CombinedLimit/interface/TestProposal.h"
-#include "HiggsAnalysis/CombinedLimit/interface/DebugProposal.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/RooFitGlobalKillSentry.h"
+#include "../interface/Combine.h"
+#include "../interface/TestProposal.h"
+#include "../interface/DebugProposal.h"
+#include "../interface/CloseCoutSentry.h"
+#include "../interface/RooFitGlobalKillSentry.h"
 
 using namespace RooStats;
 

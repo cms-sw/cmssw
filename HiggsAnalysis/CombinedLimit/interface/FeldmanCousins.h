@@ -8,7 +8,7 @@
  *
  *
  */
-#include "HiggsAnalysis/CombinedLimit/interface/LimitAlgo.h"
+#include "LimitAlgo.h"
 
 class FeldmanCousins : public LimitAlgo {
 public:

@@ -1,1 +1,1 @@
-#include "HiggsAnalysis/CombinedLimit/interface/SimplerLikelihoodRatioTestStat.h"
+#include "../interface/SimplerLikelihoodRatioTestStat.h"

@@ -28,14 +28,14 @@ class AsymPow : public RooAbsReal {
 
       TObject * clone(const char *newname) const ;
 
-      ClassDef(AsymPow,1) // Asymmetric power
-
     protected:
         Double_t evaluate() const;
 
     private:
         RooRealProxy kappaLow_, kappaHigh_;
         RooRealProxy theta_;
+
+  ClassDef(AsymPow,1) // Asymmetric power	
 };
 
 #endif

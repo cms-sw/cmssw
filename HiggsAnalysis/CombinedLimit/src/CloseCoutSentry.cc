@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
+#include "../interface/CloseCoutSentry.h"
 
 #include <cstdio>
 #include <unistd.h>

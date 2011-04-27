@@ -1,7 +1,7 @@
 /**************************************
   Simple multiChannel significance & limit calculator
 ***************************************/
-#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
+#include "../interface/Combine.h"
 #include <cstring>
 #include <cerrno>
 #include <iostream>
@@ -47,8 +47,8 @@
 #include <boost/program_options.hpp>
 
 
-#include "HiggsAnalysis/CombinedLimit/interface/LimitAlgo.h"
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "../interface/LimitAlgo.h"
+#include "../interface/utils.h"
 
 using namespace RooStats;
 using namespace RooFit;

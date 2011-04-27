@@ -8,7 +8,7 @@
  *
  *
  */
-#include "HiggsAnalysis/CombinedLimit/interface/LimitAlgo.h"
+#include "../interface/LimitAlgo.h"
 #include <algorithm> 
 #include <RooStats/ModelConfig.h>
 #include <RooStats/HybridCalculator.h>

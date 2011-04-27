@@ -5,7 +5,7 @@
 #include <sys/wait.h>
 #include <errno.h>
 
-#include "HiggsAnalysis/CombinedLimit/interface/Hybrid.h"
+#include "../interface/Hybrid.h"
 #include <TFile.h>
 #include <TKey.h>
 #include "RooRealVar.h"
@@ -13,9 +13,9 @@
 #include "RooStats/HybridCalculatorOriginal.h"
 #include "RooAbsPdf.h"
 #include "RooRandom.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
-#include "HiggsAnalysis/CombinedLimit/interface/RooFitGlobalKillSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "../interface/Combine.h"
+#include "../interface/RooFitGlobalKillSentry.h"
+#include "../interface/utils.h"
 
 using namespace RooStats;
 

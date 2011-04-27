@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/ProfileLikelihood.h"
+#include "../interface/ProfileLikelihood.h"
 #include "RooRealVar.h"
 #include "RooArgSet.h"
 #include "RooRandom.h"
@@ -9,9 +9,9 @@
 #include "RooStats/LikelihoodInterval.h"
 #include "RooStats/LikelihoodIntervalPlot.h"
 #include "RooStats/HypoTestResult.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "../interface/Combine.h"
+#include "../interface/CloseCoutSentry.h"
+#include "../interface/utils.h"
 
 
 #include <Math/MinimizerOptions.h>

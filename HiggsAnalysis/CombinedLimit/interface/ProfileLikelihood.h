@@ -8,7 +8,7 @@
  *
  *
  */
-#include "HiggsAnalysis/CombinedLimit/interface/LimitAlgo.h"
+#include "../interface/LimitAlgo.h"
 
 class ProfileLikelihood : public LimitAlgo {
 public:

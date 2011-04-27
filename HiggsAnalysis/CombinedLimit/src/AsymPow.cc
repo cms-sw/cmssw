@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/AsymPow.h"
+#include "../interface/AsymPow.h"
 
 #include <cmath>
 

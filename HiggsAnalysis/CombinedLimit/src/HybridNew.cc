@@ -5,7 +5,7 @@
 #include <sys/wait.h>
 #include <errno.h>
 
-#include "HiggsAnalysis/CombinedLimit/interface/HybridNew.h"
+#include "../interface/HybridNew.h"
 #include <TFile.h>
 #include <TF1.h>
 #include <TKey.h>
@@ -25,11 +25,11 @@
 #include <RooStats/ProfileLikelihoodTestStat.h>
 #include <RooStats/ToyMCSampler.h>
 #include <RooStats/HypoTestPlot.h>
-#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
-#include "HiggsAnalysis/CombinedLimit/interface/RooFitGlobalKillSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/SimplerLikelihoodRatioTestStat.h"
-#include "HiggsAnalysis/CombinedLimit/interface/ProfiledLikelihoodRatioTestStat.h"
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "../interface/Combine.h"
+#include "../interface/RooFitGlobalKillSentry.h"
+#include "../interface/SimplerLikelihoodRatioTestStat.h"
+#include "../interface/ProfiledLikelihoodRatioTestStat.h"
+#include "../interface/utils.h"
 
 using namespace RooStats;
 

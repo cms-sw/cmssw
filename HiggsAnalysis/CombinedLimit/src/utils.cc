@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "../interface/utils.h"
 
 #include <cstdio>
 #include <iostream>
