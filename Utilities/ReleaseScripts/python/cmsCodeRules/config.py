@@ -89,6 +89,7 @@ Configuration[ruleName]['exceptPaths'] = [
                                            'DataFormats/Math/interface/sse_mathfun.h',
                                            'EventFilter/Processor/src/procUtils.cc',
 					   'CondCore/ORA/src/GenMD5.cc',
+                                           'PhysicsTools/JetMCUtils/interface/combination.h',
                                          ] #could be file name, dir, fileName:line. But path should be only from that directory in which we are searching
 Configuration[ruleName]['skip']  = []
 Configuration[ruleName]['filter'] = '(\A|\W)(c|C)(o|O)(p|P)(y|Y)(r|R)(i|I)(g|G)(h|H)(t|T)\W(\+|=|\w|\"|\'|-|\s)*(\((c|C)\)|\d{4})' #should be regular expression
@@ -105,7 +106,11 @@ Configuration[ruleName] = {}
 Configuration[ruleName]['description'] = 'Search for "pragma" statement in *.c, *.cc, *.cxx, *.h files'
 Configuration[ruleName]['filesToMatch'] = ['*.h', '*.c', '*.cc', '*.cxx']
 Configuration[ruleName]['exceptPaths'] = ['*/*LinkDef.h',
-                                          'FWCore/Utilities/*/*:.*:#\s*pragma\s+GCC\s+visibility\s+(push\\(default\\)|pop)\s*$',]#could be file name, dir, fileName:line. Path should be only from that directory in which we are searching
+                                          'FWCore/Utilities/interface/tinyxml.h',
+                                          'Utilities/StorageFactory/src/LocalFileSystem.cc:.*:#\s*pragma\s+GCC\s+diagnostic\s+ignored',
+                                          'RecoVertex/BeamSpotProducer/test/scripts/BSVectorDict.h',
+                                          'FWCore/Utilities/*/*:.*:#\s*pragma\s+GCC\s+visibility\s+(push\\(default\\)|pop)\s*$',
+                                         ]#could be file name, dir, fileName:line. Path should be only from that directory in which we are searching
 Configuration[ruleName]['skip']  = [comment]
 Configuration[ruleName]['filter'] = '#\s*pragma\s' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
@@ -124,6 +129,7 @@ Configuration[ruleName]['exceptPaths'] = ['Utilities/RFIOAdaptor/*BuildFile.xml:
 					  'Utilities/XrdAdaptor/*BuildFile.xml:.*:_FILE_OFFSET_BITS=',
 					  'Utilities/StorageFactory/*BuildFile.xml:.*:_FILE_OFFSET_BITS=',
 					  'DQM/EcalEndcapMonitorClient/plugins/BuildFile.xml:.*:"WITH_ECAL_COND_DB"',
+                                          'DQM/EcalBarrelMonitorClient/plugins/BuildFile.xml:.*:"WITH_ECAL_COND_DB"',
 					  'DQM/CSCMonitorModule/*BuildFile.xml:.*:="DQMGLOBAL"',
 					  'DQMServices/Core/*BuildFile.xml:.*:="-DWITHOUT_CMS_FRAMEWORK=0"',
 					  'L1Trigger/CSCTrackFinder/BuildFile.xml:.*:="-O1"',
