@@ -3,11 +3,16 @@ autoAlca = { 'AllForPrompt'   : 'SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBia
              'MinimumBias'    : 'SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+HcalCalIsoTrk',
              'Commissioning'  : 'HcalCalIsoTrk',
              'Mu'             : 'MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib+TkAlZMuMu',
+             'SingleMu'       : 'MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib',
+             'DoubleMu'       : 'MuAlCalIsolatedMu+MuAlOverlaps+DtCalib+TkAlZMuMu',
              'MuOnia'         : 'TkAlJpsiMuMu+TkAlUpsilonMuMu',
              'Electron'       : 'EcalCalElectron',
+             'SingleElectron' : 'EcalCalElectron',
+             'DoubleElectron' : 'EcalCalElectron',
              'EG'             : 'EcalCalElectron',
              'Cosmics'        : 'TkAlBeamHalo+TkAlCosmics0T+MuAlGlobalCosmics+MuAlCalIsolatedMu+HcalCalHOCosmics',
              'AlCaP0'         : 'EcalCalPi0Calib+EcalCalEtaCalib',
              'AlCaPhiSymEcal' : 'EcalCalPhiSym',
-             'HcalNZS'        : 'HcalCalMinBias'
+             'HcalNZS'        : 'HcalCalMinBias',
+             'ExpressCosmics' : 'SiStripCalZeroBias, MuAlCalIsolatedMu'
              }
