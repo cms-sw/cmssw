@@ -9,5 +9,6 @@ autoAlca = { 'AllForPrompt'   : 'SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBia
              'Cosmics'        : 'TkAlBeamHalo+TkAlCosmics0T+MuAlGlobalCosmics+MuAlCalIsolatedMu+HcalCalHOCosmics',
              'AlCaP0'         : 'EcalCalPi0Calib+EcalCalEtaCalib',
              'AlCaPhiSymEcal' : 'EcalCalPhiSym',
-             'HcalNZS'        : 'HcalCalMinBias'
+             'HcalNZS'        : 'HcalCalMinBias',
+             'QCD'            : 'MuAlCalIsolatedMu+DtCalib+EcalCalPi0Calib+EcalCalEtaCalib+HcalCalIsoTrk+HcalCalDijets'
              }
