@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.306 $"
+__version__ = "$Revision: 1.307 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -435,7 +435,7 @@ class ConfigBuilder(object):
         """Add conditions to the process"""
 
         if 'auto:' in self._options.conditions:
-                from autoCond import autoCond
+                from Configuration.AlCa.autoCond import autoCond
                 key=self._options.conditions.split(':')[-1]
                 if key not in autoCond:
                         raise Exception('no correspondance for '+self._options.conditions+'\n available keys are'+','.join(autoCond.keys()))
@@ -847,7 +847,7 @@ class ConfigBuilder(object):
         # decide which ALCA paths to use
         alcaList = sequence.split("+")
 	maxLevel=0
-	from Configuration.PyReleaseValidation.autoAlca import autoAlca
+	from Configuration.AlCa.autoAlca import autoAlca
 	# support @X from autoAlca.py, and recursion support: i.e T0:@Mu+@EG+...
 	while '@' in repr(alcaList) and maxLevel<10:
 		maxLevel+=1
@@ -1400,7 +1400,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.306 $"),
+                                            (version=cms.untracked.string("$Revision: 1.307 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
