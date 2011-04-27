@@ -14,9 +14,8 @@
   <use   name="FWCore/Utilities"/>
   <use   name="CondFormats/DataRecord"/>
   <use   name="CondFormats/BTauObjects"/>
-  <use   name="rootcore"/>
+  <use   name="rootxmlio"/>
   <use   name="boost"/>
-  <flags   LDFLAGS="-lXMLIO"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="SumHistoCalibration.cc" name="SumHistoCalibration">
@@ -26,8 +25,7 @@
   <use   name="FWCore/Utilities"/>
   <use   name="CondFormats/DataRecord"/>
   <use   name="CondFormats/BTauObjects"/>
-  <use   name="rootcore"/>
+  <use   name="rootxmlio"/>
   <use   name="boost"/>
-  <flags   LDFLAGS="-lXMLIO"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
