@@ -285,7 +285,7 @@ class ShapeBuilder(ModelBuilder):
         elif shapeNominal.InheritsFrom("RooDataHist"): normNominal = shapeNominal.sumEntries()
         else: return None    
         for (syst,pdf,args,errline) in self.DC.systs:
-            if pdf != "shape": continue
+            if "shape" not in pdf: continue
             if errline[channel][process] != 0:
                 shapeUp   = self.getShape(channel,process,syst+"Up")
                 shapeDown = self.getShape(channel,process,syst+"Down")
