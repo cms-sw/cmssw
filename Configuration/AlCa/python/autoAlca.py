@@ -2,7 +2,7 @@ autoAlca = { 'AllForPrompt'   : 'SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBia
              'StreamExpress'  : 'SiStripCalZeroBias+TkAlMinBias+MuAlCalIsolatedMu+DtCalib',
              'MinimumBias'    : 'SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+HcalCalIsoTrk',
              'Commissioning'  : 'HcalCalIsoTrk',
-             'Mu'             : 'MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib+TkAlZMuMu',
+             'Mu'             : 'MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib+TkAlZMuMu+HcalCalHO',
              'MuOnia'         : 'TkAlJpsiMuMu+TkAlUpsilonMuMu',
              'Electron'       : 'EcalCalElectron',
              'EG'             : 'EcalCalElectron',
