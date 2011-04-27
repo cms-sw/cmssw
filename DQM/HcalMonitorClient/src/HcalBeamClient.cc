@@ -11,8 +11,8 @@
 /*
  * \file HcalBeamClient.cc
  * 
- * $Date: 2010/05/07 09:09:12 $
- * $Revision: 1.17 $
+ * $Date: 2011/04/12 18:25:42 $
+ * $Revision: 1.18 $
  * \author J. Temple
  * \brief Hcal Beam Monitor Client class
  */
@@ -46,8 +46,9 @@ HcalBeamClient::HcalBeamClient(std::string myname, const edm::ParameterSet& ps)
 							  
   minerrorrate_ = ps.getUntrackedParameter<double>("Beam_minerrorrate",
 						   ps.getUntrackedParameter<double>("minerrorrate",0.05));
-  minevents_    = ps.getUntrackedParameter<int>("Beam_minevents",
-						ps.getUntrackedParameter<int>("minevents",1));
+  minevents_ = ps.getUntrackedParameter<int>("Beam_minLS",1);
+  // minevents_    = ps.getUntrackedParameter<int>("Beam_minevents",
+  // 						ps.getUntrackedParameter<int>("minevents",1));
   Online_                = ps.getUntrackedParameter<bool>("online",false);
 
   ProblemCells=0;
@@ -146,6 +147,7 @@ void HcalBeamClient::calculateProblems()
 		  if (debug_>1) std::cout <<"<HcalBeamClient::calculateProblem>  hot cell found at ieta = "<<myieta<<" iphi = "<<myiphi<<"  depth = "<<mydepth<<std::endl;
 		}
 	      if (problemvalue==0) continue;
+
 	      // Search for known bad problems in channel status db
 	      HcalDetId hcalid(HcalForward, myieta, myiphi, mydepth);
 	      if (badstatusmap.find(hcalid)!=badstatusmap.end())

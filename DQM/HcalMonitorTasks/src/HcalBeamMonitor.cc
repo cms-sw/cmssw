@@ -1158,10 +1158,10 @@ void HcalBeamMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   if (Nentries==0) return;
 
 
-  HFlumi_total_deadcells->Fill(-1,-1,Nentries); // counts good lumi sections in underflow bin
-  HFlumi_total_hotcells->Fill(-1,-1,Nentries);
-  HFlumi_diag_deadcells->Fill(-1,-1,Nentries); // counts good lumi sections in underflow bin
-  HFlumi_diag_hotcells->Fill(-1,-1,Nentries);
+  HFlumi_total_deadcells->Fill(-1,-1,1); // counts good lumi sections in underflow bin
+  HFlumi_total_hotcells->Fill(-1,-1,1);
+  HFlumi_diag_deadcells->Fill(-1,-1,1); // counts good lumi sections in underflow bin
+  HFlumi_diag_hotcells->Fill(-1,-1,1);
 
   // ADD IETA MAP
   int ietamap[8]={-36,-35,-34,-33,33,34,35,36};

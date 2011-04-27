@@ -35,6 +35,7 @@ hcalClient = cms.EDAnalyzer("HcalMonitorClient",
                             # online running -- require only 1 event (offline will require more)
                             minevents            = cms.untracked.int32(250),
                             # minerrorrate         = cms.untracked.double(0.05),
+                            Beam_minLS           = cms.untracked.int32(1),
 
                             # dead cell min events controlled by task in online running
                             DeadCell_minerrorrate = cms.untracked.double(0.05),
