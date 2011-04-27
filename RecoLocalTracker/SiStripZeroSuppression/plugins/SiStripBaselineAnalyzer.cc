@@ -13,7 +13,7 @@
 //
 // Original Author:  Ivan Amos Cali
 //         Created:  Mon Jul 28 14:10:52 CEST 2008
-// $Id: SiStripBaselineAnalyzer.cc,v 1.1 2010/11/04 15:29:18 edwenger Exp $
+// $Id: SiStripBaselineAnalyzer.cc,v 1.2 2010/11/14 22:54:37 edwenger Exp $
 //
 //
  
@@ -229,7 +229,7 @@ SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  edmNew::DetSetVector<SiStripCluster>::const_iterator itClusters = clusters->begin();
 	  for ( ; itClusters != clusters->end(); ++itClusters ){
 		for ( edmNew::DetSet<SiStripCluster>::const_iterator clus =	itClusters->begin(); clus != itClusters->end(); ++clus){
-            if(clus->geographicalId() == detId){
+            if(itClusters->id() == detId){
 				int firststrip = clus->firstStrip();
 	            //std::cout << "Found cluster in detId " << detId << " " << firststrip << " " << clus->amplitudes().size() << " -----------------------------------------------" << std::endl;		
      			strip=0;
