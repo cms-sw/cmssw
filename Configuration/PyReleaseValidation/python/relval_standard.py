@@ -72,8 +72,8 @@ workflows[7]  = ['', ['Cosmics','DIGICOS','RECOCOS','ALCACOS']]
 workflows[8]  = ['', ['BeamHalo','DIGICOS','RECOCOS','ALCABH']]
 workflows[11] = ['MinBias', ['MinBias2','DIGI2','RECOMIN','ALCAMIN']]
 workflows[15] = ['QCD_Pt_80_120', ['QCD_Pt_80_120_2','DIGI2','RECOQCD','ALCAQCD']]
-workflows[27] = ['', ['WM','DIGI2','RECOMU','ALCAMU']]
-workflows[30] = ['', ['ZMM','DIGI2','RECOMU','ALCAMU']]
+workflows[27] = ['', ['WM','DIGI2','RECOMU']]
+workflows[30] = ['', ['ZMM','DIGI2','RECOMU']]
 
 
 ### HI test ###
