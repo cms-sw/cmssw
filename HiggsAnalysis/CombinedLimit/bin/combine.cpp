@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/CombinedLimit/interface/Combine.h"
+#include "../interface/Combine.h"
 #include <TString.h>
 #include <TSystem.h>
 #include <TFile.h>
@@ -9,13 +9,13 @@
 #include <string>
 #include <stdexcept>
 #include <boost/program_options.hpp>
-#include "HiggsAnalysis/CombinedLimit/interface/ProfileLikelihood.h"
-#include "HiggsAnalysis/CombinedLimit/interface/Hybrid.h"
-#include "HiggsAnalysis/CombinedLimit/interface/HybridNew.h"
-#include "HiggsAnalysis/CombinedLimit/interface/BayesianFlatPrior.h"
-#include "HiggsAnalysis/CombinedLimit/interface/MarkovChainMC.h"
-#include "HiggsAnalysis/CombinedLimit/interface/FeldmanCousins.h"
-#include "HiggsAnalysis/CombinedLimit/interface/ProfilingTools.h"
+#include "../interface/ProfileLikelihood.h"
+#include "../interface/Hybrid.h"
+#include "../interface/HybridNew.h"
+#include "../interface/BayesianFlatPrior.h"
+#include "../interface/MarkovChainMC.h"
+#include "../interface/FeldmanCousins.h"
+#include "../interface/ProfilingTools.h"
 #include <map>
 
 using namespace std;
