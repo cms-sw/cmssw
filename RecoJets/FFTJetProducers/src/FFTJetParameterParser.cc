@@ -489,6 +489,27 @@ fftjet_DistanceCalculator_parser(const edm::ParameterSet& ps)
 }
 
 
+std::auto_ptr<fftjetcms::LinInterpolatedTable1D>
+fftjet_LinInterpolatedTable1D_parser(const edm::ParameterSet& ps)
+{
+    const double xmin = ps.getParameter<double>("xmin");
+    const double xmax = ps.getParameter<double>("xmax");
+    const bool leftExtrapolationLinear = 
+        ps.getParameter<bool>("leftExtrapolationLinear");
+    const bool rightExtrapolationLinear = 
+        ps.getParameter<bool>("rightExtrapolationLinear");
+    const std::vector<double> data(
+        ps.getParameter<std::vector<double> >("data"));
+    if (data.empty())
+        return std::auto_ptr<fftjetcms::LinInterpolatedTable1D>(NULL);
+    else
+        return std::auto_ptr<fftjetcms::LinInterpolatedTable1D>(
+            new fftjetcms::LinInterpolatedTable1D(
+                &data[0], data.size(), xmin, xmax,
+                leftExtrapolationLinear, rightExtrapolationLinear));
+}
+
+
 std::auto_ptr<fftjet::LinearInterpolator1d>
 fftjet_LinearInterpolator1d_parser(const edm::ParameterSet& ps)
 {
@@ -834,6 +855,18 @@ fftjet_Function_parser(const edm::ParameterSet& ps)
         std::auto_ptr<fftjet::LinearInterpolator1d> p = 
             fftjet_LinearInterpolator1d_parser(ps);
         fftjet::LinearInterpolator1d* ptr = p.get();
+        if (ptr)
+        {
+            p.release();
+            return return_type(ptr);
+        }
+    }
+
+    if (!fcn_type.compare("LinInterpolatedTable1D"))
+    {
+        std::auto_ptr<fftjetcms::LinInterpolatedTable1D> p = 
+            fftjet_LinInterpolatedTable1D_parser(ps);
+        fftjetcms::LinInterpolatedTable1D* ptr = p.get();
         if (ptr)
         {
             p.release();

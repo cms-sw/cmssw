@@ -16,6 +16,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "RecoJets/FFTJetAlgorithms/interface/fftjetTypedefs.h"
+#include "RecoJets/FFTJetAlgorithms/interface/LinInterpolatedTable1D.h"
 
 namespace fftjetcms {
     // Pseudo-constructors for various FFTJet classes using ParameterSet
@@ -43,6 +44,9 @@ namespace fftjetcms {
 
     std::auto_ptr<fftjet::LinearInterpolator1d>
     fftjet_LinearInterpolator1d_parser(const edm::ParameterSet& ps);
+
+    std::auto_ptr<fftjetcms::LinInterpolatedTable1D>
+    fftjet_LinInterpolatedTable1D_parser(const edm::ParameterSet& ps);
 
     std::auto_ptr<fftjet::Functor1<double,fftjet::Peak> >
     fftjet_PeakFunctor_parser(const edm::ParameterSet& ps);
