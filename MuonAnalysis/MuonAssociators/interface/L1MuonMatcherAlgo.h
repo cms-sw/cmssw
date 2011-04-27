@@ -1,7 +1,7 @@
 #ifndef MuonAnalysis_MuonAssociators_interface_L1MuonMatcherAlgo_h
 #define MuonAnalysis_MuonAssociators_interface_L1MuonMatcherAlgo_h
 //
-// $Id: L1MuonMatcherAlgo.h,v 1.7 2010/06/02 12:32:27 gpetrucc Exp $
+// $Id: L1MuonMatcherAlgo.h,v 1.8 2010/07/01 07:40:52 gpetrucc Exp $
 //
 
 /**
@@ -9,7 +9,7 @@
   \brief    Matcher of reconstructed objects to L1 Muons 
             
   \author   Giovanni Petrucciani
-  \version  $Id: L1MuonMatcherAlgo.h,v 1.7 2010/06/02 12:32:27 gpetrucc Exp $
+  \version  $Id: L1MuonMatcherAlgo.h,v 1.8 2010/07/01 07:40:52 gpetrucc Exp $
 */
 
 
@@ -149,8 +149,8 @@ class L1MuonMatcherAlgo {
         double deltaR2_, deltaPhi_, deltaEta_;
 
         /// Sort by deltaPhi or deltaEta instead of deltaR
-        bool sortByDeltaPhi_;
-        bool sortByDeltaEta_;
+        enum SortBy { SortByDeltaR, SortByDeltaPhi, SortByDeltaEta, SortByPt };
+        SortBy sortBy_;
 
         /// offset to be added to the L1 phi before the match
         double l1PhiOffset_;
@@ -164,6 +164,7 @@ L1MuonMatcherAlgo::matchGeneric(TrajectoryStateOnSurface &propagated, const Coll
     double minDeltaPhi = deltaPhi_;
     double minDeltaEta = deltaEta_;
     double minDeltaR2  = deltaR2_;
+    double minPt       = -1.0;
     GlobalPoint pos = propagated.globalPosition();
     for (int i = 0, n = l1s.size(); i < n; ++i) {
         const obj &l1 = l1s[i];
@@ -171,16 +172,23 @@ L1MuonMatcherAlgo::matchGeneric(TrajectoryStateOnSurface &propagated, const Coll
             double thisDeltaPhi = ::deltaPhi(double(pos.phi()),  l1.phi()+l1PhiOffset_);
             double thisDeltaEta = pos.eta() - l1.eta();
             double thisDeltaR2  = ::deltaR2(double(pos.eta()), double(pos.phi()), l1.eta(), l1.phi()+l1PhiOffset_);
-            if ((fabs(thisDeltaPhi) < deltaPhi_) && (fabs(thisDeltaEta) < deltaEta_) && (thisDeltaR2 < deltaR2_)) { // check both
-                if ( sortByDeltaPhi_ ? (fabs(thisDeltaPhi) < fabs(minDeltaPhi)) : 
-                    (sortByDeltaEta_ ? (fabs(thisDeltaEta) < fabs(minDeltaEta)) :
-                    (thisDeltaR2 < minDeltaR2))) { // sort on one
+            double thisPt       = l1.pt();
+            if ((fabs(thisDeltaPhi) < deltaPhi_) && (fabs(thisDeltaEta) < deltaEta_) && (thisDeltaR2 < deltaR2_)) { // check all
+                bool betterMatch = (match == -1);
+                switch (sortBy_) {
+                    case SortByDeltaR:   betterMatch = (thisDeltaR2        < minDeltaR2);        break;
+                    case SortByDeltaEta: betterMatch = (fabs(thisDeltaEta) < fabs(minDeltaEta)); break;
+                    case SortByDeltaPhi: betterMatch = (fabs(thisDeltaPhi) < fabs(minDeltaPhi)); break;
+                    case SortByPt:       betterMatch = (thisPt             > minPt);             break;
+                }
+                if (betterMatch) { // sort on one
                     match = i;
                     deltaR   = std::sqrt(thisDeltaR2);
                     deltaPhi = thisDeltaPhi;
-                    if (sortByDeltaPhi_) minDeltaPhi = thisDeltaPhi; 
-                    else if (sortByDeltaEta_) minDeltaEta = thisDeltaEta; 
-                    else minDeltaR2 = thisDeltaR2;
+                    minDeltaR2  = thisDeltaR2;
+                    minDeltaEta = thisDeltaEta;
+                    minDeltaPhi = thisDeltaPhi;
+                    minPt       = thisPt;
                 }
             }
         }
