@@ -23,6 +23,10 @@
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 
+#include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -54,11 +58,13 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig) :
    min_PtBalance_ (iConfig.getParameter<double> ("MinPtBalance")),
    max_PtBalance_ (iConfig.getParameter<double> ("MaxPtBalance")),
    nsigma_Pt_   (iConfig.getParameter<double> ("NSigmaPt")), 
+   max_DCAMuMu_  (iConfig.getParameter<double>("MaxDCAMuMu")),
+   max_YPair_   (iConfig.getParameter<double>("MaxRapidityPair")),
    saveTag_  (iConfig.getUntrackedParameter<bool> ("SaveTag")) 
 {
 
    LogDebug("HLTMuonDimuonL3Filter")
-      << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt1/MinPt2/MinInvMass/MaxInvMass/MinAcop/MaxAcop/MinPtBalance/MaxPtBalance/NSigmaPt : " 
+      << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt1/MinPt2/MinInvMass/MaxInvMass/MinAcop/MaxAcop/MinPtBalance/MaxPtBalance/NSigmaPt/MaxDzMuMu/MaxRapidityPair : " 
       << candTag_.encode()
       << " " << fast_Accept_
       << " " << max_Eta_
@@ -70,7 +76,9 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig) :
       << " " << min_InvMass_ << " " << max_InvMass_
       << " " << min_Acop_ << " " << max_Acop_
       << " " << min_PtBalance_ << " " << max_PtBalance_
-      << " " << nsigma_Pt_;
+      << " " << nsigma_Pt_
+      << " " << max_DCAMuMu_
+      << " " << max_YPair_;
 
    //register your products
    produces<trigger::TriggerFilterObjectWithRefs>();
@@ -103,6 +111,8 @@ HLTMuonDimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("MaxPtBalance",999999.0);
   desc.add<double>("NSigmaPt",0.0);
   desc.addUntracked<bool>("SaveTag",false);
+  desc.add<double>("MaxDCAMuMu",99999.9);
+  desc.add<double>("MaxRapidityPair",999999.0);
   descriptions.add("hltMuonDimuonL3Filter",desc);
 }
 
@@ -145,6 +155,10 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<BeamSpot> recoBeamSpotHandle;
    iEvent.getByLabel(beamspotTag_,recoBeamSpotHandle);
    beamSpot = *recoBeamSpotHandle;
+
+   // Needed for DCA calculation
+   ESHandle<MagneticField> bFieldHandle;
+   iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
   
    // needed to compare to L2
    vector<RecoChargedCandidateRef> vl2cands;
@@ -274,6 +288,26 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      if (invmass<min_InvMass_) continue;
 	      if (invmass>max_InvMass_) continue;
 
+              // Delta Z between the two muons
+              //double DeltaZMuMu = fabs(tk2->dz(beamSpot.position())-tk1->dz(beamSpot.position()));
+              //if ( DeltaZMuMu > max_DzMuMu_) continue;
+
+	      // DCA between the two muons
+	      TransientTrack mu1TT(*tk1, &(*bFieldHandle));
+	      TransientTrack mu2TT(*tk2, &(*bFieldHandle));
+	      TrajectoryStateClosestToPoint mu1TS = mu1TT.impactPointTSCP();
+	      TrajectoryStateClosestToPoint mu2TS = mu2TT.impactPointTSCP();
+	      if (mu1TS.isValid() && mu2TS.isValid()) {
+		ClosestApproachInRPhi cApp;
+		cApp.calculate(mu1TS.theState(), mu2TS.theState());
+		if (!cApp.status()
+		    || cApp.distance() > max_DCAMuMu_) continue;
+	      }
+              
+              // Max dimuon |rapidity|
+              double rapidity = fabs(p.Rapidity());
+              if ( rapidity > max_YPair_) continue;
+              
 	      // Add this pair
 	      n++;
 	      LogDebug("HLTMuonDimuonL3Filter") << " Track1 passing filter: pt= " << tk1->pt() << ", eta: " << tk1->eta();
