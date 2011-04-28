@@ -142,9 +142,9 @@ HLT_Photon26_Photon18_v*
 HLT_Photon26_IsoVL_Photon18_v*
 HLT_Photon26_IsoVL_Photon18_IsoVL_v*
 HLT_Photon26_CaloIdL_IsoVL_Photon18_v*
-HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v*
+#HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v*
 HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v*
-HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v*
+#HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v*
 HLT_Photon26_R9Id_Photon18_R9Id_v*
 HLT_Photon30_CaloIdVL_v*
 HLT_Photon30_CaloIdVL_IsoL_v*
@@ -220,7 +220,7 @@ HLT_HT350_Mu5_PFMHT45
 HLT_Mu3_DiJet30
 HLT_Mu3_TriJet30
 HLT_Mu3_QuadJet30
-HLT_Mu5_DoubleEle8_CaloIdL_TrkIdVL
+#HLT_Mu5_DoubleEle8_CaloIdL_TrkIdVL
 HLT_Mu5_HT200_v*
 HLT_Mu8_HT200_v*
 HLT_Mu8_Ele17_CaloIdL_v*
