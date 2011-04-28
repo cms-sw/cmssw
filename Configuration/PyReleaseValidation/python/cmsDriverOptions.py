@@ -50,8 +50,9 @@ parser.add_option("--fileout",
 
 parser.add_option("--filetype",
                    help="The type of the infile (EDM, LHE or MCDB).",
-                   default="",#to be changed in the default form later
-                   dest="filetype")
+                   default="EDM",#to be changed in the default form later
+                   dest="filetype",
+                  choices=['EDM','DAT','LHE','MDCB'])
 
 parser.add_option("-n", "--number",
                   help="The number of events. The default is 1.",
@@ -339,15 +340,14 @@ trimmedStep=''
 isFirst=0
 step_list=options.step.split(',')
 for s in step_list:
-    stepSP=s.split(':')
-    step=stepSP[0]
+    step=s.split(':')[0]
     if ( isFirst==0 ):
         trimmedStep=step
         isFirst=1
     else:
         trimmedStep=trimmedStep+','+step
 
-
+#determine the type of file on input
 if options.filetype=="":
     if options.filein.lower().endswith(".lhe") or options.filein.lower().endswith(".lhef"):
         options.filetype="LHE"
@@ -355,8 +355,6 @@ if options.filetype=="":
         options.filetype="MCDB"
     else:
         options.filetype="EDM"
-if options.filetype=="MCDB" and options.filein.startswith("mcdb:"):
-    options.filein = options.filein[5:]
 
 filesuffix = {"LHE": "lhe", "EDM": "root", "MCDB": ""}[options.filetype]
 
@@ -401,12 +399,14 @@ if options.secondfilein!='':
 
 
 # replace step aliases by right list
-if options.step=='NONE': 
-        options.step=''
-elif options.step=='ALL':
-        options.step='GEN,SIM,DIGI,L1,DIGI2RAW,RAW2DIGI,RECO,POSTRECO,VALIDATION,DQM'
-elif options.step=='DATA_CHAIN':
-        options.step='RAW2DIGI,RECO,POSTRECO,DQM'
+stepsAliases={
+    'NONE':'',
+    'ALL':'GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun,RAW2DIGI,RECO,POSTRECO,VALIDATION,DQM',
+    'DATA_CHAIN':'RAW2DIGI,RECO,POSTRECO,DQM'
+    }
+if options.step in stepsAliases:
+    options.step=stepsAliases[options.step]
+
 options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
 
 # add on the end of job sequence...
