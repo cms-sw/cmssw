@@ -84,7 +84,7 @@ def checkClass(name,version,versionsToChecksums):
 
     #does this version match what is in the file?
     if version != classVersion:
-        return (errorRootDoesNotMatchClassDef,classChecksum)
+        return (errorRootDoesNotMatchClassDef,classVersion,classChecksum)
 
 
     #is the version already in our list?
@@ -94,11 +94,11 @@ def checkClass(name,version,versionsToChecksums):
         if v == version:
             found = True
             if classChecksum != cs:
-                return (errorMustUpdateClassVersion,classChecksum)
+                return (errorMustUpdateClassVersion,classVersion,classChecksum)
             break
     if not found:
-        return (errorMustAddChecksum,classChecksum)
-    return (noError,classChecksum)
+        return (errorMustAddChecksum,classVersion,classChecksum)
+    return (noError,classVersion,classChecksum)
 
 #Setup the options
 from optparse import OptionParser
@@ -130,9 +130,9 @@ p = XmlParser(options.xmlfile)
 foundErrors = dict()
 for name,info in p.classes.iteritems():
 #    print name
-    errorCode,classChecksum = checkClass(name,info[XmlParser.classVersionIndex],info[XmlParser.versionsToChecksumIndex])
+    errorCode,rootClassVersion,classChecksum = checkClass(name,info[XmlParser.classVersionIndex],info[XmlParser.versionsToChecksumIndex])
     if errorCode != noError:
-        foundErrors[name]=(errorCode,classChecksum)
+        foundErrors[name]=(errorCode,classChecksum,rootClassVersion)
 
 foundRootDoesNotMatchError = False
 originalToNormalizedNames = dict()
@@ -142,9 +142,10 @@ for name,retValues in foundErrors.iteritems():
     code = retValues[0]
     classVersion = p.classes[name][XmlParser.classVersionIndex]
     classChecksum = retValues[1]
+    rootClassVersion = retValues[2]
     if code == errorRootDoesNotMatchClassDef:
         foundRootDoesNotMatchError=True
-        print "error: for class '"+name+"' ROOT says the ClassVersion is "+str(classVersion)+" but classes_def.xml says it is "+str(version)+". Are you sure everything compiled correctly?"
+        print "error: for class '"+name+"' ROOT says the ClassVersion is "+str(rootClassVersion)+" but classes_def.xml says it is "+str(classVersion)+". Are you sure everything compiled correctly?"
     elif code == errorMustUpdateClassVersion and not options.generate:
         print "error: class '"+name+"' has a different checksum for ClassVersion "+str(classVersion)+". Increment ClassVersion to "+str(classVersion+1)+" and assign it to checksum "+str(classChecksum)
     elif not options.generate:
@@ -166,7 +167,7 @@ if options.generate and not foundRootDoesNotMatchError:
                 indent = l.find('<')
                 #this is a class with a problem
                 classVersion = p.classes[normName][XmlParser.classVersionIndex]
-                code,checksum = foundErrors[normName]
+                code,checksum,rootClassVersion = foundErrors[normName]
                 hasNoSubElements = (-1 != l.find('/>'))
                 if code == errorMustUpdateClassVersion:
                     classVersion += 1
@@ -191,5 +192,6 @@ if options.generate and not foundRootDoesNotMatchError:
     outFile.writelines(out)
 
 if (len(foundErrors)>0 and not options.generate) or (options.generate and foundRootDoesNotMatchError):
-   exit(1)
+   import sys
+   sys.exit(1)
 
