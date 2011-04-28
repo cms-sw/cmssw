@@ -33,6 +33,7 @@ HcalDeadCellMonitor::HcalDeadCellMonitor(const edm::ParameterSet& ps)
   // minimum number of events required for lumi section-based dead cell checks
   minDeadEventCount_    = ps.getUntrackedParameter<int>("minDeadEventCount",1000);
   excludeHORing2_       = ps.getUntrackedParameter<bool>("excludeHORing2",false);
+  excludeHO1P02_        = ps.getUntrackedParameter<bool>("excludeHO1P02",false);
 
   // Set which dead cell checks will be performed
   /* Dead cells can be defined in the following ways:
@@ -965,7 +966,8 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
   NumBadHFLUMI=0;
   NumBadHO0=0;
   NumBadHO12=0;
-
+  NumBadHO1P02=0;
+  
   int knownBadHB=0;
   int knownBadHE=0;
   int knownBadHF=0;
@@ -1066,7 +1068,11 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
 			    {
 			      --NumBadHO;
 			      --NumBadHO12;
-			    }
+			    }			  
+			  // Don't include HO1P02 if boolean set, RBX does not repsond well to resets,; subtract away those counters
+			  if (excludeHO1P02_==true && ( (ieta>4 && ieta<10) && (iphi<=10 || iphi>70) ) )
+			    ++NumBadHO1P02;
+
 			  if (KnownBadCells_.find(TempID.rawId())!=KnownBadCells_.end())
 			    {
 			      ++knownBadHO;
@@ -1170,6 +1176,9 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
   ProblemsVsLB_HF->Fill(currentLS,NumBadHF-knownBadHF);
   ProblemsVsLB_HBHEHF->Fill(currentLS,NumBadHB+NumBadHE+NumBadHF-knownBadHB-knownBadHE-knownBadHF);
   ProblemsVsLB->Fill(currentLS,NumBadHB+NumBadHE+NumBadHO+NumBadHF-knownBadHB-knownBadHE-knownBadHO-knownBadHF);
+  
+  if(excludeHO1P02_==true)
+    ProblemsVsLB_HO->Fill(0, NumBadHO1P02);
   
   if (deadevt_<minDeadEventCount_)
     return;
