@@ -67,6 +67,13 @@ parser.add_argument('--timing',
                     action  = 'store_true', 
                     default = False,
                     help    = 'Instrument the menu with the modules and EndPath needed for timing studies (implies --no-output)' )
+parser.add_argument('--paths',
+                    dest    = 'paths',
+                    action  = 'store',
+                    type    = str,
+                    default = None,
+                    metavar = 'PATHS',
+                    help    = 'Include only the given comma-separated-list of paths in the dump (wildcards are accepted)\nNote that in a full dump the "smart prescale" modules will likely fail, unless removed with --output none or minimal' )
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--output',

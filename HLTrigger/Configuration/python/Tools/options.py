@@ -60,6 +60,7 @@ class HLTProcessOptions(object):
     self.unprescale = False       # (*) if set, unprescale all paths
     self.open       = False       #     if set, cms.ignore all filters, making all paths run on and accept all events
     self.timing     = False       #     if set, instrument the menu for timing measurements
+    self.paths      = None        #     if set, include in the dump only the given paths (wildcards are supported)
     self.output     = 'all'       # (*) output 'all', 'minimal' or 'none' output modules
     self.fragment   = False       #     prepare a configuration fragment (true) or a whole process (false)
     self.fastsim    = False       #     prepare a configuration fragment suitable for FastSim

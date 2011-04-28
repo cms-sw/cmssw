@@ -7,6 +7,49 @@ from options import globalTag
 
 
 class HLTProcess(object):
+  # paths not supported by FastSim
+  fastsimUnsupportedPaths = [
+    "AlCa_EcalEta_v*",
+    "AlCa_EcalPhiSym_v*",
+    "AlCa_EcalPi0_v*",
+    "AlCa_RPCMuonNoHits_v*",
+    "AlCa_RPCMuonNoTriggers_v*",
+    "AlCa_RPCMuonNormalisation_v*",
+    "DQM_FEDIntegrity_v*",
+    "HLT_Calibration_v*",
+    "HLT_EcalCalibration_v*",
+    "HLT_HcalCalibration_v*",
+    "HLT_TrackerCalibration_v*",
+    "HLT_Random_v*",
+    "HLT_HcalNZS_v*",
+    "HLT_HcalPhiSym_v*",
+    "HLT_IsoTrackHB_v*",
+    "HLT_IsoTrackHE_v*",
+    "HLT_DTErrors_v*",
+    "HLT_L1SingleMuOpen_AntiBPTX_v*",
+    "HLT_JetE30_NoBPTX*_v*",
+    "HLT_Mu3_Track3_Jpsi_v*",
+    "HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v*",
+    "HLT_Mu5_Track0_Jpsi_B5Q7_v*",
+    "HLT_Mu5_Track2_Jpsi_v*",
+    "HLT_Mu5_Track5_Jpsi_v*",
+    "HLT_Mu7_Track5_Jpsi_v*",
+    "HLT_Mu7_Track7_Jpsi_v*",
+  
+  # TODO: paths not supported by FastSim, but for which a recovery should be attempted
+    "HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT160_v*",
+    "HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT160_v*",
+    "HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT150_v*",
+    "HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT150_v*",
+    "HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v*",
+    "HLT_HT250_DoubleDisplacedJet60_v*",
+    "HLT_HT200_DoubleLooseIsoPFTau10_Trk3_PFMHT35_v*",
+    "HLT_HT250_DoubleLooseIsoPFTau10_Trk3_PFMHT35_v*",
+    "HLT_HT200_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT35_v*",
+    "HLT_HT250_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT35_v*",
+  ]
+
+
   def __init__(self, configuration):
     self.config = configuration
     self.data   = None
@@ -37,8 +80,8 @@ class HLTProcess(object):
       self.labels['connect'] = 'frontier://FrontierProd'
 
     # get the configuration from ConfdB
+    self.buildPathList()
     self.buildOptions()
-    self.expandWildcardOptions()
     self.getRawConfigurationFromDB()
     self.customize()
 
@@ -83,11 +126,6 @@ class HLTProcess(object):
     return paths
 
 
-  def expandWildcardOptions(self):
-    # for the time being, this is limited only to the --paths option
-    self.options['paths'] = self.expandWildcards(self.options['paths'], self.getPathList())
-
-
   @staticmethod
   def expandWildcards(globs, collection):
     # expand a list of unix-style wildcards matching a given collection
@@ -102,6 +140,31 @@ class HLTProcess(object):
       filter = re.compile(r'^' + glob.replace('?', '.').replace('*', '.*').replace('[!', '[^') + r'$')
       matches.extend( negate + element for element in collection if filter.match(element) )
     return matches
+
+
+  @staticmethod
+  def consolidateNegativeList(elements):
+    # consolidate a list of path exclusions and re-inclusions
+    # the result is the list of paths to be removed from the dump
+    result = set()
+    for element in elements:
+      if element[0] == '-':
+        result.add( element )
+      else:
+        result.discard( '-' + elemement )
+    return sorted( element for element in result )
+
+  @staticmethod
+  def consolidatePositiveList(elements):
+    # consolidate a list of path selection and re-exclusions
+    # the result is the list of paths to be included in the dump
+    result = set()
+    for element in elements:
+      if element[0] == '-':
+        result.discard( element[1:] )
+      else:
+        result.add( element )
+    return sorted( element for element in result )
 
 
   # dump the final configuration
@@ -359,18 +422,18 @@ if 'GlobalTag' in %%(dict)s:
 
 
   def overrideOutput(self):
-    reOutputModuleDef = re.compile(r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\(.*\n([^)].*\n)*\) *\n')
-    reOutputModuleRef = re.compile(r' *[+*]? *\b(process\.)?hltOutput(\w+)')    # FIXME this does not cover "hltOutputX + something"
-    if self.config.output == 'none':
-      # drop all output modules
-      self.data = reOutputModuleDef.sub('', self.data)
-      self.data = reOutputModuleRef.sub('', self.data)
+    #reOutputModuleDef = re.compile(r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\(.*\n([^)].*\n)*\) *\n')
+    #reOutputModuleRef = re.compile(r' *[+*]? *\b(process\.)?hltOutput(\w+)')    # FIXME this does not cover "hltOutputX + something"
+    #if self.config.output == 'none':
+    #  # drop all output modules
+    #  self.data = reOutputModuleDef.sub('', self.data)
+    #  self.data = reOutputModuleRef.sub('', self.data)
 
-    elif self.config.output == 'minimal':
-      # drop all output modules except "HLTDQMResults"
-      repl = lambda match: (match.group(2) == 'HLTDQMResults') and match.group() or ''
-      self.data = reOutputModuleDef.sub(repl, self.data)
-      self.data = reOutputModuleRef.sub(repl, self.data)
+    #elif self.config.output == 'minimal':
+    #  # drop all output modules except "HLTDQMResults"
+    #  repl = lambda match: (match.group(2) == 'HLTDQMResults') and match.group() or ''
+    #  self.data = reOutputModuleDef.sub(repl, self.data)
+    #  self.data = reOutputModuleRef.sub(repl, self.data)
 
     # override the "online" ShmStreamConsumer output modules with "offline" PoolOutputModule's
     self.data = re.sub(
@@ -506,10 +569,74 @@ if 'GlobalTag' in %%(dict)s:
       )
 
 
+  @staticmethod
+  def dumppaths(paths):
+    sys.stderr.write('Path selection:\n')
+    for path in paths:
+      sys.stderr.write('\t%s\n' % path)
+    sys.stderr.write('\n\n')
+
+  def buildPathList(self):
+    # no path list was requested, dump the full table
+    if not self.config.paths:
+      paths = []
+
+      # drop all output endpaths
+      if self.config.fragment or self.config.output != 'all':
+        paths.append( "-*Output" )
+
+      # keep output for the TriggerResults
+      if self.config.output == 'minimal':
+        paths.append( "HLTDQMResultsOutput" )
+
+      # drop paths unsupported by fastsim
+      if self.config.fastsim:
+        paths.extend( "-%s" % path for path in self.fastsimUnsupportedPaths )
+
+      # this should never be in any dump (nor online menu)
+      paths.append( "-OfflineOutput" )
+
+      # expand all wildcards and do a "subtractive" consolidation
+      paths = self.expandWildcards(paths, self.getPathList())
+      self.options['paths'] = self.consolidateNegativeList(paths)
+
+    # dump only the requested paths, plus the eventual output endpaths
+    else:
+      paths = self.config.paths.split(',')
+      self.dumppaths(paths)
+
+      # add back output endpaths for full dumps
+      if not self.config.fragment:
+        if self.config.output == 'all':
+          # add back all output modules
+          paths.append( "*Output" )
+        elif self.config.output == 'minimal':
+          # add back only the output for the TriggerResults
+          paths.append( "HLTDQMResultsOutput" )
+        self.dumppaths(paths)
+
+      # drop paths unsupported by fastsim
+      if self.config.fastsim:
+        paths.extend( "-%s" % path for path in self.fastsimUnsupportedPaths )
+        self.dumppaths(paths)
+
+      # this should never be in any dump (nor online menu)
+      paths.append( "-OfflineOutput" )
+      self.dumppaths(paths)
+
+      # expand all wildcards and do an "additive" consolidation
+      paths = self.expandWildcards(paths, self.getPathList())
+      self.dumppaths(paths)
+      self.options['paths'] = self.consolidatePositiveList(paths)
+      self.dumppaths(self.options['paths'])
+
+      if not self.options['paths']:
+        raise RuntimeError('Error: option "--paths %s" does not select any valid paths' % self.config.paths)
+
+
   def buildOptions(self):
     # common configuration for all scenarios
     self.options['services'].append( "-FUShmDQMOutputService" )
-    self.options['paths'].append( "-OfflineOutput" )
 
     # adapt source and options to the current scenario
     if not self.config.fragment:
@@ -586,8 +713,6 @@ if 'GlobalTag' in %%(dict)s:
       self.options['services'].append( "-TimeProfilerService" )
       if not self.config.fastsim:
         self.options['services'].append( "-DQMStore" )
-
-      self.options['paths'].append( "-*Output" )
 
       self.options['psets'].append( "-maxEvents" )
       self.options['psets'].append( "-options" )
@@ -732,46 +857,6 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTL2HcalIsolTrackSequenceHB" )
       self.options['sequences'].append( "-HLTL2HcalIsolTrackSequenceHE" )
       self.options['sequences'].append( "-HLTL3HcalIsolTrackSequence" )
-
-      # remove unsupported paths
-      self.options['paths'].append( "-AlCa_EcalEta_v*" )
-      self.options['paths'].append( "-AlCa_EcalPhiSym_v*" )
-      self.options['paths'].append( "-AlCa_EcalPi0_v*" )
-      self.options['paths'].append( "-AlCa_RPCMuonNoHits_v*" )
-      self.options['paths'].append( "-AlCa_RPCMuonNoTriggers_v*" )
-      self.options['paths'].append( "-AlCa_RPCMuonNormalisation_v*" )
-      self.options['paths'].append( "-DQM_FEDIntegrity_v*" )
-      self.options['paths'].append( "-HLT_Calibration_v*" )
-      self.options['paths'].append( "-HLT_EcalCalibration_v*" )
-      self.options['paths'].append( "-HLT_HcalCalibration_v*" )
-      self.options['paths'].append( "-HLT_TrackerCalibration_v*" )
-      self.options['paths'].append( "-HLT_HcalNZS_v*" )
-      self.options['paths'].append( "-HLT_HcalPhiSym_v*" )
-      self.options['paths'].append( "-HLT_IsoTrackHB_v*" )
-      self.options['paths'].append( "-HLT_IsoTrackHE_v*" )
-      self.options['paths'].append( "-HLT_L1SingleMuOpen_AntiBPTX_v*" )
-      self.options['paths'].append( "-HLT_JetE30_NoBPTX*_v*" )
-      self.options['paths'].append( "-HLT_Mu3_Track3_Jpsi_v*" )
-      self.options['paths'].append( "-HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v*" )
-      self.options['paths'].append( "-HLT_Mu5_Track0_Jpsi_B5Q7_v*" )
-      self.options['paths'].append( "-HLT_Random_v*" )
-      self.options['paths'].append( "-HLT_Mu5_Track2_Jpsi_v*" )
-      self.options['paths'].append( "-HLT_Mu5_Track5_Jpsi_v*" )
-      self.options['paths'].append( "-HLT_Mu7_Track5_Jpsi_v*" )
-      self.options['paths'].append( "-HLT_Mu7_Track7_Jpsi_v*" )
-      self.options['paths'].append( "-HLT_DTErrors_v*" )
-      
-      # TODO: 5E32 paths for which a recovery should be attempted:
-      self.options['paths'].append( "-HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT160_v*" )
-      self.options['paths'].append( "-HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT160_v*" )
-      self.options['paths'].append( "-HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT150_v*" )
-      self.options['paths'].append( "-HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT150_v*" )
-      self.options['paths'].append( "-HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v*")
-      self.options['paths'].append( "-HLT_HT250_DoubleDisplacedJet60_v*" )
-      self.options['paths'].append( "-HLT_HT200_DoubleLooseIsoPFTau10_Trk3_PFMHT35_v*" )
-      self.options['paths'].append( "-HLT_HT250_DoubleLooseIsoPFTau10_Trk3_PFMHT35_v*" )
-      self.options['paths'].append( "-HLT_HT200_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT35_v*" )
-      self.options['paths'].append( "-HLT_HT250_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT35_v*" )
 
       # remove HLTAnalyzerEndpath from fastsim cff's
       if self.config.fragment:
