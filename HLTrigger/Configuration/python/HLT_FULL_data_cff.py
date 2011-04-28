@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HLT/V116 (CMSSW_3_11_0_HLT20)
+# /dev/CMSSW_4_2_0/HLT/V118 (CMSSW_3_11_0_HLT21)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V116')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V118')
 )
 
 streams = cms.PSet( 
@@ -3852,11 +3852,12 @@ hltParticleFlowRecHitECAL = cms.EDProducer( "PFRecHitProducerECAL",
     ecalRecHitsEE = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEE' ),
     crossBarrelEndcapBorder = cms.bool( False ),
     timing_Cleaning = cms.bool( False ),
-    thresh_Cleaning = cms.double( 2.0 ),
+    topological_Cleaning = cms.bool( True ),
+    thresh_Cleaning_EB = cms.double( 2.0 ),
+    thresh_Cleaning_EE = cms.double( 2.0 ),
     verbose = cms.untracked.bool( False ),
     thresh_Barrel = cms.double( 0.08 ),
-    thresh_Endcap = cms.double( 0.3 ),
-    topological_Cleaning = cms.bool( True )
+    thresh_Endcap = cms.double( 0.3 )
 )
 hltParticleFlowRecHitHCAL = cms.EDProducer( "PFRecHitProducerHCAL",
     hcalRecHitsHBHE = cms.InputTag( "hltHbhereco" ),
@@ -3868,7 +3869,8 @@ hltParticleFlowRecHitHCAL = cms.EDProducer( "PFRecHitProducerHCAL",
     weight_HFhad = cms.double( 1.0 ),
     HCAL_Calib = cms.bool( True ),
     HF_Calib = cms.bool( False ),
-    Max_Calib = cms.double( 5.0 ),
+    HCAL_Calib_29 = cms.double( 1.35 ),
+    HF_Calib_29 = cms.double( 1.07 ),
     ShortFibre_Cut = cms.double( 60.0 ),
     LongFibre_Fraction = cms.double( 0.05 ),
     LongFibre_Cut = cms.double( 120.0 ),
@@ -3889,9 +3891,7 @@ hltParticleFlowRecHitHCAL = cms.EDProducer( "PFRecHitProducerHCAL",
     HAD_Depth = cms.double( 47.0 ),
     verbose = cms.untracked.bool( False ),
     thresh_Barrel = cms.double( 0.4 ),
-    thresh_Endcap = cms.double( 0.4 ),
-    HCAL_Calib_29 = cms.double( 1.35 ),
-    HF_Calib_29 = cms.double( 1.07 )
+    thresh_Endcap = cms.double( 0.4 )
 )
 hltParticleFlowRecHitPS = cms.EDProducer( "PFRecHitProducerPS",
     ecalRecHitsES = cms.InputTag( 'hltESRecHitAll','EcalRecHitsES' ),
@@ -14422,9 +14422,12 @@ hltHFEMClusters = cms.EDProducer( "HFEMClusterProducer",
 )
 hltHFRecoEcalCandidate = cms.EDProducer( "HFRecoEcalCandidateProducer",
     hfclusters = cms.InputTag( "hltHFEMClusters" ),
+    Correct = cms.bool( True ),
     e9e25Cut = cms.double( 0.9 ),
     intercept2DCut = cms.double( 0.2 ),
-    Correct = cms.bool( True )
+    e1e9Cut = cms.vdouble( -1.0, 99.0 ),
+    eCOREe9Cut = cms.vdouble( -1.0, 99.0 ),
+    eSeLCut = cms.vdouble( -1.0, 99.9 )
 )
 hltHFEMFilter = cms.EDFilter( "HLT1Photon",
     inputTag = cms.InputTag( "hltHFRecoEcalCandidate" ),
@@ -24634,6 +24637,11 @@ ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
     dbstatusMask = cms.vuint32( 1, 2046, 0, 0, 0, 64512 ),
     timeThresh = cms.double( 2.0 )
 )
+# Extra customisation for CMSSW 42X only
+if 'hltParticleFlowRecHitECAL' in locals():
+    hltParticleFlowRecHitECAL.thresh_Cleaning = cms.double(2.0)
+if 'hltParticleFlowRecHitHCAL' in locals():
+    hltParticleFlowRecHitHCAL.Max_Calib = cms.double(5.0)
 
 if 'hltParticleFlowRecHitHCAL' in locals():
     hltParticleFlowRecHitHCAL.HCAL_Calib = True
@@ -24641,4 +24649,7 @@ if 'hltParticleFlowRecHitHCAL' in locals():
 if 'hltParticleFlow' in locals():
     hltParticleFlow.calibPFSCEle_barrel = [1.004, -1.536, 22.88, -1.467, 0.3555, 0.6227, 14.65, 2051, 25, 0.9932, -0.5444, 0, 0.5438, 0.7109, 7.645, 0.2904, 0]
     hltParticleFlow.calibPFSCEle_endcap = [1.153, -16.5975, 5.668, -0.1772, 16.22, 7.326, 0.0483, -4.068, 9.406]
+if 'hltParticleFlowForTaus' in locals():
+    hltParticleFlowForTaus.calibPFSCEle_barrel = [1.004, -1.536, 22.88, -1.467, 0.3555, 0.6227, 14.65, 2051, 25, 0.9932, -0.5444, 0, 0.5438, 0.7109, 7.645, 0.2904, 0]
+    hltParticleFlowForTaus.calibPFSCEle_endcap = [1.153, -16.5975, 5.668, -0.1772, 16.22, 7.326, 0.0483, -4.068, 9.406]
 

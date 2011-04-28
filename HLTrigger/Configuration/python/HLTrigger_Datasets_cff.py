@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V27
+# /dev/CMSSW_4_2_0/GRun/V29
 
 import FWCore.ParameterSet.Config as cms
 
@@ -268,12 +268,10 @@ streamA_datasetPhoton_selector.triggerConditions = cms.vstring('HLT_DoublePhoton
     'HLT_Photon20_CaloIdVL_IsoL_v2', 
     'HLT_Photon20_R9Id_Photon18_R9Id_v3', 
     'HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v3', 
-    'HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v2', 
     'HLT_Photon26_CaloIdL_IsoVL_Photon18_v3', 
     'HLT_Photon26_IsoVL_Photon18_IsoVL_v3', 
     'HLT_Photon26_IsoVL_Photon18_v3', 
     'HLT_Photon26_Photon18_v3', 
-    'HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v2', 
     'HLT_Photon30_CaloIdVL_IsoL_v3', 
     'HLT_Photon30_CaloIdVL_v3', 
     'HLT_Photon32_CaloIdL_Photon26_CaloIdL_v3', 

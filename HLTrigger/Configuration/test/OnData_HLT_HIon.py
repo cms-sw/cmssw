@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V27 (CMSSW_3_11_0_HLT20)
+# /dev/CMSSW_4_2_0/HIon/V29 (CMSSW_3_11_0_HLT21)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V27')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V29')
 )
 
 process.streams = cms.PSet( 
@@ -5062,6 +5062,11 @@ process.ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
     dbstatusMask = cms.vuint32( 1, 2046, 0, 0, 0, 64512 ),
     timeThresh = cms.double( 2.0 )
 )
+# Extra customisation for CMSSW 42X only
+if 'hltParticleFlowRecHitECAL' in process.__dict__:
+    process.hltParticleFlowRecHitECAL.thresh_Cleaning = cms.double(2.0)
+if 'hltParticleFlowRecHitHCAL' in process.__dict__:
+    process.hltParticleFlowRecHitHCAL.Max_Calib = cms.double(5.0)
 
 # override the process name
 process.setName_('HLTHIon')
