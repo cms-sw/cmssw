@@ -5062,11 +5062,6 @@ process.ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
     dbstatusMask = cms.vuint32( 1, 2046, 0, 0, 0, 64512 ),
     timeThresh = cms.double( 2.0 )
 )
-# Extra customisation for CMSSW 42X only
-if 'hltParticleFlowRecHitECAL' in process.__dict__:
-    process.hltParticleFlowRecHitECAL.thresh_Cleaning = cms.double(2.0)
-if 'hltParticleFlowRecHitHCAL' in process.__dict__:
-    process.hltParticleFlowRecHitHCAL.Max_Calib = cms.double(5.0)
 
 # override the process name
 process.setName_('HLTHIon')
