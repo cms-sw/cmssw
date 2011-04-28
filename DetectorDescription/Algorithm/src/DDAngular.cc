@@ -76,7 +76,7 @@ DDAngular::initialize( const DDNumericArguments & nArgs,
     m_solidRot = temp * m_solidRot;			  
   }
 
-//   m_idNameSpace = DDCurrentNamespace::ns();
+  m_idNameSpace = DDCurrentNamespace::ns();
 //   m_childName   = sArgs["ChildName"]; 
   m_childNmNs 	= DDSplit( sArgs["ChildName"] );
   if( m_childNmNs.second.empty())
@@ -104,7 +104,7 @@ DDAngular::execute( DDCompactView& cpv )
     double phideg = phix / CLHEP::deg;
 
     std::string rotstr = m_childNmNs.first + dbl_to_string( phideg * 10.);
-    DDRotation rotation = DDRotation( DDName( rotstr, DDCurrentNamespace::ns()));
+    DDRotation rotation = DDRotation( DDName( rotstr, m_idNameSpace ));
     if( !rotation )
     {
       LogDebug( "DDAlgorithm" ) << "DDAngular: Creating a new "
@@ -112,8 +112,8 @@ DDAngular::execute( DDCompactView& cpv )
 				<< phix / CLHEP::deg << ", 90.," 
 				<< phiy / CLHEP::deg << ", 0, 0";
 	
-      rotation = DDrot( DDName( rotstr, DDCurrentNamespace::ns()), new DDRotationMatrix(( *DDcreateRotationMatrix( theta, phix, theta, phiy,
-														   0., 0. ) * m_solidRot ))); 
+      rotation = DDrot( DDName( rotstr, m_idNameSpace ), new DDRotationMatrix(( *DDcreateRotationMatrix( theta, phix, theta, phiy,
+													 0., 0. ) * m_solidRot ))); 
     }
       
     double xpos = m_radius * cos( phi ) + m_center[0];

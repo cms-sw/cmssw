@@ -72,7 +72,7 @@ DDLinear::execute( DDCompactView& cpv )
     rotation = DDrot( "IdentityRotation", new DDRotationMatrix());
   }
   
-  for( int i = 0; i < m_n; ++i )
+  for( int i = m_startCopyNo; i <= m_n; i += m_incrCopyNo )
   {
     DDTranslation tran = basetr + ( /*m_offset + */ double( copy ) * m_delta ) * direction;	      
     cpv.position( ddname, mother, copy, tran, rotation );
