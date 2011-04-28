@@ -315,8 +315,8 @@ options.arguments = reduce(lambda x, y: x+' '+y, sys.argv[1:])
 
 # now adjust the given parameters before passing it to the ConfigBuilder
 
-if self._options.dirin!='' and (not self._options.dirin.endswith('/')):
-    self._options.dirin+='/'
+if options.dirin!='' and (not options.dirin.endswith('/')):
+    options.dirin+='/'
 
 
 # Build the IO files if necessary.
@@ -346,7 +346,6 @@ options.trimmedStep=[]
 for s in options.step.split(','):
     step=s.split(':')[0]
     options.trimmedStep.append(step)
-trimmedStep=','.join(options.trimmedStep)
 
 #determine the type of file on input
 if options.filetype=="":
@@ -368,7 +367,7 @@ if options.filein=="" and not (first_step in ("ALL","GEN","SIM_CHAIN")):
 # Prepare the canonical file name for output / config file etc
 #   (EventType_STEP1_STEP2_..._PU)
 standardFileName = ""
-standardFileName = trimmedEvtType+"_"+trimmedStep
+standardFileName = trimmedEvtType+"_"+"_".join(options.trimmedStep)
 standardFileName = standardFileName.replace(",","_").replace(".","_")
 if options.pileup != "NoPileUp":
     standardFileName += "_PU"
@@ -420,14 +419,14 @@ print options.step
 # Setting name of process
 # if not set explicitly it needs some thinking
 if not options.name:
-    if 'HLT' in trimmedStep:    
+    if 'HLT' in options.trimmedStep:    
         options.name = 'HLT'
-    elif 'RECO' in trimmedStep:
+    elif 'RECO' in options.trimmedStep:
         options.name = 'RECO'
-    elif trimmedStep == 'NONE' and options.filetype in ('LHE', 'MCDB'):
+    elif options.trimmedStep == ['NONE'] and options.filetype in ('LHE', 'MCDB'):
         options.name = 'LHE'
     else:
-        options.name = trimmedStep.split(',')[-1]
+        options.name = options.trimmedStep[-1]
 
 # check to be sure that people run the harvesting as a separate step
 isHarvesting = False
@@ -440,11 +439,11 @@ if "HARVESTING" in options.step and len(s_list) > 1:
 
 # if not specified by user try to guess whether MC or DATA
 if not options.isData and not options.isMC:
-    if 'SIM' in trimmedStep:
+    if 'SIM' in options.trimmedStep:
         options.isMC=True
-    if 'CFWRITER' in trimmedStep:
+    if 'CFWRITER' in options.trimmedStep:
         options.isMC=True
-    if 'DIGI' in trimmedStep:
+    if 'DIGI' in options.trimmedStep:
         options.isMC=True
     if (not (options.eventcontent == None)) and 'SIM' in options.eventcontent:
         options.isMC=True
