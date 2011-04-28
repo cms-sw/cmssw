@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/GRun/V26 (CMSSW_3_11_0_HLT20)
+# /dev/CMSSW_4_2_0/GRun/V27 (CMSSW_3_11_0_HLT20)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V26')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V27')
 )
 
 streams = cms.PSet( 
@@ -1169,6 +1169,7 @@ hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
       Level = cms.int32( 5 )
     ),
     cms.PSet(  RecHitFlags = cms.vstring( 'HBHEHpdHitMultiplicity',
+  'HFDigiTime',
   'HBHEPulseShape',
   'HOBit',
   'HFInTimeWindow',
@@ -1179,8 +1180,7 @@ hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
       ChannelStatus = cms.vstring(  ),
       Level = cms.int32( 8 )
     ),
-    cms.PSet(  RecHitFlags = cms.vstring( 'HFLongShort',
-  'HFDigiTime' ),
+    cms.PSet(  RecHitFlags = cms.vstring( 'HFLongShort' ),
       ChannelStatus = cms.vstring(  ),
       Level = cms.int32( 11 )
     ),
