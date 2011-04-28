@@ -28,7 +28,7 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
 
       enum { k_NumberOfShapes = 2 } ;
 
-      enum { k_NumberOfParametersPerShape = 3 } ;
+      enum { k_NumberOfParametersPerShape = 4 } ;
 
       static std::string dbString() { return "PEcalPreshowerRcd" ; }
 
