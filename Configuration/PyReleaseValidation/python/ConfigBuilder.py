@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.310 $"
+__version__ = "$Revision: 1.311 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -571,10 +571,6 @@ class ConfigBuilder(object):
     # conditions
     #----------------------------------------------------------------------------
     def define_Configs(self):
-        if ( self._options.scenario not in defaultOptions.scenarioOptions):
-                print 'Invalid scenario provided. Options are:'
-                print defaultOptions.scenarioOptions
-                sys.exit(-1)
 
         self.loadAndRemember('Configuration/StandardSequences/Services_cff')
         if self._options.particleTable not in defaultOptions.particleTableList:
@@ -1410,7 +1406,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.310 $"),
+                                            (version=cms.untracked.string("$Revision: 1.311 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
