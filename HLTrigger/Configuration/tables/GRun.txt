@@ -234,6 +234,7 @@ HLT_Mu17_CentralJet30_v*
 HLT_Mu17_DiCentralJet30_v*
 HLT_Mu17_TriCentralJet30_v*
 HLT_Mu17_Ele8_CaloIdL_v*
+HLT_Mu12_CentralJet30_BTagIP_v*
 HLT_Mu17_CentralJet30_BTagIP_v*
 HLT_Mu15_HT200_v*
 HLT_Mu20_HT200_v*
