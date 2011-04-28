@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V21 (CMSSW_3_11_0_HLT20)
+# /dev/CMSSW_4_2_0/HIon/V26 (CMSSW_3_11_0_HLT20)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V21')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V26')
 )
 
 process.streams = cms.PSet( 
@@ -2968,7 +2968,8 @@ process.hltHbhereco = cms.EDProducer( "HcalHitReconstructor",
       short_optimumSlope = cms.vdouble( 0.3, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 ),
       longEnergyParams = cms.vdouble( 40.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 ),
       long_optimumSlope = cms.vdouble( 0.3, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 ),
-      isS8S1 = cms.bool( True )
+      isS8S1 = cms.bool( True ),
+      HcalAcceptSeverityLevel = cms.int32( 9 )
     ),
     PETstat = cms.PSet( 
       longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
@@ -2979,7 +2980,8 @@ process.hltHbhereco = cms.EDProducer( "HcalHitReconstructor",
       shortETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
       long_R_29 = cms.vdouble( 0.8 ),
       longEnergyParams = cms.vdouble( 43.5, 45.7, 48.32, 51.36, 54.82, 58.7, 63.0, 67.72, 72.86, 78.42, 84.4, 90.8, 97.62 ),
-      long_R = cms.vdouble( 0.98 )
+      long_R = cms.vdouble( 0.98 ),
+      HcalAcceptSeverityLevel = cms.int32( 9 )
     ),
     saturationParameters = cms.PSet(  maxADCvalue = cms.int32( 127 ) ),
     timingshapedcutsParameters = cms.PSet( 
@@ -3026,7 +3028,8 @@ process.hltHbhereco = cms.EDProducer( "HcalHitReconstructor",
       short_optimumSlope = cms.vdouble( -99999.0, 0.0164905, 0.0238698, 0.0321383, 0.041296, 0.0513428, 0.0622789, 0.0741041, 0.0868186, 0.100422, 0.135313, 0.136289, 0.0589927 ),
       longEnergyParams = cms.vdouble( 43.5, 45.7, 48.32, 51.36, 54.82, 58.7, 63.0, 67.72, 72.86, 78.42, 84.4, 90.8, 97.62 ),
       long_optimumSlope = cms.vdouble( -99999.0, 0.0164905, 0.0238698, 0.0321383, 0.041296, 0.0513428, 0.0622789, 0.0741041, 0.0868186, 0.100422, 0.135313, 0.136289, 0.0589927 ),
-      isS8S1 = cms.bool( False )
+      isS8S1 = cms.bool( False ),
+      HcalAcceptSeverityLevel = cms.int32( 9 )
     ),
     firstAuxOffset = cms.int32( 0 ),
     firstAuxTS = cms.int32( 4 ),
@@ -3051,7 +3054,7 @@ process.hltHfreco = cms.EDProducer( "HcalHitReconstructor",
     digistat = cms.PSet( 
       HFdigiflagFirstSample = cms.int32( 3 ),
       HFdigiflagMinEthreshold = cms.double( 40.0 ),
-      HFdigiflagSamplesToAdd = cms.int32( 4 ),
+      HFdigiflagSamplesToAdd = cms.int32( 3 ),
       HFdigiflagCoef0 = cms.double( 0.93 ),
       HFdigiflagCoef2 = cms.double( -0.012667 ),
       HFdigiflagCoef1 = cms.double( -0.38275 ),
@@ -3073,7 +3076,8 @@ process.hltHfreco = cms.EDProducer( "HcalHitReconstructor",
       short_optimumSlope = cms.vdouble( 0.3, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 ),
       longEnergyParams = cms.vdouble( 40.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 ),
       long_optimumSlope = cms.vdouble( 0.3, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 ),
-      isS8S1 = cms.bool( True )
+      isS8S1 = cms.bool( True ),
+      HcalAcceptSeverityLevel = cms.int32( 9 )
     ),
     PETstat = cms.PSet( 
       longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
@@ -3084,7 +3088,8 @@ process.hltHfreco = cms.EDProducer( "HcalHitReconstructor",
       shortETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
       long_R_29 = cms.vdouble( 0.8 ),
       longEnergyParams = cms.vdouble( 43.5, 45.7, 48.32, 51.36, 54.82, 58.7, 63.0, 67.72, 72.86, 78.42, 84.4, 90.8, 97.62 ),
-      long_R = cms.vdouble( 0.98 )
+      long_R = cms.vdouble( 0.98 ),
+      HcalAcceptSeverityLevel = cms.int32( 9 )
     ),
     saturationParameters = cms.PSet(  maxADCvalue = cms.int32( 127 ) ),
     timingshapedcutsParameters = cms.PSet( 
@@ -3131,7 +3136,8 @@ process.hltHfreco = cms.EDProducer( "HcalHitReconstructor",
       short_optimumSlope = cms.vdouble( -99999.0, 0.0164905, 0.0238698, 0.0321383, 0.041296, 0.0513428, 0.0622789, 0.0741041, 0.0868186, 0.100422, 0.135313, 0.136289, 0.0589927 ),
       longEnergyParams = cms.vdouble( 43.5, 45.7, 48.32, 51.36, 54.82, 58.7, 63.0, 67.72, 72.86, 78.42, 84.4, 90.8, 97.62 ),
       long_optimumSlope = cms.vdouble( -99999.0, 0.0164905, 0.0238698, 0.0321383, 0.041296, 0.0513428, 0.0622789, 0.0741041, 0.0868186, 0.100422, 0.135313, 0.136289, 0.0589927 ),
-      isS8S1 = cms.bool( False )
+      isS8S1 = cms.bool( False ),
+      HcalAcceptSeverityLevel = cms.int32( 9 )
     ),
     firstAuxOffset = cms.int32( 0 ),
     firstAuxTS = cms.int32( 4 ),
@@ -3163,7 +3169,8 @@ process.hltHoreco = cms.EDProducer( "HcalHitReconstructor",
       short_optimumSlope = cms.vdouble( 0.3, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 ),
       longEnergyParams = cms.vdouble( 40.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 ),
       long_optimumSlope = cms.vdouble( 0.3, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 ),
-      isS8S1 = cms.bool( True )
+      isS8S1 = cms.bool( True ),
+      HcalAcceptSeverityLevel = cms.int32( 9 )
     ),
     PETstat = cms.PSet( 
       longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
@@ -3174,7 +3181,8 @@ process.hltHoreco = cms.EDProducer( "HcalHitReconstructor",
       shortETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
       long_R_29 = cms.vdouble( 0.8 ),
       longEnergyParams = cms.vdouble( 43.5, 45.7, 48.32, 51.36, 54.82, 58.7, 63.0, 67.72, 72.86, 78.42, 84.4, 90.8, 97.62 ),
-      long_R = cms.vdouble( 0.98 )
+      long_R = cms.vdouble( 0.98 ),
+      HcalAcceptSeverityLevel = cms.int32( 9 )
     ),
     saturationParameters = cms.PSet(  maxADCvalue = cms.int32( 127 ) ),
     timingshapedcutsParameters = cms.PSet( 
@@ -3221,7 +3229,8 @@ process.hltHoreco = cms.EDProducer( "HcalHitReconstructor",
       short_optimumSlope = cms.vdouble( -99999.0, 0.0164905, 0.0238698, 0.0321383, 0.041296, 0.0513428, 0.0622789, 0.0741041, 0.0868186, 0.100422, 0.135313, 0.136289, 0.0589927 ),
       longEnergyParams = cms.vdouble( 43.5, 45.7, 48.32, 51.36, 54.82, 58.7, 63.0, 67.72, 72.86, 78.42, 84.4, 90.8, 97.62 ),
       long_optimumSlope = cms.vdouble( -99999.0, 0.0164905, 0.0238698, 0.0321383, 0.041296, 0.0513428, 0.0622789, 0.0741041, 0.0868186, 0.100422, 0.135313, 0.136289, 0.0589927 ),
-      isS8S1 = cms.bool( False )
+      isS8S1 = cms.bool( False ),
+      HcalAcceptSeverityLevel = cms.int32( 9 )
     ),
     firstAuxOffset = cms.int32( 0 ),
     firstAuxTS = cms.int32( 4 ),
@@ -3266,7 +3275,7 @@ process.hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     hoInput = cms.InputTag( "hltHoreco" ),
     hfInput = cms.InputTag( "hltHfreco" ),
     AllowMissingInputs = cms.bool( False ),
-    HcalAcceptSeverityLevel = cms.uint32( 11 ),
+    HcalAcceptSeverityLevel = cms.uint32( 9 ),
     EcalAcceptSeverityLevel = cms.uint32( 3 ),
     UseHcalRecoveredHits = cms.bool( False ),
     UseEcalRecoveredHits = cms.bool( False ),
@@ -3979,7 +3988,7 @@ process.hltTowerMakerForHcal = cms.EDProducer( "CaloTowersCreator",
     hoInput = cms.InputTag( "hltHoreco" ),
     hfInput = cms.InputTag( "hltHfreco" ),
     AllowMissingInputs = cms.bool( True ),
-    HcalAcceptSeverityLevel = cms.uint32( 11 ),
+    HcalAcceptSeverityLevel = cms.uint32( 9 ),
     EcalAcceptSeverityLevel = cms.uint32( 3 ),
     UseHcalRecoveredHits = cms.bool( False ),
     UseEcalRecoveredHits = cms.bool( False ),
@@ -4192,7 +4201,7 @@ process.hltStoppedHSCPTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     hoInput = cms.InputTag( "" ),
     hfInput = cms.InputTag( "" ),
     AllowMissingInputs = cms.bool( True ),
-    HcalAcceptSeverityLevel = cms.uint32( 11 ),
+    HcalAcceptSeverityLevel = cms.uint32( 9 ),
     EcalAcceptSeverityLevel = cms.uint32( 3 ),
     UseHcalRecoveredHits = cms.bool( False ),
     UseEcalRecoveredHits = cms.bool( False ),
