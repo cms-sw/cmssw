@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/GRun/V29 (CMSSW_3_11_0_HLT21)
+# /dev/CMSSW_4_2_0/GRun/V30 (CMSSW_3_11_0_HLT21)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V29')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V30')
 )
 
 streams = cms.PSet( 
@@ -3570,7 +3570,7 @@ hltParticleFlowRecHitECAL = cms.EDProducer( "PFRecHitProducerECAL",
     timing_Cleaning = cms.bool( False ),
     topological_Cleaning = cms.bool( True ),
     thresh_Cleaning_EB = cms.double( 2.0 ),
-    thresh_Cleaning_EE = cms.double( 2.0 ),
+    thresh_Cleaning_EE = cms.double( 1.0E9 ),
     verbose = cms.untracked.bool( False ),
     thresh_Barrel = cms.double( 0.08 ),
     thresh_Endcap = cms.double( 0.3 )
