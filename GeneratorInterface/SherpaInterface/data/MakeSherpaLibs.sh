@@ -30,7 +30,7 @@ print_help() {
     echo "                         [ 'LIBS' : generate libraries only                   ]" && \
     echo "                         [ 'CRSS' : generate cross sections, needs libraries! ]" && \
     echo "                         [ 'EVTS' : generate events, needs libs + crss. sec.! ]" && \
-    echo "         -c             COMIX only (skip 'makelibs' step) ( "${FLGCOMIX}" )" && \
+    echo "         -c             toggle COMIX only flag (skip 'makelibs' step) ( "${FLGCOMIX}" )" && \
     echo "         -f  path       output path for SHERPA library & cross section files" && \
     echo "                         -> ( "${fin}" )" && \
     echo "         -D  filename   (optional) name of data card file ( "${cfdc}" )" && \
@@ -167,7 +167,7 @@ do
   i) inc=$OPTARG ;;
   p) prc=$OPTARG ;;
   o) lbo=$OPTARG ;;
-  c) FLGCOMIX="TRUE" ;;
+  c) FLGCOMIX="FALSE" ;;
   f) fin=$OPTARG ;;
   D) cfdc=$OPTARG ;;
   L) cflb=$OPTARG ;;
