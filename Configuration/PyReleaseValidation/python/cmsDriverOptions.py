@@ -222,7 +222,8 @@ expertSettings.add_option("--hltProcess",
 expertSettings.add_option("--scenario",
                           help="Select scenario overriding standard settings (available:"+str(defaultOptions.scenarioOptions)+")",
                           default='pp',
-                          dest="scenario")
+                          dest="scenario",
+                          choices=defaultOptions.scenarioOptions)
 
 expertSettings.add_option("--harvesting",
                           help="What harvesting to use (from Configuration/StandardSequences). Default=AtRunEnd",
@@ -290,6 +291,9 @@ expertSettings.add_option("--inputEventContent",
 
 (options,args) = parser.parse_args() # by default the arg is sys.argv[1:]
 
+if not options.conditions:
+    raise Exception("the --conditions option is mandatory")
+
 
 #################################
 # Check parameters for validity #
@@ -336,14 +340,11 @@ prec_step = {"NONE":"",
 
 trimmedEvtType=options.evt_type.split('/')[-1]
 
-trimmedStep=''
-isFirst=0
-step_list=options.step.split(',')
-for s in step_list:
+options.trimmedStep=[]
+for index,s in enumerate(options.step.split(',')):
     step=s.split(':')[0]
-    if ( isFirst==0 ):
+    if index==0:
         trimmedStep=step
-        isFirst=1
     else:
         trimmedStep=trimmedStep+','+step
 
