@@ -61,7 +61,7 @@ int main(){
       }
       std::cout << "Transaction still active at C1.1="<<s0.transaction().isActive()<<std::endl;
     } catch ( const cond::Exception& exc ){
-      std::cout << "Caught exception: "<<exc.what()<<std::endl;
+      std::cout << "Expected exception: "<<exc.what()<<std::endl;
       std::cout << "Transaction active at C1.1="<<s0.transaction().isActive()<<std::endl;      
     }
     std::cout << "Transaction active at very end="<<s0.transaction().isActive()<<std::endl;

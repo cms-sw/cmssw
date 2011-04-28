@@ -23,6 +23,7 @@ int main(){
   myobj->data.insert(std::make_pair<unsigned int,std::string>(10,"ten"));
   myobj->data.insert(std::make_pair<unsigned int,std::string>(2,"two"));
   session.transaction().start(false);
+  session.createDatabase();
   session.storeObject(myobj.get(), "testCondObjContainer");
   session.transaction().commit();
   cond::DbSession session2 = connection.createSession();

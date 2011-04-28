@@ -44,7 +44,7 @@ int main() {
     cond::findSpecs("fake");
   }
   catch(cms::Exception const & e) {
-    std::cout << e.what() << std::endl;
+    std::cout << "Expected error: "<< e.what() << std::endl;
   }
 
   return 0;

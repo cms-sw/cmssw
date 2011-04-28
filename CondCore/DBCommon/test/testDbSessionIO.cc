@@ -44,6 +44,7 @@ int main(){
     schema.createTable( description0 );
     std::cout << "######### test 3"<<std::endl;
     boost::shared_ptr<int> data( new int(100) );
+    s0.createDatabase();
     tok0 = s0.storeObject( data.get(),"cont0");
     std::cout << "Stored object with id = "<<tok0<<std::endl;
     s0.transaction().commit();
@@ -51,6 +52,7 @@ int main(){
     s1.transaction().start();
     std::cout << "######### test 4"<<std::endl;
     boost::shared_ptr<std::string> sdata( new std::string("blabla") );
+    s1.createDatabase();
     tok1 = s1.storeObject<std::string>(sdata.get(),"cont1");
     std::cout << "Stored object with id = "<<tok1<<std::endl;
     s1.transaction().commit();

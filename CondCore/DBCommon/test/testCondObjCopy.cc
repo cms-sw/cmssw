@@ -19,6 +19,7 @@ int main(){
     myobj->data.insert(std::make_pair(1,"strangestring1"));
     myobj->data.insert(std::make_pair(100,"strangestring2"));
     sourceSession.transaction().start(false);
+    sourceSession.createDatabase();
     std::string token = sourceSession.storeObject(myobj.get(), "mycontainer");
     std::cout<<"token "<<token<<std::endl;
     sourceSession.transaction().commit();
@@ -37,6 +38,7 @@ int main(){
     destSession.open("sqlite_file:dest.db");
     sourceSession.transaction().start(true);
     destSession.transaction().start(false);
+    destSession.createDatabase();
     std::cout << "importing\n";
     std::string t=destSession.importObject( sourceSession, token );
     destSession.transaction().commit();

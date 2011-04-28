@@ -104,7 +104,7 @@ int main(){
     std::cout << "######### test 12"<<std::endl;
     s2.getObject(std::string(""));
     std::cout << "ERROR: expected exception not thrown (4)"<<std::endl;
-  } catch ( const ora::Exception& exc ){
+  } catch ( const cond::Exception& exc ){
     std::cout << "Expected error 4: "<<exc.what()<<std::endl;
   }
   

@@ -30,12 +30,12 @@ int main(){
   myobj->data.insert(std::make_pair<unsigned int,std::string>(10,"ten"));
   myobj->data.insert(std::make_pair<unsigned int,std::string>(2,"two"));
   session.transaction().start(false);
-  std::cout<<"waiting for 20 sec in pool transaction..."<<std::endl;
-  wait(20);
+  std::cout<<"waiting for 5 sec in pool transaction..."<<std::endl;
+  wait(5);
   session.storeObject( myobj.get(), "testCondObjContainer" );
   session.transaction().commit();
-  std::cout<<"waiting for 20 sec in coral transaction..."<<std::endl;
-  wait(20);
+  std::cout<<"waiting for 5 sec in coral transaction..."<<std::endl;
+  wait(5);
   session.transaction().start(false);
   std::set<std::string> result=session.nominalSchema().listTables();
   session.transaction().commit();
