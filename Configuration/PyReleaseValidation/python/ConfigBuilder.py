@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.311 $"
+__version__ = "$Revision: 1.312 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -37,6 +37,7 @@ defaultOptions.customise_commands = ""
 defaultOptions.inline_custom=False
 defaultOptions.particleTable = 'pythiapdt'
 defaultOptions.particleTableList = ['pythiapdt','pdt']
+defaultOptions.dirin = ''
 defaultOptions.dirout = ''
 defaultOptions.fileout = 'output.root'
 defaultOptions.filtername = ''
@@ -171,16 +172,18 @@ class ConfigBuilder(object):
                self.process.source=cms.Source("PoolSource",
                                               fileNames = cms.untracked.vstring())
 	       for entry in self._options.filein.split(','):
-		       self.process.source.fileNames.append(entry)
+		       self.process.source.fileNames.append(self._options.dirin+entry)
                if self._options.secondfilein:
 		       for entry in self._options.secondfilein.split(','):
-			       self.process.source.secondaryFileNames = cms.untracked.vstring(entry)
+			       self.process.source.secondaryFileNames = cms.untracked.vstring(self._options.dirin+entry)
 	   elif self._options.filetype == "DAT":
 		   sel.process.source=cms.Source("NewEventStreamFileReader",fileNames = cms.untracked.vstring())
 		   for entry in self._options.filein.split(','):
-			   self.process.source.fileNames.append(entry)
+			   self.process.source.fileNames.append(self._options.dirin+entry)
            elif self._options.filetype == "LHE":
-               self.process.source=cms.Source("LHESource", fileNames = cms.untracked.vstring(self._options.filein))
+		   self.process.source=cms.Source("LHESource", fileNames = cms.untracked.vstring())
+		   for entry in self._options.filein.split(','):
+			   self.process.source.fileNames.append(self._options.dirin+entry)
            elif self._options.filetype == "MCDB":
                self.process.source=cms.Source("MCDBSource",
 					      articleID = cms.uint32(int(self._options.filein.replace('mcdb:',''))),
@@ -1406,7 +1409,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.311 $"),
+                                            (version=cms.untracked.string("$Revision: 1.312 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )

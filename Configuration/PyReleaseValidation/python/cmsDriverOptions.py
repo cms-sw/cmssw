@@ -315,6 +315,8 @@ options.arguments = reduce(lambda x, y: x+' '+y, sys.argv[1:])
 
 # now adjust the given parameters before passing it to the ConfigBuilder
 
+if self._options.dirin!='' and (not self._options.dirin.endswith('/')):
+    self._options.dirin+='/'
 
 
 # Build the IO files if necessary.
@@ -341,12 +343,10 @@ prec_step = {"NONE":"",
 trimmedEvtType=options.evt_type.split('/')[-1]
 
 options.trimmedStep=[]
-for index,s in enumerate(options.step.split(',')):
+for s in options.step.split(','):
     step=s.split(':')[0]
-    if index==0:
-        trimmedStep=step
-    else:
-        trimmedStep=trimmedStep+','+step
+    options.trimmedStep.append(step)
+trimmedStep=','.join(options.trimmedStep)
 
 #determine the type of file on input
 if options.filetype=="":
@@ -359,10 +359,9 @@ if options.filetype=="":
 
 filesuffix = {"LHE": "lhe", "EDM": "root", "MCDB": ""}[options.filetype]
 
-first_step=trimmedStep.split(',')[0]             
-if options.filein=="" and not (first_step in ("ALL","GEN","SIM_CHAIN") and options.dirin == ""):
-    if options.dirin=="":
-        options.dirin="file:"
+first_step=options.trimmedStep[0]             
+if options.filein=="" and not (first_step in ("ALL","GEN","SIM_CHAIN")):
+    options.dirin="file:"+options.dirin.replace('file:','')
     options.filein=trimmedEvtType+"_"+prec_step[first_step]+"."+filesuffix
 
 
@@ -394,11 +393,6 @@ python_config_filename+=".py"
 
 
 
-secondfilestr=''
-if options.secondfilein!='':
-    secondfilestr=options.dirin+options.secondfilein
-
-
 # replace step aliases by right list
 stepsAliases={
     'NONE':'',
@@ -411,8 +405,6 @@ if options.step in stepsAliases:
 options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
 
 # add on the end of job sequence...
-# if not fastsim or harvesting...
-
 addEndJob = True
 if ("FASTSIM" in options.step and not "VALIDATION" in options.step) or "HARVESTING" in options.step or "ALCAHARVEST" in options.step or "ALCAOUTPUT" in options.step or options.step == "": 
     addEndJob = False
