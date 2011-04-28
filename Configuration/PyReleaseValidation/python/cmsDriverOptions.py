@@ -163,7 +163,7 @@ expertSettings.add_option("--dump_DSetName",
                           dest="dump_dsetname_flag")
 
 expertSettings.add_option("--pileup",
-                  help="What pileup config to use. Default=NoPileUp.",
+                  help="What pileup config to use. Default="+defaultOptions.pileup,
                   default=defaultOptions.pileup,
                   dest="pileup")
 
@@ -199,12 +199,6 @@ expertSettings.add_option("--secondfilein",
                                 "for the two-file solution. Default is no file",
                           default="",#to be changed in the default form later
                           dest="secondfilein")
-
-expertSettings.add_option("--writeraw",
-                          help="In addition to the nominal output, write a file with just raw",
-                          action="store_true",
-                          default=False,
-                          dest="writeraw")
 
 expertSettings.add_option("--processName",
                           help="set process name explicitly",
@@ -398,24 +392,6 @@ if len(conditionsSP) > 1:
     python_config_filename += "_"+str(conditionsType)
 
 python_config_filename+=".py"
-
-
-#if desired, just add _rawonly to the end of the output file name
-fileraw=''
-if options.writeraw:
-    fileraw=options.dirout
-    wrSP=options.fileout.split('.')
-    wrSPLen=len(wrSP)
-    counter=0
-    for w in wrSP:
-        counter=counter+1
-        if ( counter < wrSPLen ):
-            if ( counter == 1):
-                fileraw=fileraw+w
-            else:    
-                fileraw=fileraw+'.'+w
-        else:
-            fileraw=fileraw+'_rawonly.'+w
 
 
 
