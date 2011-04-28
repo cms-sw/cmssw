@@ -5,8 +5,8 @@ import sys
 import fileinput
 import string
 
-NewVersion='4_3_0_pre1'
-RefVersion='4_2_0_pre8'
+NewVersion='4_3_0_pre2'
+RefVersion='4_3_0_pre1'
 NewRelease='CMSSW_'+NewVersion
 RefRelease='CMSSW_'+RefVersion
 #NewRelease='Summer09'
@@ -44,38 +44,36 @@ GetFilesFrom='GUI'       # --> Copy root files from the DQM GUI server
 GetRefsFrom='GUI'
 
 DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_3_x/'
-#DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_3_x/'
-DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_2_x/'
+#DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_2_x/'
+DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_3_x/'
 #DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_2_x/'
 CastorRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
-
 if ((GetFilesFrom=='GUI')|(GetRefsFrom=='GUI')):
     print "*** Did you remind doing:"
 # USE THIS WITH wget
-#    print " > source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.(c)sh"
+#    print " > source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.csh"
 # USE THIS WITH curl
     print " > source /afs/cern.ch/project/gd/LCG-share/sl5/etc/profile.d/grid_env.csh"
     print " > voms-proxy-init"
 
 
 # These are only needed if you copy any root file from the DQM GUI:
-NewLabel='MC_42_V7'
+NewLabel='MC_42_V9'
 if (NewCondition=='STARTUP'):
-    NewLabel='START42_V7'
+    NewLabel='START42_V9'
 RefLabel='MC_42_V7'
 if (RefCondition=='STARTUP'):
     RefLabel='START42_V7'
 
 
 ValidateHLT=True
+ValidateRECO=True
 if (NewFastSim|RefFastSim):
     ValidateDQM=False
     ValidateISO=True
 else:
     ValidateDQM=True
     ValidateISO=True
-
-
 
 #NewFormat='GEN-SIM-RECO'
 #RefFormat='GEN-SIM-RECO'
@@ -101,10 +99,12 @@ RefLabel=RefLabel+'-v1'
 WebRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
 CastorRefRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'    
 
+#specify macros used to plot here
 macro='macro/TrackValHistoPublisher.C'
 macroSeed='macro/SeedValHistoPublisher.C'
 macroReco='macro/RecoValHistoPublisher.C'
 macroIsol='macro/IsoValHistoPublisher.C'
+macroMuonReco='macro/RecoMuonValHistoPublisher.C'
 
 def replace(map, filein, fileout):
     replace_items = map.items()
@@ -123,7 +123,6 @@ for sample in samples :
 
     if(os.path.exists(NewRelease+'/'+NewTag+'/'+sample)==False):
         os.makedirs(NewRelease+'/'+NewTag+'/'+sample)
-
     if(os.path.exists(RefRelease+'/'+RefTag+'/'+sample)==False):
         os.makedirs(RefRelease+'/'+RefTag+'/'+sample)
 
@@ -174,10 +173,11 @@ for sample in samples :
         hltcfgFileName='HLT'+sample+'_'+NewRelease+'_'+RefRelease
         seedcfgFileName='SEED'+sample+'_'+NewRelease+'_'+RefRelease
         recocfgFileName='RECO'+sample+'_'+NewRelease+'_'+RefRelease
+        recomuoncfgFileName='RECO'+sample+'_'+NewRelease+'_'+RefRelease
         isolcfgFileName='ISOL'+sample+'_'+NewRelease+'_'+RefRelease
 
         if os.path.isfile(RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root'):
-            replace_map_RECO = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': cfgFileName}
+            replace_map = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': cfgFileName}
             if (ValidateHLT):
                 replace_map_HLT = { 'DATATYPE': 'HLT', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': hltcfgFileName}
             if (ValidateDQM):
@@ -185,9 +185,11 @@ for sample in samples :
                 replace_map_SEED = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'SeedValHistoPublisher': seedcfgFileName}
             if (ValidateISO):
                 replace_map_ISOL = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'IsoValHistoPublisher': isolcfgFileName}
+            if (ValidateRECO):
+                replace_map_RECO = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'RecoMuonValHistoPublisher': recomuoncfgFileName} 
         else:
             print "No reference file found at: ", RefRelease+'/'+RefTag+'/'+sample
-            replace_map_RECO = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': cfgFileName}
+            replace_map = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': cfgFileName}
             if (ValidateHLT):
                 replace_map_HLT = { 'DATATYPE': 'HLT', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': hltcfgFileName}
             if (ValidateDQM):
@@ -195,10 +197,12 @@ for sample in samples :
                 replace_map_SEED = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'SeedValHistoPublisher': seedcfgFileName}
             if (ValidateISO):
                 replace_map_ISOL = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'IsoValHistoPublisher': isolcfgFileName}
+            if (ValidateRECO):
+                replace_map_RECO = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'RecoMuonValHistoPublisher': recomuoncfgFileName}
 
         templatemacroFile = open(macro, 'r')
         macroFile = open(cfgFileName+'.C' , 'w' )
-        replace(replace_map_RECO, templatemacroFile, macroFile)
+        replace(replace_map, templatemacroFile, macroFile)
 
         if (ValidateHLT):
             templatemacroFile = open(macro, 'r')
@@ -218,6 +222,11 @@ for sample in samples :
             isolmacroFile = open(isolcfgFileName+'.C' , 'w' )
             replace(replace_map_ISOL, templatemacroFile, isolmacroFile)
 
+        if (ValidateRECO):
+            templatemacroFile = open(macroMuonReco, 'r')
+            recomuonmacroFile = open(recomuoncfgFileName+'.C' , 'w' )
+            replace(replace_map_RECO, templatemacroFile, recomuonmacroFile)
+
         if(Submit):
             os.system('root -b -q -l '+ cfgFileName+'.C'+ '>  macro.'+cfgFileName+'.log')
             if (ValidateHLT):
@@ -227,6 +236,8 @@ for sample in samples :
                 os.system('root -b -q -l '+ seedcfgFileName+'.C'+ '>  macro.'+seedcfgFileName+'.log')
             if (ValidateISO):
                 os.system('root -b -q -l '+ isolcfgFileName+'.C'+ '>  macro.'+isolcfgFileName+'.log')
+            if (ValidateRECO):
+                os.system('root -b -q -l '+ recomuoncfgFileName+'.C'+ '>  macro.'+recomuoncfgFileName+'.log')
 
         if(Publish):
             newdir=WebRepository+'/'+NewRelease+'/'+NewTag+'/'+sample 
