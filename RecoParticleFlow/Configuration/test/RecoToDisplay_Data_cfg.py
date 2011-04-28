@@ -10,10 +10,10 @@ process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
 # Global tag for 39X (UPDATE FOR LATER CMSSW VERSIONS)
-process.GlobalTag.globaltag = 'GR_R_39X_V1::All'
+process.GlobalTag.globaltag = 'GR_R_311_V2::All'
 
 # Other statements for 39X (UPDATE FOR LATER CMSSW VERSIONS)
-from Configuration.GlobalRuns.reco_TLR_39X import customisePPData
+from Configuration.GlobalRuns.reco_TLR_41X import customisePPData
 customisePPData(process)
 
 ## particle flow HF cleaning
@@ -26,7 +26,7 @@ customisePPData(process)
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-      'file:/tmp/pjanot/jordan.root',
+      'file:lukas.root',
       ),
     #eventsToProcess = cms.untracked.VEventRange('143827:62146418-143827:62146418'),
     )
@@ -90,8 +90,7 @@ process.localReReco = cms.Sequence(process.siPixelRecHits+
                                    process.particleFlowCluster)
 
 #Photon re-reco
-process.photonReReco = cms.Sequence(process.conversionSequence+
-                                    process.trackerOnlyConversionSequence+
+process.photonReReco = cms.Sequence(process.egammarecoGlobal+
                                     process.photonSequence+
                                     process.photonIDSequence)
 
