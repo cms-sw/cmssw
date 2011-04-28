@@ -4641,6 +4641,39 @@ else if (triggerName.CompareTo("OpenHLT_Dimuon6p5_LowMass_v1") == 0)
       }
    }
 
+   else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdL_TrkIdVL") == 0)
+     {
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	 {
+	   if (prescaleResponse(menu, cfg, rcounter, it))
+	     {
+	       if (OpenHlt2ElectronsSamHarperPassed(8., 0, // ET, L1isolation
+						    999.,
+						    999., // Track iso barrel, Track iso endcap
+						    999.,
+						    999., // Track/pT iso barrel, Track/pT iso endcap
+						    999.,
+						    999., // H/ET iso barrel, H/ET iso endcap
+						    999.,
+						    999., // E/ET iso barrel, E/ET iso endcap
+						    0.15,
+						    0.1, // H/E barrel, H/E endcap
+						    0.014,
+						    0.035, // cluster shape barrel, cluster shape endcap
+						    0.98,
+						    1.0, // R9 barrel, R9 endcap
+						    0.01,
+						    0.01, // Deta barrel, Deta endcap
+						    0.15,
+						    0.1 // Dphi barrel, Dphi endcap
+						    )>=2)
+		 {
+		   triggerBit[it] = true;
+		 }
+	     }
+	 }
+     }
+
    // 2011-03-29: promoted to v2 TODO check
    else if (triggerName.CompareTo("OpenHLT_DoubleEle10_CaloIdL_TrkIdVL_Ele10_v2")
          == 0)
