@@ -41,10 +41,10 @@ EcalPGL::fillGeom( EcalPreshowerGeometry*  geom ,
    const double z3 ( HepGeom::Point3D<double>( tr*cor3 ).z() ) ;
 
    const double y1 ( HepGeom::Point3D<double>( tr*cor3 ).y() ) ;
-   const double y3 ( HepGeom::Point3D<double>( tr*cor3 ).y() ) ;
+//   const double y3 ( HepGeom::Point3D<double>( tr*cor3 ).y() ) ;
 
    const double x1 ( HepGeom::Point3D<double>( tr*cor3 ).x() ) ;
-   const double x2 ( HepGeom::Point3D<double>( tr*cor3 ).x() ) ;
+//   const double x2 ( HepGeom::Point3D<double>( tr*cor3 ).x() ) ;
 
    const double zdif ( 0.00001 > fabs( z1 - z2 ) ? 
 		       ( y1>0 ? +1.0 : -1.0 )*( z1 - z3 ) : 
