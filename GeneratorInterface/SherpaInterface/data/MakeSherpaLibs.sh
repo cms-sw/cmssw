@@ -6,8 +6,8 @@
 #  uses:        the required SHERPA data cards (+ libraries) [see below]
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2010/05/11
-#  version:     3.0
+#  date:        28th April 2011
+#  version:     3.2
 #
 
 
@@ -156,7 +156,7 @@ inc=${HDIR}                        # path to SHERPA datacards (libraries)
 cfdc=""                            # custom data card file name
 cflb=""                            # custom library file name
 cfcr=""                            # custom cross section file name
-FLGCOMIX="FALSE"                   # COMIX only flag
+FLGCOMIX="TRUE"                    # COMIX only flag
 fin=${HDIR}                        # output path for SHERPA libraries & cross sections
 
 # get & evaluate options
@@ -389,7 +389,6 @@ if [ "${lbo}" = "LIBS" ] || [ "${lbo}" = "LBCR" ]; then
   ${sherpaexe} "PATH="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_pass1.out 2>${shrun}/${outflbs}_pass1.err
   cd ${pth}
   if [ "${FLGCOMIX}" == "FALSE" ]; then
-### (test if Sherpa is 32bit or 64bit)
   testfile=`find ${shr} -type f -name libSherpaMain.so.0.0.0`
   echo "testfile: "${testfile}
   testbit=`echo ${testfile} | grep -i -c "ELF 32"`
@@ -410,7 +409,6 @@ if [ "${lbo}" = "LIBS" ] || [ "${lbo}" = "LBCR" ]; then
   lsize=`du -sh  | cut -f 1-${nf} -d "."`
   echo " <I>  -> clean size: "${lsize}
   cd ${shrun}
-###
 fi
 
 if [ "${FLGCOMIX}" == "FALSE" ]; then
@@ -447,7 +445,8 @@ if [ "${lbo}" = "LIBS" ] || [ "${lbo}" = "LBCR" ]; then
   find ./${dir1}/ -type f -name '*' -exec md5sum {} \; > ${libsmd5s}
   touch ${libsfile}.tmp
   find ./         -type f -name '*.md5' > tmp.lst && tar --no-recursion -rf ${libsfile}.tmp -T tmp.lst; rm tmp.lst
-  find ./${dir1}/ -type f -name '*'     > tmp.lst && tar --no-recursion -rf ${libsfile}.tmp -T tmp.lst; rm tmp.lst
+##  find ./${dir1}/ -type f -name '*'     > tmp.lst && tar --no-recursion -rf ${libsfile}.tmp -T tmp.lst; rm tmp.lst
+  find ./${dir1}/ -name '*'     > tmp.lst && tar --no-recursion -rf ${libsfile}.tmp -T tmp.lst; rm tmp.lst
   gzip -9 ${libsfile}.tmp && mv ${libsfile}.tmp.gz ${libsfile}
   md5sum ${libsfile} > ${libfmd5s}
   mv ${libsfile} ${shrun}/
@@ -461,9 +460,11 @@ if [ "${lbo}" = "LBCR" ] || [ "${lbo}" = "CRSS" ]; then
   find ./${dir2}/ -type f -name '*' -exec md5sum {} \; > ${crssmd5s}
   touch ${crssfile}.tmp
   find ./         -type f -name '*.md5' > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
-  find ./${dir2}/ -type f -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
+##  find ./${dir2}/ -type f -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
+  find ./${dir2}/ -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
   if [ -e ${dir3} ]; then
-  find ./${dir3}/ -type f -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
+##  find ./${dir3}/ -type f -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
+  find ./${dir3}/ -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
   fi
   gzip -9 ${crssfile}.tmp && mv ${crssfile}.tmp.gz ${crssfile}
   md5sum ${crssfile} > ${crsfmd5s}

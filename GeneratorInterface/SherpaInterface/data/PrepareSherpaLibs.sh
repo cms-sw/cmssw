@@ -85,7 +85,7 @@ function build_python_cfi() {
     mv ${file}.tmp2 ${file}.tmp1
     sed -e 's/^/ /g;s/ (/(/;s/ }/}/' < ${file}.tmp1 > ${file}.tmp2 # add single space in front of parameters
     mv ${file}.tmp2 ${file}.tmp1
-### (cleanup for Sherpa commands inside python file)
+###
     sed -e 's/\"/\\"/g' < ${file}.tmp1 > ${file}.tmp2              # protect existing '"' by '\"'
     mv ${file}.tmp2 ${file}.tmp1
 ###
@@ -536,7 +536,9 @@ if [ "${imode}" = "PROD" ]; then
   mv sherpa_custom_cff.py ${HDIR}
   cd ${HDIR}
   tar -czf sherpa_${dataset}_MASTER.tgz ${shpacfffile} sherpa_custom_cff.py ${MYLIBDIR}
-#  rm -rf ${shpacfffile} sherpa_custom_cff.py
+#
+  rm -rf ${shpacfffile} sherpa_custom_cff.py
+#
   rm -rf ${MYLIBDIR}
 fi
 
