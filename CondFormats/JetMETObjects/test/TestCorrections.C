@@ -1,10 +1,11 @@
 void TestCorrections(double rawPt, double rawEta, double rawPhi, double rawE, double JPTE, int NPV)
 {
+  gROOT->ProcessLine("#include <vector>");
   gSystem->Load("libFWCoreFWLite.so");
   AutoLibraryLoader::enable();
   ////////////// Construct the JetCorrectorParameters objects ///////////////////////
-  string L1Tag    = "Jec10V1_L1Offset_AK5JPT.txt"; 
-  string L1JPTTag = "test_L1JPTOffset_AK5JPT.txt"; 
+  string L1Tag    = "../data/Jec11V0_L1Offset_AK5JPT.txt"; 
+  string L1JPTTag = "../data/Jec11V0_L1JPTOffset_AK5JPT.txt"; 
   JetCorrectorParameters *L1Par    = new JetCorrectorParameters(L1Tag);
   JetCorrectorParameters *L1JPTPar = new JetCorrectorParameters(L1JPTTag);
   vector<JetCorrectorParameters> vPar;
