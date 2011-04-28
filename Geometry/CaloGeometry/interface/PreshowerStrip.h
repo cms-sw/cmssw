@@ -15,8 +15,8 @@
 
    \brief A base class to handle the shape of preshower strips.
 
-$Date: 2009/05/25 09:06:11 $
-$Revision: 1.8 $
+$Date: 2010/04/20 17:23:11 $
+$Revision: 1.9 $
 \author F. Cossutti
    
 */
@@ -38,6 +38,7 @@ class PreshowerStrip : public CaloCellGeometry
       const double dx() const { return param()[0] ; }
       const double dy() const { return param()[1] ; }
       const double dz() const { return param()[2] ; }
+      const double tilt() const { return param()[3] ; }
 
       virtual std::vector<HepGeom::Point3D<double> > vocalCorners( const double* pv,
 						    HepGeom::Point3D<double> &   ref ) const 

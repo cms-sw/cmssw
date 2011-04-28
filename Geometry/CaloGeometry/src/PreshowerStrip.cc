@@ -15,14 +15,33 @@ PreshowerStrip::getCorners() const
       const float y ( ctr.y() ) ;
       const float z ( ctr.z() ) ;
 
-      corners[ 0 ] = GlobalPoint( x - dx(), y - dy(), z - dz() ) ;
-      corners[ 1 ] = GlobalPoint( x - dx(), y + dy(), z - dz() ) ;
-      corners[ 2 ] = GlobalPoint( x + dx(), y + dy(), z - dz() ) ;
-      corners[ 3 ] = GlobalPoint( x + dx(), y - dy(), z - dz() ) ;
-      corners[ 4 ] = GlobalPoint( x - dx(), y - dy(), z + dz() ) ;
-      corners[ 5 ] = GlobalPoint( x - dx(), y + dy(), z + dz() ) ;
-      corners[ 6 ] = GlobalPoint( x + dx(), y + dy(), z + dz() ) ;
-      corners[ 7 ] = GlobalPoint( x + dx(), y - dy(), z + dz() ) ;
+      const double st ( sin(tilt()) ) ;
+      const double ct ( cos(tilt()) ) ;
+
+      for( unsigned int ix ( 0 ) ; ix !=2 ; ++ix )
+      {
+	 const double sx ( 0 == ix ? -1.0 : +1.0 ) ;
+	 for( unsigned int iy ( 0 ) ; iy !=2 ; ++iy )
+	 {
+	    const double sy ( 0 == iy ? -1.0 : +1.0 ) ;
+	    for( unsigned int iz ( 0 ) ; iz !=2 ; ++iz )
+	    {
+	       const double sz ( 0 == iz ? -1.0 : +1.0 ) ;
+	       const unsigned int  i ( 4*ix + 2*iy + iz ) ;
+
+	       corners[ i ] = GlobalPoint( 
+		  dy()>dx() ? 
+		  x + sx*dx() : 
+		  x + sx*dx()*ct - sz*dz()*st ,
+		  dy()<dx() ? 
+		  y + sy*dy() : 
+		  y + sy*dy()*ct - sz*dz()*st ,
+		  dy()>dx() ? 
+		  z + sz*dz()*ct + sy*dy()*st :
+		  z + sz*dz()*ct + sx*dx()*st ) ;
+	    }
+	 }
+      }
    }
    return co ;
 }
