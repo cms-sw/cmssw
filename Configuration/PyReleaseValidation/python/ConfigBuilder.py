@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.312 $"
+__version__ = "$Revision: 1.313 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -922,6 +922,7 @@ class ConfigBuilder(object):
         else:
                 loadFragment=loadFragment.replace('/','.')
 	try:
+		print "Loading generator fragment from",loadFragment
 		__import__(loadFragment)
 	except:
 		loadFailure=True
@@ -1409,7 +1410,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.312 $"),
+                                            (version=cms.untracked.string("$Revision: 1.313 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
