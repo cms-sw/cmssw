@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: JetCorrector.cc,v 1.6 2009/11/10 14:47:33 schiefer Exp $
+// $Id: JetCorrector.cc,v 1.7.2.2 2011/04/07 11:17:09 kkousour Exp $
 //
 // Generic interface for JetCorrection services
 //
@@ -12,13 +12,24 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+double JetCorrector::correction (const reco::Jet& fJet,
+				 const edm::Event& fEvent,
+				 const edm::EventSetup& fSetup) const {
+  if (eventRequired () && !refRequired()) {
+    edm::LogError ("Missing Jet Correction Method") 
+      << "Undefined Jet Correction method requiring event data is called" << std::endl;
+    return 0;
+  }
+  return correction (fJet);
+}
+
 double JetCorrector::correction (const reco::Jet& fJet, 
 				 const edm::RefToBase<reco::Jet>& fJetRef,
 				 const edm::Event& fEvent,
 				 const edm::EventSetup& fSetup) const {
-  if (eventRequired ()) {
+  if (eventRequired () && refRequired()) {
     edm::LogError ("Missing Jet Correction Method") 
-      << "Undefined Jet Correction method requiring event data is called" << std::endl;
+      << "Undefined Jet Correction method requiring event data and jet reference is called" << std::endl;
     return 0;
   }
   return correction (fJet);

@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Feb. 16, 2007
-// $Id: ChainedJetCorrector.cc,v 1.1 2008/02/29 23:00:36 fedor Exp $
+// $Id: ChainedJetCorrector.cc,v 1.2.2.2 2011/04/07 11:17:09 kkousour Exp $
 //
 // Correction which chains other corrections
 //
@@ -35,6 +35,20 @@ double ChainedJetCorrector::correction (const reco::Jet& fJet) const
 
 /// apply correction using all event information
 double ChainedJetCorrector::correction (const reco::Jet& fJet,
+					const edm::Event& fEvent,
+					const edm::EventSetup& fSetup) const
+{
+  std::auto_ptr<reco::Jet> jet (dynamic_cast<reco::Jet*> (fJet.clone ()));
+  double result = 1;
+  for (size_t i = 0; i < mCorrectors.size (); ++i) {
+    double scale = mCorrectors[i]->correction (*jet, fEvent, fSetup);
+    jet->scaleEnergy (scale);
+    result *= scale;
+  }
+  return result;
+}
+/// apply correction using all event information and reference to the raw jet
+double ChainedJetCorrector::correction (const reco::Jet& fJet,
 					const edm::RefToBase<reco::Jet>& fJetRef,
 					const edm::Event& fEvent,
 					const edm::EventSetup& fSetup) const
@@ -57,3 +71,14 @@ bool ChainedJetCorrector::eventRequired () const
   }
   return false;
 }
+
+/// if correction needs jet reference
+bool ChainedJetCorrector::refRequired () const
+{
+  for (size_t i = 0; i < mCorrectors.size (); ++i) {
+    if (mCorrectors[i]->refRequired ()) return true;
+  }
+  return false;
+}
+
+

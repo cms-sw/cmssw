@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: JetCorrector.h,v 1.6 2009/11/10 14:47:33 schiefer Exp $
+// $Id: JetCorrector.h,v 1.7.2.2 2011/04/07 11:16:36 kkousour Exp $
 //
 // Generic interface for JetCorrection services
 //
@@ -34,6 +34,11 @@ class JetCorrector
 
   /// apply correction using all event information
   virtual double correction (const reco::Jet& fJet,
+			     const edm::Event& fEvent, 
+			     const edm::EventSetup& fSetup) const;
+
+  /// apply correction using all event information
+  virtual double correction (const reco::Jet& fJet,
 			     const edm::RefToBase<reco::Jet>& fJetRef,
 			     const edm::Event& fEvent, 
 			     const edm::EventSetup& fSetup) const;
@@ -47,8 +52,11 @@ class JetCorrector
   
   /// if correction needs event information
   virtual bool eventRequired () const = 0;
+
+  /// if correction needs the jet reference
+  virtual bool refRequired () const = 0;
   
-  /// if correction needs event information
+  /// if vectorial correction is provided
   inline virtual bool vectorialCorrection () const;
 
   /// retrieve corrector from the event setup. troughs exception if something is missing

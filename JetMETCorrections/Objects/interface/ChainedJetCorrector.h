@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: ChainedJetCorrector.h,v 1.1 2008/02/29 23:00:36 fedor Exp $
+// $Id: ChainedJetCorrector.h,v 1.2.2.2 2011/04/07 11:16:36 kkousour Exp $
 //
 // Correction which chains other corrections
 //
@@ -22,11 +22,15 @@ public:
   virtual double correction (const JetCorrector::LorentzVector& fJet) const;
   virtual double correction (const reco::Jet& fJet) const;
   virtual double correction (const reco::Jet& fJet,
+			     const edm::Event& fEvent,
+			     const edm::EventSetup& fSetup) const;
+  virtual double correction (const reco::Jet& fJet,
 			     const edm::RefToBase<reco::Jet>& fJetRef,
 			     const edm::Event& fEvent,
 			     const edm::EventSetup& fSetup) const;
   
   virtual bool eventRequired () const;
+  virtual bool refRequired () const;
   
   void push_back (const JetCorrector* fCorrector) {mCorrectors.push_back (fCorrector);}
   void clear () {mCorrectors.clear ();}

@@ -21,7 +21,7 @@ import FWCore.ParameterSet.Config as cms
 # L1 (Offset) Correction Service
 ak5CaloL1Offset = cms.ESSource(
     'L1OffsetCorrectionService',
-    era = cms.string('Fall10'),
+    era = cms.string('Jec10V1'),
     level = cms.string('L1Offset'),
     section   = cms.string(''),
     algorithm = cms.string('AK5Calo'),
@@ -31,15 +31,16 @@ ak5CaloL1Offset = cms.ESSource(
     )
 
 ak5PFL1Offset = ak5CaloL1Offset.clone(algorithm = 'AK5PF') 
-ak5JPTL1Offset = ak5CaloL1Offset.clone()
+ak5JPTL1Offset = ak5CaloL1Offset.clone(algorithm = 'AK5JPT')
 
 # L1 (JPT Offset) Correction Service
 ak5L1JPTOffset = cms.ESSource(
-    'LXXXCorrectionService',
-    era = cms.string('Summer10'),
+    'L1JPTOffsetCorrectionService',
+    era = cms.string('Jec10V1'),
     level = cms.string('L1JPTOffset'),
     section   = cms.string(''),
-    algorithm = cms.string('AK5JPT')
+    algorithm = cms.string('AK5JPT'),
+    offsetService = cms.string('')
     )
 
 # L1 (Fastjet PU Subtraction) Correction Service

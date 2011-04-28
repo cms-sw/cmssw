@@ -1,7 +1,8 @@
-// Generic LX jet corrector class. Inherits from JetCorrector.h
-#ifndef LXXXCorrector_h
-#define LXXXCorrector_h
+// L1Offset jet corrector class. Inherits from JetCorrector.h
+#ifndef L1JPTOffsetCorrector_h
+#define L1JPTOffsetCorrector_h
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
@@ -13,14 +14,14 @@ namespace edm
 }
 class FactorizedJetCorrector;
 //----- LXXXCorrector interface -------------------------------
-class LXXXCorrector : public JetCorrector 
+class L1JPTOffsetCorrector : public JetCorrector 
 {
   public:
     //----- constructors---------------------------------------
-    LXXXCorrector(const JetCorrectorParameters& fConfig, const edm::ParameterSet& fParameters);   
+    L1JPTOffsetCorrector(const JetCorrectorParameters& fConfig, const edm::ParameterSet& fParameters);   
 
     //----- destructor ----------------------------------------
-    virtual ~LXXXCorrector();
+    virtual ~L1JPTOffsetCorrector();
 
     //----- apply correction using Jet information only -------
     virtual double correction(const LorentzVector& fJet) const;
@@ -28,15 +29,18 @@ class LXXXCorrector : public JetCorrector
     //----- apply correction using Jet information only -------
     virtual double correction(const reco::Jet& fJet) const;
 
+    //----- apply correction using all event information
+    virtual double correction(const reco::Jet& fJet, 
+                              const edm::Event& fEvent, 
+                              const edm::EventSetup& fSetup) const;
     //----- if correction needs event information -------------
-    virtual bool eventRequired() const {return false;} 
-
-    //----- if correction needs a jet reference -------------
-    virtual bool refRequired() const { return false; }
+    virtual bool eventRequired() const {return true;} 
+    virtual bool refRequired() const {return false;}
 
   private:
     //----- member data ---------------------------------------
-    unsigned mLevel;
+    std::string mOffsetService;
+    bool mIsOffsetSet;
     FactorizedJetCorrector* mCorrector;
 };
 

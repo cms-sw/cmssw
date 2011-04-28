@@ -81,11 +81,9 @@ void JetCorrectorOnTheFly<Jet>::analyze(const edm::Event& iEvent, const edm::Eve
   typename JetCollection::const_iterator i_jet;
   /////////// Loop over all jets and apply correction /////
   for(i_jet = jets->begin(); i_jet != jets->end(); i_jet++) {
-    int index = i_jet-jets->begin();
-    edm::RefToBase<reco::Jet> jetRef(edm::Ref<JetCollection>(jets,index));
     if (i_jet->pt() < mMinRawJetPt) continue;
     //double scale = corrector->correction(i_jet->p4()); 
-    double scale = corrector->correction(*i_jet,jetRef,iEvent,iSetup);
+    double scale = corrector->correction(*i_jet,iEvent,iSetup);
     if (mDebug) {
       std::cout<<"energy = "<<i_jet->energy()<<", "
                <<"eta = "<<i_jet->eta()<<", "
