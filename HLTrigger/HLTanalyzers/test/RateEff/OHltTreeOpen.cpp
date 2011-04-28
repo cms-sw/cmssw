@@ -12352,7 +12352,7 @@ int OHltTree::OpenHlt2MuonPassed(
                   { // L2 eta cut 
                      if (ohMuL2Pt[j] > ptl2)
                      { // L2 pT cut 
-                        if (ohMuL2Iso[i] >= iso)
+                        if (ohMuL2Iso[j] >= iso)
                         { // L2 isolation  
                            rcL2++;
 
