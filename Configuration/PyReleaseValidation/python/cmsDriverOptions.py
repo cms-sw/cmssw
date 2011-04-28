@@ -315,9 +315,9 @@ options.arguments = reduce(lambda x, y: x+' '+y, sys.argv[1:])
 
 # now adjust the given parameters before passing it to the ConfigBuilder
 
-if options.dirin!='' and (not options.dirin.endswith('/')):
-    options.dirin+='/'
-
+#trail a "/" to dirin and dirout
+if options.dirin!='' and (not options.dirin.endswith('/')):    options.dirin+='/'
+if options.dirout!='' and (not options.dirout.endswith('/')):  options.dirout+='/'
 
 # Build the IO files if necessary.
 # The default form of the files is:
@@ -342,10 +342,26 @@ prec_step = {"NONE":"",
 
 trimmedEvtType=options.evt_type.split('/')[-1]
 
+#get the list of steps, without their options
 options.trimmedStep=[]
 for s in options.step.split(','):
     step=s.split(':')[0]
     options.trimmedStep.append(step)
+first_step=options.trimmedStep[0]
+
+#replace step aliases
+# this does not affect options.trimmedStep which still contains 'NONE'
+stepsAliases={
+    'NONE':'',
+    'ALL':'GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun,RAW2DIGI,RECO,POSTRECO,VALIDATION,DQM',
+    'DATA_CHAIN':'RAW2DIGI,RECO,POSTRECO,DQM'
+    }
+if options.step in stepsAliases:
+    options.step=stepsAliases[options.step]
+
+options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
+
+
 
 #determine the type of file on input
 if options.filetype=="":
@@ -358,7 +374,6 @@ if options.filetype=="":
 
 filesuffix = {"LHE": "lhe", "EDM": "root", "MCDB": ""}[options.filetype]
 
-first_step=options.trimmedStep[0]             
 if options.filein=="" and not (first_step in ("ALL","GEN","SIM_CHAIN")):
     options.dirin="file:"+options.dirin.replace('file:','')
     options.filein=trimmedEvtType+"_"+prec_step[first_step]+"."+filesuffix
@@ -378,30 +393,7 @@ if options.fileout=="" and not first_step in ("HARVESTING", "ALCAHARVEST"):
     options.fileout = standardFileName+".root"
 
 # Prepare the name of the config file
-# (in addition list conditions in name)
-python_config_filename = standardFileName
-
-# now treat the conditions...
-conditionsSP = options.conditions.split(',')
-if len(conditionsSP) > 1:
-    # for conditions like STARTUP_V1, IDEAL_V1 we want only the STARTUP or IDEAL part
-    conditionsType = conditionsSP[1].split("_")[0]
-    python_config_filename += "_"+str(conditionsType)
-
-python_config_filename+=".py"
-
-
-
-# replace step aliases by right list
-stepsAliases={
-    'NONE':'',
-    'ALL':'GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun,RAW2DIGI,RECO,POSTRECO,VALIDATION,DQM',
-    'DATA_CHAIN':'RAW2DIGI,RECO,POSTRECO,DQM'
-    }
-if options.step in stepsAliases:
-    options.step=stepsAliases[options.step]
-
-options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
+python_config_filename = standardFileName+'.py'
 
 # add on the end of job sequence...
 addEndJob = True
@@ -425,6 +417,8 @@ if not options.name:
         options.name = 'RECO'
     elif options.trimmedStep == ['NONE'] and options.filetype in ('LHE', 'MCDB'):
         options.name = 'LHE'
+    elif len(options.trimmedStep)==0:
+        options.name = 'PROCESS'
     else:
         options.name = options.trimmedStep[-1]
 
@@ -432,10 +426,8 @@ if not options.name:
 isHarvesting = False
 isOther = False
 
-s_list=options.step.split(',')
-if "HARVESTING" in options.step and len(s_list) > 1:
-    print "The Harvesting step must be run alone"
-    sys.exit(1)
+if "HARVESTING" in options.trimmedStep and len(options.trimmedStep) > 1:
+    raise Exception("The Harvesting step must be run alone")
 
 # if not specified by user try to guess whether MC or DATA
 if not options.isData and not options.isMC:
