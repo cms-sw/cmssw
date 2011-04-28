@@ -38,7 +38,7 @@ process.Timing =  cms.Service("Timing")
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.303 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('SLHCUpgradeSimulations/Configuration/python/FourMuPt_1_50_cfi.py nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -52,7 +52,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('FourMuPt_1_50_cfi_py_GEN_SIM.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
-        dataTier = cms.untracked.string('')
+        dataTier = cms.untracked.string('GEN-SIM')
     ),
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('generation_step')
