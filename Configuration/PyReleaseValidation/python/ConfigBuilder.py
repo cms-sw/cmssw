@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.309 $"
+__version__ = "$Revision: 1.310 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -175,10 +175,16 @@ class ConfigBuilder(object):
                if self._options.secondfilein:
 		       for entry in self._options.secondfilein.split(','):
 			       self.process.source.secondaryFileNames = cms.untracked.vstring(entry)
+	   elif self._options.filetype == "DAT":
+		   sel.process.source=cms.Source("NewEventStreamFileReader",fileNames = cms.untracked.vstring())
+		   for entry in self._options.filein.split(','):
+			   self.process.source.fileNames.append(entry)
            elif self._options.filetype == "LHE":
                self.process.source=cms.Source("LHESource", fileNames = cms.untracked.vstring(self._options.filein))
            elif self._options.filetype == "MCDB":
-               self.process.source=cms.Source("MCDBSource", articleID = cms.uint32(int(self._options.filein)), supportedProtocols = cms.untracked.vstring("rfio"))
+               self.process.source=cms.Source("MCDBSource",
+					      articleID = cms.uint32(int(self._options.filein.replace('mcdb:',''))),
+					      supportedProtocols = cms.untracked.vstring("rfio"))
 
            if 'HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys():
                self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
@@ -1404,7 +1410,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.309 $"),
+                                            (version=cms.untracked.string("$Revision: 1.310 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
