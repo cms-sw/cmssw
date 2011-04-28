@@ -36,6 +36,8 @@ class PluginFactory<R * (void)> : public PluginFactoryBase
 {
       friend class DummyFriend;
    public:
+      typedef R* TemplateArgType(void);
+
       struct PMakerBase {
         virtual R* create(void) const = 0;
         virtual ~PMakerBase() {}
@@ -88,6 +90,7 @@ class PluginFactory<R * (Arg)> : public PluginFactoryBase
 {
   friend class DummyFriend;
 public:
+  typedef R *TemplateArgType(Arg);
   struct PMakerBase {
     virtual R* create(Arg) const = 0;
     virtual ~PMakerBase() {}
@@ -139,6 +142,7 @@ class PluginFactory<R * (Arg1, Arg2)> : public PluginFactoryBase
 {
   friend class DummyFriend;
 public:
+  typedef R *TemplateArgType(Arg1,Arg2);
   struct PMakerBase {
     virtual R* create(Arg1, Arg2) const = 0;
     virtual ~PMakerBase() {}
@@ -191,9 +195,9 @@ private:
 #define CONCATENATE(a,b) CONCATENATE_HIDDEN(a,b)
 #define EDM_REGISTER_PLUGINFACTORY(_factory_,_category_) \
 namespace edmplugin {\
-  template<> _factory_* _factory_::get() { static _factory_ s_instance; return &s_instance;}\
-  template<> const std::string& _factory_::category() const { static std::string s_cat(_category_);  return s_cat;}\
-} enum {CONCATENATE(dummy_edm_register_pluginfactory_, __LINE__)}
+  template<> edmplugin::PluginFactory<_factory_::TemplateArgType>* edmplugin::PluginFactory<_factory_::TemplateArgType>::get() { static edmplugin::PluginFactory<_factory_::TemplateArgType> s_instance; return &s_instance;}\
+  template<> const std::string& edmplugin::PluginFactory<_factory_::TemplateArgType>::category() const { static std::string s_cat(_category_);  return s_cat;}\
+  } enum {CONCATENATE(dummy_edm_register_pluginfactory_, __LINE__)}
 
 #endif
 
