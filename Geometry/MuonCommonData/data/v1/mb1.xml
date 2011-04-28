@@ -677,11 +677,58 @@
 
 </LogicalPartSection>
 
-
-
 <PosPartSection label="mb1.xml">
 <!-- ####  MB1 Unit -->
 <!-- ####  MB1: DTBX chamber -->
+
+ <Algorithm name="global:DDAngular">
+   <rParent name="muonBase:MBWheel_0"/>
+   <String  name="ChildName"   value="mb1:MB1N0P"/>
+   <Numeric name="StartCopyNo" value="1" />
+   <Numeric name="IncrCopyNo"  value="4" />
+   <Numeric name="N"           value="3" />
+   <Numeric name="Radius"      value="[MB1UnitRadius]"/>
+   <Numeric name="StartAngle"  value="[MB1PosAngle]"/>
+   <Numeric name="RangeAngle"  value="360*deg"/>
+   <Vector  name="Center" type="numeric" nEntries="3"> 0, 0, [mbCommon:MBPos_z] </Vector>
+   <Vector  name="RotateSolid" type="numeric" nEntries="9"> 0.*deg, 0.*deg, 180*deg, 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
+  </Algorithm>
+ <Algorithm name="global:DDAngular">
+   <rParent name="muonBase:MBWheel_0"/>
+   <String  name="ChildName"   value="mb1:MB1P0"/>
+   <Numeric name="StartCopyNo" value="2" />
+   <Numeric name="IncrCopyNo"  value="4" />
+   <Numeric name="N"           value="3" />
+   <Numeric name="Radius"      value="[MB1UnitRadius]"/>
+   <Numeric name="StartAngle"  value="30.*deg+[MB1PosAngle]"/>
+   <Numeric name="RangeAngle"  value="360*deg"/>
+   <Vector  name="Center" type="numeric" nEntries="3"> 0, 0, -[mbCommon:MBPos_z] </Vector>
+   <Vector  name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
+  </Algorithm>  
+  <Algorithm name="global:DDAngular">
+   <rParent name="muonBase:MBWheel_0"/>
+   <String  name="ChildName"   value="mb1:MB1P0"/>
+   <Numeric name="StartCopyNo" value="3" />
+   <Numeric name="IncrCopyNo"  value="4" />
+   <Numeric name="N"           value="3" />
+   <Numeric name="Radius"      value="[MB1UnitRadius]"/>
+   <Numeric name="StartAngle"  value="60.*deg+[MB1PosAngle]"/>
+   <Numeric name="RangeAngle"  value="360*deg"/>
+   <Vector  name="Center" type="numeric" nEntries="3"> 0, 0, -[mbCommon:MBPos_z] </Vector>
+   <Vector  name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
+  </Algorithm>
+  <Algorithm name="global:DDAngular">
+   <rParent name="muonBase:MBWheel_0"/>
+   <String  name="ChildName"   value="mb1:MB1N0P"/>
+   <Numeric name="StartCopyNo" value="4" />
+   <Numeric name="IncrCopyNo"  value="4" />
+   <Numeric name="N"           value="3" />
+   <Numeric name="Radius"      value="[MB1UnitRadius]"/>
+   <Numeric name="StartAngle"  value="90.*deg+[MB1PosAngle]"/>
+   <Numeric name="RangeAngle"  value="360*deg"/>
+   <Vector  name="Center" type="numeric" nEntries="3"> 0, 0, [mbCommon:MBPos_z] </Vector>
+   <Vector  name="RotateSolid" type="numeric" nEntries="9"> 0.*deg, 0.*deg, 180*deg, 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
+  </Algorithm>
 
  <PosPart copyNumber="1">
    <rParent name="muonBase:MBWheel_1P"/>
@@ -707,6 +754,19 @@
   <rRotation name="rotations:RM1902"/>
   <Translation x="-[MB1Pos_y]" y="[MB1Pos_x]" z="[mbCommon:MBChimPos_z]" />
  </PosPart>
+ 
+ <Algorithm name="global:DDAngular">
+   <rParent name="muonBase:MBWheel_1P"/>
+   <String  name="ChildName"   value="mb1:MB1P"/>
+   <Numeric name="StartCopyNo" value="5" />
+   <Numeric name="IncrCopyNo"  value="1" />
+   <Numeric name="N"           value="8" />
+   <Numeric name="Radius"      value="[MB1UnitRadius]"/>
+   <Numeric name="StartAngle"  value="120.*deg+[MB1PosAngle]"/>
+   <Numeric name="RangeAngle"  value="210.*deg"/>
+   <Vector  name="Center" type="numeric" nEntries="3"> 0, 0, -[mbCommon:MBPos_z] </Vector>
+   <Vector  name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
+  </Algorithm>
 
   <PosPart copyNumber="1">
    <rParent name="muonBase:MBWheel_1N"/>
@@ -726,6 +786,43 @@
    <rRotation name="rotations:MM300"/>
   <Translation x="[MB1Pos_x]*0.5*mm-[MB1Pos_y]*0.86602543*mm" y="[MB1Pos_x]*0.86602543*mm+[MB1Pos_y]*0.5*mm" z="-[mbCommon:MBChimPos_z]" />
  </PosPart>
+   <Algorithm name="global:DDAngular">
+   <rParent name="muonBase:MBWheel_1N"/>
+   <String  name="ChildName"   value="mb1:MB1N"/>
+   <Numeric name="StartCopyNo" value="4" />
+   <Numeric name="IncrCopyNo"  value="1" />
+   <Numeric name="N"           value="9" />
+   <Numeric name="Radius"      value="[MB1UnitRadius]"/>
+   <Numeric name="StartAngle"  value="90.*deg+[MB1PosAngle]"/>
+   <Numeric name="RangeAngle"  value="240.*deg"/>
+   <Vector  name="Center" type="numeric" nEntries="3"> 0, 0, [mbCommon:MBPos_z] </Vector>
+   <Vector  name="RotateSolid" type="numeric" nEntries="9"> 0.*deg, 0.*deg, 180*deg, 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
+  </Algorithm>
+
+ <Algorithm name="global:DDAngular">
+   <rParent name="muonBase:MBWheel_2P"/>
+   <String  name="ChildName"   value="mb1:MB1P"/>
+   <Numeric name="StartCopyNo" value="1" />
+   <Numeric name="IncrCopyNo"  value="1" />
+   <Numeric name="N"           value="12" />
+   <Numeric name="Radius"      value="[MB1UnitRadius]"/>
+   <Numeric name="StartAngle"  value="[MB1PosAngle]"/>
+   <Numeric name="RangeAngle"  value="360*deg"/>
+   <Vector  name="Center" type="numeric" nEntries="3"> 0, 0, -[mbCommon:MBPos_z] </Vector>
+   <Vector  name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
+  </Algorithm>
+ <Algorithm name="global:DDAngular">
+   <rParent name="muonBase:MBWheel_2N"/>
+   <String  name="ChildName"   value="mb1:MB1N"/>
+   <Numeric name="StartCopyNo" value="1" />
+   <Numeric name="IncrCopyNo"  value="1" />
+   <Numeric name="N"           value="12" />
+   <Numeric name="Radius"      value="[MB1UnitRadius]"/>
+   <Numeric name="StartAngle"  value="[MB1PosAngle]"/>
+   <Numeric name="RangeAngle"  value="360*deg"/>
+   <Vector  name="Center" type="numeric" nEntries="3"> 0, 0, [mbCommon:MBPos_z] </Vector>
+   <Vector  name="RotateSolid" type="numeric" nEntries="9"> 0.*deg, 0.*deg, 180*deg, 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
+  </Algorithm>
 
 <!-- #### MB1: DT Superlayers Phi -->
  <PosPart copyNumber="1">
@@ -887,6 +984,40 @@
    <rChild name="mb1:MB1SLPhiCommonElectronics"/>
   <Translation x="0.*fm" y="-([mbCommon:MBSLPhiPlO_z]-35./2.*mm)" z="0.*fm" />
  </PosPart>
+
+ <Algorithm name="global:DDLinear">
+   <rParent name="mb1:MB1SLPhiLayer_48Cells"/>
+   <String  name="ChildName"   value="mbCommon:MBSLPhiGas"/>
+   <Numeric name="N"           value="49"/>
+   <Numeric name="StartCopyNo" value="2" />
+   <Numeric name="IncrCopyNo"  value="1" />
+   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
+   <Vector  name="Base" type="numeric" nEntries="3"> -[mb1:MB1SLPhiL48]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+   <Numeric name="Theta"       value="90.*deg" />
+   <Numeric name="Phi"         value="0.*deg" />
+ </Algorithm>
+ <Algorithm name="global:DDLinear">
+   <rParent name="mb1:MB1SLPhiLayer_49Cells"/>
+   <String  name="ChildName"   value="mbCommon:MBSLPhiGas"/>
+   <Numeric name="N"           value="49"/>
+   <Numeric name="StartCopyNo" value="1" />
+   <Numeric name="IncrCopyNo"  value="1" />
+   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
+   <Vector  name="Base" type="numeric" nEntries="3"> -[mb1:MB1SLPhiL49]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+   <Numeric name="Theta"       value="90.*deg" />
+   <Numeric name="Phi"         value="0.*deg" />
+ </Algorithm>
+ <Algorithm name="global:DDLinear">
+   <rParent name="mb1:MB1SLPhiLayer_50Cells"/>
+   <String  name="ChildName"   value="mbCommon:MBSLPhiGas"/>
+   <Numeric name="N"           value="50"/>
+   <Numeric name="StartCopyNo" value="1" />
+   <Numeric name="IncrCopyNo"  value="1" />
+   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
+   <Vector  name="Base" type="numeric" nEntries="3"> -[mb1:MB1SLPhiL50]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+   <Numeric name="Theta"       value="90.*deg" />
+   <Numeric name="Phi"         value="0.*deg" />
+ </Algorithm>
 
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1SLPhiLayer_48Cells"/>
@@ -1064,6 +1195,39 @@
   <Translation x="0.*fm" y="-([mb1:MB1SLZPlO_z]-35./2.*mm)" z="0.*fm" />
  </PosPart>
 
+ <Algorithm name="global:DDLinear">
+   <rParent name="mb1:MB1SLZLayer_56Cells"/>
+   <String  name="ChildName"   value="mb1:MB1SLZGas"/>
+   <Numeric name="N"           value="57"/>
+   <Numeric name="StartCopyNo" value="2" />
+   <Numeric name="IncrCopyNo"  value="1" />
+   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
+   <Vector  name="Base" type="numeric" nEntries="3"> -[mbCommon:MBSLZL56]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+   <Numeric name="Theta"       value="90.*deg" />
+   <Numeric name="Phi"         value="0.*deg" />
+ </Algorithm>
+ <Algorithm name="global:DDLinear">
+   <rParent name="mb1:MB1SLZLayer_57Cells"/>
+   <String  name="ChildName"   value="mb1:MB1SLZGas"/>
+   <Numeric name="N"           value="57"/>
+   <Numeric name="StartCopyNo" value="1" />
+   <Numeric name="IncrCopyNo"  value="1" />
+   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
+   <Vector  name="Base" type="numeric" nEntries="3"> -[mbCommon:MBSLZL57]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+   <Numeric name="Theta"       value="90.*deg" />
+   <Numeric name="Phi"         value="0.*deg" />
+ </Algorithm>
+ <Algorithm name="global:DDLinear">
+   <rParent name="mb1:MB1SLZLayer_58Cells"/>
+   <String  name="ChildName"   value="mb1:MB1SLZGas"/>
+   <Numeric name="N"           value="58"/>
+   <Numeric name="StartCopyNo" value="1" />
+   <Numeric name="IncrCopyNo"  value="1" />
+   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
+   <Vector  name="Base" type="numeric" nEntries="3"> -[mbCommon:MBSLZL58]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+   <Numeric name="Theta"       value="90.*deg" />
+   <Numeric name="Phi"         value="0.*deg" />
+ </Algorithm>
 
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1SLZLayer_56Cells"/>
@@ -1435,6 +1599,40 @@
   <Translation x="0.*fm" y="-([mbCommon:MBChimSLPhiPlO_z]-35./2.*mm)" z="0.*fm" />
  </PosPart>
 
+ <Algorithm name="global:DDLinear">
+   <rParent name="mb1:MB1ChimSLPhiLayer_48Cells"/>
+   <String  name="ChildName"   value="mbCommon:MBChimSLPhiGas"/>
+   <Numeric name="N"           value="49"/>
+   <Numeric name="StartCopyNo" value="2" />
+   <Numeric name="IncrCopyNo"  value="1" />
+   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
+   <Vector  name="Base" type="numeric" nEntries="3"> -[mb1:MB1SLPhiL48]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+   <Numeric name="Theta"       value="90.*deg" />
+   <Numeric name="Phi"         value="0.*deg" />
+ </Algorithm>
+ <Algorithm name="global:DDLinear">
+   <rParent name="mb1:MB1ChimSLPhiLayer_49Cells"/>
+   <String  name="ChildName"   value="mbCommon:MBChimSLPhiGas"/>
+   <Numeric name="N"           value="49"/>
+   <Numeric name="StartCopyNo" value="1" />
+   <Numeric name="IncrCopyNo"  value="1" />
+   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
+   <Vector  name="Base" type="numeric" nEntries="3"> -[mb1:MB1SLPhiL49]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+   <Numeric name="Theta"       value="90.*deg" />
+   <Numeric name="Phi"         value="0.*deg" />
+ </Algorithm>
+ <Algorithm name="global:DDLinear">
+   <rParent name="mb1:MB1ChimSLPhiLayer_50Cells"/>
+   <String  name="ChildName"   value="mbCommon:MBChimSLPhiGas"/>
+   <Numeric name="N"           value="50"/>
+   <Numeric name="StartCopyNo" value="1" />
+   <Numeric name="IncrCopyNo"  value="1" />
+   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
+   <Vector  name="Base" type="numeric" nEntries="3"> -[mb1:MB1SLPhiL50]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+   <Numeric name="Theta"       value="90.*deg" />
+   <Numeric name="Phi"         value="0.*deg" />
+ </Algorithm>
+
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1ChimSLPhiLayer_48Cells"/>
    <rChild name="mb1:MB1SLPhiElectronics_48Cells"/>
@@ -1599,6 +1797,39 @@
   <Translation x="0.*fm" y="-([mb1:MB1SLZPlO_z]-35./2.*mm)" z="0.*fm" />
  </PosPart>
 
+  <Algorithm name="global:DDLinear">
+   <rParent name="mb1:MB1ChimSLZLayer_47Cells"/>
+   <String  name="ChildName"   value="mb1:MB1SLZGas"/>
+   <Numeric name="N"           value="47"/>
+   <Numeric name="StartCopyNo" value="1" />
+   <Numeric name="IncrCopyNo"  value="1" />
+   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
+   <Vector  name="Base" type="numeric" nEntries="3"> -[mbCommon:MBChimSLZL47]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+   <Numeric name="Theta"       value="90.*deg" />
+   <Numeric name="Phi"         value="0.*deg" />
+ </Algorithm>
+ <Algorithm name="global:DDLinear">
+   <rParent name="mb1:MB1ChimSLZLayer_47Cells_startCell2"/>
+   <String  name="ChildName"   value="mb1:MB1SLZGas"/>
+   <Numeric name="N"           value="48"/>
+   <Numeric name="StartCopyNo" value="2" />
+   <Numeric name="IncrCopyNo"  value="1" />
+   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
+   <Vector  name="Base" type="numeric" nEntries="3"> -[mbCommon:MBChimSLZL47]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+   <Numeric name="Theta"       value="90.*deg" />
+   <Numeric name="Phi"         value="0.*deg" />
+ </Algorithm>
+ <Algorithm name="global:DDLinear">
+   <rParent name="mb1:MB1ChimSLZLayer_48Cells"/>
+   <String  name="ChildName"   value="mb1:MB1SLZGas"/>
+   <Numeric name="N"           value="48"/>
+   <Numeric name="StartCopyNo" value="1" />
+   <Numeric name="IncrCopyNo"  value="1" />
+   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
+   <Vector  name="Base" type="numeric" nEntries="3"> -[mbCommon:MBChimSLZL48]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+   <Numeric name="Theta"       value="90.*deg" />
+   <Numeric name="Phi"         value="0.*deg" />
+ </Algorithm>
 
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1ChimSLZLayer_47Cells"/>
@@ -1799,237 +2030,5 @@
 
 </PosPartSection>
 
- <Algorithm name="global:DDAngular">
-   <rParent name="muonBase:MBWheel_0"/>
-   <String  name="ChildName"   value="mb1:MB1N0P"/>
-   <Numeric name="StartCopyNo" value="1" />
-   <Numeric name="IncrCopyNo"  value="4" />
-   <Numeric name="N"           value="3" />
-   <Numeric name="Radius"      value="[MB1UnitRadius]"/>
-   <Numeric name="StartAngle"  value="[MB1PosAngle]"/>
-   <Numeric name="RangeAngle"  value="360*deg"/>
-   <Vector  name="Center" type="numeric" nEntries="3"> 0, 0, [mbCommon:MBPos_z] </Vector>
-   <Vector  name="RotateSolid" type="numeric" nEntries="9"> 0.*deg, 0.*deg, 180*deg, 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
-  </Algorithm>
- <Algorithm name="global:DDAngular">
-   <rParent name="muonBase:MBWheel_0"/>
-   <String  name="ChildName"   value="mb1:MB1P0"/>
-   <Numeric name="StartCopyNo" value="2" />
-   <Numeric name="IncrCopyNo"  value="4" />
-   <Numeric name="N"           value="3" />
-   <Numeric name="Radius"      value="[MB1UnitRadius]"/>
-   <Numeric name="StartAngle"  value="30.*deg+[MB1PosAngle]"/>
-   <Numeric name="RangeAngle"  value="360*deg"/>
-   <Vector  name="Center" type="numeric" nEntries="3"> 0, 0, -[mbCommon:MBPos_z] </Vector>
-   <Vector  name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
-  </Algorithm>  
-  <Algorithm name="global:DDAngular">
-   <rParent name="muonBase:MBWheel_0"/>
-   <String  name="ChildName"   value="mb1:MB1P0"/>
-   <Numeric name="StartCopyNo" value="3" />
-   <Numeric name="IncrCopyNo"  value="4" />
-   <Numeric name="N"           value="3" />
-   <Numeric name="Radius"      value="[MB1UnitRadius]"/>
-   <Numeric name="StartAngle"  value="60.*deg+[MB1PosAngle]"/>
-   <Numeric name="RangeAngle"  value="360*deg"/>
-   <Vector  name="Center" type="numeric" nEntries="3"> 0, 0, -[mbCommon:MBPos_z] </Vector>
-   <Vector  name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
-  </Algorithm>
-  <Algorithm name="global:DDAngular">
-   <rParent name="muonBase:MBWheel_0"/>
-   <String  name="ChildName"   value="mb1:MB1N0P"/>
-   <Numeric name="StartCopyNo" value="4" />
-   <Numeric name="IncrCopyNo"  value="4" />
-   <Numeric name="N"           value="3" />
-   <Numeric name="Radius"      value="[MB1UnitRadius]"/>
-   <Numeric name="StartAngle"  value="90.*deg+[MB1PosAngle]"/>
-   <Numeric name="RangeAngle"  value="360*deg"/>
-   <Vector  name="Center" type="numeric" nEntries="3"> 0, 0, [mbCommon:MBPos_z] </Vector>
-   <Vector  name="RotateSolid" type="numeric" nEntries="9"> 0.*deg, 0.*deg, 180*deg, 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
-  </Algorithm>
- <Algorithm name="global:DDAngular">
-   <rParent name="muonBase:MBWheel_1P"/>
-   <String  name="ChildName"   value="mb1:MB1P"/>
-   <Numeric name="StartCopyNo" value="5" />
-   <Numeric name="IncrCopyNo"  value="1" />
-   <Numeric name="N"           value="8" />
-   <Numeric name="Radius"      value="[MB1UnitRadius]"/>
-   <Numeric name="StartAngle"  value="120.*deg+[MB1PosAngle]"/>
-   <Numeric name="RangeAngle"  value="210.*deg"/>
-   <Vector  name="Center" type="numeric" nEntries="3"> 0, 0, -[mbCommon:MBPos_z] </Vector>
-   <Vector  name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
-  </Algorithm>
- <Algorithm name="global:DDAngular">
-   <rParent name="muonBase:MBWheel_1N"/>
-   <String  name="ChildName"   value="mb1:MB1N"/>
-   <Numeric name="StartCopyNo" value="4" />
-   <Numeric name="IncrCopyNo"  value="1" />
-   <Numeric name="N"           value="9" />
-   <Numeric name="Radius"      value="[MB1UnitRadius]"/>
-   <Numeric name="StartAngle"  value="90.*deg+[MB1PosAngle]"/>
-   <Numeric name="RangeAngle"  value="240.*deg"/>
-   <Vector  name="Center" type="numeric" nEntries="3"> 0, 0, [mbCommon:MBPos_z] </Vector>
-   <Vector  name="RotateSolid" type="numeric" nEntries="9"> 0.*deg, 0.*deg, 180*deg, 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
-  </Algorithm>
-
- <Algorithm name="global:DDAngular">
-   <rParent name="muonBase:MBWheel_2P"/>
-   <String  name="ChildName"   value="mb1:MB1P"/>
-   <Numeric name="StartCopyNo" value="1" />
-   <Numeric name="IncrCopyNo"  value="1" />
-   <Numeric name="N"           value="12" />
-   <Numeric name="Radius"      value="[MB1UnitRadius]"/>
-   <Numeric name="StartAngle"  value="[MB1PosAngle]"/>
-   <Numeric name="RangeAngle"  value="360*deg"/>
-   <Vector  name="Center" type="numeric" nEntries="3"> 0, 0, -[mbCommon:MBPos_z] </Vector>
-   <Vector  name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
-  </Algorithm>
- <Algorithm name="global:DDAngular">
-   <rParent name="muonBase:MBWheel_2N"/>
-   <String  name="ChildName"   value="mb1:MB1N"/>
-   <Numeric name="StartCopyNo" value="1" />
-   <Numeric name="IncrCopyNo"  value="1" />
-   <Numeric name="N"           value="12" />
-   <Numeric name="Radius"      value="[MB1UnitRadius]"/>
-   <Numeric name="StartAngle"  value="[MB1PosAngle]"/>
-   <Numeric name="RangeAngle"  value="360*deg"/>
-   <Vector  name="Center" type="numeric" nEntries="3"> 0, 0, [mbCommon:MBPos_z] </Vector>
-   <Vector  name="RotateSolid" type="numeric" nEntries="9"> 0.*deg, 0.*deg, 180*deg, 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
-  </Algorithm>
-
- <Algorithm name="global:DDLinear">
-   <rParent name="mb1:MB1SLPhiLayer_48Cells"/>
-   <String  name="ChildName"   value="mbCommon:MBSLPhiGas"/>
-   <Numeric name="N"           value="49"/>
-   <Numeric name="StartCopyNo" value="2" />
-   <Numeric name="IncrCopyNo"  value="1" />
-   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
-   <Vector  name="Base" type="numeric" nEntries="3"> -[mb1:MB1SLPhiL48]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
-   <Numeric name="Theta"       value="90.*deg" />
-   <Numeric name="Phi"         value="0.*deg" />
- </Algorithm>
- <Algorithm name="global:DDLinear">
-   <rParent name="mb1:MB1SLPhiLayer_49Cells"/>
-   <String  name="ChildName"   value="mbCommon:MBSLPhiGas"/>
-   <Numeric name="N"           value="49"/>
-   <Numeric name="StartCopyNo" value="1" />
-   <Numeric name="IncrCopyNo"  value="1" />
-   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
-   <Vector  name="Base" type="numeric" nEntries="3"> -[mb1:MB1SLPhiL49]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
-   <Numeric name="Theta"       value="90.*deg" />
-   <Numeric name="Phi"         value="0.*deg" />
- </Algorithm>
- <Algorithm name="global:DDLinear">
-   <rParent name="mb1:MB1SLPhiLayer_50Cells"/>
-   <String  name="ChildName"   value="mbCommon:MBSLPhiGas"/>
-   <Numeric name="N"           value="50"/>
-   <Numeric name="StartCopyNo" value="1" />
-   <Numeric name="IncrCopyNo"  value="1" />
-   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
-   <Vector  name="Base" type="numeric" nEntries="3"> -[mb1:MB1SLPhiL50]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
-   <Numeric name="Theta"       value="90.*deg" />
-   <Numeric name="Phi"         value="0.*deg" />
- </Algorithm>
-    
- <Algorithm name="global:DDLinear">
-   <rParent name="mb1:MB1SLZLayer_56Cells"/>
-   <String  name="ChildName"   value="mb1:MB1SLZGas"/>
-   <Numeric name="N"           value="57"/>
-   <Numeric name="StartCopyNo" value="2" />
-   <Numeric name="IncrCopyNo"  value="1" />
-   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
-   <Vector  name="Base" type="numeric" nEntries="3"> -[mbCommon:MBSLZL56]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
-   <Numeric name="Theta"       value="90.*deg" />
-   <Numeric name="Phi"         value="0.*deg" />
- </Algorithm>
- <Algorithm name="global:DDLinear">
-   <rParent name="mb1:MB1SLZLayer_57Cells"/>
-   <String  name="ChildName"   value="mb1:MB1SLZGas"/>
-   <Numeric name="N"           value="57"/>
-   <Numeric name="StartCopyNo" value="1" />
-   <Numeric name="IncrCopyNo"  value="1" />
-   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
-   <Vector  name="Base" type="numeric" nEntries="3"> -[mbCommon:MBSLZL57]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
-   <Numeric name="Theta"       value="90.*deg" />
-   <Numeric name="Phi"         value="0.*deg" />
- </Algorithm>
- <Algorithm name="global:DDLinear">
-   <rParent name="mb1:MB1SLZLayer_58Cells"/>
-   <String  name="ChildName"   value="mb1:MB1SLZGas"/>
-   <Numeric name="N"           value="58"/>
-   <Numeric name="StartCopyNo" value="1" />
-   <Numeric name="IncrCopyNo"  value="1" />
-   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
-   <Vector  name="Base" type="numeric" nEntries="3"> -[mbCommon:MBSLZL58]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
-   <Numeric name="Theta"       value="90.*deg" />
-   <Numeric name="Phi"         value="0.*deg" />
- </Algorithm>
-
- <Algorithm name="global:DDLinear">
-   <rParent name="mb1:MB1ChimSLPhiLayer_48Cells"/>
-   <String  name="ChildName"   value="mbCommon:MBChimSLPhiGas"/>
-   <Numeric name="N"           value="49"/>
-   <Numeric name="StartCopyNo" value="2" />
-   <Numeric name="IncrCopyNo"  value="1" />
-   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
-   <Vector  name="Base" type="numeric" nEntries="3"> -[mb1:MB1SLPhiL48]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
-   <Numeric name="Theta"       value="90.*deg" />
-   <Numeric name="Phi"         value="0.*deg" />
- </Algorithm>
- <Algorithm name="global:DDLinear">
-   <rParent name="mb1:MB1ChimSLPhiLayer_49Cells"/>
-   <String  name="ChildName"   value="mbCommon:MBChimSLPhiGas"/>
-   <Numeric name="N"           value="49"/>
-   <Numeric name="StartCopyNo" value="1" />
-   <Numeric name="IncrCopyNo"  value="1" />
-   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
-   <Vector  name="Base" type="numeric" nEntries="3"> -[mb1:MB1SLPhiL49]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
-   <Numeric name="Theta"       value="90.*deg" />
-   <Numeric name="Phi"         value="0.*deg" />
- </Algorithm>
- <Algorithm name="global:DDLinear">
-   <rParent name="mb1:MB1ChimSLPhiLayer_50Cells"/>
-   <String  name="ChildName"   value="mbCommon:MBChimSLPhiGas"/>
-   <Numeric name="N"           value="50"/>
-   <Numeric name="StartCopyNo" value="1" />
-   <Numeric name="IncrCopyNo"  value="1" />
-   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
-   <Vector  name="Base" type="numeric" nEntries="3"> -[mb1:MB1SLPhiL50]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
-   <Numeric name="Theta"       value="90.*deg" />
-   <Numeric name="Phi"         value="0.*deg" />
- </Algorithm>
- <Algorithm name="global:DDLinear">
-   <rParent name="mb1:MB1ChimSLZLayer_47Cells"/>
-   <String  name="ChildName"   value="mb1:MB1SLZGas"/>
-   <Numeric name="N"           value="47"/>
-   <Numeric name="StartCopyNo" value="1" />
-   <Numeric name="IncrCopyNo"  value="1" />
-   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
-   <Vector  name="Base" type="numeric" nEntries="3"> -[mbCommon:MBChimSLZL47]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
-   <Numeric name="Theta"       value="90.*deg" />
-   <Numeric name="Phi"         value="0.*deg" />
- </Algorithm>
- <Algorithm name="global:DDLinear">
-   <rParent name="mb1:MB1ChimSLZLayer_47Cells_startCell2"/>
-   <String  name="ChildName"   value="mb1:MB1SLZGas"/>
-   <Numeric name="N"           value="48"/>
-   <Numeric name="StartCopyNo" value="2" />
-   <Numeric name="IncrCopyNo"  value="1" />
-   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
-   <Vector  name="Base" type="numeric" nEntries="3"> -[mbCommon:MBChimSLZL47]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
-   <Numeric name="Theta"       value="90.*deg" />
-   <Numeric name="Phi"         value="0.*deg" />
- </Algorithm>
- <Algorithm name="global:DDLinear">
-   <rParent name="mb1:MB1ChimSLZLayer_48Cells"/>
-   <String  name="ChildName"   value="mb1:MB1SLZGas"/>
-   <Numeric name="N"           value="48"/>
-   <Numeric name="StartCopyNo" value="1" />
-   <Numeric name="IncrCopyNo"  value="1" />
-   <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
-   <Vector  name="Base" type="numeric" nEntries="3"> -[mbCommon:MBChimSLZL48]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
-   <Numeric name="Theta"       value="90.*deg" />
-   <Numeric name="Phi"         value="0.*deg" />
- </Algorithm>
 
 </DDDefinition>
