@@ -831,6 +831,10 @@ void GsfElectronAlgo::addPflowInfo()
           (*el)->setPfIsolationVariables(pfElectron->pfIsolationVariables()) ;
           (*el)->setMvaInput(pfElectron->mvaInput()) ;
           (*el)->setMvaOutput(pfElectron->mvaOutput()) ;
+          if ((*el)->ecalDrivenSeed())
+           { (*el)->setP4(GsfElectron::P4_PFLOW_COMBINATION,pfElectron->p4(GsfElectron::P4_PFLOW_COMBINATION),pfElectron->p4Error(GsfElectron::P4_PFLOW_COMBINATION),false) ; }
+          else
+           { (*el)->setP4(GsfElectron::P4_PFLOW_COMBINATION,pfElectron->p4(GsfElectron::P4_PFLOW_COMBINATION),pfElectron->p4Error(GsfElectron::P4_PFLOW_COMBINATION),true) ; }
           double noCutMin = -999999999 ;
           if ((*el)->mva()<noCutMin) { throw cms::Exception("GsfElectronAlgo|UnexpectedMvaValue")<<"unexpected MVA value: "<<(*el)->mva() ; }
          }
