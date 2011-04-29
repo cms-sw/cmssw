@@ -17,6 +17,7 @@ class HLTDisplacedmumuFilter : public HLTFilter {
 		bool fastAccept_;
 		double minLxySignificance_;
 		double maxNormalisedChi2_;
+		double minVtxProbability_;
 		double minCosinePointingAngle_;
 		bool saveTag_;
 		edm::InputTag DisplacedVertexTag_;

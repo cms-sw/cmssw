@@ -26,6 +26,7 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 
 #include "HLTDisplacedmumuFilter.h"
+#include "TMath.h"
 
 //
 // constructors and destructor
@@ -35,6 +36,7 @@ HLTDisplacedmumuFilter::HLTDisplacedmumuFilter(const edm::ParameterSet& iConfig)
   fastAccept_ (iConfig.getParameter<bool>("FastAccept")),
   minLxySignificance_ (iConfig.getParameter<double>("MinLxySignificance")),
   maxNormalisedChi2_ (iConfig.getParameter<double>("MaxNormalisedChi2")), 
+  minVtxProbability_ (iConfig.getParameter<double>("MinVtxProbability")),
   minCosinePointingAngle_ (iConfig.getParameter<double>("MinCosinePointingAngle")),
   saveTag_ (iConfig.getUntrackedParameter<bool> ("SaveTag",false)),
   DisplacedVertexTag_(iConfig.getParameter<edm::InputTag>("DisplacedVertexTag")),
@@ -113,7 +115,11 @@ bool HLTDisplacedmumuFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
        
           float normChi2 = displacedVertex.normalizedChi2();
 	  if (normChi2 > maxNormalisedChi2_) continue;
- 
+
+	  double vtxProb = 0;
+	  if( displacedVertex.ndof() >0 ) vtxProb = TMath::Prob(displacedVertex.chi2(), displacedVertex.ndof() );
+	  if (vtxProb < minVtxProbability_) continue;
+
           // get the two muons from the vertex
           reco::Vertex::trackRef_iterator trackIt =  displacedVertex.tracks_begin();
           reco::TrackRef vertextkRef1 =  (*trackIt).castTo<reco::TrackRef>() ;
