@@ -18,3 +18,8 @@ suite += [ (M, '*', MultiDatacardTest("HWW",         datacardGlob("hww4ch-1fb-B*
 suite += [ (M, '*', MultiDatacardTest("HWW_S0",      datacardGlob("hww4ch-1fb-B*.txt"), M,'-S 0')) ]
 suite += [ (M, '*', MultiDatacardTest("HWW_Sig",     datacardGlob("hww4ch-1fb-S*.txt"), M,'--signif')) ]
 suite += [ (M, '*', MultiDatacardTest("HWW_Sig_S0",  datacardGlob("hww4ch-1fb-S*.txt"), M,'-S 0  --signif')) ]
+
+suite += [ (M, 'complex', SingleDatacardTest("Binary_ZZ_mh140",     "binary/toy-ZZ-mh140.root",     M, '')) ]
+suite += [ (M, 'complex', SingleDatacardTest("Binary_WW_mh140",     "binary/toy-WW-mh140.root",     M, '')) ]
+suite += [ (M, 'complex', SingleDatacardTest("Binary_gg_mh140",     "binary/toy-gg-mh140.root",     M, '')) ]
+suite += [ (M, 'complex', SingleDatacardTest("Binary_WWZZgg_mh140", "binary/toy-WWZZgg-mh140.root", M, '')) ]

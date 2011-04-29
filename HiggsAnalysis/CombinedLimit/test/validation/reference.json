@@ -1,4 +1,24 @@
 {
+    "Binary_WWZZgg_mh140_ProfileLikelihood": {
+        "comment": "LHC-HCG",
+        "results": { "toy-WWZZgg-mh140.root": { "comment": "LHC-HCG", "limit": 0.27240163604209278, "limitErr": 0.0, "status": "done", "t_real": 1.363951563835144 } }
+        "status": "done"
+    },
+    "Binary_WW_mh140_ProfileLikelihood": {
+        "comment": "LHC-HCG",
+        "results": { "toy-WW-mh140.root": { "comment": "LHC-HCG", "limit": 0.3556805797431204, "limitErr": 0.0, "status": "done", "t_real": 0.21835911273956299 } },
+        "status": "done"
+    }, 
+    "Binary_ZZ_mh140_ProfileLikelihood": {
+        "comment": "", 
+        "results": { "toy-ZZ-mh140.root": { "comment": "", "limit": 1.167873850818564,  "limitErr": 0.0,  "status": "done", "t_real": 0.0036212166305631399 } },
+        "status": "done"
+    }, 
+    "Binary_gg_mh140_ProfileLikelihood": {
+        "comment": "",
+        "results": { "toy-gg-mh140.root": { "comment": "", "limit": 4.2997241319939157, "limitErr": 0.0,"status": "done", "t_real": 0.10137918591499329 } },
+        "status": "done"
+    },
     "Counting_BayesianSimple": {
         "comment": "Numbers from L&S", 
         "results": {
