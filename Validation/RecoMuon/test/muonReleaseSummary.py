@@ -53,8 +53,8 @@ if ((GetFilesFrom=='GUI')|(GetRefsFrom=='GUI')):
 # USE THIS WITH wget
 #    print " > source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.csh"
 # USE THIS WITH curl
-    print " > source /afs/cern.ch/project/gd/LCG-share/sl5/etc/profile.d/grid_env.csh"
-    print " > voms-proxy-init"
+    print " > source /afs/cern.ch/project/gd/LCG-share/sl5/etc/profile.d/grid_env.csh "
+    print " > voms-proxy-init "
 
 
 # These are only needed if you copy any root file from the DQM GUI:
@@ -171,8 +171,8 @@ for sample in samples :
 
         cfgFileName=sample+'_'+NewRelease+'_'+RefRelease
         hltcfgFileName='HLT'+sample+'_'+NewRelease+'_'+RefRelease
-        seedcfgFileName='SEED'+sample+'_'+NewRelease+'_'+RefRelease
-        recocfgFileName='RECO'+sample+'_'+NewRelease+'_'+RefRelease
+        seedcfgFileName='DQMSEED'+sample+'_'+NewRelease+'_'+RefRelease
+        recocfgFileName='DQMRECO'+sample+'_'+NewRelease+'_'+RefRelease
         recomuoncfgFileName='RECO'+sample+'_'+NewRelease+'_'+RefRelease
         isolcfgFileName='ISOL'+sample+'_'+NewRelease+'_'+RefRelease
 
