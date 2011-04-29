@@ -5,6 +5,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/JetReco/interface/JPTJet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -63,11 +64,8 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& cfg):
   // parameter rho is needed, which should pass on the energy density 
   // parameter for the corresponding jet collection.
   if(std::find(levels.begin(), levels.end(), "L1FastJet")!=levels.end()){
-    std::cout << "OK1" << std::endl;
     if(cfg.existsAs<edm::InputTag>("rho")){
-      std::cout << "OK2" << std::endl;
       rho_=cfg.getParameter<edm::InputTag>("rho");
-      std::cout << rho_.label() << std::endl;
     }
     else{
       throw cms::Exception("No parameter rho specified") 
@@ -119,6 +117,12 @@ JetCorrFactorsProducer::params(const JetCorrectorParametersCollection& parameter
 float
 JetCorrFactorsProducer::evaluate(edm::View<reco::Jet>::const_iterator& jet, boost::shared_ptr<FactorizedJetCorrector>& corrector, int level)
 {
+  // add parameters for JPT corrections
+  const reco::JPTJet* jpt = dynamic_cast<reco::JPTJet const *>( &*jet );
+  if( jpt ){
+    TLorentzVector p4; p4.SetPtEtaPhiE(jpt->getCaloJetRef()->pt(), jpt->getCaloJetRef()->eta(), jpt->getCaloJetRef()->phi(), jpt->getCaloJetRef()->energy());
+    corrector->setJPTrawP4(p4); 
+  }
   corrector->setJetEta(jet->eta()); corrector->setJetPt(jet->pt()); corrector->setJetE(jet->energy()); 
   if( emf_ && dynamic_cast<const reco::CaloJet*>(&*jet)){ 
     corrector->setJetEMF(dynamic_cast<const reco::CaloJet*>(&*jet)->emEnergyFraction()); 
@@ -211,7 +215,7 @@ JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& setup)
 	}
 	if(!rho_.label().empty()){
 	  // if rho_ has a value the energy density parameter rho and the jet area need
-	  //  to be specified
+	  // to be specified
 	  corrector.find(corrLevel->first)->second->setRho(*rho);
 	  corrector.find(corrLevel->first)->second->setJetA(jet->jetArea());
 	}
