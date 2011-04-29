@@ -103,7 +103,7 @@ DDAngular::execute( DDCompactView& cpv )
     double phiy = phix + 90. * CLHEP::deg;
     double phideg = phix / CLHEP::deg;
 
-    std::string rotstr = m_childNmNs.first + dbl_to_string( phideg * 10.);
+    std::string rotstr = m_childNmNs.first + "_" + dbl_to_string( phideg * 10.);
     DDRotation rotation = DDRotation( DDName( rotstr, m_idNameSpace ));
     if( !rotation )
     {
