@@ -318,7 +318,8 @@ DQMStore::book(const std::string &dir, const std::string &name,
   h->SetDirectory(0);
 
   // Check if the request monitor element already exists.
-  if (MonitorElement *me = findObject(dir, name))
+  MonitorElement *me = findObject(dir, name);
+  if (me)
   {
     if (collateHistograms_)
     {
@@ -343,8 +344,7 @@ DQMStore::book(const std::string &dir, const std::string &name,
     // Create and initialise core object.
     assert(dirs_.count(dir));
     MonitorElement proto(&*dirs_.find(dir), name);
-    MonitorElement *me
-      = const_cast<MonitorElement &>(*data_.insert(proto).first)
+    me = const_cast<MonitorElement &>(*data_.insert(proto).first)
       .initialise((MonitorElement::Kind)kind, h);
 
     // Initialise quality test information.
