@@ -128,10 +128,12 @@ namespace edm {
       for(OutputItemList::const_iterator it = om_->selectedOutputItemList()[branchType].begin(),
           itEnd = om_->selectedOutputItemList()[branchType].end();
           it != itEnd; ++it) {
+        it->product_ = 0;
         BranchDescription const& desc = *it->branchDescription_;
         desc.init();
         theTree->addBranch(desc.branchName(),
                            desc.wrappedName(),
+                           desc.getInterface(),
                            it->product_,
                            it->splitLevel_,
                            it->basketSize_,

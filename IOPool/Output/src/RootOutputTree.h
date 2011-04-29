@@ -22,6 +22,7 @@ class TFile;
 class TBranch;
 
 namespace edm {
+  class WrapperInterfaceBase;
   class RootOutputTree : private boost::noncopyable {
   public:
     RootOutputTree(boost::shared_ptr<TFile> filePtr,
@@ -55,6 +56,7 @@ namespace edm {
 
     void addBranch(std::string const& branchName,
                    std::string const& className,
+                   WrapperInterfaceBase const* interface,
                    void const*& pProd,
                    int splitLevel,
                    int basketSize,

@@ -3,6 +3,7 @@
 
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/WrapperInterfaceBase.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
@@ -251,6 +252,7 @@ namespace edm {
   void
   RootOutputTree::addBranch(std::string const& branchName,
                             std::string const& className,
+                            WrapperInterfaceBase const* interface,
                             void const*& pProd,
                             int splitLevel,
                             int basketSize,
@@ -262,6 +264,11 @@ namespace edm {
                  &pProd,
                  basketSize,
                  splitLevel);
+      if(pProd != 0) {
+        // Delete the product that ROOT has allocated.
+        interface->deleteProduct(pProd);
+        pProd = 0;
+      }
       if(produced) {
         producedBranches_.push_back(branch);
       } else {

@@ -23,15 +23,23 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 #include <typeinfo>
 
 namespace edm {
+  void printMe(char const*, char const*, void const*);
+
   template <typename T> class WrapperInterface;
   template <typename T>
   class Wrapper {
   public:
     typedef T value_type;
     typedef T wrapped_type;  // used with Reflex to identify Wrappers
-    Wrapper() : present(false), obj() {}
+    Wrapper() : present(false), obj() {
+       printMe("CTOR0", typeid(T).name(), this);
+    }
+
     explicit Wrapper(std::auto_ptr<T> ptr);
-    ~Wrapper() {}
+
+    ~Wrapper() {
+       printMe("DTOR", typeid(T).name(), this);
+    }
     T const* product() const {return (present ? &obj : 0);}
     T const* operator->() const {return product();}
 
@@ -141,10 +149,10 @@ namespace edm {
 
   template <typename T>
   struct DoNotSetPtr {
-    void operator()(T const& /*obj*/,
-                    std::type_info const& /*iToType*/,
-                    unsigned long /*iIndex*/,
-                    void const*& /*oPtr*/) const {
+    void operator()(T const&,
+                    std::type_info const&,
+                    unsigned long,
+                    void const*& oPtr) const {
       Exception::throwThis(errors::ProductDoesNotSupportPtr,
         "The product type ",
         typeid(T).name(),
@@ -152,8 +160,8 @@ namespace edm {
     }
     void operator()(T const& /*obj*/,
                     std::type_info const& /*iToType*/,
-                    std::vector<unsigned long> const& /*iIndexes*/,
-                    std::vector<void const*>& /*oPtrs*/) const {
+                    std::vector<unsigned long> const& /*iIndex*/,
+                    std::vector<void const*>& oPtr) const {
       Exception::throwThis(errors::ProductDoesNotSupportPtr,
         "The product type ",
         typeid(T).name(),
@@ -295,6 +303,7 @@ namespace edm {
         DoAssign<T> >::type swap_or_assign;
       swap_or_assign(obj, *ptr);
     }
+    printMe("CTOR_AP", typeid(T).name(), this);
   }
 
   template <typename T>
@@ -310,7 +319,7 @@ namespace edm {
         DoAssign<T> >::type swap_or_assign;
         swap_or_assign(obj, *ptr);
      }
-
+    printMe("CTOR_P", typeid(T).name(), this);
   }
 
 #ifndef __REFLEX__

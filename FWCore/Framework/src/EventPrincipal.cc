@@ -120,7 +120,8 @@ namespace edm {
     branchMapperPtr()->insert(*productProvenance);
     Group *g = getExistingGroup(bd.branchID());
     assert(g);
-    WrapperHolder const edp(product, g->productData().getInterface());
+    WrapperInterfaceBase const* interface = g->productData().getInterface();
+    WrapperHolder const edp(boost::shared_ptr<void const>(product, WrapperHolder::EDProductDeleter(interface)), interface);
     checkUniquenessAndType(edp, g);
     // Group assumes ownership
     g->putProduct(edp, productProvenance);
