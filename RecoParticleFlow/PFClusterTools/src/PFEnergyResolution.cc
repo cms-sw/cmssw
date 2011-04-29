@@ -27,8 +27,8 @@ double PFEnergyResolution::getEnergyResolutionEm(double CorrectedEnergy, double 
   double C;
   double S;
   double N;
-  if(TMath::Abs(eta)<1.48){C=0.35/100; S=5.51/100; N=98/1000;}
-  else{C=0; S=12.8/100; N=440/1000;} 
+  if(TMath::Abs(eta)<1.48){C=0.35/100; S=5.51/100; N=98./1000.;}
+  else{C=0; S=12.8/100; N=440./1000.;} 
   double result = TMath::Sqrt(C*C*CorrectedEnergy*CorrectedEnergy + S*S*CorrectedEnergy + N*N);
   return result; 
 }
