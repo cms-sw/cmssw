@@ -4,9 +4,13 @@ from L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskAlgoTrigConfig_cff impor
 from L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff import *
 es_prefer_l1GtTriggerMaskAlgoTrig = cms.ESPrefer("L1GtTriggerMaskAlgoTrigTrivialProducer","l1GtTriggerMaskAlgoTrig")
 es_prefer_l1GtTriggerMaskTechTrig = cms.ESPrefer("L1GtTriggerMaskTechTrigTrivialProducer","l1GtTriggerMaskTechTrig")
-from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import *
 
-# Good coll. --> '0 AND (40 OR 41) AND NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND NOT 43) OR (43 AND NOT 42))'
+import copy
+from HLTrigger.HLTfilters.hltHighLevel_cfi import *
+hltL1SingleMuOpen = copy.deepcopy(hltHighLevel)
+hltL1SingleMuOpen.HLTPaths = ['HLT_L1SingleMuOpen*']
+
+from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import *
 l1tech = hltLevel1GTSeed.clone()
 l1tech.L1TechTriggerSeeding = cms.bool(True)
 
@@ -85,7 +89,8 @@ offlineSelectionALCARECOPt5 = cms.Sequence(muonSelectionPt5)
 
 offlineSelection = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelectionPt15)
 offlineSelectionALCARECO = cms.Sequence(muonSelectionPt15)
-offlineSelectionCosmics = cms.Sequence(l1SingleMuOpen)
+#offlineSelectionCosmics = cms.Sequence(l1SingleMuOpen)
+offlineSelectionCosmics = cms.Sequence(hltL1SingleMuOpen)
 
 dtCalibOfflineSelectionPt15 = cms.Sequence(offlineSelectionPt15)
 dtCalibOfflineSelectionALCARECOPt15 = cms.Sequence(offlineSelectionALCARECOPt15)
