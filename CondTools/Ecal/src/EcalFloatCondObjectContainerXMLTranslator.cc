@@ -140,12 +140,13 @@ EcalFloatCondObjectContainerXMLTranslator::dumpXML(
        ++cellid){// loop on EB cells
     
     uint32_t rawid= EBDetId::unhashIndex(cellid);
-
-    if (!record[rawid]) continue; // cell absent from original record
+    EcalFloatCondObjectContainer::const_iterator value_ptr=
+      record.find(rawid);
+    if (value_ptr==record.end()) continue; // cell absent from original record
     
     DOMElement* cellnode=writeCell(root,rawid);
 
-    WriteNodeWithValue(cellnode,Value_tag,record[rawid]);
+    WriteNodeWithValue(cellnode,Value_tag,*value_ptr);
  
 
   } // loop on EB cells
@@ -159,10 +160,13 @@ EcalFloatCondObjectContainerXMLTranslator::dumpXML(
     if (!EEDetId::validHashIndex(cellid)) continue;
 
     uint32_t rawid= EEDetId::unhashIndex(cellid);
-    if (!record[rawid]) continue; // cell absent from original record
+    EcalFloatCondObjectContainer::const_iterator value_ptr=
+      record.find(rawid);
+    if (value_ptr==record.end()) continue; // cell absent from original record
+    
 
     DOMElement* cellnode= writeCell(root,rawid);
-    WriteNodeWithValue(cellnode,Value_tag,record[rawid]);
+    WriteNodeWithValue(cellnode,Value_tag,*value_ptr);
 
     
   } // loop on EE cells
