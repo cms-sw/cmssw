@@ -1,7 +1,7 @@
 {
     "Binary_WWZZgg_mh140_ProfileLikelihood": {
         "comment": "LHC-HCG",
-        "results": { "toy-WWZZgg-mh140.root": { "comment": "LHC-HCG", "limit": 0.27240163604209278, "limitErr": 0.0, "status": "done", "t_real": 1.363951563835144 } }
+        "results": { "toy-WWZZgg-mh140.root": { "comment": "LHC-HCG", "limit": 0.27240163604209278, "limitErr": 0.0, "status": "done", "t_real": 1.363951563835144 } },
         "status": "done"
     },
     "Binary_WW_mh140_ProfileLikelihood": {
