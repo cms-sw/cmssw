@@ -125,6 +125,9 @@ private:
     /// from provenance
     bool m_l1GtTmLInputTagProv;
 
+    /// if true, configure (partially) L1GtUtils in beginRun using getL1GtRunCache
+    bool m_l1GtUtilsConfigureBeginRun;
+
 private:
 
     L1GtUtils m_l1GtUtils;

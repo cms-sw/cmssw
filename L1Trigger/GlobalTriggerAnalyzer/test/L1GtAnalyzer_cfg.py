@@ -70,13 +70,18 @@ process.l1GtAnalyzer.ConditionName = 'SingleNoIsoEG_0x0A'
 process.l1GtAnalyzer.BitNumber = 10
 
 # select the L1 configuration use: 0 (default), 100000, 200000
-process.l1GtAnalyzer.L1GtUtilsConfiguration = 0
-#process.l1GtAnalyzer.L1GtUtilsConfiguration = 100000
+#process.l1GtAnalyzer.L1GtUtilsConfiguration = 0
+process.l1GtAnalyzer.L1GtUtilsConfiguration = 100000
 #process.l1GtAnalyzer.L1GtUtilsConfiguration = 200000
  
 # if true, use methods in L1GtUtils with the input tag for L1GtTriggerMenuLite
 # from provenance (default: True)
 #process.l1GtAnalyzer.L1GtTmLInputTagProv = False
+
+# if true, configure (partially) L1GtUtils in beginRun using getL1GtRunCache
+# (default: True)
+process.l1GtAnalyzer.L1GtUtilsConfigureBeginRun = False
+
 
 process.load("L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi")
 
@@ -89,10 +94,10 @@ process.load("L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi")
 #   GT lite record: l1GtRecord 
 #process.l1GtTrigReport.L1GtRecordInputTag = "gtDigis"
 
-#process.l1GtTrigReport.PrintVerbosity = 2
+process.l1GtTrigReport.PrintVerbosity = 10
 
 # print output: 0 = std::cout; 1 = LogTrace; 2 = LogVerbatim; 3 = LogInfo
-#process.l1GtTrigReport.PrintOutput = 1
+process.l1GtTrigReport.PrintOutput = 3
 
 
 # for RAW data, run first the RAWTODIGI 
@@ -116,6 +121,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['l1GtAnalyzer']
 process.MessageLogger.categories.append('L1GtAnalyzer')
 process.MessageLogger.categories.append('L1GtUtils')
+process.MessageLogger.categories.append('L1GtTrigReport')
 
 process.MessageLogger.cerr.default.limit = 0
 process.MessageLogger.cerr.FwkJob.limit = 0
@@ -129,7 +135,8 @@ process.MessageLogger.debugs = cms.untracked.PSet(
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         L1GtAnalyzer = cms.untracked.PSet( limit = cms.untracked.int32(-1) ), 
-        L1GtUtils = cms.untracked.PSet( limit = cms.untracked.int32(0) ) 
+        L1GtUtils = cms.untracked.PSet( limit = cms.untracked.int32(-1) ), 
+        L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
         )
 
 process.MessageLogger.warnings = cms.untracked.PSet( 
@@ -137,12 +144,14 @@ process.MessageLogger.warnings = cms.untracked.PSet(
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         L1GtAnalyzer = cms.untracked.PSet( limit = cms.untracked.int32(-1) ), 
-        L1GtUtils = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
+        L1GtUtils = cms.untracked.PSet( limit = cms.untracked.int32(-1) ), 
+        L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
         )
 
 process.MessageLogger.errors = cms.untracked.PSet( 
         threshold = cms.untracked.string('ERROR'),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
         L1GtAnalyzer = cms.untracked.PSet( limit = cms.untracked.int32(-1) ), 
-        L1GtUtils = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
-        )
+        L1GtUtils = cms.untracked.PSet( limit = cms.untracked.int32(-1) ), 
+        L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
+       )

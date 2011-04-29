@@ -12,12 +12,14 @@ import sys
 ###################### user choices ######################
 
 # (pre)release (cycle) to be run - it is used to choose a correct global tag
-cmsRunRelease = 'CMSSW_3_11_X'
+cmsRunRelease = 'CMSSW_4_1_X'
+#cmsRunRelease = 'CMSSW_3_11_X'
 #cmsRunRelease = 'CMSSW_3_6_X'
 #cmsRunRelease = 'CMSSW_3_5_X'
 
 # choose (pre)release used to produce the RelVal samples (data are independent)
-sampleFromRelease = 'CMSSW_3_11_0'
+sampleFromRelease = 'CMSSW_4_1_5'
+#sampleFromRelease = 'CMSSW_3_11_0'
 #sampleFromRelease = 'CMSSW_3_5_6'
 #sampleFromRelease = 'CMSSW_3_5_2'
 #sampleFromRelease = 'CMSSW_3_5_0'
@@ -34,7 +36,7 @@ useRelValSample = True
 #
 # comment/uncomment the next line to choose sample type 
 # (un-commented selects data)
-useRelValSample=False 
+#useRelValSample=False 
 
 if useRelValSample == True :
     
@@ -81,7 +83,7 @@ useLocalFiles = False
 #useLocalFiles = True 
 
 if (useLocalFiles == True) :
-    useGlobalTag = 'GR_P_V13'
+    useGlobalTag = 'GR_P_V17'
     dataType = 'RECO'
     
 # number of events to be run (-1 for all)
@@ -96,7 +98,16 @@ errorUserOptions = False
 # global tags for the release used to run
 if (useRelValSample == True) and (useLocalFiles == False) :
     
-    if cmsRunRelease == 'CMSSW_3_11_X' :
+    if cmsRunRelease == 'CMSSW_4_1_X' :
+        if globalTag == 'MC' :
+            useGlobalTag = 'MC_311_V2'
+        elif globalTag == 'START' :
+            useGlobalTag = 'START311_V2'
+        else :
+            print '\nError: no global tag defined for release', cmsRunRelease, 'of type', globalTag, 'used with RelVal sample'
+            errorUserOptions = True
+            
+    elif cmsRunRelease == 'CMSSW_3_11_X' :
         if globalTag == 'MC' :
             useGlobalTag = 'MC_311_V1'
         elif globalTag == 'START' :
@@ -161,7 +172,9 @@ if (useRelValSample == True) and (useLocalFiles == False) :
 elif (useRelValSample == False) and (useLocalFiles == False) :
     # global tag for data taking
     
-    if cmsRunRelease == 'CMSSW_3_11_X' :
+    if cmsRunRelease == 'CMSSW_4_1_X' :
+        useGlobalTag = 'GR_P_V17'
+    elif cmsRunRelease == 'CMSSW_3_11_X' :
         useGlobalTag = 'GR_P_V13'
     elif cmsRunRelease == 'CMSSW_3_7_X' :
         useGlobalTag = 'GR_R_37X_V4'
@@ -417,8 +430,35 @@ if (useRelValSample == True) and (useLocalFiles == False) :
 
 
     elif useGlobalTag.count('START') :
+        
+        if (sampleFromRelease == 'CMSSW_4_1_5') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
 
-        if (sampleFromRelease == 'CMSSW_3_7_0') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
+            dataset = '/RelValTTbar/CMSSW_4_1_5-START311_V2-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', useGlobalTag  
+            
+            readFiles.extend( [
+                '/store/relval/CMSSW_4_1_5/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0042/CEC944D6-736F-E011-AFF9-00304867904E.root',
+                '/store/relval/CMSSW_4_1_5/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0041/2233154D-5D6D-E011-B8DA-0018F3D09634.root',
+                '/store/relval/CMSSW_4_1_5/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0038/E4CDF9D9-B26C-E011-9027-002618943910.root',
+                '/store/relval/CMSSW_4_1_5/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0038/74712F73-9C6C-E011-99C6-00261894397A.root',
+                '/store/relval/CMSSW_4_1_5/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0038/24CB237D-9E6C-E011-92BA-0030486792B8.root',
+                '/store/relval/CMSSW_4_1_5/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0038/0ECA068F-A26C-E011-94E1-001A92811710.root',
+                '/store/relval/CMSSW_4_1_5/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0037/F0F62AE3-8E6C-E011-8D80-003048679168.root',
+                '/store/relval/CMSSW_4_1_5/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0037/DE00CA64-8F6C-E011-BCC8-003048679076.root',
+                '/store/relval/CMSSW_4_1_5/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0037/BC49DE60-8F6C-E011-ADF4-00304867BFAE.root',
+                '/store/relval/CMSSW_4_1_5/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0037/A84D5AE0-8F6C-E011-9828-00261894395B.root',
+                '/store/relval/CMSSW_4_1_5/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0037/A4EE3076-906C-E011-8F29-003048678BAE.root',
+                '/store/relval/CMSSW_4_1_5/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0037/A0F92E4B-8E6C-E011-9B5A-002618943911.root',
+                '/store/relval/CMSSW_4_1_5/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0037/882239F3-936C-E011-802D-001A928116B2.root',
+                '/store/relval/CMSSW_4_1_5/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0037/72042AEC-976C-E011-918B-00261894387D.root',
+                '/store/relval/CMSSW_4_1_5/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0037/6E8D1006-956C-E011-9FE9-001A92971B88.root',
+                '/store/relval/CMSSW_4_1_5/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0037/6A515FDD-906C-E011-9C0E-00261894398D.root',
+                '/store/relval/CMSSW_4_1_5/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0037/5CB3D686-946C-E011-97CB-001A92971B8A.root',
+                '/store/relval/CMSSW_4_1_5/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0037/5A7D25E4-8E6C-E011-B5EA-0030486790C0.root',
+                '/store/relval/CMSSW_4_1_5/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0037/109CB5ED-8E6C-E011-B51E-003048679188.root' ] );
+
+
+        elif (sampleFromRelease == 'CMSSW_3_7_0') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
 
             dataset = '/RelValTTbar/CMSSW_3_7_0-START37_V4-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
             print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', useGlobalTag  
