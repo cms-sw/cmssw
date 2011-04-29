@@ -55,7 +55,7 @@ HLT_HICentralityVeto
 HLT_HIRandom
 HLT_DTCalibration_v*
 HLT_EcalCalibration_v*
-HLT_HcalCalibration_HI
+HLT_HcalCalibration_v*
 HLT_TrackerCalibration_v*
 HLT_LogMonitor_v*
 HLTriggerFirstPath
