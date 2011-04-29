@@ -1,6 +1,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimG4Core/GFlash/interface/GflashHadronShowerModel.h"
+#include "SimG4Core/Application/interface/SteppingAction.h"
 
 #include "SimGeneral/GFlash/interface/GflashHadronShowerProfile.h"
 #include "SimGeneral/GFlash/interface/GflashPiKShowerProfile.h"
@@ -17,6 +18,7 @@
 #include "G4TouchableHandle.hh"
 #include "G4VSensitiveDetector.hh"
 #include "G4VPhysicalVolume.hh"
+#include "G4EventManager.hh"
 
 #include "G4PionMinus.hh"
 #include "G4PionPlus.hh"
@@ -31,6 +33,8 @@
 GflashHadronShowerModel::GflashHadronShowerModel(G4String modelName, G4Region* envelope, edm::ParameterSet parSet)
   : G4VFastSimulationModel(modelName, envelope), theParSet(parSet)
 {
+  theWatcherOn = parSet.getParameter<bool>("watcherOn");
+
   theProfile = new GflashHadronShowerProfile(parSet);
   thePiKProfile = new GflashPiKShowerProfile(parSet);
   theKaonPlusProfile = new GflashKaonPlusShowerProfile(parSet);
@@ -75,7 +79,7 @@ G4bool GflashHadronShowerModel::ModelTrigger(const G4FastTrack& fastTrack)
   G4bool trigger = false;
 
   // mininum energy cutoff to parameterize
-  if (fastTrack.GetPrimaryTrack()->GetKineticEnergy() < Gflash::energyCutOff) return trigger;
+  if (fastTrack.GetPrimaryTrack()->GetKineticEnergy()/GeV < Gflash::energyCutOff) return trigger;
 
   // check whether this is called from the normal GPIL or the wrapper process GPIL
   if(fastTrack.GetPrimaryTrack()->GetTrackStatus() == fPostponeToNextEvent ) {
@@ -98,7 +102,6 @@ void GflashHadronShowerModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fas
   // kill the particle
   fastStep.KillPrimaryTrack();
   fastStep.ProposePrimaryTrackPathLength(0.0);
-  fastStep.ProposeTotalEnergyDeposited(fastTrack.GetPrimaryTrack()->GetKineticEnergy());
 
   // parameterize energy depostion by the particle type
   G4ParticleDefinition* particleType = fastTrack.GetPrimaryTrack()->GetDefinition();
@@ -143,6 +146,13 @@ void GflashHadronShowerModel::makeHits(const G4FastTrack& fastTrack) {
     theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(spotIter->getPosition(),G4ThreeVector(0,0,0),
 								  theGflashTouchableHandle, false);
     updateGflashStep(spotIter->getPosition(),spotIter->getTime());
+
+    // if there is a watcher defined in a job and the flag is turned on
+    if(theWatcherOn) {
+      theGflashStep->SetTotalEnergyDeposit(spotIter->getEnergy());
+      SteppingAction* userSteppingAction = (SteppingAction*) G4EventManager::GetEventManager()->GetUserSteppingAction();
+      userSteppingAction->m_g4StepSignal(theGflashStep);
+    }
 
     G4VPhysicalVolume* aCurrentVolume = theGflashStep->GetPreStepPoint()->GetPhysicalVolume();
     if( aCurrentVolume == 0 ) continue;
