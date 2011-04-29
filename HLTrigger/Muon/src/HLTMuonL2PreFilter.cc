@@ -72,7 +72,8 @@ HLTMuonL2PreFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("BeamSpotTag",edm::InputTag("hltOfflineBeamSpot"));
   desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL2MuonCandidates"));
-  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltDiMuonL1Filtered0"));
+  //  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltDiMuonL1Filtered0"));
+  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag(""));
   desc.add<edm::InputTag>("SeedMapTag",edm::InputTag("hltL2Muons"));
   desc.add<int>("MinN",1);
   desc.add<double>("MaxEta",2.5);

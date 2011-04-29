@@ -104,24 +104,26 @@ HLTMuonTrackMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("BeamSpotTag",edm::InputTag("hltOfflineBeamSpot"));
   desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL3MuonCandidates"));
-  desc.add<edm::InputTag>("TrackTag",edm::InputTag("hltMuTkMuJpsiTrackerMuonCands"));
-  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltMu0TkMuJpsiTrackMassFiltered"));
+  //  desc.add<edm::InputTag>("TrackTag",edm::InputTag("hltMuTkMuJpsiTrackerMuonCands"));
+  desc.add<edm::InputTag>("TrackTag",edm::InputTag(""));
+  //  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltMu0TkMuJpsiTrackMassFiltered"));
+  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag(""));
   desc.addUntracked<bool>("SaveTag",false);
   {
     std::vector<double> temp1;
     temp1.reserve(1);
-    temp1.push_back(2.5);
+    temp1.push_back(2.8);
     desc.add<std::vector<double> >("MinMasses",temp1);
   }
   {
     std::vector<double> temp1;
     temp1.reserve(1);
-    temp1.push_back(4.1);
+    temp1.push_back(3.4);
     desc.add<std::vector<double> >("MaxMasses",temp1);
   }
   desc.add<bool>("checkCharge",true);
   desc.add<double>("MinTrackPt",0.0);
-  desc.add<double>("MinTrackP",2.7);
+  desc.add<double>("MinTrackP",3.0);
   desc.add<double>("MaxTrackEta",999.0);
   desc.add<double>("MaxTrackDxy",999.0);
   desc.add<double>("MaxTrackDz",999.0);

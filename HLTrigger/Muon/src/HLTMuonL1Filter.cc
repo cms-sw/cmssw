@@ -85,12 +85,14 @@ void
 HLTMuonL1Filter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL1extraParticles"));
-  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltL1sL1DoubleMuOpen"));
+  //  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltL1sL1DoubleMuOpen"));
+  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag(""));
   desc.add<double>("MaxEta",2.5);
   desc.add<double>("MinPt",0.0);
   desc.add<int>("MinN",1);
   desc.add<bool>("ExcludeSingleSegmentCSC",false);
-  desc.add<edm::InputTag>("CSCTFtag",edm::InputTag("unused"));
+  //  desc.add<edm::InputTag>("CSCTFtag",edm::InputTag("unused"));
+  desc.add<edm::InputTag>("CSCTFtag",edm::InputTag("csctfDigis"));
   desc.addUntracked<bool>("SaveTag",false);
   {
     std::vector<int> temp1;
