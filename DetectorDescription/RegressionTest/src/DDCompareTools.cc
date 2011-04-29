@@ -1,9 +1,9 @@
 #include "DetectorDescription/RegressionTest/interface/DDCompareTools.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 
-DDCompareEPV::DDCompareEPV() : compMatOnly_(false) { }
+DDCompareEPV::DDCompareEPV() : ddco_() { }
 
-DDCompareEPV::DDCompareEPV(bool compmat) : compMatOnly_(compmat) { }
+DDCompareEPV::DDCompareEPV(const DDCompOptions& ddco) : ddco_(ddco) { }
 
 bool DDCompareEPV::operator()(DDExpandedView& lhs, DDExpandedView& rhs) const {
   bool ret(true);
@@ -101,9 +101,9 @@ bool DDCompareEPV::operator()(DDExpandedView& lhs, DDExpandedView& rhs) const {
   return ret;
 }
 
-DDCompareCPV::DDCompareCPV() : compMatOnly_(false) { }
+DDCompareCPV::DDCompareCPV() : ddco_() { }
 
-DDCompareCPV::DDCompareCPV(bool compmat) : compMatOnly_(compmat) { }
+DDCompareCPV::DDCompareCPV(const DDCompOptions& ddco) : ddco_(ddco) { }
 
 bool DDCompareCPV::operator()(const DDCompactView& lhs, const DDCompactView& rhs) const {
   bool ret(true);
@@ -125,7 +125,7 @@ bool DDCompareCPV::operator()(const DDCompactView& lhs, const DDCompactView& rhs
     const DDLogicalPart & ddLP1 = g1.nodeData(git1);
     const DDLogicalPart & ddLP2 = g2.nodeData(git2);
     std::cout << ++i << " P " << ddLP1.name() << " " << ddLP2.name() << std::endl;
-    if ( ! DDCompareLP(compMatOnly_)(ddLP1, ddLP2) ) {
+    if ( ! DDCompareLP(ddco_)(ddLP1, ddLP2) ) {
       ret = false;
       break;
     } else if (git1->size() && git2->size() ) { 
@@ -150,7 +150,7 @@ bool DDCompareCPV::operator()(const DDCompactView& lhs, const DDCompactView& rhs
 // 	  ret = false;
 // 	  break;
 	if ( p1->copyno_ != p2->copyno_ || 
-	     ! DDCompareLP(compMatOnly_)(ddcurLP1,ddcurLP2) ) {
+	     ! DDCompareLP(ddco_)(ddcurLP1,ddcurLP2) ) {
 	  std::cout << "Failed to match node (fullname:copy_no): 1: " 
 		    << ddcurLP1.name().fullname() << ":" << p1->copyno_ << " 2: " 
 		    << ddcurLP2.name().fullname() << ":" << p2->copyno_ << std::endl;
@@ -166,7 +166,7 @@ bool DDCompareCPV::operator()(const DDCompactView& lhs, const DDCompactView& rhs
 // 	  std::cout << "," << std::setw(12) << std::fixed << std::setprecision(4) << p2->trans_.z() << std::endl;
 	  ret = false;
 	  break;
-	} else if ( ! DDCompareDDRot(compMatOnly_)(p1->rot_, p2->rot_) ) {
+	} else if ( ! DDCompareDDRot(ddco_)(p1->rot_, p2->rot_) ) {
 	  std::cout << "Failed to match rotation " << std::endl;
 	  ret = false;
 	  break;
@@ -186,9 +186,9 @@ bool DDCompareCPV::operator()(const DDCompactView& lhs, const DDCompactView& rhs
   return ret;
 }
 
-DDCompareLP::DDCompareLP() : compMatOnly_ (false) { }
+DDCompareLP::DDCompareLP() : ddco_() { }
 
-DDCompareLP::DDCompareLP(bool compmat) : compMatOnly_ (compmat) { }
+DDCompareLP::DDCompareLP(const DDCompOptions& ddco) : ddco_(ddco) { }
 
 bool DDCompareLP::operator()(const DDLogicalPart& lhs, const DDLogicalPart& rhs) const {
   bool ret(true);
@@ -197,7 +197,7 @@ bool DDCompareLP::operator()(const DDLogicalPart& lhs, const DDLogicalPart& rhs)
     ret = false;
     std::cout << "LogicalPart names do not match " << lhs.name().fullname() 
 	      << " and " << rhs.name().fullname() << std::endl;
-  } else if ( ! DDCompareSolid(compMatOnly_)(lhs.solid(), rhs.solid()) ){
+  } else if ( ! DDCompareSolid(ddco_)(lhs.solid(), rhs.solid()) ){
     ret = false;
     std::cout << "LogicalPart Solids do not match " << lhs.name().fullname() 
 	      << " and " << rhs.name().fullname() << std::endl;
@@ -205,9 +205,9 @@ bool DDCompareLP::operator()(const DDLogicalPart& lhs, const DDLogicalPart& rhs)
   return ret;
 }
 
-DDCompareSolid::DDCompareSolid() : compMatOnly_ (false) { }
+DDCompareSolid::DDCompareSolid() : ddco_() { }
 
-DDCompareSolid::DDCompareSolid(bool compmat) : compMatOnly_ (true) { }
+DDCompareSolid::DDCompareSolid(const DDCompOptions& ddco) : ddco_(ddco) { }
 
 bool DDCompareSolid::operator()(const DDSolid& lhs, const DDSolid& rhs) const {
   bool ret(true);
@@ -252,7 +252,7 @@ bool DDCompareSolid::operator()(const DDSolid& lhs, const DDSolid& rhs) const {
     case ddsubtraction:
     case ddintersection: 
       {
-	if ( ! DDCompareBoolSol(compMatOnly_)(lhs, rhs) ) {
+	if ( ! DDCompareBoolSol(ddco_)(lhs, rhs) ) {
 	  ret = false;
 	}
 	break;
@@ -261,7 +261,7 @@ bool DDCompareSolid::operator()(const DDSolid& lhs, const DDSolid& rhs) const {
       {
 	DDReflectionSolid rs1(lhs);
 	DDReflectionSolid rs2(rhs);
-	if ( ! DDCompareSolid(compMatOnly_)( rs1.unreflected(), rs2.unreflected()) ) {
+	if ( ! DDCompareSolid(ddco_)( rs1.unreflected(), rs2.unreflected()) ) {
 	  ret = false;
 	  std::cout << "Unreflected volumes of DDReflections do not match. Reflections are " 
 		    << lhs.name().fullname() << " and " << rhs.name().fullname() << std::endl;
@@ -274,6 +274,10 @@ bool DDCompareSolid::operator()(const DDSolid& lhs, const DDSolid& rhs) const {
     return ret;
 }
 
+DDCompareDBLVEC::DDCompareDBLVEC() : tol_(0.0004) { }
+
+DDCompareDBLVEC::DDCompareDBLVEC(double tol) : tol_(tol) { }
+
 bool DDCompareDBLVEC::operator() ( const std::vector<double>& lhs, const std::vector<double>& rhs ) const {
   bool ret(true);
   if ( lhs.size() != rhs.size() ) {
@@ -281,7 +285,7 @@ bool DDCompareDBLVEC::operator() ( const std::vector<double>& lhs, const std::ve
     std::cout << "Size of vectors do not match." << std::endl;
   } else {
     for ( size_t i = 0; i < lhs.size() ; ++i ) {
-      if ( std::fabs( lhs[i] - rhs[i] ) > 0.0004 ) {
+      if ( std::fabs( lhs[i] - rhs[i] ) > tol_ ) {
 	ret = false;
 	std::cout << "Vector content at index " << i << " does not match " ;
 	std::cout << std::setw(12) << std::fixed << std::setprecision(4) << lhs[i] << " != " << rhs[i] << std::endl;
@@ -292,9 +296,9 @@ bool DDCompareDBLVEC::operator() ( const std::vector<double>& lhs, const std::ve
   return ret;
 }
 
-DDCompareBoolSol::DDCompareBoolSol() : compMatOnly_(false) { }
+DDCompareBoolSol::DDCompareBoolSol() : ddco_() { }
 
-DDCompareBoolSol::DDCompareBoolSol(bool compmat) : compMatOnly_(compmat) { }
+DDCompareBoolSol::DDCompareBoolSol(const DDCompOptions& ddco) : ddco_(ddco) { }
 bool DDCompareBoolSol::operator() ( const DDBooleanSolid& lhs, const DDBooleanSolid& rhs ) const {
   bool ret(true);
   if ( lhs.name().fullname() != rhs.name().fullname() ) {
@@ -303,19 +307,19 @@ bool DDCompareBoolSol::operator() ( const DDBooleanSolid& lhs, const DDBooleanSo
   } else if ( lhs.shape() != rhs.shape() ) {
     ret = false;
     std::cout << "BooleanSolid shape types do not match ";
-  } else if ( ! DDCompareDBLVEC()(lhs.parameters(), rhs.parameters()) ) {
+  } else if ( ! DDCompareDBLVEC(ddco_.distTol_)(lhs.parameters(), rhs.parameters()) ) {
     ret = false;
     std::cout << "BooleanSolid parameters do not match ";
-  } else if ( ! DDCompareSolid(compMatOnly_)(lhs.solidA(), rhs.solidA()) ) {
+  } else if ( ! DDCompareSolid(ddco_)(lhs.solidA(), rhs.solidA()) ) {
     ret = false;
     std::cout << "BooleanSolid SolidA solids do not match ";
-  } else if ( ! DDCompareSolid(compMatOnly_)(lhs.solidB(), rhs.solidB()) ) {
+  } else if ( ! DDCompareSolid(ddco_)(lhs.solidB(), rhs.solidB()) ) {
     ret= false;
     std::cout << "BooleanSolid SolidB solids do not match ";
-  } else if ( ! DDCompareDDTrans()(lhs.translation(), rhs.translation()) ) {
+  } else if ( ! DDCompareDDTrans(ddco_.distTol_)(lhs.translation(), rhs.translation()) ) {
     ret = false;
     std::cout << "BooleanSolid Translations do not match ";
-  } else if ( ! DDCompareDDRot(compMatOnly_)(lhs.rotation(), rhs.rotation()) ) {
+  } else if ( ! DDCompareDDRot(ddco_)(lhs.rotation(), rhs.rotation()) ) {
     ret = false;
     std::cout << "BooleanSolid Rotations do not match ";
   }
@@ -327,23 +331,27 @@ bool DDCompareBoolSol::operator() ( const DDBooleanSolid& lhs, const DDBooleanSo
   return ret;
 }
 
+DDCompareDDTrans::DDCompareDDTrans() : tol_(0.0004) { }
+
+DDCompareDDTrans::DDCompareDDTrans(double tol) : tol_(tol) { }
+
 bool DDCompareDDTrans::operator() ( const DDTranslation& lhs, const DDTranslation& rhs ) const {
   bool ret(true);
-  if ( std::fabs(lhs.x() - rhs.x()) > 0.0004
-       || std::fabs(lhs.y() - rhs.y()) > 0.0004
-       || std::fabs(lhs.z() - rhs.z()) > 0.0004 ) {  
+  if ( std::fabs(lhs.x() - rhs.x()) > tol_
+       || std::fabs(lhs.y() - rhs.y()) > tol_
+       || std::fabs(lhs.z() - rhs.z()) > tol_ ) {  
     ret=false;
   }
   return ret;
 }
 
-DDCompareDDRot::DDCompareDDRot( ) : compMatOnly_(false) { }
+DDCompareDDRot::DDCompareDDRot( ) : ddco_() { }
 
-DDCompareDDRot::DDCompareDDRot( bool compmat ) : compMatOnly_(compmat) { }
+DDCompareDDRot::DDCompareDDRot( const DDCompOptions& ddco ) : ddco_(ddco) { }
 
 bool DDCompareDDRot::operator() ( const DDRotation& lhs, const DDRotation& rhs ) const {
   bool ret(true);
-  if ( ! compMatOnly_ && lhs.name().fullname() != rhs.name().fullname() ) {
+  if ( ddco_.compRotName_ && lhs.name().fullname() != rhs.name().fullname() ) {
     ret = false;
     std::cout << "DDRotation names do not match " 
 	      << lhs.name().fullname() << " and " 
@@ -357,6 +365,10 @@ bool DDCompareDDRot::operator() ( const DDRotation& lhs, const DDRotation& rhs )
   return ret;
 }
 
+DDCompareDDRotMat::DDCompareDDRotMat() : tol_(0.0004) { }
+
+DDCompareDDRotMat::DDCompareDDRotMat(double tol) : tol_(tol) { }
+
 bool DDCompareDDRotMat::operator() ( const DDRotationMatrix& lhs, const DDRotationMatrix& rhs ) const {
   bool ret(true);
   // manual way to do it... postponed.  Tested with Distance method from root::math
@@ -365,10 +377,34 @@ bool DDCompareDDRotMat::operator() ( const DDRotationMatrix& lhs, const DDRotati
   //DD3Vector x2, y2, z2;
   //rhs.GetComponents(x2,y2,z2);
   double dist = Distance(lhs,rhs);
-  if ( std::fabs(dist) > 0.0004 ) {
+  if ( std::fabs(dist) > tol_ ) {
     std::cout << "Rotation matrices do not match." << std::endl;
     ret = false;
+    DD3Vector x, y, z;
+    std::cout << "FIRST" << std::endl;
+    lhs.GetComponents(x,y,z);
+    std::cout << std::setw(12) << std::fixed << std::setprecision(4) << x.X();
+    std::cout << "," << std::setw(12) << std::fixed << std::setprecision(4) << y.X();
+    std::cout << "," << std::setw(12) << std::fixed << std::setprecision(4) << z.X();
+    std::cout << "," << std::setw(12) << std::fixed << std::setprecision(4) << x.Y();
+    std::cout << "," << std::setw(12) << std::fixed << std::setprecision(4) << y.Y();
+    std::cout << "," << std::setw(12) << std::fixed << std::setprecision(4) << z.Y();
+    std::cout << "," << std::setw(12) << std::fixed << std::setprecision(4) << x.Z();
+    std::cout << "," << std::setw(12) << std::fixed << std::setprecision(4) << y.Z();
+    std::cout << "," << std::setw(12) << std::fixed << std::setprecision(4) << z.Z() << std::endl;
+    std::cout << "SECOND" << std::endl;
+    rhs.GetComponents(x,y,z);
+    std::cout << std::setw(12) << std::fixed << std::setprecision(4) << x.X();
+    std::cout << "," << std::setw(12) << std::fixed << std::setprecision(4) << y.X();
+    std::cout << "," << std::setw(12) << std::fixed << std::setprecision(4) << z.X();
+    std::cout << "," << std::setw(12) << std::fixed << std::setprecision(4) << x.Y();
+    std::cout << "," << std::setw(12) << std::fixed << std::setprecision(4) << y.Y();
+    std::cout << "," << std::setw(12) << std::fixed << std::setprecision(4) << z.Y();
+    std::cout << "," << std::setw(12) << std::fixed << std::setprecision(4) << x.Z();
+    std::cout << "," << std::setw(12) << std::fixed << std::setprecision(4) << y.Z();
+    std::cout << "," << std::setw(12) << std::fixed << std::setprecision(4) << z.Z() << std::endl;
   }
+
   return ret;
 }
 

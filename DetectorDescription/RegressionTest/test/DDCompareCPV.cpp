@@ -1,4 +1,3 @@
-
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -12,6 +11,7 @@
 
 #include <string>
 #include <iostream>
+#include <iomanip>
 
 int main(int argc, char *argv[])
 {
@@ -25,16 +25,28 @@ int main(int argc, char *argv[])
     desc.add_options()
       ("help,h", "Print this help message")
       ("file1,f", boost::program_options::value<std::string>(), "XML configuration file name. "
-                 "Default is DetectorDescription/RegressionTest/test/configuration.xml")
+       "Default is DetectorDescription/RegressionTest/test/configuration.xml")
       ("file2,g", boost::program_options::value<std::string>(), "XML configuration file name. "
-       "Default is DetectorDescription/RegressionTest/test/configuration.xml");
-      //      ("path,p", "Specifies filename is a full path and not to use FileInPath to find file. "
-      //                 " This option is ignored if a filename is not specified");
-
+       "Default is DetectorDescription/RegressionTest/test/configuration.xml")
+      ("dist-tolerance,t", boost::program_options::value<std::string>(), "Value tolerance for distances (in mm). "
+       "Default value 0.0004 (anything larger is an error)")
+      ("rot-tolerance,r", boost::program_options::value<std::string>(), "Value tolerance for rotation matrix elements. "
+       "Default value is 0.0004 (anything larger is an error)")
+      ("spec-tolerance,s", boost::program_options::value<std::string>(), "Value tolerance for rotation matrix elements. "
+       "Default value is 0.0004 (anything larger is an error) NOT USED YET")
+      ("user-ns,u", "Use the namespaces in each file and do NOT use the filename as namespace. "
+       "Default is to use the filename of each file in the configuration.xml file as a filename")
+      ("comp-rot,c", "Use the rotation name when comparing rotations. "
+       "Default is to use the matrix only and not the name when comparing DDRotations")
+      ("continue-on-error,e", "Continue after an error in values. "
+       "Default is to stop at the first error. NOT IMPLEMENTED")
+      ("attempt-resync,a", "Continue after an error in graph position, attempt to resync. "
+       "Default is to stop at the first mis-match of the graph. NOT IMPLEMENTED");
+    
     boost::program_options::positional_options_description p;
     p.add("file1", 1);
-    p.add("file2", 1);
-
+    p.add("file2", 2);
+    
     boost::program_options::variables_map vm;
     try {
       store(boost::program_options::command_line_parser(argc,argv).options(desc).positional(p).run(),vm);
@@ -45,7 +57,6 @@ int main(int argc, char *argv[])
       std::cerr << desc << std::endl;
       return 1;
     }
-
     if(vm.count("help")) {
       std::cout << desc << std::endl;
       return 0;
@@ -54,19 +65,45 @@ int main(int argc, char *argv[])
     bool fullPath = false;
     std::string configfile("DetectorDescription/RegressionTest/test/configuration.xml");
     std::string configfile2("DetectorDescription/RegressionTest/test/configuration.xml");
+    DDCompOptions ddco;
+    //    double dtol(0.0004), rottol(0.0004);
+    // bool usrns(false), comprot(false);
+    bool usrns(false);
     if (vm.count("file1")) {
       configfile = vm["file1"].as<std::string>();
       if (vm.count("file2")) {
 	configfile2 = vm["file2"].as<std::string>();
       }
-//       if (vm.count("path")) {
-//         fullPath = true;
-//       }
     }
+    if (vm.count("dist-tolerance"))
+      ddco.distTol_ = vm["dist-tolerance"].as<double>();
+    if (vm.count("rot-tolerance"))
+      ddco.rotTol_ = vm["rot-tolerance"].as<double>();
+    if (vm.count("spec-tolerance"))
+      ddco.rotTol_ = vm["spec-tolerance"].as<double>();
+    if (vm.count("user-ns")) 
+      usrns = true;
+    if (vm.count("comp-rot")) 
+      ddco.compRotName_ = true;
+    if (vm.count("continue-on-error")) 
+      ddco.contOnError_ = true;
+    if (vm.count("attempt-resync"))
+      ddco.attResync_ = true;
+
+    std::cout << "Settings are: " << std::endl;
+    std::cout << "Configuration file 1: " << configfile << std::endl;
+    std::cout << "Configuration file 2: " << configfile2 << std::endl;
+    std::cout << "Length/distance tolerance: " << ddco.distTol_ << std::endl;
+    std::cout << "Rotation matrix element tolerance: " << ddco.rotTol_ << std::endl;
+    std::cout << "SpecPar tolerance: " << ddco.specTol_ << std::endl;
+    std::cout << "User controlled namespace (both file sets)? " << std::boolalpha << usrns << std::endl;
+    std::cout << "Compare Rotation names? " << ddco.compRotName_ << std::endl;
+    std::cout << "Continue on error (data mismatch)? " << ddco.contOnError_ << std::endl;
+    std::cout << "Attempt resyncronization of disparate graphs? " << ddco.attResync_ << std::endl;
 
     DDCompactView cpv1;
     DDLParser myP(cpv1);
-    myP.getDDLSAX2FileHandler()->setUserNS(false);
+    myP.getDDLSAX2FileHandler()->setUserNS(usrns);
 
     /* The configuration file tells the parser what to parse.
        The sequence of files to be parsed does not matter but for one exception:
@@ -80,16 +117,20 @@ int main(int argc, char *argv[])
     FIPConfiguration fp(cpv1);
     fp.readConfig(configfile, fullPath);
     std::cout << "FILE 1: " << configfile << std::endl;
+    if ( fp.getFileList().size() == 0 ) {
+      std::cout << "FILE 1: configuration file has no DDD xml files in it!" << std::endl;
+      exit(1);
+    }
     int parserResult = myP.parse(fp);
     if (parserResult != 0) {
-      std::cout << " problem encountered during parsing file 1. exiting ... " << std::endl;
+      std::cout << "FILE 1: problem encountered during parsing. exiting ... " << std::endl;
       exit(1);
     }
     cpv1.lockdown();
 
     DDCompactView cpv2;
     DDLParser myP2(cpv2);
-    myP2.getDDLSAX2FileHandler()->setUserNS(false);
+    myP2.getDDLSAX2FileHandler()->setUserNS(usrns);
 
     /* The configuration file tells the parser what to parse.
        The sequence of files to be parsed does not matter but for one exception:
@@ -103,9 +144,13 @@ int main(int argc, char *argv[])
     FIPConfiguration fp2(cpv2);
     fp2.readConfig(configfile2, fullPath);
     std::cout << "FILE 2: " << configfile2 << std::endl;
+    if ( fp2.getFileList().size() == 0 ) {
+      std::cout << "FILE 2: configuration file has no DDD xml files in it!" << std::endl;
+      exit(1);
+    }
     int parserResult2 = myP2.parse(fp2);
     if (parserResult2 != 0) {
-      std::cout << " problem encountered during parsing file 2. exiting ... " << std::endl;
+      std::cout << "FILE 2: problem encountered during parsing. exiting ... " << std::endl;
       exit(1);
     }
     cpv2.lockdown();
@@ -125,18 +170,13 @@ int main(int argc, char *argv[])
 //       }
 //     }
 
-    // SOMETHING LIKE...
-//     const DDCompactView::graph_type& g1=cpv1.graph();
-//     const DDCompactView::graph_type& g2=cpv2.graph();
-//     DDCompareCPVGraph ddccg;
-//     bool graphmatch = ddccg(g1, g2);
-    DDCompareCPV ddccpv(true);
+    DDCompareCPV ddccpv(ddco);
     bool graphmatch = ddccpv(cpv1, cpv2);
 
     if (graphmatch) {
-      std::cout << "graphs match" << std::endl;
+      std::cout << "DDCompactView graphs match" << std::endl;
     } else {
-      std::cout << "graphs do NOT match" << std::endl;
+      std::cout << "DDCompactView graphs do NOT match" << std::endl;
     }
     return 0;
 }
