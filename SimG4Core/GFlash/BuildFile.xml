@@ -3,6 +3,7 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="SimG4Core/Physics"/>
+<use   name="SimG4Core/PhysicsLists"/>
 <use   name="SimGeneral/GFlash"/>
 <use   name="geant4core"/>
 <use   name="clhep"/>
