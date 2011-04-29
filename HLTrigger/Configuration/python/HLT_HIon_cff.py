@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HIon/V30 (CMSSW_3_11_0_HLT21)
+# /dev/CMSSW_4_2_0/HIon/V31 (CMSSW_3_11_0_HLT21)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V30')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V31')
 )
 
 streams = cms.PSet( 
@@ -3875,4 +3875,13 @@ ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
     dbstatusMask = cms.vuint32( 1, 2046, 0, 0, 0, 64512 ),
     timeThresh = cms.double( 2.0 )
 )
+# Extra customisation for CMSSW 42X only
+if 'hltParticleFlowRecHitECAL' in locals():
+    hltParticleFlowRecHitECAL.thresh_Cleaning = cms.double(2.0)
+if 'hltParticleFlowRecHitHCAL' in locals():
+    hltParticleFlowRecHitHCAL.Max_Calib = cms.double(5.0)
+
+# HF cleaning at HLT (default in data, revert back for MC)
+if 'hltHfreco' in locals():
+    hltHfreco.setNoiseFlags = cms.bool( False )
 
