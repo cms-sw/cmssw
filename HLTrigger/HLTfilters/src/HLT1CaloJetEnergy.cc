@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/02/11 20:55:24 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/03/26 07:36:19 $
+ *  $Revision: 1.4 $
  *
  *  \author Jim Brooke
  *
@@ -23,16 +23,12 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
 //
 // constructors and destructor
 //
 HLT1CaloJetEnergy::HLT1CaloJetEnergy(const edm::ParameterSet& iConfig) :
   inputTag_ (iConfig.getParameter<edm::InputTag>("inputTag")),
-  saveTag_  (iConfig.getUntrackedParameter<bool>("saveTag")),
+  saveTag_  (iConfig.getUntrackedParameter<bool>("saveTag",false)),
   min_E_    (iConfig.getParameter<double>       ("MinE"   )),
   max_Eta_  (iConfig.getParameter<double>       ("MaxEta"   )),
   min_N_    (iConfig.getParameter<int>          ("MinN"   ))
@@ -49,17 +45,6 @@ HLT1CaloJetEnergy::HLT1CaloJetEnergy(const edm::ParameterSet& iConfig) :
 
 HLT1CaloJetEnergy::~HLT1CaloJetEnergy()
 {
-}
-
-void
-HLT1CaloJetEnergy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("inputTag",edm::InputTag("hltStoppedHSCPIterativeCone5CaloJets"));
-  desc.addUntracked<bool>("saveTag",false);
-  desc.add<double>("MinE",20.0);
-  desc.add<double>("MaxEta",3.0);
-  desc.add<int>("MinN",1);
-  descriptions.add("hlt1CaloJetEnergy",desc);
 }
 
 //

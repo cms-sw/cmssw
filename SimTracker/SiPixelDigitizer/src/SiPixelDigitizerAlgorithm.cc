@@ -722,9 +722,8 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
 #endif
 
   _collection_points.resize( _ionization_points.size()); // set size
-  float LorentzAng = SiPixelLorentzAngle_->getLorentzAngle(hit.detUnitId());
- 
-  LocalVector driftDir=DriftDirection(LorentzAng);  // get the charge drift direction
+  
+  LocalVector driftDir=DriftDirection();  // get the charge drift direction
   if(driftDir.z() ==0.) {
     LogWarning("Magnetic field") << " pxlx: drift in z is zero ";
     return;
@@ -1443,7 +1442,7 @@ float SiPixelDigitizerAlgorithm::missCalibrate(int col,int row,
 // Configurations for barrel and foward pixels possess different tanLorentzAngleperTesla 
 // parameter value
 
-LocalVector SiPixelDigitizerAlgorithm::DriftDirection(float LoAng){
+LocalVector SiPixelDigitizerAlgorithm::DriftDirection(){
   Frame detFrame(_detp->surface().position(),_detp->surface().rotation());
   LocalVector Bfield=detFrame.toLocal(_bfield);
   
@@ -1492,12 +1491,26 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(float LoAng){
   
   //Read Lorentz angle from DB:********************************************************************
   if(use_LorentzAngle_DB_){ 
-    alpha2 = LoAng * LoAng;
-    //      std::cout << "detID is: " << it->first << "The LA per tesla is: " << it->second << std::endl;
-    dir_x = -( LoAng * Bfield.y() + alpha2 * Bfield.z()* Bfield.x() );
-    dir_y = +( LoAng * Bfield.x() - alpha2 * Bfield.z()* Bfield.y() );
-    dir_z = -(1 + alpha2 * Bfield.z()*Bfield.z() );
-    scale = (1 + alpha2 * Bfield.z()*Bfield.z() );
+    std::map<unsigned int,float> detid_la= SiPixelLorentzAngle_->getLorentzAngles();
+    std::map<unsigned int,float>::const_iterator it;
+    
+    
+    for (it=detid_la.begin();it!=detid_la.end();it++)
+    {
+      if (detID==it->first) {
+	if (alpha2Order) {
+	  alpha2 = it->second * it->second;
+	}  
+	else {
+	  alpha2 = 0.0;
+	} 
+	//	std::cout << "detID is: " << it->first << "The LA per tesla is: " << it->second << std::endl;
+	dir_x = -( it->second * Bfield.y() + alpha2 * Bfield.z()* Bfield.x() );
+	dir_y = +( it->second * Bfield.x() - alpha2 * Bfield.z()* Bfield.y() );
+	dir_z = -(1 + alpha2 * Bfield.z()*Bfield.z() );
+	scale = (1 + alpha2 * Bfield.z()*Bfield.z() );
+      }
+    } 
   }// end: Read LA from DataBase.
   
   LocalVector theDriftDirection = LocalVector(dir_x/scale, dir_y/scale, dir_z/scale );  

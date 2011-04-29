@@ -135,7 +135,7 @@ void RPCRecHitProbability::endLuminosityBlock(edm::LuminosityBlock const& L, edm
 
 
 void RPCRecHitProbability::analyze(const edm::Event& event,const edm::EventSetup& setup ){
-  
+  dcs_ = true;
   //Check HV status
   this->makeDcsInfo(event);
   if( !dcs_){

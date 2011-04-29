@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRPZView.h,v 1.18 2011/02/24 17:59:30 amraktad Exp $
+// $Id: FWRPZView.h,v 1.19 2011/03/08 11:42:26 amraktad Exp $
 //
 
 // system include files
@@ -66,6 +66,7 @@ private:
    void doPreScaleDistortion();
    void doFishEyeDistortion();
    void doCompression(bool);
+   void doShiftOrigin();
    
    void setEtaRng();
 
@@ -82,7 +83,7 @@ private:
 
 
    // parameters
-
+   FWBoolParameter    m_shiftOrigin;
    FWDoubleParameter  m_fishEyeDistortion;
    FWDoubleParameter  m_fishEyeR;
 

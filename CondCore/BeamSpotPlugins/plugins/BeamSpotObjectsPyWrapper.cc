@@ -1,19 +1,8 @@
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
+#include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
-
-#include <string>
-#include <fstream>
-
-#include "CondCore/DBCommon/interface/DbConnection.h"
-#include "CondCore/DBCommon/interface/DbConnectionConfiguration.h"
-#include "CondCore/DBCommon/interface/DbSession.h"
-
-#include "CondCore/ORA/interface/Database.h"
-#include "CondCore/DBCommon/interface/PoolToken.h"
-
-#include "CondCore/IOVService/interface/IOVProxy.h"
 
 #include "TROOT.h"
 #include "TCanvas.h"
@@ -24,6 +13,9 @@
 #include "TAxis.h"
 #include "TMultiGraph.h"
 #include "TLegend.h"
+
+#include <string>
+#include <sstream>
 
 namespace cond {
 
@@ -61,7 +53,7 @@ namespace cond {
 		TCanvas canvas("iC","iC",800,800);    
 
 		canvas.SaveAs(filename.c_str());
-		return filename.c_str();
+		return filename;
 	}
 
 	template<>

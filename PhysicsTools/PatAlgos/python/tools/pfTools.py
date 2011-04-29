@@ -107,6 +107,13 @@ def reconfigurePF2PATTaus(process,
    print "patTaus will be produced from taus of type: %s that pass %s" \
 	 % (tauType, pf2patSelection)
 
+   #get baseSequence
+   baseSequence = getattr(process,"pfTausBaseSequence"+postfix)
+   #clean baseSequence from old modules
+   for oldBaseModuleName in baseSequence.moduleNames():
+       oldBaseModule = getattr(process,oldBaseModuleName)
+       baseSequence.remove(oldBaseModule)
+
    # Get the prototype of tau producer to make, i.e. fixedConePFTauProducer
    producerName = producerFromType(tauType)
    # Set as the source for the pf2pat taus (pfTaus) selector
@@ -123,21 +130,34 @@ def reconfigurePF2PATTaus(process,
            name = cms.string('pfTauTTIworkaround'+postfix),
            plugin = cms.string('RecoTauTagInfoWorkaroundModifer')
            )
-       
-   newTau.builders[0].pfCandSrc = oldTau.builders[0].pfCandSrc #.getModuleLabel()+postfix
-   newTau.jetRegionSrc = oldTau.jetRegionSrc #.getModuleLabel()+postfix
-   newTau.jetSrc = oldTau.jetSrc #.getModuleLabel()+postfix
-   newTau.piZeroSrc = oldTau.piZeroSrc #.getModuleLabel()+postfix   
+       newTau.piZeroSrc = "pfJetsLegacyTaNCPiZeros"+postfix
+   elif tauType=='fixedConePFTau':
+       newTau.piZeroSrc = "pfJetsPiZeros"+postfix
+   elif tauType=='hpsPFTau':
+       newTau = process.combinatoricRecoTaus.clone()
+       newTau.piZeroSrc="pfJetsLegacyHPSPiZeros"+postfix
+       newTau.modifiers[2] = cms.PSet(
+           pfTauTagInfoSrc = cms.InputTag("pfTauTagInfoProducer"+postfix),
+           name = cms.string('pfTauTTIworkaround'+postfix),
+           plugin = cms.string('RecoTauTagInfoWorkaroundModifer')
+        )
+       from PhysicsTools.PatAlgos.tools.helpers import cloneProcessingSnippet
+       cloneProcessingSnippet(process, process.produceHPSPFTaus, postfix)
+       massSearchReplaceParam(getattr(process,"produceHPSPFTaus"+postfix),
+                              "PFTauProducer",
+                              cms.InputTag("combinatoricRecoTaus"),
+                              cms.InputTag("pfTausBase"+postfix) )
+       getattr(process,"hpsPFTauProducer"+postfix).src = "pfTausBase"+postfix
 
-   #get baseSequence
-   baseSequence = getattr(process,"pfTausBaseSequence"+postfix)
-   #clean baseSequence from old modules
-   for oldBaseModuleName in baseSequence.moduleNames():
-       oldBaseModule = getattr(process,oldBaseModuleName)
-       baseSequence.remove(oldBaseModule)
+   newTau.builders[0].pfCandSrc = oldTau.builders[0].pfCandSrc
+   newTau.jetRegionSrc = oldTau.jetRegionSrc
+   newTau.jetSrc = oldTau.jetSrc
+
    # replace old tau producter by new one put it into baseSequence
    setattr(process,"pfTausBase"+postfix,newTau)
    baseSequence += getattr(process,"pfTausBase"+postfix)
+   if tauType=='hpsPFTau':
+       baseSequence += getattr(process,"produceHPSPFTaus"+postfix)   
    #make custom mapper to take postfix into account (could have gone with lambda of lambda but... )
    def producerIsTauTypeMapperWithPostfix(tauProducer):
        return lambda x: producerIsTauTypeMapper(tauProducer)+x.group(1)+postfix
@@ -154,7 +174,10 @@ def reconfigurePF2PATTaus(process,
       # Register in our process
       setattr(process, clonedName, clonedDisc)
       baseSequence += getattr(process, clonedName)
-      clonedDisc.PFTauProducer = cms.InputTag(clonedDisc.PFTauProducer.value()+postfix)
+      if tauType != 'hpsPFTau' :
+          clonedDisc.PFTauProducer = cms.InputTag(clonedDisc.PFTauProducer.value()+postfix)
+      else:
+          clonedDisc.PFTauProducer = cms.InputTag("hpsPFTauProducer"+postfix)
       # Adapt this discriminator for the cloned prediscriminators 
       adaptTauDiscriminator(clonedDisc, newTauProducer="pfTausBase",
                             oldTauTypeMapper=recoTauTypeMapperWithGroup,
@@ -170,7 +193,10 @@ def reconfigurePF2PATTaus(process,
       clonedDisc = getattr(process, originalName).clone()
       # Register in our process
       setattr(process, clonedName, clonedDisc)
-      clonedDisc.PFTauProducer = cms.InputTag(clonedDisc.PFTauProducer.value()+postfix)
+      if tauType != 'hpsPFTau' :
+          clonedDisc.PFTauProducer = cms.InputTag(clonedDisc.PFTauProducer.value()+postfix)
+      else:
+          clonedDisc.PFTauProducer = cms.InputTag("hpsPFTauProducer"+postfix)
       # Adapt our cloned discriminator to the new prediscriminants
       adaptTauDiscriminator(clonedDisc, newTauProducer="pfTausBase",
                             oldTauTypeMapper=recoTauTypeMapperWithGroup,

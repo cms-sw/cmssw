@@ -2,14 +2,15 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2010/07/02 13:10:07 $
- * $Revision: 1.30 $
- * $Author: ameyer $
+ * $Date: 2010/07/20 19:36:27 $
+ * $Revision: 1.32 $
+ * $Author: wmtan $
  *
  */
 #include "DQMEventInfo.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 #include <TSystem.h>
 
 #include <stdio.h>
@@ -94,6 +95,21 @@ void DQMEventInfo::beginRun(const edm::Run& r, const edm::EventSetup &c )
     
   runId_->Fill(r.id().run());
   runStartTimeStamp_->Fill(stampToReal(r.beginTime()));
+  
+  //Online static histograms
+  const edm::ParameterSet &sourcePSet = edm::getProcessParameterSet().getParameterSet("@main_input");
+  if (sourcePSet.getParameter<std::string>("@module_type") == "EventStreamHttpReader" ){
+    std::string evSelection;
+    std::vector<std::string> evSelectionList; 
+    const edm::ParameterSet &evSelectionPSet = sourcePSet.getUntrackedParameterSet("SelectEvents");
+    evSelectionList = evSelectionPSet.getParameter<std::vector<std::string> >("SelectEvents");
+    for ( std::vector<std::string>::iterator it = evSelectionList.begin(); it <  evSelectionList.end(); it++ )
+      evSelection += "'"+ *it + "', ";
+      
+    evSelection.resize(evSelection.length()-2);
+    dbe_->setCurrentFolder(eventInfoFolder_);
+    dbe_->bookString("eventSelection",evSelection);
+  }
   
 } 
 

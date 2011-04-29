@@ -3,13 +3,13 @@ from FWCore.GuiBrowsers.ConfigToolBase import *
 from PhysicsTools.PatAlgos.tools.helpers import *
 from PhysicsTools.PatAlgos.patEventContent_cff import patTriggerL1RefsEventContent
 
-_defaultTriggerMatchers      = [ 'cleanMuonTriggerMatchHLTMu9'
-                               , 'cleanMuonTriggerMatchHLTDoubleIsoMu3'
-                               , 'cleanPhotonTriggerMatchHLTPhoton20CleanedL1R'
-                               , 'cleanElectronTriggerMatchHLTEle20SWL1R'
-                               , 'cleanTauTriggerMatchHLTDoubleLooseIsoTau15'
-                               , 'cleanJetTriggerMatchHLTJet15U'
-                               , 'metTriggerMatchHLTMET45'
+_defaultTriggerMatchers      = [ 'cleanMuonTriggerMatchHLTMu20'
+                               , 'cleanMuonTriggerMatchHLTDoubleMu6'
+                               , 'cleanPhotonTriggerMatchHLTPhoton26IsoVLPhoton18'
+                               , 'cleanElectronTriggerMatchHLTEle27CaloIdVTCaloIsoTTrkIdTTrkIsoT'
+                               , 'cleanTauTriggerMatchHLTDoubleIsoPFTau20Trk5'
+                               , 'cleanJetTriggerMatchHLTJet240'
+                               , 'metTriggerMatchHLTMET100'
                                ]
 _defaultTriggerProducer      = 'patTrigger'
 _defaultTriggerEventProducer = 'patTriggerEvent'

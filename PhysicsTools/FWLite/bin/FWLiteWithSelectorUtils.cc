@@ -7,12 +7,14 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 
-#include "PhysicsTools/FWLite/interface/TFileService.h"
-#include "FWCore/ParameterSet/interface/ProcessDesc.h"
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+#include "DataFormats/FWLite/interface/InputSource.h"
+#include "DataFormats/FWLite/interface/OutputFiles.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 
 #include "TStopwatch.h"
 #include "PhysicsTools/FWLite/interface/WSelector.h"
+#include "PhysicsTools/FWLite/interface/TFileService.h"
 //#include "PhysicsTools/FWLite/interface/WSelectorFast.h"
 
 
@@ -20,7 +22,7 @@ int main(int argc, char* argv[])
 {
   // define what muon you are using; this is necessary as FWLite is not 
   // capable of reading edm::Views
-  using pat::Muon;
+  using reco::Muon;
 
   // ----------------------------------------------------------------------
   // First Part: 
@@ -39,22 +41,19 @@ int main(int argc, char* argv[])
     return 0;
   }
 
+  if( !edm::readPSetsFrom(argv[1])->existsAs<edm::ParameterSet>("process") ){
+    std::cout << " ERROR: ParametersSet 'process' is missing in your configuration file" << std::endl; exit(0);
+  }
   // get the python configuration
-  PythonProcessDesc builder(argv[1]);
-  edm::ParameterSet const& cfg = builder.processDesc()->getProcessPSet()->getParameter<edm::ParameterSet>("WBosonAnalyzer");
-  
-  // now get each parameter
-  int maxEvents_( cfg.getParameter<int>("maxEvents") );
-  unsigned int outputEvery_( cfg.getParameter<unsigned int>("outputEvery") );
-  std::string outputFile_( cfg.getParameter<std::string>("outputFile" ) );
-  std::vector<std::string> inputFiles_( cfg.getParameter<std::vector<std::string> >("fileNames") );
+  const edm::ParameterSet& process = edm::readPSetsFrom(argv[1])->getParameter<edm::ParameterSet>("process");
+  fwlite::InputSource inputHandler_(process); fwlite::OutputFiles outputHandler_(process);
 
   // initialize the W selector
-  edm::ParameterSet selection = cfg.getParameter<edm::ParameterSet>("selection");
+  edm::ParameterSet selection = process.getParameter<edm::ParameterSet>("selection");
   WSelector wSelector( selection ); pat::strbitset wSelectorReturns = wSelector.getBitTemplate();
   
   // book a set of histograms
-  fwlite::TFileService fs = fwlite::TFileService(outputFile_.c_str());
+  fwlite::TFileService fs = fwlite::TFileService(outputHandler_.file().c_str());
   TFileDirectory theDir = fs.mkdir("analyzeBasicPat");
   TH1F* muonPt_  = theDir.make<TH1F>("muonPt", "pt",    100,  0.,300.);
   TH1F* muonEta_ = theDir.make<TH1F>("muonEta","eta",   100, -3.,  3.);
@@ -66,9 +65,10 @@ int main(int argc, char* argv[])
   // loop the events
   int ievt=0;  
   unsigned int nEventsAnalyzed = 0;
-  for(unsigned int iFile=0; iFile<inputFiles_.size(); ++iFile){
+  int maxEvents_( inputHandler_.maxEvents() );
+  for(unsigned int iFile=0; iFile<inputHandler_.files().size(); ++iFile){
     // open input file (can be located on castor)
-    TFile* inFile = TFile::Open(inputFiles_[iFile].c_str());
+    TFile* inFile = TFile::Open(inputHandler_.files()[iFile].c_str());
     if( inFile ){
       // ----------------------------------------------------------------------
       // Second Part: 
@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
 	// break loop if maximal number of events is reached 
 	if(maxEvents_>0 ? ievt+1>maxEvents_ : false) break;
 	// simple event counter
-	if(outputEvery_!=0 ? (ievt>0 && ievt%outputEvery_==0) : false) 
+	if(inputHandler_.reportAfter()!=0 ? (ievt>0 && ievt%inputHandler_.reportAfter()==0) : false) 
 	  std::cout << "  processing event: " << ievt << std::endl;
     
 	if ( wSelector(event, wSelectorReturns ) ) {

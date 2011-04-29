@@ -15,7 +15,7 @@ def extractBlock(config, blocks, target):
   proc = subprocess.Popen(
     "edmConfigFromDB --configName %s --noedsources --nopaths --noes --nopsets --noservices --cff --blocks %s --format python | sed -e'/^streams/,/^)/d' -e'/^datasets/,/^)/d' > %s" % (config, commands, target),
     shell  = True,
-    stdin  = None, 
+    stdin  = None,
     stdout = None,
     stderr = None,
   )
@@ -138,9 +138,9 @@ dump.write('''import FWCore.ParameterSet.Config as cms
 # as these are used in Configuration/EventContent
 #
 ''')
-dump.write('HLTriggerRAW = %s\n\n'  % HLTriggerRAW)
-dump.write('HLTriggerRECO = %s\n\n' % HLTriggerRECO)
-dump.write('HLTriggerAOD = %s\n\n'  % HLTriggerAOD)
-dump.write('HLTDebugRAW = %s\n\n'   % HLTDebugRAW)
-dump.write('HLTDebugFEVT = %s\n'    % HLTDebugFEVT)
+dump.write('HLTriggerRAW  = cms.PSet(\n    outputCommands = cms.vstring( *(\n%s\n    ) )\n)\n\n'  % ',\n'.join( '        \'%s\'' % keep for keep in HLTriggerRAW.outputCommands))
+dump.write('HLTriggerRECO = cms.PSet(\n    outputCommands = cms.vstring( *(\n%s\n    ) )\n)\n\n'  % ',\n'.join( '        \'%s\'' % keep for keep in HLTriggerRECO.outputCommands))
+dump.write('HLTriggerAOD  = cms.PSet(\n    outputCommands = cms.vstring( *(\n%s\n    ) )\n)\n\n'  % ',\n'.join( '        \'%s\'' % keep for keep in HLTriggerAOD.outputCommands))
+dump.write('HLTDebugRAW   = cms.PSet(\n    outputCommands = cms.vstring( *(\n%s\n    ) )\n)\n\n'  % ',\n'.join( '        \'%s\'' % keep for keep in HLTDebugRAW.outputCommands))
+dump.write('HLTDebugFEVT  = cms.PSet(\n    outputCommands = cms.vstring( *(\n%s\n    ) )\n)\n\n'  % ',\n'.join( '        \'%s\'' % keep for keep in HLTDebugFEVT.outputCommands))
 dump.close()

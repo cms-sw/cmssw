@@ -33,17 +33,13 @@ class TFileDirectory {
       // returns a TDirectory pointer
       TDirectory *getBareDirectory (const std::string &subdir = "") const;
       
-      // returns a TH1 pointer matched to name histname
-      TH1 *getHist (const std::string &histname, 
-                    const std::string &subdir = "") const;
-      
       // reutrns a "T" pointer matched to objname
       template< typename T > T* getObject (const std::string &objname,
                                            const std::string &subdir = "")
       {
          TObject *objPtr = _getObj (objname, subdir);
          // Ok, we've got it.  Let's see if it's a histogram
-         TH1* retval = dynamic_cast< T* > ( objPtr );
+         T * retval = dynamic_cast< T* > ( objPtr );
          if ( ! retval )
          {
             // object isn't a of class T
@@ -210,6 +206,8 @@ class TFileDirectory {
       }
       /// create a new subdirectory
       TFileDirectory mkdir( const std::string & dir, const std::string & descr = "" );
+      /// return the full path of the stored histograms
+      std::string fullPath() const;
 
    private:
       
@@ -234,7 +232,6 @@ class TFileDirectory {
       friend class fwlite::TFileService;
       TFile * file_;
       std::string dir_, descr_, path_;
-      std::string fullPath() const;
 };
 
 #endif

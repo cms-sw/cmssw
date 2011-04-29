@@ -6,7 +6,6 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Luminosity/interface/LumiSummaryRunHeader.h"
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
@@ -15,11 +14,14 @@
 #include <iostream>
 #include <map>
 struct hltPerPathInfo{
-  hltPerPathInfo():prescale(0){}
+  hltPerPathInfo():inputcount(0),outputcount(0),prescale(0){}
+  unsigned int inputcount;
+  unsigned int outputcount;
   unsigned int prescale;
 };
 struct l1PerBitInfo{
-  l1PerBitInfo():prescale(0){}
+  l1PerBitInfo():count(0),prescale(0){}
+  unsigned int count;
   unsigned int prescale;
 };
 struct MyPerLumiInfo{
@@ -206,10 +208,7 @@ void LumiCalculator::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
   
   edm::Handle<LumiSummary> lumiSummary;
   lumiBlock.getByLabel("lumiProducer", lumiSummary);
-
-  edm::Handle<LumiSummaryRunHeader> lumiSummaryRH;
-  lumiBlock.getRun().getByLabel("lumiProducer", lumiSummaryRH);
-
+  
   MyPerLumiInfo l;
   l.lsnum=lumiBlock.id().luminosityBlock();
 
@@ -237,7 +236,7 @@ void LumiCalculator::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
     unsigned int c=0;
     for(hltit=hltitBeg;hltit!=hltitEnd;++hltit){
       std::string hltname=hltit->first;
-      *log_<<c<<" HLT path  "<<hltname<<" , prescale : "<<hltit->second.prescale<<"\n";
+      *log_<<c<<" HLT path  "<<hltname<<" , prescale : "<<hltit->second.prescale<<" , in : "<<hltit->second.inputcount<<" , out : "<<hltit->second.outputcount<<"\n";
       TRGMAPIT ppp;
       ppp=trgpathMmap_.equal_range(hltname);
       if(ppp.first==ppp.second){
@@ -246,8 +245,8 @@ void LumiCalculator::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
       for(std::multimap<std::string,std::string>::iterator mit=ppp.first; mit!=ppp.second; ++mit){
 	std::string l1name=mit->second;
 	*log_<<"    L1 name : "<<l1name;
-	LumiSummary::L1 l1result = lumiSummary->l1info(lumiSummaryRH->getL1Index(l1name));
-	*log_<<" prescale : "<<l1result.prescale<<"\n";
+	LumiSummary::L1 l1result=lumiSummary->l1info(l1name);
+	*log_<<" , count : "<<l1result.ratecount<<" , prescale : "<<l1result.prescale<<"\n";
 	*log_<<"\n";
       }
       ++c;
@@ -266,11 +265,17 @@ void LumiCalculator::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
   //
   size_t n=lumiSummary->nTriggerLine();
   for(size_t i=0;i<n;++i){
-    std::string l1bitname = lumiSummaryRH->getL1Name(lumiSummary->l1info(i).triggernameidx);
+    std::string l1bitname=lumiSummary->l1info(i).triggername;
     l1PerBitInfo t;
     if(currentlumi_==0){
+      t.count=lumiSummary->l1info(i).ratecount;
       t.prescale=lumiSummary->l1info(i).prescale;
       l1map_.insert(std::make_pair(l1bitname,t));
+    }else{
+      std::map<std::string,l1PerBitInfo>::iterator it=l1map_.find(l1bitname);
+      if(it!=l1map_.end()){
+	it->second.count += lumiSummary->l1info(i).ratecount;
+      }
     }
   }
   

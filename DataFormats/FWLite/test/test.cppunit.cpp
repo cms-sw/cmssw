@@ -217,6 +217,9 @@ void testRefInROOT::testTo()
       CPPUNIT_ASSERT(2 == (*pThings)[0].a);
    }
    CPPUNIT_ASSERT(edm::EventID(1,1,1)==events.id());
+  
+   CPPUNIT_ASSERT( events.to(1));
+   CPPUNIT_ASSERT(not events.to(events.size()));
    
 }
 

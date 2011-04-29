@@ -77,7 +77,7 @@ class PFElectronTranslator : public edm::EDProducer
 			  reco::GsfElectronCollection &);
 
   // The following methods are used to fill the value maps
-  void fillMVAValueMap(edm::Event& iEvent, edm::ValueMap<float>::Filler & filler) const;
+  void fillMVAValueMap(edm::Event& iEvent, edm::ValueMap<float>::Filler & filler) ;
   void fillValueMap(edm::Event& iEvent, edm::ValueMap<float>::Filler & filler) const;
   void fillSCRefValueMap(edm::Event& iEvent, 
 			 edm::ValueMap<reco::SuperClusterRef>::Filler & filler) const;
@@ -87,6 +87,7 @@ class PFElectronTranslator : public edm::EDProducer
   const reco::PFCandidate & correspondingDaughterCandidate(const reco::PFCandidate & cand, const reco::PFBlockElement & pfbe) const;
  private:
   edm::InputTag inputTagPFCandidates_;
+  edm::InputTag inputTagPFCandidateElectrons_;
   edm::InputTag inputTagGSFTracks_;
   std::vector<edm::InputTag> inputTagIsoVals_;
   std::string PFBasicClusterCollection_;

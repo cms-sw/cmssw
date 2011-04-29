@@ -238,7 +238,7 @@ def specificlumiTofile(fillnum,filldata,outdir):
         tsdatainseg=summaryls[bts]
         #print 'tsdatainseg ',tsdatainseg
         stopts=tsdatainseg[-1][0]
-        plu=max(CommonUtil.transposed(tsdatainseg,0.0)[1])*23.357
+        plu=max(CommonUtil.transposed(tsdatainseg,0.0)[1])
         lui=sum(CommonUtil.transposed(tsdatainseg,0.0)[1])*23.357
         print >>f,'%d\t%d\t%e\t%e'%(startts,stopts,plu,lui)
     f.close()
@@ -251,6 +251,7 @@ if __name__ == '__main__':
     parser.add_argument('-i',dest='inputdir',action='store',required=False,help='output dir',default='.')
     parser.add_argument('-o',dest='outputdir',action='store',required=False,help='output dir',default='.')
     parser.add_argument('-f',dest='fillnum',action='store',required=False,help='specific fill',default=None)
+    parser.add_argument('-norm',dest='norm',action='store',required=False,help='norm',default=None)
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     parser.add_argument('--toscreen',dest='toscreen',action='store_true',help='dump to screen')
@@ -258,6 +259,8 @@ if __name__ == '__main__':
     if options.authpath:
         os.environ['CORAL_AUTH_PATH'] = options.authpath
     parameters = lumiQueryAPI.ParametersObject()
+    if options.norm!=None:
+        parameters.normFactor=float(options.norm)
     session,svc =  lumiQueryAPI.setupSession (options.connect or \
                                               'frontier://LumiCalc/CMS_LUMI_PROD',
                                                options.siteconfpath,parameters,options.debug)
