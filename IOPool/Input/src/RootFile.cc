@@ -108,7 +108,7 @@ namespace edm {
                      RunNumber_t const& forcedRunNumber,
                      bool noEventSort,
                      GroupSelectorRules const& groupSelectorRules,
-                     bool secondaryFile,
+                     InputType::InputType inputType,
                      boost::shared_ptr<DuplicateChecker> duplicateChecker,
                      bool dropDescendants,
                      std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
@@ -314,7 +314,7 @@ namespace edm {
 
     eventTree_.trainCache(BranchTypeToAuxiliaryBranchName(InEvent).c_str());
 
-    validateFile(secondaryFile, usingGoToEvent);
+    validateFile(inputType, usingGoToEvent);
 
     // Read the parentage tree.  Old format files are handled internally in readParentageTree().
     readParentageTree();
@@ -362,7 +362,7 @@ namespace edm {
           newBranchToOldBranch_.insert(std::make_pair(newBD.branchName(), prod.branchName()));
         }
       }
-      dropOnInput(*newReg, groupSelectorRules, dropDescendants, secondaryFile);
+      dropOnInput(*newReg, groupSelectorRules, dropDescendants, inputType);
       // freeze the product registry
       newReg->setFrozen();
       productRegistry_.reset(newReg.release());
@@ -382,7 +382,7 @@ namespace edm {
     setIfFastClonable(remainingEvents, remainingLumis);
 
     // Update the branch id info.
-    if(!secondaryFile) {
+    if(inputType == InputType::Primary) {
       branchListIndexesUnchanged_ = BranchIDListHelper::updateFromInput(*branchIDLists_, file_);
     }
 
@@ -935,7 +935,7 @@ namespace edm {
   }
 
   void
-  RootFile::validateFile(bool secondaryFile, bool usingGoToEvent) {
+  RootFile::validateFile(InputType::InputType inputType, bool usingGoToEvent) {
     if(!fid_.isValid()) {
       fid_ = FileID(createGlobalIdentifier());
     }
@@ -961,11 +961,11 @@ namespace edm {
     // such as for secondary files (or secondary sources) or if duplicate checking across files.
     bool needEventNumbers = false;
     bool needIndexesForDuplicateChecker = duplicateChecker_ && duplicateChecker_->checkingAllFiles() && !duplicateChecker_->checkDisabled();
-    if(secondaryFile || needIndexesForDuplicateChecker || usingGoToEvent) {
+    if(inputType != InputType::Primary || needIndexesForDuplicateChecker || usingGoToEvent) {
       needEventNumbers = true;
     }
     bool needEventEntries = false;
-    if(secondaryFile || !noEventSort_) {
+    if(inputType != InputType::Primary || !noEventSort_) {
       // We need event entries for sorting or for secondary files or sources.
       needEventEntries = true;
     }
@@ -1478,7 +1478,7 @@ namespace edm {
   }
 
   void
-  RootFile::dropOnInput (ProductRegistry& reg, GroupSelectorRules const& rules, bool dropDescendants, bool secondaryFile) {
+  RootFile::dropOnInput (ProductRegistry& reg, GroupSelectorRules const& rules, bool dropDescendants, InputType::InputType inputType) {
     // This is the selector for drop on input.
     GroupSelector groupSelector;
     groupSelector.initialize(rules, reg.allBranchDescriptions());
@@ -1521,7 +1521,7 @@ namespace edm {
     }
 
     // Drop on input mergeable run and lumi products, this needs to be invoked for secondary file input
-    if(secondaryFile) {
+    if(inputType == InputType::SecondaryFile) {
       TString tString;
       for(ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
         BranchDescription const& prod = it->second;

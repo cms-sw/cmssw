@@ -1,22 +1,22 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
-#include "RootInputFileSequence.h"
+#include "DuplicateChecker.h"
 #include "PoolSource.h"
 #include "RootFile.h"
+#include "RootInputFileSequence.h"
 #include "RootTree.h"
-#include "DuplicateChecker.h"
 
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/src/PrincipalCache.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "CLHEP/Random/RandFlat.h"
 #include "InputFile.h"
@@ -31,8 +31,9 @@ namespace edm {
                 PoolSource const& input,
                 InputFileCatalog const& catalog,
                 PrincipalCache& cache,
-                bool primaryFiles) :
+                InputType::InputType inputType) :
     input_(input),
+    inputType_(inputType),
     catalog_(catalog),
     firstFile_(true),
     fileIterBegin_(fileCatalogItems().begin()),
@@ -45,7 +46,7 @@ namespace edm {
     flatDistribution_(),
     indexesIntoFiles_(fileCatalogItems().size()),
     orderedProcessHistoryIDs_(),
-    eventSkipperByID_(primaryFiles ? EventSkipperByID::create(pset).release() : 0),
+    eventSkipperByID_(inputType == InputType::Primary ? EventSkipperByID::create(pset).release() : 0),
     eventsRemainingInFile_(0),
     // The default value provided as the second argument to the getUntrackedParameter function call
     // is not used when the ParameterSet has been validated and the parameters are not optional
@@ -54,16 +55,15 @@ namespace edm {
     // yet, so the ParameterSet does not get validated yet.  As soon as all the modules with a SecSource
     // have defined descriptions, the defaults in the getUntrackedParameterSet function calls can
     // and should be deleted from the code.
-    numberOfEventsToSkip_(primaryFiles ? pset.getUntrackedParameter<unsigned int>("skipEvents", 0U) : 0U),
-    noEventSort_(primaryFiles ? pset.getUntrackedParameter<bool>("noEventSort", true) : false),
+    numberOfEventsToSkip_(inputType == InputType::Primary ? pset.getUntrackedParameter<unsigned int>("skipEvents", 0U) : 0U),
+    noEventSort_(inputType == InputType::Primary ? pset.getUntrackedParameter<bool>("noEventSort", true) : false),
     skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
     treeCacheSize_(noEventSort_ ? pset.getUntrackedParameter<unsigned int>("cacheSize", roottree::defaultCacheSize) : 0U),
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
     setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0U)),
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
-    primaryFiles_(primaryFiles),
-    duplicateChecker_(primaryFiles ? new DuplicateChecker(pset) : 0),
-    dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", primary())),
+    duplicateChecker_(inputType == InputType::Primary ? new DuplicateChecker(pset) : 0),
+    dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", inputType != InputType::SecondarySource)),
     usingGoToEvent_(false) {
 
     //we now allow the site local config to specify what the TTree cache size should be
@@ -83,7 +83,7 @@ namespace edm {
     std::string branchesMustMatch = pset.getUntrackedParameter<std::string>("branchesMustMatch", std::string("permissive"));
     if(branchesMustMatch == std::string("strict")) branchesMustMatch_ = BranchDescription::Strict;
 
-    if(primary()) {
+    if(inputType != InputType::SecondarySource) {
       for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_) {
         initFile(skipBadFiles_);
         if(rootFile_) break;
@@ -129,10 +129,10 @@ namespace edm {
   void RootInputFileSequence::closeFile_() {
     // close the currently open file, if any, and delete the RootFile object.
     if(rootFile_) {
-      if (primary()) {
+      if(inputType_ != InputType::SecondarySource) {
         assert(rootFile_.unique());
         std::auto_ptr<InputSource::FileCloseSentry>
-        sentry((primaryFiles_) ? new InputSource::FileCloseSentry(input_) : 0);
+        sentry((inputType_ == InputType::Primary) ? new InputSource::FileCloseSentry(input_) : 0);
         rootFile_->close();
         if(duplicateChecker_) duplicateChecker_->inputFileClosed();
       }
@@ -147,16 +147,16 @@ namespace edm {
     // and we are not using random access to find events, then we can delete the
     // IndexIntoFile for the file we are closing. If we can't delete all of it,
     // then we can delete the parts we do not need.
-    if (fileIterLastOpened_ != fileIterEnd_) {
+    if(fileIterLastOpened_ != fileIterEnd_) {
       size_t currentIndexIntoFile = fileIterLastOpened_ - fileIterBegin_;
       bool needIndexesForDuplicateChecker = duplicateChecker_ && duplicateChecker_->checkingAllFiles() && !duplicateChecker_->checkDisabled();
-      bool deleteIndexIntoFile = primaryFiles_ &&
+      bool deleteIndexIntoFile = inputType_ == InputType::Primary &&
                                  !needIndexesForDuplicateChecker &&
                                  !usingGoToEvent_;
-      if (deleteIndexIntoFile) {
-              indexesIntoFiles_[currentIndexIntoFile].reset();
+      if(deleteIndexIntoFile) {
+        indexesIntoFiles_[currentIndexIntoFile].reset();
       } else {
-              if (indexesIntoFiles_[currentIndexIntoFile]) indexesIntoFiles_[currentIndexIntoFile]->inputFileClosed();
+        if(indexesIntoFiles_[currentIndexIntoFile]) indexesIntoFiles_[currentIndexIntoFile]->inputFileClosed();
       }
       fileIterLastOpened_ = fileIterEnd_;
     }
@@ -170,7 +170,7 @@ namespace edm {
     boost::shared_ptr<InputFile> filePtr;
     try {
       std::auto_ptr<InputSource::FileOpenSentry>
-        sentry(primaryFiles_ ? new InputSource::FileOpenSentry(input_) : 0);
+        sentry(inputType_ == InputType::Primary ? new InputSource::FileOpenSentry(input_) : 0);
       filePtr.reset(new InputFile(gSystem->ExpandPathName(fileIter_->fileName().c_str()), "  Initiating request to open file "));
     }
     catch (cms::Exception const& e) {
@@ -193,7 +193,7 @@ namespace edm {
     if(!filePtr && (hasFallbackUrl)) {
       try {
         std::auto_ptr<InputSource::FileOpenSentry>
-          sentry(primaryFiles_ ? new InputSource::FileOpenSentry(input_) : 0);
+          sentry(inputType_ == InputType::Primary ? new InputSource::FileOpenSentry(input_) : 0);
         filePtr.reset(new InputFile(gSystem->ExpandPathName(fallbackName.c_str()), "  Fallback request to file "));
       }
       catch (cms::Exception const& e) {
@@ -223,13 +223,21 @@ namespace edm {
           input_.processingMode(),
           setRun_,
           noEventSort_,
-          groupSelectorRules_, !primaryFiles_, duplicateChecker_, dropDescendants_,
-                                                 indexesIntoFiles_, currentIndexIntoFile, orderedProcessHistoryIDs_, usingGoToEvent_));
+          groupSelectorRules_,
+          inputType_,
+          duplicateChecker_,
+          dropDescendants_,
+          indexesIntoFiles_, currentIndexIntoFile, orderedProcessHistoryIDs_, usingGoToEvent_));
 
       fileIterLastOpened_ = fileIter_;
       indexesIntoFiles_[currentIndexIntoFile] = rootFile_->indexIntoFileSharedPtr();
-      rootFile_->reportOpened(primary() ?
-         (primaryFiles_ ? "primaryFiles" : "secondaryFiles") : "mixingFiles");
+      char const* inputType = 0;
+      switch(inputType_) {
+      case InputType::Primary: inputType = "primaryFiles"; break;
+      case InputType::SecondaryFile: inputType = "secondaryFiles"; break;
+      case InputType::SecondarySource: inputType = "mixingFiles"; break;
+      }
+      rootFile_->reportOpened(inputType);
     } else {
       if(!skipBadFiles) {
         throw Exception(errors::FileOpenError) <<
@@ -247,7 +255,7 @@ namespace edm {
   bool RootInputFileSequence::nextFile(PrincipalCache& cache) {
     if(fileIter_ != fileIterEnd_) ++fileIter_;
     if(fileIter_ == fileIterEnd_) {
-      if(primaryFiles_) {
+      if(inputType_ == InputType::Primary) {
         return false;
       } else {
         fileIter_ = fileIterBegin_;
@@ -256,7 +264,7 @@ namespace edm {
 
     initFile(skipBadFiles_);
 
-    if(primaryFiles_ && rootFile_) {
+    if(inputType_ == InputType::Primary && rootFile_) {
       size_t size = productRegistry()->size();
       // make sure the new product registry is compatible with the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
@@ -266,7 +274,7 @@ namespace edm {
       if(!mergeInfo.empty()) {
         throw Exception(errors::MismatchedInputFiles,"RootInputFileSequence::nextFile()") << mergeInfo;
       }
-      if (productRegistry()->size() > size) {
+      if(productRegistry()->size() > size) {
         cache.adjustIndexesAfterProductRegistryAddition();
       }
       cache.adjustEventToNewProductRegistry(productRegistry());
@@ -276,7 +284,7 @@ namespace edm {
 
   bool RootInputFileSequence::previousFile(PrincipalCache& cache) {
     if(fileIter_ == fileIterBegin_) {
-      if(primaryFiles_) {
+      if(inputType_ == InputType::Primary) {
         return false;
       } else {
         fileIter_ = fileIterEnd_;
@@ -286,7 +294,7 @@ namespace edm {
 
     initFile(false);
 
-    if(primaryFiles_ && rootFile_) {
+    if(inputType_ == InputType::Primary && rootFile_) {
       size_t size = productRegistry()->size();
       // make sure the new product registry is compatible to the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
@@ -296,7 +304,7 @@ namespace edm {
       if(!mergeInfo.empty()) {
         throw Exception(errors::MismatchedInputFiles,"RootInputFileSequence::previousEvent()") << mergeInfo;
       }
-      if (productRegistry()->size() > size) {
+      if(productRegistry()->size() > size) {
         cache.adjustIndexesAfterProductRegistryAddition();
       }
       cache.adjustEventToNewProductRegistry(productRegistry());
@@ -376,11 +384,11 @@ namespace edm {
   // Rewind to before the first event that was read.
   void
   RootInputFileSequence::rewind_() {
-    if (fileIter_ != fileIterBegin_) {
+    if(fileIter_ != fileIterBegin_) {
       closeFile_();
       fileIter_ = fileIterBegin_;
     }
-    if (!rootFile_) {
+    if(!rootFile_) {
       initFile(false);
     }
     rewindFile();
@@ -397,7 +405,7 @@ namespace edm {
   RootInputFileSequence::reset(PrincipalCache& cache) {
     //NOTE: Need to handle duplicate checker
     // Also what if skipBadFiles_==true and the first time we succeeded but after a reset we fail?
-    if(primary()) {
+    if(inputType_ != InputType::SecondarySource) {
       firstFile_ = true;
       for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_) {
         initFile(skipBadFiles_);
@@ -434,8 +442,8 @@ namespace edm {
   bool
   RootInputFileSequence::goToEvent(EventID const& eventID) {
     usingGoToEvent_ = true;
-    if (rootFile_) {
-      if (rootFile_->goToEvent(eventID)) {
+    if(rootFile_) {
+      if(rootFile_->goToEvent(eventID)) {
         return true;
       }
       // If only one input file, give up now, to save time.
@@ -467,14 +475,14 @@ namespace edm {
           fileIter_ = fileIterBegin_ + (it - indexesIntoFiles_.begin());
           initFile(false);
           closedOriginalFile = true;
-          if ((*it)->containsItem(eventID.run(), eventID.luminosityBlock(), eventID.event())) {
+          if((*it)->containsItem(eventID.run(), eventID.luminosityBlock(), eventID.event())) {
             if  (rootFile_->goToEvent(eventID)) {
               return true;
             }
           }
         }
       }
-      if (closedOriginalFile) {
+      if(closedOriginalFile) {
         fileIter_ = originalFile;
         initFile(false);
         rootFile_->setPosition(originalPosition);
@@ -520,11 +528,6 @@ namespace edm {
       return false;
     }
     return true;
-  }
-
-  bool const
-  RootInputFileSequence::primary() const {
-    return input_.primary();
   }
 
   ProcessConfiguration const&
@@ -586,7 +589,7 @@ namespace edm {
       throw Exception(errors::Configuration) << "RootInputFileSequence::readManyRandom(): no input files specified.\n";
     }
     result.reserve(number);
-    if (!flatDistribution_) {
+    if(!flatDistribution_) {
       Service<RandomNumberGenerator> rng;
       CLHEP::HepRandomEngine& engine = rng->getEngine();
       flatDistribution_.reset(new CLHEP::RandFlat(engine));
@@ -629,7 +632,7 @@ namespace edm {
     }
     result.reserve(number);
     skipBadFiles_ = false;
-    if (fileIter_ == fileIterEnd_ || !rootFile_) {
+    if(fileIter_ == fileIterEnd_ || !rootFile_) {
       fileIter_ = fileIterBegin_;
       initFile(false);
       rootFile_->setAtEventEntry(0);
@@ -640,10 +643,10 @@ namespace edm {
       boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(rootFile_->productRegistry(), processConfiguration()));
       EventPrincipal* ev = rootFile_->readCurrentEvent(*ep);
       if(ev == 0) {
-        if (numberRead == 0) {
+        if(numberRead == 0) {
           ++fileIter_;
           fileSeqNumber = fileIter_ - fileIterBegin_;
-          if (fileIter_ == fileIterEnd_) {
+          if(fileIter_ == fileIterEnd_) {
             return;
           }
           initFile(false);
@@ -663,9 +666,9 @@ namespace edm {
   RootInputFileSequence::readManySpecified(std::vector<EventID> const& events, EventPrincipalVector& result) {
     skipBadFiles_ = false;
     result.reserve(events.size());
-    for (std::vector<EventID>::const_iterator it = events.begin(), itEnd = events.end(); it != itEnd; ++it) {
+    for(std::vector<EventID>::const_iterator it = events.begin(), itEnd = events.end(); it != itEnd; ++it) {
       bool found = skipToItem(it->run(), it->luminosityBlock(), it->event());
-      if (!found) {
+      if(!found) {
         throw Exception(errors::NotFound) <<
            "RootInputFileSequence::readManySpecified_(): Secondary Input file " <<
            fileIter_->fileName() <<
@@ -673,7 +676,7 @@ namespace edm {
       }
       boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(rootFile_->productRegistry(), processConfiguration()));
       EventPrincipal* ev = rootFile_->readCurrentEvent(*ep);
-      if (ev == 0) {
+      if(ev == 0) {
         throw Exception(errors::EventCorruption) <<
            "RootInputFileSequence::readManySpecified_(): Secondary Input file " <<
            fileIter_->fileName() <<
@@ -720,13 +723,13 @@ namespace edm {
 
   ProcessingController::ForwardState
   RootInputFileSequence::forwardState() const {
-    if (rootFile_) {
-      if (!rootFile_->wasLastEventJustRead()) {
+    if(rootFile_) {
+      if(!rootFile_->wasLastEventJustRead()) {
         return ProcessingController::kEventsAheadInFile;
       }
       std::vector<FileCatalogItem>::const_iterator itr(fileIter_);
-      if (itr != fileIterEnd_) ++itr;
-      if (itr != fileIterEnd_) {
+      if(itr != fileIterEnd_) ++itr;
+      if(itr != fileIterEnd_) {
         return ProcessingController::kNextFileExists;
       }
       return ProcessingController::kAtLastEvent;
@@ -736,11 +739,11 @@ namespace edm {
 
   ProcessingController::ReverseState
   RootInputFileSequence::reverseState() const {
-    if (rootFile_) {
-      if (!rootFile_->wasFirstEventJustRead()) {
+    if(rootFile_) {
+      if(!rootFile_->wasFirstEventJustRead()) {
         return ProcessingController::kEventsBackwardsInFile;
       }
-      if (fileIter_ != fileIterBegin_) {
+      if(fileIter_ != fileIterBegin_) {
         return ProcessingController::kPreviousFileExists;
       }
       return ProcessingController::kAtFirstEvent;

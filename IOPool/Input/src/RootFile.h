@@ -7,28 +7,29 @@ RootFile.h // used by ROOT input sources
 
 ----------------------------------------------------------------------*/
 
+#include "InputType.h"
+#include "RootTree.h"
+#include "DataFormats/Provenance/interface/BranchChildren.h"
+#include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
+#include "DataFormats/Provenance/interface/BranchListIndex.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/EventProcessHistoryID.h" // backward compatibility
+#include "DataFormats/Provenance/interface/EventSelectionID.h"
+#include "DataFormats/Provenance/interface/FileFormatVersion.h"
+#include "DataFormats/Provenance/interface/FileID.h"
+#include "DataFormats/Provenance/interface/History.h"
+#include "DataFormats/Provenance/interface/IndexIntoFile.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/InputSource.h"
+
+#include "boost/array.hpp"
+#include "boost/shared_ptr.hpp"
+#include "boost/utility.hpp"
+
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
-
-#include "boost/shared_ptr.hpp"
-#include "boost/utility.hpp"
-#include "boost/array.hpp"
-
-#include "RootTree.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/InputSource.h"
-#include "DataFormats/Provenance/interface/BranchChildren.h"
-#include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
-#include "DataFormats/Provenance/interface/EventAuxiliary.h"
-#include "DataFormats/Provenance/interface/FileFormatVersion.h"
-#include "DataFormats/Provenance/interface/FileID.h"
-#include "DataFormats/Provenance/interface/EventSelectionID.h"
-#include "DataFormats/Provenance/interface/History.h"
-#include "DataFormats/Provenance/interface/BranchListIndex.h"
-#include "DataFormats/Provenance/interface/IndexIntoFile.h"
-#include "DataFormats/Provenance/interface/EventProcessHistoryID.h" // backward compatibility
 
 namespace edm {
 
@@ -58,7 +59,7 @@ namespace edm {
              RunNumber_t const& forcedRunNumber,
              bool noEventSort,
              GroupSelectorRules const& groupSelectorRules,
-             bool secondaryFile,
+             InputType::InputType inputType,
              boost::shared_ptr<DuplicateChecker> duplicateChecker,
              bool dropDescendantsOfDroppedProducts,
              std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
@@ -128,7 +129,7 @@ namespace edm {
     bool skipThisEntry();
     IndexIntoFile::EntryType getEntryTypeWithSkipping();
     void setIfFastClonable(int remainingEvents, int remainingLumis);
-    void validateFile(bool secondaryFile, bool usingGoToEvent);
+    void validateFile(InputType::InputType inputType, bool usingGoToEvent);
     void fillIndexIntoFile();
     void fillEventAuxiliary();
     void fillThisEventAuxiliary();
@@ -139,7 +140,7 @@ namespace edm {
     void overrideRunNumber(LuminosityBlockID& id);
     void overrideRunNumber(EventID& id, bool isRealData);
     std::string const& newBranchToOldBranch(std::string const& newBranch) const;
-    void dropOnInput(ProductRegistry& reg, GroupSelectorRules const& rules, bool dropDescendants, bool secondaryFile);
+    void dropOnInput(ProductRegistry& reg, GroupSelectorRules const& rules, bool dropDescendants, InputType::InputType inputType);
     void readParentageTree();
     void readEntryDescriptionTree();
     void readEventHistoryTree();

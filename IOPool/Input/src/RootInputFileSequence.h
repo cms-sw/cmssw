@@ -7,6 +7,8 @@ RootInputFileSequence: This is an InputSource
 
 ----------------------------------------------------------------------*/
 
+#include "InputType.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/GroupSelectorRules.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
@@ -38,7 +40,7 @@ namespace edm {
 
   class RootInputFileSequence : private boost::noncopyable {
   public:
-    explicit RootInputFileSequence(ParameterSet const& pset, PoolSource const& input, InputFileCatalog const& catalog, PrincipalCache& cache, bool primaryFiles);
+    explicit RootInputFileSequence(ParameterSet const& pset, PoolSource const& input, InputFileCatalog const& catalog, PrincipalCache& cache, InputType::InputType inputType);
     virtual ~RootInputFileSequence();
 
     typedef VectorInputSource::EventPrincipalVector EventPrincipalVector;
@@ -78,9 +80,9 @@ namespace edm {
     ProductRegistry & productRegistryUpdate() const;
     int remainingEvents() const;
     int remainingLuminosityBlocks() const;
-    bool const primary() const;
 
     PoolSource const& input_;
+    InputType::InputType inputType_;
     InputFileCatalog const& catalog_;
     bool firstFile_;
     std::vector<FileCatalogItem>::const_iterator fileIterBegin_;
@@ -104,7 +106,6 @@ namespace edm {
     int const treeMaxVirtualSize_;
     RunNumber_t setRun_;
     GroupSelectorRules groupSelectorRules_;
-    bool primaryFiles_;
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
     bool dropDescendants_;
     bool usingGoToEvent_;
