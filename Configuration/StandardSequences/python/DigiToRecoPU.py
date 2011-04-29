@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-def customiseRedigi(process):
+def customise(process):
     REDIGIInputEventSkimming= cms.PSet(
         inputCommands=cms.untracked.vstring('drop *')
         )
