@@ -89,6 +89,7 @@ RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, Roo
         }
         if (!needNew) return prod;
         else if (newFactors.getSize() == 0) return 0;
+        else if (newFactors.getSize() == 1) return (RooAbsPdf *) newFactors.first()->Clone(TString::Format("%s_obsOnly", pdf.GetName()));
         RooProdPdf *ret = new RooProdPdf(TString::Format("%s_obsOnly", pdf.GetName()), "", newFactors);
         ret->addOwnedComponents(newOwned);
         return ret;
@@ -161,4 +162,26 @@ RooAbsPdf *utils::makeObsOnlyPdf(RooStats::ModelConfig &model, const char *name)
     RooArgList obsTerms, constraints;
     factorizePdf(model, *model.GetPdf(), obsTerms, constraints);
     return new RooProdPdf(name,"", obsTerms);
+}
+
+RooAbsPdf *utils::fullClonePdf(const RooAbsPdf *pdf, RooArgSet &holder, bool cloneLeafNodes) {
+  // Clone all FUNC compents by copying all branch nodes
+  RooArgSet tmp("RealBranchNodeList") ;
+  pdf->branchNodeServerList(&tmp);
+  tmp.snapshot(holder, cloneLeafNodes); 
+  
+  // Find the top level FUNC in the snapshot list
+  return (RooAbsPdf*) holder.find(pdf->GetName());
+}
+
+void utils::getClients(const RooAbsCollection &values, const RooAbsCollection &allObjects, RooAbsCollection &clients) {
+    std::auto_ptr<TIterator> iterAll(allObjects.createIterator());
+    std::auto_ptr<TIterator> iterVal(values.createIterator());
+    for (RooAbsArg *v = (RooAbsArg *) iterVal->Next(); v != 0; v = (RooAbsArg *) iterVal->Next()) {
+        if (typeid(*v) != typeid(RooRealVar)) continue;
+        std::auto_ptr<TIterator> clientIter(v->clientIterator());
+        for (RooAbsArg *a = (RooAbsArg *) clientIter->Next(); a != 0; a = (RooAbsArg *) clientIter->Next()) {
+            if (allObjects.contains(*a) && !clients.contains(*a)) clients.add(*a);
+        }
+    }
 }

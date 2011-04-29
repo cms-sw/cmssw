@@ -6,6 +6,7 @@ struct RooAbsData;
 struct RooAbsPdf;
 struct RooArgSet;
 struct RooArgList;
+struct RooAbsCollection;
 struct RooWorkspace;
 namespace RooStats { class ModelConfig; }
 namespace utils {
@@ -14,6 +15,9 @@ namespace utils {
     void printPdf(RooAbsPdf *pdf) ;
     void printPdf(RooStats::ModelConfig &model) ;
     void printPdf(RooWorkspace *w, const char *pdfName) ;
+
+    // Clone a pdf and all it's branch nodes. on request, clone also leaf nodes (i.e. RooRealVars)
+    RooAbsPdf *fullClonePdf(const RooAbsPdf *pdf, RooArgSet &holder, bool cloneLeafNodes=false) ;
 
     /// Create a pdf which depends only on observables, and collect the other constraint terms
     /// Will return 0 if it's all constraints, &pdf if it's all observables, or a new pdf if it's something mixed
@@ -26,5 +30,8 @@ namespace utils {
 
     /// Note: doesn't recompose Simultaneous pdfs properly, for that use factorizePdf method
     RooAbsPdf *makeObsOnlyPdf(RooStats::ModelConfig &model, const char *name="obsPdf") ;
+
+    /// add to 'clients' all object within allObjects that *directly* depend on values
+    void getClients(const RooAbsCollection &values, const RooAbsCollection &allObjects, RooAbsCollection &clients) ;
 }
 #endif
