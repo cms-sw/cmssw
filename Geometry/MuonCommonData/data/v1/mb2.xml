@@ -1046,7 +1046,7 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
  </Algorithm>
  <Algorithm name="global:DDLinear">
    <Numeric name="StartCopyNo" value="2" />
-   <Numeric name="N"           value="60"/>
+   <Numeric name="N"           value="59"/>
    <Numeric name="IncrCopyNo"  value="1" />
    <rParent name="mb2:MB2SLPhiLayer_59Cells_startCell2"/>
    <String  name="ChildName"   value="mbCommon:MBSLPhiGas"/>
@@ -1252,7 +1252,7 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
 
  <Algorithm name="global:DDLinear">
    <Numeric name="StartCopyNo" value="2" />
-   <Numeric name="N"           value="57"/>
+   <Numeric name="N"           value="56"/>
    <Numeric name="IncrCopyNo"  value="1" />
    <rParent name="mb2:MB2SLZLayer_56Cells"/>
    <String  name="ChildName"   value="mb2:MB2SLZGas"/>
@@ -1785,7 +1785,7 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
  </Algorithm>
  <Algorithm name="global:DDLinear">
    <Numeric name="StartCopyNo" value="2" />
-   <Numeric name="N"           value="60"/>
+   <Numeric name="N"           value="59"/>
    <Numeric name="IncrCopyNo"  value="1" />
    <rParent name="mb2:MB2ChimSLPhiLayer_59Cells_startCell2"/>
    <String  name="ChildName"   value="mbCommon:MBChimSLPhiGas"/>
@@ -1982,7 +1982,7 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
  </Algorithm>
  <Algorithm name="global:DDLinear">
    <Numeric name="StartCopyNo" value="2" />
-   <Numeric name="N"           value="48"/>
+   <Numeric name="N"           value="47"/>
    <Numeric name="IncrCopyNo"  value="1" />
    <rParent name="mb2:MB2ChimSLZLayer_47Cells_startCell2"/>
    <String  name="ChildName"   value="mb2:MB2SLZGas"/>

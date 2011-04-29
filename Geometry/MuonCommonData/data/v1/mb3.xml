@@ -876,7 +876,7 @@
    <rParent name="mb3:MB3SLPhiLayer_71Cells_startCell2"/>
    <String  name="ChildName"   value="mbCommon:MBSLPhiGas"/>
    <Numeric name="StartCopyNo" value="2" />
-   <Numeric name="N"           value="72"/>
+   <Numeric name="N"           value="71"/>
    <Numeric name="IncrCopyNo"  value="1" />
    <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
    <Vector  name="Base" type="numeric" nEntries="3"> -[mb3:MB3SLPhiL71]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
@@ -1063,7 +1063,7 @@
    <rParent name="mb3:MB3SLZLayer_56Cells"/>
    <String  name="ChildName"   value="mb3:MB3SLZGas"/>
    <Numeric name="StartCopyNo" value="2" />
-   <Numeric name="N"           value="57"/>
+   <Numeric name="N"           value="56"/>
    <Numeric name="IncrCopyNo"  value="1" />
    <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
    <Vector  name="Base" type="numeric" nEntries="3"> -[mbCommon:MBSLZL56]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
@@ -1437,7 +1437,7 @@
    <rParent name="mb3:MB3ChimSLPhiLayer_71Cells_startCell2"/>
    <String  name="ChildName"   value="mbCommon:MBChimSLPhiGas"/>
    <Numeric name="StartCopyNo" value="2" />
-   <Numeric name="N"           value="72"/>
+   <Numeric name="N"           value="71"/>
    <Numeric name="IncrCopyNo"  value="1" />
    <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
    <Vector  name="Base" type="numeric" nEntries="3"> -[mb3:MB3SLPhiL71]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
@@ -1634,7 +1634,7 @@
    <rParent name="mb3:MB3ChimSLZLayer_47Cells_startCell2"/>
    <String  name="ChildName"   value="mb3:MB3SLZGas"/>
    <Numeric name="StartCopyNo" value="2" />
-   <Numeric name="N"           value="48"/>
+   <Numeric name="N"           value="47"/>
    <Numeric name="IncrCopyNo"  value="1" />
    <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
    <Vector  name="Base" type="numeric" nEntries="3"> -[mbCommon:MBChimSLZL47]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>

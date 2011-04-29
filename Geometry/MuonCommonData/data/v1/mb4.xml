@@ -1532,7 +1532,7 @@
    <rParent name="mb4:MB4SLPhiLayer_95Cells_startCell2"/>
    <String  name="ChildName"   value="mbCommon:MBSLPhiGas"/>
    <Numeric name="StartCopyNo" value="2" />
-   <Numeric name="N"           value="96"/>
+   <Numeric name="N"           value="95"/>
    <Numeric name="IncrCopyNo"  value="1" />
    <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
    <Vector  name="Base" type="numeric" nEntries="3"> -[mb4:MB4SLPhiL95]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
@@ -1716,7 +1716,7 @@
    <rParent name="mb4:MB4SLPhiLayer_91Cells_startCell2"/>
    <String  name="ChildName"   value="mbCommon:MBSLPhiGas"/>
    <Numeric name="StartCopyNo" value="2" />
-   <Numeric name="N"           value="92"/>
+   <Numeric name="N"           value="91"/>
    <Numeric name="IncrCopyNo"  value="1" />
    <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
    <Vector  name="Base" type="numeric" nEntries="3"> -[mb4:MB4SLPhiL91]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
@@ -1900,7 +1900,7 @@
    <rParent name="mb4:MB4SLPhiLayer_47Cells_startCell2"/>
    <String  name="ChildName"   value="mbCommon:MBSLPhiGas"/>
    <Numeric name="StartCopyNo" value="2" />
-   <Numeric name="N"           value="48"/>
+   <Numeric name="N"           value="47"/>
    <Numeric name="IncrCopyNo"  value="1" />
    <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
    <Vector  name="Base" type="numeric" nEntries="3"> -[mb4:MB4SLPhiL47]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
@@ -2928,7 +2928,7 @@
    <rParent name="mb4:MB4ChimSLPhiLayer_95Cells_startCell2"/>
    <String  name="ChildName"   value="mbCommon:MBChimSLPhiGas"/>
    <Numeric name="StartCopyNo" value="2" />
-   <Numeric name="N"           value="96"/>
+   <Numeric name="N"           value="95"/>
    <Numeric name="IncrCopyNo"  value="1" />
    <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
    <Vector  name="Base" type="numeric" nEntries="3"> -[mb4:MB4SLPhiL95]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>

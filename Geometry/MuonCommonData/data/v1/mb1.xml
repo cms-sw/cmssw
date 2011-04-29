@@ -988,7 +988,7 @@
  <Algorithm name="global:DDLinear">
    <rParent name="mb1:MB1SLPhiLayer_48Cells"/>
    <String  name="ChildName"   value="mbCommon:MBSLPhiGas"/>
-   <Numeric name="N"           value="49"/>
+   <Numeric name="N"           value="48"/>
    <Numeric name="StartCopyNo" value="2" />
    <Numeric name="IncrCopyNo"  value="1" />
    <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
@@ -1198,7 +1198,7 @@
  <Algorithm name="global:DDLinear">
    <rParent name="mb1:MB1SLZLayer_56Cells"/>
    <String  name="ChildName"   value="mb1:MB1SLZGas"/>
-   <Numeric name="N"           value="57"/>
+   <Numeric name="N"           value="56"/>
    <Numeric name="StartCopyNo" value="2" />
    <Numeric name="IncrCopyNo"  value="1" />
    <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
@@ -1602,7 +1602,7 @@
  <Algorithm name="global:DDLinear">
    <rParent name="mb1:MB1ChimSLPhiLayer_48Cells"/>
    <String  name="ChildName"   value="mbCommon:MBChimSLPhiGas"/>
-   <Numeric name="N"           value="49"/>
+   <Numeric name="N"           value="48"/>
    <Numeric name="StartCopyNo" value="2" />
    <Numeric name="IncrCopyNo"  value="1" />
    <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
@@ -1811,7 +1811,7 @@
  <Algorithm name="global:DDLinear">
    <rParent name="mb1:MB1ChimSLZLayer_47Cells_startCell2"/>
    <String  name="ChildName"   value="mb1:MB1SLZGas"/>
-   <Numeric name="N"           value="48"/>
+   <Numeric name="N"           value="47"/>
    <Numeric name="StartCopyNo" value="2" />
    <Numeric name="IncrCopyNo"  value="1" />
    <Numeric name="Delta"       value="[mbCommon:MBCell_width]*2."/>
