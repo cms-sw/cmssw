@@ -10065,7 +10065,7 @@ else if (triggerName.CompareTo("OpenHLT_Dimuon6p5_LowMass_v1") == 0)
 	   }
    }
 	
-/*
+
 		// 2011-04-26
 		//questionable implimentation. 
    else if (triggerName.CompareTo("OpenHLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v3") == 0)//newb
@@ -10075,14 +10075,14 @@ else if (triggerName.CompareTo("OpenHLT_Dimuon6p5_LowMass_v1") == 0)
 		   if (prescaleResponse(menu, cfg, rcounter, it))
 		   {
 			   std::vector<int> firstVector = VectorOpenHlt1PhotonPassedR9ID(
-																			 18,   //2
-																			 0.8,  //1
+																			 18,  
+																			 0.8, 
 																			 0,
-																			 4.0, //1
-																			 6.0, //1
+																			 4.0, 
+																			 6.0, 
 																			 4.0,
 																			 4.0,
-																			 0.15, //H/E EB     //2
+																			 0.15, //H/E EB  
 																			 0.10, // H/E EC
 																			 999.,
 																			 0.014,
@@ -10107,16 +10107,37 @@ else if (triggerName.CompareTo("OpenHLT_Dimuon6p5_LowMass_v1") == 0)
 				   
 				   if (secondVector.size()>=1)
 				   {
-					   triggerBit[it] = true;
-				   }
+					   bool foundone=false;
+					   for (unsigned int j=0; j<firstVector.size() && !foundone; j++) {
+						   for (unsigned int k=0; k<secondVector.size(); k++) {
+							   if (firstVector[j]!=secondVector[k]) {  //if it's not the same object in the ohPhot list
+									   //compute dR(j,k)
+								   float deltaEta = ohPhotEta[firstVector[j]]-ohPhotEta[secondVector[k]];
+								   float deltaPhi = TMath::Abs(ohPhotPhi[firstVector[j]]-ohPhotPhi[secondVector[k]]);
+								   if (deltaPhi>TMath::Pi())
+									   deltaPhi = 2.0*TMath::Pi()-deltaPhi;
+								   double deltaR = sqrt(pow(deltaEta, 2) + pow(deltaPhi, 2));
+								   
+								   if (deltaR>0.01) {
+									   foundone=true;
+			   						   triggerBit[it] = true;
+									   break;
+								   }
+							   }
+						   }//end for k
+					   }//end for j
+					   
+				   }//end if second vector has any
 			   }
 		   }
 	   }
-   }*/
-	/*
+   }
+ //takes a requires one from each stream and requires a DR>0.01 difference.
+ 
+	
 	
 		// 2011-04-26
-		//questionable implimentation. 
+	 //questionable implimentation. //xxx
    else if (triggerName.CompareTo("OpenHLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v3") == 0)//new
    {
 	   if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -10153,28 +10174,32 @@ else if (triggerName.CompareTo("OpenHLT_Dimuon6p5_LowMass_v1") == 0)
 				   
 				   if (secondVector.size()>=1)
 				   {
-					   std::vector<int> thirdVector =
-					   VectorOpenHlt1PhotonPassedR9ID(
-													  18,  
-													  0.8,  // dta
-													  0,
-													  999.,
-													  999.0,
-													  999.0,
-													  999.0,
-													  0.15, //H/E EB 
-													  0.10, //H/E EC   
-													  999.);
-					   
-					   if (thirdVector.size()>=2)
-					   {
-						   triggerBit[it] = true;
-					   }//if two pass
+					   bool foundone=false;
+					   for (unsigned int j=0; j<firstVector.size() && !foundone; j++) {
+						   for (unsigned int k=0; k<secondVector.size(); k++) {
+							   if (firstVector[j]!=secondVector[k]) { //if it's not the same object in the ohPhot list
+									   //compute dR(j,k)
+								   float deltaEta = ohPhotEta[firstVector[j]]-ohPhotEta[secondVector[k]];
+								   float deltaPhi = TMath::Abs(ohPhotPhi[firstVector[j]]-ohPhotPhi[secondVector[k]]);
+								   if (deltaPhi>TMath::Pi())
+									   deltaPhi = 2.0*TMath::Pi()-deltaPhi;
+								   double deltaR = sqrt(pow(deltaEta, 2) + pow(deltaPhi, 2));
+								   
+								   if (deltaR>0.01) {
+									   foundone=true;
+			   						   triggerBit[it] = true;
+									   break;
+								   }
+							   }
+						   }//end for k
+					   }//end for j
 				   }//if pho26
 			   }//if pho18
 		   }
 	   }
-   }*/
+   }
+	 //requires dR0.01 cut between the two streams. 
+
 	
 	
 	
@@ -13206,6 +13231,99 @@ int OHltTree::OpenHlt1MuonIsoJetPassed(
                               fabs(ohJetCorCalPhi[j]-ohMuL3Phi[i]);
                         if (deltaphi > 3.14159)
                            deltaphi = (2.0 * 3.14159) - deltaphi;
+                        float deltaRMuJet = sqrt((recoJetCorCalEta[j]
+                              -ohMuL3Eta[i])*(recoJetCorCalEta[j]-ohMuL3Eta[i])
+                              + (deltaphi*deltaphi));
+                        if (deltaRMuJet < minDR)
+                        {
+                           minDR = deltaRMuJet;
+                        }
+                     }
+                  }
+                  if (minDR < 0.3)
+                     break;
+
+                  rcL3++;
+
+                  // Begin L2 muons here. 
+                  // Get best L2<->L3 match, then 
+                  // begin applying cuts to L2
+                  int j = ohMuL3L2idx[i]; // Get best L2<->L3 match
+
+                  if ( (fabs(ohMuL2Eta[j])<2.5))
+                  { // L2 eta cut
+                     if (ohMuL2Pt[j] > ptl2)
+                     { // L2 pT cut
+                        if (ohMuL2Iso[j] >= iso)
+                        { // L2 isolation
+                           rcL2++;
+
+                           // Begin L1 muons here.
+                           // Require there be an L1Extra muon Delta-R
+                           // matched to the L2 candidate, and that it have 
+                           // good quality and pass nominal L1 pT cuts 
+                           for (int k = 0; k < NL1Mu; k++)
+                           {
+                              if ( (L1MuPt[k] < ptl1)) // L1 pT cut
+                                 continue;
+
+                              double deltaphi = fabs(ohMuL2Phi[j]-L1MuPhi[k]);
+                              if (deltaphi > 3.14159)
+                                 deltaphi = (2.0 * 3.14159) - deltaphi;
+
+                              double deltarl1l2 =
+                                    sqrt((ohMuL2Eta[j]-L1MuEta[k])
+                                          *(ohMuL2Eta[j]-L1MuEta[k])
+                                          + (deltaphi*deltaphi));
+                              if (deltarl1l2 < bestl1l2drmatch)
+                              {
+                                 bestl1l2drmatchind = k;
+                                 bestl1l2drmatch = deltarl1l2;
+                              }
+                           } // End loop over L1Extra muons
+
+                           if (doL1L2matching == 1)
+                           {
+                              // Cut on L1<->L2 matching and L1 quality
+                              if ((bestl1l2drmatch > 0.3)
+                                    || (L1MuQal[bestl1l2drmatchind]
+                                          < L1MinimalQuality)
+                                    || (L1MuQal[bestl1l2drmatchind]
+                                          > L1MaximalQuality))
+                              {
+                                 rcL1 = 0;
+                                 cout << "Failed L1-L2 match/quality" << endl;
+                                 cout << "L1-L2 delta-eta = "
+                                       << L1MuEta[bestl1l2drmatchind] << ", "
+                                       << ohMuL2Eta[j] << endl;
+                                 cout << "L1-L2 delta-pho = "
+                                       << L1MuPhi[bestl1l2drmatchind] << ", "
+                                       << ohMuL2Phi[j] << endl;
+                                 cout << "L1-L2 delta-R = " << bestl1l2drmatch
+                                       << endl;
+                              }
+                              else
+                              {
+                                 cout << "Passed L1-L2 match/quality" << endl;
+                                 L3MuCandIDForOnia[rcL1L2L3] = i;
+                                 rcL1++;
+                                 rcL1L2L3++;
+                              } // End L1 matching and quality cuts      
+                           }
+                           else
+                           {
+                              L3MuCandIDForOnia[rcL1L2L3] = i;
+                              rcL1L2L3++;
+                           }
+                        } // End L2 isolation cut 
+                     } // End L2 eta cut
+                  } // End L2 pT cut
+               } // End L3 isolation cut
+            } // End L3 DR cut
+         } // End L3 pT cut
+      } // End L3 eta cut
+   } // End loop over L3 muons      
+   return rcL1L2L3;
 
 }
 
