@@ -220,6 +220,61 @@ bool isHTXTrigger(TString triggerName, vector<double> &thresholds)
       return false;
 }
 
+bool isBTagIP_HTXTrigger(TString triggerName, vector<double> &thresholds)
+{
+
+   TString pattern = "(OpenHLT_BTagIP_HT([0-9]+)){1}$";
+   TPRegexp matchThreshold(pattern);
+
+   if (matchThreshold.MatchB(triggerName))
+   {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdHT = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      thresholds.push_back(thresholdHT);
+      return true;
+   }
+   else
+      return false;
+}
+
+bool isBTagIP_pfMHTX_HTXTrigger(TString triggerName, vector<double> &thresholds)
+{
+
+   TString pattern = "(OpenHLT_BTagIP_pfMHT([0-9]+)_HT([0-9]+)){1}$";
+   TPRegexp matchThreshold(pattern);
+
+   if (matchThreshold.MatchB(triggerName))
+   {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdMET = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdHT = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdMET);
+      thresholds.push_back(thresholdHT);
+      return true;
+   }
+   else
+      return false;
+}
+
+bool ispfMHTX_HTXTrigger(TString triggerName, vector<double> &thresholds)
+{
+
+   TString pattern = "(OpenHLT_pfMHT([0-9]+)_HT([0-9]+)){1}$";
+   TPRegexp matchThreshold(pattern);
+
+   if (matchThreshold.MatchB(triggerName))
+   {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdMET = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdHT = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdMET);
+      thresholds.push_back(thresholdHT);
+      return true;
+   }
+   else
+      return false;
+}
+
 bool isMHTXUTrigger(TString triggerName, vector<double> &thresholds)
 {
 
@@ -2359,6 +2414,78 @@ void OHltTree::CheckOpenHlt(
    }
 
 
+   /****BTagIP_HTX************/
+
+   else if (isBTagIP_HTXTrigger(triggerName, thresholds)) {
+     //if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second == 1){
+     if (map_L1BitOfStandardHLTPath.find(triggerName)->second>0){
+
+       if (prescaleResponse(menu, cfg, rcounter, it) ) {
+	 if (OpenHltSumCorHTPassed(thresholds[0], 40.) == 1){
+	   
+	   int rc = 0;
+	   int max = (NohBJetL2Corrected > 6) ? 6 : NohBJetL2Corrected;
+	   for (int i = 0; i < max; i++){
+	     if (ohBJetL2CorrectedEt[i] > 30 && fabs(ohBJetL2CorrectedEta[i]) < 3.0)
+               { // ET cut 
+		 //if (ohBJetIPL25Tag[i] > 0.0)
+		 //{ // Level 2.5 b tag 
+                     if (ohBJetIPL3Tag[i] > 4.0)
+	   	       { // Level 3 b tag 
+	   		 rc++;
+	   	       }
+		     //}
+               }
+	   }
+	   if (rc >= 1){
+	     triggerBit[it] = true;
+
+	   }	   
+	 }	       
+       }
+     }
+   }
+
+   /****BTagIP_pfMHTX_HTX************/
+
+   else if (isBTagIP_pfMHTX_HTXTrigger(menu->GetTriggerName(it), thresholds)){
+     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1){
+       if (prescaleResponse(menu, cfg, rcounter, it)){
+	 if (OpenHltSumCorHTPassed(thresholds[1], 40)>=1 && pfMHT >=thresholds[0]){
+
+	   int rc = 0;
+	   int max = (NohBJetL2Corrected > 6) ? 6 : NohBJetL2Corrected;
+	   for (int i = 0; i < max; i++){
+	     if (ohBJetL2CorrectedEt[i] > 30 && fabs(ohBJetL2CorrectedEta[i]) < 3.0)
+               { // ET cut 
+	   	 //if (ohBJetIPL25Tag[i] > 0.0)
+		 //{ // Level 2.5 b tag 
+                     if (ohBJetIPL3Tag[i] > 4.0)
+	   	       { // Level 3 b tag 
+	   		 rc++;
+	   	       }
+		     // }
+               }
+	   }
+	   if (rc >= 1){
+	     triggerBit[it] = true;
+	   }	   
+	 }
+       }
+     }
+   }
+
+   /****pfMHTX_HTX************/
+
+   else if (ispfMHTX_HTXTrigger(menu->GetTriggerName(it), thresholds)){
+     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1){
+       if (prescaleResponse(menu, cfg, rcounter, it)){
+	 if (OpenHltSumCorHTPassed(thresholds[1], 40)>=1 && pfMHT >=thresholds[0]){
+	   triggerBit[it] = true;
+	 }
+       }
+     }
+   }
  
    /* Muons */
    else if (isL1SingleMuXTrigger(triggerName))
