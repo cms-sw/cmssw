@@ -1,6 +1,6 @@
 /** \file HLTMuonValidator.cc
- *  $Date: 2011/04/17 08:33:12 $
- *  $Revision: 1.25 $
+ *  $Date: 2011/04/17 14:14:43 $
+ *  $Revision: 1.26 $
  */
 
 
@@ -136,9 +136,7 @@ HLTMuonValidator::initializeHists()
       if (moduleLabels[i].find("Filtered") != string::npos)
         filterLabels_[path].push_back(moduleLabels[i]);
 
-    // Getting a reliable L1 pT measurement is impossible beyond 2.1, so most
-    // paths have no L1 beyond 2.1 except those passing kLooseL1Requirement
-    double cutMaxEta = (TString(path).Contains(kLooseL1Requirement)) ? 2.4:2.1;
+    double cutMaxEta = 2.4;
 
     // Choose a pT cut for gen/rec muons based on the pT cut in the path
     unsigned int index = TString(path).Index(suffixPtCut);
@@ -368,9 +366,10 @@ HLTMuonValidator::analyzePath(const Event & iEvent,
           elements_[pre + "MaxPt1" + post]->Fill(pt);
         if (matchesInEtaRange.size() >= 2 && j == matchesInEtaRange[1])
           elements_[pre + "MaxPt2" + post]->Fill(pt);
-        if(fabs(eta) < maxEta && pt > cutsMinPt_[path]) {
+        if (pt > cutsMinPt_[path]) {
           elements_[pre + "Eta" + post]->Fill(eta);
-          elements_[pre + "Phi" + post]->Fill(phi);
+          if (fabs(eta) < maxEta)
+            elements_[pre + "Phi" + post]->Fill(phi);
         }
       }
     }
