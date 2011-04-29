@@ -50,7 +50,7 @@ parser.add_option("--fileout",
 
 parser.add_option("--filetype",
                    help="The type of the infile (EDM, LHE or MCDB).",
-                   default="EDM",#to be changed in the default form later
+                   default="",#to be changed in the default form later
                    dest="filetype",
                   choices=['EDM','DAT','LHE','MDCB'])
 
@@ -364,7 +364,7 @@ options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
 
 
 #determine the type of file on input
-if options.filetype=="":
+if not options.filetype:
     if options.filein.lower().endswith(".lhe") or options.filein.lower().endswith(".lhef"):
         options.filetype="LHE"
     elif options.filein.startswith("mcdb:"):
