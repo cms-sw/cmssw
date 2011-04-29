@@ -53,10 +53,14 @@ HLT_HIActivityHF_Single3
 HLT_HIClusterVertexCompatibility
 HLT_HICentralityVeto
 HLT_HIRandom
-HLT_EcalCalibration_v1
+HLT_DTCalibration_v*
+HLT_EcalCalibration_v*
 HLT_HcalCalibration_HI
-HLT_LogMonitor_v1
+HLT_TrackerCalibration_v*
+HLT_LogMonitor_v*
+HLTriggerFirstPath
 HLTriggerFinalPath
+HLTAnalyzerEndpath
 AOutput
 # AlCaHIOutput
 ALCAP0Output
@@ -71,5 +75,4 @@ HLTMONOutput
 NanoDSTOutput
 OnlineErrorsOutput
 RPCMONOutput
-HLTriggerFirstPath
-HLTAnalyzerEndpath
+TrackerCalibrationOutput

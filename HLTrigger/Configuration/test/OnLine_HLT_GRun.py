@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V32 (CMSSW_3_11_0_HLT21)
+# /dev/CMSSW_4_2_0/GRun/V34 (CMSSW_3_11_0_HLT21)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V32')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V34')
 )
 
 process.streams = cms.PSet( 
@@ -33,7 +33,7 @@ process.streams = cms.PSet(
     'TauPlusX' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSym' ),
-  Calibration = cms.vstring( 'TestEnables' ),
+  Calibration = cms.vstring( 'TestEnablesEcalHcalDT' ),
   DQM = cms.vstring( 'OnlineMonitor' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   Express = cms.vstring( 'ExpressPhysics' ),
@@ -43,7 +43,8 @@ process.streams = cms.PSet(
   NanoDST = cms.vstring( 'L1Accept' ),
   OnlineErrors = cms.vstring( 'FEDMonitor',
     'LogMonitor' ),
-  RPCMON = cms.vstring( 'RPCMonitor' )
+  RPCMON = cms.vstring( 'RPCMonitor' ),
+  TrackerCalibration = cms.vstring( 'TestEnablesTracker' )
 )
 process.datasets = cms.PSet( 
   AlCaP0 = cms.vstring( 'AlCa_EcalEta_v3',
@@ -662,11 +663,11 @@ process.datasets = cms.PSet(
     'HLT_BeamGas_BSC_v2',
     'HLT_BeamGas_HF_v3',
     'HLT_BeamHalo_v2',
-    'HLT_Calibration_v1',
     'HLT_CentralJet80_MET100_v2',
     'HLT_CentralJet80_MET160_v2',
     'HLT_CentralJet80_MET65_v2',
     'HLT_CentralJet80_MET80_v2',
+    'HLT_DTCalibration_v1',
     'HLT_DTErrors_v1',
     'HLT_DiJet60_MET45_v2',
     'HLT_DiJetAve110_v2',
@@ -919,9 +920,10 @@ process.datasets = cms.PSet(
     'HLT_HT250_DoubleLooseIsoPFTau10_Trk3_PFMHT35_v2',
     'HLT_IsoMu12_LooseIsoPFTau10_v4',
     'HLT_Mu15_LooseIsoPFTau20_v4' ),
-  TestEnables = cms.vstring( 'HLT_Calibration_v1',
-    'HLT_HcalCalibration_v1',
-    'HLT_TrackerCalibration_v1' )
+  TestEnablesEcalHcalDT = cms.vstring( 'HLT_DTCalibration_v1',
+    'HLT_EcalCalibration_v1',
+    'HLT_HcalCalibration_v1' ),
+  TestEnablesTracker = cms.vstring( 'HLT_TrackerCalibration_v1' )
 )
 
 process.source = cms.Source( "PoolSource",
@@ -21570,9 +21572,13 @@ process.hltPrePhysicsNanoDST = cms.EDFilter( "HLTPrescaler",
 process.hltCalibrationEventsFilter = cms.EDFilter( "HLTTriggerTypeFilter",
     SelectedTriggerType = cms.int32( 2 )
 )
-process.hltPreCalibration = cms.EDFilter( "HLTPrescaler",
+process.hltPreDTCalibration = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
+)
+process.hltDTCalibrationRaw = cms.EDProducer( "EvFFEDSelector",
+    inputTag = cms.InputTag( "rawDataCollector" ),
+    fedList = cms.vuint32( 770, 771, 772, 773, 774, 775, 776, 777, 778, 779, 780 )
 )
 process.hltPreEcalCalibration = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -21589,6 +21595,10 @@ process.hltPreHcalCalibration = cms.EDFilter( "HLTPrescaler",
 process.hltHcalCalibTypeFilter = cms.EDFilter( "HLTHcalCalibTypeFilter",
     InputTag = cms.InputTag( "rawDataCollector" ),
     CalibTypes = cms.vint32( 1, 2, 3, 4, 5, 6 )
+)
+process.hltHcalCalibrationRaw = cms.EDProducer( "EvFFEDSelector",
+    inputTag = cms.InputTag( "rawDataCollector" ),
+    fedList = cms.vuint32( 700, 701, 702, 703, 704, 705, 706, 707, 708, 709, 710, 711, 712, 713, 714, 715, 716, 717, 718, 719, 720, 721, 722, 723, 724, 725, 726, 727, 728, 729, 730, 731 )
 )
 process.hltPreTrackerCalibration = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -22630,7 +22640,7 @@ process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_L1Tech_HBHEHO_totalOR_v1',
       'HLT_ZeroBias_v2',
       'HLT_Physics_v1 / 500',
-      'HLT_Calibration_v1 / 10',
+      'HLT_DTCalibration_v1 / 10',
       'HLT_EcalCalibration_v1 / 10',
       'HLT_HcalCalibration_v1',
       'HLT_TrackerCalibration_v1 / 10',
@@ -23101,6 +23111,15 @@ process.hltPreRPCMONOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
+process.hltPreTrackerCalibrationOutput = cms.EDFilter( "TriggerResultsFilter",
+    triggerConditions = cms.vstring(  ),
+    hltResults = cms.InputTag( "TriggerResults" ),
+    l1tResults = cms.InputTag( "hltGtDigis" ),
+    l1tIgnoreMask = cms.bool( False ),
+    daqPartitions = cms.uint32( 1 ),
+    throw = cms.bool( True ),
+    l1techIgnorePrescales = cms.bool( False )
+)
 
 process.hltOutputA = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputA.root" ),
@@ -23346,12 +23365,13 @@ process.hltOutputALCAPHISYM = cms.OutputModule( "PoolOutputModule",
 process.hltOutputCalibration = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputCalibration.root" ),
     fastCloning = cms.untracked.bool( False ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_Calibration_v1',
-  'HLT_HcalCalibration_v1',
-  'HLT_TrackerCalibration_v1' ) ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_DTCalibration_v1',
+  'HLT_EcalCalibration_v1',
+  'HLT_HcalCalibration_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
-      'keep FEDRawDataCollection_rawDataCollector_*_*',
-      'keep FEDRawDataCollection_source_*_*',
+      'keep *_hltDTCalibrationRaw_*_*',
+      'keep *_hltEcalCalibrationRaw_*_*',
+      'keep *_hltHcalCalibrationRaw_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
@@ -23366,11 +23386,11 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_BeamGas_BSC_v2',
   'HLT_BeamGas_HF_v3',
   'HLT_BeamHalo_v2',
-  'HLT_Calibration_v1',
   'HLT_CentralJet80_MET100_v2',
   'HLT_CentralJet80_MET160_v2',
   'HLT_CentralJet80_MET65_v2',
   'HLT_CentralJet80_MET80_v2',
+  'HLT_DTCalibration_v1',
   'HLT_DTErrors_v1',
   'HLT_DiJet60_MET45_v2',
   'HLT_DiJetAve110_v2',
@@ -24300,6 +24320,16 @@ process.hltOutputRPCMON = cms.OutputModule( "PoolOutputModule",
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
+process.hltOutputTrackerCalibration = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputTrackerCalibration.root" ),
+    fastCloning = cms.untracked.bool( False ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_TrackerCalibration_v1' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
+      'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep FEDRawDataCollection_source_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
 
 process.HLTL1UnpackerSequence = cms.Sequence( process.hltGtDigis + process.hltGctDigis + process.hltL1GtObjectMap + process.hltL1extraParticles )
 process.HLTBeamSpot = cms.Sequence( process.hltScalersRawToDigi + process.hltOnlineBeamSpot + process.hltOfflineBeamSpot )
@@ -24758,9 +24788,9 @@ process.HLT_L1Tech_HBHEHO_totalOR_v1 = cms.Path( process.HLTBeginSequence + proc
 process.HLT_ZeroBias_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sZeroBias + process.hltPreZeroBias + process.HLTEndSequence )
 process.HLT_Physics_v1 = cms.Path( process.HLTBeginSequence + process.hltPrePhysics + process.HLTEndSequence )
 process.HLT_Physics_NanoDST_v1 = cms.Path( process.HLTBeginSequence + process.hltPrePhysicsNanoDST + process.HLTEndSequence )
-process.HLT_Calibration_v1 = cms.Path( process.HLTBeginSequenceCalibration + process.hltPreCalibration + process.HLTEndSequence )
-process.HLT_EcalCalibration_v1 = cms.Path( process.hltCalibrationEventsFilter + process.hltGtDigis + process.hltPreEcalCalibration + process.hltEcalCalibrationRaw + process.HLTEndSequence )
-process.HLT_HcalCalibration_v1 = cms.Path( process.hltCalibrationEventsFilter + process.hltGtDigis + process.hltPreHcalCalibration + process.hltHcalCalibTypeFilter + process.HLTEndSequence )
+process.HLT_DTCalibration_v1 = cms.Path( process.HLTBeginSequenceCalibration + process.hltPreDTCalibration + process.hltDTCalibrationRaw + process.HLTEndSequence )
+process.HLT_EcalCalibration_v1 = cms.Path( process.HLTBeginSequenceCalibration + process.hltPreEcalCalibration + process.hltEcalCalibrationRaw + process.HLTEndSequence )
+process.HLT_HcalCalibration_v1 = cms.Path( process.HLTBeginSequenceCalibration + process.hltPreHcalCalibration + process.hltHcalCalibTypeFilter + process.hltHcalCalibrationRaw + process.HLTEndSequence )
 process.HLT_TrackerCalibration_v1 = cms.Path( process.HLTBeginSequenceCalibration + process.hltPreTrackerCalibration + process.hltLaserAlignmentEventFilter + process.HLTEndSequence )
 process.HLT_Random_v1 = cms.Path( process.HLTBeginSequenceRandom + process.hltPreRandom + process.HLTEndSequence )
 process.HLT_L1SingleMuOpen_AntiBPTX_v1 = cms.Path( process.HLTBeginSequenceAntiBPTX + process.hltL1sL1SingleMuOpen + process.hltPreL1MuOpenAntiBPTX + process.hltL1MuOpenL1Filtered0 + process.HLTEndSequence )
@@ -24794,6 +24824,7 @@ process.HLTMONOutput = cms.EndPath( process.hltPreHLTMONOutput + process.hltPreH
 process.NanoDSTOutput = cms.EndPath( process.hltPreNanoDSTOutput + process.hltOutputNanoDST )
 process.OnlineErrorsOutput = cms.EndPath( process.hltPreOnlineErrorsOutput + process.hltOutputOnlineErrors )
 process.RPCMONOutput = cms.EndPath( process.hltPreRPCMONOutput + process.hltOutputRPCMON )
+process.TrackerCalibrationOutput = cms.EndPath( process.hltPreTrackerCalibrationOutput + process.hltOutputTrackerCalibration )
 
 
 # Extra customisation for CMSSW 42X+ only

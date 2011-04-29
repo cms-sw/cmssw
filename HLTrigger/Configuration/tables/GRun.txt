@@ -283,7 +283,7 @@ HLT_L1Tech_HBHEHO_totalOR_v*
 HLT_ZeroBias_v*
 HLT_Physics_v*
 HLT_Physics_NanoDST_v*
-HLT_Calibration_v*
+HLT_DTCalibration_v*
 HLT_EcalCalibration_v*
 HLT_HcalCalibration_v*
 HLT_TrackerCalibration_v*
@@ -320,3 +320,4 @@ HLTMONOutput
 NanoDSTOutput
 OnlineErrorsOutput
 RPCMONOutput
+TrackerCalibrationOutput
