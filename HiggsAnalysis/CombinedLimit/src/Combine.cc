@@ -349,11 +349,13 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     outputFile->WriteTObject(w,workspaceName_.c_str());
   }
 
+
+  bool isExtended = mc_bonly->GetPdf()->canBeExtended();
   if (nToys <= 0) { // observed or asimov
     iToy = nToys;
     RooAbsData *dobs = w->data(dataset.c_str());
     if (iToy == -1) {	
-        if (mc_bonly->GetPdf()->canBeExtended()) {
+        if (isExtended) {
           if (unbinned_) {
               throw std::invalid_argument("Asimov datasets can only be generated binned");
           } else {
@@ -367,7 +369,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       return;
     }
     std::cout << "Computing limit starting from " << (iToy == 0 ? "observation" : "expected outcome") << std::endl;
-    if (verbose > (unbinned_ ? 1 : 0)) utils::printRAD(dobs);
+    if (verbose > (isExtended ? 1 : 0)) utils::printRAD(dobs);
     if (mklimit(w,mc,mc_bonly,*dobs,limit,limitErr)) tree->Fill();
   }
   
@@ -395,7 +397,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	  if (verbose > 1) utils::printPdf(*mc_bonly);
 	}
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
-	if (mc_bonly->GetPdf()->canBeExtended()) {
+	if (isExtended) {
           if (unbinned_) {
     	      absdata_toy = mc_bonly->GetPdf()->generate(*observables,RooFit::Extended());
           } else if (generateBinnedWorkaround_) {
@@ -416,7 +418,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	  return;
 	}
       }
-      if (verbose > (unbinned_ ? 1 : 0)) utils::printRAD(absdata_toy);
+      if (verbose > (isExtended ? 1 : 0)) utils::printRAD(absdata_toy);
       w->loadSnapshot("clean");
       //if (verbose > 1) utils::printPdf(w, "model_b");
       if (mklimit(w,mc,mc_bonly,*absdata_toy,limit,limitErr)) {
