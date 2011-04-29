@@ -55,9 +55,11 @@ void GflashHadronShowerProfile::hadronicParameterization()
 
   double deltaStep = 0.0;
   double showerDepth = 0.0;
+
   Gflash::CalorimeterNumber whichCalor = Gflash::kNULL;
 
   theGflashHitList.clear();
+
   GflashHit aHit;
 
   while(stepLengthLeft > 0.0) {
@@ -133,6 +135,7 @@ void GflashHadronShowerProfile::hadronicParameterization()
       Gflash3Vector hitPosition = locateHitPosition(trajectoryPoint,R50);   
 	
       hitCalor = Gflash::getCalorimeterNumber(hitPosition);	  
+
       if( hitCalor == Gflash::kNULL) continue;
 
       hitPosition *= CLHEP::cm;
@@ -317,7 +320,17 @@ double GflashHadronShowerProfile::longitudinalProfile() {
 
   Gflash::CalorimeterNumber whichCalor = Gflash::getCalorimeterNumber(pos);
 
-  if(showerType == 0 || showerType == 1 || showerType == 4 || showerType == 5 ) {
+  if(showerType == 0 || showerType == 4 ) {
+    double shiftDepth = theShowino->getPathLengthOnEcal() - theShowino->getPathLengthAtShower();
+    if(shiftDepth > 0 ) {
+      heightProfile = twoGammaProfile(longEcal,showerDepth-shiftDepth,whichCalor);
+    }
+    else  {
+      heightProfile = 0.;
+      std::cout << "negative shiftDepth for showerType 0 " << shiftDepth << std::endl;
+    }
+  }  
+  else if(showerType == 1 || showerType == 5 ) {
     if(whichCalor == Gflash::kESPM || whichCalor == Gflash::kENCA ) {
       heightProfile = twoGammaProfile(longEcal,showerDepth,whichCalor);
     }
@@ -471,7 +484,7 @@ int GflashHadronShowerProfile::getNumberOfSpots(Gflash::CalorimeterNumber kCalor
 
 double GflashHadronShowerProfile::fTanh(double einc, const double *par) {
   double func = 0.0;
-  if(einc>0.0) func = par[0]+par[1]*std::tanh(par[2]*(std::log(einc)-par[3]));
+  if(einc>0.0) func = par[0]+par[1]*std::tanh(par[2]*(std::log(einc)-par[3])) + par[4]*std::log(einc);
   return func;
 }
 
@@ -502,6 +515,8 @@ double GflashHadronShowerProfile::twoGammaProfile(double *longPar, double depth,
   double twoGamma = 0.0;
 
   longPar[0] = std::min(1.0,longPar[0]);
+  longPar[0] = std::max(0.0,longPar[0]);
+
   if(longPar[3] > 4.0 || longPar[4] > 4.0) {
     double rfactor = 2.0/std::max(longPar[3],longPar[4]);
     longPar[3] = rfactor*(longPar[3]+1.0);  
