@@ -1,8 +1,8 @@
  /** \file DQMOffline/Trigger/HLTMuonMatchAndPlot.cc
  *
  *  $Author: klukas $
- *  $Date: 2011/03/21 20:10:41 $
- *  $Revision: 1.22 $
+ *  $Date: 2011/03/25 18:24:25 $
+ *  $Revision: 1.23 $
  */
 
 
@@ -329,7 +329,7 @@ template <class T1, class T2>
 vector<size_t> 
 HLTMuonMatchAndPlot::matchByDeltaR(const vector<T1> & collection1, 
                                    const vector<T2> & collection2,
-                                   const double maxDeltaR = NOMATCH) {
+                                   const double maxDeltaR) {
 
   const size_t n1 = collection1.size();
   const size_t n2 = collection2.size();
