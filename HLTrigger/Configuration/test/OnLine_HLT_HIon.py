@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V31 (CMSSW_3_11_0_HLT21)
+# /dev/CMSSW_4_2_0/HIon/V32 (CMSSW_3_11_0_HLT21)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V31')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V32')
 )
 
 process.streams = cms.PSet( 
