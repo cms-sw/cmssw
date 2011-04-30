@@ -5,6 +5,7 @@ BlockWipedAllocator::BlockWipedAllocator( std::size_t typeSize,
 					  std::size_t blockSize):
   m_typeSize(typeSize), m_blockSize(blockSize), m_alive(0){
   if (typeSize<32) abort(); // throw std::bad_alloc();
+  recycled.reserve(maxRecycle);
   wipe();
 }
   
@@ -25,6 +26,11 @@ BlockWipedAllocator& BlockWipedAllocator::operator=(BlockWipedAllocator const & 
 
 void * BlockWipedAllocator::alloc() {
   m_alive++;
+  if (!recycled.empty()) {
+    void * ret = recycled.back();
+    recycled.pop_back();
+    return ret;
+  } 
   void * ret = m_next;
   m_next+=m_typeSize;
   Block & block = *m_current;
@@ -34,7 +40,8 @@ void * BlockWipedAllocator::alloc() {
   return ret;
 }
   
-void BlockWipedAllocator::dealloc(void *) {
+void BlockWipedAllocator::dealloc(void * p) {
+  if (recycled.size()<maxRecycle) recycled.push_back(p);
   m_alive--;
 }
 
@@ -49,6 +56,7 @@ void BlockWipedAllocator::wipe() const {
 
   me().m_current=me().m_blocks.begin();
   me().nextBlock(false);
+  me().recycled.clear();
 }
   
 BlockWipedAllocator & BlockWipedAllocator::me() const {
