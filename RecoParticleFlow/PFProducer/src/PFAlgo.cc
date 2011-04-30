@@ -457,22 +457,6 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     }
 
 
-  // usePFConversions_ is used to switch ON/OFF the use of the PFConversionAlgo
-  if (usePFConversions_ && false) {
-    if (pfConversion_->isConversionValidCandidate(blockref, active )){
-      // if at least one conversion candidate is found ,it is fed to the final list of Pflow Candidates 
-      std::vector<reco::PFCandidate> PFConversionCandidates = pfConversion_->conversionCandidates();
-            
-      for ( std::vector<reco::PFCandidate>::iterator iConv = PFConversionCandidates.begin(); 
-	    iConv != PFConversionCandidates.end(); ++iConv ) {
-	pfCandidates_->push_back(*iConv);
-      }
-      for(unsigned iEle=0; iEle<elements.size(); iEle++) {
-	//cout << " PFAlgo::processBlock conversion element " << iEle << " activ e " << active[iEle] << endl;
-      }
-    }
-  }
-
   if( /* --- */ usePFPhotons_ /* --- */ ) {    
     
     if(debug_)
@@ -497,6 +481,23 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     } // end of 'if' in case photons are found    
     pfPhotonCandidates_->clear();
   } // end of Photon algo
+  
+  //Lock extra conversion tracks not used by Photon Algo
+  if (usePFConversions_  )
+    {
+      for(unsigned iEle=0; iEle<elements.size(); iEle++) {
+	PFBlockElement::Type type = elements[iEle].type();
+	if(type==PFBlockElement::TRACK)
+	  {
+	    if(elements[iEle].trackRef()->quality(reco::TrackBase::highPurity))continue;
+	    const reco::PFBlockElementTrack * trackRef = dynamic_cast<const reco::PFBlockElementTrack*>((&elements[iEle]));
+	    if(!(trackRef->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)))continue;
+	    if(elements[iEle].convRef().isNonnull())active[iEle]=false;
+	  }
+      }
+    }
+  
+
   
   if(debug_) 
     cout<<endl<<"--------------- loop 1 ------------------"<<endl;
