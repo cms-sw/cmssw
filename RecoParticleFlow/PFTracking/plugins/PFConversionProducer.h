@@ -28,6 +28,6 @@ private:
   PFTrackTransformer *pfTransformer_; 
   edm::InputTag pfConversionContainer_;
   edm::InputTag pfTrackContainer_;
-
+  edm::InputTag vtx_h;
 };
 #endif
