@@ -48,7 +48,7 @@ namespace edm {
     boost::shared_ptr<void const> product() const { return productData().wrapper_; }
 
     // Retrieves the wrapped product and type. (non-owning);
-    WrapperHolder wrapper() const { return WrapperHolder(productData().wrapper_.get(), productData().getInterface()); }
+    WrapperHolder wrapper() const { return WrapperHolder(productData().wrapper_.get(), productData().getInterface(), WrapperHolder::NotOwned); }
 
     // Retrieves shared pointer to the per event(lumi)(run) provenance.
     boost::shared_ptr<ProductProvenance> productProvenancePtr() const {return provenance()->productProvenancePtr();}

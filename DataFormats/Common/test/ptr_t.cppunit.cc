@@ -302,7 +302,7 @@ void testPtr::getTest() {
 
    edm::Wrapper<IntCollection> wrapper(ptr);
    TestGetter tester;
-   tester.hold_ = WrapperHolder(&wrapper, wrapper.getInterface());
+   tester.hold_ = WrapperHolder(&wrapper, wrapper.getInterface(), WrapperHolder::NotOwned);
 
    ProductID const pid(1, 1);
 
@@ -335,7 +335,7 @@ void testPtr::getTest() {
      
      edm::Wrapper<SDCollection> wrapper(ptr);
      TestGetter tester;
-     tester.hold_ = WrapperHolder(&wrapper, wrapper.getInterface());
+     tester.hold_ = WrapperHolder(&wrapper, wrapper.getInterface(), WrapperHolder::NotOwned);
      
      ProductID const pid(1, 1);
      

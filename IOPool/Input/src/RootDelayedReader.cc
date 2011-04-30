@@ -54,8 +54,7 @@ namespace edm {
     br->SetAddress(&p);
     tree_.getEntry(br, entryNumber_);
     setRefCoreStreamer(!fileFormatVersion_.splitProductIDs());
-    boost::shared_ptr<void const> wp(p, WrapperHolder::EDProductDeleter(interface));
-    WrapperHolder edp(wp, interface);
+    WrapperHolder edp(p, interface, WrapperHolder::Owned);
     return edp;
   }
 }

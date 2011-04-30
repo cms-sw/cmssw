@@ -124,11 +124,9 @@ void testGenericHandle::getbyLabelTest() {
 
   typedef edmtest::DummyProduct DP;
   typedef edm::Wrapper<DP> WDP;
-  edm::WrapperInterfaceBase const* interface = WDP::getInterface();
 
   std::auto_ptr<DP> pr(new DP);
-  boost::shared_ptr<void const> wdp(new WDP(pr), edm::WrapperHolder::EDProductDeleter(interface));
-  edm::WrapperHolder pprod(wdp, interface);
+  edm::WrapperHolder pprod(new WDP(pr), WDP::getInterface(), edm::WrapperHolder::Owned);
   std::string label("fred");
   std::string productInstanceName("Rick");
 

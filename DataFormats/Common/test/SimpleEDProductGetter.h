@@ -19,10 +19,7 @@ public:
   template<typename T>
   void
   addProduct(edm::ProductID const& id, std::auto_ptr<T> p) {
-    typedef edm::Wrapper<T> wrapper_t;
-    edm::WrapperInterfaceBase const* interface = wrapper_t::getInterface();
-    boost::shared_ptr<void const> wrapper(new wrapper_t(p), edm::WrapperHolder::EDProductDeleter(interface));
-    database[id] = edm::WrapperHolder(wrapper, interface);
+    database[id] = edm::WrapperHolder(new edm::Wrapper<T>(p), edm::Wrapper<T>::getInterface(), edm::WrapperHolder::Owned);
   }
 
   size_t size() const {

@@ -378,7 +378,7 @@ namespace fwlite {
             }
         }
         //return itFound->second->pProd_;
-        return edm::WrapperHolder(itFound->second->pProd_, bDesc.getInterface());
+        return edm::WrapperHolder(itFound->second->pProd_, bDesc.getInterface(), edm::WrapperHolder::NotOwned);
     }
 
 

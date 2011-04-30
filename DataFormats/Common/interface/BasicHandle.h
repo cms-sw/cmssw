@@ -52,7 +52,7 @@ namespace edm {
       whyFailed_(h.whyFailed_){}
 
     BasicHandle(void const* prod, WrapperInterfaceBase const* interface, Provenance const* prov) :
-      product_(WrapperHolder(prod, interface)),
+      product_(WrapperHolder(prod, interface, WrapperHolder::NotOwned)),
       prov_(prov) {
     }
 

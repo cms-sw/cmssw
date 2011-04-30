@@ -103,7 +103,7 @@ namespace edm {
         << "\n";
     }
     branchMapperPtr()->insert(*productProvenance);
-    Group *g = getExistingGroup(bd.branchID());
+    Group* g = getExistingGroup(bd.branchID());
     assert(g);
     checkUniquenessAndType(edp, g);
     // Group assumes ownership
@@ -118,10 +118,9 @@ namespace edm {
 
     assert(!bd.produced());
     branchMapperPtr()->insert(*productProvenance);
-    Group *g = getExistingGroup(bd.branchID());
+    Group* g = getExistingGroup(bd.branchID());
     assert(g);
-    WrapperInterfaceBase const* interface = g->productData().getInterface();
-    WrapperHolder const edp(boost::shared_ptr<void const>(product, WrapperHolder::EDProductDeleter(interface)), interface);
+    WrapperHolder const edp(product, g->productData().getInterface(), WrapperHolder::Owned);
     checkUniquenessAndType(edp, g);
     // Group assumes ownership
     g->putProduct(edp, productProvenance);
@@ -262,7 +261,7 @@ namespace edm {
     moduleLabelsRunning_.push_back(moduleLabel);
 
     if(unscheduledHandler_) {
-      unscheduledHandler_->tryToFill(moduleLabel, *const_cast<EventPrincipal *>(this));
+      unscheduledHandler_->tryToFill(moduleLabel, *const_cast<EventPrincipal*>(this));
     }
     moduleLabelsRunning_.pop_back();
     return true;

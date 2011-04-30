@@ -157,9 +157,7 @@ namespace edm {
     ConstBranchDescription const& desc =
       provRecorder_.getBranchDescription(TypeID(*product), productInstanceName);
 
-    WrapperInterfaceBase const* interface = Wrapper<PROD>::getInterface();
-    boost::shared_ptr<void const> wp(new Wrapper<PROD>(product), WrapperHolder::EDProductDeleter(interface));
-    WrapperHolder edp(wp, interface);
+    WrapperHolder edp(new Wrapper<PROD>(product), Wrapper<PROD>::getInterface(), WrapperHolder::Owned);
     putProducts().push_back(std::make_pair(edp, &desc));
 
     // product.release(); // The object has been copied into the Wrapper.

@@ -312,10 +312,7 @@ namespace edm {
     ConstBranchDescription const& desc =
       provRecorder_.getBranchDescription(TypeID(*product), productInstanceName);
 
-    WrapperInterfaceBase const* interface = Wrapper<PROD>::getInterface();
-
-    boost::shared_ptr<void const> wp(new Wrapper<PROD>(product), WrapperHolder::EDProductDeleter(interface));
-    WrapperHolder edp(wp, interface);
+    WrapperHolder edp(new Wrapper<PROD>(product), Wrapper<PROD>::getInterface(), WrapperHolder::Owned);
 
     typename boost::mpl::if_c<detail::has_donotrecordparents<PROD>::value,
       RecordInParentless<PROD>,

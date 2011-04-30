@@ -2,28 +2,29 @@
 //
 // Package:     FWLite
 // Class  :     BareRootProductGetter
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May 23 11:03:31 EDT 2006
 //
-// system include files
-
-#include "TFile.h"
-#include "TTree.h"
-#include "TBranch.h"
-#include "TClass.h"
-#include "Reflex/Type.h"
-#include "TROOT.h"
 
 // user include files
 #include "FWCore/FWLite/src/BareRootProductGetter.h"
-#include "DataFormats/Provenance/interface/BranchType.h"
-#include "FWCore/Utilities/interface/WrappedClassName.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
+#include "DataFormats/Provenance/interface/BranchType.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/WrappedClassName.h"
+
+// system include files
+
+#include "Reflex/Type.h"
+#include "TROOT.h"
+#include "TBranch.h"
+#include "TClass.h"
+#include "TFile.h"
+#include "TTree.h"
 //
 // constants, enums and typedefs
 //
@@ -35,24 +36,20 @@
 //
 // constructors and destructor
 //
-BareRootProductGetter::BareRootProductGetter()
-{
+BareRootProductGetter::BareRootProductGetter() {
 }
 
-// BareRootProductGetter::BareRootProductGetter(const BareRootProductGetter& rhs)
-// {
+// BareRootProductGetter::BareRootProductGetter(BareRootProductGetter const& rhs) {
 //    // do actual copying here;
 // }
 
-BareRootProductGetter::~BareRootProductGetter()
-{
+BareRootProductGetter::~BareRootProductGetter() {
 }
 
 //
 // assignment operators
 //
-// const BareRootProductGetter& BareRootProductGetter::operator=(const BareRootProductGetter& rhs)
-// {
+// BareRootProductGetter const& BareRootProductGetter::operator=(BareRootProductGetter const& rhs) {
 //   //An exception safe implementation is
 //   BareRootProductGetter temp(rhs);
 //   swap(rhs);
@@ -69,30 +66,30 @@ BareRootProductGetter::~BareRootProductGetter()
 //
 edm::WrapperHolder
 BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
-  // std::cout <<"getIt called"<<std::endl;
+  // std::cout << "getIt called" << std::endl;
   TFile* currentFile = dynamic_cast<TFile*>(gROOT->GetListOfFiles()->Last());
 
-  if (branchMap_.updateFile(currentFile)) {
+  if(branchMap_.updateFile(currentFile)) {
     idToBuffers_.clear();
   }
   TTree* eventTree = branchMap_.getEventTree();
   // std::cout << "eventTree " << eventTree << std::endl;
-  if (0 == eventTree) {
+  if(0 == eventTree) {
      throw cms::Exception("NoEventsTree")
-	<<"unable to find the TTree '"<<edm::poolNames::eventTreeName() << "' in the last open file, \n"
-	<<"file: '"<< branchMap_.getFile()->GetName()
-	<<"'\n Please check that the file is a standard CMS ROOT format.\n"
-	<<"If the above is not the file you expect then please open your data file after all other files.";
+        << "unable to find the TTree '" << edm::poolNames::eventTreeName() << "' in the last open file, \n"
+        << "file: '" << branchMap_.getFile()->GetName()
+        << "'\n Please check that the file is a standard CMS ROOT format.\n"
+        << "If the above is not the file you expect then please open your data file after all other files.";
      return edm::WrapperHolder();
   }
   Long_t eventEntry = eventTree->GetReadEntry();
   // std::cout << "eventEntry " << eventEntry << std::endl;
   branchMap_.updateEvent(eventEntry);
   if(eventEntry < 0) {
-     throw cms::Exception("GetEntryNotCalled") 
-	<<"please call GetEntry for the 'Events' TTree for each event in order to make edm::Ref's work."
-	<<"\n Also be sure to call 'SetAddress' for all Branches after calling the GetEntry."
-	;
+     throw cms::Exception("GetEntryNotCalled")
+        << "please call GetEntry for the 'Events' TTree for each event in order to make edm::Ref's work."
+        << "\n Also be sure to call 'SetAddress' for all Branches after calling the GetEntry."
+        ;
      return edm::WrapperHolder();
   }
 
@@ -108,56 +105,54 @@ BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
   } else {
     buffer = &(itBuffer->second);
   }
-  if(0==buffer) {
+  if(0 == buffer) {
      throw cms::Exception("NullBuffer")
-	<<"Found a null buffer which is supposed to hold the data item."
-	<<"\n Please contact developers since this message should not happen.";
+        << "Found a null buffer which is supposed to hold the data item."
+        << "\n Please contact developers since this message should not happen.";
     return edm::WrapperHolder();
   }
-  if(0==buffer->branch_) {
+  if(0 == buffer->branch_) {
      throw cms::Exception("NullBranch")
-	<<"The TBranch which should hold the data item is null."
-	<<"\n Please contact the developers since this message should not happen.";
+        << "The TBranch which should hold the data item is null."
+        << "\n Please contact the developers since this message should not happen.";
     return edm::WrapperHolder();
   }
   if(buffer->eventEntry_ != eventEntry) {
     //NOTE: Need to reset address because user could have set the address themselves
-    //std::cout <<"new event"<<std::endl;
-    
+    //std::cout << "new event" << std::endl;
+
     edm::WrapperInterfaceBase const* interface = branchMap_.productToBranch(iID).getInterface();
     //ROOT WORKAROUND: Create new objects so any internal data cache will get cleared
     void* address = buffer->class_->New();
-    
-    boost::shared_ptr<void const> object(address, edm::WrapperHolder::EDProductDeleter(interface));  
-    edm::WrapperHolder prod = edm::WrapperHolder(object, interface);
+
+    edm::WrapperHolder prod = edm::WrapperHolder(address, interface, edm::WrapperHolder::Owned);
     if(!prod.isValid()) {
       cms::Exception("FailedConversion")
-      <<"failed to convert a '"<<buffer->class_->GetName()
-      <<"' to a edm::WrapperHolder."
-      <<"Please contact developers since something is very wrong.";
+      << "failed to convert a '" << buffer->class_->GetName()
+      << "' to a edm::WrapperHolder."
+      << "Please contact developers since something is very wrong.";
     }
     buffer->address_ = address;
     buffer->product_ = prod;
     //END WORKAROUND
-    
+
     address = &(buffer->address_);
     buffer->branch_->SetAddress(address);
 
     buffer->branch_->GetEntry(eventEntry);
-    buffer->eventEntry_=eventEntry;
+    buffer->eventEntry_ = eventEntry;
   }
   if(!buffer->product_.isValid()) {
      throw cms::Exception("BranchGetEntryFailed")
-	<<"Calling GetEntry with index "<<eventEntry
-	<<"for branch "<<buffer->branch_->GetName()<<" failed.";
+        << "Calling GetEntry with index " << eventEntry
+        << "for branch " << buffer->branch_->GetName() << " failed.";
   }
 
   return buffer->product_;
 }
 
-BareRootProductGetter::Buffer* 
-BareRootProductGetter::createNewBuffer(const edm::ProductID& iID) const
-{
+BareRootProductGetter::Buffer*
+BareRootProductGetter::createNewBuffer(edm::ProductID const& iID) const {
   //find the branch
   edm::BranchDescription bdesc = branchMap_.productToBranch(iID);
 
@@ -170,54 +165,54 @@ BareRootProductGetter::createNewBuffer(const edm::ProductID& iID) const
   std::string const fullName = edm::wrappedClassName(bdesc.className());
   Reflex::Type classType = Reflex::Type::ByName(fullName);
   if(classType == Reflex::Type()) {
-    cms::Exception("MissingDictionary") 
-       <<"could not find dictionary for type '"<<fullName<<"'"
-       <<"\n Please make sure all the necessary libraries are available.";
+    cms::Exception("MissingDictionary")
+       << "could not find dictionary for type '" << fullName << "'"
+       << "\n Please make sure all the necessary libraries are available.";
     return 0;
   }
-   
+
   //We can't use reflex to create the instance since Reflex uses 'malloc' instead of new
   /*
   //use reflex to create an instance of it
   Reflex::Object wrapperObj = classType.Construct();
   if(0 == wrapperObj.Address()) {
-    cms::Exception("FailedToCreate") <<"could not create an instance of '"<<fullName<<"'";
+    cms::Exception("FailedToCreate") << "could not create an instance of '" << fullName << "'";
     return 0;
   }
-      
+
   Reflex::Object edProdObj = wrapperObj.CastObject(Reflex::Type::ByName("edm::WrapperHolder"));
-  
+
   edm::WrapperHolder* prod = reinterpret_cast<edm::WrapperHolder*>(edProdObj.Address());
   */
-  TClass* rootClassType=TClass::GetClass(classType.TypeInfo());
+  TClass* rootClassType = TClass::GetClass(classType.TypeInfo());
   if(0 == rootClassType) {
     throw cms::Exception("MissingRootDictionary")
-    <<"could not find a ROOT dictionary for type '"<<fullName<<"'"
-    <<"\n Please make sure all the necessary libraries are available.";
+    << "could not find a ROOT dictionary for type '" << fullName << "'"
+    << "\n Please make sure all the necessary libraries are available.";
     return 0;
   }
   void* address = rootClassType->New();
-  
-  //static TClass* edproductTClass = TClass::GetClass(typeid(edm::WrapperHolder)); 
-  //edm::WrapperHolder* prod = reinterpret_cast<edm::WrapperHolder*>(rootClassType->DynamicCast(edproductTClass,address,true));
-  edm::WrapperHolder prod = edm::WrapperHolder(address, bdesc.getInterface());
+
+  //static TClass* edproductTClass = TClass::GetClass(typeid(edm::WrapperHolder));
+  //edm::WrapperHolder* prod = reinterpret_cast<edm::WrapperHolder*>(rootClassType->DynamicCast(edproductTClass, address, true));
+  edm::WrapperHolder prod = edm::WrapperHolder(address, bdesc.getInterface(), edm::WrapperHolder::NotOwned);
   if(!prod.isValid()) {
      cms::Exception("FailedConversion")
-	<<"failed to convert a '"<<fullName
-	<<"' to a edm::WrapperHolder."
-	<<"Please contact developers since something is very wrong.";
+        << "failed to convert a '" << fullName
+        << "' to a edm::WrapperHolder."
+        << "Please contact developers since something is very wrong.";
   }
 
   //connect the instance to the branch
   //void* address  = wrapperObj.Address();
-  Buffer b(prod, branch,address,rootClassType);
-  idToBuffers_[iID]=b;
-  
+  Buffer b(prod, branch, address, rootClassType);
+  idToBuffers_[iID] = b;
+
   //As of 5.13 ROOT expects the memory address held by the pointer passed to
   // SetAddress to be valid forever
   address = &(idToBuffers_[iID].address_);
   branch->SetAddress(address);
-  
+
   return &(idToBuffers_[iID]);
 }
 

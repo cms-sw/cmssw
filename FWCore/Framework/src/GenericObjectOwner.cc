@@ -83,7 +83,7 @@ template <>
 OrphanHandle<GenericObjectOwner> 
 Event::put<GenericObjectOwner>(std::auto_ptr<GenericObjectOwner> product, std::string const& productInstanceName)
 {
-   if (product.get() == 0) {                // null pointer is illegal
+   if(product.get() == 0) {                // null pointer is illegal
       throw edm::Exception(edm::errors::NullPointerError)
       << "Event::put: A null auto_ptr was passed to 'put'.\n"
       << "The pointer is of type " << "GenericObjectOwner" << ".\n"
@@ -101,7 +101,7 @@ Event::put<GenericObjectOwner>(std::auto_ptr<GenericObjectOwner> product, std::s
    ConstBranchDescription const& desc =
    provRecorder_.getBranchDescription(TypeID(product->object().TypeOf().TypeInfo()), productInstanceName);
    
-   Reflex::Type const wrapperType=Reflex::Type::ByName(wrappedClassName(desc.fullClassName()));
+   Reflex::Type const wrapperType = Reflex::Type::ByName(wrappedClassName(desc.fullClassName()));
    if(wrapperType == Reflex::Type()) {
       throw edm::Exception(errors::DictionaryNotFound, "NoWrapperDictionary")
       << "Event::put: the class type '" << desc.fullClassName()
@@ -115,15 +115,15 @@ Event::put<GenericObjectOwner>(std::auto_ptr<GenericObjectOwner> product, std::s
    args.push_back(product->object().Address());
    //generate the signature of the function we want to call
    std::string s("void(");
-   s+=desc.fullClassName();
-   s+="*)";
+   s += desc.fullClassName();
+   s += "*)";
    Reflex::Type ptrT = Reflex::Type::ByName(s);
    Reflex::Object oWrapper(wrapperType.Construct(ptrT,args));
    //ownership was transfered to the wrapper
    product.release();
 
    //static Reflex::Type s_edproductType(Reflex::Type::ByTypeInfo(typeid(EDProduct)));
-   WrapperHolder wp(oWrapper.Address(), desc.getInterface());
+   WrapperHolder wp(oWrapper.Address(), desc.getInterface(), WrapperHolder::NotOwned);
    putProducts().push_back(std::make_pair(wp, &desc));
    
    // product.release(); // The object has been copied into the Wrapper.

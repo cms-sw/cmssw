@@ -169,10 +169,8 @@ void test_ep::setUp() {
 
     typedef edmtest::DummyProduct PRODUCT_TYPE;
     typedef edm::Wrapper<PRODUCT_TYPE> WDP;
-    edm::WrapperInterfaceBase const* interface = WDP::getInterface();
 
-    boost::shared_ptr<void const> wdp(new WDP(std::auto_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)), edm::WrapperHolder::EDProductDeleter(interface));
-    edm::WrapperHolder product(wdp, interface);
+    edm::WrapperHolder product(new WDP(std::auto_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)), WDP::getInterface(), edm::WrapperHolder::Owned);
 
     std::string tag("rick");
     assert(branchDescriptions_[tag]);

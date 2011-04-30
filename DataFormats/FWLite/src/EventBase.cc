@@ -56,7 +56,7 @@ namespace fwlite
          edm::BasicHandle failed(whyFailed);
          return failed;
       }
-      edm::WrapperHolder edp(prod, wrapperInterfaceBase);
+      edm::WrapperHolder edp(prod, wrapperInterfaceBase, edm::WrapperHolder::NotOwned);
       if(!edp.isPresent()) {
          edm::TypeID productType(iWrapperInfo);
          boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound));

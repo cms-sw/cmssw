@@ -533,7 +533,7 @@ namespace edm {
     if(!g->provenance() || (!g->product() && !g->productProvenancePtr())) {
       return OutputHandle();
     }
-    return OutputHandle(WrapperHolder(g->product().get(), g->productData().getInterface()), &g->branchDescription(), g->productProvenancePtr());
+    return OutputHandle(WrapperHolder(g->product().get(), g->productData().getInterface(), WrapperHolder::NotOwned), &g->branchDescription(), g->productProvenancePtr());
   }
 
   Provenance

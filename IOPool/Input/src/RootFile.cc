@@ -1526,11 +1526,8 @@ namespace edm {
       for(ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
         BranchDescription const& prod = it->second;
         if(prod.branchType() != InEvent) {
-          WrapperInterfaceBase const* interface = prod.getInterface();
           TClass *cp = gROOT->GetClass(prod.wrappedName().c_str());
-          void const* p = cp->New();
-          boost::shared_ptr<void const> dummy(p, WrapperHolder::EDProductDeleter(interface));
-          WrapperHolder edp(dummy, interface);
+          WrapperHolder edp(cp->New(), prod.getInterface(), WrapperHolder::Owned);
           if(edp.isMergeable()) {
             treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
             ProductRegistry::ProductList::iterator icopy = it;

@@ -104,7 +104,7 @@ namespace edm {
 
 
       branch->GetEntry(entry_);
-      return WrapperHolder(address, bDesc.getInterface());
+      return WrapperHolder(address, bDesc.getInterface(), WrapperHolder::Owned);
     }
 
     struct TFWLiteSelectorMembers {

@@ -16,6 +16,10 @@
 namespace edm {
   class WrapperHolder {
   public:
+    enum Ownership {
+      Owned,
+      NotOwned
+    };
     struct EDProductDeleter {
       explicit EDProductDeleter(WrapperInterfaceBase const* interface);
       void operator()(void const* wrapper) const;
@@ -24,11 +28,11 @@ namespace edm {
 
     WrapperHolder();
 
-    /// Non-owning holder
-    WrapperHolder(void const* wrapper, WrapperInterfaceBase const* interface);
+    WrapperHolder(void const* wrapper, WrapperInterfaceBase const* interface, Ownership ownershipPolicy);
 
-    /// Owning holder
     WrapperHolder(boost::shared_ptr<void const> wrapper, WrapperInterfaceBase const* interface);
+
+    boost::shared_ptr<void const> makeWrapper(void const* wrapper, WrapperInterfaceBase const* interface, Ownership ownershipPolicy);
 
     bool isValid() const {
       return wrapper() && interface_ != 0;
