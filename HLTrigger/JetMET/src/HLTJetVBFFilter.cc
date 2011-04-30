@@ -1,6 +1,6 @@
 /** \class HLTJetVBFFilter
  *
- * $Id: HLTJetVBFFilter.cc,v 1.6 2011/02/09 06:38:58 gruen Exp $
+ * $Id: HLTJetVBFFilter.cc,v 1.7 2011/02/25 12:45:40 gruen Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -32,6 +32,7 @@ HLTJetVBFFilter::HLTJetVBFFilter(const edm::ParameterSet& iConfig)
    etaOpposite_ = iConfig.getParameter<bool>   ("etaOpposite"); 
    minDeltaEta_ = iConfig.getParameter<double> ("minDeltaEta"); 
    minInvMass_  = iConfig.getParameter<double> ("minInvMass"); 
+   maxEta_      = iConfig.getParameter<double> ("maxEta"); 
 
    //register your products
    produces<trigger::TriggerFilterObjectWithRefs>();
@@ -79,11 +80,13 @@ HLTJetVBFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          recocalojet1 != recocalojets->end(); ++recocalojet1) {
       
       if( recocalojet1->et() < minEtHigh_ ) break;
+      if( maxEta_>=0.0 && std::abs(recocalojet1->eta())>maxEta_ ) break;
       
       for (reco::CaloJetCollection::const_iterator recocalojet2 = recocalojet1+1; 
            recocalojet2 != recocalojets->end(); ++recocalojet2) {
         
         if( recocalojet2->et() < minEtLow_ ) break;
+	if( maxEta_>=0.0 && std::abs(recocalojet2->eta())>maxEta_ ) break;
         
         ejet1 = recocalojet1->energy();
         pxjet1 = recocalojet1->px();

@@ -28,6 +28,7 @@ class HLTJetVBFFilter : public HLTFilter {
       bool etaOpposite_;
       double minDeltaEta_;
       double minInvMass_;
+      double maxEta_;
 };
 
 #endif //HLTJetVBFFilter_h
