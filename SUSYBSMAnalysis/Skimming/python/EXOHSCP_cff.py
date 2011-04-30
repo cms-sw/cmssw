@@ -9,7 +9,7 @@ generalTracksSkim = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
     filter = True,
     applyBasicCuts = True,
     ptMin = TRACK_PT,
-    nHitMin = 8,
+    nHitMin = 5,
     chi2nMax = 10.,
 )
 
@@ -46,14 +46,14 @@ DedxFilter = cms.EDFilter("HSCPFilter",
      	 inputTrackCollection = cms.InputTag("TrackRefitterSkim"),
 	 inputDedxCollection =  cms.InputTag("dedxSkimNPHarm2"),
 	 trkPtMin = cms.double(TRACK_PT),
-	 dedxMin =cms.double(3.5),
+	 dedxMin =cms.double(3.0),
      dedxMaxLeft =cms.double(2.8),
-     ndedxHits = cms.int32(8),
+     ndedxHits = cms.int32(5),
      etaMin= cms.double(-2.4),
      etaMax= cms.double(2.4),
      chi2nMax = cms.double(10),
-     dxyMax = cms.double(0.3),
-     dzMax = cms.double(3),
+     dxyMax = cms.double(0.5),
+     dzMax = cms.double(5),
      filter = cms.bool(True)
 
 )
