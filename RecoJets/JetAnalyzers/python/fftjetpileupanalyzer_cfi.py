@@ -19,6 +19,10 @@ fftjet_pileup_analyzer = cms.EDAnalyzer(
     # Label for the MC pileup summary
     pileupLabel = cms.string("addPileupInfo"),
     #
+    # Labels for fastjet rho and sigma
+    fastJetRhoLabel = cms.InputTag(""),
+    fastJetSigmaLabel = cms.InputTag(""),
+    #
     # Output ntuple name/title
     ntupleName = cms.string("FFTJetPileupAnalyzer"),
     ntupleTitle = cms.string("FFTJetPileupAnalyzer ntuple"),
@@ -26,6 +30,7 @@ fftjet_pileup_analyzer = cms.EDAnalyzer(
     # Settings for the types of info we are collecting
     collectHistos = cms.bool(False),
     collectPileup = cms.bool(True),
+    collectFastJetRho = cms.bool(False),
     collectSummaries = cms.bool(True),
     verbosePileupInfo = cms.bool(False)
 )

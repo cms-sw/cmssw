@@ -32,9 +32,20 @@ from RecoJets.JetAnalyzers.fftjetpileupanalyzer_cfi import *
 
 fftjet_pileup_analyzer.summaryLabel = cms.InputTag(
     "pileupestimator", "FFTJetPileupEstimatePF")
+fftjet_pileup_analyzer.fastJetRhoLabel = cms.InputTag("mykt6PFJets", "rho")
+fftjet_pileup_analyzer.fastJetSigmaLabel = cms.InputTag("mykt6PFJets", "sigma")
+fftjet_pileup_analyzer.collectFastJetRho = cms.bool(True)
 
 process.pileupprocessor = fftjet_pileup_processor_pf
 process.pileupestimator = fftjet_pileup_estimator_pf
 process.pileupanalyzer = fftjet_pileup_analyzer
 
-process.p = cms.Path(process.pileupprocessor*process.pileupestimator*process.pileupanalyzer)
+# Configure FastJet rho reconstruction
+from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
+mykt6PFJets = kt4PFJets.clone( rParam = 0.6 )
+mykt6PFJets.doRhoFastjet = True
+mykt6PFJets.doAreaFastjet = True
+mykt6PFJets.voronoiRfact = 0.9
+process.mykt6PFJets = mykt6PFJets
+
+process.p = cms.Path(process.mykt6PFJets*process.pileupprocessor*process.pileupestimator*process.pileupanalyzer)

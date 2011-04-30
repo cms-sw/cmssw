@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Thu Apr 21 15:52:11 CDT 2011
-// $Id: FFTJetPileupAnalyzer.cc,v 1.1 2011/04/21 00:19:43 igv Exp $
+// $Id: FFTJetPileupAnalyzer.cc,v 1.1 2011/04/27 01:16:35 igv Exp $
 //
 //
 
@@ -67,11 +67,14 @@ private:
 
     edm::InputTag histoLabel;
     edm::InputTag summaryLabel;
+    edm::InputTag fastJetRhoLabel;
+    edm::InputTag fastJetSigmaLabel;
     std::string pileupLabel;
     std::string ntupleName;
     std::string ntupleTitle;
     bool collectHistos;
     bool collectSummaries;
+    bool collectFastJetRho;
     bool collectPileup;
     bool verbosePileupInfo;
 
@@ -87,11 +90,14 @@ private:
 FFTJetPileupAnalyzer::FFTJetPileupAnalyzer(const edm::ParameterSet& ps)
     : init_param(edm::InputTag, histoLabel),
       init_param(edm::InputTag, summaryLabel),
+      init_param(edm::InputTag, fastJetRhoLabel),
+      init_param(edm::InputTag, fastJetSigmaLabel),
       init_param(std::string, pileupLabel),
       init_param(std::string, ntupleName),
       init_param(std::string, ntupleTitle),
       init_param(bool, collectHistos),
       init_param(bool, collectSummaries),
+      init_param(bool, collectFastJetRho),
       init_param(bool, collectPileup),
       init_param(bool, verbosePileupInfo),
       nt(0),
@@ -161,6 +167,8 @@ void FFTJetPileupAnalyzer::beginJob()
     std::string vars = "cnt:run:event:nbx:npu:sumptLowCut:sumptHiCut";
     if (collectSummaries)
         vars += ":estimate:pileup:uncert:uncertCode";
+    if (collectFastJetRho)
+        vars += ":fjrho:fjsigma";
     edm::Service<TFileService> fs;
     nt = fs->make<TNtuple>(ntupleName.c_str(), ntupleTitle.c_str(),
                            vars.c_str());
@@ -226,6 +234,16 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
         ntupleData.push_back(summary->pileupRho());
         ntupleData.push_back(summary->pileupRhoUncertainty());
         ntupleData.push_back(summary->uncertaintyCode());
+    }
+
+    if (collectFastJetRho)
+    {
+        edm::Handle<double> fjrho, fjsigma;
+        iEvent.getByLabel(fastJetRhoLabel, fjrho);
+        iEvent.getByLabel(fastJetSigmaLabel, fjsigma);
+
+        ntupleData.push_back(*fjrho);
+        ntupleData.push_back(*fjsigma);
     }
 
     assert(ntupleData.size() == static_cast<unsigned>(nt->GetNvar()));
