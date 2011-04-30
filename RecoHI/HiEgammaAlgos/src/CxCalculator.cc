@@ -284,7 +284,7 @@ double CxCalculator::getJc(const reco::SuperClusterRef cluster, double r1, doubl
       // Jurassic Cone /////
       if ( dR > r1 ) continue;
       if ( dR < r2 ) continue;
-      if ( fabs(dPhi) >  jWidth )  continue;
+      if ( fabs(dEta) <  jWidth)  continue;
       //////////////////////
       double theEt = clu->energy()/cosh(eta);
       if (theEt<threshold) continue;
@@ -306,7 +306,7 @@ double CxCalculator::getJc(const reco::SuperClusterRef cluster, double r1, doubl
       // Jurassic Cone /////                                                                                                  
       if ( dR > r1 ) continue;
       if ( dR < r2 ) continue;
-      if ( fabs(dPhi) >  jWidth)  continue;
+      if ( fabs(dEta) <  jWidth)  continue;
       //////////////////////          
       double theEt = clu->energy()/cosh(eta);
       if (theEt<threshold) continue;
@@ -379,7 +379,8 @@ double CxCalculator::getJcc(const reco::SuperClusterRef cluster, double r1, doub
    double areaStrip = 4*PI*r1 -  4*r1*r1; 
    double areaJura  = getJurassicArea(r1,r2, jWidth) ;
    double theCJ     = getJc(cluster,r1,  r2, jWidth, threshold);
-   
+   cout << "areJura = " << areaJura << endl;
+   cout << "areaStrip " << areaStrip << endl;
    double theCCJ   = theCJ - TotalEt * areaJura / areaStrip ;
    return theCCJ;
 }
