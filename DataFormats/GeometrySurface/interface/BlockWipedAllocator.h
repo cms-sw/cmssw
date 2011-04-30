@@ -53,7 +53,7 @@ public:
 private:
   std::vector<LocalCache*> localCaches;
   std::vector<void *> recycled;
-  const unsigned int maxRecycle=1024;
+  staitc const unsigned int maxRecycle=1024;
 
 protected:
 
