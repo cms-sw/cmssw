@@ -116,8 +116,8 @@ bool HLTDisplacedmumuFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
           float normChi2 = displacedVertex.normalizedChi2();
 	  if (normChi2 > maxNormalisedChi2_) continue;
 
-	  double vtxProb = 0;
-	  if( displacedVertex.ndof() >0 ) vtxProb = TMath::Prob(displacedVertex.chi2(), displacedVertex.ndof() );
+	  double vtxProb = 0.0;
+	  if( (displacedVertex.chi2()>=0) && (displacedVertex.ndof()>0) ) vtxProb = TMath::Prob(displacedVertex.chi2(), displacedVertex.ndof() );
 	  if (vtxProb < minVtxProbability_) continue;
 
           // get the two muons from the vertex
