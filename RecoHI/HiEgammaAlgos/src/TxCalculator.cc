@@ -168,7 +168,8 @@ double TxCalculator::getJt(const reco::Photon cluster, double r1, double r2, dou
 	 // Jurassic Cone /////                                                                                                     
 	 if ( dR > r1 ) continue;
 	 if ( dR < r2 ) continue;
-	 if ( fabs(dPhi) >  jWidth)  continue;
+	 if ( fabs(dEta) <  jWidth)  continue;
+	 // stupid bug if ( fabs(dPhi) >  jWidth)  continue;
 	 ////////////////////// 
 	 
 	 if(pt > threshold)
