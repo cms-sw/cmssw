@@ -41,7 +41,7 @@ HLTMuonTrackMassFilter::HLTMuonTrackMassFilter(const edm::ParameterSet& iConfig)
   muonTag_(iConfig.getParameter<edm::InputTag>("CandTag")),
   trackTag_(iConfig.getParameter<edm::InputTag>("TrackTag")),
   prevCandTag_(iConfig.getParameter<edm::InputTag>("PreviousCandTag")),
-  saveTag_(iConfig.getUntrackedParameter<bool>("SaveTag")),
+  saveTags_(iConfig.getParameter<bool>("saveTags")),
   minMasses_(iConfig.getParameter< std::vector<double> >("MinMasses")),
   maxMasses_(iConfig.getParameter< std::vector<double> >("MaxMasses")),
   checkCharge_(iConfig.getParameter<bool>("checkCharge")),
@@ -81,7 +81,7 @@ HLTMuonTrackMassFilter::HLTMuonTrackMassFilter(const edm::ParameterSet& iConfig)
   stream << "  muonCandidates = " << muonTag_ << "\n";
   stream << "  trackCandidates = " << trackTag_ << "\n";
   stream << "  previousCandidates = " << prevCandTag_ << "\n";
-  stream << "  saveTag = " << saveTag_ << "\n";
+  stream << "  saveTags= " << saveTags_ << "\n";
   stream << "  mass windows =";
   for ( size_t i=0; i<minMasses_.size(); ++i )  
     stream << " (" << minMasses_[i] << "," << maxMasses_[i] << ")";
@@ -108,7 +108,7 @@ HLTMuonTrackMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<edm::InputTag>("TrackTag",edm::InputTag(""));
   //  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltMu0TkMuJpsiTrackMassFiltered"));
   desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag(""));
-  desc.addUntracked<bool>("SaveTag",false);
+  desc.add<bool>("saveTags",false);
   {
     std::vector<double> temp1;
     temp1.reserve(1);
@@ -140,7 +140,7 @@ HLTMuonTrackMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
  // The filter object
   std::auto_ptr<trigger::TriggerFilterObjectWithRefs>
     filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if ( saveTag_ ) {
+  if ( saveTags_ ) {
     filterproduct->addCollectionTag(muonTag_);
     filterproduct->addCollectionTag(trackTag_);
   }

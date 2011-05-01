@@ -8,6 +8,6 @@ hltFilterDisplacedmumu = cms.EDFilter("HLTDisplacedmumuFilter",
     MaxNormalisedChi2 = cms.double( 10.0 ),
     MinVtxProbability = cms.double( 0.0 ),
     MinCosinePointingAngle = cms.double( -2.0 ),
-    SaveTag = cms.untracked.bool( True ),
+    saveTags = cms.bool( True ),
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" )
 )

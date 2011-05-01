@@ -36,7 +36,7 @@ HLTMuonL2PreFilter::HLTMuonL2PreFilter(const edm::ParameterSet& iConfig):
   maxDz_( iConfig.getParameter<double>("MaxDz") ),
   minPt_( iConfig.getParameter<double>("MinPt") ),
   nSigmaPt_( iConfig.getParameter<double>("NSigmaPt") ), 
-  saveTag_( iConfig.getUntrackedParameter<bool>("SaveTag") )
+  saveTags_( iConfig.getParameter<bool>("saveTags") )
 {
   using namespace std;
 
@@ -55,7 +55,7 @@ HLTMuonL2PreFilter::HLTMuonL2PreFilter(const edm::ParameterSet& iConfig):
     ss<<"    MaxDz = "<<maxDz_<<endl;
     ss<<"    MinPt = "<<minPt_<<endl;
     ss<<"    NSigmaPt = "<<nSigmaPt_<<endl;
-    ss<<"    SaveTag = "<<saveTag_;
+    ss<<"    saveTags= "<<saveTags_;
     LogDebug("HLTMuonL2PreFilter")<<ss.str();
   }
 
@@ -82,7 +82,7 @@ HLTMuonL2PreFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("MaxDz",9999.0);
   desc.add<double>("MinPt",0.0);
   desc.add<double>("NSigmaPt",0.0);
-  desc.addUntracked<bool>("SaveTag",false);
+  desc.add<bool>("saveTags",false);
   descriptions.add("hltMuonL2PreFilter",desc);
 }
 
@@ -107,7 +107,7 @@ bool HLTMuonL2PreFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   auto_ptr<TriggerFilterObjectWithRefs> filterproduct(new TriggerFilterObjectWithRefs(path(), module()));
 
   // save Tag
-  if(saveTag_) filterproduct->addCollectionTag(candTag_);
+  if(saveTags_) filterproduct->addCollectionTag(candTag_);
 
   // get hold of all muon candidates available at this level
   Handle<RecoChargedCandidateCollection> allMuons;

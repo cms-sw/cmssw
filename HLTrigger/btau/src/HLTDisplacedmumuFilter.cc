@@ -38,7 +38,7 @@ HLTDisplacedmumuFilter::HLTDisplacedmumuFilter(const edm::ParameterSet& iConfig)
   maxNormalisedChi2_ (iConfig.getParameter<double>("MaxNormalisedChi2")), 
   minVtxProbability_ (iConfig.getParameter<double>("MinVtxProbability")),
   minCosinePointingAngle_ (iConfig.getParameter<double>("MinCosinePointingAngle")),
-  saveTag_ (iConfig.getUntrackedParameter<bool> ("SaveTag",false)),
+  saveTags_ (iConfig.getParameter<bool>("saveTag")),
   DisplacedVertexTag_(iConfig.getParameter<edm::InputTag>("DisplacedVertexTag")),
   beamSpotTag_ (iConfig.getParameter<edm::InputTag> ("BeamSpotTag")),
   MuonTag_ (iConfig.getParameter<edm::InputTag>("MuonTag"))
@@ -100,7 +100,7 @@ bool HLTDisplacedmumuFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
   reco::RecoChargedCandidateRef ref2;
 
   std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if(saveTag_) 	  filterobject->addCollectionTag(MuonTag_);
+  if(saveTags_) 	  filterobject->addCollectionTag(MuonTag_);
 
   
   bool triggered = false;

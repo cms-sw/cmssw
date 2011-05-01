@@ -31,7 +31,7 @@ private:
   edm::InputTag muonTag_;       ///< RecoChargedCandidateCollection (muons)
   edm::InputTag trackTag_;      ///< RecoChargedCandidateCollection (tracks)
   edm::InputTag prevCandTag_;   ///< filter objects from previous filter
-  bool saveTag_;                ///< save tags in filter object collection?
+  bool saveTags_;                ///< save tags in filter object collection?
   std::vector<double> minMasses_; ///< lower mass limits
   std::vector<double> maxMasses_; ///< higher mass limits
   bool checkCharge_;            ///< check opposite charge?

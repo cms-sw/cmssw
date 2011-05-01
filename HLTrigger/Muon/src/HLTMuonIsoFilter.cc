@@ -32,7 +32,7 @@ HLTMuonIsoFilter::HLTMuonIsoFilter(const edm::ParameterSet& iConfig) :
    depTag_  (iConfig.getParameter< std::vector< edm::InputTag > >("DepTag" ) ),
    theDepositIsolator(0),
    min_N_   (iConfig.getParameter<int> ("MinN")),
-   saveTag_  (iConfig.getUntrackedParameter<bool> ("SaveTag",false))
+   saveTags_  (iConfig.getParameter<bool>("saveTag"))
 {
   std::stringstream tags;
   for (unsigned int i=0;i!=depTag_.size();++i)
@@ -85,7 +85,7 @@ HLTMuonIsoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    // get hold of trks
    Handle<RecoChargedCandidateCollection> mucands;
-   if(saveTag_)filterproduct->addCollectionTag(candTag_);
+   if(saveTags_)filterproduct->addCollectionTag(candTag_);
    iEvent.getByLabel (candTag_,mucands);
    Handle<TriggerFilterObjectWithRefs> previousLevelCands;
    iEvent.getByLabel (previousCandTag_,previousLevelCands);

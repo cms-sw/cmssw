@@ -51,7 +51,7 @@ class HLTMuonDimuonL3Filter : public HLTFilter {
       double nsigma_Pt_;        // pt uncertainty margin (in number of sigmas)
       double max_DCAMuMu_;      // DCA between the two muons
       double max_YPair_;        // |rapidity| of pair
-      bool saveTag_;            // should we save the input collection ?
+      bool saveTags_;            // should we save the input collection ?
 
 };
 

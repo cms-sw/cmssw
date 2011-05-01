@@ -32,7 +32,7 @@
 HLTMhtHtFilter::HLTMhtHtFilter(const edm::ParameterSet& iConfig)
 {
   inputJetTag_ = iConfig.getParameter< edm::InputTag > ("inputJetTag");
-  saveTag_     = iConfig.getUntrackedParameter<bool>("saveTag",false);
+  saveTags_     = iConfig.getParameter<bool>("saveTag");
   minMht_= iConfig.getParameter<double> ("minMht");
   minPtJet_= iConfig.getParameter<std::vector<double> > ("minPtJet");
   minNJet_= iConfig.getParameter<int> ("minNJet");
@@ -66,7 +66,7 @@ HLTMhtHtFilter::~HLTMhtHtFilter(){}
 void HLTMhtHtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltMCJetCorJetIcone5HF07"));
-  desc.addUntracked<bool>("saveTag",false);
+  desc.add<bool>("saveTags",false);
   desc.add<double>("minMht",0.0);
   {
     std::vector<double> temp1;
@@ -104,7 +104,7 @@ bool
   using namespace trigger;
   // The filter object
   auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTag_) filterobject->addCollectionTag(inputJetTag_);
+  if (saveTags_) filterobject->addCollectionTag(inputJetTag_);
 
   CaloJetRef ref;
   // Get the Candidates

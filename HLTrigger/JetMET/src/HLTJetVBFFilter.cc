@@ -1,6 +1,6 @@
 /** \class HLTJetVBFFilter
  *
- * $Id: HLTJetVBFFilter.cc,v 1.7 2011/02/25 12:45:40 gruen Exp $
+ * $Id: HLTJetVBFFilter.cc,v 1.8 2011/04/30 16:14:35 gruen Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -26,7 +26,7 @@
 HLTJetVBFFilter::HLTJetVBFFilter(const edm::ParameterSet& iConfig)
 {
    inputTag_    = iConfig.getParameter< edm::InputTag > ("inputTag");
-   saveTag_     = iConfig.getUntrackedParameter<bool>("saveTag",false);
+   saveTags_     = iConfig.getParameter<bool>("saveTag");
    minEtLow_    = iConfig.getParameter<double> ("minEtLow");
    minEtHigh_   = iConfig.getParameter<double> ("minEtHigh");
    etaOpposite_ = iConfig.getParameter<bool>   ("etaOpposite"); 
@@ -49,7 +49,7 @@ HLTJetVBFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // The filter object
   std::auto_ptr<trigger::TriggerFilterObjectWithRefs> 
     filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTag_) filterobject->addCollectionTag(inputTag_);
+  if (saveTags_) filterobject->addCollectionTag(inputTag_);
 
   edm::Handle<reco::CaloJetCollection> recocalojets;
   iEvent.getByLabel(inputTag_,recocalojets);

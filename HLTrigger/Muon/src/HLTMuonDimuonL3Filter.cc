@@ -60,7 +60,7 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig) :
    nsigma_Pt_   (iConfig.getParameter<double> ("NSigmaPt")), 
    max_DCAMuMu_  (iConfig.getParameter<double>("MaxDCAMuMu")),
    max_YPair_   (iConfig.getParameter<double>("MaxRapidityPair")),
-   saveTag_  (iConfig.getUntrackedParameter<bool> ("SaveTag")) 
+   saveTags_  (iConfig.getParameter<bool>("saveTags")) 
 {
 
    LogDebug("HLTMuonDimuonL3Filter")
@@ -111,7 +111,7 @@ HLTMuonDimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("MinPtBalance",-1.0);
   desc.add<double>("MaxPtBalance",999999.0);
   desc.add<double>("NSigmaPt",0.0);
-  desc.addUntracked<bool>("SaveTag",false);
+  desc.add<bool>("saveTags",false);
   desc.add<double>("MaxDCAMuMu",99999.9);
   desc.add<double>("MaxRapidityPair",999999.0);
   descriptions.add("hltMuonDimuonL3Filter",desc);
@@ -138,7 +138,7 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // get hold of trks
    Handle<RecoChargedCandidateCollection> mucands;
-   if(saveTag_)filterproduct->addCollectionTag(candTag_);
+   if(saveTags_)filterproduct->addCollectionTag(candTag_);
    iEvent.getByLabel (candTag_,mucands);
    // sort them by L2Track
    std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > L2toL3s;
