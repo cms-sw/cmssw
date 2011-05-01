@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/03/09 13:58:06 $
- *  $Revision: 1.11 $
+ *  $Date: 2011/03/09 14:12:17 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -235,7 +235,8 @@ void HLTConfigData::dump(const std::string& what) const {
 	 const string& label(moduleLabels_[i][j]);
 	 const string  type(moduleType(label));
 	 const string  edmtype(moduleEDMType(label));
-	 cout << " " << j << ":" << label << "/" << type << "/" << edmtype;
+	 const bool    tags(saveTags(label));
+	 cout << " " << j << ":" << label << "/" << type << "/" << edmtype << "/" << tags;
 	 if (type=="HLTPrescaler") nHLTPrescalers++;
 	 if (type=="HLTLevel1GTSeed") nHLTLevel1GTSeed++;
        }
@@ -382,6 +383,14 @@ const edm::ParameterSet& HLTConfigData::modulePSet(const std::string& module) co
     return processPSet_->getParameterSet(module);
   } else {
     return *s_dummyPSet();
+  }
+}
+
+const bool HLTConfigData::saveTags(const std::string& module) const {
+  if (modulePSet(module).existsAs<bool>("saveTags",true)) {
+    return modulePSet(module).getParameter<bool>("saveTags");
+  } else {
+    return false;
   }
 }
 
