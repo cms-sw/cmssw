@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/03/09 14:12:17 $
- *  $Revision: 1.12 $
+ *  $Date: 2011/05/01 09:25:30 $
+ *  $Revision: 1.13 $
  *
  *  \author Martin Grunewald
  *
@@ -359,16 +359,18 @@ unsigned int HLTConfigData::moduleIndex(const std::string& trigger, const std::s
 }
 
 const std::string HLTConfigData::moduleType(const std::string& module) const {
-  if (modulePSet(module).existsAs<std::string>("@module_type",true)) {
-    return modulePSet(module).getParameter<std::string>("@module_type");
+  const edm::ParameterSet& pset(modulePSet(module));
+  if (pset.existsAs<std::string>("@module_type",true)) {
+    return pset.getParameter<std::string>("@module_type");
   } else {
     return "";
   }
 }
 
 const std::string HLTConfigData::moduleEDMType(const std::string& module) const {
-  if (modulePSet(module).existsAs<std::string>("@module_edm_type",true)) {
-    return modulePSet(module).getParameter<std::string>("@module_edm_type");
+  const edm::ParameterSet& pset(modulePSet(module));
+  if (pset.existsAs<std::string>("@module_edm_type",true)) {
+    return pset.getParameter<std::string>("@module_edm_type");
   } else {
     return "";
   }
@@ -387,8 +389,9 @@ const edm::ParameterSet& HLTConfigData::modulePSet(const std::string& module) co
 }
 
 const bool HLTConfigData::saveTags(const std::string& module) const {
-  if (modulePSet(module).existsAs<bool>("saveTags",true)) {
-    return modulePSet(module).getParameter<bool>("saveTags");
+  const edm::ParameterSet& pset(modulePSet(module));
+  if (pset.existsAs<bool>("saveTags",true)) {
+    return pset.getParameter<bool>("saveTags");
   } else {
     return false;
   }
