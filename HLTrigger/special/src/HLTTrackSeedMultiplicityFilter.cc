@@ -34,7 +34,7 @@ private:
  
 HLTTrackSeedMultiplicityFilter::HLTTrackSeedMultiplicityFilter(const edm::ParameterSet& config) :
   inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
-  saveTags_      (config.getParameter<bool>("saveTag")),
+  saveTags_      (config.getParameter<bool>(saveTags")),
   min_seeds_ (config.getParameter<unsigned int>("minSeeds")),
   max_seeds_ (config.getParameter<unsigned int>("maxSeeds"))
 {

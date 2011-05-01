@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/10/15 22:44:31 $
- *  $Revision: 1.13 $
+ *  $Date: 2011/05/01 08:19:55 $
+ *  $Revision: 1.14 $
  *
  *  \author Martin Grunewald
  *
@@ -30,7 +30,7 @@ template<typename T1, int Tid1, typename T2, int Tid2>
 HLTDoublet<T1,Tid1,T2,Tid2>::HLTDoublet(const edm::ParameterSet& iConfig) :
   inputTag1_(iConfig.template getParameter<edm::InputTag>("inputTag1")),
   inputTag2_(iConfig.template getParameter<edm::InputTag>("inputTag2")),
-  saveTags_ (iConfig.template getParameter<bool>("saveTag")),
+  saveTags_ (iConfig.template getParameter<bool>(saveTags")),
   min_Dphi_ (iConfig.template getParameter<double>("MinDphi")),
   max_Dphi_ (iConfig.template getParameter<double>("MaxDphi")),
   min_Deta_ (iConfig.template getParameter<double>("MinDeta")),

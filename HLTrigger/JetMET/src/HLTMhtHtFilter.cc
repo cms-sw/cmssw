@@ -32,7 +32,7 @@
 HLTMhtHtFilter::HLTMhtHtFilter(const edm::ParameterSet& iConfig)
 {
   inputJetTag_ = iConfig.getParameter< edm::InputTag > ("inputJetTag");
-  saveTags_     = iConfig.getParameter<bool>("saveTag");
+  saveTags_     = iConfig.getParameter<bool>(saveTags");
   minMht_= iConfig.getParameter<double> ("minMht");
   minPtJet_= iConfig.getParameter<std::vector<double> > ("minPtJet");
   minNJet_= iConfig.getParameter<int> ("minNJet");

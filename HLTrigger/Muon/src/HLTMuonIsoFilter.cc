@@ -32,7 +32,7 @@ HLTMuonIsoFilter::HLTMuonIsoFilter(const edm::ParameterSet& iConfig) :
    depTag_  (iConfig.getParameter< std::vector< edm::InputTag > >("DepTag" ) ),
    theDepositIsolator(0),
    min_N_   (iConfig.getParameter<int> ("MinN")),
-   saveTags_  (iConfig.getParameter<bool>("saveTag"))
+   saveTags_  (iConfig.getParameter<bool>(saveTags"))
 {
   std::stringstream tags;
   for (unsigned int i=0;i!=depTag_.size();++i)

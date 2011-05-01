@@ -56,7 +56,7 @@ HLTMuonDimuonL2Filter::HLTMuonDimuonL2Filter(const edm::ParameterSet& iConfig):
    min_PtBalance_ (iConfig.getParameter<double> ("MinPtBalance")),
    max_PtBalance_ (iConfig.getParameter<double> ("MaxPtBalance")),
    nsigma_Pt_   (iConfig.getParameter<double> ("NSigmaPt")),
-   saveTags_  (iConfig.getParameter<bool>("saveTag")) 
+   saveTags_  (iConfig.getParameter<bool>(saveTags")) 
 {
 
    LogDebug("HLTMuonDimuonL2Filter")

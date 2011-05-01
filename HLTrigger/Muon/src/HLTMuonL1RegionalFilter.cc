@@ -12,7 +12,7 @@ HLTMuonL1RegionalFilter::HLTMuonL1RegionalFilter(const edm::ParameterSet& iConfi
   candTag_( iConfig.getParameter<edm::InputTag>("CandTag") ),
   previousCandTag_( iConfig.getParameter<edm::InputTag>("PreviousCandTag") ),
   minN_( iConfig.getParameter<int>("MinN") ),
-  saveTags_( iConfig.getParameter<bool>("saveTag") ) 
+  saveTags_( iConfig.getParameter<bool>(saveTags") ) 
 {
   using namespace std;
   using namespace edm;

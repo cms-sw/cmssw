@@ -17,7 +17,7 @@
  
 HLTTrackerHaloFilter::HLTTrackerHaloFilter(const edm::ParameterSet& config) :
   inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
-  saveTags_      (config.getParameter<bool>("saveTag")),
+  saveTags_      (config.getParameter<bool>(saveTags")),
   max_clusTp_   (config.getParameter<int>("MaxClustersTECp")),
   max_clusTm_   (config.getParameter<int>("MaxClustersTECm")),
   sign_accu_    (config.getParameter<int>("SignalAccumulation")),

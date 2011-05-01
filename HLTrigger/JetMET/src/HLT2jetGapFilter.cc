@@ -24,7 +24,7 @@
 HLT2jetGapFilter::HLT2jetGapFilter(const edm::ParameterSet& iConfig)
 {
    inputTag_ = iConfig.getParameter< edm::InputTag > ("inputTag");
-   saveTags_    = iConfig.getParameter<bool>("saveTag");
+   saveTags_    = iConfig.getParameter<bool>(saveTags");
    minEt_   = iConfig.getParameter<double> ("minEt");
    minEta_= iConfig.getParameter<double> ("minEta"); 
 
