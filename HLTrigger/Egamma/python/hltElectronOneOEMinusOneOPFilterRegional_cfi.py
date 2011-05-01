@@ -8,6 +8,6 @@ hltElectronOneOEMinusOneOPFilterRegional= cms.EDFilter( "HLTElectronOneOEMinusOn
     endcapcut = cms.double( 999.9 ),
     ncandcut = cms.int32( 1 ),
     doIsolated = cms.bool( False ),
-    SaveTag = cms.untracked.bool( False )
+    saveTags = cms.bool( False )
 )
 

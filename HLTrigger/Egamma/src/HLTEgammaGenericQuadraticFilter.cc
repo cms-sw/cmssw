@@ -1,6 +1,6 @@
 /** \class HLTEgammaGenericQuadraticFilter
  *
- * $Id: HLTEgammaGenericQuadraticFilter.cc,v 1.3 2009/09/16 09:23:20 covarell Exp $
+ * $Id: HLTEgammaGenericQuadraticFilter.cc,v 1.1 2011/01/17 21:48:50 cgtully Exp $
  *
  *  \author Roberto Covarelli (CERN)
  *  modified by Chris Tully (Princeton)
@@ -41,7 +41,7 @@ HLTEgammaGenericQuadraticFilter::HLTEgammaGenericQuadraticFilter(const edm::Para
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");			  
   doIsolated_ = iConfig.getParameter<bool> ("doIsolated");		  
 			     				  
-  store_ = iConfig.getUntrackedParameter<bool> ("SaveTag",false) ;	  
+  store_ = iConfig.getParameter<bool>("saveTags") ;	  
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 	  
   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
 
