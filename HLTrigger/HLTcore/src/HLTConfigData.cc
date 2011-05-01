@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/05/01 09:25:30 $
- *  $Revision: 1.13 $
+ *  $Date: 2011/05/01 09:47:28 $
+ *  $Revision: 1.14 $
  *
  *  \author Martin Grunewald
  *
@@ -24,7 +24,7 @@ static const edm::ParameterSet* s_dummyPSet()
 HLTConfigData::HLTConfigData():
   processPSet_(s_dummyPSet()),
   processName_(""),
-  tableName_(), triggerNames_(), moduleLabels_(),
+  tableName_(), triggerNames_(), moduleLabels_(), saveTagsModules_(),
   triggerIndex_(), moduleIndex_(),
   hltL1GTSeeds_(),
   streamNames_(), streamIndex_(), streamContents_(),
@@ -39,7 +39,7 @@ HLTConfigData::HLTConfigData():
 HLTConfigData::HLTConfigData(const edm::ParameterSet* iPSet):
   processPSet_(iPSet),
   processName_(""),
-  tableName_(), triggerNames_(), moduleLabels_(),
+  tableName_(), triggerNames_(), moduleLabels_(), saveTagsModules_(),
   triggerIndex_(), moduleIndex_(),
   hltL1GTSeeds_(),
   streamNames_(), streamIndex_(), streamContents_(),
@@ -88,6 +88,19 @@ void HLTConfigData::extract()
      if (processPSet_->existsAs<vector<string> >(triggerNames_[i],true)) {
        moduleLabels_.push_back(processPSet_->getParameter<vector<string> >(triggerNames_[i]));
      }
+   }
+   saveTagsModules_.reserve(n);
+   vector<string> labels;
+   for (unsigned int i=0;i!=n; ++i) {
+     labels.clear();
+     const vector<string>& modules(moduleLabels(i));
+     const unsigned int m(modules.size());
+     labels.reserve(m);
+     for (unsigned int j=0;j!=m; ++j) {
+       const string& label(modules[j]);
+       if (saveTags(label)) labels.push_back(label);
+     }
+     saveTagsModules_.push_back(labels);
    }
 
    // Fill index maps for fast lookup
@@ -337,6 +350,13 @@ const std::vector<std::string>& HLTConfigData::moduleLabels(unsigned int trigger
 }
 const std::vector<std::string>& HLTConfigData::moduleLabels(const std::string& trigger) const {
   return moduleLabels_.at(triggerIndex(trigger));
+}
+
+const std::vector<std::string>& HLTConfigData::saveTagsModules(unsigned int trigger) const {
+  return saveTagsModules_.at(trigger);
+}
+const std::vector<std::string>& HLTConfigData::saveTagsModules(const std::string& trigger) const {
+  return saveTagsModules_.at(triggerIndex(trigger));
 }
 
 const std::string& HLTConfigData::moduleLabel(unsigned int trigger, unsigned int module) const {
