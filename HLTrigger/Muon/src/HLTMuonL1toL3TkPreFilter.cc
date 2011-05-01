@@ -42,7 +42,7 @@ HLTMuonL1toL3TkPreFilter::HLTMuonL1toL3TkPreFilter(const ParameterSet& iConfig) 
    max_Dz_    (iConfig.getParameter<double> ("MaxDz")),
    min_Pt_    (iConfig.getParameter<double> ("MinPt")),
    nsigma_Pt_  (iConfig.getParameter<double> ("NSigmaPt")), 
-   saveTags_  (iConfig.getParameter<bool>(saveTags")) 
+   saveTags_  (iConfig.getParameter<bool>("saveTags")) 
 {
 
    LogDebug("HLTMuonL1toL3TkPreFilter")

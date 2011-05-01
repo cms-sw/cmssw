@@ -4,8 +4,8 @@
  *  This class is an HLTFilter (-> EDFilter) implementing a
  *  single CaloTower requirement with an emEnergy threshold (not Et!)
  *
- *  $Date: 2011/05/01 08:26:40 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/05/01 08:41:41 $
+ *  $Revision: 1.4 $
  *
  *  \author Seth Cooper
  *
@@ -47,7 +47,7 @@ private:
 //
 HLTEcalTowerFilter::HLTEcalTowerFilter(const edm::ParameterSet& config) :
   inputTag_ (config.getParameter<edm::InputTag>("inputTag")),
-  saveTags_  (config.getParameter<bool>(saveTags")),
+  saveTags_  (config.getParameter<bool>("saveTags")),
   min_E_    (config.getParameter<double>       ("MinE"   )),
   max_Eta_  (config.getParameter<double>       ("MaxEta"   )),
   min_N_    (config.getParameter<int>          ("MinN"   ))

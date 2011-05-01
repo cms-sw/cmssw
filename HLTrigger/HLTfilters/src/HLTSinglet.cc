@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/05/01 08:19:55 $
- *  $Revision: 1.8 $
+ *  $Date: 2011/05/01 08:43:49 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *
@@ -25,7 +25,7 @@
 template<typename T, int Tid>
 HLTSinglet<T,Tid>::HLTSinglet(const edm::ParameterSet& iConfig) :
   inputTag_ (iConfig.template getParameter<edm::InputTag>("inputTag")),
-  saveTags_  (iConfig.template getParameter<bool>(saveTags")),
+  saveTags_  (iConfig.template getParameter<bool>("saveTags")),
   min_Pt_   (iConfig.template getParameter<double>       ("MinPt"   )),
   max_Eta_  (iConfig.template getParameter<double>       ("MaxEta"  )),
   min_N_    (iConfig.template getParameter<int>          ("MinN"    ))

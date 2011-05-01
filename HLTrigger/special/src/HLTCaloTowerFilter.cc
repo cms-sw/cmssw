@@ -50,7 +50,7 @@ private:
 //
 HLTCaloTowerFilter::HLTCaloTowerFilter(const edm::ParameterSet& config) :
   inputTag_ (config.getParameter<edm::InputTag>("inputTag")),
-  saveTags_  (config.getParameter<bool>(saveTags")),
+  saveTags_  (config.getParameter<bool>("saveTags")),
   min_Pt_   (config.getParameter<double>       ("MinPt"   )),
   max_Eta_  (config.getParameter<double>       ("MaxEta"  )),
   min_N_    (config.getParameter<unsigned int> ("MinN"    ))

@@ -3,8 +3,8 @@
  *  This class is an EDFilter implementing the following requirement:
  *  the number of caltowers with hadEnergy>E_Thr less than N_Thr for HB/HE/HF sperately.
  *
- *  $Date: 2011/05/01 08:26:41 $
- *  $Revision: 1.4 $
+ *  $Date: 2011/05/01 08:41:41 $
+ *  $Revision: 1.5 $
  *
  *  \author Li Wenbo (PKU)
  *
@@ -48,7 +48,7 @@ private:
 //
 HLTHcalTowerFilter::HLTHcalTowerFilter(const edm::ParameterSet& config) :
   inputTag_ (config.getParameter<edm::InputTag>("inputTag")),
-  saveTags_  (config.getParameter<bool>(saveTags")),
+  saveTags_  (config.getParameter<bool>("saveTags")),
   min_E_HB_ (config.getParameter<double>       ("MinE_HB")),
   min_E_HE_ (config.getParameter<double>       ("MinE_HE")),
   min_E_HF_ (config.getParameter<double>       ("MinE_HF")),

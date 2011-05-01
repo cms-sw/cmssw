@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/05/01 08:19:55 $
- *  $Revision: 1.9 $
+ *  $Date: 2011/05/01 08:43:49 $
+ *  $Revision: 1.10 $
  *
  *  \author Jim Brooke
  *
@@ -32,7 +32,7 @@
 //
 HLT1CaloJetEnergy::HLT1CaloJetEnergy(const edm::ParameterSet& iConfig) :
   inputTag_ (iConfig.getParameter<edm::InputTag>("inputTag")),
-  saveTags_  (iConfig.getParameter<bool>(saveTags")),
+  saveTags_  (iConfig.getParameter<bool>("saveTags")),
   min_E_    (iConfig.getParameter<double>       ("MinE"   )),
   max_Eta_  (iConfig.getParameter<double>       ("MaxEta"   )),
   min_N_    (iConfig.getParameter<int>          ("MinN"   ))

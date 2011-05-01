@@ -1,6 +1,6 @@
 /** \class HLTRapGapFilter
  *
- * $Id: HLTRapGapFilter.cc,v 1.8 2011/05/01 08:21:43 gruen Exp $
+ * $Id: HLTRapGapFilter.cc,v 1.9 2011/05/01 08:40:25 gruen Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -26,7 +26,7 @@
 HLTRapGapFilter::HLTRapGapFilter(const edm::ParameterSet& iConfig)
 {
    inputTag_   = iConfig.getParameter< edm::InputTag > ("inputTag");
-   saveTags_    = iConfig.getParameter<bool>(saveTags");
+   saveTags_    = iConfig.getParameter<bool>("saveTags");
    absEtaMin_  = iConfig.getParameter<double> ("minEta");
    absEtaMax_  = iConfig.getParameter<double> ("maxEta"); 
    caloThresh_ = iConfig.getParameter<double> ("caloThresh"); 

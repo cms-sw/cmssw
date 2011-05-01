@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/05/01 08:19:55 $
- *  $Revision: 1.10 $
+ *  $Date: 2011/05/01 08:43:49 $
+ *  $Revision: 1.11 $
  *
  *  \author Martin Grunewald
  *
@@ -27,7 +27,7 @@
 template<typename T, int Tid>
 HLTGlobalSums<T,Tid>::HLTGlobalSums(const edm::ParameterSet& iConfig) :
   inputTag_   (iConfig.template getParameter<edm::InputTag>("inputTag")),
-  saveTags_    (iConfig.template getParameter<bool>(saveTags")),
+  saveTags_    (iConfig.template getParameter<bool>("saveTags")),
   observable_ (iConfig.template getParameter<std::string>("observable")),
   min_        (iConfig.template getParameter<double>("Min")),
   max_        (iConfig.template getParameter<double>("Max")),

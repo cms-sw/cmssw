@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/05/01 08:19:55 $
- *  $Revision: 1.7 $
+ *  $Date: 2011/05/01 08:43:49 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -25,7 +25,7 @@
 template<typename T, int Tid>
 HLTSmartSinglet<T,Tid>::HLTSmartSinglet(const edm::ParameterSet& iConfig) :
   inputTag_ (iConfig.template getParameter<edm::InputTag>("inputTag")),
-  saveTags_  (iConfig.template getParameter<bool>(saveTags")),
+  saveTags_  (iConfig.template getParameter<bool>("saveTags")),
   cut_      (iConfig.template getParameter<std::string>  ("cut"     )),
   min_N_    (iConfig.template getParameter<int>          ("MinN"    )),
   select_   (cut_                                                    )

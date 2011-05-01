@@ -39,7 +39,7 @@ HLTmmkFilter::HLTmmkFilter(const edm::ParameterSet& iConfig):thirdTrackMass_(iCo
                                                              minLxySignificance_(iConfig.getParameter<double>("MinLxySignificance")),
                                                              minCosinePointingAngle_(iConfig.getParameter<double>("MinCosinePointingAngle")),
                                                              fastAccept_(iConfig.getParameter<bool>("FastAccept")),
-							     saveTags_ (iConfig.getParameter<bool>(saveTags")),
+							     saveTags_ (iConfig.getParameter<bool>("saveTags")),
 							     beamSpotTag_ (iConfig.getParameter<edm::InputTag> ("BeamSpotTag")){
 
   muCandLabel_   = iConfig.getParameter<edm::InputTag>("MuCand");

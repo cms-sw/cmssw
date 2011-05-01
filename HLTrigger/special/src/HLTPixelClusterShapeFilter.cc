@@ -59,7 +59,7 @@ private:
  
 HLTPixelClusterShapeFilter::HLTPixelClusterShapeFilter(const edm::ParameterSet& config) :
   inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
-  saveTags_      (config.getParameter<bool>(saveTags")),
+  saveTags_      (config.getParameter<bool>("saveTags")),
   minZ_         (config.getParameter<double>("minZ")),
   maxZ_         (config.getParameter<double>("maxZ")),
   zStep_        (config.getParameter<double>("zStep")),

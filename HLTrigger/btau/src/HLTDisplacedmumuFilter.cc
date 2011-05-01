@@ -38,7 +38,7 @@ HLTDisplacedmumuFilter::HLTDisplacedmumuFilter(const edm::ParameterSet& iConfig)
   maxNormalisedChi2_ (iConfig.getParameter<double>("MaxNormalisedChi2")), 
   minVtxProbability_ (iConfig.getParameter<double>("MinVtxProbability")),
   minCosinePointingAngle_ (iConfig.getParameter<double>("MinCosinePointingAngle")),
-  saveTags_ (iConfig.getParameter<bool>(saveTags")),
+  saveTags_ (iConfig.getParameter<bool>("saveTags")),
   DisplacedVertexTag_(iConfig.getParameter<edm::InputTag>("DisplacedVertexTag")),
   beamSpotTag_ (iConfig.getParameter<edm::InputTag> ("BeamSpotTag")),
   MuonTag_ (iConfig.getParameter<edm::InputTag>("MuonTag"))

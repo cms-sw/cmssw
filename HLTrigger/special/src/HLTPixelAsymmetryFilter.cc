@@ -16,7 +16,7 @@
  
 HLTPixelAsymmetryFilter::HLTPixelAsymmetryFilter(const edm::ParameterSet& config) :
   inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
-  saveTags_      (config.getParameter<bool>(saveTags")),
+  saveTags_      (config.getParameter<bool>("saveTags")),
   min_asym_ (config.getParameter<double>("MinAsym")),
   max_asym_ (config.getParameter<double>("MaxAsym")),
   clus_thresh_ (config.getParameter<double>("MinCharge")),

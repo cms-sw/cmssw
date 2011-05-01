@@ -34,7 +34,7 @@ private:
  
 HLTPixelActivityFilter::HLTPixelActivityFilter(const edm::ParameterSet& config) :
   inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
-  saveTags_      (config.getParameter<bool>(saveTags")),
+  saveTags_      (config.getParameter<bool>("saveTags")),
   min_clusters_ (config.getParameter<unsigned int>("minClusters")),
   max_clusters_ (config.getParameter<unsigned int>("maxClusters"))
 {
