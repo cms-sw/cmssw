@@ -37,7 +37,7 @@ public:
   void project(TransientTrackingRecHit::ConstRecHitPointer & ptr,
 	       const SiStripRecHit2D * hit,
 	       TransientTrackingRecHit::ConstRecHitPointer & replaceMe) const;
-
+  void setNoProjection() const {failProjection=true;};
 private:
   bool ringRange(int ring) const;
 private:
@@ -50,6 +50,7 @@ private:
   bool hasStereoHits;  edm::InputTag theStereoHits;
   bool hasRingSelector; int theMinRing, theMaxRing; 
   bool hasSimpleRphiHitsCleaner;
+  mutable bool failProjection;
 };
 
 }
