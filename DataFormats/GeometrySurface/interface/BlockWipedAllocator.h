@@ -3,7 +3,9 @@
 
 #include<vector>
 #include<list>
-#include<map>
+// #include<map>
+#include <ext/hash_map>
+
 #include <algorithm>
 
 #include<boost/bind.hpp>
@@ -105,7 +107,8 @@ private:
 class BlockWipedPool {
 public:
   typedef BlockWipedAllocator Allocator;
-  typedef std::map<std::size_t, Allocator> Pool; 
+  //  typedef std::map<std::size_t, Allocator> Pool;
+  typedef __gnu_cxx::hash_map<std::size_t, Allocator> Pool;
 
   BlockWipedPool(std::size_t blockSize, std::size_t  maxRecycle);
 
