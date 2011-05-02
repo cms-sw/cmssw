@@ -27,6 +27,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include <map>
 namespace lumi{
   class TRG2DB : public DataPipe{
@@ -199,7 +200,7 @@ namespace lumi{
       if(algobit==(lumi::N_TRGALGOBIT-1)){
 	++s;
 	while(s!=lsnr){
-	  std::cout<<"ALGO COUNT alert: found hole in LS range"<<std::endl;
+	  std::cout<<"ALGO COUNT alert: found hole in LS range "<<s<<std::endl;
 	  std::cout<<"    fill all algocount 0 for LS "<<s<<std::endl;
 	  std::vector<unsigned int> tmpzero(lumi::N_TRGALGOBIT,0);
 	  algocount.push_back(tmpzero);
@@ -247,7 +248,7 @@ namespace lumi{
       if(techbit==(lumi::N_TRGTECHBIT-1)){
 	++s;
 	while(s!=lsnr){
-	  std::cout<<"TECH COUNT alert: found hole in LS range"<<std::endl;
+	  std::cout<<"TECH COUNT alert: found hole in LS range "<<s<<std::endl;
 	  std::cout<<"     fill all techcount with 0 for LS "<<s<<std::endl;
 	  std::vector<unsigned int> tmpzero(lumi::N_TRGTECHBIT,0);
 	  techcount.push_back(tmpzero);
@@ -292,9 +293,10 @@ namespace lumi{
       ++s;
       unsigned int lsnr=row["lsnr"].data<unsigned int>();
       while(s!=lsnr){
-	std::cout<<"DEADTIME alert: found hole in LS range"<<std::endl;
+	std::cout<<"DEADTIME alert: found hole in LS range"<<s<<std::endl;
 	std::cout<<"         fill deadtimebeamactive 0 for LS "<<s<<std::endl;
 	deadtimeresult.push_back(0);
+	
 	++s;
       }
       unsigned int count=row["counts"].data<unsigned int>();
@@ -358,12 +360,29 @@ namespace lumi{
     bindVariablesLstopresc["runnumber"].data<int>()=runnumber;
     lstoprescQuery->setCondition("RUN_NUMBER =:runnumber",bindVariablesLstopresc);
     lstoprescQuery->defineOutput(lstoprescOutput);
+    unsigned int lsprescount=0;
+    unsigned int lastpresc=0;
     coral::ICursor& lstoprescCursor=lstoprescQuery->execute();
     while( lstoprescCursor.next() ){
+      ++lsprescount;
       const coral::AttributeList& row = lstoprescCursor.currentRow();     
       unsigned int lumisection=row["lumisection"].data< unsigned int>();
+      while(lsprescount!=lumisection){
+	  std::cout<<"PRESCALE_INDEX COUNT alert: found hole in LS range "<<lsprescount<<std::endl;
+	  std::cout<<"     fill this prescale from last availabl prescale "<<lastpresc<<std::endl;
+	  unsigned int guesspsidx=lastpresc;
+	  lsprescmap.insert(std::make_pair(lsprescount,guesspsidx));
+	  ++lsprescount;
+      }
       int psidx=row["psidx"].data< int>();
       lsprescmap.insert(std::make_pair(lumisection,psidx));
+      lastpresc=psidx;
+    }
+    if(lsprescount==0){
+      lstoprescCursor.close();
+      delete lstoprescQuery ;
+      transaction.commit();
+      throw lumi::Exception(std::string("requested run ")+runnumberstr+std::string(" doesn't exist for prescale_index"),"retrieveData","TRG2DB");
     }
     delete lstoprescQuery ;
 
@@ -556,8 +575,40 @@ namespace lumi{
     //if(algoprescale.size()!=lumi::N_TRGALGOBIT || techprescale.size()!=lumi::N_TRGTECHBIT){
     //  throw lumi::Exception("wrong number of prescale","retrieveData","TRG2DB");
     //}
-    if(deadtimeresult.size()!=algocount.size() || deadtimeresult.size()!=techcount.size()){
-      throw lumi::Exception("inconsistent number of LS","retrieveData","TRG2DB");
+    if(deadtimeresult.size()!=algocount.size() || deadtimeresult.size()!=techcount.size() || deadtimeresult.size()!=algoprescale.size() || deadtimeresult.size()!=techprescale.size() ){
+      //throw lumi::Exception("inconsistent number of LS","retrieveData","TRG2DB");
+      std::cout<<"[WARNING] inconsistent number of LS of deadtimecounter,algo,tech,prescalealgo,prescaletech "<<deadtimeresult.size()<<" "<<algocount.size()<<" "<<techcount.size()<<" "<<algoprescale.size()<<" "<<techprescale.size()<<std::endl;
+      TRG2DB::TriggerDeadCountResult::iterator dIt;
+      TRG2DB::TriggerDeadCountResult::iterator dBeg=deadtimeresult.begin();
+      TRG2DB::TriggerDeadCountResult::iterator dEnd=deadtimeresult.end();
+      unsigned int dcnt=0;
+      for(dIt=dBeg;dIt!=dEnd;++dIt){
+	try{
+	  algocount.at(dcnt);
+	}catch(std::out_of_range& er){
+	  std::vector<unsigned int> tmpzero(lumi::N_TRGALGOBIT,0);
+	  std::cout<<"[WARNING] filling FAKE algocount at LS "<<dcnt<<std::endl;
+	  algocount[dcnt]=tmpzero;
+	}
+	try{
+	  techcount.at(dcnt);
+	}catch(std::out_of_range& er){
+	  std::vector<unsigned int> tmpzero(lumi::N_TRGTECHBIT,0);
+	  std::cout<<"[WARNING] filling FAKE techcount at LS "<<dcnt<<std::endl;
+	  techcount[dcnt]=tmpzero;
+	}      
+	if(algoprescale.find(dcnt+1)==algoprescale.end()){
+	  std::vector<unsigned int> tmpzero(lumi::N_TRGALGOBIT,1);
+	  std::cout<<"[WARNING] filling FAKE 1 algoprescale at LS "<<dcnt+1<<std::endl;
+	  algoprescale[dcnt+1]=tmpzero;
+	}
+	if(techprescale.find(dcnt+1)==techprescale.end()){
+	  std::vector<unsigned int> tmpzero(lumi::N_TRGTECHBIT,1);
+	  std::cout<<"[WARNING] filling FAKE 1 techprescale at LS "<<dcnt+1<<std::endl;
+	  techprescale[dcnt+1]=tmpzero;
+	}
+	++dcnt;	
+      }
     }
     //    
     //write data into lumi db
