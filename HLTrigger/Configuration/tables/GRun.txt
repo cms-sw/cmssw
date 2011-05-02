@@ -26,6 +26,7 @@ HLT_DoubleJet70_ForwardBackward_v*
 HLT_DoubleJet80_ForwardBackward_v*
 HLT_CentralJet80_MET65_v*
 HLT_CentralJet80_MET80_v*
+HLT_CentralJet80_MET80HF_v*
 HLT_CentralJet80_MET100_v*
 HLT_CentralJet80_MET160_v*
 HLT_DiJet60_MET45_v*
@@ -187,7 +188,7 @@ HLT_DoubleEle8_CaloIdL_TrkIdVL_v*
 HLT_DoubleEle33_v*
 HLT_DoubleEle33_CaloIdL_v*
 HLT_IsoPFTau35_Trk20_MET45_v*
-HLT_DoubleIsoPFTau20_Trk5_v*
+HLT_DoubleIsoPFTau25_Trk5_eta2p1_v*
 HLT_HT250_DoubleLooseIsoPFTau10_Trk3_PFMHT35_v*
 HLT_HT300_DoubleLooseIsoPFTau10_Trk3_PFMHT40_v*
 HLT_HT350_DoubleLooseIsoPFTau10_Trk3_PFMHT45_v*
@@ -214,7 +215,7 @@ HLT_Mu8_Photon20_CaloIdVT_IsoT_v*
 HLT_Mu8_Jet40_v*
 HLT_Mu15_Photon20_CaloIdL_v*
 HLT_Mu15_DoublePhoton15_CaloIdL_v*
-HLT_Mu15_LooseIsoPFTau20_v*
+HLT_Mu15_LooseIsoPFTau15_v*
 HLT_Mu17_CentralJet30_v*
 HLT_Mu17_DiCentralJet30_v*
 HLT_Mu17_TriCentralJet30_v*
@@ -223,7 +224,7 @@ HLT_Mu12_CentralJet30_BTagIP_v*
 HLT_Mu17_CentralJet30_BTagIP_v*
 HLT_Mu15_HT200_v*
 HLT_Mu20_HT200_v*
-HLT_IsoMu12_LooseIsoPFTau10_v*
+HLT_IsoMu15_LooseIsoPFTau15_v*
 HLT_IsoMu17_CentralJet30_BTagIP_v*
 HLT_DoubleMu3_HT150_v*
 HLT_DoubleMu3_HT200_v*
