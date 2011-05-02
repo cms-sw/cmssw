@@ -5,8 +5,7 @@
 #include "FWCore/Utilities/interface/FriendlyName.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
-#include "TROOT.h"
-#include "TMethodCall.h"
+#include "Reflex/Member.h"
 
 #include <ostream>
 #include <sstream>
@@ -341,14 +340,9 @@ namespace edm {
   BranchDescription::getInterface() const {
     if(wrapperInterfaceBase() == 0) {
       // This could be done in init(), but we only want to do it on demand, for performance reasons.
-      TClass* cp = gROOT->GetClass(wrappedName().c_str());
-      assert(cp != 0);
-      std::auto_ptr<TMethodCall> methodCall(new TMethodCall);
-      methodCall->Init(cp, "getInterface", "");
-      void* p = 0;
-      Long_t ret = 0L;
-      methodCall->Execute(p, ret);
-      wrapperInterfaceBase() = reinterpret_cast<WrapperInterfaceBase*>(ret);
+      Reflex::Type type = Reflex::Type::ByName(wrappedName());
+      Reflex::Member getTheInterface = type.FunctionMemberByName(std::string("getInterface"));
+      getTheInterface.Invoke(wrapperInterfaceBase());
       assert(wrapperInterfaceBase() != 0);
     }
     return wrapperInterfaceBase();
