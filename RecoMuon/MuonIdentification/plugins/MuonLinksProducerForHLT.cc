@@ -1,7 +1,7 @@
 /** \class MuonLinksProducerForHLT
  *
- *  $Date: $
- *  $Revision:$
+ *  $Date: 2011/05/02 16:09:31 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
@@ -49,10 +49,10 @@ void MuonLinksProducerForHLT::produce(edm::Event& iEvent, const edm::EventSetup&
    edm::Handle<reco::TrackCollection> incTracks; 
    iEvent.getByLabel(theInclusiveTrackCollectionInInput, incTracks);
 
-   unsigned int trackIndex = 0;
    for(reco::MuonTrackLinksCollection::const_iterator link = links->begin(); 
        link != links->end(); ++link){
      bool found = false;
+     unsigned int trackIndex = 0;
      for(reco::TrackCollection::const_iterator track = incTracks->begin();
 	 track != incTracks->end(); ++track, ++trackIndex){      
        if(found) continue;
