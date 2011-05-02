@@ -17,6 +17,8 @@
 	<File name="Geometry/MuonCommonData/data/mb2.xml" url="."/> 
 	<File name="Geometry/MuonCommonData/data/mb3.xml" url="."/> 
 	<File name="Geometry/MuonCommonData/data/mb4.xml" url="."/> 
+	<File name="Geometry/MuonCommonData/data/muonYoke.xml" url="."/>
+	<File name="Geometry/MuonCommonData/data/mf.xml" url="."/>
    </Include>
    <Root  fileName="cms.xml" logicalPartName="cms:OCMS"/>
 </Configuration>
