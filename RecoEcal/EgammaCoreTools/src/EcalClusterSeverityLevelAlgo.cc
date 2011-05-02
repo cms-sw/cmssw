@@ -23,8 +23,8 @@ float EcalClusterSeverityLevelAlgo::goodFraction( const reco::CaloCluster & clus
 		      
                 uint32_t sev = sevlv.severityLevel( id, recHits);
 		//                if ( sev == EcalSeverityLevelAlgo::kBad ) ++recoveryFailed;
-                if ( sev == EcalSeverityLevelAlgo::kProblematic 
-                     || sev == EcalSeverityLevelAlgo::kRecovered || sev == EcalSeverityLevelAlgo::kBad ) 
+                if ( sev == EcalSeverityLevel::kProblematic 
+                     || sev == EcalSeverityLevel::kRecovered || sev == EcalSeverityLevel::kBad ) 
 		  {
 // 		    std::cout << "[goodFraction] Found a problematic channel " << EBDetId(id) << " " << flag << " energy: " <<  (*jrh).energy() << std::endl;
 		    fraction += (*jrh).energy() * (*it).second / cluster.energy();
@@ -96,7 +96,7 @@ DetId EcalClusterSeverityLevelAlgo::closestProblematic(const reco::CaloCluster &
 	continue;
       //Now checking rh flag   
       uint32_t sev = sevlv.severityLevel( *it, recHits);
-      if (sev == EcalSeverityLevelAlgo::kGood)
+      if (sev == EcalSeverityLevel::kGood)
 	continue;
       //      std::cout << "[closestProblematic] Found a problematic channel " << EBDetId(*it) << " " << flag << std::endl;
       //Find the closest DetId in eta,phi space (distance defined by deta^2 + dphi^2)
