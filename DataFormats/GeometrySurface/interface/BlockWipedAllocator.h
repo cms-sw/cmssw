@@ -131,7 +131,7 @@ private:
 
 
 // singleton
-BlockWipedPool & blockWipedPool();
+BlockWipedPool & blockWipedPool(BlockWipedPool * p=0);
 
 template<size_t S>
 BlockWipedAllocator & blockWipedAllocator() {

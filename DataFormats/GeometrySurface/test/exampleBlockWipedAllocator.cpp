@@ -130,7 +130,7 @@ void gen(BP & bp) {
 }
 
 int main(int v, char **) {
-  BlockWipedPool pool;
+  BlockWipedPool pool(1096,1096);
   blockWipedPool(&pool);
   if (v==1) BlockWipedPoolAllocated::usePool();
 

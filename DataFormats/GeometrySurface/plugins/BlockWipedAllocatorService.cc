@@ -40,7 +40,7 @@ public:
 			     edm::ActivityRegistry & iAR ) :
     pool( std::max(256,iConfig.getUntrackedParameter<int>("blockSize",1024)),
 	  std::max(256,iConfig.getUntrackedParameter<int>("recyclerSize",4096))
-	  ) : {
+	  ) {
     
     m_useAlloc = iConfig.getUntrackedParameter<bool>("usePoolAllocator",false);
     m_dump = iConfig.getUntrackedParameter<bool>("dumpEachModule",false);

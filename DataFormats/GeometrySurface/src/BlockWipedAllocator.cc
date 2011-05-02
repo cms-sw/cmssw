@@ -111,7 +111,7 @@ void BlockWipedPool::clear() {
 
 
 
-BlockWipedPool & blockWipedPool(BlockWipedPool * p=0) {
+BlockWipedPool & blockWipedPool(BlockWipedPool * p) {
   static BlockWipedPool * local=0;
   if (p!=0) local=p;
   return *local;
