@@ -102,6 +102,7 @@ def CreateTheShellFile(argv):
 	        shell_file.write('root -l -b << EOF\n')
 	        shell_file.write('   TString makeshared(gSystem->GetMakeSharedLib());\n')
 	        shell_file.write('   TString dummy = makeshared.ReplaceAll("-W ", "");\n')
+                shell_file.write('   TString dummy = makeshared.ReplaceAll("-Wshadow ", "");\n')
 	        shell_file.write('   gSystem->SetMakeSharedLib(makeshared);\n')
 	        shell_file.write('   gSystem->Load("libFWCoreFWLite");\n')
 	        shell_file.write('   AutoLibraryLoader::enable();\n')
