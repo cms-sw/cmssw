@@ -11,8 +11,8 @@ process = cms.Process('RECO')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-#process.load("SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R39F16_cff")
+#process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load("SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R39F16_cff")
 process.load("SLHCUpgradeSimulations.Geometry.PhaseI_cmsSimIdealGeometryXML_R39F16_cff")
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('SLHCUpgradeSimulations.Geometry.Digi_Phase1_cff')
@@ -23,12 +23,12 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.5 $'),
+    version = cms.untracked.string('$Revision: 1.6 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10)
 )
 process.options = cms.untracked.PSet(
   wantSummary = cms.untracked.bool(True)
@@ -36,8 +36,9 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("PoolSource",
-#    fileNames = cms.untracked.vstring('file:FourMuPt_1_50_GEN_SIM.root')
-    fileNames = cms.untracked.vstring('file:FourMuPt_1_50_GEN_SIM_DESIGN.root')
+    fileNames = cms.untracked.vstring(
+	'/store/relval/CMSSW_4_2_2_SLHC_pre1/RelValFourMuons/GEN-SIM/DESIGN42_V10_110429_special-v1/0026/4608D85D-7C72-E011-B4E9-00261894380B.root'
+    )
 )
 # Output definition
 process.output = cms.OutputModule("PoolOutputModule",
@@ -72,9 +73,9 @@ process.Timing =  cms.Service("Timing")
 process.MessageLogger.destinations = cms.untracked.vstring("detailedInfo_fullph1geom")
 
 ### if pileup we need to set the number
-#process.mix.input.nbPileupEvents = cms.PSet(
-#  averageNumber = cms.double(50.0)
-#)
+process.mix.input.nbPileupEvents = cms.PSet(
+  averageNumber = cms.double(50.0)
+)
 ### if doing inefficiency at <PU>=50
 #process.simSiPixelDigis.AddPixelInefficiency = 20
 ## also for strips TIB inefficiency if we want
