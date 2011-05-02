@@ -2950,6 +2950,20 @@ void OHltTree::CheckOpenHlt(
          }
       }
    }
+   else if (triggerName.CompareTo("OpenHLT_Mu13_Mu8_v2") == 0)
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+	   if (OpenHlt2MuonPassed(3., 4., 8., 2., 0)>=2 && OpenHlt1MuonPassed(7., 7., 13., 2., 0)>=1)
+            {
+               triggerBit[it] = true;
+            }
+         }
+      }
+   }
+
    else if (triggerName.CompareTo("OpenHLT_L1DoubleMuOpen") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
