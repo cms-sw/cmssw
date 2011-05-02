@@ -130,7 +130,9 @@ void gen(BP & bp) {
 }
 
 int main(int v, char **) {
-  if (v>1) BlockWipedPoolAllocated::usePool();
+  BlockWipedPool pool;
+  blockWipedPool(&pool);
+  if (v==1) BlockWipedPoolAllocated::usePool();
 
   dump();
 

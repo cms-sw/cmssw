@@ -17,7 +17,9 @@
 class BlockWipedAllocator {
 public:
   BlockWipedAllocator( std::size_t typeSize,
-		       std::size_t blockSize);
+		       std::size_t blockSize,
+		       std::size_t  maxRecycle
+		       );
   
 
   /*  copy constructor clone the allocator and the memory it manages
@@ -53,7 +55,7 @@ public:
 private:
   std::vector<LocalCache*> localCaches;
   std::vector<void *> recycled;
-  static const unsigned int maxRecycle=1024;
+
 
 protected:
 
@@ -90,6 +92,7 @@ private:
 
   std::size_t m_typeSize;
   std::size_t m_blockSize;
+  std::size_t m_maxRecycle;
   pointer m_next;
   iterator m_current;
   Blocks m_blocks;
@@ -104,7 +107,7 @@ public:
   typedef BlockWipedAllocator Allocator;
   typedef std::map<std::size_t, Allocator> Pool; 
 
-  BlockWipedPool(std::size_t blockSize);
+  BlockWipedPool(std::size_t blockSize, std::size_t  maxRecycle);
 
   Allocator & allocator( std::size_t typeSize);
 
@@ -122,6 +125,7 @@ public:
 
 private:
   std::size_t m_blockSize;
+  std::size_t m_maxRecycle;
   Pool m_pool;
 };
 

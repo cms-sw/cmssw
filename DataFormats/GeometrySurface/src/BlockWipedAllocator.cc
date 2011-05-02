@@ -2,21 +2,24 @@
 
 
 BlockWipedAllocator::BlockWipedAllocator( std::size_t typeSize,
-					  std::size_t blockSize):
-  m_typeSize(typeSize), m_blockSize(blockSize), m_alive(0){
+					  std::size_t blockSize,
+					  std::size_t  maxRecycle):
+  m_typeSize(typeSize), m_blockSize(blockSize), m_maxRecycle(maxRecycle), m_alive(0){
   if (typeSize<32) abort(); // throw std::bad_alloc();
-  recycled.reserve(maxRecycle);
+  recycled.reserve(m_maxRecycle);
   wipe();
 }
   
 
 BlockWipedAllocator::BlockWipedAllocator(BlockWipedAllocator const & rh) :
-  m_typeSize(rh.m_typeSize), m_blockSize(rh.m_blockSize),m_alive(0) {
+  m_typeSize(rh.m_typeSize), m_blockSize(rh.m_blockSize), m_maxRecycle(rh.m_maxRecycle), m_alive(0) {
+  recycled.reserve(m_maxRecycle);
   wipe();
 }
 
 BlockWipedAllocator& BlockWipedAllocator::operator=(BlockWipedAllocator const & rh) {
-  m_typeSize=rh.m_typeSize; m_blockSize=rh.m_blockSize;
+  m_typeSize=rh.m_typeSize; m_blockSize=rh.m_blockSize; m_maxRecycle=rh.m_maxRecycle;
+  recycled.reserve(m_maxRecycle);
   m_alive=0;
   wipe();
   return *this;
@@ -41,7 +44,7 @@ void * BlockWipedAllocator::alloc() {
 }
   
 void BlockWipedAllocator::dealloc(void * p) {
-  if (recycled.size()<maxRecycle) recycled.push_back(p);
+  if (recycled.size()<m_maxRecycle) recycled.push_back(p);
   m_alive--;
 }
 
@@ -83,13 +86,14 @@ void BlockWipedAllocator::nextBlock(bool advance) {
 }
 
 
-BlockWipedPool::BlockWipedPool(std::size_t blockSize) : m_blockSize(blockSize){}
+BlockWipedPool::BlockWipedPool(std::size_t blockSize, std::size_t  maxRecycle) : 
+  m_blockSize(blockSize),  m_maxRecycle(maxRecycle){}
 
 
 BlockWipedPool::Allocator & BlockWipedPool::allocator( std::size_t typeSize) {
   Pool::iterator p=m_pool.find(typeSize);
   if (p!=m_pool.end()) return (*p).second;
-  return (*m_pool.insert(std::make_pair(typeSize,Allocator(typeSize, m_blockSize))).first).second;
+  return (*m_pool.insert(std::make_pair(typeSize,Allocator(typeSize, m_blockSize, m_maxRecycle))).first).second;
 }
 
 void BlockWipedPool::wipe() {
@@ -107,9 +111,10 @@ void BlockWipedPool::clear() {
 
 
 
-BlockWipedPool & blockWipedPool() {
-  static BlockWipedPool local(1024);
-  return local;
+BlockWipedPool & blockWipedPool(BlockWipedPool * p=0) {
+  static BlockWipedPool * local=0;
+  if (p!=0) local=p;
+  return *local;
 }
 
 

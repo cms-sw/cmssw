@@ -34,14 +34,19 @@ private:
   bool m_useAlloc;
   bool m_dump;
   int  m_clearFreq;
+  BlockWipedPool pool;
 public:
   BlockWipedAllocatorService(const edm::ParameterSet & iConfig,
-			     edm::ActivityRegistry & iAR ) {
+			     edm::ActivityRegistry & iAR ) :
+    pool( std::max(256,iConfig.getUntrackedParameter<int>("blockSize",1024)),
+	  std::max(256,iConfig.getUntrackedParameter<int>("recyclerSize",4096))
+	  ) : {
     
     m_useAlloc = iConfig.getUntrackedParameter<bool>("usePoolAllocator",false);
     m_dump = iConfig.getUntrackedParameter<bool>("dumpEachModule",false);
     m_clearFreq = std::max(1,iConfig.getUntrackedParameter<int>("clearFrequency",20));
 
+    blockWipedPool(&pool);
     if (m_useAlloc) BlockWipedPoolAllocated::usePool();
     iAR.watchPreSource(this,&BlockWipedAllocatorService::preSource);
     iAR.watchPreProcessEvent(this,&BlockWipedAllocatorService::preEventProcessing);
