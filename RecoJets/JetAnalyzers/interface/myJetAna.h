@@ -14,7 +14,6 @@
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 // class TFile;
@@ -85,6 +84,11 @@ private:
   TH1F *HFEneOOTTh1;
   TH1F *HOEneOOTTh1;
 
+
+  TH1F *HBEneTThr;
+  TH1F *HEEneTThr;
+  TH1F *HFEneTThr;
+
   TH1F *HBEne;
   TH1F *HBEneTh;
   TH1F *HBEneTh1;
@@ -99,6 +103,17 @@ private:
   TH1F *HBTimeTh1R;
   TH1F *HBTimeTh2R;
   TH1F *HBTimeTh3R;
+
+  TH1F *HBTimeFlagged;
+  TH1F *HBTimeThFlagged;
+  TH1F *HBTimeTh1Flagged;
+  TH1F *HBTimeTh2Flagged;
+
+  TH1F *HBTimeFlagged2;
+  TH1F *HBTimeThFlagged2;
+  TH1F *HBTimeTh1Flagged2;
+  TH1F *HBTimeTh2Flagged2;
+
   TH1F *HBTimeX;
   TH1F *HBTimeY;
   TH1F *HEEne;
@@ -117,6 +132,17 @@ private:
   TH1F *HETimeTh1R;
   TH1F *HETimeTh2R;
   TH1F *HETimeTh3R;
+
+  TH1F *HETimeFlagged;
+  TH1F *HETimeThFlagged;
+  TH1F *HETimeTh1Flagged;
+  TH1F *HETimeTh2Flagged;
+
+  TH1F *HETimeFlagged2;
+  TH1F *HETimeThFlagged2;
+  TH1F *HETimeTh1Flagged2;
+  TH1F *HETimeTh2Flagged2;
+
   TH1F *HETimeX;
   TH1F *HETimeY;
   TH1F *HEposTime;
@@ -128,6 +154,7 @@ private:
   TH1F *HFEnePMT2;
   TH1F *HFEne;
   TH1F *HFEneFlagged;
+  TH1F *HFEneFlagged2;
   TH1F *HFEneTh;
   TH1F *HFEneTh1;
   TH1F *HFTimePMT0;
@@ -136,6 +163,16 @@ private:
   TH1F *HFTime;
   TH1F *PMTHits;
   TH1F *HFTimeFlagged;
+  TH1F *HFTimeFlagged2;
+  TH1F *HFTimeThFlagged2;
+  TH1F *HFTimeTh1Flagged2;
+  TH1F *HFTimeTh2Flagged2;
+  TH1F *HFTimeTh3Flagged2;
+  TH1F *HFTimeFlagged3;
+  TH1F *HFTimeThFlagged3;
+  TH1F *HFTimeTh1Flagged3;
+  TH1F *HFTimeTh2Flagged3;
+  TH1F *HFTimeTh3Flagged3;
   TH1F *HFTimeTh;
   TH1F *HFTimeTh1;
   TH1F *HFTimeTh2;
@@ -151,6 +188,8 @@ private:
   TH1F *TrkMultFlagged4;
   TH1F *TrkMultFlaggedM;
   TH1F *HFTimeThFlagged;
+  TH1F *HFTimeTh2Flagged;
+  TH1F *HFTimeTh3Flagged;
   TH1F *HFTimeThFlaggedR;
   TH1F *HFTimeThFlaggedR1;
   TH1F *HFTimeThFlaggedR2;
@@ -168,6 +207,10 @@ private:
   TH1F *HFLEneNoSFlagged;
   TH1F *HFLEneNoSFlaggedN;
   TH1F *HFLTime;
+  TH1F *HFSEneAll;
+  TH1F *HFSEneAllF;
+  TH1F *HFLEneAll;
+  TH1F *HFLEneAllF;
   TH1F *HFSEne;
   TH1F *HFSEneNoL;
   TH1F *HFSEneNoLFlagged;
@@ -177,6 +220,11 @@ private:
   TH2F *HBTvsE;
   TH2F *HETvsE;
   TH2F *HFTvsE;
+  TH2F *HFTvsEFlagged;
+  TH2F *HFTvsEFlagged2;
+  TH2F *HFTvsEThr;
+  TH2F *HFTvsEFlaggedThr;
+  TH2F *HFTvsEFlagged2Thr;
   TH2F *HOTvsE;
 
   TH1F *HFSTime;
@@ -196,8 +244,10 @@ private:
   TH2F *HBocc;
   TH2F *HEocc;
   TH2F *HFocc;
+  TH2F *HFoccTime;
   TH2F *HFEtaPhiNFlagged;
   TH2F *HFoccFlagged;
+  TH2F *HFoccFlagged2;
   TH2F *HOoccOOT;
   TH2F *HBoccOOT;
   TH2F *HEoccOOT;
@@ -265,8 +315,12 @@ private:
   TH1F *HPD_N;
 
   // --- from reco calomet
+  TH1F *HFSumEt;
+  TH1F *HFMET;
+
   TH1F *SumEt;
   TH1F *MET;
+  TH1F *OERMET;
   TH1F *MET_Tower;
   TH1F *MET_RBX;
   TH1F *MET_HPD;
@@ -363,6 +417,8 @@ private:
 
   TH1F *h_jet1Pt;
   TH1F *h_jet2Pt;
+  TH1F *h_jet1Eta;
+  TH1F *h_jet2Eta;
   TH1F *h_jet1PtHLT;
 
   TH1F *jetHOEne;
@@ -386,6 +442,24 @@ private:
 
   TH1F *NPass;
   TH1F *NTotal;
+  TH1F *NTime;
+
+  TH1F *HFRecHitEne;
+  TH1F *HFRecHitEneClean;
+  TH1F *HFRecHitTime;
+
+  TH1F *HFLongShortPhi;
+  TH1F *HFLongShortEta;
+  TH1F *HFLongShortEne;
+  TH1F *HFLongShortTime;
+
+  TH1F *HFDigiTimePhi; 
+  TH1F *HFDigiTimeEta;
+  TH1F *HFDigiTimeEne; 
+  TH1F *HFDigiTimeTime;
+
+  TH1F *HFLongShortNHits;
+  TH1F *HFDigiTimeNHits;
 
   TH2F *HFvsZ;
   TH2F *EBvHB;

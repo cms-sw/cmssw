@@ -27,15 +27,32 @@ private:
   int _passNTrks;
   int _passEMF;
   int _passNJets;
+  int _passDiJet;
   int _passNTowers;
   int _passMET;
   int _passMETSig;
   int _passHighPtTower;
   int _passNRBX;
+  int _passNHPDNoise;
   int _passHLT;
   int _passNPMTHits;
   int _passNMultiPMTHits;
   int _passPKAM;
+  int _passHFMET;
+  int _passNoiseSummary;
+  int _passNoiseSummaryEMF;
+  int _passNoiseSummaryE2E10;
+  int _passNoiseSummaryNHITS;
+  int _passNoiseSummaryADC0;
+  int _passNoiseSummaryNoOther;
+  int _passOERatio;
+  int _passTime;
+  int _passHFTime;
+  int _passHBHETime;
+  int _passHFFlagged;
+  int _passHFHighEnergy;
+
+  int _NoiseResult[10];
 
   std::string CaloJetAlgorithm;
   edm::InputTag theTriggerResultsLabel;
