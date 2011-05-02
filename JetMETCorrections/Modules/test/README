@@ -400,12 +400,18 @@ The DBService is "offline production"
 The account is "Physics Tools for 31x"
 
 Then click "SUBMIT"
+
+
+15) Check that the right number of payloads was updated
+
+cmscond_list_iov -c frontier://PromptProd/CMS_COND_31X_PHYSICSTOOLS -a | grep Jec11 | wc -l 
+
+This should match the number sent to the ALCA list
+
+16) Ask the ALCA L2's to create the global tag.
+
  
 
-15) Ask the ALCA L2's to create the global tag.
-
- 
-
-16) Check the global tags here:
+17) Check the global tags here:
 
 http://cms-conddb.cern.ch/popcon/PopConRecentActivityRecorded.html
