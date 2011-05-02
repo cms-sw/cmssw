@@ -8,13 +8,13 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                         correctForPhaseContainment = cms.bool(False),
                         correctForTimeslew = cms.bool(False),
                         dropZSmarkedPassed = cms.bool(True),
-   		        firstSample = cms.int32(4),
+   		        firstSample = cms.int32(2),
                         samplesToAdd = cms.int32(2),	
                         tsFromDB = cms.bool(True),
 	
                         correctTiming = cms.bool(True),
                         # Set time slice for first digi to be stored in aux word 
-                        firstAuxTS = cms.int32(3),
+                        firstAuxTS = cms.int32(1),
 
                         # Tags for calculating status flags
                         setNoiseFlags = cms.bool(True),
@@ -23,9 +23,9 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                         setTimingTrustFlags = cms.bool(True),
                         setPulseShapeFlags = cms.bool(False),  # not yet defined for HF
 
-                        digistat= cms.PSet(HFdigiflagFirstSample     = cms.int32(3),  # These may be different from samples used for reconstruction
+                        digistat= cms.PSet(HFdigiflagFirstSample     = cms.int32(1),  # These may be different from samples used for reconstruction
                                            HFdigiflagSamplesToAdd    = cms.int32(3),  # Use 3 TS for 75-ns running
-                                           HFdigiflagExpectedPeak    = cms.int32(4), # expected TS position of pulse peak
+                                           HFdigiflagExpectedPeak    = cms.int32(2), # expected TS position of pulse peak
                                            HFdigiflagMinEthreshold  = cms.double(40), # minimum energy required to be flagged as noisy
                                            # Following parameters are used for determining
                                            # minimum threshold fC(peak)/sum_fC(HFsamplesToAdd) > [0] - exp([1]+[2]*Energy)
