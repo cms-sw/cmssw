@@ -40,6 +40,9 @@ EwkMuDQM::EwkMuDQM( const ParameterSet & cfg ) :
       metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("pfmet"))),
       jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("ak5PFJets"))),
       vertexTag_(cfg.getUntrackedParameter<edm::InputTag> ("VertexTag", edm::InputTag("offlinePrimaryVertices"))),
+      trigPathNames_(cfg.getUntrackedParameter<std::vector <std::string> >("TrigPathNames")),           
+
+
 
       // Main cuts 
       ptCut_(cfg.getUntrackedParameter<double>("PtCut", 25.)),
@@ -280,21 +283,28 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 	return;
       }
       const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
+      //  LogWarning("")<<"Loop over triggers";
+
 
       for (unsigned int i=0; i<triggerResults->size(); i++)
       {
               const std::string trigName = trigNames.triggerName(i);
-              size_t found = trigName.find("HLT_Mu");
-              if ( found == std::string::npos) continue;
 
+              bool found=false; 
+              for(unsigned int index=0; index<trigPathNames_.size() && found==false; index++) {
+                   size_t trigPath = trigName.find(trigPathNames_[index]); // 0 if found, pos if not
+                   if (trigPath==0) found=true;
+              }
+              if(!found) {continue;}
+              
               bool prescaled=false;    
               for (unsigned int ps= 0; ps<  hltConfigProvider_.prescaleSize(); ps++){
                   const unsigned int prescaleValue = hltConfigProvider_.prescaleValue(ps, trigName) ;
                   if (prescaleValue != 1) prescaled =true;
               }
-              if(prescaled) continue;    
-
-              if( triggerResults->accept(i) )   trigger_fired=true;
+            
+              if( triggerResults->accept(i) && !prescaled){   trigger_fired=true;}
+                        // LogWarning("")<<"TrigNo: "<<i<<"  "<<found<<"  "<<trigName<<" ---> FIRED";}
       }     
       trig_before_->Fill(trigger_fired);
 

@@ -34,6 +34,7 @@ private:
   //bool metIncludesMuons_; plain met not supported anymore, default is pfMet
   edm::InputTag jetTag_;
   edm::InputTag vertexTag_;
+  std::vector <std::string>  trigPathNames_;
 
   double ptCut_;
   double etaCut_;
