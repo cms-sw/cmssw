@@ -1,6 +1,7 @@
 root -l -b << EOF
   TString makeshared(gSystem->GetMakeSharedLib());
   TString dummy = makeshared.ReplaceAll("-W ", "");
+  TString dummy = makeshared.ReplaceAll("-Wshadow ", "");
   gSystem->SetMakeSharedLib(makeshared);
   gSystem->Load("libFWCoreFWLite");
   AutoLibraryLoader::enable();
@@ -9,6 +10,7 @@ root -l -b << EOF
   gSystem->Load("libDataFormatsVertexReco.so");
   gSystem->Load("libDataFormatsCommon.so");
   gSystem->Load("libDataFormatsHepMCCandidate.so");
-  .x DumpInfo.C++("Results/dedxASmi/combined/Eta25/PtMin25/Type0/",268);
+  gSystem->Load("libDataFormatsTrackerRecHit2D.so");
+  .x DumpInfo.C++("Results/dedxASmi/combined/Eta25/PtMin25/Type2/",69);
 EOF
 

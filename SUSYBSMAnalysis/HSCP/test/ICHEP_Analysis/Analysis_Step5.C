@@ -77,14 +77,14 @@ void Analysis_Step5()
 //   PredictionAndControlPlot(InputDir);
 
 
-   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";   unsigned int CutIndex = 43;//41
+   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";   unsigned int CutIndex = 24;//41
 //   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type2/";   unsigned int CutIndex = 57;
 
 //   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";   unsigned int CutIndex = 84;
 //   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type2/";   unsigned int CutIndex = 113;
-   SelectionPlot(InputDir, CutIndex);
+//   SelectionPlot(InputDir, CutIndex);
    MassPrediction(InputDir, CutIndex);  
-   PredictionAndControlPlot(InputDir, CutIndex);
+//   PredictionAndControlPlot(InputDir, CutIndex);
    return;
 }
 

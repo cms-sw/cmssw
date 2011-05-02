@@ -7,75 +7,6 @@ import sys
 import LaunchOnCondor
 import glob
 
-
-def ScanWP(Arguments):
-	WP_Pt=0.0
-	while WP_Pt>=-5.0:
-		Arguments[8] = WP_Pt
-	 	WP_I=WP_Pt+1.5
-		while WP_I>=WP_Pt-1.5:
-			if WP_I>0:
-				WP_I=WP_I-0.5
-				continue
-			Arguments[9] = WP_I
-			if Arguments[3]==2:
-				WP_TOF=WP_Pt+1.5
-				while WP_TOF>=WP_Pt-1.5:
-					if (WP_TOF>0) or (WP_Pt+WP_I+WP_TOF<-7.0):
-						WP_TOF=WP_TOF-0.5
-						continue
-					Arguments[10] = WP_TOF
-					LaunchOnCondor.SendCluster_Push(Arguments)
-					#print Arguments
-					WP_TOF=WP_TOF-0.5
-			else:
-				Arguments[10] = 0.0
-				LaunchOnCondor.SendCluster_Push(Arguments)
-				#print Arguments
-			WP_I=WP_I-0.5
-		WP_Pt=WP_Pt-0.5
-
-
-def ScanCutId(Arguments):
-	WP_Pt=30.0
-	while WP_Pt<=150.0:
-		Arguments[8] = WP_Pt
-	 	WP_I=0.05
-		while WP_I<=0.25:
-			Arguments[9] = WP_I
-			if Arguments[3]==2:
-				WP_TOF=1.0
-				while WP_TOF<=1.3:
-					Arguments[10] = WP_TOF
-					LaunchOnCondor.SendCluster_Push(Arguments)
-					WP_TOF=WP_TOF+0.05
-			else:
-				Arguments[10] = 0.0
-				LaunchOnCondor.SendCluster_Push(Arguments)
-			WP_I=WP_I+0.03
-		WP_Pt=WP_Pt+20
-
-def ScanCutIe(Arguments):
-	WP_Pt=30.0
-	while WP_Pt<=150.0:
-		Arguments[8] = WP_Pt
-	 	WP_I=2.5
-		while WP_I<=4.5:
-			Arguments[9] = WP_I
-			if Arguments[3]==2:
-				WP_TOF=1.0
-				while WP_TOF<=1.3:
-					Arguments[10] = WP_TOF
-					LaunchOnCondor.SendCluster_Push(Arguments)
-					WP_TOF=WP_TOF+0.05
-			else:
-				Arguments[10] = 0.0
-				LaunchOnCondor.SendCluster_Push(Arguments)
-			WP_I=WP_I+0.25
-		WP_Pt=WP_Pt+20
-
-			
-
 def ComputeLimits(InputPattern):
         LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino200_2C"' , '"Gluino200"', 0.0    / 0.3029 , 0.0    / 0.4955 , 1.0    / 0.2015])
         LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino300_2C"' , '"Gluino300"', 0.0    / 0.3029 , 0.0    / 0.4955 , 1.0    / 0.2015])
@@ -167,34 +98,29 @@ def ComputeLimits(InputPattern):
 
 if len(sys.argv)==1:
 	print "Please pass in argument a number between 0 and 2"
+        print "  0 - Submit the Core of the (TkOnly+TkTOF) Analysis     --> submitting 2x 1 jobs"
+        print "  1 - Run the control plot macro                         --> submitting    0 jobs"
+        print "  2 - Run the Optimization macro based on best Exp Limit --> submitting 2x75 jobs"
+        print "  3 - Run the exclusion plot macro                       --> submitting    0 jobs"
 	sys.exit()
 
-if sys.argv[1]=='0':	
+elif sys.argv[1]=='0':	
         print 'ANALYSIS'
         FarmDirectory = "FARM"
         JobName = "HscpAnalysis"
 	LaunchOnCondor.Jobs_RunHere = 1
 	LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)	
-        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', 0, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0]) #TkOnly Discrim Pt>20
-        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0]) #TkTOF  Discrim Pt>20
-#        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', 0, '"dedxASmi"'  ,'"dedxNPHarm2"', '"combined"', 0.0, 0.0, 0.0]) #TkOnly Discrim Pt>20
-#        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', 2, '"dedxASmi"'  ,'"dedxNPHarm2"', '"combined"', 0.0, 0.0, 0.0]) #TkTOF  Discrim Pt>20
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', 0, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0]) #TkOnly
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0]) #TkTOF 
 	LaunchOnCondor.SendCluster_Submit()
 
-if sys.argv[1]=='1':
-        print 'ANALYSIS'
-        FarmDirectory = "FARM"
-        JobName = "HscpAnalysis"
-        LaunchOnCondor.Jobs_RunHere = 1
-        LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)
-        ScanWP(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', 0, 0, '"dedxASmi"'  ,'"dedxHarm2"', '"combined"', "WP_Pt", "WP_I", "WP_TOF",  20.0]) #TkOnly Discrim Pt>20   No    Splitting
-        ScanWP(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', 2, 0, '"dedxASmi"'  ,'"dedxHarm2"', '"combined"', "WP_Pt", "WP_I", "WP_TOF",  20.0]) #TkTOF  Discrim Pt>20   No    Splitting
-        LaunchOnCondor.SendCluster_Submit()
+elif sys.argv[1]=='1':
+        print 'PLOTTING'
+	os.system('root Analysis_Step5.C++ -l -b -q')
 
 
-
-if sys.argv[1]=='2':
-        print 'LIMITS'
+elif sys.argv[1]=='2':
+        print 'OPTIMIZATION'
         FarmDirectory = "FARM"
         JobName = "HscpLimits"
         LaunchOnCondor.Jobs_RunHere = 1
@@ -204,36 +130,12 @@ if sys.argv[1]=='2':
         LaunchOnCondor.SendCluster_Submit()
 
 
-if sys.argv[1]=='3':
-        print 'ANALYSIS'
-        FarmDirectory = "FARM"
-        JobName = "HscpAnalysisCut"
-        LaunchOnCondor.Jobs_RunHere = 1
-        LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)
-        ScanCutId(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', 0, 0, '"dedxASmi"'  ,'"dedxHarm2"', '"combined"', "WP_Pt", "WP_I", "WP_TOF",  20.0]) #TkOnly Discrim Pt>20   No    Splitting
-        ScanCutId(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', 2, 0, '"dedxASmi"'  ,'"dedxHarm2"', '"combined"', "WP_Pt", "WP_I", "WP_TOF",  20.0]) #TkTOF  Discrim Pt>20   No    Splitting
-        LaunchOnCondor.SendCluster_Submit()
-
-
-
-
-
-
-
-if sys.argv[1]=='99':
-	os.system('mkdir Results')
-	os.system('mkdir Results/dedxASmi')	
-	os.system('mkdir Results/dedxASmi/dt')	
-	os.system('mkdir Results/dedxASmi/dt/Eta25')	
-	os.system('mkdir Results/dedxASmi/dt/Eta25/Type0')	
-	os.system('mkdir Results/dedxASmi/dt/Eta25/Type1')	
-	os.system('mkdir Results/dedxASmi/dt/Eta25/Type2')	
-	os.system('cp Save/dedxASmi/dt/Eta25/Type0/CutHistos.root Results/dedxASmi/dt/Eta25/Type0/.')
-	os.system('cp Save/dedxASmi/dt/Eta25/Type1/CutHistos.root Results/dedxASmi/dt/Eta25/Type1/.')	
-	os.system('cp Save/dedxASmi/dt/Eta25/Type2/CutHistos.root Results/dedxASmi/dt/Eta25/Type2/.')	
+elif sys.argv[1]=='3':
+        print 'EXCLUSION'
+        os.system('root Analysis_Step6.C++\'(\"tmp\")\' -l -b -q')
 
 else:
-	print 'Unknwon case: use an other argument'
+	print 'Unknwon case: use an other argument or no argument to get help'
 
 
 

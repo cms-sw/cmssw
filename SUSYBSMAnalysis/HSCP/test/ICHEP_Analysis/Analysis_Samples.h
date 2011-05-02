@@ -44,7 +44,7 @@
 
 
 
-double               IntegratedLuminosity = 5.8;
+double               IntegratedLuminosity = 43.4;
 float                Event_Weight = 1;
 int                  MaxEntry = -1;
 
@@ -141,8 +141,6 @@ void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName)
 //      }else{
 //         inputFiles.push_back(BaseDirectory + "MC_QCD80_B.root");
 //      }
-   }else if(SampleName=="GMStau156" || SampleName=="Gluino600N"){
-      inputFiles.push_back(BaseDirectory + SampleName + "2.root");
    }else{
       inputFiles.push_back(BaseDirectory + SampleName + ".root");
    }

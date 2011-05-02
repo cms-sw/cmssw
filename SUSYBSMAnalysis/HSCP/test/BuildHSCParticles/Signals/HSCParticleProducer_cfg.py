@@ -1,20 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HSCPAnalysis")
+process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
-process.GlobalTag.globaltag = 'START311_V2A::All'
+process.GlobalTag.globaltag = 'START42_V9::All'
 
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
-        '/store/mc/Fall10/HSCPstop_M-130_7TeV-pythia6/GEN-SIM-RECO/START38_V12-v1/0007/B8FAE5DA-43EE-DF11-95B4-002618943C2D.root',
-        '/store/mc/Fall10/HSCPstop_M-130_7TeV-pythia6/GEN-SIM-RECO/START38_V12-v1/0007/2A622861-6FEE-DF11-A544-00E081339049.root',
+        'file:HSCPgluino_M_600_7TeV_pythia6Z2_cff_py_RAW2DIGI_RECO.root',
    )
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
@@ -25,7 +25,6 @@ process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMCo
 process.load('SUSYBSMAnalysis.Skimming.EXOHSCP_cff')
 process.load('SUSYBSMAnalysis.Skimming.EXOHSCP_EventContent_cfi')
 process.load("SUSYBSMAnalysis.HSCP.HSCParticleProducerFromSkim_cff")  #IF RUNNING ON HSCP SKIM
-#process.load("SUSYBSMAnalysis.HSCP.HSCPTreeBuilder_cff")
 
 ########################################################################  SPECIAL CASE FOR MC
 
@@ -41,6 +40,7 @@ process.genParticles.abortOnUnknownPDGCode = cms.untracked.bool(False)
 
 process.generalTracksSkim.filter       = cms.bool(False)
 process.HSCParticleProducer.filter     = cms.bool(False)
+process.DedxFilter.filter              = cms.bool(False)
 #process.HSCPTreeBuilder.reccordGenInfo = cms.untracked.bool(True)
 
 process.dedxHarm2.calibrationPath      = cms.string("file:Gains.root")
@@ -66,6 +66,24 @@ process.dedxNPProd.UseCalibration      = cms.bool(True)
 process.dedxNPASmi.UseCalibration      = cms.bool(True)
 
 
+process.load("RecoLocalMuon.DTSegment.dt4DSegments_MTPatternReco4D_LinearDriftFromDBLoose_cfi")
+process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.AlphaMaxPhi = 1.0
+process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.AlphaMaxTheta = 0.9
+process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.segmCleanerMode = 2
+process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.MaxChi2 = 1.0
+process.dt4DSegmentsMT = process.dt4DSegments.clone()
+process.dt4DSegmentsMT.Reco4DAlgoConfig.recAlgoConfig.stepTwoFromDigi = True
+process.dt4DSegmentsMT.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.stepTwoFromDigi = True
+
+process.muontiming.TimingFillerParameters.DTTimingParameters.MatchParameters.DTsegments = "dt4DSegmentsMT"
+process.muontiming.TimingFillerParameters.DTTimingParameters.HitsMin = 3
+process.muontiming.TimingFillerParameters.DTTimingParameters.RequireBothProjections = False
+process.muontiming.TimingFillerParameters.DTTimingParameters.DropTheta = True
+process.muontiming.TimingFillerParameters.DTTimingParameters.DoWireCorr = True
+process.muontiming.TimingFillerParameters.DTTimingParameters.MatchParameters.DTradius = 1.0
+
+
+
 ########################################################################
 
 
@@ -73,7 +91,7 @@ process.dedxNPASmi.UseCalibration      = cms.bool(True)
 process.OUT = cms.OutputModule("PoolOutputModule",
      outputCommands = cms.untracked.vstring(
          "drop *",
-         "keep *_genParticles_*_*",
+         "keep *_genParticles_*_HSCPAnalysis",
          "keep GenEventInfoProduct_generator_*_*",
          "keep *_offlinePrimaryVertices_*_*",
 #         "keep *_csc2DRecHits_*_*",
@@ -96,6 +114,7 @@ process.OUT = cms.OutputModule("PoolOutputModule",
          "keep edmTriggerResults_TriggerResults_*_*",
          "keep recoPFJets_ak5PFJets__*",
          "keep recoPFMETs_pfMet__*",
+         "keep recoCaloJets_ak5CaloJets__*",
          "keep *_HSCParticleProducer_*_*",
          "keep *_HSCPIsolation01__*",
          "keep *_HSCPIsolation03__*",
@@ -114,7 +133,7 @@ process.OUT = cms.OutputModule("PoolOutputModule",
 
 
 #LOOK AT SD PASSED PATH IN ORDER to avoid as much as possible duplicated events (make the merging of .root file faster)
-process.p1 = cms.Path(process.genParticles + process.exoticaHSCPSeq + process.HSCParticleProducerSeq)
+process.p1 = cms.Path(process.genParticles + process.exoticaHSCPSeq +  process.dt4DSegmentsMT * process.HSCParticleProducerSeq)
 process.endPath = cms.EndPath(process.OUT)
 
 
