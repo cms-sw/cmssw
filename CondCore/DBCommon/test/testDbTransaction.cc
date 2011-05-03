@@ -37,6 +37,7 @@ int main(){
     {
       cond::DbSession s1 = s0;
       int nt1 = s1.transaction().start();
+      s1.createDatabase();
       std::cout << "Transaction open at 1.0="<<nt1<<std::endl;
       std::cout << "Transaction active at 1.0="<<s0.transaction().isActive()<<std::endl;
       boost::shared_ptr<int> data( new int(100) );
