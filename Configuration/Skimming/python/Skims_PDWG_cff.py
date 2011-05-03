@@ -18,11 +18,20 @@ SKIMStreamDiJet = cms.FilteredStream(
 #####################
 
 from Configuration.Skimming.PDWG_TauSkim_cff import *
-tauSkimPath = cms.Path( tauSkimSequence )
+tauSkimBy1Path = cms.Path( tauSkim1Sequence )
+tauSkimBy2Path = cms.Path( tauSkim2Sequence )
 SKIMStreamTau = cms.FilteredStream(
     responsible = 'PDWG',
     name = 'Tau',
-    paths = (tauSkimPath),
+    paths = (tauSkimBy1Path),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+SKIMStreamDiTau = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'Tau',
+    paths = (tauSkimBy2Path),
     content = skimContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
@@ -131,6 +140,7 @@ SKIMStreamDiPhoton = cms.FilteredStream(
     dataTier = cms.untracked.string('RAW-RECO')
     )
 
+
 from Configuration.EventContent.EventContent_cff import AODEventContent
 skimAodContent = AODEventContent.clone()
 skimAodContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
@@ -175,7 +185,6 @@ SKIMStreamHWWElMu = cms.FilteredStream(
         selectEvents = cms.untracked.PSet(),
         dataTier = cms.untracked.string('AOD')
         )
-
 
 
 
