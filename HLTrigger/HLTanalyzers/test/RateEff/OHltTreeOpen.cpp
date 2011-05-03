@@ -223,14 +223,16 @@ bool isHTXTrigger(TString triggerName, vector<double> &thresholds)
 bool isBTagIP_HTXTrigger(TString triggerName, vector<double> &thresholds)
 {
 
-   TString pattern = "(OpenHLT_BTagIP_HT([0-9]+)){1}$";
+   TString pattern = "(OpenHLT_HT([0-9]+)_CentralJet([0-9]+)_BTagIP){1}$";
    TPRegexp matchThreshold(pattern);
 
    if (matchThreshold.MatchB(triggerName))
    {
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
-      double thresholdHT = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdHT = (((TObjString *)subStrL->At(1))->GetString()).Atof();
+      double thresholdJet = (((TObjString *)subStrL->At(2))->GetString()).Atof(); 
       thresholds.push_back(thresholdHT);
+      thresholds.push_back(thresholdJet); 
       return true;
    }
    else
@@ -240,16 +242,19 @@ bool isBTagIP_HTXTrigger(TString triggerName, vector<double> &thresholds)
 bool isBTagIP_pfMHTX_HTXTrigger(TString triggerName, vector<double> &thresholds)
 {
 
-   TString pattern = "(OpenHLT_BTagIP_PFMHT([0-9]+)_HT([0-9]+)){1}$";
+  //   TString pattern = "(OpenHLT_BTagIP_PFMHT([0-9]+)_HT([0-9]+)){1}$";
+   TString pattern = "(OpenHLT_HT([0-9]+)_CentralJet([0-9]+)_BTagIP_PFMHT([0-9]+)){1}$";
    TPRegexp matchThreshold(pattern);
 
    if (matchThreshold.MatchB(triggerName))
    {
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
-      double thresholdMET = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      double thresholdHT = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdHT = (((TObjString *)subStrL->At(2))->GetString()).Atof(); 
+      double thresholdJet = (((TObjString *)subStrL->At(3))->GetString()).Atof(); 
+      double thresholdMET = (((TObjString *)subStrL->At(4))->GetString()).Atof();
+      thresholds.push_back(thresholdHT); 
+      thresholds.push_back(thresholdJet); 
       thresholds.push_back(thresholdMET);
-      thresholds.push_back(thresholdHT);
       return true;
    }
    else
@@ -265,10 +270,10 @@ bool ispfMHTX_HTXTrigger(TString triggerName, vector<double> &thresholds)
    if (matchThreshold.MatchB(triggerName))
    {
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
-      double thresholdMET = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      double thresholdHT = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdHT = (((TObjString *)subStrL->At(2))->GetString()).Atof(); 
+      double thresholdMET = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdHT); 
       thresholds.push_back(thresholdMET);
-      thresholds.push_back(thresholdHT);
       return true;
    }
    else
@@ -430,7 +435,7 @@ bool isHTX_MHTXTrigger(TString triggerName, vector<double> &thresholds)
 bool isAlphaTTrigger(TString triggerName, vector<double> &thresholds)
 {
 
-  TString pattern = "(OpenHLT_HT([0-9]+)_AlphaT0p([0-9]+)_v1)$";
+  TString pattern = "(OpenHLT_HT([0-9]+)_AlphaT0p([0-9]+))$";
   TPRegexp matchThreshold(pattern);
 
   if (matchThreshold.MatchB(triggerName))
@@ -2425,7 +2430,7 @@ void OHltTree::CheckOpenHlt(
 	   int rc = 0;
 	   int max = (NohBJetL2Corrected > 6) ? 6 : NohBJetL2Corrected;
 	   for (int i = 0; i < max; i++){
-	     if (ohBJetL2CorrectedEt[i] > 30 && fabs(ohBJetL2CorrectedEta[i]) < 3.0)
+	     if (ohBJetL2CorrectedEt[i] > thresholds[1] && fabs(ohBJetL2CorrectedEta[i]) < 3.0)
                { // ET cut 
 		 //if (ohBJetIPL25Tag[i] > 0.0)
 		 //{ // Level 2.5 b tag 
@@ -2450,12 +2455,12 @@ void OHltTree::CheckOpenHlt(
    else if (isBTagIP_pfMHTX_HTXTrigger(menu->GetTriggerName(it), thresholds)){
      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1){
        if (prescaleResponse(menu, cfg, rcounter, it)){
-	 if (OpenHltSumCorHTPassed(thresholds[1], 40)>=1 && pfMHT >=thresholds[0]){
+	 if (OpenHltSumCorHTPassed(thresholds[0], 40)>=1 && pfMHT >=thresholds[2]){
 
 	   int rc = 0;
 	   int max = (NohBJetL2Corrected > 6) ? 6 : NohBJetL2Corrected;
 	   for (int i = 0; i < max; i++){
-	     if (ohBJetL2CorrectedEt[i] > 30 && fabs(ohBJetL2CorrectedEta[i]) < 3.0)
+	     if (ohBJetL2CorrectedEt[i] > thresholds[1] && fabs(ohBJetL2CorrectedEta[i]) < 3.0)
                { // ET cut 
 	   	 //if (ohBJetIPL25Tag[i] > 0.0)
 		 //{ // Level 2.5 b tag 
@@ -2479,7 +2484,7 @@ void OHltTree::CheckOpenHlt(
    else if (ispfMHTX_HTXTrigger(menu->GetTriggerName(it), thresholds)){
      if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1){
        if (prescaleResponse(menu, cfg, rcounter, it)){
-	 if (OpenHltSumCorHTPassed(thresholds[1], 40)>=1 && pfMHT >=thresholds[0]){
+	 if (OpenHltSumCorHTPassed(thresholds[0], 40)>=1 && pfMHT >=thresholds[1]){
 	   triggerBit[it] = true;
 	 }
        }
