@@ -19,6 +19,16 @@ autoSkim = {
     'DoubleElectron' : 'LogError+HWWElEl',
     'MuEG' : 'LogError+HWWElMu',
 
+    'Tau': 'LogError',
+    'PhotonHad': 'LogError',
+    'MuHad': 'LogError',
+    'METBTag': 'LogError',
+    'MultiJet': 'LogError',
+    'MuOnia': 'LogError',
+    'ElectronHad': 'LogError',
+    'TauPlusX': 'LogError',
+    'HT': 'LogError'
+    
     }
 
 
