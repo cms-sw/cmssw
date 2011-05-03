@@ -190,15 +190,6 @@ class HLTProcess(object):
 
   # customize the configuration according to the options
   def customize(self):
-    self.data += """
-# Extra customisation for CMSSW 42X+ only
-%(process)secalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
-    appendToDataLabel = cms.string( "" ),
-    flagMask = cms.vuint32( 1, 34, 896, 4, 49152, 6232 ),
-    dbstatusMask = cms.vuint32( 1, 2046, 0, 0, 0, 64512 ),
-    timeThresh = cms.double( 2.0 )
-)
-"""
 
     if self.config.fragment:
       # if running on MC, adapt the configuration accordingly
