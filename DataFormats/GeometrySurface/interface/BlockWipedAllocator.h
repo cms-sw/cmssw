@@ -133,25 +133,6 @@ private:
 };
 
 
-// singleton
-BlockWipedPool & blockWipedPool(BlockWipedPool * p=0);
-
-template<size_t S>
-BlockWipedAllocator & blockWipedAllocator() {
-  static BlockWipedAllocator & local = blockWipedPool().allocator(S);
-  return local;
-}
-
-template<typename T>
-struct LocalCache : public BlockWipedAllocator::LocalCache {
-  std::auto_ptr<T> ptr;
-  LocalCache(){ 
-    blockWipedAllocator<sizeof(T)>().registerCache(this);
-  }
-  ~LocalCache(){}
-  void reset(){ ptr.reset();}
-};
-
 
 /*  generaric Basic class
  * 
@@ -180,9 +161,25 @@ public:
   // static BlockAllocator * s_allocator;
 };
 
-//
-// below: not used
-//
+// singleton
+BlockWipedPool & blockWipedPool(BlockWipedPool * p=0);
+
+template<size_t S>
+BlockWipedAllocator & blockWipedAllocator() {
+  static BlockWipedAllocator & local = blockWipedPool().allocator(S);
+  return local;
+}
+
+template<typename T>
+struct LocalCache : public BlockWipedAllocator::LocalCache {
+  std::auto_ptr<T> ptr;
+  LocalCache(){ 
+    if (BlockWipedPoolAllocated::s_usePool)
+      blockWipedAllocator<sizeof(T)>().registerCache(this);
+  }
+  ~LocalCache(){}
+  void reset(){ ptr.reset();}
+};
 
 
 /*  Allocator by type
@@ -197,6 +194,7 @@ public:
   }
   
   static void operator delete(void * p) {
+    if (0==p) return;
     BlockWipedPoolAllocated::s_alive--;
    return (BlockWipedPoolAllocated::s_usePool) ? allocator().dealloc(p)  : ::operator delete(p);
   }
