@@ -9,11 +9,11 @@ siStripLorentzAngleDepESProducer = cms.ESProducer("SiStripLorentzAngleDepESProdu
             ),
 	LorentzAnglePeakMode = cms.PSet(
             record = cms.string('SiStripLorentzAngleRcd'),
-            label = cms.untracked.string('LA1')
+            label = cms.untracked.string('peak')
             ),
         LorentzAngleDeconvMode = cms.PSet(
             record = cms.string('SiStripLorentzAngleRcd'),
-            label = cms.untracked.string('LA2')
+            label = cms.untracked.string('deconvolution')
             )
         
    )
