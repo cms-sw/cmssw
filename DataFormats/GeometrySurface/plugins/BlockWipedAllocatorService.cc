@@ -94,7 +94,7 @@ public:
  
   // wipe before each module (no, obj in event....)
   void preModule(const edm::ModuleDescription& desc){
-    //     blockWipedPool().wipe();
+    blockWipedPool().wipe(false);
   }
 
   void postModule(const edm::ModuleDescription& desc){

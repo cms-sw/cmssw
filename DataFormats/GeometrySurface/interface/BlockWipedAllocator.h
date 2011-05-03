@@ -197,7 +197,7 @@ public:
   }
   
   static void operator delete(void * p) {
-   BlockWipedAllocator::s_alive--;
+    BlockWipedPoolAllocated::s_alive--;
    return (BlockWipedPoolAllocated::s_usePool) ? allocator().dealloc(p)  : ::operator delete(p);
   }
   

@@ -53,7 +53,8 @@ void BlockWipedAllocator::clear() const {
   me().wipe();
 }
 
-void BlockWipedAllocator::wipe() const {
+void BlockWipedAllocator::wipe(bool force) const {
+  if (m_alive>0 && !force) return;
   // reset caches
   std::for_each(localCaches.begin(),localCaches.end(),boost::bind(&LocalCache::reset,_1));
 
@@ -96,9 +97,9 @@ BlockWipedPool::Allocator & BlockWipedPool::allocator( std::size_t typeSize) {
   return (*m_pool.insert(std::make_pair(typeSize,Allocator(typeSize, m_blockSize, m_maxRecycle))).first).second;
 }
 
-void BlockWipedPool::wipe() {
+void BlockWipedPool::wipe(bool force) {
   std::for_each(m_pool.begin(),m_pool.end(),boost::bind(&Allocator::wipe,
-							boost::bind(&Pool::value_type::second,_1)
+							boost::bind(&Pool::value_type::second,_1),force
 							));
 }
 
