@@ -175,12 +175,15 @@ public:
   static void usePool();
 
 
-private:
+  // private:
   static bool s_usePool;
   // static BlockAllocator * s_allocator;
 };
 
+//
 // below: not used
+//
+
 
 /*  Allocator by type
  * 
@@ -189,13 +192,20 @@ template<typename T>
 class BlockWipedAllocated {
 public:
   static void * operator new(size_t) {
-    return allocator().alloc();
+   BlockWipedAllocator::s_alive++;
+   return (BlockWipedAllocator::s_usePool) ? allocator().alloc()  : ::operator new(s);
   }
   
   static void operator delete(void * p) {
-    allocator().dealloc(p);
+   BlockWipedAllocator::s_alive--;
+   return (BlockWipedAllocator::s_usePool) ? allocator().dealloc(p)  : ::operator delete(p);
   }
   
+  static void * operator new(size_t s, void * p) {
+    return p;
+}
+
+
   static BlockWipedAllocator & allocator() {
     static BlockWipedAllocator & local = blockWipedPool().allocator(sizeof(T));
     return local;
@@ -213,7 +223,7 @@ private:
 };
 
 
-/*  Allocator by size
+/*  Allocator by size (w/o pool)
  * 
  */
 template<typename T>
