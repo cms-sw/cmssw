@@ -54,13 +54,13 @@ inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_4_2_2'
                                  , relVal        = 'Mu'
                                  , dataTier      = 'RECO'
                                  , globalTag     = 'GR_R_42_V10_RelVal_mu2010B'
-                                 , numberOfFiles = 0
+                                 , numberOfFiles = 0 # "0" means "all"
                                  )
 if runOnMC:
   inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_4_2_2'
                                    , relVal        = 'RelValTTbar'
                                    , condition     = condition
-                                   , numberOfFiles = 0
+                                   , numberOfFiles = 0 # "0" means "all"
                                    )
 # output file
 outputFile = 'patRefSel_muJets_data.root'
