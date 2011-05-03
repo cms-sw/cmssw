@@ -43,3 +43,6 @@ DEFINE_FWK_MODULE(EleIdLikelihoodExtProducer);
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "RecoEgamma/ElectronIdentification/plugins/ElectronLikelihoodESSource.h"
 DEFINE_FWK_EVENTSETUP_MODULE( ElectronLikelihoodESSource );
+
+typedef ObjectSelector<EleIdCutBasedSel, reco::GsfElectronCollection> EleIdCutBased;
+DEFINE_FWK_MODULE(EleIdCutBased);
