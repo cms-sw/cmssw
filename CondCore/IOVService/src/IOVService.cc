@@ -159,19 +159,6 @@ cond::IOVService::exportIOVWithPayload( cond::DbSession& destDB,
   return insertIOV( destDB, newiov, true );
 }
 
-#include "CondCore/DBCommon/interface/ClassInfoLoader.h"
-/*
-void cond::IOVService::loadDicts( const std::string& iovToken) {
-  // loadlib
-  boost::shared_ptr<cond::IOVSequence> iov = m_dbSess.getTypedObject<cond::IOVSequence>(iovToken);
-  // FIXME use iov metadata
-  std::string ptok = iov->iovs().front().wrapperToken();
-  m_dbSess.transaction().commit();
-  cond::reflexTypeByToken(ptok);
-  m_dbSess.transaction().start(true);
-}
-*/
-
 std::string 
 cond::IOVService::exportIOVRangeWithPayload( cond::DbSession& destDB,
 					     const std::string& iovToken,
@@ -179,8 +166,6 @@ cond::IOVService::exportIOVRangeWithPayload( cond::DbSession& destDB,
 					     cond::Time_t since,
 					     cond::Time_t till,
 					     bool outOfOrder ){
-  /// maybe no longer required...
-  //loadDicts(iovToken);
   cond::IOVSequence const & iov=iovSeq(iovToken);
   since = std::max(since, iov.firstSince());
   IOVSequence::const_iterator ifirstTill=iov.find(since);

@@ -3,7 +3,6 @@
 //
 // requires a few sed....
 
-#include "CondCore/DBCommon/interface/ClassInfoLoader.h"
 #include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"

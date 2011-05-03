@@ -1,8 +1,6 @@
 #include "CondCore/IOVService/interface/IOVProxy.h"
-//#include "DataSvc/Ref.h"
 
 #include "CondCore/DBCommon/interface/Time.h"
-#include "CondCore/DBCommon/interface/ClassInfoLoader.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 
@@ -39,13 +37,6 @@ namespace cond {
         }
         //****
 	transaction.commit();
-	/*
-	  if (!iov->iovs().empty() && !m_nolib) {
-	  // load dict (change: use IOV metadata....)
-	  std::string ptok = iov->iovs().front().wrapperToken();
-	  cond::reflexTypeByToken(ptok);
-          }
-	*/
       }
       
       ~IOVImpl(){
