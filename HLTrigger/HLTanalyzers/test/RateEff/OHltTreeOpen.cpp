@@ -240,7 +240,7 @@ bool isBTagIP_HTXTrigger(TString triggerName, vector<double> &thresholds)
 bool isBTagIP_pfMHTX_HTXTrigger(TString triggerName, vector<double> &thresholds)
 {
 
-   TString pattern = "(OpenHLT_BTagIP_pfMHT([0-9]+)_HT([0-9]+)){1}$";
+   TString pattern = "(OpenHLT_BTagIP_PFMHT([0-9]+)_HT([0-9]+)){1}$";
    TPRegexp matchThreshold(pattern);
 
    if (matchThreshold.MatchB(triggerName))
@@ -259,7 +259,7 @@ bool isBTagIP_pfMHTX_HTXTrigger(TString triggerName, vector<double> &thresholds)
 bool ispfMHTX_HTXTrigger(TString triggerName, vector<double> &thresholds)
 {
 
-   TString pattern = "(OpenHLT_pfMHT([0-9]+)_HT([0-9]+)){1}$";
+   TString pattern = "(OpenHLT_HT([0-9]+)_PFMHT([0-9]+)){1}$";
    TPRegexp matchThreshold(pattern);
 
    if (matchThreshold.MatchB(triggerName))
