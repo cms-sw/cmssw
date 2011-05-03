@@ -1,0 +1,2 @@
+<use   name="DQM/SiStripMonitorClient"/>
+<flags   EDM_PLUGIN="1"/>
