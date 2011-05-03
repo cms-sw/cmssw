@@ -1,7 +1,7 @@
 ################################################################################
 # HiggsAnalysis/Combined Limit Makefile                                        #
 #                                                                              #
-# $Author$ - $Date$                                                            #
+# $Author: dpiparo $ - $Date: 2011/04/27 07:44:04 $                                                            #
 #                                                                              #
 # o Automatic compilation of new programs and classes*.                        #
 # o Automatic generation of CINT dictionaries via rootcint.                    #
@@ -46,7 +46,7 @@ OBJ_DIR = obj
 
 
 # Useful shortcuts -------------------------------------------------------------
-SRCS = $(notdir $(wildcard $(SRC_DIR)/*.cc))
+SRCS = $(notdir $(shell ls $(SRC_DIR)/*.cc|grep -v $(DICTNAME) ))
 SRCS += $(DICTNAME).cc
 OBJS = $(SRCS:.cc=.o)
 PROGS = $(notdir $(wildcard ${PROG_DIR}/*.cpp)) 
@@ -56,7 +56,7 @@ EXES = $(PROGS:.cpp=)
 DICTHDRS= $(notdir $(shell grep -l ClassDef interface/*h))
 
 #Makefile Rules ---------------------------------------------------------------
-.PHONY: clean dirs dicr obj lib exe
+.PHONY: clean dirs dict obj lib exe
 
 all: dirs dict obj lib exe
 
@@ -70,15 +70,16 @@ dirs:
 #---------------------------------------
 
 dict: dirs $(SRC_DIR)/$(DICTNAME).cc
-$(SRC_DIR)/$(DICTNAME).cc $(INC_DIR)/$(DICTNAME).h :
+$(SRC_DIR)/$(DICTNAME).cc : $(SRC_DIR)/LinkDef.h 
 # 	@echo "\n*** Generating dictionaries ..."
 	rootcint -f $(SRC_DIR)/$(DICTNAME).cc -c -I$(INC_DIR) -I$(ROOTINC) $(DICTHDRS) $(SRC_DIR)/LinkDef.h
+# 	@mv $(SRC_DIR)/$(DICTNAME).h $(INC_DIR)
 
 #---------------------------------------
 
-obj: dict $(addprefix ${SRC_DIR}/,${SRCS})
+obj: dict $(addprefix $(OBJ_DIR)/,$(OBJS))
 # 	@echo "\n*** Compiling ..."
-$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cc
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cc $(INC_DIR)/%.h
 	$(CC) $(CCFLAGS) -I $(INC_DIR) -c $< -o $@
 
 #---------------------------------------
@@ -86,14 +87,14 @@ $(OBJ_DIR)/%.o : $(SRC_DIR)/%.cc
 lib: dirs ${LIB_DIR}/$(SONAME)
 ${LIB_DIR}/$(SONAME):$(addprefix $(OBJ_DIR)/,$(OBJS))
 # 		@echo "\n*** Building $(SONAME) library:"
-		$(LD) $(LDFLAGS) $(BOOST_INC)  -fPIC $(addprefix $(OBJ_DIR)/,$(OBJS))  $(SOFLAGS) -o $@ $(LIBS)
+		$(LD) $(LDFLAGS) $(BOOST_INC) $(addprefix $(OBJ_DIR)/,$(OBJS))  $(SOFLAGS) -o $@ $(LIBS)
 
 #---------------------------------------
 
 exe: $(addprefix $(EXE_DIR)/,$(EXES))
 # 	@echo "\n*** Compiling executables ..."
 $(addprefix $(EXE_DIR)/,$(EXES)) : $(addprefix $(PROG_DIR)/,$(PROGS))
-	$(CC) $< -o $@ $(CCFLAGS) -L $(LIB_DIR) -l CombinedLimit -I $(INC_DIR) $(BOOST_INC) $(LIBS)
+	$(CC) $< -o $@ $(CCFLAGS) -L $(LIB_DIR) -l $(LIBNAME) -I $(INC_DIR) $(BOOST_INC) $(LIBS)
 
 
 #---------------------------------------
