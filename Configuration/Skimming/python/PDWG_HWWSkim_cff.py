@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 
-goodMuons = cms.EDFilter("MuonRefSelector",
+goodHwwMuons = cms.EDFilter("MuonRefSelector",
                          src = cms.InputTag("muons"),
                          cut = cms.string("pt > 10 && " +
                                                       "(isolationR03().sumPt+isolationR03().emEt+isolationR03().hadEt)/pt < 1.0 && " +
@@ -11,7 +11,7 @@ goodMuons = cms.EDFilter("MuonRefSelector",
                                  )
 
               
-goodElectrons = cms.EDFilter("GsfElectronRefSelector",
+goodHwwElectrons = cms.EDFilter("GsfElectronRefSelector",
                              src = cms.InputTag("gsfElectrons"),
                              cut = cms.string(    "pt > 10 &&" +
                                                   " abs(deltaEtaSuperClusterTrackAtVtx) < 0.010 &&" +
@@ -19,39 +19,39 @@ goodElectrons = cms.EDFilter("GsfElectronRefSelector",
                                                   "  (!isEB && sigmaIetaIeta < 0.031))"),
                              )
 
-diMuons = cms.EDProducer("CandViewShallowCloneCombiner",
-                                     decay       = cms.string("goodMuons goodMuons"),
+diHwwMuons = cms.EDProducer("CandViewShallowCloneCombiner",
+                                     decay       = cms.string("goodHwwMuons goodHwwMuons"),
                                      checkCharge = cms.bool(False),
                                      cut         = cms.string("mass > 5"),
                                  )
 
-diElectrons = cms.EDProducer("CandViewShallowCloneCombiner",
-                                         decay       = cms.string("goodElectrons goodElectrons"),
+diHwwElectrons = cms.EDProducer("CandViewShallowCloneCombiner",
+                                         decay       = cms.string("goodHwwElectrons goodHwwElectrons"),
                                          checkCharge = cms.bool(False),
                                          cut         = cms.string("mass > 5"),
                                      )
-crossLeptons  = cms.EDProducer("CandViewShallowCloneCombiner",
-                                           decay       = cms.string("goodMuons goodElectrons"),
+crossHwwLeptons  = cms.EDProducer("CandViewShallowCloneCombiner",
+                                           decay       = cms.string("goodHwwMuons goodHwwElectrons"),
                                            checkCharge = cms.bool(False),
                                            cut         = cms.string("mass > 1"),
                                        )
 
-diMuonsFilter = cms.EDFilter("CandViewCountFilter",
-                             src = cms.InputTag("diMuons"),
+diHwwMuonsFilter = cms.EDFilter("CandViewCountFilter",
+                             src = cms.InputTag("diHwwMuons"),
                              minNumber = cms.uint32(1)
 )
-diElectronsFilter = cms.EDFilter("CandViewCountFilter",
-                             src = cms.InputTag("diElectrons"),
+diHwwElectronsFilter = cms.EDFilter("CandViewCountFilter",
+                             src = cms.InputTag("diHwwElectrons"),
                              minNumber = cms.uint32(1)
 )
-crossLeptonsFilter = cms.EDFilter("CandViewCountFilter",
-                             src = cms.InputTag("crossLeptons"),
+crossHwwLeptonsFilter = cms.EDFilter("CandViewCountFilter",
+                             src = cms.InputTag("crossHwwLeptons"),
                              minNumber = cms.uint32(1)
 )
 
-diMuonSequence = cms.Sequence( goodMuons * diMuons * diMuonsFilter )
+diMuonSequence = cms.Sequence( goodHwwMuons * diHwwMuons * diHwwMuonsFilter )
 
-diElectronSequence = cms.Sequence( goodElectrons * diElectrons * diElectronsFilter )
+diElectronSequence = cms.Sequence( goodHwwElectrons * diHwwElectrons * diHwwElectronsFilter )
 
-EleMuSequence = cms.Sequence( goodMuons * goodElectrons * crossLeptons * crossLeptonsFilter )
+EleMuSequence = cms.Sequence( goodHwwMuons * goodHwwElectrons * crossHwwLeptons * crossHwwLeptonsFilter )
 
