@@ -13,9 +13,33 @@ autoSkim = {
     'Jet':'HighMET+LogError+DiJet',
     'METFwd':'HighMET+LogError',
 
-    'SingleMu' : 'WMu+ZMu+HighMET+LogError+HWWMuMu',
+    'SingleMu' : 'WMu+ZMu+HighMET+LogError+HWWMuMu+DiTau',
     'DoubleMu' : 'WMu+ZMu+HighMET+LogError+HWWMuMu',
+    'SingleElectron' : 'LogError+Tau',
     'DoubleElectron' : 'LogError+HWWElEl',
     'MuEG' : 'LogError+HWWElMu',
+
+    }
+
+
+autoSkimPDWG = {
     
     }
+
+autoSkimDPG = {
+
+    }
+
+def mergeMapping(map1,map2):
+    merged={}
+    for k in list(set(map1.keys()+map2.keys())):
+        items=[]
+        if k in map1: 
+            items.append(map1[k])
+        if k in map2:
+            items.append(map2[k])
+        merged[k]='+'.join(items)
+    return merged
+    
+#autoSkim = mergeMapping(autoSkimPDWG,autoSkimDPG)
+#print autoSkim
