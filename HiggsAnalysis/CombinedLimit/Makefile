@@ -73,11 +73,11 @@ dict: dirs $(SRC_DIR)/$(DICTNAME).cc
 $(SRC_DIR)/$(DICTNAME).cc : $(SRC_DIR)/LinkDef.h 
 # 	@echo "\n*** Generating dictionaries ..."
 	rootcint -f $(SRC_DIR)/$(DICTNAME).cc -c -I$(INC_DIR) -I$(ROOTINC) $(DICTHDRS) $(SRC_DIR)/LinkDef.h
-	@mv $(SRC_DIR)/$(DICTNAME).h $(INC_DIR)/$(DICTNAME).h 
+	mv $(SRC_DIR)/$(DICTNAME).h $(INC_DIR)/$(DICTNAME).h 
 
 #---------------------------------------
 
-obj: dict $(addprefix $(OBJ_DIR)/,$(OBJS))
+obj: dict 
 # 	@echo "\n*** Compiling ..."
 $(OBJ_DIR)/%.o : $(SRC_DIR)/%.cc $(INC_DIR)/%.h
 	$(CC) $(CCFLAGS) -I $(INC_DIR) -c $< -o $@
