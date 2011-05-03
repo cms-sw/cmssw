@@ -6801,6 +6801,64 @@ else if (triggerName.CompareTo("OpenHLT_Dimuon6p5_LowMass_v1") == 0)
       }
    }
 
+   //Isolated Ele path
+   else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_BTagIP_v1")
+         == 0)
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            if (OpenHlt1ElectronSamHarperPassed(25., 0, // ET, L1isolation 
+                  999.,
+                  999., // Track iso barrel, Track iso endcap 
+                  0.125,
+                  0.075, // Track/pT iso barrel, Track/pT iso endcap 
+                  0.125,
+                  0.075, // H/ET iso barrel, H/ET iso endcap 
+                  0.125,
+                  0.075, // E/ET iso barrel, E/ET iso endcap 
+                  0.05,
+                  0.05, // H/E barrel, H/E endcap 
+                  0.011,
+                  0.031, // cluster shape barrel, cluster shape endcap 
+                  0.98,
+                  1.0, // R9 barrel, R9 endcap 
+                  0.008,
+                  0.008, // Deta barrel, Deta endcap 
+                  0.07,
+                  0.05 // Dphi barrel, Dphi endcap 
+            )>=1 && OpenHlt1BJetPassedEleRemoval(30., 3.0, 0.3, // jet ET, eta, DrCut
+                  0.,
+                  3.3, // discL25, discL3
+                  25.,
+                  0, // ET, L1isolation 
+                  999.,
+                  999., // Track iso barrel, Track iso endcap 
+                  999.,
+                  999., // Track/pT iso barrel, Track/pT iso endcap 
+                  999.,
+                  999., // H/ET iso barrel, H/ET iso endcap 
+                  999.,
+                  999., // E/ET iso barrel, E/ET iso endcap 
+                  0.05,
+                  0.05, // H/E barrel, H/E endcap 
+                  0.011,
+                  0.031, // cluster shape barrel, cluster shape endcap 
+                  0.98,
+                  1.0, // R9 barrel, R9 endcap 
+                  0.008,
+                  0.008, // Deta barrel, Deta endcap 
+                  0.07,
+                  0.05 // Dphi barrel, Dphi endcap 
+                  )>=1)
+            {
+               triggerBit[it] = true;
+            }
+         }
+      }
+   }
+
    // 2011-03-29 promoted to v2 TODO check
    else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_TrkIdT_CentralJet40_BTagIP_v2")
          == 0)
