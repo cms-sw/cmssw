@@ -4,8 +4,6 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="DataFormats/RPCDigi"/>
 <use   name="DataFormats/RPCRecHit"/>
-<use   name="DataFormats/Candidate"/>
-<use   name="DataFormats/MuonReco"/>
 <use   name="DQMServices/Core"/>
 <use   name="EventFilter/RPCRawToDigi"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
@@ -25,5 +23,5 @@
 <use   name="boost"/>
 <use   name="CLHEP"/>
 <export>
-  <lib   name="DQMRPCMonitorDigi"/>
+  <lib   name="1"/>
 </export>

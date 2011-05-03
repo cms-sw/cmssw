@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -30,20 +31,33 @@ class HSCPHLTFilter : public edm::EDFilter {
       virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
+      bool isDuplicate(unsigned int Run, unsigned int Event);
 
       bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, int NObjectAboveThreshold, bool averageThreshold);
 
       std::string TriggerProcess;
 
+      std::map<std::string, bool > DuplicateMap;
+
       unsigned int CountEvent;
       unsigned int MaxPrint;
+      bool         RemoveDuplicates;
+      int          MuonTriggerMask;
+      int          METTriggerMask;
+      int          JetTriggerMask;
 };
 
 
 /////////////////////////////////////////////////////////////////////////////////////
 HSCPHLTFilter::HSCPHLTFilter(const edm::ParameterSet& iConfig)
 {
-   TriggerProcess        = iConfig.getParameter<std::string>          ("TriggerProcess");
+   RemoveDuplicates      = iConfig.getParameter<bool>                ("RemoveDuplicates");
+
+   TriggerProcess        = iConfig.getParameter<std::string>         ("TriggerProcess");
+   MuonTriggerMask       = iConfig.getParameter<int>                 ("MuonTriggerMask");
+   METTriggerMask        = iConfig.getParameter<int>                 ("METTriggerMask");
+   JetTriggerMask        = iConfig.getParameter<int>                 ("JetTriggerMask");
+
    CountEvent = 0;
    MaxPrint = 10000;
 } 
@@ -60,11 +74,27 @@ void HSCPHLTFilter::beginJob() {
 void HSCPHLTFilter::endJob(){
 }
 
+
+bool HSCPHLTFilter::isDuplicate(unsigned int Run, unsigned int Event){
+   char tmp[255];sprintf(tmp,"%i_%i",Run,Event);
+   std::map<std::string, bool >::iterator it = DuplicateMap.find(std::string(tmp));
+   if(it==DuplicateMap.end()){
+      DuplicateMap[std::string(tmp)] = true;
+      return false;
+   }
+   return true;
+}
+
+
 /////////////////////////////////////////////////////////////////////////////////////
 bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    edm::TriggerResultsByName tr = iEvent.triggerResultsByName(TriggerProcess);
    if(!tr.isValid()){    printf("NoValidTrigger\n");  }
+
+
+   if(RemoveDuplicates && isDuplicate(iEvent.eventAuxiliary().run(),iEvent.eventAuxiliary().event()))return false;
+
 
 //   for(unsigned int i=0;i<tr.size();i++){
 //      printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
@@ -76,146 +106,72 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    trigger::TriggerEvent trEv = *trEvHandle;
 
    CountEvent++;
-   if(CountEvent<MaxPrint)printf("------------------------\n");
+   //if(CountEvent<MaxPrint)printf("------------------------\n");
 
 
    unsigned int TrIndex_Unknown     = tr.size();
 
+
+   bool MuonTrigger = false;
+   bool METTrigger  = false;
+   bool JetTrigger  = false;
+
+
    // HLT TRIGGER BASED ON 1 MUON!
-   if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu15_v1")){
-       if(CountEvent<MaxPrint)printf("Use HLT_Mu15_v1\n");
-      if(tr.accept(tr.triggerIndex("HLT_Mu15_v1")))return true;
+   if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu24_v1")){
+      if(tr.accept(tr.triggerIndex("HLT_Mu24_v1"))){MuonTrigger = true;}
    }else{
-      if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu11")){
-            if(CountEvent<MaxPrint)printf("Use HLT_Mu11 Rescaled\n");
-            if(IncreasedTreshold(trEv, InputTag("hltSingleMu11L3Filtered11","",TriggerProcess), 15, 1, false))return true;
-      }else{
-         if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu9")){
-            if(CountEvent<MaxPrint)printf("Use HLT_Mu9 Rescaled\n");
-            if(IncreasedTreshold(trEv, InputTag("hltSingleMu9L3Filtered9","",TriggerProcess), 15, 1, false))return true;
-         }else{
-             printf("HSCPHLTFilter --> BUG with HLT_Mu9\n");
-         }
-      }
+      printf("HSCPHLTFilter --> HLT_Mu24_v1  not found\n");
+      for(unsigned int i=0;i<tr.size();i++){
+         printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
+      }fflush(stdout);
+      exit(0);
    }
 
 
    // HLT TRIGGER BASED ON 2 MUONS!
-   if(TrIndex_Unknown != tr.triggerIndex("HLT_DoubleMu3_v2")){
-         if(CountEvent<MaxPrint)printf("Use HLT_DoubleMu3_v2\n");
-         if(tr.accept(tr.triggerIndex("HLT_DoubleMu3_v2")))return true;
+   if(TrIndex_Unknown != tr.triggerIndex("HLT_DoubleMu6_v1")){
+      if(tr.accept(tr.triggerIndex("HLT_DoubleMu6_v1"))){MuonTrigger = true;}
    }else{
-      if(TrIndex_Unknown != tr.triggerIndex("HLT_DoubleMu3")){
-         if(CountEvent<MaxPrint)printf("Use HLT_DoubleMu3\n");
-         if(tr.accept(tr.triggerIndex("HLT_DoubleMu3")))return true;
-      }else{
-         printf("HSCPHLTFilter --> BUG with HLT_DoubleMu3\n");
-      }
+      printf("HSCPHLTFilter --> HLT_DoubleMu6_v1  not found\n");
+      for(unsigned int i=0;i<tr.size();i++){
+         printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
+      }fflush(stdout);
+      exit(0);
    }
-
 
    // HLT TRIGGER BASED ON MET!
-   if(TrIndex_Unknown != tr.triggerIndex("HLT_MET100_v3")){
-      if(CountEvent<MaxPrint)printf("Use HLT_MET100_v3\n");
-      if(tr.accept(tr.triggerIndex("HLT_MET100_v3")))return true;
+   if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v2")){
+      if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v2"))){METTrigger = true;}
    }else{
-      if(TrIndex_Unknown != tr.triggerIndex("HLT_MET100_v2")){
-         if(CountEvent<MaxPrint)printf("Use HLT_MET100_v2\n");
-         if(tr.accept(tr.triggerIndex("HLT_MET100_v2")))return true;
+      if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v1")){
+         if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v1"))){METTrigger = true;}
       }else{
-         if(TrIndex_Unknown != tr.triggerIndex("HLT_MET100")){
-            if(CountEvent<MaxPrint)printf("Use HLT_MET100\n");
-            if(tr.accept(tr.triggerIndex("HLT_MET100")))return true;
-         }else{
-            printf("HSCPHLTFilter --> BUG with HLT_MET100\n");
-         }
+         printf("HSCPHLTFilter --> HLT_PFMHT150_v2 or v1  not found\n");
+         for(unsigned int i=0;i<tr.size();i++){
+            printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
+         }fflush(stdout);
+         exit(0);
       }
    }
 
+   //printf("Bits = %1i %1i %1i X Mask = %+2i %+2i %+2i -->",MuonTrigger,METTrigger,JetTrigger,MuonTriggerMask,METTriggerMask,JetTriggerMask);
 
-   // HLT TRIGGER BASED ON 1 JET!
-   if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet140U_v3")){
-      if(CountEvent<MaxPrint)printf("Use HLT_Jet140U_v3\n");
-      if(tr.accept(tr.triggerIndex("HLT_Jet140U_v3")))return true;
-   }else{ 
-      if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet140U_v1")){
-         if(CountEvent<MaxPrint)printf("Use HLT_Jet140U_v1\n");
-         if(tr.accept(tr.triggerIndex("HLT_Jet140U_v1")))return true;
-      }else{
-         if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet100U")){
-             if(CountEvent<MaxPrint)printf("Use HLT_Jet100U Rescaled\n");
-             if(IncreasedTreshold(trEv, InputTag("hlt1jet100U","",TriggerProcess), 140, 1, false))return true;
-         }else{
-            if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet70U")){   
-               if(CountEvent<MaxPrint)printf("Use HLT_Jet70U Rescaled\n");
-               if(IncreasedTreshold(trEv, InputTag("hlt1jet70U","",TriggerProcess), 140, 1, false))return true;
-            }else{
-               if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet50U")){
-                  if(CountEvent<MaxPrint)printf("Use HLT_Jet50U Rescaled\n");
-                  if(IncreasedTreshold(trEv, InputTag("hlt1jet50U","",TriggerProcess), 140, 1, false))return true;
-               }else{
-                  printf("HSCPHLTFilter --> BUG with HLT_Jet50U\n");
-               }
-            }
-         }
-      }
-   }
+   if(MuonTriggerMask==0)MuonTrigger=false;
+   if(METTriggerMask ==0)METTrigger =false;
+   if(JetTriggerMask ==0)JetTrigger =false;
 
+   if(MuonTriggerMask>=0 && METTriggerMask>=0 && JetTriggerMask>=0){bool d =  (MuonTrigger | METTrigger | JetTrigger);/* printf("%i\n",d);*/return d;}
 
-   // HLT TRIGGER BASED ON 2 JETS!
-   if(TrIndex_Unknown != tr.triggerIndex("HLT_DiJetAve140U_v3")){
-      if(CountEvent<MaxPrint)printf("Use HLT_DiJetAve140U_v3\n");
-      if(tr.accept(tr.triggerIndex("HLT_DiJetAve140U_v3") ))return true;
-   }else{  
-      if(TrIndex_Unknown != tr.triggerIndex("OpenHLT_DiJetAve70")){
-         if(CountEvent<MaxPrint)printf("Use OpenHLT_DiJetAve70\n");
-         if(IncreasedTreshold(trEv, InputTag("hltDiJetAve70U","",TriggerProcess), 140, 2, true))return true;
-      }else{
-         if(TrIndex_Unknown != tr.triggerIndex("OpenHLT_DiJetAve50U")){
-               if(CountEvent<MaxPrint)printf("Use OpenHLT_DiJetAve50 Rescaled\n");
-               if(IncreasedTreshold(trEv, InputTag("hltDiJetAve50U","",TriggerProcess), 140, 2, true))return true;
-               if(IncreasedTreshold(trEv, InputTag("openhltDiJetAve50U","",TriggerProcess), 140, 2, true))return true;
-         }else{
-            if(TrIndex_Unknown != tr.triggerIndex("HLT_DiJetAve50U")){
-               if(CountEvent<MaxPrint)printf("Use HLT_DiJetAve50 Rescaled\n");
-               if(IncreasedTreshold(trEv, InputTag("hltDiJetAve50U","",TriggerProcess), 140, 2, true))return true;
-            }else{
-               if(TrIndex_Unknown != tr.triggerIndex("HLT_DiJetAve30U_8E29")){ 
-                  if(CountEvent<MaxPrint)printf("Use HLT_DiJetAve30U_8E29 Rescaled\n");
-                  if(IncreasedTreshold(trEv, InputTag("hltDiJetAve30U8E29","",TriggerProcess), 140, 2, true))return true;
-               }else{
-                   printf("HSCPHLTFilter --> BUG with HLT_DiJetAve30U_8E29\n");
-               }
-            }
-         }
-      }
-   }
+   if(MuonTriggerMask<0 && METTriggerMask <0){bool d =  !MuonTrigger & !METTrigger & JetTrigger; /*printf("%i\n",d);*/return d;}
+   if(MuonTriggerMask<0 && JetTriggerMask <0){bool d =  !MuonTrigger & !JetTrigger & METTrigger; /*printf("%i\n",d);*/return d;}
+   if(METTriggerMask <0 && JetTriggerMask <0){bool d =  !METTrigger  & !JetTrigger & MuonTrigger; /*printf("%i\n",d);*/return d;}
 
+   if(MuonTriggerMask<0){bool d =  !MuonTrigger & (METTrigger  | JetTrigger); /*printf("%i\n",d);*/return d;}
+   if(METTriggerMask <0){bool d =  !METTrigger  & (MuonTrigger | JetTrigger); /*printf("%i\n",d);*/return d;}
+   if(JetTriggerMask <0){bool d =  !JetTrigger  & (MuonTrigger | METTrigger); /*printf("%i\n",d);*/return d;}
 
-   // HLT TRIGGER BASED ON 4 JETS!
-   if(TrIndex_Unknown != tr.triggerIndex("HLT_QuadJet25U_v3")){
-      if(CountEvent<MaxPrint)printf("Use HLT_QuadJet25U_v3\n");
-      if(tr.accept(tr.triggerIndex("HLT_QuadJet25U_v3") ))return true;
-   }else{
-      if(TrIndex_Unknown != tr.triggerIndex("HLT_QuadJet25U_v2")){
-         if(CountEvent<MaxPrint)printf("Use HLT_QuadJet25U_v2\n");
-         if(tr.accept(tr.triggerIndex("HLT_QuadJet25U_v2") ))return true;
-      }else{
-         if(TrIndex_Unknown != tr.triggerIndex("OpenHLT_QuadJet25U")){
-            if(CountEvent<MaxPrint)printf("Use OpenHLT_QuadJet25U\n");
-            if(tr.accept(tr.triggerIndex("OpenHLT_QuadJet25U") ))return true;
-         }else{
-            if(TrIndex_Unknown != tr.triggerIndex("HLT_QuadJet15U")){
-               if(CountEvent<MaxPrint)printf("Use HLT_QuadJet15U Rescaled\n");
-               if(IncreasedTreshold(trEv, InputTag("hlt4jet15U","",TriggerProcess), 25, 4, false))return true;
-            }else{
-               printf("HSCPHLTFilter --> BUG with HLT_QuadJet15U\n");
-            }
-         }
-      }
-   }
- 
-   return false;
+   /*printf("0\n");*/return false;
 }
 
 bool HSCPHLTFilter::IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, int NObjectAboveThreshold, bool averageThreshold)

@@ -14,10 +14,8 @@ Original Author: John Paul Chou (Brown University)
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
 #include "RecoMET/METAlgorithms/interface/HcalHPDRBXMap.h"
 
 HBHEIsolatedNoiseReflagger::HBHEIsolatedNoiseReflagger(const edm::ParameterSet& iConfig) :
@@ -84,10 +82,7 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
   edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl;
   evSetup.get<HcalSeverityLevelComputerRcd>().get(hcalSevLvlComputerHndl);
   const HcalSeverityLevelComputer* hcalSevLvlComputer = hcalSevLvlComputerHndl.product();
-
-  edm::ESHandle<EcalSeverityLevelAlgo> ecalSevLvlAlgoHndl;
-  evSetup.get<EcalSeverityLevelAlgoRcd>().get(ecalSevLvlAlgoHndl);
-  const EcalSeverityLevelAlgo* ecalSevLvlAlgo = ecalSevLvlAlgoHndl.product();
+  const EcalSeverityLevelAlgo* ecalSevLvlAlgo = new EcalSeverityLevelAlgo();
 
   // get the calotower mappings
   edm::ESHandle<CaloTowerConstituentsMap> ctcm;

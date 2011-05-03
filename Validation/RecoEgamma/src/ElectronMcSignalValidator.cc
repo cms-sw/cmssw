@@ -45,11 +45,8 @@ ElectronMcSignalValidator::ElectronMcSignalValidator( const edm::ParameterSet & 
  : ElectronValidator(conf)
  {
   outputFile_ = conf.getParameter<std::string>("outputFile");
-  mcTruthCollection_ = conf.getParameter<edm::InputTag>("mcTruthCollection");
   electronCollection_ = conf.getParameter<edm::InputTag>("electronCollection");
-  electronCoreCollection_ = conf.getParameter<edm::InputTag>("electronCoreCollection");
-  electronTrackCollection_ = conf.getParameter<edm::InputTag>("electronTrackCollection");
-  electronSeedCollection_ = conf.getParameter<edm::InputTag>("electronSeedCollection");
+  mcTruthCollection_ = conf.getParameter<edm::InputTag>("mcTruthCollection");
   beamSpotTag_ = conf.getParameter<edm::InputTag>("beamSpot") ;
   readAOD_ = conf.getParameter<bool>("readAOD");
   maxPt_ = conf.getParameter<double>("MaxPt");
@@ -130,16 +127,13 @@ void ElectronMcSignalValidator::beginJob()
   prepareStore() ;
   setStoreFolder("EgammaV/ElectronMcSignalValidator") ;
 
-  // mc truth collections sizes
+  // mc truth
   h1_mcNum = bookH1withSumw2("h_mcNum","# mc particles",fhits_nbin,0.,fhits_max,"N_{gen}" );
-  h1_eleNum = bookH1withSumw2("h_mcNum_ele","# mc electrons",fhits_nbin,0.,fhits_max,"N_{gen ele}");
+  h1_eleNum = bookH1withSumw2("h_mcNum_ele","# mc electrons",fhits_nbin,0.,fhits_max,"# gen ele");
   h1_gamNum = bookH1withSumw2("h_mcNum_gam","# mc gammas",fhits_nbin,0.,fhits_max,"N_{gen #gamma}");
 
-  // rec event collections sizes
-  h1_recEleNum_= bookH1("h_recEleNum","# rec electrons",11, -0.5,10.5,"N_{ele}");
-  h1_recCoreNum_= bookH1("h_recCoreNum","# rec electron cores",21, -0.5,20.5,"N_{core}");
-  h1_recTrackNum_= bookH1("h_recTrackNum","# rec gsf tracks",41, -0.5,40.5,"N_{track}");
-  h1_recSeedNum_= bookH1("h_recSeedNum","# rec electron seeds",101, -0.5,100.5,"N_{seed}");
+  // rec event
+  h1_recEleNum_= bookH1("h_recEleNum","# rec electrons",20, 0.,20.,"N_{ele}");
 
   // mc
   h1_simEta = bookH1withSumw2("h_mc_eta","gen #eta",eta_nbin,eta_min,eta_max,"#eta");
@@ -206,7 +200,7 @@ void ElectronMcSignalValidator::beginJob()
   h1_ele_simZ_matched_qmisid = bookH1withSumw2("h_ele_z_matched_qmisid","charge misid vs gen z",xyz_nbin, -25, 25 );
 
   // matched electrons
-  h1_ele_charge = bookH1withSumw2("h_ele_charge","ele charge",5,-2.5,2.5,"charge");
+  h1_ele_charge = bookH1withSumw2("h_ele_charge","ele charge",5,-2.,2.,"charge");
   h2_ele_chargeVsEta = bookH2("h_ele_chargeVsEta","ele charge vs eta",eta2D_nbin,eta_min,eta_max,5,-2.,2.);
   h2_ele_chargeVsPhi = bookH2("h_ele_chargeVsPhi","ele charge vs phi",phi2D_nbin,phi_min,phi_max,5,-2.,2.);
   h2_ele_chargeVsPt = bookH2("h_ele_chargeVsPt","ele charge vs pt",pt_nbin,0.,100.,5,-2.,2.);
@@ -456,25 +450,13 @@ void ElectronMcSignalValidator::beginJob()
   h2_ele_HoEVsEta = bookH2("h_ele_HoEVsEta","ele hadronic energy / em energy vs eta",eta_nbin,eta_min,eta_max,hoe_nbin, hoe_min, hoe_max) ;
   h2_ele_HoEVsPhi = bookH2("h_ele_HoEVsPhi","ele hadronic energy / em energy vs phi",phi2D_nbin,phi_min,phi_max,hoe_nbin, hoe_min, hoe_max) ;
   h2_ele_HoEVsE = bookH2("h_ele_HoEVsE","ele hadronic energy / em energy vs E",p_nbin, 0.,300.,hoe_nbin, hoe_min, hoe_max) ;
-
-  // seeds
-  h1_ele_seed_subdet2_ = bookH1withSumw2("h_ele_seedSubdet2","ele seed subdet 2nd layer",11,-0.5,10.5,"2nd hit subdet Id") ;
-  h1_ele_seed_mask_ = bookH1withSumw2("h_ele_seedMask","ele seed hits mask",13,-0.5,12.5) ;
-  h1_ele_seed_mask_bpix_ = bookH1withSumw2("h_ele_seedMask_Bpix","ele seed hits mask when subdet2 is bpix",13,-0.5,12.5) ;
-  h1_ele_seed_mask_fpix_ = bookH1withSumw2("h_ele_seedMask_Fpix","ele seed hits mask when subdet2 is bpix",13,-0.5,12.5) ;
-  h1_ele_seed_mask_tec_ = bookH1withSumw2("h_ele_seedMask_Tec","ele seed hits mask when subdet2 is bpix",13,-0.5,12.5) ;
-  h1_ele_seed_dphi2_ = bookH1withSumw2("h_ele_seedDphi2","ele seed dphi 2nd layer", 50,-0.010,+0.010,"#phi_{hit}-#phi_{pred} (rad)") ;
-  h2_ele_seed_dphi2VsEta_ = bookH2("h_ele_seedDphi2_VsEta","ele seed dphi 2nd layer vs eta",eta2D_nbin,eta_min,eta_max,50,-0.003,+0.003) ;
-  h2_ele_seed_dphi2VsPt_ = bookH2("h_ele_seedDphi2_VsPt","ele seed dphi 2nd layer vs pt",pt2D_nbin,0.,pt_max,50,-0.003,+0.003) ;
-  h1_ele_seed_dphi2pos_ = bookH1withSumw2("h_ele_seedDphi2Pos","ele seed dphi 2nd layer positron", 50,-0.010,+0.010,"#phi_{hit}-#phi_{pred} (rad)") ;
-  h2_ele_seed_dphi2posVsEta_ = bookH2("h_ele_seedDphi2Pos_VsEta","ele seed dphi 2nd layer positron vs eta",eta2D_nbin,eta_min,eta_max,50,-0.003,+0.003) ;
-  h2_ele_seed_dphi2posVsPt_ = bookH2("h_ele_seedDphi2Pos_VsPt","ele seed dphi 2nd layer positron vs pt",pt2D_nbin,0.,pt_max,50,-0.003,+0.003) ;
+  h1_ele_seed_dphi2_ = bookH1withSumw2("h_ele_seedDphi2","ele seed dphi 2nd layer", 50,-0.003,+0.003,"#phi_{hit}-#phi_{pred} (rad)") ;
+  h2_ele_seed_dphi2VsEta_ = bookH2("h_ele_seedDphi2VsEta","ele seed dphi 2nd layer vs eta",eta2D_nbin,eta_min,eta_max,50,-0.003,+0.003) ;
+  h2_ele_seed_dphi2VsPt_ = bookH2("h_ele_seedDphi2VsPt","ele seed dphi 2nd layer vs pt",pt2D_nbin,0.,pt_max,50,-0.003,+0.003) ;
   h1_ele_seed_drz2_ = bookH1withSumw2("h_ele_seedDrz2","ele seed dr (dz) 2nd layer", 50,-0.03,+0.03,"r(z)_{hit}-r(z)_{pred} (cm)") ;
-  h2_ele_seed_drz2VsEta_ = bookH2("h_ele_seedDrz2_VsEta","ele seed dr/dz 2nd layer vs eta",eta2D_nbin,eta_min,eta_max,50,-0.03,+0.03) ;
-  h2_ele_seed_drz2VsPt_ = bookH2("h_ele_seedDrz2_VsPt","ele seed dr/dz 2nd layer vs pt",pt2D_nbin,0.,pt_max,50,-0.03,+0.03) ;
-  h1_ele_seed_drz2pos_ = bookH1withSumw2("h_ele_seedDrz2Pos","ele seed dr (dz) 2nd layer positron", 50,-0.03,+0.03,"r(z)_{hit}-r(z)_{pred} (cm)") ;
-  h2_ele_seed_drz2posVsEta_ = bookH2("h_ele_seedDrz2Pos_VsEta","ele seed dr/dz 2nd layer positron vs eta",eta2D_nbin,eta_min,eta_max,50,-0.03,+0.03) ;
-  h2_ele_seed_drz2posVsPt_ = bookH2("h_ele_seedDrz2Pos_VsPt","ele seed dr/dz 2nd layer positron vs pt",pt2D_nbin,0.,pt_max,50,-0.03,+0.03) ;
+  h2_ele_seed_drz2VsEta_ = bookH2("h_ele_seedDrz2VsEta","ele seed dr/dz 2nd layer vs eta",eta2D_nbin,eta_min,eta_max,50,-0.03,+0.03) ;
+  h2_ele_seed_drz2VsPt_ = bookH2("h_ele_seedDrz2VsPt","ele seed dr/dz 2nd layer vs pt",pt2D_nbin,0.,pt_max,50,-0.03,+0.03) ;
+  h1_ele_seed_subdet2_ = bookH1withSumw2("h_ele_seedSubdet2","ele seed subdet 2nd layer",10,0.,10.,"2nd hit subdet Id") ;
 
   // classes
   h1_ele_classes = bookH1withSumw2("h_ele_classes","ele classes",20,0.0,20.,"class Id");
@@ -516,17 +498,6 @@ void ElectronMcSignalValidator::beginJob()
   h1_ele_mva = bookH1withSumw2("h_ele_mva","ele identification mva",100,-1.,1.);
   h1_ele_mva_eg = bookH1withSumw2("h_ele_mva_eg","ele identification mva, ecal driven",100,-1.,1.);
   h1_ele_provenance = bookH1withSumw2("h_ele_provenance","ele provenance",5,-2.,3.);
-
-  // conversion rejection information
-  h1_ele_convFlags = bookH1withSumw2("h_ele_convFlags","conversion rejection flag",5,-1.5,3.5);
-  h1_ele_convFlags_all = bookH1withSumw2("h_ele_convFlags_all","conversion rejection flag, all electrons",5,-1.5,3.5);
-  h1_ele_convDist = bookH1withSumw2("h_ele_convDist","distance to the conversion partner",100,-15.,15.);
-  h1_ele_convDist_all = bookH1withSumw2("h_ele_convDist_all","distance to the conversion partner, all electrons",100,-15.,15.);
-  h1_ele_convDcot = bookH1withSumw2("h_ele_convDcot","difference of cot(angle) with the conversion partner",100,-CLHEP::pi/2.,CLHEP::pi/2.);
-  h1_ele_convDcot_all = bookH1withSumw2("h_ele_convDcot_all","difference of cot(angle) with the conversion partner, all electrons",100,-CLHEP::pi/2.,CLHEP::pi/2.);
-  h1_ele_convRadius = bookH1withSumw2("h_ele_convRadius","signed conversion radius",100,0.,130.);
-  h1_ele_convRadius_all = bookH1withSumw2("h_ele_convRadius_all","signed conversion radius, all electrons",100,0.,130.);
-
  }
 
 ElectronMcSignalValidator::~ElectronMcSignalValidator()
@@ -542,12 +513,6 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
   // get collections
   edm::Handle<GsfElectronCollection> gsfElectrons ;
   iEvent.getByLabel(electronCollection_,gsfElectrons) ;
-  edm::Handle<GsfElectronCoreCollection> gsfElectronCores ;
-  iEvent.getByLabel(electronCoreCollection_,gsfElectronCores) ;
-  edm::Handle<GsfTrackCollection> gsfElectronTracks ;
-  iEvent.getByLabel(electronTrackCollection_,gsfElectronTracks) ;
-  edm::Handle<ElectronSeedCollection> gsfElectronSeeds ;
-  iEvent.getByLabel(electronSeedCollection_,gsfElectronSeeds) ;
   edm::Handle<GenParticleCollection> genParticles ;
   iEvent.getByLabel(mcTruthCollection_, genParticles) ;
   edm::Handle<reco::BeamSpot> theBeamSpot ;
@@ -557,21 +522,13 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
     <<"Treating event "<<iEvent.id()
     <<" with "<<gsfElectrons.product()->size()<<" electrons" ;
   h1_recEleNum_->Fill((*gsfElectrons).size()) ;
-  h1_recCoreNum_->Fill((*gsfElectronCores).size());
-  h1_recTrackNum_->Fill((*gsfElectronTracks).size());
-  h1_recSeedNum_->Fill((*gsfElectronSeeds).size());
 
-  //===============================================
   // all rec electrons
-  //===============================================
-
   reco::GsfElectronCollection::const_iterator gsfIter ;
   for ( gsfIter=gsfElectrons->begin() ; gsfIter!=gsfElectrons->end() ; gsfIter++ )
    {
     // preselect electrons
     if (gsfIter->pt()>maxPt_ || std::abs(gsfIter->eta())>maxAbsEta_) continue ;
-
-    //
     h1_ele_EoverP_all->Fill(gsfIter->eSuperClusterOverP()) ;
     h1_ele_EseedOP_all->Fill(gsfIter->eSeedClusterOverP()) ;
     h1_ele_EoPout_all->Fill(gsfIter->eSeedClusterOverPout()) ;
@@ -602,7 +559,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
        {
         h1_ele_mee_os->Fill(sqrt(mee2));
         if (gsfIter->isEB() && gsfIter2->isEB()) { h1_ele_mee_os_ebeb->Fill(sqrt(mee2)) ; }
-	      if ((gsfIter->isEB() && gsfIter2->isEE()) || (gsfIter->isEE() && gsfIter2->isEB())) h1_ele_mee_os_ebee -> Fill(sqrt(mee2));
+	if ((gsfIter->isEB() && gsfIter2->isEE()) || (gsfIter->isEE() && gsfIter2->isEB())) h1_ele_mee_os_ebee -> Fill(sqrt(mee2));
         if (gsfIter->isEE() && gsfIter2->isEE()) { h1_ele_mee_os_eeee->Fill(sqrt(mee2)) ; }
         if
          ( (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::GOLDEN) ||
@@ -625,26 +582,12 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
          { h1_ele_mee_os_gb->Fill(sqrt(mee2)) ; }
        }
      }
-
-    // conversion rejection
-    int flags = gsfIter->convFlags() ;
-    if (flags==-9999) { flags=-1 ; }
-    h1_ele_convFlags_all->Fill(flags);
-    if (flags>=0.)
-     {
-      h1_ele_convDist_all->Fill( gsfIter->convDist() );
-      h1_ele_convDcot_all->Fill( gsfIter->convDcot() );
-      h1_ele_convRadius_all->Fill( gsfIter->convRadius() );
-     }
    }
-
-  //===============================================
-  // charge mis-ID
-  //===============================================
 
   int mcNum=0, gamNum=0, eleNum=0 ;
   bool matchingID, matchingMotherID ;
 
+  // charge mis-ID
   reco::GenParticleCollection::const_iterator mcIter ;
   for
    ( mcIter=genParticles->begin() ; mcIter!=genParticles->end() ; mcIter++ )
@@ -724,10 +667,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
      }
    }
 
-  //===============================================
   // association mc-reco
-  //===============================================
-
   for ( mcIter=genParticles->begin() ; mcIter!=genParticles->end() ; mcIter++ )
    {
     // number of mc particles
@@ -744,443 +684,422 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
       if ( mcIter->pdgId() == matchingIDs_[i] )
        { matchingID=true ; }
      }
-    if (!matchingID) continue ;
 
-    // select requested mother matching gen particle
-    // always include single particle with no mother
-    const Candidate * mother = mcIter->mother() ;
-    matchingMotherID = false ;
-    for ( unsigned int i=0 ; i<matchingMotherIDs_.size() ; i++ )
+    if (matchingID)
      {
-      if ( (mother == 0) || ((mother != 0) &&  mother->pdgId() == matchingMotherIDs_[i]) )
-       { matchingMotherID = true ; }
-     }
-    if (!matchingMotherID) continue ;
-
-    // electron preselection
-    if (mcIter->pt()> maxPt_ || std::abs(mcIter->eta())> maxAbsEta_)
-     { continue ; }
-
-    // suppress the endcaps
-    //if (std::abs(mcIter->eta()) > 1.5) continue;
-    // select central z
-    //if ( std::abs(mcIter->production_vertex()->position().z())>50.) continue;
-
-    eleNum++;
-    h1_simEta->Fill( mcIter->eta() );
-    h1_simAbsEta->Fill( std::abs(mcIter->eta()) );
-    h1_simP->Fill( mcIter->p() );
-    h1_simPt->Fill( mcIter->pt() );
-    h1_simPhi->Fill( mcIter->phi() );
-    h1_simZ->Fill( mcIter->vz() );
-    h2_simPtEta->Fill( mcIter->eta(),mcIter->pt() );
-
-    // find best matched electron
-    bool okGsfFound = false ;
-    double gsfOkRatio = 999999. ;
-    reco::GsfElectron bestGsfElectron ;
-    reco::GsfElectronCollection::const_iterator gsfIter ;
-    for ( gsfIter=gsfElectrons->begin() ; gsfIter!=gsfElectrons->end() ; gsfIter++ )
-     {
-      double dphi = gsfIter->phi()-mcIter->phi() ;
-      if (std::abs(dphi)>CLHEP::pi)
-       { dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi ; }
-      double deltaR = sqrt(pow((gsfIter->eta()-mcIter->eta()),2) + pow(dphi,2));
-      if ( deltaR < deltaR_ )
+      // select requested mother matching gen particle
+      // always include single particle with no mother
+      const Candidate * mother = mcIter->mother() ;
+      matchingMotherID = false ;
+      for ( unsigned int i=0 ; i<matchingMotherIDs_.size() ; i++ )
        {
-        if ( ( (mcIter->pdgId() == 11) && (gsfIter->charge() < 0.) ) ||
-             ( (mcIter->pdgId() == -11) && (gsfIter->charge() > 0.) ) )
-         {
-          double tmpGsfRatio = gsfIter->p()/mcIter->p() ;
-          if ( std::abs(tmpGsfRatio-1) < std::abs(gsfOkRatio-1) )
-           {
-            gsfOkRatio = tmpGsfRatio;
-            bestGsfElectron=*gsfIter;
-            okGsfFound = true;
-           }
-         }
+        if ( (mother == 0) || ((mother != 0) &&  mother->pdgId() == matchingMotherIDs_[i]) )
+         { matchingMotherID = true ; }
        }
-     } // loop over rec ele to look for the best one
-    if (! okGsfFound) continue ;
 
-    //------------------------------------
-    // analysis when the mc track is found
-    //------------------------------------
+      if (matchingMotherID)
+       {
+        if (mcIter->pt()> maxPt_ || std::abs(mcIter->eta())> maxAbsEta_)
+         { continue ; }
 
-    // electron related distributions
-    h1_ele_charge->Fill( bestGsfElectron.charge() );
-    h2_ele_chargeVsEta->Fill( bestGsfElectron.eta(),bestGsfElectron.charge() );
-    h2_ele_chargeVsPhi->Fill( bestGsfElectron.phi(),bestGsfElectron.charge() );
-    h2_ele_chargeVsPt->Fill( bestGsfElectron.pt(),bestGsfElectron.charge() );
-    h1_ele_vertexP->Fill( bestGsfElectron.p() );
-    h1_ele_vertexPt->Fill( bestGsfElectron.pt() );
-    h1_ele_Et->Fill( bestGsfElectron.superCluster()->energy()/cosh(bestGsfElectron.superCluster()->eta()));
-    h2_ele_vertexPtVsEta->Fill(  bestGsfElectron.eta(),bestGsfElectron.pt() );
-    h2_ele_vertexPtVsPhi->Fill(  bestGsfElectron.phi(),bestGsfElectron.pt() );
-    h1_ele_vertexEta->Fill( bestGsfElectron.eta() );
-    // generated distributions for matched electrons
-    h1_ele_simPt_matched->Fill( mcIter->pt() );
-    h1_ele_simPhi_matched->Fill( mcIter->phi() );
-    h1_ele_simAbsEta_matched->Fill( std::abs(mcIter->eta()) );
-    h1_ele_simEta_matched->Fill( mcIter->eta() );
-    h2_ele_simPtEta_matched->Fill(  mcIter->eta(),mcIter->pt() );
-    h2_ele_vertexEtaVsPhi->Fill(  bestGsfElectron.phi(),bestGsfElectron.eta() );
-    h1_ele_vertexPhi->Fill( bestGsfElectron.phi() );
-    h1_ele_vertexX->Fill( bestGsfElectron.vertex().x() );
-    h1_ele_vertexY->Fill( bestGsfElectron.vertex().y() );
-    h1_ele_vertexZ->Fill( bestGsfElectron.vertex().z() );
-    h1_ele_simZ_matched->Fill( mcIter->vz() );
-    double d =
-     (bestGsfElectron.vertex().x()-mcIter->vx())*(bestGsfElectron.vertex().x()-mcIter->vx()) +
-     (bestGsfElectron.vertex().y()-mcIter->vy())*(bestGsfElectron.vertex().y()-mcIter->vy()) ;
-    d = sqrt(d) ;
-    h1_ele_vertexTIP->Fill( d );
-    h2_ele_vertexTIPVsEta->Fill(  bestGsfElectron.eta(), d );
-    h2_ele_vertexTIPVsPhi->Fill(  bestGsfElectron.phi(), d );
-    h2_ele_vertexTIPVsPt->Fill(  bestGsfElectron.pt(), d );
-    h1_ele_EtaMnEtaTrue->Fill( bestGsfElectron.eta()-mcIter->eta());
-    if (bestGsfElectron.isEB()) h1_ele_EtaMnEtaTrue_barrel->Fill( bestGsfElectron.eta()-mcIter->eta());
-    if (bestGsfElectron.isEE()) h1_ele_EtaMnEtaTrue_endcaps->Fill( bestGsfElectron.eta()-mcIter->eta());
-    h2_ele_EtaMnEtaTrueVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.eta()-mcIter->eta());
-    h2_ele_EtaMnEtaTrueVsPhi->Fill( bestGsfElectron.phi(), bestGsfElectron.eta()-mcIter->eta());
-    h2_ele_EtaMnEtaTrueVsPt->Fill( bestGsfElectron.pt(), bestGsfElectron.eta()-mcIter->eta());
-    h1_ele_PhiMnPhiTrue->Fill( bestGsfElectron.phi()-mcIter->phi());
-    if (bestGsfElectron.isEB()) h1_ele_PhiMnPhiTrue_barrel->Fill( bestGsfElectron.phi()-mcIter->phi());
-    if (bestGsfElectron.isEE()) h1_ele_PhiMnPhiTrue_endcaps->Fill( bestGsfElectron.phi()-mcIter->phi());
-    h1_ele_PhiMnPhiTrue2->Fill( bestGsfElectron.phi()-mcIter->phi());
-    h2_ele_PhiMnPhiTrueVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.phi()-mcIter->phi());
-    h2_ele_PhiMnPhiTrueVsPhi->Fill( bestGsfElectron.phi(), bestGsfElectron.phi()-mcIter->phi());
-    h2_ele_PhiMnPhiTrueVsPt->Fill( bestGsfElectron.pt(), bestGsfElectron.phi()-mcIter->phi());
-    h1_ele_PoPtrue->Fill( bestGsfElectron.p()/mcIter->p());
-    h1_ele_PtoPttrue->Fill( bestGsfElectron.pt()/mcIter->pt());
-    h2_ele_PoPtrueVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.p()/mcIter->p());
-    h2_ele_PoPtrueVsPhi->Fill( bestGsfElectron.phi(), bestGsfElectron.p()/mcIter->p());
-    h2_ele_PoPtrueVsPt->Fill( bestGsfElectron.py(), bestGsfElectron.p()/mcIter->p());
-    if (bestGsfElectron.isEB()) h1_ele_PoPtrue_barrel->Fill( bestGsfElectron.p()/mcIter->p());
-    if (bestGsfElectron.isEE()) h1_ele_PoPtrue_endcaps->Fill( bestGsfElectron.p()/mcIter->p());
-    if (bestGsfElectron.isEB() && bestGsfElectron.classification() == GsfElectron::GOLDEN) h1_ele_PoPtrue_golden_barrel->Fill( bestGsfElectron.p()/mcIter->p());
-    if (bestGsfElectron.isEE() && bestGsfElectron.classification() == GsfElectron::GOLDEN) h1_ele_PoPtrue_golden_endcaps->Fill( bestGsfElectron.p()/mcIter->p());
-    if (bestGsfElectron.isEB() && bestGsfElectron.classification() == GsfElectron::SHOWERING) h1_ele_PoPtrue_showering_barrel->Fill( bestGsfElectron.p()/mcIter->p());
-    if (bestGsfElectron.isEE() && bestGsfElectron.classification() == GsfElectron::SHOWERING) h1_ele_PoPtrue_showering_endcaps->Fill( bestGsfElectron.p()/mcIter->p());
-    if (bestGsfElectron.isEB()) h1_ele_PtoPttrue_barrel->Fill( bestGsfElectron.pt()/mcIter->pt());
-    if (bestGsfElectron.isEE()) h1_ele_PtoPttrue_endcaps->Fill( bestGsfElectron.pt()/mcIter->pt());
+        // suppress the endcaps
+        //if (std::abs(mcIter->eta()) > 1.5) continue;
+        // select central z
+        //if ( std::abs(mcIter->production_vertex()->position().z())>50.) continue;
 
-    // supercluster related distributions
-    reco::SuperClusterRef sclRef = bestGsfElectron.superCluster();
-    if (!bestGsfElectron.ecalDrivenSeed()&&bestGsfElectron.trackerDrivenSeed())
-     { sclRef = bestGsfElectron.pflowSuperCluster() ; }
-    h1_scl_En_->Fill(sclRef->energy());
-    double R=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y() +sclRef->z()*sclRef->z());
-    double Rt=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y());
-    h1_scl_Et_->Fill(sclRef->energy()*(Rt/R));
-    h2_scl_EtVsEta_->Fill(sclRef->eta(),sclRef->energy()*(Rt/R));
-    h2_scl_EtVsPhi_->Fill(sclRef->phi(),sclRef->energy()*(Rt/R));
-    if (bestGsfElectron.isEB())  h1_scl_EoEtrue_barrel->Fill(sclRef->energy()/mcIter->p());
-    if (bestGsfElectron.isEE())  h1_scl_EoEtrue_endcaps->Fill(sclRef->energy()/mcIter->p());
-    if (bestGsfElectron.isEB() && bestGsfElectron.ecalDrivenSeed())  h1_scl_EoEtrue_barrel_eg->Fill(sclRef->energy()/mcIter->p());
-    if (bestGsfElectron.isEE() && bestGsfElectron.ecalDrivenSeed())  h1_scl_EoEtrue_endcaps_eg->Fill(sclRef->energy()/mcIter->p());
-    if (bestGsfElectron.isEB() && bestGsfElectron.isEBEtaGap())  h1_scl_EoEtrue_barrel_etagap->Fill(sclRef->energy()/mcIter->p());
-    if (bestGsfElectron.isEB() && bestGsfElectron.isEBPhiGap())  h1_scl_EoEtrue_barrel_phigap->Fill(sclRef->energy()/mcIter->p());
-    if (bestGsfElectron.isEBEEGap())  h1_scl_EoEtrue_ebeegap->Fill(sclRef->energy()/mcIter->p());
-    //if (bestGsfElectron.isEE())  h1_scl_EoEtrue_endcaps->Fill(sclRef->energy()/mcIter->p());
-    if (bestGsfElectron.isEE() && bestGsfElectron.isEEDeeGap())  h1_scl_EoEtrue_endcaps_deegap->Fill(sclRef->energy()/mcIter->p());
-    if (bestGsfElectron.isEE() && bestGsfElectron.isEERingGap())  h1_scl_EoEtrue_endcaps_ringgap->Fill(sclRef->energy()/mcIter->p());
-    if (bestGsfElectron.isEB())  h1_scl_EoEtrue_barrel_new->Fill(sclRef->energy()/mcIter->p());
-    if (bestGsfElectron.isEE())  h1_scl_EoEtrue_endcaps_new->Fill(sclRef->energy()/mcIter->p());
-    if (bestGsfElectron.isEB() && bestGsfElectron.ecalDrivenSeed())  h1_scl_EoEtrue_barrel_new_eg->Fill(sclRef->energy()/mcIter->p());
-    if (bestGsfElectron.isEE() && bestGsfElectron.ecalDrivenSeed())  h1_scl_EoEtrue_endcaps_new_eg->Fill(sclRef->energy()/mcIter->p());
-    if (bestGsfElectron.isEB() && bestGsfElectron.isEBEtaGap())  h1_scl_EoEtrue_barrel_new_etagap->Fill(sclRef->energy()/mcIter->p());
-    if (bestGsfElectron.isEB() && bestGsfElectron.isEBPhiGap())  h1_scl_EoEtrue_barrel_new_phigap->Fill(sclRef->energy()/mcIter->p());
-    if (bestGsfElectron.isEBEEGap())  h1_scl_EoEtrue_ebeegap_new->Fill(sclRef->energy()/mcIter->p());
-    //if (bestGsfElectron.isEE())  h1_scl_EoEtrue_endcaps_new->Fill(sclRef->energy()/mcIter->p());
-    if (bestGsfElectron.isEE() && bestGsfElectron.isEEDeeGap())  h1_scl_EoEtrue_endcaps_new_deegap->Fill(sclRef->energy()/mcIter->p());
-    if (bestGsfElectron.isEE() && bestGsfElectron.isEERingGap())  h1_scl_EoEtrue_endcaps_new_ringgap->Fill(sclRef->energy()/mcIter->p());
-    h1_scl_Eta_->Fill(sclRef->eta());
-    h2_scl_EtaVsPhi_->Fill(sclRef->phi(),sclRef->eta());
-    h1_scl_Phi_->Fill(sclRef->phi());
-    h1_scl_SigEtaEta_->Fill(bestGsfElectron.scSigmaEtaEta());
-    if (bestGsfElectron.isEB()) h1_scl_SigEtaEta_barrel_->Fill(bestGsfElectron.scSigmaEtaEta());
-    if (bestGsfElectron.isEE()) h1_scl_SigEtaEta_endcaps_->Fill(bestGsfElectron.scSigmaEtaEta());
-    h1_scl_SigIEtaIEta_->Fill(bestGsfElectron.scSigmaIEtaIEta());
-    if (bestGsfElectron.isEB()) h1_scl_SigIEtaIEta_barrel_->Fill(bestGsfElectron.scSigmaIEtaIEta());
-    if (bestGsfElectron.isEE()) h1_scl_SigIEtaIEta_endcaps_->Fill(bestGsfElectron.scSigmaIEtaIEta());
-    h1_scl_E1x5_->Fill(bestGsfElectron.scE1x5());
-    if (bestGsfElectron.isEB()) h1_scl_E1x5_barrel_->Fill(bestGsfElectron.scE1x5());
-    if (bestGsfElectron.isEE()) h1_scl_E1x5_endcaps_->Fill(bestGsfElectron.scE1x5());
-    h1_scl_E2x5max_->Fill(bestGsfElectron.scE2x5Max());
-    if (bestGsfElectron.isEB()) h1_scl_E2x5max_barrel_->Fill(bestGsfElectron.scE2x5Max());
-    if (bestGsfElectron.isEE()) h1_scl_E2x5max_endcaps_->Fill(bestGsfElectron.scE2x5Max());
-    h1_scl_E5x5_->Fill(bestGsfElectron.scE5x5());
-    if (bestGsfElectron.isEB()) h1_scl_E5x5_barrel_->Fill(bestGsfElectron.scE5x5());
-    if (bestGsfElectron.isEE()) h1_scl_E5x5_endcaps_->Fill(bestGsfElectron.scE5x5());
-    if (bestGsfElectron.ecalDrivenSeed()) h1_scl_SigIEtaIEta_eg_->Fill(bestGsfElectron.scSigmaIEtaIEta());
-    if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_scl_SigIEtaIEta_eg_barrel_->Fill(bestGsfElectron.scSigmaIEtaIEta());
-    if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_scl_SigIEtaIEta_eg_endcaps_->Fill(bestGsfElectron.scSigmaIEtaIEta());
-    if (bestGsfElectron.ecalDrivenSeed())h1_scl_E1x5_eg_->Fill(bestGsfElectron.scE1x5());
-    if (bestGsfElectron.isEB() && bestGsfElectron.ecalDrivenSeed())h1_scl_E1x5_eg_barrel_->Fill(bestGsfElectron.scE1x5());
-    if (bestGsfElectron.isEE() && bestGsfElectron.ecalDrivenSeed())h1_scl_E1x5_eg_endcaps_->Fill(bestGsfElectron.scE1x5());
-    if (bestGsfElectron.ecalDrivenSeed())h1_scl_E2x5max_eg_->Fill(bestGsfElectron.scE2x5Max());
-    if (bestGsfElectron.isEB() && bestGsfElectron.ecalDrivenSeed())h1_scl_E2x5max_eg_barrel_->Fill(bestGsfElectron.scE2x5Max());
-    if (bestGsfElectron.isEE() && bestGsfElectron.ecalDrivenSeed())h1_scl_E2x5max_eg_endcaps_->Fill(bestGsfElectron.scE2x5Max());
-    if (bestGsfElectron.ecalDrivenSeed())h1_scl_E5x5_eg_->Fill(bestGsfElectron.scE5x5());
-    if (bestGsfElectron.isEB() && bestGsfElectron.ecalDrivenSeed())h1_scl_E5x5_eg_barrel_->Fill(bestGsfElectron.scE5x5());
-    if (bestGsfElectron.isEE() && bestGsfElectron.ecalDrivenSeed())h1_scl_E5x5_eg_endcaps_->Fill(bestGsfElectron.scE5x5());
-    float pfEnergy=0., egEnergy=0.;
-    if (!bestGsfElectron.superCluster().isNull()) egEnergy = bestGsfElectron.superCluster()->energy();
-    if (!bestGsfElectron.pflowSuperCluster().isNull()) pfEnergy = bestGsfElectron.pflowSuperCluster()->energy();
-    h2_scl_EoEtruePfVsEg->Fill(egEnergy/mcIter->p(),pfEnergy/mcIter->p());
+        eleNum++;
+        h1_simEta->Fill( mcIter->eta() );
+        h1_simAbsEta->Fill( std::abs(mcIter->eta()) );
+        h1_simP->Fill( mcIter->p() );
+        h1_simPt->Fill( mcIter->pt() );
+        h1_simPhi->Fill( mcIter->phi() );
+        h1_simZ->Fill( mcIter->vz() );
+        h2_simPtEta->Fill( mcIter->eta(),mcIter->pt() );
 
-    // track related distributions
-    h1_ele_ambiguousTracks->Fill( bestGsfElectron.ambiguousGsfTracksSize() );
-    h2_ele_ambiguousTracksVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.ambiguousGsfTracksSize() );
-    h2_ele_ambiguousTracksVsPhi->Fill( bestGsfElectron.phi(), bestGsfElectron.ambiguousGsfTracksSize() );
-    h2_ele_ambiguousTracksVsPt->Fill( bestGsfElectron.pt(), bestGsfElectron.ambiguousGsfTracksSize() );
-    if (!readAOD_) // track extra does not exist in AOD
-     {
-      h1_ele_foundHits->Fill( bestGsfElectron.gsfTrack()->numberOfValidHits() );
-      if (bestGsfElectron.isEB()) h1_ele_foundHits_barrel->Fill( bestGsfElectron.gsfTrack()->numberOfValidHits() );
-      if (bestGsfElectron.isEE()) h1_ele_foundHits_endcaps->Fill( bestGsfElectron.gsfTrack()->numberOfValidHits() );
-      h2_ele_foundHitsVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfValidHits() );
-      h2_ele_foundHitsVsPhi->Fill( bestGsfElectron.phi(), bestGsfElectron.gsfTrack()->numberOfValidHits() );
-      h2_ele_foundHitsVsPt->Fill( bestGsfElectron.pt(), bestGsfElectron.gsfTrack()->numberOfValidHits() );
-      h1_ele_lostHits->Fill( bestGsfElectron.gsfTrack()->numberOfLostHits() );
-      if (bestGsfElectron.isEB()) h1_ele_lostHits_barrel->Fill( bestGsfElectron.gsfTrack()->numberOfLostHits() );
-      if (bestGsfElectron.isEE()) h1_ele_lostHits_endcaps->Fill( bestGsfElectron.gsfTrack()->numberOfLostHits() );
-      h2_ele_lostHitsVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfLostHits() );
-      h2_ele_lostHitsVsPhi->Fill( bestGsfElectron.phi(), bestGsfElectron.gsfTrack()->numberOfLostHits() );
-      h2_ele_lostHitsVsPt->Fill( bestGsfElectron.pt(), bestGsfElectron.gsfTrack()->numberOfLostHits() );
-      h1_ele_chi2->Fill( bestGsfElectron.gsfTrack()->normalizedChi2() );
-      if (bestGsfElectron.isEB()) h1_ele_chi2_barrel->Fill( bestGsfElectron.gsfTrack()->normalizedChi2() );
-      if (bestGsfElectron.isEE()) h1_ele_chi2_endcaps->Fill( bestGsfElectron.gsfTrack()->normalizedChi2() );
-      h2_ele_chi2VsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->normalizedChi2() );
-      h2_ele_chi2VsPhi->Fill( bestGsfElectron.phi(), bestGsfElectron.gsfTrack()->normalizedChi2() );
-      h2_ele_chi2VsPt->Fill( bestGsfElectron.pt(), bestGsfElectron.gsfTrack()->normalizedChi2() );
-     }
-    // from gsf track interface, hence using mean
-    if (!readAOD_) // track extra does not exist in AOD
-     {
-      h1_ele_PinMnPout->Fill( bestGsfElectron.gsfTrack()->innerMomentum().R() - bestGsfElectron.gsfTrack()->outerMomentum().R() );
-      h1_ele_outerP->Fill( bestGsfElectron.gsfTrack()->outerMomentum().R() );
-      h1_ele_outerPt->Fill( bestGsfElectron.gsfTrack()->outerMomentum().Rho() );
-     }
-    // from electron interface, hence using mode
-    h1_ele_PinMnPout_mode->Fill( bestGsfElectron.trackMomentumAtVtx().R() - bestGsfElectron.trackMomentumOut().R() );
-    h2_ele_PinMnPoutVsEta_mode->Fill(  bestGsfElectron.eta(), bestGsfElectron.trackMomentumAtVtx().R() - bestGsfElectron.trackMomentumOut().R() );
-    h2_ele_PinMnPoutVsPhi_mode->Fill(  bestGsfElectron.phi(), bestGsfElectron.trackMomentumAtVtx().R() - bestGsfElectron.trackMomentumOut().R() );
-    h2_ele_PinMnPoutVsPt_mode->Fill(  bestGsfElectron.pt(), bestGsfElectron.trackMomentumAtVtx().R() - bestGsfElectron.trackMomentumOut().R() );
-    h2_ele_PinMnPoutVsE_mode->Fill(  bestGsfElectron.caloEnergy(), bestGsfElectron.trackMomentumAtVtx().R() - bestGsfElectron.trackMomentumOut().R() );
-    if (!readAOD_)  // track extra does not exist in AOD
-     {
-      h2_ele_PinMnPoutVsChi2_mode->Fill
-       ( bestGsfElectron.gsfTrack()->normalizedChi2(),
-         bestGsfElectron.trackMomentumAtVtx().R() - bestGsfElectron.trackMomentumOut().R() ) ;
-     }
-    h1_ele_outerP_mode->Fill( bestGsfElectron.trackMomentumOut().R() );
-    h2_ele_outerPVsEta_mode->Fill(bestGsfElectron.eta(),  bestGsfElectron.trackMomentumOut().R() );
-    h1_ele_outerPt_mode->Fill( bestGsfElectron.trackMomentumOut().Rho() );
-    h2_ele_outerPtVsEta_mode->Fill(bestGsfElectron.eta(),  bestGsfElectron.trackMomentumOut().Rho() );
-    h2_ele_outerPtVsPhi_mode->Fill(bestGsfElectron.phi(),  bestGsfElectron.trackMomentumOut().Rho() );
-    h2_ele_outerPtVsPt_mode->Fill(bestGsfElectron.pt(),  bestGsfElectron.trackMomentumOut().Rho() );
+        // looking for the best matching gsf electron
+        bool okGsfFound = false;
+        double gsfOkRatio = 999999.;
 
-    if (!readAOD_) // track extra does not exist in AOD
-     {
-      edm::RefToBase<TrajectorySeed> seed = bestGsfElectron.gsfTrack()->extra()->seedRef();
-      ElectronSeedRef elseed=seed.castTo<ElectronSeedRef>();
-      h1_ele_seed_subdet2_->Fill(elseed->subDet2());
-      h1_ele_seed_mask_->Fill(elseed->hitsMask());
-      if (elseed->subDet2()==1)
-       { h1_ele_seed_mask_bpix_->Fill(elseed->hitsMask()); }
-      else if (elseed->subDet2()==2)
-       { h1_ele_seed_mask_fpix_->Fill(elseed->hitsMask()); }
-      else if (elseed->subDet2()==6)
-       { h1_ele_seed_mask_tec_->Fill(elseed->hitsMask()); }
-      h1_ele_seed_dphi2_->Fill(elseed->dPhi2());
-      h2_ele_seed_dphi2VsEta_->Fill(bestGsfElectron.eta(), elseed->dPhi2());
-      h2_ele_seed_dphi2VsPt_->Fill(bestGsfElectron.pt(), elseed->dPhi2());
-      h1_ele_seed_dphi2pos_->Fill(elseed->dPhi2Pos());
-      h2_ele_seed_dphi2posVsEta_->Fill(bestGsfElectron.eta(), elseed->dPhi2Pos());
-      h2_ele_seed_dphi2posVsPt_->Fill(bestGsfElectron.pt(), elseed->dPhi2Pos());
-      h1_ele_seed_drz2_->Fill(elseed->dRz2());
-      h2_ele_seed_drz2VsEta_->Fill(bestGsfElectron.eta(), elseed->dRz2());
-      h2_ele_seed_drz2VsPt_->Fill(bestGsfElectron.pt(), elseed->dRz2());
-      h1_ele_seed_drz2pos_->Fill(elseed->dRz2Pos());
-      h2_ele_seed_drz2posVsEta_->Fill(bestGsfElectron.eta(), elseed->dRz2Pos());
-      h2_ele_seed_drz2posVsPt_->Fill(bestGsfElectron.pt(), elseed->dRz2Pos());
-     }
+        // find best matched electron
+        reco::GsfElectron bestGsfElectron ;
+        reco::GsfElectronCollection::const_iterator gsfIter ;
+        for ( gsfIter=gsfElectrons->begin() ; gsfIter!=gsfElectrons->end() ; gsfIter++ )
+         {
+          double dphi = gsfIter->phi()-mcIter->phi() ;
+          if (std::abs(dphi)>CLHEP::pi)
+           { dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi ; }
+          double deltaR = sqrt(pow((gsfIter->eta()-mcIter->eta()),2) + pow(dphi,2));
+          if ( deltaR < deltaR_ )
+           {
+            if ( ( (mcIter->pdgId() == 11) && (gsfIter->charge() < 0.) ) ||
+                 ( (mcIter->pdgId() == -11) && (gsfIter->charge() > 0.) ) )
+             {
+              double tmpGsfRatio = gsfIter->p()/mcIter->p() ;
+              if ( std::abs(tmpGsfRatio-1) < std::abs(gsfOkRatio-1) )
+               {
+                gsfOkRatio = tmpGsfRatio;
+                bestGsfElectron=*gsfIter;
+                okGsfFound = true;
+               }
+             }
+           }
+         } // loop over rec ele to look for the best one
 
-    // match distributions
-    h1_ele_EoP->Fill( bestGsfElectron.eSuperClusterOverP() );
-    if (bestGsfElectron.ecalDrivenSeed()) h1_ele_EoP_eg->Fill( bestGsfElectron.eSuperClusterOverP() );
-    if (bestGsfElectron.isEB()) h1_ele_EoP_barrel->Fill( bestGsfElectron.eSuperClusterOverP() );
-    if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EoP_eg_barrel->Fill( bestGsfElectron.eSuperClusterOverP() );
-    if (bestGsfElectron.isEE()) h1_ele_EoP_endcaps->Fill( bestGsfElectron.eSuperClusterOverP() );
-    if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EoP_eg_endcaps->Fill( bestGsfElectron.eSuperClusterOverP() );
-    h2_ele_EoPVsEta->Fill(bestGsfElectron.eta(),  bestGsfElectron.eSuperClusterOverP() );
-    h2_ele_EoPVsPhi->Fill(bestGsfElectron.phi(),  bestGsfElectron.eSuperClusterOverP() );
-    h2_ele_EoPVsE->Fill(bestGsfElectron.caloEnergy(),  bestGsfElectron.eSuperClusterOverP() );
-    h1_ele_EseedOP->Fill( bestGsfElectron.eSeedClusterOverP() );
-    if (bestGsfElectron.ecalDrivenSeed()) h1_ele_EseedOP_eg->Fill( bestGsfElectron.eSeedClusterOverP() );
-    if (bestGsfElectron.isEB()) h1_ele_EseedOP_barrel->Fill( bestGsfElectron.eSeedClusterOverP() );
-    if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EseedOP_eg_barrel->Fill( bestGsfElectron.eSeedClusterOverP() );
-    if (bestGsfElectron.isEE()) h1_ele_EseedOP_endcaps->Fill( bestGsfElectron.eSeedClusterOverP() );
-    if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EseedOP_eg_endcaps->Fill( bestGsfElectron.eSeedClusterOverP() );
-    h2_ele_EseedOPVsEta->Fill(bestGsfElectron.eta(),  bestGsfElectron.eSeedClusterOverP() );
-    h2_ele_EseedOPVsPhi->Fill(bestGsfElectron.phi(),  bestGsfElectron.eSeedClusterOverP() );
-    h2_ele_EseedOPVsE->Fill(bestGsfElectron.caloEnergy(),  bestGsfElectron.eSeedClusterOverP() );
-    h1_ele_EoPout->Fill( bestGsfElectron.eSeedClusterOverPout() );
-    if (bestGsfElectron.ecalDrivenSeed()) h1_ele_EoPout_eg->Fill( bestGsfElectron.eSeedClusterOverPout() );
-    if (bestGsfElectron.isEB()) h1_ele_EoPout_barrel->Fill( bestGsfElectron.eSeedClusterOverPout() );
-    if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EoPout_eg_barrel->Fill( bestGsfElectron.eSeedClusterOverPout() );
-    if (bestGsfElectron.isEE()) h1_ele_EoPout_endcaps->Fill( bestGsfElectron.eSeedClusterOverPout() );
-    if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EoPout_eg_endcaps->Fill( bestGsfElectron.eSeedClusterOverPout() );
-    h2_ele_EoPoutVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.eSeedClusterOverPout() );
-    h2_ele_EoPoutVsPhi->Fill( bestGsfElectron.phi(), bestGsfElectron.eSeedClusterOverPout() );
-    h2_ele_EoPoutVsE->Fill( bestGsfElectron.caloEnergy(), bestGsfElectron.eSeedClusterOverPout() );
-    h1_ele_EeleOPout->Fill( bestGsfElectron.eEleClusterOverPout() );
-    if (bestGsfElectron.ecalDrivenSeed()) h1_ele_EeleOPout_eg->Fill( bestGsfElectron.eEleClusterOverPout() );
-    if (bestGsfElectron.isEB()) h1_ele_EeleOPout_barrel->Fill( bestGsfElectron.eEleClusterOverPout() );
-    if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EeleOPout_eg_barrel->Fill( bestGsfElectron.eEleClusterOverPout() );
-    if (bestGsfElectron.isEE()) h1_ele_EeleOPout_endcaps->Fill( bestGsfElectron.eEleClusterOverPout() );
-    if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EeleOPout_eg_endcaps->Fill( bestGsfElectron.eEleClusterOverPout() );
-    h2_ele_EeleOPoutVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.eEleClusterOverPout() );
-    h2_ele_EeleOPoutVsPhi->Fill( bestGsfElectron.phi(), bestGsfElectron.eEleClusterOverPout() );
-    h2_ele_EeleOPoutVsE->Fill( bestGsfElectron.caloEnergy(), bestGsfElectron.eEleClusterOverPout() );
-    h1_ele_dEtaSc_propVtx->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-    if (bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaSc_propVtx_eg->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-    if (bestGsfElectron.isEB()) h1_ele_dEtaSc_propVtx_barrel->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-    if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaSc_propVtx_eg_barrel->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-    if (bestGsfElectron.isEE())h1_ele_dEtaSc_propVtx_endcaps->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-    if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaSc_propVtx_eg_endcaps->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-    h2_ele_dEtaScVsEta_propVtx->Fill( bestGsfElectron.eta(),bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-    h2_ele_dEtaScVsPhi_propVtx->Fill(bestGsfElectron.phi(),bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-    h2_ele_dEtaScVsPt_propVtx->Fill(bestGsfElectron.pt(),bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-    h1_ele_dPhiSc_propVtx->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
-    if (bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiSc_propVtx_eg->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
-    if (bestGsfElectron.isEB()) h1_ele_dPhiSc_propVtx_barrel->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
-    if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiSc_propVtx_eg_barrel->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
-    if (bestGsfElectron.isEE())h1_ele_dPhiSc_propVtx_endcaps->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
-    if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiSc_propVtx_eg_endcaps->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
-    h2_ele_dPhiScVsEta_propVtx->Fill( bestGsfElectron.eta(),bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
-    h2_ele_dPhiScVsPhi_propVtx->Fill(bestGsfElectron.phi(),bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
-    h2_ele_dPhiScVsPt_propVtx->Fill(bestGsfElectron.pt(),bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
-    h1_ele_dEtaCl_propOut->Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
-    if (bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaCl_propOut_eg->Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
-    if (bestGsfElectron.isEB()) h1_ele_dEtaCl_propOut_barrel->Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
-    if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaCl_propOut_eg_barrel->Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
-    if (bestGsfElectron.isEE()) h1_ele_dEtaCl_propOut_endcaps->Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
-    if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaCl_propOut_eg_endcaps->Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
-    h2_ele_dEtaClVsEta_propOut->Fill( bestGsfElectron.eta(),bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
-    h2_ele_dEtaClVsPhi_propOut->Fill(bestGsfElectron.phi(),bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
-    h2_ele_dEtaClVsPt_propOut->Fill(bestGsfElectron.pt(),bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
-    h1_ele_dPhiCl_propOut->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-    if (bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiCl_propOut_eg->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-    if (bestGsfElectron.isEB()) h1_ele_dPhiCl_propOut_barrel->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-    if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiCl_propOut_eg_barrel->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-    if (bestGsfElectron.isEE()) h1_ele_dPhiCl_propOut_endcaps->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-    if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiCl_propOut_eg_endcaps->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-    h2_ele_dPhiClVsEta_propOut->Fill( bestGsfElectron.eta(),bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-    h2_ele_dPhiClVsPhi_propOut->Fill(bestGsfElectron.phi(),bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-    h2_ele_dPhiClVsPt_propOut->Fill(bestGsfElectron.pt(),bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-    h1_ele_dEtaEleCl_propOut->Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
-    if (bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaEleCl_propOut_eg->Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
-    if (bestGsfElectron.isEB()) h1_ele_dEtaEleCl_propOut_barrel->Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
-    if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaEleCl_propOut_eg_barrel->Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
-    if (bestGsfElectron.isEE()) h1_ele_dEtaEleCl_propOut_endcaps->Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
-    if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaEleCl_propOut_eg_endcaps->Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
-    h2_ele_dEtaEleClVsEta_propOut->Fill( bestGsfElectron.eta(),bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
-    h2_ele_dEtaEleClVsPhi_propOut->Fill(bestGsfElectron.phi(),bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
-    h2_ele_dEtaEleClVsPt_propOut->Fill(bestGsfElectron.pt(),bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
-    h1_ele_dPhiEleCl_propOut->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
-    if (bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiEleCl_propOut_eg->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
-    if (bestGsfElectron.isEB()) h1_ele_dPhiEleCl_propOut_barrel->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
-    if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiEleCl_propOut_eg_barrel->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
-    if (bestGsfElectron.isEE()) h1_ele_dPhiEleCl_propOut_endcaps->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
-    if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiEleCl_propOut_eg_endcaps->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
-    h2_ele_dPhiEleClVsEta_propOut->Fill( bestGsfElectron.eta(),bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
-    h2_ele_dPhiEleClVsPhi_propOut->Fill(bestGsfElectron.phi(),bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
-    h2_ele_dPhiEleClVsPt_propOut->Fill(bestGsfElectron.pt(),bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
-    h1_ele_HoE->Fill(bestGsfElectron.hadronicOverEm());
-    if (bestGsfElectron.ecalDrivenSeed()) h1_ele_HoE_eg->Fill(bestGsfElectron.hadronicOverEm());
-    if (bestGsfElectron.isEB()) h1_ele_HoE_barrel->Fill(bestGsfElectron.hadronicOverEm());
-    if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_HoE_eg_barrel->Fill(bestGsfElectron.hadronicOverEm());
-    if (bestGsfElectron.isEE()) h1_ele_HoE_endcaps->Fill(bestGsfElectron.hadronicOverEm());
-    if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_HoE_eg_endcaps->Fill(bestGsfElectron.hadronicOverEm());
-    if (!bestGsfElectron.isEBEtaGap() && !bestGsfElectron.isEBPhiGap()&& !bestGsfElectron.isEBEEGap() &&
-        !bestGsfElectron.isEERingGap() && !bestGsfElectron.isEEDeeGap()) h1_ele_HoE_fiducial->Fill(bestGsfElectron.hadronicOverEm());
-    h2_ele_HoEVsEta->Fill( bestGsfElectron.eta(),bestGsfElectron.hadronicOverEm());
-    h2_ele_HoEVsPhi->Fill(bestGsfElectron.phi(),bestGsfElectron.hadronicOverEm());
-    h2_ele_HoEVsE->Fill(bestGsfElectron.caloEnergy(),bestGsfElectron.hadronicOverEm());
+        // analysis when the mc track is found
+        if (okGsfFound)
+         {
+          // electron related distributions
+          h1_ele_charge->Fill( bestGsfElectron.charge() );
+          h2_ele_chargeVsEta->Fill( bestGsfElectron.eta(),bestGsfElectron.charge() );
+          h2_ele_chargeVsPhi->Fill( bestGsfElectron.phi(),bestGsfElectron.charge() );
+          h2_ele_chargeVsPt->Fill( bestGsfElectron.pt(),bestGsfElectron.charge() );
+          h1_ele_vertexP->Fill( bestGsfElectron.p() );
+          h1_ele_vertexPt->Fill( bestGsfElectron.pt() );
+          h1_ele_Et->Fill( bestGsfElectron.superCluster()->energy()/cosh(bestGsfElectron.superCluster()->eta()));
+          h2_ele_vertexPtVsEta->Fill(  bestGsfElectron.eta(),bestGsfElectron.pt() );
+          h2_ele_vertexPtVsPhi->Fill(  bestGsfElectron.phi(),bestGsfElectron.pt() );
+          h1_ele_vertexEta->Fill( bestGsfElectron.eta() );
+          // generated distributions for matched electrons
+          h1_ele_simPt_matched->Fill( mcIter->pt() );
+          h1_ele_simPhi_matched->Fill( mcIter->phi() );
+          h1_ele_simAbsEta_matched->Fill( std::abs(mcIter->eta()) );
+          h1_ele_simEta_matched->Fill( mcIter->eta() );
+          h2_ele_simPtEta_matched->Fill(  mcIter->eta(),mcIter->pt() );
+          h2_ele_vertexEtaVsPhi->Fill(  bestGsfElectron.phi(),bestGsfElectron.eta() );
+          h1_ele_vertexPhi->Fill( bestGsfElectron.phi() );
+          h1_ele_vertexX->Fill( bestGsfElectron.vertex().x() );
+          h1_ele_vertexY->Fill( bestGsfElectron.vertex().y() );
+          h1_ele_vertexZ->Fill( bestGsfElectron.vertex().z() );
+          h1_ele_simZ_matched->Fill( mcIter->vz() );
+          double d =
+           (bestGsfElectron.vertex().x()-mcIter->vx())*(bestGsfElectron.vertex().x()-mcIter->vx()) +
+           (bestGsfElectron.vertex().y()-mcIter->vy())*(bestGsfElectron.vertex().y()-mcIter->vy()) ;
+          d = sqrt(d) ;
+          h1_ele_vertexTIP->Fill( d );
+          h2_ele_vertexTIPVsEta->Fill(  bestGsfElectron.eta(), d );
+          h2_ele_vertexTIPVsPhi->Fill(  bestGsfElectron.phi(), d );
+          h2_ele_vertexTIPVsPt->Fill(  bestGsfElectron.pt(), d );
+          h1_ele_EtaMnEtaTrue->Fill( bestGsfElectron.eta()-mcIter->eta());
+          if (bestGsfElectron.isEB()) h1_ele_EtaMnEtaTrue_barrel->Fill( bestGsfElectron.eta()-mcIter->eta());
+          if (bestGsfElectron.isEE()) h1_ele_EtaMnEtaTrue_endcaps->Fill( bestGsfElectron.eta()-mcIter->eta());
+          h2_ele_EtaMnEtaTrueVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.eta()-mcIter->eta());
+          h2_ele_EtaMnEtaTrueVsPhi->Fill( bestGsfElectron.phi(), bestGsfElectron.eta()-mcIter->eta());
+          h2_ele_EtaMnEtaTrueVsPt->Fill( bestGsfElectron.pt(), bestGsfElectron.eta()-mcIter->eta());
+          h1_ele_PhiMnPhiTrue->Fill( bestGsfElectron.phi()-mcIter->phi());
+          if (bestGsfElectron.isEB()) h1_ele_PhiMnPhiTrue_barrel->Fill( bestGsfElectron.phi()-mcIter->phi());
+          if (bestGsfElectron.isEE()) h1_ele_PhiMnPhiTrue_endcaps->Fill( bestGsfElectron.phi()-mcIter->phi());
+          h1_ele_PhiMnPhiTrue2->Fill( bestGsfElectron.phi()-mcIter->phi());
+          h2_ele_PhiMnPhiTrueVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.phi()-mcIter->phi());
+          h2_ele_PhiMnPhiTrueVsPhi->Fill( bestGsfElectron.phi(), bestGsfElectron.phi()-mcIter->phi());
+          h2_ele_PhiMnPhiTrueVsPt->Fill( bestGsfElectron.pt(), bestGsfElectron.phi()-mcIter->phi());
+          h1_ele_PoPtrue->Fill( bestGsfElectron.p()/mcIter->p());
+          h1_ele_PtoPttrue->Fill( bestGsfElectron.pt()/mcIter->pt());
+          h2_ele_PoPtrueVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.p()/mcIter->p());
+          h2_ele_PoPtrueVsPhi->Fill( bestGsfElectron.phi(), bestGsfElectron.p()/mcIter->p());
+          h2_ele_PoPtrueVsPt->Fill( bestGsfElectron.py(), bestGsfElectron.p()/mcIter->p());
+          if (bestGsfElectron.isEB()) h1_ele_PoPtrue_barrel->Fill( bestGsfElectron.p()/mcIter->p());
+          if (bestGsfElectron.isEE()) h1_ele_PoPtrue_endcaps->Fill( bestGsfElectron.p()/mcIter->p());
+          if (bestGsfElectron.isEB() && bestGsfElectron.classification() == GsfElectron::GOLDEN) h1_ele_PoPtrue_golden_barrel->Fill( bestGsfElectron.p()/mcIter->p());
+          if (bestGsfElectron.isEE() && bestGsfElectron.classification() == GsfElectron::GOLDEN) h1_ele_PoPtrue_golden_endcaps->Fill( bestGsfElectron.p()/mcIter->p());
+          if (bestGsfElectron.isEB() && bestGsfElectron.classification() == GsfElectron::SHOWERING) h1_ele_PoPtrue_showering_barrel->Fill( bestGsfElectron.p()/mcIter->p());
+          if (bestGsfElectron.isEE() && bestGsfElectron.classification() == GsfElectron::SHOWERING) h1_ele_PoPtrue_showering_endcaps->Fill( bestGsfElectron.p()/mcIter->p());
+          if (bestGsfElectron.isEB()) h1_ele_PtoPttrue_barrel->Fill( bestGsfElectron.pt()/mcIter->pt());
+          if (bestGsfElectron.isEE()) h1_ele_PtoPttrue_endcaps->Fill( bestGsfElectron.pt()/mcIter->pt());
 
-    //classes
-    int eleClass = bestGsfElectron.classification();
-    if (bestGsfElectron.isEE()) eleClass+=10;
-    h1_ele_classes->Fill(eleClass);
+          // supercluster related distributions
+          reco::SuperClusterRef sclRef = bestGsfElectron.superCluster();
+          if (!bestGsfElectron.ecalDrivenSeed()&&bestGsfElectron.trackerDrivenSeed())
+           { sclRef = bestGsfElectron.pflowSuperCluster() ; }
+          h1_scl_En_->Fill(sclRef->energy());
+          double R=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y() +sclRef->z()*sclRef->z());
+          double Rt=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y());
+          h1_scl_Et_->Fill(sclRef->energy()*(Rt/R));
+          h2_scl_EtVsEta_->Fill(sclRef->eta(),sclRef->energy()*(Rt/R));
+          h2_scl_EtVsPhi_->Fill(sclRef->phi(),sclRef->energy()*(Rt/R));
+          if (bestGsfElectron.isEB())  h1_scl_EoEtrue_barrel->Fill(sclRef->energy()/mcIter->p());
+          if (bestGsfElectron.isEE())  h1_scl_EoEtrue_endcaps->Fill(sclRef->energy()/mcIter->p());
+          if (bestGsfElectron.isEB() && bestGsfElectron.ecalDrivenSeed())  h1_scl_EoEtrue_barrel_eg->Fill(sclRef->energy()/mcIter->p());
+          if (bestGsfElectron.isEE() && bestGsfElectron.ecalDrivenSeed())  h1_scl_EoEtrue_endcaps_eg->Fill(sclRef->energy()/mcIter->p());
+          if (bestGsfElectron.isEB() && bestGsfElectron.isEBEtaGap())  h1_scl_EoEtrue_barrel_etagap->Fill(sclRef->energy()/mcIter->p());
+          if (bestGsfElectron.isEB() && bestGsfElectron.isEBPhiGap())  h1_scl_EoEtrue_barrel_phigap->Fill(sclRef->energy()/mcIter->p());
+          if (bestGsfElectron.isEBEEGap())  h1_scl_EoEtrue_ebeegap->Fill(sclRef->energy()/mcIter->p());
+          //if (bestGsfElectron.isEE())  h1_scl_EoEtrue_endcaps->Fill(sclRef->energy()/mcIter->p());
+          if (bestGsfElectron.isEE() && bestGsfElectron.isEEDeeGap())  h1_scl_EoEtrue_endcaps_deegap->Fill(sclRef->energy()/mcIter->p());
+          if (bestGsfElectron.isEE() && bestGsfElectron.isEERingGap())  h1_scl_EoEtrue_endcaps_ringgap->Fill(sclRef->energy()/mcIter->p());
+          if (bestGsfElectron.isEB())  h1_scl_EoEtrue_barrel_new->Fill(sclRef->energy()/mcIter->p());
+          if (bestGsfElectron.isEE())  h1_scl_EoEtrue_endcaps_new->Fill(sclRef->energy()/mcIter->p());
+          if (bestGsfElectron.isEB() && bestGsfElectron.ecalDrivenSeed())  h1_scl_EoEtrue_barrel_new_eg->Fill(sclRef->energy()/mcIter->p());
+          if (bestGsfElectron.isEE() && bestGsfElectron.ecalDrivenSeed())  h1_scl_EoEtrue_endcaps_new_eg->Fill(sclRef->energy()/mcIter->p());
+          if (bestGsfElectron.isEB() && bestGsfElectron.isEBEtaGap())  h1_scl_EoEtrue_barrel_new_etagap->Fill(sclRef->energy()/mcIter->p());
+          if (bestGsfElectron.isEB() && bestGsfElectron.isEBPhiGap())  h1_scl_EoEtrue_barrel_new_phigap->Fill(sclRef->energy()/mcIter->p());
+          if (bestGsfElectron.isEBEEGap())  h1_scl_EoEtrue_ebeegap_new->Fill(sclRef->energy()/mcIter->p());
+          //if (bestGsfElectron.isEE())  h1_scl_EoEtrue_endcaps_new->Fill(sclRef->energy()/mcIter->p());
+          if (bestGsfElectron.isEE() && bestGsfElectron.isEEDeeGap())  h1_scl_EoEtrue_endcaps_new_deegap->Fill(sclRef->energy()/mcIter->p());
+          if (bestGsfElectron.isEE() && bestGsfElectron.isEERingGap())  h1_scl_EoEtrue_endcaps_new_ringgap->Fill(sclRef->energy()/mcIter->p());
+          h1_scl_Eta_->Fill(sclRef->eta());
+          h2_scl_EtaVsPhi_->Fill(sclRef->phi(),sclRef->eta());
+          h1_scl_Phi_->Fill(sclRef->phi());
+          h1_scl_SigEtaEta_->Fill(bestGsfElectron.scSigmaEtaEta());
+          if (bestGsfElectron.isEB()) h1_scl_SigEtaEta_barrel_->Fill(bestGsfElectron.scSigmaEtaEta());
+          if (bestGsfElectron.isEE()) h1_scl_SigEtaEta_endcaps_->Fill(bestGsfElectron.scSigmaEtaEta());
+          h1_scl_SigIEtaIEta_->Fill(bestGsfElectron.scSigmaIEtaIEta());
+          if (bestGsfElectron.isEB()) h1_scl_SigIEtaIEta_barrel_->Fill(bestGsfElectron.scSigmaIEtaIEta());
+          if (bestGsfElectron.isEE()) h1_scl_SigIEtaIEta_endcaps_->Fill(bestGsfElectron.scSigmaIEtaIEta());
+          h1_scl_E1x5_->Fill(bestGsfElectron.scE1x5());
+          if (bestGsfElectron.isEB()) h1_scl_E1x5_barrel_->Fill(bestGsfElectron.scE1x5());
+          if (bestGsfElectron.isEE()) h1_scl_E1x5_endcaps_->Fill(bestGsfElectron.scE1x5());
+          h1_scl_E2x5max_->Fill(bestGsfElectron.scE2x5Max());
+          if (bestGsfElectron.isEB()) h1_scl_E2x5max_barrel_->Fill(bestGsfElectron.scE2x5Max());
+          if (bestGsfElectron.isEE()) h1_scl_E2x5max_endcaps_->Fill(bestGsfElectron.scE2x5Max());
+          h1_scl_E5x5_->Fill(bestGsfElectron.scE5x5());
+          if (bestGsfElectron.isEB()) h1_scl_E5x5_barrel_->Fill(bestGsfElectron.scE5x5());
+          if (bestGsfElectron.isEE()) h1_scl_E5x5_endcaps_->Fill(bestGsfElectron.scE5x5());
+          if (bestGsfElectron.ecalDrivenSeed()) h1_scl_SigIEtaIEta_eg_->Fill(bestGsfElectron.scSigmaIEtaIEta());
+          if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_scl_SigIEtaIEta_eg_barrel_->Fill(bestGsfElectron.scSigmaIEtaIEta());
+          if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_scl_SigIEtaIEta_eg_endcaps_->Fill(bestGsfElectron.scSigmaIEtaIEta());
+          if (bestGsfElectron.ecalDrivenSeed())h1_scl_E1x5_eg_->Fill(bestGsfElectron.scE1x5());
+          if (bestGsfElectron.isEB() && bestGsfElectron.ecalDrivenSeed())h1_scl_E1x5_eg_barrel_->Fill(bestGsfElectron.scE1x5());
+          if (bestGsfElectron.isEE() && bestGsfElectron.ecalDrivenSeed())h1_scl_E1x5_eg_endcaps_->Fill(bestGsfElectron.scE1x5());
+          if (bestGsfElectron.ecalDrivenSeed())h1_scl_E2x5max_eg_->Fill(bestGsfElectron.scE2x5Max());
+          if (bestGsfElectron.isEB() && bestGsfElectron.ecalDrivenSeed())h1_scl_E2x5max_eg_barrel_->Fill(bestGsfElectron.scE2x5Max());
+          if (bestGsfElectron.isEE() && bestGsfElectron.ecalDrivenSeed())h1_scl_E2x5max_eg_endcaps_->Fill(bestGsfElectron.scE2x5Max());
+          if (bestGsfElectron.ecalDrivenSeed())h1_scl_E5x5_eg_->Fill(bestGsfElectron.scE5x5());
+          if (bestGsfElectron.isEB() && bestGsfElectron.ecalDrivenSeed())h1_scl_E5x5_eg_barrel_->Fill(bestGsfElectron.scE5x5());
+          if (bestGsfElectron.isEE() && bestGsfElectron.ecalDrivenSeed())h1_scl_E5x5_eg_endcaps_->Fill(bestGsfElectron.scE5x5());
+          float pfEnergy=0., egEnergy=0.;
+          if (!bestGsfElectron.superCluster().isNull()) egEnergy = bestGsfElectron.superCluster()->energy();
+          if (!bestGsfElectron.pflowSuperCluster().isNull()) pfEnergy = bestGsfElectron.pflowSuperCluster()->energy();
+          h2_scl_EoEtruePfVsEg->Fill(egEnergy/mcIter->p(),pfEnergy/mcIter->p());
 
-    if (bestGsfElectron.classification() == GsfElectron::GOLDEN && bestGsfElectron.isEB())  h1_scl_EoEtrueGolden_barrel->Fill(sclRef->energy()/mcIter->p());
-    if (bestGsfElectron.classification() == GsfElectron::GOLDEN && bestGsfElectron.isEE())  h1_scl_EoEtrueGolden_endcaps->Fill(sclRef->energy()/mcIter->p());
-    if (bestGsfElectron.classification() == GsfElectron::SHOWERING && bestGsfElectron.isEB())  h1_scl_EoEtrueShowering_barrel->Fill(sclRef->energy()/mcIter->p());
-    if (bestGsfElectron.classification() == GsfElectron::SHOWERING && bestGsfElectron.isEE())  h1_scl_EoEtrueShowering_endcaps->Fill(sclRef->energy()/mcIter->p());
+          // track related distributions
+          h1_ele_ambiguousTracks->Fill( bestGsfElectron.ambiguousGsfTracksSize() );
+          h2_ele_ambiguousTracksVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.ambiguousGsfTracksSize() );
+          h2_ele_ambiguousTracksVsPhi->Fill( bestGsfElectron.phi(), bestGsfElectron.ambiguousGsfTracksSize() );
+          h2_ele_ambiguousTracksVsPt->Fill( bestGsfElectron.pt(), bestGsfElectron.ambiguousGsfTracksSize() );
+          if (!readAOD_) // track extra does not exist in AOD
+           {
+            h1_ele_foundHits->Fill( bestGsfElectron.gsfTrack()->numberOfValidHits() );
+            if (bestGsfElectron.isEB()) h1_ele_foundHits_barrel->Fill( bestGsfElectron.gsfTrack()->numberOfValidHits() );
+            if (bestGsfElectron.isEE()) h1_ele_foundHits_endcaps->Fill( bestGsfElectron.gsfTrack()->numberOfValidHits() );
+            h2_ele_foundHitsVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfValidHits() );
+            h2_ele_foundHitsVsPhi->Fill( bestGsfElectron.phi(), bestGsfElectron.gsfTrack()->numberOfValidHits() );
+            h2_ele_foundHitsVsPt->Fill( bestGsfElectron.pt(), bestGsfElectron.gsfTrack()->numberOfValidHits() );
+            h1_ele_lostHits->Fill( bestGsfElectron.gsfTrack()->numberOfLostHits() );
+            if (bestGsfElectron.isEB()) h1_ele_lostHits_barrel->Fill( bestGsfElectron.gsfTrack()->numberOfLostHits() );
+            if (bestGsfElectron.isEE()) h1_ele_lostHits_endcaps->Fill( bestGsfElectron.gsfTrack()->numberOfLostHits() );
+            h2_ele_lostHitsVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfLostHits() );
+            h2_ele_lostHitsVsPhi->Fill( bestGsfElectron.phi(), bestGsfElectron.gsfTrack()->numberOfLostHits() );
+            h2_ele_lostHitsVsPt->Fill( bestGsfElectron.pt(), bestGsfElectron.gsfTrack()->numberOfLostHits() );
+            h1_ele_chi2->Fill( bestGsfElectron.gsfTrack()->normalizedChi2() );
+            if (bestGsfElectron.isEB()) h1_ele_chi2_barrel->Fill( bestGsfElectron.gsfTrack()->normalizedChi2() );
+            if (bestGsfElectron.isEE()) h1_ele_chi2_endcaps->Fill( bestGsfElectron.gsfTrack()->normalizedChi2() );
+            h2_ele_chi2VsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->normalizedChi2() );
+            h2_ele_chi2VsPhi->Fill( bestGsfElectron.phi(), bestGsfElectron.gsfTrack()->normalizedChi2() );
+            h2_ele_chi2VsPt->Fill( bestGsfElectron.pt(), bestGsfElectron.gsfTrack()->normalizedChi2() );
+           }
+          // from gsf track interface, hence using mean
+          if (!readAOD_) // track extra does not exist in AOD
+           {
+            h1_ele_PinMnPout->Fill( bestGsfElectron.gsfTrack()->innerMomentum().R() - bestGsfElectron.gsfTrack()->outerMomentum().R() );
+            h1_ele_outerP->Fill( bestGsfElectron.gsfTrack()->outerMomentum().R() );
+            h1_ele_outerPt->Fill( bestGsfElectron.gsfTrack()->outerMomentum().Rho() );
+           }
+          // from electron interface, hence using mode
+          h1_ele_PinMnPout_mode->Fill( bestGsfElectron.trackMomentumAtVtx().R() - bestGsfElectron.trackMomentumOut().R() );
+          h2_ele_PinMnPoutVsEta_mode->Fill(  bestGsfElectron.eta(), bestGsfElectron.trackMomentumAtVtx().R() - bestGsfElectron.trackMomentumOut().R() );
+          h2_ele_PinMnPoutVsPhi_mode->Fill(  bestGsfElectron.phi(), bestGsfElectron.trackMomentumAtVtx().R() - bestGsfElectron.trackMomentumOut().R() );
+          h2_ele_PinMnPoutVsPt_mode->Fill(  bestGsfElectron.pt(), bestGsfElectron.trackMomentumAtVtx().R() - bestGsfElectron.trackMomentumOut().R() );
+          h2_ele_PinMnPoutVsE_mode->Fill(  bestGsfElectron.caloEnergy(), bestGsfElectron.trackMomentumAtVtx().R() - bestGsfElectron.trackMomentumOut().R() );
+          if (!readAOD_)  // track extra does not exist in AOD
+           {
+            h2_ele_PinMnPoutVsChi2_mode->Fill
+             ( bestGsfElectron.gsfTrack()->normalizedChi2(),
+               bestGsfElectron.trackMomentumAtVtx().R() - bestGsfElectron.trackMomentumOut().R() ) ;
+           }
+          h1_ele_outerP_mode->Fill( bestGsfElectron.trackMomentumOut().R() );
+          h2_ele_outerPVsEta_mode->Fill(bestGsfElectron.eta(),  bestGsfElectron.trackMomentumOut().R() );
+          h1_ele_outerPt_mode->Fill( bestGsfElectron.trackMomentumOut().Rho() );
+          h2_ele_outerPtVsEta_mode->Fill(bestGsfElectron.eta(),  bestGsfElectron.trackMomentumOut().Rho() );
+          h2_ele_outerPtVsPhi_mode->Fill(bestGsfElectron.phi(),  bestGsfElectron.trackMomentumOut().Rho() );
+          h2_ele_outerPtVsPt_mode->Fill(bestGsfElectron.pt(),  bestGsfElectron.trackMomentumOut().Rho() );
 
-    //eleClass = eleClass%100; // get rid of barrel/endcap distinction
-    h1_ele_eta->Fill(std::abs(bestGsfElectron.eta()));
-    if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h1_ele_eta_golden->Fill(std::abs(bestGsfElectron.eta()));
-    if (bestGsfElectron.classification() == GsfElectron::BIGBREM) h1_ele_eta_bbrem->Fill(std::abs(bestGsfElectron.eta()));
-    if (bestGsfElectron.classification() == GsfElectron::OLDNARROW) h1_ele_eta_narrow->Fill(std::abs(bestGsfElectron.eta()));
-    if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h1_ele_eta_shower->Fill(std::abs(bestGsfElectron.eta()));
+          if (!readAOD_) // track extra does not exist in AOD
+           {
+            edm::RefToBase<TrajectorySeed> seed = bestGsfElectron.gsfTrack()->extra()->seedRef();
+            ElectronSeedRef elseed=seed.castTo<ElectronSeedRef>();
+            h1_ele_seed_dphi2_->Fill(elseed->dPhi2());
+            h2_ele_seed_dphi2VsEta_->Fill(bestGsfElectron.eta(), elseed->dPhi2());
+            h2_ele_seed_dphi2VsPt_->Fill(bestGsfElectron.pt(), elseed->dPhi2());
+            h1_ele_seed_drz2_->Fill(elseed->dRz2());
+            h2_ele_seed_drz2VsEta_->Fill(bestGsfElectron.eta(), elseed->dRz2());
+            h2_ele_seed_drz2VsPt_->Fill(bestGsfElectron.pt(), elseed->dRz2());
+            h1_ele_seed_subdet2_->Fill(elseed->subDet2());
+           }
+          // match distributions
+          h1_ele_EoP->Fill( bestGsfElectron.eSuperClusterOverP() );
+          if (bestGsfElectron.ecalDrivenSeed()) h1_ele_EoP_eg->Fill( bestGsfElectron.eSuperClusterOverP() );
+          if (bestGsfElectron.isEB()) h1_ele_EoP_barrel->Fill( bestGsfElectron.eSuperClusterOverP() );
+          if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EoP_eg_barrel->Fill( bestGsfElectron.eSuperClusterOverP() );
+          if (bestGsfElectron.isEE()) h1_ele_EoP_endcaps->Fill( bestGsfElectron.eSuperClusterOverP() );
+          if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EoP_eg_endcaps->Fill( bestGsfElectron.eSuperClusterOverP() );
+          h2_ele_EoPVsEta->Fill(bestGsfElectron.eta(),  bestGsfElectron.eSuperClusterOverP() );
+          h2_ele_EoPVsPhi->Fill(bestGsfElectron.phi(),  bestGsfElectron.eSuperClusterOverP() );
+          h2_ele_EoPVsE->Fill(bestGsfElectron.caloEnergy(),  bestGsfElectron.eSuperClusterOverP() );
+          h1_ele_EseedOP->Fill( bestGsfElectron.eSeedClusterOverP() );
+          if (bestGsfElectron.ecalDrivenSeed()) h1_ele_EseedOP_eg->Fill( bestGsfElectron.eSeedClusterOverP() );
+          if (bestGsfElectron.isEB()) h1_ele_EseedOP_barrel->Fill( bestGsfElectron.eSeedClusterOverP() );
+          if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EseedOP_eg_barrel->Fill( bestGsfElectron.eSeedClusterOverP() );
+          if (bestGsfElectron.isEE()) h1_ele_EseedOP_endcaps->Fill( bestGsfElectron.eSeedClusterOverP() );
+          if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EseedOP_eg_endcaps->Fill( bestGsfElectron.eSeedClusterOverP() );
+          h2_ele_EseedOPVsEta->Fill(bestGsfElectron.eta(),  bestGsfElectron.eSeedClusterOverP() );
+          h2_ele_EseedOPVsPhi->Fill(bestGsfElectron.phi(),  bestGsfElectron.eSeedClusterOverP() );
+          h2_ele_EseedOPVsE->Fill(bestGsfElectron.caloEnergy(),  bestGsfElectron.eSeedClusterOverP() );
+          h1_ele_EoPout->Fill( bestGsfElectron.eSeedClusterOverPout() );
+          if (bestGsfElectron.ecalDrivenSeed()) h1_ele_EoPout_eg->Fill( bestGsfElectron.eSeedClusterOverPout() );
+          if (bestGsfElectron.isEB()) h1_ele_EoPout_barrel->Fill( bestGsfElectron.eSeedClusterOverPout() );
+          if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EoPout_eg_barrel->Fill( bestGsfElectron.eSeedClusterOverPout() );
+          if (bestGsfElectron.isEE()) h1_ele_EoPout_endcaps->Fill( bestGsfElectron.eSeedClusterOverPout() );
+          if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EoPout_eg_endcaps->Fill( bestGsfElectron.eSeedClusterOverPout() );
+          h2_ele_EoPoutVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.eSeedClusterOverPout() );
+          h2_ele_EoPoutVsPhi->Fill( bestGsfElectron.phi(), bestGsfElectron.eSeedClusterOverPout() );
+          h2_ele_EoPoutVsE->Fill( bestGsfElectron.caloEnergy(), bestGsfElectron.eSeedClusterOverPout() );
+          h1_ele_EeleOPout->Fill( bestGsfElectron.eEleClusterOverPout() );
+          if (bestGsfElectron.ecalDrivenSeed()) h1_ele_EeleOPout_eg->Fill( bestGsfElectron.eEleClusterOverPout() );
+          if (bestGsfElectron.isEB()) h1_ele_EeleOPout_barrel->Fill( bestGsfElectron.eEleClusterOverPout() );
+          if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EeleOPout_eg_barrel->Fill( bestGsfElectron.eEleClusterOverPout() );
+          if (bestGsfElectron.isEE()) h1_ele_EeleOPout_endcaps->Fill( bestGsfElectron.eEleClusterOverPout() );
+          if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_EeleOPout_eg_endcaps->Fill( bestGsfElectron.eEleClusterOverPout() );
+          h2_ele_EeleOPoutVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.eEleClusterOverPout() );
+          h2_ele_EeleOPoutVsPhi->Fill( bestGsfElectron.phi(), bestGsfElectron.eEleClusterOverPout() );
+          h2_ele_EeleOPoutVsE->Fill( bestGsfElectron.caloEnergy(), bestGsfElectron.eEleClusterOverPout() );
+          h1_ele_dEtaSc_propVtx->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+          if (bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaSc_propVtx_eg->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+          if (bestGsfElectron.isEB()) h1_ele_dEtaSc_propVtx_barrel->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+          if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaSc_propVtx_eg_barrel->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+          if (bestGsfElectron.isEE())h1_ele_dEtaSc_propVtx_endcaps->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+          if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaSc_propVtx_eg_endcaps->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+          h2_ele_dEtaScVsEta_propVtx->Fill( bestGsfElectron.eta(),bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+          h2_ele_dEtaScVsPhi_propVtx->Fill(bestGsfElectron.phi(),bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+          h2_ele_dEtaScVsPt_propVtx->Fill(bestGsfElectron.pt(),bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+          h1_ele_dPhiSc_propVtx->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
+          if (bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiSc_propVtx_eg->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
+          if (bestGsfElectron.isEB()) h1_ele_dPhiSc_propVtx_barrel->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
+          if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiSc_propVtx_eg_barrel->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
+          if (bestGsfElectron.isEE())h1_ele_dPhiSc_propVtx_endcaps->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
+          if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiSc_propVtx_eg_endcaps->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
+          h2_ele_dPhiScVsEta_propVtx->Fill( bestGsfElectron.eta(),bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
+          h2_ele_dPhiScVsPhi_propVtx->Fill(bestGsfElectron.phi(),bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
+          h2_ele_dPhiScVsPt_propVtx->Fill(bestGsfElectron.pt(),bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
+          h1_ele_dEtaCl_propOut->Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
+          if (bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaCl_propOut_eg->Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
+          if (bestGsfElectron.isEB()) h1_ele_dEtaCl_propOut_barrel->Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
+          if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaCl_propOut_eg_barrel->Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
+          if (bestGsfElectron.isEE()) h1_ele_dEtaCl_propOut_endcaps->Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
+          if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaCl_propOut_eg_endcaps->Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
+          h2_ele_dEtaClVsEta_propOut->Fill( bestGsfElectron.eta(),bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
+          h2_ele_dEtaClVsPhi_propOut->Fill(bestGsfElectron.phi(),bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
+          h2_ele_dEtaClVsPt_propOut->Fill(bestGsfElectron.pt(),bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
+          h1_ele_dPhiCl_propOut->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+          if (bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiCl_propOut_eg->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+          if (bestGsfElectron.isEB()) h1_ele_dPhiCl_propOut_barrel->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+          if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiCl_propOut_eg_barrel->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+          if (bestGsfElectron.isEE()) h1_ele_dPhiCl_propOut_endcaps->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+          if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiCl_propOut_eg_endcaps->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+          h2_ele_dPhiClVsEta_propOut->Fill( bestGsfElectron.eta(),bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+          h2_ele_dPhiClVsPhi_propOut->Fill(bestGsfElectron.phi(),bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+          h2_ele_dPhiClVsPt_propOut->Fill(bestGsfElectron.pt(),bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+          h1_ele_dEtaEleCl_propOut->Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
+          if (bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaEleCl_propOut_eg->Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
+          if (bestGsfElectron.isEB()) h1_ele_dEtaEleCl_propOut_barrel->Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
+          if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaEleCl_propOut_eg_barrel->Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
+          if (bestGsfElectron.isEE()) h1_ele_dEtaEleCl_propOut_endcaps->Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
+          if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dEtaEleCl_propOut_eg_endcaps->Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
+          h2_ele_dEtaEleClVsEta_propOut->Fill( bestGsfElectron.eta(),bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
+          h2_ele_dEtaEleClVsPhi_propOut->Fill(bestGsfElectron.phi(),bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
+          h2_ele_dEtaEleClVsPt_propOut->Fill(bestGsfElectron.pt(),bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
+          h1_ele_dPhiEleCl_propOut->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
+          if (bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiEleCl_propOut_eg->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
+          if (bestGsfElectron.isEB()) h1_ele_dPhiEleCl_propOut_barrel->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
+          if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiEleCl_propOut_eg_barrel->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
+          if (bestGsfElectron.isEE()) h1_ele_dPhiEleCl_propOut_endcaps->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
+          if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_dPhiEleCl_propOut_eg_endcaps->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
+          h2_ele_dPhiEleClVsEta_propOut->Fill( bestGsfElectron.eta(),bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
+          h2_ele_dPhiEleClVsPhi_propOut->Fill(bestGsfElectron.phi(),bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
+          h2_ele_dPhiEleClVsPt_propOut->Fill(bestGsfElectron.pt(),bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
+          h1_ele_HoE->Fill(bestGsfElectron.hadronicOverEm());
+          if (bestGsfElectron.ecalDrivenSeed()) h1_ele_HoE_eg->Fill(bestGsfElectron.hadronicOverEm());
+          if (bestGsfElectron.isEB()) h1_ele_HoE_barrel->Fill(bestGsfElectron.hadronicOverEm());
+          if (bestGsfElectron.isEB()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_HoE_eg_barrel->Fill(bestGsfElectron.hadronicOverEm());
+          if (bestGsfElectron.isEE()) h1_ele_HoE_endcaps->Fill(bestGsfElectron.hadronicOverEm());
+          if (bestGsfElectron.isEE()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_HoE_eg_endcaps->Fill(bestGsfElectron.hadronicOverEm());
+          if (!bestGsfElectron.isEBEtaGap() && !bestGsfElectron.isEBPhiGap()&& !bestGsfElectron.isEBEEGap() &&
+              !bestGsfElectron.isEERingGap() && !bestGsfElectron.isEEDeeGap()) h1_ele_HoE_fiducial->Fill(bestGsfElectron.hadronicOverEm());
+          h2_ele_HoEVsEta->Fill( bestGsfElectron.eta(),bestGsfElectron.hadronicOverEm());
+          h2_ele_HoEVsPhi->Fill(bestGsfElectron.phi(),bestGsfElectron.hadronicOverEm());
+          h2_ele_HoEVsE->Fill(bestGsfElectron.caloEnergy(),bestGsfElectron.hadronicOverEm());
 
-    //fbrem
-    double fbrem_mean=0.;
-    if (!readAOD_) // track extra does not exist in AOD
-     { fbrem_mean =  1. - bestGsfElectron.gsfTrack()->outerMomentum().R()/bestGsfElectron.gsfTrack()->innerMomentum().R() ; }
-    double fbrem_mode =  bestGsfElectron.fbrem();
-    h1_ele_fbrem->Fill(fbrem_mode);
-    if (bestGsfElectron.ecalDrivenSeed()) h1_ele_fbrem_eg->Fill(fbrem_mode);
-    p1_ele_fbremVsEta_mode->Fill(bestGsfElectron.eta(),fbrem_mode);
-    if (!readAOD_) // track extra does not exist in AOD
-     { p1_ele_fbremVsEta_mean->Fill(bestGsfElectron.eta(),fbrem_mean); }
+          //classes
+          int eleClass = bestGsfElectron.classification();
+          if (bestGsfElectron.isEE()) eleClass+=10;
+          h1_ele_classes->Fill(eleClass);
 
-    if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h2_ele_PinVsPoutGolden_mode->Fill(bestGsfElectron.trackMomentumOut().R(), bestGsfElectron.trackMomentumAtVtx().R());
-    if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h2_ele_PinVsPoutShowering_mode->Fill(bestGsfElectron.trackMomentumOut().R(), bestGsfElectron.trackMomentumAtVtx().R());
-    if (!readAOD_) // track extra not available in AOD
-     {
-      if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h2_ele_PinVsPoutGolden_mean->Fill(bestGsfElectron.gsfTrack()->outerMomentum().R(), bestGsfElectron.gsfTrack()->innerMomentum().R());
-      if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h2_ele_PinVsPoutShowering_mean->Fill(bestGsfElectron.gsfTrack()->outerMomentum().R(), bestGsfElectron.gsfTrack()->innerMomentum().R());
-     }
-    if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h2_ele_PtinVsPtoutGolden_mode->Fill(bestGsfElectron.trackMomentumOut().Rho(), bestGsfElectron.trackMomentumAtVtx().Rho());
-    if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h2_ele_PtinVsPtoutShowering_mode->Fill(bestGsfElectron.trackMomentumOut().Rho(), bestGsfElectron.trackMomentumAtVtx().Rho());
-    if (!readAOD_) // track extra not available in AOD
-     {
-      if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h2_ele_PtinVsPtoutGolden_mean->Fill(bestGsfElectron.gsfTrack()->outerMomentum().Rho(), bestGsfElectron.gsfTrack()->innerMomentum().Rho());
-      if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h2_ele_PtinVsPtoutShowering_mean->Fill(bestGsfElectron.gsfTrack()->outerMomentum().Rho(), bestGsfElectron.gsfTrack()->innerMomentum().Rho());
-     }
+          if (bestGsfElectron.classification() == GsfElectron::GOLDEN && bestGsfElectron.isEB())  h1_scl_EoEtrueGolden_barrel->Fill(sclRef->energy()/mcIter->p());
+          if (bestGsfElectron.classification() == GsfElectron::GOLDEN && bestGsfElectron.isEE())  h1_scl_EoEtrueGolden_endcaps->Fill(sclRef->energy()/mcIter->p());
+          if (bestGsfElectron.classification() == GsfElectron::SHOWERING && bestGsfElectron.isEB())  h1_scl_EoEtrueShowering_barrel->Fill(sclRef->energy()/mcIter->p());
+          if (bestGsfElectron.classification() == GsfElectron::SHOWERING && bestGsfElectron.isEE())  h1_scl_EoEtrueShowering_endcaps->Fill(sclRef->energy()/mcIter->p());
 
-    // provenance and pflow data
-    h1_ele_mva->Fill(bestGsfElectron.mva());
-    if (bestGsfElectron.ecalDrivenSeed()) h1_ele_mva_eg->Fill(bestGsfElectron.mva());
-    if (bestGsfElectron.ecalDrivenSeed()) h1_ele_provenance->Fill(1.);
-    if (bestGsfElectron.trackerDrivenSeed()) h1_ele_provenance->Fill(-1.);
-    if (bestGsfElectron.trackerDrivenSeed()||bestGsfElectron.ecalDrivenSeed()) h1_ele_provenance->Fill(0.);
-    if (bestGsfElectron.trackerDrivenSeed()&&!bestGsfElectron.ecalDrivenSeed()) h1_ele_provenance->Fill(-2.);
-    if (!bestGsfElectron.trackerDrivenSeed()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_provenance->Fill(2.);
+          //eleClass = eleClass%100; // get rid of barrel/endcap distinction
+          h1_ele_eta->Fill(std::abs(bestGsfElectron.eta()));
+          if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h1_ele_eta_golden->Fill(std::abs(bestGsfElectron.eta()));
+          if (bestGsfElectron.classification() == GsfElectron::BIGBREM) h1_ele_eta_bbrem->Fill(std::abs(bestGsfElectron.eta()));
+          if (bestGsfElectron.classification() == GsfElectron::OLDNARROW) h1_ele_eta_narrow->Fill(std::abs(bestGsfElectron.eta()));
+          if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h1_ele_eta_shower->Fill(std::abs(bestGsfElectron.eta()));
 
-    h1_ele_tkSumPt_dr03->Fill(bestGsfElectron.dr03TkSumPt());
-    h1_ele_ecalRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
-    h1_ele_hcalTowerSumEt_dr03_depth1->Fill(bestGsfElectron.dr03HcalDepth1TowerSumEt());
-    h1_ele_hcalTowerSumEt_dr03_depth2->Fill(bestGsfElectron.dr03HcalDepth2TowerSumEt());
-    h1_ele_tkSumPt_dr04->Fill(bestGsfElectron.dr04TkSumPt());
-    h1_ele_ecalRecHitSumEt_dr04->Fill(bestGsfElectron.dr04EcalRecHitSumEt());
-    h1_ele_hcalTowerSumEt_dr04_depth1->Fill(bestGsfElectron.dr04HcalDepth1TowerSumEt());
-    h1_ele_hcalTowerSumEt_dr04_depth2->Fill(bestGsfElectron.dr04HcalDepth2TowerSumEt());
+          //fbrem
+          double fbrem_mean=0.;
+          if (!readAOD_) // track extra does not exist in AOD
+           { fbrem_mean =  1. - bestGsfElectron.gsfTrack()->outerMomentum().R()/bestGsfElectron.gsfTrack()->innerMomentum().R() ; }
+          double fbrem_mode =  bestGsfElectron.fbrem();
+          h1_ele_fbrem->Fill(fbrem_mode);
+          if (bestGsfElectron.ecalDrivenSeed()) h1_ele_fbrem_eg->Fill(fbrem_mode);
+          p1_ele_fbremVsEta_mode->Fill(bestGsfElectron.eta(),fbrem_mode);
+          if (!readAOD_) // track extra does not exist in AOD
+           { p1_ele_fbremVsEta_mean->Fill(bestGsfElectron.eta(),fbrem_mean); }
 
-    // conversion rejection
-    int flags = bestGsfElectron.convFlags() ;
-    if (flags==-9999) { flags=-1 ; }
-    h1_ele_convFlags->Fill(flags);
-    if (flags>=0.)
-     {
-      h1_ele_convDist->Fill( bestGsfElectron.convDist() );
-      h1_ele_convDcot->Fill( bestGsfElectron.convDcot() );
-      h1_ele_convRadius->Fill( bestGsfElectron.convRadius() );
+          if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h2_ele_PinVsPoutGolden_mode->Fill(bestGsfElectron.trackMomentumOut().R(), bestGsfElectron.trackMomentumAtVtx().R());
+          if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h2_ele_PinVsPoutShowering_mode->Fill(bestGsfElectron.trackMomentumOut().R(), bestGsfElectron.trackMomentumAtVtx().R());
+          if (!readAOD_) // track extra not available in AOD
+           {
+            if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h2_ele_PinVsPoutGolden_mean->Fill(bestGsfElectron.gsfTrack()->outerMomentum().R(), bestGsfElectron.gsfTrack()->innerMomentum().R());
+            if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h2_ele_PinVsPoutShowering_mean->Fill(bestGsfElectron.gsfTrack()->outerMomentum().R(), bestGsfElectron.gsfTrack()->innerMomentum().R());
+           }
+          if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h2_ele_PtinVsPtoutGolden_mode->Fill(bestGsfElectron.trackMomentumOut().Rho(), bestGsfElectron.trackMomentumAtVtx().Rho());
+          if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h2_ele_PtinVsPtoutShowering_mode->Fill(bestGsfElectron.trackMomentumOut().Rho(), bestGsfElectron.trackMomentumAtVtx().Rho());
+          if (!readAOD_) // track extra not available in AOD
+           {
+            if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h2_ele_PtinVsPtoutGolden_mean->Fill(bestGsfElectron.gsfTrack()->outerMomentum().Rho(), bestGsfElectron.gsfTrack()->innerMomentum().Rho());
+            if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h2_ele_PtinVsPtoutShowering_mean->Fill(bestGsfElectron.gsfTrack()->outerMomentum().Rho(), bestGsfElectron.gsfTrack()->innerMomentum().Rho());
+           }
+          h1_ele_mva->Fill(bestGsfElectron.mva());
+          if (bestGsfElectron.ecalDrivenSeed()) h1_ele_mva_eg->Fill(bestGsfElectron.mva());
+          if (bestGsfElectron.ecalDrivenSeed()) h1_ele_provenance->Fill(1.);
+          if (bestGsfElectron.trackerDrivenSeed()) h1_ele_provenance->Fill(-1.);
+          if (bestGsfElectron.trackerDrivenSeed()||bestGsfElectron.ecalDrivenSeed()) h1_ele_provenance->Fill(0.);
+          if (bestGsfElectron.trackerDrivenSeed()&&!bestGsfElectron.ecalDrivenSeed()) h1_ele_provenance->Fill(-2.);
+          if (!bestGsfElectron.trackerDrivenSeed()&&bestGsfElectron.ecalDrivenSeed()) h1_ele_provenance->Fill(2.);
+
+          h1_ele_tkSumPt_dr03->Fill(bestGsfElectron.dr03TkSumPt());
+          h1_ele_ecalRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
+          h1_ele_hcalTowerSumEt_dr03_depth1->Fill(bestGsfElectron.dr03HcalDepth1TowerSumEt());
+          h1_ele_hcalTowerSumEt_dr03_depth2->Fill(bestGsfElectron.dr03HcalDepth2TowerSumEt());
+          h1_ele_tkSumPt_dr04->Fill(bestGsfElectron.dr04TkSumPt());
+          h1_ele_ecalRecHitSumEt_dr04->Fill(bestGsfElectron.dr04EcalRecHitSumEt());
+          h1_ele_hcalTowerSumEt_dr04_depth1->Fill(bestGsfElectron.dr04HcalDepth1TowerSumEt());
+          h1_ele_hcalTowerSumEt_dr04_depth2->Fill(bestGsfElectron.dr04HcalDepth2TowerSumEt());
+         } // gsf electron found
+
+       } // mc particle found
+
      }
 
    } // loop over mc particle
@@ -1257,14 +1176,10 @@ void ElectronMcSignalValidator::endJob()
     profileX("h_ele_vertexTIPVsEta_pfx",h2_ele_vertexTIPVsEta,"mean tip (wrt gen vtx) vs eta","#eta","<TIP> (cm)");
     profileX("h_ele_vertexTIPVsPhi_pfx",h2_ele_vertexTIPVsPhi,"mean tip (wrt gen vtx) vs phi","#phi","<TIP> (cm)");
     profileX("h_ele_vertexTIPVsPt_pfx",h2_ele_vertexTIPVsPt,"mean tip (wrt gen vtx) vs phi","p_{T} (GeV/c)","<TIP> (cm)");
-    profileX("h_ele_seedDphi2_VsEta_pfx",h2_ele_seed_dphi2VsEta_,"mean ele seed dphi 2nd layer vs eta","#eta","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
-    profileX("h_ele_seedDphi2_VsPt_pfx",h2_ele_seed_dphi2VsPt_,"mean ele seed dphi 2nd layer vs pt","p_{T} (GeV/c)","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
-    profileX("h_ele_seedDrz2_VsEta_pfx",h2_ele_seed_drz2VsEta_,"mean ele seed dr(dz) 2nd layer vs eta","#eta","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
-    profileX("h_ele_seedDrz2_VsPt_pfx",h2_ele_seed_drz2VsPt_,"mean ele seed dr(dz) 2nd layer vs pt","p_{T} (GeV/c)","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
-    profileX("h_ele_seedDphi2Pos_VsEta_pfx",h2_ele_seed_dphi2posVsEta_,"mean ele seed dphi 2nd layer positron vs eta","#eta","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
-    profileX("h_ele_seedDphi2Pos_VsPt_pfx",h2_ele_seed_dphi2posVsPt_,"mean ele seed dphi 2nd layer positron vs pt","p_{T} (GeV/c)","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
-    profileX("h_ele_seedDrz2Pos_VsEta_pfx",h2_ele_seed_drz2posVsEta_,"mean ele seed dr(dz) 2nd layer positron vs eta","#eta","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
-    profileX("h_ele_seedDrz2Pos_VsPt_pfx",h2_ele_seed_drz2posVsPt_,"mean ele seed dr(dz) 2nd layer positron vs pt","p_{T} (GeV/c)","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
+    profileX("h_ele_seedDphi2VsEta_pfx",h2_ele_seed_dphi2VsEta_,"mean ele seed dphi 2nd layer vs eta","#eta","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
+    profileX("h_ele_seedDphi2VsPt_pfx",h2_ele_seed_dphi2VsPt_,"mean ele seed dphi 2nd layer vs pt","p_{T} (GeV/c)","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
+    profileX("h_ele_seedDrz2VsEta_pfx",h2_ele_seed_drz2VsEta_,"mean ele seed dr(dz) 2nd layer vs eta","#eta","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
+    profileX("h_ele_seedDrz2VsPt_pfx",h2_ele_seed_drz2VsPt_,"mean ele seed dr(dz) 2nd layer vs pt","p_{T} (GeV/c)","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
 
     saveStore(outputFile_) ;
    }

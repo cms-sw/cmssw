@@ -27,6 +27,7 @@ $config_cache->{SOURCE_EXT}{"\\.(cc|CC|cpp|C|c|CPP|cxx|CXX)\$"}=1;
 $config_cache->{SKIP_INCLUDE_INDIRECT_ADD}={};
 $config_cache->{SKIP_INCLUDES}={};
 $config_cache->{LOCAL_HEADERS}{'^(.+)/[^/]+$:"$1/.+"'}=1;
+$SCRAMGenUtils::CacheType=1;
 
 if(&GetOptions(
                "--config=s",\$config,

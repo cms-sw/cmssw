@@ -13,6 +13,7 @@ class TH1F;
 
 namespace CLHEP {
   class RandPoissonQ;
+  class RandPoisson;
 }
 
 
@@ -48,8 +49,15 @@ namespace edm {
     bool const poisson_;
     bool const fixed_;
     bool const none_;
+    bool manage_OOT_;
+    bool poisson_OOT_;
+    bool fixed_OOT_;
+    int  intFixed_OOT_;
+
     VectorInputSource * const input_;
     CLHEP::RandPoissonQ *poissonDistribution_;
+    CLHEP::RandPoisson  *poissonDistr_OOT_;
+
 
     TH1F *h1f;
     TH1F *hprobFunction;

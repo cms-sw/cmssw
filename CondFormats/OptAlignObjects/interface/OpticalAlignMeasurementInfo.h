@@ -1,6 +1,6 @@
 #ifndef OpticalAlignMeasurementInfo_H
 #define OpticalAlignMeasurementInfo_H
- 
+
 #include <string>
 #include <vector>
 #include <iostream>

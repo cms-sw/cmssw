@@ -915,10 +915,10 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
       int thisEcalSevLvl = -999;
      
       if (ac_it->subdetId() == EcalBarrel && theEbHandle.isValid()) {
-	thisEcalSevLvl = theEcalSevLvlAlgo->severityLevel( *ac_it, *theEbHandle);//, *theEcalChStatus);
+	thisEcalSevLvl = theEcalSevLvlAlgo->severityLevel( *ac_it, *theEbHandle, *theEcalChStatus);
       }
       else if (ac_it->subdetId() == EcalEndcap && theEeHandle.isValid()) {
-	thisEcalSevLvl = theEcalSevLvlAlgo->severityLevel( *ac_it, *theEeHandle);//, *theEcalChStatus);
+	thisEcalSevLvl = theEcalSevLvlAlgo->severityLevel( *ac_it, *theEeHandle, *theEcalChStatus);
       }
  
       // "bad" include "recovered" if the flag not to use them was set 
@@ -1468,8 +1468,8 @@ unsigned int CaloTowersCreationAlgo::ecalChanStatusForCaloTower(const CaloRecHit
 
   int severityLevel = 999;
 
-  if      (id.subdetId() == EcalBarrel) severityLevel = theEcalSevLvlAlgo->severityLevel( id, *theEbHandle);//, *theEcalChStatus);
-  else if (id.subdetId() == EcalEndcap) severityLevel = theEcalSevLvlAlgo->severityLevel( id, *theEeHandle);//, *theEcalChStatus);
+  if      (id.subdetId() == EcalBarrel) severityLevel = theEcalSevLvlAlgo->severityLevel( id, *theEbHandle, *theEcalChStatus);
+  else if (id.subdetId() == EcalEndcap) severityLevel = theEcalSevLvlAlgo->severityLevel( id, *theEeHandle, *theEcalChStatus);
 
   // there should be no other ECAL types used in this reconstruction
 

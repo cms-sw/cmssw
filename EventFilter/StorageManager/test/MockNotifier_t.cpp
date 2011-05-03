@@ -15,7 +15,7 @@ int main()
 
   boost::shared_ptr<StatisticsReporter> sr;
   SharedResourcesPtr sharedResources(new SharedResources());
-  sharedResources->_configuration.reset(
+  sharedResources->configuration_.reset(
     new Configuration(app->getApplicationInfoSpace(), 0)
   );
   sr.reset( new StatisticsReporter( app, sharedResources ) );

@@ -1,7 +1,20 @@
 #ifndef PRODUCER_H
 #define PRODUCER_H
 
-//#define USE_STORAGE_MANAGER
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "EventFilter/EcalRawToDigi/interface/MatacqRawEvent.h"
+#include "EventFilter/EcalRawToDigi/src/MatacqDataFormatter.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <string>
+#include <inttypes.h>
+#include <fstream>
+#include <memory>
+
+#include <sys/time.h>
+
+#define USE_STORAGE_MANAGER
 
 #ifdef USE_STORAGE_MANAGER
 #  include "Utilities/StorageFactory/interface/Storage.h"
@@ -10,24 +23,8 @@
 #  ifndef _LARGEFILE64_SOURCE
 #    define _LARGEFILE64_SOURCE
 #  endif //_LARGEFILE64_SOURCE not defined
-#  define  _FILE_OFFSET_BITS 64 
 #  include <stdio.h>
 #endif //USE_STORAGE_MANAGER defined
-
-
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "EventFilter/EcalRawToDigi/interface/MatacqRawEvent.h"
-#include "EventFilter/EcalRawToDigi/src/MatacqDataFormatter.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#incldue "FWCore/Utilities/interface/InputTag.h"
-
-#include <string>
-#include <inttypes.h>
-#include <fstream>
-#include <memory>
-
-#include <sys/time.h>
 
 struct NullOut{
   NullOut&
@@ -39,6 +36,17 @@ struct NullOut{
     return *this;
   }
 };
+
+/** EDM producer module providing MATACQ data. The MATACQ is a board sampling
+ * the ECAL laser pulse. Data are recording in dedicated files. This module
+ * permits to read these files add to each laser type EDM the corresponding
+ * MATACQ data: as digis (#see MatacqDigiCollection) or the raw
+ * data FED block (#see FEDRawDataCollection). Run and orbit numbers are used
+ * to match the MATACQ data with the ECAL DCC data.
+ *
+ * Module parameters are listed and documented in
+ * EventFilter/EcalRawToDigi/ecalMatacq_cfi.py.
+ */
 
 class MatacqProducer : public edm::EDProducer
 {
@@ -198,8 +206,6 @@ private:
 
   bool msize(filepos_t& s);
 
-  void newRun(int prevRun, int newRun);
-  
   static std::string runSubDir(uint32_t runNumber);
   
 private:
@@ -300,34 +306,6 @@ private:
   /** Log file
    */
   std::ofstream logFile_;
-
-
-  /** counter for event skipping
-   */
-  int eventSkipCounter_;
-
-  /** Number of events to skip in case of error
-   */
-  int onErrorDisablingEvtCnt_;
-
-  /** Name of file to log timing
-   */
-  std::string timeLogFile_;
-  /** Buffer for timing
-   */
-  timeval timer_;
-
-  /** Output stream to log code timing
-   */
-  std::ofstream timeLog_;
-
-  /** Switch for code timing.
-   */
-  bool logTiming_;
-
-  /** Number of the currently processed run
-   */
-  uint32_t runNumber_;
 };
 
 #endif 

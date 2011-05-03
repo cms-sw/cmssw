@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWHLTValidator
-// $Id: FWHLTValidator.cc,v 1.6 2010/06/18 10:17:15 yana Exp $
+// $Id: FWHLTValidator.cc,v 1.7 2010/07/26 15:13:59 matevz Exp $
 //
 
 // system include files
@@ -34,12 +34,12 @@ FWHLTValidator::fillOptions(const char* iBegin, const char* iEnd,
      edm::TriggerNames const* triggerNames(0);
      try
      {
-       edm::InputTag tag("TriggerResults", "", "HLT");
+       edm::InputTag tag("TriggerResults", "", m_process.c_str());
        const edm::EventBase* event = FWGUIManager::getGUIManager()->getCurrentEvent();
        event->getByLabel(tag, hTriggerResults);
        triggerNames = & event->triggerNames(*hTriggerResults);
      } catch (...){
-       fwLog(fwlog::kWarning) << " no trigger results with process name HLT is available" << std::endl;
+        fwLog(fwlog::kWarning) << " no trigger results with process name "<< m_process <<"  is available" << std::endl;
        return;
      }
      for(unsigned int i=0; i<triggerNames->size(); ++i)

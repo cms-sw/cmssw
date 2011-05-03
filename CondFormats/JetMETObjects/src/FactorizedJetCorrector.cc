@@ -24,6 +24,8 @@ FactorizedJetCorrector::FactorizedJetCorrector()
   mJetPhi = -9999;
   mJetE   = -9999;
   mJetEMF = -9999;
+  mJetA   = -9999;
+  mRho    = -9999;
   mLepPx  = -9999;
   mLepPy  = -9999;
   mLepPz  = -9999;
@@ -35,6 +37,8 @@ FactorizedJetCorrector::FactorizedJetCorrector()
   mIsJetPhiset      = false;
   mIsJetEtaset      = false;
   mIsJetEMFset      = false;
+  mIsJetAset        = false;
+  mIsRhoset         = false;
   mIsLepPxset       = false;
   mIsLepPyset       = false;
   mIsLepPzset       = false;
@@ -50,6 +54,8 @@ FactorizedJetCorrector::FactorizedJetCorrector(const std::string& fLevels, const
   mJetPhi = -9999;
   mJetE   = -9999;
   mJetEMF = -9999;
+  mJetA   = -9999;
+  mRho    = -9999;
   mLepPx  = -9999;
   mLepPy  = -9999;
   mLepPz  = -9999;
@@ -61,6 +67,8 @@ FactorizedJetCorrector::FactorizedJetCorrector(const std::string& fLevels, const
   mIsJetPhiset      = false;
   mIsJetEtaset      = false;
   mIsJetEMFset      = false;
+  mIsJetAset        = false;
+  mIsRhoset         = false; 
   mIsLepPxset       = false;
   mIsLepPyset       = false;
   mIsLepPzset       = false;
@@ -77,6 +85,8 @@ FactorizedJetCorrector::FactorizedJetCorrector(const std::vector<JetCorrectorPar
   mJetPhi = -9999;
   mJetE   = -9999;
   mJetEMF = -9999;
+  mJetA   = -9999;
+  mRho    = -9999;
   mLepPx  = -9999;
   mLepPy  = -9999;
   mLepPz  = -9999;
@@ -88,6 +98,8 @@ FactorizedJetCorrector::FactorizedJetCorrector(const std::vector<JetCorrectorPar
   mIsJetPhiset      = false;
   mIsJetEtaset      = false;
   mIsJetEMFset      = false;
+  mIsJetAset        = false;
+  mIsRhoset         = false;
   mIsLepPxset       = false;
   mIsLepPyset       = false;
   mIsLepPzset       = false;
@@ -111,6 +123,8 @@ FactorizedJetCorrector::FactorizedJetCorrector(const std::vector<JetCorrectorPar
         mLevels.push_back(kL6);
       else if (ss == "L7Parton")
         mLevels.push_back(kL7);
+      else if (ss == "L1FastJet")
+        mLevels.push_back(kL1fj);
       mCorrectors.push_back(new SimpleJetCorrector(fParameters[i]));
       mBinTypes.push_back(mapping(mCorrectors[i]->parameters().definitions().binVar()));
       mParTypes.push_back(mapping(mCorrectors[i]->parameters().definitions().parVar()));
@@ -150,6 +164,8 @@ void FactorizedJetCorrector::initCorrectors(const std::string& fLevels, const st
         mLevels.push_back(kL6);
       else if (tmp[i] == "L7Parton")
         mLevels.push_back(kL7);
+      else if (tmp[i] == "L1FastJet")
+        mLevels.push_back(kL1fj);
       else
         {
           std::stringstream sserr; 
@@ -167,7 +183,7 @@ void FactorizedJetCorrector::initCorrectors(const std::string& fLevels, const st
   //---- Create instances of the requested sub-correctors.
   for(unsigned i=0;i<mLevels.size();i++)
     {     	    
-      if (mLevels[i]==kL1 || mLevels[i]==kL2 || mLevels[i]==kL3 || mLevels[i]==kL4 || mLevels[i]==kL6)
+      if (mLevels[i]==kL1 || mLevels[i]==kL2 || mLevels[i]==kL3 || mLevels[i]==kL4 || mLevels[i]==kL6 || mLevels[i]==kL1fj)
         mCorrectors.push_back(new SimpleJetCorrector(Files[i])); 
       else if (mLevels[i]==kL5 && FlavorOption.length()==0) 
         handleError("FactorizedJetCorrector","must specify flavor option when requesting L5Flavor correction!");
@@ -212,6 +228,10 @@ std::vector<FactorizedJetCorrector::VarTypes> FactorizedJetCorrector::mapping(co
 	result.push_back(kPtRel);
       else if (ss=="NPV")
         result.push_back(kNPV);
+      else if (ss=="JetA")
+        result.push_back(kJetA);
+      else if (ss=="Rho")
+        result.push_back(kRho);
       else
          {
            std::stringstream sserr; 
@@ -336,8 +356,8 @@ std::vector<float> FactorizedJetCorrector::getSubCorrections()
     { 
       vx = fillVector(mBinTypes[i]);
       vy = fillVector(mParTypes[i]);
-      if (mLevels[i]==kL2 || mLevels[i]==kL6)
-        mCorrectors[i]->setInterpolation(true); 
+      //if (mLevels[i]==kL2 || mLevels[i]==kL6)
+        //mCorrectors[i]->setInterpolation(true); 
       scale = mCorrectors[i]->correction(vx,vy); 	
       if (mLevels[i]==kL6 && mAddLepToJet) scale *= 1.0 + getLepPt() / mJetPt;
       factor*=scale; 
@@ -351,6 +371,8 @@ std::vector<float> FactorizedJetCorrector::getSubCorrections()
   mIsJetPhiset = false;
   mIsJetEtaset = false;
   mIsJetEMFset = false;
+  mIsJetAset   = false;
+  mIsRhoset    = false;
   mIsLepPxset  = false;
   mIsLepPyset  = false;
   mIsLepPzset  = false;
@@ -401,6 +423,18 @@ std::vector<float> FactorizedJetCorrector::fillVector(std::vector<VarTypes> fVar
             handleError("FactorizedJetCorrector","jet EMF is not set");
           result.push_back(mJetEMF);
         } 
+      else if (fVarTypes[i] == kJetA) 
+        {
+          if (!mIsJetAset) 
+            handleError("FactorizedJetCorrector","jet area is not set");
+          result.push_back(mJetA);
+        }
+      else if (fVarTypes[i] == kRho) 
+        {
+          if (!mIsRhoset) 
+            handleError("FactorizedJetCorrector","fastjet density Rho is not set");
+          result.push_back(mRho);
+        }
       else if (fVarTypes[i] == kRelLepPt) 
         {
           if (!mIsJetPtset||!mIsAddLepToJetset||!mIsLepPxset||!mIsLepPyset) 
@@ -509,6 +543,18 @@ void FactorizedJetCorrector::setJetEMF(float fEMF)
 {
   mJetEMF = fEMF;
   mIsJetEMFset = true;
+}
+//------------------------------------------------------------------------
+void FactorizedJetCorrector::setJetA(float fA)
+{
+  mJetA = fA;
+  mIsJetAset = true;
+}
+//------------------------------------------------------------------------
+void FactorizedJetCorrector::setRho(float fRho)
+{
+  mRho = fRho;
+  mIsRhoset = true;
 }
 //------------------------------------------------------------------------
 void FactorizedJetCorrector::setLepPx(float fPx)

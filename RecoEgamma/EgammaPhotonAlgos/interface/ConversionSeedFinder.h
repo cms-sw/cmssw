@@ -3,9 +3,9 @@
 /** \class ConversionSeedFinder
  **  
  **
- **  $Id: ConversionSeedFinder.h,v 1.11 2008/11/19 16:47:44 nancy Exp $ 
- **  $Date: 2008/11/19 16:47:44 $ 
- **  $Revision: 1.11 $
+ **  $Id: ConversionSeedFinder.h,v 1.10 2008/10/18 15:50:16 nancy Exp $ 
+ **  $Date: 2008/10/18 15:50:16 $ 
+ **  $Revision: 1.10 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -62,9 +62,9 @@ class ConversionSeedFinder {
  
 
 
-  TrajectorySeedCollection & seeds() {  return theSeeds_;}
+  TrajectorySeedCollection seeds() {  return theSeeds_;}
   virtual void setCandidate( float e, GlobalPoint pos ) const {  theSCenergy_=e; theSCPosition_= pos; }			       
-  std::vector<const DetLayer*> const & layerList() const { return theLayerList_;}
+  std::vector<const DetLayer*> layerList() const { return theLayerList_;}
  
   
   void setMeasurementTracker(const MeasurementTracker* tracker) const { ; }
@@ -74,9 +74,7 @@ class ConversionSeedFinder {
   void setEventSetup( const edm::EventSetup& es ) ; 
   void setEvent( const edm::Event& e ) ; 
 
-  void clear() {
-    theSeeds_.clear();
-  }
+
 
  protected:
 

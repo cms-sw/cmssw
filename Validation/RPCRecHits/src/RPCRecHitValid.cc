@@ -1,510 +1,476 @@
+ /* 
+ *  See header file for a description of this class.
+ *
+ *  $Date: 2008/10/21 10:48:14 $
+ *  $Revision: 1.2 $
+ *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
+ */
+
 #include "Validation/RPCRecHits/interface/RPCRecHitValid.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace std;
+using namespace edm;
+ 
+  
+RPCRecHitValid::RPCRecHitValid(const ParameterSet& pset){
+  rootFileName = pset.getUntrackedParameter<string>("rootFileName", "rpcRecHitValidPlots.root");
+  //simHitLabel = pset.getUntrackedParameter<string>("g4SimHits", "MuonRPCHits");
+  //recHitLabel = pset.getUntrackedParameter<string>("recHitLabel", "RPCRecHitProducer");
+  dbe_ = Service<DQMStore>().operator->();
+  
+  if ( dbe_ ) {
 
-struct HName
-{
-  enum
-  {
-    ClusterSize, Res, Pull,
+    Rechisto   = dbe_->book1D("RecHits", "RPC RecHits", 300, -150, 150);
+    Simhisto   = dbe_->book1D("SimHits", "Simulated Hits", 300, -150, 150);
+    Pulls      = dbe_->book1D("Global Pulls", "RPC Global Pulls", 100, -4,4);
+    ClSize     = dbe_->book1D("Global ClSize", "Global Cluster Size", 10, 0, 10);
+    res1cl     = dbe_->book1D("Residuals CS = 1", "Residuals for ClSize = 1", 300, -8, 8);
 
-    NSimHit_Wheel, NSimHit_Disk,
-    NRecHit_Wheel, NRecHit_Disk,
+//     dbe_->setCurrentFolder("Residuals");
+//     Res  = dbe_->book1D("Global Residuals", "Global Residuals", 300, -8, 8);
+//     ResWmin2 = dbe_->book1D("W-2 Residuals", "Residuals for Wheel -2", 300, -8, 8);
+//     ResWmin1 = dbe_->book1D("W-1 Residuals", "Residuals for Wheel -1", 300, -8, 8);
+//     ResWzer0 = dbe_->book1D("W 0 Residuals", "Residuals for Wheel 0", 300, -8, 8);
+//     ResWplu1 = dbe_->book1D("W+1 Residuals", "Residuals for Wheel +1", 300, -8, 8);
+//     ResWplu2 = dbe_->book1D("W+2 Residuals", "Residuals for Wheel +2", 300, -8, 8);
+//     ResS1    = dbe_->book1D("Sector 1 Residuals", "Sector 1 Residuals", 300, -8, 8);
+//     ResS3    = dbe_->book1D("Sector 3 Residuals", "Sector 3 Residuals", 300, -8, 8);
 
-    NLostHit_Wheel, NLostHit_Disk,
-    NNoisyHit_Wheel, NNoisyHit_Disk,
+    dbe_->setCurrentFolder("Residuals and Occupancy");
+    occRB1IN   = dbe_->book1D("RB1 IN Occupancy", "RB1 IN Occupancy", 100, 0, 100);
+    occRB1OUT   = dbe_->book1D("RB1 OUT Occupancy", "RB1 OUT Occupancy", 100, 0, 100);
 
-    NMatchedSimHit_Wheel, NMatchedSimHit_Disk,
-    NMatchedRecHit_Wheel, NMatchedRecHit_Disk,
+    //    dbe_->setCurrentFolder("Residuals");
+    Res  = dbe_->book1D("Global Residuals", "Global Residuals", 300, -8, 8);
+    ResWmin2 = dbe_->book1D("W-2 Residuals", "Residuals for Wheel -2", 300, -8, 8);
+    ResWmin1 = dbe_->book1D("W-1 Residuals", "Residuals for Wheel -1", 300, -8, 8);
+    ResWzer0 = dbe_->book1D("W 0 Residuals", "Residuals for Wheel 0", 300, -8, 8);
+    ResWplu1 = dbe_->book1D("W+1 Residuals", "Residuals for Wheel +1", 300, -8, 8);
+    ResWplu2 = dbe_->book1D("W+2 Residuals", "Residuals for Wheel +2", 300, -8, 8);
+    ResS1    = dbe_->book1D("Sector 1 Residuals", "Sector 1 Residuals", 300, -8, 8);
+    ResS3    = dbe_->book1D("Sector 3 Residuals", "Sector 3 Residuals", 300, -8, 8);
 
-    SimHitEta, RecHitEta, MatchedRecHitEta, NoisyHitEta,
 
-    NSimHitRZ, NRecHitRZ,
-    NMatchedSimHitRZ, NMatchedRecHitRZ,
 
-    NSimHitXY_WM2, NSimHitXY_WM1, NSimHitXY_W00, NSimHitXY_WP1, NSimHitXY_WP2,
-    NRecHitXY_WM2, NRecHitXY_WM1, NRecHitXY_W00, NRecHitXY_WP1, NRecHitXY_WP2,
-    NSimHitXY_DM3, NSimHitXY_DM2, NSimHitXY_DM1, NSimHitXY_DP1, NSimHitXY_DP2, NSimHitXY_DP3,
-    NRecHitXY_DM3, NRecHitXY_DM2, NRecHitXY_DM1, NRecHitXY_DP1, NRecHitXY_DP2, NRecHitXY_DP3,
 
-    NMatchedSimHitXY_WM2, NMatchedSimHitXY_WM1, NMatchedSimHitXY_W00, NMatchedSimHitXY_WP1, NMatchedSimHitXY_WP2,
-    NMatchedRecHitXY_WM2, NMatchedRecHitXY_WM1, NMatchedRecHitXY_W00, NMatchedRecHitXY_WP1, NMatchedRecHitXY_WP2,
-    NMatchedSimHitXY_DM3, NMatchedSimHitXY_DM2, NMatchedSimHitXY_DM1, NMatchedSimHitXY_DP1, NMatchedSimHitXY_DP2, NMatchedSimHitXY_DP3,
-    NMatchedRecHitXY_DM3, NMatchedRecHitXY_DM2, NMatchedRecHitXY_DM1, NMatchedRecHitXY_DP1, NMatchedRecHitXY_DP2, NMatchedRecHitXY_DP3,
-
-    Res_WM2, Res_WM1, Res_W00, Res_WP1, Res_WP2,
-    Res_DM3, Res_DM2, Res_DM1, Res_DP1, Res_DP2, Res_DP3,
-
-    Pull_WM2, Pull_WM1, Pull_W00, Pull_WP1, Pull_WP2,
-    Pull_DM3, Pull_DM2, Pull_DM1, Pull_DP1, Pull_DP2, Pull_DP3,
-
-    END
-  };
-};
-
-RPCRecHitValid::RPCRecHitValid(const edm::ParameterSet& pset)
-{
-  rootFileName_ = pset.getUntrackedParameter<string>("rootFileName", "");
-  simHitLabel_ = pset.getParameter<edm::InputTag>("simHit");
-  recHitLabel_ = pset.getParameter<edm::InputTag>("recHit");
-
-  isStandAloneMode_ = pset.getUntrackedParameter<bool>("standAloneMode", false);
-
-  dbe_ = edm::Service<DQMStore>().operator->();
-  if ( !dbe_ )
-  {
-    edm::LogError("RPCRecHitValid") << "No DQMStore instance\n";
-    return;
-  }
-
-  // Book MonitorElements
-  std::string subDir = pset.getParameter<std::string>("subDir");
-  dbe_->setCurrentFolder(subDir);
-
-  // Global plots
-  h_[HName::ClusterSize] = dbe_->book1D("ClusterSize", "Cluster size;Cluster size", 11, -0.5, 10.5);
-
-  h_[HName::Res] = dbe_->book1D("Res", "Global residuals;Residual [cm]", 100, -8, 8);
-  h_[HName::Pull] = dbe_->book1D("Pull", "Global pulls;Pull", 100, -5, 5);
-
-  h_[HName::NSimHit_Wheel] = dbe_->book1D("NSimHit_Wheel", "Number of SimHits;Wheel", 5, -2.5, 2.5);
-  h_[HName::NSimHit_Disk] = dbe_->book1D("NSimHit_Disk", "Number of SimHits;Disk", 7, -3.5, 3.5);
-
-  h_[HName::NRecHit_Wheel] = dbe_->book1D("NRecHit_Wheel", "Number of RecHits;Wheel", 5, -2.5, 2.5);
-  h_[HName::NRecHit_Disk] = dbe_->book1D("NRecHit_Disk", "Number of RecHits;Disk", 7, -3.5, 3.5);
-
-  h_[HName::NLostHit_Wheel] = dbe_->book1D("NLostHit_Wheel", "Number of lost hits;Wheel", 5, -2.5, 2.5);
-  h_[HName::NLostHit_Disk] = dbe_->book1D("NLostHit_Disk", "Number of lost hits;Disk", 7, -3.5, 3.5);
-
-  h_[HName::NNoisyHit_Wheel] = dbe_->book1D("NNoisyHit_Wheel", "Number of noisy hits;Wheel", 5, -2.5, 2.5);
-  h_[HName::NNoisyHit_Disk] = dbe_->book1D("NNoisyHit_Disk", "Number of noisy hits;Disk", 7, -3.5, 3.5);
-
-  h_[HName::NMatchedSimHit_Wheel] = dbe_->book1D("NMatchedSimHit_Wheel", "Number of Matched SimHits;Wheel", 5, -2.5, 2.5);
-  h_[HName::NMatchedSimHit_Disk] = dbe_->book1D("NMatchedSimHit_Disk", "Number of Matched SimHits;Disk", 7, -3.5, 3.5);
-
-  h_[HName::NMatchedRecHit_Wheel] = dbe_->book1D("NMatchedRecHit_Wheel", "Number of Matched RecHits;Wheel", 5, -2.5, 2.5);
-  h_[HName::NMatchedRecHit_Disk] = dbe_->book1D("NMatchedRecHit_Disk", "Number of Matched RecHits;Disk", 7, -3.5, 3.5);
-
-  h_[HName::SimHitEta] = dbe_->book1D("SimHitEta", "Number of simHits vs #eta;Pseudorapidity #eta", 100, -2.5, 2.5);
-  h_[HName::RecHitEta] = dbe_->book1D("RecHitEta", "Number of recHits vs #eta;Pseudorapidity #eta", 100, -2.5, 2.5);
-  h_[HName::NoisyHitEta] = dbe_->book1D("NoisyHitEta", "Number of noisy recHits vs #eta;Pseudorapidity #eta", 100, -2.5, 2.5);
-  h_[HName::MatchedRecHitEta] = dbe_->book1D("MatchedRecHitEta", "Number of matched recHits vs Eta;Pseudorapidity #eta", 100, -2.5, 2.5);
-
-  // XY overview
-  if ( isStandAloneMode_ )
-  {
-    const int nBin = 1000;
-    const double xmin = -1000, xmax = 1000;
-    const double ymin = -1000, ymax = 1000;
-
-    h_[HName::NSimHitRZ] = dbe_->book2D("NSimHitRZ", "Number of SimHits;Z;R", nBin, -1100, 1100, nBin, 0, xmax);
-    h_[HName::NRecHitRZ] = dbe_->book2D("NRecHitRZ", "Number of RecHits;Z;R", nBin, -1100, 1100, nBin, 0, xmax);
-
-    h_[HName::NMatchedSimHitRZ] = dbe_->book2D("NMatchedSimHitRZ", "Number of Matched SimHits;Z;R", nBin, -1100, 1100, nBin, 0, xmax);
-    h_[HName::NMatchedRecHitRZ] = dbe_->book2D("NMatchedRecHitRZ", "Number of Matched RecHits;Z;R", nBin, -1100, 1100, nBin, 0, xmax);
-
-    h_[HName::NSimHitXY_WM2] = dbe_->book2D("NSimHitXY_WM2", "Number of SimHits Wheel -2;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NSimHitXY_WM1] = dbe_->book2D("NSimHitXY_WM1", "Number of SimHits Wheel -1;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NSimHitXY_W00] = dbe_->book2D("NSimHitXY_W00", "Number of SimHits Wheel 0;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NSimHitXY_WP1] = dbe_->book2D("NSimHitXY_WP1", "Number of SimHits Wheel +1;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NSimHitXY_WP2] = dbe_->book2D("NSimHitXY_WP2", "Number of SimHits Wheel +2;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-
-    h_[HName::NSimHitXY_DM3] = dbe_->book2D("NSimHitXY_DM3", "Number of SimHits Disk -3;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NSimHitXY_DM2] = dbe_->book2D("NSimHitXY_DM2", "Number of SimHits Disk -2;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NSimHitXY_DM1] = dbe_->book2D("NSimHitXY_DM1", "Number of SimHits Disk -1;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NSimHitXY_DP1] = dbe_->book2D("NSimHitXY_DP1", "Number of SimHits Disk +1;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NSimHitXY_DP2] = dbe_->book2D("NSimHitXY_DP2", "Number of SimHits Disk +2;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NSimHitXY_DP3] = dbe_->book2D("NSimHitXY_DP3", "Number of SimHits Disk +3;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-
-    h_[HName::NRecHitXY_WM2] = dbe_->book2D("NRecHitXY_WM2", "Number of RecHits Wheel -2;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NRecHitXY_WM1] = dbe_->book2D("NRecHitXY_WM1", "Number of RecHits Wheel -1;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NRecHitXY_W00] = dbe_->book2D("NRecHitXY_W00", "Number of RecHits Wheel 0;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NRecHitXY_WP1] = dbe_->book2D("NRecHitXY_WP1", "Number of RecHits Wheel +1;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NRecHitXY_WP2] = dbe_->book2D("NRecHitXY_WP2", "Number of RecHits Wheel +2;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-
-    h_[HName::NRecHitXY_DM3] = dbe_->book2D("NRecHitXY_DM3", "Number of RecHits Disk -3;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NRecHitXY_DM2] = dbe_->book2D("NRecHitXY_DM2", "Number of RecHits Disk -2;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NRecHitXY_DM1] = dbe_->book2D("NRecHitXY_DM1", "Number of RecHits Disk -1;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NRecHitXY_DP1] = dbe_->book2D("NRecHitXY_DP1", "Number of RecHits Disk +1;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NRecHitXY_DP2] = dbe_->book2D("NRecHitXY_DP2", "Number of RecHits Disk +2;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NRecHitXY_DP3] = dbe_->book2D("NRecHitXY_DP3", "Number of RecHits Disk +3;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-
-    h_[HName::NMatchedSimHitXY_WM2] = dbe_->book2D("NMatchedSimHitXY_WM2", "Number of Matched SimHits Wheel -2;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NMatchedSimHitXY_WM1] = dbe_->book2D("NMatchedSimHitXY_WM1", "Number of Matched SimHits Wheel -1;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NMatchedSimHitXY_W00] = dbe_->book2D("NMatchedSimHitXY_W00", "Number of Matched SimHits Wheel 0;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NMatchedSimHitXY_WP1] = dbe_->book2D("NMatchedSimHitXY_WP1", "Number of Matched SimHits Wheel +1;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NMatchedSimHitXY_WP2] = dbe_->book2D("NMatchedSimHitXY_WP2", "Number of Matched SimHits Wheel +2;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-
-    h_[HName::NMatchedSimHitXY_DM3] = dbe_->book2D("NMatchedSimHitXY_DM3", "Number of Matched SimHits Disk -3;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NMatchedSimHitXY_DM2] = dbe_->book2D("NMatchedSimHitXY_DM2", "Number of Matched SimHits Disk -2;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NMatchedSimHitXY_DM1] = dbe_->book2D("NMatchedSimHitXY_DM1", "Number of Matched SimHits Disk -1;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NMatchedSimHitXY_DP1] = dbe_->book2D("NMatchedSimHitXY_DP1", "Number of Matched SimHits Disk +1;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NMatchedSimHitXY_DP2] = dbe_->book2D("NMatchedSimHitXY_DP2", "Number of Matched SimHits Disk +2;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NMatchedSimHitXY_DP3] = dbe_->book2D("NMatchedSimHitXY_DP3", "Number of Matched SimHits Disk +3;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-
-    h_[HName::NMatchedRecHitXY_WM2] = dbe_->book2D("NMatchedRecHitXY_WM2", "Number of Matched RecHits Wheel -2;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NMatchedRecHitXY_WM1] = dbe_->book2D("NMatchedRecHitXY_WM1", "Number of Matched RecHits Wheel -1;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NMatchedRecHitXY_W00] = dbe_->book2D("NMatchedRecHitXY_W00", "Number of Matched RecHits Wheel 0;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NMatchedRecHitXY_WP1] = dbe_->book2D("NMatchedRecHitXY_WP1", "Number of Matched RecHits Wheel +1;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NMatchedRecHitXY_WP2] = dbe_->book2D("NMatchedRecHitXY_WP2", "Number of Matched RecHits Wheel +2;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-
-    h_[HName::NMatchedRecHitXY_DM3] = dbe_->book2D("NMatchedRecHitXY_DM3", "Number of Matched RecHits Disk -3;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NMatchedRecHitXY_DM2] = dbe_->book2D("NMatchedRecHitXY_DM2", "Number of Matched RecHits Disk -2;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NMatchedRecHitXY_DM1] = dbe_->book2D("NMatchedRecHitXY_DM1", "Number of Matched RecHits Disk -1;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NMatchedRecHitXY_DP1] = dbe_->book2D("NMatchedRecHitXY_DP1", "Number of Matched RecHits Disk +1;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NMatchedRecHitXY_DP2] = dbe_->book2D("NMatchedRecHitXY_DP2", "Number of Matched RecHits Disk +2;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-    h_[HName::NMatchedRecHitXY_DP3] = dbe_->book2D("NMatchedRecHitXY_DP3", "Number of Matched RecHits Disk +3;X;Y", nBin, xmin, xmax, nBin, ymin, ymax);
-  }
-
-  // Residuals and pulls
-  h_[HName::Res_WM2] = dbe_->book1D("Res_WM2", "Residuals for Wheel -2;Residual [cm]", 100, -8, 8);
-  h_[HName::Res_WM1] = dbe_->book1D("Res_WM1", "Residuals for Wheel -1;Residual [cm]", 100, -8, 8);
-  h_[HName::Res_W00] = dbe_->book1D("Res_W00", "Residuals for Wheel  0;Residual [cm]", 100, -8, 8);
-  h_[HName::Res_WP1] = dbe_->book1D("Res_WP1", "Residuals for Wheel +1;Residual [cm]", 100, -8, 8);
-  h_[HName::Res_WP2] = dbe_->book1D("Res_WP2", "Residuals for Wheel +2;Residual [cm]", 100, -8, 8);
-
-  h_[HName::Res_DM3] = dbe_->book1D("Res_DM3", "Residuals for Disk -3;Residual [cm]", 100, -8, 8);
-  h_[HName::Res_DM2] = dbe_->book1D("Res_DM2", "Residuals for Disk -2;Residual [cm]", 100, -8, 8);
-  h_[HName::Res_DM1] = dbe_->book1D("Res_DM1", "Residuals for Disk -1;Residual [cm]", 100, -8, 8);
-  h_[HName::Res_DP1] = dbe_->book1D("Res_DP1", "Residuals for Disk +1;Residual [cm]", 100, -8, 8);
-  h_[HName::Res_DP2] = dbe_->book1D("Res_DP2", "Residuals for Disk +2;Residual [cm]", 100, -8, 8);
-  h_[HName::Res_DP3] = dbe_->book1D("Res_DP3", "Residuals for Disk +3;Residual [cm]", 100, -8, 8);
-
-  h_[HName::Pull_WM2] = dbe_->book1D("Pull_WM2", "Pull for Wheel -2;Pull", 100, -5, 5);
-  h_[HName::Pull_WM1] = dbe_->book1D("Pull_WM1", "Pull for Wheel -1;Pull", 100, -5, 5);
-  h_[HName::Pull_W00] = dbe_->book1D("Pull_W00", "Pull for Wheel  0;Pull", 100, -5, 5);
-  h_[HName::Pull_WP1] = dbe_->book1D("Pull_WP1", "Pull for Wheel +1;Pull", 100, -5, 5);
-  h_[HName::Pull_WP2] = dbe_->book1D("Pull_WP2", "Pull for Wheel +2;Pull", 100, -5, 5);
-
-  h_[HName::Pull_DM3] = dbe_->book1D("Pull_DM3", "Pull for Disk -3;Pull", 100, -5, 5);
-  h_[HName::Pull_DM2] = dbe_->book1D("Pull_DM2", "Pull for Disk -2;Pull", 100, -5, 5);
-  h_[HName::Pull_DM1] = dbe_->book1D("Pull_DM1", "Pull for Disk -1;Pull", 100, -5, 5);
-  h_[HName::Pull_DP1] = dbe_->book1D("Pull_DP1", "Pull for Disk +1;Pull", 100, -5, 5);
-  h_[HName::Pull_DP2] = dbe_->book1D("Pull_DP2", "Pull for Disk +2;Pull", 100, -5, 5);
-  h_[HName::Pull_DP3] = dbe_->book1D("Pull_DP3", "Pull for Disk +3;Pull", 100, -5, 5);
+  }  
 }
 
-RPCRecHitValid::~RPCRecHitValid()
-{
-  if ( dbe_ )
-  {
-    if ( !rootFileName_.empty() ) dbe_->save(rootFileName_);
-  }
+void RPCRecHitValid::beginJob() {}
+
+// Destructor
+RPCRecHitValid::~RPCRecHitValid(){
 }
 
-void RPCRecHitValid::beginJob()
-{
+void RPCRecHitValid::endJob() {
+ if ( rootFileName.size() != 0 && dbe_ ) dbe_->save(rootFileName);
 }
 
-void RPCRecHitValid::endJob()
-{
-}
 
-void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eventSetup)
-{
-  if ( !dbe_ )
-  {
-    edm::LogError("RPCRecHitValid") << "No DQMStore instance\n";
-    return;
-  }
 
+void RPCRecHitValid::analyze(const Event & event, const EventSetup& eventSetup){
+  
   // Get the RPC Geometry
-  edm::ESHandle<RPCGeometry> rpcGeom;
+  ESHandle<RPCGeometry> rpcGeom;
   eventSetup.get<MuonGeometryRecord>().get(rpcGeom);
+  
+  Handle<PSimHitContainer> simHit;
+  event.getByLabel("g4SimHits", "MuonRPCHits", simHit);
+  std::map<double, int> mapsim;
+  std::map<int, double> nmapsim;
+  std::map<double, int> simWmin2;
+  std::map<double, int> simWmin1;
+  std::map<double, int> simWzer0;
+  std::map<double, int> simWplu1;
+  std::map<double, int> simWplu2;
+  std::map<double, int> simS1;
+  std::map<double, int> simS3;
+  std::map<int, double> nsimWmin2;
+  std::map<int, double> nsimWmin1;
+  std::map<int, double> nsimWzer0;
+  std::map<int, double> nsimWplu1;
+  std::map<int, double> nsimWplu2;
+  std::map<int, double> nsimS1;
+  std::map<int, double> nsimS3;
 
-  // Retrieve SimHits from the event
-  edm::Handle<edm::PSimHitContainer> simHitHandle;
-  if ( !event.getByLabel(simHitLabel_, simHitHandle) )
-  {
-    edm::LogInfo("RPCRecHitValid") << "Cannot find simHit collection\n";
-    return;
-  }
+  Handle<RPCRecHitCollection> recHit;
+  event.getByLabel("rpcRecHits", recHit);
+  std::map<double, int> maprec;
+  std::map<int, double> nmaprec;
+  std::map<double, double> nmaperr;
+  std::map<int, double> nmapres;
+    
+  std::map<double, int> maprecCL1;
+  std::map<int, double> nmaprecCL1;
 
-  // Retrieve RecHits from the event
-  edm::Handle<RPCRecHitCollection> recHitHandle;
-  if ( !event.getByLabel(recHitLabel_, recHitHandle) )
-  {
-    edm::LogInfo("RPCRecHitValid") << "Cannot find recHit collection\n";
-    return;
-  }
+  std::map<double, int> recWmin2;
+  std::map<double, int> recWmin1;
+  std::map<double, int> recWzer0;
+  std::map<double, int> recWplu1;
+  std::map<double, int> recWplu2;
+  std::map<double, int> recS1;
+  std::map<double, int> recS3;
+  std::map<int, double> nrecWmin2;
+  std::map<int, double> nrecWmin1;
+  std::map<int, double> nrecWzer0;
+  std::map<int, double> nrecWplu1;
+  std::map<int, double> nrecWplu2;
+  std::map<int, double> nrecS1;
+  std::map<int, double> nrecS3;
+  std::map<double, double> errWmin2;
+  std::map<double, double> errWmin1;
+  std::map<double, double> errWzer0;
+  std::map<double, double> errWplu1;
+  std::map<double, double> errWplu2;
+  
 
-  typedef edm::PSimHitContainer::const_iterator SimHitIter;
-  typedef RPCRecHitCollection::const_iterator RecHitIter;
+  // Loop on rechits
+  RPCRecHitCollection::const_iterator recIt;
+  int nrec = 0; 
+  int nrecCL1 = 0;
+  int nrecmin2 = 0;
+  int nrecmin1 = 0;
+  int nreczer0 = 0;
+  int nrecplu1 = 0;
+  int nrecplu2 = 0;
+  int nrecS1c = 0;
+  int nrecS3c = 0;
+  
+  for (recIt = recHit->begin(); recIt != recHit->end(); recIt++) {
+    RPCDetId Rid = (RPCDetId)(*recIt).rpcId();
+    const RPCRoll* roll = dynamic_cast<const RPCRoll* >( rpcGeom->roll(Rid));
+    if((roll->isForward())) return;
+    int clsize = (*recIt).clusterSize();
+    int fstrip = (*recIt).firstClusterStrip();
+    
+    nrec = nrec + 1;
+    LocalPoint rhitlocal = (*recIt).localPosition();
+    LocalError locerr = (*recIt).localPositionError(); 
+    double rhitlocalx = rhitlocal.x();
+    double rhiterrx = locerr.xx();
+    Rechisto->Fill(rhitlocalx);
+    int wheel = roll->id().ring();
+    int sector = roll->id().sector(); 
+    int station = roll->id().station();
+    int k = roll->id().layer();
+    //    int s = roll->id().subsector();
 
-  // Loop over simHits, fill histograms which does not need associations
-  for ( SimHitIter simHitIter = simHitHandle->begin();
-        simHitIter != simHitHandle->end(); ++simHitIter )
-  {
-    if ( abs(simHitIter->particleType()) != 13 ) continue;
+    //-----CLSIZE = 1------------
+    if (clsize == 1) {
+      maprecCL1[rhitlocalx] = nrec;
+      nrecCL1 = nrecCL1 + 1;
+    }
+    //-----------------------------
 
-    const RPCDetId detId = static_cast<const RPCDetId>(simHitIter->detUnitId());
-    const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(detId()));
-    if ( !roll ) continue;
-
-    const int region = roll->id().region();
-    const int ring = roll->id().ring();
-    //const int sector = roll->id().sector();
-    const int station = abs(roll->id().station());
-    //const int layer = roll->id().layer();
-    //const int subSector = roll->id().subsector();
-
-    if ( region == 0 ) h_[HName::NSimHit_Wheel]->Fill(ring);
-    else h_[HName::NSimHit_Disk]->Fill(region*station);
-
-    const GlobalPoint pos = roll->toGlobal(simHitIter->localPosition());
-    h_[HName::SimHitEta]->Fill(pos.eta());
-
-    if ( isStandAloneMode_ )
-    {
-      h_[HName::NSimHitRZ]->Fill(pos.z(), pos.perp());
-      if ( region == 0 )
-      {
-        h_[HName::NSimHitXY_W00+ring]->Fill(pos.x(), pos.y());
+    ClSize->Fill(clsize); //Global Cluster Size
+    
+    
+    // occupancy
+    for (int occ = 0; occ < clsize; occ++) {
+      int occup = fstrip + occ;
+      if (station == 1 && k == 1) {
+	occRB1IN->Fill(occup);
       }
-      else if ( region == -1 and station < 4 )
-      {
-        h_[HName::NSimHitXY_DM1-(station-1)]->Fill(pos.x(), pos.y());
+      if (station == 1 && k == 2) {
+	occRB1OUT->Fill(occup);
       }
-      else if ( region == 1 and station < 4 )
-      {
-        h_[HName::NSimHitXY_DP1+(station-1)]->Fill(pos.x(), pos.y());
-      }
+    }      
+    
+
+    maprec[rhitlocalx] = nrec;
+    nmaperr[rhitlocalx] = rhiterrx;
+    
+    //-------PHI-------------------
+    if(sector == 1) {
+      recS1[rhitlocalx] = nrec;
+      nrecS1c = nrecS1c + 1;
+    }
+    if(sector == 3) {
+      recS3[rhitlocalx] = nrec;
+      nrecS3c = nrecS3c + 1;
+    }
+    //----------------------------
+       
+    if(wheel == -2) {
+      recWmin2[rhitlocalx] = nrec;
+      errWmin2[rhitlocalx] = rhiterrx;
+      nrecmin2 = nrecmin2 + 1;
+    }
+    if(wheel == -1) {
+      recWmin1[rhitlocalx] = nrec;
+      errWmin1[rhitlocalx] = rhiterrx;
+      nrecmin1 = nrecmin1 + 1;
+    }
+    if(wheel == 0) {
+      recWzer0[rhitlocalx] = nrec;
+      errWzer0[rhitlocalx] = rhiterrx;
+      nreczer0 = nreczer0 + 1;
+    }
+    if(wheel == 1) {
+      recWplu1[rhitlocalx] = nrec;
+      errWplu1[rhitlocalx] = rhiterrx;
+      nrecplu1 = nrecplu1 + 1;
+    }
+    if(wheel == 2) {
+      recWplu2[rhitlocalx] = nrec;
+      errWplu2[rhitlocalx] = rhiterrx;
+      nrecplu2 = nrecplu2 + 1;
     }
   }
+  //cout << " --> Found " << nrec << " rechit in event " << event.id().event() << endl;
+   
+  // Global rechit mapping
+  int i = 0;
+  for (map<double, int>::iterator iter = maprec.begin(); iter != maprec.end(); iter++) {
+    i = i + 1;
+    nmaprec[i] = (*iter).first;
+  }
+  // CL = 1 rechit mapping
+  i = 0;
+  for (map<double, int>::iterator iter = maprecCL1.begin(); iter != maprecCL1.end(); iter++) {
+    i = i + 1;
+    nmaprecCL1[i] = (*iter).first;
+  }
+  // Wheel -2 rechit mapping
+  i = 0;
+  for (map<double, int>::iterator iter = recWmin2.begin(); iter != recWmin2.end(); iter++) {
+    i = i + 1;
+    nrecWmin2[i] = (*iter).first;
+  }  
+  // Wheel -1 rechit mapping
+  i = 0;
+  for (map<double, int>::iterator iter = recWmin1.begin(); iter != recWmin1.end(); iter++) {
+    i = i + 1;
+    nrecWmin1[i] = (*iter).first;
+  }
+  // Wheel 0 rechit mapping
+  i = 0;
+  for (map<double, int>::iterator iter = recWzer0.begin(); iter != recWzer0.end(); iter++) {
+    i = i + 1;
+    nrecWzer0[i] = (*iter).first;
+  }
+  // Wheel +1 rechit mapping
+  i = 0;
+  for (map<double, int>::iterator iter = recWplu1.begin(); iter != recWplu1.end(); iter++) {
+    i = i + 1;
+    nrecWplu1[i] = (*iter).first;
+  }
+  // Wheel +2 rechit mapping
+  i = 0;
+  for (map<double, int>::iterator iter = recWplu2.begin(); iter != recWplu2.end(); iter++) {
+    i = i + 1;
+    nrecWplu2[i] = (*iter).first;
+  }
+  // Sector 1 rechit mapping
+  i = 0;
+  for (map<double, int>::iterator iter = recS1.begin(); iter != recS1.end(); iter++) {
+    i = i + 1;
+    nrecS1[i] = (*iter).first;
+  }
+  // Sector 3 rechit mapping
+  i = 0;
+  for (map<double, int>::iterator iter = recS3.begin(); iter != recS3.end(); iter++) {
+    i = i + 1;
+    nrecS3[i] = (*iter).first;
+  }
 
-  // Loop over recHits, fill histograms which does not need associations
-  for ( RecHitIter recHitIter = recHitHandle->begin();
-        recHitIter != recHitHandle->end(); ++recHitIter )
-  {
-    const RPCDetId detId = static_cast<const RPCDetId>(recHitIter->rpcId());
-    const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(detId()));
-    if ( !roll ) continue;
+  
+  // Loop on simhits
+  PSimHitContainer::const_iterator simIt;
+  int nsim = 0;
+  int nsimmin2 = 0;
+  int nsimmin1 = 0;
+  int nsimzer0 = 0;
+  int nsimplu1 = 0;
+  int nsimplu2 = 0;
+  int nsimS1c = 0;
+  int nsimS3c = 0;
 
-    const int region = roll->id().region();
-    const int ring = roll->id().ring();
-    //const int sector = roll->id().sector();
-    const int station = abs(roll->id().station());
-    //const int layer = roll->id().layer();
-    //const int subSector = roll->id().subsector();
+  for (simIt = simHit->begin(); simIt != simHit->end(); simIt++) {
+    int ptype = (*simIt).particleType();
+    RPCDetId Rsid = (RPCDetId)(*simIt).detUnitId();
+    const RPCRoll* roll = dynamic_cast<const RPCRoll* >( rpcGeom->roll(Rsid));
+    int Swheel = roll->id().ring();
+    int Ssector = roll->id().sector();
+        
+    // selection of muon hits 
+    if (ptype == 13 || ptype == -13) {
+      nsim = nsim + 1;
+      LocalPoint shitlocal = (*simIt).localPosition();
+      double shitlocalx = shitlocal.x();
+      Simhisto->Fill(shitlocalx);      
 
-    h_[HName::ClusterSize]->Fill(recHitIter->clusterSize());
+      mapsim[shitlocalx] = nsim;
 
-    if ( region == 0 ) h_[HName::NRecHit_Wheel]->Fill(ring);
-    else h_[HName::NRecHit_Disk]->Fill(region*station);
-
-    const GlobalPoint pos = roll->toGlobal(recHitIter->localPosition());
-    h_[HName::RecHitEta]->Fill(pos.eta());
-
-    if ( isStandAloneMode_ )
-    {
-      h_[HName::NRecHitRZ]->Fill(pos.z(), pos.perp());
-      if ( region == 0 )
-      {
-        h_[HName::NRecHitXY_W00+ring]->Fill(pos.x(), pos.y());
+      //----PHI------------------------
+      if(Ssector == 1) {
+	simS1[shitlocalx] = nsim;
+	nsimS1c = nsimS1c + 1;
       }
-      else if ( region == -1 and station < 4 )
-      {
-        h_[HName::NRecHitXY_DM1-(station-1)]->Fill(pos.x(), pos.y());
+      if(Ssector == 3) {
+	simS3[shitlocalx] = nsim;
+	nsimS3c = nsimS3c + 1;
       }
-      else if ( region == 1 and station < 4 )
-      {
-        h_[HName::NRecHitXY_DP1+(station-1)]->Fill(pos.x(), pos.y());
+      //--------------------------------
+
+
+      if(Swheel == -2) {
+	simWmin2[shitlocalx] = nsim;
+	nsimmin2 = nsimmin2 + 1;
       }
+      if(Swheel == -1) {
+	simWmin1[shitlocalx] = nsim;
+	nsimmin1 = nsimmin1 + 1;
+      }
+      if(Swheel == 0) {
+	simWzer0[shitlocalx] = nsim;
+	nsimzer0 = nsimzer0 + 1;
+      }
+      if(Swheel == 1) {
+	simWplu1[shitlocalx] = nsim;
+	nsimplu1 = nsimplu1 + 1;
+      }
+      if(Swheel == 2) {
+	simWplu2[shitlocalx] = nsim;
+	nsimplu2 = nsimplu2 + 1;
+      }
+     
+    }
+  }
+  //cout << " --> Found " << nsim <<" simhits in event " << event.id().event() << endl;
+
+  // Global simhit mapping
+  i = 0;
+  for (map<double, int>::iterator iter = mapsim.begin(); iter != mapsim.end(); iter++) {
+    i = i + 1;
+    nmapsim[i] = (*iter).first;
+  }
+  // Wheel -2 simhit mapping
+  i = 0;
+  for (map<double, int>::iterator iter = simWmin2.begin(); iter != simWmin2.end(); iter++) {
+    i = i + 1;
+    nsimWmin2[i] = (*iter).first;
+  }
+  // Wheel -1 simhit mapping
+  i = 0;
+  for (map<double, int>::iterator iter = simWmin1.begin(); iter != simWmin1.end(); iter++) {
+    i = i + 1;
+    nsimWmin1[i] = (*iter).first;
+  }
+  // Wheel 0 simhit mapping
+  i = 0;
+  for (map<double, int>::iterator iter = simWzer0.begin(); iter != simWzer0.end(); iter++) {
+    i = i + 1;
+    nsimWzer0[i] = (*iter).first;
+  }
+  // Wheel +1 simhit mapping
+  i = 0;
+  for (map<double, int>::iterator iter = simWplu1.begin(); iter != simWplu1.end(); iter++) {
+    i = i + 1;
+    nsimWplu1[i] = (*iter).first;
+  }
+  // Wheel +2 simhit mapping
+  i = 0;
+  for (map<double, int>::iterator iter = simWplu2.begin(); iter != simWplu2.end(); iter++) {
+    i = i + 1;
+    nsimWplu2[i] = (*iter).first;
+  }
+  // Sector 1 simhit mapping
+  i = 0;
+  for (map<double, int>::iterator iter = simS1.begin(); iter != simS1.end(); iter++) {
+    i = i + 1;
+    nsimS1[i] = (*iter).first;
+  }
+  // Sector 3 simhit mapping
+  i = 0;
+  for (map<double, int>::iterator iter = simS3.begin(); iter != simS3.end(); iter++) {
+    i = i + 1;
+    nsimS3[i] = (*iter).first;
+  }
+
+  // Compute residuals 
+  double res,resmin2,resmin1,reszer0,resplu1,resplu2,resS1,resS3;
+  if (nsim == nrec) {
+    for (int r=0; r<nsim; r++) {
+      res = nmapsim[r+1] - nmaprec[r+1];
+      nmapres[r+1] = res;
+      Res->Fill(res);
+    }
+  }
+  if (nsim == nrecCL1) {
+   for (int r=0; r<nsim; r++) {
+     res = nmapsim[r+1] - nmaprecCL1[r+1];
+     //cout << nmapsim[r+1] << " " << nmaprecCL1[r+1] << endl;
+     if (abs(res) < 3) {
+       res1cl->Fill(res);
+     }
+   }
+ }
+  if (nsimmin2 == nrecmin2) {
+    for (int r=0; r<nsimmin2; r++) {
+      resmin2 = nsimWmin2[r+1] - nrecWmin2[r+1];
+      ResWmin2->Fill(resmin2);
+    }
+  }
+  if (nsimmin1 == nrecmin1) {
+    for (int r=0; r<nsimmin1; r++) {
+      resmin1 = nsimWmin1[r+1] - nrecWmin1[r+1];
+      ResWmin1->Fill(resmin1);
+    }
+  }
+  if (nsimzer0 == nreczer0) {
+    for (int r=0; r<nsimzer0; r++) {
+      reszer0 = nsimWzer0[r+1] - nrecWzer0[r+1];
+      ResWzer0->Fill(reszer0);
+    }
+  }
+  if (nsimplu1 == nrecplu1) {
+    for (int r=0; r<nsimplu1; r++) {
+      resplu1 = nsimWplu1[r+1] - nrecWplu1[r+1];
+      ResWplu1->Fill(resplu1);
+    }
+  }
+  if (nsimplu2 == nrecplu2) {
+    for (int r=0; r<nsimplu2; r++) {
+      resplu2 = nsimWplu2[r+1] - nrecWplu2[r+1];
+      ResWplu2->Fill(resplu2);
+    }
+  }
+  if (nsimS1c == nrecS1c) {
+    for (int r=0; r<nsimS1c; r++) {
+      resS1 = nsimS1[r+1] - nrecS1[r+1];
+      ResS1->Fill(resS1);
+    }
+  }
+  if (nsimS3c == nrecS3c) {
+    for (int r=0; r<nsimS3c; r++) {
+      resS3 = nsimS3[r+1] - nrecS3[r+1];
+      ResS3->Fill(resS3);
     }
   }
 
-  // Start matching SimHits to RecHits
-  typedef std::map<SimHitIter, RecHitIter> SimToRecHitMap;
-  SimToRecHitMap simToRecHitMap;
 
-  for ( SimHitIter simHitIter = simHitHandle->begin();
-        simHitIter != simHitHandle->end(); ++simHitIter )
-  {
-    if ( abs(simHitIter->particleType()) != 13 ) continue;
-
-    const RPCDetId simDetId = static_cast<const RPCDetId>(simHitIter->detUnitId());
-    const RPCRoll* simRoll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(simDetId));
-    if ( !simRoll ) continue;
-
-    const double simX = simHitIter->localPosition().x();
-
-    for ( RecHitIter recHitIter = recHitHandle->begin();
-          recHitIter != recHitHandle->end(); ++recHitIter )
-    {
-      const RPCDetId recDetId = static_cast<const RPCDetId>(recHitIter->rpcId());
-      const RPCRoll* recRoll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(recDetId));
-      if ( !recRoll ) continue;
-
-      if ( simDetId != recDetId ) continue;
-
-      const double recX = recHitIter->localPosition().x();
-      const double newDx = fabs(recX - simX);
-
-      // Associate SimHit to RecHit
-      SimToRecHitMap::const_iterator prevSimToReco = simToRecHitMap.find(simHitIter);
-      if ( prevSimToReco == simToRecHitMap.end() )
-      {
-        simToRecHitMap.insert(std::make_pair(simHitIter, recHitIter));
-      }
-      else
-      {
-        const double oldDx = fabs(prevSimToReco->second->localPosition().x() - simX);
-
-        if ( newDx < oldDx )
-        {
-          simToRecHitMap[simHitIter] = recHitIter;
-        }
-      }
-    }
-  }
-
-  // Now we have simHit-recHit mapping
-  // So we can fill up relavant histograms
-  for ( SimToRecHitMap::const_iterator match = simToRecHitMap.begin();
-        match != simToRecHitMap.end(); ++match )
-  {
-    SimHitIter simHitIter = match->first;
-    RecHitIter recHitIter = match->second;
-
-    const RPCDetId detId = static_cast<const RPCDetId>(simHitIter->detUnitId());
-    const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(detId));
-
-    const int region = roll->id().region();
-    const int ring = roll->id().ring();
-    //const int sector = roll->id().sector();
-    const int station = abs(roll->id().station());
-    //const int layer = roll->id().layer();
-    //const int subsector = roll->id().subsector();
-
-    const double simX = simHitIter->localPosition().x();
-    const double recX = recHitIter->localPosition().x();
-    const double errX = recHitIter->localPositionError().xx();
-    const double dX = recX - simX;
-    const double pull = errX == 0 ? -999 : dX/errX;
-
-    h_[HName::Res]->Fill(dX);
-    h_[HName::Pull]->Fill(pull);
-
-    const GlobalPoint simPos = roll->toGlobal(simHitIter->localPosition());
-    const GlobalPoint recPos = roll->toGlobal(recHitIter->localPosition());
-    h_[HName::MatchedRecHitEta]->Fill(recPos.eta());
-
-    if ( isStandAloneMode_ )
-    {
-      h_[HName::NMatchedSimHitRZ]->Fill(simPos.z(), simPos.perp());
-      h_[HName::NMatchedRecHitRZ]->Fill(recPos.z(), recPos.perp());
-
-      if ( region == 0 )
-      {
-        h_[HName::NMatchedSimHitXY_W00+ring]->Fill(simPos.x(), simPos.y());
-        h_[HName::NMatchedRecHitXY_W00+ring]->Fill(recPos.x(), recPos.y());
-      }
-      else if ( region == -1 and station < 4 )
-      {
-        h_[HName::NMatchedSimHitXY_DM1-(station-1)]->Fill(simPos.x(), simPos.y());
-        h_[HName::NMatchedRecHitXY_DM1-(station-1)]->Fill(recPos.x(), recPos.y());
-      }
-      else if ( region == 1 and station < 4 )
-      {
-        h_[HName::NMatchedSimHitXY_DP1+(station-1)]->Fill(simPos.x(), simPos.y());
-        h_[HName::NMatchedRecHitXY_DP1+(station-1)]->Fill(recPos.x(), recPos.y());
-      }
-    }
-
-    if ( region == 0 )
-    {
-      h_[HName::NMatchedRecHit_Wheel]->Fill(ring);
-      h_[HName::Res_W00+ring]->Fill(dX);
-      h_[HName::Pull_W00+ring]->Fill(pull);
-    }
-    else if ( region == -1 and station < 4 )
-    {
-      h_[HName::NMatchedRecHit_Disk]->Fill(region*station);
-      h_[HName::Res_DM1-(station-1)]->Fill(dX);
-      h_[HName::Pull_DM1-(station-1)]->Fill(pull);
-    }
-    else if ( region == 1 and station < 4 )
-    {
-      h_[HName::NMatchedRecHit_Disk]->Fill(region*station);
-      h_[HName::Res_DP1+(station-1)]->Fill(dX);
-      h_[HName::Pull_DP1+(station-1)]->Fill(pull);
-    }
-  }
-
-  // Find Lost hits
-  for ( SimHitIter simHitIter = simHitHandle->begin();
-        simHitIter != simHitHandle->end(); ++simHitIter )
-  {
-    const RPCDetId detId = static_cast<const RPCDetId>(simHitIter->detUnitId());
-    const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(detId));
-
-    const int region = roll->id().region();
-    const int ring = roll->id().ring();
-    //const int sector = roll->id().sector();
-    const int station = abs(roll->id().station());
-    //const int layer = roll->id().layer();
-    //const int subsector = roll->id().subsector();
-
-    bool matched = false;
-    for ( SimToRecHitMap::const_iterator match = simToRecHitMap.begin();
-          match != simToRecHitMap.end(); ++match )
-    {
-      if ( simHitIter == match->first )
-      {
-        matched = true;
-        break;
-      }
-    }
-
-    if ( !matched )
-    {
-      if ( region == 0 ) h_[HName::NLostHit_Wheel]->Fill(ring);
-      else h_[HName::NLostHit_Disk]->Fill(region*station);
-    }
-  }
-
-  // Find Noisy hits
-  for ( RecHitIter recHitIter = recHitHandle->begin();
-        recHitIter != recHitHandle->end(); ++recHitIter )
-  {
-    const RPCDetId detId = static_cast<const RPCDetId>(recHitIter->rpcId());
-    const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(detId));
-
-    const int region = roll->id().region();
-    const int ring = roll->id().ring();
-    //const int sector = roll->id().sector();
-    const int station = abs(roll->id().station());
-    //const int layer = roll->id().layer();
-    //const int subsector = roll->id().subsector();
-
-    bool matched = false;
-    for ( SimToRecHitMap::const_iterator match = simToRecHitMap.begin();
-          match != simToRecHitMap.end(); ++match )
-    {
-      if ( recHitIter == match->second )
-      {
-        matched = true;
-        break;
-      }
-    }
-
-    if ( !matched )
-    {
-      if ( region == 0 ) h_[HName::NNoisyHit_Wheel]->Fill(ring);
-      else h_[HName::NNoisyHit_Disk]->Fill(region*station);
-
-      const GlobalPoint pos = roll->toGlobal(recHitIter->localPosition());
-      h_[HName::NoisyHitEta]->Fill(pos.eta());
+  // compute Pulls 
+  double pull;
+  if (nsim == nrec) {
+    for (int r=0; r<nsim; r++) {
+      pull = nmapres[r+1] / nmaperr[nmaprec[r+1]];
+      Pulls->Fill(pull);
     }
   }
 }
+
 

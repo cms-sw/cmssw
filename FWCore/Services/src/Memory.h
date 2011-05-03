@@ -7,7 +7,7 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.h,v 1.7 2009/02/12 11:53:17 ngarcian Exp $
+// $Id: Memory.h,v 1.8 2010/03/09 16:24:57 wdd Exp $
 //
 // Change Log
 //
@@ -97,8 +97,9 @@ namespace edm {
       double pg_size_;
       int num_to_skip_;
       //options
-      bool showMallocInfo;
-      bool oncePerEventMode;
+      bool showMallocInfo_;
+      bool oncePerEventMode_;
+      bool jobReportOutputOnly_;
       int count_;
 
       //Rates of growth
@@ -108,24 +109,24 @@ namespace edm {
       // Event summary statistics 				changeLog 1
       struct SignificantEvent {
         int count;
-	double vsize;
-	double deltaVsize;
-	double rss;
-	double deltaRss;
-	edm::EventID event;
-	SignificantEvent() : count(0), vsize(0), deltaVsize(0), 
-			     rss(0), deltaRss(0), event() {}
-	void set (double deltaV, double deltaR, 
-		  edm::EventID const & e, SimpleMemoryCheck *t)
-	{ count = t->count_;
-	  vsize = t->current_->vsize;
-	  deltaVsize = deltaV;
-	  rss = t->current_->rss;
-	  deltaRss = deltaR;
-	  event = e;
-	}
+        double vsize;
+        double deltaVsize;
+        double rss;
+        double deltaRss;
+        edm::EventID event;
+        SignificantEvent() : count(0), vsize(0), deltaVsize(0), 
+        rss(0), deltaRss(0), event() {}
+        void set (double deltaV, double deltaR, 
+                  edm::EventID const & e, SimpleMemoryCheck *t)
+        { count = t->count_;
+          vsize = t->current_->vsize;
+          deltaVsize = deltaV;
+          rss = t->current_->rss;
+          deltaRss = deltaR;
+          event = e;
+        }
       }; // SignificantEvent
-      friend class SignificantEvent;
+      friend struct SignificantEvent;
       friend std::ostream & operator<< (std::ostream & os, 
     		SimpleMemoryCheck::SignificantEvent const & se); 
 
@@ -184,23 +185,23 @@ namespace edm {
       // Module summary statistices
       struct SignificantModule {
         int    postEarlyCount;
-	double totalDeltaVsize;
-	double maxDeltaVsize;
-	edm::EventID eventMaxDeltaV;
-	double totalEarlyVsize;
-	double maxEarlyVsize;
-	SignificantModule() : postEarlyCount  (0)
-			    , totalDeltaVsize (0)
-			    , maxDeltaVsize   (0)
-			    , eventMaxDeltaV  ()
-			    , totalEarlyVsize (0)
-			    , maxEarlyVsize   (0)     {}
-	void set (double deltaV, bool early);
+        double totalDeltaVsize;
+        double maxDeltaVsize;
+        edm::EventID eventMaxDeltaV;
+        double totalEarlyVsize;
+        double maxEarlyVsize;
+        SignificantModule() : postEarlyCount  (0)
+        , totalDeltaVsize (0)
+        , maxDeltaVsize   (0)
+        , eventMaxDeltaV  ()
+        , totalEarlyVsize (0)
+        , maxEarlyVsize   (0)     {}
+        void set (double deltaV, bool early);
       }; // SignificantModule
-      friend class SignificantModule;
+      friend struct SignificantModule;
       friend std::ostream & operator<< (std::ostream & os, 
     		SimpleMemoryCheck::SignificantModule const & se); 
-      bool moduleSummaryRequested;
+      bool moduleSummaryRequested_;
       typedef std::map<std::string,SignificantModule> SignificantModulesMap;
       SignificantModulesMap modules_;      
       double moduleEntryVsize_;
