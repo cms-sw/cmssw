@@ -131,3 +131,55 @@ SKIMStreamDiPhoton = cms.FilteredStream(
     dataTier = cms.untracked.string('RAW-RECO')
     )
 
+from Configuration.EventContent.EventContent_cff import AODEventContent
+skimAodContent = AODEventContent.clone()
+skimAodContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
+skimAodContent.outputCommands.append("drop *_*_*_SKIM")
+
+from Configuration.Skimming.PDWG_DoublePhotonSkim_cff import *
+diphotonSkimPath = cms.Path(diphotonSkimSequence)
+SKIMStreamDoublePhoton = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'DoublePhoton',
+    paths = (diphotonSkimPath),
+    content = skimAodContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
+
+from Configuration.Skimming.PDWG_HWWSkim_cff import *
+HWWmmPath = cms.Path(diMuonSequence)
+HWWeePath = cms.Path(diElectronSequence)
+HWWemPath = cms.Path(EleMuSequence)
+SKIMStreamHWWMuMu = cms.FilteredStream(
+        responsible = 'PDWG',
+        name = 'HWWMuMu',
+        paths = (HWWmmPath),
+        content = skimAodContent.outputCommands,
+        selectEvents = cms.untracked.PSet(),
+        dataTier = cms.untracked.string('AOD')
+        )
+SKIMStreamHWWElEl = cms.FilteredStream(
+        responsible = 'PDWG',
+        name = 'HWWElEl',
+        paths = (HWWeePath),
+        content = skimAodContent.outputCommands,
+        selectEvents = cms.untracked.PSet(),
+        dataTier = cms.untracked.string('AOD')
+        )
+SKIMStreamHWWElMu = cms.FilteredStream(
+        responsible = 'PDWG',
+        name = 'HWWElMu',
+        paths = (HWWemPath),
+        content = skimAodContent.outputCommands,
+        selectEvents = cms.untracked.PSet(),
+        dataTier = cms.untracked.string('AOD')
+        )
+
+
+
+
+    
+        
+        
+
