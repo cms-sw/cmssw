@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
 #include <sstream>
 #include <string.h>
@@ -24,6 +25,7 @@
 #include "TFile.h"
 #include "TH1.h"
 #include "TSystem.h"
+#include "TUnixSystem.h"
 #include "TTree.h"
 
 namespace {
@@ -151,6 +153,33 @@ namespace {
     RootErrorHandlerImpl(level, location, message, true);
   }
 
+  extern "C" {
+    void sig_dostack_then_abort(int sig,siginfo_t*,void*) {
+      if (gSystem) {
+        const char* signalname = "unknown";
+        switch (sig) {
+          case SIGBUS:
+            signalname = "bus error";
+            break;
+          case SIGSEGV:
+            signalname = "segmentation violation";
+            break;
+          case SIGILL:
+            signalname = "illegal instruction"; 
+          default:
+            break;
+        }
+        edm::LogError("FatalSystemSignal")<<"A fatal system signal has occurred: "<<signalname;
+        std::cerr<< "\n\nA fatal system signal has occurred: "<<signalname<<"\n"
+                 <<"The following is the call stack containing the origin of the signal.\n"
+                 <<"NOTE:The first few functions on the stack are artifacts of processing the signal and can be ignored\n\n";
+        
+        gSystem->StackTrace();
+        std::cerr<<"\nA fatal system signal has occurred: "<<signalname<<"\n";
+      }
+      ::abort();
+    }
+  }
 }  // end of unnamed namespace
 
 namespace edm {
@@ -173,6 +202,15 @@ namespace edm {
         gSystem->ResetSignal(kSigUrgent);
         gSystem->ResetSignal(kSigFloatingException);
         gSystem->ResetSignal(kSigWindowChanged);
+      } else if(pset.getUntrackedParameter<bool>("AbortOnSignal")){
+        //NOTE: ROOT can also be told to abort on these kinds of problems BUT
+        // it requires an TApplication to be instantiated which causes problems
+        gSystem->ResetSignal(kSigBus);
+        gSystem->ResetSignal(kSigSegmentationViolation);
+        gSystem->ResetSignal(kSigIllegalInstruction);
+        installCustomHandler(SIGBUS,sig_dostack_then_abort);
+        installCustomHandler(SIGSEGV,sig_dostack_then_abort);
+        installCustomHandler(SIGILL,sig_dostack_then_abort);
       }
 
       if(resetErrHandler_) {
@@ -226,6 +264,8 @@ namespace edm {
           ->setComment("If True, ROOT messages (e.g. errors, warnings) are handled by this service, rather than by ROOT.");
       desc.addUntracked<bool>("AutoLibraryLoader", true)
           ->setComment("If True, enables automatic loading of data dictionaries.");
+      desc.addUntracked<bool>("AbortOnSignal",true)
+      ->setComment("If True, do an abort when a signal occurs that causes a crash. If False, ROOT will do an exit which attempts to do a clean shutdown.");
       descriptions.add("InitRootHandlers", desc);
     }
 
