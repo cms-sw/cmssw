@@ -1,22 +1,23 @@
 import FWCore.ParameterSet.Config as cms
 
 
-MUON_CUT=("pt > 10 && " +
-          "(isolationR03().sumPt+isolationR03().emEt+isolationR03().hadEt)/pt < 1.0 && " +
-          "isGlobalMuon && isTrackerMuon");
-goodMuons = cms.EDFilter("MuonRefSelector",
-                                     src = cms.InputTag("muons"),
-                                     cut = cms.string(MUON_CUT),
-                                 )
-ELECTRON_CUT=("pt > 10 &&" +
-              " abs(deltaEtaSuperClusterTrackAtVtx) < 0.010 &&" +
-              " (( isEB && sigmaIetaIeta < 0.011) ||" +
-              "  (!isEB && sigmaIetaIeta < 0.031))");
 
+goodMuons = cms.EDFilter("MuonRefSelector",
+                         src = cms.InputTag("muons"),
+                         cut = cms.string("pt > 10 && " +
+                                                      "(isolationR03().sumPt+isolationR03().emEt+isolationR03().hadEt)/pt < 1.0 && " +
+                                                      "isGlobalMuon && isTrackerMuon"
+                                                      ),
+                                 )
+
+              
 goodElectrons = cms.EDFilter("GsfElectronRefSelector",
-                                         src = cms.InputTag("gsfElectrons"),
-                                         cut = cms.string(ELECTRON_CUT),
-                                     )
+                             src = cms.InputTag("gsfElectrons"),
+                             cut = cms.string(    "pt > 10 &&" +
+                                                  " abs(deltaEtaSuperClusterTrackAtVtx) < 0.010 &&" +
+                                                  " (( isEB && sigmaIetaIeta < 0.011) ||" +
+                                                  "  (!isEB && sigmaIetaIeta < 0.031))"),
+                             )
 
 diMuons = cms.EDProducer("CandViewShallowCloneCombiner",
                                      decay       = cms.string("goodMuons goodMuons"),
