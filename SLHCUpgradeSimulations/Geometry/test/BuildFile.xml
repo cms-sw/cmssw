@@ -17,15 +17,4 @@
     <use   name="SimTracker/TrackerHitAssociation"/>
     <use   name="RecoLocalTracker/SiPixelRecHits"/>
   </library>
-<!-- Haven't gotten this working in 4_2_0 yet
-  <library   file="ModuleInfo_Phase2.cc" name="ModuleInfo_Phase2">
-    <flags   EDM_PLUGIN="1"/>
-    <use   name="FWCore/Framework"/>
-    <use   name="Geometry/Records"/>
-    <use   name="Geometry/TrackerGeometryBuilder"/>
-    <use   name="Geometry/TrackerNumberingBuilder"/>
-    <use   name="Geometry/CommonDetUnit"/>
-    <use   name="CondFormats/Alignment"/>
-  </library>
--->
 </environment>
