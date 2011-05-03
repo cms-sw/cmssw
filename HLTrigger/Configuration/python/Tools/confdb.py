@@ -198,23 +198,6 @@ class HLTProcess(object):
     dbstatusMask = cms.vuint32( 1, 2046, 0, 0, 0, 64512 ),
     timeThresh = cms.double( 2.0 )
 )
-# Extra customisation for CMSSW 42X only
-if 'hltParticleFlowRecHitECAL' in %(dict)s:
-    %(process)shltParticleFlowRecHitECAL.thresh_Cleaning = cms.double(2.0)
-if 'hltParticleFlowRecHitHCAL' in %(dict)s:
-    %(process)shltParticleFlowRecHitHCAL.Max_Calib = cms.double(5.0)
-"""
-    if not(self.config.type in ('HIon', )):
-      self.data += """
-if 'hltParticleFlowRecHitHCAL' in %(dict)s:
-    %(process)shltParticleFlowRecHitHCAL.HCAL_Calib = True
-    %(process)shltParticleFlowRecHitHCAL.HF_Calib = True
-if 'hltParticleFlow' in %(dict)s:
-    %(process)shltParticleFlow.calibPFSCEle_barrel = [1.004, -1.536, 22.88, -1.467, 0.3555, 0.6227, 14.65, 2051, 25, 0.9932, -0.5444, 0, 0.5438, 0.7109, 7.645, 0.2904, 0]
-    %(process)shltParticleFlow.calibPFSCEle_endcap = [1.153, -16.5975, 5.668, -0.1772, 16.22, 7.326, 0.0483, -4.068, 9.406]
-if 'hltParticleFlowForTaus' in %(dict)s:
-    %(process)shltParticleFlowForTaus.calibPFSCEle_barrel = [1.004, -1.536, 22.88, -1.467, 0.3555, 0.6227, 14.65, 2051, 25, 0.9932, -0.5444, 0, 0.5438, 0.7109, 7.645, 0.2904, 0]
-    %(process)shltParticleFlowForTaus.calibPFSCEle_endcap = [1.153, -16.5975, 5.668, -0.1772, 16.22, 7.326, 0.0483, -4.068, 9.406]
 """
 
     if self.config.fragment:

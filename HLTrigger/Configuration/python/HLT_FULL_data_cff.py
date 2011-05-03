@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HLT/V157 (CMSSW_3_11_0_HLT21)
+# /dev/CMSSW_4_2_0/HLT/V161 (CMSSW_3_11_0_HLT23)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V157')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V161')
 )
 
 streams = cms.PSet( 
@@ -95,6 +95,7 @@ datasets = cms.PSet(
     'HLT_Ele8_CaloIdL_CaloIsoVL_Jet40_v3',
     'HLT_Ele8_CaloIdL_CaloIsoVL_v3',
     'HLT_Ele8_CaloIdL_TrkIdVL_v3',
+    'HLT_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v3',
     'HLT_Ele8_v3',
     'HLT_Photon20_CaloIdVT_IsoT_Ele8_CaloIdL_CaloIsoVL_v3',
     'HLT_TripleEle10_CaloIdL_TrkIdVL_v3' ),
@@ -131,7 +132,6 @@ datasets = cms.PSet(
     'HLT_Ele8_CaloIdT_TrkIdT_DiJet30_v1',
     'HLT_Ele8_CaloIdT_TrkIdT_QuadJet30_v1',
     'HLT_Ele8_CaloIdT_TrkIdT_TriJet30_v1',
-    'HLT_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v3',
     'HLT_HT250_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT35_v2',
     'HLT_HT300_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT40_v1',
     'HLT_HT350_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT45_v1' ),
@@ -2021,7 +2021,9 @@ hltESPPromptTrackCountingESProducer = cms.ESProducer( "PromptTrackCountingESProd
   maximumDecayLength = cms.double( 999999.0 ),
   maxImpactParameterSig = cms.double( 999999.0 ),
   trackQualityClass = cms.string( "any" ),
-  nthTrack = cms.int32( -1 )
+  nthTrack = cms.int32( -1 ),
+  maxImpactParameter = cms.double( 0.1 ),
+  deltaRmin = cms.double( 0.0 )
 )
 hltESPRungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   ComponentName = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
@@ -4091,7 +4093,7 @@ hltParticleFlowRecHitHCAL = cms.EDProducer( "PFRecHitProducerHCAL",
     weight_HFem = cms.double( 1.0 ),
     weight_HFhad = cms.double( 1.0 ),
     HCAL_Calib = cms.bool( True ),
-    HF_Calib = cms.bool( False ),
+    HF_Calib = cms.bool( True ),
     HCAL_Calib_29 = cms.double( 1.35 ),
     HF_Calib_29 = cms.double( 1.07 ),
     ShortFibre_Cut = cms.double( 60.0 ),
@@ -4364,8 +4366,8 @@ hltParticleFlowForTaus = cms.EDProducer( "PFProducer",
     calibHF_b_HADonly = cms.vdouble( 1.27541, 0.85361, 0.86333, 0.89091, 0.94348 ),
     calibHF_a_EMHAD = cms.vdouble( 1.42215, 1.00496, 0.68961, 0.81656, 0.98504 ),
     calibHF_b_EMHAD = cms.vdouble( 1.27541, 0.85361, 0.86333, 0.89091, 0.94348 ),
-    calibPFSCEle_barrel = cms.vdouble( 1.0326, -13.71, 339.72, 0.4862, 0.00182, 0.36445, 1.411, 1.0206, 0.0059162, -5.14434E-5, 1.42516E-7 ),
-    calibPFSCEle_endcap = cms.vdouble( 0.9995, -12.313, 2.8784, -1.057E-4, 10.282, 3.059, 0.0013502, -2.2185, 3.4206 ),
+    calibPFSCEle_barrel = cms.vdouble( 1.004, -1.536, 22.88, -1.467, 0.3555, 0.6227, 14.65, 2051.0, 25.0, 0.9932, -0.5444, 0.0, 0.5438, 0.7109, 7.645, 0.2904, 0.0 ),
+    calibPFSCEle_endcap = cms.vdouble( 1.153, -16.5975, 5.668, -0.1772, 16.22, 7.326, 0.0483, -4.068, 9.406 ),
     muon_HCAL = cms.vdouble( 3.0, 3.0 ),
     muon_ECAL = cms.vdouble( 0.5, 0.5 ),
     factors_45 = cms.vdouble( 10.0, 100.0 ),
@@ -5575,8 +5577,8 @@ hltParticleFlow = cms.EDProducer( "PFProducer",
     calibHF_b_HADonly = cms.vdouble( 1.27541, 0.85361, 0.86333, 0.89091, 0.94348 ),
     calibHF_a_EMHAD = cms.vdouble( 1.42215, 1.00496, 0.68961, 0.81656, 0.98504 ),
     calibHF_b_EMHAD = cms.vdouble( 1.27541, 0.85361, 0.86333, 0.89091, 0.94348 ),
-    calibPFSCEle_barrel = cms.vdouble( 1.0326, -13.71, 339.72, 0.4862, 0.00182, 0.36445, 1.411, 1.0206, 0.0059162, -5.14434E-5, 1.42516E-7 ),
-    calibPFSCEle_endcap = cms.vdouble( 0.9995, -12.313, 2.8784, -1.057E-4, 10.282, 3.059, 0.0013502, -2.2185, 3.4206 ),
+    calibPFSCEle_barrel = cms.vdouble( 1.004, -1.536, 22.88, -1.467, 0.3555, 0.6227, 14.65, 2051.0, 25.0, 0.9932, -0.5444, 0.0, 0.5438, 0.7109, 7.645, 0.2904, 0.0 ),
+    calibPFSCEle_endcap = cms.vdouble( 1.153, -16.5975, 5.668, -0.1772, 16.22, 7.326, 0.0483, -4.068, 9.406 ),
     muon_HCAL = cms.vdouble( 3.0, 3.0 ),
     muon_ECAL = cms.vdouble( 0.5, 0.5 ),
     factors_45 = cms.vdouble( 10.0, 100.0 ),
@@ -8440,7 +8442,7 @@ hltDoubleMu2BsL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MinPtBalance = cms.double( -1.0 ),
     MaxPtBalance = cms.double( 999999.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    MaxDzMuMu = cms.double( 999999.0 ),
+    MaxDCAMuMu = cms.double( 99999.9 ),
     MaxRapidityPair = cms.double( 999999.0 ),
     SaveTag = cms.untracked.bool( True )
 )
@@ -8506,7 +8508,7 @@ hltDoubleMu4ExclL3PreFiltered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MinPtBalance = cms.double( -1.0 ),
     MaxPtBalance = cms.double( 999999.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    MaxDzMuMu = cms.double( 999999.0 ),
+    MaxDCAMuMu = cms.double( 99999.9 ),
     MaxRapidityPair = cms.double( 999999.0 ),
     SaveTag = cms.untracked.bool( True )
 )
@@ -8571,7 +8573,7 @@ hltDimuon6p5LowMassL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MinPtBalance = cms.double( -1.0 ),
     MaxPtBalance = cms.double( 999999.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    MaxDzMuMu = cms.double( 999999.0 ),
+    MaxDCAMuMu = cms.double( 99999.9 ),
     MaxRapidityPair = cms.double( 999999.0 ),
     SaveTag = cms.untracked.bool( True )
 )
@@ -8612,7 +8614,7 @@ hltDimuon6p5LowMassL3FilteredDisplaced = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MinPtBalance = cms.double( -1.0 ),
     MaxPtBalance = cms.double( 999999.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    MaxDzMuMu = cms.double( 999999.0 ),
+    MaxDCAMuMu = cms.double( 99999.9 ),
     MaxRapidityPair = cms.double( 999999.0 ),
     SaveTag = cms.untracked.bool( True )
 )
@@ -8629,6 +8631,7 @@ hltDisplacedmumuFilterLowMass = cms.EDFilter( "HLTDisplacedmumuFilter",
     FastAccept = cms.bool( True ),
     MinLxySignificance = cms.double( 3.0 ),
     MaxNormalisedChi2 = cms.double( 10.0 ),
+    MinVtxProbability = cms.double( 0.0 ),
     MinCosinePointingAngle = cms.double( 0.9 ),
     DisplacedVertexTag = cms.InputTag( "hltDisplacedmumuVtxProducerLowMass" ),
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
@@ -8671,7 +8674,7 @@ hltDimuon6p5JpsiL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MinPtBalance = cms.double( -1.0 ),
     MaxPtBalance = cms.double( 999999.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    MaxDzMuMu = cms.double( 999999.0 ),
+    MaxDCAMuMu = cms.double( 99999.9 ),
     MaxRapidityPair = cms.double( 999999.0 ),
     SaveTag = cms.untracked.bool( True )
 )
@@ -8712,7 +8715,7 @@ hltDimuon6p5JpsiDisplacedL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MinPtBalance = cms.double( -1.0 ),
     MaxPtBalance = cms.double( 999999.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    MaxDzMuMu = cms.double( 999999.0 ),
+    MaxDCAMuMu = cms.double( 99999.9 ),
     MaxRapidityPair = cms.double( 999999.0 ),
     SaveTag = cms.untracked.bool( True )
 )
@@ -8729,6 +8732,7 @@ hltDisplacedmumuFilterJpsi = cms.EDFilter( "HLTDisplacedmumuFilter",
     FastAccept = cms.bool( True ),
     MinLxySignificance = cms.double( 3.0 ),
     MaxNormalisedChi2 = cms.double( 10.0 ),
+    MinVtxProbability = cms.double( 0.0 ),
     MinCosinePointingAngle = cms.double( 0.9 ),
     DisplacedVertexTag = cms.InputTag( "hltDisplacedmumuVtxProducerJpsi" ),
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
@@ -8771,7 +8775,7 @@ hltDimuon6p5BarrelJpsiL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MinPtBalance = cms.double( -1.0 ),
     MaxPtBalance = cms.double( 999999.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    MaxDzMuMu = cms.double( 999999.0 ),
+    MaxDCAMuMu = cms.double( 99999.9 ),
     MaxRapidityPair = cms.double( 1.3 ),
     SaveTag = cms.untracked.bool( True )
 )
@@ -8812,7 +8816,7 @@ hltDimuon6p5BarrelPsiPrimeL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MinPtBalance = cms.double( -1.0 ),
     MaxPtBalance = cms.double( 999999.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    MaxDzMuMu = cms.double( 999999.0 ),
+    MaxDCAMuMu = cms.double( 99999.9 ),
     MaxRapidityPair = cms.double( 1.3 ),
     SaveTag = cms.untracked.bool( True )
 )
@@ -8853,7 +8857,7 @@ hltDimuon0BarrelUpsilonL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MinPtBalance = cms.double( -1.0 ),
     MaxPtBalance = cms.double( 999999.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    MaxDzMuMu = cms.double( 999999.0 ),
+    MaxDCAMuMu = cms.double( 99999.9 ),
     MaxRapidityPair = cms.double( 1.3 ),
     SaveTag = cms.untracked.bool( True )
 )
@@ -9036,7 +9040,7 @@ hltMu5TrackJpsiPixelMassFilteredEta15 = cms.EDFilter( "HLTMuonTrackMassFilter",
     MaxTrackDz = cms.double( 999.0 ),
     MinTrackHits = cms.int32( 3 ),
     MaxTrackNormChi2 = cms.double( 1.0E10 ),
-    MaxDzMuonTrack = cms.double( 999.0 ),
+    MaxDCAMuonTrack = cms.double( 99999.9 ),
     CutCowboys = cms.bool( False ),
     MinMasses = cms.vdouble( 2.0 ),
     MaxMasses = cms.vdouble( 4.6 )
@@ -9093,7 +9097,7 @@ hltMu5TkMuJpsiTrackMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilter",
     MaxTrackDz = cms.double( 999.0 ),
     MinTrackHits = cms.int32( 5 ),
     MaxTrackNormChi2 = cms.double( 1.0E10 ),
-    MaxDzMuonTrack = cms.double( 0.5 ),
+    MaxDCAMuonTrack = cms.double( 0.5 ),
     CutCowboys = cms.bool( False ),
     MinMasses = cms.vdouble( 2.5 ),
     MaxMasses = cms.vdouble( 4.1 )
@@ -9249,7 +9253,7 @@ hltMu5TkMuJpsiTkMuMassFilteredTight = cms.EDFilter( "HLTMuonTrackMassFilter",
     MaxTrackDz = cms.double( 999.0 ),
     MinTrackHits = cms.int32( 5 ),
     MaxTrackNormChi2 = cms.double( 1.0E10 ),
-    MaxDzMuonTrack = cms.double( 0.5 ),
+    MaxDCAMuonTrack = cms.double( 0.5 ),
     CutCowboys = cms.bool( True ),
     MinMasses = cms.vdouble( 2.5 ),
     MaxMasses = cms.vdouble( 4.1 )
@@ -9308,8 +9312,8 @@ hltMu5L2Mu2JpsiTrackMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilter",
     MaxTrackDxy = cms.double( 999.0 ),
     MaxTrackDz = cms.double( 999.0 ),
     MinTrackHits = cms.int32( 2 ),
-    MaxTrackNormChi2 = cms.double( 9.99999999E8 ),
-    MaxDzMuonTrack = cms.double( 0.5 ),
+    MaxTrackNormChi2 = cms.double( 1.0E10 ),
+    MaxDCAMuonTrack = cms.double( 0.5 ),
     CutCowboys = cms.bool( False ),
     MinMasses = cms.vdouble( 1.8 ),
     MaxMasses = cms.vdouble( 4.5 )
@@ -9367,8 +9371,8 @@ hltMu5Track1JpsiPixelMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilter",
     MaxTrackDxy = cms.double( 999.0 ),
     MaxTrackDz = cms.double( 999.0 ),
     MinTrackHits = cms.int32( 3 ),
-    MaxTrackNormChi2 = cms.double( 9.99999999E8 ),
-    MaxDzMuonTrack = cms.double( 999.0 ),
+    MaxTrackNormChi2 = cms.double( 1.0E10 ),
+    MaxDCAMuonTrack = cms.double( 99999.9 ),
     CutCowboys = cms.bool( False ),
     MinMasses = cms.vdouble( 2.0 ),
     MaxMasses = cms.vdouble( 4.6 )
@@ -9387,7 +9391,7 @@ hltMu5Track2JpsiTrackMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilter",
     MaxTrackDz = cms.double( 999.0 ),
     MinTrackHits = cms.int32( 5 ),
     MaxTrackNormChi2 = cms.double( 1.0E10 ),
-    MaxDzMuonTrack = cms.double( 0.5 ),
+    MaxDCAMuonTrack = cms.double( 0.5 ),
     CutCowboys = cms.bool( False ),
     MinMasses = cms.vdouble( 2.7 ),
     MaxMasses = cms.vdouble( 3.5 )
@@ -9446,7 +9450,7 @@ hltMu7Track6JpsiPixelMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilter",
     MaxTrackDz = cms.double( 999.0 ),
     MinTrackHits = cms.int32( 3 ),
     MaxTrackNormChi2 = cms.double( 1.0E10 ),
-    MaxDzMuonTrack = cms.double( 999.0 ),
+    MaxDCAMuonTrack = cms.double( 99999.9 ),
     CutCowboys = cms.bool( False ),
     MinMasses = cms.vdouble( 2.0 ),
     MaxMasses = cms.vdouble( 4.6 )
@@ -9465,7 +9469,7 @@ hltMu7Track7JpsiTrackMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilter",
     MaxTrackDz = cms.double( 999.0 ),
     MinTrackHits = cms.int32( 5 ),
     MaxTrackNormChi2 = cms.double( 1.0E10 ),
-    MaxDzMuonTrack = cms.double( 0.5 ),
+    MaxDCAMuonTrack = cms.double( 0.5 ),
     CutCowboys = cms.bool( False ),
     MinMasses = cms.vdouble( 2.7 ),
     MaxMasses = cms.vdouble( 3.5 )
@@ -19754,7 +19758,8 @@ hltEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTJet35Jet25Deta3 = cms.EDFilter( "HLTJetVBFF
     minEtHigh = cms.double( 35.0 ),
     etaOpposite = cms.bool( False ),
     minDeltaEta = cms.double( 3.0 ),
-    minInvMass = cms.double( 0.0 )
+    minInvMass = cms.double( 0.0 ),
+    maxEta = cms.double( -1.0 )
 )
 hltPreEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTJet35Jet25Deta2 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -19767,7 +19772,8 @@ hltEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTJet35Jet25Deta2 = cms.EDFilter( "HLTJetVBFF
     minEtHigh = cms.double( 35.0 ),
     etaOpposite = cms.bool( False ),
     minDeltaEta = cms.double( 2.0 ),
-    minInvMass = cms.double( 0.0 )
+    minInvMass = cms.double( 0.0 ),
+    maxEta = cms.double( -1.0 )
 )
 hltPreEle15CaloIdVTTrkIdTJet35Jet25Deta2 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -19785,7 +19791,8 @@ hltEle15CaloIdVTTrkIdTJet35Jet25Deta2 = cms.EDFilter( "HLTJetVBFFilter",
     minEtHigh = cms.double( 35.0 ),
     etaOpposite = cms.bool( False ),
     minDeltaEta = cms.double( 2.0 ),
-    minInvMass = cms.double( 0.0 )
+    minInvMass = cms.double( 0.0 ),
+    maxEta = cms.double( -1.0 )
 )
 hltPreEle25CaloIdVTTrkIdTCentralJet30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -24242,19 +24249,4 @@ ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
     dbstatusMask = cms.vuint32( 1, 2046, 0, 0, 0, 64512 ),
     timeThresh = cms.double( 2.0 )
 )
-# Extra customisation for CMSSW 42X only
-if 'hltParticleFlowRecHitECAL' in locals():
-    hltParticleFlowRecHitECAL.thresh_Cleaning = cms.double(2.0)
-if 'hltParticleFlowRecHitHCAL' in locals():
-    hltParticleFlowRecHitHCAL.Max_Calib = cms.double(5.0)
-
-if 'hltParticleFlowRecHitHCAL' in locals():
-    hltParticleFlowRecHitHCAL.HCAL_Calib = True
-    hltParticleFlowRecHitHCAL.HF_Calib = True
-if 'hltParticleFlow' in locals():
-    hltParticleFlow.calibPFSCEle_barrel = [1.004, -1.536, 22.88, -1.467, 0.3555, 0.6227, 14.65, 2051, 25, 0.9932, -0.5444, 0, 0.5438, 0.7109, 7.645, 0.2904, 0]
-    hltParticleFlow.calibPFSCEle_endcap = [1.153, -16.5975, 5.668, -0.1772, 16.22, 7.326, 0.0483, -4.068, 9.406]
-if 'hltParticleFlowForTaus' in locals():
-    hltParticleFlowForTaus.calibPFSCEle_barrel = [1.004, -1.536, 22.88, -1.467, 0.3555, 0.6227, 14.65, 2051, 25, 0.9932, -0.5444, 0, 0.5438, 0.7109, 7.645, 0.2904, 0]
-    hltParticleFlowForTaus.calibPFSCEle_endcap = [1.153, -16.5975, 5.668, -0.1772, 16.22, 7.326, 0.0483, -4.068, 9.406]
 
