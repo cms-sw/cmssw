@@ -1,7 +1,7 @@
 ################################################################################
 # HiggsAnalysis/Combined Limit Makefile                                        #
 #                                                                              #
-# $Author: dpiparo $ - $Date: 2011/04/27 07:44:04 $                                                            #
+# $Author: dpiparo $ - $Date: 2011/05/03 17:51:38 $                                                            #
 #                                                                              #
 # o Automatic compilation of new programs and classes*.                        #
 # o Automatic generation of CINT dictionaries via rootcint.                    #
@@ -73,7 +73,7 @@ dict: dirs $(SRC_DIR)/$(DICTNAME).cc
 $(SRC_DIR)/$(DICTNAME).cc : $(SRC_DIR)/LinkDef.h 
 # 	@echo "\n*** Generating dictionaries ..."
 	rootcint -f $(SRC_DIR)/$(DICTNAME).cc -c -I$(INC_DIR) -I$(ROOTINC) $(DICTHDRS) $(SRC_DIR)/LinkDef.h
-# 	@mv $(SRC_DIR)/$(DICTNAME).h $(INC_DIR)
+	@mv $(SRC_DIR)/$(DICTNAME).h $(INC_DIR)/$(DICTNAME).h 
 
 #---------------------------------------
 
@@ -104,6 +104,7 @@ clean:
 	@rm -rf $(OBJ_DIR) 
 	@rm -rf $(EXE_DIR)
 	@rm -rf $(LIB_DIR)
-	@rm -rf $(SRC_DIR)/$(DICTNAME)*
+	@rm -rf $(SRC_DIR)/$(DICTNAME).cc
+	@rm -rf $(INC_DIR)/$(DICTNAME).h
 
 #---------------------------------------
