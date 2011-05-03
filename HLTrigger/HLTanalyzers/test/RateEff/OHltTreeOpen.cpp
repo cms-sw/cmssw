@@ -612,7 +612,7 @@ bool isR0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
 bool isR0X_MRX_BTagTrigger(TString triggerName, vector<double> &thresholds)
 {
 
-   TString pattern = "(OpenHLT_R0([0-9]+)_MR([0-9]+)_Jet([0-9]+)_BTagIP{1})$";
+   TString pattern = "(OpenHLT_R0([0-9]+)_MR([0-9]+)_CentralJet([0-9]+)_BTagIP{1})$";
    TPRegexp matchThreshold(pattern);
 
    if (matchThreshold.MatchB(triggerName))
