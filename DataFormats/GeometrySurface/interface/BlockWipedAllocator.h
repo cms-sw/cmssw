@@ -191,7 +191,7 @@ public:
 template<typename T>
 class BlockWipedAllocated {
 public:
-  static void * operator new(size_t) {
+  static void * operator new(size_t s) {
    BlockWipedPoolAllocated::s_alive++;
    return (BlockWipedPoolAllocated::s_usePool) ? allocator().alloc()  : ::operator new(s);
   }
