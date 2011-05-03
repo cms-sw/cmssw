@@ -7,8 +7,8 @@
  * out of the global muons from "muons" collection to restore
  * dropped links used as input for MuonIdProducer.
  *
- *  $Date: $
- *  $Revision:$
+ *  $Date: 2011/05/02 16:09:31 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
@@ -30,5 +30,8 @@ class MuonLinksProducerForHLT : public edm::EDProducer {
  private:
    edm::InputTag theLinkCollectionInInput;
    edm::InputTag theInclusiveTrackCollectionInInput;
+   double ptMin;
+   double pMin;
+   double shareHitFraction;
 };
 #endif

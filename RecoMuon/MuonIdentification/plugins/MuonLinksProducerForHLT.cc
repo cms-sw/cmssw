@@ -33,6 +33,9 @@ MuonLinksProducerForHLT::MuonLinksProducerForHLT(const edm::ParameterSet& iConfi
    produces<reco::MuonTrackLinksCollection>();
    theLinkCollectionInInput = iConfig.getParameter<edm::InputTag>("LinkCollection");
    theInclusiveTrackCollectionInInput = iConfig.getParameter<edm::InputTag>("InclusiveTrackerTrackCollection");
+   ptMin = iConfig.getParameter<double>("ptMin");
+   pMin = iConfig.getParameter<double>("pMin");
+   shareHitFraction = iConfig.getParameter<double>("shareHitFraction");
 }
 
 MuonLinksProducerForHLT::~MuonLinksProducerForHLT()
@@ -53,14 +56,35 @@ void MuonLinksProducerForHLT::produce(edm::Event& iEvent, const edm::EventSetup&
        link != links->end(); ++link){
      bool found = false;
      unsigned int trackIndex = 0;
+     unsigned int muonTrackHits = link->trackerTrack()->extra()->recHits().size();
      for(reco::TrackCollection::const_iterator track = incTracks->begin();
 	 track != incTracks->end(); ++track, ++trackIndex){      
-       if(found) continue;
-       if(track->momentum() == link->trackerTrack()->momentum()){
+       if ( track->pt() < ptMin ) continue;
+       if ( track->p() < pMin ) continue;
+       //std::cout << "pt (muon/track) " << link->trackerTrack()->pt() << " " << track->pt() << std::endl;
+       unsigned trackHits = track->extra()->recHits().size();
+       //std::cout << "hits (muon/track) " << muonTrackHits  << " " << trackHits() << std::endl;
+       unsigned int smallestNumberOfHits = trackHits < muonTrackHits ? trackHits : muonTrackHits;
+       int numberOfCommonDetIds = 0;
+       for ( TrackingRecHitRefVector::const_iterator hit = track->extra()->recHitsBegin();
+	     hit != track->extra()->recHitsEnd(); ++hit ) {
+	 for ( TrackingRecHitRefVector::const_iterator mit = link->trackerTrack()->extra()->recHitsBegin();
+	     mit != link->trackerTrack()->extra()->recHitsEnd(); ++mit ) {
+	   if ( hit->get()->geographicalId() == mit->get()->geographicalId() && 
+		hit->get()->sharesInput(mit->get(),TrackingRecHit::some) ) { 
+	     numberOfCommonDetIds++;
+	     break;
+	   }
+	 }
+       }
+       double fraction = (double)numberOfCommonDetIds/smallestNumberOfHits;
+       // std::cout << "Overlap/Smallest/fraction = " << numberOfCommonDetIds << " " << smallestNumberOfHits << " " << fraction << std::endl;
+       if( fraction > shareHitFraction ) { 
 	 output->push_back(reco::MuonTrackLinks(reco::TrackRef(incTracks,trackIndex), 
 						link->standAloneTrack(), 
 						link->globalTrack() ) );
 	 found = true;
+	 break;
        }
      }
      if (!found) 
