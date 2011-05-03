@@ -30,6 +30,7 @@ int main(){
   myobj->data.insert(std::make_pair<unsigned int,std::string>(10,"ten"));
   myobj->data.insert(std::make_pair<unsigned int,std::string>(2,"two"));
   session.transaction().start(false);
+  session.createDatabase();
   std::cout<<"waiting for 5 sec in pool transaction..."<<std::endl;
   wait(5);
   session.storeObject( myobj.get(), "testCondObjContainer" );
