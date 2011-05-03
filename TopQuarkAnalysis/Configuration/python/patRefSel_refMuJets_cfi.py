@@ -55,6 +55,15 @@ goodPatJets = cleanPatJets.clone(
   )
 )
 
+from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
+kt6PFJets = kt4PFJets.clone(
+  rParam = cms.double( 0.6 )
+, src    = cms.InputTag( 'pfNoElectron' )
+, doAreaFastjet = cms.bool( True )
+, doRhoFastjet = cms.bool( True )
+, voronoiRfact = cms.double( 0.9 )
+)
+
 step6a = countPatJets.clone( src = cms.InputTag( 'goodPatJets' )
                                                , minNumber = 1
                                                )
