@@ -41,7 +41,7 @@ public:
   void clear() const;
 
   // reset allocator status. does not redime memory
-  void wipe() const;
+  void wipe(bool force=true) const;
 
 
   // longliving (static) local caches: to be reset at wipe
@@ -114,7 +114,7 @@ public:
 
   Allocator & allocator( std::size_t typeSize);
 
-  void wipe();
+  void wipe(bool force=true);
 
   void clear();
 
@@ -192,13 +192,13 @@ template<typename T>
 class BlockWipedAllocated {
 public:
   static void * operator new(size_t) {
-   BlockWipedAllocator::s_alive++;
-   return (BlockWipedAllocator::s_usePool) ? allocator().alloc()  : ::operator new(s);
+   BlockWipedPoolAllocated::s_alive++;
+   return (BlockWipedPoolAllocated::s_usePool) ? allocator().alloc()  : ::operator new(s);
   }
   
   static void operator delete(void * p) {
    BlockWipedAllocator::s_alive--;
-   return (BlockWipedAllocator::s_usePool) ? allocator().dealloc(p)  : ::operator delete(p);
+   return (BlockWipedPoolAllocated::s_usePool) ? allocator().dealloc(p)  : ::operator delete(p);
   }
   
   static void * operator new(size_t s, void * p) {
