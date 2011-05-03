@@ -4,8 +4,11 @@ from PhysicsTools.PatAlgos.patSequences_cff import *
 
 ### Muons
 
-loosePatMuons = cleanPatMuons.clone(
+intermediatePatMuons = cleanPatMuons.clone(
   preselection  = '' # looseMuonCut
+)
+loosePatMuons = cleanPatMuons.clone(
+  src           = cms.InputTag( 'intermediatePatMuons' )
 , checkOverlaps = cms.PSet(
     jets = cms.PSet(
       src                 = cms.InputTag( 'goodPatJets' )
@@ -33,13 +36,23 @@ step3a = countPatMuons.clone( src = cms.InputTag( 'tightPatMuons' )
                             , maxNumber = 1
                             )
 
-step4 =countPatMuons.clone( maxNumber = 1 ) # includes the signal muon
+step4 = countPatMuons.clone( maxNumber = 1 ) # includes the signal muon
 
 ### Jets
 
 goodPatJets = cleanPatJets.clone(
   preselection  = '' # jetCut
-, checkOverlaps = cms.PSet()
+, checkOverlaps = cms.PSet(
+    muons = cms.PSet(
+      src                 = cms.InputTag( 'intermediatePatMuons' )
+    , algorithm           = cms.string( 'byDeltaR' )
+    , preselection        = cms.string( '' )
+    , deltaR              = cms.double( 0. ) # jetMuonsDR
+    , checkRecoComponents = cms.bool( False )
+    , pairCut             = cms.string( '' )
+    , requireNoOverlaps   = cms.bool( True)
+    )
+  )
 )
 
 step6a = countPatJets.clone( src = cms.InputTag( 'goodPatJets' )

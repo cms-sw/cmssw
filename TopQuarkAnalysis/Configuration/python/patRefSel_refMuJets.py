@@ -45,11 +45,20 @@ tightMuonCut  = '(trackIso+caloIso)/pt < 0.05' # relative isolation
 ### Jet selection
 
 # Signal jet selection
-jetCut  =     'pt > 30.'
-jetCut += ' && abs(eta) < 2.4'          # transverse momentum# pseudo-rapisity range
+jetCutBase  =     'pt > 30.'            # transverse momentum
+jetCutBase += ' && abs(eta) < 2.4'      # pseudo-rapisity range
+jetCut  = jetCutBase
 jetCut += ' && emEnergyFraction > 0.01' # jet ID: electro-magnetic energy fraction
-jetCut += ' && jetID.n90Hits > 1'       # jet ID: number of RecHits carying 90% of the total energy
-jetCut += ' && jetID.fHPD < 0.98'       # jet ID: fraction of energy in the hottest readout
+jetCut += ' && jetID.n90Hits > 1'   # jet ID: number of RecHits carying 90% of the total energy
+jetCut += ' && jetID.fHPD < 0.98'   # jet ID: fraction of energy in the hottest readout
+jetCutPF  = jetCutBase
+jetCutPF += ' && numberOfDaughters > 1'                                  # PF jet ID:
+jetCutPF += ' && chargedEmEnergyFraction < 0.99'                         # PF jet ID:
+jetCutPF += ' && neutralHadronEnergyFraction < 0.99'                     # PF jet ID:
+jetCutPF += ' && neutralEmEnergyFraction < 0.99'                         # PF jet ID:
+jetCutPF += ' && (chargedHadronEnergyFraction > 0. || abs(eta) >= 2.4)'  # PF jet ID:
+jetCutPF += ' && (chargedMultiplicity > 0 || abs(eta) >= 2.4)'           # PF jet ID:
+jetMuonsDRPF = 0.1
 
 ### Electron selection
 

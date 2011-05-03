@@ -136,7 +136,9 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 if not runOnMC:
   runOnData( process )
 #removeCleaning( process )
-removeSpecificPATObjects( process, [ 'Photons', 'Taus' ] ) # includes 'removeCleaning'
+removeSpecificPATObjects( process
+                        , names = [ 'Photons', 'Taus' ]
+                        ) # includes 'removeCleaning'
 # additional event content has to be added _after_ the call to 'removeCleaning()':
 process.out.outputCommands += [ 'keep edmTriggerResults_*_*_*'
                               , 'keep *_hltTriggerSummaryAOD_*_*'
@@ -163,7 +165,9 @@ process.patMuons.embedTrack = muonEmbedTrack
 
 process.selectedPatMuons.cut = muonCut
 
-process.loosePatMuons.preselection              = looseMuonCut
+process.intermediatePatMuons.preselection = looseMuonCut
+process.out.outputCommands.append( 'keep *_intermediatePatMuons_*_*' )
+
 process.loosePatMuons.checkOverlaps.jets.deltaR = muonJetsDR
 process.out.outputCommands.append( 'keep *_loosePatMuons_*_*' )
 
@@ -186,7 +190,8 @@ process.selectedPatElectrons.cut = electronCut
 
 # The additional sequence
 process.patAddOnSequence = cms.Sequence(
-  process.goodPatJets
+  process.intermediatePatMuons
+* process.goodPatJets
 * process.loosePatMuons
 * process.tightPatMuons
 )
@@ -231,10 +236,14 @@ if addTriggerMatching:
 
   ### Enabling trigger matching and embedding
   from PhysicsTools.PatAlgos.tools.trigTools import *
-  switchOnTriggerMatchEmbedding( process, triggerMatchers = [ 'triggerMatch' ] )
+  switchOnTriggerMatchEmbedding( process
+                               , triggerMatchers = [ 'triggerMatch' ]
+                               )
   # remove object cleaning as for the PAT default sequence
   removeCleaningFromTriggerMatching( process )
-  switchOnTriggerMatchEmbedding( process, triggerMatchers = [ 'triggerMatch' ] ) # once more in order to fix event content
+  switchOnTriggerMatchEmbedding( process
+                               , triggerMatchers = [ 'triggerMatch' ]
+                               ) # once more in order to fix event content
   # adapt input sources for additional muon collections
   process.loosePatMuons.src = cms.InputTag( 'selectedPatMuonsTriggerMatch' )
   process.tightPatMuons.src = cms.InputTag( 'selectedPatMuonsTriggerMatch' )
