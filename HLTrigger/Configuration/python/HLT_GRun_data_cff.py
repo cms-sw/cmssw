@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/GRun/V40 (CMSSW_3_11_0_HLT25)
+# /dev/CMSSW_4_2_0/GRun/V41 (CMSSW_3_11_0_HLT25)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V40')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V41')
 )
 
 streams = cms.PSet( 
@@ -8328,7 +8328,7 @@ hltDimuon6p5LowMassL3FilteredDisplaced = cms.EDFilter( "HLTMuonDimuonL3Filter",
 )
 hltDisplacedmumuVtxProducerLowMass = cms.EDProducer( "HLTDisplacedmumuVtxProducer",
     Src = cms.InputTag( "hltL3MuonCandidates" ),
-    PreviousCandTag = cms.InputTag( "" ),
+    PreviousCandTag = cms.InputTag( "hltDimuon6p5LowMassL3FilteredDisplaced" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinPtPair = cms.double( 0.0 ),
@@ -8431,7 +8431,7 @@ hltDimuon6p5JpsiDisplacedL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
 )
 hltDisplacedmumuVtxProducerJpsi = cms.EDProducer( "HLTDisplacedmumuVtxProducer",
     Src = cms.InputTag( "hltL3MuonCandidates" ),
-    PreviousCandTag = cms.InputTag( "" ),
+    PreviousCandTag = cms.InputTag( "hltDimuon6p5JpsiDisplacedL3Filtered" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 0.0 ),
     MinPtPair = cms.double( 0.0 ),

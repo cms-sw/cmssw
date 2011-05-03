@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V40 (CMSSW_3_11_0_HLT25)
+# /dev/CMSSW_4_2_0/HIon/V41 (CMSSW_3_11_0_HLT25)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V40')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V41')
 )
 
 process.streams = cms.PSet( 
@@ -248,7 +248,7 @@ process.datasets = cms.PSet(
 )
 
 process.source = cms.Source( "PoolSource",
-    fileNames = cms.untracked.vstring( '/store/data/Run2011A/MinimumBias/RAW/v1/000/161/312/FEE65985-EF55-E011-A137-001617E30F50.root' )
+    fileNames = cms.untracked.vstring( '/store/data/Run2011A/MinimumBias/RAW/v1/000/163/592/0255752B-6971-E011-93FB-003048F1C836.root' )
 )
 
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
