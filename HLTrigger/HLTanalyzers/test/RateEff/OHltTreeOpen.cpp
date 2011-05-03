@@ -6835,12 +6835,12 @@ else if (triggerName.CompareTo("OpenHLT_Dimuon6p5_LowMass_v1") == 0)
                   0, // ET, L1isolation 
                   999.,
                   999., // Track iso barrel, Track iso endcap 
-                  999.,
-                  999., // Track/pT iso barrel, Track/pT iso endcap 
-                  999.,
-                  999., // H/ET iso barrel, H/ET iso endcap 
-                  999.,
-                  999., // E/ET iso barrel, E/ET iso endcap 
+                  0.125,
+                  0.075, // Track/pT iso barrel, Track/pT iso endcap 
+                  0.125,
+                  0.075, // H/ET iso barrel, H/ET iso endcap 
+                  0.125,
+                  0.075, // E/ET iso barrel, E/ET iso endcap 
                   0.05,
                   0.05, // H/E barrel, H/E endcap 
                   0.011,
@@ -6850,7 +6850,7 @@ else if (triggerName.CompareTo("OpenHLT_Dimuon6p5_LowMass_v1") == 0)
                   0.008,
                   0.008, // Deta barrel, Deta endcap 
                   0.07,
-                  0.05 // Dphi barrel, Dphi endcap 
+                  0.05 // Dphi barrel, Dphi endcap
                   )>=1)
             {
                triggerBit[it] = true;
