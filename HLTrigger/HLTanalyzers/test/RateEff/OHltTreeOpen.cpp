@@ -591,7 +591,7 @@ bool isQuadJetX_IsoPFTauX_PFMHTXTrigger(TString triggerName, vector<double> &thr
 bool isR0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
 {
 
-   TString pattern = "(OpenHLT_R0([0-9]+)_MR([0-9]+)_Jet([0-9]+){1})$";
+   TString pattern = "(OpenHLT_R0([0-9]+)_MR([0-9]+){1})$";
    TPRegexp matchThreshold(pattern);
 
    if (matchThreshold.MatchB(triggerName))
@@ -599,10 +599,9 @@ bool isR0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdR = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       double thresholdMR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
-      double thresholdJet = (((TObjString *)subStrL->At(4))->GetString()).Atof();
       thresholds.push_back(thresholdR/100.);
       thresholds.push_back(thresholdMR);
-      thresholds.push_back(thresholdJet);
+      thresholds.push_back(40.); 
       delete subStrL;
       return true;
    }
