@@ -30,7 +30,6 @@ print_help() {
     echo "                         [ 'LIBS' : generate libraries only                   ]" && \
     echo "                         [ 'CRSS' : generate cross sections, needs libraries! ]" && \
     echo "                         [ 'EVTS' : generate events, needs libs + crss. sec.! ]" && \
-    echo "         -c             toggle COMIX only flag (skip 'makelibs' step) ( "${FLGCOMIX}" )" && \
     echo "         -f  path       output path for SHERPA library & cross section files" && \
     echo "                         -> ( "${fin}" )" && \
     echo "         -D  filename   (optional) name of data card file ( "${cfdc}" )" && \
@@ -156,18 +155,16 @@ inc=${HDIR}                        # path to SHERPA datacards (libraries)
 cfdc=""                            # custom data card file name
 cflb=""                            # custom library file name
 cfcr=""                            # custom cross section file name
-FLGCOMIX="TRUE"                    # COMIX only flag
 fin=${HDIR}                        # output path for SHERPA libraries & cross sections
 
 # get & evaluate options
-while getopts :d:i:p:o:cf:D:L:C:h OPT
+while getopts :d:i:p:o:f:D:L:C:h OPT
 do
   case $OPT in
   d) shr=$OPTARG ;;
   i) inc=$OPTARG ;;
   p) prc=$OPTARG ;;
   o) lbo=$OPTARG ;;
-  c) FLGCOMIX="FALSE" ;;
   f) fin=$OPTARG ;;
   D) cfdc=$OPTARG ;;
   L) cflb=$OPTARG ;;
@@ -188,10 +185,6 @@ do
   esac
 done
 
-# override in case comix is used
-if [ "$FLGCOMIX" = "TRUE" ]; then
-  lbo="LBCR"
-fi
 
 # make sure to use absolute path names...
 cd ${shr} && shr=`pwd`; cd ${HDIR}
@@ -230,7 +223,6 @@ echo "  -> include path: '"${inc}"'"
 echo "  -> custom data card file name: '"${cfdc}"'"
 echo "  -> custom library file name: '"${cflb}"'"
 echo "  -> custom cross section file name: '"${cfcr}"'"
-echo "  -> COMIX only flag: '"${FLGCOMIX}"'"
 echo "  -> output path: '"${fin}"'"
 
 
@@ -324,6 +316,22 @@ else
   echo "  -> stopping..."
   exit
 fi
+
+
+### find out whether COMIX or AMEGIC is being used
+runfile="Run.dat"
+if [ -e ${runfile} ]; then
+  iamegic=`cat ${runfile} | grep -i "ME_SIGNAL_GENERATOR" | grep -i -c "AMEGIC"`
+  if [ ${iamegic} -gt 0 ]; then
+    FLGCOMIX="FALSE"                   # use AMEGIC
+    echo " <I> using AMEGIC ME generator"
+  else
+    FLGCOMIX="TRUE"                    # use COMIX
+    echo " <I> using COMIX ME generator"
+    lbo="LBCR"
+  fi
+fi
+###exit
 
 
 ### check required subdirectories
