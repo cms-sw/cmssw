@@ -4,6 +4,9 @@ import FWCore.ParameterSet.Config as cms
 # first SiStripGainESProducer takes SiStripGainRcd from DB
 from CalibTracker.SiStripESProducers.SiStripGainESProducer_cfi import *
 
+# SiStripLorentzAngleDep producer to select the LA value according to Tracker mode
+from CalibTracker.SiStripESProducers.SiStripLorentzAngleDepESProducer_cfi import *
+
 #LorentzAngle
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
