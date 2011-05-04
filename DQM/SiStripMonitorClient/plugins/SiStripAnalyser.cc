@@ -3,14 +3,14 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2010/03/27 14:01:19 $
- * $Revision: 1.57 $
+ * $Date: 2011/05/03 06:55:39 $
+ * $Revision: 1.1 $
  * \author  S. Dutta INFN-Pisa
  *
  */
 
 
-#include "DQM/SiStripMonitorClient/plugin/SiStripAnalyser.h"
+#include "DQM/SiStripMonitorClient/plugins/SiStripAnalyser.h"
 
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

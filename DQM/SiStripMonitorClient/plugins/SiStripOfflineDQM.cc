@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.36 2010/04/19 21:50:21 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.1 2011/05/03 06:55:39 dutta Exp $
 //
 //
 
@@ -32,7 +32,7 @@
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
 
-#include "DQM/SiStripMonitorClient/plugin/SiStripOfflineDQM.h"
+#include "DQM/SiStripMonitorClient/plugins/SiStripOfflineDQM.h"
 
 //Run Info
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"

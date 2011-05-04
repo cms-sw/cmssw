@@ -1,2 +1,6 @@
 <use   name="DQM/SiStripMonitorClient"/>
-<flags   EDM_PLUGIN="1"/>
+
+<library   file="*.cc" name="SiStripMonitorClientPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
