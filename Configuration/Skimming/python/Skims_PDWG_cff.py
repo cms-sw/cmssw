@@ -2,6 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 from DPGAnalysis.Skims.Skims_DPG_cff import skimContent
 
+from Configuration.EventContent.EventContent_cff import RECOEventContent
+skimRecoContent = RECOEventContent.clone()
+skimRecoContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
+skimRecoContent.outputCommands.append("drop *_*_*_SKIM")
+
 #####################
 
 from Configuration.Skimming.PDWG_DiJetAODSkim_cff import *
@@ -78,11 +83,6 @@ SKIMStreamHSCPSD = cms.FilteredStream(
     )
 
 #####################
-
-from Configuration.EventContent.EventContent_cff import RECOEventContent
-skimRecoContent = RECOEventContent.clone()
-skimRecoContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
-skimRecoContent.outputCommands.append("drop *_*_*_SKIM")
 
 from Configuration.Skimming.PDWG_SuperClusterSkim_cff import *
 diSuperClusterSkimPath = cms.Path(diSuperClusterSkimSequence)
