@@ -13,7 +13,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.cc,v 1.22 2010/12/13 11:07:53 gebbert Exp $
+// $Id: Type1MET.cc,v 1.23 2011/03/28 12:16:10 lacroix Exp $
 //
 //
 
@@ -23,6 +23,7 @@
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
@@ -109,7 +110,7 @@ namespace cms
 
 	Handle<PFMETCollection> inputUncorMet;                     //Define Inputs
 	iEvent.getByLabel( inputUncorMetLabel,  inputUncorMet );     //Get Inputs
-	std::auto_ptr<METCollection> output( new METCollection() );  //Create empty output
+	std::auto_ptr<PFMETCollection> output( new PFMETCollection() );  //Create empty output
 	alg_.run( *(inputUncorMet.product()), *corrector, *(inputUncorJets.product()), *(inputUncorUnlustered.product()),
 		  jetPTthreshold, jetEMfracLimit, UscaleA, UscaleB, UscaleC, useTypeII, hasMuonsCorr,
                   *(inputMuons.product()), *(vm_muCorrData_h.product()),
@@ -124,7 +125,7 @@ namespace cms
 
 	Handle<PFMETCollection> inputUncorMet;                     //Define Inputs
 	iEvent.getByLabel( inputUncorMetLabel,  inputUncorMet );     //Get Inputs
-	std::auto_ptr<METCollection> output( new METCollection() );  //Create empty output
+	std::auto_ptr<PFMETCollection> output( new PFMETCollection() );  //Create empty output
 	alg_.run( *(inputUncorMet.product()), *corrector, *(inputUncorJets.product()), 
 		  jetPTthreshold, jetEMfracLimit, UscaleA, UscaleB, UscaleC, useTypeII, hasMuonsCorr,
                   *(inputMuons.product()), *(vm_muCorrData_h.product()),

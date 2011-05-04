@@ -170,7 +170,7 @@ namespace {
                         bool hasMuonsCorr, 
 			const edm::View<reco::Muon>& inputMuons,
                         const edm::ValueMap<reco::MuonMETCorrectionData>& vm_muCorrData,
-			vector<reco::MET>* corMET, edm::Event& iEvent, const edm::EventSetup& iSetup) 
+			vector<reco::PFMET>* corMET, edm::Event& iEvent, const edm::EventSetup& iSetup) 
   {
     if (!corMET) {
       std::cerr << "Type1METAlgo_run-> undefined output MET collection. Stop. " << std::endl;
@@ -278,8 +278,12 @@ namespace {
     std::vector<CorrMETData> corrections = u->mEtCorr();
     corrections.push_back( delta );
     //----------------- Push onto MET Collection
-    reco::MET result = makeMet (*u, u->sumEt()+delta.sumet, corrections,correctedMET4vector); 
-    corMET->push_back(result);
+
+  reco::PFMET specificPFMET( u->getSpecific(), u->sumEt()+delta.sumet, correctedMET4vector, u->vertex() );
+  corMET->push_back(specificPFMET);
+
+  //reco::PFMET result = makeMet (*u, u->sumEt()+delta.sumet, corrections,correctedMET4vector); 
+  //corMET->push_back(result);
   }
 
   void Type1METAlgo_run(const reco::PFMETCollection& uncorMET, 
@@ -294,7 +298,7 @@ namespace {
                         bool hasMuonsCorr, 
 			const edm::View<reco::Muon>& inputMuons,
                         const edm::ValueMap<reco::MuonMETCorrectionData>& vm_muCorrData,
-			vector<reco::MET>* corMET, edm::Event& iEvent, const edm::EventSetup& iSetup) 
+			vector<reco::PFMET>* corMET, edm::Event& iEvent, const edm::EventSetup& iSetup) 
   {
     if (!corMET) {
       std::cerr << "Type1METAlgo_run-> undefined output MET collection. Stop. " << std::endl;
@@ -400,8 +404,13 @@ namespace {
     std::vector<CorrMETData> corrections = u->mEtCorr();
     corrections.push_back( delta );
     //----------------- Push onto MET Collection
-    reco::MET result = makeMet (*u, u->sumEt()+delta.sumet, corrections,correctedMET4vector); 
-    corMET->push_back(result);
+    //reco::PFMET result = makeMet (*u, u->sumEt()+delta.sumet, corrections,correctedMET4vector); 
+    //corMET->push_back(result);
+
+  reco::PFMET specificPFMET( u->getSpecific(), u->sumEt()+delta.sumet, correctedMET4vector, u->vertex() );
+  corMET->push_back(specificPFMET);
+
+
   }
 }
 
@@ -442,7 +451,7 @@ void Type1METAlgo::run(const PFMETCollection& uncorMET,
                        bool hasMuonsCorr,
                        const edm::View<reco::Muon>& inputMuons,
                        const edm::ValueMap<reco::MuonMETCorrectionData>& vm_muCorrData,
-		       METCollection* corMET, edm::Event& iEvent, const edm::EventSetup& iSetup) 
+		       PFMETCollection* corMET, edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {
   return Type1METAlgo_run(uncorMET, corrector, uncorJet, uncorUnclustered, jetPTthreshold, jetEMfracLimit, UscaleA, UscaleB, UscaleC, useTypeII, hasMuonsCorr, inputMuons, vm_muCorrData, corMET, iEvent, iSetup);
 }  
@@ -460,7 +469,7 @@ void Type1METAlgo::run(const PFMETCollection& uncorMET,
                        bool hasMuonsCorr,
                        const edm::View<reco::Muon>& inputMuons,
                        const edm::ValueMap<reco::MuonMETCorrectionData>& vm_muCorrData,
-		       METCollection* corMET, edm::Event& iEvent, const edm::EventSetup& iSetup) 
+		       PFMETCollection* corMET, edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {
   return Type1METAlgo_run(uncorMET, corrector, uncorJet, jetPTthreshold, jetEMfracLimit, UscaleA, UscaleB, UscaleC, useTypeII, hasMuonsCorr, inputMuons, vm_muCorrData, corMET, iEvent, iSetup);
 }  
