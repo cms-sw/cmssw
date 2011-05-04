@@ -167,7 +167,7 @@ class HLTProcess(object):
       if element[0] == '-':
         result.add( element )
       else:
-        result.discard( '-' + elemement )
+        result.discard( '-' + element )
     return sorted( element for element in result )
 
   @staticmethod
