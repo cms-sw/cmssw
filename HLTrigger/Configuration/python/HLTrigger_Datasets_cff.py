@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V43
+# /dev/CMSSW_4_2_0/GRun/V44
 
 import FWCore.ParameterSet.Config as cms
 
@@ -272,13 +272,18 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMuOnia_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMuOnia_selector.l1tResults = cms.InputTag('')
 streamA_datasetMuOnia_selector.throw      = cms.bool(False)
-streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Barrel_Upsilon_v1', 
-    'HLT_Dimuon6p5_Barrel_Jpsi_v1', 
-    'HLT_Dimuon6p5_Barrel_PsiPrime_v1', 
-    'HLT_Dimuon6p5_Jpsi_Displaced_v1', 
-    'HLT_Dimuon6p5_Jpsi_v1', 
-    'HLT_Dimuon6p5_LowMass_Displaced_v1', 
-    'HLT_Dimuon6p5_LowMass_v1', 
+streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon_Bs_Barrel_v1', 
+    'HLT_Dimuon_Bs_v1', 
+    'HLT_Dimuon_Jpsi_Barrel_v1', 
+    'HLT_Dimuon_Jpsi_Displaced_v1', 
+    'HLT_Dimuon_Jpsi_Muon_v1', 
+    'HLT_Dimuon_Jpsi_X_Barrel_v1', 
+    'HLT_Dimuon_Jpsi_v1', 
+    'HLT_Dimuon_LowMass_Displaced_v1', 
+    'HLT_Dimuon_PsiPrime_v1', 
+    'HLT_Dimuon_Upsilon_Barrel_v1', 
+    'HLT_Dimuon_Upsilon_Muon_v1', 
+    'HLT_Dimuon_Upsilon_v1', 
     'HLT_DoubleMu2_Bs_v2', 
     'HLT_Mu5_L2Mu2_Jpsi_v3', 
     'HLT_Mu5_Track2_Jpsi_v2', 
