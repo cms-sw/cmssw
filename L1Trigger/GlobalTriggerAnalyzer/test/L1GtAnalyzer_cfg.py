@@ -19,7 +19,11 @@ if errorUserOptions == True :
 if dataType == 'StreamFile' :
     process.source = cms.Source("NewEventStreamFileReader", fileNames=readFiles)
 else :        
-    process.source = cms.Source ('PoolSource', fileNames=readFiles, secondaryFileNames=secFiles)
+    process.source = cms.Source ('PoolSource', 
+                                 fileNames=readFiles, 
+                                 secondaryFileNames=secFiles,
+                                 eventsToProcess = selectedEvents
+                                 )
 
 
 # number of events to be processed and source file

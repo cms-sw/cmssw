@@ -36,7 +36,7 @@ useRelValSample = True
 #
 # comment/uncomment the next line to choose sample type 
 # (un-commented selects data)
-#useRelValSample=False 
+useRelValSample=False 
 
 if useRelValSample == True :
     
@@ -69,11 +69,11 @@ else :
     #runNumber = '121560'
     #runNumber = '127715'
     #runNumber = '132440_132439_Cosmics'
-    #runNumber = '132442_132440_MinimumBias_small'
     #runNumber = 'Commissioning10-Apr1Skim_Muon_skim-v1' 
     #runNumber = 'MinimumBias_Commissioning10-May13thReReco_preproduction-v1_RECO'
     #runNumber = '137028'
-    runNumber = '156508'
+    #runNumber = '156508'
+    runNumber = '156508_137028'
        
 # change to True to use local files
 #     the type of file must be matched by hand
@@ -200,6 +200,7 @@ if dataType == 'StreamFile' :
 else :        
     readFiles = cms.untracked.vstring()
     secFiles = cms.untracked.vstring() 
+    selectedEvents = cms.untracked.VEventRange()
 
 
 # type of sample used (True for RelVal, False for data)
@@ -764,6 +765,24 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
                 ])
 
     
+        elif runNumber == '156508_137028' :
+            dataset = 'Strangely mixed datasets'
+            print '   Running on dataset:', dataset, 'with global tag ', useGlobalTag 
+    
+            readFiles.extend( [
+                '/store/data/Commissioning11/MinimumBias/RAW/v1/000/156/508/02BC73A4-042F-E011-97DD-001D09F29146.root', 
+                '/store/data/Run2010A/ZeroBias/RAW/v1/000/137/028/0C88B386-3971-DF11-A163-000423D99896.root'
+                ] );
+
+            secFiles.extend([
+                ])
+            
+            selectedEvents = cms.untracked.VEventRange(
+                                    '156508:15865619-156508:15865629',
+                                    '137028:52756288-137028:52757299'
+                                    )
+
+    
         elif runNumber == '123596' :
             dataset = '/Cosmics/BeamCommissioning09-v1/RAW'
             print '   Running on dataset:', dataset, 'with global tag ', useGlobalTag 
@@ -862,20 +881,6 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
     
             readFiles.extend( [                        
                 '/store/data/Commissioning10/Cosmics/RECO/v3/000/127/715/261A3141-9F18-DF11-883E-001D09F24493.root'
-                ]);                                                                                               
-
-            secFiles.extend([
-                ])
-
-        elif runNumber == '132442_132440_MinimumBias_small' :
-            dataset = '/MinimumBias/Commissioning10-PromptReco-v7/RECO'
-            print '   Running on dataset:', dataset, 'run', runNumber, 'with global tag ', useGlobalTag 
-    
-            readFiles.extend( [                        
-                '/store/data/Commissioning10/MinimumBias/RECO/v7/000/132/442/102D0664-273C-DF11-A013-00304879FA4C.root',
-                '/store/data/Commissioning10/MinimumBias/RECO/v7/000/132/440/F4C92A98-163C-DF11-9788-0030487C7392.root',
-                '/store/data/Commissioning10/MinimumBias/RECO/v7/000/132/440/F427D642-173C-DF11-A909-0030487C60AE.root',
-                '/store/data/Commissioning10/MinimumBias/RECO/v7/000/132/440/E27821C3-0C3C-DF11-9BD9-0030487CD718.root'
                 ]);                                                                                               
 
             secFiles.extend([
