@@ -252,6 +252,16 @@ if 'hltPreHLTMONOutputSmart' in %(dict)s:
       # if requested, instrument the self with the modules and EndPath needed for timing studies
       self.instrumentTiming()
 
+    # load 4.2.x JECs
+    self.loadAdditionalConditions('load 4.2.x JECs',
+      {
+        'record'  : 'JetCorrectionsRecord',
+        'tag'     : 'JetCorrectorParametersCollection_Jec11_V1_AK5Calo',
+        'label'   : 'AK5Calo',
+        'connect' : 'frontier://PromptProd/CMS_COND_31X_PHYSICSTOOLS'
+      }
+    )
+
 
   def addGlobalOptions(self):
     # add global options
