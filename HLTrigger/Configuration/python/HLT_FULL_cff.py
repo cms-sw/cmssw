@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HLT/V186 (CMSSW_3_11_0_HLT25)
+# /dev/CMSSW_4_2_0/HLT/V190 (CMSSW_3_11_0_HLT25)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V186')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V190')
 )
 
 streams = cms.PSet( 
@@ -20535,7 +20535,7 @@ hltPreEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTJet35Jet25Deta3 = cms.EDFilter( "HLTPres
 hltCleanEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTFromAK5CorrJets = cms.EDProducer( "JetCollectionForEleHT",
     HltElectronTag = cms.InputTag( "hltEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilter" ),
     SourceJetTag = cms.InputTag( "hltAntiKT5L2L3CorrCaloJets" ),
-    minDeltaR = cms.double( 0.5 )
+    minDeltaR = cms.double( 0.3 )
 )
 hltEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTJet35Jet25Deta3 = cms.EDFilter( "HLTJetVBFFilter",
     inputTag = cms.InputTag( "hltCleanEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTFromAK5CorrJets" ),
@@ -20568,7 +20568,7 @@ hltPreEle15CaloIdVTTrkIdTJet35Jet25Deta2 = cms.EDFilter( "HLTPrescaler",
 hltCleanEle15CaloIdVTTrkIdTFromAK5CorrJets = cms.EDProducer( "JetCollectionForEleHT",
     HltElectronTag = cms.InputTag( "hltEle15CaloIdVTTrkIdTDphiFilter" ),
     SourceJetTag = cms.InputTag( "hltAntiKT5L2L3CorrCaloJets" ),
-    minDeltaR = cms.double( 0.5 )
+    minDeltaR = cms.double( 0.3 )
 )
 hltEle15CaloIdVTTrkIdTJet35Jet25Deta2 = cms.EDFilter( "HLTJetVBFFilter",
     inputTag = cms.InputTag( "hltCleanEle15CaloIdVTTrkIdTFromAK5CorrJets" ),

@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V44 (CMSSW_3_11_0_HLT25)
+# /dev/CMSSW_4_2_0/GRun/V45 (CMSSW_3_11_0_HLT25)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V44')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V45')
 )
 
 process.streams = cms.PSet( 
@@ -20740,7 +20740,7 @@ process.hltPreEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTJet35Jet25Deta3 = cms.EDFilter( 
 process.hltCleanEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTFromAK5CorrJets = cms.EDProducer( "JetCollectionForEleHT",
     HltElectronTag = cms.InputTag( "hltEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilter" ),
     SourceJetTag = cms.InputTag( "hltAntiKT5L2L3CorrCaloJets" ),
-    minDeltaR = cms.double( 0.5 )
+    minDeltaR = cms.double( 0.3 )
 )
 process.hltEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTJet35Jet25Deta3 = cms.EDFilter( "HLTJetVBFFilter",
     inputTag = cms.InputTag( "hltCleanEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTFromAK5CorrJets" ),
@@ -20773,7 +20773,7 @@ process.hltPreEle15CaloIdVTTrkIdTJet35Jet25Deta2 = cms.EDFilter( "HLTPrescaler",
 process.hltCleanEle15CaloIdVTTrkIdTFromAK5CorrJets = cms.EDProducer( "JetCollectionForEleHT",
     HltElectronTag = cms.InputTag( "hltEle15CaloIdVTTrkIdTDphiFilter" ),
     SourceJetTag = cms.InputTag( "hltAntiKT5L2L3CorrCaloJets" ),
-    minDeltaR = cms.double( 0.5 )
+    minDeltaR = cms.double( 0.3 )
 )
 process.hltEle15CaloIdVTTrkIdTJet35Jet25Deta2 = cms.EDFilter( "HLTJetVBFFilter",
     inputTag = cms.InputTag( "hltCleanEle15CaloIdVTTrkIdTFromAK5CorrJets" ),
