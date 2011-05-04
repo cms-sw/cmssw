@@ -639,7 +639,7 @@ bool isR0X_MRX_BTagTrigger(TString triggerName, vector<double> &thresholds)
 bool isPhotonX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
 {
 
-   TString pattern = "(OpenHLT_Photon([0-9]+)_CaloIdL_R0([0-9]+)_MR([0-9]+)_Jet([0-9]+){1})$";
+   TString pattern = "(OpenHLT_Photon([0-9]+)_R0([0-9]+)_MR([0-9]+){1})$";
    TPRegexp matchThreshold(pattern);
 
    if (matchThreshold.MatchB(triggerName)) 
@@ -648,22 +648,43 @@ bool isPhotonX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
        double thresholdPhoton = (((TObjString *)subStrL->At(2))->GetString()).Atof();
        double thresholdR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
        double thresholdMR = (((TObjString *)subStrL->At(4))->GetString()).Atof();
-       double thresholdJet = (((TObjString *)subStrL->At(5))->GetString()).Atof();
+       thresholds.push_back(thresholdPhoton);
        thresholds.push_back(thresholdR/100.);
        thresholds.push_back(thresholdMR);
-      thresholds.push_back(thresholdJet);
-      thresholds.push_back(thresholdPhoton);
-      delete subStrL;
-      return true;
+       thresholds.push_back(40.);
+       delete subStrL;
+       return true;
      }
    else
      return false;
 }
 
+bool isDoublePhotonX_MRXTrigger(TString triggerName, vector<double> &thresholds)
+{
+
+  TString pattern = "(OpenHLT_DoublePhoton([0-9]+)_MR([0-9]+){1})$";
+  TPRegexp matchThreshold(pattern);
+
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdPhoton = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdMR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdPhoton);
+      thresholds.push_back(thresholdMR);
+      thresholds.push_back(40.);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
+
 bool isDoublePhotonX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
 {
 
-  TString pattern = "(OpenHLT_DoublePhoton([0-9]+)_R0([0-9]+)_MR([0-9]+)_Jet([0-9]+){1})$";
+  TString pattern = "(OpenHLT_DoublePhoton([0-9]+)_R0([0-9]+)_MR([0-9]+){1})$";
   TPRegexp matchThreshold(pattern);
 
   if (matchThreshold.MatchB(triggerName))
@@ -672,11 +693,10 @@ bool isDoublePhotonX_R0X_MRXTrigger(TString triggerName, vector<double> &thresho
       double thresholdPhoton = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       double thresholdR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       double thresholdMR = (((TObjString *)subStrL->At(4))->GetString()).Atof();
-      double thresholdJet = (((TObjString *)subStrL->At(5))->GetString()).Atof();
+      thresholds.push_back(thresholdPhoton);
       thresholds.push_back(thresholdR/100.);
       thresholds.push_back(thresholdMR);
-      thresholds.push_back(thresholdJet);
-      thresholds.push_back(thresholdPhoton);
+      thresholds.push_back(40.);
       delete subStrL;
       return true;
    }
@@ -2220,11 +2240,11 @@ void OHltTree::CheckOpenHlt(
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
-         if (OpenHltRPassed(thresholds[0], thresholds[1], false, 7, thresholds[2])>0)
+         if (OpenHltRPassed(thresholds[1], thresholds[2], false, 7, thresholds[3])>0)
          {
 	   if (prescaleResponse(menu, cfg, rcounter, it))
             {
-	      if (OpenHltPhoCuts(thresholds[3], 0.15, 0.10, 0.014, 0.034, 999, 999) >= 1)
+	      if (OpenHltPhoCuts(thresholds[0], 0.15, 0.10, 0.014, 0.034, 999, 999) >= 1)
 		{
 		  triggerBit[it] = true;
 		}
@@ -2233,15 +2253,52 @@ void OHltTree::CheckOpenHlt(
       }
    }
 
+   else if (isDoublePhotonX_MRXTrigger(triggerName, thresholds))
+     {
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+         {
+	   if (OpenHltRPassed(0., thresholds[1], false, 7, 40.)>0)
+             {
+               if (prescaleResponse(menu, cfg, rcounter, it))
+                 {
+                   if (OpenHlt1PhotonSamHarperPassed(thresholds[0], 0, // ET, L1isolation
+                                                     999.,
+                                                     999., // Track iso barrel, Track iso endcap
+                                                     999.,
+                                                     999., // Track/pT iso barrel, Track/pT iso endcap
+                                                     999.,
+                                                     999., // H iso barrel, H iso endcap
+                                                     999.,
+                                                     999., // E iso barrel, E iso endcap
+                                                     0.15,
+                                                     0.10, // H/E barrel, H/E endcap
+                                                     999.,
+                                                     999., // cluster shape barrel, cluster shape endcap
+                                                     0.98,
+                                                     999., // R9 barrel, R9 endcap
+                                                     999.,
+                                                     999., // Deta barrel, Deta endcap
+                                                     999.,
+                                                     999. // Dphi barrel, Dphi endcap
+                                                     )>=2)
+                     {
+                       triggerBit[it] = true;
+                     }
+                 }
+	     }
+         }
+     }
+
+
    else if (isDoublePhotonX_R0X_MRXTrigger(triggerName, thresholds))
      {
        if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	 {
-	   if (OpenHltRPassed(thresholds[0], thresholds[1], false, 7, thresholds[2])>0)
+	   if (OpenHltRPassed(thresholds[1], thresholds[2], false, 7, thresholds[3])>0)
 	     {
 	       if (prescaleResponse(menu, cfg, rcounter, it))
 		 {
-		   if (OpenHlt1PhotonSamHarperPassed(thresholds[3], 0, // ET, L1isolation
+		   if (OpenHlt1PhotonSamHarperPassed(thresholds[0], 0, // ET, L1isolation
 						     999.,
 						     999., // Track iso barrel, Track iso endcap
 						     999.,
@@ -6608,104 +6665,6 @@ else if (triggerName.CompareTo("OpenHLT_Dimuon6p5_LowMass_v1") == 0)
    /**********************************************/
 
    /*Electron-jet cross-triggers*/
-   else if (triggerName.CompareTo("OpenHLT_Ele8_CaloIdT_TrkIdT_Dijet30") == 0)
-     {
-       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-	 {
-	   if (prescaleResponse(menu, cfg, rcounter, it))
-	     {
-	       if (OpenHlt1CorJetPassed(30., 3.) >= 2 && OpenHlt1ElectronSamHarperPassed(8., 0, // ET, L1isolation
-											 999.,
-											 999., // Track iso barrel, Track iso endcap
-											 999.,
-											 999., // Track/pT iso barrel, Track/pT iso endcap
-											 999.,
-											 999., // H/ET iso barrel, H/ET iso endcap
-											 999.,
-											 999., // E/ET iso barrel, E/ET iso endcap
-											 0.10,
-											 0.075, // H/E barrel, H/E endcap
-											 0.011,
-											 0.031, // cluster shape barrel, cluster shape endcap
-											 999.,
-											 999., // R9 barrel, R9 endcap
-											 0.008,
-											 0.008, // Deta barrel, Deta endcap
-											 0.07,
-											 0.05 // Dphi barrel, Dphi endcap
-											 )>=1)
-		 {
-		   triggerBit[it] = true;
-		 }
-	     }
-	 }
-     }
-   else if (triggerName.CompareTo("OpenHLT_Ele8_CaloIdT_TrkIdT_Trijet30") == 0) 
-     { 
-       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) 
-         { 
-           if (prescaleResponse(menu, cfg, rcounter, it)) 
-             { 
-               if (OpenHlt1CorJetPassed(30., 3.) >= 3 && OpenHlt1ElectronSamHarperPassed(8., 0, // ET, L1isolation 
-                                                                                         999., 
-                                                                                         999., // Track iso barrel, Track iso endcap 
-                                                                                         999., 
-                                                                                         999., // Track/pT iso barrel, Track/pT iso endcap 
-                                                                                         999., 
-                                                                                         999., // H/ET iso barrel, H/ET iso endcap 
-                                                                                         999., 
-                                                                                         999., // E/ET iso barrel, E/ET iso endcap 
-                                                                                         0.10, 
-                                                                                         0.075, // H/E barrel, H/E endcap 
-                                                                                         0.011, 
-                                                                                         0.031, // cluster shape barrel, cluster shape endcap 
-                                                                                         999., 
-                                                                                         999., // R9 barrel, R9 endcap 
-                                                                                         0.008, 
-                                                                                         0.008, // Deta barrel, Deta endcap 
-                                                                                         0.07, 
-                                                                                         0.05 // Dphi barrel, Dphi endcap 
-                                                                                         )>=1) 
-                 { 
-                   triggerBit[it] = true; 
-                 } 
-             } 
-         } 
-     } 
-   else if (triggerName.CompareTo("OpenHLT_Ele8_CaloIdT_TrkIdT_Quadjet30") == 0) 
-     { 
-       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) 
-         { 
-           if (prescaleResponse(menu, cfg, rcounter, it)) 
-             { 
-               if (OpenHlt1CorJetPassed(30., 3.) >= 4 && OpenHlt1ElectronSamHarperPassed(8., 0, // ET, L1isolation 
-                                                                                         999., 
-                                                                                         999., // Track iso barrel, Track iso endcap 
-                                                                                         999., 
-                                                                                         999., // Track/pT iso barrel, Track/pT iso endcap 
-                                                                                         999., 
-                                                                                         999., // H/ET iso barrel, H/ET iso endcap 
-                                                                                         999., 
-                                                                                         999., // E/ET iso barrel, E/ET iso endcap 
-                                                                                         0.10, 
-                                                                                         0.075, // H/E barrel, H/E endcap 
-                                                                                         0.011, 
-                                                                                         0.031, // cluster shape barrel, cluster shape endcap 
-                                                                                         999., 
-                                                                                         999., // R9 barrel, R9 endcap 
-                                                                                         0.008, 
-                                                                                         0.008, // Deta barrel, Deta endcap 
-                                                                                         0.07, 
-                                                                                         0.05 // Dphi barrel, Dphi endcap 
-                                                                                         )>=1) 
-                 { 
-                   triggerBit[it] = true; 
-                 } 
-             } 
-         } 
-     } 
-
-
   ///VBF Paths
   //Ele15 - TighterEleIdIsol - CaloJetCor pT 35 20 - Deta 2.
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CleanDiJet_35_20_Deta2") == 0) {
@@ -7418,47 +7377,6 @@ else if (triggerName.CompareTo("OpenHLT_Dimuon6p5_LowMass_v1") == 0)
    }
 
    /* muon-jet/MET/HT cross-triggers */
-   else if (triggerName.CompareTo("OpenHLT_Mu3_Dijet30") == 0)
-     {
-       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-	 {
-	   if (prescaleResponse(menu, cfg, rcounter, it))
-	     {
-	       if (OpenHlt1CorJetPassed(30., 3.) >= 2 && OpenHlt1MuonPassed(0., 0., 3., 2., 0)>=1 )
-		 {
-		   triggerBit[it] = true;
-		 }
-	     }
-	 }
-     }
-   else if (triggerName.CompareTo("OpenHLT_Mu3_Trijet30") == 0)
-     {
-       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-	 {
-	   if (prescaleResponse(menu, cfg, rcounter, it))
-	     {
-	       if (OpenHlt1CorJetPassed(30., 3.) >= 3 && OpenHlt1MuonPassed(0., 0., 3., 2., 0)>=1 )
-		 {
-		   triggerBit[it] = true;
-		 }
-	     }
-	 }
-     }
-   else if (triggerName.CompareTo("OpenHLT_Mu3_Quadjet30") == 0)
-     {
-       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-	 {
-	   if (prescaleResponse(menu, cfg, rcounter, it))
-	     {
-	       if (OpenHlt1CorJetPassed(30., 3.) >= 4 && OpenHlt1MuonPassed(0., 0., 3., 2., 0)>=1 )
-		 {
-		   triggerBit[it] = true;
-		 }
-	     }
-	 }
-     }
-
-
    else if (triggerName.CompareTo("OpenHLT_Mu17_CentralJet30") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
