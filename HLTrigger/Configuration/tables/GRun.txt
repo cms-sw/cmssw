@@ -25,7 +25,6 @@ HLT_DoubleJet60_ForwardBackward_v*
 HLT_DoubleJet70_ForwardBackward_v*
 HLT_DoubleJet80_ForwardBackward_v*
 HLT_CentralJet80_MET65_v*
-HLT_CentralJet80_MET80_v*
 HLT_CentralJet80_MET80HF_v*
 HLT_CentralJet80_MET100_v*
 HLT_CentralJet80_MET160_v*
