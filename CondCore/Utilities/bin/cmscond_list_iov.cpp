@@ -169,7 +169,7 @@ int cond::ListIOVUtilities::execute(){
       std::cout <<"\t";
       std::string headerValLine = printValidityHeader( cond::timeTypeSpecs[iov.timetype()].type );
       std::cout << std::setw(13)<<"   Payload token";
-      std::cout << std::setw(maxClassSize)<<"  Payload class";
+      std::cout << std::setw(maxClassSize)<<"  Payload Class";
       std::cout << std::endl;
       std::cout << std::setfill('-');
       std::cout <<"\t"<<headerValLine;
@@ -204,15 +204,17 @@ int cond::ListIOVUtilities::execute(){
         ++counter;
       }
       std::cout<<std::endl;
-      std::cout <<"\tPayloadClasses "<<std::endl;
-      std::cout <<"\t"<<std::setfill('-');
-      std::cout<<std::setw(maxClassSize)<<""<<std::endl;
-      std::cout << std::setfill(' ');
-      std::cout << std::setiosflags(std::ios_base::left);
-      for( std::set<std::string>::const_iterator iCl = payloadClasses.begin(); iCl !=payloadClasses.end(); iCl++){
-	std::cout <<"\t"<<*iCl<<std::endl;
-      }
-     std::cout << std::endl;
+      if (verbose) {
+        std::cout <<"\tPayload Classes "<<std::endl;
+        std::cout <<"\t"<<std::setfill('-');
+        std::cout<<std::setw(maxClassSize)<<""<<std::endl;
+        std::cout << std::setfill(' ');
+        std::cout << std::setiosflags(std::ios_base::left);
+        for( std::set<std::string>::const_iterator iCl = payloadClasses.begin(); iCl !=payloadClasses.end(); iCl++){
+	  std::cout <<"\t"<<*iCl<<std::endl;
+        }
+        std::cout << std::endl;
+     }
      if (xml) xml->Close();
      if( dump ) {
        outFile->flush();
