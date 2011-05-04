@@ -72,9 +72,9 @@ SKIMStreamHSCPSD = cms.FilteredStream(
     responsible = 'PDWG',
     name = 'HSCPSD',
     paths = (HSCPSDPath),
-    content = skimContent.outputCommands,
+    content = HSCPSD_EventContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
+    dataTier = cms.untracked.string('USER')
     )
 
 #####################
