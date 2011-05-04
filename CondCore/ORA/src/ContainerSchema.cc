@@ -116,6 +116,11 @@ void ora::ContainerSchema::create(){
   MappingToSchema mapping2Schema( m_session.schema().storageSchema() );
   m_mapping.tables();
   mapping2Schema.create(  m_mapping );
+  m_containerSchemaSequences.create( MappingRules::sequenceNameForContainer( m_containerName ) );
+  for( std::map<std::string,MappingTree*>::iterator iDep = m_dependentMappings.begin();
+       iDep != m_dependentMappings.end(); ++iDep ){
+    m_containerSchemaSequences.create( MappingRules::sequenceNameForDependentClass( m_containerName, iDep->first ));
+  }
   m_loaded = true;
 }
 
@@ -131,7 +136,6 @@ void ora::ContainerSchema::drop(){
       if( m_session.mappingDatabase().getMappingByVersion( *iV, mapping ) ){
         topLevelTables.insert( mapping.topElement().tableName() );
         getTableHierarchyFromMappingElement( mapping.topElement(), tableHierarchy );
-        m_containerSchemaSequences.erase( MappingRules::sequenceNameForDependentClass( m_containerName, mapping.className()));
       }
     }
 
@@ -145,12 +149,18 @@ void ora::ContainerSchema::drop(){
       m_session.schema().storageSchema().dropIfExistsTable( *iTable );
     }
   }
+  std::set<std::string> depClasses;
+  m_session.mappingDatabase().getDependentClassesForContainer( m_containerId, depClasses );
+      
   for( std::set<std::string>::const_iterator iM = containerMappingVersions.begin();
        iM != containerMappingVersions.end(); ++iM ){
     m_session.mappingDatabase().removeMapping( *iM );
   }
   m_containerSchemaSequences.erase( MappingRules::sequenceNameForContainer( m_containerName ));
-
+  for(std::set<std::string>::const_iterator iDepCl = depClasses.begin();
+      iDepCl != depClasses.end(); iDepCl++){
+    m_containerSchemaSequences.erase( MappingRules::sequenceNameForDependentClass( m_containerName, *iDepCl ) );
+  }
 }
 
 void ora::ContainerSchema::evolve(){
@@ -239,6 +249,7 @@ void ora::ContainerSchema::create( const Reflex::Type& dependentClassDict ){
   iDep->second->setVersion( newMappingVersion );
   m_session.mappingDatabase().storeMapping( *iDep->second );
   m_session.mappingDatabase().insertClassVersion( dependentClassDict, 1, m_containerId, newMappingVersion, true );
+  m_containerSchemaSequences.create( MappingRules::sequenceNameForDependentClass( m_containerName, className ));
 }
 
 void ora::ContainerSchema::extend( const Reflex::Type& dependentClassDict ){

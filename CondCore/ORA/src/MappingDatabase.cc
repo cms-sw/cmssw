@@ -66,6 +66,10 @@ ora::MappingDatabase::MappingDatabase( ora::IDatabaseSchema& schema ):
 ora::MappingDatabase::~MappingDatabase(){
 }
 
+void ora::MappingDatabase::setUp(){
+  m_mappingSequence.create();
+}
+
 std::string
 ora::MappingDatabase::newMappingVersionForContainer( const std::string& containerName ){
   if(!m_isLoaded){

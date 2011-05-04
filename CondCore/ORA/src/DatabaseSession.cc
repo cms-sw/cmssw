@@ -147,6 +147,8 @@ bool ora::DatabaseSession::exists(){
 
 void ora::DatabaseSession::create( const std::string& userSchemaVersion ){
   m_schema->create( userSchemaVersion );
+  m_contIdSequence->create();
+  m_mappingDb->setUp();
   m_transactionCache->setDbExists( true );
 }
 

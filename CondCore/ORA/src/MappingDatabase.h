@@ -36,6 +36,8 @@ namespace ora {
     /// Destructor
     ~MappingDatabase();
 
+    void setUp();
+
     std::string newMappingVersionForContainer( const std::string& className );
     
     std::string newMappingVersionForDependentClass( const std::string& containerName, const std::string& className );

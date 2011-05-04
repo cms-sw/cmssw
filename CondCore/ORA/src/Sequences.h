@@ -13,6 +13,7 @@ namespace ora {
     public:
     explicit Sequences( IDatabaseSchema& dbSchema );
     virtual ~Sequences();
+    void create( const std::string& sequenceName );
     int getNextId( const std::string& sequenceName, bool sinchronize = false );
     void sinchronize( const std::string& sequenceName );
     void sinchronizeAll();
@@ -27,6 +28,7 @@ namespace ora {
     public:
     NamedSequence( const std::string& sequenceName, IDatabaseSchema& dbSchema );
     virtual ~NamedSequence();
+    void create();
     int getNextId( bool sinchronize = false );
     void sinchronize();
     void erase();

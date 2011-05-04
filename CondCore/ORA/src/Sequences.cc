@@ -1,3 +1,4 @@
+#include "CondCore/ORA/interface/Exception.h"
 #include "Sequences.h"
 #include "IDatabaseSchema.h"
 
@@ -9,13 +10,17 @@ ora::Sequences::Sequences( ora::IDatabaseSchema& schema ):
 ora::Sequences::~Sequences(){
 }
 
+void ora::Sequences::create( const std::string& sequenceName ){
+  m_schema.sequenceTable().add( sequenceName );
+}
+
 int ora::Sequences::getNextId( const std::string& sequenceName, bool sinchronize ){
   int next = 0;
   std::map<std::string,int>::iterator iS = m_lastIds.find( sequenceName );
   if( iS == m_lastIds.end() ){
     bool found = m_schema.sequenceTable().getLastId( sequenceName, next );
     if( ! found ) {
-      m_schema.sequenceTable().add( sequenceName );
+      throwException("Sequence \""+sequenceName+"\" does not exists.","Sequences::getNextId");
     } else {
       next += 1;
     }
@@ -64,6 +69,10 @@ ora::NamedSequence::NamedSequence( const std::string& sequenceName, ora::IDataba
 }
 
 ora::NamedSequence::~NamedSequence(){
+}
+
+void ora::NamedSequence::create(){
+  m_sequences.create( m_name );
 }
 
 int ora::NamedSequence::getNextId( bool sinchronize ){

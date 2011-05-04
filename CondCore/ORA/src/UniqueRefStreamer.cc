@@ -230,12 +230,12 @@ void ora::UniqueRefWriter::write( int oid,
     Reflex::Type refType = ClassUtils::lookupDictionary(*refTypeInfo);
     className = refType.Name(Reflex::SCOPED);
 
-    // getting a new valid ref id
-    refId = m_schema.containerSequences().getNextId( MappingRules::sequenceNameForDependentClass( m_schema.containerName(),className ));
-    
     // building the dependent buffer
     MappingElement& depMapping =  m_schema.mappingForDependentClass( refType, true );    
 
+    // getting a new valid ref id
+    refId = m_schema.containerSequences().getNextId( MappingRules::sequenceNameForDependentClass( m_schema.containerName(),className ));
+    
     DependentClassWriter writer;
     writer.build( refType, depMapping, m_schema, m_operationBuffer->addVolatileBuffer() );
     void* refData;

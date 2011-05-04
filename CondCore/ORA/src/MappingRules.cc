@@ -19,7 +19,8 @@ std::string ora::MappingRules::sequenceNameForContainer( const std::string& cont
 std::string
 ora::MappingRules::sequenceNameForDependentClass( const std::string& containerName,
                                                   const std::string& className ){
-  std::string ret(containerName);
+  std::string ret("D_");
+  ret+=containerName;
   ret+="_";
   ret+=className;
   return ret;

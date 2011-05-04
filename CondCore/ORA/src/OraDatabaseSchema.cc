@@ -362,6 +362,7 @@ void ora::OraMappingElementTable::create(){
   description2.createForeignKey( fkName20, mappingVersionColumn(),
                                  OraMappingVersionTable::tableName(),OraMappingVersionTable::mappingVersionColumn());
   m_schema.createTable( description2 ).privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select );
+  
 }
 
 void ora::OraMappingElementTable::drop(){
