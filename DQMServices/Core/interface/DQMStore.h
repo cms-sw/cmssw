@@ -431,6 +431,7 @@ private:
   friend class DQMOldReceiver;
   friend class DQMService;
   friend class DQMNet;
+  friend class DQMArchiver;
   friend class DQMStoreExample; // for get{All,Matching}Contents -- sole user of this method!
 };
 
