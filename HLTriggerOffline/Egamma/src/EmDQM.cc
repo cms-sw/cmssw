@@ -48,7 +48,6 @@ EmDQM::EmDQM(const edm::ParameterSet& pset)
   dbe = edm::Service < DQMStore > ().operator->();
   dbe->setVerbose(0);
 
-
   ////////////////////////////////////////////////////////////
   //          Read from configuration file                  //
   ////////////////////////////////////////////////////////////
@@ -335,7 +334,6 @@ EmDQM::~EmDQM(){
 void 
 EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
 {
-  
   ////////////////////////////////////////////////////////////
   //           Check if there's enough gen particles        //
   //             of interest                                //
@@ -363,20 +361,20 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
   //  Did the highest energy particles happen               //
   //  to have |eta| < 2.5 ?  Then continue.                 //
   ////////////////////////////////////////////////////////////
-  edm::Handle< edm::View<reco::GenParticle> > genParticles;
+  edm::Handle< edm::View<reco::Candidate> > genParticles;
   event.getByLabel("genParticles", genParticles);
   if(!genParticles.isValid()) { 
     edm::LogWarning("EmDQM") << "genParticles invalid.";
     return;
   }
 
-  std::vector<reco::GenParticle> allSortedGenParticles;
+  std::vector<reco::LeafCandidate> allSortedGenParticles;
 
-  for(edm::View<reco::GenParticle>::const_iterator currentGenParticle = genParticles->begin(); currentGenParticle != genParticles->end(); currentGenParticle++){
+  for(edm::View<reco::Candidate>::const_iterator currentGenParticle = genParticles->begin(); currentGenParticle != genParticles->end(); currentGenParticle++){
 
     if (  !( abs((*currentGenParticle).pdgId())==pdgGen  && (*currentGenParticle).status()==1 && (*currentGenParticle).et() > 2.0)  )  continue;
 
-    reco::GenParticle tmpcand( *(currentGenParticle) );
+    reco::LeafCandidate tmpcand( *(currentGenParticle) );
 
     if (tmpcand.et() < plotEtMin) continue;
 
@@ -439,7 +437,6 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
     return;
   }
   sortedGen.erase(sortedGen.begin()+gencut_,sortedGen.end());
-
 
   for (unsigned int i = 0 ; i < gencut_ ; i++ ) {
     etgen ->Fill( sortedGen[i].et()  ); //validity has been implicitily checked by the cut on gencut_ above
@@ -516,7 +513,6 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
   if (recoecalcands.size() >= reqNum ) 
     total->Fill(n+0.5);
 
-
   ///////////////////////////////////////////////////
   // check for validity                            //
   // prevents crash in CMSSW_3_1_0_pre6            //
@@ -572,8 +568,6 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
       }
     } // END of if closestEcalCandIndex >= 0
   }
-
-
 
   ////////////////////////////////////////////////////////////
   //  Loop over all HLT objects in this filter step, and    //
