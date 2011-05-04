@@ -55,12 +55,12 @@ EmDQM::EmDQM(const edm::ParameterSet& pset)
   dbe->setCurrentFolder(dirname_);
 
   triggerobjwithrefs = pset.getParameter<edm::InputTag>("triggerobject");
-  // paramters for generator study 
+  // parameters for generator study
   reqNum    = pset.getParameter<unsigned int>("reqNum");
   pdgGen    = pset.getParameter<int>("pdgGen");
   genEtaAcc = pset.getParameter<double>("genEtaAcc");
   genEtAcc  = pset.getParameter<double>("genEtAcc");
-  // plotting paramters (untracked because they don't affect the physics)
+  // plotting parameters (untracked because they don't affect the physics)
   plotEtMin  = pset.getUntrackedParameter<double>("genEtMin",0.);
   plotPtMin  = pset.getUntrackedParameter<double>("PtMin",0.);
   plotPtMax  = pset.getUntrackedParameter<double>("PtMax",1000.);
@@ -326,6 +326,102 @@ EmDQM::beginJob()
 ////////////////////////////////////////////////////////////////////////////////
 EmDQM::~EmDQM(){
 }
+////////////////////////////////////////////////////////////////////////////////
+
+bool EmDQM::checkGeneratedParticlesRequirement(const edm::Event & event)
+{
+  ////////////////////////////////////////////////////////////
+   // Decide if this was an event of interest.               //
+   //  Did the highest energy particles happen               //
+   //  to have |eta| < 2.5 ?  Then continue.                 //
+   ////////////////////////////////////////////////////////////
+   edm::Handle< edm::View<reco::Candidate> > genParticles;
+   event.getByLabel("genParticles", genParticles);
+   if(!genParticles.isValid()) {
+     edm::LogWarning("EmDQM") << "genParticles invalid.";
+     return false;
+   }
+
+   std::vector<reco::LeafCandidate> allSortedGenParticles;
+
+   for(edm::View<reco::Candidate>::const_iterator currentGenParticle = genParticles->begin(); currentGenParticle != genParticles->end(); currentGenParticle++){
+
+     // TODO: do we need to check the states here again ?
+     // in principle, there should collections produced with the python configuration
+     // (other than 'genParticles') which fulfill these criteria
+     if (  !( abs((*currentGenParticle).pdgId())==pdgGen  && (*currentGenParticle).status()==1 && (*currentGenParticle).et() > 2.0)  )  continue;
+
+     reco::LeafCandidate tmpcand( *(currentGenParticle) );
+
+     if (tmpcand.et() < plotEtMin) continue;
+
+     allSortedGenParticles.push_back(tmpcand);
+   }
+
+   std::sort(allSortedGenParticles.begin(), allSortedGenParticles.end(),pTGenComparator_);
+
+   // return false if not enough particles found
+   if (allSortedGenParticles.size() < gencut_)
+     return false;
+
+   // additional check (this might be legacy code and we need to check
+   // whether this should not be removed ?)
+
+   // We now have a sorted collection of all generated particles
+   // with pdgId = pdgGen.
+   // Loop over them to see if the top gen particles have eta within acceptance
+  // bool keepEvent = true;
+   for (unsigned int i = 0 ; i < gencut_ ; i++ ) {
+     bool inECALgap = fabs(allSortedGenParticles[i].eta()) > 1.4442 && fabs(allSortedGenParticles[i].eta()) < 1.556;
+     if ( (fabs(allSortedGenParticles[i].eta()) > genEtaAcc) || inECALgap ) {
+       //edm::LogWarning("EmDQM") << "Throwing event away. Gen particle with pdgId="<< allSortedGenParticles[i].pdgId() <<"; et="<< allSortedGenParticles[i].et() <<"; and eta="<< allSortedGenParticles[i].eta() <<" beyond acceptance.";
+       return false;
+     }
+   }
+
+   // all tests passed
+   return true;
+}
+////////////////////////////////////////////////////////////////////////////////
+
+bool EmDQM::checkRecoParticlesRequirement(const edm::Event & event)
+{
+  // note that this code is very similar to the one in checkGeneratedParticlesRequirement(..)
+  // and hopefully can be merged with it at some point in the future
+
+  edm::Handle< edm::View<reco::Candidate> > referenceParticles;
+  event.getByLabel(gencutCollection_,referenceParticles);
+  if(!referenceParticles.isValid()) {
+     edm::LogWarning("EmDQM") << "referenceParticles invalid.";
+     return false;
+  }
+
+  std::vector<const reco::Candidate *> allSortedReferenceParticles;
+
+  for(edm::View<reco::Candidate>::const_iterator currentReferenceParticle = referenceParticles->begin();
+      currentReferenceParticle != referenceParticles->end();
+      currentReferenceParticle++)
+  {
+     if ( currentReferenceParticle->et() <= 2.0)
+       continue;
+
+     // Note that for determining the overall efficiency,
+     // we should only allow
+     //
+     // HOWEVER: for turn-on curves, we need to let
+     //          more electrons pass
+     if (currentReferenceParticle->et() < plotEtMin)
+       continue;
+
+     // TODO: instead of filling a new vector we could simply count here...
+     allSortedReferenceParticles.push_back(&(*currentReferenceParticle));
+  }
+
+   // std::sort(allSortedReferenceParticles.begin(), allSortedReferenceParticles.end(),pTComparator_);
+
+   // return false if not enough particles found
+   return allSortedReferenceParticles.size() >= gencut_;
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -349,61 +445,30 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
   // fill L1 and HLT info
   // get objects possed by each filter
   edm::Handle<trigger::TriggerEventWithRefs> triggerObj;
-  event.getByLabel(triggerobjwithrefs,triggerObj); 
-  if(!triggerObj.isValid()) { 
-    edm::LogWarning("EmDQM") << "parameter triggerobject (" << triggerobjwithrefs << ") does not corresond to a valid TriggerEventWithRefs product. Please check especially the process name (e.g. when running over reprocessed datasets)"; 
+  event.getByLabel(triggerobjwithrefs,triggerObj);
+  if(!triggerObj.isValid()) {
+    edm::LogWarning("EmDQM") << "parameter triggerobject (" << triggerobjwithrefs << ") does not corresond to a valid TriggerEventWithRefs product. Please check especially the process name (e.g. when running over reprocessed datasets)";
     return;
   }
-
-
-  ////////////////////////////////////////////////////////////
-  // Decide if this was an event of interest.               //
-  //  Did the highest energy particles happen               //
-  //  to have |eta| < 2.5 ?  Then continue.                 //
-  ////////////////////////////////////////////////////////////
-  edm::Handle< edm::View<reco::Candidate> > genParticles;
-  event.getByLabel("genParticles", genParticles);
-  if(!genParticles.isValid()) { 
-    edm::LogWarning("EmDQM") << "genParticles invalid.";
-    return;
-  }
-
-  std::vector<reco::LeafCandidate> allSortedGenParticles;
-
-  for(edm::View<reco::Candidate>::const_iterator currentGenParticle = genParticles->begin(); currentGenParticle != genParticles->end(); currentGenParticle++){
-
-    if (  !( abs((*currentGenParticle).pdgId())==pdgGen  && (*currentGenParticle).status()==1 && (*currentGenParticle).et() > 2.0)  )  continue;
-
-    reco::LeafCandidate tmpcand( *(currentGenParticle) );
-
-    if (tmpcand.et() < plotEtMin) continue;
-
-    allSortedGenParticles.push_back(tmpcand);
-  }
-
-  std::sort(allSortedGenParticles.begin(), allSortedGenParticles.end(),pTGenComparator_);
 
   // Were enough high energy gen particles found?
-  if (allSortedGenParticles.size() < gencut_) {
-    // if no, throw event away
-    return;
-  }
-
-  // We now have a sorted collection of all generated particles
-  // with pdgId = pdgGen.
-  // Loop over them to see if the top gen particles have eta within acceptance
-  bool keepEvent = true;
-  for (unsigned int i = 0 ; i < gencut_ ; i++ ) {
-    bool inECALgap = fabs(allSortedGenParticles[i].eta()) > 1.4442 && fabs(allSortedGenParticles[i].eta()) < 1.556;
-    if ( (fabs(allSortedGenParticles[i].eta()) > genEtaAcc) || inECALgap ) {
-      //edm::LogWarning("EmDQM") << "Throwing event away. Gen particle with pdgId="<< allSortedGenParticles[i].pdgId() <<"; et="<< allSortedGenParticles[i].et() <<"; and eta="<< allSortedGenParticles[i].eta() <<" beyond acceptance.";
-      keepEvent=false;
-      break;
+  if (event.isRealData())
+    {
+      // running validation on data.
+      // TODO: we should check that the entire
+      //       run is on the same type (all data or
+      //       all MC). Otherwise one gets
+      //       uninterpretable results...
+      if (!checkRecoParticlesRequirement(event))
+        return;
     }
-  }
-  if (!keepEvent) {
-    return;
-  }
+  else
+    {
+      // MC
+      if (!checkGeneratedParticlesRequirement(event))
+        // if no, throw event away
+        return;
+    }
 
 
   // It was an event worth keeping. Continue.

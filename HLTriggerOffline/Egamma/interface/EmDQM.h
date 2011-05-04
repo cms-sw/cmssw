@@ -34,6 +34,21 @@ public:
   void endJob();
 
 private:
+
+  /** helper to check whether there were enough generator level
+   *  electrons/photons (MC) or enough reco level electrons/photons
+   *  to analyze this event.
+   *
+   *  @return if the event has enough of these candidates.
+   */
+  bool checkGeneratedParticlesRequirement(const edm::Event &event);
+
+  /** similar to checkGeneratedParticlesRequirement(..) but for reconstructed
+   *  particles. For the moment, there are some additional requirements in
+   *  the MC version so we can't use the same code for both cases.
+   */
+  bool checkRecoParticlesRequirement(const edm::Event & event);
+
   // Input from cfg file
   edm::InputTag triggerobjwithrefs;
   std::vector<edm::InputTag> theHLTCollectionLabels;  
@@ -64,7 +79,16 @@ private:
   unsigned int plotBins ;
   unsigned int plotMinEtForEtaEffPlot;
   // preselction cuts
+
+  /** collection which should be used for generator particles (MC)
+   *  or reconstructed particles (data).
+   *
+   *  This collection is used for matching the HLT objects against (e.g. match the HLT
+   *  object to generated particles or reconstructed electrons/photons).
+   */
   edm::InputTag gencutCollection_;
+
+  /** number of generator level particles (electrons/photons) required (for MC) */
   unsigned int gencut_;
 
   /** which hltCollectionLabels were SEEN at least once */
