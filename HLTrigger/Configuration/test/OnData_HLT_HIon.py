@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V41 (CMSSW_3_11_0_HLT25)
+# /dev/CMSSW_4_2_0/HIon/V43 (CMSSW_3_11_0_HLT25)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V41')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V43')
 )
 
 process.streams = cms.PSet( 
@@ -1363,7 +1363,7 @@ process.hltESPPromptTrackCountingESProducer = cms.ESProducer( "PromptTrackCounti
   maxImpactParameterSig = cms.double( 999999.0 ),
   trackQualityClass = cms.string( "any" ),
   nthTrack = cms.int32( -1 ),
-  maxImpactParameter = cms.double( 0.1 ),
+  maxImpactParameter = cms.double( 0.03 ),
   deltaRmin = cms.double( 0.0 )
 )
 process.hltESPRungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
