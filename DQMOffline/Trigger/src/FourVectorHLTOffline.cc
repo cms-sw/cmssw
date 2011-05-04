@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.97 2011/04/06 14:48:45 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.98 2011/04/20 10:20:16 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -2510,7 +2510,7 @@ void FourVectorHLTOffline::selectTaus(const edm::Event& iEvent)
 
   //first read the tau collection
   edm::Handle<reco::PFTauCollection> tauHandle;  
-  iEvent.getByLabel("shrinkingConePFTauProducer",tauHandle);
+  iEvent.getByLabel("hpsPFTauProducer",tauHandle);
 
   //Now access a discriminator and see if it passed the tag
   edm::Handle<reco::PFTauDiscriminator> dscrmt1H;
