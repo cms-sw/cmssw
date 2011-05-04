@@ -32,6 +32,7 @@ FactorizedJetCorrector::FactorizedJetCorrector()
   mNPV     = -9999;
   mJPTrawE = -9999;
   mJPTrawEt = -9999;
+  mJPTrawPt = -9999;
   mJPTrawEta = -9999;
   mJPTrawOff = -9999;
   mAddLepToJet      = false;
@@ -68,6 +69,7 @@ FactorizedJetCorrector::FactorizedJetCorrector(const std::string& fLevels, const
   mNPV    = -9999;
   mJPTrawE = -9999;
   mJPTrawEt = -9999;
+  mJPTrawPt = -9999;
   mJPTrawEta = -9999;
   mJPTrawOff = -9999;
   mAddLepToJet      = false;
@@ -105,6 +107,7 @@ FactorizedJetCorrector::FactorizedJetCorrector(const std::vector<JetCorrectorPar
   mNPV    = -9999;
   mJPTrawE = -9999;
   mJPTrawEt = -9999;
+  mJPTrawPt = -9999;
   mJPTrawEta = -9999;
   mJPTrawOff = -9999;
   mAddLepToJet      = false;
@@ -248,6 +251,8 @@ std::vector<FactorizedJetCorrector::VarTypes> FactorizedJetCorrector::mapping(co
       result.push_back(kJPTrawE);
     else if (ss=="JPTrawEt")
       result.push_back(kJPTrawEt);
+    else if (ss=="JPTrawPt")
+      result.push_back(kJPTrawPt);
     else if (ss=="JPTrawEta")
       result.push_back(kJPTrawEta);
     else if (ss=="JPTrawOff")
@@ -461,6 +466,11 @@ std::vector<float> FactorizedJetCorrector::fillVector(std::vector<VarTypes> fVar
         handleError("FactorizedJetCorrector","raw CaloJet P4 for JPT is not set");
       result.push_back(mJPTrawEt);
     }
+    else if (fVarTypes[i] == kJPTrawPt) {
+      if (!mIsJPTrawP4set)
+        handleError("FactorizedJetCorrector","raw CaloJet P4 for JPT is not set");
+      result.push_back(mJPTrawPt);
+    }
     else if (fVarTypes[i] == kJPTrawEta) {
       if (!mIsJPTrawP4set) 
         handleError("FactorizedJetCorrector","raw CaloJet P4 for JPT is not set");
@@ -593,6 +603,7 @@ void FactorizedJetCorrector::setJPTrawP4(TLorentzVector fJPTrawP4)
 {
   mJPTrawE   = fJPTrawP4.Energy();
   mJPTrawEt  = fJPTrawP4.Et();
+  mJPTrawPt  = fJPTrawP4.Pt();
   mJPTrawEta = fJPTrawP4.Eta();
   mIsJPTrawP4set = true;
 }
