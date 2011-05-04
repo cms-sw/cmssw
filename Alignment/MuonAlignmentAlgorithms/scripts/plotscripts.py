@@ -357,20 +357,20 @@ def stationIndex(name):
     if pa is None: return None
     if pa[0]=="CSC":
       if pa[2]==1 and pa[3]==1: return 0
-      if pa[2]==1 and pa[3]==1: return 1
-      if pa[2]==1 and pa[3]==1: return 2
-      if pa[2]==1 and pa[3]==1: return 3
-      if pa[2]==1 and pa[3]==1: return 4
-      if pa[2]==1 and pa[3]==1: return 5
-      if pa[2]==1 and pa[3]==1: return 6
-      if pa[2]==1 and pa[3]==1: return 7
-      if pa[2]==1 and pa[3]==1: return 8
-      if pa[2]==1 and pa[3]==1: return 9
+      if pa[2]==1 and pa[3]==2: return 1
+      if pa[2]==1 and pa[3]==3: return 2
+      if pa[2]==1 and pa[3]==4: return 3
+      if pa[2]==2 and pa[3]==1: return 4
+      if pa[2]==2 and pa[3]==2: return 5
+      if pa[2]==3 and pa[3]==1: return 6
+      if pa[2]==3 and pa[3]==2: return 7
+      if pa[2]==4 and pa[3]==1: return 8
+      if pa[2]==4 and pa[3]==2: return 9
     if pa[0]=="DT":
       if pa[2]==1: return 10
       if pa[2]==2: return 11
       if pa[2]==3: return 12
-      if pa[2]==2: return 13
+      if pa[2]==4: return 13
   else:
     if ("mem11" in name or "mep11" in name): return 0
     if ("mem12" in name or "mep12" in name): return 1
@@ -465,24 +465,36 @@ def rlines(disk, window, abscissa):
 
 ######################################################################################################
 
-def DBMC(database, reports, window=10., selection=None, phi=False, 
-         color=ROOT.kBlue-8, style=1, bins=50, normalized=False, getvalues=False, name=""):
-    return DBdiff(database, None, reports, None, window, selection, phi, color, style, bins, normalized, getvalues, name)
+def DBMC(database, reports, window=10., windows=None, selection=None, phi=False, 
+         color=ROOT.kBlue-8, style=1, bins=50, normalized=False, getvalues=False, name="", canvas=None, reportdiff=False, inlog=True):
+    return DBdiff(database, None, reports, None, window, windows, selection, phi, color, style, bins, normalized, getvalues,
+                  name, canvas, reportdiff, inlog)
 
-def DBdiff(database1, database2, reports1, reports2, window=10., selection=None, phi=False, color=ROOT.kBlue-8,
-           style=1, bins=50, normalized=False, getvalues=False, name="tmp"):
+
+def DBdiff(database1, database2, reports1, reports2, window=10., windows=None, selection=None, phi=False, color=ROOT.kBlue-8,
+           style=1, bins=50, normalized=False, getvalues=False, name="tmp", canvas=None, reportdiff=False, inlog=True):
+
     tdrStyle.SetOptStat("emrou")
     tdrStyle.SetStatW(0.40)
 
+    wnd = [window]*6
+    if windows is not None:
+      i=0
+      for w in windows:
+        wnd[i] = windows[i]
+        i+=1
+    
+    global hx, hy, hz, hphix, hphiy, hphiz
+    
     if phi:
-        hx = ROOT.TH1F("%s_phi" % name, "", bins, -window, window)
+        hx = ROOT.TH1F("%s_phi" % name, "", bins, -wnd[0], wnd[0])
     else:
-        hx = ROOT.TH1F("%s_x" % name, "", bins, -window, window)
-    hy = ROOT.TH1F("%s_y" % name, "", bins, -window, window)
-    hz = ROOT.TH1F("%s_z" % name, "", bins, -window, window)
-    hphix = ROOT.TH1F("%s_phix" % name, "", bins, -window, window)
-    hphiy = ROOT.TH1F("%s_phiy" % name, "", bins, -window, window)
-    hphiz = ROOT.TH1F("%s_phiz" % name, "", bins, -window, window)
+        hx = ROOT.TH1F("%s_x" % name, "", bins, -wnd[0], wnd[0])
+    hy = ROOT.TH1F("%s_y" % name, "", bins, -wnd[1], wnd[1])
+    hz = ROOT.TH1F("%s_z" % name, "", bins, -wnd[2], wnd[2])
+    hphix = ROOT.TH1F("%s_phix" % name, "", bins, -wnd[3], wnd[3])
+    hphiy = ROOT.TH1F("%s_phiy" % name, "", bins, -wnd[4], wnd[4])
+    hphiz = ROOT.TH1F("%s_phiz" % name, "", bins, -wnd[5], wnd[5])
         
     for r1 in reports1:
         if selection is None or (selection.func_code.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
@@ -523,63 +535,75 @@ def DBdiff(database1, database2, reports1, reports2, window=10., selection=None,
             if found and r1.status == "PASS" and r2.status == "PASS":
                 if r1.deltax is not None and r2.deltax is not None and r1.deltax.error is not None and \
                    r2.deltax.error is not None and (r1.deltax.error**2 + r2.deltax.error**2) > 0.:
+                    delta = db1.x - db2.x
+                    if reportdiff: delta -= r1.deltax.value
                     if normalized:
-                        fill = (db1.x - db2.x)/sqrt(r1.deltax.error**2 + r2.deltax.error**2) * signConventions[r1.postal_address][0]
+                        fill = delta/sqrt(r1.deltax.error**2 + r2.deltax.error**2) * signConventions[r1.postal_address][0]
                     else:
                         if phi:
-                            fill = (db1.x - db2.x)/signConventions[r1.postal_address][3] * 1000. * signConventions[r1.postal_address][0]
+                            fill = delta/signConventions[r1.postal_address][3] * 1000. * signConventions[r1.postal_address][0]
                         else:
-                            fill = (db1.x - db2.x) * 10. * signConventions[r1.postal_address][0]
+                            fill = delta * 10. * signConventions[r1.postal_address][0]
                     hx.Fill(fill)
                     if getvalues not in (False, None):
                         getvalues["x"].append((fill, 10. * sqrt(r1.deltax.error**2 + r2.deltax.error**2)))
 
                 if r1.deltay is not None and r2.deltay is not None and r1.deltay.error is not None and \
                    r2.deltay.error is not None and (r1.deltay.error**2 + r2.deltay.error**2) > 0.:
+                    delta = db1.y - db2.y
+                    if reportdiff: delta -= r1.deltay.value
                     if normalized:
-                        fill = (db1.y - db2.y)/sqrt(r1.deltay.error**2 + r2.deltay.error**2) * signConventions[r1.postal_address][1]
+                        fill = delta/sqrt(r1.deltay.error**2 + r2.deltay.error**2) * signConventions[r1.postal_address][1]
                     else:
-                        fill = (db1.y - db2.y) * 10. * signConventions[r1.postal_address][1]
+                        fill = delta * 10. * signConventions[r1.postal_address][1]
                     hy.Fill(fill)
                     if getvalues not in (False, None):
                         getvalues["y"].append((fill, 10. * sqrt(r1.deltay.error**2 + r2.deltay.error**2)))
 
                 if r1.deltaz is not None and r2.deltaz is not None and r1.deltaz.error is not None and \
                    r2.deltaz.error is not None and (r1.deltaz.error**2 + r2.deltaz.error**2) > 0.:
+                    delta = db1.z - db2.z
+                    if reportdiff: delta -= r1.deltaz.value
                     if normalized:
-                        fill = (db1.z - db2.z)/sqrt(r1.deltaz.error**2 + r2.deltaz.error**2) * signConventions[r1.postal_address][2]
+                        fill = delta/sqrt(r1.deltaz.error**2 + r2.deltaz.error**2) * signConventions[r1.postal_address][2]
                     else:
-                        fill = (db1.z - db2.z) * 10. * signConventions[r1.postal_address][2]
+                        fill = delta * 10. * signConventions[r1.postal_address][2]
                     hz.Fill(fill)
                     if getvalues not in (False, None):
                         getvalues["z"].append((fill, 10. * sqrt(r1.deltaz.error**2 + r2.deltaz.error**2)))
 
                 if r1.deltaphix is not None and r2.deltaphix is not None and r1.deltaphix.error is not None and \
                    r2.deltaphix.error is not None and (r1.deltaphix.error**2 + r2.deltaphix.error**2) > 0.:
+                    delta = db1.phix - db2.phix
+                    if reportdiff: delta -= r1.deltaphix.value
                     if normalized:
-                        fill = (db1.phix - db2.phix)/sqrt(r1.deltaphix.error**2 + r2.deltaphix.error**2)
+                        fill = delta/sqrt(r1.deltaphix.error**2 + r2.deltaphix.error**2)
                     else:
-                        fill = (db1.phix - db2.phix) * 1000.
+                        fill = delta * 1000.
                     hphix.Fill(fill)
                     if getvalues not in (False, None):
                         getvalues["phix"].append((fill, 10. * sqrt(r1.deltaphix.error**2 + r2.deltaphix.error**2)))
 
                 if r1.deltaphiy is not None and r2.deltaphiy is not None and r1.deltaphiy.error is not None and \
                    r2.deltaphiy.error is not None and (r1.deltaphiy.error**2 + r2.deltaphiy.error**2) > 0.:
+                    delta = db1.phiy - db2.phiy
+                    if reportdiff: delta -= r1.deltaphiy.value
                     if normalized:
-                        fill = (db1.phiy - db2.phiy)/sqrt(r1.deltaphiy.error**2 + r2.deltaphiy.error**2)
+                        fill = delta/sqrt(r1.deltaphiy.error**2 + r2.deltaphiy.error**2)
                     else:
-                        fill = (db1.phiy - db2.phiy) * 1000.
+                        fill = delta * 1000.
                     hphiy.Fill(fill)
                     if getvalues not in (False, None):
                         getvalues["phiy"].append((fill, 10. * sqrt(r1.deltaphiy.error**2 + r2.deltaphiy.error**2)))
 
                 if r1.deltaphiz is not None and r2.deltaphiz is not None and r1.deltaphiz.error is not None and \
                    r2.deltaphiz.error is not None and (r1.deltaphiz.error**2 + r2.deltaphiz.error**2) > 0.:
+                    delta = db1.phiz - db2.phiz
+                    if reportdiff: delta -= r1.deltaphiz.value
                     if normalized:
-                        fill = (db1.phiz - db2.phiz)/sqrt(r1.deltaphiz.error**2 + r2.deltaphiz.error**2)
+                        fill = delta/sqrt(r1.deltaphiz.error**2 + r2.deltaphiz.error**2)
                     else:
-                        fill = (db1.phiz - db2.phiz) * 1000.
+                        fill = delta * 1000.
                     hphiz.Fill(fill)
                     if getvalues not in (False, None):
                         getvalues["phiz"].append((fill, 10. * sqrt(r1.deltaphiz.error**2 + r2.deltaphiz.error**2)))
@@ -594,6 +618,16 @@ def DBdiff(database1, database2, reports1, reports2, window=10., selection=None,
         hphix.SetXTitle("#delta_{#phi_{x}} (mrad)")
         hphiy.SetXTitle("#delta_{#phi_{y}} (mrad)")
         hphiz.SetXTitle("#delta_{#phi_{z}} (mrad)")
+        if reportdiff:
+          if phi:
+              hx.SetXTitle("#delta_{#phi}(XML) - #delta_{#phi}(report) position (mrad)")
+          else:
+              hx.SetXTitle("#delta_{x'}(XML) - #delta_{x'}(report) (mm)")
+          hy.SetXTitle("#delta_{y'}(XML) - #delta_{y'}(report) (mm)")
+          hz.SetXTitle("#delta_{z'}(XML) - #delta_{z'}(report) (mm)")
+          hphix.SetXTitle("#delta_{#phi_{x}}(XML) - #delta_{#phi_{x}}(report) (mrad)")
+          hphiy.SetXTitle("#delta_{#phi_{y}}(XML) - #delta_{#phi_{y}}(report) (mrad)")
+          hphiz.SetXTitle("#delta_{#phi_{z}}(XML) - #delta_{#phi_{z}}(report) (mrad)")	  
     else:
         if phi:
             hx.SetXTitle("#delta_{#phi}/#sigma_{#phi} position")
@@ -611,6 +645,9 @@ def DBdiff(database1, database2, reports1, reports2, window=10., selection=None,
         h.SetFillColor(color)
         h.SetLineStyle(style)
 
+    if canvas is not None: c = canvas
+    else: c = c1
+    
     if normalized:
         fx = ROOT.TF1("fx", "%g * exp(-x**2/2.)/sqrt(2.*3.1415926)" % (hx.GetEntries()*2.*window/bins), -window, window)
         fy = ROOT.TF1("fy", "%g * exp(-x**2/2.)/sqrt(2.*3.1415926)" % (hy.GetEntries()*2.*window/bins), -window, window)
@@ -623,24 +660,34 @@ def DBdiff(database1, database2, reports1, reports2, window=10., selection=None,
             f.SetLineColor(ROOT.kBlue)
         for h, f in (hx, fx), (hy, fy), (hz, fz), (hphix, fphix), (hphiy, fphiy), (hphiz, fphiz):
             h.SetAxisRange(0, 1.1*max(h.GetMaximum(), f.GetMaximum()), "Y")
-        c1.Clear()
-        c1.Divide(3, 2)
-        c1.GetPad(1).cd(); hx.Draw(); fx.Draw("same")
-        c1.GetPad(2).cd(); hy.Draw(); fy.Draw("same")
-        c1.GetPad(3).cd(); hz.Draw(); fz.Draw("same")
-        c1.GetPad(4).cd(); hphix.Draw(); fphix.Draw("same")
-        c1.GetPad(5).cd(); hphiy.Draw(); fphiy.Draw("same")
-        c1.GetPad(6).cd(); hphiz.Draw(); fphiz.Draw("same")
+        
+        c.Clear()
+        c.Divide(3, 2)
+        c.GetPad(1).cd(); hx.Draw(); fx.Draw("same")
+        c.GetPad(2).cd(); hy.Draw(); fy.Draw("same")
+        c.GetPad(3).cd(); hz.Draw(); fz.Draw("same")
+        c.GetPad(4).cd(); hphix.Draw(); fphix.Draw("same")
+        c.GetPad(5).cd(); hphiy.Draw(); fphiy.Draw("same")
+        c.GetPad(6).cd(); hphiz.Draw(); fphiz.Draw("same")
         return hx, hy, hz, hphix, hphiy, hphiz, fx, fy, fz, fphix, fphiy, fphiz
     else:
-        c1.Clear()
-        c1.Divide(3, 2)
-        c1.GetPad(1).cd(); hx.Draw()
-        c1.GetPad(2).cd(); hy.Draw()
-        c1.GetPad(3).cd(); hz.Draw()
-        c1.GetPad(4).cd(); hphix.Draw()
-        c1.GetPad(5).cd(); hphiy.Draw()
-        c1.GetPad(6).cd(); hphiz.Draw()
+        c.Clear()
+        c.Divide(2, 2)
+        c.GetPad(1).cd(); hx.Draw()
+        c.GetPad(2).cd(); hy.Draw()
+        #c.GetPad(3).cd(); hz.Draw()
+        #c.GetPad(4).cd(); hphix.Draw()
+        c.GetPad(3).cd(); hphiy.Draw()
+        c.GetPad(4).cd(); hphiz.Draw()
+
+        if inlog:
+          if hx.GetEntries()>0:    c.GetPad(1).SetLogy(1)
+          if hy.GetEntries()>0:    c.GetPad(2).SetLogy(1)
+          #if hz.GetEntries()>0:    c.GetPad(3).SetLogy(1)
+          #if hphix.GetEntries()>0: c.GetPad(4).SetLogy(1)
+          if hphiy.GetEntries()>0: c.GetPad(3).SetLogy(1)
+          if hphiz.GetEntries()>0: c.GetPad(4).SetLogy(1)
+
         return hx, hy, hz, hphix, hphiy, hphiz
 
 def DBMCVersus(quantity, versus, database, reports, window=10., selection=None, color=ROOT.kBlack):
@@ -888,6 +935,10 @@ def availableCellsDT(reports):
 
 def availableCellsCSC(reports):
   cscs = []
+  # CSC station
+  for endcap in CSC_TYPES:
+    for station in endcap[2]:
+      cscs.append("%s%s" % (endcap[0], station[1]))
   # CSC station & ring 
   for endcap in CSC_TYPES:
     for station in endcap[2]:
@@ -1310,10 +1361,49 @@ def plotmedians(reports1, reports2, selection=None, binsx=100, windowx=5., ceili
            hmedianx_after,    hmedianx_before, hmedianx_beforecopy, \
            hmediany_after,    hmediany_before, hmediany_beforecopy, tlegend 
 
+
+######################################################################################################
+
+def createPeaksProfile(the2d, rebin=1):
+  htmp = ROOT.gROOT.FindObject(the2d.GetName()+"_peaks")
+  if htmp != None: htmp.Delete()
+
+  hpeaks = the2d.ProjectionX(the2d.GetName()+"_peaks")
+  hpeaks.Reset()
+  hpeaks.Rebin(rebin)
+  for i in xrange(0, int(the2d.GetNbinsX()), rebin):
+    tmp = the2d.ProjectionY("tmp", i+1, i + rebin)
+    nn = tmp.GetEntries()
+
+    drange = tmp.GetRMS()
+    drange = 2.5*drange
+    fgaus = ROOT.TF1("fgaus","gaus", tmp.GetMean() - drange, tmp.GetMean() + drange)
+    fgaus.SetParameter(0,nn)
+    fgaus.SetParameter(1,tmp.GetMean())
+    fgaus.SetParameter(2,tmp.GetRMS())
+    #print "  ", i, nn, tmp.GetMean() , drange, "[", tmp.GetMean() - drange, tmp.GetMean() + drange, ']'
+
+    fitOk = False
+    if nn > 10:     # good to fit
+      fr = tmp.Fit("fgaus","RNSQ")
+      #print "       ", fgaus.GetParameter(1), " +- ", fgaus.GetParError(1), "   fitres = " , fr.Status() , fr.CovMatrixStatus()
+      hpeaks.SetBinContent(i/rebin+1, fgaus.GetParameter(1))
+      hpeaks.SetBinError(i/rebin+1, fgaus.GetParError(1))
+      if fr.Status()==0 and fr.CovMatrixStatus()==3 : fitOk = True
+    if fitOk:
+      if nn > 1. and tmp.GetRMS() > 0: # use mean
+        hpeaks.SetBinContent(i/rebin+1, tmp.GetMean())
+        hpeaks.SetBinError(i/rebin+1, ROOT.TMath.StudentQuantile(0.841345,nn) * tmp.GetRMS() / sqrt(nn))
+      else:
+        hpeaks.SetBinContent(i/rebin+1, 0.)
+        hpeaks.SetBinError(i/rebin+1, 0.)
+  return hpeaks
+
+
 ######################################################################################################
 
 def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title="", 
-            widebins=False, fitsine=False, fitline=False, reset_palette=False, fitsawteeth=False, fitpeaks=False, peaksbins=5):
+            widebins=False, fitsine=False, fitline=False, reset_palette=False, fitsawteeth=False, fitpeaks=False, peaksbins=5, fixfitpars={}, **args):
     tdrStyle.SetOptTitle(1)
     tdrStyle.SetTitleBorderSize(0)
     tdrStyle.SetOptStat(0)
@@ -1337,12 +1427,20 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
     hdir = "AlignmentMonitorMuonSystemMap1D/iter1/"
     hpref= "%s_%s" % (name, param)
     hhh  = hdir+hpref
+    
+    add1d =  ("vsphi" in name) and (param == "x")
 
-    hist2d = tfiles[0].Get(hhh+"_2d").Clone(hpref+"_2d_")
- 
-    for tfile in tfiles[1:]:
+    if "h2d" in args:
+      hist2d = args["h2d"].Clone(hpref+"_2d_")
+      if "CSC" in name  and  add1d: hist1d = args["h1d"].Clone(hpref+"_1d_")
+      
+    else:
+      hist2d = tfiles[0].Get(hhh+"_2d").Clone(hpref+"_2d_")
+      if "CSC" in name  and  add1d: hist1d = tfiles[0].Get(hhh+"_1d").Clone(hpref+"_1d_")
+      for tfile in tfiles[1:]:
         hist2d.Add(tfile.Get(hhh+"_2d"))
-
+        if "CSC" in name   and  add1d: hist1d.Add(tfile.Get(hhh+"_1d"))
+    
     if mode == "from2d":
         the2d = hist2d
         
@@ -1369,36 +1467,8 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
                 hist.SetBinContent(i/skip+1, 0.)
                 hist.SetBinError(i/skip+1, 0.)
 
-        htmp = ROOT.gROOT.FindObject(the2d.GetName()+"_peaks")
-        if htmp != None: htmp.Delete()
-        
-        hpeaks = the2d.ProjectionX(the2d.GetName()+"_peaks")
-        hpeaks.Reset()
-        hpeaks.Rebin(peaksbins)
-        for i in xrange(0, int(the2d.GetNbinsX()), peaksbins):
-            tmp = the2d.ProjectionY("tmp", i+1, i + peaksbins)
-            nn = tmp.GetEntries()
-            
-            drange = tmp.GetRMS()
-            drange = 2.5*drange
-            fgaus = ROOT.TF1("fgaus","gaus", tmp.GetMean() - drange, tmp.GetMean() + drange)
-            fgaus.SetParameter(0,nn)
-            fgaus.SetParameter(1,tmp.GetMean())
-            fgaus.SetParameter(2,tmp.GetRMS())
-            #print "  ", i, nn, tmp.GetMean() , drange, "[", tmp.GetMean() - drange, tmp.GetMean() + drange, ']'
-                
-            if nn > 10:     # good to fit
-              fr = tmp.Fit("fgaus","RNSQ")
-              #print "       ", fgaus.GetParameter(1), " +- ", fgaus.GetParError(1), "   fitres = " , fr.Status() , fr.CovMatrixStatus()
-              hpeaks.SetBinContent(i/peaksbins+1, fgaus.GetParameter(1))
-              hpeaks.SetBinError(i/peaksbins+1, fgaus.GetParError(1))
-            elif nn > 1. and tmp.GetRMS() > 0: # use mean
-              hpeaks.SetBinContent(i/peaksbins+1, tmp.GetMean())
-              hpeaks.SetBinError(i/skip_peaks+1, ROOT.TMath.StudentQuantile(0.841345,nn) * tmp.GetRMS() / sqrt(nn))
-            else:
-              hpeaks.SetBinContent(i/peaksbins+1, 0.)
-              hpeaks.SetBinError(i/peaksbins+1, 0.)
-        
+        hpeaks = createPeaksProfile(the2d, peaksbins)
+
     else:
         raise Exception
 
@@ -1446,16 +1516,23 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
           f = ROOT.TF1("f", "[0] + [1]*sin(x) + [2]*cos(x)", -pi, pi)
         f.SetLineColor(ROOT.kRed)
         f.SetLineWidth(2)
+        if len(fixfitpars)>0:
+          for fpar in fixfitpars.keys():
+            f.FixParameter(fpar, fixfitpars[fpar])
         #hist.Fit(f,"N")
-        if fitpeaks: hpeaks.Fit(f,"NE")
-        else: hist.Fit(f,"NE")
+        if fitpeaks: hpeaks.Fit(f,"NQ")
+        else: hist.Fit(f,"NEQ")
+        if len(fixfitpars)>0:
+          for fpar in fixfitpars.keys():
+            f.ReleaseParameter(fpar)
         fitsine_const = f.GetParameter(0), f.GetParError(0)
         fitsine_sin = f.GetParameter(1), f.GetParError(1)
         fitsine_cos = f.GetParameter(2), f.GetParError(2)
         fitsine_chi2 = f.GetChisquare()
         fitsine_ndf = f.GetNDF()
         global MAP_RESULTS_FITSIN
-        MAP_RESULTS_FITSIN[id] = {'a':fitsine_const, 'sin': fitsine_sin, 'cos': fitsine_cos, 'chi2': fitsine_chi2, 'ndf': fitsine_ndf}
+        # 'phi' coefficienct will be updated further for CSC
+        MAP_RESULTS_FITSIN[id] = {'a':fitsine_const, 'phi':fitsine_const, 'sin': fitsine_sin, 'cos': fitsine_cos, 'chi2': fitsine_chi2, 'ndf': fitsine_ndf}
         f.Draw("same")
         global fitsine_ttext, fitsine_etext
         text_xposition = -1.
@@ -1470,6 +1547,39 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
         fitsine_etext.SetTextColor(ROOT.kRed)
         fitsine_etext.SetTextSize(0.045)
         fitsine_etext.Draw()
+
+        # additional estimate of phiz ring rotation from 1d distribution
+        if 'CSC' in name and add1d:
+          # zero-order rough fit to obtain the fitting range:
+          f0 = ROOT.TF1("f0", "gaus", hist1d.GetBinLowEdge(1), -hist1d.GetBinLowEdge(1))
+          fit = hist1d.Fit(f0,"NRQ")
+          rangea, rangeb = hist1d.GetMean() - hist1d.GetRMS(), hist1d.GetMean() + hist1d.GetRMS()
+          if fit==0: rangea, rangeb = f0.GetParameter(1) - f0.GetParameter(2), f0.GetParameter(1) + f0.GetParameter(2)
+          #print rangea, rangeb
+          
+          # second fit for finding the peak:
+          f1 = ROOT.TF1("f1", "gaus", rangea, rangeb)
+          fit = hist1d.Fit(f1,"NRQ")
+          nn = hist1d.GetEntries()
+          dphiz, ephiz = 0, 0
+          if nn>0:  dphiz, ephiz = hist1d.GetMean(), ROOT.TMath.StudentQuantile(0.841345,nn) * hist1d.GetRMS() / sqrt(nn)
+          if fit==0: dphiz, ephiz = f1.GetParameter(1), f1.GetParError(1)
+          #print dphiz, ephiz
+          MAP_RESULTS_FITSIN[id]['phi'] = (dphiz, ephiz)
+          
+          global ttex_sine_, ttex_sine, ttex_1d_, ttex_1d
+          postal_address = idToPostalAddress(id+'/01')
+          ttex_sine_ = ROOT.TLatex(0, 0.8*window,"#Delta#phi_{z}^{sine} (mrad):")
+          ttex_sine_.SetTextColor(ROOT.kGreen+2); ttex_sine_.SetTextSize(0.04); ttex_sine_.Draw()
+          ttex_sine = ROOT.TLatex(0, 0.7*window,"   %+.3f#pm%.3f" %
+                                  (-100*fitsine_const[0]/signConventions[postal_address][3], 
+                                   100*fitsine_const[1]/signConventions[postal_address][3]))
+          ttex_sine.SetTextColor(ROOT.kGreen+2); ttex_sine.SetTextSize(0.04); ttex_sine.Draw()
+          ttex_1d_ = ROOT.TLatex(0, 0.6*window,"#Delta#phi_{z}^{phi} (mrad):")
+          ttex_1d_.SetTextColor(ROOT.kGreen+2); ttex_1d_.SetTextSize(0.04); ttex_1d_.Draw()
+          ttex_1d = ROOT.TLatex(0, 0.5*window,"   %+.3f#pm%.3f" % (-dphiz, ephiz))
+          ttex_1d.SetTextColor(ROOT.kGreen+2); ttex_1d.SetTextSize(0.04); ttex_1d.Draw()
+          ROOT.gPad.Update()
 
     if fitline:
         f = ROOT.TF1("f", "[0] + [1]*x", -1000., 1000.)
@@ -1675,6 +1785,9 @@ def curvatureplot(tfiles, name, param, mode="from2d", window=15., widebins=False
         if widebins:
             hist.Rebin(5)
             skip = 5
+        htmp = ROOT.gROOT.FindObject("tmp")
+        if htmp != None: htmp.Delete()
+
         for i in xrange(0, int(prof.GetNbinsX()), skip):
             tmp = hist2d.ProjectionY("tmp", i+1, i + skip)
             if tmp.GetEntries() > 1:
@@ -2789,7 +2902,7 @@ def segdiff(tfiles, component, pair, **args):
     c1.Clear()
     c1.Divide(2, 1)
     c1.GetPad(1).cd()
-    fit1 = tmpprof.Fit("p1", "q")
+    fit1 = tmpprof.Fit("p1", "qS")
     tmpprof.Draw("e1")
     c1.GetPad(2).cd()
     c1.GetPad(2).Divide(1, 2)
@@ -2799,23 +2912,30 @@ def segdiff(tfiles, component, pair, **args):
                  tmppos.GetMean() - tmppos.GetRMS(), tmppos.GetMean() + tmppos.GetRMS())
     f.SetParameters(tmppos.GetEntries() * ((10. - -10.)/100.), tmppos.GetMean(), tmppos.GetRMS())
     f.SetParNames("Constant", "Mean", "Sigma")
-    fit2 = tmppos.Fit("gausR", "qR")
+    fit2 = tmppos.Fit("gausR", "qRS")
     c1.GetPad(2).GetPad(2).cd()
     tmpneg.Draw()
     f = ROOT.TF1("gausR", "[0]*exp(-(x - [1])**2 / 2. / [2]**2) / sqrt(2.*3.1415926) / [2]", 
                  tmpneg.GetMean() - tmpneg.GetRMS(), tmpneg.GetMean() + tmpneg.GetRMS())
     f.SetParameters(tmpneg.GetEntries() * ((10. - -10.)/100.), tmpneg.GetMean(), tmpneg.GetRMS())
     f.SetParNames("Constant", "Mean", "Sigma")
-    fit3 = tmpneg.Fit("gausR", "qR")
+    fit3 = tmpneg.Fit("gausR", "qRS")
+
+    fit1ok = fit1.Status()==0 and fit1.CovMatrixStatus()==3
+    fit2ok = fit2.Status()==0 and fit2.CovMatrixStatus()==3
+    fit3ok = fit3.Status()==0 and fit3.CovMatrixStatus()==3
 
     fitresult1 = None, None
-    if fit1 == 0:
+    if fit1ok:
         fitresult1 = tmpprof.GetFunction("p1").GetParameter(0), tmpprof.GetFunction("p1").GetParError(0)
     fitresult2 = None, None
-    if fit2 == 0 and fit3 == 0:
+    if fit2ok and fit3ok:
         fitresult2 = (tmppos.GetFunction("gausR").GetParameter(1) + tmpneg.GetFunction("gausR").GetParameter(1)) / 2., \
                      sqrt(tmppos.GetFunction("gausR").GetParError(1)**2 + tmpneg.GetFunction("gausR").GetParError(1)**2) / 2.
-    return phi, fitresult1[0], fitresult1[1], fitresult2[0], fitresult2[1], fit1, fit2, fit3
+    return phi, fitresult1[0], fitresult1[1], fitresult2[0], fitresult2[1], fit1ok, fit2ok, fit3ok
+
+
+##################################################################################
 
 def segdiffvsphi(tfiles, reports, component, wheel, window=5., excludesectors=()):
     tdrStyle.SetOptTitle(1)
@@ -2828,7 +2948,7 @@ def segdiffvsphi(tfiles, reports, component, wheel, window=5., excludesectors=()
     gtemp_23_phi, gtemp_23_val, gtemp_23_err, gtemp_23_val2, gtemp_23_err2 = [], [], [], [], []
     gtemp_34_phi, gtemp_34_val, gtemp_34_err, gtemp_34_val2, gtemp_34_err2 = [], [], [], [], []
     for sector in xrange(1, 12+1):
-        #print sector
+        #print "sect", sector
         r1_found, r2_found, r3_found, r4_found = False, False, False, False
         for r1 in reports:
             if r1.postal_address == ("DT", wheel, 1, sector):
@@ -2852,8 +2972,7 @@ def segdiffvsphi(tfiles, reports, component, wheel, window=5., excludesectors=()
             if r1_found and r2_found and r1.status == "PASS" and r2.status == "PASS":
                 phi, val, err, val2, err2, fit1, fit2, fit3 = segdiff(tfiles, component, 12, wheel=wheel, sector=sector)
                 #print "segdif 12", phi, val, err, val2, err2, fit1, fit2, fit3
-                if fit1 == 0 and fit2 == 0 and fit3 == 0:
-                #if fit1 == 0 and fit2 == 0:
+                if fit1 and fit2 and fit3:
                     gtemp_12_phi.append(phi)
                     gtemp_12_val.append(val)
                     gtemp_12_err.append(err)
@@ -2862,8 +2981,7 @@ def segdiffvsphi(tfiles, reports, component, wheel, window=5., excludesectors=()
             if r2_found and r3_found and r2.status == "PASS" and r3.status == "PASS":
                 phi, val, err, val2, err2, fit1, fit2, fit3 = segdiff(tfiles, component, 23, wheel=wheel, sector=sector)
                 #print "segdif 23", phi, val, err, val2, err2, fit1, fit2, fit3
-                if fit1 == 0 and fit2 == 0 and fit3 == 0:
-                #if fit1 == 0 and fit2 == 0:
+                if fit1 and fit2 and fit3:
                     gtemp_23_phi.append(phi)
                     gtemp_23_val.append(val)
                     gtemp_23_err.append(err)
@@ -2873,8 +2991,7 @@ def segdiffvsphi(tfiles, reports, component, wheel, window=5., excludesectors=()
                 if r3_found and r4_found and r3.status == "PASS" and r4.status == "PASS":
                     phi, val, err, val2, err2, fit1, fit2, fit3 = segdiff(tfiles, component, 34, wheel=wheel, sector=sector)
                     #print "segdif 34", phi, val, err, val2, err2, fit1, fit2, fit3
-                    if fit1 == 0 and fit2 == 0 and fit3 == 0:
-                    #if fit1 == 0 and fit2 == 0:
+                    if fit1 and fit2 and fit3:
                         gtemp_34_phi.append(phi)
                         gtemp_34_val.append(val)
                         gtemp_34_err.append(err)
@@ -2956,6 +3073,8 @@ def segdiffvsphi(tfiles, reports, component, wheel, window=5., excludesectors=()
     tlegend.Draw()
 
 
+##################################################################################
+
 def segdiffvsphicsc(tfiles, component, pair, window=5., **args):
     tdrStyle.SetOptTitle(1)
     tdrStyle.SetTitleBorderSize(1)
@@ -2991,7 +3110,7 @@ def segdiffvsphicsc(tfiles, component, pair, window=5., **args):
       
       for chamber in chambers:
         phi, val, err, val2, err2, fit1, fit2, fit3 = segdiff(tfiles, component, pair, endcap=endcap, ring=ring, chamber=chamber)
-        if fit1 == 0 and fit2 == 0 and fit3 == 0:
+        if fit1 and fit2 and fit3:
           if ring==1:
             gtemp_1_phi.append(phi)
             gtemp_1_val.append(val)
@@ -3060,3 +3179,130 @@ def segdiffvsphicsc(tfiles, component, pair, window=5., **args):
     #                               (mean(gtemp_12_val + gtemp_23_val + gtemp_34_val), 
     #                               stdev(gtemp_12_val + gtemp_23_val + gtemp_34_val)), "")
     tlegend.Draw()
+
+
+
+
+##################################################################################
+
+
+def reportsDiff(reports1, reports2, window=25., windows=None, selection=None, bins=1001, name="tmp", canvas=None):
+    tdrStyle.SetOptStat("emrou")
+    tdrStyle.SetStatW(0.40)
+
+    wnd = [window]*6
+    if windows is not None:
+      i=0
+      for w in windows:
+        wnd[i] = windows[i]
+        i+=1
+    wnd_adaptive = [.2]*6
+    
+    global hx, hy, hphiy, hphiz
+    
+    hx = ROOT.TH2F("%s_x" % name, "", bins, -wnd[0], wnd[0], bins, -wnd[0], wnd[0])
+    hy = ROOT.TH2F("%s_y" % name, "", bins, -wnd[1], wnd[1], bins, -wnd[1], wnd[1])
+    hphiy = ROOT.TH2F("%s_phiy" % name, "", bins, -wnd[2], wnd[2], bins, -wnd[2], wnd[2])
+    hphiz = ROOT.TH2F("%s_phiz" % name, "", bins, -wnd[3], wnd[3], bins, -wnd[3], wnd[3])
+
+    global pca_x, pca_y, pca_phiy, pca_phiz
+    pca_x = ROOT.TPrincipal(2,"D")
+    pca_y = ROOT.TPrincipal(2,"D")
+    pca_phiy = ROOT.TPrincipal(2,"D")
+    pca_phiz = ROOT.TPrincipal(2,"D")
+
+    for r1 in reports1:
+        if selection is None or (selection.func_code.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
+	    found = False
+	    for r2 in reports2:
+		if r1.postal_address == r2.postal_address:
+		    found = True
+		    break
+	    if not found: continue
+
+
+            if found and r1.status == "PASS" and r2.status == "PASS":
+                if r1.deltax is not None and r2.deltax is not None and r1.deltax.error is not None and \
+                   r2.deltax.error is not None and (r1.deltax.error**2 + r2.deltax.error**2) > 0.:
+                    fill1 = r1.deltax.value * 10. * signConventions[r1.postal_address][0]
+                    fill2 = r2.deltax.value * 10. * signConventions[r2.postal_address][0]
+                    hx.Fill(fill1,fill2)
+		    pca_x.AddRow(array.array('d',[fill1,fill2]))
+		    mx = max(abs(fill1), abs(fill2))
+		    if mx > wnd_adaptive[0]: wnd_adaptive[0] = mx
+                if r1.deltay is not None and r2.deltay is not None and r1.deltay.error is not None and \
+                   r2.deltay.error is not None and (r1.deltay.error**2 + r2.deltay.error**2) > 0.:
+                    fill1 = r1.deltay.value * 10. * signConventions[r1.postal_address][1]
+                    fill2 = r2.deltay.value * 10. * signConventions[r2.postal_address][1]
+                    hy.Fill(fill1,fill2)
+		    pca_y.AddRow(array.array('d',[fill1,fill2]))
+		    mx = max(abs(fill1), abs(fill2))
+		    if mx > wnd_adaptive[1]: wnd_adaptive[1] = mx
+                if r1.deltaphiy is not None and r2.deltaphiy is not None and r1.deltaphiy.error is not None and \
+                   r2.deltaphiy.error is not None and (r1.deltaphiy.error**2 + r2.deltaphiy.error**2) > 0.:
+                    fill1 = r1.deltaphiy.value * 1000.
+                    fill2 = r2.deltaphiy.value * 1000.
+                    hphiy.Fill(fill1,fill2)
+		    pca_phiy.AddRow(array.array('d',[fill1,fill2]))
+		    mx = max(abs(fill1), abs(fill2))
+		    if mx > wnd_adaptive[2]: wnd_adaptive[2] = mx
+                if r1.deltaphiz is not None and r2.deltaphiz is not None and r1.deltaphiz.error is not None and \
+                   r2.deltaphiz.error is not None and (r1.deltaphiz.error**2 + r2.deltaphiz.error**2) > 0.:
+                    fill1 = r1.deltaphiz.value * 1000.
+                    fill2 = r2.deltaphiz.value * 1000.
+                    hphiz.Fill(fill1,fill2)
+		    pca_phiz.AddRow(array.array('d',[fill1,fill2]))
+		    mx = max(abs(fill1), abs(fill2))
+		    if mx > wnd_adaptive[3]: wnd_adaptive[3] = mx
+
+    p = 0
+    for h in hx, hy, hphiy, hphiz:
+      h.GetXaxis().CenterTitle()
+      h.GetYaxis().CenterTitle()
+      h.SetMarkerStyle(0)
+      wnd_adaptive[p] += 0.1
+      h.GetXaxis().SetRangeUser(-wnd_adaptive[p], wnd_adaptive[p])
+      h.GetYaxis().SetRangeUser(-wnd_adaptive[p], wnd_adaptive[p])
+      p += 1
+      
+    hx.SetXTitle("iteration's #Deltax (mm)")
+    hx.SetYTitle("other iteration's #Deltax (mm)")
+    hy.SetXTitle("iteration's #Deltay (mm)")
+    hy.SetYTitle("other iteration's #Deltay (mm)")
+    hphiy.SetXTitle("iteration's #Delta#phi_{y} (mrad)")
+    hphiy.SetYTitle("other iteration's #Delta#phi_{y} (mrad)")
+    hphiz.SetXTitle("iteration's #Delta#phi_{z} (mrad)")
+    hphiz.SetYTitle("other iteration's #Delta#phi_{z} (mrad)")
+
+    if canvas is not None: c = canvas
+    else: c = c1
+    c.Clear()
+    c.Divide(2, 2)
+    c.GetPad(1).cd(); hx.Draw()
+    c.GetPad(2).cd(); hy.Draw()
+    c.GetPad(3).cd(); hphiy.Draw()
+    c.GetPad(4).cd(); hphiz.Draw()
+
+    p = 0
+    global lines
+    lines = []
+    for pca in pca_x, pca_y, pca_phiy, pca_phiz:
+      pca.MakePrincipals()
+      #pca.Print()
+      #pca.Test()
+      # Make some histograms of the orginal, principal, residue, etc data 
+      #pca.MakeHistograms()
+      
+      b = pca.GetEigenVectors()[0][1] / pca.GetEigenVectors()[0][0]
+      a = pca.GetMeanValues()[1] - b * pca.GetMeanValues()[0]
+      print a, b, "   ", pca.GetEigenValues()[0], pca.GetEigenValues()[1]
+      
+      line = ROOT.TLine(-wnd_adaptive[p], a - b*wnd_adaptive[p], wnd_adaptive[p], a + b*wnd_adaptive[p])
+      if not isnan(b):
+        c.GetPad(p+1).cd()
+	line.SetLineColor(ROOT.kBlue)
+        line.Draw()	  
+        lines.append(line)
+      p += 1
+
+    return hx, hy, hphiy, hphiz, pca_x, pca_y, pca_phiy, pca_phiz
