@@ -850,7 +850,10 @@ if 'GlobalTag' in %%(dict)s:
 
 
   def build_source(self):
-    if self.config.online:
+    if self.config.input:
+      # if an explicit input file was given, use it
+      self.source = self.config.input
+    elif self.config.online:
       # online we always run on data
       self.source = "file:/tmp/InputCollection.root"
     elif self.config.data:
