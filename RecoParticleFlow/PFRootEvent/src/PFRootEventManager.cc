@@ -2819,7 +2819,7 @@ void PFRootEventManager::particleFlow() {
 			   trackMask,gsftrackMask,
 			   ecalMask, hcalMask, hfemMask, hfhadMask, psMask,photonMask );
   else    
-    pfBlockAlgo_.setInput( trackh, ecalh, hcalh, hfemh, hfhadh, psh,
+    pfBlockAlgo_.setInput( trackh, muonh, ecalh, hcalh, hfemh, hfhadh, psh,
 			   trackMask, ecalMask, hcalMask, psMask );
 
   pfBlockAlgo_.findBlocks();
