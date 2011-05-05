@@ -15,13 +15,12 @@ import FWCore.ParameterSet.Config as cms
 from RecoMET.Configuration.RecoMET_cff import *
 from RecoMET.Configuration.RecoMET_BeamHaloId_cff import *
 
-#tcMetP5 = tcMet.clone(trackInputTag = 'ctfWithMaterialTracksP5LHCNavigation')
 tcMet.trackInputTag = 'ctfWithMaterialTracksP5LHCNavigation'
 tcMet.isCosmics = True
 
-#hcalnoiseCosmics = hcalnoise.clone(fillTracks = False)
 hcalnoise.fillTracks = False
 
+CSCHaloData.CosmicMuonLabel = cms.InputTag("muons")
 
 metrecoCosmics = cms.Sequence(
       met+
