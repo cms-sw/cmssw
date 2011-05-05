@@ -50,7 +50,7 @@ private:
 
    void ionize( double energyTransferred, LocalPoint startHere) const;
 	
-   void writeSummary( int n_steps, double sum_steps, float dedx ) const;
+   void writeSummary( int n_steps, double sum_steps, float dedx, float simHiteloss ) const;
 
    const std::string me;       // class name
    double gasDensity;     // Density of CSC gas mix
