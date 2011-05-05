@@ -80,5 +80,5 @@ workflows[30] = ['', ['ZMM','DIGI2','RECOMU']]
 #workflows[40]
 #workflows[41]
 
-workflows[42]=['', ['TTbar_REDIGI_RERECO','REDIGI2RECO','RECOFROMRECO']]
+#workflows[42]=['', ['TTbar_REDIGI_RERECO','REDIGI2RECO','RECOFROMRECO']]
 
