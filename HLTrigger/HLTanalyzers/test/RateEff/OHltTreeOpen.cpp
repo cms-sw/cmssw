@@ -1458,6 +1458,71 @@ bool isHTX_Mu15_pfMHTXTrigger(
       return false;
 }
 
+bool isEleX_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HTXTrigger(
+						  TString triggerName,
+						  vector<double> &thresholds)
+{
+  TString pattern = "(OpenHLT_EleX([0-9]+)_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT([0-9]+))$";
+   TPRegexp matchThreshold(pattern);
+
+   if (matchThreshold.MatchB(triggerName))
+   {
+      TObjArray *subStrL    = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdEle   = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdHT    = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdEle);
+      thresholds.push_back(thresholdHT);
+      delete subStrL;
+      return true;
+   }
+   else
+      return false;
+}
+
+bool isEleX_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HTXTrigger(
+							  TString triggerName,
+							  vector<double> &thresholds)
+{
+  TString pattern = "(OpenHLT_EleX([0-9]+)_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT([0-9]+))$";
+   TPRegexp matchThreshold(pattern);
+
+   if (matchThreshold.MatchB(triggerName))
+   {
+      TObjArray *subStrL    = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdEle   = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdHT    = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdEle);
+      thresholds.push_back(thresholdHT);
+      delete subStrL;
+      return true;
+   }
+   else
+      return false;
+}
+
+bool isHTX_elX_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_pfMHTXTrigger(
+								 TString triggerName,
+								 vector<double> &thresholds)
+{
+  TString pattern = "(OpenHLT_HT([0-9]+)_elX([0-9]+)_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_pfMHT([0-9]+))$";
+   TPRegexp matchThreshold(pattern);
+
+   if (matchThreshold.MatchB(triggerName))
+   {
+      TObjArray *subStrL    = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdHT    = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdEle   = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdMHT   = (((TObjString *)subStrL->At(4))->GetString()).Atof();
+      thresholds.push_back(thresholdHT);
+      thresholds.push_back(thresholdEle);
+      thresholds.push_back(thresholdMHT);
+      delete subStrL;
+      return true;
+   }
+   else
+      return false;
+}
+
 void OHltTree::CheckOpenHlt(
       OHltConfig *cfg,
       OHltMenu *menu,
@@ -7470,10 +7535,10 @@ else if (triggerName.CompareTo("OpenHLT_Dimuon6p5_LowMass_v1") == 0)
 
   //AGB - HT + single electron + MET
 
-   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT200_el5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_pfMHT35") == 0) {
+   else if (isHTX_elX_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_pfMHTXTrigger(triggerName, thresholds)) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1){
       if (prescaleResponse(menu,cfg,rcounter,it)){
-	if(OpenHltpfMHT(35.) && OpenHltSumCorHTPassed(200.,40.,3.)>0  && (OpenHlt1ElectronSamHarperPassed(5.,0,          // ET, L1isolation
+	if(OpenHltpfMHT(thresholds[2]) && OpenHltSumCorHTPassed(thresholds[0],40.,3.)>0  && (OpenHlt1ElectronSamHarperPassed(thresholds[1],0,          // ET, L1isolation
 					     999., 999.,       // Track iso barrel, Track iso endcap
 					     0.2, 0.2,        // Track/pT iso barrel, Track/pT iso endcap
 					     0.2, 0.2,       // H/ET iso barrel, H/ET iso endcap
@@ -7491,54 +7556,8 @@ else if (triggerName.CompareTo("OpenHLT_Dimuon6p5_LowMass_v1") == 0)
     }
   }
   
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT250_el5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_pfMHT35") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1){
-      if (prescaleResponse(menu,cfg,rcounter,it)){
-	if(OpenHltpfMHT(35.) && OpenHltSumCorHTPassed(250.,40.,3.)>0  && (OpenHlt1ElectronSamHarperPassed(5.,0,          // ET, L1isolation
-					     999., 999.,       // Track iso barrel, Track iso endcap
-					     0.2, 0.2,        // Track/pT iso barrel, Track/pT iso endcap
-					     0.2, 0.2,       // H/ET iso barrel, H/ET iso endcap
-					     0.2, 0.2,       // E/ET iso barrel, E/ET iso endcap
-					     0.15, 0.10,       // H/E barrel, H/E endcap
-					     0.024, 0.040,       // cluster shape barrel, cluster shape endcap
-					     0.98, 1.0,       // R9 barrel, R9 endcap
-					     0.01, 0.01,       // Deta barrel, Deta endcap
-					     0.15, 0.10        // Dphi barrel, Dphi endcap
-					 )>=1))
-	  {
-	    triggerBit[it] = true;
-	  }  
-      }
-    }
-  }
-
-  
-
-
  
 
- else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT300_el5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_pfMHT40") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1){
-      if (prescaleResponse(menu,cfg,rcounter,it)){
-	if(OpenHltpfMHT(40.) && OpenHltSumCorHTPassed(300.,40.,3.)>0  && (OpenHlt1ElectronSamHarperPassed(5.,0,          // ET, L1isolation
-					     999., 999.,       // Track iso barrel, Track iso endcap
-					     0.2, 0.2,        // Track/pT iso barrel, Track/pT iso endcap
-					     0.2, 0.2,       // H/ET iso barrel, H/ET iso endcap
-					     0.2, 0.2,       // E/ET iso barrel, E/ET iso endcap
-					     0.15, 0.10,       // H/E barrel, H/E endcap
-					     0.024, 0.040,       // cluster shape barrel, cluster shape endcap
-					     0.98, 1.0,       // R9 barrel, R9 endcap
-					     0.01, 0.01,       // Deta barrel, Deta endcap
-					     0.15, 0.10        // Dphi barrel, Dphi endcap
-					 )>=1))
-	  {
-	    triggerBit[it] = true;
-	  }  
-      }
-    }
-  }
-
- 
 
   //AGB - HT + mu (+MET)
 
@@ -8395,13 +8414,13 @@ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu20_HT200") == 0) {
    /* Electron-MET cross-triggers */
    
    // 2011-03-29 promoted to v3 TODO check
-   else if (triggerName.CompareTo("OpenHLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT200_v3") == 0)
+   else if (isEleX_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HTXTrigger(triggerName, thresholds))
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
          if (prescaleResponse(menu, cfg, rcounter, it))
          {
-            if ( (OpenHlt1ElectronSamHarperPassed(10., 0, // ET, L1isolation 
+            if ( (OpenHlt1ElectronSamHarperPassed(thresholds[0], 0, // ET, L1isolation 
                   999.,
                   999., // Track iso barrel, Track iso endcap 
                   0.2,
@@ -8422,7 +8441,7 @@ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu20_HT200") == 0) {
                   0.10 // Dphi barrel, Dphi endcap 
             )>=1)
             && 
-            (OpenHltSumCorHTPassed(200, 40)>=1))
+            (OpenHltSumCorHTPassed(thresholds[1], 40)>=1))
             {
                triggerBit[it] = true;
             }
@@ -8431,13 +8450,13 @@ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu20_HT200") == 0) {
    }
 
    // 2011-03-29 promoted to v3 TODO check
-   else if (triggerName.CompareTo("OpenHLT_Ele10_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT200_v3") == 0)
-   {
+   else if (isEleX_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HTXTrigger(triggerName, thresholds))
+     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
          if (prescaleResponse(menu, cfg, rcounter, it))
          {
-            if ( (OpenHlt1ElectronSamHarperPassed(10., 0, // ET, L1isolation 
+            if ( (OpenHlt1ElectronSamHarperPassed(thresholds[0], 0, // ET, L1isolation 
                   999.,
                   999., // Track iso barrel, Track iso endcap 
                   0.2,
@@ -8458,7 +8477,7 @@ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu20_HT200") == 0) {
                   0.05 // Dphi barrel, Dphi endcap 
             )>=1)
             && 
-            (OpenHltSumCorHTPassed(200, 40)>=1))
+            (OpenHltSumCorHTPassed(thresholds[1], 40)>=1))
             {
                triggerBit[it] = true;
             }
@@ -16298,16 +16317,16 @@ int OHltTree::OpenHltPFTauPassedNoMuonIDNoEleID(float Et,float L25TrkPt, int L3T
 
   int rc = 0;
   // Loop over all oh pfTaus
-  for (int i=0;i < NohPFTau;i++) {
+  for (int i=0;i < NohpfTau;i++) {
     //        if (pfTauJetPt[i] >= Et)
-    if (pfTauPt[i] >= Et){
-      if(abs(pfTauEta[i])<2.5){
-	if (pfTauLeadTrackPt[i] >= L25TrkPt){
-	  if (pfTauTrkIso[i] < L3TrkIso){
-	    if (pfTauGammaIso[i] < L3GammaIso ){
-	      if (OpenHltTauMuonMatching_wMuonID(pfTauEta[i], pfTauPhi[i], mu_ptl1, mu_ptl2, mu_ptl3, mu_dr, mu_iso) == 0){
-		if (OpenHltTauPFToCaloMatching(pfTauEta[i],pfTauPhi[i]) == 1){
-		  if (OpenHltTauEleMatching_wEleID(pfTauEta[i], pfTauPhi[i], Et_ele,L1iso,
+    if (ohpfTauPt[i] >= Et){
+      if(abs(ohpfTauEta[i])<2.5){
+	if (ohpfTauLeadTrackPt[i] >= L25TrkPt){
+	  if (ohpfTauTrkIso[i] < L3TrkIso){
+	    if (ohpfTauGammaIso[i] < L3GammaIso ){
+	      if (OpenHltTauMuonMatching_wMuonID(ohpfTauEta[i], ohpfTauPhi[i], mu_ptl1, mu_ptl2, mu_ptl3, mu_dr, mu_iso) == 0){
+		if (OpenHltTauPFToCaloMatching(ohpfTauEta[i],ohpfTauPhi[i]) == 1){
+		  if (OpenHltTauEleMatching_wEleID(ohpfTauEta[i], ohpfTauPhi[i], Et_ele,L1iso,
 						   Tisobarrel, Tisoendcap,
 						   Tisoratiobarrel, Tisoratioendcap,
 						   HisooverETbarrel, HisooverETendcap,
@@ -16331,8 +16350,8 @@ int OHltTree::OpenHltPFTauPassedNoMuonIDNoEleID(float Et,float L25TrkPt, int L3T
   }
 
   return rc;
-}
 
+}
 
 int OHltTree::OpenHltQuadJetCORPassedPlusTauPFIdNewIso(double pt, double etaJet, double ptTau)
 {
