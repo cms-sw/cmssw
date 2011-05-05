@@ -7702,15 +7702,15 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("ohOniaTrackDz", ohOniaTrackDz, &b_ohOniaTrackDz);
    fChain->SetBranchAddress("ohOniaTrackHits", ohOniaTrackHits, &b_ohOniaTrackHits);
    fChain->SetBranchAddress("ohOniaTrackNormChi2", ohOniaTrackNormChi2, &b_ohOniaTrackNormChi2);
-   /* fChain->SetBranchAddress("NohpfTau", &NohPFTau, &b_NohPFTau); */
-   /* fChain->SetBranchAddress("ohpfTauPt", pfTauPt, &b_pfTauPt); */
-   /* fChain->SetBranchAddress("ohpfTauEta", pfTauEta, &b_pfTauEta); */
-   /* fChain->SetBranchAddress("ohpfTauPhi", pfTauPhi, &b_pfTauPhi); */
-   /* fChain->SetBranchAddress("ohpfTauLeadTrackPt", pfTauLeadTrackPt, &b_pfTauLeadTrackPt); */
-   /* fChain->SetBranchAddress("ohpfTauLeadPionPt", pfTauLeadPionPt, &b_pfTauLeadPionPt); */
-   /* fChain->SetBranchAddress("ohpfTauTrkIso", pfTauTrkIso, &b_pfTauTrkIso); */
-   /* fChain->SetBranchAddress("ohpfTauGammaIso", pfTauGammaIso, &b_pfTauGammaIso); */
-   /* fChain->SetBranchAddress("ohpfTauJetPt", pfTauJetPt, &b_pfTauJetPt); */
+   fChain->SetBranchAddress("NohpfTau", &NohPFTau, &b_NohPFTau);
+   fChain->SetBranchAddress("ohpfTauPt", ohpfTauPt, &b_pfTauPt);
+   fChain->SetBranchAddress("ohpfTauEta", ohpfTauEta, &b_pfTauEta);
+   fChain->SetBranchAddress("ohpfTauPhi", ohpfTauPhi, &b_pfTauPhi);
+   fChain->SetBranchAddress("ohpfTauLeadTrackPt", ohpfTauLeadTrackPt, &b_pfTauLeadTrackPt);
+   fChain->SetBranchAddress("ohpfTauLeadPionPt", ohpfTauLeadPionPt, &b_pfTauLeadPionPt);
+   fChain->SetBranchAddress("ohpfTauTrkIso", ohpfTauTrkIso, &b_pfTauTrkIso);
+   fChain->SetBranchAddress("ohpfTauGammaIso", ohpfTauGammaIso, &b_pfTauGammaIso);
+   fChain->SetBranchAddress("ohpfTauJetPt", ohpfTauJetPt, &b_pfTauJetPt);
    fChain->SetBranchAddress("NohPFTau", &NohPFTau, &b_NohPFTau);
    fChain->SetBranchAddress("pfTauPt", pfTauPt, &b_pfTauPt);
    fChain->SetBranchAddress("pfTauEta", pfTauEta, &b_pfTauEta);
@@ -7720,7 +7720,6 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("pfTauTrkIso", pfTauTrkIso, &b_pfTauTrkIso);
    fChain->SetBranchAddress("pfTauGammaIso", pfTauGammaIso, &b_pfTauGammaIso);
    fChain->SetBranchAddress("pfTauJetPt", pfTauJetPt, &b_pfTauJetPt);
-
    fChain->SetBranchAddress("pfMHT", &pfMHT, &b_pfMHT);
    fChain->SetBranchAddress("NohPFJet", &NohPFJet, &b_NohPFJet);
    fChain->SetBranchAddress("pfJetPt", pfJetPt, &b_pfJetPt);

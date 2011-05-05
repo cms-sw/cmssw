@@ -729,7 +729,7 @@ bool isMuX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
 bool isEleLX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
 {
 	
-	TString pattern = "(OpenHLT_Ele([0-9]+)_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R0([0-9]+)_MR([0-9]+){1})$";
+	TString pattern = "(OpenHLT_Ele([0-9]+)_CaloIdL_TrkIdVL_CaloIsoVL_TrkIsoVL_R0([0-9]+)_MR([0-9]+){1})$";
 	TPRegexp matchThreshold(pattern);
 	
 	if (matchThreshold.MatchB(triggerName))
@@ -751,7 +751,7 @@ bool isEleLX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
 bool isEleTX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
 {
 	
-	TString pattern = "(OpenHLT_Ele([0-9]+)_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_R0([0-9]+)_MR([0-9]+){1})$";
+	TString pattern = "(OpenHLT_Ele([0-9]+)_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_R0([0-9]+)_MR([0-9]+){1})$";
 	TPRegexp matchThreshold(pattern);
 	
 	if (matchThreshold.MatchB(triggerName))
@@ -1462,7 +1462,7 @@ bool isEleX_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HTXTrigger(
 														 TString triggerName,
 														 vector<double> &thresholds)
 {
-	TString pattern = "(OpenHLT_EleX([0-9]+)_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT([0-9]+))$";
+	TString pattern = "(OpenHLT_Ele([0-9]+)_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT([0-9]+))$";
 	TPRegexp matchThreshold(pattern);
 	
 	if (matchThreshold.MatchB(triggerName))
@@ -1483,7 +1483,7 @@ bool isEleX_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HTXTrigger(
 														  TString triggerName,
 														  vector<double> &thresholds)
 {
-	TString pattern = "(OpenHLT_EleX([0-9]+)_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT([0-9]+))$";
+	TString pattern = "(OpenHLT_Ele([0-9]+)_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT([0-9]+))$";
 	TPRegexp matchThreshold(pattern);
 	
 	if (matchThreshold.MatchB(triggerName))
@@ -1500,11 +1500,11 @@ bool isEleX_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HTXTrigger(
 		return false;
 }
 
-bool isHTX_elX_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_pfMHTXTrigger(
+bool isHTX_EleX_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_pfMHTXTrigger(
 																 TString triggerName,
 																 vector<double> &thresholds)
 {
-	TString pattern = "(OpenHLT_HT([0-9]+)_elX([0-9]+)_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_pfMHT([0-9]+))$";
+	TString pattern = "(OpenHLT_HT([0-9]+)_Ele([0-9]+)_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_pfMHT([0-9]+))$";
 	TPRegexp matchThreshold(pattern);
 	
 	if (matchThreshold.MatchB(triggerName))
@@ -7535,7 +7535,7 @@ void OHltTree::CheckOpenHlt(
 	
 		//AGB - HT + single electron + MET
 	
-	else if (isHTX_elX_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_pfMHTXTrigger(triggerName, thresholds)) {
+	else if (isHTX_EleX_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_pfMHTXTrigger(triggerName, thresholds)) {
 		if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1){
 			if (prescaleResponse(menu,cfg,rcounter,it)){
 				if(OpenHltpfMHT(thresholds[2]) && OpenHltSumCorHTPassed(thresholds[0],40.,3.)>0  && (OpenHlt1ElectronSamHarperPassed(thresholds[1],0,          // ET, L1isolation
@@ -8174,6 +8174,40 @@ void OHltTree::CheckOpenHlt(
 		}
 	}
 	
+  ///////TEST AREA FOR TAUS////////
+  else if (triggerName.CompareTo("OpenHLT_IsoMu12_PFIsoTau10") == 0)
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            if (OpenHlt1MuonPassed(7., 7., 12., 2., 1)>=1)
+            {
+               if (OpenHltPFTauPassedNoMuon(10., 1., 1., 1.) >=1)
+                  triggerBit[it] = true;
+            }
+         }
+      }
+   }
+
+
+//  else if (triggerName.CompareTo("OpenHLT_DoubleIsoPFTau25_Trk5_eta2p1") == 0)
+//    {
+//       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+//       {
+//          if (prescaleResponse(menu, cfg, rcounter, it))
+//          {
+// 	   if (OpenHltPFTauPassedNoMuon(10., 5., 1., 1., 2.1) >=2)
+//                   triggerBit[it] = true;
+// 	 }
+//       }
+//    }
+
+
+
+   //////////////////////////////////
+
+
 	/*Electron-Tau cross-triggers*/
 	
 		// 2011-03-29 promoted to v2 TODO check
