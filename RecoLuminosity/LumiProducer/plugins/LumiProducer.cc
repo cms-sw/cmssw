@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.20 2011/02/21 18:08:45 matevz Exp $
+// $Id: LumiProducer.cc,v 1.21 2011/02/22 16:23:57 matevz Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -381,13 +381,14 @@ LumiProducer::fillRunCache(unsigned int runnumber){
       mydbservice->disconnect(session);
       return;
     }
-    printf("Dumping bitnum -> dborder mapping!\n");
+    /*
+      printf("Dumping bitnum -> dborder mapping!\n");
     for (std::map<unsigned int, unsigned int>::iterator i = m_runcache.TRGBitNumToIndex.begin();
 	 i != m_runcache.TRGBitNumToIndex.end(); ++i)
     {
       printf("  %3u -- %3u\n", i->first, i->second);
     }
-
+    */
     //
     //select pathname from from hlt where  runnum=:runnum and cmslsnum=:1 order by pathname;
     //
