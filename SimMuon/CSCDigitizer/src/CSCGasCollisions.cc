@@ -36,10 +36,16 @@
 #include <iterator>
 
 using namespace std;
+/* Gas mixture is Ar/CO2/CF4 = 40/50/10
+We'll use the ioinzation energies
+Ar    15.8 eV
+CO2   13.7 eV
+CF4    17.8
+to arrive at a weighted average of 14.95 */
 
 CSCGasCollisions::CSCGasCollisions() : me("CSCGasCollisions"),
   gasDensity( 2.1416e-03 ), 
-  deCut( 1.e05 ), eion( 10.4 ), ework( 70.0 ), clusterExtent( 0.001 ),
+  deCut( 1.e05 ), eion( 14.95 ), ework( 34.0 ), clusterExtent( 0.001 ),
   theGammaBins(N_GAMMA, 0.), theEnergyBins(N_ENERGY, 0.), 
   theCollisionTable(N_ENTRIES, 0.), theCrossGap( 0 ),
   theParticleDataTable(0),
@@ -264,7 +270,7 @@ void CSCGasCollisions::simulate( const PSimHit& simHit, const CSCLayer * layer,
   } // step/collision loop
 
   //TODO port this
-  //if ( debugV ) writeSummary( n_steps, sum_steps, dedx );
+  //if ( debugV ) writeSummary( n_steps, sum_steps, dedx, simHit.energyLoss() );
 
   // Return values in two container arguments
   positions = theCrossGap->ionClusters();
@@ -332,7 +338,8 @@ void  CSCGasCollisions::ionize( double energyAvailable, LocalPoint startHere ) c
           // How many electrons can we make? Now use *average* energy for ionization (not *minimum*)
       int nelec = static_cast<int>(energyAvailable/ework);
       LogTrace(me) << "s-r delta energy in = " << energyAvailable;
-      energyAvailable -= nelec*(energyAvailable/ework);
+      //energyAvailable -= nelec*(energyAvailable/ework);
+      energyAvailable -= nelec*ework;
 	    // If still above eion (minimum, not average) add one more e
       if ( energyAvailable > eion ) {
         ++nelec;
@@ -383,7 +390,7 @@ void  CSCGasCollisions::ionize( double energyAvailable, LocalPoint startHere ) c
       } // outer while energyAvailable>eion
 }
 
-void CSCGasCollisions::writeSummary( int n_steps, double sum_steps, float dedx ) const
+void CSCGasCollisions::writeSummary( int n_steps, double sum_steps, float dedx, float simHiteloss ) const
 {
   std::vector<LocalPoint> ion_clusters = theCrossGap->ionClusters();
   std::vector<int> electrons             = theCrossGap->electrons();
@@ -456,18 +463,11 @@ void CSCGasCollisions::writeSummary( int n_steps, double sum_steps, float dedx )
     }
     int n_e = accumulate(electrons.begin(), electrons.end(), 0 );
     if ( n_steps > 0 ) {
-      cout << "Total no. of electrons = " << n_e << ", energy loss/e = " <<
-            dedx/float(n_e) << " eV " << std::endl;
-	    cout << "Average no. of electrons per cluster = " <<
-            float(n_e)/float(ion_clusters.size()) << std::endl;
-      cout << "------------------" << std::endl;
-
-      cout << "#steps  path   av_step  n_i_cl  E/gap   n_i_col  E/step  n_e   E/e     e/i_c" << std::endl;
-      cout << "#        cm       cm             keV               eV          eV       eV" << std::endl;
+      cout << "#        cm       cm             keV               eV          eV       eV     keV" << std::endl;
       cout << " " << n_steps << "  " << sum_steps << " " << sum_steps/float(n_steps) << "    " <<
          ion_clusters.size() << "    " <<
          dedx/1000. << "    " << n_ic << "    " << dedx/float(n_steps) << "  " << n_e << "  " <<
-         dedx/float(n_e) << " " << float(n_e)/float(ion_clusters.size()) << std::endl;
+         dedx/float(n_e) << " " << float(n_e)/float(ion_clusters.size()) << " " << simHiteloss*1.E6 << std::endl;
     }
 }
 
