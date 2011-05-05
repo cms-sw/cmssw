@@ -175,12 +175,12 @@ reco::Track * PixelTrackBuilder::build(
 			    0         ,           0,    -tipSign,
 			    cp        ,  sp        ,           0);
 
-  // BTSOS hold BP in a shared pointer and  will be autodeleted when BTSOS goes out of scope...
+  // BTSOS hold Surface in a shared pointer and  will be autodeleted when BTSOS goes out of scope...
   // to avoid memory churn we allocate it locally and just avoid it be deleted by refcount... 
   Plane impPointPlane(origin, rot);
   // (twice just to be sure!)
   impPointPlane.addReference(); impPointPlane.addReference();
-  // use Base (too avoid a useless new) 
+  // use Base (to avoid a useless new) 
   BasicTrajectoryStateOnSurface impactPointState( lpar , error, impPointPlane, mf, 1.0);
   
   //checkState(impactPointState,mf);
@@ -195,8 +195,8 @@ reco::Track * PixelTrackBuilder::build(
   reco::Track * track = new reco::Track( chi2, ndof, pos, mom, 
         impactPointState.charge(), impactPointState.curvilinearError());
 
-  LogTrace("") <<"RECONSTRUCTED TRACK (0,0,0):\n"<< print(*track,GlobalPoint(0,0,0))<<std::endl;;
-  LogTrace("") <<"RECONSTRUCTED TRACK "<<origin<<"\n"<< print(*track,origin)<<std::endl;;
+  LogTrace("") <<"RECONSTRUCTED TRACK (0,0,0):\n"<< print(*track,GlobalPoint(0,0,0))<<std::endl;
+  LogTrace("") <<"RECONSTRUCTED TRACK "<<origin<<"\n"<< print(*track,origin)<<std::endl;
 
   return track;
 }
