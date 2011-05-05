@@ -29,7 +29,7 @@ process.load("Configuration.Generator.QCD_Pt_80_120_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load('FastSimulation.Configuration.Geometries_cff')
 #process.load("FastSimulation.Configuration.CommonInputs_cff")
-from Configuration.PyReleaseValidation.autoCond import autoCond
+from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
 
 # L1 Emulator and HLT Setup
