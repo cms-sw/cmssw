@@ -17,7 +17,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromRegionHits.h"
-#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHitsCreator.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"
 
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -61,8 +61,13 @@ SeedFilter::SeedFilter(const edm::ParameterSet& conf)
   OrderedHitsGenerator*  hitsGenerator = OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, hitsfactoryPSet);
 
   // start seed generator
-  combinatorialSeedGenerator = new SeedGeneratorFromRegionHits(hitsGenerator,0,new SeedFromConsecutiveHitsCreator());
+  // FIXME??
+  edm::ParameterSet creatorPSet;
+  creatorPSet.addParameter<std::string>("propagator","PropagatorWithMaterial");
 
+  combinatorialSeedGenerator = new SeedGeneratorFromRegionHits(hitsGenerator,0,
+                                    SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
+				                  	       );
   beamSpotTag_ = conf.getParameter<edm::InputTag>("beamSpot") ;
   measurementTrackerName_ = conf.getParameter<std::string>("measurementTrackerName") ;
  }
