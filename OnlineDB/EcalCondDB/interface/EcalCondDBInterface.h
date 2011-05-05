@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.33 2011/02/07 10:23:33 organtin Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.34 2011/04/06 11:59:08 organtin Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -33,6 +33,9 @@
 #include "OnlineDB/EcalCondDB/interface/all_lmf_types.h"
 #include "OnlineDB/EcalCondDB/interface/all_od_types.h"
 
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+
 class EcalCondDBInterface : public EcalDBConnection {
  public:
 
@@ -60,6 +63,7 @@ class EcalCondDBInterface : public EcalDBConnection {
 
       // create a DateHandler
       dh = new DateHandler(env, conn);
+      fillLogicId2DetIdMaps();
     }
 
 
@@ -80,6 +84,7 @@ class EcalCondDBInterface : public EcalDBConnection {
 
       // create a DateHandler
       dh = new DateHandler(env, conn);
+      fillLogicId2DetIdMaps();
     }
 
 
@@ -94,7 +99,6 @@ class EcalCondDBInterface : public EcalDBConnection {
       // destroy the DateHandler
       delete(dh);
     }
-
 
 
   /**
@@ -659,13 +663,39 @@ class EcalCondDBInterface : public EcalDBConnection {
     datiface.terminateReadStatement();
   }
 
+  inline int getDetIdFromLogicId(int logic_id) {
+    int detid = -1;
+    if (_logicId2DetId.find(logic_id) != _logicId2DetId.end()) {
+      detid = _logicId2DetId[logic_id];
+    }
+    return detid;
+  }
 
+  inline int getLogicIdFromDetId(int det_id) {
+    int logic_id = -1;
+    if (_detId2LogicId.find(det_id) != _detId2LogicId.end()) {
+      logic_id = _detId2LogicId[det_id];
+    }
+    return logic_id;
+  }
 
+  inline std::map<int, int> getLogicId2DetIdMap() const {
+    return _logicId2DetId;
+  }
 
+  inline std::map<int, int> getDetId2LogicIdMap() const {
+    return _detId2LogicId;
+  }
 
   void dummy();
 
  private:
+
+  /**
+   *  Private method: fill a private map used to associate logicIds to DetIds
+   */
+  void fillLogicId2DetIdMaps();
+
 
   /*********************\
   -  private variables  -
@@ -676,7 +706,8 @@ class EcalCondDBInterface : public EcalDBConnection {
   EcalCondDBInterface();
   EcalCondDBInterface(const EcalCondDBInterface& copy);
 
-
+  std::map<int, int> _logicId2DetId; 
+  std::map<int, int> _detId2LogicId;
 };
 
 #endif

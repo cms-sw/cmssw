@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.30 2011/02/07 10:23:33 organtin Exp $
+// $Id: EcalCondDBInterface.cc,v 1.31 2011/04/06 11:59:09 organtin Exp $
 
 #include <iostream>
 #include <string>
@@ -26,6 +26,45 @@
 using namespace std;
 using namespace oracle::occi;
 
+void EcalCondDBInterface::fillLogicId2DetIdMaps() {
+  // retrieve the lists of logic_ids, to build the detids
+  std::vector<EcalLogicID> crystals_EB  =
+    getEcalLogicIDSetOrdered( "EB_crystal_angle",
+			      -85,85,1,360,
+			      EcalLogicID::NULLID,EcalLogicID::NULLID,
+			      "EB_crystal_number", 4 );
+  std::vector<EcalLogicID> crystals_EE  =
+    getEcalLogicIDSetOrdered( "EE_crystal_number",
+			      -1,1,1,100,
+			      1,100,
+			      "EE_crystal_number", 4 );
+  // fill the barrel map
+  std::vector<EcalLogicID>::const_iterator ieb = crystals_EB.begin();
+  std::vector<EcalLogicID>::const_iterator eeb = crystals_EB.end();
+  while (ieb != eeb) {
+    int iEta = ieb->getID1();
+    int iPhi = ieb->getID2();
+    EBDetId ebdetid(iEta,iPhi);
+    _logicId2DetId[ieb->getLogicID()] = ebdetid;
+    _detId2LogicId[ebdetid] = ieb->getLogicID();
+    ieb++;
+  }
+
+  // fill the endcap map
+  std::vector<EcalLogicID>::const_iterator iee = crystals_EE.begin();
+  std::vector<EcalLogicID>::const_iterator eee = crystals_EE.end();
+
+  while (iee != eee) {
+    int iSide = iee->getID1();
+    int iX    = iee->getID2();
+    int iY    = iee->getID3();
+    EEDetId eedetidpos(iX,iY,iSide);
+    _logicId2DetId[iee->getLogicID()] = eedetidpos;
+    _detId2LogicId[eedetidpos] = iee->getLogicID();
+    iee++;
+  }
+  
+}
 
 EcalLogicID EcalCondDBInterface::getEcalLogicID( int logicID )
   throw(std::runtime_error)
