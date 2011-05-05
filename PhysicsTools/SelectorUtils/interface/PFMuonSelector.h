@@ -102,15 +102,19 @@ class PFMuonSelector : public Selector<pat::Muon> {
   // cuts based on top group L+J synchronization exercise
   bool spring11Cuts( const pat::Muon & muon, pat::strbitset & ret)
   {
-
     ret.set(false);
 
-    double norm_chi2 = muon.normChi2();
-    double corr_d0 = muon.dB();
-
+    double norm_chi2 = 9999999.0;
+    if ( muon.globalTrack().isNonnull() && muon.globalTrack().isAvailable() )
+      norm_chi2 = muon.normChi2();
+    double corr_d0 = 999999.0;
+    if ( muon.globalTrack().isNonnull() && muon.globalTrack().isAvailable() )    
+      corr_d0 = muon.dB();
 
     int nhits = static_cast<int>( muon.numberOfValidHits() );
-    int nValidMuonHits = static_cast<int> (muon.globalTrack()->hitPattern().numberOfValidMuonHits());
+    int nValidMuonHits = 0;
+    if ( muon.globalTrack().isNonnull() && muon.globalTrack().isAvailable() )
+      nValidMuonHits = static_cast<int> (muon.globalTrack()->hitPattern().numberOfValidMuonHits());
 
     double chIso = muon.userIsolation(pat::PfChargedHadronIso);
     double nhIso = muon.userIsolation(pat::PfNeutralHadronIso);
@@ -119,7 +123,9 @@ class PFMuonSelector : public Selector<pat::Muon> {
 
     double pfIso = (chIso + nhIso + gIso) / pt;
 
-    int nPixelHits = muon.innerTrack()->hitPattern().pixelLayersWithMeasurement();
+    int nPixelHits = 0;
+    if ( muon.innerTrack().isNonnull() && muon.innerTrack().isAvailable() )
+      nPixelHits = muon.innerTrack()->hitPattern().pixelLayersWithMeasurement();
 
     int nMatchedStations = muon.numberOfMatches();
 
