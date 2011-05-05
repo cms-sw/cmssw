@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/10 16:54:12 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/01/07 16:31:59 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -71,10 +71,6 @@ void DTnoiseDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
 
   // Get the geometry
   setup.get<MuonGeometryRecord>().get(dtGeom);
-}
-
-void DTnoiseDBValidation::beginJob() {
-
 
   metname = "noiseDbValidation";
   LogTrace(metname)<<"[DTnoiseDBValidation] Parameters initialization";
@@ -194,7 +190,7 @@ void DTnoiseDBValidation::beginJob() {
 
 }
 
-void DTnoiseDBValidation::endJob() {
+void DTnoiseDBValidation::endRun(edm::Run const& run, edm::EventSetup const& setup) {
 
   // test on difference histo
   string testCriterionName = parameters.getUntrackedParameter<string>("diffTestName","noiseDifferenceInRange");
@@ -249,6 +245,9 @@ void DTnoiseDBValidation::endJob() {
       }
   }
 
+}
+
+void DTnoiseDBValidation::endJob() {
   // write the histos on a file
   dbe->save(outputFileName);
 

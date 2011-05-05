@@ -4,8 +4,8 @@
 /** \class DTnoiseDBValidation
  *  Plot the noise from the DB comparaison
  *
- *  $Date: 2008/09/24 14:49:18 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/01/07 16:31:59 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -39,13 +39,10 @@ public:
   virtual ~DTnoiseDBValidation();
 
   /// Operations
-  //Read the DTGeometry and the t0 DB
-  void beginJob();
   void beginRun(const edm::Run& run, const edm::EventSetup& setup);
-
-  void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
-  //Do the real work
+  void endRun(edm::Run const&, edm::EventSetup const&);
   void endJob();
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
  
 protected:
 
