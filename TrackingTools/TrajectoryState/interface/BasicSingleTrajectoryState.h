@@ -193,10 +193,10 @@ private:
 
   static void notValid() dso_internal;
 
-  // bool hasError() const;
-  bool hasError() const {
-    return (theFreeState && theFreeState->hasError()) || theLocalErrorValid;
-  }
+  bool hasError() const;
+  //bool hasError() const {
+  //  return (theFreeState && theFreeState->hasError()) || theLocalErrorValid;
+  //}
 
   
   void missingError(char const * where) const; // dso_internal;
