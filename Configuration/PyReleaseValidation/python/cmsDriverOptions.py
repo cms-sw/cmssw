@@ -50,7 +50,7 @@ parser.add_option("--fileout",
 
 parser.add_option("--filetype",
                    help="The type of the infile (EDM, LHE or MCDB).",
-                   default="",#to be changed in the default form later
+                   default=defaultOptions.filetype,
                    dest="filetype",
                   choices=['EDM','DAT','LHE','MDCB'])
 
