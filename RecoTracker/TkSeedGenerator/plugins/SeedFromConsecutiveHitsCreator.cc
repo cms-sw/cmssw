@@ -1,4 +1,4 @@
-#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHitsCreator.h"
+#include "SeedFromConsecutiveHitsCreator.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"

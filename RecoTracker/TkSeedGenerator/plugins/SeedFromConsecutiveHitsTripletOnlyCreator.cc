@@ -1,4 +1,4 @@
-#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHitsTripletOnlyCreator.h"
+#include "SeedFromConsecutiveHitsTripletOnlyCreator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
