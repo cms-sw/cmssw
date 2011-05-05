@@ -66,6 +66,11 @@
   <use name="FWCore/PluginManager"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+<library file="TRGScalers2DB.cc" name="TRGScalers2DB">
+  <use name="RecoLuminosity/LumiProducer"/>
+  <use name="FWCore/PluginManager"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
 <library file="TRGWBM2DB.cc" name="TRGWBM2DB">
   <use name="RecoLuminosity/LumiProducer"/>
   <use name="FWCore/PluginManager"/>
