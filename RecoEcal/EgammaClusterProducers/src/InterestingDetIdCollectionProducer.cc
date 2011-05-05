@@ -72,10 +72,13 @@ InterestingDetIdCollectionProducer::produce (edm::Event& iEvent,
   iEvent.getByLabel(recHitsLabel_,recHitsHandle);
 
   //Create empty output collections
-  std::auto_ptr< DetIdCollection > detIdCollection (new DetIdCollection() ) ;
-  
+  std::vector<DetId> indexToStore;
+  indexToStore.reserve(1000);
+
   reco::BasicClusterCollection::const_iterator clusIt;
-  
+
+  std::vector<DetId> xtalsToStore;
+  xtalsToStore.reserve(50);
   for (clusIt=pClusters->begin(); clusIt!=pClusters->end(); clusIt++) {
     //PG barrel
     
@@ -101,37 +104,35 @@ InterestingDetIdCollectionProducer::produce (edm::Event& iEvent,
     continue;
     
     const CaloSubdetectorTopology* topology  = caloTopology_->getSubdetectorTopology(eMaxId.det(),eMaxId.subdetId());
-    std::vector<DetId> xtalsToStore=topology->getWindow(eMaxId,minimalEtaSize_,minimalPhiSize_);
+
+    xtalsToStore=topology->getWindow(eMaxId,minimalEtaSize_,minimalPhiSize_);
     std::vector<std::pair<DetId,float > > xtalsInClus=(*clusIt).hitsAndFractions();
     
     for (unsigned int ii=0;ii<xtalsInClus.size();ii++)
       {
-	if (std::find(xtalsToStore.begin(),xtalsToStore.end(),xtalsInClus[ii].first) == xtalsToStore.end())
 	  xtalsToStore.push_back(xtalsInClus[ii].first);
       }
     
-    for (unsigned int iCry=0;iCry<xtalsToStore.size();iCry++)
-      {
-	if ( 
-	    std::find(detIdCollection->begin(),detIdCollection->end(),xtalsToStore[iCry]) == detIdCollection->end()
-	    )
-	  detIdCollection->push_back(xtalsToStore[iCry]);
-      }     
+    indexToStore.insert(indexToStore.end(),xtalsToStore.begin(),xtalsToStore.end());
   }
+
 
   // also add recHits of dead TT if the corresponding TP is saturated
   for (EcalRecHitCollection::const_iterator it = recHitsHandle->begin(); it != recHitsHandle->end(); ++it) {
           if ( it->checkFlag(EcalRecHit::kTPSaturated) ) {
-                  if ( std::find( detIdCollection->begin(), detIdCollection->end(), it->id() ) == detIdCollection->end()
-                     ) {
-                          detIdCollection->push_back( it->id() );
-                  }
-          }else if ( severityLevel_>=0 && severity_->severityLevel(*it) >=severityLevel_){
-	    detIdCollection->push_back( it->id() );
+	    indexToStore.push_back(it->id());
 	  }
-
+	  else if ( severityLevel_>=0 && severity_->severityLevel(*it) >=severityLevel_){
+	    indexToStore.push_back(it->id());
+	  }
   }
+
+  //unify the vector
+  std::sort(indexToStore.begin(),indexToStore.end());
+  std::unique(indexToStore.begin(),indexToStore.end());
   
+  std::auto_ptr< DetIdCollection > detIdCollection (new DetIdCollection(indexToStore) ) ;
+
   //  std::cout << "Interesting DetId Collection size is " << detIdCollection->size() <<  " BCs are " << pClusters->size() << std::endl;
   iEvent.put( detIdCollection, interestingDetIdCollection_ );
 
