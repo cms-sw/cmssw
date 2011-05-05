@@ -4,33 +4,22 @@ process = cms.Process("Demo")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'rfio:/castor/cern.ch/cms/store/relval/CMSSW_4_2_0_pre7/RelValWE/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V6-v2/0033/BAA28B05-224F-E011-92F7-0026189438D3.root'
-        # 'rfio:/castor/cern.ch/cms/store/relval/CMSSW_3_11_3/RelValWE/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v2/0007/A8FACACC-2F4F-E011-B535-002618943906.root'
-
-        #'/store/relval/CMSSW_3_11_1_hltpatch1/RelValWE/GEN-SIM-DIGI-RAW-HLTDEBUG/L1HLTST311_V1_ECALSelectiveReadOut-v1/0041/4A702B9C-9C54-E011-BADB-003048678ED2.root',
-        #'rfio:/castor/cern.ch/cms/store/relval/CMSSW_4_1_3/RelValWE/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0037/D27F9CA1-C851-E011-92BC-003048679266.root'
-        #'rfio:/castor/cern.ch/cms/store/relval/CMSSW_4_2_0_pre5/RelValWE/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V3-v1/0009/1289680D-5D3C-E011-83B4-002618943894.root'
-        #'rfio:/castor/cern.ch/cms/store/relval/CMSSW_4_2_0_pre6/RelValWE/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V4-v1/0020/78B8F51E-5245-E011-BA20-003048679294.root'
-        #'rfio:/castor/cern.ch/cms/store/relval/CMSSW_4_2_0_pre8/RelValWE/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V7-v1/0042/58FD542D-8B56-E011-8AC3-003048678B38.root'
-        # 'rfio:/castor/cern.ch/cms/store/relval/CMSSW_4_3_0_pre1/RelValWE/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_42_V7-v1/0048/246521DE-F058-E011-9F36-002618943978.root'
+        #'/store/relval/CMSSW_4_2_0_pre7/RelValWE/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V6-v2/0033/BAA28B05-224F-E011-92F7-0026189438D3.root'
+        '/store/relval/CMSSW_4_2_0_pre7/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V6-v2/0032/DA82324C-BC4E-E011-9065-00261894383F.root'
+        #'/store/relval/CMSSW_4_2_0_pre7/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V6-v2/0032/4C8D35D6-B24E-E011-9151-003048679030.root'
     )
 )
 
 process.demo = cms.EDAnalyzer('EmDQMFeeder',
                               processname = cms.string("HLT"),
                               triggerobject = cms.InputTag("hltTriggerSummaryRAW","","HLT"),
-                              # genEtMin = cms.untracked.double(0),
-                              #reqNum = cms.uint32(1),
-                              #pdgGen = cms.int32(11),
                               genEtaAcc = cms.double(2.5),
                               genEtAcc = cms.double(2.0),
                               PtMax = cms.untracked.double(100.0),
-                              #cutcollection = cms.InputTag("fiducialWenu"),
-                              #cutnum = cms.int32(1),
                              )
 
 process.load("HLTriggerOffline.Egamma.EgammaValidation_cff")
@@ -47,8 +36,7 @@ process.post=cms.EDAnalyzer("EmDQMPostProcessor",
                             dataSet = cms.untracked.string("unknown"),
                            )
 
-
-
+#process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 #----------------------------------------
 # DQM service
@@ -62,3 +50,7 @@ process.dqmSaver.saveByRun = 1
 process.dqmSaver.saveAtJobEnd = True
 
 process.ppost = cms.EndPath(process.post+process.dqmSaver)
+
+#----------------------------------------
+# End of original testEmDQMFeeder_cfg.py
+#----------------------------------------
