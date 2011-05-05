@@ -202,7 +202,15 @@ step1['LM9p']=genS('LM9p_7TeV_cff',K250by100)
 step1['QCD_Pt_20_30']=genS('QCD_Pt_20_30_7TeV_cfi',K250by100)
 step1['QCD_Pt_170_230']=genS('QCD_Pt_170_230_7TeV_cfi',K250by100)
 
+## heavy ions tests
+U500by5={'--relval': '500,5'}
+U80by2={'--relval': '80,2'}
+hiCond={'--conditions':'auto:starthi'}
+hiDefaults={'--conditions':'auto:starthi',
+           '--scenario':'HeavyIons'}
 
+step1['HydjetQ_MinBias_2760GeV']=merge([hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U500by5)])
+step1['HydjetQ_B0_2760GeV']=merge([hiDefaults,genS('Hydjet_Quenched_B0_2760GeV_cfi',U80by2)])
 
 
 def changeRefRelease(step1s,listOfPairs):
@@ -329,7 +337,9 @@ step2['DIGI2']=merge([stCond,step2Defaults])
 step2['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},stCond,step2Defaults])
 
 step2['DIGIPU1']=merge([step2['DIGI1'],PU1])
-    
+
+step2['DIGIHI']=merge([hiCond,step2Defaults])
+
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step2,{'--process':'DIGI'})
 
@@ -376,6 +386,8 @@ step3['RECOMIN']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiSt
 step3['RECOQCD']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:@QCD,VALIDATION,DQM'},stCond,step3Defaults])
 
 step3['RECOPU1']=merge([step3['RECO1'],PU1])
+
+step3['RECOHI']=merge([hiCond,step3Defaults])
 
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step3,{'--hltProcess':'DIGI'})

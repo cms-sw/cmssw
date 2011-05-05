@@ -77,8 +77,8 @@ workflows[30] = ['', ['ZMM','DIGI2','RECOMU']]
 
 
 ### HI test ###
-#workflows[40]
-#workflows[41]
+workflows[40] = ['',['HydjetQ_MinBias_2760GeV','DIGIHI','RECOHI']]
+workflows[41] = ['',['HydjetQ_B0_2760GeV','DIGIHI','RECOHI']]
 
 #workflows[42]=['', ['TTbar_REDIGI_RERECO','REDIGI2RECO','RECOFROMRECO']]
 
