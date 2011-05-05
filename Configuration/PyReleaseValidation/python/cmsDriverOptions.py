@@ -364,7 +364,7 @@ options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
 
 
 #determine the type of file on input
-if not options.filetype:
+if options.filetype==defaultOptions.filetype:
     if options.filein.lower().endswith(".lhe") or options.filein.lower().endswith(".lhef"):
         options.filetype="LHE"
     elif options.filein.startswith("mcdb:"):
