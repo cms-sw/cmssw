@@ -269,8 +269,7 @@ bool shapeSelection(const std::vector<uint8_t> & ampls)
 						}
                                                 if(ampls.size()-LeftOfMaxPos>1 && MaxPos+2<(int)(ampls.size())-1){
 							C_Mnn=(Float_t)ampls[MaxPos+2];
-						}
-						else if(ampls.size()-LeftOfMaxPos<=1) C_Mnn=0;							
+						}else C_Mnn=0;							
 					}
 					if((C_Dn<=coeff1*coeffn*C_D+coeff2*coeffnn*C_M+2*noise || C_D==255)
 					   && C_Mnn<=coeff1*coeffn*C_Mn+coeff2*coeffnn*C_M+2*noise
