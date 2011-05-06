@@ -26646,7 +26646,8 @@ process.options = cms.untracked.PSet(
 if 'GlobalTag' in process.__dict__:
     process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
-    process.GlobalTag.globaltag = 'GR_R_42_V12::All'
+    from Configuration.PyReleaseValidation.autoCond import autoCond
+    process.GlobalTag.globaltag = autoCond['hltonline']
 
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
