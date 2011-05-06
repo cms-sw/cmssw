@@ -1,11 +1,13 @@
-#include "RecoPixelVertexing/PixelTriplets/src/ThirdHitCorrection.h"
+#include "ThirdHitCorrection.h"
 
 #include "RecoTracker/TkMSParametrization/interface/LongitudinalBendingCorrection.h"
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisation.h"
 
 using namespace pixelrecoutilities;
-template <class T> inline T sqr( T t) {return t*t;}
 
+namespace {
+  template <class T> inline T sqr( T t) {return t*t;}
+}
 
 //namespace pixelrecoutilities { class LongitudinalBendingCorrection; }
 //class MultipleScatteringParametrisation;

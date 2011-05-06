@@ -9,7 +9,7 @@
 
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGenerator.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/CombinedHitTripletGenerator.h"
+#include "CombinedHitTripletGenerator.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

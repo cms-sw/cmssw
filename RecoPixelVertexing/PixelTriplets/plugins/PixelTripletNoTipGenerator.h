@@ -3,7 +3,7 @@
 
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/CombinedHitTripletGenerator.h"
+#include "CombinedHitTripletGenerator.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 
 namespace edm { class Event; class EventSetup; } 
