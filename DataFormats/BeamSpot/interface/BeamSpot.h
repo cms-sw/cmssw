@@ -7,7 +7,7 @@
  *
  * \author Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
  *
- * \version $Id: BeamSpot.h,v 1.10 2009/09/01 21:50:17 yumiceva Exp $
+ * \version $Id: BeamSpot.h,v 1.11 2009/09/08 22:02:55 yumiceva Exp $
  *
  */
 
@@ -24,8 +24,8 @@ namespace reco {
   public:
 	  
     /// beam spot flags
-	enum BeamType { Unknown=-1, Fake=0, LHC=1, Tracker=2 };
-	
+    enum BeamType { Unknown=-1, Fake=0, LHC=1, Tracker=2 };
+    
     /// point in the space
     typedef math::XYZPoint Point;
     enum { dimension = 7 };
@@ -67,6 +67,16 @@ namespace reco {
     double y0() const { return position_.Y(); }
     /// z coordinate 
     double z0() const { return position_.Z(); }
+
+    /// x coordinate of the beeam spot position at a given z value (it takes into account the dxdz slope)
+    double x(const double z) const { return x0() + dxdz() * (z - z0()); }
+    /// y coordinate of the beeam spot position at a given z value (it takes into account the dydz slope)
+    double y(const double z) const { return y0() + dydz() * (z - z0()); }
+    /// position of the beam spot at a given z value (it takes into account the dxdz and dydz slopes)
+    const Point position(const double z) const;
+    //    const Point position(const double z) const {Point pos(x(z),y(z),z);    return pos;}
+
+
     /// sigma z
     double sigmaZ() const { return sigmaZ_; }
     /// dxdz slope 

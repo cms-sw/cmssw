@@ -4,8 +4,8 @@
 /*
  * \file EESelectiveReadoutTask.h
  *
- * $Date: 2010/11/10 10:43:29 $
- * $Revision: 1.21 $
+ * $Date: 2010/09/28 13:00:29 $
+ * $Revision: 1.20 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -19,7 +19,6 @@
 
 class MonitorElement;
 class DQMStore;
-class EcalSRSettings;
 
 static const char endcapDccMap[401] = {
   "       777777       "      
@@ -370,9 +369,6 @@ MonitorElement* EEHighInterestZsFIR_[2];
 MonitorElement* EELowInterestZsFIR_[2];
 
 bool init_;
-
-bool useCondDb_;
-const EcalSRSettings* settings_;
 
 };
 

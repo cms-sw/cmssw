@@ -15,7 +15,6 @@ tcMetAnalyzer = cms.EDAnalyzer(
     InputElectronLabel = cms.InputTag("gsfElectrons"),
     InputBeamSpotLabel = cms.InputTag("offlineBeamSpot"),
     METType = cms.untracked.string('TCMET'),
-    sample = cms.untracked.string('NULL'),
     FineBinning = cms.untracked.bool(True),
     FolderName = cms.untracked.string("RecoMETV/MET_Global/"),
     minhits = cms.int32(6),

@@ -1,7 +1,7 @@
 
 import sys
 import os
-import dbs_discovery
+import electronDbsDiscovery
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("testEgammaOfflineClients")

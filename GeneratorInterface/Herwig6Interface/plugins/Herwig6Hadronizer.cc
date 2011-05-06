@@ -81,13 +81,8 @@ class Herwig6Hadronizer : public gen::BaseHadronizer,
 	void setSLHAFromHeader(const std::vector<std::string> &lines);
 	bool initialize(const lhef::HEPRUP *heprup);
 
-	bool readSettings( int );
-	
-	// bool initializeForInternalPartons() { return initialize(0); }
-	// bool initializeForExternalPartons() { return initialize(lheRunInfo()->getHEPRUP()); }
-
-	bool initializeForInternalPartons();
-	bool initializeForExternalPartons() { return initializeForInternalPartons(); }
+	bool initializeForInternalPartons() { return initialize(0); }
+	bool initializeForExternalPartons() { return initialize(lheRunInfo()->getHEPRUP()); }
 
 	bool declareStableParticles( const std::vector<int> &pdgIds);
 	bool declareSpecialSettings( const std::vector<std::string> );
@@ -223,169 +218,6 @@ void Herwig6Hadronizer::setSLHAFromHeader(
 	}
 }
 
-bool Herwig6Hadronizer:: readSettings( int key )
-{
-
-   clear();
-   const lhef::HEPRUP* heprup = lheRunInfo()->getHEPRUP();
-   externalPartons = ( heprup != 0 );
-   
-   if ( key == 0 && externalPartons ) return false;
-   if ( key > 0 && !externalPartons ) return false;
-
-   std::ostringstream info;
-   info << "---------------------------------------------------\n"; 
-   info << "Taking in settinsg for Herwig6Hadronizer for "
-        << (externalPartons ? "external" : "internal") << " partons\n";
-   info << "---------------------------------------------------\n";
-
-   info << "   Herwig verbosity level         = " << herwigVerbosity << "\n";
-   info << "   HepMC verbosity                = " << hepmcVerbosity << "\n";
-   info << "   Number of events to be printed = " << maxEventsToPrint << "\n";
-
-   // Call hwudat to set up HERWIG block data
-   hwudat();
-
-   // Setting basic parameters
-   if (externalPartons) {
-		hwproc.PBEAM1 = heprup->EBMUP.first;
-		hwproc.PBEAM2 = heprup->EBMUP.second;
-		pdgToHerwig(heprup->IDBMUP.first, hwbmch.PART1);
-		pdgToHerwig(heprup->IDBMUP.second, hwbmch.PART2);
-   } 
-   else 
-   {
-		hwproc.PBEAM1 = 0.5 * comEnergy;
-		hwproc.PBEAM2 = 0.5 * comEnergy;
-		pdgToHerwig(2212, hwbmch.PART1);
-		pdgToHerwig(2212, hwbmch.PART2);
-   }
-
-   if (useJimmy) 
-   {
-		info << "   HERWIG will be using JIMMY for UE/MI.\n";
-		jmparm.MSFLAG = 1;
-		if (doMPInteraction)
-			info << "   JIMMY trying to generate multiple interactions.\n";
-   }
-
-
-   // set the IPROC already here... needed for VB pairs
-
-   bool iprocFound=false;
-	
-   for(gen::ParameterCollector::const_iterator line = parameters.begin();
-	                                       line != parameters.end(); ++line) 
-   {
-	  if(!strcmp((line->substr(0,5)).c_str(),"IPROC")) {
-	    if (!give(*line))
-	      throw edm::Exception(edm::errors::Configuration)
-		<< "Herwig 6 did not accept the following: \""
-		<< *line << "\"." << std::endl;
-	    else iprocFound=true;
-	  }
-   }
-	
-   if (!iprocFound && !externalPartons)
-	  throw edm::Exception(edm::errors::Configuration)
-	    << "You have to define the process with IPROC."  << std::endl;
-
-   // initialize other common blocks ...
-   call(hwigin); // default init
-   
-   hwevnt.MAXER = 100000000;	// O(inf)
-   hwpram.LWSUD = 0;		// don't write Sudakov form factors
-   hwdspn.LWDEC = 0;		// don't write three/four body decays
-				// (no fort.77 and fort.88 ...)
-	// init LHAPDF glue
-	std::memset(hwprch.AUTPDF, ' ', sizeof hwprch.AUTPDF);
-	for(unsigned int i = 0; i < 2; i++) {
-		hwpram.MODPDF[i] = -111;
-		std::memcpy(hwprch.AUTPDF[i], "HWLHAPDF", 8);
-	}
-
-	hwevnt.MAXPR = maxEventsToPrint;
-	hwpram.IPRINT = herwigVerbosity;
-//	hwprop.RMASS[6] = 175.0;	//FIXME
-
-	if (printCards) {
-		info << "\n";
-		info << "------------------------------------\n";
-		info << "Reading HERWIG parameters\n";
-		info << "------------------------------------\n";
-    
-	}
-	for(gen::ParameterCollector::const_iterator line = parameters.begin();
-	    line != parameters.end(); ++line) {
-		if (printCards)
-			info << "   " << *line << "\n";
-		if (!give(*line))
-			throw edm::Exception(edm::errors::Configuration)
-				<< "Herwig 6 did not accept the following: \""
-				<< *line << "\"." << std::endl;
-	}
-
-	if (printCards)
-		info << "\n";
-
-	if (externalPartons) {
-		std::vector<std::string> slha =
-				lheRunInfo()->findHeader("slha");
-		if (!slha.empty())
-			setSLHAFromHeader(slha);
-	}
-
-	needClear = true;
-
-	std::pair<int, int> pdfs(-1, -1);
-	if (externalPartons)
-		pdfs = lheRunInfo()->pdfSetTranslation();
-
-	if (hwpram.MODPDF[0] != -111 || hwpram.MODPDF[1] != -111) {
-		for(unsigned int i = 0; i < 2; i++)
-			if (hwpram.MODPDF[i] == -111)
-				hwpram.MODPDF[i] = -1;
-
-		if (pdfs.first != -1 || pdfs.second != -1)
-			edm::LogError("Generator|Herwig6Hadronzier")
-				<< "Both external Les Houches event and "
-			           "config file specify a PDF set.  "
-				   "User PDF will override external one."
-				<< std::endl;
-
-		pdfs.first = hwpram.MODPDF[0] != -111 ? hwpram.MODPDF[0] : -1;
-		pdfs.second = hwpram.MODPDF[1] != -111 ? hwpram.MODPDF[1] : -1;
-	}
-
-	hwpram.MODPDF[0] = pdfs.first;
-	hwpram.MODPDF[1] = pdfs.second;
-
- 	if (externalPartons)
-		hwproc.IPROC = -1;
-
-   edm::LogInfo(info.str());
-
-   return true;
-
-}
-
-bool Herwig6Hadronizer::initializeForInternalPartons()
-{
-
-   if (useJimmy) call(jimmin);
-   
-   call(hwuinc);
-
-   // initialize HERWIG event generation
-   call(hweini);
-
-   if (useJimmy) call(jminit);
-
-   return true;
-
-}
-
-
 bool Herwig6Hadronizer::initialize(const lhef::HEPRUP *heprup)
 {
 	clear();
@@ -424,6 +256,7 @@ bool Herwig6Hadronizer::initialize(const lhef::HEPRUP *heprup)
 		if (doMPInteraction)
 			info << "   JIMMY trying to generate multiple interactions.\n";
 	}
+
 
 	// set the IPROC already here... needed for VB pairs
 
@@ -560,27 +393,6 @@ bool Herwig6Hadronizer::initialize(const lhef::HEPRUP *heprup)
 
 bool Herwig6Hadronizer::declareStableParticles(const std::vector<int> &pdgIds)
 {
-	markStable(13);	         // MU+
-	markStable(-13);	 // MU-
-	markStable(3112);	 // SIGMA+
-	markStable(-3112);	 // SIGMABAR+
-	markStable(3222);	 // SIGMA-
-	markStable(-3222);	 // SIGMABAR-
-	markStable(3122);	 // LAMBDA0
-	markStable(-3122);	 // LAMBDABAR0
-	markStable(3312);	 // XI-
-	markStable(-3312);	 // XIBAR+
-	markStable(3322);	 // XI0
-	markStable(-3322);	 // XI0BAR
-	markStable(3334);	 // OMEGA-
-	markStable(-3334);	 // OMEGABAR+
-	markStable(211);	 // PI+
-	markStable(-211);	 // PI-
-	markStable(321);	 // K+
-	markStable(-321);	 // K-
-	markStable(310);	 // K_S0
-	markStable(130);	 // K_L0
-
 	for(std::vector<int>::const_iterator iter = pdgIds.begin();
 	    iter != pdgIds.end(); ++iter)
 		if (!markStable(*iter))

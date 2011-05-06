@@ -102,7 +102,7 @@ ZElecTagHLT = PassingHLT.clone(
     InputProducer = cms.InputTag( "PassingWP90" )
     )
 
-ele_sequence = cms.Sequence(
+Zele_sequence = cms.Sequence(
     goodElectrons +
     PassingWP90 +
     ZElecTagHLT
@@ -132,7 +132,7 @@ tagPhotonCounter = cms.EDFilter("CandViewCountFilter",
                                     minNumber = cms.uint32(1)
                                     )
 tagPhotonFilter = cms.Sequence(tagPhoton * tagPhotonCounter)
-tagPhotonSeq = cms.Sequence( ZEEHltFilter *(photon_sequence + ele_sequence) * tagPhotonFilter )
+tagPhotonSeq = cms.Sequence( ZEEHltFilter *(photon_sequence + Zele_sequence) * tagPhotonFilter )
 
 tagTrack = tagPhoton.clone(
     decay = cms.string("ZElecTagHLT goodTracks"),
@@ -142,7 +142,7 @@ tagTrackCounter = tagPhotonCounter.clone(
     src = cms.InputTag("tagTrack")
     )
 tagTrackFilter = cms.Sequence(tagTrack * tagTrackCounter)
-tagTrackSeq = cms.Sequence( ZEEHltFilter * (track_sequence + ele_sequence) * tagTrackFilter )
+tagTrackSeq = cms.Sequence( ZEEHltFilter * (track_sequence + Zele_sequence) * tagTrackFilter )
 
 tagGsf = tagPhoton.clone(
     decay = cms.string("PassingWP90 goodElectrons")
@@ -151,4 +151,4 @@ tagGsfCounter = tagPhotonCounter.clone(
     src = cms.InputTag("tagGsf")
     )
 tagGsfFilter = cms.Sequence(tagGsf * tagGsfCounter)
-tagGsfSeq = cms.Sequence( ZEEHltFilter * (ele_sequence) * tagGsfFilter )  
+tagGsfSeq = cms.Sequence( ZEEHltFilter * (Zele_sequence) * tagGsfFilter )  

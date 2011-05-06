@@ -31,13 +31,13 @@ DQMOffline_SecondStepDPG = cms.Sequence( dqmRefHistoRootFileGetter *
                                          DQMMessageLoggerClient )
 
 from DQMOffline.Muon.muonQualityTests_cff import *
-from DQMOffline.EGamma.photonOfflineDQMClient_cff import *
+from DQMOffline.EGamma.egammaPostProcessing_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_Client_cff import *
 from DQMOffline.Trigger.DQMOffline_HLT_Client_cff import *
 from DQMOffline.RecoB.dqmCollector_cff import *
 
 DQMOffline_SecondStep_PrePOG = cms.Sequence( muonQualityTests *
-                                             photonOfflineDQMClient *
+                                             egammaPostProcessing *
                                              triggerOfflineDQMClient *
                                              hltOfflineDQMClient *
                                              bTagCollectorSequence *

@@ -20,7 +20,6 @@ public:
   EcalCompactTrigPrimProducerTest(const edm::ParameterSet& ps):
     tpDigiColl_(ps.getParameter<edm::InputTag>("tpDigiColl")),
     tpRecColl_(ps.getParameter<edm::InputTag>("tpRecColl")),
-    tpSkimColl_(ps.getParameter<edm::InputTag>("tpSkimColl")),
     nCompressEt_(0),
     nFineGrain_(0),
     nTTF_(0),
@@ -41,7 +40,6 @@ private:
   
   edm::InputTag tpDigiColl_;
   edm::InputTag tpRecColl_;
-  edm::InputTag tpSkimColl_;
   int nCompressEt_;
   int nFineGrain_;
   int nTTF_;

@@ -13,6 +13,7 @@ if(&GetOptions(
 	       "--vclean",\$vclean,
 	       "--detail",\$detail,
 	       "--update",\$localupdate,
+	       "--headers",\$headers,
                "--help",\$help,
               ) eq ""){print "ERROR: Wrong arguments.\n"; &usage_msg(); exit 1;}
 
@@ -24,6 +25,8 @@ if (defined $localupdate){$localupdate=1;}
 else{$localupdate=0;}
 if (defined $detail){$detail=1;}
 else{$detail=0;}
+if (defined $headers){$headers="";}
+else{$headers="--skipheaders";}
 if((!defined $package) || ($package=~/^\s*$/)){$package="";}
 
 my $curdir=cwd();
@@ -136,9 +139,9 @@ sub processPack ()
   print ">> Waiting for copy process to finish .... ";
   &SCRAMGenUtils::waitForChild ();
   print "[ DONE ]\n";
-  print ">> Running \"includechecker.pl --config $configfile --tmpdir $tmpdir --keep --detail --recursive --local --skipheaders $xincargs\"\n";
+  print ">> Running \"includechecker.pl --config $configfile --tmpdir $tmpdir --keep --detail --recursive --local $headers $xincargs\"\n";
   print ">> Log file for the includechecker.pl processing: ${tmpdir}/log/${uniqpack}\n";
-  system("${scriptdir}/includechecker.pl --config $configfile --tmpdir $tmpdir --keep --detail --recursive --local --skipheaders $xincargs 2>&1 > ${tmpdir}/log/${uniqpack}");
+  system("${scriptdir}/includechecker.pl --config $configfile --tmpdir $tmpdir --keep --detail --recursive --local $headers $xincargs 2>&1 > ${tmpdir}/log/${uniqpack}");
   print ">> Done: includechecker.pl\n";
   if(-f "${tmp_dir}/chkquit"){return;}
   &processResult($cache);
@@ -364,7 +367,7 @@ sub syncDirs ()
 sub usage_msg ()
 {
   my $f=basename($0);
-  print "\nUsage: $f [--pack <pack>] [--update] [--clean] [--vclean] [--detail] [--help]\n\n";
+  print "\nUsage: $f [--pack <pack>] [--update] [--clean] [--vclean] [--detail] [--help] [--headers]\n\n";
 }
 
 sub help_msg ()
@@ -380,6 +383,7 @@ sub help_msg ()
 	" --vclean Same as clean but it also deletes the copy of external includes.\n",
 	" --update To remove the include checker comments from the modified files\n",
 	"          in your src directory.\n",
+	" --headers Force to check c/c++ header files too.\n";
 	" --detail For detail output messages.\n";
 	" --help   To print this help message.\n\n";
   print "It is a wrapper script to run includechecker. It automatically creates\n",

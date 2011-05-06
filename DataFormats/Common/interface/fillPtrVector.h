@@ -26,6 +26,8 @@
 #include "Reflex/Object.h"
 #include "Reflex/Type.h"
 
+#include "DataFormats/Common/interface/fwd_fillPtrVector.h"
+
 #include <typeinfo>
 #include <vector>
 

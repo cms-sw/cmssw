@@ -7,10 +7,12 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
 
 ## define input
+from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-    '/store/data/Run2010B/Mu/RECO/Nov4ReReco_v1/0008/F27D338B-D2EA-DF11-9664-00261834B561.root'
-    )
+    fileNames = cms.untracked.vstring(pickRelValInputFiles(relVal    = 'Mu',
+                                                           dataTier  = 'RECO',
+                                                           globalTag = 'GR_R_42_V7_RelVal_wzMu2010B'
+                                                           ))
 )
 ## define maximal number of events to loop over
 process.maxEvents = cms.untracked.PSet(
@@ -18,7 +20,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 ## configure process options
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(False)
+    wantSummary = cms.untracked.bool(True)
 )
 
 ## configure geometry & conditions

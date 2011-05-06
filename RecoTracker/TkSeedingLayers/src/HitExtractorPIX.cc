@@ -33,10 +33,13 @@ HitExtractor::Hits HitExtractorPIX::hits(const SeedingLayer & sl,const edm::Even
 
 
   if (skipClusters){
+    LogDebug("HitExtractorPIX")<<"getting : "<<result.size()<<" pixel hits.";
+    //std::cout<<" skipping"<<std::endl;
     edm::Handle<edmNew::DetSetVector<SiPixelClusterRefNew> > pixelClusterRefs;
     ev.getByLabel(theSkipClusters,pixelClusterRefs);
     std::vector<bool> keep(result.size(),true);
     HitExtractor::Hits newHits;
+    uint skipped=0;
     if (result.empty()) return result;
     DetId lookup=result.front()->hit()->geographicalId();
     edmNew::DetSetVector<SiPixelClusterRefNew>::const_iterator f=pixelClusterRefs->find(lookup);
@@ -50,13 +53,16 @@ HitExtractor::Hits HitExtractorPIX::hits(const SeedingLayer & sl,const edm::Even
       if (result[iH]->hit()->isValid()){
 	SiPixelRecHit * concrete = (SiPixelRecHit *) result[iH]->hit();
 	if (f!=pixelClusterRefs->end() && find(f->begin(),f->end(),concrete->cluster())!=f->end()){
-	  LogDebug("HitExtractorPIX")<<"skipping a pixel hit on: "<< result[iH]->hit()->geographicalId().rawId()<<" key: "<<find(f->begin(),f->end(),concrete->cluster())->key();
+	  //too much debug LogDebug("HitExtractorPIX")<<"skipping a pixel hit on: "<< result[iH]->hit()->geographicalId().rawId()<<" key: "<<find(f->begin(),f->end(),concrete->cluster())->key();
+	  skipped++;
 	  continue;
 	}
       }
       newHits.push_back(result[iH]);
     }
     result.swap(newHits);
+    LogDebug("HitExtractorPIX")<<"skipped :"<<skipped<<" pixel clusters";
   }
+  LogDebug("HitExtractorPIX")<<"giving :"<<result.size()<<" rechits out";
   return result;
 }

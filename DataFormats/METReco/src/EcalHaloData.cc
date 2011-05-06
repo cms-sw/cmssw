@@ -6,7 +6,6 @@
   [date]: October 15, 2009
 */
 
-#include <cmath>
 using namespace reco;
 EcalHaloData::EcalHaloData()
 {

@@ -628,27 +628,13 @@ bool Pythia6Hadronizer::residualDecay()
    return true;
 }
 
-bool Pythia6Hadronizer::readSettings( int key )
-{
-
-   Pythia6Service::InstanceWrapper guard(fPy6Service);	// grab Py6 instance
-    
-   fPy6Service->setGeneralParams();   
-   if ( key == 0 ) fPy6Service->setCSAParams();
-   fPy6Service->setSLHAParams();
-
-   return true;
-
-}
-
 bool Pythia6Hadronizer::initializeForExternalPartons()
 {
    Pythia6Service::InstanceWrapper guard(fPy6Service);	// grab Py6 instance
 
-   // note: CSA mode is NOT supposed to work with external partons !!!
+   // note: CSA mode is NOT supposed to woirk with external partons !!!
    
-   // fPy6Service->setGeneralParams();
-   
+   fPy6Service->setGeneralParams();
    fPy6Service->setPYUPDAParams(false);
 
    FortranCallback::getInstance()->setLHERunInfo( lheRunInfo() );
@@ -697,9 +683,11 @@ bool Pythia6Hadronizer::initializeForExternalPartons()
 
 bool Pythia6Hadronizer::initializeForInternalPartons()
 {
-
    Pythia6Service::InstanceWrapper guard(fPy6Service);	// grab Py6 instance
-   
+    
+   fPy6Service->setGeneralParams();   
+   fPy6Service->setCSAParams();
+   fPy6Service->setSLHAParams();
    fPy6Service->setPYUPDAParams(false);
    
    if ( fStopHadronsEnabled )
@@ -715,7 +703,7 @@ bool Pythia6Hadronizer::initializeForInternalPartons()
       call_pygive("MSTP(111)=0");
       pyglrhad_();
    }
-
+   
    call_pyinit("CMS", "p", "p", fCOMEnergy);
 
    fPy6Service->setPYUPDAParams(true);

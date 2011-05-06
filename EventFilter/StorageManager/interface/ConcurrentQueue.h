@@ -1,4 +1,4 @@
-// $Id: ConcurrentQueue.h,v 1.10.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: ConcurrentQueue.h,v 1.12 2011/04/07 08:22:04 mommsen Exp $
 /// @file: ConcurrentQueue.h 
 
 
@@ -42,8 +42,8 @@ namespace stor
         item cannot be added.
    
      $Author: mommsen $
-     $Revision: 1.10.4.1 $
-     $Date: 2011/03/07 11:33:04 $
+     $Revision: 1.12 $
+     $Date: 2011/04/07 08:22:04 $
    */
 
 
@@ -116,7 +116,7 @@ namespace stor
     typedef void ReturnType;
 
     typedef T ValueType;
-    typedef std::list<ValueType> SequenceType;
+    typedef std::list<T> SequenceType;
     typedef typename SequenceType::size_type SizeType;
 
     static struct QueueIsFull : public std::exception
@@ -134,12 +134,10 @@ namespace stor
       SizeType& size,
       detail::MemoryType const& itemSize,
       detail::MemoryType& used,
-      size_t& elementsDropped,
       boost::condition& nonempty
     )
     {
       elements.push_back(item);
-      elementsDropped = 0;
       ++size;
       used += itemSize;
       nonempty.notify_one();
@@ -165,8 +163,7 @@ namespace stor
       }
       else
       {
-        doInsert(item, elements, size, itemSize, used,
-          elementsDropped, nonempty);
+        doInsert(item, elements, size, itemSize, used, nonempty);
       }
     }         
   };
@@ -176,7 +173,7 @@ namespace stor
   struct KeepNewest
   {
     typedef std::pair<T,size_t> ValueType;
-    typedef std::list<ValueType> SequenceType;
+    typedef std::list<T> SequenceType;
     typedef typename SequenceType::size_type SizeType;
     typedef SizeType ReturnType;
 
@@ -187,14 +184,10 @@ namespace stor
       SizeType& size,
       detail::MemoryType const& itemSize,
       detail::MemoryType& used,
-      size_t& elementsDropped,
       boost::condition& nonempty
     )
     {
-      elements.push_back(
-        typename SequenceType::value_type(item,elementsDropped)
-      );
-      elementsDropped = 0;
+      elements.push_back(item);
       ++size;
       used += itemSize;
       nonempty.notify_one();
@@ -221,22 +214,20 @@ namespace stor
         holder.splice(holder.begin(), elements, elements.begin());
         // Record the change in the length of elements.
         --size;
-        used -= detail::memoryUsage( holder.front().first );
-        elementsDropped += holder.front().second + 1;
+        used -= detail::memoryUsage( holder.front() );
         ++elementsRemoved;
       }
       if (size < capacity && used+itemSize <= memory)
         // we succeeded to make enough room for the new element
       {
-        doInsert(item, elements, size, itemSize, used,
-          elementsDropped, nonempty);
+        doInsert(item, elements, size, itemSize, used, nonempty);
       }
       else
       {
         // we cannot add the new element
         ++elementsRemoved;
-        ++elementsDropped;
       }
+      elementsDropped += elementsRemoved;
       return elementsRemoved;
     }
   };
@@ -246,7 +237,7 @@ namespace stor
   struct RejectNewest
   {
     typedef std::pair<T,size_t> ValueType;
-    typedef std::list<ValueType> SequenceType;
+    typedef std::list<T> SequenceType;
     typedef typename SequenceType::size_type SizeType;
     typedef SizeType ReturnType;
 
@@ -257,14 +248,10 @@ namespace stor
       SizeType& size,
       detail::MemoryType const& itemSize,
       detail::MemoryType& used,
-      size_t& elementsDropped,
       boost::condition& nonempty
     )
     {
-      elements.push_back(
-        typename SequenceType::value_type(item,elementsDropped)
-      );
-      elementsDropped = 0;
+      elements.push_back(item);
       ++size;
       used += itemSize;
       nonempty.notify_one();
@@ -285,8 +272,7 @@ namespace stor
       detail::MemoryType itemSize = detail::memoryUsage(item);
       if (size < capacity && used+itemSize <= memory)
       {
-        doInsert(item, elements, size, itemSize, used,
-          elementsDropped, nonempty);
+        doInsert(item, elements, size, itemSize, used, nonempty);
         return 0;
       }
       ++elementsDropped;
@@ -303,7 +289,7 @@ namespace stor
   {
   public:
     typedef typename EnqPolicy::ValueType ValueType;
-    typedef std::list<ValueType> SequenceType;
+    typedef typename EnqPolicy::SequenceType SequenceType;
     typedef typename SequenceType::size_type SizeType;
 
     /**
@@ -494,6 +480,9 @@ namespace stor
      */
     void removeHead(ValueType& item);
 
+    void assignItem(T& item, const T& element);
+    void assignItem(std::pair<T,size_t>& item, const T& element);
+
     /*
       Return false if the queue can accept new entries.
      */
@@ -553,8 +542,7 @@ namespace stor
     LockType lock(protectElements_);
     while ( isFull() ) queueNotFull_.wait(lock);
     EnqPolicy::doInsert(item, elements_, size_,
-      detail::memoryUsage(item), used_,
-      elementsDropped_, queueNotEmpty_);
+      detail::memoryUsage(item), used_, queueNotEmpty_);
   }
 
   template <class T, class EnqPolicy>
@@ -691,6 +679,7 @@ namespace stor
   void 
   ConcurrentQueue<T,EnqPolicy>::addExternallyDroppedEvents(SizeType n)
   {
+    LockType lock(protectElements_);
     elementsDropped_ += n;
   }
 
@@ -710,8 +699,7 @@ namespace stor
     else
     {
       EnqPolicy::doInsert(item, elements_, size_,
-      detail::memoryUsage(item), used_,
-      elementsDropped_, queueNotEmpty_);
+      detail::memoryUsage(item), used_, queueNotEmpty_);
       return true;
     }
   }
@@ -737,12 +725,26 @@ namespace stor
     --size_;
     queueNotFull_.notify_one();
 
-    // Assign the item. This might throw.
-    item = holder.front();
-
+    assignItem(item, holder.front());
     used_ -= detail::memoryUsage( item );
   }
-
+  
+  template <class T, class EnqPolicy>
+  void
+  ConcurrentQueue<T,EnqPolicy>::assignItem(T& item, const T& element)
+  {
+    item = element;
+  }
+  
+  template <class T, class EnqPolicy>
+  void
+  ConcurrentQueue<T,EnqPolicy>::assignItem(std::pair<T,size_t>& item, const T& element)
+  {
+    item.first = element;
+    item.second = elementsDropped_;
+    elementsDropped_ = 0;
+  }
+  
   template <class T, class EnqPolicy>
   bool
   ConcurrentQueue<T,EnqPolicy>::isFull() const

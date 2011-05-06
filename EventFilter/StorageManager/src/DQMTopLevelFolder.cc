@@ -1,4 +1,4 @@
-// $Id: DQMTopLevelFolder.cc,v 1.1.4.2 2011/03/07 11:33:04 mommsen Exp $
+// $Id: DQMTopLevelFolder.cc,v 1.4 2011/04/04 12:03:30 mommsen Exp $
 /// @file: DQMTopLevelFolder.cc
 
 #include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
@@ -20,21 +20,25 @@
 
 namespace stor {
   
+  unsigned int DQMTopLevelFolder::sentEvents_(0);
+  
   DQMTopLevelFolder::DQMTopLevelFolder
   (
     const DQMKey& dqmKey,
     const QueueIDs& dqmConsumers,
     const DQMProcessingParams& dqmParams,
     DQMEventMonitorCollection& dqmEventMonColl,
-    const unsigned int expectedUpdates
+    const unsigned int expectedUpdates,
+    AlarmHandlerPtr alarmHandler
   ) :
   dqmKey_(dqmKey),
   dqmConsumers_(dqmConsumers),
   dqmParams_(dqmParams),
   dqmEventMonColl_(dqmEventMonColl),
   expectedUpdates_(expectedUpdates),
+  alarmHandler_(alarmHandler),
   nUpdates_(0),
-  sentEvents_(0),
+  mergeCount_(0),
   updateNumber_(0)
   {
     gROOT->SetBatch(kTRUE);
@@ -54,6 +58,11 @@ namespace stor {
     // A restarted EP will start counting at 0 again.
     // Thus, take the maximum of all updates we get.
     updateNumber_ = std::max(updateNumber_, view.updateNumber());
+    if ( timeStamp_ == edm::Timestamp::invalidTimestamp() )
+      timeStamp_ = view.timeStamp();
+    else
+      timeStamp_ = std::min(timeStamp_, view.timeStamp());
+    mergeCount_ += std::max(1U, view.mergeCount());
 
     edm::StreamDQMDeserializer deserializer;
     std::auto_ptr<DQMEvent::TObjectTable> toTablePtr =
@@ -62,6 +71,20 @@ namespace stor {
     addEvent(toTablePtr);
     
     ++nUpdates_;
+
+    if (nUpdates_ > expectedUpdates_)
+    {
+      std::ostringstream msg;
+      msg << "Received " << nUpdates_
+        << " updates for top level folder " << view.topFolderName()
+        << " and lumi section " << view.lumiSection()
+        << " whereas only " << expectedUpdates_
+        << " updates are expected.";
+      XCEPT_DECLARE(exception::DQMEventProcessing,
+        sentinelException, msg.str());
+      alarmHandler_->notifySentinel(AlarmHandler::ERROR, sentinelException);
+    }
+
     lastUpdate_ = utils::getCurrentTime();
     
     dqmEventMonColl_.getDQMEventSizeMQ().addSample(
@@ -74,7 +97,11 @@ namespace stor {
   {
     if ( nUpdates_ == 0 ) return false;
     
-    if ( nUpdates_ == expectedUpdates_ ) return true;
+    if ( nUpdates_ == expectedUpdates_ )
+    {
+      dqmEventMonColl_.getNumberOfCompleteUpdatesMQ().addSample(1);
+      return true;
+    }
     
     if ( now > lastUpdate_ + dqmParams_.readyTimeDQM_ ) return true;
     
@@ -131,14 +158,12 @@ namespace stor {
       + dqmKey_.topLevelFolderName.length()
     + folderSize;
     
-    edm::Timestamp timestamp(utils::nanosecondsSinceEpoch(lastUpdate_));
-    
     DQMEventMsgBuilder builder(
       record.getBuffer(totalSize),
       totalSize,
       dqmKey_.runNumber,
       ++sentEvents_,
-      timestamp,
+      timeStamp_,
       dqmKey_.lumiSection,
       updateNumber_,
       (uint32_t)serializer.adler32_chksum(),
@@ -160,7 +185,7 @@ namespace stor {
       // a size of 0 indicates no compression
       builder.setCompressionFlag(0);
     }
-    
+    builder.setMergeCount(mergeCount_);
     dqmEventMonColl_.getNumberOfUpdatesMQ().addSample(nUpdates_);
     dqmEventMonColl_.getServedDQMEventSizeMQ().addSample(
       static_cast<double>(record.totalDataSize()) / 0x100000

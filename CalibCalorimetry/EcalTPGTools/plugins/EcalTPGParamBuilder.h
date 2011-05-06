@@ -41,8 +41,6 @@
 #include <map>
 #include <iostream>
 
-using namespace std;
-
 class CaloSubdetectorGeometry ;
 class EcalElectronicsMapping ;
 class EcalTPGDBApp ;
@@ -83,14 +81,14 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   std::vector<unsigned int> computeWeights(EcalShape & shape, TH1F * histo) ;
 #endif
   void computeLUT(int * lut, std::string det="EB")  ;
-  void getCoeff(coeffStruc & coeff, const EcalIntercalibConstantMap & calibMap, uint rawId) ;
-  void getCoeff(coeffStruc & coeff, const EcalGainRatioMap & gainMap, uint rawId) ;
-  void getCoeff(coeffStruc & coeff, const EcalPedestalsMap & pedMap, uint rawId) ;
+  void getCoeff(coeffStruc & coeff, const EcalIntercalibConstantMap & calibMap, unsigned int rawId) ;
+  void getCoeff(coeffStruc & coeff, const EcalGainRatioMap & gainMap, unsigned int rawId) ;
+  void getCoeff(coeffStruc & coeff, const EcalPedestalsMap & pedMap, unsigned int rawId) ;
   void getCoeff(coeffStruc & coeff, const std::map<EcalLogicID, MonPedestalsDat> & pedMap, const EcalLogicID & logicId) ;
 
-  void computeFineGrainEBParameters(uint & lowRatio, uint & highRatio,
-				    uint & lowThreshold, uint & highThreshold, uint & lut) ;
-  void computeFineGrainEEParameters(uint & threshold, uint & lut_strip, uint & lut_tower) ;
+  void computeFineGrainEBParameters(unsigned int & lowRatio, unsigned int & highRatio,
+				    unsigned int & lowThreshold, unsigned int & highThreshold, unsigned int & lut) ;
+  void computeFineGrainEEParameters(unsigned int & threshold, unsigned int & lut_strip, unsigned int & lut_tower) ;
   int getEtaSlice(int tccId, int towerInTCC) ;
   bool realignBaseline(linStruc & lin, float forceBase12) ;
   int getGCTRegionPhi(int ttphi) ;
@@ -125,18 +123,8 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   int forcedPedestalValue_ ;
   bool forceEtaSlice_ ;
   unsigned int SFGVB_Threshold_, SFGVB_lut_, pedestal_offset_ ;
-  int SFGVB_SpikeKillingThreshold_; //modif-alex 01/21/11
-  bool useInterCalibration_, H2_ ;
+  bool useInterCalibration_ ;
 
-  //modif-alex-02/02/11
-  std::string TimingDelays_EB_;
-  std::string TimingDelays_EE_;
-  std::string TimingPhases_EB_;
-  std::string TimingPhases_EE_;
-  std::map<int, vector<int> > delays_EB_ ; 
-  std::map<int, vector<int> > phases_EB_ ; 
-  std::map<int, vector<int> > delays_EE_ ; 
-  std::map<int, vector<int> > phases_EE_ ; 
 
   std::ofstream * out_file_ ;
   std::ofstream * geomFile_ ;
@@ -152,8 +140,6 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   int fgr_conf_id_;
   int sli_conf_id_;
   int wei_conf_id_;
-  int spi_conf_id_; //modif-alex 21/01.11
-  int del_conf_id_; //modif-alex 21/01.11
   int bxt_conf_id_;
   int btt_conf_id_;
   std::string tag_;
@@ -164,12 +150,10 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   int m_write_wei;
   int m_write_fgr;
   int m_write_sli;
-  int m_write_spi; //modif-alex 21/01/11
-  int m_write_del; //modif-alex 21/01/11
   int m_write_bxt;
   int m_write_btt;
 
-  Int_t * ntupleInts_ ;
+  Float_t * ntupleFloats_ ;
   Char_t ntupleDet_[10] ;
   Char_t ntupleCrate_[10] ;
 
