@@ -13,7 +13,7 @@
 //
 // Original Author:  Thomas Reis,40 4-B24,+41227671567,
 //         Created:  Tue Mar 15 12:24:11 CET 2011
-// $Id: EmDQMFeeder.cc,v 1.9 2011/04/20 15:25:44 treis Exp $
+// $Id: EmDQMFeeder.cc,v 1.10 2011/05/05 16:51:53 treis Exp $
 //
 //
 
@@ -431,6 +431,10 @@ EmDQMFeeder::findEgammaPaths()
       // Find electron and photon paths
       if (int(path.find("HLT_")) == 0) {    // Path should start with 'HLT_'
          if (path.find("HLT_Ele") != std::string::npos && path.rfind("Ele") == 4 && path.find("SC") == std::string::npos) {
+            Paths[TYPE_SINGLE_ELE].push_back(path);
+            std::cout << "Electron " << path << std::endl;
+         }
+         if (path.find("HLT_Ele") != std::string::npos && path.find("EleId") != std::string::npos && path.rfind("Ele") == path.find("EleId")) {
             Paths[TYPE_SINGLE_ELE].push_back(path);
             std::cout << "Electron " << path << std::endl;
          }
