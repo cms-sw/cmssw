@@ -120,9 +120,9 @@ HLT_DoubleMu6_v*
 HLT_DoubleMu7_v*
 HLT_DoubleMu4_Acoplanarity03_v*
 HLT_DoubleMu2_Bs_v*
-HLT_Dimuon3_Jpsi_v*
+HLT_Dimuon0_Jpsi_v*
+HLT_Dimuon0_Upsilon_v*
 HLT_Dimuon4_Bs_Barrel_v*
-HLT_Dimuon5_Upsilon_v*
 HLT_Dimuon5_Upsilon_Barrel_v*
 HLT_Dimuon6_Bs_v*
 HLT_Dimuon7_LowMass_Displaced_v*
@@ -130,8 +130,8 @@ HLT_Dimuon7_Jpsi_Displaced_v*
 HLT_Dimuon7_Jpsi_X_Barrel_v*
 HLT_Dimuon7_PsiPrime_v*
 HLT_Dimuon10_Jpsi_Barrel_v*
+HLT_Dimuon0_Jpsi_Muon_v*
 HLT_Dimuon0_Upsilon_Muon_v*
-HLT_Dimuon3_Jpsi_Muon_v*
 HLT_Mu13_Mu8_v*
 HLT_TripleMu5_v*
 HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v*
