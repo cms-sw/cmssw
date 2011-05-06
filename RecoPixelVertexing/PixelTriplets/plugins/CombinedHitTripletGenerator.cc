@@ -1,4 +1,4 @@
-#include "RecoPixelVertexing/PixelTriplets/interface/CombinedHitTripletGenerator.h"
+#include "CombinedHitTripletGenerator.h"
 
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSets.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"

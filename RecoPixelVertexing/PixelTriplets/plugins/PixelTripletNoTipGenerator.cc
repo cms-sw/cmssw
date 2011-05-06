@@ -1,4 +1,4 @@
-#include "RecoPixelVertexing/PixelTriplets/src/PixelTripletNoTipGenerator.h"
+#include "PixelTripletNoTipGenerator.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

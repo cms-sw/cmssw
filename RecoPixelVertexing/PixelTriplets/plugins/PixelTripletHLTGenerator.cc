@@ -1,4 +1,4 @@
-#include "RecoPixelVertexing/PixelTriplets/src/PixelTripletHLTGenerator.h"
+#include "PixelTripletHLTGenerator.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromInvParabola.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitRZPrediction.h"
@@ -7,7 +7,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "RecoPixelVertexing/PixelTriplets/src/ThirdHitCorrection.h"
+#include "ThirdHitCorrection.h"
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>

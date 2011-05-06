@@ -4,16 +4,16 @@
 
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayersFactory.h"
-#include "RecoPixelVertexing/PixelTriplets/src/PixelTripletHLTGenerator.h"
+#include "PixelTripletHLTGenerator.h"
 DEFINE_EDM_PLUGIN(HitTripletGeneratorFromPairAndLayersFactory, PixelTripletHLTGenerator, "PixelTripletHLTGenerator");
 
-#include "RecoPixelVertexing/PixelTriplets/src/PixelTripletLargeTipGenerator.h"
+#include "PixelTripletLargeTipGenerator.h"
 DEFINE_EDM_PLUGIN(HitTripletGeneratorFromPairAndLayersFactory, PixelTripletLargeTipGenerator, "PixelTripletLargeTipGenerator");
 
-#include "RecoPixelVertexing/PixelTriplets/src/PixelTripletNoTipGenerator.h"
+#include "PixelTripletNoTipGenerator.h"
 DEFINE_EDM_PLUGIN(HitTripletGeneratorFromPairAndLayersFactory,PixelTripletNoTipGenerator,"PixelTripletNoTipGenerator"); 
 
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/CombinedHitTripletGenerator.h"
+#include "CombinedHitTripletGenerator.h"
 DEFINE_EDM_PLUGIN(OrderedHitsGeneratorFactory, CombinedHitTripletGenerator, "StandardHitTripletGenerator");
