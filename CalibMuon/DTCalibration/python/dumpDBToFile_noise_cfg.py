@@ -19,9 +19,9 @@ process.calibDB = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(cms.PSet(
     	# Noise
         record = cms.string('DTStatusFlagRcd'),
-        tag = cms.string()
+        tag = cms.string('noise')
     )),
-    connect = cms.string()
+    connect = cms.string('sqlite_file:noise.db')
 )
 
 process.dumpToFile = cms.EDAnalyzer("DumpDBToFile",
@@ -33,7 +33,7 @@ process.dumpToFile = cms.EDAnalyzer("DumpDBToFile",
         nFields = cms.untracked.int32(7),
         calibConstGranularity = cms.untracked.string('byWire')
     ),
-    outputFileName = cms.untracked.string(options.outputFile)
+    outputFileName = cms.untracked.string('noise.txt')
 )
 
 process.p = cms.Path(process.dumpToFile)

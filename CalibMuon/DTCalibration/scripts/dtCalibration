@@ -10,9 +10,10 @@ from CalibMuon.DTCalibration.Workflow.DTVDriftSegmentCalibration import DTVDrift
 from CalibMuon.DTCalibration.Workflow.DTVDriftSegmentWriter import DTVDriftSegmentWriter
 from CalibMuon.DTCalibration.Workflow.DTVDriftMeanTimerCalibration import DTVDriftMeanTimerCalibration
 from CalibMuon.DTCalibration.Workflow.DTVDriftMeanTimerWriter import DTVDriftMeanTimerWriter
+from CalibMuon.DTCalibration.Workflow.DTNoiseCalibration import DTNoiseCalibration
 from CalibMuon.DTCalibration.Workflow.DTDqm import DTDqm
 from CalibMuon.DTCalibration.Workflow.CrabWatch import CrabWatch
-from CalibMuon.DTCalibration.Workflow.tools import listFilesInCastor,haddInCastor,listFilesLocal,haddLocal,parseInput
+from CalibMuon.DTCalibration.Workflow.tools import listFilesInCastor,haddInCastor,listFilesLocal,haddLocal,copyFilesFromCastor,copyFilesLocal,parseInput
 import sys,os,time,optparse
 
 def getDatasetStr(datasetpath):
@@ -535,6 +536,45 @@ def runVDriftWorkflow(mode,run,config,execute=True):
 # noise workflow
 ############################################################
 def runNoiseWorkflow(mode,run,config,execute=True):
+    print "Processing noise calibration"
+
+    trial = config.trial
+    runselection = config.runselection
+    result_dir = config.result_dir
+    result_file = os.path.abspath(result_dir + '/' + 'dtNoiseCalib_' + run + '.root')
+    noise_db = os.path.abspath(result_dir + '/' + 'noise_' + run + '.db')
+    noise_txt = os.path.abspath(result_dir + '/' + 'noise_' + run + '.txt')
+   
+    datasetstr = getDatasetStr(config.datasetpath)
+    config.userdircaf = 'DTCalibration/' + datasetstr + '/Run' + str(run) + '/NoiseCalibration/' + label + '/' + 'v' + str(trial)
+
+    task_dir = config.base_dir + '/NoiseCalib'
+    dtNoiseCalibration = DTNoiseCalibration(run=run,
+                                            dir=task_dir,
+                                            config=config)
+    if not execute:
+        dtNoiseCalibration.writeCfg()
+        sys.exit(0)
+    else:
+        dtNoiseCalibration.writeCfg()
+        project_noise = dtNoiseCalibration.run()
+
+        print "Sent calibration jobs with project",project_noise
+        print "%.0f%% of jobs are required to finish" % config.jobsFinishedThreshold
+
+        crabNoiseCalibration = CrabWatch(project_noise)
+        crabNoiseCalibration.setThreshold(config.jobsFinishedThreshold)
+        crabNoiseCalibration.start()
+        crabNoiseCalibration.join()     
+
+        if config.stageOutLocal:
+            crab_output_dir = project_noise + "/res"
+            retcode = copyFilesLocal(crab_output_dir,result_dir,'dtNoiseCalib')
+            retcode = copyFilesLocal(crab_output_dir,result_dir,'noise')
+        elif config.stageOutCAF:
+            castor_dir = config.castorpath + "/" + config.userdircaf
+            retcode = copyFilesFromCastor(castor_dir,result_dir,'dtNoiseCalib','rfio://castorcms/','?svcClass=cmscafuser')
+            retcode = copyFilesFromCastor(castor_dir,result_dir,'noise','rfio://castorcms/','?svcClass=cmscafuser')
 
     return 0
 

@@ -44,6 +44,33 @@ def listFilesLocal(dir,type = 'root'):
 
     return files
 
+def copyFilesFromCastor(castor_dir,output_dir,type='root',prefix='rfio:',suffix=None):
+    from subprocess import call
+    files = listFilesInCastor(castor_dir,type,prefix)
+    if suffix: files = [item + suffix for item in files]
+
+    print "Copying files from %s to %s" % (castor_dir,output_dir) 
+    for item in files:
+        cmd = ['rfcp',item,output_dir] 
+        print "..." + item
+        retcode = call(cmd)
+        if retcode != 0: raise RuntimeError,'Error in copying file %s to directory %s' % (item,output_dir)
+
+    return 0
+
+def copyFilesLocal(dir,output_dir,type='root'):
+    if not dir: raise ValueError,'Please specify valid dir'
+    if not output_dir: raise ValueError,'Please specify valid output dir'
+  
+    from subprocess import call
+    files = listFilesLocal(dir,type)
+    cmd = ['cp']
+    cmd.extend(files)
+    cmd.append(output_dir)
+    print cmd 
+    retcode = call(cmd)
+    return retcode
+
 def haddInCastor(castor_dir,result_file,type = 'root',prefix = 'rfio:',suffix = None):
     if not castor_dir: raise ValueError,'Please specify valid castor dir'
     if not result_file: raise ValueError,'Please specify valid output file name'
