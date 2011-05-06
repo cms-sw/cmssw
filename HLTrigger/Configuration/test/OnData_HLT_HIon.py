@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V50 (CMSSW_4_2_0_HLT2)
+# /dev/CMSSW_4_2_0/HIon/V53 (CMSSW_4_2_0_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V50')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V53')
 )
 
 process.streams = cms.PSet( 
@@ -5215,8 +5215,7 @@ process.options = cms.untracked.PSet(
 if 'GlobalTag' in process.__dict__:
     process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
-    from Configuration.PyReleaseValidation.autoCond import autoCond
-    process.GlobalTag.globaltag = autoCond['hltonline']
+    process.GlobalTag.globaltag = 'GR_R_42_V12::All'
 
 # override the L1 menu
 if 'GlobalTag' in process.__dict__:

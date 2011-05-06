@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V50
+# /dev/CMSSW_4_2_0/GRun/V53
 
 import FWCore.ParameterSet.Config as cms
 
@@ -114,7 +114,9 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetHT_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetHT_selector.l1tResults = cms.InputTag('')
 streamA_datasetHT_selector.throw      = cms.bool(False)
-streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_HT150_AlphaT0p60_v2', 
+streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_DiJet130_PT130_v2', 
+    'HLT_DiJet160_PT160_v2', 
+    'HLT_HT150_AlphaT0p60_v2', 
     'HLT_HT150_v3', 
     'HLT_HT200_AlphaT0p53_v2', 
     'HLT_HT200_AlphaT0p60_v2', 
@@ -219,6 +221,7 @@ streamA_datasetMinimumBias_selector.throw      = cms.bool(False)
 streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_JetE30_NoBPTX3BX_NoHalo_v4', 
     'HLT_JetE30_NoBPTX_NoHalo_v4', 
     'HLT_JetE30_NoBPTX_v2', 
+    'HLT_JetE50_NoBPTX3BX_NoHalo_v1', 
     'HLT_L1Tech_BSC_minBias_threshold1_v3', 
     'HLT_Physics_v1', 
     'HLT_PixelTracks_Multiplicity100_v2', 
@@ -271,13 +274,13 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMuOnia_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMuOnia_selector.l1tResults = cms.InputTag('')
 streamA_datasetMuOnia_selector.throw      = cms.bool(False)
-streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Upsilon_Muon_v1', 
+streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Jpsi_Muon_v1', 
+    'HLT_Dimuon0_Jpsi_v1', 
+    'HLT_Dimuon0_Upsilon_Muon_v1', 
+    'HLT_Dimuon0_Upsilon_v1', 
     'HLT_Dimuon10_Jpsi_Barrel_v1', 
-    'HLT_Dimuon3_Jpsi_Muon_v1', 
-    'HLT_Dimuon3_Jpsi_v1', 
     'HLT_Dimuon4_Bs_Barrel_v1', 
     'HLT_Dimuon5_Upsilon_Barrel_v1', 
-    'HLT_Dimuon5_Upsilon_v1', 
     'HLT_Dimuon6_Bs_v1', 
     'HLT_Dimuon7_Jpsi_Displaced_v1', 
     'HLT_Dimuon7_Jpsi_X_Barrel_v1', 
@@ -292,9 +295,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMultiJet_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMultiJet_selector.l1tResults = cms.InputTag('')
 streamA_datasetMultiJet_selector.throw      = cms.bool(False)
-streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_DiJet130_PT130_v2', 
-    'HLT_DiJet160_PT160_v2', 
-    'HLT_DoubleJet30_ForwardBackward_v3', 
+streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_DoubleJet30_ForwardBackward_v3', 
     'HLT_DoubleJet60_ForwardBackward_v3', 
     'HLT_DoubleJet70_ForwardBackward_v3', 
     'HLT_DoubleJet80_ForwardBackward_v3', 
