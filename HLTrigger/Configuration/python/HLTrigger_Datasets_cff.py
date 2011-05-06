@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V47
+# /dev/CMSSW_4_2_0/GRun/V50
 
 import FWCore.ParameterSet.Config as cms
 
@@ -292,7 +292,9 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMultiJet_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMultiJet_selector.l1tResults = cms.InputTag('')
 streamA_datasetMultiJet_selector.throw      = cms.bool(False)
-streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_DoubleJet30_ForwardBackward_v3', 
+streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_DiJet130_PT130_v2', 
+    'HLT_DiJet160_PT160_v2', 
+    'HLT_DoubleJet30_ForwardBackward_v3', 
     'HLT_DoubleJet60_ForwardBackward_v3', 
     'HLT_DoubleJet70_ForwardBackward_v3', 
     'HLT_DoubleJet80_ForwardBackward_v3', 
@@ -388,6 +390,7 @@ streamA_datasetSingleMu_selector.triggerConditions = cms.vstring('HLT_IsoMu12_v2
     'HLT_Mu24_v2', 
     'HLT_Mu30_v2', 
     'HLT_Mu3_v4', 
+    'HLT_Mu40_v1', 
     'HLT_Mu5_v4', 
     'HLT_Mu8_v2')
 
