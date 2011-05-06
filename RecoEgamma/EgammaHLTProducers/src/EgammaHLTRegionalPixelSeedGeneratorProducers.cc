@@ -2,7 +2,7 @@
 // Package:         RecoEgamma/EgammaHLTProducers
 // Class:           EgammaHLTRegionalPixelSeedGeneratorProducers
 //  Modified from TkSeedGeneratorFromTrk by Jeremy Werner, Princeton University, USA
-// $Id: EgammaHLTRegionalPixelSeedGeneratorProducers.cc,v 1.9 2008/02/15 16:11:01 ghezzi Exp $
+// $Id: EgammaHLTRegionalPixelSeedGeneratorProducers.cc,v 1.10 2010/04/13 16:44:20 covarell Exp $
 //
 
 #include <iostream>
@@ -83,7 +83,12 @@ void EgammaHLTRegionalPixelSeedGeneratorProducers::beginRun(edm::Run &run, const
         OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet);
 
   // start seed generator
-  combinatorialSeedGenerator = new SeedGeneratorFromRegionHits( hitsGenerator, conf_);
+  // FIXME??
+  edm::ParameterSet creatorPSet;
+  creatorPSet.addParameter<std::string>("propagator","PropagatorWithMaterial");
+
+  combinatorialSeedGenerator = new new SeedGeneratorFromRegionHits( hitsGenerator, 0, 
+						 SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
 }
 
 // Functions that gets called by framework every event
