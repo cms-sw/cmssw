@@ -17,14 +17,14 @@
   gStyle->SetStatY(0.9);
   gStyle->SetHistLineWidth(2);
 
-  const bool pause = false;
+  const bool pause = true;
   // Creation of PDF files.
   const bool printSeparatePdf = true;
   const bool printMergedPdf = false;
 
   //  TFile d("data.root");
-  TFile d("datanew.root");
-  TFile mc("mcnew.root");
+  TFile d("data.root");
+  TFile mc("mc.root");
 
   TCanvas c1;
 
@@ -33,8 +33,8 @@
     c1.Print("paper.pdf[","pdf");
   }
 
-  TH1F* his1;
-  TH1F* his2;
+  TH1* his1;
+  TH1* his2;
 
   //
   // Number of prompt tracks in data
@@ -54,6 +54,10 @@
   his2->SetFillColor(2);
   his1->SetXTitle("Number of prompt tracks");
   his1->SetYTitle("Number of jets");
+  TLegend histoKey(0.6,0.80,0.95,0.95,""); // Add key to histogram  
+  histoKey.AddEntry(his1,"All jets","f");
+  histoKey.AddEntry(his2,"Triggering jets","f");
+  histoKey.Draw();
 
   TLine line(nPromptTk_cut, his1->GetMinimum(), nPromptTk_cut, his1->GetMaximum());
   line.SetLineWidth(5);
@@ -82,6 +86,10 @@
   his2->SetFillColor(2);
   his1->SetXTitle("Number of prompt tracks");
   his1->SetYTitle("Number of jets");
+  TLegend histoKey(0.6,0.80,0.95,0.95,""); // Add key to histogram  
+  histoKey.AddEntry(his1,"All jets","f");
+  histoKey.AddEntry(his2,"Triggering jets","f");
+  histoKey.Draw();
 
   TLine line(nPromptTk_cut, his1->GetMinimum(), nPromptTk_cut, his1->GetMaximum());
   line.SetLineWidth(5);
@@ -111,6 +119,10 @@
   his2->SetFillColor(2);
   his1->SetXTitle("Jet Pt (GeV)");
   his1->SetYTitle("Number of jets");
+  TLegend histoKey(0.6,0.80,0.95,0.95,""); // Add key to histogram  
+  histoKey.AddEntry(his1,"All jets","f");
+  histoKey.AddEntry(his2,"Triggering jets","f");
+  histoKey.Draw();
 
   TLine line(jetPt_cut, his1->GetMinimum(), jetPt_cut, his1->GetMaximum());
   line.SetLineWidth(5);
@@ -139,6 +151,10 @@
   his2->SetFillColor(2);
   his1->SetXTitle("Jet Pt (GeV)");
   his1->SetYTitle("Number of jets");
+  TLegend histoKey(0.6,0.80,0.95,0.95,""); // Add key to histogram  
+  histoKey.AddEntry(his1,"All jets","f");
+  histoKey.AddEntry(his2,"Triggering jets","f");
+  histoKey.Draw();
 
   TLine line(jetPt_cut, his1->GetMinimum(), jetPt_cut, his1->GetMaximum());
   line.SetLineWidth(5);
@@ -171,6 +187,7 @@
   if (printSeparatePdf) c1.Print("PVz_24cmCut_Data.pdf");
   if (printMergedPdf) c1.Print("paper.pdf","pdf");
 
+  /*
   d.cd();
   c1.SetLogy(0);
   gDirectory->GetObject("DQMData/Run 1/HLT_HT250_DoubleDisplacedJet60_v1/Run summary/PVzPassed",his2);
@@ -187,7 +204,7 @@
   c1.Draw(); c1.Update(); if (pause) {cout<<"Continue ?"<<endl; cin.get();} // Wait/sleep until use hits any key.
   if (printSeparatePdf) c1.Print("PVz_16cmCut_Data.pdf");
   if (printMergedPdf) c1.Print("paper.pdf","pdf");
-
+  */
   //
   // Number of primary vertices in data.
   //
@@ -245,6 +262,35 @@
 
   c1.Draw(); c1.Update(); if (pause) {cout<<"Continue ?"<<endl; cin.get();} // Wait/sleep until use hits any key.
   if (printSeparatePdf) c1.Print("decayLengthEffi_MC.pdf");
+  if (printMergedPdf) c1.Print("paper.pdf","pdf");
+
+  // 
+  // Trigger efficiency
+  //
+  c1.SetLogy(1);
+  c1.SetLogx(0);
+  mc.cd();
+  gDirectory->GetObject("DQMData/trigEffi",his1);
+  d.cd();
+  gDirectory->GetObject("DQMData/trigEffi",his2);
+
+  his1->GetXaxis()->LabelsOption("v");
+  his1->SetLabelSize(0.027);
+  c1.SetBottomMargin(0.5);
+  his1->SetMaximum(10.0);
+  his1->SetMinimum(0.001);
+  his1->Draw("HISTPE");
+  his2->Draw("HISTPESAME");
+  his1->SetMarkerStyle(20);
+  his2->SetMarkerStyle(24);
+  his1->SetYTitle("Trigger Efficiency");
+  TLegend histoKey(0.75,0.85,0.95,0.95,""); // Add key to histogram  
+  histoKey.AddEntry(his1,"MC","p");
+  histoKey.AddEntry(his2,"DATA","p");
+  histoKey.Draw();
+
+  c1.Draw(); c1.Update(); if (pause) {cout<<"Continue ?"<<endl; cin.get();} // Wait/sleep until use hits any key.
+  if (printSeparatePdf) c1.Print("triggerEffi.pdf");
   if (printMergedPdf) c1.Print("paper.pdf","pdf");
 
   // END

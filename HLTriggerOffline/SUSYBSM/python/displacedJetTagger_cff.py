@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # Tag jets with few prompt tracks.
-# This is based on the displaced jet trigger path, but using offline quantities.
+# This should be based on the displaced jet trigger path, but using offline quantities.
 # It uses the b tag software framework.
 
 # If you configure the following to use HLT objects as input, you will need to ensure that they

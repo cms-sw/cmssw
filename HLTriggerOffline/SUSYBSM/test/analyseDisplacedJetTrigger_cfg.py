@@ -11,7 +11,7 @@ hltTriggerProcess = "HLT"
 
 # Only analyse events passing this control trigger, chosen to selected an unbiased event sample for the
 # displaced jet trigger. If empty, then all events are used.
-skimTriggers =  ['HLT_HT250_v2']
+skimTriggers =  ['HLT_HT250_v3']
 #skimTriggers = ['HLT_HT250_DoubleDisplacedJet60_v2']
 #skimTriggers =  [] 
 
@@ -25,14 +25,14 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 
 if DATA:
   print "Reading real data"
-  process.GlobalTag.globaltag = 'GRP311L1HLTV0::All'
+  process.GlobalTag.globaltag = 'GR_R_42_V10::All'
 
 #  Don't use MC truth if real data ...
   runOnData(process)
 
 else:
   print "Reading MC"
-  process.GlobalTag.globaltag = 'L1HLTST311_V0::All'
+  process.GlobalTag.globaltag = 'MC_42_V11::All'
 
 # Kill all PAT objects except jets.
 removeAllPATObjectsBut(process, ['Jets','METs'] )
@@ -81,12 +81,8 @@ process.load("HLTriggerOffline.SUSYBSM.displacedJetTagger_cff")
 #########################
                                          
 process.source.fileNames = [          
-#    'file:/opt/ppd/cms/users/tomalin/mc400_50_reco_2011_5e32_v60_v3.root'
-
-    'file:/opt/ppd/cms/users/tomalin/data_reco_2011_5e32_v60_v3_1.root',
-    'file:/opt/ppd/cms/users/tomalin/data_reco_2011_5e32_v60_v3_2.root',
-    'file:/opt/ppd/cms/users/tomalin/data_reco_2011_5e32_v60_v3_3.root',
-    'file:/opt/ppd/cms/users/tomalin/data_reco_2011_5e32_v60_v3_4.root'
+#    'file:/opt/ppd/cms/users/tomalin//mc_reco.root',
+    'file:/opt/ppd/cms/users/tomalin/data_reco.root',
 ]
 
 process.maxEvents.input = -1

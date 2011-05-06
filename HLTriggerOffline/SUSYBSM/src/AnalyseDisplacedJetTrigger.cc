@@ -39,7 +39,7 @@ AnalyseDisplacedJetTrigger::AnalyseDisplacedJetTrigger(const edm::ParameterSet& 
     LogWarning("AnalyseDisplacedJetTrigger") << "ERROR: unable to get DQMStore service?";
   }
     
-  trigEffi_ = dbe_->bookProfile("trigEffi","Trigger efficiency",50,0.5,50.5,-9.9,9.9);
+  trigEffi_ = dbe_->bookProfile("trigEffi","Trigger efficiency",70,0.5,70.5,-9.9,9.9," ");
 }
 
 void AnalyseDisplacedJetTrigger::beginRun(const edm::Run& run, const edm::EventSetup& c) {
