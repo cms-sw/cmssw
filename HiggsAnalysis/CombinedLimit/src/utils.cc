@@ -181,7 +181,7 @@ void utils::getClients(const RooAbsCollection &values, const RooAbsCollection &a
         if (typeid(*v) != typeid(RooRealVar)) continue;
         std::auto_ptr<TIterator> clientIter(v->clientIterator());
         for (RooAbsArg *a = (RooAbsArg *) clientIter->Next(); a != 0; a = (RooAbsArg *) clientIter->Next()) {
-            if (allObjects.contains(*a) && !clients.contains(*a)) clients.add(*a);
+            if (allObjects.containsInstance(*a) && !clients.containsInstance(*a)) clients.add(*a);
         }
     }
 }
