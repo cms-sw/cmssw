@@ -205,12 +205,12 @@ step1['QCD_Pt_170_230']=genS('QCD_Pt_170_230_7TeV_cfi',K250by100)
 ## heavy ions tests
 U500by5={'--relval': '500,5'}
 U80by2={'--relval': '80,2'}
-hiCond={'--conditions':'auto:starthi'}
 hiDefaults={'--conditions':'auto:starthi',
            '--scenario':'HeavyIons'}
 
 step1['HydjetQ_MinBias_2760GeV']=merge([hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U500by5)])
 step1['HydjetQ_B0_2760GeV']=merge([hiDefaults,genS('Hydjet_Quenched_B0_2760GeV_cfi',U80by2)])
+step1['HydjetQ_B0_2760GeVPUINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B0_2760GeV/*/GEN-SIM-DIGI-RAW-HLTDEBUG')}
 
 
 def changeRefRelease(step1s,listOfPairs):
@@ -338,7 +338,7 @@ step2['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--
 
 step2['DIGIPU1']=merge([step2['DIGI1'],PU1])
 
-step2['DIGIHI']=merge([hiCond,step2Defaults])
+step2['DIGIHI']=merge([hiDefaults,step2Defaults])
 
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step2,{'--process':'DIGI'})
@@ -363,7 +363,14 @@ step2['RECOCOSD']=merge([{'--scenario':'cosmics',
                           '--customise':'Configuration/DataProcessing/RecoTLR.customiseCosmicData'
                           },dataReco])
 
-
+step2HImixDefaults=merge([{'-n':'1',
+                           '--himix':'',
+                           '--filein':'file.root',
+                           '--process':'HISIGNAL'
+                           },hiDefaults,step1Defaults])
+step2['Pyquen_GammaJet_pt20_2760GeV']=merge([{'cfg':'Pyquen_GammaJet_pt20_2760GeV_cfi'},step2HImixDefaults])
+step2['Pyquen_DiJet_pt80to120_2760GeV']=merge([{'cfg':'Pyquen_DiJet_pt80to120_2760GeV_cfi'},step2HImixDefaults])
+step2['Pyquen_ZeemumuJets_pt10_2760GeV']=merge([{'cfg':'Pyquen_ZeemumuJets_pt10_2760GeV_cfi'},step2HImixDefaults])
 
 # step3 
 step3Defaults = { 'cfg'           : 'step3',
@@ -387,7 +394,8 @@ step3['RECOQCD']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:@QCD,VALIDATION,DQM'},s
 
 step3['RECOPU1']=merge([step3['RECO1'],PU1])
 
-step3['RECOHI']=merge([hiCond,step3Defaults])
+step3['RECOHI']=merge([hiDefaults,step3Defaults])
+step3['DIGIHI']=step2['DIGIHI']
 
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step3,{'--hltProcess':'DIGI'})
@@ -428,6 +436,8 @@ step4['ALCAHARVD']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi',
                     '--scenario':'pp',
                     '--data':'',
                     '--filein':'file:PromptCalibProd.root'}
+
+step4['RECOHI']=step3['RECOHI']
 
 step2['ALCANZS']=merge([{'-s':'ALCA:HcalCalMinBias','cfg':'step2'},step4Defaults])
 step2['HARVGEN']={'-s':'HARVESTING:genHarvesting',
