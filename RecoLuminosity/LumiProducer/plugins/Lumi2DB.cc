@@ -33,12 +33,12 @@ namespace lumi{
   class Lumi2DB : public DataPipe{
   public:
     const static unsigned int COMMITLSINTERVAL=500; //commit interval in LS,totalrow=nls*(1+nalgo)
-    const static unsigned int NORMFACTOR=6370;
     Lumi2DB(const std::string& dest);
     virtual void retrieveData( unsigned int );
     virtual const std::string dataType() const;
     virtual const std::string sourceType() const;
     virtual ~Lumi2DB();
+  
     struct LumiSource{
       unsigned int run;
       unsigned int firstsection;
@@ -82,7 +82,13 @@ namespace lumi{
       float* beamintensity_2;
     };
     typedef std::vector<PerLumiData> LumiResult;
+    bool hasStableBeam( lumi::Lumi2DB::LumiResult::iterator lumiBeg,lumi::Lumi2DB::LumiResult::iterator lumiEnd );
+    void setNoCheckingStableBeam();
+    void setNorm(float norm);
   private:
+    bool m_nocheckingstablebeam;
+    //const static unsigned int NORMFACTOR=6370;
+    float m_norm;
     void parseSourceString(lumi::Lumi2DB::LumiSource& result)const;
     void retrieveBeamIntensity(HCAL_HLX::DIP_COMBINED_DATA* dataPtr, Lumi2DB::beamData&b)const;
     void writeAllLumiData(coral::ISessionProxy* session,unsigned int irunnumber,const std::string& ilumiversion,LumiResult::iterator lumiBeg,LumiResult::iterator lumiEnd);
@@ -99,7 +105,24 @@ namespace lumi{
 //
 float
 lumi::Lumi2DB::applyCalibration(float varToCalibrate)const{
-  return float(varToCalibrate)*float(lumi::Lumi2DB::NORMFACTOR);
+  return float(varToCalibrate)*m_norm;
+}
+bool
+lumi::Lumi2DB::hasStableBeam( lumi::Lumi2DB::LumiResult::iterator lumiBeg,lumi::Lumi2DB::LumiResult::iterator lumiEnd ){
+  //
+  // the run has at least 1 stable beams LS
+  //
+  lumi::Lumi2DB::LumiResult::iterator lumiIt;  
+  int nStable=0;
+  for(lumiIt=lumiBeg;lumiIt!=lumiEnd;++lumiIt){
+    if(lumiIt->beammode=="STABLE BEAMS"){
+      ++nStable;
+    }
+  }
+  if(nStable==0){
+    return false;
+  }
+  return true;
 }
 bool
 lumi::Lumi2DB::isLumiDataValid(lumi::Lumi2DB::LumiResult::iterator lumiBeg,lumi::Lumi2DB::LumiResult::iterator lumiEnd){
@@ -636,8 +659,15 @@ void lumi::Lumi2DB::cleanTemporaryMemory( lumi::Lumi2DB::LumiResult::iterator lu
   }
   
 }
-lumi::Lumi2DB::Lumi2DB(const std::string& dest):DataPipe(dest){}
-
+lumi::Lumi2DB::Lumi2DB(const std::string& dest):DataPipe(dest),m_nocheckingstablebeam(false),m_norm(6370.0){}
+void 
+lumi::Lumi2DB::setNoCheckingStableBeam(){
+  m_nocheckingstablebeam=true;
+}
+void 
+lumi::Lumi2DB::setNorm(float norm){
+  m_norm=norm;
+}
 void 
 lumi::Lumi2DB::parseSourceString(lumi::Lumi2DB::LumiSource& result)const{
   //parse lumi source file name
@@ -886,6 +916,9 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   std::cout<<"nominal energy "<<bgev<<std::endl;
   if( !m_novalidate && !isLumiDataValid(lumiresult.begin(),lumiresult.end()) ){
     throw lumi::invalidDataException("all lumi values are <0.5e-08","isLumiDataValid","Lumi2DB");
+  }
+  if( !m_nocheckingstablebeam && !hasStableBeam(lumiresult.begin(),lumiresult.end()) ){
+    throw lumi::noStableBeamException("no LS has STABLE BEAMS","hasStableBeam","Lumi2DB");
   }
   coral::ConnectionService* svc=new coral::ConnectionService;
   lumi::DBConfig dbconf(*svc);

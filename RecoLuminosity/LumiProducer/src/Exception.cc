@@ -9,3 +9,7 @@ lumi::invalidDataException::invalidDataException(
 			   const std::string& message,			 
 			   const std::string& methodName,
 			   const std::string& moduleName):lumi::Exception("invalid data :"+message,methodName,moduleName) {}
+lumi::noStableBeamException::noStableBeamException(
+			   const std::string& message,			 
+			   const std::string& methodName,
+			   const std::string& moduleName):lumi::Exception("has no stable beam :"+message,methodName,moduleName) {}

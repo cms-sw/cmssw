@@ -13,9 +13,11 @@ namespace lumi{
     virtual const std::string sourceType() const = 0;
     virtual ~DataPipe(){}
     void setNoValidate();
+    void setNoCheckingStableBeam(){}
     void setSource( const std::string& source );
     void setAuthPath( const std::string& authpath );
     void setMode( const std::string& mode );
+    void setNorm( float norm ){}
     std::string getSource() const;
     std::string getMode() const;
     std::string getAuthPath() const;

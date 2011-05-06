@@ -38,6 +38,7 @@ int main(int argc, char** argv){
     ("trgdb,T",boost::program_options::value<std::string>(),"connect to trgdb")
     ("wbmdb,W",boost::program_options::value<std::string>(),"connect to wbmdb")
     ("configFile,f",boost::program_options::value<std::string>(),"configuration file(optional)")
+    ("norm,n",boost::program_options::value<float>(),"norm factor(optional)")
     ("without-lumi","exclude lumi loading")
     ("without-trg","exclude trg loading")
     ("without-hlt","exclude hlt loading")
@@ -45,6 +46,7 @@ int main(int argc, char** argv){
     ("without-hconf","exclude hltconf loading")
     ("use-wbm","use wbmdb for trigger info")
     ("collision-only","load collision/physics run only")
+    ("nocheckingstablebeam","do not require any presence of stable beam")
     ("novalidate","do not validate lumi data")
     ("dryrun","dryrun print parameter only")
     ("debug","switch on debug mode")
@@ -60,6 +62,7 @@ int main(int argc, char** argv){
   std::string trgdb=defaultTRGConnect;
   std::string wbmdb=defaultWBMConnect;
   std::string hltconfdb=defaultHLTConfConnect;
+  float norm=0.0;
   bool without_lumi=false;
   bool without_trg=false;
   bool without_hlt=false;
@@ -69,6 +72,7 @@ int main(int argc, char** argv){
   bool debug=false;
   bool novalidate=false;
   bool collision_only=false;
+  bool nocheckingstablebeam=false;
   bool dryrun=false;
   boost::program_options::variables_map vm;
   try{
@@ -118,6 +122,9 @@ int main(int argc, char** argv){
     if( vm.count("wbmdb") ){
       wbmdb=vm["wbmdb"].as<std::string>();
     }
+    if( vm.count("norm") ){
+      norm=vm["norm"].as<float>();
+    }
     if(vm.count("without-lumi") ){
       without_lumi=true;
     }
@@ -141,6 +148,9 @@ int main(int argc, char** argv){
     }
     if(vm.count("collision-only") ){
        collision_only=true;
+    }
+    if(vm.count("nocheckingstablebeam") ){
+      nocheckingstablebeam=true;
     }
     if(vm.count("dryrun") ){
       dryrun=true;
@@ -184,7 +194,9 @@ int main(int argc, char** argv){
     std::cout<<"validate data? "<<answer<<std::endl;
     (collision_only)?(answer=std::string("Yes")):(answer=std::string("No"));
     std::cout<<"collision only ? "<<answer<<std::endl;
-    (dryrun)?(answer=std::string("Yes")):(answer=std::string("No"));
+    (nocheckingstablebeam)?(answer=std::string("No")):(answer=std::string("Yes"));
+    std::cout<<"checking stablebeam ? "<<answer<<std::endl;
+    (dryrun)?(answer=std::string("Yes")):(answer=std::string("No"));    
     std::cout<<"dryrun? "<<answer<<std::endl;
   }
   if(dryrun) return 0;
@@ -203,6 +215,12 @@ int main(int argc, char** argv){
       if(novalidate){
 	lumiptr->setNoValidate();
       }
+      if(nocheckingstablebeam){
+	lumiptr->setNoCheckingStableBeam();
+      }
+      if(norm!=0.0){
+	lumiptr->setNorm(norm);
+      }
       //lumiptr->setMode("beamintensity_only");
       startClock=clock();
       time(&t1);
@@ -219,6 +237,10 @@ int main(int argc, char** argv){
       std::cout<<"\t"<<er.what()<<std::endl;
       return 1;
       //}
+    }catch(const lumi::noStableBeamException& er){
+      std::cout<<"\t [ERROR]lumi data for this run has no stable beam, stop loading immediately";
+      std::cout<<"\t"<<er.what()<<std::endl;
+      return 1;
     }catch(const coral::Exception& er){
       std::cout<<"\t Database error "<<er.what()<<std::endl;
       throw;
