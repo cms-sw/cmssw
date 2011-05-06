@@ -13,7 +13,7 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "CLHEP/Random/RandomEngine.h"
-
+#include "CLHEP/Random/RandFlat.h"
 class CSCDriftSim;
 class CSCLayer;
 class CSCG3Hit;
@@ -42,6 +42,7 @@ private:
   CSCDetectorHit driftElectronsToWire();
 
   // member data
+  CLHEP::RandFlat * theRandFlat;
   CSCDriftSim*  theDriftSim;
   CSCGasCollisions* theGasIonizer;
   std::vector<CSCDetectorHit> theNewWireHits;

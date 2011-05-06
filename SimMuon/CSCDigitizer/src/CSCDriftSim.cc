@@ -128,7 +128,9 @@ CSCDriftSim::getWireHit(const Local3DPoint & pos, const CSCLayer * layer,
   static const double f_collected = 0.82;
 
   // Avalanche charge, with fluctuation ('avalancheCharge()' is the fluctuation generator!)
-  double charge = avalancheCharge() * f_att * f_collected * gasGain(layer->id()) * e_SI * 1.e15;
+  //double charge = avalancheCharge() * f_att * f_collected * gasGain(layer->id()) * e_SI * 1.e15;
+  // doing fattachment by random chance of killing
+  double charge = avalancheCharge() * f_collected * gasGain(layer->id()) * e_SI * 1.e15;
 
   float t = simHit.tof() + driftTime;
   LogTrace("CSCDriftSim") << "CSCDriftSim: tof = " << simHit.tof() << 
