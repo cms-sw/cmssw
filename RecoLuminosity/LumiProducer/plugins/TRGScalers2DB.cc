@@ -201,7 +201,7 @@ namespace lumi{
       //row.toOutputStream( std::cout ) << std::endl;
       unsigned int lsnr=row["lumi_section"].data<unsigned int>();
       unsigned int count=row["count_bx"].data<unsigned int>();
-      unsigned int algobit=row["scaler)index"].data<unsigned int>();
+      unsigned int algobit=row["scaler_index"].data<unsigned int>();
       mybitcount_algo.push_back(count);
       if(algobit==(lumi::N_TRGALGOBIT-1)){
 	++s;
