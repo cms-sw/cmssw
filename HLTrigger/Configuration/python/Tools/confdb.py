@@ -349,8 +349,8 @@ if 'hltPreHLTMONOutputSmart' in %(dict)s:
 # remove the HLT prescales
 if 'PrescaleService' in %(dict)s:
     %(process)sPrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
-    %(process)sPrescaleService.lvl1Labels = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
-    %(process)sPrescaleService.prescaleTable = cms.VPSet( )
+    %(process)sPrescaleService.lvl1Labels       = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
+    %(process)sPrescaleService.prescaleTable    = cms.VPSet( )
 """
 
 
@@ -508,6 +508,15 @@ if 'GlobalTag' in %%(dict)s:
         )
     )
 """ % condition
+
+
+  def overrideParameters(self, module, parameters):
+    # override a module's parameter if the module is present in the configuration
+    self.data += "if '%s' in %%(dict)s:\n" % module
+    for (parameter, value) in parameters:
+      self.data += "    %%(process)s%s.%s = %s\n" % (module, parameter, value)
+    self.data += "\n"
+
 
   def instrumentTiming(self):
     if self.config.timing:
