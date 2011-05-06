@@ -28,7 +28,7 @@ namespace edm {
         breg.insertMapped(*it);
         for(BranchIDList::const_iterator i = it->begin(), iEnd = it->end(); i != iEnd; ++i) {
           ProductIndex pix = i - it->begin();
-          branchIDToIndexMap.insert(std::make_pair(*i, std::make_pair(blix, pix)));
+          branchIDToIndexMap.insert(std::make_pair(BranchID(*i), std::make_pair(blix, pix)));
         }
       }
       branchListIndexMapper.insert(std::make_pair(oldBlix, blix));
@@ -59,7 +59,7 @@ namespace edm {
       breg.insertMapped(bidlist);
       for(BranchIDList::const_iterator i = bidlist.begin(), iEnd = bidlist.end(); i != iEnd; ++i) {
         ProductIndex pix = i - bidlist.begin();
-        branchIDToIndexMap.insert(std::make_pair(*i, std::make_pair(blix, pix)));
+        branchIDToIndexMap.insert(std::make_pair(BranchID(*i), std::make_pair(blix, pix)));
       }
     }
   }
