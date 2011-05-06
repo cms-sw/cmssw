@@ -1,10 +1,6 @@
 
 import FWCore.ParameterSet.Config as cms
 
-from RecoEcal.EgammaClusterProducers.ecalRecHitFlags_cfi import *
-from RecoEcal.EgammaClusterProducers.ecalSeverityLevelAlgos_cfi import *
-from RecoEcal.EgammaClusterProducers.ecalSeverityLevelFlags_cfi import *
-
 #==============================================================================
 # Producer of transient ecal driven gsf electrons
 #==============================================================================
@@ -123,14 +119,11 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
 #    spikeIdThreshold = cms.double(0.95),
 #    spikeIdString = cms.string('kSwissCrossBordersIncluded'),
 
-    recHitFlagsToBeExcluded = cms.vint32(
-        ecalRecHitFlag_kFaultyHardware,
-        ecalRecHitFlag_kPoorCalib,
-#        ecalRecHitFlag_kSaturated,
-#        ecalRecHitFlag_kLeadingEdgeRecovered,
-#        ecalRecHitFlag_kNeighboursRecovered,
-        ecalRecHitFlag_kTowerRecovered,
-        ecalRecHitFlag_kDead
+    recHitFlagsToBeExcluded = cms.vstring(
+        'kFaultyHardware',
+        'kPoorCalib',
+        'kTowerRecovered',
+        'kDead'
     ),
 
     
@@ -263,14 +256,14 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
 #    spikeIdThreshold = cms.double(0.95),
 #    spikeIdString = cms.string('kSwissCrossBordersIncluded'),
 
-    recHitFlagsToBeExcluded = cms.vint32(
-        ecalRecHitFlag_kFaultyHardware,
-        ecalRecHitFlag_kPoorCalib,
+    recHitFlagsToBeExcluded = cms.vstring(
+        'kFaultyHardware',
+        'kPoorCalib',
 #        ecalRecHitFlag_kSaturated,
 #        ecalRecHitFlag_kLeadingEdgeRecovered,
 #        ecalRecHitFlag_kNeighboursRecovered,
-        ecalRecHitFlag_kTowerRecovered,
-        ecalRecHitFlag_kDead
+        'kTowerRecovered',
+        'kDead'
     ),
 
     

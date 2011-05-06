@@ -10,6 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "CommonTools/Utils/interface/StringToEnumValue.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -283,7 +284,10 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
 //    edm::LogWarning("GsfElectronAlgo|SpikeRemovalForIsolation")
 //      << "Cannot find the requested method. kSwissCross set instead." ;
 //   }
-  spikeCfg.recHitFlagsToBeExcluded = cfg.getParameter<std::vector<int> >("recHitFlagsToBeExcluded") ;
+  
+  const std::vector<std::string> flagnames = 
+    cfg.getParameter<std::vector<std::string> >("recHitFlagsToBeExcluded");
+  spikeCfg.recHitFlagsToBeExcluded = StringToEnumValue<EcalRecHit::Flags>(flagnames);
 
   // function for corrector
   EcalClusterFunctionBaseClass * superClusterErrorFunction = 0 ;
