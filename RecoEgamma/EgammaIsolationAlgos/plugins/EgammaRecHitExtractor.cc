@@ -13,6 +13,8 @@
 #include <Math/VectorUtil.h>
 
 //CMSSW includes
+#include "CommonTools/Utils/interface/StringToEnumValue.h"
+
 #include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaRecHitExtractor.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
@@ -49,13 +51,16 @@ EgammaRecHitExtractor::EgammaRecHitExtractor(const edm::ParameterSet& par) :
     tryBoth_(par.getParameter<bool>("tryBoth")),
     vetoClustered_(par.getParameter<bool>("vetoClustered")),
     sameTag_(false),
-    severityLevelCut_(par.getParameter<int>("severityLevelCut")),
+    severityLevelCut_(par.getParameter<int>("severityLevelCut"))
     //severityRecHitThreshold_(par.getParameter<double>("severityRecHitThreshold")),
     //spIdString_(par.getParameter<std::string>("spikeIdString")),
     //spIdThreshold_(par.getParameter<double>("spikeIdThreshold")),
-    v_chstatus_(par.getParameter<std::vector<int> >("recHitFlagsToBeExcluded")
-                )
+
 { 
+  const std::vector<std::string> flagnames = 
+    par.getParameter<std::vector<std::string> >("recHitFlagsToBeExcluded");
+
+  v_chstatus_= StringToEnumValue<EcalRecHit::Flags>(flagnames);
 
 //     if     ( !spIdString_.compare("kE1OverE9") )                  spId_ = EcalSeverityLevelAlgo::kE1OverE9;
 //     else if( !spIdString_.compare("kSwissCross") )                spId_ = EcalSeverityLevelAlgo::kSwissCross;

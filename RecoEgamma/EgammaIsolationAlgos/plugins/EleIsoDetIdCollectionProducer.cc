@@ -3,6 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "CommonTools/Utils/interface/StringToEnumValue.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
@@ -37,12 +38,16 @@ EleIsoDetIdCollectionProducer::EleIsoDetIdCollectionProducer(const edm::Paramete
             outerRadius_(iConfig.getParameter<double>("outerRadius")),
             innerRadius_(iConfig.getParameter<double>("innerRadius")),
             interestingDetIdCollection_(iConfig.getParameter<std::string>("interestingDetIdCollection")),
-            severityLevelCut_(iConfig.getParameter<int>("severityLevelCut")),
+            severityLevelCut_(iConfig.getParameter<int>("severityLevelCut"))
             //severityRecHitThreshold_(iConfig.getParameter<double>("severityRecHitThreshold")),
             //spIdString_(iConfig.getParameter<std::string>("spikeIdString")),
             //spIdThreshold_(iConfig.getParameter<double>("spikeIdThreshold")),
-            v_chstatus_(iConfig.getParameter<std::vector<int> >("recHitFlagsToBeExcluded")) {
+ {
 
+   const std::vector<std::string> flagnames = 
+    iConfig.getParameter<std::vector<std::string> >("recHitFlagsToBeExcluded");
+
+   v_chstatus_= StringToEnumValue<EcalRecHit::Flags>(flagnames);
 
 //     if     ( !spIdString_.compare("kE1OverE9") )                  spId_ = EcalSeverityLevelAlgo::kE1OverE9;
 //     else if( !spIdString_.compare("kSwissCross") )                spId_ = EcalSeverityLevelAlgo::kSwissCross;
