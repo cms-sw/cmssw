@@ -2,7 +2,7 @@
 // Package:         RecoEgamma/EgammaHLTProducers
 // Class:           EgammaHLTRegionalPixelSeedGeneratorProducers
 //  Modified from TkSeedGeneratorFromTrk by Jeremy Werner, Princeton University, USA
-// $Id: EgammaHLTRegionalPixelSeedGeneratorProducers.cc,v 1.10 2010/04/13 16:44:20 covarell Exp $
+// $Id: EgammaHLTRegionalPixelSeedGeneratorProducers.cc,v 1.11 2011/05/06 11:15:42 innocent Exp $
 //
 
 #include <iostream>
@@ -30,6 +30,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromRegionHits.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"
 
 #include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"//needed?
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"//needed?
@@ -87,8 +88,9 @@ void EgammaHLTRegionalPixelSeedGeneratorProducers::beginRun(edm::Run &run, const
   edm::ParameterSet creatorPSet;
   creatorPSet.addParameter<std::string>("propagator","PropagatorWithMaterial");
 
-  combinatorialSeedGenerator = new new SeedGeneratorFromRegionHits( hitsGenerator, 0, 
+  combinatorialSeedGenerator = new SeedGeneratorFromRegionHits( hitsGenerator, 0, 
 						 SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
+                                                              );
 }
 
 // Functions that gets called by framework every event
