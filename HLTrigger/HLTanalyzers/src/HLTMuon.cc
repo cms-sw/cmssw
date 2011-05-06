@@ -95,6 +95,16 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 	muonl2novtxchg = new int[kMaxMuonL2NoVtx]; 
 	muonl2novtxpterr = new float[kMaxMuonL2NoVtx]; 
 	muonl2novtx1idx = new int[kMaxMuonL2NoVtx]; 
+	const int kMaxDiMuVtx = 500;
+	dimuvtxchi2 = new float[kMaxDiMuVtx];
+	dimuvtxr = new float[kMaxDiMuVtx];
+	dimuvtxrsig = new float[kMaxDiMuVtx];
+	dimuvtxroversig = new float[kMaxDiMuVtx];
+	dimuvtxcosalpha = new float[kMaxDiMuVtx];
+	dimuvtxmu2dipmax = new float[kMaxDiMuVtx];
+	dimuvtxmu2dipmin = new float[kMaxDiMuVtx];
+	dimuvtxmu2dipsigmax = new float[kMaxDiMuVtx];
+	dimuvtxmu2dipsigmin = new float[kMaxDiMuVtx];
 
 	// Muon-specific branches of the tree 
 	HltTree->Branch("NrecoMuon",&nmuon,"NrecoMuon/I");
@@ -162,6 +172,16 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 	HltTree->Branch("ohMuL2NoVtxDr",muonl2novtxdr,"ohMuL2NoVtxDr[NohMuL2NoVtx]/F"); 
 	HltTree->Branch("ohMuL2NoVtxDz",muonl2novtxdz,"ohMuL2NoVtxDz[NohMuL2NoVtx]/F"); 
 	HltTree->Branch("ohMuL2NoVtxL1idx",muonl2novtx1idx,"ohMuL2NoVtxL1idx[NohMuL2NoVtx]/I");    
+	HltTree->Branch("NohDiMuVtx",&nDiMuVtx,"NohDiMuVtx/I");    
+	HltTree->Branch("ohDiMuVtxChi2",dimuvtxchi2,"ohDiMuVtxChi2[NohDiMuVtx]/F");    
+	HltTree->Branch("ohDiMuVtxR",dimuvtxr,"ohDiMuVtxR[NohDiMuVtx]/F");    
+	HltTree->Branch("ohDiMuVtxRSig",dimuvtxrsig,"ohDiMuVtxRSig[NohDiMuVtx]/F");    
+	HltTree->Branch("ohDiMuVtxROverSig",dimuvtxroversig,"ohDiMuVtxROverSig[NohDiMuVtx]/F");    
+	HltTree->Branch("ohDiMuVtxCosAlpha",dimuvtxcosalpha,"ohDiMuVtxCosAlpha[NohDiMuVtx]/F");    
+	HltTree->Branch("ohDiMuVtxMu2DIpMax",dimuvtxmu2dipmax,"ohDiMuVtxMu2DIpMax[NohDiMuVtx]/F");    
+	HltTree->Branch("ohDiMuVtxMu2DIpMin",dimuvtxmu2dipmin,"ohDiMuVtxMu2DIpMin[NohDiMuVtx]/F");    
+	HltTree->Branch("ohDiMuVtxMu2DIpSigMax",dimuvtxmu2dipsigmax,"ohDiMuVtxMu2DIpSigMax[NohDiMuVtx]/F");    
+	HltTree->Branch("ohDiMuVtxMu2DIpSigMin",dimuvtxmu2dipsigmin,"ohDiMuVtxMu2DIpSigMin[NohDiMuVtx]/F");    
 
 }
 
@@ -174,9 +194,18 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
 		const edm::Handle<edm::ValueMap<bool> >                 & isoMap3,
 		const edm::Handle<reco::RecoChargedCandidateCollection> & oniaPixelCands,
 		const edm::Handle<reco::RecoChargedCandidateCollection> & oniaTrackCands,
+		const edm::Handle<reco::VertexCollection> & DiMuVtxCands3,
 		const edm::Handle<reco::RecoChargedCandidateCollection> & MuNoVtxCands2, 
-		const reco::BeamSpot::Point & BSPosition,
-		TTree* HltTree) {
+		const edm::ESHandle<MagneticField> & theMagField,
+		const edm::Handle<reco::BeamSpot> & recoBeamSpotHandle,
+		      TTree* HltTree) {
+
+    reco::BeamSpot::Point BSPosition(0,0,0);
+    BSPosition = recoBeamSpotHandle->position();
+    const GlobalPoint theBeamSpot = GlobalPoint(recoBeamSpotHandle->position().x(),
+ 	  				       recoBeamSpotHandle->position().y(),
+	  				       recoBeamSpotHandle->position().z());
+    reco::BeamSpot vtxBS = *recoBeamSpotHandle;
 
 	//std::cout << " Beginning HLTMuon " << std::endl;
 
@@ -393,6 +422,59 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
 		}
 	}
 	else {nmu3cand = 0;}
+	// Dealing with dimu vertices
+	reco::VertexCollection myDimuvtxcands3;
+	if (DiMuVtxCands3.isValid()) {
+		myDimuvtxcands3 = * DiMuVtxCands3;
+		nDiMuVtx = myDimuvtxcands3.size();
+		typedef reco::VertexCollection::const_iterator cand;
+		int idimu3c=0;
+		for (cand ivtx = myDimuvtxcands3.begin(); ivtx != myDimuvtxcands3.end(); ++ivtx) {
+		  dimuvtxchi2[idimu3c] = ivtx->normalizedChi2();
+		  reco::Vertex::trackRef_iterator trackIt = ivtx->tracks_begin();
+		  reco::TrackRef vertextkRef1 = (*trackIt).castTo<reco::TrackRef>();
+		  ++trackIt;
+		  reco::TrackRef vertextkRef2 = (*trackIt).castTo<reco::TrackRef>();
+		  math::XYZVector pperp(vertextkRef1->px() + vertextkRef2->px(), 
+					vertextkRef1->py() + vertextkRef2->py(), 
+					0.);
+		  reco::Vertex::Point vpoint = ivtx->position();
+		  GlobalPoint vtxPos (vpoint.x(), vpoint.y(), vpoint.z());
+		  reco::Vertex::Error verr = ivtx->error();
+		  GlobalError vtxErr (verr.At(0,0),verr.At(1,0),verr.At(1,1),verr.At(2,0),verr.At(2,1),verr.At(2,2));
+		  GlobalPoint vtxDisFromBS(-1*((vtxBS.x0() - vtxPos.x()) + (vtxPos.z() - vtxBS.z0())*vtxBS.dxdz()),
+					   -1*((vtxBS.y0() - vtxPos.y()) + (vtxPos.z() - vtxBS.z0())*vtxBS.dydz()), 0.0);
+		  dimuvtxr[idimu3c] = vtxDisFromBS.perp();
+		  dimuvtxrsig[idimu3c] = sqrt(vtxErr.rerr(vtxDisFromBS));
+		  dimuvtxroversig[idimu3c] = dimuvtxr[idimu3c]/dimuvtxrsig[idimu3c];
+		  reco::Vertex::Point vperp(vtxDisFromBS.x(),vtxDisFromBS.y(),0.);
+		  dimuvtxcosalpha[idimu3c] = vperp.Dot(pperp)/(vperp.R()*pperp.R());
+		  float mu1ip = -1.0;
+		  float mu2ip = -1.0;
+		  float mu1ipsig = -1.0;
+		  float mu2ipsig = -1.0;
+		  reco::TransientTrack transMu1(*vertextkRef1, &(*theMagField) );
+		  TrajectoryStateClosestToPoint trajMu1BS = transMu1.trajectoryStateClosestToPoint(theBeamSpot);
+		  if(trajMu1BS.isValid()){
+		    mu1ip = fabs(trajMu1BS.perigeeParameters().transverseImpactParameter());
+		    if(trajMu1BS.hasError()) mu1ipsig = mu1ip/trajMu1BS.perigeeError().transverseImpactParameterError();
+		  }
+		  reco::TransientTrack transMu2(*vertextkRef2, &(*theMagField) );
+		  TrajectoryStateClosestToPoint trajMu2BS = transMu2.trajectoryStateClosestToPoint(theBeamSpot);
+		  if(trajMu2BS.isValid()){
+		    mu2ip = fabs(trajMu2BS.perigeeParameters().transverseImpactParameter());
+		    if(trajMu2BS.hasError()) mu2ipsig = mu2ip/trajMu2BS.perigeeError().transverseImpactParameterError();
+		  }
+		  dimuvtxmu2dipmax[idimu3c] = fmax(mu1ip,mu2ip);
+		  dimuvtxmu2dipmin[idimu3c] = fmin(mu1ip,mu2ip);
+		  dimuvtxmu2dipsigmax[idimu3c] = fmax(mu1ipsig,mu2ipsig);
+		  dimuvtxmu2dipsigmin[idimu3c] = fmin(mu1ipsig,mu2ipsig);
+		}
+
+
+	}
+	else {nDiMuVtx = 0;}
+
 
 	// Dealing with L2 no-Vertex muons
 	reco::RecoChargedCandidateCollection muNoVtxMucands2;

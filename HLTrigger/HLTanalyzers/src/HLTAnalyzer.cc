@@ -81,6 +81,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     MuIsolTag3_          = conf.getParameter<edm::InputTag> ("MuIsolTag3");
     oniaPixelTag_        = conf.getParameter<edm::InputTag> ("OniaPixelTag");
     oniaTrackTag_        = conf.getParameter<edm::InputTag> ("OniaTrackTag");
+    DiMuVtx_             = conf.getParameter<edm::InputTag> ("DiMuVtx");
     HLTTau_              = conf.getParameter<edm::InputTag> ("HLTTau");
     PFTau_               = conf.getParameter<edm::InputTag> ("HLTPFTau");
     PFTauTightCone_      = conf.getParameter<edm::InputTag> ("HLTPFTauTightCone");
@@ -239,6 +240,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     
     edm::Handle<reco::RecoChargedCandidateCollection> mucands2, mucands3, munovtxcands2;
     edm::Handle<reco::RecoChargedCandidateCollection> oniaPixelCands, oniaTrackCands;
+    edm::Handle<reco::VertexCollection> dimuvtxcands3;
     edm::Handle<edm::ValueMap<bool> >                 isoMap2,  isoMap3;
     edm::Handle<reco::HLTTauCollection>               taus;
     edm::Handle<reco::PFTauCollection>               pftaus;
@@ -397,6 +399,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, mucands3,        MuCandTag3_,        kMucands3 );
     getCollection( iEvent, missing, oniaPixelCands,        oniaPixelTag_,        kOniaPixelCands );
     getCollection( iEvent, missing, oniaTrackCands,        oniaTrackTag_,        kOniaTrackCands );
+    getCollection( iEvent, missing, dimuvtxcands3,   DiMuVtx_,           kDimuvtxcands3 );
     getCollection( iEvent, missing, isoMap2,         MuIsolTag2_,        kIsoMap2 );
     getCollection( iEvent, missing, isoMap3,         MuIsolTag3_,        kIsoMap3 );
     getCollection( iEvent, missing, hRawBJets,                m_rawBJets,                 kBTagJets );
@@ -519,8 +522,11 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
                            isoMap3,
                            oniaPixelCands,
                            oniaTrackCands,
+			   dimuvtxcands3,
 			   munovtxcands2,
-                           BSPosition,
+			   theMagField,
+                           recoBeamSpotHandle,
+			   // BSPosition,
                            HltTree);
     
     elm_analysis_.analyze(
