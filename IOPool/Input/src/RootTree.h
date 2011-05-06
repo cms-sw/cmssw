@@ -85,7 +85,7 @@ namespace edm {
     EntryNumber const& entries() const {return entries_;}
     void setEntryNumber(EntryNumber theEntryNumber);
     std::vector<std::string> const& branchNames() const {return branchNames_;}
-    boost::shared_ptr<DelayedReader> makeDelayedReader(FileFormatVersion const& fileFormatVersion) const;
+    boost::shared_ptr<DelayedReader> makeDelayedReader(FileFormatVersion const& fileFormatVersion, boost::shared_ptr<RootFile> rootFilePtr = boost::shared_ptr<RootFile>()) const;
     template <typename T>
     void fillAux(T*& pAux) {
       auxBranch_->SetAddress(&pAux);
