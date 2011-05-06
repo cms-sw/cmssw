@@ -9,6 +9,7 @@ tnp::TPTreeFiller::TPTreeFiller(const edm::ParameterSet config) :
     // set up MC if needed
     if (config.getParameter<bool>("isMC")) {
         tree_->Branch("mcTrue", &mcTrue_, "mcTrue/I");
+        tree_->Branch("mcMass", &mcMass_, "mcMass/F");
     }
 }
 
@@ -18,8 +19,9 @@ void tnp::TPTreeFiller::init(const edm::Event &iEvent) const {
     tnp::BaseTreeFiller::init(iEvent);
 }
 
-void tnp::TPTreeFiller::fill(const reco::CandidateBaseRef &probe, double mass, bool mcTrue) const {
+void tnp::TPTreeFiller::fill(const reco::CandidateBaseRef &probe, double mass, bool mcTrue, float mcMass) const {
     mass_ = mass;
     mcTrue_ = mcTrue;
+    mcMass_ = mcMass;
     tnp::BaseTreeFiller::fill(probe);
 }
