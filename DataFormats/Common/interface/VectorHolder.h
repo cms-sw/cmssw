@@ -21,6 +21,11 @@ namespace edm {
       typedef REFV                               ref_vector_type;
       
       VectorHolder() : base_type() {}
+      VectorHolder(VectorHolder const & rh) :  base_type(rh),  refVector_(rh.refVector_){}
+#if defined(__GXX_EXPERIMENTAL_CXX0X__)
+      VectorHolder(VectorHolder && rh) :  base_type(rh),  refVector_(std::move(rh.refVector_)){}
+ #endif
+
       explicit VectorHolder(const ref_vector_type& iRefVector) : base_type(), refVector_(iRefVector) {}
       explicit VectorHolder(const ProductID& id) : base_type(), refVector_(id) {}
       virtual ~VectorHolder() {}
@@ -43,6 +48,12 @@ namespace edm {
         this->swap(temp);
         return *this;
       }
+#if defined(__GXX_EXPERIMENTAL_CXX0X__)
+     VectorHolder& operator=(VectorHolder && rhs) {
+       refVector_ = std::move(rhs.refVector_);
+       return *this;
+     }
+#endif
       
       const_iterator begin() const {
         return const_iterator( new const_iterator_imp_specific( refVector_.begin() ) );

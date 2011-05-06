@@ -53,6 +53,12 @@ namespace edm {
     /// Default constructor needed for reading from persistent
     /// store. Not for direct use.
     RefVector() : refVector_() {}
+    RefVector(RefVector const & rh) : refVector_(rh.refVector_){}
+#if defined(__GXX_EXPERIMENTAL_CXX0X__)
+    RefVector(RefVector && rh) : refVector_(std::move(rh.refVector_)){}
+ #endif
+
+
 
     RefVector(ProductID const& id) : refVector_(id) {}
     /// Add a Ref<C, T> to the RefVector
@@ -132,7 +138,12 @@ namespace edm {
 
     /// Copy assignment.
     RefVector& operator=(RefVector const& rhs);
-
+#if defined(__GXX_EXPERIMENTAL_CXX0X__)
+    RefVector& operator=(RefVector  && rhs) { 
+      refVector_ = std::move(rhs.refVector_);
+      return *this;
+    }
+#endif
     /// Checks if product is in memory.
     bool hasProductCache() const {return refVector_.refCore().productPtr() != 0;}
 

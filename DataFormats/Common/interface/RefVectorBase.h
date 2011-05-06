@@ -5,7 +5,7 @@
   
 RefVectorBase: Base class for a vector of interproduct references.
 
-$Id: RefVectorBase.h,v 1.16 2011/02/24 20:20:48 wmtan Exp $
+$Id: RefVectorBase.h,v 1.17 2011/03/03 22:04:46 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -25,6 +25,10 @@ namespace edm {
     typedef typename keys_type::size_type size_type;
     /// Default constructor needed for reading from persistent store. Not for direct use.
     RefVectorBase() : product_(), keys_() {}
+    RefVectorBase( RefVectorBase const & rhs) : product_(rhs.product_), keys_(rhs.keys_) {}
+#if defined(__GXX_EXPERIMENTAL_CXX0X__)
+    RefVectorBase( RefVectorBase && rhs) : product_(std::move(rhs.product_)), keys_(std::move(rhs.keys_)) {}
+#endif
 
     explicit RefVectorBase(ProductID const& productID, void const* prodPtr = 0,
                            EDProductGetter const* prodGetter = 0) :
@@ -79,6 +83,13 @@ namespace edm {
       this->swap(temp);
       return *this;
     }
+#if defined(__GXX_EXPERIMENTAL_CXX0X__)
+    RefVectorBase& operator=(RefVectorBase && rhs) {
+      product_ = std::move(rhs.product_); 
+      keys_ =std::move(rhs.keys_);
+      return *this;
+    }
+#endif
 
     //Needed for ROOT storage
     CMS_CLASS_VERSION(10)
