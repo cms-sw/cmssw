@@ -125,7 +125,7 @@ public:
    Float_t ohpfTauLeadPionPt[500];
    Float_t ohpfTauTrkIso[500];
    Float_t ohpfTauGammaIso[500];
-   Int_t           NohPFTau;
+   Int_t           NRecoPFTau;
    Float_t         pfTauEta[500];
    Float_t         pfTauPhi[500];
    Float_t         pfTauPt[500];
@@ -3431,7 +3431,7 @@ public:
    TBranch *b_ohAlcapi0etaClusAll; //! 
    TBranch *b_ohAlcapi0phiClusAll; //! 
    TBranch *b_ohAlcapi0s4s9ClusAll; //! 
-   TBranch        *b_NohPFTau;   //!
+   TBranch        *b_NRecoPFTau;   //!
    TBranch        *b_pfTauPt;   //!
    TBranch        *b_pfTauEta;   //!
    TBranch        *b_pfTauPhi;   //!
@@ -6427,7 +6427,7 @@ public:
 				    float dphibarrel, float dphiendcap);
 
    
-   int OpenHltPFTauPassedNoMuonIDNoEleID(float Et,float L25TrkPt, int L3TrkIso, int L3GammaIso,
+   int OpenHltPFTauPassedNoMuonIDNoEleID(float Et,float L25TrkPt, float L3TrkIso, float L3GammaIso,
 					 float mu_ptl1, float mu_ptl2, float mu_ptl3, float mu_dr, float mu_iso,
 					 float Et_ele, int L1iso,
 					 float Tisobarrel, float Tisoendcap,
@@ -7702,16 +7702,16 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("ohOniaTrackDz", ohOniaTrackDz, &b_ohOniaTrackDz);
    fChain->SetBranchAddress("ohOniaTrackHits", ohOniaTrackHits, &b_ohOniaTrackHits);
    fChain->SetBranchAddress("ohOniaTrackNormChi2", ohOniaTrackNormChi2, &b_ohOniaTrackNormChi2);
-   fChain->SetBranchAddress("NohpfTau", &NohPFTau, &b_NohPFTau);
-   fChain->SetBranchAddress("ohpfTauPt", ohpfTauPt, &b_pfTauPt);
-   fChain->SetBranchAddress("ohpfTauEta", ohpfTauEta, &b_pfTauEta);
-   fChain->SetBranchAddress("ohpfTauPhi", ohpfTauPhi, &b_pfTauPhi);
-   fChain->SetBranchAddress("ohpfTauLeadTrackPt", ohpfTauLeadTrackPt, &b_pfTauLeadTrackPt);
-   fChain->SetBranchAddress("ohpfTauLeadPionPt", ohpfTauLeadPionPt, &b_pfTauLeadPionPt);
-   fChain->SetBranchAddress("ohpfTauTrkIso", ohpfTauTrkIso, &b_pfTauTrkIso);
-   fChain->SetBranchAddress("ohpfTauGammaIso", ohpfTauGammaIso, &b_pfTauGammaIso);
-   fChain->SetBranchAddress("ohpfTauJetPt", ohpfTauJetPt, &b_pfTauJetPt);
-   fChain->SetBranchAddress("NohPFTau", &NohPFTau, &b_NohPFTau);
+   fChain->SetBranchAddress("NohpfTau", &NohpfTau, &b_NohpfTau);
+   fChain->SetBranchAddress("ohpfTauPt", ohpfTauPt, &b_ohpfTauPt);
+   fChain->SetBranchAddress("ohpfTauEta", ohpfTauEta, &b_ohpfTauEta);
+   fChain->SetBranchAddress("ohpfTauPhi", ohpfTauPhi, &b_ohpfTauPhi);
+   fChain->SetBranchAddress("ohpfTauLeadTrackPt", ohpfTauLeadTrackPt, &b_ohpfTauLeadTrackPt);
+   fChain->SetBranchAddress("ohpfTauLeadPionPt", ohpfTauLeadPionPt, &b_ohpfTauLeadPionPt);
+   fChain->SetBranchAddress("ohpfTauTrkIso", ohpfTauTrkIso, &b_ohpfTauTrkIso);
+   fChain->SetBranchAddress("ohpfTauGammaIso", ohpfTauGammaIso, &b_ohpfTauGammaIso);
+   fChain->SetBranchAddress("ohpfTauJetPt", ohpfTauJetPt, &b_ohpfTauJetPt);
+   fChain->SetBranchAddress("NRecoPFTau", &NRecoPFTau, &b_NRecoPFTau);
    fChain->SetBranchAddress("pfTauPt", pfTauPt, &b_pfTauPt);
    fChain->SetBranchAddress("pfTauEta", pfTauEta, &b_pfTauEta);
    fChain->SetBranchAddress("pfTauPhi", pfTauPhi, &b_pfTauPhi);
@@ -7725,7 +7725,6 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("pfJetPt", pfJetPt, &b_pfJetPt);
    fChain->SetBranchAddress("pfJetEta", pfJetEta, &b_pfJetEta);
    fChain->SetBranchAddress("pfJetPhi", pfJetPhi, &b_pfJetPhi);
-
    fChain->SetBranchAddress("NMCpart", &NMCpart, &b_NMCpart);
    fChain->SetBranchAddress("MCpid", MCpid, &b_MCpid);
    fChain->SetBranchAddress("MCstatus", MCstatus, &b_MCstatus);
