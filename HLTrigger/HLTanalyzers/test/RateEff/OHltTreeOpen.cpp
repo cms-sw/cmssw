@@ -220,7 +220,7 @@ bool isHTXTrigger(TString triggerName, vector<double> &thresholds)
 		return false;
 }
 
-bool isBTagIP_HTXTrigger(TString triggerName, vector<double> &thresholds)
+bool isHTX_CentralJetX_BTagIPTrigger(TString triggerName, vector<double> &thresholds)
 {
 	
 	TString pattern = "(OpenHLT_HT([0-9]+)_CentralJet([0-9]+)_BTagIP){1}$";
@@ -229,8 +229,8 @@ bool isBTagIP_HTXTrigger(TString triggerName, vector<double> &thresholds)
 	if (matchThreshold.MatchB(triggerName))
 	{
 		TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
-		double thresholdHT = (((TObjString *)subStrL->At(1))->GetString()).Atof();
-		double thresholdJet = (((TObjString *)subStrL->At(2))->GetString()).Atof(); 
+		double thresholdHT = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+		double thresholdJet = (((TObjString *)subStrL->At(3))->GetString()).Atof(); 
 		thresholds.push_back(thresholdHT);
 		thresholds.push_back(thresholdJet); 
 		return true;
@@ -2584,7 +2584,7 @@ void OHltTree::CheckOpenHlt(
 	
 	/****BTagIP_HTX************/
 	
-	else if (isBTagIP_HTXTrigger(triggerName, thresholds)) {
+	else if (isHTX_CentralJetX_BTagIPTrigger(triggerName, thresholds)) {
 			//if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second == 1){
 		if (map_L1BitOfStandardHLTPath.find(triggerName)->second>0){
 			
