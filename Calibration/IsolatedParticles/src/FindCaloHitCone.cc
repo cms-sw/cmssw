@@ -18,11 +18,11 @@ namespace spr {
       if (j->id().subdetId() == EcalEndcap) {
 	EEDetId EEid = EEDetId(j->id());
 	const GlobalPoint rechitPoint = geo->getPosition(EEid);
-	if (getDistInPlaneTrackDir(point1, trackMom, rechitPoint)<dR) keepHit = true;
+	if (spr::getDistInPlaneTrackDir(point1, trackMom, rechitPoint)<dR) keepHit = true;
       } else if (j->id().subdetId() == EcalBarrel) {
 	EBDetId EBid = EBDetId(j->id());
 	const GlobalPoint rechitPoint = geo->getPosition(EBid);
-	if (getDistInPlaneTrackDir(point1, trackMom, rechitPoint)<dR) keepHit = true;
+	if (spr::getDistInPlaneTrackDir(point1, trackMom, rechitPoint)<dR) keepHit = true;
       }
 
       if (keepHit) hit.push_back(j);
@@ -50,7 +50,7 @@ namespace spr {
 	if (j->id().subdetId() == EcalBarrel) {
 	  EBDetId EBid = EBDetId(j->id());
 	  const GlobalPoint rechitPoint = geo->getPosition(EBid);
-	  if (getDistInPlaneTrackDir(point1, trackMom, rechitPoint)<dR) keepHit = true;
+	  if (spr::getDistInPlaneTrackDir(point1, trackMom, rechitPoint)<dR) keepHit = true;
 	} else {
 	  std::cout << "PROBLEM : Endcap RecHits in Barrel Collection!?" 
 		    << std::endl;
@@ -69,7 +69,7 @@ namespace spr {
 	if (j->id().subdetId() == EcalEndcap) {
 	  EEDetId EEid = EEDetId(j->id());
 	  const GlobalPoint rechitPoint = geo->getPosition(EEid);
-	  if (getDistInPlaneTrackDir(point1, trackMom, rechitPoint)<dR) keepHit = true;
+	  if (spr::getDistInPlaneTrackDir(point1, trackMom, rechitPoint)<dR) keepHit = true;
 	} else {
 	  std::cout << "PROBLEM : Barrel RecHits in Endcap Collection!?" 
 		    << std::endl;
@@ -91,7 +91,7 @@ namespace spr {
 	 j!=hits->end(); j++) {   
       DetId detId(j->id());
       const GlobalPoint rechitPoint = geo->getPosition(detId);
-      if (getDistInPlaneTrackDir(hpoint1, trackMom, rechitPoint)<dR) hit.push_back(j);
+      if (spr::getDistInPlaneTrackDir(hpoint1, trackMom, rechitPoint)<dR) hit.push_back(j);
     }  
     return hit;
   }
@@ -104,7 +104,7 @@ namespace spr {
     for (ihit=hits->begin(); ihit!=hits->end(); ihit++) {
       DetId detId(ihit->id());
       const GlobalPoint rechitPoint = geo->getPosition(detId);
-      if (getDistInPlaneTrackDir(hpoint1, trackMom, rechitPoint)<dR) {
+      if (spr::getDistInPlaneTrackDir(hpoint1, trackMom, rechitPoint)<dR) {
 	hit.push_back(ihit);
       }
     }

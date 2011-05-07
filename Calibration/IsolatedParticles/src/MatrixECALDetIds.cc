@@ -1,7 +1,9 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #include "Calibration/IsolatedParticles/interface/MatrixECALDetIds.h"
+#include "Calibration/IsolatedParticles/interface/FindDistCone.h"
 
 #include <algorithm>
 #include <iostream>
@@ -81,8 +83,60 @@ namespace spr{
 				   bool debug) {
 
     std::vector<DetId> vdets;
-    matrixECALIds(det, ieta, iphi, geo, caloTopology, vdets, debug);
+    spr::matrixECALIds(det, ieta, iphi, geo, caloTopology, vdets, debug);
     return vdets;
+  }
+
+  std::vector<DetId> matrixECALIds(const DetId& det, double dR, 
+				   const GlobalVector& trackMom,
+				   const CaloGeometry* geo, 
+				   const CaloTopology* caloTopology,
+				   bool debug) {
+
+    GlobalPoint core;
+    if (det.subdetId() == EcalEndcap) {
+      EEDetId EEid = EEDetId(det);
+      core = geo->getPosition(EEid);
+    } else {
+      EBDetId EBid = EBDetId(det);
+      core = geo->getPosition(EBid);
+    }
+    int ietaphi = (int)(dR/2.0)+1;
+    std::vector<DetId> vdets, vdetx;
+    spr::matrixECALIds(det, ietaphi, ietaphi, geo, caloTopology, vdets, debug);
+    for (unsigned int i=0; i<vdets.size(); ++i) {
+      GlobalPoint rpoint;
+      if (vdets[i].subdetId() == EcalEndcap) {
+	EEDetId EEid = EEDetId(vdets[i]);
+	rpoint = geo->getPosition(EEid);
+      } else {
+	EBDetId EBid = EBDetId(vdets[i]);
+	rpoint = geo->getPosition(EBid);
+      }
+      if (spr::getDistInPlaneTrackDir(core, trackMom, rpoint)<dR) {
+	vdetx.push_back(vdets[i]);
+      }
+    }
+
+    if (debug) {
+      std::cout << "matrixECALIds::Final List of cells for dR " << dR
+		<< " is with " << vdetx.size() << " cells" << std::endl;
+      for (unsigned int i=0; i < vdetx.size(); ++i) {
+	if (vdetx[i].subdetId() == EcalBarrel) {
+	  EBDetId id = vdetx[i];
+	  std::cout << "matrixECALIds::Cell " << i << " 0x" << std::hex 
+		    << vdetx[i]() << std::dec << " " << id << std::endl;
+	} else if (vdetx[i].subdetId() == EcalEndcap) {
+	  EEDetId id = vdetx[i];
+	  std::cout << "matrixECALIds::Cell " << i << " 0x" << std::hex 
+		    << vdetx[i]() << std::dec<< " " << id << std::endl;
+	} else {
+	  std::cout << "matrixECALIds::Cell " << i << " 0x" << std::hex 
+		    << vdetx[i]() << std::dec << " Unknown Type" << std::endl;
+	}
+      }
+    }
+    return vdetx;
   }
 
   void matrixECALIds(const DetId& det, int ietaE,int ietaW,int iphiN,int iphiS,

@@ -4,11 +4,16 @@
 #include <vector>
 
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 namespace spr{
 
   std::vector<DetId> matrixHCALIds(std::vector<DetId>& dets, const HcalTopology* topology, int ieta, int iphi, bool includeHO=false, bool debug=false);
+
+  std::vector<DetId> matrixHCALIds(const DetId& det, const CaloGeometry* geo, const HcalTopology* topology, double dR, const GlobalVector& trackMom, bool includeHO=false, bool debug=false);
 
   std::vector<DetId> matrixHCALIds(std::vector<DetId>& dets, const HcalTopology* topology, int ietaE, int ietaW, int iphiN, int iphiS, bool includeHO=false, bool debug=false);
 

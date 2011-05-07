@@ -1,6 +1,7 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 #include "Calibration/IsolatedParticles/interface/MatrixHCALDetIds.h"
+#include "Calibration/IsolatedParticles/interface/FindDistCone.h"
 
 #include<algorithm>
 #include<iostream>
@@ -43,6 +44,38 @@ namespace spr{
     }
     return vdetS;
   }
+
+  std::vector<DetId> matrixHCALIds(const DetId& det, const CaloGeometry* geo,
+				   const HcalTopology* topology, double dR, 
+				   const GlobalVector& trackMom, bool includeHO,
+				   bool debug) {
+ 
+    HcalDetId   hcdet = HcalDetId(det);
+    GlobalPoint core  = geo->getPosition(hcdet);
+    std::vector<DetId> dets, vdetx;
+    dets.push_back(det);
+    int ietaphi = (int)(dR/15.0)+1;
+    std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ietaphi, 
+						  ietaphi, includeHO, debug);
+    for (unsigned int i=0; i<vdets.size(); ++i) {
+      HcalDetId   hcdet  = HcalDetId(vdets[i]);
+      GlobalPoint rpoint = geo->getPosition(hcdet);
+      if (spr::getDistInPlaneTrackDir(core, trackMom, rpoint) < dR) {
+	vdetx.push_back(vdets[i]);
+      }
+    }
+
+    if (debug) {
+      std::cout << "matrixHCALIds::Final List of cells for dR " << dR
+		<< " is with " << vdetx.size() << " cells" << std::endl;
+      for (unsigned int i=0; i < vdetx.size(); ++i) {
+	HcalDetId   hcdet  = HcalDetId(vdets[i]);
+	std::cout << "matrixHCALIds::Cell " << i << " 0x" << std::hex 
+		    << vdetx[i]() << std::dec << " " << hcdet << std::endl;
+      }
+    }
+    return vdetx;
+ }
 
   std::vector<DetId> matrixHCALIds(std::vector<DetId>& dets, 
 				   const HcalTopology* topology, int ietaE, 

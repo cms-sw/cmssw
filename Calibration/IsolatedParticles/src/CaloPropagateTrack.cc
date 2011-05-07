@@ -29,11 +29,11 @@ namespace spr{
     const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
     reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
 
-    unsigned indx;
+    unsigned int indx;
     reco::TrackCollection::const_iterator trkItr;
     for (trkItr = trkCollection->begin(),indx=0; trkItr != trkCollection->end(); ++trkItr,indx++) {
       const reco::Track* pTrack = &(*trkItr);
-      propagatedTrackID vdet;
+      spr::propagatedTrackID vdet;
       vdet.trkItr = trkItr;
       vdet.ok     = (pTrack->quality(trackQuality_));
       vdet.detIdECAL = DetId(0);
@@ -87,11 +87,11 @@ namespace spr{
     const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
     reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
 
-    unsigned indx;
+    unsigned int indx;
     reco::TrackCollection::const_iterator trkItr;
     for (trkItr = trkCollection->begin(),indx=0; trkItr != trkCollection->end(); ++trkItr,indx++) {
       const reco::Track* pTrack = &(*trkItr);
-      propagatedTrackDirection trkD;
+      spr::propagatedTrackDirection trkD;
       trkD.trkItr = trkItr;
       trkD.ok     = (pTrack->quality(trackQuality_));
       trkD.detIdECAL = DetId(0);
@@ -147,6 +147,83 @@ namespace spr{
     }
   }
 
+  std::vector<spr::propagatedGenTrackID> propagateCALO(const HepMC::GenEvent * genEvent, edm::ESHandle<ParticleDataTable>& pdt, const CaloGeometry* geo, const MagneticField* bField, double etaMax, bool debug) {
+
+    const EcalBarrelGeometry *barrelGeom = (dynamic_cast< const EcalBarrelGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel)));
+    const EcalEndcapGeometry *endcapGeom = (dynamic_cast< const EcalEndcapGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap)));
+    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+
+    std::vector<spr::propagatedGenTrackID> trkDir;
+    unsigned int indx;
+    HepMC::GenEvent::particle_const_iterator p;
+    for (p=genEvent->particles_begin(),indx=0;   p != genEvent->particles_end(); ++p,++indx) {
+      spr::propagatedGenTrackID trkD;
+      trkD.trkItr    = p;
+      trkD.detIdECAL = DetId(0);
+      trkD.detIdHCAL = DetId(0);
+      trkD.detIdEHCAL= DetId(0);
+      trkD.pdgId  = std::abs((*p)->pdg_id());
+      trkD.charge = ((pdt->particle(trkD.pdgId))->ID().threeCharge())/3;
+      GlobalVector momentum = GlobalVector((*p)->momentum().px(), (*p)->momentum().py(), (*p)->momentum().pz());
+      if (debug) std::cout << "Propagate track " << indx << " pdg " << trkD.pdgId << " charge " << trkD.charge << " p " << momentum << std::endl;
+      
+      // consider stable particles
+      if ( (*p)->status()==1 && std::abs((*p)->momentum().eta()) < etaMax ) { 
+	GlobalPoint vertex = GlobalPoint(0.1*(*p)->production_vertex()->position().x(), 
+					 0.1*(*p)->production_vertex()->position().y(), 
+					 0.1*(*p)->production_vertex()->position().z());
+	trkD.ok = true;
+	spr::propagatedTrack info = spr::propagateCalo (vertex, momentum, trkD.charge, bField, 319.2, 129.4, 1.479, debug);
+	GlobalPoint point(info.point.x(),info.point.y(),info.point.z());
+	trkD.okECAL        = info.ok;
+	trkD.pointECAL     = point;
+	trkD.directionECAL = info.direction;
+	if (trkD.okECAL) {
+	  if (std::abs(info.point.eta())<1.479) {
+	    trkD.detIdECAL = barrelGeom->getClosestCell(point);
+	  } else {
+	    trkD.detIdECAL = endcapGeom->getClosestCell(point);
+	  }
+	  trkD.detIdEHCAL = gHB->getClosestCell(point);
+	}
+
+	info = spr::propagateCalo (vertex, momentum, trkD.charge, bField, 402.7, 180.7, 1.392, debug);
+	point = GlobalPoint(info.point.x(),info.point.y(),info.point.z());
+	trkD.okHCAL        = info.ok;
+	trkD.pointHCAL     = point;
+	trkD.directionHCAL = info.direction;
+	if (trkD.okHCAL) {
+	  trkD.detIdHCAL = gHB->getClosestCell(point);
+	}
+      }
+      trkDir.push_back(trkD);
+    }
+
+    if (debug) {
+      std::cout << "propagateCALO:: for " << trkDir.size() << " tracks" << std::endl;
+      for (unsigned int i=0; i<trkDir.size(); ++i) {
+	if (trkDir[i].okECAL) std::cout << "Track [" << i << "] Flag: " << trkDir[i].ok << " ECAL (" << trkDir[i].okECAL << ")";
+	if (trkDir[i].okECAL) {
+	  std::cout << " point " << trkDir[i].pointECAL << " direction "
+		    << trkDir[i].directionECAL << " "; 
+	  if (trkDir[i].detIdECAL.subdetId() == EcalBarrel) {
+	    std::cout << (EBDetId)(trkDir[i].detIdECAL);
+	  } else {
+	    std::cout << (EEDetId)(trkDir[i].detIdECAL); 
+	  }
+	}
+	if (trkDir[i].okECAL) std::cout << " HCAL (" << trkDir[i].okHCAL << ")";
+	if (trkDir[i].okHCAL) {
+	  std::cout << " point " << trkDir[i].pointHCAL << " direction "
+		    << trkDir[i].directionHCAL << " " 
+		    << (HcalDetId)(trkDir[i].detIdHCAL); 
+	}
+	if (trkDir[i].okECAL) std::cout << " Or " << (HcalDetId)(trkDir[i].detIdEHCAL) << std::endl;
+      }
+    }
+    return trkDir;
+  }
+
   propagatedTrack propagateTrackToECAL(const reco::Track *track, const MagneticField* bfield, bool debug) {
     GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
     GlobalVector momentum (track->px(), track->py(), track->pz());
@@ -155,8 +232,8 @@ namespace spr{
   }
 
   propagatedTrack propagateTrackToECAL(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const MagneticField* bfield, bool debug) {
-    trackAtOrigin   trk = spr::simTrackAtOrigin(thisTrk, SimTk, SimVtx, debug);
-    propagatedTrack ptrk;
+    spr::trackAtOrigin   trk = spr::simTrackAtOrigin(thisTrk, SimTk, SimVtx, debug);
+    spr::propagatedTrack ptrk;
     if (trk.ok) 
       ptrk = spr::propagateCalo (trk.position, trk.momentum, trk.charge, bfield, 319.2, 129.4, 1.479, debug);
     return ptrk;
@@ -174,16 +251,16 @@ namespace spr{
     return std::pair<math::XYZPoint,bool>(track.point,track.ok);
   }
 
-  propagatedTrack propagateTrackToHCAL(const reco::Track *track, const MagneticField* bfield, bool debug) {
+  spr::propagatedTrack propagateTrackToHCAL(const reco::Track *track, const MagneticField* bfield, bool debug) {
     GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
     GlobalVector momentum (track->px(), track->py(), track->pz());
     int charge (track->charge());
     return spr::propagateCalo (vertex, momentum, charge, bfield, 402.7, 180.7, 1.392, debug);
   }
 
-  propagatedTrack propagateTrackToHCAL(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const MagneticField* bfield, bool debug) {
-    trackAtOrigin   trk = spr::simTrackAtOrigin(thisTrk, SimTk, SimVtx, debug);
-    propagatedTrack ptrk;
+  spr::propagatedTrack propagateTrackToHCAL(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const MagneticField* bfield, bool debug) {
+    spr::trackAtOrigin   trk = spr::simTrackAtOrigin(thisTrk, SimTk, SimVtx, debug);
+    spr::propagatedTrack ptrk;
     if (trk.ok) 
       ptrk = spr::propagateCalo (trk.position, trk.momentum, trk.charge, bfield, 402.7, 180.7, 1.392, debug);
     return ptrk;
@@ -313,9 +390,9 @@ namespace spr{
     return track;
   }
 
-  trackAtOrigin simTrackAtOrigin(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, bool debug) {
+  spr::trackAtOrigin simTrackAtOrigin(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, bool debug) {
 
-    trackAtOrigin trk;
+    spr::trackAtOrigin trk;
 
     edm::SimTrackContainer::const_iterator itr = SimTk->end();
     for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr!= SimTk->end(); simTrkItr++) {

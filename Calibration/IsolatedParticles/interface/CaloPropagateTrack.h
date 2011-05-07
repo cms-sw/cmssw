@@ -16,10 +16,14 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
 
 namespace spr{
 
@@ -48,6 +52,19 @@ namespace spr{
     reco::TrackCollection::const_iterator trkItr;
   };
 
+  struct propagatedGenTrackID {
+    propagatedGenTrackID() {
+      ok=okECAL=okHCAL=false;
+      charge=pdgId=0;
+    }
+    bool                                     ok, okECAL, okHCAL;
+    DetId                                    detIdECAL, detIdHCAL, detIdEHCAL;
+    GlobalPoint                              pointECAL, pointHCAL;
+    GlobalVector                             directionECAL, directionHCAL;
+    int                                      charge, pdgId;
+    HepMC::GenEvent::particle_const_iterator trkItr;
+  };
+
   struct trackAtOrigin {
     trackAtOrigin() {ok=false;}
     bool                                  ok;
@@ -62,18 +79,19 @@ namespace spr{
   std::vector<spr::propagatedTrackID> propagateCALO(edm::Handle<reco::TrackCollection>& trkCollection, const CaloGeometry* geo, const MagneticField* bField, std::string & theTrackQuality, bool debug=false);
   void propagateCALO(edm::Handle<reco::TrackCollection>& trkCollection, const CaloGeometry* geo, const MagneticField* bField, std::string & theTrackQuality, std::vector<spr::propagatedTrackID>& vdets, bool debug=false);
   void propagateCALO(edm::Handle<reco::TrackCollection>& trkCollection, const CaloGeometry* geo, const MagneticField* bField, std::string & theTrackQuality, std::vector<spr::propagatedTrackDirection>& trkDir, bool debug=false);
+  std::vector<spr::propagatedGenTrackID> propagateCALO(const HepMC::GenEvent * genEvent, edm::ESHandle<ParticleDataTable>& pdt, const CaloGeometry* geo, const MagneticField* bField, double etaMax=3.0, bool debug=false);
 
   // Propagate tracks to the ECAL surface and optionally returns the 
   // extrapolated point (and the track direction at point of extrapolation)
-  propagatedTrack propagateTrackToECAL(const reco::Track*, const MagneticField*, bool debug=false);
-  propagatedTrack propagateTrackToECAL(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const MagneticField*, bool debug=false);
+  spr::propagatedTrack propagateTrackToECAL(const reco::Track*, const MagneticField*, bool debug=false);
+  spr::propagatedTrack propagateTrackToECAL(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const MagneticField*, bool debug=false);
   std::pair<math::XYZPoint,bool> propagateECAL(const reco::Track*, const MagneticField*, bool debug=false);
   std::pair<math::XYZPoint,bool> propagateECAL(const GlobalPoint& vertex, const GlobalVector& momentum, int charge, const MagneticField*, bool debug=false);
 
   // Propagate tracks to the HCAL surface and optionally returns the 
   // extrapolated point (and the track direction at point of extrapolation)
-  propagatedTrack propagateTrackToHCAL(const reco::Track*, const MagneticField*, bool debug=false);
-  propagatedTrack propagateTrackToHCAL(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const MagneticField*, bool debug=false);
+  spr::propagatedTrack propagateTrackToHCAL(const reco::Track*, const MagneticField*, bool debug=false);
+  spr::propagatedTrack propagateTrackToHCAL(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const MagneticField*, bool debug=false);
   std::pair<math::XYZPoint,bool> propagateHCAL(const reco::Track*, const MagneticField*, bool debug=false);
   std::pair<math::XYZPoint,bool> propagateHCAL(const GlobalPoint& vertex, const GlobalVector& momentum, int charge, const MagneticField*, bool debug=false);
 
@@ -82,10 +100,10 @@ namespace spr{
   std::pair<math::XYZPoint,bool> propagateTracker(const reco::Track*, const MagneticField*, bool debug=false);
   std::pair<math::XYZPoint,double> propagateTrackerEnd(const reco::Track*, const MagneticField*, bool debug=false);
 
-  propagatedTrack propagateCalo(const GlobalPoint& vertex, const GlobalVector& momentum, int charge, const MagneticField*, float zdist, float radius, float corner, bool debug=false);
+  spr::propagatedTrack propagateCalo(const GlobalPoint& vertex, const GlobalVector& momentum, int charge, const MagneticField*, float zdist, float radius, float corner, bool debug=false);
 
   // Gives the vertex and momentum of a SimTrack
-  trackAtOrigin simTrackAtOrigin(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, bool debug=false);
+  spr::trackAtOrigin simTrackAtOrigin(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, bool debug=false);
 
 }
 #endif

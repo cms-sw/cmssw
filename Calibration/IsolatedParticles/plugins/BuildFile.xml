@@ -10,6 +10,7 @@
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="DataFormats/JetReco"/>
+<use   name="L1Trigger/GlobalTriggerAnalyzer"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="SimDataFormats/Vertex"/>
@@ -31,11 +32,14 @@
 <use   name="TrackingTools/GeomPropagators"/>
 <use   name="TrackingTools/TrackAssociator"/>
 <use   name="TrackPropagation/SteppingHelixPropagator"/>
+<use   name="RecoJets/JetProducers"/>
 <use   name="Calibration/IsolatedParticles"/>
 <flags   EDM_PLUGIN="1"/>
 <library   name="CalibrationIsolatedTracksNxN" file="IsolatedTracksNxN.cc">
 </library>
 <library   name="CalibrationIsolatedTracksCone" file="IsolatedTracksCone.cc">
 </library>
-<library   name="CalibrationIsolatedTracksHcalScale" file="IsolatedTracksHcalScale.cc">
+<library   name="CalibrationIsolatedParticlesGeneratedJets" file="IsolatedParticlesGeneratedJets.cc">
+</library>
+<library   name="CalibrationIsolatedGenParticles" file="IsolatedGenParticles.cc">
 </library>

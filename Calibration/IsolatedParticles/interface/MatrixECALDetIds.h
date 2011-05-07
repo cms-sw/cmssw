@@ -4,6 +4,8 @@
 #include <vector>
 
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "Geometry/CaloTopology/interface/CaloDirection.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -16,6 +18,8 @@ namespace spr{
   void matrixECALIds(const DetId& det, int ieta, int iphi, const CaloGeometry* geo, const CaloTopology* caloTopology, std::vector<DetId>& vdets, bool debug=false);
 
   std::vector<DetId> matrixECALIds(const DetId& det, int ieta, int iphi, const CaloGeometry* geo, const CaloTopology* caloTopology, bool debug=false);
+
+  std::vector<DetId> matrixECALIds(const DetId& det, double dR, const GlobalVector& trackMom, const CaloGeometry* geo, const CaloTopology* caloTopology, bool debug=false);
 
   void matrixECALIds(const DetId& det, int ietaE, int ietaW, int iphiN, int iphiS, const CaloGeometry* geo, const CaloTopology* caloTopology, std::vector<DetId>& vdets, bool debug=false);
 
