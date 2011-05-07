@@ -23,7 +23,7 @@ namespace edm {
       VectorHolder() : base_type() {}
       VectorHolder(VectorHolder const & rh) :  base_type(rh),  refVector_(rh.refVector_){}
 #if defined(__GXX_EXPERIMENTAL_CXX0X__)
-      VectorHolder(VectorHolder && rh) :  base_type(rh),  refVector_(std::move(rh.refVector_)){}
+      VectorHolder(VectorHolder && rh) :  base_type(std::forward(rh)),  refVector_(std::move(rh.refVector_)){}
  #endif
 
       explicit VectorHolder(const ref_vector_type& iRefVector) : base_type(), refVector_(iRefVector) {}
@@ -50,6 +50,7 @@ namespace edm {
       }
 #if defined(__GXX_EXPERIMENTAL_CXX0X__)
      VectorHolder& operator=(VectorHolder && rhs) {
+       base_type::operator=(std::forward(rhs));
        refVector_ = std::move(rhs.refVector_);
        return *this;
      }
