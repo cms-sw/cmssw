@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ValueMap.h,v 1.18 2010/09/01 19:48:30 chrjones Exp $
+ * \version $Id: ValueMap.h,v 1.19 2011/03/08 18:47:15 chrjones Exp $
  *
  */
 
@@ -37,7 +37,7 @@ namespace edm {
 	const typename id_offset_vector::const_iterator end = map.ids_.end();
 	size_t i = 0;
 	const size_t size = map.values_.size();
-	std::pair<ProductID, offset> id = *j;
+	// std::pair<ProductID, offset> id = *j;
 	do {
 	  ProductID id = j->first;
 	  ++j;

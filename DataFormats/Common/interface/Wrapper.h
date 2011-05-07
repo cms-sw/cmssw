@@ -14,6 +14,7 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Visibility.h"
 
 #include "boost/mpl/if.hpp"
 
@@ -44,7 +45,7 @@ namespace edm {
     Wrapper(T*);
 
     static
-    WrapperInterface<T> const* getInterface();
+    WrapperInterface<T> const* getInterface() dso_export;
 
     void fillView(ProductID const& id,
                   std::vector<void const*>& pointers,
