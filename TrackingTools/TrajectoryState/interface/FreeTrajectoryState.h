@@ -12,6 +12,9 @@
 
 #include <iosfwd>
 
+#include "DataFormats/GeometrySurface/interface/BlockWipedAllocator.h"
+
+
 #include "FWCore/Utilities/interface/Visibility.h"
 #include "FWCore/Utilities/interface/Likely.h"
 
@@ -25,7 +28,7 @@
  *  error parametrisations; it converts from one to the other internally.
  */
 
-class FreeTrajectoryState {
+class FreeTrajectoryState : public BlockWipedAllocated<FreeTrajectoryState> {
 public:
 // construst
 //default constructor - needed for Persistency
