@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.SiStripMonitorHardware.siStripFEDMonitor_P5_cff import *
+siStripFEDMonitor.nFEDErrorsHistogramConfig.NBins = cms.untracked.uint32(441)
+siStripFEDMonitor.nFEDErrorsHistogramConfig.Max = cms.untracked.double(440.5)
 
 # SiStripMonitorDigi ####
 from DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi import *
