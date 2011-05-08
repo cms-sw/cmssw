@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V53 (CMSSW_4_2_0_HLT2)
+# /dev/CMSSW_4_2_0/HIon/V54 (CMSSW_4_2_0_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V53')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V54')
 )
 
 process.streams = cms.PSet( 
@@ -25,7 +25,7 @@ process.streams = cms.PSet(
   TrackerCalibration = cms.vstring( 'TestEnablesTracker' )
 )
 process.datasets = cms.PSet( 
-  EcalLaser = cms.vstring( 'HLT_EcalCalibration_v1' ),
+  EcalLaser = cms.vstring( 'HLT_EcalCalibration_v2' ),
   HIAllPhysics = cms.vstring( 'HLT_HIActivityHF_Coincidence3',
     'HLT_HIActivityHF_Single3',
     'HLT_HICentralityVeto',
@@ -68,7 +68,7 @@ process.datasets = cms.PSet(
     'HLT_HIMinBiasHfOrBSC',
     'HLT_HIPhoton30_Cleaned_Core' ),
   LogMonitor = cms.vstring( 'HLT_LogMonitor_v1' ),
-  OfflineMonitor = cms.vstring( 'HLT_HcalCalibration_v1',
+  OfflineMonitor = cms.vstring( 'HLT_HcalCalibration_v2',
     'HLT_LogMonitor_v1' ),
   OfflineMonitorHI = cms.vstring( 'HLT_HIActivityHF_Coincidence3',
     'HLT_HIActivityHF_Single3',
@@ -183,10 +183,10 @@ process.datasets = cms.PSet(
     'HLT_HIZeroBiasXOR' ),
   OnlineHltResults = cms.vstring( 'HLTriggerFinalPath' ),
   OnlineMonitor = cms.vstring( 'HLT_DTCalibration_v1',
-    'HLT_EcalCalibration_v1',
-    'HLT_HcalCalibration_v1',
+    'HLT_EcalCalibration_v2',
+    'HLT_HcalCalibration_v2',
     'HLT_LogMonitor_v1',
-    'HLT_TrackerCalibration_v1' ),
+    'HLT_TrackerCalibration_v2' ),
   OnlineMonitorHI = cms.vstring( 'HLT_HIActivityHF_Coincidence3',
     'HLT_HIActivityHF_Single3',
     'HLT_HIBptxXOR',
@@ -243,9 +243,9 @@ process.datasets = cms.PSet(
     'HLT_HIZeroBiasPixel_SingleTrack',
     'HLT_HIZeroBiasXOR' ),
   TestEnablesEcalHcalDT = cms.vstring( 'HLT_DTCalibration_v1',
-    'HLT_EcalCalibration_v1',
-    'HLT_HcalCalibration_v1' ),
-  TestEnablesTracker = cms.vstring( 'HLT_TrackerCalibration_v1' )
+    'HLT_EcalCalibration_v2',
+    'HLT_HcalCalibration_v2' ),
+  TestEnablesTracker = cms.vstring( 'HLT_TrackerCalibration_v2' )
 )
 
 process.source = cms.Source( "PoolSource",
@@ -4478,9 +4478,9 @@ process.hltPreDQMOutput = cms.EDFilter( "HLTPrescaler",
 )
 process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     triggerConditions = cms.vstring( 'HLT_DTCalibration_v1 / 10',
-      'HLT_EcalCalibration_v1 / 10',
-      'HLT_HcalCalibration_v1',
-      'HLT_TrackerCalibration_v1 / 10',
+      'HLT_EcalCalibration_v2 / 10',
+      'HLT_HcalCalibration_v2',
+      'HLT_TrackerCalibration_v2 / 10',
       'HLT_LogMonitor_v1' ),
     hltResults = cms.InputTag( "TriggerResults" ),
     l1tResults = cms.InputTag( "hltGtDigis" ),
@@ -4604,8 +4604,8 @@ process.hltOutputCalibration = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputCalibration.root" ),
     fastCloning = cms.untracked.bool( False ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_DTCalibration_v1',
-  'HLT_EcalCalibration_v1',
-  'HLT_HcalCalibration_v1' ) ),
+  'HLT_EcalCalibration_v2',
+  'HLT_HcalCalibration_v2' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep *_hltDTCalibrationRaw_*_*',
       'keep *_hltEcalCalibrationRaw_*_*',
@@ -4617,7 +4617,7 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputDQM.root" ),
     fastCloning = cms.untracked.bool( False ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_DTCalibration_v1',
-  'HLT_EcalCalibration_v1',
+  'HLT_EcalCalibration_v2',
   'HLT_HIActivityHF_Coincidence3',
   'HLT_HIActivityHF_Single3',
   'HLT_HIBptxXOR',
@@ -4673,9 +4673,9 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_HIZeroBias',
   'HLT_HIZeroBiasPixel_SingleTrack',
   'HLT_HIZeroBiasXOR',
-  'HLT_HcalCalibration_v1',
+  'HLT_HcalCalibration_v2',
   'HLT_LogMonitor_v1',
-  'HLT_TrackerCalibration_v1' ) ),
+  'HLT_TrackerCalibration_v2' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep *_hltDt4DSegments_*_*',
       'keep *_hltL1GtObjectMap_*_*',
@@ -4688,7 +4688,7 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
 process.hltOutputEcalCalibration = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputEcalCalibration.root" ),
     fastCloning = cms.untracked.bool( False ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_EcalCalibration_v1' ) ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_EcalCalibration_v2' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep *_hltEcalCalibrationRaw_*_*',
       'keep edmTriggerResults_*_*_*',
@@ -4952,7 +4952,7 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_HIZeroBias',
   'HLT_HIZeroBiasPixel_SingleTrack',
   'HLT_HIZeroBiasXOR',
-  'HLT_HcalCalibration_v1',
+  'HLT_HcalCalibration_v2',
   'HLT_LogMonitor_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep *_hltAlCaEtaRecHitsFilter_*_*',
@@ -5054,7 +5054,7 @@ process.hltOutputOnlineErrors = cms.OutputModule( "PoolOutputModule",
 process.hltOutputTrackerCalibration = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputTrackerCalibration.root" ),
     fastCloning = cms.untracked.bool( False ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_TrackerCalibration_v1' ) ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_TrackerCalibration_v2' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep *_hltTrackerCalibrationRaw_*_*',
       'keep edmTriggerResults_*_*_*',
@@ -5087,9 +5087,9 @@ process.HLTBeginSequenceAntiBPTX = cms.Sequence( process.hltTriggerType + proces
 
 process.HLTriggerFirstPath = cms.Path( process.hltGetRaw + process.hltBoolFalse )
 process.HLT_DTCalibration_v1 = cms.Path( process.HLTBeginSequenceCalibration + process.hltPreDTCalibration + process.hltDTCalibrationRaw + process.HLTEndSequence )
-process.HLT_EcalCalibration_v1 = cms.Path( process.HLTBeginSequenceCalibration + process.hltPreEcalCalibration + process.hltEcalCalibrationRaw + process.HLTEndSequence )
-process.HLT_HcalCalibration_v1 = cms.Path( process.HLTBeginSequenceCalibration + process.hltPreHcalCalibration + process.hltHcalCalibTypeFilter + process.hltHcalCalibrationRaw + process.HLTEndSequence )
-process.HLT_TrackerCalibration_v1 = cms.Path( process.HLTBeginSequenceCalibration + process.hltPreTrackerCalibration + process.hltLaserAlignmentEventFilter + process.hltTrackerCalibrationRaw + process.HLTEndSequence )
+process.HLT_EcalCalibration_v2 = cms.Path( process.HLTBeginSequenceCalibration + process.hltPreEcalCalibration + process.hltEcalCalibrationRaw + process.HLTEndSequence )
+process.HLT_HcalCalibration_v2 = cms.Path( process.HLTBeginSequenceCalibration + process.hltPreHcalCalibration + process.hltHcalCalibTypeFilter + process.hltHcalCalibrationRaw + process.HLTEndSequence )
+process.HLT_TrackerCalibration_v2 = cms.Path( process.HLTBeginSequenceCalibration + process.hltPreTrackerCalibration + process.hltLaserAlignmentEventFilter + process.hltTrackerCalibrationRaw + process.HLTEndSequence )
 process.HLT_LogMonitor_v1 = cms.Path( process.hltGtDigis + process.hltPreLogMonitor + process.hltLogMonitorFilter + process.HLTEndSequence )
 process.HLT_HIZeroBias = cms.Path( process.HLTBeginSequence + process.hltL1sHIZeroBias + process.hltPreHIZeroBias + process.HLTEndSequence )
 process.HLT_HIZeroBiasXOR = cms.Path( process.HLTBeginSequence + process.hltL1sL1BptxXOR + process.hltPreHIZeroBiasXOR + process.HLTEndSequence )
