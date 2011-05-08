@@ -1,5 +1,6 @@
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 GlobalTrajectoryParameters::GlobalTrajectoryParameters(const GlobalPoint& aX,
 						       const GlobalVector& direction,
@@ -16,7 +17,7 @@ GlobalTrajectoryParameters::GlobalTrajectoryParameters(const GlobalPoint& aX,
 
 float GlobalTrajectoryParameters::transverseCurvature() const
 {
-  if (!hasCurvature_) {
+  if unlikely(!hasCurvature_) {
       float bza = -2.99792458e-3f * theField->inTesla(theX).z();
       cachedCurvature_ = bza*signedInverseTransverseMomentum();
       hasCurvature_ = true;

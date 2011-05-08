@@ -40,10 +40,6 @@ public:
   CurvilinearTrajectoryError(const AlgebraicSymMatrix55& aCovarianceMatrix) :
     theCovarianceMatrix(aCovarianceMatrix) { }
 
-  /// Implicit conversion
-  //CurvilinearTrajectoryError( const MathCovarianceMatrix & cov) { return theCovarianceMatrix; }
-  // not needed anymore: MathCovarianceMatrix === AlgebraicSymMatrix55
-
 
 // access
 

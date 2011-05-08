@@ -1,6 +1,6 @@
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryError.h"
 #include "DataFormats/Math/interface/invertPosDefMatrix.h"
-
+#include "FWCore/Utilities/interface/Likely.h"
 
 
 LocalTrajectoryError::
@@ -16,7 +16,7 @@ LocalTrajectoryError( float dx, float dy, float dxdir, float dydir,
 }
 
 const AlgebraicSymMatrix55 & LocalTrajectoryError::weightMatrix() const {
-  if (theWeightMatrixPtr.get() == 0) {
+  if unlikely(theWeightMatrixPtr.get() == 0) {
     theWeightMatrixPtr.reset(new AlgebraicSymMatrix55());
     invertPosDefMatrix(theCovarianceMatrix,*theWeightMatrixPtr);
   }

@@ -3,7 +3,7 @@
 
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
-
+#include "FWCore/Utilities/interface/Likely.h"
 /**
  *  Class providing access to the <i> Perigee</i> parameters of a trajectory.
  *  These parameters consist of <BR>
@@ -41,7 +41,7 @@ public:
    */
   const AlgebraicSymMatrix55 &weightMatrix(int & error) const
   {
-    if (!weightIsAvailable) calculateWeightMatrix();
+    if unlikely(!weightIsAvailable) calculateWeightMatrix();
     error = inverseError;
     return thePerigeeWeight;
   }

@@ -43,7 +43,10 @@ public:
    *  and correlations between the different position coordinates. 
    */
 
-  GlobalError position() const;
+  const GlobalError CartesianTrajectoryError::position() const {
+    return GlobalError( theCovarianceMatrix.Sub<AlgebraicSymMatrix33>(0,0));
+  }
+
 
 private:
   AlgebraicSymMatrix66 theCovarianceMatrix;
