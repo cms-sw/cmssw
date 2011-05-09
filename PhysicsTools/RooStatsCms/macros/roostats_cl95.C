@@ -1,7 +1,7 @@
 static const char* desc =
 "=====================================================================\n"
 "|                                                                    \n"
-"|\033[1m        roostats_cl95.C  version 1.02                 \033[0m\n"
+"|\033[1m        roostats_cl95.C  version 1.03                 \033[0m\n"
 "|                                                                    \n"
 "| Standard c++ routine for 95% C.L. limit calculation                \n"
 "| for cross section in a 'counting experiment'                       \n"
@@ -290,6 +290,11 @@ RooWorkspace * CL95Calc::makeWorkspace(Double_t ilum, Double_t slum,
     _nuisance_model = 0;
     std::cout << "[CL95Calc]: background expectation is too close to zero compared to its uncertainty" << std::endl;
     std::cout << "[CL95Calc]: switching to the Gaussian nuisance model" << std::endl;
+
+    // FIXME: is this appropriate fix for 0 bg expectation?
+    if (bck<0.001){
+      bck = std::max(bck,sbck/1000.0);
+    }
   }
 
   // Workspace
@@ -338,7 +343,7 @@ RooWorkspace * CL95Calc::makeWorkspace(Double_t ilum, Double_t slum,
   // systematic uncertainties
   nsig_rel_err = sqrt(slum*slum/ilum/ilum+seff*seff/eff/eff);
   nbkg_rel_err = sbck/bck;
-  if (nuisanceModel == 0){ // gaussian model for nuisance parameters
+  if (_nuisance_model == 0){ // gaussian model for nuisance parameters
 
     std::cout << "[roostats_cl95]: Gaussian PDFs for nuisance parameters" << endl;
 
@@ -356,7 +361,7 @@ RooWorkspace * CL95Calc::makeWorkspace(Double_t ilum, Double_t slum,
     ws->var("nsig_sigma")->setConstant(kTRUE);
     ws->var("nbkg_sigma")->setConstant(kTRUE);
   }
-  else if (nuisanceModel == 1){// Lognormal model for nuisance parameters
+  else if (_nuisance_model == 1){// Lognormal model for nuisance parameters
 
     std::cout << "[roostats_cl95]: Lognormal PDFs for nuisance parameters" << endl;
 
@@ -373,7 +378,7 @@ RooWorkspace * CL95Calc::makeWorkspace(Double_t ilum, Double_t slum,
     ws->var("nsig_kappa")->setConstant(kTRUE);
     ws->var("nbkg_kappa")->setConstant(kTRUE);
   }
-  else if (nuisanceModel == 2){ // Gamma model for nuisance parameters
+  else if (_nuisance_model == 2){ // Gamma model for nuisance parameters
 
     std::cout << "[roostats_cl95]: Gamma PDFs for nuisance parameters" << endl;
 
@@ -611,7 +616,8 @@ LimitResult CL95Calc::clm( Double_t ilum, Double_t slum,
   for (Int_t i = 0; i < nit; i++)
     {
       // throw random nuisance parameter (bkg yield)
-      if (nuisanceModel == 0){ // gaussian model for nuisance parameters
+      // FIXME: set sbck for other models
+      if (_nuisance_model == 0){ // gaussian model for nuisance parameters
 	RooRealVar * _nuis = ws->var("nbkg_sigma");
 	if (_nuis){
 	  _nuis->setVal(sbck);
