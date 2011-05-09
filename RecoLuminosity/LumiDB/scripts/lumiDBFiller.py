@@ -100,9 +100,8 @@ def main():
         logFile.write(statusAndOutput[1])
         logFile.close()
         if not statusAndOutput[0] == 0:
-            print 'ERROR while applying normalization to run '+ run
+            print 'ERROR while applying validation flag to run '+ run
             print statusAndOutput[1]
-
     if runCounter == 0: print 'No runs to be analyzed'
 
 if __name__=='__main__':
