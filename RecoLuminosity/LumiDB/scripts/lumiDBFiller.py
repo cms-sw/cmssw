@@ -5,22 +5,23 @@ import commands
 lumiauthpath=''
 lumilogpath=''
 loaderconf=''
-def isCollisionRun(run,authpath=''):
-    itIs = False
-    itIsAlso = False
-    isInAfill = False
-    command = 'dumpRunInfo.py -c oracle://cms_omds_lb/cms_runinfo -P '+authpath+' -r '+run+' --collision-only l1key | wc'
-    statusAndOutput = commands.getstatusoutput(command)
-    if statusAndOutput[1].split('   ')[2] == '2': itIs = True
-    command = 'dumpRunInfo.py -c oracle://cms_omds_lb/cms_runinfo -P '+authpath+' -r '+run+' --collision-only hltkey | wc'
-    statusAndOutput = commands.getstatusoutput(command)
-    if statusAndOutput[1].split('   ')[2] == '2': itIsAlso = True
-    command = 'dumpRunInfo.py -c oracle://cms_omds_lb/cms_runinfo -P '+authpath+' -r '+run+' fill'
-    statusAndOutput = commands.getstatusoutput(command)
-    fillnum=statusAndOutput[1].split('\n')[1].split(' ')[1]
-    if fillnum and fillnum != '0':
-        isInAfill=True
-    return itIs and itIsAlso and isInAfill
+
+#def isCollisionRun(run,authpath=''):
+#    itIs = False
+#    itIsAlso = False
+#    isInAfill = False
+#    command = 'dumpRunInfo.py -c oracle://cms_omds_lb/cms_runinfo -P '+authpath+' -r '+run+' --collision-only l1key | wc'
+#    statusAndOutput = commands.getstatusoutput(command)
+#    if statusAndOutput[1].split('   ')[2] == '2': itIs = True
+#    command = 'dumpRunInfo.py -c oracle://cms_omds_lb/cms_runinfo -P '+authpath+' -r '+run+' --collision-only hltkey | wc'
+#    statusAndOutput = commands.getstatusoutput(command)
+#    if statusAndOutput[1].split('   ')[2] == '2': itIsAlso = True
+#    command = 'dumpRunInfo.py -c oracle://cms_omds_lb/cms_runinfo -P '+authpath+' -r '+run+' fill'
+#    statusAndOutput = commands.getstatusoutput(command)
+#    fillnum=statusAndOutput[1].split('\n')[1].split(' ')[1]
+#    if fillnum and fillnum != '0':
+#        isInAfill=True
+#    return itIs and itIsAlso and isInAfill
 
 def getRunnumberFromFileName(lumifilename):
     runnumber=int(lumifilename.split('_')[4])
@@ -52,8 +53,9 @@ def getRunsToBeUploaded(connectionString, dropbox, authpath=''):
             if len(file.split('_'))!=7: continue
             thisrun=getRunnumberFromFileName(file)
             #print 'this run ',thisrun
-            if  thisrun>lastAnalyzedRunNumber and isCollisionRun(str(thisrun),authpath): 
-                    runsToBeAnalyzed[str(thisrun)] = file
+            #if  thisrun>lastAnalyzedRunNumber and isCollisionRun(str(thisrun),authpath):
+            if thisrun>lastAnalyzedRunNumber :
+                runsToBeAnalyzed[str(thisrun)] = file
     return runsToBeAnalyzed
 
 import os, sys
