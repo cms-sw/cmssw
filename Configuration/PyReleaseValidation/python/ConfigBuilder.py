@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.317 $"
+__version__ = "$Revision: 1.318 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -786,11 +786,11 @@ class ConfigBuilder(object):
                     else:
                             self.schedule.append(stream.paths)
 
-	    setattr(self.process,name,output)
+
 	    # in case of relvals we don't want to have additional outputs
             if (not self._options.relval) and workflow in ("full","output"):
                     self.additionalOutputs[name] = output
-
+		    setattr(self.process,name,output)
 	    
             if workflow == 'output':
                     # adjust the select events to the proper trigger results from previous process
@@ -876,7 +876,7 @@ class ConfigBuilder(object):
             if shortName in alcaList and isinstance(alcastream,cms.FilteredStream):
 	        output = self.addExtraStream(name,alcastream, workflow = workflow)
 		if 'DQM' in alcaList:
-			if not self._options.inlineEventContent:
+			if not self._options.inlineEventContent and hasattr(self.process,name):
 				self.executeAndRemember('process.' + name + '.outputCommands.append("keep *_MEtoEDMConverter_*_*")')
 			else:
 				output.outputCommands.append("keep *_MEtoEDMConverter_*_*")
@@ -1415,7 +1415,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.317 $"),
+                                            (version=cms.untracked.string("$Revision: 1.318 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
