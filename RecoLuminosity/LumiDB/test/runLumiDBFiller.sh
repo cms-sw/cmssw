@@ -6,7 +6,7 @@ export SCRAM_ARCH=slc5_amd64_gcc434
 source /nfshome0/cmssw2/cmsset_default.sh;
 export PATH="/nfshome0/cmssw2/scripts:${PATH}";
 
-cd /nfshome0/hcallumipro/LumiDBUtil/exec/CMSSW_3_11_1/src/
+cd /nfshome0/hcallumipro/LumiDBUtil/exec/CMSSW_4_2_3/src/
 eval `scramv1 runtime -sh`
 export TNS_ADMIN=/home/lumidb
 
