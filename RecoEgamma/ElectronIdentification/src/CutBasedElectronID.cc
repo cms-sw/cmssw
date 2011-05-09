@@ -17,6 +17,10 @@ void CutBasedElectronID::setup(const edm::ParameterSet& conf) {
   quality_ = conf.getParameter<std::string>("electronQuality");
   version_ = conf.getParameter<std::string>("electronVersion");
   verticesCollection_ = conf.getParameter<edm::InputTag>("verticesCollection");
+  
+  if (type_ == "classbased" and (version_ == "V06")) {
+    newCategories_ = conf.getParameter<bool>("additionalCategories");
+  }
 
   if (type_ == "classbased" and (version_ == "V03" or version_ == "V04" or version_ == "V05" or version_ == "")) {
     wantBinning_ = conf.getParameter<bool>("etBinning");
@@ -123,7 +127,8 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
   double scTheta = (2*atan(exp(-electron->superCluster()->eta())));
   double scEt = electron->superCluster()->energy()*sin(scTheta);
 
-  double eta = electron->p4().Eta();
+  double eta = fabs(electron->superCluster()->eta());
+
   double eOverP = electron->eSuperClusterOverP();
   double eSeedOverPin = electron->eSeedClusterOverP();
   double fBrem = electron->fbrem();
@@ -311,7 +316,7 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
     float dist = (electron->convDist() == -9999.? 9999:electron->convDist());
     float dcot = (electron->convDcot() == -9999.? 9999:electron->convDcot());
 
-    float dcotdistcomb = ((0.04 - std::max(dist, dcot)) > 0?(0.04 - std::max(dist, dcot)):0);
+    float dcotdistcomb = ((0.04 - std::max(fabs(dist), fabs(dcot))) > 0?(0.04 - std::max(fabs(dist), fabs(dcot))):0);
 
     if ((mishits < cutmishits[cat+bin*9]) and
         (dcotdistcomb < cutdcotdist[cat+bin*9]))
@@ -357,7 +362,7 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
     float dist = (electron->convDist() == -9999.? 9999:electron->convDist());
     float dcot = (electron->convDcot() == -9999.? 9999:electron->convDcot());
 
-    float dcotdistcomb = ((0.04 - std::max(dist, dcot)) > 0?(0.04 - std::max(dist, dcot)):0);
+    float dcotdistcomb = ((0.04 - std::max(fabs(dist), fabs(dcot))) > 0?(0.04 - std::max(fabs(dist), fabs(dcot))):0);
 
     for (int cut=0; cut<ncuts; cut++) {
       switch (cut) {
@@ -407,9 +412,9 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
       result = result + 8;
     
     // Conversion part
-    if (cut_results[8] and cut_results[9])
+    if (cut_results[8] & cut_results[9])
       result = result + 4;
-    
+
     return result;
   }
 
