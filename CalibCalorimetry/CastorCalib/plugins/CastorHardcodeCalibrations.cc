@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: CastorHardcodeCalibrations.cc,v 1.3 2009/03/26 17:49:44 mundim Exp $
+// $Id: CastorHardcodeCalibrations.cc,v 1.4 2009/05/14 10:29:05 katsas Exp $
 // Adapted for CASTOR by L. Mundim
 //
 
@@ -20,7 +20,7 @@
 #include "CondFormats/DataRecord/interface/CastorElectronicsMapRcd.h"
 #include "CondFormats/DataRecord/interface/CastorChannelQualityRcd.h"
 #include "CondFormats/DataRecord/interface/CastorQIEDataRcd.h"
-
+#include "CondFormats/DataRecord/interface/CastorRecoParamsRcd.h"
 
 #include "Geometry/ForwardGeometry/interface/CastorTopology.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
@@ -104,6 +104,10 @@ CastorHardcodeCalibrations::CastorHardcodeCalibrations ( const edm::ParameterSet
     if ((*objectName == "ElectronicsMap") || (*objectName == "electronicsMap") || all) {
       setWhatProduced (this, &CastorHardcodeCalibrations::produceElectronicsMap);
       findingRecord <CastorElectronicsMapRcd> ();
+    }
+    if ((*objectName == "RecoParams") || all) {
+      setWhatProduced (this, &CastorHardcodeCalibrations::produceRecoParams);
+      findingRecord <CastorRecoParamsRcd> ();
     }
 
   }
@@ -197,5 +201,16 @@ std::auto_ptr<CastorElectronicsMap> CastorHardcodeCalibrations::produceElectroni
   std::auto_ptr<CastorElectronicsMap> result (new CastorElectronicsMap ());
   CastorDbHardcode::makeHardcodeMap(*result);
   return result;
+}
+
+std::auto_ptr<CastorRecoParams> CastorHardcodeCalibrations::produceRecoParams (const CastorRecoParamsRcd& rcd) {
+	edm::LogInfo("HCAL") << "CastorHardcodeCalibrations::produceRecoParams-> ...";
+	std::auto_ptr<CastorRecoParams> result (new CastorRecoParams ());
+	std::vector <HcalGenericDetId> cells = allCells(h2mode_);
+	for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+		CastorRecoParam item = CastorDbHardcode::makeRecoParam (*cell);
+		result->addValues(item);
+	}
+	return result;
 }
 

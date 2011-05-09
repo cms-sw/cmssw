@@ -1,6 +1,6 @@
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: CastorDbASCIIIO.cc,v 1.4 2009/11/27 19:14:12 mundim Exp $
+// $Id: CastorDbASCIIIO.cc,v 1.5 2010/04/08 15:46:35 mundim Exp $
 //
 #include <vector>
 #include <string>
@@ -137,7 +137,7 @@ bool getCastorSingleFloatObject (std::istream& fInput, T* fObject, S* fCondObjec
     std::vector <std::string> items = splitString (std::string (buffer));
     if (items.size()==0) continue; // blank line
     if (items.size () < 5) {
-      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 8 items: eta, phi, depth, subdet, value" << std::endl;
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 5 items: eta, phi, depth, subdet, value" << std::endl;
       continue;
     }
     DetId id = getId (items);
@@ -182,7 +182,7 @@ bool getCastorSingleIntObject (std::istream& fInput, T* fObject, S* fCondObject)
     std::vector <std::string> items = splitString (std::string (buffer));
     if (items.size()==0) continue; // blank line
     if (items.size () < 5) {
-      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 8 items: eta, phi, depth, subdet, value" << std::endl;
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 5 items: eta, phi, depth, subdet, value" << std::endl;
       continue;
     }
     DetId id = getId (items);
@@ -767,4 +767,40 @@ bool dumpObject (std::ostream& fOutput, const CastorElectronicsMap& fObject) {
   }
   return true;
 }
+
+bool getObject (std::istream& fInput, CastorRecoParams* fObject) {
+	if (!fObject) fObject = new CastorRecoParams();
+	char buffer [1024];
+	while (fInput.getline(buffer, 1024)) {
+		if (buffer [0] == '#') continue; //ignore comment
+		std::vector <std::string> items = splitString (std::string (buffer));
+		if (items.size()==0) continue; // blank line
+		if (items.size () < 6) {
+			edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 6 items: eta, phi, depth, subdet, firstSample, samplesToAdd" << std::endl;
+		    	continue;
+		}
+		DetId id = getId (items);
+	      
+		CastorRecoParam* fCondObject = new CastorRecoParam(id, atoi (items [4].c_str()), atoi (items [5].c_str()) );
+		fObject->addValues(*fCondObject);
+		delete fCondObject;
+	}
+	return true;
+}
+
+bool dumpObject (std::ostream& fOutput, const CastorRecoParams& fObject) {
+	char buffer [1024];
+	sprintf (buffer, "# %15s %15s %15s %15s %18s %15s %10s\n", "eta", "phi", "dep", "det", "firstSample", "samplesToAdd", "DetId");
+	fOutput << buffer;
+	std::vector<DetId> channels = fObject.getAllChannels ();
+	std::sort (channels.begin(), channels.end(), DetIdLess ());
+	for (std::vector<DetId>::iterator channel = channels.begin();channel != channels.end();channel++) {
+		dumpId (fOutput, *channel);
+		sprintf (buffer, " %15d %15d %16X\n",
+		fObject.getValues (*channel)->firstSample(), fObject.getValues (*channel)->samplesToAdd(), channel->rawId ());
+		fOutput << buffer;
+	}
+	return true;
+}
+
 }

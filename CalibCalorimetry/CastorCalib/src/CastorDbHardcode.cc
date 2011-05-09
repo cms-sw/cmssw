@@ -1,6 +1,6 @@
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: CastorDbHardcode.cc,v 1.2 2009/03/26 17:49:44 mundim Exp $
+// $Id: CastorDbHardcode.cc,v 1.3 2009/05/27 11:15:55 fabiocos Exp $
 // Adapted for Castor by L. Mundim
 //
 #include <vector>
@@ -89,6 +89,11 @@ CastorCalibrationQIECoder CastorDbHardcode::makeCalibrationQIECoder (HcalGeneric
 
 CastorQIEShape CastorDbHardcode::makeQIEShape () {
   return CastorQIEShape ();
+}
+
+CastorRecoParam CastorDbHardcode::makeRecoParam (HcalGenericDetId fId) {
+	CastorRecoParam result(fId.rawId(), 4, 2);
+	return result;
 }
 
 

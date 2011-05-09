@@ -24,6 +24,7 @@
 #include "CondFormats/DataRecord/interface/CastorElectronicsMapRcd.h"
 #include "CondFormats/DataRecord/interface/CastorChannelQualityRcd.h"
 #include "CondFormats/DataRecord/interface/CastorQIEDataRcd.h"
+#include "CondFormats/DataRecord/interface/CastorRecoParamsRcd.h"
 
 
 #include "CastorTextCalibrations.h"
@@ -71,10 +72,14 @@ CastorTextCalibrations::CastorTextCalibrations ( const edm::ParameterSet& iConfi
       setWhatProduced (this, &CastorTextCalibrations::produceElectronicsMap);
       findingRecord <CastorElectronicsMapRcd> ();
     }
+    else if (objectName == "RecoParams") {
+      setWhatProduced (this, &CastorTextCalibrations::produceRecoParams);
+      findingRecord <CastorRecoParamsRcd> ();
+    }
     else {
       std::cerr << "CastorTextCalibrations-> Unknown object name '" << objectName 
 		<< "', known names are: "
-		<< "Pedestals PedestalWidths Gains GainWidths QIEData ChannelQuality ElectronicsMap"
+		<< "Pedestals PedestalWidths Gains GainWidths QIEData ChannelQuality ElectronicsMap RecoParams"
 		<< std::endl;
     }
   }
@@ -139,4 +144,6 @@ std::auto_ptr<CastorChannelQuality> CastorTextCalibrations::produceChannelQualit
 std::auto_ptr<CastorElectronicsMap> CastorTextCalibrations::produceElectronicsMap (const CastorElectronicsMapRcd& rcd) {
   return produce_impl<CastorElectronicsMap> (mInputs ["ElectronicsMap"]);
 }
-
+std::auto_ptr<CastorRecoParams> CastorTextCalibrations::produceRecoParams (const CastorRecoParamsRcd& rcd) {
+  return produce_impl<CastorRecoParams> (mInputs ["RecoParams"]);
+}

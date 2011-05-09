@@ -12,6 +12,7 @@
 #include "CondFormats/CastorObjects/interface/CastorQIEShape.h"
 #include "CondFormats/CastorObjects/interface/CastorCalibrationQIECoder.h"
 #include "CondFormats/CastorObjects/interface/CastorElectronicsMap.h"
+#include "CondFormats/CastorObjects/interface/CastorRecoParam.h"
 
 
 namespace CastorDbHardcode {
@@ -22,6 +23,7 @@ namespace CastorDbHardcode {
   CastorQIECoder makeQIECoder (HcalGenericDetId fId);
   CastorCalibrationQIECoder makeCalibrationQIECoder (HcalGenericDetId fId);
   CastorQIEShape makeQIEShape ();
+  CastorRecoParam makeRecoParam (HcalGenericDetId fId);
   void makeHardcodeMap(CastorElectronicsMap& emap);
 }
 #endif
