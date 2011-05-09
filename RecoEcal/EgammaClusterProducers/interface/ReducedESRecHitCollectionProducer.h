@@ -18,10 +18,6 @@
 #include <map>
 #include <set>
 
-using namespace edm;
-using namespace std;
-using namespace reco;
-
 class EcalPreshowerGeometry;
 class CaloSubdetectorTopology;
 class ReducedESRecHitCollectionProducer : public edm::EDProducer {

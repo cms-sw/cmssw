@@ -14,6 +14,10 @@
 #include "RecoEcal/EgammaClusterProducers/interface/ReducedESRecHitCollectionProducer.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 
+using namespace edm;
+using namespace std;
+using namespace reco;
+
 ReducedESRecHitCollectionProducer::ReducedESRecHitCollectionProducer(const edm::ParameterSet& ps):
   geometry_p(0),
   topology_p(0)
