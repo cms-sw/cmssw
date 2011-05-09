@@ -41,8 +41,6 @@
 #include <map>
 #include <iostream>
 
-using namespace std;
-
 class CaloSubdetectorGeometry ;
 class EcalElectronicsMapping ;
 class EcalTPGDBApp ;
@@ -133,10 +131,10 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   std::string TimingDelays_EE_;
   std::string TimingPhases_EB_;
   std::string TimingPhases_EE_;
-  std::map<int, vector<int> > delays_EB_ ; 
-  std::map<int, vector<int> > phases_EB_ ; 
-  std::map<int, vector<int> > delays_EE_ ; 
-  std::map<int, vector<int> > phases_EE_ ; 
+  std::map<int, std::vector<int> > delays_EB_ ; 
+  std::map<int, std::vector<int> > phases_EB_ ; 
+  std::map<int, std::vector<int> > delays_EE_ ; 
+  std::map<int, std::vector<int> > phases_EE_ ; 
 
   std::ofstream * out_file_ ;
   std::ofstream * geomFile_ ;
