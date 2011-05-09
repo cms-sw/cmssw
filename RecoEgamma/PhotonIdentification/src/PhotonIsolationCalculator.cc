@@ -5,7 +5,7 @@
  */
 
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
-
+#include "CommonTools/Utils/interface/StringToEnumValue.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -160,12 +160,12 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
   severityLevelCut_        = conf.getParameter<int>("severityLevelCut");
   //severityRecHitThreshold_ = conf.getParameter<double>("severityRecHitThreshold");
   //spikeIdThreshold_        = conf.getParameter<double>("spikeIdThreshold");
-
-  const std::vector<int> &tempV(conf.getParameter<std::vector<int> >("recHitFlagsToBeExcluded"));
-  v_chstatus_.clear();
-  v_chstatus_.insert(v_chstatus_.begin(),tempV.begin(),tempV.end());
-  std::sort( v_chstatus_.begin(), v_chstatus_.end() );
-
+  
+  const std::vector<std::string> flagnames = 
+    conf.getParameter<std::vector<std::string> >("recHitFlagsToBeExcluded");
+  
+  v_chstatus_= StringToEnumValue<EcalRecHit::Flags>(flagnames);
+  
 
   //Need to figure out which algo to use
   //if(!conf.getParameter<std::string>("spikeIdString").compare("kE1OverE9") )   {
