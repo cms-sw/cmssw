@@ -44,12 +44,6 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
 //L1 objects
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
@@ -86,11 +80,20 @@
 
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
+//L1 trigger Menus etc
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 
 #include "Calibration/IsolatedParticles/interface/FindCaloHit.h"
 #include "Calibration/IsolatedParticles/interface/eECALMatrix.h"
@@ -109,19 +112,19 @@
 #include "TTree.h"
 
 class IsolatedTracksNxN : public edm::EDAnalyzer {
-  
- public:
+
+public:
   explicit IsolatedTracksNxN(const edm::ParameterSet&);
   ~IsolatedTracksNxN();
   
- private:
+private:
   //void   beginJob(const edm::EventSetup&) ;
   void   beginJob() ;
   void   analyze(const edm::Event&, const edm::EventSetup&);
   void   endJob() ;
-  
+
   void   printTrack(const reco::Track* pTrack);
-  
+
   void   BookHistograms();
 
   double DeltaPhi(double v1, double v2);
@@ -130,16 +133,23 @@ class IsolatedTracksNxN : public edm::EDAnalyzer {
 
   void clearTreeVectors();  
   
- private:
-  
-  bool initL1, doMC;
+private:
+
+  L1GtUtils m_l1GtUtils;
+
+  bool initL1, doMC, writeAllTracks;
   static const size_t nL1BitsMax=128;
-  std::string algoBitToName[nL1BitsMax];
-  std::map <std::string,bool> l1TriggerMap;
-  std::map<std::string,bool>::iterator trig_iter;
+
+  // map of trig bit, algo name and num events passed
+  std::map< std::pair<unsigned int,std::string>, int> l1AlgoMap;
+  /// number of DAQ partitions
+  unsigned int m_numberDaqPartitions;
+  /// trigger masks & veto masks
+  const L1GtTriggerMask* m_l1GtTmAlgo;
+  std::vector<unsigned int> m_triggerMaskAlgoTrig;
 
   double pvTracksPtMin_;
-  bool   debugL1Info_;
+  bool   debugL1Info_, L1TriggerAlgoInfo_;
   int    debugTrks_;
   bool   printTrkHitPattern_;
   int    myverbose_;
@@ -147,15 +157,11 @@ class IsolatedTracksNxN : public edm::EDAnalyzer {
   edm::InputTag L1extraMuonSource_,    L1extraIsoEmSource_,     L1extraNonIsoEmSource_;
   edm::InputTag L1GTReadoutRcdSource_, L1GTObjectMapRcdSource_;
   edm::InputTag JetExtender_, JetSrc_;
+  edm::InputTag HBHERecHitSource_;
 
   double minTrackP_, maxTrackEta_;
   double tMinE_, tMaxE_, tMinH_, tMaxH_;
-
   int    nEventProc;
-
-  // track associator to detector parameters 
-  //TrackAssociatorParameters parameters_;
-  //mutable TrackDetectorAssociator* trackAssociator_;
 
   const MagneticField *bField;
 
@@ -190,10 +196,15 @@ class IsolatedTracksNxN : public edm::EDAnalyzer {
   int    t_nTracks;
 
   int t_RunNo, t_EvtNo, t_Lumi, t_Bunch;
-  std::vector<double> *t_PVx,*t_PVy,*t_PVz, *t_PVisValid, *t_PVNTracks, *t_PVNTracksWt, *t_PVTracksSumPt, *t_PVTracksSumPtWt, *t_PVndof;
-  std::vector<double> *t_PVNTracksHP, *t_PVNTracksHPWt, *t_PVTracksSumPtHP, *t_PVTracksSumPtHPWt ;
+  std::vector<std::string> *t_L1AlgoNames;
+  std::vector<int>         *t_L1PreScale;
+  int                      t_L1Decision[128];
 
-  std::vector<int>    *t_L1Decision;
+  std::vector<double> *t_PVx, *t_PVy, *t_PVz, *t_PVTracksSumPt;
+  std::vector<double> *t_PVTracksSumPtWt, *t_PVTracksSumPtHP, *t_PVTracksSumPtHPWt;
+  std::vector<int>    *t_PVisValid, *t_PVNTracks, *t_PVNTracksWt, *t_PVndof;
+  std::vector<int>    *t_PVNTracksHP, *t_PVNTracksHPWt;
+
   std::vector<double> *t_L1CenJetPt,    *t_L1CenJetEta,    *t_L1CenJetPhi;
   std::vector<double> *t_L1FwdJetPt,    *t_L1FwdJetEta,    *t_L1FwdJetPhi;
   std::vector<double> *t_L1TauJetPt,    *t_L1TauJetEta,    *t_L1TauJetPhi;
@@ -216,10 +227,10 @@ class IsolatedTracksNxN : public edm::EDAnalyzer {
   std::vector<double> *t_trackChiSq;
   std::vector<int>    *t_trackPVIdx;
 
-  std::vector<int>    *t_NLayersCrossed,*t_trackNOuterHits;
+  std::vector<int>    *t_NLayersCrossed,    *t_trackNOuterHits;
   std::vector<int>    *t_trackHitsTOB,      *t_trackHitsTEC;
   std::vector<int>    *t_trackHitInMissTOB, *t_trackHitInMissTEC,  *t_trackHitInMissTIB,  *t_trackHitInMissTID,  *t_trackHitInMissTIBTID;
-  std::vector<int>    *t_trackHitOutMissTOB,*t_trackHitOutMissTEC, *t_trackHitOutMissTIB, *t_trackHitOutMissTID,*t_trackHitOutMissTOBTEC;
+  std::vector<int>    *t_trackHitOutMissTOB,*t_trackHitOutMissTEC, *t_trackHitOutMissTIB, *t_trackHitOutMissTID, *t_trackHitOutMissTOBTEC;
   std::vector<int>    *t_trackHitInMeasTOB, *t_trackHitInMeasTEC,  *t_trackHitInMeasTIB,  *t_trackHitInMeasTID;
   std::vector<int>    *t_trackHitOutMeasTOB,*t_trackHitOutMeasTEC, *t_trackHitOutMeasTIB, *t_trackHitOutMeasTID;
   std::vector<double> *t_trackOutPosOutHitDr, *t_trackL;
@@ -228,16 +239,9 @@ class IsolatedTracksNxN : public edm::EDAnalyzer {
   std::vector<double> *t_maxNearP25x25;
   std::vector<double> *t_maxNearP21x21;
   std::vector<double> *t_maxNearP15x15;
-  std::vector<double> *t_maxNearP13x13;
-  std::vector<double> *t_maxNearP11x11;
-  std::vector<double> *t_maxNearP9x9;
-  std::vector<double> *t_maxNearP7x7;
 
   std::vector<int>    *t_ecalSpike11x11;
-  std::vector<double> *t_e3x3,              *t_e5x5,              *t_e7x7,              *t_e9x9,             *t_e11x11; 
-  std::vector<double> *t_e13x13,            *t_e15x15,            *t_e21x21,            *t_e25x25,           *t_e31x31;
-  //std::vector< std::vector<double> > *t_e11x11Xtals;
-
+  std::vector<double> *t_e7x7,       *t_e9x9,       *t_e11x11,       *t_e15x15;
   std::vector<double> *t_e7x7_10Sig, *t_e9x9_10Sig, *t_e11x11_10Sig, *t_e15x15_10Sig;
   std::vector<double> *t_e7x7_15Sig, *t_e9x9_15Sig, *t_e11x11_15Sig, *t_e15x15_15Sig;
   std::vector<double> *t_e7x7_20Sig, *t_e9x9_20Sig, *t_e11x11_20Sig, *t_e15x15_20Sig;
@@ -248,24 +252,12 @@ class IsolatedTracksNxN : public edm::EDAnalyzer {
 
   std::vector<double> *t_trkEcalEne;
 
-  std::vector<double> *t_esim3x3,           *t_esim5x5,           *t_esim7x7,           *t_esim9x9,          *t_esim11x11; 
-  std::vector<double> *t_esim13x13,         *t_esim15x15,         *t_esim21x21,         *t_esim25x25,        *t_esim31x31;
-
-  std::vector<double> *t_esim3x3Matched,    *t_esim5x5Matched,    *t_esim7x7Matched,    *t_esim9x9Matched,   *t_esim11x11Matched; 
-  std::vector<double> *t_esim13x13Matched,  *t_esim15x15Matched,  *t_esim21x21Matched,  *t_esim25x25Matched, *t_esim31x31Matched;
-
-  std::vector<double> *t_esim3x3Rest,       *t_esim5x5Rest,       *t_esim7x7Rest,       *t_esim9x9Rest,      *t_esim11x11Rest; 
-  std::vector<double> *t_esim13x13Rest,     *t_esim15x15Rest,     *t_esim21x21Rest,     *t_esim25x25Rest,    *t_esim31x31Rest;
-
-  std::vector<double> *t_esim3x3Photon,     *t_esim5x5Photon,     *t_esim7x7Photon,     *t_esim9x9Photon,   *t_esim11x11Photon; 
-  std::vector<double> *t_esim13x13Photon,   *t_esim15x15Photon,   *t_esim21x21Photon,   *t_esim25x25Photon, *t_esim31x31Photon;
-
-  std::vector<double> *t_esim3x3NeutHad,    *t_esim5x5NeutHad,    *t_esim7x7NeutHad,    *t_esim9x9NeutHad,   *t_esim11x11NeutHad; 
-  std::vector<double> *t_esim13x13NeutHad,  *t_esim15x15NeutHad,  *t_esim21x21NeutHad,  *t_esim25x25NeutHad, *t_esim31x31NeutHad;
-
-  std::vector<double> *t_esim3x3CharHad,    *t_esim5x5CharHad,    *t_esim7x7CharHad,    *t_esim9x9CharHad,   *t_esim11x11CharHad; 
-  std::vector<double> *t_esim13x13CharHad,  *t_esim15x15CharHad,  *t_esim21x21CharHad,  *t_esim25x25CharHad, *t_esim31x31CharHad;
-
+  std::vector<double> *t_esim7x7,       *t_esim9x9,         *t_esim11x11,        *t_esim15x15;
+  std::vector<double> *t_esim7x7Matched, *t_esim9x9Matched, *t_esim11x11Matched, *t_esim15x15Matched;
+  std::vector<double> *t_esim7x7Rest,    *t_esim9x9Rest,    *t_esim11x11Rest,    *t_esim15x15Rest;
+  std::vector<double> *t_esim7x7Photon,  *t_esim9x9Photon,  *t_esim11x11Photon,  *t_esim15x15Photon;
+  std::vector<double> *t_esim7x7NeutHad, *t_esim9x9NeutHad, *t_esim11x11NeutHad, *t_esim15x15NeutHad;
+  std::vector<double> *t_esim7x7CharHad, *t_esim9x9CharHad, *t_esim11x11CharHad, *t_esim15x15CharHad;
 
   std::vector<double> *t_maxNearHcalP3x3,   *t_maxNearHcalP5x5,   *t_maxNearHcalP7x7;
   std::vector<double> *t_h3x3,              *t_h5x5,              *t_h7x7;
@@ -281,6 +273,7 @@ class IsolatedTracksNxN : public edm::EDAnalyzer {
   std::vector<double> *t_hsim3x3CharHad,    *t_hsim5x5CharHad,    *t_hsim7x7CharHad;
 
   edm::Service<TFileService> fs;
+  int                 nbad;
 };
 
 #endif
