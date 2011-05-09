@@ -309,7 +309,7 @@ int main(int argc, char** argv){
     try{
       if(!use_wbm){
 	std::cout<<"Loading trg from GT "<<trgdb<<" to "<<destconnect <<" run "<<runnumber<<std::endl;
-	std::auto_ptr<lumi::DataPipe> trgptr(lumi::DataPipeFactory::get()->create("TRG2DB",destconnect));
+	std::auto_ptr<lumi::DataPipe> trgptr(lumi::DataPipeFactory::get()->create("TRGScalers2DB",destconnect));
 	trgptr->setAuthPath(authpath);
 	trgptr->setSource(trgdb);
 	startClock=clock();
