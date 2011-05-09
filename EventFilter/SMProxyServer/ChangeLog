@@ -1,3 +1,9 @@
+2011-05-09 Remi Mommsen <Remigius.Mommsen@cern.ch>
+	* tag V03-02-00
+	* Don't fail if we receive a corrupted event from the SM.
+	* Keep track of how many events were corrupted and raise
+	  a sentinel alarm if there's a too high rate.
+
 2011-04-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
 	* tag V03-01-00
 	* Merge changes from tag V02-01-00 (branch_3_10_x)
