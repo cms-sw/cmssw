@@ -57,6 +57,7 @@ ora::Handle<ora::DatabaseContainer> ora::DatabaseUtilitySession::importContainer
     }
   }
   sourceSession.open();
+  Sequences containerSchemaSequences( m_session.schema() );
   Handle<ora::DatabaseContainer> cont = sourceSession.containerHandle( containerName );
   // first create the container locally:
   Handle<ora::DatabaseContainer> newCont = m_session.addContainer( containerName, cont->className() );
@@ -90,6 +91,8 @@ ora::Handle<ora::DatabaseContainer> ora::DatabaseUtilitySession::importContainer
     first = false;
   }
   mapping2Schema.create( baseMapping );
+  // ...and the main container sequence
+  containerSchemaSequences.create( MappingRules::sequenceNameForContainer( containerName )); 
   // second create the base dependencies if any
   std::set<std::string> dependentClasses;
   sourceSession.mappingDatabase().getDependentClassesForContainer( cont->id(), dependentClasses );
@@ -119,6 +122,8 @@ ora::Handle<ora::DatabaseContainer> ora::DatabaseUtilitySession::importContainer
       first = false;
     }
     mapping2Schema.create( baseDepMapping );
+    // create the dep classes sequences. 
+    containerSchemaSequences.create( MappingRules::sequenceNameForDependentClass( containerName, *iCl ));
   }
   /// third evolve the schema for all the further versions involved
   std::set<std::string> allVersions;

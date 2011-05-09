@@ -25,9 +25,10 @@ int main(){
     db.connect( connStr0 );
     ora::ScopedTransaction trans( db.transaction() );
     trans.start( false );
-    if(!db.exists()){
-      db.create();
+    if(db.exists()){
+      db.drop();
     }
+    db.create();
     std::set< std::string > conts = db.containers();
     if( conts.find( "Cont0" )!= conts.end() ) db.dropContainer( "Cont0" );
     db.createContainer<SimpleClass>("Cont0");
@@ -48,7 +49,6 @@ int main(){
     conts = db.containers();
     if( conts.find( "Cont0" )!= conts.end() ) db.dropContainer( "Cont0" );
     ora::DatabaseUtility util = db.utility();
-    std::cout << "*** importing cont..."<<std::endl;
     util.importContainerSchema( connStr0, "Cont0" );
     contH0 = db.containerHandle( "Cont0" );
     SimpleClass s01(5);
