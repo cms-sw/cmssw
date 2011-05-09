@@ -238,7 +238,7 @@ namespace lumi{
     Querytechview->addToOutputList("count_bx");
     Querytechview->addToOutputList("lumi_section");
     Querytechview->addToOutputList("scaler_index");
-    Querytechview->setCondition("RUNNR =:runnumber",bindVariableList);
+    Querytechview->setCondition("RUN_NUMBER=:runnumber",bindVariableList);
     Querytechview->addToOrderList("lumi_section");
     Querytechview->addToOrderList("scaler_index");
     Querytechview->defineOutput(qtechOutput);
@@ -273,7 +273,7 @@ namespace lumi{
     delete Querytechview;
 
     //
-    //select fraction,lumi_section,count_bx from cms_gt_mon.v_scalers_tcs_deadtime where run_number=:runnum and scaler_name='DeadtimeBeamActive order by lumi_section' 
+    //select fraction,lumi_section,count_bx from cms_gt_mon.v_scalers_tcs_deadtime where run_number=:runnum and scaler_name='DeadtimeBeamActive' order by lumi_section' 
     //
     //note: lsnr count from 1 
     //
@@ -301,7 +301,7 @@ namespace lumi{
       //row.toOutputStream( std::cout ) << std::endl;
       ++s;
       unsigned int lsnr=row["lumi_section"].data<unsigned int>();
-      float dfrac=0.0;
+      float dfrac=1.0;
       unsigned int count=0;
       while(s!=lsnr){
 	std::cout<<"DEADTIME alert: found hole in LS range"<<s<<std::endl;        
@@ -310,7 +310,15 @@ namespace lumi{
 	deadtimeresult.push_back(count);
 	++s;
       }
-      dfrac=row["fraction"].data<float>();
+      if(!row["fraction"].isNull()){
+	dfrac=row["fraction"].data<float>(); //deadfraction is null from trigger means "undefined", but insert 1.0...
+      }else{
+	std::cout<<"DEADTIME fraction alert: undefined fraction , assume 100% , LS "<<lsnr<<std::endl;
+      }
+      if(dfrac>1.0){
+	std::cout<<"DEADTIME fraction alert: overflow dead fraction , force to 100% , LS "<<lsnr<<std::endl;
+	dfrac=1.0;
+      }
       deadfracresult.push_back(dfrac);
       count=row["count_bx"].data<unsigned int>();
       deadtimeresult.push_back(count);
@@ -889,15 +897,11 @@ namespace lumi{
       trgrunnum = irunnumber;
       cmslsnum = cmslscount;
       deadtime = *deadIt;
+      deadfrac = deadfracs[trglscount];
       //bitzerocount = algocounts[trglscount][0];//use algobit_0
       //bitzeroprescale = prescalealgo[cmslsnum][0];
-      bitzerocount=techcounts[trglscount][3]; //use techbit_4
-      bitzeroprescale=prescaletech[cmslsnum][3];
-      if( (bitzerocount*bitzeroprescale )!=0.0){
-	deadfrac = deadtime/(bitzerocount*bitzeroprescale);
-      }else{
-	deadfrac=0.0;
-      }
+      bitzerocount=techcounts[trglscount][4]; //use techbit_4
+      bitzeroprescale=prescaletech[cmslsnum][4];
       std::vector<unsigned int> fullprescales;
       fullprescales.reserve(prescalealgo[cmslsnum].size()+prescaletech[cmslsnum].size());
       fullprescales.insert(fullprescales.end(),prescalealgo[cmslsnum].begin(),prescalealgo[cmslsnum].end());
