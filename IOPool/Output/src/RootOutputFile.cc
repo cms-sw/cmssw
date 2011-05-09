@@ -65,7 +65,7 @@ namespace edm {
       reportToken_(0),
       om_(om),
       whyNotFastClonable_(om_->whyNotFastClonable()),
-      canFastCloneAux_(!om_->hasNewlyDroppedBranch()[InEvent]),
+      canFastCloneAux_(false),
       filePtr_(TFile::Open(file_.c_str(), "recreate", "", om_->compressionLevel())),
       fid_(),
       eventEntryNumber_(0LL),
@@ -328,6 +328,7 @@ namespace edm {
                           fb.fileFormatVersion().noMetaDataTrees() &&
                           !om_->hasNewlyDroppedBranch()[InEvent] &&
                           !fb.hasNewlyDroppedBranch()[InEvent] &&
+                          om_->dropMetaData() == PoolOutputModule::DropNone &&
                           !reg->anyProductProduced() &&
                           fb.branchListIndexesUnchanged();
 

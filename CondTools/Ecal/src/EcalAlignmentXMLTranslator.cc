@@ -15,6 +15,7 @@
 
 using namespace XERCES_CPP_NAMESPACE;
 using namespace xuti;
+using namespace std;
 
 int EcalAlignmentXMLTranslator::writeXML(const string& filename, 
 					 const EcalCondHeader& header,

@@ -11,7 +11,8 @@ namespace evf{
   class RateStat{
   public:
     RateStat(std::string iDieUrl);
-    void sendStat(const char *, size_t, unsigned int);
+    ~RateStat();
+    void sendStat(const unsigned char *, size_t, unsigned int);
     void sendLegenda(const std::string &);
   private:
     std::string iDieUrl_;

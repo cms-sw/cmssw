@@ -9,7 +9,7 @@ import array
 #==============================
 # SELECT
 #==============================
-def runList(schema,fillnum,runmin=None,runmax=None,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=None,nominalEnergy=None,energyFlut=0.2,requiretrg=true,requirehlt=true):
+def runList(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=None,nominalEnergy=None,energyFlut=0.2,requiretrg=True,requirehlt=True):
     '''
     select runnum from cmsrunsummary r,lumidata l,trgdata t,hltdata h where r.runnum=l.runnum and l.runnum=t.runnum and t.runnum=h.runnum and r.fillnum=:fillnum and r.runnum>:runmin and r.runnum<:runmax and r.starttime>=:startT and r.stopTime<=:stopT and r.amodetag=:amodetag and regexp_like(r.l1key,:l1keypattern) and regexp_like(hltkey,:hltkeypattern) and l.nominalEnergy>=:nominalEnergy*(1-energyFlut) and l.nominalEnergy<=:nominalEnergy*(1+energyFlut)
     '''
@@ -52,7 +52,7 @@ def runList(schema,fillnum,runmin=None,runmax=None,startT=None,stopT=None,l1keyP
             qConditionStr+=' and '+r+'.amodetag=:amodetag'
             qCondition.extend('amodetag','string')
             qCondition['amodetag'].setData(amodetag)
-        if l1keypPattern:
+        if l1keyPattern:
             qConditionStr+=' and regexp_like('+r+'.l1key,:l1keypattern)'
             qCondition.extend('l1keypattern','string')
             qCondition['l1keypattern'].setData(l1keyPattern)
@@ -63,7 +63,7 @@ def runList(schema,fillnum,runmin=None,runmax=None,startT=None,stopT=None,l1keyP
         if nominalEnergy:
             emin=nominalEnergy*(1.0-energyFlut)
             emax=nominalEnergy*(1.0+energyFlut)
-            qConditionStr+=l+'.nominalenergy>=:emin and '+l+'.nominalenergy<=:emax'
+            qConditionStr+=' and '+l+'.nominalegev>=:emin and '+l+'.nominalegev<=:emax'
             qCondition.extend('emin','float')
             qCondition.extend('emax','float')
             qCondition['emin'].setData(emin)
@@ -371,13 +371,17 @@ def lumiRunById(schema,dataid):
         raise    
     del qHandle
     return result
-def lumiLSById(schema,dataid,withblobdata=False):
-    '''
-    result (runnum,{lumilsnum,[cmslsnum(0),instlumi(1),instlumierr(2),instlumiqlty(3),beamstatus(4),beamenergy(5),numorbit(6),startorbit(7),bxindexblob(8),beam1intensity(9),beam2intensity(10)]})
+def lumiLSById(schema,dataid,beamstatus=None,beamenergy=None,beamenergyFluc=0.2,withBXInfo=False,bxAlgo='OCC1',withBeamIntensity=False):
+    '''    
+    result (runnum,{lumilsnum,[cmslsnum(0),instlumi(1),instlumierr(2),instlumiqlty(3),beamstatus(4),beamenergy(5),numorbit(6),startorbit(7),bxvalueblob(8),bxerrblob(9),bxindexblob(10),beam1intensity(11),beam2intensity(12)]})
     '''
     runnum=0
     result={}
     qHandle=schema.newQuery()
+    if withBXInfo and bxAlgo not in ['OCC1','OCC2','ET']:
+        raise ValueError('unknown lumi algo '+bxAlgo)
+    if beamstatus and beamstatus not in ['STABLE BEAMS',]:
+        raise ValueError('unknown beam status '+beamstatus)
     try:
         qHandle.addToTableList(nameDealer.lumisummaryv2TableName())
         qHandle.addToOutputList('RUNNUM','runnum')
@@ -389,15 +393,30 @@ def lumiLSById(schema,dataid,withblobdata=False):
         qHandle.addToOutputList('BEAMSTATUS','beamstatus')
         qHandle.addToOutputList('BEAMENERGY','beamenergy')
         qHandle.addToOutputList('NUMORBIT','numorbit')
-        qHandle.addToOutputList('STARTORBIT','startorbit')
-        if withblobdata:
+        qHandle.addToOutputList('STARTORBIT','startorbit')       
+        if withBXInfo:
+            qHandle.addToOutputList('BXLUMIVALUE_'+bxAlgo,'bxvalue')
+            qHandle.addToOutputList('BXLUMIERROR_'+bxAlgo,'bxerror')
+        if withBeamIntensity:
             qHandle.addToOutputList('CMSBXINDEXBLOB','bxindexblob')
             qHandle.addToOutputList('BEAMINTENSITYBLOB_1','beam1intensity')
             qHandle.addToOutputList('BEAMINTENSITYBLOB_2','beam2intensity')
+        
         qConditionStr='DATA_ID=:dataid'
         qCondition=coral.AttributeList()
         qCondition.extend('dataid','unsigned long long')
         qCondition['dataid'].setData(dataid)
+        if beamstatus:
+            qConditionStr+=' and BEAMSTATUS=:beamstatus'
+            qCondition.extend('beamstatus','string')
+            qCondition['beamstatus'].setData(beamstatus)
+        if beamenergy:
+            emin=float(beamenergy)*(1.0-beamenergyFluc)
+            emax=float(beamenergy)*(1.0+beamenergyFluc)
+            qConditionStr+=' and BEAMENERGY>=:emin and  BEAMENERGY<=:emax'
+            qCondition.extend('beamenergy','float')
+            qCondition['emin'].setData(emin)
+            qCondition['emax'].setData(emax)
         qResult=coral.AttributeList()
         qResult.extend('runnum','unsigned int')
         qResult.extend('cmslsnum','unsigned int')
@@ -409,7 +428,10 @@ def lumiLSById(schema,dataid,withblobdata=False):
         qResult.extend('beamenergy','float')
         qResult.extend('numorbit','unsigned int')
         qResult.extend('startorbit','unsigned int')
-        if withblobdata:
+        if withBXInfo:
+            qResult.extend('bxvalue','blob')
+            qResult.extend('bxerror','blob')          
+        if withBeamIntensity:
             qResult.extend('bxindexblob','blob')
             qResult.extend('beam1intensity','blob')
             qResult.extend('beam2intensity','blob')
@@ -427,16 +449,21 @@ def lumiLSById(schema,dataid,withblobdata=False):
             beamenergy=cursor.currentRow()['beamenergy'].data()
             numorbit=cursor.currentRow()['numorbit'].data()
             startorbit=cursor.currentRow()['startorbit'].data()
-            if not result.has_key(lumilsnum):
-                result[lumilsnum]=[]
+            bxvalueblob=None
+            bxerrblob=None
+            if withBXInfo:
+                bxvalueblob=cursor.currentRow()['bxvalue'].data()
+                bxerrblob==cursor.currentRow()['bxerror'].data()
             bxindexblob=None
             beam1intensity=None
             beam2intensity=None
-            if withblobdata:
+            if withBeamIntensity:
                 bxindexblob=cursor.currentRow()['bxindexblob'].data()
                 beam1intensity=cursor.currentRow()['beam1intensity'].data()
                 beam2intensity=cursor.currentRow()['beam2intensity'].data()
-            result[lumilsnum].extend([cmslsnum,instlumi,instlumierr,instlumiqlty,beamstatus,beamenergy,numorbit,startorbit,bxindexblob,beam1intensity,beam2intensity])           
+            if not result.has_key(lumilsnum):
+                result[lumilsnum]=[]
+            result[lumilsnum].extend([cmslsnum,instlumi,instlumierr,instlumiqlty,beamstatus,beamenergy,numorbit,startorbit,bxvalueblob,bxerrblob,bxindexblob,beam1intensity,beam2intensity])           
     except :
         del qHandle
         raise 
@@ -577,6 +604,44 @@ def hltRunById(schema,dataid):
         raise 
     del qHandle
     return result
+
+def hlttrgMappingByrun(schema,runnum):
+    '''
+    select m.hltkey,m.hltpathname,m.l1seed from cmsrunsummary r,trghltmap m where r.runnum=:runnum and m.hltkey=r.hltkey
+    output: {hltpath:l1seed}
+    '''
+    result={}
+    queryHandle=schema.newQuery()
+    r=nameDealer.cmsrunsummaryTableName()
+    m=nameDealer.trghltMapTableName()
+    try:
+        queryHandle.addToTableList(r)
+        queryHandle.addToTableList(m)
+        queryCondition=coral.AttributeList()
+        queryCondition.extend('runnum','unsigned int')
+        queryCondition['runnum'].setData(int(runnum))
+        #queryHandle.addToOutputList(m+'.HLTKEY','hltkey')
+        queryHandle.addToOutputList(m+'.HLTPATHNAME','hltpathname')
+        queryHandle.addToOutputList(m+'.L1SEED','l1seed')
+        queryHandle.setCondition(r+'.RUNNUM=:runnum and '+m+'.HLTKEY='+r+'.HLTKEY',queryCondition)
+        queryResult=coral.AttributeList()
+        #queryResult.extend('hltkey','string')
+        queryResult.extend('hltpathname','string')
+        queryResult.extend('l1seed','string')
+        queryHandle.defineOutput(queryResult)
+        cursor=queryHandle.execute()
+        while cursor.next():
+            #hltkey=cursor.currentRow()['hltkey'].data()
+            hltpathname=cursor.currentRow()['hltpathname'].data()
+            l1seed=cursor.currentRow()['l1seed'].data()
+            if not result.has_key(hltpathname):
+                result[hltpathname]=l1seed
+    except :
+        del queryHandle
+        raise
+    del queryHandle
+    return result
+
 def hltLSById(schema,dataid):
     '''
     result (runnum, {cmslsnum:[prescaleblob,hltcountblob,hltacceptblob]} 

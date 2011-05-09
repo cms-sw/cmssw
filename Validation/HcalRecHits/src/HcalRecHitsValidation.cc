@@ -149,13 +149,13 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
     else {
   
       sprintf  (histo, "emap_depth1" );
-      emap_depth1 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      emap_depth1 = dbe_->book2D(histo, histo, 84, -42., 42., 72, 0., 72.);
       sprintf  (histo, "emap_depth2" );
-      emap_depth2 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      emap_depth2 = dbe_->book2D(histo, histo, 84, -42., 42., 72, 0., 72.);
       sprintf  (histo, "emap_depth3" );
-      emap_depth3 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      emap_depth3 = dbe_->book2D(histo, histo, 84, -42., 42., 72, 0., 72.);
       sprintf  (histo, "emap_depth4" );
-      emap_depth4 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      emap_depth4 = dbe_->book2D(histo, histo, 84, -42., 42., 72, 0., 72.);
       
       if (useAllHistos_){
 	
@@ -970,8 +970,17 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       //The emean_vs_ieta histos are drawn as well as the e_maps
 
 
-      if( depth == 1) emap_depth1->Fill(double(ieta), double(iphi), en);
-      if( depth == 2) emap_depth2->Fill(double(ieta), double(iphi), en);
+      // to distinguish HE and HF
+      if( depth == 1 || depth == 2 ) {
+        int ieta1 =  ieta;
+	if(sub == 4) { 
+	  if (ieta1 < 0) ieta1--;
+          else  ieta1++;   
+	}
+	if (depth == 1) emap_depth1->Fill(double(ieta1), double(iphi), en);
+	if (depth == 2) emap_depth2->Fill(double(ieta1), double(iphi), en);
+      }
+
       if( depth == 3) emap_depth3->Fill(double(ieta), double(iphi), en);
       if( depth == 4) emap_depth4->Fill(double(ieta), double(iphi), en);
       

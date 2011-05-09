@@ -39,6 +39,7 @@ private:
 
     edm::ParameterSet conf_;
 
+    typedef std::map<EncodedEventId, unsigned int> EncodedEventIdToIndex;
     typedef std::map< int, int > myindex;
     myindex event_index_;
 
@@ -58,6 +59,9 @@ private:
     edm::InputTag            trackingTruth_;
 
     std::string MessageCategory_;
+    std::string simHitLabel_;
+    std::auto_ptr<MixCollection<SimTrack> >   simTracks_;
+    std::auto_ptr<MixCollection<SimVertex> >  simVertexes_;
 
 
 

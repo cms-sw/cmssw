@@ -7,9 +7,11 @@
 <use   name="DataFormats/EcalDetId"/>
 <use   name="DataFormats/EcalDigi"/>
 <use   name="DataFormats/EcalRawData"/>
+<use   name="DataFormats/EcalRecHit"/>
 <use   name="DataFormats/FEDRawData"/>
 <use   name="rootphysics"/>
 <use   name="CondFormats/RunInfo"/>
+<use   name="CondFormats/ESObjects"/>
 <flags   EDM_PLUGIN="1"/>
 <export>
   <lib   name="1"/>

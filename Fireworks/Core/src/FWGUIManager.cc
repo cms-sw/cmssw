@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.234 2011/02/22 18:37:31 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.235 2011/02/23 14:07:03 amraktad Exp $
 
 
 //
@@ -733,7 +733,7 @@ FWGUIManager::createShortcutPopup ()
 {
    if (m_shortcutPopup == 0) {
       m_shortcutPopup = new CmsShowHelpPopup("shortcuts.html",
-                                             "Keyboard Shortcuts",
+                                             getAction(cmsshow::sKeyboardShort)->getName().c_str(),
                                               m_cmsShowMainFrame, 800, 600);
 
       m_shortcutPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
@@ -745,7 +745,7 @@ void FWGUIManager::createHelpGLPopup ()
 {
    if (m_helpGLPopup == 0) {
       m_helpGLPopup = new CmsShowHelpPopup("helpGL.html",
-                                           "Help On GL Viewer",
+                                            getAction(cmsshow::sHelpGL)->getName().c_str(),
                                             m_cmsShowMainFrame, 800, 600);
 
       m_helpGLPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);

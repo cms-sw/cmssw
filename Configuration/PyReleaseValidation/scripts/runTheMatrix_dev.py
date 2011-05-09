@@ -4,12 +4,6 @@ import os, sys, re, time
 
 import random
 from threading import Thread
-
-class MatrixException(Exception):
-    def __init__(self, msg):
-        self.msg = msg
-    def __str__(self):
-        return self.msg
         
 class WorkFlowRunner(Thread):
     def __init__(self, wf):
@@ -233,16 +227,15 @@ class WorkFlow(object):
         self.numId  = num.strip()
         self.nameId = nameID
         self.cmdStep1 = self.check(cmd1)
-        self.cmdStep2 = self.check(cmd2, 100)
-        self.cmdStep3 = self.check(cmd3, 100)
-        self.cmdStep4 = self.check(cmd4, 100)
+        self.cmdStep2 = self.check(cmd2)
+        self.cmdStep3 = self.check(cmd3)
+        self.cmdStep4 = self.check(cmd4)
 
         # run on real data requested:
         self.input = inputInfo
-
         return
 
-    def check(self, cmd=None, nEvtDefault=10):
+    def check(self, cmd=None):
         if not cmd : return None
 
         # raw data are treated differently ...
@@ -252,7 +245,7 @@ class WorkFlow(object):
         reN = re.compile('\s*-n\s*\d+\s*')
         newCmd = reN.sub(' -n 10 ', cmd)
         if not reN.match(newCmd) : # -n not specified, add it:
-            newCmd += ' -n '+str(nEvtDefault)+' '
+            newCmd += ' -n 10 '
 
         return newCmd
 
@@ -278,13 +271,11 @@ class MatrixReader(object):
         
         self.filesPrefMap = {'relval_standard' : 'std-' ,
                              'relval_highstats': 'hi-'  ,
-                             'relval_pileup': 'PU-'  ,
                              'relval_generator': 'gen-'  ,
                              }
 
         self.files = ['relval_standard' ,
                       'relval_highstats',
-                      'relval_pileup',
                       'relval_generator',
                       ]
 
@@ -311,7 +302,7 @@ class MatrixReader(object):
             cmd += ' ' + k + ' ' + str(v)
         return cfg, input, cmd
     
-    def readMatrix(self, fileNameIn, useInput=None, refRel='CMSSW_4_2_0_pre2', fromScratch=None):
+    def readMatrix(self, fileNameIn, useInput=None):
         
         prefix = self.filesPrefMap[fileNameIn]
 
@@ -329,18 +320,6 @@ class MatrixReader(object):
         for num, wfInfo in self.relvalModule.workflows.items():
             wfName = wfInfo[0]
             stepList = wfInfo[1]
-            addTo=None
-            addCom=None
-            if len(wfInfo)>=3:
-                addCom=wfInfo[2]
-                if not type(addCom)==list:
-                    addCom=[addCom]
-                #print 'added dict',addCom
-                if len(wfInfo)>=4:
-                    addTo=wfInfo[3]
-                    #pad with 0
-                    while len(addTo)!=len(stepList):
-                        addTo.append(0)
             # if no explicit name given for the workflow, use the name of step1
             if wfName.strip() == '': wfName = stepList[0] 
             stepCmds = ['','','','']
@@ -350,35 +329,20 @@ class MatrixReader(object):
             for step in stepList:
                 if len(name) > 0 : name += '+'
                 stepName = step
-                # check if we have explicit selections and overlapping requests:
-                if stepIndex==0 and useInput and (str(num) in useInput and not "all" in useInput):
-                    if fromScratch and (str(num) in fromScratch and not "all" in fromScratch):
-                        msg = "FATAL ERROR: request for both fromScratch and input for workflow "+str(num)
-                        raise MatrixException(msg)
-                if stepIndex==0 and useInput and ("all" == useInput):
-                    if fromScratch and (str(num) in fromScratch or "all" in fromScratch):
-                        pass
-                    else:
-                        if step+'INPUT' in self.relvalModule.step1.keys():
-                            stepName = step+"INPUT"
+                if stepIndex==0 and useInput and (str(num) in useInput or "all" in useInput):
+                    # print "--> using INPUT as step1 for workflow ", num
+                    if step+'INPUT' in self.relvalModule.step1.keys():
+                        stepName = step+"INPUT"
                 name += stepName
-                if addCom and (not addTo or addTo[stepIndex]==1):
-                    from Configuration.PyReleaseValidation.relval_steps import merge
-                    copyStep=merge(addCom+[self.relvalModule.stepList[stepIndex][stepName]])
-                    cfg, input, opts = self.makeCmd(copyStep)
-                else:                        
-                    cfg, input, opts = self.makeCmd(self.relvalModule.stepList[stepIndex][stepName])
-                        
+                cfg, input, opts = self.makeCmd(self.relvalModule.stepList[stepIndex][stepName])
                 if input and cfg :
                     msg = "FATAL ERROR: found both cfg and input for workflow "+str(num)+' step '+stepName
-                    raise MatrixException(msg)
+                    raise msg
 
                 if cfg:
                     cmd  = 'cmsDriver.py '+cfg+' '+opts
                 if stepIndex==0 and not inputInfo and input: # only if we didn't already set the input
                     inputInfo = input
-                    # map input dataset to the one from the reference release:
-                    inputInfo.dataSet = inputInfo.dataSet.replace('CMSSW_4_2_0_pre4', refRel)
                     cmd = 'DATAINPUT from '+inputInfo.dataSet
                     
                 if stepIndex > 0:
@@ -391,12 +355,12 @@ class MatrixReader(object):
         
         return
 
-    def showRaw(self, useInput, refRel='CMSSW_4_2_0_pre2', fromScratch=None):
+    def showRaw(self, useInput):
 
         for matrixFile in self.files:
             self.reset()
             try:
-                self.readMatrix(matrixFile, useInput, refRel, fromScratch)
+                self.readMatrix(matrixFile, useInput)
             except Exception, e:
                 print "ERROR reading file:", matrixFile, str(e)
                 raise
@@ -547,11 +511,11 @@ class MatrixReader(object):
 
         return
 
-    def prepare(self, useInput=None, refRel='', fromScratch=None):
+    def prepare(self, useInput=None):
         
         for matrixFile in self.files:
             try:
-                self.readMatrix(matrixFile, useInput, refRel, fromScratch)
+                self.readMatrix(matrixFile, useInput)
             except Exception, e:
                 print "ERROR reading file:", matrixFile, str(e)
                 raise
@@ -683,16 +647,16 @@ class MatrixRunner(object):
         
 # ================================================================================
 
-def showRaw(useInput=None, refRel='', fromScratch=None) :
+def showRaw(useInput=None) :
 
     mrd = MatrixReader()
-    mrd.showRaw(useInput, refRel, fromScratch)
+    mrd.showRaw(useInput)
 
     return 0
         
 # ================================================================================
 
-def runSelected(testList, nThreads=4, show=False, useInput=None, refRel='', fromScratch=None) :
+def runSelected(testList, nThreads=4, show=False, useInput=None) :
 
     stdList = ['5.2', # SingleMu10 FastSim
                '7',   # Cosmics+RECOCOS+ALCACOS
@@ -705,7 +669,7 @@ def runSelected(testList, nThreads=4, show=False, useInput=None, refRel='', from
                    ]
 
     mrd = MatrixReader()
-    mrd.prepare(useInput, refRel, fromScratch)
+    mrd.prepare(useInput)
 
     if testList == []:
         testList = stdList+hiStatList
@@ -722,10 +686,10 @@ def runSelected(testList, nThreads=4, show=False, useInput=None, refRel='', from
 
 # ================================================================================
 
-def runData(testList, nThreads=4, show=False, useInput=None, refRel='', fromScratch=None) :
+def runData(testList, nThreads=4, show=False, useInput=None) :
 
     mrd = MatrixReader()
-    mrd.prepare(useInput, refRel, fromScratch)
+    mrd.prepare(useInput)
 
     ret = 0
     if show:
@@ -745,10 +709,10 @@ def runData(testList, nThreads=4, show=False, useInput=None, refRel='', fromScra
 
 # --------------------------------------------------------------------------------
 
-def runAll(testList=None, nThreads=4, show=False, useInput=None, refRel='', fromScratch=None) :
+def runAll(testList=None, nThreads=4, show=False, useInput=None) :
 
     mrd = MatrixReader()
-    mrd.prepare(useInput, refRel, fromScratch)
+    mrd.prepare(useInput)
 
     ret = 0
     
@@ -764,7 +728,7 @@ def runAll(testList=None, nThreads=4, show=False, useInput=None, refRel='', from
 
 # --------------------------------------------------------------------------------
 
-def runOnly(only, show, nThreads=4, useInput=None, refRel='', fromScratch=None):
+def runOnly(only, show, nThreads=4, useInput=None):
 
     if not only: return
     
@@ -784,8 +748,7 @@ Where options is one of the following:
   -j, --nproc <n>   run <n> processes in parallel (default: 4 procs)
   -s, --selected    run a subset of 8 workflows (usually in the CustomIB)
   -n, -q, --show    show the (selected) workflows
-  -i, --useInput <list>      will use data input (if defined) for the step1 instead of step1. <list> can be "all" for this option
-      --refRelease <refRel>  will use <refRel> as reference release in datasets used for input (replacing the sim step)
+  -i, --useInput <list>   will use data input (if defined) for the step1 instead of step1. <list> can be "all" for this option
   -r, --raw         in combination with --show will create the old style cmsDriver_*_hlt.txt file (in the working dir)
   
 <list>s should be put in single- or double-quotes to avoid confusion with/by the shell
@@ -798,26 +761,20 @@ if __name__ == '__main__':
     import getopt
     
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hj:sl:nqo:d:i:r", ['help',"nproc=",'selected','list=','showMatrix','only=','data=','useInput=','raw', 'refRelease=','fromScratch='])
+        opts, args = getopt.getopt(sys.argv[1:], "hj:sl:nqo:d:i:r", ['help',"nproc=",'selected','list=','showMatrix','only=','data=','useInput=','raw'])
     except getopt.GetoptError, e:
         print "unknown option", str(e)
         sys.exit(2)
         
-# check command line parameters
+# check command line parameter
 
-    # set this to None if you want fromScratch as default, set it to 'all' to set the default to from input files.
-    useInput = None  # step1 default is cmsDriver (i.e. "from scratch")
-    # useInput = 'all' # step1 default is reading from input files
-
-    
     np=4 # default: four threads
     sel = None
-    fromScratch = None
+    input = None
     show = False
     only = None
     data = None
     raw  = False
-    refRel = ''
     for opt, arg in opts :
         if opt in ('-h','--help'):
             usage()
@@ -832,36 +789,26 @@ if __name__ == '__main__':
             only = []
         if opt in ('-l','--list',) :
             sel = arg.split(',')
-        if opt in ('--fromScratch',) :
-            fromScratch = arg.split(',')
         if opt in ('-i','--useInput',) :
-            useInput = arg.split(',')
-        if opt in ('--refRelease',) :
-            refRel = arg
+            input = arg.split(',')
         if opt in ('-d','--data',) :
             data = arg.split(',')
         if opt in ('-r','--raw') :
             raw = True
             
-    # some sanity checking:
-    if useInput and useInput != 'all' :
-        for item in useInput:
-            if fromScratch and item in fromScratch:
-                print "FATAL error: request to run workflow ",item,'from scratch and using input. '
-                sys.exit(-1)
-        
     if raw and show:
-        ret = showRaw(useInput=useInput, refRel=refRel,fromScratch=fromScratch)
+        ret = showRaw(useInput=input)
         sys.exit(ret)
 
+        
     ret = 0
     if sel != None: # explicit distinguish from empty list (which is also false)
-        ret = runSelected(testList=sel, nThreads=np, show=show, useInput=useInput, refRel=refRel,fromScratch=fromScratch)
+        ret = runSelected(testList=sel, nThreads=np, show=show, useInput=input)
     elif only != None:
-        ret = runOnly(only=only, show=show, nThreads=np, useInput=useInput, refRel=refRel,fromScratch=fromScratch)
+        ret = runOnly(only=only, show=show, nThreads=np, useInput=input)
     elif data != None:
-        ret = runData(testList=data, show=show, nThreads=np, useInput=useInput, refRel=refRel,fromScratch=fromScratch)
+        ret = runData(testList=data, show=show, nThreads=np, useInput=input)
     else:
-        ret = runAll(show=show, nThreads=np, useInput=useInput, refRel=refRel,fromScratch=fromScratch)
+        ret = runAll(show=show, nThreads=np, useInput=input)
 
     sys.exit(ret)

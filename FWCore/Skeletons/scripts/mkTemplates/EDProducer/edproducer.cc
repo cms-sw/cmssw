@@ -45,17 +45,17 @@ class prodname : public edm::EDProducer {
       explicit prodname(const edm::ParameterSet&);
       ~prodname();
 
-      static void fillDescriptions(ConfigurationDescriptions& descriptions);
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
       virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
-      virtual void beginRun(Run&, EventSetup const&);
-      virtual void endRun(Run&, EventSetup const&):
-      virtual void beginLuminosityBlock(LuminosityBlock&, EventSetup const&);
-      virtual void endLuminosityBlock(LuminosityBlock&, EventSetup const&);
+      virtual void beginRun(edm::Run&, edm::EventSetup const&);
+      virtual void endRun(edm::Run&, edm::EventSetup const&);
+      virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+      virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 
       // ----------member data ---------------------------
 @example_myparticle       edm::InputTag muonTags_; 
@@ -187,34 +187,34 @@ prodname::endJob() {
 
 // ------------ method called when starting to processes a run  ------------
 void 
-prodname::beginRun(Run&, EventSetup const&)
+prodname::beginRun(edm::Run&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when ending the processing of a run  ------------
 void 
-prodname::endRun(Run&, EventSetup const&)
+prodname::endRun(edm::Run&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
 void 
-prodname::beginLuminosityBlock(LuminosityBlock&, EventSetup const&)
+prodname::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 void 
-prodname::endLuminosityBlock(LuminosityBlock&, EventSetup const&)
+prodname::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-prodname::fillDescriptions(ConfigurationDescriptions& descriptions) {
+prodname::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
-  ParameterSetDescription desc;
+  edm::ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
 @example_myparticle  

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.40 2011/03/15 15:19:25 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.41 2011/03/17 12:02:44 amraktad Exp $
 //
 
 // system include files
@@ -49,14 +49,15 @@ const float FWRPZView::s_distortFInv = 1000;
 // constructors and destructor
 //
 FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
-   FWEveView(iParent, id),
+   FWEveView(iParent, id, 7),
    m_calo(0),
+   m_shiftOrigin(this,"Shift origin to beam-spot", true),
    m_fishEyeDistortion(this,"Distortion",0., 0., 100.),
    m_fishEyeR(this,"FixedRadius",(double)fireworks::Context::caloR1(), 0.0, 150.0),
 
    m_caloDistortion(this,"Calo compression",1.0,0.01,10.),
    m_muonDistortion(this,"Muon compression",0.2,0.01,10.),
-   m_showProjectionAxes(this,"Show projection axes", false),
+   m_showProjectionAxes(this,"Show projection axis", false),
    m_compressMuon(this,"Compress detectors",false),
    m_showHF(0),
    m_showEndcaps(0)
@@ -72,7 +73,7 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    m_projMgr->GetProjection()->SetFixR(m_fishEyeR.value());
 	 
 #ifdef TEVEPROJECTIONS_DISPLACE_ORIGIN_MODE
-   m_projMgr->GetProjection()->SetDisplaceOrigin(true);
+   m_projMgr->GetProjection()->SetDisplaceOrigin( m_shiftOrigin.value());
 #endif
 
    if ( id == FWViewType::kRhoPhi || id == FWViewType::kRhoPhiPF) {
@@ -105,6 +106,8 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
       m_showHF = new FWBoolParameter(this,"Include HF", true);
       m_showHF->changed_.connect(  boost::bind(&FWRPZView::setEtaRng, this) );
    }
+
+   m_shiftOrigin.changed_.connect(boost::bind(&FWRPZView::doShiftOrigin,this));
 
    m_fishEyeDistortion.changed_.connect(boost::bind(&FWRPZView::doFishEyeDistortion,this));
    m_fishEyeR.changed_.connect(boost::bind(&FWRPZView::doFishEyeDistortion,this));
@@ -186,6 +189,21 @@ FWRPZView::eventBegin()
 }
 
 void
+FWRPZView::doShiftOrigin()
+{ 
+#ifdef TEVEPROJECTIONS_DISPLACE_ORIGIN_MODE
+
+   TEveProjection* p = m_projMgr->GetProjection();
+   if (p->GetDisplaceOrigin() != m_shiftOrigin.value())
+   {
+      p->SetDisplaceOrigin( m_shiftOrigin.value());
+      m_projMgr->ProjectChildren();
+      gEve->Redraw3D();
+   }
+#endif
+}
+
+void
 FWRPZView::doFishEyeDistortion()
 {
    TEveProjection* p = m_projMgr->GetProjection();
@@ -252,6 +270,13 @@ FWRPZView::setFrom(const FWConfiguration& iFrom)
    
    TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( &(viewerGL()->CurrentCamera()) );
    if (camera) setFromOrthoCamera(camera, iFrom);
+
+   if (iFrom.version() < 7)
+   { 
+      const FWConfiguration* value = iFrom.valueForKey("Show projection axes");
+      if (value)
+         m_showProjectionAxes.set(value->value() == "1");
+   }
 }
 
 void
@@ -313,9 +338,14 @@ void FWRPZView::showProjectionAxes( )
 void 
 FWRPZView::populateController(ViewerParameterGUI& gui) const
 {
-   FWEveView::populateController(gui);
+   FWEveView::populateController(gui);   
 
-   gui.requestTab("Projection");
+#ifdef TEVEPROJECTIONS_DISPLACE_ORIGIN_MODE
+   gui.requestTab("Projection").addParam(&m_shiftOrigin);
+#endif
+
+   gui.requestTab("Projection").addParam(&m_showProjectionAxes).separator();
+
    TGCompositeFrame* f = gui.getTabContainer();
 
    f->AddFrame(new TGLabel(f, "FishEye:"));
@@ -328,10 +358,8 @@ FWRPZView::populateController(ViewerParameterGUI& gui) const
    gui.requestTab("Projection").
       addParam(&m_compressMuon).
       addParam(&m_muonDistortion).
-      addParam(&m_caloDistortion).separator();
+      addParam(&m_caloDistortion);
 
-   gui.requestTab("Projection").
-      addParam(&m_showProjectionAxes);
 
    if (typeId() == FWViewType::kRhoPhi || typeId() == FWViewType::kRhoPhiPF) 
    {

@@ -2,7 +2,6 @@
 <use   name="boost"/>
 <use   name="rootcintex"/>
 <use   name="FWCore/FWLite"/>
-<use   name="FWCore/Framework"/>
 <use   name="DataFormats/FWLite"/>
 <use   name="DataFormats/Luminosity"/>
 <use   name="FWCore/PythonParameterSet"/>

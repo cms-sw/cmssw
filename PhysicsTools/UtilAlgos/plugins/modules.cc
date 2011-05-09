@@ -33,3 +33,4 @@ DEFINE_EDM_PLUGIN(VariableComputerFactory, VariableComputerTest, "VariableComput
 
 #include "PhysicsTools/UtilAlgos/interface/Plotter.h"
 DEFINE_EDM_PLUGIN(PlotterFactory, VariablePlotter, "VariablePlotter");
+

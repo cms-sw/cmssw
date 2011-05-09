@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant,40 3-A28,+41227671209,
 //         Created:  Thu Nov  4 22:17:56 CET 2010
-// $Id: HcalHitSelection.cc,v 1.2 2011/03/18 11:34:07 vlimant Exp $
+// $Id: HcalHitSelection.cc,v 1.3 2011/03/18 12:57:51 abdullin Exp $
 //
 //
 
@@ -154,8 +154,10 @@ HcalHitSelection::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for( unsigned int t = 0; t < interestingDetIdCollections.size(); ++t )
     {
       iEvent.getByLabel(interestingDetIdCollections[t],detId);
-      if (!detId.isValid())
+      if (!detId.isValid()){
+	edm::LogError("MissingInput")<<"the collection of interesting detIds:"<<interestingDetIdCollections[t]<<" is not found.";
 	continue;
+      }
       toBeKept.insert(detId->begin(),detId->end());
     }
 

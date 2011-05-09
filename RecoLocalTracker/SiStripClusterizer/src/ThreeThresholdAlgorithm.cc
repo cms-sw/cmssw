@@ -5,11 +5,9 @@
 #include <numeric>
 
 ThreeThresholdAlgorithm::
-ThreeThresholdAlgorithm(float chan, float seed, float cluster, unsigned holes, unsigned bad, unsigned adj, std::string qL,
-			bool setDetId) 
+ThreeThresholdAlgorithm(float chan, float seed, float cluster, unsigned holes, unsigned bad, unsigned adj, std::string qL) 
   : ChannelThreshold( chan ), SeedThreshold( seed ), ClusterThresholdSquared( cluster*cluster ),
     MaxSequentialHoles( holes ), MaxSequentialBad( bad ), MaxAdjacentBad( adj ) {
-  _setDetId=setDetId;
   qualityLabel = (qL);
   ADCs.reserve(128);
 }
@@ -66,7 +64,6 @@ endCandidate(T& out) {
     applyGains();
     appendBadNeighbors();
     out.push_back(SiStripCluster(currentId(), firstStrip(), ADCs.begin(), ADCs.end()));
-    if (_setDetId) out.back().setId(currentId());
   }
   clearCandidate();  
 }
