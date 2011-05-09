@@ -71,10 +71,15 @@ namespace edm {
     if(treeCacheSize_ != 0U && pSLC.isAvailable() && pSLC->sourceTTreeCacheSize()) {
       treeCacheSize_ = *(pSLC->sourceTTreeCacheSize());
     }
-    StorageFactory *factory = StorageFactory::get();
-    for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_) {
-      factory->activateTimeout(fileIter_->fileName());
-      factory->stagein(fileIter_->fileName());
+      
+    if (inputType_ == InputType::Primary) {
+      //NOTE: we do not want to stage in secondary files since we can be given a list of
+      // thousands of files and prestaging all those files can cause a site to fail
+      StorageFactory *factory = StorageFactory::get();
+      for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_) {
+        factory->activateTimeout(fileIter_->fileName());
+        factory->stagein(fileIter_->fileName());
+      }
     }
 
     std::string parametersMustMatch = pset.getUntrackedParameter<std::string>("parametersMustMatch", std::string("permissive"));
