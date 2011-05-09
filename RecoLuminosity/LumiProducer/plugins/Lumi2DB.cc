@@ -83,12 +83,7 @@ namespace lumi{
     };
     typedef std::vector<PerLumiData> LumiResult;
     bool hasStableBeam( lumi::Lumi2DB::LumiResult::iterator lumiBeg,lumi::Lumi2DB::LumiResult::iterator lumiEnd );
-    void setNoCheckingStableBeam();
-    void setNorm(float norm);
   private:
-    bool m_nocheckingstablebeam;
-    //const static unsigned int NORMFACTOR=6370;
-    float m_norm;
     void parseSourceString(lumi::Lumi2DB::LumiSource& result)const;
     void retrieveBeamIntensity(HCAL_HLX::DIP_COMBINED_DATA* dataPtr, Lumi2DB::beamData&b)const;
     void writeAllLumiData(coral::ISessionProxy* session,unsigned int irunnumber,const std::string& ilumiversion,LumiResult::iterator lumiBeg,LumiResult::iterator lumiEnd);
@@ -659,15 +654,7 @@ void lumi::Lumi2DB::cleanTemporaryMemory( lumi::Lumi2DB::LumiResult::iterator lu
   }
   
 }
-lumi::Lumi2DB::Lumi2DB(const std::string& dest):DataPipe(dest),m_nocheckingstablebeam(false),m_norm(6370.0){}
-void 
-lumi::Lumi2DB::setNoCheckingStableBeam(){
-  m_nocheckingstablebeam=true;
-}
-void 
-lumi::Lumi2DB::setNorm(float norm){
-  m_norm=norm;
-}
+lumi::Lumi2DB::Lumi2DB(const std::string& dest):DataPipe(dest){}
 void 
 lumi::Lumi2DB::parseSourceString(lumi::Lumi2DB::LumiSource& result)const{
   //parse lumi source file name
