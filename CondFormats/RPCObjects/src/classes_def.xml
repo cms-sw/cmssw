@@ -50,6 +50,10 @@
   <class name="RPCClusterSize::ClusterSizeItem"/>
   <class name="std::vector<RPCClusterSize::ClusterSizeItem>"/>
 
+  <class name="RPCDQMObject"/>
+  <class name="RPCDQMObject::DQMObjectItem"/>
+  <class name="std::vector<RPCDQMObject::DQMObjectItem>"/>
+
   <class name="RPCObGas"/>
   <class name="RPCObGas::Item"/>
   <class name="std::vector<RPCObGas::Item>"/>
