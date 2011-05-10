@@ -104,7 +104,7 @@ public:
     T y2 = aPoint.y()*aPoint.y();
     T xy = aPoint.x()*aPoint.y();
     if(r2 != 0) 
-      return (1./r2)*(x2*cxx() + 2.*xy*cyx() + y2*cyy());
+      return std::max<T>(0, (1./r2)*(x2*cxx() + 2.*xy*cyx() + y2*cyy()));
     else 
       return 0.5*(cxx() + cyy());  
   }
@@ -115,7 +115,7 @@ public:
     T y2 = aPoint.y()*aPoint.y();
     T xy = aPoint.x()*aPoint.y();
     if (r2 != 0) 
-      return (1./(r2*r2))*(y2*cxx() - 2.*xy*cyx() + x2*cyy());
+      return std::max<T>(0, (1./(r2*r2))*(y2*cxx() - 2.*xy*cyx() + x2*cyy()));
     else
       return 0;
   }
