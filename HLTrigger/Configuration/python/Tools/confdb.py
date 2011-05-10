@@ -275,7 +275,7 @@ if 'hltPreHLTMONOutputSmart' in %(dict)s:
 #        'label'   : 'AK5Calo',
 #        'connect' : 'frontier://PromptProd/CMS_COND_31X_PHYSICSTOOLS'
 #      }
-    )
+#    )
 
 
   def addGlobalOptions(self):
