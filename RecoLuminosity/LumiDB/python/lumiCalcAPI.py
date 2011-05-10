@@ -442,6 +442,9 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
             result[run]={}
             continue
         cmsrunsummary=dataDML.runsummary(schema,run)
+        if len(cmsrunsummary)==0:#non existing run
+            result[run]=None
+            continue
         startTimeStr=cmsrunsummary[6]
         lumidataid=None
         trgdataid=None
