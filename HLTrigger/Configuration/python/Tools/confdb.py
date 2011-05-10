@@ -29,6 +29,9 @@ class HLTProcess(object):
     "HLT_IsoTrackHE_v*",
     "HLT_L1SingleMuOpen_AntiBPTX_v*",
     "HLT_JetE30_NoBPTX*_v*",
+    "HLT_JetE50_NoBPTX*_v*",
+  
+  # TODO: paths not supported by FastSim, but for which a recovery should be attempted
     "HLT_Mu3_Track3_Jpsi_v*",
     "HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v*",
     "HLT_Mu5_Track0_Jpsi_B5Q7_v*",
@@ -36,8 +39,6 @@ class HLTProcess(object):
     "HLT_Mu5_Track5_Jpsi_v*",
     "HLT_Mu7_Track5_Jpsi_v*",
     "HLT_Mu7_Track7_Jpsi_v*",
-  
-  # TODO: paths not supported by FastSim, but for which a recovery should be attempted
     "HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT160_v*",
     "HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT160_v*",
     "HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT150_v*",
