@@ -76,18 +76,18 @@ else
 #    else
         echo "`date` : TSC payloads absent; writing now"
 	cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadOnline_cfg.py tscKey=${tsckey} outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb print
-	o2ocode=$?
-	if [ ${o2ocode} -ne 0 ]
+	o2ocode1=$?
+	if [ ${o2ocode1} -ne 0 ]
 	    then
 	    echo "L1-O2O-ERROR: could not write TSC payloads" >&2
-	    exit ${o2ocode}
+#	    exit ${o2ocode1}
 	fi
 #    fi
 
     echo "`date` : setting TSC IOVs"
     cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteIOVOnline_cfg.py tscKey=${tsckey} runNumber=${runnum} outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb print
-    o2ocode=$?
-    if [ ${o2ocode} -eq 0 ]
+    o2ocode2=$?
+    if [ ${o2ocode2} -eq 0 ]
 	then
 	echo
 	echo "`date` : checking O2O"
@@ -97,16 +97,19 @@ else
 	    exit 199
 	fi
     else
-	if [ ${o2ocode} -eq 66 ]
+	if [ ${o2ocode2} -eq 66 ]
 	    then
 	    echo "L1-O2O-ERROR: unable to connect to OMDS or ORCON.  Check that /nfshome0/centraltspro/secure/authentication.xml is up to date (OMDS)." >&2
         else
-            if [ ${o2ocode} -eq 65 ]
+            if [ ${o2ocode2} -eq 65 ]
                 then
                 echo "L1-O2O-ERROR: problem writing object to ORCON." >&2
             fi
         fi
-	exit ${o2ocode}
+#	exit ${o2ocode}
     fi
+
+    o2ocode=`echo ${o2ocode1} + ${o2ocode2} | bc`
+    exit ${o2ocode}
 fi
 exit
