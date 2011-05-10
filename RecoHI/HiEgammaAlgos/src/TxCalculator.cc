@@ -13,6 +13,8 @@
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 using namespace edm;
 using namespace reco;
@@ -23,8 +25,17 @@ using namespace ROOT::Math::VectorUtil;
 TxCalculator::TxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel)
 {
    iEvent.getByLabel(trackLabel, recCollection); 
+   edm::Service<edm::RandomNumberGenerator> rng;
+   if ( ! rng.isAvailable()) {
+      throw cms::Exception("Configuration")
+         << "XXXXXXX requires the RandomNumberGeneratorService\n"
+         "which is not present in the configuration file.  You must add the service\n"
+         "in the configuration file or remove the modules that require it.";
+   }
+   CLHEP::HepRandomEngine& engine = rng->getEngine();
+   theDice = new CLHEP::RandFlat(engine, 0, 1);
+   
 } 
-
 
 
 double TxCalculator::getJurassicArea( double r1, double r2, double width) {
@@ -73,32 +84,37 @@ double TxCalculator::getMPT( double ptCut     ,   double etaCut  )
 }
 
 
-double TxCalculator::getTx(const reco::Photon cluster, double x, double threshold, double innerDR)
+double TxCalculator::getTx(const reco::Photon cluster, double x, double threshold, double innerDR, double effRatio)
 {
 
    using namespace edm;
    using namespace reco;
 
-
+   
+   
    double SClusterEta = cluster.eta();
    double SClusterPhi = cluster.phi();
    double TotalPt = 0;
-
+   
    for(reco::TrackCollection::const_iterator
    	  recTrack = recCollection->begin(); recTrack!= recCollection->end(); recTrack++)
       {
+	 double diceNum = theDice->fire();
+	 if ( (effRatio < 1 ) &&  ( diceNum > effRatio))
+	    continue;
+	 
 	 double pt = recTrack->pt();
 	 double eta2 = recTrack->eta();
 	 double phi2 = recTrack->phi();
 	 
-      if(dRDistance(SClusterEta,SClusterPhi,eta2,phi2) >= 0.1 * x)
-         continue;
-      if(dRDistance(SClusterEta,SClusterPhi,eta2,phi2) < innerDR)
-	 continue;
-      if(pt > threshold)
-         TotalPt = TotalPt + pt;
-   }
-
+	 if(dRDistance(SClusterEta,SClusterPhi,eta2,phi2) >= 0.1 * x)
+	    continue;
+	 if(dRDistance(SClusterEta,SClusterPhi,eta2,phi2) < innerDR)
+	    continue;
+	 if(pt > threshold)
+	    TotalPt = TotalPt + pt;
+      }
+   
    return TotalPt;
 }
 
@@ -106,7 +122,7 @@ double TxCalculator::getTx(const reco::Photon cluster, double x, double threshol
 
 
 
-double TxCalculator::getCTx(const reco::Photon cluster, double x, double threshold, double innerDR)
+double TxCalculator::getCTx(const reco::Photon cluster, double x, double threshold, double innerDR,double effRatio)
 {
    using namespace edm;
    using namespace reco;
@@ -119,12 +135,17 @@ double TxCalculator::getCTx(const reco::Photon cluster, double x, double thresho
 
    for(reco::TrackCollection::const_iterator
    	  recTrack = recCollection->begin(); recTrack!= recCollection->end(); recTrack++)
-   {
-      double pt = recTrack->pt();
-      double eta2 = recTrack->eta();
-      double phi2 = recTrack->phi();
-      double dEta = fabs(eta2-SClusterEta);
-
+      {
+	 double diceNum = theDice->fire();
+         if ( (effRatio < 1 ) &&  ( diceNum > effRatio))
+            continue;
+	 
+	 
+	 double pt = recTrack->pt();
+	 double eta2 = recTrack->eta();
+	 double phi2 = recTrack->phi();
+	 double dEta = fabs(eta2-SClusterEta);
+	 
       if(dEta >= 0.1 * x)
          continue;
       if(dRDistance(SClusterEta,SClusterPhi,eta2,phi2) < innerDR)
@@ -134,7 +155,7 @@ double TxCalculator::getCTx(const reco::Photon cluster, double x, double thresho
          TotalPt = TotalPt + pt;
    }
    
-   double Tx = getTx(cluster,x,threshold);
+   double Tx = getTx(cluster,x,threshold,effRatio);
    double CTx = Tx - TotalPt / 40.0 * x;
 
    return CTx;
