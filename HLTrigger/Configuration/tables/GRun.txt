@@ -76,6 +76,9 @@ HLT_PFMHT150_v*
 HLT_MET100_v*
 HLT_MET120_v*
 HLT_MET200_v*
+# HLT_MET100_HBHENoiseFiltered_v* activate for May5th train
+# HLT_MET120_HBHENoiseFiltered_v* activate for May5th train
+# HLT_MET200_HBHENoiseFiltered_v* activate for May5th train
 HLT_R014_MR150_v*
 HLT_R014_MR150_CentralJet40_BTagIP_v*
 HLT_R014_MR450_CentralJet40_BTagIP_v*
