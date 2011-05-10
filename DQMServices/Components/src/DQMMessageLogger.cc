@@ -247,17 +247,26 @@ void DQMMessageLogger::endRun(const edm::Run & , const edm::EventSetup & ){
     std::map<std::string,int>::iterator it;
     uint i=0;
     theDbe->setCurrentFolder(directoryName + "/Errors");
-    MonitorElement * catECount = theDbe->book1D("categoryCount_errors","Errors per Category",categoryECount.size(),0,categoryECount.size());
-    for (i=1,it=categoryECount.begin();it!=categoryECount.end();++it,++i){
-      catECount->setBinLabel(i,it->first);
-      catECount->setBinContent(i,it->second);
+    if (categoryECount.empty()){
+      MonitorElement * catECount = theDbe->book1D("categoryCount_errors","Errors per Category",1,0,1);
+      catECount->setBinLabel(1,"No Errors");
+    }else{
+      MonitorElement * catECount = theDbe->book1D("categoryCount_errors","Errors per Category",categoryECount.size(),0,categoryECount.size());
+      for (i=1,it=categoryECount.begin();it!=categoryECount.end();++it,++i){
+	catECount->setBinLabel(i,it->first);
+	catECount->setBinContent(i,it->second);
+      }
     }
-
     theDbe->setCurrentFolder(directoryName + "/Warnings");
-    MonitorElement * catWCount = theDbe->book1D("categoryCount_warnings","Warnings per Category",categoryWCount.size(),0,categoryWCount.size());
-    for (i=1,it=categoryWCount.begin();it!=categoryWCount.end();++it,++i){
-      catWCount->setBinLabel(i,it->first);
-      catWCount->setBinContent(i,it->second);
+    if (categoryWCount.empty()){
+      MonitorElement * catWCount = theDbe->book1D("categoryCount_warnings","Warnings per Category",categoryWCount.size(),0,categoryWCount.size());
+      catWCount->setBinLabel(1,"No Warnings");
+    }else{
+      MonitorElement * catWCount = theDbe->book1D("categoryCount_warnings","Warnings per Category",categoryWCount.size(),0,categoryWCount.size());
+      for (i=1,it=categoryWCount.begin();it!=categoryWCount.end();++it,++i){
+	catWCount->setBinLabel(i,it->first);
+	catWCount->setBinContent(i,it->second);
+      }
     }
   }
   categoryWCount.clear();
