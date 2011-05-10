@@ -123,10 +123,10 @@ void DQMMessageLogger::beginJob() {
     }
 
     // HOW MANY BINS SHOULD THE ERROR HIST HAVE?
-    int nbins = 10;
-    total_warnings = theDbe->book1D("total warnings","Total warnings per event",nbins,0,nbins);
+    int nbins = 11;
+    total_warnings = theDbe->book1D("total_warnings","Total warnings per event",nbins,-0.5,nbins+0.5);
     theDbe->setCurrentFolder(directoryName + "/Errors"); 
-    total_errors = theDbe->book1D("total_errors", "Total errors per event", nbins, 0, nbins);
+    total_errors = theDbe->book1D("total_errors", "Total errors per event", nbins, -0.5, nbins+0.5);
     
     for(int i=0; i<nbins; ++i){
       stringstream out;
