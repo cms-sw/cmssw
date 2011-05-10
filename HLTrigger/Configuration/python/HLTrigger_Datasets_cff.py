@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V54
+# /dev/CMSSW_4_2_0/GRun/V58
 
 import FWCore.ParameterSet.Config as cms
 
@@ -410,9 +410,9 @@ streamA_datasetTauPlusX_selector.triggerConditions = cms.vstring('HLT_Ele15_Calo
     'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v5', 
     'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v4', 
     'HLT_Ele15_CaloIdVT_TrkIdT_LooseIsoPFTau15_v5', 
-    'HLT_HT250_DoubleLooseIsoPFTau10_Trk3_PFMHT35_v3', 
-    'HLT_HT300_DoubleLooseIsoPFTau10_Trk3_PFMHT40_v1', 
-    'HLT_HT350_DoubleLooseIsoPFTau10_Trk3_PFMHT45_v1', 
+    'HLT_HT250_DoubleIsoPFTau10_Trk3_PFMHT35_v1', 
+    'HLT_HT300_DoubleIsoPFTau10_Trk3_PFMHT40_v1', 
+    'HLT_HT350_DoubleIsoPFTau10_Trk3_PFMHT45_v1', 
     'HLT_IsoMu15_LooseIsoPFTau15_v1', 
     'HLT_Mu15_LooseIsoPFTau15_v1')
 

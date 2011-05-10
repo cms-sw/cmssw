@@ -76,6 +76,9 @@ HLT_PFMHT150_v*
 HLT_MET100_v*
 HLT_MET120_v*
 HLT_MET200_v*
+# HLT_MET100_HBHENoiseFiltered_v* activate for May5th train
+# HLT_MET120_HBHENoiseFiltered_v* activate for May5th train
+# HLT_MET200_HBHENoiseFiltered_v* activate for May5th train
 HLT_R014_MR150_v*
 HLT_R014_MR150_CentralJet40_BTagIP_v*
 HLT_R014_MR450_CentralJet40_BTagIP_v*
@@ -197,9 +200,9 @@ HLT_DoubleEle33_v*
 HLT_DoubleEle33_CaloIdL_v*
 HLT_IsoPFTau35_Trk20_MET45_v*
 HLT_DoubleIsoPFTau25_Trk5_eta2p1_v*
-HLT_HT250_DoubleLooseIsoPFTau10_Trk3_PFMHT35_v*
-HLT_HT300_DoubleLooseIsoPFTau10_Trk3_PFMHT40_v*
-HLT_HT350_DoubleLooseIsoPFTau10_Trk3_PFMHT45_v*
+HLT_HT250_DoubleIsoPFTau10_Trk3_PFMHT35_v*
+HLT_HT300_DoubleIsoPFTau10_Trk3_PFMHT40_v*
+HLT_HT350_DoubleIsoPFTau10_Trk3_PFMHT45_v*
 HLT_BTagMu_DiJet20_Mu5_v*
 HLT_BTagMu_DiJet40_Mu5_v*
 HLT_BTagMu_DiJet70_Mu5_v*

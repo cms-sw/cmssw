@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V54 (CMSSW_4_2_0_HLT2)
+# /dev/CMSSW_4_2_0/HIon/V58 (CMSSW_4_2_0_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V54')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V58')
 )
 
 process.streams = cms.PSet( 
@@ -258,7 +258,7 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
     DumpStat = cms.untracked.bool( False ),
     BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
-    globaltag = cms.string( "GR_H_V18::All" ),
+    globaltag = cms.string( "GR_H_V19::All" ),
     DBParameters = cms.PSet( 
       authenticationPath = cms.untracked.string( "." ),
       connectionRetrialTimeOut = cms.untracked.int32( 60 ),
@@ -1523,11 +1523,11 @@ process.hltESPTrajectoryFilterL3 = cms.ESProducer( "TrajectoryFilterESProducer",
   ComponentName = cms.string( "hltESPTrajectoryFilterL3" ),
   appendToDataLabel = cms.string( "" ),
   filterPset = cms.PSet( 
-    minPt = cms.double( 0.9 ),
+    minPt = cms.double( 0.5 ),
     minHitsMinPt = cms.int32( 3 ),
     ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
     maxLostHits = cms.int32( 1 ),
-    maxNumberOfHits = cms.int32( 7 ),
+    maxNumberOfHits = cms.int32( 1000000000 ),
     maxConsecLostHits = cms.int32( 1 ),
     minimumNumberOfHits = cms.int32( 5 ),
     nSigmaMinPt = cms.double( 5.0 ),
