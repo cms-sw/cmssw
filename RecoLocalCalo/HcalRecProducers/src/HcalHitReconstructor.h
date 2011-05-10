@@ -66,10 +66,9 @@
       bool setTimingTrustFlags_; // turn on/off HF timing uncertainty flag 
       bool setPulseShapeFlags_; //  turn on/off HBHE fit-based noise flags
       bool dropZSmarkedPassed_; // turn on/off dropping of zero suppression marked and passed digis
-      bool overrideHFnoisecfgs_;
 
       int firstAuxTS_;
-  
+ 
       // legacy parameters for config-set values compatibility 
       // to be removed after 4_2_0...
       int firstSample_;

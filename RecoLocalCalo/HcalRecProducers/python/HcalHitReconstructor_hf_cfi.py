@@ -16,9 +16,6 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                         # Set time slice for first digi to be stored in aux word 
                         firstAuxTS = cms.int32(1),
 
-                        # Use this to override some noise flag parameters, and instead set parameters based on firstSamples/samplesToAdd
-                        overrideHFnoisecfgs = cms.bool(True),
-
                         # Tags for calculating status flags
                         setNoiseFlags = cms.bool(True),
                         setHSCPFlags = cms.bool( False ),
