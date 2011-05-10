@@ -317,14 +317,17 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
         startTimeStr=cmsrunsummary[6]
         lumidataid=None
         trgdataid=None
-        hltdataid=None
-        (lumidataid,trgdataid,hltdataid)=dataDML.guessAllDataIdByRun(schema,run)
-        if lumidataid is None or trgdataid is None or hltdataid is None:
+        lumidataid=dataDML.guessLumiDataIdByRun(schema,run)
+        if lumidataid is None :
             result[run]=None
             continue
+        trgdataid=dataDML.guessTrgDataIdByRun(schema,run)
         (lumirunnum,lumidata)=dataDML.lumiLSById(schema,lumidataid,beamstatus=beamstatus,withBXInfo=withBXInfo,bxAlgo=bxAlgo,withBeamIntensity=withBeamInfo)
-        (trgrunnum,trgdata)=dataDML.trgLSById(schema,trgdataid,withblobdata=False)
-        
+        if trgdataid is None :
+            trgdata={}
+        else:
+            (trgrunnum,trgdata)=dataDML.trgLSById(schema,trgdataid,withblobdata=False)
+            
         if not normval:#if norm cannot be decided , look for it according to context per run
             normval=_decidenormForRun(schema,run)
             perbunchnormval=float(normval)/float(1000)

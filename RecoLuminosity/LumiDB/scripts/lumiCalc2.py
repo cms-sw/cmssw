@@ -155,7 +155,10 @@ if __name__ == '__main__':
                 if runinfile not in runlist:
                     irunlsdict[runinfile]=None
                     continue
-                irunlsdict[runinfile]=runlsbyfile[runinfile]
+                if options.action=='delivered':#for delivered we care only about selected runs
+                    irunlsdict[runinfile]=None
+                else:
+                    irunlsdict[runinfile]=runlsbyfile[runinfile]
         else:
             for run in runlist:
                 irunlsdict[run]=None
