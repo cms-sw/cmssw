@@ -13,7 +13,8 @@ for line in inputFile:
             # one month in seconds = 31*24*60*60 = 2678400
             if (time.time() - int(IOVtime)/1000) < 2678400:
                 firstIOV = IOVtime
-                outputFile.write("    data: [[" + IOVtime + line.split(firstIOV)[1] + IOVtime + line.split(firstIOV)[2])
+                num = len(line.split(firstIOV))
+                outputFile.write("    data: [[" + IOVtime + line.split(firstIOV)[num-2] + IOVtime + line.split(firstIOV)[num-1])
                 break
     else:
         outputFile.write(line)

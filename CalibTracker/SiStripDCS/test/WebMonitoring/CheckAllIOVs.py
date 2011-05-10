@@ -65,7 +65,7 @@ if len(sys.argv) < 3:
     print "Please provide the name of the database and the tag as in: ",
     print "./CheckAllIOVs.py sqlite_file:Example1a.db SiStripDetVOff_Fake_31X",
     print "or",
-    print "./CheckAllIOVs.py oracle://cms_orcoff_prod/CMS_COND_31X_STRIP SiStripDetVOff_v1_prompt"
+    print "./CheckAllIOVs.py oracle://cms_orcoff_prod/CMS_COND_31X_STRIP SiStripDetVOff_v2_prompt"
     print "(Note that when accessing the oracle or frontier db you also need the password)"
     sys.exit(1)
 
