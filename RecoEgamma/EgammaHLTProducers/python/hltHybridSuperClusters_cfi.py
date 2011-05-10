@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoEcal.EgammaClusterProducers.ecalRecHitFlags_cfi import *
-from RecoEcal.EgammaClusterProducers.ecalSeverityLevelAlgos_cfi import *
-from RecoEcal.EgammaClusterProducers.ecalSeverityLevelFlags_cfi import *
 
 # Producer for Hybrid BasicClusters and SuperClusters
 hltHybridSuperClusters = cms.EDProducer("EgammaHLTHybridClusterProducer",
@@ -32,10 +29,8 @@ hltHybridSuperClusters = cms.EDProducer("EgammaHLTHybridClusterProducer",
     # flags to be excluded
     RecHitFlagToBeExcluded = cms.vint32(),
     # new spikeId removal. Off by default
-    RecHitSeverityToBeExcluded = cms.vint32(999),
+    RecHitSeverityToBeExcluded = cms.vstring(),
     severityRecHitThreshold = cms.double(4.),
-    severitySpikeId = cms.int32(ecalSeverityLevelSpikeId_kSwissCrossBordersIncluded),
-    severitySpikeThreshold = cms.double(0.95),
     excludeFlagged = cms.bool(False),
     eThreshB = cms.double(0.1),
     eThreshA = cms.double(0.003),                                        
