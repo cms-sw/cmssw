@@ -6466,6 +6466,22 @@ public:
          int L3Tiso,
          float L1TauEtThr,
          float L1CenJetThr);
+
+   int OpenHltIsoPFTauPassed(
+   		float Et,
+		float eta,
+		float LTpT,
+		float L1TauThr,
+		float L1CenJetThr);
+
+   int OpenHltTightConeIsoPFTauPassed(
+   		float Et,
+		float eta,
+		float LTpT,
+		float L1TauThr,
+		float L1CenJetThr);
+
+
    int OpenHltTauL2SCMETPassed(
          float Et,
          float L25Tpt,
@@ -6552,6 +6568,7 @@ public:
    int OpenHltCleanedDiJetPassed(
          float Et1,
          float Et2,
+         float AbsEtaMax,
          bool cor,
          const std::string& algo,
          float Deta,
