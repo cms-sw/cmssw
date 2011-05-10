@@ -11,6 +11,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/types.h"
+#include "FWCore/Utilities/interface/Digest.h"
 
 #include <map>
 #include <sstream>
@@ -592,6 +593,15 @@ namespace edm {
     result += '(';
     result += rep;
     result += ')';
+  }
+
+  void
+  Entry::toDigest(cms::Digest &digest) const {
+    digest.append(&tracked, 1);
+    digest.append(&type, 1);
+    digest.append("(", 1);
+    digest.append(rep);
+    digest.append(")", 1);
   }
 
   std::string

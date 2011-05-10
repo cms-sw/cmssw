@@ -9,6 +9,9 @@
 
 #include "FWCore/Utilities/interface/value_ptr.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+namespace cms {
+  class Digest;
+}
 
 namespace edm {
 
@@ -28,6 +31,7 @@ namespace edm {
 
     std::string toString() const;
     void toString(std::string& result) const;
+    void toDigest(cms::Digest &digest) const;
 
     bool isTracked() const {return isTracked_;}
 

@@ -25,6 +25,9 @@
 
 // ----------------------------------------------------------------------
 // contents
+namespace cms {
+  class Digest;
+}
 
 namespace edm {
   typedef std::vector<ParameterSet> VParameterSet;
@@ -86,6 +89,7 @@ namespace edm {
     // encode only tracked parameters
     std::string toString() const;
     void toString(std::string& result) const;
+    void toDigest(cms::Digest &digest) const;
 
     //encode tracked and untracked parameters
     void allToString(std::string& result) const;

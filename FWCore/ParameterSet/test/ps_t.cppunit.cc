@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/Digest.h"
 
 
 class testps: public CppUnit::TestFixture
@@ -37,6 +38,7 @@ class testps: public CppUnit::TestFixture
   CPPUNIT_TEST(testRegistration);
   CPPUNIT_TEST(testCopyFrom);
   CPPUNIT_TEST(testGetParameterAsString);
+  CPPUNIT_TEST(calculateIDTest);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -62,6 +64,7 @@ public:
   void testRegistration();
   void testCopyFrom();
   void testGetParameterAsString();
+  void calculateIDTest();
   // Still more to do...
 private:
 };
@@ -325,6 +328,53 @@ void testps::idTest()
 
   CPPUNIT_ASSERT (a != b); 
   CPPUNIT_ASSERT (a.id() != b.id());
+}
+
+void testps::calculateIDTest()
+{
+  std::vector<int> thousand(1000,0);
+  std::vector<int> hundred(100,0);
+  edm::ParameterSet a;
+  edm::ParameterSet b;
+  edm::ParameterSet c;
+  a.addParameter<double>("pi",3.14);
+  a.addParameter<int>("answer", 42),
+  a.addParameter<std::string>("amiga", "rules");
+  a.addParameter<std::vector<int> >("thousands", thousand);
+  a.addUntrackedParameter<double>("e", 2.72);
+  a.addUntrackedParameter<int>("question", 41+1);
+  a.addUntrackedParameter<std::string>("atari", "too");
+  a.addUntrackedParameter<std::vector<int> >("hundred", hundred);
+
+  b.addParameter<double>("pi",3.14);
+  b.addParameter<int>("answer", 42),
+  b.addParameter<std::string>("amiga", "rules");
+  b.addParameter<std::vector<int> >("thousands", thousand);
+  b.addUntrackedParameter<double>("e", 2.72);
+  b.addUntrackedParameter<int>("question", 41+1);
+  b.addUntrackedParameter<std::string>("atari", "too");
+  b.addUntrackedParameter<std::vector<int> >("hundred", hundred);
+
+  c.addParameter<double>("pi",3.14);
+  c.addParameter<int>("answer", 42),                                                                                                                                                                                       
+  c.addParameter<std::string>("amiga", "rules");
+  c.addParameter<std::vector<int> >("thousands", thousand);
+  c.addUntrackedParameter<double>("e", 2.72);
+  c.addUntrackedParameter<int>("question", 41+1);
+  c.addUntrackedParameter<std::string>("atari", "too");
+  c.addUntrackedParameter<std::vector<int> >("hundred", hundred);
+
+  b.addParameter<edm::ParameterSet>("nested", c);
+  std::vector<edm::ParameterSet> vb;
+  vb.push_back(b);
+
+  a.addUntrackedParameter<std::vector<edm::ParameterSet> >("vps", vb);
+  std::string stringrep;
+  a.toString(stringrep);                                                                                                                                                                                                
+  cms::Digest md5alg(stringrep);
+  cms::Digest newDigest;
+  a.toDigest(newDigest);
+  CPPUNIT_ASSERT (md5alg.digest().toString() == newDigest.digest().toString());
 }
 
 void testps::mapByIdTest()

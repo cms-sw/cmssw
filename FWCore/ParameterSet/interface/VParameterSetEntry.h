@@ -30,6 +30,7 @@ namespace edm {
 
     std::string toString() const;
     void toString(std::string& result) const;
+    void toDigest(cms::Digest &digest) const;
 
     bool isTracked() const {return tracked;}
 

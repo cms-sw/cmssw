@@ -1,6 +1,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSetEntry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Digest.h"
+
 #include <cassert>
 #include <sstream>
 #include <iostream>
@@ -55,6 +57,19 @@ namespace edm {
     }
     theID_.toString(result);
     result += ')';
+  }
+
+  void
+  ParameterSetEntry::toDigest(cms::Digest &digest) const {
+    digest.append(isTracked() ? "+Q(" : "-Q(", 3);
+    if (!theID_.isValid()) {
+      throw edm::Exception(edm::errors::LogicError)
+        << "ParameterSet::toString() called prematurely\n"
+        << "before ParameterSet::registerIt() has been called\n"
+        << "for all nested parameter sets\n";
+    }
+    theID_.toDigest(digest);
+    digest.append(")", 1);
   }
 
   std::string

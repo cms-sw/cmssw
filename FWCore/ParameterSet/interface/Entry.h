@@ -27,6 +27,10 @@
 // ----------------------------------------------------------------------
 // contents
 
+namespace cms {
+  class Digest;
+}
+
 namespace edm {
   // forward declarations:
   class ParameterSet;
@@ -161,6 +165,7 @@ namespace edm {
 
     std::string toString() const;
     void toString(std::string& result) const;
+    void toDigest(cms::Digest &digest) const;
 
     size_t sizeOfString() const {return rep.size() + 4;}
 

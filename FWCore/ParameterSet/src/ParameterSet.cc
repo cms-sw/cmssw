@@ -152,11 +152,16 @@ namespace edm {
     for(vpsettable::iterator i = vpsetTable_.begin(), e = vpsetTable_.end(); i != e; ++i) {
       i->second.registerPsetsAndUpdateIDs();
     }
-
-    std::string stringrep;
-    toString(stringrep);
-    cms::Digest md5alg(stringrep);
-    id_ = ParameterSetID(md5alg.digest().toString());
+//  The old, string base code is found below. Uncomment this and the assert to check whether
+//  there are discrepancies between old and new implementation.
+//    std::string stringrep;
+//    toString(stringrep);
+//    cms::Digest md5alg(stringrep);
+//    id_ = ParameterSetID(md5alg.digest().toString());
+    cms::Digest newDigest;
+    toDigest(newDigest); 
+    id_ = ParameterSetID(newDigest.digest().toString());    
+//    assert(md5alg.digest().toString() == newDigest.digest().toString());
     assert(isRegistered());
   }
 
@@ -578,6 +583,43 @@ namespace edm {
 
     rep += '>';
   }  // to_string()
+
+  void
+  ParameterSet::toDigest(cms::Digest &digest) const {
+    digest.append("<", 1);
+    bool started = false; 
+    for(table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
+      if(b->second.isTracked()) {
+        if (started)
+          digest.append(";", 1);
+        digest.append(b->first);
+        digest.append("=", 1);
+        b->second.toDigest(digest);
+        started = true;
+      }
+    }
+    for(psettable::const_iterator b = psetTable_.begin(), e = psetTable_.end(); b != e; ++b) {
+      if(b->second.isTracked()) {
+        if (started)
+          digest.append(";", 1);
+        digest.append(b->first);
+        digest.append("=", 1);
+        b->second.toDigest(digest);
+        started = true;
+      }
+    }
+    for(vpsettable::const_iterator b = vpsetTable_.begin(), e = vpsetTable_.end(); b != e; ++b) {
+      if(b->second.isTracked()) {
+        if (started)
+          digest.append(";", 1);
+        digest.append(b->first);
+        digest.append("=", 1);
+        b->second.toDigest(digest);
+      }
+    }
+
+    digest.append(">",1);
+  }
 
   std::string
   ParameterSet::toString() const {

@@ -1,6 +1,7 @@
 #include "FWCore/ParameterSet/interface/VParameterSetEntry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/split.h"
+#include "FWCore/Utilities/interface/Digest.h"
 
 #include <cassert>
 #include <ostream>
@@ -52,6 +53,20 @@ namespace edm {
       start = between;
     }
     result += '}';
+  }
+
+  void
+  VParameterSetEntry::toDigest(cms::Digest &digest) const {
+    assert(theIDs);
+    digest.append(tracked ? "+q{" : "-q{", 3);
+    bool started = false;
+    for (std::vector<ParameterSetID>::const_iterator i = theIDs->begin(), e = theIDs->end(); i != e; ++i) {
+      if (started)
+        digest.append(",", 1);
+      i->toDigest(digest);
+      started = true;
+    }
+    digest.append("}",1);
   }
 
   std::string VParameterSetEntry::toString() const {
