@@ -63,23 +63,7 @@ class HLTProcess(object):
     "HLT_HT250_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT35_v*",
     "HLT_HT300_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT40_v*",
     "HLT_HT350_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT45_v*",
-    "HLT_HT300_BTagIP_v*",
-    "HLT_HT300_BTagIP_PFMHT55_v*",
-    "HLT_HT300_CentralJet30_BTagIP_v*",
-    "HLT_HT300_CentralJet30_BTagIP_PFMHT55_v*",
-    "HLT_HT300_CentralJet30_BTagIP_PFMHT75_v*",
-    "HLT_DiCentralJet20_BTagIP_MET65_v*",
-    "HLT_HT300_BTagIP_PFMHT75_v*",
-    "HLT_R014_MR150_BTagIP_v*",
-    "HLT_R014_MR150_CentralJet40_BTagIP_v*",
-    "HLT_R014_MR450_CentralJet40_BTagIP_v*",
-    "HLT_R020_MR350_CentralJet40_BTagIP_v*",
-    "HLT_R025_MR250_CentralJet40_BTagIP_v*",
-    "HLT_R014_MR450_BTagIP_v*",
-    "HLT_R020_MR350_BTagIP_v*",
-    "HLT_R025_MR250_BTagIP_v*",
     ]
-
 
   def __init__(self, configuration):
     self.config = configuration
@@ -840,6 +824,15 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorEleJetSingleTop" )
       self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesEleJetSingleTop" )
       self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksEleJetSingleTop" )
+      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorRA2b" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesRA2b" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksRA2b" )
+      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorRAzr" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesRAzr" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksRAzr" )
+      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorHbb" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesHbb" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksHbb" )
 
       self.options['modules'].append( "-hltPixelTracksForMinBias" )
       self.options['modules'].append( "-hltPixelTracksForHighMult" )
