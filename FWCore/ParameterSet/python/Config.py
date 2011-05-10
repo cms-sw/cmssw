@@ -626,7 +626,7 @@ class Process(object):
         result+=self._dumpPythonList(self.vpsets, options)
         if self.schedule:
             pathNames = ['process.'+p.label_() for p in self.schedule]
-            result +='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
+            result +='process.schedule = cms.Schedule(*[' + ','.join(pathNames) + '])\n'
         return result
     def _replaceInSequences(self, label, new):
         old = getattr(self,label)
@@ -1080,7 +1080,7 @@ process.p = cms.Path(process.a)
 process.p2 = cms.Path(process.s)
 
 
-process.schedule = cms.Schedule(process.p2,process.p)
+process.schedule = cms.Schedule(*[process.p2,process.p])
 """)
             #Reverse order of 'r' and 's'
             p = Process("test")
@@ -1115,7 +1115,7 @@ process.p = cms.Path(process.a)
 process.p2 = cms.Path(process.r)
 
 
-process.schedule = cms.Schedule(process.p2,process.p)
+process.schedule = cms.Schedule(*[process.p2,process.p])
 """)
         def testSecSource(self):
             p = Process('test')
