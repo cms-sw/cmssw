@@ -87,7 +87,7 @@ void DigiVertexCorrHistogramMaker::book(const std::string dirname) {
     if(m_subdirs[i]) {
       sprintf(name,"n%sdigivsnvtx",slab.c_str());
       sprintf(title,"%s %s multiplicity vs Nvtx",slab.c_str(),m_hitname.c_str());
-      m_nmultvsnvtx[i] = m_subdirs[i]->make<TH2F>(name,title,30,-0.5,29.5,m_nbins,0.,m_binmax[i]/(m_scalefact*m_nbins)*m_nbins);
+      m_nmultvsnvtx[i] = m_subdirs[i]->make<TH2F>(name,title,40,-0.5,39.5,m_nbins,0.,m_binmax[i]/(m_scalefact*m_nbins)*m_nbins);
       m_nmultvsnvtx[i]->GetXaxis()->SetTitle("Number of Vertices");    m_nmultvsnvtx[i]->GetYaxis()->SetTitle("Number of Hits");
       
     }
