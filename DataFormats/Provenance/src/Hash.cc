@@ -79,6 +79,16 @@ namespace edm {
       copy_all(temp1, temp.bytes);
       result += temp.toString();
     }
+    
+    void
+    toDigest_(cms::Digest& digest, value_type const& hash) {
+      // FIXME: do we really need to go through a temporary value_type???
+      value_type temp1(hash);
+      fixup_(temp1);
+      cms::MD5Result temp;
+      copy_all(temp1, temp.bytes);
+      digest.append(temp.toString());
+    }
 
     std::ostream&
     print_(std::ostream& os, value_type const& hash) {

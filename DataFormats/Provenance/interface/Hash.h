@@ -14,6 +14,10 @@ Hash:
   all constructors make corrected instances.
 
 ----------------------------------------------------------------------*/
+namespace cms {
+  class Digest;
+}
+
 namespace edm {
 
   namespace detail {
@@ -29,6 +33,7 @@ namespace edm {
     bool isValid_(value_type const& hash);
     void throwIfIllFormed(value_type const& hash);
     void toString_(std::string& result, value_type const& hash);
+    void toDigest_(cms::Digest& digest, value_type const& hash);
     std::ostream& print_(std::ostream& os, value_type const& hash);
   }
 
@@ -58,6 +63,7 @@ namespace edm {
     bool operator!=(Hash<I> const& other) const;
     std::ostream& print(std::ostream& os) const;
     void toString(std::string& result) const;
+    void toDigest(cms::Digest& digest) const;
     void swap(Hash<I>& other);
 
     // Return the 16-byte (non-printable) string form.
@@ -177,6 +183,13 @@ namespace edm {
   void
   Hash<I>::toString(std::string& result) const {
     hash_detail::toString_(result, hash_);
+  }
+
+  template <int I>
+  inline
+  void
+  Hash<I>::toDigest(cms::Digest& digest) const {
+    hash_detail::toDigest_(digest, hash_);
   }
 
   template <int I>
