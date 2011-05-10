@@ -49,10 +49,10 @@ void VertexHistogramMaker::book(const std::string dirname) {
 
   edm::LogInfo("HistogramBooking") << "Vertex histogram booking in directory " << dirname;
 
-  m_hnvtx = currdir->make<TH1F>("nvtx","Number of Vertices",20,-0.5,19.5);
+  m_hnvtx = currdir->make<TH1F>("nvtx","Number of Vertices",40,-0.5,39.5);
   m_hnvtx->GetXaxis()->SetTitle("vertices");   m_hnvtx->GetYaxis()->SetTitle("Events"); 
 
-  m_hntruevtx = currdir->make<TH1F>("ntruevtx","Number of True Vertices",20,-0.5,19.5);
+  m_hntruevtx = currdir->make<TH1F>("ntruevtx","Number of True Vertices",40,-0.5,39.5);
   m_hntruevtx->GetXaxis()->SetTitle("vertices");   m_hntruevtx->GetYaxis()->SetTitle("Events"); 
 
   m_hntracks = currdir->make<TH1F>("ntracks","Number of Tracks",200,-0.5,199.5);
