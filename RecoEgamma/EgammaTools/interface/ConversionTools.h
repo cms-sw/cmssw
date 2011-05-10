@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ConversionTools.h,v 1.1 2010/06/08 20:17:28 bendavid Exp $
+// $Id: ConversionTools.h,v 1.1 2011/04/15 20:00:10 bendavid Exp $
 //
 // ConversionTools
 //
@@ -40,7 +40,7 @@ class ConversionTools
     ConversionTools() {}
                                                       
                                                 
-    static bool                        isGoodConversion(const reco::Conversion &conv, const math::XYZPoint &beamspot, float lxyMin=2.0, float probMin=1e-6, uint nHitsBeforeVtxMax=1);
+    static bool                        isGoodConversion(const reco::Conversion &conv, const math::XYZPoint &beamspot, float lxyMin=2.0, float probMin=1e-6, unsigned int nHitsBeforeVtxMax=1);
     
     static bool                        matchesConversion(const reco::GsfElectron &ele, const reco::Conversion &conv, bool allowCkfMatch=true);
     static bool                        matchesConversion(const reco::SuperCluster &sc, const reco::Conversion &conv, float dRMax = 0.1, float dEtaMax = 999., float dPhiMax = 999.);
@@ -50,30 +50,30 @@ class ConversionTools
 
 
     static bool                        hasMatchedConversion(const reco::GsfElectron &ele,
-                                                  const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, bool allowCkfMatch=true, float lxyMin=2.0, float probMin=1e-6, uint nHitsBeforeVtxMax=0);
+                                                  const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, bool allowCkfMatch=true, float lxyMin=2.0, float probMin=1e-6, unsigned int nHitsBeforeVtxMax=0);
 
     static bool                        hasMatchedConversion(const reco::TrackRef &trk,
-                                                  const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, float lxyMin=2.0, float probMin=1e-6, uint nHitsBeforeVtxMax=1);
+                                                  const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, float lxyMin=2.0, float probMin=1e-6, unsigned int nHitsBeforeVtxMax=1);
 
     static bool                        hasMatchedConversion(const reco::SuperCluster &sc,
-                                                  const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, float dRMax = 0.1, float dEtaMax = 999., float dPhiMax = 999., float lxyMin=2.0, float probMin=1e-6, uint nHitsBeforeVtxMax=1);
+                                                  const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, float dRMax = 0.1, float dEtaMax = 999., float dPhiMax = 999., float lxyMin=2.0, float probMin=1e-6, unsigned int nHitsBeforeVtxMax=1);
 
 
     static reco::ConversionRef         matchedConversion(const reco::GsfElectron &ele,
-                                                  const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, bool allowCkfMatch=true, float lxyMin=2.0, float probMin=1e-6, uint nHitsBeforeVtxMax=0);
+                                                  const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, bool allowCkfMatch=true, float lxyMin=2.0, float probMin=1e-6, unsigned int nHitsBeforeVtxMax=0);
 
     static reco::ConversionRef         matchedConversion(const reco::TrackRef &trk,
-                                                  const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, float lxyMin=2.0, float probMin=1e-6, uint nHitsBeforeVtxMax=1);
+                                                  const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, float lxyMin=2.0, float probMin=1e-6, unsigned int nHitsBeforeVtxMax=1);
 
     static reco::ConversionRef         matchedConversion(const reco::SuperCluster &sc,
-                                                  const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, float dRMax = 0.1, float dEtaMax = 999., float dPhiMax = 999., float lxyMin=2.0, float probMin=1e-6, uint nHitsBeforeVtxMax=1);
+                                                  const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, float dRMax = 0.1, float dEtaMax = 999., float dPhiMax = 999., float lxyMin=2.0, float probMin=1e-6, unsigned int nHitsBeforeVtxMax=1);
 
     static bool                        hasMatchedPromptElectron(const reco::SuperClusterRef &sc, const edm::Handle<reco::GsfElectronCollection> &eleCol,
-                                                  const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, float lxyMin=2.0, float probMin=1e-6, uint nHitsBeforeVtxMax=0);
+                                                  const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, float lxyMin=2.0, float probMin=1e-6, unsigned int nHitsBeforeVtxMax=0);
 
 
     static reco::GsfElectronRef        matchedPromptElectron(const reco::SuperClusterRef &sc, const edm::Handle<reco::GsfElectronCollection> &eleCol,
-                                                  const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, float lxyMin=2.0, float probMin=1e-6, uint nHitsBeforeVtxMax=0);
+                                                  const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, float lxyMin=2.0, float probMin=1e-6, unsigned int nHitsBeforeVtxMax=0);
 
 };
 #endif

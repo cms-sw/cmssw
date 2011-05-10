@@ -1,4 +1,4 @@
-// $Id: ConversionTools.cc,v 1.1 2011/04/15 20:00:11 bendavid Exp $
+// $Id: ConversionTools.cc,v 1.2 2011/04/18 20:47:51 bendavid Exp $
 
 #include <TMath.h>
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
@@ -16,7 +16,7 @@ using namespace reco;
 
 
 //--------------------------------------------------------------------------------------------------
-bool ConversionTools::isGoodConversion(const Conversion &conv, const math::XYZPoint &beamspot, float lxyMin, float probMin, uint nHitsBeforeVtxMax)
+bool ConversionTools::isGoodConversion(const Conversion &conv, const math::XYZPoint &beamspot, float lxyMin, float probMin, unsigned int nHitsBeforeVtxMax)
 {
   
   //Check if a given conversion candidate passes the conversion selection cuts
@@ -144,7 +144,7 @@ bool ConversionTools::matchesConversion(const reco::GsfTrackRef &trk, const reco
 //--------------------------------------------------------------------------------------------------
 bool ConversionTools::hasMatchedConversion(const reco::GsfElectron &ele,
                                                   const edm::Handle<reco::ConversionCollection> &convCol,
-                                                  const math::XYZPoint &beamspot, bool allowCkfMatch, float lxyMin, float probMin, uint nHitsBeforeVtxMax)
+                                                  const math::XYZPoint &beamspot, bool allowCkfMatch, float lxyMin, float probMin, unsigned int nHitsBeforeVtxMax)
 {
   //check if a given electron candidate matches to at least one conversion candidate in the
   //collection which also passes the selection cuts, optionally match with the closestckf track in
@@ -164,7 +164,7 @@ bool ConversionTools::hasMatchedConversion(const reco::GsfElectron &ele,
 //--------------------------------------------------------------------------------------------------
 bool ConversionTools::hasMatchedConversion(const reco::TrackRef &trk,
                                                   const edm::Handle<reco::ConversionCollection> &convCol,
-                                                  const math::XYZPoint &beamspot, float lxyMin, float probMin, uint nHitsBeforeVtxMax)
+                                                  const math::XYZPoint &beamspot, float lxyMin, float probMin, unsigned int nHitsBeforeVtxMax)
 {
   //check if a given track matches to at least one conversion candidate in the
   //collection which also passes the selection cuts
@@ -185,7 +185,7 @@ bool ConversionTools::hasMatchedConversion(const reco::TrackRef &trk,
 //--------------------------------------------------------------------------------------------------
 bool ConversionTools::hasMatchedConversion(const reco::SuperCluster &sc,
                   const edm::Handle<reco::ConversionCollection> &convCol,
-                  const math::XYZPoint &beamspot, float dRMax, float dEtaMax, float dPhiMax, float lxyMin, float probMin, uint nHitsBeforeVtxMax)
+                  const math::XYZPoint &beamspot, float dRMax, float dEtaMax, float dPhiMax, float lxyMin, float probMin, unsigned int nHitsBeforeVtxMax)
 {
   
   //check if a given SuperCluster matches to at least one conversion candidate in the
@@ -206,7 +206,7 @@ bool ConversionTools::hasMatchedConversion(const reco::SuperCluster &sc,
 //--------------------------------------------------------------------------------------------------
 reco::ConversionRef ConversionTools::matchedConversion(const reco::GsfElectron &ele,
                                                   const edm::Handle<reco::ConversionCollection> &convCol,
-                                                  const math::XYZPoint &beamspot, bool allowCkfMatch, float lxyMin, float probMin, uint nHitsBeforeVtxMax)
+                                                  const math::XYZPoint &beamspot, bool allowCkfMatch, float lxyMin, float probMin, unsigned int nHitsBeforeVtxMax)
 {
   //check if a given electron candidate matches to at least one conversion candidate in the
   //collection which also passes the selection cuts, optionally match with the closestckf track in
@@ -234,7 +234,7 @@ reco::ConversionRef ConversionTools::matchedConversion(const reco::GsfElectron &
 //--------------------------------------------------------------------------------------------------
 reco::ConversionRef ConversionTools::matchedConversion(const reco::TrackRef &trk,
                                                   const edm::Handle<reco::ConversionCollection> &convCol,
-                                                  const math::XYZPoint &beamspot, float lxyMin, float probMin, uint nHitsBeforeVtxMax)
+                                                  const math::XYZPoint &beamspot, float lxyMin, float probMin, unsigned int nHitsBeforeVtxMax)
 {
   //check if a given track matches to at least one conversion candidate in the
   //collection which also passes the selection cuts
@@ -263,7 +263,7 @@ reco::ConversionRef ConversionTools::matchedConversion(const reco::TrackRef &trk
 //--------------------------------------------------------------------------------------------------
 reco::ConversionRef ConversionTools::matchedConversion(const reco::SuperCluster &sc,
                   const edm::Handle<reco::ConversionCollection> &convCol,
-                  const math::XYZPoint &beamspot, float dRMax, float dEtaMax, float dPhiMax, float lxyMin, float probMin, uint nHitsBeforeVtxMax)
+                  const math::XYZPoint &beamspot, float dRMax, float dEtaMax, float dPhiMax, float lxyMin, float probMin, unsigned int nHitsBeforeVtxMax)
 {
 
   //check if a given SuperCluster matches to at least one conversion candidate in the
@@ -290,7 +290,7 @@ reco::ConversionRef ConversionTools::matchedConversion(const reco::SuperCluster 
 
 //--------------------------------------------------------------------------------------------------
 bool ConversionTools::hasMatchedPromptElectron(const reco::SuperClusterRef &sc, const edm::Handle<reco::GsfElectronCollection> &eleCol,
-                   const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, float lxyMin, float probMin, uint nHitsBeforeVtxMax)
+                   const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, float lxyMin, float probMin, unsigned int nHitsBeforeVtxMax)
 {
 
   //check if a given SuperCluster matches to at least one GsfElectron having zero expected inner hits
@@ -320,7 +320,7 @@ bool ConversionTools::hasMatchedPromptElectron(const reco::SuperClusterRef &sc, 
 
 //--------------------------------------------------------------------------------------------------
 reco::GsfElectronRef ConversionTools::matchedPromptElectron(const reco::SuperClusterRef &sc, const edm::Handle<reco::GsfElectronCollection> &eleCol,
-                   const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, float lxyMin, float probMin, uint nHitsBeforeVtxMax)
+                   const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, float lxyMin, float probMin, unsigned int nHitsBeforeVtxMax)
 {
 
   //check if a given SuperCluster matches to at least one GsfElectron having zero expected inner hits
