@@ -185,6 +185,12 @@ namespace cms
     md5_append(&state_, const_cast<md5_byte_t*>(data), s.size());
   }
 
+  void Digest::append(const char *s, size_t size)
+  {
+    const md5_byte_t* data = reinterpret_cast<const md5_byte_t*>(s);
+    md5_append(&state_, const_cast<md5_byte_t*>(data), size);
+  }
+
   MD5Result Digest::digest() const
   {
     MD5Result aDigest;

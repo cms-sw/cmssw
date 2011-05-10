@@ -58,6 +58,7 @@ namespace cms
     explicit Digest(std::string const& s);
 
     void append(std::string const& s);
+    void append(const char *data, size_t size);
 
     MD5Result digest() const;
 
