@@ -167,7 +167,10 @@ def toScreenOverview(lumidata,isverbose):
         (totrecordedlumi,recordedlumiunit)=CommonUtil.guessUnit(totrecorded)
         selectedcmsls=[x[1] for x in lsdata if x[1]!=0]
         totalSelectedLS+=len(selectedcmsls)
-        selectedlsStr = CommonUtil.splitlistToRangeString(selectedcmsls)
+        if len(selectedcmsls)==0:
+            selectedlsStr='n/a'
+        else:
+            selectedlsStr = CommonUtil.splitlistToRangeString(selectedcmsls)
         result.append([str(run),str(nls),'%.3f'%(totdeliveredlumi)+' ('+deliveredlumiunit+')',selectedlsStr,'%.3f'%(totrecordedlumi)+' ('+recordedlumiunit+')'])
     print ' ==  = '
     print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,

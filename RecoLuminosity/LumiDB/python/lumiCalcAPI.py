@@ -311,6 +311,9 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
             result[run]=[]
             continue
         cmsrunsummary=dataDML.runsummary(schema,run)
+        if len(cmsrunsummary)==0:#non existing run
+            result[run]=None
+            continue
         startTimeStr=cmsrunsummary[6]
         lumidataid=None
         trgdataid=None
@@ -335,7 +338,8 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
             cmslsnum=perlsdata[0]
             triggeredls=cmslsnum
             if lslist is not None and cmslsnum not in lslist:
-                continue
+                cmslsnum=0
+                recordedlumi=0.0
             instlumi=perlsdata[1]
             instlumierror=perlsdata[2]
             calibratedlumi=instlumi*normval
