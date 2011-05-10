@@ -43,8 +43,10 @@ dedxSkimNPHarm2 = cms.EDProducer("DeDxEstimatorProducer",
 
 
 DedxFilter = cms.EDFilter("HSCPFilter",
-     	 inputTrackCollection = cms.InputTag("TrackRefitterSkim"),
+     inputMuonCollection = cms.InputTag("muons"),
+	 inputTrackCollection = cms.InputTag("TrackRefitterSkim"),
 	 inputDedxCollection =  cms.InputTag("dedxSkimNPHarm2"),
+     SAMuPtMin = cms.double(60),
 	 trkPtMin = cms.double(TRACK_PT),
 	 dedxMin =cms.double(3.0),
      dedxMaxLeft =cms.double(2.8),
