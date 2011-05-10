@@ -43,7 +43,7 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es)
     : read_pt_lut(false),
       isBinary(false)
 {
-	pt_method = 26;
+	pt_method = 28;
         //std::cout << "pt_method from 4 " << std::endl; 
 	lowQualityFlag = 4;
 	isBeamStartConf = true;
@@ -112,7 +112,11 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset,
   // 25 - Anna's: for fw 20110118 and up, curves with MC like method 4 <- 2011 data taking
   // 26 - Anna's: for fw 20110118 and up, curves with MC like method 4 <- 2011 data taking
           //with improvments at ME1/1a: find max pt for 3 links hypothesis
-  pt_method = pset.getUntrackedParameter<unsigned>("PtMethod",26);
+  // change Quality: Q = 3 for mode 5, Quility = 2 for mode = 8, 9, 10 at eta = 1.6-1.8   
+  // 27 - Anna's: for fw 20110118 and up, curves with MC like method 4 <- 2011 data taking
+  // 28 - Anna's: for fw 20110118 and up, curves with MC like method 4 <- 2011 data taking
+          //with improvments at ME1/1a: find max pt for 3 links hypothesis
+  pt_method = pset.getUntrackedParameter<unsigned>("PtMethod",28);
   //std::cout << "pt_method from pset " << std::endl; 
   // what does this mean???
   lowQualityFlag = pset.getUntrackedParameter<unsigned>("LowQualityFlag",4);
@@ -199,7 +203,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 
 
 //***************************************************//
-  if(pt_method >= 23 && pt_method <= 26){ //here we have only pt_methods greater then 
+  if(pt_method >= 23 && pt_method <= 28){ //here we have only pt_methods greater then 
                        //for fw 20110118 <- 2011 data taking, curves from MC like method 4
   // mode definition you could find at page 6 & 7: 
   // http://www.phys.ufl.edu/~madorsky/sp/2011-11-18/sp_core_interface.pdf 
@@ -226,7 +230,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
       ptR_front = ptMethods.Pt3Stn2010(int(mode), etaR, dphi12R, dphi23R, 1, int(pt_method));
       ptR_rear  = ptMethods.Pt3Stn2010(int(mode), etaR, dphi12R, dphi23R, 0, int(pt_method));    
 
-      if((pt_method == 24 || pt_method == 26) && mode != 5 && etaR > 2.1)//exclude mode without ME11a
+      if((pt_method == 24 || pt_method == 26 || pt_method == 28) && mode != 5 && etaR > 2.1)//exclude mode without ME11a
         {
             float dphi12Rmin = dphi12R - Pi*10/180/3; // 10/3 degrees 
             float dphi12Rmax = dphi12R + Pi*10/180/3; // 10/3 degrees
@@ -261,7 +265,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
       //std::cout<< " Sector_rad = " << (CSCTFConstants::SECTOR_RAD) << std::endl;
       ptR_front = ptMethods.Pt2Stn2010(int(mode), etaR, dphi12R, 1, int(pt_method));
       ptR_rear  = ptMethods.Pt2Stn2010(int(mode), etaR, dphi12R, 0, int(pt_method));
-      if((pt_method == 24 || pt_method ==26) && etaR > 2.1)//exclude tracks without ME11a 
+      if((pt_method == 24 || pt_method == 26 || pt_method == 28) && etaR > 2.1)//exclude tracks without ME11a 
         {
            float dphi12Rmin = fabs(fabs(dphi12R) - Pi*10/180/3); // 10/3 degrees 
            float ptR_front_min = ptMethods.Pt2Stn2010(int(mode), etaR, dphi12Rmin, 1, int(pt_method));
@@ -333,7 +337,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
   front_pt = trigger_ptscale->getPtScale()->getPacked(ptR_front);
   rear_pt  = trigger_ptscale->getPtScale()->getPacked(ptR_rear);
 
-  } //end pt_methods 23 & 24 
+  } //end pt_methods 23 - 28 
 
 //***************************************************//
 //***************************************************//
@@ -935,6 +939,7 @@ unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode, con
       quality = 1;
       if (isBeamStartConf && eta >= 12 && pt_method < 20) // eta > 2.1
 	quality = 3;
+      if(pt_method == 27 || pt_method == 28) quality = 3;// all mode = 5 set to quality 3 due to a lot dead ME1/1a stations
       break;
     case 6:
       if (eta>=3) // eta > 1.2
@@ -950,16 +955,19 @@ unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode, con
       quality = 1;
       if (isBeamStartConf && eta >= 12 && pt_method < 20) // eta > 2.1
 	quality = 2;
+      if((pt_method == 27 || pt_method == 28) && (eta >= 7 && eta < 9)) quality = 2; //set to quality 2 for eta = 1.6-1.8 due to a lot dead ME1/1a stations
       break;
     case 9:
       quality = 1;
       if (isBeamStartConf && eta >= 12 && pt_method < 20) // eta > 2.1
 	quality = 2;
+      if((pt_method == 27 || pt_method == 28) && (eta >= 7 && eta < 9)) quality = 2; //set to quality 2 for eta = 1.6-1.8 due to a lot dead ME1/1a stations
       break;
     case 10:
       quality = 1;
       if (isBeamStartConf && eta >= 12 && pt_method < 20) // eta > 2.1
 	quality = 2;
+      if((pt_method == 27 || pt_method == 28) && (eta >= 7 && eta < 9)) quality = 2; //set to quality 2 for eta = 1.6-1.8 due to a lot dead ME1/1a stations
       break;
     case 11:
       // single LCTs
