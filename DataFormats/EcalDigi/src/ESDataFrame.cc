@@ -17,7 +17,10 @@ ESDataFrame::ESDataFrame(const edm::DataFrame& df) :
    setSize( df.size() ) ;
    for( int i ( 0 ) ; i != size_ ; ++i )
    { 
-      data_[i] = ESSample( df[i] ) ;
+      static const int offset ( 65536 ) ; // for uint16 to int16
+      static const uint16_t limit  ( 32767 ) ;
+      const int dint ( limit < df[i] ? (int)df[i] - offset : df[i] ) ;
+      data_[i] = ESSample( (int16_t)dint ) ;
    }
 }
 

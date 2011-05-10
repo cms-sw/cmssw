@@ -66,7 +66,12 @@ class ESDigiCollection : public EcalDigiCollection
 	 uint16_t esdata[NSAMPLE] ;
 	 for( unsigned int i ( 0 ) ; i != NSAMPLE; ++i )
 	 {
-	    esdata[0]=digi[0].raw() ;
+	    static const int offset ( 65536 ) ; // for int16 to uint16
+	    const int16_t dshort ( digi[i].raw() ) ;
+	    const int     dint   ( (int) dshort + // add offset for uint16 conversion
+				   ( (int16_t) 0 > dshort ? 
+				     offset : (int) 0 ) ) ;
+	    esdata[i] = dint ;
 	 }
 	 EcalDigiCollection::push_back( digi.id()(), esdata ) ;
       }
