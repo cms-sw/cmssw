@@ -5,7 +5,7 @@ siStripLorentzAngleDepESProducer = cms.ESProducer("SiStripLorentzAngleDepESProdu
    
      LatencyRecord =   cms.PSet(
             record = cms.string('SiStripLatencyRcd'),
-            label = cms.untracked.string('Latency')
+            label = cms.untracked.string('')
             ),
 	LorentzAnglePeakMode = cms.PSet(
             record = cms.string('SiStripLorentzAngleRcd'),
