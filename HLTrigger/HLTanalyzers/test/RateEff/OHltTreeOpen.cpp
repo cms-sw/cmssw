@@ -15898,7 +15898,7 @@ int OHltTree::OpenHltHT_AlphaT(double HT,double betaT, double Jet){
   for (int i=0; i<NohJetCorCal; i++){
     double mHT = 0.;
     double aT = 0.;
-    if(ohJetCorCalEta[i] < 3.0 && (ohJetCorCalE[i]/cosh(ohJetCorCalEta[i])) > Jet ){ // Make ht and mHT for each jet in loop
+    if(OpenJetID(i) && fabs(ohJetCorCalEta[i]) < 3.0 && (ohJetCorCalE[i]/cosh(ohJetCorCalEta[i])) > Jet ){ // Make ht and mHT for each jet in loop
       ht += (ohJetCorCalE[i]/cosh(ohJetCorCalEta[i])); // HT
       mhtx-=((ohJetCorCalE[i]/cosh(ohJetCorCalEta[i]))*cos(ohJetCorCalPhi[i]));
       mhty-=((ohJetCorCalE[i]/cosh(ohJetCorCalEta[i]))*sin(ohJetCorCalPhi[i]));
