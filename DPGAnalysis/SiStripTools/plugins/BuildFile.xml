@@ -11,7 +11,6 @@
 <use   name="DataFormats/SiStripCluster"/>
 <use   name="DataFormats/SiPixelCluster"/>
 <use   name="DataFormats/Scalers"/>
-<use   name="DataFormats/DetId"/>
 <use   name="DataFormats/Common"/>
 <use   name="DPGAnalysis/SiStripTools"/>
 <use   name="DQM/SiStripCommon"/>

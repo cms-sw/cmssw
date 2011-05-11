@@ -55,7 +55,6 @@ namespace gen {
     // interface for accessing the EDM information from the hadronizer
     void setEDMEvent(edm::Event &event) { edmEvent_ = &event; }
     edm::Event &getEDMEvent() const { return *edmEvent_; }
-    virtual bool select(HepMC::GenEvent*) const { return true;}
 
   protected:
     GenRunInfoProduct& runInfo() { return genRunInfo_; }

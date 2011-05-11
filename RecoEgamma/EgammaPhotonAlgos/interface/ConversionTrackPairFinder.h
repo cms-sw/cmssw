@@ -55,7 +55,7 @@ public:
 
 class ByNumOfHits {
  public:
-  bool operator()(reco::TransientTrack const & a, reco::TransientTrack  const & b) {
+  bool operator()(reco::TransientTrack a, reco::TransientTrack  b) {
     if (a.numberOfValidHits()  == b.numberOfValidHits()  ) {
       return a.normalizedChi2() < b.normalizedChi2();
     } else {

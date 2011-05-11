@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
 /*
- * $Id: EcalSRCondTools.cc,v 1.2 2010/06/14 10:45:17 pgras Exp $
+ * $Id: EcalSRCondTools.cc,v 1.1 2010/06/09 14:02:44 pgras Exp $
  *
  * author: Ph Gras. June, 2010
  */
@@ -15,8 +15,6 @@
 
 #include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
 #include "CondFormats/DataRecord/interface/EcalSRSettingsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGPhysicsConst.h"
-#include "CondFormats/DataRecord/interface/EcalTPGPhysicsConstRcd.h"
 
 #include <string>
 #include <fstream>
@@ -118,38 +116,9 @@ EcalSRCondTools::analyze(const edm::Event& event, const edm::EventSetup& es){
   } else {//read mode
     edm::ESHandle<EcalSRSettings> hSr;
     es.get<EcalSRSettingsRcd>().get(hSr);
-    if(!hSr.isValid()){
-      cout << "EcalSRSettings record not found. Check the Cond DB Global tag.\n";
-    } else{
-      const EcalSRSettings* sr = hSr.product();
-      cout << "ECAL Seletive readout settings:\n";
-      cout << *sr << "\n" << endl;
-    }
-    
-    //trigger tower thresholds (from FENIX configuration):
-    edm::ESHandle<EcalTPGPhysicsConst> hTp;
-    es.get<EcalTPGPhysicsConstRcd>().get(hTp);
-    if(!hTp.isValid()){
-      cout << "EcalTPGPhysicsConst record not found. Check the Cond DB Global tag.\n";
-    } else{
-      const EcalTPGPhysicsConst * tp = hTp.product();
-      const EcalTPGPhysicsConstMap mymap = tp->getMap();
-      if(mymap.size()!=2){
-        cout << "Error: TPG physics record is of unexpected size: "
-             << mymap.size()  << " elements instead of two (one for EB, one for EE)\n";
-      } else{
-        EcalTPGPhysicsConstMap::const_iterator it=mymap.begin();
-        cout << "----------------------------------------------------------------------\n"
-          "Trigger tower Et thresholds extracted from TPG configuration \n"
-          "(EcalSRCondTools modules supports only read mode for these parameters):\n\n";
-        cout<< "EB: " << "LT = " << it->second.ttf_threshold_Low << " GeV "
-            << "HT = "<< it->second.ttf_threshold_High << " GeV\n";
-        ++it;
-        cout<< "EE: " << "LT = " << it->second.ttf_threshold_Low << " GeV "
-            << "HT = "<< it->second.ttf_threshold_High << " GeV\n";
-        
-      }
-    }
+    const EcalSRSettings* sr = hSr.product();
+    cout << "ECAL Seletive readout settings:\n";
+    cout << *sr << "\n" << endl;
   }
 }
 

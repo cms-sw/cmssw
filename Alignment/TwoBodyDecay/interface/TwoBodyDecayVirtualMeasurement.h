@@ -39,7 +39,7 @@ public:
     thePrimaryWidth( primaryWidth ),
     theSecondaryMass( secondaryMass ),
     theBeamSpot( convertGlobalPoint( beamSpot ) ),
-    theBeamSpotError( asHepMatrix(beamSpotError.matrix()) ) {}
+    theBeamSpotError( beamSpotError.matrix() ) {}
 
   TwoBodyDecayVirtualMeasurement( void ) :
     thePrimaryMass( 0. ),

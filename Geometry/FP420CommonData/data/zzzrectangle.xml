@@ -102,22 +102,10 @@
 <!--  -->
 <!--  -->
 <!--                              2 Stations only                                                       -->
-<!-- 8m -->
+<!--  -->
  <Constant name="ZD2"           value="4000.*mm"/>
  <Constant name="ZD3"           value="8000.*mm"/>
  <Constant name="ZUnit"         value="8000.*mm"/>
-<!-- 4m -->
-<!-- <Constant name="ZD2"           value="2000.*mm"/> -->
-<!-- <Constant name="ZD3"           value="4000.*mm"/> -->
-<!-- <Constant name="ZUnit"         value="4000.*mm"/> -->
-<!-- 2 -->
-<!--  <Constant name="ZD2"           value="1000.*mm"/>  --> 
-<!--  <Constant name="ZD3"           value="2000.*mm"/>  --> 
-<!--  <Constant name="ZUnit"         value="2000.*mm"/>  --> 
-<!-- 1 -->
-<!-- <Constant name="ZD2"           value="500.*mm"/>  -->
-<!-- <Constant name="ZD3"           value="1000.*mm"/>  -->
-<!-- <Constant name="ZUnit"         value="1000.*mm"/>  -->
 <!--  -->
 <!--                                                                                                     -->
 <!--  -->
@@ -286,13 +274,8 @@
 <!-- PitchX was 0.040 -->
 <!--     <Constant name="PitchX"                value="0.000001*mm"/>  --> 
 <!--    <Constant name="PitchXW"               value="0.000001*mm"/>    -->
-<!--  -->
-<!-- <Constant name="PitchX"                value="0.050*mm"/>   -->
-<!-- <Constant name="PitchXW"               value="0.400*mm"/>   -->
-<!--  -->
-<Constant name="PitchX"                value="0.100*mm"/> 
-<Constant name="PitchXW"               value="0.150*mm"/> 
-<!--  -->
+<Constant name="PitchX"                value="0.050*mm"/> 
+<Constant name="PitchXW"               value="0.400*mm"/> 
 <!--  -->
 <!--  -->
 <!-- to lift up the station just use work value ~ 100mm -->
@@ -1026,8 +1009,7 @@
  <PosPart copyNumber="2">
    <rParent name="zzzrectangle:SISTATION"/>
    <rChild name="zzzrectangle:SIPLANE"/>
-<!--  <Translation x="0*fm" y="[YDropPlane]" z="-1*[ZSiStep]" /> -->
-  <Translation x="0*fm+[PitchXW]/2" y="[YDropPlane]+[PitchX]/2" z="-1*[ZSiStep]" />
+  <Translation x="0*fm" y="[YDropPlane]" z="-1*[ZSiStep]" />
   <rRotation name="FP420Rot:FP420MAIN"/>
  </PosPart>
  <PosPart copyNumber="3">
@@ -1039,8 +1021,7 @@
  <PosPart copyNumber="4">
    <rParent name="zzzrectangle:SISTATION"/>
    <rChild name="zzzrectangle:SIPLANE"/>
-<!--   <Translation x="0*fm" y="[YDropPlane]" z="1*[ZSiStep]" /> -->
-  <Translation x="0*fm+[PitchXW]/2" y="[YDropPlane]+[PitchX]/2" z="1*[ZSiStep]" />
+  <Translation x="0*fm" y="[YDropPlane]" z="1*[ZSiStep]" />
   <rRotation name="FP420Rot:FP420MAIN"/>
  </PosPart>
  <PosPart copyNumber="5">
@@ -1131,15 +1112,13 @@
  <PosPart copyNumber="2">
    <rParent name="zzzrectangle:SIPLANE"/>
    <rChild name="zzzrectangle:SENSOR1"/>
-<!--   <Translation x="0*fm+[PitchXW]/2" y="[YDropDet1]+[PitchX]/2" z="[Zsen21]+[ZSensor]/2" />  -->
-  <Translation x="0*fm+[PitchXW]/4" y="[YDropDet1]+[PitchX]/4" z="[Zsen21]+[ZSensor]/2" />
+  <Translation x="0*fm+[PitchXW]/2" y="[YDropDet1]+[PitchX]/2" z="[Zsen21]+[ZSensor]/2" />
   <rRotation name="FP420Rot:FP420MAIN"/>
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="zzzrectangle:SIPLANE"/>
    <rChild name="zzzrectangle:SENSOR2"/>
-<!--   <Translation x="0*fm+[PitchXW]/2" y="[YDropDet3]+[PitchX]/2" z="[Zsen22]+[ZSensor]/2" />  -->
-  <Translation x="0*fm+[PitchXW]/4" y="[YDropDet3]+[PitchX]/4" z="[Zsen22]+[ZSensor]/2" />
+  <Translation x="0*fm+[PitchXW]/2" y="[YDropDet3]+[PitchX]/2" z="[Zsen22]+[ZSensor]/2" />
   <rRotation name="FP420Rot:FP420MAIN"/>
  </PosPart>
  <PosPart copyNumber="3">

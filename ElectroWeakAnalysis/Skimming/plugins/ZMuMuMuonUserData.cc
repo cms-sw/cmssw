@@ -17,9 +17,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "DataFormats/Math/interface/deltaR.h"
-
-
 #include <vector>
 
 using namespace edm;
@@ -192,35 +189,18 @@ void ZMuMuMuonUserData::produce( Event & evt, const EventSetup & ) {
     }	
    
     const pat::TriggerObjectStandAloneCollection muHLTMatches =  m.triggerObjectMatchesByPath( hltPath_);
-    float muHLTBit =-1 ;
-    unsigned int muHLTSize = muHLTMatches.size();
-    muHLTSize>0 ? muHLTBit = 1 : muHLTBit = 0;  
-    float muHLTDeltaR = -1;
-    float muHLTDeltaPhi = -1;
-    float muHLTDeltaEta = -1;
-    float muHLTPt = -1;
-    float muHLTDeltaPtOverPt = -1;
-
-    for (unsigned int  i = 0; i < muHLTSize ; i++) {
-      const  pat::TriggerObject muHLT = muHLTMatches[i];
-      muHLTDeltaR = deltaR(muHLT, m);      
-      muHLTDeltaEta = fabs(muHLT.eta() - m.eta());      
-      muHLTDeltaPhi = fabs(muHLT.phi() - m.phi());      
-      muHLTPt = muHLT.pt();      
-      muHLTDeltaPtOverPt = fabs(muHLT.pt() - m.pt())/ muHLT.pt();      
-    }    
-	
+    float muHLTBit;
+    int dimTrig = muHLTMatches.size();
+	if(dimTrig !=0 ){
+	  muHLTBit = 1;
+	} else {
+	  muHLTBit = 0; 
+	}
     m.addUserFloat("zDau_dxyFromBS", zDaudxyFromBS);
     m.addUserFloat("zDau_dzFromBS", zDaudzFromBS);
     m.addUserFloat("zDau_dxyFromPV", zDaudxyFromPV);
     m.addUserFloat("zDau_dzFromPV", zDaudzFromPV);
     m.addUserFloat("zDau_HLTBit",muHLTBit);
-    m.addUserFloat("zDau_HLTSize",muHLTSize);
-    m.addUserFloat("zDau_HLTDeltaR",muHLTDeltaR);
-    m.addUserFloat("zDau_HLTDeltaEta",muHLTDeltaEta);
-    m.addUserFloat("zDau_HLTDeltaPhi",muHLTDeltaPhi);
-    m.addUserFloat("zDau_HLTPt",muHLTPt);
-    m.addUserFloat("zDau_HLTDeltaPtOverPt",muHLTDeltaPtOverPt);
     m.addUserFloat("zDau_dzFromPV", zDaudzFromPV);
     m.addUserFloat("zDau_Chi2", zDauChi2);
     m.addUserFloat("zDau_TrkChi2", zDauTrkChi2);

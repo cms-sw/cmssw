@@ -15,7 +15,9 @@ from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
 process.source = cms.Source(
   "PoolSource"
 , fileNames = cms.untracked.vstring(
-    pickRelValInputFiles()
+    pickRelValInputFiles( cmsswVersion = 'CMSSW_4_1_3'
+                        , globalTag    = 'START311_V2'
+                        )
   )
 )
 ## Maximal Number of Events
@@ -26,12 +28,12 @@ process.maxEvents = cms.untracked.PSet(
 ## Geometry and Detector Conditions (needed for a few patTuple production steps)
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START38_V14::All')
+from Configuration.PyReleaseValidation.autoCond import autoCond
+process.GlobalTag.globaltag = cms.string( autoCond[ 'startup' ] )
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ## Standard PAT Configuration File
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
-# process.load("PhysicsTools.PatAlgos.patTestJEC_cfi")
 
 process.patJets.addTagInfos  = False # to save space
 process.selectedPatMuons.cut = 'isTrackerMuon=1 & isGlobalMuon=1 & innerTrack.numberOfValidHits>=11 & globalTrack.normalizedChi2<10.0  & globalTrack.hitPattern.numberOfValidMuonHits>0 & abs(dB)<0.02 & (trackIso+caloIso)/pt<0.05'
@@ -43,22 +45,26 @@ process.p = cms.Path(
   process.patDefaultSequence
 )
 
+### ========
+### Plug-ins
+### ========
+
 ## ---
 ## PAT trigger matching
 ## --
 process.muonTriggerMatchHLTMuons = cms.EDProducer(
+  # matching in DeltaR, sorting by best DeltaR
   "PATTriggerMatcherDRLessByR"
+  # matcher input collections
 , src     = cms.InputTag( 'cleanPatMuons' )
 , matched = cms.InputTag( 'patTrigger' )
-, andOr          = cms.bool( False )
-, filterIdsEnum  = cms.vstring( 'TriggerMuon' )
-, filterIds      = cms.vint32( 0 )
-, filterLabels   = cms.vstring( '*' )
-, pathNames      = cms.vstring( 'HLT_Mu9' )
-, collectionTags = cms.vstring( '*' )
+  # selections of trigger objects
+, matchedCuts = cms.string( 'type( "TriggerMuon" ) && ( path( "HLT_Mu15_v*" ) || path( "HLT_Mu15" ) )' )
+  # selection of matches
 , maxDPtRel   = cms.double( 0.5 ) # no effect here
 , maxDeltaR   = cms.double( 0.5 )
 , maxDeltaEta = cms.double( 0.2 ) # no effect here
+  # definition of matcher output
 , resolveAmbiguities    = cms.bool( True )
 , resolveByMatchQuality = cms.bool( True )
 )
@@ -66,7 +72,6 @@ process.muonTriggerMatchHLTMuons = cms.EDProducer(
 ### ============
 ### Python tools
 ### ============
-### Attention: order matters!
 
 ## --
 ## Switch to selected PAT objects in the main work flow

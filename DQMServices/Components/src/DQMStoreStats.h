@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/12/15 08:59:50 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/01/18 14:52:31 $
+ *  $Revision: 1.7 $
  *  \author Andreas Meyer CERN
  *  \author Jan Olzem DESY
  *   
@@ -19,6 +19,7 @@
 #include <iomanip>
 #include <utility>
 #include <fstream>
+#include <sstream>
 
 #include "TFile.h"
 #include "TTree.h"
@@ -141,6 +142,7 @@ private:
   bool runonendlumi_ ;
   bool runineventloop_ ;
   bool dumpMemHistory_;
+  bool dumpToFWJR_;
 
   // ---------- member data ----------
 

@@ -11,7 +11,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
-process.GlobalTag.globaltag = 'GR_R_39X_V5::All'
+process.GlobalTag.globaltag = 'GR_P_V14::All'
 
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
@@ -34,6 +34,7 @@ process.load("SUSYBSMAnalysis.HSCP.HSCPTreeBuilder_cff")
 
 process.HSCPHLTFilter = cms.EDFilter("HSCPHLTFilter",
    TriggerProcess  = cms.string("HLT"),
+   RemoveDuplicates = cms.bool(False),
    MuonTriggerMask = cms.int32(1),  #Activated
    METTriggerMask  = cms.int32(1),  #Activated
    JetTriggerMask  = cms.int32(1),  #Activated
@@ -50,8 +51,8 @@ process.GlobalTag.toGet = cms.VPSet(
 
 process.load("RecoLocalMuon.DTSegment.dt4DSegments_MTPatternReco4D_LinearDriftFromDBLoose_cfi")
 process.dt4DSegmentsMT = process.dt4DSegments.clone()
-process.dt4DSegmentsMT.Reco4DAlgoConfig.recAlgoConfig.stepTwoFromDigi = True
-process.dt4DSegmentsMT.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.stepTwoFromDigi= True
+#process.dt4DSegmentsMT.Reco4DAlgoConfig.recAlgoConfig.stepTwoFromDigi = True
+#process.dt4DSegmentsMT.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.stepTwoFromDigi= True
 
 process.muontiming.TimingFillerParameters.DTTimingParameters.MatchParameters.DTsegments = "dt4DSegmentsMT"
 process.muontiming.TimingFillerParameters.DTTimingParameters.HitsMin = 5

@@ -2,9 +2,7 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
 SiStripCluster::SiStripCluster( uint32_t detid, const SiStripDigiRange& range) :
-  //detId_(detid),
-  detId_(0),
-  firstStrip_(range.first->strip())
+  detId_(detid), firstStrip_(range.first->strip())
 {
 
   amplitudes_.reserve( range.second - range.first);
@@ -31,8 +29,7 @@ SiStripCluster::SiStripCluster(const uint32_t& detid,
 			       std::vector<uint16_t>::const_iterator begin, 
 			       std::vector<uint16_t>::const_iterator end) :
 
-  //  detId_(detid),
-  detId_(0),
+  detId_(detid),
   firstStrip_(firstStrip),
   amplitudes_(begin,end)
 {}

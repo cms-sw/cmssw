@@ -1,4 +1,4 @@
-// $Id: FragmentProcessor.cc,v 1.17.4.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: FragmentProcessor.cc,v 1.18 2011/03/07 15:31:32 mommsen Exp $
 /// @file: FragmentProcessor.cc
 
 #include <unistd.h>
@@ -21,7 +21,7 @@ FragmentProcessor::FragmentProcessor( xdaq::Application *app,
   app_(app),
   sharedResources_(sr),
   wrapperNotifier_( app ),
-  fragmentStore_(),
+  fragmentStore_(sr->configuration_->getQueueConfigurationParams().fragmentStoreMemoryLimitMB_),
   eventDistributor_(sr),
   actionIsActive_(true)
 {
@@ -116,7 +116,7 @@ bool FragmentProcessor::processMessages(toolbox::task::WorkLoop*)
 
 void FragmentProcessor::processOneFragmentIfPossible()
 {
-  if (eventDistributor_.full()) 
+  if (fragmentStore_.full() || eventDistributor_.full()) 
   {
     utils::TimePoint_t startTime = utils::getCurrentTime();
 

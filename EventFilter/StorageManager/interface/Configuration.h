@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.26.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: Configuration.h,v 1.28 2011/03/30 15:16:48 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -63,6 +63,7 @@ namespace stor
     utils::Duration_t readyTimeDQM_;
     bool useCompressionDQM_;
     int compressionLevelDQM_;
+    unsigned int discardDQMUpdatesForOlderLS_;
   };
 
   /**
@@ -93,6 +94,7 @@ namespace stor
     unsigned int registrationQueueSize_;
     unsigned int streamQueueSize_;
     unsigned int streamQueueMemoryLimitMB_;
+    unsigned int fragmentStoreMemoryLimitMB_;
   };
 
   /**
@@ -158,8 +160,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.26.4.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.28 $
+   * $Date: 2011/03/30 15:16:48 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -360,6 +362,7 @@ namespace stor
     xdata::Integer readyTimeDQM_;  // seconds
     xdata::Boolean useCompressionDQM_;
     xdata::Integer compressionLevelDQM_;
+    xdata::UnsignedInteger32 discardDQMUpdatesForOlderLS_;
 
     xdata::UnsignedInteger32 commandQueueSize_;
     xdata::UnsignedInteger32 dqmEventQueueSize_;
@@ -369,6 +372,7 @@ namespace stor
     xdata::UnsignedInteger32 registrationQueueSize_;
     xdata::UnsignedInteger32 streamQueueSize_;
     xdata::UnsignedInteger32 streamQueueMemoryLimitMB_;
+    xdata::UnsignedInteger32 fragmentStoreMemoryLimitMB_;
 
     xdata::Double FPdeqWaitTime_;  // seconds
     xdata::Double DWdeqWaitTime_;  // seconds
