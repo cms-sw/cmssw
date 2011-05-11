@@ -56,6 +56,7 @@ HLT_HT250_AlphaT0p54_v*
 HLT_HT250_DoubleDisplacedJet60_v*
 HLT_HT250_MHT60_v*
 HLT_HT250_MHT70_v*
+# HLT_HT250_MHT80_v*                            activate for May5th train
 HLT_HT300_v*
 HLT_HT300_MHT75_v*
 HLT_HT300_PFMHT55_v*
@@ -76,9 +77,9 @@ HLT_PFMHT150_v*
 HLT_MET100_v*
 HLT_MET120_v*
 HLT_MET200_v*
-# HLT_MET100_HBHENoiseFiltered_v* activate for May5th train
-# HLT_MET120_HBHENoiseFiltered_v* activate for May5th train
-# HLT_MET200_HBHENoiseFiltered_v* activate for May5th train
+# HLT_MET100_HBHENoiseFiltered_v*               activate for May5th train
+# HLT_MET120_HBHENoiseFiltered_v*               activate for May5th train
+# HLT_MET200_HBHENoiseFiltered_v*               activate for May5th train
 HLT_R014_MR150_v*
 HLT_R014_MR150_CentralJet40_BTagIP_v*
 HLT_R014_MR450_CentralJet40_BTagIP_v*
