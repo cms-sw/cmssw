@@ -34,6 +34,7 @@
 #include <algorithm>
 #include <map>
 #include <memory>
+#include <vector>
 #include <signal.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
@@ -41,7 +42,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <vector>
+#include <errno.h>
 
 #include <boost/thread/thread.hpp>
 //
@@ -59,6 +60,7 @@ private:
    virtual void analyze(edm::Event const&, edm::EventSetup const&);
    virtual void endJob();
    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
+   virtual void preForkReleaseResources();
 
    virtual void beginRun(edm::Run const& run, edm::EventSetup const& es);
    virtual void endRun(edm::Run const& run, edm::EventSetup const& es);
@@ -101,7 +103,6 @@ MulticoreRunLumiEventChecker::MulticoreRunLumiEventChecker(edm::ParameterSet con
   messageQueue_(-1)
 {
    //now do what ever initialization is needed
-   messageQueue_ = msgget(IPC_PRIVATE, IPC_CREAT|0660);
 }
 
 
@@ -239,12 +240,18 @@ MulticoreRunLumiEventChecker::beginJob() {
 // ------------ method called once each job just after ending the event loop  ------------
 void
 MulticoreRunLumiEventChecker::endJob() {
-   MsgToListener sndmsg;
-   sndmsg.id = edm::EventID();
-   errno = 0;
-   int value = msgsnd(messageQueue_, &sndmsg, MsgToListener::sizeForBuffer(), 0);
-   if(value != 0) {
-      throw cms::Exception("MessageFailure") << "Failed to send finished message " << strerror(errno) << "\n";
+   if(mustSearch_) {
+      MsgToListener sndmsg;
+      sndmsg.id = edm::EventID();
+      errno = 0;
+      int value = msgsnd(messageQueue_,&sndmsg, MsgToListener::sizeForBuffer(),0);
+      if(value != 0) {
+        throw cms::Exception("MessageFailure")<<"Failed to send finished message "<<strerror(errno)<<"\n";
+      }
+   } else {
+     if(index_ != ids_.size()) {
+         throw cms::Exception("WrongNumberOfEvents")<<"Saw "<<index_<<" events but was supposed to see "<<ids_.size()<<"\n";
+     }
    }
    
    if(listenerThread_) {
@@ -277,6 +284,15 @@ MulticoreRunLumiEventChecker::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.addUntracked<std::vector<edm::EventID> >("eventSequence");
   desc.addUntracked<unsigned int>("multiProcessSequentialEvents", 0U);
   descriptions.add("eventIDChecker", desc);
+}
+
+void 
+MulticoreRunLumiEventChecker::preForkReleaseResources() {
+  //This queue is used to communicate between children
+  messageQueue_ = msgget(IPC_PRIVATE, IPC_CREAT|0660);
+  if(-1 == messageQueue_) {
+    throw cms::Exception("FailedToCreateQueue")<<" call to 'msgget' failed to create a message queue. errno: "<<errno<<" "<<strerror(errno);
+  }
 }
 
 void
