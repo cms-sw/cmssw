@@ -45,32 +45,6 @@ SKIMStreamDiTau = cms.FilteredStream(
 
 #####################
 
-from Configuration.Skimming.PDWG_OniaSkim_cff import *
-oniaSkimPath = cms.Path(oniaSkimSequence)
-SKIMStreamOnia = cms.FilteredStream(
-    responsible = 'PDWG',
-    name = 'Onia',
-    paths = (oniaSkimPath),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
-
-#####################
-
-from Configuration.Skimming.PDWG_HT_SD_cff import *
-HTSDPath = cms.Path(HTSD)
-SKIMStreamHTSD = cms.FilteredStream(
-    responsible = 'PDWG',
-    name = 'HTSD',
-    paths = (HTSDPath),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
-
-#####################
-
 from Configuration.Skimming.PDWG_HSCP_SD_cff import *
 HSCPSDPath = cms.Path(HSCPSD)
 SKIMStreamHSCPSD = cms.FilteredStream(
@@ -83,49 +57,6 @@ SKIMStreamHSCPSD = cms.FilteredStream(
     )
 
 #####################
-
-from Configuration.Skimming.PDWG_SuperClusterSkim_cff import *
-diSuperClusterSkimPath = cms.Path(diSuperClusterSkimSequence)
-SKIMStreamSuperCluster = cms.FilteredStream(
-    responsible = 'PDWG',
-    name = 'SuperCluster',
-    paths = (diSuperClusterSkimPath),
-    content = skimRecoContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RECO')
-    )
-
-from Configuration.Skimming.PDWG_LeptonSkim_cff import *
-SingleMuPath = cms.Path(filterSingleMu)
-DoubleMuPath = cms.Path(filterDoubleMu)
-MuElectronPath = cms.Path(filterMuonElectron)
-MuPFElectronPath = cms.Path(filterMuonPFElectron)
-DoubleElectronPath = cms.Path(filterDoubleElectron)
-DoublePFElectronPath = cms.Path(filterDoublePFElectron)
-SKIMStreamDiLeptonMu = cms.FilteredStream(
-    responsible = 'PDWG',
-    name = 'DiLeptonMu',
-    paths = (DoubleMuPath,MuElectronPath,MuPFElectronPath),
-    content = skimRecoContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RECO')
-    )
-SKIMStreamSingleMu = cms.FilteredStream(
-    responsible = 'PDWG',
-    name = 'SingleMu',
-    paths = (SingleMuPath),
-    content = skimRecoContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RECO')
-    )
-SKIMStreamDiLeptonEle = cms.FilteredStream(
-    responsible = 'PDWG',
-    name = 'DiLeptonEle',
-    paths = (DoubleElectronPath,DoublePFElectronPath,MuElectronPath,MuPFElectronPath),
-    content = skimRecoContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RECO')
-    )
 
 from Configuration.Skimming.PDWG_DiPhoton_SD_cff import *
 CaloIdIsoPhotonPairsPath = cms.Path(CaloIdIsoPhotonPairsFilter)
@@ -156,6 +87,18 @@ SKIMStreamDoublePhoton = cms.FilteredStream(
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('AOD')
     )
+
+#from Configuration.Skimming.PDWG_EXOHSCP_cff import *
+#EXOHSCPPath = cms.Path(exoticaHSCPSeq)
+#SKIMStreamEXOHSCP = cms.FilteredStream(
+#    responsible = 'PDWG',
+#    name = 'EXOHSCP',
+#    paths = (EXOHSCPPath),
+#    content = EXOHSCPSkim_EventContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('USER')
+#    )
+
 
 from Configuration.Skimming.PDWG_HWWSkim_cff import *
 HWWmmPath = cms.Path(diMuonSequence)
