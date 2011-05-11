@@ -18,12 +18,13 @@ namespace evf {
   
   // define event data states
   namespace evt {
-    enum State_t { EMPTY, STOP, LUMISECTION,
+    enum State_t { EMPTY, STOP, 
 		   RAWWRITING, RAWWRITTEN,
 		   RAWREADING, RAWREAD,
 		   PROCESSING, PROCESSED,
 		   RECOWRITING,RECOWRITTEN,
 		   SENDING,    SENT,
+		   LUMISECTION, USEDLS,
 		   DISCARDING };
   }
   

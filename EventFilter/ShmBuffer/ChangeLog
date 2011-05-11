@@ -1,3 +1,9 @@
+2011-05-11  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-08-10
+	* improved handling of EOL (added event type in raw cell,
+	added USEDLS event state, cross checks)
+
 2011-04-15  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-08-09
