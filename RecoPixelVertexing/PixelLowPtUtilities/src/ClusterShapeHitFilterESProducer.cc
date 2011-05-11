@@ -54,7 +54,7 @@ ClusterShapeHitFilterESProducer::produce
 
   // Retrieve strip Lorentz
   edm::ESHandle<SiStripLorentzAngle> strip;
-  iRecord.getRecord<TkStripCPERecord>().getRecord<SiStripLorentzAngleRcd>().get(strip);
+  iRecord.getRecord<TkStripCPERecord>().getRecord<SiStripLorentzAngleDepRcd>().get(strip);
   //iRecord.getRecord<SiStripLorentzAngleRcd>().get(strip);
 
   // Produce the filter using the plugin factory
