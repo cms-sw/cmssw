@@ -217,6 +217,7 @@ namespace lumi{
 	lscountfromzero=true;
       }
       if(lscountfromzero){
+	std::cout<<"hlt ls count from 0 !"<<std::endl;
 	std::map<unsigned int,hltinfo>& allpathinfo=hltresult.at(currentLumiSection);
 	unsigned int pathid=row["pathid"].data<unsigned int>();
 	//std::cout<<"look for path id "<<pathid<<std::endl;
