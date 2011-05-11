@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2011/03/21 12:26:39 $
- *  $Revision: 1.48 $
+ *  $Date: 2011/04/27 16:03:59 $
+ *  $Revision: 1.49 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -201,6 +201,7 @@ namespace edm {
 // 		  << " was " << luminosityBlockNumber_ << std::endl;
 	if(luminosityBlockNumber_ == (nextLsFromSignal-1) )
 	  {
+	    lastLumiUsingEol_->value_ = nextLsFromSignal;
 	    if(lsToBeRecovered_->value_){
 // 	      std::cout << getpid() << "eol::recover ls::for " << (-1)*retval << std::endl;
 	      signalWaitingThreadAndBlock();
@@ -441,6 +442,7 @@ namespace edm {
     lumiSectionIndex_      = (xdata::UnsignedInteger32*)is_->find("lumiSectionIndex");
     prescaleSetIndex_      = (xdata::UnsignedInteger32*)is_->find("prescaleSetIndex");
     lastLumiPrescaleIndex_ = (xdata::UnsignedInteger32*)is_->find("lastLumiPrescaleIndex");
+    lastLumiUsingEol_ = (xdata::UnsignedInteger32*)is_->find("lastLumiUsingEol");
     lsTimedOut_            = (xdata::Boolean*)is_->find("lsTimedOut");
     lsToBeRecovered_       = (xdata::Boolean*)is_->find("lsToBeRecovered");
   }
