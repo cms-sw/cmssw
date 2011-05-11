@@ -91,7 +91,7 @@ namespace lumi{
        1. select distinct ( PATHID ) from HLT_SUPERVISOR_TRIGGERPATHS where runnumber=158878;
        2. retrieve hltpath map with n query from cms_hlt (n=number of pathids)
           select name from cms_hlt.paths where pathid=:pathid
-       3. select max(lsnumber) from HLT_SUPERVISOR_LUMISECTIONS_V3 where runnumber=158878;
+       3. select min(lsnumber),max(lsnumber) from HLT_SUPERVISOR_LUMISECTIONS_V3 where runnumber=158878;
        4. select tr.lsnumber,tr.pathid,tr.l1pass,tr.paccept,ls.psindex,sm.psvalue from hlt_supervisor_triggerpaths tr,hlt_supervisor_lumisections_v3 ls,hlt_supervisor_scalar_map_v2 sm where tr.runnumber=ls.runnumber and tr.lsnumber=ls.lsnumber and sm.runnumber=tr.runnumber and sm.pathid=tr.pathid and sm.psindex=ls.psindex and tr.runnumber=157805 order by tr.lsnumber;
     **/
     
@@ -144,25 +144,30 @@ namespace lumi{
     //for( mpit=mpitBeg;mpit!=mpitEnd;++mpit){
     //  std::cout<<mpit->first<<" "<<mpit->second<<std::endl;
     //}
+    unsigned int maxls=0;
+    unsigned int minls=0;
     unsigned int nls=0;
-    
     coral::IQuery* nq=hltSchemaHandle.tableHandle(lstabname).newQuery();
     coral::AttributeList nqbindVariableList;
     coral::AttributeList nqout;
-    nqout.extend("nls",typeid(unsigned int));
+    nqout.extend("minls",typeid(unsigned int));
+    nqout.extend("maxls",typeid(unsigned int));
     nqbindVariableList.extend("runnumber",typeid(unsigned int));
     nqbindVariableList["runnumber"].data<unsigned int>()=runnumber;
-    nq->addToOutputList("max(lsnumber)","nls");
+    nq->addToOutputList("min(lsnumber)","minls");
+    nq->addToOutputList("max(lsnumber)","maxls");
     nq->setCondition("RUNNUMBER =:runnumber",nqbindVariableList);    
     nq->defineOutput(nqout);
     coral::ICursor& nqcursor=nq->execute();
     while( nqcursor.next() ){
-      nls=nqcursor.currentRow()["nls"].data<unsigned int>();
+      minls=nqcursor.currentRow()["minls"].data<unsigned int>();
+      maxls=nqcursor.currentRow()["maxls"].data<unsigned int>();
     }
     delete nq;
     //std::cout<<"nls "<<nls<<std::endl; 
     HltResult hltresult;
-    hltresult.reserve(nls);
+    nls=maxls-minls+1;
+    hltresult.reserve(nls);//
     //fix all size
     for(unsigned int i=1;i<=nls;++i){
       std::map<unsigned int, HLTV32DB::hltinfo> allpaths;
@@ -204,18 +209,30 @@ namespace lumi{
     jq->addToOrderList("tr.LSNUMBER");
     jq->setRowCacheSize(10692);
     coral::ICursor& jqcursor=jq->execute();
-    
+    bool lscountfromzero=false;
     while( jqcursor.next() ){
       const coral::AttributeList& row=jqcursor.currentRow();
       unsigned int currentLumiSection=row["lsnumber"].data<unsigned int>();
-      //std::cout<<"currentLumiSection "<<currentLumiSection<<std::endl;
-      std::map<unsigned int,hltinfo>& allpathinfo=hltresult.at(currentLumiSection-1);
-      unsigned int pathid=row["pathid"].data<unsigned int>();
-      //std::cout<<"look for path id "<<pathid<<std::endl;
-      hltinfo& pathcontent=allpathinfo[pathid];
-      pathcontent.hltinput=row["l1pass"].data<unsigned int>();
-      pathcontent.hltaccept=row["paccept"].data<unsigned int>();
-      pathcontent.prescale=row["psvalue"].data<unsigned int>();
+      if(currentLumiSection==0){
+	lscountfromzero=true;
+      }
+      if(lscountfromzero){
+	std::map<unsigned int,hltinfo>& allpathinfo=hltresult.at(currentLumiSection);
+	unsigned int pathid=row["pathid"].data<unsigned int>();
+	//std::cout<<"look for path id "<<pathid<<std::endl;
+	hltinfo& pathcontent=allpathinfo[pathid];
+	pathcontent.hltinput=row["l1pass"].data<unsigned int>();
+	pathcontent.hltaccept=row["paccept"].data<unsigned int>();
+	pathcontent.prescale=row["psvalue"].data<unsigned int>();
+      }else{
+	std::map<unsigned int,hltinfo>& allpathinfo=hltresult.at(currentLumiSection-1);
+	unsigned int pathid=row["pathid"].data<unsigned int>();
+	//std::cout<<"look for path id "<<pathid<<std::endl;
+	hltinfo& pathcontent=allpathinfo[pathid];
+	pathcontent.hltinput=row["l1pass"].data<unsigned int>();
+	pathcontent.hltaccept=row["paccept"].data<unsigned int>();
+	pathcontent.prescale=row["psvalue"].data<unsigned int>();
+      }
     }
     delete jq;
     srcsession->transaction().commit();
