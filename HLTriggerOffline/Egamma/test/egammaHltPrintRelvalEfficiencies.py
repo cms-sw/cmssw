@@ -264,7 +264,10 @@ for path_name in allPathNames:
             eff = 100 * events / float(previous_module_output)
             print "(%5.1f%% eff.)" % (eff),
             if eff > 100.:
-                print "ERROR",
+                if module_name.find("Unseeded") >= 0:
+                    print ">100% Unseeded Filter",
+                else:
+                    print "ERROR",
 
         print
                                      
