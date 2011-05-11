@@ -341,7 +341,7 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
 
   bool   reschedule  =true;
   bool   shutDown    =(state==evt::STOP);
-  bool   isLumi      =(state==evt::LUMISECTION);
+  bool   isLumi      =(state==evt::USEDLS);
   UInt_t fuResourceId=cell->fuResourceId();
   UInt_t buResourceId=cell->buResourceId();
 
@@ -360,7 +360,8 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
   }
   
   shmBuffer_->discardRawCell(cell);
-  
+  if(isLumi) nbEolDiscarded_++;
+
   if (!shutDown && !isLumi) {
     resources_[fuResourceId]->release();
     lock();
@@ -606,7 +607,10 @@ void FUResourceTable::postEndOfLumiSection(MemRef_t* bufRef)
   // but processes will have to handle duplicates
 
   for(unsigned int i = 0; i < nbRawCells_; i++) 
-    shmBuffer_->writeRawLumiSectionEvent(msg->lumiSection);
+    {
+      nbEolPosted_++;
+      shmBuffer_->writeRawLumiSectionEvent(msg->lumiSection);
+    }
 }
 
 
@@ -733,6 +737,8 @@ void FUResourceTable::resetCounters()
   nbPendingSMDqmDiscards_=0;
   nbDiscarded_           =0;
   nbLost_                =0;
+  nbEolPosted_           =0;
+  nbEolDiscarded_        =0;
 
   nbErrors_              =0;
   nbCrcErrors_           =0;
@@ -792,6 +798,7 @@ vector<string> FUResourceTable::cellStates() const
       if      (state==evt::EMPTY)      result.push_back("EMPTY");
       else if (state==evt::STOP)       result.push_back("STOP");
       else if (state==evt::LUMISECTION)result.push_back("LUMISECTION");
+      else if (state==evt::USEDLS)     result.push_back("USEDLS");
       else if (state==evt::RAWWRITING) result.push_back("RAWWRITING");
       else if (state==evt::RAWWRITTEN) result.push_back("RAWWRITTEN");
       else if (state==evt::RAWREADING) result.push_back("RAWREADING");

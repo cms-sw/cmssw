@@ -1,3 +1,11 @@
+2011-05-11  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-16-08
+	* added USEDLS to tag discarded EOL events
+	* added counters to monitor EOL messages
+	* out of sequence EOL messages generate warning
+	* large skipped EOL interval bring to failed state
+
 2011-04-15  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-16-07

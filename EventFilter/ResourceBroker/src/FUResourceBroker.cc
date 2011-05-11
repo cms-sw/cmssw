@@ -85,6 +85,10 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , nbPendingSMDiscards_(0)
   , nbPendingSMDqmDiscards_(0)
   , nbDiscardedEvents_(0)
+  , nbReceivedEol_(0)
+  , highestEolReceived_(0)
+  , nbEolPosted_(0)
+  , nbEolDiscarded_(0)
   , nbLostEvents_(0)
   , nbDataErrors_(0)
   , nbCrcErrors_(0)
@@ -235,10 +239,13 @@ bool FUResourceBroker::enabling(toolbox::task::WorkLoop* wl)
 {
   try {
     LOG4CPLUS_INFO(log_, "Start enabling ...");
+    reset();
     startMonitoringWorkLoop();
     startWatchingWorkLoop();
     resourceTable_->setRunNumber(runNumber_);
+    lock();
     resourceTable_->resetCounters();
+    unlock();
     resourceTable_->startDiscardWorkLoop();
     resourceTable_->startSendDataWorkLoop();
     resourceTable_->startSendDqmWorkLoop();
@@ -381,6 +388,21 @@ void FUResourceBroker::I2O_EVM_LUMISECTION_Callback(toolbox::mem::Reference* buf
     LOG4CPLUS_ERROR(log_,"EOL message received for ls=0!!! ");
     fsm_.fireFailed("EOL message received for ls=0!!! ",this);
   }
+  nbReceivedEol_++;
+  if(highestEolReceived_.value_+100 < msg->lumiSection) 
+    {
+      LOG4CPLUS_ERROR(log_,"EOL message not in sequence, expected " 
+		      << highestEolReceived_.value_+1
+		      << " received " << msg->lumiSection);
+      fsm_.fireFailed("EOL message with corrupted LS ",this);
+    }
+  if(highestEolReceived_.value_+1 != msg->lumiSection) 
+    LOG4CPLUS_WARN(log_,"EOL message not in sequence, expected " 
+		    << highestEolReceived_.value_+1
+		    << " received " << msg->lumiSection);
+
+  if(highestEolReceived_.value_ < msg->lumiSection) 
+    highestEolReceived_.value_ = msg->lumiSection;
   resourceTable_->postEndOfLumiSection(bufRef); // this method dummy for now
 //   I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *msg =
 //     (I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *)bufRef->getDataLocation();
@@ -479,6 +501,8 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
       nbPendingSMDqmDiscards_=resourceTable_->nbPendingSMDqmDiscards();
       nbDiscardedEvents_  =resourceTable_->nbDiscarded();
       nbLostEvents_       =resourceTable_->nbLost();
+      nbEolPosted_        =resourceTable_->nbEolPosted();
+      nbEolDiscarded_     =resourceTable_->nbEolDiscarded();
       nbDataErrors_       =resourceTable_->nbErrors();
       nbCrcErrors_        =resourceTable_->nbCrcErrors();
       nbAllocateSent_     =resourceTable_->nbAllocSent();
@@ -737,6 +761,11 @@ void FUResourceBroker::exportParameters()
   gui_->addMonitorCounter("nbSentEvents",           &nbSentEvents_);
   gui_->addMonitorCounter("nbSentErrorEvents",      &nbSentErrorEvents_);
   gui_->addMonitorCounter("nbDiscardedEvents",      &nbDiscardedEvents_);
+  gui_->addMonitorCounter("nbReceivedEol",          &nbReceivedEol_);
+  gui_->addMonitorCounter("highestEolReceived",     &highestEolReceived_);
+  gui_->addMonitorCounter("nbEolPosted",            &nbEolPosted_);
+  gui_->addMonitorCounter("nbEolDiscarded",         &nbEolDiscarded_);
+
   gui_->addMonitorCounter("nbPendingSMDiscards",    &nbPendingSMDiscards_);
 
   gui_->addMonitorCounter("nbSentDqmEvents",        &nbSentDqmEvents_);
@@ -971,7 +1000,7 @@ void FUResourceBroker::customWebPage(xgi::Input*in,xgi::Output*out)
       else if (state=="DISCARDING")
 	bg_state="#FFFF00";
       
-      *out<<tr()
+      *out<<tr()<<"<td>"<<i<<"</td>"
 	  <<td(state).set("align","center").set("bgcolor",bg_state)
 	  <<tr()<<endl;
     }
