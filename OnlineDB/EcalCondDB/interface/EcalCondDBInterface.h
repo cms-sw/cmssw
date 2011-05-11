@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.34 2011/04/06 11:59:08 organtin Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.35 2011/05/05 12:34:21 organtin Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -63,7 +63,6 @@ class EcalCondDBInterface : public EcalDBConnection {
 
       // create a DateHandler
       dh = new DateHandler(env, conn);
-      fillLogicId2DetIdMaps();
     }
 
 
@@ -84,7 +83,6 @@ class EcalCondDBInterface : public EcalDBConnection {
 
       // create a DateHandler
       dh = new DateHandler(env, conn);
-      fillLogicId2DetIdMaps();
     }
 
 
@@ -665,6 +663,9 @@ class EcalCondDBInterface : public EcalDBConnection {
 
   inline int getDetIdFromLogicId(int logic_id) {
     int detid = -1;
+    if (_logicId2DetId.size() == 0) {
+      fillLogicId2DetIdMaps();
+    }
     if (_logicId2DetId.find(logic_id) != _logicId2DetId.end()) {
       detid = _logicId2DetId[logic_id];
     }
@@ -673,17 +674,26 @@ class EcalCondDBInterface : public EcalDBConnection {
 
   inline int getLogicIdFromDetId(int det_id) {
     int logic_id = -1;
+    if (_logicId2DetId.size() == 0) {
+      fillLogicId2DetIdMaps();
+    }
     if (_detId2LogicId.find(det_id) != _detId2LogicId.end()) {
       logic_id = _detId2LogicId[det_id];
     }
     return logic_id;
   }
 
-  inline std::map<int, int> getLogicId2DetIdMap() const {
+  inline std::map<int, int> getLogicId2DetIdMap() {
+    if (_logicId2DetId.size() == 0) {
+      fillLogicId2DetIdMaps();
+    }
     return _logicId2DetId;
   }
 
-  inline std::map<int, int> getDetId2LogicIdMap() const {
+  inline std::map<int, int> getDetId2LogicIdMap() {
+    if (_logicId2DetId.size() == 0) {
+      fillLogicId2DetIdMaps();
+    }
     return _detId2LogicId;
   }
 
