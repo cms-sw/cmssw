@@ -6,7 +6,7 @@ import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 generalTracksSkim = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone(
     src = 'generalTracks',
 #	src = 'TrackRefitter',
-    filter = True,
+    filter = False,
     applyBasicCuts = True,
     ptMin = TRACK_PT,
     nHitMin = 5,
