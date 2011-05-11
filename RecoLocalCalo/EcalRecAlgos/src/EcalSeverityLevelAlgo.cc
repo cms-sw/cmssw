@@ -3,7 +3,7 @@
    Implementation of class EcalSeverityLevelAlgo
 
    \author Stefano Argiro
-   \version $Id: EcalSeverityLevelAlgo.cc,v 1.39 2011/02/15 20:13:19 argiro Exp $
+   \version $Id: EcalSeverityLevelAlgo.cc,v 1.40 2011/04/12 08:04:25 argiro Exp $
    \date 10 Jan 2011
 */
 
@@ -50,7 +50,7 @@ EcalSeverityLevelAlgo::severityLevel(const DetId& id,
   EcalChannelStatus::const_iterator chIt = chStatus_->find( id );
   uint16_t dbStatus = 0;
   if ( chIt != chStatus_->end() ) {
-    dbStatus = chIt->getStatusCode();
+    dbStatus = chIt->getStatusCode() & 0x1F;
   } else {
     edm::LogError("ObjectNotFound") << "No channel status found for xtal " 
 	 << id.rawId() 
