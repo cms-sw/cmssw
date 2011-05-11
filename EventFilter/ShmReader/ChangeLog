@@ -1,3 +1,8 @@
+2011-05-11  Emilio Meschi <Emilio.Meschi@cern.ch>
+
+	* tag V01-05-07
+	* added cross checks of event type for special events
+
 2011-04-15  Emilio Meschi <Emilio.Meschi@cern.ch>
 
 	* tag V01-05-06

@@ -85,6 +85,12 @@ int FUShmReader::fillRawData(EventID& eID,
   if (state==evt::STOP) {
     edm::LogInfo("ShutDown")<<"Received STOP event, shut down."<<endl;
     std::cout << getpid() << " Received STOP event, shut down." << std::endl;
+    if(newCell->getEventType() != evt::STOPPER){
+      edm::LogError("InconsistentLsCell") << getpid() 
+					  << " GOT what claims to be a STOPPER event but eventType is " 
+					  <<  newCell->getEventType()
+					  << std::endl;
+    }
     shmBuffer_->scheduleRawEmptyCellForDiscard(newCell);
     shmdt(shmBuffer_);
     shmBuffer_=0;
@@ -94,6 +100,14 @@ int FUShmReader::fillRawData(EventID& eID,
   }
   else if(state==evt::LUMISECTION){
     unsigned int ls = newCell->getLumiSection();
+    if(newCell->getEventType() != evt::EOL){
+      edm::LogError("InconsistentLsCell") << getpid() 
+					  << " GOT what claims to be an EOL event but eventType is " 
+					  <<  newCell->getEventType()
+					  << " and ls is " << ls
+					  << std::endl;
+      shmBuffer_->sem_print();
+    }
     //shmBuffer_->setEvtState(newCell->index(),evt::PROCESSING);
     shmBuffer_->scheduleRawCellForDiscard(newCell->index());
     if(ls==0){
