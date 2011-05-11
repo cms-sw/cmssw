@@ -96,6 +96,7 @@ expertSettings.add_option("--customise_commands",
 expertSettings.add_option("--inline_custom",
                           help="inline the customisation file",
                           default=False,
+                          action="store_true",
                           dest="inline_custom")
 
 expertSettings.add_option("--datatier",
