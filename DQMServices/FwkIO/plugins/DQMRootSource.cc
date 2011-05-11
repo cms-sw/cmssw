@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id$
+// $Id: DQMRootSource.cc,v 1.1 2011/05/11 18:12:54 chrjones Exp $
 //
 
 // system include files
@@ -32,6 +32,9 @@
 
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -281,6 +284,7 @@ class DQMRootSource : public edm::InputSource
       
       void readNextItemType();
       void setupFile(unsigned int iIndex);
+      void readElements();
       
       const DQMRootSource& operator=(const DQMRootSource&); // stop default
 
@@ -292,6 +296,7 @@ class DQMRootSource : public edm::InputSource
 
       size_t m_fileIndex;
       std::list<unsigned int>::iterator m_nextIndexItr;
+      std::list<unsigned int>::iterator m_presentIndexItr;
       std::vector<RunLumiToRange> m_runlumiToRange;
       std::auto_ptr<TFile> m_file;
       std::vector<TTree*> m_trees;
@@ -299,6 +304,7 @@ class DQMRootSource : public edm::InputSource
       
       std::list<unsigned int> m_orderedIndices;
       unsigned int m_lastSeenRun;
+      bool m_doNotReadRemainingPartsOfFileSinceFrameworkTerminating;
 };
 
 //
@@ -325,7 +331,8 @@ m_nextItemType(edm::InputSource::IsFile),
 m_fileIndex(0),
 m_trees(kNIndicies,static_cast<TTree*>(0)),
 m_treeReaders(kNIndicies,boost::shared_ptr<TreeReaderBase>()),
-m_lastSeenRun(0)
+m_lastSeenRun(0),
+m_doNotReadRemainingPartsOfFileSinceFrameworkTerminating(false)
 {
   if(m_fileIndex ==m_fileNames.size()) {
     m_nextItemType=edm::InputSource::IsStop;
@@ -431,22 +438,73 @@ DQMRootSource::readFile_() {
   ++m_fileIndex;
   readNextItemType();
   
+  m_doNotReadRemainingPartsOfFileSinceFrameworkTerminating = false;
   return boost::shared_ptr<edm::FileBlock>(new edm::FileBlock);
 }
 
 
 void 
-DQMRootSource::endLuminosityBlock(edm::LuminosityBlock&) {
-  std::cout <<"DQMRootSource::endLumi"<<std::endl;  
+DQMRootSource::endLuminosityBlock(edm::LuminosityBlock& iLumi) {
+  std::cout <<"DQMRootSource::endLumi"<<std::endl;
+  RunLumiToRange runLumiRange = m_runlumiToRange[*m_presentIndexItr];
+  if(runLumiRange.m_run == iLumi.id().run() &&
+     runLumiRange.m_lumi == iLumi.id().luminosityBlock()) {
+       readElements();
+  }
 }
 void 
-DQMRootSource::endRun(edm::Run&){
+DQMRootSource::endRun(edm::Run& iRun){
   std::cout <<"DQMRootSource::endRun"<<std::endl;
+  RunLumiToRange runLumiRange = m_runlumiToRange[*m_presentIndexItr];
+  //NOTE: it is possible to have an endRun when all we have stored is lumis
+  if(runLumiRange.m_lumi == 0 && 
+     runLumiRange.m_run == iRun.id().run()) {
+    readElements();
+  }
+  //NOTE: the framework will call endRun before closeFile in the case
+  // where the frameworks is terminating
+  m_doNotReadRemainingPartsOfFileSinceFrameworkTerminating=true;
 }
 
 
 void
 DQMRootSource::closeFile_() {
+  std::cout <<"closeFile_"<<std::endl;
+  //when going from one file to the next the framework does not call
+  // 'endRun' or 'endLumi' until it looks to see if the other file contains
+  // a new run or lumi. If the other file doesn't then  
+  if(not m_doNotReadRemainingPartsOfFileSinceFrameworkTerminating) {
+    while(m_presentIndexItr != m_orderedIndices.end()) {
+      readElements();
+    }
+  }
+}
+
+void 
+DQMRootSource::readElements() {
+  edm::Service<DQMStore> store;
+  RunLumiToRange runLumiRange = m_runlumiToRange[*m_presentIndexItr];
+  bool shouldContinue = false;
+  do {
+    shouldContinue = false;
+    boost::shared_ptr<TreeReaderBase> reader = m_treeReaders[runLumiRange.m_type];
+    for(ULong64_t index = runLumiRange.m_firstIndex, endIndex=runLumiRange.m_lastIndex+1;
+    index != endIndex;
+    ++index) {
+      reader->read(index,*store,runLumiRange.m_lumi !=0);
+    }
+    ++m_presentIndexItr;
+    if(m_presentIndexItr != m_orderedIndices.end()) {
+      //are there more parts to this same run/lumi?
+      const RunLumiToRange nextRunLumiRange = m_runlumiToRange[*m_presentIndexItr];
+      //continue to the next item if that item is either
+      if( (nextRunLumiRange.m_run == runLumiRange.m_run) && 
+          (nextRunLumiRange.m_lumi == runLumiRange.m_lumi) ) {
+           shouldContinue= true;
+           runLumiRange = nextRunLumiRange;
+      } 
+    }
+  }while(shouldContinue);
 }
 
 
@@ -470,28 +528,17 @@ DQMRootSource::readNextItemType()
       std::cout <<"reading lumi "<<runLumiRange.m_run<<","<<runLumiRange.m_lumi<<std::endl;
       m_lumiAux.id() = edm::LuminosityBlockID(runLumiRange.m_run,runLumiRange.m_lumi);
     }
+    ++m_nextIndexItr;
   } else {
     //NOTE: the following causes the iterator to move to before 'begin' but that is OK
     // since the first thing in the 'do while' loop is to advance the iterator which puts
     // us at the first entry in the file
-    --m_nextIndexItr;
     runLumiRange.m_run=0;
-    
   }
   
-  edm::Service<DQMStore> store;
   bool shouldContinue = false;
   do {
-    //Fill the DQMStore
-    if(m_nextItemType != edm::InputSource::IsFile) {
-      boost::shared_ptr<TreeReaderBase> reader = m_treeReaders[runLumiRange.m_type];
-      for(ULong64_t index = runLumiRange.m_firstIndex, endIndex=runLumiRange.m_lastIndex+1;
-      index != endIndex;
-      ++index) {
-        reader->read(index,*store,runLumiRange.m_lumi !=0);
-      }
-    }
-    ++m_nextIndexItr;
+    shouldContinue = false;
     if(m_nextIndexItr == m_orderedIndices.end()) {
       //go to next file
       m_nextItemType = edm::InputSource::IsFile;
@@ -508,7 +555,9 @@ DQMRootSource::readNextItemType()
     if( (nextRunLumiRange.m_run == runLumiRange.m_run) && (
          nextRunLumiRange.m_lumi == runLumiRange.m_lumi || nextRunLumiRange.m_lumi ==0) ) {
          shouldContinue= true;
-    }
+         runLumiRange = nextRunLumiRange;
+         ++m_nextIndexItr;
+    } 
     
   } while(shouldContinue);
   
@@ -536,6 +585,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
   
   m_runlumiToRange.clear();
   m_runlumiToRange.reserve(indicesTree->GetEntries());
+  m_orderedIndices.clear();
 
   RunLumiToRange temp;
   indicesTree->SetBranchAddress(kRunBranch,&temp.m_run);
@@ -544,8 +594,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
   indicesTree->SetBranchAddress(kFirstIndex,&temp.m_firstIndex);
   indicesTree->SetBranchAddress(kLastIndex,&temp.m_lastIndex);
 
-  //Need to reorder items since Runs appear after the lumis to which they are associated
-  // plus if there was a merge done the same  Run and/or Lumi can appear multiple times
+  //Need to reorder items since if there was a merge done the same  Run and/or Lumi can appear multiple times
   // but we want to process them all at once
   
   //We use a std::list for m_orderedIndices since inserting into the middle of a std::list does not 
@@ -566,20 +615,11 @@ DQMRootSource::setupFile(unsigned int iIndex)
     RunLumiToLastEntryMap::iterator itFind = runLumiToLastEntryMap.find(runLumi);
     if(itFind == runLumiToLastEntryMap.end()) {
       //does not already exist
-      std::list<unsigned int>::iterator iter;
-      if(temp.m_lumi == 0) {
-        //this is a run and we want to move it before all lumis in that run
-        iter = m_orderedIndices.insert(positionOfFirstIndexForRun,index);
-        runLumiToLastEntryMap[runLumi]=iter;
-        positionOfFirstIndexForRun=iter;
-        ++positionOfFirstIndexForRun;
-      } else {
-        iter = m_orderedIndices.insert(m_orderedIndices.end(),index);
-        runLumiToLastEntryMap[runLumi]=iter;
-        if(lastSeenRun != temp.m_run) {
-          lastSeenRun = temp.m_run;
-          positionOfFirstIndexForRun = iter;
-        }
+      std::list<unsigned int>::iterator iter = m_orderedIndices.insert(m_orderedIndices.end(),index);
+      runLumiToLastEntryMap[runLumi]=iter;
+      if(lastSeenRun != temp.m_run) {
+        lastSeenRun = temp.m_run;
+        positionOfFirstIndexForRun = iter;
       }
     } else {
       //We need to do a merge since the run/lumi already appeared. Put it after the existing entry
@@ -588,6 +628,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
     }
   }
   m_nextIndexItr = m_orderedIndices.begin();
+  m_presentIndexItr = m_orderedIndices.begin();
   
   if(m_nextIndexItr != m_orderedIndices.end()) {
     for( size_t index = 0; index < kNIndicies; ++index) {
@@ -596,8 +637,8 @@ DQMRootSource::setupFile(unsigned int iIndex)
       m_treeReaders[index]->setTree(m_trees[index]);
     }
   }
-  
-  
+  //After a file open, the framework expects to see a new 'IsRun'
+  m_lastSeenRun = 0;
 }
 
 //
