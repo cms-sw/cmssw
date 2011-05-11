@@ -415,3 +415,76 @@ This should match the number sent to the ALCA list
 17) Check the global tags here:
 
 http://cms-conddb.cern.ch/popcon/PopConRecentActivityRecorded.html
+
+
+
+18) FOR HLT Only!
+
+If you would like a new HLT global tag, you have to append the payloads to the existing
+ones.
+
+Here is the documentation:
+
+https://twiki.cern.ch/twiki/bin/viewauth/CMS/DropBoxOffline
+
+For instance, we need tags for both HLT and express:
+
+destDB oracle://cms_orcon_prod/CMS_COND_31X_PHYSICSTOOLS
+tag JetCorrectorParametersCollection_AK5Calo_v1_hlt
+inputtag JetCorrectorParametersCollection_Jec11_V1_AK5Calo
+since
+Timetype runnumber
+IOVCheck hlt
+DuplicateTagHLT
+DuplicateTagEXPRESS
+DuplicateTagPROMPT
+usertext
+
+destDB oracle://cms_orcon_prod/CMS_COND_31X_PHYSICSTOOLS
+tag JetCorrectorParametersCollection_AK5Calo_v1_express
+inputtag JetCorrectorParametersCollection_Jec11_V1_AK5Calo
+since
+Timetype runnumber
+IOVCheck express
+DuplicateTagHLT
+DuplicateTagEXPRESS
+DuplicateTagPROMPT
+usertext
+
+
+
+
+
+19) They will again show up here:
+
+https://twiki.cern.ch/twiki/bin/viewauth/CMS/DropBoxOffline
+
+
+
+20) Then check them as:
+
+lxbuild150:$ cmscond_list_iov -P /afs/cern.ch/cms/DB/conddb -c
+oracle://cms_orcoff_prod/CMS_COND_31X_PHYSICSTOOLS -t
+JetCorrectorParametersCollection_AK5Calo_v1_hlt
+Tag JetCorrectorParametersCollection_AK5Calo_v1_hlt
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since    till    payloadToken
+1        164601          [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000008-0000003E]
+164602   4294967295
+[DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000008-00000067]
+Total # of payload objects: 2
+lxbuild150:$ cmscond_list_iov -P /afs/cern.ch/cms/DB/conddb -c
+oracle://cms_orcoff_prod/CMS_COND_31X_PHYSICSTOOLS -t
+JetCorrectorParametersCollection_AK5Calo_v1_express
+Tag JetCorrectorParametersCollection_AK5Calo_v1_express
+TimeType runnumber
+PayloadContainerName JetCorrectorParametersCollection
+since    till    payloadToken
+1        164601          [DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000008-0000003E]
+164602   4294967295
+[DB=00000000-0000-0000-0000-000000000000][CNT=JetCorrectorParametersCollection][CLID=8B390EB7-E018-28E3-3AE1-56A63E52AEEA][TECH=00000B01][OID=00000008-00000068]
+Total # of payload objects: 2
+
+
+21) Finally make a request for the IOV append to the alca conveners.
