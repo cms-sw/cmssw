@@ -3,13 +3,13 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process( 'PAT' )
 
 
-###
-### Constants
-###
+### ======================================================================== ###
+###                                                                          ###
+###                                 Constants                                ###
+###                            (user job steering)                           ###
+###                                                                          ###
+### ======================================================================== ###
 
-### Data or MC?
-
-runOnMC = False
 
 ### Switch on/off selection steps
 
@@ -26,7 +26,7 @@ use4Jets        = False
 
 addTriggerMatching = True
 
-### Import reference selection
+### Import and modify reference selection
 
 from TopQuarkAnalysis.Configuration.patRefSel_refMuJets import *
 #muonsUsePV             = False
@@ -37,41 +37,46 @@ from TopQuarkAnalysis.Configuration.patRefSel_refMuJets import *
 #muonJetsDR             = 0.3
 #jetCut                 = ''
 #electronCut            = ''
-#triggerSelection       = 'HLT_Mu15 OR HLT_Mu15_v*' # 'HLT_Mu9' for run numbers < 147196
-#triggerObjectSelection = 'type("TriggerMuon") && ( path("HLT_Mu15") || path("HLT_Mu15_v*") )'
+# Trigger selection according to run range:
+# lower range limits available as suffix;
+# available are: 000000, 147196 (default)
+#triggerSelection       = triggerSelection_147196
+#triggerObjectSelection = triggerObjectSelection_147196
 
-### Basics
+### Input
 
-# GlobalTag identifier as in Configuration/PyReleaseValidation/python/autoCond.py
-condition = 'com10'
-if runOnMC:
-  condition = 'startup'
+# data or MC?
+runOnMC = True
+
+# list of input files
+inputFiles = [] # overwritten, if "useRelVals" is 'True'
+
+# test with CMSSW_4_2_2 RelVals?
+useRelVals = True # if 'False', "inputFiles" must be defined
+
 # maximum number of events
 maxInputEvents = -1 # reduce for testing
-# input files
-from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
-inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_4_2_2'
-                                 , relVal        = 'Mu'
-                                 , dataTier      = 'RECO'
-                                 , globalTag     = 'GR_R_42_V10_RelVal_mu2010B'
-                                 , numberOfFiles = 0 # "0" means "all"
-                                 )
-if runOnMC:
-  inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_4_2_2'
-                                   , relVal        = 'RelValTTbar'
-                                   , condition     = condition
-                                   , numberOfFiles = 0 # "0" means "all"
-                                   )
+
+### Conditions
+
+# GlobalTags (w/o suffix '::All')
+globalTagData = 'GR_R_42_V10' # default for CMSSW_4_2_2 RelVals: 'GR_R_42_V10'
+globalTagMC   = 'START42_V11' # default for CMSSW_4_2_2 RelVals: 'START42_V11'
+
+### Output
+
 # output file
-outputFile = 'patRefSel_muJets_data.root'
-if runOnMC:
-  outputFile = 'patRefSel_muJets_mc.root'
+outputFile = 'patRefSel_muJets.root'
+
 # event frequency of Fwk report
 fwkReportEvery = 100
+
 # switch for 'TrigReport'/'TimeReport' at job end
 wantSummary = True
 
 
+###                              End of constants                            ###
+###                                                                          ###
 ### ======================================================================== ###
 
 
@@ -82,8 +87,10 @@ wantSummary = True
 process.load( "TopQuarkAnalysis.Configuration.patRefSel_basics_cff" )
 process.MessageLogger.cerr.FwkReport.reportEvery = fwkReportEvery
 process.options.wantSummary = wantSummary
-from Configuration.PyReleaseValidation.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond[ condition ]
+if runOnMC:
+  process.GlobalTag.globaltag = globalTagMC   + '::All'
+else:
+  process.GlobalTag.globaltag = globalTagData + '::All'
 
 
 ###
@@ -91,6 +98,21 @@ process.GlobalTag.globaltag = autoCond[ condition ]
 ###
 
 process.load( "TopQuarkAnalysis.Configuration.patRefSel_inputModule_cff" )
+if useRelVals:
+  from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
+  if runOnMC:
+    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_4_2_2'
+                                     , relVal        = 'RelValTTbar'
+                                     , globalTag     = globalTagMC
+                                     , numberOfFiles = 0 # "0" means "all"
+                                     )
+  else:
+    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_4_2_2'
+                                     , relVal        = 'Mu'
+                                     , dataTier      = 'RECO'
+                                     , globalTag     = globalTagData + '_RelVal_mu2010B'
+                                     , numberOfFiles = 0 # "0" means "all"
+                                     )
 process.source.fileNames = inputFiles
 process.maxEvents.input  = maxInputEvents
 

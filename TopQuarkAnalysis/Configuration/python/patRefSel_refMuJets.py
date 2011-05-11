@@ -15,7 +15,9 @@ muonEmbedTrack = True  # embedded track needed for muon ID cuts
 ### Trigger selection
 
 # HLT selection
-triggerSelection = 'HLT_Mu15 OR HLT_Mu15_v*'
+triggerSelection_000000 = 'HLT_Mu9'     #           run < 147196
+triggerSelection_147196 = 'HLT_Mu15_v*' # 147196 <= run < ...
+triggerSelection        = triggerSelection_147196
 
 ### Muon selection
 
@@ -83,7 +85,7 @@ jetMuonsDRPF = 0.1
 ### Electron selection
 
 # Veto electron selection
-electronCutBase  =     'et > 15.'       # transverse momentum
+electronCutBase  =     'et > 15.'       # transverse energy
 electronCutBase += ' && abs(eta) < 2.5' # pseudo-rapisity range
 # standard electron
 electronCut  = electronCutBase
@@ -97,4 +99,6 @@ electronCutPF  = electronCut
 ### Trigger matching
 
 # Trigger object selection
-triggerObjectSelection = 'type("TriggerMuon") && ( path("HLT_Mu15") || path("HLT_Mu15_v*") )' # run >= 147196
+triggerObjectSelection_000000 = 'type("TriggerMuon") && ( path("HLT_Mu9") )'     #           run < 147196
+triggerObjectSelection_147196 = 'type("TriggerMuon") && ( path("HLT_Mu15_v*") )' # 147196 <= run < ...
+triggerObjectSelection        = triggerObjectSelection_147196

@@ -21,22 +21,26 @@ loosePatMuons = cleanPatMuons.clone(
     )
   )
 )
-step3b = countPatMuons.clone( src = cms.InputTag( 'loosePatMuons' )
-                            , minNumber = 1
-                            , maxNumber = 1
-                            )
+step3b = cms.EDFilter(
+  "PATCandViewCountFilter"
+, src = cms.InputTag( 'loosePatMuons' )
+, minNumber = cms.uint32( 1 )
+, maxNumber = cms.uint32( 1 )
+)
 
 tightPatMuons = cleanPatMuons.clone(
   src           = cms.InputTag( 'loosePatMuons' )
 , preselection  = '' # tightMuonCut
 , checkOverlaps = cms.PSet()
 )
-step3a = countPatMuons.clone( src = cms.InputTag( 'tightPatMuons' )
-                            , minNumber = 1
-                            , maxNumber = 1
-                            )
+step3a = step3b.clone( src = cms.InputTag( 'tightPatMuons' ) )
 
-step4 = countPatMuons.clone( maxNumber = 1 ) # includes the signal muon
+step4 = cms.EDFilter(
+  "PATCandViewCountFilter"
+, src = cms.InputTag( 'selectedPatMuons' )
+, minNumber = cms.uint32( 0 )
+, maxNumber = cms.uint32( 1 ) # includes the signal muon
+)
 
 ### Jets
 
@@ -64,14 +68,22 @@ kt6PFJets = kt4PFJets.clone(
 , voronoiRfact = cms.double( 0.9 )
 )
 
-step6a = countPatJets.clone( src = cms.InputTag( 'goodPatJets' )
-                                               , minNumber = 1
-                                               )
+step6a = cms.EDFilter(
+  "PATCandViewCountFilter"
+, src = cms.InputTag( 'goodPatJets' )
+, minNumber = cms.uint32( 1 )
+, maxNumber = cms.uint32( 999999 )
+)
 step6b = step6a.clone( minNumber = 2 )
-step6c = step6b.clone( minNumber = 3 )
-step7  = step6c.clone( minNumber = 4 )
+step6c = step6a.clone( minNumber = 3 )
+step7  = step6a.clone( minNumber = 4 )
 
 ### Electrons
 
-step5 = countPatElectrons.clone( maxNumber = 0 )
+step5 = cms.EDFilter(
+  "PATCandViewCountFilter"
+, src = cms.InputTag( 'selectedPatElectrons' )
+, minNumber = cms.uint32( 0 )
+, maxNumber = cms.uint32( 0 )
+)
 

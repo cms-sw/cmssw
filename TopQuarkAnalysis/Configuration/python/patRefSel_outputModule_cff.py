@@ -7,6 +7,7 @@ out = cms.OutputModule( "PoolOutputModule"
                                         , 'keep edmTriggerResults_*_*_*'
                                         , 'keep *_hltTriggerSummaryAOD_*_*'
                                         )
+, dropMetaData   = cms.untracked.string( 'ALL' )
 )
 
 outpath = cms.EndPath(
