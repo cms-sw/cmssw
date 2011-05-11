@@ -46,6 +46,7 @@ namespace evf{
   void SubProcess::setParams(struct prg *p)
   {
     prg_.ls  = p->ls;
+    prg_.eols  = p->eols;
     prg_.ps  = p->ps;
     prg_.nbp = p->nbp + save_nbp_;
     prg_.nba = p->nba + save_nba_;

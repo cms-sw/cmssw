@@ -1337,6 +1337,7 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	  // 	  monitorInfoSpace_->lock();  
 	  prg * data           = (prg*)msg1->mtext;
 	  data->ls             = evtProcessor_.lsid_;
+	  data->eols           = evtProcessor_.lastLumiUsingEol_;
 	  data->ps             = evtProcessor_.psid_;
 	  data->nbp            = evtProcessor_->totalEvents();
 	  data->nba            = evtProcessor_->totalEventsPassed();
@@ -1645,7 +1646,7 @@ void FUEventProcessor::microState(xgi::Input *in,xgi::Output *out)
        << "</td><td>"<< (myProcess_ ? "S" : "M") <<"</td><td>" << nblive_ << "</td><td>"
        << nbdead_ << "</td><td><a href=\"/" << urn << "/procStat\">" << getpid() <<"</a></td>";
   evtProcessor_.microState(in,out);
-  *out << "<td>" << nbTotalDQM_ 
+  *out << "<td></td><td>" << nbTotalDQM_ 
        << "</td><td>" << evtProcessor_.getScalersUpdates() << "</td></tr>";
   if(nbSubProcesses_.value_!=0 && !myProcess_) 
     {
@@ -1671,6 +1672,9 @@ void FUEventProcessor::microState(xgi::Input *in,xgi::Output *out)
 		     << " (" << float(subs_[i].params().nba)/float(subs_[i].params().nbp)*100. <<"%)" 
 		     << "</td><td>" << subs_[i].params().ls  << "/" << subs_[i].params().ls 
 		     << "</td><td>" << subs_[i].params().ps 
+		     << "</td><td" 
+		     << ((subs_[i].params().eols<subs_[i].params().ls) ? " bgcolor=\"#00FF00\"" : " bgcolor=\"#FF0000\"")  << ">" 
+		     << subs_[i].params().eols  
 		     << "</td><td>" << subs_[i].params().dqm 
 		     << "</td><td>" << subs_[i].params().trp << "</td>";
 	      }
@@ -1697,7 +1701,12 @@ void FUEventProcessor::microState(xgi::Input *in,xgi::Output *out)
 		      *out << " reached maximum restart count";
 		    else *out << " autoRestart is disabled ";
 		  }
-		*out << "</td><td>" << subs_[i].params().dqm 
+		*out << "</td><td" 
+		     << ((subs_[i].params().eols<subs_[i].params().ls) ? 
+			 " bgcolor=\"#00FF00\"" : " bgcolor=\"#FF0000\"")  
+		     << ">" 
+		     << subs_[i].params().eols  
+		     << "</td><td>" << subs_[i].params().dqm 
 		     << "</td><td>" << subs_[i].params().trp << "</td>";
 		pthread_mutex_unlock(&pickup_lock_);
 	      }
@@ -1822,7 +1831,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.124 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.125 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
