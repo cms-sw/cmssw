@@ -217,7 +217,6 @@ namespace lumi{
 	lscountfromzero=true;
       }
       if(lscountfromzero){
-	std::cout<<"hlt ls count from 0 !"<<std::endl;
 	std::map<unsigned int,hltinfo>& allpathinfo=hltresult.at(currentLumiSection);
 	unsigned int pathid=row["pathid"].data<unsigned int>();
 	//std::cout<<"look for path id "<<pathid<<std::endl;
@@ -234,6 +233,9 @@ namespace lumi{
 	pathcontent.hltaccept=row["paccept"].data<unsigned int>();
 	pathcontent.prescale=row["psvalue"].data<unsigned int>();
       }
+    }
+    if(lscountfromzero) {
+      std::cout<<"hlt ls count from 0 !"<<std::endl;
     }
     delete jq;
     srcsession->transaction().commit();
