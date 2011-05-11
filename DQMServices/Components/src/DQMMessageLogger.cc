@@ -198,8 +198,8 @@ void DQMMessageLogger::analyze(const Event& iEvent, const EventSetup& iSetup) {
 	    categories_errors->Fill((*it).second - 1, (*errors)[i].count);
 	  }
 	}
-	if (categoryECount.size()<=40)
-	  categoryECount[(*errors)[i].category]+=(*errors)[i].count;
+	//	if (categoryECount.size()<=40)
+	//	  categoryECount[(*errors)[i].category]+=(*errors)[i].count;
 
 	if(modules_errors!=NULL){
 	  // remove the first part of the module string, what is before ":"
@@ -222,8 +222,8 @@ void DQMMessageLogger::analyze(const Event& iEvent, const EventSetup& iSetup) {
 	  }
 	}
 
-	if (categoryWCount.size()<=40)
-	  categoryWCount[(*errors)[i].category]+=(*errors)[i].count;
+	//	if (categoryWCount.size()<=40)
+	//	  categoryWCount[(*errors)[i].category]+=(*errors)[i].count;
 	
 	if(modules_warnings!=NULL){
 	  // remove the first part of the module string, what is before ":"
@@ -242,6 +242,7 @@ void DQMMessageLogger::analyze(const Event& iEvent, const EventSetup& iSetup) {
 }
 
 void DQMMessageLogger::endRun(const edm::Run & , const edm::EventSetup & ){
+  /*
   theDbe = Service<DQMStore>().operator->();
   if(theDbe!=NULL){
     std::map<std::string,int>::iterator it;
@@ -271,6 +272,7 @@ void DQMMessageLogger::endRun(const edm::Run & , const edm::EventSetup & ){
   }
   categoryWCount.clear();
   categoryECount.clear();
+  */
 }
 
 void DQMMessageLogger::endJob(void) {
