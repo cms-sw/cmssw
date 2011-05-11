@@ -51,8 +51,9 @@ struct msgbuf
 
 namespace evf{
   struct prg{
-    prg():ls(0),ps(0),nbp(0),nba(0),Ms(0),ms(0),dqm(0),trp(0){}
+    prg():ls(0),eols(0),ps(0),nbp(0),nba(0),Ms(0),ms(0),dqm(0),trp(0){}
     unsigned int ls;
+    unsigned int eols;
     unsigned int ps;
     unsigned int nbp;
     unsigned int nba;
