@@ -13,7 +13,7 @@
 //
 // Original Author:  Thomas Reis,40 4-B24,+41227671567,
 //         Created:  Tue Mar 15 12:24:11 CET 2011
-// $Id: EmDQMFeeder.cc,v 1.10 2011/05/05 16:51:53 treis Exp $
+// $Id: EmDQMFeeder.cc,v 1.11 2011/05/06 12:14:00 treis Exp $
 //
 //
 
@@ -150,22 +150,16 @@ EmDQMFeeder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 EmDQMFeeder::beginJob()
 {
-//  std::cout << "EmDQMFeeder: beginJob" << std::endl;
-//  for (unsigned i = 0; i < emDQMmodules.size(); ++i) {
-//    std::cout << "EmDQM: beginJob for filter " << i  << std::endl;
-//    emDQMmodules[i]->beginJob();
-//  }
+//  for (unsigned i = 0; i < emDQMmodules.size(); ++i)
+//     emDQMmodules[i]->beginJob();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 EmDQMFeeder::endJob() 
 {
-  //std::cout << "EmDQMFeeder: endJob" << std::endl;
-  for (unsigned i = 0; i < emDQMmodules.size(); ++i) {
-    //std::cout << "EmDQM: endJob for filter " << i << std::endl;
-    emDQMmodules[i]->endJob();
-  }
+  for (unsigned i = 0; i < emDQMmodules.size(); ++i)
+     emDQMmodules[i]->endJob();
 }
 
 // ------------ method called when starting to processes a run  ------------
@@ -255,6 +249,7 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
             }
 	    //--------------------
 
+            if (iConfig.getParameter<bool>("isData")) paramSet.addParameter<edm::InputTag>("cutcollection", edm::InputTag("gsfElectrons"));
 
             std::vector<edm::ParameterSet> filterVPSet;
             edm::ParameterSet filterPSet;
@@ -347,7 +342,7 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
                if (!hltConfig_.modulePSet(moduleLabel).exists("saveTags")) {
                   // make sure that 'theHLTOutputTypes' of the last filter of a photon path is set to trigger::TriggerPhoton
                   // this is coupled to the parameter 'saveTag = true'
-                  if (j == TYPE_SINGLE_PHOTON || j == TYPE_DOUBLE_PHOTON) {
+                  if ((j == TYPE_SINGLE_PHOTON || j == TYPE_DOUBLE_PHOTON) && pathName.rfind("Ele") == std::string::npos) {
                      filterVPSet.back().addParameter<int>("theHLTOutputTypes", trigger::TriggerPhoton);
                   }
                }
@@ -432,35 +427,35 @@ EmDQMFeeder::findEgammaPaths()
       if (int(path.find("HLT_")) == 0) {    // Path should start with 'HLT_'
          if (path.find("HLT_Ele") != std::string::npos && path.rfind("Ele") == 4 && path.find("SC") == std::string::npos) {
             Paths[TYPE_SINGLE_ELE].push_back(path);
-            std::cout << "Electron " << path << std::endl;
+            //std::cout << "Electron " << path << std::endl;
          }
          if (path.find("HLT_Ele") != std::string::npos && path.find("EleId") != std::string::npos && path.rfind("Ele") == path.find("EleId")) {
             Paths[TYPE_SINGLE_ELE].push_back(path);
-            std::cout << "Electron " << path << std::endl;
+            //std::cout << "Electron " << path << std::endl;
          }
          else if (path.find("HLT_Ele") != std::string::npos && path.rfind("Ele") > 4) {
             Paths[TYPE_DOUBLE_ELE].push_back(path);
-            std::cout << "DoubleElectron " << path << std::endl;
+            //std::cout << "DoubleElectron " << path << std::endl;
          }
          else if (path.find("HLT_DoubleEle") != std::string::npos) {
             Paths[TYPE_DOUBLE_ELE].push_back(path);
-            std::cout << "DoubleElectron " << path << std::endl;
+            //std::cout << "DoubleElectron " << path << std::endl;
          }
          else if (path.find("HLT_Ele") != std::string::npos && path.find("SC") != std::string::npos) {
             Paths[TYPE_DOUBLE_ELE].push_back(path);
-            std::cout << "DoubleElectron " << path << std::endl;
+            //std::cout << "DoubleElectron " << path << std::endl;
          }
          else if (path.find("HLT_Photon") != std::string::npos && path.rfind("Photon") == 4) {
             Paths[TYPE_SINGLE_PHOTON].push_back(path);
-            std::cout << "Photon " << path << std::endl;
+            //std::cout << "Photon " << path << std::endl;
          }
          else if (path.find("HLT_Photon") != std::string::npos && path.rfind("Photon") > 4) {
             Paths[TYPE_DOUBLE_PHOTON].push_back(path);
-            std::cout << "DoublePhoton " << path << std::endl;
+            //std::cout << "DoublePhoton " << path << std::endl;
          }
          else if (path.find("HLT_DoublePhoton") != std::string::npos) {
             Paths[TYPE_DOUBLE_PHOTON].push_back(path);
-            std::cout << "DoublePhoton " << path << std::endl;
+            //std::cout << "DoublePhoton " << path << std::endl;
          }
       }
       //std::cout << i << " triggerName: " << path << " containing " << hltConfig_.size(i) << " modules."<< std::endl;
@@ -555,7 +550,6 @@ EmDQMFeeder::makePSetForL1SeedToSuperClusterMatchFilter(const std::string& modul
 edm::ParameterSet 
 EmDQMFeeder::makePSetForEtFilter(const std::string& moduleName)
 {
-  // generates a PSet for the Egamma DQM analyzer for the Et filter
   edm::ParameterSet retPSet;
   
   retPSet.addParameter<std::vector<double> >("PlotBounds", std::vector<double>(2, 0.0));
