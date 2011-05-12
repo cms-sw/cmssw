@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Tue May  3 15:33:16 CDT 2011
-// $Id$
+// $Id: format.h,v 1.1 2011/05/11 18:12:54 chrjones Exp $
 //
 
 
@@ -37,11 +37,25 @@ static const char* const kFlagBranch = "Flags";
 static const char* const kValueBranch = "Value";
 
 
+//Storage of Run and Lumi information
 static const char* const kIndicesTree = "Indices";
 static const char* const kRunBranch = "Run";
 static const char* const kLumiBranch = "Lumi";
+static const char* const kProcessHistoryIndexBranch = "ProcessHistoryIndex";
 static const char* const kTypeBranch = "Type";
 static const char* const kFirstIndex = "FirstIndex";
 static const char* const kLastIndex = "LastIndex";
 
+//Meta data info
+static const char* const kMetaDataDirectory = "MetaData";
+
+static const char* const kProcessHistoryTree = "ProcessHistories";
+static const char* const kPHIndexBranch = "Index";
+static const char* const kProcessConfigurationProcessNameBranch = "ProcessName";
+static const char* const kProcessConfigurationParameterSetIDBranch = "ParameterSetID";
+static const char* const kProcessConfigurationReleaseVersion = "ReleaseVersion";
+static const char* const kProcessConfigurationPassID = "PassID";
+
+static const char* const kParameterSetTree = "ParameterSets";
+static const char* const kParameterSetBranch = "ParameterSetBlob";
 #endif
