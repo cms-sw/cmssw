@@ -79,16 +79,15 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
     m_operandTokenVector.reserve(rpnVectorSize);
 
     // stack containing temporary results
-    // std::stack<bool> m_resultStack;
-    // FIXME we shall find a better solution than statci
-    static  std::stack<bool, std::vector<bool> > m_resultStack;
+    // FIXME we shall find a better solution than static
+    static  std::stack<bool, std::vector<bool> > resultStack;
     bool b1, b2;
 
     int opNumber = 0;
 
     for (RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
 
-        //LogTrace("L1GtAlgorithmEvaluation")
+        //LogTrace("L1GlobalTrigger")
         //<< "\nit->operation = " << it->operation
         //<< "\nit->operand =   '" << it->operand << "'\n"
         //<< std::endl;
@@ -99,17 +98,19 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
 
                 CItEvalMap itCond = (conditionResultMaps.at(chipNumber)).find(it->operand);
                 if (itCond != (conditionResultMaps[chipNumber]).end()) {
-		  if (0==itCond->second) {
-		    // it should never be happen, only valid conditions are in the maps (unless mess by VI!)
-                    throw cms::Exception("FailModule")
-                    << "\nCondition " << (it->operand) << " NULL pointer found in condition map"
-                    << std::endl;
-		  }
+
+                    if (0 == itCond->second) {
+                        // it should never be happen, only valid conditions are in the maps
+                        throw cms::Exception("FailModule") << "\nCondition "
+                                << (it->operand)
+                                << " NULL pointer found in condition map"
+                                << std::endl;
+                    }
 
                     //
                     bool condResult = (itCond->second)->condLastResult();
 
-                    m_resultStack.push(condResult);
+                    resultStack.push(condResult);
 
                     // only conditions are added to /counted in m_operandTokenVector 
                     // opNumber is the index of the condition in the logical expression
@@ -139,27 +140,27 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
 
                 break;
 	case  L1GtLogicParser::OP_NOT: {
-                b1 = m_resultStack.top();
-                m_resultStack.pop(); // pop the top
-                m_resultStack.push(!b1); // and push the result
+                b1 = resultStack.top();
+                resultStack.pop(); // pop the top
+                resultStack.push(!b1); // and push the result
             }
 
                 break;
             case L1GtLogicParser::OP_OR: {
-                b1 = m_resultStack.top();
-                m_resultStack.pop();
-                b2 = m_resultStack.top();
-                m_resultStack.pop();
-                m_resultStack.push(b1 || b2);
+                b1 = resultStack.top();
+                resultStack.pop();
+                b2 = resultStack.top();
+                resultStack.pop();
+                resultStack.push(b1 || b2);
             }
 
                 break;
             case L1GtLogicParser::OP_AND: {
-                b1 = m_resultStack.top();
-                m_resultStack.pop();
-                b2 = m_resultStack.top();
-                m_resultStack.pop();
-                m_resultStack.push(b1 && b2);
+                b1 = resultStack.top();
+                resultStack.pop();
+                b2 = resultStack.top();
+                resultStack.pop();
+                resultStack.push(b1 && b2);
             }
 
                 break;
@@ -174,9 +175,10 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
 
     // get the result in the top of the stack
 
-    m_algoResult = m_resultStack.top();
-    // clear it...
-    while(!m_resultStack.empty()) m_resultStack.pop();
+    m_algoResult = resultStack.top();
+
+    // clear resultStack
+    while(!resultStack.empty()) resultStack.pop();
 
 }
 

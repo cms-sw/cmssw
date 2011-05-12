@@ -102,12 +102,8 @@ public:
 protected:
 
     /// get all the object combinations (to fill it...)
-    // inline CombinationsInCond & combinationsInCond()  {
-    //     return m_combinationsInCond;
-    // }
-
-    inline CombinationsInCond & combinationsInCond() const {
-       return m_combinationsInCond;
+    inline CombinationsInCond& combinationsInCond() const {
+        return m_combinationsInCond;
     }
 
     /// check if a value is greater than a threshold or
@@ -143,7 +139,7 @@ template<class Type1, class Type2> const bool L1GtConditionEvaluation::checkThre
     const Type1& threshold, const Type2& value, const bool condGEqValue) const {
 
     //if (value > 0) {
-    //    LogTrace("L1GtConditionEvaluation") << "  threshold check for condGEqValue = "
+    //    LogTrace("L1GlobalTrigger") << "  threshold check for condGEqValue = "
     //        << condGEqValue << "\n    hex: " << std::hex << "threshold = " << threshold
     //        << " value = " << value << "\n    dec: " << std::dec << "threshold = " << threshold
     //        << " value = " << value << std::endl;
@@ -152,7 +148,7 @@ template<class Type1, class Type2> const bool L1GtConditionEvaluation::checkThre
     if (condGEqValue) {
         if (value >= threshold) {
 
-            //LogTrace("L1GtConditionEvaluation") << "    condGEqValue: value >= threshold"
+            //LogTrace("L1GlobalTrigger") << "    condGEqValue: value >= threshold"
             //    << std::endl;
 
             return true;
@@ -165,7 +161,7 @@ template<class Type1, class Type2> const bool L1GtConditionEvaluation::checkThre
 
         if (value == threshold) {
 
-            //LogTrace("L1GtConditionEvaluation") << "    condGEqValue: value = threshold"
+            //LogTrace("L1GlobalTrigger") << "    condGEqValue: value = threshold"
             //    << std::endl;
 
             return true;
@@ -185,7 +181,7 @@ template<class Type1> const bool L1GtConditionEvaluation::checkBit(const Type1& 
 
         if (m_verbosity) {
 
-            LogTrace("L1GtConditionEvaluation")
+            LogTrace("L1GlobalTrigger")
                 << "    checkBit " << "\n     Bit number = "
                 << bitNumber << " larger than maximum allowed " << sizeof ( oneBit ) * 8
                 << std::endl;
@@ -196,7 +192,7 @@ template<class Type1> const bool L1GtConditionEvaluation::checkBit(const Type1& 
 
     oneBit <<= bitNumber;
 
-    //LogTrace("L1GtConditionEvaluation") << "    checkBit " << "\n     mask address = " << &mask
+    //LogTrace("L1GlobalTrigger") << "    checkBit " << "\n     mask address = " << &mask
     //    << std::dec << "\n     dec: " << "mask = " << mask << " oneBit = " << oneBit
     //    << " bitNumber = " << bitNumber << std::hex << "\n     hex: " << "mask = " << mask
     //    << " oneBit = " << oneBit << " bitNumber = " << bitNumber << std::dec

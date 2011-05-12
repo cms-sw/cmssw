@@ -163,6 +163,9 @@ void L1GtCorrelationCondition::setGtPSB(const L1GlobalTriggerPSB* ptrPSB) {
 // try all object permutations and check spatial correlations, if required
 const bool L1GtCorrelationCondition::evaluateCondition() const {
 
+    // std::cout << "m_isDebugEnabled = " << m_isDebugEnabled << std::endl;
+    // std::cout << "m_verbosity = " << m_verbosity << std::endl;
+
     bool condResult = false;
 
     // number of objects in condition (it is 2, no need to retrieve from
@@ -179,8 +182,9 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
     const L1GtCaloTemplate* corrCalo = 0;
     const L1GtEnergySumTemplate* corrEnergySum = 0;
 
-    CombinationsInCond const * cond0Comb=0;
-    CombinationsInCond const * cond1Comb=0;
+    // FIXME copying is slow...
+    CombinationsInCond cond0Comb;
+    CombinationsInCond cond1Comb;
 
     switch (cond0Categ) {
         case CondMuon: {
@@ -191,19 +195,20 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             muCondition.evaluateConditionStoreResult();
             condResult = muCondition.condLastResult();
 
-            cond0Comb = &(muCondition.getCombinationsInCond());
+            cond0Comb = (muCondition.getCombinationsInCond());
             cndObjTypeVec[0] = (corrMuon->objectType())[0];
 
             if (m_verbosity && m_isDebugEnabled ) {
                 std::ostringstream myCout;
                 muCondition.print(myCout);
 
-                LogTrace("L1GtCorrelationCondition") << myCout.str() << std::endl;
+                LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
             }
         }
             break;
         case CondCalo: {
             corrCalo = static_cast<const L1GtCaloTemplate*>(m_gtCond0);
+
             L1GtCaloCondition caloCondition(corrCalo, m_gtPSB,
                     m_cond0NrL1Objects, m_cond0NrL1Objects, m_cond0NrL1Objects,
                     m_cond0NrL1Objects, m_cond0NrL1Objects, m_cond0EtaBits);
@@ -211,14 +216,14 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             caloCondition.evaluateConditionStoreResult();
             condResult = caloCondition.condLastResult();
 
-            cond0Comb = &(caloCondition.getCombinationsInCond());
+            cond0Comb = (caloCondition.getCombinationsInCond());
             cndObjTypeVec[0] = (corrCalo->objectType())[0];
 
-            if (m_verbosity && m_isDebugEnabled ) {
+            if (m_verbosity && m_isDebugEnabled) {
                 std::ostringstream myCout;
                 caloCondition.print(myCout);
 
-                LogTrace("L1GtCorrelationCondition") << myCout.str() << std::endl;
+                LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
             }
         }
             break;
@@ -229,14 +234,14 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             eSumCondition.evaluateConditionStoreResult();
             condResult = eSumCondition.condLastResult();
 
-            cond0Comb = &(eSumCondition.getCombinationsInCond());
+            cond0Comb = (eSumCondition.getCombinationsInCond());
             cndObjTypeVec[0] = (corrEnergySum->objectType())[0];
 
             if (m_verbosity && m_isDebugEnabled ) {
                 std::ostringstream myCout;
                 eSumCondition.print(myCout);
 
-                LogTrace("L1GtCorrelationCondition") << myCout.str() << std::endl;
+                LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
             }
         }
             break;
@@ -249,6 +254,11 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
 
     // return if first subcondition is false
     if (!condResult) {
+        if (m_verbosity && m_isDebugEnabled) {
+            LogTrace("L1GlobalTrigger")
+                    << "\n  First sub-condition false, second sub-condition not evaluated and not printed."
+                    << std::endl;
+        }
         return false;
     }
 
@@ -262,14 +272,14 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             muCondition.evaluateConditionStoreResult();
             condResult = muCondition.condLastResult();
 
-            cond1Comb = &(muCondition.getCombinationsInCond());
+            cond1Comb = (muCondition.getCombinationsInCond());
             cndObjTypeVec[1] = (corrMuon->objectType())[0];
 
             if (m_verbosity && m_isDebugEnabled ) {
                 std::ostringstream myCout;
                 muCondition.print(myCout);
 
-                LogTrace("L1GtCorrelationCondition") << myCout.str() << std::endl;
+                LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
             }
         }
             break;
@@ -282,15 +292,16 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             caloCondition.evaluateConditionStoreResult();
             condResult = caloCondition.condLastResult();
 
-            cond1Comb = &(caloCondition.getCombinationsInCond());
+            cond1Comb = (caloCondition.getCombinationsInCond());
             cndObjTypeVec[1] = (corrCalo->objectType())[0];
 
-            if (m_verbosity && m_isDebugEnabled ) {
+            if (m_verbosity && m_isDebugEnabled) {
                 std::ostringstream myCout;
                 caloCondition.print(myCout);
 
-                LogTrace("L1GtCorrelationCondition") << myCout.str() << std::endl;
+                LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
             }
+
         }
             break;
         case CondEnergySum: {
@@ -299,14 +310,14 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             eSumCondition.evaluateConditionStoreResult();
             condResult = eSumCondition.condLastResult();
 
-            cond1Comb = &(eSumCondition.getCombinationsInCond());
+            cond1Comb = (eSumCondition.getCombinationsInCond());
             cndObjTypeVec[1] = (corrEnergySum->objectType())[0];
 
             if (m_verbosity && m_isDebugEnabled ) {
                 std::ostringstream myCout;
                 eSumCondition.print(myCout);
 
-                LogTrace("L1GtCorrelationCondition") << myCout.str() << std::endl;
+                LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
             }
         }
             break;
@@ -338,19 +349,40 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
     // pointers to objects
     const std::vector<const L1MuGMTCand*>* candMuVec = 0;
     const std::vector<const L1GctCand*>* candCaloVec = 0;
-    const L1GctEtMiss* candETM = 0; // no other energy sum appears in correlation conditions
+    //    only ETM and HTM  can appear in correlation conditions
+    const L1GctEtMiss* candETM = 0;
+    const L1GctHtMiss* candHTM = 0;
 
     unsigned int phiIndex0 = 0;
     unsigned int phiIndex1 = 0;
     unsigned int etaIndex0 = 0;
     unsigned int etaIndex1 = 0;
 
+    LogTrace("L1GlobalTrigger")
+            << "  Sub-condition 0: std::vector<SingleCombInCond> size: "
+            << (cond0Comb.size()) << std::endl;
+    LogTrace("L1GlobalTrigger")
+            << "  Sub-condition 1: std::vector<SingleCombInCond> size: "
+            << (cond1Comb.size()) << std::endl;
+
+
     // loop over all combinations which produced individually "true" as Type1s
     for (std::vector<SingleCombInCond>::const_iterator
-        it0Comb = cond0Comb->begin(); it0Comb != cond0Comb->end(); it0Comb++) {
+        it0Comb = cond0Comb.begin(); it0Comb != cond0Comb.end(); it0Comb++) {
 
-        // Type1s: there is 1 object only, no need for a loop (*it0Comb)[0]
-        int obj0Index = (*it0Comb)[0];
+        // Type1s: there is 1 object only, no need for a loop, index 0 should be OK in (*it0Comb)[0]
+        // ... but add protection to not crash
+        int obj0Index = -1;
+
+        if ((*it0Comb).size() > 0) {
+            obj0Index = (*it0Comb)[0];
+        } else {
+            LogTrace("L1GlobalTrigger")
+                    << "\n  SingleCombInCond (*it0Comb).size() "
+                    << ((*it0Comb).size()) << std::endl;
+            return false;
+        }
+
         switch (cond0Categ) {
             case CondMuon: {
                 candMuVec = m_gtGTL->getCandL1Mu();
@@ -386,8 +418,21 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             }
                 break;
             case CondEnergySum: {
-                candETM = m_gtPSB->getCandL1ETM();
-                phiIndex0 = candETM->phi();
+                switch (cndObjTypeVec[0]) {
+                    case ETM: {
+                        candETM = m_gtPSB->getCandL1ETM();
+                        phiIndex0 = candETM->phi();
+                    }
+                        break;
+                    case HTM: {
+                        candHTM = m_gtPSB->getCandL1HTM();
+                        phiIndex0 = candHTM->phi();
+                    }
+                        break;
+                    default:
+                        // do nothing
+                        break;
+                }
             }
                 break;
             default: {
@@ -398,10 +443,21 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
         }
 
         for (std::vector<SingleCombInCond>::const_iterator
-            it1Comb = cond1Comb->begin(); it1Comb != cond1Comb->end(); it1Comb++) {
+            it1Comb = cond1Comb.begin(); it1Comb != cond1Comb.end(); it1Comb++) {
 
             // Type1s: there is 1 object only, no need for a loop (*it1Comb)[0]
-            int obj1Index = (*it1Comb)[0];
+            // ... but add protection to not crash
+            int obj1Index = -1;
+
+            if ((*it1Comb).size() > 0) {
+                obj1Index = (*it1Comb)[0];
+            } else {
+                LogTrace("L1GlobalTrigger")
+                        << "\n  SingleCombInCond (*it1Comb).size() "
+                        << ((*it1Comb).size()) << std::endl;
+                return false;
+            }
+
             switch (cond1Categ) {
                 case CondMuon: {
                     candMuVec = m_gtGTL->getCandL1Mu();
@@ -437,8 +493,21 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
                 }
                     break;
                 case CondEnergySum: {
-                    candETM = m_gtPSB->getCandL1ETM();
-                    phiIndex1 = candETM->phi();
+                    switch (cndObjTypeVec[1]) {
+                        case ETM: {
+                            candETM = m_gtPSB->getCandL1ETM();
+                            phiIndex0 = candETM->phi();
+                        }
+                            break;
+                        case HTM: {
+                            candHTM = m_gtPSB->getCandL1HTM();
+                            phiIndex0 = candHTM->phi();
+                        }
+                            break;
+                        default:
+                            // do nothing
+                            break;
+                    }
                 }
                     break;
                 default: {
@@ -449,11 +518,11 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             }
 
             if (m_verbosity && m_isDebugEnabled ) {
-                LogTrace("L1GtCorrelationCondition")
-                    << "\n First correlation object of type   " << cndObjTypeVec[0]
+                LogTrace("L1GlobalTrigger")
+                    << "\n  First correlation object of type   " << cndObjTypeVec[0]
                     << " with collection index " << obj0Index
                     << ": phiIndex = " << phiIndex0 << " etaIndex = " << etaIndex0
-                    << "\n Second correlation object  of type " << cndObjTypeVec[1]
+                    << "\n  Second correlation object  of type " << cndObjTypeVec[1]
                     << " with collection index " << obj1Index
                     << " phiIndex = " << phiIndex1 << " etaIndex = " << etaIndex1
                     << std::endl;

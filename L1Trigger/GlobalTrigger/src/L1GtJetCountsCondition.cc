@@ -140,7 +140,7 @@ const bool L1GtJetCountsCondition::evaluateCondition() const {
 
     if (cIndex >= m_numberL1JetCounts) {
 
-        edm::LogError("L1GtJetCountsCondition") << "\nL1GtJetCountsCondition error: countIndex "
+        edm::LogError("L1GlobalTrigger") << "\nL1GtJetCountsCondition error: countIndex "
             << cIndex << "greater than maximum allowed count = " << m_numberL1JetCounts
             << "\n  ==> condResult = false " << std::endl;
         return false;

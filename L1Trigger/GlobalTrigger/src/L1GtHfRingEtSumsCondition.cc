@@ -141,7 +141,7 @@ const bool L1GtHfRingEtSumsCondition::evaluateCondition() const {
     const unsigned int cIndex = objPar.etSumIndex;
     if (cIndex >= numberL1HfRingEtSums) {
 
-        edm::LogError("L1GtHfRingEtSumsCondition") << "\nL1GtHfRingEtSumsCondition error: etSumIndex "
+        edm::LogError("L1GlobalTrigger") << "\nL1GtHfRingEtSumsCondition error: etSumIndex "
             << cIndex << "greater than GCT maximum index = " << numberL1HfRingEtSums
             << "\n  ==> condResult = false " << std::endl;
         return false;

@@ -141,7 +141,7 @@ const bool L1GtHfBitCountsCondition::evaluateCondition() const {
     const unsigned int cIndex = objPar.countIndex;
     if (cIndex >= numberL1HfBitCounts) {
 
-        edm::LogError("L1GtHfBitCountsCondition") << "\nL1GtHfBitCountsCondition error: countIndex "
+        edm::LogError("L1GlobalTrigger") << "\nL1GtHfBitCountsCondition error: countIndex "
             << cIndex << "greater than GCT maximum index = " << numberL1HfBitCounts
             << "\n  ==> condResult = false " << std::endl;
         return false;

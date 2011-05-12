@@ -96,6 +96,41 @@ L1GtCaloCondition::L1GtCaloCondition(const L1GtCondition* caloTemplate, const L1
 
 }
 
+// copy constructor
+void L1GtCaloCondition::copy(const L1GtCaloCondition& cp) {
+
+    m_gtCaloTemplate = cp.gtCaloTemplate();
+    m_gtPSB = cp.gtPSB();
+
+    m_ifCaloEtaNumberBits = cp.gtIfCaloEtaNumberBits();
+
+    m_condMaxNumberObjects = cp.condMaxNumberObjects();
+    m_condLastResult = cp.condLastResult();
+    m_combinationsInCond = cp.getCombinationsInCond();
+
+    m_verbosity = cp.m_verbosity;
+
+}
+
+L1GtCaloCondition::L1GtCaloCondition(const L1GtCaloCondition& cp) :
+    L1GtConditionEvaluation() {
+
+    copy(cp);
+
+}
+
+// destructor
+L1GtCaloCondition::~L1GtCaloCondition() {
+
+    // empty
+
+}
+
+// equal operator
+L1GtCaloCondition& L1GtCaloCondition::operator=(const L1GtCaloCondition& cp) {
+    copy(cp);
+    return *this;
+}
 
 // methods
 void L1GtCaloCondition::setGtCaloTemplate(const L1GtCaloTemplate* caloTempl) {
@@ -123,7 +158,7 @@ const bool L1GtCaloCondition::evaluateCondition() const {
 
     // number of trigger objects in the condition
     int nObjInCond = m_gtCaloTemplate->nrObjects();
-    //LogTrace("L1GtCaloCondition") << "  nObjInCond: " << nObjInCond
+    //LogTrace("L1GlobalTrigger") << "  nObjInCond: " << nObjInCond
     //    << std::endl;
 
     // the candidates
@@ -156,7 +191,7 @@ const bool L1GtCaloCondition::evaluateCondition() const {
     }
 
     int numberObjects = candVec->size();
-    //LogTrace("L1GtCaloCondition") << "  numberObjects: " << numberObjects
+    //LogTrace("L1GlobalTrigger") << "  numberObjects: " << numberObjects
     //    << std::endl;
     if (numberObjects < nObjInCond) {
         return false;
@@ -225,7 +260,7 @@ const bool L1GtCaloCondition::evaluateCondition() const {
             if (nObjInCond != ObjInWscComb) {
 
                 if (m_verbosity) {
-                    edm::LogError("L1GtCaloCondition")
+                    edm::LogError("L1GlobalTrigger")
                         << "\n  Error: "
                         << "number of particles in condition with spatial correlation = "
                         << nObjInCond << "\n  it must be = " << ObjInWscComb
@@ -286,7 +321,7 @@ const bool L1GtCaloCondition::evaluateCondition() const {
                 // candDeltaPhi > 180 ==> take 360 - candDeltaPhi
                 candDeltaPhi = (corrPar.deltaPhiMaxbits - 1)*2 - candDeltaPhi;
                 if (m_verbosity) {
-                    LogTrace("L1GtCaloCondition")
+                    LogTrace("L1GlobalTrigger")
                         << "  candDeltaPhi rescaled to: " << candDeltaPhi
                         << std::endl;
                 }
@@ -308,7 +343,7 @@ const bool L1GtCaloCondition::evaluateCondition() const {
         //    } while ( std::next_permutation(index, index + nObj) );
     } while (std::next_permutation(index.begin(), index.end()) );
 
-    //LogTrace("L1GtCaloCondition")
+    //LogTrace("L1GlobalTrigger")
     //    << "\n  L1GtCaloCondition: total number of permutations found:          " << totalLoops
     //    << "\n  L1GtCaloCondition: number of permutations passing requirements: " << passLoops
     //    << "\n" << std::endl;
@@ -389,7 +424,7 @@ const bool L1GtCaloCondition::checkObjectParameter(const int iCondition, const L
     }
 
     // particle matches if we get here
-    //LogTrace("L1GtCaloCondition")
+    //LogTrace("L1GlobalTrigger")
     //    << "  checkObjectParameter: calorimeter object OK, passes all requirements\n"
     //    << std::endl;
 

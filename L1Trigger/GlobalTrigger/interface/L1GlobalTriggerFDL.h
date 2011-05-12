@@ -68,7 +68,13 @@ public:
         const L1GlobalTriggerGTL* ptrGTL,
         const L1GlobalTriggerPSB* ptrPSB,
         const int pfAlgoSetIndex,
-        const int pfTechSetIndex);
+        const int pfTechSetIndex,
+        const bool algorithmTriggersUnprescaled,
+        const bool algorithmTriggersUnmasked,
+        const bool technicalTriggersUnprescaled,
+        const bool technicalTriggersUnmasked,
+        const bool technicalTriggersVetoUnmasked
+        );
 
     /// fill the FDL block in the L1 GT DAQ record for iBxInEvent
     void fillDaqFdlBlock(const int iBxInEvent,
