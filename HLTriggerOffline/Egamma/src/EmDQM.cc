@@ -584,7 +584,7 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
   ///////////////////////////////////////////////////
   for (unsigned int j=0; j<recoecalcands.size(); j++){
     if(!( recoecalcands.at(j).isAvailable())){
-      edm::LogError("EmDQM") << "Event content inconsistent: TriggerEventWithRefs contains invalid Refs" << std::endl << "invalid refs for: " << theHLTCollectionLabels[n].label();
+      edm::LogError("EmDQMInvalidRefs") << "Event content inconsistent: TriggerEventWithRefs contains invalid Refs. Invalid refs for: " << theHLTCollectionLabels[n].label() << ". The Collection that this module uses may has been dropped in the event.";
       return;
     }
   }
