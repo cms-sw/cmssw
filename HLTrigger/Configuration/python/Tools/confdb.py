@@ -607,7 +607,6 @@ if 'GlobalTag' in %%(dict)s:
     # dump only the requested paths, plus the eventual output endpaths
     else:
       paths = self.config.paths.split(',')
-      self.dumppaths(paths)
 
       # add back output endpaths for full dumps
       if not self.config.fragment:
@@ -617,22 +616,17 @@ if 'GlobalTag' in %%(dict)s:
         elif self.config.output == 'minimal':
           # add back only the output for the TriggerResults
           paths.append( "HLTDQMResultsOutput" )
-        self.dumppaths(paths)
 
       # drop paths unsupported by fastsim
       if self.config.fastsim:
         paths.extend( "-%s" % path for path in self.fastsimUnsupportedPaths )
-        self.dumppaths(paths)
 
       # this should never be in any dump (nor online menu)
       paths.append( "-OfflineOutput" )
-      self.dumppaths(paths)
 
       # expand all wildcards and do an "additive" consolidation
       paths = self.expandWildcards(paths, self.getPathList())
-      self.dumppaths(paths)
       self.options['paths'] = self.consolidatePositiveList(paths)
-      self.dumppaths(self.options['paths'])
 
       if not self.options['paths']:
         raise RuntimeError('Error: option "--paths %s" does not select any valid paths' % self.config.paths)
