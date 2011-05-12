@@ -1,6 +1,6 @@
 /* Implementation of class EcalCleaningAlgo
    \author Stefano Argiro
-   \version $Id: EcalCleaningAlgo.cc,v 1.6 2011/03/08 08:55:41 argiro Exp $
+   \version $Id: EcalCleaningAlgo.cc,v 1.7 2011/03/08 13:12:01 argiro Exp $
    \date 20 Dec 2010
 */    
 
@@ -257,4 +257,15 @@ bool EcalCleaningAlgo::isNearCrack(const DetId& id){
 
 
 
+void EcalCleaningAlgo::setFlags(EcalRecHitCollection& rhs){
+  EcalRecHitCollection::iterator rh;
+  //changing the collection on place
+  for (rh=rhs.begin(); rh!=rhs.end(); ++rh){
+    EcalRecHit::Flags state=checkTopology(rh->id(),rhs);
+    if (state!=EcalRecHit::kGood) { 
+      rh->unsetFlag(EcalRecHit::kGood);
+      rh->setFlag(state);
+    }
+  }
+}
 

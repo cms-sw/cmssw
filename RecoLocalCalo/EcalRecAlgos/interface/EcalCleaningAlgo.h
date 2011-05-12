@@ -3,7 +3,7 @@
    Declaration of class EcalCleaningAlgo
 
    \author Stefano Argiro
-   \version $Id: EcalCleaningAlgo.h,v 1.2 2011/01/31 15:03:56 argiro Exp $
+   \version $Id: EcalCleaningAlgo.h,v 1.3 2011/03/02 14:37:50 argiro Exp $
    \date 20 Dec 2010
 */
 
@@ -33,7 +33,7 @@ public:
   EcalRecHit::Flags checkTopology(const DetId& id,
 				  const EcalRecHitCollection& rhs);
 
-
+  void setFlags(EcalRecHitCollection& rhs);
   
 private:
   
