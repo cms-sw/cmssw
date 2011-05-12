@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Apr 29 13:26:29 CDT 2011
-// $Id$
+// $Id: DQMRootOutputModule.cc,v 1.1 2011/05/11 18:12:54 chrjones Exp $
 //
 
 // system include files
@@ -32,6 +32,10 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 #include "format.h"
 
@@ -177,6 +181,8 @@ private:
   virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&);
   virtual void writeRun(edm::RunPrincipal const&);
   virtual void beginRun(edm::RunPrincipal const& r);
+  virtual void startEndFile();
+  virtual void finishEndFile();
   std::string m_fileName;
   std::auto_ptr<TFile> m_file;
   std::vector<boost::shared_ptr<TreeHelperBase> > m_treeHelpers;
@@ -192,6 +198,8 @@ private:
   std::map<unsigned int, unsigned int> m_dqmKindToTypeIndex;
   TTree* m_indicesTree;
   
+  std::vector<edm::ProcessHistoryID> m_seenHistories;
+  unsigned int m_presentHistoryIndex;
 };
 
 //
@@ -244,7 +252,8 @@ edm::OutputModule(pset),
 m_fileName(pset.getUntrackedParameter<std::string>("fileName")),
 m_file(0),
 m_treeHelpers(kNIndicies,boost::shared_ptr<TreeHelperBase>()),
-m_fullNameBufferPtr(&m_fullNameBuffer)
+m_fullNameBufferPtr(&m_fullNameBuffer),
+m_presentHistoryIndex(0)
 {
   //NOTE: I need to also set the I/O performance settings
   m_file = std::auto_ptr<TFile>(new TFile(m_fileName.c_str(),"CREATE"));  
@@ -253,6 +262,7 @@ m_fullNameBufferPtr(&m_fullNameBuffer)
   m_indicesTree = new TTree(kIndicesTree,kIndicesTree);
   m_indicesTree->Branch(kRunBranch,&m_run);
   m_indicesTree->Branch(kLumiBranch,&m_lumi);
+  m_indicesTree->Branch(kProcessHistoryIndexBranch,&m_presentHistoryIndex);
   m_indicesTree->Branch(kTypeBranch,&m_type);
   m_indicesTree->Branch(kFirstIndex,&m_firstIndex);
   m_indicesTree->Branch(kLastIndex,&m_lastIndex);
@@ -289,8 +299,6 @@ m_fullNameBufferPtr(&m_fullNameBuffer)
 
 DQMRootOutputModule::~DQMRootOutputModule()
 {
-  m_file->Write();
-  m_file->Close();
 }
 
 //
@@ -371,7 +379,18 @@ void DQMRootOutputModule::writeRun(edm::RunPrincipal const& iRun){
   
 }
 
-void DQMRootOutputModule::beginRun(edm::RunPrincipal const& ) {
+void DQMRootOutputModule::beginRun(edm::RunPrincipal const& iPrincipal) {
+  //The ProcessHistory for a lumi must be the same as its Run so we only need to 
+  // record it at Run time
+  edm::ProcessHistoryID id = iPrincipal.processHistoryID();
+  std::vector<edm::ProcessHistoryID>::iterator itFind = std::find(m_seenHistories.begin(),m_seenHistories.end(),id);
+  if(itFind == m_seenHistories.end()) {
+    m_presentHistoryIndex = m_seenHistories.size();
+    m_seenHistories.push_back(id);
+  } else {
+    m_presentHistoryIndex = itFind - m_seenHistories.begin();
+  }
+
   edm::Service<DQMStore> dstore;
   
   std::vector<MonitorElement *> items(dstore->getAllContents(""));
@@ -390,6 +409,70 @@ void DQMRootOutputModule::beginRun(edm::RunPrincipal const& ) {
   }
   
 }
+
+void DQMRootOutputModule::startEndFile() {
+  //fill in the meta data
+  m_file->cd();
+  TDirectory* metaDataDirectory = m_file->mkdir(kMetaDataDirectory);
+
+
+  //Write out the Process History
+  TTree* processHistoryTree = new TTree(kProcessHistoryTree,kProcessHistoryTree);
+  processHistoryTree->SetDirectory(metaDataDirectory);
+  
+  unsigned int index = 0;
+  processHistoryTree->Branch(kPHIndexBranch,&index);
+  std::string processName;
+  processHistoryTree->Branch(kProcessConfigurationProcessNameBranch,&processName);
+  std::string parameterSetID;
+  processHistoryTree->Branch(kProcessConfigurationParameterSetIDBranch,&parameterSetID);
+  std::string releaseVersion;
+  processHistoryTree->Branch(kProcessConfigurationReleaseVersion,&releaseVersion);
+  std::string passID;
+  processHistoryTree->Branch(kProcessConfigurationPassID,&passID);
+
+  edm::ProcessHistoryRegistry* phr = edm::ProcessHistoryRegistry::instance();
+  assert(0!=phr);
+  for(std::vector<edm::ProcessHistoryID>::iterator it = m_seenHistories.begin(), itEnd = m_seenHistories.end();
+      it !=itEnd;
+      ++it) {
+    const edm::ProcessHistory* history = phr->getMapped(*it);
+    assert(0!=history);
+    index = 0;
+    for(edm::ProcessHistory::collection_type::const_iterator itPC = history->begin(), itPCEnd = history->end();
+        itPC != itPCEnd;
+        ++itPC,++index) {
+      processName = itPC->processName();
+      releaseVersion = itPC->releaseVersion();
+      passID = itPC->passID();
+      parameterSetID = itPC->parameterSetID().compactForm();
+      processHistoryTree->Fill();
+    }
+  }
+  
+  //Store the ParameterSets
+  TTree* parameterSetsTree = new TTree(kParameterSetTree,kParameterSetTree);
+  parameterSetsTree->SetDirectory(metaDataDirectory);
+  std::string blob;
+  parameterSetsTree->Branch(kParameterSetBranch,&blob);
+  
+  edm::pset::Registry* psr = edm::pset::Registry::instance();
+  assert(0!=psr);
+  for(edm::pset::Registry::const_iterator it = psr->begin(), itEnd = psr->end();
+  it != itEnd;
+  ++it) {
+    blob.clear();
+    it->second.toString(blob);
+    parameterSetsTree->Fill();
+  }
+  
+}
+
+void DQMRootOutputModule::finishEndFile() {
+  m_file->Write();
+  m_file->Close();
+}
+
 //
 // const member functions
 //
