@@ -76,7 +76,14 @@ void AnalyseDisplacedJetTrigger::bookHistos(string trigName) {
   //
 
   // If MC truth is available, this is the true production radius of the jet.
-  histos_[trigName].trueJetProdRadius_ = dbe_->book1D("trueJetProdRadius","true production radius of jet (cm)",202,-1.01,99.99);
+  const int   nBins = 31;
+  float trueJetProdRadiusBins[nBins + 1] = {0.0, 0.25, 0.5, 0.75, 1.0, 
+					    1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0,
+					    6.0, 7.0, 8.0, 9.0, 10.0,
+					    12.0, 14.0, 16.0, 18.0, 20.0,
+                                            25.0, 30.0, 
+                                            40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0};
+  histos_[trigName].trueJetProdRadius_ = dbe_->book1D("trueJetProdRadius","true production radius of jet (cm)", nBins, trueJetProdRadiusBins);
   // If MC truth is available, this is the number of true displaced jets in the event.
   histos_[trigName].trueNumDispJets_ = dbe_->book1D("trueNumDispJets","Number of true displaced jets per event",20,-0.5,19.5);
   // Histograms of offline recoJets that are useful for displaced exotica jet search.
@@ -88,7 +95,7 @@ void AnalyseDisplacedJetTrigger::bookHistos(string trigName) {
   histos_[trigName].recoJetN90_ = dbe_->book1D("recoJetN90","recoJet N90",100,-0.5,99.5);
 
   // Ditto, but only if recoJet is matched to a trigJet found by displaced jet trigger.
-  histos_[trigName].trueJetProdRadiusMatched_ = dbe_->book1D("trueJetProdRadiusMatched","true production radius of jet (cm) if found by trigger",202,-1.01,99.99);
+  histos_[trigName].trueJetProdRadiusMatched_ = dbe_->book1D("trueJetProdRadiusMatched","true production radius of jet (cm) if found by trigger", nBins, trueJetProdRadiusBins);
   histos_[trigName].trueNumDispJetsMatched_ = dbe_->book1D("trueNumDispJetsMatched","Number of true displaced jets found by trigger per event",20,-0.5,19.5);
   histos_[trigName].recoJetNpromptTkMatched_ = dbe_->book1D("recoJetNpromptTkMatched","recoJet prompt tracks if found by trigger",50,-0.5,49.5);
   histos_[trigName].recoJetPtMatched_ = dbe_->book1D("recoJetPtMatched","recoJet Pt if found by trigger",200,0.0,1000.);

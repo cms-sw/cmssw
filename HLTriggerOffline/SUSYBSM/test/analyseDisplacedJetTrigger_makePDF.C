@@ -17,13 +17,13 @@
   gStyle->SetStatY(0.9);
   gStyle->SetHistLineWidth(2);
 
-  const bool pause = true;
+  const bool pause = false;
   // Creation of PDF files.
   const bool printSeparatePdf = true;
   const bool printMergedPdf = false;
 
   //  TFile d("data.root");
-  TFile d("data.root");
+  TFile d("../data/data.root");
   TFile mc("mc.root");
 
   TCanvas c1;
@@ -255,7 +255,7 @@
   //  Double_t maxHis = his1.GetMaximum();
   //  his1->SetMaximum(1.1*maxHis);
   //  his1->SetMinimum(0.9);
-  g.GetXaxis()->SetLimits(0.1,40.);
+  g.GetXaxis()->SetLimits(0.1,100.);
   //  his2->SetFillColor(2);
   g.GetXaxis()->SetTitle("Transverse decay length of exotic (cm)");
   g.GetYaxis()->SetTitle("Trigger efficiency for jet");
