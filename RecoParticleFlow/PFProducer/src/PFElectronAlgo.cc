@@ -2430,8 +2430,10 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	if(useEGElectrons_) {
 	  GsfElectronEqual myEqual(RefGSF);
 	  std::vector<reco::GsfElectron>::const_iterator itcheck=find_if(theGsfElectrons_->begin(),theGsfElectrons_->end(),myEqual);
-	  if(itcheck!=theGsfElectrons_->end())
-	    bypassmva=true;
+	  if(itcheck!=theGsfElectrons_->end()) {
+	    if(BDToutput_[cgsf] >= -1.)  // bypass the mva only if the reconstruction went fine
+	      bypassmva=true;
+	  }
 	}
 	
 	bool mvaSelected = (BDToutput_[cgsf] >=  mvaEleCut_);
