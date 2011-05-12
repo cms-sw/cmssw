@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.4 2011/05/12 00:22:55 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.5 2011/05/12 01:06:29 chrjones Exp $
 //
 
 // system include files
@@ -637,8 +637,10 @@ DQMRootSource::setupFile(unsigned int iIndex)
   typedef std::map<std::pair<unsigned int, unsigned int>, std::list<unsigned int>::iterator > RunLumiToLastEntryMap;
   RunLumiToLastEntryMap runLumiToLastEntryMap;
   
-  std::list<unsigned int>::iterator positionOfFirstIndexForRun = m_orderedIndices.end();
-  unsigned int lastSeenRun = 0;
+  //Need to group all lumis for the same run together
+  typedef std::map<unsigned int, std::list<unsigned int>::iterator > RunToLastEntryMap;
+  RunToLastEntryMap runToLastEntryMap;
+  
   for(Long64_t index = 0; index != indicesTree->GetEntries();++index) {
     indicesTree->GetEntry(index);
     m_runlumiToRange.push_back(temp);
@@ -648,15 +650,28 @@ DQMRootSource::setupFile(unsigned int iIndex)
     RunLumiToLastEntryMap::iterator itFind = runLumiToLastEntryMap.find(runLumi);
     if(itFind == runLumiToLastEntryMap.end()) {
       //does not already exist
-      std::list<unsigned int>::iterator iter = m_orderedIndices.insert(m_orderedIndices.end(),index);
-      runLumiToLastEntryMap[runLumi]=iter;
-      if(lastSeenRun != temp.m_run) {
-        lastSeenRun = temp.m_run;
-        positionOfFirstIndexForRun = iter;
+
+      //does the run for this already exist?
+      std::list<unsigned int>::iterator itLastOfRun = m_orderedIndices.end();
+      RunToLastEntryMap::iterator itRunLastEntryFind = runToLastEntryMap.find(temp.m_run);
+      if(itRunLastEntryFind != runToLastEntryMap.end()) {
+        itLastOfRun = itRunLastEntryFind->second;
+        //we want to insert after this one so must advanced the iterator
+        itLastOfRun++;
       }
+      
+      std::list<unsigned int>::iterator iter = m_orderedIndices.insert(itLastOfRun,index);
+      runLumiToLastEntryMap[runLumi]=iter;
+      runToLastEntryMap[temp.m_run]=iter;
     } else {
       //We need to do a merge since the run/lumi already appeared. Put it after the existing entry
+      //std::cout <<" found a second instance of "<<runLumi.first<<" "<<runLumi.second<<" at "<<index<<std::endl;
       std::list<unsigned int>::iterator iter = m_orderedIndices.insert(itFind->second,index);
+      RunToLastEntryMap::iterator itRunLastEntryFind = runToLastEntryMap.find(temp.m_run);
+      if(itRunLastEntryFind->second == itFind->second) {
+        //if the previous one was the last in the run, we need to update to make this one the last
+        itRunLastEntryFind->second = iter;
+      }
       itFind->second = iter;
     }
   }
