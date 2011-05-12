@@ -1,8 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("Demo")
+process = cms.Process("dqmFeeder")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
+# suppress printout of error messages on every event when a collection is missing in the event
+process.MessageLogger.categories.append("EmDQMInvalidRefs")
+process.MessageLogger.cerr.EmDQMInvalidRefs = cms.untracked.PSet(limit = cms.untracked.int32(5))
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
@@ -14,12 +17,13 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.demo = cms.EDAnalyzer('EmDQMFeeder',
+process.dqmFeeder = cms.EDAnalyzer('EmDQMFeeder',
                               processname = cms.string("HLT"),
                               triggerobject = cms.InputTag("hltTriggerSummaryRAW","","HLT"),
                               genEtaAcc = cms.double(2.5),
                               genEtAcc = cms.double(2.0),
                               PtMax = cms.untracked.double(100.0),
+                              isData = cms.bool(False)
                              )
 
 process.load("HLTriggerOffline.Egamma.EgammaValidation_cff")
@@ -27,7 +31,7 @@ process.load("HLTriggerOffline.Egamma.EgammaValidation_cff")
 process.p = cms.Path(
                      # require generated particles in fiducial volume
                      process.egammaSelectors *     
-                     process.demo
+                     process.dqmFeeder
                     )
 
 #----------------------------------------
