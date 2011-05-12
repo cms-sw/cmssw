@@ -1,6 +1,8 @@
 //
 //  File: BeamSpotDipServer.java   (W.Badgett, G.Y.Jeng)
 //
+//  Some changs were made to publish PVs
+//  (Sushil S. Chauhan/ UCDavis)
 
 package cms.dip.tracker.beamspot;
 
@@ -20,6 +22,7 @@ implements Runnable,DipPublicationErrorHandler
   public static boolean overwriteQuality = true; //if true, overwrite quality with qualities[0]
   public static String subjectCMS = "dip/CMS/Tracker/BeamSpot";
   public static String subjectLHC = "dip/CMS/LHC/LuminousRegion";
+  public static String subjectPV = "dip/CMS/Tracker/PrimaryVertices";
   public static String sourceFile = "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults.txt";
   public static String sourceFile1 = "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults_TkStatus.txt";
   public static int[] timeoutLS = {1,2}; //LumiSections
@@ -44,9 +47,10 @@ implements Runnable,DipPublicationErrorHandler
   DipFactory dip;
   DipData messageCMS;
   DipData messageLHC;
+  DipData messagePV;
   DipPublication publicationCMS;
   DipPublication publicationLHC;
-
+  DipPublication publicationPV;
   // Initial values of Beam Spot object
   int runnum = 0;
   String startTime = getDateTime();
@@ -72,6 +76,15 @@ implements Runnable,DipPublicationErrorHandler
   float err_width_x = 0;
   float err_width_y = 0;
   float err_sigma_z = 0;
+  //added for PV infor
+  int events = 0;
+  float meanPV = 0;
+  float err_meanPV = 0;
+  float rmsPV = 0;
+  float err_rmsPV = 0;
+  int maxPV = 0;
+  int nPV = 0; 
+  //---
   float Size[] = new float[3];
   float Centroid[] = new float[3];
   float Tilt[] = new float[2];
@@ -111,6 +124,11 @@ implements Runnable,DipPublicationErrorHandler
       System.out.println("Making publication " + subjectLHC);
       publicationLHC = dip.createDipPublication(subjectLHC, this);
       messageLHC = dip.createDipData();
+
+      System.out.println("Making publication " + subjectPV);
+      publicationPV = dip.createDipPublication(subjectPV, this);
+      messagePV = dip.createDipData();
+
       trueRcd(false); // Starts with all 0.
       publishRcd("UNINITIALIZED","",true,false);
       keepRunning = true;
@@ -375,6 +393,43 @@ implements Runnable,DipPublicationErrorHandler
 	case 20:
 	    err_width_x = new Float(Math.sqrt(Double.parseDouble(tmp[7])));
 	    err_width_y = err_width_x;
+            break;
+        case 21:                      
+            System.out.println("EmittanceX");
+            break; 
+        case 22:                      
+            System.out.println("EmittanceY");
+            break; 
+        case 23:                      
+            System.out.println("BetaStar");
+            break; 
+        case 24:                      
+            events = new Integer(tmp[1]);
+            //System.out.println(events);
+            break; 
+        case 25:                      
+            meanPV = new Float(tmp[1]);
+            //System.out.println(meanPV);
+            break; 
+        case 26:                      
+            err_meanPV = new Float(tmp[1]);
+            //System.out.println(err_meanPV);
+            break;
+        case 27:                      
+            rmsPV = new Float(tmp[1]);
+            //System.out.println(rmsPV);
+            break; 
+        case 28:                      
+            err_rmsPV = new Float(tmp[1]);
+            //System.out.println(err_rmsPV);
+            break;
+        case 29:                      
+            maxPV = new Integer(tmp[1]);
+            //System.out.println(maxPV);
+            break;
+        case 30:                      
+            nPV = new Integer(tmp[1]);
+            //System.out.println(nPV);
 	    rcdQlty = true;
 	    if (verbose) System.out.println("End of reading current record");
 	    break;
@@ -466,6 +521,20 @@ implements Runnable,DipPublicationErrorHandler
      messageLHC.insert("Size",Size);
      messageLHC.insert("Centroid",Centroid);
      messageLHC.insert("Tilt",Tilt);
+     //start putting values in DIP for PV
+     messagePV.insert("runnum",runnum);
+     messagePV.insert("startTime",startTime);
+     messagePV.insert("endTime",endTime);
+     messagePV.insert("startTimeStamp",startTimeStamp);
+     messagePV.insert("endTimeStamp",endTimeStamp);
+     messagePV.insert("lumiRange",lumiRange);
+     messagePV.insert("events",events);   
+     messagePV.insert("meanPV",meanPV);  
+     messagePV.insert("err_meanPV",err_meanPV);
+     messagePV.insert("rmsPV",rmsPV);      
+     messagePV.insert("err_rmsPV",err_rmsPV);
+     messagePV.insert("maxPV",maxPV);
+     messagePV.insert("nPV",nPV);
    } catch (DipException e){
        System.err.println("DipException [trueRcd]: " + getDateTime());
        System.err.println("Failed to send data because " + e.getMessage());
@@ -519,6 +588,7 @@ implements Runnable,DipPublicationErrorHandler
 
      if(updateCMS_) publicationCMS.send(messageCMS, zeit);
      publicationLHC.send(messageLHC, zeit);
+     publicationPV.send(messagePV, zeit);
 
      if (qlty_ == qualities[0]) {
 	 if (updateCMS_) publicationCMS.setQualityUncertain(err_);
@@ -563,6 +633,7 @@ implements Runnable,DipPublicationErrorHandler
     this.timeoutLS[0] = new Integer(args[5]);
     this.timeoutLS[1] = new Integer(args[6]);
     this.sourceFile1 = args[7];
+    this.subjectPV = args[8];
   }
 
   public static void main(String args[])
