@@ -208,8 +208,8 @@ U80by2={'--relval': '80,2'}
 hiDefaults={'--conditions':'auto:starthi',
            '--scenario':'HeavyIons'}
 
-step1['HydjetQ_MinBias_2760GeV']=merge([hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U500by5)])
-step1['HydjetQ_B0_2760GeV']=merge([hiDefaults,genS('Hydjet_Quenched_B0_2760GeV_cfi',U80by2)])
+step1['HydjetQ_MinBias_2760GeV']=merge([{'-n':'1'},hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U500by5)])
+step1['HydjetQ_B0_2760GeV']=merge([{'-n':'1'},hiDefaults,genS('Hydjet_Quenched_B0_2760GeV_cfi',U80by2)])
 step1['HydjetQ_B0_2760GeVPUINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B0_2760GeV/*/GEN-SIM-DIGI-RAW-HLTDEBUG')}
 
 
@@ -395,7 +395,7 @@ step3['RECOQCD']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:@QCD,VALIDATION,DQM'},s
 step3['RECOPU1']=merge([step3['RECO1'],PU1])
 
 step3['RECOHI']=merge([hiDefaults,step3Defaults])
-step3['DIGIHI']=step2['DIGIHI']
+step3['DIGIHISt3']=step2['DIGIHI']
 
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step3,{'--hltProcess':'DIGI'})
@@ -437,7 +437,7 @@ step4['ALCAHARVD']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi',
                     '--data':'',
                     '--filein':'file:PromptCalibProd.root'}
 
-step4['RECOHI']=step3['RECOHI']
+step4['RECOHISt4']=step3['RECOHI']
 
 step2['ALCANZS']=merge([{'-s':'ALCA:HcalCalMinBias','cfg':'step2'},step4Defaults])
 step2['HARVGEN']={'-s':'HARVESTING:genHarvesting',
