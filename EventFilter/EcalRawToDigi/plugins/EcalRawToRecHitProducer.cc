@@ -1,4 +1,5 @@
 #include "EventFilter/EcalRawToDigi/plugins/EcalRawToRecHitProducer.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalCleaningAlgo.h"
 
 EcalRawToRecHitProducer::EcalRawToRecHitProducer(const edm::ParameterSet& iConfig)
 {
@@ -24,11 +25,19 @@ EcalRawToRecHitProducer::EcalRawToRecHitProducer(const edm::ParameterSet& iConfi
 					<<"\n using region ref from: "<<sourceTag_
 					<<"\n not splitting the output collection.";
   }
+
+  cleaningAlgo_=0;
+  if (iConfig.exists("cleaningConfig")){
+    const edm::ParameterSet & cleaning=iConfig.getParameter<edm::ParameterSet>("cleaningConfig");
+    if (!cleaning.empty())
+      cleaningAlgo_ = new EcalCleaningAlgo(cleaning);
+  }
 }
 
 
 EcalRawToRecHitProducer::~EcalRawToRecHitProducer()
 {
+  if (cleaningAlgo_) delete cleaningAlgo_;
 }
 
 
@@ -89,6 +98,14 @@ EcalRawToRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     LogDebug("EcalRawToRecHit|Producer")<<EBrechits->size()<<" EB recHits to be put with instance: "<<EBrechitCollection_
 					<<"\n"<<EErechits->size()<<" EE recHits to be put with instance: "<<EErechitCollection_
 					<< watcher.lap();
+    
+    // cleaning of anomalous signals, aka spikes
+    // only doable once we have a "global" collection of hits
+    if (cleaningAlgo_){
+      cleaningAlgo_->setFlags(*EBrechits);
+      cleaningAlgo_->setFlags(*EErechits);
+    }
+
     iEvent.put(EBrechits, EBrechitCollection_);
     iEvent.put(EErechits, EErechitCollection_);
     LogDebug("EcalRawToRecHit|Producer")<<"collections uploaded."
