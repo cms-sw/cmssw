@@ -25,7 +25,8 @@ struct stPlots {
    TH1F* V3D; 
    TH1F* Chi2;  
    TH1F* Qual; 
-   TH1F* Hits;
+   TH1F* TNOH;
+   TH1F* TNOM;
    TH1F* nDof;
    TH1F* Pterr;
    TH1F* MPt; 
@@ -52,7 +53,8 @@ struct stPlots {
    TH1F*  BS_V3D;
    TH1F*  BS_Chi2;
    TH1F*  BS_Qual;
-   TH1F*  BS_Hits;
+   TH1F*  BS_TNOH;
+   TH1F*  BS_TNOM;
    TH1F*  BS_nDof;
    TH1F*  BS_Pterr;
    TH1F*  BS_MPt; 
@@ -95,7 +97,8 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "V3D";      st.V3D    = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
    Name = "Chi2";     st.Chi2   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
    Name = "Qual";     st.Qual   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "Hits";     st.Hits   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "TNOH";     st.TNOH   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "TNOM";     st.TNOM   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);
    Name = "nDof";     st.nDof   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
    Name = "Pterr";    st.Pterr  = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
    Name = "TIsol";    st.TIsol  = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
@@ -127,27 +130,28 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_V3D"  ; st.BS_V3D   = new TH1F(Name.c_str(), Name.c_str(),  20,  0,  5);                st.BS_V3D->Sumw2();
    Name = "BS_Chi2" ; st.BS_Chi2  = new TH1F(Name.c_str(), Name.c_str(),  20,  0,  5);                st.BS_Chi2->Sumw2();
    Name = "BS_Qual" ; st.BS_Qual  = new TH1F(Name.c_str(), Name.c_str(),  20,  0, 20);                st.BS_Qual->Sumw2();
-   Name = "BS_Hits" ; st.BS_Hits  = new TH1F(Name.c_str(), Name.c_str(),  40,  0, 40);                st.BS_Hits->Sumw2();
+   Name = "BS_TNOH" ; st.BS_TNOH  = new TH1F(Name.c_str(), Name.c_str(),  40,  0, 40);                st.BS_TNOH->Sumw2();
+   Name = "BS_TNOM" ; st.BS_TNOM  = new TH1F(Name.c_str(), Name.c_str(),  40,  0, 40);                st.BS_TNOM->Sumw2();
    Name = "BS_nDof" ; st.BS_nDof  = new TH1F(Name.c_str(), Name.c_str(),  20,  0, 40);                st.BS_nDof->Sumw2();
    Name = "BS_PtErr"; st.BS_Pterr = new TH1F(Name.c_str(), Name.c_str(),  40,  0,  1);                st.BS_Pterr->Sumw2();
    Name = "BS_MPt"  ; st.BS_MPt   = new TH1F(Name.c_str(), Name.c_str(),  50,  0, PtHistoUpperBound); st.BS_MPt->Sumw2();
    Name = "BS_MIs"  ; st.BS_MIs   = new TH1F(Name.c_str(), Name.c_str(),  50,  0, dEdxS_UpLim);       st.BS_MIs->Sumw2();
    Name = "BS_MIm"  ; st.BS_MIm   = new TH1F(Name.c_str(), Name.c_str(),  50,  0, dEdxM_UpLim);       st.BS_MIm->Sumw2();
    Name = "BS_MTOF" ; st.BS_MTOF  = new TH1F(Name.c_str(), Name.c_str(),  50, -5, 10);                st.BS_MTOF->Sumw2();
-   Name = "BS_TIsol"; st.BS_TIsol = new TH1F(Name.c_str(), Name.c_str(),  40,  0, 25);                st.BS_TIsol->Sumw2();
-   Name = "BS_EIsol"; st.BS_EIsol = new TH1F(Name.c_str(), Name.c_str(),  40,  0, 1.5);               st.BS_EIsol->Sumw2();
+   Name = "BS_TIsol"; st.BS_TIsol = new TH1F(Name.c_str(), Name.c_str(),  25,  0, 100);               st.BS_TIsol->Sumw2();
+   Name = "BS_EIsol"; st.BS_EIsol = new TH1F(Name.c_str(), Name.c_str(),  25,  0, 1.5);               st.BS_EIsol->Sumw2();
 
    Name = "BS_P"    ; st.BS_P     = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound); st.BS_P->Sumw2();
    Name = "BS_Pt"   ; st.BS_Pt    = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound); st.BS_Pt->Sumw2();
    Name = "BS_Is"   ; st.BS_Is    = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, dEdxS_UpLim);       st.BS_Is->Sumw2();
    Name = "BS_Im"   ; st.BS_Im    = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, dEdxM_UpLim);       st.BS_Im->Sumw2();
-   Name = "BS_TOF"  ; st.BS_TOF   = new TH1F(Name.c_str(), Name.c_str(),                   50, -5, 10);               st.BS_TOF->Sumw2();
+   Name = "BS_TOF"  ; st.BS_TOF   = new TH1F(Name.c_str(), Name.c_str(),                   50, 1, 5);                 st.BS_TOF->Sumw2();
 
    Name = "AS_P"    ; st.AS_P     = new TH2F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50, 0, PtHistoUpperBound); st.AS_P->Sumw2();
    Name = "AS_Pt"   ; st.AS_Pt    = new TH2F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50, 0, PtHistoUpperBound); st.AS_Pt->Sumw2();
    Name = "AS_Is"   ; st.AS_Is    = new TH2F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50, 0, dEdxS_UpLim);       st.AS_Is->Sumw2();
    Name = "AS_Im"   ; st.AS_Im    = new TH2F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50, 0, dEdxM_UpLim);       st.AS_Im->Sumw2();
-   Name = "AS_TOF"  ; st.AS_TOF   = new TH2F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50, -5, 10);               st.AS_TOF->Sumw2();
+   Name = "AS_TOF"  ; st.AS_TOF   = new TH2F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50, 1, 5);                 st.AS_TOF->Sumw2();
 
 
    Name = "BS_EtaIs"; st.BS_EtaIs = new TH2F(Name.c_str(), Name.c_str(),                   50,-3, 3, 50, 0, dEdxS_UpLim);
@@ -158,8 +162,8 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_PIm"  ; st.BS_PIm   = new TH2F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound, 50, 0, dEdxM_UpLim);
    Name = "BS_PtIs" ; st.BS_PtIs  = new TH2F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound, 50, 0, dEdxS_UpLim);
    Name = "BS_PtIm" ; st.BS_PtIm  = new TH2F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound, 50, 0, dEdxM_UpLim);
-   Name = "BS_TOFIs"; st.BS_TOFIs = new TH2F(Name.c_str(), Name.c_str(),                   50, -5, 10, 50, 0, dEdxS_UpLim);
-   Name = "BS_TOFIm"; st.BS_TOFIm = new TH2F(Name.c_str(), Name.c_str(),                   50, -5, 10, 50, 0, dEdxM_UpLim);
+   Name = "BS_TOFIs"; st.BS_TOFIs = new TH2F(Name.c_str(), Name.c_str(),                   50, 1, 5, 50, 0, dEdxS_UpLim);
+   Name = "BS_TOFIm"; st.BS_TOFIm = new TH2F(Name.c_str(), Name.c_str(),                   50, 1, 5, 50, 0, dEdxM_UpLim);
 
    Name = "AS_EtaIs"; st.AS_EtaIs = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50,-3, 3, 50, 0, dEdxS_UpLim);
    Name = "AS_EtaIm"; st.AS_EtaIm = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50,-3, 3, 50, 0, dEdxM_UpLim);
@@ -169,8 +173,8 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "AS_PIm"  ; st.AS_PIm   = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50, 0, PtHistoUpperBound, 50, 0, dEdxM_UpLim);
    Name = "AS_PtIs" ; st.AS_PtIs  = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50, 0, PtHistoUpperBound, 50, 0, dEdxS_UpLim);
    Name = "AS_PtIm" ; st.AS_PtIm  = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50, 0, PtHistoUpperBound, 50, 0, dEdxM_UpLim);
-   Name = "AS_TOFIs"; st.AS_TOFIs = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50, -5, 10, 50, 0, dEdxS_UpLim);
-   Name = "AS_TOFIm"; st.AS_TOFIm = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50, -5, 10, 50, 0, dEdxM_UpLim);
+   Name = "AS_TOFIs"; st.AS_TOFIs = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50, 1, 5, 50, 0, dEdxS_UpLim);
+   Name = "AS_TOFIm"; st.AS_TOFIm = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50, 1, 5, 50, 0, dEdxM_UpLim);
 
 
    st.Tree = new TTree("HscpCandidates", "HscpCandidates");
@@ -202,7 +206,8 @@ void stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName, T
    st.V3D               = (TH1F*)GetObjectFromPath(InputFile,  BaseName + "/V3D");
    st.Chi2              = (TH1F*)GetObjectFromPath(InputFile,  BaseName + "/Chi2");
    st.Qual              = (TH1F*)GetObjectFromPath(InputFile,  BaseName + "/Qual");
-   st.Hits              = (TH1F*)GetObjectFromPath(InputFile,  BaseName + "/Hits");
+   st.TNOH              = (TH1F*)GetObjectFromPath(InputFile,  BaseName + "/TNOH");
+   st.TNOM              = (TH1F*)GetObjectFromPath(InputFile,  BaseName + "/TNOM");
    st.nDof              = (TH1F*)GetObjectFromPath(InputFile,  BaseName + "/nDof");
    st.Pterr             = (TH1F*)GetObjectFromPath(InputFile,  BaseName + "/Pterr");
    st.TIsol             = (TH1F*)GetObjectFromPath(InputFile,  BaseName + "/TIsol");
@@ -233,7 +238,8 @@ void stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName, T
    st.BS_V3D    = (TH1F*)GetObjectFromPath(InputFile,  BaseName + "/BS_V3D");
    st.BS_Chi2   = (TH1F*)GetObjectFromPath(InputFile,  BaseName + "/BS_Chi2");
    st.BS_Qual   = (TH1F*)GetObjectFromPath(InputFile,  BaseName + "/BS_Qual");
-   st.BS_Hits   = (TH1F*)GetObjectFromPath(InputFile,  BaseName + "/BS_Hits");
+   st.BS_TNOH   = (TH1F*)GetObjectFromPath(InputFile,  BaseName + "/BS_TNOH");
+   st.BS_TNOM   = (TH1F*)GetObjectFromPath(InputFile,  BaseName + "/BS_TNOM");
    st.BS_nDof   = (TH1F*)GetObjectFromPath(InputFile,  BaseName + "/BS_nDof");
    st.BS_Pterr  = (TH1F*)GetObjectFromPath(InputFile,  BaseName + "/BS_PtErr");
    st.BS_MPt    = (TH1F*)GetObjectFromPath(InputFile,  BaseName + "/BS_MPt");
@@ -286,8 +292,8 @@ void stPlots_Clear(stPlots& st, bool WriteFirst=false)
 }
 
 
-void stPlots_FillTree(stPlots& st, unsigned int Run, unsigned int Event, unsigned int Hscp, double Pt, double I, double TOF){
-   if(st.Tree->GetEntries()>=20000)return;
+void stPlots_FillTree(stPlots& st, unsigned int Run, unsigned int Event, unsigned int Hscp, double Pt, double I, double TOF, int MaxEntry=20000){
+   if(MaxEntry>0 && st.Tree->GetEntries()>=MaxEntry)return;
    st.Tree_Run   = Run;
    st.Tree_Event = Event;
    st.Tree_Hscp  = Hscp;
@@ -304,8 +310,9 @@ void stPlots_Dump(stPlots& st, FILE* pFile, int CutIndex){
    fprintf(pFile,"#Events                       = %4.2E\n",st.TotalE->GetBinContent(1       ));
    fprintf(pFile,"#Triggered Events             = %4.2E Eff=%4.3E\n",st.TotalTE->GetBinContent(1     ),st.TotalTE->GetBinContent(1      )/st.TotalE->GetBinContent(1       ));
    fprintf(pFile,"#Tracks                       = %4.2E\n",st.Total->GetBinContent(1       ));
-   fprintf(pFile,"#Tracks passing Hits   cuts   = %4.2E Eff=%4.3E\n",st.Hits ->GetBinContent(1       ), st.Hits ->GetBinContent(1       ) /st.Total->GetBinContent(1       ));
-   fprintf(pFile,"#Tracks passing nDof   cuts   = %4.2E Eff=%4.3E\n",st.nDof ->GetBinContent(1       ), st.nDof ->GetBinContent(1       ) /st.Hits ->GetBinContent(1       ));
+   fprintf(pFile,"#Tracks passing TNOH   cuts   = %4.2E Eff=%4.3E\n",st.TNOH ->GetBinContent(1       ), st.TNOH ->GetBinContent(1       ) /st.Total->GetBinContent(1       ));
+   fprintf(pFile,"#Tracks passing TNOM   cuts   = %4.2E Eff=%4.3E\n",st.TNOM ->GetBinContent(1       ), st.TNOM ->GetBinContent(1       ) /st.TNOH ->GetBinContent(1       ));
+   fprintf(pFile,"#Tracks passing nDof   cuts   = %4.2E Eff=%4.3E\n",st.nDof ->GetBinContent(1       ), st.nDof ->GetBinContent(1       ) /st.TNOM ->GetBinContent(1       ));
    fprintf(pFile,"#Tracks passing Qual   cuts   = %4.2E Eff=%4.3E\n",st.Qual ->GetBinContent(1       ), st.Qual ->GetBinContent(1       ) /st.nDof ->GetBinContent(1       ));
    fprintf(pFile,"#Tracks passing Chi2   cuts   = %4.2E Eff=%4.3E\n",st.Chi2 ->GetBinContent(1       ), st.Chi2 ->GetBinContent(1       ) /st.Qual ->GetBinContent(1       ));
    fprintf(pFile,"#Tracks passing Min Pt cuts   = %4.2E Eff=%4.3E\n",st.MPt  ->GetBinContent(1       ), st.MPt  ->GetBinContent(1       ) /st.Chi2 ->GetBinContent(1       ));
@@ -608,12 +615,23 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
-   Histos[i] = (TH1*)st[i]->BS_Hits->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#Hits", "arbitrary units", 0,0, 0,0);
+   Histos[i] = (TH1*)st[i]->BS_TNOH->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#NOH", "arbitrary units", 0,0, 0,0);
    DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"Hits_BS", true);
+   SaveCanvas(c1,SavePath,"NOH_BS", true);
+   for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   for(unsigned int i=0;i<st.size();i++){
+   Histos[i] = (TH1*)st[i]->BS_TNOM->Clone();        legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#NOM", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
+   c1->SetLogy(true);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"NOM_BS", true);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
 

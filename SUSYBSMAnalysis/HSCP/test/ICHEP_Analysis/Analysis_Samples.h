@@ -43,8 +43,7 @@
 #define SID_DS302    37
 
 
-
-double               IntegratedLuminosity = 43.4;
+double               IntegratedLuminosity = 134.26;
 float                Event_Weight = 1;
 int                  MaxEntry = -1;
 
@@ -64,36 +63,45 @@ class stSignal{
 
 
 void GetSignalDefinition(std::vector<stSignal>& signals){
-/*
-   signals.push_back(stSignal("Gluino", "Gluino200"    , "#tilde{g} 200"                 , 200,  1, 606.000000) ); //NLO
+
+//   signals.push_back(stSignal("Gluino", "Gluino200"    , "#tilde{g} 200"                 , 200,  1, 606.000000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino300"    , "#tilde{g} 300"                 , 300,  1,  57.200000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino400"    , "#tilde{g} 400"                 , 400,  1,   8.980000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino500"    , "#tilde{g} 500"                 , 500,  1,   1.870000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino600"    , "#tilde{g} 600"                 , 600,  1,   0.465000) ); //NLO
+   signals.push_back(stSignal("Gluino", "Gluino600Z2"  , "#tilde{g} 600 Z2"              , 600,  1,   0.465000) ); //NLO
+   signals.push_back(stSignal("Gluino", "Gluino700"    , "#tilde{g} 700"                 , 700,  1,   0.130000) ); //NLO
+   signals.push_back(stSignal("Gluino", "Gluino800"    , "#tilde{g} 800"                 , 800,  1,   0.039600) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino900"    , "#tilde{g} 900"                 , 900,  1,   0.012800) ); //NLO
-   signals.push_back(stSignal("Gluino", "Gluino200N"   , "#tilde{g} 200 N"               , 200,  1, 606.000000) ); //NLO
+   signals.push_back(stSignal("Gluino", "Gluino1000"   , "#tilde{g} 1000"                ,1000,  1,   0.004300) ); //NLO
+/*   signals.push_back(stSignal("Gluino", "Gluino200N"   , "#tilde{g} 200 N"               , 200,  1, 606.000000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino300N"   , "#tilde{g} 300 N"               , 300,  0,  57.200000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino400N"   , "#tilde{g} 400 N"               , 400,  1,   8.980000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino500N"   , "#tilde{g} 500 N"               , 500,  1,   1.870000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino600N"   , "#tilde{g} 600 N"               , 600,  0,   0.465000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino900N"   , "#tilde{g} 900 N"               , 900,  1,   0.012800) ); //NLO
+*/
    signals.push_back(stSignal("Stop"  , "Stop130"      , "#tilde{t}_{1} 130"             , 130,  1, 120.000000) ); //NLO
    signals.push_back(stSignal("Stop"  , "Stop200"      , "#tilde{t}_{1} 200"             , 200,  1,  13.000000) ); //NLO
-   signals.push_back(stSignal("Stop"  , "Stop300"      , "#tilde{t}_{1} 300"             , 300,  0,   1.310000) ); //NLO
+   signals.push_back(stSignal("Stop"  , "Stop300"      , "#tilde{t}_{1} 300"             , 300,  1,   1.310000) ); //NLO
+   signals.push_back(stSignal("Stop"  , "Stop400"      , "#tilde{t}_{1} 400"             , 400,  1,   0.218000) ); //NLO
    signals.push_back(stSignal("Stop"  , "Stop500"      , "#tilde{t}_{1} 500"             , 500,  0,   0.047800) ); //NLO
+   signals.push_back(stSignal("Stop"  , "Stop600"      , "#tilde{t}_{1} 600"             , 600,  1,   0.012500) ); //NLO
+   signals.push_back(stSignal("Stop"  , "Stop700"      , "#tilde{t}_{1} 700"             , 700,  1,   0.003560) ); //NLO
    signals.push_back(stSignal("Stop"  , "Stop800"      , "#tilde{t}_{1} 800"             , 800,  1,   0.001140) ); //NLO
-   signals.push_back(stSignal("Stop"  , "Stop130N"     , "#tilde{t}_{1} 130 N"           , 130,  1, 120.000000) ); //NLO
+/*   signals.push_back(stSignal("Stop"  , "Stop130N"     , "#tilde{t}_{1} 130 N"           , 130,  1, 120.000000) ); //NLO
    signals.push_back(stSignal("Stop"  , "Stop200N"     , "#tilde{t}_{1} 200 N"           , 200,  1,  13.000000) ); //NLO
    signals.push_back(stSignal("Stop"  , "Stop300N"     , "#tilde{t}_{1} 300 N"           , 300,  0,   1.310000) ); //NLO
    signals.push_back(stSignal("Stop"  , "Stop500N"     , "#tilde{t}_{1} 500 N"           , 500,  0,   0.047800) ); //NLO
    signals.push_back(stSignal("Stop"  , "Stop800N"     , "#tilde{t}_{1} 800 N"           , 800,  1,   0.001140) ); //NLO
+*/
    signals.push_back(stSignal("Stau"  , "GMStau100"    , "GMSB #tilde{#tau}_{1} 100"     , 100,  1,   1.326000) ); //LO
-   signals.push_back(stSignal("Stau"  , "GMStau126"    , "GMSB #tilde{#tau}_{1} 126"     , 126,  0,   0.330000) ); //LO
+   signals.push_back(stSignal("Stau"  , "GMStau126"    , "GMSB #tilde{#tau}_{1} 126"     , 126,  1,   0.330000) ); //LO
    signals.push_back(stSignal("Stau"  , "GMStau156"    , "GMSB #tilde{#tau}_{1} 156"     , 156,  0,   0.105000) ); //LO
    signals.push_back(stSignal("Stau"  , "GMStau200"    , "GMSB #tilde{#tau}_{1} 200"     , 200,  1,   0.025000) ); //LO
    signals.push_back(stSignal("Stau"  , "GMStau247"    , "GMSB #tilde{#tau}_{1} 247"     , 247,  0,   0.008000) ); //LO
    signals.push_back(stSignal("Stau"  , "GMStau308"    , "GMSB #tilde{#tau}_{1} 308"     , 308,  1,   0.002000) ); //LO
-   signals.push_back(stSignal("Stau"  , "PPStau100"    , "Pair #tilde{#tau}_{1} 100"     , 100,  1,   0.032000) ); //LO
+/*   signals.push_back(stSignal("Stau"  , "PPStau100"    , "Pair #tilde{#tau}_{1} 100"     , 100,  1,   0.032000) ); //LO
    signals.push_back(stSignal("Stau"  , "PPStau126"    , "Pair #tilde{#tau}_{1} 126"     , 126,  0,   0.014000) ); //LO
    signals.push_back(stSignal("Stau"  , "PPStau156"    , "Pair #tilde{#tau}_{1} 156"     , 156,  0,   0.006000) ); //LO
    signals.push_back(stSignal("Stau"  , "PPStau200"    , "Pair #tilde{#tau}_{1} 200"     , 200,  1,   0.002200) ); //LO
@@ -127,8 +135,8 @@ void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName)
    std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_1_3/11_03_30/";
 
    if(SampleName=="Data"){
-      inputFiles.push_back(BaseDirectory + "Data_RunA.root");
-
+      inputFiles.push_back(BaseDirectory + "Data_RunA_V1.root");
+      inputFiles.push_back(BaseDirectory + "Data_RunA_V2.root");
 //   }else if(SampleName=="MC_MB"){
 //      inputFiles.push_back(BaseDirectory + "MC_MB.root");
 //   }else if(SampleName=="MC_PPMUX"){

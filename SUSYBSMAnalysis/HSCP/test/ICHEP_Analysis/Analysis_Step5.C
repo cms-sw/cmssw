@@ -32,10 +32,11 @@ using namespace std;
 
 /////////////////////////// FUNCTION DECLARATION /////////////////////////////
 
+void CutFlow(string InputPattern);
 void SelectionPlot (string InputPattern, unsigned int CutIndex);
 void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuffix="Mass");
 void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex);
-void Make2DPlot_Core(string ResultPattern);
+void Make2DPlot_Core(string ResultPattern, unsigned int CutIndex);
 
 int JobIdToIndex(string JobId);
 
@@ -52,7 +53,7 @@ void Analysis_Step5()
 {
    setTDRStyle();
    gStyle->SetPadTopMargin   (0.06);
-   gStyle->SetPadBottomMargin(0.10);
+   gStyle->SetPadBottomMargin(0.12);
    gStyle->SetPadRightMargin (0.16);
    gStyle->SetPadLeftMargin  (0.14);
    gStyle->SetTitleSize(0.04, "XYZ");
@@ -77,20 +78,66 @@ void Analysis_Step5()
 //   PredictionAndControlPlot(InputDir);
 
 
-   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";   unsigned int CutIndex = 24;//41
-//   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type2/";   unsigned int CutIndex = 57;
+  InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";   unsigned int CutIndex = 18;//24;//41
+//   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type2/";   unsigned int CutIndex = 18;
 
 //   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";   unsigned int CutIndex = 84;
 //   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type2/";   unsigned int CutIndex = 113;
+
+
+//     Make2DPlot_Core(InputDir,CutIndex);
+
+//   CutFlow(InputDir);
 //   SelectionPlot(InputDir, CutIndex);
-   MassPrediction(InputDir, CutIndex);  
-//   PredictionAndControlPlot(InputDir, CutIndex);
+//   MassPrediction(InputDir, CutIndex, "Mass");
+//   MassPrediction(InputDir, CutIndex, "MassTOF");
+//   MassPrediction(InputDir, CutIndex, "MassComb");    
+   PredictionAndControlPlot(InputDir, CutIndex);
    return;
 }
 
 
 
 //////////////////////////////////////////////////     CREATE PLOTS OF SELECTION
+
+void CutFlow(string InputPattern){
+   string Input     = InputPattern + "Histos.root";
+   string SavePath  = InputPattern + "/CutFlow/";
+   MakeDirectories(SavePath);
+
+   TFile* InputFile = new TFile(Input.c_str());
+   TFile* InputFileData = new TFile((InputPattern + "Histos_Data.root").c_str());
+
+   stPlots DataPlots, MCTrPlots, SignPlots[signals.size()];
+   stPlots_InitFromFile(InputFile, DataPlots,"Data", InputFileData);
+   stPlots_InitFromFile(InputFile, MCTrPlots,"MCTr", InputFile);
+   for(unsigned int s=0;s<signals.size();s++){
+      stPlots_InitFromFile(InputFile, SignPlots[s],signals[s].Name, InputFile);
+   }
+
+   TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
+   TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I");
+   TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF");
+
+   for(int CutIndex=0;CutIndex<HCuts_Pt->GetNbinsX();CutIndex++){
+      char Buffer[1024]; sprintf(Buffer,"%s/CutFlow_%03i_Pt%03.0f_I%05.3f_TOF%04.3f.txt",SavePath.c_str(),CutIndex,HCuts_Pt->GetBinContent(CutIndex+1),HCuts_I->GetBinContent(CutIndex+1),HCuts_TOF->GetBinContent(CutIndex+1));
+      FILE* pFile = fopen(Buffer,"w");
+      stPlots_Dump(DataPlots, pFile, CutIndex);
+      stPlots_Dump(MCTrPlots, pFile, CutIndex);
+      for(unsigned int s=0;s<signals.size();s++){
+         if(!signals[s].MakePlot)continue;
+         stPlots_Dump(SignPlots[s], pFile, CutIndex);
+      }
+      fclose(pFile);
+   }
+
+   stPlots_Clear(DataPlots);
+   stPlots_Clear(MCTrPlots);
+   for(unsigned int s=0;s<signals.size();s++){
+      stPlots_Clear(SignPlots[s]);
+   }
+}
+
 
 void SelectionPlot(string InputPattern, unsigned int CutIndex){
 
@@ -101,25 +148,17 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
    MakeDirectories(SavePath);
 
    TFile* InputFile = new TFile(Input.c_str());
+   TFile* InputFileData = new TFile((InputPattern + "Histos_Data.root").c_str());
  
    stPlots DataPlots, MCTrPlots, SignPlots[signals.size()];
-   stPlots_InitFromFile(InputFile, DataPlots,"Data", InputFile);
+   stPlots_InitFromFile(InputFile, DataPlots,"Data", InputFileData);
    stPlots_InitFromFile(InputFile, MCTrPlots,"MCTr", InputFile);
 
    for(unsigned int s=0;s<signals.size();s++){
       stPlots_InitFromFile(InputFile, SignPlots[s],signals[s].Name, InputFile);
 
       if(!signals[s].MakePlot)continue;
-      //stPlots_Draw(SignPlots[s], SavePath + "/Selection_" +  signals[s].Name, LegendTitle);
-   }
-
-      char Buffer[1024]; sprintf(Buffer,"%s/CutFlow_%03i.txt",InputPattern.c_str(),CutIndex);
-   FILE* pFile = fopen(Buffer,"w");
-   stPlots_Dump(DataPlots, pFile, CutIndex);
-   stPlots_Dump(MCTrPlots, pFile, CutIndex);
-   for(unsigned int s=0;s<signals.size();s++){
-      if(!signals[s].MakePlot)continue;
-      stPlots_Dump(SignPlots[s], pFile, CutIndex);
+//      stPlots_Draw(SignPlots[s], SavePath + "/Selection_" +  signals[s].Name, LegendTitle, CutIndex);
    }
 
    stPlots_Draw(DataPlots, SavePath + "/Selection_Data", LegendTitle, CutIndex);
@@ -131,7 +170,8 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
 //   stPlots_Draw(SignPlots[SID_ST300N], SavePath + "/Selection_" +  signals[SID_ST300N].Name, LegendTitle);
 //   stPlots_Draw(SignPlots[SID_GS126 ], SavePath + "/Selection_" +  signals[SID_GS126 ].Name, LegendTitle);
 
-   stPlots_DrawComparison(SavePath + "/Selection_Comp_Data" , LegendTitle, CutIndex, &DataPlots);
+//   stPlots_DrawComparison(SavePath + "/Selection_Comp_Data" , LegendTitle, CutIndex, &DataPlots);
+   stPlots_DrawComparison(SavePath + "/Selection_Comp_Gluino" , LegendTitle, CutIndex, &DataPlots, &SignPlots[0], &SignPlots[2], &SignPlots[6], &SignPlots[8]);
    return;
 
    stPlots_DrawComparison(SavePath + "/Selection_Comp_Gluino" , LegendTitle, CutIndex, &DataPlots, &SignPlots[SID_GL200 ], &SignPlots[SID_GL500 ], &SignPlots[SID_GL900 ]);
@@ -161,29 +201,11 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
    std::vector<string> legend;
 
    string LegendTitle = LegendFromType(InputPattern);;
-   string Input     = InputPattern + "Histos.root";
+   string Input     = InputPattern + "Histos_Data.root";
    string SavePath  = InputPattern;
    MakeDirectories(SavePath);
 
    TFile* InputFile = new TFile(Input.c_str());
-
-   TH1D* CtrlPt_BckgIs         = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_BckgIs" );	CtrlPt_BckgIs ->Rebin(5);
-   TH1D* CtrlPt_BckgIm         = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_BckgIm" );	CtrlPt_BckgIm ->Rebin(1);
-   TH1D* CtrlPt_BckgTOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_BckgTOF"); CtrlPt_BckgTOF->Rebin(1);
-   TH1D* CtrlPt_SignIs         = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_SignIs" );	CtrlPt_SignIs ->Rebin(5);
-   TH1D* CtrlPt_SignIm         = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_SignIm" );	CtrlPt_SignIm ->Rebin(1);
-   TH1D* CtrlPt_SignTOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_SignTOF"); CtrlPt_SignTOF->Rebin(1);
-
-   TH1D* CtrlIs_BckgPt         = (TH1D*)GetObjectFromPath(InputFile, "CtrlIs_BckgPt" ); CtrlIs_BckgPt ->Rebin(1);
-   TH1D* CtrlIs_BckgTOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlIs_BckgTOF"); CtrlIs_BckgTOF->Rebin(1);
-   TH1D* CtrlIs_SignPt         = (TH1D*)GetObjectFromPath(InputFile, "CtrlIs_SignPt" ); CtrlIs_SignPt ->Rebin(1);
-   TH1D* CtrlIs_SignTOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlIs_SignTOF"); CtrlIs_SignTOF->Rebin(1);
-
-   TH1D* CtrlTOF_BckgPt        = (TH1D*)GetObjectFromPath(InputFile, "CtrlTOF_BckgPt"); CtrlTOF_BckgPt ->Rebin(1);
-   TH1D* CtrlTOF_BckgIs        = (TH1D*)GetObjectFromPath(InputFile, "CtrlTOF_BckgIs"); CtrlTOF_BckgIs ->Rebin(4);
-   TH1D* CtrlTOF_SignPt        = (TH1D*)GetObjectFromPath(InputFile, "CtrlTOF_SignPt"); CtrlTOF_SignPt ->Rebin(1);
-   TH1D* CtrlTOF_SignIs        = (TH1D*)GetObjectFromPath(InputFile, "CtrlTOF_SignIs"); CtrlTOF_SignIs ->Rebin(4);
-
    TH2D* Pred_P                = (TH2D*)GetObjectFromPath(InputFile, "Pred_P");
    TH2D* Pred_I                = (TH2D*)GetObjectFromPath(InputFile, "Pred_I");
    TH2D* Pred_TOF              = (TH2D*)GetObjectFromPath(InputFile, "Pred_TOF");
@@ -205,12 +227,33 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
    TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I");
    TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF");
 
+   TH1D* CtrlPt_S1_Is         = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_S1_Is" ); CtrlPt_S1_Is ->Rebin(5);
+   TH1D* CtrlPt_S1_Im         = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_S1_Im" ); CtrlPt_S1_Im ->Rebin(1);
+   TH1D* CtrlPt_S1_TOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_S1_TOF"); CtrlPt_S1_TOF->Rebin(1);
+   TH1D* CtrlPt_S2_Is         = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_S2_Is" ); CtrlPt_S2_Is ->Rebin(5);
+   TH1D* CtrlPt_S2_Im         = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_S2_Im" ); CtrlPt_S2_Im ->Rebin(1);
+   TH1D* CtrlPt_S2_TOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_S2_TOF"); CtrlPt_S2_TOF->Rebin(1);
+   TH1D* CtrlPt_S3_Is         = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_S3_Is" ); CtrlPt_S3_Is ->Rebin(5);
+   TH1D* CtrlPt_S3_Im         = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_S3_Im" ); CtrlPt_S3_Im ->Rebin(1);
+   TH1D* CtrlPt_S3_TOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_S3_TOF"); CtrlPt_S3_TOF->Rebin(1);
+   TH1D* CtrlPt_S4_Is         = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_S4_Is" ); CtrlPt_S4_Is ->Rebin(5);
+   TH1D* CtrlPt_S4_Im         = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_S4_Im" ); CtrlPt_S4_Im ->Rebin(1);
+   TH1D* CtrlPt_S4_TOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlPt_S4_TOF"); CtrlPt_S4_TOF->Rebin(1);
+
+   TH1D* CtrlIs_S1_TOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlIs_S1_TOF"); CtrlIs_S1_TOF->Rebin(1);
+   TH1D* CtrlIs_S2_TOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlIs_S2_TOF"); CtrlIs_S2_TOF->Rebin(1);
+   TH1D* CtrlIs_S3_TOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlIs_S3_TOF"); CtrlIs_S3_TOF->Rebin(1);
+   TH1D* CtrlIs_S4_TOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlIs_S4_TOF"); CtrlIs_S4_TOF->Rebin(1);
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   if(CtrlPt_BckgIs->Integral()>0)CtrlPt_BckgIs->Scale(1/CtrlPt_BckgIs->Integral());
-   if(CtrlPt_SignIs->Integral()>0)CtrlPt_SignIs->Scale(1/CtrlPt_SignIs->Integral());
-   Histos[0] = CtrlPt_BckgIs;                     legend.push_back("20<p_{T}<35 GeV");
-   Histos[1] = CtrlPt_SignIs;                     legend.push_back("p_{T}>35 GeV");
+   if(CtrlPt_S1_Is->Integral()>0)CtrlPt_S1_Is->Scale(1/CtrlPt_S1_Is->Integral());
+   if(CtrlPt_S2_Is->Integral()>0)CtrlPt_S2_Is->Scale(1/CtrlPt_S2_Is->Integral());
+   if(CtrlPt_S3_Is->Integral()>0)CtrlPt_S3_Is->Scale(1/CtrlPt_S3_Is->Integral());
+   if(CtrlPt_S4_Is->Integral()>0)CtrlPt_S4_Is->Scale(1/CtrlPt_S4_Is->Integral());
+   Histos[0] = CtrlPt_S1_Is;                     legend.push_back(" 25<p_{T}< 35 GeV");
+   Histos[1] = CtrlPt_S2_Is;                     legend.push_back(" 35<p_{T}< 50 GeV");
+   Histos[2] = CtrlPt_S3_Is;                     legend.push_back(" 50<p_{T}<100 GeV");
+   Histos[3] = CtrlPt_S4_Is;                     legend.push_back("100<p_{T}");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend, "arbitrary units", 0,0, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
@@ -218,24 +261,34 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
    SaveCanvas(c1,SavePath,"ControlPt_IsSpectrum");
    delete c1;
 
+
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   if(CtrlPt_BckgIm->Integral()>0)CtrlPt_BckgIm->Scale(1/CtrlPt_BckgIm->Integral());
-   if(CtrlPt_SignIm->Integral()>0)CtrlPt_SignIm->Scale(1/CtrlPt_SignIm->Integral());
-   Histos[0] = CtrlPt_BckgIm;                     legend.push_back("20<p_{T}<35 GeV");
-   Histos[1] = CtrlPt_SignIm;                     legend.push_back("p_{T}>35 GeV");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxM_Legend, "arbitrary units", 0,10, 0,0);
+   if(CtrlPt_S1_Im->Integral()>0)CtrlPt_S1_Im->Scale(1/CtrlPt_S1_Im->Integral());
+   if(CtrlPt_S2_Im->Integral()>0)CtrlPt_S2_Im->Scale(1/CtrlPt_S2_Im->Integral());
+   if(CtrlPt_S3_Im->Integral()>0)CtrlPt_S3_Im->Scale(1/CtrlPt_S3_Im->Integral());
+   if(CtrlPt_S4_Im->Integral()>0)CtrlPt_S4_Im->Scale(1/CtrlPt_S4_Im->Integral());
+   Histos[0] = CtrlPt_S1_Im;                     legend.push_back(" 25<p_{T}< 35 GeV");
+   Histos[1] = CtrlPt_S2_Im;                     legend.push_back(" 35<p_{T}< 50 GeV");
+   Histos[2] = CtrlPt_S3_Im;                     legend.push_back(" 50<p_{T}<100 GeV");
+   Histos[3] = CtrlPt_S4_Im;                     legend.push_back("100<p_{T}");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxM_Legend, "arbitrary units", 3.0,10, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"ControlPt_ImSpectrum");
    delete c1;
 
+
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   if(CtrlPt_BckgTOF->Integral()>0)CtrlPt_BckgTOF->Scale(1/CtrlPt_BckgTOF->Integral());
-   if(CtrlPt_SignTOF->Integral()>0)CtrlPt_SignTOF->Scale(1/CtrlPt_SignTOF->Integral());
-   Histos[0] = CtrlPt_BckgTOF;                    legend.push_back("20<p_{T}<35 GeV");
-   Histos[1] = CtrlPt_SignTOF;                    legend.push_back("p_{T}>35 GeV");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 0,5, 0,0); 
+   if(CtrlPt_S1_TOF->Integral()>0)CtrlPt_S1_TOF->Scale(1/CtrlPt_S1_TOF->Integral());
+   if(CtrlPt_S2_TOF->Integral()>0)CtrlPt_S2_TOF->Scale(1/CtrlPt_S2_TOF->Integral());
+   if(CtrlPt_S3_TOF->Integral()>0)CtrlPt_S3_TOF->Scale(1/CtrlPt_S3_TOF->Integral());
+   if(CtrlPt_S4_TOF->Integral()>0)CtrlPt_S4_TOF->Scale(1/CtrlPt_S4_TOF->Integral());
+   Histos[0] = CtrlPt_S1_TOF;                    legend.push_back(" 25<p_{T}< 35 GeV");
+   Histos[1] = CtrlPt_S2_TOF;                    legend.push_back(" 35<p_{T}< 50 GeV");
+   Histos[2] = CtrlPt_S3_TOF;                    legend.push_back(" 50<p_{T}<100 GeV");
+   Histos[3] = CtrlPt_S4_TOF;                    legend.push_back("100<p_{T}");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,2, 0,0); 
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
@@ -243,64 +296,20 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   TH1D* CtrlPt_BckgTOFRatio = (TH1D*)CtrlPt_BckgTOF->Clone("CtrlPt_BckgTOFRatio");
-   CtrlPt_BckgTOFRatio->Divide(CtrlPt_SignTOF);
-   Histos[0] = CtrlPt_BckgTOFRatio;               legend.push_back("[20<p_{T}<35 GeV] / [p_{T}>35 GeV]");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "Ratio", 0,0, 0,2);
-   DrawLegend(Histos,legend,LegendTitle,"P");
-   DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"ControlPt_TOFSpectrumRatio");
-   delete c1;
-
-   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   if(CtrlIs_BckgPt->Integral()>0)CtrlIs_BckgPt->Scale(1/CtrlIs_BckgPt->Integral());
-   if(CtrlIs_SignPt->Integral()>0)CtrlIs_SignPt->Scale(1/CtrlIs_SignPt->Integral());
-   Histos[0] = CtrlIs_BckgPt;                     legend.push_back("I_{as}<0.2");
-   Histos[1] = CtrlIs_SignPt;                     legend.push_back("I_{as}>0.2");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} GeV/c", "arbitrary units", 0,300, 0,0);
-   DrawLegend(Histos,legend,LegendTitle,"P");
-   c1->SetLogy(true);
-   DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"ControlIs_PtSpectrum");
-   delete c1;
-
-   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   if(CtrlIs_BckgTOF->Integral()>0)CtrlIs_BckgTOF->Scale(1/CtrlIs_BckgTOF->Integral());
-   if(CtrlIs_SignTOF->Integral()>0)CtrlIs_SignTOF->Scale(1/CtrlIs_SignTOF->Integral());
-   Histos[0] = CtrlIs_BckgTOF;                     legend.push_back("I_{as}<0.2");
-   Histos[1] = CtrlIs_SignTOF;                     legend.push_back("I_{as}>0.2");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 0,5, 0,0);
+   if(CtrlIs_S1_TOF->Integral()>0)CtrlIs_S1_TOF->Scale(1/CtrlIs_S1_TOF->Integral());
+   if(CtrlIs_S2_TOF->Integral()>0)CtrlIs_S2_TOF->Scale(1/CtrlIs_S2_TOF->Integral());
+   if(CtrlIs_S3_TOF->Integral()>0)CtrlIs_S3_TOF->Scale(1/CtrlIs_S3_TOF->Integral());
+   if(CtrlIs_S4_TOF->Integral()>0)CtrlIs_S4_TOF->Scale(1/CtrlIs_S4_TOF->Integral());
+   Histos[0] = CtrlIs_S1_TOF;                     legend.push_back("0.0<I_{as}<0.1");
+   Histos[1] = CtrlIs_S2_TOF;                     legend.push_back("0.1<I_{as}<0.2");
+   Histos[2] = CtrlIs_S3_TOF;                     legend.push_back("0.2<I_{as}<0.3");
+   Histos[3] = CtrlIs_S4_TOF;                     legend.push_back("0.3<I_{as}");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,2, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"ControlIs_TOFSpectrum");
    delete c1;
-
-   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   if(CtrlTOF_BckgPt->Integral()>0)CtrlTOF_BckgPt->Scale(1/CtrlTOF_BckgPt->Integral());
-   if(CtrlTOF_SignPt->Integral()>0)CtrlTOF_SignPt->Scale(1/CtrlTOF_SignPt->Integral());
-   Histos[0] = CtrlTOF_SignPt;                    legend.push_back("1/#beta>1.1");
-   Histos[1] = CtrlTOF_BckgPt;                    legend.push_back("1/#beta<1.1");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} GeV/c", "arbitrary units", 0,300, 0,0);
-   DrawLegend(Histos,legend,LegendTitle,"P");
-   c1->SetLogy(true);
-   DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"ControlTOF_PtSpectrum");
-   delete c1;
-
-
-   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   if(CtrlTOF_BckgIs->Integral()>0)CtrlTOF_BckgIs->Scale(1/CtrlTOF_BckgIs->Integral());
-   if(CtrlTOF_SignIs->Integral()>0)CtrlTOF_SignIs->Scale(1/CtrlTOF_SignIs->Integral());
-   Histos[0] = CtrlTOF_SignIs;                    legend.push_back("1/#beta>1.1");
-   Histos[1] = CtrlTOF_BckgIs;                    legend.push_back("1/#beta<1.1");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend, "arbitrary units", 0,0, 0,0);
-   DrawLegend(Histos,legend,LegendTitle,"P");
-   c1->SetLogy(true);
-   DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"ControlTOF_IsSpectrum");
-   delete c1;
-
 
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
@@ -350,9 +359,9 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
 
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   TH2D* DataVsPred = new TH2D("DataVsPred","DataVsPred",17,35,200, 17,0.05,0.5); 
-   TH2D* DataMap    = new TH2D("DataMap"   ,"DataMap"   ,17,35,200, 17,0.05,0.5);
-   TH2D* PredMap    = new TH2D("PredMap"   ,"PredMap"   ,17,35,200, 17,0.05,0.5);
+   TH2D* DataVsPred = new TH2D("DataVsPred","DataVsPred",17,30,200,  8,0.05,0.5); 
+   TH2D* DataMap    = new TH2D("DataMap"   ,"DataMap"   ,17,30,200,  8,0.05,0.5);
+   TH2D* PredMap    = new TH2D("PredMap"   ,"PredMap"   ,17,30,200,  8,0.05,0.5);
    for(unsigned int CutIndex=0;CutIndex<H_P->GetNbinsX();CutIndex++){
       double P    = H_P->GetBinContent(CutIndex+1);
       double D    = H_D->GetBinContent(CutIndex+1);
@@ -407,8 +416,17 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
 
 }
 
+TH2D* GetCutIndexSliceFromTH3(TH3D* tmp, unsigned int CutIndex, string Name="zy"){
+   tmp->GetXaxis()->SetRange(CutIndex+1,CutIndex+1);
+   return (TH2D*)tmp->Project3D(Name.c_str());
+}
 
-void Make2DPlot_Core(string InputPattern){
+
+TH1D* GetCutIndexSliceFromTH2(TH2D* tmp, unsigned int CutIndex, string Name="_py"){
+   return tmp->ProjectionY(Name.c_str(),CutIndex+1,CutIndex+1);
+}
+
+void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    TCanvas* c1;
    TLegend* leg;
  
@@ -417,43 +435,34 @@ void Make2DPlot_Core(string InputPattern){
    string outpath = InputPattern;
    MakeDirectories(outpath);
 
-   //bool IsTrackerOnly = (InputPattern.find("Type0",0)<string::npos);
-
    TFile* InputFile = new TFile(Input.c_str());
-   TH1D* Stop130_Mass = (TH1D*)GetObjectFromPath(InputFile, "Stop130_Mass");
-   TH2D* Stop130_PIs  = (TH2D*)GetObjectFromPath(InputFile, "Stop130_AS_PIs");
-   TH2D* Stop130_PIm  = (TH2D*)GetObjectFromPath(InputFile, "Stop130_AS_PIm");
-   TH2D* Stop130_TOFIs= (TH2D*)GetObjectFromPath(InputFile, "Stop130_AS_TOFIs");
-   TH2D* Stop130_TOFIm= (TH2D*)GetObjectFromPath(InputFile, "Stop130_AS_TOFIm");
-   TH1D* Stop200_Mass = (TH1D*)GetObjectFromPath(InputFile, "Stop200_Mass");
-   TH2D* Stop200_PIs  = (TH2D*)GetObjectFromPath(InputFile, "Stop200_AS_PIs");
-   TH2D* Stop200_PIm  = (TH2D*)GetObjectFromPath(InputFile, "Stop200_AS_PIm");
-   TH2D* Stop200_TOFIs= (TH2D*)GetObjectFromPath(InputFile, "Stop200_AS_TOFIs");
-   TH2D* Stop200_TOFIm= (TH2D*)GetObjectFromPath(InputFile, "Stop200_AS_TOFIm");
-   TH1D* Stop300_Mass = (TH1D*)GetObjectFromPath(InputFile, "Stop300_Mass");
-   TH2D* Stop300_PIs  = (TH2D*)GetObjectFromPath(InputFile, "Stop300_AS_PIs");
-   TH2D* Stop300_PIm  = (TH2D*)GetObjectFromPath(InputFile, "Stop300_AS_PIm");
-   TH2D* Stop300_TOFIs= (TH2D*)GetObjectFromPath(InputFile, "Stop300_AS_TOFIs");
-   TH2D* Stop300_TOFIm= (TH2D*)GetObjectFromPath(InputFile, "Stop300_AS_TOFIm");
-   TH1D* Stop500_Mass = (TH1D*)GetObjectFromPath(InputFile, "Stop500_Mass");
-   TH2D* Stop500_PIs  = (TH2D*)GetObjectFromPath(InputFile, "Stop500_AS_PIs");
-   TH2D* Stop500_PIm  = (TH2D*)GetObjectFromPath(InputFile, "Stop500_AS_PIm");
-   TH2D* Stop500_TOFIs= (TH2D*)GetObjectFromPath(InputFile, "Stop500_AS_TOFIs");
-   TH2D* Stop500_TOFIm= (TH2D*)GetObjectFromPath(InputFile, "Stop500_AS_TOFIm");
-   TH1D* Stop800_Mass = (TH1D*)GetObjectFromPath(InputFile, "Stop800_Mass");
-   TH2D* Stop800_PIs  = (TH2D*)GetObjectFromPath(InputFile, "Stop800_AS_PIs");
-   TH2D* Stop800_PIm  = (TH2D*)GetObjectFromPath(InputFile, "Stop800_AS_PIm");
-   TH2D* Stop800_TOFIs= (TH2D*)GetObjectFromPath(InputFile, "Stop800_AS_TOFIs");
-   TH2D* Stop800_TOFIm= (TH2D*)GetObjectFromPath(InputFile, "Stop800_AS_TOFIm");
-   TH2D* Data_PIs     = (TH2D*)GetObjectFromPath(InputFile, "Data_AS_PIs");
-   TH2D* Data_PIm     = (TH2D*)GetObjectFromPath(InputFile, "Data_AS_PIm");
-   TH2D* Data_TOFIs   = (TH2D*)GetObjectFromPath(InputFile, "Data_AS_TOFIs");
-   TH2D* Data_TOFIm   = (TH2D*)GetObjectFromPath(InputFile, "Data_AS_TOFIm");
-   TH2D* Data_PIm_075  = (TH2D*)Data_PIm->Clone();   Data_PIm_075->Reset(); 
-   TH2D* Data_PIm_150  = (TH2D*)Data_PIm->Clone();   Data_PIm_150->Reset();
-   TH2D* Data_PIm_300  = (TH2D*)Data_PIm->Clone();   Data_PIm_300->Reset();
-   TH2D* Data_PIm_450  = (TH2D*)Data_PIm->Clone();   Data_PIm_450->Reset();
-   TH2D* Data_PIm_All  = (TH2D*)Data_PIm->Clone();   Data_PIm_All->Reset();
+   TFile* InputFileData = new TFile((InputPattern + "Histos_Data.root").c_str());
+
+
+   TH1D* Gluino300_Mass = GetCutIndexSliceFromTH2((TH2D*)GetObjectFromPath(InputFile, "Gluino300/Mass"    ), CutIndex, "G300Mass");
+   TH2D* Gluino300_PIs  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino300/AS_PIs"  ), CutIndex, "G300PIs_zy");
+   TH2D* Gluino300_PIm  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino300/AS_PIm"  ), CutIndex, "G300PIm_zy");
+   TH2D* Gluino300_TOFIs= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino300/AS_TOFIs"), CutIndex, "G300TIs_zy");
+   TH2D* Gluino300_TOFIm= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino300/AS_TOFIm"), CutIndex, "G300TIm_zy");
+   TH1D* Gluino500_Mass = GetCutIndexSliceFromTH2((TH2D*)GetObjectFromPath(InputFile, "Gluino500/Mass"    ), CutIndex, "G500Mass");
+   TH2D* Gluino500_PIs  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino500/AS_PIs"  ), CutIndex, "G500PIs_zy");
+   TH2D* Gluino500_PIm  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino500/AS_PIm"  ), CutIndex, "G500PIm_zy");
+   TH2D* Gluino500_TOFIs= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino500/AS_TOFIs"), CutIndex, "G500TIs_zy");
+   TH2D* Gluino500_TOFIm= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino500/AS_TOFIm"), CutIndex, "G500TIm_zy");
+   TH1D* Gluino800_Mass = GetCutIndexSliceFromTH2((TH2D*)GetObjectFromPath(InputFile, "Gluino800/Mass"    ), CutIndex, "G800Mass");
+   TH2D* Gluino800_PIs  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino800/AS_PIs"  ), CutIndex, "G800PIs_zy");
+   TH2D* Gluino800_PIm  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino800/AS_PIm"  ), CutIndex, "G800PIm_zy");
+   TH2D* Gluino800_TOFIs= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino800/AS_TOFIs"), CutIndex, "G800TIs_zy");
+   TH2D* Gluino800_TOFIm= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino800/AS_TOFIm"), CutIndex, "G800TIm_zy");
+   TH2D* Data_PIs       = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFileData, "Data/AS_PIs"       ), CutIndex);
+   TH2D* Data_PIm       = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFileData, "Data/AS_PIm"       ), CutIndex);
+   TH2D* Data_TOFIs     = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFileData, "Data/AS_TOFIs"     ), CutIndex);
+   TH2D* Data_TOFIm     = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFileData, "Data/AS_TOFIm"     ), CutIndex);
+   TH2D* Data_PIm_075   = (TH2D*)Data_PIm->Clone();   Data_PIm_075->Reset(); 
+   TH2D* Data_PIm_150   = (TH2D*)Data_PIm->Clone();   Data_PIm_150->Reset();
+   TH2D* Data_PIm_300   = (TH2D*)Data_PIm->Clone();   Data_PIm_300->Reset();
+   TH2D* Data_PIm_450   = (TH2D*)Data_PIm->Clone();   Data_PIm_450->Reset();
+   TH2D* Data_PIm_All   = (TH2D*)Data_PIm->Clone();   Data_PIm_All->Reset();
 
    for(unsigned int i=0;i<(unsigned int)Data_PIm->GetNbinsX();i++){
    for(unsigned int j=0;j<(unsigned int)Data_PIm->GetNbinsY();j++){
@@ -467,101 +476,69 @@ void Make2DPlot_Core(string InputPattern){
       else          { Data_PIm_All->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
    }}
 
+   Gluino300_Mass = (TH1D*) Gluino300_Mass->Rebin(2);
+   Gluino500_Mass = (TH1D*) Gluino500_Mass->Rebin(2);
+   Gluino800_Mass = (TH1D*) Gluino800_Mass->Rebin(2);
 
-   Stop130_Mass = (TH1D*) Stop130_Mass->Rebin(10);
-   Stop200_Mass = (TH1D*) Stop200_Mass->Rebin(10);
-   Stop300_Mass = (TH1D*) Stop300_Mass->Rebin(10);
-   Stop500_Mass = (TH1D*) Stop500_Mass->Rebin(10);
-   Stop800_Mass = (TH1D*) Stop800_Mass->Rebin(10);
-
-   double Min = 1E-5;
-   double Max = 1E2;
+   double Min = 1E-3;
+   double Max = 1E4;
 
    char YAxisLegend[1024];
-   sprintf(YAxisLegend,"#tracks / %2.0f GeV/c^{2}",Stop130_Mass->GetXaxis()->GetBinWidth(1));
+   sprintf(YAxisLegend,"#tracks / %2.0f GeV/c^{2}",Gluino300_Mass->GetXaxis()->GetBinWidth(1));
 
 
    c1 = new TCanvas("c1","c1", 600, 600);
-   Stop130_Mass->SetAxisRange(0,1250,"X");
-   Stop130_Mass->SetAxisRange(Min,Max,"Y");
-   Stop130_Mass->SetTitle("");
-   Stop130_Mass->SetStats(kFALSE);
-   Stop130_Mass->GetXaxis()->SetTitle("m (GeV/c^{2})");
-   Stop130_Mass->GetYaxis()->SetTitle(YAxisLegend);
-   Stop130_Mass->SetLineWidth(2);
-   Stop130_Mass->SetLineColor(Color[0]);
-   Stop130_Mass->SetMarkerColor(Color[0]);
-   Stop130_Mass->SetMarkerStyle(Marker[0]);
-   Stop130_Mass->Draw("HIST E1");
-   Stop200_Mass->Draw("HIST E1 same");
-   Stop200_Mass->SetLineWidth(2);
-   Stop200_Mass->SetLineColor(Color[1]);
-   Stop200_Mass->SetMarkerColor(Color[1]);
-   Stop200_Mass->SetMarkerStyle(Marker[1]);
-   Stop300_Mass->Draw("HIST E1 same");
-   Stop300_Mass->SetLineWidth(2);
-   Stop300_Mass->SetLineColor(Color[2]);
-   Stop300_Mass->SetMarkerColor(Color[2]);
-   Stop300_Mass->SetMarkerStyle(Marker[2]);
-   Stop500_Mass->Draw("HIST E1 same");
-   Stop500_Mass->SetLineWidth(2);
-   Stop500_Mass->SetLineColor(Color[3]);
-   Stop500_Mass->SetMarkerColor(Color[3]);
-   Stop500_Mass->SetMarkerStyle(Marker[3]);
-   Stop800_Mass->Draw("HIST E1 same");
-   Stop800_Mass->SetLineWidth(2);
-   Stop800_Mass->SetLineColor(Color[4]);
-   Stop800_Mass->SetMarkerColor(Color[4]);
-   Stop800_Mass->SetMarkerStyle(Marker[4]);
+   Gluino300_Mass->SetAxisRange(0,1250,"X");
+   Gluino300_Mass->SetAxisRange(Min,Max,"Y");
+   Gluino300_Mass->SetTitle("");
+   Gluino300_Mass->SetStats(kFALSE);
+   Gluino300_Mass->GetXaxis()->SetTitle("m (GeV/c^{2})");
+   Gluino300_Mass->GetYaxis()->SetTitle(YAxisLegend);
+   Gluino300_Mass->SetLineWidth(2);
+   Gluino300_Mass->SetLineColor(Color[0]);
+   Gluino300_Mass->SetMarkerColor(Color[0]);
+   Gluino300_Mass->SetMarkerStyle(Marker[0]);
+   Gluino300_Mass->Draw("HIST E1");
+   Gluino500_Mass->Draw("HIST E1 same");
+   Gluino500_Mass->SetLineColor(Color[1]);
+   Gluino500_Mass->SetMarkerColor(Color[1]);
+   Gluino500_Mass->SetMarkerStyle(Marker[1]);
+   Gluino500_Mass->SetLineWidth(2);
+   Gluino800_Mass->SetLineWidth(2);
+   Gluino800_Mass->SetLineColor(Color[2]);
+   Gluino800_Mass->SetMarkerColor(Color[2]);
+   Gluino800_Mass->SetMarkerStyle(Marker[2]);
+   Gluino800_Mass->Draw("HIST E1 same");
    c1->SetLogy(true);
-
-   TLine* line130 = new TLine(130, Min, 130, Max);
-   line130->SetLineWidth(2);
-   line130->SetLineColor(Color[0]);
-   line130->SetLineStyle(2);
-   line130->Draw("same");
-
-   TLine* line200 = new TLine(200, Min, 200, Max);
-   line200->SetLineWidth(2);
-   line200->SetLineColor(Color[1]);
-   line200->SetLineStyle(2);
-   line200->Draw("same");
 
    TLine* line300 = new TLine(300, Min, 300, Max);
    line300->SetLineWidth(2);
-   line300->SetLineColor(Color[2]);
+   line300->SetLineColor(Color[0]);
    line300->SetLineStyle(2);
    line300->Draw("same");
 
    TLine* line500 = new TLine(500, Min, 500, Max);
    line500->SetLineWidth(2);
-   line500->SetLineColor(Color[3]);
+   line500->SetLineColor(Color[1]);
    line500->SetLineStyle(2);
    line500->Draw("same");
 
    TLine* line800 = new TLine(800, Min, 800, Max);
    line800->SetLineWidth(2);
-   line800->SetLineColor(Color[4]);
+   line800->SetLineColor(Color[2]);
    line800->SetLineStyle(2);
    line800->Draw("same");
 
    leg = new TLegend(0.80,0.93,0.80 - 0.20,0.93 - 6*0.03);
    leg->SetHeader(LegendFromType(InputPattern).c_str());
-//   if(IsTrackerOnly){ 
-//      leg->SetHeader("Tracker - Only");
-//   }else{
-//      leg->SetHeader("Tracker + Muon");
-//   }
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
-   leg->AddEntry(Stop130_Mass, "Stop130"   ,"P");
-   leg->AddEntry(Stop200_Mass, "Stop200"   ,"P");
-   leg->AddEntry(Stop300_Mass, "Stop300"   ,"P");
-   leg->AddEntry(Stop500_Mass, "Stop500"   ,"P");
-   leg->AddEntry(Stop800_Mass, "Stop800"   ,"P");
+   leg->AddEntry(Gluino300_Mass, "Gluino300"   ,"P");
+   leg->AddEntry(Gluino500_Mass, "Gluino500"   ,"P");
+   leg->AddEntry(Gluino800_Mass, "Gluino800"   ,"P");
    leg->Draw();
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1, outpath, "Stop_Mass");
+   SaveCanvas(c1, outpath, "Gluino_Mass");
    delete c1;
 
 
@@ -610,22 +587,8 @@ void Make2DPlot_Core(string InputPattern){
    Data_TOFIs->Draw("COLZ");
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1, outpath, "Data_TOFIs", true);
-
-   double BinCutTOF  = Data_TOFIs->GetXaxis()->FindBin(0.8);
-   double BinCutIs   = Data_TOFIs->GetYaxis()->FindBin(0.2);
-   double BinLastTOF = Data_TOFIs->GetXaxis()->GetNbins();
-   double BinLastIs  = Data_TOFIs->GetYaxis()->GetNbins();
-
-   double NA = Data_TOFIs->Integral(BinCutTOF,BinLastTOF,0,BinCutIs);
-   double NB = Data_TOFIs->Integral(0, BinCutTOF,0,BinCutIs);
-   double NC = Data_TOFIs->Integral(BinCutTOF,BinLastTOF,BinCutIs,BinLastIs);
-   double ND = Data_TOFIs->Integral(0,BinCutTOF,BinCutIs,BinLastIs);
-   double NDPred = NB*NC/NA;
-   double NDPredErr = (sqrt(NB)*NC/NA) + (sqrt(NC)*NB/NA) + (sqrt(NA)*NB*NC/(NA*NA));
-   printf("NA = %f+-%f NB = %f+-%f NC = %f+-%f ND=%f+-%f  <--> NDpred=%f+-%f\n",NA,sqrt(NA),NB,sqrt(NB),NC,sqrt(NC),ND,sqrt(ND), NDPred,NDPredErr);
-
-
    delete c1;
+
 
    c1 = new TCanvas("c1","c1", 600, 600);
    c1->SetLogz(true);
@@ -643,235 +606,155 @@ void Make2DPlot_Core(string InputPattern){
    delete c1;
 
    c1 = new TCanvas("c1","c1", 600, 600);
-   Stop800_PIs->SetTitle("");
-   Stop800_PIs->SetStats(kFALSE);
-   Stop800_PIs->GetXaxis()->SetTitle("p (GeV/c)");
-   Stop800_PIs->GetYaxis()->SetTitle(dEdxS_Legend.c_str());
-   Stop800_PIs->SetAxisRange(0,1250,"X");
-   Stop800_PIs->Scale(1/Stop800_PIs->Integral());
-   Stop800_PIs->SetMarkerSize (0.2);
-   Stop800_PIs->SetMarkerColor(Color[4]);
-   Stop800_PIs->SetFillColor(Color[4]);
-   Stop800_PIs->Draw("");
-   Stop500_PIs->Scale(1/Stop500_PIs->Integral());
-   Stop500_PIs->SetMarkerSize (0.2);
-   Stop500_PIs->SetMarkerColor(Color[3]);
-   Stop500_PIs->SetFillColor(Color[3]);
-   Stop500_PIs->Draw("same");
-   Stop300_PIs->Scale(1/Stop300_PIs->Integral());
-   Stop300_PIs->SetMarkerSize (0.2);
-   Stop300_PIs->SetMarkerColor(Color[2]);
-   Stop300_PIs->SetFillColor(Color[2]);
-   Stop300_PIs->Draw("same");
-   Stop200_PIs->Scale(1/Stop200_PIs->Integral());
-   Stop200_PIs->SetMarkerSize (0.2);
-   Stop200_PIs->SetMarkerColor(Color[1]);
-   Stop200_PIs->SetFillColor(Color[1]);
-   Stop200_PIs->Draw("same");
-   Stop130_PIs->Scale(1/Stop130_PIs->Integral());
-   Stop130_PIs->SetMarkerSize (0.2);
-   Stop130_PIs->SetMarkerColor(Color[0]);
-   Stop130_PIs->SetFillColor(Color[0]);
-   Stop130_PIs->Draw("same");
+   Gluino800_PIs->SetTitle("");
+   Gluino800_PIs->SetStats(kFALSE);
+   Gluino800_PIs->GetXaxis()->SetTitle("p (GeV/c)");
+   Gluino800_PIs->GetYaxis()->SetTitle(dEdxS_Legend.c_str());
+   Gluino800_PIs->SetAxisRange(0,1250,"X");
+   Gluino800_PIs->Scale(1/Gluino800_PIs->Integral());
+   Gluino800_PIs->SetMarkerSize (0.2);
+   Gluino800_PIs->SetMarkerColor(Color[2]);
+   Gluino800_PIs->SetFillColor(Color[2]);
+   Gluino800_PIs->Draw("BOX");
+   Gluino500_PIs->Scale(1/Gluino500_PIs->Integral());
+   Gluino500_PIs->SetMarkerSize (0.2);
+   Gluino500_PIs->SetMarkerColor(Color[1]);
+   Gluino500_PIs->SetFillColor(Color[1]);
+   Gluino500_PIs->Draw("BOX same");
+   Gluino300_PIs->Scale(1/Gluino300_PIs->Integral());
+   Gluino300_PIs->SetMarkerSize (0.2);
+   Gluino300_PIs->SetMarkerColor(Color[0]);
+   Gluino300_PIs->SetFillColor(Color[0]);
+   Gluino300_PIs->Draw("BOX same");
 
    leg = new TLegend(0.80,0.93,0.80 - 0.20,0.93 - 6*0.03);
    leg->SetHeader(LegendFromType(InputPattern).c_str());
-//   if(IsTrackerOnly){ 
-//      leg->SetHeader("Tracker - Only");
-// /  }else{
-//      leg->SetHeader("Tracker + Muon");
-//   }
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
-   leg->AddEntry(Stop130_PIs, "Stop130"   ,"F");
-   leg->AddEntry(Stop200_PIs, "Stop200"   ,"F");
-   leg->AddEntry(Stop300_PIs, "Stop300"   ,"F");
-   leg->AddEntry(Stop500_PIs, "Stop500"   ,"F");
-   leg->AddEntry(Stop800_PIs, "Stop800"   ,"F");
+   leg->AddEntry(Gluino300_PIs, "Gluino300"   ,"F");
+   leg->AddEntry(Gluino500_PIs, "Gluino500"   ,"F");
+   leg->AddEntry(Gluino800_PIs, "Gluino800"   ,"F");
    leg->Draw();
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1, outpath, "Stop_PIs", true);
+   SaveCanvas(c1, outpath, "Gluino_PIs", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1", 600, 600);
-   Stop800_PIm->SetTitle("");
-   Stop800_PIm->SetStats(kFALSE);
-   Stop800_PIm->GetXaxis()->SetTitle("p (GeV/c)");
-   Stop800_PIm->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
-   Stop800_PIm->SetAxisRange(0,1250,"X");
-   Stop800_PIm->SetAxisRange(0,15,"Y");
-   Stop800_PIm->Scale(1/Stop800_PIm->Integral());
-   Stop800_PIm->SetMarkerSize (0.2);
-   Stop800_PIm->SetMarkerColor(Color[4]);
-   Stop800_PIm->SetFillColor(Color[4]);
-   Stop800_PIm->Draw("");
-   Stop500_PIm->Scale(1/Stop500_PIm->Integral());
-   Stop500_PIm->SetMarkerSize (0.2);
-   Stop500_PIm->SetMarkerColor(Color[3]);
-   Stop500_PIm->SetFillColor(Color[3]);
-   Stop500_PIm->Draw("same");
-   Stop300_PIm->Scale(1/Stop300_PIm->Integral());
-   Stop300_PIm->SetMarkerSize (0.2);
-   Stop300_PIm->SetMarkerColor(Color[2]);
-   Stop300_PIm->SetFillColor(Color[2]);
-   Stop300_PIm->Draw("same");
-   Stop200_PIm->Scale(1/Stop200_PIm->Integral());
-   Stop200_PIm->SetMarkerSize (0.2);
-   Stop200_PIm->SetMarkerColor(Color[1]);
-   Stop200_PIm->SetFillColor(Color[1]);
-   Stop200_PIm->Draw("same");
-   Stop130_PIm->Scale(1/Stop130_PIm->Integral());
-   Stop130_PIm->SetMarkerSize (0.2);
-   Stop130_PIm->SetMarkerColor(Color[0]);
-   Stop130_PIm->SetFillColor(Color[0]);
-   Stop130_PIm->Draw("same");
+   Gluino300_PIm->SetTitle("");
+   Gluino300_PIm->SetStats(kFALSE);
+   Gluino300_PIm->GetXaxis()->SetTitle("p (GeV/c)");
+   Gluino300_PIm->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
+   Gluino300_PIm->SetAxisRange(0,1250,"X");
+   Gluino300_PIm->SetAxisRange(0,15,"Y");
+   Gluino300_PIm->Scale(1/Gluino300_PIm->Integral());
+   Gluino300_PIm->SetMarkerSize (0.2);
+   Gluino300_PIm->SetMarkerColor(Color[2]);
+   Gluino300_PIm->SetFillColor(Color[2]);
+   Gluino300_PIm->Draw("BOX");
+   Gluino500_PIm->Scale(1/Gluino500_PIm->Integral());
+   Gluino500_PIm->SetMarkerSize (0.2);
+   Gluino500_PIm->SetMarkerColor(Color[1]);
+   Gluino500_PIm->SetFillColor(Color[1]);
+   Gluino500_PIm->Draw("BOX same");
+   Gluino800_PIm->Scale(1/Gluino800_PIm->Integral());
+   Gluino800_PIm->SetMarkerSize (0.2);
+   Gluino800_PIm->SetMarkerColor(Color[0]);
+   Gluino800_PIm->SetFillColor(Color[0]);
+   Gluino800_PIm->Draw("BOX same");
 
    TF1* MassLine800 = GetMassLine(800, true);
-   MassLine800->SetLineColor(kMagenta-7);
+   MassLine800->SetLineColor(kGray+3);
    MassLine800->SetLineWidth(2);
    MassLine800->Draw("same");
    TF1* MassLine500 = GetMassLine(500, true);
-   MassLine500->SetLineColor(kGreen-7);
+   MassLine500->SetLineColor(kBlue-7);
    MassLine500->SetLineWidth(2);
    MassLine500->Draw("same");
    TF1* MassLine300 = GetMassLine(300, true);
-   MassLine300->SetLineColor(kGray+3);
+   MassLine300->SetLineColor(kRed-7);
    MassLine300->SetLineWidth(2);
    MassLine300->Draw("same");
-   TF1* MassLine200 = GetMassLine(200, true);
-   MassLine200->SetLineColor(kBlue-7);
-   MassLine200->SetLineWidth(2);
-   MassLine200->Draw("same");
-   TF1* MassLine130 = GetMassLine(130, true);
-   MassLine130->SetLineColor(kRed-7);
-   MassLine130->SetLineWidth(2);
-   MassLine130->Draw("same");
 
    leg = new TLegend(0.80,0.93,0.80 - 0.20,0.93 - 6*0.03);
    leg->SetHeader(LegendFromType(InputPattern).c_str());
-//   if(IsTrackerOnly){ 
-//      leg->SetHeader("Tracker - Only");
-//   }else{
-//      leg->SetHeader("Tracker + Muon");
-//   }
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
-   leg->AddEntry(Stop130_PIm, "Stop130"   ,"F");
-   leg->AddEntry(Stop200_PIm, "Stop200"   ,"F");
-   leg->AddEntry(Stop300_PIm, "Stop300"   ,"F");
-   leg->AddEntry(Stop500_PIm, "Stop500"   ,"F");
-   leg->AddEntry(Stop800_PIm, "Stop800"   ,"F");
+   leg->AddEntry(Gluino300_PIm, "Gluino300"   ,"F");
+   leg->AddEntry(Gluino500_PIm, "Gluino500"   ,"F");
+   leg->AddEntry(Gluino800_PIm, "Gluino800"   ,"F");
    leg->Draw();
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1, outpath, "Stop_PIm", true);
-   delete c1;
-
-
-
-
-   c1 = new TCanvas("c1","c1", 600, 600);
-   Stop800_TOFIs->SetTitle("");
-   Stop800_TOFIs->SetStats(kFALSE);
-   Stop800_TOFIs->GetXaxis()->SetTitle("beta_{TOF}");
-   Stop800_TOFIs->GetYaxis()->SetTitle(dEdxS_Legend.c_str());
-   Stop800_TOFIs->SetAxisRange(0,1250,"X");
-   Stop800_TOFIs->Scale(1/Stop800_TOFIs->Integral());
-   Stop800_TOFIs->SetMarkerSize (0.2);
-   Stop800_TOFIs->SetMarkerColor(Color[4]);
-   Stop800_TOFIs->SetFillColor(Color[4]);
-   Stop800_TOFIs->Draw("");
-   Stop500_TOFIs->Scale(1/Stop500_TOFIs->Integral());
-   Stop500_TOFIs->SetMarkerSize (0.2);
-   Stop500_TOFIs->SetMarkerColor(Color[3]);
-   Stop500_TOFIs->SetFillColor(Color[3]);
-   Stop500_TOFIs->Draw("same");
-   Stop300_TOFIs->Scale(1/Stop300_TOFIs->Integral());
-   Stop300_TOFIs->SetMarkerSize (0.2);
-   Stop300_TOFIs->SetMarkerColor(Color[2]);
-   Stop300_TOFIs->SetFillColor(Color[2]);
-   Stop300_TOFIs->Draw("same");
-   Stop200_TOFIs->Scale(1/Stop200_TOFIs->Integral());
-   Stop200_TOFIs->SetMarkerSize (0.2);
-   Stop200_TOFIs->SetMarkerColor(Color[1]);
-   Stop200_TOFIs->SetFillColor(Color[1]);
-   Stop200_TOFIs->Draw("same");
-   Stop130_TOFIs->Scale(1/Stop130_TOFIs->Integral());
-   Stop130_TOFIs->SetMarkerSize (0.2);
-   Stop130_TOFIs->SetMarkerColor(Color[0]);
-   Stop130_TOFIs->SetFillColor(Color[0]);
-   Stop130_TOFIs->Draw("same");
-
-   leg = new TLegend(0.80,0.93,0.80 - 0.20,0.93 - 6*0.03);
-   leg->SetHeader(LegendFromType(InputPattern).c_str());
-//   if(IsTrackerOnly){ 
-//      leg->SetHeader("Tracker - Only");
-//   }else{
-//      leg->SetHeader("Tracker + Muon");
-//   }
-   leg->SetFillColor(0);
-   leg->SetBorderSize(0);
-   leg->AddEntry(Stop130_TOFIs, "Stop130"   ,"F");
-   leg->AddEntry(Stop200_TOFIs, "Stop200"   ,"F");
-   leg->AddEntry(Stop300_TOFIs, "Stop300"   ,"F");
-   leg->AddEntry(Stop500_TOFIs, "Stop500"   ,"F");
-   leg->AddEntry(Stop800_TOFIs, "Stop800"   ,"F");
-   leg->Draw();
-   DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1, outpath, "Stop_TOFIs", true);
+   SaveCanvas(c1, outpath, "Gluino_PIm", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1", 600, 600);
-   Stop800_TOFIm->SetTitle("");
-   Stop800_TOFIm->SetStats(kFALSE);
-   Stop800_TOFIm->GetXaxis()->SetTitle("1/#beta_{TOF}");
-   Stop800_TOFIm->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
-   Stop800_TOFIm->SetAxisRange(0,1250,"X");
-   Stop800_TOFIm->SetAxisRange(0,15,"Y");
-   Stop800_TOFIm->Scale(1/Stop800_TOFIm->Integral());
-   Stop800_TOFIm->SetMarkerSize (0.2);
-   Stop800_TOFIm->SetMarkerColor(Color[4]);
-   Stop800_TOFIm->SetFillColor(Color[4]);
-   Stop800_TOFIm->Draw("");
-   Stop500_TOFIm->Scale(1/Stop500_TOFIm->Integral());
-   Stop500_TOFIm->SetMarkerSize (0.2);
-   Stop500_TOFIm->SetMarkerColor(Color[3]);
-   Stop500_TOFIm->SetFillColor(Color[3]);
-   Stop500_TOFIm->Draw("same");
-   Stop300_TOFIm->Scale(1/Stop300_TOFIm->Integral());
-   Stop300_TOFIm->SetMarkerSize (0.2);
-   Stop300_TOFIm->SetMarkerColor(Color[2]);
-   Stop300_TOFIm->SetFillColor(Color[2]);
-   Stop300_TOFIm->Draw("same");
-   Stop200_TOFIm->Scale(1/Stop200_TOFIm->Integral());
-   Stop200_TOFIm->SetMarkerSize (0.2);
-   Stop200_TOFIm->SetMarkerColor(Color[1]);
-   Stop200_TOFIm->SetFillColor(Color[1]);
-   Stop200_TOFIm->Draw("same");
-   Stop130_TOFIm->Scale(1/Stop130_TOFIm->Integral());
-   Stop130_TOFIm->SetMarkerSize (0.2);
-   Stop130_TOFIm->SetMarkerColor(Color[0]);
-   Stop130_TOFIm->SetFillColor(Color[0]);
-   Stop130_TOFIm->Draw("same");
+   Gluino800_TOFIs->SetTitle("");
+   Gluino800_TOFIs->SetStats(kFALSE);
+   Gluino800_TOFIs->GetXaxis()->SetTitle("1/#beta_{TOF}");
+   Gluino800_TOFIs->GetYaxis()->SetTitle(dEdxS_Legend.c_str());
+   Gluino800_TOFIs->SetAxisRange(0,1250,"X");
+   Gluino800_TOFIs->Scale(1/Gluino800_TOFIs->Integral());
+   Gluino800_TOFIs->SetMarkerSize (0.2);
+   Gluino800_TOFIs->SetMarkerColor(Color[2]);
+   Gluino800_TOFIs->SetFillColor(Color[2]);
+   Gluino800_TOFIs->Draw("BOX");
+   Gluino500_TOFIs->Scale(1/Gluino500_TOFIs->Integral());
+   Gluino500_TOFIs->SetMarkerSize (0.2);
+   Gluino500_TOFIs->SetMarkerColor(Color[1]);
+   Gluino500_TOFIs->SetFillColor(Color[1]);
+   Gluino500_TOFIs->Draw("BOX same");
+   Gluino300_TOFIs->Scale(1/Gluino300_TOFIs->Integral());
+   Gluino300_TOFIs->SetMarkerSize (0.2);
+   Gluino300_TOFIs->SetMarkerColor(Color[0]);
+   Gluino300_TOFIs->SetFillColor(Color[0]);
+   Gluino300_TOFIs->Draw("BOX same");
 
    leg = new TLegend(0.80,0.93,0.80 - 0.20,0.93 - 6*0.03);
    leg->SetHeader(LegendFromType(InputPattern).c_str());
-//   if(IsTrackerOnly){ 
-//      leg->SetHeader("Tracker - Only");
-//   }else{
-//      leg->SetHeader("Tracker + Muon");
-//   }
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
-   leg->AddEntry(Stop130_TOFIm, "Stop130"   ,"F");
-   leg->AddEntry(Stop200_TOFIm, "Stop200"   ,"F");
-   leg->AddEntry(Stop300_TOFIm, "Stop300"   ,"F");
-   leg->AddEntry(Stop500_TOFIm, "Stop500"   ,"F");
-   leg->AddEntry(Stop800_TOFIm, "Stop800"   ,"F");
+   leg->AddEntry(Gluino300_TOFIs, "Gluino300"   ,"F");
+   leg->AddEntry(Gluino500_TOFIs, "Gluino500"   ,"F");
+   leg->AddEntry(Gluino800_TOFIs, "Gluino800"   ,"F");
    leg->Draw();
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1, outpath, "Stop_TOFIm", true);
+   SaveCanvas(c1, outpath, "Gluino_TOFIs", true);
    delete c1;
 
+   c1 = new TCanvas("c1","c1", 600, 600);
+   Gluino800_TOFIm->SetTitle("");
+   Gluino800_TOFIm->SetStats(kFALSE);
+   Gluino800_TOFIm->GetXaxis()->SetTitle("1/#beta_{TOF}");
+   Gluino800_TOFIm->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
+   Gluino800_TOFIm->SetAxisRange(0,1250,"X");
+   Gluino800_TOFIm->SetAxisRange(0,15,"Y");
+   Gluino800_TOFIm->Scale(1/Gluino800_TOFIm->Integral());
+   Gluino800_TOFIm->SetMarkerSize (0.2);
+   Gluino800_TOFIm->SetMarkerColor(Color[2]);
+   Gluino800_TOFIm->SetFillColor(Color[2]);
+   Gluino800_TOFIm->Draw("BOX");
+   Gluino500_TOFIm->Scale(1/Gluino500_TOFIm->Integral());
+   Gluino500_TOFIm->SetMarkerSize (0.2);
+   Gluino500_TOFIm->SetMarkerColor(Color[1]);
+   Gluino500_TOFIm->SetFillColor(Color[1]);
+   Gluino500_TOFIm->Draw("BOX same");
+   Gluino300_TOFIm->Scale(1/Gluino300_TOFIm->Integral());
+   Gluino300_TOFIm->SetMarkerSize (0.2);
+   Gluino300_TOFIm->SetMarkerColor(Color[0]);
+   Gluino300_TOFIm->SetFillColor(Color[0]);
+   Gluino300_TOFIm->Draw("BOX same");
+
+   leg = new TLegend(0.80,0.93,0.80 - 0.20,0.93 - 6*0.03);
+   leg->SetHeader(LegendFromType(InputPattern).c_str());
+   leg->SetFillColor(0);
+   leg->SetBorderSize(0);
+   leg->AddEntry(Gluino300_TOFIm, "Gluino300"   ,"F");
+   leg->AddEntry(Gluino500_TOFIm, "Gluino500"   ,"F");
+   leg->AddEntry(Gluino800_TOFIm, "Gluino800"   ,"F");
+   leg->Draw();
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1, outpath, "Gluino_TOFIm", true);
+   delete c1;
 
    c1 = new TCanvas("c1","c1", 600, 600);
    Data_PIm_075->SetTitle("");
@@ -907,11 +790,6 @@ void Make2DPlot_Core(string InputPattern){
 
    leg = new TLegend(0.80,0.93,0.80 - 0.30,0.93 - 6*0.03);
    leg->SetHeader(LegendFromType(InputPattern).c_str());
-//   if(IsTrackerOnly){ 
-//      leg->SetHeader("Tracker - Only");
-//   }else{
-//      leg->SetHeader("Tracker + Muon");
-//   }
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
    leg->AddEntry(Data_PIm_075, "M < 100 GeV","P");
@@ -931,7 +809,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
 //   GetPredictionRescale(InputPattern,Rescale, RMS, RecomputeRescale);
 //   RMS = fabs(1.0-Rescale)/2.0;
    Rescale = 1.0;
-   RMS     = 0.0;
+   RMS     = 0.05;
 
    string outpath = InputPattern;
    MakeDirectories(outpath);
@@ -943,11 +821,19 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    TCanvas* c1;
 
    char Buffer[2048];
-   sprintf(Buffer,"%s/Histos.root",InputPattern.c_str());
+   sprintf(Buffer,"%s/Histos_Data.root",InputPattern.c_str());
    InputFile = new TFile(Buffer);
    if(!InputFile || InputFile->IsZombie() || !InputFile->IsOpen() || InputFile->TestBit(TFile::kRecovered) )return;
    TH1D* Pred     = ((TH2D*)GetObjectFromPath(InputFile, string("Pred_") + HistoSuffix   ))->ProjectionY("TmpPredMass"    ,CutIndex+1,CutIndex+1,"o");
    TH1D* Data     = ((TH2D*)GetObjectFromPath(InputFile, string("Data/") + HistoSuffix   ))->ProjectionY("TmpDataMass"    ,CutIndex+1,CutIndex+1,"o");
+
+
+      double D,P,Perr;
+      D = Data->Integral( Data->GetXaxis()->FindBin(0.0),  Data->GetXaxis()->FindBin(75.0));
+      P = Pred->Integral( Pred->GetXaxis()->FindBin(0.0),  Pred->GetXaxis()->FindBin(75.0));
+      Perr = 0; for(int i=Pred->GetXaxis()->FindBin(0.0);i<Pred->GetXaxis()->FindBin(75.0);i++){ Perr += pow(Pred->GetBinError(i),2); }  Perr = sqrt(Perr);
+      printf("%3.0f<M<%3.0f --> D=%9.3f P = %9.3f +- %6.3f(stat) +- %6.3f(syst) (=%6.3f)\n", 0.0,75.0, D, P, Perr, P*(2*RMS),sqrt(Perr*Perr + pow(P*(2*RMS),2)));
+
 
    for(double M=0;M<500;M+=100){
       double D,P,Perr;

@@ -141,80 +141,81 @@ bool shapeSelection(const std::vector<unsigned char> & ampls)
 	Float_t coeff1=1.7;	Float_t coeff2=2.0;
 	Float_t coeffn=0.10;	Float_t coeffnn=0.02; Float_t noise=4.0;
 
-	if(NofMax==1){
+        if(NofMax==1){
 
-		if(MaxOnStart==true){
-			C_M=(Float_t)ampls[0]; C_D=(Float_t)ampls[1];
-				if(ampls.size()<3) shapecdtn=true ;
-				else if(ampls.size()==3){C_Dn=(Float_t)ampls[2] ; if(C_Dn<=coeff1*coeffn*C_D+coeff2*coeffnn*C_M+2*noise || C_D==255) shapecdtn=true;}
-				else if(ampls.size()>3){ C_Dn=(Float_t)ampls[2];  C_Dnn=(Float_t)ampls[3] ;
-							if((C_Dn<=coeff1*coeffn*C_D+coeff2*coeffnn*C_M+2*noise || C_D==255)
-							   && C_Dnn<=coeff1*coeffn*C_Dn+coeff2*coeffnn*C_D+2*noise){
-							 shapecdtn=true;}
-				}
-		}
+                if(MaxOnStart==true){
+                        C_M=(Float_t)ampls[0]; C_D=(Float_t)ampls[1];
+                                if(ampls.size()<3) shapecdtn=true ;
+                                else if(ampls.size()==3){C_Dn=(Float_t)ampls[2] ; if(C_Dn<=coeff1*coeffn*C_D+coeff2*coeffnn*C_M+2*noise || C_D==255) shapecdtn=true;}
+                                else if(ampls.size()>3){ C_Dn=(Float_t)ampls[2];  C_Dnn=(Float_t)ampls[3] ;
+                                                        if((C_Dn<=coeff1*coeffn*C_D+coeff2*coeffnn*C_M+2*noise || C_D==255)
+                                                           && C_Dnn<=coeff1*coeffn*C_Dn+coeff2*coeffnn*C_D+2*noise){
+                                                         shapecdtn=true;}
+                                }
+                }
 
-		if(MaxOnEnd==true){
-			C_M=(Float_t)ampls[ampls.size()-1]; C_D=(Float_t)ampls[ampls.size()-2];
-				if(ampls.size()<3) shapecdtn=true ;
-				else if(ampls.size()==3){C_Dn=(Float_t)ampls[0] ; if(C_Dn<=coeff1*coeffn*C_D+coeff2*coeffnn*C_M+2*noise || C_D==255) shapecdtn=true;}
-				else if(ampls.size()>3){C_Dn=(Float_t)ampls[ampls.size()-3] ; C_Dnn=(Float_t)ampls[ampls.size()-4] ; 
-							if((C_Dn<=coeff1*coeffn*C_D+coeff2*coeffnn*C_M+2*noise || C_D==255)
-					 		   && C_Dnn<=coeff1*coeffn*C_Dn+coeff2*coeffnn*C_D+2*noise){ 
- 							 shapecdtn=true;}
-				}
-		}
+                if(MaxOnEnd==true){
+                        C_M=(Float_t)ampls[ampls.size()-1]; C_D=(Float_t)ampls[ampls.size()-2];
+                                if(ampls.size()<3) shapecdtn=true ;
+                                else if(ampls.size()==3){C_Dn=(Float_t)ampls[0] ; if(C_Dn<=coeff1*coeffn*C_D+coeff2*coeffnn*C_M+2*noise || C_D==255) shapecdtn=true;}
+                                else if(ampls.size()>3){C_Dn=(Float_t)ampls[ampls.size()-3] ; C_Dnn=(Float_t)ampls[ampls.size()-4] ;
+                                                        if((C_Dn<=coeff1*coeffn*C_D+coeff2*coeffnn*C_M+2*noise || C_D==255)
+                                                           && C_Dnn<=coeff1*coeffn*C_Dn+coeff2*coeffnn*C_D+2*noise){
+                                                         shapecdtn=true;}
+                                }
+                }
+                if(MaxInMiddle==true){
+                        C_M=(Float_t)ampls[MaxPos];
+                        int LeftOfMaxPos=MaxPos-1;if(LeftOfMaxPos<=0)LeftOfMaxPos=0;
+                        int RightOfMaxPos=MaxPos+1;if(RightOfMaxPos>=(int)ampls.size())RightOfMaxPos=ampls.size()-1;
+                        //int after = RightOfMaxPos; int before = LeftOfMaxPos; if (after>=(int)ampls.size() ||  before<0)  std::cout<<"invalid read MaxPos:"<<MaxPos <<"size:"<<ampls.size() <<std::endl; 
+                        if(ampls[LeftOfMaxPos]<ampls[RightOfMaxPos]){ C_D=(Float_t)ampls[RightOfMaxPos]; C_Mn=(Float_t)ampls[LeftOfMaxPos];CDPos=RightOfMaxPos;} else{ C_D=(Float_t)ampls[LeftOfMaxPos]; C_Mn=(Float_t)ampls[RightOfMaxPos];CDPos=LeftOfMaxPos;}
+                        if(C_Mn<coeff1*coeffn*C_M+coeff2*coeffnn*C_D+2*noise || C_M==255){
+                                if(ampls.size()==3) shapecdtn=true ;
+                                else if(ampls.size()>3){
+                                        if(CDPos>MaxPos){
+                                                if(ampls.size()-CDPos-1==0){
+                                                        C_Dn=0; C_Dnn=0;
+                                                }
+                                                if(ampls.size()-CDPos-1==1){
+                                                        C_Dn=(Float_t)ampls[CDPos+1];
+                                                        C_Dnn=0;
+                                                }
+                                                if(ampls.size()-CDPos-1>1){
+                                                        C_Dn=(Float_t)ampls[CDPos+1];
+                                                        C_Dnn=(Float_t)ampls[CDPos+2];
+                                                }
+                                                if(MaxPos>=2){
+                                                        C_Mnn=(Float_t)ampls[MaxPos-2];
+                                                }
+                                                else if(MaxPos<2) C_Mnn=0;
+                                        }
+                                        if(CDPos<MaxPos){
+                                                if(CDPos==0){
+                                                        C_Dn=0; C_Dnn=0;
+                                                }
+                                                if(CDPos==1){
+                                                        C_Dn=(Float_t)ampls[0];
+                                                        C_Dnn=0;
+                                                }
+                                                if(CDPos>1){
+                                                        C_Dn=(Float_t)ampls[CDPos-1];
+                                                        C_Dnn=(Float_t)ampls[CDPos-2];
+                                                }
+                                                if(ampls.size()-LeftOfMaxPos>1 && MaxPos+2<(int)(ampls.size())-1){
+                                                        C_Mnn=(Float_t)ampls[MaxPos+2];
+                                                }else C_Mnn=0;
+                                        }
+                                        if((C_Dn<=coeff1*coeffn*C_D+coeff2*coeffnn*C_M+2*noise || C_D==255)
+                                           && C_Mnn<=coeff1*coeffn*C_Mn+coeff2*coeffnn*C_M+2*noise
+                                           && C_Dnn<=coeff1*coeffn*C_Dn+coeff2*coeffnn*C_D+2*noise) {
+                                                shapecdtn=true;
+                                        }
 
-		if(MaxInMiddle==true){
-			C_M=(Float_t)ampls[MaxPos];
-			if(ampls[MaxPos-1]<ampls[MaxPos+1]){ C_D=(Float_t)ampls[MaxPos+1]; C_Mn=(Float_t)ampls[MaxPos-1];CDPos=MaxPos+1;} else{ C_D=(Float_t)ampls[MaxPos-1]; C_Mn=(Float_t)ampls[MaxPos+1];CDPos=MaxPos-1;}
-			if(C_Mn<coeff1*coeffn*C_M+coeff2*coeffnn*C_D+2*noise || C_M==255){ 
-				if(ampls.size()==3) shapecdtn=true ;
-				else if(ampls.size()>3){
-					if(CDPos>MaxPos){
-						if(ampls.size()-CDPos-1==0){
-							C_Dn=0; C_Dnn=0;
-						}
-						if(ampls.size()-CDPos-1==1){
-							C_Dn=(Float_t)ampls[CDPos+1];
-							C_Dnn=0;
-						}
-						if(ampls.size()-CDPos-1>1){
-							C_Dn=(Float_t)ampls[CDPos+1];
-							C_Dnn=(Float_t)ampls[CDPos+2];
-						}
-						if(MaxPos>=2){
-							C_Mnn=(Float_t)ampls[MaxPos-2];
-						}
-						else if(MaxPos<2) C_Mnn=0;
-					}
-					if(CDPos<MaxPos){
-						if(CDPos==0){
-							C_Dn=0; C_Dnn=0;
-						}
-						if(CDPos==1){
-							C_Dn=(Float_t)ampls[0];
-							C_Dnn=0;
-						}
-						if(CDPos>1){
-							C_Dn=(Float_t)ampls[CDPos-1];
-							C_Dnn=(Float_t)ampls[CDPos-2];
-						}
-						if(ampls.size()-MaxPos-1>1){
-							C_Mnn=(Float_t)ampls[MaxPos+2];
-						}
-						else if(ampls.size()-MaxPos-1<=1) C_Mnn=0;							
-					}
-					if((C_Dn<=coeff1*coeffn*C_D+coeff2*coeffnn*C_M+2*noise || C_D==255)
-					   && C_Mnn<=coeff1*coeffn*C_Mn+coeff2*coeffnn*C_M+2*noise
-					   && C_Dnn<=coeff1*coeffn*C_Dn+coeff2*coeffnn*C_D+2*noise) {
-						shapecdtn=true;
-					}
-
-				}
-			}			
-		}
-	}
+                                }
+                        }
+                }
+        }
 	if(ampls.size()==1){shapecdtn=true;}
 
    return shapecdtn;
@@ -264,6 +265,10 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
    if(!dEdxMCollH.isValid()){printf("Invalid dEdx Mass collection\n");return;}
    DeDxData dedxMObj  = dEdxMCollH->get(track.key());
 
+   fwlite::Handle<DeDxDataValueMap> dEdxMNPCollH;
+   dEdxMNPCollH.getByLabel(ev, "dedxNPHarm2");
+   if(!dEdxMNPCollH.isValid()){printf("Invalid dEdx Mass collection\n");return;}
+   DeDxData dedxMNPObj  = dEdxMNPCollH->get(track.key());
 
    fwlite::Handle<MuonTimeExtraMap> TOFDTCollH;
    TOFDTCollH.getByLabel(ev, "muontiming","dt");
@@ -293,13 +298,16 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
    fprintf(pFile,"Candidate Type = %i --> Mass : %7.2f\n",hscp.type(),Mass);
    fprintf(pFile,"------------------------------------------ EVENT INFO ---------------------------------------------\n");
    fprintf(pFile,"Run=%i Lumi=%i Event=%i BX=%i  Orbit=%i Store=%i\n",ev.eventAuxiliary().run(),ev.eventAuxiliary().luminosityBlock(),ev.eventAuxiliary().event(),ev.eventAuxiliary().luminosityBlock(),ev.eventAuxiliary().orbitNumber(),ev.eventAuxiliary().storeNumber());
+      edm::TriggerResultsByName tr = ev.triggerResultsByName("Merge");
+   fprintf(pFile,"Trigger: SingleMu=%i  DoubleMu=%i  PFMHT=%i (CaloMET=%i)\n",(int)tr.accept(tr.triggerIndex("HscpPathSingleMu")), (int)tr.accept(tr.triggerIndex("HscpPathDoubleMu")), (int)tr.accept(tr.triggerIndex("HscpPathPFMet")), (int)tr.accept(tr.triggerIndex("HscpPathCaloMet")));
    fprintf(pFile,"------------------------------------------ INNER TRACKER ------------------------------------------\n");
    fprintf(pFile,"Quality = %i Chi2/NDF=%6.2f dz=+%6.2f dxy=%+6.2f charge:%+i\n",track->qualityMask(), track->chi2()/track->ndof(), dz, dxy, track->charge());
    fprintf(pFile,"P=%7.2f  Pt=%7.2f+-%6.2f (Cut=%6.2f) Eta=%+6.2f  Phi=%+6.2f  NOH=%2i\n",track->p(),track->pt(), track->ptError(), CutPt, track->eta(), track->phi(), track->found() );
 
    fprintf(pFile,"------------------------------------------ DEDX INFO ----------------------------------------------\n");
-   fprintf(pFile,"dEdx for selection:%6.2f (Cut=%6.2f) NOM %2i NOS %2i\n",dedxSObj.dEdx(),CutI,dedxSObj.numberOfMeasurements(),dedxSObj.numberOfSaturatedMeasurements());
-   fprintf(pFile,"dEdx for mass reco:%6.2f             NOM %2i NOS %2i  --> Beta dEdx = %6.2f\n",dedxMObj.dEdx(),dedxMObj.numberOfMeasurements(),dedxMObj.numberOfSaturatedMeasurements(), GetIBeta(dedxMObj.dEdx()) );
+   fprintf(pFile,"dEdx for selection     :%6.2f (Cut=%6.2f) NOM %2i NOS %2i\n",dedxSObj.dEdx(),CutI,dedxSObj.numberOfMeasurements(),dedxSObj.numberOfSaturatedMeasurements());
+   fprintf(pFile,"dEdx for mass reco     :%6.2f             NOM %2i NOS %2i  --> Beta dEdx = %6.2f\n",dedxMObj.dEdx(),dedxMObj.numberOfMeasurements(),dedxMObj.numberOfSaturatedMeasurements(), GetIBeta(dedxMObj.dEdx()) );
+   fprintf(pFile,"dEdx for mass reco (NP):%6.2f             NOM %2i NOS %2i  --> Beta dEdx = %6.2f\n",dedxMNPObj.dEdx(),dedxMNPObj.numberOfMeasurements(),dedxMNPObj.numberOfSaturatedMeasurements(), GetIBeta(dedxMNPObj.dEdx()) );
    for(unsigned int h=0;h<track->recHitsSize();h++){
         TrackingRecHit* recHit = (track->recHit(h))->clone();
         if(const SiStripMatchedRecHit2D* matchedHit=dynamic_cast<const SiStripMatchedRecHit2D*>(recHit)){
@@ -310,7 +318,7 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
        }else if(const SiStripRecHit1D* single1DHit=dynamic_cast<const SiStripRecHit1D*>(recHit)){
            fprintf(pFile,"1D    Hit ");printCluster(pFile,(single1DHit->cluster()).get());
        }else if(const SiPixelRecHit* pixelHit=dynamic_cast<const SiPixelRecHit*>(recHit)){
-           fprintf(pFile,"Pixel Hit\n");
+           fprintf(pFile,"Pixel Hit  --> Charge = %i\n",(int)pixelHit->cluster()->charge());
       }
    }
 
@@ -391,7 +399,7 @@ void DumpInfo(string Pattern, int CutIndex=0)
    GetMCDefinition(MCsample);
    GetInputFiles(DataFileName, "Data");
 
-   TFile* InputFile      = new TFile((Pattern + "/Histos.root").c_str());
+   TFile* InputFile      = new TFile((Pattern + "/Histos_Data.root").c_str());
    TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
    TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I");
    TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF");
