@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/GRun/V61 (CMSSW_4_2_0_HLT2)
+# /dev/CMSSW_4_2_0/GRun/V62 (CMSSW_4_2_0_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V61')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V62')
 )
 
 streams = cms.PSet( 
@@ -127,7 +127,7 @@ datasets = cms.PSet(
   ExpressPhysics = cms.vstring( 'HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v4',
     'HLT_Ele52_CaloIdVT_TrkIdT_v1',
     'HLT_HT550_v4',
-    'HLT_IsoMu24_v4',
+    'HLT_IsoMu30_v4',
     'HLT_Jet370_v3',
     'HLT_L1Tech_BSC_minBias_threshold1_v4',
     'HLT_MET200_v3',
