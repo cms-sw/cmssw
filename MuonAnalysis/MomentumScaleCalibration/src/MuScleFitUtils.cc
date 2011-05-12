@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2011/03/23 16:14:35 $
- *  $Revision: 1.49 $
+ *  $Date: 2011/03/31 15:57:45 $
+ *  $Revision: 1.50 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -140,6 +140,9 @@ std::vector<double> MuScleFitUtils::parResolStep;
 std::vector<double> MuScleFitUtils::parResolMin;
 std::vector<double> MuScleFitUtils::parResolMax;
 std::vector<double> MuScleFitUtils::parScale;
+std::vector<double> MuScleFitUtils::parScaleStep;
+std::vector<double> MuScleFitUtils::parScaleMin;
+std::vector<double> MuScleFitUtils::parScaleMax;
 std::vector<double> MuScleFitUtils::parCrossSection;
 std::vector<double> MuScleFitUtils::parBgr;
 std::vector<int> MuScleFitUtils::parResolFix;
@@ -174,11 +177,11 @@ double MuScleFitUtils::x[][10000];
 
 // Probability matrices and normalization values
 // ---------------------------------------------
-int MuScleFitUtils::nbins = 1000;
-double MuScleFitUtils::GLZValue[][1001][1001];
-double MuScleFitUtils::GLZNorm[][1001];
-double MuScleFitUtils::GLValue[][1001][1001];
-double MuScleFitUtils::GLNorm[][1001];
+int MuScleFitUtils::nbins = 1001;
+double MuScleFitUtils::GLZValue[][1002][1002];
+double MuScleFitUtils::GLZNorm[][1002];
+double MuScleFitUtils::GLValue[][1002][1002];
+double MuScleFitUtils::GLNorm[][1002];
 double MuScleFitUtils::ResMaxSigma[];
 
 // Masses and widths from PDG 2006, half widths to be revised
@@ -728,7 +731,7 @@ double MuScleFitUtils::massProb( const double & mass, const double & resEta, con
  * - if passing iRes != 0, iY is used to select the resonance
  */
 double MuScleFitUtils::probability( const double & mass, const double & massResol,
-                                    const double GLvalue[][1001][1001], const double GLnorm[][1001],
+                                    const double GLvalue[][1002][1002], const double GLnorm[][1002],
                                     const int iRes, const int iY )
 {
   if( iRes == 0 && iY > 23 ) {
@@ -1259,8 +1262,19 @@ void MuScleFitUtils::minimizeLikelihood()
   // Take the number of parameters in the resolutionFunction and displace the arrays passed to the scaleFunction
   int resParNum = MuScleFitUtils::resolutionFunctionForVec->parNum();
 
-  MuScleFitUtils::scaleFunctionForVec->setParameters( &(Start[resParNum]), &(Step[resParNum]), &(Mini[resParNum]), &(Maxi[resParNum]),
-                                                      &(ind[resParNum]), &(parname[resParNum]), parScale, parScaleOrder, MuonType );
+  if( !parScaleStep.empty() && !parScaleMin.empty() && !parScaleMax.empty() ) {
+    MuScleFitUtils::scaleFunctionForVec->setParameters( &(Start[resParNum]), &(Step[resParNum]),
+							&(Mini[resParNum]), &(Maxi[resParNum]),
+							&(ind[resParNum]), &(parname[resParNum]),
+							parScale, parScaleOrder, parScaleStep,
+							parScaleMin, parScaleMax, MuonType );
+  }
+  else {
+    MuScleFitUtils::scaleFunctionForVec->setParameters( &(Start[resParNum]), &(Step[resParNum]),
+							&(Mini[resParNum]), &(Maxi[resParNum]),
+							&(ind[resParNum]), &(parname[resParNum]),
+							parScale, parScaleOrder, MuonType );
+  }
 
   // Initialize cross section parameters
   int crossSectionParShift = resParNum + MuScleFitUtils::scaleFunctionForVec->parNum();

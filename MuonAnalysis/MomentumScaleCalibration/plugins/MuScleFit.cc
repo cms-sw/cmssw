@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2011/03/31 15:57:45 $
-//  $Revision: 1.105 $
+//  $Date: 2011/04/13 13:17:45 $
+//  $Revision: 1.106 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -161,8 +161,8 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) :
 
   // Boundaries for h-function computation (to be improved!)
   // -------------------------------------------------------
-  minResMass_hwindow[0] = 76.;
-  maxResMass_hwindow[0] = 106.;
+  minResMass_hwindow[0] = 71.1876; // 76.;
+  maxResMass_hwindow[0] = 111.188; // 106.;
   minResMass_hwindow[1] = 10.15;
   maxResMass_hwindow[1] = 10.55;
   minResMass_hwindow[2] = 9.8;
@@ -215,6 +215,9 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) :
   MuScleFitUtils::parResolMin     = pset.getUntrackedParameter<std::vector<double> >("parResolMin", std::vector<double>());
   MuScleFitUtils::parResolMax     = pset.getUntrackedParameter<std::vector<double> >("parResolMax", std::vector<double>());
   MuScleFitUtils::parScale        = pset.getParameter<std::vector<double> >("parScale");
+  MuScleFitUtils::parScaleStep    = pset.getUntrackedParameter<std::vector<double> >("parScaleStep", std::vector<double>());
+  MuScleFitUtils::parScaleMin     = pset.getUntrackedParameter<std::vector<double> >("parScaleMin", std::vector<double>());
+  MuScleFitUtils::parScaleMax     = pset.getUntrackedParameter<std::vector<double> >("parScaleMax", std::vector<double>());
   MuScleFitUtils::parCrossSection = pset.getParameter<std::vector<double> >("parCrossSection");
   MuScleFitUtils::parBgr          = pset.getParameter<std::vector<double> >("parBgr");
   MuScleFitUtils::parResolFix        = pset.getParameter<std::vector<int> >("parResolFix");
