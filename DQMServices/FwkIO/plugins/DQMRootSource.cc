@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.1 2011/05/11 18:12:54 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.2 2011/05/11 20:44:27 chrjones Exp $
 //
 
 // system include files
@@ -16,6 +16,7 @@
 #include <string>
 #include <map>
 #include <list>
+#include <set>
 #include "TFile.h"
 #include "TTree.h"
 #include "TString.h"
@@ -169,14 +170,14 @@ namespace {
     TreeReaderBase() {}
     virtual ~TreeReaderBase() {}
     
-    void read(ULong64_t iIndex, DQMStore& iStore, bool iIsLumi){
-      doRead(iIndex,iStore,iIsLumi);
+    MonitorElement* read(ULong64_t iIndex, DQMStore& iStore, bool iIsLumi){
+      return doRead(iIndex,iStore,iIsLumi);
     }
     virtual void setTree(TTree* iTree) =0;
   protected:
     TTree* m_tree;
   private:
-    virtual void doRead(ULong64_t iIndex, DQMStore& iStore, bool iIsLumi)=0;
+    virtual MonitorElement* doRead(ULong64_t iIndex, DQMStore& iStore, bool iIsLumi)=0;
   };
   
   template<class T>
@@ -184,7 +185,7 @@ namespace {
   public:
     TreeObjectReader():m_tree(0),m_fullName(0),m_buffer(0),m_tag(0){
     }
-    virtual void doRead(ULong64_t iIndex, DQMStore& iStore, bool iIsLumi) {
+    virtual MonitorElement* doRead(ULong64_t iIndex, DQMStore& iStore, bool iIsLumi) {
       m_tree->GetEntry(iIndex);
       MonitorElement* element = iStore.get(*m_fullName);
       if(0 == element) {
@@ -200,6 +201,7 @@ namespace {
       if(0!= m_tag) {
         iStore.tag(element,m_tag);
       }
+      return element;
     }
     virtual void setTree(TTree* iTree)  {
       m_tree = iTree;
@@ -219,7 +221,7 @@ namespace {
   public:
     TreeSimpleReader():m_tree(0),m_fullName(0),m_buffer(),m_tag(0){
     }
-    virtual void doRead(ULong64_t iIndex, DQMStore& iStore,bool iIsLumi) {
+    virtual MonitorElement* doRead(ULong64_t iIndex, DQMStore& iStore,bool iIsLumi) {
       m_tree->GetEntry(iIndex);
       MonitorElement* element = iStore.get(*m_fullName);
       if(0 == element) {
@@ -235,6 +237,7 @@ namespace {
       if(0!=m_tag) {
         iStore.tag(element,m_tag);
       }
+      return element;
     }
     virtual void setTree(TTree* iTree)  {
       m_tree = iTree;
@@ -305,6 +308,7 @@ class DQMRootSource : public edm::InputSource
       std::list<unsigned int> m_orderedIndices;
       unsigned int m_lastSeenRun;
       bool m_doNotReadRemainingPartsOfFileSinceFrameworkTerminating;
+      std::set<MonitorElement*> m_lumiElements;
 };
 
 //
@@ -426,6 +430,12 @@ DQMRootSource::readRun_(boost::shared_ptr<edm::RunPrincipal> rpCache)
 boost::shared_ptr<edm::LuminosityBlockPrincipal> 
 DQMRootSource::readLuminosityBlock_( boost::shared_ptr<edm::LuminosityBlockPrincipal> lbCache) 
 {
+  //NOTE: need to reset all lumi block elements at this point
+  for(std::set<MonitorElement*>::iterator it = m_lumiElements.begin(), itEnd = m_lumiElements.end();
+      it != itEnd;
+      ++it) {
+      (*it)->Reset();
+  }
   readNextItemType();
   std::cout <<"readLuminosityBlock_"<<std::endl;
   return lbCache;
@@ -491,7 +501,11 @@ DQMRootSource::readElements() {
     for(ULong64_t index = runLumiRange.m_firstIndex, endIndex=runLumiRange.m_lastIndex+1;
     index != endIndex;
     ++index) {
-      reader->read(index,*store,runLumiRange.m_lumi !=0);
+      bool isLumi = runLumiRange.m_lumi !=0;
+      MonitorElement* element = reader->read(index,*store,isLumi);
+      if(isLumi) {
+        m_lumiElements.insert(element);
+      }
     }
     ++m_presentIndexItr;
     if(m_presentIndexItr != m_orderedIndices.end()) {
