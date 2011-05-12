@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.2 2011/05/11 20:44:27 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.3 2011/05/12 00:10:22 chrjones Exp $
 //
 
 // system include files
@@ -49,11 +49,11 @@
 namespace {
   //adapter functions
   MonitorElement* createElement(DQMStore& iStore, const char* iName, TH1F* iHist) {
-    std::cout <<"create: hist size "<<iName <<" "<<iHist->GetEffectiveEntries()<<std::endl;
+    //std::cout <<"create: hist size "<<iName <<" "<<iHist->GetEffectiveEntries()<<std::endl;
     return iStore.book1D(iName, iHist);
   }
   void mergeWithElement(MonitorElement* iElement, TH1F* iHist) {
-    std::cout <<"merge: hist size "<<iElement->getName() <<" "<<iHist->GetEffectiveEntries()<<std::endl;
+    //std::cout <<"merge: hist size "<<iElement->getName() <<" "<<iHist->GetEffectiveEntries()<<std::endl;
     TList list;
     list.Add(iHist);
     iElement->getTH1F()->Merge(&list);
@@ -396,13 +396,13 @@ DQMRootSource::readEvent_()
 edm::InputSource::ItemType 
 DQMRootSource::getNextItemType()
 {
-  std::cout <<"getNextItemType "<<m_nextItemType<<std::endl;
+  //std::cout <<"getNextItemType "<<m_nextItemType<<std::endl;
   return m_nextItemType;
 }
 boost::shared_ptr<edm::RunAuxiliary> 
 DQMRootSource::readRunAuxiliary_()
 {
-  std::cout <<"readRunAuxiliary_"<<std::endl;
+  //std::cout <<"readRunAuxiliary_"<<std::endl;
   assert(m_nextIndexItr != m_orderedIndices.end());
   const RunLumiToRange runLumiRange = m_runlumiToRange[*m_nextIndexItr];
 
@@ -412,7 +412,7 @@ DQMRootSource::readRunAuxiliary_()
 boost::shared_ptr<edm::LuminosityBlockAuxiliary> 
 DQMRootSource::readLuminosityBlockAuxiliary_()
 {
-  std::cout <<"readLuminosityBlockAuxiliary_"<<std::endl;
+  //std::cout <<"readLuminosityBlockAuxiliary_"<<std::endl;
   assert(m_nextIndexItr != m_orderedIndices.end());
   const RunLumiToRange runLumiRange = m_runlumiToRange[*m_nextIndexItr];
   m_lumiAux.id() = edm::LuminosityBlockID(runLumiRange.m_run,runLumiRange.m_lumi);
@@ -424,7 +424,7 @@ DQMRootSource::readRun_(boost::shared_ptr<edm::RunPrincipal> rpCache)
 {
   readNextItemType();
   m_lastSeenRun = rpCache->id().run();
-  std::cout <<"readRun_"<<std::endl;
+  //std::cout <<"readRun_"<<std::endl;
   return rpCache;
 }
 boost::shared_ptr<edm::LuminosityBlockPrincipal> 
@@ -437,13 +437,13 @@ DQMRootSource::readLuminosityBlock_( boost::shared_ptr<edm::LuminosityBlockPrinc
       (*it)->Reset();
   }
   readNextItemType();
-  std::cout <<"readLuminosityBlock_"<<std::endl;
+  //std::cout <<"readLuminosityBlock_"<<std::endl;
   return lbCache;
 }
 
 boost::shared_ptr<edm::FileBlock>
 DQMRootSource::readFile_() {
-  std::cout <<"readFile_"<<std::endl;
+  //std::cout <<"readFile_"<<std::endl;
   setupFile(m_fileIndex);
   ++m_fileIndex;
   readNextItemType();
@@ -455,7 +455,7 @@ DQMRootSource::readFile_() {
 
 void 
 DQMRootSource::endLuminosityBlock(edm::LuminosityBlock& iLumi) {
-  std::cout <<"DQMRootSource::endLumi"<<std::endl;
+  //std::cout <<"DQMRootSource::endLumi"<<std::endl;
   RunLumiToRange runLumiRange = m_runlumiToRange[*m_presentIndexItr];
   if(runLumiRange.m_run == iLumi.id().run() &&
      runLumiRange.m_lumi == iLumi.id().luminosityBlock()) {
@@ -464,7 +464,7 @@ DQMRootSource::endLuminosityBlock(edm::LuminosityBlock& iLumi) {
 }
 void 
 DQMRootSource::endRun(edm::Run& iRun){
-  std::cout <<"DQMRootSource::endRun"<<std::endl;
+  //std::cout <<"DQMRootSource::endRun"<<std::endl;
   RunLumiToRange runLumiRange = m_runlumiToRange[*m_presentIndexItr];
   //NOTE: it is possible to have an endRun when all we have stored is lumis
   if(runLumiRange.m_lumi == 0 && 
@@ -479,7 +479,7 @@ DQMRootSource::endRun(edm::Run& iRun){
 
 void
 DQMRootSource::closeFile_() {
-  std::cout <<"closeFile_"<<std::endl;
+  //std::cout <<"closeFile_"<<std::endl;
   //when going from one file to the next the framework does not call
   // 'endRun' or 'endLumi' until it looks to see if the other file contains
   // a new run or lumi. If the other file doesn't then  
@@ -531,15 +531,15 @@ DQMRootSource::readNextItemType()
     assert(m_nextIndexItr != m_orderedIndices.end());
 
     if(runLumiRange.m_lumi ==0) {
-      std::cout <<"reading run "<<runLumiRange.m_run<<std::endl;
+      //std::cout <<"reading run "<<runLumiRange.m_run<<std::endl;
       m_runAux.id() = edm::RunID(runLumiRange.m_run);    
     } else {
       if(m_nextItemType == edm::InputSource::IsRun) {
-        std::cout <<" proceeding with dummy run";
+        //std::cout <<" proceeding with dummy run";
         m_nextItemType = edm::InputSource::IsLumi;
         return;
       }
-      std::cout <<"reading lumi "<<runLumiRange.m_run<<","<<runLumiRange.m_lumi<<std::endl;
+      //std::cout <<"reading lumi "<<runLumiRange.m_run<<","<<runLumiRange.m_lumi<<std::endl;
       m_lumiAux.id() = edm::LuminosityBlockID(runLumiRange.m_run,runLumiRange.m_lumi);
     }
     ++m_nextIndexItr;
@@ -556,7 +556,7 @@ DQMRootSource::readNextItemType()
     if(m_nextIndexItr == m_orderedIndices.end()) {
       //go to next file
       m_nextItemType = edm::InputSource::IsFile;
-      std::cout <<"going to next file"<<std::endl;
+      //std::cout <<"going to next file"<<std::endl;
       if(m_fileIndex == m_fileNames.size()) {
         m_nextItemType = edm::InputSource::IsStop;
       }       
