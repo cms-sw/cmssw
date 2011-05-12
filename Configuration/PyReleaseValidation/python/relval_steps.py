@@ -208,8 +208,8 @@ U80by2={'--relval': '80,2'}
 hiDefaults={'--conditions':'auto:starthi',
            '--scenario':'HeavyIons'}
 
-step1['HydjetQ_MinBias_2760GeV']=merge([{'-n':'1'},hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U500by5)])
-step1['HydjetQ_B0_2760GeV']=merge([{'-n':'1'},hiDefaults,genS('Hydjet_Quenched_B0_2760GeV_cfi',U80by2)])
+step1['HydjetQ_MinBias_2760GeV']=merge([{'-n':'0'},hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U500by5)])
+step1['HydjetQ_B0_2760GeV']=merge([{'-n':'0'},hiDefaults,genS('Hydjet_Quenched_B0_2760GeV_cfi',U80by2)])
 step1['HydjetQ_B0_2760GeVPUINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B0_2760GeV/*/GEN-SIM-DIGI-RAW-HLTDEBUG')}
 
 
