@@ -41,7 +41,7 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
 
     # input conversions
     PFConversions = cms.InputTag("pfConversions"),
-    useConversions = cms.bool(False),
+    useConversions = cms.bool(True),
 
     # input V0
     PFV0 = cms.InputTag("pfV0"),

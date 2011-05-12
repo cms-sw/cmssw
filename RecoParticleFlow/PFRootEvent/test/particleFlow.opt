@@ -465,7 +465,7 @@ particle_flow   nuclearInteractionsPurity 1
 particle_flow   rejectTracks_Bad          1
 particle_flow   rejectTracks_Step45       1
 particle_flow   usePFNuclearInteractions  1
-particle_flow   usePFConversions          0
+particle_flow   usePFConversions          1
 particle_flow   usePFV0s                  0
 
 // The maximal relative error on the track in a displaced vertex

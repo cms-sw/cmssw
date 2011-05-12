@@ -3064,7 +3064,7 @@ PFAlgo::isFromSecInt(const reco::PFBlockElement& eTrack, string order) const {
 
   reco::PFBlockElement::TrackType T_TO_DISP = reco::PFBlockElement::T_TO_DISP;
   reco::PFBlockElement::TrackType T_FROM_DISP = reco::PFBlockElement::T_FROM_DISP;
-  reco::PFBlockElement::TrackType T_FROM_GAMMACONV = reco::PFBlockElement::T_FROM_GAMMACONV;
+  //  reco::PFBlockElement::TrackType T_FROM_GAMMACONV = reco::PFBlockElement::T_FROM_GAMMACONV;
   reco::PFBlockElement::TrackType T_FROM_V0 = reco::PFBlockElement::T_FROM_V0;
 
   bool bPrimary = (order.find("primary") != string::npos);
@@ -3078,9 +3078,9 @@ PFAlgo::isFromSecInt(const reco::PFBlockElement& eTrack, string order) const {
   if (bSecondary && isFromDisp ) return true;
   if (bAll && ( isToDisp || isFromDisp ) ) return true;
 
-  bool isFromConv = usePFConversions_ && eTrack.trackType(T_FROM_GAMMACONV);
+//   bool isFromConv = usePFConversions_ && eTrack.trackType(T_FROM_GAMMACONV);
 
-  if ((bAll || bSecondary)&& isFromConv) return true;
+//   if ((bAll || bSecondary)&& isFromConv) return true;
 
   bool isFromDecay = (bAll || bSecondary) && usePFDecays_ && eTrack.trackType(T_FROM_V0);
 
