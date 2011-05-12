@@ -41,7 +41,7 @@ l1tRate = cms.EDAnalyzer("L1TRate",
 
   # if srcAlgoXSecFit = 0 we need to define 
   ## Online
-  oracleDB   = cms.string("oracle://CMS_OMDS_LB/CMS_TRG_R")
+  oracleDB   = cms.string("oracle://CMS_OMDS_LB/CMS_TRG_R"),
   pathCondDB = cms.string("/nfshome0/centraltspro/secure/"),                
 
   ## Offline
