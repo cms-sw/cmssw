@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.3 2011/05/12 00:10:22 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.4 2011/05/12 00:22:55 chrjones Exp $
 //
 
 // system include files
@@ -43,6 +43,7 @@
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "format.h"
 
@@ -52,75 +53,81 @@ namespace {
     //std::cout <<"create: hist size "<<iName <<" "<<iHist->GetEffectiveEntries()<<std::endl;
     return iStore.book1D(iName, iHist);
   }
+  //NOTE: the merge logic comes from DataFormats/Histograms/interface/MEtoEDMFormat.h
+  void mergeTogether(TH1* iOriginal,TH1* iToAdd) {
+    if(iOriginal->TestBit(TH1::kCanRebin)==true && iToAdd->TestBit(TH1::kCanRebin) ==true) {
+      TList list;
+      list.Add(iToAdd);
+      if( -1 == iOriginal->Merge(&list)) {
+        edm::LogError("MergeFailure")<<"Failed to merge DQM element "<<iOriginal->GetName();
+      }
+    } else {
+      if (iOriginal->GetNbinsX() == iToAdd->GetNbinsX() &&
+          iOriginal->GetXaxis()->GetXmin() == iToAdd->GetXaxis()->GetXmin() &&
+          iOriginal->GetXaxis()->GetXmax() == iToAdd->GetXaxis()->GetXmax() &&
+          iOriginal->GetNbinsY() == iToAdd->GetNbinsY() &&
+          iOriginal->GetYaxis()->GetXmin() == iToAdd->GetYaxis()->GetXmin() &&
+          iOriginal->GetYaxis()->GetXmax() == iToAdd->GetYaxis()->GetXmax() &&
+          iOriginal->GetNbinsZ() == iToAdd->GetNbinsZ() &&
+          iOriginal->GetZaxis()->GetXmin() == iToAdd->GetZaxis()->GetXmin() &&
+          iOriginal->GetZaxis()->GetXmax() == iToAdd->GetZaxis()->GetXmax()) {
+          iOriginal->Add(iToAdd);
+      } else {
+        edm::LogError("MergeFailure")<<"Found histograms with different axis limitsm '"<<iOriginal->GetName()<<"' not merged.";
+      }
+    } 
+  }
   void mergeWithElement(MonitorElement* iElement, TH1F* iHist) {
     //std::cout <<"merge: hist size "<<iElement->getName() <<" "<<iHist->GetEffectiveEntries()<<std::endl;
-    TList list;
-    list.Add(iHist);
-    iElement->getTH1F()->Merge(&list);
+    mergeTogether(iElement->getTH1F(),iHist);
   }
   MonitorElement* createElement(DQMStore& iStore, const char* iName, TH1S* iHist) {
     return iStore.book1S(iName, iHist);
   }
   void mergeWithElement(MonitorElement* iElement, TH1S* iHist) {
-    TList list;
-    list.Add(iHist);
-    iElement->getTH1S()->Merge(&list);
+    mergeTogether(iElement->getTH1S(),iHist);
   }  
   MonitorElement* createElement(DQMStore& iStore, const char* iName, TH1D* iHist) {
     return iStore.book1DD(iName, iHist);
   }
   void mergeWithElement(MonitorElement* iElement, TH1D* iHist) {
-    TList list;
-    list.Add(iHist);
-    iElement->getTH1D()->Merge(&list);
+    mergeTogether(iElement->getTH1D(),iHist);
   }
   MonitorElement* createElement(DQMStore& iStore, const char* iName, TH2F* iHist) {
     return iStore.book2D(iName, iHist);
   }
   void mergeWithElement(MonitorElement* iElement, TH2F* iHist) {
-    TList list;
-    list.Add(iHist);
-    iElement->getTH2F()->Merge(&list);
+    mergeTogether(iElement->getTH2F(),iHist);
   }
   MonitorElement* createElement(DQMStore& iStore, const char* iName, TH2S* iHist) {
     return iStore.book2S(iName, iHist);
   }
   void mergeWithElement(MonitorElement* iElement, TH2S* iHist) {
-    TList list;
-    list.Add(iHist);
-    iElement->getTH2S()->Merge(&list);
+    mergeTogether(iElement->getTH2S(),iHist);
   }  
   MonitorElement* createElement(DQMStore& iStore, const char* iName, TH2D* iHist) {
     return iStore.book2DD(iName, iHist);
   }
   void mergeWithElement(MonitorElement* iElement, TH2D* iHist) {
-    TList list;
-    list.Add(iHist);
-    iElement->getTH2D()->Merge(&list);
+    mergeTogether(iElement->getTH2D(),iHist);
   }
   MonitorElement* createElement(DQMStore& iStore, const char* iName, TH3F* iHist) {
     return iStore.book3D(iName, iHist);
   }
   void mergeWithElement(MonitorElement* iElement, TH3F* iHist) {
-    TList list;
-    list.Add(iHist);
-    iElement->getTH3F()->Merge(&list);
+    mergeTogether(iElement->getTH3F(),iHist);
   }
   MonitorElement* createElement(DQMStore& iStore, const char* iName, TProfile* iHist) {
     return iStore.bookProfile(iName, iHist);
   }
   void mergeWithElement(MonitorElement* iElement, TProfile* iHist) {
-    TList list;
-    list.Add(iHist);
-    iElement->getTProfile()->Merge(&list);
+    mergeTogether(iElement->getTProfile(),iHist);
   }
   MonitorElement* createElement(DQMStore& iStore, const char* iName, TProfile2D* iHist) {
     return iStore.bookProfile2D(iName, iHist);
   }
   void mergeWithElement(MonitorElement* iElement, TProfile2D* iHist) {
-    TList list;
-    list.Add(iHist);
-    iElement->getTProfile2D()->Merge(&list);
+    mergeTogether(iElement->getTProfile2D(),iHist);
   }
 
   MonitorElement* createElement(DQMStore& iStore, const char* iName, Long64_t& iValue) {
@@ -128,8 +135,20 @@ namespace {
     e->Fill(iValue);
     return e;
   }
+  
+  //NOTE: the merge logic comes from DataFormats/Histograms/interface/MEtoEDMFormat.h
   void mergeWithElement(MonitorElement* iElement, Long64_t& iValue) {
-    iElement->Fill(iValue+iElement->getIntValue());
+    const std::string& name = iElement->getFullname();
+    if(name.find("EventInfo/processedEvents") != std::string::npos) {
+      iElement->Fill(iValue+iElement->getIntValue());
+    } else {
+      if(name.find("EventInfo/iEvent") != std::string::npos ||
+         name.find("EventInfo/iLumiSection") != std::string::npos) {
+        if(iValue > iElement->getIntValue()) {
+             iElement->Fill(iValue);
+        }
+      }
+    }
   }
 
   MonitorElement* createElement(DQMStore& iStore, const char* iName, double& iValue) {
