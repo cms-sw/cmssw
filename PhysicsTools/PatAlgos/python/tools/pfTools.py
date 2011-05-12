@@ -294,7 +294,7 @@ def switchToPFMET(process,input=cms.InputTag('pfMET'), type1=False, postfix=""):
             applyPostfix(process, "metJESCorAK5CaloJetMuons",postfix)
             )
 
-def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='AK5', postfix = "", jetCorrections=['L1Offset','L2Relative', 'L3Absolute']):
+def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='AK5', postfix = "", jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative', 'L3Absolute']) ):
 
     print "Switching to PFJets,  ", algo
     print "************************ "
@@ -315,7 +315,7 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='AK5', postfix =
     inputCollection = getattr(process,"pfJets"+postfix).src
     setattr(process, "pfJets"+postfix, jetAlgo( algo ) ) # problem for cfgBrowser
     getattr(process,"pfJets"+postfix).src = inputCollection
-    inputJetCorrLabel=(algo+'PF',jetCorrections)
+    inputJetCorrLabel=jetCorrections
     switchJetCollection(process,
                         input,
                         jetIdLabel = algo,
@@ -339,7 +339,7 @@ def removeMCMatchingPF2PAT( process, postfix="" ):
     removeMCMatching(process, ['All'],postfix)
 
 
-def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix = ""):
+def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix = "", jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative','L3Absolute']) ):
     # PLEASE DO NOT CLOBBER THIS FUNCTION WITH CODE SPECIFIC TO A GIVEN PHYSICS OBJECT.
     # CREATE ADDITIONAL FUNCTIONS IF NEEDED.
 
@@ -387,15 +387,20 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix = ""
     # Jets
     if runOnMC :
         switchToPFJets( process, cms.InputTag('pfNoTau'+postfix), jetAlgo, postfix=postfix,
-                        jetCorrections=['L1Offset','L2Relative','L3Absolute'] )
+                        jetCorrections=jetCorrections )
         applyPostfix(process,"patDefaultSequence",postfix).replace(
             applyPostfix(process,"patJetGenJetMatch",postfix),
             getattr(process,"genForPF2PATSequence") *
             applyPostfix(process,"patJetGenJetMatch",postfix)
             )
     else :
+        if jetCorrections[1].find('L2L3Residual') :
+            print '#################################################'
+            print 'WARNING! Not using L2L3Residual but this is data.'
+            print 'If this is okay with you, disregard this message.'
+            print '#################################################'
         switchToPFJets( process, cms.InputTag('pfNoTau'+postfix), jetAlgo, postfix=postfix,
-                        jetCorrections=['L1Offset','L2Relative','L3Absolute', 'L2L3Residual'] )
+                        jetCorrections=jetCorrections )
 
     # Taus
     adaptPFTaus( process, tauType='shrinkingConePFTau', postfix=postfix )
