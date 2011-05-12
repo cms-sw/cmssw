@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.319 $"
+__version__ = "$Revision: 1.320 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -45,6 +45,7 @@ defaultOptions.filtername = ''
 defaultOptions.lazy_download = False
 defaultOptions.custom_conditions = ''
 defaultOptions.hltProcess = ''
+defaultOptions.eventcontent = None
 defaultOptions.inlineEventContent = True
 defaultOptions.inlineObjets =''
 defaultOptions.hideGen=False
@@ -53,6 +54,7 @@ defaultOptions.beamspot=VtxSmearedDefaultKey
 defaultOptions.outputDefinition =''
 defaultOptions.inputCommands = None
 defaultOptions.inputEventContent = None
+defaultOptions.relval = None
 
 # some helper routines
 def dumpPython(process,name):
@@ -1124,6 +1126,8 @@ class ConfigBuilder(object):
                 if specifiedCommand[0]=="@":
                         from Configuration.Skimming.autoSkim import autoSkim
                         location=specifiedCommand[1:]
+			if not location in autoSkim:
+				raise Exception('@'+location+' is not a valid SKIM argument. Availables are: '+','.join(autoSkim.keys()))
                         skimSequence = autoSkim[location]
                         skimlist.extend(skimSequence.split('+'))
                 else:
@@ -1417,7 +1421,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.319 $"),
+                                            (version=cms.untracked.string("$Revision: 1.320 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
