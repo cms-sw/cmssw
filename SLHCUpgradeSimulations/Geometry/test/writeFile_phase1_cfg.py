@@ -8,7 +8,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('SLHCUpgradeSimulations.Geometry.Phase1_R39F16_cmsSimIdealGeometryXML_cff')
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'DESIGN42_V10::All'
+process.GlobalTag.globaltag = 'DESIGN42_V11::All'
 #process.GlobalTag.globaltag = 'MC_42_V10::All'
 process.TrackerDigiGeometryESModule.applyAlignment = False
 print process.TrackerGeometricDetESModule.fromDDD

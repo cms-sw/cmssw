@@ -10,7 +10,7 @@ process.maxEvents = cms.untracked.PSet(
 #process.load("FastSimulation.Configuration.CommonInputsFake_cff") For 226
 process.load("FastSimulation.Configuration.CommonInputs_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'DESIGN42_V10::All'
+process.GlobalTag.globaltag = 'DESIGN42_V11::All'
 # Pick your geometry, Comment them all out for current geometry
 #process.load("SLHCUpgradeSimulations.Geometry.hybrid_cmsIdealGeometryXML_cff")
 #process.load("SLHCUpgradeSimulations.Geometry.longbarrel_cmsIdealGeometryXML_cff")

@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.303 
 # Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: SLHCUpgradeSimulations/Configuration/python/FourMuPt_1_50_cfi.py -s GEN,SIM --conditions DESIGN42_V10::All --eventcontent FEVTDEBUG --beamspot Gauss --slhc Phase1_R39F16 --datatier GEN-SIM --python_filename GEN_4muons_mod_cfg.py --no_exec
+# with command line options: SLHCUpgradeSimulations/Configuration/python/FourMuPt_1_50_cfi.py -s GEN,SIM --conditions DESIGN42_V11::All --eventcontent FEVTDEBUG --beamspot Gauss --slhc Phase1_R39F16 --datatier GEN-SIM --python_filename GEN_4muons_mod_cfg.py --no_exec
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('SIM')
@@ -36,7 +36,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.303 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('SLHCUpgradeSimulations/Configuration/python/FourMuPt_1_50_cfi.py nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -60,7 +60,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 
 # Other statements
-process.GlobalTag.globaltag = 'DESIGN42_V10::All'
+process.GlobalTag.globaltag = 'DESIGN42_V11::All'
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     PGunParameters = cms.PSet(
