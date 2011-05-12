@@ -16,6 +16,10 @@ from L1Trigger.HardwareValidation.L1HardwareValidation_cff import *
 valGtDigis.RecordLength = cms.vint32(3, 5)
 valGtDigis.AlternativeNrBxBoardDaq = 0x101
 valGtDigis.AlternativeNrBxBoardEvm = 0x2
+valGtDigis.AlgorithmTriggersUnprescaled = True
+valGtDigis.TechnicalTriggersUnprescaled = True
+valGtDigis.TechnicalTriggersVetoUnmasked = True
+
 
 # DQM modules
 from DQM.L1TMonitor.L1TDEMON_cfi import *
