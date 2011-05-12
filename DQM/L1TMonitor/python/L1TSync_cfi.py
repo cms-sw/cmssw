@@ -7,6 +7,14 @@ l1tSync = cms.EDAnalyzer("L1TSync",
   verbose                 = cms.untracked.bool(False),
   inputTagScalersResults  = cms.InputTag("scalersRawToDigi","","DQM"),
   inputTagL1GtDataDaq     = cms.InputTag("gtDigis"),
+ 
+  # Online
+  oracleDB   = cms.string("oracle://CMS_OMDS_LB/CMS_TRG_R"),
+  pathCondDB = cms.string("/nfshome0/centraltspro/secure/"),                
+
+  # Offline
+  #oracleDB   = cms.string("oracle://cms_orcoff_prod/CMS_COND_31X_L1T"), # For offline
+  #pathCondDB = cms.string("/afs/cern.ch/cms/DB/conddb"),                
 
   # Index for the prescale set to be used 
   # as reference
@@ -17,7 +25,7 @@ l1tSync = cms.EDAnalyzer("L1TSync",
 
       # Global parameters for algo selection
       forceGlobalParameters = cms.bool(False),  # Force use of global over bit-by-bit parameters 
-      doGlobalAutoSelection = cms.bool(False),   # Do automatic/fixed algo selection for all monitored algos
+      doGlobalAutoSelection = cms.bool(False),  # Do automatic/fixed algo selection for all monitored algos
 
       Mu = cms.PSet(
         monitor         = cms.bool(True),

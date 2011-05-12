@@ -2,8 +2,8 @@
 /*
  * \file L1TMenuHelper.cc
  *
- * $Date: 2011/04/06 16:49:34 $
- * $Revision: 1.1 $
+ * $Date: 2011/04/14 13:03:11 $
+ * $Revision: 1.2 $
  * \author J. Pela, P. Musella
  *
 */
@@ -318,7 +318,7 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
   if(vTrigETM   .size() > 0){sort(vTrigETM   .begin(),vTrigETM   .end()); selTrigETM    = vTrigETM   [0].alias;}
   if(vTrigHTT   .size() > 0){sort(vTrigHTT   .begin(),vTrigHTT   .end()); selTrigHTT    = vTrigHTT   [0].alias;}
   if(vTrigHTM   .size() > 0){sort(vTrigHTM   .begin(),vTrigHTM   .end()); selTrigHTM    = vTrigHTM   [0].alias;}
-
+/*
   cout << "START:   Final Selection ------------------------" << endl;
   if(iCategories["Mu"])    {cout << "Mu:"     << selTrigMu << endl;}
   if(iCategories["EG"])    {cout << "EG:"     << selTrigEG << endl;}
@@ -332,7 +332,7 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
   if(iCategories["HTT"])   {cout << "HTT:"    << selTrigHTT << endl;}
   if(iCategories["HTM"])   {cout << "HTM:"    << selTrigHTM << endl;}
   cout << "END:   Final Selection ------------------------" << endl;
-
+*/
   if(iCategories["Mu"])    {out["Mu"]     = selTrigMu;}
   if(iCategories["EG"])    {out["EG"]     = selTrigEG;}
   if(iCategories["IsoEG"]) {out["IsoEG"]  = selTrigIsoEG;}

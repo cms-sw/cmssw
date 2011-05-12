@@ -1,42 +1,36 @@
 /*
  * \file L1TRate.cc
  *
- * $Date: 2011/04/06 16:49:34 $
- * $Revision: 1.1 $
+ * $Date: 2011/04/14 13:03:11 $
+ * $Revision: 1.2 $
  * \author J. Pela, P. Musella
  *
  */
 
-// 
+// L1TMonitor includes
 #include "DQM/L1TMonitor/interface/L1TRate.h"
+#include "DQM/L1TMonitor/interface/L1TMenuHelper.h"
+#include "DQM/L1TMonitor/interface/L1TOMDSHelper.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/Scalers/interface/Level1TriggerRates.h"
-// Not sure if needed
 #include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/Common/interface/ConditionsInEdm.h" // Parameters associated to Run, LS and Event
+#include "DataFormats/Luminosity/interface/LumiDetails.h" // Luminosity Information
+#include "DataFormats/Luminosity/interface/LumiSummary.h" // Luminosity Information
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"            // L1Gt - Masks
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h" // L1Gt - Masks
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
 
-// Luminosity Information
-#include "DataFormats/Luminosity/interface/LumiDetails.h"
-#include "DataFormats/Luminosity/interface/LumiSummary.h"
-
-// L1Gt - Masks
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
-
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
-
-// My includes
-#include "DQM/L1TMonitor/interface/L1TMenuHelper.h"
-
-
 
 #include "TList.h"
 
@@ -45,18 +39,22 @@ using namespace std;
 
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
-L1TRate::L1TRate(const ParameterSet & pset){
+L1TRate::L1TRate(const ParameterSet & ps){
+
+  // Maximum LS for each run (for binning purposes)
+  m_maxNbins = 2001;
+
+  m_parameters = ps;
 
   // Mapping parameter input variables
-  m_scalersSource       = pset.getParameter         < InputTag >            ("inputTagScalersResults");
-  m_l1GtDataDaqInputTag = pset.getParameter         < InputTag >            ("inputTagL1GtDataDaq");
-  m_verbose             = pset.getUntrackedParameter< bool >                ("verbose",false);
-  m_testEventScalLS     = pset.getUntrackedParameter< bool >                ("testEventScalLS",false);
-  m_refPrescaleSet      = pset.getParameter         < int >                 ("refPrescaleSet");  
-  m_fitParameters       = pset.getParameter         < vector<ParameterSet> >("fitParameters");
+  m_scalersSource       = ps.getParameter         < InputTag >            ("inputTagScalersResults");
+  m_l1GtDataDaqInputTag = ps.getParameter         < InputTag >            ("inputTagL1GtDataDaq");
+  m_verbose             = ps.getUntrackedParameter< bool >                ("verbose",false);
+  m_testEventScalLS     = ps.getUntrackedParameter< bool >                ("testEventScalLS",false);
+  m_refPrescaleSet      = ps.getParameter         < int >                 ("refPrescaleSet");  
   
   // Getting which categories to monitor
-  ParameterSet Categories     = pset.getParameter<ParameterSet>("categories");  
+  ParameterSet Categories     = ps.getParameter<ParameterSet>("categories");  
   m_inputCategories["Mu"]     = Categories.getUntrackedParameter<bool>("Mu"); 
   m_inputCategories["EG"]     = Categories.getUntrackedParameter<bool>("EG"); 
   m_inputCategories["IsoEG"]  = Categories.getUntrackedParameter<bool>("IsoEG"); 
@@ -73,18 +71,18 @@ L1TRate::L1TRate(const ParameterSet & pset){
   dbe         = NULL;
   m_currentLS = 0;
 
-  if (pset.getUntrackedParameter < bool > ("dqmStore", false)) {
+  if (ps.getUntrackedParameter < bool > ("dqmStore", false)) {
     dbe = Service < DQMStore > ().operator->();
     dbe->setVerbose(0);
   }
   
-  m_outputFile = pset.getUntrackedParameter < string > ("outputFile", "");
+  m_outputFile = ps.getUntrackedParameter < string > ("outputFile", "");
   
   if (m_outputFile.size() != 0) {
     cout << "L1T Monitoring histograms will be saved to " <<	m_outputFile.c_str() << endl;
   }
   
-  bool disable = pset.getUntrackedParameter < bool > ("disableROOToutput", false);
+  bool disable = ps.getUntrackedParameter < bool > ("disableROOToutput", false);
   if (disable) {m_outputFile = "";}
   
   if (dbe != NULL) {dbe->setCurrentFolder("L1T/L1TRate");}
@@ -128,60 +126,34 @@ void L1TRate::endJob(void){
 //-------------------------------------------------------------------------------------
 void L1TRate::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
 
-  cout << "m_testEventScalLS: " << m_testEventScalLS << endl;
-
-  // Maximum LS for each run (for binning purposes)
-  int maxNbins = 2001;
-
   ESHandle<L1GtTriggerMenu>     menuRcd;
   ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
 
   iSetup.get<L1GtTriggerMenuRcd>()            .get(menuRcd);
   iSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);
 
-  const L1GtTriggerMenu*             menu = menuRcd   .product();
+  const L1GtTriggerMenu*     menu         = menuRcd   .product();
   const L1GtPrescaleFactors* m_l1GtPfAlgo = l1GtPfAlgo.product();
 
   // Retriving the list of prescale sets
   m_listsPrescaleFactors = &(m_l1GtPfAlgo->gtPrescaleFactors());
  
-  // FIXME:
-  L1TMenuHelper myMenuHelper = L1TMenuHelper(iSetup);  
-  m_selectedTriggers         = myMenuHelper.getLUSOTrigger(m_inputCategories,m_refPrescaleSet);
- 
-  // Getting rate fit parameters for all input triggers
-  for(map<string,string>::const_iterator a=m_selectedTriggers.begin() ; a!=m_selectedTriggers.end() ; a++){
+  // Getting Lowest Prescale Single Object Triggers from the menu
+  L1TMenuHelper myMenuHelper = L1TMenuHelper(iSetup);
+  m_selectedTriggers = myMenuHelper.getLUSOTrigger(m_inputCategories,m_refPrescaleSet);
 
-    string tTrigger = (*a).second;
-
-    // If trigger name is defined we get the rate fit parameters 
-    if(tTrigger != "Undefined"){
-      
-      for(unsigned int b=0 ; b<m_fitParameters.size() ; b++){
-	
-        if(tTrigger == m_fitParameters[b].getParameter<string>("AlgoName")){
-	  
-          TString        tAlgoName          = m_fitParameters[b].getParameter< string >        ("AlgoName");
-          TString        tTemplateFunction  = m_fitParameters[b].getParameter< string >        ("TemplateFunction");
-          vector<double> tParameters        = m_fitParameters[b].getParameter< vector<double> >("Parameters");
-	  
-          // Retriving and populating the m_templateFunctions array
-          m_templateFunctions[tTrigger] = new TF1("FitParametrization_"+tAlgoName,tTemplateFunction,0,double(maxNbins)-0.5);
-          m_templateFunctions[tTrigger] ->SetParameters(&tParameters[0]);
-          m_templateFunctions[tTrigger] ->SetLineWidth(1);
-          m_templateFunctions[tTrigger] ->SetLineColor(kRed);
-        }
-      }
-    }
-  }
+  //-> Getting template fits for the algLo cross sections
+  int srcAlgoXSecFit = m_parameters.getParameter<int>("srcAlgoXSecFit");
+  if     (srcAlgoXSecFit == 0){getXSexFitsOMDS  (m_parameters);}
+  else if(srcAlgoXSecFit == 1){getXSexFitsPython(m_parameters);}
 
   for (CItAlgo algo = menu->gtAlgorithmMap().begin(); algo!=menu->gtAlgorithmMap().end(); ++algo){
     m_algoBit[(algo->second).algoAlias()] = (algo->second).algoBitNumber();    
   }
 
   // Initializing record of which LS were already processed
-  m_processedLS = new bool[maxNbins];
-  for(int i=0 ; i<maxNbins ; i++){m_processedLS[i]=false;}
+  m_processedLS = new bool[m_maxNbins];
+  for(int i=0 ; i<m_maxNbins ; i++){m_processedLS[i]=false;}
 
   dbe->setCurrentFolder("L1T/L1TRate");
    
@@ -199,27 +171,27 @@ void L1TRate::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
     }
     else if(tTrigger == "Undefined"){
       TString tFunc = "-1";
-      tTestFunction = new TF1("FitParametrization_"+tTrigger,tFunc,0,double(maxNbins)-0.5);
+      tTestFunction = new TF1("FitParametrization_"+tTrigger,tFunc,0,double(m_maxNbins)-0.5);
     }
     else if(m_templateFunctions.find(tTrigger) == m_templateFunctions.end()){
       TString tFunc = "-1";
-      tTestFunction = new TF1("FitParametrization_"+tTrigger,tFunc,0,double(maxNbins)-0.5);
+      tTestFunction = new TF1("FitParametrization_"+tTrigger,tFunc,0,double(m_maxNbins)-0.5);
       tErrorMessage = " (Undefined Test Function)";
     }
     else{
       TString tFunc = "-1";
-      tTestFunction = new TF1("FitParametrization_"+tTrigger,tFunc,0,double(maxNbins)-0.5);
+      tTestFunction = new TF1("FitParametrization_"+tTrigger,tFunc,0,double(m_maxNbins)-0.5);
     }
 
     dbe->setCurrentFolder("L1T/L1TRate/TriggerCrossSections");
-    m_xSecVsInstLumi[tTrigger] = dbe->bookProfile(tCategory,"Cross Sec. vs Inst. Lumi Algo: "+tTrigger+tErrorMessage,maxNbins,10,300,0,500); 
+    m_xSecVsInstLumi[tTrigger] = dbe->bookProfile(tCategory,"Cross Sec. vs Inst. Lumi Algo: "+tTrigger+tErrorMessage,m_maxNbins,10,300,0,500); 
     m_xSecVsInstLumi[tTrigger] ->setAxisTitle("Instantaneous Luminosity [10^{30}cm^{-2}s^{-1}]" ,1);
     m_xSecVsInstLumi[tTrigger] ->setAxisTitle("Algorithm #sigma [#mu b]" ,2);
     m_xSecVsInstLumi[tTrigger] ->getTProfile()->GetListOfFunctions()->Add(tTestFunction);
     m_xSecVsInstLumi[tTrigger] ->getTProfile()->SetMarkerStyle(23);
 
     dbe->setCurrentFolder("L1T/L1TRate/Certification");
-    m_xSecObservedToExpected[tTrigger] = dbe->book1D(tCategory, "Algo: "+tTrigger+tErrorMessage,maxNbins,-0.5,double(maxNbins)-0.5);
+    m_xSecObservedToExpected[tTrigger] = dbe->book1D(tCategory, "Algo: "+tTrigger+tErrorMessage,m_maxNbins,-0.5,double(m_maxNbins)-0.5);
     m_xSecObservedToExpected[tTrigger] ->setAxisTitle("Lumi Section" ,1);
     m_xSecObservedToExpected[tTrigger] ->setAxisTitle("#sigma_{obs} / #sigma_{exp}" ,2);
   }
@@ -395,6 +367,126 @@ void L1TRate::analyze(const Event & iEvent, const EventSetup & eventSetup){
   }
 
   if (m_verbose) {cout << "L1TRate: analyze...." <<endl;}
+
+}
+
+//_____________________________________________________________________
+// function: getXSexFitsOMDS
+// Imputs: 
+//   * const edm::ParameterSet& ps = ParameterSet contaning necessary
+//     information for the OMDS data extraction
+// Outputs:
+//   * int error = Number of algos where you did not find a 
+//     corresponding fit 
+//_____________________________________________________________________
+int L1TRate::getXSexFitsOMDS(const edm::ParameterSet& ps){
+
+  int error = 0;
+
+  string oracleDB   = ps.getParameter<string>("oracleDB");
+  string pathCondDB = ps.getParameter<string>("pathCondDB");
+
+  L1TOMDSHelper myOMDSHelper = L1TOMDSHelper();
+  string conError = "";
+  myOMDSHelper.connect(oracleDB,pathCondDB,conError);
+ 
+  map<string,WbMTriggerXSecFit> wbmFits;
+
+  if(conError == ""){
+    string errorRetrive = "";
+    wbmFits = myOMDSHelper.getWbMAlgoXsecFits(errorRetrive);
+    if(errorRetrive != ""){cout << "L1TSync: " << errorRetrive << endl;}
+  }else{
+    cout << "L1TSync: " << conError << endl;    
+  }  
+
+  // Getting rate fit parameters for all input triggers
+  for(map<string,string>::const_iterator a=m_selectedTriggers.begin() ; a!=m_selectedTriggers.end() ; a++){
+
+    string tTrigger = (*a).second;
+
+    // If trigger name is defined we get the rate fit parameters 
+    if(tTrigger != "Undefined"){
+      
+      if(wbmFits.find(tTrigger) != wbmFits.end()){
+
+        WbMTriggerXSecFit tWbMParameters = wbmFits[tTrigger];
+
+        vector<double> tParameters;
+        tParameters.push_back(tWbMParameters.pm1);
+        tParameters.push_back(tWbMParameters.p0);
+        tParameters.push_back(tWbMParameters.p1);
+        tParameters.push_back(tWbMParameters.p2);
+        
+        // Retriving and populating the m_templateFunctions array
+        m_templateFunctions[tTrigger] = new TF1("FitParametrization_"+tWbMParameters.bitName,
+                                                tWbMParameters.fitFunction,
+                                                0,double(m_maxNbins)-0.5);
+        m_templateFunctions[tTrigger] ->SetParameters(&tParameters[0]);
+        m_templateFunctions[tTrigger] ->SetLineWidth(1);
+        m_templateFunctions[tTrigger] ->SetLineColor(kRed);
+
+      }else{error++;}
+    }
+  }
+
+  return error;
+
+}
+
+//_____________________________________________________________________
+// function: getXSexFitsPython
+// Imputs: 
+//   * const edm::ParameterSet& ps = ParameterSet contaning the fit
+//     functions and parameters for the selected triggers
+// Outputs:
+//   * int error = Number of algos where you did not find a 
+//     corresponding fit 
+//_____________________________________________________________________
+int L1TRate::getXSexFitsPython(const edm::ParameterSet& ps){
+
+  // error meaning
+  // 0 = No error
+  int error = 0;
+
+  // Getting fit parameters
+  std::vector<edm::ParameterSet>  m_fitParameters = ps.getParameter< vector<ParameterSet> >("fitParameters");
+
+  // Getting rate fit parameters for all input triggers
+  for(map<string,string>::const_iterator a=m_selectedTriggers.begin() ; a!=m_selectedTriggers.end() ; a++){
+
+    string tTrigger = (*a).second;
+
+    // If trigger name is defined we get the rate fit parameters 
+    if(tTrigger != "Undefined"){
+
+      bool foundFit = false;
+
+      for(unsigned int b=0 ; b<m_fitParameters.size() ; b++){
+	
+        if(tTrigger == m_fitParameters[b].getParameter<string>("AlgoName")){
+	  
+          TString        tAlgoName          = m_fitParameters[b].getParameter< string >        ("AlgoName");
+          TString        tTemplateFunction  = m_fitParameters[b].getParameter< string >        ("TemplateFunction");
+          vector<double> tParameters        = m_fitParameters[b].getParameter< vector<double> >("Parameters");
+	  
+          // Retriving and populating the m_templateFunctions array
+          m_templateFunctions[tTrigger] = new TF1("FitParametrization_"+tAlgoName,tTemplateFunction,0,double(m_maxNbins)-0.5);
+          m_templateFunctions[tTrigger] ->SetParameters(&tParameters[0]);
+          m_templateFunctions[tTrigger] ->SetLineWidth(1);
+          m_templateFunctions[tTrigger] ->SetLineColor(kRed);
+
+          foundFit = true;
+          break;
+        }
+
+        if(!foundFit){error++;}
+
+      }
+    }
+  }
+  
+  return error;
 
 }
 

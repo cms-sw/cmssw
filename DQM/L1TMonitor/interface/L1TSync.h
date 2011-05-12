@@ -4,8 +4,8 @@
 /*
  * \file L1TSync.h
  *
- * $Date: 2011/04/06 16:49:34 $
- * $Revision: 1.1 $
+ * $Date: 2011/04/14 13:03:11 $
+ * $Revision: 1.2 $
  * \author J. Pela
  *
 */
@@ -57,6 +57,8 @@ class L1TSync : public edm::EDAnalyzer {
 
     DQMStore * dbe; // The DQM Service Handle
 
+    edm::ParameterSet                      m_parameters;
+
     std::string                            m_outputFile;          // file name for ROOT ouput
 
     // bool
@@ -68,15 +70,18 @@ class L1TSync : public edm::EDAnalyzer {
     unsigned int                           m_currentLS;           // Current Luminosity Section
     unsigned int                           m_eventLS;
 
+    // Vectors
+    std::vector<bool>                      m_bunchStructure;      // Current Bunch Structure
+
     // Const Vectors
     const std::vector< std::vector<int> >* ListsPrescaleFactors;  // Collection os all sets of prescales
 
     // Maps
     std::map<TString,int>                  m_algoBit;
-    std::map<TString,MonitorElement*>      m_algoVsBPTX;
-    std::map<TString,MonitorElement*>      m_algoVsBPTXSummary;
+    std::map<TString,MonitorElement*>      m_algoCertification;
+    std::map<TString,MonitorElement*>      m_algoVsBunchStructure;
 
-    std::map<std::string,bool>             m_algoAutoSelect;     // Map of categories to monitor
+    std::map<std::string,bool>             m_algoAutoSelect;      // Map of categories to monitor
     std::map<std::string,std::string>      m_selectedTriggers;    // Map of what trigger to monitor for each category
 
     // Input tags

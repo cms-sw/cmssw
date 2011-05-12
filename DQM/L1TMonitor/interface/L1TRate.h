@@ -1,11 +1,11 @@
-#ifndef L1TRate_H
-#define L1TRate_H
+#ifndef DQM_L1TMONITOR_L1TRATE_H
+#define DQM_L1TMONITOR_L1TRATE_H
 
 /*
  * \file L1TRate.h
  *
- * $Date: 2011/02/10 18:12:25 $
- * $Revision: 1.9 $
+ * $Date: 2011/04/06 16:49:34 $
+ * $Revision: 1.1 $
  * \author J. Pela
  *
 */
@@ -58,6 +58,12 @@ class L1TRate : public edm::EDAnalyzer {
 
   private:
 
+    // Methods
+    int getXSexFitsOMDS  (const edm::ParameterSet& ps); 
+    int getXSexFitsPython(const edm::ParameterSet& ps);
+
+    edm::ParameterSet                      m_parameters;
+
     DQMStore*                              dbe;                      // The DQM Service Handle
 
     std::string                            m_outputFile;             // file name for ROOT ouput
@@ -70,13 +76,13 @@ class L1TRate : public edm::EDAnalyzer {
 
     // Int
     int                                    m_refPrescaleSet;
+    int                                    m_maxNbins;
     unsigned int                           m_currentLS;              // Current Luminosity Section
 
     // Double
     double                                 m_bufferInstLumi;         // 
 
     // Vectors
-    std::vector<edm::ParameterSet>         m_fitParameters;          // ParameterSet with parameters for algo rate templates
     const std::vector< std::vector<int> >* m_listsPrescaleFactors;   // Collection os all sets of prescales
    
     // Maps

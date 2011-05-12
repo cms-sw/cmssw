@@ -1,8 +1,8 @@
 /*
  * \file L1TSync.cc
  *
- * $Date: 2011/04/06 16:49:34 $
- * $Revision: 1.1 $
+ * $Date: 2011/04/14 13:03:11 $
+ * $Revision: 1.2 $
  * \author J. Pela, P. Musella
  *
  */
@@ -16,6 +16,7 @@
 // Not sure if needed
 #include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/Common/interface/ConditionsInEdm.h" // Parameters associated to Run, LS and Event
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
@@ -28,8 +29,9 @@
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
-// My includes
+// L1TMonitor includes
 #include "DQM/L1TMonitor/interface/L1TMenuHelper.h"
+#include "DQM/L1TMonitor/interface/L1TOMDSHelper.h"
 
 #include "TList.h"
 
@@ -39,6 +41,8 @@ using namespace std;
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
 L1TSync::L1TSync(const ParameterSet & pset){
+
+  m_parameters = pset;
 
   // Mapping parameter input variables
   m_scalersSource       = pset.getParameter         <InputTag>("inputTagScalersResults");
@@ -180,7 +184,7 @@ L1TSync::L1TSync(const ParameterSet & pset){
     dbe->setVerbose(0);
   }
 
-  m_outputFile = pset.getUntrackedParameter < std::string > ("outputFile", "");
+  m_outputFile = pset.getUntrackedParameter < std::string > ("outputFile","");
 
   if (m_outputFile.size() != 0) {
     std::cout << "L1T Monitoring histograms will be saved to " <<	m_outputFile.c_str() << std::endl;
@@ -229,32 +233,48 @@ void L1TSync::endJob(void){
 //-------------------------------------------------------------------------------------
 /// BeginRun
 //-------------------------------------------------------------------------------------
-void L1TSync::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
+void L1TSync::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
 
-  ESHandle<L1GtTriggerMenu>     menuRcd;
-  //ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
+  int maxNbins = 2001;
 
-  iSetup.get<L1GtTriggerMenuRcd>()            .get(menuRcd);
-  //iSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);
-
-  const L1GtTriggerMenu*             menu = menuRcd   .product();
-  //const L1GtPrescaleFactors* m_l1GtPfAlgo = l1GtPfAlgo.product();
-
-  // Retriving the list of prescale sets
-  //ListsPrescaleFactors = &(m_l1GtPfAlgo->gtPrescaleFactors());
-
+  // Cleaning in the begining of the run
   m_algoBit.clear();
+
+  // Retriving parameters
+  string oracleDB   = m_parameters.getParameter<string>("oracleDB");
+  string pathCondDB = m_parameters.getParameter<string>("pathCondDB");
+
+  ESHandle<L1GtTriggerMenu> menuRcd;
+  iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd);
+  const L1GtTriggerMenu* menu = menuRcd.product();
+
+  // Getting fill number for this run
+  Handle<ConditionsInRunBlock> runConditions;
+  iRun.getByType(runConditions);
+  int lhcFillNumber = runConditions->lhcFillNumber;
+
+  L1TOMDSHelper myOMDSHelper = L1TOMDSHelper();
+  string conError = "";
+  myOMDSHelper.connect(oracleDB,pathCondDB,conError);
+
+  if(conError == ""){
+    string errorRetrive = "";
+    m_bunchStructure = myOMDSHelper.getBunchStructure(lhcFillNumber,errorRetrive);
+    if(errorRetrive != ""){cout << "L1TRate: " << errorRetrive << endl;}
+  }else{
+    cout << "L1TRate: " << conError << endl;
+  }
+
+  //ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
+  //iSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);
+  //const L1GtPrescaleFactors* m_l1GtPfAlgo = l1GtPfAlgo.product();
 
   for (CItAlgo algo = menu->gtAlgorithmAliasMap().begin(); algo!=menu->gtAlgorithmAliasMap().end(); ++algo){
     m_algoBit[(algo->second).algoAlias()] = (algo->second).algoBitNumber();
   }
 
-  int maxNbins = 2001;
-
   // Getting reference prescale factors
   //const vector<int>& RefPrescaleFactors = (*ListsPrescaleFactors).at(m_refPrescaleSet);
-
-  // FIXME:
 
   L1TMenuHelper myMenuHelper = L1TMenuHelper(iSetup);  
          
@@ -263,23 +283,19 @@ void L1TSync::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
   map<string,string> tAutoSelTrig = myMenuHelper.getLUSOTrigger(m_algoAutoSelect,m_refPrescaleSet);
   m_selectedTriggers.insert(tAutoSelTrig.begin(),tAutoSelTrig.end());
 
-  cout << "L1TSync Selected Trigger----------------" << endl;
-
   // Initializing DQM Monitor Elements
   for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
 
     string tCategory = (*i).first;
     string tTrigger  = (*i).second;
 
-    cout << "Category: " << tCategory << " Algo: " << tTrigger << endl;
-
-    dbe->setCurrentFolder("L1T/L1TSync/AlgoVsBPTX/");
-    m_algoVsBPTX[tTrigger] = dbe->book2D(tCategory, tTrigger+" - BPTX",maxNbins,-0.5,double(maxNbins)-0.5,5,-2.5,2.5);
-    m_algoVsBPTX[tTrigger] ->setAxisTitle("Lumi Section" ,1);
+    dbe->setCurrentFolder("L1T/L1TSync/AlgoVsBunchStructure/");
+    m_algoVsBunchStructure[tTrigger] = dbe->book2D(tCategory,"min #Delta("+tTrigger+",Bunch)",maxNbins,-0.5,double(maxNbins)-0.5,5,-2.5,2.5);
+    m_algoVsBunchStructure[tTrigger] ->setAxisTitle("Lumi Section" ,1);
     
     dbe->setCurrentFolder("L1T/L1TSync/Certification/");
-    m_algoVsBPTXSummary[tTrigger] = dbe->book1D(tCategory, "% of in of sync: "+tTrigger,maxNbins,-0.5,double(maxNbins)-0.5);
-    m_algoVsBPTXSummary[tTrigger] ->setAxisTitle("Lumi Section" ,1);
+    m_algoCertification[tTrigger] = dbe->book1D(tCategory, "% of in of sync: "+tTrigger,maxNbins,-0.5,double(maxNbins)-0.5);
+    m_algoCertification[tTrigger] ->setAxisTitle("Lumi Section" ,1);
 
  }   
 
@@ -302,35 +318,30 @@ void L1TSync::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
     if(tTrigger != "Undefined" && tTrigger != "Undefined (Wrong Name)"){
 
       // Getting events with 0 bx difference between BPTX and Algo for current LS
-      double CountSync = m_algoVsBPTX[tTrigger]->getBinContent(eventLS+1,3);
+      double CountSync = m_algoVsBunchStructure[tTrigger]->getBinContent(eventLS+1,3);
       double CountAll  = 0;
   
       // Adding all entries for current LS
-      for(int a=1 ; a<6 ; a++){CountAll += m_algoVsBPTX[tTrigger]->getBinContent(eventLS+1,a);}
+      for(int a=1 ; a<6 ; a++){CountAll += m_algoVsBunchStructure[tTrigger]->getBinContent(eventLS+1,a);}
 
       // Filling this LS summary
       if(CountAll > 0){
-        int ibin = m_algoVsBPTXSummary[tTrigger]->getTH1()->FindBin(eventLS);
-        m_algoVsBPTXSummary[tTrigger]->setBinContent(ibin,CountSync/CountAll);
+        int binResult = m_algoCertification[tTrigger]->getTH1()->FindBin(eventLS);
+        m_algoCertification[tTrigger]->setBinContent(binResult,CountSync/CountAll);
       }
 
     }else{
-      int ibin = m_algoVsBPTXSummary[tTrigger]->getTH1()->FindBin(eventLS);
-      m_algoVsBPTXSummary[tTrigger]->setBinContent(ibin,-1);
+      int ibin = m_algoCertification[tTrigger]->getTH1()->FindBin(eventLS);
+      m_algoCertification[tTrigger]->setBinContent(ibin,-1);
     }
   }
 
 }
 
-//-------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------
-void L1TSync::endRun(const edm::Run& run, const edm::EventSetup& iSetup){
+//_____________________________________________________________________
+void L1TSync::endRun(const edm::Run& run, const edm::EventSetup& iSetup){}
 
-
-}
-
-//-------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------
+//_____________________________________________________________________
 void L1TSync::analyze(const Event & iEvent, const EventSetup & eventSetup){
 
   // Initializing Handles
@@ -340,7 +351,7 @@ void L1TSync::analyze(const Event & iEvent, const EventSetup & eventSetup){
   iEvent.getByLabel(m_l1GtDataDaqInputTag, gtReadoutRecordData);
 
   unsigned int eventLS = iEvent.id().luminosityBlock();
- 
+
   // --> Getting BX difference between BPTX and selected algos
   // Getting Final Decision Logic (FDL) Data from GT
   const vector<L1GtFdlWord>& gtFdlVectorData = gtReadoutRecordData->gtFdlVector();
@@ -351,73 +362,40 @@ void L1TSync::analyze(const Event & iEvent, const EventSetup & eventSetup){
     string tTrigger = (*i).second;
 
     if(tTrigger != "Undefined" && tTrigger != "Undefined (Wrong Name)"){
+      
+      bool firedAlgo = false;  // Algo fired in this event
+      int  firedInBx = -1;      
 
-      int  NAlgo = 0;  // Number of selected Algo triggers
-      int  NBPTX = 0;  // Number of BPTX triggers
-
-      bool fdlAlgo[5]; // Position of selected algo triggers
-      bool fdlBPTX[5]; // Position of BPTX
-     
       // Running over FDL results to get which bits fired
       for(unsigned int a=0 ; a<gtFdlVectorData.size() ; a++){
- 
-        fdlBPTX[a] = gtFdlVectorData[a].gtTechnicalTriggerWord()[0];
-        fdlAlgo[a] = gtFdlVectorData[a].gtDecisionWord()        [ m_algoBit[tTrigger] ];
-
-        if(gtFdlVectorData[a].gtTechnicalTriggerWord()[0])                    {NBPTX++;}
-        if(gtFdlVectorData[a].gtDecisionWord()        [ m_algoBit[tTrigger] ]){NAlgo++;}
-
+   
+        // Selecting the 
+        if(gtFdlVectorData[a].bxInEvent() == 0){
+          if(gtFdlVectorData[a].gtDecisionWord()[ m_algoBit[tTrigger] ]){
+            firedAlgo = true;
+            firedInBx = gtFdlVectorData[a].localBxNr();
+          }
+        }
       }
 
-      // For each event fill only if we have at least trigger from BPTX and the selected Algo
-      if(NBPTX >= 1 && NAlgo >= 1){
+      if(firedAlgo){
 
-        // If we have more than one BPTX we need: 
-        //  * Choose the closest to the middle has reference
-        //  * Remove other BPTX entries and matched triggers
-        if(NBPTX > 1){
+        int DifAlgoVsBunchStructure = 5; // Majorated
 
-          int PosBPTX = -1;
+        for(unsigned int a=0 ; a<gtFdlVectorData.size() ; a++){
 
-          // Finding which BPTX is closer to middle of the FDL array
-          if     (fdlBPTX[2]){PosBPTX = 0; break;} // BPTX Position: --X--
-          else if(fdlBPTX[1]){PosBPTX = 1; break;} // BPTX Position: -X---
-          else if(fdlBPTX[3]){PosBPTX = 3; break;} // BPTX Position: ---X-
-          else if(fdlBPTX[0]){PosBPTX = 0; break;} // BPTX Position: X----
-          else if(fdlBPTX[4]){PosBPTX = 4; break;} // BPTX Position: ----X
-          
-          // Removing all BPTX and matched algo triggers that are not the selected 
-          for(int a=0 ; a<5 ; a++){
-            if(a != PosBPTX && fdlBPTX[a]){
-              fdlBPTX[a] = 0;
-              fdlAlgo[a] = 0;
-            }
+          int bxFDL     = gtFdlVectorData[a].localBxNr();
+          int bxInEvent = gtFdlVectorData[a].bxInEvent();
+          if(m_bunchStructure[bxFDL] && abs(bxInEvent)<abs(DifAlgoVsBunchStructure)){
+            DifAlgoVsBunchStructure = -1*bxInEvent;
           }
         }
 
-        int DifAlgoVsBPTX = 5;  // Difference between the Algo and BPTX (in BX)
-        int PosBPTX       = -1; // Position in the FDL array of the reference BPTX 
-       
-        for(int a=0 ; a<5 ; a++){
-          if(fdlBPTX[a]){
-            PosBPTX=a; 
-            break;
-          }
-        }
-
-        for(int a=0 ; a<5 ; a++){
-          if(fdlAlgo[a] && abs(a-PosBPTX)<abs(DifAlgoVsBPTX)){DifAlgoVsBPTX = a-PosBPTX;}
-        }
-
-        //cout << "Algo: " << AlgoName << " Sync=" << DifAlgoVsBPTX << endl;
-        m_algoVsBPTX[tTrigger]->Fill(eventLS,DifAlgoVsBPTX);
+        m_algoVsBunchStructure[tTrigger]->Fill(eventLS,DifAlgoVsBunchStructure);
 
       }
     }
   }
-
-
-  if (m_verbose) {cout << "L1TSync: analyze...." <<endl;}
 
 }
 

@@ -1,11 +1,11 @@
-#ifndef L1TMenuHelper_H
-#define L1TMenuHelper_H
+#ifndef DQM_L1TMONITOR_L1TMENUHELPER_H
+#define DQM_L1TMONITOR_L1TMENUHELPER_H
 
 /*
  * \file L1TMenuHelper.h
  *
- * $Date: 2011/04/06 16:49:34 $
- * $Revision: 1.1 $
+ * $Date: 2011/04/14 13:03:11 $
+ * $Revision: 1.2 $
  * \author J. Pela
  *
 */
@@ -133,7 +133,5 @@ class L1TMenuHelper {
     const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrig;
 
 };
-
-
 
 #endif
