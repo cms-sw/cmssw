@@ -13,7 +13,7 @@
 //
 // Original Author:  Christopher Jones
 //         Created:  Fri Apr 29 18:05:50 CDT 2011
-// $Id$
+// $Id: DummyFillDQMStore.cc,v 1.1 2011/05/11 18:12:55 chrjones Exp $
 //
 //
 
@@ -41,6 +41,7 @@ namespace {
   class FillerBase {
   public:
     virtual void fill() = 0;
+    virtual void reset() = 0;
   };
   
   class TH1FFiller : public FillerBase {
@@ -52,19 +53,22 @@ namespace {
       if(iSetLumiFlag) {
         extension = "_lumi";
       }
-      MonitorElement* element = iStore.book1D(iPSet.getUntrackedParameter<std::string>("name")+extension,
+      m_element = iStore.book1D(iPSet.getUntrackedParameter<std::string>("name")+extension,
                                               iPSet.getUntrackedParameter<std::string>("title")+extension,
                                               m_steps,
                                               m_min,
                                               iPSet.getUntrackedParameter<double>("highX"));
       if(iSetLumiFlag) {
-        element->setLumiFlag();
+        m_element->setLumiFlag();
       }
-      m_hist = element->getTH1F();
+      m_hist = m_element->getTH1F();
       m_delta =  (iPSet.getUntrackedParameter<double>("highX")-m_min)/(m_steps+1);
       m_valueToFill=iPSet.getUntrackedParameter<double>("value");
     }
     
+    void reset() {
+      m_element->Reset();
+    }
     void fill() {
       m_hist->Fill(m_valueToFill);
     }
@@ -74,6 +78,7 @@ namespace {
     double m_delta;
     double m_min;
     unsigned int m_steps;
+    MonitorElement* m_element;
   };
 }
 
@@ -208,6 +213,11 @@ DummyFillDQMStore::endRun(edm::Run const&, edm::EventSetup const&)
 void 
 DummyFillDQMStore::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
+  for(std::vector<boost::shared_ptr<FillerBase> >::iterator it = m_lumiFillers.begin(), itEnd = m_lumiFillers.end();
+  it != itEnd;
+  ++it) {
+    (*it)->reset();
+  }
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
