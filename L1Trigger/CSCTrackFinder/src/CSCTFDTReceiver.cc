@@ -96,8 +96,8 @@ CSCTriggerContainer<csctf::TrackStub> CSCTFDTReceiver::process(const L1MuDTChamb
 			(1<<(CSCBitWidths::kGlobalPhiDataBitWidth))-1;
 
 
-		      // change phib from 10 bits to 6
-		      int phib = (dtts[stub]->phiB() + DTConfigTraco::RESOLPSI) / 16;
+		      // change phib from 10 bits to 5
+		      int phib = ((dtts[stub]->phiB() & 0x3FF) >> 5) & 0x1F;// 0x3FF=1023, 0x1F=31
 		      int qual = dtts[stub]->code();
 		      // barrel allows quality=0!
 		      /// shift all by one and take mod 8, since DT quality of 7 is a null stub
