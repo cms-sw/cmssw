@@ -198,7 +198,7 @@ class HLTProcess(object):
       self.fixForFastSim()
 
       # if requested, remove the HLT prescales
-      self.unprescale()
+      self.fixPrescales()
 
       # if requested, override all ED/HLTfilters to always pass ("open" mode)
       self.instrumentOpenMode()
@@ -214,7 +214,7 @@ class HLTProcess(object):
       self.overrideProcessName()
 
       # if required, remove the HLT prescales
-      self.unprescale()
+      self.fixPrescales()
 
       # if requested, override all ED/HLTfilters to always pass ("open" mode)
       self.instrumentOpenMode()
@@ -331,7 +331,20 @@ if 'hltPreHLTMONOutputSmart' in %(dict)s:
       self.data = re.sub( r'hltGtDigis',      r'HLTBeginSequence',                              self.data )
 
 
-  def unprescale(self):
+  def fixPrescales(self):
+    # update the PrescaleService to match the new list of paths
+    if self.options['paths']:
+      if self.options['paths'][0][0] == '-':
+        # drop requested paths
+        for minuspath in self.options['paths']:
+          path = minuspath[1:]
+          self.data = re.sub(r'      cms.PSet\(  pathName = cms.string\( "%s" \),\n        prescales = cms.vuint32\( .* \)\n      \),?\n' % path, '', self.data)
+      else:
+        # keep requested paths
+        for path in self.all_paths:
+          if path not in self.options['paths']:
+            self.data = re.sub(r'      cms.PSet\(  pathName = cms.string\( "%s" \),\n        prescales = cms.vuint32\( .* \)\n      \),?\n' % path, '', self.data)
+
     if self.config.unprescale:
       self.data += """
 # remove the HLT prescales
@@ -581,6 +594,8 @@ if 'GlobalTag' in %%(dict)s:
     sys.stderr.write('\n\n')
 
   def buildPathList(self):
+    self.all_paths = self.getPathList()
+
     # no path list was requested, dump the full table
     if not self.config.paths:
       paths = []
@@ -601,7 +616,7 @@ if 'GlobalTag' in %%(dict)s:
       paths.append( "-OfflineOutput" )
 
       # expand all wildcards and do a "subtractive" consolidation
-      paths = self.expandWildcards(paths, self.getPathList())
+      paths = self.expandWildcards(paths, self.all_paths)
       self.options['paths'] = self.consolidateNegativeList(paths)
 
     # dump only the requested paths, plus the eventual output endpaths
@@ -625,12 +640,11 @@ if 'GlobalTag' in %%(dict)s:
       paths.append( "-OfflineOutput" )
 
       # expand all wildcards and do an "additive" consolidation
-      paths = self.expandWildcards(paths, self.getPathList())
+      paths = self.expandWildcards(paths, self.all_paths)
       self.options['paths'] = self.consolidatePositiveList(paths)
 
       if not self.options['paths']:
         raise RuntimeError('Error: option "--paths %s" does not select any valid paths' % self.config.paths)
-
 
   def buildOptions(self):
     # common configuration for all scenarios
