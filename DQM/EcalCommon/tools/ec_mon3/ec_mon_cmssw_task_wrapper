@@ -226,7 +226,8 @@ process.load("RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi")
 
 process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
 
-process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
+if (globalDAQ == 1) | (liveECAL == 1) | (liveCMS == 1) | (playCMS == 1) :
+  process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
 
 process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
 
