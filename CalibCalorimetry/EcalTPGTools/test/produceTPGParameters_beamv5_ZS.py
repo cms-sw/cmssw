@@ -75,7 +75,7 @@ process.maxEvents = cms.untracked.PSet(
 process.TPGParamProducer = cms.EDAnalyzer("EcalTPGParamBuilder",
 
     #### inputs/ouputs control ####
-    writeToDB  = cms.bool(True),
+    writeToDB  = cms.bool(False),
     allowDBEE  = cms.bool(True),
 
     DBsid   = cms.string('cms_omds_lb'), ## real DB 
