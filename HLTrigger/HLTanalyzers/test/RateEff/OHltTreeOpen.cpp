@@ -16411,55 +16411,55 @@ int OHltTree::OpenHltCleanedDiJetPassed(
       std::vector<int> ohEleIts)
 {
    // fill the jet collection
-   int NohJet = 0;
-   float ohJetEta[200];
-   float ohJetPhi[200];
-   float ohJetEt[200];
-   float ohJetE[200];
-   float ohJetEMF[200];
-   float ohJetN90[200];
+   int NohMyJet = 0;
+   float ohMyJetEta[200];
+   float ohMyJetPhi[200];
+   float ohMyJetEt[200];
+   float ohMyJetE[200];
+   float ohMyJetEMF[200];
+   float ohMyJetN90[200];
 
    if ( (cor == false) && (algo == "Calo"))
    {
-      NohJet = NrecoJetCal;
-      for (int ohJetIt = 0; ohJetIt < NohJet; ++ohJetIt)
+      NohMyJet = NohJetCal;
+      for (int ohMyJetIt = 0; ohMyJetIt < NohMyJet; ++ohMyJetIt)
       {
-         ohJetEta[ohJetIt] = recoJetCalEta[ohJetIt];
-         ohJetPhi[ohJetIt] = recoJetCalPhi[ohJetIt];
-         ohJetEt[ohJetIt] = recoJetCalE[ohJetIt] * sin(2.*atan(exp(-1.
-               *recoJetCalEta[ohJetIt])));
-         ohJetE[ohJetIt] = recoJetCalE[ohJetIt];
-         ohJetEMF[ohJetIt] = recoJetCalEMF[ohJetIt];
-         ohJetN90[ohJetIt] = recoJetCalN90[ohJetIt];
+         ohMyJetEta[ohMyJetIt] = ohJetCalEta[ohMyJetIt];
+         ohMyJetPhi[ohMyJetIt] = ohJetCalPhi[ohMyJetIt];
+         ohMyJetEt[ohMyJetIt] = ohJetCalE[ohMyJetIt] * sin(2.*atan(exp(-1.
+               *ohJetCalEta[ohMyJetIt])));
+         ohMyJetE[ohMyJetIt] = ohJetCalE[ohMyJetIt];
+         ohMyJetEMF[ohMyJetIt] = ohJetCalEMF[ohMyJetIt];
+         ohMyJetN90[ohMyJetIt] = ohJetCalN90[ohMyJetIt];
       }
    }
 
    if ( (cor == true) && (algo == "Calo"))
    {
-      NohJet = NrecoJetCorCal;
-      for (int ohJetIt = 0; ohJetIt < NohJet; ++ohJetIt)
+      NohMyJet = NohJetCorCal;
+      for (int ohMyJetIt = 0; ohMyJetIt < NohMyJet; ++ohMyJetIt)
       {
-         ohJetEta[ohJetIt] = recoJetCorCalEta[ohJetIt];
-         ohJetPhi[ohJetIt] = recoJetCorCalPhi[ohJetIt];
-//          ohJetEt[ohJetIt] = recoJetCorCalE[ohJetIt] * sin(2.*atan(exp(-1.
-//                *recoJetCorCalEta[ohJetIt])));
-         ohJetEt[ohJetIt] = recoJetCorCalPt[ohJetIt];
-         ohJetE[ohJetIt] = recoJetCorCalE[ohJetIt];
-         ohJetEMF[ohJetIt] = recoJetCorCalEMF[ohJetIt];
-         ohJetN90[ohJetIt] = recoJetCorCalN90[ohJetIt];
+         ohMyJetEta[ohMyJetIt] = ohJetCorCalEta[ohMyJetIt];
+         ohMyJetPhi[ohMyJetIt] = ohJetCorCalPhi[ohMyJetIt];
+//          ohMyJetEt[ohMyJetIt] = ohJetCorCalE[ohMyJetIt] * sin(2.*atan(exp(-1.
+//                *ohJetCorCalEta[ohMyJetIt])));
+         ohMyJetEt[ohMyJetIt] = ohJetCorCalPt[ohMyJetIt];
+         ohMyJetE[ohMyJetIt] = ohJetCorCalE[ohMyJetIt];
+         ohMyJetEMF[ohMyJetIt] = ohJetCorCalEMF[ohMyJetIt];
+         ohMyJetN90[ohMyJetIt] = ohJetCorCalN90[ohMyJetIt];
       }
    }
 
    if ( (cor == false) && (algo == "PF"))
    {
-      NohJet = NohPFJet;
-      for (int ohJetIt = 0; ohJetIt < NohJet; ++ohJetIt)
+      NohMyJet = NohPFJet;
+      for (int ohMyJetIt = 0; ohMyJetIt < NohMyJet; ++ohMyJetIt)
       {
-         ohJetEta[ohJetIt] = pfJetEta[ohJetIt];
-         ohJetPhi[ohJetIt] = pfJetPhi[ohJetIt];
-         ohJetEt[ohJetIt] = pfJetPt[ohJetIt];
-         ohJetEMF[ohJetIt] = -1.;
-         ohJetN90[ohJetIt] = -1.;
+         ohMyJetEta[ohMyJetIt] = pfJetEta[ohMyJetIt];
+         ohMyJetPhi[ohMyJetIt] = pfJetPhi[ohMyJetIt];
+         ohMyJetEt[ohMyJetIt] = pfJetPt[ohMyJetIt];
+         ohMyJetEMF[ohMyJetIt] = -1.;
+         ohMyJetN90[ohMyJetIt] = -1.;
       }
    }
 
@@ -16472,22 +16472,22 @@ int OHltTree::OpenHltCleanedDiJetPassed(
    float ohCleanedJetEMF[200];
    float ohCleanedJetN90[200];
 
-   for (int ohJetIt = 0; ohJetIt < NohJet; ++ohJetIt)
+   for (int ohMyJetIt = 0; ohMyJetIt < NohMyJet; ++ohMyJetIt)
    {
       bool isMatching = false;
       for (unsigned int ohEleIt = 0; ohEleIt < ohEleIts.size(); ++ohEleIt)
-         if (deltaR(ohEleEta[ohEleIts.at(ohEleIt)], ohElePhi[ohEleIts.at(ohEleIt)], ohJetEta[ohJetIt], ohJetPhi[ohJetIt]) < 0.5)
+         if (deltaR(ohEleEta[ohEleIts.at(ohEleIt)], ohElePhi[ohEleIts.at(ohEleIt)], ohMyJetEta[ohMyJetIt], ohMyJetPhi[ohMyJetIt]) < 0.3)
             isMatching = true;
 
       if (isMatching == true)
          continue;
 
-      ohCleanedJetEta[NohCleanedJet] = ohJetEta[ohJetIt];
-      ohCleanedJetPhi[NohCleanedJet] = ohJetPhi[ohJetIt];
-      ohCleanedJetEt[NohCleanedJet] = ohJetEt[ohJetIt];
-      ohCleanedJetE[NohCleanedJet] = ohJetE[ohJetIt];
-      ohCleanedJetEMF[NohCleanedJet] = ohJetEMF[ohJetIt];
-      ohCleanedJetN90[NohCleanedJet] = ohJetN90[ohJetIt];
+      ohCleanedJetEta[NohCleanedJet] = ohMyJetEta[ohMyJetIt];
+      ohCleanedJetPhi[NohCleanedJet] = ohMyJetPhi[ohMyJetIt];
+      ohCleanedJetEt[NohCleanedJet] = ohMyJetEt[ohMyJetIt];
+      ohCleanedJetE[NohCleanedJet] = ohMyJetE[ohMyJetIt];
+      ohCleanedJetEMF[NohCleanedJet] = ohMyJetEMF[ohMyJetIt];
+      ohCleanedJetN90[NohCleanedJet] = ohMyJetN90[ohMyJetIt];
       ++NohCleanedJet;
    }
 
@@ -16538,7 +16538,6 @@ int OHltTree::OpenHltCleanedDiJetPassed(
 
    return rc;
 }
-
 
 int OHltTree::OpenHlt1ElectronVbfEleIDPassed(
       float Et,
@@ -16698,7 +16697,6 @@ int OHltTree::OpenHlt1ElectronVbfEleIDPassed(
 
    return rc;
 }
-
 
 
 
