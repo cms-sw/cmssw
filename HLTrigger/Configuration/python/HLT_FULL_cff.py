@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HLT/V252 (CMSSW_4_2_0_HLT2)
+# /dev/CMSSW_4_2_0/HLT/V255 (CMSSW_4_2_0_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V252')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V255')
 )
 
 streams = cms.PSet( 
@@ -227,8 +227,6 @@ datasets = cms.PSet(
     'HLT_R014_MR150_CentralJet40_BTagIP_v2',
     'HLT_R014_MR150_v1',
     'HLT_R014_MR450_CentralJet40_BTagIP_v2',
-    'HLT_R014_MR600_v1',
-    'HLT_R014_MR650_v1',
     'HLT_R020_MR150_v1',
     'HLT_R020_MR350_CentralJet40_BTagIP_v2',
     'HLT_R020_MR500_v1',
@@ -655,8 +653,6 @@ datasets = cms.PSet(
     'HLT_R014_MR150_CentralJet40_BTagIP_v2',
     'HLT_R014_MR150_v1',
     'HLT_R014_MR450_CentralJet40_BTagIP_v2',
-    'HLT_R014_MR600_v1',
-    'HLT_R014_MR650_v1',
     'HLT_R020_MR150_v1',
     'HLT_R020_MR350_CentralJet40_BTagIP_v2',
     'HLT_R020_MR500_v1',
@@ -1026,8 +1022,6 @@ datasets = cms.PSet(
     'HLT_R014_MR150_CentralJet40_BTagIP_v2',
     'HLT_R014_MR150_v1',
     'HLT_R014_MR450_CentralJet40_BTagIP_v2',
-    'HLT_R014_MR600_v1',
-    'HLT_R014_MR650_v1',
     'HLT_R020_MR150_v1',
     'HLT_R020_MR350_CentralJet40_BTagIP_v2',
     'HLT_R020_MR500_v1',
@@ -1396,8 +1390,6 @@ datasets = cms.PSet(
     'HLT_R014_MR150_CentralJet40_BTagIP_v2',
     'HLT_R014_MR150_v1',
     'HLT_R014_MR450_CentralJet40_BTagIP_v2',
-    'HLT_R014_MR600_v1',
-    'HLT_R014_MR650_v1',
     'HLT_R020_MR150_v1',
     'HLT_R020_MR350_CentralJet40_BTagIP_v2',
     'HLT_R020_MR500_v1',

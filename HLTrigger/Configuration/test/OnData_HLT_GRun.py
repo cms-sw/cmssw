@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V62 (CMSSW_4_2_0_HLT2)
+# /dev/CMSSW_4_2_0/GRun/V63 (CMSSW_4_2_0_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V62')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V63')
 )
 
 process.streams = cms.PSet( 
@@ -169,7 +169,6 @@ process.datasets = cms.PSet(
     'HLT_R014_MR150_CentralJet40_BTagIP_v2',
     'HLT_R014_MR150_v1',
     'HLT_R014_MR450_CentralJet40_BTagIP_v2',
-    'HLT_R014_MR600_v1',
     'HLT_R020_MR150_v1',
     'HLT_R020_MR350_CentralJet40_BTagIP_v2',
     'HLT_R020_MR500_v1',
@@ -580,7 +579,6 @@ process.datasets = cms.PSet(
     'HLT_R014_MR150_CentralJet40_BTagIP_v2',
     'HLT_R014_MR150_v1',
     'HLT_R014_MR450_CentralJet40_BTagIP_v2',
-    'HLT_R014_MR600_v1',
     'HLT_R020_MR150_v1',
     'HLT_R020_MR350_CentralJet40_BTagIP_v2',
     'HLT_R020_MR500_v1',
@@ -886,7 +884,6 @@ process.datasets = cms.PSet(
     'HLT_R014_MR150_CentralJet40_BTagIP_v2',
     'HLT_R014_MR150_v1',
     'HLT_R014_MR450_CentralJet40_BTagIP_v2',
-    'HLT_R014_MR600_v1',
     'HLT_R020_MR150_v1',
     'HLT_R020_MR350_CentralJet40_BTagIP_v2',
     'HLT_R020_MR500_v1',
@@ -1191,7 +1188,6 @@ process.datasets = cms.PSet(
     'HLT_R014_MR150_CentralJet40_BTagIP_v2',
     'HLT_R014_MR150_v1',
     'HLT_R014_MR450_CentralJet40_BTagIP_v2',
-    'HLT_R014_MR600_v1',
     'HLT_R020_MR150_v1',
     'HLT_R020_MR350_CentralJet40_BTagIP_v2',
     'HLT_R020_MR500_v1',
@@ -2818,10 +2814,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 140, 100, 70, 50, 35, 21, 14, 10, 7, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_JetE30_NoBPTX_v3" ),
-        prescales = cms.vuint32( 300, 200, 150, 100, 80, 50, 30, 20, 15, 1 )
-      ),
-      cms.PSet(  pathName = cms.string( "HLT_JetE30_NoBPTX_NoHalo_v5" ),
-        prescales = cms.vuint32( 10, 10, 10, 10, 10, 10, 10, 10, 10, 1 )
+        prescales = cms.vuint32( 24, 24, 24, 24, 24, 24, 24, 24, 24, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HT150_v4" ),
         prescales = cms.vuint32( 5600, 4000, 2800, 2000, 1400, 840, 560, 400, 280, 1 )
@@ -8254,18 +8247,6 @@ process.hltR014MR450 = cms.EDFilter( "HLTRFilter",
     inputMetTag = cms.InputTag( "hltMet" ),
     minR = cms.double( 0.14 ),
     minMR = cms.double( 450.0 ),
-    doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
-)
-process.hltPreR014MR600 = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    offset = cms.uint32( 0 )
-)
-process.hltR014MR600 = cms.EDFilter( "HLTRFilter",
-    inputTag = cms.InputTag( "hltRHemisphere" ),
-    inputMetTag = cms.InputTag( "hltMet" ),
-    minR = cms.double( 0.14 ),
-    minMR = cms.double( 600.0 ),
     doRPrime = cms.bool( False ),
     acceptNJ = cms.bool( True )
 )
@@ -24528,7 +24509,6 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_R014_MR150_CentralJet40_BTagIP_v2',
   'HLT_R014_MR150_v1',
   'HLT_R014_MR450_CentralJet40_BTagIP_v2',
-  'HLT_R014_MR600_v1',
   'HLT_R020_MR150_v1',
   'HLT_R020_MR350_CentralJet40_BTagIP_v2',
   'HLT_R020_MR500_v1',
@@ -24878,7 +24858,6 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_R014_MR150_CentralJet40_BTagIP_v2',
   'HLT_R014_MR150_v1',
   'HLT_R014_MR450_CentralJet40_BTagIP_v2',
-  'HLT_R014_MR600_v1',
   'HLT_R020_MR150_v1',
   'HLT_R020_MR350_CentralJet40_BTagIP_v2',
   'HLT_R020_MR500_v1',
@@ -25227,7 +25206,6 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_R014_MR150_CentralJet40_BTagIP_v2',
   'HLT_R014_MR150_v1',
   'HLT_R014_MR450_CentralJet40_BTagIP_v2',
-  'HLT_R014_MR600_v1',
   'HLT_R020_MR150_v1',
   'HLT_R020_MR350_CentralJet40_BTagIP_v2',
   'HLT_R020_MR500_v1',
@@ -25667,7 +25645,6 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_R014_MR150_CentralJet40_BTagIP_v2',
   'HLT_R014_MR150_v1',
   'HLT_R014_MR450_CentralJet40_BTagIP_v2',
-  'HLT_R014_MR600_v1',
   'HLT_R020_MR150_v1',
   'HLT_R020_MR350_CentralJet40_BTagIP_v2',
   'HLT_R020_MR500_v1',
@@ -26082,7 +26059,6 @@ process.HLT_MET200_v3 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL
 process.HLT_R014_MR150_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleJet36Central + process.hltPreR014MR150 + process.HLTRSequenceDiJet56 + process.hltR014MR150 + process.HLTEndSequence )
 process.HLT_R014_MR150_CentralJet40_BTagIP_v2 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleJet36Central + process.hltPreR014MR150BTag + process.HLTRSequenceDiJet56 + process.hltR014MR150 + process.hltBJetRAzr + process.HLTBTagIPSequenceL25SlimRAzr + process.HLTBTagIPSequenceL3RAzr + process.hltBLifetimeL3FilterRAzr + process.HLTEndSequence )
 process.HLT_R014_MR450_CentralJet40_BTagIP_v2 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleJet36Central + process.hltPreR014MR450BTag + process.HLTRSequenceDiJet56 + process.hltR014MR450 + process.hltBJetRAzr + process.HLTBTagIPSequenceL25SlimRAzr + process.HLTBTagIPSequenceL3RAzr + process.hltBLifetimeL3FilterRAzr + process.HLTEndSequence )
-process.HLT_R014_MR600_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleJet36Central + process.hltPreR014MR600 + process.HLTRSequenceDiJet56 + process.hltR014MR600 + process.HLTEndSequence )
 process.HLT_R020_MR150_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleJet36Central + process.hltPreR020MR150 + process.HLTRSequenceDiJet56 + process.hltR020MR150 + process.HLTEndSequence )
 process.HLT_R020_MR350_CentralJet40_BTagIP_v2 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleJet36Central + process.hltPreR020MR350BTag + process.HLTRSequenceDiJet56 + process.hltR020MR350 + process.hltBJetRAzr + process.HLTBTagIPSequenceL25SlimRAzr + process.HLTBTagIPSequenceL3RAzr + process.hltBLifetimeL3FilterRAzr + process.HLTEndSequence )
 process.HLT_R020_MR500_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleJet36Central + process.hltPreR020MR500 + process.HLTRSequenceDiJet56 + process.hltR020MR500 + process.HLTEndSequence )

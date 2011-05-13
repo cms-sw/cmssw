@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V62
+# /dev/CMSSW_4_2_0/GRun/V63
 
 import FWCore.ParameterSet.Config as cms
 
@@ -144,7 +144,6 @@ streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_DiJet130_PT130_v
     'HLT_R014_MR150_CentralJet40_BTagIP_v2', 
     'HLT_R014_MR150_v1', 
     'HLT_R014_MR450_CentralJet40_BTagIP_v2', 
-    'HLT_R014_MR600_v1', 
     'HLT_R020_MR150_v1', 
     'HLT_R020_MR350_CentralJet40_BTagIP_v2', 
     'HLT_R020_MR500_v1', 
