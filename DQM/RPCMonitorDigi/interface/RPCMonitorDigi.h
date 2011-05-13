@@ -32,18 +32,23 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
         void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
 	/// Booking of MonitoringElement for one RPCDetId (= roll)
-	std::map<std::string, MonitorElement*> bookRollME(RPCDetId& , const edm::EventSetup&, std::string );		
-	
+	//	std::map<std::string, MonitorElement*> bookRollME(RPCDetId& , const edm::EventSetup&, std::string );		
+	void bookRollME(RPCDetId& , const edm::EventSetup&, const std::string &, std::map<std::string,
+MonitorElement*> &);
+
 	/// Booking of MonitoringElement at Sector/Ring level
-	std::map<std::string, MonitorElement*> bookSectorRingME(std::string);
+	//	std::map<std::string, MonitorElement*> bookSectorRingME(std::string);
+	void bookSectorRingME(const std::string&, std::map<std::string, MonitorElement*> &);
 
 	/// Booking of MonitoringElemnt at Wheel/Disk level
-	std::map<std::string, MonitorElement*> bookWheelDiskME(std::string );
+	//	std::map<std::string, MonitorElement*> bookWheelDiskME(std::string );
+	void bookWheelDiskME(const std::string &, std::map<std::string, MonitorElement*> &);
+
+
 
 	/// Booking of MonitoringElemnt at region (Barrel/Endcap) level
-	std::map<std::string, MonitorElement*> bookRegionME(std::string );
-
-      
+	//	std::map<std::string, MonitorElement*> bookRegionME(std::string );
+      void bookRegionME(const std::string &, std::map<std::string, MonitorElement*> &);
 
    private:
 

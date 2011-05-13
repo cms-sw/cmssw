@@ -26,7 +26,7 @@ process.source = cms.Source("PoolSource",
                                                               'rfio:/castor/cern.ch/user/c/cimmino/Mu/143727/FE2C2F5F-4CAF-DF11-AA49-0030487A3C9A.root')
                             )
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 
 ################ Condition #################
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
@@ -79,7 +79,7 @@ process.rpcFEDIntegrity.RPCRawCountsInputTag = 'provaDiNoCrash'
 process.load("DQM.RPCMonitorClient.RPCMonitorLinkSynchro_cfi")
 
 
-############### DQM Client Modules ###############
+######### DQM Client Modules ###############
 import DQM.RPCMonitorClient.RPCDqmClient_cfi
 
 process.rpcdqmclientNOISE = DQM.RPCMonitorClient.RPCDqmClient_cfi.rpcdqmclient.clone(
@@ -99,12 +99,12 @@ if useMuons :
         RecHitTypeFolder = cms.untracked.string("Muon")
         )
 
-########### RPC RecHit Probability Client #########
+##### RPC RecHit Probability Client #######
 process.load("DQM.RPCMonitorClient.RPCRecHitProbabilityClient_cfi")
 
 
 
-################# Quality Tests ##################
+############## Quality Tests ##############
 process.qTesterRPC = cms.EDAnalyzer("QualityTester",
                                     qtList = cms.untracked.FileInPath('DQM/RPCMonitorClient/test/RPCQualityTests.xml'),
                                     prescaleFactor = cms.untracked.int32(1),
@@ -112,7 +112,7 @@ process.qTesterRPC = cms.EDAnalyzer("QualityTester",
                                     qtestOnEndRun = cms.untracked.bool(True)
                                     )
 
-################ Chamber Quality #################
+############## Chamber Quality ############
 import DQM.RPCMonitorClient.RPCChamberQuality_cfi
 
 process.rpcChamberQualityNOISE = DQM.RPCMonitorClient.RPCChamberQuality_cfi.rpcChamberQuality.clone(
@@ -129,7 +129,7 @@ if useMuons :
         )
 
 
-################ Event Summary #################
+################ Event Summary ###########
 import DQM.RPCMonitorClient.RPCEventSummary_cfi
 
 process.rpcEventSummaryNOISE = DQM.RPCMonitorClient.RPCEventSummary_cfi.rpcEventSummary.clone(
@@ -145,7 +145,7 @@ process.rpcEventSummaryNOISE = DQM.RPCMonitorClient.RPCEventSummary_cfi.rpcEvent
 ## )
 
 
-############## Message Logger ####################
+########### Message Logger ##############
 process.MessageLogger = cms.Service("MessageLogger",
                                     debugModules = cms.untracked.vstring('*'),
                                     cout = cms.untracked.PSet(threshold = cms.untracked.string('INFO')),
@@ -153,7 +153,7 @@ process.MessageLogger = cms.Service("MessageLogger",
                                     )
 
 
-############### Output Module ##############
+############ Output Module ##############
 process.out = cms.OutputModule("PoolOutputModule",
    fileName = cms.untracked.string('/tmp/cimmino/RPCDQM.root'),
    outputCommands = cms.untracked.vstring("keep *")
@@ -174,13 +174,13 @@ process.out = cms.OutputModule("PoolOutputModule",
 ## process.TimerService = cms.Service("TimerService", useCPUtime = cms.untracked.bool(True))
 
 
-###########   Private Saver ################
+#########   Private Saver ###############
 process.savedqmfile = cms.EDAnalyzer("SaveDQMFile",
-                                     OutputFile = cms.untracked.string("/afs/cern.ch/user/c/cimmino/scratch0/CMSSW/Offline/CMSSW_4_2_0_pre5/src/DQM/RPCMonitorDigi/test/DQM_143727.root")
+                                     OutputFile = cms.untracked.string("/tmp/cimmino/DQM_143727.root")
                                      )
 
 
-############# Path ########################
+############# Path ######################
 
 ## process.rpcdqmsource = cms.Sequence(process.rpcdigidqm)
 ## process.rpcdqmclient = cms.Sequence(process.qTesterRPC * process.rpcdqmclient * process.rpcChamberQuality  * process.rpcEventSummary * process.dqmSaver)
@@ -194,7 +194,7 @@ if useMuons:
     process.rpcClientMuonSeq = cms.Sequence(process.rpcdqmclientMUON * process.rpcChamberQualityMUON)
 
 if useMuons:
-    process.p = cms.Path(process.rpcSourceSeq  * process.qTesterRPC *process.rpcrechitprobabilityclient * process.rpcClientNoiseSeq  * process.rpcClientMuonSeq * process.savedqmfile)
+    process.p = cms.Path(process.rpcSourceSeq  * process.qTesterRPC * process.rpcrechitprobabilityclient * process.rpcClientNoiseSeq  * process.rpcClientMuonSeq * process.savedqmfile)
 else :
     process.p = cms.Path(process.rpcSourceSeq  * process.qTesterRPC * process.rpcrechitprobabilityclient * process.rpcClientNoiseSeq  * process.savedqmfile)    
 #process.e = cms.EndPath(process.out)

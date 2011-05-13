@@ -54,10 +54,16 @@ void RPCMonitorDigi::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
 
   //Book 
 
-  regionNoiseCollection = this->bookRegionME(noiseFolder_);
-  sectorRingNoiseCollection = this->bookSectorRingME(noiseFolder_);
-  wheelDiskNoiseCollection = this->bookWheelDiskME(noiseFolder_);
+  //regionNoiseCollection = this->bookRegionME(noiseFolder_);
+  //sectorRingNoiseCollection = this->bookSectorRingME(noiseFolder_);
+  //wheelDiskNoiseCollection = this->bookWheelDiskME(noiseFolder_);
   
+  this->bookRegionME(noiseFolder_, regionNoiseCollection);
+  this->bookSectorRingME(noiseFolder_, sectorRingNoiseCollection);
+  this->bookWheelDiskME(noiseFolder_, wheelDiskNoiseCollection);
+
+
+
   std::string currentFolder = subsystemFolder_ +"/"+noiseFolder_;
   dbe->setCurrentFolder(currentFolder);
   
@@ -68,10 +74,13 @@ void RPCMonitorDigi::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
   
   if(useMuonDigis_ ){
 
-    regionMuonCollection = this->bookRegionME(muonFolder_);
-    sectorRingMuonCollection = this->bookSectorRingME(muonFolder_);
-    wheelDiskMuonCollection = this->bookWheelDiskME(muonFolder_);
-
+  //   regionMuonCollection = this->bookRegionME(muonFolder_);
+//     sectorRingMuonCollection = this->bookSectorRingME(muonFolder_);
+//     wheelDiskMuonCollection = this->bookWheelDiskME(muonFolder_);
+    this->bookRegionME(muonFolder_, regionMuonCollection);
+    this->bookSectorRingME(muonFolder_, sectorRingMuonCollection);
+    this->bookWheelDiskME(muonFolder_, wheelDiskMuonCollection);
+    
     currentFolder = subsystemFolder_ +"/"+muonFolder_;
     dbe->setCurrentFolder(currentFolder); 
    
@@ -87,7 +96,6 @@ void RPCMonitorDigi::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
     NumberOfRecHitMuon_ = dbe->get(currentFolder+"/NumberOfRPCRecHitsMuons");
     if(NumberOfRecHitMuon_) dbe->removeElement(NumberOfRecHitMuon_->getName());
     NumberOfRecHitMuon_ = dbe->book1D("NumberOfRecHitMuons", "Number of RPC RecHits per Muon", 8, -0.5, 7.5);
-
   }
    
 
@@ -104,14 +112,17 @@ void RPCMonitorDigi::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
 	//booking all histograms
 	RPCGeomServ rpcsrv(rpcId);
 	std::string nameRoll = rpcsrv.name();
-	if(useMuonDigis_) meMuonCollection[(uint32_t)rpcId] = bookRollME(rpcId,iSetup, "Muon");
-	meNoiseCollection[(uint32_t)rpcId] = bookRollME(rpcId,iSetup, "Noise");
+	if(useMuonDigis_) bookRollME(rpcId,iSetup, muonFolder_, meMuonCollection[(uint32_t)rpcId]);
+	bookRollME(rpcId,iSetup, noiseFolder_, meNoiseCollection[(uint32_t)rpcId]);
+
+// 	if(useMuonDigis_) meMuonCollection[(uint32_t)rpcId] = bookRollME(rpcId,iSetup,  muonFolder_);
+// 	meNoiseCollection[(uint32_t)rpcId] = bookRollME(rpcId,iSetup,  noiseFolder_);
       }
     }
   }//end loop on geometry to book all MEs
 
 
- //Clear flags and counters;
+  //Clear flags and counters;
   dcs_ = true;
   muonCounter_ = 0;
   noiseCounter_ = 0;
@@ -175,8 +186,11 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
 	  }else {
 	    rechitMuon[detId].push_back(*rpcRecHit);
 	  }
+	  delete rpcRecHit;
+	  delete tkRecHit;
 	}
       }// end loop on mu rechits
+      delete muCand;
     }
 
     if( NumberOfMuon_)  NumberOfMuon_->Fill(numMuons);
