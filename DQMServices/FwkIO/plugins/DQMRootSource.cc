@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.10 2011/05/13 15:31:30 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.11 2011/05/13 15:54:45 chrjones Exp $
 //
 
 // system include files
@@ -432,7 +432,19 @@ DQMRootSource::readRunAuxiliary_()
 {
   //std::cout <<"readRunAuxiliary_"<<std::endl;
   assert(m_nextIndexItr != m_orderedIndices.end());
-  const RunLumiToRange runLumiRange = m_runlumiToRange[*m_nextIndexItr];
+  unsigned int index = *m_nextIndexItr;
+  RunLumiToRange runLumiRange = m_runlumiToRange[index];
+  unsigned int run = runLumiRange.m_run;
+  //NOTE: this could be a lumi instead of the actual run. We need to find the time for the run
+  // so we will scan forward
+  while(runLumiRange.m_lumi !=0 && ++index<m_runlumiToRange.size()) {
+    const RunLumiToRange& next = m_runlumiToRange[index];
+    if(runLumiRange.m_run == next.m_run && runLumiRange.m_lumi !=0) {
+      runLumiRange = next;
+    } else {
+      break;
+    }
+  }
 
   m_runAux.id() = edm::RunID(runLumiRange.m_run);
   m_runAux.setBeginTime(edm::Timestamp(runLumiRange.m_beginTime));
