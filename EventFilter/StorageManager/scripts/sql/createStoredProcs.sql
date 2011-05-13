@@ -217,9 +217,8 @@ GRANT execute on FILES_INJECTED_PROC_INSTANCES to CMS_STOMGR_W;
 -- ###
 
 -- File has been sent to the Copy Manager
-drop PROCEDURE FILES_TRANS_NEW_PROC;
-drop PROCEDURE FILES_TRANS_NEW_PROC_SUMMARY;
-drop PROCEDURE FILES_TRANS_NEW_PROC_INSTANCES;
+
+
 CREATE OR REPLACE PROCEDURE TRANS_NEW_PROC_SUMMARY (
     v_filename IN Varchar
 )
@@ -271,7 +270,7 @@ END;
 GRANT execute on TRANS_NEW_PROC_INSTANCES to CMS_STOMGR_TIER0_W;
 
 -- File has been copied by the Copy Worker
-drop PROCEDURE FILES_TRANS_COPIED_PROC;
+
 CREATE OR REPLACE PROCEDURE TRANS_COPIED_PROC_SUMMARY (
     v_filename IN Varchar
 )
@@ -325,8 +324,35 @@ END;
 GRANT execute on TRANS_COPIED_PROC_INSTANCES to CMS_STOMGR_TIER0_W;
 
 -- File has been checked by Tier0
-drop PROCEDURE FILES_TRANS_CHECKED_PROC;
+
 CREATE OR REPLACE PROCEDURE TRANS_CHECKED_PROC_SUMMARY (
+    v_filename IN Varchar
+)
+IS
+v_producer  VARCHAR2(100);
+v_stream    VARCHAR2(100);
+v_instance  NUMBER(5);
+v_runnumber NUMBER(10);
+v_timestamp TIMESTAMP(6);
+BEGIN
+     SELECT PRODUCER, STREAM, INSTANCE, RUNNUMBER
+     into v_producer, v_stream, v_instance, v_runnumber
+     FROM FILES_CREATED
+     WHERE FILENAME = v_filename;
+     IF v_producer = 'StorageManager' THEN
+        SELECT ITIME into v_timestamp from FILES_TRANS_CHECKED where FILENAME = v_filename;
+        UPDATE SM_SUMMARY
+            SET S_CHECKED     = NVL(S_CHECKED,0)     + 1,
+                S_NOTREPACKED = NVL(S_NOTREPACKED,0) + DECODE(v_stream, 'Error', 1, '%_NoRepack', 1, 0),
+                START_REPACK_TIME = LEAST(v_timestamp, NVL(START_REPACK_TIME, v_timestamp)),
+                LAST_UPDATE_TIME  = sysdate
+        WHERE RUNNUMBER = v_runnumber AND STREAM=v_stream;
+    END IF;
+END;
+/
+GRANT execute on TRANS_CHECKED_PROC_SUMMARY to CMS_STOMGR_TIER0_W;
+
+CREATE OR REPLACE PROCEDURE TRANS_CHECKED_PROC_INSTANCES (
     v_filename IN Varchar
 )
 IS
@@ -343,41 +369,19 @@ BEGIN
 
     IF v_producer = 'StorageManager' THEN
         SELECT ITIME into v_timestamp from FILES_TRANS_CHECKED where FILENAME = v_filename;
-        UPDATE SM_SUMMARY
-        SET S_CHECKED = NVL(S_CHECKED,0) + 1,
-            START_REPACK_TIME = LEAST(v_timestamp, NVL(START_REPACK_TIME, v_timestamp)),
-            LAST_UPDATE_TIME = sysdate
-        WHERE RUNNUMBER = v_runnumber AND STREAM=v_stream;
-    END IF;
-END;
-/
-GRANT execute on TRANS_CHECKED_PROC_SUMMARY to CMS_STOMGR_TIER0_W;
-
-CREATE OR REPLACE PROCEDURE TRANS_CHECKED_PROC_INSTANCES (
-    v_filename IN Varchar
-)
-IS
-v_producer  VARCHAR2(100);
-v_stream    VARCHAR2(100);
-v_instance  NUMBER(5);
-v_runnumber NUMBER(10);
-BEGIN
-     SELECT PRODUCER, STREAM, INSTANCE, RUNNUMBER
-     into v_producer, v_stream, v_instance, v_runnumber
-     FROM FILES_CREATED
-     WHERE FILENAME = v_filename;
-
-    IF v_producer = 'StorageManager' THEN
         UPDATE SM_INSTANCES
-        SET N_CHECKED = NVL(N_CHECKED,0) + 1
-        WHERE RUNNUMBER = v_runnumber AND INSTANCE = v_instance;
+        SET N_CHECKED     = NVL(N_CHECKED,0)     + 1,
+            START_REPACK_TIME = LEAST(v_timestamp, NVL(START_REPACK_TIME, v_timestamp)),
+            N_NOTREPACKED = NVL(N_NOTREPACKED,0) + DECODE(v_stream, 'Error', 1, '%_NoRepack', 1, 0)
+        WHERE RUNNUMBER   = v_runnumber AND INSTANCE = v_instance;
     END IF;
 END;
 /
 GRANT execute on TRANS_CHECKED_PROC_INSTANCES to CMS_STOMGR_TIER0_W;
 
+
 -- File has been repacked by Tier0
-drop PROCEDURE FILES_TRANS_REPACKED_PROC;
+
 CREATE OR REPLACE PROCEDURE TRANS_REPACKED_PROC_SUMMARY (
     v_filename IN Varchar
 )
@@ -405,6 +409,7 @@ END;
 /
 GRANT execute on TRANS_REPACKED_PROC_SUMMARY to CMS_STOMGR_TIER0_W;
 
+
 CREATE OR REPLACE PROCEDURE TRANS_REPACKED_PROC_INSTANCES (
     v_filename IN Varchar
 )
@@ -413,6 +418,7 @@ v_producer  VARCHAR2(100);
 v_stream    VARCHAR2(100);
 v_instance  NUMBER(5);
 v_runnumber NUMBER(10);
+v_timestamp TIMESTAMP(6);
 BEGIN
     SELECT PRODUCER, STREAM, INSTANCE, RUNNUMBER
     into v_producer, v_stream, v_instance, v_runnumber
@@ -420,8 +426,10 @@ BEGIN
     WHERE FILENAME = v_filename;
 
     IF v_producer = 'StorageManager' THEN
+        SELECT ITIME into v_timestamp from FILES_TRANS_COPIED where FILENAME = v_filename;
         UPDATE SM_INSTANCES
-        SET N_REPACKED = NVL(N_REPACKED,0) + 1
+        SET N_REPACKED = NVL(N_REPACKED,0) + 1,
+	STOP_REPACK_TIME = GREATEST(v_timestamp, NVL(STOP_REPACK_TIME, v_timestamp))
         WHERE RUNNUMBER = v_runnumber AND INSTANCE=v_instance;
     END IF;
 END;

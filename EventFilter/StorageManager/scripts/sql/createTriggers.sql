@@ -204,13 +204,15 @@ BEGIN
      IF v_producer = 'StorageManager' THEN
      	UPDATE SM_SUMMARY
         	SET S_DELETED = NVL(S_DELETED,0) + 1,
-	    	LAST_UPDATE_TIME = sysdate
+	    	LAST_UPDATE_TIME = sysdate,
+                STOP_DELETE_TIME = sysdate
       	WHERE RUNNUMBER = v_runnumber AND STREAM=v_stream;
       	IF SQL%ROWCOUNT = 0 THEN
 	  	NULL;
       	END IF;
         UPDATE SM_INSTANCES
-                SET N_DELETED = NVL(N_DELETED,0) + 1
+                SET N_DELETED = NVL(N_DELETED,0) + 1,
+                STOP_DELETE_TIME = sysdate
         WHERE RUNNUMBER = v_runnumber AND INSTANCE = v_instance;
         IF SQL%ROWCOUNT = 0 THEN
                 NULL;

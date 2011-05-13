@@ -175,24 +175,24 @@ BEGIN
 END CHECKED_CHECK;
 /
 
-CREATE OR REPLACE FUNCTION REPACKED_CHECK ( lastWrite in DATE, lastTrans in DATE, s_repacked in number, s_checked in number, s_deleted in number)
+CREATE OR REPLACE FUNCTION REPACKED_CHECK ( lastWrite in DATE, lastTrans in DATE, s_repacked in number, s_notrepacked in number,  s_checked in number, s_deleted in number)
    RETURN NUMBER AS 
    status NUMBER;
 BEGIN
         status := 0;
 
     --if there is any difference, display with blue color, override later if more severe conditions
-    IF ( s_repacked != s_checked ) THEN
+    IF ( s_repacked + s_notrepacked != s_checked ) THEN
     		 status := 1;
 
         --if last check more than 4 hrs (14400 sec) ago and not all checked files are repacked  turn...
  	--(put in veto to ignore if deleted=checked!)
-	IF ( (ABS(time_diff(sysdate, lastTrans)) > 14400) AND (s_checked - s_repacked > 0) AND (s_checked - s_deleted > 0 ) ) THEN
+	IF ( (ABS(time_diff(sysdate, lastTrans)) > 14400) AND (s_checked - s_deleted > 0 ) ) THEN
     	        status := 2;  	
 
    		 --if last check more than 4+ days =105 hrs (378000) ago and not all checked files are repacked  turn magenta
    		 --(put in veto to ignore if deleted=checked!)
-		IF ( (ABS(time_diff(sysdate, lastTrans)) > 378000) AND (s_checked - s_repacked > 0) AND (s_checked - s_deleted > 0) ) THEN
+		IF ( (ABS(time_diff(sysdate, lastTrans)) > 378000) AND (s_checked - s_deleted > 0) ) THEN
     	   	     status := 3;
 		END IF;
 
@@ -244,7 +244,7 @@ BEGIN
 END TRANS_RATE_CHECK;
 /
 
-CREATE or REPLACE FUNCTION DELETED_CHECK (n_hosts in number, Start_time in DATE, s_deleted in number, s_checked in number, s_closed in number, LastTrans in DATE) 
+CREATE or REPLACE FUNCTION DELETED_CHECK (n_hosts in number, Start_time in DATE,  s_closed in number, s_checked in number, s_repacked in number, s_notrepacked in number, s_deleted in number, LastTrans in DATE) 
    RETURN NUMBER AS
    result_1      number;
    --delete      frequency
@@ -253,16 +253,17 @@ CREATE or REPLACE FUNCTION DELETED_CHECK (n_hosts in number, Start_time in DATE,
 BEGIN
    dfreq  := 20*60;
   
-
+ 
+   DBMS_OUTPUT.PUT_LINE (' Enter DELETED_CHECK....   << ' );
 
     result_1 := 0;
-    --no test: if no files "checked" that can be deleted
+    --: if all files "checked" are deleted then nothing to do:
     IF (  s_checked = s_deleted ) THEN
 	return result_1; 
     END IF;
 
 
-    --if there is any difference, display with blue color, override later if more severe conditions
+    --if there is any difference with checked, AT LEAST display with blue color, override later if more severe conditions
     IF ( s_checked != s_deleted ) THEN
        result_1 := 1;
     END IF;
@@ -287,8 +288,11 @@ BEGIN
 
 
 
-       --if run is ~ongoing (transfs in last 5 min):
-       IF ( time_diff(sysdate, LastTrans) < 5*60) THEN
+       --if run is ~ongoing (transfs in last 6 min):
+       IF ( time_diff(sysdate, LastTrans) < 6*60) THEN
+
+
+           DBMS_OUTPUT.PUT_LINE (s_deleted/s_checked || '  < 1.0 - (' || toffset ||' -X*' || dfreq||'/'|| time_diff( LastTrans, Start_time ) );
 
 
          IF (   s_deleted/s_checked < 1.0 - (toffset -  3*dfreq)/time_diff( LastTrans, Start_time ) ) THEN
@@ -298,19 +302,31 @@ BEGIN
            END IF;
          END IF;
          return result_1; 
-      END IF;
+      ELSE
+        --after run is over (no transf for 6 min):
 
+          DBMS_OUTPUT.PUT_LINE (s_deleted/s_checked || '  < 1.0 - (' || toffset ||' -X*' || dfreq||'/'||time_diff(sysdate, LastTrans )||')/'  ||time_diff( LastTrans, Start_time ) );
 
-     --after run is over (no transf for 5 min):
-     IF (   s_deleted/s_checked < 1.0 - GREATEST(toffset +  5*dfreq - time_diff(sysdate, LastTrans ), 0.0)/time_diff( LastTrans, Start_time ) ) THEN
-       result_1 := 2;
-       IF ( s_deleted/s_checked < 1.0 - GREATEST(toffset +  7*dfreq - time_diff(sysdate, LastTrans ), 0.0)/time_diff( LastTrans, Start_time ) ) THEN
-          result_1 := 3;
+        IF (   s_deleted/s_checked < 1.0 - GREATEST(toffset -  2*dfreq - time_diff(sysdate, LastTrans ), 0.0)/time_diff( LastTrans, Start_time ) ) THEN
+          result_1 := 2;
+          IF ( s_deleted/s_checked < 1.0 - GREATEST(toffset +  7*dfreq - time_diff(sysdate, LastTrans ), 0.0)/time_diff( LastTrans, Start_time ) ) THEN
+             result_1 := 3;
+          END IF;
+        END IF;
+
+        --some provisional overrides until more detailed clean up:
+       IF ( s_deleted = s_repacked ) THEN  --all has been deleted that we think we have a clear right to delete!
+          result_1 := 1;
        END IF;
-     END IF;
 
 
+      END IF;
   END IF;
+
+
+          DBMS_OUTPUT.PUT_LINE ( 'RETURN DELETED_CHECK: ' || result_1 );
+
+
 
 
 return result_1;
@@ -320,7 +336,7 @@ END DELETED_CHECK;
 
 
 --Provides per run summary information (one row per run)
-create or replace view V_SM_SUMMARY
+create or replace view V_SM_SUMMARY_FULL
 AS SELECT  
            "RUN_NUMBER", 
  	   "START_TIME",
@@ -339,6 +355,8 @@ AS SELECT
            "N_TRANSFERRED", 
 	   "N_CHECKED", 
 	   "N_REPACKED",
+	   "N_NOTREPACKED",
+	   "N_BOTHREPACKED",
 	   "N_DELETED",
 	   "APP_VERSION",
 	   "HLTKEY",
@@ -398,6 +416,8 @@ FROM (  SELECT  TO_CHAR( RUNNUMBER )          AS RUN_NUMBER,
 	      TO_CHAR ( SUM(NVL(s_Checked, 0) ) )                         AS N_CHECKED,
 	      TO_CHAR ( SUM(NVL(s_Deleted, 0) ) )                         AS N_DELETED, 
 	      TO_CHAR ( SUM(NVL(s_Repacked, 0) ) )                        AS N_REPACKED,
+	      TO_CHAR ( SUM(NVL(s_NOTRepacked, 0) ) )                     AS N_NOTREPACKED,
+	      TO_CHAR ( SUM(NVL(s_Repacked, 0) )+SUM(NVL(s_NOTRepacked, 0) ) ) AS N_BothREPACKED,
 	      substr(TO_CHAR(MAX(HLTKEY) ),8)                             AS HLTKEY,
 	      --This will turn magenta if the LABEL  contains the phrase "TransferTest"
              (CASE
@@ -428,12 +448,12 @@ FROM (  SELECT  TO_CHAR( RUNNUMBER )          AS RUN_NUMBER,
 	      TO_CHAR ( INJECTED_CHECK(SUM(NVL(s_NEW,0)), SUM(NVL(s_injected,0)),  SUM(NVL(s_Deleted, 0)), MAX(STOP_WRITE_TIME), NVL(MAX(N_INSTANCE), MAX(M_INSTANCE) + 1) ) )   AS INJECTED_STATUS,
 	      TO_CHAR ( TRANSFERRED_CHECK(MAX(STOP_WRITE_TIME), MAX(STOP_TRANS_TIME), SUM(NVL(s_NEW,0)), SUM(NVL(s_Copied,0)), NVL(MAX(N_INSTANCE), MAX(M_INSTANCE) + 1)   ) )   AS TRANSFERRED_STATUS,
 	      TO_CHAR ( CHECKED_CHECK(MAX(STOP_WRITE_TIME),  MAX(STOP_TRANS_TIME), SUM(NVL(s_CHECKED,0)),  SUM(NVL(s_COPIED,0)), NVL(MAX(N_INSTANCE), MAX(M_INSTANCE) + 1) ) )   AS CHECKED_STATUS,
-	      TO_CHAR ( REPACKED_CHECK(MAX(STOP_WRITE_TIME), MAX(STOP_TRANS_TIME), SUM(NVL(s_REPACKED,0)), SUM(NVL(s_CHECKED,0)), SUM(NVL(s_Deleted,0)) ) )   AS REPACKED_STATUS,
-	      TO_CHAR ( DELETED_CHECK( COUNT(DISTINCT N_INSTANCE), MIN(START_WRITE_TIME), SUM(NVL(s_Deleted, 0)), SUM(NVL(s_Checked, 0)), SUM(NVL(s_injected,0)), MAX(STOP_TRANS_TIME)) ) AS DELETED_STATUS,
+	      TO_CHAR ( REPACKED_CHECK(MAX(STOP_WRITE_TIME), MAX(STOP_TRANS_TIME), SUM(NVL(s_REPACKED,0)),  SUM(NVL(s_NOTREPACKED,0)), SUM(NVL(s_CHECKED,0)), SUM(NVL(s_Deleted,0)) ) )   AS REPACKED_STATUS,
+	      TO_CHAR ( DELETED_CHECK( COUNT(DISTINCT N_INSTANCE), MIN(START_WRITE_TIME),  SUM(NVL(s_injected,0)),  SUM(NVL(s_Checked, 0)),  SUM(NVL(s_Repacked, 0)),  SUM(NVL(s_NotRepacked, 0)),  SUM(NVL(s_Deleted, 0)), MAX(STOP_TRANS_TIME) ) ) AS DELETED_STATUS,
               MAX(STOP_WRITE_TIME) AS MAX_STOP_WRITE
          FROM (  SELECT  RUNNUMBER, STREAM, SETUPLABEL, APP_VERSION, S_LUMISECTION, 
                  S_FILESIZE, S_FILESIZE2D, S_FILESIZE2T0, S_NEVENTS, S_CREATED, S_INJECTED, 
-                 S_NEW,S_COPIED,S_CHECKED,S_INSERTED,S_REPACKED,S_DELETED, N_INSTANCE,M_INSTANCE,
+                 S_NEW,S_COPIED,S_CHECKED,S_INSERTED,S_REPACKED, S_NOTREPACKED, S_DELETED, N_INSTANCE,M_INSTANCE,
                  START_WRITE_TIME,STOP_WRITE_TIME,START_TRANS_TIME,STOP_TRANS_TIME,START_REPACK_TIME,
                  STOP_REPACK_TIME, HLTKEY,LAST_UPDATE_TIME
                  FROM SM_SUMMARY )
@@ -442,24 +462,66 @@ FROM (  SELECT  TO_CHAR( RUNNUMBER )          AS RUN_NUMBER,
    ) WHERE RUN_NUMBER=RUN_NUMBER2(+)
                     ORDER BY RUN_NUMBER DESC ;
  
-grant select on V_SM_SUMMARY to public;
+grant select on V_SM_SUMMARY_FULL to public;
 
 
 
 --
 
 
+--provide clone of run_summary but suppress NOTrepacked values!;
+create or replace view V_SM_SUMMARY
+AS  SELECT 
+           "RUN_NUMBER", 
+ 	   "START_TIME",
+	   "UPDATE_TIME",
+           "SETUPLABEL",
+	   "M_INSTANCE", 
+	   "NOTFILES",
+	   "TOTAL_SIZE",
+	   "NFILES", 
+	   "NEVTS",
+	   "RATE2D_AVG",
+	   "RATE2T_AVG", 
+	   "N_OPEN", 
+	   "N_CLOSED",
+	   "N_INJECTED",
+           "N_TRANSFERRED", 
+	   "N_CHECKED", 
+	   "N_REPACKED",
+	   "N_DELETED",
+	   "APP_VERSION",
+	   "HLTKEY",
+	   "SETUP_STATUS",
+           "NOTFILES_STATUS",
+	   "N_OPEN_STATUS",
+	   "WRITE_STATUS",
+	   "TRANS_STATUS",
+	   "INJECTED_STATUS",
+           "CHECKED_STATUS",
+	   "TRANSFERRED_STATUS",
+	   "REPACKED_STATUS",
+	   "DELETED_STATUS",
+	   "MAX_STOP_WRITE",
+           "RANK" 
+FROM (SELECT * FROM V_SM_SUMMARY_FULL )
+                ORDER BY RUN_NUMBER DESC ; 
+ 
+grant select on V_SM_SUMMARY to public;
+
+
 --Provides per run summary information (one row per run) for outstanding undeelted files
 --This is essentially a stupid replication of V_SM_SUMMARY + undelete file selections
 create or replace view V_SM_SUMMARY_UNDELETE
-AS SELECT * FROM (SELECT * FROM V_SM_SUMMARY WHERE (N_OPEN>0 OR NFILES!=N_DELETED OR  NOTFILES!=0) 
+AS  SELECT * FROM (SELECT * FROM V_SM_SUMMARY_Full WHERE (NOTFILES+N_OPEN+N_CLOSED>N_DELETED) 
                                                 AND NVL(time_diff(sysdate,MAX_STOP_WRITE)/60/60/24,1)<65),
                 (SELECT TO_CHAR (RUN_NUMBER) AS RUN_NUMBER2,
                         ROUND(time_diff(sysdate,MAX_STOP_WRITE)/60/60/24,2) as RUNAGE
-                           FROM V_SM_SUMMARY WHERE (N_OPEN>0 OR NFILES!=N_DELETED OR  NOTFILES!=0) 
+                           FROM V_SM_SUMMARY WHERE (NOTFILES+N_OPEN+N_CLOSED>N_DELETED) 
                                                 AND NVL(time_diff(sysdate,MAX_STOP_WRITE)/60/60/24,1)<65)
                 WHERE RUN_NUMBER=RUN_NUMBER2(+) and NVL(time_diff(sysdate,MAX_STOP_WRITE)/60/60,24)>5  
                 ORDER BY RUN_NUMBER DESC ;
+
  
 grant select on V_SM_SUMMARY_UNDELETE to public;
 
