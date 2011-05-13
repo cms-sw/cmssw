@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.9 2011/05/13 13:50:38 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.10 2011/05/13 15:31:30 chrjones Exp $
 //
 
 // system include files
@@ -187,6 +187,7 @@ namespace {
   struct RunLumiToRange { 
     unsigned int m_run, m_lumi,m_historyIDIndex;
     ULong64_t m_beginTime;
+    ULong64_t m_endTime;
     ULong64_t m_firstIndex, m_lastIndex; //last is inclusive
     unsigned int m_type; //A value in TypeIndex 
   };
@@ -435,6 +436,7 @@ DQMRootSource::readRunAuxiliary_()
 
   m_runAux.id() = edm::RunID(runLumiRange.m_run);
   m_runAux.setBeginTime(edm::Timestamp(runLumiRange.m_beginTime));
+  m_runAux.setEndTime(edm::Timestamp(runLumiRange.m_endTime));
   assert(m_historyIDs.size() > runLumiRange.m_historyIDIndex);
   //std::cout <<"readRunAuxiliary_ "<<m_historyIDs[runLumiRange.m_historyIDIndex]<<std::endl;
   m_runAux.setProcessHistoryID(m_historyIDs[runLumiRange.m_historyIDIndex]);    
@@ -448,6 +450,7 @@ DQMRootSource::readLuminosityBlockAuxiliary_()
   const RunLumiToRange runLumiRange = m_runlumiToRange[*m_nextIndexItr];
   m_lumiAux.id() = edm::LuminosityBlockID(runLumiRange.m_run,runLumiRange.m_lumi);
   m_lumiAux.setBeginTime(edm::Timestamp(runLumiRange.m_beginTime));
+  m_lumiAux.setEndTime(edm::Timestamp(runLumiRange.m_endTime));
   assert(m_historyIDs.size() > runLumiRange.m_historyIDIndex);
   m_lumiAux.setProcessHistoryID(m_historyIDs[runLumiRange.m_historyIDIndex]);    
   
@@ -709,6 +712,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
   indicesTree->SetBranchAddress(kRunBranch,&temp.m_run);
   indicesTree->SetBranchAddress(kLumiBranch,&temp.m_lumi);
   indicesTree->SetBranchAddress(kBeginTimeBranch,&temp.m_beginTime);
+  indicesTree->SetBranchAddress(kBeginTimeBranch,&temp.m_endTime);
   indicesTree->SetBranchAddress(kProcessHistoryIndexBranch,&temp.m_historyIDIndex);
   indicesTree->SetBranchAddress(kTypeBranch,&temp.m_type);
   indicesTree->SetBranchAddress(kFirstIndex,&temp.m_firstIndex);

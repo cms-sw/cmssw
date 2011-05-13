@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Apr 29 13:26:29 CDT 2011
-// $Id: DQMRootOutputModule.cc,v 1.3 2011/05/13 13:50:38 chrjones Exp $
+// $Id: DQMRootOutputModule.cc,v 1.4 2011/05/13 15:31:30 chrjones Exp $
 //
 
 // system include files
@@ -192,6 +192,7 @@ private:
   unsigned int m_type;
   unsigned int m_presentHistoryIndex;
   ULong64_t m_beginTime;
+  ULong64_t m_endTime;
   ULong64_t m_firstIndex;
   ULong64_t m_lastIndex;
   
@@ -266,6 +267,7 @@ m_indicesTree(0)
   m_indicesTree->Branch(kLumiBranch,&m_lumi);
   m_indicesTree->Branch(kProcessHistoryIndexBranch,&m_presentHistoryIndex);
   m_indicesTree->Branch(kBeginTimeBranch,&m_beginTime);
+  m_indicesTree->Branch(kEndTimeBranch,&m_endTime);
   m_indicesTree->Branch(kTypeBranch,&m_type);
   m_indicesTree->Branch(kFirstIndex,&m_firstIndex);
   m_indicesTree->Branch(kLastIndex,&m_lastIndex);
@@ -329,6 +331,7 @@ DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockPrincipal const& i
   m_run=iLumi.id().run();
   m_lumi = iLumi.id().value();
   m_beginTime = iLumi.beginTime().value();
+  m_endTime = iLumi.endTime().value();
   
   std::vector<MonitorElement *> items(dstore->getAllContents(""));
   for(std::vector<MonitorElement*>::iterator it = items.begin(), itEnd=items.end();
@@ -358,6 +361,7 @@ void DQMRootOutputModule::writeRun(edm::RunPrincipal const& iRun){
   m_run=iRun.id().run();
   m_lumi = 0;
   m_beginTime = iRun.beginTime().value();
+  m_endTime = iRun.endTime().value();
   
   std::vector<MonitorElement *> items(dstore->getAllContents(""));
   for(std::vector<MonitorElement*>::iterator it = items.begin(), itEnd=items.end();
