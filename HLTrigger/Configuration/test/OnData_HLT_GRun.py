@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V63 (CMSSW_4_2_0_HLT2)
+# /dev/CMSSW_4_2_0/GRun/V64 (CMSSW_4_2_0_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V63')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V64')
 )
 
 process.streams = cms.PSet( 
@@ -1300,7 +1300,7 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
     DumpStat = cms.untracked.bool( False ),
     BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
-    globaltag = cms.string( "GR_H_V19::All" ),
+    globaltag = cms.string( "GR_H_V20::All" ),
     DBParameters = cms.PSet( 
       authenticationPath = cms.untracked.string( "." ),
       connectionRetrialTimeOut = cms.untracked.int32( 60 ),
@@ -3213,7 +3213,24 @@ process.hltEcalRecHitAll = cms.EDProducer( "EcalRawToRecHitProducer",
     splitOutput = cms.bool( True ),
     EBrechitCollection = cms.string( "EcalRecHitsEB" ),
     EErechitCollection = cms.string( "EcalRecHitsEE" ),
-    rechitCollection = cms.string( "NotNeededsplitOutputTrue" )
+    rechitCollection = cms.string( "NotNeededsplitOutputTrue" ),
+    cleaningConfig = cms.PSet( 
+      tightenCrack_e1_double = cms.double( 2.0 ),
+      tightenCrack_e6e2_double = cms.double( 3.0 ),
+      e4e1Threshold_endcap = cms.double( 0.3 ),
+      tightenCrack_e4e1_single = cms.double( 3.0 ),
+      cThreshold_barrel = cms.double( 4.0 ),
+      e4e1Threshold_barrel = cms.double( 0.08 ),
+      tightenCrack_e1_single = cms.double( 2.0 ),
+      e4e1_b_barrel = cms.double( -0.024 ),
+      e4e1_a_barrel = cms.double( 0.04 ),
+      ignoreOutOfTimeThresh = cms.double( 2.0 ),
+      cThreshold_endcap = cms.double( 15.0 ),
+      e4e1_b_endcap = cms.double( -0.0125 ),
+      e4e1_a_endcap = cms.double( 0.02 ),
+      e6e2thresh = cms.double( 0.04 ),
+      cThreshold_double = cms.double( 10.0 )
+    )
 )
 process.hltESRecHitAll = cms.EDProducer( "EcalRawToRecHitProducer",
     lazyGetterTag = cms.InputTag( "hltESRawToRecHitFacility" ),
@@ -3221,7 +3238,8 @@ process.hltESRecHitAll = cms.EDProducer( "EcalRawToRecHitProducer",
     splitOutput = cms.bool( False ),
     EBrechitCollection = cms.string( "" ),
     EErechitCollection = cms.string( "" ),
-    rechitCollection = cms.string( "EcalRecHitsES" )
+    rechitCollection = cms.string( "EcalRecHitsES" ),
+    cleaningConfig = cms.PSet(  )
 )
 process.hltHybridSuperClustersActivity = cms.EDProducer( "HybridClusterProducer",
     debugLevel = cms.string( "ERROR" ),
@@ -3874,7 +3892,24 @@ process.hltEcalRegionalJetsRecHit = cms.EDProducer( "EcalRawToRecHitProducer",
     splitOutput = cms.bool( True ),
     EBrechitCollection = cms.string( "EcalRecHitsEB" ),
     EErechitCollection = cms.string( "EcalRecHitsEE" ),
-    rechitCollection = cms.string( "NotNeededsplitOutputTrue" )
+    rechitCollection = cms.string( "NotNeededsplitOutputTrue" ),
+    cleaningConfig = cms.PSet( 
+      tightenCrack_e1_double = cms.double( 2.0 ),
+      tightenCrack_e6e2_double = cms.double( 3.0 ),
+      e4e1Threshold_endcap = cms.double( 0.3 ),
+      tightenCrack_e4e1_single = cms.double( 3.0 ),
+      cThreshold_barrel = cms.double( 4.0 ),
+      e4e1Threshold_barrel = cms.double( 0.08 ),
+      tightenCrack_e1_single = cms.double( 2.0 ),
+      e4e1_b_barrel = cms.double( -0.024 ),
+      e4e1_a_barrel = cms.double( 0.04 ),
+      ignoreOutOfTimeThresh = cms.double( 2.0 ),
+      cThreshold_endcap = cms.double( 15.0 ),
+      e4e1_b_endcap = cms.double( -0.0125 ),
+      e4e1_a_endcap = cms.double( 0.02 ),
+      e6e2thresh = cms.double( 0.04 ),
+      cThreshold_double = cms.double( 10.0 )
+    )
 )
 process.hltTowerMakerForJets = cms.EDProducer( "CaloTowersCreator",
     EBThreshold = cms.double( 0.07 ),
@@ -8957,7 +8992,24 @@ process.hltEcalRegionalMuonsRecHit = cms.EDProducer( "EcalRawToRecHitProducer",
     splitOutput = cms.bool( True ),
     EBrechitCollection = cms.string( "EcalRecHitsEB" ),
     EErechitCollection = cms.string( "EcalRecHitsEE" ),
-    rechitCollection = cms.string( "NotNeededsplitOutputTrue" )
+    rechitCollection = cms.string( "NotNeededsplitOutputTrue" ),
+    cleaningConfig = cms.PSet( 
+      tightenCrack_e1_double = cms.double( 2.0 ),
+      tightenCrack_e6e2_double = cms.double( 3.0 ),
+      e4e1Threshold_endcap = cms.double( 0.3 ),
+      tightenCrack_e4e1_single = cms.double( 3.0 ),
+      cThreshold_barrel = cms.double( 4.0 ),
+      e4e1Threshold_barrel = cms.double( 0.08 ),
+      tightenCrack_e1_single = cms.double( 2.0 ),
+      e4e1_b_barrel = cms.double( -0.024 ),
+      e4e1_a_barrel = cms.double( 0.04 ),
+      ignoreOutOfTimeThresh = cms.double( 2.0 ),
+      cThreshold_endcap = cms.double( 15.0 ),
+      e4e1_b_endcap = cms.double( -0.0125 ),
+      e4e1_a_endcap = cms.double( 0.02 ),
+      e6e2thresh = cms.double( 0.04 ),
+      cThreshold_double = cms.double( 10.0 )
+    )
 )
 process.hltTowerMakerForMuons = cms.EDProducer( "CaloTowersCreator",
     EBThreshold = cms.double( 0.07 ),
@@ -10708,7 +10760,24 @@ process.hltEcalRegionalEgammaRecHit = cms.EDProducer( "EcalRawToRecHitProducer",
     splitOutput = cms.bool( True ),
     EBrechitCollection = cms.string( "EcalRecHitsEB" ),
     EErechitCollection = cms.string( "EcalRecHitsEE" ),
-    rechitCollection = cms.string( "NotNeededsplitOutputTrue" )
+    rechitCollection = cms.string( "NotNeededsplitOutputTrue" ),
+    cleaningConfig = cms.PSet( 
+      tightenCrack_e1_double = cms.double( 2.0 ),
+      tightenCrack_e6e2_double = cms.double( 3.0 ),
+      e4e1Threshold_endcap = cms.double( 0.3 ),
+      tightenCrack_e4e1_single = cms.double( 3.0 ),
+      cThreshold_barrel = cms.double( 4.0 ),
+      e4e1Threshold_barrel = cms.double( 0.08 ),
+      tightenCrack_e1_single = cms.double( 2.0 ),
+      e4e1_b_barrel = cms.double( -0.024 ),
+      e4e1_a_barrel = cms.double( 0.04 ),
+      ignoreOutOfTimeThresh = cms.double( 2.0 ),
+      cThreshold_endcap = cms.double( 15.0 ),
+      e4e1_b_endcap = cms.double( -0.0125 ),
+      e4e1_a_endcap = cms.double( 0.02 ),
+      e6e2thresh = cms.double( 0.04 ),
+      cThreshold_double = cms.double( 10.0 )
+    )
 )
 process.hltESRegionalEgammaRecHit = cms.EDProducer( "EcalRawToRecHitProducer",
     lazyGetterTag = cms.InputTag( "hltESRawToRecHitFacility" ),
@@ -10716,7 +10785,8 @@ process.hltESRegionalEgammaRecHit = cms.EDProducer( "EcalRawToRecHitProducer",
     splitOutput = cms.bool( False ),
     EBrechitCollection = cms.string( "" ),
     EErechitCollection = cms.string( "" ),
-    rechitCollection = cms.string( "EcalRecHitsES" )
+    rechitCollection = cms.string( "EcalRecHitsES" ),
+    cleaningConfig = cms.PSet(  )
 )
 process.hltHybridSuperClustersL1Isolated = cms.EDProducer( "EgammaHLTHybridClusterProducer",
     debugLevel = cms.string( "INFO" ),
@@ -23141,7 +23211,8 @@ process.hltESRegionalPi0EtaRecHit = cms.EDProducer( "EcalRawToRecHitProducer",
     splitOutput = cms.bool( False ),
     EBrechitCollection = cms.string( "" ),
     EErechitCollection = cms.string( "" ),
-    rechitCollection = cms.string( "EcalRecHitsES" )
+    rechitCollection = cms.string( "EcalRecHitsES" ),
+    cleaningConfig = cms.PSet(  )
 )
 process.hltEcalRegionalPi0EtaRecHit = cms.EDProducer( "EcalRawToRecHitProducer",
     lazyGetterTag = cms.InputTag( "hltEcalRawToRecHitFacility" ),
@@ -23149,7 +23220,24 @@ process.hltEcalRegionalPi0EtaRecHit = cms.EDProducer( "EcalRawToRecHitProducer",
     splitOutput = cms.bool( True ),
     EBrechitCollection = cms.string( "EcalRecHitsEB" ),
     EErechitCollection = cms.string( "EcalRecHitsEE" ),
-    rechitCollection = cms.string( "" )
+    rechitCollection = cms.string( "NotNeededsplitOutputTrue" ),
+    cleaningConfig = cms.PSet( 
+      tightenCrack_e1_double = cms.double( 2.0 ),
+      tightenCrack_e6e2_double = cms.double( 3.0 ),
+      e4e1Threshold_endcap = cms.double( 0.3 ),
+      tightenCrack_e4e1_single = cms.double( 3.0 ),
+      cThreshold_barrel = cms.double( 4.0 ),
+      e4e1Threshold_barrel = cms.double( 0.08 ),
+      tightenCrack_e1_single = cms.double( 2.0 ),
+      e4e1_b_barrel = cms.double( -0.024 ),
+      e4e1_a_barrel = cms.double( 0.04 ),
+      ignoreOutOfTimeThresh = cms.double( 2.0 ),
+      cThreshold_endcap = cms.double( 15.0 ),
+      e4e1_b_endcap = cms.double( -0.0125 ),
+      e4e1_a_endcap = cms.double( 0.02 ),
+      e6e2thresh = cms.double( 0.04 ),
+      cThreshold_double = cms.double( 10.0 )
+    )
 )
 process.hltSimple3x3Clusters = cms.EDProducer( "EgammaHLTNxNClusterProducer",
     doBarrel = cms.bool( True ),
