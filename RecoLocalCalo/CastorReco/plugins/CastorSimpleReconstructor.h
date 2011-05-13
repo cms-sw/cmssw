@@ -10,6 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoLocalCalo/CastorReco/interface/CastorSimpleRecAlgo.h"
+#include "CondFormats/CastorObjects/interface/CastorRecoParams.h"
 
 class CastorSimpleReconstructor : public edm::EDProducer {
     public:
@@ -23,10 +24,11 @@ class CastorSimpleReconstructor : public edm::EDProducer {
       int subdet_;
       //      HcalOtherSubdetector subdetOther_;
       edm::InputTag inputLabel_;
-
-      std::string confLabel_;
+      
       int firstSample_;
       int samplesToAdd_;
+      bool tsFromDB_;
+      CastorRecoParams* paramTS_;
 };
 
 #endif
