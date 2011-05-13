@@ -60,14 +60,27 @@ duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
 # load CASTOR default reco chain (from towers on)
 process.load('RecoLocalCalo.Castor.Castor_cff')
 
-# construct the module which executes the RechitCorrector
+# construct the module which executes the RechitCorrector for data reconstructed in releases < 4.2.X
 process.rechitcorrector = cms.EDProducer("RecHitCorrector",
 	rechitLabel = cms.InputTag("castorreco","","RECO"), # choose the original RecHit collection
-	revertFactor = cms.double(62.5) # this is the factor to go back to the original fC: 1/0.016
+	revertFactor = cms.double(62.5), # this is the factor to go back to the original fC: 1/0.016
+	doInterCalib = cms.bool(True) # do intercalibration
 )
 
-# tell to the CastorCell reconstruction that he should use the new corrected rechits
-process.CastorCellReco.inputprocess = "rechitcorrector"
+# construct the module which executes the RechitCorrector for data reconstructed in releases >= 4.2.X
+process.rechitcorrector42 = cms.EDProducer("RecHitCorrector",
+        rechitLabel = cms.InputTag("castorreco","","RECO"), # choose the original RecHit collection
+        revertFactor = cms.double(1), # this is the factor to go back to the original fC - not needed when data is already intercalibrated
+        doInterCalib = cms.bool(False) # don't do intercalibration, RecHitCorrector will only correct the EM response and remove BAD channels
+)
+
+
+# tell to the CastorCell reconstruction that he should use the new corrected rechits for releases < 4.2.X
+#process.CastorCellReco.inputprocess = "rechitcorrector"
+
+# tell to the CastorTower reconstruction that he should use the new corrected rechits for releases >= 4.2.X
+process.CastorTowerReco.inputprocess = "rechitcorrector"
+
 
 process.MyOutputModule = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('rechitcorrector_output.root') # choose your output file
