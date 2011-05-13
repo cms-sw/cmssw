@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.5 2011/05/12 01:06:29 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.6 2011/05/12 19:39:43 chrjones Exp $
 //
 
 // system include files
@@ -44,6 +44,12 @@
 #include "FWCore/Framework/interface/FileBlock.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
+
+#include "FWCore/Utilities/interface/Digest.h"
 
 #include "format.h"
 
@@ -179,7 +185,7 @@ namespace {
   }
   
   struct RunLumiToRange { 
-    unsigned int m_run, m_lumi;
+    unsigned int m_run, m_lumi,m_historyIDIndex;
     ULong64_t m_firstIndex, m_lastIndex; //last is inclusive
     unsigned int m_type; //A value in TypeIndex 
   };
@@ -328,6 +334,7 @@ class DQMRootSource : public edm::InputSource
       unsigned int m_lastSeenRun;
       bool m_doNotReadRemainingPartsOfFileSinceFrameworkTerminating;
       std::set<MonitorElement*> m_lumiElements;
+      std::vector<edm::ProcessHistoryID> m_historyIDs;
 };
 
 //
@@ -425,7 +432,10 @@ DQMRootSource::readRunAuxiliary_()
   assert(m_nextIndexItr != m_orderedIndices.end());
   const RunLumiToRange runLumiRange = m_runlumiToRange[*m_nextIndexItr];
 
-  m_runAux.id() = edm::RunID(runLumiRange.m_run);    
+  m_runAux.id() = edm::RunID(runLumiRange.m_run);
+  assert(m_historyIDs.size() > runLumiRange.m_historyIDIndex);
+  //std::cout <<"readRunAuxiliary_ "<<m_historyIDs[runLumiRange.m_historyIDIndex]<<std::endl;
+  m_runAux.setProcessHistoryID(m_historyIDs[runLumiRange.m_historyIDIndex]);    
   return boost::shared_ptr<edm::RunAuxiliary>( new edm::RunAuxiliary(m_runAux) );
 }
 boost::shared_ptr<edm::LuminosityBlockAuxiliary> 
@@ -435,6 +445,8 @@ DQMRootSource::readLuminosityBlockAuxiliary_()
   assert(m_nextIndexItr != m_orderedIndices.end());
   const RunLumiToRange runLumiRange = m_runlumiToRange[*m_nextIndexItr];
   m_lumiAux.id() = edm::LuminosityBlockID(runLumiRange.m_run,runLumiRange.m_lumi);
+  assert(m_historyIDs.size() > runLumiRange.m_historyIDIndex);
+  m_lumiAux.setProcessHistoryID(m_historyIDs[runLumiRange.m_historyIDIndex]);    
   
   return boost::shared_ptr<edm::LuminosityBlockAuxiliary>(new edm::LuminosityBlockAuxiliary(m_lumiAux));
 }
@@ -443,6 +455,7 @@ DQMRootSource::readRun_(boost::shared_ptr<edm::RunPrincipal> rpCache)
 {
   readNextItemType();
   m_lastSeenRun = rpCache->id().run();
+  rpCache->addToProcessHistory();
   //std::cout <<"readRun_"<<std::endl;
   return rpCache;
 }
@@ -613,6 +626,75 @@ DQMRootSource::setupFile(unsigned int iIndex)
 {
   
   m_file = std::auto_ptr<TFile>(TFile::Open(m_fileNames[iIndex].c_str()));
+  
+  //Get meta Data
+  TDirectory* metaDir = m_file->GetDirectory(kMetaDataDirectoryAbsolute);
+  assert(0!=metaDir);
+  TTree* parameterSetTree = dynamic_cast<TTree*>(metaDir->Get(kParameterSetTree));
+  assert(0!=parameterSetTree);
+  
+  edm::pset::Registry* psr = edm::pset::Registry::instance();
+  assert(0!=psr);
+  {
+    std::string blob;
+    std::string* pBlob = &blob;
+    parameterSetTree->SetBranchAddress(kParameterSetBranch,&pBlob);
+    for(unsigned int index = 0; index != parameterSetTree->GetEntries();++index) {
+      parameterSetTree->GetEntry(index);
+      cms::Digest dg(blob);
+      edm::ParameterSetID psID(dg.digest().toString());
+      edm::ParameterSet temp(blob,psID);
+    } 
+  }
+
+  {
+    TTree* processHistoryTree = dynamic_cast<TTree*>(metaDir->Get(kProcessHistoryTree));
+    assert(0!=processHistoryTree);
+    unsigned int phIndex = 0;
+    processHistoryTree->SetBranchAddress(kPHIndexBranch,&phIndex);
+    std::string processName;
+    std::string* pProcessName = &processName;
+    processHistoryTree->SetBranchAddress(kProcessConfigurationProcessNameBranch,&pProcessName);
+    std::string parameterSetIDBlob;
+    std::string* pParameterSetIDBlob = &parameterSetIDBlob;
+    processHistoryTree->SetBranchAddress(kProcessConfigurationParameterSetIDBranch,&pParameterSetIDBlob);
+    std::string releaseVersion;
+    std::string* pReleaseVersion = &releaseVersion;
+    processHistoryTree->SetBranchAddress(kProcessConfigurationReleaseVersion,&pReleaseVersion);
+    std::string passID;
+    std::string* pPassID = &passID;
+    processHistoryTree->SetBranchAddress(kProcessConfigurationPassID,&pPassID);
+
+    edm::ProcessConfigurationRegistry* pcr = edm::ProcessConfigurationRegistry::instance();
+    assert(0!=pcr);
+    edm::ProcessHistoryRegistry* phr = edm::ProcessHistoryRegistry::instance();
+    assert(0!=phr);
+    std::vector<edm::ProcessConfiguration> configs;
+    configs.reserve(5);
+    for(unsigned int i=0; i != processHistoryTree->GetEntries(); ++i) {
+      processHistoryTree->GetEntry();
+      if(phIndex==0) {
+        if(not configs.empty()) {
+          edm::ProcessHistory ph(configs);
+          m_historyIDs.push_back(ph.id());
+          phr->insertMapped(ph);
+        }
+        configs.clear();
+      }
+      edm::ParameterSetID psetID(parameterSetIDBlob);
+      edm::ProcessConfiguration pc(processName, psetID,releaseVersion,passID);
+      pcr->insertMapped(pc);
+      configs.push_back(pc);
+    }
+    if(not configs.empty()) {
+      edm::ProcessHistory ph(configs);
+      m_historyIDs.push_back(ph.id());
+      phr->insertMapped( ph);
+      //std::cout <<"inserted "<<ph.id()<<std::endl;
+    }
+}
+  
+  //Setup the indices
   TTree* indicesTree = dynamic_cast<TTree*>(m_file->Get(kIndicesTree));
   assert(0!=indicesTree);
   
@@ -623,6 +705,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
   RunLumiToRange temp;
   indicesTree->SetBranchAddress(kRunBranch,&temp.m_run);
   indicesTree->SetBranchAddress(kLumiBranch,&temp.m_lumi);
+  indicesTree->SetBranchAddress(kProcessHistoryIndexBranch,&temp.m_historyIDIndex);
   indicesTree->SetBranchAddress(kTypeBranch,&temp.m_type);
   indicesTree->SetBranchAddress(kFirstIndex,&temp.m_firstIndex);
   indicesTree->SetBranchAddress(kLastIndex,&temp.m_lastIndex);
