@@ -13,7 +13,7 @@
 //
 // Original Author:  Hans Van Haevermaet
 //         Created:  Wed Feb 23 11:29:43 CET 2011
-// $Id: RecHitCorrector.cc,v 1.1 2011/02/24 09:45:08 hvanhaev Exp $
+// $Id: RecHitCorrector.cc,v 1.2 2011/03/16 16:17:33 hvanhaev Exp $
 //
 //
 
@@ -58,6 +58,7 @@ class RecHitCorrector : public edm::EDProducer {
       // ----------member data ---------------------------
       edm::InputTag inputLabel_;
       double factor_;
+      bool doInterCalib_;
 };
 
 //
@@ -74,7 +75,8 @@ class RecHitCorrector : public edm::EDProducer {
 //
 RecHitCorrector::RecHitCorrector(const edm::ParameterSet& iConfig):
 inputLabel_(iConfig.getParameter<edm::InputTag>("rechitLabel")),
-factor_(iConfig.getParameter<double>("revertFactor"))
+factor_(iConfig.getParameter<double>("revertFactor")),
+doInterCalib_(iConfig.getParameter<bool>("doInterCalib"))
 {
    //register your products
    produces<CastorRecHitCollection>();
@@ -129,8 +131,22 @@ RecHitCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	// do proper gain calibration reading the latest entries in the condDB
 	const CastorCalibrations& calibrations=conditions->getCastorCalibrations(rechit.id());
 	int capid = 0; // take some capid, gains are the same for all capid's
-	double correctedenergy = fC*calibrations.gain(capid);
-	//std::cout << " correctedenergy = " << correctedenergy << " gain = " << calibrations.gain(capid) << std::endl;
+	
+	double correctedenergy = 0;
+	if (doInterCalib_) {
+		if (rechit.id().module() <= 2) {
+			correctedenergy = 0.5*fC*calibrations.gain(capid);
+			//std::cout << " correctedenergy = " << correctedenergy << " gain = " << calibrations.gain(capid) << std::endl;
+		} else {
+			correctedenergy = fC*calibrations.gain(capid);
+		}
+	} else {
+		if (rechit.id().module() <= 2) {
+			correctedenergy = 0.5*fC;
+		} else {
+			correctedenergy = fC;
+		}
+	}
 	
 	// now check the channelquality of this rechit
 	bool ok = true;
