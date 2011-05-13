@@ -13,6 +13,9 @@ using namespace std;
 #include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
 #include "CondFormats/DataRecord/interface/CastorRecoParamsRcd.h"
 #include "CondFormats/CastorObjects/interface/CastorRecoParams.h"
+#include "CondFormats/CastorObjects/interface/CastorChannelQuality.h"
+#include "CondFormats/CastorObjects/interface/CastorChannelStatus.h"
+#include "CondFormats/DataRecord/interface/CastorChannelQualityRcd.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
@@ -64,6 +67,11 @@ void CastorSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& ev
   
   CastorCalibrations calibrations;
   
+   edm::ESHandle<CastorChannelQuality> p;
+   eventSetup.get<CastorChannelQualityRcd>().get(p);
+   CastorChannelQuality* myqual = new CastorChannelQuality(*p.product());
+  
+  
 //  if (det_==DetId::Hcal) {
      if (det_==DetId::Calo && subdet_==HcalCastorDetId::SubdetectorId) {
     edm::Handle<CastorDigiCollection> digi;
@@ -78,6 +86,15 @@ void CastorSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& ev
       DetId detcell=(DetId)cell;	  
  const CastorCalibrations& calibrations=conditions->getCastorCalibrations(cell);
 
+	// now check the channelquality of this rechit
+	bool ok = true;
+	std::vector<DetId> channels = myqual->getAllChannels();
+	for (std::vector<DetId>::iterator channel = channels.begin();channel !=  channels.end();channel++) {	
+		if (channel->rawId() == detcell.rawId()) {
+			const CastorChannelStatus* mydigistatus=myqual->getValues(*channel);
+			if (mydigistatus->getValue() == 2989) ok = false; // 2989 = BAD
+		}
+	}
 
 //conditions->makeCastorCalibration (cell, &calibrations);
       
@@ -89,7 +106,7 @@ void CastorSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& ev
       }          
       const CastorQIECoder* channelCoder = conditions->getCastorCoder (cell);
       CastorCoderDb coder (*channelCoder, *shape);
-      rec->push_back(reco_.reconstruct(*i,coder,calibrations));
+      if (ok) rec->push_back(reco_.reconstruct(*i,coder,calibrations));
     }
     // return result
     e.put(rec);     
