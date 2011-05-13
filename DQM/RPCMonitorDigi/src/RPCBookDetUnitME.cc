@@ -6,8 +6,9 @@
 #include <DQM/RPCMonitorDigi/interface/utils.h>
 #include <iomanip>
 
-std::map<std::string, MonitorElement*> RPCMonitorDigi::bookRollME(RPCDetId & detId, const edm::EventSetup & iSetup, std::string recHitType) {
-  std::map<std::string, MonitorElement*> meMap;  
+void RPCMonitorDigi::bookRollME(RPCDetId & detId, const edm::EventSetup & iSetup, const std::string & recHitType, std::map<std::string, MonitorElement*>  & meMap) {
+  //std::map<std::string, MonitorElement*> RPCMonitorDigi::bookRollME(RPCDetId & detId, const edm::EventSetup & iSetup, std::string recHitType) {
+  //std::map<std::string, MonitorElement*> meMap;  
 
   RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
   std::string folder = subsystemFolder_+ "/"+ recHitType +"/"+folderStr->folderStructure(detId);
@@ -50,14 +51,16 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookRollME(RPCDetId & det
   os<<"NumberOfClusters_"<<nameRoll;
   meMap[os.str()] = dbe->book1D(os.str(), os.str(),20,0.5,20.5);
   
-  return meMap;
+
+  delete folderStr;
+  //  return meMap;
 }
 
 
+void RPCMonitorDigi::bookSectorRingME(const std::string &recHitType, std::map<std::string, MonitorElement*> & meMap) {  
+  //std::map<std::string, MonitorElement*> RPCMonitorDigi::bookSectorRingME(std::string recHitType) {  
 
-std::map<std::string, MonitorElement*> RPCMonitorDigi::bookSectorRingME(std::string recHitType) {  
-
-  std::map<std::string, MonitorElement*> meMap;  
+  //  std::map<std::string, MonitorElement*> meMap;  
   std::stringstream os;
  
   for(int wheel = -2 ; wheel <= 2; wheel++){
@@ -166,14 +169,14 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookSectorRingME(std::str
     } //loop disk
   } //loop region
 
-  return meMap;
+  // return meMap;
 } 
 
 
+void RPCMonitorDigi::bookWheelDiskME(const std::string &recHitType, std::map<std::string, MonitorElement*> &meMap) {  
+  //std::map<std::string, MonitorElement*> RPCMonitorDigi::bookWheelDiskME(std::string recHitType) {  
 
-std::map<std::string, MonitorElement*> RPCMonitorDigi::bookWheelDiskME(std::string recHitType) {  
-
-  std::map<std::string, MonitorElement*> meMap;  
+  //  std::map<std::string, MonitorElement*> meMap;  
   dbe->setCurrentFolder(subsystemFolder_ +"/"+recHitType+"/"+ globalFolder_);
 
   std::stringstream os, label, name, title ;
@@ -256,7 +259,7 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookWheelDiskME(std::stri
     
   }
       
-  return meMap; 
+  //  return meMap; 
 }
 
 
@@ -275,10 +278,10 @@ int  RPCMonitorDigi::stripsInRoll(RPCDetId & id, const edm::EventSetup & iSetup)
 }
 
 
+void RPCMonitorDigi::bookRegionME(const std::string & recHitType, std::map<std::string, MonitorElement*>  & meMap) {
+  //std::map<std::string, MonitorElement*>   RPCMonitorDigi::bookRegionME(std::string recHitType) {
 
-std::map<std::string, MonitorElement*>   RPCMonitorDigi::bookRegionME(std::string recHitType) {
-
-  std::map<std::string, MonitorElement*> meMap;  
+  //  std::map<std::string, MonitorElement*> meMap;  
 
   std::string currentFolder = subsystemFolder_ +"/"+recHitType+"/"+ globalFolder_;
   dbe->setCurrentFolder(currentFolder);  
@@ -364,6 +367,6 @@ std::map<std::string, MonitorElement*>   RPCMonitorDigi::bookRegionME(std::strin
   meMap["Occupancy_for_Endcap+"] ->setAxisTitle("Disk", 2);
 
 
-  return meMap; 
+  //  return meMap; 
 
 }
