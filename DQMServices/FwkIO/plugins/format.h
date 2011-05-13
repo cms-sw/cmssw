@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Tue May  3 15:33:16 CDT 2011
-// $Id: format.h,v 1.1 2011/05/11 18:12:54 chrjones Exp $
+// $Id: format.h,v 1.2 2011/05/12 22:34:18 chrjones Exp $
 //
 
 
@@ -47,7 +47,8 @@ static const char* const kFirstIndex = "FirstIndex";
 static const char* const kLastIndex = "LastIndex";
 
 //Meta data info
-static const char* const kMetaDataDirectory = "MetaData";
+static const char* const kMetaDataDirectoryAbsolute = "/MetaData";
+static const char* const kMetaDataDirectory = kMetaDataDirectoryAbsolute+1;
 
 static const char* const kProcessHistoryTree = "ProcessHistories";
 static const char* const kPHIndexBranch = "Index";
