@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Apr 29 13:26:29 CDT 2011
-// $Id: DQMRootOutputModule.cc,v 1.2 2011/05/12 22:34:42 chrjones Exp $
+// $Id: DQMRootOutputModule.cc,v 1.3 2011/05/13 13:50:38 chrjones Exp $
 //
 
 // system include files
@@ -190,6 +190,8 @@ private:
   unsigned int m_run;
   unsigned int m_lumi;
   unsigned int m_type;
+  unsigned int m_presentHistoryIndex;
+  ULong64_t m_beginTime;
   ULong64_t m_firstIndex;
   ULong64_t m_lastIndex;
   
@@ -199,7 +201,6 @@ private:
   TTree* m_indicesTree;
   
   std::vector<edm::ProcessHistoryID> m_seenHistories;
-  unsigned int m_presentHistoryIndex;
 };
 
 //
@@ -252,8 +253,9 @@ edm::OutputModule(pset),
 m_fileName(pset.getUntrackedParameter<std::string>("fileName")),
 m_file(0),
 m_treeHelpers(kNIndicies,boost::shared_ptr<TreeHelperBase>()),
+m_presentHistoryIndex(0),
 m_fullNameBufferPtr(&m_fullNameBuffer),
-m_presentHistoryIndex(0)
+m_indicesTree(0)
 {
   //NOTE: I need to also set the I/O performance settings
   m_file = std::auto_ptr<TFile>(new TFile(m_fileName.c_str(),"CREATE"));  
@@ -263,6 +265,7 @@ m_presentHistoryIndex(0)
   m_indicesTree->Branch(kRunBranch,&m_run);
   m_indicesTree->Branch(kLumiBranch,&m_lumi);
   m_indicesTree->Branch(kProcessHistoryIndexBranch,&m_presentHistoryIndex);
+  m_indicesTree->Branch(kBeginTimeBranch,&m_beginTime);
   m_indicesTree->Branch(kTypeBranch,&m_type);
   m_indicesTree->Branch(kFirstIndex,&m_firstIndex);
   m_indicesTree->Branch(kLastIndex,&m_lastIndex);
@@ -325,6 +328,7 @@ DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockPrincipal const& i
   edm::Service<DQMStore> dstore;
   m_run=iLumi.id().run();
   m_lumi = iLumi.id().value();
+  m_beginTime = iLumi.beginTime().value();
   
   std::vector<MonitorElement *> items(dstore->getAllContents(""));
   for(std::vector<MonitorElement*>::iterator it = items.begin(), itEnd=items.end();
@@ -353,6 +357,7 @@ void DQMRootOutputModule::writeRun(edm::RunPrincipal const& iRun){
   edm::Service<DQMStore> dstore;
   m_run=iRun.id().run();
   m_lumi = 0;
+  m_beginTime = iRun.beginTime().value();
   
   std::vector<MonitorElement *> items(dstore->getAllContents(""));
   for(std::vector<MonitorElement*>::iterator it = items.begin(), itEnd=items.end();

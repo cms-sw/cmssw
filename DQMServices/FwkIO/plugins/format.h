@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Tue May  3 15:33:16 CDT 2011
-// $Id: format.h,v 1.2 2011/05/12 22:34:18 chrjones Exp $
+// $Id: format.h,v 1.3 2011/05/13 01:51:09 chrjones Exp $
 //
 
 
@@ -42,6 +42,7 @@ static const char* const kIndicesTree = "Indices";
 static const char* const kRunBranch = "Run";
 static const char* const kLumiBranch = "Lumi";
 static const char* const kProcessHistoryIndexBranch = "ProcessHistoryIndex";
+static const char* const kBeginTimeBranch = "BeginTime";
 static const char* const kTypeBranch = "Type";
 static const char* const kFirstIndex = "FirstIndex";
 static const char* const kLastIndex = "LastIndex";
