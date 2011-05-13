@@ -485,7 +485,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     }
     
     // run the analysis, passing required event fragments
-    jet_analysis_.analyze(
+    jet_analysis_.analyze(iEvent,
 			  hltjets,
 			  hltcorjets,
                           recjets,

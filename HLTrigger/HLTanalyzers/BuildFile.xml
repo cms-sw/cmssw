@@ -49,6 +49,7 @@
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="RecoHI/HiEgammaAlgos"/>
+<use   name="RecoJets/JetProducers"/>
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="rootcore"/>
 <flags   EDM_PLUGIN="1"/>

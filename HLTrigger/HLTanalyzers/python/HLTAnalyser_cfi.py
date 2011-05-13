@@ -159,5 +159,16 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
         GenJetMin     = cms.double(0.0),
         Monte         = cms.bool(True),
         Debug         = cms.bool(False)
-    )
+    ),
+
+    JetIDParams  = cms.PSet(
+         useRecHits      = cms.bool(True),
+         hbheRecHitsColl = cms.InputTag("hltHbhereco"),
+         hoRecHitsColl   = cms.InputTag("hltHoreco"),
+         hfRecHitsColl   = cms.InputTag("hltHfreco"),
+         #ebRecHitsColl   = cms.InputTag("EcalRecHitsEB"),
+         #eeRecHitsColl   = cms.InputTag("EcalRecHitsEE")
+         ebRecHitsColl   = cms.InputTag("hltEcalRecHitAll", "EcalRecHitsEB"),
+         eeRecHitsColl   = cms.InputTag("hltEcalRecHitAll", "EcalRecHitsEE")
+     )                            
 )

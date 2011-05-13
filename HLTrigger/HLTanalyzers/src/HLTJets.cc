@@ -37,6 +37,8 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
         else if ( (*iParam) == "GenJetMin" ) _GenJetMin =  myJetParams.getParameter<double>( *iParam );
     }
 
+    jetID = new reco::helper::JetIDHelper(pSet.getParameter<edm::ParameterSet>("JetIDParams"));
+
     const int kMaxRecoPFJet = 10000;
     jpfrecopt=new float[kMaxRecoPFJet];
     jpfrecophi=new float[kMaxRecoPFJet];
@@ -55,6 +57,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     jhcale = new float[kMaxJetCal];
     jhcalemf = new float[kMaxJetCal]; 
     jhcaln90 = new float[kMaxJetCal]; 
+    jhcaln90hits = new float[kMaxJetCal]; 
     
     jhcorcalpt = new float[kMaxJetCal]; 
     jhcorcalphi = new float[kMaxJetCal]; 
@@ -62,6 +65,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     jhcorcale = new float[kMaxJetCal]; 
     jhcorcalemf = new float[kMaxJetCal]; 
     jhcorcaln90 = new float[kMaxJetCal]; 
+    jhcorcaln90hits = new float[kMaxJetCal]; 
     
     jrcalpt = new float[kMaxJetCal];
     jrcalphi = new float[kMaxJetCal];
@@ -69,6 +73,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     jrcale = new float[kMaxJetCal];
     jrcalemf = new float[kMaxJetCal]; 
     jrcaln90 = new float[kMaxJetCal]; 
+    jrcaln90hits = new float[kMaxJetCal]; 
 
     jrcorcalpt = new float[kMaxJetCal];
     jrcorcalphi = new float[kMaxJetCal];
@@ -76,6 +81,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     jrcorcale = new float[kMaxJetCal];
     jrcorcalemf = new float[kMaxJetCal]; 
     jrcorcaln90 = new float[kMaxJetCal]; 
+    jrcorcaln90hits = new float[kMaxJetCal]; 
 
     const int kMaxJetgen = 10000;
     jgenpt = new float[kMaxJetgen];
@@ -205,6 +211,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("recoJetCalE",jrcale,"recoJetCalE[NrecoJetCal]/F");
     HltTree->Branch("recoJetCalEMF",jrcalemf,"recoJetCalEMF[NrecoJetCal]/F");
     HltTree->Branch("recoJetCalN90",jrcaln90,"recoJetCalN90[NrecoJetCal]/F");
+    HltTree->Branch("recoJetCalN90hits",jrcaln90hits,"recoJetCalN90hits[NrecoJetCal]/F");
 
     HltTree->Branch("NrecoJetCorCal",&nrcorjetcal,"NrecoJetCorCal/I"); 
     HltTree->Branch("recoJetCorCalPt",jrcorcalpt,"recoJetCorCalPt[NrecoJetCorCal]/F"); 
@@ -213,6 +220,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("recoJetCorCalE",jrcorcale,"recoJetCorCalE[NrecoJetCorCal]/F"); 
     HltTree->Branch("recoJetCorCalEMF",jrcorcalemf,"recoJetCorCalEMF[NrecoJetCorCal]/F");
     HltTree->Branch("recoJetCorCalN90",jrcorcaln90,"recoJetCorCalN90[NrecoJetCorCal]/F");
+    HltTree->Branch("recoJetCorCalN90hits",jrcorcaln90hits,"recoJetCorCalN90hits[NrecoJetCorCal]/F");
  
     //ccla HLTJETS
     HltTree->Branch("NohJetCal",&nhjetcal,"NohJetCal/I");
@@ -222,6 +230,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("ohJetCalE",jhcale,"ohJetCalE[NohJetCal]/F");
     HltTree->Branch("ohJetCalEMF",jhcalemf,"ohJetCalEMF[NohJetCal]/F");
     HltTree->Branch("ohJetCalN90",jhcaln90,"ohJetCalN90[NohJetCal]/F");
+    HltTree->Branch("ohJetCalN90hits",jhcaln90hits,"ohJetCalN90hits[NohJetCal]/F");
 
     HltTree->Branch("NohJetCorCal",&nhcorjetcal,"NohJetCorCal/I");
     HltTree->Branch("ohJetCorCalPt",jhcorcalpt,"ohJetCorCalPt[NohJetCorCal]/F");
@@ -230,6 +239,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("ohJetCorCalE",jhcorcale,"ohJetCorCalE[NohJetCorCal]/F");
     HltTree->Branch("ohJetCorCalEMF",jhcorcalemf,"ohJetCorCalEMF[NohJetCorCal]/F");
     HltTree->Branch("ohJetCorCalN90",jhcorcaln90,"ohJetCorCalN90[NohJetCorCal]/F");
+    HltTree->Branch("ohJetCorCalN90hits",jhcorcaln90hits,"ohJetCorCalN90hits[NohJetCorCal]/F");
 
     //ccla GenJets
     HltTree->Branch("recoJetGenPt",jgenpt,"recoJetGenPt[NrecoJetGen]/F");
@@ -327,7 +337,8 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 }
 
 /* **Analyze the event** */
-void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & ohcalojets,
+void HLTJets::analyze(edm::Event const& iEvent,
+		      const edm::Handle<reco::CaloJetCollection>      & ohcalojets,
                       const edm::Handle<reco::CaloJetCollection>      & ohcalocorjets,
 		      const edm::Handle<reco::CaloJetCollection>      & rcalojets,
 		      const edm::Handle<reco::CaloJetCollection>      & rcalocorjets,
@@ -382,6 +393,8 @@ void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & ohcaloje
     	  jrcale[jrcal] = i->energy();
     	  jrcalemf[jrcal] = i->emEnergyFraction();
     	  jrcaln90[jrcal] = i->n90();
+	  jetID->calculate( iEvent, *i );
+	  jrcaln90hits[jrcal] = jetID->n90Hits();
     	  jrcal++;
     	}
       }
@@ -404,6 +417,8 @@ void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & ohcaloje
     	  jrcorcale[jrcal] = i->energy();
     	  jrcorcalemf[jrcal] = i->emEnergyFraction();
     	  jrcorcaln90[jrcal] = i->n90();
+	  jetID->calculate( iEvent, *i );
+    	  jrcorcaln90hits[jrcal] = jetID->n90Hits();
     	  jrcal++;
     	}
       }
@@ -426,6 +441,8 @@ void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & ohcaloje
                 jhcale[jhcal] = i->energy();
                 jhcalemf[jhcal] = i->emEnergyFraction();
                 jhcaln90[jhcal] = i->n90();
+		jetID->calculate( iEvent, *i );
+                jhcaln90hits[jhcal] = jetID->n90Hits();
                 jhcal++;
             }
             
@@ -449,6 +466,8 @@ void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & ohcaloje
                 jhcorcale[jhcorcal] = i->energy();
                 jhcorcalemf[jhcorcal] = i->emEnergyFraction();
                 jhcorcaln90[jhcorcal] = i->n90();
+		jetID->calculate( iEvent, *i );
+                jhcorcaln90hits[jhcorcal] = jetID->n90Hits();
                 jhcorcal++;
             }
             
