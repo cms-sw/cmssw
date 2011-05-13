@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.6 2011/05/12 19:39:43 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.7 2011/05/13 01:53:21 chrjones Exp $
 //
 
 // system include files
@@ -217,7 +217,7 @@ namespace {
         std::string path;
         const char* name;
         splitName(*m_fullName, path,name);
-        iStore.cd(path);
+        iStore.setCurrentFolder(path);
          element = createElement(iStore,name,m_buffer);
         if(iIsLumi) { element->setLumiFlag();}
       } else {
@@ -253,7 +253,7 @@ namespace {
         std::string path;
         const char* name;
         splitName(*m_fullName, path,name);
-        iStore.cd(path);
+        iStore.setCurrentFolder(path);
         element = createElement(iStore,name,m_buffer);
         if(iIsLumi) { element->setLumiFlag();}
       } else {
