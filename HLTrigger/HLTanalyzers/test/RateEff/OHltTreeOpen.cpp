@@ -4648,8 +4648,8 @@ void OHltTree::CheckOpenHlt(
 	}
     }
 	
-  // 2011-03-29: promoted to v2 TODO check
-  else if (triggerName.CompareTo("OpenHLT_Ele8_CaloIdL_TrkIdVL_v2") == 0)
+  // 2011-05-11: promoted to v4. R9 removed from prev. version. 
+  else if (triggerName.CompareTo("OpenHLT_Ele8_CaloIdL_TrkIdVL_v4") == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	{
@@ -4668,8 +4668,8 @@ void OHltTree::CheckOpenHlt(
 						  0.1, // H/E barrel, H/E endcap  
 						  0.014,
 						  0.035, // cluster shape barrel, cluster shape endcap  
-						  0.98,
-						  1.0, // R9 barrel, R9 endcap  
+						  999.,//0.98,
+						  999.,//1.0, // R9 barrel, R9 endcap  
 						  0.01,
 						  0.01, // Deta barrel, Deta endcap  
 						  0.15,
@@ -4683,8 +4683,8 @@ void OHltTree::CheckOpenHlt(
     }
 	
 	
-  // 2011-03-29: promoted to v2 TODO check
-  else if (triggerName.CompareTo("OpenHLT_Ele17_CaloIdL_CaloIsoVL_v2") == 0)
+  // 2011-05-11: promoted to v4. Removed R9 cut.
+  else if (triggerName.CompareTo("OpenHLT_Ele17_CaloIdL_CaloIsoVL_v4") == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	{
@@ -4698,13 +4698,13 @@ void OHltTree::CheckOpenHlt(
 						  0.2,
 						  0.2, // H/ET iso barrel, H/ET iso endcap  
 						  0.2,
-						  0.2, // E/ET iso barrel, E/ET iso endcap  
+						  0.2, // E/ET iso barrel, E/ET iso endcap 
 						  0.15,
 						  0.1, // H/E barrel, H/E endcap  
 						  0.014,
-						  0.035, // cluster shape barrel, cluster shape endcap  
-						  0.98,
-						  1.0, // R9 barrel, R9 endcap  
+						  0.035, // cluster shape barrel, cluster shape endcap 
+						  999.,//0.98,
+						  999.,//1.0, // R9 barrel, R9 endcap  
 						  999,
 						  999, // Deta barrel, Deta endcap  
 						  999,
@@ -5137,8 +5137,8 @@ void OHltTree::CheckOpenHlt(
     }
 	
 	
-  // 2011-03-29: promoted to v2 TODO check
-  else if (triggerName.CompareTo("OpenHLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v2")
+  // 2011-05-11: promoted to v4. Removed R9 cut.
+  else if (triggerName.CompareTo("OpenHLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v4")
 	   == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -5153,13 +5153,12 @@ void OHltTree::CheckOpenHlt(
 						       0.2,
 						       0.2, // H/ET iso barrel, H/ET iso endcap 
 						       0.2,
-						       0.2, // E/ET iso barrel, E/ET iso endcap 
+						       0.2, // E/ET iso barrel, E/ET iso endcap
 						       0.15,
 						       0.10, // H/E barrel, H/E endcap 
 						       0.014,
 						       0.035, // cluster shape barrel, cluster shape endcap 
-						       //999., 999.,       // R9 barrel, R9 endcap 
-						       0.98,
+						       999.,//0.98,
 						       999., // R9 barrel, R9 endcap 
 						       999.,
 						       999., // Deta barrel, Deta endcap 
@@ -5174,13 +5173,12 @@ void OHltTree::CheckOpenHlt(
 						       0.2,
 						       0.2, // H/ET iso barrel, H/ET iso endcap 
 						       0.2,
-						       0.2, // E/ET iso barrel, E/ET iso endcap 
+						       0.2, // E/ET iso barrel, E/ET iso endcap
 						       0.15,
 						       0.10, // H/E barrel, H/E endcap 
 						       0.014,
 						       0.035, // cluster shape barrel, cluster shape endcap 
-						       //999., 999.,       // R9 barrel, R9 endcap 
-						       0.98,
+						       999.,//0.98,
 						       999., // R9 barrel, R9 endcap 
 						       999.,
 						       999., // Deta barrel, Deta endcap 
@@ -5194,9 +5192,8 @@ void OHltTree::CheckOpenHlt(
 	}
     }
 	
-  // not finished (?) TODO check
-  // 2011-03-29: promoted to v2 TODO check
-  else if (triggerName.CompareTo("OpenHLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v2") == 0)
+  // 2011-05-11: promoted to v4, fixed R9 and H/E 
+  else if (triggerName.CompareTo("OpenHLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v4") == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	{
@@ -5206,22 +5203,21 @@ void OHltTree::CheckOpenHlt(
 						       999.,
 						       999., // Track iso barrel, Track iso endcap 
 						       0.2,
-						       0.2, // Track/pT iso barrel, Track/pT iso endcap 
+						       0.2, // Track/pT iso barrel, Track/pT iso endcap  x
 						       0.2,
-						       0.2, // H/ET iso barrel, H/ET iso endcap 
+						       0.2, // H/ET iso barrel, H/ET iso endcap  x
 						       0.2,
-						       0.2, // E/ET iso barrel, E/ET iso endcap 
-						       0.1,
-						       0.075, // H/E barrel, H/E endcap 
+						       0.2, // E/ET iso barrel, E/ET iso endcap x
+						       0.15,
+						       0.1, // H/E barrel, H/E endcap x
 						       0.011,
-						       0.031, // cluster shape barrel, cluster shape endcap 
-						       //999., 999.,       // R9 barrel, R9 endcap 
-						       0.98,
+						       0.031, // cluster shape barrel, cluster shape endcap  x
+						       999.,//0.98,
 						       999., // R9 barrel, R9 endcap 
 						       0.01,
-						       0.01, // Deta barrel, Deta endcap 
+						       0.01, // Deta barrel, Deta endcap x
 						       0.15,
-						       0.1, // Dphi barrel, Dphi endcap 
+						       0.1, // Dphi barrel, Dphi endcap x
 						       8.,
 						       0, // ET, L1isolation 
 						       999.,
@@ -5229,20 +5225,19 @@ void OHltTree::CheckOpenHlt(
 						       0.2,
 						       0.2, // Track/pT iso barrel, Track/pT iso endcap 
 						       0.2,
-						       0.2, // H/ET iso barrel, H/ET iso endcap 
+						       0.2, // H/ET iso barrel, H/ET iso endcap x
 						       0.2,
-						       0.2, // E/ET iso barrel, E/ET iso endcap 
-						       0.1,
-						       0.075, // H/E barrel, H/E endcap 
+						       0.2, // E/ET iso barrel, E/ET iso endcap x
+						       0.15,//0.1,
+						       0.10,//0.075, // H/E barrel, H/E endcap x
 						       0.011,
-						       0.031, // cluster shape barrel, cluster shape endcap 
-						       //999., 999.,       // R9 barrel, R9 endcap 
-						       0.98,
+						       0.031, // cluster shape barrel, cluster shape endcap x
+						       999.,//0.98,
 						       999., // R9 barrel, R9 endcap 
 						       0.01,
-						       0.01, // Deta barrel, Deta endcap 
+						       0.01, // Deta barrel, Deta endcap x
 						       0.15,
-						       0.1 // Dphi barrel, Dphi endcap 
+						       0.1 // Dphi barrel, Dphi endcap x
 						       )>=1)
 		{
 		  triggerBit[it] = true;
@@ -5492,8 +5487,8 @@ void OHltTree::CheckOpenHlt(
     }
 	
 	
-  // 2011-03-29: promoted to v2 TODO check
-  else if (triggerName.CompareTo("OpenHLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v2") == 0)
+  // 2011-05-11: promoted to v4, removed R9, and edited mass filtration section to include identical Et exclusion 
+  else if (triggerName.CompareTo("OpenHLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v4") == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	{
@@ -5514,12 +5509,12 @@ void OHltTree::CheckOpenHlt(
 										   0.05, // H/E barrel, H/E endcap  
 										   0.011,
 										   0.031, // cluster shape barrel, cluster shape endcap  
-										   0.98,
-										   1.0, // R9 barrel, R9 endcap  
+										   999.,//0.98,
+										   999.,//1.0, // R9 barrel, R9 endcap  
 										   0.008,
 										   0.008, // Deta barrel, Deta endcap  
 										   0.07,
-										   0.05 );// Dphi barrel, Dphi endcap  
+										   0.05 );// Dphi barrel, Dphi endcap 
 	      if (firstVector.size()>=1){
 		std::vector<int> secondVector = VectorOpenHlt1PhotonSamHarperPassed(
 										    8., 
@@ -5552,15 +5547,16 @@ void OHltTree::CheckOpenHlt(
 		  float mass = 0.;
 		  for (unsigned int i=0; i<firstVector.size(); i++)
 		    {
+                      ele.SetPtEtaPhiM(
+                                       ohEleEt[firstVector[i]],
+                                       ohEleEta[firstVector[i]],
+                                       ohElePhi[firstVector[i]],
+                                       0.);
+
 		      for (unsigned int j=0; j<secondVector.size() ; j++)
 			{
 								
-			  //                  if (firstVector[i] == secondVector[j]) continue;
-			  ele.SetPtEtaPhiM(
-					   ohEleEt[firstVector[i]],
-					   ohEleEta[firstVector[i]],
-					   ohElePhi[firstVector[i]],
-					   0.);
+			  if(ohEleEt[firstVector[i]] - ohPhotEt[secondVector[j]] < 0.00001) continue;
 			  pho.SetPtEtaPhiM(
 					   ohPhotEt[secondVector[j]],
 					   ohPhotEta[secondVector[j]],
@@ -5569,7 +5565,7 @@ void OHltTree::CheckOpenHlt(
 			  sum = ele + pho;
 			  mass = sum.M();
 								
-			  if (mass>30)
+			  if (mass>=30)
 			    triggerBit[it] = true;
 								
 			}//endfor
@@ -5705,8 +5701,8 @@ void OHltTree::CheckOpenHlt(
 	}
     }
 	
-  // 2011-03-29 promoted to v2 TODO check
-  else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVL_v2") == 0)
+  // 2011-05-11 promoted to v4. Removed R9 cut.
+  else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVL_v4") == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	{
@@ -5722,10 +5718,10 @@ void OHltTree::CheckOpenHlt(
 						999.,
 						999., // E iso barrel, E iso endcap
 						0.15,
-						0.10, // H/E barrel, H/E endcap
+						0.10, // H/E barrel, H/E endcap 
 						0.024,
-						0.040, // cluster shape barrel, cluster shape endcap
-						0.98,
+						0.040, // cluster shape barrel, cluster shape endcap 
+						999.,//0.98,
 						999., // R9 barrel, R9 endcap
 						999.,
 						999., // Deta barrel, Deta endcap
@@ -5774,8 +5770,8 @@ void OHltTree::CheckOpenHlt(
     }
 	
 	
-  // 2011-03-29 promoted to v2 TODO check
-  else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVL_IsoL_v2") == 0)
+  // 2011-05-11 promoted to v4 
+  else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVL_IsoL_v4") == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	{
@@ -5794,7 +5790,7 @@ void OHltTree::CheckOpenHlt(
 						0.10, // H/E barrel, H/E endcap
 						0.024,
 						0.040, // cluster shape barrel, cluster shape endcap
-						0.98,
+						999.,//0.98,
 						999., // R9 barrel, R9 endcap
 						999.,
 						999., // Deta barrel, Deta endcap
@@ -5808,7 +5804,8 @@ void OHltTree::CheckOpenHlt(
 	}
     }
 	
-  else if (triggerName.CompareTo("OpenHLT_Photon50_CaloIdVL_IsoL_v1") == 0)
+	//2011-05-11 promoted to v3, removed R9 cut.
+  else if (triggerName.CompareTo("OpenHLT_Photon50_CaloIdVL_IsoL_v3") == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	{
@@ -5827,7 +5824,7 @@ void OHltTree::CheckOpenHlt(
 						0.10, // H/E barrel, H/E endcap
 						0.024,
 						0.040, // cluster shape barrel, cluster shape endcap
-						0.98,
+						999.,//0.98,
 						999., // R9 barrel, R9 endcap
 						999.,
 						999., // Deta barrel, Deta endcap
@@ -5841,8 +5838,8 @@ void OHltTree::CheckOpenHlt(
 	}
     }
 	
-  // 2011-03-29 promoted to v2 TODO check
-  else if (triggerName.CompareTo("OpenHLT_Photon75_CaloIdVL_v2") == 0)
+  // 2011-05-11 promoted to v4, removed R9 filter. 
+  else if (triggerName.CompareTo("OpenHLT_Photon75_CaloIdVL_v4") == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	{
@@ -5861,7 +5858,7 @@ void OHltTree::CheckOpenHlt(
 						0.10, // H/E barrel, H/E endcap
 						0.024,
 						0.040, // cluster shape barrel, cluster shape endcap
-						0.98,
+						999.,//0.98,
 						999., // R9 barrel, R9 endcap
 						999.,
 						999., // Deta barrel, Deta endcap
@@ -5910,8 +5907,8 @@ void OHltTree::CheckOpenHlt(
     }
 	
 	
-  // 2011-03-29 promoted to v2 TODO check
-  else if (triggerName.CompareTo("OpenHLT_Photon75_CaloIdVL_IsoL_v2") == 0)
+  // 2011-05-11 promoted to v1, removed R9 cut. 
+  else if (triggerName.CompareTo("OpenHLT_Photon75_CaloIdVL_IsoL_v4") == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	{
@@ -5930,7 +5927,7 @@ void OHltTree::CheckOpenHlt(
 						0.10, // H/E barrel, H/E endcap
 						0.024,
 						0.040, // cluster shape barrel, cluster shape endcap
-						0.98,
+						999.,//0.98,
 						999., // R9 barrel, R9 endcap
 						999.,
 						999., // Deta barrel, Deta endcap
@@ -6082,15 +6079,17 @@ void OHltTree::CheckOpenHlt(
 	}
     }	
 	
-  // 2011-03-29 promoted to v2 TODO check
-  else if (triggerName.CompareTo("OpenHLT_Photon32_CaloIdL_Photon26_CaloIdL_v2") == 0)
+  // 2011-05-11 promoted to v4 
+  else if (triggerName.CompareTo("OpenHLT_Photon32_CaloIdL_Photon26_CaloIdL_v4") == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	{
 	  if (prescaleResponse(menu, cfg, rcounter, it))
 	    {
-	      if (OpenHltPhoCuts(32, 0.15, 0.10, 0.014, 0.035, 999, 999) >= 1
-		  && OpenHltPhoCuts(26, 0.15, 0.10, 0.014, 0.035, 999, 999)
+                //That's OpenHLTPhoCuts(e_t, H/E_EB, H/E_EC, cluster_shape_EB, cluster_shape_EC, cal_iso/Et, trk_iso/Et)
+                //cal_iso is both HCAL_iso and ECAL_iso
+	      if (OpenHltPhoCuts(32, 0.15, 0.10, 0.014, 0.035, 999., 999.) >= 1
+		  && OpenHltPhoCuts(26, 0.15, 0.10, 0.014, 0.035, 999., 999.)
 		  >= 2)
 		{
 		  triggerBit[it] = true;
@@ -6099,14 +6098,17 @@ void OHltTree::CheckOpenHlt(
 	}
     }
 	
-  else if (triggerName.CompareTo("OpenHLT_Photon36_CaloIdL_Photon22_CaloIdL_v1") == 0)
+  // 2011-05-11 promoted to v3
+  else if (triggerName.CompareTo("OpenHLT_Photon36_CaloIdL_Photon22_CaloIdL_v3") == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	{
 	  if (prescaleResponse(menu, cfg, rcounter, it))
 	    {
-	      if (OpenHltPhoCuts(36, 0.15, 0.10, 0.014, 0.035, 999, 999) >= 1
-		  && OpenHltPhoCuts(22, 0.15, 0.10, 0.014, 0.035, 999, 999)
+		//That's OpenHLTPhoCuts(e_t, H/E_EB, H/E_EC, cluster_shape_EB, cluster_shape_EC, cal_iso/Et, trk_iso/Et)
+		//cal_iso is both HCAL_iso and ECAL_iso
+	      if (OpenHltPhoCuts(36, 0.15, 0.10, 0.014, 0.035, 999., 999.) >= 1
+		  && OpenHltPhoCuts(22, 0.15, 0.10, 0.014, 0.035, 999., 999.)
 		  >= 2)
 		{
 		  triggerBit[it] = true;
@@ -7076,8 +7078,8 @@ void OHltTree::CheckOpenHlt(
   }
   
 
-  // 2011-03-29: promoted to v2 TODO check
-  else if (triggerName.CompareTo("OpenHLT_Ele8_CaloIdL_CaloIsoVL_Jet40_v2") == 0)
+  // 2011-05-11: promoted to v4, removed R9 cut, TODO check
+  else if (triggerName.CompareTo("OpenHLT_Ele8_CaloIdL_CaloIsoVL_Jet40_v4") == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	{
@@ -7096,8 +7098,8 @@ void OHltTree::CheckOpenHlt(
 						  0.1, // H/E barrel, H/E endcap  
 						  0.014,
 						  0.035, // cluster shape barrel, cluster shape endcap  
-						  0.98,
-						  1.0, // R9 barrel, R9 endcap  
+						  999.,//0.98,
+						  999.,//1.0, // R9 barrel, R9 endcap  
 						  999,
 						  999, // Deta barrel, Deta endcap  
 						  999,
@@ -10072,11 +10074,11 @@ void OHltTree::CheckOpenHlt(
 	      lowerEt);
 		
       // Both legs CaloIdL + IsoVL
-      // 2011-03-29 promoted to v2 TODO check
+      // 2011-05-11 promoted to v4 TODO check
       char pathName_Photon_CaloIdL_IsoVL_Photon_CaloIdL_IsoVL[100];
       sprintf(
 	      pathName_Photon_CaloIdL_IsoVL_Photon_CaloIdL_IsoVL,
-	      "OpenHLT_Photon%d_CaloIdL_IsoVL_Photon%d_CaloIdL_IsoVL_v2",
+	      "OpenHLT_Photon%d_CaloIdL_IsoVL_Photon%d_CaloIdL_IsoVL_v4",
 	      upperEt,
 	      lowerEt);
 		
@@ -10525,6 +10527,7 @@ void OHltTree::CheckOpenHlt(
 	}
 		
       //warning: this is within if (triggerName.BeginsWith("OpenHLT_Photon26") )
+	//2011-05-11 removed R9 cuts.
       else if (triggerName.CompareTo(pathName_Photon_CaloIdL_IsoVL_Photon_CaloIdL_IsoVL) == 0)
 	{
 	  if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -10533,30 +10536,30 @@ void OHltTree::CheckOpenHlt(
 		{
 		  std::vector<int> firstVector = VectorOpenHlt1PhotonPassed(
 									    lowerEt,
-									    0,
-									    4.0,
-									    6.0,
-									    4.0,
-									    4.0,
-									    0.15,
-									    0.10,
-									    0.98,
-									    0.014,
-									    0.035);
+									    0, //L1iso
+									    4.0, //Tiso
+									    6.0, //Eiso
+									    4.0, //HisoBR
+									    4.0, //HisoEC
+									    0.15, //HoverEEB
+									    0.10, //HoverEEC
+									    999.,//0.98, //R9
+									    0.014, //ClusShapEB
+									    0.035); //ClusShapEC
 		  if (firstVector.size()>=2)
 		    {
 		      std::vector<int> secondVector = VectorOpenHlt1PhotonPassed(
 										 upperEt,
-										 0,
-										 4.0,
-										 6.0,
-										 4.0,
-										 4.0,
-										 0.15,
-										 0.10,
-										 0.98,
-										 0.014,
-										 0.035);
+										 0, //L1iso
+										 4.0, //Tiso
+										 6.0, //Eiso
+										 4.0, //HisoBR
+										 4.0, //HisoEC
+										 0.15, //HoverEEB
+										 0.10, //HoverEEC
+										 999.,//0.98, //R9
+										 0.014, //ClusShapEB
+										 0.035); //ClusShapEC
 		      if (secondVector.size()>=1)
 			{
 			  triggerBit[it] = true;
@@ -11841,13 +11844,13 @@ int OHltTree::OpenHltPhoCuts(
 			     float he_ee,
 			     float shape_eb,
 			     float shape_ee,
-			     float cal_iso,
+			     float cal_iso, 
 			     float trk_iso)
 {
 	
   // Default cleaning cuts for all photon paths
-  float r9barrel = 0.98;
-  float r9endcap = 1.0;
+  float r9barrel = 999.;//0.98;
+  float r9endcap = 999.;//1.0;
   float EtaGap = 1.479;
   float EtaMax = 2.65;
 	
@@ -12391,7 +12394,7 @@ int OHltTree::OpenHlt3ElectronsSamHarperPassed(
 	  // bug fix
 	  float ohEleHoverE;
 	  float ohEleR9v;
-	  //if(ohEleL1iso[i] == 1){
+	  //if(ohEleL1iso[i] == 1){    
 	  ohEleHoverE = ohEleHforHoverE[i]/ohEleE[i];
 	  ohEleR9v = ohEleR9[i];
 			
@@ -12900,7 +12903,7 @@ int OHltTree::OpenHlt2ElectronsAsymSamHarperPassed(
   // std::cout << "ABBA " << NFirst << "  " << NSecond << endl;
   if (NFirst == 0 || NSecond == 0)
     return 0; // if no eles passed one condition, fail
-  if (NFirst == 1 && NSecond == 1 && FirstEle[0] == SecondEle[0])
+  if (NFirst == 1 && NSecond == 1 && FirstEle[0] == SecondEle[0]) 
     return 0; //only 1 electron passed both conditions
   return 1; // in any other case, at least 1 unique electron passed each condition, so pass the event
 	
