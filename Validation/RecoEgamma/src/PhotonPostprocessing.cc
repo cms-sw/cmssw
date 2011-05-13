@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonPostprocessing
- **  $Date: 2010/11/18 15:10:39 $ 
+ **  $Date: 2011/03/29 14:29:32 $ 
  **  author: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   
@@ -124,7 +124,7 @@ void PhotonPostprocessing::runPostprocessing()
   convVsEt_[0] =  dbe_->book1D(histname+"Barrel","Fraction of good conversions in R9<0.93 vs Et ",etBin,etMin, etMax) ;
   convVsEt_[1] =  dbe_->book1D(histname+"Endcap","Fraction of good conversions in R9<0.93 vs Et ",etBin,etMin, etMax) ;
 
-  std::cout << " ciao 1 " << etBin << " " <<  etMin << " " << etMax << std::endl;
+
 
 
   // Conversion reconstruction efficiency
@@ -184,13 +184,13 @@ void PhotonPostprocessing::runPostprocessing()
   histname = "deadChVsEtBkg";
   bkgDeadChEt_ =  dbe_->book1D(histname,"Fraction of bkg with >=1 dead Xtal vs simulated Et",etBin,etMin, etMax) ;
 
-  std::cout << " ciao 2 " << std::endl;
+  
 
   // efficiencies
   dividePlots(dbe_->get(effPathName+"convVsEtBarrel"),dbe_->get(photonPathName+"EtR9Less093ConvBarrel"),dbe_->get(photonPathName+"EtR9Less093Barrel"), "effic");
   dividePlots(dbe_->get(effPathName+"convVsEtEndcap"),dbe_->get(photonPathName+"EtR9Less093ConvEndcap"),dbe_->get(photonPathName+"EtR9Less093Endcap"), "effic");
 
-  std::cout << " ciao 3 " << std::endl;
+
 
   dividePlots(dbe_->get(effPathName+"recoEffVsEta"),dbe_->get(simInfoPathName+"h_MatchedSimPhoEta"),dbe_->get(simInfoPathName+"h_SimPhoEta"), "effic");
   dividePlots(dbe_->get(effPathName+"recoEffVsPhi"),dbe_->get(simInfoPathName+"h_MatchedSimPhoPhi"),dbe_->get(simInfoPathName+"h_SimPhoPhi"),"effic");
