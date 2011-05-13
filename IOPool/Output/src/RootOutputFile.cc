@@ -461,6 +461,15 @@ namespace edm {
   }
 
   void RootOutputFile::writeIndexIntoFile() {
+    if (eventTree_.checkEntriesInReadBranches(eventEntryNumber_) == false) {
+      Exception ex(errors::OtherCMS);
+      ex << "The number of entries in at least one output TBranch whose entries\n"
+            "were copied from the input does not match the number of events\n"
+            "recorded in IndexIntoFile. This might (or might not) indicate a\n"
+            "problem related to fast copy.";
+      ex.addContext("Calling RootOutputFile::writeIndexIntoFile");
+      throw ex;
+    }
     indexIntoFile_.sortVector_Run_Or_Lumi_Entries();
     IndexIntoFile* iifPtr = &indexIntoFile_;
     TBranch* b = metaDataTree_->Branch(poolNames::indexIntoFileBranchName().c_str(), &iifPtr, om_->basketSize(), 0);

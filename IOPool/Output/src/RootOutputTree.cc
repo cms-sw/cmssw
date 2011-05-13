@@ -136,6 +136,15 @@ namespace edm {
     return true;
   }
 
+  bool RootOutputTree::checkEntriesInReadBranches(Long64_t expectedNumberOfEntries) const {
+    for(std::vector<TBranch*>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end(); it != itEnd; ++it) {
+      if ((*it)->GetEntries() != expectedNumberOfEntries) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   void
   RootOutputTree::fastCloneTTree(TTree* in, std::string const& option) {
     if(in->GetEntries() != 0) {
