@@ -78,8 +78,8 @@ void Analysis_Step5()
 //   PredictionAndControlPlot(InputDir);
 
 
-  InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";   unsigned int CutIndex = 18;//24;//41
-//   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type2/";   unsigned int CutIndex = 18;
+//  InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";   unsigned int CutIndex = 24;//41
+   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type2/";   unsigned int CutIndex = 82;//18;
 
 //   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";   unsigned int CutIndex = 84;
 //   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type2/";   unsigned int CutIndex = 113;
@@ -89,10 +89,10 @@ void Analysis_Step5()
 
 //   CutFlow(InputDir);
 //   SelectionPlot(InputDir, CutIndex);
-//   MassPrediction(InputDir, CutIndex, "Mass");
-//   MassPrediction(InputDir, CutIndex, "MassTOF");
+   MassPrediction(InputDir, CutIndex, "Mass");
+   MassPrediction(InputDir, CutIndex, "MassTOF");
 //   MassPrediction(InputDir, CutIndex, "MassComb");    
-   PredictionAndControlPlot(InputDir, CutIndex);
+//   PredictionAndControlPlot(InputDir, CutIndex);
    return;
 }
 
@@ -106,7 +106,9 @@ void CutFlow(string InputPattern){
    MakeDirectories(SavePath);
 
    TFile* InputFile = new TFile(Input.c_str());
-   TFile* InputFileData = new TFile((InputPattern + "Histos_Data.root").c_str());
+//   TFile* InputFileData = new TFile((InputPattern + "Histos_Data.root").c_str());
+   TFile* InputFileData = new TFile((InputPattern + "Histos.root").c_str());
+
 
    stPlots DataPlots, MCTrPlots, SignPlots[signals.size()];
    stPlots_InitFromFile(InputFile, DataPlots,"Data", InputFileData);
@@ -288,7 +290,7 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
    Histos[1] = CtrlPt_S2_TOF;                    legend.push_back(" 35<p_{T}< 50 GeV");
    Histos[2] = CtrlPt_S3_TOF;                    legend.push_back(" 50<p_{T}<100 GeV");
    Histos[3] = CtrlPt_S4_TOF;                    legend.push_back("100<p_{T}");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,2, 0,0); 
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,1.5, 0,0); 
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
@@ -303,8 +305,8 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
    Histos[0] = CtrlIs_S1_TOF;                     legend.push_back("0.0<I_{as}<0.1");
    Histos[1] = CtrlIs_S2_TOF;                     legend.push_back("0.1<I_{as}<0.2");
    Histos[2] = CtrlIs_S3_TOF;                     legend.push_back("0.2<I_{as}<0.3");
-   Histos[3] = CtrlIs_S4_TOF;                     legend.push_back("0.3<I_{as}");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,2, 0,0);
+//   Histos[3] = CtrlIs_S4_TOF;                     legend.push_back("0.3<I_{as}");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,1.5, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);

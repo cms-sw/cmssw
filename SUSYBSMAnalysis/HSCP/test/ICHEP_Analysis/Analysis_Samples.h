@@ -43,7 +43,7 @@
 #define SID_DS302    37
 
 
-double               IntegratedLuminosity = 134.26;
+double               IntegratedLuminosity = 152.8;
 float                Event_Weight = 1;
 int                  MaxEntry = -1;
 
@@ -137,6 +137,7 @@ void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName)
    if(SampleName=="Data"){
       inputFiles.push_back(BaseDirectory + "Data_RunA_V1.root");
       inputFiles.push_back(BaseDirectory + "Data_RunA_V2.root");
+      inputFiles.push_back(BaseDirectory + "Data_RunA_V3.root");
 //   }else if(SampleName=="MC_MB"){
 //      inputFiles.push_back(BaseDirectory + "MC_MB.root");
 //   }else if(SampleName=="MC_PPMUX"){
