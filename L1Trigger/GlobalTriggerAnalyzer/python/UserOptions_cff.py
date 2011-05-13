@@ -12,7 +12,8 @@ import sys
 ###################### user choices ######################
 
 # (pre)release (cycle) to be run - it is used to choose a correct global tag
-cmsRunRelease = 'CMSSW_4_1_X'
+cmsRunRelease = 'CMSSW_4_2_X'
+#cmsRunRelease = 'CMSSW_4_1_X'
 #cmsRunRelease = 'CMSSW_3_11_X'
 #cmsRunRelease = 'CMSSW_3_6_X'
 #cmsRunRelease = 'CMSSW_3_5_X'
@@ -36,7 +37,7 @@ useRelValSample = True
 #
 # comment/uncomment the next line to choose sample type 
 # (un-commented selects data)
-useRelValSample=False 
+#useRelValSample=False 
 
 if useRelValSample == True :
     
@@ -98,7 +99,16 @@ errorUserOptions = False
 # global tags for the release used to run
 if (useRelValSample == True) and (useLocalFiles == False) :
     
-    if cmsRunRelease == 'CMSSW_4_1_X' :
+    if cmsRunRelease == 'CMSSW_4_2_X' :
+        if globalTag == 'MC' :
+            useGlobalTag = 'MC_42_V12'
+        elif globalTag == 'START' :
+            useGlobalTag = 'START42_V12'
+        else :
+            print '\nError: no global tag defined for release', cmsRunRelease, 'of type', globalTag, 'used with RelVal sample'
+            errorUserOptions = True
+            
+    elif cmsRunRelease == 'CMSSW_4_1_X' :
         if globalTag == 'MC' :
             useGlobalTag = 'MC_311_V2'
         elif globalTag == 'START' :
@@ -172,7 +182,9 @@ if (useRelValSample == True) and (useLocalFiles == False) :
 elif (useRelValSample == False) and (useLocalFiles == False) :
     # global tag for data taking
     
-    if cmsRunRelease == 'CMSSW_4_1_X' :
+    if cmsRunRelease == 'CMSSW_4_2_X' :
+        useGlobalTag = 'GR_R_42_V12'
+    elif cmsRunRelease == 'CMSSW_4_1_X' :
         useGlobalTag = 'GR_P_V17'
     elif cmsRunRelease == 'CMSSW_3_11_X' :
         useGlobalTag = 'GR_P_V13'
@@ -778,8 +790,8 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
                 ])
             
             selectedEvents = cms.untracked.VEventRange(
-                                    '156508:15865619-156508:15865629',
-                                    '137028:52756288-137028:52757299'
+                                    '156508:15865619-156508:15899999',
+                                    '137028:52756288-137028:52799999'
                                     )
 
     
