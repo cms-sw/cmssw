@@ -11,8 +11,8 @@ using namespace std;
 #include "CalibFormats/CastorObjects/interface/CastorCalibrations.h"
 #include "CalibFormats/CastorObjects/interface/CastorDbService.h"
 #include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
-#include "CondFormats/DataRecord/interface/ConfObjectRcd.h"
-#include "CondFormats/Common/interface/ConfObject.h"
+#include "CondFormats/DataRecord/interface/CastorRecoParamsRcd.h"
+#include "CondFormats/CastorObjects/interface/CastorRecoParams.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
@@ -24,7 +24,8 @@ CastorSimpleReconstructor::CastorSimpleReconstructor(edm::ParameterSet const& co
   det_(DetId::Hcal),
   inputLabel_(conf.getParameter<edm::InputTag>("digiLabel")),
   firstSample_(conf.getParameter<int>("firstSample")),
-  samplesToAdd_(conf.getParameter<int>("samplesToAdd"))
+  samplesToAdd_(conf.getParameter<int>("samplesToAdd")),
+  tsFromDB_(conf.getUntrackedParameter<bool>("tsFromDB",true))
 {
   std::string subd=conf.getParameter<std::string>("Subdetector");
   if (!strcasecmp(subd.c_str(),"CASTOR")) {
@@ -35,21 +36,24 @@ CastorSimpleReconstructor::CastorSimpleReconstructor(edm::ParameterSet const& co
     edm::LogWarning("CastorSimpleReconstructor") << "CastorSimpleReconstructor is not associated with CASTOR subdetector!" << std::endl;
   }       
   
-  confLabel_=conf.getParameter<std::string>("@module_label");
 }
 
 CastorSimpleReconstructor::~CastorSimpleReconstructor() {
 }
 
 void CastorSimpleReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
-  if (firstSample_<0 && samplesToAdd_<0){
-    //retrieve detector conditions for sample configuration
-    edm::ESHandle<ConfObject> samples;
-    es.get<ConfObjectRcd>().get(confLabel_,samples);
-    firstSample_=samples->get<int>("firstSample");
-    samplesToAdd_=samples->get<int>("samplesToAdd");
-    reco_.resetTimeSamples(firstSample_,samplesToAdd_);
+
+  if (tsFromDB_) {
+  	edm::ESHandle<CastorRecoParams> p;
+  	es.get<CastorRecoParamsRcd>().get(p);
+  	if (!p.isValid()) { 
+      		tsFromDB_ = false;
+      		edm::LogWarning("CastorSimpleReconstructor") << "Could not handle the CastorRecoParamsRcd correctly, using parameters from cfg file. These parameters could be wrong for this run... please check" << std::endl;
+  	} else {
+      		paramTS_ = new CastorRecoParams(*p.product());
+  	}
   }
+  
 }
 void CastorSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
@@ -70,12 +74,19 @@ void CastorSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& ev
     // run the algorithm
     CastorDigiCollection::const_iterator i;
     for (i=digi->begin(); i!=digi->end(); i++) {
-      HcalCastorDetId cell = i->id();	  
+      HcalCastorDetId cell = i->id();
+      DetId detcell=(DetId)cell;	  
  const CastorCalibrations& calibrations=conditions->getCastorCalibrations(cell);
 
 
 //conditions->makeCastorCalibration (cell, &calibrations);
-
+      
+      if (tsFromDB_) {
+	  const CastorRecoParam* param_ts = paramTS_->getValues(detcell.rawId());
+          reco_.resetTimeSamples(param_ts->firstSample(),param_ts->samplesToAdd());
+          //std::cout << "using CastorRecoParam from DB, reco_ parameters are reset to: firstSample_ = " << param_ts->firstSample() << " samplesToAdd_ = " << 
+          //param_ts->samplesToAdd() << std::endl;
+      }          
       const CastorQIECoder* channelCoder = conditions->getCastorCoder (cell);
       CastorCoderDb coder (*channelCoder, *shape);
       rec->push_back(reco_.reconstruct(*i,coder,calibrations));
