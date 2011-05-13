@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.11 2011/05/13 15:54:45 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.12 2011/05/13 18:16:50 chrjones Exp $
 //
 
 // system include files
@@ -434,21 +434,20 @@ DQMRootSource::readRunAuxiliary_()
   assert(m_nextIndexItr != m_orderedIndices.end());
   unsigned int index = *m_nextIndexItr;
   RunLumiToRange runLumiRange = m_runlumiToRange[index];
-  unsigned int run = runLumiRange.m_run;
   //NOTE: this could be a lumi instead of the actual run. We need to find the time for the run
   // so we will scan forward
   while(runLumiRange.m_lumi !=0 && ++index<m_runlumiToRange.size()) {
     const RunLumiToRange& next = m_runlumiToRange[index];
-    if(runLumiRange.m_run == next.m_run && runLumiRange.m_lumi !=0) {
+    if(runLumiRange.m_run == next.m_run) {
       runLumiRange = next;
     } else {
       break;
     }
   }
 
-  m_runAux.id() = edm::RunID(runLumiRange.m_run);
-  m_runAux.setBeginTime(edm::Timestamp(runLumiRange.m_beginTime));
-  m_runAux.setEndTime(edm::Timestamp(runLumiRange.m_endTime));
+  //NOTE: the setBeginTime and setEndTime functions of RunAuxiliary only work if the previous value was invalid
+  // therefore we must copy
+  m_runAux = edm::RunAuxiliary(runLumiRange.m_run,edm::Timestamp(runLumiRange.m_beginTime),edm::Timestamp(runLumiRange.m_endTime));
   assert(m_historyIDs.size() > runLumiRange.m_historyIDIndex);
   //std::cout <<"readRunAuxiliary_ "<<m_historyIDs[runLumiRange.m_historyIDIndex]<<std::endl;
   m_runAux.setProcessHistoryID(m_historyIDs[runLumiRange.m_historyIDIndex]);    
@@ -460,10 +459,11 @@ DQMRootSource::readLuminosityBlockAuxiliary_()
   //std::cout <<"readLuminosityBlockAuxiliary_"<<std::endl;
   assert(m_nextIndexItr != m_orderedIndices.end());
   const RunLumiToRange runLumiRange = m_runlumiToRange[*m_nextIndexItr];
-  m_lumiAux.id() = edm::LuminosityBlockID(runLumiRange.m_run,runLumiRange.m_lumi);
-  m_lumiAux.setBeginTime(edm::Timestamp(runLumiRange.m_beginTime));
-  m_lumiAux.setEndTime(edm::Timestamp(runLumiRange.m_endTime));
+  m_lumiAux = edm::LuminosityBlockAuxiliary(edm::LuminosityBlockID(runLumiRange.m_run,runLumiRange.m_lumi),
+                                            edm::Timestamp(runLumiRange.m_beginTime),
+                                            edm::Timestamp(runLumiRange.m_endTime));
   assert(m_historyIDs.size() > runLumiRange.m_historyIDIndex);
+  //std::cout <<"lumi "<<m_lumiAux.beginTime().value()<<" "<<runLumiRange.m_beginTime<<std::endl;
   m_lumiAux.setProcessHistoryID(m_historyIDs[runLumiRange.m_historyIDIndex]);    
   
   return boost::shared_ptr<edm::LuminosityBlockAuxiliary>(new edm::LuminosityBlockAuxiliary(m_lumiAux));
@@ -724,7 +724,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
   indicesTree->SetBranchAddress(kRunBranch,&temp.m_run);
   indicesTree->SetBranchAddress(kLumiBranch,&temp.m_lumi);
   indicesTree->SetBranchAddress(kBeginTimeBranch,&temp.m_beginTime);
-  indicesTree->SetBranchAddress(kBeginTimeBranch,&temp.m_endTime);
+  indicesTree->SetBranchAddress(kEndTimeBranch,&temp.m_endTime);
   indicesTree->SetBranchAddress(kProcessHistoryIndexBranch,&temp.m_historyIDIndex);
   indicesTree->SetBranchAddress(kTypeBranch,&temp.m_type);
   indicesTree->SetBranchAddress(kFirstIndex,&temp.m_firstIndex);
@@ -746,6 +746,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
   
   for(Long64_t index = 0; index != indicesTree->GetEntries();++index) {
     indicesTree->GetEntry(index);
+    //std::cout <<"read r:"<<temp.m_run<<" l:"<<temp.m_lumi<<" b:"<<temp.m_beginTime<<" e:"<<temp.m_endTime<<std::endl;
     m_runlumiToRange.push_back(temp);
     
     std::pair<unsigned int, unsigned int> runLumi(temp.m_run,temp.m_lumi);
