@@ -78,7 +78,7 @@ int cond::AlignSplitIOV::execute()
 
   std::string destiovtoken;
 
-  cond::DbSession sourcedb = openDbSession("sourceConnect", false);
+  cond::DbSession sourcedb = openDbSession("sourceConnect", true);
   cond::DbSession destdb = openDbSession("destConnect");
 
   sourcedb.transaction().start(false);
