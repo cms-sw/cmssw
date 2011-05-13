@@ -1,3 +1,8 @@
+2011-05-13 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-05
+	* fix inconsistency in fsm_ transitions on stop failure
+
 2011-05-11 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V02-04-04

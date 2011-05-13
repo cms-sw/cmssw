@@ -1616,8 +1616,8 @@ void FUEventProcessor::stopSlavesAndAcknowledge()
 	  std::ostringstream ost;
 	  ost << "failed to get STOP - errno ->" << errno << " " << e.what(); 
 	  reasonForFailedState_ = ost.str();
-	  LOG4CPLUS_WARN(getApplicationLogger(),reasonForFailedState_);
-	  fsm_.fireFailed(reasonForFailedState_,this);
+	  LOG4CPLUS_ERROR(getApplicationLogger(),reasonForFailedState_);
+	  //	  fsm_.fireFailed(reasonForFailedState_,this);
 	  localLog(reasonForFailedState_);
 	  break;
 	}
@@ -1831,7 +1831,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.125 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.126 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
