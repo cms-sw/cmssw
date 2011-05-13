@@ -102,6 +102,8 @@ EcalRawToRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     // cleaning of anomalous signals, aka spikes
     // only doable once we have a "global" collection of hits
     if (cleaningAlgo_){
+      EBrechits->sort();
+      EErechits->sort();
       cleaningAlgo_->setFlags(*EBrechits);
       cleaningAlgo_->setFlags(*EErechits);
     }
@@ -131,6 +133,11 @@ EcalRawToRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       }//loop over things in region
       LogDebug("EcalRawToRecHit|Producer")<<"looping over refgetter region: "<<iR++<<" done"<<watcher.lap();
     }//loop over regions
+
+    if (cleaningAlgo_){
+      rechits->sort();
+      cleaningAlgo_->setFlags(*rechits);
+    }
     LogDebug("EcalRawToRecHit|Producer")<<rechits->size()<<" rechits to be put."<< watcher.lap();
     iEvent.put(rechits,rechitCollection_);
     LogDebug("EcalRawToRecHit|Producer")<<"collections uploaded."
