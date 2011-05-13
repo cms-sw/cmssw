@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.7 2011/05/13 01:53:21 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.8 2011/05/13 13:21:31 chrjones Exp $
 //
 
 // system include files
@@ -165,10 +165,10 @@ namespace {
   void mergeWithElement(MonitorElement* iElement, double& iValue) {
     //no merging    
   }
-  MonitorElement* createElement(DQMStore& iStore, const char* iName, TString* iValue) {
-    return iStore.bookString(iName,iValue->Data());
+  MonitorElement* createElement(DQMStore& iStore, const char* iName, std::string* iValue) {
+    return iStore.bookString(iName,*iValue);
   }
-  void mergeWithElement(MonitorElement* iElement, TString* TString) {
+  void mergeWithElement(MonitorElement* , std::string* ) {
     //no merging    
   }
   
@@ -369,7 +369,7 @@ m_doNotReadRemainingPartsOfFileSinceFrameworkTerminating(false)
   } else{
     m_treeReaders[kIntIndex].reset(new TreeSimpleReader<Long64_t>());
     m_treeReaders[kFloatIndex].reset(new TreeSimpleReader<double>());
-    m_treeReaders[kStringIndex].reset(new TreeObjectReader<TString>());
+    m_treeReaders[kStringIndex].reset(new TreeObjectReader<std::string>());
     m_treeReaders[kTH1FIndex].reset(new TreeObjectReader<TH1F>());
     m_treeReaders[kTH1SIndex].reset(new TreeObjectReader<TH1S>());
     m_treeReaders[kTH1DIndex].reset(new TreeObjectReader<TH1D>());

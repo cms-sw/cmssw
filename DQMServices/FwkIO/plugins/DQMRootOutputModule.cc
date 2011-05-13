@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Apr 29 13:26:29 CDT 2011
-// $Id: DQMRootOutputModule.cc,v 1.1 2011/05/11 18:12:54 chrjones Exp $
+// $Id: DQMRootOutputModule.cc,v 1.2 2011/05/12 22:34:42 chrjones Exp $
 //
 
 // system include files
@@ -162,8 +162,8 @@ namespace {
     TTree* m_tree;
     uint32_t m_flagBuffer;
     std::string* m_fullNameBufferPtr;
-    TString m_buffer;
-    TString* m_bufferPtr;
+    std::string m_buffer;
+    std::string* m_bufferPtr;
   };
 
 }
