@@ -1,5 +1,5 @@
 #include "DataFormats/GeometrySurface/interface/BlockWipedAllocator.h"
-
+#include "FWCore/Utilities/interface/Likely.h"
 
 BlockWipedAllocator::BlockWipedAllocator( std::size_t typeSize,
 					  std::size_t blockSize,
@@ -29,7 +29,7 @@ BlockWipedAllocator& BlockWipedAllocator::operator=(BlockWipedAllocator const & 
 
 void * BlockWipedAllocator::alloc() {
   m_alive++;
-  if (!recycled.empty()) {
+  if likely(!recycled.empty()) {
     void * ret = recycled.back();
     recycled.pop_back();
     return ret;
@@ -38,13 +38,12 @@ void * BlockWipedAllocator::alloc() {
   m_next+=m_typeSize;
   Block & block = *m_current;
   ++block.m_allocated;
-  if(m_next==(&block.m_data.back())+1)
-    nextBlock(true);
+  if unlikely(m_next==(&block.m_data.back())+1) nextBlock(true);
   return ret;
 }
   
 void BlockWipedAllocator::dealloc(void * p) {
-  if (recycled.size()<m_maxRecycle) recycled.push_back(p);
+  if likely (recycled.size()<m_maxRecycle) recycled.push_back(p);
   m_alive--;
 }
 
@@ -76,8 +75,8 @@ BlockWipedAllocator::Stat BlockWipedAllocator::stat() const {
 }
 
 void BlockWipedAllocator::nextBlock(bool advance) {
-  if (advance) m_current++;
-  if (m_current==m_blocks.end()) {
+  if likely(advance) m_current++;
+  if unlikely(m_current==m_blocks.end()) {
     m_blocks.push_back(Block());
     m_current=m_blocks.end(); --m_current;
   }
@@ -88,13 +87,15 @@ void BlockWipedAllocator::nextBlock(bool advance) {
 
 
 BlockWipedPool::BlockWipedPool(std::size_t blockSize, std::size_t  maxRecycle) : 
-  m_blockSize(blockSize),  m_maxRecycle(maxRecycle){}
+  m_blockSize(blockSize),  m_maxRecycle(maxRecycle), m_last(0), m_lastSize(0){}
 
 
 BlockWipedPool::Allocator & BlockWipedPool::allocator( std::size_t typeSize) {
+  if likely(mlast_Size==typeSize) return *m_last;
   Pool::iterator p=m_pool.find(typeSize);
-  if (p!=m_pool.end()) return (*p).second;
-  return (*m_pool.insert(std::make_pair(typeSize,Allocator(typeSize, m_blockSize, m_maxRecycle))).first).second;
+  m_last=type_size;
+  if likely (p!=m_pool.end())  return *(m_last = &(*p).second);
+  return *(mlast=&(*m_pool.insert(std::make_pair(typeSize,Allocator(typeSize, m_blockSize, m_maxRecycle))).first).second);
 }
 
 void BlockWipedPool::wipe(bool force) {

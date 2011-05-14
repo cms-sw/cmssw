@@ -10,6 +10,9 @@
 
 #include<boost/bind.hpp>
 
+#include "FWCore/Utilities/interface/Visibility.h"
+
+
 // #include<iostream>
 
 /*  Allocator that never removes single allocations
@@ -78,7 +81,7 @@ public:
   Stat stat() const;
   
 private:
-  void nextBlock(bool advance);
+  void nextBlock(bool advance) dso_internal;
 
 
   struct Block {
@@ -130,6 +133,8 @@ private:
   std::size_t m_blockSize;
   std::size_t m_maxRecycle;
   Pool m_pool;
+  Allocator * m_last;
+  std::size_t m_lastSize;
 };
 
 
