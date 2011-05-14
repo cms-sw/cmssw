@@ -79,79 +79,94 @@ HLTJetCollForElePlusJets::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   if(!clusCands.empty()){ //try trigger cluster
     for(size_t candNr=0;candNr<clusCands.size();candNr++){
       TVector3 positionVector(
-          clusCands[candNr]->superCluster()->position().x(),
-          clusCands[candNr]->superCluster()->position().y(),
-          clusCands[candNr]->superCluster()->position().z());
+			      clusCands[candNr]->superCluster()->position().x(),
+			      clusCands[candNr]->superCluster()->position().y(),
+			      clusCands[candNr]->superCluster()->position().z());
       ElePs.push_back(positionVector);
-}
-}else if(!eleCands.empty()){ // try trigger electrons
+    }
+  }else if(!eleCands.empty()){ // try trigger electrons
     for(size_t candNr=0;candNr<eleCands.size();candNr++){
       TVector3 positionVector(
-          eleCands[candNr]->superCluster()->position().x(),
-          eleCands[candNr]->superCluster()->position().y(),
-          eleCands[candNr]->superCluster()->position().z());
+			      eleCands[candNr]->superCluster()->position().x(),
+			      eleCands[candNr]->superCluster()->position().y(),
+			      eleCands[candNr]->superCluster()->position().z());
       ElePs.push_back(positionVector);
-}
-}
+    }
+  }
   
   edm::Handle<reco::CaloJetCollection> theCaloJetCollectionHandle;
   iEvent.getByLabel(sourceJetTag, theCaloJetCollectionHandle);
-  const reco::CaloJetCollection* theCaloJetCollection = theCaloJetCollectionHandle.product();
-
+  //const reco::CaloJetCollection* theCaloJetCollection = theCaloJetCollectionHandle.product();
+  
+  const reco::CaloJetCollection & theCaloJetCollection = *theCaloJetCollectionHandle;
+  
   std::auto_ptr< reco::CaloJetCollection >  theFilteredCaloJetCollection(new reco::CaloJetCollection);
   
+  std::auto_ptr < std::vector<reco::CaloJetRefVector> > allSelections(new std::vector<reco::CaloJetRefVector>());
+  
+  bool foundSolution(false);
+
   for (unsigned int i = 0; i < ElePs.size(); i++) {
     
-        bool VBFJetPair = false;
-        std::vector<int> store_jet;
-        
-
-        for (unsigned int j = 0; j < theCaloJetCollection->size(); j++) {
-            TVector3 JetP((*theCaloJetCollection)[j].px(), (*theCaloJetCollection)[j].py(),
-                    (*theCaloJetCollection)[j].pz());
-            double DR = ElePs[i].DeltaR(JetP);
-
-            if (JetP.Pt() > minJetPt_ && std::abs(JetP.Eta()) < maxAbsJetEta_ && DR > minDeltaR_) {
-                store_jet.push_back(j);
-                // The VBF part of the filter
-                if ( minDeltaEta_ > 0 ) {
-                    for ( unsigned int k = j+1; k < theCaloJetCollection->size(); k++ ) {
-                      TVector3 SoftJetP((*theCaloJetCollection)[k].px(), (*theCaloJetCollection)[k].py(),
-                                      (*theCaloJetCollection)[k].pz());
-                      double softDR = ElePs[i].DeltaR(SoftJetP);
-                      
-                      if (SoftJetP.Pt() > minSoftJetPt_ && std::abs(SoftJetP.Eta()) < maxAbsJetEta_ && softDR > minDeltaR_)
-                        if ( std::abs(SoftJetP.Eta() - JetP.Eta()) > minDeltaEta_ ) {
-                        store_jet.push_back(k);
-                        VBFJetPair = true;
-}
-}
-}
-}
-            
-}
-        
-        // Now remove duplicates from the jet collection to store
-        std::sort( store_jet.begin(), store_jet.end() );
-        store_jet.erase( unique( store_jet.begin(), store_jet.end() ), store_jet.end() );
-
-        // Now save the cleaned jets
-        for ( unsigned int ijet = 0; ijet < store_jet.size(); ijet++ )
-            theFilteredCaloJetCollection->push_back((*theCaloJetCollection)[store_jet.at(ijet)]);
-
-        if (theFilteredCaloJetCollection->size() >= minNJets_ && minDeltaEta_ < 0)
-            break;
-        else if (VBFJetPair && minDeltaEta_ > 0)
-            break;
-        else
-            theFilteredCaloJetCollection->clear();
-
-}
+    bool VBFJetPair = false;
+    std::vector<int> store_jet;
+    reco::CaloJetRefVector refVector;
+    
+    for (unsigned int j = 0; j < theCaloJetCollection.size(); j++) {
+      TVector3 JetP(theCaloJetCollection[j].px(), theCaloJetCollection[j].py(),
+                    theCaloJetCollection[j].pz());
+      double DR = ElePs[i].DeltaR(JetP);
+      
+      if (JetP.Pt() > minJetPt_ && std::abs(JetP.Eta()) < maxAbsJetEta_ && DR > minDeltaR_) {
+	store_jet.push_back(j);
+	// The VBF part of the filter
+	if ( minDeltaEta_ > 0 ) {
+	  for ( unsigned int k = j+1; k < theCaloJetCollection.size(); k++ ) {
+	    TVector3 SoftJetP(theCaloJetCollection[k].px(), theCaloJetCollection[k].py(),
+			      theCaloJetCollection[k].pz());
+	    double softDR = ElePs[i].DeltaR(SoftJetP);
+	    
+	    if (SoftJetP.Pt() > minSoftJetPt_ && std::abs(SoftJetP.Eta()) < maxAbsJetEta_ && softDR > minDeltaR_)
+	      if ( std::abs(SoftJetP.Eta() - JetP.Eta()) > minDeltaEta_ ) {
+		store_jet.push_back(k);
+		VBFJetPair = true;
+	      }
+	  }
+	}
+      }
+      
+    }
+    
+    // Now remove duplicates from the jet collection to store
+    std::sort( store_jet.begin(), store_jet.end() );
+    store_jet.erase( unique( store_jet.begin(), store_jet.end() ), store_jet.end() );
+    
+    // Now save the cleaned jets
+    for ( unsigned int ijet = 0; ijet < store_jet.size(); ijet++ )
+      {
+	//store all selections
+	refVector.push_back(reco::CaloJetRef(theCaloJetCollectionHandle, store_jet.at(ijet)));
+	//store first selection which matches the criteria
+	if(!foundSolution)
+	  theFilteredCaloJetCollection->push_back(theCaloJetCollection[store_jet.at(ijet)]);
+      }
+    //store all selections
+    allSelections->push_back(refVector);
+    
+    if (theFilteredCaloJetCollection->size() >= minNJets_ && minDeltaEta_ < 0)
+      foundSolution = true;
+    else if (VBFJetPair && minDeltaEta_ > 0)
+      foundSolution = true;
+    else if (!foundSolution)
+      theFilteredCaloJetCollection->clear();
+    
+    
+  }
   
   iEvent.put(theFilteredCaloJetCollection);
-
+  
   return;
-
+  
 }
 
 // ------------ method called once each job just before starting event loop  ------------
