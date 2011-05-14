@@ -1,7 +1,7 @@
 static const char* desc =
 "=====================================================================\n"
 "|                                                                    \n"
-"|\033[1m        roostats_cl95.C  version 1.03                 \033[0m\n"
+"|\033[1m        roostats_cl95.C  version 1.04                 \033[0m\n"
 "|                                                                    \n"
 "| Standard c++ routine for 95% C.L. limit calculation                \n"
 "| for cross section in a 'counting experiment'                       \n"
@@ -30,9 +30,9 @@ static const char* desc =
 ".L roostats_cl95.C+                                                  \n"
 "                                                                     \n"
 "Usage:                                                               \n"
-"       limit  = roostats_cl95(ilum, slum, eff, seff, bck, sbck, n, gauss = false, nuisanceModel, method, plotFileName); \n"
-" limit_result = roostats_cla(ilum, slum, eff, seff, bck, sbck, nuisanceModel); \n"
-"       limitA = roostats_cla(ilum, slum, eff, seff, bck, sbck, nuisanceModel); \n"
+" Double_t             limit = roostats_cl95(ilum, slum, eff, seff, bck, sbck, n, gauss = false, nuisanceModel, method, plotFileName, seed); \n"
+" LimitResult expected_limit = roostats_clm(ilum, slum, eff, seff, bck, sbck, ntoys, nuisanceModel, method, seed); \n"
+" Double_t     average_limit = roostats_cla(ilum, slum, eff, seff, bck, sbck, nuisanceModel, method, seed); \n"
 "                                                                     \n"
 "Inputs:                                                              \n"
 "       ilum          - Nominal integrated luminosity (pb^-1)         \n"
@@ -45,6 +45,8 @@ static const char* desc =
 "       sbck          - Absolute error on the background              \n"
 "       n             - Number of observed events (not used for the   \n"
 "                       expected limit)                               \n"
+"       ntoys         - Number of pseudoexperiments to perform for    \n"
+"                       expected limit calculation)                   \n"
 "       gauss         - if true, use Gaussian statistics for signal   \n"
 "                       instead of Poisson; automatically false       \n"
 "                       for n = 0.                                    \n"
@@ -64,6 +66,8 @@ static const char* desc =
 "                       <plot_cl95.pdf> is the default value,         \n"
 "                       specify empty string if you do not want       \n"
 "                       the plot to be created (saves time)           \n"
+"       seed          - seed for random number generation,            \n"
+"                       specify 0 for unique irreproducible seed      \n"
 "                                                                     \n"
 "                                                                     \n"
 "The statistics model in this routine: the routine addresses the task \n"
@@ -120,20 +124,23 @@ Double_t roostats_cl95(Double_t ilum, Double_t slum,
 		       Bool_t gauss = kFALSE,
 		       Int_t nuisanceModel = 0,
 		       std::string method = "bayesian",
-		       std::string plotFileName = "plot_cl95.pdf");
+		       std::string plotFileName = "plot_cl95.pdf",
+		       UInt_t seed = 12345);
 
 LimitResult roostats_clm(Double_t ilum, Double_t slum,
 			 Double_t eff, Double_t seff,
 			 Double_t bck, Double_t sbck,
 			 Int_t nit = 200, Int_t nuisanceModel = 0,
-			 std::string method = "bayesian");
+			 std::string method = "bayesian",
+			 UInt_t seed = 12345);
 
 // legacy support: use roostats_clm() instead
 Double_t roostats_cla(Double_t ilum, Double_t slum,
 		      Double_t eff, Double_t seff,
 		      Double_t bck, Double_t sbck,
 		      Int_t nuisanceModel = 0,
-		      std::string method = "bayesian");
+		      std::string method = "bayesian",
+		      UInt_t seed = 12345);
 
 
 
@@ -180,6 +187,7 @@ class CL95Calc{
 
 public:
   CL95Calc();
+  CL95Calc( UInt_t seed );
   ~CL95Calc();
 
   RooWorkspace * makeWorkspace(Double_t ilum, Double_t slum,
@@ -210,8 +218,12 @@ public:
 
 private:
 
+  void init( UInt_t seed ); //  to be called by constructor
+
   // methods
   Double_t GetRandom( std::string pdf, std::string var );
+  Long64_t LowBoundarySearch(std::vector<Double_t> * cdf, Double_t value);
+  Long64_t HighBoundarySearch(std::vector<Double_t> * cdf, Double_t value);
 
   // data members
   RooWorkspace * ws;
@@ -238,6 +250,16 @@ private:
 
 // default constructor
 CL95Calc::CL95Calc(){
+  init(0);
+}
+
+
+CL95Calc::CL95Calc(UInt_t seed){
+  init(seed);
+}
+
+
+void CL95Calc::init(UInt_t seed){
   ws = new RooWorkspace("ws");
   data = 0;
 
@@ -250,17 +272,26 @@ CL95Calc::CL95Calc(){
   nbkg_rel_err = -1.0; // default non-initialized value
 
   // set random seed
-  r.SetSeed();
-  UInt_t _seed = r.GetSeed();
-  UInt_t _pid = gSystem->GetPid();
-  std::cout << "[CL95Calc]: random seed: " << _seed << std::endl;
-  std::cout << "[CL95Calc]: process ID: " << _pid << std::endl;
-  _seed = 31*_seed+_pid;
-  std::cout << "[CL95Calc]: new random seed (31*seed+pid): " << _seed << std::endl;
-  r.SetSeed(_seed);
-
-  // set RooFit random seed (it has a private copy)
-  RooRandom::randomGenerator()->SetSeed(_seed);
+  if (seed == 0){
+    r.SetSeed();
+    UInt_t _seed = r.GetSeed();
+    UInt_t _pid = gSystem->GetPid();
+    std::cout << "[CL95Calc]: random seed: " << _seed << std::endl;
+    std::cout << "[CL95Calc]: process ID: " << _pid << std::endl;
+    _seed = 31*_seed+_pid;
+    std::cout << "[CL95Calc]: new random seed (31*seed+pid): " << _seed << std::endl;
+    r.SetSeed(_seed);
+    
+    // set RooFit random seed (it has a private copy)
+    RooRandom::randomGenerator()->SetSeed(_seed);
+  }
+  else{
+    std::cout << "[CL95Calc]: random seed: " << seed << std::endl;
+    r.SetSeed(seed);
+    
+    // set RooFit random seed (it has a private copy)
+    RooRandom::randomGenerator()->SetSeed(seed);
+  }
 
   // default Gaussian nuisance model
   _nuisance_model = 0;
@@ -352,11 +383,9 @@ RooWorkspace * CL95Calc::makeWorkspace(Double_t ilum, Double_t slum,
     ws->factory( "Gaussian::syst_nsig(nsig_nuis, 1.0, nsig_sigma)" );
     // background uncertainty
     ws->factory( "nbkg_sigma[0.1]" );
-    //ws->factory( "Gaussian::syst_nbkg(nbkg_nuis, 1.0, nbkg_sigma)" );
     ws->factory( "Gaussian::syst_nbkg(nbkg, bkg_est, nbkg_sigma)" );
 
     ws->var("nsig_sigma")->setVal(nsig_rel_err);
-    //ws->var("nbkg_sigma")->setVal(nbkg_rel_err);
     ws->var("nbkg_sigma")->setVal(sbck);
     ws->var("nsig_sigma")->setConstant(kTRUE);
     ws->var("nbkg_sigma")->setConstant(kTRUE);
@@ -370,7 +399,6 @@ RooWorkspace * CL95Calc::makeWorkspace(Double_t ilum, Double_t slum,
     ws->factory( "Lognormal::syst_nsig(nsig_nuis, 1.0, nsig_kappa)" );
     // background uncertainty
     ws->factory( "nbkg_kappa[1.1]" );
-    //ws->factory( "Lognormal::syst_nbkg(nbkg_nuis, 1.0, nbkg_kappa)" );
     ws->factory( "Lognormal::syst_nbkg(nbkg, bkg_est, nbkg_kappa)" );
 
     ws->var("nsig_kappa")->setVal(1.0 + nsig_rel_err);
@@ -392,10 +420,8 @@ RooWorkspace * CL95Calc::makeWorkspace(Double_t ilum, Double_t slum,
     // background uncertainty
     ws->factory( "nbkg_beta[0.01]" );
     ws->factory( "nbkg_gamma[101.0]" );
-    //ws->var("nbkg_beta") ->setVal(nbkg_rel_err*nbkg_rel_err);
     ws->var("nbkg_beta") ->setVal(sbck*sbck/bck);
     ws->var("nbkg_gamma")->setVal(1.0/nbkg_rel_err/nbkg_rel_err + 1.0);
-    //ws->factory( "Gamma::syst_nbkg(nbkg_nuis, nbkg_gamma, nbkg_beta, 0.0)" );
     ws->factory( "Gamma::syst_nbkg(nbkg, nbkg_gamma, nbkg_beta, 0.0)" );
 
     ws->var("nsig_beta") ->setConstant(kTRUE);
@@ -420,7 +446,6 @@ RooWorkspace * CL95Calc::makeWorkspace(Double_t ilum, Double_t slum,
   ws->var("bkg_est")   ->setVal(bck);
   ws->var("xsec")      ->setVal(0.0);
   ws->var("nsig_nuis") ->setVal(1.0);
-  //ws->var("nbkg_nuis") ->setVal(1.0);
   ws->var("nbkg")      ->setVal(bck);
 
   // set some parameters as constants
@@ -430,7 +455,6 @@ RooWorkspace * CL95Calc::makeWorkspace(Double_t ilum, Double_t slum,
   ws->var("n")         ->setConstant(kFALSE); // observable
   ws->var("xsec")      ->setConstant(kFALSE); // parameter of interest
   ws->var("nsig_nuis") ->setConstant(kFALSE); // nuisance
-  //ws->var("nbkg_nuis") ->setConstant(kFALSE); // nuisance
   ws->var("nbkg")      ->setConstant(kFALSE); // nuisance
 
   // floating parameters ranges
@@ -438,13 +462,11 @@ RooWorkspace * CL95Calc::makeWorkspace(Double_t ilum, Double_t slum,
   ws->var("n")        ->setRange( 0.0, bck+(5.0*sbck)+10.0); // ad-hoc range for obs
   ws->var("xsec")     ->setRange( 0.0, 15.0*(1.0+nsig_rel_err)/ilum/eff ); // ad-hoc range for POI
   ws->var("nsig_nuis")->setRange( std::max(0.0, 1.0 - 5.0*nsig_rel_err), 1.0 + 5.0*nsig_rel_err);
-  //ws->var("nbkg_nuis")->setRange( std::max(0.0, 1.0 - 5.0*nbkg_rel_err), 1.0 + 5.0*nbkg_rel_err);
   ws->var("nbkg")     ->setRange( std::max(0.0, bck - 5.0*sbck), bck + 5.0*sbck);
   
   // Definition of observables and parameters of interest
   ws->defineSet("obsSet","n");
   ws->defineSet("poiSet","xsec");
-  //ws->defineSet("nuisanceSet","nsig_nuis,nbkg_nuis");
   ws->defineSet("nuisanceSet","nsig_nuis,nbkg");
 
   // setup the ModelConfig object
@@ -483,7 +505,6 @@ RooAbsData * CL95Calc::makeData( Int_t n ){
   ws->var("n")        ->setRange( 0.0, bck+(5.0*sbck)+10.0*(n+1.0)); // ad-hoc range for obs
   ws->var("xsec")     ->setRange( 0.0, 5.0*(1.0+nsig_rel_err)*std::max(10.0,n-bck)/ilum/eff ); // ad-hoc range for POI
   ws->var("nsig_nuis")->setRange( std::max(0.0, 1.0 - 5.0*nsig_rel_err), 1.0 + 5.0*nsig_rel_err);
-  //ws->var("nbkg_nuis")->setRange( std::max(0.0, 1.0 - 5.0*nbkg_rel_err), 1.0 + 5.0*nbkg_rel_err);
   ws->var("nbkg")     ->setRange( std::max(0.0, bck - 5.0*sbck), bck + 5.0*sbck);
 
   // create data
@@ -616,23 +637,12 @@ LimitResult CL95Calc::clm( Double_t ilum, Double_t slum,
   for (Int_t i = 0; i < nit; i++)
     {
       // throw random nuisance parameter (bkg yield)
-      // FIXME: set sbck for other models
-      if (_nuisance_model == 0){ // gaussian model for nuisance parameters
-	RooRealVar * _nuis = ws->var("nbkg_sigma");
-	if (_nuis){
-	  _nuis->setVal(sbck);
-	}
-	else{ // nuisance model is misconfigured - fail
-	  std::cout << "[roostats_clm]: nsig_sigma missing, model misconfigured, exiting..." << std::endl;
-	  exit(-1);
-	}
-      }
-      // FIXME: add non-Gaussian nuisance
       Double_t bmean = GetRandom("syst_nbkg", "nbkg");
 
+      std::cout << "[roostats_clm]: generatin pseudo-data with bmean = " << bmean << std::endl;
       Int_t n = r.Poisson(bmean);
       makeData( n );
-      std::cout << "Invoking CL95 with bmean = " << bmean << "; n = " << n << std::endl;
+      std::cout << "[roostats_clm]: invoking CL95 with n = " << n << std::endl;
 
       Double_t _pe = cl95( method );
       pe.push_back(_pe);
@@ -677,19 +687,21 @@ LimitResult CL95Calc::clm( Double_t ilum, Double_t slum,
 
   // let's get actual coverages now
 
-  // sort the vector with limits
-  std::sort(pe.begin(), pe.end());
-  Long64_t lc68 = TMath::BinarySearch(nit, &pe[0], _quantiles[1]) + 1;
-  Long64_t uc68 = nit - TMath::BinarySearch(nit, &pe[0], _quantiles[2]) - 1;
-  Long64_t lc95 = TMath::BinarySearch(nit, &pe[0], _quantiles[0]) + 1;
-  Long64_t uc95 = nit - TMath::BinarySearch(nit, &pe[0], _quantiles[3]) - 1;
+  Long64_t lc68 = LowBoundarySearch(&pe, _quantiles[1]);
+  Long64_t uc68 = HighBoundarySearch(&pe, _quantiles[2]);
+  Long64_t lc95 = LowBoundarySearch(&pe, _quantiles[0]);
+  Long64_t uc95 = HighBoundarySearch(&pe, _quantiles[3]);
 
   Double_t _cover68 = (nit - lc68 - uc68)*100./nit;
   Double_t _cover95 = (nit - lc95 - uc95)*100./nit;
 
   std::cout << "[CL95Calc::clm()]: median limit: " << _median << std::endl;
-  std::cout << "[CL95Calc::clm()]: 1 sigma band: [" << b68[0] << "," << b68[1] << "]; actual coverage: " << _cover68 << "%; lower/upper percentile: " << lc68*100./nit <<"/" << uc68*100./nit << std::endl;
-  std::cout << "[CL95Calc::clm()]: 2 sigma band: [" << b95[0] << "," << b95[1] << "]; actual coverage: " << _cover95 << "%; lower/upper percentile: " << lc95*100./nit <<"/" << uc95*100./nit << std::endl;
+  std::cout << "[CL95Calc::clm()]: 1 sigma band: [" << b68[0] << "," << b68[1] << 
+    "]; actual coverage: " << _cover68 << 
+    "%; lower/upper percentile: " << lc68*100./nit <<"/" << uc68*100./nit << std::endl;
+  std::cout << "[CL95Calc::clm()]: 2 sigma band: [" << b95[0] << "," << b95[1] << 
+    "]; actual coverage: " << _cover95 << 
+    "%; lower/upper percentile: " << lc95*100./nit <<"/" << uc95*100./nit << std::endl;
 
   t.Print();
 
@@ -745,6 +757,39 @@ Double_t CL95Calc::GetRandom( std::string pdf, std::string var ){
 }
 
 
+Long64_t CL95Calc::LowBoundarySearch(std::vector<Double_t> * cdf, Double_t value){
+  //
+  // return number of elements which are < value with precision 1e-10
+  //
+
+  Long64_t result = 0;
+  std::vector<Double_t>::const_iterator i = cdf->begin();
+  while( (*i<value) && fabs(*i-value)>1.0e-10 && (i!=cdf->end()) ){
+    ++i;
+    ++result;
+  }
+  return result;
+}
+
+
+Long64_t CL95Calc::HighBoundarySearch(std::vector<Double_t> * cdf, Double_t value){
+  //
+  // return number of elements which are > value with precision 1e-10
+  //
+
+  Long64_t result = 0;
+  std::vector<Double_t>::const_iterator i = cdf->end();
+  while(1){ // (*i<value) && (i!=cdf->begin()) ){
+    --i;
+    if (*i>value && fabs(*i-value)>1.0e-10 ){
+      ++result;
+    }
+    else break;
+    if (i==cdf->begin()) break;
+  }
+  return result;
+}
+
 
 Int_t banner(){
   //#define __ROOFIT_NOBANNER // banner temporary off
@@ -765,7 +810,8 @@ Double_t roostats_cl95(Double_t ilum, Double_t slum,
 		       Bool_t gauss,
 		       Int_t nuisanceModel,
 		       std::string method,
-		       std::string plotFileName){
+		       std::string plotFileName,
+		       UInt_t seed){
 
   std::cout << "[roostats_cl95]: estimating 95% C.L. upper limit" << endl;
   if (method.find("bayesian") != std::string::npos){
@@ -797,7 +843,7 @@ Double_t roostats_cl95(Double_t ilum, Double_t slum,
   }
     
   // limit calculation
-  CL95Calc theCalc;
+  CL95Calc theCalc(seed);
   RooWorkspace * ws = theCalc.makeWorkspace( ilum, slum,
 					     eff, seff,
 					     bck, sbck,
@@ -807,7 +853,7 @@ Double_t roostats_cl95(Double_t ilum, Double_t slum,
   data->SetName("observed_data");
   ws->import(*data);
 
-  ws->Print();
+  //ws->Print();
 
   ws->SaveAs("ws.root");
 
@@ -833,7 +879,8 @@ Double_t roostats_cla(Double_t ilum, Double_t slum,
 		      Double_t eff, Double_t seff,
 		      Double_t bck, Double_t sbck,
 		      Int_t nuisanceModel,
-		      std::string method){
+		      std::string method,
+		      UInt_t seed){
 
   Double_t limit = -1.0;
 
@@ -849,7 +896,7 @@ Double_t roostats_cla(Double_t ilum, Double_t slum,
 
   std::cout << "[roostats_cla]: Poisson statistics used" << endl;
     
-  CL95Calc theCalc;
+  CL95Calc theCalc(seed);
   limit = theCalc.cla( ilum, slum,
 		       eff, seff,
 		       bck, sbck,
@@ -864,11 +911,12 @@ Double_t roostats_cla(Double_t ilum, Double_t slum,
 
 
 LimitResult roostats_clm(Double_t ilum, Double_t slum,
-		      Double_t eff, Double_t seff,
-		      Double_t bck, Double_t sbck,
-		      Int_t nit, Int_t nuisanceModel,
-		      std::string method){
-
+			 Double_t eff, Double_t seff,
+			 Double_t bck, Double_t sbck,
+			 Int_t nit, Int_t nuisanceModel,
+			 std::string method,
+			 UInt_t seed){
+  
   //Double_t limit = -1.0;
   LimitResult limit;
 
@@ -885,7 +933,7 @@ LimitResult roostats_clm(Double_t ilum, Double_t slum,
 
   std::cout << "[roostats_clm]: Poisson statistics used" << endl;
     
-  CL95Calc theCalc;
+  CL95Calc theCalc(seed);
   limit = theCalc.clm( ilum, slum,
 		       eff, seff,
 		       bck, sbck,
