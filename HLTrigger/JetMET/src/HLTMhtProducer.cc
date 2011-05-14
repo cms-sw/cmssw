@@ -16,6 +16,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "RecoMET/METProducers/interface/METProducer.h"
 #include "DataFormats/METReco/interface/METFwd.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include <vector>
@@ -36,6 +37,15 @@ HLTMhtProducer::HLTMhtProducer(const edm::ParameterSet& iConfig)
 }
 
 HLTMhtProducer::~HLTMhtProducer(){}
+
+void HLTMhtProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltMCJetCorJetIcone5HF07"));
+  desc.add<double>("minPtJet",20.0);
+  desc.add<double>("etaJet",9999.0);
+  desc.add<bool>("usePt",true);
+  descriptions.add("hltMhtProducer",desc);
+}
 
 // ------------ method called to produce the data  ------------
 void

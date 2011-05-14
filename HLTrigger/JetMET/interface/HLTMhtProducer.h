@@ -21,7 +21,7 @@ class HLTMhtProducer : public edm::EDProducer {
    public:
       explicit HLTMhtProducer(const edm::ParameterSet&);
       ~HLTMhtProducer();
-      
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       virtual void produce(edm::Event&, const edm::EventSetup&);
       
  private:
