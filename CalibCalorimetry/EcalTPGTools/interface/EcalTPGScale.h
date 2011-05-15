@@ -14,7 +14,7 @@ class EcalTPGScale
   void setEventSetup(const edm::EventSetup & evtSetup) ;
 
   double getTPGInGeV(const EcalTriggerPrimitiveDigi & tpDigi) ;
-  double getTPGInGeV(uint ADC, const EcalTrigTowerDetId & towerId) ;
+  double getTPGInGeV(unsigned int ADC, const EcalTrigTowerDetId & towerId) ;
 
   unsigned int    getLinearizedTPG(unsigned int ADC, const EcalTrigTowerDetId & towerId) ;
   unsigned int    getTPGInADC(double energy, const EcalTrigTowerDetId & towerId) ;

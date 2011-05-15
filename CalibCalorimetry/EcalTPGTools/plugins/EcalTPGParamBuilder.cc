@@ -1412,7 +1412,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       if (writeToFiles_) {
 	(*out_file_) <<std::endl ;
 	(*out_file_) <<"WEIGHT "<<igrp<<endl ;
-	for (uint sample=0 ; sample<5 ; sample++) (*out_file_) << "0x" <<hex<<weights[igrp][sample]<<" " ;
+	for (unsigned int sample=0 ; sample<5 ; sample++) (*out_file_) << "0x" <<hex<<weights[igrp][sample]<<" " ;
 	(*out_file_)<<std::endl ; 
 	(*out_file_) <<std::endl ;
       }
@@ -1477,7 +1477,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   /////////////////////////
 
   // barrel
-  uint lowRatio, highRatio, lowThreshold, highThreshold, lutFG ;
+  unsigned int lowRatio, highRatio, lowThreshold, highThreshold, lutFG ;
   computeFineGrainEBParameters(lowRatio, highRatio, lowThreshold, highThreshold, lutFG) ;
   if (writeToFiles_) {
     (*out_file_) <<std::endl ;
@@ -1488,8 +1488,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   }
 
   // endcap
-  uint threshold, lut_tower ;
-  uint lut_strip;
+  unsigned int threshold, lut_tower ;
+  unsigned int lut_strip;
   computeFineGrainEEParameters(threshold, lut_strip, lut_tower) ; 
 
   // and here we store the fgr part
@@ -2122,7 +2122,7 @@ void EcalTPGParamBuilder::create_header()
 int EcalTPGParamBuilder::uncodeWeight(double weight, int complement2)
 {
   int iweight ;
-  uint max = (uint)(pow(2.,complement2)-1) ;
+  unsigned int max = (unsigned int)(pow(2.,complement2)-1) ;
   if (weight>0) iweight=int((1<<6)*weight+0.5) ; // +0.5 for rounding pb
   else iweight= max - int(-weight*(1<<6)+0.5) +1 ;
   iweight = iweight & max ;
@@ -2153,7 +2153,7 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
 
   double sumf = 0. ;
   double sumf2 = 0. ;
-  for (uint sample = 0 ; sample<nSample_ ; sample++) {
+  for (unsigned int sample = 0 ; sample<nSample_ ; sample++) {
     double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
     time -= weight_timeShift_ ;
     sumf += shape(time)/max ;
@@ -2163,7 +2163,7 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
   double lambda = 1./(sumf2-sumf*sumf/nSample_) ;
   double gamma = -lambda*sumf/nSample_ ;
   double * weight = new double[nSample_] ;
-  for (uint sample = 0 ; sample<nSample_ ; sample++) {
+  for (unsigned int sample = 0 ; sample<nSample_ ; sample++) {
     double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
     time -= weight_timeShift_ ;
     weight[sample] = lambda*shape(time)/max + gamma ;
@@ -2171,17 +2171,17 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
 
 
   int * iweight = new int[nSample_] ;
-  for (uint sample = 0 ; sample<nSample_ ; sample++)   iweight[sample] = uncodeWeight(weight[sample], complement2_) ;
+  for (unsigned int sample = 0 ; sample<nSample_ ; sample++)   iweight[sample] = uncodeWeight(weight[sample], complement2_) ;
 
   // Let's check:  
   int isumw  = 0 ;  
-  for (uint sample = 0 ; sample<nSample_ ; sample++) isumw  += iweight[sample] ;
-  uint imax = (uint)(pow(2.,int(complement2_))-1) ;
+  for (unsigned int sample = 0 ; sample<nSample_ ; sample++) isumw  += iweight[sample] ;
+  unsigned int imax = (unsigned int)(pow(2.,int(complement2_))-1) ;
   isumw = (isumw & imax ) ;
 
   double ampl = 0. ;
   double sumw = 0. ;
-  for (uint sample = 0 ; sample<nSample_ ; sample++) {
+  for (unsigned int sample = 0 ; sample<nSample_ ; sample++) {
      double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
      time -= weight_timeShift_ ;
      ampl += weight[sample]*shape(time) ;
@@ -2198,11 +2198,11 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
     int count = 0 ;
     while (isumw != 0 && count<10) {
       double min = 99. ;
-      uint index = 0 ;
+      unsigned int index = 0 ;
       if ( (isumw & (1<<(complement2_-1))) != 0) {
 	// add 1:
 	std::cout<<"Correcting for bias: adding 1"<<std::endl ;
-	for (uint sample = 0 ; sample<nSample_ ; sample++) {
+	for (unsigned int sample = 0 ; sample<nSample_ ; sample++) {
 	  int new_iweight = iweight[sample]+1 ; 
 	  double new_weight = uncodeWeight(new_iweight, complement2_) ;
 	  if (fabs(new_weight-weight[sample])<min) {
@@ -2214,7 +2214,7 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
       } else {
 	// Sub 1:
 	std::cout<<"Correcting for bias: subtracting 1"<<std::endl ;
-	for (uint sample = 0 ; sample<nSample_ ; sample++) {
+	for (unsigned int sample = 0 ; sample<nSample_ ; sample++) {
 	  int new_iweight = iweight[sample]-1 ;    
 	  double new_weight = uncodeWeight(new_iweight, complement2_) ;
 	  if (fabs(new_weight-weight[sample])<min) {
@@ -2225,8 +2225,8 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
 	iweight[index] -- ; 
       } 
       isumw  = 0 ;  
-      for (uint sample = 0 ; sample<nSample_ ; sample++) isumw  += iweight[sample] ; 
-      imax = (uint)(pow(2.,int(complement2_))-1) ;
+      for (unsigned int sample = 0 ; sample<nSample_ ; sample++) isumw  += iweight[sample] ; 
+      imax = (unsigned int)(pow(2.,int(complement2_))-1) ;
       isumw = (isumw & imax ) ;
       std::cout<<"Correcting weight number: "<<index<<" sum weights = "<<isumw<<std::endl ;
       count ++ ;
@@ -2235,11 +2235,11 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
   
   // let's check again
   isumw  = 0 ;  
-  for (uint sample = 0 ; sample<nSample_ ; sample++) isumw  += iweight[sample] ;
-  imax = (uint)(pow(2.,int(complement2_))-1) ;
+  for (unsigned int sample = 0 ; sample<nSample_ ; sample++) isumw  += iweight[sample] ;
+  imax = (unsigned int)(pow(2.,int(complement2_))-1) ;
   isumw = (isumw & imax ) ;
   ampl = 0. ;
-  for (uint sample = 0 ; sample<nSample_ ; sample++) {
+  for (unsigned int sample = 0 ; sample<nSample_ ; sample++) {
      double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
      time -= weight_timeShift_ ;
      double new_weight = uncodeWeight(iweight[sample], complement2_) ;
@@ -2253,7 +2253,7 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
 
 
   std::vector<unsigned int> theWeights ;
-  for (uint sample = 0 ; sample<nSample_ ; sample++) theWeights.push_back(iweight[sample]) ;
+  for (unsigned int sample = 0 ; sample<nSample_ ; sample++) theWeights.push_back(iweight[sample]) ;
   std::cout<<std::endl ;
 
   delete weight ;
@@ -2320,7 +2320,7 @@ void EcalTPGParamBuilder::computeLUT(int * lut, std::string det)
 
 }
 
-void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalIntercalibConstantMap & calibMap, uint rawId)
+void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalIntercalibConstantMap & calibMap, unsigned int rawId)
 {
   // get current intercalibration coeff
   coeff.calibCoeff_ = 1. ;
@@ -2330,7 +2330,7 @@ void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalIntercalibConst
   else std::cout<<"getCoeff: "<<rawId<<" not found in EcalIntercalibConstantMap"<<std::endl ;
 }
 
-void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalGainRatioMap & gainMap, uint rawId)
+void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalGainRatioMap & gainMap, unsigned int rawId)
 {
   // get current gain ratio
   coeff.gainRatio_[0]  = 1. ;
@@ -2345,7 +2345,7 @@ void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalGainRatioMap & 
   else std::cout<<"getCoeff: "<<rawId<<" not found in EcalGainRatioMap"<<std::endl ;
 }
 
-void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalPedestalsMap & pedMap, uint rawId)
+void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const EcalPedestalsMap & pedMap, unsigned int rawId)
 {
   coeff.pedestals_[0] = 0 ;
   coeff.pedestals_[1] = 0 ;
@@ -2387,8 +2387,8 @@ void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff, const map<EcalLogicID, Mo
 		<<" not found in map<EcalLogicID, MonPedestalsDat>"<<std::endl ;
 }
 
-void EcalTPGParamBuilder::computeFineGrainEBParameters(uint & lowRatio, uint & highRatio,
-						       uint & lowThreshold, uint & highThreshold, uint & lut)
+void EcalTPGParamBuilder::computeFineGrainEBParameters(unsigned int & lowRatio, unsigned int & highRatio,
+						       unsigned int & lowThreshold, unsigned int & highThreshold, unsigned int & lut)
 {
   lowRatio = int(0x80*FG_lowRatio_EB_ + 0.5) ;
   if (lowRatio>0x7f) lowRatio = 0x7f ;
@@ -2413,7 +2413,7 @@ void EcalTPGParamBuilder::computeFineGrainEBParameters(uint & lowRatio, uint & h
   else lut = FG_lut_EB_ ; // let's use the users value (hope he/she knows what he/she does!)
 }
 
-void EcalTPGParamBuilder::computeFineGrainEEParameters(uint & threshold, uint & lut_strip, uint & lut_tower) 
+void EcalTPGParamBuilder::computeFineGrainEEParameters(unsigned int & threshold, unsigned int & lut_strip, unsigned int & lut_tower) 
 {
   // lsb for EE:
   double lsb_FG = Et_sat_EE_/1024. ; // FIXME is it true????
