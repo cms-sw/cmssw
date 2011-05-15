@@ -54,6 +54,27 @@ pushd ${LOCAL_TMP_DIR}
   echo ${checkFile} ------------------------------------------------------------
   python ${LOCAL_TEST_DIR}/${checkFile} dqm_run_lumi_copy.root || die "python ${checkFile}" $?
 
+  #more than one type
+  testConfig=create_file_multi_types_cfg.py
+  rm -f dqm_file_multi_types.root
+  echo ${testConfig} ------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${testConfig} || die "cmsRun ${testConfig}" $?
+
+  checkFile=check_multi_types.py
+  fileToCheck=dqm_file_multi_types.root
+  echo ${checkFile} ${fileToCheck} ------------------------------------------------------------
+  python ${LOCAL_TEST_DIR}/${checkFile} ${fileToCheck} || die "python ${checkFile} ${fileToCheck}" $?
+
+  testConfig=copy_file_multi_types_cfg.py
+  rm -f dqm_copy_multi_types.root
+  echo ${testConfig} ------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${testConfig} || die "cmsRun ${testConfig}" $?
+
+  checkFile=check_multi_types.py
+  fileToCheck=dqm_copy_multi_types.root
+  echo ${checkFile}  ${fileToCheck} ------------------------------------------------------------
+  python ${LOCAL_TEST_DIR}/${checkFile} ${fileToCheck} || die "python ${checkFile} ${fileToCheck}" $?
+
   #merging
   testConfig=create_file1_cfg.py
   rm -f dqm_file1.root
