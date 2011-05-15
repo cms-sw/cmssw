@@ -59,8 +59,8 @@ goodPatJets = cleanPatJets.clone(
   )
 )
 
-from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
-kt6PFJets = kt4PFJets.clone(
+from RecoJets.Configuration.RecoPFJets_cff import kt6PFJets
+kt6PFJetsChs = kt6PFJets.clone(
   rParam = cms.double( 0.6 )
 , src    = cms.InputTag( 'pfNoElectron' )
 , doAreaFastjet = cms.bool( True )

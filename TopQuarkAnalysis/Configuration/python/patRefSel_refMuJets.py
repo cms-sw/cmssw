@@ -10,7 +10,21 @@
 muonsUsePV     = False # use beam spot rather than PV, which is necessary for 'dB' cut
 muonEmbedTrack = True  # embedded track needed for muon ID cuts
 
+### Jet configuration
+
+# Jet algorithm
+jetAlgo = 'AK5'
+
+# JEC sets
+jecSetBase = 'AK5'
+# standard jets
+jecSet = jecSetBase + 'Calo'
+# PF jets
+jecSetPF = jecSetBase + 'PF'
+
+
 ### ------------------------- Reference selection -------------------------- ###
+
 
 ### Trigger selection
 
@@ -95,6 +109,7 @@ electronCut += ' && (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/et < 0.
 electronCutPF  = electronCut
 
 ### ------------------------------------------------------------------------ ###
+
 
 ### Trigger matching
 
