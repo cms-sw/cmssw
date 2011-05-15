@@ -5,16 +5,15 @@
 //
 // author: J.P. Chou (Brown University)
 //
-// In this file, we define a number of signal pdfs, background pdfs, and signal
-// widths which specify how the ResonanceCalculator is suppose to behave.
+// Define resonance calculators in various ways.  The most prominent is the FactoryResCalc
+// which defines the shapes via the RooWorkspace::factory() interface.  Also defined are 
+// some pared-down functions to call the calculator.
 //
-// RCGaussianSigPowerLawBkgConstRelSigWidth
-//   implements a Gaussian signal pdf with fixed fractional width (10% of the
-//   resonance mass by default).  The background pdf is a power law according to:
-//   "pow(1.0-mass/roots,p1)/pow(mass/roots,p2+p3*log(mass/roots))"
 //
 
 #include "PhysicsTools/RooStatsCms/interface/ResonanceCalculatorAbs.hh"
+
+#include <string>
 
 #include "RooProdPdf.h"
 #include "RooGaussian.h"
@@ -24,7 +23,42 @@
 #include "RooConstVar.h"
 #include "RooFormulaVar.h"
 #include "RooProduct.h"
-#include "RooBreitWigner.h"
+
+// forward declarations
+class TH1;
+
+////////////////////////////////////////////////////////////////////////////////
+// Implements a generic resonance calculator object which passes information
+// via the RooWorkspace::factory() interface.  In order for this mechanism to work,
+// certain variables must be named precisely:
+//   * "obs" - the observable
+//   * "signalmass" - the signal resonance mass
+// The arguements in the constructor specify
+//   * the name of the signal pdf
+//   * the expression which instantiates the signal pdf
+//   * the name of the background pdf
+//   * the expression which instantiates the background pdf
+//   * the name of the signal width variable
+//   * the expression which instantiates the signal width
+//
+////////////////////////////////////////////////////////////////////////////////
+
+class FactoryResCalc : public ResonanceCalculatorAbs
+{
+public:
+  FactoryResCalc(const char *sigpdfname, const char* sigexpr,
+		 const char *bkgpdfname, const char* bkgexpr,
+		 const char *widthname, const char* widthexpr) : ResonanceCalculatorAbs() {
+    setupWorkspaceViaFactory(sigpdfname, sigexpr, bkgpdfname, bkgexpr, widthname, widthexpr);
+  }
+  virtual ~FactoryResCalc() {}
+
+protected:
+  RooAbsPdf* setupSignalPdf(void) { assert(0); return 0; }
+  RooAbsPdf* setupBackgroundPdf(void) { assert(0); return 0; }
+  RooAbsReal* setupSignalWidth(void) { assert(0); return 0; }
+
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // Implements a simple resonance calculator with a steep power-law background,
@@ -44,7 +78,7 @@ public:
   RooRealVar* getBackgroundPar2(void) const { return getWorkspace()->var("p2"); }
   RooRealVar* getBackgroundPar3(void) const { return getWorkspace()->var("p3"); }
   RooRealVar* getRootS(void) const { return getWorkspace()->var("roots"); }
-  RooRealVar* getRelativeWidth(void) const { return getWorkspace()->var("relWidth"); }
+  //  RooConstVar* getRelativeWidth(void) const { return getWorkspace()->var("relWidth"); }
 
 protected:
   
@@ -68,65 +102,19 @@ protected:
 
   // seutp a constant fractional signal width
   RooAbsReal* setupSignalWidth(void) {
-    RooConstVar* relWidth = new RooConstVar("relWidth", "Width relative to the resonance mass", 0.1);
+    RooConstVar* relWidth = new RooConstVar("relWidth", "Width relative to the resonance mass", 0.02);
     RooProduct *width = new RooProduct("sigwidth", "signal width", RooArgSet(*relWidth, *getSignalMass()));
     return width;
   }
 
 };
 
-
 ////////////////////////////////////////////////////////////////////////////////
-// Implements the Z'/RS graviton dimuon bump hunt
+// function calls
 ////////////////////////////////////////////////////////////////////////////////
 
-class ZprimeDimuonResCalc : public ResonanceCalculatorAbs
-{
-public:
-  // constructor sets up the workspace
-  ZprimeDimuonResCalc() : ResonanceCalculatorAbs() { setupWorkspace(); }
-  ~ZprimeDimuonResCalc() {}
-  
-  // optional user access to parameters
-  RooRealVar* getGaussWidthPar0(void) const { return getWorkspace()->var("q0"); }
-  RooRealVar* getGaussWidthPar1(void) const { return getWorkspace()->var("q1"); }
-  RooRealVar* getGaussWidthPar2(void) const { return getWorkspace()->var("q2"); }
-  RooRealVar* getSignalWidthPar0(void) const { return getWorkspace()->var("p0"); }
-  RooRealVar* getSignalWidthPar1(void) const { return getWorkspace()->var("p1"); }
-  RooRealVar* getBackgroundPar0(void) const { return getWorkspace()->var("b0"); }
-  RooRealVar* getBackgroundPar1(void) const { return getWorkspace()->var("b1"); }
+void runResCalc(ResonanceCalculatorAbs& rc, const char* label);
 
-protected:
 
-  // setup the signal pdf
-  RooAbsPdf* setupSignalPdf(void) {
-    RooConstVar* q0 = new RooConstVar("q0","Gaussian Width Parameter 0",0.0138);
-    RooConstVar* q1 = new RooConstVar("q1","Gaussian Width Parameter 1",0.00009315);
-    RooConstVar* q2 = new RooConstVar("q2","Gaussian Width Parameter 2",0.00000001077);
-    RooFormulaVar* gausWidth=new RooFormulaVar("gausWidth", "@0*(@1+@2*@0+@3*@0*@0)", RooArgList(*getSignalMass(), *q0, *q1, *q2));
-    RooConstVar* gausMean = new RooConstVar("gausMean", "Signal Gaussian Mean",0.0);
-    RooBreitWigner* bw = new RooBreitWigner("bw", "Signal BW", *getObservable(), *getSignalMass(), *getSignalWidth());
-    RooGaussian* gaus = new RooGaussian("gaus", "Signal Gaussian", *getObservable(), *gausMean, *gausWidth);
-    RooProdPdf* signal = new RooProdPdf("signal", "Signal PDF", *bw, *gaus);
-    return signal;
-  }
-  
-  // setup the background
-  RooAbsPdf* setupBackgroundPdf(void) {
-    RooRealVar* b0 = new RooRealVar("b0", "Background Parameter 0", -0.006912, -1, 0.);
-    RooRealVar* b1 = new RooRealVar("b1", "Background Parameter 1", -2.404, -5., 0.);
-    RooGenericPdf* background = new RooGenericPdf("background", "Background Pdf", "exp(@0*@1)*pow(@1,@2)", RooArgList(*b0, *getObservable(), *b1));
-    return background;
-  }
-
-  // setup the signal width
-  RooAbsReal* setupSignalWidth(void) {
-    RooConstVar* p0 = new RooConstVar("p0","Signal Width Parameter 0",-1.2979);
-    RooConstVar* p1 = new RooConstVar("p1","Signal Width Parameter 1",0.0309338);
-    RooFormulaVar* width = new RooFormulaVar("width", "@0+@1*@2",RooArgList(*p0, *p1, *getSignalMass()));
-    return width;
-  } 
-
-};
 
 #endif

@@ -51,7 +51,7 @@ public:
   double calculate(const char* rootfilename);
 
   // Same as above, but also gives the user the (test statistic, weight) pair from each PE.
-  double calculate(const char* rootfilename, std::vector<std::pair<double, double> >& teststats);
+  double calculate(const char* rootfilename, std::vector<std::pair<double, double> >& teststats_, double& bumpMass_, double& bumpTestStat_);
 
   ////////////////////////////////////////////////////////////////////////////////
   // provide the data
@@ -69,12 +69,39 @@ public:
   void setUnbinnedData(const char* filename, double minx, double maxx);
 
   ////////////////////////////////////////////////////////////////////////////////
+  // helper functions
+  ////////////////////////////////////////////////////////////////////////////////
+
+  // convert a p-value to a z-score
+  static double pValueToZScore(double pvalue);
+
+  // convert a z-score to a p-value
+  static double zScoreToPValue(double zscore);
+
+  // determine the p-value given a set of test statistics and weights
+  static double getPValue(std::vector<std::pair<double, double> >& teststats, double bumpTestStat);
+
+  // determine the z-score given a set of test statistics and weights
+  static double getZScore(std::vector<std::pair<double, double> >& teststats, double bumpTestStat);
+
+  // determine the p-value range given a set of test statistics and weights
+  // the first value of the pair is the lower bound, and the second value is the upper bound
+  // an optional parameter is alpha
+  static std::pair<double, double> getPValueRange(std::vector<std::pair<double, double> >& teststats, double bumpTestStat, double alpha=1-0.682);
+
+  // determine the z-score range given a set of test statistics and weights
+  // the first value of the pair is the lower bound, and the second value is the upper bound
+  // an optional parameter is alpha
+  static std::pair<double, double> getZScoreRange(std::vector<std::pair<double, double> >& teststats, double bumpTestStat, double alpha=1-0.682);
+
+  ////////////////////////////////////////////////////////////////////////////////
   // change default values
   ////////////////////////////////////////////////////////////////////////////////
 
   // number of PEs to run
   // default is 1000
   void setNumPseudoExperiments(int numPEs) { numPEs_=numPEs; return; }
+  int getNumPseudoExperiments(void) const { return numPEs_; }
 
   // set the verbosity level (<0=quiet, 0=nominal, 1=default, 2=verbose)
   static void setPrintLevel(int level) { printLevel_=level; return; }
@@ -89,8 +116,7 @@ public:
   // The default behavior of the calculator is to determine the background in the same region as the signal
   // by fitting for the background only while excluding the signal region within +/-3 units of width.
   // One can re-instate the default behavior by setting a minimum greater than the maximum.
-  void setMinMaxControlMass(double min, double max) { controlMin_=min; controlMax_=max; return; }
-  
+  void setMinMaxControlMass(double min, double max) { controlMin_=min; controlMax_=max; return; }  
 
   // set the number of bins used to draw the fit results
   // if you use binned data, drawing the data with a different number of bins than what is used in the data
@@ -111,6 +137,7 @@ public:
 
   // set the random seed (default is 1)
   void setRandomSeed(int seed) { randomSeed_=seed; }
+  int getRandomSeed(void) const { return randomSeed_; }
 
   // set the fit strategy (default is 2)
   void setFitStrategy(int strategy) { fitStrategy_=strategy; }
@@ -134,8 +161,11 @@ public:
 
 protected:
 
-  // this must be called by the constructor of the final concrete implementation of this class
+  // one of these must be called by the constructor of the final concrete implementation of this class
   void setupWorkspace(void);
+  void setupWorkspaceViaFactory(const char *sigpdfname, const char* sigexpr,
+				const char *bkgpdfname, const char* bkgexpr,
+				const char *widthname, const char* widthexpr);
 
   // called by setupWorkspace() to specify the background pdf, signal width, and signal pdf
   virtual RooAbsPdf* setupBackgroundPdf(void) =0;

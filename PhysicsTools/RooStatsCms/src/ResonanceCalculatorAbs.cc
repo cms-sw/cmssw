@@ -1,4 +1,7 @@
 #include "PhysicsTools/RooStatsCms/interface/ResonanceCalculatorAbs.hh"
+#include "PhysicsTools/RooStatsCms/interface/FeldmanCousinsBinomialInterval.h"
+
+#include <limits>
 
 #include "TH1.h"
 #include "TMath.h"
@@ -64,16 +67,17 @@ ResonanceCalculatorAbs::~ResonanceCalculatorAbs()
 
 double ResonanceCalculatorAbs::calculate(const char* rootfilename)
 {
+  double bumpMass, bumpTestStat;
   std::vector<std::pair<double, double> > teststats;
-  return calculate(rootfilename, teststats);
+  return calculate(rootfilename, teststats, bumpMass, bumpTestStat);
 }
 
-double ResonanceCalculatorAbs::calculate(const char* rootfilename, std::vector<std::pair<double, double> >& teststats)
+double ResonanceCalculatorAbs::calculate(const char* rootfilename, std::vector<std::pair<double, double> >& teststats_, double& bumpMass_, double& bumpTestStat_)
 {
   // find the bump, and put the results and diagnostic plots into rootfilename
 
   // clear out the vector, just in case
-  teststats.clear();
+  teststats_.clear();
 
   // set the random seed
   RooRandom::randomGenerator()->SetSeed(randomSeed_);
@@ -116,6 +120,8 @@ double ResonanceCalculatorAbs::calculate(const char* rootfilename, std::vector<s
 
   bumpMass=sigmass_->getVal();
   bumpTestStat=evaluateTestStatistic();
+  bumpTestStat_=bumpTestStat;
+  bumpMass_=bumpMass;
 
   // keep the original parameters and for later reference
   RooArgList originalBackgroundParams;
@@ -154,7 +160,7 @@ double ResonanceCalculatorAbs::calculate(const char* rootfilename, std::vector<s
     testStatFloat[i]=evaluateTestStatistic();
     testStatMass[i]=sigmass_->getVal();
 
-    teststats.push_back(std::pair<double, double>(testStatFloat[i], 1.0));
+    teststats_.push_back(std::pair<double, double>(testStatFloat[i], 1.0));
 
     // delete the pseudodata when we're through with it
     delete data_;
@@ -178,18 +184,9 @@ double ResonanceCalculatorAbs::calculate(const char* rootfilename, std::vector<s
   delete[] testStatMass;
 
   // if we aren't running any PEs, just return the bump test statistic now
-  if(numPEs_<=0) return bumpTestStat;
+  if(numPEs_<=0) return bumpTestStat_;
 
-  // calculate the significance of the signal corrected for the LEE
-  double integral=0.0;
-  double tailintegral=0.0;
-  for(unsigned int i=0; i<teststats.size(); i++) {
-    integral += teststats[i].second;
-    if(teststats[i].first>=bumpTestStat) tailintegral+= teststats[i].second;
-  }
-  if(integral<=0.0) return 0.0;
-  double pvalue = tailintegral/integral;
-  return -TMath::Sqrt(2.0)*TMath::ErfcInverse(2.0*(1.0-pvalue)); // convert the p-value into a z-value (sigma)
+  return getZScore(teststats_, bumpTestStat_);
 }
 
 
@@ -367,6 +364,68 @@ void ResonanceCalculatorAbs::setUnbinnedData(const char* filename, double minx, 
   return;
 }
 
+void ResonanceCalculatorAbs::setupWorkspaceViaFactory(const char *sigpdfname, const char* sigexpr,
+						      const char *bkgpdfname, const char* bkgexpr,
+						      const char *widthname, const char* widthexpr)
+{
+  // setup internal workspace via a factory mechanism
+
+  // create the workspace
+  ws_ = new RooWorkspace("ws");
+
+  // setup internal observable
+  ws_->factory("obs[0, 0, 100]");
+  obs_ = ws_->var("obs");
+  obs_->setConstant(false);
+
+  // setup signal mass parameter
+  ws_->factory("signalmass[1000.]");
+  sigmass_ = ws_->var("signalmass");
+
+  // setup background pdf
+  ws_->factory(bkgexpr);
+  background_ = ws_->pdf(bkgpdfname);
+  if(!background_) {
+    std::cerr << "ResonanceCalculatorAbs::setupWorkspaceViaFactory(): Failed to import the background pdf named " << bkgpdfname << std::endl;
+    assert(0);
+  }
+
+  // setup signal width parameter
+  ws_->factory(widthexpr);
+  sigwidth_ = ws_->var(widthname);
+  if(!sigwidth_) sigwidth_ = ws_->function(widthname);
+  if(!sigwidth_) {
+    std::cerr << "ResonanceCalculatorAbs::setupWorkspaceViaFactory(): Failed to import the signal width expression named " << widthname << std::endl;
+    assert(0);
+  }
+
+  // setup background pdf
+  ws_->factory(sigexpr);
+  signal_ = ws_->pdf(sigpdfname);
+  if(!signal_) {
+    std::cerr << "ResonanceCalculatorAbs::setupWorkspaceViaFactory(): Failed to import the signal pdf named " << sigpdfname << std::endl;
+    assert(0);
+  }
+
+  // setup model
+  ws_->factory(TString("SUM::model(nsig[1]*")+signal_->GetName()+", nbkg[1]*"+background_->GetName()+")");
+  model_=ws_->pdf("model");
+  nsig_=ws_->var("nsig");
+  nbkg_=ws_->var("nbkg");
+  nsig_->setRange(0.0, numeric_limits<double>::max());
+  nbkg_->setRange(0.0, numeric_limits<double>::max());
+
+  // find the signal and background params and set them to the pointers, accordingly
+  findSignalAndBackgroundParams();
+
+  // set other defaults
+  data_ = 0;
+
+  if(printLevel_>=1)
+    ws_->Print();
+
+  return;
+}
 
 void ResonanceCalculatorAbs::setupWorkspace(void)
 {
@@ -376,13 +435,13 @@ void ResonanceCalculatorAbs::setupWorkspace(void)
   ws_ = new RooWorkspace("ws");
 
   // setup internal observable
-  ws_->factory("obs[0, 220, 3000]");
+  ws_->factory("obs[0, 0, 100]");
   obs_ = ws_->var("obs");
   obs_->setConstant(false);
 
   // setup signal mass parameter
-  ws_->factory("sigmass[1000.]");
-  sigmass_ = ws_->var("sigmass");
+  ws_->factory("signalmass[1000.]");
+  sigmass_ = ws_->var("signalmass");
 
   // setup background pdf
   RooAbsPdf* backgroundPdf=setupBackgroundPdf();
@@ -462,7 +521,7 @@ void ResonanceCalculatorAbs::scanForBump(const char* label)
       if(doBkgOnlyExcludeWindowFit(newlabel)->status()!=0) continue;
 
       // fit for the signal, with fixed background
-      if(doSigOnlyFixMassFit(newlabel)->status()!=0) continue;
+      if(doSigOnlyFloatMassFit(newlabel, minmassrange, maxmassrange)->status()!=0) continue;
     }
 
     // see if the bump is significant
@@ -965,4 +1024,102 @@ RooDataHist* ResonanceCalculatorAbs::generateBinned(RooAbsPdf* pdf, RooDataHist*
 RooDataSet* ResonanceCalculatorAbs::generateUnbinned(RooAbsPdf* pdf, int numEntries)
 {
   return pdf->generate(RooArgSet(*obs_), RooFit::NumEvents(numEntries), RooFit::Name("pseudodata"));
+}
+
+
+
+double ResonanceCalculatorAbs::pValueToZScore(double pvalue)
+{
+  if(pvalue<=0.0 && numeric_limits<double>::has_infinity) {
+    return numeric_limits<double>::infinity();
+  } else if(pvalue<=0.0) {
+    return numeric_limits<double>::max();
+  } else if(pvalue>=1.0 && numeric_limits<double>::has_infinity) {
+    return -numeric_limits<double>::infinity();
+  } else if(pvalue>=1.0) {
+    return -numeric_limits<double>::max();
+  } else {
+    return TMath::Sqrt(2.0)*TMath::ErfcInverse(2*pvalue);
+  }
+}
+
+double ResonanceCalculatorAbs::zScoreToPValue(double zscore)
+{
+  if(numeric_limits<double>::has_infinity && zscore==numeric_limits<double>::infinity()) {
+    return 0.0;
+  } else if(!numeric_limits<double>::has_infinity && zscore==numeric_limits<double>::max()) {
+    return 0.0;
+  } else if(numeric_limits<double>::has_infinity && zscore==-numeric_limits<double>::infinity()) {
+    return 1.0;
+  } else if(!numeric_limits<double>::has_infinity && zscore==-numeric_limits<double>::max()) {
+    return 1.0;
+  } else {
+    return TMath::Erfc(zscore/TMath::Sqrt(2.0))/2.0;
+  }
+}
+
+double ResonanceCalculatorAbs::getPValue(std::vector<std::pair<double, double> >& teststats, double bumpTestStat)
+{
+  double integral=0.0;
+  double tailintegral=0.0;
+  for(unsigned int i=0; i<teststats.size(); i++) {
+    integral += teststats[i].second;
+    if(teststats[i].first>=bumpTestStat) tailintegral+= teststats[i].second;
+  }
+  if(integral<=0.0) return 0.0;
+  return tailintegral/integral;
+}
+ 
+double ResonanceCalculatorAbs::getZScore(std::vector<std::pair<double, double> >& teststats, double bumpTestStat)
+{
+  return pValueToZScore(getPValue(teststats, bumpTestStat));
+}
+
+std::pair<double, double> ResonanceCalculatorAbs::getPValueRange(std::vector<std::pair<double, double> >& teststats, double bumpTestStat, double alpha)
+{
+  if(teststats.size()==0) {
+    std::cout << "test stats does not have an entries.  The range is invalid." << std::endl;
+    return std::pair<double, double>(0.0, 0.0);
+  }
+
+  double integral=0.0;
+  double tailintegral=0.0;
+  int numtail=0;
+  for(unsigned int i=0; i<teststats.size(); i++) {
+    integral += teststats[i].second;
+    if(teststats[i].first>=bumpTestStat) {
+      tailintegral+=teststats[i].second;
+      ++numtail;
+    }
+  }
+  int a=numtail;
+  int b=static_cast<int>(teststats.size())-numtail;
+  double x= a>0 ? tailintegral/a : 1.0;
+  double y= b>0 ? (integral-tailintegral)/b : 1.0;
+
+  // p-value, p = x*a/(x*a+y*b)
+  // f=a/(a+b)
+  // p=x*f/(x*f+y-y*f)
+  // fc computes the interval on f, not p
+  // we then translate the interval on f to an interval on p
+  
+  FeldmanCousinsBinomialInterval fc;
+  fc.init(alpha);
+  fc.calculate(a,a+b);
+  double upper=b>0 ? fc.upper() : 1.0;
+  double lower=a>0 ? fc.lower() : 0.0;
+  double r1=x*upper/(x*upper+y-y*upper);
+  double r2=x*lower/(x*lower+y-y*lower);
+  std::pair<double, double> range(std::min(r1, r2), std::max(r1, r2));
+  return range;
+}
+
+std::pair<double, double> ResonanceCalculatorAbs::getZScoreRange(std::vector<std::pair<double, double> >& teststats, double bumpTestStat, double alpha)
+{
+  std::pair<double, double> range=getPValueRange(teststats, bumpTestStat, alpha);
+  double z1 = pValueToZScore(range.first);
+  double z2 = pValueToZScore(range.second);
+  range.first=std::min(z1, z2);
+  range.second=std::max(z1, z2);
+  return range;
 }

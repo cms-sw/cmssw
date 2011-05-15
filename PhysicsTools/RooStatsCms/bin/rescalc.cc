@@ -1,44 +1,33 @@
-#include "Analysis/Statistics/interface/ResonanceCalculators.hh"
-#include "TStopwatch.h"
+#include "PhysicsTools/RooStatsCms/interface/ResonanceCalculators.hh"
+
+#include "TROOT.h"
+#include "TFile.h"
+#include "TH1D.h"
 
 int main(int argc, char* argv[])
 {
-  if(argc<7) {
-    std::cout << "USAGE: rescalc filename nbins minbin maxbin minmass maxmass [numPEs] [randomseed]" << std::endl;
-    std::cout << "   filename: space delimited file which contains the data points\n";
-    std::cout << "   nbins: number of bins to used to contain the data\n";
-    std::cout << "   minbin/maxbin: minimum and maximum bin values\n";
-    std::cout << "   minmass/maxmass: minimum and maximum resonance mass values to search for\n";
-    std::cout << "   numPEs: number of pseudo-experiments to throw (0 is the default)\n";
-    std::cout << "   randomseed: the random seed used to generate teh pseudo-experiments\n";
-    return 0;
+  // grab the histogram
+  TFile *inputfile=TFile::Open("~/BumpDataInDiEle.root");
+  inputfile->cd();
+  TH1* hist=dynamic_cast<TH1*>(gROOT->FindObject("hHeepMassEBEBandEBEEdata"));
+  TH1D* newhist=new TH1D("newhist","new hist",176,120,1000);
+  for(int i=1; i<=176; i++) {
+    newhist->SetBinContent(i, hist->GetBinContent(i+24));
+    newhist->SetBinError(i, hist->GetBinError(i+24));
   }
-  const char* filename=argv[1];
-  int nbins=atoi(argv[2]);
-  double minbin=atof(argv[3]);
-  double maxbin=atof(argv[4]);
-  double minmass=atof(argv[5]);
-  double maxmass=atof(argv[6]);
-  int numPEs=argc>=8 ? atoi(argv[7]) : 0;
-  int randomseed=argc>=9 ? atoi(argv[8]) : 1;
 
-  SimpleResCalc::setPrintLevel(2);
-  SimpleResCalc rc;
-  rc.setBinnedData(filename, nbins, minbin, maxbin);
-  rc.setNumBinsToDraw(nbins);
-  rc.setMinMaxSignalMass(minmass, maxmass);
+  // run the calculator
+  int numPEs=100;
+  int seed=1;
+  FactoryResCalc rc("signal", "RooGaussian::signal(obs, signalmass, signalwidth)",
+		    "background", "EXPR::background('pow(1.0-obs/7000.0,p1)/pow(obs/7000.0,p2+p3*log(obs/7000.0))', p1[10,-40,40], p2[7,-20,20], p3[0.1,-20,20], obs)",
+		    "signalwidth", "prod::signalwidth(0.02, signalmass)");
+  rc.setBinnedData(newhist);
+  rc.setNumBinsToDraw(newhist->GetNbinsX());
+  rc.setMinMaxSignalMass(140., 500.);
   rc.setNumPseudoExperiments(numPEs);
-  rc.setRandomSeed(randomseed);
-  rc.setFitStrategy(2);
-  char rootfilename[100];
-  std::sprintf(rootfilename,"output_%d.root",randomseed);
+  rc.setRandomSeed(seed);
+  runResCalc(rc, "output");
 
-  TStopwatch t;
-  t.Start();
-  double sig=rc.calculate(rootfilename); // go!
-  t.Stop();
-  t.Print();
-  if(numPEs==0) std::cout << "LEE un-corrected signifcance=" << sig << std::endl;
-  else          std::cout << "LEE corrected significance=" << sig << std::endl;
   return 0;
 }
