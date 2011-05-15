@@ -13,7 +13,7 @@
 //
 // Original Author:  Christopher Jones
 //         Created:  Fri Apr 29 18:05:50 CDT 2011
-// $Id: DummyFillDQMStore.cc,v 1.1 2011/05/11 18:12:55 chrjones Exp $
+// $Id: DummyFillDQMStore.cc,v 1.2 2011/05/12 00:08:34 chrjones Exp $
 //
 //
 
@@ -80,6 +80,47 @@ namespace {
     unsigned int m_steps;
     MonitorElement* m_element;
   };
+  
+  class TH2FFiller : public FillerBase {
+  public:
+    TH2FFiller(const edm::ParameterSet& iPSet,DQMStore& iStore,bool iSetLumiFlag):
+    m_min(iPSet.getUntrackedParameter<double>("lowX")),
+    m_steps(iPSet.getUntrackedParameter<int>("nchX")) {
+      std::string extension;
+      if(iSetLumiFlag) {
+        extension = "_lumi";
+      }
+      m_element = iStore.book2D(iPSet.getUntrackedParameter<std::string>("name")+extension,
+                                iPSet.getUntrackedParameter<std::string>("title")+extension,
+                                m_steps,
+                                m_min,
+                                iPSet.getUntrackedParameter<double>("highX"),
+                                iPSet.getUntrackedParameter<int>("nchY"),
+                                iPSet.getUntrackedParameter<double>("lowY"),
+                                iPSet.getUntrackedParameter<double>("highY"));
+      if(iSetLumiFlag) {
+        m_element->setLumiFlag();
+      }
+      m_hist = m_element->getTH2F();
+      m_delta =  (iPSet.getUntrackedParameter<double>("highX")-m_min)/(m_steps+1);
+      m_valueToFill=iPSet.getUntrackedParameter<double>("value");
+    }
+    
+    void reset() {
+      m_element->Reset();
+    }
+    void fill() {
+      m_hist->Fill(m_valueToFill);
+    }
+  private:
+    TH2F* m_hist;
+    double m_valueToFill;
+    double m_delta;
+    double m_min;
+    unsigned int m_steps;
+    MonitorElement* m_element;
+  };
+  
 }
 
 class DummyFillDQMStore :  public edm::EDAnalyzer {
@@ -129,14 +170,28 @@ m_fillLumis(iConfig.getUntrackedParameter<bool>("fillLumis"))
   if(m_fillRuns) {
     m_runFillers.reserve(elements.size());
     for( PSets::const_iterator it = elements.begin(), itEnd = elements.end(); it != itEnd; ++it){
-      m_runFillers.push_back(boost::shared_ptr<FillerBase>(new TH1FFiller(*it,*dstore,false)));
+      switch(it->getUntrackedParameter<unsigned int>("type",1)) {
+        case 1:
+        m_runFillers.push_back(boost::shared_ptr<FillerBase>(new TH1FFiller(*it,*dstore,false)));
+        break;
+        case 2:
+        m_runFillers.push_back(boost::shared_ptr<FillerBase>(new TH2FFiller(*it,*dstore,false)));
+        break;
+      }
     }
   }
 
   if(m_fillLumis) {
     m_lumiFillers.reserve(elements.size());
     for( PSets::const_iterator it = elements.begin(), itEnd = elements.end(); it != itEnd; ++it){
-      m_lumiFillers.push_back(boost::shared_ptr<FillerBase>(new TH1FFiller(*it,*dstore,true)));
+      switch(it->getUntrackedParameter<unsigned int>("type",1)) {
+        case 1:
+        m_lumiFillers.push_back(boost::shared_ptr<FillerBase>(new TH1FFiller(*it,*dstore,true)));
+        break;
+        case 2:
+        m_lumiFillers.push_back(boost::shared_ptr<FillerBase>(new TH2FFiller(*it,*dstore,true)));
+        break;
+      }
     }
   }
 
