@@ -91,11 +91,11 @@ BlockWipedPool::BlockWipedPool(std::size_t blockSize, std::size_t  maxRecycle) :
 
 
 BlockWipedPool::Allocator & BlockWipedPool::allocator( std::size_t typeSize) {
-  if likely(mlast_Size==typeSize) return *m_last;
+  if likely(m_lastSize==typeSize) return *m_last;
   Pool::iterator p=m_pool.find(typeSize);
-  m_last=type_size;
+  m_lastSize=typeSize;
   if likely (p!=m_pool.end())  return *(m_last = &(*p).second);
-  return *(mlast=&(*m_pool.insert(std::make_pair(typeSize,Allocator(typeSize, m_blockSize, m_maxRecycle))).first).second);
+  return *(m_last=&(*m_pool.insert(std::make_pair(typeSize,Allocator(typeSize, m_blockSize, m_maxRecycle))).first).second);
 }
 
 void BlockWipedPool::wipe(bool force) {
