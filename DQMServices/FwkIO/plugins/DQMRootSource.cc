@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.12 2011/05/13 18:16:50 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.13 2011/05/13 20:12:01 chrjones Exp $
 //
 
 // system include files
@@ -761,7 +761,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
       if(itRunLastEntryFind != runToLastEntryMap.end()) {
         itLastOfRun = itRunLastEntryFind->second;
         //we want to insert after this one so must advanced the iterator
-        itLastOfRun++;
+        ++itLastOfRun;
       }
       
       std::list<unsigned int>::iterator iter = m_orderedIndices.insert(itLastOfRun,index);
@@ -770,7 +770,9 @@ DQMRootSource::setupFile(unsigned int iIndex)
     } else {
       //We need to do a merge since the run/lumi already appeared. Put it after the existing entry
       //std::cout <<" found a second instance of "<<runLumi.first<<" "<<runLumi.second<<" at "<<index<<std::endl;
-      std::list<unsigned int>::iterator iter = m_orderedIndices.insert(itFind->second,index);
+      std::list<unsigned int>::iterator itNext = itFind->second;
+      ++itNext;
+      std::list<unsigned int>::iterator iter = m_orderedIndices.insert(itNext,index);
       RunToLastEntryMap::iterator itRunLastEntryFind = runToLastEntryMap.find(temp.m_run);
       if(itRunLastEntryFind->second == itFind->second) {
         //if the previous one was the last in the run, we need to update to make this one the last
