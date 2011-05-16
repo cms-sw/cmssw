@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.303.2.3 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: skim -s SKIM:LogError+HWWElMu --data --conditions FT_R_42_V10A::All --python_filenam skim_MuEG.py --magField AutoFromDBCurrent --no_exec
+# with command line options: skim -s SKIM:LogError+HWW --data --conditions FT_R_42_V13A::All --python_filenam skim_MuEG.py --magField AutoFromDBCurrent --no_exec
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('SKIM')
@@ -40,9 +40,11 @@ process.configurationMetadata = cms.untracked.PSet(
 # Output definition
 
 # Additional output definition
-process.SKIMStreamHWWElMu = cms.OutputModule("PoolOutputModule",
+process.SKIMStreamHWW = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('HWWemPath')
+        SelectEvents = cms.vstring('HWWmmPath', 
+            'HWWeePath', 
+            'HWWemPath')
     ),
     outputCommands = cms.untracked.vstring('drop *', 
         'keep *_castorreco_*_*', 
@@ -226,9 +228,9 @@ process.SKIMStreamHWWElMu = cms.OutputModule("PoolOutputModule",
         'keep PileupSummaryInfos_*_*_*', 
         'drop *_MEtoEDMConverter_*_*', 
         'drop *_*_*_SKIM'),
-    fileName = cms.untracked.string('HWWElMu.root'),
+    fileName = cms.untracked.string('HWW.root'),
     dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string('HWWElMu'),
+        filterName = cms.untracked.string('HWW'),
         dataTier = cms.untracked.string('AOD')
     )
 )
@@ -245,11 +247,11 @@ process.SKIMStreamLogError = cms.OutputModule("PoolOutputModule",
 )
 
 # Other statements
-process.GlobalTag.globaltag = 'FT_R_42_V10A::All'
+process.GlobalTag.globaltag = 'FT_R_42_V13A::All'
 
 # Path and EndPath definitions
-process.SKIMStreamHWWElMuOutPath = cms.EndPath(process.SKIMStreamHWWElMu)
+process.SKIMStreamHWWOutPath = cms.EndPath(process.SKIMStreamHWW)
 process.SKIMStreamLogErrorOutPath = cms.EndPath(process.SKIMStreamLogError)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.pathlogerror,process.HWWemPath,process.SKIMStreamHWWElMuOutPath,process.SKIMStreamLogErrorOutPath)
+process.schedule = cms.Schedule(process.pathlogerror,process.HWWmmPath,process.HWWeePath,process.HWWemPath,process.SKIMStreamHWWOutPath,process.SKIMStreamLogErrorOutPath)

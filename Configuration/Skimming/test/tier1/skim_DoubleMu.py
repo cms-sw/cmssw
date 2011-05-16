@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.303.2.3 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: skim -s SKIM:WMu+ZMu+HighMET+LogError+HWWMuMu --data --conditions FT_R_42_V10A::All --python_filenam skim_DoubleMu.py --magField AutoFromDBCurrent --no_exec
+# with command line options: skim -s SKIM:WMu+ZMu+HighMET+LogError+HWW --data --conditions FT_R_42_V13A::All --python_filenam skim_DoubleMu.py --magField AutoFromDBCurrent --no_exec
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('SKIM')
@@ -40,9 +40,11 @@ process.configurationMetadata = cms.untracked.PSet(
 # Output definition
 
 # Additional output definition
-process.SKIMStreamHWWMuMu = cms.OutputModule("PoolOutputModule",
+process.SKIMStreamHWW = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('HWWmmPath')
+        SelectEvents = cms.vstring('HWWmmPath', 
+            'HWWeePath', 
+            'HWWemPath')
     ),
     outputCommands = cms.untracked.vstring('drop *', 
         'keep *_castorreco_*_*', 
@@ -226,9 +228,9 @@ process.SKIMStreamHWWMuMu = cms.OutputModule("PoolOutputModule",
         'keep PileupSummaryInfos_*_*_*', 
         'drop *_MEtoEDMConverter_*_*', 
         'drop *_*_*_SKIM'),
-    fileName = cms.untracked.string('HWWMuMu.root'),
+    fileName = cms.untracked.string('HWW.root'),
     dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string('HWWMuMu'),
+        filterName = cms.untracked.string('HWW'),
         dataTier = cms.untracked.string('AOD')
     )
 )
@@ -280,14 +282,14 @@ process.SKIMStreamZMu = cms.OutputModule("PoolOutputModule",
 )
 
 # Other statements
-process.GlobalTag.globaltag = 'FT_R_42_V10A::All'
+process.GlobalTag.globaltag = 'FT_R_42_V13A::All'
 
 # Path and EndPath definitions
-process.SKIMStreamHWWMuMuOutPath = cms.EndPath(process.SKIMStreamHWWMuMu)
+process.SKIMStreamHWWOutPath = cms.EndPath(process.SKIMStreamHWW)
 process.SKIMStreamHighMETOutPath = cms.EndPath(process.SKIMStreamHighMET)
 process.SKIMStreamLogErrorOutPath = cms.EndPath(process.SKIMStreamLogError)
 process.SKIMStreamWMuOutPath = cms.EndPath(process.SKIMStreamWMu)
 process.SKIMStreamZMuOutPath = cms.EndPath(process.SKIMStreamZMu)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.ZMuSkimPath,process.pathlogerror,process.HWWmmPath,process.pfPath,process.tcPath,process.WtcMetSkimPath,process.WpfMetSkimPath,process.SKIMStreamHWWMuMuOutPath,process.SKIMStreamHighMETOutPath,process.SKIMStreamLogErrorOutPath,process.SKIMStreamWMuOutPath,process.SKIMStreamZMuOutPath)
+process.schedule = cms.Schedule(process.ZMuSkimPath,process.pathlogerror,process.HWWmmPath,process.HWWeePath,process.HWWemPath,process.pfPath,process.tcPath,process.WtcMetSkimPath,process.WpfMetSkimPath,process.SKIMStreamHWWOutPath,process.SKIMStreamHighMETOutPath,process.SKIMStreamLogErrorOutPath,process.SKIMStreamWMuOutPath,process.SKIMStreamZMuOutPath)

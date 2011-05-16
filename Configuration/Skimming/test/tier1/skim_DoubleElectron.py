@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.303.2.3 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: skim -s SKIM:ZElectron+LogError+HWWElEl --data --conditions FT_R_42_V10A::All --python_filenam skim_DoubleElectron.py --magField AutoFromDBCurrent --no_exec
+# with command line options: skim -s SKIM:ZElectron+LogError+HWW --data --conditions FT_R_42_V13A::All --python_filenam skim_DoubleElectron.py --magField AutoFromDBCurrent --no_exec
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('SKIM')
@@ -40,9 +40,11 @@ process.configurationMetadata = cms.untracked.PSet(
 # Output definition
 
 # Additional output definition
-process.SKIMStreamHWWElEl = cms.OutputModule("PoolOutputModule",
+process.SKIMStreamHWW = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('HWWeePath')
+        SelectEvents = cms.vstring('HWWmmPath', 
+            'HWWeePath', 
+            'HWWemPath')
     ),
     outputCommands = cms.untracked.vstring('drop *', 
         'keep *_castorreco_*_*', 
@@ -226,9 +228,9 @@ process.SKIMStreamHWWElEl = cms.OutputModule("PoolOutputModule",
         'keep PileupSummaryInfos_*_*_*', 
         'drop *_MEtoEDMConverter_*_*', 
         'drop *_*_*_SKIM'),
-    fileName = cms.untracked.string('HWWElEl.root'),
+    fileName = cms.untracked.string('HWW.root'),
     dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string('HWWElEl'),
+        filterName = cms.untracked.string('HWW'),
         dataTier = cms.untracked.string('AOD')
     )
 )
@@ -258,12 +260,12 @@ process.SKIMStreamZElectron = cms.OutputModule("PoolOutputModule",
 )
 
 # Other statements
-process.GlobalTag.globaltag = 'FT_R_42_V10A::All'
+process.GlobalTag.globaltag = 'FT_R_42_V13A::All'
 
 # Path and EndPath definitions
-process.SKIMStreamHWWElElOutPath = cms.EndPath(process.SKIMStreamHWWElEl)
+process.SKIMStreamHWWOutPath = cms.EndPath(process.SKIMStreamHWW)
 process.SKIMStreamLogErrorOutPath = cms.EndPath(process.SKIMStreamLogError)
 process.SKIMStreamZElectronOutPath = cms.EndPath(process.SKIMStreamZElectron)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.HWWeePath,process.pathlogerror,process.ZElectronPathPhoton,process.ZElectronPathTrack,process.ZElectronPathGsf,process.SKIMStreamHWWElElOutPath,process.SKIMStreamLogErrorOutPath,process.SKIMStreamZElectronOutPath)
+process.schedule = cms.Schedule(process.pathlogerror,process.HWWmmPath,process.HWWeePath,process.HWWemPath,process.ZElectronPathPhoton,process.ZElectronPathTrack,process.ZElectronPathGsf,process.SKIMStreamHWWOutPath,process.SKIMStreamLogErrorOutPath,process.SKIMStreamZElectronOutPath)
