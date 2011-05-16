@@ -104,34 +104,11 @@ from Configuration.Skimming.PDWG_HWWSkim_cff import *
 HWWmmPath = cms.Path(diMuonSequence)
 HWWeePath = cms.Path(diElectronSequence)
 HWWemPath = cms.Path(EleMuSequence)
-SKIMStreamHWWMuMu = cms.FilteredStream(
+SKIMStreamHWW = cms.FilteredStream(
         responsible = 'PDWG',
-        name = 'HWWMuMu',
-        paths = (HWWmmPath),
+        name = 'HWW',
+        paths = (HWWmmPath,HWWeePath,HWWemPath),
         content = skimAodContent.outputCommands,
         selectEvents = cms.untracked.PSet(),
         dataTier = cms.untracked.string('AOD')
         )
-SKIMStreamHWWElEl = cms.FilteredStream(
-        responsible = 'PDWG',
-        name = 'HWWElEl',
-        paths = (HWWeePath),
-        content = skimAodContent.outputCommands,
-        selectEvents = cms.untracked.PSet(),
-        dataTier = cms.untracked.string('AOD')
-        )
-SKIMStreamHWWElMu = cms.FilteredStream(
-        responsible = 'PDWG',
-        name = 'HWWElMu',
-        paths = (HWWemPath),
-        content = skimAodContent.outputCommands,
-        selectEvents = cms.untracked.PSet(),
-        dataTier = cms.untracked.string('AOD')
-        )
-
-
-
-    
-        
-        
-
