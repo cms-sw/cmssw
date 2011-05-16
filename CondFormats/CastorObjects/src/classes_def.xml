@@ -38,5 +38,9 @@
  <class name="std::vector<CastorChannelStatus>"/>
  <class name="CastorChannelQuality"/>
 
+ <class name="CastorRecoParam"/>
+ <class name="std::vector<CastorRecoParam>"/>
+ <class name="CastorRecoParams" class_version="0"/>
+
  <class pattern="*CastorCondObjectContainer*"/>
 </lcgdict>   

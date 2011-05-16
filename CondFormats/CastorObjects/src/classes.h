@@ -8,6 +8,8 @@
 #include "CondFormats/CastorObjects/interface/CastorCalibrationQIEData.h"
 #include "CondFormats/CastorObjects/interface/CastorElectronicsMap.h"
 #include "CondFormats/CastorObjects/interface/CastorChannelQuality.h"
+#include "CondFormats/CastorObjects/interface/CastorRecoParam.h"
+#include "CondFormats/CastorObjects/interface/CastorRecoParams.h"
 
 namespace {
   struct dictionary {
@@ -35,6 +37,10 @@ namespace {
  
     CastorChannelQuality myquality;
     std::vector<CastorChannelStatus> myqualityVec;
+
+    CastorRecoParam myrecoparam;
+    std::vector<CastorRecoParam> myrecoparamVec;
+    CastorRecoParams myrecoparams;
   };
 }
 
