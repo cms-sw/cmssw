@@ -323,7 +323,7 @@ step1['TTbarPU2']=merge([step1['TTbar2'],PU1])
 
 # step2 
 step2Defaults = { 'cfg'           : 'step2',
-                  '-s'            : 'DIGI,L1,DIGI2RAW,HLT:GRun,RAW2DIGI,L1Reco',
+                  '-s'            : 'DIGI,L1,DIGI2RAW,HLT,RAW2DIGI,L1Reco',
                   '--datatier'    : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
                   '--eventcontent': 'FEVTDEBUGHLT',
                   '--conditions'  : 'auto:mc',
