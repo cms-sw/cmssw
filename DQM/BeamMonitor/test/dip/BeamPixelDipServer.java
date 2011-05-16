@@ -20,6 +20,7 @@ implements Runnable,DipPublicationErrorHandler
   public static boolean overwriteQuality = true; //if true, change quality to qualities[0]
   public static String subjectCMS = "dip/CMS/Tracker/BeamPixel";
   public static String subjectLHC = "dip/CMS/LHCTEST/LuminousRegion";
+  public static String subjectDummy = "dummy";//to have same # of arug as in BeamSpot file as same class run both of them with same # of arguemnts
   public static String sourceFile = "/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt";
   public static int[] timeoutLS = {5,10}; //LumiSections
 
@@ -449,6 +450,7 @@ implements Runnable,DipPublicationErrorHandler
     this.sourceFile = args[4];
     this.timeoutLS[0] = new Integer(args[5]);
     this.timeoutLS[1] = new Integer(args[6]);
+    this.subjectDummy = args[8];
   }
 
   public static void main(String args[])
