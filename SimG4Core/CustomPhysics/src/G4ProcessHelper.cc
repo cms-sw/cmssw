@@ -11,7 +11,6 @@
 
 #include"SimG4Core/CustomPhysics/interface/G4ProcessHelper.hh"
 #include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
-#include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
 
 G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet & p){
 
@@ -31,9 +30,6 @@ G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet & p){
   gamma = p.getParameter<double>("gamma")*GeV;
   amplitude = p.getParameter<double>("amplitude")*millibarn;
   suppressionfactor = p.getParameter<double>("reggeSuppression");
-  hadronlifetime = p.getParameter<double>("hadronLifeTime");
-  reggemodel = p.getParameter<bool>("reggeModel");
-  mixing = p.getParameter<double>("mixing");
   
   edm::LogInfo("CustomPhysics")<<"Read in physics parameters:"<<G4endl;
   edm::LogInfo("CustomPhysics")<<"Resonant = "<< resonant <<G4endl;
@@ -41,15 +37,10 @@ G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet & p){
   edm::LogInfo("CustomPhysics")<<"Gamma = "<<gamma/GeV<<" GeV"<<G4endl;
   edm::LogInfo("CustomPhysics")<<"Amplitude = "<<amplitude/millibarn<<" millibarn"<<G4endl;
   edm::LogInfo("CustomPhysics")<<"ReggeSuppression = "<<100*suppressionfactor<<" %"<<G4endl;
-  edm::LogInfo("CustomPhysics")<<"HadronLifeTime = "<<hadronlifetime<<" s"<<G4endl;
-  edm::LogInfo("CustomPhysics")<<"ReggeModel = "<< reggemodel <<G4endl;
-  edm::LogInfo("CustomPhysics")<<"Mixing = "<< mixing*100 <<" %"<<G4endl;
-
 
   checkfraction = 0;
   n_22 = 0;
   n_23 = 0;
-
 
 
   while(getline(process_stream,line)){
@@ -94,25 +85,6 @@ G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet & p){
 
   process_stream.close();
 
-  G4ParticleTable::G4PTblDicIterator* theParticleIterator;
-  theParticleIterator = particleTable->GetIterator();
-
-  theParticleIterator->reset();
-  while( (*theParticleIterator)() ){
-    CustomParticle* particle = dynamic_cast<CustomParticle*>(theParticleIterator->value());
-    std::string name = theParticleIterator->value()->GetParticleName();
-    G4DecayTable* table = theParticleIterator->value()->GetDecayTable();
-    if(particle!=0&&table!=0&&name.find("cloud")>name.size()&&hadronlifetime > 0)
-      {
-	particle->SetPDGLifeTime(hadronlifetime*s);
-	particle->SetPDGStable(false);
-	edm::LogInfo("CustomPhysics")<<"Lifetime of: "<<name<<" set to: "<<particle->GetPDGLifeTime()/s<<" s."<<G4endl;
-	edm::LogInfo("CustomPhysics")<<"Stable: "<<particle->GetPDGStable()<<G4endl;
-      }
-  }
-  theParticleIterator->reset();
-
-
 }
 
 G4bool G4ProcessHelper::ApplicabilityTester(const G4ParticleDefinition& aPart){
@@ -130,12 +102,9 @@ G4double G4ProcessHelper::GetInclusiveCrossSection(const G4DynamicParticle *aPar
   //Disassemble the PDG-code
 
   G4int thePDGCode = aParticle->GetDefinition()->GetPDGEncoding();
-  double boost = (aParticle->GetKineticEnergy()+aParticle->GetMass())/aParticle->GetMass();
-  //  G4cout<<"thePDGCode: "<<thePDGCode<<G4endl;
+
   G4double theXsec = 0;
-  G4String name = aParticle->GetDefinition()->GetParticleName();
-  if(!reggemodel)
-  {
+
   //Flat cross section
   if(CustomPDGParser::s_isRGlueball(thePDGCode)) {
     theXsec = 24 * millibarn;
@@ -150,29 +119,7 @@ G4double G4ProcessHelper::GetInclusiveCrossSection(const G4DynamicParticle *aPar
 	if (*it == 1 || *it == 2) theXsec += 12 * millibarn;
 	if (*it == 3) theXsec += 6 * millibarn;
       }
-   }
-  } 
-  else 
-  {  //reggemodel
-    double R = Regge(boost);
-    double P = Pom(boost);
-    if(thePDGCode>0)
-      {
-	if(CustomPDGParser::s_isMesonino(thePDGCode)) theXsec=(P+R)*millibarn;
-	if(CustomPDGParser::s_isSbaryon(thePDGCode)) theXsec=2*P*millibarn;
-	if(CustomPDGParser::s_isRMeson(thePDGCode)||CustomPDGParser::s_isRGlueball(thePDGCode)) theXsec=(R+2*P)*millibarn;
-	if(CustomPDGParser::s_isRBaryon(thePDGCode)) theXsec=3*P*millibarn;
-      }
-    else
-      {
-	if(CustomPDGParser::s_isMesonino(thePDGCode)) theXsec=P*millibarn;
-	if(CustomPDGParser::s_isSbaryon(thePDGCode)) theXsec=(2*(P+R)+30/sqrt(boost))*millibarn;
-	if(CustomPDGParser::s_isRMeson(thePDGCode)||CustomPDGParser::s_isRGlueball(thePDGCode)) theXsec=(R+2*P)*millibarn;
-	if(CustomPDGParser::s_isRBaryon(thePDGCode)) theXsec=3*P*millibarn;
-      }
   }
-    
-
 
   //Adding resonance
 
@@ -234,31 +181,7 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
       theTarget = theNeutron;
     }
   aTarget = theTarget;
-
-  G4int theIncidentPDG = aDynamicParticle->GetDefinition()->GetPDGEncoding();
-
-  if(reggemodel
-     &&CustomPDGParser::s_isMesonino(theIncidentPDG)
-     && G4UniformRand()*mixing>0.5
-     &&aDynamicParticle->GetDefinition()->GetPDGCharge()==0.
-     ) 
-    {
-      //      G4cout<<"Oscillating..."<<G4endl;
-      theIncidentPDG *= -1;
-    }
-
-
-  bool baryonise=false;
-  
-  if(reggemodel
-     && G4UniformRand()>0.9
-     &&(
-	(CustomPDGParser::s_isMesonino(theIncidentPDG)&&theIncidentPDG>0)
-	||
-	CustomPDGParser::s_isRMeson(theIncidentPDG)
-	)
-     )  
-    baryonise=true;
+  const G4int theIncidentPDG = aDynamicParticle->GetDefinition()->GetPDGEncoding();
 
   //Making a pointer directly to the ReactionProductList we are looking at. Makes life easier :-)
   ReactionProductList*  aReactionProductList = &((*theReactionMap)[theIncidentPDG]);
@@ -281,19 +204,7 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
        prod_it++){
     G4int secondaries = prod_it->size();
     // If the reaction is not possible we will not consider it
-//    if(ReactionIsPossible(*prod_it,aDynamicParticle)){
-      if(ReactionIsPossible(*prod_it,aDynamicParticle)
-       && (!reggemodel ||
-	  (baryonise&&ReactionGivesBaryon(*prod_it)) 
-	  ||
-	  (!baryonise&&!ReactionGivesBaryon(*prod_it))
-	  ||
-	  (CustomPDGParser::s_isSbaryon(theIncidentPDG))
-	  ||
-	  (CustomPDGParser::s_isRBaryon(theIncidentPDG))
-	  )
-       )
-      {
+    if(ReactionIsPossible(*prod_it,aDynamicParticle)){
       // The reaction is possible. Let's store and count it
       theReactionProductList.push_back(*prod_it);
       if (secondaries == 2){
@@ -311,16 +222,6 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
 
   if (theReactionProductList.size()==0) G4Exception("G4ProcessHelper", "NoProcessPossible", FatalException,
 						    "GetFinalState: No process could be selected from the given list.");
-
-  // For the Regge model no phase space considerations. We pick a process at random
-  if(reggemodel)
-    {
-      int n_rps = theReactionProductList.size();
-      int select = (int)( G4UniformRand()*n_rps);
-      //      G4cout<<"Possible: "<<n_rps<<", chosen: "<<select<<G4endl;
-      return theReactionProductList[select];
-    }
-
   // Fill a probability map. Remember total probability
   // 2->2 is 0.15*1/n_22 2->3 uses phase space
   G4double p22 = 0.15;
@@ -441,12 +342,6 @@ G4bool G4ProcessHelper::ReactionIsPossible(const ReactionProduct& aReaction,cons
   return false;
 }
 
-G4bool G4ProcessHelper::ReactionGivesBaryon(const ReactionProduct& aReaction){
-  for (ReactionProduct::const_iterator it = aReaction.begin();it!=aReaction.end();it++)
-    if(CustomPDGParser::s_isSbaryon(*it)||CustomPDGParser::s_isRBaryon(*it)) return true;
-  return false;
-}
-
 G4double G4ProcessHelper::PhaseSpace(const ReactionProduct& aReaction,const G4DynamicParticle* aDynamicParticle){
   G4double qValue = ReactionProductMass(aReaction,aDynamicParticle);
   G4double phi = sqrt(1+qValue/(2*0.139*GeV))*pow(qValue/(1.1*GeV),3./2.);
@@ -476,22 +371,3 @@ void G4ProcessHelper::ReadAndParse(const G4String& str,
       pos = str.find_first_of(delimiters, lastPos);
     }
 }
-
-double G4ProcessHelper::Regge(const double boost)
-{
-  double a=2.165635078566177;
-  double b=0.1467453738547229;
-  double c=-0.9607903711871166;
-  return 1.5*exp(a+b/boost+c*log(boost));
-}
-
-
-double G4ProcessHelper::Pom(const double boost)
-{
-  double a=4.138224000651535;
-  double b=1.50377557581421;
-  double c=-0.05449742257808247;
-  double d=0.0008221235048211401;
-  return a + b*sqrt(boost) + c*boost + d*pow(boost,1.5);
-}
-

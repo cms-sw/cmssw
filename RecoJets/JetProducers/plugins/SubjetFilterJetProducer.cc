@@ -6,9 +6,6 @@
 // For a description of the Subjet/Filter algorithm, see e.g.
 // http://arXiv.org/abs/0802.2470 
 //
-// This implementation is largely based on fastjet_boosted_higgs.cc provided
-// with the fastjet package.
-//
 // If you did, you know that the algorithm produces a 'fatjet', two
 // associated 'subjets', and two or three associated 'filterjets'. This producer
 // will therefore write three corresponding jet collections. The association
@@ -16,11 +13,6 @@
 // of them daughters of the fatjet, such that the first two daughter jets always
 // correspond to the subjets, while all remaining correspond to the filterjets.
 //
-// The real work is done in RecoJets/JetAlgorithms/src/SubjetFilterAlgorithm.cc
-//       
-// see: https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideSubjetFilterJetProducer
-//
-//                       David Lopes-Pegna                 <david.lopes@cern.ch>
 //            25/11/2009 Philipp Schieferdecker <philipp.schieferdecker@cern.ch>
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -44,16 +36,10 @@ SubjetFilterJetProducer::SubjetFilterJetProducer(const edm::ParameterSet& iConfi
 	 iConfig.getParameter<string>  ("jetAlgorithm"),
 	 iConfig.getParameter<unsigned>("nFatMax"),
 	 iConfig.getParameter<double>  ("rParam"),
-	 iConfig.getParameter<double>  ("rFilt"),
 	 iConfig.getParameter<double>  ("jetPtMin"),
 	 iConfig.getParameter<double>  ("massDropCut"),
 	 iConfig.getParameter<double>  ("asymmCut"),
-	 iConfig.getParameter<bool>    ("asymmCutLater"),
-	 iConfig.getParameter<bool>    ("doAreaFastjet"),
-	 iConfig.getParameter<double>  ("Ghost_EtaMax"),
-	 iConfig.getParameter<int>     ("Active_Area_Repeats"),
-	 iConfig.getParameter<double>  ("GhostArea"),
-	 iConfig.getUntrackedParameter<bool>("verbose",false))
+	 iConfig.getParameter<bool>    ("asymmCutLater"))
 {
   produces<reco::BasicJetCollection>("fat");
   makeProduces(moduleLabel_,"sub");
@@ -64,7 +50,7 @@ SubjetFilterJetProducer::SubjetFilterJetProducer(const edm::ParameterSet& iConfi
 //______________________________________________________________________________
 SubjetFilterJetProducer::~SubjetFilterJetProducer()
 {
-  
+
 }
 
 
@@ -140,13 +126,12 @@ void SubjetFilterJetProducer::writeCompoundJets(edm::Event& iEvent,
 
   edm::OrphanHandle< vector<T> > subJetsAfterPut;
   edm::OrphanHandle< vector<T> > filterJetsAfterPut;
-  
+
   vector< vector<int> > subIndices(fjCompoundJets_.size());
   vector< vector<int> > filterIndices(fjCompoundJets_.size());
   
   vector<math::XYZTLorentzVector> p4FatJets;
-  vector<double>                  areaFatJets;
-  
+
   vector<CompoundPseudoJet>::const_iterator itBegin(fjCompoundJets_.begin());
   vector<CompoundPseudoJet>::const_iterator itEnd(fjCompoundJets_.end());
   vector<CompoundPseudoJet>::const_iterator it(itBegin);
@@ -157,12 +142,11 @@ void SubjetFilterJetProducer::writeCompoundJets(edm::Event& iEvent,
     fastjet::PseudoJet fatJet = it->hardJet();
     p4FatJets.push_back(math::XYZTLorentzVector(fatJet.px(),fatJet.py(),
 						fatJet.pz(),fatJet.e()));
-    areaFatJets.push_back(it->hardJetArea());
     
     vector<CompoundPseudoSubJet>::const_iterator itSubBegin(it->subjets().begin());
     vector<CompoundPseudoSubJet>::const_iterator itSubEnd(it->subjets().end());
     vector<CompoundPseudoSubJet>::const_iterator itSub(itSubBegin);
-    
+
     for (; itSub!=itSubEnd;++itSub) {
       int subJetIndex = itSub-itSubBegin;
       fastjet::PseudoJet fjSubJet = itSub->subjet();
@@ -181,7 +165,6 @@ void SubjetFilterJetProducer::writeCompoundJets(edm::Event& iEvent,
       
       T subJet;
       reco::writeSpecific(subJet,p4SubJet,point,subJetConstituents,iSetup);
-      subJet.setJetArea(itSub->subjetArea());
       
       if (subJetIndex<2) {
 	subIndices[jetIndex].push_back(subJets->size());
@@ -225,7 +208,6 @@ void SubjetFilterJetProducer::writeCompoundJets(edm::Event& iEvent,
 
     reco::Particle::Point point(0,0,0);
     fatJets->push_back(reco::BasicJet((*itP4),point,i_fatJetConstituents));
-    fatJets->back().setJetArea(areaFatJets[fatIndex]);
   }
   
   iEvent.put(fatJets,"fat");

@@ -1,25 +1,381 @@
 //---------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //---------Copyright: Those valid for CEA sofware
-//---------Modified: 24/03/2011
+//---------Modified: 08/04/2010
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaHistos.h"
-
-//--------------------------------------
-//  TEcnaHistos.cc
-//  Class creation: 18 April 2005
-//  Documentation: see TEcnaHistos.h
-//--------------------------------------
 
 ClassImp(TEcnaHistos)
 //______________________________________________________________________________
 //
+// TEcnaHistos.
+//
+//==============> INTRODUCTION
+//
+//    This class provides methods for displaying plots of various types:
+//    1D, 2D and 3D histograms for different quantities (pedestals, noises,
+//    correlations, .etc..). The data are read from files which has been
+//    previously written by using the class TEcnaRun (.root result files).
+//    The reading is performed by appropriate methods of the class TEcnaRead.
+//
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//      Class TEcnaHistos       ***   I N S T R U C T I O N S   F O R   U S E   ***
+//
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//
+//   // (A) --> Object declarations:
+//
+//      TEcnaHistos* MyHistosEB = new TEcnaHistos("EB");
+//      TEcnaHistos* MyHistosEE = new TEcnaHistos("EE");
+//      
+//   // (B) --> Specification of the file which has to be read.
+//   //         This file is a .root result file which has previously been written by means of
+//   //         the class TEcnaRun (see documentation of this class)
+//
+//   //  1) specify the parameter values of the file name:
+//
+//      TString AnalysisName      = "StdPed12"; (AnalysisName -> explanation in TEcnaRun documentation)
+//      Int_t   NbOfSamples       = 10;
+//      Int_t   RunNumber         = 112206;
+//      Int_t   FirstReqEvtNumber = 1;
+//      Int_t   LastReqEvtNumber  = 150;
+//      Int_t   ReqNbOfEvts       = 150;
+//      Int_t   SM or Dee Number  = 2;
+//
+//   //  2) call method "FileParameters" to say that the file to be read is the file
+//   //     which name parameters are those specified above:
+// 
+//      MyHistosEB->FileParameters(AnalysisName, NbOfSamples, RunNumber,
+//                                 FirstReqEvtNumber, LastReqEvtNumber, ReqNbOfEvts, SMNumber); 
+//
+//   //  Now, the class TEcnaHistos knowns that it has to work
+//   //  with the file StdPed12_S1_10_R16467_0_150_SM6.root
+//
+//   // (C) -->  E X A M P L E S   O F   U S E 
+// 
+//   //--> Plot correlation matrices between samples
+//   //    for channel 21 (electronic channel number in Tower)
+//   //    and for the two towers 10 and 33
+//
+//      Int_t TowEcha = 21;     // (Electronic channel number in tower)
+//      MyHistosEB->CorrelationsBetweenSamples(SMTower_X, TowEcha, "SURF1Z");
+//      MyHistosEB->CorrelationsBetweenSamples(SMTower_Y, TowEcha, "SURF1Z");
+//
+//    //--> Plot Pedestals as a function of SC number for Dee 4 
+//
+//      TString AnalysisName      = "StdPed12";
+//      Int_t   NbOfSamples       = 10;
+//      Int_t   RunNumber         = 112592;
+//      Int_t   FirstReqEvtNumber = 1;
+//      Int_t   LastReqEvtNumber  = 150;
+//      Int_t   ReqNbOfEvts       = 150;
+//
+//      Int_t   DeeNumber = 4;
+//      MyHistosEE->FileParameters(AnalysisName, NbOfSamples, RunNumber,
+//                                 FirstReqEvtNumber, LastReqEvtNumber, ReqNbOfEvts, DeeNumber); 
+//      MyHistosEE->DeeXtalsPedestals();
+//
+//    //--> Plot total noise history for channel 12 of tower 38
+//    //    (electronic channel number in tower)
+//
+//      MyHistosEB->FileParameters(AnalysisName, NbOfSamples, RunNumber,
+//                                 FirstReqEvtNumber, LastReqEvtNumber, ReqNbOfEvts, SMNumber);
+//      Int_t SMTower = 38;
+//      Int_t TowEcha = 12;
+//      TString list_of_run_file_name = "HistoryRunList_SM6.ascii";
+//      MyHistoEB->XtalTimeTotalNoise(list_of_run_file_name, SMTower, TowEcha, "SAME");
+//      
+//    // the .ascii file "HistoryRunList_SM6.ascii" must contain a list of
+//    // the run numbers according to the following syntax:
+//
+//   //.......... SYNTAX OF THE FILE "HistoryRunList_SM6.ascii" ("runlist history plot" file):
+//
+//   HistoryRunList_SM6.ascii  <- 1rst line: comment (name of the file, for example)
+//
+//   73677                <- other lines: run numbers
+//   73688
+//                        <- (empty lines can be used)
+//   73689
+//   73690
+//   73692
+//
+//
+//      etc...
+//
+//
+//------------------------------------------- LIST OF METHODS ------------------------------------------
+//
+//######################################################################################################
+//
+//             Examples for use are in file TEcnaHistosTest.cc (in directory test)
+//                                          =================
+//
+//######################################################################################################
+
+//  //==================================================================================================
+//  //   method to set the result file name parameters (from values in argument)
+//  //   FileParameters(AnaType, NbOfSamples, Run#,
+//  //                  FirstRequestedEvt#, LastRequestedEvt#, ReqNbOfEvts#, SM# or Dee#)
+//  //   RunNumber = 0 => history plots, SM or Dee number = 0 => Plots for EB or EE
+//  //==================================================================================================
+//
+//  void FileParameters(const TString Analysis,         
+//                      const Int_t&  NbOfSamples,
+//                      const Int_t&  Run#,               // RunNumber = 0 => history plots
+//		        const Int_t&  FirstRequestedEvt#,
+//                      const Int_t&  LastRequestedEvt#,
+//                      const Int_t&  ReqNbOfEvts#,
+//                      const Int_t&  SMOrDee#);          // SM or Dee number = 0 => Plots for EB or EE
+//
+//        -----------------------------------------------------------------------------------
+//        In the following:
+//
+//        TowOrSC# = Tower number in case of EB  or  SC number FOR CONSTRUCTION in case of EE
+//
+//        -----------------------------------------------------------------------------------
+//
+//  //==================================================================================================
+//  //                  methods for displaying the correlations and covariances matrices
+//  //                  DrawOption = ROOT DrawOption ("SAME", "LEGO", "COLZ", etc...)
+//  //                               + option "ASCII": write histo in ASCII file 
+//  //==================================================================================================
+//  void LowFrequencyMeanCorrelationsBetweenTowers (const TString DrawOption); // SubDet: specific EB
+//  void LowFrequencyMeanCorrelationsBetweenSCs    (const TString DrawOption); // SubDet: specific EE
+//  void HighFrequencyMeanCorrelationsBetweenTowers(const TString DrawOption); // SubDet: specific EB
+//  void HighFrequencyMeanCorrelationsBetweenSCs   (const TString DrawOption); // SubDet: specific EE
+//
+//  void LowFrequencyCorrelationsBetweenChannels
+//       (const Int_t& TowOrSC#, const Int_t& Tow'OrSC'#, const TString DrawOption); // SubDet: EB or EE
+//  void LowFrequencyCovariancesBetweenChannels
+//       (const Int_t& TowOrSC#, const Int_t& Tow'OrSC'#, const TString DrawOption); // SubDet: EB or EE
+//  void HighFrequencyCorrelationsBetweenChannels
+//       (const Int_t& TowOrSC#, const Int_t& Tow'OrSC'#, const TString DrawOption); // SubDet: EB or EE
+//  void HighFrequencyCovariancesBetweenChannels
+//       (const Int_t& TowOrSC#, const Int_t& Tow'OrSC'#, const TString DrawOption); // SubDet: EB or EE
+//
+//  void CorrelationsBetweenSamples
+//       (const Int_t& TowOrSC#, const Int_t& Channel#inTowOrSC, const TString DrawOption); // SubDet: EB or EE
+//  void CovariancesBetweenSamples 
+//       (const Int_t& TowOrSC#, const Int_t& Channel#inTowOrSC, const TString DrawOption); // SubDet: EB or EE
+//
+//  //==================================================================================================
+//  //     methods for displaying 2D view of the whole subdetector; (eta,Phi) for EB, (IX,IY) for EE
+//  //==================================================================================================
+//  void EBEtaPhiAveragedNumberOfEvents();     // SubDet: specific EB
+//  void EBEtaPhiAveragedPedestals();          // SubDet: specific EB
+//  void EBEtaPhiAveragedTotalNoise();         // SubDet: specific EB
+//  void EBEtaPhiAveragedMeanOfCorss();        // SubDet: specific EB
+//  void EBEtaPhiAveragedLowFrequencyNoise();  // SubDet: specific EB
+//  void EBEtaPhiAveragedHighFrequencyNoise(); // SubDet: specific EB
+//  void EBEtaPhiAveragedSigmaOfCorss();       // SubDet: specific EB
+//
+//  void EEIXIYAveragedNumberOfEvents();     // SubDet: specific EE
+//  void EEIXIYAveragedPedestals();          // SubDet: specific EE
+//  void EEIXIYAveragedTotalNoise();         // SubDet: specific EE
+//  void EEIXIYAveragedMeanOfCorss();        // SubDet: specific EE
+//  void EEIXIYAveragedLowFrequencyNoise();  // SubDet: specific EE
+//  void EEIXIYAveragedHighFrequencyNoise(); // SubDet: specific EE
+//  void EEIXIYAveragedSigmaOfCorss();       // SubDet: specific EE
+//
+//  //==================================================================================================
+//  //        methods for displaying SM 2D(eta,phi) and Dee 2D(IX,IY) view
+//  //==================================================================================================
+//  void SMEtaPhiNumberOfEvents();       // SubDet: specific EB
+//  void SMEtaPhiPedestals();            // SubDet: specific EB
+//  void SMEtaPhiTotalNoise();           // SubDet: specific EB
+//  void SMEtaPhiMeanOfCorss();          // SubDet: specific EB
+//  void SMEtaPhiLowFrequencyNoise();    // SubDet: specific EB
+//  void SMEtaPhiHighFrequencyNoise();   // SubDet: specific EB
+//  void SMEtaPhiSigmaOfCorss();         // SubDet: specific EB
+//
+//  void SMEtaPhiLowFrequencyCorcc();    // SubDet: specific EB
+//  void SMEtaPhiHighFrequencyCorcc();   // SubDet: specific EB
+//
+//  void DeeIXIYNumberOfEvents();        // SubDet: specific EE
+//  void DeeIXIYPedestals();             // SubDet: specific EE
+//  void DeeIXIYTotalNoise();            // SubDet: specific EE
+//  void DeeIXIYMeanOfCorss();           // SubDet: specific EE
+//  void DeeIXIYLowFrequencyNoise();     // SubDet: specific EE
+//  void DeeIXIYHighFrequencyNoise();    // SubDet: specific EE
+//  void DeeIXIYSigmaOfCorss();          // SubDet: specific EE
+//
+//  void DeeIXIYLowFrequencyCorcc();     // SubDet: specific EE
+//  void DeeIXIYHighFrequencyCorcc();    // SubDet: specific EE
+//
+//  //==================================================================================================
+//  //                             methods for displaying 1D histos
+//  //
+//  //     PlotOption: optional argument ("ONLYONE", "SAME","SAME n"  or "ASCII")
+//  //      
+//  //  "ONLYONE" :  display only one histo (default; same as without argument)
+//  //  "SAME"    :  Same as Draw Option "SAME" in ROOT: superimpose on previous picture in the same pad
+//  //               1D histos of only one quantity
+//  //  "SAME n"  :  Same as Draw Option "SAME" in ROOT: superimpose on previous picture in the same pad
+//  //               1D histos of possibly several quantities
+//  //  "ASCII"   :  write histo contents in ASCII file
+//  //
+//  //   Codification for the method names:  [part of detector][X axis][Y axis](...)
+//  //
+//  //   Examples: SMXtalsTotalNoise(...)         : Total noise as a function of Xtal number for one SM
+//  //             XtalSamplesSigma(...)          : Sigma as a function of sample number for one Xtal
+//  //             DeeLowFrequencyNoiseXtals(...) : Low Fq noise distribution over the Xtals for one Dee
+//  //             XtalTimePedestals(...)         : Pedestal evolution in time for one Xtal (history plot)
+//  //             XtalTimePedestalsRuns(...)     : Pedestal distribution over runs for one Xtal
+//  //                                              (projection of the history plot on Y axis)
+//  //             etc...
+//  //
+//  //==================================================================================================
+//  void SMXtalsNumberOfEvents    ([const TString PlotOption]); // SubDet: specific EB
+//  void SMXtalsPedestals         ([const TString PlotOption]); // SubDet: specific EB
+//  void SMXtalsTotalNoise        ([const TString PlotOption]); // SubDet: specific EB
+//  void SMXtalsMeanOfCorss       ([const TString PlotOption]); // SubDet: specific EB
+//  void SMXtalsLowFrequencyNoise ([const TString PlotOption]); // SubDet: specific EB
+//  void SMXtalsHighFrequencyNoise([const TString PlotOption]); // SubDet: specific EB
+//  void SMXtalsSigmaOfCorss      ([const TString PlotOption]); // SubDet: specific EB
+//
+//  void SMNumberOfEventsXtals    ([const TString PlotOption]); // SubDet: specific EB
+//  void SMPedestalsXtals         ([const TString PlotOption]); // SubDet: specific EB
+//  void SMTotalNoiseXtals        ([const TString PlotOption]); // SubDet: specific EB
+//  void SMMeanOfCorssXtals       ([const TString PlotOption]); // SubDet: specific EB
+//  void SMLowFrequencyNoiseXtals ([const TString PlotOption]); // SubDet: specific EB
+//  void SMHighFrequencyNoiseXtals([const TString PlotOption]); // SubDet: specific EB
+//  void SMSigmaOfCorssXtals      ([const TString PlotOption]); // SubDet: specific EB
+// 
+//  void DeeXtalsNumberOfEvents    ([const TString PlotOption]); // SubDet: specific EE
+//  void DeeXtalsPedestals         ([const TString PlotOption]); // SubDet: specific EE
+//  void DeeXtalsTotalNoise        ([const TString PlotOption]); // SubDet: specific EE
+//  void DeeXtalsMeanOfCorss       ([const TString PlotOption]); // SubDet: specific EE
+//  void DeeXtalsLowFrequencyNoise ([const TString PlotOption]); // SubDet: specific EE
+//  void DeeXtalsHighFrequencyNoise([const TString PlotOption]); // SubDet: specific EE
+//  void DeeXtalsSigmaOfCorss      ([const TString PlotOption]); // SubDet: specific EE
+//
+//  void DeeNumberOfEventsXtals    ([const TString PlotOption]); // SubDet: specific EE
+//  void DeePedestalsXtals         ([const TString PlotOption]); // SubDet: specific EE
+//  void DeeTotalNoiseXtals        ([const TString PlotOption]); // SubDet: specific EE
+//  void DeeMeanOfCorssXtals       ([const TString PlotOption]); // SubDet: specific EE
+//  void DeeLowFrequencyNoiseXtals ([const TString PlotOption]); // SubDet: specific EE
+//  void DeeHighFrequencyNoiseXtals([const TString PlotOption]); // SubDet: specific EE
+//  void DeeSigmaOfCorssXtals      ([const TString PlotOption]); // SubDet: specific EE
+//
+//  void XtalSamplesEv(const Int_t& TowOrSC#, const Int_t& Channel#inTowOrSC,
+//                        [const TString PlotOption]);                              // SubDet: EB or EE
+//  void XtalSamplesSigma(const Int_t& TowOrSC#, const Int_t& Channel#inTowOrSC,
+//                        [const TString PlotOption]);                              // SubDet: EB or EE
+//  void XtalSampleValues(const Int_t& TowOrSC#, const Int_t&  Channel#inTowOrSC,
+//                        const Int_t& Sample#,  [const TString PlotOption]);       // SubDet: EB or EE
+//  void SampleADCEvents(const Int_t& TowOrSC#, const Int_t&  Channel#inTowOrSC,
+//                       const Int_t& Sample#,  [const TString PlotOption]);        // SubDet: EB or EE
+//
+//  //==================================================================================================
+//  //                     methods for displaying 1D history plots
+//  //==================================================================================================
+//  void XtalTimePedestals(const TString ListOfRunFileName, const Int_t& TowOrSC#,
+//                         const Int_t& Channel#inTowOrSC,  [const TString PlotOption]);          // SubDet: EB or EE
+//
+//  void XtalTimeTotalNoise(const TString ListOfRunFileName, const Int_t& TowOrSC#,
+//                          const Int_t& Channel#inTowOrSC,  [const TString PlotOption]);         // SubDet: EB or EE
+//
+//  void XtalTimeMeanOfCorss(const TString ListOfRunFileName, const Int_t& TowOrSC#,
+//                           const Int_t& Channel#inTowOrSC,  [const TString PlotOption]);        // SubDet: EB or EE
+//
+//  void XtalTimeLowFrequencyNoise(const TString ListOfRunFileName, const Int_t& TowOrSC#,
+//                                 const Int_t& Channel#inTowOrSC,  [const TString PlotOption]);  // SubDet: EB or EE
+//
+//  void XtalTimeHighFrequencyNoise(const TString ListOfRunFileName, const Int_t& TowOrSC#,
+//                                  const Int_t& Channel#inTowOrSC,  [const TString PlotOption]); // SubDet: EB or EE
+//
+//  void XtalTimeSigmaOfCorss(const TString ListOfRunFileName, const Int_t& TowOrSC#,
+//                            const Int_t& Channel#inTowOrSC,  [const TString PlotOption]);       // SubDet: EB or EE
+//
+//  //==================================================================================================
+//  //        methods for displaying Nb of run distribution plots (1D history plot Y projection)
+//  //==================================================================================================
+//  void XtalPedestalsRuns(const TString ListOfRunFileName, const Int_t& TowOrSC#,
+//                         const Int_t& Channel#inTowOrSC,  [const TString PlotOption]);          // SubDet: EB or EE
+//
+//  void XtalTotalNoiseRuns(const TString ListOfRunFileName, const Int_t& TowOrSC#,
+//                          const Int_t& Channel#inTowOrSC,  [const TString PlotOption]);         // SubDet: EB or EE
+//
+//  void XtalMeanOfCorssRuns(const TString ListOfRunFileName, const Int_t& TowOrSC#,
+//                           const Int_t& Channel#inTowOrSC,  [const TString PlotOption]);        // SubDet: EB or EE
+//
+//  void XtalLowFrequencyNoiseRuns(const TString ListOfRunFileName, const Int_t& TowOrSC#,
+//                                 const Int_t& Channel#inTowOrSC,  [const TString PlotOption]);  // SubDet: EB or EE
+//
+//  void XtalHighFrequencyNoiseRuns(const TString ListOfRunFileName, const Int_t& TowOrSC#,
+//                                  const Int_t& Channel#inTowOrSC,  [const TString PlotOption]); // SubDet: EB or EE
+//
+//  void XtalSigmaOfCorssRuns(const TString ListOfRunFileName, const Int_t& TowOrSC#,
+//                            const Int_t& Channel#inTowOrSC,  [const TString PlotOption]);       // SubDet: EB or EE
+//
+//  //==================================================================================================
+//  //             methods for displaying Tower, SC, crystal numbering
+//  //==================================================================================================
+//
+//  void SMTowerNumbering(const Int_t& SM#);  // SubDet: specific EB
+//  void DeeSCNumbering  (const Int_t& Dee#); // SubDet: specific EE
+//
+//  void TowerCrystalNumbering(const Int_t& SM#,  const Int_t& Tow#); // SubDet: specific EB
+//  void SCCrystalNumbering   (const Int_t& Dee#, const Int_t& SC#);  // SubDet: specific EE
+//                                                                    //         (SC# for construction)
+//
+//  //==================================================================================================
+//  //                General title
+//  //==================================================================================================
+//  void GeneralTitle(const TString Title); // SubDet: EB or EE
+//
+//  //==================================================================================================
+//  //                        Lin:Log scale (SCALE = "LIN" or "LOG") 
+//  //==================================================================================================
+//  void SetHistoScaleX(const TString SCALE); // SubDet: EB or EE
+//  void SetHistoScaleY(const TString SCALE); // SubDet: EB or EE
+//
+//  //==================================================================================================
+//  //                   ColorPalette (OPTION = "ECNAColor" or "Rainbow")
+//  //==================================================================================================
+//  void SetHistoColorPalette(const TString OPTION); // SubDet: EB or EE
+//
+//  //==================================================================================================
+//  //                            histo ymin, ymax management
+//  //==================================================================================================
+//
+//  //  These methods must be called before calls to the display methods
+//
+//  //.................................. 1D and 2D histo ymin,ymax forced to user's values
+//  void SetHistoMin(const Double_t& YminValue); // SubDet: EB or EE
+//  void SetHistoMax(const Double_t& YmaxValue); // SubDet: EB or EE
+//
+//  //.................................. 1D and 2D histo ymin,ymax calculated from histo values
+//  void SetHistoMin(); // SubDet: EB or EE
+//  void SetHistoMax(); // SubDet: EB or EE
+//
+//  if SetHistoMin and SetHistoMax are not called, default values are applied. These default values
+//  are in methods GetYminDefaultValue(...) and GetYmaxDefaultValue(...) of class TEcnaParHistos
+//
+//------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------
+//
+//   Location of the ECNA web page:
+//
+//   http://cms-fabbro.web.cern.ch/cms-fabbro/cna_new/Correlated_Noise_Analysis/ECNA_main_page.htm
+//
+//------------------------------ TEcnaHistos.cc ---------------------------
+//  
+//   Creation (first version): 18 April 2005
+//
+//   For questions or comments, please send e-mail to Bernard Fabbro:
+//             
+//   fabbro@hep.saclay.cea.fr 
+//
+//------------------------------------------------------------------------
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 //       (attributes) ===> TEcnaParPaths --->|
 //                         TEcnaParEcal --->|
 //                         TEcnaWrite ---> TEcnaParPaths --->| 
-//                                         TEcnaParCout  --->| 
+//                                         TEcnaParCout --->| 
 //                                         TEcnaParEcal --->|
 //                                         TEcnaNumbering ---> TEcnaParEcal --->|
 //                         TEcnaParHistos ---> TEcnaParEcal --->|
@@ -34,16 +390,9 @@ ClassImp(TEcnaHistos)
 //                                                        TEcnaParCout --->| 
 //                                                        TEcnaParEcal --->|
 //                                                        TEcnaNumbering ---> TEcnaParEcal --->|
-//                                        TEcnaNumbering ---> TEcnaParEcal --->|
+//                                       TEcnaNumbering ---> TEcnaParEcal --->|
 //
-//
-//          Terminal classes: TEcnaParPaths, TEcnaParEcal, TEcnaParCout, TEcnaHeader, TEcnaNArrayD,
-//                            TEcnaObject, TEcnaResultType, TEcnaRootFile
-//      Non terminal classes: TEcnaGui, TEcnaHistos, TEcnaParHistos, TEcnaNumbering, TEcnaRead,
-//                            TEcnaRun, TEcnaWrite
-//
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
 TEcnaHistos::~TEcnaHistos()
 {
   //destructor
@@ -57,8 +406,7 @@ TEcnaHistos::~TEcnaHistos()
   //if (fEcal          != 0){delete fEcal;          fCdelete++;}
   //if (fEcalNumbering != 0){delete fEcalNumbering; fCdelete++;}
 
-  //if (fMyRootFile     != 0){delete fMyRootFile;     fCdelete++;}
-  //if (fReadHistoDummy != 0){delete fReadHistoDummy; fCdelete++;}
+  if (fMyRootFile     != 0){delete fMyRootFile;      fCdelete++;}
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -107,92 +455,66 @@ TEcnaHistos::TEcnaHistos(){
 
   Init();
 }
-
-TEcnaHistos::TEcnaHistos(TEcnaObject* pObjectManager, const TString SubDet)
+TEcnaHistos::TEcnaHistos(const TString SubDet)
 {
+
  // cout << "[Info Management] CLASS: TEcnaHistos.        CREATE OBJECT: this = " << this << endl;
-
-
-  Long_t i_this = (Long_t)this;
-  pObjectManager->RegisterPointer("TEcnaHistos", i_this);
 
   Init();
 
   //----------------------- Object management
+  fCnaParCout = 0;  fCnaParCout  = new TEcnaParCout();  /*fCnew++*/
 
-  //............................ fCnaParCout
-  fCnaParCout = 0;
-  Int_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
-  if( iCnaParCout == 0 )
-    {fCnaParCout = new TEcnaParCout(pObjectManager); /*fCnew++*/}
-  else
-    {fCnaParCout = (TEcnaParCout*)iCnaParCout;}
-
-  //............................ fCnaParPaths
-  fCnaParPaths = 0;
-  Int_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
-  if( iCnaParPaths == 0 )
-    {fCnaParPaths = new TEcnaParPaths(pObjectManager); /*fCnew++*/}
-  else
-    {fCnaParPaths = (TEcnaParPaths*)iCnaParPaths;}
-
+  fCnaParPaths = 0; fCnaParPaths = new TEcnaParPaths(); /*fCnew++*/
   fCfgResultsRootFilePath    = fCnaParPaths->ResultsRootFilePath();
   fCfgHistoryRunListFilePath = fCnaParPaths->HistoryRunListFilePath();
 
-  //............................ fEcal  => to be changed in fParEcal
-  fEcal = 0;
-  Int_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
-  if( iParEcal == 0 )
-    {fEcal = new TEcnaParEcal(pObjectManager, SubDet.Data()); /*fCnew++*/}
-  else
-    {fEcal = (TEcnaParEcal*)iParEcal;}
-
-  //............................ fEcalNumbering
-  fEcalNumbering = 0;
-  Int_t iEcalNumbering = pObjectManager->GetPointerValue("TEcnaNumbering");
-  if( iEcalNumbering == 0 )
-    {fEcalNumbering = new TEcnaNumbering(pObjectManager, SubDet.Data()); /*fCnew++*/}
-  else
-    {fEcalNumbering = (TEcnaNumbering*)iEcalNumbering;}
-
-  //............................ fCnaParHistos
-  fCnaParHistos = 0;
-  Int_t iCnaParHistos = pObjectManager->GetPointerValue("TEcnaParHistos");
-  if( iCnaParHistos == 0 )
-    {fCnaParHistos = new TEcnaParHistos(pObjectManager, SubDet.Data()); /*fCnew++*/}
-  else
-    {fCnaParHistos = (TEcnaParHistos*)iCnaParHistos;}
-
-  //............................ fCnaWrite
-  fCnaWrite = 0;
-  Int_t iCnaWrite = pObjectManager->GetPointerValue("TEcnaWrite");
-  if( iCnaWrite == 0 )
-    {fCnaWrite = new TEcnaWrite(pObjectManager, SubDet.Data()); /*fCnew++*/}
-  else
-    {fCnaWrite = (TEcnaWrite*)iCnaWrite;}
-
-  //............................ fMyRootFile
-  fMyRootFile = 0;
-  Int_t iMyRootFile = pObjectManager->GetPointerValue("TEcnaRead");
-  if( iMyRootFile == 0 )
-    {fMyRootFile = new TEcnaRead(pObjectManager, SubDet.Data()); /*fCnew++*/}
-  else
-    {fMyRootFile = (TEcnaRead*)iMyRootFile;}
-
-  fMyRootFile->PrintNoComment();
-
-  //------------------- creation objet TEcnaRead fMyRootFile (a reprendre plus clairement)
-  //fFileHeader = 0;
-  //fMyRootFile = new TEcnaRead(fFlagSubDet.Data(), fCnaParPaths, fCnaParCout,
-  //			      fFileHeader, fEcalNumbering, fCnaWrite);           fCnew++;
-  //fMyRootFile->PrintNoComment();
-
-
-  SetEcalSubDetector(SubDet.Data());
+  //......... Set SubDetector ("EB" or "EE")
+  TEcnaParEcal* pEcal          = 0;
+  TEcnaParHistos*   pCnaParHistos  = 0;
+  TEcnaNumbering*  pEcalNumbering = 0;
+  TEcnaWrite*       pCnaWrite      = 0;
+  
+  SetEcalSubDetector(SubDet.Data(), pEcal, pCnaParHistos, pEcalNumbering, pCnaWrite);
   //......... init ymin,ymax histos -> Default values for Ymin and Ymax
   SetAllYminYmaxMemoFromDefaultValues();
 }
 
+TEcnaHistos::TEcnaHistos(const TString SubDet,
+			 const TEcnaParPaths*  pCnaParPaths,
+			 const TEcnaParCout*   pCnaParCout,
+			 const TEcnaParEcal*   pEcal, 
+			 const TEcnaParHistos* pCnaParHistos,
+			 const TEcnaNumbering* pEcalNumbering,
+			 const TEcnaWrite*     pCnaWrite)
+{
+// Constructor with argument. Call to Init() and set the subdetector flag
+
+ // cout << "[Info Management] CLASS: TEcnaHistos.        CREATE OBJECT: this = " << this << endl;
+
+  Init();
+
+  //----------------------- Object management
+  fCnaParCout = 0;
+  if( pCnaParCout == 0 )
+    {fCnaParCout = new TEcnaParCout();  /*fCnew++*/ ;}
+  else
+    {fCnaParCout = (TEcnaParCout*)pCnaParCout;}
+
+  fCnaParPaths = 0;
+  if( pCnaParPaths == 0 )
+    {fCnaParPaths = new TEcnaParPaths(); /*fCnew++*/ ;}
+  else
+    {fCnaParPaths = (TEcnaParPaths*)pCnaParPaths;}
+
+  fCfgResultsRootFilePath    = fCnaParPaths->ResultsRootFilePath();
+  fCfgHistoryRunListFilePath = fCnaParPaths->HistoryRunListFilePath();
+
+  //......... Set SubDetector ("EB" or "EE")
+  SetEcalSubDetector(SubDet.Data(), pEcal, pCnaParHistos, pEcalNumbering, pCnaWrite);
+  //......... init ymin,ymax histos -> Default values for Ymin and Ymax
+  SetAllYminYmaxMemoFromDefaultValues();
+}
 
 void TEcnaHistos::Init()
 {
@@ -206,12 +528,25 @@ void TEcnaHistos::Init()
   fCnaError    = 0;
 
   fgMaxCar = 512;
-  Int_t MaxCar = fgMaxCar;
+  fZerv    =   0;
 
   //------------------------------ initialisations ----------------------
   fTTBELL = '\007';
 
   fT1DRunNumber = 0;
+
+  //........................ init code plot type                      (Init)
+  Int_t MaxCar = fgMaxCar;
+  fOnlyOnePlot.Resize(MaxCar);
+  fOnlyOnePlot = "ONLYONE";
+
+  MaxCar = fgMaxCar;
+  fSeveralPlot.Resize(MaxCar);
+  fSeveralPlot = "SAME";
+
+  MaxCar = fgMaxCar;
+  fSameOnePlot.Resize(MaxCar);
+  fSameOnePlot = "SAME n";
 
   //.......... init flags Same plot
   fMemoPlotH1SamePlus = 0;
@@ -222,8 +557,7 @@ void TEcnaHistos::Init()
   fMemoPlotD_LFN_ChNb = 0; fMemoPlotD_LFN_ChDs = 0; 
   fMemoPlotD_HFN_ChNb = 0; fMemoPlotD_HFN_ChDs = 0; 
   fMemoPlotD_SCs_ChNb = 0; fMemoPlotD_SCs_ChDs = 0; 
-  fMemoPlotD_MSp_SpNb = 0; fMemoPlotD_SSp_SpNb = 0; 
-  fMemoPlotD_MSp_SpDs = 0; fMemoPlotD_SSp_SpDs = 0;
+  fMemoPlotD_MSp_Samp = 0; fMemoPlotD_SSp_Samp = 0;
   fMemoPlotD_Adc_EvDs = 0; fMemoPlotD_Adc_EvNb = 0;
   fMemoPlotH_Ped_Date = 0; fMemoPlotH_TNo_Date = 0;
   fMemoPlotH_MCs_Date = 0; fMemoPlotH_LFN_Date = 0;
@@ -240,8 +574,7 @@ void TEcnaHistos::Init()
   fMemoColorD_LFN_ChNb = 0; fMemoColorD_LFN_ChDs = 0; 
   fMemoColorD_HFN_ChNb = 0; fMemoColorD_HFN_ChDs = 0; 
   fMemoColorD_SCs_ChNb = 0; fMemoColorD_SCs_ChDs = 0; 
-  fMemoColorD_MSp_SpNb = 0; fMemoColorD_SSp_SpNb = 0; 
-  fMemoColorD_MSp_SpDs = 0; fMemoColorD_SSp_SpDs = 0;
+  fMemoColorD_MSp_Samp = 0; fMemoColorD_SSp_Samp = 0;
   fMemoColorD_Adc_EvDs = 0; fMemoColorD_Adc_EvNb = 0;
   fMemoColorH_Ped_Date = 0; fMemoColorH_TNo_Date = 0;
   fMemoColorH_MCs_Date = 0; fMemoColorH_LFN_Date = 0;
@@ -258,8 +591,7 @@ void TEcnaHistos::Init()
   fCanvSameD_LFN_ChNb = 0; fCanvSameD_LFN_ChDs = 0; 
   fCanvSameD_HFN_ChNb = 0; fCanvSameD_HFN_ChDs = 0; 
   fCanvSameD_SCs_ChNb = 0; fCanvSameD_SCs_ChDs = 0; 
-  fCanvSameD_MSp_SpNb = 0; fCanvSameD_SSp_SpNb = 0;
-  fCanvSameD_MSp_SpDs = 0; fCanvSameD_SSp_SpDs = 0;
+  fCanvSameD_MSp_Samp = 0; fCanvSameD_SSp_Samp = 0;
   fCanvSameD_Adc_EvDs = 0; fCanvSameD_Adc_EvNb = 0;
   fCanvSameH_Ped_Date = 0; fCanvSameH_TNo_Date = 0;
   fCanvSameH_MCs_Date = 0; fCanvSameH_LFN_Date = 0;
@@ -304,22 +636,22 @@ void TEcnaHistos::Init()
   fCorrelationMatrix = "Cor";
 
   MaxCar = fgMaxCar;
-  fLFBetweenStins.Resize(MaxCar);
-  fLFBetweenStins = "MttLF";
-  MaxCar = fgMaxCar;
-  fHFBetweenStins.Resize(MaxCar);
-  fHFBetweenStins = "MttHF";
-
-  MaxCar = fgMaxCar;
   fLFBetweenChannels.Resize(MaxCar);
-  fLFBetweenChannels = "MccLF";
+  fLFBetweenChannels = "MccLow";
   MaxCar = fgMaxCar;
   fHFBetweenChannels.Resize(MaxCar);
-  fHFBetweenChannels = "MccHF";
+  fHFBetweenChannels = "MccHigh";
 
   MaxCar = fgMaxCar;
   fBetweenSamples.Resize(MaxCar);
   fBetweenSamples = "Mss";
+
+  MaxCar = fgMaxCar;
+  fLFBetweenStins.Resize(MaxCar);
+  fLFBetweenStins = "MttLow";
+  MaxCar = fgMaxCar;
+  fHFBetweenStins.Resize(MaxCar);
+  fHFBetweenStins = "MttHigh";
 
   //.................................. text pave alignement for pave "SeveralChanging" (HistimePlot)
   fTextPaveAlign  = 12;              // 1 = left adjusted, 2 = vertically centered
@@ -343,10 +675,8 @@ void TEcnaHistos::Init()
   fXMemoD_HFN_ChDs = ""; 
   fXMemoD_SCs_ChNb = ""; 
   fXMemoD_SCs_ChDs = ""; 
-  fXMemoD_MSp_SpNb = "";
-  fXMemoD_MSp_SpDs = "";
-  fXMemoD_SSp_SpNb = "";  
-  fXMemoD_SSp_SpDs = "";  
+  fXMemoD_MSp_Samp = "";
+  fXMemoD_SSp_Samp = "";  
   fXMemoD_Adc_EvDs = "";     
   fXMemoD_Adc_EvNb = "";
   fXMemoH_Ped_Date = "";
@@ -377,10 +707,8 @@ void TEcnaHistos::Init()
   fYMemoD_HFN_ChDs = "";
   fYMemoD_SCs_ChNb = "";
   fYMemoD_SCs_ChDs = "";
-  fYMemoD_MSp_SpNb = "";
-  fYMemoD_MSp_SpDs = "";
-  fYMemoD_SSp_SpNb = ""; 
-  fYMemoD_SSp_SpDs = "";  
+  fYMemoD_MSp_Samp = "";
+  fYMemoD_SSp_Samp = "";  
   fYMemoD_Adc_EvDs = "";     
   fYMemoD_Adc_EvNb = "";
   fYMemoH_Ped_Date = "";
@@ -411,10 +739,8 @@ void TEcnaHistos::Init()
   fNbBinsMemoD_HFN_ChDs = 0; 
   fNbBinsMemoD_SCs_ChNb = 0; 
   fNbBinsMemoD_SCs_ChDs = 0; 
-  fNbBinsMemoD_MSp_SpNb = 0; 
-  fNbBinsMemoD_MSp_SpDs = 0;
-  fNbBinsMemoD_SSp_SpNb = 0; 
-  fNbBinsMemoD_SSp_SpDs = 0;  
+  fNbBinsMemoD_MSp_Samp = 0;
+  fNbBinsMemoD_SSp_Samp = 0;  
   fNbBinsMemoD_Adc_EvDs = 0;     
   fNbBinsMemoD_Adc_EvNb = 0;
   fNbBinsMemoH_Ped_Date = 0;
@@ -450,10 +776,8 @@ void TEcnaHistos::Init()
   fCanvD_HFN_ChDs = 0; 
   fCanvD_SCs_ChNb = 0; 
   fCanvD_SCs_ChDs = 0; 
-  fCanvD_MSp_SpNb = 0; 
-  fCanvD_MSp_SpDs = 0;
-  fCanvD_SSp_SpNb = 0;
-  fCanvD_SSp_SpDs = 0;  
+  fCanvD_MSp_Samp = 0;
+  fCanvD_SSp_Samp = 0;  
   fCanvD_Adc_EvDs = 0;     
   fCanvD_Adc_EvNb = 0;
   fCanvH_Ped_Date = 0;
@@ -486,10 +810,8 @@ void TEcnaHistos::Init()
   fPadD_HFN_ChDs = 0; 
   fPadD_SCs_ChNb = 0; 
   fPadD_SCs_ChDs = 0; 
-  fPadD_MSp_SpNb = 0;
-  fPadD_MSp_SpDs = 0;
-  fPadD_SSp_SpNb = 0;
-  fPadD_SSp_SpDs = 0;
+  fPadD_MSp_Samp = 0;
+  fPadD_SSp_Samp = 0;
   fPadD_Adc_EvDs = 0;
   fPadD_Adc_EvNb = 0;
   fPadH_Ped_Date = 0;
@@ -520,10 +842,8 @@ void TEcnaHistos::Init()
   fPavTxtD_HFN_ChDs = 0; 
   fPavTxtD_SCs_ChNb = 0; 
   fPavTxtD_SCs_ChDs = 0; 
-  fPavTxtD_MSp_SpNb = 0; 
-  fPavTxtD_MSp_SpDs = 0;
-  fPavTxtD_SSp_SpNb = 0;
-  fPavTxtD_SSp_SpDs = 0;
+  fPavTxtD_MSp_Samp = 0;
+  fPavTxtD_SSp_Samp = 0;
   fPavTxtD_Adc_EvDs = 0;
   fPavTxtD_Adc_EvNb = 0;
   fPavTxtH_Ped_Date = 0;
@@ -554,10 +874,8 @@ void TEcnaHistos::Init()
   fImpD_HFN_ChDs = 0; 
   fImpD_SCs_ChNb = 0; 
   fImpD_SCs_ChDs = 0; 
-  fImpD_MSp_SpNb = 0; 
-  fImpD_MSp_SpDs = 0;
-  fImpD_SSp_SpNb = 0; 
-  fImpD_SSp_SpDs = 0;  
+  fImpD_MSp_Samp = 0;
+  fImpD_SSp_Samp = 0;  
   fImpD_Adc_EvDs = 0;     
   fImpD_Adc_EvNb = 0;
   fImpH_Ped_Date = 0;
@@ -577,18 +895,18 @@ void TEcnaHistos::Init()
 
   //.................................... Miscellaneous parameters                (Init)
 
-  fNbOfListFileH_Ped_Date = 0;
-  fNbOfListFileH_TNo_Date = 0;
-  fNbOfListFileH_MCs_Date = 0;
-  fNbOfListFileH_LFN_Date = 0;
-  fNbOfListFileH_HFN_Date = 0;
+  fNbOfListFileH_Ped_Date     = 0;
+  fNbOfListFileH_TNo_Date    = 0;
+  fNbOfListFileH_MCs_Date  = 0;
+  fNbOfListFileH_LFN_Date    = 0;
+  fNbOfListFileH_HFN_Date   = 0;
   fNbOfListFileH_SCs_Date = 0;
 
-  fNbOfListFileH_Ped_RuDs = 0;
-  fNbOfListFileH_TNo_RuDs = 0;
-  fNbOfListFileH_MCs_RuDs = 0;
-  fNbOfListFileH_LFN_RuDs = 0;
-  fNbOfListFileH_HFN_RuDs = 0;
+  fNbOfListFileH_Ped_RuDs     = 0;
+  fNbOfListFileH_TNo_RuDs    = 0;
+  fNbOfListFileH_MCs_RuDs  = 0;
+  fNbOfListFileH_LFN_RuDs    = 0;
+  fNbOfListFileH_HFN_RuDs   = 0;
   fNbOfListFileH_SCs_RuDs = 0;
 
   fNbOfExistingRuns = 0;
@@ -624,28 +942,56 @@ void TEcnaHistos::Init()
   fFapReqNbOfEvts       = 0; // Init Requested number of events
   fFapStexNumber        = 0; // Init Stex number
 
-  //------------------ Init read file flags
-  fAlreadyRead = 1;
-  fMemoAlreadyRead = 0;
-  fTobeRead = 0;
-  fZerv    =   0;
-  fUnev    =   1;
-  TVectorD fReadHistoDummy(fUnev);
-  TMatrixD fReadMatrixDummy(fUnev, fUnev);
-
+  //------------------ Init pointer fMyRootFile
+  fMyRootFile = 0;
   //------------------ Init fAsciiFileName
   fAsciiFileName = "?";
 
 } // end of Init()
 
 //----------------------------------------------------------------------------------------
-void TEcnaHistos::SetEcalSubDetector(const TString SubDet)
+void TEcnaHistos::SetEcalSubDetector(const TString SubDet,
+				     const TEcnaParEcal*   pEcal,
+				     const TEcnaParHistos* pCnaParHistos,
+				     const TEcnaNumbering* pEcalNumbering,
+				     const TEcnaWrite*     pCnaWrite)
 {
  // Set Subdetector (EB or EE)
+
+  fEcal = 0;
+  if( pEcal == 0 )
+    {fEcal = new TEcnaParEcal(SubDet.Data()); /*fCnew++*/ ;}
+  else
+    {fEcal = (TEcnaParEcal*)pEcal;}
 
   Int_t MaxCar = fgMaxCar;
   fFlagSubDet.Resize(MaxCar);
   fFlagSubDet = fEcal->GetEcalSubDetector();      // fFlagSubDet = "EB" or "EE"
+
+  fEcalNumbering = 0;
+  if( pEcalNumbering == 0 )
+    {fEcalNumbering = new TEcnaNumbering(fFlagSubDet.Data(), fEcal); /*fCnew++*/ ;}
+  else
+    {fEcalNumbering = (TEcnaNumbering*)pEcalNumbering;}
+
+  fCnaParHistos = 0;
+  if( pCnaParHistos == 0 )
+    {fCnaParHistos = new TEcnaParHistos(fFlagSubDet.Data(), fEcal, fEcalNumbering); /* fCnew++*/ ;}
+  else
+    {fCnaParHistos = (TEcnaParHistos*)pCnaParHistos;}
+
+  fCnaWrite = 0;
+  if( pCnaWrite == 0 )
+    {fCnaWrite =
+       new TEcnaWrite(fFlagSubDet.Data(), fCnaParPaths, fCnaParCout, fEcal, fEcalNumbering);  /*fCnew++*/ ;}
+  else
+    {fCnaWrite = (TEcnaWrite*)pCnaWrite;}
+
+  //------------------- creation objet TEcnaRead fMyRootFile (a reprendre plus clairement)
+  fFileHeader = 0;
+  fMyRootFile = new TEcnaRead(fFlagSubDet.Data(), fCnaParPaths, fCnaParCout,
+			      fFileHeader, fEcalNumbering, fCnaWrite);           fCnew++;
+  fMyRootFile->PrintNoComment();
 
   //.................................. Init specific EB/EE parameters ( SetEcalSubDetector(...) )
   MaxCar = fgMaxCar;
@@ -655,9 +1001,6 @@ void TEcnaHistos::SetEcalSubDetector(const TString SubDet)
   fFapStinName.Resize(MaxCar);
   fFapStinName = "no info for Stin";
   MaxCar = fgMaxCar;
-  fFapXtalName.Resize(MaxCar);
-  fFapXtalName = "no info for Xtal";
-  MaxCar = fgMaxCar;
   fFapEchaName.Resize(MaxCar);
   fFapEchaName = "no info for Echa";
 
@@ -665,8 +1008,7 @@ void TEcnaHistos::SetEcalSubDetector(const TString SubDet)
     {
       fFapStexName   = "SM";
       fFapStinName   = "Tower";
-      fFapXtalName   = "Xtal";
-      fFapEchaName   = "Chan";
+      fFapEchaName   = "Xtal";
       fFapStexBarrel = fEcalNumbering->GetSMHalfBarrel(fFapStexNumber);
     }
 
@@ -674,94 +1016,20 @@ void TEcnaHistos::SetEcalSubDetector(const TString SubDet)
     {
       fFapStexName     = "Dee";
       fFapStinName     = "SC";
-      fFapXtalName     = "Xtal";
-      fFapEchaName     = "Chan";
+      fFapEchaName     = "Xtal";
       fFapStexType     = fEcalNumbering->GetEEDeeType(fFapStexNumber);
       fFapStexDir      = "right";
       fFapStinQuadType = "top";
     }
 
-  //........................ init code plot type                     (SetEcalSubDetector)
-  MaxCar = fgMaxCar;
-  fOnlyOnePlot.Resize(MaxCar);
-  fOnlyOnePlot = fCnaParHistos->GetCodeOnlyOnePlot();  // "ONLYONE"
-
-  MaxCar = fgMaxCar;
-  fSeveralPlot.Resize(MaxCar);
-  fSeveralPlot = fCnaParHistos->GetCodeSeveralPlot();  // "SEVERAL"
-
-  MaxCar = fgMaxCar;
-  fSameOnePlot.Resize(MaxCar);
-  fSameOnePlot = fCnaParHistos->GetCodeSameOnePlot();  // "SAME n";
-
-  MaxCar = fgMaxCar;
-  fAllXtalsInStinPlot.Resize(MaxCar);
-  fAllXtalsInStinPlot = fCnaParHistos->GetCodeAllXtalsInStinPlot();  // "SAME in Stin";
-
-  fPlotAllXtalsInStin = fCnaParHistos->GetCodePlotAllXtalsInStin();  //  0
-
 } // ---------------- end of  SetEcalSubDetector(...) ----------------
 
-//--------------------------------------------------------------------------------------------
-//
-//          FileParameters(s)(...) 
-//
-//--------------------------------------------------------------------------------------------
-
-//===> DON'T SUPPRESS: THESE METHODS ARE CALLED BY TEcnaGui and can be called by any other program
-void TEcnaHistos::FileParameters(const TString xArgAnaType,          const Int_t&  xArgNbOfSamples, 
-				 const Int_t&  xArgRunNumber,        const Int_t&  xArgFirstReqEvtNumber,
-				 const Int_t&  xArgLastReqEvtNumber, const Int_t&  xArgReqNbOfEvts, 
-				 const Int_t&  xArgStexNumber)
-{
-// Set parameters for reading the right ECNA results file
-
-  fFapAnaType           = xArgAnaType;
-  fFapNbOfSamples       = xArgNbOfSamples;
-  fFapRunNumber         = xArgRunNumber;
-  fFapFirstReqEvtNumber = xArgFirstReqEvtNumber;
-  fFapLastReqEvtNumber  = xArgLastReqEvtNumber;
-  fFapReqNbOfEvts       = xArgReqNbOfEvts;
-  fFapStexNumber        = xArgStexNumber;
-
-  InitSpecParBeforeFileReading();   // SpecPar = Special Parameters (dates, times, run types)
-}
-
-void TEcnaHistos::FileParameters(TEcnaRead* MyRootFile)
-{
-// Set parameters for reading the right ECNA results file
-
-  InitSpecParBeforeFileReading();   // SpecPar = Special Parameters (dates, times, run types)
-
-  //............... Filename parameter values
-  fFapAnaType           = MyRootFile->GetAnalysisName();
-  fFapNbOfSamples       = MyRootFile->GetNbOfSamples();
-  fFapRunNumber         = MyRootFile->GetRunNumber();
-  fFapFirstReqEvtNumber = MyRootFile->GetFirstReqEvtNumber();
-  fFapLastReqEvtNumber  = MyRootFile->GetLastReqEvtNumber();
-  fFapReqNbOfEvts       = MyRootFile->GetReqNbOfEvts();
-  fFapStexNumber        = MyRootFile->GetStexNumber();
-
-  //............... parameter values from file contents
-  fStartDate = MyRootFile->GetStartDate();
-  fStopDate  = MyRootFile->GetStopDate();
-  fRunType   = MyRootFile->GetRunType();
-
-  fFapNbOfEvts = MyRootFile->GetNumberOfEvents(fFapReqNbOfEvts);
-}
-
 //=============================================================================================
-//                 Set general title
+//
 //                 Set lin or log scale on X or Y axis
-//                 Set color palette
-//                 Set start and stop date
-//                 Set run type
+//                 Set Color Palette
+//
 //=============================================================================================
-//............................................................................................ 
-void TEcnaHistos::GeneralTitle(const TString title)
-{
-  fFlagGeneralTitle = title.Data();
-}
 void TEcnaHistos::SetHistoScaleX(const TString  option_scale)
 {
   fFlagScaleX = "LIN";
@@ -778,670 +1046,226 @@ void TEcnaHistos::SetHistoColorPalette (const TString  option_palette)
   if ( !(option_palette == "Rainbow" || option_palette == "rainbow") ){fFlagColPal = "Black/Red/Blue";}
   if (   option_palette == "Rainbow" || option_palette == "rainbow"  ){fFlagColPal = "Rainbow";}
 }
-void TEcnaHistos::StartStopDate(const TString start_date, const TString stop_date)
+
+void TEcnaHistos::SetGeneralTitle(const TString title)
 {
-  fStartDate = start_date.Data();
-  fStopDate  = stop_date.Data();
+  fFlagGeneralTitle = title.Data();
 }
-void TEcnaHistos::RunType(const TString run_type)
-{
-  fRunType = run_type.Data();
-}
-void TEcnaHistos::NumberOfEvents(const Int_t& nb_of_evts)
-{
-  fFapNbOfEvts = nb_of_evts;
-}
+
 //====================== return status for root file and data existence
 Bool_t TEcnaHistos::StatusFileFound(){return fStatusFileFound;}
 Bool_t TEcnaHistos::StatusDataExist(){return fStatusDataExist;}
 
-//=======================================================================================
-//
-//                       ( R e a d A n d ) P l o t    (1D , 2D , History)
-//
-//=======================================================================================
-//---------------------------------------------------------------------------------------------
-// TechHistoCode list modification (06/10/09)
-//
-//    D = Detector Plot    ChNb = Channel Number
-//                         ChDs = Channel Distribution (Y projection)
-//
-//    H = History  Plot    Date = date in format YYMMJJ hhmmss
-//                         RuDs = Run distribution
-//
-//      old code             new code    std code X  std code Y   (std = standard)
-//                     
-// *  1 H1NbOfEvtsGlobal     D_NOE_ChNb   Xtal        NOE            NOE = Number Of Events
-// *  2 H1NbOfEvtsProj       D_NOE_ChDs   NOE         NOX            NOX = Number Of Xtals
-// *  3 H1EvEvGlobal         D_Ped_ChNb   Xtal        Ped            Ped = Pedestal
-// *  4 H1EvEvProj           D_Ped_ChDs   Ped         NOX
-// *  5 H1EvSigGlobal        D_TNo_ChNb   Xtal        TNo            TNo = Total Noise
-// *  6 H1EvSigProj          D_TNo_ChDs   TNo         NOX
-// *  7 H1SigEvGlobal        D_LFN_ChNb   Xtal        LFN            LFN = Low Frequency noise
-// *  8 H1SigEvProj          D_LFN_ChDs   LFN         NOX
-// *  9 H1SigSigGlobal       D_HFN_ChNb   Xtal        HFN            HFN = High Frequency noise
-// * 10 H1SigSigProj         D_HFN_ChDs   HFN         NOX
-// * 11 H1EvCorssGlobal      D_MCs_ChNb   Xtal        MCs            MCs = Mean correlations between samples
-// * 12 H1EvCorssProj        D_MCs_ChDs   MCs         NOX
-// * 13 H1SigCorssGlobal     D_SCs_ChNb   Xtal        SCs            SCs = Sigma of the correlations between samples
-// * 14 H1SigCorssProj       D_SCs_ChDs   SCs         NOX
-// * 15 Ev                   D_MSp_SpNb   Sample      MSp            MSp = Means  of the samples
-// * 16 EvProj               D_MSp_SpDs   MSp         NOS            NOS = Number of samples
-// * 17 Sigma                D_SSp_SpNb   Sample      SSp            SSp = Sigmas of the samples
-// * 18 SigmaProj            D_SSp_SpDs   SSp         NOS 
-// * 19 SampTime             D_Adc_EvNb   Event       Adc            Adc = ADC count as a function of Event number
-// * 20 AdcProj              D_Adc_EvDs   Adc         NOE            EvDs = Event distribution
-// * 21 EvolEvEv             H_Ped_Date   Time        Ped            Time = date YY/MM/DD hh:mm:ss
-// * 22 EvolEvEvProj         H_Ped_RuDs   Ped         NOR            NOR  = Number Of Runs
-// * 23 EvolEvSig            H_TNo_Date   Time        TNo
-// * 24 EvolEvSigProj        H_TNo_RuDs   TNo         NOR
-// * 25 EvolSigEv            H_LFN_Date   Time        LFN
-// * 26 EvolSigEvProj        H_LFN_RuDs   LFN         NOR
-// * 27 EvolSigSig           H_HFN_Date   Time        HFN
-// * 28 EvolSigSigProj       H_HFN_RuDs   HFN         NOR
-// * 29 EvolEvCorss          H_MCs_Date   Time        MCs
-// * 30 EvolEvCorssProj      H_MCs_RuDs   MCs         NOR
-// * 31 EvolSigCorss         H_SCs_Date   Time        SCs
-// * 32 EvolSigCorssProj     H_SCs_RuDs   SCs         NOR
-//
-//---------------------------------------------------------------------------------------------
-
-//---------------------------------------------------------------------------------------
-//
-//                              (ReadAnd)PlotMatrix
-//
-//---------------------------------------------------------------------------------------
-//................................ Corcc[for 1 Stex] (big matrix), Cortt[for 1 Stex]
-void TEcnaHistos::PlotMatrix(const TMatrixD& read_matrix_corcc,
-			     const TString   UserCorOrCov, const TString UserBetweenWhat)
-{PlotMatrix(read_matrix_corcc, UserCorOrCov, UserBetweenWhat, "");}
-
-void TEcnaHistos::PlotMatrix(const TMatrixD& read_matrix_corcc,
-			     const TString   UserCorOrCov, const TString UserBetweenWhat,
-			     const TString   UserPlotOption)
-{
-  TString CallingMethod = "2D";
-
-  TString StandardPlotOption = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption); 
-
-  TString BetweenWhat = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserBetweenWhat);
-  TString CorOrCov = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserCorOrCov);
-  
-  if( BetweenWhat != "?" && CorOrCov != "?" )
-    {
-      if( BetweenWhat == "MttLF" ||  BetweenWhat == "MttHF" )
-	{
-	  fAlreadyRead = 1;
-	  ViewMatrix(read_matrix_corcc, fAlreadyRead,
-		     fZerv, fZerv, fZerv, CorOrCov, BetweenWhat, StandardPlotOption); 
-	}
-      if( BetweenWhat == "MccLF" ){StexHocoVecoLHFCorcc("LF");} // forced to Read file and Plot
-      if( BetweenWhat == "MccHF" ){StexHocoVecoLHFCorcc("HF");} // forced to Read file and Plot
-    }
-  else
-    {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      cout << "!TEcnaHistos::PlotMatrix(...)> Histo cannot be reached." << fTTBELL << endl;}
-}
-
-void TEcnaHistos::PlotMatrix(const TString UserCorOrCov, const TString UserBetweenWhat)
-{PlotMatrix(UserCorOrCov, UserBetweenWhat, "");}
-
-void TEcnaHistos::PlotMatrix(const TString UserCorOrCov, const TString UserBetweenWhat,
-			     const TString UserPlotOption)
-{
-  TString CallingMethod = "2D";
-
-  TString StandardPlotOption = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption); 
-
-  TString BetweenWhat = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserBetweenWhat);
-  TString CorOrCov = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserCorOrCov);
-
-  if( BetweenWhat != "?" && CorOrCov != "?" )
-    {
-      if( BetweenWhat == "MttLF" ||  BetweenWhat == "MttHF" )
-	{
-	  ViewMatrix(fReadMatrixDummy, fTobeRead,
-		     fZerv, fZerv, fZerv, CorOrCov, BetweenWhat, StandardPlotOption);
-	}
-      if( BetweenWhat == "MccLF" ){StexHocoVecoLHFCorcc("LF");} // Plot  only
-      if( BetweenWhat == "MccHF" ){StexHocoVecoLHFCorcc("HF");} // Plot  only
-    }
-  else
-    {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      cout << "!TEcnaHistos::PlotMatrix(...)> Histo cannot be reached." << fTTBELL << endl;}
-}
-
-//....................................... Corcc for channels (cStexStin_A, cStexStin_B)
-//                                        Corss, Covss for one channel (-> i0StinEcha)
-void TEcnaHistos::PlotMatrix(const TMatrixD& read_matrix,
-			     const TString   UserCorOrCov, const TString UserBetweenWhat,
-			     const Int_t&    arg_n1,       const Int_t& arg_n2)
-{PlotMatrix(read_matrix, UserCorOrCov, UserBetweenWhat, arg_n1, arg_n2, "");}
-
-void TEcnaHistos::PlotMatrix(const TMatrixD& read_matrix,
-			     const TString   UserCorOrCov, const TString UserBetweenWhat,
-			     const Int_t&    arg_n1,       const Int_t& arg_n2,
-			     const TString   UserPlotOption)
-{
-  TString CallingMethod = "2D";
-
-  TString StandardPlotOption = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption); 
-
-  TString BetweenWhat = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserBetweenWhat);
-  TString CorOrCov    = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserCorOrCov);
-
-  if( BetweenWhat != "?" && CorOrCov != "?" )
-    {
-      if( BetweenWhat == "MccLF" || BetweenWhat == "MccHF" )
-	{
-	  Int_t cStexStin_A = arg_n1;
-	  Int_t cStexStin_B = arg_n2;
-	  fAlreadyRead = 1;
-	  ViewMatrix(read_matrix, fAlreadyRead,
-		     cStexStin_A, cStexStin_B, fZerv, CorOrCov, BetweenWhat, StandardPlotOption); 
-	}
-      
-      if( BetweenWhat == "Mss" )
-	{
-	  Int_t n1StexStin = arg_n1;
-	  Int_t i0StinEcha = arg_n2; 
-	  if( fFlagSubDet == "EE" ){n1StexStin = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, arg_n1);}
-	  fAlreadyRead = 1;
-	  ViewMatrix(read_matrix, fAlreadyRead,
-		     n1StexStin, fZerv,  i0StinEcha, CorOrCov, BetweenWhat, StandardPlotOption); 
-	}
-    }
-  else
-    {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      cout << "!TEcnaHistos::PlotMatrix(...)> Histo cannot be reached." << fTTBELL << endl;}
-}
-
-void TEcnaHistos::PlotMatrix(const TString UserCorOrCov, const TString UserBetweenWhat,
-			     const Int_t&  arg_n1,       const Int_t&  arg_n2)
-{PlotMatrix(UserCorOrCov, UserBetweenWhat, arg_n1, arg_n2, "");}
-
-void TEcnaHistos::PlotMatrix(const TString UserCorOrCov, const TString UserBetweenWhat,
-			     const Int_t&  arg_n1,       const Int_t&  arg_n2,
-			     const TString UserPlotOption)
-{
-  TString CallingMethod = "2D";
-
-  TString StandardPlotOption = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption); 
-
-  TString StandardBetweenWhat = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserBetweenWhat);
-  TString StandardCorOrCov = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserCorOrCov);
-
-  if( StandardBetweenWhat != "?" && StandardCorOrCov != "?" )
-    {
-      if( StandardBetweenWhat == "MccLF" ||  StandardBetweenWhat == "MccHF" )
-	{
-	  Int_t cStexStin_A = arg_n1;
-	  Int_t cStexStin_B = arg_n2;
-	  ViewMatrix(fReadMatrixDummy, fTobeRead,
-		     cStexStin_A, cStexStin_B, fZerv, StandardCorOrCov, StandardBetweenWhat, StandardPlotOption); 
-	}
-      
-      if( StandardBetweenWhat == "Mss" )
-	{
-	  Int_t n1StexStin = arg_n1;
-	  Int_t i0StinEcha = arg_n2;
-	  if( fFlagSubDet == "EE" ){n1StexStin = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, arg_n1);}
-	  
-	  ViewMatrix(fReadMatrixDummy,  fTobeRead,
-		     n1StexStin, fZerv, i0StinEcha, StandardCorOrCov, StandardBetweenWhat, StandardPlotOption); 
-	}
-    }
-  else
-    {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      cout << "!TEcnaHistos::PlotMatrix(...)> Histo cannot be reached." << fTTBELL << endl;}
-}
-
-//---------------------------------------------------------------------------------------
-//
-//                              (ReadAnd)PlotDetector
-//
-//---------------------------------------------------------------------------------------
-//.................................... 2D plots for Stex OR Stas
-void TEcnaHistos::PlotDetector(const TString UserHistoCode, const TString UserDetector)
-{
-  TString CallingMethod = "2DS";
-
-  TString StandardHistoCode = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserHistoCode);
-  if( StandardHistoCode != "?" )
-    {
-      TString TechHistoCode = fCnaParHistos->GetTechHistoCode(StandardHistoCode);
-      TString StandardDetectorCode = fCnaParHistos->BuildStandardDetectorCode(UserDetector);
-      if( StandardDetectorCode != "?" )
-	{
-	  //if( StandardDetectorCode == "SM" || StandardDetectorCode == "EB" )
-	  //  {fEcal->SetEcalSubDetector("EB");}
-	  //if( StandardDetectorCode == "Dee" || StandardDetectorCode == "EE" )
-	  //  {fEcal->SetEcalSubDetector("EE");}
-
-	  if( StandardDetectorCode == "SM" || StandardDetectorCode == "Dee" )
-	    {ViewStex(fReadHistoDummy, fTobeRead, TechHistoCode);}
-	  if( StandardDetectorCode == "EB" || StandardDetectorCode == "EE"  )
-	    {ViewStas(fReadHistoDummy, fTobeRead, TechHistoCode);}
-	}
-      else
-	{fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-	  cout << "!TEcnaHistos::PlotDetector(...)> Histo cannot be reached." << fTTBELL << endl;}
-    }
-  else
-    {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      cout << "!TEcnaHistos::PlotDetector(...)> Histo cannot be reached." << fTTBELL << endl;}
-}
-
-void TEcnaHistos::PlotDetector(const TVectorD& read_histo, const TString UserHistoCode, const TString UserDetector)
-{
-  TString CallingMethod = "2DS";
-
-  TString StandardHistoCode = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserHistoCode);
-  if( StandardHistoCode != "?" )
-    {
-      TString TechHistoCode = fCnaParHistos->GetTechHistoCode(StandardHistoCode);
-      TString StandardDetectorCode = fCnaParHistos->BuildStandardDetectorCode(UserDetector);
-      if( StandardDetectorCode != "?" )
-	{
-	  fAlreadyRead = 1;
-
-	  //if( StandardDetectorCode == "SM" || StandardDetectorCode == "EB" )
-	  //  {fEcal->SetEcalSubDetector("EB");}
-	  //if( StandardDetectorCode == "Dee" || StandardDetectorCode == "EE" )
-	  //  {fEcal->SetEcalSubDetector("EE");}
-
-	  if( StandardDetectorCode == "SM" || StandardDetectorCode == "Dee" )
-	    {ViewStex(read_histo, fAlreadyRead, TechHistoCode);}
-	  if( StandardDetectorCode == "EB" || StandardDetectorCode == "EE"  )
-	    {ViewStas(read_histo, fAlreadyRead, TechHistoCode);}
-	}
-      else
-	{fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-	  cout << "!TEcnaHistos::PlotDetector(...)> Histo cannot be reached." << fTTBELL << endl;}
-    }
-  else
-    {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      cout << "!TEcnaHistos::PlotDetector(...)> Histo cannot be reached." << fTTBELL << endl;}
-}
-
-//---------------------------------------------------------------------------------------
-//
-//                              (ReadAnd)Plot1DHisto
-//
-//---------------------------------------------------------------------------------------
-void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
-			      const TString   User_X_Quantity, const TString User_Y_Quantity,
-			      const TString   UserDetector)
-{Plot1DHisto(InputHisto, User_X_Quantity, User_Y_Quantity, UserDetector, "");}
-
-void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
-			      const TString   User_X_Quantity, const TString User_Y_Quantity,
-			      const TString   UserDetector,
-			      const TString   UserPlotOption)
-{
-  TString CallingMethod = "1D";
-
-  TString StandardPlotOption = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption); 
-
-  TString Standard_X_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_X_Quantity);
-  TString Standard_Y_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_Y_Quantity);
-  
-  if( Standard_X_Quantity != "?" && Standard_Y_Quantity != "?" )
-    {  
-      TString TechHistoCode = fCnaParHistos->GetTechHistoCode(Standard_X_Quantity, Standard_Y_Quantity);
-      if( fAlreadyRead > 1 ){fAlreadyRead = 1;}
-      TString StandardDetectorCode = fCnaParHistos->BuildStandardDetectorCode(UserDetector);
-      if( StandardDetectorCode != "?" )
-	{
-	  if( StandardDetectorCode == "EB" || StandardDetectorCode == "EE" ){fFapStexNumber = 0;}
-	  ViewHisto(InputHisto, fAlreadyRead, fZerv, fZerv, fZerv, TechHistoCode, StandardPlotOption);
-	}
-      else
-	{fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-	  cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << endl;}
-    }
-  else
-    {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << endl;}
-}
-
-void TEcnaHistos::Plot1DHisto(const TString User_X_Quantity, const TString User_Y_Quantity,
-			      const TString UserDetector)
-{Plot1DHisto(User_X_Quantity, User_Y_Quantity, UserDetector, "");}
-
-void TEcnaHistos::Plot1DHisto(const TString User_X_Quantity, const TString User_Y_Quantity,
-			      const TString UserDetector,    const TString UserPlotOption)
-{
-  TString CallingMethod = "1D";
-
-  TString StandardPlotOption = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption); 
-
-  TString Standard_X_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_X_Quantity);
-  TString Standard_Y_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_Y_Quantity);
-  
-  if( Standard_X_Quantity != "?" && Standard_Y_Quantity != "?" )
-    {
-      TString TechHistoCode = fCnaParHistos->GetTechHistoCode(Standard_X_Quantity, Standard_Y_Quantity);
-      TString StandardDetectorCode = fCnaParHistos->BuildStandardDetectorCode(UserDetector);
-      if( StandardDetectorCode != "?" )
-	{
-	  if( StandardDetectorCode == "EB" || StandardDetectorCode == "EE" ){fFapStexNumber = 0;}
-	  ViewHisto(fReadHistoDummy, fTobeRead, fZerv, fZerv, fZerv, TechHistoCode, StandardPlotOption);
-	}
-      else
-	{fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-	  cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << endl;}
-    }
-  else
-    {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << endl;}
-}
-
-
-
-//=> BUG SCRAM? Si on enleve la methode ci-dessous, ca passe a la compilation de test/EcnaHistosExample2.cc 
-//   (qui appelle cette methode) et ca se plante a l'execution (voir test/TEcnaHistosExample2.cc).
-#define PLUD
-#ifdef PLUD
-void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
-			      const TString   User_X_Quantity, const TString User_Y_Quantity,
-			      const Int_t&    n1StexStin)
-{Plot1DHisto(InputHisto, User_X_Quantity, User_Y_Quantity, n1StexStin, "");}
-
-void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
-			      const TString   User_X_Quantity, const TString User_Y_Quantity,
-			      const Int_t&    n1StexStin,   
-			      const TString   UserPlotOption)
-{
-  TString CallingMethod = "1DX";
-  TString StandardPlotOption = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption);
-  Int_t i0StinEcha = 0;
-  Plot1DHisto(InputHisto, User_X_Quantity, User_Y_Quantity, n1StexStin, i0StinEcha, StandardPlotOption);
-}
-#endif // PLUD
-
-void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
-			      const TString   User_X_Quantity, const TString User_Y_Quantity,
-			      const Int_t&    n1StexStin,      const Int_t&  i0StinEcha)
-{Plot1DHisto(InputHisto, User_X_Quantity, User_Y_Quantity, n1StexStin, i0StinEcha, "");}
-
-void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
-			      const TString   User_X_Quantity, const TString User_Y_Quantity,
-			      const Int_t&    n1StexStin,      const Int_t&  i0StinEcha,   
-			      const TString   UserPlotOption)
-{
-  TString CallingMethod = "1D";
-  TString StandardPlotOption  = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption); 
-  TString Standard_X_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_X_Quantity);
-  TString Standard_Y_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_Y_Quantity);
-  
-  TString TechHistoCode = fCnaParHistos->GetTechHistoCode(Standard_X_Quantity, Standard_Y_Quantity);
-  
-  if( Standard_X_Quantity != "?" && Standard_Y_Quantity != "?" )
-    {
-      fAlreadyRead = 1;
-      if( StandardPlotOption != fAllXtalsInStinPlot )
-	{
-	  ViewHisto(InputHisto, fAlreadyRead, n1StexStin, i0StinEcha, fZerv, TechHistoCode, StandardPlotOption);
-	}
-      
-      if( StandardPlotOption == fAllXtalsInStinPlot && fAlreadyRead >= 1 && fAlreadyRead <= fEcal->MaxCrysInStin() )
-	{
-	  if( Standard_X_Quantity == "Smp" && Standard_Y_Quantity == "MSp" )
-	    {XtalSamplesEv(InputHisto, fAlreadyRead, n1StexStin, i0StinEcha, StandardPlotOption);}
-	  if( Standard_X_Quantity == "MSp" && Standard_Y_Quantity == "NOS" )
-	    {EvSamplesXtals(InputHisto, fAlreadyRead, n1StexStin, i0StinEcha, StandardPlotOption);}
-	  if( Standard_X_Quantity == "Smp" && Standard_Y_Quantity == "SSp" )
-	    {XtalSamplesSigma(InputHisto, fAlreadyRead, n1StexStin, i0StinEcha, StandardPlotOption);}
-	  if( Standard_X_Quantity == "SSp" && Standard_Y_Quantity == "NOS" )
-	    {SigmaSamplesXtals(InputHisto, fAlreadyRead, n1StexStin, i0StinEcha, StandardPlotOption);}
-	}   
-    }
-  else
-    {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << endl;}
-}
-
-void TEcnaHistos::Plot1DHisto(const TString User_X_Quantity, const TString User_Y_Quantity,
-			      const Int_t&  n1StexStin,      const Int_t&  i0StinEcha)
-{Plot1DHisto(User_X_Quantity, User_Y_Quantity, n1StexStin, i0StinEcha, "");}
-
-void TEcnaHistos::Plot1DHisto(const TString User_X_Quantity, const TString User_Y_Quantity,
-			      const Int_t&  n1StexStin,      const Int_t&  i0StinEcha,
-			      const TString UserPlotOption)
-{
-  TString CallingMethod = "1D";
-  
-  TString StandardPlotOption = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption); 
-  
-  TString Standard_X_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_X_Quantity);
-  TString Standard_Y_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_Y_Quantity);
-  
-  if( Standard_X_Quantity != "?" && Standard_Y_Quantity != "?" )
-    {  
-      if( StandardPlotOption != fAllXtalsInStinPlot )
-	{
-	  TString TechHistoCode = fCnaParHistos->GetTechHistoCode(Standard_X_Quantity, Standard_Y_Quantity);
-	  ViewHisto(fReadHistoDummy, fTobeRead, n1StexStin, i0StinEcha, fZerv, TechHistoCode, StandardPlotOption);
-	}
-      if( StandardPlotOption == fAllXtalsInStinPlot && fAlreadyRead >= 1 && fAlreadyRead <= fEcal->MaxCrysInStin() )
-	{
-	  if( Standard_X_Quantity == "Smp" && Standard_Y_Quantity == "MSp" )
-	    {XtalSamplesEv(fReadHistoDummy, fTobeRead, n1StexStin, i0StinEcha, StandardPlotOption);}
-	  if( Standard_X_Quantity == "MSp" && Standard_Y_Quantity == "NOS" )
-	    {EvSamplesXtals(fReadHistoDummy, fTobeRead, n1StexStin, i0StinEcha, StandardPlotOption);}
-	  if( Standard_X_Quantity == "Smp" && Standard_Y_Quantity == "SSp" )
-	    {XtalSamplesSigma(fReadHistoDummy, fTobeRead, n1StexStin, i0StinEcha, StandardPlotOption);}
-	  if( Standard_X_Quantity == "SSp" && Standard_Y_Quantity == "NOS" )
-    	    {SigmaSamplesXtals(fReadHistoDummy, fTobeRead, n1StexStin, i0StinEcha, StandardPlotOption);}
-	}
-    }
-  else
-    {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << endl;}
-}
-
-void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
-			      const TString   User_X_Quantity, const TString User_Y_Quantity,
-			      const Int_t&    n1StexStin,      const Int_t&  i0StinEcha, const Int_t& n1Sample)
-{Plot1DHisto(InputHisto, User_X_Quantity, User_Y_Quantity, n1StexStin, i0StinEcha, n1Sample, "");}
-
-void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
-			      const TString   User_X_Quantity, const TString User_Y_Quantity,
-			      const Int_t&    n1StexStin,      const Int_t&  i0StinEcha, const Int_t& n1Sample,  
-			      const TString   UserPlotOption)
-{
-  TString CallingMethod = "1D";
-
-  TString StandardPlotOption = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption); 
-
-  TString Standard_X_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_X_Quantity);
-  TString Standard_Y_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_Y_Quantity);
-  
-  TString TechHistoCode = fCnaParHistos->GetTechHistoCode(Standard_X_Quantity, Standard_Y_Quantity);
-  
-  if( Standard_X_Quantity != "?" && Standard_Y_Quantity != "?" )
-    {
-      Int_t i0Sample = n1Sample-1;
-      fAlreadyRead = 1;
-      ViewHisto(InputHisto, fAlreadyRead, n1StexStin, i0StinEcha, i0Sample, TechHistoCode, StandardPlotOption); 
-    }
-  else
-    {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << endl;}
-}
-
-void TEcnaHistos::Plot1DHisto(const TString User_X_Quantity, const TString User_Y_Quantity,
-			      const Int_t&  n1StexStin,      const Int_t&  i0StinEcha, const Int_t& n1Sample)
-{Plot1DHisto(User_X_Quantity, User_Y_Quantity, n1StexStin, i0StinEcha, n1Sample, "");}
-
-void TEcnaHistos::Plot1DHisto(const TString User_X_Quantity, const TString User_Y_Quantity,
-			      const Int_t&  n1StexStin,      const Int_t&  i0StinEcha, const Int_t& n1Sample,
-			      const TString UserPlotOption)
-{
-  TString CallingMethod = "1D";
-
-  TString StandardPlotOption = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption); 
-
-  TString Standard_X_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_X_Quantity);
-  TString Standard_Y_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_Y_Quantity);
-  
-  Int_t i0Sample = n1Sample-1;
-  
-  if( Standard_X_Quantity != "?" && Standard_Y_Quantity != "?" )
-    {
-      TString TechHistoCode = fCnaParHistos->GetTechHistoCode(Standard_X_Quantity, Standard_Y_Quantity);
-      ViewHisto(fReadHistoDummy, fTobeRead, n1StexStin, i0StinEcha, i0Sample, TechHistoCode, StandardPlotOption);
-    }
-  else
-    {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << endl;}
-}
-
-//---------------------------------------------------------------------------------------
-//
-//                              (ReadAnd)PlotHistory
-//
-//---------------------------------------------------------------------------------------
-void TEcnaHistos::PlotHistory(const TString User_X_Quantity, const TString User_Y_Quantity,
-			      const TString list_of_run_file_name,
-			      const Int_t&  StexStin_A, const Int_t& i0StinEcha)
-{PlotHistory(User_X_Quantity, User_Y_Quantity, list_of_run_file_name, StexStin_A, i0StinEcha, "");}
-
-void TEcnaHistos::PlotHistory(const TString User_X_Quantity, const TString User_Y_Quantity,
-			      const TString list_of_run_file_name,
-			      const Int_t&  StexStin_A, const Int_t& i0StinEcha,
-			      const TString UserPlotOption)
-{
-  TString CallingMethod = "Time";
-
-  TString StandardPlotOption = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption); 
-
-  TString Standard_X_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_X_Quantity);
-  TString Standard_Y_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_Y_Quantity);
-
-  if( Standard_X_Quantity != "?" && Standard_Y_Quantity != "?" )
-    { 
-      TString TechHistoCode = fCnaParHistos->GetTechHistoCode(Standard_X_Quantity, Standard_Y_Quantity);
-      ViewHistime(list_of_run_file_name, StexStin_A, i0StinEcha, TechHistoCode, StandardPlotOption);
-    }
-  else
-    {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      cout << "!TEcnaHistos::PlotHistory(...)> Histo cannot be reached." << fTTBELL << endl;} 
-}
-
 //=============================================================================================
 //
-//                            " V I E W "    M E T H O D S
+//           View matrices
 //
 //=============================================================================================
 
+//------------------------------------------------------------------------------ Stin x Stin
+void TEcnaHistos::LowFrequencyMeanCorrelationsBetweenTowers(const TString  PlotOption)
+               {LowFrequencyMeanCorrelationsBetweenStins(PlotOption);}
+void TEcnaHistos::LowFrequencyMeanCorrelationsBetweenSCs(const TString  PlotOption)
+               {LowFrequencyMeanCorrelationsBetweenStins(PlotOption);}
+void TEcnaHistos::LowFrequencyMeanCorrelationsBetweenStins(const TString  PlotOption)
+{
+//Plot low frequency mean correlation matrix between Stins
+
+  Int_t StexStin_A = 0;
+  Int_t StexStin_B = 0;
+  Int_t MatrixBinIndex = 0;
+
+  TString MatrixProbaNature = fCorrelationMatrix;
+  TString MatrixElement = fLFBetweenStins;
+
+  ViewMatrix(StexStin_A, StexStin_B, MatrixBinIndex, MatrixProbaNature, MatrixElement, PlotOption);
+}
+
+void TEcnaHistos::HighFrequencyMeanCorrelationsBetweenTowers(const TString  PlotOption)
+               {HighFrequencyMeanCorrelationsBetweenStins(PlotOption);}
+void TEcnaHistos::HighFrequencyMeanCorrelationsBetweenSCs(const TString  PlotOption)
+               {HighFrequencyMeanCorrelationsBetweenStins(PlotOption);}
+void TEcnaHistos::HighFrequencyMeanCorrelationsBetweenStins(const TString  PlotOption)
+{
+//Plot low frequency mean correlation matrix between Stins
+
+  Int_t StexStin_A = 0;
+  Int_t StexStin_B = 0;
+  Int_t MatrixBinIndex = 0;
+
+  TString MatrixProbaNature = fCorrelationMatrix;
+  TString MatrixElement  = fHFBetweenStins;
+
+  ViewMatrix(StexStin_A, StexStin_B, MatrixBinIndex, MatrixProbaNature, MatrixElement, PlotOption);
+}
+
+//------------------------------------------------------------------------------ Crystal x Crystal
+void TEcnaHistos::LowFrequencyCorrelationsBetweenChannels(const Int_t&  aStexStin_A, const Int_t& aStexStin_B,
+							  const TString PlotOption)
+{
+  //Plot correlation matrix between crystals of two Stins (mean over samples)
+  
+  Int_t StexStin_A = aStexStin_A;
+  Int_t StexStin_B = aStexStin_B;
+  if( fFlagSubDet == "EE" )
+    {
+      StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_A);
+      StexStin_B = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_B);
+    }
+
+  Int_t   MatrixBinIndex    = 0;
+  TString MatrixProbaNature = fCorrelationMatrix;
+  TString MatrixElement     = fLFBetweenChannels;
+  ViewMatrix(StexStin_A, StexStin_B, MatrixBinIndex, MatrixProbaNature, MatrixElement, PlotOption);
+}
+
+void TEcnaHistos::LowFrequencyCovariancesBetweenChannels(const Int_t&  aStexStin_A, const Int_t& aStexStin_B,
+							 const TString PlotOption)
+{
+  //Plot covariance matrix between crystals of two Stins (mean over samples)
+
+  Int_t StexStin_A = aStexStin_A;
+  Int_t StexStin_B = aStexStin_B;
+  if( fFlagSubDet == "EE" )
+    {
+      StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_A);
+      StexStin_B = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_B);
+    }
+  
+  Int_t   MatrixBinIndex     = 0;
+  TString MatrixProbaNature  = fCovarianceMatrix;
+  TString MatrixElement      = fLFBetweenChannels;
+  ViewMatrix(StexStin_A, StexStin_B, MatrixBinIndex, MatrixProbaNature, MatrixElement, PlotOption);
+}
+
+void TEcnaHistos::HighFrequencyCorrelationsBetweenChannels(const Int_t&  aStexStin_A, const Int_t& aStexStin_B,
+							   const TString PlotOption)
+{
+  //Plot correlation matrix between crystals of two Stins (mean over samples)
+
+  Int_t StexStin_A = aStexStin_A;
+  Int_t StexStin_B = aStexStin_B;
+  if( fFlagSubDet == "EE" )
+    {
+      StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_A);
+      StexStin_B = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_B);
+    }
+  
+  Int_t   MatrixBinIndex    = 0;
+  TString MatrixProbaNature = fCorrelationMatrix;
+  TString MatrixElement     = fHFBetweenChannels;
+  ViewMatrix(StexStin_A, StexStin_B, MatrixBinIndex, MatrixProbaNature, MatrixElement, PlotOption);
+}
+
+void TEcnaHistos::HighFrequencyCovariancesBetweenChannels(const Int_t&  aStexStin_A, const Int_t& aStexStin_B,
+							  const TString PlotOption)
+{
+  //Plot covariance matrix between crystals of two Stins (mean over samples)
+
+  Int_t StexStin_A = aStexStin_A;
+  Int_t StexStin_B = aStexStin_B;
+  if( fFlagSubDet == "EE" )
+    {
+      StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_A);
+      StexStin_B = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_B);
+    }
+  
+  Int_t   MatrixBinIndex    = 0;
+  TString MatrixProbaNature = fCovarianceMatrix;
+  TString MatrixElement     = fHFBetweenChannels;
+  ViewMatrix(StexStin_A, StexStin_B, MatrixBinIndex, MatrixProbaNature, MatrixElement, PlotOption);
+}
+
+//------------------------------------------------------------------------------ Sample x Sample
+
+void TEcnaHistos::CorrelationsBetweenSamples(const Int_t&  aStexStin_A, const Int_t& i0StinEcha,
+					     const TString PlotOption)
+{
+//Plot correlation matrix between samples for a given i0StinEcha in a given StexStin
+
+  Int_t StexStin_A = aStexStin_A;
+  if( fFlagSubDet == "EE" )
+    {StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_A);}
+
+  Int_t   StexStin_B        = 0;
+  TString MatrixProbaNature = fCorrelationMatrix;
+  TString MatrixElement     = fBetweenSamples;
+
+  ViewMatrix(StexStin_A, StexStin_B, i0StinEcha, MatrixProbaNature, MatrixElement, PlotOption);
+}
+
+//.............................................................................. Covariances
+void TEcnaHistos::CovariancesBetweenSamples(const Int_t&  aStexStin_A, const Int_t& i0StinEcha,
+					    const TString PlotOption)
+{
+//Plot covariance matrix between samples for a given i0StinEcha
+
+  Int_t StexStin_A = aStexStin_A;
+  if( fFlagSubDet == "EE" )
+    {StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_A);}
+
+  Int_t   StexStin_B        = 0;
+  TString MatrixProbaNature = fCovarianceMatrix;
+  TString MatrixElement     = fBetweenSamples;
+
+  ViewMatrix(StexStin_A,  StexStin_B, i0StinEcha, MatrixProbaNature, MatrixElement, PlotOption);
+}
 //=============================================================================================================
 //
-//                                       ViewMatrix(***)
+//                                       ViewMatrix
 //     
-//     arg_read_matrix:   2D array
-//     arg_AlreadyRead:   =1 <=> use arg_read_matrix 
-//                        =0 <=> read the 2D array in this method with TEcnaRead
-//     StexStin_A:        tower  number in SM (if EB) OR SC  "ECNA" number in Dee (if EE)
-//     StexStin_B:        tower' number in SM (if EB) OR SC' "ECNA" number in Dee (if EE)
-//     MatrixBinIndex:    channel number in tower (if EB) OR in SC (if EE)
-//     CorOrCov:          flag CORRELATION/COVARIANCE
-//     BetweenWhat:       flag BETWEEN SAMPLES / BETWEEN CHANNELS / BETWEEN TOWERS / BETWEEN SCs / LF, HF, ...
-//     PlotOption:        ROOT 2D histos draw options (COLZ, LEGO, ...) + additional (ASCII)
+//      MatrixBinIndex:  = i0StinEcha if cov(s,s'), cor(s,s')
+//                       = 0          if cov(c,c'), cor(c,c'), cov(Stin,Stin'), cor(Stin,Stin')
 //
-//     MatrixBinIndex:  = i0StinEcha if cov(s,s'), cor(s,s')
-//                      = 0          if cov(c,c'), cor(c,c'), cov(Stin,Stin'), cor(Stin,Stin')
-//
-//     ViewMatrix(StexStin_A, StexStin_B, MatrixBinIndex, CorOrCov, BetweenWhat, PlotOption)
-//     ViewMatrix(StexStin_A,          0,     i0StinEcha, CorOrCov,       "Mss", PlotOption)      
+//     ViewMatrix(StexStin_A , StexStin_B, MatrixBinIndex, MatrixProbaNature, MatrixElement, PlotOption)
+//     ViewMatrix(StexStin_A ,          0, i0StinEcha    , MatrixProbaNature, MatrixElement, PlotOption)      
 //     Output:
 //     Plot of cov(s,s') or cor(s,s') matrix for i0StinEcha of StexStin_A              
 //
-//     ViewMatrix(StexStin_A, StexStin_B, MatrixBinIndex, CorOrCov, BetweenWhat, PlotOption)
-//     ViewMatrix(StexStin_A, StexStin_B,              0, CorOrCov,       "Mcc", PlotOption)
+//     ViewMatrix(StexStin_A , StexStin_B, MatrixBinIndex, MatrixProbaNature, MatrixElement, PlotOption)
+//     ViewMatrix(StexStin_A , StexStin_B, 0             , MatrixProbaNature, MatrixElement, PlotOption)
 //     Output:
-//     Plot LF-HF Corcc matrix for Stins: (StexStin_A, StexStin_B)
-//
-//     ViewMatrix(StexStin_A, StexStin_B, MatrixBinIndex, CorOrCov, BetweenWhat, PlotOption)
-//     ViewMatrix(         0,          0,              0, CorOrCov,       "Mcc", PlotOption)
-//     Output:
-//     Plot of LF-HF Corcc matrix for Stex (big matrix)
-//
-//     ViewMatrix(StexStin_A, StexStin_B, MatrixBinIndex, CorOrCov, BetweenWhat, PlotOption)
-//     ViewMatrix(         0,          0,              0, CorOrCov,       "Mtt", PlotOption)
-//     Output:
-//     Plot of LF-HF Cortt matrix
+//     Plot of (i0StinEcha of StexStin_A, i0StinEcha of StexStin_B) matrix
 //
 //=============================================================================================================
-void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_AlreadyRead,
-			     const Int_t&    StexStin_A,      const Int_t&  StexStin_B,
-			     const Int_t&    MatrixBinIndex,  const TString CorOrCov,
-			     const TString   BetweenWhat,     const TString PlotOption)
+void TEcnaHistos::ViewMatrix(const Int_t&  StexStin_A,     const Int_t&  StexStin_B,
+			     const Int_t&  MatrixBinIndex, const TString MatrixProbaNature,
+			     const TString MatrixElement,  const TString PlotOption)
 {
   //Plot correlation or covariance matrix between samples or channels or Stins
 
   if( (fFapStexNumber > 0) &&  (fFapStexNumber <= fEcal->MaxStexInStas()) )
     {
-      Bool_t OKArray = kFALSE;
-      Bool_t OKData  = kFALSE;
-      TVectorD vStin(fEcal->MaxStinEcnaInStex());
-
-      if( arg_AlreadyRead == fTobeRead )
-	{
-	  fMyRootFile->PrintNoComment();
-	  fMyRootFile->FileParameters(fFapAnaType,          fFapNbOfSamples,
-				      fFapRunNumber,        fFapFirstReqEvtNumber,
-				      fFapLastReqEvtNumber, fFapReqNbOfEvts,
-				      fFapStexNumber,       fCfgResultsRootFilePath.Data());
-	  OKArray = fMyRootFile->LookAtRootFile();
-	  if( OKArray == kTRUE )
-	    {
-	      fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts);
-	      TString fp_name_short = fMyRootFile->GetRootFileNameShort();
-	      // cout << "*TEcnaHistos::ViewMatrix(...)> Data are analyzed from file ----> "
-	      //      << fp_name_short << endl;
-	      //...................................................................... (ViewMatrix) 
-	      for(Int_t i=0; i<fEcal->MaxStinEcnaInStex(); i++){vStin(i)=(Double_t)0.;}
-	      vStin = fMyRootFile->ReadStinNumbers(fEcal->MaxStinEcnaInStex());
-
-	      fStartDate = fMyRootFile->GetStartDate();
-	      fStopDate  = fMyRootFile->GetStopDate();
-	      fRunType   = fMyRootFile->GetRunType();
-
-	      if( fMyRootFile->DataExist() == kTRUE ){OKData = kTRUE;}
-	    }
-
-	}
-      if( arg_AlreadyRead >= 1 )
-	{
-	  OKArray = kTRUE;
-	  OKData  = kTRUE;
-	  if( fFlagSubDet == "EB") 
-	    {
-	      for(Int_t i=0; i<fEcal->MaxStinEcnaInStex(); i++){vStin(i)=i;}
-	    }
-	  if( fFlagSubDet == "EE") 
-	    {
-	      for(Int_t i=0; i<fEcal->MaxStinEcnaInStex(); i++)
-		{vStin(i)= fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, (Int_t)vStin(i));}
-	    }
-	}
-
-      if ( OKArray == kTRUE )                         //  (ViewMatrix) 
+      fMyRootFile->PrintNoComment();
+      fMyRootFile->GetReadyToReadRootFile(fFapAnaType,          fFapNbOfSamples,
+					  fFapRunNumber,        fFapFirstReqEvtNumber,
+					  fFapLastReqEvtNumber, fFapReqNbOfEvts,
+					  fFapStexNumber,       fCfgResultsRootFilePath.Data());
+  
+      if ( fMyRootFile->LookAtRootFile() == kTRUE )                         //  (ViewMatrix) 
 	{
 	  fStatusFileFound = kTRUE;
+
+	  fFapNbOfEvts = GetNumberOfEvents(fMyRootFile, fFapReqNbOfEvts);
+	  TString fp_name_short = fMyRootFile->GetRootFileNameShort();
+
+	  // cout << "*TEcnaHistos::ViewMatrix(...)> Data are analyzed from file ----> "
+	  //      << fp_name_short << endl;
+	  //...................................................................... (ViewMatrix) 
+	  TVectorD  vStin(fEcal->MaxStinEcnaInStex());
+	  for(Int_t i=0; i<fEcal->MaxStinEcnaInStex(); i++){vStin(i)=(Double_t)0.;}
+	  vStin = fMyRootFile->ReadStinNumbers(fEcal->MaxStinEcnaInStex());
       
-	  if( OKData == kTRUE )
+	  if( fMyRootFile->DataExist() == kTRUE )
 	    {
 	      fStatusDataExist = kTRUE;
 
 	      Int_t Stin_X_ok = 0;
 	      Int_t Stin_Y_ok = 0;
 	  
-	      if( (BetweenWhat == fLFBetweenStins) || (BetweenWhat == fHFBetweenStins) )
+	      if( (MatrixElement == fLFBetweenStins) || (MatrixElement == fHFBetweenStins) )
 		{Stin_X_ok = 1; Stin_Y_ok = 1;}
-	      if( BetweenWhat == fBetweenSamples )
+	      if( MatrixElement == fBetweenSamples )
 		{Stin_Y_ok = 1;}
 	  
 	      for (Int_t index_Stin = 0; index_Stin < fEcal->MaxStinEcnaInStex(); index_Stin++)
@@ -1452,81 +1276,70 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 	      //................................................................. (ViewMatrix)
 	      if( Stin_X_ok == 1 && Stin_Y_ok == 1 )
 		{
+		  fStartDate = fMyRootFile->GetStartDate();
+		  fStopDate  = fMyRootFile->GetStopDate();
+		  fRunType   = fMyRootFile->GetRunType();
+
 		  Int_t MatSize      = -1; 
 		  Int_t ReadMatSize  = -1; 
 		  Int_t i0StinEcha   = -1;
 	      
 		  //-------------------------- Set values of ReadMatSize, MatSize, i0StinEcha
-		  if( BetweenWhat == fBetweenSamples )
+		  if( MatrixElement == fBetweenSamples )
 		    {ReadMatSize = fFapNbOfSamples; MatSize = fEcal->MaxSampADC(); i0StinEcha=(Int_t)MatrixBinIndex;}
 
-		  if( BetweenWhat == fLFBetweenChannels || BetweenWhat == fHFBetweenChannels )
+		  if( MatrixElement == fLFBetweenChannels || MatrixElement == fHFBetweenChannels )
 		    {ReadMatSize = fEcal->MaxCrysInStin(); MatSize = fEcal->MaxCrysInStin(); /*i0Sample=MatrixBinIndex;*/}
 
-		  if( (BetweenWhat == fLFBetweenStins) || (BetweenWhat == fHFBetweenStins) )
+		  if( (MatrixElement == fLFBetweenStins) || (MatrixElement == fHFBetweenStins) )
 		    {ReadMatSize = fEcal->MaxStinEcnaInStex(); MatSize = fEcal->MaxStinInStex();}
  
 		  //------------------------------------------------------------------------------------- (ViewMatrix)
-		  if( ( BetweenWhat == fLFBetweenStins    || BetweenWhat == fHFBetweenStins    ) ||
-		      ( BetweenWhat == fLFBetweenChannels || BetweenWhat == fHFBetweenChannels 
+		  if( ( MatrixElement == fLFBetweenStins    || MatrixElement == fHFBetweenStins    ) ||
+		      ( MatrixElement == fLFBetweenChannels || MatrixElement == fHFBetweenChannels 
 			/* && (i0Sample  >= 0) && (i0Sample  < fFapNbOfSamples ) */ ) ||
-		      ( (BetweenWhat == fBetweenSamples) && (i0StinEcha >= 0) && (i0StinEcha < fEcal->MaxCrysInStin()) ) )
+		      ( (MatrixElement == fBetweenSamples) && (i0StinEcha >= 0) && (i0StinEcha < fEcal->MaxCrysInStin()) ) )
 		    {
 		      TMatrixD read_matrix(ReadMatSize, ReadMatSize);
 		      for(Int_t i=0; i<ReadMatSize; i++)
 			{for(Int_t j=0; j<ReadMatSize; j++){read_matrix(i,j)=(Double_t)0.;}}
 		 
-		      Bool_t OKData = kFALSE;
-		      if( arg_AlreadyRead == fTobeRead )
-			{
-			  if( BetweenWhat == fBetweenSamples && CorOrCov == fCovarianceMatrix )
-			    {read_matrix =
-				fMyRootFile->ReadCovariancesBetweenSamples(StexStin_A, i0StinEcha, ReadMatSize);}
+		      if ( MatrixElement == fBetweenSamples && MatrixProbaNature == fCovarianceMatrix )
+			{read_matrix =
+			   fMyRootFile->ReadCovariancesBetweenSamples(StexStin_A, i0StinEcha, ReadMatSize);}
+		      if ( MatrixElement == fBetweenSamples && MatrixProbaNature == fCorrelationMatrix )
+			{read_matrix =
+			   fMyRootFile->ReadCorrelationsBetweenSamples(StexStin_A, i0StinEcha, ReadMatSize);}
 
-			  if( BetweenWhat == fBetweenSamples && CorOrCov == fCorrelationMatrix )
-			    {read_matrix =
-				fMyRootFile->ReadCorrelationsBetweenSamples(StexStin_A, i0StinEcha, ReadMatSize);}
-			  
-			  if( BetweenWhat == fLFBetweenChannels && CorOrCov == fCovarianceMatrix )
-			    {read_matrix =
-				fMyRootFile->ReadLowFrequencyCovariancesBetweenChannels(StexStin_A, StexStin_B, ReadMatSize);}
+		      if ( MatrixElement == fLFBetweenChannels && MatrixProbaNature == fCovarianceMatrix )
+			{read_matrix =
+			   fMyRootFile->ReadLowFrequencyCovariancesBetweenChannels(StexStin_A, StexStin_B, ReadMatSize);}
+		      if ( MatrixElement == fLFBetweenChannels && MatrixProbaNature == fCorrelationMatrix )
+			{read_matrix =
+			   fMyRootFile->ReadLowFrequencyCorrelationsBetweenChannels(StexStin_A, StexStin_B, ReadMatSize);}
 
-			  if( BetweenWhat == fLFBetweenChannels && CorOrCov == fCorrelationMatrix )
-			    {read_matrix =
-				fMyRootFile->ReadLowFrequencyCorrelationsBetweenChannels(StexStin_A, StexStin_B, ReadMatSize);}
-			  
-			  if( BetweenWhat == fHFBetweenChannels && CorOrCov == fCovarianceMatrix )
-			    {read_matrix =
-				fMyRootFile->ReadHighFrequencyCovariancesBetweenChannels(StexStin_A, StexStin_B, ReadMatSize);}
+		      if ( MatrixElement == fHFBetweenChannels && MatrixProbaNature == fCovarianceMatrix )
+			{read_matrix =
+			   fMyRootFile->ReadHighFrequencyCovariancesBetweenChannels(StexStin_A, StexStin_B, ReadMatSize);}
+		      if ( MatrixElement == fHFBetweenChannels && MatrixProbaNature == fCorrelationMatrix )
+			{read_matrix =
+			   fMyRootFile->ReadHighFrequencyCorrelationsBetweenChannels(StexStin_A, StexStin_B, ReadMatSize);}
 
-			  if( BetweenWhat == fHFBetweenChannels && CorOrCov == fCorrelationMatrix )
-			    {read_matrix =
-				fMyRootFile->ReadHighFrequencyCorrelationsBetweenChannels(StexStin_A, StexStin_B, ReadMatSize);}
-			  
-			  if( BetweenWhat == fLFBetweenStins && CorOrCov == fCorrelationMatrix )
-			    {read_matrix =
-				fMyRootFile->ReadLowFrequencyMeanCorrelationsBetweenStins(ReadMatSize);}
+		      if ( MatrixElement == fLFBetweenStins && MatrixProbaNature == fCorrelationMatrix )
+			{read_matrix =
+			   fMyRootFile->ReadLowFrequencyMeanCorrelationsBetweenStins(ReadMatSize);}
+		      if ( MatrixElement == fHFBetweenStins && MatrixProbaNature == fCorrelationMatrix )
+			{read_matrix =
+			   fMyRootFile->ReadHighFrequencyMeanCorrelationsBetweenStins(ReadMatSize);}
 
-			  if( BetweenWhat == fHFBetweenStins && CorOrCov == fCorrelationMatrix )
-			    {read_matrix =
-				fMyRootFile->ReadHighFrequencyMeanCorrelationsBetweenStins(ReadMatSize);
-			    }
-
-			  OKData = fMyRootFile->DataExist();
-			}
-		      else
-			{
-			  read_matrix = arg_read_matrix;
-			  OKData = kTRUE;
-			}
 		      //.......................................................... (ViewMatrix)
-		      if( OKData == kTRUE )
+		      if( fMyRootFile->DataExist() == kTRUE )
 			{
 			  fStatusDataExist = kTRUE;
 
 			  if( PlotOption == "ASCII" )
 			    {
-			      WriteMatrixAscii(BetweenWhat, CorOrCov, 
+			      WriteMatrixAscii(MatrixElement, MatrixProbaNature, 
 					       StexStin_A, MatrixBinIndex, ReadMatSize, read_matrix);
 			    }
 			  else
@@ -1534,38 +1347,38 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			      //......................... matrix title  (ViewMatrix)
 			      char* f_in_mat_tit = new char[fgMaxCar];               fCnew++;
 			  
-			      if( BetweenWhat == fBetweenSamples && CorOrCov == fCovarianceMatrix )
+			      if( MatrixElement == fBetweenSamples && MatrixProbaNature == fCovarianceMatrix )
 				{sprintf(f_in_mat_tit, "Covariance(Sample, Sample')");}
-			      if( BetweenWhat == fBetweenSamples && CorOrCov == fCorrelationMatrix )
+			      if( MatrixElement == fBetweenSamples && MatrixProbaNature == fCorrelationMatrix )
 				{sprintf(f_in_mat_tit, "Correlation(Sample, Sample')");}
 
 			      if(fFlagSubDet == "EB" )
 				{
-				  if( BetweenWhat == fLFBetweenStins && CorOrCov == fCorrelationMatrix )
+				  if( MatrixElement == fLFBetweenStins && MatrixProbaNature == fCorrelationMatrix )
 				    {sprintf(f_in_mat_tit,
 					     "Mean LF |Cor(Xtal,Xtal')| for each (Tower,Tower')");}
-				  if( BetweenWhat == fHFBetweenStins && CorOrCov == fCorrelationMatrix )
+				  if( MatrixElement == fHFBetweenStins && MatrixProbaNature == fCorrelationMatrix )
 				    {sprintf(f_in_mat_tit,
 					     "Mean HF |Cor(Xtal,Xtal')| for each (Tower,Tower')");}
 				}
 			      if(fFlagSubDet == "EE" )
 				{
-				  if( BetweenWhat == fLFBetweenStins && CorOrCov == fCorrelationMatrix )
+				  if( MatrixElement == fLFBetweenStins && MatrixProbaNature == fCorrelationMatrix )
 				    {sprintf(f_in_mat_tit,
 					     "Mean LF |Cor(Xtal,Xtal')| for each (SC,SC')");}
-				  if( BetweenWhat == fHFBetweenStins && CorOrCov == fCorrelationMatrix )
+				  if( MatrixElement == fHFBetweenStins && MatrixProbaNature == fCorrelationMatrix )
 				    {sprintf(f_in_mat_tit,
 					     "Mean HF |Cor(Xtal,Xtal')| for each (SC,SC')");}
 				}
 
-			      if( BetweenWhat == fLFBetweenChannels && CorOrCov == fCorrelationMatrix )
+			      if( MatrixElement == fLFBetweenChannels && MatrixProbaNature == fCorrelationMatrix )
 				{
 				  if( fFlagSubDet == "EB" )
 				    {sprintf(f_in_mat_tit, "LF Cor(Xtal,Xtal') matrix elts for (Tow,Tow')");}
 				  if( fFlagSubDet == "EE" )
 				    {sprintf(f_in_mat_tit, "LF Cor(Xtal,Xtal') matrix elts for (SC,SC')");}
 				}
-			      if( BetweenWhat == fHFBetweenChannels && CorOrCov == fCorrelationMatrix )
+			      if( MatrixElement == fHFBetweenChannels && MatrixProbaNature == fCorrelationMatrix )
 				{
 				  if( fFlagSubDet == "EB" )
 				    {sprintf(f_in_mat_tit, "HF Cor(Xtal,Xtal') matrix elts for (Tow,Tow')");}
@@ -1580,7 +1393,7 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			      char* f_in_axis_x = new char[fgMaxCar];               fCnew++;
 			      char* f_in_axis_y = new char[fgMaxCar];               fCnew++;
 			  
-			      if( BetweenWhat == fLFBetweenStins || BetweenWhat == fHFBetweenStins )
+			      if( MatrixElement == fLFBetweenStins || MatrixElement == fHFBetweenStins )
 				{
 				  if( fFlagSubDet == "EB" )
 				    {sprintf(f_in_axis_x, " %s number  ", fFapStinName.Data());}
@@ -1589,11 +1402,11 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 
 				  axis_x_var_name = f_in_axis_x; axis_y_var_name = f_in_axis_x;
 				}      
-			      if( BetweenWhat == fBetweenSamples)
+			      if( MatrixElement == fBetweenSamples)
 				{
 				  axis_x_var_name = " Sample      "; axis_y_var_name = "    Sample ";
 				}
-			      if( BetweenWhat == fLFBetweenChannels || BetweenWhat == fHFBetweenChannels ){
+			      if( MatrixElement == fLFBetweenChannels || MatrixElement == fHFBetweenChannels ){
 				sprintf(f_in_axis_x, " Crystal %s %d   ", fFapStinName.Data(), StexStin_A);
 				sprintf(f_in_axis_y, " Crystal %s %d   ", fFapStinName.Data(),StexStin_B);
 				axis_x_var_name = f_in_axis_x; axis_y_var_name = f_in_axis_y;}
@@ -1606,7 +1419,7 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			      Axis_t ysup_bid = (Axis_t)MatSize;   
 			  
 			      if( (fFlagSubDet == "EE") &&
-				  (BetweenWhat == fLFBetweenStins || BetweenWhat == fHFBetweenStins) )
+				  (MatrixElement == fLFBetweenStins || MatrixElement == fHFBetweenStins) )
 				{
 				  if( fFapStexNumber == 1 || fFapStexNumber == 3 )
 				    {
@@ -1625,26 +1438,20 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			      h_fbid0->GetXaxis()->SetTitle(axis_x_var_name);
 			      h_fbid0->GetYaxis()->SetTitle(axis_y_var_name);
 			  
-			      //------------------------------------------------  F I L L    H I S T O  (ViewMatrix)
+			      //------------------------------------------------  F I L L    H I S T O
 			      if( (fFlagSubDet == "EE") &&
-				  (BetweenWhat == fLFBetweenStins || BetweenWhat == fHFBetweenStins) )
+				  (MatrixElement == fLFBetweenStins || MatrixElement == fHFBetweenStins) )
 				{
 				  for(Int_t i = 0 ; i < ReadMatSize ; i++)
 				    {
 				      for(Int_t j = 0 ; j < ReadMatSize ; j++)
 					{
-					  Int_t ip = i+1;
 					  Double_t xi_bid =
-					    (Double_t)fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, ip);
-					  Int_t jp = j+1;
+					    (Double_t)fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, i+1);
 					  Double_t xj_bid =
-					    (Double_t)fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, jp);
+					    (Double_t)fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, j+1);
 					  if( xi_bid > 0 && xj_bid > 0 )
-					    {
-					      Int_t xi_bid_m = xi_bid-1;
-					      Int_t xj_bid_m = xj_bid-1;
-					      h_fbid0->Fill(xi_bid_m, xj_bid_m, read_matrix(i,j));
-					    }
+					    {h_fbid0->Fill(xi_bid-1, xj_bid-1, read_matrix(i,j));}
 					}
 				    }
 				}
@@ -1665,23 +1472,23 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			  
 			      //................................ Put histo min max values
 			      TString quantity_code = "D_MCs_ChNb";
-			      if ( CorOrCov == fCorrelationMatrix )
+			      if ( MatrixProbaNature == fCorrelationMatrix )
 				{
-				  if( BetweenWhat == fBetweenSamples ){quantity_code = "D_MCs_ChNb";}
+				  if( MatrixElement == fBetweenSamples ){quantity_code = "D_MCs_ChNb";}
 
-				  if( BetweenWhat == fLFBetweenChannels  ){quantity_code = "H2LFccMosMatrix";}
-				  if( BetweenWhat == fHFBetweenChannels ){quantity_code = "H2HFccMosMatrix";}
+				  if( MatrixElement == fLFBetweenChannels  ){quantity_code = "H2LFccMosMatrix";}
+				  if( MatrixElement == fHFBetweenChannels ){quantity_code = "H2HFccMosMatrix";}
 
-				  if( BetweenWhat == fLFBetweenStins  ){quantity_code = "H2LFccMosMatrix";}
-				  if( BetweenWhat == fHFBetweenStins ){quantity_code = "H2HFccMosMatrix";}
+				  if( MatrixElement == fLFBetweenStins  ){quantity_code = "H2LFccMosMatrix";}
+				  if( MatrixElement == fHFBetweenStins ){quantity_code = "H2HFccMosMatrix";}
 				}
-			      if( CorOrCov == fCovarianceMatrix ){quantity_code = "H2HFccMosMatrix";}
+			      if( MatrixProbaNature == fCovarianceMatrix ){quantity_code = "H2HFccMosMatrix";}
 			      //.......... default if flag not set to "ON"
 			      SetYminMemoFromValue(quantity_code, fCnaParHistos->GetYminDefaultValue(quantity_code));
 			      SetYmaxMemoFromValue(quantity_code, fCnaParHistos->GetYmaxDefaultValue(quantity_code));
 
 			      if( fUserHistoMin == fUserHistoMax ){fFlagUserHistoMin = "AUTO"; fFlagUserHistoMax = "AUTO";}
-			      //................................. User's min and/or max  (ViewMatrix)
+			      //................................. User's min and/or max
 			      if( fFlagUserHistoMin == "ON" )
 				{SetYminMemoFromValue(quantity_code, fUserHistoMin); fFlagUserHistoMin = "OFF";}
 			      if( fFlagUserHistoMax == "ON" )
@@ -1694,13 +1501,13 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			      //...................................... histo set ymin and ymax  (ViewMatrix)	
 			      Int_t  xFlagAutoYsupMargin = 0;
 			  
-			      if( CorOrCov == fCorrelationMatrix )
+			      if( MatrixProbaNature == fCorrelationMatrix )
 				{
-				  if(BetweenWhat == fBetweenSamples)
+				  if(MatrixElement == fBetweenSamples)
 				    {xFlagAutoYsupMargin = SetHistoFrameYminYmaxFromMemo((TH1D*)h_fbid0, "D_MCs_ChNb");}
-				  if( BetweenWhat == fLFBetweenStins  || BetweenWhat == fLFBetweenChannels  )
+				  if( MatrixElement == fLFBetweenStins  || MatrixElement == fLFBetweenChannels  )
 				    {xFlagAutoYsupMargin = SetHistoFrameYminYmaxFromMemo((TH1D*)h_fbid0, "H2LFccMosMatrix");}
-				  if( BetweenWhat == fHFBetweenStins || BetweenWhat == fHFBetweenChannels )
+				  if( MatrixElement == fHFBetweenStins || MatrixElement == fHFBetweenChannels )
 				    {xFlagAutoYsupMargin = SetHistoFrameYminYmaxFromMemo((TH1D*)h_fbid0, "H2HFccMosMatrix");}
 				  //************************** A GARDER EN RESERVE ******************************
 				  //............. special contour level for correlations (square root wise scale)
@@ -1711,20 +1518,22 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 				  // delete [] cont_niv;                                  fCdelete++;
 				  //******************************** (FIN RESERVE) ****************************** 
 				}
-			      if( CorOrCov == fCovarianceMatrix )
+			      if( MatrixProbaNature == fCovarianceMatrix )
 				{
-				  if (BetweenWhat == fBetweenSamples)
+				  if (MatrixElement == fBetweenSamples)
 				    {SetYminMemoFromPreviousMemo("D_TNo_ChNb");   // covariance => same level as sigmas
 				    SetYmaxMemoFromPreviousMemo("D_TNo_ChNb");
 				    xFlagAutoYsupMargin = SetHistoFrameYminYmaxFromMemo((TH1D*)h_fbid0, "D_TNo_ChNb");}
-				  if ( BetweenWhat == fLFBetweenStins || BetweenWhat == fHFBetweenStins ||
-				       BetweenWhat == fLFBetweenChannels || BetweenWhat == fHFBetweenChannels )
+				  if ( MatrixElement == fLFBetweenStins || MatrixElement == fHFBetweenStins ||
+				       MatrixElement == fLFBetweenChannels || MatrixElement == fHFBetweenChannels )
 				    {xFlagAutoYsupMargin = SetHistoFrameYminYmaxFromMemo((TH1D*)h_fbid0, "H2HFccMosMatrix");}
 				}
 			  
 			      // ----------------------------------------------- P L O T S  (ViewMatrix)
 			      char* f_in = new char[fgMaxCar];          fCnew++;
+			  
 			      //...................... Taille/format canvas
+			  
 			      UInt_t canv_w = fCnaParHistos->CanvasFormatW("petit");
 			      UInt_t canv_h = fCnaParHistos->CanvasFormatH("petit");
 			  
@@ -1747,13 +1556,13 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			      if( fFlagSubDet == "EB" )
 				{
 				  fFapStexBarrel = fEcalNumbering->GetSMHalfBarrel(fFapStexNumber);
-				  SetAllPavesViewMatrix(BetweenWhat.Data(), StexStin_A, StexStin_B, i0StinEcha);
+				  SetAllPavesViewMatrix(MatrixElement.Data(), StexStin_A, StexStin_B, i0StinEcha);
 				}
 			      if( fFlagSubDet == "EE" )
 				{
 				  fFapStexType = fEcalNumbering->GetEEDeeType(fFapStexNumber);
 				  fFapStinQuadType = fEcalNumbering->GetSCQuadFrom1DeeSCEcna(StexStin_A);
-				  SetAllPavesViewMatrix(BetweenWhat.Data(), StexStin_A, StexStin_B, i0StinEcha);
+				  SetAllPavesViewMatrix(MatrixElement.Data(), StexStin_A, StexStin_B, i0StinEcha);
 				}
 
 			      //---------------------------------------- Canvas name (ViewMatrix)
@@ -1761,21 +1570,21 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			      MaxCar = fgMaxCar;
 			      name_cov_cor.Resize(MaxCar);
 			      name_cov_cor = "?";
-			      if( CorOrCov == fCovarianceMatrix){name_cov_cor = "Covariance";}
-			      if( CorOrCov == fCorrelationMatrix){name_cov_cor = "Correlation";}
+			      if( MatrixProbaNature == fCovarianceMatrix){name_cov_cor = "Covariance";}
+			      if( MatrixProbaNature == fCorrelationMatrix){name_cov_cor = "Correlation";}
 			  
 			      TString name_chan_samp;
 			      MaxCar = fgMaxCar;
 			      name_chan_samp.Resize(MaxCar);
 			      name_chan_samp = "?";
 			  
-			      if( BetweenWhat == fLFBetweenStins ){name_chan_samp = "LFccMos";}
-			      if( BetweenWhat == fHFBetweenStins ){name_chan_samp = "HFccMos"; }
+			      if( MatrixElement == fLFBetweenStins ){name_chan_samp = "LFccMos";}
+			      if( MatrixElement == fHFBetweenStins ){name_chan_samp = "HFccMos"; }
 
-			      if( BetweenWhat == fLFBetweenChannels ){name_chan_samp = "LF_cc";}
-			      if( BetweenWhat == fHFBetweenChannels ){name_chan_samp = "HF_cc";}
+			      if( MatrixElement == fLFBetweenChannels ){name_chan_samp = "LF_cc";}
+			      if( MatrixElement == fHFBetweenChannels ){name_chan_samp = "HF_cc";}
 		
-			      if(BetweenWhat == fBetweenSamples)
+			      if(MatrixElement == fBetweenSamples)
 				{
 				  name_chan_samp = "Between_Samples";  // MatrixBinIndex = i0StinEcha
 				}
@@ -1787,7 +1596,7 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			  
 			      name_visu = PlotOption;
 			  
-			      if( (BetweenWhat == fLFBetweenStins) || (BetweenWhat == fHFBetweenStins) ){
+			      if( (MatrixElement == fLFBetweenStins) || (MatrixElement == fHFBetweenStins) ){
 				sprintf(f_in, "%s_%s_%s_S1_%d_R%d_%d_%d_%s%d_%s",
 					name_cov_cor.Data(), name_chan_samp.Data(),
 					fFapAnaType.Data(), fFapNbOfSamples, fFapRunNumber,
@@ -1795,7 +1604,7 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 					fFapStexName.Data(), fFapStexNumber,
 					name_visu.Data());}
 
-			      if( BetweenWhat == fLFBetweenChannels || BetweenWhat == fHFBetweenChannels ){
+			      if( MatrixElement == fLFBetweenChannels || MatrixElement == fHFBetweenChannels ){
 				sprintf(f_in, "%s_%s_%s_S1_%d_R%d_%d_%d_%s%d_%sX%d_%sY%d_%s",
 					name_cov_cor.Data(), name_chan_samp.Data(),
 					fFapAnaType.Data(), fFapNbOfSamples, fFapRunNumber,
@@ -1804,7 +1613,7 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 					fFapStexName.Data(), StexStin_A, fFapStexName.Data(), StexStin_B,
 					name_visu.Data());}
 			  			  
-			      if( BetweenWhat == fBetweenSamples ){
+			      if( MatrixElement == fBetweenSamples ){
 				sprintf(f_in, "%s_%s_%s_S1_%d_R%d_%d_%d_%s%d_%sX%d_%sY%d_ElecChannel_%d_%s",
 					name_cov_cor.Data(), name_chan_samp.Data(),
 					fFapAnaType.Data(), fFapNbOfSamples, fFapRunNumber,
@@ -1829,9 +1638,9 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			      if( fPavComGeneralTitle != 0 ){fPavComGeneralTitle->Draw();}
 			      fPavComStex->Draw();
 
-			      if(BetweenWhat == fLFBetweenChannels || BetweenWhat == fHFBetweenChannels)
+			      if(MatrixElement == fLFBetweenChannels || MatrixElement == fHFBetweenChannels)
 				{fPavComStin->Draw();}
-			      if(BetweenWhat == fBetweenSamples)
+			      if(MatrixElement == fBetweenSamples)
 				{fPavComStin->Draw(); fPavComXtal->Draw();}
 
 			      fPavComAnaRun->Draw();
@@ -1845,8 +1654,8 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			      //----------------------------------------------------------	(ViewMatrix)      
 			      Int_t logy = 0;  
 			      gPad->SetLogy(logy);
-			      if( (BetweenWhat == fLFBetweenStins) ||
-				  (BetweenWhat == fHFBetweenStins) ){gPad->SetGrid(1,1);}
+			      if( (MatrixElement == fLFBetweenStins) ||
+				  (MatrixElement == fHFBetweenStins) ){gPad->SetGrid(1,1);}
 			      h_fbid0->DrawCopy(PlotOption);
 			      h_fbid0->SetStats((Bool_t)1);    
 			      gPad->Update();
@@ -1857,18 +1666,18 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			      delete [] f_in_axis_y;  f_in_axis_y  = 0;       fCdelete++;
 			      delete [] f_in_mat_tit; f_in_mat_tit = 0;       fCdelete++;
 			    }
-			} // end of if ( OKData == kTRUE )
+			} // end of if ( fMyRootFile->DataExist() == kTRUE )
 		      else
 			{
 			  fStatusDataExist = kFALSE;
 			}
-		    } // end of if ((BetweenWhat == fLFBetweenStins) || (BetweenWhat == fHFBetweenStins)  ) ||
-		      //( (BetweenWhat == fBetweenSamples) && (i0StinEcha>= 0) && (i0StinEcha<fEcal->MaxCrysInStin())) ||
-		      //( (BetweenWhat == fLFBetweenChannels || BetweenWhat == fHFBetweenChannels)
+		    } // end of if ((MatrixElement == fLFBetweenStins) || (MatrixElement == fHFBetweenStins)  ) ||
+		      //( (MatrixElement == fBetweenSamples) && (i0StinEcha>= 0) && (i0StinEcha<fEcal->MaxCrysInStin())) ||
+		      //( (MatrixElement == fLFBetweenChannels || MatrixElement == fHFBetweenChannels)
 	              // /* && (i0Sample  >= 0) && (i0Sample  < fFapNbOfSamples ) */ ) )
 		  else
 		    {
-		      if(BetweenWhat == fBetweenSamples)
+		      if(MatrixElement == fBetweenSamples)
 			{
 			  cout << "*TEcnaHistos::ViewMatrix(...)> *ERROR* ==> Wrong channel number in "
 			       << fFapStinName.Data() << ". Value = "
@@ -1877,7 +1686,7 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			       << fTTBELL << endl;
 			}
 
-		     // if( BetweenWhat == fLFBetweenChannels || BetweenWhat == fHFBetweenChannels )
+		     // if( MatrixElement == fLFBetweenChannels || MatrixElement == fHFBetweenChannels )
 		     //	{
 			 // cout << "*TEcnaHistos::ViewMatrix(...)> *ERROR* ==> Wrong sample index. Value = "
 			 //      << i0Sample << " (required range: [0, "
@@ -1891,69 +1700,32 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 		  //----------------------------------------------------------	(ViewMatrix)
 		  if ( Stin_X_ok != 1 )
 		    {
-		      if( fFlagSubDet == "EB") 
+		      cout << "*TEcnaHistos::ViewMatrix(...)> *ERROR* =====> "
+			   << fFapStinName.Data() << " "
+			   << fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, StexStin_A) << ", "
+			   << fFapStinName.Data() << " not found. Available numbers = ";
+		      for(Int_t i = 0; i < fEcal->MaxStinEcnaInStex(); i++)
 			{
-			  cout << "*TEcnaHistos::ViewMatrix(...)> *ERROR* =====> "
-			       << fFapStinName.Data() << " "
-			       << StexStin_A << ", "
-			       << fFapStinName.Data() << " not found. Available numbers = ";
-			  for(Int_t i = 0; i < fEcal->MaxStinEcnaInStex(); i++)
+			  if( vStin(i) > 0 )
 			    {
-			      if( vStin(i) > 0 )
-				{
-				  cout << vStin(i) << ", ";
-				}
-			    }
-			}
-
-		      if( fFlagSubDet == "EE") 
-			{
-			  cout << "*TEcnaHistos::ViewMatrix(...)> *ERROR* =====> "
-			       << fFapStinName.Data() << " "
-			       << fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, StexStin_A) << ", "
-			       << fFapStinName.Data() << " not found. Available numbers = ";
-			  for(Int_t i = 0; i < fEcal->MaxStinEcnaInStex(); i++)
-			    {
-			      if( vStin(i) > 0 )
-				{
-				  cout << fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, (Int_t)vStin(i)) << ", ";
-				}
+			      cout << fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, (Int_t)vStin(i)) << ", ";
 			    }
 			}
 		      cout << fTTBELL << endl;
 		    }
 		  if ( Stin_Y_ok != 1 )
 		    {
-
-		      if( fFlagSubDet == "EB") 
+		      cout << "*TEcnaHistos::ViewMatrix(...)> *ERROR* =====> "
+			   << fFapStinName.Data() << " "
+			   << fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, StexStin_B) << ", "
+			   << fFapStinName.Data() << " not found. Available numbers = ";
+		      for(Int_t i = 0; i < fEcal->MaxStinEcnaInStex(); i++)
 			{
-			  cout << "*TEcnaHistos::ViewMatrix(...)> *ERROR* =====> "
-			       << fFapStinName.Data() << " "
-			       << StexStin_B << ", "
-			       << fFapStinName.Data() << " not found. Available numbers = ";
-			  for(Int_t i = 0; i < fEcal->MaxStinEcnaInStex(); i++)
+			  if( vStin(i) > 0 )
 			    {
-			      if( vStin(i) > 0 )
-				{
-				  cout << vStin(i) << ", ";
-				}
+			      cout << fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, (Int_t)vStin(i)) << ", ";
 			    }
 			}
-
-		      if( fFlagSubDet == "EE") 
-			{
-			  cout << "*TEcnaHistos::ViewMatrix(...)> *ERROR* =====> "
-			       << fFapStinName.Data() << " "
-			       << fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, StexStin_B) << ", "
-			       << fFapStinName.Data() << " not found. Available numbers = ";
-			  for(Int_t i = 0; i < fEcal->MaxStinEcnaInStex(); i++)
-			    {
-			      if( vStin(i) > 0 )
-				{
-				  cout << fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, (Int_t)vStin(i)) << ", ";
-				}
-			    }
-			}     
 		      cout << fTTBELL << endl;
 		    }
 		}
@@ -1961,10 +1733,6 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 	  else
 	    {
 	      fStatusDataExist = kFALSE;
-	      cout  << "!TEcnaHistos::ViewMatrix(...)> *ERROR* =====> "
-		    << " Histo not available." << fTTBELL << endl;
-	      fFlagUserHistoMin = "OFF";
-	      fFlagUserHistoMax = "OFF";
 	    }
 	} // end of if ( fMyRootFile->LookAtRootFile() == kTRUE )
       else
@@ -1990,14 +1758,14 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 
 void TEcnaHistos::CorrelationsBetweenSamples(const Int_t& StinNumber)
 {
-  TString   CorOrCov = fCorrelationMatrix;
-  ViewStin(StinNumber, CorOrCov);
+  TString   MatrixProbaNature = fCorrelationMatrix;
+  ViewStin(StinNumber, MatrixProbaNature);
 }
 
 void TEcnaHistos::CovariancesBetweenSamples(const Int_t& StinNumber)
 {
-  TString   CorOrCov = fCovarianceMatrix;
-  ViewStin(StinNumber, CorOrCov);
+  TString   MatrixProbaNature = fCovarianceMatrix;
+  ViewStin(StinNumber, MatrixProbaNature);
 }
 
 //==========================================================================
@@ -2009,7 +1777,7 @@ void TEcnaHistos::CovariancesBetweenSamples(const Int_t& StinNumber)
 //
 //
 //==========================================================================
-void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString CorOrCov)
+void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString MatrixProbaNature)
 {
   //cor(s,s') or cov(s,s') matrices for all the crystals of one given Stin. Option COLZ mandatory.
 
@@ -2023,16 +1791,16 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString CorOrCov)
 	{StexStin = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, cStexStin);}
 
       fMyRootFile->PrintNoComment();
-      fMyRootFile->FileParameters(fFapAnaType,          fFapNbOfSamples,
-				  fFapRunNumber,        fFapFirstReqEvtNumber,
-				  fFapLastReqEvtNumber, fFapReqNbOfEvts,
-				  fFapStexNumber,       fCfgResultsRootFilePath.Data());
-      
+      fMyRootFile->GetReadyToReadRootFile(fFapAnaType,          fFapNbOfSamples,
+					  fFapRunNumber,        fFapFirstReqEvtNumber,
+					  fFapLastReqEvtNumber, fFapReqNbOfEvts,
+					  fFapStexNumber,       fCfgResultsRootFilePath.Data());
+
       if ( fMyRootFile->LookAtRootFile() == kTRUE )              //  (ViewStin)
 	{
 	  fStatusFileFound = kTRUE;
 
-	  fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts);
+	  fFapNbOfEvts = GetNumberOfEvents(fMyRootFile, fFapReqNbOfEvts);
 	  TString fp_name_short = fMyRootFile->GetRootFileNameShort(); 
 	  // cout << "*TEcnaHistos::ViewStin(...)> Data are analyzed from file ----> "
 	  //      << fp_name_short << endl;
@@ -2060,10 +1828,10 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString CorOrCov)
 		  //......................... matrix title                              (ViewStin)
 		  char* f_in_mat_tit = new char[fgMaxCar];               fCnew++;
 	      
-		  if ( CorOrCov == fCovarianceMatrix )
+		  if ( MatrixProbaNature == fCovarianceMatrix )
 		    {sprintf(f_in_mat_tit, "Xtal's Cov(s,s') matrices in %s.",
 			     fFapStinName.Data());}
-		  if ( CorOrCov == fCorrelationMatrix )
+		  if ( MatrixProbaNature == fCorrelationMatrix )
 		    {sprintf(f_in_mat_tit, "Xtal's Cor(s,s') matrices in %s.",
 			     fFapStinName.Data());}
 
@@ -2079,7 +1847,7 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString CorOrCov)
 		  //--------------------------------------------------------- (ViewStin)
 		  //............. matrices reading and histogram filling
       
-		  TH2D* h_geo_bid = new TH2D("geobidim_ViewStin", f_in_mat_tit,
+		  TH2D* h_geo_bid = new TH2D("geobidim", f_in_mat_tit,
 					     nb_binx, xinf_bid, xsup_bid,
 					     nb_biny, yinf_bid, ysup_bid);     fCnewRoot++;
 	  
@@ -2098,24 +1866,28 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString CorOrCov)
 
 		  for(Int_t n_crys = 0; n_crys < fEcal->MaxCrysInStin(); n_crys++)
 		    {
-		      if( CorOrCov == fCovarianceMatrix )
+		      if( MatrixProbaNature == fCovarianceMatrix )
 			{read_matrix = fMyRootFile->ReadCovariancesBetweenSamples(StexStin, n_crys, ReadMatSize);}
-		      if ( CorOrCov == fCorrelationMatrix )
+		      if ( MatrixProbaNature == fCorrelationMatrix )
 			{read_matrix = fMyRootFile->ReadCorrelationsBetweenSamples(StexStin, n_crys, ReadMatSize);}
 
 		      if( fMyRootFile->DataExist() == kFALSE )
 			{
 			  fStatusDataExist = kFALSE;
-			  break;   // <= if no data: exiting loop over the channels
+
+			  cout << "*TEcnaHistos::ViewStin> Exiting loop over the channels." << endl;
+			  break;
 			}
 		      else
 			{
 			  fStatusDataExist = kTRUE;
+
 			  i_data_exist++;
 
 			  for(Int_t i_samp = 0 ; i_samp < ReadMatSize ; i_samp++)
 			    {
-			      Int_t i_xgeo = GetXSampInStin(fFapStexNumber, StexStin, n_crys, i_samp);
+			      Int_t i_xgeo = GetXSampInStin(fFapStexNumber,
+							    StexStin,     n_crys, i_samp);
 			      for(Int_t j_samp = 0; j_samp < ReadMatSize ; j_samp++)
 				{
 				  Int_t j_ygeo = GetYSampInStin(fFapStexNumber,
@@ -2130,8 +1902,8 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString CorOrCov)
 		  //===========  H I S T O   M I N / M A X   M A N A G E M E N T  ========  (ViewStin)
 		  //................................ Put histo min max values
 		  TString quantity_code = "D_MCs_ChNb";
-		  if( CorOrCov == fCorrelationMatrix ){quantity_code = "D_MCs_ChNb";}
-		  if( CorOrCov == fCovarianceMatrix ){quantity_code = "H2HFccMosMatrix";}
+		  if( MatrixProbaNature == fCorrelationMatrix ){quantity_code = "D_MCs_ChNb";}
+		  if( MatrixProbaNature == fCovarianceMatrix ){quantity_code = "H2HFccMosMatrix";}
 	      
 		  //.......... default if flag not set to "ON"
 		  SetYminMemoFromValue(quantity_code, fCnaParHistos->GetYminDefaultValue(quantity_code));
@@ -2150,7 +1922,7 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString CorOrCov)
 		    {SetYmaxMemoFromValue(quantity_code, h_geo_bid->GetMaximum()); fFlagUserHistoMax = "OFF";}
 		  //...................................... histo set ymin and ymax   (ViewStin)
 		  Int_t  xFlagAutoYsupMargin = 0; 
-		  if ( CorOrCov == fCorrelationMatrix )
+		  if ( MatrixProbaNature == fCorrelationMatrix )
 		    {xFlagAutoYsupMargin = SetHistoFrameYminYmaxFromMemo((TH1D*)h_geo_bid, "D_MCs_ChNb");
 		
 		    // ************************** A GARDER EN RESERVE *******************************
@@ -2162,7 +1934,7 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString CorOrCov)
 		    //delete [] cont_niv;                                  fCdelete++;
 		    // ******************************** (FIN RESERVE) *******************************
 		    }
-		  if ( CorOrCov == fCovarianceMatrix )
+		  if ( MatrixProbaNature == fCovarianceMatrix )
 		    {xFlagAutoYsupMargin = SetHistoFrameYminYmaxFromMemo((TH1D*)h_geo_bid, "D_TNo_ChNb");}
 
 		  // =================================== P L O T S ========================  (ViewStin)
@@ -2182,8 +1954,8 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString CorOrCov)
 		      Int_t MaxCar = fgMaxCar;
 		      name_cov_cor.Resize(MaxCar);
 		      name_cov_cor = "?";
-		      if( CorOrCov == fCovarianceMatrix ){name_cov_cor = "CovSS_Matrices_in_";}
-		      if( CorOrCov == fCorrelationMatrix){name_cov_cor = "CorSS_Matrices_in_";}
+		      if( MatrixProbaNature == fCovarianceMatrix ){name_cov_cor = "CovSS_Matrices_in_";}
+		      if( MatrixProbaNature == fCorrelationMatrix){name_cov_cor = "CorSS_Matrices_in_";}
 		  
 		      TString name_visu;
 		      MaxCar = fgMaxCar;
@@ -2444,6 +2216,7 @@ void TEcnaHistos::TowerCrystalNumbering(const Int_t& SMNumber, const Int_t& n1SM
 	  Double_t ygj_hsd =  i_ygeo + 1.*off_set;
 
 	  Int_t i_crys_sme = fEcalNumbering->Get0SMEchaFrom1SMTowAnd0TowEcha(n1SMTow, i_chan);
+
 	  Int_t i_crys_sm  = fEcalNumbering->Get1SMCrysFrom1SMTowAnd0TowEcha(n1SMTow, i_chan);
 
 	  Double_t Eta = fEcalNumbering->GetEta(SMNumber, n1SMTow, i_chan);
@@ -2506,7 +2279,7 @@ void TEcnaHistos::SCCrystalNumbering(const Int_t& DeeNumber, const Int_t& n1DeeS
       fFapStexType      = fEcalNumbering->GetEEDeeType(DeeNumber);
       fFapStinQuadType  = fEcalNumbering->GetSCQuadFrom1DeeSCEcna(n1DeeSCEcna);
 
-      //Int_t MatSize  = fEcal->MaxSampADC();
+      Int_t MatSize  = fEcal->MaxSampADC();
       Int_t size_IX  = fEcal->MaxCrysIXInSC();
       Int_t size_IY  = fEcal->MaxCrysIYInSC();
 
@@ -2548,9 +2321,11 @@ void TEcnaHistos::SCCrystalNumbering(const Int_t& DeeNumber, const Int_t& n1DeeS
       fCnaParHistos->SetViewHistoStyle("Stin");
           
       //.................................... paves commentaires (SCCrystalNumbering)
+
       SetAllPavesViewStinCrysNb(DeeNumber, n1DeeSCEcna);
 
       //---------------------------------------------- (SCCrystalNumbering)
+
       //..................... Canvas name
       sprintf(f_in, "Crystal_Numbering_for_%s_X_%d_%s%d",
 	      fFapStinName.Data(), n1DeeSCEcna,  fFapStexName.Data(), DeeNumber);
@@ -2582,10 +2357,13 @@ void TEcnaHistos::SCCrystalNumbering(const Int_t& DeeNumber, const Int_t& n1DeeS
       gPad->SetLogy(logy);
   
       //............................... bidim .......... (SCCrystalNumbering)   
-      h_gbid->SetStats(b_false); 
-      fCnaParHistos->SetViewHistoOffsets((TH1D*)h_gbid, "Stin", " ");
-      h_gbid->DrawCopy("COLZ");
 
+      h_gbid->SetStats(b_false); 
+
+      fCnaParHistos->SetViewHistoOffsets((TH1D*)h_gbid, "Stin", " ");
+
+      h_gbid->DrawCopy("COLZ");
+    
       //..... Ecriture des numeros de channels dans la grille..... (SCCrystalNumbering)
       //      et des numeros Dee des cristaux
       TString SCQuadType = fEcalNumbering->GetSCQuadFrom1DeeSCEcna(n1DeeSCEcna);
@@ -2612,14 +2390,16 @@ void TEcnaHistos::SCCrystalNumbering(const Int_t& DeeNumber, const Int_t& n1DeeS
 	  Double_t xgi = i_xgeo + off_set;
 	  Double_t ygj = i_ygeo + 2*off_set;
 
+	  TString Dir = fEcalNumbering->GetDeeDirViewedFromIP(DeeNumber);
+
 	  //------------------------------------------------------- SCCrystalNumbering
-	  Int_t i_chan_p = i_chan+1;
-	  sprintf(f_in_elec, "%d", i_chan_p);   // offset = +1 (Xtal for construction numbering, CMS NOTE 2006/027)
+
+	  sprintf(f_in_elec, "%d", i_chan+1);   // offset = +1 (Xtal for construction numbering, CMS NOTE 2006/027)
 	  text_elec_num->DrawText(xgi, ygj, f_in_elec);
 	}
       text_elec_num->Delete();   text_elec_num = 0;           fCdeleteRoot++;
 
-      ViewStinGrid(DeeNumber, n1DeeSCEcna, fEcal->MaxSampADC(), size_IX, size_IY, "CrystalNumbering");
+      ViewStinGrid(DeeNumber, n1DeeSCEcna, MatSize, size_IX, size_IY, "CrystalNumbering");
 
       gPad->Update();
       h_gbid->SetStats(b_true);
@@ -3019,70 +2799,73 @@ void TEcnaHistos::ViewSCGrid(const Int_t& DeeNumber, const Int_t&  n1DeeSCEcna,
 
 //=======================================================================================
 //
-//                              ViewStex(***)     
+//                                 Stex view (StexHocoVeco)
+//
+//=======================================================================================
+void TEcnaHistos::SMEtaPhiNumberOfEvents(){StexHocoVecoNumberOfEvents();}
+void TEcnaHistos::SMEtaPhiPedestals(){StexHocoVecoPedestals();}
+void TEcnaHistos::SMEtaPhiTotalNoise(){StexHocoVecoTotalNoise();}
+void TEcnaHistos::SMEtaPhiMeanOfCorss(){StexHocoVecoMeanOfCorss();}
+void TEcnaHistos::SMEtaPhiLowFrequencyNoise(){StexHocoVecoLowFrequencyNoise();}
+void TEcnaHistos::SMEtaPhiHighFrequencyNoise(){StexHocoVecoHighFrequencyNoise();}
+void TEcnaHistos::SMEtaPhiSigmaOfCorss(){StexHocoVecoSigmaOfCorss();}
+
+void TEcnaHistos::DeeIXIYNumberOfEvents(){StexHocoVecoNumberOfEvents();}
+void TEcnaHistos::DeeIXIYPedestals(){StexHocoVecoPedestals();}
+void TEcnaHistos::DeeIXIYTotalNoise(){StexHocoVecoTotalNoise();}
+void TEcnaHistos::DeeIXIYMeanOfCorss(){StexHocoVecoMeanOfCorss();}
+void TEcnaHistos::DeeIXIYLowFrequencyNoise(){StexHocoVecoLowFrequencyNoise();}
+void TEcnaHistos::DeeIXIYHighFrequencyNoise(){StexHocoVecoHighFrequencyNoise();}
+void TEcnaHistos::DeeIXIYSigmaOfCorss(){StexHocoVecoSigmaOfCorss();}
+
+void TEcnaHistos::StexHocoVecoNumberOfEvents(){ViewStex("D_NOE_ChNb");}
+void TEcnaHistos::StexHocoVecoPedestals(){ViewStex("D_Ped_ChNb");}
+void TEcnaHistos::StexHocoVecoTotalNoise(){ViewStex("D_TNo_ChNb");}
+void TEcnaHistos::StexHocoVecoMeanOfCorss(){ViewStex("D_MCs_ChNb");}
+void TEcnaHistos::StexHocoVecoLowFrequencyNoise(){ViewStex("D_LFN_ChNb");}
+void TEcnaHistos::StexHocoVecoHighFrequencyNoise(){ViewStex("D_HFN_ChNb");}
+void TEcnaHistos::StexHocoVecoSigmaOfCorss(){ViewStex("D_SCs_ChNb");}
+//=======================================================================================
+//
+//                              ViewStex      
 //
 //           (Hoco,Veco) matrices for all the Stins of a Stex             
 //
-//     arg_read_histo:    1D array containing the quantity for each channel in the Stex
-//                        (dim = MaxCrysInStex())
-//     arg_AlreadyRead:   =1 <=> arg_read_histo 
-//                        =0 <=> read the 1D array in this method with TEcnaRead
-//     
-//      HistoCode:        code for the plotted quantity
 //
 //=======================================================================================
-void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_AlreadyRead,
-			   const TString   HistoCode)
+void TEcnaHistos::ViewStex(const TString HistoCode)
 {
 // (Hoco, Veco) matrices for all the Stins of a Stex
 
-  Bool_t OKFileExists = kFALSE;
-  Bool_t OKData  = kFALSE;
-
-  Int_t n1StexStin = -1;
-
-  if( arg_AlreadyRead == fTobeRead )
-    {
-      fMyRootFile->PrintNoComment();
-      fMyRootFile->FileParameters(fFapAnaType,          fFapNbOfSamples,
-				  fFapRunNumber,        fFapFirstReqEvtNumber,
-				  fFapLastReqEvtNumber, fFapReqNbOfEvts,
-				  fFapStexNumber,       fCfgResultsRootFilePath.Data());
-      
-      if( fMyRootFile->LookAtRootFile() == kTRUE ){OKFileExists = kTRUE;}
-
-      if( OKFileExists == kTRUE )
-	{
-	  fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts);
-	  TString fp_name_short = fMyRootFile->GetRootFileNameShort();
-	  // cout << "*TEcnaHistos::ViewStex(...)> Data are analyzed from file ----> "
-	  //      << fp_name_short << endl;
-	  
-	  fStartDate = fMyRootFile->GetStartDate();
-	  fStopDate  = fMyRootFile->GetStopDate();
-	  fRunType   = fMyRootFile->GetRunType();
-	}
-    }
-  if( arg_AlreadyRead >= 1 )
-    {
-      OKFileExists = kTRUE;
-    }
-
-  if( OKFileExists == kTRUE ) 
+  fMyRootFile->PrintNoComment();
+  fMyRootFile->GetReadyToReadRootFile(fFapAnaType,          fFapNbOfSamples,
+				      fFapRunNumber,        fFapFirstReqEvtNumber,
+				      fFapLastReqEvtNumber, fFapReqNbOfEvts,
+				      fFapStexNumber,       fCfgResultsRootFilePath.Data());
+  
+  if ( fMyRootFile->LookAtRootFile() == kTRUE )          //    (ViewStex)
     {
       fStatusFileFound = kTRUE;
 
-      //......................... matrix title    (ViewStex)
-      char* f_in_mat_tit = new char[fgMaxCar];               fCnew++;
-      sprintf(f_in_mat_tit, "?");
+      fFapNbOfEvts = GetNumberOfEvents(fMyRootFile, fFapReqNbOfEvts);
+      TString fp_name_short = fMyRootFile->GetRootFileNameShort();
+      // cout << "*TEcnaHistos::ViewStex(...)> Data are analyzed from file ----> "
+      //      << fp_name_short << endl;
 
+      fStartDate = fMyRootFile->GetStartDate();
+      fStopDate  = fMyRootFile->GetStopDate();
+      fRunType   = fMyRootFile->GetRunType();
+      
+      //......................... matrix title  
+      char* f_in_mat_tit = new char[fgMaxCar];               fCnew++;
+      
       if (HistoCode == "D_NOE_ChNb") {sprintf(f_in_mat_tit, "Number of events");}
       if (HistoCode == "D_Ped_ChNb") {sprintf(f_in_mat_tit, "Pedestals");}
-      if (HistoCode == "D_TNo_ChNb") {sprintf(f_in_mat_tit, "Total noise");}
-      if (HistoCode == "D_MCs_ChNb") {sprintf(f_in_mat_tit, "Mean cor(s,s')");}
-      if (HistoCode == "D_LFN_ChNb") {sprintf(f_in_mat_tit, "Low frequency noise");}
-      if (HistoCode == "D_HFN_ChNb") {sprintf(f_in_mat_tit, "High frequency noise");}
-      if (HistoCode == "D_SCs_ChNb") {sprintf(f_in_mat_tit, "Sigma of cor(s,s')");}
+      if (HistoCode == "D_TNo_ChNb") {sprintf(f_in_mat_tit, "Total Noise");}
+      if (HistoCode == "D_MCs_ChNb") {sprintf(f_in_mat_tit, "Mean Cor(s,s')");}
+      if (HistoCode == "D_LFN_ChNb") {sprintf(f_in_mat_tit, "Low Frequency Noise");}
+      if (HistoCode == "D_HFN_ChNb") {sprintf(f_in_mat_tit, "High Frequency Noise");}
+      if (HistoCode == "D_SCs_ChNb") {sprintf(f_in_mat_tit, "Sigma Cor(s,s')");}
       
       //................................. Axis parameters
       Int_t  GeoBidSizeHoco = fEcal->MaxStinHocoInStex()*fEcal->MaxCrysHocoInStin();
@@ -3096,69 +2879,55 @@ void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_Alre
       Axis_t ysup_bid = (Axis_t)GeoBidSizeVeco;   
       
       TString axis_x_var_name = "  #Hoco  ";
-      TString axis_y_var_name = "  #Veco  ";
-      
+      TString axis_y_var_name = "  #varVeco  ";
+
       //............. matrices reading and histogram filling   (ViewStex)
       
-      TH2D* h_geo_bid = new TH2D("geobidim_ViewStex", f_in_mat_tit,
+      TH2D* h_geo_bid = new TH2D("geobidim_Hoco_Veco", f_in_mat_tit,
 				 nb_binx, xinf_bid,  xsup_bid,
 				 nb_biny, yinf_bid,  ysup_bid);     fCnewRoot++;
 
       h_geo_bid->Reset();
 
-      //............................................... 1D histo reading  (ViewStex)
+      //............................................... matrices reading
       TVectorD partial_histp(fEcal->MaxCrysEcnaInStex());
       for(Int_t i=0; i<fEcal->MaxCrysEcnaInStex(); i++){partial_histp(i)=(Double_t)0.;}
 
-      if( arg_AlreadyRead == fTobeRead )
-	{
-	  if (HistoCode == "D_NOE_ChNb" ){partial_histp = fMyRootFile->ReadNumberOfEvents(fEcal->MaxCrysEcnaInStex());}
-	  if (HistoCode == "D_Ped_ChNb" ){
-	    partial_histp = fMyRootFile->ReadPedestals(fEcal->MaxCrysEcnaInStex());}
-	  if (HistoCode == "D_TNo_ChNb" ){
-	    partial_histp = fMyRootFile->ReadTotalNoise(fEcal->MaxCrysEcnaInStex());}
-	  if (HistoCode == "D_MCs_ChNb" ){
-	    partial_histp = fMyRootFile->ReadMeanCorrelationsBetweenSamples(fEcal->MaxCrysEcnaInStex());}
-	  if (HistoCode == "D_LFN_ChNb" ){
-	    partial_histp = fMyRootFile->ReadLowFrequencyNoise(fEcal->MaxCrysEcnaInStex());}
-	  if (HistoCode == "D_HFN_ChNb" ){
-	    partial_histp = fMyRootFile->ReadHighFrequencyNoise(fEcal->MaxCrysEcnaInStex());}
-	  if (HistoCode == "D_SCs_ChNb" ){
-	    partial_histp = fMyRootFile->ReadSigmaOfCorrelationsBetweenSamples(fEcal->MaxCrysEcnaInStex());}
-
-	  OKData = fMyRootFile->DataExist();
-	}
-
-      if( arg_AlreadyRead >= 1 )
-	{
-	  partial_histp = arg_read_histo;
-	  OKData = kTRUE;
-	}
-
-      //------------------------------- Build 2D matrix to be ploted from 1D read histo  (ViewStex)
       TMatrixD read_matrix(nb_binx, nb_biny);
       for(Int_t i=0; i<nb_binx; i++)
 	{for(Int_t j=0; j<nb_biny; j++){read_matrix(i,j)=(Double_t)0.;}}
 
-      if ( OKData == kTRUE )
+      if (HistoCode == "D_NOE_ChNb" ){
+	partial_histp = fMyRootFile->ReadNumberOfEvents(fEcal->MaxCrysEcnaInStex());}
+      if (HistoCode == "D_Ped_ChNb" ){
+	partial_histp = fMyRootFile->ReadPedestals(fEcal->MaxCrysEcnaInStex());}
+      if (HistoCode == "D_TNo_ChNb" ){
+	partial_histp = fMyRootFile->ReadTotalNoise(fEcal->MaxCrysEcnaInStex());}
+      if (HistoCode == "D_MCs_ChNb" ){
+	partial_histp = fMyRootFile->ReadMeanOfCorrelationsBetweenSamples(fEcal->MaxCrysEcnaInStex());}
+      if (HistoCode == "D_LFN_ChNb" ){
+	partial_histp = fMyRootFile->ReadLowFrequencyNoise(fEcal->MaxCrysEcnaInStex());}
+      if (HistoCode == "D_HFN_ChNb" ){
+	partial_histp = fMyRootFile->ReadHighFrequencyNoise(fEcal->MaxCrysEcnaInStex());}
+      if (HistoCode == "D_SCs_ChNb" ){
+	partial_histp = fMyRootFile->ReadSigmaOfCorrelationsBetweenSamples(fEcal->MaxCrysEcnaInStex());}
+
+      if ( fMyRootFile->DataExist() == kTRUE )
 	{
 	  fStatusDataExist = kTRUE;
 
 	  for(Int_t i0StexStinEcna=0; i0StexStinEcna<fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
 	    {
-	      if( arg_AlreadyRead == fTobeRead )	      
-		{n1StexStin = fMyRootFile->GetStexStinFromIndex(i0StexStinEcna);}
-	      if( arg_AlreadyRead >= 1 )
-		{n1StexStin = i0StexStinEcna+1;}
-
-	      if (n1StexStin != -1)
+	      Int_t StexStin = fMyRootFile->GetStexStinFromIndex(i0StexStinEcna);
+	      
+	      if (StexStin != -1)
 		{
 		  //------------------ Geographical bidim filling   (ViewStex)
 		  for(Int_t i0StinEcha=0; i0StinEcha<fEcal->MaxCrysInStin(); i0StinEcha++)
 		    {
-		      Int_t iStexEcha = (n1StexStin-1)*fEcal->MaxCrysInStin() + i0StinEcha;
-		      Int_t i_xgeo = GetXCrysInStex(fFapStexNumber, n1StexStin, i0StinEcha);
-		      Int_t i_ygeo = GetYCrysInStex(fFapStexNumber, n1StexStin, i0StinEcha);
+		      Int_t iStexEcha = (StexStin-1)*fEcal->MaxCrysInStin() + i0StinEcha;
+		      Int_t i_xgeo = GetXCrysInStex(fFapStexNumber, StexStin, i0StinEcha);
+		      Int_t i_ygeo = GetYCrysInStex(fFapStexNumber, StexStin, i0StinEcha);
 		      
 		      if(i_xgeo >=0 && i_xgeo < nb_binx && i_ygeo >=0 && i_ygeo < nb_biny)
 			{
@@ -3227,7 +2996,7 @@ void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 	  Int_t MaxCar = fgMaxCar;
 	  name_cov_cor.Resize(MaxCar);
 	  name_cov_cor = "?";
-
+	  
 	  if( HistoCode == "D_NOE_ChNb"){name_cov_cor = "Nb_Of_D_Adc_EvDs";}
 	  if( HistoCode == "D_Ped_ChNb"){name_cov_cor = "Pedestals";}
 	  if( HistoCode == "D_TNo_ChNb"){name_cov_cor = "Total_noise";}
@@ -3241,16 +3010,10 @@ void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 	  name_visu.Resize(MaxCar);
 	  name_visu = "colz";
 	  
-	  TString flag_already_read;
-	  MaxCar = fgMaxCar;
-	  flag_already_read.Resize(MaxCar);
-	  flag_already_read = "?";
-	  sprintf(f_in,"M%d", arg_AlreadyRead); flag_already_read = f_in;
-
-	  sprintf(f_in, "%s_%s_S1_%d_R%d_%d_%d_%s%d_%s_HocoVeco_R%s",
+	  sprintf(f_in, "%s_%s_S1_%d_R%d_%d_%d_%s%d_%s_HocoVeco",
 		  name_cov_cor.Data(), fFapAnaType.Data(), fFapNbOfSamples, fFapRunNumber,
 		  fFapFirstReqEvtNumber, fFapLastReqEvtNumber, fFapStexName.Data(), fFapStexNumber,
-		  name_visu.Data(), flag_already_read.Data());
+		  name_visu.Data());
 	  
 	  if( fFlagSubDet == "EB" ){SetHistoPresentation((TH1D*)h_geo_bid, "Stex2DEB");}
 	  if( fFlagSubDet == "EE" ){SetHistoPresentation((TH1D*)h_geo_bid, "Stex2DEE");}
@@ -3300,9 +3063,9 @@ void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 	  h_geo_bid->Delete();  h_geo_bid = 0;              fCdeleteRoot++;
 
 	  //      delete MainCanvas;              fCdeleteRoot++;
-	}  // end of if OKData == kTRUE )
+	}
       delete [] f_in_mat_tit;    f_in_mat_tit = 0;                        fCdelete++;
-    } // end of if OKFileExists == kTRUE )
+    } // end of if ( fMyRootFile->LookAtRootFile() == kTRUE )
   else
     {
       fStatusFileFound = kFALSE;
@@ -3314,27 +3077,32 @@ void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 
 //===========================================================================
 //
-//                       StexHocoVecoLHFCorcc(***)
-//
-//     Geographical view of the cor(c,c) matrices (mean over samples) of
-//     all (Stin_A,Stin_A) [case A=B only] of a given Stex (BIG MATRIX)
+//     StexHocoVecoLHFCorcc():
+//     Geographical view of the cor(c,c) (mean over samples) for a
+//     given Stex   (BIG MATRIX)
 //
 //===========================================================================  
+void TEcnaHistos::SMEtaPhiLowFrequencyCorcc(){StexHocoVecoLHFCorcc("LF");}
+void TEcnaHistos::SMEtaPhiHighFrequencyCorcc(){StexHocoVecoLHFCorcc("HF");}
+
+void TEcnaHistos::DeeIXIYLowFrequencyCorcc(){StexHocoVecoLHFCorcc("LF");}
+void TEcnaHistos::DeeIXIYHighFrequencyCorcc(){StexHocoVecoLHFCorcc("HF");}
+
 void TEcnaHistos::StexHocoVecoLHFCorcc(const TString Freq)
 {
 // (Hoco, Veco) matrices for all the Stins of a Stex
 
   fMyRootFile->PrintNoComment();
-  fMyRootFile->FileParameters(fFapAnaType,          fFapNbOfSamples,
-			      fFapRunNumber,        fFapFirstReqEvtNumber,
-			      fFapLastReqEvtNumber, fFapReqNbOfEvts,
-			      fFapStexNumber,       fCfgResultsRootFilePath.Data());
+  fMyRootFile->GetReadyToReadRootFile(fFapAnaType,          fFapNbOfSamples,
+				      fFapRunNumber,        fFapFirstReqEvtNumber,
+				      fFapLastReqEvtNumber, fFapReqNbOfEvts,
+				      fFapStexNumber,       fCfgResultsRootFilePath.Data());
   
   if ( fMyRootFile->LookAtRootFile() == kTRUE )                 // (StexHocoVecoLHFCorcc)
     {
       fStatusFileFound = kTRUE;
 
-      fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts);
+      fFapNbOfEvts = GetNumberOfEvents(fMyRootFile, fFapReqNbOfEvts);
       TString fp_name_short = fMyRootFile->GetRootFileNameShort(); 
       //cout << "*TEcnaHistos::StexHocoVecoLHFCorcc(...)> Data are analyzed from file ----> "
       //     << fp_name_short << endl;
@@ -3369,6 +3137,15 @@ void TEcnaHistos::StexHocoVecoLHFCorcc(const TString Freq)
       TString axis_x_var_name = "  #Hoco  ";
       TString axis_y_var_name = "  #varVeco  ";
 
+      //--------------------------------------------------------- (StexHocoVecoLHFCorcc)
+
+      //............. matrices reading and histogram filling
+      
+      TH2D* h_geo_bid = new TH2D("geobidim_Hoco_Veco", f_in_mat_tit,
+				 nb_binx, xinf_bid,  xsup_bid,
+				 nb_biny, yinf_bid,  ysup_bid);     fCnewRoot++;
+      h_geo_bid->Reset();
+
       //======================================================== (StexHocoVecoLHFCorcc)
       TVectorD Stin_numbers(fEcal->MaxStinEcnaInStex());
       for(Int_t i=0; i<fEcal->MaxStinEcnaInStex(); i++){Stin_numbers(i)=(Double_t)0.;}
@@ -3378,39 +3155,28 @@ void TEcnaHistos::StexHocoVecoLHFCorcc(const TString Freq)
 	{
 	  fStatusDataExist = kTRUE;
 
-	  //............. matrices reading and histogram filling
 	  TMatrixD partial_matrix(fEcal->MaxCrysEcnaInStex(), fEcal->MaxCrysEcnaInStex());
 	  for(Int_t i=0; i<fEcal->MaxCrysEcnaInStex(); i++)
 	    {for(Int_t j=0; j<fEcal->MaxCrysEcnaInStex(); j++){partial_matrix(i,j)=(Double_t)0.;}}
 
 	  if( Freq == "LF")
-	    {
-	      partial_matrix = fMyRootFile->ReadLowFrequencyCorrelationsBetweenChannels(fEcal->MaxCrysEcnaInStex());
-	    }
+	    {partial_matrix = fMyRootFile->ReadLowFrequencyCorrelationsBetweenChannels(fEcal->MaxCrysEcnaInStex());}
 	  if( Freq == "HF")
-	    {
-	      partial_matrix = fMyRootFile->ReadHighFrequencyCorrelationsBetweenChannels(fEcal->MaxCrysEcnaInStex());
-	    }
+	    {partial_matrix = fMyRootFile->ReadHighFrequencyCorrelationsBetweenChannels(fEcal->MaxCrysEcnaInStex());}
 
 	  if ( fMyRootFile->DataExist() == kTRUE )
 	    {
 	      fStatusDataExist = kTRUE;
-	      
-	      //............................... 2D histo booking
-	      TH2D* h_geo_bid = new TH2D("geobidim_HocoVecoLHFCorcc", f_in_mat_tit,
-					 nb_binx, xinf_bid,  xsup_bid,
-					 nb_biny, yinf_bid,  ysup_bid);     fCnewRoot++;
-	      h_geo_bid->Reset();
 
 	      fFapStexBarrel = fEcalNumbering->GetStexHalfStas(fFapStexNumber);
 	      
 	      for(Int_t i0StexStinEcna=0; i0StexStinEcna<fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
 		{
-		  Int_t n1StexStin = (Int_t)Stin_numbers(i0StexStinEcna);
-		  Int_t offset_x = ((n1StexStin-1)/fEcal->MaxStinVecoInStex())*fEcal->MaxCrysInStin();
-		  Int_t offset_y = ((n1StexStin-1)%fEcal->MaxStinVecoInStex())*fEcal->MaxCrysInStin();
+		  Int_t StexStin = (Int_t)Stin_numbers(i0StexStinEcna);
+		  Int_t offset_x = ((StexStin-1)/fEcal->MaxStinVecoInStex())*fEcal->MaxCrysInStin();
+		  Int_t offset_y = ((StexStin-1)%fEcal->MaxStinVecoInStex())*fEcal->MaxCrysInStin();
 		  
-		  if (n1StexStin != -1)
+		  if (StexStin != -1)
 		    {
 		      //================================================= (StexHocoVecoLHFCorcc)
 		      //------------------ Geographical bidim filling
@@ -3423,8 +3189,8 @@ void TEcnaHistos::StexHocoVecoLHFCorcc(const TString Freq)
 			      
 			      if(i_xgeo >=0 && i_xgeo < nb_binx && i_ygeo >=0 && i_ygeo < nb_biny)
 				{
-				  Int_t iEcha = (n1StexStin-1)*fEcal->MaxCrysInStin() + i0StinEcha;
-				  Int_t jEcha = (n1StexStin-1)*fEcal->MaxCrysInStin() + j0StinEcha;
+				  Int_t iEcha = (StexStin-1)*fEcal->MaxCrysInStin() + i0StinEcha;
+				  Int_t jEcha = (StexStin-1)*fEcal->MaxCrysInStin() + j0StinEcha;
 				  
 				  h_geo_bid->Fill((Double_t)i_xgeo, (Double_t)i_ygeo,
 						  (Double_t)partial_matrix(iEcha, jEcha));
@@ -3521,13 +3287,16 @@ void TEcnaHistos::StexHocoVecoLHFCorcc(const TString Freq)
 	      gPad->cd(1);
 	      //........................... specific EE
 	      if( fFlagSubDet == "EE" )
-		{
-		  Double_t x_up  = fCnaParHistos->BoxRightX("bottom_right_box")  + 0.005;
-		  Double_t y_up  = fCnaParHistos->BoxBottomY("top_left_box_Dee") - 0.005;
-		  TVirtualPad* main_subpad = gPad;
-		  main_subpad->SetPad(x_low, y_low, x_up, y_up);
-		}
-	      
+		{Double_t x_up  = fCnaParHistos->BoxRightX("bottom_right_box")  + 0.005;
+		Double_t y_up  = fCnaParHistos->BoxBottomY("top_left_box_Dee") - 0.005;
+		TVirtualPad* main_subpad = gPad;
+		main_subpad->SetPad(x_low, y_low, x_up, y_up);}
+
+	      // Double_t x_margin = fCnaParHistos->BoxLeftX("bottom_left_box") - 0.005;
+	      // Double_t y_margin = fCnaParHistos->BoxTopY("bottom_right_box") + 0.005; 	      
+	      // MainCanvas->Divide(1, 1, x_margin, y_margin);
+	      // gPad->cd(1);
+
 	      h_geo_bid->GetXaxis()->SetTitle(axis_x_var_name);
 	      h_geo_bid->GetYaxis()->SetTitle(axis_y_var_name);
 	      
@@ -3562,7 +3331,8 @@ void TEcnaHistos::StexHocoVecoLHFCorcc(const TString Freq)
 //                          GetXCrysInStex, GetYCrysInStex
 //
 //==================================================================================
-Int_t TEcnaHistos::GetXCrysInStex(const Int_t&  StexNumber,  const Int_t& n1StexStin,
+
+Int_t TEcnaHistos::GetXCrysInStex(const Int_t&  StexNumber,  const Int_t& StexStin,
 				  const Int_t&  i0StinEcha) 
 {
 //Gives the X crystal coordinate in the geographic view of one Stex
@@ -3572,7 +3342,7 @@ Int_t TEcnaHistos::GetXCrysInStex(const Int_t&  StexNumber,  const Int_t& n1Stex
 
   if( fFlagSubDet == "EB")
     {TString ctype = fEcalNumbering->GetStexHalfStas(StexNumber);
-    Int_t n1StexCrys = fEcalNumbering->Get1StexCrysFrom1StexStinAnd0StinEcha(n1StexStin, i0StinEcha, StexNumber);  
+    Int_t n1StexCrys = fEcalNumbering->Get1StexCrysFrom1StexStinAnd0StinEcha(StexStin, i0StinEcha, StexNumber);  
     ix_geo = (n1StexCrys-1)/fEcal->MaxCrysVecoInStex();  // ix_geo for EB+
     if( ctype == "EB-"){ix_geo = fEcal->MaxCrysHocoInStex() - ix_geo - 1;}}
 
@@ -3580,14 +3350,14 @@ Int_t TEcnaHistos::GetXCrysInStex(const Int_t&  StexNumber,  const Int_t& n1Stex
     {TString DeeDir = fEcalNumbering->GetDeeDirViewedFromIP(StexNumber);  
     ix_geo = 0;
     if( DeeDir == "right" )
-      {ix_geo = fEcalNumbering->GetIXCrysInDee(StexNumber, n1StexStin, i0StinEcha) - 1;}
+      {ix_geo = fEcalNumbering->GetIXCrysInDee(StexNumber, StexStin, i0StinEcha) - 1;}
     if( DeeDir == "left"  )
-      {ix_geo = fEcal->MaxCrysIXInDee() - fEcalNumbering->GetIXCrysInDee(StexNumber, n1StexStin, i0StinEcha);}}
+      {ix_geo = fEcal->MaxCrysIXInDee() - fEcalNumbering->GetIXCrysInDee(StexNumber, StexStin, i0StinEcha);}}
 
   return ix_geo;
 }
 
-Int_t TEcnaHistos::GetYCrysInStex(const Int_t& StexNumber, const Int_t& n1StexStin,
+Int_t TEcnaHistos::GetYCrysInStex(const Int_t& StexNumber, const Int_t& StexStin,
 				  const Int_t& j0StinEcha) 
 {
 //Gives the Y crystal coordinate in the geographic view of one Stex
@@ -3597,13 +3367,13 @@ Int_t TEcnaHistos::GetYCrysInStex(const Int_t& StexNumber, const Int_t& n1StexSt
 
   if( fFlagSubDet == "EB")
     {TString ctype    = fEcalNumbering->GetStexHalfStas(StexNumber);
-    Int_t n1StexCrys = fEcalNumbering->Get1StexCrysFrom1StexStinAnd0StinEcha(n1StexStin, j0StinEcha, StexNumber);
+    Int_t n1StexCrys = fEcalNumbering->Get1StexCrysFrom1StexStinAnd0StinEcha(StexStin, j0StinEcha, StexNumber);
     Int_t ix_geo = (n1StexCrys-1)/fEcal->MaxCrysVecoInStex();     // ix_geo for EB+
     iy_geo = n1StexCrys - 1 - ix_geo*fEcal->MaxCrysVecoInStex();  // iy_geo for EB+
     if( ctype == "EB-"){iy_geo = fEcal->MaxCrysVecoInStex() - iy_geo - 1;}}
   
   if( fFlagSubDet == "EE")
-    {iy_geo = fEcalNumbering->GetJYCrysInDee(StexNumber, n1StexStin, j0StinEcha) - 1;}
+    {iy_geo = fEcalNumbering->GetJYCrysInDee(StexNumber, StexStin, j0StinEcha) - 1;}
   
   return iy_geo;
 }
@@ -4188,7 +3958,7 @@ void TEcnaHistos::DeeSCNumbering(const Int_t& DeeNumber)
   
       h_empty_bid->DrawCopy("COL");   // il faut tracer un bidim vide pour pouvoir tracer la grille et les axes
       ViewDeeSCNumberingPad(DeeNumber);
-      gPad->Update();   // prend beaucoup de temps...
+      gPad->Update();
   
       //..................... retour aux options standard
       Bool_t b_true = 1;
@@ -4236,12 +4006,8 @@ void TEcnaHistos::ViewDeeSCNumberingPad(const Int_t&   DeeNumber)
       if( SCQuadType == "bottom" &&  DeeDir == "left" ){x_channel = 11;}  
       if( SCQuadType == "bottom" &&  DeeDir == "right"){x_channel = 17;}
       Int_t i_SCEcha = (Int_t)x_channel;
-
       Double_t x_from_IX = (Double_t)GetXCrysInStex(DeeNumber, n1DeeSCEcna, i_SCEcha);
       Double_t y_from_IY = (Double_t)GetYCrysInStex(DeeNumber, n1DeeSCEcna, i_SCEcha);
-      Double_t y_from_IYp = y_from_IY + (Double_t)1.;
-      Double_t y_from_IYm = y_from_IY - (Double_t)1.;
-
       TString DeeEndcap  = fEcalNumbering->GetEEDeeEndcap(DeeNumber);
       Color_t couleur_SC = GetSCColor(DeeEndcap, DeeDir, SCQuadType);
       text_DSSC_num->SetTextColor(couleur_SC);
@@ -4294,222 +4060,221 @@ void TEcnaHistos::ViewDeeSCNumberingPad(const Int_t&   DeeNumber)
 	      )
 	    {
 	      sprintf(f_in, "%d", i_DSSC);
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);      // <=== DrawText: prend du temps
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);      // <=== DrawText: prend du temps
 	      sprintf(f_in, "%d", i_DeeSCCons);
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in); // <=== DrawText: prend du temps
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in); // <=== DrawText: prend du temps
 	    }
 
 	  //.................................................... (D2,S9) , (D4,S1)
-
 	  if( i_DeeSCCons ==  33 && n1DeeSCEcna ==  60 )
 	    {
 	      sprintf(f_in, "30a");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "33a");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 	  if( i_DeeSCCons ==  33 && n1DeeSCEcna == 119 )
 	    {
 	      sprintf(f_in, "30b");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "33b");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 	  //.................................................... (D2,S8) , (D4,S2)
 	  if( i_DeeSCCons ==  29 && n1DeeSCEcna == 32 )
 	    {
 	      sprintf(f_in, " 3c-25c");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "29c-58c");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 	  if( i_DeeSCCons ==  29 && n1DeeSCEcna == 138 )
 	    {
 	      sprintf(f_in, "3a");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "29a");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 	  if( i_DeeSCCons ==  29 && n1DeeSCEcna == 157 )
 	    {
 	      sprintf(f_in, "3b");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "29b");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 
 	  if( i_DeeSCCons ==  58 && n1DeeSCEcna == 176 )
 	    {
 	      sprintf(f_in, "25a");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "58a");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 	  if( i_DeeSCCons ==  58 && n1DeeSCEcna == 193 )
 	    {
 	      sprintf(f_in, "25b");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "58b");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 	  //.................................................... (D2,S7) , (D4,S3)
 	  if( i_DeeSCCons == 149 && n1DeeSCEcna == 188 )
 	    {
 	      sprintf(f_in, "34a");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "149a");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 	  //.................................................... (D2,S6) , (D4,S4)
 	  if( i_DeeSCCons == 112 && n1DeeSCEcna == 29 )
 	    {
 	      sprintf(f_in, " 14a-21a");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "112a-119a");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 	  if( i_DeeSCCons == 112 && n1DeeSCEcna == 144 )
 	    {
 	      sprintf(f_in, "14c");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "112c");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 	  if( i_DeeSCCons == 112 && n1DeeSCEcna == 165 )
 	    {
 	      sprintf(f_in, "14a");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "112b");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 
 	  if( i_DeeSCCons == 119 && n1DeeSCEcna == 102 )
 	    {
 	      sprintf(f_in, "21c");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "119c");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 	  if( i_DeeSCCons == 119 && n1DeeSCEcna == 123 )
 	    {
 	      sprintf(f_in, "21b");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "119b");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 	  //.................................................... (D2,S5) , (D4,S5)
 	  if( i_DeeSCCons == 132 && n1DeeSCEcna ==  41 )
 	    {
 	      sprintf(f_in, "3a");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "132a");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 
 	  //.................................................... (D1,S1) , (D3,S9)
 	  if( i_DeeSCCons == 182 && n1DeeSCEcna ==  60 )
 	    {
 	      sprintf(f_in, "30a");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "182a");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 	  if( i_DeeSCCons == 182 && n1DeeSCEcna == 119 )
 	    {
 	      sprintf(f_in, "30b");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "182b");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 	  //.................................................... (D1,S2) , (D3,S8)
 	  if( i_DeeSCCons == 178 && n1DeeSCEcna == 32 )
 	    {
 	      sprintf(f_in, "  3c-25c");
-	      text_DSSC_num->DrawText(x_from_IX-6, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX-6, y_from_IY+1, f_in);
 	      sprintf(f_in, "178c-207c");
-	      text_DeeSCCons_num->DrawText(x_from_IX-6, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX-6, y_from_IY-1, f_in);
 	    }
 	  if( i_DeeSCCons == 178 && n1DeeSCEcna == 138 )
 	    {
 	      sprintf(f_in, "3a");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "178a");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 	  if( i_DeeSCCons == 178 && n1DeeSCEcna == 157 )
 	    {
 	      sprintf(f_in, "3b");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "178b");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 
 	  if( i_DeeSCCons == 207 && n1DeeSCEcna == 176 )
 	    {
 	      sprintf(f_in, "25a");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "207a");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 	  if( i_DeeSCCons == 207 && n1DeeSCEcna == 193 )
 	    {
 	      sprintf(f_in, "25b");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "207b");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 	  //.................................................... (D1,S3) , (D3,S7)
 	  if( i_DeeSCCons == 298 && n1DeeSCEcna == 188 )
 	    {
 	      sprintf(f_in, "34a");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "298a");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 	  //.................................................... (D1,S4) , (D3,S6)
 	  if( i_DeeSCCons == 261 && n1DeeSCEcna == 29 )
 	    {
 	      sprintf(f_in, " 14a-21a");
-	      text_DSSC_num->DrawText(x_from_IX-6, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX-6, y_from_IY+1, f_in);
 	      sprintf(f_in, "261a-268a");
-	      text_DeeSCCons_num->DrawText(x_from_IX-6, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX-6, y_from_IY-1, f_in);
 	    }
 	  if( i_DeeSCCons == 261 && n1DeeSCEcna == 144 )
 	    {
 	      sprintf(f_in, "14a");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "261c");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 	  if( i_DeeSCCons == 261 && n1DeeSCEcna == 165 )
 	    {
 	      sprintf(f_in, "14b");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "261b");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 
 	  if( i_DeeSCCons == 268 && n1DeeSCEcna == 102 )
 	    {
 	      sprintf(f_in, "21c");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "268c");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 	  if( i_DeeSCCons == 268 && n1DeeSCEcna == 123 )
 	    {
 	      sprintf(f_in, "21b");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "268b");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 	  //.................................................... (D1,S5) , (D3,S5)
 	  if( i_DeeSCCons == 281 && n1DeeSCEcna ==  41 )
 	    {
 	      sprintf(f_in, "20a");
-	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
+	      text_DSSC_num->DrawText(x_from_IX, y_from_IY+1, f_in);
 	      sprintf(f_in, "281a");
-	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
+	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IY-1, f_in);
 	    }
 	}
     }
@@ -4784,17 +4549,48 @@ TString TEcnaHistos::GetIXIYAxisTitle(const TString chcode)
 
   return xname;
 }
+//=======================================================================================
+//
+//                                 Stas view (StasHocoVeco)
+//
+//=======================================================================================
+void TEcnaHistos::EBEtaPhiAveragedNumberOfEvents(){StasHocoVecoAveragedNumberOfEvents();}
+void TEcnaHistos::EEIXIYAveragedNumberOfEvents(){StasHocoVecoAveragedNumberOfEvents();}
+void TEcnaHistos::StasHocoVecoAveragedNumberOfEvents(){ViewStas("D_NOE_ChNb");}
+
+void TEcnaHistos::EBEtaPhiAveragedPedestals(){StasHocoVecoAveragedPedestals();}
+void TEcnaHistos::EEIXIYAveragedPedestals(){StasHocoVecoAveragedPedestals();}
+void TEcnaHistos::StasHocoVecoAveragedPedestals(){ViewStas("D_Ped_ChNb");}
+
+void TEcnaHistos::EBEtaPhiAveragedTotalNoise(){StasHocoVecoAveragedTotalNoise();}
+void TEcnaHistos::EEIXIYAveragedTotalNoise(){StasHocoVecoAveragedTotalNoise();}
+void TEcnaHistos::StasHocoVecoAveragedTotalNoise(){ViewStas("D_TNo_ChNb");}
+
+void TEcnaHistos::EBEtaPhiAveragedMeanOfCorss(){StasHocoVecoAveragedMeanOfCorss();}
+void TEcnaHistos::EEIXIYAveragedMeanOfCorss(){StasHocoVecoAveragedMeanOfCorss();}
+void TEcnaHistos::StasHocoVecoAveragedMeanOfCorss(){ViewStas("D_MCs_ChNb");}
+
+void TEcnaHistos::EBEtaPhiAveragedLowFrequencyNoise(){StasHocoVecoAveragedLowFrequencyNoise();}
+void TEcnaHistos::EEIXIYAveragedLowFrequencyNoise(){StasHocoVecoAveragedLowFrequencyNoise();}
+void TEcnaHistos::StasHocoVecoAveragedLowFrequencyNoise(){ViewStas("D_LFN_ChNb");}
+
+void TEcnaHistos::EBEtaPhiAveragedHighFrequencyNoise(){StasHocoVecoAveragedHighFrequencyNoise();}
+void TEcnaHistos::EEIXIYAveragedHighFrequencyNoise(){StasHocoVecoAveragedHighFrequencyNoise();}
+void TEcnaHistos::StasHocoVecoAveragedHighFrequencyNoise(){ViewStas("D_HFN_ChNb");}
+
+void TEcnaHistos::EBEtaPhiAveragedSigmaOfCorss(){StasHocoVecoAveragedSigmaOfCorss();}
+void TEcnaHistos::EEIXIYAveragedSigmaOfCorss(){StasHocoVecoAveragedSigmaOfCorss();}
+void TEcnaHistos::StasHocoVecoAveragedSigmaOfCorss(){ViewStas("D_SCs_ChNb");}
 
 //=======================================================================================
 //
-//                              ViewStas(***)     
+//                              ViewStas     
 //
 //           (Hoco,Veco) matrices for all the Stex's of a Stas             
 //                        Stas = EB or EE
 //
 //=======================================================================================
-void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_AlreadyRead,
-			   const TString   HistoCode)
+void TEcnaHistos::ViewStas(const TString HistoCode)
 {
 // (Hoco, Veco) matrices for all the Stex's of a Stas
 
@@ -4803,11 +4599,11 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 	  
   if (HistoCode == "D_NOE_ChNb"){sprintf(f_in_mat_tit, "Number of Events");}
   if (HistoCode == "D_Ped_ChNb"){sprintf(f_in_mat_tit, "Pedestals");}
-  if (HistoCode == "D_TNo_ChNb"){sprintf(f_in_mat_tit, "Total noise");}
-  if (HistoCode == "D_MCs_ChNb"){sprintf(f_in_mat_tit, "Mean cor(s,s')");}
-  if (HistoCode == "D_LFN_ChNb"){sprintf(f_in_mat_tit, "Low frequency noise");}
-  if (HistoCode == "D_HFN_ChNb"){sprintf(f_in_mat_tit, "High frequency noise");}
-  if (HistoCode == "D_SCs_ChNb"){sprintf(f_in_mat_tit, "Sigma of cor(s,s')");}
+  if (HistoCode == "D_TNo_ChNb"){sprintf(f_in_mat_tit, "Total Noise");}
+  if (HistoCode == "D_MCs_ChNb"){sprintf(f_in_mat_tit, "Mean Cor(s,s')");}
+  if (HistoCode == "D_LFN_ChNb"){sprintf(f_in_mat_tit, "Low Frequency Noise");}
+  if (HistoCode == "D_HFN_ChNb"){sprintf(f_in_mat_tit, "High Frequency Noise");}
+  if (HistoCode == "D_SCs_ChNb"){sprintf(f_in_mat_tit, "Sigma Cor(s,s')");}
 	  
   //.... Axis parameters: *** WARNING *** EB ===>  x (Bid Hoco) = phi (StinVeco),  y (Bid Veco) = eta (StinHoco)
   Int_t GeoBidSizeHoco = fEcal->MaxStinVecoInStas();
@@ -4835,9 +4631,9 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 
   //............. matrices reading and histogram filling   (ViewStas)
 
-  TH2D* h_geo_bid = new TH2D("geobidim_ViewStas", f_in_mat_tit,
-			     nb_binx, xinf_bid,   xsup_bid,
-			     nb_biny, yinf_bid,   ysup_bid);     fCnewRoot++;
+  TH2D* h_geo_bid = new TH2D("geobidim_Hoco_Veco", f_in_mat_tit,
+			     nb_binx, xinf_bid,    xsup_bid,
+			     nb_biny, yinf_bid,    ysup_bid);     fCnewRoot++;
   h_geo_bid->Reset();
 
   Int_t CounterExistingFile = 0;
@@ -4845,105 +4641,76 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 
   Int_t* xFapNbOfEvts = new Int_t[fEcal->MaxStexInStas()];      fCnew++;
   for(Int_t i=0; i<fEcal->MaxStexInStas(); i++){xFapNbOfEvts[i]=0;}
-
-  //Int_t* NOFE_int = new Int_t[fEcal->MaxCrysEcnaInStex()];      fCnew++;
+  Int_t* NOFE_int = new Int_t[fEcal->MaxCrysEcnaInStex()];      fCnew++;
 
   //......................................................................... (ViewStas)
   for(Int_t iStasStex=0; iStasStex<fEcal->MaxStexInStas(); iStasStex++)
     {
-      TVectorD partial_histp(fEcal->MaxStinEcnaInStex());
-      for(Int_t i=0; i<fEcal->MaxStinEcnaInStex(); i++){partial_histp(i)=(Double_t)0.;}
-
-      Bool_t OKFileExists = kFALSE;
-      Bool_t OKDataExist  = kFALSE;
-
-      if( arg_AlreadyRead == fTobeRead )
+      fMyRootFile->PrintNoComment();
+      fMyRootFile->GetReadyToReadRootFile(fFapAnaType,          fFapNbOfSamples,
+					  fFapRunNumber,        fFapFirstReqEvtNumber,
+					  fFapLastReqEvtNumber, fFapReqNbOfEvts,
+					  iStasStex+1,          fCfgResultsRootFilePath.Data());
+      
+      if ( fMyRootFile->LookAtRootFile() == kTRUE )       //   (ViewStas)
 	{
-	  fMyRootFile->PrintNoComment();
-	  Int_t n1StasStex = iStasStex+1;
-	  fMyRootFile->FileParameters(fFapAnaType,          fFapNbOfSamples,
-				      fFapRunNumber,        fFapFirstReqEvtNumber,
-				      fFapLastReqEvtNumber, fFapReqNbOfEvts,
-				      n1StasStex,           fCfgResultsRootFilePath.Data());
-	  
-	  if ( fMyRootFile->LookAtRootFile() == kTRUE ){OKFileExists = kTRUE;}       //   (ViewStas)
+	  fStatusFileFound = kTRUE;
 
-	  if( OKFileExists == kTRUE )
+	  CounterExistingFile++;
+	  xFapNbOfEvts[iStasStex] = GetNumberOfEvents(fMyRootFile, fFapReqNbOfEvts);
+	  //----------------------------------------------------------------------------- file reading
+	  TString fp_name_short = fMyRootFile->GetRootFileNameShort();
+	  // cout << "*TEcnaHistos::ViewStas(...)> Data are analyzed from file ----> "
+	  //      << fp_name_short << endl;
+	  
+	  //....................... search for first and last dates
+	  if( iStasStex == 0 )
 	    {
-	      xFapNbOfEvts[iStasStex] = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts);
-	      TString fp_name_short = fMyRootFile->GetRootFileNameShort();
-	      // cout << "*TEcnaHistos::ViewStas(...)> Data are analyzed from file ----> "
-	      //      << fp_name_short << endl;
-	      
-	      //....................... search for first and last dates
-	      if( iStasStex == 0 )
-		{
-		  fStartTime = fMyRootFile->GetStartTime();
-		  fStopTime  = fMyRootFile->GetStopTime();
-		  fStartDate = fMyRootFile->GetStartDate();
-		  fStopDate  = fMyRootFile->GetStopDate();
-		}
-	      
-	      time_t  xStartTime = fMyRootFile->GetStartTime();
-	      time_t  xStopTime  = fMyRootFile->GetStopTime();
-	      TString xStartDate = fMyRootFile->GetStartDate();
-	      TString xStopDate  = fMyRootFile->GetStopDate();
-
-	      if( xStartTime < fStartTime ){fStartTime = xStartTime; fStartDate = xStartDate;}
-	      if( xStopTime  > fStopTime  ){fStopTime  = xStopTime;  fStopDate  = xStopDate;}
-	      
-	      fRunType = fMyRootFile->GetRunType();
-
-	      //----------------------------------------------------------------------------- file reading   (ViewStas)
-	      if( HistoCode == "D_NOE_ChNb" ){
-		partial_histp = fMyRootFile->ReadAverageNumberOfEvents(fEcal->MaxStinEcnaInStex());}
-	      if( HistoCode == "D_Ped_ChNb" ){
-		 partial_histp = fMyRootFile->ReadAveragePedestals(fEcal->MaxStinEcnaInStex());}
-	      if (HistoCode == "D_TNo_ChNb" ){
-		partial_histp = fMyRootFile->ReadAverageTotalNoise(fEcal->MaxStinEcnaInStex());}
-	      if( HistoCode == "D_MCs_ChNb" ){
-		partial_histp = fMyRootFile->ReadAverageMeanCorrelationsBetweenSamples(fEcal->MaxStinEcnaInStex());}
-	      if( HistoCode == "D_LFN_ChNb" ){
-		partial_histp = fMyRootFile->ReadAverageLowFrequencyNoise(fEcal->MaxStinEcnaInStex());}
-	      if( HistoCode == "D_HFN_ChNb" ){
-		partial_histp = fMyRootFile->ReadAverageHighFrequencyNoise(fEcal->MaxStinEcnaInStex());}
-	      if( HistoCode == "D_SCs_ChNb" ){
-		partial_histp = fMyRootFile->ReadAverageSigmaOfCorrelationsBetweenSamples(fEcal->MaxStinEcnaInStex());}
-	  
-	      if ( fMyRootFile->DataExist() == kTRUE ){OKDataExist = kTRUE;}
+ 	      fStartTime = fMyRootFile->GetStartTime();
+	      fStopTime  = fMyRootFile->GetStopTime();
+	      fStartDate = fMyRootFile->GetStartDate();
+	      fStopDate  = fMyRootFile->GetStopDate();
 	    }
 	  else
 	    {
-	      fStatusFileFound = kFALSE;
-	      cout << "!TEcnaHistos::ViewStas(...)> *ERROR* =====> "
-		   << " ROOT file not found" << fTTBELL << endl;
+	      time_t xStartTime = fMyRootFile->GetStartTime();
+	      time_t xStopTime  = fMyRootFile->GetStopTime();
+	      TString xStartDate = fMyRootFile->GetStartDate();
+	      TString xStopDate  = fMyRootFile->GetStopDate();
+	      if( xStartTime < fStartTime ){fStartTime = xStartTime; fStartDate = xStartDate;}
+	      if( xStopTime  > fStopTime  ){fStopTime  = xStopTime;  fStopDate  = xStopDate;}
 	    }
-	}
 
-      if( arg_AlreadyRead == 1 )
-	{
-	  OKDataExist = kTRUE;
-	  for(Int_t i0Stin=0; i0Stin<fEcal->MaxStinEcnaInStex(); i0Stin++)
-	    {
-	      partial_histp(i0Stin) = arg_read_histo(fEcal->MaxStinEcnaInStex()*iStasStex+i0Stin);
-	    }
-	}
-      
-      if( OKDataExist == kTRUE)
-	{
-	  fStatusFileFound = kTRUE;
-	  CounterExistingFile++;
+	  fRunType   = fMyRootFile->GetRunType();
 
-	  //.................................................................	  (ViewStas)
+	  //............................................... matrices reading 	  (ViewStas)
+	  TVectorD partial_histp(fEcal->MaxStinEcnaInStex());
+	  for(Int_t i=0; i<fEcal->MaxStinEcnaInStex(); i++){partial_histp(i)=(Double_t)0.;}
+	  
 	  TMatrixD read_matrix(nb_binx, nb_biny);
 	  for(Int_t i=0; i<nb_binx; i++)
 	    {for(Int_t j=0; j<nb_biny; j++){read_matrix(i,j)=(Double_t)0.;}}
-
-	  if ( OKDataExist == kTRUE )
+	  
+	  if( HistoCode == "D_NOE_ChNb" ){
+	    partial_histp = fMyRootFile->ReadAveragedNumberOfEvents(fEcal->MaxStinEcnaInStex());}
+	  if( HistoCode == "D_Ped_ChNb" ){
+	    partial_histp = fMyRootFile->ReadAveragedPedestals(fEcal->MaxStinEcnaInStex());}
+	  if (HistoCode == "D_TNo_ChNb" ){
+	    partial_histp = fMyRootFile->ReadAveragedTotalNoise(fEcal->MaxStinEcnaInStex());}
+	  if( HistoCode == "D_MCs_ChNb" ){
+	    partial_histp = fMyRootFile->ReadAveragedMeanOfCorrelationsBetweenSamples(fEcal->MaxStinEcnaInStex());}
+	  if( HistoCode == "D_LFN_ChNb" ){
+	    partial_histp = fMyRootFile->ReadAveragedLowFrequencyNoise(fEcal->MaxStinEcnaInStex());}
+	  if( HistoCode == "D_HFN_ChNb" ){
+	    partial_histp = fMyRootFile->ReadAveragedHighFrequencyNoise(fEcal->MaxStinEcnaInStex());}
+	  if( HistoCode == "D_SCs_ChNb" ){
+	    partial_histp = fMyRootFile->ReadAveragedSigmaOfCorrelationsBetweenSamples(fEcal->MaxStinEcnaInStex());}
+	  
+	  if ( fMyRootFile->DataExist() == kTRUE )
 	    {
 	      fStatusDataExist = kTRUE;
-	      CounterDataExist++;
 
+	      CounterDataExist++;
 	      for(Int_t i0StexStinEcna=0; i0StexStinEcna<fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
 		{
 		  //-------------------------------------- Geographical bidim filling   (ViewStas)
@@ -4955,7 +4722,7 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 		      Int_t n1StexStinEcna = i0StexStinEcna+1;
 
 		      if( fFlagSubDet == "EB" )
-			{	     
+			{
 			  read_matrix(i_xgeo, i_ygeo) = partial_histp(i0StexStinEcna);
 			  h_geo_bid->Fill((Double_t)i_xgeo, (Double_t)i_ygeo,
 					  (Double_t)read_matrix(i_xgeo, i_ygeo));
@@ -4963,7 +4730,7 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 
 		      if( fFlagSubDet == "EE" )
 			{
-			  //---------------------> do not draw bin for SCEcna = 10 or 11	  (ViewStas)
+			  //---------------------> do not draw bin for SCEcna = 10 or 11
 			  if( !( (n1StexStinEcna == 10 || n1StexStinEcna == 11 ||
 				  n1StexStinEcna == 29 || n1StexStinEcna == 32) ) )
 			    {
@@ -4973,7 +4740,7 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 			    }
 			  if( n1StexStinEcna == 29 )
 			    {
-			      //----------------------------------------------------------------- (ViewStas)
+			      //---------------------------------------------------------------------------------
 			      //   Average on SCEcna 29 (x1+x2+x3+x6+x7) and SCEcna 10: (x11)
 			      //   (x = Xtal# in SC; see CMS NOTE 2006/027, p.10)
 			      // 
@@ -4981,7 +4748,7 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 			      //
 			      //    => (x1+x2+x3+x6+x7+x11)/6 = partial_histp(29-1)*5/6 + partial_histp(10-1)/6
 			      //
-			      //   //  except for "D_NOE_ChNb" because average done in ReadAverageNumberOfEvents
+			      //   //  except for "D_NOE_ChNb" because average done in ReadAveragedNumberOfEvents
 			      //   //  (no averaged NbOfEvts in root file)
 			      //---------------------------------------------------------------------------------
 			      read_matrix(i_xgeo, i_ygeo) =
@@ -4989,7 +4756,7 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 			      h_geo_bid->Fill((Double_t)i_xgeo, (Double_t)i_ygeo,
 					      (Double_t)read_matrix(i_xgeo, i_ygeo));
 			    }
-			  //if( n1StexStinEcna == 32 && HistoCode != "D_NOE_ChNb" )	  (ViewStas)
+			  //if( n1StexStinEcna == 32 && HistoCode != "D_NOE_ChNb" )
 			  if( n1StexStinEcna == 32 )
 			    {
 			      //---- same as previous case: replace SCEcna 29 by 32 AND SCEcna 10 by 11
@@ -5011,7 +4778,7 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 		   << " Data not available for " << fFapStexName << " " << iStasStex+1
 		   << " (Quantity not present in the ROOT file)" << fTTBELL << endl;
 	    }
-	} // end of if( fMyRootFile->LookAtRootFile() == kTRUE )	  (ViewStas)
+	} // end of if( fMyRootFile->LookAtRootFile() == kTRUE )
       else
 	{
 	  fStatusFileFound = kFALSE;
@@ -5025,7 +4792,7 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 
     } // end of for(Int_t iStasStex=0; iStasStex<fEcal->MaxStexInStas(); iStasStex++)
 
-  //delete [] NOFE_int;     NOFE_int = 0;       fCdelete++;
+  delete [] NOFE_int;     NOFE_int = 0;       fCdelete++;
   delete [] xFapNbOfEvts; xFapNbOfEvts = 0;   fCdelete++;
 
   if( CounterExistingFile > 0 && CounterDataExist > 0 )
@@ -5062,7 +4829,7 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
       //  delete [] cont_niv;                                  fCdelete++;
       //}
       // ******************************** (FIN RESERVE) *******************************
-
+	  
       // =================================== P L O T S ========================   (ViewStas) 
 	  
       char* f_in = new char[fgMaxCar];                           fCnew++;
@@ -5100,14 +4867,13 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
       name_visu.Resize(MaxCar);
       name_visu = "colz";
 	  
-      sprintf(f_in, "%s_%s_S1_%d_R%d_%d_%d_%s_%s_HocoVeco_R%d",
-	      name_cov_cor.Data(),   fFapAnaType.Data(),   fFapNbOfSamples, fFapRunNumber,
-	      fFapFirstReqEvtNumber, fFapLastReqEvtNumber, fFlagSubDet.Data(),
-	      name_visu.Data(),      arg_AlreadyRead);
+      sprintf(f_in, "%s_%s_S1_%d_R%d_%d_%d_%s_%s_HocoVeco",
+	      name_cov_cor.Data(), fFapAnaType.Data(), fFapNbOfSamples, fFapRunNumber,
+	      fFapFirstReqEvtNumber, fFapLastReqEvtNumber, fFlagSubDet.Data(), name_visu.Data());
 	  
       if( fFlagSubDet == "EB" ){SetHistoPresentation((TH1D*)h_geo_bid, "Stas2DEB");}
       if( fFlagSubDet == "EE" ){SetHistoPresentation((TH1D*)h_geo_bid, "Stas2DEE");}
-
+	  
       TCanvas *MainCanvas = new TCanvas(f_in, f_in, canv_w, canv_h);   fCnewRoot++;
       fCurrentCanvas = MainCanvas; fCurrentCanvasName = f_in;
 
@@ -5151,7 +4917,6 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
       //      delete MainCanvas;              fCdeleteRoot++;
     }
   //..................... retour aux options standard
-
   Bool_t b_true = 1;
   h_geo_bid->SetStats(b_true);    
   h_geo_bid->Delete();  h_geo_bid = 0;              fCdeleteRoot++;
@@ -5172,8 +4937,7 @@ Int_t TEcnaHistos::GetXStinInStas(const Int_t& iStasStex, const Int_t& StexStinE
 // (X = 0 to MaxStexHocoInStas*MaxStinHocoInStex - 1 + vertic_empty_strips(EE only))
 
   Int_t ix_geo = 0;
-  Int_t n1StasStex = iStasStex+1;
-  TString ctype = fEcalNumbering->GetStexHalfStas(n1StasStex);
+  TString ctype = fEcalNumbering->GetStexHalfStas(iStasStex+1);
 
   if( fFlagSubDet == "EB")
     {
@@ -5191,7 +4955,7 @@ Int_t TEcnaHistos::GetXStinInStas(const Int_t& iStasStex, const Int_t& StexStinE
 
   if( fFlagSubDet == "EE")
     {
-      TString LeftRightFromIP = fEcalNumbering->GetDeeDirViewedFromIP(n1StasStex);
+      TString LeftRightFromIP = fEcalNumbering->GetDeeDirViewedFromIP(iStasStex+1);
 
       if( ctype == "EE-" && LeftRightFromIP == "left"  )
 	{
@@ -5203,12 +4967,12 @@ Int_t TEcnaHistos::GetXStinInStas(const Int_t& iStasStex, const Int_t& StexStinE
 	}
       if( ctype == "EE+" && LeftRightFromIP == "left"  )
 	{
-	  ix_geo = (Int_t)fCnaParHistos->DeeOffsetX(fFlagSubDet, n1StasStex)
+	  ix_geo = (Int_t)fCnaParHistos->DeeOffsetX(fFlagSubDet, iStasStex+1)
 	    + fEcal->MaxStinHocoInStex() - StexStinEcna/fEcal->MaxStinVecoInStex() - 1;
 	}
       if( ctype == "EE+" && LeftRightFromIP == "right" )
 	{
-	  ix_geo = (Int_t)fCnaParHistos->DeeOffsetX(fFlagSubDet, n1StasStex)
+	  ix_geo = (Int_t)fCnaParHistos->DeeOffsetX(fFlagSubDet, iStasStex+1)
 	    + StexStinEcna/fEcal->MaxStinVecoInStex();
 	}
     }
@@ -5224,8 +4988,7 @@ Int_t TEcnaHistos::GetYStinInStas(const Int_t& iStasStex, const Int_t& StexStinE
   
   if( fFlagSubDet == "EB")
     {
-      Int_t n1StasStex = iStasStex+1;
-      TString ctype = fEcalNumbering->GetStexHalfStas(n1StasStex);
+      TString ctype = fEcalNumbering->GetStexHalfStas(iStasStex+1);
       if( ctype == "EB+")
 	{iy_geo = StexStinEcna/fEcal->MaxStinVecoInStex() + fEcal->MaxStinHocoInStex(); }
       if( ctype == "EB-")
@@ -6045,93 +5808,287 @@ void TEcnaHistos::EEGridAxis(const Float_t& coefcc_x,  const Float_t& coefcc_y,
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //
-//                               ViewHisto(***)
+//                               ViewHisto
 // 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//======================== D_MSp_SpNb
-void TEcnaHistos::XtalSamplesEv(const TVectorD& arg_read_histo, const Int_t& arg_AlreadyRead,
-				const Int_t&    n1StexStin,     const Int_t& i0StinEcha)
-{XtalSamplesEv(arg_read_histo, arg_AlreadyRead, n1StexStin, i0StinEcha, "ONLYONE");}
-void TEcnaHistos::XtalSamplesEv(const TVectorD& arg_read_histo, const Int_t& arg_AlreadyRead,
-				const Int_t&    n1StexStin,     const Int_t& i0StinEcha,
-				const TString   PlotOption)
+//======================== D_NOE_ChNb
+void TEcnaHistos::EBXtalsAveragedNumberOfEvents(){StexXtalsNumberOfEvents();}
+void TEcnaHistos::SMXtalsNumberOfEvents(){StexXtalsNumberOfEvents();}
+void TEcnaHistos::EBXtalsAveragedNumberOfEvents(const TString PlotOption)
+{StexXtalsNumberOfEvents(PlotOption);}
+void TEcnaHistos::SMXtalsNumberOfEvents(const TString PlotOption)
+{StexXtalsNumberOfEvents(PlotOption);}
+
+void TEcnaHistos::EEXtalsAveragedNumberOfEvents(){StexXtalsNumberOfEvents();}
+void TEcnaHistos::DeeXtalsNumberOfEvents(){StexXtalsNumberOfEvents();}
+void TEcnaHistos::EEXtalsAveragedNumberOfEvents(const TString PlotOption)
+{StexXtalsNumberOfEvents(PlotOption);}
+void TEcnaHistos::DeeXtalsNumberOfEvents(const TString PlotOption)
+{StexXtalsNumberOfEvents(PlotOption);}
+
+void TEcnaHistos::StexXtalsNumberOfEvents(){StexXtalsNumberOfEvents("ONLYONE");}
+void TEcnaHistos::StexXtalsNumberOfEvents(const TString PlotOption)
+{ViewHisto(fZerv, fZerv, fZerv, "D_NOE_ChNb", PlotOption);}
+
+//....................
+void TEcnaHistos::EBAveragedNumberOfEventsXtals(){StexNumberOfEventsXtals();}
+void TEcnaHistos::SMNumberOfEventsXtals(){StexNumberOfEventsXtals();}
+void TEcnaHistos::EBAveragedNumberOfEventsXtals(const TString PlotOption)
+{StexNumberOfEventsXtals(PlotOption);}
+void TEcnaHistos::SMNumberOfEventsXtals(const TString PlotOption)
+{StexNumberOfEventsXtals(PlotOption);}
+
+void TEcnaHistos::EEAveragedNumberOfEventsXtals(){StexNumberOfEventsXtals();}
+void TEcnaHistos::DeeNumberOfEventsXtals(){StexNumberOfEventsXtals();}
+void TEcnaHistos::EEAveragedNumberOfEventsXtals(const TString PlotOption)
+{StexNumberOfEventsXtals(PlotOption);}
+void TEcnaHistos::DeeNumberOfEventsXtals(const TString PlotOption)
+{StexNumberOfEventsXtals(PlotOption);}
+
+void TEcnaHistos::StexNumberOfEventsXtals(){StexNumberOfEventsXtals("ONLYONE");}
+void TEcnaHistos::StexNumberOfEventsXtals(const TString PlotOption)
+{ViewHisto(fZerv, fZerv, fZerv, "D_NOE_ChDs", PlotOption);}
+
+//======================== D_Ped_ChDs
+void TEcnaHistos::EBXtalsAveragedPedestals(){StexXtalsPedestals();}
+void TEcnaHistos::SMXtalsPedestals(){StexXtalsPedestals();}
+void TEcnaHistos::EBXtalsAveragedPedestals(const TString PlotOption)
+{StexXtalsPedestals(PlotOption);}
+void TEcnaHistos::SMXtalsPedestals(const TString PlotOption)
+{StexXtalsPedestals(PlotOption);}
+
+void TEcnaHistos::EEXtalsAveragedPedestals(){StexXtalsPedestals();}
+void TEcnaHistos::DeeXtalsPedestals(){StexXtalsPedestals();}
+void TEcnaHistos::EEXtalsAveragedPedestals(const TString PlotOption)
+{StexXtalsPedestals(PlotOption);}
+void TEcnaHistos::DeeXtalsPedestals(const TString PlotOption)
+{StexXtalsPedestals(PlotOption);}
+
+void TEcnaHistos::StexXtalsPedestals(){StexXtalsPedestals("ONLYONE");}
+void TEcnaHistos::StexXtalsPedestals(const TString PlotOption)
+{ViewHisto(fZerv, fZerv, fZerv, "D_Ped_ChNb", PlotOption);}
+
+//............................
+void TEcnaHistos::EBAveragedPedestalsXtals(){StexPedestalsXtals();}
+void TEcnaHistos::SMPedestalsXtals(){StexPedestalsXtals();}
+void TEcnaHistos::EBAveragedPedestalsXtals(const TString PlotOption)
+{StexPedestalsXtals(PlotOption);}
+void TEcnaHistos::SMPedestalsXtals(const TString PlotOption)
+{StexPedestalsXtals(PlotOption);}
+
+void TEcnaHistos::EEAveragedPedestalsXtals(){StexPedestalsXtals();}
+void TEcnaHistos::DeePedestalsXtals(){StexPedestalsXtals();}
+void TEcnaHistos::EEAveragedPedestalsXtals(const TString PlotOption)
+{StexPedestalsXtals(PlotOption);}
+void TEcnaHistos::DeePedestalsXtals(const TString PlotOption)
+{StexPedestalsXtals(PlotOption);}
+
+void TEcnaHistos::StexPedestalsXtals(){StexPedestalsXtals("ONLYONE");}
+void TEcnaHistos::StexPedestalsXtals(const TString PlotOption)
+{ViewHisto(fZerv, fZerv, fZerv, "D_Ped_ChDs", PlotOption);}
+
+//======================== D_TNo_ChNb
+void TEcnaHistos::EBXtalsAveragedTotalNoise(){StexXtalsTotalNoise();}
+void TEcnaHistos::SMXtalsTotalNoise(){StexXtalsTotalNoise();}
+void TEcnaHistos::EBXtalsAveragedTotalNoise(const TString PlotOption)
+{StexXtalsTotalNoise(PlotOption);}
+void TEcnaHistos::SMXtalsTotalNoise(const TString PlotOption)
+{StexXtalsTotalNoise(PlotOption);}
+
+void TEcnaHistos::EEXtalsAveragedTotalNoise(){StexXtalsTotalNoise();}
+void TEcnaHistos::DeeXtalsTotalNoise(){StexXtalsTotalNoise();}
+void TEcnaHistos::EEXtalsAveragedTotalNoise(const TString PlotOption)
+{StexXtalsTotalNoise(PlotOption);}
+void TEcnaHistos::DeeXtalsTotalNoise(const TString PlotOption)
+{StexXtalsTotalNoise(PlotOption);}
+
+void TEcnaHistos::StexXtalsTotalNoise(){StexXtalsTotalNoise("ONLYONE");}
+void TEcnaHistos::StexXtalsTotalNoise(const TString PlotOption)
+{ViewHisto(fZerv, fZerv, fZerv, "D_TNo_ChNb", PlotOption);}
+
+//...............................
+void TEcnaHistos::EBAveragedTotalNoiseXtals(){StexTotalNoiseXtals();}
+void TEcnaHistos::SMTotalNoiseXtals(){StexTotalNoiseXtals();}
+void TEcnaHistos::EBAveragedTotalNoiseXtals(const TString PlotOption)
+{StexTotalNoiseXtals(PlotOption);}
+void TEcnaHistos::SMTotalNoiseXtals(const TString PlotOption)
+{StexTotalNoiseXtals(PlotOption);}
+
+void TEcnaHistos::EEAveragedTotalNoiseXtals(){StexTotalNoiseXtals();}
+void TEcnaHistos::DeeTotalNoiseXtals(){StexTotalNoiseXtals();}
+void TEcnaHistos::EEAveragedTotalNoiseXtals(const TString PlotOption)
+{StexTotalNoiseXtals(PlotOption);}
+void TEcnaHistos::DeeTotalNoiseXtals(const TString PlotOption)
+{StexTotalNoiseXtals(PlotOption);}
+
+void TEcnaHistos::StexTotalNoiseXtals(){StexTotalNoiseXtals("ONLYONE");}
+void TEcnaHistos::StexTotalNoiseXtals(const TString PlotOption)
+{ViewHisto(fZerv, fZerv, fZerv, "D_TNo_ChDs", PlotOption);}
+
+//======================== D_MCs_ChNb
+void TEcnaHistos::EBXtalsAveragedMeanOfCorss(){StexXtalsMeanOfCorss();}
+void TEcnaHistos::SMXtalsMeanOfCorss(){StexXtalsMeanOfCorss();}
+void TEcnaHistos::EBXtalsAveragedMeanOfCorss(const TString PlotOption)
+                {StexXtalsMeanOfCorss(PlotOption);}
+void TEcnaHistos::SMXtalsMeanOfCorss(const TString PlotOption)
+                {StexXtalsMeanOfCorss(PlotOption);}
+
+void TEcnaHistos::EEXtalsAveragedMeanOfCorss(){StexXtalsMeanOfCorss();}
+void TEcnaHistos::DeeXtalsMeanOfCorss(){StexXtalsMeanOfCorss();}
+void TEcnaHistos::EEXtalsAveragedMeanOfCorss(const TString PlotOption)
+                {StexXtalsMeanOfCorss(PlotOption);}
+void TEcnaHistos::DeeXtalsMeanOfCorss(const TString PlotOption)
+                {StexXtalsMeanOfCorss(PlotOption);}
+
+void TEcnaHistos::StexXtalsMeanOfCorss(){StexXtalsMeanOfCorss("ONLYONE");}
+void TEcnaHistos::StexXtalsMeanOfCorss(const TString PlotOption)
+{ViewHisto(fZerv, fZerv, fZerv, "D_MCs_ChNb", PlotOption);}
+
+//.......................... 
+void TEcnaHistos::EBAveragedMeanOfCorssXtals(){StexMeanOfCorssXtals();}
+void TEcnaHistos::SMMeanOfCorssXtals(){StexMeanOfCorssXtals();}
+void TEcnaHistos::EBAveragedMeanOfCorssXtals(const TString PlotOption)
+                {StexMeanOfCorssXtals(PlotOption);}
+void TEcnaHistos::SMMeanOfCorssXtals(const TString PlotOption)
+                {StexMeanOfCorssXtals(PlotOption);}
+
+void TEcnaHistos::EEAveragedMeanOfCorssXtals(){StexMeanOfCorssXtals();}
+void TEcnaHistos::DeeMeanOfCorssXtals(){StexMeanOfCorssXtals();}
+void TEcnaHistos::EEAveragedMeanOfCorssXtals(const TString PlotOption)
+                {StexMeanOfCorssXtals(PlotOption);}
+void TEcnaHistos::DeeMeanOfCorssXtals(const TString PlotOption)
+                {StexMeanOfCorssXtals(PlotOption);}
+
+void TEcnaHistos::StexMeanOfCorssXtals(){StexMeanOfCorssXtals("ONLYONE");}
+void TEcnaHistos::StexMeanOfCorssXtals(const TString PlotOption)
+{ViewHisto(fZerv, fZerv, fZerv, "D_MCs_ChDs", PlotOption);}
+
+//======================== D_LFN_ChDs
+void TEcnaHistos::EBXtalsAveragedLowFrequencyNoise(){StexXtalsLowFrequencyNoise();}
+void TEcnaHistos::SMXtalsLowFrequencyNoise(){StexXtalsLowFrequencyNoise();}
+void TEcnaHistos::EBXtalsAveragedLowFrequencyNoise(const TString PlotOption)
+                {StexXtalsLowFrequencyNoise(PlotOption);}
+void TEcnaHistos::SMXtalsLowFrequencyNoise(const TString PlotOption)
+                {StexXtalsLowFrequencyNoise(PlotOption);}
+
+void TEcnaHistos::EEXtalsAveragedLowFrequencyNoise(){StexXtalsLowFrequencyNoise();}
+void TEcnaHistos::DeeXtalsLowFrequencyNoise(){StexXtalsLowFrequencyNoise();}
+void TEcnaHistos::EEXtalsAveragedLowFrequencyNoise(const TString PlotOption)
+                {StexXtalsLowFrequencyNoise(PlotOption);}
+void TEcnaHistos::DeeXtalsLowFrequencyNoise(const TString PlotOption)
+                {StexXtalsLowFrequencyNoise(PlotOption);}
+
+void TEcnaHistos::StexXtalsLowFrequencyNoise(){StexXtalsLowFrequencyNoise("ONLYONE");}
+void TEcnaHistos::StexXtalsLowFrequencyNoise(const TString PlotOption)
+{ViewHisto(fZerv, fZerv, fZerv, "D_LFN_ChNb", PlotOption);}
+
+//.....................................
+void TEcnaHistos::EBAveragedLowFrequencyNoiseXtals(){StexLowFrequencyNoiseXtals();}
+void TEcnaHistos::SMLowFrequencyNoiseXtals(){StexLowFrequencyNoiseXtals();}
+void TEcnaHistos::EBAveragedLowFrequencyNoiseXtals(const TString PlotOption)
+                {StexLowFrequencyNoiseXtals(PlotOption);}
+void TEcnaHistos::SMLowFrequencyNoiseXtals(const TString PlotOption)
+                {StexLowFrequencyNoiseXtals(PlotOption);}
+
+void TEcnaHistos::EEAveragedLowFrequencyNoiseXtals(){StexLowFrequencyNoiseXtals();}
+void TEcnaHistos::DeeLowFrequencyNoiseXtals(){StexLowFrequencyNoiseXtals();}
+void TEcnaHistos::EEAveragedLowFrequencyNoiseXtals(const TString PlotOption)
+                {StexLowFrequencyNoiseXtals(PlotOption);}
+void TEcnaHistos::DeeLowFrequencyNoiseXtals(const TString PlotOption)
+                {StexLowFrequencyNoiseXtals(PlotOption);}
+
+void TEcnaHistos::StexLowFrequencyNoiseXtals(){StexLowFrequencyNoiseXtals("ONLYONE");}
+void TEcnaHistos::StexLowFrequencyNoiseXtals(const TString PlotOption)
+{ViewHisto(fZerv, fZerv, fZerv, "D_LFN_ChDs", PlotOption);}
+
+//======================== D_HFN_ChNb
+void TEcnaHistos::EBXtalsAveragedHighFrequencyNoise(){StexXtalsHighFrequencyNoise();}
+void TEcnaHistos::SMXtalsHighFrequencyNoise(){StexXtalsHighFrequencyNoise();}
+void TEcnaHistos::EBXtalsAveragedHighFrequencyNoise(const TString PlotOption)
+                {StexXtalsHighFrequencyNoise(PlotOption);}
+void TEcnaHistos::SMXtalsHighFrequencyNoise(const TString PlotOption)
+                {StexXtalsHighFrequencyNoise(PlotOption);}
+
+void TEcnaHistos::EEXtalsAveragedHighFrequencyNoise(){StexXtalsHighFrequencyNoise();}
+void TEcnaHistos::DeeXtalsHighFrequencyNoise(){StexXtalsHighFrequencyNoise();}
+void TEcnaHistos::EEXtalsAveragedHighFrequencyNoise(const TString PlotOption)
+                {StexXtalsHighFrequencyNoise(PlotOption);}
+void TEcnaHistos::DeeXtalsHighFrequencyNoise(const TString PlotOption)
+                {StexXtalsHighFrequencyNoise(PlotOption);}
+
+void TEcnaHistos::StexXtalsHighFrequencyNoise(){StexXtalsHighFrequencyNoise("ONLYONE");}
+void TEcnaHistos::StexXtalsHighFrequencyNoise(const TString PlotOption)
+{ViewHisto(fZerv, fZerv, fZerv, "D_HFN_ChNb", PlotOption);}
+
+//....................................
+void TEcnaHistos::EBAveragedHighFrequencyNoiseXtals(){StexHighFrequencyNoiseXtals();}
+void TEcnaHistos::SMHighFrequencyNoiseXtals(){StexHighFrequencyNoiseXtals();}
+void TEcnaHistos::EBAveragedHighFrequencyNoiseXtals(const TString PlotOption)
+                {StexHighFrequencyNoiseXtals(PlotOption);}
+void TEcnaHistos::SMHighFrequencyNoiseXtals(const TString PlotOption)
+                {StexHighFrequencyNoiseXtals(PlotOption);}
+
+void TEcnaHistos::EEAveragedHighFrequencyNoiseXtals(){StexHighFrequencyNoiseXtals();}
+void TEcnaHistos::DeeHighFrequencyNoiseXtals(){StexHighFrequencyNoiseXtals();}
+void TEcnaHistos::EEAveragedHighFrequencyNoiseXtals(const TString PlotOption)
+                {StexHighFrequencyNoiseXtals(PlotOption);}
+void TEcnaHistos::DeeHighFrequencyNoiseXtals(const TString PlotOption)
+                {StexHighFrequencyNoiseXtals(PlotOption);}
+
+void TEcnaHistos::StexHighFrequencyNoiseXtals(){StexHighFrequencyNoiseXtals("ONLYONE");}
+void TEcnaHistos::StexHighFrequencyNoiseXtals(const TString PlotOption)
+{ViewHisto(fZerv, fZerv, fZerv, "D_HFN_ChDs", PlotOption);}
+
+//======================== D_SCs_ChNb
+void TEcnaHistos::EBXtalsAveragedSigmaOfCorss(){StexXtalsSigmaOfCorss();}
+void TEcnaHistos::SMXtalsSigmaOfCorss(){StexXtalsSigmaOfCorss();}
+void TEcnaHistos::EBXtalsAveragedSigmaOfCorss(const TString PlotOption)
+                {StexXtalsSigmaOfCorss(PlotOption);}
+void TEcnaHistos::SMXtalsSigmaOfCorss(const TString PlotOption)
+                {StexXtalsSigmaOfCorss(PlotOption);}
+
+void TEcnaHistos::EEXtalsAveragedSigmaOfCorss(){StexXtalsSigmaOfCorss();}
+void TEcnaHistos::DeeXtalsSigmaOfCorss(){StexXtalsSigmaOfCorss();}
+void TEcnaHistos::EEXtalsAveragedSigmaOfCorss(const TString PlotOption)
+                {StexXtalsSigmaOfCorss(PlotOption);}
+void TEcnaHistos::DeeXtalsSigmaOfCorss(const TString PlotOption)
+                {StexXtalsSigmaOfCorss(PlotOption);}
+
+void TEcnaHistos::StexXtalsSigmaOfCorss(){StexXtalsSigmaOfCorss("ONLYONE");}
+void TEcnaHistos::StexXtalsSigmaOfCorss(const TString PlotOption)
+{ViewHisto(fZerv, fZerv, fZerv, "D_SCs_ChNb", PlotOption);}
+
+//......................................
+void TEcnaHistos::EBAveragedSigmaOfCorssXtals(){StexSigmaOfCorssXtals();}
+void TEcnaHistos::SMSigmaOfCorssXtals(){StexSigmaOfCorssXtals();}
+void TEcnaHistos::EBAveragedSigmaOfCorssXtals(const TString PlotOption)
+                {StexSigmaOfCorssXtals(PlotOption);}
+void TEcnaHistos::SMSigmaOfCorssXtals(const TString PlotOption)
+                {StexSigmaOfCorssXtals(PlotOption);}
+
+void TEcnaHistos::EEAveragedSigmaOfCorssXtals(){StexSigmaOfCorssXtals();}
+void TEcnaHistos::DeeSigmaOfCorssXtals(){StexSigmaOfCorssXtals();}
+void TEcnaHistos::EEAveragedSigmaOfCorssXtals(const TString PlotOption)
+                {StexSigmaOfCorssXtals(PlotOption);}
+void TEcnaHistos::DeeSigmaOfCorssXtals(const TString PlotOption)
+                {StexSigmaOfCorssXtals(PlotOption);}
+
+void TEcnaHistos::StexSigmaOfCorssXtals(){StexSigmaOfCorssXtals("ONLYONE");}
+void TEcnaHistos::StexSigmaOfCorssXtals(const TString PlotOption)
+{ViewHisto(fZerv, fZerv, fZerv, "D_SCs_ChDs", PlotOption);}
+
+//======================== D_MSp_Samp
+void TEcnaHistos::XtalSamplesEv(const Int_t&  aStexStin_A,       const Int_t& i0StinEcha)
+                {XtalSamplesEv(aStexStin_A, i0StinEcha, "ONLYONE");}
+void TEcnaHistos::XtalSamplesEv(const Int_t&  aStexStin_A,       const Int_t& i0StinEcha,
+			       const TString PlotOption)
 {
-  if( fFapStexNumber > 0 )
+  if( fFapStexNumber != 0 )
     {
-      if( PlotOption == fAllXtalsInStinPlot )
-	{
-	  Int_t StexStin_A = n1StexStin;
-	  if( fFlagSubDet == "EE" )
-	    {StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, n1StexStin);}
-
-	  Bool_t aOKData = kFALSE;
-	  TVectorD read_histo(fEcal->MaxCrysInStin()*fEcal->MaxSampADC());
-
-	  if( arg_AlreadyRead == fTobeRead )
-	    {
-	      fMyRootFile->PrintNoComment();
-	      fMyRootFile->FileParameters(fFapAnaType,          fFapNbOfSamples,
-					  fFapRunNumber,        fFapFirstReqEvtNumber,
-					  fFapLastReqEvtNumber, fFapReqNbOfEvts,
-					  fFapStexNumber,       fCfgResultsRootFilePath.Data());
-	      
-	      if ( fMyRootFile->LookAtRootFile() == kTRUE )
-		{
-		  fStatusFileFound = kTRUE;
-		  read_histo = fMyRootFile->ReadSampleMeans(StexStin_A, fEcal->MaxCrysInStin()*fEcal->MaxSampADC());
-		  if( fMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE;}
-		}
-	      else
-		{
-		  fStatusFileFound = kFALSE;
-		  cout << "!TEcnaHistos::XtalSamplesEv(...)> Data not available (ROOT file not found)." << endl;
-		}
-	      if( fStatusFileFound == kTRUE && fStatusDataExist == kTRUE ){aOKData = kTRUE;}
-	    }
-	  if( arg_AlreadyRead >= 1 )
-	    {
-	      for(Int_t i=0; i<fEcal->MaxCrysInStin()*fEcal->MaxSampADC(); i++){read_histo[i] = arg_read_histo[i];}
-	      fStatusDataExist = kTRUE;
-	      aOKData = kTRUE;
-	    }
-
-	  if( aOKData == kTRUE )
-	    {
-	      TVectorD read_histo_samps(fFapNbOfSamples);
-	      
-	      Int_t xAlreadyRead = 1;
-	      for( Int_t i0_stin_echa=0; i0_stin_echa<fEcal->MaxCrysInStin(); i0_stin_echa++)
-		{
-		  if( fFapStexName == "SM" )
-		    {cout << "*TEcnaHistos::XtalSamplesEv(...)> channel " << setw(2) << i0_stin_echa << ": ";}
-		  if( fFapStexName == "Dee" )
-		    {cout << "*TEcnaHistos::XtalSamplesEv(...)> Xtal " << setw(2) << i0_stin_echa+1 << ": ";}
-		  
-		  for( Int_t i0_samp=0; i0_samp<fFapNbOfSamples; i0_samp++ )
-		    {
-		      read_histo_samps(i0_samp) = read_histo(i0_stin_echa*fFapNbOfSamples+i0_samp);
-		      cout << setprecision(4) << setw(8) << read_histo_samps(i0_samp) << ", " ;
-		    }
-		  cout << endl;
-		  ViewHisto(read_histo_samps, xAlreadyRead,
-			    StexStin_A, i0_stin_echa, fZerv, "D_MSp_SpNb", fAllXtalsInStinPlot);
-		  xAlreadyRead++;
-		}
-	      xAlreadyRead = 0;
-	    }
-	  else
-	    {
-	      cout << "!TEcnaHistos::XtalSamplesEv(...)> Data not available." << endl;
-	    }
-	}
-      
-      if( !(PlotOption == fAllXtalsInStinPlot) )      
-	{
-	  Int_t StexStin_A = n1StexStin;
-	  if( fFlagSubDet == "EE" )
-	    {StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, n1StexStin);}
-	  ViewHisto(fReadHistoDummy, fTobeRead, StexStin_A, i0StinEcha, fZerv, "D_MSp_SpNb", PlotOption);
-	}
+      Int_t StexStin_A = aStexStin_A;
+      if( fFlagSubDet == "EE" )
+	{StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_A);}
+      ViewHisto(StexStin_A, i0StinEcha, fZerv, "D_MSp_Samp", PlotOption);
     }
   else
     {
@@ -6140,180 +6097,18 @@ void TEcnaHistos::XtalSamplesEv(const TVectorD& arg_read_histo, const Int_t& arg
     }
 }
 
-//======================== D_MSp_SpDs
-void TEcnaHistos::EvSamplesXtals(const TVectorD& arg_read_histo, const Int_t& arg_AlreadyRead,
-				 const Int_t&    n1StexStin,     const Int_t& i0StinEcha)
-{EvSamplesXtals(arg_read_histo, arg_AlreadyRead, n1StexStin, i0StinEcha, "ONLYONE");}
-void TEcnaHistos::EvSamplesXtals(const TVectorD& arg_read_histo, const Int_t& arg_AlreadyRead,
-				 const Int_t&    n1StexStin,     const Int_t& i0StinEcha,
-				 const TString   PlotOption)
+//======================== D_SSp_Samp
+void TEcnaHistos::XtalSamplesSigma(const Int_t&  aStexStin_A,       const Int_t& i0StinEcha)
+                {XtalSamplesSigma(aStexStin_A, i0StinEcha, "ONLYONE");}
+void TEcnaHistos::XtalSamplesSigma(const Int_t&  aStexStin_A,       const Int_t& i0StinEcha,
+				  const TString PlotOption)
 {
-  if( fFapStexNumber > 0 )
+  if( fFapStexNumber != 0 )
     {
-      if( PlotOption == fAllXtalsInStinPlot )
-	{
-	  Int_t StexStin_A = n1StexStin;
-	  if( fFlagSubDet == "EE" )
-	    {StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, n1StexStin);}
-
-	  Bool_t aOKData = kFALSE;
-	  TVectorD read_histo(fEcal->MaxCrysInStin()*fEcal->MaxSampADC());
-
-	  if( arg_AlreadyRead == fTobeRead )
-	    {
-	      fMyRootFile->PrintNoComment();
-	      fMyRootFile->FileParameters(fFapAnaType,          fFapNbOfSamples,
-					  fFapRunNumber,        fFapFirstReqEvtNumber,
-					  fFapLastReqEvtNumber, fFapReqNbOfEvts,
-					  fFapStexNumber,       fCfgResultsRootFilePath.Data());
-
-	      if ( fMyRootFile->LookAtRootFile() == kTRUE )
-		{
-		  fStatusFileFound = kTRUE;
-		  read_histo = fMyRootFile->ReadSampleMeans(StexStin_A, fEcal->MaxCrysInStin()*fEcal->MaxSampADC());
-		  if( fMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE;}
-		}
-	      else
-		{
-		  fStatusFileFound = kFALSE;
-		  cout << "!TEcnaHistos::EvSamplesXtals(...)> Data not available (ROOT file not found)." << endl;
-		}
-	      if( fStatusFileFound == kTRUE && fStatusDataExist == kTRUE ){aOKData = kTRUE;}
-	    }
-	  if( arg_AlreadyRead >= 1 )
-	    {
-	      for(Int_t i=0; i<fEcal->MaxCrysInStin()*fEcal->MaxSampADC(); i++){read_histo[i] = arg_read_histo[i];}
-	      fStatusDataExist = kTRUE;
-	      aOKData = kTRUE;
-	    }
-	  if( aOKData == kTRUE )
-	    {
-	      TVectorD read_histo_samps(fFapNbOfSamples);
-	      
-	      Int_t xAlreadyRead = 1;
-	      for( Int_t i0_stin_echa=0; i0_stin_echa<fEcal->MaxCrysInStin(); i0_stin_echa++)
-		{
-		  if( fFapStexName == "SM" )
-		    {cout << "*TEcnaHistos::EvSamplesXtals(...)> channel " << setw(2) << i0_stin_echa << ": ";}
-		  if( fFapStexName == "Dee" )
-		    {cout << "*TEcnaHistos::EvSamplesXtals(...)> Xtal " << setw(2) << i0_stin_echa+1 << ": ";}
-		  
-		  for( Int_t i0_samp=0; i0_samp<fFapNbOfSamples; i0_samp++ )
-		    {
-		      read_histo_samps(i0_samp) = read_histo(i0_stin_echa*fFapNbOfSamples+i0_samp);
-		      cout << setprecision(4) << setw(8) << read_histo_samps(i0_samp) << ", " ;
-		    }
-		  cout << endl;
-		  ViewHisto(read_histo_samps, xAlreadyRead,
-			    StexStin_A, i0_stin_echa, fZerv, "D_MSp_SpDs", fAllXtalsInStinPlot);
-		  xAlreadyRead++;
-		}
-	      xAlreadyRead = 0;
-	    }
-	  else
-	    {
-	      cout << "!TEcnaHistos::EvSamplesXtals(...)> Data not available." << endl;
-	    }
-	}
-      
-      if( !(PlotOption == fAllXtalsInStinPlot) )      
-	{
-	  Int_t StexStin_A = n1StexStin;
-	  if( fFlagSubDet == "EE" )
-	    {StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, n1StexStin);}
-	  ViewHisto(fReadHistoDummy, fTobeRead, StexStin_A, i0StinEcha, fZerv, "D_MSp_SpDs", PlotOption);
-	}
-    }
-  else
-    {
-      cout << "!TEcnaHistos::EvSamplesXtals(...)> " << fFapStexName.Data() << " number = " << fFapStexNumber
-	   << " out of range (range = [1," << fEcal->MaxStexInStas() << "])" << fTTBELL << endl;
-    }
-} // end of EvSamplesXtals(...)
-
-//======================== D_SSp_SpNb
-void TEcnaHistos::XtalSamplesSigma(const TVectorD& arg_read_histo, const Int_t& arg_AlreadyRead,
-				   const Int_t&    n1StexStin,     const Int_t& i0StinEcha)
-{XtalSamplesSigma(arg_read_histo, arg_AlreadyRead, n1StexStin, i0StinEcha, "ONLYONE");}
-void TEcnaHistos::XtalSamplesSigma(const TVectorD& arg_read_histo, const Int_t& arg_AlreadyRead,
-				   const Int_t&    n1StexStin,     const Int_t& i0StinEcha,
-				   const TString   PlotOption)
-{
-  if( fFapStexNumber > 0 )
-    {  
-      if( PlotOption == fAllXtalsInStinPlot )
-	{
-	  Int_t StexStin_A = n1StexStin;
-	  if( fFlagSubDet == "EE" )
-	    {StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, n1StexStin);}
-	  
-	  Bool_t aOKData = kFALSE;
-	  TVectorD read_histo(fEcal->MaxCrysInStin()*fEcal->MaxSampADC());
-	  
-	  if( arg_AlreadyRead == fTobeRead )
-	    {
-	      fMyRootFile->PrintNoComment();
-	      fMyRootFile->FileParameters(fFapAnaType,          fFapNbOfSamples,
-					  fFapRunNumber,        fFapFirstReqEvtNumber,
-					  fFapLastReqEvtNumber, fFapReqNbOfEvts,
-					  fFapStexNumber,       fCfgResultsRootFilePath.Data());
-	      
-	      if ( fMyRootFile->LookAtRootFile() == kTRUE )
-		{
-		  fStatusFileFound = kTRUE;
-		  read_histo = fMyRootFile->ReadSampleSigmas(StexStin_A, fEcal->MaxCrysInStin()*fEcal->MaxSampADC());
-		  if( fMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE;}
-		}
-	      else
-		{
-		  fStatusFileFound = kFALSE;
-		  cout << "!TEcnaHistos::XtalSamplesSigma(...)> Data not available (ROOT file not found)." << endl;
-		}
-	      if( fStatusFileFound == kTRUE && fStatusDataExist == kTRUE ){aOKData = kTRUE;}
-	    }
-	  if( arg_AlreadyRead >= 1 )
-	    {
-	      for(Int_t i=0; i<fEcal->MaxCrysInStin()*fEcal->MaxSampADC(); i++){read_histo[i] = arg_read_histo[i];}
-	      fStatusDataExist = kTRUE;
-	      aOKData = kTRUE;
-	    }
-	  if( aOKData == kTRUE )
-	    {
-	      TVectorD read_histo_samps(fFapNbOfSamples);
-	      
-	      Int_t xAlreadyRead = 1;
-	      for( Int_t i0_stin_echa=0; i0_stin_echa<fEcal->MaxCrysInStin(); i0_stin_echa++)
-		{
-		  if( fFapStexName == "SM" )
-		    {cout << "*TEcnaHistos::XtalSamplesSigma(...)> channel " << setw(2) << i0_stin_echa << ": ";}
-		  if( fFapStexName == "Dee" )
-		    {cout << "*TEcnaHistos::XtalSamplesSigma(...)> Xtal " << setw(2) << i0_stin_echa+1 << ": ";}
-		  
-		  for( Int_t i0_samp=0; i0_samp<fFapNbOfSamples; i0_samp++ )
-		    {
-		      read_histo_samps(i0_samp) = read_histo(i0_stin_echa*fFapNbOfSamples+i0_samp);
-		      cout << setprecision(3) << setw(6) << read_histo_samps(i0_samp) << ", " ;
-		    }
-		  cout << endl;
-		  ViewHisto(read_histo_samps, xAlreadyRead,
-			    StexStin_A, i0StinEcha, fZerv, "D_SSp_SpNb", fAllXtalsInStinPlot);
-		  xAlreadyRead++;    
-		}
-	      xAlreadyRead = 0;
-	    }
-	  else
-	    {
-	      cout << "!TEcnaHistos::XtalSamplesSigma(...)> Data not available." << endl;
-	    }
-	}
-
-      if( !(PlotOption == fAllXtalsInStinPlot) )      
-	{
-	  Int_t StexStin_A = n1StexStin;
-	  if( fFlagSubDet == "EE" )
-	    {StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, n1StexStin);}
-	  ViewHisto(fReadHistoDummy, fTobeRead, StexStin_A, i0StinEcha, fZerv, "D_SSp_SpNb", PlotOption);
-	} 
+      Int_t StexStin_A = aStexStin_A;
+      if( fFlagSubDet == "EE" )
+	{StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_A);}
+      ViewHisto(StexStin_A, i0StinEcha, fZerv, "D_SSp_Samp", PlotOption);
     }
   else
     {
@@ -6322,126 +6117,73 @@ void TEcnaHistos::XtalSamplesSigma(const TVectorD& arg_read_histo, const Int_t& 
     }
 }
 
-
-//======================== D_SSp_SpDs
-void TEcnaHistos::SigmaSamplesXtals(const TVectorD& arg_read_histo, const Int_t& arg_AlreadyRead,
-				    const Int_t&    n1StexStin,     const Int_t& i0StinEcha)
-{SigmaSamplesXtals(arg_read_histo, arg_AlreadyRead, n1StexStin, i0StinEcha, "ONLYONE");}
-void TEcnaHistos::SigmaSamplesXtals(const TVectorD& arg_read_histo, const Int_t& arg_AlreadyRead,
-				    const Int_t&    n1StexStin,     const Int_t& i0StinEcha,
-				    const TString   PlotOption)
+//======================== D_Adc_EvNb
+void TEcnaHistos::XtalSampleValues(const Int_t& aStexStin_A, const Int_t& i0StinEcha, const Int_t& iSample)
+                {XtalSampleValues(aStexStin_A, i0StinEcha, iSample, "ONLYONE");}
+void TEcnaHistos::XtalSampleValues(const Int_t& aStexStin_A, const Int_t& i0StinEcha, const Int_t& iSample,
+				  const TString PlotOption)
 {
-  if( fFapStexNumber > 0 )
-    {  
-      if( PlotOption == fAllXtalsInStinPlot )
-	{
-	  Int_t StexStin_A = n1StexStin;
-	  if( fFlagSubDet == "EE" )
-	    {StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, n1StexStin);}
-	  	  
-	  Bool_t aOKData = kFALSE;
-	  TVectorD read_histo(fEcal->MaxCrysInStin()*fEcal->MaxSampADC());
-	  
-	  if( arg_AlreadyRead == fTobeRead )
-	    {
-	      fMyRootFile->PrintNoComment();
-	      fMyRootFile->FileParameters(fFapAnaType,          fFapNbOfSamples,
-					  fFapRunNumber,        fFapFirstReqEvtNumber,
-					  fFapLastReqEvtNumber, fFapReqNbOfEvts,
-					  fFapStexNumber,       fCfgResultsRootFilePath.Data());
-	      if ( fMyRootFile->LookAtRootFile() == kTRUE )
-		{
-		  fStatusFileFound = kTRUE;
-		  read_histo = fMyRootFile->ReadSampleSigmas(StexStin_A, fEcal->MaxCrysInStin()*fEcal->MaxSampADC());
-		  if( fMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE;}
-		}
-	      else
-		{
-		  fStatusFileFound = kFALSE;
-		  cout << "!TEcnaHistos::SigmaSamplesXtals(...)> Data not available (ROOT file not found)." << endl;
-		}
-	      if( fStatusFileFound == kTRUE && fStatusDataExist == kTRUE ){aOKData = kTRUE;}
-	    }
-	  
-	  if( arg_AlreadyRead >= 1 )
-	    {
-	      for(Int_t i=0; i<fEcal->MaxCrysInStin()*fEcal->MaxSampADC(); i++){read_histo[i] = arg_read_histo[i];}
-	      fStatusDataExist = kTRUE;
-	      aOKData = kTRUE;
-	    }
-	  if( aOKData == kTRUE )
-	    {
-	      TVectorD read_histo_samps(fFapNbOfSamples);
-	      
-	      Int_t xAlreadyRead = 1;
-	      for( Int_t i0_stin_echa=0; i0_stin_echa<fEcal->MaxCrysInStin(); i0_stin_echa++)
-		{
-		  if( fFapStexName == "SM" )
-		    {cout << "*TEcnaHistos::SigmaSamplesXtals(...)> channel " << setw(2) << i0_stin_echa << ": ";}
-		  if( fFapStexName == "Dee" )
-		    {cout << "*TEcnaHistos::SigmaSamplesXtals(...)> Xtal " << setw(2) << i0_stin_echa+1 << ": ";}
-		  
-		  for( Int_t i0_samp=0; i0_samp<fFapNbOfSamples; i0_samp++ )
-		    {
-		      read_histo_samps(i0_samp) = read_histo(i0_stin_echa*fFapNbOfSamples+i0_samp);
-		      cout << setprecision(3) << setw(6) << read_histo_samps(i0_samp) << ", " ;
-		    }
-		  cout << endl;
-		  ViewHisto(read_histo_samps, xAlreadyRead,
-			    StexStin_A, i0StinEcha, fZerv, "D_SSp_SpDs", fAllXtalsInStinPlot);
-		  xAlreadyRead++;    
-		}
-	      xAlreadyRead = 0;
-	    }
-	  else
-	    {
-	      cout << "!TEcnaHistos::SigmaSamplesXtals(...)> Data not available." << endl;
-	    }
-	}
-      
-      if( !(PlotOption == fAllXtalsInStinPlot) )      
-	{
-	  Int_t StexStin_A = n1StexStin;
-	  if( fFlagSubDet == "EE" )
-	    {StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, n1StexStin);}
-	  ViewHisto(fReadHistoDummy, fTobeRead, StexStin_A, i0StinEcha, fZerv, "D_SSp_SpDs", PlotOption);
-	} 
+  if( fFapStexNumber != 0 )
+    {
+      Int_t StexStin_A = aStexStin_A;
+      if( fFlagSubDet == "EE" )
+	{StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_A);}
+      ViewHisto(StexStin_A, i0StinEcha, iSample, "D_Adc_EvNb", PlotOption);
     }
   else
     {
-      cout << "!TEcnaHistos::SigmaSamplesXtals(...)> " << fFapStexName.Data() << " number = " << fFapStexNumber
+      cout << "!TEcnaHistos::XtalSampleValues(...)> " << fFapStexName.Data() << " number = " << fFapStexNumber
 	   << " out of range (range = [1," << fEcal->MaxStexInStas() << "])" << fTTBELL << endl;
     }
-} // end of SigmaSamplesXtals(...)
+}
+
+//======================== D_Adc_EvDs
+void TEcnaHistos::SampleADCEvents(const Int_t& aStexStin_A, const Int_t& i0StinEcha, const Int_t& iSample)
+                {SampleADCEvents(aStexStin_A, i0StinEcha, iSample, "ONLYONE");}
+void TEcnaHistos::SampleADCEvents(const Int_t& aStexStin_A, const Int_t&  i0StinEcha,
+				 const Int_t& iSample,     const TString PlotOption)
+{
+  if( fFapStexNumber != 0 )
+    {
+      Int_t StexStin_A = aStexStin_A;
+      if( fFlagSubDet == "EE" )
+	{StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_A);}
+      ViewHisto(StexStin_A, i0StinEcha, iSample, "D_Adc_EvDs", PlotOption);
+    }
+  else
+    {
+      cout << "!TEcnaHistos::SampleADCEvents(...)> " << fFapStexName.Data() << " number = " << fFapStexNumber
+	   << " out of range (range = [1," << fEcal->MaxStexInStas() << "])" << fTTBELL << endl;
+    }
+}
 
 //==========================================================================================
 //
 //                         ViewHisto
+//       
+//     ViewHisto( StexStin_A, i0StinEcha, iSample,  opt_quantity, opt_plot)
 //
-//    arg_read_histo  = array containing the values
-//    arg_AlreadyRead = histo flag: =1 => arg_read_histo exists,
-//                                  =0 => values will be read by internal
-//                                        call to TEcnaRead inside ViewHisto
-//    StexStin_A      = [1,68] or [1,150]  ==> tower# if EB,  SC# if EE
-//    i0StinEcha      = [0,24] = Electronic channel# in tower (if EB) or SC (if EE) 
-//    i0Sample        = [0,9]  = sample#
-//    HistoCode       = String for histo type (pedestal, total noise, mean cor(s,s), ...)  
-//    opt_plot_arg    = String for plot option (SAME or not SAME)
+//     (StexStin_A, i0StinEcha, iSample (NOT USED), fOptHisEv, lin/log, opt_plot) ==> 
+//     exp values of the samples for i0StinEcha of StexStin_A 
+//
+//     (StexStin_A, i0StinEcha, iSample (NOT USED), fOptHisSigma, lin/log, opt_plot) ==> 
+//     sigmas of the samples for i0StinEcha of StexStin_A
+//
+//     (StexStin_A, i0StinEcha, iSample, fOptHisD_Adc_EvDs, lin/log, opt_plot) ==>
+//     ADC event distribution for i0StinEcha of StexStin_A and for sample              
+//
+//     (StexStin_A, i0StinEcha, iSample (NOT USED), fOptHisD_Adc_EvNb, lin/log, opt_plot) ==>
+//     Pedestal as a function of event number for i0StinEcha of StexStin_A              
 //
 //===========================================================================================
-void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_AlreadyRead,
-			    const Int_t&    StexStin_A,     const Int_t&  i0StinEcha,
-			    const Int_t&    i0Sample,       const TString HistoCode,
-			    const TString   opt_plot_arg)
+void TEcnaHistos::ViewHisto(const Int_t& StexStin_A, const Int_t&  i0StinEcha,
+			   const Int_t& iSample,    const TString HistoCode,
+			   const TString opt_plot_arg)
 {
-  //Histogram of the quantities (one run)
+//Histogram of the quantities (one run)
 
-  TString opt_plot  = opt_plot_arg;
-  fPlotAllXtalsInStin = 0;
-
-  if( opt_plot_arg == fAllXtalsInStinPlot ){opt_plot = fOnlyOnePlot; fPlotAllXtalsInStin = 1;}
-
-  TString HistoType = fCnaParHistos->GetHistoType(HistoCode.Data());
+  //.......................................
+  TString opt_plot = opt_plot_arg;
 
   Int_t OKHisto = 0;
 
@@ -6458,7 +6200,7 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 	{
 	  cout << "*TEcnaHistos::ViewHisto(...)> WARNING ===> Canvas has been closed in option SAME or SAME n."
 	       << endl
-	       << "                              Please, restart with a new canvas."
+	       << "                             Please, restart with a new canvas."
 	       << fTTBELL << endl;
 	  
 	  ReInitCanvas(HistoCode, opt_plot);
@@ -6467,13 +6209,15 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
     }
   //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+  TString XVarHisto = fCnaParHistos->GetXVarHisto(HistoCode.Data(), fFlagSubDet.Data(), fFapStexNumber);
+  TString YVarHisto = fCnaParHistos->GetYVarHisto(HistoCode.Data(), fFlagSubDet.Data(), fFapStexNumber);
+
+  TString HistoType = fCnaParHistos->GetHistoType(HistoCode.Data());
+
   //%%%%%%%%%%%%%%%%%%%%%%%% Change of X variable in option SAME n with no proj %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   Int_t SameXVarMemo = 1;   //  a priori ==> SAME n option: X variable OK                     (ViewHisto)
-  if( !(HistoType == "Proj" || HistoType == "SampProj" || HistoType == "EvolProj") && 
-      !(arg_AlreadyRead >= 1) )
+  if( !( HistoType == "Proj" || HistoType == "SampProj" || HistoType == "EvolProj") )
     {
-      TString XVarHisto = fCnaParHistos->GetXVarHisto(HistoCode.Data(), fFlagSubDet.Data(), fFapStexNumber);
-      TString YVarHisto = fCnaParHistos->GetYVarHisto(HistoCode.Data(), fFlagSubDet.Data(), fFapStexNumber);
       if( (opt_plot == fSameOnePlot ) && GetMemoFlag(HistoCode, opt_plot) == "Free" )
 	{
 	  SetXVarMemo(HistoCode, opt_plot, XVarHisto);  SetYVarMemo(HistoCode, opt_plot, YVarHisto); SameXVarMemo = 1;
@@ -6486,10 +6230,10 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 	  if( XVarHisto != XVariableMemo )
 	    {
 	      cout << "!TEcnaHistos::ViewHisto(...)> *** ERROR *** ===> X coordinate changed in option SAME n." << endl
-		   << "                              Present  X = " << XVarHisto << endl
-		   << "                              Present  Y = " << YVarHisto << endl
-		   << "                              Previous X = " << XVariableMemo << endl
-		   << "                              Previous Y = " << YVariableMemo 
+		   << "                             Present  X = " << XVarHisto << endl
+		   << "                             Present  Y = " << YVarHisto << endl
+		   << "                             Previous X = " << XVariableMemo << endl
+		   << "                             Previous Y = " << YVariableMemo 
 		   << fTTBELL << endl;
 	      SameXVarMemo = 0;
 	    }
@@ -6501,11 +6245,8 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 
   //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Change of Y variable in option SAME n %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
   Int_t SameYVarMemo = 1;   //  a priori ==> SAME n option: Y variable OK                     (ViewHisto)
-  if( (HistoType == "Proj" || HistoType == "SampProj" || HistoType == "EvolProj") && 
-      !(arg_AlreadyRead >= 1) )
+  if( HistoType == "Proj" || HistoType == "SampProj" || HistoType == "EvolProj" )
     {
-      TString XVarHisto = fCnaParHistos->GetXVarHisto(HistoCode.Data(), fFlagSubDet.Data(), fFapStexNumber);
-      TString YVarHisto = fCnaParHistos->GetYVarHisto(HistoCode.Data(), fFlagSubDet.Data(), fFapStexNumber);
       if( (opt_plot == fSameOnePlot ) && GetMemoFlag(HistoCode, opt_plot) == "Free" )
 	{
 	  SetYVarMemo(HistoCode, opt_plot, YVarHisto);  SetYVarMemo(HistoCode, opt_plot, YVarHisto); SameYVarMemo = 1;
@@ -6518,10 +6259,10 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 	  if( YVarHisto != YVariableMemo )
 	    {
 	      cout << "!TEcnaHistos::ViewHisto(...)> *** ERROR *** ===> Y coordinate changed in option SAME n." << endl
-		   << "                              Present  X = " << XVarHisto << endl
-		   << "                              Present  Y = " << YVarHisto << endl
-		   << "                              Previous X = " << XVariableMemo << endl
-		   << "                              Previous Y = " << YVariableMemo 
+		   << "                             Present  X = " << XVarHisto << endl
+		   << "                             Present  Y = " << YVarHisto << endl
+		   << "                             Previous X = " << XVariableMemo << endl
+		   << "                             Previous Y = " << YVariableMemo 
 		   << fTTBELL << endl;
 	      SameYVarMemo = 0;
 	    }
@@ -6541,7 +6282,6 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
     {
       SetNbBinsMemo(HistoCode, opt_plot, xNbBins); OkBinsMemoSameOne = 1;
     }
-
   if( (opt_plot == fSameOnePlot || opt_plot == fSeveralPlot) && GetMemoFlag(HistoCode, opt_plot) == "Busy" )
     {
       Int_t NbBinsMemo = GetNbBinsFromMemo(HistoCode, opt_plot);
@@ -6574,7 +6314,7 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
       //-------------------- read_histo size
       Int_t SizeForRead = GetHistoSize(HistoCode.Data(), "read");
 
-      //............................................... allocation/init_histo
+      //............................................... allocation/init read_histo
       TVectorD histo_for_plot(SizeForPlot);
       for(Int_t i=0; i<SizeForPlot; i++){histo_for_plot[i]=(Double_t)0;}
 
@@ -6584,14 +6324,11 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
       Int_t i_data_exist = 0;
       Int_t OKPlot = 0;
 
-      //------------------------------------- histos Global, (Global)Proj, SampGlobal and SampProj
-      if( HistoType == "Global"   || HistoType == "Proj" || HistoType == "SampGlobal" ||
-	  HistoType == "SampProj" )
+      //-------------------------------------------------------- histos Global and Proj
+      if( HistoType == "Global" || HistoType == "Proj" || HistoType == "SampGlobal" || HistoType == "SampProj" )
 	{     
-	  if( fFapStexNumber == 0 )
+	  if( (fFapStexNumber == 0) )
 	    {
-	      Bool_t ok_view_histo  = kFALSE;
-
 	      //--------------------------------------------------------------------- Stas Histo      (ViewHisto)
 	      Int_t CounterExistingFile = 0;
 	      Int_t CounterDataExist = 0;
@@ -6599,93 +6336,71 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 	      Int_t* xFapNbOfEvts = new Int_t[fEcal->MaxStexInStas()];     fCnew++;
 	      for(Int_t i=0; i<fEcal->MaxStexInStas(); i++){xFapNbOfEvts[i]=0;}
 
-	      //Int_t* NOFE_int = new Int_t[fEcal->MaxCrysEcnaInStex()];     fCnew++;
+	      Int_t* NOFE_int = new Int_t[fEcal->MaxCrysEcnaInStex()];     fCnew++;
 
 	      for(Int_t iStasStex=0; iStasStex<fEcal->MaxStexInStas(); iStasStex++)
 		{
-		  Bool_t OKFileExists   = kFALSE;
-		  Bool_t ok_data_exists = kFALSE;
+		  fMyRootFile->PrintNoComment();
+		  fMyRootFile->GetReadyToReadRootFile(fFapAnaType,          fFapNbOfSamples,
+						      fFapRunNumber,        fFapFirstReqEvtNumber,
+						      fFapLastReqEvtNumber, fFapReqNbOfEvts,
+						      iStasStex+1,          fCfgResultsRootFilePath.Data());
 
-		  TVectorD read_histo(fEcal->MaxStinEcnaInStex());
-		  for(Int_t i=0; i<fEcal->MaxStinEcnaInStex(); i++){read_histo(i)=(Double_t)0.;}
-
-		  if( arg_AlreadyRead == 0 )
+		  if ( fMyRootFile->LookAtRootFile() == kTRUE )        //   (ViewHisto, Stas)
 		    {
-		      //----------------------------------------------------------------------------- file reading
-		      fMyRootFile->PrintNoComment();
-		      Int_t n1StasStex = iStasStex+1;
-		      fMyRootFile->FileParameters(fFapAnaType,          fFapNbOfSamples,
-						  fFapRunNumber,        fFapFirstReqEvtNumber,
-						  fFapLastReqEvtNumber, fFapReqNbOfEvts,
-						  n1StasStex,           fCfgResultsRootFilePath.Data());
-		      
-		      if( fMyRootFile->LookAtRootFile() == kTRUE ){OKFileExists = kTRUE;}            //   (ViewHisto, Stas)
-		      if( OKFileExists == kTRUE )
-			{
-			  xFapNbOfEvts[iStasStex] = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts);
-			  fp_name_short = fMyRootFile->GetRootFileNameShort();
-			  // cout << "*TEcnaHistos::ViewHisto(...)> Data are analyzed from file ----> "
-			  //      << fp_name_short << endl;
-			  //....................... search for first and last dates
-			  if( iStasStex == 0 )
-			    {
-			      fStartTime = fMyRootFile->GetStartTime();
-			      fStopTime  = fMyRootFile->GetStopTime();
-			      fStartDate = fMyRootFile->GetStartDate();
-			      fStopDate  = fMyRootFile->GetStopDate();
-			    }
+		      fStatusFileFound = kTRUE;
 
+		      CounterExistingFile++;
+		      xFapNbOfEvts[iStasStex] = GetNumberOfEvents(fMyRootFile, fFapReqNbOfEvts);
+		      //----------------------------------------------------------------------------- file reading
+		      fp_name_short = fMyRootFile->GetRootFileNameShort();
+		      // cout << "*TEcnaHistos::ViewHisto(...)> Data are analyzed from file ----> "
+		      //      << fp_name_short << endl;
+		      
+		      //....................... search for first and last dates
+		      if( iStasStex == 0 )
+			{
+			  fStartTime = fMyRootFile->GetStartTime();
+			  fStopTime  = fMyRootFile->GetStopTime();
+			  fStartDate = fMyRootFile->GetStartDate();
+			  fStopDate  = fMyRootFile->GetStopDate();
+			}
+		      else
+			{
 			  time_t xStartTime = fMyRootFile->GetStartTime();
 			  time_t xStopTime  = fMyRootFile->GetStopTime();
 			  TString xStartDate = fMyRootFile->GetStartDate();
 			  TString xStopDate  = fMyRootFile->GetStopDate();
-
 			  if( xStartTime < fStartTime ){fStartTime = xStartTime; fStartDate = xStartDate;}
 			  if( xStopTime  > fStopTime  ){fStopTime  = xStopTime;  fStopDate  = xStopDate;}
-
-			  fRunType = fMyRootFile->GetRunType();
-			  ok_view_histo =
-			    GetOkViewHisto(fMyRootFile, StexStin_A, i0StinEcha, i0Sample, HistoCode.Data());
-
-			  if( ok_view_histo == kTRUE )
-			    {
-			      //............................................... histo reading   (ViewHisto, Stas)
-			      if( HistoCode == "D_NOE_ChNb" || HistoCode == "D_NOE_ChDs" ){
-				read_histo = fMyRootFile->ReadAverageNumberOfEvents(fEcal->MaxStinEcnaInStex());}
-			      if( HistoCode == "D_Ped_ChNb" || HistoCode == "D_Ped_ChDs" ){
-				read_histo = fMyRootFile->ReadAveragePedestals(fEcal->MaxStinEcnaInStex());}
-			      if( HistoCode == "D_TNo_ChNb" || HistoCode == "D_TNo_ChDs" ){
-				read_histo = fMyRootFile->ReadAverageTotalNoise(fEcal->MaxStinEcnaInStex());}
-			      if( HistoCode == "D_MCs_ChNb" || HistoCode == "D_MCs_ChDs" ){
-				read_histo = fMyRootFile->ReadAverageMeanCorrelationsBetweenSamples(fEcal->MaxStinEcnaInStex());}
-			      if( HistoCode == "D_LFN_ChNb" || HistoCode == "D_LFN_ChDs" ){
-				read_histo = fMyRootFile->ReadAverageLowFrequencyNoise(fEcal->MaxStinEcnaInStex());}
-			      if( HistoCode == "D_HFN_ChNb" || HistoCode == "D_HFN_ChDs" ){
-				read_histo = fMyRootFile->ReadAverageHighFrequencyNoise(fEcal->MaxStinEcnaInStex());}
-			      if( HistoCode == "D_SCs_ChNb" || HistoCode == "D_SCs_ChDs" ){
-				read_histo = fMyRootFile->ReadAverageSigmaOfCorrelationsBetweenSamples(fEcal->MaxStinEcnaInStex());}
-			      if( fMyRootFile->DataExist() == kTRUE ){ok_data_exists = kTRUE;}
-			    }
 			}
-		    }
+
+		      fRunType   = fMyRootFile->GetRunType();
+
+		      //............................................... histo reading   (ViewHisto, Stas)
+		      TVectorD read_histo(fEcal->MaxStinEcnaInStex());
+		      for(Int_t i=0; i<fEcal->MaxStinEcnaInStex(); i++){read_histo(i)=(Double_t)0.;}
 		  
-		  if( arg_AlreadyRead >= 1 )
-		    {
-		      ok_data_exists = kTRUE;
-		      for(Int_t i0Stin=0; i0Stin<fEcal->MaxStinEcnaInStex(); i0Stin++ )
-			{read_histo(i0Stin) = arg_read_histo(fEcal->MaxStinEcnaInStex()*iStasStex+i0Stin);}
-		    }
-
-		  if( ok_data_exists == kTRUE )
-		    {
-		      fStatusFileFound = kTRUE;
-		      CounterExistingFile++;
-
-
+		      if( HistoCode == "D_NOE_ChNb" || HistoCode == "D_NOE_ChDs" ){
+			read_histo = fMyRootFile->ReadAveragedNumberOfEvents(fEcal->MaxStinEcnaInStex());}
+		      if( HistoCode == "D_Ped_ChNb" || HistoCode == "D_Ped_ChDs" ){
+			read_histo = fMyRootFile->ReadAveragedPedestals(fEcal->MaxStinEcnaInStex());}
+		      if( HistoCode == "D_TNo_ChNb" || HistoCode == "D_TNo_ChDs" ){
+			read_histo = fMyRootFile->ReadAveragedTotalNoise(fEcal->MaxStinEcnaInStex());}
+		      if( HistoCode == "D_MCs_ChNb" || HistoCode == "D_MCs_ChDs" ){
+			read_histo = fMyRootFile->ReadAveragedMeanOfCorrelationsBetweenSamples(fEcal->MaxStinEcnaInStex());}
+		      if( HistoCode == "D_LFN_ChNb" || HistoCode == "D_LFN_ChDs" ){
+			read_histo = fMyRootFile->ReadAveragedLowFrequencyNoise(fEcal->MaxStinEcnaInStex());}
+		      if( HistoCode == "D_HFN_ChNb" || HistoCode == "D_HFN_ChDs" ){
+			read_histo = fMyRootFile->ReadAveragedHighFrequencyNoise(fEcal->MaxStinEcnaInStex());}
+		      if( HistoCode == "D_SCs_ChNb" || HistoCode == "D_SCs_ChDs" ){
+			read_histo = fMyRootFile->ReadAveragedSigmaOfCorrelationsBetweenSamples(fEcal->MaxStinEcnaInStex());}
+		  
 		      //...........................................................
-		      if( ok_data_exists == kTRUE )
+		      if( fMyRootFile->DataExist() == kTRUE )
 			{
 			  fStatusDataExist = kTRUE;
+
 			  CounterDataExist++;
 
 			  for(Int_t i0StexStinEcna=0; i0StexStinEcna<fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
@@ -6722,11 +6437,11 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 				  if( DeeNumber == 2 ){DeeOffset += 3*fEcal->MaxSCForConsInDee()-1;}   // 446
 				  if( DeeNumber == 1 ){DeeOffset += 4*fEcal->MaxSCForConsInDee()-1;}   // 595
 			      
-				  //................................................ Data Sector offset   (ViewHisto, Stas)
+				  //................................................ Data Sector offset   (ViewHisto)
 				  Int_t StexDataSector = fEcalNumbering->GetDSFrom1DeeSCEcna(DeeNumber, n1DeeSCEcna);
 				  //.... returns 0 if n1DeeSCEcna corresponds to an empty "ECNA-SC"
 				  
-				  //................................................ SC final coordinate   (ViewHisto, Stas)
+				  //................................................ SC final coordinate   (ViewHisto)
 				  Int_t StexDSStin = fEcalNumbering->GetDSSCFrom1DeeSCEcna(DeeNumber, n1DeeSCEcna);
 				  //--> return StexDSStin = 25 (not  3) for n1DeeSCEcna = 32
 				  //--> return StexDSStin = 14 (not 21) for n1DeeSCEcna = 29
@@ -6738,7 +6453,7 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 					{
 					  for(Int_t is=2; is<=5; is++)
 					    { if( StexDataSector >= is )
-						{Int_t ism = is-1; DSOffset += fEcalNumbering->GetMaxSCInDS(ism);}}
+					      {DSOffset += fEcalNumbering->GetMaxSCInDS(is-1);}}
 					}
 				  
 				      if( DeeNumber == 3 ) // Sectors 5b,6,7,8,9
@@ -6747,7 +6462,7 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 					    {DSOffset += fEcalNumbering->GetMaxSCInDS(5)/2;}
 					  for(Int_t is=7; is<=9; is++)
 					    { if( StexDataSector >= is )
-					      {Int_t ism = is-1; DSOffset += fEcalNumbering->GetMaxSCInDS(ism);}}
+					      {DSOffset += fEcalNumbering->GetMaxSCInDS(is-1);}}
 					}
 				  
 				      if( DeeNumber == 2 ) // Sectors 9,8,7,6,5a
@@ -6756,14 +6471,14 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 					    {DSOffset -= fEcalNumbering->GetMaxSCInDS(5)/2;}
 					  for(Int_t is=7; is<=9; is++)
 					    {if( StexDataSector >= is )
-					      {Int_t ism = is-1; DSOffset -= fEcalNumbering->GetMaxSCInDS(ism);}}
+					      {DSOffset -= fEcalNumbering->GetMaxSCInDS(is-1);}}
 					}
 				  
 				      if( DeeNumber == 1 ) // Sectors 5b,4,3,2,1
 					{
 					  for(Int_t is=2; is<=5; is++)
 					    { if( StexDataSector >= is )
-					      {Int_t ism = is-1; DSOffset -= fEcalNumbering->GetMaxSCInDS(ism);}}
+					      {DSOffset -= fEcalNumbering->GetMaxSCInDS(is-1);}}
 					}
 				  
 				      if( StexDSStin >=1 && StexDSStin <= fEcalNumbering->GetMaxSCInDS(StexDataSector) )
@@ -6900,55 +6615,33 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 
 		} // end of for(Int_t iStasStex=0; iStasStex<fEcal->MaxStexInStas(); iStasStex++)
 
-	      //delete [] NOFE_int; NOFE_int = 0;               fCdelete++;
+	      delete [] NOFE_int; NOFE_int = 0;               fCdelete++;
 	      delete [] xFapNbOfEvts; xFapNbOfEvts = 0;       fCdelete++;
 	    
 	      if( CounterExistingFile > 0 && CounterDataExist > 0 ){OKPlot = 1;} 
 	  
 	    } // end of if( fFapStexNumber == 0 )
 	
-	  //---------------------------------------------------------------------------- (ViewHisto [Stex])
-
+	  //---------------------------------------------------------------------------- (ViewHisto [Stex])      
 	  if( fFapStexNumber > 0 )
 	    {
-	      Bool_t OKFileExists  = kFALSE ;
-	      Bool_t ok_view_histo = kFALSE;
-
-	      if( arg_AlreadyRead == 0 )
-		{
-		  fMyRootFile->PrintNoComment();
-		  fMyRootFile->FileParameters(fFapAnaType,          fFapNbOfSamples,
-					      fFapRunNumber,        fFapFirstReqEvtNumber,
-					      fFapLastReqEvtNumber, fFapReqNbOfEvts,
-					      fFapStexNumber,       fCfgResultsRootFilePath.Data());
-		  
-		  if ( fMyRootFile->LookAtRootFile() == kTRUE ){OKFileExists = kTRUE;}       //   (ViewHisto, Stex)	       
-		  
-		  if( OKFileExists == kTRUE )
-		    {
-		      fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts);
-		      fp_name_short = fMyRootFile->GetRootFileNameShort();
-		      // cout << "*TEcnaHistos::ViewHisto(...)> Data are analyzed from file ----> "
-		      //      << fp_name_short << endl;
-		      
-		      fStartDate = fMyRootFile->GetStartDate();
-		      fStopDate  = fMyRootFile->GetStopDate();
-		      fRunType   = fMyRootFile->GetRunType();
-
-		      ok_view_histo =
-			GetOkViewHisto(fMyRootFile, StexStin_A, i0StinEcha, i0Sample, HistoCode.Data());
-		    }
-		}
-	      
-	      if( arg_AlreadyRead >= 1 )
-		{
-		  OKFileExists = kTRUE; ok_view_histo = kTRUE;
-		}
-	      
-	      if( OKFileExists == kTRUE ) 
+	      fMyRootFile->PrintNoComment();
+	      fMyRootFile->GetReadyToReadRootFile(fFapAnaType,          fFapNbOfSamples,
+						  fFapRunNumber,        fFapFirstReqEvtNumber,
+						  fFapLastReqEvtNumber, fFapReqNbOfEvts,
+						  fFapStexNumber,       fCfgResultsRootFilePath.Data());
+	  
+	      if ( fMyRootFile->LookAtRootFile() == kTRUE )       //   (ViewHisto, Stex)
 		{
 		  fStatusFileFound = kTRUE;
 		  //---------------------------------------------------------------------------- (ViewHisto [Stex])
+		  fFapNbOfEvts = GetNumberOfEvents(fMyRootFile, fFapReqNbOfEvts);
+		  fp_name_short = fMyRootFile->GetRootFileNameShort();
+		  // cout << "*TEcnaHistos::ViewHisto(...)> Data are analyzed from file ----> "
+		  //      << fp_name_short << endl;
+	      
+		  Bool_t ok_view_histo =
+		    GetOkViewHisto(fMyRootFile, StexStin_A, i0StinEcha, iSample, HistoCode.Data());
 	      
 		  if( ok_view_histo == kTRUE )
 		    {
@@ -6956,9 +6649,8 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 		      if( fFlagSubDet == "EB" || 
 			  ( fFlagSubDet == "EE" && ( HistoType == "SampGlobal" || HistoType == "SampProj" )  )  )
 			{
-			  histo_for_plot = GetHistoValues(arg_read_histo, arg_AlreadyRead, fMyRootFile, HistoCode.Data(),
-							  SizeForPlot, SizeForRead,
-							  StexStin_A,  i0StinEcha, i0Sample, i_data_exist);
+			  histo_for_plot = GetHistoValues(fMyRootFile, HistoCode.Data(), SizeForPlot, SizeForRead,
+							  StexStin_A, i0StinEcha, iSample, i_data_exist);
 			  if( i_data_exist > 0 ){OKPlot = 1;}
 			  if( OKPlot == 1 && opt_plot == "ASCII" && ( HistoType == "Global" || HistoType == "Proj" ) )
 			    {WriteHistoAscii(HistoCode.Data(), SizeForPlot, histo_for_plot);}
@@ -6970,9 +6662,8 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 			  TVectorD read_histo(SizeForRead);
 			  for(Int_t i=0; i<SizeForRead; i++){read_histo(i)=(Double_t)0.;}
 
-			  read_histo = GetHistoValues(arg_read_histo, arg_AlreadyRead, fMyRootFile, HistoCode.Data(),
-						      SizeForRead, SizeForRead,
-						      StexStin_A, i0StinEcha, i0Sample, i_data_exist);
+			  read_histo = GetHistoValues(fMyRootFile, HistoCode.Data(), SizeForRead, SizeForRead,
+						      StexStin_A, i0StinEcha, iSample, i_data_exist);
 			  if( i_data_exist > 0 ){OKPlot = 1;}
 			  if( OKPlot == 1 && opt_plot == "ASCII" )
 			    {
@@ -7139,38 +6830,21 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 	  //--------------------------------------------------------------------- not Global-Proj Histo
 	  if( (fFapStexNumber > 0) && (fFapStexNumber <= fEcal->MaxStexInStas()) )
 	    {
-	      Bool_t OKFileExists = kFALSE;
-
-	      if( !(arg_AlreadyRead > 1) )
-		{
-		  fMyRootFile->PrintNoComment();
-		  fMyRootFile->FileParameters(fFapAnaType,          fFapNbOfSamples,
-					      fFapRunNumber,        fFapFirstReqEvtNumber,
-					      fFapLastReqEvtNumber, fFapReqNbOfEvts,
-					      fFapStexNumber,       fCfgResultsRootFilePath.Data());
-		  OKFileExists = fMyRootFile->LookAtRootFile();
-		  if( OKFileExists == kTRUE ){fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts);}
-		}
-	      else
-		{
-		  OKFileExists = kTRUE;
-		}
-	      
-	      if( OKFileExists == kTRUE )    //   (ViewHisto, not Global-Proj)
+	      fMyRootFile->PrintNoComment();
+	      fMyRootFile->GetReadyToReadRootFile(fFapAnaType,          fFapNbOfSamples,
+						  fFapRunNumber,        fFapFirstReqEvtNumber,
+						  fFapLastReqEvtNumber, fFapReqNbOfEvts,
+						  fFapStexNumber,       fCfgResultsRootFilePath.Data());
+	  
+	      if ( fMyRootFile->LookAtRootFile() == kTRUE )    //   (ViewHisto, not Global-Proj)
 		{
 		  fStatusFileFound = kTRUE;
 
+		  fFapNbOfEvts = GetNumberOfEvents(fMyRootFile, fFapReqNbOfEvts);
+
 		  for(Int_t i=0; i<SizeForPlot; i++){histo_for_plot[i]=(Double_t)0;}
-
-		  histo_for_plot = GetHistoValues(arg_read_histo, arg_AlreadyRead, fMyRootFile, HistoCode.Data(),
-						  SizeForPlot, SizeForRead,
-						  StexStin_A, i0StinEcha, i0Sample, i_data_exist);
-
-		  fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts);
-		  fStartDate = fMyRootFile->GetStartDate();
-		  fStopDate  = fMyRootFile->GetStopDate();
-		  fRunType   = fMyRootFile->GetRunType();
-		  
+		  histo_for_plot = GetHistoValues(fMyRootFile, HistoCode.Data(), SizeForPlot, SizeForRead,
+						  StexStin_A, i0StinEcha, iSample, i_data_exist);
 		  if( i_data_exist > 0 ){OKPlot = 1;}
 		}
 	      else
@@ -7188,13 +6862,9 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 	}
 
       //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PLOT accepted 
-
-      if( (    HistoType == "Global"     || HistoType == "Proj" ||
-	       HistoType == "SampGlobal" || HistoType == "SampProj" || 
-	       HistoType == "H1Basic"    || HistoType == "H1BasicProj" ) ||
-	  ( !( HistoType == "Global"     || HistoType == "Proj" ||
-	       HistoType == "SampGlobal" || HistoType == "SampProj" || 
-	       HistoType == "H1Basic"    || HistoType == "H1BasicProj" ) &&
+    
+      if( (    HistoType == "Global" || HistoType == "Proj" || HistoType == "SampGlobal" || HistoType == "SampProj") ||
+	  ( !( HistoType == "Global" || HistoType == "Proj" || HistoType == "SampGlobal" || HistoType == "SampProj") &&
 	    ( (fFapStexNumber > 0) && (fFapStexNumber <= fEcal->MaxStexInStas()) ) ) )
 	{
 	  if( opt_plot != "ASCII" )
@@ -7203,9 +6873,9 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 		{
 		  //... Ymin and ymax default values will be taken if fFlagUserHistoMin/Max = "OFF"
 		  //    and if "Free" for "SAME" and "SAME n" options
-		  if( (opt_plot == fOnlyOnePlot && ( arg_AlreadyRead == 0 || arg_AlreadyRead == 1 ) ) ||
-		      (opt_plot == fSeveralPlot && GetMemoFlag(HistoCode, opt_plot) == "Free") ||
-		      (opt_plot == fSameOnePlot && GetMemoFlag(HistoCode, opt_plot) == "Free") )
+		  if((opt_plot == fOnlyOnePlot) ||
+		     (opt_plot == fSeveralPlot && GetMemoFlag(HistoCode, opt_plot) == "Free") ||
+		     (opt_plot == fSameOnePlot && GetMemoFlag(HistoCode, opt_plot) == "Free") )
 		    {
 		      SetYminMemoFromValue(HistoCode.Data(), fCnaParHistos->GetYminDefaultValue(HistoCode.Data()));
 		      SetYmaxMemoFromValue(HistoCode.Data(), fCnaParHistos->GetYmaxDefaultValue(HistoCode.Data()));
@@ -7223,7 +6893,7 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 		  //                 of the direct ("Global") histo
 		  //
 		  //-----------------------------------------------------------------------------------------
-		  if( HistoType == "Proj" || HistoType == "SampProj" || HistoType == "H1BasicProj" )
+		  if( HistoType == "Proj" || HistoType == "SampProj" )
 		    {
 		      TString HistoCodi = HistoCode;     // HistoCodi = direct histo
 
@@ -7234,8 +6904,6 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 		      if( HistoCode == "D_LFN_ChDs" ){HistoCodi = "D_LFN_ChNb";}
 		      if( HistoCode == "D_HFN_ChDs" ){HistoCodi = "D_HFN_ChNb";}
 		      if( HistoCode == "D_SCs_ChDs" ){HistoCodi = "D_SCs_ChNb";}
-		      if( HistoCode == "D_MSp_SpDs" ){HistoCodi = "D_MSp_SpNb";}
-		      if( HistoCode == "D_SSp_SpDs" ){HistoCodi = "D_SSp_SpNb";}
 		      if( HistoCode == "D_Adc_EvDs" ){HistoCodi = "D_Adc_EvNb";}		      
 
 		      TString TitleHisto = ";";
@@ -7251,9 +6919,9 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 		      //    fSameOnePlot => compute Xinf and Xsup once
 		      //
 		      //--------------------------------------------------------------------------------------
-		      if( (opt_plot == fOnlyOnePlot && ( arg_AlreadyRead == 0 || arg_AlreadyRead == 1 ) ) ||
-			  (opt_plot == fSeveralPlot && GetMemoFlag(HistoCode, fSeveralPlot) == "Free" ) ||
-			  (opt_plot == fSameOnePlot && GetMemoFlag(HistoCode, fSameOnePlot) == "Free" ) )
+		      if( (opt_plot == fOnlyOnePlot) ||
+			  ( (opt_plot == fSeveralPlot && GetMemoFlag(HistoCode, fSeveralPlot) == "Free" ) ||
+			    (opt_plot == fSameOnePlot && GetMemoFlag(HistoCode, fSameOnePlot) == "Free" ) ) )
 			{
 			  Double_t XinfProj =(Double_t)0;
 			  Double_t XsupProj =(Double_t)0;
@@ -7279,7 +6947,6 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 			      XsupProj = fUserHistoMax;
 			      if( fFlagUserHistoMin == "AUTO" ){XinfProj = h_hisa->GetMinimum();}
 			      if( fFlagUserHistoMax == "AUTO" ){XsupProj = h_hisa->GetMaximum();}
-			      XsupProj += (XsupProj-XinfProj)*fCnaParHistos->GetMarginAutoMinMax(); // to see the last bin
 			      h_hisa->Delete();  h_hisa = 0;     fCdeleteRoot++;
 			    } // end of  if( fFlagUserHistoMin == "AUTO" || fFlagUserHistoMax == "AUTO" )
 			  else
@@ -7314,7 +6981,8 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 			} // end of if( (opt_plot == fOnlyOnePlot) || 
 		          // (opt_plot == fSeveralPlot  && GetMemoFlag(HistoCode, opt_plot) == "Free") ||
 		          // (opt_plot == fSameOnePlot  && GetMemoFlag(HistoCode, opt_plot) == "Free") )
-		    } // end of  if( HistoType == "Proj" || HistoType == "SampProj" || HistoType == "H1BasicProj" )
+		    } // end of  if( HistoType == "Proj" || HistoType == "SampProj" )
+
 
 		  //===============  H I S T O   B O O K I N G   A N D   F I L L I N G  ========  (ViewHisto)
 		  //..............................  prepa histogram booking (ViewHisto)
@@ -7326,7 +6994,7 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 		  Double_t cXsup = (Double_t)0.;
 
 		  //.......... Set Xinf and Xsup at each time because of simultaneous SAME options
-		  if( HistoType == "Proj" || HistoType == "SampProj" || HistoType == "H1BasicProj")
+		  if( HistoType == "Proj" || HistoType == "SampProj" )
 		    {
 		      if( opt_plot == fOnlyOnePlot || opt_plot == fSeveralPlot )
 			{
@@ -7365,7 +7033,7 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 		    {
 		      if( opt_plot == fSameOnePlot ){fHistoCodeFirst = HistoCode;} // registration of first HistoCode
 		      //................................. Automatic min and/or max for other options than "Proj" 
-		      if( HistoType != "Proj" && HistoType != "SampProj" && HistoType != "H1BasicProj" )
+		      if( HistoType != "Proj" && HistoType != "SampProj" )
 			{
 			  if( fUserHistoMin >= fUserHistoMax ){fFlagUserHistoMin = "AUTO"; fFlagUserHistoMax = "AUTO";}
 			  //................................. user's min and/or max
@@ -7394,11 +7062,10 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 			  //................................. Set YMin and YMax of histo (ViewHisto)
 			  SetYminMemoFromPreviousMemo(HistoCode);
 			  SetYmaxMemoFromPreviousMemo(HistoCode);
-			} // end of if( HistoType != "Proj" && HistoType != "SampProj" && HistoType != "H1BasicProj" )
+			} // end of if( HistoType != "Proj" && HistoType != "SampProj" )
 
 		      //.......... Find maximum in case of Proj (LIN scale only) // PS: EvolProj => in ViewHistime
-		      if( ( HistoType == "Proj" || HistoType == "SampProj" ||
-			    HistoType == "H1BasicProj" ) && fFlagScaleY == "LIN" )
+		      if( ( HistoType == "Proj" || HistoType == "SampProj" ) && fFlagScaleY == "LIN" )
 		      	{
 		      	  SetYmaxMemoFromValue
 		      	    (HistoCode.Data(),
@@ -7420,18 +7087,18 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 
 		  //... histogram set ymin and ymax and consequently margin at top of the plot
 		  Int_t  xFlagAutoYsupMargin = SetHistoFrameYminYmaxFromMemo(h_his0, HistoCode);
-
+		  
 		  //==================================== P L O T ==============================  (ViewHisto)
 		  HistoPlot(h_his0,           SizeForPlot,   xinf_his, xsup_his,
 			    HistoCode.Data(), HistoType.Data(),
-			    StexStin_A,       i0StinEcha,    i0Sample,
-			    opt_scale_x,      opt_scale_y,   opt_plot, arg_AlreadyRead,
-			    xFlagAutoYsupMargin);
+			    StexStin_A,       i0StinEcha,    iSample,
+			    opt_scale_x,      opt_scale_y,   opt_plot, xFlagAutoYsupMargin);
+
 		  h_his0->Delete();   h_his0 = 0;             fCdeleteRoot++;
 		  //===========================================================================
 
 		  //--- Recover ymin and ymax from user's values in option SAME n
-		  if( (opt_plot == fSameOnePlot && GetMemoFlag(HistoCode, opt_plot) == "Busy") )		  
+		  if( opt_plot == fSameOnePlot && GetMemoFlag(HistoCode, opt_plot) == "Busy" )		  
 		    {
 		      SetYminMemoFromValue(HistoCode.Data(), fUserHistoMin);
 		      SetYmaxMemoFromValue(HistoCode.Data(), fUserHistoMax);
@@ -7445,7 +7112,6 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 	    }
 	}
     } // end of  if( OKHisto == 1 )
-
 }  // end of ViewHisto(...)
 
 //------------------------------------------------------------------------------------
@@ -7897,7 +7563,6 @@ Int_t TEcnaHistos::ModifiedSCEchaForNotConnectedSCs(const Int_t& n1DeeNumber,
 	   << fTTBELL << endl;
     }
 
- 
   return ModifiedSCEcha;
 }
 // end of ModifiedSCEchaForNotConnectedSCs(...)
@@ -7907,6 +7572,181 @@ Int_t TEcnaHistos::ModifiedSCEchaForNotConnectedSCs(const Int_t& n1DeeNumber,
 //                          ViewHistime: evolution in time
 //
 //======================================================================================
+void TEcnaHistos::XtalTimePedestals(const TString  list_of_run_file_name,
+				    const Int_t&   aStexStin_A,      const Int_t& i0StinEcha)
+{XtalTimePedestals(list_of_run_file_name, aStexStin_A, i0StinEcha, "ONLYONE");}
+void TEcnaHistos::XtalTimePedestals(const TString  list_of_run_file_name,
+				    const Int_t&   aStexStin_A,      const Int_t& i0StinEcha,
+				    const TString  PlotOption)
+{
+  Int_t StexStin_A = aStexStin_A;
+  if( fFlagSubDet == "EE" )
+    {StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_A);}
+
+  ViewHistime(list_of_run_file_name, StexStin_A, i0StinEcha, "H_Ped_Date", PlotOption);
+}
+
+void TEcnaHistos::XtalPedestalsRuns(const TString  list_of_run_file_name,
+				    const Int_t&   aStexStin_A,      const Int_t& i0StinEcha)
+{XtalPedestalsRuns(list_of_run_file_name, aStexStin_A, i0StinEcha, "ONLYONE");}
+void TEcnaHistos::XtalPedestalsRuns(const TString  list_of_run_file_name,
+				    const Int_t&   aStexStin_A,      const Int_t& i0StinEcha,
+				    const TString  PlotOption)
+{
+  Int_t StexStin_A = aStexStin_A;
+  if( fFlagSubDet == "EE" )
+    {StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_A);}
+
+  ViewHistime(list_of_run_file_name, StexStin_A, i0StinEcha, "H_Ped_RuDs", PlotOption);
+}
+
+
+//.....................................................................................
+void TEcnaHistos::XtalTimeTotalNoise(const TString  list_of_run_file_name,
+				     const Int_t&   aStexStin_A,      const Int_t& i0StinEcha)
+{XtalTimeTotalNoise(list_of_run_file_name, aStexStin_A, i0StinEcha, "ONLYONE");}
+void TEcnaHistos::XtalTimeTotalNoise(const TString  list_of_run_file_name,
+				     const Int_t&   aStexStin_A,      const Int_t& i0StinEcha,
+				     const TString  PlotOption)
+{
+  Int_t StexStin_A = aStexStin_A;
+  if( fFlagSubDet == "EE" )
+    {StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_A);}
+
+  ViewHistime(list_of_run_file_name, StexStin_A, i0StinEcha, "H_TNo_Date", PlotOption);
+}
+
+void TEcnaHistos::XtalTotalNoiseRuns(const TString  list_of_run_file_name,
+				     const Int_t&   aStexStin_A,      const Int_t& i0StinEcha)
+{XtalTotalNoiseRuns(list_of_run_file_name, aStexStin_A, i0StinEcha, "ONLYONE");}
+void TEcnaHistos::XtalTotalNoiseRuns(const TString  list_of_run_file_name,
+				     const Int_t&   aStexStin_A,      const Int_t& i0StinEcha,
+				     const TString  PlotOption)
+{
+  Int_t StexStin_A = aStexStin_A;
+  if( fFlagSubDet == "EE" )
+    {StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_A);}
+
+  ViewHistime(list_of_run_file_name, StexStin_A, i0StinEcha, "H_TNo_RuDs", PlotOption);
+}
+
+//.....................................................................................
+void TEcnaHistos::XtalTimeMeanOfCorss(const TString  list_of_run_file_name,
+				      const Int_t&   aStexStin_A,      const Int_t& i0StinEcha)
+{XtalTimeMeanOfCorss(list_of_run_file_name, aStexStin_A, i0StinEcha, "ONLYONE");}
+void TEcnaHistos::XtalTimeMeanOfCorss(const TString  list_of_run_file_name,
+				      const Int_t&   aStexStin_A,      const Int_t& i0StinEcha,
+				      const TString  PlotOption)
+{
+  Int_t StexStin_A = aStexStin_A;
+  if( fFlagSubDet == "EE" )
+    {StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_A);}
+
+ ViewHistime(list_of_run_file_name, StexStin_A, i0StinEcha, "H_MCs_Date", PlotOption);
+}
+
+void TEcnaHistos::XtalMeanOfCorssRuns(const TString  list_of_run_file_name,
+				     const Int_t&   aStexStin_A,      const Int_t& i0StinEcha)
+{XtalMeanOfCorssRuns(list_of_run_file_name, aStexStin_A, i0StinEcha, "ONLYONE");}
+void TEcnaHistos::XtalMeanOfCorssRuns(const TString  list_of_run_file_name,
+				      const Int_t&   aStexStin_A,      const Int_t& i0StinEcha,
+				      const TString  PlotOption)
+{
+  Int_t StexStin_A = aStexStin_A;
+  if( fFlagSubDet == "EE" )
+    {StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_A);}
+
+  ViewHistime(list_of_run_file_name, StexStin_A, i0StinEcha, "H_MCs_RuDs", PlotOption);
+}
+
+//.....................................................................................
+void TEcnaHistos::XtalTimeLowFrequencyNoise(const TString  list_of_run_file_name,
+					    const Int_t&   aStexStin_A,      const Int_t& i0StinEcha)
+{XtalTimeLowFrequencyNoise(list_of_run_file_name, aStexStin_A, i0StinEcha, "ONLYONE");}
+void TEcnaHistos::XtalTimeLowFrequencyNoise(const TString  list_of_run_file_name,
+					    const Int_t&   aStexStin_A,      const Int_t& i0StinEcha,
+					    const TString  PlotOption)
+{
+  Int_t StexStin_A = aStexStin_A;
+  if( fFlagSubDet == "EE" )
+    {StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_A);}
+
+  ViewHistime(list_of_run_file_name, StexStin_A, i0StinEcha, "H_LFN_Date", PlotOption);
+}
+
+void TEcnaHistos::XtalLowFrequencyNoiseRuns(const TString  list_of_run_file_name,
+					    const Int_t&   aStexStin_A,      const Int_t& i0StinEcha)
+{XtalLowFrequencyNoiseRuns(list_of_run_file_name, aStexStin_A, i0StinEcha, "ONLYONE");}
+void TEcnaHistos::XtalLowFrequencyNoiseRuns(const TString  list_of_run_file_name,
+					    const Int_t&   aStexStin_A,      const Int_t& i0StinEcha,
+					    const TString  PlotOption)
+{
+  Int_t StexStin_A = aStexStin_A;
+  if( fFlagSubDet == "EE" )
+    {StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_A);}
+
+  ViewHistime(list_of_run_file_name, StexStin_A, i0StinEcha, "H_LFN_RuDs", PlotOption);
+}
+
+
+//.....................................................................................
+void TEcnaHistos::XtalTimeHighFrequencyNoise(const TString  list_of_run_file_name,
+					     const Int_t&   aStexStin_A,      const Int_t& i0StinEcha)
+{XtalTimeHighFrequencyNoise(list_of_run_file_name, aStexStin_A, i0StinEcha, "ONLYONE");}
+void TEcnaHistos::XtalTimeHighFrequencyNoise(const TString  list_of_run_file_name,
+					     const Int_t&   aStexStin_A,      const Int_t& i0StinEcha,
+					     const TString  PlotOption)
+{
+  Int_t StexStin_A = aStexStin_A;
+  if( fFlagSubDet == "EE" )
+    {StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_A);}
+
+  ViewHistime(list_of_run_file_name, StexStin_A, i0StinEcha, "H_HFN_Date", PlotOption);
+}
+
+void TEcnaHistos::XtalHighFrequencyNoiseRuns(const TString  list_of_run_file_name,
+					     const Int_t&   aStexStin_A,      const Int_t& i0StinEcha)
+{XtalHighFrequencyNoiseRuns(list_of_run_file_name, aStexStin_A, i0StinEcha, "ONLYONE");}
+void TEcnaHistos::XtalHighFrequencyNoiseRuns(const TString  list_of_run_file_name,
+					     const Int_t&   aStexStin_A,      const Int_t& i0StinEcha,
+					     const TString  PlotOption)
+{
+  Int_t StexStin_A = aStexStin_A;
+  if( fFlagSubDet == "EE" )
+    {StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_A);}
+
+  ViewHistime(list_of_run_file_name, StexStin_A, i0StinEcha, "H_HFN_RuDs", PlotOption);
+}
+
+
+//.....................................................................................
+void TEcnaHistos::XtalTimeSigmaOfCorss(const TString  list_of_run_file_name,
+				       const Int_t&   aStexStin_A,      const Int_t& i0StinEcha)
+{XtalTimeSigmaOfCorss(list_of_run_file_name, aStexStin_A, i0StinEcha, "ONLYONE");}
+void TEcnaHistos::XtalTimeSigmaOfCorss(const TString  list_of_run_file_name,
+				       const Int_t&   aStexStin_A,      const Int_t& i0StinEcha,
+				       const TString  PlotOption)
+{
+  Int_t StexStin_A = aStexStin_A;
+  if( fFlagSubDet == "EE" )
+    {StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_A);}
+
+  ViewHistime(list_of_run_file_name, StexStin_A, i0StinEcha, "H_SCs_Date", PlotOption);
+}
+
+void TEcnaHistos::XtalSigmaOfCorssRuns(const TString  list_of_run_file_name,
+				      const Int_t&   aStexStin_A,      const Int_t& i0StinEcha)
+{XtalSigmaOfCorssRuns(list_of_run_file_name, aStexStin_A, i0StinEcha, "ONLYONE");}
+void TEcnaHistos::XtalSigmaOfCorssRuns(const TString  list_of_run_file_name,
+				       const Int_t&   aStexStin_A,      const Int_t& i0StinEcha,
+				       const TString  PlotOption)
+{
+  Int_t StexStin_A = aStexStin_A;
+  if( fFlagSubDet == "EE" )
+    {StexStin_A = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fFapStexNumber, aStexStin_A);}
+
+  ViewHistime(list_of_run_file_name, StexStin_A, i0StinEcha, "H_SCs_RuDs", PlotOption);
+}
 
 //======================================================================================
 //
@@ -7919,8 +7759,7 @@ void TEcnaHistos::ViewHistime(const TString list_of_run_file_name,
 {
   //Histogram of the quantities as a function of time (several runs)
 
-  TString opt_plot  = opt_plot_arg;
-  TString HistoType = fCnaParHistos->GetHistoType(HistoCode);
+  TString opt_plot = opt_plot_arg;
 
   if( opt_plot_arg == "ONLYONE" ){opt_plot = fOnlyOnePlot;}
   if( opt_plot_arg == "SEVERAL" ){opt_plot = fSeveralPlot;}
@@ -7950,13 +7789,17 @@ void TEcnaHistos::ViewHistime(const TString list_of_run_file_name,
     }
   //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+  TString XVarHisto = fCnaParHistos->GetXVarHisto(HistoCode.Data(), fFlagSubDet.Data(), fFapStexNumber);
+  TString YVarHisto = fCnaParHistos->GetYVarHisto(HistoCode.Data(), fFlagSubDet.Data(), fFapStexNumber);
+
+  TString HistoType = fCnaParHistos->GetHistoType(HistoCode);
+
   //%%%%%%%%%%%%%%%%%%%%% Change of X variable in option SAME n with no proj %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   Int_t SameXVarMemo = 1;   //  a priori ==> SAME n option: X variable OK                     (ViewHistime)
-  if( !( HistoType == "Proj" || HistoType == "SampProj" || HistoType == "H1BasicProj" || HistoType == "EvolProj" ) )
+  if( !( HistoType == "Proj" || HistoType == "SampProj" || HistoType == "EvolProj") )
     {
-      TString XVarHisto = fCnaParHistos->GetXVarHisto(HistoCode.Data(), fFlagSubDet.Data(), fFapStexNumber);
-      TString YVarHisto = fCnaParHistos->GetYVarHisto(HistoCode.Data(), fFlagSubDet.Data(), fFapStexNumber);
 
+      
       if( (opt_plot == fSameOnePlot ) && GetMemoFlag(HistoCode, opt_plot) == "Free" )
 	{
 	  SetXVarMemo(HistoCode, opt_plot, XVarHisto);  SetYVarMemo(HistoCode, opt_plot, YVarHisto); SameXVarMemo = 1;
@@ -7984,11 +7827,8 @@ void TEcnaHistos::ViewHistime(const TString list_of_run_file_name,
 
   //%%%%%%%%%%%%%%%%%%%%%%% Change of Y variable in option SAME n with proj %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
   Int_t SameYVarMemo = 1;   //  a priori ==> SAME n option: Y variable OK                     (ViewHistime)
-  if(  HistoType == "Proj" || HistoType == "SampProj" || HistoType == "H1BasicProj" || HistoType == "EvolProj" )
+  if(  HistoType == "Proj" || HistoType == "SampProj" || HistoType == "EvolProj" )
     {
-      TString XVarHisto = fCnaParHistos->GetXVarHisto(HistoCode.Data(), fFlagSubDet.Data(), fFapStexNumber);
-      TString YVarHisto = fCnaParHistos->GetYVarHisto(HistoCode.Data(), fFlagSubDet.Data(), fFapStexNumber);
-
       if( (opt_plot == fSameOnePlot ) && GetMemoFlag(HistoCode, opt_plot) == "Free" )
 	{
 	  SetYVarMemo(HistoCode, opt_plot, YVarHisto);  SetYVarMemo(HistoCode, opt_plot, YVarHisto); SameYVarMemo = 1;
@@ -8067,10 +7907,10 @@ void TEcnaHistos::ViewHistime(const TString list_of_run_file_name,
 		  SetRunNumberFromList(i_run, nb_of_runs_in_list);
 
 		  fMyRootFile->PrintNoComment();
-		  fMyRootFile->FileParameters(fFapAnaType.Data(),   fFapNbOfSamples,
-					      fT1DRunNumber[i_run], fFapFirstReqEvtNumber,
-					      fFapLastReqEvtNumber, fFapReqNbOfEvts,
-					      fFapStexNumber,       fCfgResultsRootFilePath.Data());
+		  fMyRootFile->GetReadyToReadRootFile(fFapAnaType.Data(),   fFapNbOfSamples,
+						      fT1DRunNumber[i_run], fFapFirstReqEvtNumber,
+						      fFapLastReqEvtNumber, fFapReqNbOfEvts,
+						      fFapStexNumber,       fCfgResultsRootFilePath.Data());
 		  
 		  if ( fMyRootFile->LookAtRootFile() == kTRUE )             //   (ViewHistime, 1rst loop)
 		    {
@@ -8140,9 +7980,9 @@ void TEcnaHistos::ViewHistime(const TString list_of_run_file_name,
 		  Axis_t xinf_his = (Axis_t)(xinf_lim);
 		  Axis_t xsup_his = (Axis_t)(xsup_lim);
 
-		  //............................. i0StexEcha, i0Sample
+		  //............................. i0StexEcha, iSample
 		  Int_t i0StexEcha = fEcalNumbering->Get0StexEchaFrom1StexStinAnd0StinEcha(StexStin_A, i0StinEcha);
-		  Int_t i0Sample = 0;
+		  Int_t iSample = 0;
 	 
 		  Double_t* time_coordx  = new Double_t[fNbOfExistingRuns];   fCnew++;
 		  Double_t* hval_coordy  = new Double_t[fNbOfExistingRuns];   fCnew++;
@@ -8167,16 +8007,16 @@ void TEcnaHistos::ViewHistime(const TString list_of_run_file_name,
 		      SetRunNumberFromList(i_run, fNbOfExistingRuns);
 
 		      fMyRootFile->PrintNoComment();
-		      fMyRootFile->FileParameters(fFapAnaType.Data(),   fFapNbOfSamples,
-						  fT1DRunNumber[i_run], fFapFirstReqEvtNumber,
-						  fFapLastReqEvtNumber, fFapReqNbOfEvts,
-						  fFapStexNumber,       fCfgResultsRootFilePath.Data());
+		      fMyRootFile->GetReadyToReadRootFile(fFapAnaType.Data(),   fFapNbOfSamples,
+							  fT1DRunNumber[i_run], fFapFirstReqEvtNumber,
+							  fFapLastReqEvtNumber, fFapReqNbOfEvts,
+							  fFapStexNumber,       fCfgResultsRootFilePath.Data());
 	  
 		      if ( fMyRootFile->LookAtRootFile() == kTRUE )    //  (ViewHistime, 2nd loop) 
 			{
 			  fStatusFileFound = kTRUE;
 
-			  Bool_t ok_view_histo = GetOkViewHisto(fMyRootFile, StexStin_A, i0StinEcha, i0Sample, HistoCode);
+			  Bool_t ok_view_histo = GetOkViewHisto(fMyRootFile, StexStin_A, i0StinEcha, iSample, HistoCode);
 
 			  //............... F I L L   G R A P H   C O O R D I N A T E S   (ViewHistime)		  
 			  if( ok_view_histo == kTRUE )
@@ -8194,7 +8034,7 @@ void TEcnaHistos::ViewHistime(const TString list_of_run_file_name,
 			      if(HistoCode == "H_TNo_Date" || HistoCode == "H_TNo_RuDs")
 				{read_histo = fMyRootFile->ReadTotalNoise(fEcal->MaxCrysEcnaInStex());}
 			      if(HistoCode == "H_MCs_Date" || HistoCode == "H_MCs_RuDs")
-				{read_histo = fMyRootFile->ReadMeanCorrelationsBetweenSamples(fEcal->MaxCrysEcnaInStex());}
+				{read_histo = fMyRootFile->ReadMeanOfCorrelationsBetweenSamples(fEcal->MaxCrysEcnaInStex());}
 	      		     
 			      if(HistoCode == "H_LFN_Date" || HistoCode == "H_LFN_RuDs")
 				{read_histo = fMyRootFile->ReadLowFrequencyNoise(fEcal->MaxCrysEcnaInStex());}
@@ -8295,7 +8135,7 @@ void TEcnaHistos::ViewHistime(const TString list_of_run_file_name,
 		  
 		      HistimePlot(g_graph0,         xinf_his,         xsup_his,
 				  HistoCode.Data(), HistoType.Data(),
-				  StexStin_A,       i0StinEcha,       i0Sample,
+				  StexStin_A,       i0StinEcha,       iSample,
 				  opt_scale_x,      opt_scale_y,      opt_plot, xFlagAutoYsupMargin);
 		      //  g_graph0->Delete();   fCdeleteRoot++;  // *===> NE PAS DELETER LE GRAPH SINON CA EFFACE TOUT!
 		  
@@ -8483,16 +8323,15 @@ void TEcnaHistos::ViewHistime(const TString list_of_run_file_name,
 			}
 		      //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		      
+		      
 		      //..... graph set ymin and ymax and consequently margin at top of the plot  
 		      Int_t  xFlagAutoYsupMargin = SetGraphFrameYminYmaxFromMemo(g_graph0, HistoCode);
-		      Int_t  arg_AlreadyRead = 0;
-
+		      
 		      HistoPlot(h_his_evol_proj,  HisSizeEvolProj,
 				xinf_his,         xsup_his,
 				HistoCode.Data(), HistoType.Data(),
-				StexStin_A,       i0StinEcha,       i0Sample,
-				opt_scale_x,      opt_scale_y,      opt_plot, arg_AlreadyRead,
-				xFlagAutoYsupMargin);
+				StexStin_A,       i0StinEcha,       iSample,
+				opt_scale_x,      opt_scale_y,      opt_plot, xFlagAutoYsupMargin);
 
 		      h_his_evol_proj->Delete();   h_his_evol_proj = 0;                         fCdeleteRoot++;
 		      //*===> deleter l'histo sinon "Replacing existing histo (potential memory leak)" a l'execution
@@ -8599,7 +8438,7 @@ Int_t TEcnaHistos::GetHistoryRunListParameters(const TString list_of_run_file_na
       //........... Add the path to the file name           ( GetHistoryRunListParameters )
       TString xFileNameRunList = list_of_run_file_name.Data();
       const Text_t *t_file_name = (const Text_t *)xFileNameRunList.Data();
-
+ 
       //.............. replace the string "$HOME" by the true $HOME path
       if(fCfgHistoryRunListFilePath.BeginsWith("$HOME"))
 	{
@@ -8742,6 +8581,31 @@ Int_t TEcnaHistos::GetListFileNumber(const TString HistoCode)
   return number;
 }
 
+//--------------------------------------------------------------------------------------------
+//
+//          FileParameters(s)(...) 
+//
+//--------------------------------------------------------------------------------------------
+
+//===> DON'T SUPPRESS: THIS METHOD IS CALLED BY TEcnaGui and can be called by any other program
+void TEcnaHistos::FileParameters(const TString xArgAnaType,          const Int_t&  xArgNbOfSamples, 
+				 const Int_t&  xArgRunNumber,        const Int_t&  xArgFirstReqEvtNumber,
+				 const Int_t&  xArgLastReqEvtNumber, const Int_t&  xArgReqNbOfEvts, 
+				 const Int_t&  xArgStexNumber)
+{
+// Set parameters for reading the right CNA results file
+
+  fFapAnaType           = xArgAnaType;
+  fFapNbOfSamples       = xArgNbOfSamples;
+  fFapRunNumber         = xArgRunNumber;
+  fFapFirstReqEvtNumber = xArgFirstReqEvtNumber;
+  fFapLastReqEvtNumber  = xArgLastReqEvtNumber;
+  fFapReqNbOfEvts       = xArgReqNbOfEvts;
+  fFapStexNumber        = xArgStexNumber;
+
+  InitSpecParBeforeFileReading();
+}
+
 //--------------------------------------------------------------------------------------------------
 void TEcnaHistos::SetRunNumberFromList(const Int_t& xArgIndexRun, const Int_t& MaxNbOfRuns)
 {
@@ -8752,7 +8616,7 @@ void TEcnaHistos::SetRunNumberFromList(const Int_t& xArgIndexRun, const Int_t& M
   if( xArgIndexRun >= 0 && xArgIndexRun < MaxNbOfRuns)
     {
       fFapRunNumber  = fT1DRunNumber[xArgIndexRun];
-      if( xArgIndexRun == 0 ){InitSpecParBeforeFileReading();} // SpecPar = Special Parameters (dates, times, run types)
+      if( xArgIndexRun == 0 ){InitSpecParBeforeFileReading();}
     }
   else
     {
@@ -8765,8 +8629,6 @@ void TEcnaHistos::SetRunNumberFromList(const Int_t& xArgIndexRun, const Int_t& M
 void TEcnaHistos::InitSpecParBeforeFileReading()
 {
   // Init parameters that will be set by reading the info which are in the results ROOT file
-  // SpecPar = Special Parameters (dates, times, run types)
-
   Int_t MaxCar = fgMaxCar;
   fStartDate.Resize(MaxCar);
   fStartDate = "(date not found)";
@@ -8778,9 +8640,30 @@ void TEcnaHistos::InitSpecParBeforeFileReading()
   fStartTime = (time_t)0;
   fStopTime  = (time_t)0;
 
-  fRunType   = "(run type not found)";
+  fRunType   = "run type not found";
 
 } // ------------- ( end of InitSpecParBeforeFileReading() ) -------------
+
+Int_t TEcnaHistos::GetNumberOfEvents(TEcnaRead* xMyRootFile, const Int_t& xFapNbOfReqEvts)
+{
+  //...... Calculate the number of found events  (file existence already tested in calling method)
+  Int_t xFapNbOfEvts = 0; 
+
+  TVectorD NOFE_histp(fEcal->MaxCrysEcnaInStex());
+  for(Int_t i=0; i<fEcal->MaxCrysEcnaInStex(); i++){NOFE_histp(i)=(Double_t)0.;}
+  NOFE_histp = xMyRootFile->ReadNumberOfEvents(fEcal->MaxCrysEcnaInStex());
+
+  //... Call to fCnaWrite->NumberOfEvents(...) 1rst argument must be Int_t, not TVectorD,
+  //    duplicate NOFE_histp to NOFE_int to obtain fFapNbOfEvts from fCnaWrite->NumberOfEvents(...)
+  Int_t* NOFE_int = new Int_t[fEcal->MaxCrysEcnaInStex()];   fCnew++;
+  for(Int_t i=0; i<fEcal->MaxCrysEcnaInStex(); i++){NOFE_int[i]=(Int_t)NOFE_histp(i);}
+
+  xFapNbOfEvts = fCnaWrite->NumberOfEvents(NOFE_int, fEcal->MaxCrysEcnaInStex(), xFapNbOfReqEvts);
+
+  delete [] NOFE_int; NOFE_int = 0;                          fCdelete++;
+
+  return xFapNbOfEvts;
+}
 
 //======================================================================================
 //
@@ -8789,7 +8672,7 @@ void TEcnaHistos::InitSpecParBeforeFileReading()
 //======================================================================================
 
 Bool_t TEcnaHistos::GetOkViewHisto(TEcnaRead*    aMyRootFile,
-				   const Int_t&  StexStin_A, const Int_t& i0StinEcha, const Int_t& i0Sample,
+				   const Int_t&  StexStin_A, const Int_t& i0StinEcha, const Int_t& iSample,
 				   const TString HistoCode)
 {
 // Check possibility to plot the histo
@@ -8851,7 +8734,7 @@ Bool_t TEcnaHistos::GetOkViewHisto(TEcnaRead*    aMyRootFile,
       
       if( ( ( (HistoType == "H1Basic") || (HistoType == "Evol") || (HistoType == "EvolProj") )
 	    && (i0StinEcha >= 0) && (i0StinEcha<fEcal->MaxCrysInStin()) 
-	    && (i0Sample  >= 0) && (i0Sample <fFapNbOfSamples ) ) ||
+	    && (iSample  >= 0) && (iSample <fFapNbOfSamples ) ) ||
 	  !( (HistoType == "H1Basic") || (HistoType == "Evol") || (HistoType == "EvolProj") ))
 	{ok_max_elt = 1;} 
       else
@@ -8865,9 +8748,9 @@ Bool_t TEcnaHistos::GetOkViewHisto(TEcnaRead*    aMyRootFile,
 		  << fEcal->MaxCrysInStin()-1+Choffset << "] )"
 		  << fTTBELL << endl;}
 	  if( (HistoCode == "D_Adc_EvDs" || HistoCode == "D_Adc_EvNb") &&
-	      !((i0Sample >= 0) && (i0Sample <fFapNbOfSamples)) )
+	      !((iSample >= 0) && (iSample <fFapNbOfSamples)) )
 	    {cout << "!TEcnaHistos::GetOkViewHisto(...)> *ERROR* =====> " << "File: " << root_file_name
-		  << ". Wrong sample index. Value = " << i0Sample << " (required range: [0, "
+		  << ". Wrong sample index. Value = " << iSample << " (required range: [0, "
 		  << fFapNbOfSamples-1 << "] )"
 		  << fTTBELL << endl;}
 	  ok_max_elt = -1;
@@ -8962,21 +8845,13 @@ Int_t TEcnaHistos::SetHistoFrameYminYmaxFromMemo(TH1D* h_his0, const TString His
     if(fD_SCs_ChDsYmin < fD_SCs_ChDsYmax){xFlagAutoYsupMargin = 0;
     h_his0->SetMinimum(fD_SCs_ChDsYmin); h_his0->SetMaximum(fD_SCs_ChDsYmax);}}
   
-  if(HistoCode == "D_MSp_SpNb"){
-    if(fD_MSp_SpNbYmin < fD_MSp_SpNbYmax){xFlagAutoYsupMargin = 0;
-    h_his0->SetMinimum(fD_MSp_SpNbYmin); h_his0->SetMaximum(fD_MSp_SpNbYmax);}}
-   
-  if(HistoCode == "D_MSp_SpDs"){
-    if(fD_MSp_SpDsYmin < fD_MSp_SpDsYmax){xFlagAutoYsupMargin = 0;
-    h_his0->SetMinimum(fD_MSp_SpDsYmin); h_his0->SetMaximum(fD_MSp_SpDsYmax);}}
-   
-  if(HistoCode == "D_SSp_SpNb"){
-    if(fD_SSp_SpNbYmin < fD_SSp_SpNbYmax){xFlagAutoYsupMargin = 0;
-    h_his0->SetMinimum(fD_SSp_SpNbYmin); h_his0->SetMaximum(fD_SSp_SpNbYmax);}}
-   
-  if(HistoCode == "D_SSp_SpDs"){
-    if(fD_SSp_SpDsYmin < fD_SSp_SpDsYmax){xFlagAutoYsupMargin = 0;
-    h_his0->SetMinimum(fD_SSp_SpDsYmin); h_his0->SetMaximum(fD_SSp_SpDsYmax);}}
+  if(HistoCode == "D_MSp_Samp"){
+    if(fD_MSp_SampYmin < fD_MSp_SampYmax){xFlagAutoYsupMargin = 0;
+    h_his0->SetMinimum(fD_MSp_SampYmin); h_his0->SetMaximum(fD_MSp_SampYmax);}}
+  
+  if(HistoCode == "D_SSp_Samp"){
+    if(fD_SSp_SampYmin < fD_SSp_SampYmax){xFlagAutoYsupMargin = 0;
+    h_his0->SetMinimum(fD_SSp_SampYmin); h_his0->SetMaximum(fD_SSp_SampYmax);}}
   
   if(HistoCode == "D_Adc_EvNb"){
     if(fD_Adc_EvNbYmin < fD_Adc_EvNbYmax){xFlagAutoYsupMargin = 0;
@@ -9110,10 +8985,9 @@ Double_t TEcnaHistos::GetYmaxFromGraphFrameAndMarginValue(TGraph* g_graph0, cons
 void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,  
 			    const Axis_t& xinf_his,     const Axis_t&  xsup_his,
 			    const TString HistoCode,    const TString  HistoType,
-			    const Int_t&  StexStin_A,   const Int_t&   i0StinEcha,  const Int_t& i0Sample, 
+			    const Int_t&  StexStin_A,   const Int_t&   i0StinEcha,  const Int_t& iSample, 
 			    const Int_t&  opt_scale_x,  const Int_t&   opt_scale_y,
-			    const TString opt_plot,     const Int_t&   arg_AlreadyRead,
-			    const Int_t&  xFlagAutoYsupMargin)
+			    const TString opt_plot,     const Int_t&   xFlagAutoYsupMargin)
 {
   // Plot 1D histogram
 
@@ -9124,27 +8998,21 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
   Int_t MaxCar = fgMaxCar;
   QuantityName.Resize(MaxCar);
   QuantityName = fCnaParHistos->GetQuantityName(HistoCode.Data());
+  SetHistoPresentation(h_his0, HistoType.Data(), opt_plot);    // (gStyle parameters)}
 
-
-  if( arg_AlreadyRead == 0 || arg_AlreadyRead == 1 )
-    {
-      SetHistoPresentation(h_his0, HistoType.Data(), opt_plot);    // (gStyle parameters)
-      //.................................................. prepa paves commentaires (HistoPlot)
-      SetAllPavesViewHisto(HistoCode.Data(), StexStin_A, i0StinEcha, i0Sample, opt_plot.Data(), arg_AlreadyRead);
-    }
+  //.................................................. prepa paves commentaires (HistoPlot)
+  SetAllPavesViewHisto(HistoCode.Data(), StexStin_A, i0StinEcha, iSample, opt_plot.Data());
   
   //..................................................... Canvas name (HistoPlot) 
   TString canvas_name = SetCanvasName(HistoCode.Data(), opt_scale_x, opt_scale_y,
-				      opt_plot.Data(),  arg_AlreadyRead, 
-				      StexStin_A,       i0StinEcha,  i0Sample);
-  //..................................................... Canvas allocations (HistoPlot)
+				      opt_plot.Data(),  StexStin_A,  i0StinEcha,  iSample);
+
+  //.................................... Canvas allocations (HistoPlot)
   TCanvas* MainCanvas = 0;
 
-  if(opt_plot == fOnlyOnePlot && (arg_AlreadyRead == 0 || arg_AlreadyRead == 1 ) )
-    {
-      MainCanvas = new TCanvas(canvas_name.Data(), canvas_name.Data(), canv_w , canv_h);   fCnewRoot++;
-      fCurrentPad = gPad; fCurrentCanvas = MainCanvas; fCurrentCanvasName = canvas_name.Data();
-    }
+  if(opt_plot == fOnlyOnePlot)
+    {MainCanvas = new TCanvas(canvas_name.Data(), canvas_name.Data(), canv_w , canv_h);   fCnewRoot++;
+    fCurrentPad = gPad; fCurrentCanvas = MainCanvas; fCurrentCanvasName = canvas_name.Data();}
   
   if( opt_plot == fSeveralPlot ||  opt_plot == fSameOnePlot)
     {if(GetMemoFlag(HistoCode, opt_plot) == "Free")
@@ -9182,47 +9050,41 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
   Int_t xMemoPlotSame = 1; // a priori ==> SAME plot
 
   //========================================= Option ONLYONE    (HistoPlot)
-  if( opt_plot == fOnlyOnePlot )
+  if(opt_plot == fOnlyOnePlot)
     {
-      if( arg_AlreadyRead == 0 || arg_AlreadyRead == 1 )
+      //.................................... Draw titles and paves (pad = main canvas)
+      if( fPavComGeneralTitle != 0 ){fPavComGeneralTitle->Draw();}
+      fPavComStex->Draw();
+      if( !( HistoType == "Global" || HistoType == "Proj" ) ){fPavComStin->Draw(); fPavComXtal->Draw();}
+
+      if( HistoType == "EvolProj" )
 	{
-	  //.................................... Draw titles and paves (pad = main canvas)
-	  if( fPavComGeneralTitle != 0 ){fPavComGeneralTitle->Draw();}
-	  fPavComStex->Draw();
-	  if( !( HistoType == "Global" || HistoType == "Proj" ) ){fPavComStin->Draw(); fPavComXtal->Draw();}
-
-	  if( HistoType == "EvolProj" )
-	    {
-	      fPavComEvolRuns->Draw();
-	      fPavComEvolNbOfEvtsAna->Draw();
-	    }
-	  else
-	    {
-	      fPavComAnaRun->Draw();
-	      fPavComNbOfEvts->Draw();
-	    }
-
-	  Double_t x_low = fCnaParHistos->BoxLeftX("bottom_left_box")    - 0.005;
-	  Double_t x_up  = fCnaParHistos->BoxRightX("bottom_right_box")  + 0.005;
-	  Double_t y_low = fCnaParHistos->BoxTopY("bottom_right_box")    + 0.005;
-	  Double_t y_up  = fCnaParHistos->BoxBottomY("top_right_box_EB") - 0.005;
-	  Color_t  fond_pad = fCnaParHistos->ColorDefinition("blanc");
-
-	  Double_t x_margin = x_low;
-	  Double_t y_margin = y_low;
-	  MainCanvas->Divide( 1,  1, x_margin, y_margin, fond_pad);
-	  //           Divide(nx, ny, x_margin, y_margin,    color);
-
-	  gPad->cd(1);
-	  main_subpad = gPad;
-	  main_subpad->SetPad(x_low, y_low, x_up, y_up);
-	
-	  xMemoPlotSame = 0;
+	  fPavComEvolRuns->Draw();
+	  fPavComEvolNbOfEvtsAna->Draw();
 	}
-      if (arg_AlreadyRead > 1 )
-	{main_subpad = fCurrentPad;}
+      else
+	{
+	  fPavComAnaRun->Draw();
+	  fPavComNbOfEvts->Draw();
+	}
 
-    } // end of if(opt_plot == fOnlyOnePlot && (arg_AlreadyRead == 0 || arg_AlreadyRead == 1 ) )
+      Double_t x_low = fCnaParHistos->BoxLeftX("bottom_left_box")    - 0.005;
+      Double_t x_up  = fCnaParHistos->BoxRightX("bottom_right_box")  + 0.005;
+      Double_t y_low = fCnaParHistos->BoxTopY("bottom_right_box")    + 0.005;
+      Double_t y_up  = fCnaParHistos->BoxBottomY("top_right_box_EB") - 0.005;
+      Color_t  fond_pad = fCnaParHistos->ColorDefinition("blanc");
+
+      Double_t x_margin = x_low;
+      Double_t y_margin = y_low;
+      MainCanvas->Divide( 1,  1, x_margin, y_margin, fond_pad);
+      //           Divide(nx, ny, x_margin, y_margin,    color);
+
+      gPad->cd(1);
+      main_subpad = gPad;
+      main_subpad->SetPad(x_low, y_low, x_up, y_up);
+
+      xMemoPlotSame = 0;
+    } // end of if(opt_plot == fOnlyOnePlot)
 
   //========================================= Options SAME and SAME n  (HistoPlot)
   if( (opt_plot == fSeveralPlot) || (opt_plot == fSameOnePlot) )
@@ -9245,7 +9107,7 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 	  main_pavtxt->SetTextFont(fTextPaveFont);
 	  main_pavtxt->SetBorderSize(fTextBorderSize);
 	  Float_t cTextPaveSize  = 0.025;
-	  if( HistoType == "H1Basic" || HistoType == "SampProj" || HistoType == "H1BasicProj" ||
+	  if( HistoType == "H1Basic" || HistoType == "SampProj" ||
 	      HistoType == "Proj"    || HistoType == "EvolProj"  )
 	    {cTextPaveSize = 0.025;}
 	  main_pavtxt->SetTextSize(cTextPaveSize);
@@ -9265,36 +9127,36 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 	  if( opt_plot == fSeveralPlot || opt_plot == fSameOnePlot )
 	    {
 	      if( HistoType == "SampGlobal" )
-		{sprintf(f_in, "Analysis   Samp   RUN# (run type            )  Evts range  Nb Evts   %s%s %s%s %s %s Sample",
+		{sprintf(f_in, "Analysis   Samp   RUN# (run type            )  Evts range  Nb Evts   %s%s %s%s %s Sample",
 			 DecalStexName.Data(), sStexOrStasName.Data(),
-			 DecalStinName.Data(), fFapStinName.Data(), fFapXtalName.Data(), fFapEchaName.Data());}
+			 DecalStinName.Data(), fFapStinName.Data(), fFapEchaName.Data());}
 	      if( HistoType == "SampProj" )
-		{sprintf(f_in, "Analysis   Samp   RUN# (run type            )  Evts range  Nb Evts   %s%s %s%s %s %s Sample",
+		{sprintf(f_in, "Analysis   Samp   RUN# (run type            )  Evts range  Nb Evts   %s%s %s%s %s Sample",
 			 DecalStexName.Data(), sStexOrStasName.Data(),
-			 DecalStinName.Data(), fFapStinName.Data(), fFapXtalName.Data(), fFapEchaName.Data());}
-	      if( HistoType == "H1Basic" || HistoType == "H1BasicProj" )
-		{sprintf(f_in, "Analysis   Samp   RUN# (run type            )  Evts range  Nb Evts   %s%s %s%s %s %s",
+			 DecalStinName.Data(), fFapStinName.Data(), fFapEchaName.Data());}
+	      if( HistoType == "H1Basic" )
+		{sprintf(f_in, "Analysis   Samp   RUN# (run type            )  Evts range  Nb Evts   %s%s %s%s %s",
 			 DecalStexName.Data(), sStexOrStasName.Data(),
-			 DecalStinName.Data(), fFapStinName.Data(), fFapXtalName.Data(), fFapEchaName.Data());}
-	      if((HistoType == "Global") || (HistoType == "Proj") )
+			 DecalStinName.Data(), fFapStinName.Data(), fFapEchaName.Data());}
+	      if((HistoType == "Global") ||(HistoType == "Proj") )
 		{sprintf(f_in, "Analysis   Samp   RUN# (run type            )  Evts range  Nb Evts   %s%s",
 			 DecalStexName.Data(), sStexOrStasName.Data());}
 
 	      if( HistoType == "EvolProj" )
-		{sprintf(f_in, "Analysis   Samp   Evts range  Nb Evts   %s%s  %s%s %s %s",
+		{sprintf(f_in, "Analysis   Samp   Evts range  Nb Evts   %s%s  %s%s   %s",
 			 DecalStexName.Data(), sStexOrStasName.Data(),
-			 DecalStinName.Data(), fFapStinName.Data(), fFapXtalName.Data(), fFapEchaName.Data());}
+			 DecalStinName.Data(), fFapStinName.Data(), fFapEchaName.Data());}
 	    }
 
 	  TText* ttit = main_pavtxt->AddText(f_in);
 	  ttit->SetTextColor(fCnaParHistos->ColorDefinition("noir"));
 	  
-	  //------------------------------------------------------------ values pave "several"  (HistoPlot)
+	  //------------------------------------------------------------ values pave "several" 
 
 	  //.................................... option SAME n only  (HistoPlot)
 	  if( opt_plot == fSameOnePlot)
 	    {
-	      if( (HistoType == "Global") || (HistoType == "Proj") || (HistoType == "H1BasicProj") )
+	      if( (HistoType == "Global") || (HistoType == "Proj")  )
 		{
 		  sprintf(f_in, "%-10s 1-%2d%7d (%-20s) %5d-%5d  %7d  %4s %-25s",
 			  fFapAnaType.Data(), fFapNbOfSamples, fFapRunNumber, fRunType.Data(),
@@ -9304,38 +9166,38 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 
 	      if( HistoType == "EvolProj" )
 		{
-		  sprintf(f_in, "%-10s 1-%2d %5d-%5d  %7d %5s%6d%7d%7d %-25s",
+		  sprintf(f_in, "%-10s 1-%2d %5d-%5d  %7d %5s%6d%7d %-25s",
 			  fFapAnaType.Data(), fFapNbOfSamples, fFapFirstReqEvtNumber, fFapLastReqEvtNumber, fFapReqNbOfEvts,
-			  sFapStexNumber.Data(), Stex_StinCons, n1StexCrys, i0StinEcha, QuantityName.Data());
+			  sFapStexNumber.Data(), Stex_StinCons, n1StexCrys, QuantityName.Data());
 		}
 	      
 	    } // end of if for option SAME n only
 
-	  //..................................... option SAME (HistoPlot)
+	  //..................................... option SAME
 	  if( opt_plot == fSeveralPlot )
 	    {
-	      Int_t kSample = i0Sample+1;  // Sample number range = [1,n<=10]
+	      Int_t kSample = iSample+1;  // Sample number range = [1,n<=10]
 
 	      if( HistoType == "SampGlobal" )
 		{
-		  sprintf(f_in, "%-10s 1-%2d%7d (%-20s) %5d-%5d  %7d  %4s%6d%5d%5d%6d",
+		  sprintf(f_in, "%-10s 1-%2d%7d (%-20s) %5d-%5d  %7d  %4s%6d%5d%6d",
 			  fFapAnaType.Data(), fFapNbOfSamples, fFapRunNumber, fRunType.Data(),
 			  fFapFirstReqEvtNumber, fFapLastReqEvtNumber, fFapReqNbOfEvts,sFapStexNumber.Data(),
-			  Stex_StinCons, n1StexCrys, i0StinEcha, kSample);
+			  Stex_StinCons, n1StexCrys, kSample);
 		}
 	      if( HistoType == "SampProj"  )
 		{
-		  sprintf(f_in, "%-10s 1-%2d%7d (%-20s) %5d-%5d  %7d  %4s%6d%5d%5d%6d",
+		  sprintf(f_in, "%-10s 1-%2d%7d (%-20s) %5d-%5d  %7d  %4s%6d%5d%6d",
 			  fFapAnaType.Data(), fFapNbOfSamples, fFapRunNumber, fRunType.Data(),
 			  fFapFirstReqEvtNumber, fFapLastReqEvtNumber, fFapReqNbOfEvts, sFapStexNumber.Data(),
-			  Stex_StinCons, n1StexCrys, i0StinEcha, kSample);
+			  Stex_StinCons, n1StexCrys, kSample);
 		}	      
-	      if( HistoType == "H1Basic" || HistoType == "H1BasicProj" )
+	      if( HistoType == "H1Basic" )
 		{
-		  sprintf(f_in, "%-10s 1-%2d%7d (%-20s) %5d-%5d  %7d  %4s%6d%5d%5d",
+		  sprintf(f_in, "%-10s 1-%2d%7d (%-20s) %5d-%5d  %7d  %4s%6d%5d",
 			  fFapAnaType.Data(), fFapNbOfSamples, fFapRunNumber, fRunType.Data(),
 			  fFapFirstReqEvtNumber, fFapLastReqEvtNumber, fFapReqNbOfEvts, sFapStexNumber.Data(),
-			  Stex_StinCons, n1StexCrys, i0StinEcha);
+			  Stex_StinCons, n1StexCrys);
 		}	      
 	      if( (HistoType == "Global") || (HistoType == "Proj")  )
 		{
@@ -9346,10 +9208,10 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 	      
 	      if( HistoType == "EvolProj" )
 		{
-		  sprintf(f_in, "%-10s 1-%2d  %5d-%5d  %7d  %4s%7d%5d%5d",
+		  sprintf(f_in, "%-10s 1-%2d  %5d-%5d  %7d  %4s%7d%7d",
 			  fFapAnaType.Data(), fFapNbOfSamples,
 			  fFapFirstReqEvtNumber, fFapLastReqEvtNumber, fFapReqNbOfEvts, sFapStexNumber.Data(), 
-			  Stex_StinCons, n1StexCrys, i0StinEcha);
+			  Stex_StinCons, n1StexCrys);
 		}
 	    }
 	  
@@ -9389,10 +9251,9 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 
 	  //---------------- Recover pointer to the current canvas
 	  MainCanvas = GetCurrentCanvas(HistoCode.Data(), opt_plot.Data());
+
 	}
     } // end of if( (opt_plot == fSeveralPlot) || (opt_plot == fSameOnePlot) )
-
-
 
   //============================================================================= (HistoPlot)
   //
@@ -9413,7 +9274,7 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 	      main_pavtxt->SetBorderSize(fTextBorderSize);
 	      Float_t cTextPaveSize  = 0.025;
 	      if( HistoType == "H1Basic" || HistoType == "SampProj"
-		  || HistoType == "Proj" || HistoType == "EvolProj" || HistoType == "H1BasicProj" )
+		  || HistoType == "Proj" || HistoType == "EvolProj" )
 		{cTextPaveSize = 0.025;}
 	      main_pavtxt->SetTextSize(cTextPaveSize);
 	      
@@ -9431,37 +9292,37 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 
 		  if( HistoType == "EvolProj" )
 		    {
-		      sprintf(f_in, "%-10s 1-%2d %5d-%5d  %7d %5s%6d%7d%7d %-25s",
+		      sprintf(f_in, "%-10s 1-%2d %5d-%5d  %7d %5s%6d%7d %-25s",
 			      fFapAnaType.Data(), fFapNbOfSamples,
 			      fFapFirstReqEvtNumber, fFapLastReqEvtNumber, fFapReqNbOfEvts, sFapStexNumber.Data(),
-			      Stex_StinCons, n1StexCrys, i0StinEcha, QuantityName.Data());
+			      Stex_StinCons, n1StexCrys, QuantityName.Data());
 		    }
 		}
 
 	      if( opt_plot == fOnlyOnePlot || opt_plot == fSeveralPlot )
 		{
-		  Int_t kSample = i0Sample+1;  // Sample number range = [1,n<=10] (HistoPlot)
+		  Int_t kSample = iSample+1;  // Sample number range = [1,n<=10] (HistoPlot)
 
 		  if(HistoType == "SampGlobal" )
 		    {
-		      sprintf(f_in, "%-10s 1-%2d%7d (%-20s) %5d-%5d  %7d  %4s%6d%5d%5d%6d",
+		      sprintf(f_in, "%-10s 1-%2d%7d (%-20s) %5d-%5d  %7d  %4s%6d%5d%6d",
 			      fFapAnaType.Data(), fFapNbOfSamples, fFapRunNumber, fRunType.Data(),
 			      fFapFirstReqEvtNumber, fFapLastReqEvtNumber, fFapReqNbOfEvts, sFapStexNumber.Data(),
-			      Stex_StinCons, n1StexCrys, i0StinEcha, kSample);
+			      Stex_StinCons, n1StexCrys, kSample);
 		    }
 		  if( HistoType == "SampProj" )
 		    {
-		      sprintf(f_in, "%-10s 1-%2d%7d (%-20s) %5d-%5d  %7d  %4s%6d%5d%5d%6d",
+		      sprintf(f_in, "%-10s 1-%2d%7d (%-20s) %5d-%5d  %7d  %4s%6d%5d%6d",
 			      fFapAnaType.Data(), fFapNbOfSamples, fFapRunNumber, fRunType.Data(),
 			      fFapFirstReqEvtNumber, fFapLastReqEvtNumber, fFapReqNbOfEvts, sFapStexNumber.Data(),
-			      Stex_StinCons, n1StexCrys, i0StinEcha, kSample);
+			      Stex_StinCons, n1StexCrys, kSample);
 		    }		  
-		  if( HistoType == "H1Basic" || HistoType == "H1BasicProj")
+		  if(HistoType == "H1Basic"  )
 		    {
-		      sprintf(f_in, "%-10s 1-%2d%7d (%-20s) %5d-%5d  %7d  %4s%6d%5d%5d",
+		      sprintf(f_in, "%-10s 1-%2d%7d (%-20s) %5d-%5d  %7d  %4s%6d%5d",
 			      fFapAnaType.Data(), fFapNbOfSamples, fFapRunNumber, fRunType.Data(),
 			      fFapFirstReqEvtNumber, fFapLastReqEvtNumber, fFapReqNbOfEvts, sFapStexNumber.Data(),
-			      Stex_StinCons, n1StexCrys, i0StinEcha);
+			      Stex_StinCons, n1StexCrys);
 		    }
 		  if( (HistoType == "Global") || (HistoType == "Proj") )
 		    {
@@ -9472,10 +9333,10 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 		  
 		  if( HistoType == "EvolProj" )
 		    {
-		      sprintf(f_in, "%-10s 1-%2d  %5d-%5d  %7d  %4s%7d%5d%5d",
+		      sprintf(f_in, "%-10s 1-%2d  %5d-%5d  %7d  %4s%7d%7d",
 			      fFapAnaType.Data(), fFapNbOfSamples,
 			      fFapFirstReqEvtNumber, fFapLastReqEvtNumber, fFapReqNbOfEvts,
-			      sFapStexNumber.Data(), Stex_StinCons, n1StexCrys, i0StinEcha);
+			      sFapStexNumber.Data(), Stex_StinCons, n1StexCrys);
 		    }
 		}
 	       
@@ -9498,7 +9359,8 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 	} // end of if( (opt_plot == fSeveralPlot) || (opt_plot == fSameOnePlot) )
 
       //............................................ Style	(HistoPlot)
-      SetViewHistoColors(h_his0, HistoCode.Data(), opt_plot, arg_AlreadyRead);
+      SetViewHistoColors(h_his0, HistoCode.Data(), opt_plot);
+      //SetViewHistoMarkerAndLine(h_his0, HistoCode.Data(), opt_plot);
 
       //................................. Set axis titles
       TString axis_x_var_name = SetHistoXAxisTitle(HistoCode);
@@ -9515,10 +9377,8 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
       if(opt_scale_y == fOptScaleLogy){gPad->SetLogy(log_scale);}	      
 
       //---------------------------------------------------------------- Draw histo	(HistoPlot)
-      if(opt_plot == fOnlyOnePlot && arg_AlreadyRead == 0 ){h_his0->DrawCopy();}
-      if(opt_plot == fOnlyOnePlot && arg_AlreadyRead == 1 ){h_his0->DrawCopy();}
-      if(opt_plot == fOnlyOnePlot && arg_AlreadyRead >  1 ){h_his0->DrawCopy("AHSAME");}
-
+      if(opt_plot == fOnlyOnePlot){h_his0->DrawCopy();}
+	      
       if(opt_plot == fSeveralPlot || opt_plot == fSameOnePlot)
 	{
 	  if(xMemoPlotSame == 0){h_his0->DrawCopy();}
@@ -9528,9 +9388,7 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 
       //.................... Horizontal line at y=0	(HistoPlot)
       if( !(  HistoCode == "D_Adc_EvDs" || HistoCode == "D_Adc_EvNb" ||
-	      HistoType == "Proj"       || HistoType == "SampProj" ||
-	      HistoType == "EvolProj"   || HistoType == "H1BasicProj"  ) &&
-	  !( HistoType == "H1Basic" && arg_AlreadyRead == 0 ) )
+	      HistoType == "Proj" || HistoType == "SampProj" || HistoType == "EvolProj"  ) )
 	{
 	  Double_t yinf = h_his0->GetMinimum();
 	  Double_t ysup = h_his0->GetMaximum();
@@ -9539,7 +9397,7 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 	    lin->Draw();}
 	}
 
-      if( ( opt_plot == fOnlyOnePlot )
+      if( (opt_plot == fOnlyOnePlot)
 	  || ( (opt_plot == fSeveralPlot || opt_plot == fSameOnePlot) && xMemoPlotSame == 0 ) )
 	{
 	  Double_t yinf = (Double_t)h_his0->GetMinimum();
@@ -9551,7 +9409,7 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 	      Double_t MaxMarginFactor = (Double_t)0.05;    // frame top line = 5% above the maximum
 	      ysup += (ysup-yinf)*MaxMarginFactor;       // ROOT default if ymin < ymax
 	    }
-
+	  
 	  char* f_in = new char[fgMaxCar];               fCnew++;
 
 	  //.................... Vertical lines for Data sectors (EE Global plot only)
@@ -9758,8 +9616,7 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 		}
 	    }
 	  delete [] f_in;   f_in = 0;                      fCdelete++;
-	} // end of if( ( opt_plot == fOnlyOnePlot )
-	  // || ( (opt_plot == fSeveralPlot || opt_plot == fSameOnePlot) && xMemoPlotSame == 0 ) )
+	}
 
       //..............................................Top Axis (HistoPlot)
       Int_t min_value = 0;
@@ -9798,13 +9655,8 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 	    }
 	  TopAxisForHistos(h_his0, opt_plot, xMemoPlotSame, min_value, max_value,
 			   xFlagAutoYsupMargin, HisSize);
-	} // end of if (HistoType == "Global")
-
-      if( !( (HistoType == "H1Basic" || HistoType == "H1BasicProj")
-	     && ( arg_AlreadyRead > 1 && arg_AlreadyRead < fEcal->MaxCrysInStin() ) ) )
-	{
-	  gPad->Update();
 	}
+      gPad->Update();
     }
   else    // else du if(main_subpad !=0)
     {
@@ -10025,7 +9877,7 @@ Int_t TEcnaHistos::GetNotCompleteDSSCFromIndex(const Int_t& index)
 void TEcnaHistos::HistimePlot(TGraph*       g_graph0, 
 			      Axis_t        xinf,        Axis_t        xsup,
 			      const TString HistoCode,   const TString HistoType,
-			      const Int_t&  StexStin_A,  const Int_t&  i0StinEcha, const Int_t& i0Sample, 
+			      const Int_t&  StexStin_A,  const Int_t&  i0StinEcha,    const Int_t& iSample, 
 			      const Int_t&  opt_scale_x, const Int_t& opt_scale_y,
 			      const TString opt_plot,    const Int_t&  xFlagAutoYsupMargin)
 {
@@ -10037,12 +9889,11 @@ void TEcnaHistos::HistimePlot(TGraph*       g_graph0,
   SetGraphPresentation(g_graph0, HistoType.Data(), opt_plot.Data());   // (gStyle parameters)}
   
   //...................................................... paves commentaires (HistimePlot)	 
-  SetAllPavesViewHisto(HistoCode, StexStin_A, i0StinEcha, i0Sample, opt_plot);
+  SetAllPavesViewHisto(HistoCode, StexStin_A, i0StinEcha, iSample, opt_plot);
   
-  //..................................................... Canvas name (HistimePlot)
-  Int_t arg_AlreadyRead = 0;
-  TString canvas_name = SetCanvasName(HistoCode.Data(), opt_scale_x, opt_scale_y, opt_plot, arg_AlreadyRead,
-				      StexStin_A,       i0StinEcha,  i0Sample);
+  //..................................................... Canvas name (HistimePlot) 
+  TString canvas_name = SetCanvasName(HistoCode.Data(), opt_scale_x, opt_scale_y, opt_plot,
+				      StexStin_A,       i0StinEcha,  iSample);
 	  
   //------------------------------------------------ Canvas allocation	(HistimePlot)
   //......................................... declarations canvas et pad
@@ -10188,15 +10039,15 @@ void TEcnaHistos::HistimePlot(TGraph*       g_graph0,
 	  //-----------------------------> HistoType = "EvolProj" => treated in HistoPlot, not here.
 	  if(opt_plot == fSeveralPlot)
 	    {
-	      sprintf(f_in, "Analysis   Samp  Evts range  Nb Evts   %s%s %s%s   %s  %s",
+	      sprintf(f_in, "Analysis   Samp  Evts range  Nb Evts   %s%s %s%s   %s",
 		      DecalStexName.Data(), sStexOrStasName.Data(),
-		      DecalStinName.Data(), fFapStinName.Data(), fFapXtalName.Data(), fFapEchaName.Data());
+		      DecalStinName.Data(), fFapStinName.Data(), fFapEchaName.Data());
 	    }
 	  if(opt_plot == fSameOnePlot)
 	    {
-	      sprintf(f_in, "Analysis   Samp  Evts range  Nb Evts   %s%s %s%s   %s  %s",
+	      sprintf(f_in, "Analysis   Samp  Evts range  Nb Evts   %s%s %s%s   %s",
 		      DecalStexName.Data(), sStexOrStasName.Data(),
-		      DecalStinName.Data(), fFapStinName.Data(), fFapXtalName.Data(), fFapEchaName.Data());
+		      DecalStinName.Data(), fFapStinName.Data(), fFapEchaName.Data());
 	    }
 
 	  //................................................................... (HistimePlot)
@@ -10205,17 +10056,17 @@ void TEcnaHistos::HistimePlot(TGraph*       g_graph0,
 	  
 	  if(opt_plot == fSeveralPlot)
 	    {
-	      sprintf(f_in, "%-10s 1-%2d %5d-%5d  %7d %5s%6d%7d%6d",
+	      sprintf(f_in, "%-10s 1-%2d %5d-%5d  %7d %5s%6d%7d",
 		      fFapAnaType.Data(), fFapNbOfSamples,
 		      fFapFirstReqEvtNumber, fFapLastReqEvtNumber, fFapReqNbOfEvts, sFapStexNumber.Data(),
-		      Stex_StinCons, n1StexCrys, i0StinEcha);
+		      Stex_StinCons, n1StexCrys);
 	    }
 	  if(opt_plot == fSameOnePlot)
 	    {
-	      sprintf(f_in, "%-10s 1-%2d %5d-%5d  %7d %5s%6d%7d%6d %-25s",
+	      sprintf(f_in, "%-10s 1-%2d %5d-%5d  %7d %5s%6d%7d %-25s",
 		      fFapAnaType.Data(), fFapNbOfSamples,
 		      fFapFirstReqEvtNumber, fFapLastReqEvtNumber, fFapReqNbOfEvts, sFapStexNumber.Data(),
-		      Stex_StinCons, n1StexCrys, i0StinEcha, QuantityName.Data());
+		      Stex_StinCons, n1StexCrys, QuantityName.Data());
 	    }
 
 	  TText* tt = main_pavtxt->AddText(f_in);
@@ -10275,13 +10126,13 @@ void TEcnaHistos::HistimePlot(TGraph*       g_graph0,
 	      char* f_in = new char[fgMaxCar];                            fCnew++;
 	      
 	      if(opt_plot == fSeveralPlot )
-		{sprintf(f_in, "%-10s 1-%2d %5d-%5d  %7d %5s%6d%7d%6d",
+		{sprintf(f_in, "%-10s 1-%2d %5d-%5d  %7d %5s%6d%7d",
 			 fFapAnaType.Data(), fFapNbOfSamples, fFapFirstReqEvtNumber, fFapLastReqEvtNumber, fFapReqNbOfEvts,
-			 sFapStexNumber.Data(), Stex_StinCons, n1StexCrys, i0StinEcha);}
+			 sFapStexNumber.Data(), Stex_StinCons, n1StexCrys);}
 	      if(opt_plot == fSameOnePlot )
-		{sprintf(f_in, "%-10s 1-%2d %5d-%5d  %7d %5s%6d%7d%6d %-25s",
+		{sprintf(f_in, "%-10s 1-%2d %5d-%5d  %7d %5s%6d%7d %-25s",
 			 fFapAnaType.Data(), fFapNbOfSamples, fFapFirstReqEvtNumber, fFapLastReqEvtNumber, fFapReqNbOfEvts,
-			 sFapStexNumber.Data(), Stex_StinCons, n1StexCrys, i0StinEcha, QuantityName.Data());}
+			 sFapStexNumber.Data(), Stex_StinCons, n1StexCrys, QuantityName.Data());}
 	      
 	      TText *tt = main_pavtxt->AddText(f_in);
 	      tt->SetTextColor(GetViewHistoColor(HistoCode, opt_plot));
@@ -10452,10 +10303,7 @@ void TEcnaHistos::TopAxisForHistos(TH1D*        h_his0,              const TStri
 	}
 
       Double_t v_min = min_value;
-      Double_t v_max = max_value+(Double_t)1.;
-      Double_t v_min_p = v_min+(Double_t)1.;
-      Double_t v_max_p = v_max+(Double_t)1.;
-
+      Double_t v_max = max_value+1;
       Int_t ndiv = 50207;
       TString opt = "B-";
       Double_t Xbegin = 0.;
@@ -10551,7 +10399,7 @@ void TEcnaHistos::TopAxisForHistos(TH1D*        h_his0,              const TStri
 	  if( fFapStexNumber > 0 ){ndiv = 5;}
 	  TGaxis* top_axis_x_bis = 0;
 	  top_axis_x_bis = new TGaxis(Xbegin, Maxih, Xend, Maxih,
-				      v_min_p, v_max_p, ndiv, opt, 0.);   fCnewRoot++;
+				      v_min+1, v_max+1, ndiv, opt, 0.);   fCnewRoot++;
 	  top_axis_x_bis->SetTickSize(0.);
 	  Float_t lab_siz_x = top_axis_x->GetLabelSize();
 	  top_axis_x_bis->SetLabelSize(lab_siz_x);
@@ -10567,8 +10415,15 @@ void TEcnaHistos::TopAxisForHistos(TH1D*        h_his0,              const TStri
     } 
 } // end of TopAxisForHistos
 
+//............................................................................................ 
+void TEcnaHistos::GeneralTitle(const TString title)
+{
+// Put the general comment pave
+
+  SetGeneralTitle(title);
+}
 //............................................................................................
-void TEcnaHistos::SetAllPavesViewMatrix(const TString   BetweenWhat,
+void TEcnaHistos::SetAllPavesViewMatrix(const TString   MatrixElement,
 					const Int_t&    StexStin_A,  const Int_t&  StexStin_B,
 					const Int_t&    i0StinEcha)
 {
@@ -10578,9 +10433,9 @@ void TEcnaHistos::SetAllPavesViewMatrix(const TString   BetweenWhat,
 
   fPavComStex = fCnaParHistos->SetPaveStex("standard", fFapStexNumber);
   
-  if(BetweenWhat == fLFBetweenChannels || BetweenWhat == fHFBetweenChannels)
+  if(MatrixElement == fLFBetweenChannels || MatrixElement == fHFBetweenChannels)
     {fPavComStin = fCnaParHistos->SetPaveStinsXY(StexStin_A, StexStin_B);}
-  if(BetweenWhat == fBetweenSamples)
+  if(MatrixElement == fBetweenSamples)
     {
       fPavComStin = fCnaParHistos->SetPaveStin(StexStin_A, fFapStexNumber);
       
@@ -10668,17 +10523,9 @@ void TEcnaHistos::SetAllPavesViewStas()
 }
 // end of SetAllPavesViewStas
 
-void TEcnaHistos::SetAllPavesViewHisto(const TString HistoCode,  const Int_t&  StexStin_A,
-				       const Int_t&  i0StinEcha, const Int_t&  i0Sample,  
-				       const TString opt_plot)
-{
-  Int_t arg_AlreadyRead = 0;
-  SetAllPavesViewHisto(HistoCode, StexStin_A, i0StinEcha, i0Sample, opt_plot, arg_AlreadyRead);
-}
-
-void TEcnaHistos::SetAllPavesViewHisto(const TString HistoCode,  const Int_t&  StexStin_A,
-				       const Int_t&  i0StinEcha, const Int_t&  i0Sample,  
-				       const TString opt_plot,   const Int_t&  arg_AlreadyRead)
+void TEcnaHistos::SetAllPavesViewHisto(const TString HistoCode,
+				       const Int_t&  StexStin_A,  const Int_t&  i0StinEcha,
+				       const Int_t&  iSample,     const TString opt_plot)
 {
 // Put all the paves of a histo view according to HistoCode
 
@@ -10711,9 +10558,11 @@ void TEcnaHistos::SetAllPavesViewHisto(const TString HistoCode,  const Int_t&  S
 	  else
 	    {fPavComStex = fCnaParHistos->SetPaveStex("standard", fFapStexNumber);}
 	}
+
   //.................................................... (SetAllPavesViewHisto)
      
-      if( HistoCode == "H_Ped_Date" || HistoCode == "H_TNo_Date" || HistoCode == "H_MCs_Date" ||
+      if( HistoCode == "D_MSp_Samp" || HistoCode == "D_SSp_Samp" ||
+	  HistoCode == "H_Ped_Date" || HistoCode == "H_TNo_Date" || HistoCode == "H_MCs_Date" ||
 	  HistoCode == "H_LFN_Date" || HistoCode == "H_HFN_Date" || HistoCode == "H_SCs_Date" ||
 	  HistoCode == "H_Ped_RuDs" || HistoCode == "H_TNo_RuDs" || HistoCode == "H_MCs_RuDs" ||
 	  HistoCode == "H_LFN_RuDs" || HistoCode == "H_HFN_RuDs" || HistoCode == "H_SCs_RuDs" )
@@ -10722,21 +10571,11 @@ void TEcnaHistos::SetAllPavesViewHisto(const TString HistoCode,  const Int_t&  S
 	    fEcalNumbering->Get1StexCrysFrom1StexStinAnd0StinEcha(StexStin_A, i0StinEcha, fFapStexNumber);
 	  fPavComXtal = fCnaParHistos->SetPaveCrystal(n1StexCrys, StexStin_A, i0StinEcha);
 	}
-
-      if( HistoCode == "D_MSp_SpNb" || HistoCode == "D_SSp_SpNb" ||
-	  HistoCode == "D_MSp_SpDs" || HistoCode == "D_SSp_SpDs" )
-	{
-	  Int_t n1StexCrys  =
-	    fEcalNumbering->Get1StexCrysFrom1StexStinAnd0StinEcha(StexStin_A, i0StinEcha, fFapStexNumber);
-	  fPavComXtal =
-	    fCnaParHistos->SetPaveCrystal(n1StexCrys, StexStin_A, i0StinEcha, arg_AlreadyRead, fPlotAllXtalsInStin);
-	}
-
       if( HistoCode == "D_Adc_EvDs" || HistoCode == "D_Adc_EvNb")
 	{
 	  Int_t n1StexCrys  =
 	    fEcalNumbering->Get1StexCrysFrom1StexStinAnd0StinEcha(StexStin_A, i0StinEcha, fFapStexNumber);
-	  fPavComXtal = fCnaParHistos->SetPaveCrystalSample(n1StexCrys, StexStin_A, i0StinEcha, i0Sample);
+	  fPavComXtal = fCnaParHistos->SetPaveCrystalSample(n1StexCrys, StexStin_A, i0StinEcha, iSample);
 	}
       
       if( HistoCode == "H_Ped_Date" || HistoCode == "H_TNo_Date" || HistoCode == "H_MCs_Date" ||
@@ -10788,9 +10627,9 @@ void TEcnaHistos::SetAllPavesViewHisto(const TString HistoCode,  const Int_t&  S
 // end of SetAllPavesViewHisto
 
 TString TEcnaHistos::SetCanvasName(const TString HistoCode,
-				   const Int_t&  opt_scale_x, const Int_t& opt_scale_y,
-				   const TString opt_plot,    const Int_t& arg_AlreadyRead,
-				   const Int_t& StexStin_A,   const Int_t& i0StinEcha,  const Int_t& i0Sample)
+				  const Int_t&  opt_scale_x, const Int_t& opt_scale_y,
+				  const TString opt_plot,    const Int_t& StexStin_A,
+				  const Int_t&  i0StinEcha,  const Int_t& iSample)
 {
   //......... Set Canvas name *===> FOR 1D HISTO ONLY 
   //          (for 2D histos, see inside ViewMatrix, ViewStex,...)
@@ -10807,13 +10646,7 @@ TString TEcnaHistos::SetCanvasName(const TString HistoCode,
   MaxCar = fgMaxCar;
   name_opt_plot.Resize(MaxCar);
   name_opt_plot = "?";
-
-  //if(opt_plot == fOnlyOnePlot && arg_AlreadyRead == 0){name_opt_plot = "P0";}  // Only one plot
-  //if(opt_plot == fOnlyOnePlot && arg_AlreadyRead == 1){name_opt_plot = "P1";}  // SAME in Stin plot
-  //if(opt_plot == fOnlyOnePlot && arg_AlreadyRead >= 1){name_opt_plot = "Pn";}  // SAME in Stin plot
-
-  if( opt_plot == fOnlyOnePlot ){sprintf(f_in,"P%d", arg_AlreadyRead); name_opt_plot = f_in;}
-
+  if(opt_plot == fOnlyOnePlot){name_opt_plot = "P1";}  // Only one plot
   if(opt_plot == fSeveralPlot)
     {
       name_opt_plot = "SAME_N";
@@ -10834,10 +10667,8 @@ TString TEcnaHistos::SetCanvasName(const TString HistoCode,
       if(HistoCode == "D_HFN_ChDs"){name_same = fCanvSameD_HFN_ChDs;}
       if(HistoCode == "D_SCs_ChNb"){name_same = fCanvSameD_SCs_ChNb;}
       if(HistoCode == "D_SCs_ChDs"){name_same = fCanvSameD_SCs_ChDs;}
-      if(HistoCode == "D_MSp_SpNb"){name_same = fCanvSameD_MSp_SpNb;}
-      if(HistoCode == "D_MSp_SpDs"){name_same = fCanvSameD_MSp_SpDs;}
-      if(HistoCode == "D_SSp_SpNb"){name_same = fCanvSameD_SSp_SpNb;}
-      if(HistoCode == "D_SSp_SpDs"){name_same = fCanvSameD_SSp_SpDs;}
+      if(HistoCode == "D_MSp_Samp"){name_same = fCanvSameD_MSp_Samp;}
+      if(HistoCode == "D_SSp_Samp"){name_same = fCanvSameD_SSp_Samp;}
       if(HistoCode == "D_Adc_EvDs"){name_same = fCanvSameD_Adc_EvDs;}
       if(HistoCode == "D_Adc_EvNb"){name_same = fCanvSameD_Adc_EvNb;}	  
       if(HistoCode == "H_Ped_Date"){name_same = fCanvSameH_Ped_Date;}
@@ -10926,10 +10757,8 @@ TString TEcnaHistos::SetCanvasName(const TString HistoCode,
   if(HistoCode == "D_HFN_ChDs"){name_quantity = "High_Fq_Noise_Xtal_distrib";}
   if(HistoCode == "D_SCs_ChNb"){name_quantity = "Sigma_Corss_as_func_of_Xtal";}
   if(HistoCode == "D_SCs_ChDs"){name_quantity = "Sigma_Corss_Xtal_distrib";}
-  if(HistoCode == "D_MSp_SpNb"){name_quantity = "ExpValue_of_samples";}
-  if(HistoCode == "D_MSp_SpDs"){name_quantity = "ExpValue_of_samples_distrib";}
-  if(HistoCode == "D_SSp_SpNb"){name_quantity = "Sigma_of_samples";}
-  if(HistoCode == "D_SSp_SpDs"){name_quantity = "Sigma_of_samples_distrib";}
+  if(HistoCode == "D_MSp_Samp"){name_quantity = "ExpValue_of_samples";}
+  if(HistoCode == "D_SSp_Samp"){name_quantity = "Sigma_of_samples";}
   if(HistoCode == "D_Adc_EvDs"){name_quantity = "hevt";}
   if(HistoCode == "D_Adc_EvNb"){name_quantity = "ADC_as_func_of_Event";}	  
   if(HistoCode == "H_Ped_Date"){name_quantity = "Pedestal_history";}
@@ -10946,10 +10775,8 @@ TString TEcnaHistos::SetCanvasName(const TString HistoCode,
   if(HistoCode == "H_SCs_RuDs"){name_quantity = "Sigma_Corss_run_distribution";}
 
   Int_t num_crys = -1;
-  if(HistoCode == "D_MSp_SpNb"){num_crys = i0StinEcha;}
-  if(HistoCode == "D_MSp_SpDs"){num_crys = i0StinEcha;}
-  if(HistoCode == "D_SSp_SpNb"){num_crys = i0StinEcha;}
-  if(HistoCode == "D_SSp_SpDs"){num_crys = i0StinEcha;}
+  if(HistoCode == "D_MSp_Samp"){num_crys = i0StinEcha;}
+  if(HistoCode == "D_SSp_Samp"){num_crys = i0StinEcha;}
   if(HistoCode == "D_Adc_EvDs"){num_crys = i0StinEcha;}
   if(HistoCode == "D_Adc_EvNb"){num_crys = i0StinEcha;}	  
   if(HistoCode == "H_Ped_Date"){num_crys = i0StinEcha;}
@@ -10966,8 +10793,8 @@ TString TEcnaHistos::SetCanvasName(const TString HistoCode,
   if(HistoCode == "H_SCs_RuDs"){num_crys = i0StinEcha;}
 
   Int_t num_samp = -1;
-  if(HistoCode == "D_Adc_EvDs"){num_samp = i0Sample;}
-  if(HistoCode == "D_Adc_EvNb"){num_samp = i0Sample;}
+  if(HistoCode == "D_Adc_EvDs"){num_samp = iSample;}
+  if(HistoCode == "D_Adc_EvNb"){num_samp = iSample;}
 
   //........................................................... (Set Canvas name)
   
@@ -10986,10 +10813,9 @@ TString TEcnaHistos::SetCanvasName(const TString HistoCode,
 	      name_opt_plot.Data(), name_visu.Data());
     }
   
-  if (HistoCode == "D_MSp_SpNb" || HistoCode == "D_SSp_SpNb" ||
+  if (HistoCode == "D_MSp_Samp" || HistoCode == "D_SSp_Samp" ||
       HistoCode == "H_Ped_Date" || HistoCode == "H_TNo_Date" || HistoCode == "H_MCs_Date" ||
       HistoCode == "H_LFN_Date" || HistoCode == "H_HFN_Date" || HistoCode == "H_SCs_Date" ||
-      HistoCode == "D_MSp_SpDs" || HistoCode == "D_SSp_SpDs" ||
       HistoCode == "H_Ped_RuDs" || HistoCode == "H_TNo_RuDs" || HistoCode == "H_MCs_RuDs" ||
       HistoCode == "H_LFN_RuDs" || HistoCode == "H_HFN_RuDs" || HistoCode == "H_SCs_RuDs")
     {
@@ -11040,8 +10866,7 @@ Int_t TEcnaHistos::GetHistoSize(const TString chqcode, const TString opt_plot_re
 
   //............ histo with sample number as x coordinate => HisSize depends on option "plot" or "read"
   //             because of nb of samples in file: size for plot = 10 even if nb of samples in file < 10
-  if( chqcode == "D_MSp_SpNb" ||  chqcode == "D_SSp_SpNb" ||
-      chqcode == "D_MSp_SpDs" ||  chqcode == "D_SSp_SpDs" )
+  if( chqcode == "D_MSp_Samp" ||  chqcode == "D_SSp_Samp" )
     {
       if( opt_plot_read == "read" ){HisSize = fFapNbOfSamples;}
       if( opt_plot_read == "plot" ){HisSize = fEcal->MaxSampADC();}
@@ -11084,136 +10909,96 @@ Int_t TEcnaHistos::GetHistoSize(const TString chqcode, const TString opt_plot_re
   return HisSize;
 }
 
-TVectorD TEcnaHistos::GetHistoValues(const TVectorD& arg_read_histo, const Int_t&  arg_AlreadyRead,
-				     TEcnaRead*      aMyRootFile,    const TString HistoCode,
-				     const Int_t&    HisSizePlot,    const Int_t&  HisSizeRead,
-				     const Int_t&    StexStin_A,     const Int_t&  i0StinEcha,
-				     const Int_t&    i0Sample,       Int_t&  i_data_exist)
+TVectorD TEcnaHistos::GetHistoValues(TEcnaRead*    aMyRootFile, const TString HistoCode,
+				    const Int_t& HisSizePlot, const Int_t&  HisSizeRead,
+				    const Int_t& StexStin_A,  const Int_t&  i0StinEcha, const Int_t& iSample,
+				    Int_t&       i_data_exist)
 {
-  // Histo values in a TVectorD. i_data_exist entry value = 0. Incremented in this method.
+// Histo values in a TVectorD. i_data_exist entry value = 0. Incremented in this method.
 
+  fStartDate = aMyRootFile->GetStartDate();
+  fStopDate  = aMyRootFile->GetStopDate();
+  fRunType   = aMyRootFile->GetRunType();
+  
   TVectorD plot_histo(HisSizePlot); for(Int_t i=0; i<HisSizePlot; i++){plot_histo(i)=(Double_t)0.;}
+  TVectorD read_histo(HisSizeRead); for(Int_t i=0; i<HisSizeRead; i++){read_histo(i)=(Double_t)0.;}
 
   fStatusDataExist = kFALSE;
 
-  if( arg_AlreadyRead >= 1 )
+  if( HistoCode == "D_MSp_Samp" || HistoCode == "D_SSp_Samp" )
     {
-      //cout << "*TEcnaHistos::GetHistoValues(...)> arg_AlreadyRead = " << arg_AlreadyRead << endl;
-      for(Int_t i=0; i<HisSizeRead; i++){plot_histo(i)=arg_read_histo(i);}
-      fStatusDataExist = kTRUE; i_data_exist++;
-    }
-
-  if( arg_AlreadyRead == 0 )
-    {
-      //cout << "*TEcnaHistos::GetHistoValues(...)> arg_AlreadyRead = " << arg_AlreadyRead << endl;
-      TVectorD read_histo(HisSizeRead); for(Int_t i=0; i<HisSizeRead; i++){read_histo(i)=(Double_t)0.;}
-
-      if( HistoCode == "D_MSp_SpNb" || HistoCode == "D_MSp_SpDs" ||
-	  HistoCode == "D_SSp_SpNb" || HistoCode == "D_SSp_SpDs" )
+      //====> For plots as a function of Sample# (read10->plot10, read3->plot10)
+      if( HisSizeRead <= HisSizePlot )
 	{
-	  //====> For plots as a function of Sample# (read10->plot10, read3->plot10)
-	  if( HisSizeRead <= HisSizePlot )
-	    {
-	      if (HistoCode == "D_MSp_SpNb" || HistoCode == "D_MSp_SpDs" )
-		{
-		  read_histo = aMyRootFile->ReadSampleMeans(StexStin_A, i0StinEcha, HisSizeRead);
-		  if( aMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE; i_data_exist++;}
-		  for(Int_t i=0; i<HisSizeRead; i++){plot_histo(i)=read_histo(i);}
-		}
+	  if (HistoCode == "D_MSp_Samp")
+	    {read_histo = aMyRootFile->ReadSampleMeans(StexStin_A, i0StinEcha, HisSizeRead);
+	    if( aMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE; i_data_exist++;}}
 	  
-	      if (HistoCode == "D_SSp_SpNb" || HistoCode == "D_SSp_SpDs" )
-		{
-		  read_histo = aMyRootFile->ReadSampleSigmas(StexStin_A, i0StinEcha, HisSizeRead);
-		  if( aMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE; i_data_exist++;}
-		  for(Int_t i=0; i<HisSizeRead; i++){plot_histo(i)=read_histo(i);}
-		}
-	    }
-	  else
-	    {
-	      cout << "!TEcnaHistos::GetHistoValues(...)> *** ERROR *** > HisSizeRead greater than HisSizePlot"
-		   << " for plot as a function of sample#. HisSizeRead = " << HisSizeRead
-		   << ", HisSizePlot = " << HisSizePlot << fTTBELL << endl;
-	    }
-	} // end of if( HistoCode == "D_MSp_SpNb" || HistoCode == "D_SSp_SpNb" " ||
-	  //            HistoCode == "D_SSp_SpNb" || HistoCode == "D_SSp_SpDs" )
-
-      if( !(HistoCode == "D_MSp_SpNb" || HistoCode == "D_SSp_SpNb" ||
-	    HistoCode == "D_MSp_SpDs" || HistoCode == "D_SSp_SpDs" ) )  // = else of previous if
+	  if (HistoCode == "D_SSp_Samp")
+	    {read_histo = aMyRootFile->ReadSampleSigmas(StexStin_A, i0StinEcha, HisSizeRead);
+	    if( aMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE; i_data_exist++;}}
+	  
+	  for(Int_t i=0; i<HisSizeRead; i++){plot_histo(i)=read_histo(i);}
+	}
+      else
 	{
-	  //====> For other plots
-	  if( HisSizeRead == HisSizePlot )
-	    {
-	      //========> for EE, HisSizeRead > HisSizePlot but readEcna#->plotForCons# will be build in the calling method
-	      //          HisSizeRead = fEcal->MaxCrysEcnaInStex() (GetHistoValues)
-
-	      if( HistoCode == "D_Adc_EvNb" || HistoCode == "D_Adc_EvDs" )
-		{
-		  read_histo = aMyRootFile->ReadSampleAdcValues(StexStin_A, i0StinEcha, i0Sample, HisSizeRead);
-		  if( aMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE; i_data_exist++;}
-		}
-
-	      if( HistoCode == "D_NOE_ChNb" || HistoCode == "D_NOE_ChDs" )
-		{
-		  read_histo = aMyRootFile->ReadNumberOfEvents(HisSizeRead);
-		  if( aMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE; i_data_exist++;}
-		}
-      
-	      if( HistoCode == "D_Ped_ChNb" || HistoCode == "D_Ped_ChDs" )
-		{
-		  read_histo = aMyRootFile->ReadPedestals(HisSizeRead);
-		  if( aMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE; i_data_exist++;}
-		}
-      
-	      //...................................................... (GetHistoValues)
-	      if( HistoCode == "D_TNo_ChNb" || HistoCode == "D_TNo_ChDs")
-		{
-		  read_histo = aMyRootFile->ReadTotalNoise(HisSizeRead);
-		  if( aMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE; i_data_exist++;}
-		}
-      
-	      if( HistoCode == "D_LFN_ChNb" || HistoCode == "D_LFN_ChDs" )
-		{
-		  read_histo = aMyRootFile->ReadLowFrequencyNoise(HisSizeRead);
-		  if( aMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE; i_data_exist++;}
-		
-		}
-      
-	      if( HistoCode == "D_HFN_ChNb" || HistoCode == "D_HFN_ChDs" )
-		{
-		  read_histo = aMyRootFile->ReadHighFrequencyNoise(HisSizeRead);
-		  if( aMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE; i_data_exist++;}
-		
-		}
-
-      	      if( HistoCode == "D_MCs_ChNb" || HistoCode == "D_MCs_ChDs" )
-		{
-		  read_histo = aMyRootFile->ReadMeanCorrelationsBetweenSamples(HisSizeRead);
-		  if( aMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE; i_data_exist++;}
-		}
-
-	      if( HistoCode == "D_SCs_ChNb" || HistoCode == "D_SCs_ChDs"  )
-		{
-		  read_histo = aMyRootFile->ReadSigmaOfCorrelationsBetweenSamples(HisSizeRead);
-		  if( aMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE; i_data_exist++;}
-		}
-
-	      for(Int_t i=0; i<HisSizeRead; i++){plot_histo(i)=read_histo(i);}
-	    
-	    }
-	  else
-	    {
-	      cout << "!TEcnaHistos::GetHistoValues(...)> *** ERROR *** > HisSizeRead not equal to HisSizePlot."
-		   << " HisSizeRead = " << HisSizeRead
-		   << ", HisSizePlot = " << HisSizePlot << fTTBELL << endl;
-	    }
-	}  // end of if( !(HistoCode == "D_MSp_SpNb" || HistoCode == "D_SSp_SpNb") )
-    }  // end of if( arg_AlreadyRead == 0 )
-
-  if( i_data_exist == 0 )
-    {
-      cout << "!TEcnaHistos::GetHistoValues(...)> Histo not found." << fTTBELL << endl;
+	  cout << "!TEcnaHistos::GetHistoValues(...)> *** ERROR *** > HisSizeRead greater than HisSizePlot"
+	       << " for plot as a function of sample#. HisSizeRead = " << HisSizeRead
+	       << ", HisSizePlot = " << HisSizePlot << fTTBELL << endl;
+	}
     }
+  else
+    {
+      //====> For other plots
+      if( HisSizeRead == HisSizePlot )
+	{
+	  //========> for EE, HisSizeRead > HisSizePlot but readEcna#->plotForCons# will be build in the calling method
+	  //          HisSizeRead = fEcal->MaxCrysEcnaInStex() (GetHistoValues)
 
+	  if( HistoCode == "D_Adc_EvNb" || HistoCode == "D_Adc_EvDs" )
+	    {Int_t i0StexEcha = fEcalNumbering->Get0StexEchaFrom1StexStinAnd0StinEcha(StexStin_A, i0StinEcha);
+	    read_histo = aMyRootFile->ReadSampleValues(i0StexEcha, iSample, HisSizeRead);
+	    if( aMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE; i_data_exist++;}}
+
+
+	  if( HistoCode == "D_NOE_ChNb" || HistoCode == "D_NOE_ChDs" )
+	    {read_histo = aMyRootFile->ReadNumberOfEvents(HisSizeRead);
+	    if( aMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE; i_data_exist++;}}
+      
+	  if( HistoCode == "D_Ped_ChNb" || HistoCode == "D_Ped_ChDs" )
+	    {read_histo = aMyRootFile->ReadPedestals(HisSizeRead);
+	    if( aMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE; i_data_exist++;}}
+      
+	  //...................................................... (GetHistoValues)
+	  if( HistoCode == "D_TNo_ChNb" || HistoCode == "D_TNo_ChDs")
+	    {read_histo = aMyRootFile->ReadTotalNoise(HisSizeRead);
+	    if( aMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE; i_data_exist++;}}
+      
+	  if( HistoCode == "D_MCs_ChNb" || HistoCode == "D_MCs_ChDs" )
+	    {read_histo = aMyRootFile->ReadMeanOfCorrelationsBetweenSamples(HisSizeRead);
+	    if( aMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE; i_data_exist++;}}
+      
+	  if( HistoCode == "D_LFN_ChNb" || HistoCode == "D_LFN_ChDs" )
+	    {read_histo = aMyRootFile->ReadLowFrequencyNoise(HisSizeRead);
+	    if( aMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE; i_data_exist++;}}
+      
+	  if( HistoCode == "D_HFN_ChNb" || HistoCode == "D_HFN_ChDs" )
+	    {read_histo = aMyRootFile->ReadHighFrequencyNoise(HisSizeRead);
+	    if( aMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE; i_data_exist++;}}
+      
+	  if( HistoCode == "D_SCs_ChNb" || HistoCode == "D_SCs_ChDs"  )
+	    {read_histo = aMyRootFile->ReadSigmaOfCorrelationsBetweenSamples(HisSizeRead);
+	    if( aMyRootFile->DataExist() == kTRUE ){fStatusDataExist = kTRUE; i_data_exist++;}}
+
+	  for(Int_t i=0; i<HisSizeRead; i++){plot_histo(i)=read_histo(i);}
+	}
+      else
+	{
+	  cout << "!TEcnaHistos::GetHistoValues(...)> *** ERROR *** > HisSizeRead not equal to HisSizePlot."
+	       << " HisSizeRead = " << HisSizeRead
+	       << ", HisSizePlot = " << HisSizePlot << fTTBELL << endl;
+	}
+    }
   return plot_histo;
 }
 //------- (end of GetHistoValues) -------------
@@ -11243,26 +11028,24 @@ TString  TEcnaHistos::SetHistoXAxisTitle(const TString HistoCode)
 
   if(HistoCode == "D_NOE_ChDs"){axis_x_var_name = "Number of events";}
   if(HistoCode == "D_Ped_ChDs"){axis_x_var_name = "Pedestal";}
-  if(HistoCode == "D_TNo_ChDs"){axis_x_var_name = "Total noise";}
-  if(HistoCode == "D_MCs_ChDs"){axis_x_var_name = "Mean cor(s,s')";}
-  if(HistoCode == "D_LFN_ChDs"){axis_x_var_name = "Low frequency noise";} 
-  if(HistoCode == "D_HFN_ChDs"){axis_x_var_name = "High frequency noise";}
-  if(HistoCode == "D_SCs_ChDs"){axis_x_var_name = "Sigmas cor(s,s')";}
-  if(HistoCode == "D_MSp_SpNb"){axis_x_var_name = "Sample";}
-  if(HistoCode == "D_MSp_SpDs"){axis_x_var_name = "Pedestal";}
-  if(HistoCode == "D_SSp_SpNb"){axis_x_var_name = "Sample";}
-  if(HistoCode == "D_SSp_SpDs"){axis_x_var_name = "Total noise";}
+  if(HistoCode == "D_TNo_ChDs"){axis_x_var_name = "Total Noise";}
+  if(HistoCode == "D_MCs_ChDs"){axis_x_var_name = "Mean Cor(s,s')";}
+  if(HistoCode == "D_LFN_ChDs"){axis_x_var_name = "Low Frequency Noise";} 
+  if(HistoCode == "D_HFN_ChDs"){axis_x_var_name = "High Frequency Noise";}
+  if(HistoCode == "D_SCs_ChDs"){axis_x_var_name = "Sigmas Cor(s,s')";}
+  if(HistoCode == "D_MSp_Samp"){axis_x_var_name = "Sample";}
+  if(HistoCode == "D_SSp_Samp"){axis_x_var_name = "Sample";}
   if(HistoCode == "D_Adc_EvDs"){axis_x_var_name = "ADC";}
   if(HistoCode == "D_Adc_EvNb"){axis_x_var_name = "Event number";}
   if(HistoCode == "H_Ped_Date" || HistoCode == "H_TNo_Date" || HistoCode == "H_MCs_Date" ||
      HistoCode == "H_LFN_Date" || HistoCode == "H_HFN_Date" || HistoCode == "H_SCs_Date")
     {axis_x_var_name = "Time";}
   if(HistoCode == "H_Ped_RuDs"){axis_x_var_name = "Pedestal";}
-  if(HistoCode == "H_TNo_RuDs"){axis_x_var_name = "Total noise";}
-  if(HistoCode == "H_MCs_RuDs"){axis_x_var_name = "Mean cor(s,s')";}
-  if(HistoCode == "H_LFN_RuDs"){axis_x_var_name = "Low frequency noise";} 
-  if(HistoCode == "H_HFN_RuDs"){axis_x_var_name = "High frequency noise";}
-  if(HistoCode == "H_SCs_RuDs"){axis_x_var_name = "Sigmas cor(s,s')";} 
+  if(HistoCode == "H_TNo_RuDs"){axis_x_var_name = "Total Noise";}
+  if(HistoCode == "H_MCs_RuDs"){axis_x_var_name = "Mean Cor(s,s')";}
+  if(HistoCode == "H_LFN_RuDs"){axis_x_var_name = "Low Frequency Noise";} 
+  if(HistoCode == "H_HFN_RuDs"){axis_x_var_name = "High Frequency Noise";}
+  if(HistoCode == "H_SCs_RuDs"){axis_x_var_name = "Sigmas Cor(s,s')";} 
 
   return axis_x_var_name; 
 }
@@ -11273,13 +11056,13 @@ TString  TEcnaHistos::SetHistoYAxisTitle(const TString HistoCode)
 
   TString axis_y_var_name;
 
-  if(HistoCode == "D_NOE_ChNb"){axis_y_var_name = "Number of events";}
-  if(HistoCode == "D_Ped_ChNb"){axis_y_var_name = "Pedestal";}
-  if(HistoCode == "D_TNo_ChNb"){axis_y_var_name = "Total noise";}
-  if(HistoCode == "D_MCs_ChNb"){axis_y_var_name = "Mean cor(s,s')";}
-  if(HistoCode == "D_LFN_ChNb"){axis_y_var_name = "Low frequency noise";} 
-  if(HistoCode == "D_HFN_ChNb"){axis_y_var_name = "High frequency noise";}  
-  if(HistoCode == "D_SCs_ChNb"){axis_y_var_name = "Sigma of cor(s,s')";}
+  if(HistoCode == "D_NOE_ChNb"){axis_y_var_name = "number of found events";}
+  if(HistoCode == "D_Ped_ChNb"){axis_y_var_name = "pedestal";}
+  if(HistoCode == "D_TNo_ChNb"){axis_y_var_name = "total noise";}
+  if(HistoCode == "D_MCs_ChNb"){axis_y_var_name = "mean of cor(s,s')";}
+  if(HistoCode == "D_LFN_ChNb"){axis_y_var_name = "low frequency noise";} 
+  if(HistoCode == "D_HFN_ChNb"){axis_y_var_name = "high frequency noise";}  
+  if(HistoCode == "D_SCs_ChNb"){axis_y_var_name = "sigma of cor(s,s')";}
   
   if(HistoCode == "D_NOE_ChDs" ||
      HistoCode == "D_Ped_ChDs" || HistoCode == "D_TNo_ChDs" || HistoCode == "D_MCs_ChDs" ||
@@ -11293,12 +11076,10 @@ TString  TEcnaHistos::SetHistoYAxisTitle(const TString HistoCode)
 	}
     }
 
-  if(HistoCode == "D_MSp_SpNb"){axis_y_var_name = "Sample mean";}
-  if(HistoCode == "D_MSp_SpDs"){axis_y_var_name = "Number of samples";}
-  if(HistoCode == "D_SSp_SpNb"){axis_y_var_name = "Sample sigma";}
-  if(HistoCode == "D_SSp_SpDs"){axis_y_var_name = "Number of samples";}
+  if(HistoCode == "D_MSp_Samp"){axis_y_var_name = "Sample mean";}
+  if(HistoCode == "D_SSp_Samp"){axis_y_var_name = "Sample sigma";}
+  if(HistoCode == "D_Adc_EvDs"){axis_y_var_name = "number of events";}
   if(HistoCode == "D_Adc_EvNb"){axis_y_var_name = "Sample ADC value";}
-  if(HistoCode == "D_Adc_EvDs"){axis_y_var_name = "Number of events";}
   if(HistoCode == "H_Ped_Date"){axis_y_var_name = "Pedestal";}
   if(HistoCode == "H_TNo_Date"){axis_y_var_name = "Total noise";}
   if(HistoCode == "H_MCs_Date"){axis_y_var_name = "Mean cor(s,s')";}
@@ -11326,20 +11107,20 @@ Axis_t TEcnaHistos::GetHistoXinf(const TString HistoCode, const Int_t& HisSize, 
   if(HistoCode == "D_LFN_ChNb"){xinf_his = (Axis_t)0.;} 
   if(HistoCode == "D_HFN_ChNb"){xinf_his = (Axis_t)0.;}  
   if(HistoCode == "D_SCs_ChNb"){xinf_his = (Axis_t)0.;}
-  if(HistoCode == "D_MSp_SpNb"){xinf_his = (Axis_t)0.;}
-  if(HistoCode == "D_SSp_SpNb"){xinf_his = (Axis_t)0.;}
-  if(HistoCode == "D_Adc_EvNb"){xinf_his = (Axis_t)0.;}
 
-  if(HistoCode == "D_NOE_ChDs"){xinf_his = (Axis_t)fD_NOE_ChNbYmin;}  // D_XXX_YYDs = projection of D_XXX_YYNb
+  if(HistoCode == "D_NOE_ChDs"){xinf_his = (Axis_t)fD_NOE_ChNbYmin;}
   if(HistoCode == "D_Ped_ChDs"){xinf_his = (Axis_t)fD_Ped_ChNbYmin;}
   if(HistoCode == "D_TNo_ChDs"){xinf_his = (Axis_t)fD_TNo_ChNbYmin;}
   if(HistoCode == "D_MCs_ChDs"){xinf_his = (Axis_t)fD_MCs_ChNbYmin;}
   if(HistoCode == "D_LFN_ChDs"){xinf_his = (Axis_t)fD_LFN_ChNbYmin;}
   if(HistoCode == "D_HFN_ChDs"){xinf_his = (Axis_t)fD_HFN_ChNbYmin;}
   if(HistoCode == "D_SCs_ChDs"){xinf_his = (Axis_t)fD_SCs_ChNbYmin;}
-  if(HistoCode == "D_MSp_SpDs"){xinf_his = (Axis_t)fD_MSp_SpNbYmin;}
-  if(HistoCode == "D_SSp_SpDs"){xinf_his = (Axis_t)fD_SSp_SpNbYmin;}
-  if(HistoCode == "D_Adc_EvDs"){xinf_his = (Axis_t)fD_Adc_EvNbYmin;}
+  
+  if(HistoCode == "D_MSp_Samp"){xinf_his = (Axis_t)0.;}
+  if(HistoCode == "D_SSp_Samp"){xinf_his = (Axis_t)0.;}
+
+  if(HistoCode == "D_Adc_EvNb"){xinf_his = (Axis_t)0.;}
+  if(HistoCode == "D_Adc_EvDs"){xinf_his = (Axis_t)fD_Adc_EvNbYmin;}  // D_Adc_EvDs = projection of D_Adc_EvNb
 
   if(HistoCode == "H_Ped_Date"){xinf_his = (Axis_t)0.;}
   if(HistoCode == "H_TNo_Date"){xinf_his = (Axis_t)0.;}
@@ -11371,9 +11152,6 @@ Axis_t TEcnaHistos::GetHistoXsup(const TString HistoCode, const Int_t& HisSize, 
   if(HistoCode == "D_LFN_ChNb"){xsup_his = (Axis_t)HisSize;} 
   if(HistoCode == "D_HFN_ChNb"){xsup_his = (Axis_t)HisSize;}  
   if(HistoCode == "D_SCs_ChNb"){xsup_his = (Axis_t)HisSize;}
-  if(HistoCode == "D_MSp_SpNb"){xsup_his = (Axis_t)HisSize;}
-  if(HistoCode == "D_SSp_SpNb"){xsup_his = (Axis_t)HisSize;}
-  if(HistoCode == "D_Adc_EvNb"){xsup_his = (Axis_t)(fFapReqNbOfEvts);}
 
   if(HistoCode == "D_NOE_ChDs"){xsup_his = (Axis_t)fD_NOE_ChNbYmax;}
   if(HistoCode == "D_Ped_ChDs"){xsup_his = (Axis_t)fD_Ped_ChNbYmax;}
@@ -11382,8 +11160,11 @@ Axis_t TEcnaHistos::GetHistoXsup(const TString HistoCode, const Int_t& HisSize, 
   if(HistoCode == "D_LFN_ChDs"){xsup_his = (Axis_t)fD_LFN_ChNbYmax;}
   if(HistoCode == "D_HFN_ChDs"){xsup_his = (Axis_t)fD_HFN_ChNbYmax;}
   if(HistoCode == "D_SCs_ChDs"){xsup_his = (Axis_t)fD_SCs_ChNbYmax;}
-  if(HistoCode == "D_MSp_SpDs"){xsup_his = (Axis_t)fD_MSp_SpNbYmax;}
-  if(HistoCode == "D_SSp_SpDs"){xsup_his = (Axis_t)fD_SSp_SpNbYmax;}
+
+  if(HistoCode == "D_MSp_Samp"){xsup_his = (Axis_t)HisSize;}
+  if(HistoCode == "D_SSp_Samp"){xsup_his = (Axis_t)HisSize;}
+  
+  if(HistoCode == "D_Adc_EvNb"){xsup_his = (Axis_t)(fFapReqNbOfEvts);}
   if(HistoCode == "D_Adc_EvDs"){xsup_his = (Axis_t)fD_Adc_EvNbYmax;}
 
   if(HistoCode == "H_Ped_Date"){xsup_his = (Axis_t)0.;}
@@ -11409,15 +11190,14 @@ Int_t TEcnaHistos::GetHistoNumberOfBins(const TString HistoCode, const Int_t& Hi
 
   Int_t nb_binx = HisSize;
   TString HistoType = fCnaParHistos->GetHistoType(HistoCode.Data());
-  if ( HistoType == "Proj"     ||  HistoType == "SampProj" ||
-       HistoType == "EvolProj" || HistoType == "H1BasicProj" )
+  if ( HistoType == "Proj" ||  HistoType == "SampProj" ||  HistoType == "EvolProj" )
     {nb_binx = fNbBinsProj;}
 
   return nb_binx;
 }
 //-----------------------------------------------------------------------------------
 void TEcnaHistos::FillHisto(TH1D* h_his0, const TVectorD& read_histo, const TString HistoCode,
-			    const Int_t&  HisSize)
+			   const Int_t&  HisSize)
 {
 // Fill histo
 
@@ -11428,15 +11208,20 @@ void TEcnaHistos::FillHisto(TH1D* h_his0, const TVectorD& read_histo, const TStr
       Double_t his_val = (Double_t)0;
       Double_t xi      = (Double_t)0;
       //................................................... Basic + Global
-      if (HistoCode == "D_NOE_ChNb" || HistoCode == "D_Ped_ChNb" ||
+      if (HistoCode == "D_MSp_Samp" || HistoCode == "D_SSp_Samp" ||
+	  HistoCode == "D_NOE_ChNb" || HistoCode == "D_Ped_ChNb" ||
 	  HistoCode == "D_LFN_ChNb" || HistoCode == "D_TNo_ChNb" ||
 	  HistoCode == "D_HFN_ChNb" || HistoCode == "D_MCs_ChNb" ||
-	  HistoCode == "D_SCs_ChNb" || HistoCode == "D_MSp_SpNb" || HistoCode == "D_SSp_SpNb" )
+	  HistoCode == "D_SCs_ChNb" )
 	{
 	  xi = (Double_t)i;
 	  his_val = (Double_t)read_histo[i];
 	  h_his0->Fill(xi, his_val);
 	}
+      //................................................... EvolProj
+      //
+      //    *=======> direct Fill in ViewHistime(...)
+      //
 
       //................................................... D_Adc_EvNb option
       if (HistoCode == "D_Adc_EvNb" )
@@ -11450,18 +11235,12 @@ void TEcnaHistos::FillHisto(TH1D* h_his0, const TVectorD& read_histo, const TStr
 	  HistoCode == "D_Ped_ChDs" || HistoCode == "D_LFN_ChDs" ||
 	  HistoCode == "D_TNo_ChDs" || HistoCode == "D_HFN_ChDs" ||
 	  HistoCode == "D_MCs_ChDs" || HistoCode == "D_SCs_ChDs" ||
-	  HistoCode == "D_MSp_SpDs" || HistoCode == "D_SSp_SpDs" ||
 	  HistoCode == "D_Adc_EvDs" )
 	{
 	  his_val = (Double_t)read_histo[i];
 	  Double_t increment = (Double_t)1;
 	  h_his0->Fill(his_val, increment);
 	}
-
-      //................................................... EvolProj
-      //
-      //    *=======> direct Fill in ViewHistime(...)
-      //
     }
 }
 
@@ -11487,12 +11266,10 @@ void TEcnaHistos::SetXinfMemoFromValue(const TString HistoCode, const Double_t& 
   if( HistoCode == "D_HFN_ChDs"){fD_HFN_ChDsXinf = value;} 
   if( HistoCode == "D_SCs_ChNb"){fD_SCs_ChNbXinf = value;}
   if( HistoCode == "D_SCs_ChDs"){fD_SCs_ChDsXinf = value;}
-  if( HistoCode == "D_MSp_SpNb"){fD_Ped_ChNbXinf = value;}
-  if( HistoCode == "D_MSp_SpDs"){fD_Ped_ChDsXinf = value;}
-  if( HistoCode == "D_SSp_SpNb"){fD_TNo_ChNbXinf = value;}
-  if( HistoCode == "D_SSp_SpDs"){fD_TNo_ChDsXinf = value;}
-  if( HistoCode == "D_Adc_EvNb"){fD_Ped_ChNbXinf = value;}
+  if( HistoCode == "D_MSp_Samp"){fD_Ped_ChNbXinf = value;}
+  if( HistoCode == "D_SSp_Samp"){fD_TNo_ChNbXinf = value;}
   if( HistoCode == "D_Adc_EvDs"){fD_Adc_EvDsXinf = value;}
+  if( HistoCode == "D_Adc_EvNb"){fD_Ped_ChNbXinf = value;}
   if( HistoCode == "H_Ped_Date"){fH_Ped_DateXinf = value;}
   if( HistoCode == "H_TNo_Date"){fH_TNo_DateXinf = value;}
   if( HistoCode == "H_MCs_Date"){fH_MCs_DateXinf = value;}
@@ -11526,12 +11303,10 @@ void TEcnaHistos::SetXsupMemoFromValue(const TString HistoCode, const Double_t& 
   if( HistoCode == "D_HFN_ChDs"){fD_HFN_ChDsXsup = value;} 
   if( HistoCode == "D_SCs_ChNb"){fD_SCs_ChNbXsup = value;}
   if( HistoCode == "D_SCs_ChDs"){fD_SCs_ChDsXsup = value;}
-  if( HistoCode == "D_MSp_SpNb"){fD_Ped_ChNbXsup = value;}
-  if( HistoCode == "D_MSp_SpDs"){fD_Ped_ChDsXsup = value;}
-  if( HistoCode == "D_SSp_SpNb"){fD_TNo_ChNbXsup = value;}
-  if( HistoCode == "D_SSp_SpDs"){fD_TNo_ChDsXsup = value;}
-  if( HistoCode == "D_Adc_EvNb"){fD_Ped_ChNbXsup = value;}
+  if( HistoCode == "D_MSp_Samp"){fD_Ped_ChNbXsup = value;}
+  if( HistoCode == "D_SSp_Samp"){fD_TNo_ChNbXsup = value;}
   if( HistoCode == "D_Adc_EvDs"){fD_Adc_EvDsXsup = value;}
+  if( HistoCode == "D_Adc_EvNb"){fD_Ped_ChNbXsup = value;}
   if( HistoCode == "H_Ped_Date"){fH_Ped_DateXsup = value;}
   if( HistoCode == "H_TNo_Date"){fH_TNo_DateXsup = value;}
   if( HistoCode == "H_MCs_Date"){fH_MCs_DateXsup = value;}
@@ -11567,12 +11342,10 @@ Double_t TEcnaHistos::GetXinfValueFromMemo(const TString HistoCode)
    if( HistoCode == "D_HFN_ChDs"){val_inf = fD_HFN_ChDsXinf;} 
    if( HistoCode == "D_SCs_ChNb"){val_inf = fD_SCs_ChNbXinf;}
    if( HistoCode == "D_SCs_ChDs"){val_inf = fD_SCs_ChDsXinf;}
-   if( HistoCode == "D_MSp_SpNb"){val_inf = fD_Ped_ChNbXinf;}
-   if( HistoCode == "D_MSp_SpDs"){val_inf = fD_Ped_ChDsXinf;}
-   if( HistoCode == "D_SSp_SpNb"){val_inf = fD_TNo_ChNbXinf;}
-   if( HistoCode == "D_SSp_SpDs"){val_inf = fD_TNo_ChDsXinf;}
-   if( HistoCode == "D_Adc_EvNb"){val_inf = fD_Adc_EvNbXinf;}
+   if( HistoCode == "D_MSp_Samp"){val_inf = fD_Ped_ChNbXinf;}
+   if( HistoCode == "D_SSp_Samp"){val_inf = fD_TNo_ChNbXinf;}
    if( HistoCode == "D_Adc_EvDs"){val_inf = fD_Adc_EvDsXinf;}
+   if( HistoCode == "D_Adc_EvNb"){val_inf = fD_Adc_EvNbXinf;}
    if( HistoCode == "H_Ped_Date"){val_inf = fH_Ped_DateXinf;}
    if( HistoCode == "H_TNo_Date"){val_inf = fH_TNo_DateXinf;}
    if( HistoCode == "H_MCs_Date"){val_inf = fH_MCs_DateXinf;}
@@ -11609,12 +11382,10 @@ Double_t TEcnaHistos::GetXsupValueFromMemo(const TString HistoCode)
    if( HistoCode == "D_HFN_ChDs"){val_sup = fD_HFN_ChDsXsup;} 
    if( HistoCode == "D_SCs_ChNb"){val_sup = fD_SCs_ChNbXsup;}
    if( HistoCode == "D_SCs_ChDs"){val_sup = fD_SCs_ChDsXsup;}
-   if( HistoCode == "D_MSp_SpNb"){val_sup = fD_Ped_ChNbXsup;}
-   if( HistoCode == "D_MSp_SpDs"){val_sup = fD_Ped_ChDsXsup;}
-   if( HistoCode == "D_SSp_SpNb"){val_sup = fD_TNo_ChNbXsup;}
-   if( HistoCode == "D_SSp_SpDs"){val_sup = fD_TNo_ChDsXsup;}
-   if( HistoCode == "D_Adc_EvNb"){val_sup = fD_Adc_EvNbXsup;}
+   if( HistoCode == "D_MSp_Samp"){val_sup = fD_Ped_ChNbXsup;}
+   if( HistoCode == "D_SSp_Samp"){val_sup = fD_TNo_ChNbXsup;}
    if( HistoCode == "D_Adc_EvDs"){val_sup = fD_Adc_EvDsXsup;}
+   if( HistoCode == "D_Adc_EvNb"){val_sup = fD_Adc_EvNbXsup;}
    if( HistoCode == "H_Ped_Date"){val_sup = fH_Ped_DateXsup;}
    if( HistoCode == "H_TNo_Date"){val_sup = fH_TNo_DateXsup;}
    if( HistoCode == "H_MCs_Date"){val_sup = fH_MCs_DateXsup;}
@@ -11636,6 +11407,8 @@ Double_t TEcnaHistos::GetXsupValueFromMemo()
 //-------------------------------------------------------------------------------------------
 //
 //           SetHistoMin, SetHistoMax, SetAllYminYmaxMemoFromDefaultValues
+//
+//       D O N ' T   S U P P R E S S  : THESE METHODS CAN BE CALLED BY EXTERNAL OBJECTS 
 //
 //-------------------------------------------------------------------------------------------
 void TEcnaHistos::SetHistoMin(const Double_t& value){fUserHistoMin = value; fFlagUserHistoMin = "ON";}
@@ -11690,17 +11463,11 @@ void TEcnaHistos::SetAllYminYmaxMemoFromDefaultValues()
   SetYminMemoFromValue("D_SCs_ChDs", fCnaParHistos->GetYminDefaultValue("D_SCs_ChDs"));
   SetYmaxMemoFromValue("D_SCs_ChDs", fCnaParHistos->GetYmaxDefaultValue("D_SCs_ChDs"));
 
-  SetYminMemoFromValue("D_MSp_SpNb", fCnaParHistos->GetYminDefaultValue("D_MSp_SpNb"));
-  SetYmaxMemoFromValue("D_MSp_SpNb", fCnaParHistos->GetYmaxDefaultValue("D_MSp_SpNb"));
+  SetYminMemoFromValue("D_MSp_Samp", fCnaParHistos->GetYminDefaultValue("D_MSp_Samp"));
+  SetYmaxMemoFromValue("D_MSp_Samp", fCnaParHistos->GetYmaxDefaultValue("D_MSp_Samp"));
 
-  SetYminMemoFromValue("D_MSp_SpDs", fCnaParHistos->GetYminDefaultValue("D_MSp_SpDs"));
-  SetYmaxMemoFromValue("D_MSp_SpDs", fCnaParHistos->GetYmaxDefaultValue("D_MSp_SpDs"));
-
-  SetYminMemoFromValue("D_SSp_SpNb", fCnaParHistos->GetYminDefaultValue("D_SSp_SpNb"));
-  SetYmaxMemoFromValue("D_SSp_SpNb", fCnaParHistos->GetYmaxDefaultValue("D_SSp_SpNb"));
-
-  SetYminMemoFromValue("D_SSp_SpDs", fCnaParHistos->GetYminDefaultValue("D_SSp_SpDs"));
-  SetYmaxMemoFromValue("D_SSp_SpDs", fCnaParHistos->GetYmaxDefaultValue("D_SSp_SpDs"));
+  SetYminMemoFromValue("D_SSp_Samp", fCnaParHistos->GetYminDefaultValue("D_SSp_Samp"));
+  SetYmaxMemoFromValue("D_SSp_Samp", fCnaParHistos->GetYmaxDefaultValue("D_SSp_Samp"));
 
   SetYminMemoFromValue("D_Adc_EvDs", fCnaParHistos->GetYminDefaultValue("D_Adc_EvDs"));
   SetYmaxMemoFromValue("D_Adc_EvDs", fCnaParHistos->GetYmaxDefaultValue("D_Adc_EvDs"));
@@ -11753,10 +11520,10 @@ void TEcnaHistos::SetAllYminYmaxMemoFromDefaultValues()
   SetYminMemoFromValue("H2CorccInStins",  fCnaParHistos->GetYminDefaultValue("H2CorccInStins"));
   SetYmaxMemoFromValue("H2CorccInStins",  fCnaParHistos->GetYmaxDefaultValue("H2CorccInStins"));
 
-  //........... set user's min and max flags to "OFF" and values to -1 and +1 (just to have fUserHistoMin < fUserHistoMax)
+  //........... set user's min and max flags to "OFF" and values to -1 and +1
   fUserHistoMin = -1.; fFlagUserHistoMin = "OFF";
   fUserHistoMax =  1.; fFlagUserHistoMax = "OFF";
-} // end of SetAllYminYmaxMemoFromDefaultValues()
+}
 
 //===========================================================================
 //
@@ -11780,12 +11547,10 @@ void TEcnaHistos::SetYminMemoFromValue(const TString HistoCode, const Double_t& 
   if( HistoCode == "D_HFN_ChDs" ){fD_HFN_ChDsYmin = value;} 
   if( HistoCode == "D_SCs_ChNb" ){fD_SCs_ChNbYmin = value;}
   if( HistoCode == "D_SCs_ChDs" ){fD_SCs_ChDsYmin = value;}
-  if( HistoCode == "D_MSp_SpNb" ){fD_Ped_ChNbYmin = value;}
-  if( HistoCode == "D_MSp_SpDs" ){fD_Ped_ChDsYmin = value;}
-  if( HistoCode == "D_SSp_SpNb" ){fD_TNo_ChNbYmin = value;}
-  if( HistoCode == "D_SSp_SpDs" ){fD_TNo_ChDsYmin = value;}
-  if( HistoCode == "D_Adc_EvNb" ){fD_Ped_ChNbYmin = value;}
+  if( HistoCode == "D_MSp_Samp" ){fD_Ped_ChNbYmin = value;}
+  if( HistoCode == "D_SSp_Samp" ){fD_TNo_ChNbYmin = value;}
   if( HistoCode == "D_Adc_EvDs" ){fD_Adc_EvDsYmin = value;}
+  if( HistoCode == "D_Adc_EvNb" ){fD_Ped_ChNbYmin = value;}
   if( HistoCode == "H_Ped_Date" ){fH_Ped_DateYmin = value;}
   if( HistoCode == "H_TNo_Date" ){fH_TNo_DateYmin = value;}
   if( HistoCode == "H_MCs_Date" ){fH_MCs_DateYmin = value;}
@@ -11819,12 +11584,10 @@ void TEcnaHistos::SetYmaxMemoFromValue(const TString HistoCode, const Double_t& 
   if( HistoCode == "D_HFN_ChDs" ){fD_HFN_ChDsYmax = value;} 
   if( HistoCode == "D_SCs_ChNb" ){fD_SCs_ChNbYmax = value;}
   if( HistoCode == "D_SCs_ChDs" ){fD_SCs_ChDsYmax = value;}
-  if( HistoCode == "D_MSp_SpNb" ){fD_Ped_ChNbYmax = value;}
-  if( HistoCode == "D_MSp_SpDs" ){fD_Ped_ChDsYmax = value;}
-  if( HistoCode == "D_SSp_SpNb" ){fD_TNo_ChNbYmax = value;}
-  if( HistoCode == "D_SSp_SpDs" ){fD_TNo_ChDsYmax = value;}
+  if( HistoCode == "D_MSp_Samp" ){fD_Ped_ChNbYmax = value;}
+  if( HistoCode == "D_SSp_Samp" ){fD_TNo_ChNbYmax = value;}
+  if( HistoCode == "D_Adc_EvDs" ){fD_Adc_EvDsYmax = value;}
   if( HistoCode == "D_Adc_EvNb" ){fD_Ped_ChNbYmax = value;}
-  if( HistoCode == "D_Adc_EvDs" ){fD_Ped_ChDsYmax = value;}
   if( HistoCode == "H_Ped_Date" ){fH_Ped_DateYmax = value;}
   if( HistoCode == "H_TNo_Date" ){fH_TNo_DateYmax = value;}
   if( HistoCode == "H_MCs_Date" ){fH_MCs_DateYmax = value;}
@@ -11861,12 +11624,10 @@ Double_t TEcnaHistos::GetYminValueFromMemo(const TString HistoCode)
    if( HistoCode == "D_HFN_ChDs" ){val_min = val_min_proj;} 
    if( HistoCode == "D_SCs_ChNb" ){val_min = fD_SCs_ChNbYmin;}
    if( HistoCode == "D_SCs_ChDs" ){val_min = val_min_proj;}
-   if( HistoCode == "D_MSp_SpNb" ){val_min = fD_Ped_ChNbYmin;}
-   if( HistoCode == "D_MSp_SpDs" ){val_min = val_min_proj;}
-   if( HistoCode == "D_SSp_SpNb" ){val_min = fD_TNo_ChNbYmin;}
-   if( HistoCode == "D_SSp_SpDs" ){val_min = val_min_proj;}
-   if( HistoCode == "D_Adc_EvNb" ){val_min = fD_Ped_ChNbYmin;}
+   if( HistoCode == "D_MSp_Samp" ){val_min = fD_Ped_ChNbYmin;}
+   if( HistoCode == "D_SSp_Samp" ){val_min = fD_TNo_ChNbYmin;}
    if( HistoCode == "D_Adc_EvDs" ){val_min = val_min_proj;}
+   if( HistoCode == "D_Adc_EvNb" ){val_min = fD_Ped_ChNbYmin;}
    if( HistoCode == "H_Ped_Date" ){val_min = fH_Ped_DateYmin;}
    if( HistoCode == "H_TNo_Date" ){val_min = fH_TNo_DateYmin;}
    if( HistoCode == "H_MCs_Date" ){val_min = fH_MCs_DateYmin;}
@@ -11904,12 +11665,10 @@ Double_t TEcnaHistos::GetYmaxValueFromMemo(const TString HistoCode)
    if( HistoCode == "D_HFN_ChDs" ){val_max = val_max_proj;} 
    if( HistoCode == "D_SCs_ChNb" ){val_max = fD_SCs_ChNbYmax;} 
    if( HistoCode == "D_SCs_ChDs" ){val_max = val_max_proj;}
-   if( HistoCode == "D_MSp_SpNb" ){val_max = fD_Ped_ChNbYmax;}
-   if( HistoCode == "D_MSp_SpDs" ){val_max = val_max_proj;}
-   if( HistoCode == "D_SSp_SpNb" ){val_max = fD_TNo_ChNbYmax;}
-   if( HistoCode == "D_SSp_SpDs" ){val_max = val_max_proj;}
-   if( HistoCode == "D_Adc_EvNb" ){val_max = fD_Ped_ChNbYmax;}
+   if( HistoCode == "D_MSp_Samp" ){val_max = fD_Ped_ChNbYmax;}
+   if( HistoCode == "D_SSp_Samp" ){val_max = fD_TNo_ChNbYmax;}
    if( HistoCode == "D_Adc_EvDs" ){val_max = val_max_proj;}
+   if( HistoCode == "D_Adc_EvNb" ){val_max = fD_Ped_ChNbYmax;}
    if( HistoCode == "H_Ped_Date" ){val_max = fH_Ped_DateYmax;}
    if( HistoCode == "H_TNo_Date" ){val_max = fH_TNo_DateYmax;}
    if( HistoCode == "H_MCs_Date" ){val_max = fH_MCs_DateYmax;}
@@ -11946,12 +11705,10 @@ void TEcnaHistos::SetYminMemoFromPreviousMemo(const TString  HistoCode)
   if( HistoCode == "D_HFN_ChDs" ){fD_HFN_ChDsYmin = GetYminValueFromMemo("D_HFN_ChDs");}
   if( HistoCode == "D_SCs_ChNb" ){fD_SCs_ChNbYmin = GetYminValueFromMemo("D_SCs_ChNb");}
   if( HistoCode == "D_SCs_ChDs" ){fD_SCs_ChDsYmin = GetYminValueFromMemo("D_SCs_ChDs");}
-  if( HistoCode == "D_MSp_SpNb" ){fD_MSp_SpNbYmin = GetYminValueFromMemo("D_MSp_SpNb");}
-  if( HistoCode == "D_MSp_SpDs" ){fD_MSp_SpDsYmin = GetYminValueFromMemo("D_MSp_SpDs");}
-  if( HistoCode == "D_SSp_SpNb" ){fD_SSp_SpNbYmin = GetYminValueFromMemo("D_SSp_SpNb");}
-  if( HistoCode == "D_SSp_SpDs" ){fD_SSp_SpDsYmin = GetYminValueFromMemo("D_SSp_SpDs");}
-  if( HistoCode == "D_Adc_EvNb" ){fD_Adc_EvNbYmin = GetYminValueFromMemo("D_Adc_EvNb");}
+  if( HistoCode == "D_MSp_Samp" ){fD_MSp_SampYmin = GetYminValueFromMemo("D_MSp_Samp");}
+  if( HistoCode == "D_SSp_Samp" ){fD_SSp_SampYmin = GetYminValueFromMemo("D_SSp_Samp");}
   if( HistoCode == "D_Adc_EvDs" ){fD_Adc_EvDsYmin = GetYminValueFromMemo("D_Adc_EvDs");}
+  if( HistoCode == "D_Adc_EvNb" ){fD_Adc_EvNbYmin = GetYminValueFromMemo("D_Adc_EvNb");}
   if( HistoCode == "H_Ped_Date" ){fH_Ped_DateYmin = GetYminValueFromMemo("H_Ped_Date");}
   if( HistoCode == "H_TNo_Date" ){fH_TNo_DateYmin = GetYminValueFromMemo("H_TNo_Date");}
   if( HistoCode == "H_MCs_Date" ){fH_MCs_DateYmin = GetYminValueFromMemo("H_MCs_Date");}
@@ -11987,12 +11744,10 @@ void TEcnaHistos::SetYmaxMemoFromPreviousMemo(const TString  HistoCode)
   if( HistoCode == "D_HFN_ChDs" ){fD_HFN_ChDsYmax = GetYmaxValueFromMemo("D_HFN_ChDs");}
   if( HistoCode == "D_SCs_ChNb" ){fD_SCs_ChNbYmax = GetYmaxValueFromMemo("D_SCs_ChNb");}
   if( HistoCode == "D_SCs_ChDs" ){fD_SCs_ChDsYmax = GetYmaxValueFromMemo("D_SCs_ChDs");}
-  if( HistoCode == "D_MSp_SpNb" ){fD_MSp_SpNbYmax = GetYmaxValueFromMemo("D_MSp_SpNb");}
-  if( HistoCode == "D_MSp_SpDs" ){fD_MSp_SpDsYmax = GetYmaxValueFromMemo("D_MSp_SpDs");}
-  if( HistoCode == "D_SSp_SpNb" ){fD_SSp_SpNbYmax = GetYmaxValueFromMemo("D_SSp_SpNb");}
-  if( HistoCode == "D_SSp_SpDs" ){fD_SSp_SpDsYmax = GetYmaxValueFromMemo("D_SSp_SpDs");}
-  if( HistoCode == "D_Adc_EvNb" ){fD_Adc_EvNbYmax = GetYmaxValueFromMemo("D_Adc_EvNb");}
+  if( HistoCode == "D_MSp_Samp" ){fD_MSp_SampYmax = GetYmaxValueFromMemo("D_MSp_Samp");}
+  if( HistoCode == "D_SSp_Samp" ){fD_SSp_SampYmax = GetYmaxValueFromMemo("D_SSp_Samp");}
   if( HistoCode == "D_Adc_EvDs" ){fD_Adc_EvDsYmax = GetYmaxValueFromMemo("D_Adc_EvDs");}
+  if( HistoCode == "D_Adc_EvNb" ){fD_Adc_EvNbYmax = GetYmaxValueFromMemo("D_Adc_EvNb");}
   if( HistoCode == "H_Ped_Date" ){fH_Ped_DateYmax = GetYmaxValueFromMemo("H_Ped_Date");}
   if( HistoCode == "H_TNo_Date" ){fH_TNo_DateYmax = GetYmaxValueFromMemo("H_TNo_Date");}
   if( HistoCode == "H_MCs_Date" ){fH_MCs_DateYmax = GetYmaxValueFromMemo("H_MCs_Date");}
@@ -12032,12 +11787,10 @@ void TEcnaHistos::SetXVarMemo(const TString HistoCode, const TString opt_plot, c
       if( HistoCode == "D_HFN_ChDs"){fXMemoD_HFN_ChDs = xvar;} 
       if( HistoCode == "D_SCs_ChNb"){fXMemoD_SCs_ChNb = xvar;}
       if( HistoCode == "D_SCs_ChDs"){fXMemoD_SCs_ChDs = xvar;}
-      if( HistoCode == "D_MSp_SpNb"){fXMemoD_MSp_SpNb = xvar;}
-      if( HistoCode == "D_MSp_SpDs"){fXMemoD_MSp_SpDs = xvar;}
-      if( HistoCode == "D_SSp_SpNb"){fXMemoD_SSp_SpNb = xvar;}
-      if( HistoCode == "D_SSp_SpDs"){fXMemoD_SSp_SpDs = xvar;}
-      if( HistoCode == "D_Adc_EvNb"){fXMemoD_Adc_EvNb = xvar;}
+      if( HistoCode == "D_MSp_Samp"){fXMemoD_MSp_Samp = xvar;}
+      if( HistoCode == "D_SSp_Samp"){fXMemoD_SSp_Samp = xvar;}
       if( HistoCode == "D_Adc_EvDs"){fXMemoD_Adc_EvDs = xvar;}
+      if( HistoCode == "D_Adc_EvNb"){fXMemoD_Adc_EvNb = xvar;}
       if( HistoCode == "H_Ped_Date"){fXMemoH_Ped_Date = xvar;}
       if( HistoCode == "H_TNo_Date"){fXMemoH_TNo_Date = xvar;}
       if( HistoCode == "H_MCs_Date"){fXMemoH_MCs_Date = xvar;}
@@ -12075,12 +11828,10 @@ TString TEcnaHistos::GetXVarFromMemo(const TString HistoCode, const TString opt_
       if( HistoCode == "D_HFN_ChDs"){xvar = fXMemoD_HFN_ChDs;} 
       if( HistoCode == "D_SCs_ChNb"){xvar = fXMemoD_SCs_ChNb;}
       if( HistoCode == "D_SCs_ChDs"){xvar = fXMemoD_SCs_ChDs;}
-      if( HistoCode == "D_MSp_SpNb"){xvar = fXMemoD_MSp_SpNb;}
-      if( HistoCode == "D_MSp_SpDs"){xvar = fXMemoD_MSp_SpDs;}
-      if( HistoCode == "D_SSp_SpNb"){xvar = fXMemoD_SSp_SpNb;}
-      if( HistoCode == "D_SSp_SpDs"){xvar = fXMemoD_SSp_SpDs;}
-      if( HistoCode == "D_Adc_EvNb"){xvar = fXMemoD_Adc_EvNb;}
+      if( HistoCode == "D_MSp_Samp"){xvar = fXMemoD_MSp_Samp;}
+      if( HistoCode == "D_SSp_Samp"){xvar = fXMemoD_SSp_Samp;}
       if( HistoCode == "D_Adc_EvDs"){xvar = fXMemoD_Adc_EvDs;}
+      if( HistoCode == "D_Adc_EvNb"){xvar = fXMemoD_Adc_EvNb;}
       if( HistoCode == "H_Ped_Date"){xvar = fXMemoH_Ped_Date;}
       if( HistoCode == "H_TNo_Date"){xvar = fXMemoH_TNo_Date;}
       if( HistoCode == "H_MCs_Date"){xvar = fXMemoH_MCs_Date;}
@@ -12118,11 +11869,9 @@ void TEcnaHistos::SetYVarMemo(const TString HistoCode, const TString opt_plot, c
       if( HistoCode == "D_HFN_ChDs"){fYMemoD_HFN_ChDs = yvar;} 
       if( HistoCode == "D_SCs_ChNb"){fYMemoD_SCs_ChNb = yvar;}
       if( HistoCode == "D_SCs_ChDs"){fYMemoD_SCs_ChDs = yvar;}
-      if( HistoCode == "D_MSp_SpNb"){fYMemoD_MSp_SpNb = yvar;}
-      if( HistoCode == "D_MSp_SpDs"){fYMemoD_MSp_SpDs = yvar;}
-      if( HistoCode == "D_SSp_SpNb"){fYMemoD_SSp_SpNb = yvar;}
+      if( HistoCode == "D_MSp_Samp"){fYMemoD_MSp_Samp = yvar;}
+      if( HistoCode == "D_SSp_Samp"){fYMemoD_SSp_Samp = yvar;}
       if( HistoCode == "D_Adc_EvDs"){fYMemoD_Adc_EvDs = yvar;}
-      if( HistoCode == "D_SSp_SpDs"){fYMemoD_SSp_SpDs = yvar;}
       if( HistoCode == "D_Adc_EvNb"){fYMemoD_Adc_EvNb = yvar;}
       if( HistoCode == "H_Ped_Date"){fYMemoH_Ped_Date = yvar;}
       if( HistoCode == "H_TNo_Date"){fYMemoH_TNo_Date = yvar;}
@@ -12161,12 +11910,10 @@ TString TEcnaHistos::GetYVarFromMemo(const TString HistoCode, const TString opt_
       if( HistoCode == "D_HFN_ChDs"){yvar = fYMemoD_HFN_ChDs;}
       if( HistoCode == "D_SCs_ChNb"){yvar = fYMemoD_SCs_ChNb;}
       if( HistoCode == "D_SCs_ChDs"){yvar = fYMemoD_SCs_ChDs;}
-      if( HistoCode == "D_MSp_SpNb"){yvar = fYMemoD_MSp_SpNb;}
-      if( HistoCode == "D_MSp_SpDs"){yvar = fYMemoD_MSp_SpDs;}
-      if( HistoCode == "D_SSp_SpNb"){yvar = fYMemoD_SSp_SpNb;}
-      if( HistoCode == "D_SSp_SpDs"){yvar = fYMemoD_SSp_SpDs;}
-      if( HistoCode == "D_Adc_EvNb"){yvar = fYMemoD_Adc_EvNb;}
+      if( HistoCode == "D_MSp_Samp"){yvar = fYMemoD_MSp_Samp;}
+      if( HistoCode == "D_SSp_Samp"){yvar = fYMemoD_SSp_Samp;}
       if( HistoCode == "D_Adc_EvDs"){yvar = fYMemoD_Adc_EvDs;}
+      if( HistoCode == "D_Adc_EvNb"){yvar = fYMemoD_Adc_EvNb;}
       if( HistoCode == "H_Ped_Date"){yvar = fYMemoH_Ped_Date;}
       if( HistoCode == "H_TNo_Date"){yvar = fYMemoH_TNo_Date;}
       if( HistoCode == "H_MCs_Date"){yvar = fYMemoH_MCs_Date;}
@@ -12204,12 +11951,10 @@ void TEcnaHistos::SetNbBinsMemo(const TString HistoCode, const TString opt_plot,
       if( HistoCode == "D_HFN_ChDs"){fNbBinsMemoD_HFN_ChDs = nb_bins;} 
       if( HistoCode == "D_SCs_ChNb"){fNbBinsMemoD_SCs_ChNb = nb_bins;}
       if( HistoCode == "D_SCs_ChDs"){fNbBinsMemoD_SCs_ChDs = nb_bins;}
-      if( HistoCode == "D_MSp_SpNb"){fNbBinsMemoD_MSp_SpNb = nb_bins;}
-      if( HistoCode == "D_MSp_SpDs"){fNbBinsMemoD_MSp_SpDs = nb_bins;}
-      if( HistoCode == "D_SSp_SpNb"){fNbBinsMemoD_SSp_SpNb = nb_bins;}
-      if( HistoCode == "D_SSp_SpDs"){fNbBinsMemoD_SSp_SpDs = nb_bins;}
-      if( HistoCode == "D_Adc_EvNb"){fNbBinsMemoD_Adc_EvNb = nb_bins;}
+      if( HistoCode == "D_MSp_Samp"){fNbBinsMemoD_MSp_Samp = nb_bins;}
+      if( HistoCode == "D_SSp_Samp"){fNbBinsMemoD_SSp_Samp = nb_bins;}
       if( HistoCode == "D_Adc_EvDs"){fNbBinsMemoD_Adc_EvDs = nb_bins;}
+      if( HistoCode == "D_Adc_EvNb"){fNbBinsMemoD_Adc_EvNb = nb_bins;}
       if( HistoCode == "H_Ped_Date"){fNbBinsMemoH_Ped_Date = nb_bins;}
       if( HistoCode == "H_TNo_Date"){fNbBinsMemoH_TNo_Date = nb_bins;}
       if( HistoCode == "H_MCs_Date"){fNbBinsMemoH_MCs_Date = nb_bins;}
@@ -12247,12 +11992,10 @@ Int_t TEcnaHistos::GetNbBinsFromMemo(const TString HistoCode, const TString opt_
       if( HistoCode == "D_HFN_ChDs"){nb_bins = fNbBinsMemoD_HFN_ChDs;} 
       if( HistoCode == "D_SCs_ChNb"){nb_bins = fNbBinsMemoD_SCs_ChNb;}
       if( HistoCode == "D_SCs_ChDs"){nb_bins = fNbBinsMemoD_SCs_ChDs;}
-      if( HistoCode == "D_MSp_SpNb"){nb_bins = fNbBinsMemoD_MSp_SpNb;}
-      if( HistoCode == "D_MSp_SpDs"){nb_bins = fNbBinsMemoD_MSp_SpDs;}
-      if( HistoCode == "D_SSp_SpNb"){nb_bins = fNbBinsMemoD_SSp_SpNb;}
-      if( HistoCode == "D_SSp_SpDs"){nb_bins = fNbBinsMemoD_SSp_SpDs;}
-      if( HistoCode == "D_Adc_EvNb"){nb_bins = fNbBinsMemoD_Adc_EvNb;}
+      if( HistoCode == "D_MSp_Samp"){nb_bins = fNbBinsMemoD_MSp_Samp;}
+      if( HistoCode == "D_SSp_Samp"){nb_bins = fNbBinsMemoD_SSp_Samp;}
       if( HistoCode == "D_Adc_EvDs"){nb_bins = fNbBinsMemoD_Adc_EvDs;}
+      if( HistoCode == "D_Adc_EvNb"){nb_bins = fNbBinsMemoD_Adc_EvNb;}
       if( HistoCode == "H_Ped_Date"){nb_bins = fNbBinsMemoH_Ped_Date;}
       if( HistoCode == "H_TNo_Date"){nb_bins = fNbBinsMemoH_TNo_Date;}
       if( HistoCode == "H_MCs_Date"){nb_bins = fNbBinsMemoH_MCs_Date;}
@@ -12321,12 +12064,10 @@ TString TEcnaHistos::GetMemoFlag(const TString HistoCode, const TString opt_plot
       if(HistoCode == "D_HFN_ChDs"){memo_flag_number = fMemoPlotD_HFN_ChDs;}
       if(HistoCode == "D_SCs_ChNb"){memo_flag_number = fMemoPlotD_SCs_ChNb;}
       if(HistoCode == "D_SCs_ChDs"){memo_flag_number = fMemoPlotD_SCs_ChDs;}
-      if(HistoCode == "D_MSp_SpNb"){memo_flag_number = fMemoPlotD_MSp_SpNb;}
-      if(HistoCode == "D_MSp_SpDs"){memo_flag_number = fMemoPlotD_MSp_SpDs;}
-      if(HistoCode == "D_SSp_SpNb"){memo_flag_number = fMemoPlotD_SSp_SpNb;}
-      if(HistoCode == "D_SSp_SpDs"){memo_flag_number = fMemoPlotD_SSp_SpDs;}
-      if(HistoCode == "D_Adc_EvNb"){memo_flag_number = fMemoPlotD_Adc_EvNb;}
+      if(HistoCode == "D_MSp_Samp"){memo_flag_number = fMemoPlotD_MSp_Samp;}
+      if(HistoCode == "D_SSp_Samp"){memo_flag_number = fMemoPlotD_SSp_Samp;}
       if(HistoCode == "D_Adc_EvDs"){memo_flag_number = fMemoPlotD_Adc_EvDs;}
+      if(HistoCode == "D_Adc_EvNb"){memo_flag_number = fMemoPlotD_Adc_EvNb;}
       if(HistoCode == "H_Ped_Date"){memo_flag_number = fMemoPlotH_Ped_Date;}
       if(HistoCode == "H_TNo_Date"){memo_flag_number = fMemoPlotH_TNo_Date;}
       if(HistoCode == "H_MCs_Date"){memo_flag_number = fMemoPlotH_MCs_Date;}
@@ -12400,30 +12141,22 @@ TCanvas* TEcnaHistos::CreateCanvas(const TString HistoCode, const TString opt_pl
       if(HistoCode == "D_SCs_ChNb"){
 	fCanvD_SCs_ChNb = new TCanvas(canvas_name.Data(), canvas_name.Data(), canv_w, canv_h); fCnewRoot++;
 	main_canvas = fCanvD_SCs_ChNb;}
+
       if(HistoCode == "D_SCs_ChDs"){
 	fCanvD_SCs_ChDs = new TCanvas(canvas_name.Data(), canvas_name.Data(), canv_w, canv_h); fCnewRoot++;
 	main_canvas = fCanvD_SCs_ChDs;}
-
-      if(HistoCode == "D_MSp_SpNb"        ){
-	fCanvD_MSp_SpNb = new TCanvas(canvas_name.Data(), canvas_name.Data(), canv_w, canv_h); fCnewRoot++;
-	main_canvas = fCanvD_MSp_SpNb;}
-      if(HistoCode == "D_MSp_SpDs"        ){
-	fCanvD_MSp_SpDs = new TCanvas(canvas_name.Data(), canvas_name.Data(), canv_w, canv_h); fCnewRoot++;
-	main_canvas = fCanvD_MSp_SpDs;}
-      if(HistoCode =="D_SSp_SpNb"      ){
-	fCanvD_SSp_SpNb = new TCanvas(canvas_name.Data(), canvas_name.Data(), canv_w, canv_h); fCnewRoot++;
-	main_canvas = fCanvD_SSp_SpNb;}
-      if(HistoCode =="D_SSp_SpDs"      ){
-	fCanvD_SSp_SpDs = new TCanvas(canvas_name.Data(), canvas_name.Data(), canv_w, canv_h); fCnewRoot++;
-	main_canvas = fCanvD_SSp_SpDs;}
-
-      if(HistoCode == "D_Adc_EvNb"){
-	fCanvD_Adc_EvNb = new TCanvas(canvas_name.Data(), canvas_name.Data(), canv_w, canv_h); fCnewRoot++;
-	main_canvas = fCanvD_Adc_EvNb;}
+      if(HistoCode == "D_MSp_Samp"        ){
+	fCanvD_MSp_Samp = new TCanvas(canvas_name.Data(), canvas_name.Data(), canv_w, canv_h); fCnewRoot++;
+	main_canvas = fCanvD_MSp_Samp;}
+      if(HistoCode =="D_SSp_Samp"      ){
+	fCanvD_SSp_Samp = new TCanvas(canvas_name.Data(), canvas_name.Data(), canv_w, canv_h); fCnewRoot++;
+	main_canvas = fCanvD_SSp_Samp;}
       if(HistoCode == "D_Adc_EvDs"){
 	fCanvD_Adc_EvDs = new TCanvas(canvas_name.Data(), canvas_name.Data(), canv_w, canv_h); fCnewRoot++;
 	main_canvas = fCanvD_Adc_EvDs;}
-
+      if(HistoCode == "D_Adc_EvNb"){
+	fCanvD_Adc_EvNb = new TCanvas(canvas_name.Data(), canvas_name.Data(), canv_w, canv_h); fCnewRoot++;
+	main_canvas = fCanvD_Adc_EvNb;}
       if(HistoCode == "H_Ped_Date"){
 	fCanvH_Ped_Date = new TCanvas(canvas_name.Data(), canvas_name.Data(), canv_w, canv_h); fCnewRoot++;
 	main_canvas = fCanvH_Ped_Date;}
@@ -12596,36 +12329,20 @@ void TEcnaHistos::SetParametersCanvas(const TString HistoCode, const TString opt
 	  fMemoPlotD_SCs_ChDs = 1; fMemoColorD_SCs_ChDs = 0;
 	}
       
-      if(HistoCode == "D_MSp_SpNb")
+      if(HistoCode == "D_MSp_Samp")
 	{
-	  fImpD_MSp_SpNb = (TRootCanvas*)fCanvD_MSp_SpNb->GetCanvasImp();
-	  fCanvD_MSp_SpNb->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_MSp_SpNb = gPad;
-	  fMemoPlotD_MSp_SpNb = 1; fMemoColorD_MSp_SpNb = 0;
+	  fImpD_MSp_Samp = (TRootCanvas*)fCanvD_MSp_Samp->GetCanvasImp();
+	  fCanvD_MSp_Samp->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
+	  fPadD_MSp_Samp = gPad;
+	  fMemoPlotD_MSp_Samp = 1; fMemoColorD_MSp_Samp = 0;
 	}
       
-      if(HistoCode == "D_MSp_SpDs")
+      if(HistoCode == "D_SSp_Samp")                                               // (SetParametersCanvas)
 	{
-	  fImpD_MSp_SpDs = (TRootCanvas*)fCanvD_MSp_SpDs->GetCanvasImp();
-	  fCanvD_MSp_SpDs->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_MSp_SpDs = gPad;
-	  fMemoPlotD_MSp_SpDs = 1; fMemoColorD_MSp_SpDs = 0;
-	}
-      
-      if(HistoCode == "D_SSp_SpNb")                                               // (SetParametersCanvas)
-	{
-	  fImpD_SSp_SpNb = (TRootCanvas*)fCanvD_SSp_SpNb->GetCanvasImp();
-	  fCanvD_SSp_SpNb->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_SSp_SpNb = gPad;
-	  fMemoPlotD_SSp_SpNb = 1; fMemoColorD_SSp_SpNb = 0;
-	}
-      
-      if(HistoCode == "D_SSp_SpDs")                                               // (SetParametersCanvas)
-	{
-	  fImpD_SSp_SpDs = (TRootCanvas*)fCanvD_SSp_SpDs->GetCanvasImp();
-	  fCanvD_SSp_SpDs->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_SSp_SpDs = gPad;
-	  fMemoPlotD_SSp_SpDs = 1; fMemoColorD_SSp_SpDs = 0;
+	  fImpD_SSp_Samp = (TRootCanvas*)fCanvD_SSp_Samp->GetCanvasImp();
+	  fCanvD_SSp_Samp->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
+	  fPadD_SSp_Samp = gPad;
+	  fMemoPlotD_SSp_Samp = 1; fMemoColorD_SSp_Samp = 0;
 	}
       
       if(HistoCode == "D_Adc_EvDs")
@@ -12757,12 +12474,10 @@ TCanvas* TEcnaHistos::GetCurrentCanvas(const TString HistoCode, const TString op
       if(HistoCode == "D_HFN_ChDs"){main_canvas = fCanvD_HFN_ChDs;}
       if(HistoCode == "D_SCs_ChNb"){main_canvas = fCanvD_SCs_ChNb;}
       if(HistoCode == "D_SCs_ChDs"){main_canvas = fCanvD_SCs_ChDs;}
-      if(HistoCode == "D_MSp_SpNb"){main_canvas = fCanvD_MSp_SpNb;}
-      if(HistoCode == "D_MSp_SpDs"){main_canvas = fCanvD_MSp_SpDs;}
-      if(HistoCode == "D_SSp_SpNb"){main_canvas = fCanvD_SSp_SpNb;}
-      if(HistoCode == "D_SSp_SpDs"){main_canvas = fCanvD_SSp_SpDs;}
-      if(HistoCode == "D_Adc_EvNb"){main_canvas = fCanvD_Adc_EvNb;}
+      if(HistoCode == "D_MSp_Samp"){main_canvas = fCanvD_MSp_Samp;}
+      if(HistoCode == "D_SSp_Samp"){main_canvas = fCanvD_SSp_Samp;}
       if(HistoCode == "D_Adc_EvDs"){main_canvas = fCanvD_Adc_EvDs;}
+      if(HistoCode == "D_Adc_EvNb"){main_canvas = fCanvD_Adc_EvNb;}
       if(HistoCode == "H_Ped_Date"){main_canvas = fCanvH_Ped_Date;}
       if(HistoCode == "H_TNo_Date"){main_canvas = fCanvH_TNo_Date;}
       if(HistoCode == "H_MCs_Date"){main_canvas = fCanvH_MCs_Date;}
@@ -12876,21 +12591,13 @@ TVirtualPad* TEcnaHistos::ActivePad(const TString HistoCode, const TString opt_p
 	if( (TRootCanvas*)fCanvD_SCs_ChDs->GetCanvasImp() == fImpD_SCs_ChDs ){
 	  main_subpad = fPadD_SCs_ChDs;}}
       
-      if(HistoCode == "D_MSp_SpNb"        ){
-	if( (TRootCanvas*)fCanvD_MSp_SpNb->GetCanvasImp() == fImpD_MSp_SpNb ){
-	  main_subpad = fPadD_MSp_SpNb;}}
+      if(HistoCode == "D_MSp_Samp"        ){
+	if( (TRootCanvas*)fCanvD_MSp_Samp->GetCanvasImp() == fImpD_MSp_Samp ){
+	  main_subpad = fPadD_MSp_Samp;}}
       
-      if(HistoCode == "D_MSp_SpDs"        ){
-	if( (TRootCanvas*)fCanvD_MSp_SpDs->GetCanvasImp() == fImpD_MSp_SpDs ){
-	  main_subpad = fPadD_MSp_SpDs;}}
-      
-      if(HistoCode == "D_SSp_SpNb"     ){
-	if( (TRootCanvas*)fCanvD_SSp_SpNb->GetCanvasImp() == fImpD_SSp_SpNb ){
-	  main_subpad = fPadD_SSp_SpNb;}}
-  
-      if(HistoCode == "D_SSp_SpDs"     ){
-	if( (TRootCanvas*)fCanvD_SSp_SpDs->GetCanvasImp() == fImpD_SSp_SpDs ){
-	  main_subpad = fPadD_SSp_SpDs;}}
+      if(HistoCode == "D_SSp_Samp"     ){
+	if( (TRootCanvas*)fCanvD_SSp_Samp->GetCanvasImp() == fImpD_SSp_Samp ){
+	  main_subpad = fPadD_SSp_Samp;}}
 
       if(HistoCode == "D_Adc_EvNb"){
 	if( (TRootCanvas*)fCanvD_Adc_EvNb->GetCanvasImp() == fImpD_Adc_EvNb ){
@@ -12979,10 +12686,8 @@ void TEcnaHistos::SetParametersPavTxt(const TString HistoCode, const TString opt
       if(HistoCode == "D_HFN_ChDs"){fPavTxtD_HFN_ChDs = fPavComSeveralChanging;}
       if(HistoCode == "D_SCs_ChNb"){fPavTxtD_SCs_ChNb = fPavComSeveralChanging;}
       if(HistoCode == "D_SCs_ChDs"){fPavTxtD_SCs_ChDs = fPavComSeveralChanging;}
-      if(HistoCode == "D_MSp_SpNb"){fPavTxtD_MSp_SpNb = fPavComSeveralChanging;}
-      if(HistoCode == "D_MSp_SpDs"){fPavTxtD_MSp_SpDs = fPavComSeveralChanging;}
-      if(HistoCode == "D_SSp_SpNb"){fPavTxtD_SSp_SpNb = fPavComSeveralChanging;}
-      if(HistoCode == "D_SSp_SpDs"){fPavTxtD_SSp_SpDs = fPavComSeveralChanging;}
+      if(HistoCode == "D_MSp_Samp"){fPavTxtD_MSp_Samp = fPavComSeveralChanging;}
+      if(HistoCode == "D_SSp_Samp"){fPavTxtD_SSp_Samp = fPavComSeveralChanging;}
       if(HistoCode == "D_Adc_EvNb"){fPavTxtD_Adc_EvNb = fPavComSeveralChanging;}
       if(HistoCode == "D_Adc_EvDs"){fPavTxtD_Adc_EvDs = fPavComSeveralChanging;}
       if(HistoCode == "H_Ped_Date"){fPavTxtH_Ped_Date = fPavComSeveralChanging;}
@@ -13030,10 +12735,8 @@ TPaveText* TEcnaHistos::ActivePavTxt(const TString HistoCode, const TString opt_
       if(HistoCode == "D_HFN_ChDs"){main_pavtxt = fPavTxtD_HFN_ChDs;}
       if(HistoCode == "D_SCs_ChNb"){main_pavtxt = fPavTxtD_SCs_ChNb;}
       if(HistoCode == "D_SCs_ChDs"){main_pavtxt = fPavTxtD_SCs_ChDs;}
-      if(HistoCode == "D_MSp_SpNb"){main_pavtxt = fPavTxtD_MSp_SpNb;}
-      if(HistoCode == "D_MSp_SpDs"){main_pavtxt = fPavTxtD_MSp_SpDs;}
-      if(HistoCode == "D_SSp_SpNb"){main_pavtxt = fPavTxtD_SSp_SpNb;}
-      if(HistoCode == "D_SSp_SpDs"){main_pavtxt = fPavTxtD_SSp_SpDs;}
+      if(HistoCode == "D_MSp_Samp"){main_pavtxt = fPavTxtD_MSp_Samp;}
+      if(HistoCode == "D_SSp_Samp"){main_pavtxt = fPavTxtD_SSp_Samp;}
       if(HistoCode == "D_Adc_EvNb"){main_pavtxt = fPavTxtD_Adc_EvNb;}
       if(HistoCode == "D_Adc_EvDs"){main_pavtxt = fPavTxtD_Adc_EvDs;}
       if(HistoCode == "H_Ped_Date"){main_pavtxt = fPavTxtH_Ped_Date;}
@@ -13077,8 +12780,7 @@ TPaveText* TEcnaHistos::ActivePavTxt(const TString HistoCode, const TString opt_
 //
 //}
 
-void TEcnaHistos::SetViewHistoColors(TH1D* h_his0,           const TString HistoCode,
-				     const TString opt_plot, const Int_t&  arg_AlreadyRead)
+void TEcnaHistos::SetViewHistoColors(TH1D* h_his0, const TString HistoCode, const TString opt_plot)
 {
 // Set colors, fill, marker, line style for histo view
 
@@ -13226,68 +12928,34 @@ void TEcnaHistos::SetViewHistoColors(TH1D* h_his0,           const TString Histo
 	    if(fMemoColorD_SCs_ChDs>MaxNbOfColors){fMemoColorD_SCs_ChDs = 0;}}
 	}
 	      
-      if(HistoCode == "D_MSp_SpNb")
+      if(HistoCode == "D_MSp_Samp")
 	{
-	  if( (opt_plot == fOnlyOnePlot && arg_AlreadyRead == 0) ||
-	      (opt_plot == fOnlyOnePlot && arg_AlreadyRead >= 1 && fPlotAllXtalsInStin == 0 ) )
-	    {h_his0->SetFillColor(fCnaParHistos->ColorDefinition("bleu38"));}
-
-	  if( opt_plot == fOnlyOnePlot && arg_AlreadyRead >= 0 && fPlotAllXtalsInStin == 1 )
-	    {h_his0->SetFillColor((Color_t)0);}
-
+	  if(opt_plot == fOnlyOnePlot){h_his0->SetFillColor(fCnaParHistos->ColorDefinition("bleu38"));}
 	  if(opt_plot == fSeveralPlot )
-	    {h_his0->SetLineColor(fCnaParHistos->ColorTab(fMemoColorD_MSp_SpNb));
-	    h_his0->SetMarkerColor(fCnaParHistos->ColorTab(fMemoColorD_MSp_SpNb));
-	    fMemoColorD_MSp_SpNb++;
-	    if(fMemoColorD_MSp_SpNb>MaxNbOfColors){fMemoColorD_MSp_SpNb = 0;}}
-	}
-
-      if(HistoCode == "D_MSp_SpDs")
-	{
-	  if( (opt_plot == fOnlyOnePlot && arg_AlreadyRead == 0) ||
-	      (opt_plot == fOnlyOnePlot && arg_AlreadyRead >= 1 && fPlotAllXtalsInStin == 0 ) )
-	    {h_his0->SetFillColor(fCnaParHistos->ColorDefinition("bleu38"));}
-
-	  if( opt_plot == fOnlyOnePlot && arg_AlreadyRead >= 0 && fPlotAllXtalsInStin == 1 )
-	    {h_his0->SetFillColor((Color_t)0);}
-
-	  if(opt_plot == fSeveralPlot )
-	    {h_his0->SetLineColor(fCnaParHistos->ColorTab(fMemoColorD_MSp_SpDs));
-	    h_his0->SetMarkerColor(fCnaParHistos->ColorTab(fMemoColorD_MSp_SpDs));
-	    fMemoColorD_MSp_SpDs++;
-	    if(fMemoColorD_MSp_SpDs>MaxNbOfColors){fMemoColorD_MSp_SpDs = 0;}}
+	    {h_his0->SetLineColor(fCnaParHistos->ColorTab(fMemoColorD_MSp_Samp));
+	    h_his0->SetMarkerColor(fCnaParHistos->ColorTab(fMemoColorD_MSp_Samp));
+	    fMemoColorD_MSp_Samp++;
+	    if(fMemoColorD_MSp_Samp>MaxNbOfColors){fMemoColorD_MSp_Samp = 0;}}
 	}
 	      
-      if(HistoCode == "D_SSp_SpNb")
+      if(HistoCode == "D_SSp_Samp")
 	{
-	  if( (opt_plot == fOnlyOnePlot && arg_AlreadyRead == 0) ||
-	      (opt_plot == fOnlyOnePlot && arg_AlreadyRead >= 1 && fPlotAllXtalsInStin == 0 ) )
-	    {h_his0->SetFillColor(fCnaParHistos->ColorDefinition("rouge50"));}
-
-	  if(opt_plot == fOnlyOnePlot && arg_AlreadyRead >= 0 && fPlotAllXtalsInStin == 1 )
-	    {h_his0->SetFillColor((Color_t)0);}
-
+	  if(opt_plot == fOnlyOnePlot){h_his0->SetFillColor(fCnaParHistos->ColorDefinition("rouge50"));}
 	  if(opt_plot == fSeveralPlot )
-	    {h_his0->SetLineColor(fCnaParHistos->ColorTab(fMemoColorD_SSp_SpNb));
-	    h_his0->SetMarkerColor(fCnaParHistos->ColorTab(fMemoColorD_SSp_SpNb));
-	    fMemoColorD_SSp_SpNb++;
-	    if(fMemoColorD_SSp_SpNb>MaxNbOfColors){fMemoColorD_SSp_SpNb = 0;}}
+	    {h_his0->SetLineColor(fCnaParHistos->ColorTab(fMemoColorD_SSp_Samp));
+	    h_his0->SetMarkerColor(fCnaParHistos->ColorTab(fMemoColorD_SSp_Samp));
+	    fMemoColorD_SSp_Samp++;
+	    if(fMemoColorD_SSp_Samp>MaxNbOfColors){fMemoColorD_SSp_Samp = 0;}}
 	}
-
-      if(HistoCode == "D_SSp_SpDs")
+	      
+      if(HistoCode == "D_Adc_EvDs")
 	{
-	  if( (opt_plot == fOnlyOnePlot && arg_AlreadyRead == 0) ||
-	      (opt_plot == fOnlyOnePlot && arg_AlreadyRead >= 1 && fPlotAllXtalsInStin == 0 ) )
-	    {h_his0->SetFillColor(fCnaParHistos->ColorDefinition("rouge50"));}
-
-	  if(opt_plot == fOnlyOnePlot && arg_AlreadyRead >= 0 && fPlotAllXtalsInStin == 1 )
-	    {h_his0->SetFillColor((Color_t)0);}
-
+	  if(opt_plot == fOnlyOnePlot){h_his0->SetFillColor(fCnaParHistos->ColorDefinition("orange42"));}
 	  if(opt_plot == fSeveralPlot )
-	    {h_his0->SetLineColor(fCnaParHistos->ColorTab(fMemoColorD_SSp_SpDs));
-	    h_his0->SetMarkerColor(fCnaParHistos->ColorTab(fMemoColorD_SSp_SpDs));
-	    fMemoColorD_SSp_SpDs++;
-	    if(fMemoColorD_SSp_SpDs>MaxNbOfColors){fMemoColorD_SSp_SpDs = 0;}}
+	    {h_his0->SetLineColor(fCnaParHistos->ColorTab(fMemoColorD_Adc_EvDs));
+	    h_his0->SetMarkerColor(fCnaParHistos->ColorTab(fMemoColorD_Adc_EvDs));
+	    fMemoColorD_Adc_EvDs++;
+	    if(fMemoColorD_Adc_EvDs>MaxNbOfColors){fMemoColorD_Adc_EvDs = 0;}}
 	}
 
       if(HistoCode == "D_Adc_EvNb")
@@ -13299,16 +12967,6 @@ void TEcnaHistos::SetViewHistoColors(TH1D* h_his0,           const TString Histo
 	    fMemoColorD_Adc_EvNb++;
 	    if(fMemoColorD_Adc_EvNb>MaxNbOfColors){fMemoColorD_Adc_EvNb = 0;}}
 	  gPad->SetGrid(1,0);
-	}
-
-      if(HistoCode == "D_Adc_EvDs")
-	{
-	  if(opt_plot == fOnlyOnePlot){h_his0->SetFillColor(fCnaParHistos->ColorDefinition("orange42"));}
-	  if(opt_plot == fSeveralPlot )
-	    {h_his0->SetLineColor(fCnaParHistos->ColorTab(fMemoColorD_Adc_EvDs));
-	    h_his0->SetMarkerColor(fCnaParHistos->ColorTab(fMemoColorD_Adc_EvDs));
-	    fMemoColorD_Adc_EvDs++;
-	    if(fMemoColorD_Adc_EvDs>MaxNbOfColors){fMemoColorD_Adc_EvDs = 0;}}
 	}
 
       if(HistoCode == "H_Ped_RuDs")
@@ -13491,12 +13149,10 @@ Color_t TEcnaHistos::GetViewHistoColor(const TString HistoCode, const TString op
       if(HistoCode == "D_HFN_ChDs"){couleur = fCnaParHistos->ColorTab(fMemoColorD_HFN_ChDs);}
       if(HistoCode == "D_SCs_ChNb"){couleur = fCnaParHistos->ColorTab(fMemoColorD_SCs_ChNb);}
       if(HistoCode == "D_SCs_ChDs"){couleur = fCnaParHistos->ColorTab(fMemoColorD_SCs_ChDs);}
-      if(HistoCode == "D_MSp_SpNb"){couleur = fCnaParHistos->ColorTab(fMemoColorD_MSp_SpNb);}
-      if(HistoCode == "D_MSp_SpDs"){couleur = fCnaParHistos->ColorTab(fMemoColorD_MSp_SpDs);}
-      if(HistoCode == "D_SSp_SpNb"){couleur = fCnaParHistos->ColorTab(fMemoColorD_SSp_SpNb);}
-      if(HistoCode == "D_SSp_SpDs"){couleur = fCnaParHistos->ColorTab(fMemoColorD_SSp_SpDs);}
-      if(HistoCode == "D_Adc_EvNb"){couleur = fCnaParHistos->ColorTab(fMemoColorD_Adc_EvNb);}
+      if(HistoCode == "D_MSp_Samp"){couleur = fCnaParHistos->ColorTab(fMemoColorD_MSp_Samp);}
+      if(HistoCode == "D_SSp_Samp"){couleur = fCnaParHistos->ColorTab(fMemoColorD_SSp_Samp);}
       if(HistoCode == "D_Adc_EvDs"){couleur = fCnaParHistos->ColorTab(fMemoColorD_Adc_EvDs);}
+      if(HistoCode == "D_Adc_EvNb"){couleur = fCnaParHistos->ColorTab(fMemoColorD_Adc_EvNb);}
       if(HistoCode == "H_Ped_Date"){couleur = fCnaParHistos->ColorTab(fMemoColorH_Ped_Date);}
       if(HistoCode == "H_TNo_Date"){couleur = fCnaParHistos->ColorTab(fMemoColorH_TNo_Date);}
       if(HistoCode == "H_MCs_Date"){couleur = fCnaParHistos->ColorTab(fMemoColorH_MCs_Date);}
@@ -13720,46 +13376,22 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
 	  fPavTxtD_SCs_ChDs = 0;
 	}
       
-      if(HistoCode == "D_MSp_SpNb")
+      if(HistoCode == "D_MSp_Samp")
 	{	      
-	  fImpD_MSp_SpNb = 0;       fCanvD_MSp_SpNb = 0;
-	  fPadD_MSp_SpNb = 0;       fMemoPlotD_MSp_SpNb = 0; 
-	  fMemoColorD_MSp_SpNb = 0; fCanvSameD_MSp_SpNb++;
-	  fPavTxtD_MSp_SpNb = 0;
-	}
-            
-      if(HistoCode == "D_MSp_SpDs")
-	{	      
-	  fImpD_MSp_SpDs = 0;       fCanvD_MSp_SpDs = 0;
-	  fPadD_MSp_SpDs = 0;       fMemoPlotD_MSp_SpDs = 0; 
-	  fMemoColorD_MSp_SpDs = 0; fCanvSameD_MSp_SpDs++;
-	  fPavTxtD_MSp_SpDs = 0;
+	  fImpD_MSp_Samp = 0;       fCanvD_MSp_Samp = 0;
+	  fPadD_MSp_Samp = 0;       fMemoPlotD_MSp_Samp = 0; 
+	  fMemoColorD_MSp_Samp = 0; fCanvSameD_MSp_Samp++;
+	  fPavTxtD_MSp_Samp = 0;
 	}
       
-      if(HistoCode == "D_SSp_SpNb")
+      if(HistoCode == "D_SSp_Samp")
 	{	      
-	  fImpD_SSp_SpNb = 0;       fCanvD_SSp_SpNb = 0;
-	  fPadD_SSp_SpNb = 0;       fMemoPlotD_SSp_SpNb= 0;
-	  fMemoColorD_SSp_SpNb = 0; fCanvSameD_SSp_SpNb++;
-	  fPavTxtD_SSp_SpNb = 0;
+	  fImpD_SSp_Samp = 0;       fCanvD_SSp_Samp = 0;
+	  fPadD_SSp_Samp = 0;       fMemoPlotD_SSp_Samp= 0;
+	  fMemoColorD_SSp_Samp = 0; fCanvSameD_SSp_Samp++;
+	  fPavTxtD_SSp_Samp = 0;
 	}
-
-      if(HistoCode == "D_SSp_SpDs")
-	{	      
-	  fImpD_SSp_SpDs = 0;       fCanvD_SSp_SpDs = 0;
-	  fPadD_SSp_SpDs = 0;       fMemoPlotD_SSp_SpDs= 0;
-	  fMemoColorD_SSp_SpDs = 0; fCanvSameD_SSp_SpDs++;
-	  fPavTxtD_SSp_SpDs = 0;
-	}
-
-      if(HistoCode == "D_Adc_EvNb")                            // (ReInitCanvas)
-	{	      
-	  fImpD_Adc_EvNb = 0;       fCanvD_Adc_EvNb = 0;
-	  fPadD_Adc_EvNb = 0;       fMemoPlotD_Adc_EvNb = 0;
-	  fMemoColorD_Adc_EvNb = 0; fCanvSameD_Adc_EvNb++;
-	  fPavTxtD_Adc_EvNb = 0;
-	}
-       
+      
       if(HistoCode == "D_Adc_EvDs")
 	{	      
 	  fImpD_Adc_EvDs = 0;       fCanvD_Adc_EvDs = 0;
@@ -13767,7 +13399,15 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
 	  fMemoColorD_Adc_EvDs = 0; fCanvSameD_Adc_EvDs++;
 	  fPavTxtD_Adc_EvDs = 0;
 	}
-           
+      
+      if(HistoCode == "D_Adc_EvNb")                            // (ReInitCanvas)
+	{	      
+	  fImpD_Adc_EvNb = 0;       fCanvD_Adc_EvNb = 0;
+	  fPadD_Adc_EvNb = 0;       fMemoPlotD_Adc_EvNb = 0;
+	  fMemoColorD_Adc_EvNb = 0; fCanvSameD_Adc_EvNb++;
+	  fPavTxtD_Adc_EvNb = 0;
+	}
+      
       if(HistoCode == "H_Ped_Date")
 	{	      
 	  fImpH_Ped_Date = 0;       fCanvH_Ped_Date = 0;
@@ -13870,9 +13510,9 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
 // ------- end of ReInitCanvas(...) ------------
 
 //==========================================================================================
-void TEcnaHistos::WriteMatrixAscii(const TString BetweenWhat,  const TString   CorOrCov,
-				   const Int_t&  StexStinEcna, const Int_t&    MatrixBinIndex,
-				   const Int_t&  MatSize,      const TMatrixD& read_matrix)
+void TEcnaHistos::WriteMatrixAscii(const TString MatrixElement, const TString MatrixProbaNature,
+				  const Int_t&  StexStinEcna,  const Int_t&  MatrixBinIndex,
+			          const Int_t&  MatSize,       const TMatrixD& read_matrix)
 {   
 // write matrix in ascii file
 
@@ -13882,13 +13522,13 @@ void TEcnaHistos::WriteMatrixAscii(const TString BetweenWhat,  const TString   C
 				    fFapRunNumber,  fFapFirstReqEvtNumber, fFapLastReqEvtNumber, fFapReqNbOfEvts,
 				    fFapStexNumber, fStartDate, fStopDate, fStartTime, fStopTime);
 
-  if( BetweenWhat == fBetweenSamples && CorOrCov == fCorrelationMatrix )
+  if( MatrixElement == fBetweenSamples && MatrixProbaNature == fCorrelationMatrix )
     {
       fCnaWrite->WriteAsciiCorrelationsBetweenSamples(StexStinEcna, ChanNumber, MatSize, read_matrix);
       fAsciiFileName = fCnaWrite->GetAsciiFileName();
     }
 
-  if( BetweenWhat == fBetweenSamples && CorOrCov == fCovarianceMatrix )
+  if( MatrixElement == fBetweenSamples && MatrixProbaNature == fCovarianceMatrix )
     {
       fCnaWrite->WriteAsciiCovariancesBetweenSamples(StexStinEcna, ChanNumber, MatSize, read_matrix);
       fAsciiFileName = fCnaWrite->GetAsciiFileName();
@@ -13911,6 +13551,45 @@ void TEcnaHistos::WriteHistoAscii(const TString   HistoCode, const Int_t& HisSiz
 
 TString TEcnaHistos::AsciiFileName(){return fAsciiFileName.Data();}
 
+//---------------------------------------------------------------------------------------------
+// HistoCode list modification (06/10/09)
+
+//    D = Detector Plot    ChNb = Channel Number
+//    H = History  Plot    ChDs = Channel Distribution (Y projection)
+//
+//      old code             new code
+//
+// *  1 H1NbOfEvtsGlobal     D_NOE_ChNb    NOE = Number Of Events
+// *  2 H1NbOfEvtsProj       D_NOE_ChDs    
+// *  3 H1EvEvGlobal         D_Ped_ChNb    Ped = Pedestal
+// *  4 H1EvEvProj           D_Ped_ChDs
+// *  5 H1EvSigGlobal        D_TNo_ChNb    TNo = Total Noise
+// *  6 H1EvSigProj          D_TNo_ChDs
+// *  7 H1SigEvGlobal        D_LFN_ChNb    LFN = Low Frequency noise
+// *  8 H1SigEvProj          D_LFN_ChDs
+// *  9 H1SigSigGlobal       D_HFN_ChNb    HFN = High Frequency noise
+// * 10 H1SigSigProj         D_HFN_ChDs
+// * 11 H1EvCorssGlobal      D_MCs_ChNb    MCs = Mean of the correlations between samples
+// * 12 H1EvCorssProj        D_MCs_ChDs
+// * 13 H1SigCorssGlobal     D_SCs_ChNb    Scs = Sigma of the correlations between samples
+// * 14 H1SigCorssProj       D_SCs_ChDs
+// * 15 Ev                   D_MSp_Samp    MSp = Mean of the samples
+// * 16 Sigma                D_SSp_Samp    SSp = Sigma of the samples
+// * 17 SampTime             D_Adc_EvNb    Adc = ADC count as a function of Event number
+// * 18 AdcProj              D_Adc_EvDs    EvDs = Event distribution
+// * 19 EvolEvEv             H_Ped_Date    Date = date in format YYMMJJ hhmmss
+// * 20 EvolEvEvProj         H_Ped_RuDs    RuDs = Run distribution
+// * 21 EvolEvSig            H_TNo_Date
+// * 22 EvolEvSigProj        H_TNo_RuDs   
+// * 23 EvolSigEv            H_LFN_Date 
+// * 24 EvolSigEvProj        H_LFN_RuDs 
+// * 25 EvolSigSig           H_HFN_Date 
+// * 26 EvolSigSigProj       H_HFN_RuDs 
+// * 27 EvolEvCorss          H_MCs_Date   
+// * 28 EvolEvCorssProj      H_MCs_RuDs   
+// * 29 EvolSigCorss         H_SCs_Date   
+// * 30 EvolSigCorssProj     H_SCs_RuDs   
+
 //---------------> messages de rappel pour l'auteur: 
 //
 //======= A T T E N T I O N ========= A T T E N T I O N ========= A T T E N T I O N ==============!!!!
@@ -13922,7 +13601,6 @@ TString TEcnaHistos::AsciiFileName(){return fAsciiFileName.Data();}
 //++++++++++++++++++++++++|  A T T E N T I O N:  PAS DE TEST "cintoto" ici! |+++++++++++++++++++++!!!!
 //                         |                                                 |
 //                         *=================================================*
-//
 // INFO: When "new" fails to allocate the memory for an object, or "new[]" fails to allocate the memory
 // for an object array, a std::bad_alloc object is thrown.
 // "In GCC, the RTTI mangled name of std::bad_alloc is, I'm guessing, St9bad_alloc."

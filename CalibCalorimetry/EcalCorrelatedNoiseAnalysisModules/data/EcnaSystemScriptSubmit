@@ -3,11 +3,11 @@
 #    Script for ECNA job submission with:
 #     CMSSW version, subsystem, .py file name and queue as arguments
 #
-#    Syntax of call:   csh EcnaSystemScriptSubmit CMSSW_BASE SUB_SYSTEM PYTHON_FILE QUEUE
+#    Syntax of call:   csh EcnaSystemScriptSubmit CMSSW_X_Y_Z SUB_SYSTEM PYTHON_FILE QUEUE
 #
 #    Example of call:  csh EcnaSystemScriptSubmit CMSSW_1_8_0 CalibCalorimetry ECNA_MWGR_80896.py 1nh
 #
-#    Update: 03/03/11
+#    Update: 17/03/10
 #    
 #------------------------------------------------------------------------------------------------------
 
@@ -23,8 +23,7 @@ set userdir  = $HOME
  if( -f cna_one_line_tempo_1 ) then
   \rm cna_one_line_tempo_1
  endif
-# echo "cd ${userdir}/cmssw/${1}" > cna_one_line_tempo_1
- echo "cd ${1}" > cna_one_line_tempo_1
+ echo "cd ${userdir}/cmssw/${1}" > cna_one_line_tempo_1
 
  if( -f cna_one_line_tempo_2 ) then
   \rm cna_one_line_tempo_2
@@ -34,19 +33,14 @@ set userdir  = $HOME
  if( -f cna_one_line_tempo_3 ) then
   \rm cna_one_line_tempo_3
  endif
- #echo "cd ${userdir}/scratch0/ecna/results_root" > cna_one_line_tempo_3
- if( -f cna_one_line_tempo_3b ) then
-  \rm cna_one_line_tempo_3b
- endif
- echo "cd \" > cna_one_line_tempo_3b
- cat cna_one_line_tempo_3b ${userdir}/ECNA/path_results_root > cna_one_line_tempo_3
- 
+ echo "cd ${userdir}/scratch0/cna/results_root" > cna_one_line_tempo_3
+
  if( -f cna_one_line_tempo_4 ) then
   \rm cna_one_line_tempo_4
  endif
 #------------> add extension .py to ${3} to have complete python file name in the script
-# echo "cmsRun ${userdir}/cmssw/${1}/src/${2}/EcalCorrelatedNoiseAnalysisModules/data/${3}.py" > cna_one_line_tempo_4
- echo "cmsRun ${1}/src/${2}/EcalCorrelatedNoiseAnalysisModules/data/${3}.py" > cna_one_line_tempo_4
+ echo "cmsRun ${userdir}/cmssw/${1}/src/${2}/EcalCorrelatedNoiseAnalysisModules/data/${3}.py" > cna_one_line_tempo_4
+
 
 #------------------------- Remove old script (named SubmissionScriptFromPythonFile_${3})
 #                          if it exists and build the new script with cat command
@@ -82,7 +76,6 @@ set userdir  = $HOME
  \rm cna_one_line_tempo_1
  \rm cna_one_line_tempo_2
  \rm cna_one_line_tempo_3
- \rm cna_one_line_tempo_3b
  \rm cna_one_line_tempo_4
 
 #..........the submission script must not be removed here but AFTER the job execution

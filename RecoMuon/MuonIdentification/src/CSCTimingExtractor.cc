@@ -11,7 +11,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: CSCTimingExtractor.cc,v 1.8 2011/02/24 15:41:53 farrell3 Exp $
+// $Id: CSCTimingExtractor.cc,v 1.9 2011/03/07 23:34:22 slava77 Exp $
 //
 //
 
@@ -123,6 +123,12 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
 
   math::XYZPoint  pos=muonTrack->innerPosition();
   math::XYZVector mom=muonTrack->innerMomentum();
+
+  if (sqrt(muonTrack->innerPosition().mag2()) > sqrt(muonTrack->outerPosition().mag2())){
+     pos=muonTrack->outerPosition();
+     mom=-1*muonTrack->outerMomentum();
+  }
+
   GlobalPoint  posp(pos.x(), pos.y(), pos.z());
   GlobalVector momv(mom.x(), mom.y(), mom.z());
   FreeTrajectoryState muonFTS(posp, momv, (TrackCharge)muonTrack->charge(), theService->magneticField().product());

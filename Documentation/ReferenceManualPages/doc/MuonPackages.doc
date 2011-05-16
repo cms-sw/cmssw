@@ -139,6 +139,13 @@ Digitization.
  - \ref SimMuon_DTDigitizer "DTDigitizer"<br>
  - \ref SimMuon_RPCDigitizer "RPCDigitizer"<br>
 
+- <b>VisReco</b><br>
+Visualization.
+ - \ref VisReco_VisMuonCSC "VisMuonCSC"<br>
+ - \ref VisReco_VisMuonDT  "VisMuonDT"<br>
+ - \ref VisReco_VisMuonRPC "VisMuonRPC"<br>
+
+
 \section contact Contact persons
 - Simulation: P. Arce
 - Reconstruction: N. Amapane, T. Cox 

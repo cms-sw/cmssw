@@ -3,8 +3,8 @@
 
 #include "TObject.h"
 #include <Riostream.h>
-#include "TSystem.h"
 #include <time.h>
+#include "TSystem.h"
 
 #include "TROOT.h"
 #include "TStyle.h"
@@ -20,7 +20,6 @@
 #include "TColor.h"
 #include "TGaxis.h"
 
-#include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaObject.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaRead.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaWrite.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParPaths.h"
@@ -29,301 +28,13 @@
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParEcal.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNumbering.h"
 
-///-----------------------------------------------------------
-///   TEcnaHistos.h
-///   Update: 14/02/2011
-///   Author:    B.Fabbro (bernard.fabbro@cea.fr)
-///              DSM/IRFU/SPP CEA-Saclay
-///   Copyright: Those valid for CEA sofware
-///
-///   ECNA web page:
-///     http://cms-fabbro.web.cern.ch/cms-fabbro/
-///     cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
-///-----------------------------------------------------------
-///
-///==============> INTRODUCTION
-///
-///    This class provides methods for displaying plots of various types:
-///    1D, 2D and 3D histograms for different quantities (pedestals, noises,
-///    correlations, .etc..). The data are read from files which has been
-///    previously written by using the class TEcnaRun (.root result files).
-///    The reading is performed by appropriate methods of the class TEcnaRead.
-///
-///      ***   I N S T R U C T I O N S   F O R   U S E   ***
-///
-///   PS: examples of programs using TEcnaHistos are situated in directory test (.cc files)
-///
-///   // (A) --> Object declarations:
-///
-///      TEcnaHistos* MyHistosEB = new TEcnaHistos("EB");
-///      TEcnaHistos* MyHistosEE = new TEcnaHistos("EE");
-///      
-///   // (B) --> Specification of the file which has to be read.
-///   //         This file is a .root result file which has previously been written by means of
-///   //         the class TEcnaRun (see documentation of this class)
-///
-///   //  1) specify the parameter values of the file name:
-///
-///      TString AnalysisName      = "StdPed12"; (AnalysisName -> explanation in TEcnaRun documentation)
-///      Int_t   NbOfSamples       = 10;
-///      Int_t   RunNumber         = 112206;
-///      Int_t   FirstReqEvtNumber = 100;  |    (numbering starting from 1)
-///      Int_t   LastReqEvtNumber  = 300;  | => treats 150 evts between evt#100 and evt#300 (included)
-///      Int_t   ReqNbOfEvts       = 150;  |
-///      Int_t   SMNumber          = 2;
-///
-///   //  2) call method "FileParameters" to say that the file to be read is the file
-///   //     which name parameters are those specified above:
-/// 
-///      MyHistosEB->FileParameters(AnalysisName, NbOfSamples, RunNumber,
-///                                 FirstReqEvtNumber, LastReqEvtNumber, ReqNbOfEvts, SMNumber); 
-///
-///   //  Now, the class TEcnaHistos knowns that it has to work
-///   //  with the file StdPed12_S1_10_R112206_1_150_150_SM2.root
-///
-///   // (C) -->  E X A M P L E S   O F   U S E 
-/// 
-///   //--> Plot correlation matrices between samples
-///   //    for channel 21 (electronic channel number in Tower)
-///   //    and for the two towers 10 and 33
-///
-///      Int_t SMTow = 14;       // (Tower number in SM)
-///      Int_t TowEcha = 21;     // (Electronic channel number in tower)
-///      MyHistosEB->PlotMatrix("Cor", "Mss", SMTow, TowEcha, "SURF1Z"); // correlations between samples
-///
-///   // (D) -->  O T H E R   E X A M P L E S
-///
-///    //--> Plot Pedestals as a function of SC number for Dee 4 
-///
-///      TString AnalysisName      = "StdPed12"; (AnalysisName -> explanation in TEcnaRun documentation)
-///      Int_t   NbOfSamples       = 10;
-///      Int_t   RunNumber         = 132440;
-///      Int_t   FirstReqEvtNumber = 1;    |
-///      Int_t   LastReqEvtNumber  = 0;    | => treats 150 evts from evt#1 until EOF if necessary
-///      Int_t   ReqNbOfEvts       = 150;  |
-///
-///      Int_t   DeeNumber = 4;
-///      MyHistosEE->FileParameters(AnalysisName, NbOfSamples, RunNumber,
-///                                 FirstReqEvtNumber, LastReqEvtNumber, ReqNbOfEvts, DeeNumber); 
-///
-///      MyHistoEE->PlotDetector("Ped", "Dee");          // 2D Histo: Z = pedestal, detector = Dee
-///      MyHistoEE->Plot1DHisto("Tow", "TNo", "EE");     // 1D Histo: X = tower#, Y = Total noise, detector = EE
-///
-///    //--> Plot total noise history for channel 12 of tower 38
-///    //    (electronic channel number in tower)
-///
-///      MyHistosEB->FileParameters(AnalysisName, NbOfSamples, RunNumber,
-///                                 FirstReqEvtNumber, LastReqEvtNumber, ReqNbOfEvts, SMNumber);
-///      Int_t SMTower = 38;
-///      Int_t TowEcha = 12;
-///      TString list_of_run_file_name = "HistoryRunList_132440_132665.ascii";
-///      MyHistoEB->PlotHistory("Time", "MeanCorss", list_of_run_file_name, SMTower, TowEcha);
-///      
-///    // the .ascii file "HistoryRunList_132440_132665.ascii" must contain a list of
-///    // the run numbers according to the following syntax:
-///
-///   //.......... SYNTAX OF THE FILE "HistoryRunList_SM6.ascii" ("runlist history plot" file):
-///
-///   HistoryRunList_SM6.ascii  <- 1rst line: comment (name of the file, for example)
-///
-///   132440                <- other lines: run numbers
-///   132442
-///                        <- (empty lines can be used)
-///   132561
-///   132562
-///   112584
-///
-///
-///      etc...
-///
-///   132665
-///
-///......................................... end of exammples ...........................................
-///
-///   PS: it is also possible to use the methods PlotMatrix, PlotDetector and Plot1DHisto after
-///       reading file with TEcnaRead. Then, pointers to the read arrays have to be used
-///       as arguments (see examples in directory test)
-///
-///------------------------------------------- LIST OF METHODS ------------------------------------------
-///
-///  //==================================================================================================
-///  //   method to set the result file name parameters (from values in argument)
-///  //   FileParameters(AnaType, NbOfSamples, Run#,
-///  //                  FirstRequestedEvt#, LastRequestedEvt#, ReqNbOfEvts#, SM# or Dee#)
-///  //   RunNumber = 0 => history plots, SM or Dee number = 0 => Plots for EB or EE
-///  //==================================================================================================
-///
-///  void FileParameters(const TString Analysis,         
-///                      const Int_t&  NbOfSamples,
-///                      const Int_t&  Run#,               // RunNumber = 0 => history plots
-///		         const Int_t&  FirstRequestedEvt#,
-///                      const Int_t&  LastRequestedEvt#,
-///                      const Int_t&  ReqNbOfEvts#,
-///                      const Int_t&  SMOrDee#);          // SM or Dee number = 0 => Plots for EB or EE
-///
-///        -----------------------------------------------------------------------------------
-///        In the following:
-///
-///        TowOrSC# = Tower number in case of EB  or  SC number FOR CONSTRUCTION in case of EE
-///
-///        -----------------------------------------------------------------------------------
-///
-///  //==================================================================================================
-///  //                  methods for displaying the correlations and covariances matrices
-///  //                  PlotOption = ROOT DrawOption ("SAME", "LEGO", "COLZ", etc...)
-///  //                               + option "ASCII": write histo in ASCII file 
-///  //==================================================================================================
-///  //..................... Corcc[for 1 Stex] (big matrix)
-///    void PlotMatrix
-///   (const TMatrixD&,   const TString, const TString,   [const TString]);
-///    read_matrix_corcc, UserCorOrCov,  UserBetweenWhat, [PlotOption]
-///
-///    void PlotMatrix   (const TString, const TString,   [const TString]);
-///                       UserCorOrCov,  UserBetweenWhat, [PlotOption]
-///  
-///    //..................... Corcc[for 1 Stin], Corss[for 1 Echa], Covss[for 1 Echa]
-///    void PlotMatrix
-///    (const TMatrixD&, const TString, const TString,   const Int_t&, const Int_t&, [const TString]);
-///     read_matrix,     UserCorOrCov,  UserBetweenWhat, arg_n1,       arg_n2,       [PlotOption]
-///
-///    void PlotMatrix  (const TString, const TString,   const Int_t&, const Int_t&, [const TString]);
-///                      UserCorOrCov,  UserBetweenWhat, arg_n1,       arg_n2,       [PlotOption]
-///  
-///  //==================================================================================================
-///  //                  methods for displaying the 2D views of the detector
-///  //
-///  //                  Detector = SM,Dee,EB,EE
-///  //
-///  //==================================================================================================
-///    void PlotDetector(const TVectorD&, const TString, const TString);
-///                      read_histo,      UserHistoCode, Detector,
-///
-///    void PlotDetector(const TString, const TString);
-///                      UserHistoCode, Detector
-///  
-///  //==================================================================================================
-///  //                             methods for displaying 1D histos
-///  //
-///  //     PlotOption: optional argument ("ONLYONE", "SAME","SAME n"  or "ASCII")
-///  //      
-///  //  "ONLYONE" :  display only one histo (default; same as without argument)
-///  //  "SAME"    :  Same as Draw Option "SAME" in ROOT: superimpose on previous picture in the same pad
-///  //               1D histos of only one quantity
-///  //  "SAME n"  :  Same as Draw Option "SAME" in ROOT: superimpose on previous picture in the same pad
-///  //               1D histos of possibly several quantities
-///  //  "ASCII"   :  write histo contents in ASCII file
-///  //
-///  //==================================================================================================
-///
-///    void Plot1DHisto
-///    (const TVectorD&, const TString,   const TString,   const TString, [const TString]);
-///     InputHisto,      User_X_Quantity, User_Y_Quantity, Detector,      [PlotOption]
-///
-///    void Plot1DHisto (const TString,   const TString,   const TString, [const TString]);
-///                      User_X_Quantity, User_Y_Quantity, Detector,	  [PlotOption])
-///
-///
-///    void Plot1DHisto
-///    (const TVectorD&, const TString,   const TString,   const Int_t&, const Int_t&, [const TString]);
-///     InputHisto,      User_X_Quantity, User_Y_Quantity, n1StexStin,   i0StinEcha,   [PlotOption]
-///
-///    void Plot1DHisto (const TString,   const TString,   const Int_t&, const Int_t&,  [const TString]);
-///                      User_X_Quantity, User_Y_Quantity, n1StexStin,   i0StinEcha,    [PlotOption]
-///
-///
-///    void Plot1DHisto
-///    (const TVectorD&, const TString,   const TString,   const Int_t&, const Int_t&, const Int_t&, [const TString]);
-///     InputHisto,      User_X_Quantity, User_Y_Quantity, n1StexStin,   i0StinEcha,   n1Sample,     [PlotOption]
-///
-///    void Plot1DHisto (const TString,   const TString,   const Int_t&, const Int_t&, const Int_t&, [const TString]);
-///                      User_X_Quantity, User_Y_Quantity, n1StexStin,   i0StinEcha,   n1Sample,     [PlotOption]
-///
-///
-///    void Plot1DHisto(const TVectorD&, const TString,   const TString,   const Int_t&, [const TString]);
-///                     InputHisto,      User_X_Quantity, User_Y_Quantity, n1StexStin,   [PlotOption]
-///
-///  //==================================================================================================
-///  //                     method for displaying 1D history plots
-///  //==================================================================================================
-/// 
-///  void PlotHistory
-///       (const TString,   const TString,   const TString,         const Int_t&, const Int_t&, [const TString]);
-///        User_X_Quantity, User_Y_Quantity, list_of_run_file_name, StexStin_A,   i0StinEcha,   [PlotOption]
-///
-///  //==================================================================================================
-///  //             methods for displaying Tower, SC, crystal numbering
-///  //==================================================================================================
-///
-///  void SMTowerNumbering(const Int_t& SM#);
-///  void DeeSCNumbering  (const Int_t& Dee#);
-///
-///  void TowerCrystalNumbering(const Int_t& SM#,  const Int_t& Tow#);
-///  void SCCrystalNumbering   (const Int_t& Dee#, const Int_t& SC#);   // (SC# for construction)
-///
-///  //==================================================================================================
-///  //                General title
-///  //==================================================================================================
-///  void GeneralTitle(const TString Title);
-///
-///  //==================================================================================================
-///  //                        Lin:Log scale (SCALE = "LIN" or "LOG") 
-///  //==================================================================================================
-///  void SetHistoScaleX(const TString SCALE);
-///  void SetHistoScaleY(const TString SCALE);
-///
-///  //==================================================================================================
-///  //                   ColorPalette (OPTION = "ECNAColor" or "Rainbow")
-///  //==================================================================================================
-///  void SetHistoColorPalette(const TString OPTION);
-///
-///  //==================================================================================================
-///  //                            histo ymin, ymax management
-///  //==================================================================================================
-///
-///  //  These methods must be called before calls to the display methods
-///
-///  //...................... 1D histo (ymin,ymax) forced to (YminValue,YmaxValue) values
-///  void SetHistoMin(const Double_t& YminValue);
-///  void SetHistoMax(const Double_t& YmaxValue);
-///
-///  //...................... 1D histo (ymin,ymax) calculated from histo values
-///  void SetHistoMin();
-///  void SetHistoMax();
-///
-///  if SetHistoMin and SetHistoMax are not called, default values are applied. These default values
-///  are in methods GetYminDefaultValue(...) and GetYmaxDefaultValue(...) of class TEcnaParHistos
-///
-///------------------------------------------------------------------------------------------------------
-///
-///   ECNA web page:
-///
-///   http://cms-fabbro.web.cern.ch/cms-fabbro/cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
-///
-///   For questions or comments, please send e-mail to: bernard.fabbro@cea.fr 
-///
-
-// ------- methods called by ReadAnd[Plot1DHisto]
-//       (const TString, const TString, [const TVectorD&], const Int_t&, const Int_t&, const TString)
+//------------------------ TEcnaHistos.h -----------------
 //
-//  void XtalSamplesEv(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, [const TString]); //  EB or EE
-//                     n1StexStin,   i0StinEcha,   [PlotOption]
+//   For questions or comments, please send e-mail to:
 //
-//  void EvSamplesXtals(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, [const TString]);
-//                      n1StexStin,   i0StinEcha,   [PlotOption]
-//
-//
-//  void XtalSamplesSigma(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, [const TString]); //  EB or EE
-//                        n1StexStin,   i0StinEcha,   [PlotOption]
-//
-//  void SigmaSamplesXtals(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, [const TString]) //  EB or EE
-//                         n1StexStin,   i0StinEcha,   [PlotOption]
-//
-//  void XtalSampleValues(const Int_t&, const Int_t&, const Int_t&, [const TString]); // EB or EE
-//                        n1StexStin,   i0StinEcha,   iSample,      [PlotOption]
-//
-//  void SampleADCEvents(const Int_t&, const Int_t&, const Int_t&, [const TString]);  // EB or EE
-//                       n1StexStin,   i0StinEcha,   iSample,      [PlotOption]
-//
+//   Bernard Fabbro             
+//   fabbro@hep.saclay.cea.fr 
+//--------------------------------------------------------
 
 class TEcnaHistos : public TObject {
 
@@ -335,7 +46,6 @@ class TEcnaHistos : public TObject {
 
   Int_t fgMaxCar;                    // Max nb of caracters for char*
   Int_t fZerv;                       // = 0 , for ViewHisto non used arguments
-  Int_t fUnev;                       // = 1 , for ViewHisto non used arguments
 
 
   Int_t fCnaCommand, fCnaError;
@@ -350,20 +60,15 @@ class TEcnaHistos : public TObject {
   TString fCodeEE;
 
   //...........................................
-  TEcnaParHistos* fCnaParHistos;
-  TEcnaParPaths*  fCnaParPaths;
-  TEcnaParCout*   fCnaParCout;
-  TEcnaWrite*     fCnaWrite;
-  TEcnaParEcal*   fEcal;
-  TEcnaNumbering* fEcalNumbering;
-  TEcnaHeader*    fFileHeader;
+  TEcnaParHistos*   fCnaParHistos;
+  TEcnaParPaths*    fCnaParPaths;
+  TEcnaParCout*     fCnaParCout;
+  TEcnaWrite*       fCnaWrite;
+  TEcnaParEcal* fEcal;
+  TEcnaNumbering*  fEcalNumbering;
+  TEcnaHeader*      fFileHeader;
 
-  TEcnaRead*      fMyRootFile;
-  Int_t           fAlreadyRead;
-  Int_t           fMemoAlreadyRead;
-  Int_t           fTobeRead;
-  TVectorD        fReadHistoDummy;
-  TMatrixD        fReadMatrixDummy;
+  TEcnaRead*        fMyRootFile;
 
   ifstream fFcin_f;
 
@@ -375,7 +80,7 @@ class TEcnaHistos : public TObject {
   Int_t   fFapReqNbOfEvts;         // Requested number of events
   Int_t   fFapStexNumber;          // Stex number
 
-  Int_t   fFapNbOfEvts;            // Number of found events
+  Int_t   fFapNbOfEvts;           // Number of found events
 
   Int_t   fFapMaxNbOfRuns;         // Maximum Number of runs
   Int_t   fFapNbOfRuns;            // Number of runs
@@ -392,10 +97,10 @@ class TEcnaHistos : public TObject {
   TString fFapStexDir;             // direction of the Dee (right, left)             (EE only)
   TString fFapStinQuadType;        // quadrant type of the SC (top, bottom)          (EE only)
  
-  TString fFapStexName;            // Stex name:               "SM"      (for EB) or "Dee"     (for EE)
-  TString fFapStinName;            // Stin name:               "tower"   (for EB) or "SC"      (for EE)
-  TString fFapXtalName;            // Xtal name:               "xtal"    (for EB) or "Xtal"    (for EE)
-  TString fFapEchaName;            // Electronic channel name: "Chan"    (for EB) or "Chan"    (for EE)
+  TString fFapStexName;            // Stex name: "SM"      (for EB) or "Dee"     (for EE)
+  TString fFapStinName;            // Stin name: "tower"   (for EB) or "SC"      (for EE)
+  TString fFapEchaName;            // Echa name: "channel" (for EB) or "crystal" (for EE)
+
 
   TString fMyRootFileName;  // memo Root file name used in SetFile() for obtaining the number of found events 
 
@@ -410,6 +115,7 @@ class TEcnaHistos : public TObject {
   time_t  fStartTime, fStopTime;
   TString fStartDate, fStopDate;
   TString fRunType;
+
 
   TString* fT1DAnaType;             // Type of analysis
   Int_t*   fT1DRunNumber;           // Run number
@@ -426,6 +132,7 @@ class TEcnaHistos : public TObject {
 
   Double_t fUserHistoMin,     fUserHistoMax;
   TString  fFlagUserHistoMin, fFlagUserHistoMax;
+  //  TString  fCurQuantCode;
 
   Int_t fOptVisLego,   fOptVisColz,   fOptVisSurf1,  fOptVisSurf4;
   Int_t fOptVisLine,   fOptVisPolm;
@@ -480,14 +187,10 @@ class TEcnaHistos : public TObject {
   Axis_t fD_SCs_ChDsXinf;
   Axis_t fD_SCs_ChDsXsup;
 
-  Axis_t fD_MSp_SpNbXinf;
-  Axis_t fD_MSp_SpNbXsup;
-  Axis_t fD_MSp_SpDsXinf;
-  Axis_t fD_MSp_SpDsXsup;
-  Axis_t fD_SSp_SpNbXinf;
-  Axis_t fD_SSp_SpNbXsup;
-  Axis_t fD_SSp_SpDsXinf;
-  Axis_t fD_SSp_SpDsXsup;
+  Axis_t fD_MSp_SampXinf;
+  Axis_t fD_MSp_SampXsup;
+  Axis_t fD_SSp_SampXinf;
+  Axis_t fD_SSp_SampXsup;
   Axis_t fD_Adc_EvDsXinf;
   Axis_t fD_Adc_EvDsXsup;
   Axis_t fD_Adc_EvNbXinf;
@@ -550,14 +253,10 @@ class TEcnaHistos : public TObject {
   Double_t fD_SCs_ChDsYmin;
   Double_t fD_SCs_ChDsYmax;
 
-  Double_t fD_MSp_SpNbYmin;
-  Double_t fD_MSp_SpNbYmax;
-  Double_t fD_MSp_SpDsYmin;
-  Double_t fD_MSp_SpDsYmax;
-  Double_t fD_SSp_SpNbYmin;
-  Double_t fD_SSp_SpNbYmax;
-  Double_t fD_SSp_SpDsYmin;
-  Double_t fD_SSp_SpDsYmax;
+  Double_t fD_MSp_SampYmin;
+  Double_t fD_MSp_SampYmax;
+  Double_t fD_SSp_SampYmin;
+  Double_t fD_SSp_SampYmax;
   Double_t fD_Adc_EvDsYmin;
   Double_t fD_Adc_EvDsYmax;
   Double_t fD_Adc_EvNbYmin;
@@ -612,8 +311,6 @@ class TEcnaHistos : public TObject {
   TString fOnlyOnePlot;
   TString fSeveralPlot;
   TString fSameOnePlot;
-  TString fAllXtalsInStinPlot;
-  Int_t   fPlotAllXtalsInStin;
 
   Int_t  fMemoPlotH1SamePlus;
   Int_t  fMemoPlotD_NOE_ChNb, fMemoPlotD_NOE_ChDs;
@@ -623,8 +320,7 @@ class TEcnaHistos : public TObject {
   Int_t  fMemoPlotD_LFN_ChNb, fMemoPlotD_LFN_ChDs; 
   Int_t  fMemoPlotD_HFN_ChNb, fMemoPlotD_HFN_ChDs; 
   Int_t  fMemoPlotD_SCs_ChNb, fMemoPlotD_SCs_ChDs; 
-  Int_t  fMemoPlotD_MSp_SpNb, fMemoPlotD_SSp_SpNb; 
-  Int_t  fMemoPlotD_MSp_SpDs, fMemoPlotD_SSp_SpDs;
+  Int_t  fMemoPlotD_MSp_Samp, fMemoPlotD_SSp_Samp;
   Int_t  fMemoPlotD_Adc_EvNb, fMemoPlotD_Adc_EvDs;
   Int_t  fMemoPlotH_Ped_Date, fMemoPlotH_Ped_RuDs;
   Int_t  fMemoPlotH_TNo_Date, fMemoPlotH_TNo_RuDs;
@@ -641,8 +337,7 @@ class TEcnaHistos : public TObject {
   Int_t  fMemoColorD_LFN_ChNb, fMemoColorD_LFN_ChDs; 
   Int_t  fMemoColorD_HFN_ChNb, fMemoColorD_HFN_ChDs; 
   Int_t  fMemoColorD_SCs_ChNb, fMemoColorD_SCs_ChDs; 
-  Int_t  fMemoColorD_MSp_SpNb, fMemoColorD_SSp_SpNb;
-  Int_t  fMemoColorD_MSp_SpDs, fMemoColorD_SSp_SpDs;
+  Int_t  fMemoColorD_MSp_Samp, fMemoColorD_SSp_Samp;
   Int_t  fMemoColorD_Adc_EvNb, fMemoColorD_Adc_EvDs;
   Int_t  fMemoColorH_Ped_Date, fMemoColorH_Ped_RuDs;
   Int_t  fMemoColorH_TNo_Date, fMemoColorH_TNo_RuDs;
@@ -668,10 +363,8 @@ class TEcnaHistos : public TObject {
   TString  fXMemoD_HFN_ChDs; 
   TString  fXMemoD_SCs_ChNb; 
   TString  fXMemoD_SCs_ChDs; 
-  TString  fXMemoD_MSp_SpNb; 
-  TString  fXMemoD_MSp_SpDs;
-  TString  fXMemoD_SSp_SpNb; 
-  TString  fXMemoD_SSp_SpDs;
+  TString  fXMemoD_MSp_Samp;
+  TString  fXMemoD_SSp_Samp;
   TString  fXMemoD_Adc_EvDs;     
   TString  fXMemoD_Adc_EvNb;
   TString  fXMemoH_Ped_Date;
@@ -702,10 +395,8 @@ class TEcnaHistos : public TObject {
   TString  fYMemoD_HFN_ChDs; 
   TString  fYMemoD_SCs_ChNb; 
   TString  fYMemoD_SCs_ChDs; 
-  TString  fYMemoD_MSp_SpNb; 
-  TString  fYMemoD_MSp_SpDs;
-  TString  fYMemoD_SSp_SpNb;
-  TString  fYMemoD_SSp_SpDs;  
+  TString  fYMemoD_MSp_Samp;
+  TString  fYMemoD_SSp_Samp;  
   TString  fYMemoD_Adc_EvDs;     
   TString  fYMemoD_Adc_EvNb;
   TString  fYMemoH_Ped_Date;
@@ -731,15 +422,13 @@ class TEcnaHistos : public TObject {
   Int_t  fNbBinsMemoD_MCs_ChNb; 
   Int_t  fNbBinsMemoD_MCs_ChDs;
   Int_t  fNbBinsMemoD_LFN_ChNb;
-  Int_t  fNbBinsMemoD_LFN_ChDs;
-  Int_t  fNbBinsMemoD_HFN_ChNb; 
-  Int_t  fNbBinsMemoD_HFN_ChDs;
-  Int_t  fNbBinsMemoD_SCs_ChNb;
-  Int_t  fNbBinsMemoD_SCs_ChDs;
-  Int_t  fNbBinsMemoD_MSp_SpNb;
-  Int_t  fNbBinsMemoD_MSp_SpDs;
-  Int_t  fNbBinsMemoD_SSp_SpNb;
-  Int_t  fNbBinsMemoD_SSp_SpDs;
+  Int_t  fNbBinsMemoD_LFN_ChDs; 
+  Int_t  fNbBinsMemoD_HFN_ChNb;   
+  Int_t  fNbBinsMemoD_HFN_ChDs; 
+  Int_t  fNbBinsMemoD_SCs_ChNb; 
+  Int_t  fNbBinsMemoD_SCs_ChDs; 
+  Int_t  fNbBinsMemoD_MSp_Samp;
+  Int_t  fNbBinsMemoD_SSp_Samp;  
   Int_t  fNbBinsMemoD_Adc_EvDs;     
   Int_t  fNbBinsMemoD_Adc_EvNb;
   Int_t  fNbBinsMemoH_Ped_Date;
@@ -773,10 +462,8 @@ class TEcnaHistos : public TObject {
   TCanvas*  fCanvD_HFN_ChDs;
   TCanvas*  fCanvD_SCs_ChNb;
   TCanvas*  fCanvD_SCs_ChDs;
-  TCanvas*  fCanvD_MSp_SpNb;
-  TCanvas*  fCanvD_MSp_SpDs;
-  TCanvas*  fCanvD_SSp_SpNb;
-  TCanvas*  fCanvD_SSp_SpDs;  
+  TCanvas*  fCanvD_MSp_Samp;
+  TCanvas*  fCanvD_SSp_Samp;  
   TCanvas*  fCanvD_Adc_EvDs;     
   TCanvas*  fCanvD_Adc_EvNb;
   TCanvas*  fCanvH_Ped_Date;
@@ -809,10 +496,8 @@ class TEcnaHistos : public TObject {
   TVirtualPad*  fPadD_HFN_ChDs;
   TVirtualPad*  fPadD_SCs_ChNb;
   TVirtualPad*  fPadD_SCs_ChDs; 
-  TVirtualPad*  fPadD_MSp_SpNb; 
-  TVirtualPad*  fPadD_MSp_SpDs;
-  TVirtualPad*  fPadD_SSp_SpNb;
-  TVirtualPad*  fPadD_SSp_SpDs;
+  TVirtualPad*  fPadD_MSp_Samp;
+  TVirtualPad*  fPadD_SSp_Samp;
   TVirtualPad*  fPadD_Adc_EvDs;     
   TVirtualPad*  fPadD_Adc_EvNb;
   TVirtualPad*  fPadH_Ped_Date;
@@ -843,10 +528,8 @@ class TEcnaHistos : public TObject {
   TPaveText*  fPavTxtD_HFN_ChDs; 
   TPaveText*  fPavTxtD_SCs_ChNb; 
   TPaveText*  fPavTxtD_SCs_ChDs; 
-  TPaveText*  fPavTxtD_MSp_SpNb; 
-  TPaveText*  fPavTxtD_MSp_SpDs;
-  TPaveText*  fPavTxtD_SSp_SpNb; 
-  TPaveText*  fPavTxtD_SSp_SpDs;  
+  TPaveText*  fPavTxtD_MSp_Samp;
+  TPaveText*  fPavTxtD_SSp_Samp;  
   TPaveText*  fPavTxtD_Adc_EvDs;     
   TPaveText*  fPavTxtD_Adc_EvNb;
   TPaveText*  fPavTxtH_Ped_Date;
@@ -877,10 +560,8 @@ class TEcnaHistos : public TObject {
   TCanvasImp*  fImpD_HFN_ChDs;
   TCanvasImp*  fImpD_SCs_ChNb;
   TCanvasImp*  fImpD_SCs_ChDs; 
-  TCanvasImp*  fImpD_MSp_SpNb;
-  TCanvasImp*  fImpD_MSp_SpDs;
-  TCanvasImp*  fImpD_SSp_SpNb; 
-  TCanvasImp*  fImpD_SSp_SpDs;  
+  TCanvasImp*  fImpD_MSp_Samp;
+  TCanvasImp*  fImpD_SSp_Samp;  
   TCanvasImp*  fImpD_Adc_EvDs; 
   TCanvasImp*  fImpD_Adc_EvNb;
   TCanvasImp*  fImpH_Ped_Date;
@@ -904,8 +585,7 @@ class TEcnaHistos : public TObject {
   Int_t  fCanvSameD_LFN_ChNb, fCanvSameD_LFN_ChDs; 
   Int_t  fCanvSameD_HFN_ChNb, fCanvSameD_HFN_ChDs; 
   Int_t  fCanvSameD_SCs_ChNb, fCanvSameD_SCs_ChDs; 
-  Int_t  fCanvSameD_MSp_SpNb, fCanvSameD_SSp_SpNb; 
-  Int_t  fCanvSameD_MSp_SpDs, fCanvSameD_SSp_SpDs;
+  Int_t  fCanvSameD_MSp_Samp, fCanvSameD_SSp_Samp;
   Int_t  fCanvSameD_Adc_EvDs, fCanvSameD_Adc_EvNb;
   Int_t  fCanvSameH_Ped_Date, fCanvSameH_Ped_RuDs;
   Int_t  fCanvSameH_TNo_Date, fCanvSameH_TNo_RuDs;
@@ -925,138 +605,276 @@ class TEcnaHistos : public TObject {
 
   //...................................... methods
   TEcnaHistos();
-  TEcnaHistos(TEcnaObject*, const TString);
-
-  //TEcnaHistos(const TString);
-  //TEcnaHistos(const TString, const TEcnaParPaths*);
-  //TEcnaHistos(const TString,
-//	      const TEcnaParPaths*,
-//	      const TEcnaParCout*,
-//	      const TEcnaParEcal*, 
-//	      const TEcnaParHistos*,
-//	      const TEcnaNumbering*,
-//	      const TEcnaWrite*);
+  TEcnaHistos(const TString);
+  TEcnaHistos(const TString,
+	     const TEcnaParPaths*,
+	     const TEcnaParCout*,
+	     const TEcnaParEcal*, 
+	     const TEcnaParHistos*,
+	     const TEcnaNumbering*,
+	     const TEcnaWrite*);
   
   virtual  ~TEcnaHistos();
-  
-  void Init();
-  void SetEcalSubDetector(const TString);
-//  void SetEcalSubDetector(const TString,
-//  			  const TEcnaParEcal*, 
-//  			  const TEcnaParHistos*,
-//  			  const TEcnaNumbering*,
-//  			  const TEcnaWrite*);
 
-  //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  //
-  //                     METHODS FOR THE USER
-  //
-  //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  void Init();
+  void SetEcalSubDetector(const TString,
+			  const TEcnaParEcal*, 
+			  const TEcnaParHistos*,
+			  const TEcnaNumbering*,
+			  const TEcnaWrite*);
+
+  //==================================== METHODS FOR THE USER =======================================
 
   //............ method to set the result file name parameters (from values in argument)
   //............ FileParameters(AnaType, [RunNumber], FirstEvent, NbOfEvts, [SM or Dee number])
   //             RunNumber = 0 => history plots , SM or Dee number = 0 => EB or EE Plots
 
   void FileParameters(const TString, const Int_t&, const Int_t&,
-		      const Int_t&,  const Int_t&, const Int_t&, const Int_t&);
+		      const Int_t&,  const Int_t&,  const Int_t&, const Int_t&);
 
-  void FileParameters(TEcnaRead*);
+  //................. methods for displaying the correlations and covariances matrices
+  void LowFrequencyMeanCorrelationsBetweenTowers(const TString);  // USER: specific EB
+  void LowFrequencyMeanCorrelationsBetweenSCs(const TString);     // USER: specific EE
+  void HighFrequencyMeanCorrelationsBetweenTowers(const TString); // USER: specific EB
+  void HighFrequencyMeanCorrelationsBetweenSCs(const TString);    // USER: specific EE
 
-  //================================================================================================
-  //                    methods for displaying matrices (correlations, covariances)
-  //  The last argument is optional: option plot ("COLZ", "LEGO" etc..., or "ASCII") default = COLZ
-  //================================================================================================ 
-  //..................... Corcc[for 1 Stex] (big matrix)
-  void PlotMatrix(const TMatrixD&,
-		  const TString, const TString);
-  void PlotMatrix(const TMatrixD&,
-		  const TString, const TString, const TString);
+  void LowFrequencyCorrelationsBetweenChannels(const Int_t&, const Int_t&, const TString); // USER: EB or EE
+  void LowFrequencyCovariancesBetweenChannels(const Int_t&, const Int_t&, const TString);  // USER: EB or EE
+  void HighFrequencyCorrelationsBetweenChannels(const Int_t&, const Int_t&, const TString); // USER: EB or EE
+  void HighFrequencyCovariancesBetweenChannels(const Int_t&, const Int_t&, const TString);  // USER: EB or EE
 
-  void PlotMatrix(const TString, const TString);
-  void PlotMatrix(const TString, const TString, const TString);
+  void CorrelationsBetweenSamples(const Int_t&, const Int_t&, const TString);  // USER: EB or EE
+  void CovariancesBetweenSamples(const Int_t&, const Int_t&, const TString);   // USER: EB or EE
 
-  //..................... Corcc[for 1 Stin], Corss[for 1 Echa], Covss[for 1 Echa]
-  void PlotMatrix(const TMatrixD&,
-		  const TString, const TString, const Int_t&, const Int_t&);
-  void PlotMatrix(const TMatrixD&,
-		  const TString, const TString, const Int_t&, const Int_t&, const TString);
+  //................. methods for displaying 2D view of the whole detector; 2D(eta,Phi) for EB, 2D(IX,IY) for EE
+  void EBEtaPhiAveragedNumberOfEvents();     // USER: specific EB
+  void EBEtaPhiAveragedPedestals();          // USER: specific EB
+  void EBEtaPhiAveragedTotalNoise();         // USER: specific EB
+  void EBEtaPhiAveragedMeanOfCorss();        // USER: specific EB
+  void EBEtaPhiAveragedLowFrequencyNoise();  // USER: specific EB
+  void EBEtaPhiAveragedHighFrequencyNoise(); // USER: specific EB
+  void EBEtaPhiAveragedSigmaOfCorss();       // USER: specific EB
 
-  void PlotMatrix(const TString, const TString, const Int_t&, const Int_t&);
-  void PlotMatrix(const TString, const TString, const Int_t&, const Int_t&, const TString);
+  void EEIXIYAveragedNumberOfEvents();     // USER: specific EE
+  void EEIXIYAveragedPedestals();          // USER: specific EE
+  void EEIXIYAveragedTotalNoise();         // USER: specific EE
+  void EEIXIYAveragedMeanOfCorss();        // USER: specific EE
+  void EEIXIYAveragedLowFrequencyNoise();  // USER: specific EE
+  void EEIXIYAveragedHighFrequencyNoise(); // USER: specific EE
+  void EEIXIYAveragedSigmaOfCorss();       // USER: specific EE
 
-  //================================================================================================
-  //                    methods for displaying 2D views of the detector
-  //                    detector = SM, Dee, EB, EE
-  //================================================================================================ 
-  void PlotDetector(const TVectorD&,
-		    const TString, const TString);
-  void PlotDetector(const TString, const TString);
+  //................. methods for displaying the SM 2D(eta,phi) view
+  void SMEtaPhiNumberOfEvents();       // USER: specific EB
+  void SMEtaPhiPedestals();            // USER: specific EB
+  void SMEtaPhiTotalNoise();           // USER: specific EB
+  void SMEtaPhiMeanOfCorss();          // USER: specific EB
+  void SMEtaPhiLowFrequencyNoise();    // USER: specific EB
+  void SMEtaPhiHighFrequencyNoise();   // USER: specific EB
+  void SMEtaPhiSigmaOfCorss();         // USER: specific EB
 
-  //================================================================================================
-  //                    methods for displaying 1D histos OR history histos
-  //  The last argument is optional: option plot ("COLZ", "LEGO" etc..., or "ASCII") default = COLZ
-  //================================================================================================
-  void Plot1DHisto(const TVectorD&,
-		   const TString, const TString, const TString);
-  void Plot1DHisto(const TVectorD&,
-		   const TString, const TString, const TString, const TString);
+  void SMEtaPhiLowFrequencyCorcc();    // USER: specific EB
+  void SMEtaPhiHighFrequencyCorcc();   // USER: specific EB
 
-  void Plot1DHisto(const TString, const TString, const TString);
-  void Plot1DHisto(const TString, const TString, const TString, const TString);
+  //................. methods for displaying the Dee 2D(IX,IY) view
+  void DeeIXIYNumberOfEvents();        // USER: specific EE
+  void DeeIXIYPedestals();             // USER: specific EE
+  void DeeIXIYTotalNoise();            // USER: specific EE
+  void DeeIXIYMeanOfCorss();           // USER: specific EE
+  void DeeIXIYLowFrequencyNoise();     // USER: specific EE
+  void DeeIXIYHighFrequencyNoise();    // USER: specific EE
+  void DeeIXIYSigmaOfCorss();          // USER: specific EE
 
-  //.......................................................
-  //=> BUG SCRAM? (voir test/TEcnaHistosExample2.cc et src/TEcnaHistos.cc)
-  void Plot1DHisto(const TVectorD&, const TString, const TString, const Int_t&);
-  void Plot1DHisto(const TVectorD&, const TString, const TString, const Int_t&, const TString);
+  void DeeIXIYLowFrequencyCorcc();     // USER: specific EE
+  void DeeIXIYHighFrequencyCorcc();    // USER: specific EE
 
-  void Plot1DHisto(const TVectorD&,
-		   const TString, const TString, const Int_t&, const Int_t&);
-  void Plot1DHisto(const TVectorD&,
-		   const TString, const TString, const Int_t&, const Int_t&, const TString);
+  //...... methods for displaying 1D histos, explicit option plot argument ("ONLYONE", "SAME" or "ASCII")
 
-  void Plot1DHisto(const TString, const TString, const Int_t&, const Int_t&);
-  void Plot1DHisto(const TString, const TString, const Int_t&, const Int_t&, const TString);
+  //............ EE or EE, "Averaged"
+  void EBXtalsAveragedNumberOfEvents(const TString);     // USER: specific EB
+  void EBXtalsAveragedPedestals(const TString);          // USER: specific EB
+  void EBXtalsAveragedTotalNoise(const TString);         // USER: specific EB
+  void EBXtalsAveragedMeanOfCorss(const TString);        // USER: specific EB
+  void EBXtalsAveragedLowFrequencyNoise(const TString);  // USER: specific EB
+  void EBXtalsAveragedHighFrequencyNoise(const TString); // USER: specific EB
+  void EBXtalsAveragedSigmaOfCorss(const TString);       // USER: specific EB
 
- //.......................................................
-  void Plot1DHisto(const TVectorD&,
-		   const TString, const TString, const Int_t&, const Int_t&, const Int_t&);
-  void Plot1DHisto(const TVectorD&,
-		   const TString, const TString, const Int_t&, const Int_t&, const Int_t&, const TString);
+  void EBAveragedNumberOfEventsXtals(const TString);     // USER: specific EB
+  void EBAveragedPedestalsXtals(const TString);          // USER: specific EB
+  void EBAveragedTotalNoiseXtals(const TString);         // USER: specific EB
+  void EBAveragedMeanOfCorssXtals(const TString);        // USER: specific EB
+  void EBAveragedLowFrequencyNoiseXtals(const TString);  // USER: specific EB
+  void EBAveragedHighFrequencyNoiseXtals(const TString); // USER: specific EB
+  void EBAveragedSigmaOfCorssXtals(const TString);       // USER: specific EB
+ 
+  void EEXtalsAveragedNumberOfEvents(const TString);     // USER: specific EE
+  void EEXtalsAveragedPedestals(const TString);          // USER: specific EE
+  void EEXtalsAveragedTotalNoise(const TString);         // USER: specific EE
+  void EEXtalsAveragedMeanOfCorss(const TString);        // USER: specific EE
+  void EEXtalsAveragedLowFrequencyNoise(const TString);  // USER: specific EE
+  void EEXtalsAveragedHighFrequencyNoise(const TString); // USER: specific EE
+  void EEXtalsAveragedSigmaOfCorss(const TString);       // USER: specific EE
 
-  void Plot1DHisto(const TString, const TString, const Int_t&, const Int_t&, const Int_t&);
-  void Plot1DHisto(const TString, const TString, const Int_t&, const Int_t&, const Int_t&, const TString);
+  void EEAveragedNumberOfEventsXtals(const TString);     // USER: specific EE
+  void EEAveragedPedestalsXtals(const TString);          // USER: specific EE
+  void EEAveragedTotalNoiseXtals(const TString);         // USER: specific EE
+  void EEAveragedMeanOfCorssXtals(const TString);        // USER: specific EE
+  void EEAveragedLowFrequencyNoiseXtals(const TString);  // USER: specific EE
+  void EEAveragedHighFrequencyNoiseXtals(const TString); // USER: specific EE
+  void EEAveragedSigmaOfCorssXtals(const TString);       // USER: specific EE
 
- //.......................................................
-  void PlotHistory(const TString, const TString, const TString, const Int_t&, const Int_t&);
-  void PlotHistory(const TString, const TString, const TString, const Int_t&, const Int_t&, const TString);
+  //............ SM or Dee
+  void SMXtalsNumberOfEvents(const TString);     // USER: specific EB
+  void SMXtalsPedestals(const TString);          // USER: specific EB
+  void SMXtalsTotalNoise(const TString);         // USER: specific EB
+  void SMXtalsMeanOfCorss(const TString);        // USER: specific EB
+  void SMXtalsLowFrequencyNoise(const TString);  // USER: specific EB
+  void SMXtalsHighFrequencyNoise(const TString); // USER: specific EB
+  void SMXtalsSigmaOfCorss(const TString);       // USER: specific EB
 
-  //====================================================================================
-  //
-  //                   methods for displaying Tower, SC, crystal numbering
-  // 
-  //====================================================================================
+  void SMNumberOfEventsXtals(const TString);     // USER: specific EB
+  void SMPedestalsXtals(const TString);          // USER: specific EB
+  void SMTotalNoiseXtals(const TString);         // USER: specific EB
+  void SMMeanOfCorssXtals(const TString);        // USER: specific EB
+  void SMLowFrequencyNoiseXtals(const TString);  // USER: specific EB
+  void SMHighFrequencyNoiseXtals(const TString); // USER: specific EB
+  void SMSigmaOfCorssXtals(const TString);       // USER: specific EB
+ 
+  void DeeXtalsNumberOfEvents(const TString);     // USER: specific EE
+  void DeeXtalsPedestals(const TString);          // USER: specific EE
+  void DeeXtalsTotalNoise(const TString);         // USER: specific EE
+  void DeeXtalsMeanOfCorss(const TString);        // USER: specific EE
+  void DeeXtalsLowFrequencyNoise(const TString);  // USER: specific EE
+  void DeeXtalsHighFrequencyNoise(const TString); // USER: specific EE
+  void DeeXtalsSigmaOfCorss(const TString);       // USER: specific EE
+
+  void DeeNumberOfEventsXtals(const TString);     // USER: specific EE
+  void DeePedestalsXtals(const TString);          // USER: specific EE
+  void DeeTotalNoiseXtals(const TString);         // USER: specific EE
+  void DeeMeanOfCorssXtals(const TString);        // USER: specific EE
+  void DeeLowFrequencyNoiseXtals(const TString);  // USER: specific EE
+  void DeeHighFrequencyNoiseXtals(const TString); // USER: specific EE
+  void DeeSigmaOfCorssXtals(const TString);       // USER: specific EE
+
+  //.......... Others
+  void XtalSamplesEv(const Int_t&, const Int_t&, const TString);
+  void XtalSamplesSigma(const Int_t&, const Int_t&, const TString);
+
+  void XtalSampleValues(const Int_t&, const Int_t&, const Int_t&, const TString);
+  void SampleADCEvents(const Int_t&, const Int_t&, const Int_t&, const TString);
+
+  //........ methods for displaying 1D histos no option plot argument (default = "ONLYONE")
+
+  //............ EE or EE, "Averaged"
+  void EBXtalsAveragedNumberOfEvents();     // USER: specific EB
+  void EBXtalsAveragedPedestals();          // USER: specific EB
+  void EBXtalsAveragedTotalNoise();         // USER: specific EB
+  void EBXtalsAveragedMeanOfCorss();        // USER: specific EB
+  void EBXtalsAveragedLowFrequencyNoise();  // USER: specific EB
+  void EBXtalsAveragedHighFrequencyNoise(); // USER: specific EB
+  void EBXtalsAveragedSigmaOfCorss();       // USER: specific EB
+
+  void EBAveragedNumberOfEventsXtals();     // USER: specific EB
+  void EBAveragedPedestalsXtals();          // USER: specific EB
+  void EBAveragedTotalNoiseXtals();         // USER: specific EB
+  void EBAveragedMeanOfCorssXtals();        // USER: specific EB
+  void EBAveragedLowFrequencyNoiseXtals();  // USER: specific EB
+  void EBAveragedHighFrequencyNoiseXtals(); // USER: specific EB
+  void EBAveragedSigmaOfCorssXtals();       // USER: specific EB
+ 
+  void EEXtalsAveragedNumberOfEvents();     // USER: specific EE
+  void EEXtalsAveragedPedestals();          // USER: specific EE
+  void EEXtalsAveragedTotalNoise();         // USER: specific EE
+  void EEXtalsAveragedMeanOfCorss();        // USER: specific EE
+  void EEXtalsAveragedLowFrequencyNoise();  // USER: specific EE
+  void EEXtalsAveragedHighFrequencyNoise(); // USER: specific EE
+  void EEXtalsAveragedSigmaOfCorss();       // USER: specific EE
+
+  void EEAveragedNumberOfEventsXtals();     // USER: specific EE
+  void EEAveragedPedestalsXtals();          // USER: specific EE
+  void EEAveragedTotalNoiseXtals();         // USER: specific EE
+  void EEAveragedMeanOfCorssXtals();        // USER: specific EE
+  void EEAveragedLowFrequencyNoiseXtals();  // USER: specific EE
+  void EEAveragedHighFrequencyNoiseXtals(); // USER: specific EE
+  void EEAveragedSigmaOfCorssXtals();       // USER: specific EE
+
+  //............ SM or Dee
+  void SMXtalsNumberOfEvents();     // USER: specific EB
+  void SMXtalsPedestals();          // USER: specific EB // (sample ADC value->mean over events)->mean over samples
+  void SMXtalsTotalNoise();         // USER: specific EB // 
+  void SMXtalsMeanOfCorss();        // USER: specific EB // MeanOfCorss
+  void SMXtalsLowFrequencyNoise();  // USER: specific EB // 
+  void SMXtalsHighFrequencyNoise(); // USER: specific EB // 
+  void SMXtalsSigmaOfCorss();       // USER: specific EB // 
+
+  void SMNumberOfEventsXtals();      // USER: specific EB
+  void SMPedestalsXtals();           // USER: specific EB // 
+  void SMTotalNoiseXtals();          // USER: specific EB // 
+  void SMMeanOfCorssXtals();         // USER: specific EB //
+  void SMLowFrequencyNoiseXtals();   // USER: specific EB // 
+  void SMHighFrequencyNoiseXtals();  // USER: specific EB // 
+  void SMSigmaOfCorssXtals();        // USER: specific EB //
+
+  void DeeXtalsNumberOfEvents();     // USER: specific EE
+  void DeeXtalsPedestals();          // USER: specific EE
+  void DeeXtalsTotalNoise();         // USER: specific EE
+  void DeeXtalsMeanOfCorss();        // USER: specific EE
+  void DeeXtalsLowFrequencyNoise();  // USER: specific EE
+  void DeeXtalsHighFrequencyNoise(); // USER: specific EE
+  void DeeXtalsSigmaOfCorss();       // USER: specific EE
+
+  void DeeNumberOfEventsXtals();     // USER: specific EE
+  void DeePedestalsXtals();          // USER: specific EE
+  void DeeTotalNoiseXtals();         // USER: specific EE
+  void DeeMeanOfCorssXtals();        // USER: specific EE
+  void DeeLowFrequencyNoiseXtals();  // USER: specific EE
+  void DeeHighFrequencyNoiseXtals(); // USER: specific EE
+  void DeeSigmaOfCorssXtals();       // USER: specific EE
+
+  //.......... Others
+  void XtalSamplesEv(const Int_t&, const Int_t&);
+  void XtalSamplesSigma(const Int_t&, const Int_t&);
+  void XtalSampleValues(const Int_t&, const Int_t&, const Int_t&);
+
+  void SampleADCEvents(const Int_t&, const Int_t&, const Int_t&);
+
+  //....... methods for displaying evolution in time histos, explicit option plot argument
+  void XtalTimePedestals(const TString, const Int_t&, const Int_t&, const TString);
+  void XtalTimeTotalNoise(const TString, const Int_t&, const Int_t&, const TString);
+  void XtalTimeMeanOfCorss(const TString, const Int_t&, const Int_t&, const TString);
+  void XtalTimeLowFrequencyNoise(const TString, const Int_t&, const Int_t&, const TString);
+  void XtalTimeHighFrequencyNoise(const TString, const Int_t&, const Int_t&, const TString);
+  void XtalTimeSigmaOfCorss(const TString, const Int_t&, const Int_t&, const TString);
+
+  void XtalPedestalsRuns(const TString, const Int_t&, const Int_t&, const TString);
+  void XtalTotalNoiseRuns(const TString, const Int_t&, const Int_t&, const TString);
+  void XtalMeanOfCorssRuns(const TString, const Int_t&, const Int_t&, const TString);
+  void XtalLowFrequencyNoiseRuns(const TString, const Int_t&, const Int_t&, const TString);
+  void XtalHighFrequencyNoiseRuns(const TString, const Int_t&, const Int_t&, const TString);
+  void XtalSigmaOfCorssRuns(const TString, const Int_t&, const Int_t&, const TString);
+
+  //....... methods for displaying evolution in time histos, no option plot argument (default)
+  void XtalTimePedestals(const TString, const Int_t&, const Int_t&);
+  void XtalTimeTotalNoise(const TString, const Int_t&, const Int_t&);
+  void XtalTimeMeanOfCorss(const TString, const Int_t&, const Int_t&);
+  void XtalTimeLowFrequencyNoise(const TString, const Int_t&, const Int_t&);
+  void XtalTimeHighFrequencyNoise(const TString, const Int_t&, const Int_t&);
+  void XtalTimeSigmaOfCorss(const TString, const Int_t&, const Int_t&);
+
+  void XtalPedestalsRuns(const TString, const Int_t&, const Int_t&);
+  void XtalTotalNoiseRuns(const TString, const Int_t&, const Int_t&);
+  void XtalMeanOfCorssRuns(const TString, const Int_t&, const Int_t&);
+  void XtalLowFrequencyNoiseRuns(const TString, const Int_t&, const Int_t&);
+  void XtalHighFrequencyNoiseRuns(const TString, const Int_t&, const Int_t&);
+  void XtalSigmaOfCorssRuns(const TString, const Int_t&, const Int_t&);
+
+  //................. methods for displaying Tower, SC, crystal numbering
+
   void SMTowerNumbering(const Int_t&);  // USER: specific EB
-  void DeeSCNumbering(const Int_t&);    // USER: specific EE
+  void DeeSCNumbering(const Int_t&);             // USER: specific EE
 
   void TowerCrystalNumbering(const Int_t&, const Int_t&);  // USER: specific EB
   void SCCrystalNumbering(const Int_t&, const Int_t&);     // USER: specific EE
 
-  //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  //
-  //             "TECHNICAL" METHODS
-  //
-  //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  void XtalSamplesEv(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, const TString);
-  void EvSamplesXtals(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, const TString);
-  void XtalSamplesSigma(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, const TString);
-  void SigmaSamplesXtals(const TVectorD&, const Int_t&, const Int_t&, const Int_t&, const TString);
-
-  void XtalSamplesEv(const TVectorD&, const Int_t&, const Int_t&, const Int_t&);
-  void EvSamplesXtals(const TVectorD&, const Int_t&, const Int_t&, const Int_t&);
-  void XtalSamplesSigma(const TVectorD&, const Int_t&, const Int_t&, const Int_t&);
-  void SigmaSamplesXtals(const TVectorD&, const Int_t&, const Int_t&, const Int_t&);
-
-  //======================================= Miscellaneous methods
   //.................... General title
   void GeneralTitle(const TString);
 
@@ -1072,37 +890,81 @@ class TEcnaHistos : public TObject {
   void SetHistoMin();
   void SetHistoMax();
 
-  //.................................. set fStartDate and fStopDate attributes from external values
-  void StartStopDate(const TString, const TString);
-
-  //.................................. set fRunType attribute from external value
-  void RunType(const TString);
-
-  //.................................. set fFapNbOfEvts attribute from external value
-  void NumberOfEvents(const Int_t&);
-
   //======================= TECHNICAL METHODS (in principle not for the user) ========================
+
+  void SetGeneralTitle(const TString);
 
   void SetRunNumberFromList(const Int_t&, const Int_t&);  // called by Histime
   void InitSpecParBeforeFileReading();                    // set parameters from the file reading
+
+  Int_t GetNumberOfEvents(TEcnaRead* , const Int_t&);
 
   //................. methods for displaying the cor(s,s) and cov(s,s) corresponding to a Stin
   void CorrelationsBetweenSamples(const Int_t&);
   void CovariancesBetweenSamples(const Int_t&);
 
-  //.................        
+  void LowFrequencyMeanCorrelationsBetweenStins(const TString);  
+  void HighFrequencyMeanCorrelationsBetweenStins(const TString);   
+
+  void StasHocoVecoAveragedNumberOfEvents(); 
+  void StasHocoVecoAveragedPedestals(); 
+  void StasHocoVecoAveragedTotalNoise(); 
+  void StasHocoVecoAveragedMeanOfCorss(); 
+  void StasHocoVecoAveragedLowFrequencyNoise(); 
+  void StasHocoVecoAveragedHighFrequencyNoise(); 
+  void StasHocoVecoAveragedSigmaOfCorss(); 
+
+  void StexHocoVecoNumberOfEvents();               
+  void StexHocoVecoPedestals();             
+  void StexHocoVecoTotalNoise();        
+  void StexHocoVecoMeanOfCorss();               
+  void StexHocoVecoLowFrequencyNoise();            
+  void StexHocoVecoHighFrequencyNoise();       
+  void StexHocoVecoSigmaOfCorss();              
   void StexHocoVecoLHFCorcc(const TString);
 
   void StexStinNumbering(const Int_t&);                    
   void StinCrystalNumbering(const Int_t&, const Int_t&);   
 
-  void ViewStas(const TVectorD&, const Int_t&, const TString);
-  void ViewStex(const TVectorD&, const Int_t&, const TString);
+  void StexXtalsNumberOfEvents(const TString);          
+  void StexXtalsPedestals(const TString);        
+  void StexXtalsTotalNoise(const TString);   
+  void StexXtalsMeanOfCorss(const TString);          
+  void StexXtalsLowFrequencyNoise(const TString);       
+  void StexXtalsHighFrequencyNoise(const TString);  
+  void StexXtalsSigmaOfCorss(const TString);
+
+  void StexNumberOfEventsXtals(const TString);
+  void StexPedestalsXtals(const TString);
+  void StexTotalNoiseXtals(const TString);
+  void StexMeanOfCorssXtals(const TString);
+  void StexLowFrequencyNoiseXtals(const TString);
+  void StexHighFrequencyNoiseXtals(const TString);
+  void StexSigmaOfCorssXtals(const TString);
+
+  void StexXtalsNumberOfEvents();
+  void StexXtalsPedestals();
+  void StexXtalsTotalNoise();
+  void StexXtalsMeanOfCorss();
+  void StexXtalsLowFrequencyNoise();
+  void StexXtalsHighFrequencyNoise();
+  void StexXtalsSigmaOfCorss();
+
+  void StexNumberOfEventsXtals();
+  void StexPedestalsXtals();
+  void StexTotalNoiseXtals();
+  void StexMeanOfCorssXtals();
+  void StexLowFrequencyNoiseXtals();
+  void StexHighFrequencyNoiseXtals();
+  void StexSigmaOfCorssXtals();
+
+  void ViewStas(const TString);
+  void ViewStex(const TString);
   void ViewStin(const Int_t&, const TString);
-  void ViewMatrix(const TMatrixD&, const Int_t&, const Int_t&,  const Int_t&,  const Int_t&,
+  void ViewMatrix(const Int_t&,  const Int_t&,  const Int_t&,
 		  const TString, const TString, const TString);
-  void ViewHisto(const TVectorD&, const Int_t&, const Int_t&,  const Int_t&, const Int_t&,
-		 const TString,   const TString);
+  void ViewHisto(const Int_t&,  const Int_t&, const Int_t&,
+		 const TString, const TString);
 
   Int_t GetDSOffset(const Int_t&, const Int_t&);
   Int_t GetSCOffset(const Int_t&, const Int_t&, const Int_t&);
@@ -1194,7 +1056,7 @@ class TEcnaHistos : public TObject {
   void HistoPlot(TH1D*,
 		 const Int_t&,  const Axis_t&,  const Axis_t&,  const TString, const TString,
 		 const Int_t&,  const Int_t&,   const Int_t&,   const Int_t&,
-		 const Int_t&,  const TString,  const Int_t&,   const Int_t&);
+		 const Int_t&,  const TString,  const Int_t&);
 
   Double_t NotConnectedSCH1DBin(const Int_t&);
   Int_t    GetNotConnectedDSSCFromIndex(const Int_t&);
@@ -1209,14 +1071,15 @@ class TEcnaHistos : public TObject {
 		   const TString, const TString, const Int_t&, const Int_t&,
 		   const Int_t&,  const Int_t&,  const Int_t&, const TString, const Int_t&);
 
-  void SetAllPavesViewMatrix(const TString, const Int_t&, const Int_t&, const Int_t&);
+  void SetAllPavesViewMatrix(const TString, const Int_t&,
+			     const Int_t&, const Int_t&);
   void SetAllPavesViewStin(const Int_t&);
   void SetAllPavesViewStex(const TString, const Int_t&);
   void SetAllPavesViewStex(const Int_t&);
   void SetAllPavesViewStas();
   void SetAllPavesViewStinCrysNb(const Int_t&, const Int_t&);
-  void SetAllPavesViewHisto(const TString, const Int_t&, const Int_t&, const Int_t&, const TString);
-  void SetAllPavesViewHisto(const TString, const Int_t&, const Int_t&, const Int_t&, const TString, const Int_t&);
+  void SetAllPavesViewHisto(const TString,
+			    const Int_t&, const Int_t&, const Int_t&, const TString);
 
   Int_t GetXSampInStin(const Int_t&, const Int_t&,
 		       const Int_t&,  const Int_t&);
@@ -1236,9 +1099,8 @@ class TEcnaHistos : public TObject {
 
   Bool_t   GetOkViewHisto(TEcnaRead*, const Int_t&, const Int_t&, const Int_t&, const TString);
   Int_t    GetHistoSize(const TString, const TString);
-  TVectorD GetHistoValues(const TVectorD&, const Int_t&, TEcnaRead*,  const TString,
-			  const Int_t&,    const Int_t&,
-			  const Int_t&,    const Int_t&,  const Int_t&, Int_t&);
+  TVectorD GetHistoValues(TEcnaRead*,    const TString, const Int_t&, const Int_t&,
+			  const Int_t&, const Int_t&,  const Int_t&, Int_t&);
 
   TString SetHistoXAxisTitle(const TString);
   TString SetHistoYAxisTitle(const TString);
@@ -1264,7 +1126,7 @@ class TEcnaHistos : public TObject {
   void SetHistoPresentation(TH1D*,   const TString, const TString);
   void SetGraphPresentation(TGraph*, const TString, const TString);
 
-  void SetViewHistoColors(TH1D*,   const TString, const TString, const Int_t&);
+  void SetViewHistoColors(TH1D*,   const TString, const TString);
   void SetViewGraphColors(TGraph*, const TString, const TString);
 
   Color_t GetViewHistoColor(const TString, const TString);
@@ -1274,7 +1136,7 @@ class TEcnaHistos : public TObject {
   void  NewCanvas(const TString);
 
   TString SetCanvasName(const TString, const Int_t&, const Int_t&, 
-			const TString, const Int_t&, const Int_t&, const Int_t&, const Int_t&);
+			const TString, const Int_t&, const Int_t&, const Int_t&);
 
   Color_t GetSCColor(const TString, const TString, const TString);     // specific EE
 

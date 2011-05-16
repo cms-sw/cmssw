@@ -4,6 +4,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalWeight.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"

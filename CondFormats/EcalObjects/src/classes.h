@@ -16,7 +16,6 @@
 #include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibErrors.h"
-#include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalDCUTemperatures.h"
 #include "CondFormats/EcalObjects/interface/EcalPTMTemperatures.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
@@ -51,8 +50,6 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGPhysicsConst.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatusCode.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
 
 #include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
 
@@ -78,7 +75,6 @@ namespace{
  
     EcalTimeCalibConstants timeCalib;
     EcalTimeCalibErrors timeCalibErrors;
-    EcalTimeOffsetConstant timeOffsetConstant;
  
     EcalDCUTemperatures dcuTemperatures;
  
@@ -143,9 +139,6 @@ namespace{
     std::map< uint32_t, uint16_t > tStatus;
     std::pair< const uint32_t, uint16_t > tStatus_valuetype;
 
-    EcalTPGTowerStatus stripstatus;
-    
-    EcalTPGTowerStatus spike;
     
     EcalTPGCrystalStatus tpgCrystalStatus;
 

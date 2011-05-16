@@ -1,4 +1,4 @@
-// $Id: FragmentStore.h,v 1.8.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: FragmentStore.h,v 1.9 2011/03/07 15:31:32 mommsen Exp $
 /// @file: FragmentStore.h 
 
 #ifndef EventFilter_StorageManager_FragmentStore_h
@@ -20,16 +20,15 @@ namespace stor {
    * Uses a map of I2OChains to store incomplete events.
    *
    * $Author: mommsen $
-   * $Revision: 1.8.4.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.9 $
+   * $Date: 2011/03/07 15:31:32 $
    */
   
   class FragmentStore
   {
   public:
     
-    FragmentStore()
-    { clear(); }
+    explicit FragmentStore(size_t maxMemoryUsageMB);
 
     /**
      * Adds fragments of the I2OChain to the fragment store.
@@ -78,6 +77,13 @@ namespace stor {
 
 
     /**
+     * Checks if the fragment store is full
+     */
+    inline bool full() const
+    { return (memoryUsed_ >= maxMemoryUsage_); }
+
+
+    /**
      * Returns the number of events in the fragment store (complete or not).
      */
     inline unsigned int size() const
@@ -101,7 +107,7 @@ namespace stor {
     fragmentMap store_;
     
     size_t memoryUsed_;
-
+    const size_t maxMemoryUsage_;
   };
   
 } // namespace stor

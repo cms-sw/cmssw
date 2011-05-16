@@ -6,7 +6,7 @@
 
 //
 // Jason Slaunwhite and Jeff Klukas
-// $Id: HLTMuonOfflineAnalyzer.cc,v 1.17 2010/12/09 14:12:51 klukas Exp $
+// $Id: HLTMuonOfflineAnalyzer.cc,v 1.2 2011/04/01 15:38:04 klukas Exp $
 //
 //
 
@@ -16,6 +16,8 @@
 
 // user include files
 #include "DQMOffline/Trigger/interface/HLTMuonMatchAndPlot.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -28,7 +30,7 @@
 
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-//#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 
 #include "TFile.h"
@@ -62,11 +64,15 @@ private:
   // Input from Configuration File
   edm::ParameterSet pset_;
   std::string hltProcessName_;
+  std::string destination_;
   std::vector<std::string> hltPathsToCheck_;
 
   // Member Variables
   std::vector<HLTMuonMatchAndPlot> analyzers_;
   HLTConfigProvider hltConfig_;
+
+  // Access to the DQM
+  DQMStore * dbe_;
 
 };
 
@@ -90,8 +96,13 @@ typedef vector<string> vstring;
 HLTMuonOfflineAnalyzer::HLTMuonOfflineAnalyzer(const ParameterSet& pset) :
   pset_(pset),
   hltProcessName_(pset.getParameter<string>("hltProcessName")),
+  destination_(pset.getUntrackedParameter<string>("destination")),
   hltPathsToCheck_(pset.getParameter<vstring>("hltPathsToCheck"))
 {
+  // Prepare the DQMStore object.
+  dbe_ = edm::Service<DQMStore>().operator->();
+  dbe_->setVerbose(0);
+  dbe_->setCurrentFolder(destination_);
 }
 
 
@@ -139,8 +150,11 @@ HLTMuonOfflineAnalyzer::beginRun(const edm::Run & iRun,
   set<string>::iterator iPath;
   for (iPath = hltPaths.begin(); iPath != hltPaths.end(); iPath++) {
     string path = * iPath;
-    HLTMuonMatchAndPlot analyzer(pset_, path, moduleLabels(path));
-    analyzers_.push_back(analyzer);
+    vector<string> labels = moduleLabels(path);
+    if (labels.size() > 0) {
+      HLTMuonMatchAndPlot analyzer(pset_, path, moduleLabels(path));
+      analyzers_.push_back(analyzer);
+    }
   }
 
   // Call the beginRun (which books all the histograms)
