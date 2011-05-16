@@ -4,9 +4,9 @@
 /** \class EcalRecHitSimpleAlgo
   *  Simple algoritm to make rechits from uncalibrated rechits
   *
-  *  $Id: EcalRecHitWorkerSimple.h,v 1.4 2009/06/05 13:39:58 ferriff Exp $
-  *  $Date: 2009/06/05 13:39:58 $
-  *  $Revision: 1.4 $
+  *  $Id: EcalRecHitWorkerSimple.h,v 1.5 2009/10/12 13:10:46 ferriff Exp $
+  *  $Date: 2009/10/12 13:10:46 $
+  *  $Revision: 1.5 $
   *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
   */
 
@@ -17,6 +17,7 @@
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 
@@ -34,6 +35,7 @@ class EcalRecHitWorkerSimple : public EcalRecHitWorkerBaseClass {
 
                 edm::ESHandle<EcalIntercalibConstants> ical;
                 edm::ESHandle<EcalTimeCalibConstants> itime;
+                edm::ESHandle<EcalTimeOffsetConstant> offtime;
                 edm::ESHandle<EcalADCToGeVConstant> agc;
                 edm::ESHandle<EcalChannelStatus> chStatus;
                 std::vector<int> v_chstatus_;

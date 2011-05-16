@@ -10,6 +10,7 @@
 #include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
 
 EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&ps) :
         EcalUncalibRecHitWorkerBaseClass(ps)
@@ -82,6 +83,7 @@ EcalUncalibRecHitWorkerGlobal::set(const edm::EventSetup& es)
 
         // for the leading edge method
         es.get<EcalTimeCalibConstantsRcd>().get(itime);
+        es.get<EcalTimeOffsetConstantRcd>().get(offtime);
 }
 
 
@@ -193,17 +195,20 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
         const EcalPedestals::Item * aped = 0;
         const EcalMGPAGainRatio * aGain = 0;
         const EcalXtalGroupId * gid = 0;
+	float offsetTime = 0;
 
         if (detid.subdetId()==EcalEndcap) {
                 unsigned int hashedIndex = EEDetId(detid).hashedIndex();
                 aped  = &peds->endcap(hashedIndex);
                 aGain = &gains->endcap(hashedIndex);
                 gid   = &grps->endcap(hashedIndex);
+		offsetTime = offtime->getEEValue();
         } else {
                 unsigned int hashedIndex = EBDetId(detid).hashedIndex();
                 aped  = &peds->barrel(hashedIndex);
                 aGain = &gains->barrel(hashedIndex);
                 gid   = &grps->barrel(hashedIndex);
+		offsetTime = offtime->getEBValue();
         }
 
         pedVec[0] = aped->mean_x12;
@@ -332,7 +337,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 					outOfTimeThreshM = outOfTimeThreshG61mEE_;
 					break;}
 				    }}
-				  float correctedTime = (crh.timeMax-5) * clockToNsConstant + itimeconst;
+				  float correctedTime = (crh.timeMax-5) * clockToNsConstant + itimeconst + offsetTime;
 				  float cterm         = EEtimeConstantTerm_;
 				  float sigmaped      = pedRMSVec[0];  // approx for lower gains
 				  float nterm         = EEtimeNconst_*sigmaped/uncalibRecHit.amplitude();
@@ -376,7 +381,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 					outOfTimeThreshM = outOfTimeThreshG61mEB_;
 					break;}
 				    } }
-				  float correctedTime = (crh.timeMax-5) * clockToNsConstant + itimeconst;
+				  float correctedTime = (crh.timeMax-5) * clockToNsConstant + itimeconst + offsetTime; //GF add here
 				  float cterm         = EBtimeConstantTerm_;
 				  float sigmaped      = pedRMSVec[0];  // approx for lower gains
 				  float nterm         = EBtimeNconst_*sigmaped/uncalibRecHit.amplitude();
@@ -399,7 +404,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 		    EcalUncalibRecHitRecChi2Algo<EEDataFrame>chi2expressEE_(
 				  					    *itdg, 
 				  					    amplitude, 
-				  					    itimeconst, 
+				  					    (itimeconst + offsetTime), 
 				  					    amplitudeOutOfTime, 
 				  					    jitter, 
 				  					    pedVec, 
@@ -426,7 +431,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 		    EcalUncalibRecHitRecChi2Algo<EBDataFrame>chi2expressEB_(
 		  							    *itdg, 
 		  							    amplitude, 
-		  							    itimeconst, 
+		  							    (itimeconst + offsetTime), 
 		  							    amplitudeOutOfTime, 
 		  							    jitter, 
 		  							    pedVec, 

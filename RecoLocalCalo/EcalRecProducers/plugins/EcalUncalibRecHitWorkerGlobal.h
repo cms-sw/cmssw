@@ -5,9 +5,9 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using a weights method
   *
-  *  $Id: EcalUncalibRecHitWorkerGlobal.h,v 1.18 2010/10/17 16:30:04 franzoni Exp $
-  *  $Date: 2010/10/17 16:30:04 $
-  *  $Revision: 1.18 $
+  *  $Id: EcalUncalibRecHitWorkerGlobal.h,v 1.19 2010/12/16 17:50:43 franzoni Exp $
+  *  $Date: 2010/12/16 17:50:43 $
+  *  $Revision: 1.19 $
   *  \author R. Bruneliere - A. Zabi
   */
 
@@ -18,6 +18,7 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitLeadingEdgeAlgo.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
@@ -99,6 +100,7 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
 
                 // leading edge method
                 edm::ESHandle<EcalTimeCalibConstants> itime;
+		edm::ESHandle<EcalTimeOffsetConstant> offtime;
                 std::vector<double> ebPulseShape_;
                 std::vector<double> eePulseShape_;
                 EcalUncalibRecHitLeadingEdgeAlgo<EBDataFrame> leadingEdgeMethod_barrel_;

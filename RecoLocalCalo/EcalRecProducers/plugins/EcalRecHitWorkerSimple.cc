@@ -5,6 +5,7 @@
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
@@ -26,6 +27,7 @@ void EcalRecHitWorkerSimple::set(const edm::EventSetup& es)
 {
         es.get<EcalIntercalibConstantsRcd>().get(ical);
         es.get<EcalTimeCalibConstantsRcd>().get(itime);
+        es.get<EcalTimeOffsetConstantRcd>().get(offtime);
         es.get<EcalADCToGeVConstantRcd>().get(agc);
         es.get<EcalChannelStatusRcd>().get(chStatus);
         if ( laserCorrection_ ) es.get<EcalLaserDbRecord>().get(laser);
@@ -69,11 +71,14 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
                         << " in DB exceed the allowed range of " << v_DB_reco_flags_.size();
         }
 
-        const EcalIntercalibConstantMap& icalMap = ical->getMap();  
+	float offsetTime = 0; // the global time phase
+	const EcalIntercalibConstantMap& icalMap = ical->getMap();  
         if ( detid.subdetId() == EcalEndcap ) {
                 rechitMaker_->setADCToGeVConstant( float(agc->getEEValue()) );
+		offsetTime = offtime->getEEValue();
         } else {
                 rechitMaker_->setADCToGeVConstant( float(agc->getEBValue()) );
+		offsetTime = offtime->getEBValue();
         }
 
         // first intercalibration constants
@@ -97,16 +102,17 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
         EcalTimeCalibConstant itimeconst = 0;
         if( itime!=itimeMap.end() ) {
                 itimeconst = (*itime);
-        } else {
+		  } else {
                 edm::LogError("EcalRecHitError") << "No time calib const found for xtal "
                         << detid.rawId()
                         << "! something wrong with EcalTimeCalibConstants in your DB? ";
         }
 
+	
         // make the rechit and put in the output collection
         if ( recoFlag <= EcalRecHit::kLeadingEdgeRecovered || !killDeadChannels_ ) {
-                result.push_back(EcalRecHit( rechitMaker_->makeRecHit(uncalibRH, icalconst * lasercalib, itimeconst, recoFlag) ));
-        }
+	  result.push_back(EcalRecHit( rechitMaker_->makeRecHit(uncalibRH, icalconst * lasercalib, (itimeconst + offsetTime), recoFlag) ));
+	}
         return true;
 }
 
