@@ -9,6 +9,7 @@ HLTJetIDProducer::HLTJetIDProducer(const edm::ParameterSet& iConfig)
   min_EMF_ = iConfig.getParameter<double>("min_EMF");
   max_EMF_ = iConfig.getParameter<double>("max_EMF");
   min_N90_ = iConfig.getParameter<int>("min_N90");
+  min_N90hits_ = iConfig.getParameter<int>("min_N90hits");
 
   jetID_ = new reco::helper::JetIDHelper(iConfig.getParameter<edm::ParameterSet>("JetIDParams"));
 
@@ -41,7 +42,7 @@ void HLTJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       result->push_back(*calojetc);
     } else {
       jetID_->calculate( iEvent, *calojetc );
-      if ((calojetc->emEnergyFraction() >= min_EMF_) && (jetID_->n90Hits() >= min_N90_) && (calojetc->emEnergyFraction() <= max_EMF_)) {
+      if ((calojetc->emEnergyFraction() >= min_EMF_) && (jetID_->n90Hits() >= min_N90hits_)  && (calojetc->n90() >= min_N90_) && (calojetc->emEnergyFraction() <= max_EMF_)) {
 	result->push_back(*calojetc);
       }
     }

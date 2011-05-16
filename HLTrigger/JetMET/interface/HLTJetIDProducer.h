@@ -17,7 +17,8 @@ class HLTJetIDProducer : public edm::EDProducer {
   edm::InputTag jetsInput_;
   double min_EMF_;         // minimum EMF
   double max_EMF_;         // maximum EMF
-  int min_N90_;            // mininum Nhit90
+  int min_N90_;            // mininum N90
+  int min_N90hits_;        // mininum Nhit90
 
   reco::helper::JetIDHelper *jetID_;
 
