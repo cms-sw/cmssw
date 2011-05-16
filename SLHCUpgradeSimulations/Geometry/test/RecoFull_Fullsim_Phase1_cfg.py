@@ -11,7 +11,7 @@ process = cms.Process('RECO')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-#process.load('Configuration.StandardSequences.MixingNoPileUp_cff')
+#process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load("SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R39F16_cff")
 process.load("SLHCUpgradeSimulations.Geometry.Phase1_R39F16_cmsSimIdealGeometryXML_cff")
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
@@ -26,7 +26,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -39,17 +39,10 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("PoolSource",
-#    fileNames = cms.untracked.vstring(
-#    '/store/relval/CMSSW_3_6_3_SLHC1/RelValFourMuons/GEN-SIM-RAW/DESIGN_36_V10-v1/0021/F8F01ED5-B1BC-DF11-AABF-0026189438BC.root',
-#    '/store/relval/CMSSW_3_6_3_SLHC1/RelValFourMuons/GEN-SIM-RAW/DESIGN_36_V10-v1/0021/38041CE5-60BC-DF11-85EC-002618943970.root'  )
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_6_3_SLHC1/RelValTTbar/GEN-SIM/DESIGN_36_V10_UpSimGeometry_special-v1/0031/F6363EDF-12CB-DF11-9206-0030486792F0.root')
-#    fileNames = cms.untracked.vstring(
-#    '/store/relval/CMSSW_3_6_3_SLHC1/RelValTTbar/GEN-SIM/DESIGN_36_V10_UpSimGeometry_special-v1/0031/B083C3B3-02CB-DF11-8196-00261894392B.root')
-#    fileNames = cms.untracked.vstring(
-#    '/store/relval/CMSSW_3_6_3_SLHC1_patch1/RelValTTbar/GEN-SIM/DESIGN_36_V10_PU_LowLumiPileUp_Gauss_special-v1/0666/F4E4B87D-D100-E011-A900-003048678FAE.root')
+	'/store/relval/CMSSW_4_2_2_SLHC_pre1/RelValFourMuons/GEN-SIM/DESIGN42_V10_110429_special-v1/0026/4608D85D-7C72-E011-B4E9-00261894380B.root'
+    )
 )
-
 # Output definition
 process.output = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
@@ -74,7 +67,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 
 # Other statements
-process.GlobalTag.globaltag = 'DESIGN_36_V10::All'
+process.GlobalTag.globaltag = 'DESIGN42_V11::All'
 
 ### PhaseI Geometry and modifications ###############################################
 #process.load("SLHCUpgradeSimulations.Geometry.Phase1_R39F16_cmsSimIdealGeometryXML_cff")
@@ -97,7 +90,6 @@ process.simSiPixelDigis.AddPixelInefficiency = 20
 ## TIB1,2 inefficiency at 99% (i.e. dead)
 #process.simSiStripDigis.Inefficiency = 40
 
-process.load("SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_cff")
 process.load("SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_R39F16_cff")
 process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
 process.load("SLHCUpgradeSimulations.Geometry.upgradeTracking_phase1_cff")
@@ -148,6 +140,17 @@ process.thMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
 process.thMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
 process.fourthMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
 process.fifthMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+
+process.muons.TrackerKinkFinderParameters.TrackerRecHitBuilder = cms.string('WithTrackAngle')
+# Not sure about the following PSet
+process.regionalCosmicTrackerSeeds.SeedMergerPSet = cms.PSet(
+	mergeTriplets = cms.bool(False),
+	ttrhBuilderLabel = cms.string( "PixelTTRHBuilderWithoutAngle" ),
+	addRemainingTriplets = cms.bool(False),
+	layerListName = cms.string( "PixelSeedMergerQuadruplets" )
+	)
+process.regionalCosmicTracks.TTRHBuilder = cms.string('WithTrackAngle')
+
 
 ## when using the SV producer fix from later CMSSW_4_2_1 tag
 process.secondaryVertexTagInfos.beamSpotTag = cms.InputTag('offlineBeamSpot')
