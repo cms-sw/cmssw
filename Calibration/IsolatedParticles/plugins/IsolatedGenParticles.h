@@ -52,6 +52,9 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "Calibration/IsolatedParticles/interface/GenSimInfo.h"
+
 // root objects
 #include "TROOT.h"
 #include "TSystem.h"
@@ -97,6 +100,8 @@ private:
   double DeltaR(double eta1, double phi1, double eta2, double phi2);
   double DeltaR2(double eta1, double phi1, double eta2, double phi2);
 
+  void fillTrack (GlobalPoint& posVec, math::XYZTLorentzVector& momVec, GlobalPoint& posECAL, int pdgId, bool okECAL, bool accpet);
+  void fillIsolatedTrack(math::XYZTLorentzVector& momVec, GlobalPoint& posECAL, int pdgId);
   void BookHistograms();
   void clearTreeVectors();
 
@@ -110,12 +115,12 @@ private:
   std::string genSrc_;
   const MagneticField *bField;
 
-  bool initL1;
+  bool initL1, useHepMC;
   static const size_t nL1BitsMax=128;
   std::string algoBitToName[nL1BitsMax];
   double a_coneR, a_charIsoR, a_neutIsoR, a_mipR;
 
-  bool   debugL1Info_;
+  bool   debug, debugL1Info_;
   int    debugTrks_;
   bool   printTrkHitPattern_;
   int    myverbose_;
@@ -199,6 +204,27 @@ private:
   std::vector<double> *t_eleEne7x7;
   std::vector<double> *t_muEne7x7;
 
+  std::vector<double> *t_maxNearP3x3;
+  std::vector<double> *t_cHadronEne3x3, *t_cHadronEne3x3_1, *t_cHadronEne3x3_2, *t_cHadronEne3x3_3;
+  std::vector<double> *t_nHadronEne3x3;
+  std::vector<double> *t_photonEne3x3;
+  std::vector<double> *t_eleEne3x3;
+  std::vector<double> *t_muEne3x3;
+
+  std::vector<double> *t_maxNearP1x1;
+  std::vector<double> *t_cHadronEne1x1, *t_cHadronEne1x1_1, *t_cHadronEne1x1_2, *t_cHadronEne1x1_3;
+  std::vector<double> *t_nHadronEne1x1;
+  std::vector<double> *t_photonEne1x1;
+  std::vector<double> *t_eleEne1x1;
+  std::vector<double> *t_muEne1x1;
+
+  std::vector<double> *t_maxNearPHC1x1;
+  std::vector<double> *t_cHadronEneHC1x1, *t_cHadronEneHC1x1_1, *t_cHadronEneHC1x1_2, *t_cHadronEneHC1x1_3;
+  std::vector<double> *t_nHadronEneHC1x1;
+  std::vector<double> *t_photonEneHC1x1;
+  std::vector<double> *t_eleEneHC1x1;
+  std::vector<double> *t_muEneHC1x1;
+
   std::vector<double> *t_maxNearPHC3x3;
   std::vector<double> *t_cHadronEneHC3x3, *t_cHadronEneHC3x3_1, *t_cHadronEneHC3x3_2, *t_cHadronEneHC3x3_3;
   std::vector<double> *t_nHadronEneHC3x3;
@@ -256,6 +282,11 @@ private:
   std::vector<double> *t_L1IsoEMPt,     *t_L1IsoEMEta,     *t_L1IsoEMPhi;
   std::vector<double> *t_L1NonIsoEMPt,  *t_L1NonIsoEMEta,  *t_L1NonIsoEMPhi;
   std::vector<double> *t_L1METPt,       *t_L1METEta,       *t_L1METPhi;
+
+  spr::genSimInfo isoinfo1x1,   isoinfo3x3,   isoinfo7x7,   isoinfo9x9,   isoinfo11x11;
+  spr::genSimInfo isoinfo15x15, isoinfo21x21, isoinfo25x25, isoinfo31x31;
+  spr::genSimInfo isoinfoHC1x1, isoinfoHC3x3, isoinfoHC5x5, isoinfoHC7x7;
+  spr::genSimInfo isoinfoR,     isoinfoIsoR,  isoinfoHCR,   isoinfoIsoHCR;
 
 };
 

@@ -162,7 +162,7 @@ namespace spr{
       trkD.detIdECAL = DetId(0);
       trkD.detIdHCAL = DetId(0);
       trkD.detIdEHCAL= DetId(0);
-      trkD.pdgId  = std::abs((*p)->pdg_id());
+      trkD.pdgId  = ((*p)->pdg_id());
       trkD.charge = ((pdt->particle(trkD.pdgId))->ID().threeCharge())/3;
       GlobalVector momentum = GlobalVector((*p)->momentum().px(), (*p)->momentum().py(), (*p)->momentum().pz());
       if (debug) std::cout << "Propagate track " << indx << " pdg " << trkD.pdgId << " charge " << trkD.charge << " p " << momentum << std::endl;
@@ -172,6 +172,81 @@ namespace spr{
 	GlobalPoint vertex = GlobalPoint(0.1*(*p)->production_vertex()->position().x(), 
 					 0.1*(*p)->production_vertex()->position().y(), 
 					 0.1*(*p)->production_vertex()->position().z());
+	trkD.ok = true;
+	spr::propagatedTrack info = spr::propagateCalo (vertex, momentum, trkD.charge, bField, 319.2, 129.4, 1.479, debug);
+	GlobalPoint point(info.point.x(),info.point.y(),info.point.z());
+	trkD.okECAL        = info.ok;
+	trkD.pointECAL     = point;
+	trkD.directionECAL = info.direction;
+	if (trkD.okECAL) {
+	  if (std::abs(info.point.eta())<1.479) {
+	    trkD.detIdECAL = barrelGeom->getClosestCell(point);
+	  } else {
+	    trkD.detIdECAL = endcapGeom->getClosestCell(point);
+	  }
+	  trkD.detIdEHCAL = gHB->getClosestCell(point);
+	}
+
+	info = spr::propagateCalo (vertex, momentum, trkD.charge, bField, 402.7, 180.7, 1.392, debug);
+	point = GlobalPoint(info.point.x(),info.point.y(),info.point.z());
+	trkD.okHCAL        = info.ok;
+	trkD.pointHCAL     = point;
+	trkD.directionHCAL = info.direction;
+	if (trkD.okHCAL) {
+	  trkD.detIdHCAL = gHB->getClosestCell(point);
+	}
+      }
+      trkDir.push_back(trkD);
+    }
+
+    if (debug) {
+      std::cout << "propagateCALO:: for " << trkDir.size() << " tracks" << std::endl;
+      for (unsigned int i=0; i<trkDir.size(); ++i) {
+	if (trkDir[i].okECAL) std::cout << "Track [" << i << "] Flag: " << trkDir[i].ok << " ECAL (" << trkDir[i].okECAL << ")";
+	if (trkDir[i].okECAL) {
+	  std::cout << " point " << trkDir[i].pointECAL << " direction "
+		    << trkDir[i].directionECAL << " "; 
+	  if (trkDir[i].detIdECAL.subdetId() == EcalBarrel) {
+	    std::cout << (EBDetId)(trkDir[i].detIdECAL);
+	  } else {
+	    std::cout << (EEDetId)(trkDir[i].detIdECAL); 
+	  }
+	}
+	if (trkDir[i].okECAL) std::cout << " HCAL (" << trkDir[i].okHCAL << ")";
+	if (trkDir[i].okHCAL) {
+	  std::cout << " point " << trkDir[i].pointHCAL << " direction "
+		    << trkDir[i].directionHCAL << " " 
+		    << (HcalDetId)(trkDir[i].detIdHCAL); 
+	}
+	if (trkDir[i].okECAL) std::cout << " Or " << (HcalDetId)(trkDir[i].detIdEHCAL) << std::endl;
+      }
+    }
+    return trkDir;
+  }
+
+  std::vector<spr::propagatedGenParticleID> propagateCALO(edm::Handle<reco::GenParticleCollection>& genParticles, edm::ESHandle<ParticleDataTable>& pdt, const CaloGeometry* geo, const MagneticField* bField, double etaMax, bool debug) {
+
+    const EcalBarrelGeometry *barrelGeom = (dynamic_cast< const EcalBarrelGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel)));
+    const EcalEndcapGeometry *endcapGeom = (dynamic_cast< const EcalEndcapGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap)));
+    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+
+    std::vector<spr::propagatedGenParticleID> trkDir;
+    unsigned int indx;
+    reco::GenParticleCollection::const_iterator p;
+    for (p=genParticles->begin(),indx=0;   p != genParticles->end(); ++p,++indx) {
+      spr::propagatedGenParticleID trkD;
+      trkD.trkItr    = p;
+      trkD.detIdECAL = DetId(0);
+      trkD.detIdHCAL = DetId(0);
+      trkD.detIdEHCAL= DetId(0);
+      trkD.pdgId     = (p->pdgId());
+      trkD.charge    = p->charge();
+      GlobalVector momentum = GlobalVector(p->momentum().x(), p->momentum().y(), p->momentum().z());
+      if (debug) std::cout << "Propagate track " << indx << " pdg " << trkD.pdgId << " charge " << trkD.charge << " p " << momentum << std::endl;
+      
+      // consider stable particles
+      if ( p->status()==1 && std::abs(momentum.eta()) < etaMax ) { 
+	GlobalPoint vertex = GlobalPoint(p->vertex().x(), p->vertex().y(), p->vertex().z());
 	trkD.ok = true;
 	spr::propagatedTrack info = spr::propagateCalo (vertex, momentum, trkD.charge, bField, 319.2, 129.4, 1.479, debug);
 	GlobalPoint point(info.point.x(),info.point.y(),info.point.z());

@@ -375,8 +375,8 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   edm::Handle<reco::CaloJetCollection> jets;
   iEvent.getByLabel(JetSrc_,jets);
-  edm::Handle<reco::JetExtendedAssociation::Container> jetExtender;
-  iEvent.getByLabel(JetExtender_,jetExtender);
+  //  edm::Handle<reco::JetExtendedAssociation::Container> jetExtender;
+  //  iEvent.getByLabel(JetExtender_,jetExtender);
 
   for(unsigned int ijet=0;ijet<(*jets).size();ijet++) {
     t_jetPt       ->push_back( (*jets)[ijet].pt()     );

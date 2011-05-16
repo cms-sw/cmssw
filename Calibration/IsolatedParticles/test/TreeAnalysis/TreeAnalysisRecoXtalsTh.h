@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Wed Aug 11 09:24:19 2010 by ROOT version 5.22/00d
+// Mon Nov 30 08:52:58 2009 by ROOT version 5.23/02
 // from TTree tree/tree
-// found on file: IsolatedTracksNxNData_102_1_LyS.root
+// found on file: IsoTrkTreeRecoSimL131X8E29_v1.root
 //////////////////////////////////////////////////////////
 
 #ifndef TreeAnalysisRecoXtalsTh_h
@@ -14,7 +14,7 @@
 #include <vector>
 #include <string>
 #include <cmath>
-#include <iomanip>
+
 
 #include <TROOT.h>
 #include <TChain.h>
@@ -27,21 +27,18 @@
 #include "TString.h"
 
 class TreeAnalysisRecoXtalsTh {
+
 public :
+
   std::string ecalCharIso;
   std::string hcalCharIso;
-  std::string dataType;
-  std::string L1Seed;
-  double      ebNeutIso, eeNeutIso, hhNeutIso;
-  double      dRL1Jet;
+  std::string dataType, L1Seed;
+  double ebNeutIso, eeNeutIso, hhNeutIso;
+  int    GoodPVCut;
+  double dRL1Jet;
 
   //declaration of histograms
-  //static const int NEtaBins = 6;
-  //static const int NEtaBins = 4;
-  static const int NEtaBins = 3;
-  //static const int NPBins   = 21;
-  //static const int NPBins   = 12; // till 05th April
-  //static const int NPBins   = 22; // till 26th May
+  static const int NEtaBins = 12;
   static const int NPBins   = 15; 
 
   double genPartPBins[NPBins+1], genPartEtaBins[NEtaBins+1];
@@ -55,12 +52,14 @@ public :
   TProfile *h_trackPCaloE11x11H3x3_3, *h_trackPCaloE9x9H3x3_3, *h_trackPCaloE7x7H3x3_3;
 
   TH1F *h_NPV_AnyGoodPV, *h_NPV_FirstGoodPV;
-  TH1F *h_NPV_1, *h_PVx_1, *h_PVy_1, *h_PVr_1, *h_PVz_1, *h_PVNDOF_1;
+  TH1F *h_NPV_1, *h_nGoodPV, *h_nQltyVtx, *h_PVx_1, *h_PVy_1, *h_PVr_1, *h_PVz_1, *h_PVNDOF_1;
   TH1F *h_NPV_2, *h_PVx_2, *h_PVy_2, *h_PVr_2, *h_PVz_2, *h_PVNDOF_2;
   TH2F *h_PVNTracksSumPt_1;
 
   TH1F *h_PVNTracks_1,   *h_PVTracksSumPt_1,   *h_PVNTracksWt_1,   *h_PVTracksSumPtWt_1;
   TH1F *h_PVNTracks_2,   *h_PVTracksSumPt_2,   *h_PVNTracksWt_2,   *h_PVTracksSumPtWt_2;
+  TH1F *h_PVNTracksHP_1, *h_PVTracksSumPtHP_1, *h_PVNTracksHPWt_1, *h_PVTracksSumPtHPWt_1;
+  TH1F *h_PVNTracksHP_2, *h_PVTracksSumPtHP_2, *h_PVNTracksHPWt_2, *h_PVTracksSumPtHPWt_2;
 
   TH1F *h_trackPAll_1, *h_trackEtaAll_1, *h_trackPhiAll_1;
   TH1F *h_trackPtAll_1,*h_trackDxyAll_1, *h_trackDzAll_1, *h_trackChiSqAll_1;
@@ -80,8 +79,6 @@ public :
   TH2F *h_eECAL11x11VsHCAL3x3[NEtaBins];
 
   TH1F *h_meanTrackP[NPBins][NEtaBins];
-
-  TH1F *h_drTrackL1[NPBins][NEtaBins];
     
   TH1F *h_maxNearP7x7[NPBins][NEtaBins],
        *h_maxNearP9x9[NPBins][NEtaBins],
@@ -167,40 +164,9 @@ public :
 
   //===
   TH1F *h_diff_e15x15e11x11[NPBins][NEtaBins],
-       *h_diff_e15x15e11x11_10Sig[NPBins][NEtaBins],
-       *h_diff_e15x15e11x11_15Sig[NPBins][NEtaBins],
-       *h_diff_e15x15e11x11_20Sig[NPBins][NEtaBins],
-       *h_diff_e15x15e11x11_25Sig[NPBins][NEtaBins],
-       *h_diff_e15x15e11x11_30Sig[NPBins][NEtaBins];
+       *h_diff_e15x15e11x11_20Sig[NPBins][NEtaBins];
 
   TH1F *h_diff_h7x7h5x5[NPBins][NEtaBins];
-
-        
-  TH1F *h_eECAL7x7_Frac_10Sig[NPBins][NEtaBins],
-       *h_eECAL9x9_Frac_10Sig[NPBins][NEtaBins],
-       *h_eECAL11x11_Frac_10Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_response_10Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_responseMIP_10Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_responseInteract_10Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_response_10Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_responseMIP_10Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_responseInteract_10Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_response_10Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_responseMIP_10Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_responseInteract_10Sig[NPBins][NEtaBins];
-
-  TH1F *h_eECAL7x7_Frac_15Sig[NPBins][NEtaBins],
-       *h_eECAL9x9_Frac_15Sig[NPBins][NEtaBins],
-       *h_eECAL11x11_Frac_15Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_response_15Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_responseMIP_15Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_responseInteract_15Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_response_15Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_responseMIP_15Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_responseInteract_15Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_response_15Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_responseMIP_15Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_responseInteract_15Sig[NPBins][NEtaBins];
 
   TH1F *h_eECAL7x7_Frac_20Sig[NPBins][NEtaBins],
        *h_eECAL9x9_Frac_20Sig[NPBins][NEtaBins],
@@ -214,40 +180,21 @@ public :
   TH1F *h_eHCAL3x3_eECAL7x7_response_20Sig[NPBins][NEtaBins];
   TH1F *h_eHCAL3x3_eECAL7x7_responseMIP_20Sig[NPBins][NEtaBins];
   TH1F *h_eHCAL3x3_eECAL7x7_responseInteract_20Sig[NPBins][NEtaBins];
-
+  TH1F *h_eHCAL5x5_eECAL7x7_response_20Sig[NPBins][NEtaBins];
+  TH1F *h_eHCAL5x5_eECAL7x7_responseMIP_20Sig[NPBins][NEtaBins];
+  TH1F *h_eHCAL5x5_eECAL7x7_responseInteract_20Sig[NPBins][NEtaBins];
+  TH1F *h_eHCAL5x5_eECAL11x11_response_20Sig[NPBins][NEtaBins];
+  TH1F *h_eHCAL5x5_eECAL11x11_responseMIP_20Sig[NPBins][NEtaBins];
+  TH1F *h_eHCAL5x5_eECAL11x11_responseInteract_20Sig[NPBins][NEtaBins];
+  
   TH1F *hh_eECAL7x7_Frac_20Sig[NEtaBins],
        *hh_eECAL9x9_Frac_20Sig[NEtaBins],
        *hh_eECAL11x11_Frac_20Sig[NEtaBins];
 
-  TH1F *h_eECAL7x7_Frac_25Sig[NPBins][NEtaBins],
-       *h_eECAL9x9_Frac_25Sig[NPBins][NEtaBins],
-       *h_eECAL11x11_Frac_25Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_response_25Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_responseMIP_25Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_responseInteract_25Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_response_25Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_responseMIP_25Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_responseInteract_25Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_response_25Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_responseMIP_25Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_responseInteract_25Sig[NPBins][NEtaBins];
-
-  TH1F *h_eECAL7x7_Frac_30Sig[NPBins][NEtaBins],
-       *h_eECAL9x9_Frac_30Sig[NPBins][NEtaBins],
-       *h_eECAL11x11_Frac_30Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_response_30Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_responseMIP_30Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_responseInteract_30Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_response_30Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_responseMIP_30Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_responseInteract_30Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_response_30Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_responseMIP_30Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_responseInteract_30Sig[NPBins][NEtaBins];
-
   //================================
-   TChain               *fChain;   //!pointer to the analyzed TTree or TChain
-   Int_t                 fCurrent; //!current Tree number in a TChain
+
+   TChain          *fChain;   //!pointer to the analyzed TTree or TChain
+   Int_t            fCurrent; //!current Tree number in a TChain
 
    // Declaration of leaf types
    Int_t                 t_EvtNo;
@@ -340,26 +287,10 @@ public :
    std::vector<double>  *t_e9x9;
    std::vector<double>  *t_e11x11;
    std::vector<double>  *t_e15x15;
-   std::vector<double>  *t_e7x7_10Sig;
-   std::vector<double>  *t_e9x9_10Sig;
-   std::vector<double>  *t_e11x11_10Sig;
-   std::vector<double>  *t_e15x15_10Sig;
-   std::vector<double>  *t_e7x7_15Sig;
-   std::vector<double>  *t_e9x9_15Sig;
-   std::vector<double>  *t_e11x11_15Sig;
-   std::vector<double>  *t_e15x15_15Sig;
    std::vector<double>  *t_e7x7_20Sig;
    std::vector<double>  *t_e9x9_20Sig;
    std::vector<double>  *t_e11x11_20Sig;
    std::vector<double>  *t_e15x15_20Sig;
-   std::vector<double>  *t_e7x7_25Sig;
-   std::vector<double>  *t_e9x9_25Sig;
-   std::vector<double>  *t_e11x11_25Sig;
-   std::vector<double>  *t_e15x15_25Sig;
-   std::vector<double>  *t_e7x7_30Sig;
-   std::vector<double>  *t_e9x9_30Sig;
-   std::vector<double>  *t_e11x11_30Sig;
-   std::vector<double>  *t_e15x15_30Sig;
    std::vector<double>  *t_maxNearHcalP3x3;
    std::vector<double>  *t_maxNearHcalP5x5;
    std::vector<double>  *t_maxNearHcalP7x7;
@@ -368,6 +299,7 @@ public :
    std::vector<double>  *t_h7x7;
    std::vector<int>     *t_infoHcal;
    Int_t                 t_nTracks;
+
 
    // List of branches
    TBranch        *b_t_EvtNo;   //!
@@ -460,26 +392,10 @@ public :
    TBranch        *b_t_e9x9;   //!
    TBranch        *b_t_e11x11;   //!
    TBranch        *b_t_e15x15;   //!
-   TBranch        *b_t_e7x7_10Sig;   //!
-   TBranch        *b_t_e9x9_10Sig;   //!
-   TBranch        *b_t_e11x11_10Sig;   //!
-   TBranch        *b_t_e15x15_10Sig;   //!
-   TBranch        *b_t_e7x7_15Sig;   //!
-   TBranch        *b_t_e9x9_15Sig;   //!
-   TBranch        *b_t_e11x11_15Sig;   //!
-   TBranch        *b_t_e15x15_15Sig;   //!
    TBranch        *b_t_e7x7_20Sig;   //!
    TBranch        *b_t_e9x9_20Sig;   //!
    TBranch        *b_t_e11x11_20Sig;   //!
    TBranch        *b_t_e15x15_20Sig;   //!
-   TBranch        *b_t_e7x7_25Sig;   //!
-   TBranch        *b_t_e9x9_25Sig;   //!
-   TBranch        *b_t_e11x11_25Sig;   //!
-   TBranch        *b_t_e15x15_25Sig;   //!
-   TBranch        *b_t_e7x7_30Sig;   //!
-   TBranch        *b_t_e9x9_30Sig;   //!
-   TBranch        *b_t_e11x11_30Sig;   //!
-   TBranch        *b_t_e15x15_30Sig;   //!
    TBranch        *b_t_maxNearHcalP3x3;   //!
    TBranch        *b_t_maxNearHcalP5x5;   //!
    TBranch        *b_t_maxNearHcalP7x7;   //!
@@ -488,6 +404,7 @@ public :
    TBranch        *b_t_h7x7;   //!
    TBranch        *b_t_infoHcal;   //!
    TBranch        *b_t_nTracks;   //!
+
 
    TreeAnalysisRecoXtalsTh(TChain *tree, const char *outFileName);
    virtual ~TreeAnalysisRecoXtalsTh();
@@ -498,10 +415,10 @@ public :
    virtual void     Loop(int cut=1);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
-
+   
    double DeltaPhi(double v1, double v2);
    double DeltaR(double eta1, double phi1, double eta2, double phi2);
-   void BookHistograms(const char *outFileName);
+   void   BookHistograms(const char *outFileName);
 };
 
 #endif

@@ -19,9 +19,6 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
@@ -41,13 +38,13 @@
 
 #include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
 #include "Calibration/IsolatedParticles/interface/ChargeIsolation.h"
-#include "Calibration/IsolatedParticles/interface/GenSimInfo.h"
 
 #include "Calibration/IsolatedParticles/plugins/IsolatedGenParticles.h"
 
 IsolatedGenParticles::IsolatedGenParticles(const edm::ParameterSet& iConfig) {
 
   genSrc_    = iConfig.getUntrackedParameter("GenSrc",std::string("generator"));
+  useHepMC   = iConfig.getUntrackedParameter<bool>("UseHepMC", false );
   pSeed      = iConfig.getUntrackedParameter<double>("ChargedHadronSeedP", 1.0);
   ptMin      = iConfig.getUntrackedParameter<double>("PTMin", 1.0);
   etaMax     = iConfig.getUntrackedParameter<double>("MaxChargedHadronEta", 2.5);
@@ -55,6 +52,7 @@ IsolatedGenParticles::IsolatedGenParticles(const edm::ParameterSet& iConfig) {
   a_charIsoR = a_coneR + 28.9;
   a_neutIsoR = a_charIsoR*0.726;
   a_mipR     = iConfig.getUntrackedParameter<double>("ConeRadiusMIP",14.0);
+  debug      = iConfig.getUntrackedParameter<bool>("Debug", false );
 
   debugL1Info_           = iConfig.getUntrackedParameter<bool>( "DebugL1Info", false );
   L1extraTauJetSource_   = iConfig.getParameter<edm::InputTag>("L1extraTauJetSource");
@@ -65,6 +63,25 @@ IsolatedGenParticles::IsolatedGenParticles(const edm::ParameterSet& iConfig) {
   L1extraNonIsoEmSource_ = iConfig.getParameter<edm::InputTag>("L1extraNonIsoEmSource");
   L1GTReadoutRcdSource_  = iConfig.getParameter<edm::InputTag>("L1GTReadoutRcdSource");
   L1GTObjectMapRcdSource_= iConfig.getParameter<edm::InputTag>("L1GTObjectMapRcdSource");
+
+  if (!strcmp("Dummy", genSrc_.c_str())) {
+    if (useHepMC) genSrc_ = "generator";
+    else          genSrc_ = "genParticles";
+  }
+  std::cout << "Generator Source " << genSrc_ << " Use HepMC " << useHepMC
+	    << " pSeed " << pSeed << " ptMin " << ptMin << " etaMax " << etaMax
+	    << "\n a_coneR " << a_coneR << " a_charIsoR " << a_charIsoR
+	    << " a_neutIsoR " << a_neutIsoR << " a_mipR " << a_mipR 
+	    << " debug " << debug << " debugL1Info " <<   debugL1Info_ << "\n"
+	    << " L1extraTauJetSource_   " << L1extraTauJetSource_ 
+	    << " L1extraCenJetSource_   " << L1extraCenJetSource_ 
+	    << " L1extraFwdJetSource_   " << L1extraFwdJetSource_   
+	    << " L1extraMuonSource_     " << L1extraMuonSource_   
+	    << " L1extraIsoEmSource_    " << L1extraIsoEmSource_    
+	    << " L1extraNonIsoEmSource_ " << L1extraNonIsoEmSource_
+	    << " L1GTReadoutRcdSource_  " << L1GTReadoutRcdSource_  
+	    << " L1GTObjectMapRcdSource_" << L1GTObjectMapRcdSource_ 
+	    << std::endl;
 }
 
 IsolatedGenParticles::~IsolatedGenParticles() {
@@ -83,11 +100,13 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
 
   // get particle data table
   edm::ESHandle<ParticleDataTable> pdt;
-  iSetup.getData( pdt );
+  iSetup.getData(pdt);
 
   // get handle to HEPMCProduct
   edm::Handle<edm::HepMCProduct> hepmc;
-  iEvent.getByLabel(genSrc_, hepmc);
+  edm::Handle<reco::GenParticleCollection> genParticles;
+  if (useHepMC) iEvent.getByLabel(genSrc_, hepmc);
+  else          iEvent.getByLabel(genSrc_, genParticles);
 
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
@@ -244,238 +263,112 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
   }
   //=====================================================================
   
-  const HepMC::GenEvent *myGenEvent = hepmc->GetEvent();
-  std::vector<spr::propagatedGenTrackID> trackIDs = spr::propagateCALO(myGenEvent, pdt, geo, bField, 3.0, false);
-  for (unsigned int indx=0; indx<trackIDs.size(); ++indx) {
+  GlobalPoint  posVec, posECAL;
+  math::XYZTLorentzVector momVec;
+  if (debug) std::cout << "event number " << iEvent.id().event() <<std::endl;
 
-    // only stable particles avoiding electrons and muons
-    if (trackIDs[indx].ok && (std::abs(trackIDs[indx].pdgId)<11 ||
-			      std::abs(trackIDs[indx].pdgId)>=21)) {
+  if (useHepMC) {
+    const HepMC::GenEvent *myGenEvent = hepmc->GetEvent();
+    std::vector<spr::propagatedGenTrackID> trackIDs =       spr::propagateCALO(myGenEvent, pdt, geo, bField, etaMax, false);
     
-      int charge = trackIDs[indx].charge;
-      HepMC::GenEvent::particle_const_iterator p = trackIDs[indx].trkItr;
+    for (unsigned int indx=0; indx<trackIDs.size(); ++indx) {
+	int charge = trackIDs[indx].charge;
+	HepMC::GenEvent::particle_const_iterator p = trackIDs[indx].trkItr;
+	momVec = math::XYZTLorentzVector((*p)->momentum().px(), (*p)->momentum().py(), (*p)->momentum().pz(), (*p)->momentum().e());
+	if (debug) std::cout << "trkIndx " << indx << " pdgid " << trackIDs[indx].pdgId << " charge " << charge <<	" momVec " << momVec << std::endl; 
+	// only stable particles avoiding electrons and muons
+	if (trackIDs[indx].ok && (std::abs(trackIDs[indx].pdgId)<11 ||
+				  std::abs(trackIDs[indx].pdgId)>=21)) {
+	  // consider particles within a phased space	  
+	  if (momVec.Pt() > ptMin && std::abs(momVec.eta()) < etaMax) { 
+	  posVec  = GlobalPoint(0.1*(*p)->production_vertex()->position().x(), 
+				0.1*(*p)->production_vertex()->position().y(), 
+				0.1*(*p)->production_vertex()->position().z());
+	  posECAL = trackIDs[indx].pointECAL;
+	  fillTrack (posVec, momVec, posECAL, trackIDs[indx].pdgId, trackIDs[indx].okECAL, true);
+	  if (debug) std::cout << "posECAL " << posECAL << " okECAL " << trackIDs[indx].okECAL << "okHCAL " << trackIDs[indx].okHCAL << std::endl;
+	  if (trackIDs[indx].okECAL) {
+	    if ( std::abs(charge)>0 ) {
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 0, 0, isoinfo1x1,   false);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 1, 1, isoinfo3x3,   false);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 3, 3, isoinfo7x7,   false);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 4, 4, isoinfo9x9,   false);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 5, 5, isoinfo11x11, false);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 7, 7, isoinfo15x15, false);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,10,10, isoinfo21x21, false);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,12,12, isoinfo25x25, false);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,15,15, isoinfo31x31, false);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, a_mipR, trackIDs[indx].directionECAL, isoinfoR, false);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, a_neutIsoR, trackIDs[indx].directionECAL, isoinfoIsoR, false);
+	      if (trackIDs[indx].okHCAL) {
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 0, 0, isoinfoHC1x1, false);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 1, 1, isoinfoHC3x3, false);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 2, 2, isoinfoHC5x5, false);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 3, 3, isoinfoHC7x7, false);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, geo, theHBHETopology, a_coneR, trackIDs[indx].directionHCAL, isoinfoHCR, false);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, geo, theHBHETopology, a_charIsoR, trackIDs[indx].directionHCAL, isoinfoIsoHCR, false);
+	      }
 
-      // consider particles within a phased space
-      if ( (*p)->momentum().perp() > ptMin && 
-	   std::abs((*p)->momentum().eta()) < etaMax ) { 
-	t_isoTrkPAll        ->push_back( (*p)->momentum().rho() );
-	t_isoTrkPtAll       ->push_back( (*p)->momentum().perp() );
-	t_isoTrkPhiAll      ->push_back( (*p)->momentum().phi() );
-	t_isoTrkEtaAll      ->push_back( (*p)->momentum().eta() );
-	t_isoTrkPdgIdAll    ->push_back( (*p)->pdg_id() ) ;
-      
-	const GlobalPoint posVec  = GlobalPoint(0.1*(*p)->production_vertex()->position().x(), 
-						0.1*(*p)->production_vertex()->position().y(), 
-						0.1*(*p)->production_vertex()->position().z());
-	const GlobalVector momVec = GlobalVector((*p)->momentum().px(), (*p)->momentum().py(), (*p)->momentum().pz());
-
-	if (trackIDs[indx].okECAL) {
-
-	  spr::genSimInfo isoinfo7x7,   isoinfo9x9,   isoinfo11x11;
-	  spr::genSimInfo isoinfo15x15, isoinfo21x21, isoinfo25x25, isoinfo31x31;
-	  spr::genSimInfo isoinfoHC3x3, isoinfoHC5x5, isoinfoHC7x7;
-	  spr::genSimInfo isoinfoR,     isoinfoIsoR,  isoinfoHCR,   isoinfoIsoHCR;
-	
-	  if ( std::abs(charge)>0 ) {
-	    spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 3, 3, isoinfo7x7,   false);
-	    spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 4, 4, isoinfo9x9,   false);
-	    spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 5, 5, isoinfo11x11, false);
-	    spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 7, 7, isoinfo15x15, false);
-	    spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,10,10, isoinfo21x21, false);
-	    spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,12,12, isoinfo25x25, false);
-	    spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,15,15, isoinfo31x31, false);
-	    spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, a_mipR, trackIDs[indx].directionECAL, isoinfoR, false);
-	    spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, a_neutIsoR, trackIDs[indx].directionECAL, isoinfoIsoR, false);
-	    if (trackIDs[indx].okHCAL) {
-	      spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 1, 1, isoinfoHC3x3, false);
-	      spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 2, 2, isoinfoHC5x5, false);
-	      spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 3, 3, isoinfoHC7x7, false);
-	      spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, geo, theHBHETopology, a_coneR, trackIDs[indx].directionHCAL, isoinfoHCR, false);
-	      spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, geo, theHBHETopology, a_charIsoR, trackIDs[indx].directionHCAL, isoinfoIsoHCR, false);
+	      if (isoinfo7x7.maxNearP < 1.0) 
+		fillIsolatedTrack(momVec, posECAL, trackIDs[indx].pdgId);
 	    }
 	  }
-	  
-	  GlobalPoint posECAL;
-	  if (trackIDs[indx].detIdECAL.subdetId() == EcalBarrel) {
-	    EBDetId id = (EBDetId)(trackIDs[indx].detIdECAL);
-	    posECAL    = geo->getPosition(id);
-	  } else {
-	    EEDetId id = (EEDetId)(trackIDs[indx].detIdECAL);
-	    posECAL    = geo->getPosition(id);
-	  }
-	  //std::cout << (EBDetId)isoCell << std::endl;
-	  //std::cout<< geo->getPosition(isoCell).eta() << " " << geo->getPosition(isoCell).phi() << std::endl;
-	  
-	  double phi1 = (*p)->momentum().phi();
-	  double phi2 = (posECAL - posVec).phi();
-	  
-	  double dphi = DeltaPhi( phi1, phi2 );
-	  double deta = (*p)->momentum().eta() - (posECAL - posVec).eta();
-	  
-	  t_isoTrkDPhiAll ->push_back( dphi );
-	  t_isoTrkDEtaAll ->push_back( deta );	
-	  
-	
-	  if (isoinfo7x7.maxNearP<1.0 &&  std::abs(charge)>0 ){
+	} else { // stabale particles within |eta|=2.5
+	  fillTrack (posVec, momVec, posECAL, 0, false, false);
+	} 
+      }
+    } // loop over gen particles
+  } else { 
+    std::vector<spr::propagatedGenParticleID> trackIDs =       spr::propagateCALO(genParticles, pdt, geo, bField, etaMax, false);
 
-	    t_isoTrkP           ->push_back((*p)->momentum().rho());
-	    t_isoTrkPt          ->push_back((*p)->momentum().perp());
-	    t_isoTrkEne         ->push_back((*p)->momentum().e());
-	    t_isoTrkEta         ->push_back((*p)->momentum().eta());
-	    t_isoTrkPhi         ->push_back((*p)->momentum().phi());
-	    t_isoTrkEtaEC       ->push_back(trackIDs[indx].pointECAL.eta());
-	    t_isoTrkPhiEC       ->push_back(trackIDs[indx].pointECAL.phi());
-	    t_isoTrkPdgId       ->push_back(trackIDs[indx].pdgId);
-	  
-	    t_maxNearP31x31     ->push_back(isoinfo31x31.maxNearP);
-	    t_cHadronEne31x31   ->push_back(isoinfo31x31.cHadronEne);
-	    t_cHadronEne31x31_1 ->push_back(isoinfo31x31.cHadronEne_[0]);
-	    t_cHadronEne31x31_2 ->push_back(isoinfo31x31.cHadronEne_[1]);
-	    t_cHadronEne31x31_3 ->push_back(isoinfo31x31.cHadronEne_[2]);
-	    t_nHadronEne31x31   ->push_back(isoinfo31x31.nHadronEne);
-	    t_photonEne31x31    ->push_back(isoinfo31x31.photonEne);
-	    t_eleEne31x31       ->push_back(isoinfo31x31.eleEne);
-	    t_muEne31x31        ->push_back(isoinfo31x31.muEne);
-	  
-	    t_maxNearP25x25     ->push_back(isoinfo25x25.maxNearP);
-	    t_cHadronEne25x25   ->push_back(isoinfo25x25.cHadronEne);
-	    t_cHadronEne25x25_1 ->push_back(isoinfo25x25.cHadronEne_[0]);
-	    t_cHadronEne25x25_2 ->push_back(isoinfo25x25.cHadronEne_[1]);
-	    t_cHadronEne25x25_3 ->push_back(isoinfo25x25.cHadronEne_[2]);
-	    t_nHadronEne25x25   ->push_back(isoinfo25x25.nHadronEne);
-	    t_photonEne25x25    ->push_back(isoinfo25x25.photonEne);
-	    t_eleEne25x25       ->push_back(isoinfo25x25.eleEne);
-	    t_muEne25x25        ->push_back(isoinfo25x25.muEne);
-	  
-	    t_maxNearP21x21     ->push_back(isoinfo21x21.maxNearP);
-	    t_cHadronEne21x21   ->push_back(isoinfo21x21.cHadronEne);
-	    t_cHadronEne21x21_1 ->push_back(isoinfo21x21.cHadronEne_[0]);
-	    t_cHadronEne21x21_2 ->push_back(isoinfo21x21.cHadronEne_[1]);
-	    t_cHadronEne21x21_3 ->push_back(isoinfo21x21.cHadronEne_[2]);
-	    t_nHadronEne21x21   ->push_back(isoinfo21x21.nHadronEne);
-	    t_photonEne21x21    ->push_back(isoinfo21x21.photonEne);
-	    t_eleEne21x21       ->push_back(isoinfo21x21.eleEne);
-	    t_muEne21x21        ->push_back(isoinfo21x21.muEne);
-	  
-	    t_maxNearP15x15     ->push_back(isoinfo15x15.maxNearP);
-	    t_cHadronEne15x15   ->push_back(isoinfo15x15.cHadronEne);
-	    t_cHadronEne15x15_1 ->push_back(isoinfo15x15.cHadronEne_[0]);
-	    t_cHadronEne15x15_2 ->push_back(isoinfo15x15.cHadronEne_[1]);
-	    t_cHadronEne15x15_3 ->push_back(isoinfo15x15.cHadronEne_[2]);
-	    t_nHadronEne15x15   ->push_back(isoinfo15x15.nHadronEne);
-	    t_photonEne15x15    ->push_back(isoinfo15x15.photonEne);
-	    t_eleEne15x15       ->push_back(isoinfo15x15.eleEne);
-	    t_muEne15x15        ->push_back(isoinfo15x15.muEne);
-	  
-	    t_maxNearP11x11     ->push_back(isoinfo11x11.maxNearP);
-	    t_cHadronEne11x11   ->push_back(isoinfo11x11.cHadronEne);
-	    t_cHadronEne11x11_1 ->push_back(isoinfo11x11.cHadronEne_[0]);
-	    t_cHadronEne11x11_2 ->push_back(isoinfo11x11.cHadronEne_[1]);
-	    t_cHadronEne11x11_3 ->push_back(isoinfo11x11.cHadronEne_[2]);
-	    t_nHadronEne11x11   ->push_back(isoinfo11x11.nHadronEne);
-	    t_photonEne11x11    ->push_back(isoinfo11x11.photonEne);
-	    t_eleEne11x11       ->push_back(isoinfo11x11.eleEne);
-	    t_muEne11x11        ->push_back(isoinfo11x11.muEne);
-	  
-	    t_maxNearP9x9       ->push_back(isoinfo9x9.maxNearP);
-	    t_cHadronEne9x9     ->push_back(isoinfo9x9.cHadronEne);
-	    t_cHadronEne9x9_1   ->push_back(isoinfo9x9.cHadronEne_[0]);
-	    t_cHadronEne9x9_2   ->push_back(isoinfo9x9.cHadronEne_[1]);
-	    t_cHadronEne9x9_3   ->push_back(isoinfo9x9.cHadronEne_[2]);
-	    t_nHadronEne9x9     ->push_back(isoinfo9x9.nHadronEne);
-	    t_photonEne9x9      ->push_back(isoinfo9x9.photonEne);
-	    t_eleEne9x9         ->push_back(isoinfo9x9.eleEne);
-	    t_muEne9x9          ->push_back(isoinfo9x9.muEne);
-	    
-	    t_maxNearP7x7       ->push_back(isoinfo7x7.maxNearP);
-	    t_cHadronEne7x7     ->push_back(isoinfo7x7.cHadronEne);
-	    t_cHadronEne7x7_1   ->push_back(isoinfo7x7.cHadronEne_[0]);
-	    t_cHadronEne7x7_2   ->push_back(isoinfo7x7.cHadronEne_[1]);
-	    t_cHadronEne7x7_3   ->push_back(isoinfo7x7.cHadronEne_[2]);
-	    t_nHadronEne7x7     ->push_back(isoinfo7x7.nHadronEne);
-	    t_photonEne7x7      ->push_back(isoinfo7x7.photonEne);
-	    t_eleEne7x7         ->push_back(isoinfo7x7.eleEne);
-	    t_muEne7x7          ->push_back(isoinfo7x7.muEne);
-
-	    t_maxNearPHC3x3       ->push_back(isoinfoHC3x3.maxNearP);
-	    t_cHadronEneHC3x3     ->push_back(isoinfoHC3x3.cHadronEne);
-	    t_cHadronEneHC3x3_1   ->push_back(isoinfoHC3x3.cHadronEne_[0]);
-	    t_cHadronEneHC3x3_2   ->push_back(isoinfoHC3x3.cHadronEne_[1]);
-	    t_cHadronEneHC3x3_3   ->push_back(isoinfoHC3x3.cHadronEne_[2]);
-	    t_nHadronEneHC3x3     ->push_back(isoinfoHC3x3.nHadronEne);
-	    t_photonEneHC3x3      ->push_back(isoinfoHC3x3.photonEne);
-	    t_eleEneHC3x3         ->push_back(isoinfoHC3x3.eleEne);
-	    t_muEneHC3x3          ->push_back(isoinfoHC3x3.muEne);
-
-	    t_maxNearPHC5x5       ->push_back(isoinfoHC5x5.maxNearP);
-	    t_cHadronEneHC5x5     ->push_back(isoinfoHC5x5.cHadronEne);
-	    t_cHadronEneHC5x5_1   ->push_back(isoinfoHC5x5.cHadronEne_[0]);
-	    t_cHadronEneHC5x5_2   ->push_back(isoinfoHC5x5.cHadronEne_[1]);
-	    t_cHadronEneHC5x5_3   ->push_back(isoinfoHC5x5.cHadronEne_[2]);
-	    t_nHadronEneHC5x5     ->push_back(isoinfoHC5x5.nHadronEne);
-	    t_photonEneHC5x5      ->push_back(isoinfoHC5x5.photonEne);
-	    t_eleEneHC5x5         ->push_back(isoinfoHC5x5.eleEne);
-	    t_muEneHC5x5          ->push_back(isoinfoHC5x5.muEne);
-
-	    t_maxNearPHC7x7       ->push_back(isoinfoHC7x7.maxNearP);
-	    t_cHadronEneHC7x7     ->push_back(isoinfoHC7x7.cHadronEne);
-	    t_cHadronEneHC7x7_1   ->push_back(isoinfoHC7x7.cHadronEne_[0]);
-	    t_cHadronEneHC7x7_2   ->push_back(isoinfoHC7x7.cHadronEne_[1]);
-	    t_cHadronEneHC7x7_3   ->push_back(isoinfoHC7x7.cHadronEne_[2]);
-	    t_nHadronEneHC7x7     ->push_back(isoinfoHC7x7.nHadronEne);
-	    t_photonEneHC7x7      ->push_back(isoinfoHC7x7.photonEne);
-	    t_eleEneHC7x7         ->push_back(isoinfoHC7x7.eleEne);
-	    t_muEneHC7x7          ->push_back(isoinfoHC7x7.muEne);
-
-	    t_maxNearPR           ->push_back(isoinfoR.maxNearP);
-	    t_cHadronEneR         ->push_back(isoinfoR.cHadronEne);
-	    t_cHadronEneR_1       ->push_back(isoinfoR.cHadronEne_[0]);
-	    t_cHadronEneR_2       ->push_back(isoinfoR.cHadronEne_[1]);
-	    t_cHadronEneR_3       ->push_back(isoinfoR.cHadronEne_[2]);
-	    t_nHadronEneR         ->push_back(isoinfoR.nHadronEne);
-	    t_photonEneR          ->push_back(isoinfoR.photonEne);
-	    t_eleEneR             ->push_back(isoinfoR.eleEne);
-	    t_muEneR              ->push_back(isoinfoR.muEne);
-
-	    t_maxNearPIsoR        ->push_back(isoinfoIsoR.maxNearP);
-	    t_cHadronEneIsoR      ->push_back(isoinfoIsoR.cHadronEne);
-	    t_cHadronEneIsoR_1    ->push_back(isoinfoIsoR.cHadronEne_[0]);
-	    t_cHadronEneIsoR_2    ->push_back(isoinfoIsoR.cHadronEne_[1]);
-	    t_cHadronEneIsoR_3    ->push_back(isoinfoIsoR.cHadronEne_[2]);
-	    t_nHadronEneIsoR      ->push_back(isoinfoIsoR.nHadronEne);
-	    t_photonEneIsoR       ->push_back(isoinfoIsoR.photonEne);
-	    t_eleEneIsoR          ->push_back(isoinfoIsoR.eleEne);
-	    t_muEneIsoR           ->push_back(isoinfoIsoR.muEne);
-
-	    t_maxNearPHCR         ->push_back(isoinfoHCR.maxNearP);
-	    t_cHadronEneHCR       ->push_back(isoinfoHCR.cHadronEne);
-	    t_cHadronEneHCR_1     ->push_back(isoinfoHCR.cHadronEne_[0]);
-	    t_cHadronEneHCR_2     ->push_back(isoinfoHCR.cHadronEne_[1]);
-	    t_cHadronEneHCR_3     ->push_back(isoinfoHCR.cHadronEne_[2]);
-	    t_nHadronEneHCR       ->push_back(isoinfoHCR.nHadronEne);
-	    t_photonEneHCR        ->push_back(isoinfoHCR.photonEne);
-	    t_eleEneHCR           ->push_back(isoinfoHCR.eleEne);
-	    t_muEneHCR            ->push_back(isoinfoHCR.muEne);
-
-	    t_maxNearPIsoHCR      ->push_back(isoinfoIsoHCR.maxNearP);
-	    t_cHadronEneIsoHCR    ->push_back(isoinfoIsoHCR.cHadronEne);
-	    t_cHadronEneIsoHCR_1  ->push_back(isoinfoIsoHCR.cHadronEne_[0]);
-	    t_cHadronEneIsoHCR_2  ->push_back(isoinfoIsoHCR.cHadronEne_[1]);
-	    t_cHadronEneIsoHCR_3  ->push_back(isoinfoIsoHCR.cHadronEne_[2]);
-	    t_nHadronEneIsoHCR    ->push_back(isoinfoIsoHCR.nHadronEne);
-	    t_photonEneIsoHCR     ->push_back(isoinfoIsoHCR.photonEne);
-	    t_eleEneIsoHCR        ->push_back(isoinfoIsoHCR.eleEne);
-	    t_muEneIsoHCR         ->push_back(isoinfoIsoHCR.muEne);
-	  }
-	}
-      } else { // stabale particles within |eta|=2.5
-	t_isoTrkDPhiAll ->push_back( -999.0 );
-	t_isoTrkDEtaAll ->push_back( -999.0 );	
-      } 
+    for (unsigned int indx=0; indx<trackIDs.size(); ++indx) {
+      int charge = trackIDs[indx].charge;
+      reco::GenParticleCollection::const_iterator p = trackIDs[indx].trkItr;
       
-    } 
+      momVec = math::XYZTLorentzVector(p->momentum().x(), p->momentum().y(), p->momentum().z(), p->energy());
+      if (debug) std::cout << "trkIndx " << indx << " pdgid " << trackIDs[indx].pdgId << " charge " << charge <<	" momVec " << momVec << std::endl; 
+      // only stable particles avoiding electrons and muons
+      if (trackIDs[indx].ok && (std::abs(trackIDs[indx].pdgId)<11 ||
+				std::abs(trackIDs[indx].pdgId)>=21)) {	
+	// consider particles within a phased space
+	if (momVec.Pt() > ptMin && std::abs(momVec.eta()) < etaMax) { 
+	  posVec  = GlobalPoint(p->vertex().x(), p->vertex().y(), p->vertex().z());
+	  posECAL = trackIDs[indx].pointECAL;
+	  if (debug) std::cout << "posECAL " << posECAL << " okECAL " << trackIDs[indx].okECAL << "okHCAL " << trackIDs[indx].okHCAL << std::endl;
+	  fillTrack (posVec, momVec, posECAL, trackIDs[indx].pdgId, trackIDs[indx].okECAL, true);
+	  
+	  if (trackIDs[indx].okECAL) {
+	    if ( std::abs(charge)>0 ) {
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 0, 0, isoinfo1x1,   false);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 1, 1, isoinfo3x3,   false);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 3, 3, isoinfo7x7,   false);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 4, 4, isoinfo9x9,   false);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 5, 5, isoinfo11x11, false);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, 7, 7, isoinfo15x15, false);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,10,10, isoinfo21x21, false);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,12,12, isoinfo25x25, false);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology,15,15, isoinfo31x31, false);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, a_mipR, trackIDs[indx].directionECAL, isoinfoR, false);
+	      spr::eGenSimInfo(trackIDs[indx].detIdECAL, p, trackIDs, geo, caloTopology, a_neutIsoR, trackIDs[indx].directionECAL, isoinfoIsoR, false);
+	      if (trackIDs[indx].okHCAL) {
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 0, 0, isoinfoHC1x1, false);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 1, 1, isoinfoHC3x3, false);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 2, 2, isoinfoHC5x5, false);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, theHBHETopology, 3, 3, isoinfoHC7x7, false);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, geo, theHBHETopology, a_coneR, trackIDs[indx].directionHCAL, isoinfoHCR, false);
+		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, geo, theHBHETopology, a_charIsoR, trackIDs[indx].directionHCAL, isoinfoIsoHCR, false);
+	      }
 
-  } // loop over gen particles
+	      if (isoinfo7x7.maxNearP < 1.0) 
+		fillIsolatedTrack(momVec, posECAL, trackIDs[indx].pdgId);
+	    }
+	  }
+	} else { // stabale particles within |eta|=2.5
+	  fillTrack (posVec, momVec, posECAL, 0, false, false);
+	} 
+      }
+    } // loop over gen particles
+  } 
 
   //t_nEvtProc->push_back(nEventProc);
   h_NEventProc->SetBinContent(1,nEventProc);
@@ -524,6 +417,213 @@ double IsolatedGenParticles::DeltaR2(double eta1, double phi1, double eta2, doub
   double deta = eta1 - eta2;
   double dphi = DeltaPhi(phi1, phi2);
   return deta*deta + dphi*dphi;
+}
+
+void IsolatedGenParticles::fillTrack (GlobalPoint & posVec, math::XYZTLorentzVector & momVec, GlobalPoint & posECAL, int pdgId, bool okECAL, bool accept) {
+
+  if (accept) {
+    t_isoTrkPAll        ->push_back( momVec.P() );
+    t_isoTrkPtAll       ->push_back( momVec.Pt() );
+    t_isoTrkPhiAll      ->push_back( momVec.phi() );
+    t_isoTrkEtaAll      ->push_back( momVec.eta() );
+    t_isoTrkPdgIdAll    ->push_back( pdgId ) ;
+    if (okECAL) {
+      double phi1 = momVec.phi();
+      double phi2 = (posECAL - posVec).phi();
+      double dphi = DeltaPhi( phi1, phi2 );
+      double deta = momVec.eta() - (posECAL - posVec).eta();
+      t_isoTrkDPhiAll ->push_back( dphi );
+      t_isoTrkDEtaAll ->push_back( deta );	
+    } else {
+      t_isoTrkDPhiAll ->push_back( 999.0 );
+      t_isoTrkDEtaAll ->push_back( 999.0 );	
+    }
+  } else {
+    t_isoTrkDPhiAll ->push_back( -999.0 );
+    t_isoTrkDEtaAll ->push_back( -999.0 );	
+  }
+}
+
+void IsolatedGenParticles::fillIsolatedTrack(math::XYZTLorentzVector & momVec, GlobalPoint & posECAL, int pdgId) {
+
+  t_isoTrkP           ->push_back(momVec.P());
+  t_isoTrkPt          ->push_back(momVec.Pt());
+  t_isoTrkEne         ->push_back(momVec.E());
+  t_isoTrkEta         ->push_back(momVec.eta());
+  t_isoTrkPhi         ->push_back(momVec.phi());
+  t_isoTrkEtaEC       ->push_back(posECAL.eta());
+  t_isoTrkPhiEC       ->push_back(posECAL.phi());
+  t_isoTrkPdgId       ->push_back(pdgId);
+  
+  t_maxNearP31x31     ->push_back(isoinfo31x31.maxNearP);
+  t_cHadronEne31x31   ->push_back(isoinfo31x31.cHadronEne);
+  t_cHadronEne31x31_1 ->push_back(isoinfo31x31.cHadronEne_[0]);
+  t_cHadronEne31x31_2 ->push_back(isoinfo31x31.cHadronEne_[1]);
+  t_cHadronEne31x31_3 ->push_back(isoinfo31x31.cHadronEne_[2]);
+  t_nHadronEne31x31   ->push_back(isoinfo31x31.nHadronEne);
+  t_photonEne31x31    ->push_back(isoinfo31x31.photonEne);
+  t_eleEne31x31       ->push_back(isoinfo31x31.eleEne);
+  t_muEne31x31        ->push_back(isoinfo31x31.muEne);
+	  
+  t_maxNearP25x25     ->push_back(isoinfo25x25.maxNearP);
+  t_cHadronEne25x25   ->push_back(isoinfo25x25.cHadronEne);
+  t_cHadronEne25x25_1 ->push_back(isoinfo25x25.cHadronEne_[0]);
+  t_cHadronEne25x25_2 ->push_back(isoinfo25x25.cHadronEne_[1]);
+  t_cHadronEne25x25_3 ->push_back(isoinfo25x25.cHadronEne_[2]);
+  t_nHadronEne25x25   ->push_back(isoinfo25x25.nHadronEne);
+  t_photonEne25x25    ->push_back(isoinfo25x25.photonEne);
+  t_eleEne25x25       ->push_back(isoinfo25x25.eleEne);
+  t_muEne25x25        ->push_back(isoinfo25x25.muEne);
+	  
+  t_maxNearP21x21     ->push_back(isoinfo21x21.maxNearP);
+  t_cHadronEne21x21   ->push_back(isoinfo21x21.cHadronEne);
+  t_cHadronEne21x21_1 ->push_back(isoinfo21x21.cHadronEne_[0]);
+  t_cHadronEne21x21_2 ->push_back(isoinfo21x21.cHadronEne_[1]);
+  t_cHadronEne21x21_3 ->push_back(isoinfo21x21.cHadronEne_[2]);
+  t_nHadronEne21x21   ->push_back(isoinfo21x21.nHadronEne);
+  t_photonEne21x21    ->push_back(isoinfo21x21.photonEne);
+  t_eleEne21x21       ->push_back(isoinfo21x21.eleEne);
+  t_muEne21x21        ->push_back(isoinfo21x21.muEne);
+	  
+  t_maxNearP15x15     ->push_back(isoinfo15x15.maxNearP);
+  t_cHadronEne15x15   ->push_back(isoinfo15x15.cHadronEne);
+  t_cHadronEne15x15_1 ->push_back(isoinfo15x15.cHadronEne_[0]);
+  t_cHadronEne15x15_2 ->push_back(isoinfo15x15.cHadronEne_[1]);
+  t_cHadronEne15x15_3 ->push_back(isoinfo15x15.cHadronEne_[2]);
+  t_nHadronEne15x15   ->push_back(isoinfo15x15.nHadronEne);
+  t_photonEne15x15    ->push_back(isoinfo15x15.photonEne);
+  t_eleEne15x15       ->push_back(isoinfo15x15.eleEne);
+  t_muEne15x15        ->push_back(isoinfo15x15.muEne);
+	  
+  t_maxNearP11x11     ->push_back(isoinfo11x11.maxNearP);
+  t_cHadronEne11x11   ->push_back(isoinfo11x11.cHadronEne);
+  t_cHadronEne11x11_1 ->push_back(isoinfo11x11.cHadronEne_[0]);
+  t_cHadronEne11x11_2 ->push_back(isoinfo11x11.cHadronEne_[1]);
+  t_cHadronEne11x11_3 ->push_back(isoinfo11x11.cHadronEne_[2]);
+  t_nHadronEne11x11   ->push_back(isoinfo11x11.nHadronEne);
+  t_photonEne11x11    ->push_back(isoinfo11x11.photonEne);
+  t_eleEne11x11       ->push_back(isoinfo11x11.eleEne);
+  t_muEne11x11        ->push_back(isoinfo11x11.muEne);
+	  
+  t_maxNearP9x9       ->push_back(isoinfo9x9.maxNearP);
+  t_cHadronEne9x9     ->push_back(isoinfo9x9.cHadronEne);
+  t_cHadronEne9x9_1   ->push_back(isoinfo9x9.cHadronEne_[0]);
+  t_cHadronEne9x9_2   ->push_back(isoinfo9x9.cHadronEne_[1]);
+  t_cHadronEne9x9_3   ->push_back(isoinfo9x9.cHadronEne_[2]);
+  t_nHadronEne9x9     ->push_back(isoinfo9x9.nHadronEne);
+  t_photonEne9x9      ->push_back(isoinfo9x9.photonEne);
+  t_eleEne9x9         ->push_back(isoinfo9x9.eleEne);
+  t_muEne9x9          ->push_back(isoinfo9x9.muEne);
+	    
+  t_maxNearP7x7       ->push_back(isoinfo7x7.maxNearP);
+  t_cHadronEne7x7     ->push_back(isoinfo7x7.cHadronEne);
+  t_cHadronEne7x7_1   ->push_back(isoinfo7x7.cHadronEne_[0]);
+  t_cHadronEne7x7_2   ->push_back(isoinfo7x7.cHadronEne_[1]);
+  t_cHadronEne7x7_3   ->push_back(isoinfo7x7.cHadronEne_[2]);
+  t_nHadronEne7x7     ->push_back(isoinfo7x7.nHadronEne);
+  t_photonEne7x7      ->push_back(isoinfo7x7.photonEne);
+  t_eleEne7x7         ->push_back(isoinfo7x7.eleEne);
+  t_muEne7x7          ->push_back(isoinfo7x7.muEne);
+  
+  t_maxNearP3x3       ->push_back(isoinfo3x3.maxNearP);
+  t_cHadronEne3x3     ->push_back(isoinfo3x3.cHadronEne);
+  t_cHadronEne3x3_1   ->push_back(isoinfo3x3.cHadronEne_[0]);
+  t_cHadronEne3x3_2   ->push_back(isoinfo3x3.cHadronEne_[1]);
+  t_cHadronEne3x3_3   ->push_back(isoinfo3x3.cHadronEne_[2]);
+  t_nHadronEne3x3     ->push_back(isoinfo3x3.nHadronEne);
+  t_photonEne3x3      ->push_back(isoinfo3x3.photonEne);
+  t_eleEne3x3         ->push_back(isoinfo3x3.eleEne);
+  t_muEne3x3          ->push_back(isoinfo3x3.muEne);
+
+  t_maxNearP1x1       ->push_back(isoinfo1x1.maxNearP);
+  t_cHadronEne1x1     ->push_back(isoinfo1x1.cHadronEne);
+  t_cHadronEne1x1_1   ->push_back(isoinfo1x1.cHadronEne_[0]);
+  t_cHadronEne1x1_2   ->push_back(isoinfo1x1.cHadronEne_[1]);
+  t_cHadronEne1x1_3   ->push_back(isoinfo1x1.cHadronEne_[2]);
+  t_nHadronEne1x1     ->push_back(isoinfo1x1.nHadronEne);
+  t_photonEne1x1      ->push_back(isoinfo1x1.photonEne);
+  t_eleEne1x1         ->push_back(isoinfo1x1.eleEne);
+  t_muEne1x1          ->push_back(isoinfo1x1.muEne);
+
+  t_maxNearPHC1x1       ->push_back(isoinfoHC1x1.maxNearP);
+  t_cHadronEneHC1x1     ->push_back(isoinfoHC1x1.cHadronEne);
+  t_cHadronEneHC1x1_1   ->push_back(isoinfoHC1x1.cHadronEne_[0]);
+  t_cHadronEneHC1x1_2   ->push_back(isoinfoHC1x1.cHadronEne_[1]);
+  t_cHadronEneHC1x1_3   ->push_back(isoinfoHC1x1.cHadronEne_[2]);
+  t_nHadronEneHC1x1     ->push_back(isoinfoHC1x1.nHadronEne);
+  t_photonEneHC1x1      ->push_back(isoinfoHC1x1.photonEne);
+  t_eleEneHC1x1         ->push_back(isoinfoHC1x1.eleEne);
+  t_muEneHC1x1          ->push_back(isoinfoHC1x1.muEne);
+  
+  t_maxNearPHC3x3       ->push_back(isoinfoHC3x3.maxNearP);
+  t_cHadronEneHC3x3     ->push_back(isoinfoHC3x3.cHadronEne);
+  t_cHadronEneHC3x3_1   ->push_back(isoinfoHC3x3.cHadronEne_[0]);
+  t_cHadronEneHC3x3_2   ->push_back(isoinfoHC3x3.cHadronEne_[1]);
+  t_cHadronEneHC3x3_3   ->push_back(isoinfoHC3x3.cHadronEne_[2]);
+  t_nHadronEneHC3x3     ->push_back(isoinfoHC3x3.nHadronEne);
+  t_photonEneHC3x3      ->push_back(isoinfoHC3x3.photonEne);
+  t_eleEneHC3x3         ->push_back(isoinfoHC3x3.eleEne);
+  t_muEneHC3x3          ->push_back(isoinfoHC3x3.muEne);
+
+  t_maxNearPHC5x5       ->push_back(isoinfoHC5x5.maxNearP);
+  t_cHadronEneHC5x5     ->push_back(isoinfoHC5x5.cHadronEne);
+  t_cHadronEneHC5x5_1   ->push_back(isoinfoHC5x5.cHadronEne_[0]);
+  t_cHadronEneHC5x5_2   ->push_back(isoinfoHC5x5.cHadronEne_[1]);
+  t_cHadronEneHC5x5_3   ->push_back(isoinfoHC5x5.cHadronEne_[2]);
+  t_nHadronEneHC5x5     ->push_back(isoinfoHC5x5.nHadronEne);
+  t_photonEneHC5x5      ->push_back(isoinfoHC5x5.photonEne);
+  t_eleEneHC5x5         ->push_back(isoinfoHC5x5.eleEne);
+  t_muEneHC5x5          ->push_back(isoinfoHC5x5.muEne);
+
+  t_maxNearPHC7x7       ->push_back(isoinfoHC7x7.maxNearP);
+  t_cHadronEneHC7x7     ->push_back(isoinfoHC7x7.cHadronEne);
+  t_cHadronEneHC7x7_1   ->push_back(isoinfoHC7x7.cHadronEne_[0]);
+  t_cHadronEneHC7x7_2   ->push_back(isoinfoHC7x7.cHadronEne_[1]);
+  t_cHadronEneHC7x7_3   ->push_back(isoinfoHC7x7.cHadronEne_[2]);
+  t_nHadronEneHC7x7     ->push_back(isoinfoHC7x7.nHadronEne);
+  t_photonEneHC7x7      ->push_back(isoinfoHC7x7.photonEne);
+  t_eleEneHC7x7         ->push_back(isoinfoHC7x7.eleEne);
+  t_muEneHC7x7          ->push_back(isoinfoHC7x7.muEne);
+
+  t_maxNearPR           ->push_back(isoinfoR.maxNearP);
+  t_cHadronEneR         ->push_back(isoinfoR.cHadronEne);
+  t_cHadronEneR_1       ->push_back(isoinfoR.cHadronEne_[0]);
+  t_cHadronEneR_2       ->push_back(isoinfoR.cHadronEne_[1]);
+  t_cHadronEneR_3       ->push_back(isoinfoR.cHadronEne_[2]);
+  t_nHadronEneR         ->push_back(isoinfoR.nHadronEne);
+  t_photonEneR          ->push_back(isoinfoR.photonEne);
+  t_eleEneR             ->push_back(isoinfoR.eleEne);
+  t_muEneR              ->push_back(isoinfoR.muEne);
+
+  t_maxNearPIsoR        ->push_back(isoinfoIsoR.maxNearP);
+  t_cHadronEneIsoR      ->push_back(isoinfoIsoR.cHadronEne);
+  t_cHadronEneIsoR_1    ->push_back(isoinfoIsoR.cHadronEne_[0]);
+  t_cHadronEneIsoR_2    ->push_back(isoinfoIsoR.cHadronEne_[1]);
+  t_cHadronEneIsoR_3    ->push_back(isoinfoIsoR.cHadronEne_[2]);
+  t_nHadronEneIsoR      ->push_back(isoinfoIsoR.nHadronEne);
+  t_photonEneIsoR       ->push_back(isoinfoIsoR.photonEne);
+  t_eleEneIsoR          ->push_back(isoinfoIsoR.eleEne);
+  t_muEneIsoR           ->push_back(isoinfoIsoR.muEne);
+
+  t_maxNearPHCR         ->push_back(isoinfoHCR.maxNearP);
+  t_cHadronEneHCR       ->push_back(isoinfoHCR.cHadronEne);
+  t_cHadronEneHCR_1     ->push_back(isoinfoHCR.cHadronEne_[0]);
+  t_cHadronEneHCR_2     ->push_back(isoinfoHCR.cHadronEne_[1]);
+  t_cHadronEneHCR_3     ->push_back(isoinfoHCR.cHadronEne_[2]);
+  t_nHadronEneHCR       ->push_back(isoinfoHCR.nHadronEne);
+  t_photonEneHCR        ->push_back(isoinfoHCR.photonEne);
+  t_eleEneHCR           ->push_back(isoinfoHCR.eleEne);
+  t_muEneHCR            ->push_back(isoinfoHCR.muEne);
+
+  t_maxNearPIsoHCR      ->push_back(isoinfoIsoHCR.maxNearP);
+  t_cHadronEneIsoHCR    ->push_back(isoinfoIsoHCR.cHadronEne);
+  t_cHadronEneIsoHCR_1  ->push_back(isoinfoIsoHCR.cHadronEne_[0]);
+  t_cHadronEneIsoHCR_2  ->push_back(isoinfoIsoHCR.cHadronEne_[1]);
+  t_cHadronEneIsoHCR_3  ->push_back(isoinfoIsoHCR.cHadronEne_[2]);
+  t_nHadronEneIsoHCR    ->push_back(isoinfoIsoHCR.nHadronEne);
+  t_photonEneIsoHCR     ->push_back(isoinfoIsoHCR.photonEne);
+  t_eleEneIsoHCR        ->push_back(isoinfoIsoHCR.eleEne);
+  t_muEneIsoHCR         ->push_back(isoinfoIsoHCR.muEne);
 }
 
 void IsolatedGenParticles::BookHistograms(){
@@ -624,6 +724,36 @@ void IsolatedGenParticles::BookHistograms(){
   t_photonEne7x7      = new std::vector<double>();
   t_eleEne7x7         = new std::vector<double>();
   t_muEne7x7          = new std::vector<double>();
+
+  t_maxNearP3x3       = new std::vector<double>();
+  t_cHadronEne3x3     = new std::vector<double>();
+  t_cHadronEne3x3_1   = new std::vector<double>();
+  t_cHadronEne3x3_2   = new std::vector<double>();
+  t_cHadronEne3x3_3   = new std::vector<double>();
+  t_nHadronEne3x3     = new std::vector<double>();
+  t_photonEne3x3      = new std::vector<double>();
+  t_eleEne3x3         = new std::vector<double>();
+  t_muEne3x3          = new std::vector<double>();
+
+  t_maxNearP1x1       = new std::vector<double>();
+  t_cHadronEne1x1     = new std::vector<double>();
+  t_cHadronEne1x1_1   = new std::vector<double>();
+  t_cHadronEne1x1_2   = new std::vector<double>();
+  t_cHadronEne1x1_3   = new std::vector<double>();
+  t_nHadronEne1x1     = new std::vector<double>();
+  t_photonEne1x1      = new std::vector<double>();
+  t_eleEne1x1         = new std::vector<double>();
+  t_muEne1x1          = new std::vector<double>();
+
+  t_maxNearPHC1x1       = new std::vector<double>();
+  t_cHadronEneHC1x1     = new std::vector<double>();
+  t_cHadronEneHC1x1_1   = new std::vector<double>();
+  t_cHadronEneHC1x1_2   = new std::vector<double>();
+  t_cHadronEneHC1x1_3   = new std::vector<double>();
+  t_nHadronEneHC1x1     = new std::vector<double>();
+  t_photonEneHC1x1      = new std::vector<double>();
+  t_eleEneHC1x1         = new std::vector<double>();
+  t_muEneHC1x1          = new std::vector<double>();
 
   t_maxNearPHC3x3       = new std::vector<double>();
   t_cHadronEneHC3x3     = new std::vector<double>();
@@ -807,6 +937,36 @@ void IsolatedGenParticles::BookHistograms(){
   tree->Branch("t_photonEne7x7",      "vector<double>", &t_photonEne7x7);
   tree->Branch("t_eleEne7x7",         "vector<double>", &t_eleEne7x7);
   tree->Branch("t_muEne7x7",          "vector<double>", &t_muEne7x7);
+
+  tree->Branch("t_maxNearP3x3",       "vector<double>", &t_maxNearP3x3);
+  tree->Branch("t_cHadronEne3x3",     "vector<double>", &t_cHadronEne3x3);
+  tree->Branch("t_cHadronEne3x3_1",   "vector<double>", &t_cHadronEne3x3_1);
+  tree->Branch("t_cHadronEne3x3_2",   "vector<double>", &t_cHadronEne3x3_2);
+  tree->Branch("t_cHadronEne3x3_3",   "vector<double>", &t_cHadronEne3x3_3);
+  tree->Branch("t_nHadronEne3x3",     "vector<double>", &t_nHadronEne3x3);
+  tree->Branch("t_photonEne3x3",      "vector<double>", &t_photonEne3x3);
+  tree->Branch("t_eleEne3x3",         "vector<double>", &t_eleEne3x3);
+  tree->Branch("t_muEne3x3",          "vector<double>", &t_muEne3x3);
+
+  tree->Branch("t_maxNearP1x1",       "vector<double>", &t_maxNearP1x1);
+  tree->Branch("t_cHadronEne1x1",     "vector<double>", &t_cHadronEne1x1);
+  tree->Branch("t_cHadronEne1x1_1",   "vector<double>", &t_cHadronEne1x1_1);
+  tree->Branch("t_cHadronEne1x1_2",   "vector<double>", &t_cHadronEne1x1_2);
+  tree->Branch("t_cHadronEne1x1_3",   "vector<double>", &t_cHadronEne1x1_3);
+  tree->Branch("t_nHadronEne1x1",     "vector<double>", &t_nHadronEne1x1);
+  tree->Branch("t_photonEne1x1",      "vector<double>", &t_photonEne1x1);
+  tree->Branch("t_eleEne1x1",         "vector<double>", &t_eleEne1x1);
+  tree->Branch("t_muEne1x1",          "vector<double>", &t_muEne1x1);
+
+  tree->Branch("t_maxNearPHC1x1",       "vector<double>", &t_maxNearPHC1x1);
+  tree->Branch("t_cHadronEneHC1x1",     "vector<double>", &t_cHadronEneHC1x1);
+  tree->Branch("t_cHadronEneHC1x1_1",   "vector<double>", &t_cHadronEneHC1x1_1);
+  tree->Branch("t_cHadronEneHC1x1_2",   "vector<double>", &t_cHadronEneHC1x1_2);
+  tree->Branch("t_cHadronEneHC1x1_3",   "vector<double>", &t_cHadronEneHC1x1_3);
+  tree->Branch("t_nHadronEneHC1x1",     "vector<double>", &t_nHadronEneHC1x1);
+  tree->Branch("t_photonEneHC1x1",      "vector<double>", &t_photonEneHC1x1);
+  tree->Branch("t_eleEneHC1x1",         "vector<double>", &t_eleEneHC1x1);
+  tree->Branch("t_muEneHC1x1",          "vector<double>", &t_muEneHC1x1);
 
   tree->Branch("t_maxNearPHC3x3",       "vector<double>", &t_maxNearPHC3x3);
   tree->Branch("t_cHadronEneHC3x3",     "vector<double>", &t_cHadronEneHC3x3);
@@ -994,6 +1154,36 @@ void IsolatedGenParticles::clearTreeVectors() {
   t_photonEne7x7      ->clear();
   t_eleEne7x7         ->clear();
   t_muEne7x7          ->clear();
+
+  t_maxNearP3x3       ->clear();
+  t_cHadronEne3x3     ->clear();
+  t_cHadronEne3x3_1   ->clear();
+  t_cHadronEne3x3_2   ->clear();
+  t_cHadronEne3x3_3   ->clear();
+  t_nHadronEne3x3     ->clear();
+  t_photonEne3x3      ->clear();
+  t_eleEne3x3         ->clear();
+  t_muEne3x3          ->clear();
+
+  t_maxNearP1x1       ->clear();
+  t_cHadronEne1x1     ->clear();
+  t_cHadronEne1x1_1   ->clear();
+  t_cHadronEne1x1_2   ->clear();
+  t_cHadronEne1x1_3   ->clear();
+  t_nHadronEne1x1     ->clear();
+  t_photonEne1x1      ->clear();
+  t_eleEne1x1         ->clear();
+  t_muEne1x1          ->clear();
+
+  t_maxNearPHC1x1       ->clear();
+  t_cHadronEneHC1x1     ->clear();
+  t_cHadronEneHC1x1_1   ->clear();
+  t_cHadronEneHC1x1_2   ->clear();
+  t_cHadronEneHC1x1_3   ->clear();
+  t_nHadronEneHC1x1     ->clear();
+  t_photonEneHC1x1      ->clear();
+  t_eleEneHC1x1         ->clear();
+  t_muEneHC1x1          ->clear();
 
   t_maxNearPHC3x3       ->clear();
   t_cHadronEneHC3x3     ->clear();

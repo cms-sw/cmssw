@@ -3,22 +3,18 @@
 #include <TCanvas.h>
 
 Bool_t FillChain(TChain *chain, const TString &inputFileList);
-
 int main(Int_t argc, Char_t *argv[]) {
-
-  if( argc<10 ){
-    std::cerr << "Please give 5 arguments "
-              << "runList \n"
-              << "outputFileName \n"
-              << "dataType \n"
-              << "ecalCharIso \n"
-              << "hcalCharIso \n"
-              << "eeNeutIso \n"
-              << "hhNeutIso \n"
-              << std::endl;
+  if( argc<12 ){
+    std::cerr << "Please give 10 arguments \n"
+              << "runList \n"      << "outputFileName \n" 
+	      << "dataType \n"     << "ecalCharIso \n"
+	      << "hcalCharIso \n"  << "ebNeutIso \n"
+	      << "eeNeutIso \n"    << "hhNeutIso \n"
+	      << "nGoodPV \n"      << "L1Seed \n"
+	      << "dRL1Jet \n"      << std::endl;
     return -1;
   }
-
+  
   const char *inputFileList = argv[1];
   const char *outFileName   = argv[2];
   const char *dataType      = argv[3];
@@ -27,24 +23,23 @@ int main(Int_t argc, Char_t *argv[]) {
   const char *ebNeutIso     = argv[6];
   const char *eeNeutIso     = argv[7];
   const char *hhNeutIso     = argv[8];
-  const char *L1Seed        = argv[9];
-  const char *dRL1Jet       = argv[10];
+  const char *nGoodPV       = argv[9];
+  const char *L1Seed        = argv[10];
+  const char *dRL1Jet       = argv[11];
 
   int cut = 0;
 
-  std::cout << "Command line arguments"          << std::endl;
-  std::cout << "inputFileList " << inputFileList << std::endl;
-  std::cout << "outFileName   " << outFileName   << std::endl;
-  std::cout << "dataType      " << dataType      << std::endl;
-  std::cout << "ecalCharIso   " << ecalCharIso   << std::endl;
-  std::cout << "hcalCharIso   " << hcalCharIso   << std::endl;
-  std::cout << "ebNeutIso     " << ebNeutIso     << std::endl;
-  std::cout << "eeNeutIso     " << eeNeutIso     << std::endl;
-  std::cout << "hhNeutIso     " << hhNeutIso     << std::endl;
-  std::cout << "dRL1Jet       " << dRL1Jet       << std::endl;
-  std::cout << "L1Seed        " << L1Seed        << std::endl;
+  std::cout << "dataType "    << dataType    << std::endl;
+  std::cout << "ecalCharIso " << ecalCharIso << std::endl;
+  std::cout << "hcalCharIso " << hcalCharIso << std::endl;
+  std::cout << "ebNeutIso "   << ebNeutIso   << std::endl;
+  std::cout << "eeNeutIso "   << eeNeutIso   << std::endl;
+  std::cout << "hhNeutIso "   << hhNeutIso   << std::endl;
+  std::cout << "nGoodPV "     << nGoodPV     << std::endl;
+  std::cout << "L1Seed "      << L1Seed      << std::endl;
+  std::cout << "dRL1Jet "     << dRL1Jet     << std::endl;
 
-  // Reading Tree      
+  // Reading Tree                                                        
   std::cout << "---------------------" << std::endl;
   std::cout << "Reading List of input trees from " << inputFileList << std::endl;
   
@@ -53,7 +48,6 @@ int main(Int_t argc, Char_t *argv[]) {
     std::cerr << "Cannot get the tree " << std::endl;
     return(0);
   }
-
   TreeAnalysisRecoXtalsTh tree(chain, outFileName);
   
   tree.ecalCharIso = ecalCharIso;
@@ -62,8 +56,9 @@ int main(Int_t argc, Char_t *argv[]) {
   tree.ebNeutIso   = atof(ebNeutIso);
   tree.eeNeutIso   = atof(eeNeutIso);
   tree.hhNeutIso   = atof(hhNeutIso);
-  tree.dRL1Jet     = atof(dRL1Jet);
+  tree.GoodPVCut   = atoi(nGoodPV);
   tree.L1Seed      = L1Seed;
+  tree.dRL1Jet     = atof(dRL1Jet);
   tree.Loop(cut);
 
   return 0;
@@ -92,25 +87,25 @@ Bool_t FillChain(TChain *chain, const TString &inputFileList) {
 
 TreeAnalysisRecoXtalsTh::TreeAnalysisRecoXtalsTh(TChain *tree, const char *outFileName) {
 
-//  double tempgen_TH[22] = { 0.0,  1.0,  2.0,  3.0,  4.0,  
-//			    5.0,  6.0,  7.0,  8.0,  9.0, 
-//			    10.0, 12.0, 15.0, 20.0, 25.0, 
-//			    30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 100};
-//{5.0, 6.0, 7.0, 9.0, 11.0, 15.0, 20.0, 30.0}; // from anton
+  //  double tempgen_TH[22] = { 0.0,  1.0,  2.0,  3.0,  4.0,  
+  //			    5.0,  6.0,  7.0,  8.0,  9.0, 
+  //			    10.0, 12.0, 15.0, 20.0, 25.0, 
+  //			    30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 100};
+  //{5.0, 6.0, 7.0, 9.0, 11.0, 15.0, 20.0, 30.0}; // from anton
 
- double tempgen_TH[16] = { 0.0,  1.0,  2.0,  3.0,  4.0,  
-			   5.0,  6.0,  7.0,  9.0, 11.0, 
-			  15.0, 20.0, 30.0, 50.0, 75.0, 100.0};
+  double tempgen_TH[NPBins+1] = { 0.0,  1.0,  2.0,  3.0,  4.0,  
+				  5.0,  6.0,  7.0,  9.0, 11.0, 
+				 15.0, 20.0, 30.0, 50.0, 75.0, 100.0};
 
 
-  for(int i=0; i<NPBins+1; i++)  genPartPBins[i]  = tempgen_TH[i];
+  for (int i=0; i<NPBins+1; i++)  
+    genPartPBins[i]  = tempgen_TH[i];
 
-  //double tempgen_Eta[4] = {0.0, 1.131, 1.566, 2.3};  // anton's 
-  //double tempgen_Eta[7] = {-2.172, -1.653, -1.131, 0.0, 1.131, 1.653, 2.172};
-  //double tempgen_Eta[5] = {0.0, 0.5, 1.1, 1.7, 2.3};
-  //double tempgen_Eta[5] = {0.0, 0.5, 0.9, 1.2, 2.3}; // was to check the material budget
-  double tempgen_Eta[4] = {0.0, 1.131, 1.653, 2.172};
-
+  //  double tempgen_Eta[NEtaBins+1] = {0.0, 1.131, 1.653, 2.172};
+  double tempgen_Eta[NEtaBins+1] = {0.0, 0.2, 0.4, 0.6, 0.8, 
+				    1.0, 1.2, 1.4, 1.6, 1.8, 
+				    2.0, 2.2, 2.4};
+  
   for(int i=0; i<NEtaBins+1; i++) genPartEtaBins[i] = tempgen_Eta[i];
 
   Init(tree);
@@ -119,24 +114,23 @@ TreeAnalysisRecoXtalsTh::TreeAnalysisRecoXtalsTh(TChain *tree, const char *outFi
 }
 
 TreeAnalysisRecoXtalsTh::~TreeAnalysisRecoXtalsTh() {
-
-   if (!fChain) return;
-   delete fChain->GetCurrentFile();
-   fout->cd();
-   fout->Write();
-   fout->Close();   
+  if (!fChain) return;
+  delete fChain->GetCurrentFile();
+  
+  fout->cd();
+  fout->Write();
+  fout->Close();   
 }
 
 Int_t TreeAnalysisRecoXtalsTh::Cut(Long64_t entry) {
-
-  // This function may be called from Loop
+  // This function may be called from Loop.
   // returns  1 if entry is accepted.
   // returns -1 otherwise.
   return 1;
 }
 
 Int_t TreeAnalysisRecoXtalsTh::GetEntry(Long64_t entry) {
-
+  
   // Read contents of entry.
   if (!fChain) return 0;
   return fChain->GetEntry(entry);
@@ -146,15 +140,15 @@ Long64_t TreeAnalysisRecoXtalsTh::LoadTree(Long64_t entry) {
 
   // Set the environment to read one entry
   if (!fChain) return -5;
-   Long64_t centry = fChain->LoadTree(entry);
-   if (centry < 0) return centry;
-   if (!fChain->InheritsFrom(TChain::Class()))  return centry;
-   TChain *chain = (TChain*)fChain;
-   if (chain->GetTreeNumber() != fCurrent) {
-     fCurrent = chain->GetTreeNumber();
-     Notify();
-   }
-   return centry;
+  Long64_t centry = fChain->LoadTree(entry);
+  if (centry < 0) return centry;
+  if (!fChain->InheritsFrom(TChain::Class()))  return centry;
+  TChain *chain = (TChain*)fChain;
+  if (chain->GetTreeNumber() != fCurrent) {
+    fCurrent = chain->GetTreeNumber();
+    Notify();
+  }
+  return centry;
 }
 
 void TreeAnalysisRecoXtalsTh::Init(TChain *tree) {
@@ -166,6 +160,7 @@ void TreeAnalysisRecoXtalsTh::Init(TChain *tree) {
   // code, but the routine can be extended by the user if needed.
   // Init() will be called many times when running on PROOF
   // (once per file to be processed).
+  
 
   // Set object pointer
   PVx = 0;
@@ -253,26 +248,10 @@ void TreeAnalysisRecoXtalsTh::Init(TChain *tree) {
   t_e9x9 = 0;
   t_e11x11 = 0;
   t_e15x15 = 0;
-  t_e7x7_10Sig = 0;
-  t_e9x9_10Sig = 0;
-  t_e11x11_10Sig = 0;
-  t_e15x15_10Sig = 0;
-  t_e7x7_15Sig = 0;
-  t_e9x9_15Sig = 0;
-  t_e11x11_15Sig = 0;
-  t_e15x15_15Sig = 0;
   t_e7x7_20Sig = 0;
   t_e9x9_20Sig = 0;
   t_e11x11_20Sig = 0;
   t_e15x15_20Sig = 0;
-  t_e7x7_25Sig = 0;
-  t_e9x9_25Sig = 0;
-  t_e11x11_25Sig = 0;
-  t_e15x15_25Sig = 0;
-  t_e7x7_30Sig = 0;
-  t_e9x9_30Sig = 0;
-  t_e11x11_30Sig = 0;
-  t_e15x15_30Sig = 0;
   t_maxNearHcalP3x3 = 0;
   t_maxNearHcalP5x5 = 0;
   t_maxNearHcalP7x7 = 0;
@@ -280,12 +259,14 @@ void TreeAnalysisRecoXtalsTh::Init(TChain *tree) {
   t_h5x5 = 0;
   t_h7x7 = 0;
   t_infoHcal = 0;
+
   // Set branch addresses and branch pointers
   if (!tree) return;
   fChain = tree;
   fCurrent = -1;
   fChain->SetMakeClass(1);
-  
+
+
   fChain->SetBranchAddress("t_EvtNo", &t_EvtNo, &b_t_EvtNo);
   fChain->SetBranchAddress("t_RunNo", &t_RunNo, &b_t_RunNo);
   fChain->SetBranchAddress("t_Lumi", &t_Lumi, &b_t_Lumi);
@@ -376,26 +357,10 @@ void TreeAnalysisRecoXtalsTh::Init(TChain *tree) {
   fChain->SetBranchAddress("t_e9x9", &t_e9x9, &b_t_e9x9);
   fChain->SetBranchAddress("t_e11x11", &t_e11x11, &b_t_e11x11);
   fChain->SetBranchAddress("t_e15x15", &t_e15x15, &b_t_e15x15);
-  fChain->SetBranchAddress("t_e7x7_10Sig", &t_e7x7_10Sig, &b_t_e7x7_10Sig);
-  fChain->SetBranchAddress("t_e9x9_10Sig", &t_e9x9_10Sig, &b_t_e9x9_10Sig);
-  fChain->SetBranchAddress("t_e11x11_10Sig", &t_e11x11_10Sig, &b_t_e11x11_10Sig);
-  fChain->SetBranchAddress("t_e15x15_10Sig", &t_e15x15_10Sig, &b_t_e15x15_10Sig);
-  fChain->SetBranchAddress("t_e7x7_15Sig", &t_e7x7_15Sig, &b_t_e7x7_15Sig);
-  fChain->SetBranchAddress("t_e9x9_15Sig", &t_e9x9_15Sig, &b_t_e9x9_15Sig);
-  fChain->SetBranchAddress("t_e11x11_15Sig", &t_e11x11_15Sig, &b_t_e11x11_15Sig);
-  fChain->SetBranchAddress("t_e15x15_15Sig", &t_e15x15_15Sig, &b_t_e15x15_15Sig);
   fChain->SetBranchAddress("t_e7x7_20Sig", &t_e7x7_20Sig, &b_t_e7x7_20Sig);
   fChain->SetBranchAddress("t_e9x9_20Sig", &t_e9x9_20Sig, &b_t_e9x9_20Sig);
   fChain->SetBranchAddress("t_e11x11_20Sig", &t_e11x11_20Sig, &b_t_e11x11_20Sig);
   fChain->SetBranchAddress("t_e15x15_20Sig", &t_e15x15_20Sig, &b_t_e15x15_20Sig);
-  fChain->SetBranchAddress("t_e7x7_25Sig", &t_e7x7_25Sig, &b_t_e7x7_25Sig);
-  fChain->SetBranchAddress("t_e9x9_25Sig", &t_e9x9_25Sig, &b_t_e9x9_25Sig);
-  fChain->SetBranchAddress("t_e11x11_25Sig", &t_e11x11_25Sig, &b_t_e11x11_25Sig);
-  fChain->SetBranchAddress("t_e15x15_25Sig", &t_e15x15_25Sig, &b_t_e15x15_25Sig);
-  fChain->SetBranchAddress("t_e7x7_30Sig", &t_e7x7_30Sig, &b_t_e7x7_30Sig);
-  fChain->SetBranchAddress("t_e9x9_30Sig", &t_e9x9_30Sig, &b_t_e9x9_30Sig);
-  fChain->SetBranchAddress("t_e11x11_30Sig", &t_e11x11_30Sig, &b_t_e11x11_30Sig);
-  fChain->SetBranchAddress("t_e15x15_30Sig", &t_e15x15_30Sig, &b_t_e15x15_30Sig);
   fChain->SetBranchAddress("t_maxNearHcalP3x3", &t_maxNearHcalP3x3, &b_t_maxNearHcalP3x3);
   fChain->SetBranchAddress("t_maxNearHcalP5x5", &t_maxNearHcalP5x5, &b_t_maxNearHcalP5x5);
   fChain->SetBranchAddress("t_maxNearHcalP7x7", &t_maxNearHcalP7x7, &b_t_maxNearHcalP7x7);
@@ -405,22 +370,12 @@ void TreeAnalysisRecoXtalsTh::Init(TChain *tree) {
   fChain->SetBranchAddress("t_infoHcal", &t_infoHcal, &b_t_infoHcal);
   fChain->SetBranchAddress("t_nTracks", &t_nTracks, &b_t_nTracks);
   Notify();
+
 }
 
 void TreeAnalysisRecoXtalsTh::Loop(int cut) {
 
-  std::cout << "Track isolation thresholds "          <<std::endl;
-  std::cout << "dataType      " << dataType      << std::endl;
-  std::cout << "ecalCharIso   " << ecalCharIso   << std::endl;
-  std::cout <<" hcalCharIso   " << hcalCharIso   << std::endl;
-  std::cout << "ebNeutIso     " << ebNeutIso     << std::endl;
-  std::cout << "eeNeutIso     " << eeNeutIso     << std::endl;
-  std::cout << "hhNeutIso     " << hhNeutIso     << std::endl;
-  std::cout << "L1Seed        " << L1Seed        << std::endl;
-  if (fChain == 0) {
-    std::cout << "\n Tree does not exist "<<std::endl;
-    return;
-  }
+  if (fChain == 0) return;
 
   Long64_t nentries = fChain->GetEntriesFast();
   std::cout << "No. of Entries in tree " << nentries << std::endl;
@@ -432,6 +387,9 @@ void TreeAnalysisRecoXtalsTh::Loop(int cut) {
   std::map<unsigned int, unsigned int> runNTrkList;
   std::map<unsigned int, unsigned int> runNIsoTrkList;
 
+  //************Number of goodPV required
+  int nTrk_trksel_1=0, nTrk_trksel_2=0, nTrk_trksel_3=0, nTrk_trksel_4=0, nTrk_trksel_5=0, nTrk_ecalcharIso=0, nTrk_hcalcharIso=0, nTrk_ecalNeutIso=0, nTrk_hcalNeutIso=0;
+
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
 
     // load tree and get current entry
@@ -439,159 +397,128 @@ void TreeAnalysisRecoXtalsTh::Loop(int cut) {
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
 
-    if( !(jentry%100000) ) {
+    if( !(jentry%1000000) ) {
       std::cout << "processing event " << jentry+1 << std::endl;
     }
 
     bool goodRun=false;
-    goodRun     = true;
-    
+    goodRun = true;
     bool evtSel = true;
-    if(dataType=="Data" && !goodRun ) {
+    if(dataType=="Data" && !goodRun )
       evtSel = false;
-    }
     if( !evtSel ) continue;  //<=================    
 
     if( runEvtList.find(t_RunNo) != runEvtList.end() ) {
       runEvtList[t_RunNo] += 1; 
-   } else {
+    } else {
       runEvtList.insert( std::pair<unsigned int, unsigned int>(t_RunNo,1) );
-      std::cout << "runNo " << t_RunNo <<" "<<runEvtList[t_RunNo]<<std::endl;
+      //      std::cout << "runNo " << t_RunNo <<" "<<runEvtList[t_RunNo]<<std::endl;
     }
-    
     nEventsGoodRuns++;
-  
-    // I guess the vertex filter works on any PV of the collection
-    // All PVs in the event
+    
+    h_NPV_1           ->Fill(PVz->size());
 
-    std::vector<int> isGoodPV(PVz->size(), -1);
-    int  nGoodPV=0;
+    // I guess the vertex filter works on any PV of the collection
     bool anyGoodPV  =false;
     bool firstPVGood=false;
+    int nGoodPV = 0;
+    int nQltyVtx = 0;
+
+    bool VtxQlty[PVz->size()];
 
     for(int ipv=0; ipv<PVz->size(); ipv++) {
+      VtxQlty[ipv] = false;
+      if (std::abs((*PVz)[ipv])<=25.0 && (*PVndof)[ipv]>4 && 
+	  sqrt((*PVx)[ipv]*(*PVx)[ipv] + (*PVy)[ipv]*(*PVy)[ipv])<=2.0) {
+	VtxQlty[ipv] = true;
+	nQltyVtx++;
+      }
       
-      double rho = sqrt((*PVx)[ipv]*(*PVx)[ipv] + (*PVy)[ipv]*(*PVy)[ipv]);
-      
-      h_PVx_1               ->Fill( (*PVx)[ipv]             );
-      h_PVy_1               ->Fill( (*PVy)[ipv]             );
-      h_PVr_1               ->Fill( rho                   );
-      h_PVz_1               ->Fill( (*PVz)[ipv]             );
-      h_PVNDOF_1            ->Fill( (*PVndof)[ipv]          );
-      h_PVNTracksSumPt_1    ->Fill( (*PVNTracks)[ipv] , (*t_PVTracksSumPt)[ipv] );
-      h_PVNTracks_1         ->Fill( (*PVNTracks)[ipv]       );
-      h_PVTracksSumPt_1     ->Fill( (*t_PVTracksSumPt)[ipv] ); 
-      h_PVNTracksWt_1       ->Fill( (*PVNTracksWt)[ipv]       );
-      h_PVTracksSumPtWt_1   ->Fill( (*t_PVTracksSumPtWt)[ipv] ); 
-      
-      if( std::abs((*PVz)[ipv])<=15.0 && rho<=2.0 && (*PVndof)[ipv]>4 ) 
-	isGoodPV[ipv] = 1;
-      else 
-	isGoodPV[ipv] = 0;
-      
-      if( isGoodPV[ipv]>0 ) {
+      if ((*PVndof)[ipv]>4) {
+	anyGoodPV=true;
+	if(ipv==0) firstPVGood=true;
 	nGoodPV++;
-	anyGoodPV = true;
-	if(ipv==1)              firstPVGood = true;
-	h_PVx_2               ->Fill( (*PVx)[ipv]             );
-	h_PVy_2               ->Fill( (*PVy)[ipv]             );
-	h_PVr_2               ->Fill( rho                   );
-	h_PVz_2               ->Fill( (*PVz)[ipv]             );
-	h_PVNDOF_2            ->Fill( (*PVndof)[ipv]          );
-	h_PVNTracks_2         ->Fill( (*PVNTracks)[ipv]       );
-	h_PVTracksSumPt_2     ->Fill( (*t_PVTracksSumPt)[ipv] ); 
-	h_PVNTracksWt_2       ->Fill( (*PVNTracksWt)[ipv]       );
-	h_PVTracksSumPtWt_2   ->Fill( (*t_PVTracksSumPtWt)[ipv] ); 
-      }     
+      }
     }
-    h_NPV_1 ->Fill(PVz->size());
-    h_NPV_2 ->Fill(nGoodPV);
+    if(anyGoodPV)   h_NPV_AnyGoodPV   ->Fill(PVz->size());
+    if(firstPVGood) h_NPV_FirstGoodPV ->Fill(PVz->size());
     
+    h_nGoodPV->Fill(nGoodPV);
+    h_nQltyVtx->Fill(nQltyVtx);
+
     if( firstPVGood ) { 
       nEventsValidPV++;
       nEventsPVTracks++;
+      h_NPV_2             ->Fill(PVz->size());
+      h_PVx_2             ->Fill( (*PVx)[0]             );
+      h_PVy_2             ->Fill( (*PVy)[0]             );
+      h_PVr_2             ->Fill( sqrt((*PVx)[0]*(*PVx)[0] + (*PVy)[0]*(*PVy)[0]) );
+      h_PVz_2             ->Fill( (*PVz)[0]             );
     }
-
-
-    // select on events with a good "first" PV
+    
     bool pvSel = true;
-    //if( !firstPVGood )     pvSel = false;
-    if( nGoodPV != 1 )     pvSel = false;
-    if(dataType=="DiPion") pvSel = true;  // no PV selection for DiPion sample
-    if( !pvSel ) continue;
+    if(GoodPVCut==4){
+      if(nGoodPV<4) pvSel = false;
+    } else if(nGoodPV!=GoodPVCut) pvSel = false;
 
+    if (dataType=="DiPion") pvSel = true;  // no PV selection for DiPion sample
+    if (!pvSel )  continue;
     //================= avoid trigger bias ===================
     double maxL1Pt=-1.0, maxL1Eta=999.0, maxL1Phi=999.0;
-    bool checkL1=false;
+    bool checkL1=false, l1Seed=false;
 
-    if( L1Seed=="L1Jet" || L1Seed=="L1JetL1Tau" || L1Seed=="L1JetL1TauL1EM") {
-    if( t_L1Decision[15]>0 || t_L1Decision[16]>0 ||  t_L1Decision[17]>0	||
-	t_L1Decision[18]>0 || t_L1Decision[19]>0 ||  t_L1Decision[20]>0	||
-	t_L1Decision[21]>0 ){ 
-      if( t_L1CenJetPt->size()>0 && (*t_L1CenJetPt)[0]>maxL1Pt )
-	{maxL1Pt=(*t_L1CenJetPt)[0]; maxL1Eta=(*t_L1CenJetEta)[0]; maxL1Phi=(*t_L1CenJetPhi)[0];}
-      if( t_L1FwdJetPt->size()>0 && (*t_L1FwdJetPt)[0]>maxL1Pt )
-	{maxL1Pt=(*t_L1FwdJetPt)[0]; maxL1Eta=(*t_L1FwdJetEta)[0]; maxL1Phi=(*t_L1FwdJetPhi)[0];}
-      checkL1=true;
-    } 
+    if (L1Seed=="L1Jet" || L1Seed=="L1JetL1Tau" || L1Seed=="L1JetL1TauL1EM") {
+      l1Seed = true;
+      if (t_L1Decision[15]>0 || t_L1Decision[16]>0 ||  t_L1Decision[17]>0 ||
+	  t_L1Decision[18]>0 || t_L1Decision[19]>0 ||  t_L1Decision[20]>0 ||
+	  t_L1Decision[21]>0 ){ 
+	if( t_L1CenJetPt->size()>0 && (*t_L1CenJetPt)[0]>maxL1Pt ) {
+	  maxL1Pt=(*t_L1CenJetPt)[0]; 
+	  maxL1Eta=(*t_L1CenJetEta)[0]; 
+	  maxL1Phi=(*t_L1CenJetPhi)[0];
+	}
+	if (t_L1FwdJetPt->size()>0 && (*t_L1FwdJetPt)[0]>maxL1Pt ) {
+	  maxL1Pt=(*t_L1FwdJetPt)[0]; 
+	  maxL1Eta=(*t_L1FwdJetEta)[0]; 
+	  maxL1Phi=(*t_L1FwdJetPhi)[0];
+	}
+	checkL1=true;
+      } 
     }
+
     if( L1Seed=="L1Tau" || L1Seed=="L1JetL1Tau" || L1Seed=="L1JetL1TauL1EM") {
-    if( t_L1Decision[30]>0 ||  t_L1Decision[31]>0	|| t_L1Decision[32]>0 || 
-	t_L1Decision[33]>0 ) {
-      if( t_L1TauJetPt->size()>0 && (*t_L1TauJetPt)[0]>maxL1Pt )
-	{maxL1Pt=(*t_L1TauJetPt)[0]; maxL1Eta=(*t_L1TauJetEta)[0]; maxL1Phi=(*t_L1TauJetPhi)[0];}      
-      checkL1=true;
-    } 
+      l1Seed = true;
+      if (t_L1Decision[30]>0 ||  t_L1Decision[31]>0  || t_L1Decision[32]>0 || 
+	  t_L1Decision[33]>0 ) {
+	if (t_L1TauJetPt->size()>0 && (*t_L1TauJetPt)[0]>maxL1Pt ) {
+	  maxL1Pt=(*t_L1TauJetPt)[0]; 
+	  maxL1Eta=(*t_L1TauJetEta)[0]; 
+	  maxL1Phi=(*t_L1TauJetPhi)[0];
+	}      
+	checkL1=true;
+      } 
     }
+
     if( L1Seed=="L1EM" || L1Seed=="L1JetL1TauL1EM") {      
-    if( t_L1Decision[46]>0 || t_L1Decision[47]>0 || t_L1Decision[48]>0 ||  
-	t_L1Decision[49]>0 || t_L1Decision[50]>0 || t_L1Decision[51]>0 ||  
-	t_L1Decision[52]>0	) {
-      if( t_L1IsoEMPt->size()>0 && (*t_L1IsoEMPt)[0]>maxL1Pt )
-	{maxL1Pt=(*t_L1IsoEMPt)[0]; maxL1Eta=(*t_L1IsoEMEta)[0]; maxL1Phi=(*t_L1IsoEMPhi)[0];}      
-      checkL1=true;
-    } 
+      l1Seed = true;
+      if (t_L1Decision[46]>0 || t_L1Decision[47]>0 || t_L1Decision[48]>0 ||  
+	  t_L1Decision[49]>0 || t_L1Decision[50]>0 || t_L1Decision[51]>0 ||  
+	  t_L1Decision[52]>0      ) {
+	if(t_L1IsoEMPt->size()>0 && (*t_L1IsoEMPt)[0]>maxL1Pt ) {
+	  maxL1Pt=(*t_L1IsoEMPt)[0]; 
+	  maxL1Eta=(*t_L1IsoEMEta)[0]; 
+	  maxL1Phi=(*t_L1IsoEMPhi)[0];
+	}      
+	checkL1=true;
+      } 
     }
-    if( maxL1Pt<0 ) checkL1=false;
+    if (maxL1Pt<0 ) checkL1=false;
+    if (!l1Seed)    checkL1=true;
 
-    /*
-    if( t_L1Decision[55]>0 || t_L1Decision[56]>0 ||
-    	t_L1Decision[57]>0 || t_L1Decision[58]>0 ||  t_L1Decision[59]>0	||
-    	t_L1Decision[60]>0 || t_L1Decision[61]>0 ||  t_L1Decision[62]>0	) {
-      
-      if( t_L1MuonPt->size()>0 && (*t_L1MuonPt)[0]>maxL1Pt )
-    	{maxL1Pt=(*t_L1MuonPt)[0]; maxL1Eta=(*t_L1MuonEta)[0]; maxL1Phi=(*t_L1MuonPhi)[0];}      
-      checkL1=true;
-    }
-    */
-
-    // good events satisfying good first PV selection
-    for(int itrk=0; itrk<t_trackPAll->size(); itrk++ ){
-      h_trackPAll_1     ->Fill((*t_trackPAll)[itrk]    );  
-      h_trackPtAll_1    ->Fill((*t_trackPtAll)[itrk]    );  
-      h_trackEtaAll_1   ->Fill((*t_trackEtaAll)[itrk]  );  
-      h_trackPhiAll_1   ->Fill((*t_trackPhiAll)[itrk]  );  
-      h_trackDxyAll_1   ->Fill((*t_trackDxyPVAll)[itrk]  );  
-      h_trackDzAll_1    ->Fill((*t_trackDzPVAll)[itrk]  );  
-      h_trackChiSqAll_1 ->Fill((*t_trackChiSqAll)[itrk]  );  
-    }
-    
-    // if charged isolated in ecal 31x31
-    for(int itrk=0; itrk<t_trackP->size(); itrk++ ){
-      h_trackP_1       ->Fill((*t_trackP)[itrk]    );  
-      h_trackPt_1      ->Fill((*t_trackPt)[itrk]   );  
-      h_trackEta_1     ->Fill((*t_trackEta)[itrk]  );  
-      h_trackPhi_1     ->Fill((*t_trackPhi)[itrk]  );  
-      h_trackChisq_1   ->Fill((*t_trackChiSq)[itrk]);  
-      h_trackDxyPV_1   ->Fill((*t_trackDxyPV)[itrk]);  
-      h_trackDzPV_1    ->Fill((*t_trackDzPV )[itrk]);  
-    }
-    
-    if( runNTrkList.find(t_RunNo) != runNTrkList.end() ) {
+    if (runNTrkList.find(t_RunNo) != runNTrkList.end() ) {
       runNTrkList[t_RunNo] += t_trackP->size(); 
     } else {
-      runNTrkList.insert( std::pair<unsigned int, unsigned int>(t_RunNo,t_trackP->size()) );
-      std::cout << "runNo " << t_RunNo <<" "<<runNTrkList[t_RunNo]<<std::endl;
+      runNTrkList.insert( std::pair<unsigned int, unsigned int>(t_RunNo, t_trackP->size()) );
     }
     
     unsigned int NIsoTrk=0;
@@ -613,23 +540,11 @@ void TreeAnalysisRecoXtalsTh::Loop(int cut) {
       int    ecalSpike11x11  = (*t_ecalSpike11x11)[itrk];
 
       double maxNearP31x31   = (*t_maxNearP31x31)[itrk];
-      //double maxNearP25x25   = (*t_maxNearP25x25)[itrk];
-      //double maxNearP21x21   = (*t_maxNearP21x21)[itrk];
-      //double maxNearP15x15   = (*t_maxNearP15x15)[itrk];
-      //double maxNearP11x11   = (*t_maxNearP11x11)[itrk];
-      //double maxNearP9x9     = (*t_maxNearP9x9)[itrk];
-      //double maxNearP7x7     = (*t_maxNearP7x7)[itrk];
-      
-      //double e3x3            = (*t_e3x3)[itrk]; 
-      //double e5x5            = (*t_e5x5)[itrk]; 
+
       double e7x7            = (*t_e7x7)[itrk]; 
       double e9x9            = (*t_e9x9)[itrk]; 
       double e11x11          = (*t_e11x11)[itrk]; 
-      //double e13x13          = (*t_e13x13)[itrk]; 
       double e15x15          = (*t_e15x15)[itrk];
-      //double e21x21          = (*t_e21x21)[itrk];
-      //double e25x25          = (*t_e25x25)[itrk];
-      //double e31x31          = (*t_e31x31)[itrk];
       
       double maxNearHcalP3x3 = (*t_maxNearHcalP3x3)[itrk];
       double maxNearHcalP5x5 = (*t_maxNearHcalP5x5)[itrk];
@@ -639,24 +554,13 @@ void TreeAnalysisRecoXtalsTh::Loop(int cut) {
       double h5x5            = (*t_h5x5)[itrk];
       double h7x7            = (*t_h7x7)[itrk];
       
-      if( (*t_infoHcal)[itrk] < 1 ) {
+      if ( (*t_infoHcal)[itrk] < 1 ) {
 	h3x3            = 0.0;
 	h5x5            = 0.0;
 	h7x7            = 0.0;
       }
 
-      //
-      //double esum=0;
-      //for(int ixtal=0; ixtal<(*t_e11x11Xtals)[itrk].size(); ixtal++) {
-      //	esum += (*t_e11x11Xtals)[itrk][ixtal];
-      //	//if( (*t_e11x11Xtals)[itrk][ixtal] < 0 ) 
-      //	//std::cout<<ixtal<<" "<<(*t_e11x11Xtals)[itrk][ixtal]<<std::endl;
-      //}      
-      //double diff = e11x11-esum;
-      //if( std::abs(diff)>0 ) std::cout << diff << std::endl;
-      //
-
-      h_trackP_2       ->Fill((*t_trackP)[itrk]    );
+      h_trackP_2       ->Fill((*t_trackP)[itrk]    );  
       h_trackPt_2      ->Fill((*t_trackPt)[itrk]   );  
       h_trackEta_2     ->Fill((*t_trackEta)[itrk]  );  
       h_trackPhi_2     ->Fill((*t_trackPhi)[itrk]  );  
@@ -666,43 +570,42 @@ void TreeAnalysisRecoXtalsTh::Loop(int cut) {
       
       int iTrkEtaBin=-1, iTrkMomBin=-1;
       for(int ieta=0; ieta<NEtaBins; ieta++)   {
-	if(std::abs(etaEcal1)>genPartEtaBins[ieta] && std::abs(etaEcal1)<genPartEtaBins[ieta+1] ) iTrkEtaBin = ieta;
-	//if(etaEcal1>genPartEtaBins[ieta] && etaEcal1<genPartEtaBins[ieta+1] ) iTrkEtaBin = ieta;
+	if(etaEcal1>genPartEtaBins[ieta] && etaEcal1<genPartEtaBins[ieta+1] ) iTrkEtaBin = ieta;
       }
       for(int ipt=0;  ipt<NPBins;   ipt++)  {
 	if( p1>genPartPBins[ipt] &&  p1<genPartPBins[ipt+1] )  iTrkMomBin = ipt;
       }
-      //std::cout << "p " << p1 << " " << iTrkMomBin << " eta " << eta1 << " " << iTrkEtaBin << std::endl;       
       
-      bool trackChargeIso = true;
-      if(ecalCharIso=="MaxNearP31x31"     && maxNearP31x31>0)     trackChargeIso=false;
-      //if(ecalCharIso=="MaxNearP25x25"     && maxNearP25x25>0)     trackChargeIso=false;
-      //if(ecalCharIso=="MaxNearP21x21"     && maxNearP21x21>0)     trackChargeIso=false;
-      //if(ecalCharIso=="MaxNearP15x15"     && maxNearP15x15>0)     trackChargeIso=false;
-      //if(ecalCharIso=="MaxNearP11x11"     && maxNearP11x11>0)     trackChargeIso=false;
-      //if(ecalCharIso=="MaxNearP9x9"       && maxNearP9x9>0  )     trackChargeIso=false;
-      //if(ecalCharIso=="MaxNearP7x7"       && maxNearP7x7>0  )     trackChargeIso=false;
-      
-      if(hcalCharIso=="MaxNearHcalP7x7"   && maxNearHcalP7x7>0)   trackChargeIso=false;
-      if(hcalCharIso=="MaxNearHcalP5x5"   && maxNearHcalP5x5>0)   trackChargeIso=false;
-      if(hcalCharIso=="MaxNearHcalP3x3"   && maxNearHcalP3x3>0)   trackChargeIso=false;
-      
+      bool trackChargeIso = true, EcalChargeIso = true, HcalChargeIso = true;
+      if(ecalCharIso=="maxNearP31X31"     && maxNearP31x31>0)     EcalChargeIso=false;
+
+      if(hcalCharIso=="maxNearHcalP7X7"   && maxNearHcalP7x7>0)   HcalChargeIso=false;
+      if(hcalCharIso=="maxNearHcalP5x5"   && maxNearHcalP5x5>0)   HcalChargeIso=false;
+      if(hcalCharIso=="maxNearHcalP3x3"   && maxNearHcalP3x3>0)   HcalChargeIso=false;
+      if(EcalChargeIso==false || HcalChargeIso==false)trackChargeIso=false;
       bool hcalNeutIso = true;
       
-      //if( h7x7-h5x5   >2.0  )                             hcalNeutIso=false;
-      if( h7x7-h5x5   > hhNeutIso )                             hcalNeutIso=false;
+      if( h7x7-h5x5   > hhNeutIso )   hcalNeutIso=false;
       
       if( iTrkMomBin>=0 && iTrkEtaBin>=0) {	 
 	h_trackPhi_2_2[iTrkEtaBin] ->Fill((*t_trackPhi)[itrk]);
       }
 
       bool trackSel = true;
-      // reject interactions in tracker
-      if( (*t_trackHitInMissTOB )[itrk]>0 || (*t_trackHitInMissTEC )[itrk]>0 || 
-	  (*t_trackHitInMissTIB )[itrk]>0 || (*t_trackHitInMissTID )[itrk]>0 || 
-	  (*t_trackHitOutMissTOB)[itrk]>0 || (*t_trackHitOutMissTEC)[itrk]>0 ) 
-	trackSel = false;
       if( ecalSpike11x11==0 ) trackSel=false ;
+
+      if(dataType=="Data" && (std::abs((*t_trackDxyPV)[itrk])>0.2 || std::abs((*t_trackDzPV)[itrk])>0.2 || (*t_trackChiSq)[itrk]>5.0 ) ) 
+	trackSel = false;
+      if(dataType=="MC"   && (std::abs((*t_trackDxyPV)[itrk])>0.2 || std::abs((*t_trackDzPV)[itrk])>0.2 || (*t_trackChiSq)[itrk]>5.0 ) ) 
+	trackSel = false;
+      if(dataType=="DiPion" && (std::abs((*t_trackDxy)[itrk])>0.2 || std::abs((*t_trackDz)[itrk])>0.2 || (*t_trackChiSq)[itrk]>5.0 ) ) 
+	trackSel = false;
+
+      int trackPVid = (*t_trackPVIdx)[itrk];
+      if(!VtxQlty[trackPVid])trackSel=false;
+      if( trackSel)nTrk_trksel_1++;
+      if( iTrkMomBin>=0 && iTrkEtaBin>=0 && trackSel)nTrk_trksel_2++;
+
       if( trackSel ) {
 	h_trackP_3       ->Fill((*t_trackP)[itrk]    );  
 	h_trackPt_3      ->Fill((*t_trackPt)[itrk]   );  
@@ -716,45 +619,26 @@ void TreeAnalysisRecoXtalsTh::Loop(int cut) {
 	}
       }
 
+      if( iTrkMomBin>=0 && iTrkEtaBin>=0 && trackSel)nTrk_trksel_3++;
+
+      if( NLayersCrossed<7 ) trackSel=false ;      
+      if( iTrkMomBin>=0 && iTrkEtaBin>=0 && trackSel)nTrk_trksel_4++;
+
+      // reject interactions in tracker
+      if( (*t_trackHitInMissTOB )[itrk]>0 || (*t_trackHitInMissTEC )[itrk]>0 || 
+	  (*t_trackHitInMissTIB )[itrk]>0 || (*t_trackHitInMissTID )[itrk]>0 || 
+	  (*t_trackHitOutMissTOB)[itrk]>0 || (*t_trackHitOutMissTEC)[itrk]>0 ) {
+	trackSel = false;
+      }
+      if( iTrkMomBin>=0 && iTrkEtaBin>=0 && trackSel)nTrk_trksel_5++;
+      
       if( iTrkMomBin>=0 && iTrkEtaBin>=0) {	 
 	if((*t_trackHitInMissTIB )[itrk]<1 && (*t_trackHitInMissTID )[itrk]<1 )
 	  h_trackPhi_3_Inner[iTrkEtaBin] ->Fill((*t_trackPhi)[itrk]);
 	if((*t_trackHitOutMissTOB)[itrk]<1 && (*t_trackHitOutMissTEC)[itrk]<1 )
 	  h_trackPhi_3_Outer[iTrkEtaBin] ->Fill((*t_trackPhi)[itrk]);
       }
-      if( NLayersCrossed<7 ) trackSel=false ;
-
-      if(dataType=="Data" && (std::abs((*t_trackDxyPV)[itrk])>0.2 || std::abs((*t_trackDzPV)[itrk])>0.2 || (*t_trackChiSq)[itrk]>5.0 || (*t_trackPVIdx)[itrk]>0 ) ) 
-	trackSel = false;
-      if(dataType=="MC"   && (std::abs((*t_trackDxyPV)[itrk])>0.2 || std::abs((*t_trackDzPV)[itrk])>0.2 || (*t_trackChiSq)[itrk]>5.0 ) ) 
-	trackSel = false;
-      if(dataType=="DiPion" && (*t_trackChiSq)[itrk]>5.0 ) trackSel = false;
-
-      double drTrackL1=0.0;
-      if( (dataType=="Data" || dataType=="MC") ) {
-	if( checkL1 ){
-	  drTrackL1 = DeltaR(eta1, phi1, maxL1Eta, maxL1Phi);	  
-	  if( drTrackL1<dRL1Jet) trackSel=false;
-
-	  bool tempIso=true;
-	  if( std::abs(eta1)<1.47 ) if( e15x15-e11x11 > ebNeutIso ) tempIso=false;
-	  if( std::abs(eta1)>1.47 ) if( e15x15-e11x11 > eeNeutIso ) tempIso=false;
-	  if( trackChargeIso &&  hcalNeutIso && tempIso) {
-	    if( drTrackL1>100.0) {
-	      std::cout<<"trackP,eta,phi "<<std::setw(10)<<(*t_trackP)[itrk]<<std::setw(10)<<(*t_trackEta)[itrk]
-		       <<std::setw(10)<<(*t_trackPhi)[itrk]
-		       <<" L1eta,phi "<<std::setw(10)<<maxL1Eta<<std::setw(10)<<maxL1Phi
-		       <<" dEta,dPhi "<<std::setw(10)<<eta1-maxL1Eta<<std::setw(10)<<DeltaPhi(phi1,maxL1Phi)
-		       <<" dR "<<std::setw(10)<<drTrackL1<<" maxL1Pt "<<std::setw(5)<<maxL1Pt<<" "<<checkL1
-		       <<std::endl;
-	    }
-	    h_drTrackL1[iTrkMomBin][iTrkEtaBin]->Fill(drTrackL1);
-	  }
-	} else {
-	  trackSel = false; // use only the events triigered by some L1
-	}
-      }
-
+      
       if( trackSel ) {
 	  h_trackP_4       ->Fill((*t_trackP)[itrk]    );  
 	  h_trackPt_4      ->Fill((*t_trackPt)[itrk]   );  
@@ -764,307 +648,202 @@ void TreeAnalysisRecoXtalsTh::Loop(int cut) {
 	  h_trackDxyPV_4   ->Fill((*t_trackDxyPV)[itrk]);  
 	  h_trackDzPV_4    ->Fill((*t_trackDzPV )[itrk]);  
       }
+
+      double drTrackL1=0.0;
+      if( checkL1 ){
+	drTrackL1 = DeltaR(eta1, phi1, maxL1Eta, maxL1Phi);     
+	if( drTrackL1<dRL1Jet) trackSel=false;
+      }
       
-      //if( iTrkMomBin>=0 && iTrkEtaBin>=0 && trackNOuterHits>=4 && NLayersCrossed>=8 && trackSel) {	 
       if( iTrkMomBin>=0 && iTrkEtaBin>=0 && trackSel) {	 
 	 
 	h_maxNearP31x31[iTrkMomBin][iTrkEtaBin]->Fill( maxNearP31x31 );
-	//h_maxNearP25x25[iTrkMomBin][iTrkEtaBin]->Fill( maxNearP25x25 );
-	//h_maxNearP21x21[iTrkMomBin][iTrkEtaBin]->Fill( maxNearP21x21 );
-	//h_maxNearP15x15[iTrkMomBin][iTrkEtaBin]->Fill( maxNearP15x15 );
-	//h_maxNearP11x11[iTrkMomBin][iTrkEtaBin]->Fill( maxNearP11x11 );
-	//h_maxNearP9x9[iTrkMomBin][iTrkEtaBin]  ->Fill( maxNearP9x9   );
-	//h_maxNearP7x7[iTrkMomBin][iTrkEtaBin]  ->Fill( maxNearP7x7   );
 
-	if( trackChargeIso ) {
-	  h_diff_e15x15e11x11      [iTrkMomBin][iTrkEtaBin]->Fill(e15x15-e11x11);
-	  h_diff_e15x15e11x11_10Sig[iTrkMomBin][iTrkEtaBin]->Fill((*t_e15x15_10Sig)[itrk]-(*t_e11x11_10Sig)[itrk]);
-	  h_diff_e15x15e11x11_15Sig[iTrkMomBin][iTrkEtaBin]->Fill((*t_e15x15_15Sig)[itrk]-(*t_e11x11_15Sig)[itrk]);
-	  h_diff_e15x15e11x11_20Sig[iTrkMomBin][iTrkEtaBin]->Fill((*t_e15x15_20Sig)[itrk]-(*t_e11x11_20Sig)[itrk]);
-	  h_diff_e15x15e11x11_25Sig[iTrkMomBin][iTrkEtaBin]->Fill((*t_e15x15_25Sig)[itrk]-(*t_e11x11_25Sig)[itrk]);
-	  h_diff_e15x15e11x11_30Sig[iTrkMomBin][iTrkEtaBin]->Fill((*t_e15x15_30Sig)[itrk]-(*t_e11x11_30Sig)[itrk]);
-	  h_diff_h7x7h5x5          [iTrkMomBin][iTrkEtaBin]->Fill( h7x7-h5x5 ) ;
+	if (EcalChargeIso) {
+	  nTrk_ecalcharIso++;
+	  if(HcalChargeIso)nTrk_hcalcharIso++;
 	}
 
-	if( trackChargeIso &&  hcalNeutIso) { 
+	if (trackChargeIso) {
+	  h_diff_e15x15e11x11      [iTrkMomBin][iTrkEtaBin]->Fill(e15x15-e11x11);
+	  h_diff_e15x15e11x11_20Sig[iTrkMomBin][iTrkEtaBin]->Fill((*t_e15x15_20Sig)[itrk]-(*t_e11x11_20Sig)[itrk]);
+	  h_diff_h7x7h5x5          [iTrkMomBin][iTrkEtaBin]->Fill( h7x7-h5x5 ) ;
+	}
+	
+	if (trackChargeIso) { 
 
 	  bool ecalNeutIso = true;
-	  //if( std::abs(eta1)<1.47 ) if( e15x15-e11x11 > 0.5 ) ecalNeutIso=false;
-	  //if( std::abs(eta1)>1.47 ) if( e15x15-e11x11 > 2.0 ) ecalNeutIso=false;
 	  if( std::abs(eta1)<1.47 ) if( e15x15-e11x11 > ebNeutIso ) ecalNeutIso=false;
 	  if( std::abs(eta1)>1.47 ) if( e15x15-e11x11 > eeNeutIso ) ecalNeutIso=false;
-	  if(ecalNeutIso ) {
-
-	    h_trackP_5       ->Fill((*t_trackP)[itrk]    );  
-	    h_trackPt_5      ->Fill((*t_trackPt)[itrk]   );  
-	    h_trackEta_5     ->Fill((*t_trackEta)[itrk]  );  
-	    h_trackPhi_5     ->Fill((*t_trackPhi)[itrk]  );  
-	    h_trackChisq_5   ->Fill((*t_trackChiSq)[itrk]);  
-	    h_trackDxyPV_5   ->Fill((*t_trackDxyPV)[itrk]);  
-	    h_trackDzPV_5    ->Fill((*t_trackDzPV )[itrk]);  
-	    
-	    NIsoTrk++;
-
-	    if( pt1>1.0 && std::abs(eta1)<2.3 ) {
-	      double etot11x11=0, etot9x9=0, etot7x7=0;
-	      if( std::abs(eta1)<1.7 ){
-		etot11x11=e11x11+h3x3;
-		etot9x9  =e9x9+h3x3;
-		etot7x7  =e7x7+h3x3;
-	      } else {
-		etot11x11=(*t_e11x11_20Sig)[itrk]+h3x3;
-		etot9x9  =(*t_e9x9_20Sig)[itrk]+h3x3;
-		etot7x7  =(*t_e7x7_20Sig)[itrk]+h3x3;
-	      }	      
-	      h_trackPCaloE11x11H3x3_0->Fill( p1, etot11x11);
-	      h_trackPCaloE9x9H3x3_0  ->Fill( p1, etot9x9);
-	      h_trackPCaloE7x7H3x3_0  ->Fill( p1, etot7x7);
+	  if(ecalNeutIso && hcalNeutIso) {
+	      h_trackP_5       ->Fill((*t_trackP)[itrk]    );  
+	      h_trackPt_5      ->Fill((*t_trackPt)[itrk]   );  
+	      h_trackEta_5     ->Fill((*t_trackEta)[itrk]  );  
+	      h_trackPhi_5     ->Fill((*t_trackPhi)[itrk]  );  
+	      h_trackChisq_5   ->Fill((*t_trackChiSq)[itrk]);  
+	      h_trackDxyPV_5   ->Fill((*t_trackDxyPV)[itrk]);  
+	      h_trackDzPV_5    ->Fill((*t_trackDzPV )[itrk]);  
 	      
-	      if(std::abs(eta1)<1.1){
-		h_trackPCaloE11x11H3x3_1->Fill( p1, etot11x11);
-		h_trackPCaloE9x9H3x3_1  ->Fill( p1, etot9x9);
-		h_trackPCaloE7x7H3x3_1  ->Fill( p1, etot7x7);	       
-	      } else if(std::abs(eta1)<1.7) {
-		h_trackPCaloE11x11H3x3_2->Fill( p1, etot11x11);
-		h_trackPCaloE9x9H3x3_2  ->Fill( p1, etot9x9);
-		h_trackPCaloE7x7H3x3_2  ->Fill( p1, etot7x7);	       
-	      } else if( std::abs(eta1)<2.3 ){
-		h_trackPCaloE11x11H3x3_3->Fill( p1, etot11x11);
-		h_trackPCaloE9x9H3x3_3  ->Fill( p1, etot9x9);
-		h_trackPCaloE7x7H3x3_3  ->Fill( p1, etot7x7);	       
+	      if( pt1>1.0 && std::abs(eta1)<2.3 ) {
+		double etot11x11=0, etot9x9=0, etot7x7=0;
+		if( std::abs(eta1)<1.7 ){
+		  etot11x11=e11x11+h3x3;
+		  etot9x9  =e9x9+h3x3;
+		  etot7x7  =e7x7+h3x3;
+		} else {
+		  etot11x11=(*t_e11x11_20Sig)[itrk]+h3x3;
+		  etot9x9  =(*t_e9x9_20Sig)[itrk]+h3x3;
+		  etot7x7  =(*t_e7x7_20Sig)[itrk]+h3x3;
+		}	      
+		h_trackPCaloE11x11H3x3_0->Fill( p1, etot11x11);
+		h_trackPCaloE9x9H3x3_0  ->Fill( p1, etot9x9);
+		h_trackPCaloE7x7H3x3_0  ->Fill( p1, etot7x7);
+		
+		if(std::abs(eta1)<1.1){
+		  h_trackPCaloE11x11H3x3_1->Fill( p1, etot11x11);
+		  h_trackPCaloE9x9H3x3_1  ->Fill( p1, etot9x9);
+		  h_trackPCaloE7x7H3x3_1  ->Fill( p1, etot7x7);	       
+		} else if(std::abs(eta1)<1.7) {
+		  h_trackPCaloE11x11H3x3_2->Fill( p1, etot11x11);
+		  h_trackPCaloE9x9H3x3_2  ->Fill( p1, etot9x9);
+		  h_trackPCaloE7x7H3x3_2  ->Fill( p1, etot7x7);	       
+		} else if( std::abs(eta1)<2.3 ){
+		  h_trackPCaloE11x11H3x3_3->Fill( p1, etot11x11);
+		  h_trackPCaloE9x9H3x3_3  ->Fill( p1, etot9x9);
+		  h_trackPCaloE7x7H3x3_3  ->Fill( p1, etot7x7);	       
+		}
 	      }
-	    }
-
-	    if( p1>3.0 &&  p1<4.0)  h_eECAL11x11VsHCAL3x3[iTrkEtaBin]->Fill(e11x11, h3x3);
-	    
-	    // Ecal tranverse profile
-	    //h_eECAL3x3_Frac  [iTrkMomBin][iTrkEtaBin]->Fill(e3x3/p1);
-	    //h_eECAL5x5_Frac  [iTrkMomBin][iTrkEtaBin]->Fill(e5x5/p1);
-	    h_eECAL7x7_Frac  [iTrkMomBin][iTrkEtaBin]->Fill(e7x7/p1);
-	    h_eECAL9x9_Frac  [iTrkMomBin][iTrkEtaBin]->Fill(e9x9/p1);
-	    h_eECAL11x11_Frac[iTrkMomBin][iTrkEtaBin]->Fill(e11x11/p1);
-	    //h_eECAL13x13_Frac[iTrkMomBin][iTrkEtaBin]->Fill(e13x13/p1);
-	    h_eECAL15x15_Frac[iTrkMomBin][iTrkEtaBin]->Fill(e15x15/p1);
-	    //h_eECAL21x21_Frac[iTrkMomBin][iTrkEtaBin]->Fill(e21x21/p1);
-	    //h_eECAL25x25_Frac[iTrkMomBin][iTrkEtaBin]->Fill(e25x25/p1);
-	    //h_eECAL31x31_Frac[iTrkMomBin][iTrkEtaBin]->Fill(e31x31/p1);
-	    
-	    //hh_eECAL3x3_Frac  [iTrkEtaBin]->Fill(e3x3/p1);
-	    //hh_eECAL5x5_Frac  [iTrkEtaBin]->Fill(e5x5/p1);
-	    hh_eECAL7x7_Frac  [iTrkEtaBin]->Fill(e7x7/p1);
-	    hh_eECAL9x9_Frac  [iTrkEtaBin]->Fill(e9x9/p1);
-	    hh_eECAL11x11_Frac[iTrkEtaBin]->Fill(e11x11/p1);
-	    //hh_eECAL13x13_Frac[iTrkEtaBin]->Fill(e13x13/p1);
-	    hh_eECAL15x15_Frac[iTrkEtaBin]->Fill(e15x15/p1);
-	    //hh_eECAL21x21_Frac[iTrkEtaBin]->Fill(e21x21/p1);
-	    //hh_eECAL25x25_Frac[iTrkEtaBin]->Fill(e25x25/p1);
-	    //hh_eECAL31x31_Frac[iTrkEtaBin]->Fill(e31x31/p1);
-	    
-	    // Hcal transverse profile
-	    h_eHCAL3x3_Frac[iTrkMomBin][iTrkEtaBin]->Fill(h3x3/p1);
-	    h_eHCAL5x5_Frac[iTrkMomBin][iTrkEtaBin]->Fill(h5x5/p1);
-	    h_eHCAL7x7_Frac[iTrkMomBin][iTrkEtaBin]->Fill(h7x7/p1);
-	    if( e7x7<0.7) {
-	      h_eHCAL3x3MIP_Frac[iTrkMomBin][iTrkEtaBin]->Fill(h3x3/p1);
-	      h_eHCAL5x5MIP_Frac[iTrkMomBin][iTrkEtaBin]->Fill(h5x5/p1);
-	      h_eHCAL7x7MIP_Frac[iTrkMomBin][iTrkEtaBin]->Fill(h7x7/p1);
-	    }
-	    hh_eHCAL3x3_Frac[iTrkEtaBin]->Fill(h3x3/p1);
-	    hh_eHCAL5x5_Frac[iTrkEtaBin]->Fill(h5x5/p1);
-	    hh_eHCAL7x7_Frac[iTrkEtaBin]->Fill(h7x7/p1);
-	    
-	    // Response : Ecal+Hcal
-	    h_eHCAL3x3_eECAL11x11_response[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+e11x11)/p1);
-	    h_eHCAL5x5_eECAL11x11_response[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+e11x11)/p1);
-	    h_eHCAL7x7_eECAL11x11_response[iTrkMomBin][iTrkEtaBin]->Fill((h7x7+e11x11)/p1);
-	    if( e7x7<0.7) {
-	      h_eHCAL3x3_eECAL11x11_responseMIP[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+e11x11)/p1);
-	      h_eHCAL5x5_eECAL11x11_responseMIP[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+e11x11)/p1);
-	      h_eHCAL7x7_eECAL11x11_responseMIP[iTrkMomBin][iTrkEtaBin]->Fill((h7x7+e11x11)/p1);
-	    } else {
-	      h_eHCAL3x3_eECAL11x11_responseInteract[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+e11x11)/p1);
-	      h_eHCAL5x5_eECAL11x11_responseInteract[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+e11x11)/p1);
-	      h_eHCAL7x7_eECAL11x11_responseInteract[iTrkMomBin][iTrkEtaBin]->Fill((h7x7+e11x11)/p1);
-	    }
-	    
-	    h_eHCAL3x3_eECAL9x9_response[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+e9x9)/p1);
-	    h_eHCAL5x5_eECAL9x9_response[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+e9x9)/p1);
-	    h_eHCAL7x7_eECAL9x9_response[iTrkMomBin][iTrkEtaBin]->Fill((h7x7+e9x9)/p1);
-	    if( e7x7<0.700) {
-	      h_eHCAL3x3_eECAL9x9_responseMIP[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+e9x9)/p1);
-	      h_eHCAL5x5_eECAL9x9_responseMIP[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+e9x9)/p1);
-	      h_eHCAL7x7_eECAL9x9_responseMIP[iTrkMomBin][iTrkEtaBin]->Fill((h7x7+e9x9)/p1);
-	    } else {
-	      h_eHCAL3x3_eECAL9x9_responseInteract[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+e9x9)/p1);
-	      h_eHCAL5x5_eECAL9x9_responseInteract[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+e9x9)/p1);
-	      h_eHCAL7x7_eECAL9x9_responseInteract[iTrkMomBin][iTrkEtaBin]->Fill((h7x7+e9x9)/p1);
-	    }
-	    
-	    h_eHCAL3x3_eECAL7x7_response[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+e7x7)/p1);
-	    h_eHCAL5x5_eECAL7x7_response[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+e7x7)/p1);
-	    h_eHCAL7x7_eECAL7x7_response[iTrkMomBin][iTrkEtaBin]->Fill((h7x7+e7x7)/p1);
-	    if( e7x7<0.700) {
-	      h_eHCAL3x3_eECAL7x7_responseMIP[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+e7x7)/p1);
-	      h_eHCAL5x5_eECAL7x7_responseMIP[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+e7x7)/p1);
-	      h_eHCAL7x7_eECAL7x7_responseMIP[iTrkMomBin][iTrkEtaBin]->Fill((h7x7+e7x7)/p1);
-	    } else {
-	      h_eHCAL3x3_eECAL7x7_responseInteract[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+e7x7)/p1);
-	      h_eHCAL5x5_eECAL7x7_responseInteract[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+e7x7)/p1);
-	      h_eHCAL7x7_eECAL7x7_responseInteract[iTrkMomBin][iTrkEtaBin]->Fill((h7x7+e7x7)/p1);
-	    }	    
+	      
+	      if( p1>3.0 &&  p1<4.0)  h_eECAL11x11VsHCAL3x3[iTrkEtaBin]->Fill(e11x11, h3x3);
+	      // Ecal tranverse profile
+	      h_eECAL7x7_Frac  [iTrkMomBin][iTrkEtaBin]->Fill(e7x7/p1);
+	      h_eECAL9x9_Frac  [iTrkMomBin][iTrkEtaBin]->Fill(e9x9/p1);
+	      h_eECAL11x11_Frac[iTrkMomBin][iTrkEtaBin]->Fill(e11x11/p1);
+	      h_eECAL15x15_Frac[iTrkMomBin][iTrkEtaBin]->Fill(e15x15/p1);
+	      
+	      hh_eECAL7x7_Frac  [iTrkEtaBin]->Fill(e7x7/p1);
+	      hh_eECAL9x9_Frac  [iTrkEtaBin]->Fill(e9x9/p1);
+	      hh_eECAL11x11_Frac[iTrkEtaBin]->Fill(e11x11/p1);
+	      hh_eECAL15x15_Frac[iTrkEtaBin]->Fill(e15x15/p1);
+	      
+	      // Hcal transverse profile
+	      h_eHCAL3x3_Frac[iTrkMomBin][iTrkEtaBin]->Fill(h3x3/p1);
+	      h_eHCAL5x5_Frac[iTrkMomBin][iTrkEtaBin]->Fill(h5x5/p1);
+	      h_eHCAL7x7_Frac[iTrkMomBin][iTrkEtaBin]->Fill(h7x7/p1);
+	      if( e7x7<0.7) {
+		h_eHCAL3x3MIP_Frac[iTrkMomBin][iTrkEtaBin]->Fill(h3x3/p1);
+		h_eHCAL5x5MIP_Frac[iTrkMomBin][iTrkEtaBin]->Fill(h5x5/p1);
+		h_eHCAL7x7MIP_Frac[iTrkMomBin][iTrkEtaBin]->Fill(h7x7/p1);
+	      }
+	      hh_eHCAL3x3_Frac[iTrkEtaBin]->Fill(h3x3/p1);
+	      hh_eHCAL5x5_Frac[iTrkEtaBin]->Fill(h5x5/p1);
+	      hh_eHCAL7x7_Frac[iTrkEtaBin]->Fill(h7x7/p1);
+	      
+	      // Response : Ecal+Hcal
+	      h_eHCAL3x3_eECAL11x11_response[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+e11x11)/p1);
+	      h_eHCAL5x5_eECAL11x11_response[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+e11x11)/p1);
+	      h_eHCAL7x7_eECAL11x11_response[iTrkMomBin][iTrkEtaBin]->Fill((h7x7+e11x11)/p1);
+	      if( e7x7<0.7) {
+		h_eHCAL3x3_eECAL11x11_responseMIP[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+e11x11)/p1);
+		h_eHCAL5x5_eECAL11x11_responseMIP[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+e11x11)/p1);
+		h_eHCAL7x7_eECAL11x11_responseMIP[iTrkMomBin][iTrkEtaBin]->Fill((h7x7+e11x11)/p1);
+	      } else {
+		h_eHCAL3x3_eECAL11x11_responseInteract[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+e11x11)/p1);
+		h_eHCAL5x5_eECAL11x11_responseInteract[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+e11x11)/p1);
+		h_eHCAL7x7_eECAL11x11_responseInteract[iTrkMomBin][iTrkEtaBin]->Fill((h7x7+e11x11)/p1);
+	      }
+	      
+	      h_eHCAL3x3_eECAL9x9_response[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+e9x9)/p1);
+	      h_eHCAL5x5_eECAL9x9_response[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+e9x9)/p1);
+	      h_eHCAL7x7_eECAL9x9_response[iTrkMomBin][iTrkEtaBin]->Fill((h7x7+e9x9)/p1);
+	      if( e7x7<0.700) {
+		h_eHCAL3x3_eECAL9x9_responseMIP[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+e9x9)/p1);
+		h_eHCAL5x5_eECAL9x9_responseMIP[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+e9x9)/p1);
+		h_eHCAL7x7_eECAL9x9_responseMIP[iTrkMomBin][iTrkEtaBin]->Fill((h7x7+e9x9)/p1);
+	      } else {
+		h_eHCAL3x3_eECAL9x9_responseInteract[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+e9x9)/p1);
+		h_eHCAL5x5_eECAL9x9_responseInteract[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+e9x9)/p1);
+		h_eHCAL7x7_eECAL9x9_responseInteract[iTrkMomBin][iTrkEtaBin]->Fill((h7x7+e9x9)/p1);
+	      }
+	      
+	      h_eHCAL3x3_eECAL7x7_response[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+e7x7)/p1);
+	      h_eHCAL5x5_eECAL7x7_response[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+e7x7)/p1);
+	      h_eHCAL7x7_eECAL7x7_response[iTrkMomBin][iTrkEtaBin]->Fill((h7x7+e7x7)/p1);
+	      if( e7x7<0.700) {
+		h_eHCAL3x3_eECAL7x7_responseMIP[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+e7x7)/p1);
+		h_eHCAL5x5_eECAL7x7_responseMIP[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+e7x7)/p1);
+		h_eHCAL7x7_eECAL7x7_responseMIP[iTrkMomBin][iTrkEtaBin]->Fill((h7x7+e7x7)/p1);
+	      } else {
+		h_eHCAL3x3_eECAL7x7_responseInteract[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+e7x7)/p1);
+		h_eHCAL5x5_eECAL7x7_responseInteract[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+e7x7)/p1);
+		h_eHCAL7x7_eECAL7x7_responseInteract[iTrkMomBin][iTrkEtaBin]->Fill((h7x7+e7x7)/p1);
+	      }	    
 	  } // ecal neutral isolation
-
-
-	  // cut on xtal noise
-	  bool ecalNeutIso10Sig = true;
-	  //if( std::abs(eta1)<1.47 ) if( (*t_e11x11_15Sig)[itrk]-(*t_e11x11_10Sig)[itrk] > 0.5 ) ecalNeutIso10Sig=false;
-	  //if( std::abs(eta1)>1.47 ) if( (*t_e11x11_15Sig)[itrk]-(*t_e11x11_10Sig)[itrk] > 2.0 ) ecalNeutIso10Sig=false;	  
-	  if( std::abs(eta1)<1.47 ) if( (*t_e15x15_10Sig)[itrk]-(*t_e11x11_10Sig)[itrk] > ebNeutIso ) ecalNeutIso10Sig=false;
-	  if( std::abs(eta1)>1.47 ) if( (*t_e15x15_10Sig)[itrk]-(*t_e11x11_10Sig)[itrk] > eeNeutIso ) ecalNeutIso10Sig=false;	  
-	  if(ecalNeutIso10Sig) {
-	    h_eECAL11x11_Frac_10Sig[iTrkMomBin][iTrkEtaBin]->Fill((*t_e11x11_10Sig)[itrk]/p1);
-	    h_eECAL9x9_Frac_10Sig  [iTrkMomBin][iTrkEtaBin]->Fill((*t_e9x9_10Sig)[itrk]/p1);
-	    h_eECAL7x7_Frac_10Sig  [iTrkMomBin][iTrkEtaBin]->Fill((*t_e7x7_10Sig)[itrk]/p1);
-	    
-	    h_eHCAL3x3_eECAL11x11_response_10Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_10Sig)[itrk])/p1);
-	    h_eHCAL3x3_eECAL9x9_response_10Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_10Sig)[itrk])/p1);
-	    h_eHCAL3x3_eECAL7x7_response_10Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_10Sig)[itrk])/p1);
-	    if( e7x7<0.700) {
-	      h_eHCAL3x3_eECAL11x11_responseMIP_10Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_10Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL9x9_responseMIP_10Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_10Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL7x7_responseMIP_10Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_10Sig)[itrk])/p1);
-	    } else {
-	      h_eHCAL3x3_eECAL11x11_responseInteract_10Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_10Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL9x9_responseInteract_10Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_10Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL7x7_responseInteract_10Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_10Sig)[itrk])/p1);
-	    }
-	  }
-
-	  bool ecalNeutIso15Sig = true;
-	  //if( std::abs(eta1)<1.47 ) if( (*t_e11x11_15Sig)[itrk]-(*t_e11x11_15Sig)[itrk] > 0.5 ) ecalNeutIso15Sig=false;
-	  //if( std::abs(eta1)>1.47 ) if( (*t_e11x11_15Sig)[itrk]-(*t_e11x11_15Sig)[itrk] > 2.0 ) ecalNeutIso15Sig=false;	  
-	  if( std::abs(eta1)<1.47 ) if( (*t_e15x15_15Sig)[itrk]-(*t_e11x11_15Sig)[itrk] > ebNeutIso ) ecalNeutIso15Sig=false;
-	  if( std::abs(eta1)>1.47 ) if( (*t_e15x15_15Sig)[itrk]-(*t_e11x11_15Sig)[itrk] > eeNeutIso ) ecalNeutIso15Sig=false;	  
-	  if(ecalNeutIso15Sig) {
-	    h_eECAL11x11_Frac_15Sig[iTrkMomBin][iTrkEtaBin]->Fill((*t_e11x11_15Sig)[itrk]/p1);
-	    h_eECAL9x9_Frac_15Sig  [iTrkMomBin][iTrkEtaBin]->Fill((*t_e9x9_15Sig)[itrk]/p1);
-	    h_eECAL7x7_Frac_15Sig  [iTrkMomBin][iTrkEtaBin]->Fill((*t_e7x7_15Sig)[itrk]/p1);
-	    
-	    h_eHCAL3x3_eECAL11x11_response_15Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_15Sig)[itrk])/p1);
-	    h_eHCAL3x3_eECAL9x9_response_15Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_15Sig)[itrk])/p1);
-	    h_eHCAL3x3_eECAL7x7_response_15Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_15Sig)[itrk])/p1);
-	    if( e7x7<0.700) {
-	      h_eHCAL3x3_eECAL11x11_responseMIP_15Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_15Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL9x9_responseMIP_15Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_15Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL7x7_responseMIP_15Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_15Sig)[itrk])/p1);
-	    } else {
-	      h_eHCAL3x3_eECAL11x11_responseInteract_15Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_15Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL9x9_responseInteract_15Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_15Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL7x7_responseInteract_15Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_15Sig)[itrk])/p1);
-	    }
-	  }
-
+	  
 	  bool ecalNeutIso20Sig = true;
-	  //if( std::abs(eta1)<1.47 ) if( (*t_e11x11_15Sig)[itrk]-(*t_e11x11_20Sig)[itrk] > 0.5 ) ecalNeutIso20Sig=false;
-	  //if( std::abs(eta1)>1.47 ) if( (*t_e11x11_15Sig)[itrk]-(*t_e11x11_20Sig)[itrk] > 2.0 ) ecalNeutIso20Sig=false;	  
 	  if( std::abs(eta1)<1.47 ) if( (*t_e15x15_20Sig)[itrk]-(*t_e11x11_20Sig)[itrk] > ebNeutIso ) ecalNeutIso20Sig=false;
 	  if( std::abs(eta1)>1.47 ) if( (*t_e15x15_20Sig)[itrk]-(*t_e11x11_20Sig)[itrk] > eeNeutIso ) ecalNeutIso20Sig=false;	  
 	  if(ecalNeutIso20Sig) {
-
-	    //if((*t_e7x7_20Sig)[itrk]<0.7 ) {
-	    //  h_HcalMeanEneVsEta->Fill(etaHcal1, (h3x3+(*t_e11x11_20Sig)[itrk])/p1 );
-	    //}
-
-	    h_meanTrackP[iTrkMomBin][iTrkEtaBin]->Fill(p1);
-	    h_eECAL11x11_Frac_20Sig[iTrkMomBin][iTrkEtaBin]->Fill((*t_e11x11_20Sig)[itrk]/p1);
-	    h_eECAL9x9_Frac_20Sig  [iTrkMomBin][iTrkEtaBin]->Fill((*t_e9x9_20Sig)[itrk]/p1);
-	    h_eECAL7x7_Frac_20Sig  [iTrkMomBin][iTrkEtaBin]->Fill((*t_e7x7_20Sig)[itrk]/p1);
-
-	    hh_eECAL11x11_Frac_20Sig[iTrkEtaBin]->Fill((*t_e11x11_20Sig)[itrk]/p1);
-	    hh_eECAL9x9_Frac_20Sig  [iTrkEtaBin]->Fill((*t_e9x9_20Sig)[itrk]/p1);
-	    hh_eECAL7x7_Frac_20Sig  [iTrkEtaBin]->Fill((*t_e7x7_20Sig)[itrk]/p1);
-
-	    h_eHCAL3x3_Frac_20Sig[iTrkMomBin][iTrkEtaBin]->Fill(h3x3/p1);
-	    h_eHCAL5x5_Frac_20Sig[iTrkMomBin][iTrkEtaBin]->Fill(h5x5/p1);
-	    h_eHCAL7x7_Frac_20Sig[iTrkMomBin][iTrkEtaBin]->Fill(h7x7/p1);
-	    if((*t_e7x7_20Sig)[itrk]<0.7 ) {
-	      h_eHCAL3x3MIP_Frac_20Sig[iTrkMomBin][iTrkEtaBin]->Fill(h3x3/p1);
-	      h_eHCAL5x5MIP_Frac_20Sig[iTrkMomBin][iTrkEtaBin]->Fill(h5x5/p1);
-	      h_eHCAL7x7MIP_Frac_20Sig[iTrkMomBin][iTrkEtaBin]->Fill(h7x7/p1);
-	    }
-	    hh_eHCAL3x3_Frac_20Sig[iTrkEtaBin]->Fill(h3x3/p1);
-	    hh_eHCAL5x5_Frac_20Sig[iTrkEtaBin]->Fill(h5x5/p1);
-	    hh_eHCAL7x7_Frac_20Sig[iTrkEtaBin]->Fill(h7x7/p1);
-
-	    h_eHCAL3x3_eECAL11x11_response_20Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_20Sig)[itrk])/p1);
-	    if((*t_e7x7_20Sig)[itrk]<0.7 ) {
-	      h_eHCAL3x3_eECAL11x11_responseMIP_20Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_20Sig)[itrk])/p1);
-	    } else {
-	      h_eHCAL3x3_eECAL11x11_responseInteract_20Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_20Sig)[itrk])/p1);
-	    }
-	    h_eHCAL3x3_eECAL9x9_response_20Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_20Sig)[itrk])/p1);
-	    if((*t_e7x7_20Sig)[itrk]<0.7 ) {
+	    nTrk_ecalNeutIso++;
+	    if(hcalNeutIso){
+	      nTrk_hcalNeutIso++;
+	      NIsoTrk++;  
+	      h_meanTrackP[iTrkMomBin][iTrkEtaBin]->Fill(p1);
+	      h_eECAL11x11_Frac_20Sig[iTrkMomBin][iTrkEtaBin]->Fill((*t_e11x11_20Sig)[itrk]/p1);
+	      h_eECAL9x9_Frac_20Sig  [iTrkMomBin][iTrkEtaBin]->Fill((*t_e9x9_20Sig)[itrk]/p1);
+	      h_eECAL7x7_Frac_20Sig  [iTrkMomBin][iTrkEtaBin]->Fill((*t_e7x7_20Sig)[itrk]/p1);
+	      
+	      hh_eECAL11x11_Frac_20Sig[iTrkEtaBin]->Fill((*t_e11x11_20Sig)[itrk]/p1);
+	      hh_eECAL9x9_Frac_20Sig  [iTrkEtaBin]->Fill((*t_e9x9_20Sig)[itrk]/p1);
+	      hh_eECAL7x7_Frac_20Sig  [iTrkEtaBin]->Fill((*t_e7x7_20Sig)[itrk]/p1);
+	    
+	      h_eHCAL3x3_Frac_20Sig[iTrkMomBin][iTrkEtaBin]->Fill(h3x3/p1);
+	      h_eHCAL5x5_Frac_20Sig[iTrkMomBin][iTrkEtaBin]->Fill(h5x5/p1);
+	      h_eHCAL7x7_Frac_20Sig[iTrkMomBin][iTrkEtaBin]->Fill(h7x7/p1);
+	      if((*t_e7x7_20Sig)[itrk]<0.7 ) {
+		h_eHCAL3x3MIP_Frac_20Sig[iTrkMomBin][iTrkEtaBin]->Fill(h3x3/p1);
+		h_eHCAL5x5MIP_Frac_20Sig[iTrkMomBin][iTrkEtaBin]->Fill(h5x5/p1);
+		h_eHCAL7x7MIP_Frac_20Sig[iTrkMomBin][iTrkEtaBin]->Fill(h7x7/p1);
+	      }
+	      hh_eHCAL3x3_Frac_20Sig[iTrkEtaBin]->Fill(h3x3/p1);
+	      hh_eHCAL5x5_Frac_20Sig[iTrkEtaBin]->Fill(h5x5/p1);
+	      hh_eHCAL7x7_Frac_20Sig[iTrkEtaBin]->Fill(h7x7/p1);
+	      
+	      h_eHCAL3x3_eECAL11x11_response_20Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_20Sig)[itrk])/p1);
+	      if((*t_e7x7_20Sig)[itrk]<0.7 ) {
+		h_eHCAL3x3_eECAL11x11_responseMIP_20Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_20Sig)[itrk])/p1);
+	      } else {
+		h_eHCAL3x3_eECAL11x11_responseInteract_20Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_20Sig)[itrk])/p1);
+	      }
+	      h_eHCAL3x3_eECAL9x9_response_20Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_20Sig)[itrk])/p1);
+	      if((*t_e7x7_20Sig)[itrk]<0.7 ) {
 	      h_eHCAL3x3_eECAL9x9_responseMIP_20Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_20Sig)[itrk])/p1);
-	    } else {
-	      h_eHCAL3x3_eECAL9x9_responseInteract_20Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_20Sig)[itrk])/p1);
-	    }
-	    h_eHCAL3x3_eECAL7x7_response_20Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_20Sig)[itrk])/p1);
-	    if((*t_e7x7_20Sig)[itrk]<0.7 ) {
-	      h_eHCAL3x3_eECAL7x7_responseMIP_20Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_20Sig)[itrk])/p1);
-	    } else {
-	      h_eHCAL3x3_eECAL7x7_responseInteract_20Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_20Sig)[itrk])/p1);
-	    }
-	  }
-
-	  bool ecalNeutIso25Sig = true;
-	  //if( std::abs(eta1)<1.47 ) if( (*t_e11x11_15Sig)[itrk]-(*t_e11x11_25Sig)[itrk] > 0.5 ) ecalNeutIso25Sig=false;
-	  //if( std::abs(eta1)>1.47 ) if( (*t_e11x11_15Sig)[itrk]-(*t_e11x11_25Sig)[itrk] > 2.0 ) ecalNeutIso25Sig=false;
-	  if( std::abs(eta1)<1.47 ) if( (*t_e15x15_25Sig)[itrk]-(*t_e11x11_25Sig)[itrk] > ebNeutIso ) ecalNeutIso25Sig=false;
-	  if( std::abs(eta1)>1.47 ) if( (*t_e15x15_25Sig)[itrk]-(*t_e11x11_25Sig)[itrk] > eeNeutIso ) ecalNeutIso25Sig=false;
-	  if(ecalNeutIso25Sig) {
-	    h_eECAL11x11_Frac_25Sig[iTrkMomBin][iTrkEtaBin]->Fill((*t_e11x11_25Sig)[itrk]/p1);
-	    h_eECAL9x9_Frac_25Sig  [iTrkMomBin][iTrkEtaBin]->Fill((*t_e9x9_25Sig)[itrk]/p1);
-	    h_eECAL7x7_Frac_25Sig  [iTrkMomBin][iTrkEtaBin]->Fill((*t_e7x7_25Sig)[itrk]/p1);
-	    
-	    h_eHCAL3x3_eECAL11x11_response_25Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_25Sig)[itrk])/p1);
-	    h_eHCAL3x3_eECAL9x9_response_25Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_25Sig)[itrk])/p1);
-	    h_eHCAL3x3_eECAL7x7_response_25Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_25Sig)[itrk])/p1);
-	    if( e7x7<0.700) {
-	      h_eHCAL3x3_eECAL11x11_responseMIP_25Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_25Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL9x9_responseMIP_25Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_25Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL7x7_responseMIP_25Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_25Sig)[itrk])/p1);
-	    } else {
-	      h_eHCAL3x3_eECAL11x11_responseInteract_25Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_25Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL9x9_responseInteract_25Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_25Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL7x7_responseInteract_25Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_25Sig)[itrk])/p1);
+	      } else {
+		h_eHCAL3x3_eECAL9x9_responseInteract_20Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_20Sig)[itrk])/p1);
+	      }
+	      h_eHCAL3x3_eECAL7x7_response_20Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_20Sig)[itrk])/p1);
+	      if((*t_e7x7_20Sig)[itrk]<0.7 ) {
+		h_eHCAL3x3_eECAL7x7_responseMIP_20Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_20Sig)[itrk])/p1);
+	      } else {
+		h_eHCAL3x3_eECAL7x7_responseInteract_20Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_20Sig)[itrk])/p1);
+	      }
+	      
+	      h_eHCAL5x5_eECAL11x11_response_20Sig[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+(*t_e11x11_20Sig)[itrk])/p1);
+	      if((*t_e7x7_20Sig)[itrk]<0.7 ) {
+		h_eHCAL5x5_eECAL11x11_responseMIP_20Sig[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+(*t_e11x11_20Sig)[itrk])/p1);
+	      } else {
+		h_eHCAL5x5_eECAL11x11_responseInteract_20Sig[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+(*t_e11x11_20Sig)[itrk])/p1);
+	      }
+	      
+	      h_eHCAL5x5_eECAL7x7_response_20Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h5x5+(*t_e7x7_20Sig)[itrk])/p1);
+	      if((*t_e7x7_20Sig)[itrk]<0.7 ) {
+		h_eHCAL5x5_eECAL7x7_responseMIP_20Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h5x5+(*t_e7x7_20Sig)[itrk])/p1);
+	      } else {
+		h_eHCAL5x5_eECAL7x7_responseInteract_20Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h5x5+(*t_e7x7_20Sig)[itrk])/p1);
+	      }
 	    }
 	  }
-
-	  bool ecalNeutIso30Sig = true;
-	  //if( std::abs(eta1)<1.47 ) if( (*t_e11x11_15Sig)[itrk]-(*t_e11x11_30Sig)[itrk] > 0.5 ) ecalNeutIso30Sig=false;
-	  //if( std::abs(eta1)>1.47 ) if( (*t_e11x11_15Sig)[itrk]-(*t_e11x11_30Sig)[itrk] > 2.0 ) ecalNeutIso30Sig=false;
-	  if( std::abs(eta1)<1.47 ) if( (*t_e15x15_30Sig)[itrk]-(*t_e11x11_30Sig)[itrk] > ebNeutIso ) ecalNeutIso30Sig=false;
-	  if( std::abs(eta1)>1.47 ) if( (*t_e15x15_30Sig)[itrk]-(*t_e11x11_30Sig)[itrk] > eeNeutIso ) ecalNeutIso30Sig=false;
-	  if(ecalNeutIso30Sig) {
-	    h_eECAL11x11_Frac_30Sig[iTrkMomBin][iTrkEtaBin]->Fill((*t_e11x11_30Sig)[itrk]/p1);
-	    h_eECAL9x9_Frac_30Sig  [iTrkMomBin][iTrkEtaBin]->Fill((*t_e9x9_30Sig)[itrk]/p1);
-	    h_eECAL7x7_Frac_30Sig  [iTrkMomBin][iTrkEtaBin]->Fill((*t_e7x7_30Sig)[itrk]/p1);
-	    
-	    h_eHCAL3x3_eECAL11x11_response_30Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_30Sig)[itrk])/p1);
-	    h_eHCAL3x3_eECAL9x9_response_30Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_30Sig)[itrk])/p1);
-	    h_eHCAL3x3_eECAL7x7_response_30Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_30Sig)[itrk])/p1);
-	    if( e7x7<0.700) {
-	      h_eHCAL3x3_eECAL11x11_responseMIP_30Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_30Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL9x9_responseMIP_30Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_30Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL7x7_responseMIP_30Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_30Sig)[itrk])/p1);
-	    } else {
-	      h_eHCAL3x3_eECAL11x11_responseInteract_30Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_30Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL9x9_responseInteract_30Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_30Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL7x7_responseInteract_30Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_30Sig)[itrk])/p1);
-	    }
-	  }
-	    
-	} // if charged & hcal iso
+	} // if charged 
 	
       } // momentum and eta bins 
       
@@ -1074,16 +853,15 @@ void TreeAnalysisRecoXtalsTh::Loop(int cut) {
       runNIsoTrkList[t_RunNo] += NIsoTrk;
     } else {
       runNIsoTrkList.insert( std::pair<unsigned int, unsigned int>(t_RunNo,NIsoTrk) );
-      std::cout << "runNo " << t_RunNo <<" "<<runNIsoTrkList[t_RunNo]<<std::endl;
     }
-  
   } //loop over tree entries
 
-  std::cout<<"Number of entries in tree "<<nentries                                                         << "\n"
-	   <<"nEventsGoodRuns           "<<nEventsGoodRuns                                                  << "\n"
-	   <<"nEventsValidPV            "<<nEventsValidPV  << " " <<(double)nEventsValidPV/nEventsGoodRuns  << "\n"
-	   <<"nEventsPVTracks           "<<nEventsPVTracks << " " <<(double)nEventsPVTracks/nEventsGoodRuns << "\n"
-	   << std::endl;
+  std::cout << "Number of entries in tree "   << nentries
+	    << "\nnEventsGoodRuns           " << nEventsGoodRuns
+	    << "\nnEventsValidPV            " << nEventsValidPV  
+	    << " " << (double)(nEventsValidPV/nEventsGoodRuns)
+	    << "\nnEventsPVTracks           " << nEventsPVTracks 
+	    << " " << (double)(nEventsPVTracks/nEventsGoodRuns) << std::endl;
 
   std::cout << "saved runEvtList " << std::endl;
   std::map<unsigned int, unsigned int>::iterator runEvtListItr = runEvtList.begin();
@@ -1096,6 +874,16 @@ void TreeAnalysisRecoXtalsTh::Loop(int cut) {
   for(runNTrkListItr=runNTrkList.begin(); runNTrkListItr != runNTrkList.end(); runNTrkListItr++) {
     std::cout<<runNTrkListItr->first << " "<< runNTrkListItr->second << std::endl;
   }
+
+  std::cout << "number of tracks_tracksel_1 " << nTrk_trksel_1 << std::endl
+	    << "number of tracks_tracksel_2 (etabin&mombin>0) " << nTrk_trksel_2 << std::endl
+	    << "number of tracks_tracksel_3 (TrackPVId=goodQlty) " << nTrk_trksel_3 << std::endl
+	    << "number of tracks_tracksel_4 (nlayers>6) " << nTrk_trksel_4 << std::endl
+	    << "number of tracks_tracksel_5 (noMissingHit) " << nTrk_trksel_5 << std::endl
+	    << "number of tracks_tracksel_ecalcharIso " << nTrk_ecalcharIso << std::endl
+	    << "number of tracks_tracksel_hcalcharIso " << nTrk_hcalcharIso << std::endl
+	    << "number of tracks_tracksel_ecalNeutIso " << nTrk_ecalNeutIso << std::endl
+	    << "number of tracks_tracksel_hcalNeutIso " << nTrk_hcalNeutIso << std::endl;
 
   std::cout << "Number of isolated tracks in runs " << std::endl;
   std::map<unsigned int, unsigned int>::iterator runNIsoTrkListItr = runNIsoTrkList.begin();
@@ -1125,19 +913,19 @@ void TreeAnalysisRecoXtalsTh::Show(Long64_t entry) {
 }
 
 double TreeAnalysisRecoXtalsTh::DeltaPhi(double v1, double v2) {
+
   // Computes the correctly normalized phi difference 
   // v1, v2 = phi of object 1 and 2
-
   double pi    = 3.141592654;
   double twopi = 6.283185307;
 
   double diff = std::abs(v2 - v1);
   double corr = twopi - diff;
-  if (diff < pi){ return diff;} else { return corr;}
+  if (diff < pi) { return diff;} 
+  else           { return corr;}
 }
 
 double TreeAnalysisRecoXtalsTh::DeltaR(double eta1, double phi1, double eta2, double phi2) {
-
   double deta = eta1 - eta2;
   double dphi = DeltaPhi(phi1, phi2);
   return std::sqrt(deta*deta + dphi*dphi);
@@ -1173,6 +961,8 @@ void TreeAnalysisRecoXtalsTh::BookHistograms(const char *outFileName) {
   h_NPV_AnyGoodPV       = new TH1F("h_NPV_AnyGoodPV",       "h_NPV_AnyGoodPV",        10, -0.5,   9.5); 
   h_NPV_FirstGoodPV     = new TH1F("h_NPV_FirstGoodPV",     "h_NPV_FirstGoodPV",      10, -0.5,   9.5); 
   h_NPV_1               = new TH1F("h_NPV_1",               "h_NPV_1",                10, -0.5,   9.5); 
+  h_nGoodPV             = new TH1F("h_nGoodPV",             "h_nGoodPV",              10, -0.5,   9.5); 
+  h_nQltyVtx            = new TH1F("h_nQltyVtx",            "h_nQltyVtx",             10, -0.5,   9.5); 
   h_PVx_1               = new TH1F("h_PVx_1",               "h_PVx_1",                40, -2.0,   2.0); 
   h_PVy_1               = new TH1F("h_PVy_1",               "h_PVy_1",                40, -2.0,   2.0); 
   h_PVr_1               = new TH1F("h_PVr_1",               "h_PVr_1",               100,  0.0,   3.0); 
@@ -1182,6 +972,10 @@ void TreeAnalysisRecoXtalsTh::BookHistograms(const char *outFileName) {
   h_PVTracksSumPt_1     = new TH1F("h_PVTracksSumPt_1",     "h_PVTracksSumPt_1",     300,  0.0, 300.0);
   h_PVNTracksWt_1       = new TH1F("h_PVNTracksWt_1",       "h_PVNTracksWt_1",       300,  0.0, 300.0); 
   h_PVTracksSumPtWt_1   = new TH1F("h_PVTracksSumPtWt_1",   "h_PVTracksSumPtWt_1",   300,  0.0, 300.0);
+  h_PVNTracksHP_1       = new TH1F("h_PVNTracksHP_1",       "h_PVNTracksHP_1",       300,  0.0, 300.0); 
+  h_PVTracksSumPtHP_1   = new TH1F("h_PVTracksSumPtHP_1",   "h_PVTracksSumPtHP_1",   300,  0.0, 300.0);
+  h_PVNTracksHPWt_1     = new TH1F("h_PVNTracksHPWt_1",     "h_PVNTracksHPWt_1",     300,  0.0, 300.0); 
+  h_PVTracksSumPtHPWt_1 = new TH1F("h_PVTracksSumPtHPWt_1", "h_PVTracksSumPtHPWt_1", 300,  0.0, 300.0);
   h_NPV_1               ->Sumw2(); 
   h_PVx_1               ->Sumw2(); 
   h_PVy_1               ->Sumw2(); 
@@ -1192,6 +986,10 @@ void TreeAnalysisRecoXtalsTh::BookHistograms(const char *outFileName) {
   h_PVTracksSumPt_1     ->Sumw2();
   h_PVNTracksWt_1       ->Sumw2(); 
   h_PVTracksSumPtWt_1   ->Sumw2();
+  h_PVNTracksHP_1       ->Sumw2(); 
+  h_PVTracksSumPtHP_1   ->Sumw2();
+  h_PVNTracksHPWt_1     ->Sumw2(); 
+  h_PVTracksSumPtHPWt_1 ->Sumw2();
 
   h_NPV_2             = new TH1F("h_NPV_2",             "h_NPV_2",              10, -0.5,   9.5); 
   h_PVx_2             = new TH1F("h_PVx_2",             "h_PVx_2",              80, -2.0,   2.0); 
@@ -1203,10 +1001,10 @@ void TreeAnalysisRecoXtalsTh::BookHistograms(const char *outFileName) {
   h_PVTracksSumPt_2   = new TH1F("h_PVTracksSumPt_2",   "h_PVTracksSumPt_2",   300,  0.0, 300.0);
   h_PVNTracksWt_2     = new TH1F("h_PVNTracksWt_2",     "h_PVNTracksWt_2",     300,  0.0, 300.0); 
   h_PVTracksSumPtWt_2 = new TH1F("h_PVTracksSumPtWt_2", "h_PVTracksSumPtWt_2", 300,  0.0, 300.0);
-  //h_PVNTracksHP_2       = new TH1F("h_PVNTracksHP_2",       "h_PVNTracksHP_2",       300,  0.0, 300.0); 
-  //h_PVTracksSumPtHP_2   = new TH1F("h_PVTracksSumPtHP_2",   "h_PVTracksSumPtHP_2",   300,  0.0, 300.0);
-  //h_PVNTracksHPWt_2     = new TH1F("h_PVNTracksHPWt_2",     "h_PVNTracksHPWt_2",     300,  0.0, 300.0); 
-  //h_PVTracksSumPtHPWt_2 = new TH1F("h_PVTracksSumPtHPWt_2", "h_PVTracksSumPtHPWt_2", 300,  0.0, 300.0);
+  h_PVNTracksHP_2       = new TH1F("h_PVNTracksHP_2",       "h_PVNTracksHP_2",       300,  0.0, 300.0); 
+  h_PVTracksSumPtHP_2   = new TH1F("h_PVTracksSumPtHP_2",   "h_PVTracksSumPtHP_2",   300,  0.0, 300.0);
+  h_PVNTracksHPWt_2     = new TH1F("h_PVNTracksHPWt_2",     "h_PVNTracksHPWt_2",     300,  0.0, 300.0); 
+  h_PVTracksSumPtHPWt_2 = new TH1F("h_PVTracksSumPtHPWt_2", "h_PVTracksSumPtHPWt_2", 300,  0.0, 300.0);
   h_NPV_2             ->Sumw2(); 
   h_PVx_2             ->Sumw2(); 
   h_PVy_2             ->Sumw2(); 
@@ -1217,10 +1015,10 @@ void TreeAnalysisRecoXtalsTh::BookHistograms(const char *outFileName) {
   h_PVTracksSumPt_2   ->Sumw2();
   h_PVNTracksWt_2     ->Sumw2(); 
   h_PVTracksSumPtWt_2 ->Sumw2();
-  //h_PVNTracksHP_2       ->Sumw2(); 
-  //h_PVTracksSumPtHP_2   ->Sumw2();
-  //h_PVNTracksHPWt_2     ->Sumw2(); 
-  //h_PVTracksSumPtHPWt_2 ->Sumw2();
+  h_PVNTracksHP_2       ->Sumw2(); 
+  h_PVTracksSumPtHP_2   ->Sumw2();
+  h_PVNTracksHPWt_2     ->Sumw2(); 
+  h_PVTracksSumPtHPWt_2 ->Sumw2();
 
   h_PVNTracksSumPt_1 = new TH2F("h_PVNTracksSumPt_1", "h_PVNTracksSumPt_1", 100,  0.0, 100.0, 100,  0.0, 100.0);
 
@@ -1343,103 +1141,98 @@ void TreeAnalysisRecoXtalsTh::BookHistograms(const char *outFileName) {
   TDirectory* d_trProf1      = fout->mkdir( "EcalTranverseProfile" );
   TDirectory* d_trProf2      = fout->mkdir( "HcalTranverseProfile" );
   TDirectory* d_response     = fout->mkdir( "Response" );
-  TDirectory* d_response10Sig= fout->mkdir( "Response10Sig" );
-  TDirectory* d_response15Sig= fout->mkdir( "Response15Sig" ); 
   TDirectory* d_response20Sig= fout->mkdir( "Response20Sig" );
-  TDirectory* d_response25Sig= fout->mkdir( "Response25Sig" );
-  TDirectory* d_response30Sig= fout->mkdir( "Response30Sig" );
-  TDirectory *d_drTrackL1    = fout->mkdir( "DrTrackL1" );
 
   for(int ieta=0; ieta<NEtaBins; ieta++) {
-      double lowEta=-5.0, highEta= 5.0;
-      lowEta  = genPartEtaBins[ieta];
-      highEta = genPartEtaBins[ieta+1];
+    double lowEta=-5.0, highEta= 5.0;
+    lowEta  = genPartEtaBins[ieta];
+    highEta = genPartEtaBins[ieta+1];
 
-      sprintf(hname, "h_eECAL11x11VsHCAL3x3_etaBin%i",ieta);
-      sprintf(htit,  "eEvseH : %3.2f<|#eta|<%3.2f)", lowEta, highEta);
-      h_eECAL11x11VsHCAL3x3[ieta] = new TH2F(hname, hname, 220, -1.0, 10.0, 220, -1.0, 10.0);
+    sprintf(hname, "h_eECAL11x11VsHCAL3x3_etaBin%i",ieta);
+    sprintf(htit,  "eEvseH : %3.2f<|#eta|<%3.2f)", lowEta, highEta);
+    h_eECAL11x11VsHCAL3x3[ieta] = new TH2F(hname, hname, 220, -1.0, 10.0, 220, -1.0, 10.0);
 
-      d_trProf1->cd();
-       sprintf(hname, "hh_eECAL3x3Frac_etaBin%i", ieta);
-       sprintf(htit,  "eECAL3x3/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
-      hh_eECAL3x3_Frac[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
-      hh_eECAL3x3_Frac[ieta] ->Sumw2();
-       sprintf(hname, "hh_eECAL5x5Frac_etaBin%i", ieta);
-       sprintf(htit,  "eECAL5x5/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
-      hh_eECAL5x5_Frac[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
-      hh_eECAL5x5_Frac[ieta] ->Sumw2();
-       sprintf(hname, "hh_eECAL7x7Frac_etaBin%i", ieta);
-       sprintf(htit,  "eECAL7x7/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
-      hh_eECAL7x7_Frac[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
-      hh_eECAL7x7_Frac[ieta] ->Sumw2();
-       sprintf(hname, "hh_eECAL9x9Frac_etaBin%i", ieta);
-       sprintf(htit,  "eECAL9x9/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
-      hh_eECAL9x9_Frac[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
-      hh_eECAL9x9_Frac[ieta] ->Sumw2();
-       sprintf(hname, "hh_eECAL11x11Frac_etaBin%i", ieta);
-       sprintf(htit,  "eECAL11x11/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
-      hh_eECAL11x11_Frac[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
-      hh_eECAL11x11_Frac[ieta] ->Sumw2();
-       sprintf(hname, "hh_eECAL13x13Frac_etaBin%i", ieta);
-       sprintf(htit,  "eECAL13x13/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
-      hh_eECAL13x13_Frac[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
-      hh_eECAL13x13_Frac[ieta] ->Sumw2();
-       sprintf(hname, "hh_eECAL15x15Frac_etaBin%i", ieta);
-       sprintf(htit,  "eECAL15x15/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
-      hh_eECAL15x15_Frac[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
-      hh_eECAL15x15_Frac[ieta] ->Sumw2();
-       sprintf(hname, "hh_eECAL21x21Frac_etaBin%i", ieta);
-       sprintf(htit,  "eECAL21x21/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
-      hh_eECAL21x21_Frac[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
-      hh_eECAL21x21_Frac[ieta] ->Sumw2();
-       sprintf(hname, "hh_eECAL25x25Frac_etaBin%i", ieta);
-      sprintf(htit,  "eECAL25x25/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
-      hh_eECAL25x25_Frac[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
-      hh_eECAL25x25_Frac[ieta] ->Sumw2();
-       sprintf(hname, "hh_eECAL31x31Frac_etaBin%i", ieta);
-       sprintf(htit,  "eECAL31x31/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
-      hh_eECAL31x31_Frac[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
-      hh_eECAL31x31_Frac[ieta] ->Sumw2();
+    d_trProf1->cd();
+    sprintf(hname, "hh_eECAL3x3Frac_etaBin%i", ieta);
+    sprintf(htit,  "eECAL3x3/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
+    hh_eECAL3x3_Frac[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
+    hh_eECAL3x3_Frac[ieta] ->Sumw2();
+    sprintf(hname, "hh_eECAL5x5Frac_etaBin%i", ieta);
+    sprintf(htit,  "eECAL5x5/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
+    hh_eECAL5x5_Frac[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
+    hh_eECAL5x5_Frac[ieta] ->Sumw2();
+    sprintf(hname, "hh_eECAL7x7Frac_etaBin%i", ieta);
+    sprintf(htit,  "eECAL7x7/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
+    hh_eECAL7x7_Frac[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
+    hh_eECAL7x7_Frac[ieta] ->Sumw2();
+    sprintf(hname, "hh_eECAL9x9Frac_etaBin%i", ieta);
+    sprintf(htit,  "eECAL9x9/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
+    hh_eECAL9x9_Frac[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
+    hh_eECAL9x9_Frac[ieta] ->Sumw2();
+    sprintf(hname, "hh_eECAL11x11Frac_etaBin%i", ieta);
+    sprintf(htit,  "eECAL11x11/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
+    hh_eECAL11x11_Frac[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
+    hh_eECAL11x11_Frac[ieta] ->Sumw2();
+    sprintf(hname, "hh_eECAL13x13Frac_etaBin%i", ieta);
+    sprintf(htit,  "eECAL13x13/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
+    hh_eECAL13x13_Frac[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
+    hh_eECAL13x13_Frac[ieta] ->Sumw2();
+    sprintf(hname, "hh_eECAL15x15Frac_etaBin%i", ieta);
+    sprintf(htit,  "eECAL15x15/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
+    hh_eECAL15x15_Frac[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
+    hh_eECAL15x15_Frac[ieta] ->Sumw2();
+    sprintf(hname, "hh_eECAL21x21Frac_etaBin%i", ieta);
+    sprintf(htit,  "eECAL21x21/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
+    hh_eECAL21x21_Frac[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
+    hh_eECAL21x21_Frac[ieta] ->Sumw2();
+    sprintf(hname, "hh_eECAL25x25Frac_etaBin%i", ieta);
+    sprintf(htit,  "eECAL25x25/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
+    hh_eECAL25x25_Frac[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
+    hh_eECAL25x25_Frac[ieta] ->Sumw2();
+    sprintf(hname, "hh_eECAL31x31Frac_etaBin%i", ieta);
+    sprintf(htit,  "eECAL31x31/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
+    hh_eECAL31x31_Frac[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
+    hh_eECAL31x31_Frac[ieta] ->Sumw2();
 
-       sprintf(hname, "hh_eECAL7x7Frac20Sig_etaBin%i", ieta);
-       sprintf(htit,  "eECAL7x7/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
-      hh_eECAL7x7_Frac_20Sig[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
-      hh_eECAL7x7_Frac_20Sig[ieta] ->Sumw2();
-       sprintf(hname, "hh_eECAL9x9Frac20Sig_etaBin%i", ieta);
-       sprintf(htit,  "eECAL9x9/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
-      hh_eECAL9x9_Frac_20Sig[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
-      hh_eECAL9x9_Frac_20Sig[ieta] ->Sumw2();
-       sprintf(hname, "hh_eECAL11x11Frac20Sig_etaBin%i", ieta);
-       sprintf(htit,  "eECAL11x11/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
-      hh_eECAL11x11_Frac_20Sig[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
-      hh_eECAL11x11_Frac_20Sig[ieta] ->Sumw2();
+    sprintf(hname, "hh_eECAL7x7Frac20Sig_etaBin%i", ieta);
+    sprintf(htit,  "eECAL7x7/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
+    hh_eECAL7x7_Frac_20Sig[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
+    hh_eECAL7x7_Frac_20Sig[ieta] ->Sumw2();
+    sprintf(hname, "hh_eECAL9x9Frac20Sig_etaBin%i", ieta);
+    sprintf(htit,  "eECAL9x9/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
+    hh_eECAL9x9_Frac_20Sig[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
+    hh_eECAL9x9_Frac_20Sig[ieta] ->Sumw2();
+    sprintf(hname, "hh_eECAL11x11Frac20Sig_etaBin%i", ieta);
+    sprintf(htit,  "eECAL11x11/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
+    hh_eECAL11x11_Frac_20Sig[ieta] =  new TH1F(hname, htit, 500, -1.0, 4.0);
+    hh_eECAL11x11_Frac_20Sig[ieta] ->Sumw2();
 
-      d_trProf2->cd();
-       sprintf(hname, "hh_eHCAL3x3Frac_etaBin%i", ieta);
-       sprintf(htit,  "eHCAL3x3/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
-      hh_eHCAL3x3_Frac[ieta] = new TH1F(hname, htit, 500, -2.0, 4.0);
-      hh_eHCAL3x3_Frac[ieta] ->Sumw2();
-       sprintf(hname, "hh_eHCAL5x5Frac_etaBin%i", ieta);
-       sprintf(htit,  "eHCAL5x5/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
-      hh_eHCAL5x5_Frac[ieta] = new TH1F(hname, htit, 500, -2.0, 4.0);
-      hh_eHCAL5x5_Frac[ieta] ->Sumw2();
-       sprintf(hname, "hh_eHCAL7x7Frac_etaBin%i", ieta);
-       sprintf(htit,  "eHCAL7x7/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
-      hh_eHCAL7x7_Frac[ieta] = new TH1F(hname, htit, 500, -2.0, 4.0);
-      hh_eHCAL7x7_Frac[ieta] ->Sumw2();
+    d_trProf2->cd();
+    sprintf(hname, "hh_eHCAL3x3Frac_etaBin%i", ieta);
+    sprintf(htit,  "eHCAL3x3/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
+    hh_eHCAL3x3_Frac[ieta] = new TH1F(hname, htit, 500, -2.0, 4.0);
+    hh_eHCAL3x3_Frac[ieta] ->Sumw2();
+    sprintf(hname, "hh_eHCAL5x5Frac_etaBin%i", ieta);
+    sprintf(htit,  "eHCAL5x5/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
+    hh_eHCAL5x5_Frac[ieta] = new TH1F(hname, htit, 500, -2.0, 4.0);
+    hh_eHCAL5x5_Frac[ieta] ->Sumw2();
+    sprintf(hname, "hh_eHCAL7x7Frac_etaBin%i", ieta);
+    sprintf(htit,  "eHCAL7x7/trkP (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
+    hh_eHCAL7x7_Frac[ieta] = new TH1F(hname, htit, 500, -2.0, 4.0);
+    hh_eHCAL7x7_Frac[ieta] ->Sumw2();
 
-       sprintf(hname, "hh_eHCAL3x3Frac20Sig_etaBin%i", ieta);
-       sprintf(htit,  "eHCAL3x3/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
-      hh_eHCAL3x3_Frac_20Sig[ieta] = new TH1F(hname, htit, 500, -2.0, 4.0);
-      hh_eHCAL3x3_Frac_20Sig[ieta] ->Sumw2();
-       sprintf(hname, "hh_eHCAL5x5Frac20Sig_etaBin%i", ieta);
-       sprintf(htit,  "eHCAL5x5/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
-      hh_eHCAL5x5_Frac_20Sig[ieta] = new TH1F(hname, htit, 500, -2.0, 4.0);
-      hh_eHCAL5x5_Frac_20Sig[ieta] ->Sumw2();
-       sprintf(hname, "hh_eHCAL7x7Frac20Sig_etaBin%i", ieta);
-       sprintf(htit,  "eHCAL7x7/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
-      hh_eHCAL7x7_Frac_20Sig[ieta] = new TH1F(hname, htit, 500, -2.0, 4.0);
-      hh_eHCAL7x7_Frac_20Sig[ieta] ->Sumw2();
+    sprintf(hname, "hh_eHCAL3x3Frac20Sig_etaBin%i", ieta);
+    sprintf(htit,  "eHCAL3x3/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
+    hh_eHCAL3x3_Frac_20Sig[ieta] = new TH1F(hname, htit, 500, -2.0, 4.0);
+    hh_eHCAL3x3_Frac_20Sig[ieta] ->Sumw2();
+    sprintf(hname, "hh_eHCAL5x5Frac20Sig_etaBin%i", ieta);
+    sprintf(htit,  "eHCAL5x5/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
+    hh_eHCAL5x5_Frac_20Sig[ieta] = new TH1F(hname, htit, 500, -2.0, 4.0);
+    hh_eHCAL5x5_Frac_20Sig[ieta] ->Sumw2();
+    sprintf(hname, "hh_eHCAL7x7Frac20Sig_etaBin%i", ieta);
+    sprintf(htit,  "eHCAL7x7/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f)", lowEta, highEta );
+    hh_eHCAL7x7_Frac_20Sig[ieta] = new TH1F(hname, htit, 500, -2.0, 4.0);
+    hh_eHCAL7x7_Frac_20Sig[ieta] ->Sumw2();
 
 
     for(int ipt=0; ipt<NPBins; ipt++) {
@@ -1448,579 +1241,366 @@ void TreeAnalysisRecoXtalsTh::BookHistograms(const char *outFileName) {
       highP   = genPartPBins[ipt+1];
 
       d_neutralIso->cd();
-       sprintf(hname, "h_diff_e15x15e11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "h_diff_e15x15e11x11: (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_diff_e15x15e11x11_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "h_diff_e15x15e11x11: (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_diff_e15x15e11x11      [ipt][ieta] = new TH1F(hname, htit, 600, -10.0, 50.0);
-       sprintf(hname, "h_diff10Sig_e15x15e11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "h_diff10Sig_e15x15e11x11: (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_diff_e15x15e11x11_10Sig[ipt][ieta] = new TH1F(hname, htit, 600, -10.0, 50.0);
-       sprintf(hname, "h_diff15Sig_e15x15e11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "h_diff15Sig_e15x15e11x11: (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_diff_e15x15e11x11_15Sig[ipt][ieta] = new TH1F(hname, htit, 600, -10.0, 50.0);
-       sprintf(hname, "h_diff20Sig_e15x15e11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "h_diff20Sig_e15x15e11x11: (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_diff20Sig_e15x15e11x11_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "h_diff20Sig_e15x15e11x11: (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_diff_e15x15e11x11_20Sig[ipt][ieta] = new TH1F(hname, htit, 600, -10.0, 50.0);
-       sprintf(hname, "h_diff25Sig_e15x15e11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "h_diff25Sig_e15x15e11x11: (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_diff_e15x15e11x11_25Sig[ipt][ieta] = new TH1F(hname, htit, 600, -10.0, 50.0);
-       sprintf(hname, "h_diff30Sig_e15x15e11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "h_diff30Sig_e15x15e11x11: (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_diff_e15x15e11x11_30Sig[ipt][ieta] = new TH1F(hname, htit, 600, -10.0, 50.0);
 
-       sprintf(hname, "h_diff_h7x7h5x5_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "h_diff_h7x7h5x5: (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_diff_h7x7h5x5_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "h_diff_h7x7h5x5: (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_diff_h7x7h5x5[ipt][ieta] = new TH1F(hname, htit, 600, -10.0, 50.0);
 
-
-     d_maxNearP->cd();
+      d_maxNearP->cd();
       sprintf(hname, "h_maxNearP31x31_ptBin%i_etaBin%i",ipt, ieta);
       sprintf(htit,  "maxNearP in 31x31 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_maxNearP31x31[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-     h_maxNearP31x31[ipt][ieta] ->Sumw2();
+      h_maxNearP31x31[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
+      h_maxNearP31x31[ipt][ieta] ->Sumw2();
       sprintf(hname, "h_maxNearP25x25_ptBin%i_etaBin%i",ipt, ieta);
       sprintf(htit,  "maxNearP in 25x25 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_maxNearP25x25[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-     h_maxNearP25x25[ipt][ieta] ->Sumw2();
+      h_maxNearP25x25[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
+      h_maxNearP25x25[ipt][ieta] ->Sumw2();
       sprintf(hname, "h_maxNearP21x21_ptBin%i_etaBin%i",ipt, ieta);
       sprintf(htit,  "maxNearP in 21x21 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_maxNearP21x21[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-     h_maxNearP21x21[ipt][ieta] ->Sumw2();
+      h_maxNearP21x21[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
+      h_maxNearP21x21[ipt][ieta] ->Sumw2();
       sprintf(hname, "h_maxNearP15x15_ptBin%i_etaBin%i",ipt, ieta);
       sprintf(htit,  "maxNearP in 15x15 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_maxNearP15x15[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-     h_maxNearP15x15[ipt][ieta] ->Sumw2();
+      h_maxNearP15x15[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
+      h_maxNearP15x15[ipt][ieta] ->Sumw2();
       sprintf(hname, "h_maxNearP11x11_ptBin%i_etaBin%i",ipt, ieta);
       sprintf(htit,  "maxNearP in 11x11 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_maxNearP11x11[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-     h_maxNearP11x11[ipt][ieta] ->Sumw2();
+      h_maxNearP11x11[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
+      h_maxNearP11x11[ipt][ieta] ->Sumw2();
       sprintf(hname, "h_maxNearP9x9_ptBin%i_etaBin%i",ipt, ieta);
       sprintf(htit,  "maxNearP in 9x9 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_maxNearP9x9[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-     h_maxNearP9x9[ipt][ieta] ->Sumw2();
+      h_maxNearP9x9[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
+      h_maxNearP9x9[ipt][ieta] ->Sumw2();
       sprintf(hname, "h_maxNearP7x7_ptBin%i_etaBin%i",ipt, ieta);
       sprintf(htit,  "maxNearP in 7x7 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_maxNearP7x7[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-     h_maxNearP7x7[ipt][ieta] ->Sumw2();
+      h_maxNearP7x7[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
+      h_maxNearP7x7[ipt][ieta] ->Sumw2();
 
-    //==============================
-     // Ecal plots
-     //==============================
-     d_trProf1->cd();
+      //==============================
+      // Ecal plots
+      //==============================
+      d_trProf1->cd();
       sprintf(hname, "h_eECAL3x3Frac_ptBin%i_etaBin%i", ipt, ieta);
       sprintf(htit,  "eECAL3x3/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL3x3_Frac[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL3x3_Frac[ipt][ieta] ->Sumw2();
+      h_eECAL3x3_Frac[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
+      h_eECAL3x3_Frac[ipt][ieta] ->Sumw2();
       sprintf(hname, "h_eECAL5x5Frac_ptBin%i_etaBin%i", ipt, ieta);
       sprintf(htit,  "eECAL5x5/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL5x5_Frac[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL5x5_Frac[ipt][ieta] ->Sumw2();
+      h_eECAL5x5_Frac[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
+      h_eECAL5x5_Frac[ipt][ieta] ->Sumw2();
       sprintf(hname, "h_eECAL7x7Frac_ptBin%i_etaBin%i", ipt, ieta);
       sprintf(htit,  "eECAL7x7/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL7x7_Frac[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL7x7_Frac[ipt][ieta] ->Sumw2();
+      h_eECAL7x7_Frac[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
+      h_eECAL7x7_Frac[ipt][ieta] ->Sumw2();
       sprintf(hname, "h_eECAL9x9Frac_ptBin%i_etaBin%i", ipt, ieta);
       sprintf(htit,  "eECAL9x9/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL9x9_Frac[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL9x9_Frac[ipt][ieta] ->Sumw2();
+      h_eECAL9x9_Frac[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
+      h_eECAL9x9_Frac[ipt][ieta] ->Sumw2();
       sprintf(hname, "h_eECAL11x11Frac_ptBin%i_etaBin%i", ipt, ieta);
       sprintf(htit,  "eECAL11x11/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL11x11_Frac[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL11x11_Frac[ipt][ieta] ->Sumw2();
+      h_eECAL11x11_Frac[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
+      h_eECAL11x11_Frac[ipt][ieta] ->Sumw2();
       sprintf(hname, "h_eECAL13x13Frac_ptBin%i_etaBin%i", ipt, ieta);
       sprintf(htit,  "eECAL13x13/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL13x13_Frac[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL13x13_Frac[ipt][ieta] ->Sumw2();
+      h_eECAL13x13_Frac[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
+      h_eECAL13x13_Frac[ipt][ieta] ->Sumw2();
       sprintf(hname, "h_eECAL15x15Frac_ptBin%i_etaBin%i", ipt, ieta);
       sprintf(htit,  "eECAL15x15/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL15x15_Frac[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL15x15_Frac[ipt][ieta] ->Sumw2();
+      h_eECAL15x15_Frac[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
+      h_eECAL15x15_Frac[ipt][ieta] ->Sumw2();
       sprintf(hname, "h_eECAL21x21Frac_ptBin%i_etaBin%i", ipt, ieta);
       sprintf(htit,  "eECAL21x21/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL21x21_Frac[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL21x21_Frac[ipt][ieta] ->Sumw2();
+      h_eECAL21x21_Frac[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
+      h_eECAL21x21_Frac[ipt][ieta] ->Sumw2();
       sprintf(hname, "h_eECAL25x25Frac_ptBin%i_etaBin%i", ipt, ieta);
       sprintf(htit,  "eECAL25x25/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL25x25_Frac[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL25x25_Frac[ipt][ieta] ->Sumw2();
+      h_eECAL25x25_Frac[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
+      h_eECAL25x25_Frac[ipt][ieta] ->Sumw2();
       sprintf(hname, "h_eECAL31x31Frac_ptBin%i_etaBin%i", ipt, ieta);
       sprintf(htit,  "eECAL31x31/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL31x31_Frac[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL31x31_Frac[ipt][ieta] ->Sumw2();
-
-
-     //==== additional plots with Sigma cut
-      sprintf(hname, "h_eECAL7x7Frac10Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL7x7/trkP(Xtal>1.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL7x7_Frac_10Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL7x7_Frac_10Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_eECAL9x9Frac10Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL9x9/trkP(Xtal>1.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL9x9_Frac_10Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL9x9_Frac_10Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_eECAL11x11Frac10Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL11x11/trkP(Xtal>1.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL11x11_Frac_10Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL11x11_Frac_10Sig[ipt][ieta] ->Sumw2();
-
-      sprintf(hname, "h_eECAL7x7Frac15Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL7x7/trkP(Xtal>1.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL7x7_Frac_15Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL7x7_Frac_15Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_eECAL9x9Frac15Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL9x9/trkP(Xtal>1.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL9x9_Frac_15Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL9x9_Frac_15Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_eECAL11x11Frac15Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL11x11/trkP(Xtal>1.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL11x11_Frac_15Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL11x11_Frac_15Sig[ipt][ieta] ->Sumw2();
+      h_eECAL31x31_Frac[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
+      h_eECAL31x31_Frac[ipt][ieta] ->Sumw2();
 
       sprintf(hname, "h_eECAL7x7Frac20Sig_ptBin%i_etaBin%i", ipt, ieta);
       sprintf(htit,  "eECAL7x7/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL7x7_Frac_20Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL7x7_Frac_20Sig[ipt][ieta] ->Sumw2();
+      h_eECAL7x7_Frac_20Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
+      h_eECAL7x7_Frac_20Sig[ipt][ieta] ->Sumw2();
       sprintf(hname, "h_eECAL9x9Frac20Sig_ptBin%i_etaBin%i", ipt, ieta);
       sprintf(htit,  "eECAL9x9/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL9x9_Frac_20Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL9x9_Frac_20Sig[ipt][ieta] ->Sumw2();
+      h_eECAL9x9_Frac_20Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
+      h_eECAL9x9_Frac_20Sig[ipt][ieta] ->Sumw2();
       sprintf(hname, "h_eECAL11x11Frac20Sig_ptBin%i_etaBin%i", ipt, ieta);
       sprintf(htit,  "eECAL11x11/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL11x11_Frac_20Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL11x11_Frac_20Sig[ipt][ieta] ->Sumw2();
+      h_eECAL11x11_Frac_20Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
+      h_eECAL11x11_Frac_20Sig[ipt][ieta] ->Sumw2();
 
-      sprintf(hname, "h_eECAL7x7Frac25Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL7x7/trkP(Xtal>2.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL7x7_Frac_25Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL7x7_Frac_25Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_eECAL9x9Frac25Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL9x9/trkP(Xtal>2.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL9x9_Frac_25Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL9x9_Frac_25Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_eECAL11x11Frac25Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL11x11/trkP(Xtal>2.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL11x11_Frac_25Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL11x11_Frac_25Sig[ipt][ieta] ->Sumw2();
-
-      sprintf(hname, "h_eECAL7x7Frac30Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL7x7/trkP(Xtal>3.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL7x7_Frac_30Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL7x7_Frac_30Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_eECAL9x9Frac30Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL9x9/trkP(Xtal>3.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL9x9_Frac_30Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL9x9_Frac_30Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_eECAL11x11Frac30Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL11x11/trkP(Xtal>3.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_eECAL11x11_Frac_30Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-     h_eECAL11x11_Frac_30Sig[ipt][ieta] ->Sumw2();
-
-     //==============================
-     // Hcal plots
-     //==============================
+      //==============================
+      // Hcal plots
+      //==============================
       d_trProf2->cd();
-       sprintf(hname, "h_eHCAL3x3Frac_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "eHCAL3x3/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_eHCAL3x3Frac_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "eHCAL3x3/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3_Frac[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3_Frac[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_eHCAL5x5Frac_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "eHCAL5x5/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_eHCAL5x5Frac_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "eHCAL5x5/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL5x5_Frac[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL5x5_Frac[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_eHCAL7x7Frac_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "eHCAL7x7/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_eHCAL7x7Frac_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "eHCAL7x7/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL7x7_Frac[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL7x7_Frac[ipt][ieta] ->Sumw2();
 
-       sprintf(hname, "h_eHCAL3x3Frac20Sig_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "eHCAL3x3/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_eHCAL3x3Frac20Sig_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "eHCAL3x3/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3_Frac_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3_Frac_20Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_eHCAL5x5Frac20Sig_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "eHCAL5x5/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_eHCAL5x5Frac20Sig_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "eHCAL5x5/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL5x5_Frac_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL5x5_Frac_20Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_eHCAL7x7Frac20Sig_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "eHCAL7x7/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_eHCAL7x7Frac20Sig_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "eHCAL7x7/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL7x7_Frac_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL7x7_Frac_20Sig[ipt][ieta] ->Sumw2();
 
-
-       sprintf(hname, "h_eHCAL3x3FracMIP_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "eHCAL3x3MIP/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_eHCAL3x3FracMIP_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "eHCAL3x3MIP/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3MIP_Frac[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3MIP_Frac[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_eHCAL5x5FracMIP_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "eHCAL5x5MIP/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_eHCAL5x5FracMIP_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "eHCAL5x5MIP/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL5x5MIP_Frac[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL5x5MIP_Frac[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_eHCAL7x7FracMIP_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "eHCAL7x7MIP/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_eHCAL7x7FracMIP_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "eHCAL7x7MIP/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL7x7MIP_Frac[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL7x7MIP_Frac[ipt][ieta] ->Sumw2();
 
-       sprintf(hname, "h_eHCAL3x3FracMIP20Sig_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "eHCAL3x3MIP/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_eHCAL3x3FracMIP20Sig_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "eHCAL3x3MIP/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3MIP_Frac_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3MIP_Frac_20Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_eHCAL5x5FracMIP20Sig_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "eHCAL5x5MIP/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_eHCAL5x5FracMIP20Sig_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "eHCAL5x5MIP/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL5x5MIP_Frac_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL5x5MIP_Frac_20Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_eHCAL7x7FracMIP20Sig_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "eHCAL7x7MIP/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_eHCAL7x7FracMIP20Sig_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "eHCAL7x7MIP/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL7x7MIP_Frac_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL7x7MIP_Frac_20Sig[ipt][ieta] ->Sumw2();
 
       //=================== Ecal+Hcal Response ====================
       d_response->cd();
-       sprintf(hname, "h_Response_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3+eECAL11x11)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_Response_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL3x3+eECAL11x11)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3_eECAL11x11_response[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3_eECAL11x11_response[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_Response_eHCAL5x5_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL5x5+eECAL11x11)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_Response_eHCAL5x5_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL5x5+eECAL11x11)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL5x5_eECAL11x11_response[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL5x5_eECAL11x11_response[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_Response_eHCAL7x7_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL7x7+eECAL11x11)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_Response_eHCAL7x7_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL7x7+eECAL11x11)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL7x7_eECAL11x11_response[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL7x7_eECAL11x11_response[ipt][ieta] ->Sumw2();
 
-       sprintf(hname, "h_ResponseMIP_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3MIP+eECAL11x11)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseMIP_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL3x3MIP+eECAL11x11)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3_eECAL11x11_responseMIP[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3_eECAL11x11_responseMIP[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseMIP_eHCAL5x5_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL5x5MIP+eECAL11x11)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseMIP_eHCAL5x5_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL5x5MIP+eECAL11x11)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL5x5_eECAL11x11_responseMIP[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL5x5_eECAL11x11_responseMIP[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseMIP_eHCAL7x7_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL7x7MIP+eECAL11x11)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseMIP_eHCAL7x7_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL7x7MIP+eECAL11x11)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL7x7_eECAL11x11_responseMIP[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL7x7_eECAL11x11_responseMIP[ipt][ieta] ->Sumw2();
       
-       sprintf(hname, "h_ResponseInteract_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3Interact+eECAL11x11)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseInteract_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL3x3Interact+eECAL11x11)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3_eECAL11x11_responseInteract[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3_eECAL11x11_responseInteract[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseInteract_eHCAL5x5_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL5x5Interact+eECAL11x11)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseInteract_eHCAL5x5_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL5x5Interact+eECAL11x11)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL5x5_eECAL11x11_responseInteract[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL5x5_eECAL11x11_responseInteract[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseInteract_eHCAL7x7_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL7x7Interact+eECAL11x11)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseInteract_eHCAL7x7_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL7x7Interact+eECAL11x11)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL7x7_eECAL11x11_responseInteract[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL7x7_eECAL11x11_responseInteract[ipt][ieta] ->Sumw2();
 
-       sprintf(hname, "h_Response_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3+eECAL9x9)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_Response_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL3x3+eECAL9x9)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3_eECAL9x9_response[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3_eECAL9x9_response[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_Response_eHCAL5x5_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL5x5+eECAL9x9)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_Response_eHCAL5x5_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL5x5+eECAL9x9)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL5x5_eECAL9x9_response[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL5x5_eECAL9x9_response[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_Response_eHCAL7x7_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL7x7+eECAL9x9)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_Response_eHCAL7x7_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL7x7+eECAL9x9)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL7x7_eECAL9x9_response[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL7x7_eECAL9x9_response[ipt][ieta] ->Sumw2();
 
-       sprintf(hname, "h_ResponseMIP_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3MIP+eECAL9x9)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseMIP_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL3x3MIP+eECAL9x9)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3_eECAL9x9_responseMIP[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3_eECAL9x9_responseMIP[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseMIP_eHCAL5x5_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL5x5MIP+eECAL9x9)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseMIP_eHCAL5x5_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL5x5MIP+eECAL9x9)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL5x5_eECAL9x9_responseMIP[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL5x5_eECAL9x9_responseMIP[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseMIP_eHCAL7x7_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL7x7MIP+eECAL9x9)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseMIP_eHCAL7x7_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL7x7MIP+eECAL9x9)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL7x7_eECAL9x9_responseMIP[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL7x7_eECAL9x9_responseMIP[ipt][ieta] ->Sumw2();
       
-       sprintf(hname, "h_ResponseInteract_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3Interact+eECAL9x9)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseInteract_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL3x3Interact+eECAL9x9)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3_eECAL9x9_responseInteract[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3_eECAL9x9_responseInteract[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseInteract_eHCAL5x5_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL5x5Interact+eECAL9x9)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseInteract_eHCAL5x5_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL5x5Interact+eECAL9x9)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL5x5_eECAL9x9_responseInteract[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL5x5_eECAL9x9_responseInteract[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseInteract_eHCAL7x7_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL7x7Interact+eECAL9x9)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseInteract_eHCAL7x7_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL7x7Interact+eECAL9x9)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL7x7_eECAL9x9_responseInteract[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL7x7_eECAL9x9_responseInteract[ipt][ieta] ->Sumw2();
 
-
-       sprintf(hname, "h_Response_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3+eECAL7x7)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_Response_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL3x3+eECAL7x7)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3_eECAL7x7_response[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3_eECAL7x7_response[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_Response_eHCAL5x5_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL5x5+eECAL7x7)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_Response_eHCAL5x5_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL5x5+eECAL7x7)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL5x5_eECAL7x7_response[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL5x5_eECAL7x7_response[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_Response_eHCAL7x7_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL7x7+eECAL7x7)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_Response_eHCAL7x7_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL7x7+eECAL7x7)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL7x7_eECAL7x7_response[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL7x7_eECAL7x7_response[ipt][ieta] ->Sumw2();
 
-       sprintf(hname, "h_ResponseMIP_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3MIP+eECAL7x7)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseMIP_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL3x3MIP+eECAL7x7)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3_eECAL7x7_responseMIP[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3_eECAL7x7_responseMIP[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseMIP_eHCAL5x5_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL5x5MIP+eECAL7x7)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseMIP_eHCAL5x5_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL5x5MIP+eECAL7x7)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL5x5_eECAL7x7_responseMIP[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL5x5_eECAL7x7_responseMIP[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseMIP_eHCAL7x7_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL7x7MIP+eECAL7x7)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseMIP_eHCAL7x7_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL7x7MIP+eECAL7x7)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL7x7_eECAL7x7_responseMIP[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL7x7_eECAL7x7_responseMIP[ipt][ieta] ->Sumw2();
       
-       sprintf(hname, "h_ResponseInteract_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3Interact+eECAL7x7)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseInteract_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL3x3Interact+eECAL7x7)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3_eECAL7x7_responseInteract[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3_eECAL7x7_responseInteract[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseInteract_eHCAL5x5_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL5x5Interact+eECAL7x7)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseInteract_eHCAL5x5_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL5x5Interact+eECAL7x7)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL5x5_eECAL7x7_responseInteract[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL5x5_eECAL7x7_responseInteract[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseInteract_eHCAL7x7_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL7x7Interact+eECAL7x7)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseInteract_eHCAL7x7_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL7x7Interact+eECAL7x7)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL7x7_eECAL7x7_responseInteract[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL7x7_eECAL7x7_responseInteract[ipt][ieta] ->Sumw2();
-
-      //======
-      d_response10Sig->cd();
-       sprintf(hname, "h_Response10Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3+eECAL11x11)(Xtal>1.0#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_response_10Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_response_10Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseMIP10Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3MIP+eECAL11x11)/trkP(Xtal>1.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_responseMIP_10Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_responseMIP_10Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseInteract10Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3Interact+eECAL11x11)/trkP(Xtal>1.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_responseInteract_10Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_responseInteract_10Sig[ipt][ieta] ->Sumw2();
-
-       sprintf(hname, "h_Response10Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3+eECAL9x9)(Xtal>1.0#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_response_10Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_response_10Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseMIP10Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3MIP+eECAL9x9)/trkP(Xtal>1.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_responseMIP_10Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_responseMIP_10Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseInteract10Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3Interact+eECAL9x9)/trkP(Xtal>1.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_responseInteract_10Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_responseInteract_10Sig[ipt][ieta] ->Sumw2();
-
-       sprintf(hname, "h_Response10Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3+eECAL7x7)(Xtal>1.0#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_response_10Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_response_10Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseMIP10Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3MIP+eECAL7x7)/trkP(Xtal>1.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_responseMIP_10Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_responseMIP_10Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseInteract10Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3Interact+eECAL7x7)/trkP(Xtal>1.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_responseInteract_10Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_responseInteract_10Sig[ipt][ieta] ->Sumw2();
-
-      d_response15Sig->cd();
-       sprintf(hname, "h_Response15Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3+eECAL11x11)(Xtal>1.5#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_response_15Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_response_15Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseMIP15Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3MIP+eECAL11x11)/trkP(Xtal>1.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_responseMIP_15Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_responseMIP_15Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseInteract15Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3Interact+eECAL11x11)/trkP(Xtal>1.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_responseInteract_15Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_responseInteract_15Sig[ipt][ieta] ->Sumw2();
-
-       sprintf(hname, "h_Response15Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3+eECAL9x9)(Xtal>1.5#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_response_15Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_response_15Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseMIP15Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3MIP+eECAL9x9)/trkP(Xtal>1.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_responseMIP_15Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_responseMIP_15Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseInteract15Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3Interact+eECAL9x9)/trkP(Xtal>1.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_responseInteract_15Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_responseInteract_15Sig[ipt][ieta] ->Sumw2();
-
-       sprintf(hname, "h_Response15Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3+eECAL7x7)(Xtal>1.5#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_response_15Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_response_15Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseMIP15Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3MIP+eECAL7x7)/trkP(Xtal>1.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_responseMIP_15Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_responseMIP_15Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseInteract15Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3Interact+eECAL7x7)/trkP(Xtal>1.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_responseInteract_15Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_responseInteract_15Sig[ipt][ieta] ->Sumw2();
       
       d_response20Sig->cd();
-       sprintf(hname, "h_Response20Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3+eECAL11x11)(Xtal>2.0#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_Response20Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL3x3+eECAL11x11)(Xtal>2.0#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3_eECAL11x11_response_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3_eECAL11x11_response_20Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseMIP20Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3MIP+eECAL11x11)/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseMIP20Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL3x3MIP+eECAL11x11)/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3_eECAL11x11_responseMIP_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3_eECAL11x11_responseMIP_20Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseInteract20Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3Interact+eECAL11x11)/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseInteract20Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL3x3Interact+eECAL11x11)/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3_eECAL11x11_responseInteract_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3_eECAL11x11_responseInteract_20Sig[ipt][ieta] ->Sumw2();
 
-       sprintf(hname, "h_Response20Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3+eECAL9x9)(Xtal>2.0#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_Response20Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL3x3+eECAL9x9)(Xtal>2.0#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3_eECAL9x9_response_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3_eECAL9x9_response_20Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseMIP20Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3MIP+eECAL9x9)/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseMIP20Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL3x3MIP+eECAL9x9)/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3_eECAL9x9_responseMIP_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3_eECAL9x9_responseMIP_20Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseInteract20Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3Interact+eECAL9x9)/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseInteract20Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL3x3Interact+eECAL9x9)/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3_eECAL9x9_responseInteract_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3_eECAL9x9_responseInteract_20Sig[ipt][ieta] ->Sumw2();
 
-       sprintf(hname, "h_Response20Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3+eECAL7x7)(Xtal>2.0#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_Response20Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL3x3+eECAL7x7)(Xtal>2.0#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3_eECAL7x7_response_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3_eECAL7x7_response_20Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseMIP20Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3MIP+eECAL7x7)/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseMIP20Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL3x3MIP+eECAL7x7)/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3_eECAL7x7_responseMIP_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3_eECAL7x7_responseMIP_20Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseInteract20Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3Interact+eECAL7x7)/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      sprintf(hname, "h_ResponseInteract20Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL3x3Interact+eECAL7x7)/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3_eECAL7x7_responseInteract_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3_eECAL7x7_responseInteract_20Sig[ipt][ieta] ->Sumw2();
       
-      d_response25Sig->cd();
-       sprintf(hname, "h_Response25Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3+eECAL11x11)(Xtal>2.5#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_response_25Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_response_25Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseMIP25Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3MIP+eECAL11x11)/trkP(Xtal>2.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_responseMIP_25Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_responseMIP_25Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseInteract25Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3Interact+eECAL11x11)/trkP(Xtal>2.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_responseInteract_25Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_responseInteract_25Sig[ipt][ieta] ->Sumw2();
-
-       sprintf(hname, "h_Response25Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3+eECAL9x9)(Xtal>2.5#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_response_25Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_response_25Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseMIP25Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3MIP+eECAL9x9)/trkP(Xtal>2.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_responseMIP_25Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_responseMIP_25Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseInteract25Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3Interact+eECAL9x9)/trkP(Xtal>2.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_responseInteract_25Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_responseInteract_25Sig[ipt][ieta] ->Sumw2();
-
-       sprintf(hname, "h_Response25Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3+eECAL7x7)(Xtal>2.5#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_response_25Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_response_25Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseMIP25Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3MIP+eECAL7x7)/trkP(Xtal>2.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_responseMIP_25Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_responseMIP_25Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseInteract25Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3Interact+eECAL7x7)/trkP(Xtal>2.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_responseInteract_25Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_responseInteract_25Sig[ipt][ieta] ->Sumw2();
-      
-      d_response30Sig->cd();
-       sprintf(hname, "h_Response30Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3+eECAL11x11)(Xtal>3.0#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_response_30Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_response_30Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseMIP30Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3MIP+eECAL11x11)/trkP(Xtal>3.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_responseMIP_30Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_responseMIP_30Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseInteract30Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3Interact+eECAL11x11)/trkP(Xtal>3.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_responseInteract_30Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_responseInteract_30Sig[ipt][ieta] ->Sumw2();
-
-       sprintf(hname, "h_Response30Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3+eECAL9x9)(Xtal>3.0#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_response_30Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_response_30Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseMIP30Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3MIP+eECAL9x9)/trkP(Xtal>3.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_responseMIP_30Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_responseMIP_30Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseInteract30Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3Interact+eECAL9x9)/trkP(Xtal>3.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_responseInteract_30Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_responseInteract_30Sig[ipt][ieta] ->Sumw2();
-
-       sprintf(hname, "h_Response30Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3+eECAL7x7)(Xtal>3.0#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_response_30Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_response_30Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseMIP30Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3MIP+eECAL7x7)/trkP(Xtal>3.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_responseMIP_30Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_responseMIP_30Sig[ipt][ieta] ->Sumw2();
-       sprintf(hname, "h_ResponseInteract30Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "(eHCAL3x3Interact+eECAL7x7)/trkP(Xtal>3.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_responseInteract_30Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_responseInteract_30Sig[ipt][ieta] ->Sumw2();
+      sprintf(hname, "h_Response20Sig_eHCAL5x5_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL5x5+eECAL7x7)(Xtal>2.0#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      h_eHCAL5x5_eECAL7x7_response_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
+      h_eHCAL5x5_eECAL7x7_response_20Sig[ipt][ieta] ->Sumw2();
+      sprintf(hname, "h_ResponseMIP20Sig_eHCAL5x5_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL5x5MIP+eECAL7x7)/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      h_eHCAL5x5_eECAL7x7_responseMIP_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
+      h_eHCAL5x5_eECAL7x7_responseMIP_20Sig[ipt][ieta] ->Sumw2();
+      sprintf(hname, "h_ResponseInteract20Sig_eHCAL5x5_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL5x5Interact+eECAL7x7)/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      h_eHCAL5x5_eECAL7x7_responseInteract_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
+      h_eHCAL5x5_eECAL7x7_responseInteract_20Sig[ipt][ieta] ->Sumw2();
+ 
+      sprintf(hname, "h_Response20Sig_eHCAL5x5_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL5x5+eECAL11x11)(Xtal>2.0#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      h_eHCAL5x5_eECAL11x11_response_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
+      h_eHCAL5x5_eECAL11x11_response_20Sig[ipt][ieta] ->Sumw2();
+      sprintf(hname, "h_ResponseMIP20Sig_eHCAL5x5_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL5x5MIP+eECAL11x11)/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      h_eHCAL5x5_eECAL11x11_responseMIP_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
+      h_eHCAL5x5_eECAL11x11_responseMIP_20Sig[ipt][ieta] ->Sumw2();
+      sprintf(hname, "h_ResponseInteract20Sig_eHCAL5x5_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL5x5Interact+eECAL11x11)/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      h_eHCAL5x5_eECAL11x11_responseInteract_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
+      h_eHCAL5x5_eECAL11x11_responseInteract_20Sig[ipt][ieta] ->Sumw2();
 
       d_maxNearP->cd();
-       sprintf(hname, "h_meanTrackP_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "Track Momentum (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );             
+      sprintf(hname, "h_meanTrackP_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "Track Momentum (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );             
       h_meanTrackP[ipt][ieta] = new TH1F(hname, htit, 100, lowP*0.9, highP*1.1);
       h_meanTrackP[ipt][ieta] ->Sumw2();
-
-      d_drTrackL1->cd();
-       sprintf(hname, "h_drTrackL1_ptBin%i_etaBin%i", ipt, ieta);
-       sprintf(htit,  "dr(Track,L1) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );             
-      h_drTrackL1[ipt][ieta] = new TH1F(hname, htit, 100, -0.01, 10.0);
-      h_drTrackL1[ipt][ieta] ->Sumw2();
-
     }
   }
-
-  
+ 
   fout->cd();
-double hcalEtaBins[55] = {-2.650,-2.500,-2.322,-2.172,-2.043,-1.930,
-			  -1.830,-1.740,-1.653,-1.566,-1.479,-1.392,-1.305,
-			  -1.218,-1.131,-1.044,-0.957,-0.879,-0.783,-0.696,
-  			  -0.609,-0.522,-0.435,-0.348,-0.261,-0.174,-0.087,
-	 		   0.000,
-			   0.087, 0.174, 0.261, 0.348, 0.435, 0.522, 0.609,
-			   0.696, 0.783, 0.879, 0.957, 1.044, 1.131, 1.218,
-			   1.305, 1.392, 1.479, 1.566, 1.653, 1.740, 1.830,
-			   1.930, 2.043, 2.172, 2.322, 2.500, 2.650};
- h_HcalMeanEneVsEta = new TProfile("h_HcalMeanEneVsEta", "h_HcalMeanEneVsEta", 54, hcalEtaBins);
- h_HcalMeanEneVsEta->Sumw2();
-
+  double hcalEtaBins[55] = {-2.650,-2.500,-2.322,-2.172,-2.043,-1.930,
+			    -1.830,-1.740,-1.653,-1.566,-1.479,-1.392,-1.305,
+			    -1.218,-1.131,-1.044,-0.957,-0.879,-0.783,-0.696,
+			    -0.609,-0.522,-0.435,-0.348,-0.261,-0.174,-0.087,
+			    0.000,
+			    0.087, 0.174, 0.261, 0.348, 0.435, 0.522, 0.609,
+			    0.696, 0.783, 0.879, 0.957, 1.044, 1.131, 1.218,
+			    1.305, 1.392, 1.479, 1.566, 1.653, 1.740, 1.830,
+			    1.930, 2.043, 2.172, 2.322, 2.500, 2.650};
+  h_HcalMeanEneVsEta = new TProfile("h_HcalMeanEneVsEta", "h_HcalMeanEneVsEta", 54, hcalEtaBins);
+  h_HcalMeanEneVsEta->Sumw2();
 
 }
 			  

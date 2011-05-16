@@ -7,10 +7,15 @@
 Bool_t FillChain(TChain *chain, const TString &inputFileList);
 
 int main(Int_t argc, Char_t *argv[]) {
-  if( argc<5 ){
+  if( argc<6 ){
     std::cerr << "Please give 4 arguments "
-              << "runList " << " " << "outputFileName" << " "
-	      << "L1 Trigger Name" << " " << "dRCut for L1" 
+              << "runList Seed" << " " 
+	      << "outputFileName" << " "
+	      << "L1 Trigger Name" << " " 
+	      << "dRCut for L1" << " " 
+	      << "maximum sample size" << " " 
+	      << "iRange" << " " 
+	      << "fRange" << "" 
 	      << std::endl;
     return -1;
   }
@@ -19,22 +24,69 @@ int main(Int_t argc, Char_t *argv[]) {
   const char *outFileName   = argv[2];
   const char *name          = argv[3];
   const char *DRCut         = argv[4];
-
+  double totalTracks        = atof(argv[5]);
+  const int iRange        = atoi(argv[6]);
+  const int fRange        = atoi(argv[7]);
+  
   // Reading Tree                                                                                   
   std::cout << "---------------------" << std::endl;
   std::cout << "Reading List of input trees from " << inputFileList << std::endl;
-  
-  TChain *chain = new TChain("/isoGen/tree");
-  if( ! FillChain(chain, inputFileList) ) {
-    std::cerr << "Cannot get the tree " << std::endl;
-    return(0);
-  }
-  TreeAnalysisReadGen tree(chain, outFileName);
-  
-  tree.l1Name = name;
-  tree.dRCut  = atof(DRCut);
-  tree.Loop();
 
+  bool debug=false;
+  const char *ranges[15] = {"0to5", "5to15", "15to30","30to50","50to80",
+                            "80to120", "120to170", "170to300", "300to470", "470to600",
+                            "600to800", "800to1000", "1000to1400", "1400to1800", "1800"};
+
+  double evFrac[15]         = {4.844e10, 3.675e10, 8.159e08, 5.312e07, 6.359e06,
+                               7.843e05, 1.151e05, 2.426e04, 1.168e03, 7.022e01,
+                               1.555e01, 1.844, 3.321e-01, 1.087e-02, 3.575e-04};
+  double nEvents[15]    = {0.0, 0.0, 5420080, 3244045, 2739226,
+                           3197605, 3045200, 3164688, 3144399, 2009369,
+                           1968447, 2070884, 1077390, 1021510, 529009};
+
+  std::vector<std::string> Ranges, rangesV;
+  std::vector<double>      fraction, events;
+  for(int i=0; i<15; i++) rangesV.push_back(ranges[i]);
+  if (iRange != fRange) {
+    for (unsigned int i=iRange; i<=fRange; i++) {
+      Ranges.push_back(ranges[i]);
+      fraction.push_back(evFrac[i]);
+      events.push_back(nEvents[i]);
+      if(debug) std::cout<< "range " << ranges[i] <<" fraction " <<  evFrac[i] << " nevents " << nEvents[i] << std::endl;
+    }
+  } else {
+    Ranges.push_back(ranges[iRange]);
+    fraction.push_back(1.0);
+    events.push_back(totalTracks);
+    std::cout << "range " << iRange << std::endl;
+  }
+  
+  TreeAnalysisReadGen tree(outFileName, rangesV);
+  tree.debug = debug;
+  for (unsigned int i=0; i<Ranges.size(); i++) {
+    char fileList[200], treeName[200];
+    sprintf (fileList, "%s_%s.txt", inputFileList, Ranges[i].c_str());
+    TChain *chain = new TChain("/isolatedGenParticles/tree");
+    std::cout << "try to create a chain for " << fileList << std::endl;
+    if( ! FillChain(chain, fileList) ) {
+      std::cerr << "Cannot get the tree " << std::endl;
+      return(0);
+    }else {
+      tree.l1Name = name;
+      tree.dRCut  = atof(DRCut);
+      tree.iRange = iRange;
+      tree.fRange = fRange;
+      unsigned int nmax = (unsigned int)(fraction[i]*totalTracks);
+      tree.Init(chain);
+      tree.setRange(i+iRange);
+      tree.Loop();
+      tree.weights[i]= (fraction[i]*totalTracks)/events[i];
+      std::cout << "range " << Ranges[i].c_str() << " cross-section " << fraction[i] << " nevents  " << events[i] << " weight " << tree.weights[i] << std::endl;
+      tree.clear();
+    }
+  }
+  std::cout << "Here I am " << iRange << ":" << fRange << std::endl;
+  if (iRange != fRange) tree.AddWeight();
   return 0;
 }
 
@@ -60,12 +112,12 @@ Bool_t FillChain(TChain *chain, const TString &inputFileList) {
   return kTRUE;
 }
 
-TreeAnalysisReadGen::TreeAnalysisReadGen(TChain *tree, const char *outFileName) {
+TreeAnalysisReadGen::TreeAnalysisReadGen(const char *outFileName, std::vector<std::string>& ranges) {
 
   double tempgen_TH[22] = { 0.0,  1.0,  2.0,  3.0,  4.0,  
 			    5.0,  6.0,  7.0,  8.0,  9.0, 
 			    10.0, 12.0, 15.0, 20.0, 25.0, 
-			    30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 100};
+			    30.0, 40.0, 60.0, 70.0, 80.0, 100., 200.};
 
   for(int i=0; i<22; i++)  genPartPBins[i]  = tempgen_TH[i];
   
@@ -75,18 +127,22 @@ TreeAnalysisReadGen::TreeAnalysisReadGen(TChain *tree, const char *outFileName) 
 
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree.
-  Init(tree);
-
-  BookHistograms(outFileName);
+  //  Init(tree);  
+  BookHistograms(outFileName, ranges);
 }
 
 TreeAnalysisReadGen::~TreeAnalysisReadGen() {
+  std::cout << "in the destructor \n";
   if (!fChain) return;
-  delete fChain->GetCurrentFile();
 
+  std::cout << "before cd\n";
   fout->cd();
+  std::cout << "before Write\n";
   fout->Write();
+  std::cout << "before CLose\n";
   fout->Close();
+  std::cout << "after Close\n";
+  //  delete fChain->GetCurrentFile();
 }
 
 Int_t TreeAnalysisReadGen::Cut(Long64_t entry) {
@@ -475,8 +531,7 @@ void TreeAnalysisReadGen::Loop() {
     }
   }
   
-  if (fChain == 0) return;
-  
+  if (fChain == 0) return;  
   Long64_t nentries = fChain->GetEntries();
   std::cout << "No. of Entries in tree " << nentries << std::endl;
   
@@ -487,7 +542,7 @@ void TreeAnalysisReadGen::Loop() {
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
     
-    if( !(jentry%10000) )
+    if( !(jentry%10) )
       std::cout << "processing event " << jentry+1 << std::endl;
     
     // get the inclusive distributions here
@@ -500,41 +555,43 @@ void TreeAnalysisReadGen::Loop() {
       double deta  = (*t_isoTrkDEtaAll) [itrk];
       double dphi  = (*t_isoTrkDPhiAll) [itrk];
       
+      if (debug) std::cout << "p " << p << " pt " << pt << " eta " << eta << " phi " << phi << " pdgid " << pdgid << " deta " << deta << " dphi " << dphi << std::endl;
       int iTrkEtaBin=-1, iTrkMomBin=-1;
       for(int ieta=0; ieta<NEtaBins; ieta++)   {
-	if(std::abs(eta)>genPartEtaBins[ieta] && std::abs(eta)<genPartEtaBins[ieta+1] ) iTrkEtaBin = ieta;
+	if (std::abs(eta)>genPartEtaBins[ieta] && std::abs(eta)<genPartEtaBins[ieta+1] ) iTrkEtaBin = ieta;
       }
       for(int ipt=0;  ipt<NPBins;   ipt++)  {
-	if( p>genPartPBins[ipt] &&  p<genPartPBins[ipt+1] )  iTrkMomBin = ipt;
+	if (p>genPartPBins[ipt] &&  p<genPartPBins[ipt+1] )  iTrkMomBin = ipt;
       }
-      if( std::abs(pdgid) == 211 ) {
-	h_trkPAll  [0] ->Fill(p);
-	h_trkPtAll [0] ->Fill(pt);
-	h_trkEtaAll[0] ->Fill(eta);
-	h_trkPhiAll[0] ->Fill(phi);
+      if (debug) std::cout << " etabin " << iTrkEtaBin << " mombin " << iTrkMomBin <<std::endl;
+      if (std::abs(pdgid) == 211 ) {
+	h_trkPAll  [0][iRangeBin] ->Fill(p);
+	h_trkPtAll [0][iRangeBin] ->Fill(pt);
+	h_trkEtaAll[0][iRangeBin] ->Fill(eta);
+	h_trkPhiAll[0][iRangeBin] ->Fill(phi);
 	if( iTrkMomBin>=0 && iTrkEtaBin>=0 ) {
-	  h_trkDEta[iTrkMomBin][iTrkEtaBin]->Fill(deta);
-	  h_trkDPhi[iTrkMomBin][iTrkEtaBin]->Fill(dphi);
+	  h_trkDEta[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill(deta);
+	  h_trkDPhi[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill(dphi);
 	}
       }
       if( std::abs(pdgid)==321 ) {
-	h_trkPAll  [1] ->Fill(p);
-	h_trkPtAll [1] ->Fill(pt);
-	h_trkEtaAll[1] ->Fill(eta);
-	h_trkPhiAll[1] ->Fill(phi);
+	h_trkPAll  [1][iRangeBin] ->Fill(p);
+	h_trkPtAll [1][iRangeBin] ->Fill(pt);
+	h_trkEtaAll[1][iRangeBin] ->Fill(eta);
+	h_trkPhiAll[1][iRangeBin] ->Fill(phi);
 	if( iTrkMomBin>=0 && iTrkEtaBin>=0 ) {
-	  h_trkDEta[iTrkMomBin][iTrkEtaBin]->Fill(deta);
-	  h_trkDPhi[iTrkMomBin][iTrkEtaBin]->Fill(dphi);
+	  h_trkDEta[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill(deta);
+	  h_trkDPhi[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill(dphi);
 	}
       }
       if( std::abs(pdgid)==2212 ) {
-	h_trkPAll  [2] ->Fill(p);
-	h_trkPtAll [2] ->Fill(pt);
-	h_trkEtaAll[2] ->Fill(eta);
-	h_trkPhiAll[2] ->Fill(phi);
+	h_trkPAll  [2][iRangeBin] ->Fill(p);
+	h_trkPtAll [2][iRangeBin] ->Fill(pt);
+	h_trkEtaAll[2][iRangeBin] ->Fill(eta);
+	h_trkPhiAll[2][iRangeBin] ->Fill(phi);
 	if( iTrkMomBin>=0 && iTrkEtaBin>=0 ) {
-	  h_trkDEta[iTrkMomBin][iTrkEtaBin]->Fill(deta);
-	  h_trkDPhi[iTrkMomBin][iTrkEtaBin]->Fill(dphi);
+	  h_trkDEta[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill(deta);
+	  h_trkDPhi[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill(dphi);
 	}
       }
     } /// Loop over IsoTrkpAll
@@ -548,8 +605,8 @@ void TreeAnalysisReadGen::Loop() {
 	(*t_L1Decision)[l1Names["L1_SingleJet50"]] || (*t_L1Decision)[l1Names["L1_SingleJet60"]]) {
       l1SingleJet=true;  myDec.push_back(L1SingleJet);
       //std::cout<<"Single Jet "<<(*t_L1Decision)[l1Names["L1_SingleJet6"]] <<std::endl;
-      if(t_L1CenJetPt->size()>0)  h_L1CenJetPt->Fill((*t_L1CenJetPt)[0]);
-      if(t_L1FwdJetPt->size()>0)  h_L1FwdJetPt->Fill((*t_L1FwdJetPt)[0]);
+      if(t_L1CenJetPt->size()>0)  h_L1CenJetPt[iRangeBin]->Fill((*t_L1CenJetPt)[0]);
+      if(t_L1FwdJetPt->size()>0)  h_L1FwdJetPt[iRangeBin]->Fill((*t_L1FwdJetPt)[0]);
       for(int i=0; i<t_L1CenJetPt->size(); i++) {
 	if( (*t_L1CenJetPt)[i] > leadL1JetPt ) {
 	  leadL1JetPt  = (*t_L1CenJetPt)[i];
@@ -564,12 +621,14 @@ void TreeAnalysisReadGen::Loop() {
 	  leadL1JetPhi = (*t_L1FwdJetPhi)[i];
 	}
       }
+      if (debug) std::cout << " L1_SingleJet: LeadJet : pT " << leadL1JetPt << " eta " << leadL1JetEta << " phi " << leadL1JetPhi << std::endl;
     }
+
     bool l1SingleTauJet=false;
     if( (*t_L1Decision)[l1Names["L1_SingleTauJet10"]] || (*t_L1Decision)[l1Names["L1_SingleTauJet20"]] || 
 	(*t_L1Decision)[l1Names["L1_SingleTauJet30"]] || (*t_L1Decision)[l1Names["L1_SingleTauJet50"]]) {
       l1SingleTauJet=true; myDec.push_back(L1SingleTauJet);
-      if(t_L1TauJetPt->size()>0) h_L1TauJetPt->Fill((*t_L1TauJetPt)[0]);
+      if(t_L1TauJetPt->size()>0) h_L1TauJetPt[iRangeBin]->Fill((*t_L1TauJetPt)[0]);
       for(int i=0; i<t_L1TauJetPt->size(); i++) {
 	if( (*t_L1TauJetPt)[i] > leadL1JetPt ) {
 	  leadL1JetPt  = (*t_L1TauJetPt)[i];
@@ -577,8 +636,9 @@ void TreeAnalysisReadGen::Loop() {
 	  leadL1JetPhi = (*t_L1TauJetPhi)[i];
 	}
       }
+      if (debug) std::cout << " L1TauJet: LeadTauJet: pT " << leadL1JetPt << " eta " << leadL1JetEta << " phi " << leadL1JetPhi << std::endl; 
     }
-    if( l1SingleTauJet || l1SingleJet ) h_L1LeadJetPt->Fill(leadL1JetPt);
+    if( l1SingleTauJet || l1SingleJet ) h_L1LeadJetPt[iRangeBin]->Fill(leadL1JetPt);
     bool l1SingleIsoEG=false;
     if( (*t_L1Decision)[l1Names["L1_SingleIsoEG5"]]  || (*t_L1Decision)[l1Names["L1_SingleIsoEG8"]]  || 
 	(*t_L1Decision)[l1Names["L1_SingleIsoEG10"]] || (*t_L1Decision)[l1Names["L1_SingleIsoEG12"]] ||
@@ -599,6 +659,7 @@ void TreeAnalysisReadGen::Loop() {
 	(*t_L1Decision)[l1Names["L1_SingleMu20"]] ) {
       l1L1_SingleMu=true;  myDec.push_back(L1SingleMu);
     }
+    if (debug) std::cout << " L1Decision (L1SingleJet/L1SingleTauJet/L1SingleIsoEG/L1SingleEG/L1SingleMu) " << l1SingleJet << "/" << l1SingleTauJet << "/" << l1SingleIsoEG << "/" << l1SingleEG << "/" << l1L1_SingleMu << std::endl;
     bool checkL1=false, checkTest=false;
     if (ibit >= 0) {
       checkTest = true;
@@ -637,10 +698,9 @@ void TreeAnalysisReadGen::Loop() {
       double maxNearPIsoHCR = (*t_maxNearPIsoHCR)[itrk];
       double pdgid1        = (*t_isoTrkPdgId)[itrk];
 
-       if( pt1<1.0) continue;
-       
-       for(int i=0; i<myDec.size(); i++) h_L1Decision->Fill(myDec[i]);
-       
+      if (debug)  std:: cout << "tracks: p " << p1 << " pt1 " << pt1 << " eta1 " << eta1 << " phi1 " << phi1 << " maxNearP(31x31/25x25/21x21/15x15/11x11//H3x3/H5x5/H7x7//IsoR//IsoHR " <<  maxNearP31x31 << "/" << maxNearP25x25 << "/" << maxNearP21x21 << "/" << maxNearP15x15 << "/" << maxNearP11x11 << "//" << maxNearPHC3x3 << "/" << maxNearPHC5x5 << "/" << maxNearPHC7x7 << "//" << maxNearPIsoR << "//" << maxNearPIsoHCR << std::endl; 
+       if( pt1<1.0) continue;       
+       for(int i=0; i<myDec.size(); i++) h_L1Decision[iRangeBin]->Fill(myDec[i]);
        int iTrkEtaBin=-1, iTrkMomBin=-1;
        for(int ieta=0; ieta<NEtaBins; ieta++)   {
 	 if(std::abs(eta1)>genPartEtaBins[ieta] && std::abs(eta1)<genPartEtaBins[ieta+1] ) iTrkEtaBin = ieta;
@@ -650,18 +710,18 @@ void TreeAnalysisReadGen::Loop() {
        }
        //std::cout << "p " << p1 << " " << iTrkMomBin << " eta " << eta1 << " " << iTrkEtaBin << std::endl;
        
-       if( maxNearP31x31<0 )  h_trkP_iso31x31->Fill(p1);
-       if( maxNearP25x25<0 )  h_trkP_iso25x25->Fill(p1);
-       if( maxNearP21x21<0 )  h_trkP_iso21x21->Fill(p1);
-       if( maxNearP15x15<0 )  h_trkP_iso15x15->Fill(p1);
-       if( maxNearP11x11<0 )  h_trkP_iso11x11->Fill(p1);
+       if( maxNearP31x31<0 )  h_trkP_iso31x31[iRangeBin]->Fill(p1);
+       if( maxNearP25x25<0 )  h_trkP_iso25x25[iRangeBin]->Fill(p1);
+       if( maxNearP21x21<0 )  h_trkP_iso21x21[iRangeBin]->Fill(p1);
+       if( maxNearP15x15<0 )  h_trkP_iso15x15[iRangeBin]->Fill(p1);
+       if( maxNearP11x11<0 )  h_trkP_iso11x11[iRangeBin]->Fill(p1);
        // Optimize Charge Isolation
        if( iTrkMomBin>=0 && iTrkEtaBin>=0 ) {
-	 h_maxNearP31x31[iTrkMomBin][iTrkEtaBin]->Fill( maxNearP31x31 );
-	 h_maxNearP25x25[iTrkMomBin][iTrkEtaBin]->Fill( maxNearP25x25 );
-	 h_maxNearP21x21[iTrkMomBin][iTrkEtaBin]->Fill( maxNearP21x21 );
-	 h_maxNearP15x15[iTrkMomBin][iTrkEtaBin]->Fill( maxNearP15x15 );
-	 h_maxNearP11x11[iTrkMomBin][iTrkEtaBin]->Fill( maxNearP11x11 );
+	 h_maxNearP31x31[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill( maxNearP31x31 );
+	 h_maxNearP25x25[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill( maxNearP25x25 );
+	 h_maxNearP21x21[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill( maxNearP21x21 );
+	 h_maxNearP15x15[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill( maxNearP15x15 );
+	 h_maxNearP11x11[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill( maxNearP11x11 );
 
 	 // dR cut from trigger object
 	 double dR=-999.0;
@@ -674,30 +734,30 @@ void TreeAnalysisReadGen::Loop() {
 	 //===================================================================================================
 	 if (maxNearP31x31<0) {
 	   double etotal1 = (*t_photonEne31x31)[itrk]+(*t_cHadronEne31x31_1)[itrk]+(*t_nHadronEne31x31)[itrk];
-	   h_photon_iso31x31[iTrkMomBin][iTrkEtaBin]       ->Fill( (*t_photonEne31x31)[itrk] );
-	   h_charged_iso31x31[iTrkMomBin][iTrkEtaBin]      ->Fill( (*t_cHadronEne31x31_1)[itrk] );
-	   h_neutral_iso31x31[iTrkMomBin][iTrkEtaBin]      ->Fill( (*t_nHadronEne31x31)[itrk] );
-	   h_contamination_iso31x31[iTrkMomBin][iTrkEtaBin]->Fill( etotal1 );
+	   h_photon_iso31x31[iTrkMomBin][iTrkEtaBin][iRangeBin]        ->Fill( (*t_photonEne31x31)[itrk] );
+	   h_charged_iso31x31[iTrkMomBin][iTrkEtaBin][iRangeBin]       ->Fill( (*t_cHadronEne31x31_1)[itrk] );
+	   h_neutral_iso31x31[iTrkMomBin][iTrkEtaBin][iRangeBin]       ->Fill( (*t_nHadronEne31x31)[itrk] );
+	   h_contamination_iso31x31[iTrkMomBin][iTrkEtaBin][iRangeBin] ->Fill( etotal1 );
 	   
 	   double etotal2 = (*t_photonEne11x11)[itrk]+(*t_cHadronEne11x11_1)[itrk]+(*t_nHadronEne11x11)[itrk];
-	   h_photon11x11_iso31x31[iTrkMomBin][iTrkEtaBin]       ->Fill( (*t_photonEne11x11)[itrk] );
-	   h_charged11x11_iso31x31[iTrkMomBin][iTrkEtaBin]      ->Fill( (*t_cHadronEne11x11_1)[itrk] );
-	   h_neutral11x11_iso31x31[iTrkMomBin][iTrkEtaBin]      ->Fill( (*t_nHadronEne11x11)[itrk] );
-	   h_contamination11x11_iso31x31[iTrkMomBin][iTrkEtaBin]->Fill( etotal2 );
+	   h_photon11x11_iso31x31[iTrkMomBin][iTrkEtaBin][iRangeBin]       ->Fill( (*t_photonEne11x11)[itrk] );
+	   h_charged11x11_iso31x31[iTrkMomBin][iTrkEtaBin][iRangeBin]      ->Fill( (*t_cHadronEne11x11_1)[itrk] );
+	   h_neutral11x11_iso31x31[iTrkMomBin][iTrkEtaBin][iRangeBin]      ->Fill( (*t_nHadronEne11x11)[itrk] );
+	   h_contamination11x11_iso31x31[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill( etotal2 );
 
 	   bool eNeutIso = (etotal1-etotal2 < 0.1);
 	   if (eNeutIso) {
-	     h_photon11x11_isoEcal_NxN[iTrkMomBin][iTrkEtaBin]       ->Fill( (*t_photonEne11x11)[itrk] );
-	     h_charged11x11_isoEcal_NxN[iTrkMomBin][iTrkEtaBin]      ->Fill( (*t_cHadronEne11x11_1)[itrk] );
-	     h_neutral11x11_isoEcal_NxN[iTrkMomBin][iTrkEtaBin]      ->Fill( (*t_nHadronEne11x11)[itrk] );
-	     h_contamination11x11_isoEcal_NxN[iTrkMomBin][iTrkEtaBin]->Fill( etotal2 );
+	     h_photon11x11_isoEcal_NxN[iTrkMomBin][iTrkEtaBin][iRangeBin]       ->Fill( (*t_photonEne11x11)[itrk] );
+	     h_charged11x11_isoEcal_NxN[iTrkMomBin][iTrkEtaBin][iRangeBin]      ->Fill( (*t_cHadronEne11x11_1)[itrk] );
+	     h_neutral11x11_isoEcal_NxN[iTrkMomBin][iTrkEtaBin][iRangeBin]      ->Fill( (*t_nHadronEne11x11)[itrk] );
+	     h_contamination11x11_isoEcal_NxN[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill( etotal2 );
 	   } 
 	   for(int i=0; i<myDec.size(); i++) {
-	     h_L1_iso31x31[iTrkMomBin][iTrkEtaBin]->Fill(myDec[i]);
-	     if( (*t_photonEne11x11)[itrk] > 0.1)  h_L1_iso31x31_isoPhoton_11x11_1[iTrkMomBin][iTrkEtaBin]->Fill(myDec[i]);
-	     else                                  h_L1_iso31x31_isoPhoton_11x11_2[iTrkMomBin][iTrkEtaBin]->Fill(myDec[i]);
-	     if( (*t_nHadronEne11x11)[itrk] > 0.1) h_L1_iso31x31_isoNeutral_11x11_1[iTrkMomBin][iTrkEtaBin]->Fill(myDec[i]);
-	     else                                  h_L1_iso31x31_isoNeutral_11x11_2[iTrkMomBin][iTrkEtaBin]->Fill(myDec[i]);
+	     h_L1_iso31x31[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill(myDec[i]);
+	     if( (*t_photonEne11x11)[itrk] > 0.1)  h_L1_iso31x31_isoPhoton_11x11_1[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill(myDec[i]);
+	     else                                  h_L1_iso31x31_isoPhoton_11x11_2[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill(myDec[i]);
+	     if( (*t_nHadronEne11x11)[itrk] > 0.1) h_L1_iso31x31_isoNeutral_11x11_1[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill(myDec[i]);
+	     else                                  h_L1_iso31x31_isoNeutral_11x11_2[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill(myDec[i]);
 	   }
 
 	   if (maxNearPHC7x7<0) {
@@ -705,28 +765,28 @@ void TreeAnalysisReadGen::Loop() {
 	     double htotal2 = (*t_photonEneHC3x3)[itrk]+(*t_cHadronEneHC3x3_1)[itrk]+(*t_nHadronEneHC3x3)[itrk];
 	     bool hNeutIso = (htotal1-htotal2 < 0.1);
 	     if (eNeutIso && hNeutIso) {
-	       h_photonHC5x5_IsoNxN[iTrkMomBin][iTrkEtaBin]       ->Fill( (*t_photonEneHC5x5)[itrk] );
-	       h_chargedHC5x5_IsoNxN[iTrkMomBin][iTrkEtaBin]      ->Fill( (*t_cHadronEneHC5x5_1)[itrk] );
-	       h_neutralHC5x5_IsoNxN[iTrkMomBin][iTrkEtaBin]      ->Fill( (*t_nHadronEneHC5x5)[itrk] );
-	       h_contaminationHC5x5_IsoNxN[iTrkMomBin][iTrkEtaBin]->Fill( (*t_photonEneHC5x5)[itrk]+(*t_cHadronEneHC5x5_1)[itrk]+(*t_nHadronEneHC5x5)[itrk] );
+	       h_photonHC5x5_IsoNxN[iTrkMomBin][iTrkEtaBin][iRangeBin]       ->Fill( (*t_photonEneHC5x5)[itrk] );
+	       h_chargedHC5x5_IsoNxN[iTrkMomBin][iTrkEtaBin][iRangeBin]      ->Fill( (*t_cHadronEneHC5x5_1)[itrk] );
+	       h_neutralHC5x5_IsoNxN[iTrkMomBin][iTrkEtaBin][iRangeBin]      ->Fill( (*t_nHadronEneHC5x5)[itrk] );
+	       h_contaminationHC5x5_IsoNxN[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill( (*t_photonEneHC5x5)[itrk]+(*t_cHadronEneHC5x5_1)[itrk]+(*t_nHadronEneHC5x5)[itrk] );
 	     }
 
 	     if ((dR > dRCut) && eNeutIso && hNeutIso) {
 	       if( std::abs(pdgid1) == 211 ) {
-		 h_trkPIsoNxN  [0] ->Fill(p1);
-		 h_trkPtIsoNxN [0] ->Fill(pt1);
-		 h_trkEtaIsoNxN[0] ->Fill(eta1);
-		 h_trkPhiIsoNxN[0] ->Fill(phi1);
+		 h_trkPIsoNxN  [0][iRangeBin] ->Fill(p1);
+		 h_trkPtIsoNxN [0][iRangeBin] ->Fill(pt1);
+		 h_trkEtaIsoNxN[0][iRangeBin] ->Fill(eta1);
+		 h_trkPhiIsoNxN[0][iRangeBin] ->Fill(phi1);
 	       } else if (std::abs(pdgid1)==321 ) {
-		 h_trkPIsoNxN  [1] ->Fill(p1);
-		 h_trkPtIsoNxN  [1]->Fill(pt1);
-		 h_trkEtaIsoNxN[1] ->Fill(eta1);
-		 h_trkPhiIsoNxN[1] ->Fill(phi1);
+		 h_trkPIsoNxN  [1][iRangeBin] ->Fill(p1);
+		 h_trkPtIsoNxN [1][iRangeBin] ->Fill(pt1);
+		 h_trkEtaIsoNxN[1][iRangeBin] ->Fill(eta1);
+		 h_trkPhiIsoNxN[1][iRangeBin] ->Fill(phi1);
 	       } else if (std::abs(pdgid1)==2212 ) {
-		 h_trkPIsoNxN  [2] ->Fill(p1);
-		 h_trkPtIsoNxN [2] ->Fill(pt1);
-		 h_trkEtaIsoNxN[2] ->Fill(eta1);
-		 h_trkPhiIsoNxN[2] ->Fill(phi1);
+		 h_trkPIsoNxN  [2][iRangeBin] ->Fill(p1);
+		 h_trkPtIsoNxN [2][iRangeBin] ->Fill(pt1);
+		 h_trkEtaIsoNxN[2][iRangeBin] ->Fill(eta1);
+		 h_trkPhiIsoNxN[2][iRangeBin] ->Fill(phi1);
 	       }
 	     }
 	   }
@@ -739,37 +799,37 @@ void TreeAnalysisReadGen::Loop() {
 	   double etotal2_R = (*t_photonEneR)[itrk]+(*t_cHadronEneR_1)[itrk]+(*t_nHadronEneR)[itrk];
 	   bool eNeutIsoR = (etotal1_R-etotal2_R < 0.1);
 	   if (eNeutIsoR) {
-	     h_photonR_isoEcal_R[iTrkMomBin][iTrkEtaBin]       ->Fill( (*t_photonEneR)[itrk] );
-	     h_chargedR_isoEcal_R[iTrkMomBin][iTrkEtaBin]      ->Fill( (*t_cHadronEneR_1)[itrk] );
-	     h_neutralR_isoEcal_R[iTrkMomBin][iTrkEtaBin]      ->Fill( (*t_nHadronEneR)[itrk] );
-	     h_contaminationR_isoEcal_R[iTrkMomBin][iTrkEtaBin]->Fill( etotal2_R );
+	     h_photonR_isoEcal_R[iTrkMomBin][iTrkEtaBin][iRangeBin]       ->Fill( (*t_photonEneR)[itrk] );
+	     h_chargedR_isoEcal_R[iTrkMomBin][iTrkEtaBin][iRangeBin]      ->Fill( (*t_cHadronEneR_1)[itrk] );
+	     h_neutralR_isoEcal_R[iTrkMomBin][iTrkEtaBin][iRangeBin]      ->Fill( (*t_nHadronEneR)[itrk] );
+	     h_contaminationR_isoEcal_R[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill( etotal2_R );
 	   }
 	   if (maxNearPIsoHCR<0) {
 	     double htotal1_R = (*t_photonEneIsoHCR)[itrk]+(*t_cHadronEneIsoHCR_1)[itrk]+(*t_nHadronEneIsoHCR)[itrk];
 	     double htotal2_R = (*t_photonEneHCR)[itrk]+(*t_cHadronEneHCR_1)[itrk]+(*t_nHadronEneHCR)[itrk];
 	     bool hNeutIsoR = (htotal1_R-htotal2_R < 0.1);
 	     if (eNeutIsoR && hNeutIsoR) {
-	       h_photonHCR_IsoR[iTrkMomBin][iTrkEtaBin]       ->Fill( (*t_photonEneHCR)[itrk] );
-	       h_chargedHCR_IsoR[iTrkMomBin][iTrkEtaBin]      ->Fill( (*t_cHadronEneHCR_1)[itrk] );
-	       h_neutralHCR_IsoR[iTrkMomBin][iTrkEtaBin]      ->Fill( (*t_nHadronEneHCR)[itrk] );
-	       h_contaminationHCR_IsoR[iTrkMomBin][iTrkEtaBin]->Fill( (*t_photonEneHCR)[itrk]+(*t_cHadronEneHCR_1)[itrk]+(*t_nHadronEneHCR)[itrk] );
+	       h_photonHCR_IsoR[iTrkMomBin][iTrkEtaBin][iRangeBin]       ->Fill( (*t_photonEneHCR)[itrk] );
+	       h_chargedHCR_IsoR[iTrkMomBin][iTrkEtaBin][iRangeBin]      ->Fill( (*t_cHadronEneHCR_1)[itrk] );
+	       h_neutralHCR_IsoR[iTrkMomBin][iTrkEtaBin][iRangeBin]      ->Fill( (*t_nHadronEneHCR)[itrk] );
+	       h_contaminationHCR_IsoR[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill( (*t_photonEneHCR)[itrk]+(*t_cHadronEneHCR_1)[itrk]+(*t_nHadronEneHCR)[itrk] );
 	     }
 	     if ((dR > dRCut) && eNeutIsoR && hNeutIsoR) {
 	       if( std::abs(pdgid1) == 211 ) {
-		 h_trkPIsoR  [0] ->Fill(p1);
-		 h_trkPtIsoR [0] ->Fill(pt1);
-		 h_trkEtaIsoR[0] ->Fill(eta1);
-		 h_trkPhiIsoR[0] ->Fill(phi1);
+		 h_trkPIsoR  [0][iRangeBin] ->Fill(p1);
+		 h_trkPtIsoR [0][iRangeBin] ->Fill(pt1);
+		 h_trkEtaIsoR[0][iRangeBin] ->Fill(eta1);
+		 h_trkPhiIsoR[0][iRangeBin] ->Fill(phi1);
 	       } else if (std::abs(pdgid1)==321 ) {
-		 h_trkPIsoR  [1] ->Fill(p1);
-		 h_trkPtIsoR  [1]->Fill(pt1);
-		 h_trkEtaIsoR[1] ->Fill(eta1);
-		 h_trkPhiIsoR[1] ->Fill(phi1);
+		 h_trkPIsoR  [1][iRangeBin] ->Fill(p1);
+		 h_trkPtIsoR [1][iRangeBin] ->Fill(pt1);
+		 h_trkEtaIsoR[1][iRangeBin] ->Fill(eta1);
+		 h_trkPhiIsoR[1][iRangeBin] ->Fill(phi1);
 	       } else if (std::abs(pdgid1)==2212 ) {
-		 h_trkPIsoR  [2] ->Fill(p1);
-		 h_trkPtIsoR [2] ->Fill(pt1);
-		 h_trkEtaIsoR[2] ->Fill(eta1);
-		 h_trkPhiIsoR[2] ->Fill(phi1);
+		 h_trkPIsoR  [2][iRangeBin] ->Fill(p1);
+		 h_trkPtIsoR [2][iRangeBin] ->Fill(pt1);
+		 h_trkEtaIsoR[2][iRangeBin] ->Fill(eta1);
+		 h_trkPhiIsoR[2][iRangeBin] ->Fill(phi1);
 	       }
 	     }
 	   }
@@ -778,31 +838,31 @@ void TreeAnalysisReadGen::Loop() {
 	 //===================================================================================================
 	 if( maxNearP25x25<0 ) {
 	   double total = (*t_photonEne25x25)[itrk]+(*t_cHadronEne25x25_1)[itrk]+(*t_nHadronEne25x25)[itrk];
-	   h_photon_iso25x25[iTrkMomBin][iTrkEtaBin]       ->Fill( (*t_photonEne25x25)[itrk] );
-	   h_charged_iso25x25[iTrkMomBin][iTrkEtaBin]      ->Fill( (*t_cHadronEne25x25_1)[itrk] );
-	   h_neutral_iso25x25[iTrkMomBin][iTrkEtaBin]      ->Fill( (*t_nHadronEne25x25)[itrk] );
-	   h_contamination_iso25x25[iTrkMomBin][iTrkEtaBin]->Fill( total );
+	   h_photon_iso25x25[iTrkMomBin][iTrkEtaBin][iRangeBin]       ->Fill( (*t_photonEne25x25)[itrk] );
+	   h_charged_iso25x25[iTrkMomBin][iTrkEtaBin][iRangeBin]      ->Fill( (*t_cHadronEne25x25_1)[itrk] );
+	   h_neutral_iso25x25[iTrkMomBin][iTrkEtaBin][iRangeBin]      ->Fill( (*t_nHadronEne25x25)[itrk] );
+	   h_contamination_iso25x25[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill( total );
 	 }
 	 if( maxNearP21x21<0 ) {
 	   double total = (*t_photonEne21x21)[itrk]+(*t_cHadronEne21x21_1)[itrk]+(*t_nHadronEne21x21)[itrk];
-	   h_photon_iso21x21[iTrkMomBin][iTrkEtaBin]       ->Fill( (*t_photonEne21x21)[itrk] );
-	   h_charged_iso21x21[iTrkMomBin][iTrkEtaBin]      ->Fill( (*t_cHadronEne21x21_1)[itrk] );
-	   h_neutral_iso21x21[iTrkMomBin][iTrkEtaBin]      ->Fill( (*t_nHadronEne21x21)[itrk] );
-	   h_contamination_iso21x21[iTrkMomBin][iTrkEtaBin]->Fill( total );
+	   h_photon_iso21x21[iTrkMomBin][iTrkEtaBin][iRangeBin]       ->Fill( (*t_photonEne21x21)[itrk] );
+	   h_charged_iso21x21[iTrkMomBin][iTrkEtaBin][iRangeBin]      ->Fill( (*t_cHadronEne21x21_1)[itrk] );
+	   h_neutral_iso21x21[iTrkMomBin][iTrkEtaBin][iRangeBin]      ->Fill( (*t_nHadronEne21x21)[itrk] );
+	   h_contamination_iso21x21[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill( total );
 	 }
 	 if( maxNearP15x15<0 ) {
 	   double total = (*t_photonEne15x15)[itrk]+(*t_cHadronEne15x15_1)[itrk]+(*t_nHadronEne15x15)[itrk];
-	   h_photon_iso15x15[iTrkMomBin][iTrkEtaBin]       ->Fill( (*t_photonEne15x15)[itrk] );
-	   h_charged_iso15x15[iTrkMomBin][iTrkEtaBin]      ->Fill( (*t_cHadronEne15x15_1)[itrk] );
-	   h_neutral_iso15x15[iTrkMomBin][iTrkEtaBin]      ->Fill( (*t_nHadronEne15x15)[itrk] );
-	   h_contamination_iso15x15[iTrkMomBin][iTrkEtaBin]->Fill( total );
+	   h_photon_iso15x15[iTrkMomBin][iTrkEtaBin][iRangeBin]       ->Fill( (*t_photonEne15x15)[itrk] );
+	   h_charged_iso15x15[iTrkMomBin][iTrkEtaBin][iRangeBin]      ->Fill( (*t_cHadronEne15x15_1)[itrk] );
+	   h_neutral_iso15x15[iTrkMomBin][iTrkEtaBin][iRangeBin]      ->Fill( (*t_nHadronEne15x15)[itrk] );
+	   h_contamination_iso15x15[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill( total );
 	 }
 	 if( maxNearP11x11<0 ) {
 	   double total = (*t_photonEne11x11)[itrk]+(*t_cHadronEne11x11_1)[itrk]+(*t_nHadronEne11x11)[itrk];
-	   h_photon_iso11x11[iTrkMomBin][iTrkEtaBin]       ->Fill( (*t_photonEne11x11)[itrk] );
-	   h_charged_iso11x11[iTrkMomBin][iTrkEtaBin]      ->Fill( (*t_cHadronEne11x11_1)[itrk] );
-	   h_neutral_iso11x11[iTrkMomBin][iTrkEtaBin]      ->Fill( (*t_nHadronEne11x11)[itrk] );
-	   h_contamination_iso11x11[iTrkMomBin][iTrkEtaBin]->Fill( total );
+	   h_photon_iso11x11[iTrkMomBin][iTrkEtaBin][iRangeBin]       ->Fill( (*t_photonEne11x11)[itrk] );
+	   h_charged_iso11x11[iTrkMomBin][iTrkEtaBin][iRangeBin]      ->Fill( (*t_cHadronEne11x11_1)[itrk] );
+	   h_neutral_iso11x11[iTrkMomBin][iTrkEtaBin][iRangeBin]      ->Fill( (*t_nHadronEne11x11)[itrk] );
+	   h_contamination_iso11x11[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill( total );
 	 }
 	 //===================================================================================================
        }
@@ -864,89 +924,13 @@ void TreeAnalysisReadGen::getL1Names(){
   l1Names.insert( std::pair<std::string,int>("L1_SingleMu20"    ,62) );  
 }
 
-void TreeAnalysisReadGen::BookHistograms(const char *outFileName) {
+void TreeAnalysisReadGen::BookHistograms(const char *outFileName, std::vector<std::string>& ranges) {
 
   fout = new TFile(outFileName, "RECREATE");
   fout->cd();
-
-  char hname[100], htit[100];
-
+  char name[100], hname[100], htit[100];
   // inclusive distributions
-  TDirectory *d_inclusive           = fout->mkdir( "InclusiveTracks" ); 
-  std::string PNames[PTypes] = {"Pions", "Kaons", "Protons"};
-  d_inclusive ->cd();
-  for(int itype=0; itype<PTypes; itype++){
-    sprintf(hname, "h_trkPAll_%i",itype);
-    sprintf(htit,  "tracks : P(%s)", PNames[itype].c_str());
-    h_trkPAll[itype] = new TH1F(hname, htit, NPBins, genPartPBins);
-
-    sprintf(hname, "h_trkPtAll_%i",itype);
-    sprintf(htit,  "tracks : Pt(%s)", PNames[itype].c_str());
-    h_trkPtAll[itype] = new TH1F(hname, htit, NPBins, genPartPBins);
-
-    sprintf(hname, "h_trkEtaAll_%i",itype);
-    sprintf(htit,  "tracks : Eta(%s)", PNames[itype].c_str());
-    h_trkEtaAll[itype] = new TH1F(hname, htit, 200, -10.0, 10.0);
-
-    sprintf(hname, "h_trkPhiAll_%i",itype);
-    sprintf(htit,  "tracks : Phi(%s)", PNames[itype].c_str());
-    h_trkPhiAll[itype] = new TH1F(hname, htit, 100, -5.0, 5.0);    
-
-    sprintf(hname, "h_trkPIsoNxN_%i",itype);
-    sprintf(htit,  "tracks : P(%s)", PNames[itype].c_str());
-    h_trkPIsoNxN[itype] = new TH1F(hname, htit, NPBins, genPartPBins);
-
-    sprintf(hname, "h_trkPtIsoNxN_%i",itype);
-    sprintf(htit,  "tracks : Pt(%s)", PNames[itype].c_str());
-    h_trkPtIsoNxN[itype] = new TH1F(hname, htit, NPBins, genPartPBins);
-
-    sprintf(hname, "h_trkEtaIsoNxN_%i",itype);
-    sprintf(htit,  "tracks : Eta(%s)", PNames[itype].c_str());
-    h_trkEtaIsoNxN[itype] = new TH1F(hname, htit, 100, -5.0, 5.0);
-
-    sprintf(hname, "h_trkPhiIsoNxN_%i",itype);
-    sprintf(htit,  "tracks : Phi(%s)", PNames[itype].c_str());
-    h_trkPhiIsoNxN[itype] = new TH1F(hname, htit, 100, -5.0, 5.0);    
-
-    sprintf(hname, "h_trkPIsoR_%i",itype);
-    sprintf(htit,  "tracks : P(%s)", PNames[itype].c_str());
-    h_trkPIsoR[itype] = new TH1F(hname, htit, NPBins, genPartPBins);
-
-    sprintf(hname, "h_trkPtIsoR_%i",itype);
-    sprintf(htit,  "tracks : Pt(%s)", PNames[itype].c_str());
-    h_trkPtIsoR[itype] = new TH1F(hname, htit, NPBins, genPartPBins);
-
-    sprintf(hname, "h_trkEtaIsoR_%i",itype);
-    sprintf(htit,  "tracks : Eta(%s)", PNames[itype].c_str());
-    h_trkEtaIsoR[itype] = new TH1F(hname, htit, 100, -5.0, 5.0);
-
-    sprintf(hname, "h_trkPhiIsoR_%i",itype);
-    sprintf(htit,  "tracks : Phi(%s)", PNames[itype].c_str());
-    h_trkPhiIsoR[itype] = new TH1F(hname, htit, 100, -5.0, 5.0);    
-  }
-  for(int ieta=0; ieta<NEtaBins; ieta++) {
-      double lowEta=-5.0, highEta= 5.0;
-      lowEta  = genPartEtaBins[ieta];
-      highEta = genPartEtaBins[ieta+1];
-
-    for(int ipt=0; ipt<NPBins; ipt++) {
-      double lowP=0.0, highP=300.0;
-      lowP    = genPartPBins[ipt];
-      highP   = genPartPBins[ipt+1];
-
-      sprintf(hname, "h_trkDEta_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "#Delta(#eta(track),#eta(EcalImpactPoint)) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_trkDEta[ipt][ieta] = new TH1F(hname, htit, 250, -0.5, 0.5);
-
-      sprintf(hname, "h_trkDPhi_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "#Delta(#phi(track),#phi(EcalImpactPoint)) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_trkDPhi[ipt][ieta] = new TH1F(hname, htit, 350, -0.2, 1.5);
-    }
-  }
-
-
   fout->cd();
-
   TDirectory *d_maxNearP              = fout->mkdir( "MaxNearP" );
   TDirectory *d_chargeIso31x31        = fout->mkdir( "chargeIso31x31" );
   TDirectory *d_chargeIso25x25        = fout->mkdir( "chargeIso25x25" );
@@ -957,237 +941,321 @@ void TreeAnalysisReadGen::BookHistograms(const char *outFileName) {
   TDirectory *d_R_chargeIsoIsoR       = fout->mkdir( "signalR_chargeIsoIsoR" );
   TDirectory *d_H5x5_IsoNxN           = fout->mkdir( "d_H5x5_IsoNxN" );
   TDirectory *d_HCR_IsoR              = fout->mkdir( "d_HCR_IsoR" );
+  TDirectory *d_trigger = fout->mkdir("trigger");
+  TDirectory *d_inclusive           = fout->mkdir( "InclusiveTracks" ); 
+  std::string PNames[PTypes] = {"Pions", "Kaons", "Protons"};
+  d_inclusive ->cd();
+  for (unsigned int j=0; j<ranges.size()+1; j++) {
+    if(j==ranges.size()) sprintf(name, "all");
+    else sprintf(name, "%s", ranges[j].c_str());
+    for(int itype=0; itype<PTypes; itype++){
+      sprintf(hname, "h_trkPAll_%i_%s",itype, name);
+      sprintf(htit,  "tracks : P(%s)_%s", PNames[itype].c_str(), name);
+      h_trkPAll[itype][j] = new TH1F(hname, htit, NPBins, genPartPBins);
+      
+      sprintf(hname, "h_trkPtAll_%i_%s",itype, name);
+      sprintf(htit,  "tracks : Pt(%s)_%s", PNames[itype].c_str(), name);
+      h_trkPtAll[itype][j] = new TH1F(hname, htit, NPBins, genPartPBins);
 
-  h_trkP_iso31x31 = new TH1F("h_trkP_iso31x31", "h_trkP_iso31x31", NPBins, genPartPBins);
-  h_trkP_iso25x25 = new TH1F("h_trkP_iso25x25", "h_trkP_iso25x25", NPBins, genPartPBins);
-  h_trkP_iso21x21 = new TH1F("h_trkP_iso21x21", "h_trkP_iso21x21", NPBins, genPartPBins);
-  h_trkP_iso15x15 = new TH1F("h_trkP_iso15x15", "h_trkP_iso15x15", NPBins, genPartPBins);
-  h_trkP_iso11x11 = new TH1F("h_trkP_iso11x11", "h_trkP_iso11x11", NPBins, genPartPBins);
+      sprintf(hname, "h_trkEtaAll_%i_%s",itype, name);
+      sprintf(htit,  "tracks : Eta(%s)_%s", PNames[itype].c_str(), name);
+      h_trkEtaAll[itype][j] = new TH1F(hname, htit, 200, -10.0, 10.0);
 
-  h_L1Decision    = new TH1F("h_L1Decision",    "h_L1Decision",    10, -0.5, 9.5);
-  h_L1Decision->GetXaxis()->SetBinLabel(1,"L1SingleJet");
-  h_L1Decision->GetXaxis()->SetBinLabel(2,"L1SingleTauJet");
-  h_L1Decision->GetXaxis()->SetBinLabel(3,"L1SingleEG");
-  h_L1Decision->GetXaxis()->SetBinLabel(4,"L1SingleIsoEG");
-  h_L1Decision->GetXaxis()->SetBinLabel(5,"L1SingleMu");
+      sprintf(hname, "h_trkPhiAll_%i_%s",itype, name);
+      sprintf(htit,  "tracks : Phi(%s)_%s", PNames[itype].c_str(), name);
+      h_trkPhiAll[itype][j] = new TH1F(hname, htit, 100, -5.0, 5.0);    
+      
+      sprintf(hname, "h_trkPIsoNxN_%i_%s",itype, name);
+      sprintf(htit,  "tracks : P(%s)_%s", PNames[itype].c_str(), name);
+      h_trkPIsoNxN[itype][j] = new TH1F(hname, htit, NPBins, genPartPBins);
 
-  for(int ieta=0; ieta<NEtaBins; ieta++) {
+      sprintf(hname, "h_trkPtIsoNxN_%i_%s",itype, name);
+      sprintf(htit,  "tracks : Pt(%s)_%s", PNames[itype].c_str(), name);
+      h_trkPtIsoNxN[itype][j] = new TH1F(hname, htit, NPBins, genPartPBins);
+      
+      sprintf(hname, "h_trkEtaIsoNxN_%i_%s",itype, name);
+      sprintf(htit,  "tracks : Eta(%s)_%s", PNames[itype].c_str(), name);
+      h_trkEtaIsoNxN[itype][j] = new TH1F(hname, htit, 100, -5.0, 5.0);
+      
+      sprintf(hname, "h_trkPhiIsoNxN_%i_%s",itype, name);
+      sprintf(htit,  "tracks : Phi(%s)_%s", PNames[itype].c_str(), name);
+      h_trkPhiIsoNxN[itype][j] = new TH1F(hname, htit, 100, -5.0, 5.0);    
+      
+      sprintf(hname, "h_trkPIsoR_%i_%s",itype, name);
+      sprintf(htit,  "tracks : P(%s)_%s", PNames[itype].c_str(), name);
+      h_trkPIsoR[itype][j] = new TH1F(hname, htit, NPBins, genPartPBins);
+      
+      sprintf(hname, "h_trkPtIsoR_%i_%s",itype, name);
+      sprintf(htit,  "tracks : Pt(%s)_%s", PNames[itype].c_str(), name);
+      h_trkPtIsoR[itype][j] = new TH1F(hname, htit, NPBins, genPartPBins);
+      
+      sprintf(hname, "h_trkEtaIsoR_%i_%s",itype, name);
+      sprintf(htit,  "tracks : Eta(%s)_%s", PNames[itype].c_str(), name);
+      h_trkEtaIsoR[itype][j] = new TH1F(hname, htit, 100, -5.0, 5.0);
+      
+      sprintf(hname, "h_trkPhiIsoR_%i_%s",itype, name);
+      sprintf(htit,  "tracks : Phi(%s)_%s", PNames[itype].c_str(), name);
+      h_trkPhiIsoR[itype][j] = new TH1F(hname, htit, 100, -5.0, 5.0);    
+    }
+    for(int ieta=0; ieta<NEtaBins; ieta++) {
       double lowEta=-5.0, highEta= 5.0;
       lowEta  = genPartEtaBins[ieta];
       highEta = genPartEtaBins[ieta+1];
+      
+      for(int ipt=0; ipt<NPBins; ipt++) {
+	double lowP=0.0, highP=300.0;
+	lowP    = genPartPBins[ipt];
+	highP   = genPartPBins[ipt+1];
+	
+	sprintf(hname, "h_trkDEta_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "#Delta(#eta(track),#eta(EcalImpactPoint)) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_trkDEta[ipt][ieta][j] = new TH1F(hname, htit, 250, -0.5, 0.5);
+	
+	sprintf(hname, "h_trkDPhi_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "#Delta(#phi(track),#phi(EcalImpactPoint)) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_trkDPhi[ipt][ieta][j] = new TH1F(hname, htit, 350, -0.2, 1.5);
+      }
+    }    
+    
+    sprintf(hname, "h_trkP_iso31x31_%s", name);
+    h_trkP_iso31x31[j] = new TH1F(hname, hname, NPBins, genPartPBins);
+    sprintf(hname, "h_trkP_iso25x25_%s", name);
+    h_trkP_iso25x25[j] = new TH1F(hname, hname, NPBins, genPartPBins);
+    sprintf(hname, "h_trkP_iso21x21_%s", name);
+    h_trkP_iso21x21[j] = new TH1F(hname, hname, NPBins, genPartPBins);
+    sprintf(hname, "h_trkP_iso15x15_%s", name);
+    h_trkP_iso15x15[j] = new TH1F(hname, hname, NPBins, genPartPBins);
+    sprintf(hname, "h_trkP_iso11x11_%s", name);
+    h_trkP_iso11x11[j] = new TH1F(hname, hname, NPBins, genPartPBins);
+    
+    sprintf(hname, "h_L1Decision_%s", name);
+    h_L1Decision[j]    = new TH1F(hname,    hname,    10, -0.5, 9.5);
+    h_L1Decision[j]->GetXaxis()->SetBinLabel(1,"L1SingleJet");
+    h_L1Decision[j]->GetXaxis()->SetBinLabel(2,"L1SingleTauJet");
+    h_L1Decision[j]->GetXaxis()->SetBinLabel(3,"L1SingleEG");
+    h_L1Decision[j]->GetXaxis()->SetBinLabel(4,"L1SingleIsoEG");
+    h_L1Decision[j]->GetXaxis()->SetBinLabel(5,"L1SingleMu");
+    
+    for(int ieta=0; ieta<NEtaBins; ieta++) {
+      double lowEta=-5.0, highEta= 5.0;
+      lowEta  = genPartEtaBins[ieta];
+      highEta = genPartEtaBins[ieta+1];
+      
+      for(int ipt=0; ipt<NPBins; ipt++) {
+	double lowP=0.0, highP=300.0;
+	lowP    = genPartPBins[ipt];
+	highP   = genPartPBins[ipt+1];
+	
+	d_maxNearP->cd();
+	sprintf(hname, "h_maxNearP31x31_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "maxNearP in 31x31 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP, name);
+	h_maxNearP31x31[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_maxNearP25x25_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "maxNearP in 25x25 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP, name);
+	h_maxNearP25x25[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_maxNearP21x21_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "maxNearP in 21x21 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP, name);
+	h_maxNearP21x21[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_maxNearP15x15_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "maxNearP in 15x15 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP, name);
+	h_maxNearP15x15[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_maxNearP11x11_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "maxNearP in 11x11 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP, name);
+	h_maxNearP11x11[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
 
-    for(int ipt=0; ipt<NPBins; ipt++) {
-      double lowP=0.0, highP=300.0;
-      lowP    = genPartPBins[ipt];
-      highP   = genPartPBins[ipt+1];
-
-     d_maxNearP->cd();
-      sprintf(hname, "h_maxNearP31x31_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "maxNearP in 31x31 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_maxNearP31x31[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_maxNearP25x25_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "maxNearP in 25x25 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_maxNearP25x25[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_maxNearP21x21_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "maxNearP in 21x21 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_maxNearP21x21[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_maxNearP15x15_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "maxNearP in 15x15 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_maxNearP15x15[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_maxNearP11x11_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "maxNearP in 11x11 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_maxNearP11x11[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-
-     d_chargeIso31x31->cd();
-      sprintf(hname, "h_photon_iso31x31_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "photon in 31x31 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_photon_iso31x31[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_charged_iso31x31_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "charged in 31x31 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_charged_iso31x31[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_neutral_iso31x31_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "neutral in 31x31 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_neutral_iso31x31[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_contamination_iso31x31_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "contamination in 31x31 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_contamination_iso31x31[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_L1_iso31x31_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "L1 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_L1_iso31x31[ipt][ieta] = new TH1F(hname, htit, 10, -0.5, 9.5);
-      h_L1_iso31x31[ipt][ieta]->GetXaxis()->SetBinLabel(1,"L1SingleJet");
-      h_L1_iso31x31[ipt][ieta]->GetXaxis()->SetBinLabel(2,"L1SingleTauJet");
-      h_L1_iso31x31[ipt][ieta]->GetXaxis()->SetBinLabel(3,"L1SingleEG");
-      h_L1_iso31x31[ipt][ieta]->GetXaxis()->SetBinLabel(4,"L1SingleIsoEG");
-      h_L1_iso31x31[ipt][ieta]->GetXaxis()->SetBinLabel(5,"L1SingleMu");
-
-
-     d_chargeIso25x25->cd();
-      sprintf(hname, "h_photon_iso25x25_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "photon in 25x25 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_photon_iso25x25[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_charged_iso25x25_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "charged in 25x25 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_charged_iso25x25[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_neutral_iso25x25_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "neutral in 25x25 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_neutral_iso25x25[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_contamination_iso25x25_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "contamination in 25x25 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_contamination_iso25x25[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-
-     d_chargeIso21x21->cd();
-      sprintf(hname, "h_photon_iso21x21_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "photon in 21x21 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_photon_iso21x21[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_charged_iso21x21_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "charged in 21x21 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_charged_iso21x21[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_neutral_iso21x21_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "neutral in 21x21 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_neutral_iso21x21[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_contamination_iso21x21_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "contamination in 21x21 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_contamination_iso21x21[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-
-     d_chargeIso15x15->cd();
-      sprintf(hname, "h_photon_iso15x15_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "photon in 15x15 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_photon_iso15x15[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_charged_iso15x15_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "charged in 15x15 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_charged_iso15x15[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_neutral_iso15x15_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "neutral in 15x15 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_neutral_iso15x15[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_contamination_iso15x15_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "contamination in 15x15 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_contamination_iso15x15[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-
-     d_chargeIso11x11->cd();
-      sprintf(hname, "h_photon_iso11x11_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "photon in 11x11 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_photon_iso11x11[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_charged_iso11x11_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "charged in 11x11 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_charged_iso11x11[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_neutral_iso11x11_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "neutral in 11x11 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_neutral_iso11x11[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_contamination_iso11x11_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "contamination in 11x11 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_contamination_iso11x11[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-
-     d_E11x11_chargeIso31x31->cd();
-      sprintf(hname, "h_photon11x11_iso31x31_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "photon in 11x11 (iso31x31) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_photon11x11_iso31x31[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_charged11x11_iso31x31_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "charged in 11x11 (iso31x31) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_charged11x11_iso31x31[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_neutral11x11_iso31x31_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "neutral in 11x11 (iso31x31) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_neutral11x11_iso31x31[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_contamination11x11_iso31x31_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "contamination in 11x11 (iso31x31) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_contamination11x11_iso31x31[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_L1_iso31x31_isoPhoton_11x11_1_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "L1(iso31x31, photonEne>0)) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_L1_iso31x31_isoPhoton_11x11_1[ipt][ieta] = new TH1F(hname, htit, 10, -0.5, 9.5);
-      h_L1_iso31x31_isoPhoton_11x11_1[ipt][ieta]->GetXaxis()->SetBinLabel(1,"L1SingleJet");
-      h_L1_iso31x31_isoPhoton_11x11_1[ipt][ieta]->GetXaxis()->SetBinLabel(2,"L1SingleTauJet");
-      h_L1_iso31x31_isoPhoton_11x11_1[ipt][ieta]->GetXaxis()->SetBinLabel(3,"L1SingleEG");
-      h_L1_iso31x31_isoPhoton_11x11_1[ipt][ieta]->GetXaxis()->SetBinLabel(4,"L1SingleIsoEG");
-      h_L1_iso31x31_isoPhoton_11x11_1[ipt][ieta]->GetXaxis()->SetBinLabel(5,"L1SingleMu");
-      sprintf(hname, "h_L1_iso31x31_isoPhoton_11x11_2_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "L1(iso31x31, photonEne==0)) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_L1_iso31x31_isoPhoton_11x11_2[ipt][ieta] = new TH1F(hname, htit, 10, -0.5, 9.5);
-      h_L1_iso31x31_isoPhoton_11x11_2[ipt][ieta]->GetXaxis()->SetBinLabel(1,"L1SingleJet");
-      h_L1_iso31x31_isoPhoton_11x11_2[ipt][ieta]->GetXaxis()->SetBinLabel(2,"L1SingleTauJet");
-      h_L1_iso31x31_isoPhoton_11x11_2[ipt][ieta]->GetXaxis()->SetBinLabel(3,"L1SingleEG");
-      h_L1_iso31x31_isoPhoton_11x11_2[ipt][ieta]->GetXaxis()->SetBinLabel(4,"L1SingleIsoEG");
-      h_L1_iso31x31_isoPhoton_11x11_2[ipt][ieta]->GetXaxis()->SetBinLabel(5,"L1SingleMu");
-      sprintf(hname, "h_L1_iso31x31_isoNeutral_11x11_1_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "L1(iso31x31, photonEne>0)) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_L1_iso31x31_isoNeutral_11x11_1[ipt][ieta] = new TH1F(hname, htit, 10, -0.5, 9.5);
-      h_L1_iso31x31_isoNeutral_11x11_1[ipt][ieta]->GetXaxis()->SetBinLabel(1,"L1SingleJet");
-      h_L1_iso31x31_isoNeutral_11x11_1[ipt][ieta]->GetXaxis()->SetBinLabel(2,"L1SingleTauJet");
-      h_L1_iso31x31_isoNeutral_11x11_1[ipt][ieta]->GetXaxis()->SetBinLabel(3,"L1SingleEG");
-      h_L1_iso31x31_isoNeutral_11x11_1[ipt][ieta]->GetXaxis()->SetBinLabel(4,"L1SingleIsoEG");
-      h_L1_iso31x31_isoNeutral_11x11_1[ipt][ieta]->GetXaxis()->SetBinLabel(5,"L1SingleMu");
-      sprintf(hname, "h_L1_iso31x31_isoNeutral_11x11_2_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "L1(iso31x31, photonEne==0)) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_L1_iso31x31_isoNeutral_11x11_2[ipt][ieta] = new TH1F(hname, htit, 10, -0.5, 9.5);
-      h_L1_iso31x31_isoNeutral_11x11_2[ipt][ieta]->GetXaxis()->SetBinLabel(1,"L1SingleJet");
-      h_L1_iso31x31_isoNeutral_11x11_2[ipt][ieta]->GetXaxis()->SetBinLabel(2,"L1SingleTauJet");
-      h_L1_iso31x31_isoNeutral_11x11_2[ipt][ieta]->GetXaxis()->SetBinLabel(3,"L1SingleEG");
-      h_L1_iso31x31_isoNeutral_11x11_2[ipt][ieta]->GetXaxis()->SetBinLabel(4,"L1SingleIsoEG");
-      h_L1_iso31x31_isoNeutral_11x11_2[ipt][ieta]->GetXaxis()->SetBinLabel(5,"L1SingleMu");
-
-      sprintf(hname, "h_photon11x11_isoEcal_NxN_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "photon in 11x11 (iso31x31-11x11) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_photon11x11_isoEcal_NxN[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_charged11x11_isoEcal_NxN_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "charged in 11x11 (iso31x31-11x11) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_charged11x11_isoEcal_NxN[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_neutral11x11_isoEcal_NxN_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "neutral in 11x11 (iso31x31-11x11) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_neutral11x11_isoEcal_NxN[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_contamination11x11_isoEcal_NxN_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "contamination in 11x11 (iso31x31-11x11) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_contamination11x11_isoEcal_NxN[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-
-     d_R_chargeIsoIsoR->cd();
-      sprintf(hname, "h_photonR_isoEcal_R_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "photon in R iso(IsoR-R) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_photonR_isoEcal_R[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_chargedR_isoEcal_R_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "charged in R iso(IsoR-R) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_chargedR_isoEcal_R[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_neutralR_isoEcal_R_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "neutral in R iso(IsoR-R) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_neutralR_isoEcal_R[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_contaminationR_isoEcal_R_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "contamination in R iso(IsoR-R) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_contaminationR_isoEcal_R[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-
-     d_H5x5_IsoNxN->cd();
-      sprintf(hname, "h_photonHC5x5_IsoNxN_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "photon in HC5x5 (IsoNxN) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_photonHC5x5_IsoNxN[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_chargedHC5x5_IsoNxN_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "charged in HC5x5 (IsoNxN) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_chargedHC5x5_IsoNxN[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_neutralHC5x5_IsoNxN_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "neutral in HC5x5 (IsoNxN) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_neutralHC5x5_IsoNxN[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_contaminationHC5x5_IsoNxN_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "contamination in HC5x5 (IsoNxN) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_contaminationHC5x5_IsoNxN[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-
-     d_HCR_IsoR->cd();
-      sprintf(hname, "h_photonHCR_IsoR_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "photon in HCR (IsoR) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_photonHCR_IsoR[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_chargedHCR_IsoR_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "charged in HCR (IsoR) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_chargedHCR_IsoR[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_neutralHCR_IsoR_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "neutral in HCR (IsoR) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_neutralHCR_IsoR[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
-      sprintf(hname, "h_contaminationHCR_IsoR_ptBin%i_etaBin%i",ipt, ieta);
-      sprintf(htit,  "contamination in HCR (IsoR) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-     h_contaminationHCR_IsoR[ipt][ieta] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	d_chargeIso31x31->cd();
+	sprintf(hname, "h_photon_iso31x31_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "photon in 31x31 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP, name);
+	h_photon_iso31x31[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_charged_iso31x31_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "charged in 31x31 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP, name);
+	h_charged_iso31x31[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_neutral_iso31x31_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "neutral in 31x31 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP, name);
+	h_neutral_iso31x31[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_contamination_iso31x31_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "contamination in 31x31 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP, name);
+	h_contamination_iso31x31[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_L1_iso31x31_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "L1 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP, name);
+	h_L1_iso31x31[ipt][ieta][j] = new TH1F(hname, htit, 10, -0.5, 9.5);
+	h_L1_iso31x31[ipt][ieta][j]->GetXaxis()->SetBinLabel(1,"L1SingleJet");
+	h_L1_iso31x31[ipt][ieta][j]->GetXaxis()->SetBinLabel(2,"L1SingleTauJet");
+	h_L1_iso31x31[ipt][ieta][j]->GetXaxis()->SetBinLabel(3,"L1SingleEG");
+	h_L1_iso31x31[ipt][ieta][j]->GetXaxis()->SetBinLabel(4,"L1SingleIsoEG");
+	h_L1_iso31x31[ipt][ieta][j]->GetXaxis()->SetBinLabel(5,"L1SingleMu");
+		
+	d_chargeIso25x25->cd();
+	sprintf(hname, "h_photon_iso25x25_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "photon in 25x25 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_photon_iso25x25[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_charged_iso25x25_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "charged in 25x25 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_charged_iso25x25[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_neutral_iso25x25_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "neutral in 25x25 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_neutral_iso25x25[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_contamination_iso25x25_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "contamination in 25x25 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_contamination_iso25x25[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	
+	d_chargeIso21x21->cd();
+	sprintf(hname, "h_photon_iso21x21_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "photon in 21x21 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_photon_iso21x21[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_charged_iso21x21_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "charged in 21x21 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_charged_iso21x21[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_neutral_iso21x21_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "neutral in 21x21 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_neutral_iso21x21[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_contamination_iso21x21_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "contamination in 21x21 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_contamination_iso21x21[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	
+	d_chargeIso15x15->cd();
+	sprintf(hname, "h_photon_iso15x15_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "photon in 15x15 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_photon_iso15x15[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_charged_iso15x15_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "charged in 15x15 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_charged_iso15x15[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_neutral_iso15x15_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "neutral in 15x15 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_neutral_iso15x15[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_contamination_iso15x15_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "contamination in 15x15 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_contamination_iso15x15[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	
+	d_chargeIso11x11->cd();
+	sprintf(hname, "h_photon_iso11x11_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "photon in 11x11 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_photon_iso11x11[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_charged_iso11x11_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "charged in 11x11 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_charged_iso11x11[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_neutral_iso11x11_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "neutral in 11x11 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_neutral_iso11x11[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_contamination_iso11x11_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "contamination in 11x11 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_contamination_iso11x11[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	
+	d_E11x11_chargeIso31x31->cd();
+	sprintf(hname, "h_photon11x11_iso31x31_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "photon in 11x11 (iso31x31) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_photon11x11_iso31x31[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_charged11x11_iso31x31_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "charged in 11x11 (iso31x31) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_charged11x11_iso31x31[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_neutral11x11_iso31x31_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "neutral in 11x11 (iso31x31) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_neutral11x11_iso31x31[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_contamination11x11_iso31x31_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "contamination in 11x11 (iso31x31) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_contamination11x11_iso31x31[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_L1_iso31x31_isoPhoton_11x11_1_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "L1(iso31x31, photonEne>0)) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_L1_iso31x31_isoPhoton_11x11_1[ipt][ieta][j] = new TH1F(hname, htit, 10, -0.5, 9.5);
+	h_L1_iso31x31_isoPhoton_11x11_1[ipt][ieta][j]->GetXaxis()->SetBinLabel(1,"L1SingleJet");
+	h_L1_iso31x31_isoPhoton_11x11_1[ipt][ieta][j]->GetXaxis()->SetBinLabel(2,"L1SingleTauJet");
+	h_L1_iso31x31_isoPhoton_11x11_1[ipt][ieta][j]->GetXaxis()->SetBinLabel(3,"L1SingleEG");
+	h_L1_iso31x31_isoPhoton_11x11_1[ipt][ieta][j]->GetXaxis()->SetBinLabel(4,"L1SingleIsoEG");
+	h_L1_iso31x31_isoPhoton_11x11_1[ipt][ieta][j]->GetXaxis()->SetBinLabel(5,"L1SingleMu");
+	sprintf(hname, "h_L1_iso31x31_isoPhoton_11x11_2_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "L1(iso31x31, photonEne==0)) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_L1_iso31x31_isoPhoton_11x11_2[ipt][ieta][j] = new TH1F(hname, htit, 10, -0.5, 9.5);
+	h_L1_iso31x31_isoPhoton_11x11_2[ipt][ieta][j]->GetXaxis()->SetBinLabel(1,"L1SingleJet");
+	h_L1_iso31x31_isoPhoton_11x11_2[ipt][ieta][j]->GetXaxis()->SetBinLabel(2,"L1SingleTauJet");
+	h_L1_iso31x31_isoPhoton_11x11_2[ipt][ieta][j]->GetXaxis()->SetBinLabel(3,"L1SingleEG");
+	h_L1_iso31x31_isoPhoton_11x11_2[ipt][ieta][j]->GetXaxis()->SetBinLabel(4,"L1SingleIsoEG");
+	h_L1_iso31x31_isoPhoton_11x11_2[ipt][ieta][j]->GetXaxis()->SetBinLabel(5,"L1SingleMu");
+	sprintf(hname, "h_L1_iso31x31_isoNeutral_11x11_1_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "L1(iso31x31, photonEne>0)) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_L1_iso31x31_isoNeutral_11x11_1[ipt][ieta][j] = new TH1F(hname, htit, 10, -0.5, 9.5);
+	h_L1_iso31x31_isoNeutral_11x11_1[ipt][ieta][j]->GetXaxis()->SetBinLabel(1,"L1SingleJet");
+	h_L1_iso31x31_isoNeutral_11x11_1[ipt][ieta][j]->GetXaxis()->SetBinLabel(2,"L1SingleTauJet");
+	h_L1_iso31x31_isoNeutral_11x11_1[ipt][ieta][j]->GetXaxis()->SetBinLabel(3,"L1SingleEG");
+	h_L1_iso31x31_isoNeutral_11x11_1[ipt][ieta][j]->GetXaxis()->SetBinLabel(4,"L1SingleIsoEG");
+	h_L1_iso31x31_isoNeutral_11x11_1[ipt][ieta][j]->GetXaxis()->SetBinLabel(5,"L1SingleMu");
+	sprintf(hname, "h_L1_iso31x31_isoNeutral_11x11_2_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "L1(iso31x31, photonEne==0)) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_L1_iso31x31_isoNeutral_11x11_2[ipt][ieta][j] = new TH1F(hname, htit, 10, -0.5, 9.5);
+	h_L1_iso31x31_isoNeutral_11x11_2[ipt][ieta][j]->GetXaxis()->SetBinLabel(1,"L1SingleJet");
+	h_L1_iso31x31_isoNeutral_11x11_2[ipt][ieta][j]->GetXaxis()->SetBinLabel(2,"L1SingleTauJet");
+	h_L1_iso31x31_isoNeutral_11x11_2[ipt][ieta][j]->GetXaxis()->SetBinLabel(3,"L1SingleEG");
+	h_L1_iso31x31_isoNeutral_11x11_2[ipt][ieta][j]->GetXaxis()->SetBinLabel(4,"L1SingleIsoEG");
+	h_L1_iso31x31_isoNeutral_11x11_2[ipt][ieta][j]->GetXaxis()->SetBinLabel(5,"L1SingleMu");
+	
+	sprintf(hname, "h_photon11x11_isoEcal_NxN_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "photon in 11x11 (iso31x31-11x11) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_photon11x11_isoEcal_NxN[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_charged11x11_isoEcal_NxN_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "charged in 11x11 (iso31x31-11x11) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_charged11x11_isoEcal_NxN[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_neutral11x11_isoEcal_NxN_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "neutral in 11x11 (iso31x31-11x11) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_neutral11x11_isoEcal_NxN[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_contamination11x11_isoEcal_NxN_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "contamination in 11x11 (iso31x31-11x11) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_contamination11x11_isoEcal_NxN[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	
+	d_R_chargeIsoIsoR->cd();
+	sprintf(hname, "h_photonR_isoEcal_R_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "photon in R iso(IsoR-R) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_photonR_isoEcal_R[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_chargedR_isoEcal_R_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "charged in R iso(IsoR-R) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_chargedR_isoEcal_R[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_neutralR_isoEcal_R_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "neutral in R iso(IsoR-R) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_neutralR_isoEcal_R[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_contaminationR_isoEcal_R_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "contamination in R iso(IsoR-R) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_contaminationR_isoEcal_R[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	
+	d_H5x5_IsoNxN->cd();
+	sprintf(hname, "h_photonHC5x5_IsoNxN_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "photon in HC5x5 (IsoNxN) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_photonHC5x5_IsoNxN[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_chargedHC5x5_IsoNxN_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "charged in HC5x5 (IsoNxN) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_chargedHC5x5_IsoNxN[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_neutralHC5x5_IsoNxN_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "neutral in HC5x5 (IsoNxN) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_neutralHC5x5_IsoNxN[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_contaminationHC5x5_IsoNxN_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "contamination in HC5x5 (IsoNxN) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_contaminationHC5x5_IsoNxN[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	
+	d_HCR_IsoR->cd();
+	sprintf(hname, "h_photonHCR_IsoR_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "photon in HCR (IsoR) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_photonHCR_IsoR[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_chargedHCR_IsoR_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "charged in HCR (IsoR) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_chargedHCR_IsoR[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_neutralHCR_IsoR_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "neutral in HCR (IsoR) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_neutralHCR_IsoR[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	sprintf(hname, "h_contaminationHCR_IsoR_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "contamination in HCR (IsoR) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
+	h_contaminationHCR_IsoR[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+      }
     }
+    
+    fout->cd();
+    d_trigger->cd();
+    sprintf(hname, "h_L1CenJetPt_%s", name);
+    h_L1CenJetPt[j]  = new TH1F(hname, hname, 500, 0.0, 500);
+    sprintf(hname, "h_L1FwdJetPt_%s", name);
+    h_L1FwdJetPt[j]  = new TH1F(hname, hname, 500, 0.0, 500);
+    sprintf(hname, "h_L1TauJetPt_%s", name);
+    h_L1TauJetPt[j]  = new TH1F(hname, hname, 500, 0.0, 500);
+    sprintf(hname, "h_L1LeadJetPt_%s", name);
+    h_L1LeadJetPt[j] = new TH1F(hname, hname, 500, 0.0, 500);
+    
   }
-
-  fout->cd();
-  TDirectory *d_trigger = fout->mkdir("trigger");
-  d_trigger->cd();
-  h_L1CenJetPt  = new TH1F("h_L1CenJetPt", "h_L1CenJetPt", 500, 0.0, 500);
-  h_L1FwdJetPt  = new TH1F("h_L1FwdJetPt", "h_L1FwdJetPt", 500, 0.0, 500);
-  h_L1TauJetPt  = new TH1F("h_L1TauJetPt", "h_L1TauJetPt", 500, 0.0, 500);
-  h_L1LeadJetPt = new TH1F("h_L1LeadJetPt","h_L1LeadJetPt",500, 0.0, 500);
-  
 }
 
 double TreeAnalysisReadGen::DeltaPhi(double v1, double v2) {
@@ -1210,3 +1278,95 @@ double TreeAnalysisReadGen::DeltaR(double eta1, double phi1, double eta2, double
   return std::sqrt(deta*deta + dphi*dphi);
 }
 
+void TreeAnalysisReadGen::AddWeight(){
+  for (unsigned int i=0; i<fRange-iRange+1; i++) {
+    for(int itype=0; itype<PTypes; itype++){
+      h_trkPAll[itype][NRanges]          ->Add(h_trkPAll[itype][i+iRange]          , weights[i]);
+      h_trkPtAll[itype][NRanges]         ->Add(h_trkPtAll[itype][i+iRange]         , weights[i]);
+      h_trkEtaAll[itype][NRanges]        ->Add(h_trkEtaAll[itype][i+iRange]        , weights[i]);
+      h_trkPhiAll[itype][NRanges]        ->Add(h_trkPhiAll[itype][i+iRange]        , weights[i]);
+      h_trkPIsoNxN[itype][NRanges]       ->Add(h_trkPIsoNxN[itype][i+iRange]       , weights[i]);
+      h_trkPtIsoNxN[itype][NRanges]      ->Add(h_trkPtIsoNxN[itype][i+iRange]      , weights[i]);
+      h_trkEtaIsoNxN[itype][NRanges]     ->Add(h_trkEtaIsoNxN[itype][i+iRange]     , weights[i]);
+      h_trkPhiIsoNxN[itype][NRanges]     ->Add(h_trkPhiIsoNxN[itype][i+iRange]     , weights[i]);
+      h_trkPIsoR[itype][NRanges]         ->Add(h_trkPIsoR[itype][i+iRange]         , weights[i]);
+      h_trkPtIsoR[itype][NRanges]        ->Add(h_trkPtIsoR[itype][i+iRange]        , weights[i]);
+      h_trkEtaIsoR[itype][NRanges]       ->Add(h_trkEtaIsoR[itype][i+iRange]       , weights[i]);
+      h_trkPhiIsoR[itype][NRanges]       ->Add(h_trkPhiIsoR[itype][i+iRange]       , weights[i]);
+    }
+    h_trkP_iso31x31[NRanges] ->Add(h_trkP_iso31x31[i+iRange] , weights[i]);
+    h_trkP_iso25x25[NRanges] ->Add(h_trkP_iso25x25[i+iRange] , weights[i]);
+    h_trkP_iso21x21[NRanges] ->Add(h_trkP_iso21x21[i+iRange] , weights[i]);
+    h_trkP_iso15x15[NRanges] ->Add(h_trkP_iso15x15[i+iRange] , weights[i]);
+    h_trkP_iso11x11[NRanges] ->Add(h_trkP_iso11x11[i+iRange] , weights[i]);
+    h_L1Decision[NRanges]    ->Add(h_L1Decision[i+iRange]    , weights[i]);
+
+    for(int ieta=0; ieta<NEtaBins; ieta++) {
+      for(int ipt=0; ipt<NPBins; ipt++) {
+	h_trkDEta[ipt][ieta][NRanges] ->Add(h_trkDEta[ipt][ieta][i+iRange] , weights[i]);
+	h_trkDPhi[ipt][ieta][NRanges] ->Add(h_trkDPhi[ipt][ieta][i+iRange] , weights[i]);
+	h_maxNearP31x31[ipt][ieta][NRanges]                  ->Add(h_maxNearP31x31[ipt][ieta][i+iRange]                  , weights[i]);
+	h_maxNearP25x25[ipt][ieta][NRanges]                  ->Add(h_maxNearP25x25[ipt][ieta][i+iRange]                  , weights[i]);
+	h_maxNearP21x21[ipt][ieta][NRanges]                  ->Add(h_maxNearP21x21[ipt][ieta][i+iRange]                  , weights[i]);
+	h_maxNearP15x15[ipt][ieta][NRanges]                  ->Add(h_maxNearP15x15[ipt][ieta][i+iRange]                  , weights[i]);
+	h_maxNearP11x11[ipt][ieta][NRanges]                  ->Add(h_maxNearP11x11[ipt][ieta][i+iRange]                  , weights[i]);
+	h_photon_iso31x31[ipt][ieta][NRanges]                ->Add(h_photon_iso31x31[ipt][ieta][i+iRange]                , weights[i]);
+	h_charged_iso31x31[ipt][ieta][NRanges]               ->Add(h_charged_iso31x31[ipt][ieta][i+iRange]               , weights[i]);
+	h_neutral_iso31x31[ipt][ieta][NRanges]               ->Add(h_neutral_iso31x31[ipt][ieta][i+iRange]               , weights[i]);
+	h_contamination_iso31x31[ipt][ieta][NRanges]         ->Add(h_contamination_iso31x31[ipt][ieta][i+iRange]         , weights[i]);
+	h_L1_iso31x31[ipt][ieta][NRanges]                    ->Add(h_L1_iso31x31[ipt][ieta][i+iRange]                    , weights[i]);
+	h_photon_iso25x25[ipt][ieta][NRanges]                ->Add(h_photon_iso25x25[ipt][ieta][i+iRange]                , weights[i]);
+	h_charged_iso25x25[ipt][ieta][NRanges]               ->Add(h_charged_iso25x25[ipt][ieta][i+iRange]               , weights[i]);
+	h_neutral_iso25x25[ipt][ieta][NRanges]               ->Add(h_neutral_iso25x25[ipt][ieta][i+iRange]               , weights[i]);
+	h_contamination_iso25x25[ipt][ieta][NRanges]         ->Add(h_contamination_iso25x25[ipt][ieta][i+iRange]         , weights[i]);
+	h_photon_iso21x21[ipt][ieta][NRanges]                ->Add(h_photon_iso21x21[ipt][ieta][i+iRange]                , weights[i]);
+	h_charged_iso21x21[ipt][ieta][NRanges]               ->Add(h_charged_iso21x21[ipt][ieta][i+iRange]               , weights[i]);
+	h_neutral_iso21x21[ipt][ieta][NRanges]               ->Add(h_neutral_iso21x21[ipt][ieta][i+iRange]               , weights[i]);
+	h_contamination_iso21x21[ipt][ieta][NRanges]         ->Add(h_contamination_iso21x21[ipt][ieta][i+iRange]         , weights[i]);
+	h_photon_iso15x15[ipt][ieta][NRanges]                ->Add(h_photon_iso15x15[ipt][ieta][i+iRange]                , weights[i]);
+	h_charged_iso15x15[ipt][ieta][NRanges]               ->Add(h_charged_iso15x15[ipt][ieta][i+iRange]               , weights[i]);
+	h_neutral_iso15x15[ipt][ieta][NRanges]               ->Add(h_neutral_iso15x15[ipt][ieta][i+iRange]               , weights[i]);
+	h_contamination_iso15x15[ipt][ieta][NRanges]         ->Add(h_contamination_iso15x15[ipt][ieta][i+iRange]         , weights[i]);
+	h_photon_iso11x11[ipt][ieta][NRanges]                ->Add(h_photon_iso11x11[ipt][ieta][i+iRange]                , weights[i]);
+	h_charged_iso11x11[ipt][ieta][NRanges]               ->Add(h_charged_iso11x11[ipt][ieta][i+iRange]               , weights[i]);
+	h_neutral_iso11x11[ipt][ieta][NRanges]               ->Add(h_neutral_iso11x11[ipt][ieta][i+iRange]               , weights[i]);
+	h_contamination_iso11x11[ipt][ieta][NRanges]         ->Add(h_contamination_iso11x11[ipt][ieta][i+iRange]         , weights[i]);
+	h_photon11x11_iso31x31[ipt][ieta][NRanges]           ->Add(h_photon11x11_iso31x31[ipt][ieta][i+iRange]           , weights[i]);
+	h_charged11x11_iso31x31[ipt][ieta][NRanges]          ->Add(h_charged11x11_iso31x31[ipt][ieta][i+iRange]          , weights[i]);
+	h_neutral11x11_iso31x31[ipt][ieta][NRanges]          ->Add(h_neutral11x11_iso31x31[ipt][ieta][i+iRange]          , weights[i]);
+	h_contamination11x11_iso31x31[ipt][ieta][NRanges]    ->Add(h_contamination11x11_iso31x31[ipt][ieta][i+iRange]    , weights[i]);
+	h_L1_iso31x31_isoPhoton_11x11_1[ipt][ieta][NRanges]  ->Add(h_L1_iso31x31_isoPhoton_11x11_1[ipt][ieta][i+iRange]  , weights[i]);
+	h_L1_iso31x31_isoPhoton_11x11_2[ipt][ieta][NRanges]  ->Add(h_L1_iso31x31_isoPhoton_11x11_2[ipt][ieta][i+iRange]  , weights[i]);
+	h_L1_iso31x31_isoNeutral_11x11_1[ipt][ieta][NRanges] ->Add(h_L1_iso31x31_isoNeutral_11x11_1[ipt][ieta][i+iRange] , weights[i]);
+	h_L1_iso31x31_isoNeutral_11x11_2[ipt][ieta][NRanges] ->Add(h_L1_iso31x31_isoNeutral_11x11_2[ipt][ieta][i+iRange] , weights[i]);
+	h_photon11x11_isoEcal_NxN[ipt][ieta][NRanges]        ->Add(h_photon11x11_isoEcal_NxN[ipt][ieta][i+iRange]        , weights[i]);
+	h_charged11x11_isoEcal_NxN[ipt][ieta][NRanges]       ->Add(h_charged11x11_isoEcal_NxN[ipt][ieta][i+iRange]       , weights[i]);
+	h_neutral11x11_isoEcal_NxN[ipt][ieta][NRanges]       ->Add(h_neutral11x11_isoEcal_NxN[ipt][ieta][i+iRange]       , weights[i]);
+	h_contamination11x11_isoEcal_NxN[ipt][ieta][NRanges] ->Add(h_contamination11x11_isoEcal_NxN[ipt][ieta][i+iRange] , weights[i]);
+	h_photonR_isoEcal_R[ipt][ieta][NRanges]              ->Add(h_photonR_isoEcal_R[ipt][ieta][i+iRange]              , weights[i]);
+	h_chargedR_isoEcal_R[ipt][ieta][NRanges]             ->Add(h_chargedR_isoEcal_R[ipt][ieta][i+iRange]             , weights[i]);
+	h_neutralR_isoEcal_R[ipt][ieta][NRanges]             ->Add(h_neutralR_isoEcal_R[ipt][ieta][i+iRange]             , weights[i]);
+	h_contaminationR_isoEcal_R[ipt][ieta][NRanges]       ->Add(h_contaminationR_isoEcal_R[ipt][ieta][i+iRange]       , weights[i]);
+	h_photonHC5x5_IsoNxN[ipt][ieta][NRanges]             ->Add(h_photonHC5x5_IsoNxN[ipt][ieta][i+iRange]             , weights[i]);
+	h_chargedHC5x5_IsoNxN[ipt][ieta][NRanges]            ->Add(h_chargedHC5x5_IsoNxN[ipt][ieta][i+iRange]            , weights[i]);
+	h_neutralHC5x5_IsoNxN[ipt][ieta][NRanges]            ->Add(h_neutralHC5x5_IsoNxN[ipt][ieta][i+iRange]            , weights[i]);
+	h_contaminationHC5x5_IsoNxN[ipt][ieta][NRanges]      ->Add(h_contaminationHC5x5_IsoNxN[ipt][ieta][i+iRange]      , weights[i]);
+	h_photonHCR_IsoR[ipt][ieta][NRanges]                 ->Add(h_photonHCR_IsoR[ipt][ieta][i+iRange]                 , weights[i]);
+	h_chargedHCR_IsoR[ipt][ieta][NRanges]                ->Add(h_chargedHCR_IsoR[ipt][ieta][i+iRange]                , weights[i]);
+	h_neutralHCR_IsoR[ipt][ieta][NRanges]                ->Add(h_neutralHCR_IsoR[ipt][ieta][i+iRange]                , weights[i]);
+	h_contaminationHCR_IsoR[ipt][ieta][NRanges]          ->Add(h_contaminationHCR_IsoR[ipt][ieta][i+iRange]          , weights[i]);
+      }
+    }
+    h_L1CenJetPt[NRanges]  ->Add(h_L1CenJetPt[i+iRange]  , weights[i]);
+    h_L1FwdJetPt[NRanges]  ->Add(h_L1FwdJetPt[i+iRange]  , weights[i]);
+    h_L1TauJetPt[NRanges]  ->Add(h_L1TauJetPt[i+iRange]  , weights[i]);
+    h_L1LeadJetPt[NRanges] ->Add(h_L1LeadJetPt[i+iRange] , weights[i]);
+  }
+}
+void TreeAnalysisReadGen::setRange(unsigned int ir) {
+  iRangeBin = ir;
+}
+void TreeAnalysisReadGen::clear() {
+  if (!fChain) return;
+  delete fChain->GetCurrentFile();
+}

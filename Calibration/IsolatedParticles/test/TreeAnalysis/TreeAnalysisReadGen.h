@@ -25,7 +25,9 @@ class TreeAnalysisReadGen {
 public :
 
   enum l1decision {L1SingleJet,L1SingleTauJet, L1SingleIsoEG,L1SingleEG,L1SingleMu};
-
+  static const int NRanges=15;
+  int iRange, fRange;
+  double weights[NRanges];
   std::map<std::string, int> l1Names;
   std::string                l1Name;
   static const int NEtaBins = 4;
@@ -33,73 +35,75 @@ public :
   double genPartPBins[22], genPartEtaBins[5];
   TFile *fout;
   double dRCut;
+  unsigned int iRangeBin, nentries;
+  bool debug;
   // inclusive distributions
   static const int PTypes = 3;
-  TH1F *h_trkPAll[PTypes],      *h_trkPtAll[PTypes],      *h_trkEtaAll[PTypes],      *h_trkPhiAll[PTypes];
-  TH1F *h_trkPIsoNxN[PTypes], *h_trkPtIsoNxN[PTypes], *h_trkEtaIsoNxN[PTypes], *h_trkPhiIsoNxN[PTypes];
-  TH1F *h_trkPIsoR[PTypes], *h_trkPtIsoR[PTypes], *h_trkEtaIsoR[PTypes], *h_trkPhiIsoR[PTypes];
-  TH1F *h_trkDEta[NPBins][NEtaBins], *h_trkDPhi[NPBins][NEtaBins];
+  TH1F *h_trkPAll[PTypes][NRanges+1],      *h_trkPtAll[PTypes][NRanges+1],      *h_trkEtaAll[PTypes][NRanges+1],      *h_trkPhiAll[PTypes][NRanges+1];
+  TH1F *h_trkPIsoNxN[PTypes][NRanges+1], *h_trkPtIsoNxN[PTypes][NRanges+1], *h_trkEtaIsoNxN[PTypes][NRanges+1], *h_trkPhiIsoNxN[PTypes][NRanges+1];
+  TH1F *h_trkPIsoR[PTypes][NRanges+1], *h_trkPtIsoR[PTypes][NRanges+1], *h_trkEtaIsoR[PTypes][NRanges+1], *h_trkPhiIsoR[PTypes][NRanges+1];
+  TH1F *h_trkDEta[NPBins][NEtaBins][NRanges+1], *h_trkDPhi[NPBins][NEtaBins][NRanges+1];
   
-  TH1F *h_L1CenJetPt, *h_L1FwdJetPt, *h_L1TauJetPt;
-  TH1F *h_L1LeadJetPt;
+  TH1F *h_L1CenJetPt[NRanges+1], *h_L1FwdJetPt[NRanges+1], *h_L1TauJetPt[NRanges+1];
+  TH1F *h_L1LeadJetPt[NRanges+1];
 
-  TH1F *h_L1Decision;
-  TH1F *h_L1_iso31x31[NPBins][NEtaBins];  
-  TH1F *h_L1_iso31x31_isoPhoton_11x11_1[NPBins][NEtaBins];  
-  TH1F *h_L1_iso31x31_isoPhoton_11x11_2[NPBins][NEtaBins];  
-  TH1F *h_L1_iso31x31_isoNeutral_11x11_1[NPBins][NEtaBins];  
-  TH1F *h_L1_iso31x31_isoNeutral_11x11_2[NPBins][NEtaBins];  
+  TH1F *h_L1Decision[NRanges+1];
+  TH1F *h_L1_iso31x31[NPBins][NEtaBins][NRanges+1];  
+  TH1F *h_L1_iso31x31_isoPhoton_11x11_1[NPBins][NEtaBins][NRanges+1];  
+  TH1F *h_L1_iso31x31_isoPhoton_11x11_2[NPBins][NEtaBins][NRanges+1];  
+  TH1F *h_L1_iso31x31_isoNeutral_11x11_1[NPBins][NEtaBins][NRanges+1];  
+  TH1F *h_L1_iso31x31_isoNeutral_11x11_2[NPBins][NEtaBins][NRanges+1];  
 
-  TH1F *h_maxNearP31x31[NPBins][NEtaBins],
-       *h_maxNearP25x25[NPBins][NEtaBins], 
-       *h_maxNearP21x21[NPBins][NEtaBins], 
-       *h_maxNearP15x15[NPBins][NEtaBins], 
-       *h_maxNearP11x11[NPBins][NEtaBins];
-  TH1F *h_trkP_iso31x31,
-       *h_trkP_iso25x25,
-       *h_trkP_iso21x21,
-       *h_trkP_iso15x15,
-       *h_trkP_iso11x11;
-  TH1F *h_photon_iso31x31[NPBins][NEtaBins],
-       *h_photon_iso25x25[NPBins][NEtaBins], 
-       *h_photon_iso21x21[NPBins][NEtaBins], 
-       *h_photon_iso15x15[NPBins][NEtaBins], 
-       *h_photon_iso11x11[NPBins][NEtaBins];
-  TH1F *h_charged_iso31x31[NPBins][NEtaBins],
-       *h_charged_iso25x25[NPBins][NEtaBins], 
-       *h_charged_iso21x21[NPBins][NEtaBins], 
-       *h_charged_iso15x15[NPBins][NEtaBins], 
-       *h_charged_iso11x11[NPBins][NEtaBins];
-  TH1F *h_neutral_iso31x31[NPBins][NEtaBins],
-       *h_neutral_iso25x25[NPBins][NEtaBins], 
-       *h_neutral_iso21x21[NPBins][NEtaBins], 
-       *h_neutral_iso15x15[NPBins][NEtaBins], 
-       *h_neutral_iso11x11[NPBins][NEtaBins];
-  TH1F *h_contamination_iso31x31[NPBins][NEtaBins],
-       *h_contamination_iso25x25[NPBins][NEtaBins], 
-       *h_contamination_iso21x21[NPBins][NEtaBins], 
-       *h_contamination_iso15x15[NPBins][NEtaBins], 
-       *h_contamination_iso11x11[NPBins][NEtaBins];
-  TH1F *h_photon11x11_iso31x31[NPBins][NEtaBins],
-       *h_charged11x11_iso31x31[NPBins][NEtaBins],
-       *h_neutral11x11_iso31x31[NPBins][NEtaBins],
-       *h_contamination11x11_iso31x31[NPBins][NEtaBins];
-  TH1F *h_photon11x11_isoEcal_NxN[NPBins][NEtaBins],
-       *h_charged11x11_isoEcal_NxN[NPBins][NEtaBins],
-       *h_neutral11x11_isoEcal_NxN[NPBins][NEtaBins],
-       *h_contamination11x11_isoEcal_NxN[NPBins][NEtaBins];
-  TH1F *h_photonR_isoEcal_R[NPBins][NEtaBins],
-       *h_chargedR_isoEcal_R[NPBins][NEtaBins],
-       *h_neutralR_isoEcal_R[NPBins][NEtaBins],
-       *h_contaminationR_isoEcal_R[NPBins][NEtaBins];
-  TH1F *h_photonHC5x5_IsoNxN[NPBins][NEtaBins],
-       *h_chargedHC5x5_IsoNxN[NPBins][NEtaBins],
-       *h_neutralHC5x5_IsoNxN[NPBins][NEtaBins],
-       *h_contaminationHC5x5_IsoNxN[NPBins][NEtaBins];
-  TH1F *h_photonHCR_IsoR[NPBins][NEtaBins],
-       *h_chargedHCR_IsoR[NPBins][NEtaBins],
-       *h_neutralHCR_IsoR[NPBins][NEtaBins],
-       *h_contaminationHCR_IsoR[NPBins][NEtaBins];
+  TH1F *h_maxNearP31x31[NPBins][NEtaBins][NRanges+1],
+       *h_maxNearP25x25[NPBins][NEtaBins][NRanges+1], 
+       *h_maxNearP21x21[NPBins][NEtaBins][NRanges+1], 
+       *h_maxNearP15x15[NPBins][NEtaBins][NRanges+1], 
+       *h_maxNearP11x11[NPBins][NEtaBins][NRanges+1];
+  TH1F *h_trkP_iso31x31[NRanges+1],
+       *h_trkP_iso25x25[NRanges+1],
+       *h_trkP_iso21x21[NRanges+1],
+       *h_trkP_iso15x15[NRanges+1],
+       *h_trkP_iso11x11[NRanges+1];
+  TH1F *h_photon_iso31x31[NPBins][NEtaBins][NRanges+1],
+       *h_photon_iso25x25[NPBins][NEtaBins][NRanges+1], 
+       *h_photon_iso21x21[NPBins][NEtaBins][NRanges+1], 
+       *h_photon_iso15x15[NPBins][NEtaBins][NRanges+1], 
+       *h_photon_iso11x11[NPBins][NEtaBins][NRanges+1];
+  TH1F *h_charged_iso31x31[NPBins][NEtaBins][NRanges+1],
+       *h_charged_iso25x25[NPBins][NEtaBins][NRanges+1], 
+       *h_charged_iso21x21[NPBins][NEtaBins][NRanges+1], 
+       *h_charged_iso15x15[NPBins][NEtaBins][NRanges+1], 
+       *h_charged_iso11x11[NPBins][NEtaBins][NRanges+1];
+  TH1F *h_neutral_iso31x31[NPBins][NEtaBins][NRanges+1],
+       *h_neutral_iso25x25[NPBins][NEtaBins][NRanges+1], 
+       *h_neutral_iso21x21[NPBins][NEtaBins][NRanges+1], 
+       *h_neutral_iso15x15[NPBins][NEtaBins][NRanges+1], 
+       *h_neutral_iso11x11[NPBins][NEtaBins][NRanges+1];
+  TH1F *h_contamination_iso31x31[NPBins][NEtaBins][NRanges+1],
+       *h_contamination_iso25x25[NPBins][NEtaBins][NRanges+1], 
+       *h_contamination_iso21x21[NPBins][NEtaBins][NRanges+1], 
+       *h_contamination_iso15x15[NPBins][NEtaBins][NRanges+1], 
+       *h_contamination_iso11x11[NPBins][NEtaBins][NRanges+1];
+  TH1F *h_photon11x11_iso31x31[NPBins][NEtaBins][NRanges+1],
+       *h_charged11x11_iso31x31[NPBins][NEtaBins][NRanges+1],
+       *h_neutral11x11_iso31x31[NPBins][NEtaBins][NRanges+1],
+       *h_contamination11x11_iso31x31[NPBins][NEtaBins][NRanges+1];
+  TH1F *h_photon11x11_isoEcal_NxN[NPBins][NEtaBins][NRanges+1],
+       *h_charged11x11_isoEcal_NxN[NPBins][NEtaBins][NRanges+1],
+       *h_neutral11x11_isoEcal_NxN[NPBins][NEtaBins][NRanges+1],
+       *h_contamination11x11_isoEcal_NxN[NPBins][NEtaBins][NRanges+1];
+  TH1F *h_photonR_isoEcal_R[NPBins][NEtaBins][NRanges+1],
+       *h_chargedR_isoEcal_R[NPBins][NEtaBins][NRanges+1],
+       *h_neutralR_isoEcal_R[NPBins][NEtaBins][NRanges+1],
+       *h_contaminationR_isoEcal_R[NPBins][NEtaBins][NRanges+1];
+  TH1F *h_photonHC5x5_IsoNxN[NPBins][NEtaBins][NRanges+1],
+       *h_chargedHC5x5_IsoNxN[NPBins][NEtaBins][NRanges+1],
+       *h_neutralHC5x5_IsoNxN[NPBins][NEtaBins][NRanges+1],
+       *h_contaminationHC5x5_IsoNxN[NPBins][NEtaBins][NRanges+1];
+  TH1F *h_photonHCR_IsoR[NPBins][NEtaBins][NRanges+1],
+       *h_chargedHCR_IsoR[NPBins][NEtaBins][NRanges+1],
+       *h_neutralHCR_IsoR[NPBins][NEtaBins][NRanges+1],
+       *h_contaminationHCR_IsoR[NPBins][NEtaBins][NRanges+1];
 
 
   TH1F *h_pdgId_iso31x31[NPBins][NEtaBins];
@@ -434,7 +438,7 @@ public :
   TBranch        *b_t_L1METEta;   //!
   TBranch        *b_t_L1METPhi;   //!
   
-  TreeAnalysisReadGen(TChain *tree, const char *outFileName);
+  TreeAnalysisReadGen(const char *outFileName, std::vector<std::string>& ranges);
   virtual ~TreeAnalysisReadGen();
   virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
@@ -444,9 +448,13 @@ public :
   virtual Bool_t   Notify();
   virtual void     Show(Long64_t entry = -1);
   void             getL1Names();
-  void             BookHistograms(const char *outFileName);
+  void             BookHistograms(const char *outFileName,std::vector<std::string>& ranges);
   double           DeltaPhi(double v1, double v2);
   double           DeltaR(double eta1, double phi1, double eta2, double phi2);
+  void clear();
+  void setRange(unsigned int ir);
+  void AddWeight();
+
 };
 
 #endif

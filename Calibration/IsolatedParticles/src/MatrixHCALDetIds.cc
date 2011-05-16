@@ -67,7 +67,8 @@ namespace spr{
 
     if (debug) {
       std::cout << "matrixHCALIds::Final List of cells for dR " << dR
-		<< " is with " << vdetx.size() << " cells" << std::endl;
+		<< " is with " << vdetx.size() << " from original list of "
+		<< vdets.size() << " cells" << std::endl;
       for (unsigned int i=0; i < vdetx.size(); ++i) {
 	HcalDetId   hcdet  = HcalDetId(vdets[i]);
 	std::cout << "matrixHCALIds::Cell " << i << " 0x" << std::hex 

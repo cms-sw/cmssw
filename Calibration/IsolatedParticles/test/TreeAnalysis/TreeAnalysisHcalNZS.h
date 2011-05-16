@@ -136,41 +136,11 @@ public :
 
   //===
   TH1F *h_diff_e15x15e11x11[NPBins][NEtaBins],
-       *h_diff_e15x15e11x11_10Sig[NPBins][NEtaBins],
-       *h_diff_e15x15e11x11_15Sig[NPBins][NEtaBins],
-       *h_diff_e15x15e11x11_20Sig[NPBins][NEtaBins],
-       *h_diff_e15x15e11x11_25Sig[NPBins][NEtaBins],
-       *h_diff_e15x15e11x11_30Sig[NPBins][NEtaBins];
+    *h_diff_e15x15e11x11_20Sig[NPBins][NEtaBins];
 
   TH1F *h_diff_h7x7h5x5[NPBins][NEtaBins];
   TH1F *h_maxNearP31x31[NPBins][NEtaBins];
         
-  TH1F *h_eECAL7x7_Frac_10Sig[NPBins][NEtaBins],
-       *h_eECAL9x9_Frac_10Sig[NPBins][NEtaBins],
-       *h_eECAL11x11_Frac_10Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_response_10Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_responseMIP_10Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_responseInteract_10Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_response_10Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_responseMIP_10Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_responseInteract_10Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_response_10Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_responseMIP_10Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_responseInteract_10Sig[NPBins][NEtaBins];
-
-  TH1F *h_eECAL7x7_Frac_15Sig[NPBins][NEtaBins],
-       *h_eECAL9x9_Frac_15Sig[NPBins][NEtaBins],
-       *h_eECAL11x11_Frac_15Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_response_15Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_responseMIP_15Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_responseInteract_15Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_response_15Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_responseMIP_15Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_responseInteract_15Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_response_15Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_responseMIP_15Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_responseInteract_15Sig[NPBins][NEtaBins];
-
   TH1F *h_eECAL7x7_Frac_20Sig[NPBins][NEtaBins],
        *h_eECAL9x9_Frac_20Sig[NPBins][NEtaBins],
        *h_eECAL11x11_Frac_20Sig[NPBins][NEtaBins];
@@ -183,36 +153,13 @@ public :
   TH1F *h_eHCAL3x3_eECAL7x7_response_20Sig[NPBins][NEtaBins];
   TH1F *h_eHCAL3x3_eECAL7x7_responseMIP_20Sig[NPBins][NEtaBins];
   TH1F *h_eHCAL3x3_eECAL7x7_responseInteract_20Sig[NPBins][NEtaBins];
+  TH1F *h_eHCAL5x5_eECAL11x11_response_20Sig[NPBins][NEtaBins];
+  TH1F *h_eHCAL5x5_eECAL11x11_responseMIP_20Sig[NPBins][NEtaBins];
+  TH1F *h_eHCAL5x5_eECAL11x11_responseInteract_20Sig[NPBins][NEtaBins];
 
   TH1F *hh_eECAL7x7_Frac_20Sig[NEtaBins],
        *hh_eECAL9x9_Frac_20Sig[NEtaBins],
        *hh_eECAL11x11_Frac_20Sig[NEtaBins];
-
-  TH1F *h_eECAL7x7_Frac_25Sig[NPBins][NEtaBins],
-       *h_eECAL9x9_Frac_25Sig[NPBins][NEtaBins],
-       *h_eECAL11x11_Frac_25Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_response_25Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_responseMIP_25Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_responseInteract_25Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_response_25Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_responseMIP_25Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_responseInteract_25Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_response_25Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_responseMIP_25Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_responseInteract_25Sig[NPBins][NEtaBins];
-
-  TH1F *h_eECAL7x7_Frac_30Sig[NPBins][NEtaBins],
-       *h_eECAL9x9_Frac_30Sig[NPBins][NEtaBins],
-       *h_eECAL11x11_Frac_30Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_response_30Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_responseMIP_30Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL11x11_responseInteract_30Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_response_30Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_responseMIP_30Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL9x9_responseInteract_30Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_response_30Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_responseMIP_30Sig[NPBins][NEtaBins];
-  TH1F *h_eHCAL3x3_eECAL7x7_responseInteract_30Sig[NPBins][NEtaBins];
 
   //================================
    TChain          *fChain;   //!pointer to the analyzed TTree or TChain

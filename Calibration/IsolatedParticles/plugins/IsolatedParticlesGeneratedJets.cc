@@ -17,10 +17,14 @@
 //
 
 #include "Calibration/IsolatedParticles/plugins/IsolatedParticlesGeneratedJets.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 IsolatedParticlesGeneratedJets::IsolatedParticlesGeneratedJets(const edm::ParameterSet& iConfig) {
 
-  debug = iConfig.getUntrackedParameter<bool>  ("Debug", false);
+  debug   = iConfig.getUntrackedParameter<bool>  ("Debug", false);
+  jetSrc  = iConfig.getParameter<edm::InputTag>("JetSource");
+  partSrc = iConfig.getParameter<edm::InputTag>("ParticleSource");
 }
 
 
@@ -35,7 +39,11 @@ void IsolatedParticlesGeneratedJets::analyze(const edm::Event& iEvent, const edm
 
   //=== genJet information
   edm::Handle<reco::GenJetCollection> genJets;
-  iEvent.getByLabel("iterativeCone5GenJets", genJets);
+  iEvent.getByLabel(jetSrc, genJets);
+
+  //=== genJet information
+  edm::Handle<reco::GenParticleCollection> genParticles;
+  iEvent.getByLabel(partSrc, genParticles);
 
   JetMatchingTools jetMatching (iEvent);
   std::vector <std::vector <const reco::GenParticle*> > genJetConstituents (genJets->size());
@@ -92,6 +100,17 @@ void IsolatedParticlesGeneratedJets::analyze(const edm::Event& iEvent, const edm
   } //loop over genjets
 
   t_gjetN->push_back(njets);
+
+  unsigned int indx = 0;
+  for(reco::GenParticleCollection::const_iterator ig = genParticles->begin(); ig!= genParticles->end(); ++ig,++indx) {
+ 
+    if (debug)
+      std::cout << "Track " << indx << " Status " << ig->status() << " charge "
+		<< ig->charge() << " pdgId " << ig->pdgId() << " mass "
+		<< ig->mass() << " P " << ig->momentum() << " E "
+		<< ig->energy() << " Origin " << ig->vertex() << std::endl;
+  }
+
 
   tree->Fill();
 }

@@ -46,6 +46,7 @@ private:
   void    clearTreeVectors();
   
   bool             debug;
+  edm::InputTag    jetSrc, partSrc;
   edm::Service<TFileService> fs;
   TTree            *tree;
 

@@ -6,7 +6,7 @@ Bool_t FillChain(TChain *chain, const TString &inputFileList);
 
 int main(Int_t argc, Char_t *argv[]) {
 
-  if ( argc<11 ) {
+  if ( argc<12 ) {
     std::cerr << "Please give 10 arguments "
               << "runList \n"
               << "outputFileName \n"
@@ -18,6 +18,7 @@ int main(Int_t argc, Char_t *argv[]) {
               << "hhNeutIso \n"
 	      << "L1Seed \n"
               << "dRL1Jet \n"
+	      << "ZS/NZS Flag \n"
 	      << "nGoodPV \n"
 	      << std::endl;
     return -1;
@@ -33,9 +34,11 @@ int main(Int_t argc, Char_t *argv[]) {
   const char *hhNeutIso     = argv[8];
   const char *L1Seed        = argv[9];
   const char *dRL1Jet       = argv[10];
-  const char *nGoodPV       = argv[11];
+  const char *ZSNZSFlag     = argv[11];
+  const char *nGoodPV       = argv[12];
 
   int cut = 0;
+  int flag = atoi(ZSNZSFlag);
 
   std::cout << "Command line arguments"          << std::endl;
   std::cout << "inputFileList " << inputFileList << std::endl;
@@ -48,13 +51,16 @@ int main(Int_t argc, Char_t *argv[]) {
   std::cout << "hhNeutIso     " << hhNeutIso     << std::endl;
   std::cout << "dRL1Jet       " << dRL1Jet       << std::endl;
   std::cout << "L1Seed        " << L1Seed        << std::endl;
-  std::cout << "nGoodPV       " << nGoodPV       << std::endl;
+  std::cout << "ZS/NZS Flag   " << flag          << "(1 for ZS, 0 for NZS)" << std::endl;
+  std::cout << "nGoodPV       " << nGoodPV       << "(0: nGoodPV=1, -1: firstGoodPV, -2: anyGoodPV)" << std::endl;
 
   // Reading Tree 
   std::cout << "---------------------" << std::endl;
   std::cout << "Reading List of input trees from " << inputFileList << std::endl;
   
-  TChain *chain = new TChain("/isotracksL1/tree");
+  TChain *chain;
+  if (flag) chain = new TChain("/isolatedTracksNxN/tree");
+  else  chain = new TChain("/isolatedTracksNxN_NZS/tree");
   if( ! FillChain(chain, inputFileList) ) {
     std::cerr << "Cannot get the tree " << std::endl;
     return(0);
@@ -458,6 +464,7 @@ void TreeAnalysisHcalNZS::Loop(int cut) {
     return;
   }
 
+  bool debug = false;
   Long64_t nentries = fChain->GetEntriesFast();
   std::cout << "No. of Entries in tree " << nentries << std::endl;
 
@@ -492,7 +499,7 @@ void TreeAnalysisHcalNZS::Loop(int cut) {
       runEvtList[t_RunNo] += 1; 
    } else {
       runEvtList.insert( std::pair<unsigned int, unsigned int>(t_RunNo,1) );
-      std::cout << "runNo " << t_RunNo <<" "<<runEvtList[t_RunNo]<<std::endl;
+      if (debug) std::cout << "runNo " << t_RunNo <<" "<<runEvtList[t_RunNo]<<std::endl;
     }
     
     nEventsGoodRuns++;
@@ -506,9 +513,7 @@ void TreeAnalysisHcalNZS::Loop(int cut) {
     bool firstPVGood=false;
 
     for(int ipv=0; ipv<PVz->size(); ipv++) {
-      
-      double rho = sqrt((*PVx)[ipv]*(*PVx)[ipv] + (*PVy)[ipv]*(*PVy)[ipv]);
-      
+      double rho = sqrt((*PVx)[ipv]*(*PVx)[ipv] + (*PVy)[ipv]*(*PVy)[ipv]);      
       h_PVx[0]            ->Fill( (*PVx)[ipv]             );
       h_PVy[0]            ->Fill( (*PVy)[ipv]             );
       h_PVr[0]            ->Fill( rho                   );
@@ -525,10 +530,11 @@ void TreeAnalysisHcalNZS::Loop(int cut) {
       else 
 	isGoodPV[ipv] = 0;
       
+      if (debug) std::cout << "PV : " << ipv << " rho " << rho << " z " << (*PVz)[ipv] << " ndf " << (*PVndof)[ipv] << " Good " << isGoodPV[ipv] << std::endl;
       if( isGoodPV[ipv]>0 ) {
 	nGoodPV++;
 	anyGoodPV = true;
-	if(ipv==1)              firstPVGood = true;
+	if(ipv==0)              firstPVGood = true;
 	h_PVx[1]            ->Fill( (*PVx)[ipv]             );
 	h_PVy[1]            ->Fill( (*PVy)[ipv]             );
 	h_PVr[1]            ->Fill( rho                   );
@@ -549,19 +555,23 @@ void TreeAnalysisHcalNZS::Loop(int cut) {
       nEventsPVTracks++;
     }
 
-
-    // select on events with a good "first" PV
     bool pvSel = true;
     //if( !firstPVGood )     pvSel = false;
-    if( nGoodPV != 1 )     pvSel = false;
+    if (debug) std::cout << "GoodPVCut " << GoodPVCut << " anyGoodPV " << anyGoodPV << " firstPVGood " << firstPVGood << " nGoodPV " << nGoodPV << std::endl;
+    if (GoodPVCut == -2 && !anyGoodPV           ) pvSel = false;
+    else if (GoodPVCut == -1 && !firstPVGood    ) pvSel = false;
+    else if (GoodPVCut==0 && nGoodPV != 1        ) pvSel = false; 
+    else if (GoodPVCut>0 && (nGoodPV > GoodPVCut || nGoodPV < 1)) pvSel = false;
+
     if(dataType=="DiPion") pvSel = true;  // no PV selection for DiPion sample
+    if (debug) std::cout << "NGoodPV " << nGoodPV << " First " << firstPVGood << " pvSel " << pvSel << std::endl;
     if( !pvSel ) continue;
 
     //================= avoid trigger bias ===================
     double maxL1Pt=-1.0, maxL1Eta=999.0, maxL1Phi=999.0;
     bool checkL1=false;
 
-    if( L1Seed=="L1Jet" || L1Seed=="L1JetL1Tau" || L1Seed=="L1JetL1TauL1EM") {
+    if( L1Seed=="L1Jet" || L1Seed=="L1JetL1Tau" || L1Seed=="L1JetL1TauL1EM" || L1Seed=="L1JetL1EM") {
       if( t_L1Decision[15]>0 || t_L1Decision[16]>0 ||  t_L1Decision[17]>0	||
 	  t_L1Decision[18]>0 || t_L1Decision[19]>0 ||  t_L1Decision[20]>0	||
 	  t_L1Decision[21]>0 ){ 
@@ -576,20 +586,25 @@ void TreeAnalysisHcalNZS::Loop(int cut) {
       if( t_L1Decision[30]>0 ||  t_L1Decision[31]>0	|| t_L1Decision[32]>0 ||
 	  t_L1Decision[33]>0 ) {
 	if( t_L1TauJetPt->size()>0 && (*t_L1TauJetPt)[0]>maxL1Pt )
-	  {maxL1Pt=(*t_L1TauJetPt)[0]; maxL1Eta=(*t_L1TauJetEta)[0]; maxL1Phi=(*t_L1TauJetPhi)[0];}      
+	  {maxL1Pt=(*t_L1TauJetPt)[0]; maxL1Eta=(*t_L1TauJetEta)[0]; maxL1Phi=(*t_L1TauJetPhi)[0];}
 	checkL1=true;
       } 
     }
-    if( L1Seed=="L1EM" || L1Seed=="L1JetL1TauL1EM") {      
+    if( L1Seed=="L1EM" || L1Seed=="L1JetL1TauL1EM" || L1Seed=="L1JetL1EM") {      
       if( t_L1Decision[46]>0 || t_L1Decision[47]>0 || t_L1Decision[48]>0 ||  
 	  t_L1Decision[49]>0 || t_L1Decision[50]>0 || t_L1Decision[51]>0 ||  
 	  t_L1Decision[52]>0	) {
 	if( t_L1IsoEMPt->size()>0 && (*t_L1IsoEMPt)[0]>maxL1Pt )
-	  {maxL1Pt=(*t_L1IsoEMPt)[0]; maxL1Eta=(*t_L1IsoEMEta)[0]; maxL1Phi=(*t_L1IsoEMPhi)[0];}      
+	  {maxL1Pt=(*t_L1IsoEMPt)[0]; maxL1Eta=(*t_L1IsoEMEta)[0]; maxL1Phi=(*t_L1IsoEMPhi)[0];}
 	checkL1=true;
       } 
     }
     if( maxL1Pt<0 ) checkL1=false;
+    if (debug) {
+      std::cout << "L1Seed " << L1Seed << " pt/eta/phi " << maxL1Pt << "|" << maxL1Eta << "|" << maxL1Phi << " checkL1 " << checkL1 << " L1Decision " << std::endl;
+      for (int i=-14; i<53; ++i) std::cout << " i " << i << ":" << t_L1Decision[i];
+      std::cout << std::endl;
+    }
 
     // good events satisfying good first PV selection
     for(int itrk=0; itrk<t_trackPAll->size(); itrk++ ){
@@ -617,13 +632,14 @@ void TreeAnalysisHcalNZS::Loop(int cut) {
       runNTrkList[t_RunNo] += t_trackP->size(); 
     } else {
       runNTrkList.insert( std::pair<unsigned int, unsigned int>(t_RunNo,t_trackP->size()) );
-      std::cout << "runNo " << t_RunNo <<" "<<runNTrkList[t_RunNo]<<std::endl;
+      if (debug) std::cout << "runNo " << t_RunNo <<" "<<runNTrkList[t_RunNo]<<std::endl;
     }
     
     unsigned int NIsoTrk=0;
     for(int itrk=0; itrk<t_trackP->size(); itrk++ ){
       
       // reject soft tracks
+      if (debug) std::cout << "Track " << itrk << " pt " << (*t_trackPt)[itrk] << std::endl;
       if( (*t_trackPt)[itrk] < 1.0 ) continue;
 
       double p1              = (*t_trackP)[itrk];
@@ -674,7 +690,7 @@ void TreeAnalysisHcalNZS::Loop(int cut) {
       for(int ipt=0;  ipt<NPBins;   ipt++)  {
 	if( p1>genPartPBins[ipt] &&  p1<genPartPBins[ipt+1] )  iTrkMomBin = ipt;
       }
-      //std::cout << "p " << p1 << " " << iTrkMomBin << " eta " << eta1 << " " << iTrkEtaBin << std::endl;       
+      if (debug) std::cout << "p " << p1 << " " << iTrkMomBin << " eta " << eta1 << " " << iTrkEtaBin << std::endl;       
       
       bool trackChargeIso = true;
       if(ecalCharIso=="MaxNearP31x31"     && maxNearP31x31>0)     trackChargeIso=false;
@@ -682,6 +698,7 @@ void TreeAnalysisHcalNZS::Loop(int cut) {
       if(hcalCharIso=="MaxNearHcalP7x7"   && maxNearHcalP7x7>0)   trackChargeIso=false;
       if(hcalCharIso=="MaxNearHcalP5x5"   && maxNearHcalP5x5>0)   trackChargeIso=false;
       if(hcalCharIso=="MaxNearHcalP3x3"   && maxNearHcalP3x3>0)   trackChargeIso=false;
+      if (debug) std::cout << "Isolation " << ecalCharIso << ":" << hcalCharIso << " ==> " << trackChargeIso << std::endl;
       
       bool hcalNeutIso = true;
       if( h7x7-h5x5   > hhNeutIso )                             hcalNeutIso=false;
@@ -728,11 +745,12 @@ void TreeAnalysisHcalNZS::Loop(int cut) {
       if( (dataType=="Data" || dataType=="MC") ) {
 	if( checkL1 ){
 	  drTrackL1 = DeltaR(eta1, phi1, maxL1Eta, maxL1Phi);	  
-	  if( drTrackL1<dRL1Jet) trackSel=false;
 
 	  bool tempIso=true;
 	  if( std::abs(eta1)<1.47 ) if( e15x15-e11x11 > ebNeutIso ) tempIso=false;
 	  if( std::abs(eta1)>1.47 ) if( e15x15-e11x11 > eeNeutIso ) tempIso=false;
+	  if (debug) std::cout << "Track Selection " << trackSel << " Isolation " << tempIso << ":" << hcalNeutIso << " dr " << drTrackL1 << ":" << dRL1Jet << std::endl;
+	  if( drTrackL1<dRL1Jet) trackSel=false;
 	  if( trackChargeIso &&  hcalNeutIso && tempIso) {
 	    if( drTrackL1>100.0) {
 	      std::cout<<"trackP,eta,phi "<<std::setw(10)<<(*t_trackP)[itrk]<<std::setw(10)<<(*t_trackEta)[itrk]
@@ -760,25 +778,23 @@ void TreeAnalysisHcalNZS::Loop(int cut) {
       }
       
       //if( iTrkMomBin>=0 && iTrkEtaBin>=0 && trackNOuterHits>=4 && NLayersCrossed>=8 && trackSel) {	 
+      bool ecalNeutIso = true;
+      if( std::abs(eta1)<1.47 ) if( e15x15-e11x11 > ebNeutIso ) ecalNeutIso=false;
+      if( std::abs(eta1)>1.47 ) if( e15x15-e11x11 > eeNeutIso ) ecalNeutIso=false;
+      if (debug) std::cout << "All selection " << iTrkMomBin << ":" << iTrkEtaBin << ":" << trackSel << ":" << trackChargeIso << ":" << hcalNeutIso << ":" << ecalNeutIso << std::endl;
+
       if( iTrkMomBin>=0 && iTrkEtaBin>=0 && trackSel) {	 
 	 
 	h_maxNearP31x31[iTrkMomBin][iTrkEtaBin]->Fill( maxNearP31x31 );
 
 	if( trackChargeIso ) {
 	  h_diff_e15x15e11x11      [iTrkMomBin][iTrkEtaBin]->Fill(e15x15-e11x11);
-	  h_diff_e15x15e11x11_10Sig[iTrkMomBin][iTrkEtaBin]->Fill((*t_e15x15_10Sig)[itrk]-(*t_e11x11_10Sig)[itrk]);
-	  h_diff_e15x15e11x11_15Sig[iTrkMomBin][iTrkEtaBin]->Fill((*t_e15x15_15Sig)[itrk]-(*t_e11x11_15Sig)[itrk]);
 	  h_diff_e15x15e11x11_20Sig[iTrkMomBin][iTrkEtaBin]->Fill((*t_e15x15_20Sig)[itrk]-(*t_e11x11_20Sig)[itrk]);
-	  h_diff_e15x15e11x11_25Sig[iTrkMomBin][iTrkEtaBin]->Fill((*t_e15x15_25Sig)[itrk]-(*t_e11x11_25Sig)[itrk]);
-	  h_diff_e15x15e11x11_30Sig[iTrkMomBin][iTrkEtaBin]->Fill((*t_e15x15_30Sig)[itrk]-(*t_e11x11_30Sig)[itrk]);
 	  h_diff_h7x7h5x5          [iTrkMomBin][iTrkEtaBin]->Fill( h7x7-h5x5 ) ;
 	}
 
 	if( trackChargeIso &&  hcalNeutIso) { 
 
-	  bool ecalNeutIso = true;
-	  if( std::abs(eta1)<1.47 ) if( e15x15-e11x11 > ebNeutIso ) ecalNeutIso=false;
-	  if( std::abs(eta1)>1.47 ) if( e15x15-e11x11 > eeNeutIso ) ecalNeutIso=false;
 	  if(ecalNeutIso ) {
 
 	    h_trackP[5]    ->Fill((*t_trackP)[itrk]    );  
@@ -880,49 +896,7 @@ void TreeAnalysisHcalNZS::Loop(int cut) {
 
 
 	  // cut on xtal noise
-	  bool ecalNeutIso10Sig = true;
-	  if( std::abs(eta1)<1.47 ) if( (*t_e15x15_10Sig)[itrk]-(*t_e11x11_10Sig)[itrk] > ebNeutIso ) ecalNeutIso10Sig=false;
-	  if( std::abs(eta1)>1.47 ) if( (*t_e15x15_10Sig)[itrk]-(*t_e11x11_10Sig)[itrk] > eeNeutIso ) ecalNeutIso10Sig=false;	  
-	  if(ecalNeutIso10Sig) {
-	    h_eECAL11x11_Frac_10Sig[iTrkMomBin][iTrkEtaBin]->Fill((*t_e11x11_10Sig)[itrk]/p1);
-	    h_eECAL9x9_Frac_10Sig  [iTrkMomBin][iTrkEtaBin]->Fill((*t_e9x9_10Sig)[itrk]/p1);
-	    h_eECAL7x7_Frac_10Sig  [iTrkMomBin][iTrkEtaBin]->Fill((*t_e7x7_10Sig)[itrk]/p1);
-	    
-	    h_eHCAL3x3_eECAL11x11_response_10Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_10Sig)[itrk])/p1);
-	    h_eHCAL3x3_eECAL9x9_response_10Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_10Sig)[itrk])/p1);
-	    h_eHCAL3x3_eECAL7x7_response_10Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_10Sig)[itrk])/p1);
-	    if( e7x7<0.700) {
-	      h_eHCAL3x3_eECAL11x11_responseMIP_10Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_10Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL9x9_responseMIP_10Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_10Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL7x7_responseMIP_10Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_10Sig)[itrk])/p1);
-	    } else {
-	      h_eHCAL3x3_eECAL11x11_responseInteract_10Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_10Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL9x9_responseInteract_10Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_10Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL7x7_responseInteract_10Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_10Sig)[itrk])/p1);
-	    }
-	  }
 
-	  bool ecalNeutIso15Sig = true;
-	  if( std::abs(eta1)<1.47 ) if( (*t_e15x15_15Sig)[itrk]-(*t_e11x11_15Sig)[itrk] > ebNeutIso ) ecalNeutIso15Sig=false;
-	  if( std::abs(eta1)>1.47 ) if( (*t_e15x15_15Sig)[itrk]-(*t_e11x11_15Sig)[itrk] > eeNeutIso ) ecalNeutIso15Sig=false;	  
-	  if(ecalNeutIso15Sig) {
-	    h_eECAL11x11_Frac_15Sig[iTrkMomBin][iTrkEtaBin]->Fill((*t_e11x11_15Sig)[itrk]/p1);
-	    h_eECAL9x9_Frac_15Sig  [iTrkMomBin][iTrkEtaBin]->Fill((*t_e9x9_15Sig)[itrk]/p1);
-	    h_eECAL7x7_Frac_15Sig  [iTrkMomBin][iTrkEtaBin]->Fill((*t_e7x7_15Sig)[itrk]/p1);
-	    
-	    h_eHCAL3x3_eECAL11x11_response_15Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_15Sig)[itrk])/p1);
-	    h_eHCAL3x3_eECAL9x9_response_15Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_15Sig)[itrk])/p1);
-	    h_eHCAL3x3_eECAL7x7_response_15Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_15Sig)[itrk])/p1);
-	    if( e7x7<0.700) {
-	      h_eHCAL3x3_eECAL11x11_responseMIP_15Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_15Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL9x9_responseMIP_15Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_15Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL7x7_responseMIP_15Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_15Sig)[itrk])/p1);
-	    } else {
-	      h_eHCAL3x3_eECAL11x11_responseInteract_15Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_15Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL9x9_responseInteract_15Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_15Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL7x7_responseInteract_15Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_15Sig)[itrk])/p1);
-	    }
-	  }
 
 	  bool ecalNeutIso20Sig = true;
 	  if( std::abs(eta1)<1.47 ) if( (*t_e15x15_20Sig)[itrk]-(*t_e11x11_20Sig)[itrk] > ebNeutIso ) ecalNeutIso20Sig=false;
@@ -968,53 +942,16 @@ void TreeAnalysisHcalNZS::Loop(int cut) {
 	    } else {
 	      h_eHCAL3x3_eECAL7x7_responseInteract_20Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_20Sig)[itrk])/p1);
 	    }
+	    h_eHCAL5x5_eECAL11x11_response_20Sig[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+(*t_e11x11_20Sig)[itrk])/p1);
+	    if((*t_e7x7_20Sig)[itrk]<0.7 ) {
+	      h_eHCAL5x5_eECAL11x11_responseMIP_20Sig[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+(*t_e11x11_20Sig)[itrk])/p1);
+	    } else {
+	      h_eHCAL5x5_eECAL11x11_responseInteract_20Sig[iTrkMomBin][iTrkEtaBin]->Fill((h5x5+(*t_e11x11_20Sig)[itrk])/p1);
+	    }
+
 	  }
 
-	  bool ecalNeutIso25Sig = true;
-	  if( std::abs(eta1)<1.47 ) if( (*t_e15x15_25Sig)[itrk]-(*t_e11x11_25Sig)[itrk] > ebNeutIso ) ecalNeutIso25Sig=false;
-	  if( std::abs(eta1)>1.47 ) if( (*t_e15x15_25Sig)[itrk]-(*t_e11x11_25Sig)[itrk] > eeNeutIso ) ecalNeutIso25Sig=false;
-	  if(ecalNeutIso25Sig) {
-	    h_eECAL11x11_Frac_25Sig[iTrkMomBin][iTrkEtaBin]->Fill((*t_e11x11_25Sig)[itrk]/p1);
-	    h_eECAL9x9_Frac_25Sig  [iTrkMomBin][iTrkEtaBin]->Fill((*t_e9x9_25Sig)[itrk]/p1);
-	    h_eECAL7x7_Frac_25Sig  [iTrkMomBin][iTrkEtaBin]->Fill((*t_e7x7_25Sig)[itrk]/p1);
-	    
-	    h_eHCAL3x3_eECAL11x11_response_25Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_25Sig)[itrk])/p1);
-	    h_eHCAL3x3_eECAL9x9_response_25Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_25Sig)[itrk])/p1);
-	    h_eHCAL3x3_eECAL7x7_response_25Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_25Sig)[itrk])/p1);
-	    if( e7x7<0.700) {
-	      h_eHCAL3x3_eECAL11x11_responseMIP_25Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_25Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL9x9_responseMIP_25Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_25Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL7x7_responseMIP_25Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_25Sig)[itrk])/p1);
-	    } else {
-	      h_eHCAL3x3_eECAL11x11_responseInteract_25Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_25Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL9x9_responseInteract_25Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_25Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL7x7_responseInteract_25Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_25Sig)[itrk])/p1);
-	    }
-	  }
-
-	  bool ecalNeutIso30Sig = true;
-	  if( std::abs(eta1)<1.47 ) if( (*t_e15x15_30Sig)[itrk]-(*t_e11x11_30Sig)[itrk] > ebNeutIso ) ecalNeutIso30Sig=false;
-	  if( std::abs(eta1)>1.47 ) if( (*t_e15x15_30Sig)[itrk]-(*t_e11x11_30Sig)[itrk] > eeNeutIso ) ecalNeutIso30Sig=false;
-	  if(ecalNeutIso30Sig) {
-	    h_eECAL11x11_Frac_30Sig[iTrkMomBin][iTrkEtaBin]->Fill((*t_e11x11_30Sig)[itrk]/p1);
-	    h_eECAL9x9_Frac_30Sig  [iTrkMomBin][iTrkEtaBin]->Fill((*t_e9x9_30Sig)[itrk]/p1);
-	    h_eECAL7x7_Frac_30Sig  [iTrkMomBin][iTrkEtaBin]->Fill((*t_e7x7_30Sig)[itrk]/p1);
-	    
-	    h_eHCAL3x3_eECAL11x11_response_30Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_30Sig)[itrk])/p1);
-	    h_eHCAL3x3_eECAL9x9_response_30Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_30Sig)[itrk])/p1);
-	    h_eHCAL3x3_eECAL7x7_response_30Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_30Sig)[itrk])/p1);
-	    if( e7x7<0.700) {
-	      h_eHCAL3x3_eECAL11x11_responseMIP_30Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_30Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL9x9_responseMIP_30Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_30Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL7x7_responseMIP_30Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_30Sig)[itrk])/p1);
-	    } else {
-	      h_eHCAL3x3_eECAL11x11_responseInteract_30Sig[iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e11x11_30Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL9x9_responseInteract_30Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e9x9_30Sig)[itrk])/p1);
-	      h_eHCAL3x3_eECAL7x7_responseInteract_30Sig  [iTrkMomBin][iTrkEtaBin]->Fill((h3x3+(*t_e7x7_30Sig)[itrk])/p1);
-	    }
-	  }
-	    
-	} // if charged & hcal iso
+	}	 // if charged & hcal iso
 	
       } // momentum and eta bins 
       
@@ -1024,7 +961,7 @@ void TreeAnalysisHcalNZS::Loop(int cut) {
       runNIsoTrkList[t_RunNo] += NIsoTrk;
     } else {
       runNIsoTrkList.insert( std::pair<unsigned int, unsigned int>(t_RunNo,NIsoTrk) );
-      std::cout << "runNo " << t_RunNo <<" "<<runNIsoTrkList[t_RunNo]<<std::endl;
+      if (debug) std::cout << "runNo " << t_RunNo <<" "<<runNIsoTrkList[t_RunNo]<<std::endl;
     }
   
   } //loop over tree entries
@@ -1037,22 +974,30 @@ void TreeAnalysisHcalNZS::Loop(int cut) {
 
   std::cout << "saved runEvtList " << std::endl;
   std::map<unsigned int, unsigned int>::iterator runEvtListItr = runEvtList.begin();
+  long total=0;
   for(runEvtListItr=runEvtList.begin(); runEvtListItr != runEvtList.end(); runEvtListItr++) {
     std::cout<<runEvtListItr->first << " "<< runEvtListItr->second << std::endl;
+    total += runEvtListItr->second;
   }
+  std::cout<<"Total   " << total << std::endl << std::endl;
 
+  total = 0;
   std::cout << "Number of tracks in runs " << std::endl;
   std::map<unsigned int, unsigned int>::iterator runNTrkListItr = runNTrkList.begin();
   for(runNTrkListItr=runNTrkList.begin(); runNTrkListItr != runNTrkList.end(); runNTrkListItr++) {
     std::cout<<runNTrkListItr->first << " "<< runNTrkListItr->second << std::endl;
+    total += runNTrkListItr->second;
   }
+  std::cout<<"Total   " << total << std::endl << std::endl;
 
+  total = 0;
   std::cout << "Number of isolated tracks in runs " << std::endl;
   std::map<unsigned int, unsigned int>::iterator runNIsoTrkListItr = runNIsoTrkList.begin();
   for(runNIsoTrkListItr=runNIsoTrkList.begin(); runNIsoTrkListItr != runNIsoTrkList.end(); runNIsoTrkListItr++) {
     std::cout<<runNIsoTrkListItr->first << " "<< runNIsoTrkListItr->second << std::endl;
+    total += runNIsoTrkListItr->second;
   }
-  
+  std::cout<<"Total   " << total << std::endl << std::endl;  
 }
 
 Bool_t TreeAnalysisHcalNZS::Notify() {
@@ -1299,22 +1244,9 @@ void TreeAnalysisHcalNZS::BookHistograms(const char *outFileName) {
       sprintf(hname, "h_diff_e15x15e11x11_ptBin%i_etaBin%i", ipt, ieta);
       sprintf(htit,  "h_diff_e15x15e11x11: (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_diff_e15x15e11x11      [ipt][ieta] = new TH1F(hname, htit, 600, -10.0, 50.0);
-      sprintf(hname, "h_diff10Sig_e15x15e11x11_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "h_diff10Sig_e15x15e11x11: (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_diff_e15x15e11x11_10Sig[ipt][ieta] = new TH1F(hname, htit, 600, -10.0, 50.0);
-      sprintf(hname, "h_diff15Sig_e15x15e11x11_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "h_diff15Sig_e15x15e11x11: (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_diff_e15x15e11x11_15Sig[ipt][ieta] = new TH1F(hname, htit, 600, -10.0, 50.0);
       sprintf(hname, "h_diff20Sig_e15x15e11x11_ptBin%i_etaBin%i", ipt, ieta);
       sprintf(htit,  "h_diff20Sig_e15x15e11x11: (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_diff_e15x15e11x11_20Sig[ipt][ieta] = new TH1F(hname, htit, 600, -10.0, 50.0);
-      sprintf(hname, "h_diff25Sig_e15x15e11x11_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "h_diff25Sig_e15x15e11x11: (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_diff_e15x15e11x11_25Sig[ipt][ieta] = new TH1F(hname, htit, 600, -10.0, 50.0);
-      sprintf(hname, "h_diff30Sig_e15x15e11x11_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "h_diff30Sig_e15x15e11x11: (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_diff_e15x15e11x11_30Sig[ipt][ieta] = new TH1F(hname, htit, 600, -10.0, 50.0);
-	
       sprintf(hname, "h_diff_h7x7h5x5_ptBin%i_etaBin%i", ipt, ieta);
       sprintf(htit,  "h_diff_h7x7h5x5: (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_diff_h7x7h5x5[ipt][ieta] = new TH1F(hname, htit, 600, -10.0, 50.0);
@@ -1347,32 +1279,6 @@ void TreeAnalysisHcalNZS::BookHistograms(const char *outFileName) {
       h_eECAL15x15_Frac[ipt][ieta] ->Sumw2();
 	
       //==== additional plots with Sigma cut
-      sprintf(hname, "h_eECAL7x7Frac10Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL7x7/trkP(Xtal>1.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eECAL7x7_Frac_10Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eECAL7x7_Frac_10Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_eECAL9x9Frac10Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL9x9/trkP(Xtal>1.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eECAL9x9_Frac_10Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eECAL9x9_Frac_10Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_eECAL11x11Frac10Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL11x11/trkP(Xtal>1.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eECAL11x11_Frac_10Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eECAL11x11_Frac_10Sig[ipt][ieta] ->Sumw2();
-      
-      sprintf(hname, "h_eECAL7x7Frac15Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL7x7/trkP(Xtal>1.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eECAL7x7_Frac_15Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eECAL7x7_Frac_15Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_eECAL9x9Frac15Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL9x9/trkP(Xtal>1.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eECAL9x9_Frac_15Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eECAL9x9_Frac_15Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_eECAL11x11Frac15Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL11x11/trkP(Xtal>1.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eECAL11x11_Frac_15Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eECAL11x11_Frac_15Sig[ipt][ieta] ->Sumw2();
-      
       sprintf(hname, "h_eECAL7x7Frac20Sig_ptBin%i_etaBin%i", ipt, ieta);
       sprintf(htit,  "eECAL7x7/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eECAL7x7_Frac_20Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
@@ -1385,33 +1291,6 @@ void TreeAnalysisHcalNZS::BookHistograms(const char *outFileName) {
       sprintf(htit,  "eECAL11x11/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eECAL11x11_Frac_20Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eECAL11x11_Frac_20Sig[ipt][ieta] ->Sumw2();
-
-      sprintf(hname, "h_eECAL7x7Frac25Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL7x7/trkP(Xtal>2.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eECAL7x7_Frac_25Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eECAL7x7_Frac_25Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_eECAL9x9Frac25Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL9x9/trkP(Xtal>2.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eECAL9x9_Frac_25Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eECAL9x9_Frac_25Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_eECAL11x11Frac25Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL11x11/trkP(Xtal>2.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eECAL11x11_Frac_25Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eECAL11x11_Frac_25Sig[ipt][ieta] ->Sumw2();
-
-      sprintf(hname, "h_eECAL7x7Frac30Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL7x7/trkP(Xtal>3.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eECAL7x7_Frac_30Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eECAL7x7_Frac_30Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_eECAL9x9Frac30Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL9x9/trkP(Xtal>3.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eECAL9x9_Frac_30Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eECAL9x9_Frac_30Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_eECAL11x11Frac30Sig_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "eECAL11x11/trkP(Xtal>3.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eECAL11x11_Frac_30Sig[ipt][ieta] =  new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eECAL11x11_Frac_30Sig[ipt][ieta] ->Sumw2();
-
       //==============================
       // Hcal plots
       //==============================
@@ -1588,87 +1467,6 @@ void TreeAnalysisHcalNZS::BookHistograms(const char *outFileName) {
       h_eHCAL7x7_eECAL7x7_responseInteract[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL7x7_eECAL7x7_responseInteract[ipt][ieta] ->Sumw2();
       
-      //======
-      d_response10Sig->cd();
-      sprintf(hname, "h_Response10Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3+eECAL11x11)(Xtal>1.0#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_response_10Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_response_10Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseMIP10Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3MIP+eECAL11x11)/trkP(Xtal>1.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_responseMIP_10Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_responseMIP_10Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseInteract10Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3Interact+eECAL11x11)/trkP(Xtal>1.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_responseInteract_10Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_responseInteract_10Sig[ipt][ieta] ->Sumw2();
-
-      sprintf(hname, "h_Response10Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3+eECAL9x9)(Xtal>1.0#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_response_10Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_response_10Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseMIP10Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3MIP+eECAL9x9)/trkP(Xtal>1.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_responseMIP_10Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_responseMIP_10Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseInteract10Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3Interact+eECAL9x9)/trkP(Xtal>1.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_responseInteract_10Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_responseInteract_10Sig[ipt][ieta] ->Sumw2();
-
-      sprintf(hname, "h_Response10Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3+eECAL7x7)(Xtal>1.0#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_response_10Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_response_10Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseMIP10Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3MIP+eECAL7x7)/trkP(Xtal>1.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_responseMIP_10Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_responseMIP_10Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseInteract10Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3Interact+eECAL7x7)/trkP(Xtal>1.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_responseInteract_10Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_responseInteract_10Sig[ipt][ieta] ->Sumw2();
-
-      d_response15Sig->cd();
-      sprintf(hname, "h_Response15Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3+eECAL11x11)(Xtal>1.5#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_response_15Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_response_15Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseMIP15Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3MIP+eECAL11x11)/trkP(Xtal>1.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_responseMIP_15Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_responseMIP_15Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseInteract15Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3Interact+eECAL11x11)/trkP(Xtal>1.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_responseInteract_15Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_responseInteract_15Sig[ipt][ieta] ->Sumw2();
-	
-      sprintf(hname, "h_Response15Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3+eECAL9x9)(Xtal>1.5#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_response_15Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_response_15Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseMIP15Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3MIP+eECAL9x9)/trkP(Xtal>1.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_responseMIP_15Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_responseMIP_15Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseInteract15Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3Interact+eECAL9x9)/trkP(Xtal>1.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_responseInteract_15Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_responseInteract_15Sig[ipt][ieta] ->Sumw2();
-      
-      sprintf(hname, "h_Response15Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3+eECAL7x7)(Xtal>1.5#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_response_15Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_response_15Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseMIP15Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3MIP+eECAL7x7)/trkP(Xtal>1.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_responseMIP_15Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_responseMIP_15Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseInteract15Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3Interact+eECAL7x7)/trkP(Xtal>1.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_responseInteract_15Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_responseInteract_15Sig[ipt][ieta] ->Sumw2();
-      
       d_response20Sig->cd();
       sprintf(hname, "h_Response20Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
       sprintf(htit,  "(eHCAL3x3+eECAL11x11)(Xtal>2.0#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
@@ -1682,6 +1480,18 @@ void TreeAnalysisHcalNZS::BookHistograms(const char *outFileName) {
       sprintf(htit,  "(eHCAL3x3Interact+eECAL11x11)/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3_eECAL11x11_responseInteract_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3_eECAL11x11_responseInteract_20Sig[ipt][ieta] ->Sumw2();
+      sprintf(hname, "h_Response20Sig_eHCAL5x5_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL5x5+eECAL11x11)(Xtal>2.0#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      h_eHCAL5x5_eECAL11x11_response_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
+      h_eHCAL5x5_eECAL11x11_response_20Sig[ipt][ieta] ->Sumw2();
+      sprintf(hname, "h_ResponseMIP20Sig_eHCAL5x5_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL5x5MIP+eECAL11x11)/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      h_eHCAL5x5_eECAL11x11_responseMIP_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
+      h_eHCAL5x5_eECAL11x11_responseMIP_20Sig[ipt][ieta] ->Sumw2();
+      sprintf(hname, "h_ResponseInteract20Sig_eHCAL5x5_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
+      sprintf(htit,  "(eHCAL5x5Interact+eECAL11x11)/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
+      h_eHCAL5x5_eECAL11x11_responseInteract_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
+      h_eHCAL5x5_eECAL11x11_responseInteract_20Sig[ipt][ieta] ->Sumw2();
       
       sprintf(hname, "h_Response20Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
       sprintf(htit,  "(eHCAL3x3+eECAL9x9)(Xtal>2.0#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
@@ -1708,86 +1518,6 @@ void TreeAnalysisHcalNZS::BookHistograms(const char *outFileName) {
       sprintf(htit,  "(eHCAL3x3Interact+eECAL7x7)/trkP(Xtal>2.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
       h_eHCAL3x3_eECAL7x7_responseInteract_20Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
       h_eHCAL3x3_eECAL7x7_responseInteract_20Sig[ipt][ieta] ->Sumw2();
-      
-      d_response25Sig->cd();
-      sprintf(hname, "h_Response25Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3+eECAL11x11)(Xtal>2.5#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_response_25Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_response_25Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseMIP25Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3MIP+eECAL11x11)/trkP(Xtal>2.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_responseMIP_25Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_responseMIP_25Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseInteract25Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3Interact+eECAL11x11)/trkP(Xtal>2.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_responseInteract_25Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_responseInteract_25Sig[ipt][ieta] ->Sumw2();
-      
-      sprintf(hname, "h_Response25Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3+eECAL9x9)(Xtal>2.5#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_response_25Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_response_25Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseMIP25Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3MIP+eECAL9x9)/trkP(Xtal>2.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_responseMIP_25Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_responseMIP_25Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseInteract25Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3Interact+eECAL9x9)/trkP(Xtal>2.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_responseInteract_25Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_responseInteract_25Sig[ipt][ieta] ->Sumw2();
-
-      sprintf(hname, "h_Response25Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3+eECAL7x7)(Xtal>2.5#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_response_25Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_response_25Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseMIP25Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3MIP+eECAL7x7)/trkP(Xtal>2.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_responseMIP_25Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_responseMIP_25Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseInteract25Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3Interact+eECAL7x7)/trkP(Xtal>2.5#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_responseInteract_25Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_responseInteract_25Sig[ipt][ieta] ->Sumw2();
-      
-      d_response30Sig->cd();
-      sprintf(hname, "h_Response30Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3+eECAL11x11)(Xtal>3.0#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_response_30Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_response_30Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseMIP30Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3MIP+eECAL11x11)/trkP(Xtal>3.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_responseMIP_30Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_responseMIP_30Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseInteract30Sig_eHCAL3x3_eECAL11x11_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3Interact+eECAL11x11)/trkP(Xtal>3.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL11x11_responseInteract_30Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL11x11_responseInteract_30Sig[ipt][ieta] ->Sumw2();
-	
-      sprintf(hname, "h_Response30Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3+eECAL9x9)(Xtal>3.0#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_response_30Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_response_30Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseMIP30Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3MIP+eECAL9x9)/trkP(Xtal>3.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_responseMIP_30Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_responseMIP_30Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseInteract30Sig_eHCAL3x3_eECAL9x9_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3Interact+eECAL9x9)/trkP(Xtal>3.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL9x9_responseInteract_30Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL9x9_responseInteract_30Sig[ipt][ieta] ->Sumw2();
-
-      sprintf(hname, "h_Response30Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3+eECAL7x7)(Xtal>3.0#sigma)/trkP (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_response_30Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_response_30Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseMIP30Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3MIP+eECAL7x7)/trkP(Xtal>3.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_responseMIP_30Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_responseMIP_30Sig[ipt][ieta] ->Sumw2();
-      sprintf(hname, "h_ResponseInteract30Sig_eHCAL3x3_eECAL7x7_ptBin%i_etaBin%i", ipt, ieta);
-      sprintf(htit,  "(eHCAL3x3Interact+eECAL7x7)/trkP(Xtal>3.0#sigma) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f)", lowEta, highEta, lowP, highP );
-      h_eHCAL3x3_eECAL7x7_responseInteract_30Sig[ipt][ieta] = new TH1F(hname, htit, 1500, -1.0, 4.0);
-      h_eHCAL3x3_eECAL7x7_responseInteract_30Sig[ipt][ieta] ->Sumw2();
       
       d_maxNearP->cd();
       sprintf(hname, "h_meanTrackP_ptBin%i_etaBin%i", ipt, ieta);

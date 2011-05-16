@@ -8,6 +8,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
@@ -57,12 +59,25 @@ namespace spr{
       ok=okECAL=okHCAL=false;
       charge=pdgId=0;
     }
-    bool                                     ok, okECAL, okHCAL;
-    DetId                                    detIdECAL, detIdHCAL, detIdEHCAL;
-    GlobalPoint                              pointECAL, pointHCAL;
-    GlobalVector                             directionECAL, directionHCAL;
-    int                                      charge, pdgId;
+    bool                                  ok, okECAL, okHCAL;
+    DetId                                 detIdECAL, detIdHCAL, detIdEHCAL;
+    GlobalPoint                           pointECAL, pointHCAL;
+    GlobalVector                          directionECAL, directionHCAL;
+    int                                   charge, pdgId;
     HepMC::GenEvent::particle_const_iterator trkItr;
+  };
+
+  struct propagatedGenParticleID {
+    propagatedGenParticleID() {
+      ok=okECAL=okHCAL=false;
+      charge=pdgId=0;
+    }
+    bool                                  ok, okECAL, okHCAL;
+    DetId                                 detIdECAL, detIdHCAL, detIdEHCAL;
+    GlobalPoint                           pointECAL, pointHCAL;
+    GlobalVector                          directionECAL, directionHCAL;
+    int                                   charge, pdgId;
+    reco::GenParticleCollection::const_iterator trkItr;
   };
 
   struct trackAtOrigin {
@@ -80,6 +95,7 @@ namespace spr{
   void propagateCALO(edm::Handle<reco::TrackCollection>& trkCollection, const CaloGeometry* geo, const MagneticField* bField, std::string & theTrackQuality, std::vector<spr::propagatedTrackID>& vdets, bool debug=false);
   void propagateCALO(edm::Handle<reco::TrackCollection>& trkCollection, const CaloGeometry* geo, const MagneticField* bField, std::string & theTrackQuality, std::vector<spr::propagatedTrackDirection>& trkDir, bool debug=false);
   std::vector<spr::propagatedGenTrackID> propagateCALO(const HepMC::GenEvent * genEvent, edm::ESHandle<ParticleDataTable>& pdt, const CaloGeometry* geo, const MagneticField* bField, double etaMax=3.0, bool debug=false);
+  std::vector<spr::propagatedGenParticleID> propagateCALO(edm::Handle<reco::GenParticleCollection>& genParticles, edm::ESHandle<ParticleDataTable>& pdt, const CaloGeometry* geo, const MagneticField* bField, double etaMax=3.0, bool debug=false);
 
   // Propagate tracks to the ECAL surface and optionally returns the 
   // extrapolated point (and the track direction at point of extrapolation)

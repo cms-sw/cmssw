@@ -120,7 +120,8 @@ namespace spr{
 
     if (debug) {
       std::cout << "matrixECALIds::Final List of cells for dR " << dR
-		<< " is with " << vdetx.size() << " cells" << std::endl;
+		<< " is with " << vdetx.size() << " from original list of " 
+		<< vdets.size() << std::endl;
       for (unsigned int i=0; i < vdetx.size(); ++i) {
 	if (vdetx[i].subdetId() == EcalBarrel) {
 	  EBDetId id = vdetx[i];
