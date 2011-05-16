@@ -1,7 +1,7 @@
 static const char* desc =
 "=====================================================================\n"
 "|                                                                    \n"
-"|\033[1m        roostats_cl95.C  version 1.04                 \033[0m\n"
+"|\033[1m        roostats_cl95.C  version 1.05                 \033[0m\n"
 "|                                                                    \n"
 "| Standard c++ routine for 95% C.L. limit calculation                \n"
 "| for cross section in a 'counting experiment'                       \n"
