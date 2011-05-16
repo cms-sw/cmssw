@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Apr 29 13:26:29 CDT 2011
-// $Id: DQMRootOutputModule.cc,v 1.4 2011/05/13 15:31:30 chrjones Exp $
+// $Id: DQMRootOutputModule.cc,v 1.5 2011/05/13 15:54:45 chrjones Exp $
 //
 
 // system include files
@@ -344,6 +344,7 @@ DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockPrincipal const& i
     }
   }
   //Now store the relationship between run/lumi and indices in the other TTrees
+  bool storedLumiIndex = false;
   unsigned int typeIndex = 0;
   for(std::vector<boost::shared_ptr<TreeHelperBase> >::iterator it = m_treeHelpers.begin(), itEnd = m_treeHelpers.end();
       it != itEnd;
@@ -351,8 +352,17 @@ DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockPrincipal const& i
     if((*it)->wasFilled()) {
       m_type = typeIndex;
       (*it)->getRangeAndReset(m_firstIndex,m_lastIndex);
+      storedLumiIndex = true;
       m_indicesTree->Fill();
     }
+  }
+  if(not storedLumiIndex) {
+    //need to record lumis even if we stored no MonitorElements since some later DQM modules
+    // look to see what lumis were processed
+    m_type = kNoTypesStored;
+    m_firstIndex=0;
+    m_lastIndex=0;
+    m_indicesTree->Fill();
   }
 }
 

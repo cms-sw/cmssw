@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.13 2011/05/13 20:12:01 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.14 2011/05/15 20:49:15 chrjones Exp $
 //
 
 // system include files
@@ -547,6 +547,7 @@ DQMRootSource::readElements() {
   bool shouldContinue = false;
   do {
     shouldContinue = false;
+    if(runLumiRange.m_type == kNoTypesStored) {continue;}
     boost::shared_ptr<TreeReaderBase> reader = m_treeReaders[runLumiRange.m_type];
     for(ULong64_t index = runLumiRange.m_firstIndex, endIndex=runLumiRange.m_lastIndex+1;
     index != endIndex;

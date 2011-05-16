@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Tue May  3 15:33:16 CDT 2011
-// $Id: format.h,v 1.4 2011/05/13 15:31:30 chrjones Exp $
+// $Id: format.h,v 1.5 2011/05/13 15:54:45 chrjones Exp $
 //
 
 
@@ -24,7 +24,7 @@
 enum TypeIndex {kIntIndex, kFloatIndex, kStringIndex,
                 kTH1FIndex, kTH1SIndex, kTH1DIndex,
                 kTH2FIndex,kTH2SIndex, kTH2DIndex, kTH3FIndex,
-                kTProfileIndex,kTProfile2DIndex,kNIndicies};
+                kTProfileIndex,kTProfile2DIndex,kNIndicies,kNoTypesStored=1000};
 
 static const char* const kTypeNames[]={"Ints","Floats","Strings",
                                        "TH1Fs","TH1Ss","TH1Ds",
