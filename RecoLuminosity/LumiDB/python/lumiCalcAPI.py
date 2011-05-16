@@ -337,11 +337,13 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
             print '[Warning] using default normalization '+str(normval)
         
         perrunresult=[]
+        #print 'run,lslist ',run,lslist
         for lumilsnum,perlsdata in lumidata.items():
             cmslsnum=perlsdata[0]
             triggeredls=cmslsnum
             if lslist is not None and cmslsnum not in lslist:
                 cmslsnum=0
+                triggeredls=0
                 recordedlumi=0.0
             instlumi=perlsdata[1]
             instlumierror=perlsdata[2]
@@ -357,8 +359,8 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
             deliveredlumi=calibratedlumi*lslen
             recordedlumi=0.0
             if cmslsnum!=0:
-                if not trgdata.has_key(cmslsnum):
-                    triggeredls=0 #if no trigger, set back to non-cms-active ls
+                if not trgdata.has_key(cmslsnum):                    
+                   # triggeredls=0 #if no trigger, set back to non-cms-active ls
                     recordedlumi=0.0 # no trigger->nobeam recordedlumi=None
                 else:
                     deadcount=trgdata[cmslsnum][0] ##subject to change !!
@@ -404,8 +406,8 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
                     b1intensitylist=CommonUtil.unpackBlobtoArray(beam1intensityblob,'f').tolist()
                     b2intensitylist=CommonUtil.unpackBlobtoArray(beam2intensityblob,'f').tolist()
                 beamdata=(bxindexlist,b1intensitylist,b2intensitylist)
-            perrunresult.append([lumilsnum,triggeredls,timestamp,bstatus,begev,deliveredlumi,recordedlumi,calibratedlumierror,bxdata,beamdata])
-        result[run]=perrunresult
+            perrunresult.append([lumilsnum,triggeredls,timestamp,bstatus,begev,deliveredlumi,recordedlumi,calibratedlumierror,bxdata,beamdata])            
+        result[run]=perrunresult    
     return result
        
 def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None,amodetag=None,beamstatus=None,egev=None,withBXInfo=False,xingMinLum=0.0,bxAlgo=None,withBeamInfo=False,norm=None,datatag=None):

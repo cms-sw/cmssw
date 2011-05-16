@@ -165,7 +165,9 @@ def toScreenOverview(lumidata,isverbose):
         totrecorded=sum(recordedData)
         totalRecorded+=totrecorded
         (totrecordedlumi,recordedlumiunit)=CommonUtil.guessUnit(totrecorded)
+        #print 'x[1] ',[x[1] for x in lsdata]
         selectedcmsls=[x[1] for x in lsdata if x[1]!=0]
+        #print 'selectedcmsls ',selectedcmsls
         totalSelectedLS+=len(selectedcmsls)
         if len(selectedcmsls)==0:
             selectedlsStr='n/a'
