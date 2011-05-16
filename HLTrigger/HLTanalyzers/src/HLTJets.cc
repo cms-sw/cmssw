@@ -138,7 +138,8 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     recopfTauDiscrAgainstMuon  =  new float[kMaxPFTau];
     recopfTauDiscrAgainstElec  =  new float[kMaxPFTau];
     
-    pfMHT   = -100;    
+    pfHT    = -100.;
+    pfMHT   = -100.;    
     const int kMaxPFJet = 500;
     pfJetEta         = new float[kMaxPFJet];
     pfJetPhi         = new float[kMaxPFJet];
@@ -316,6 +317,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("recopfTauDiscrAgainstElec",recopfTauDiscrAgainstElec,"recopfTauDiscrAgainstElec[NRecoPFTau]/F");
   
     //PFJets
+    HltTree->Branch("pfHT",&pfHT,"pfHT/F");
     HltTree->Branch("pfMHT",&pfMHT,"pfMHT/F");
     HltTree->Branch("NohPFJet",&nohPFJet,"NohPFJet/I");
     HltTree->Branch("pfJetPt",pfJetPt,"pfJetPt[NohPFJet]/F");
@@ -662,7 +664,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
             ohpfTauGammaIso[ipftau] = maxPtGammaIso;
             ipftau++;
         } 
-        pfMHT = sqrt(pfMHTx*pfMHTx + pfMHTy*pfMHTy);
+	//        pfMHT = sqrt(pfMHTx*pfMHTx + pfMHTy*pfMHTy); //why is this calculated here ?
         
     }
 
@@ -816,14 +818,17 @@ void HLTJets::analyze(edm::Event const& iEvent,
         std::sort(Jets.begin(),Jets.end(),GetPFPtGreater());
         typedef reco::PFJetCollection::const_iterator pfJetit;
         int ipfJet=0;
-        float pfMHTx = 0;
-        float pfMHTy = 0;
+        float pfMHTx = 0.;
+        float pfMHTy = 0.;
+	pfHT         = 0.;
+
         for(pfJetit i=Jets.begin(); i!=Jets.end(); i++){
             //Ask for Eta,Phi and Et of the Jet:
             pfJetEta[ipfJet] = i->eta();
             pfJetPhi[ipfJet] = i->phi();
             pfJetPt[ipfJet] = i->pt();           
             
+	    pfHT  += i -> pt();
             pfMHTx = pfMHTx + i->px();
             pfMHTy = pfMHTy + i->py();
             ipfJet++;   

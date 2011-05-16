@@ -39,7 +39,7 @@ if (isData):
 ##    GLOBAL_TAG='L1HLTST311_V0::All'
     ## Use the same GLOBAL TAG as in the master table
 #    GLOBAL_TAG='TESTL1_GR_P::All'    
-    GLOBAL_TAG='GR_H_V15::All'
+    GLOBAL_TAG='GR_H_V20::All'
 else:
     GLOBAL_TAG='START311_V2::All'
     if (MENU == "GRun"): GLOBAL_TAG= 'START311_V2::All'

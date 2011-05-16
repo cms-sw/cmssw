@@ -129,6 +129,7 @@ private:
     float *ohpfTauTightConeEta,*ohpfTauTightConePhi,*ohpfTauTightConePt,*ohpfTauTightConeJetPt,*ohpfTauTightConeLeadTrackPt,*ohpfTauTightConeLeadPionPt;
     float *ohpfTauTightConeTrkIso, *ohpfTauTightConeGammaIso;
     //PFJets
+    float pfHT;
     float pfMHT;    
     int nohPFJet;
     float *pfJetEta, *pfJetPhi, *pfJetPt;

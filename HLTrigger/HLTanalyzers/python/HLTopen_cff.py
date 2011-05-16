@@ -3,21 +3,37 @@ import FWCore.ParameterSet.Config as cms
 # import the whole HLT menu
 from HLTrigger.HLTanalyzers.HLT_FULL_cff import *
 
+hltL1IsoR9shape = cms.EDProducer( "EgammaHLTR9Producer",
+                                  recoEcalCandidateProducer = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
+                                  ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEB' ),
+                                  ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' ),
+                                 useSwissCross = cms.bool( False )
+                                  )
+hltL1NonIsoR9shape = cms.EDProducer( "EgammaHLTR9Producer",
+                                     recoEcalCandidateProducer = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" ),
+                                     ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEB' ),
+                                     ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' ),
+                                     useSwissCross = cms.bool( False )
+                                     )
+HLTEgammaR9ShapeSequence = cms.Sequence( hltL1IsoR9shape + hltL1NonIsoR9shape )
+
+
 
 # create the jetMET HLT reco path
 DoHLTJets = cms.Path(HLTBeginSequence + 
     HLTBeginSequence +
     HLTRecoJetSequenceAK5Corrected +
-    # HLTRegionalRecoJetSequenceAK5Corrected +
-    HLTRecoMETSequence +                 
-    HLTDoJet40HTRecoSequence
+  # HLTRegionalRecoJetSequenceAK5Corrected +
+    HLTRecoMETSequence +
+    HLTDoLocalHcalWithoutHOSequence                  
+    #HLTDoJet40HTRecoSequence
 )
 DoHLTJetsU = cms.Path(HLTBeginSequence +
     HLTBeginSequence +
     HLTRecoJetSequenceAK5Uncorrected +
     # HLTRegionalRecoJetSequenceAK5Corrected +
-    HLTRecoMETSequence +
-    HLTDoJet40HTRecoSequence
+    HLTRecoMETSequence #+
+ #   HLTDoJet40HTRecoSequence
 )
 
 # create the muon HLT reco path
@@ -30,7 +46,7 @@ DoHltMuon = cms.Path(
     HLTL3muonisorecoSequence +
     HLTMuTrackJpsiPixelRecoSequence + 
     HLTMuTrackJpsiTrackRecoSequence +
-    HLTDisplacemumuSequence +
+#    HLTDisplacemumuSequence +
     HLTEndSequence )
 
 # create the Egamma HLT reco paths
@@ -45,7 +61,7 @@ DoHLTPhoton = cms.Path(
     HLTEgammaR9IDSequence +
     hltL1IsolatedPhotonEcalIsol + 
     hltL1NonIsolatedPhotonEcalIsol + 
-    HLTDoLocalHcalWithoutHOSequence + 
+#    HLTDoLocalHcalWithoutHOSequence + 
     hltL1IsolatedPhotonHcalIsol + 
     hltL1NonIsolatedPhotonHcalIsol + 
     HLTDoLocalPixelSequence +
@@ -66,7 +82,7 @@ DoHLTElectron = cms.Path(
     HLTL1NonIsolatedEcalClustersSequence +
     hltL1IsoRecoEcalCandidate +
     hltL1NonIsoRecoEcalCandidate +
-    HLTEgammaR9ShapeSequence +
+    HLTEgammaR9ShapeSequence +#was commented out for HT jobs
     HLTEgammaR9IDSequence +
     hltL1IsoHLTClusterShape +
     hltL1NonIsoHLTClusterShape +
