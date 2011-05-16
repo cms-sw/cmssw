@@ -30,6 +30,7 @@ class HLTProcess(object):
     "HLT_L1SingleMuOpen_AntiBPTX_v*",
     "HLT_JetE30_NoBPTX*_v*",
     "HLT_JetE50_NoBPTX*_v*",
+    "HLT_JetE50_NoBPTX3BX_NoHalo_v*",
   
   # TODO: paths not supported by FastSim, but for which a recovery should be attempted
     "HLT_Mu3_Track3_Jpsi_v*",
