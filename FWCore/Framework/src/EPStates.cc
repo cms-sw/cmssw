@@ -69,7 +69,7 @@ namespace statemachine {
         closeFiles();
       }
       catch(...) {
-        std::string message("Another exception was caught while trying to clean up files after the primary fatal exception.\n");
+        std::string message("Another exception was caught while trying to clean up files after the primary fatal exception.");
         ep_.setExceptionMessageFiles(message);
       }
     }
@@ -209,7 +209,7 @@ namespace statemachine {
         finalizeRun();
       }
       catch(...) {
-        std::string message("Another exception was caught while trying to clean up runs after the primary fatal exception.\n");
+        std::string message("Another exception was caught while trying to clean up runs after the primary fatal exception.");
         ep_.setExceptionMessageRuns(message);
       }
     }
@@ -394,7 +394,7 @@ namespace statemachine {
         }
       }
       catch(...) {
-        std::string message("Another exception was caught while trying to clean up lumis after the primary fatal exception.\n");
+        std::string message("Another exception was caught while trying to clean up lumis after the primary fatal exception.");
         ep_.setExceptionMessageLumis(message);
       }
     }

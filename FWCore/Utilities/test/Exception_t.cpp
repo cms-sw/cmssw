@@ -104,7 +104,12 @@ int main()
   }
 
   cms::Exception e1("ABC");
+  if (e1.alreadyPrinted()) abort();
+  e1.setAlreadyPrinted(true);
+  if (!e1.alreadyPrinted()) abort();
+
   cms::Exception e1s(std::string("ABC"));
+  if (e1s.alreadyPrinted()) abort();
   std::cerr << e1.what() << std::endl;
   if (e1.explainSelf() != std::string("An exception of category 'ABC' occurred.\n")) {
     abort();
@@ -117,6 +122,10 @@ int main()
   cms::Exception e2cs("ABC", std::string("foo"));
   cms::Exception e2sc(std::string("ABC"), "foo");
   cms::Exception e2ss(std::string("ABC"), std::string("foo"));
+  if (e2.alreadyPrinted()) abort();
+  if (e2cs.alreadyPrinted()) abort();
+  if (e2sc.alreadyPrinted()) abort();
+  if (e2ss.alreadyPrinted()) abort();
   e2 << "bar";
   e2cs << "bar";
   e2sc << "bar";
@@ -172,6 +181,7 @@ int main()
   }
 
   cms::Exception e5("DEF", "start\n", e2);
+  if (e5.alreadyPrinted()) abort();
   cms::Exception e6("DEF", "start", e2);
   std::string expected5("An exception of category 'DEF' occurred while\n"
                         "   [0] context2\n"
@@ -187,6 +197,11 @@ int main()
   e6 << "finish";
   std::cerr << e5.explainSelf() << std::endl;
   cms::Exception e7(e6);
+  if (e7.alreadyPrinted()) abort();
+  e6.setAlreadyPrinted(true);
+  cms::Exception e9(e6);
+  if (!e9.alreadyPrinted()) abort();
+  
   if (e7.explainSelf() != expected5) {
     abort();
   }

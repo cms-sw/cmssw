@@ -1640,14 +1640,23 @@ namespace edm {
       alreadyHandlingException_ = true;
       terminateMachine();
       alreadyHandlingException_ = false;
-      if (!exceptionMessageFiles_.empty()) {
-        e.addAdditionalInfo(exceptionMessageFiles_);
+      if (!exceptionMessageLumis_.empty()) {
+        e.addAdditionalInfo(exceptionMessageLumis_);
+        if (e.alreadyPrinted()) {
+          LogAbsolute("Additional Exceptions") << exceptionMessageLumis_;
+        }
       }
       if (!exceptionMessageRuns_.empty()) {
         e.addAdditionalInfo(exceptionMessageRuns_);
+        if (e.alreadyPrinted()) {
+          LogAbsolute("Additional Exceptions") << exceptionMessageRuns_;
+        }
       }
-      if (!exceptionMessageLumis_.empty()) {
-        e.addAdditionalInfo(exceptionMessageLumis_);
+      if (!exceptionMessageFiles_.empty()) {
+        e.addAdditionalInfo(exceptionMessageFiles_);
+        if (e.alreadyPrinted()) {
+          LogAbsolute("Additional Exceptions") << exceptionMessageFiles_;
+        }
       }
       throw;
     }
@@ -1677,43 +1686,57 @@ namespace edm {
   }
 
   void EventProcessor::closeInputFile() {
-    input_->closeFile(fb_);
+    if (fb_.get() != 0) {
+      input_->closeFile(fb_);
+    }
     FDEBUG(1) << "\tcloseInputFile\n";
   }
 
   void EventProcessor::openOutputFiles() {
-    schedule_->openOutputFiles(*fb_);
-    if(hasSubProcess()) subProcess_->openOutputFiles(*fb_);
+    if (fb_.get() != 0) {
+      schedule_->openOutputFiles(*fb_);
+      if(hasSubProcess()) subProcess_->openOutputFiles(*fb_);
+    }
     FDEBUG(1) << "\topenOutputFiles\n";
   }
 
   void EventProcessor::closeOutputFiles() {
-    schedule_->closeOutputFiles();
-    if(hasSubProcess()) subProcess_->closeOutputFiles();
+    if (fb_.get() != 0) {
+      schedule_->closeOutputFiles();
+      if(hasSubProcess()) subProcess_->closeOutputFiles();
+    }
     FDEBUG(1) << "\tcloseOutputFiles\n";
   }
 
   void EventProcessor::respondToOpenInputFile() {
-    schedule_->respondToOpenInputFile(*fb_);
-    if(hasSubProcess()) subProcess_->respondToOpenInputFile(*fb_);
+    if (fb_.get() != 0) {
+      schedule_->respondToOpenInputFile(*fb_);
+      if(hasSubProcess()) subProcess_->respondToOpenInputFile(*fb_);
+    }
     FDEBUG(1) << "\trespondToOpenInputFile\n";
   }
 
   void EventProcessor::respondToCloseInputFile() {
-    schedule_->respondToCloseInputFile(*fb_);
-    if(hasSubProcess()) subProcess_->respondToCloseInputFile(*fb_);
+    if (fb_.get() != 0) {
+      schedule_->respondToCloseInputFile(*fb_);
+      if(hasSubProcess()) subProcess_->respondToCloseInputFile(*fb_);
+    }
     FDEBUG(1) << "\trespondToCloseInputFile\n";
   }
 
   void EventProcessor::respondToOpenOutputFiles() {
-    schedule_->respondToOpenOutputFiles(*fb_);
-    if(hasSubProcess()) subProcess_->respondToOpenOutputFiles(*fb_);
+    if (fb_.get() != 0) {
+      schedule_->respondToOpenOutputFiles(*fb_);
+      if(hasSubProcess()) subProcess_->respondToOpenOutputFiles(*fb_);
+    }
     FDEBUG(1) << "\trespondToOpenOutputFiles\n";
   }
 
   void EventProcessor::respondToCloseOutputFiles() {
-    schedule_->respondToCloseOutputFiles(*fb_);
-    if(hasSubProcess()) subProcess_->respondToCloseOutputFiles(*fb_);
+    if (fb_.get() != 0) {
+      schedule_->respondToCloseOutputFiles(*fb_);
+      if(hasSubProcess()) subProcess_->respondToCloseOutputFiles(*fb_);
+    }
     FDEBUG(1) << "\trespondToCloseOutputFiles\n";
   }
 

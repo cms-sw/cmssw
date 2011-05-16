@@ -164,7 +164,8 @@ namespace edm {
     total_passed_(),
     stopwatch_(wantSummary_? new RunStopwatch::StopwatchPointer::element_type : static_cast<RunStopwatch::StopwatchPointer::element_type*> (0)),
     unscheduled_(new UnscheduledCallProducer),
-    endpathsAreActive_(true) {
+    endpathsAreActive_(true),
+    printedFirstException_(false) {
 
     ParameterSet const& opts = proc_pset.getUntrackedParameterSet("options", ParameterSet());
     bool hasPath = false;

@@ -74,6 +74,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/BranchType.h"
+#include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "boost/shared_ptr.hpp"
@@ -292,6 +293,8 @@ namespace edm {
     boost::shared_ptr<UnscheduledCallProducer> unscheduled_;
 
     volatile bool           endpathsAreActive_;
+
+    bool                    printedFirstException_;
   };
 
   // -----------------------------
@@ -414,41 +417,64 @@ namespace edm {
     }
     try {
       try {
-        //make sure the unscheduled items see this transition [Event will be a no-op]
-        unscheduled_->runNow<T>(ep, es);
-        if (runTriggerPaths<T>(ep, es)) {
-          if (T::isEvent_) ++total_passed_;
+        try {
+          //make sure the unscheduled items see this transition [Event will be a no-op]
+          unscheduled_->runNow<T>(ep, es);
+          if (runTriggerPaths<T>(ep, es)) {
+            if (T::isEvent_) ++total_passed_;
+          }
+          state_ = Latched;
         }
-        state_ = Latched;
-      }
-      catch(cms::Exception& e) {
-        actions::ActionCodes action = (T::isEvent_ ? act_table_->find(e.category()) : actions::Rethrow);
-        assert (action != actions::IgnoreCompletely);
-        assert (action != actions::FailPath);
-        if (action == actions::SkipEvent) {
-          edm::printCmsExceptionWarning("SkipEvent", e);
-        } else {
+        catch(cms::Exception& e) {
+          actions::ActionCodes action = (T::isEvent_ ? act_table_->find(e.category()) : actions::Rethrow);
+          assert (action != actions::IgnoreCompletely);
+          assert (action != actions::FailPath);
+          if (action == actions::SkipEvent) {
+            edm::printCmsExceptionWarning("SkipEvent", e);
+          } else {
+            throw;
+          }
+        }
+
+        try {
+          CPUTimer timer;
+          if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, 0, &timer);
+        }
+        catch (cms::Exception & ex) {
+          if (T::isEvent_) {
+            ex.addContext("Calling produce method for module TriggerResultInserter");
+          }
+	  std::ostringstream ost;
+          ost << "Processing " << ep.id();
+          ex.addContext(ost.str());
           throw;
         }
-      }
 
-      try {
-        CPUTimer timer;
-        if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, 0, &timer);
+        if (endpathsAreActive_) runEndPaths<T>(ep, es);
       }
-      catch (cms::Exception & ex) {
-        if (T::isEvent_) {
-          ex.addContext("Calling produce method for module TriggerResultInserter");
-        }
-	std::ostringstream ost;
-        ost << "Processing " << ep.id();
-        ex.addContext(ost.str());
-        throw;
-      }
-
-      if (endpathsAreActive_) runEndPaths<T>(ep, es);
+      catch (cms::Exception& e) { throw; }
+      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
+      catch (std::exception& e) { convertException::stdToEDM(e); }
+      catch(std::string& s) { convertException::stringToEDM(s); }
+      catch(char const* c) { convertException::charPtrToEDM(c); }
+      catch (...) { convertException::unknownToEDM(); }
     }
-    catch(...) {
+    catch(cms::Exception& ex) {
+      if (!printedFirstException_) {
+        Service<JobReport> jobReportSvc;
+        if (ex.context().empty()) {
+          ex.addContext("Calling function Schedule::processOneOccurrence");
+        }
+        if (jobReportSvc.isAvailable()) {
+          JobReport *jobRep = jobReportSvc.operator->();
+          edm::printCmsException(ex, jobRep, ex.returnCode());
+        }
+        else {
+          edm::printCmsException(ex);
+        }
+        ex.setAlreadyPrinted(true);
+        printedFirstException_ = true;
+      }
       state_ = Ready;
       throw;
     }

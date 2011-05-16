@@ -9,7 +9,8 @@ namespace cms {
     category_(aCategory),
     what_(),
     context_(),
-    additionalInfo_()
+    additionalInfo_(),
+    alreadyPrinted_(false)
   {
   }
 
@@ -19,7 +20,8 @@ namespace cms {
     category_(std::string(aCategory)),
     what_(),
     context_(),
-    additionalInfo_()
+    additionalInfo_(),
+    alreadyPrinted_(false)
   {
   }
 
@@ -30,7 +32,8 @@ namespace cms {
     category_(aCategory),
     what_(),
     context_(),
-    additionalInfo_()
+    additionalInfo_(),
+    alreadyPrinted_(false)
   {
     init(message);
   }
@@ -42,7 +45,8 @@ namespace cms {
     category_(std::string(aCategory)),
     what_(),
     context_(),
-    additionalInfo_()
+    additionalInfo_(),
+    alreadyPrinted_(false)
   {
     init(message);
   }
@@ -55,7 +59,8 @@ namespace cms {
     category_(aCategory),
     what_(),
     context_(),
-    additionalInfo_()
+    additionalInfo_(),
+    alreadyPrinted_(false)
   {
     init(std::string(message));
   }
@@ -68,7 +73,8 @@ namespace cms {
     category_(std::string(aCategory)),
     what_(),
     context_(),
-    additionalInfo_()
+    additionalInfo_(),
+    alreadyPrinted_(false)
   {
     init(std::string(message));
   }
@@ -89,7 +95,8 @@ namespace cms {
     category_(aCategory),
     what_(),
     context_(another.context()),
-    additionalInfo_(another.additionalInfo())
+    additionalInfo_(another.additionalInfo()),
+    alreadyPrinted_(false)
   {
     ost_ << message;
     // check for newline at end of message first
@@ -105,7 +112,8 @@ namespace cms {
     category_(other.category_),
     what_(other.what_),
     context_(other.context_),
-    additionalInfo_(other.additionalInfo_)
+    additionalInfo_(other.additionalInfo_),
+    alreadyPrinted_(other.alreadyPrinted_)
   {
     ost_ << other.ost_.str();
   }
@@ -221,6 +229,14 @@ namespace cms {
 
   void Exception::setAdditionalInfo(std::list<std::string> const& info) {
     additionalInfo_ = info;
+  }
+
+  bool Exception::alreadyPrinted() const {
+    return alreadyPrinted_;
+  }
+
+  void Exception::setAlreadyPrinted(bool value) {
+    alreadyPrinted_ = value;
   }
 
   Exception* Exception::clone() const {

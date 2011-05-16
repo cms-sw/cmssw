@@ -115,6 +115,9 @@ namespace cms {
     void setContext(std::list<std::string> const& context);
     void setAdditionalInfo(std::list<std::string> const& info);
 
+    bool alreadyPrinted() const;
+    void setAlreadyPrinted(bool value);
+
     virtual Exception* clone() const;
 
     // In the following templates, class E is our Exception class or
@@ -201,6 +204,7 @@ namespace cms {
     mutable std::string what_;
     std::list<std::string> context_;
     std::list<std::string> additionalInfo_;
+    bool alreadyPrinted_;
   };
 
   inline 

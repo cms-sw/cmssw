@@ -319,11 +319,13 @@ int main(int argc, char* argv[]) {
         ex.addContext(context);
       }
     }
-    if (jobRep.get() != 0) {
-      edm::printCmsException(ex, &(jobRep->get()), returnCode);
-    }
-    else {
-      edm::printCmsException(ex);
+    if (!ex.alreadyPrinted()) {
+      if (jobRep.get() != 0) {
+        edm::printCmsException(ex, &(jobRep->get()), returnCode);
+      }
+      else {
+        edm::printCmsException(ex);
+      }
     }
   }
   // Disable Root Error Handler.
