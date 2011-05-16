@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Apr 29 13:26:29 CDT 2011
-// $Id: DQMRootOutputModule.cc,v 1.5 2011/05/13 15:54:45 chrjones Exp $
+// $Id: DQMRootOutputModule.cc,v 1.6 2011/05/16 17:26:42 chrjones Exp $
 //
 
 // system include files
@@ -32,6 +32,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
+#include "FWCore/Utilities/interface/Digest.h"
 
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
@@ -202,6 +204,7 @@ private:
   TTree* m_indicesTree;
   
   std::vector<edm::ProcessHistoryID> m_seenHistories;
+  edm::JobReport::Token m_jrToken;
 };
 
 //
@@ -260,6 +263,19 @@ m_indicesTree(0)
 {
   //NOTE: I need to also set the I/O performance settings
   m_file = std::auto_ptr<TFile>(new TFile(m_fileName.c_str(),"CREATE"));  
+  
+  edm::Service<edm::JobReport> jr;
+  cms::Digest branchHash;
+  m_jrToken = jr->outputFileOpened(m_fileName,
+                                   std::string(),
+                                   std::string(),
+                                   "DQMRootOutputModule",
+                                   pset.getParameter<std::string>("@module_label"),
+                                   m_file->GetUUID().AsString(),
+                                   std::string(),
+                                   branchHash.digest().toString(),
+                                   std::vector<std::string>()
+    );
 
 
   m_indicesTree = new TTree(kIndicesTree,kIndicesTree);
@@ -364,6 +380,9 @@ DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockPrincipal const& i
     m_lastIndex=0;
     m_indicesTree->Fill();
   }
+  
+  edm::Service<edm::JobReport> jr;
+  jr->reportLumiSection(m_run,m_lumi);
 }
 
 void DQMRootOutputModule::writeRun(edm::RunPrincipal const& iRun){
@@ -396,6 +415,8 @@ void DQMRootOutputModule::writeRun(edm::RunPrincipal const& iRun){
     }
   }
   
+  edm::Service<edm::JobReport> jr;
+  jr->reportRunNumber(m_run);
 }
 
 void DQMRootOutputModule::beginRun(edm::RunPrincipal const& iPrincipal) {
@@ -490,6 +511,8 @@ void DQMRootOutputModule::startEndFile() {
 void DQMRootOutputModule::finishEndFile() {
   m_file->Write();
   m_file->Close();
+  edm::Service<edm::JobReport> jr;
+  jr->outputFileClosed(m_jrToken);
 }
 
 //

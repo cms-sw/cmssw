@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.15 2011/05/16 17:26:42 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.16 2011/05/16 17:55:21 chrjones Exp $
 //
 
 // system include files
@@ -31,6 +31,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
+//#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
@@ -338,6 +340,8 @@ class DQMRootSource : public edm::InputSource
       bool m_doNotReadRemainingPartsOfFileSinceFrameworkTerminating;
       std::set<MonitorElement*> m_lumiElements;
       std::vector<edm::ProcessHistoryID> m_historyIDs;
+      
+      edm::JobReport::Token m_jrToken;
 };
 
 //
@@ -477,6 +481,9 @@ DQMRootSource::readRun_(boost::shared_ptr<edm::RunPrincipal> rpCache)
   m_lastSeenRun = rpCache->id().run();
   rpCache->addToProcessHistory();
   //std::cout <<"readRun_"<<std::endl;
+  
+  edm::Service<edm::JobReport> jr;
+  jr->reportInputRunNumber(rpCache->id().run());
   return rpCache;
 }
 boost::shared_ptr<edm::LuminosityBlockPrincipal> 
@@ -490,6 +497,9 @@ DQMRootSource::readLuminosityBlock_( boost::shared_ptr<edm::LuminosityBlockPrinc
   }
   readNextItemType();
   //std::cout <<"readLuminosityBlock_"<<std::endl;
+  edm::Service<edm::JobReport> jr;
+  jr->reportInputLumiSection(lbCache->id().run(),lbCache->id().luminosityBlock());
+  
   return lbCache;
 }
 
@@ -499,6 +509,17 @@ DQMRootSource::readFile_() {
   setupFile(m_fileIndex);
   ++m_fileIndex;
   readNextItemType();
+
+  edm::Service<edm::JobReport> jr;
+  m_jrToken = jr->inputFileOpened(m_catalog.fileNames()[m_fileIndex-1],
+                                  m_catalog.logicalFileNames()[m_fileIndex-1],
+                                  std::string(),
+                                  std::string(),
+                                  "DQMRootSource",
+                                  "source",
+                                  m_file->GetUUID().AsString(),//edm::createGlobalIdentifier(),
+                                  std::vector<std::string>()
+                                  );
   
   m_doNotReadRemainingPartsOfFileSinceFrameworkTerminating = false;
   return boost::shared_ptr<edm::FileBlock>(new edm::FileBlock);
@@ -540,6 +561,8 @@ DQMRootSource::closeFile_() {
       readElements();
     }
   }
+  edm::Service<edm::JobReport> jr;
+  jr->inputFileClosed(m_jrToken);
 }
 
 void 
