@@ -450,7 +450,7 @@ implements Runnable,DipPublicationErrorHandler
     this.sourceFile = args[4];
     this.timeoutLS[0] = new Integer(args[5]);
     this.timeoutLS[1] = new Integer(args[6]);
-    this.subjectDummy = args[8];
+    this.subjectDummy = args[7];
   }
 
   public static void main(String args[])
