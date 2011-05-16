@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.14 2011/05/15 20:49:15 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.15 2011/05/16 17:26:42 chrjones Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/InputSource.h"
+#include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -319,7 +320,7 @@ class DQMRootSource : public edm::InputSource
       const DQMRootSource& operator=(const DQMRootSource&); // stop default
 
       // ---------- member data --------------------------------
-      std::vector<std::string> m_fileNames;
+      edm::InputFileCatalog m_catalog;
       edm::RunAuxiliary m_runAux;
       edm::LuminosityBlockAuxiliary m_lumiAux;
       edm::InputSource::ItemType m_nextItemType;
@@ -358,7 +359,8 @@ DQMRootSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 //
 DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSourceDescription& iDesc):
 edm::InputSource(iPSet,iDesc),
-m_fileNames(iPSet.getUntrackedParameter<std::vector<std::string> >("fileNames")),
+m_catalog(iPSet.getUntrackedParameter<std::vector<std::string> >("fileNames"), 
+          iPSet.getUntrackedParameter<std::string>("overrideCatalog", std::string())),
 m_nextItemType(edm::InputSource::IsFile),
 m_fileIndex(0),
 m_trees(kNIndicies,static_cast<TTree*>(0)),
@@ -366,7 +368,7 @@ m_treeReaders(kNIndicies,boost::shared_ptr<TreeReaderBase>()),
 m_lastSeenRun(0),
 m_doNotReadRemainingPartsOfFileSinceFrameworkTerminating(false)
 {
-  if(m_fileIndex ==m_fileNames.size()) {
+  if(m_fileIndex ==m_catalog.fileNames().size()) {
     m_nextItemType=edm::InputSource::IsStop;
   } else{
     m_treeReaders[kIntIndex].reset(new TreeSimpleReader<Long64_t>());
@@ -608,7 +610,7 @@ DQMRootSource::readNextItemType()
       //go to next file
       m_nextItemType = edm::InputSource::IsFile;
       //std::cout <<"going to next file"<<std::endl;
-      if(m_fileIndex == m_fileNames.size()) {
+      if(m_fileIndex == m_catalog.fileNames().size()) {
         m_nextItemType = edm::InputSource::IsStop;
       }       
       break;
@@ -644,7 +646,7 @@ void
 DQMRootSource::setupFile(unsigned int iIndex)
 {
   
-  m_file = std::auto_ptr<TFile>(TFile::Open(m_fileNames[iIndex].c_str()));
+  m_file = std::auto_ptr<TFile>(TFile::Open(m_catalog.fileNames()[iIndex].c_str()));
   
   //Get meta Data
   TDirectory* metaDir = m_file->GetDirectory(kMetaDataDirectoryAbsolute);
