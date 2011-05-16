@@ -88,8 +88,8 @@ void ora::MultiRecordSelectOperation::execute(){
   //  m_row.reset();
   m_cache.clear();
   m_query.execute();
+  std::vector<int> indexes;
   while( m_query.nextCursorRow() ){
-    std::vector<int> indexes;
     coral::AttributeList& row = m_query.data();
     for(size_t i=0;i<m_idCols.size();i++){
       indexes.push_back( row[m_idCols[i]].data<int>() );
@@ -97,6 +97,7 @@ void ora::MultiRecordSelectOperation::execute(){
     Record rec(m_spec);
     newRecordFromAttributeList(rec, row );
     m_cache.push( indexes, rec );
+    indexes.clear();
   }
   m_row.reset(new coral::AttributeList(m_query.attributeListSpecification(), true ));
   m_query.clear();

@@ -90,9 +90,10 @@ ora::Handle<ora::DatabaseContainer> ora::DatabaseUtilitySession::importContainer
     m_session.mappingDatabase().insertClassVersion( cont->className(), *iCv , 0, newCont->id(), baseMapping.version(), first );
     first = false;
   }
-  mapping2Schema.create( baseMapping );
-  // ...and the main container sequence
+  // ...the main container sequence...
   containerSchemaSequences.create( MappingRules::sequenceNameForContainer( containerName )); 
+  // ...the main tables
+  mapping2Schema.create( baseMapping );
   // second create the base dependencies if any
   std::set<std::string> dependentClasses;
   sourceSession.mappingDatabase().getDependentClassesForContainer( cont->id(), dependentClasses );
@@ -121,9 +122,10 @@ ora::Handle<ora::DatabaseContainer> ora::DatabaseUtilitySession::importContainer
       m_session.mappingDatabase().insertClassVersion( *iCl, *iCv , 1, newCont->id(), baseDepMapping.version(), first );
       first = false;
     }
-    mapping2Schema.create( baseDepMapping );
     // create the dep classes sequences. 
     containerSchemaSequences.create( MappingRules::sequenceNameForDependentClass( containerName, *iCl ));
+    // create the dep tables
+    mapping2Schema.create( baseDepMapping );
   }
   /// third evolve the schema for all the further versions involved
   std::set<std::string> allVersions;

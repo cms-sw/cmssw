@@ -5,6 +5,10 @@
 #include "DatabaseUtilitySession.h"
 #include "DatabaseContainer.h"
 
+ora::DatabaseUtility::DatabaseUtility():
+  m_session(){
+}
+
 ora::DatabaseUtility::DatabaseUtility( Handle<DatabaseUtilitySession>& utilitySession ):
   m_session( utilitySession ){
 }

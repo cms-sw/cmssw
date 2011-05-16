@@ -91,6 +91,9 @@ namespace ora {
     /// 
     bool dropContainer( const std::string& name );
 
+    ///
+    bool lockContainer( const std::string& name );
+
     /// 
     Container containerHandle( const std::string& name );
 

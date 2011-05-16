@@ -68,6 +68,12 @@ ora::MappingRawElement& ora::MappingRawData::addElement( int elementId ){
   return iElem->second;
 }
 
+ora::ContainerHeaderData::ContainerHeaderData():
+  id(-1),
+  className(""),
+  numberOfObjects(0){
+}
+
 ora::ContainerHeaderData::ContainerHeaderData( int contId,
                                                const std::string& classN,
                                                unsigned int numberObj ):

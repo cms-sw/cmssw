@@ -241,6 +241,16 @@ bool ora::Database::dropContainer( const std::string& name ){
   return true;
 }
 
+bool ora::Database::lockContainer( const std::string& name ){
+  open();
+  Handle<DatabaseContainer> cont = m_impl->m_session->containerHandle( name );
+  if( !cont ){
+    throwException("Container \""+name+"\" does not exist in the database.",
+                   "Database::lockContainer");
+  }
+  return cont->lock();
+}
+
 ora::Container ora::Database::containerHandle( const std::string& name ){
   open();
   Handle<DatabaseContainer> cont = m_impl->m_session->containerHandle( name );

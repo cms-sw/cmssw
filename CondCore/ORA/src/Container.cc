@@ -2,6 +2,10 @@
 #include "DatabaseContainer.h"
 #include "ClassUtils.h"
 
+ora::ContainerIterator::ContainerIterator():
+  m_buffer(){
+}
+
 ora::ContainerIterator::ContainerIterator( Handle<IteratorBuffer>& iteratorBuffer ):
   m_buffer( iteratorBuffer ){
 }
@@ -38,6 +42,10 @@ boost::shared_ptr<void> ora::ContainerIterator::getItemAsType( const std::type_i
   Reflex::Type castType = ClassUtils::lookupDictionary( asTypeInfo );
   void* ptr = m_buffer->getItemAsType( castType );
   return boost::shared_ptr<void>( ptr, RflxDeleter( m_buffer->type() ) );
+}
+
+ora::Container::Container():
+  m_dbContainer(){
 }
 
 ora::Container::Container( Handle<DatabaseContainer>& dbContainer ):
@@ -96,6 +104,14 @@ boost::shared_ptr<void> ora::Container::fetchItemAsType(int itemId,
   void* ptr = m_dbContainer->fetchItemAsType(itemId, asType );
   if(!ptr) return boost::shared_ptr<void>();
   return boost::shared_ptr<void>( ptr, RflxDeleter( m_dbContainer->type() ) );
+}
+
+bool ora::Container::lock(){
+  return m_dbContainer->lock();
+}
+
+bool ora::Container::isLocked(){
+  return m_dbContainer->isLocked();
 }
 
 int ora::Container::insertItem( const Object& data ){

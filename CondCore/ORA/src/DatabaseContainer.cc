@@ -1,6 +1,7 @@
 #include "CondCore/ORA/interface/Exception.h"
 #include "DatabaseContainer.h"
 #include "DatabaseSession.h"
+#include "IDatabaseSchema.h"
 #include "ContainerSchema.h"
 #include "IRelationalStreamer.h"
 #include "RelationalBuffer.h"
@@ -310,6 +311,7 @@ ora::DatabaseContainer::DatabaseContainer( int contId,
                                            const std::string& className,
                                            unsigned int containerSize,
                                            DatabaseSession& session ):
+  m_dbSchema( session.schema() ),
   m_schema( new ContainerSchema(contId, containerName, className, session) ),
   m_writeBuffer(),
   m_updateBuffer(),
@@ -317,13 +319,15 @@ ora::DatabaseContainer::DatabaseContainer( int contId,
   m_deleteBuffer(),
   m_iteratorBuffer(),
   m_size( containerSize ),
-  m_containerUpdateTable( session.containerUpdateTable() ){
+  m_containerUpdateTable( session.containerUpdateTable() ),
+  m_lock( false ){
 }
 
 ora::DatabaseContainer::DatabaseContainer( int contId,
                                            const std::string& containerName,
                                            const Reflex::Type& containerType,
                                            DatabaseSession& session ):
+  m_dbSchema( session.schema() ),
   m_schema( new ContainerSchema(contId, containerName, containerType, session) ),
   m_writeBuffer(),
   m_updateBuffer(),
@@ -331,7 +335,8 @@ ora::DatabaseContainer::DatabaseContainer( int contId,
   m_deleteBuffer(),
   m_iteratorBuffer(),
   m_size(0),
-  m_containerUpdateTable( session.containerUpdateTable() ){
+  m_containerUpdateTable( session.containerUpdateTable() ),
+  m_lock( false ) {
 }
 
 ora::DatabaseContainer::~DatabaseContainer(){
@@ -373,12 +378,28 @@ ora::Handle<ora::IteratorBuffer> ora::DatabaseContainer::iteratorBuffer(){
   return m_iteratorBuffer;
 }
 
+bool ora::DatabaseContainer::lock(){
+  if( !m_lock ){
+    ContainerHeaderData headerData;
+    m_lock = m_dbSchema.containerHeaderTable().lockContainer( m_schema->containerId(), headerData );
+    if(!m_lock) throwException("Container \""+name()+"\" has been dropped.","DatabaseContainer::lock()");
+    // once the lock has been taken over, update the size in case has been changed...
+    m_size = headerData.numberOfObjects;
+  }
+  return m_lock;
+}
+
+bool ora::DatabaseContainer::isLocked(){
+  return m_lock;
+}
+
 void ora::DatabaseContainer::create(){
   m_schema->create();
 }
 
 void ora::DatabaseContainer::drop(){
   m_schema->drop();
+  m_containerUpdateTable.remove( m_schema->containerId() );
 }
 
 void ora::DatabaseContainer::extendSchema( const Reflex::Type& dependentType ){

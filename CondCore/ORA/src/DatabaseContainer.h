@@ -15,6 +15,7 @@ namespace Reflex {
 
 namespace ora {
 
+  class IDatabaseSchema;
   class ContainerSchema;
   class DatabaseSession;
   class ContainerUpdateTable;
@@ -77,11 +78,15 @@ namespace ora {
     void extendSchema( const Reflex::Type& dependentType );
 
     Handle<IteratorBuffer> iteratorBuffer();
-    
+
+    bool lock();
+
+    bool isLocked();
+
     void* fetchItem(int itemId);
 
     void* fetchItemAsType(int itemId, const Reflex::Type& asType);
-    
+
     int insertItem( const void* data, const Reflex::Type& type );
     
     void updateItem( int itemId, const void* data, const Reflex::Type& type );    
@@ -95,6 +100,7 @@ namespace ora {
     bool getNames( std::vector<std::string>& destination );
 
     private:
+    IDatabaseSchema& m_dbSchema;
     std::auto_ptr<ContainerSchema> m_schema;
     std::auto_ptr<WriteBuffer> m_writeBuffer;
     std::auto_ptr<UpdateBuffer> m_updateBuffer;
@@ -103,6 +109,7 @@ namespace ora {
     Handle<IteratorBuffer> m_iteratorBuffer;
     size_t m_size;
     ContainerUpdateTable& m_containerUpdateTable;
+    bool m_lock;
   };
 
 }

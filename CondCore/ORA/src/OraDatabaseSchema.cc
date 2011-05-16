@@ -465,6 +465,32 @@ void ora::OraContainerHeaderTable::updateContainer( int containerId,
   containerTable.dataEditor().updateRows(setClause,whereClause.str(),updateData);
 }
 
+bool ora::OraContainerHeaderTable::lockContainer( int id, ora::ContainerHeaderData& dest ){
+  bool ret = false;
+  coral::ITable& containerTable = m_schema.tableHandle( tableName() );
+  std::auto_ptr<coral::IQuery> query( containerTable.newQuery());
+  query->addToOutputList( classNameColumn()  );
+  query->defineOutputType( classNameColumn() , coral::AttributeSpecification::typeNameForType<std::string>() );
+  query->addToOutputList( numberOfObjectsColumn()  );
+  query->defineOutputType( numberOfObjectsColumn() , coral::AttributeSpecification::typeNameForType<unsigned int>() );
+  std::stringstream whereClause;
+  whereClause << containerIdColumn() << "= :" <<containerIdColumn();
+  coral::AttributeList whereData;
+  whereData.extend<int>( containerIdColumn() );
+  whereData.begin()->data<int>() = id;
+  query->setCondition( whereClause.str(), whereData );
+  query->setForUpdate();
+  coral::ICursor& cursor = query->execute();
+  if( cursor.next() ) {
+    ret = true;
+    const coral::AttributeList& row = cursor.currentRow();
+    dest.id = id;
+    dest.className = row[ classNameColumn()].data< std::string >();
+    dest.numberOfObjects = row[ numberOfObjectsColumn()].data< unsigned int >();
+  }
+  return ret;  
+}
+
 void ora::OraContainerHeaderTable::incrementNumberOfObjects( int containerId  ){
   std::stringstream setClause;
   setClause << numberOfObjectsColumn() << " = " <<numberOfObjectsColumn() << " + 1";

@@ -14,6 +14,9 @@ namespace ora {
   class DatabaseUtility {
     public:
     // 
+    DatabaseUtility();
+
+    //
     explicit DatabaseUtility( Handle<DatabaseUtilitySession>& session );
 
     //

@@ -99,6 +99,7 @@ namespace ora {
     bool getContainerData( std::map<std::string, ContainerHeaderData>& destination );
     void addContainer( int id, const std::string& containerName, const std::string& className );
     void removeContainer( int id );
+    bool lockContainer( int id, ContainerHeaderData& destination );
     void incrementNumberOfObjects( int id  );
     void decrementNumberOfObjects( int id  );
     void updateNumberOfObjects( const std::map<int,unsigned int>& numberOfObjectsForContainerIds );

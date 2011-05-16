@@ -103,64 +103,75 @@ void ora::ContainerSchema::initClassDict(){
 void ora::ContainerSchema::create(){
 
   initClassDict();
+  // adding the new entry in the container table
+  m_session.schema().containerHeaderTable().addContainer( m_containerId, m_containerName, m_className );
+ 
+  // creating and storing the mapping
   std::string newMappingVersion = m_session.mappingDatabase().newMappingVersionForContainer( m_containerName );
   MappingGenerator mapGen( m_session.schema().storageSchema() );
   mapGen.createNewMapping( m_containerName, m_classDict, m_mapping );
-  //if(!mapGen.createNewMapping( m_containerName, m_classDict, m_mapping )){
-  //  throwException("Mapping generation failed.",
-  //                 "ContainerSchema::create");
-  //}
   m_mapping.setVersion( newMappingVersion );
   m_session.mappingDatabase().storeMapping( m_mapping );
   m_session.mappingDatabase().insertClassVersion( m_classDict, 0, m_containerId, newMappingVersion, true );
-  MappingToSchema mapping2Schema( m_session.schema().storageSchema() );
-  m_mapping.tables();
-  mapping2Schema.create(  m_mapping );
+  //m_mapping.tables();
+  // creating the sequences...
   m_containerSchemaSequences.create( MappingRules::sequenceNameForContainer( m_containerName ) );
   for( std::map<std::string,MappingTree*>::iterator iDep = m_dependentMappings.begin();
        iDep != m_dependentMappings.end(); ++iDep ){
     m_containerSchemaSequences.create( MappingRules::sequenceNameForDependentClass( m_containerName, iDep->first ));
   }
+  // finally create the tables... 
+  MappingToSchema mapping2Schema( m_session.schema().storageSchema() );
+  mapping2Schema.create(  m_mapping );
   m_loaded = true;
 }
 
 void ora::ContainerSchema::drop(){
 
   std::set<std::string> containerMappingVersions;
-  if( m_session.mappingDatabase().getMappingVersionsForContainer( m_containerId, containerMappingVersions )){
-    std::map< std::string, std::set<std::string> > tableHierarchy;
-    std::set<std::string> topLevelTables; // should be strictly only one!
-    for( std::set<std::string>::const_iterator iV = containerMappingVersions.begin();
-         iV!= containerMappingVersions.end(); ++iV ){
-      MappingTree mapping;
-      if( m_session.mappingDatabase().getMappingByVersion( *iV, mapping ) ){
+  m_session.mappingDatabase().getMappingVersionsForContainer( m_containerId, containerMappingVersions );
+  // building the table hierarchy
+  std::map< std::string, std::set<std::string> > tableHierarchy;
+  std::set<std::string> topLevelTables; // should be strictly only one!
+  for( std::set<std::string>::const_iterator iV = containerMappingVersions.begin();
+       iV!= containerMappingVersions.end(); ++iV ){
+     MappingTree mapping;
+     if( m_session.mappingDatabase().getMappingByVersion( *iV, mapping ) ){
         topLevelTables.insert( mapping.topElement().tableName() );
         getTableHierarchyFromMappingElement( mapping.topElement(), tableHierarchy );
-      }
-    }
-
-    std::vector<std::string> orderedTableList;
-    for(std::set<std::string>::const_iterator iMainT = topLevelTables.begin();
-        iMainT != topLevelTables.end(); ++iMainT ){
-      addFromTableHierarchy( *iMainT, tableHierarchy, orderedTableList );
-    }
-    for(std::vector<std::string>::reverse_iterator iTable = orderedTableList.rbegin();
-        iTable != orderedTableList.rend(); iTable++ ){
-      m_session.schema().storageSchema().dropIfExistsTable( *iTable );
-    }
+     }
   }
+  std::vector<std::string> orderedTableList;
+  for(std::set<std::string>::const_iterator iMainT = topLevelTables.begin();
+      iMainT != topLevelTables.end(); ++iMainT ){
+    addFromTableHierarchy( *iMainT, tableHierarchy, orderedTableList );
+  }
+
+  // getting the dependent class list...
   std::set<std::string> depClasses;
   m_session.mappingDatabase().getDependentClassesForContainer( m_containerId, depClasses );
-      
+
+  // now the mappings can be removed    
   for( std::set<std::string>::const_iterator iM = containerMappingVersions.begin();
        iM != containerMappingVersions.end(); ++iM ){
     m_session.mappingDatabase().removeMapping( *iM );
   }
+  // removing the sequences
   m_containerSchemaSequences.erase( MappingRules::sequenceNameForContainer( m_containerName ));
   for(std::set<std::string>::const_iterator iDepCl = depClasses.begin();
       iDepCl != depClasses.end(); iDepCl++){
     m_containerSchemaSequences.erase( MappingRules::sequenceNameForDependentClass( m_containerName, *iDepCl ) );
   }
+
+  // removing the entry in the containers table
+  m_session.schema().containerHeaderTable().removeContainer( m_containerId );
+
+  // finally drop the container tables following the hierarchy
+  for(std::vector<std::string>::reverse_iterator iTable = orderedTableList.rbegin();
+      iTable != orderedTableList.rend(); iTable++ ){
+    m_session.schema().storageSchema().dropIfExistsTable( *iTable );
+  } 
+      
 }
 
 void ora::ContainerSchema::evolve(){

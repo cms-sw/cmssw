@@ -29,6 +29,10 @@ void ora::ContainerUpdateTable::takeNote( int contId,
   iC->second = size;
 }
 
+void ora::ContainerUpdateTable::remove(  int contId ){
+  m_table.erase( contId );
+}
+
 const std::map<int, unsigned int>& ora::ContainerUpdateTable::table(){
   return m_table;
 }
@@ -195,22 +199,21 @@ ora::Handle<ora::DatabaseContainer> ora::DatabaseSession::addContainer( const st
   return container;
 }
 
+
 ora::Handle<ora::DatabaseContainer> ora::DatabaseSession::createContainer( const std::string& containerName,
                                                                            const Reflex::Type& type ){
   // create the container
   int newContId = m_contIdSequence->getNextId( true );
   Handle<DatabaseContainer> newCont ( new DatabaseContainer( newContId, containerName, type, *this ) );
   m_transactionCache->addContainer( newContId, containerName, newCont );
-  m_schema->containerHeaderTable().addContainer( newContId, containerName, newCont->className() );
   newCont->create();
   return newCont;
 }
 
 void ora::DatabaseSession::dropContainer( const std::string& name ){
   Handle<DatabaseContainer> cont = m_transactionCache->getContainer( name );
-  cont->drop();
   m_transactionCache->eraseContainer( cont->id(), name );
-  m_schema->containerHeaderTable().removeContainer( cont->id() );
+  cont->drop();
 }
 
 ora::Handle<ora::DatabaseContainer> ora::DatabaseSession::containerHandle( const std::string& name ){

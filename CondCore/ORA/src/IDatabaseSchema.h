@@ -69,6 +69,7 @@ namespace ora {
 
 
   struct ContainerHeaderData {
+      ContainerHeaderData();
       ContainerHeaderData( int contId,
                            const std::string& classN,
                            unsigned int numberObj );
@@ -86,6 +87,7 @@ namespace ora {
     virtual bool getContainerData( std::map<std::string, ContainerHeaderData>& destination ) = 0;
     virtual void addContainer( int id, const std::string& containerName, const std::string& className ) = 0;
     virtual void removeContainer( int id ) = 0;
+    virtual bool lockContainer( int id, ContainerHeaderData& destination ) = 0;
     virtual void incrementNumberOfObjects( int id  ) = 0;
     virtual void decrementNumberOfObjects( int id  ) = 0;
     virtual void updateNumberOfObjects( const std::map<int,unsigned int>& numberOfObjectsForContainerIds ) = 0;

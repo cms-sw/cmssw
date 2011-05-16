@@ -12,6 +12,8 @@
 </bin>
 <bin   file="testORAInit.cc" name="testORAInit">
 </bin>
+<bin   file="testContainerLock.cc" name="testContainerLock">
+</bin>
 <bin   file="testORA_0.cc" name="testORA_0">
 </bin>
 <bin   file="testORA_1.cc" name="testORA_1">

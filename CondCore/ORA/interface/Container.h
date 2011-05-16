@@ -15,7 +15,9 @@ namespace ora {
   class ContainerIterator {
     
     public:
-    ContainerIterator( Handle<IteratorBuffer>& iteratorBuffer );
+    ContainerIterator();
+
+    explicit ContainerIterator( Handle<IteratorBuffer>& iteratorBuffer );
     
     ContainerIterator( const ContainerIterator& rhs );
     
@@ -43,7 +45,9 @@ namespace ora {
   class Container {
     
     public:
-    Container( Handle<DatabaseContainer>& dbContainer );
+    Container();
+
+    explicit Container( Handle<DatabaseContainer>& dbContainer );
 
     Container( const Container& rhs );
 
@@ -70,6 +74,10 @@ namespace ora {
     Object fetchItem( int itemId );
 
     template <typename T> boost::shared_ptr<T> fetch( int itemId );
+
+    bool lock();
+
+    bool isLocked();
 
     int insertItem( const Object& data );
 

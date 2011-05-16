@@ -31,6 +31,7 @@ namespace ora {
     ContainerUpdateTable();
     ~ContainerUpdateTable();
     void takeNote( int contId, unsigned int size );
+    void remove( int contId );
     const std::map<int, unsigned int>& table();
     void clear();
     private:
