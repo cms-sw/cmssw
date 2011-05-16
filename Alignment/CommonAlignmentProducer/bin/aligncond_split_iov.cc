@@ -81,7 +81,7 @@ int cond::AlignSplitIOV::execute()
   cond::DbSession sourcedb = openDbSession("sourceConnect", true);
   cond::DbSession destdb = openDbSession("destConnect");
 
-  sourcedb.transaction().start(false);
+  sourcedb.transaction().start(true);
   cond::MetaData sourceMetadata(sourcedb);
   sourceiovtoken = sourceMetadata.getToken(sourceTag);
   if (sourceiovtoken.empty()) 
