@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.16 2011/05/16 17:55:21 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.17 2011/05/16 19:10:53 chrjones Exp $
 //
 
 // system include files
@@ -670,6 +670,9 @@ DQMRootSource::setupFile(unsigned int iIndex)
 {
   
   m_file = std::auto_ptr<TFile>(TFile::Open(m_catalog.fileNames()[iIndex].c_str()));
+  
+  //Check file format version, which is encoded in the Title of the TFile
+  assert(0==strcmp(m_file->GetTitle(),"1"));
   
   //Get meta Data
   TDirectory* metaDir = m_file->GetDirectory(kMetaDataDirectoryAbsolute);

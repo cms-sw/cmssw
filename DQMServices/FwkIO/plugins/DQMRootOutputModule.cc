@@ -262,7 +262,10 @@ m_fullNameBufferPtr(&m_fullNameBuffer),
 m_indicesTree(0)
 {
   //NOTE: I need to also set the I/O performance settings
-  m_file = std::auto_ptr<TFile>(new TFile(m_fileName.c_str(),"CREATE"));  
+  
+  m_file = std::auto_ptr<TFile>(new TFile(m_fileName.c_str(),"CREATE",
+                                "1" //This is the file format version number
+                                ));  
   
   edm::Service<edm::JobReport> jr;
   cms::Digest branchHash;
