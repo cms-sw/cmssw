@@ -787,8 +787,8 @@ class PickRelValInputFiles( ConfigToolBase ):
     - skipFiles    : number of files to skip for a found RelVal sample
                      optional; default: 0
     - numberOfFiles: number of files to pick up
-                     setting it to 0, returns all found ('skipFiles' remains active though)
-                     optional; default: 1
+                     setting it to negative values, returns all found ('skipFiles' remains active though)
+                     optional; default: -1
     - debug        : switch to enable enhanced messages in 'stdout'
                      optional; default: False
     """
@@ -809,7 +809,7 @@ class PickRelValInputFiles( ConfigToolBase ):
         self.addParameter( self._defaultParameters, 'globalTag'    , autoCond[ self.getDefaultParameters()[ 'condition' ].value ][ : -5 ], 'auto from \'condition\'' )
         self.addParameter( self._defaultParameters, 'maxVersions'  , 9                                                                   , '' )
         self.addParameter( self._defaultParameters, 'skipFiles'    , 0                                                                   , '' )
-        self.addParameter( self._defaultParameters, 'numberOfFiles', 1                                                                   , '' )
+        self.addParameter( self._defaultParameters, 'numberOfFiles', -1                                                                  , 'all' )
         self.addParameter( self._defaultParameters, 'debug'        , False                                                               , '' )
         self._parameters = copy.deepcopy( self._defaultParameters )
         self._comment = ""
@@ -963,21 +963,29 @@ class PickRelValInputFiles( ConfigToolBase ):
             for directory in directories.splitlines():
                 files = Popen( [ command, '%s%i/%s'%( argument, version, directory ) ], stdout = PIPE, stderr = PIPE ).communicate()[0]
                 for file in files.splitlines():
+                    if len( file ) > 0 and validVersion != version:
+                        validVersion = version
+                        if debug:
+                            print '%s DEBUG: Valid version set to \'v%i\''%( self._label, validVersion )
+                    if numberOfFiles == 0:
+                        break
                     if len( file ) > 0:
                         if debug:
                             print '%s DEBUG: File \'%s\' found'%( self._label, file )
                         fileCount += 1
-                        validVersion = version
                     if fileCount > skipFiles:
                         filePath = '%s%i/%s/%s'%( rfdirPath, version, directory, file )
                         filePaths.append( filePath )
-                    if numberOfFiles != 0 and len( filePaths ) >= numberOfFiles:
+                    if numberOfFiles > 0 and len( filePaths ) >= numberOfFiles:
                         break
                 if debug:
-                    print '%s DEBUG: %i file(s) found'%( self._label, fileCount )
-                if numberOfFiles != 0 and len( filePaths ) >= numberOfFiles:
+                    if numberOfFiles != 0:
+                        print '%s DEBUG: %i file(s) found so far'%( self._label, fileCount )
+                    else:
+                        print '%s DEBUG: No files requested'%( self._label )
+                if numberOfFiles >= 0 and len( filePaths ) >= numberOfFiles:
                     break
-            if numberOfFiles != 0:
+            if numberOfFiles > 0:
               if len( filePaths ) >= numberOfFiles:
                 break
             elif validVersion > 0:
