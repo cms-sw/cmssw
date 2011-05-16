@@ -104,10 +104,15 @@ static const char* desc =
 #include "RooProdPdf.h"
 #include "RooWorkspace.h"
 #include "RooDataSet.h"
+#include "RooFitResult.h"
 
 #include "RooStats/ModelConfig.h"
 #include "RooStats/SimpleInterval.h"
 #include "RooStats/BayesianCalculator.h"
+#include "RooStats/MCMCCalculator.h"
+#include "RooStats/MCMCInterval.h"
+#include "RooStats/MCMCIntervalPlot.h"
+#include "RooStats/ProposalHelper.h"
 #include "RooRandom.h"
 
 // FIXME: remove namespaces
@@ -224,6 +229,13 @@ private:
   Double_t GetRandom( std::string pdf, std::string var );
   Long64_t LowBoundarySearch(std::vector<Double_t> * cdf, Double_t value);
   Long64_t HighBoundarySearch(std::vector<Double_t> * cdf, Double_t value);
+  MCMCInterval * GetMcmcInterval(double conf_level,
+				 int n_iter,
+				 int n_burn,
+				 double left_side_tail_fraction,
+				 int n_bins);
+  void makeMcmcPosteriorPlot( std::string filename );
+  double printMcmcUpperLimit( std::string filename = "" );
 
   // data members
   RooWorkspace * ws;
@@ -234,6 +246,9 @@ private:
   double nsig_rel_err;
   double nbkg_rel_err;
   Int_t _nuisance_model;
+
+  // for Bayesian MCMC calculation
+  MCMCInterval * mcInt;
 
   // random numbers
   TRandom3 r;
@@ -265,6 +280,7 @@ void CL95Calc::init(UInt_t seed){
 
   sInt = 0;
   bcalc = 0;
+  mcInt = 0;
   mc.SetName("modelconfig");
   mc.SetTitle("ModelConfig for roostats_cl95");
 
@@ -303,6 +319,7 @@ CL95Calc::~CL95Calc(){
   delete data;
   delete sInt;
   delete bcalc;
+  delete mcInt;
 }
 
 
@@ -517,6 +534,83 @@ RooAbsData * CL95Calc::makeData( Int_t n ){
 }
 
 
+MCMCInterval * CL95Calc::GetMcmcInterval(double conf_level,
+					int n_iter,
+					int n_burn,
+					double left_side_tail_fraction,
+					int n_bins){
+  // use MCMCCalculator  (takes about 1 min)
+  // Want an efficient proposal function, so derive it from covariance
+  // matrix of fit
+  
+  RooFitResult * fit = ws->pdf("model")->fitTo(*data,Save());
+  ProposalHelper ph;
+  ph.SetVariables((RooArgSet&)fit->floatParsFinal());
+  ph.SetCovMatrix(fit->covarianceMatrix());
+  ph.SetUpdateProposalParameters(kTRUE); // auto-create mean vars and add mappings
+  ph.SetCacheSize(100);
+  ProposalFunction* pf = ph.GetProposalFunction();
+  
+  MCMCCalculator mcmc( *data, mc );
+  mcmc.SetConfidenceLevel(conf_level);
+  mcmc.SetNumIters(n_iter);          // Metropolis-Hastings algorithm iterations
+  mcmc.SetProposalFunction(*pf);
+  mcmc.SetNumBurnInSteps(n_burn); // first N steps to be ignored as burn-in
+  mcmc.SetLeftSideTailFraction(left_side_tail_fraction);
+  mcmc.SetNumBins(n_bins);
+  
+  delete mcInt;
+  mcInt = mcmc.GetInterval();
+
+  //std::cout << "!!!!!!!!!!!!!! interval" << std::endl;
+  //if (mcInt == 0) std::cout << "!!!!!!!!!!!!!! no interval" << std::endl;
+  
+  return mcInt;
+}
+
+
+void CL95Calc::makeMcmcPosteriorPlot( std::string filename ){
+  
+  TCanvas c1("c1");
+  MCMCIntervalPlot plot(*mcInt);
+  plot.Draw();
+  c1.SaveAs(filename.c_str());
+  
+  return;
+}
+
+
+double CL95Calc::printMcmcUpperLimit( std::string filename ){
+  //
+  // print out the upper limit on the first Parameter of Interest
+  //
+
+  RooRealVar * firstPOI = (RooRealVar*) mc.GetParametersOfInterest()->first();
+  double _limit = mcInt->UpperLimit(*firstPOI);
+  cout << "\n95% upper limit on " <<firstPOI->GetName()<<" is : "<<
+    _limit <<endl;
+
+  if (filename.size()!=0){
+    
+    std::ofstream aFile;
+
+    // append to file if exists
+    aFile.open(filename.c_str(), std::ios_base::app);
+
+    char buf[1024];
+    sprintf(buf, "%7.6f", _limit);
+
+    aFile << buf << std::endl;
+
+    // close outfile here so it is safe even if subsequent iterations crash
+    aFile.close();
+
+  }
+
+  return _limit;
+}
+
+
 Double_t CL95Calc::cl95( std::string method ){
 
   // this method assumes that the workspace,
@@ -544,14 +638,22 @@ Double_t CL95Calc::cl95( std::string method ){
     sInt = 0;
    
   }
+  else if (method.find("mcmc") != std::string::npos){
+
+    std::cout << "[roostats_cl95]: Bayesian MCMC calculation is still experimental in this context!!!" << std::endl;
+
+    //prepare Bayesian Markov Chain MC Calulator
+    mcInt = GetMcmcInterval(0.95, 50000, 100, 0.0, 40);
+    upper_limit = printMcmcUpperLimit();
+  }
   else{
     std::cout << "[roostats_cl95]: method " << method 
-	      << "is not implemented, exiting" <<std::endl;
+	      << " is not implemented, exiting" <<std::endl;
     return -1.0;
   }
-
+  
   return upper_limit;
-
+  
 }
 
 
@@ -731,6 +833,13 @@ int CL95Calc::makePlot( std::string method,
     plot->Draw();
     c1.SaveAs(plotFileName.c_str());
   }
+  else if (method.find("mcmc") != std::string::npos){
+
+    std::cout << "[roostats_cl95]: making Bayesian MCMC posterior plot" << endl;
+
+    makeMcmcPosteriorPlot(plotFileName);
+  
+  }
   else{
     std::cout << "[roostats_cl95]: method " << method 
 	      << "is not implemented, exiting" <<std::endl;
@@ -817,12 +926,15 @@ Double_t roostats_cl95(Double_t ilum, Double_t slum,
   if (method.find("bayesian") != std::string::npos){
     std::cout << "[roostats_cl95]: using Bayesian calculation via numeric integration" << endl;
   }
+  else if (method.find("mcmc") != std::string::npos){
+    std::cout << "[roostats_cl95]: using Bayesian calculation via numeric integration" << endl;
+  }
   else if (method.find("workspace") != std::string::npos){
     std::cout << "[roostats_cl95]: no interval calculation, only create and save workspace" << endl;
   }
   else{
     std::cout << "[roostats_cl95]: method " << method 
-	      << "is not implemented, exiting" <<std::endl;
+	      << " is not implemented, exiting" <<std::endl;
     return -1.0;
   }
 
@@ -888,9 +1000,12 @@ Double_t roostats_cla(Double_t ilum, Double_t slum,
   if (method.find("bayesian") != std::string::npos){
     std::cout << "[roostats_cla]: using Bayesian calculation via numeric integration" << endl;
   }
+  else if (method.find("mcmc") != std::string::npos){
+    std::cout << "[roostats_cla]: using Bayesian calculation via numeric integration" << endl;
+  }
   else{
     std::cout << "[roostats_cla]: method " << method 
-	      << "is not implemented, exiting" <<std::endl;
+	      << " is not implemented, exiting" <<std::endl;
     return -1.0;
   }
 
