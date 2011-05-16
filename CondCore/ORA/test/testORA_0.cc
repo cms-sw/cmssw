@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <iostream>
 
-int main(){
+int main( int argc, char** argv){
   // writing...
   std::string authpath("/afs/cern.ch/cms/DB/conddb");
   std::string pathenv(std::string("CORAL_AUTH_PATH=")+authpath);
@@ -17,9 +17,9 @@ int main(){
     std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_UNIT_TESTS" );
     //std::string connStr( "sqlite_file:test.db" );
     ora::Serializer serializer( "ORA_TEST" );
-    serializer.lock( connStr );
+    serializer.lock( connStr, std::string(argv[0]) );
     ora::Database db;
-    db.configuration().setMessageVerbosity( coral::Debug );
+    //db.configuration().setMessageVerbosity( coral::Debug );
     db.connect( connStr );
     ora::ScopedTransaction trans0( db.transaction() );
     trans0.start( false );

@@ -7,16 +7,16 @@
 #include <iostream>
 #include <stdexcept>
 
-int main(){
+int main(int argc, char** argv){
   std::string authpath("/afs/cern.ch/cms/DB/conddb");
   std::string pathenv(std::string("CORAL_AUTH_PATH=")+authpath);
   ::putenv(const_cast<char*>(pathenv.c_str()));
   
   std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_UNIT_TESTS" );
+  ora::Serializer serializer( "ORA_TEST" );
+  serializer.lock( connStr, std::string(argv[0]) );
   try {
     ora::Database db;
-    ora::Serializer serializer( "ORA_TEST" );
-    serializer.lock( connStr );
     //std::string connStr( "sqlite_file:test.db" );
     db.connect( connStr );
     db.transaction().start( false );
@@ -81,7 +81,7 @@ int main(){
   try {
     ora::Database db;
     db.configuration().properties().setFlag( ora::Configuration::automaticContainerCreation() );
-    db.configuration().setMessageVerbosity( coral::Debug );
+    //db.configuration().setMessageVerbosity( coral::Debug );
     db.connect( connStr );
     db.transaction().start( false );
     int data = 99;
@@ -111,7 +111,7 @@ int main(){
   ::sleep(1);
   try {
     ora::Database db;
-    db.configuration().setMessageVerbosity( coral::Debug );
+    //db.configuration().setMessageVerbosity( coral::Debug );
     db.connect( connStr );
     db.transaction().start();
     boost::shared_ptr< int > r0 = db.fetch< int >( id0 );
@@ -127,7 +127,7 @@ int main(){
   ::sleep(1);
   try{
     ora::Database db;
-    db.configuration().setMessageVerbosity( coral::Debug );
+    //db.configuration().setMessageVerbosity( coral::Debug );
     db.connect( connStr );
     db.transaction().start( false );
     if(db.exists()) db.drop();

@@ -165,7 +165,7 @@ namespace {
   }
 }
 
-int main(){
+int main(int argc, char** argv){
 
   // writing...  
   std::string authpath("/afs/cern.ch/cms/DB/conddb");
@@ -174,7 +174,7 @@ int main(){
     //std::string connStr( "sqlite_file:test.db" );
     std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_UNIT_TESTS" );
     ora::Serializer serializer( "ORA_TEST" );
-    serializer.lock( connStr );
+    serializer.lock( connStr, std::string(argv[0]) );
   ora::Database db;
   try {
     // NOT CONNECTED

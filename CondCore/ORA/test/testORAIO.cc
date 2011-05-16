@@ -8,7 +8,7 @@
 #include <iostream>
 #include "classes.h"
 
-int main(){
+int main(int argc, char** argv){
   using namespace testORA;
   try {
 
@@ -17,11 +17,11 @@ int main(){
     std::string pathenv(std::string("CORAL_AUTH_PATH=")+authpath);
     ::putenv(const_cast<char*>(pathenv.c_str()));
     ora::Database db;
-    db.configuration().setMessageVerbosity( coral::Debug );
+    //db.configuration().setMessageVerbosity( coral::Debug );
     std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_UNIT_TESTS" );
     std::vector<int> oids;
     ora::Serializer serializer( "ORA_TEST" );
-    serializer.lock( connStr );
+    serializer.lock( connStr, std::string(argv[0]));
     db.connect( connStr );
     ora::ScopedTransaction trans0( db.transaction() );
     trans0.start( false );
@@ -52,7 +52,7 @@ int main(){
     // opening dest db
     std::cout << "** creating dest db"<<std::endl;
     ora::Database db2;
-    db2.configuration().setMessageVerbosity( coral::Debug );
+    //db2.configuration().setMessageVerbosity( coral::Debug );
     std::string connStr2( "sqlite_file:test.db" );
     db2.connect( connStr2 );
     ora::ScopedTransaction trans2( db2.transaction() );

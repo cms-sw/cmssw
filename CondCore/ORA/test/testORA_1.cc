@@ -8,7 +8,7 @@
 #include <iostream>
 #include "classes.h"
 
-int main(){
+int main( int argc, char** argv ){
   using namespace testORA;
   ora::Database db;
   try {
@@ -20,8 +20,8 @@ int main(){
     std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_UNIT_TESTS" );
     //std::string connStr( "sqlite_file:test.db" );
     ora::Serializer serializer( "ORA_TEST" );
-    serializer.lock( connStr );
-    db.configuration().setMessageVerbosity( coral::Debug );
+    serializer.lock( connStr, std::string(argv[0]) );
+    //db.configuration().setMessageVerbosity( coral::Debug );
     db.connect( connStr );
     ora::ScopedTransaction trans0( db.transaction() );
     trans0.start( false );
