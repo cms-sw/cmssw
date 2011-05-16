@@ -4,8 +4,8 @@
  *     Main EDProducer for the DTTPG
  *
  *
- *   $Date: 2010/11/11 16:32:49 $
- *   $Revision: 1.17 $
+ *   $Date: 2011/03/28 13:47:50 $
+ *   $Revision: 1.18 $
  *
  *   \author C. Battilana
  *
@@ -93,10 +93,13 @@ void DTTrigProd::beginRun(edm::Run& iRun, const edm::EventSetup& iEventSetup) {
 
 void DTTrigProd::produce(Event & iEvent, const EventSetup& iEventSetup){
 
+  vector<L1MuDTChambPhDigi> outPhi;
+  vector<L1MuDTChambThDigi> outTheta;
+
   // SV check if CCB configuration is valid, otherwise just produce empty collections
   if(!my_CCBValid)  {
     if (my_debug)
-      cout << "[DTTrigProd] CCB configuration is not valid for this run, emulator will not run ! " << endl;
+      cout << "[DTTrigProd] CCB configuration is not valid for this run, empty collection will be produced " << endl;
   }  else  {
     my_trig->triggerReco(iEvent,iEventSetup);
     my_BXoffset = my_trig->getBXOffset();
@@ -107,7 +110,6 @@ void DTTrigProd::produce(Event & iEvent, const EventSetup& iEventSetup){
     // Convert Phi Segments
     SectCollPhiColl myPhiSegments;
     myPhiSegments = my_trig->SCPhTrigs();
-    vector<L1MuDTChambPhDigi> outPhi;
 
     SectCollPhiColl_iterator SCPCend = myPhiSegments.end();
     for (SectCollPhiColl_iterator it=myPhiSegments.begin();it!=SCPCend;++it){
@@ -129,7 +131,6 @@ void DTTrigProd::produce(Event & iEvent, const EventSetup& iEventSetup){
     // Convert Theta Segments
     SectCollThetaColl myThetaSegments;
     myThetaSegments = my_trig->SCThTrigs();
-    vector<L1MuDTChambThDigi> outTheta;
   
     SectCollThetaColl_iterator SCTCend = myThetaSegments.end();
     for (SectCollThetaColl_iterator it=myThetaSegments.begin();it!=SCTCend;++it){
@@ -149,14 +150,15 @@ void DTTrigProd::produce(Event & iEvent, const EventSetup& iEventSetup){
 					 qual
 					 ));
     }
-
-   // Write everything into the event
-   std::auto_ptr<L1MuDTChambPhContainer> resultPhi (new L1MuDTChambPhContainer);
-   resultPhi->setContainer(outPhi);
-   iEvent.put(resultPhi);
-   std::auto_ptr<L1MuDTChambThContainer> resultTheta (new L1MuDTChambThContainer);
-   resultTheta->setContainer(outTheta);
-   iEvent.put(resultTheta);
   }
+
+  // Write everything into the event (CB write empty collection as default actions if emulator does not run)
+  std::auto_ptr<L1MuDTChambPhContainer> resultPhi (new L1MuDTChambPhContainer);
+  resultPhi->setContainer(outPhi);
+  iEvent.put(resultPhi);
+  std::auto_ptr<L1MuDTChambThContainer> resultTheta (new L1MuDTChambThContainer);
+  resultTheta->setContainer(outTheta);
+  iEvent.put(resultTheta);
+
 }
 
