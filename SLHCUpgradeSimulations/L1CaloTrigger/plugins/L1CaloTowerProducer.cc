@@ -2,6 +2,9 @@
 Reads TPGs, fixes the energy scale compression and produces towers
 M.Bachtis,S.Dasu
 University of Wisconsin-Madison
+
+Modified Andrew W. Rose
+Imperial College, London
 */
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
@@ -25,10 +28,17 @@ University of Wisconsin-Madison
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
+
+//added to allow use of Upgrade HCAL - AWR 12/05/2011
+#include "DataFormats/HcalDigi/interface/HcalUpgradeTriggerPrimitiveDigi.h"
+
 #include "SimDataFormats/SLHC/interface/L1CaloTower.h"
 #include "SimDataFormats/SLHC/interface/L1CaloTowerFwd.h"
 #include "SimDataFormats/SLHC/interface/L1CaloTriggerSetup.h"
 #include "SimDataFormats/SLHC/interface/L1CaloTriggerSetupRcd.h"
+
+#include <map>
+#include <deque>
 
 
 class L1CaloTowerProducer : public edm::EDProducer {
@@ -41,20 +51,34 @@ class L1CaloTowerProducer : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
+
       /*INPUTS*/
+      void addHcal( const int& , const int& , const int& , const bool& );
+      void addEcal( const int& , const int& , const int& , const bool& );
+
+      typedef std::map< std::pair<int,int> , l1slhc::L1CaloTower > tAssociationMap;
+      tAssociationMap mAssociationMap;
+ 
+      const L1CaloTriggerSetup* mCaloTriggerSetup;
+      const L1CaloEcalScale* mEcalScale;
+      const L1CaloHcalScale* mHcalScale;
 
       //Calorimeter Digis
-      edm::InputTag ecalDigis_;
-      edm::InputTag hcalDigis_;
+      edm::InputTag mEcalDigiInputTag;
+      edm::InputTag mHcalDigiInputTag;
+ 
+//added to allow use of Upgrade HCAL - AWR 12/05/2011
+     bool useUpgradeHCAL_;
 
 };
 
 
 
 
-L1CaloTowerProducer::L1CaloTowerProducer(const edm::ParameterSet& iConfig):
-  ecalDigis_(iConfig.getParameter<edm::InputTag>("ECALDigis")),
-  hcalDigis_(iConfig.getParameter<edm::InputTag>("HCALDigis"))
+L1CaloTowerProducer::L1CaloTowerProducer(const edm::ParameterSet& aConfig):
+  mEcalDigiInputTag(aConfig.getParameter<edm::InputTag>("ECALDigis")),
+  mHcalDigiInputTag(aConfig.getParameter<edm::InputTag>("HCALDigis")),
+  useUpgradeHCAL_(aConfig.getParameter<bool>("UseUpgradeHCAL")) //added to allow use of Upgrade HCAL - AWR 12/05/2011
 {
   //Register Product
   produces<l1slhc::L1CaloTowerCollection>();
@@ -67,91 +91,120 @@ L1CaloTowerProducer::~L1CaloTowerProducer()
 }
 
 
+
 void
-L1CaloTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+L1CaloTowerProducer::addHcal( const int& aCompressedEt, const int& aIeta, const int& aIphi , const bool& aFG  ){
+   if(aCompressedEt>0)
+       {
+	 int lET =(int)( 2*
+		mHcalScale->et(
+			aCompressedEt,
+			abs(aIeta),
+			(aIeta>0?+1:-1)
+		)
+	 );
+	 
+	 tAssociationMap::iterator lItr = mAssociationMap.find( std::make_pair(aIeta,aIphi) );
+
+	 if ( lItr != mAssociationMap.end() ){
+		 if( lET > mCaloTriggerSetup->hcalActivityThr() ) lItr->second.setHcal( lET , aFG );
+	 }else{
+		 l1slhc::L1CaloTower lCaloTower;
+		 lCaloTower.setPos(aIeta,aIphi);
+		 lCaloTower.setHcal( lET , aFG );
+	    	 if( lET > mCaloTriggerSetup->hcalActivityThr() ) mAssociationMap[ std::make_pair(aIeta,aIphi) ] = lCaloTower;
+	 }
+     }
+}
+
+
+void
+L1CaloTowerProducer::addEcal( const int& aCompressedEt, const int& aIeta, const int& aIphi , const bool& aFG ){
+    if(aCompressedEt>0){
+   	 int lET = (int)(2*
+			mEcalScale->et(
+				aCompressedEt,
+				abs(aIeta),
+				(aIeta>0?+1:-1)
+			)
+		 );
+
+	 l1slhc::L1CaloTower lCaloTower;
+	 lCaloTower.setPos( aIeta , aIphi );
+	 lCaloTower.setEcal( lET , aFG );
+
+	 if( lET > mCaloTriggerSetup->ecalActivityThr() ) mAssociationMap[ std::make_pair(aIeta,aIphi) ] = lCaloTower;
+    }
+}
+
+
+
+
+
+
+void
+L1CaloTowerProducer::produce(edm::Event& aEvent, const edm::EventSetup& aSetup)
 {
    using namespace edm;
    using namespace l1slhc;
-
-   //Get ECAL + HCAL Digits from the EVent
-
-   edm::Handle<EcalTrigPrimDigiCollection> ecalDigi;
-   edm::Handle<HcalTrigPrimDigiCollection> hcalDigi;
+  
+   //clear the container
+   mAssociationMap.clear();
+ 
 
    //Setup Calo Scales
-   edm::ESHandle<L1CaloEcalScale> ecalScale;
-   iSetup.get<L1CaloEcalScaleRcd>().get(ecalScale);
-   const L1CaloEcalScale *eScale = ecalScale.product();
+   edm::ESHandle<L1CaloEcalScale> lEcalScaleHandle;
+   aSetup.get<L1CaloEcalScaleRcd>().get(lEcalScaleHandle);
+   mEcalScale = lEcalScaleHandle.product();
 
-   edm::ESHandle<L1CaloHcalScale> hcalScale;
-   iSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
-   const L1CaloHcalScale *hScale = hcalScale.product();
+   edm::ESHandle<L1CaloHcalScale> lHcalScaleHandle;
+   aSetup.get<L1CaloHcalScaleRcd>().get(lHcalScaleHandle);
+   mHcalScale = lHcalScaleHandle.product();
 
    //get Tower Thresholds
-   ESHandle<L1CaloTriggerSetup> s;
-   iSetup.get<L1CaloTriggerSetupRcd>().get(s);
-   const L1CaloTriggerSetup* setup= s.product(); 
+   ESHandle<L1CaloTriggerSetup> mCaloTriggerSetupHandle;
+   aSetup.get<L1CaloTriggerSetupRcd>().get(mCaloTriggerSetupHandle);
+   mCaloTriggerSetup = mCaloTriggerSetupHandle.product(); 
 
-   //Book the Collection
-   std::auto_ptr<L1CaloTowerCollection> towers (new L1CaloTowerCollection);
 
 
    //Loop through the TPGs
-   iEvent.getByLabel(ecalDigis_,ecalDigi);
+   edm::Handle<EcalTrigPrimDigiCollection> lEcalDigiHandle;
+   aEvent.getByLabel(mEcalDigiInputTag,lEcalDigiHandle);
    
-   for(EcalTrigPrimDigiCollection::const_iterator ecalTower = ecalDigi->begin();ecalTower!=ecalDigi->end();++ecalTower)
-     if(ecalTower->compressedEt()>0)
-       {
-	 L1CaloTower c;
-	 c.setPos(ecalTower->id().ieta(),ecalTower->id().iphi());
-	 int et = (int)(2*eScale->et(ecalTower->compressedEt(),abs(ecalTower->id().ieta()),ecalTower->id().ieta()/abs(ecalTower->id().ieta()) ));
-	 c.setParams(et,0,ecalTower->fineGrain());
-	 if(et>setup->ecalActivityThr())
-	   towers->push_back(c);
-       }
+   for(EcalTrigPrimDigiCollection::const_iterator lEcalTPItr = lEcalDigiHandle->begin();lEcalTPItr!=lEcalDigiHandle->end();++lEcalTPItr)
+	addEcal( lEcalTPItr->compressedEt() , lEcalTPItr->id().ieta() , lEcalTPItr->id().iphi() , lEcalTPItr->fineGrain() );
    
 
 
-   //Now take the ecal towers and for common HCAL Towers fill them or add additional towers.....
-   L1CaloTowerCollection additional;
+//added to allow use of Upgrade HCAL - AWR 12/05/2011
+  if( ! useUpgradeHCAL_ ){
+    edm::Handle<HcalTrigPrimDigiCollection> lHcalDigiHandle;
+    aEvent.getByLabel(mHcalDigiInputTag,lHcalDigiHandle);
 
-   iEvent.getByLabel(hcalDigis_,hcalDigi);
+    for(HcalTrigPrimDigiCollection::const_iterator lHcalTPItr = lHcalDigiHandle->begin();lHcalTPItr!=lHcalDigiHandle->end();++lHcalTPItr)
+      addHcal(lHcalTPItr->SOI_compressedEt(), lHcalTPItr->id().ieta(), lHcalTPItr->id().iphi() , lHcalTPItr->SOI_fineGrain() );
+ 
+  }else{
+    edm::Handle<HcalUpgradeTrigPrimDigiCollection> lHcalDigiHandle;
+    aEvent.getByLabel(mHcalDigiInputTag,lHcalDigiHandle);
 
+    for(HcalUpgradeTrigPrimDigiCollection::const_iterator lHcalTPItr = lHcalDigiHandle->begin();lHcalTPItr!=lHcalDigiHandle->end();++lHcalTPItr)
+      addHcal(lHcalTPItr->SOI_compressedEt(), lHcalTPItr->id().ieta(), lHcalTPItr->id().iphi() , lHcalTPItr->SOI_fineGrain() );
 
-   for(HcalTrigPrimDigiCollection::const_iterator hcalTower = hcalDigi->begin();hcalTower!=hcalDigi->end();++hcalTower)
-     if(hcalTower->SOI_compressedEt()>0)
-       {
-	 
-	 bool is_also_ecal = false;
-	 for(L1CaloTowerCollection::iterator c=  towers->begin();c!=towers->end();++c)
-	   {
-	     if(hcalTower->id().ieta() == c->iEta() && hcalTower->id().iphi() == c->iPhi())
-	       {
-		 int et =(int)( 2*hScale->et(hcalTower->SOI_compressedEt(),abs(hcalTower->id().ieta()),hcalTower->id().ieta()/abs(hcalTower->id().ieta()) ));
-		 if(et>setup->hcalActivityThr()) {
-		   c->setParams(c->E(),et,c->fineGrain());
-		   is_also_ecal = true;
-		 }
-	       }
-	   }
-	 //if there is no ecal tower add it additionall
-	 if(!is_also_ecal)
-	   {
-	     L1CaloTower c;
-	     c.setPos(hcalTower->id().ieta(),hcalTower->id().iphi());
-	     int et =(int)(2*hScale->et(hcalTower->SOI_compressedEt(),abs(hcalTower->id().ieta()),hcalTower->id().ieta()/abs(hcalTower->id().ieta()) ));
-	     c.setParams(0,et,false);
-	     if(et>setup->hcalActivityThr())
-	       additional.push_back(c);
-
-	   }
-
-
-       }
-
+  }
    
-   towers->insert(towers->end(),additional.begin(),additional.end());
-   iEvent.put(towers);
+
+   //Book the Collection
+   // could avoid this copy operation if we used a deque rather than a vector to store the towers and then just keep pointers as the second elements in the map.
+   std::auto_ptr<L1CaloTowerCollection> lCaloTowersOut (new L1CaloTowerCollection);
+   lCaloTowersOut->reserve( mAssociationMap.size() );
+
+   for( tAssociationMap::iterator lItr=mAssociationMap.begin(); lItr!=mAssociationMap.end(); ++lItr){
+	lCaloTowersOut->push_back( lItr->second );
+   }
+
+   aEvent.put(lCaloTowersOut);
 }
 
 

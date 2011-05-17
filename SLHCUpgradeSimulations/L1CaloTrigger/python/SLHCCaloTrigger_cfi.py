@@ -12,7 +12,8 @@ L1CaloTriggerSetup = cms.ESProducer("L1CaloTriggerSetupProducer",
 
 L1CaloTowerProducer = cms.EDProducer("L1CaloTowerProducer",
     ECALDigis = cms.InputTag("simEcalTriggerPrimitiveDigis"),
-    HCALDigis = cms.InputTag("simHcalTriggerPrimitiveDigis")
+    HCALDigis = cms.InputTag("simHcalTriggerPrimitiveDigis"),
+    UseUpgradeHCAL = cms.bool(False) #added to allow use of Upgrade HCAL - AWR 12/05/2011
 )
 
 L1CaloRegionProducer = cms.EDProducer("L1CaloRegionProducer",
