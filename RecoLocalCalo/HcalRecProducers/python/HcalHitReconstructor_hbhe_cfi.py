@@ -11,7 +11,7 @@ hbheprereco = cms.EDProducer(
     firstSample = cms.int32(4),
     samplesToAdd = cms.int32(4),
     tsFromDB = cms.bool(True),
-    useLeakCorrection = cms.bool(True),
+    useLeakCorrection = cms.bool(False),
 
     # Set time slice for first digi to be stored in aux word
     # (HBHE uses time slices 4-7 for reco)
