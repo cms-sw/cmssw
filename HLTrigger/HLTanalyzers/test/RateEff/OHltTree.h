@@ -7170,6 +7170,10 @@ public:
 		double Beta , 
 		double Jet);
 
+   int OpenHltFatJetPassed(float jetPt,
+			   float DR,
+			   float DiFatJetMass);
+
 
    int readRefPrescaleFromFile(TString st);
 

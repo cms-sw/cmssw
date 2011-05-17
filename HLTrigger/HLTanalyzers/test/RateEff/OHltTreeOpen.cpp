@@ -1575,6 +1575,68 @@ bool isDoubleLooseIsoPFTauX_X_TrkX_eta2pXTrigger(
     return false;
 }
 
+bool isFatJetMass(TString triggerName, vector<double> &thresholds)
+{
+  TString pattern  = "(OpenHLT_FatJetMass([0-9]+)_DR([0-9]+)){1}$";
+  TPRegexp matchThreshold(pattern);
+
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdMass = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdDR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdJet = (((TObjString *)subStrL->At(4))->GetString()).Atof();
+      thresholds.push_back(thresholdMass);
+      thresholds.push_back(thresholdDR/10.);
+      thresholds.push_back(thresholdJet);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
+
+bool isFatJetMassBTag(TString triggerName, vector<double> &thresholds)
+{
+  TString pattern = "(OpenHLT_FatJetMass([0-9]+)_DR([0-9]+)_BTagIP){1}$";
+  TPRegexp matchThreshold(pattern);
+
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdMass = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdDR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdJet = (((TObjString *)subStrL->At(4))->GetString()).Atof();
+      thresholds.push_back(thresholdMass);
+      thresholds.push_back(thresholdDR/10.);
+      thresholds.push_back(thresholdJet);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
+bool isJetX_BTagIPTrigger(TString triggerName, vector<double> &thresholds)
+{
+  TString pattern = "(OpenHLT_Jet([0-9]+)_BTagIP+){1}$";
+  TPRegexp matchThreshold(pattern);
+
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL  = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdJet = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      thresholds.push_back(thresholdJet);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
+
+
 void OHltTree::CheckOpenHlt(
 			    OHltConfig *cfg,
 			    OHltMenu *menu,
@@ -2633,6 +2695,91 @@ void OHltTree::CheckOpenHlt(
 	}
     }
 	
+
+  /******FatJets********/
+//   FATJETS
+   else if(isFatJetMass(triggerName, thresholds))
+     {
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	 {
+	   if (prescaleResponse(menu, cfg, rcounter, it))
+	     {
+	       if(OpenHltFatJetPassed(thresholds[2], thresholds[1], thresholds[0])) 
+		 {
+		   triggerBit[it] = true;
+		 }
+	     }
+	 }
+     }
+
+/// FATJETS BTAG
+   else if(isFatJetMassBTag(triggerName, thresholds))
+     {
+       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	 {
+	   if (prescaleResponse(menu, cfg, rcounter, it))
+	     {
+	       if(OpenHltFatJetPassed(thresholds[2], thresholds[1], thresholds[0])) 
+		 {
+		   int rc = 0;
+		   int max = (NohBJetL2Corrected > 2) ? 2 : NohBJetL2Corrected;
+		   for (int i = 0; i < max; i++)
+		     {
+		       if (ohBJetL2CorrectedEt[i] > thresholds[0])
+			 { // ET cut 
+			   if (ohBJetIPL25Tag[i] > 2.5)
+			     { // Level 2.5 b tag 
+			       if (ohBJetIPL3Tag[i] > 3.5)
+				 { // Level 3 b tag 
+				   rc++;
+				 }
+			     }
+			 }
+		     }
+		   if (rc >= 1)
+		     {
+		       triggerBit[it] = true;
+		     }
+		 }
+	     }
+	 }
+     }
+
+/// SingleJet BTAG
+   else if (isJetX_BTagIPTrigger(triggerName, thresholds))
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            if (OpenHlt1CorJetPassed(thresholds[0])>=1)
+            {
+	      int rc = 0;
+	      int max = (NohBJetL2Corrected > 2) ? 2 : NohBJetL2Corrected;
+	      for (int i = 0; i < max; i++)
+		{
+                  if (ohBJetL2CorrectedEt[i] > thresholds[0])
+		    { // ET cut 
+		      if (ohBJetIPL25Tag[i] > 2.5)
+			{ // Level 2.5 b tag 
+			  if (ohBJetIPL3Tag[i] > 3.5)
+			    { // Level 3 b tag 
+			      rc++;
+			    }
+			}
+		    }
+		}
+	      if (rc >= 1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	 }
+      }
+   }
+
+
+
 	
   /****BTagIP_HTX************/
 	
@@ -15921,6 +16068,71 @@ int OHltTree::OpenHltHT_AlphaT(double HT,double betaT, double Jet){
   }
   return rc; // if no pass this returns zero
 }
+
+int OHltTree::OpenHltFatJetPassed(float jetPt, float DR, float DiFatJetMass) {
+
+  // list of good jets                                                                                                                                                        
+  vector<TLorentzVector> JETS;
+  for(int i=0; i<NrecoJetCorCal; i++) {
+    if (fabs(recoJetCorCalEta[i])>=3 || recoJetCorCalPt[i] < jetPt)  continue; // require jets with eta<3 
+
+      TLorentzVector tmp;
+      tmp.SetPtEtaPhiE(recoJetCorCalPt[i],
+		       recoJetCorCalEta[i],
+		       recoJetCorCalPhi[i],
+		       recoJetCorCalE[i]);
+      JETS.push_back(tmp);
+  }
+  if(JETS.size()<2.) return 0;
+
+  // look for highest-pT two jets                                                                                                                                             
+  int iJet1=-99;
+  int iJet2=-99;
+  int maxPt = 0.;
+  for(int i=0; i<int(JETS.size()); i++) {
+    if(JETS[i].Pt() > maxPt) {
+      maxPt = JETS[i].Pt();
+      iJet1 = i;
+    }
+  }
+  maxPt = 0.;
+  for(int i=0; i<int(JETS.size()); i++) {
+    if(JETS[i].Pt() > maxPt && i != iJet1) {
+      maxPt = JETS[i].Pt();
+      iJet2 = i;
+    }
+  }
+
+  // jet recovery
+  TLorentzVector JR1 = JETS[iJet1];
+  TLorentzVector JR2 = JETS[iJet2];
+
+  //  if(JR1.Pt()<80. || JR2.Pt()<80.) return 0;
+  // delta Eta cut
+  if(fabs(JR1.Eta()-JR2.Eta())>2.0) return 0;
+  //  recover the second jet first 
+  for(int i=0; i < int(JETS.size()); i++) {
+    if(i == iJet1 || i == iJet2) continue;
+    double dR1 = fabs(JETS[iJet1].DeltaR(JETS[i]));
+    double dR2 = fabs(JETS[iJet2].DeltaR(JETS[i]));
+    if(dR1 < dR2) { // closest to first jet  
+      if(dR1 < DR) {
+	JR1 = JR1 + JETS[i];
+      }
+    } else { // closest to second jet   
+      if(dR2 < DR) {
+	JR2 = JR2 + JETS[i];
+      }
+    }
+  }
+
+    // mass cut  
+  TLorentzVector DiJet = JR1+JR2;
+  if(DiJet.M()<DiFatJetMass) return 0;
+  return 1;
+}
+				  
+
 
 
 int OHltTree::OpenHlt1PixelTrackPassed(float minpt, float minsep, float miniso)
