@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Apr 29 13:26:29 CDT 2011
-// $Id: DQMRootOutputModule.cc,v 1.6 2011/05/16 17:26:42 chrjones Exp $
+// $Id: DQMRootOutputModule.cc,v 1.8 2011/05/16 19:18:20 chrjones Exp $
 //
 
 // system include files
@@ -86,7 +86,7 @@ namespace {
       m_tree->Branch(kFlagBranch,&m_flagBuffer);
       
       m_bufferPtr = 0;
-      m_tree->Branch(kValueBranch,&m_bufferPtr,16*1024,0);
+      m_tree->Branch(kValueBranch,&m_bufferPtr,128*1024,0);
     }
     TTree* m_tree;
     uint32_t m_flagBuffer;
