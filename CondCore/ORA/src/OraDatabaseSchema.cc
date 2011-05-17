@@ -1251,15 +1251,18 @@ bool ora::OraDatabaseSchema::exists(){
   if(!m_mainTable.exists()){
     return false;
   }
-  if(!m_sequenceTable.exists() ||
-     !m_mappingVersionTable.exists() ||
-     !m_mappingElementTable.exists() ||
-     !m_containerHeaderTable.exists() ||
-     !m_classVersionTable.exists() || 
-     !m_namingServiceTable.exists()){
-    throwException( "ORA database is corrupted..",
-                    "OraDatabaseSchema::exists");
-  }
+  if(!m_namingServiceTable.exists())
+     throwException( "ORA database is corrupted. Naming Service table is missing", "OraDatabaseSchema::exists");
+  if(!m_sequenceTable.exists()) 
+     throwException( "ORA database is corrupted. Sequence table is missing.","OraDatabaseSchema::exists");
+  if(!m_mappingVersionTable.exists())
+     throwException( "ORA database is corrupted. Mapping Version table is missing.","OraDatabaseSchema::exists");
+  if(!m_mappingElementTable.exists())
+     throwException( "ORA database is corrupted. Mapping Element table is missing.","OraDatabaseSchema::exists");
+  if(!m_containerHeaderTable.exists())
+     throwException( "ORA database is corrupted. Container Header table is missing.","OraDatabaseSchema::exists");
+  if(!m_classVersionTable.exists()) 
+     throwException( "ORA database is corrupted. Class Version table is missing.","OraDatabaseSchema::exists");
   return true;
 }
 

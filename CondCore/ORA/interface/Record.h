@@ -37,7 +37,8 @@ namespace ora {
     
     void swap(Record & lh);
 
-    size_t size() const { return m_null.size();}
+    size_t size() const; 
+    //return m_null.size();
 
     template<typename T>
     T & data(int i) {
@@ -53,20 +54,15 @@ namespace ora {
 	*reinterpret_cast<T const*>(address(i));
     }
 
-    void setNull(int i) {  m_null[i]=true;  } 
-    void setNotNull(int i) {  m_null[i]=false;  } 
-
     int index(std::string const & iname) const;
     std::type_info const * type(int i) const;
     void const * address(int i) const;
     void const * get(int i) const;
     void set(int i, void * p);
     std::string const & name(int i) const;
-    bool isNull(int i) const { return m_null[i];}
 
     boost::shared_ptr<RecordSpecImpl> specs;
     std::vector<AnyData> m_field;
-    std::vector<bool> m_null;
   };
 
 }

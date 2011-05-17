@@ -56,7 +56,6 @@ namespace ora {
     specs = ispecs.specs;
     size_t s = specs->items.size();
     m_field.resize(s);
-    m_null.resize(s,true);
     for (size_t i=0; i<s; ++i) {
       RecordSpecImpl::Item const & item = specs->items[i];
       item.handler->create(m_field[i]);
@@ -74,16 +73,18 @@ namespace ora {
       item.handler->destroy(m_field[i]);
     }
     m_field.clear();
-    m_null.clear();
   }
 
 
   void Record::swap(Record & lh) {
     specs.swap(lh.specs);
     m_field.swap(lh.m_field);
-    m_null.swap(lh.m_null);
   }
 
+
+  size_t Record::size() const { 
+    return m_field.size();
+  }
 
   int Record::index(std::string const & iname) const {
     if (m_field.empty()) return -1;
