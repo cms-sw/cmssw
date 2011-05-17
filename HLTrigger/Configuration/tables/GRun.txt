@@ -33,6 +33,7 @@ HLT_CentralJet80_MET160_v*
 HLT_DiJet60_MET45_v*
 HLT_DiCentralJet20_MET80_v*
 HLT_DiCentralJet20_BTagIP_MET65_v*
+#HLT_CentralJet46_BTagIP3D_CentralJet38_BTagIP3D_v*                 next train 
 HLT_QuadJet40_v*
 HLT_QuadJet40_IsoPFTau40_v*
 HLT_QuadJet50_BTagIP_v*
