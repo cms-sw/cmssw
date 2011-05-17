@@ -128,6 +128,9 @@ EcalRawToRecHitByproductProducer::produce(edm::Event& iEvent, const edm::EventSe
   //---------------------------   
   //write outputs to the event
   //---------------------------   
+
+  iEvent.put(productDigisEB,"ebDigis");
+  iEvent.put(productDigisEE,"eeDigis");
   iEvent.put(productDccHeaders); 
   iEvent.put(productInvalidGains,"EcalIntegrityGainErrors");
   iEvent.put(productInvalidGainsSwitch, "EcalIntegrityGainSwitchErrors");
