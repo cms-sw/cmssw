@@ -51,6 +51,7 @@ class InterestingDetIdCollectionProducer : public edm::EDProducer {
 
       int severityLevel_;
       const EcalSeverityLevelAlgo * severity_;
+      bool  keepNextToDead_;
 };
 
 #endif

@@ -19,7 +19,9 @@
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 
+// $Id$
 
 InterestingDetIdCollectionProducer::InterestingDetIdCollectionProducer(const edm::ParameterSet& iConfig) 
 {
@@ -37,7 +39,8 @@ InterestingDetIdCollectionProducer::InterestingDetIdCollectionProducer(const edm
    //register your products
   produces< DetIdCollection > (interestingDetIdCollection_) ;
 
-  severityLevel_ = iConfig.getParameter<int>("severityLevel");
+  severityLevel_  = iConfig.getParameter<int>("severityLevel");
+  keepNextToDead_ = iConfig.getParameter<bool>("keepNextToDead");
 }
 
 
@@ -124,7 +127,15 @@ InterestingDetIdCollectionProducer::produce (edm::Event& iEvent,
 	  }
 	  else if ( severityLevel_>=0 && severity_->severityLevel(*it) >=severityLevel_){
 	    indexToStore.push_back(it->id());
+	  } 
+          else if (keepNextToDead_) {
+	    // also keep channels next to dead ones
+	    if (EcalTools::isNextToDead(it->id(), iSetup)) {
+	      indexToStore.push_back(it->id());
+	    }
 	  }
+
+	
   }
 
   //unify the vector
@@ -133,7 +144,7 @@ InterestingDetIdCollectionProducer::produce (edm::Event& iEvent,
   
   std::auto_ptr< DetIdCollection > detIdCollection (new DetIdCollection(indexToStore) ) ;
 
-  //  std::cout << "Interesting DetId Collection size is " << detIdCollection->size() <<  " BCs are " << pClusters->size() << std::endl;
+ 
   iEvent.put( detIdCollection, interestingDetIdCollection_ );
 
 }
