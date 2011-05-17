@@ -7004,18 +7004,6 @@ public:
          double JetPt,
          double JetEta);
    
-   int OpenHlt1BJetPassedMuRemoval(
-         float jetEt,
-         float jetEta,
-         float drcut,
-         float discL25,
-         float discL3,
-         double ptl1,
-         double ptl2,
-         double ptl3,
-         double dr,
-         int iso);
-   
    int OpenHltQuadJetPassedPlusTauPFId(double pt, double etaJet, double ptTau);
    
    int OpenHltJRMuonPassed(
@@ -7114,6 +7102,7 @@ public:
          float jetPt);
    
    int OpenHlt1BJetPassedEleRemoval(
+	 int N,				     
          float jetEt,
          float jetEta,
          float drcut,
@@ -7140,7 +7129,8 @@ public:
          float dphibarrel,
          float dphiendcap);
 
-   int OpenHlt1CorJetPassedEleRemoval(
+   bool OpenHltNCorJetPassedEleRemoval(
+	 int N,
          float jetPt,
 	 float jetEta,
 	 float drcut,
