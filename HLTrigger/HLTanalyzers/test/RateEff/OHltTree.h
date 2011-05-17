@@ -7102,7 +7102,6 @@ public:
          float jetPt);
    
    int OpenHlt1BJetPassedEleRemoval(
-	 int N,				     
          float jetEt,
          float jetEta,
          float drcut,
