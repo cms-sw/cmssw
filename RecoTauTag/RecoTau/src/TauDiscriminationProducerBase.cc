@@ -6,18 +6,18 @@ using namespace reco;
 template<class TauType, class TauDiscriminator>
 TauDiscriminationProducerBase<TauType, TauDiscriminator>::TauDiscriminationProducerBase()
 {
-   throw cms::Exception("TauDiscriminationProducerBase") << " -- default ctor called; derived classes must call " << 
+   throw cms::Exception("TauDiscriminationProducerBase") << " -- default ctor called; derived classes must call " <<
       "TauDiscriminationProducerBase(const ParameterSet&)";
 }
 
 //--- standard constructor from PSet
 template<class TauType, class TauDiscriminator>
 TauDiscriminationProducerBase<TauType, TauDiscriminator>::TauDiscriminationProducerBase(const edm::ParameterSet& iConfig)
-{   
+{
    // tau collection to discriminate
    TauProducer_        = iConfig.getParameter<edm::InputTag>(getProducerString<TauType>());
 
-   // prediscriminant operator 
+   // prediscriminant operator
    // require the tau to pass the following prediscriminants
    const edm::ParameterSet& prediscriminantConfig = iConfig.getParameter<edm::ParameterSet>("Prediscriminants");
 
@@ -29,11 +29,11 @@ TauDiscriminationProducerBase<TauType, TauDiscriminator>::TauDiscriminationProdu
    if( pdBoolOperator == "and" )
    {
       andPrediscriminants_ = 0x1; //use chars instead of bools so we can do a bitwise trick later
-   } 
+   }
    else if ( pdBoolOperator == "or" )
    {
       andPrediscriminants_ = 0x0;
-   } 
+   }
    else
    {
       throw cms::Exception("TauDiscriminationProducerBase") << "PrediscriminantBooleanOperator defined incorrectly, options are: AND,OR";
@@ -54,7 +54,7 @@ TauDiscriminationProducerBase<TauType, TauDiscriminator>::TauDiscriminationProdu
       thisDiscriminator.cut   = cut;
       prediscriminants_.push_back(thisDiscriminator);
    }
-  
+
    prediscriminantFailValue_ = 0.;
 
    // register product
@@ -71,6 +71,8 @@ void TauDiscriminationProducerBase<TauType, TauDiscriminator>::produce(edm::Even
    edm::Handle<TauCollection> taus;
    event.getByLabel(TauProducer_, taus);
 
+   edm::ProductID tauProductID = taus.id();
+
    // output product
    std::auto_ptr<TauDiscriminator> output(new TauDiscriminator(TauRefProd(taus)));
 
@@ -81,6 +83,19 @@ void TauDiscriminationProducerBase<TauType, TauDiscriminator>::produce(edm::Even
    for( size_t iDisc = 0; iDisc < nPrediscriminants; ++iDisc )
    {
       prediscriminants_[iDisc].fill(event);
+
+      // Check to make sure the product is correct for the discriminator.
+      // If not, throw a more informative exception.
+      edm::ProductID discKeyId =
+        prediscriminants_[iDisc].handle->keyProduct().id();
+      if (tauProductID != discKeyId) {
+        throw cms::Exception("MisconfiguredPrediscriminant")
+          << "The tau collection with input tag " << TauProducer_
+          << " has product ID: " << tauProductID
+          << " but the pre-discriminator with input tag "
+          << prediscriminants_[iDisc].label
+          << " is keyed with product ID: " << discKeyId << std::endl;
+      }
    }
 
    // loop over taus
@@ -98,8 +113,8 @@ void TauDiscriminationProducerBase<TauType, TauDiscriminator>::produce(edm::Even
          uint8_t thisPasses = ( discResult > prediscriminants_[iDisc].cut ) ? 1 : 0;
 
 
-         // if we are using the AND option, as soon as one fails, 
-         // the result is FAIL and we can quit looping.  
+         // if we are using the AND option, as soon as one fails,
+         // the result is FAIL and we can quit looping.
          // if we are using the OR option as soon as one passes,
          // the result is pass and we can quit looping
 
@@ -108,11 +123,11 @@ void TauDiscriminationProducerBase<TauType, TauDiscriminator>::produce(edm::Even
          //        |     F     |     T
          //-----------------------------------
          // AND(T) | res=fails |  continue
-         //        |  break    |    
+         //        |  break    |
          //-----------------------------------
          // OR (F) |  continue | res=passes
-         //        |           |  break 
-         
+         //        |           |  break
+
          if( thisPasses ^ andPrediscriminants_ ) //XOR
          {
             passesPrediscriminants = ( andPrediscriminants_ ? 0 : 1 ); //NOR
