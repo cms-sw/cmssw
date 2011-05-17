@@ -74,25 +74,29 @@ print schema
 sys.stdout.flush()
 
 # Loop over the XML files listed in the cfi file and find them
-for name in xmlFiles:
-    fullpath = '%s/src/%s' % (os.environ['LOCAL_TOP_DIR'], name)
-    if os.path.isfile(fullpath):
-        callDOMCount(schema, fullpath)
-    else:
-        # It is an error if the file is not there but the package is
-        packageDirectory =  os.environ['LOCAL_TOP_DIR'] + '/src/' + re.split('/', name)[0] + '/' + re.split('/', name)[1]
-        if os.path.isdir(packageDirectory):
-            print 'Error, xml file not found:'
-            print fullpath
-            print 'Package is there but the xml file is not'
-            sys.stdout.flush()
-            continue
+# NOTE: Now that the files are in an external package, they will
+# not be in a 'LOCAL_TOP_DIR'. Checking them for each IB may not
+# be needed.
+#
+## for name in xmlFiles:
+##     fullpath = '%s/src/%s' % (os.environ['LOCAL_TOP_DIR'], name)
+##     if os.path.isfile(fullpath):
+##         callDOMCount(schema, fullpath)
+##     else:
+##         # It is an error if the file is not there but the package is
+##         packageDirectory =  os.environ['LOCAL_TOP_DIR'] + '/src/' + re.split('/', name)[0] + '/' + re.split('/', name)[1]
+##         if os.path.isdir(packageDirectory):
+##             print 'Error, xml file not found:'
+##             print fullpath
+##             print 'Package is there but the xml file is not'
+##             sys.stdout.flush()
+##             continue
 
-        # if there is a base release then try to find the file there
-        fullpath = '%s/src/%s' % (os.getenv('CMSSW_RELEASE_BASE'), name)
-        if os.path.isfile(fullpath):
-             callDOMCount(schema, fullpath)
-        else:
-            print 'Error, xml file not found'
-            print name
-            sys.stdout.flush()
+##         # if there is a base release then try to find the file there
+##         fullpath = '%s/src/%s' % (os.getenv('CMSSW_RELEASE_BASE'), name)
+##         if os.path.isfile(fullpath):
+##              callDOMCount(schema, fullpath)
+##         else:
+##             print 'Error, xml file not found'
+##             print name
+##             sys.stdout.flush()
