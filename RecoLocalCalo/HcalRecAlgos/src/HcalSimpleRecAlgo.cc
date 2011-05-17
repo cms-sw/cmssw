@@ -11,7 +11,7 @@ static double MaximumFractionalError = 0.0005; // 0.05% error allowed from this 
 HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForPulse, float phaseNS) : 
   correctForTimeslew_(correctForTimeslew),
   correctForPulse_(correctForPulse),
-  phaseNS_(phaseNS), setForData_(false) { }
+  phaseNS_(phaseNS), setForData_(false), setLeakCorrection_(false) { }
   
 
 HcalSimpleRecAlgo::HcalSimpleRecAlgo() : 
@@ -24,6 +24,8 @@ void HcalSimpleRecAlgo::initPulseCorr(int toadd) {
 }
 
 void HcalSimpleRecAlgo::setForData () { setForData_ = true;}
+
+void HcalSimpleRecAlgo::setLeakCorrection () { setLeakCorrection_ = true;}
 
 ///Timeshift correction for HPDs based on the position of the peak ADC measurement.
 ///  Allows for an accurate determination of the relative phase of the pulse shape from
@@ -38,11 +40,14 @@ static float timeshift_ns_hf(float wpksamp);
 /// Ugly hack to apply energy corrections to some HB- cells
 static float eCorr(int ieta, int iphi, double ampl);
 
+/// Leak correction 
+static float leakCorr(double energy);
+
 namespace HcalSimpleRecAlgoImpl {
   template<class Digi, class RecHit>
   inline RecHit reco(const Digi& digi, const HcalCoder& coder, const HcalCalibrations& calibs, 
 		     int ifirst, int n, bool slewCorrect, const HcalPulseContainmentCorrection* corr,
-		     HcalTimeSlew::BiasSetting slewFlavor, bool forData) {
+		     HcalTimeSlew::BiasSetting slewFlavor, bool forData, bool useLeak) {
     CaloSamples tool;
     coder.adc2fC(digi,tool);
 
@@ -94,14 +99,20 @@ namespace HcalSimpleRecAlgoImpl {
       time=time-calibs.timecorr(); // time calibration
     }
 
-    // Temoprary Ugly Hack to apply energy-dependent corrections on some
-    // HB- cells
+
+    // Temoprary hack to apply energy-dependent corrections to some HB- cells
     if(forData) {
       HcalDetId cell(digi.id());
       int ieta  = cell.ieta();
       int iphi  = cell.iphi();
       ampl *= eCorr(ieta,iphi,ampl);
     }
+
+    // Correction for a leak to pre-sample
+    if(useLeak) {
+      ampl *= leakCorr(ampl); 
+    }
+
 
     return RecHit(digi.id(),ampl,time);    
   }
@@ -112,7 +123,7 @@ HBHERecHit HcalSimpleRecAlgo::reconstruct(const HBHEDataFrame& digi, int first, 
 							       first,toadd,correctForTimeslew_,
 							       pulseCorr_.get(),
 							       HcalTimeSlew::Medium,
-                                                               setForData_);
+                                                               setForData_, setLeakCorrection_);
 }
 
 HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
@@ -121,7 +132,7 @@ HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, int first, int 
 							   correctForTimeslew_,
 							   pulseCorr_.get(),
 							   HcalTimeSlew::Slow,
-                                                           setForData_);
+                                                           setForData_, false);
 }
 
 HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
@@ -129,7 +140,7 @@ HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, i
 									 first,toadd,correctForTimeslew_,
 									 pulseCorr_.get(),
 									 HcalTimeSlew::Fast,
-                                                                         setForData_ );
+                                                                         setForData_, false );
 }
 
 HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
@@ -235,6 +246,13 @@ float eCorr(int ieta, int iphi, double energy) {
   //  std::cout << "HBHE cell:  ieta, iphi = " << ieta << "  " << iphi 
   //	    << "  ->  energy = " << en << "   corr = " << corr << std::endl;
 
+  return corr;
+}
+
+
+// Actual leakage (to pre-sample) correction 
+float leakCorr(double energy) {
+  double corr = 1.0;
   return corr;
 }
 

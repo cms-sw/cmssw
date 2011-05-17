@@ -25,8 +25,8 @@
    has the option of correcting the reconstructed time for energy-dependent
    time slew associated with the QIE.
     
-   $Date: 2011/03/07 19:25:31 $
-   $Revision: 1.12 $
+   $Date: 2011/03/08 09:03:57 $
+   $Revision: 1.13 $
    \author J. Mans - Minnesota
 */
 class HcalSimpleRecAlgo {
@@ -41,6 +41,8 @@ public:
 
   // ugly hack related to HB- e-dependent corrections
   void setForData();
+  // usage of leak correction 
+  void setLeakCorrection();
 
   HBHERecHit reconstruct(const HBHEDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
   HFRecHit reconstruct(const HFDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
@@ -52,6 +54,7 @@ private:
   float phaseNS_;
   std::auto_ptr<HcalPulseContainmentCorrection> pulseCorr_;
   bool setForData_;
+  bool setLeakCorrection_;
 };
 
 #endif
