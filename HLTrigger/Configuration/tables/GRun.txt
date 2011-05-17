@@ -33,7 +33,7 @@ HLT_CentralJet80_MET160_v*
 HLT_DiJet60_MET45_v*
 HLT_DiCentralJet20_MET80_v*
 HLT_DiCentralJet20_BTagIP_MET65_v*
-#HLT_CentralJet46_BTagIP3D_CentralJet38_BTagIP3D_v*                 next train 
+HLT_CentralJet46_BTagIP3D_CentralJet38_BTagIP3D_v*
 HLT_QuadJet40_v*
 HLT_QuadJet40_IsoPFTau40_v*
 HLT_QuadJet50_BTagIP_v*
@@ -57,7 +57,7 @@ HLT_HT250_AlphaT0p54_v*
 HLT_HT250_DoubleDisplacedJet60_v*
 HLT_HT250_MHT60_v*
 HLT_HT250_MHT70_v*
-# HLT_HT250_MHT80_v*                            activate for May5th train
+HLT_HT250_MHT80_v*
 HLT_HT300_v*
 HLT_HT300_MHT75_v*
 HLT_HT300_PFMHT55_v*
@@ -78,9 +78,9 @@ HLT_PFMHT150_v*
 HLT_MET100_v*
 HLT_MET120_v*
 HLT_MET200_v*
-# HLT_MET100_HBHENoiseFiltered_v*               activate for May5th train
-# HLT_MET120_HBHENoiseFiltered_v*               activate for May5th train
-# HLT_MET200_HBHENoiseFiltered_v*               activate for May5th train
+HLT_MET100_HBHENoiseFiltered_v*
+HLT_MET120_HBHENoiseFiltered_v*
+HLT_MET200_HBHENoiseFiltered_v*
 HLT_R014_MR150_v*
 HLT_R014_MR150_CentralJet40_BTagIP_v*
 HLT_R014_MR450_CentralJet40_BTagIP_v*
@@ -123,6 +123,7 @@ HLT_DoubleMu3_v*
 HLT_DoubleMu6_v*
 HLT_DoubleMu7_v*
 HLT_DoubleMu4_Acoplanarity03_v*
+HLT_DoubleMu5_Acoplanarity03_v*
 HLT_DoubleMu2_Bs_v*
 HLT_Dimuon0_Jpsi_v*
 HLT_Dimuon0_Upsilon_v*
@@ -196,8 +197,11 @@ HLT_Ele52_CaloIdVT_TrkIdT_v*
 HLT_DoubleEle8_CaloIdL_TrkIdVL_v*
 HLT_DoubleEle33_v*
 HLT_DoubleEle33_CaloIdL_v*
-HLT_IsoPFTau35_Trk20_MET45_v*
-HLT_DoubleIsoPFTau25_Trk5_eta2p1_v*
+HLT_IsoPFTau35_Trk20_v*
+HLT_IsoPFTau35_Trk20_MET60_v*
+HLT_IsoPFTau45_Trk20_MET60_v*
+HLT_DoubleIsoPFTau35_Trk5_eta2p1_v*
+HLT_DoubleIsoPFTau40_Trk5_eta2p1_v*
 HLT_HT250_DoubleIsoPFTau10_Trk3_PFMHT35_v*
 HLT_HT300_DoubleIsoPFTau10_Trk3_PFMHT40_v*
 HLT_HT350_DoubleIsoPFTau10_Trk3_PFMHT45_v*
@@ -233,6 +237,8 @@ HLT_Mu17_CentralJet30_BTagIP_v*
 HLT_Mu15_HT200_v*
 HLT_Mu20_HT200_v*
 HLT_IsoMu15_LooseIsoPFTau15_v*
+HLT_IsoMu15_LooseIsoPFTau20_v*
+HLT_IsoMu15_TightIsoPFTau20_v*
 HLT_IsoMu17_CentralJet30_BTagIP_v*
 HLT_DoubleMu3_HT150_v*
 HLT_DoubleMu3_HT200_v*
@@ -258,9 +264,8 @@ HLT_Ele10_CaloIdL_TrkIdVL_CaloIsoVL_TrkIsoVL_R005_MR200_v*
 HLT_Ele10_CaloIdL_TrkIdVL_CaloIsoVL_TrkIsoVL_R020_MR200_v*
 HLT_Ele10_CaloIdL_TrkIdVL_CaloIsoVL_TrkIsoVL_R025_MR200_v*
 HLT_Ele10_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_R020_MR200_v*
-HLT_Ele15_CaloIdVT_TrkIdT_LooseIsoPFTau15_v*
-HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau15_v*
-HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v*
+HLT_Ele15_CaloIdVT_TrkIdT_LooseIsoPFTau20_v*
+HLT_Ele18_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v*
 HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3_v*
 HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta2_v*
 HLT_Ele15_CaloIdVT_TrkIdT_Jet35_Jet25_Deta2_v*
