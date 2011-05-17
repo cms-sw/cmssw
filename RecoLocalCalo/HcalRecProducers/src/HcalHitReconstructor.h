@@ -29,8 +29,8 @@
 
     /** \class HcalHitReconstructor
 	
-    $Date: 2011/02/25 10:29:33 $
-    $Revision: 1.13 $
+    $Date: 2011/05/10 09:08:22 $
+    $Revision: 1.15 $
     \author J. Temple & E. Yazgan
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
@@ -70,10 +70,12 @@
       int firstAuxTS_;
  
       // legacy parameters for config-set values compatibility 
-      // to be removed after 4_2_0...
       int firstSample_;
       int samplesToAdd_;
       bool tsFromDB_;
+
+      // switch on/off leakage (to pre-sample) correction
+      bool useLeakCorrection_;
       
       HcalRecoParams* paramTS;  // firstSample & sampleToAdd from DB  
     };

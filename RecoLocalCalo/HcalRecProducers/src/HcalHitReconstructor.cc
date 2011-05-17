@@ -33,7 +33,8 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   firstAuxTS_(conf.getParameter<int>("firstAuxTS")),
   firstSample_(conf.getParameter<int>("firstSample")),
   samplesToAdd_(conf.getParameter<int>("samplesToAdd")),
-  tsFromDB_(conf.getParameter<bool>("tsFromDB"))
+  tsFromDB_(conf.getParameter<bool>("tsFromDB")),
+  useLeakCorrection_( conf.getParameter<bool>("useLeakCorrection")) 
 {
 
   std::string subd=conf.getParameter<std::string>("Subdetector");
@@ -224,8 +225,9 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
   eventSetup.get<HcalDbRecord>().get(conditions);
   const HcalQIEShape* shape = conditions->getHcalShape (); // this one is generic
   // HACK related to HB- corrections
-  if(e.isRealData()) reco_.setForData();
-    
+  if(e.isRealData()) reco_.setForData();    
+  if(useLeakCorrection_) reco_.setLeakCorrection();
+
   edm::ESHandle<HcalChannelQuality> p;
   eventSetup.get<HcalChannelQualityRcd>().get(p);
   HcalChannelQuality* myqual = new HcalChannelQuality(*p.product());
