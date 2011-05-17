@@ -1577,7 +1577,7 @@ bool isDoubleLooseIsoPFTauX_X_TrkX_eta2pXTrigger(
 
 bool isFatJetMass(TString triggerName, vector<double> &thresholds)
 {
-  TString pattern  = "(OpenHLT_FatJetMass([0-9]+)_DR([0-9]+)){1}$";
+  TString pattern  = "(OpenHLT_FatJetMass([0-9]+)_DR1p([0-9]+)){1}$";
   TPRegexp matchThreshold(pattern);
 
   if (matchThreshold.MatchB(triggerName))
@@ -1585,10 +1585,10 @@ bool isFatJetMass(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdMass = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       double thresholdDR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
-      double thresholdJet = (((TObjString *)subStrL->At(4))->GetString()).Atof();
+      // double thresholdJet = (((TObjString *)subStrL->At(4))->GetString()).Atof();
       thresholds.push_back(thresholdMass);
-      thresholds.push_back(thresholdDR/10.);
-      thresholds.push_back(thresholdJet);
+      thresholds.push_back(1. + thresholdDR/10.);
+      //thresholds.push_back(thresholdJet);
       delete subStrL;
       return true;
     }
@@ -1599,7 +1599,7 @@ bool isFatJetMass(TString triggerName, vector<double> &thresholds)
 
 bool isFatJetMassBTag(TString triggerName, vector<double> &thresholds)
 {
-  TString pattern = "(OpenHLT_FatJetMass([0-9]+)_DR([0-9]+)_BTagIP){1}$";
+  TString pattern = "(OpenHLT_FatJetMass([0-9]+)_DR1p([0-9]+)_BTagIP){1}$";
   TPRegexp matchThreshold(pattern);
 
   if (matchThreshold.MatchB(triggerName))
@@ -1607,10 +1607,10 @@ bool isFatJetMassBTag(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdMass = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       double thresholdDR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
-      double thresholdJet = (((TObjString *)subStrL->At(4))->GetString()).Atof();
+      //double thresholdJet = (((TObjString *)subStrL->At(4))->GetString()).Atof();
       thresholds.push_back(thresholdMass);
-      thresholds.push_back(thresholdDR/10.);
-      thresholds.push_back(thresholdJet);
+      thresholds.push_back(1. + thresholdDR/10.);
+      //  thresholds.push_back(thresholdJet);
       delete subStrL;
       return true;
     }
@@ -1620,7 +1620,7 @@ bool isFatJetMassBTag(TString triggerName, vector<double> &thresholds)
 
 bool isJetX_BTagIPTrigger(TString triggerName, vector<double> &thresholds)
 {
-  TString pattern = "(OpenHLT_Jet([0-9]+)_BTagIP+){1}$";
+  TString pattern = "(OpenHLT_Jet([0-9]+)_BTagIP){1}$";
   TPRegexp matchThreshold(pattern);
 
   if (matchThreshold.MatchB(triggerName))
@@ -2704,7 +2704,7 @@ void OHltTree::CheckOpenHlt(
 	 {
 	   if (prescaleResponse(menu, cfg, rcounter, it))
 	     {
-	       if(OpenHltFatJetPassed(thresholds[2], thresholds[1], thresholds[0])) 
+	       if(OpenHltFatJetPassed(30., thresholds[1], thresholds[0])) 
 		 {
 		   triggerBit[it] = true;
 		 }
@@ -2719,7 +2719,7 @@ void OHltTree::CheckOpenHlt(
 	 {
 	   if (prescaleResponse(menu, cfg, rcounter, it))
 	     {
-	       if(OpenHltFatJetPassed(thresholds[2], thresholds[1], thresholds[0])) 
+	       if(OpenHltFatJetPassed(30., thresholds[1], thresholds[0])) 
 		 {
 		   int rc = 0;
 		   int max = (NohBJetL2Corrected > 2) ? 2 : NohBJetL2Corrected;
