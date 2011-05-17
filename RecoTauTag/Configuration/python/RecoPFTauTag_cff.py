@@ -127,12 +127,14 @@ if recoTauConfTools.cmssw_version() < (4, 2, 0):
     print "INFO: Adding DA vertex production to the PFTau sequence"
     recoTauCommonSequence += offlinePrimaryVerticesDA
 
-recoTauCommonSequence += cms.Sequence(
+recoTauCommonMainSequence = cms.Sequence(
     ak5PFJetTracksAssociatorAtVertex *
     recoTauAK5PFJets08Region*
     recoTauPileUpVertices*
     pfRecoTauTagInfoProducer
 )
+
+recoTauCommonSequence += recoTauCommonMainSequence
 
 # Not run in RECO, but included for the benefit of PAT
 recoTauClassicFixedConeSequence = cms.Sequence(
