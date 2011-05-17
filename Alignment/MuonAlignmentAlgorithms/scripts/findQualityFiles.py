@@ -424,6 +424,13 @@ print uniq_list_of_runs
 infotofile.append("### list of runs with good B field and quality in the dataset: ###\n")
 infotofile.append("### %s\n" % str(uniq_list_of_runs))
 
+
+# prevent against duplication due to the fact now a file can have events from several runs
+files_events = zip(list_of_files, list_of_numevents)
+unique_files_events = list(set(files_events))
+list_of_files, list_of_numevents = map(list, zip(*unique_files_events))
+total_numevents = sum( map(int, list_of_numevents) )
+
 print "### total number of events in those "+str(len(uniq_list_of_runs))+" runs = "+str(total_numevents)
 
 infotofile.append("### total number of events in those "+str(len(uniq_list_of_runs))+" runs = "+str(total_numevents))
@@ -444,6 +451,8 @@ comma = ","
 for i in range(0,size):
     if i==size-1:
         comma=""
-    ff.write("    '"+ list_of_files[i] +"'"+comma+" # "+ str(list_of_runs[i]) + "," + list_of_numevents[i] + "\n")
+    #ff.write("    '"+ list_of_files[i] +"'"+comma+" # "+ str(list_of_runs[i]) + "," + list_of_numevents[i] + "\n")
+    ff.write("    '"+ list_of_files[i] +"'"+comma+" # "+ list_of_numevents[i] + "\n")
 ff.write(']\n')
 ff.close()
+

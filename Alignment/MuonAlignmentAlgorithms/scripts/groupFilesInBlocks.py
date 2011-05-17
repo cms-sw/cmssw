@@ -82,7 +82,8 @@ def makeJobBlock(mylist, evtn):
 
 
 comment1RE = re.compile (r'^#.+$')
-fileLineRE = re.compile (r'^.*\'(.*)\'.+# (\d*),(\d*).*$')
+fileLineRE = re.compile (r'^.*\'(.*)\'.+# (\d*).*$')
+#fileLineRE = re.compile (r'^.*\'(.*)\'.+# (\d*),(\d*).*$')
 
 if not os.access(INFILE, os.F_OK): 
   print "Cannot find input file ", INFILE
@@ -108,13 +109,22 @@ for line in lines:
   match = fileLineRE.match(line)
   if match:
     #print int(match.group(3)), str(match.group(1))
-    eventsFiles.append((int(match.group(3)), str(match.group(1)), str(match.group(2))))
-    ntotal += int(match.group(3))
+    #eventsFiles.append((int(match.group(3)), str(match.group(1)), str(match.group(2))))
+    eventsFiles.append((int(match.group(2)), str(match.group(1))))
+    ntotal += int(match.group(2))
   #else: print line,
 
 if len(eventsFiles)==0:
   print "no file description strings found"
   sys.exit()
+
+#print "len=", len(eventsFiles), ntotal
+#tmp = set(eventsFiles)
+#eventsFiles = list(tmp)
+#ntotal = 0
+#for ff in eventsFiles:  ntotal += ff[0]
+#print "len=", len(eventsFiles), ntotal
+#sys.exit()
 
 eventsFiles.sort(reverse=True)
 #print eventsFiles
@@ -164,7 +174,8 @@ for b in range(len(jobsBlocks)):
   for i in range(len(jobsBlocks[b][0])):
     if i==len(jobsBlocks[b][0])-1:
         comma=""
-    fout.write("    '"+ jobsBlocks[b][0][i][1] +"'"+comma+" # "+ str(jobsBlocks[b][0][i][2]) +','+ str(jobsBlocks[b][0][i][0]) + "\n")
+    #fout.write("    '"+ jobsBlocks[b][0][i][1] +"'"+comma+" # "+ str(jobsBlocks[b][0][i][2]) +','+ str(jobsBlocks[b][0][i][0]) + "\n")
+    fout.write("    '"+ jobsBlocks[b][0][i][1] +"'"+comma+" # "+ str(jobsBlocks[b][0][i][0]) + "\n")
   if b==len(jobsBlocks)-1:
     commax=""
   fout.write('  ]'+commax+'\n')
