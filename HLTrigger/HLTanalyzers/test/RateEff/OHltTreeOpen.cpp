@@ -2048,8 +2048,8 @@ void OHltTree::CheckOpenHlt(
 		}
 				
 	      // Now put them together
-	      if ((rcDijetCand > 0) && (rcHFplusEnergy < 50) && (rcHFminusEnergy
-								 < 50))
+	      if ((rcDijetCand > 0) && (rcHFplusEnergy < 200) && (rcHFminusEnergy
+								 < 200))
 		triggerBit[it] = true;
 	    }
 	}
