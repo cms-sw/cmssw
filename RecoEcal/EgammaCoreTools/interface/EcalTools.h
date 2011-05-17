@@ -3,7 +3,7 @@
    Declaration of class EcalTools
 
    \author Stefano Argiro
-   \version $Id: EcalTools.h,v 1.1 2011/01/12 14:46:08 argiro Exp $
+   \version $Id: EcalTools.h,v 1.2 2011/04/20 13:30:11 argiro Exp $
    \date 11 Jan 2011
 */
 
@@ -24,15 +24,29 @@ public:
 			   float recHitThreshold , 
 			   bool avoidIeta85=true);
 
-  /// true if the channel is near a dead one
+  /// true if the channel is near a dead one (in the 3x3)
+  /** This function will use the ChannelStatus record to determine
+      if the channel is next to a dead one, using bit 12 of the
+      channel status word
+   */
   static bool isNextToDead( const DetId& id, const edm::EventSetup& es);
 
+  /// same as isNextToDead, but will use information from the neighbour
+  /** Looks at neighbours in 3x3 and returns true if one of them has
+      chStatus above chStatusThreshold.
+      Use sparingly, might slow you down
+        
+   */
+  static bool isNextToDeadFromNeighbours( const DetId& id, 
+					  const edm::EventSetup& es,
+					  int chStatusThreshold); 
 
   /// true if near a crack or ecal border
   static bool isNextToBoundary (const DetId& id);
 
   /// return true if the channel at offsets dx,dy is dead 
   static bool deadNeighbour(const DetId& id, const edm::EventSetup& es, 
+			    int chStatusThreshold, 
 			    int dx, int dy); 
 
 private:
