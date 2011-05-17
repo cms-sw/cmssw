@@ -31,7 +31,10 @@ class inputFilesetParser(object):
                         self.__inputResult.append(row)
                     irow=irow+1
                 ifile.close()
-                
+    def resultheader(self):
+        return self.__inputResultHeader
+    def resultlines(self):
+        return self.__inputResult
     def runsWithresult(self):
         '''
         output: [run,run,...]
@@ -189,6 +192,8 @@ if __name__ == '__main__':
     print 'runs already have results ', alreadyprocessedRuns
     print 'total delivered ',p.fieldtotal('Delivered(/ub)','float')
     print 'total recorded ',p.fieldtotal('Recorded(/ub)','float')
+    print 'result header ',p.resultheader()
+    print 'result lines ',p.resultlines()
     #newrunsandls={}
     #for run,cmslslist in p.runsandls().items():
     #    if run in alreadyprocessedRuns:
