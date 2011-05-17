@@ -247,7 +247,8 @@ namespace edm {
     TypeID tid = TypeID(typeid(PROD));
     ep.maybeFlushCache(tid, tag);
     BasicHandle bh = ep.getByLabel(tid, tag.label(), tag.instance(), tag.process(), tag.cachedOffset(), tag.fillCount());
-    if(!(bh.interface()->dynamicTypeInfo() == typeid(PROD))) {
+    if(bh.interface() && 
+       (!(bh.interface()->dynamicTypeInfo() == typeid(PROD)))) {
       handleimpl::throwConvertTypeError(typeid(PROD), bh.interface()->dynamicTypeInfo());
     }
     return boost::static_pointer_cast<Wrapper<PROD> const>(bh.product());
