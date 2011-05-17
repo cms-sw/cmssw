@@ -15,8 +15,8 @@
 
 /** \class CaloTowersCreator
   *  
-  * $Date: 2010/11/24 19:52:16 $
-  * $Revision: 1.7 $
+  * $Date: 2011/03/18 19:12:05 $
+  * $Revision: 1.8 $
   * Original author: J. Mans - Minnesota
   */
 
@@ -45,7 +45,7 @@ private:
   // more compact flags: all HCAL are combined
   
   unsigned int theHcalAcceptSeverityLevel_;
-  unsigned int theEcalAcceptSeverityLevel_;
+  std::vector<int> theEcalSeveritiesToBeExcluded_;
   
   // flag to use recovered hits
   bool theRecoveredHcalHitsAreUsed_;
@@ -56,7 +56,16 @@ private:
 
   bool useRejectedHitsOnly_;
   unsigned int theHcalAcceptSeverityLevelForRejectedHit_;
-  unsigned int theEcalAcceptSeverityLevelForRejectedHit_;
+  //  for ECAL we have a list of problem flags
+   std::vector<int> theEcalSeveritiesToBeUsedInBadTowers_; 
+
+
+
+  // Flags wheteher to use recovered hits for production of
+  // "bad towers". 
+  // If the recoverd hits were already used for good towers,
+  // these flags have no effect. 
+  // Note: These flags have no effect on the default tower reconstruction.
   bool useRejectedRecoveredHcalHits_;
   bool useRejectedRecoveredEcalHits_;
 

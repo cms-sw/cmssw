@@ -6,6 +6,7 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 // severity level for ECAL
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+#include "CommonTools/Utils/interface/StringToEnumValue.h"
 
 const std::vector<double>& 
 CaloTowersCreator::getGridValues()
@@ -92,7 +93,6 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
   allowMissingInputs_(conf.getParameter<bool>("AllowMissingInputs")),
 
   theHcalAcceptSeverityLevel_(conf.getParameter<unsigned int>("HcalAcceptSeverityLevel")),
-  theEcalAcceptSeverityLevel_(conf.getParameter<unsigned int>("EcalAcceptSeverityLevel")),
 
   theRecoveredHcalHitsAreUsed_(conf.getParameter<bool>("UseHcalRecoveredHits")),
   theRecoveredEcalHitsAreUsed_(conf.getParameter<bool>("UseEcalRecoveredHits")),
@@ -102,7 +102,8 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
   useRejectedHitsOnly_(conf.getParameter<bool>("UseRejectedHitsOnly")),
 
   theHcalAcceptSeverityLevelForRejectedHit_(conf.getParameter<unsigned int>("HcalAcceptSeverityLevelForRejectedHit")),
-  theEcalAcceptSeverityLevelForRejectedHit_(conf.getParameter<unsigned int>("EcalAcceptSeverityLevelForRejectedHit")),
+
+
   useRejectedRecoveredHcalHits_(conf.getParameter<bool>("UseRejectedRecoveredHcalHits")),
   useRejectedRecoveredEcalHits_(conf.getParameter<bool>("UseRejectedRecoveredEcalHits"))
 
@@ -117,6 +118,17 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
   HOEScale=EScales.HOScale; 
   HF1EScale=EScales.HF1Scale; 
   HF2EScale=EScales.HF2Scale; 
+
+  // get the Ecal severities to be excluded
+  const std::vector<std::string> severitynames = 
+    conf.getParameter<std::vector<std::string> >("EcalRecHitSeveritiesToBeExcluded");
+
+   theEcalSeveritiesToBeExcluded_ =  StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynames);
+
+  // get the Ecal severities to be used for bad towers
+   theEcalSeveritiesToBeUsedInBadTowers_ =  
+     StringToEnumValue<EcalSeverityLevel::SeverityLevel>(conf.getParameter<std::vector<std::string> >("EcalSeveritiesToBeUsedInBadTowers") );
+
   if (EScales.instanceLabel=="") produces<CaloTowerCollection>();
   else produces<CaloTowerCollection>(EScales.instanceLabel);
 }
@@ -166,7 +178,7 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   algo_.setEcalChStatusFromDB(dbEcalChStatus);
    
   algo_.setHcalAcceptSeverityLevel(theHcalAcceptSeverityLevel_);
-  algo_.setEcalAcceptSeverityLevel(theEcalAcceptSeverityLevel_);
+  algo_.setEcalSeveritiesToBeExcluded(theEcalSeveritiesToBeExcluded_);
 
   algo_.setRecoveredHcalHitsAreUsed(theRecoveredHcalHitsAreUsed_);
   algo_.setRecoveredEcalHitsAreUsed(theRecoveredEcalHitsAreUsed_);
@@ -178,7 +190,7 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   algo_.setUseRejectedHitsOnly(useRejectedHitsOnly_);
 
   algo_.setHcalAcceptSeverityLevelForRejectedHit(theHcalAcceptSeverityLevelForRejectedHit_);
-  algo_.setEcalAcceptSeverityLevelForRejectedHit(theEcalAcceptSeverityLevelForRejectedHit_);
+  algo_.SetEcalSeveritiesToBeUsedInBadTowers (theEcalSeveritiesToBeUsedInBadTowers_);
 
   algo_.setUseRejectedRecoveredHcalHits(useRejectedRecoveredHcalHits_);
   algo_.setUseRejectedRecoveredEcalHits(useRejectedRecoveredEcalHits_);

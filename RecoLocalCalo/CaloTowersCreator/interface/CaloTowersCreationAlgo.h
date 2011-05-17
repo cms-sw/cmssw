@@ -35,8 +35,8 @@ class DetId;
 
 /** \class CaloTowersCreationAlgo
   *  
-  * $Date: 2010/11/24 19:52:15 $
-  * $Revision: 1.19 $
+  * $Date: 2011/03/18 19:10:07 $
+  * $Revision: 1.20 $
   * \author R. Wilkinson - Caltech
   */
 
@@ -149,7 +149,7 @@ public:
   // 
   // from DB
   void setHcalAcceptSeverityLevel(unsigned int level) {theHcalAcceptSeverityLevel = level;} 
-  void setEcalAcceptSeverityLevel(unsigned int level) {theEcalAcceptSeverityLevel = level;} 
+  void setEcalSeveritiesToBeExcluded(const std::vector<int>& ecalSev ) {theEcalSeveritiesToBeExcluded= ecalSev;} 
 
   // flag to use recovered hits
   void setRecoveredHcalHitsAreUsed(bool flag) {theRecoveredHcalHitsAreUsed = flag; };
@@ -163,13 +163,15 @@ public:
 
 
   // The following are needed for creating towers from rechits excluded from the  ------------------------------------
-  // derault reconstructions
+  // default reconstructions
 
- // NB! Controls if rejected jits shold be used instead of the default!!!
+ // NB! Controls if rejected hits shold be used instead of the default!!!
   void setUseRejectedHitsOnly(bool flag) { useRejectedHitsOnly = flag; } 
 
   void setHcalAcceptSeverityLevelForRejectedHit(unsigned int level) {theHcalAcceptSeverityLevelForRejectedHit = level;} 
-  void setEcalAcceptSeverityLevelForRejectedHit(unsigned int level) {theEcalAcceptSeverityLevelForRejectedHit = level;} 
+  //  void setEcalAcceptSeverityLevelForRejectedHit(unsigned int level) {theEcalAcceptSeverityLevelForRejectedHit = level;} 
+  void SetEcalSeveritiesToBeUsedInBadTowers(const std::vector<int>& ecalSev ) {theEcalSeveritiesToBeUsedInBadTowers= ecalSev;} 
+
 
   void setUseRejectedRecoveredHcalHits(bool flag) {useRejectedRecoveredHcalHits = flag; };
   void setUseRejectedRecoveredEcalHits(bool flag) {useRejectedRecoveredEcalHits = flag; };
@@ -281,7 +283,7 @@ private:
   // controll what is considered bad/recovered/problematic channel for CaloTower purposes 
   //
   unsigned int theHcalAcceptSeverityLevel;
-  unsigned int theEcalAcceptSeverityLevel;
+  std::vector<int> theEcalSeveritiesToBeExcluded;
   // flag to use recovered hits
   bool theRecoveredHcalHitsAreUsed;
   bool theRecoveredEcalHitsAreUsed;
@@ -290,7 +292,9 @@ private:
 
   bool useRejectedHitsOnly;
   unsigned int theHcalAcceptSeverityLevelForRejectedHit;
-  unsigned int theEcalAcceptSeverityLevelForRejectedHit;
+  std::vector<int> theEcalSeveritiesToBeUsedInBadTowers;
+
+
   unsigned int useRejectedRecoveredHcalHits;
   unsigned int useRejectedRecoveredEcalHits;
 

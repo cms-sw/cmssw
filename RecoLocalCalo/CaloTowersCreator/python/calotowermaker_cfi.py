@@ -99,8 +99,9 @@ calotowermaker = cms.EDProducer("CaloTowersCreator",
 # 
     # acceptable severity level
     HcalAcceptSeverityLevel = cms.uint32(9),
-    EcalAcceptSeverityLevel = cms.uint32(1),
-       
+    #EcalAcceptSeverityLevel = cms.uint32(1),
+    EcalRecHitSeveritiesToBeExcluded = cms.vstring('kTime','kWeird','kBad'),
+                                
     # use of recovered hits
     UseHcalRecoveredHits = cms.bool(True),
       # The CaloTower code treats recovered cells as a separate category.
@@ -118,10 +119,14 @@ calotowermaker = cms.EDProducer("CaloTowersCreator",
 
 #    Controls for hits to be included in the "bad" tower collection.
 #    They have no effect unless UseRejectedHitsOnly=true                                
-#    Note that hits passing the   HcalAcceptSeverityLevel,  EcalAcceptSeverityLevel
+#    Hits passing the   HcalAcceptSeverityLevel
 #    will be skipped as they are already in the default towers                                
      HcalAcceptSeverityLevelForRejectedHit = cms.uint32(9999),
-     EcalAcceptSeverityLevelForRejectedHit = cms.uint32(9999),
+#    List of ECAL problems that should be used in bad tower construction
+#    Note that these can only be of type already rejected in default
+#    reconstruction as specified in "EcalRecHitSeveritiesToBeExcluded"
+     EcalSeveritiesToBeUsedInBadTowers = cms.vstring(),
+                                
 
 #    The code also checks the settings of the flags for the default
 #    collection - if the recovered hits were used there, they
