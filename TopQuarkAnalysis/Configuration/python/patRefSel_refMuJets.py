@@ -16,11 +16,7 @@ muonEmbedTrack = True  # embedded track needed for muon ID cuts
 jetAlgo = 'AK5'
 
 # JEC sets
-jecSetBase = 'AK5'
-# standard jets
-jecSet = jecSetBase + 'Calo'
-# PF jets
-jecSetPF = jecSetBase + 'PF'
+jecSetBase = jetAlgo
 
 
 ### ------------------------- Reference selection -------------------------- ###
