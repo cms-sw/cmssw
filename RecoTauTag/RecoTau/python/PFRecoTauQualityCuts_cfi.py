@@ -43,5 +43,5 @@ PFTauQualityCuts = cms.PSet(
     primaryVertexSrc = cms.InputTag("offlinePrimaryVerticesDA"),
     # Possible algorithms are: highestPtInEvent, closestInDeltaZ,
     # highestWeightForLeadTrack
-    pvFindingAlgo = cms.string("highestPtInEvent"),
+    pvFindingAlgo = cms.string("highestWeightForLeadTrack"),
 )
