@@ -29,6 +29,8 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METCollection.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TLorentzVector.h"
@@ -52,18 +54,9 @@ class HLTElectronPFMTFilter : public HLTFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
-      edm::InputTag inputJetTag_; // input tag identifying jets
+      edm::InputTag inputMetTag_; // input tag identifying jets
       bool saveTags_;              // whether to save this tag
       double minMht_;
-      std::vector<double> minPtJet_;
-      int minNJet_;
-      int mode_;
-      std::vector<double> etaJet_;
-      bool usePt_;
-      double minPT12_;
-      double minMeff_;
-      double minHt_;
-      double minAlphaT_;
 
       edm::InputTag inputEleTag_;     // input tag identifying egammas
       double lowerMTCut_;
