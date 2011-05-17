@@ -103,6 +103,8 @@ HLT_L1SingleMu20_v*
 HLT_L1DoubleMu0_v*
 HLT_L2Mu10_v*
 HLT_L2Mu20_v*
+HLT_L2Mu60_1Hit_MET40_v*
+HLT_L2Mu60_1Hit_MET60_v*
 HLT_L2DoubleMu0_v*
 HLT_Mu3_v*
 HLT_Mu5_v*
@@ -232,7 +234,7 @@ HLT_Mu17_CentralJet30_v*
 HLT_Mu17_DiCentralJet30_v*
 HLT_Mu17_TriCentralJet30_v*
 HLT_Mu17_Ele8_CaloIdL_v*
-HLT_Mu12_CentralJet30_BTagIP_v*
+HLT_Mu12_DiCentralJet30_BTagIP3D_v*
 HLT_Mu17_CentralJet30_BTagIP_v*
 HLT_Mu15_HT200_v*
 HLT_Mu20_HT200_v*

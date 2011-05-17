@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V71
+# /dev/CMSSW_4_2_0/GRun/V72
 
 import FWCore.ParameterSet.Config as cms
 
@@ -207,6 +207,8 @@ streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CentralJet80_ME
     'HLT_DiCentralJet20_BTagIP_MET65_v2', 
     'HLT_DiCentralJet20_MET80_v1', 
     'HLT_DiJet60_MET45_v3', 
+    'HLT_L2Mu60_1Hit_MET40_v1', 
+    'HLT_L2Mu60_1Hit_MET60_v1', 
     'HLT_MET100_HBHENoiseFiltered_v1', 
     'HLT_MET100_v3', 
     'HLT_MET120_HBHENoiseFiltered_v1', 
@@ -254,7 +256,7 @@ streamA_datasetMuHad_selector.triggerConditions = cms.vstring('HLT_DoubleMu3_HT1
     'HLT_HT300_Mu5_PFMHT40_v2', 
     'HLT_HT350_Mu5_PFMHT45_v2', 
     'HLT_IsoMu17_CentralJet30_BTagIP_v4', 
-    'HLT_Mu12_CentralJet30_BTagIP_v4', 
+    'HLT_Mu12_DiCentralJet30_BTagIP3D_v1', 
     'HLT_Mu15_HT200_v2', 
     'HLT_Mu17_CentralJet30_BTagIP_v4', 
     'HLT_Mu17_CentralJet30_v5', 
