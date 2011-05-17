@@ -526,12 +526,16 @@ if 'GlobalTag' in %%(dict)s:
 
   def instrumentTiming(self):
     if self.config.profiling:
-      # instrument the menu for profiling: add/override the HLTriggerFirstPath, with hltGetRaw and hltGetConditions
+      # instrument the menu for profiling: remove the HLTAnalyzerEndpath, add/override the HLTriggerFirstPath, with hltGetRaw and hltGetConditions
       text = ''
 
       if 'HLTriggerFirstPath' in self.data:
         # remove HLTriggerFirstPath
         self.data = re.sub(r'.*\bHLTriggerFirstPath\s*=.*\n', '', self.data)
+
+      if 'HLTAnalyzerEndpath' in self.data:
+        # remove HLTAnalyzerEndpath
+        self.data = re.sub(r'.*\bHLTAnalyzerEndpath\s*=.*\n', '', self.data)
 
       if not 'hltGetRaw' in self.data:
         # add hltGetRaw
