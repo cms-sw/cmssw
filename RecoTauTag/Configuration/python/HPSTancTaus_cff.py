@@ -222,21 +222,28 @@ hpsTancTausDiscriminationByVLooseIsolation = \
             PFTauProducer = cms.InputTag("hpsTancTaus"),
             Prediscriminants = hpsTancRequireDecayMode
         )
+hpsTancTausDiscriminationByVLooseIsolation.Prediscriminants = hpsTancRequireDecayMode
+
 hpsTancTausDiscriminationByLooseIsolation = \
         hpsPFTauDiscriminationByLooseIsolation.clone(
             PFTauProducer = cms.InputTag("hpsTancTaus"),
             Prediscriminants = hpsTancRequireDecayMode
         )
+hpsTancTausDiscriminationByLooseIsolation.Prediscriminants = hpsTancRequireDecayMode
+
 hpsTancTausDiscriminationByMediumIsolation = \
         hpsPFTauDiscriminationByMediumIsolation.clone(
             PFTauProducer = cms.InputTag("hpsTancTaus"),
             Prediscriminants = hpsTancRequireDecayMode
         )
+hpsTancTausDiscriminationByMediumIsolation.Prediscriminants = hpsTancRequireDecayMode
+
 hpsTancTausDiscriminationByTightIsolation = \
         hpsPFTauDiscriminationByTightIsolation.clone(
             PFTauProducer = cms.InputTag("hpsTancTaus"),
             Prediscriminants = hpsTancRequireDecayMode
         )
+hpsTancTausDiscriminationByTightIsolation.Prediscriminants = hpsTancRequireDecayMode
 
 _tancPrediscriminants = _leadPionPrediscriminant.clone(
     hpsSelect = cms.PSet(
