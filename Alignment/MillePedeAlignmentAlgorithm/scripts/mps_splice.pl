@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.6 $
-#     $Date: 2009/02/11 17:54:49 $
+#     $Revision: 1.7 $
+#     $Date: 2009/03/09 11:23:54 $
 #
 #  Take card file, blank all INFI directives and insert
 #  the INFI directives from the modifier file instead.
@@ -146,6 +146,9 @@ $nrep = ($body =~ s/^ *readFiles.extend\(\'file.root\'\)/$MergingFileNames/gm);
 
 # replace ISN for the root output file
 $nrep = ($body =~ s/ISN/$isn/gm);
+
+
+$body .= "\nprocess.AlignmentProducer.saveDeformationsToDB = False\n";
 
 # store the output file
 open OUTFILE,">$outCfg";
