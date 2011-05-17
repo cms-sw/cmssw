@@ -2,59 +2,88 @@
 
 using namespace l1slhc;
 
-L1CaloTower::L1CaloTower()
-{
-  E_   = 0;
-  H_   = 0;
-  fineGrain_ = 0;
-  iEta_ = 0;
-  iPhi_ = 0;
-
-}
+L1CaloTower::L1CaloTower():
+  mEcal(0),
+  mHcal(0),
+  mIeta(0),
+  mIphi(0),
+  mEcalFG(false),
+  mHcalFG(false)
+{}
 
 L1CaloTower::~L1CaloTower()
-{
+{}
 
+
+void
+L1CaloTower::setPos(const int& aIeta,const int& aIphi)
+{
+	mIeta = aIeta;
+	mIphi = aIphi;
 }
 
 
-int
+/*void
+L1CaloTower::setParams(const int& aEcal,const int& aHcal,const bool& aFG)
+{
+  mEcal  = aEcal;
+  mHcal  = aHcal;
+  mEcalFG = aFG;
+}*/
+
+
+void
+L1CaloTower::setEcal( const int& aEcal , const bool& aFG )
+{
+	mEcal  = aEcal;
+	mEcalFG = aFG;
+}
+
+void
+L1CaloTower::setHcal( const int& aHcal , const bool& aFG )
+{
+	mHcal  = aHcal;
+	mHcalFG = aFG;
+}
+
+
+
+
+const int&
 L1CaloTower::E() const
-{ return E_;}
+{
+	return mEcal;
+}
 
-int
+const int&
 L1CaloTower::H() const
-{ return H_;}
+{
+	return mHcal;
+}
 
 
-int 
+const int& 
 L1CaloTower::iEta() const
-{ return iEta_;}
+{
+	return mIeta;
+}
 
-int 
+const int& 
 L1CaloTower::iPhi() const
-{ return iPhi_;}
-
-void
-L1CaloTower::setPos(int eta,int phi)
 {
-  iEta_ = eta;
-  iPhi_ = phi;
-
+	return mIphi;
 }
 
-void
-L1CaloTower::setParams(int ecal,int hcal,bool fg)
+const bool&
+L1CaloTower::EcalFG() const
 {
-  E_  = ecal;
-  H_  = hcal;
-  fineGrain_ = fg;
+	return mEcalFG;
 }
 
-
-bool
-L1CaloTower::fineGrain() const
-{ return fineGrain_;}
-
+const bool&
+L1CaloTower::HcalFG() const
+{
+	return mHcalFG;
+}
 
 

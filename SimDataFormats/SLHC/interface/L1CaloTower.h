@@ -24,22 +24,27 @@ public:
   
 
   //Setters
-  void setPos(int,int);//Set Tower position (iEta,iPhi)
-  void setParams(int,int,bool); //Set ECAL,HCAL Energy and finegrain 
+  void setPos( const int& , const int& );//Set Tower position (iEta,iPhi)
+//  void setParams( const int& , const int& , const bool& ); //Set ECAL,HCAL Energy and finegrain 
+
+  void setEcal( const int& , const bool& );
+  void setHcal( const int& , const bool& );
 
   //getters 
-  int E() const; 
-  int H() const;
-  int iEta() const;
-  int iPhi() const;
-  bool fineGrain() const;
+  const int& E() const; 
+  const int& H() const;
+  const int& iEta() const;
+  const int& iPhi() const;
+  const bool& EcalFG() const;
+  const bool& HcalFG() const;
 
 private:
-  int E_;
-  int H_;
-  int iEta_;
-  int iPhi_;
-  bool fineGrain_;
+  int mEcal;
+  int mHcal;
+  int mIeta;
+  int mIphi;
+  bool mEcalFG;
+  bool mHcalFG;
 
 
 };
