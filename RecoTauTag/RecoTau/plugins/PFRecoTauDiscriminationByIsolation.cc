@@ -8,6 +8,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "TMath.h"
+#include "TFormula.h"
 
 /* class PFRecoTauDiscriminationByIsolation
  * created : Jul 23 2007,
@@ -90,10 +91,20 @@ class PFRecoTauDiscriminationByIsolation :
           applyDeltaBeta_ = pset.getParameter<bool>(
               "applyDeltaBetaCorrection");
           pfCandSrc_ = pset.getParameter<edm::InputTag>("particleFlowSrc");
+          vertexSrc_ = pset.getParameter<edm::InputTag>("vertexSrc");
           deltaBetaCollectionCone_ = pset.getParameter<double>(
               "isoConeSizeForDeltaBeta");
-          deltaBetaFactor_ = pset.getParameter<double>(
-              "deltaBetaFactor");
+          std::string deltaBetaFactorFormula =
+            pset.getParameter<string>("deltaBetaFactor");
+          deltaBetaFormula_.reset(
+              new TFormula("DB_corr", deltaBetaFactorFormula.c_str()));
+        }
+
+        applyRhoCorrection_ = pset.exists("applyRhoCorrection") ?
+          pset.getParameter<bool>("applyRhoCorrection") : false;
+        if (applyRhoCorrection_) {
+          rhoProducer_ = pset.getParameter<edm::InputTag>("rhoProducer");
+          rhoConeSize_ = pset.getParameter<double>("rhoConeSize");
         }
       }
 
@@ -124,11 +135,24 @@ class PFRecoTauDiscriminationByIsolation :
 
 
     // PU subtraction parameters
+
+    // Delta Beta correction
     bool applyDeltaBeta_;
     edm::InputTag pfCandSrc_;
+    // Keep track of how many vertices are in the event
+    edm::InputTag vertexSrc_;
     std::vector<reco::PFCandidateRef> chargedPFCandidatesInEvent_;
+    // Size of cone used to collect PU tracks
     double deltaBetaCollectionCone_;
-    double deltaBetaFactor_;
+    std::auto_ptr<TFormula> deltaBetaFormula_;
+    double deltaBetaFactorThisEvent_;
+
+    // Rho correction
+    bool applyRhoCorrection_;
+    edm::InputTag rhoProducer_;
+    double rhoConeSize_;
+    double rhoCorrectionThisEvent_;
+    double rhoThisEvent_;
   };
 
 void PFRecoTauDiscriminationByIsolation::beginEvent(const edm::Event& event,
@@ -144,6 +168,7 @@ void PFRecoTauDiscriminationByIsolation::beginEvent(const edm::Event& event,
   // candidates from the event so we can find the PU tracks.
   chargedPFCandidatesInEvent_.clear();
   if (applyDeltaBeta_) {
+    // Collect all the PF pile up tracks
     edm::Handle<reco::PFCandidateCollection> pfCandHandle_;
     event.getByLabel(pfCandSrc_, pfCandHandle_);
     chargedPFCandidatesInEvent_.reserve(pfCandHandle_->size());
@@ -152,6 +177,18 @@ void PFRecoTauDiscriminationByIsolation::beginEvent(const edm::Event& event,
       if (pfCand->charge() != 0)
         chargedPFCandidatesInEvent_.push_back(pfCand);
     }
+    // Count all the vertices in the event, to parameterize the DB
+    // correction factor
+    edm::Handle<reco::VertexCollection> vertices;
+    event.getByLabel(vertexSrc_, vertices);
+    size_t nVtxThisEvent = vertices->size();
+    deltaBetaFactorThisEvent_ = deltaBetaFormula_->Eval(nVtxThisEvent);
+  }
+
+  if (applyRhoCorrection_) {
+    edm::Handle<double> rhoHandle_;
+    event.getByLabel(rhoProducer_, rhoHandle_);
+    rhoThisEvent_ = (*rhoHandle_)*(3.14159)*rhoConeSize_*rhoConeSize_;
   }
 }
 
@@ -231,8 +268,14 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) {
   bool failsRelativeSumPtCut = false;
 
   //--- nObjects requirement
-  int neutrals = isoNeutral.size()-TMath::Nint(deltaBetaFactor_*isoPU.size());
-  if(neutrals<0) neutrals=0;
+  int neutrals = isoNeutral.size();
+
+  if (applyDeltaBeta_) {
+    neutrals -= TMath::Nint(deltaBetaFactorThisEvent_*isoPU.size());
+  }
+  if(neutrals < 0) {
+    neutrals=0;
+  }
 
   failsOccupancyCut = ( isoCharged.size()+neutrals > maximumOccupancy_ );
 
@@ -251,7 +294,20 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) {
     BOOST_FOREACH(const PFCandidateRef& isoObject, isoPU) {
       puPt += isoObject->pt();
     }
-    totalPt = chargedPt+max(neutralPt-deltaBetaFactor_*puPt,0.0);
+
+    if (applyDeltaBeta_) {
+      neutralPt -= deltaBetaFactorThisEvent_*puPt;
+    }
+
+    if (applyRhoCorrection_) {
+      neutralPt -= rhoThisEvent_;
+    }
+
+    if (neutralPt < 0.0) {
+      neutralPt = 0.0;
+    }
+
+    totalPt = chargedPt+neutralPt;
 
     failsSumPtCut = (totalPt > maximumSumPt_);
 

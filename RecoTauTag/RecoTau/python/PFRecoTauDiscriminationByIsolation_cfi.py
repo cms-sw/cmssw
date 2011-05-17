@@ -28,16 +28,25 @@ pfRecoTauDiscriminationByIsolation = cms.EDProducer(
     qualityCuts = PFTauQualityCuts,# set the standard quality cuts
 
     # Delta-Beta corrections to remove Pileup
-    applyDeltaBetaCorrection = cms.bool(True),
+    applyDeltaBetaCorrection = cms.bool(False),
     particleFlowSrc = cms.InputTag("particleFlow"),
+    vertexSrc = PFTauQualityCuts.primaryVertexSrc,
     # This must correspond to the cone size of the algorithm which built the
     # tau. (or if customOuterCone option is used, the custom cone size)
     isoConeSizeForDeltaBeta = cms.double(0.5),
-    # The expected neutral contribution if the charged contribution is 1.0
-    deltaBetaFactor = cms.double(0.38),
+    # The delta beta factor maps the expected neutral contribution in the
+    # isolation cone from the observed PU charged contribution.  This factor can
+    # optionally be a function (use 'x') of the number of vertices in the event
+    # (taken from the multiplicity of vertexSrc collection)
+    deltaBetaFactor = cms.string("0.38"),
     # By default, the pt threshold for tracks used to compute the DeltaBeta
     # correction is taken as the gamma Et threshold from the isolation quality
     # cuts.
     # Uncommenting the parameter below allows this threshold to be overridden.
     #deltaBetaPUTrackPtCutOverride = cms.double(1.5),
+
+    # Rho corrections
+    applyRhoCorrection = cms.bool(False),
+    rhoProducer = cms.InputTag("kt6PFJets", "rho"),
+    rhoConeSize = cms.double(0.5),
 )
