@@ -266,10 +266,14 @@ if 'hltPreHLTMONOutputSmart' in %(dict)s:
   def addGlobalOptions(self):
     # add global options
     self.data += """
-# add global options
+# limit the number of events to be processed
 %(process)smaxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( 100 )
 )
+"""
+    if not self.config.profiling:
+      self.data += """
+# enable the TrigReport and TimeReport
 %(process)soptions = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( True )
 )
@@ -521,8 +525,8 @@ if 'GlobalTag' in %%(dict)s:
 
 
   def instrumentTiming(self):
-    if self.config.timing:
-      # instrument the menu with the modules and EndPath needed for timing studies
+    if self.config.profiling:
+      # instrument the menu for profiling: add/override the HLTriggerFirstPath, with hltGetRaw and hltGetConditions
       text = ''
 
       if 'HLTriggerFirstPath' in self.data:
@@ -552,6 +556,23 @@ if 'GlobalTag' in %%(dict)s:
 """
       self.data = re.sub(r'.*cms\.(End)?Path.*', text + r'\g<0>', self.data, 1)
 
+      # load additional conditions needed by hltGetConditions
+      self.loadAdditionalConditions('add XML geometry to keep hltGetConditions happy',
+        {
+          'record'  : 'GeometryFileRcd',
+          'tag'     : 'XMLFILE_Geometry_380V3_Ideal_mc',
+          'label'   : 'Ideal',
+          'connect' : '%(connect)s/CMS_COND_34X_GEOMETRY'
+        }, {
+          'record'  : 'GeometryFileRcd',
+          'tag'     : 'XMLFILE_Geometry_380V3_Extended_mc',
+          'label'   : 'Extended',
+          'connect' : '%(connect)s/CMS_COND_34X_GEOMETRY'
+        }
+      )
+
+    # instrument the menu with the Service, EDProducer and EndPath needed for timing studies
+    if self.config.timing:
       self.data += """
 # instrument the menu with the modules and EndPath needed for timing studies
 %(process)sPathTimerService = cms.Service( "PathTimerService",
@@ -572,20 +593,6 @@ if 'GlobalTag' in %%(dict)s:
 
 %(process)sTimingOutput = cms.EndPath( %(process)shltTimer + %(process)shltOutputTiming )
 """
-      self.loadAdditionalConditions('add XML geometry to keep hltGetConditions happy',
-        {
-          'record'  : 'GeometryFileRcd',
-          'tag'     : 'XMLFILE_Geometry_380V3_Ideal_mc',
-          'label'   : 'Ideal',
-          'connect' : '%(connect)s/CMS_COND_34X_GEOMETRY'
-        }, {
-          'record'  : 'GeometryFileRcd',
-          'tag'     : 'XMLFILE_Geometry_380V3_Extended_mc',
-          'label'   : 'Extended',
-          'connect' : '%(connect)s/CMS_COND_34X_GEOMETRY'
-        }
-      )
-
 
   @staticmethod
   def dumppaths(paths):

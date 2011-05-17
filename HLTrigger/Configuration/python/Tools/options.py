@@ -59,7 +59,8 @@ class HLTProcessOptions(object):
     self.l1         = None        # (*) if set, override the L1 menu
     self.unprescale = False       # (*) if set, unprescale all paths
     self.open       = False       #     if set, cms.ignore all filters, making all paths run on and accept all events
-    self.timing     = False       #     if set, instrument the menu for timing measurements
+    self.profiling  = False       #     if set, instrument the menu for profiling measurements
+    self.timing     = False       #     if set, instrument the menu for timing measurements (implies profiling)
     self.paths      = None        #     if set, include in the dump only the given paths (wildcards are supported)
     self.input      = None        # (*) if set, run on a specific input file
     self.output     = 'all'       # (*) output 'all', 'minimal' or 'none' output modules
@@ -84,9 +85,14 @@ class HLTProcessOptions(object):
       # '--open' implies '--unprescale'
       object.__setattr__(self, 'open',       True)
       object.__setattr__(self, 'unprescale', True)
+    elif name is 'profiling' and value:
+      # '--profiling' implies implies '--no-output'
+      object.__setattr__(self, 'profiling',  True)
+      object.__setattr__(self, 'output',     'none')
     elif name is 'timing' and value:
-      # '--timing' implies '--no-output'
+      # '--timing' implies '--profiling' and '--no-output'
       object.__setattr__(self, 'timing',     True)
+      object.__setattr__(self, 'profiling',  True)
       object.__setattr__(self, 'output',     'none')
     else:
       object.__setattr__(self, name, value)

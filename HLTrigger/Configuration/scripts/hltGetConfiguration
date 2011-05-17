@@ -62,11 +62,16 @@ parser.add_argument('--open',
                     action  = 'store_true', 
                     default = False, 
                     help    = 'Run the HLT in "open" mode, overriding all ED/HLTFilters to always pass (implies --unprescale)' )
+parser.add_argument('--profiling', 
+                    dest    = 'profiling', 
+                    action  = 'store_true', 
+                    default = False,
+                    help    = 'Instrument the menu with the modules for profiling studies (hltGetaw and hltGetConditions), disable options, and remove all EndPaths (implies --no-output)' )
 parser.add_argument('--timing', 
                     dest    = 'timing', 
                     action  = 'store_true', 
                     default = False,
-                    help    = 'Instrument the menu with the modules and EndPath needed for timing studies (implies --no-output)' )
+                    help    = 'Instrument the menu with the Servie, EDModules and EndPath needed for timing studies (implies --profiling and --no-output)' )
 parser.add_argument('--paths',
                     dest    = 'paths',
                     action  = 'store',
