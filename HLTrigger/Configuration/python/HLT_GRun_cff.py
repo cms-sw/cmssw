@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/GRun/V72 (CMSSW_4_2_0_HLT6)
+# /dev/CMSSW_4_2_0/GRun/V73 (CMSSW_4_2_0_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V72')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V73')
 )
 
 streams = cms.PSet( 
@@ -3160,7 +3160,7 @@ hltJetIDPassedCorrJets = cms.EDProducer( "HLTJetIDProducer",
     min_EMF = cms.double( 1.0E-6 ),
     max_EMF = cms.double( 999.0 ),
     min_N90 = cms.int32( 2 ),
-    min_N90hits = cms.int32( 0 ),
+    min_N90hits = cms.int32( -2 ),
     JetIDParams = cms.PSet( 
       useRecHits = cms.bool( True ),
       hbheRecHitsColl = cms.InputTag( "hltHbhereco" ),
@@ -3354,7 +3354,7 @@ hltJetIDPassedJetsRegional = cms.EDProducer( "HLTJetIDProducer",
     min_EMF = cms.double( 1.0E-6 ),
     max_EMF = cms.double( 999.0 ),
     min_N90 = cms.int32( 2 ),
-    min_N90hits = cms.int32( 0 ),
+    min_N90hits = cms.int32( -2 ),
     JetIDParams = cms.PSet( 
       useRecHits = cms.bool( True ),
       hbheRecHitsColl = cms.InputTag( "hltHbhereco" ),
@@ -3762,7 +3762,7 @@ hltJetIDMPassedJetsRegional = cms.EDProducer( "HLTJetIDProducer",
     min_EMF = cms.double( 0.01 ),
     max_EMF = cms.double( 999999.0 ),
     min_N90 = cms.int32( 2 ),
-    min_N90hits = cms.int32( 0 ),
+    min_N90hits = cms.int32( -2 ),
     JetIDParams = cms.PSet( 
       useRecHits = cms.bool( True ),
       hbheRecHitsColl = cms.InputTag( "hltHbhereco" ),
