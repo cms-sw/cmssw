@@ -123,6 +123,10 @@ void HBHEPulseShapeFlagSetter::SetPulseShapeFlags(HBHERecHit &hbhe,
    // flags should be set.
    //
 
+   // hack to exclude ieta=28/29 for the moment... 
+   int abseta = hbhe.id().ietaAbs();
+   if(abseta == 28 || abseta == 29)  return;
+
    CaloSamples Tool;
    coder.adc2fC(digi, Tool);
 
