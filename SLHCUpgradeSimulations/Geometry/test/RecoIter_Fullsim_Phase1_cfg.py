@@ -28,7 +28,7 @@ process.configurationMetadata = cms.untracked.PSet(
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(100)
 )
 process.options = cms.untracked.PSet(
   wantSummary = cms.untracked.bool(True)
@@ -70,14 +70,14 @@ process.GlobalTag.globaltag = 'DESIGN42_V11::All'
 process.Timing =  cms.Service("Timing")
 ## no playback when doing digis
 #process.mix.playback = True
-process.MessageLogger.destinations = cms.untracked.vstring("detailedInfo_fullph1geom")
+#process.MessageLogger.destinations = cms.untracked.vstring("detailedInfo_fullph1geom")
 
 ### if pileup we need to set the number
 process.mix.input.nbPileupEvents = cms.PSet(
   averageNumber = cms.double(50.0)
 )
 ### if doing inefficiency at <PU>=50
-#process.simSiPixelDigis.AddPixelInefficiency = 20
+process.simSiPixelDigis.AddPixelInefficiency = 20
 ## also for strips TIB inefficiency if we want
 ## TIB1,2 inefficiency at 20%
 #process.simSiStripDigis.Inefficiency = 20
@@ -144,6 +144,7 @@ process.load("Validation.RecoTrack.cutsTPFake_cfi")
 process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
 process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
 process.load('SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi')
+process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
 
 process.load('Configuration.StandardSequences.Validation_cff')
 ### look look at OOTB generalTracks and high purity collections
@@ -160,10 +161,14 @@ process.cutsRecoTracksHpw8hits = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.re
 process.cutsRecoTracksHpw8hits.quality=cms.vstring("highPurity")
 process.cutsRecoTracksHpw8hits.minHit=cms.int32(8)
 
+process.cutsRecoTracksHpwbtagc = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
+process.cutsRecoTracksHpwbtagc.quality=cms.vstring("highPurity")
+process.cutsRecoTracksHpwbtagc.minHit=cms.int32(8)
+process.cutsRecoTracksHpwbtagc.ptMin = cms.double(1.0)
+
 process.trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                            cms.InputTag("cutsRecoTracksHp"),
-                                           cms.InputTag("cutsRecoTracksHpw6hits"),
-                                           cms.InputTag("cutsRecoTracksHpw8hits"),
+                                           cms.InputTag("cutsRecoTracksHpwbtagc"),
                                            cms.InputTag("cutsRecoTracksZeroHp"),
                                            cms.InputTag("cutsRecoTracksFirstHp")
 #                                           cms.InputTag("cutsRecoTracksSecondHp"),
@@ -175,11 +180,9 @@ process.trackValidator.UseAssociators = True
 process.trackValidator.nint = cms.int32(20)
 process.trackValidator.nintpT = cms.int32(100)
 process.trackValidator.maxpT = cms.double(200.0)
-process.trackValidator.outputFile = "validfullP1.root"
 
 process.slhcTracksValidation = cms.Sequence(process.cutsRecoTracksHp*
-                                 process.cutsRecoTracksHpw6hits*
-                                 process.cutsRecoTracksHpw8hits*
+                                 process.cutsRecoTracksHpwbtagc*
                                  process.cutsRecoTracksZeroHp*
                                  process.cutsRecoTracksFirstHp*
 #                                 process.cutsRecoTracksSecondHp*
@@ -207,7 +210,7 @@ process.ReadLocalMeasurement = cms.EDAnalyzer("StdHitNtuplizer",
 process.anal = cms.EDAnalyzer("EventContentAnalyzer")
 
 ## need this at the end as the validation config redefines random seed with just mix
-process.load("IOMC.RandomEngine.IOMC_cff")
+#process.load("IOMC.RandomEngine.IOMC_cff")
 
 ### back to standard job commands ##################################################
 
@@ -232,5 +235,6 @@ process.out_step 		= cms.EndPath(process.output)
 #process.schedule = cms.Schedule(process.reconstruction_step,process.endjob_step,process.out_step)
 #process.schedule = cms.Schedule(process.mix_step,process.reconstruction_step,process.validation_step,process.user_step,process.endjob_step,process.out_step)
 #process.schedule = cms.Schedule(process.mix_step,process.reconstruction_step,process.validation_step,process.endjob_step,process.out_step)
-process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.reconstruction_step,process.validation_step,process.user_step,process.endjob_step,process.out_step)
+#process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.reconstruction_step,process.validation_step,process.user_step,process.endjob_step,process.out_step)
+process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.reconstruction_step,process.validation_step,process.endjob_step,process.out_step)
 
