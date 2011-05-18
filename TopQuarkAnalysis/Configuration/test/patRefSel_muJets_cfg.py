@@ -1,3 +1,9 @@
+#
+# This file contains the Top PAG reference selection work-flow for mu + jets analysis.
+# as defined in
+# https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopLeptonPlusJetsRefSel_mu#Selection_Version_SelV4_valid_fr
+#
+
 import sys
 
 import FWCore.ParameterSet.Config as cms
@@ -60,9 +66,9 @@ from TopQuarkAnalysis.Configuration.patRefSel_refMuJets import *
 
 # Trigger selection according to run range:
 # lower range limits available as suffix;
-# available are: 000000, 147196 (default)
-#triggerSelection       = triggerSelection_147196
-#triggerObjectSelection = triggerObjectSelection_147196
+# available are: 000000, 147196, 160404, 163270 (default), Summer11 (default, if 'runOnMC' = True)
+#triggerSelection       = triggerSelection_Summer11
+#triggerObjectSelection = triggerObjectSelection_Summer11
 
 ### Particle flow
 ### takes effect only, if 'runPF2PAT' = True
@@ -105,6 +111,7 @@ inputFiles = [ '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RECO/START42_
 
 # maximum number of events
 maxInputEvents = -1 # reduce for testing
+maxInputEvents = 10000
 
 ### Conditions
 
@@ -189,6 +196,8 @@ process.out.SelectEvents.SelectEvents = []
 process.load( 'TopQuarkAnalysis.Configuration.patRefSel_eventCleaning_cff' )
 
 ### Trigger selection
+if runOnMC:
+  triggerSelection = triggerSelection_Summer11
 from TopQuarkAnalysis.Configuration.patRefSel_triggerSelection_cff import triggerResults
 process.step1 = triggerResults.clone(
   triggerConditions = [ triggerSelection ]
@@ -535,6 +544,8 @@ if runPF2PAT:
 
 if addTriggerMatching:
 
+  if runOnMC:
+    triggerObjectSelection = triggerObjectSelection_Summer11
   ### Trigger matching configuration
   from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import patTrigger
   from TopQuarkAnalysis.Configuration.patRefSel_triggerMatching_cfi import patMuonTriggerMatch
