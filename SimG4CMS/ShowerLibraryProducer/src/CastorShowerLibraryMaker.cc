@@ -13,7 +13,6 @@
 //
 //////////////////////////////////////////////////////////////
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/CodedException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
