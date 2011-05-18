@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.35 2011/05/05 12:34:21 organtin Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.36 2011/05/11 13:34:37 organtin Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -122,6 +122,19 @@ class EcalCondDBInterface : public EcalDBConnection {
 			      int id3 = EcalLogicID::NULLID,
 			      std::string mapsTo = "" )
     throw(std::runtime_error);
+
+  /**
+   *  Build various reverse maps
+   *  Map an LMR, or a Ex_LM_PN into the set of components
+   */
+
+  std::vector<EcalLogicID> getEcalLogicIDMappedTo(int logic_id, std::string maps_to);
+
+  std::vector<EcalLogicID> getEcalLogicIDForLMR(int lmr_logic_id);
+  std::vector<EcalLogicID> getEcalLogicIDForLMR(const EcalLogicID &lmr_logic_id);
+  std::vector<EcalLogicID> getEcalLogicIDForLMPN(int lmr_logic_id);
+  std::vector<EcalLogicID> getEcalLogicIDForLMPN(const EcalLogicID &lmr_logic_id);
+
 
   /**
    *  Look up the database logic_id and return the EcalLogicID object which contains

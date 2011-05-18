@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.31 2011/04/06 11:59:09 organtin Exp $
+// $Id: EcalCondDBInterface.cc,v 1.32 2011/05/05 12:34:22 organtin Exp $
 
 #include <iostream>
 #include <string>
@@ -296,6 +296,73 @@ std::map<int, int> EcalCondDBInterface::getEcalLogicID2LmrMap() {
     ret[crystals_EE[i].getLogicID()] = EE_lmr[i].getLogicID() % 100;
   }
   return ret;
+}
+
+std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDMappedTo(int lmr_logic_id, std::string maps_to) {
+  std::string name = "EB_crystal_angle";
+  std::string sql = "SELECT LOGIC_ID, ID1, ID2, ID3 "
+    "FROM CHANNELVIEW WHERE NAME = 'EB_crystal_angle' AND LOGIC_ID IN "
+    "(SELECT LOGIC_ID FROM CHANNELVIEW WHERE NAME = 'EB_crystal_number' AND "
+    "ID1*10000+ID2 IN (SELECT DISTINCT ID1*10000+ID2 FROM CHANNELVIEW "
+    "WHERE LOGIC_ID = :1 AND NAME = 'EB_crystal_number' AND MAPS_TO = :2) "
+    "AND NAME = MAPS_TO)"; 
+  if ((lmr_logic_id / 1000000000) == 2) {
+    name = "EE_crystal_number";
+    sql = "SELECT LOGIC_ID, ID1, ID2, ID3 "
+      "FROM CHANNELVIEW WHERE NAME = 'EE_crystal_number' AND LOGIC_ID IN "
+      "(SELECT LOGIC_ID FROM CHANNELVIEW WHERE NAME = 'EE_crystal_number' AND "
+      "ID1*10000000+ID2*10000+ID3 IN (SELECT DISTINCT "
+      "ID1*10000000+ID2*10000+ID3 FROM CHANNELVIEW "
+      "WHERE LOGIC_ID = :1 AND NAME = 'EE_crystal_number' AND MAPS_TO = :2) "
+      "AND NAME = MAPS_TO) AND NAME = MAPS_TO"; 
+  }
+  std::vector<EcalLogicID> ret;
+  try {
+    stmt->setSQL(sql.c_str());
+    stmt->setInt(1, lmr_logic_id);
+    stmt->setString(2, maps_to);
+    stmt->setPrefetchRowCount(IDBObject::ECALDB_NROWS);    
+    
+    ResultSet* rset = stmt->executeQuery();
+    
+    while (rset->next()) {
+      int logic_id = rset->getInt(1);
+      int id1 = rset->getInt(2);
+      if (rset->isNull(2)) { id1 = EcalLogicID::NULLID; }
+      int id2 = rset->getInt(3);
+      if (rset->isNull(3)) { id2 = EcalLogicID::NULLID; }
+      int id3 = rset->getInt(4);
+      if (rset->isNull(4)) { id3 = EcalLogicID::NULLID; }
+      
+      EcalLogicID ecid = EcalLogicID( name, logic_id, id1, id2, id3, maps_to );
+      ret.push_back(ecid);
+    }
+    stmt->setPrefetchRowCount(0);
+  }
+  catch (SQLException &e) {
+    throw(std::runtime_error("ERROR:  Failure while getting EcalLogicID set:  " + e.getMessage() ));
+  }
+  return ret;
+}
+
+std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDForLMR(int lmr) {
+  return getEcalLogicIDMappedTo(lmr, "ECAL_LMR");
+}
+
+std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDForLMR(const EcalLogicID &lmr) {
+  return getEcalLogicIDForLMR(lmr.getLogicID());
+}
+
+std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDForLMPN(int lmr) {
+  if ((lmr / 1000000000) == 2) {
+    return getEcalLogicIDMappedTo(lmr, "EE_LM_PN");
+  } else {
+    return getEcalLogicIDMappedTo(lmr, "EB_LM_PN");
+  }
+}
+
+std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDForLMPN(const EcalLogicID &lmr) {
+  return getEcalLogicIDForLMR(lmr.getLogicID());
 }
 
 std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDSetOrdered( string name,
