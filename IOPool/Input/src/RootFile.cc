@@ -161,10 +161,12 @@ namespace edm {
     treePointers_[InRun]   = &runTree_;
 
     // Read the metadata tree.
-    TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
-    if(!metaDataTree)
+    // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.
+    std::auto_ptr<TTree> metaDataTree(dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str())));
+    if(0 == metaDataTree.get()) {
       throw Exception(errors::FileReadError) << "Could not find tree " << poolNames::metaDataTreeName()
                                              << " in the input file.\n";
+    }
 
     // To keep things simple, we just read in every possible branch that exists.
     // We don't pay attention to which branches exist in which file format versions
@@ -204,8 +206,9 @@ namespace edm {
       metaDataTree->SetBranchAddress(poolNames::parameterSetMapBranchName().c_str(), &psetMapPtr);
     } else {
       assert(fileFormatVersion().parameterSetsTree());
-      TTree* psetTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::parameterSetsTreeName().c_str()));
-      if(0 == psetTree) {
+      // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.
+      std::auto_ptr<TTree> psetTree(dynamic_cast<TTree *>(filePtr_->Get(poolNames::parameterSetsTreeName().c_str())));
+      if(0 == psetTree.get()) {
         throw Exception(errors::FileReadError) << "Could not find tree " << poolNames::parameterSetsTreeName()
         << " in the input file.\n";
       }
@@ -215,7 +218,7 @@ namespace edm {
       IdToBlobs* pIdToBlob = &idToBlob;
       psetTree->SetBranchAddress(poolNames::idToParameterSetBlobsBranchName().c_str(), &pIdToBlob);
 
-      std::auto_ptr<TTreeCache> psetTreeCache = roottree::trainCache(psetTree, *filePtr_, roottree::defaultNonEventCacheSize, "*");
+      std::auto_ptr<TTreeCache> psetTreeCache = roottree::trainCache(psetTree.get(), *filePtr_, roottree::defaultNonEventCacheSize, "*");
       filePtr_->SetCacheRead(psetTreeCache.get());
       for(Long64_t i = 0; i != psetTree->GetEntries(); ++i) {
         psetTree->GetEntry(i);
@@ -269,7 +272,7 @@ namespace edm {
     }
 
     // Here we read the metadata tree
-    roottree::getEntry(metaDataTree, 0);
+    roottree::getEntry(metaDataTree.get(), 0);
 
     eventProcessHistoryIter_ = eventProcessHistoryIDs_.begin();
 
@@ -406,11 +409,12 @@ namespace edm {
   RootFile::readEntryDescriptionTree() {
     // Called only for old format files.
     if(!fileFormatVersion().perEventProductIDs()) return;
-    TTree* entryDescriptionTree = dynamic_cast<TTree*>(filePtr_->Get(poolNames::entryDescriptionTreeName().c_str()));
-    if(!entryDescriptionTree)
+    // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.
+    std::auto_ptr<TTree> entryDescriptionTree(dynamic_cast<TTree*>(filePtr_->Get(poolNames::entryDescriptionTreeName().c_str())));
+    if(0 == entryDescriptionTree.get()) {
       throw Exception(errors::FileReadError) << "Could not find tree " << poolNames::entryDescriptionTreeName()
                                              << " in the input file.\n";
-
+    }
 
     EntryDescriptionID idBuffer;
     EntryDescriptionID* pidBuffer = &idBuffer;
@@ -426,7 +430,7 @@ namespace edm {
     ParentageRegistry& registry = *ParentageRegistry::instance();
 
     for(Long64_t i = 0, numEntries = entryDescriptionTree->GetEntries(); i < numEntries; ++i) {
-      roottree::getEntry(entryDescriptionTree, i);
+      roottree::getEntry(entryDescriptionTree.get(), i);
       if(idBuffer != entryDescriptionBuffer.id())
         throw Exception(errors::EventCorruption) << "Corruption of EntryDescription tree detected.\n";
       oldregistry.insertMapped(entryDescriptionBuffer);
@@ -446,10 +450,12 @@ namespace edm {
       return;
     }
     // New format file
-    TTree* parentageTree = dynamic_cast<TTree*>(filePtr_->Get(poolNames::parentageTreeName().c_str()));
-    if(!parentageTree)
+    // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.
+    std::auto_ptr<TTree> parentageTree(dynamic_cast<TTree*>(filePtr_->Get(poolNames::parentageTreeName().c_str())));
+    if(0 == parentageTree.get()) {
       throw Exception(errors::FileReadError) << "Could not find tree " << poolNames::parentageTreeName()
                                              << " in the input file.\n";
+    }
 
     Parentage parentageBuffer;
     Parentage *pParentageBuffer = &parentageBuffer;
@@ -458,7 +464,7 @@ namespace edm {
     ParentageRegistry& registry = *ParentageRegistry::instance();
 
     for(Long64_t i = 0, numEntries = parentageTree->GetEntries(); i < numEntries; ++i) {
-      roottree::getEntry(parentageTree, i);
+      roottree::getEntry(parentageTree.get(), i);
       registry.insertMapped(parentageBuffer);
     }
     parentageTree->SetBranchAddress(poolNames::parentageBranchName().c_str(), 0);
@@ -611,7 +617,7 @@ namespace edm {
 
   bool
   RootFile::isDuplicateEvent() {
-    assert (indexIntoFileIter_.getEntryType() == IndexIntoFile::kEvent);
+    assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kEvent);
     if(duplicateChecker_.get() == 0) {
       return false;
     }
@@ -823,8 +829,8 @@ namespace edm {
     stable_sort_all(emptyRuns, runItemSortByRun);
 
     RunList::iterator itRuns = runs.begin(), endRuns = runs.end();
-    for (RunVector::const_iterator i = emptyRuns.begin(), iEnd = emptyRuns.end(); i != iEnd; ++i) {
-      for (; itRuns != endRuns; ++itRuns) {
+    for(RunVector::const_iterator i = emptyRuns.begin(), iEnd = emptyRuns.end(); i != iEnd; ++i) {
+      for(; itRuns != endRuns; ++itRuns) {
         if(runItemSortByRun(*i, *itRuns)) {
           break;
         }
@@ -865,8 +871,8 @@ namespace edm {
     stable_sort_all(emptyLumis, lumiItemSortByRunLumi);
 
     LumiList::iterator itLumis = lumis.begin(), endLumis = lumis.end();
-    for (LumiVector::const_iterator i = emptyLumis.begin(), iEnd = emptyLumis.end(); i != iEnd; ++i) {
-      for (; itLumis != endLumis; ++itLumis) {
+    for(LumiVector::const_iterator i = emptyLumis.begin(), iEnd = emptyLumis.end(); i != iEnd; ++i) {
+      for(; itLumis != endLumis; ++itLumis) {
         if(lumiItemSortByRunLumi(*i, *itLumis)) {
           break;
         }
@@ -883,7 +889,7 @@ namespace edm {
     std::vector<IndexIntoFile::RunOrLumiEntry>& entries = indexIntoFile_.setRunOrLumiEntries();
     assert(entries.empty());
     int rcount = 0;
-    for (RunList::iterator it = runs.begin(), itEnd = runs.end(); it != itEnd; ++it) {
+    for(RunList::iterator it = runs.begin(), itEnd = runs.end(); it != itEnd; ++it) {
       RunCountMap::const_iterator countMapItem = runCountMap.find(*it);
       if(countMapItem == runCountMap.end()) {
         countMapItem = runCountMap.insert(std::make_pair(*it, rcount)).first; // Insert (17)
@@ -910,7 +916,7 @@ namespace edm {
     typedef std::map<LumiItem, int, LumiItemSortByRunLumiPhid> LumiCountMap;
     LumiCountMap lumiCountMap; // Declare (19)
     int lcount = 0;
-    for (LumiList::iterator it = lumis.begin(), itEnd = lumis.end(); it != itEnd; ++it) {
+    for(LumiList::iterator it = lumis.begin(), itEnd = lumis.end(); it != itEnd; ++it) {
       RunCountMap::const_iterator runCountMapItem = runCountMap.find(RunItem(it->phid_, it->run_));
       assert(runCountMapItem != runCountMap.end());
       LumiCountMap::const_iterator countMapItem = lumiCountMap.find(*it);
@@ -1116,7 +1122,7 @@ namespace edm {
 
   bool
   RootFile::skipEvents(int& offset) {
-    while (offset > 0 && indexIntoFileIter_ != indexIntoFileEnd_) {
+    while(offset > 0 && indexIntoFileIter_ != indexIntoFileEnd_) {
 
       int phIndexOfSkippedEvent = IndexIntoFile::invalidIndex;
       RunNumber_t runOfSkippedEvent = IndexIntoFile::invalidRun;
@@ -1182,7 +1188,7 @@ namespace edm {
       }
       ++offset;
     }
-    return (indexIntoFileIter_ == indexIntoFileEnd_);
+    return(indexIntoFileIter_ == indexIntoFileEnd_);
   }
 
   bool
@@ -1254,7 +1260,7 @@ namespace edm {
     overrideRunNumber(eventAux_.id(), eventAux().isRealData());
 
     std::auto_ptr<EventAuxiliary> aux(new EventAuxiliary(eventAux()));
-        
+
     // We're not done ... so prepare the EventPrincipal
     cache.fillEventPrincipal(aux,
                              lb,
@@ -1637,9 +1643,9 @@ namespace edm {
   RootFile::makeBranchMapper(RootTree& rootTree, BranchType const& type) const {
     if(fileFormatVersion().splitProductIDs()) {
       if(type == InEvent) {
-        if(not eventBranchMapper_) {
+        if(!eventBranchMapper_) {
           eventBranchMapper_ = makeBranchMapperInRelease300(rootTree);
-        }   
+        }
         eventBranchMapper_->reset();
         return eventBranchMapper_;
       }
