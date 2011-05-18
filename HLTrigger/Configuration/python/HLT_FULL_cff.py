@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HLT/V301 (CMSSW_4_2_0_HLT7)
+# /dev/CMSSW_4_2_0/HLT/V304 (CMSSW_4_2_0_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V301')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V304')
 )
 
 streams = cms.PSet( 
@@ -24319,7 +24319,7 @@ hltL1MuORL1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     MinN = cms.int32( 1 ),
     ExcludeSingleSegmentCSC = cms.bool( False ),
     CSCTFtag = cms.InputTag( "unused" ),
-    saveTags = cms.bool( True ),
+    saveTags = cms.bool( False ),
     SelectQualities = cms.vint32(  )
 )
 hltSingleL2MuORL2PreFilteredNoVtx = cms.EDFilter( "HLTMuonL2PreFilter",
@@ -24334,7 +24334,7 @@ hltSingleL2MuORL2PreFilteredNoVtx = cms.EDFilter( "HLTMuonL2PreFilter",
     MaxDz = cms.double( 9999.0 ),
     MinPt = cms.double( 0.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    saveTags = cms.bool( True )
+    saveTags = cms.bool( False )
 )
 hltRegionalCosmicTrackerSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     ClusterCheckPSet = cms.PSet( 
@@ -24391,50 +24391,11 @@ hltRegionalCosmicTrackerSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDPr
     ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
 )
-hltRegionalCosmicCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    src = cms.InputTag( "hltRegionalCosmicTrackerSeeds" ),
-    TrajectoryBuilder = cms.string( "hltESPCkfTrajectoryBuilder" ),
-    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
-    NavigationSchool = cms.string( "CosmicNavigationSchool" ),
-    RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
-    useHitsSplitting = cms.bool( False ),
-    doSeedingRegionRebuilding = cms.bool( False ),
-    TransientInitialStateEstimatorParameters = cms.PSet( 
-      propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
-      numberMeasurementsForFit = cms.int32( 4 ),
-      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    maxNSeeds = cms.uint32( 200 )
-)
-hltRegionalCosmicTracks = cms.EDProducer( "TrackProducer",
-    TrajectoryInEvent = cms.bool( True ),
-    useHitsSplitting = cms.bool( False ),
-    clusterRemovalInfo = cms.InputTag( "" ),
-    alias = cms.untracked.string( "hltRegionalCosmicTracks" ),
-    Fitter = cms.string( "hltESPKFFittingSmoother" ),
-    Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
-    src = cms.InputTag( "hltRegionalCosmicCkfTrackCandidates" ),
-    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" ),
-    NavigationSchool = cms.string( "" )
-)
-hltCosmicTrackSelector = cms.EDProducer( "CosmicTrackSelector",
-    src = cms.InputTag( "hltRegionalCosmicTracks" ),
-    beamspot = cms.InputTag( "hltOnlineBeamSpot" ),
-    keepAllTracks = cms.bool( False ),
-    chi2n_par = cms.double( 10.0 ),
-    max_d0 = cms.double( 999.0 ),
-    max_z0 = cms.double( 999.0 ),
-    min_pt = cms.double( 5.0 ),
-    max_eta = cms.double( 2.0 ),
-    min_nHit = cms.uint32( 6 ),
-    min_nPixelHit = cms.uint32( 0 ),
-    minNumberLayers = cms.uint32( 0 ),
-    minNumber3DLayers = cms.uint32( 0 ),
-    maxNumberLostLayers = cms.uint32( 999 ),
-    qualityBit = cms.string( "" )
+hltTrackSeedMultiplicityFilter = cms.EDFilter( "HLTTrackSeedMultiplicityFilter",
+    inputTag = cms.InputTag( "hltRegionalCosmicTrackerSeeds" ),
+    saveTags = cms.bool( False ),
+    minSeeds = cms.uint32( 1 ),
+    maxSeeds = cms.uint32( 20000 )
 )
 hltPreL3MuonsCosmicTracking = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -26621,7 +26582,7 @@ HLT_Random_v1 = cms.Path( HLTBeginSequenceRandom + hltPreRandom + HLTEndSequence
 HLT_L1SingleMuOpen_AntiBPTX_v2 = cms.Path( HLTBeginSequenceAntiBPTX + hltL1sL1SingleMuOpen + hltPreL1MuOpenAntiBPTX + hltL1MuOpenL1Filtered0 + HLTEndSequence )
 HLT_L2MuOpen_NoVertex_v2 = cms.Path( HLTBeginSequence + hltL1sL1SingleMuOpen + hltPreL2MuOpenNoVertex + hltSingleMuOpenL1Filtered + HLTL2muonrecoSequenceNoVtx + hltSingleL2MuOpenL2PreFilteredNoVtx + HLTEndSequence )
 HLT_L1TrackerCosmics_v3 = cms.Path( HLTBeginSequence + hltL1sTrackerCosmics + hltPreTrackerCosmics + hltTrackerCosmicsPattern + HLTEndSequence )
-HLT_RegionalCosmicTracking_v3 = cms.Path( HLTBeginSequence + hltL1sTrackerCosmics + hltPreRegionalCosmicTracking + hltTrackerCosmicsPattern + hltL1sL1SingleMuOpenCandidate + hltL1MuORL1Filtered0 + HLTL2muonrecoSequenceNoVtx + hltSingleL2MuORL2PreFilteredNoVtx + HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltRegionalCosmicTrackerSeeds + hltRegionalCosmicCkfTrackCandidates + hltRegionalCosmicTracks + hltCosmicTrackSelector + HLTEndSequence )
+HLT_RegionalCosmicTracking_v3 = cms.Path( HLTBeginSequence + hltL1sTrackerCosmics + hltPreRegionalCosmicTracking + hltTrackerCosmicsPattern + hltL1sL1SingleMuOpenCandidate + hltL1MuORL1Filtered0 + HLTL2muonrecoSequenceNoVtx + hltSingleL2MuORL2PreFilteredNoVtx + HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltRegionalCosmicTrackerSeeds + hltTrackSeedMultiplicityFilter + HLTEndSequence )
 HLT_L3MuonsCosmicTracking_v3 = cms.Path( HLTBeginSequence + hltL1sTrackerCosmics + hltPreL3MuonsCosmicTracking + hltTrackerCosmicsPattern + hltL1sL1SingleMuOpenCandidate + hltL1MuORL1Filtered0 + HLTL2muonrecoSequenceNoVtx + hltSingleL2MuORL2PreFilteredNoVtx + HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltL3TrajectorySeedNoVtx + hltL3TrackCandidateFromL2NoVtx + hltL3TkTracksFromL2NoVtx + hltL3MuonsNoVtx + hltL3MuonCandidatesNoVtx + hltMu5NoVertexL3PreFiltered5 + HLTEndSequence )
 HLT_LogMonitor_v1 = cms.Path( hltGtDigis + hltPreLogMonitor + hltLogMonitorFilter + HLTEndSequence )
 HLT_DTErrors_v1 = cms.Path( hltGtDigis + hltPreAlCaDTErrors + hltDTROMonitorFilter + hltDynAlCaDTErrors + HLTEndSequence )

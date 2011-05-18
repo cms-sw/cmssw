@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V76 (CMSSW_4_2_0_HLT7)
+# /dev/CMSSW_4_2_0/GRun/V78 (CMSSW_4_2_0_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V76')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V78')
 )
 
 process.streams = cms.PSet( 
@@ -71,7 +71,6 @@ process.datasets = cms.PSet(
   Cosmics = cms.vstring( 'HLT_BeamHalo_v3',
     'HLT_L1SingleMuOpen_AntiBPTX_v2',
     'HLT_L1TrackerCosmics_v3',
-    'HLT_L3MuonsCosmicTracking_v3',
     'HLT_RegionalCosmicTracking_v3' ),
   DoubleElectron = cms.vstring( 'HLT_DoubleEle10_CaloIdL_TrkIdVL_Ele10_v4',
     'HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v5',
@@ -505,7 +504,6 @@ process.datasets = cms.PSet(
     'HLT_L2Mu20_v3',
     'HLT_L2Mu60_1Hit_MET40_v1',
     'HLT_L2Mu60_1Hit_MET60_v1',
-    'HLT_L3MuonsCosmicTracking_v3',
     'HLT_LogMonitor_v1',
     'HLT_MET100_HBHENoiseFiltered_v1',
     'HLT_MET100_v3',
@@ -550,8 +548,8 @@ process.datasets = cms.PSet(
     'HLT_Mu8_R020_MR200_v1',
     'HLT_Mu8_R025_MR200_v1',
     'HLT_Mu8_v3',
-    'HLT_PFMHT150_v6')+cms.vstring( 'HLT_Photon125_v1',
-    'HLT_Photon200_NoHE_v1',
+    'HLT_PFMHT150_v6',
+    'HLT_Photon125_v1')+cms.vstring( 'HLT_Photon200_NoHE_v1',
     'HLT_Photon20_CaloIdVL_IsoL_v3',
     'HLT_Photon20_CaloIdVT_IsoT_Ele8_CaloIdL_CaloIsoVL_v4',
     'HLT_Photon20_R9Id_Photon18_R9Id_v4',
@@ -820,7 +818,6 @@ process.datasets = cms.PSet(
     'HLT_L2Mu20_v3',
     'HLT_L2Mu60_1Hit_MET40_v1',
     'HLT_L2Mu60_1Hit_MET60_v1',
-    'HLT_L3MuonsCosmicTracking_v3',
     'HLT_LogMonitor_v1',
     'HLT_MET100_HBHENoiseFiltered_v1',
     'HLT_MET100_v3',
@@ -867,8 +864,8 @@ process.datasets = cms.PSet(
     'HLT_Mu8_v3',
     'HLT_PFMHT150_v6',
     'HLT_Photon125_v1',
-    'HLT_Photon200_NoHE_v1')+cms.vstring( 'HLT_Photon20_CaloIdVL_IsoL_v3',
-    'HLT_Photon20_CaloIdVT_IsoT_Ele8_CaloIdL_CaloIsoVL_v4',
+    'HLT_Photon200_NoHE_v1',
+    'HLT_Photon20_CaloIdVL_IsoL_v3')+cms.vstring( 'HLT_Photon20_CaloIdVT_IsoT_Ele8_CaloIdL_CaloIsoVL_v4',
     'HLT_Photon20_R9Id_Photon18_R9Id_v4',
     'HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v4',
     'HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v3',
@@ -1134,7 +1131,6 @@ process.datasets = cms.PSet(
     'HLT_L2Mu20_v3',
     'HLT_L2Mu60_1Hit_MET40_v1',
     'HLT_L2Mu60_1Hit_MET60_v1',
-    'HLT_L3MuonsCosmicTracking_v3',
     'HLT_LogMonitor_v1',
     'HLT_MET100_HBHENoiseFiltered_v1',
     'HLT_MET100_v3',
@@ -1183,8 +1179,8 @@ process.datasets = cms.PSet(
     'HLT_Photon125_v1',
     'HLT_Photon200_NoHE_v1',
     'HLT_Photon20_CaloIdVL_IsoL_v3',
-    'HLT_Photon20_CaloIdVT_IsoT_Ele8_CaloIdL_CaloIsoVL_v4')+cms.vstring( 'HLT_Photon20_R9Id_Photon18_R9Id_v4',
-    'HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v4',
+    'HLT_Photon20_CaloIdVT_IsoT_Ele8_CaloIdL_CaloIsoVL_v4',
+    'HLT_Photon20_R9Id_Photon18_R9Id_v4')+cms.vstring( 'HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v4',
     'HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v3',
     'HLT_Photon26_CaloIdL_IsoVL_Photon18_v4',
     'HLT_Photon26_IsoVL_Photon18_IsoVL_v4',
@@ -3071,12 +3067,6 @@ process.PrescaleService = cms.Service( "PrescaleService",
       ),
       cms.PSet(  pathName = cms.string( "HLT_Random_v1" ),
         prescales = cms.vuint32( 6000, 6000, 6000, 6000, 6000, 6000, 6000, 6000, 6000, 6000 )
-      ),
-      cms.PSet(  pathName = cms.string( "HLT_RegionalCosmicTracking_v3" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )
-      ),
-      cms.PSet(  pathName = cms.string( "HLT_L3MuonsCosmicTracking_v3" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_L1ETM30_v2" ),
         prescales = cms.vuint32( 1200, 900, 600, 420, 300, 180, 120, 84, 60, 1 )
@@ -24132,7 +24122,7 @@ process.hltL1MuORL1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     MinN = cms.int32( 1 ),
     ExcludeSingleSegmentCSC = cms.bool( False ),
     CSCTFtag = cms.InputTag( "unused" ),
-    saveTags = cms.bool( True ),
+    saveTags = cms.bool( False ),
     SelectQualities = cms.vint32(  )
 )
 process.hltSingleL2MuORL2PreFilteredNoVtx = cms.EDFilter( "HLTMuonL2PreFilter",
@@ -24147,7 +24137,7 @@ process.hltSingleL2MuORL2PreFilteredNoVtx = cms.EDFilter( "HLTMuonL2PreFilter",
     MaxDz = cms.double( 9999.0 ),
     MinPt = cms.double( 0.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    saveTags = cms.bool( True )
+    saveTags = cms.bool( False )
 )
 process.hltRegionalCosmicTrackerSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     ClusterCheckPSet = cms.PSet( 
@@ -24204,201 +24194,11 @@ process.hltRegionalCosmicTrackerSeeds = cms.EDProducer( "SeedGeneratorFromRegion
     ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
 )
-process.hltRegionalCosmicCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
-    src = cms.InputTag( "hltRegionalCosmicTrackerSeeds" ),
-    TrajectoryBuilder = cms.string( "hltESPCkfTrajectoryBuilder" ),
-    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
-    NavigationSchool = cms.string( "CosmicNavigationSchool" ),
-    RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
-    useHitsSplitting = cms.bool( False ),
-    doSeedingRegionRebuilding = cms.bool( False ),
-    TransientInitialStateEstimatorParameters = cms.PSet( 
-      propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
-      numberMeasurementsForFit = cms.int32( 4 ),
-      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    maxNSeeds = cms.uint32( 200 )
-)
-process.hltRegionalCosmicTracks = cms.EDProducer( "TrackProducer",
-    TrajectoryInEvent = cms.bool( True ),
-    useHitsSplitting = cms.bool( False ),
-    clusterRemovalInfo = cms.InputTag( "" ),
-    alias = cms.untracked.string( "hltRegionalCosmicTracks" ),
-    Fitter = cms.string( "hltESPKFFittingSmoother" ),
-    Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
-    src = cms.InputTag( "hltRegionalCosmicCkfTrackCandidates" ),
-    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" ),
-    NavigationSchool = cms.string( "" )
-)
-process.hltCosmicTrackSelector = cms.EDProducer( "CosmicTrackSelector",
-    src = cms.InputTag( "hltRegionalCosmicTracks" ),
-    beamspot = cms.InputTag( "hltOnlineBeamSpot" ),
-    keepAllTracks = cms.bool( False ),
-    chi2n_par = cms.double( 10.0 ),
-    max_d0 = cms.double( 999.0 ),
-    max_z0 = cms.double( 999.0 ),
-    min_pt = cms.double( 5.0 ),
-    max_eta = cms.double( 2.0 ),
-    min_nHit = cms.uint32( 6 ),
-    min_nPixelHit = cms.uint32( 0 ),
-    minNumberLayers = cms.uint32( 0 ),
-    minNumber3DLayers = cms.uint32( 0 ),
-    maxNumberLostLayers = cms.uint32( 999 ),
-    qualityBit = cms.string( "" )
-)
-process.hltPreL3MuonsCosmicTracking = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    offset = cms.uint32( 0 )
-)
-process.hltL3TrajectorySeedNoVtx = cms.EDProducer( "TSGFromL2Muon",
-    PtCut = cms.double( 1.0 ),
-    PCut = cms.double( 2.5 ),
-    MuonCollectionLabel = cms.InputTag( "hltL2Muons" ),
-    ServiceParameters = cms.PSet( 
-      Propagators = cms.untracked.vstring( 'hltESPSteppingHelixPropagatorOpposite',
-        'hltESPSteppingHelixPropagatorAlong' ),
-      RPCLayers = cms.bool( True ),
-      UseMuonNavigation = cms.untracked.bool( True )
-    ),
-    MuonTrackingRegionBuilder = cms.PSet(  ),
-    TkSeedGenerator = cms.PSet( 
-      propagatorCompatibleName = cms.string( "hltESPSteppingHelixPropagatorOpposite" ),
-      option = cms.uint32( 3 ),
-      maxChi2 = cms.double( 40.0 ),
-      errorMatrixPset = cms.PSet( 
-        atIP = cms.bool( True ),
-        action = cms.string( "use" ),
-        errorMatrixValuesPSet = cms.PSet( 
-          pf3_V12 = cms.PSet( 
-            action = cms.string( "scale" ),
-            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 )
-          ),
-          pf3_V13 = cms.PSet( 
-            action = cms.string( "scale" ),
-            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 )
-          ),
-          pf3_V11 = cms.PSet( 
-            action = cms.string( "scale" ),
-            values = cms.vdouble( 3.0, 3.0, 3.0, 5.0, 4.0, 5.0, 10.0, 7.0, 10.0, 10.0, 10.0, 10.0 )
-          ),
-          pf3_V14 = cms.PSet( 
-            action = cms.string( "scale" ),
-            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 )
-          ),
-          yAxis = cms.vdouble( 0.0, 1.0, 1.4, 10.0 ),
-          pf3_V34 = cms.PSet( 
-            action = cms.string( "scale" ),
-            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 )
-          ),
-          pf3_V15 = cms.PSet( 
-            action = cms.string( "scale" ),
-            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 )
-          ),
-          pf3_V33 = cms.PSet( 
-            action = cms.string( "scale" ),
-            values = cms.vdouble( 3.0, 3.0, 3.0, 5.0, 4.0, 5.0, 10.0, 7.0, 10.0, 10.0, 10.0, 10.0 )
-          ),
-          pf3_V45 = cms.PSet( 
-            action = cms.string( "scale" ),
-            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 )
-          ),
-          pf3_V44 = cms.PSet( 
-            action = cms.string( "scale" ),
-            values = cms.vdouble( 3.0, 3.0, 3.0, 5.0, 4.0, 5.0, 10.0, 7.0, 10.0, 10.0, 10.0, 10.0 )
-          ),
-          xAxis = cms.vdouble( 0.0, 13.0, 30.0, 70.0, 1000.0 ),
-          pf3_V23 = cms.PSet( 
-            action = cms.string( "scale" ),
-            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 )
-          ),
-          pf3_V22 = cms.PSet( 
-            action = cms.string( "scale" ),
-            values = cms.vdouble( 3.0, 3.0, 3.0, 5.0, 4.0, 5.0, 10.0, 7.0, 10.0, 10.0, 10.0, 10.0 )
-          ),
-          pf3_V55 = cms.PSet( 
-            action = cms.string( "scale" ),
-            values = cms.vdouble( 3.0, 3.0, 3.0, 5.0, 4.0, 5.0, 10.0, 7.0, 10.0, 10.0, 10.0, 10.0 )
-          ),
-          zAxis = cms.vdouble( -3.14159, 3.14159 ),
-          pf3_V35 = cms.PSet( 
-            action = cms.string( "scale" ),
-            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 )
-          ),
-          pf3_V25 = cms.PSet( 
-            action = cms.string( "scale" ),
-            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 )
-          ),
-          pf3_V24 = cms.PSet( 
-            action = cms.string( "scale" ),
-            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 )
-          )
-        )
-      ),
-      propagatorName = cms.string( "hltESPSteppingHelixPropagatorAlong" ),
-      manySeeds = cms.bool( False ),
-      copyMuonRecHit = cms.bool( False ),
-      ComponentName = cms.string( "TSGForRoadSearch" )
-    ),
-    TrackerSeedCleaner = cms.PSet(  ),
-    TSGFromMixedPairs = cms.PSet(  ),
-    TSGFromPixelTriplets = cms.PSet(  ),
-    TSGFromPixelPairs = cms.PSet(  ),
-    TSGForRoadSearchOI = cms.PSet(  ),
-    TSGForRoadSearchIOpxl = cms.PSet(  ),
-    TSGFromPropagation = cms.PSet(  ),
-    TSGFromCombinedHits = cms.PSet(  )
-)
-process.hltL3TrackCandidateFromL2NoVtx = cms.EDProducer( "CkfTrajectoryMaker",
-    trackCandidateAlso = cms.bool( True ),
-    src = cms.InputTag( "hltL3TrajectorySeedNoVtx" ),
-    TrajectoryBuilder = cms.string( "hltESPMuonCkfTrajectoryBuilder" ),
-    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
-    NavigationSchool = cms.string( "CosmicNavigationSchool" ),
-    RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
-    useHitsSplitting = cms.bool( False ),
-    TransientInitialStateEstimatorParameters = cms.PSet( 
-      propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
-      numberMeasurementsForFit = cms.int32( 4 ),
-      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
-    ),
-    doSeedingRegionRebuilding = cms.bool( False ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    maxNSeeds = cms.uint32( 100000 )
-)
-process.hltL3TkTracksFromL2NoVtx = cms.EDProducer( "TrackProducer",
-    TrajectoryInEvent = cms.bool( False ),
-    useHitsSplitting = cms.bool( False ),
-    clusterRemovalInfo = cms.InputTag( "" ),
-    alias = cms.untracked.string( "" ),
-    Fitter = cms.string( "hltESPKFFittingSmoother" ),
-    Propagator = cms.string( "PropagatorWithMaterial" ),
-    src = cms.InputTag( "hltL3TrackCandidateFromL2NoVtx" ),
-    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" ),
-    NavigationSchool = cms.string( "" )
-)
-process.hltL3MuonsNoVtx = cms.EDProducer( "L3TkMuonProducer",
-    InputObjects = cms.InputTag( "hltL3TkTracksFromL2NoVtx" )
-)
-process.hltL3MuonCandidatesNoVtx = cms.EDProducer( "L3MuonCandidateProducer",
-    InputObjects = cms.InputTag( "hltL3MuonsNoVtx" )
-)
-process.hltMu5NoVertexL3PreFiltered5 = cms.EDFilter( "HLTMuonL3PreFilter",
-    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
-    CandTag = cms.InputTag( "hltL3MuonCandidatesNoVtx" ),
-    PreviousCandTag = cms.InputTag( "hltSingleL2MuORL2PreFilteredNoVtx" ),
-    MinN = cms.int32( 1 ),
-    MaxEta = cms.double( 2.5 ),
-    MinNhits = cms.int32( 6 ),
-    MaxDr = cms.double( 9999.0 ),
-    MaxDz = cms.double( 9999.0 ),
-    MinPt = cms.double( 5.0 ),
-    NSigmaPt = cms.double( 0.0 ),
-    saveTags = cms.bool( True )
+process.hltTrackSeedMultiplicityFilter = cms.EDFilter( "HLTTrackSeedMultiplicityFilter",
+    inputTag = cms.InputTag( "hltRegionalCosmicTrackerSeeds" ),
+    saveTags = cms.bool( False ),
+    minSeeds = cms.uint32( 1 ),
+    maxSeeds = cms.uint32( 20000 )
 )
 process.hltPreLogMonitor = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -25111,7 +24911,6 @@ process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_L1SingleMuOpen_AntiBPTX_v2',
       'HLT_L1TrackerCosmics_v3',
       'HLT_RegionalCosmicTracking_v3',
-      'HLT_L3MuonsCosmicTracking_v3',
       'HLT_LogMonitor_v1',
       'HLT_DTErrors_v1' ),
     hltResults = cms.InputTag( "TriggerResults" ),
@@ -25323,7 +25122,6 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_L1SingleMuOpen_AntiBPTX_v2',
       'HLT_L1TrackerCosmics_v3',
       'HLT_RegionalCosmicTracking_v3',
-      'HLT_L3MuonsCosmicTracking_v3',
       'HLT_LogMonitor_v1',
       'HLT_DTErrors_v1',
       'AlCa_EcalPi0_v5 / 100',
@@ -25518,7 +25316,6 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_L1SingleMuOpen_AntiBPTX_v2',
       'HLT_L1TrackerCosmics_v3',
       'HLT_RegionalCosmicTracking_v3',
-      'HLT_L3MuonsCosmicTracking_v3',
       'HLT_LogMonitor_v1',
       'HLT_DTErrors_v1',
       'AlCa_EcalPi0_v5 / 100',
@@ -25755,7 +25552,6 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_L2Mu20_v3',
   'HLT_L2Mu60_1Hit_MET40_v1',
   'HLT_L2Mu60_1Hit_MET60_v1',
-  'HLT_L3MuonsCosmicTracking_v3',
   'HLT_MET100_HBHENoiseFiltered_v1',
   'HLT_MET100_v3',
   'HLT_MET120_HBHENoiseFiltered_v1',
@@ -25808,8 +25604,8 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v4',
   'HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v3',
   'HLT_Photon26_CaloIdL_IsoVL_Photon18_v4',
-  'HLT_Photon26_IsoVL_Photon18_IsoVL_v4')+cms.vstring( 'HLT_Photon26_IsoVL_Photon18_v4',
-  'HLT_Photon26_Photon18_v4',
+  'HLT_Photon26_IsoVL_Photon18_IsoVL_v4',
+  'HLT_Photon26_IsoVL_Photon18_v4')+cms.vstring( 'HLT_Photon26_Photon18_v4',
   'HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v3',
   'HLT_Photon26_R9Id_Photon18_R9Id_v1',
   'HLT_Photon30_CaloIdVL_IsoL_v4',
@@ -26113,7 +25909,6 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_L2Mu20_v3',
   'HLT_L2Mu60_1Hit_MET40_v1',
   'HLT_L2Mu60_1Hit_MET60_v1',
-  'HLT_L3MuonsCosmicTracking_v3',
   'HLT_LogMonitor_v1',
   'HLT_MET100_HBHENoiseFiltered_v1',
   'HLT_MET100_v3',
@@ -26162,8 +25957,8 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_Photon125_v1',
   'HLT_Photon200_NoHE_v1',
   'HLT_Photon20_CaloIdVL_IsoL_v3',
-  'HLT_Photon20_CaloIdVT_IsoT_Ele8_CaloIdL_CaloIsoVL_v4')+cms.vstring( 'HLT_Photon20_R9Id_Photon18_R9Id_v4',
-  'HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v4',
+  'HLT_Photon20_CaloIdVT_IsoT_Ele8_CaloIdL_CaloIsoVL_v4',
+  'HLT_Photon20_R9Id_Photon18_R9Id_v4')+cms.vstring( 'HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v4',
   'HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v3',
   'HLT_Photon26_CaloIdL_IsoVL_Photon18_v4',
   'HLT_Photon26_IsoVL_Photon18_IsoVL_v4',
@@ -26471,7 +26266,6 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_L2Mu20_v3',
   'HLT_L2Mu60_1Hit_MET40_v1',
   'HLT_L2Mu60_1Hit_MET60_v1',
-  'HLT_L3MuonsCosmicTracking_v3',
   'HLT_LogMonitor_v1',
   'HLT_MET100_HBHENoiseFiltered_v1',
   'HLT_MET100_v3',
@@ -26518,8 +26312,8 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_Mu8_v3',
   'HLT_PFMHT150_v6',
   'HLT_Photon125_v1',
-  'HLT_Photon200_NoHE_v1')+cms.vstring( 'HLT_Photon20_CaloIdVL_IsoL_v3',
-  'HLT_Photon20_CaloIdVT_IsoT_Ele8_CaloIdL_CaloIsoVL_v4',
+  'HLT_Photon200_NoHE_v1',
+  'HLT_Photon20_CaloIdVL_IsoL_v3')+cms.vstring( 'HLT_Photon20_CaloIdVT_IsoT_Ele8_CaloIdL_CaloIsoVL_v4',
   'HLT_Photon20_R9Id_Photon18_R9Id_v4',
   'HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v4',
   'HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v3',
@@ -26920,7 +26714,6 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_L2Mu20_v3',
   'HLT_L2Mu60_1Hit_MET40_v1',
   'HLT_L2Mu60_1Hit_MET60_v1',
-  'HLT_L3MuonsCosmicTracking_v3',
   'HLT_LogMonitor_v1',
   'HLT_MET100_HBHENoiseFiltered_v1',
   'HLT_MET100_v3',
@@ -26965,8 +26758,8 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_Mu8_R020_MR200_v1',
   'HLT_Mu8_R025_MR200_v1',
   'HLT_Mu8_v3',
-  'HLT_PFMHT150_v6')+cms.vstring( 'HLT_Photon125_v1',
-  'HLT_Photon200_NoHE_v1',
+  'HLT_PFMHT150_v6',
+  'HLT_Photon125_v1')+cms.vstring( 'HLT_Photon200_NoHE_v1',
   'HLT_Photon20_CaloIdVL_IsoL_v3',
   'HLT_Photon20_CaloIdVT_IsoT_Ele8_CaloIdL_CaloIsoVL_v4',
   'HLT_Photon20_R9Id_Photon18_R9Id_v4',
@@ -27661,8 +27454,7 @@ process.HLT_TrackerCalibration_v2 = cms.Path( process.HLTBeginSequenceCalibratio
 process.HLT_Random_v1 = cms.Path( process.HLTBeginSequenceRandom + process.hltPreRandom + process.HLTEndSequence )
 process.HLT_L1SingleMuOpen_AntiBPTX_v2 = cms.Path( process.HLTBeginSequenceAntiBPTX + process.hltL1sL1SingleMuOpen + process.hltPreL1MuOpenAntiBPTX + process.hltL1MuOpenL1Filtered0 + process.HLTEndSequence )
 process.HLT_L1TrackerCosmics_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sTrackerCosmics + process.hltPreTrackerCosmics + process.hltTrackerCosmicsPattern + process.HLTEndSequence )
-process.HLT_RegionalCosmicTracking_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sTrackerCosmics + process.hltPreRegionalCosmicTracking + process.hltTrackerCosmicsPattern + process.hltL1sL1SingleMuOpenCandidate + process.hltL1MuORL1Filtered0 + process.HLTL2muonrecoSequenceNoVtx + process.hltSingleL2MuORL2PreFilteredNoVtx + process.HLTDoLocalPixelSequence + process.HLTDoLocalStripSequence + process.hltRegionalCosmicTrackerSeeds + process.hltRegionalCosmicCkfTrackCandidates + process.hltRegionalCosmicTracks + process.hltCosmicTrackSelector + process.HLTEndSequence )
-process.HLT_L3MuonsCosmicTracking_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sTrackerCosmics + process.hltPreL3MuonsCosmicTracking + process.hltTrackerCosmicsPattern + process.hltL1sL1SingleMuOpenCandidate + process.hltL1MuORL1Filtered0 + process.HLTL2muonrecoSequenceNoVtx + process.hltSingleL2MuORL2PreFilteredNoVtx + process.HLTDoLocalPixelSequence + process.HLTDoLocalStripSequence + process.hltL3TrajectorySeedNoVtx + process.hltL3TrackCandidateFromL2NoVtx + process.hltL3TkTracksFromL2NoVtx + process.hltL3MuonsNoVtx + process.hltL3MuonCandidatesNoVtx + process.hltMu5NoVertexL3PreFiltered5 + process.HLTEndSequence )
+process.HLT_RegionalCosmicTracking_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sTrackerCosmics + process.hltPreRegionalCosmicTracking + process.hltTrackerCosmicsPattern + process.hltL1sL1SingleMuOpenCandidate + process.hltL1MuORL1Filtered0 + process.HLTL2muonrecoSequenceNoVtx + process.hltSingleL2MuORL2PreFilteredNoVtx + process.HLTDoLocalPixelSequence + process.HLTDoLocalStripSequence + process.hltRegionalCosmicTrackerSeeds + process.hltTrackSeedMultiplicityFilter + process.HLTEndSequence )
 process.HLT_LogMonitor_v1 = cms.Path( process.hltGtDigis + process.hltPreLogMonitor + process.hltLogMonitorFilter + process.HLTEndSequence )
 process.HLT_DTErrors_v1 = cms.Path( process.hltGtDigis + process.hltPreAlCaDTErrors + process.hltDTROMonitorFilter + process.hltDynAlCaDTErrors + process.HLTEndSequence )
 process.HLT_L1ETM30_v2 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1ETM30 + process.hltPreL1ETM30 + process.HLTEndSequence )

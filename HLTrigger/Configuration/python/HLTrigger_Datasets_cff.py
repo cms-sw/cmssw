@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V76
+# /dev/CMSSW_4_2_0/GRun/V78
 
 import FWCore.ParameterSet.Config as cms
 
@@ -39,7 +39,6 @@ streamA_datasetCosmics_selector.throw      = cms.bool(False)
 streamA_datasetCosmics_selector.triggerConditions = cms.vstring('HLT_BeamHalo_v3', 
     'HLT_L1SingleMuOpen_AntiBPTX_v2', 
     'HLT_L1TrackerCosmics_v3', 
-    'HLT_L3MuonsCosmicTracking_v3', 
     'HLT_RegionalCosmicTracking_v3')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetDoubleElectron_selector
