@@ -26,7 +26,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.4 $'),
+    version = cms.untracked.string('$Revision: 1.5 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -40,14 +40,14 @@ process.options = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-	'/store/relval/CMSSW_4_2_2_SLHC_pre1/RelValFourMuons/GEN-SIM/DESIGN42_V10_110429_special-v1/0026/4608D85D-7C72-E011-B4E9-00261894380B.root'
+	'/store/relval/CMSSW_4_2_2_SLHC_pre1/RelValTTbar/GEN-SIM/DESIGN42_V10_110429_special-v1/0026/1E447313-3D75-E011-98CC-0018F3D0962E.root'
     )
 )
 # Output definition
 process.output = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
-    #outputCommands = process.RECOSIMEventContent.outputCommands,
-    outputCommands = cms.untracked.vstring('keep *','drop *_mix_*_*'),
+    outputCommands = process.RECOSIMEventContent.outputCommands,
+    #outputCommands = cms.untracked.vstring('keep *','drop *_mix_*_*'),
     fileName = cms.untracked.string('file:reco.root'),
     dataset = cms.untracked.PSet(
         dataTier = cms.untracked.string('GEN-SIM-RECO'),
@@ -142,7 +142,9 @@ process.fourthMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
 process.fifthMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
 
 process.muons.TrackerKinkFinderParameters.TrackerRecHitBuilder = cms.string('WithTrackAngle')
-# Not sure about the following PSet
+# The SeedMergerPSet should be added to the following file for Phase 1
+# RecoTracker/SpecialSeedGenerators/python/CombinatorialSeedGeneratorForCosmicsRegionalReconstruction_cfi.py
+# but pixel layers are not used here for cosmic TODO: need Maria and Jan to do appropriate thing here
 process.regionalCosmicTrackerSeeds.SeedMergerPSet = cms.PSet(
 	mergeTriplets = cms.bool(False),
 	ttrhBuilderLabel = cms.string( "PixelTTRHBuilderWithoutAngle" ),
