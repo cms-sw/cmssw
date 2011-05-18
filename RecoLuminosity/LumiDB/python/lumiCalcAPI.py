@@ -441,7 +441,7 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
     for run in sorted(inputRange):
         lslist=inputRange[run]
         if lslist is not None and len(lslist)==0:#no selected ls, do nothing for this run
-            result[run]={}
+            result[run]=[]
             continue
         cmsrunsummary=dataDML.runsummary(schema,run)
         if len(cmsrunsummary)==0:#non existing run
@@ -472,12 +472,13 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
             print '[Warning] using default normalization '+str(normval)
         perrunresult=[]
         numbx=3564
-        for lumilsnum in sorted(lumidata):
-            perlsdata=lumidata[lumilsnum]
+        for lumilsnum,perlsdata in lumidata.items():
             cmslsnum=perlsdata[0]            
             triggeredls=cmslsnum
             if lslist is not None and cmslsnum not in lslist:
-                continue
+                cmslsnum=0
+                triggeredls=0
+                recordedlumi=0.0                
             instlumi=perlsdata[1]
             instlumierror=perlsdata[2]
             calibratedlumi=instlumi*normval
@@ -493,7 +494,7 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
             l1prescaleblob=None
             if cmslsnum!=0:
                 if not trgdata.has_key(cmslsnum):
-                    triggeredls=0 #if no trigger, set back to non-cms-active ls
+                    #triggeredls=0 #if no trigger, set back to non-cms-active ls
                     recordedlumi=0.0 # no trigger->nobeam recordedlumi=None
                 else:
                     deadcount=trgdata[cmslsnum][0] ##subject to change !!

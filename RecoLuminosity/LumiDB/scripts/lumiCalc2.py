@@ -20,7 +20,6 @@ def parseInputFiles(inputfilename,dbrunlist,optaction):
     resultlines=p.resultlines()
     for runinfile in selectedNonProcessedRuns:
         if runinfile not in dbrunlist:
-            selectedrunlsInDB[runinfile]=None
             continue
         if optaction=='delivered':#for delivered we care only about selected runs
             selectedrunlsInDB[runinfile]=None
