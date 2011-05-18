@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.25.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.26 2011/03/07 15:31:32 mommsen Exp $
 /// @file: DiskWriter.cc
 
 #include <algorithm>
@@ -310,10 +310,15 @@ namespace stor {
     MonitoredQuantity::Stats eolsSeenStats;
     rmc.getEoLSSeenMQ().getStats(eolsSeenStats);
     
+    const uint32_t lastLumi = std::max(
+      lumiSectionsSeenStats.getLastSampleValue(),
+      eolsSeenStats.getLastSampleValue()
+    );
+
     std::ostringstream str;
     str << "LScount:" << lumiSectionsSeenStats.getSampleCount()
       << "\tEoLScount:" << eolsSeenStats.getSampleCount()
-      << "\tLastLumi:" << lumiSectionsSeenStats.getLastSampleValue()
+      << "\tLastLumi:" << lastLumi
       << "\tEoR";
     dbFileHandler_->write(str.str());
   }
