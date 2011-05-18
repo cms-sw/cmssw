@@ -21,7 +21,6 @@
 
 using namespace edm;
 
-
 // ----------------------------------------------------------------------
 // utility functions
 // ----------------------------------------------------------------------
@@ -48,15 +47,11 @@ static unsigned int
   }
 } // from_hex()
 
-
-static std::string
-  to_hex_rep(unsigned int c) {
-  char rep[] = "xy";
-  rep[0] = to_hex(c / 16u);
-  rep[1] = to_hex(c % 16u);
-
-  return rep;
-} // to_hex_rep()
+static void
+  append_hex_rep(std::string &s, unsigned int c) {
+  s += to_hex(c / 16u);
+  s += to_hex(c % 16u);
+} // append_hex_rep()
 
 
 // ----------------------------------------------------------------------
@@ -1002,7 +997,7 @@ static std::string
       switch(state)  {
         case NONE:  {
           if(*b == '\\')  state = BACKSLASH;
-          else              to += to_hex_rep(*b);
+          else              append_hex_rep(to, *b);
           /*std::cerr << "To: |" << to << "|\n"; //DEBUG*/
           break;
         }
@@ -1020,17 +1015,17 @@ static std::string
               break;
             }
             case 'n':  {
-              to += to_hex_rep(10);
+              append_hex_rep(to, 10);
               state = NONE;
               break;
             }
             case 't':  {
-              to += to_hex_rep(9);
+              append_hex_rep(to, 9);
               state = NONE;
               break;
             }
             default:  {
-              to += to_hex_rep(*b);
+              append_hex_rep(to, *b);
               state = NONE;
               break;
             }
@@ -1056,7 +1051,7 @@ static std::string
               break;
             }
             default:  {
-              to += to_hex_rep(code);
+              append_hex_rep(to, code);
               state = NONE;
               break;
             }
@@ -1071,7 +1066,7 @@ static std::string
               break;
             }
             default:  {
-              to += to_hex_rep(code);
+              append_hex_rep(to, code);
               break;
             }
           }
