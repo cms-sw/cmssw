@@ -13,7 +13,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.cc,v 1.23 2011/03/28 12:16:10 lacroix Exp $
+// $Id: Type1MET.cc,v 1.24 2011/05/04 22:47:46 lacroix Exp $
 //
 //
 
@@ -61,7 +61,7 @@ namespace cms
     if( metType == "CaloMET" )
       produces<CaloMETCollection>();
     else
-      produces<METCollection>();
+      produces<PFMETCollection>();
   }
   Type1MET::Type1MET() : alg_() {}
   // PRODUCER DESTRUCTORS -------------------------------------------
