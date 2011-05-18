@@ -14,13 +14,14 @@ HLTElectronPFMTFilter::HLTElectronPFMTFilter(const edm::ParameterSet& iConfig)
 {
   // MHT parameters
   inputMetTag_ = iConfig.getParameter< edm::InputTag > ("inputMetTag");
-  saveTags_     = iConfig.getParameter<bool>("saveTags");
-  minMht_= iConfig.getParameter<double> ("minMht");
+  saveTags_    = iConfig.getParameter<bool>("saveTags");
+  minMht_      = iConfig.getParameter<double> ("minMht");
   // Electron parameters
-  inputEleTag_            = iConfig.getParameter< edm::InputTag > ("inputEleTag");
-  lowerMTCut_       = iConfig.getParameter<double> ("lowerMTCut");
-  upperMTCut_       = iConfig.getParameter<double> ("upperMTCut");
-  relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
+  inputEleTag_ = iConfig.getParameter< edm::InputTag > ("inputEleTag");
+  lowerMTCut_  = iConfig.getParameter<double> ("lowerMTCut");
+  upperMTCut_  = iConfig.getParameter<double> ("upperMTCut");
+  relaxed_     = iConfig.getParameter<bool> ("relaxed");
+  minN_        = iConfig.getParameter<int>("minN");
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
 
@@ -37,6 +38,8 @@ void HLTElectronPFMTFilter::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
   desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltL1NonIsoRecoEcalCandidate"));
   desc.add<bool>("saveTags",false);
+  desc.add<bool>("relaxed",true);
+  desc.add<int>("minN",0);
   desc.add<double>("minMht",0.0);
   desc.add<double>("lowerMTCut",0.0);
   desc.add<double>("upperMTCut",9999.0);
@@ -104,7 +107,7 @@ bool
   }
 
   // filter decision
-  bool accept(nW>0);
+  const bool accept(nW>=minN_);
   iEvent.put(filterobject);
 
   return accept;

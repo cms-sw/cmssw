@@ -62,6 +62,7 @@ class HLTElectronPFMTFilter : public HLTFilter {
       double lowerMTCut_;
       double upperMTCut_;
       bool   relaxed_;
+      int    minN_;
       edm::InputTag L1IsoCollTag_; 
       edm::InputTag L1NonIsoCollTag_; 
 };
