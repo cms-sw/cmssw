@@ -10,16 +10,20 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 
-process.load("CommonTools.ParticleFlow.Sources/Data/source_124120_cfi")
+# the following line does not work anymore:
+# process.load("CommonTools.ParticleFlow.Sources/Data/source_124120_cfi")
 
-#process.load("HiggsAnalysis.VBFHTauTau.poolsource_Z2Jets_noVBFCut_noTAUOLA_cfi")
-#process.load("CommonTools.ParticleFlow.Sources/source_ZtoEles_DBS_cfi")
-
+process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_4_2_3/RelValZTT/GEN-SIM-RECO/START42_V12-v2/0062/4CEA9C47-287B-E011-BAB7-00261894396B.root')
+)
 
 # path ---------------------------------------------------------------
 
 
 process.load("CommonTools.ParticleFlow.PF2PAT_cff")
+
+from CommonTools.ParticleFlow.Tools.enablePileUpCorrection import enablePileUpCorrectionInPF2PAT
+enablePileUpCorrectionInPF2PAT( process, postfix='')
 
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
