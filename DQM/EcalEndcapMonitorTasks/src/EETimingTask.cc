@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2011/02/20 09:00:02 $
- * $Revision: 1.74 $
+ * $Date: 2011/04/05 08:57:29 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  *
 */
@@ -370,7 +370,7 @@ void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       float et = hitItr->energy() * std::abs(sin(theta));
 
-      if ( (flag == EcalRecHit::kGood || flag == EcalRecHit::kOutOfTime) && sev != EcalSeverityLevelAlgo::kWeird ) {
+      if ( (flag == EcalRecHit::kGood || flag == EcalRecHit::kOutOfTime) && sev != EcalSeverityLevel::kWeird ) {
         if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);
         if ( meTimeAmpliSummary_[iz] ) meTimeAmpliSummary_[iz]->Fill(xval, yval);
         if ( et > 0.600 ) {
