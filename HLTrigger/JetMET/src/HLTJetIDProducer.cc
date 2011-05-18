@@ -41,8 +41,8 @@ void HLTJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     if (fabs(calojetc->eta()) >= 2.6) {
       result->push_back(*calojetc);
     } else {
-      jetID_->calculate( iEvent, *calojetc );
-      if ((calojetc->emEnergyFraction() >= min_EMF_) && ((min_N90hits_<0) || (jetID_->n90Hits() >= min_N90hits_))  && (calojetc->n90() >= min_N90_) && (calojetc->emEnergyFraction() <= max_EMF_)) {
+      if (min_N90hits_>0) jetID_->calculate( iEvent, *calojetc );
+      if ((calojetc->emEnergyFraction() >= min_EMF_) && ((min_N90hits_<=0) || (jetID_->n90Hits() >= min_N90hits_))  && (calojetc->n90() >= min_N90_) && (calojetc->emEnergyFraction() <= max_EMF_)) {
 	result->push_back(*calojetc);
       }
     }
