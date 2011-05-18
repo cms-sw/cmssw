@@ -14,6 +14,8 @@ whitelist_types = [
 whitelist_labels = [
   'hltPreExpressSmart',
   'hltPreEventDisplaySmart',
+  'hltPreHLTDQMOutputSmart',
+  'hltPreHLTMONOutputSmart',
 ]
 
 def whitelist(module):
