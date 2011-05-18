@@ -18,6 +18,7 @@
 #include "TDirectory.h"
 #include "HepMC/GenParticle.h"
 #include "CommonTools/Utils/interface/PtComparator.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 class EmDQM : public edm::EDAnalyzer{
 public:
@@ -60,6 +61,7 @@ private:
   std::vector<bool> plotiso;
   std::vector<std::vector<edm::InputTag> > isoNames; // there has to be a better solution
   std::vector<std::pair<double,double> > plotBounds; 
+  std::vector<unsigned int> nCandCuts;
   std::string theHltName;
 
   ////////////////////////////////////////////////////////////
