@@ -1,6 +1,6 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2010/09/10 13:24:44 $
+//  last update: $Date: 2010/11/26 07:54:53 $
 //  by         : $Author: mussgill $
 
 #include <memory>
@@ -40,8 +40,8 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-#include "BeamSpotTransientTrackingRecHit.h"
-#include "BeamSpotGeomDet.h"
+#include "Alignment/ReferenceTrajectories/interface/BeamSpotTransientTrackingRecHit.h"
+#include "Alignment/ReferenceTrajectories/interface/BeamSpotGeomDet.h"
 
 //__________________________________________________________________________________
 

@@ -2,11 +2,11 @@
  *
  * Author     : Andreas Mussgiller
  * date       : 2010/08/30
- * last update: $Date: 2010/03/08 16:13:38 $
+ * last update: $Date: 2010/09/10 12:06:43 $
  * by         : $Author: mussgill $
  */
 
-#include "BeamSpotTransientTrackingRecHit.h"
+#include "Alignment/ReferenceTrajectories/interface/BeamSpotTransientTrackingRecHit.h"
 
 AlgebraicVector BeamSpotTransientTrackingRecHit::parameters() const
 {
