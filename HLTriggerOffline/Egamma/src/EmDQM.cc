@@ -102,6 +102,7 @@ EmDQM::EmDQM(const edm::ParameterSet& pset)
     } else {
       plotiso.push_back(true);
     }
+    nCandCuts.push_back(filterconf->getParameter<int>("ncandcut"));
     i++;
   } // END of loop over parameter sets
 
@@ -574,8 +575,8 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
     return;
   }
 
-
-  if (recoecalcands.size() >= reqNum ) 
+  //if (recoecalcands.size() >= reqNum ) 
+  if (recoecalcands.size() >= nCandCuts.at(n) ) 
     total->Fill(n+0.5);
 
   ///////////////////////////////////////////////////
@@ -593,7 +594,8 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
   // Loop over the Generated Particles, and find the        //
   // closest HLT object match.                              //
   ////////////////////////////////////////////////////////////
-  for (unsigned int i=0; i < gencut_; i++) {
+  //for (unsigned int i=0; i < gencut_; i++) {
+  for (unsigned int i=0; i < nCandCuts.at(n); i++) {
     math::XYZVector currentGenParticleMomentum = sortedGen[i].momentum();
 
     float closestDeltaR = 0.5;
@@ -641,23 +643,22 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
   //  bool foundAllMatches = false;
   //  unsigned int numOfHLTobjectsMatched = 0;
   for (unsigned int i=0; i<recoecalcands.size(); i++) {
-    /*
-    // See if this HLT object has a gen-level match
-    float closestGenParticleDr = 99.0;
-    for(unsigned int j =0; j < gencut_; j++) {
-      math::XYZVector currentGenParticle = sortedGen[j].momentum();
+    //// See if this HLT object has a gen-level match
+    //float closestGenParticleDr = 99.0;
+    //for(unsigned int j =0; j < gencut_; j++) {
+    //  math::XYZVector currentGenParticle = sortedGen[j].momentum();
 
-      double currentDeltaR = DeltaR(recoecalcands[i]->momentum(),currentGenParticle);
-      if ( currentDeltaR < closestGenParticleDr ) {
-        closestGenParticleDr = currentDeltaR;
-      }
-    }
-    // If this HLT object did not have a gen particle match, go to next HLT object
-    if ( !(fabs(closestGenParticleDr < 0.3)) ) continue;
+    //  double currentDeltaR = DeltaR(recoecalcands[i]->momentum(),currentGenParticle);
+    //  if ( currentDeltaR < closestGenParticleDr ) {
+    //    closestGenParticleDr = currentDeltaR;
+    //  }
+    //}
+    //// If this HLT object did not have a gen particle match, go to next HLT object
+    //if ( !(fabs(closestGenParticleDr < 0.3)) ) continue;
  
-    numOfHLTobjectsMatched++;
-    if (numOfHLTobjectsMatched >= gencut_) foundAllMatches=true;
-    */
+    //numOfHLTobjectsMatched++;
+    //if (numOfHLTobjectsMatched >= gencut_) foundAllMatches=true;
+
     // Fill HLT object histograms
     ethist[n] ->Fill(recoecalcands[i]->et() );
     etahist[n]->Fill(recoecalcands[i]->eta() );
@@ -692,8 +693,8 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
   unsigned int mtachedMcParts = 0;
   float mindist=0.3;
   if(n==0) mindist=0.5; //low L1-resolution => allow wider matching 
-  for(unsigned int i =0; i < gencut_; i++){
-    //match generator candidate    
+  for(unsigned int i =0; i < nCandCuts.at(n); i++){
+    //match generator candidate
     bool matchThis= false;
     math::XYZVector candDir=sortedGen[i].momentum();
     unsigned int closest = 0;
@@ -741,7 +742,8 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
     } // END of if n+1 < then the number of hlt collections
   }
   // fill total mc matched efficiency
-  if (mtachedMcParts >= reqNum ) 
+  //if (mtachedMcParts >= reqNum ) 
+  if (mtachedMcParts >= nCandCuts.at(n) ) 
     totalmatch->Fill(n+0.5);
   
 
