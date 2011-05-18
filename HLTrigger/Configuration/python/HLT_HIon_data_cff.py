@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HIon/V75 (CMSSW_4_2_0_HLT6)
+# /dev/CMSSW_4_2_0/HIon/V76 (CMSSW_4_2_0_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V75')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V76')
 )
 
 streams = cms.PSet( 
@@ -455,9 +455,9 @@ hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
       Level = cms.int32( 20 )
     )
   ),
-  appendToDataLabel = cms.string( "" ),
   RecoveredRecHitBits = cms.vstring( 'TimingAddedBit',
     'TimingSubtractedBit' ),
+  appendToDataLabel = cms.string( "" ),
   DropChannelStatusBits = cms.vstring( 'HcalCellMask',
     'HcalCellOff',
     'HcalCellDead' )
