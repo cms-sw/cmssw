@@ -30,9 +30,14 @@ process.load("CalibTracker.SiStripDCS.MessLogger_cfi")
 #This is not currently used in the O2O code, an ASCII file with the map is used instead...
 #Will eventually get rid of it completely...
 process.SiStripConfigDb = cms.Service("SiStripConfigDb",
+    #Edit the password here!
     ConfDb = cms.untracked.string('cms_trk_r/PASSWORD@cms_omds_tunnel'),
-    #TNS_ADMIN = cms.untracked.string('/afs/cern.ch/user/g/gbenelli/O2O/connection_files'),                                   
-    TNS_ADMIN = cms.untracked.string('/nfshome0/popcondev/conddb'),
+    #Gabriele's connection files
+    #TNS_ADMIN = cms.untracked.string('/afs/cern.ch/user/g/gbenelli/O2O/connection_files'),
+    #Online Authentication files:
+    #TNS_ADMIN = cms.untracked.string('/nfshome0/popcondev/conddb'),
+    #Offline Authentication files:
+    TNS_ADMIN = cms.untracked.string('/afs/cern.ch/cms/DB/conddb'),
     UsingDb = cms.untracked.bool(True),
     Partitions = cms.untracked.PSet(
         PartTIBD = cms.untracked.PSet(
@@ -106,11 +111,16 @@ process.SiStripDetVOffBuilder = cms.Service(
     "SiStripDetVOffBuilder",
     onlineDB = cms.string('oracle://cms_omds_tunnel/CMS_TRK_R'),
     #EDIT here with your favorite connection_files directory!
+    #Old trackerpro path
     #authPath = cms.string('/opt/cmssw/shifter/o2o_dcs/connection_files'),
+    #Old Gabriele's online cluster's path
     #authPath = cms.string('/exports/slc4/CMSSW/Development/Users/gbenelli/connection_files'),
+    #Gabriele's AFS path
     #authPath = cms.string('/afs/cern.ch/user/g/gbenelli/O2O/connection_files'),
-    authPath = cms.string('/nfshome0/popcondev/conddb'),
-
+    #Online authentication path:
+    #authPath = cms.string('/nfshome0/popcondev/conddb'),
+    #Offline authentication path:
+    authPath = cms.string('/afs/cern.ch/cms/DB/conddb'),
     #The Tmin and Tmax indicated here drive the ManualO2O.py script setting the overall interval
     #By default this is broken into 1 hour O2O jobs (1 cmsRun cfg per hour interval)
     # Format for date/time vector:  year, month, day, hour, minute, second, nanosecond
