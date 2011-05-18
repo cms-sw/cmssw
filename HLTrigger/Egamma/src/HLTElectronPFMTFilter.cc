@@ -98,7 +98,7 @@ bool
     TLorentzVector pTot = pMET + pThisEle;
     double mass = pTot.M();
        
-    if(mass>=lowerMTCut_ && mass<=upperMTCut_)
+    if(mass>=lowerMTCut_ && mass<=upperMTCut_ && pMET.E()>= minMht_)
     {
       nW++;
       refele = electrons[i];
