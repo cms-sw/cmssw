@@ -7,6 +7,27 @@ from RecoLuminosity.LumiDB import sessionManager,lumiTime,inputFilesetParser,csv
 
 beamChoices=['PROTPHYS','IONPHYS']
 
+def parseInputFiles(inputfilename,dbrunlist,optaction):
+    '''
+    output ({run:[cmsls,cmsls,...]},[[resultlines]])
+    '''
+    selectedrunlsInDB={}
+    resultlines=[]
+    p=inputFilesetParser.inputFilesetParser(inputfilename)
+    runlsbyfile=p.runsandls()
+    selectedProcessedRuns=p.selectedRunsWithresult()
+    selectedNonProcessedRuns=p.selectedRunsWithoutresult()
+    resultlines=p.resultlines()
+    for runinfile in selectedNonProcessedRuns:
+        if runinfile not in dbrunlist:
+            selectedrunlsInDB[runinfile]=None
+            continue
+        if optaction=='delivered':#for delivered we care only about selected runs
+            selectedrunlsInDB[runinfile]=None
+        else:
+            selectedrunlsInDB[runinfile]=runlsbyfile[runinfile]
+    return (selectedrunlsInDB,resultlines)
+
 def getValidationData(dbsession,run=None,cmsls=None):
     '''retrieve validation data per run or all
     input: runnum, if not runnum, retrive all
@@ -135,6 +156,7 @@ if __name__ == '__main__':
     session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     
     irunlsdict={}
+    iresults=[]
     if options.runnumber: # if runnumber specified, do not go through other run selection criteria
         irunlsdict[options.runnumber]=None
     else:
@@ -149,16 +171,7 @@ if __name__ == '__main__':
         runlist=lumiCalcAPI.runList(schema,options.fillnum,runmin=None,runmax=None,startT=options.begin,stopT=options.end,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
         session.transaction().commit()
         if options.inputfile:
-            p=inputFilesetParser.inputFilesetParser(options.inputfile)
-            runlsbyfile=p.runsandls()
-            for runinfile in sorted(runlsbyfile):
-                if runinfile not in runlist:
-                    irunlsdict[runinfile]=None
-                    continue
-                if options.action=='delivered':#for delivered we care only about selected runs
-                    irunlsdict[runinfile]=None
-                else:
-                    irunlsdict[runinfile]=runlsbyfile[runinfile]
+            (irunlsdict,iresults)=parseInputFiles(options.inputfile,runlist,options.action)
         else:
             for run in runlist:
                 irunlsdict[run]=None
@@ -174,26 +187,26 @@ if __name__ == '__main__':
         result=lumiCalcAPI.deliveredLumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor)
         session.transaction().commit()
         if not options.outputfile:
-            lumiReport.toScreenTotDelivered(result,options.verbose)
+            lumiReport.toScreenTotDelivered(result,iresults,options.verbose)
         else:
-            lumiReport.toCSVTotDelivered(result,options.outputfile,options.verbose)           
+            lumiReport.toCSVTotDelivered(result,options.outputfile,iresults,options.verbose)           
     if options.action == 'overview':
        session.transaction().start(True)
        result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor)
        session.transaction().commit()
        if not options.outputfile:
-           lumiReport.toScreenOverview(result,options.verbose)
+           lumiReport.toScreenOverview(result,iresults,options.verbose)
        else:
-           lumiReport.toCSVOverview(result,options.outputfile,options.outputfile)
+           lumiReport.toCSVOverview(result,options.outputfile,iresults,options.verbose)
     if options.action == 'lumibyls':
        if not options.hltpath:
            session.transaction().start(True)
            result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor)
            session.transaction().commit()
            if not options.outputfile:
-               lumiReport.toScreenLumiByLS(result,options.verbose)
+               lumiReport.toScreenLumiByLS(result,iresults,options.verbose)
            else:
-               lumiReport.toCSVLumiByLS(result,options.outputfile,options.verbose)
+               lumiReport.toCSVLumiByLS(result,options.outputfile,iresults,options.verbose)
        else:
            hltname=options.hltpath
            hltpat=None
@@ -206,9 +219,9 @@ if __name__ == '__main__':
            result=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),irunlsdict,hltpathname=hltname,hltpathpattern=hltpat,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor)
            session.transaction().commit()
            if not options.outputfile:
-               lumiReport.toScreenLSEffective(result,options.verbose)
+               lumiReport.toScreenLSEffective(result,iresults,options.verbose)
            else:
-               lumiReport.toCSVLSEffective(result,options.outputfile,options.verbose)
+               lumiReport.toCSVLSEffective(result,options.outputfile,iresults,options.verbose)
     if options.action == 'recorded':#recorded actually means effective because it needs to show all the hltpaths...
        session.transaction().start(True)
        hltname=options.hltpath
@@ -222,15 +235,15 @@ if __name__ == '__main__':
        result=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),irunlsdict,hltpathname=hltname,hltpathpattern=hltpat,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor)
        session.transaction().commit()
        if not options.outputfile:
-           lumiReport.toScreenTotEffective(result,options.verbose)
+           lumiReport.toScreenTotEffective(result,iresults,options.verbose)
        else:
-           lumiReport.toCSVTotEffective(result,options.outputfile,options.verbose)
+           lumiReport.toCSVTotEffective(result,options.outputfile,iresults,options.verbose)
     if options.action == 'lumibylsXing':
        session.transaction().start(True)
        result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,xingMinLum=options.xingMinLum,withBeamInfo=False,withBXInfo=True,bxAlgo=options.xingAlgo)
        session.transaction().commit()           
        if not options.outputfile:
-           lumiReport.toScreenLumiByLS(result,options.verbose)
+           lumiReport.toScreenLumiByLS(result,iresults,options.verbose)
        else:
            lumiReport.toCSVLumiByLSXing(result,options.outputfile)
     del session

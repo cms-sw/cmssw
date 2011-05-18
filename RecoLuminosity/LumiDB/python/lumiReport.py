@@ -12,15 +12,34 @@ def toScreenNorm(normdata):
         result.append([name,amodetag,egev,normval])
     print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,prefix = '| ', postfix = ' |', justify = 'left',delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) ) 
 
-def toScreenTotDelivered(lumidata,isverbose):
+def toScreenTotDelivered(lumidata,resultlines,isverbose):
     '''
-    input:  {run:[lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,calibratedlumierror,(bxidx,bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}
+    inputs:
+    lumidata {run:[lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,calibratedlumierror,(bxidx,bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}
+    resultlines [[resultrow1],[resultrow2],...,] existing result row
     '''
     result=[]
+    totOldDeliveredLS=0
+    totOldDelivered=0.0
+    for r in resultlines:
+        dl=0.0
+        if(r[2]!='n/a'):            
+            dl=float(r[2])#in /ub because it comes from file!
+            (rr,lumiu)=CommonUtil.guessUnit(dl)
+            r[2]='%.3f'%(rr)+' ('+lumiu+')'
+        sls=0
+        if(r[1]!='n/a'):
+            sls=int(r[1])
+        totOldDeliveredLS+=sls
+        totOldDelivered+=dl
+        if(r[4]!='n/a'):
+            egv=float(r[4])
+            r[4]='%.1f'%egv
+        result.append(r)
     totls=0
     totdelivered=0.0
     totaltable=[]
-    for run in sorted(lumidata):
+    for run in lumidata.keys():
         lsdata=lumidata[run]
         if lsdata is None:
             result.append([str(run),'n/a','n/a','n/a','n/a'])
@@ -42,6 +61,7 @@ def toScreenTotDelivered(lumidata,isverbose):
             result.append([str(run),str(nls),'%.3f'%(totlumival)+' ('+lumiunit+')',runstarttime.strftime("%m/%d/%y %H:%M:%S"),'%.1f'%(avgbeamenergy), str(selectedls)])
         else:
             result.append([str(run),str(nls),'%.3f'%(totlumival)+' ('+lumiunit+')',runstarttime.strftime("%m/%d/%y %H:%M:%S"),'%.1f'%(avgbeamenergy)])
+    sorted(result,key=lambda x : int(x[0]))
     print ' ==  = '
     if isverbose:
         labels = [('Run', 'Total LS', 'Delivered','Start Time','E(GeV)','Selected LS')]
@@ -54,14 +74,14 @@ def toScreenTotDelivered(lumidata,isverbose):
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,40) )
     print ' ==  =  Total : '
-    (totalDeliveredVal,totalDeliveredUni)=CommonUtil.guessUnit(totdelivered)
+    (totalDeliveredVal,totalDeliveredUni)=CommonUtil.guessUnit(totdelivered+totOldDelivered)
     totrowlabels = [('Delivered LS','Delivered('+totalDeliveredUni+')')]
-    totaltable.append([str(totls),'%.3f'%totalDeliveredVal])
+    totaltable.append([str(totls+totOldDeliveredLS),'%.3f'%totalDeliveredVal])
     print tablePrinter.indent (totrowlabels+totaltable, hasHeader = True, separateRows = False, prefix = '| ',
                                postfix = ' |', justify = 'right', delim = ' | ',
                                wrapfunc = lambda x: wrap_onspace (x, 20))
     
-def toCSVTotDelivered(lumidata,filename,isverbose):
+def toCSVTotDelivered(lumidata,filename,resultlines,isverbose):
     '''
     input:  {run:[lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,calibratedlumierror,(bxidx,bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}
     '''
@@ -70,6 +90,7 @@ def toCSVTotDelivered(lumidata,filename,isverbose):
     fieldnames = ['Run', 'Total LS', 'Delivered(/ub)','UTCTime','E(GeV)']
     if isverbose:
         fieldnames.append('Selected LS')
+    r.writeRow(fieldnames)
     for run in sorted(lumidata):
         lsdata=lumidata[run]
         if lsdata is None:
@@ -89,9 +110,8 @@ def toCSVTotDelivered(lumidata,filename,isverbose):
             result.append([run,nls,totlumival,runstarttime.strftime("%m/%d/%y %H:%M:%S"),avgbeamenergy, str(selectedls)])
         else:
             result.append([run,nls,totlumival,runstarttime.strftime("%m/%d/%y %H:%M:%S"),avgbeamenergy])
-        r.writeRow(fieldnames)
-        r.writeRows(result)
-def toScreenLSDelivered(lumidata,isverbose):
+    r.writeRows(result)
+def toScreenLSDelivered(lumidata,resultlines,isverbose):
     result=[]
     for run in sorted(lumidata):
         rundata=lumidata[run]
@@ -115,7 +135,7 @@ def toScreenLSDelivered(lumidata,isverbose):
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
          
-def toCSVLSDelivered(lumidata,filename,isverbose):
+def toCSVLSDelivered(lumidata,filename,resultlines,isverbose):
     result=[]
     fieldnames=['Run','lumils','cmsls','Delivered(/ub)','UTCTime','BeamStatus','E(GeV)']
     r=csvReporter.csvReporter(filename)
@@ -139,7 +159,7 @@ def toCSVLSDelivered(lumidata,filename,isverbose):
     r.writeRow(fieldnames)
     r.writeRows(result)
 
-def toScreenOverview(lumidata,isverbose):
+def toScreenOverview(lumidata,resultlines,isverbose):
     '''
     input:  {run:[lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,recordedlumi,calibratedlumierror,(bxidx,bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}
     '''
@@ -187,7 +207,7 @@ def toScreenOverview(lumidata,isverbose):
                                postfix = ' |', justify = 'right', delim = ' | ',
                                wrapfunc = lambda x: wrap_onspace (x, 20))
     
-def toCSVOverview(lumidata,filename,isverbose):
+def toCSVOverview(lumidata,filename,resultlines,isverbose):
     result=[]
     fieldnames = ['Run', 'DeliveredLS', 'Delivered(/ub)','SelectedLS','Recorded(/ub)']
     r=csvReporter.csvReporter(filename)
@@ -210,7 +230,7 @@ def toCSVOverview(lumidata,filename,isverbose):
         result.append([run,nls,totdeliveredlumi,selectedlsStr,totrecordedlumi])
     r.writeRow(fieldnames)
     r.writeRows(result)
-def toScreenLumiByLS(lumidata,isverbose):
+def toScreenLumiByLS(lumidata,resultlines,isverbose):
     result=[]
     labels = [ ('Run','LS','UTCTime','Beam Status','E(GeV)','Delivered(/ub)','Recorded(/ub)')]
     totalrow = []                  
@@ -254,7 +274,7 @@ def toScreenLumiByLS(lumidata,isverbose):
                                wrapfunc = lambda x: wrap_onspace (x, 20))    
 
                   
-def toCSVLumiByLS(lumidata,filename,isverbose):
+def toCSVLumiByLS(lumidata,filename,resultlines,isverbose):
     result=[]
     fieldnames=['Run','LumiLS','CMSLS','UTCTime','Beam Status','E(GeV)','Delivered(/ub)','Recorded(/ub)']
     r=csvReporter.csvReporter(filename)
@@ -275,7 +295,7 @@ def toCSVLumiByLS(lumidata,filename,isverbose):
     r.writeRow(fieldnames)
     r.writeRows(result)
 
-def toScreenLSEffective(lumidata,isverbose):
+def toScreenLSEffective(lumidata,resultlines,isverbose):
     '''
     input:  {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata]}
     '''
@@ -312,7 +332,7 @@ def toScreenLSEffective(lumidata,isverbose):
     print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace_strict(x,22) )
-def toCSVLSEffective(lumidata,filename,isverbose):
+def toCSVLSEffective(lumidata,filename,resultlines,isverbose):
     '''
     input:  {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata]}
     '''
@@ -350,7 +370,7 @@ def toCSVLSEffective(lumidata,filename,isverbose):
     r.writeRow(fieldnames)
     r.writeRows(result)
 
-def toScreenTotEffective(lumidata,isverbose):
+def toScreenTotEffective(lumidata,resultlines,isverbose):
     '''
     input:  {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata]}
     '''
@@ -402,7 +422,7 @@ def toScreenTotEffective(lumidata,isverbose):
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
     
-def toCSVTotEffective(lumidata,filename,isverbose):
+def toCSVTotEffective(lumidata,filename,resultlines,isverbose):
     result=[]#[run,hltpath,l1bitname,totefflumi]
     r=csvReporter.csvReporter(filename)
     for run in sorted(lumidata):#loop over runs
