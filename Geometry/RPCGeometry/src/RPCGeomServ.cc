@@ -76,17 +76,16 @@ RPCGeomServ::name()
 	os<<"_";
 	os <<"S"<<std::setw(2)<<std::setfill('0')
 	   <<_id->sector()<<std::setfill(' ');
-	os<<"_";
 	buf += os.str();
       }
       {
 	std::stringstream os;
 	if (_id->roll()==1)
-	  os<<"Backward";
+	  os<<"_Backward";
 	else if (_id->roll() == 3)
-	  os<<"Forward";
+	  os<<"_Forward";
 	else if (_id->roll() == 2)
-	os <<"Middle";
+	os <<"_Middle";
 	buf += os.str();
       }
     }
@@ -108,16 +107,15 @@ RPCGeomServ::name()
       } 
 
       {
-	buf += "_";
 	std::stringstream os;
 	if (_id->roll()==1)
-	  os<<"A";
+	  os<<"_A";
 	else if (_id->roll() == 2)
-	  os<<"B";
+	  os<<"_B";
 	else if (_id->roll() == 3)
-	  os <<"C";
+	  os <<"_C";
 	else if (_id->roll() == 4)
-	  os <<"D";
+	  os <<"_D";
 	buf += os.str();
       }
     }
