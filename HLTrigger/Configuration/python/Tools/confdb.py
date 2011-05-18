@@ -435,19 +435,6 @@ if 'GlobalTag' in %%(dict)s:
 
 
   def overrideOutput(self):
-    #reOutputModuleDef = re.compile(r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\(.*\n([^)].*\n)*\) *\n')
-    #reOutputModuleRef = re.compile(r' *[+*]? *\b(process\.)?hltOutput(\w+)')    # FIXME this does not cover "hltOutputX + something"
-    #if self.config.output == 'none':
-    #  # drop all output modules
-    #  self.data = reOutputModuleDef.sub('', self.data)
-    #  self.data = reOutputModuleRef.sub('', self.data)
-
-    #elif self.config.output == 'minimal':
-    #  # drop all output modules except "HLTDQMResults"
-    #  repl = lambda match: (match.group(2) == 'HLTDQMResults') and match.group() or ''
-    #  self.data = reOutputModuleDef.sub(repl, self.data)
-    #  self.data = reOutputModuleRef.sub(repl, self.data)
-
     # override the "online" ShmStreamConsumer output modules with "offline" PoolOutputModule's
     self.data = re.sub(
       r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\( *"ShmStreamConsumer" *,',
@@ -529,14 +516,6 @@ if 'GlobalTag' in %%(dict)s:
       # instrument the menu for profiling: remove the HLTAnalyzerEndpath, add/override the HLTriggerFirstPath, with hltGetRaw and hltGetConditions
       text = ''
 
-      if 'HLTriggerFirstPath' in self.data:
-        # remove HLTriggerFirstPath
-        self.data = re.sub(r'.*\bHLTriggerFirstPath\s*=.*\n', '', self.data)
-
-      if 'HLTAnalyzerEndpath' in self.data:
-        # remove HLTAnalyzerEndpath
-        self.data = re.sub(r'.*\bHLTAnalyzerEndpath\s*=.*\n', '', self.data)
-
       if not 'hltGetRaw' in self.data:
         # add hltGetRaw
         text += """
@@ -555,6 +534,7 @@ if 'GlobalTag' in %%(dict)s:
 """
 
       # add the definition of HLTriggerFirstPath
+      # FIXME in a cff, should also update the HLTSchedule
       text += """
 %(process)sHLTriggerFirstPath = cms.Path( %(process)shltGetRaw + %(process)shltGetConditions + %(process)shltBoolFalse )
 """
@@ -576,6 +556,7 @@ if 'GlobalTag' in %%(dict)s:
       )
 
     # instrument the menu with the Service, EDProducer and EndPath needed for timing studies
+    # FIXME in a cff, should also update the HLTSchedule
     if self.config.timing:
       self.data += """
 # instrument the menu with the modules and EndPath needed for timing studies
@@ -608,55 +589,57 @@ if 'GlobalTag' in %%(dict)s:
   def buildPathList(self):
     self.all_paths = self.getPathList()
 
-    # no path list was requested, dump the full table
-    if not self.config.paths:
+    if self.config.paths:
+      # no path list was requested, dump the full table, minus unsupported / unwanted paths
+      paths = self.config.paths.split(',')
+    else:
+      # dump only the requested paths, plus the eventual output endpaths
       paths = []
 
+    if self.config.fragment or self.config.output == 'none':
       # drop all output endpaths
-      if self.config.fragment or self.config.output != 'all':
+      if self.config.paths:
+        pass    # paths are removed by default
+      else:
         paths.append( "-*Output" )
-
-      # keep output for the TriggerResults
-      if self.config.output == 'minimal':
+    elif self.config.output == 'minimal':
+      # drop all output endpaths but HLTDQMResultsOutput
+      if self.config.paths:
         paths.append( "HLTDQMResultsOutput" )
-
-      # drop paths unsupported by fastsim
-      if self.config.fastsim:
-        paths.extend( "-%s" % path for path in self.fastsimUnsupportedPaths )
-
-      # this should never be in any dump (nor online menu)
-      paths.append( "-OfflineOutput" )
-
-      # expand all wildcards and do a "subtractive" consolidation
-      paths = self.expandWildcards(paths, self.all_paths)
-      self.options['paths'] = self.consolidateNegativeList(paths)
-
-    # dump only the requested paths, plus the eventual output endpaths
+      else:
+        paths.append( "-*Output" )
+        paths.append( "HLTDQMResultsOutput" )
     else:
-      paths = self.config.paths.split(',')
+      # keep / add back all output endpaths
+      if self.config.paths:
+        paths.append( "*Output" )
+      else:
+        pass    # paths are kepy by default
 
-      # add back output endpaths for full dumps
-      if not self.config.fragment:
-        if self.config.output == 'all':
-          # add back all output modules
-          paths.append( "*Output" )
-        elif self.config.output == 'minimal':
-          # add back only the output for the TriggerResults
-          paths.append( "HLTDQMResultsOutput" )
+    # drop paths unsupported by fastsim
+    if self.config.fastsim:
+      paths.extend( "-%s" % path for path in self.fastsimUnsupportedPaths )
 
-      # drop paths unsupported by fastsim
-      if self.config.fastsim:
-        paths.extend( "-%s" % path for path in self.fastsimUnsupportedPaths )
+    # drop unwanted paths for profiling (and timing studies)
+    if self.config.profiling:
+      paths.append( "-HLTriggerFirstPath" )
+      paths.append( "-HLTAnalyzerEndpath" )
 
-      # this should never be in any dump (nor online menu)
-      paths.append( "-OfflineOutput" )
+    # this should never be in any dump (nor online menu)
+    paths.append( "-OfflineOutput" )
 
-      # expand all wildcards and do an "additive" consolidation
-      paths = self.expandWildcards(paths, self.all_paths)
+    # expand all wildcards
+    paths = self.expandWildcards(paths, self.all_paths)
+
+    if self.config.paths:
+      # do an "additive" consolidation
       self.options['paths'] = self.consolidatePositiveList(paths)
-
       if not self.options['paths']:
         raise RuntimeError('Error: option "--paths %s" does not select any valid paths' % self.config.paths)
+    else:
+      # do a "subtractive" consolidation
+      self.options['paths'] = self.consolidateNegativeList(paths)
+
 
   def buildOptions(self):
     # common configuration for all scenarios
