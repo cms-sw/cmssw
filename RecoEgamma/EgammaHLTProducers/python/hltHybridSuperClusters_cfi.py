@@ -27,7 +27,7 @@ hltHybridSuperClusters = cms.EDProducer("EgammaHLTHybridClusterProducer",
     l1TagNonIsolated = cms.InputTag("l1extraParticles","NonIsolated"),
     l1LowerThrIgnoreIsolation = cms.double(999.0),
     # flags to be excluded
-    RecHitFlagToBeExcluded = cms.vint32(),
+    RecHitFlagToBeExcluded = cms.vstring(),
     # new spikeId removal. Off by default
     RecHitSeverityToBeExcluded = cms.vstring(),
     severityRecHitThreshold = cms.double(4.),

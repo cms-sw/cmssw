@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "CommonTools/Utils/interface/StringToEnumValue.h"
 
 // Reconstruction Classes
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -79,8 +80,12 @@ EgammaHLTMulti5x5ClusterProducer::EgammaHLTMulti5x5ClusterProducer(const edm::Pa
   // Parameters for the position calculation:
   posCalculator_ = PositionCalc( ps.getParameter<edm::ParameterSet>("posCalcParameters") );
 
+  const std::vector<std::string> flagnames = 
+    ps.getParameter<std::vector<std::string> >("RecHitFlagToBeExcluded");
+
   // exclude recHit flags from seeding
-  std::vector<int> v_chstatus = ps.getParameter<std::vector<int> >("RecHitFlagToBeExcluded");
+  std::vector<int> v_chstatus = StringToEnumValue<EcalRecHit::Flags>(flagnames);
+  
 
   // Produces a collection of barrel and a collection of endcap clusters
 
