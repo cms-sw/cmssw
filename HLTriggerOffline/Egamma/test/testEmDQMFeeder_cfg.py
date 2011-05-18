@@ -17,21 +17,12 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.dqmFeeder = cms.EDAnalyzer('EmDQMFeeder',
-                              processname = cms.string("HLT"),
-                              triggerobject = cms.InputTag("hltTriggerSummaryRAW","","HLT"),
-                              genEtaAcc = cms.double(2.5),
-                              genEtAcc = cms.double(2.0),
-                              PtMax = cms.untracked.double(100.0),
-                              isData = cms.bool(False)
-                             )
-
-process.load("HLTriggerOffline.Egamma.EgammaValidation_cff")
+process.load("HLTriggerOffline.Egamma.EgammaValidationAutoConf_cff")
 
 process.p = cms.Path(
                      # require generated particles in fiducial volume
                      process.egammaSelectors *     
-                     process.dqmFeeder
+                     process.egammaValidationSequence
                     )
 
 #----------------------------------------
