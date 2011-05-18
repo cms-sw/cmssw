@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V73
+# /dev/CMSSW_4_2_0/GRun/V74
 
 import FWCore.ParameterSet.Config as cms
 
@@ -96,6 +96,7 @@ streamA_datasetElectronHad_selector.triggerConditions = cms.vstring('HLT_DoubleE
     'HLT_Ele15_CaloIdVT_TrkIdT_Jet35_Jet25_Deta2_v2', 
     'HLT_Ele17_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT15_v2', 
     'HLT_Ele17_CaloIdVT_TrkIdT_CentralJet30_CentralJet25_v1', 
+    'HLT_Ele25_CaloIdL_CaloIsoT_TrkIdVL_TrkIsoT_CentralJet30_BTagIP_v1', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20_v2', 
     'HLT_Ele25_CaloIdVT_TrkIdT_CentralJet30_BTagIP_v4', 
     'HLT_Ele25_CaloIdVT_TrkIdT_CentralJet30_v4', 

@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V73 (CMSSW_4_2_0_HLT6)
+# /dev/CMSSW_4_2_0/HIon/V74 (CMSSW_4_2_0_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V73')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V74')
 )
 
 process.streams = cms.PSet( 
@@ -5257,10 +5257,12 @@ if 'hltPreHLTDQMOutputSmart' in process.__dict__:
 if 'hltPreHLTMONOutputSmart' in process.__dict__:
     process.hltPreHLTMONOutputSmart.throw  = cms.bool( False )
 
-# add global options
+# limit the number of events to be processed
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( 100 )
 )
+
+# enable the TrigReport and TimeReport
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( True )
 )
