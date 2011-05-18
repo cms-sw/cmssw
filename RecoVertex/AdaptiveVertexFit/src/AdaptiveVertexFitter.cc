@@ -567,8 +567,8 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
              nVertex.position().perp()>120.)
         {
           // were more than 100 m off!!
-          LogWarning ("AdaptiveVertexFitter" ) << "Help! Vertex candidate just took off to " << nVertex.position()
-					       << "! Will discard this update!";
+          LogInfo ("AdaptiveVertexFitter" ) << "Vertex candidate just took off to " << nVertex.position()
+					    << "! Will discard this update!";
 // 	    //<< "track pt was " << (**i).linearizedTrack()->track().pt()
 // 					     << "track momentum was " << (**i).linearizedTrack()->track().initialFreeState().momentum()
 // 					     << "track position was " << (**i).linearizedTrack()->track().initialFreeState().position()
@@ -580,7 +580,7 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
 	        fVertex = nVertex;
         }
       } else {
-        LogWarning("RecoVertex|AdaptiveVertexFitter") 
+        LogInfo("RecoVertex|AdaptiveVertexFitter") 
           << "The updator returned an invalid vertex when adding track "
           << i-globalVTracks.begin() 
 	        << ".\n Your vertex might just have lost one good track.";
@@ -618,5 +618,9 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
   m["pos"]="final";
   dataharvester::Writer::file("w.txt").save ( m );
   #endif
-  return theSmoother->smooth( returnVertex );
+  CachingVertex<5> vtx = theSmoother->smooth( returnVertex );
+  cout << "[AdaptiveVertexFitter] vtx at " << setprecision(15) 
+       << vtx.position().x() << ", "
+       << vtx.position().z() << endl;
+  return vtx;
 }
