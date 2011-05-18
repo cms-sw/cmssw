@@ -618,9 +618,5 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
   m["pos"]="final";
   dataharvester::Writer::file("w.txt").save ( m );
   #endif
-  CachingVertex<5> vtx = theSmoother->smooth( returnVertex );
-  cout << "[AdaptiveVertexFitter] vtx at " << setprecision(15) 
-       << vtx.position().x() << ", "
-       << vtx.position().z() << endl;
-  return vtx;
+  return theSmoother->smooth( returnVertex );
 }
