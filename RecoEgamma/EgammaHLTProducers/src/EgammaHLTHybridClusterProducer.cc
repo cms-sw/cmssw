@@ -85,6 +85,12 @@ EgammaHLTHybridClusterProducer::EgammaHLTHybridClusterProducer(const edm::Parame
   const std::vector<int> flagsexcl= 
     StringToEnumValue<EcalRecHit::Flags>(flagnames);
 
+  const std::vector<std::string> severitynames = 
+    ps.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcluded");
+   
+  const std::vector<int> severitiesexcl= 
+    StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynames);
+
 
   hybrid_p = new HybridClusterAlgo(ps.getParameter<double>("HybridBarrelSeedThr"), 
                                    ps.getParameter<int>("step"),
@@ -97,10 +103,7 @@ EgammaHLTHybridClusterProducer::EgammaHLTHybridClusterProducer(const edm::Parame
 			           ps.getParameter<bool>("dynamicEThresh"),
                                    ps.getParameter<double>("eThreshA"),
                                    ps.getParameter<double>("eThreshB"),
-				   ps.getParameter<std::vector<int> >("RecHitSeverityToBeExcluded"),
-				   //ps.getParameter<double>("severityRecHitThreshold"),
-				   //ps.getParameter<int>("severitySpikeId"),
-				   //ps.getParameter<double>("severitySpikeThreshold"),
+				   severitiesexcl,
 				   ps.getParameter<bool>("excludeFlagged")
 				   );
 
