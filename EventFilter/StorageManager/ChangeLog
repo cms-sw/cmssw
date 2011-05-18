@@ -1,3 +1,11 @@
+2011-05-18 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-02-01
+	* Use latest lumi section seen either in data or from last EoLS signal
+	  in EoR record.
+	* Don't print SATAbeast username/password in error string.
+	* Add ifdef'd debug code to generate corrupted events.
+
 2011-04-21 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-02-00
