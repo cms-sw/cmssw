@@ -3,107 +3,19 @@
 // Package:    EmDQMFeeder
 // Class:      EmDQMFeeder
 // 
-/**\class EmDQMFeeder EmDQMFeeder.cc HLTriggerOffline/Egamma/src/EmDQMFeeder.cc
-
- Description: Reads the trigger menu and calls EmDQM with generated parameter sets for each Egamma path
-
- Implementation:
-     [Notes on implementation]
-*/
 //
 // Original Author:  Thomas Reis,40 4-B24,+41227671567,
 //         Created:  Tue Mar 15 12:24:11 CET 2011
-// $Id: EmDQMFeeder.cc,v 1.12 2011/05/12 14:17:36 treis Exp $
+// $Id: EmDQMFeeder.cc,v 1.13 2011/05/18 09:09:08 treis Exp $
 //
 //
 
+// class header file
+#include "HLTriggerOffline/Egamma/interface/EmDQMFeeder.h"
 
-// system include files
-#include <memory>
-#include <iostream>
-#include <string>
-#include <vector>
-#include <boost/regex.hpp>
-#include <boost/lexical_cast.hpp>
-
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "HLTriggerOffline/Egamma/interface/EmDQM.h"
-#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-//
-// class declaration
-//
-
-class EmDQMFeeder : public edm::EDAnalyzer {
-   public:
-      explicit EmDQMFeeder(const edm::ParameterSet&);
-      ~EmDQMFeeder();
-
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
-      void beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup);
-
-   private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-
-      //virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-      virtual void endRun(edm::Run const&, edm::EventSetup const&);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-
-      // ----------member data ---------------------------
-
-      const edm::ParameterSet& iConfig;
-
-      std::string processName_; // process name of (HLT) process for which to get HLT configuration
-      /// The instance of the HLTConfigProvider as a data member
-      HLTConfigProvider hltConfig_;
-
-      std::vector<std::vector<std::string> > findEgammaPaths();
-      std::vector<std::string> getFilterModules(const std::string&);
-      double getPrimaryEtCut(const std::string&);
-     
-      edm::ParameterSet makePSetForL1SeedFilter(const std::string&);
-      edm::ParameterSet makePSetForL1SeedToSuperClusterMatchFilter(const std::string&);
-      edm::ParameterSet makePSetForEtFilter(const std::string&);
-      edm::ParameterSet makePSetForOneOEMinusOneOPFilter(const std::string&);
-      edm::ParameterSet makePSetForPixelMatchFilter(const std::string&);
-      edm::ParameterSet makePSetForEgammaGenericFilter(const std::string&);
-      edm::ParameterSet makePSetForEgammaGenericQuadraticFilter(const std::string&);
-      edm::ParameterSet makePSetForElectronGenericFilter(const std::string&);
-
-      std::vector<EmDQM*> emDQMmodules;
-
-      static const unsigned TYPE_SINGLE_ELE = 0;
-      static const unsigned TYPE_DOUBLE_ELE = 1;
-      static const unsigned TYPE_SINGLE_PHOTON = 2;
-      static const unsigned TYPE_DOUBLE_PHOTON = 3;
-      static const unsigned TYPE_TRIPLE_ELE = 4;
-
-
-};
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
+//////////////////////////////////////////////////////////////////////////////
 // constructors and destructor
-//
+//////////////////////////////////////////////////////////////////////////////
 EmDQMFeeder::EmDQMFeeder(const edm::ParameterSet& iConfig_) :
   iConfig(iConfig_)
 {
@@ -121,9 +33,9 @@ EmDQMFeeder::~EmDQMFeeder()
 }
 
 
-//
+//////////////////////////////////////////////////////////////////////////////
 // member functions
-//
+//////////////////////////////////////////////////////////////////////////////
 
 // ------------ method called for each event  ------------
 void
@@ -302,6 +214,12 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
                else if (moduleType == "HLTElectronGenericFilter") {
                   filterPSet = makePSetForElectronGenericFilter(moduleLabel);
                }
+               else if (moduleType == "HLTEgammaDoubleEtDeltaPhiFilter") {
+                  filterPSet = makePSetForEgammaDoubleEtDeltaPhiFilter(moduleLabel);
+               }
+               else if (moduleType == "HLTEgammaDoubleLegCombFilter") {
+                  filterPSet = makePSetForEgammaDoubleLegCombFilter(moduleLabel);
+               }
                else if (moduleType == "HLTGlobalSumsMET"
                         || moduleType == "HLTMhtHtFilter"
                         || moduleType == "HLTJetTag"
@@ -313,8 +231,6 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
                         || moduleType == "LargestEtCaloJetSelector"
                         || moduleType == "HLTEgammaTriggerFilterObjectWrapper"  // 'fake' filter
                         //|| moduleType == "HLT2ElectronTau"
-                        //|| moduleType == "HLTEgammaDoubleEtDeltaPhiFilter"
-                        //|| moduleType == "HLTEgammaDoubleLegCombFilter"
                         //|| moduleType == "HLTPMMassFilter"
                         //|| moduleType == "HLTHcalTowerFilter"
                         //|| moduleType == "HLT1Photon"
@@ -623,6 +539,37 @@ EmDQMFeeder::makePSetForPixelMatchFilter(const std::string& moduleName)
 //----------------------------------------------------------------------
 
 edm::ParameterSet 
+EmDQMFeeder::makePSetForEgammaDoubleEtDeltaPhiFilter(const std::string& moduleName)
+{
+  edm::ParameterSet retPSet;
+ 
+  retPSet.addParameter<std::vector<double> >("PlotBounds", std::vector<double>(2, 0.0));
+  retPSet.addParameter<edm::InputTag>("HLTCollectionLabels", edm::InputTag(moduleName, "", processName_));
+  retPSet.addParameter<std::vector<edm::InputTag> >("IsoCollections", std::vector<edm::InputTag>(1, std::string("none")));
+  retPSet.addParameter<int>("theHLTOutputTypes", trigger::TriggerCluster);
+  retPSet.addParameter<int>("ncandcut", 2);
+
+  return retPSet;
+}
+
+//----------------------------------------------------------------------
+
+edm::ParameterSet 
+EmDQMFeeder::makePSetForEgammaDoubleLegCombFilter(const std::string& moduleName)
+{
+  edm::ParameterSet retPSet;
+ 
+  retPSet.addParameter<std::vector<double> >("PlotBounds", std::vector<double>(2, 0.0));
+  retPSet.addParameter<edm::InputTag>("HLTCollectionLabels", edm::InputTag(moduleName, "", processName_));
+  retPSet.addParameter<std::vector<edm::InputTag> >("IsoCollections", std::vector<edm::InputTag>(1, std::string("none")));
+  retPSet.addParameter<int>("theHLTOutputTypes", trigger::TriggerCluster); // not sure what type this really is
+  retPSet.addParameter<int>("ncandcut", 2);
+
+  return retPSet;
+}
+//----------------------------------------------------------------------
+
+edm::ParameterSet 
 EmDQMFeeder::makePSetForEgammaGenericFilter(const std::string& moduleName)
 {
   edm::ParameterSet retPSet;
@@ -674,66 +621,15 @@ EmDQMFeeder::makePSetForEgammaGenericFilter(const std::string& moduleName)
   // the following cases seem to have identical PSets ?
   //--------------------
 
-  //--------------------
-  // R9 shape
-  //--------------------
-  if (inputType == "EgammaHLTR9Producer") {
+  if (inputType == "EgammaHLTR9Producer" ||                       // R9 shape
+      inputType == "EgammaHLTR9IDProducer" ||                     // R9 ID
+      inputType == "EgammaHLTClusterShapeProducer" ||             // cluster shape
+      inputType == "EgammaHLTEcalRecIsolationProducer" ||         // ecal isolation
+      inputType == "EgammaHLTHcalIsolationProducersRegional"      // HCAL isolation and HE
+     ) {
     retPSet.addParameter<std::vector<double> >("PlotBounds", std::vector<double>(2, 0.0));
     retPSet.addParameter<edm::InputTag>("HLTCollectionLabels", edm::InputTag(moduleName, "", processName_));
     retPSet.addParameter<std::vector<edm::InputTag> >("IsoCollections", isoCollections);
-    //retPSet.addParameter<int>("theHLTOutputTypes", trigger::TriggerCluster);
-    retPSet.addParameter<int>("ncandcut", hltConfig_.modulePSet(moduleName).getParameter<int>("ncandcut"));
-
-    return retPSet;
-  }
- 
-  //--------------------
-  // R9 ID
-  //--------------------
-  if (inputType == "EgammaHLTR9IDProducer") {
-    retPSet.addParameter<std::vector<double> >("PlotBounds", std::vector<double>(2, 0.0));
-    retPSet.addParameter<edm::InputTag>("HLTCollectionLabels", edm::InputTag(moduleName, "", processName_));
-    retPSet.addParameter<std::vector<edm::InputTag> >("IsoCollections", isoCollections);
-    //retPSet.addParameter<int>("theHLTOutputTypes", trigger::TriggerCluster);
-    retPSet.addParameter<int>("ncandcut", hltConfig_.modulePSet(moduleName).getParameter<int>("ncandcut"));
-
-    return retPSet;
-  }
-
-  //--------------------
-  // cluster shape
-  //--------------------
-  if (inputType == "EgammaHLTClusterShapeProducer") {
-    retPSet.addParameter<std::vector<double> >("PlotBounds", std::vector<double>(2, 0.0));
-    retPSet.addParameter<edm::InputTag>("HLTCollectionLabels", edm::InputTag(moduleName, "", processName_));
-    retPSet.addParameter<std::vector<edm::InputTag> >("IsoCollections", isoCollections);
-    //retPSet.addParameter<int>("theHLTOutputTypes", trigger::TriggerCluster);
-    retPSet.addParameter<int>("ncandcut", hltConfig_.modulePSet(moduleName).getParameter<int>("ncandcut"));
-
-    return retPSet;
-  }
-
-  //--------------------
-  // ecal isolation
-  //--------------------
-  if (inputType == "EgammaHLTEcalRecIsolationProducer") {
-    retPSet.addParameter<std::vector<double> >("PlotBounds", std::vector<double>(2, 0.0));
-    retPSet.addParameter<edm::InputTag>("HLTCollectionLabels", edm::InputTag(moduleName, "", processName_));
-    retPSet.addParameter<std::vector<edm::InputTag> >("IsoCollections", isoCollections);
-    //retPSet.addParameter<int>("theHLTOutputTypes", trigger::TriggerCluster);
-    retPSet.addParameter<int>("ncandcut", hltConfig_.modulePSet(moduleName).getParameter<int>("ncandcut"));
-
-    return retPSet;
-  }
-
-  //--------------------
-  // HCAL isolation and HE
-  //--------------------
-  if (inputType == "EgammaHLTHcalIsolationProducersRegional") {
-    retPSet.addParameter<std::vector<double> >("PlotBounds", std::vector<double>(2, 0.0));
-    retPSet.addParameter<edm::InputTag>("HLTCollectionLabels", edm::InputTag(moduleName, "", processName_));
-    retPSet.addParameter<std::vector<edm::InputTag> >("IsoCollections", isoCollections);
-    //retPSet.addParameter<int>("theHLTOutputTypes", trigger::TriggerCluster);
     retPSet.addParameter<int>("ncandcut", hltConfig_.modulePSet(moduleName).getParameter<int>("ncandcut"));
 
     return retPSet;
@@ -797,10 +693,13 @@ EmDQMFeeder::makePSetForEgammaGenericQuadraticFilter(const std::string& moduleNa
   // the following cases seem to have identical PSets ?
   //--------------------
 
-  //--------------------
-  // R9 shape
-  //--------------------
-  if (inputType == "EgammaHLTR9Producer") {
+  if (inputType == "EgammaHLTR9Producer" ||                            // R9 shape
+      inputType == "EgammaHLTR9IDProducer" ||                          // R9 ID
+      inputType == "EgammaHLTClusterShapeProducer" ||                  // cluster shape
+      inputType == "EgammaHLTEcalRecIsolationProducer" ||              // ecal isolation
+      inputType == "EgammaHLTHcalIsolationProducersRegional" ||        // HCAL isolation and HE
+      inputType == "EgammaHLTPhotonTrackIsolationProducersRegional"    // Photon track isolation
+     ) {
     retPSet.addParameter<std::vector<double> >("PlotBounds", std::vector<double>(2, 0.0));
     retPSet.addParameter<edm::InputTag>("HLTCollectionLabels", edm::InputTag(moduleName, "", processName_));
     retPSet.addParameter<std::vector<edm::InputTag> >("IsoCollections", isoCollections);
@@ -809,66 +708,6 @@ EmDQMFeeder::makePSetForEgammaGenericQuadraticFilter(const std::string& moduleNa
     return retPSet;
   }
  
-  //--------------------
-  // R9 ID
-  //--------------------
-  if (inputType == "EgammaHLTR9IDProducer") {
-    retPSet.addParameter<std::vector<double> >("PlotBounds", std::vector<double>(2, 0.0));
-    retPSet.addParameter<edm::InputTag>("HLTCollectionLabels", edm::InputTag(moduleName, "", processName_));
-    retPSet.addParameter<std::vector<edm::InputTag> >("IsoCollections", isoCollections);
-    retPSet.addParameter<int>("ncandcut", hltConfig_.modulePSet(moduleName).getParameter<int>("ncandcut"));
-
-    return retPSet;
-  }
-
-  //--------------------
-  // cluster shape
-  //--------------------
-  if (inputType == "EgammaHLTClusterShapeProducer") {
-    retPSet.addParameter<std::vector<double> >("PlotBounds", std::vector<double>(2, 0.0));
-    retPSet.addParameter<edm::InputTag>("HLTCollectionLabels", edm::InputTag(moduleName, "", processName_));
-    retPSet.addParameter<std::vector<edm::InputTag> >("IsoCollections", isoCollections);
-    retPSet.addParameter<int>("ncandcut", hltConfig_.modulePSet(moduleName).getParameter<int>("ncandcut"));
-
-    return retPSet;
-  }
-
-  //--------------------
-  // ecal isolation
-  //--------------------
-  if (inputType == "EgammaHLTEcalRecIsolationProducer") {
-    retPSet.addParameter<std::vector<double> >("PlotBounds", std::vector<double>(2, 0.0));
-    retPSet.addParameter<edm::InputTag>("HLTCollectionLabels", edm::InputTag(moduleName, "", processName_));
-    retPSet.addParameter<std::vector<edm::InputTag> >("IsoCollections", isoCollections);
-    retPSet.addParameter<int>("ncandcut", hltConfig_.modulePSet(moduleName).getParameter<int>("ncandcut"));
-
-    return retPSet;
-  }
-
-  //--------------------
-  // HCAL isolation and HE
-  //--------------------
-  if (inputType == "EgammaHLTHcalIsolationProducersRegional") {
-    retPSet.addParameter<std::vector<double> >("PlotBounds", std::vector<double>(2, 0.0));
-    retPSet.addParameter<edm::InputTag>("HLTCollectionLabels", edm::InputTag(moduleName, "", processName_));
-    retPSet.addParameter<std::vector<edm::InputTag> >("IsoCollections", isoCollections);
-    retPSet.addParameter<int>("ncandcut", hltConfig_.modulePSet(moduleName).getParameter<int>("ncandcut"));
-
-    return retPSet;
-  }
-
-  //--------------------
-  // Photon track isolation
-  //--------------------
-  if (inputType == "EgammaHLTPhotonTrackIsolationProducersRegional") {
-    retPSet.addParameter<std::vector<double> >("PlotBounds", std::vector<double>(2, 0.0));
-    retPSet.addParameter<edm::InputTag>("HLTCollectionLabels", edm::InputTag(moduleName, "", processName_));
-    retPSet.addParameter<std::vector<edm::InputTag> >("IsoCollections", isoCollections);
-    retPSet.addParameter<int>("ncandcut", hltConfig_.modulePSet(moduleName).getParameter<int>("ncandcut"));
-
-    return retPSet;
-  }
-
   edm::LogError("EmDQMFeeder") << "Can't determine what the HLTEgammaGenericQuadraticFilter '" << moduleName <<  "' should do: uses a collection produced by a module of C++ type '" << inputType << "'.";
   return edm::ParameterSet();
 }
@@ -922,25 +761,11 @@ EmDQMFeeder::makePSetForElectronGenericFilter(const std::string& moduleName)
   // the following cases seem to have identical PSets ?
   //--------------------
 
-  //--------------------
-  // deta and dphi filter
-  //--------------------
-  //
   // note that whether deta or dphi is used is determined from
   // the product instance (not the module label)
-  if (inputType == "EgammaHLTElectronDetaDphiProducer") {
-    retPSet.addParameter<std::vector<double> >("PlotBounds", std::vector<double>(2, 0.0));
-    retPSet.addParameter<edm::InputTag>("HLTCollectionLabels", edm::InputTag(moduleName, "", processName_));
-    retPSet.addParameter<std::vector<edm::InputTag> >("IsoCollections", isoCollections);
-    retPSet.addParameter<int>("ncandcut", hltConfig_.modulePSet(moduleName).getParameter<int>("ncandcut"));
-
-    return retPSet;
-  }
- 
-  //--------------------
-  // track isolation
-  //--------------------
-  if (inputType == "EgammaHLTElectronTrackIsolationProducers") {
+  if (inputType == "EgammaHLTElectronDetaDphiProducer" ||           // deta and dphi filter
+      inputType == "EgammaHLTElectronTrackIsolationProducers"       // track isolation
+     ) {
     retPSet.addParameter<std::vector<double> >("PlotBounds", std::vector<double>(2, 0.0));
     retPSet.addParameter<edm::InputTag>("HLTCollectionLabels", edm::InputTag(moduleName, "", processName_));
     retPSet.addParameter<std::vector<edm::InputTag> >("IsoCollections", isoCollections);
