@@ -122,7 +122,7 @@ std::string LMFDat::buildSelectSql(int logic_id, int direction) {
   if (getLMFRunIOVID() > 0) {
     // in this case we are looking for all data collected during the same
     // IOV. There can be many logic_ids per IOV.
-    sql << "SELECT * FROM " << getTableName() << " WHERE "
+    sql << "SELECT * FROM CMS_ECAL_LASER_COND." << getTableName() << " WHERE "
 	<< getIovIdFieldName() << " = " << getLMFRunIOVID();
   } else {
     // in this case we are looking for a specific logic_id whose
@@ -134,7 +134,8 @@ std::string LMFDat::buildSelectSql(int logic_id, int direction) {
       op = "<";
       order = "DESC";
     }
-    sql << "SELECT * FROM (SELECT " << getTableName() << ".* FROM " 
+    sql << "SELECT * FROM (SELECT CMS_ECAL_LASER_COND." 
+	<< getTableName() << ".* FROM CMS_ECAL_LASER_COND." 
 	<< getTableName() 
 	<< " JOIN LMF_RUN_IOV ON " 
 	<< "LMF_RUN_IOV.LMF_IOV_ID = " 
@@ -296,7 +297,8 @@ std::map<int, std::vector<float> > LMFDat::fetchData()
 {
   // see if any of the data is already in the database
   std::map<int, std::vector<float> > s = m_data;
-  std::string sql = "SELECT LOGIC_ID FROM " + getTableName() + " WHERE "
+  std::string sql = "SELECT LOGIC_ID FROM CMS_ECAL_LASER_COND." + 
+    getTableName() + " WHERE "
     + getIovIdFieldName() + " = :1";
   if (m_debug) {
     cout << m_className << ":: candidate data items to be written = " 
@@ -487,11 +489,16 @@ void LMFDat::getKeyTypes()
   std::string sql = "";
   try {
     Statement *stmt = m_conn->createStatement();
+    sql = "SELECT * FROM TABLE(CMS_ECAL_LASER_COND.LMF_TAB_COLS(:1, :2))";
+    /*
     sql = "SELECT COLUMN_NAME, DATA_TYPE FROM " 
       "USER_TAB_COLS WHERE TABLE_NAME = '" + getTableName() + "' " 
       "AND COLUMN_NAME != '" + getIovIdFieldName() +  "' AND COLUMN_NAME != " 
       "'LOGIC_ID'";
+    */
     stmt->setSQL(sql);
+    stmt->setString(1, getTableName());
+    stmt->setString(2, getIovIdFieldName());
     ResultSet *rset = stmt->executeQuery();
     while (rset->next()) {
       std::string name = rset->getString(1);
