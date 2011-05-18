@@ -9,6 +9,8 @@ from options import globalTag
 class HLTProcess(object):
   # paths not supported by FastSim
   fastsimUnsupportedPaths = [
+
+  # paths for which a recovery is not foreseen/possible
     "AlCa_EcalEta_v*",
     "AlCa_EcalPhiSym_v*",
     "AlCa_EcalPi0_v*",
@@ -31,6 +33,11 @@ class HLTProcess(object):
     "HLT_JetE30_NoBPTX*_v*",
     "HLT_JetE50_NoBPTX*_v*",
     "HLT_JetE50_NoBPTX3BX_NoHalo_v*",
+    
+  # TODO: paths likely not supportable, but it should be checked nonetheless
+    "HLT_MET100_HBHENoiseFiltered_v*",
+    "HLT_MET120_HBHENoiseFiltered_v*",
+    "HLT_MET200_HBHENoiseFiltered_v*",
   
   # TODO: paths not supported by FastSim, but for which a recovery should be attempted
     "HLT_Mu3_Track3_Jpsi_v*",
@@ -827,6 +834,9 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorEleJetSingleTop" )
       self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesEleJetSingleTop" )
       self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksEleJetSingleTop" )
+      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorIsoEleJetSingleTop" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesIsoEleJetSingleTop" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksIsoEleJetSingleTop" )
       self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorRA2b" )
       self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesRA2b" )
       self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksRA2b" )
@@ -836,6 +846,12 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorHbb" )
       self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesHbb" )
       self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksHbb" )
+      self.options['modules'].append( "-hltBLifetimeRegionalPixel3DSeedGeneratorJet30Hbb" )
+      self.options['modules'].append( "-hltBLifetimeRegional3DCkfTrackCandidatesJet30Hbb" )
+      self.options['modules'].append( "-hltBLifetimeRegional3DCtfWithMaterialTracksJet30Hbb" )
+      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorbbPhi" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesbbPhi" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksbbPhi" )
 
       self.options['modules'].append( "-hltPixelTracksForMinBias" )
       self.options['modules'].append( "-hltPixelTracksForHighMult" )
