@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/GRun/V74 (CMSSW_4_2_0_HLT6)
+# /dev/CMSSW_4_2_0/GRun/V75 (CMSSW_4_2_0_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V74')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V75')
 )
 
 streams = cms.PSet( 
@@ -22916,7 +22916,7 @@ hltIsolPixelTrackProdHE = cms.EDProducer( "IsolatedPixelTrackCandidateProducer",
     tauUnbiasCone = cms.double( 1.2 ),
     ExtrapolationConeSize = cms.double( 1.0 ),
     PixelIsolationConeSizeAtEC = cms.double( 40.0 ),
-    L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet52" ),
+    L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet68" ),
     MaxVtxDXYSeed = cms.double( 101.0 ),
     MaxVtxDXYIsol = cms.double( 101.0 ),
     VertexLabel = cms.InputTag( "hltHITPixelVerticesHE" ),
@@ -22928,7 +22928,7 @@ hltIsolPixelTrackProdHE = cms.EDProducer( "IsolatedPixelTrackCandidateProducer",
 )
 hltIsolPixelTrackL2FilterHE = cms.EDFilter( "HLTPixelIsolTrackFilter",
     candTag = cms.InputTag( "hltIsolPixelTrackProdHE" ),
-    L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet52" ),
+    L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet68" ),
     MinDeltaPtL1Jet = cms.double( -40000.0 ),
     MinPtTrack = cms.double( 3.5 ),
     MaxPtNearby = cms.double( 2.0 ),
@@ -23028,7 +23028,7 @@ hltHITIPTCorrectorHE = cms.EDProducer( "IPTCorrector",
 )
 hltIsolPixelTrackL3FilterHE = cms.EDFilter( "HLTPixelIsolTrackFilter",
     candTag = cms.InputTag( "hltHITIPTCorrectorHE" ),
-    L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet52" ),
+    L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet68" ),
     MinDeltaPtL1Jet = cms.double( 4.0 ),
     MinPtTrack = cms.double( 20.0 ),
     MaxPtNearby = cms.double( 2.0 ),
@@ -23062,7 +23062,7 @@ hltIsolPixelTrackProdHB = cms.EDProducer( "IsolatedPixelTrackCandidateProducer",
     tauUnbiasCone = cms.double( 1.2 ),
     ExtrapolationConeSize = cms.double( 1.0 ),
     PixelIsolationConeSizeAtEC = cms.double( 40.0 ),
-    L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet52" ),
+    L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet68" ),
     MaxVtxDXYSeed = cms.double( 101.0 ),
     MaxVtxDXYIsol = cms.double( 101.0 ),
     VertexLabel = cms.InputTag( "hltHITPixelVerticesHB" ),
@@ -23074,7 +23074,7 @@ hltIsolPixelTrackProdHB = cms.EDProducer( "IsolatedPixelTrackCandidateProducer",
 )
 hltIsolPixelTrackL2FilterHB = cms.EDFilter( "HLTPixelIsolTrackFilter",
     candTag = cms.InputTag( "hltIsolPixelTrackProdHB" ),
-    L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet52" ),
+    L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet68" ),
     MinDeltaPtL1Jet = cms.double( -40000.0 ),
     MinPtTrack = cms.double( 3.5 ),
     MaxPtNearby = cms.double( 2.0 ),
@@ -23174,7 +23174,7 @@ hltHITIPTCorrectorHB = cms.EDProducer( "IPTCorrector",
 )
 hltIsolPixelTrackL3FilterHB = cms.EDFilter( "HLTPixelIsolTrackFilter",
     candTag = cms.InputTag( "hltHITIPTCorrectorHB" ),
-    L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet52" ),
+    L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet68" ),
     MinDeltaPtL1Jet = cms.double( 4.0 ),
     MinPtTrack = cms.double( 20.0 ),
     MaxPtNearby = cms.double( 2.0 ),
@@ -24606,8 +24606,8 @@ HLT_BeamHalo_v3 = cms.Path( HLTBeginSequence + hltL1sL1BeamHalo + hltPreL1BeamHa
 HLT_L1Tech_BSC_minBias_threshold1_v4 = cms.Path( HLTBeginSequence + hltL1sZeroBias + hltPreL1TechBSCminBiasthreshold1 + hltL1TechBSCminBiasthreshold1 + HLTEndSequence )
 HLT_L1_PreCollisions_v2 = cms.Path( HLTBeginSequence + hltL1sL1PreCollisions + hltPreL1PreCollisions + HLTEndSequence )
 HLT_L1_Interbunch_BSC_v2 = cms.Path( HLTBeginSequence + hltL1sL1InterbunchBsc + hltPreL1Interbunch1 + HLTEndSequence )
-HLT_IsoTrackHE_v4 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet52 + hltPreIsoTrackHE + HLTDoLocalPixelSequence + hltHITPixelTracksHB + hltHITPixelTracksHE + hltHITPixelVerticesHE + hltIsolPixelTrackProdHE + hltIsolPixelTrackL2FilterHE + HLTDoLocalStripSequence + hltHITPixelTripletSeedGeneratorHE + hltHITCkfTrackCandidatesHE + hltHITCtfWithMaterialTracksHE + hltHITIPTCorrectorHE + hltIsolPixelTrackL3FilterHE + HLTEndSequence )
-HLT_IsoTrackHB_v3 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet52 + hltPreIsoTrackHB + HLTDoLocalPixelSequence + hltHITPixelTracksHB + hltHITPixelVerticesHB + hltIsolPixelTrackProdHB + hltIsolPixelTrackL2FilterHB + HLTDoLocalStripSequence + hltHITPixelTripletSeedGeneratorHB + hltHITCkfTrackCandidatesHB + hltHITCtfWithMaterialTracksHB + hltHITIPTCorrectorHB + hltIsolPixelTrackL3FilterHB + HLTEndSequence )
+HLT_IsoTrackHE_v4 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet68 + hltPreIsoTrackHE + HLTDoLocalPixelSequence + hltHITPixelTracksHB + hltHITPixelTracksHE + hltHITPixelVerticesHE + hltIsolPixelTrackProdHE + hltIsolPixelTrackL2FilterHE + HLTDoLocalStripSequence + hltHITPixelTripletSeedGeneratorHE + hltHITCkfTrackCandidatesHE + hltHITCtfWithMaterialTracksHE + hltHITIPTCorrectorHE + hltIsolPixelTrackL3FilterHE + HLTEndSequence )
+HLT_IsoTrackHB_v3 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet68 + hltPreIsoTrackHB + HLTDoLocalPixelSequence + hltHITPixelTracksHB + hltHITPixelVerticesHB + hltIsolPixelTrackProdHB + hltIsolPixelTrackL2FilterHB + HLTDoLocalStripSequence + hltHITPixelTripletSeedGeneratorHB + hltHITCkfTrackCandidatesHB + hltHITCtfWithMaterialTracksHB + hltHITIPTCorrectorHB + hltIsolPixelTrackL3FilterHB + HLTEndSequence )
 HLT_HcalPhiSym_v4 = cms.Path( HLTBeginSequenceNZS + hltL1sHcalPhiSym + hltPreHcalPhiSym + HLTEndSequence )
 HLT_HcalNZS_v4 = cms.Path( HLTBeginSequenceNZS + hltL1sHcalNZS + hltPreHcalNZS + HLTEndSequence )
 HLT_GlobalRunHPDNoise_v3 = cms.Path( HLTBeginSequence + hltL1sGlobalRunHPDNoise + hltPreGlobalRunHPDNoise + HLTEndSequence )
