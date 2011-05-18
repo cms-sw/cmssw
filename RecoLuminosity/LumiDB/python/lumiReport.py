@@ -161,16 +161,51 @@ def toCSVLSDelivered(lumidata,filename,resultlines,isverbose):
 
 def toScreenOverview(lumidata,resultlines,isverbose):
     '''
-    input:  {run:[lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,recordedlumi,calibratedlumierror,(bxidx,bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}
+    input:
+    lumidata {run:[lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,recordedlumi,calibratedlumierror,(bxidx,bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}
+    resultlines [[resultrow1],[resultrow2],...,] existing result row
     '''
     result=[]
     labels = [('Run', 'Delivered LS', 'Delivered','Selected LS','Recorded')]
+    totOldDeliveredLS=0
+    totOldSelectedLS=0
+    totOldDelivered=0.0
+    totOldRecorded=0.0
+    
     totaltable=[]
     totalDeliveredLS = 0
     totalSelectedLS = 0
     totalDelivered = 0.0
     totalRecorded = 0.0
-    for run in sorted(lumidata):
+
+    for r in resultlines:
+        dl=0.0
+        if(r[2]!='n/a'):            
+            dl=float(r[2])#delivered in /ub because it comes from file!
+            (rr,lumiu)=CommonUtil.guessUnit(dl)
+            r[2]='%.3f'%(rr)+' ('+lumiu+')'
+        dls=0
+        if(r[1]!='n/a'):
+            dls=int(r[1])
+        totOldDeliveredLS+=dls
+        totOldDelivered+=dl
+        rls=0
+        if(r[3]!='n/a'):
+            rlsstr=r[3]
+            listcomp=rlsstr.split(', ')
+            for lstr in listcomp:
+                enddigs=lstr[1:-1].split('-')
+                lsmin=int(enddigs[0])
+                lsmax=int(enddigs[1])
+                rls=lsmax-lsmin+1
+                totOldSelectedLS+=rls
+        if(r[4]!='n/a'):
+            rcd=float(r[4])#recorded in /ub because it comes from file!
+            (rrcd,rlumiu)=CommonUtil.guessUnit(rcd)
+            r[4]='%.3f'%(rrcd)+' ('+rlumiu+')'
+        totOldRecorded+=rcd
+        result.append(r)
+    for run in lumidata.keys():
         lsdata=lumidata[run]
         if lsdata is None:
             result.append([str(run),'n/a','n/a','n/a','n/a'])
@@ -194,15 +229,16 @@ def toScreenOverview(lumidata,resultlines,isverbose):
         else:
             selectedlsStr = CommonUtil.splitlistToRangeString(selectedcmsls)
         result.append([str(run),str(nls),'%.3f'%(totdeliveredlumi)+' ('+deliveredlumiunit+')',selectedlsStr,'%.3f'%(totrecordedlumi)+' ('+recordedlumiunit+')'])
+    sorted(result,key=lambda x : int(x[0]))
     print ' ==  = '
     print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
     print ' ==  =  Total : '
-    (totalDeliveredVal,totalDeliveredUni)=CommonUtil.guessUnit(totalDelivered)
-    (totalRecordedVal,totalRecordedUni)=CommonUtil.guessUnit(totalRecorded)
+    (totalDeliveredVal,totalDeliveredUni)=CommonUtil.guessUnit(totalDelivered+totOldDelivered)
+    (totalRecordedVal,totalRecordedUni)=CommonUtil.guessUnit(totalRecorded+totOldRecorded)
     totrowlabels = [('Delivered LS','Delivered('+totalDeliveredUni+')','Selected LS','Recorded('+totalRecordedUni+')')]
-    totaltable.append([str(totalDeliveredLS),'%.3f'%totalDeliveredVal,str(totalSelectedLS),'%.3f'%totalRecordedVal])
+    totaltable.append([str(totalDeliveredLS+totOldDeliveredLS),'%.3f'%totalDeliveredVal,str(totalSelectedLS+totOldSelectedLS),'%.3f'%totalRecordedVal])
     print tablePrinter.indent (totrowlabels+totaltable, hasHeader = True, separateRows = False, prefix = '| ',
                                postfix = ' |', justify = 'right', delim = ' | ',
                                wrapfunc = lambda x: wrap_onspace (x, 20))
