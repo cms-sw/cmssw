@@ -8,11 +8,11 @@
  *
  * Author     : Andreas Mussgiller
  * date       : 2010/08/30
- * last update: $Date: 2010/03/08 16:13:38 $
+ * last update: $Date: 2010/09/10 12:06:43 $
  * by         : $Author: mussgill $
  */
 
-#include <iostream>
+#include <cmath>
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -34,30 +34,16 @@ class BeamSpotTransientTrackingRecHit: public TransientTrackingRecHit {
 				  double phi)
     :TransientTrackingRecHit(geom, AlignableBeamSpot::detId(), valid, 1.0, 1.0) {
 
-    beamSpotGlobalPosition_ = GlobalPoint(beamSpot.x0(), beamSpot.y0(), beamSpot.z0());
-    beamSpotLocalPosition_ = det()->toLocal(beamSpotGlobalPosition_);
-
-    beamSpotLocalError_ = LocalError(sqrt(beamSpot.BeamWidthX()*cos(phi)*beamSpot.BeamWidthX()*cos(phi) +
-					  beamSpot.BeamWidthY()*sin(phi)*beamSpot.BeamWidthY()*sin(phi)),
-				     0.0, beamSpot.sigmaZ());
-    beamSpotGlobalError_ = ErrorFrameTransformer().transform(beamSpotLocalError_, det()->surface());
-    
-    beamSpotErrorRPhi_ = beamSpotGlobalPosition_.perp()*sqrt(beamSpotGlobalError_.phierr(beamSpotGlobalPosition_)); 
-    beamSpotErrorR_ = sqrt(beamSpotGlobalError_.rerr(beamSpotGlobalPosition_));
-    beamSpotErrorZ_ = sqrt(beamSpotGlobalError_.czz());
+    localPosition_ = det()->toLocal(GlobalPoint(beamSpot.x0(), beamSpot.y0(), beamSpot.z0()));
+    localError_ = LocalError(std::pow(beamSpot.BeamWidthX()*cos(phi), 2) +
+		  	     std::pow(beamSpot.BeamWidthY()*sin(phi), 2),
+		             0.0, std::pow(beamSpot.sigmaZ(), 2));
   }
     
   virtual ~BeamSpotTransientTrackingRecHit() {}
 
-  virtual GlobalPoint globalPosition() const { return beamSpotGlobalPosition_; }
-  virtual GlobalError globalPositionError() const { return beamSpotGlobalError_; }
-
-  virtual LocalPoint localPosition() const { return beamSpotLocalPosition_; }
-  virtual LocalError localPositionError() const { return beamSpotLocalError_; }
-
-  float errorGlobalR() const { return beamSpotErrorR_; }
-  float errorGlobalZ() const { return beamSpotErrorZ_; }
-  float errorGlobalRPhi() const { return beamSpotErrorRPhi_; }
+  virtual LocalPoint localPosition() const { return localPosition_; }
+  virtual LocalError localPositionError() const { return localError_; }
 
   virtual AlgebraicVector parameters() const;
   virtual AlgebraicSymMatrix parametersError() const;
@@ -81,11 +67,8 @@ class BeamSpotTransientTrackingRecHit: public TransientTrackingRecHit {
 
  protected:
 
-  GlobalPoint beamSpotGlobalPosition_;
-  GlobalError beamSpotGlobalError_;  
-  float beamSpotErrorR_, beamSpotErrorZ_, beamSpotErrorRPhi_;
-  LocalPoint beamSpotLocalPosition_;
-  LocalError beamSpotLocalError_;
+  LocalPoint localPosition_;
+  LocalError localError_;
 
  private:
   
