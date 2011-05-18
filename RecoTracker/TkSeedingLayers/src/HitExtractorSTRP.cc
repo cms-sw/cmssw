@@ -104,8 +104,8 @@ void HitExtractorSTRP::cleanedOfClusters( const edm::Event& ev, HitExtractor::Hi
   edm::Handle<edmNew::DetSetVector<SiStripClusterRef> > stripClusterRefs;
   ev.getByLabel(theSkipClusters,stripClusterRefs);
   HitExtractor::Hits newHits;
-  uint skipped=0;
-  uint projected=0;
+  unsigned int skipped=0;
+  unsigned int projected=0;
   newHits.reserve(hits.size());
   TransientTrackingRecHit::ConstRecHitPointer replaceMe;
   for (unsigned int iH=0;iH!=hits.size();++iH){

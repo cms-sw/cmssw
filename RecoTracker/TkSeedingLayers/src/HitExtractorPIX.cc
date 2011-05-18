@@ -39,7 +39,7 @@ HitExtractor::Hits HitExtractorPIX::hits(const SeedingLayer & sl,const edm::Even
     ev.getByLabel(theSkipClusters,pixelClusterRefs);
     std::vector<bool> keep(result.size(),true);
     HitExtractor::Hits newHits;
-    uint skipped=0;
+    unsigned int skipped=0;
     if (result.empty()) return result;
     DetId lookup=result.front()->hit()->geographicalId();
     edmNew::DetSetVector<SiPixelClusterRefNew>::const_iterator f=pixelClusterRefs->find(lookup);
