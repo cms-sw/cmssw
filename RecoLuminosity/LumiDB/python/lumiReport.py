@@ -226,7 +226,10 @@ def toCSVOverview(lumidata,filename,resultlines,isverbose):
         if len(recordedData)!=0:
             totrecordedlumi=sum(recordedData)
         selectedcmsls=[x[1] for x in lsdata if x[1]!=0]
-        selectedlsStr = CommonUtil.splitlistToRangeString(selectedcmsls)
+        if len(selectedcmsls)==0:
+            selectedlsStr='n/a'
+        else:
+            selectedlsStr = CommonUtil.splitlistToRangeString(selectedcmsls)
         result.append([run,nls,totdeliveredlumi,selectedlsStr,totrecordedlumi])
     r.writeRow(fieldnames)
     r.writeRows(result)
