@@ -7,13 +7,14 @@
  */
 
 #define QUEUE_ID 137      /* base ID of queue to generate.M->S = odd, S->M = even */
-#define MAX_MSG_SIZE 0x2000  /* size (in bytes) of largest message we'll ever send. 
+#define MAX_MSG_SIZE 0x8000  /* size (in bytes) of largest message we'll ever send. 
 				This is the system max  */
 
 #define MSGQ_MESSAGE_TYPE_RANGE 0xfff
 
 #define MSQM_MESSAGE_TYPE_NOP  0x000
 #define MSQM_MESSAGE_TYPE_STOP 0x002
+#define MSQM_MESSAGE_TYPE_FSTOP 0x003
 #define MSQM_MESSAGE_TYPE_MCS  0x004
 #define MSQM_MESSAGE_TYPE_PRG  0x008
 #define MSQM_MESSAGE_TYPE_WEB  0x00a

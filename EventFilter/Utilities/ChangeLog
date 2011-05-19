@@ -1,3 +1,10 @@
+2011-05-19  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-19-12
+	* speedup of MicroStateService
+	* increase max message size in message queues
+	* introduce FSTOP signal
+
 2011-05-13  Emilio Meschi <emilio.meschi@cern.ch>
 	
 	* tag V00-19-11
