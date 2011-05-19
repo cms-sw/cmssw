@@ -9,8 +9,19 @@
 /**\class InterestingDetIdCollectionProducer 
 Original author: Paolo Meridiani PH/CMG
  
-Implementation:
- <Notes on implementation>
+Make a collection of detids to be kept tipically in a AOD rechit collection
+
+The following classes of "interesting id" are considered
+
+    1.in a region around  the seed of the cluster collection specified
+      by paramter basicClusters. The size of the region is specified by
+      minimalEtaSize_, minimalPhiSize_
+ 
+    2. if the severity of the hit is >= severityLevel_
+       If severityLevel=0 this class is ignored
+
+    3. Channels next to dead ones,  keepNextToDead_ is true
+    4. Channels next to the EB/EE transition if keepNextToBoundary_ is true
 */
 
 
@@ -52,6 +63,8 @@ class InterestingDetIdCollectionProducer : public edm::EDProducer {
       int severityLevel_;
       const EcalSeverityLevelAlgo * severity_;
       bool  keepNextToDead_;
+      bool  keepNextToBoundary_;
+
 };
 
 #endif

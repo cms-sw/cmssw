@@ -21,7 +21,7 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 
-// $Id$
+// $Id: InterestingDetIdCollectionProducer.cc,v 1.9 2011/05/17 09:14:16 argiro Exp $
 
 InterestingDetIdCollectionProducer::InterestingDetIdCollectionProducer(const edm::ParameterSet& iConfig) 
 {
@@ -41,6 +41,7 @@ InterestingDetIdCollectionProducer::InterestingDetIdCollectionProducer(const edm
 
   severityLevel_  = iConfig.getParameter<int>("severityLevel");
   keepNextToDead_ = iConfig.getParameter<bool>("keepNextToDead");
+  keepNextToBoundary_ = iConfig.getParameter<bool>("keepNextToBoundary");
 }
 
 
@@ -120,22 +121,39 @@ InterestingDetIdCollectionProducer::produce (edm::Event& iEvent,
   }
 
 
-  // also add recHits of dead TT if the corresponding TP is saturated
+ 
   for (EcalRecHitCollection::const_iterator it = recHitsHandle->begin(); it != recHitsHandle->end(); ++it) {
-          if ( it->checkFlag(EcalRecHit::kTPSaturated) ) {
-	    indexToStore.push_back(it->id());
-	  }
-	  else if ( severityLevel_>=0 && severity_->severityLevel(*it) >=severityLevel_){
-	    indexToStore.push_back(it->id());
-	  } 
-          else if (keepNextToDead_) {
-	    // also keep channels next to dead ones
-	    if (EcalTools::isNextToDead(it->id(), iSetup)) {
-	      indexToStore.push_back(it->id());
-	    }
-	  }
+    // also add recHits of dead TT if the corresponding TP is saturated
+    if ( it->checkFlag(EcalRecHit::kTPSaturated) ) {
+      indexToStore.push_back(it->id());
+    }
+    // add hits for severities above a threshold
+    if ( severityLevel_>=0 && 
+	 severity_->severityLevel(*it) >=severityLevel_){
+      
+      indexToStore.push_back(it->id());
+    } 
+    if (keepNextToDead_) {
+      // also keep channels next to dead ones
+      if (EcalTools::isNextToDead(it->id(), iSetup)) {
+	indexToStore.push_back(it->id());
+      }
+    } 
 
-	
+    if (keepNextToBoundary_){
+      // keep channels around EB/EE boundary
+      if (it->id().subdetId() == EcalBarrel){
+	EBDetId ebid(it->id());
+	if (abs(ebid.ieta())== 85)
+	  indexToStore.push_back(it->id());
+      } else {
+     
+	if (EEDetId::isNextToRingBoundary(it->id()))
+	  indexToStore.push_back(it->id());
+      }
+
+    }
+    
   }
 
   //unify the vector
