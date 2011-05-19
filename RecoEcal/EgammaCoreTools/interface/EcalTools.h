@@ -3,7 +3,7 @@
    Declaration of class EcalTools
 
    \author Stefano Argiro
-   \version $Id: EcalTools.h,v 1.3 2011/05/17 09:28:03 argiro Exp $
+   \version $Id: EcalTools.h,v 1.4 2011/05/19 14:38:28 argiro Exp $
    \date 11 Jan 2011
 */
 
@@ -35,7 +35,7 @@ public:
   /// same as isNextToDead, but will use information from the neighbour
   /** Looks at neighbours in 3x3 and returns true if one of them has
       chStatus above chStatusThreshold.
-      Use sparingly, might slow you down
+      Use sparingly, slow. Normally isNextToDead() should be used instead.
         
    */
 
