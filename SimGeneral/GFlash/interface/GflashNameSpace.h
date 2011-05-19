@@ -70,8 +70,9 @@ namespace Gflash {
   const double MinEnergyCutOffForHO =   2.5;
 
   //additional energy scale for the Hcal sensitive detector
-  const double scaleSensitiveHB = 0.200;
-  const double scaleSensitiveHE = 0.200;
+  const double scaleSensitiveHB = 0.180;
+  //  const double scaleSensitiveHE = 0.220;
+  const double scaleSensitiveHE = 0.180;
 
   // properties for different sub-detectors (calorimeters)
 
@@ -89,18 +90,18 @@ namespace Gflash {
   //Pion(-/+) parameters
 
   const double pion_emscale[2][5] = {
-    {  8.9793e-01,  2.4904e-01, -6.8027e-01, -3.9430e-01, -4.2486e-02 },
+    {  8.4338e-01,  1.8663e-01, -1.1906e+00,  6.8340e-01, -3.1237e-02 },
     {  1.8918e-01,  2.2620e-02,  4.2555e+00,  1.8317e+00, -6.1358e-03 }
   };
 
   const double pion_hadscale[7][5] = {
     //based on LogNormal of Had Energy - RegionI
-    { -2.6936e+00,  7.5607e-01,  7.0297e-01,  1.5382e+00,  1.1664e+00 },
+    { -4.4752e+00,  3.8163e+00,  2.7962e-01, -7.6887e-01,  9.6721e-01 },
     {  1.1228e+00,  6.5039e-01,  4.5585e+00, -8.0282e+00, -1.7630e-01 },
     {  2.8223e+00,  5.9029e+00, -1.5873e-01, -8.7078e-01,  3.8598e-01 },
     { -8.2726e-01,  1.0359e-01,  2.2052e+01,  2.9719e+00,  6.4103e-02 },
     //LogNormal of Had Energy for mip-like response
-    {  1.6138e-01,  1.7184e+00,  1.6463e-01,  1.6750e+00,  7.6743e-01 },
+    { -8.1787e-02,  8.3243e+00,  3.7488e-03,  3.2653e+00,  9.5662e-01 },
     {  1.0567e-01, -2.0485e-01,  2.3345e-01,  4.5563e-01,  2.3694e-02 },
     //correction of response if ssp is between Ecal and Hcal
     {  1.8736e-01,  1.7391e-01,  1.0991e+00,  3.3557e+00,  0.0000e+00 }
@@ -234,18 +235,18 @@ namespace Gflash {
   //Proton paramters
 
   const double pro_emscale[2][5] = {
-    {  6.4769e-01,  1.8240e-01, -7.3995e-01,  7.2707e-01, -1.3383e-02 },
+    {  6.2614e-01,  1.7633e-01, -1.2677e+00,  1.3193e+00,  2.4973e-03 },
     {  1.6413e-01,  5.2570e-03,  1.8876e+02,  1.2887e+00, -4.0266e-03 }
   };
 
   const double pro_hadscale[7][5] = {
     //based on LogNormal of Had Energy 
-    { -2.7642e+00,  1.4131e+00,  5.0592e-01,  5.5818e-01,  1.0655e+00 },
+    { -1.2767e+02,  1.2691e+02,  2.6892e-01, -8.4621e+00,  9.7956e-01 },
     {  1.2283e+00,  1.6307e-01, -3.6863e+00,  1.8677e+00, -4.5990e-02 },
     {  1.8917e+00,  2.0947e+00, -3.6371e-01,  3.7861e-01,  8.8760e-02 },
     { -7.6830e-01,  3.1319e-01,  8.2844e-01,  1.5865e+00,  2.4735e-02 },
     //LogNormal of Had Energy for mip-like response
-    { -4.3988e-01,  1.4789e+00,  1.1581e-01, -3.9612e-01,  8.9162e-01 },
+    { -1.0927e+01,  1.0727e+01,  2.9922e+00, -8.2073e-01,  9.8722e-01 },
     {  7.2797e-02,  2.3601e-02, -1.4900e+00,  1.8989e+00,  3.4294e-04 },
     //correction of response if ssp is between Ecal and Hcal
     {  1.8736e-01,  1.7391e-01,  1.0991e+00,  3.3557e+00,  0.0000e+00 }
@@ -379,18 +380,18 @@ namespace Gflash {
   //Anti-Proton paramters
 
   const double pbar_emscale[2][5] = {
-    {  1.8964e+01,  1.9139e+01, -2.3711e-01, -6.2753e+00,  5.4115e-02 },
+    {  1.9246e+01,  1.8870e+01, -3.3127e-01, -4.8509e+00, -2.3785e-02 },
     {  3.5744e+00,  3.3661e+00, -4.9667e-01, -4.1388e+00, -8.8824e-03 }
   };
 
   const double pbar_hadscale[7][5] = {
     //based on LogNormal of Had Energy 
-    { -1.8218e+00,  1.1444e+00,  8.1259e-01,  2.3741e+00,  9.7840e-01 },
+    { -1.8857e+00,  9.4549e-01,  1.0173e+00,  2.3654e+00,  1.0381e+00 },
     {  1.4276e+00,  8.3835e-01, -9.1466e-01,  2.3945e+00,  0.0000e+00 },
     {  1.0005e+00,  5.0454e-01, -9.6777e-01,  2.4216e+00, -3.0214e-02 },
     { -7.1494e-01,  3.7825e-01,  1.1627e+00,  2.7411e+00,  5.5459e-03 },
     //LogNormal of Had Energy for mip-like response
-    {  3.2651e+00,  3.8597e+00,  2.3811e-01,  3.7591e+00,  8.8565e-02 },
+    {  1.5770e+00,  1.1215e+00,  4.2471e-01,  3.8321e+00,  5.2852e-01 },
     { -6.5624e-02,  2.7895e-01, -3.2639e-01,  2.3605e+00,  6.3871e-02 },
     //correction of response if ssp is between Ecal and Hcal
     {  1.8736e-01,  1.7391e-01,  1.0991e+00,  3.3557e+00,  0.0000e+00 }
@@ -523,18 +524,18 @@ namespace Gflash {
   //Kaon-Minus paramters
 
   const double kminus_emscale[2][5] = {
-    {  8.2068e-01,  2.3362e-01, -1.0824e+00,  8.0135e-01, -3.1983e-02 },
+    {  8.3935e-01,  2.4180e-01, -1.4484e+00,  1.0397e+00, -2.2546e-02 },
     {  2.3334e-01,  3.6810e-02,  1.0247e+01,  1.8556e+00, -1.9288e-02 }
   };
 
   const double kminus_hadscale[7][5] = {
     //based on LogNormal of Had Energy 
-    { -3.9982e+01,  4.7152e+01,  8.1819e-02, -1.2698e+01,  3.3222e-01 },
+    { -5.9393e+01,  6.4013e+01,  1.0843e-01, -1.2441e+01,  4.2589e-01 },
     {  1.3649e+01,  1.2266e+01, -4.9381e-01, -3.6921e+00, -1.1441e-01 },
     {  1.2102e+00,  4.7458e-01, -9.4128e-01,  2.1482e+00, -5.1031e-02 },
     { -6.2018e-01,  2.0288e-01,  1.1271e+00,  2.8535e+00,  0.0000e+00 },
     //LogNormal of Had Energy for mip-like response
-    {  8.7984e-01,  1.1972e+00,  2.9462e-01,  3.2311e+00,  6.7855e-01 },
+    {  1.7106e-01,  1.3766e-01,  7.3972e-01,  4.1351e+00,  9.0284e-01 },
     {  5.7520e-01, -1.2499e+00,  8.0351e-02, -4.7481e+00,  6.0937e-02 },
     //correction of response if ssp is between Ecal and Hcal
     {  1.8736e-01,  1.7391e-01,  1.0991e+00,  3.3557e+00,  0.0000e+00 }
@@ -668,18 +669,18 @@ namespace Gflash {
   //Kaon-Plus paramters
 
   const double kplus_emscale[2][5] = {
-    {  7.3011e-01,  2.5768e-01, -1.2356e+00,  1.1433e+00, -1.9269e-02 },
+    {  7.8775e-01,  2.7022e-01, -1.4291e+00,  1.3980e+00, -1.2795e-02 },
     {  2.2224e-01,  1.7480e-02,  1.1984e+01,  1.8265e+00, -1.6718e-02 }
   };
 
   const double kplus_hadscale[7][5] = {
     //based on LogNormal of Had Energy 
-    { -1.1652e+02,  1.1483e+02,  5.3833e-01, -4.1378e+00,  1.1518e+00 },
+    { -1.1629e+02,  1.1506e+02,  4.8753e-01, -4.4057e+00,  1.0940e+00 },
     {  2.2018e+00,  1.1327e+00, -6.4208e-01,  1.2240e-01, -7.2109e-02 },
     {  1.5217e+00,  1.9949e+00, -4.0047e-01,  1.0897e+00,  1.4482e-01 },
     { -1.2902e+01,  1.5504e+01,  1.1257e-01, -8.4732e+00, -3.0451e-01 },
     //LogNormal of Had Energy for mip-like response
-    {  2.0162e+00,  3.1857e+00,  2.1540e-01,  3.3198e+00,  3.4107e-01 },
+    {  3.4887e-01,  1.9201e-01,  8.5205e-01,  3.8457e+00,  8.5097e-01 },
     {  5.1252e-01,  7.7619e-01, -1.3001e-01, -4.1296e+00,  3.8339e-02 },
     //correction of response if ssp is between Ecal and Hcal
     {  1.8736e-01,  1.7391e-01,  1.0991e+00,  3.3557e+00,  0.0000e+00 }
