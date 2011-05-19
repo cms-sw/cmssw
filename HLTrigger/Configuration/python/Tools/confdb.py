@@ -2,6 +2,7 @@
 
 import sys
 import re
+import os
 from pipe import pipe as _pipe
 from options import globalTag
 
@@ -259,6 +260,26 @@ if 'hltPreHLTMONOutputSmart' in %(dict)s:
       # if requested, instrument the self with the modules and EndPath needed for timing studies
       self.instrumentTiming()
 
+      self.data += """
+# 43X only: additional ESProducer in cfg files
+import os
+if os.getenv("CMSSW_VERSION")>="CMSSW_4_3":
+    %(process)shltESPStripLorentzAngleDep = cms.ESProducer("SiStripLorentzAngleDepESProducer",
+        LatencyRecord = cms.PSet(
+            record = cms.string('SiStripLatencyRcd'),
+            label = cms.untracked.string('')
+        ),
+        LorentzAngleDeconvMode = cms.PSet(
+            record = cms.string('SiStripLorentzAngleRcd'),
+            label = cms.untracked.string('deconvolution')
+        ),
+        LorentzAnglePeakMode = cms.PSet(
+            record = cms.string('SiStripLorentzAngleRcd'),
+            label = cms.untracked.string('peak')
+        )
+)
+"""
+
 #    # load 4.2.x JECs
 #    self.loadAdditionalConditions('load 4.2.x JECs',
 #      {
@@ -268,7 +289,6 @@ if 'hltPreHLTMONOutputSmart' in %(dict)s:
 #        'connect' : 'frontier://PromptProd/CMS_COND_31X_PHYSICSTOOLS'
 #      }
 #    )
-
 
   def addGlobalOptions(self):
     # add global options

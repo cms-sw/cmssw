@@ -27536,3 +27536,21 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('L1GtTrigReport')
     process.MessageLogger.categories.append('HLTrigReport')
 
+# 43X only: additional ESProducer in cfg files
+import os
+if os.getenv("CMSSW_VERSION")>="CMSSW_4_3":
+    process.hltESPStripLorentzAngleDep = cms.ESProducer("SiStripLorentzAngleDepESProducer",
+        LatencyRecord = cms.PSet(
+            record = cms.string('SiStripLatencyRcd'),
+            label = cms.untracked.string('')
+        ),
+        LorentzAngleDeconvMode = cms.PSet(
+            record = cms.string('SiStripLorentzAngleRcd'),
+            label = cms.untracked.string('deconvolution')
+        ),
+        LorentzAnglePeakMode = cms.PSet(
+            record = cms.string('SiStripLorentzAngleRcd'),
+            label = cms.untracked.string('peak')
+        )
+)
+
