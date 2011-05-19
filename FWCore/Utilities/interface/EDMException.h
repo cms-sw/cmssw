@@ -2,12 +2,10 @@
 #define FWCore_Utilities_EDMException_h
 
 /**
-
  This is the basic exception that is thrown by the framework code.
  It exists primarily to distinguish framework thrown exception types
  from developer thrown exception types. As such there is very little
  interface other than constructors specific to this derived type.
-
 **/
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -23,7 +21,7 @@ namespace edm {
     // If you add a new entry to the set of values, make sure to
     // update the translation map in EDMException.cc, the actions
     // table in FWCore/Framework/src/Actions.cc, and the configuration
-    // fragment FWCore/Framework/test/cmsExceptionsFatalOption.cff.
+    // fragment FWCore/Framework/python/test/cmsExceptionsFatalOption_cff.py.
 
     enum ErrorCodes {
        CommandLineProcessing = 7000,
@@ -60,7 +58,8 @@ namespace edm {
        ProductDoesNotSupportViews = 8024,
        ProductDoesNotSupportPtr = 8025,
 
-       NotFound = 8026
+       NotFound = 8026,
+       FormatIncompatibility = 8027
     };
 
   }
@@ -88,11 +87,11 @@ namespace edm {
     typedef std::map<Code, std::string> CodeMap; 
 
     static void throwThis(Code category,
-			  char const* message0 = "",
-			  char const* message1 = "",
-			  char const* message2 = "",
-			  char const* message3 = "",
-			  char const* message4 = "");
+                          char const* message0 = "",
+                          char const* message1 = "",
+                          char const* message2 = "",
+                          char const* message3 = "",
+                          char const* message4 = "");
     static void throwThis(Code category, char const* message0, int intVal, char const* message2 = "");
 
     virtual Exception* clone() const;

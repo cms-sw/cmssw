@@ -5,7 +5,7 @@ namespace edm {
   namespace errors {
     struct FilledMap {
       FilledMap();
-      edm::Exception::CodeMap trans_;
+      Exception::CodeMap trans_;
     };
     FilledMap::FilledMap() : trans_() {
       EDM_MAP_ENTRY_NONS(trans_, CommandLineProcessing);
@@ -37,14 +37,14 @@ namespace edm {
       EDM_MAP_ENTRY_NONS(trans_, ProductDoesNotSupportViews);
       EDM_MAP_ENTRY_NONS(trans_, ProductDoesNotSupportPtr);
       EDM_MAP_ENTRY_NONS(trans_, NotFound);
+      EDM_MAP_ENTRY_NONS(trans_, FormatIncompatibility);
     }
   }
 
-  void getCodeTable(edm::Exception::CodeMap*& setme) {
+  void getCodeTable(Exception::CodeMap*& setme) {
     static errors::FilledMap fm;
     setme = &fm.trans_;
   }
-
 
   /// -------------- implementation details ------------------
 
@@ -55,7 +55,6 @@ namespace edm {
     CodeMap::const_iterator i(trans->find(c));
     return i!=trans->end() ? i->second : std::string("UnknownCode");
   }
-
 
   Exception::Exception(errors::ErrorCodes aCategory):
     cms::Exception(codeToString(aCategory)),
@@ -97,11 +96,11 @@ namespace edm {
 
   void
   Exception::throwThis(errors::ErrorCodes aCategory,
-		       char const* message0,
-		       char const* message1,
-		       char const* message2,
-		       char const* message3,
-		       char const* message4) {
+                       char const* message0,
+                       char const* message1,
+                       char const* message2,
+                       char const* message3,
+                       char const* message4) {
     Exception e(aCategory, std::string(message0));
     e << message1 << message2 << message3 << message4;
     throw e;

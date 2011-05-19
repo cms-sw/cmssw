@@ -29,5 +29,6 @@ Rethrow = cms.untracked.vstring(
   'MismatchedInputFiles',
   'ProductDoesNotSupportViews',
   'ProductDoesNotSupportPtr',
-  'NotFound'
+  'NotFound',
+  'FormatIncompatibility'
 )
