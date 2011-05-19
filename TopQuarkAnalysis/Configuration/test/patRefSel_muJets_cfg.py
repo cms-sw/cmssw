@@ -64,11 +64,15 @@ from TopQuarkAnalysis.Configuration.patRefSel_refMuJets import *
 #jetMuonsDRPF           = 0.1
 #electronCutPF            = ''
 
-# Trigger selection according to run range:
-# lower range limits available as suffix;
-# available are: 000000, 147196, 160404, 163270 (default), Summer11 (default, if 'runOnMC' = True)
-#triggerSelection       = triggerSelection_Summer11
-#triggerObjectSelection = triggerObjectSelection_Summer11
+# Trigger selection according to run range resp. MC sample:
+# lower range limits for data available as suffix;
+# available are: 000000, 147196, 160404, 163270 (default)
+# sample name for MC available as suffix;
+# available are: Summer11 (default)
+#triggerSelectionData       = triggerSelection_163270
+#triggerObjectSelectionData = triggerObjectSelection_163270
+#triggerSelectionMC       = triggerSelection_Summer11
+#triggerObjectSelectionMC = triggerObjectSelection_Summer11
 
 ### Particle flow
 ### takes effect only, if 'runPF2PAT' = True
@@ -114,7 +118,6 @@ inputFiles = [ '/store/data/Run2011A/MuHad/AOD/PromptReco-v4/000/165/129/42DDEE9
 
 # maximum number of events
 maxInputEvents = -1 # reduce for testing
-maxInputEvents = 10000
 
 ### Conditions
 
@@ -200,7 +203,9 @@ process.load( 'TopQuarkAnalysis.Configuration.patRefSel_eventCleaning_cff' )
 
 ### Trigger selection
 if runOnMC:
-  triggerSelection = triggerSelection_Summer11
+  triggerSelection = triggerSelectionMC
+else:
+  triggerSelection = triggerSelectionData
 from TopQuarkAnalysis.Configuration.patRefSel_triggerSelection_cff import triggerResults
 process.step1 = triggerResults.clone(
   triggerConditions = [ triggerSelection ]
@@ -548,7 +553,9 @@ if runPF2PAT:
 if addTriggerMatching:
 
   if runOnMC:
-    triggerObjectSelection = triggerObjectSelection_Summer11
+    triggerObjectSelection = triggerObjectSelectionMC
+  else:
+    triggerObjectSelection = triggerObjectSelectionData
   ### Trigger matching configuration
   from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import patTrigger
   from TopQuarkAnalysis.Configuration.patRefSel_triggerMatching_cfi import patMuonTriggerMatch
