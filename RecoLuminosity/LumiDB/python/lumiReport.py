@@ -61,11 +61,11 @@ def toScreenTotDelivered(lumidata,resultlines,isverbose):
             result.append([str(run),str(nls),'%.3f'%(totlumival)+' ('+lumiunit+')',runstarttime.strftime("%m/%d/%y %H:%M:%S"),'%.1f'%(avgbeamenergy), str(selectedls)])
         else:
             result.append([str(run),str(nls),'%.3f'%(totlumival)+' ('+lumiunit+')',runstarttime.strftime("%m/%d/%y %H:%M:%S"),'%.1f'%(avgbeamenergy)])
-    sorted(result,key=lambda x : int(x[0]))
+    sortedresult=sorted(result,key=lambda x : int(x[0]))
     print ' ==  = '
     if isverbose:
         labels = [('Run', 'Total LS', 'Delivered','Start Time','E(GeV)','Selected LS')]
-        print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
+        print tablePrinter.indent (labels+sortedresult, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
     else:
@@ -90,8 +90,9 @@ def toCSVTotDelivered(lumidata,filename,resultlines,isverbose):
     fieldnames = ['Run', 'Total LS', 'Delivered(/ub)','UTCTime','E(GeV)']
     if isverbose:
         fieldnames.append('Selected LS')
-    r.writeRow(fieldnames)
-    for run in sorted(lumidata):
+    for rline in resultlines:
+        result.append(rline)
+    for run in lumidata.keys():
         lsdata=lumidata[run]
         if lsdata is None:
             result.append([run,'n/a','n/a','n/a','n/a'])
@@ -110,7 +111,9 @@ def toCSVTotDelivered(lumidata,filename,resultlines,isverbose):
             result.append([run,nls,totlumival,runstarttime.strftime("%m/%d/%y %H:%M:%S"),avgbeamenergy, str(selectedls)])
         else:
             result.append([run,nls,totlumival,runstarttime.strftime("%m/%d/%y %H:%M:%S"),avgbeamenergy])
-    r.writeRows(result)
+    sortedresult=sorted(result,key=lambda x : int(x[0]))
+    r.writeRow(fieldnames)
+    r.writeRows(sortedresult)
 def toScreenLSDelivered(lumidata,resultlines,isverbose):
     result=[]
     for run in sorted(lumidata):
@@ -229,9 +232,9 @@ def toScreenOverview(lumidata,resultlines,isverbose):
         else:
             selectedlsStr = CommonUtil.splitlistToRangeString(selectedcmsls)
         result.append([str(run),str(nls),'%.3f'%(totdeliveredlumi)+' ('+deliveredlumiunit+')',selectedlsStr,'%.3f'%(totrecordedlumi)+' ('+recordedlumiunit+')'])
-    sorted(result,key=lambda x : int(x[0]))
+    sortedresult=sorted(result,key=lambda x : int(x[0]))    
     print ' ==  = '
-    print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
+    print tablePrinter.indent (labels+sortedresult, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
     print ' ==  =  Total : '
@@ -244,10 +247,18 @@ def toScreenOverview(lumidata,resultlines,isverbose):
                                wrapfunc = lambda x: wrap_onspace (x, 20))
     
 def toCSVOverview(lumidata,filename,resultlines,isverbose):
+    '''
+    input:
+    lumidata {run:[lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,recordedlumi,calibratedlumierror,(bxidx,bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}
+    resultlines [[resultrow1],[resultrow2],...,] existing result row
+    '''
     result=[]
     fieldnames = ['Run', 'DeliveredLS', 'Delivered(/ub)','SelectedLS','Recorded(/ub)']
     r=csvReporter.csvReporter(filename)
-    for run in sorted(lumidata):
+    for rline in resultlines:
+        result.append(rline)
+        
+    for run in lumidata.keys():
         lsdata=lumidata[run]
         if lsdata is None:
             result.append([run,'n/a','n/a','n/a','n/a'])
@@ -267,8 +278,9 @@ def toCSVOverview(lumidata,filename,resultlines,isverbose):
         else:
             selectedlsStr = CommonUtil.splitlistToRangeString(selectedcmsls)
         result.append([run,nls,totdeliveredlumi,selectedlsStr,totrecordedlumi])
+    sortedresult=sorted(result,key=lambda x : int(x[0]))
     r.writeRow(fieldnames)
-    r.writeRows(result)
+    r.writeRows(sortedresult)
 def toScreenLumiByLS(lumidata,resultlines,isverbose):
     result=[]
     labels = [ ('Run','LS','UTCTime','Beam Status','E(GeV)','Delivered(/ub)','Recorded(/ub)')]
