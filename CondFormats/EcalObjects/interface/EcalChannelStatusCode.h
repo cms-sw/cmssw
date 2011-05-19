@@ -3,7 +3,7 @@
 /**
  * Author: Paolo Meridiani
  * Created: 14 Nov 2006
- * $Id: EcalChannelStatusCode.h,v 1.2 2008/02/18 10:49:28 ferriff Exp $
+ * $Id: EcalChannelStatusCode.h,v 1.3 2011/05/17 08:40:07 argiro Exp $
  **/
 
 
@@ -35,12 +35,10 @@ class EcalChannelStatusCode {
 
     bool isHVon() const {return status_& HVbitMask;}
     bool isLVon() const {return status_& LVbitMask;}
-    bool isNextToDead() const {return status_&deadNeighbourMask;}
     
     static const int chStatusMask      = 0x1F;
     static const int HVbitMask         = 0x1<<5;
     static const int LVbitMask         = 0x1<<6;
-    static const int deadNeighbourMask = 0x1<<12; 
 
   private:
     /* bits 1-5 store a status code:
