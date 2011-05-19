@@ -56,7 +56,7 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 	muonl2chg = new int[kMaxMuonL2];
 	muonl2pterr = new float[kMaxMuonL2];
 	muonl2iso = new int[kMaxMuonL2];
-	muonl21idx = new int[kMaxMuonL2];
+ 	muonl21idx = new int[kMaxMuonL2];
 	const int kMaxMuonL3 = 500;
 	muonl3pt = new float[kMaxMuonL3];
 	muonl3phi = new float[kMaxMuonL3];
@@ -95,6 +95,10 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 	muonl2novtxchg = new int[kMaxMuonL2NoVtx]; 
 	muonl2novtxpterr = new float[kMaxMuonL2NoVtx]; 
 	muonl2novtx1idx = new int[kMaxMuonL2NoVtx]; 
+	const int kMaxDiMu = 500;
+	dimudca = new float[kMaxDiMu];
+	dimu1st = new int[kMaxDiMu];
+	dimu2nd = new int[kMaxDiMu];
 	const int kMaxDiMuVtx = 500;
 	dimuvtxchi2 = new float[kMaxDiMuVtx];
 	dimuvtxr = new float[kMaxDiMuVtx];
@@ -172,6 +176,10 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 	HltTree->Branch("ohMuL2NoVtxDr",muonl2novtxdr,"ohMuL2NoVtxDr[NohMuL2NoVtx]/F"); 
 	HltTree->Branch("ohMuL2NoVtxDz",muonl2novtxdz,"ohMuL2NoVtxDz[NohMuL2NoVtx]/F"); 
 	HltTree->Branch("ohMuL2NoVtxL1idx",muonl2novtx1idx,"ohMuL2NoVtxL1idx[NohMuL2NoVtx]/I");    
+	HltTree->Branch("NohDiMu",&nDiMu,"NohDiMu/I");    
+	HltTree->Branch("ohDiMuDCA",dimudca,"ohDiMuDCA[NohDiMu]/F");    
+	HltTree->Branch("ohDiMu1st",dimu1st,"ohDiMu1st[NohDiMu]/I");    
+	HltTree->Branch("ohDiMu2nd",dimu2nd,"ohDiMu2nd[NohDiMu]/I");    
 	HltTree->Branch("NohDiMuVtx",&nDiMuVtx,"NohDiMuVtx/I");    
 	HltTree->Branch("ohDiMuVtxChi2",dimuvtxchi2,"ohDiMuVtxChi2[NohDiMuVtx]/F");    
 	HltTree->Branch("ohDiMuVtxR",dimuvtxr,"ohDiMuVtxR[NohDiMuVtx]/F");    
@@ -352,6 +360,7 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
 		nmu3cand = myMucands3.size();
 		typedef reco::RecoChargedCandidateCollection::const_iterator cand;
 		int imu3c=0;
+		int idimuc=0;
 		for (cand i=myMucands3.begin(); i!=myMucands3.end(); i++) {
 			reco::TrackRef tk = i->get<reco::TrackRef>();
 
@@ -418,10 +427,34 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
 			}
 			else {muonl3iso[imu3c] = -999;}
 
+			//Check DCA for muon combinations
+			int imu3c2nd = imu3c + 1;// This will be the index in the hltTree for the 2nd muon of the dimuon combination
+
+			for (cand j=i; j!=myMucands3.end(); j++) if (i!=j) {//Loop over all L3 muons from the one we are already treating
+			  reco::TrackRef tk2nd = j->get<reco::TrackRef>();
+			  reco::TransientTrack transMu1(*tk, &(*theMagField) );
+			  reco::TransientTrack transMu2(*tk2nd, &(*theMagField) );
+			  TrajectoryStateClosestToPoint mu1TS = transMu1.impactPointTSCP();
+			  TrajectoryStateClosestToPoint mu2TS = transMu2.impactPointTSCP();
+			  if (mu1TS.isValid() && mu2TS.isValid()) {
+			    ClosestApproachInRPhi cApp;
+			    cApp.calculate(mu1TS.theState(), mu2TS.theState());
+			    if (cApp.status()) {
+			      dimudca[idimuc] = cApp.distance();//Save the DCA
+			      dimu1st[idimuc] = imu3c;//Save which is the index in the hltTree for the 1st muon
+			      dimu2nd[idimuc] = imu3c2nd;//Save which is the index in the hltTree for the 2nd muon
+			      idimuc++;
+			    }
+			  }
+			  imu3c2nd++;
+			}
+
 			imu3c++;
+
 		}
+		nDiMu = idimuc;
 	}
-	else {nmu3cand = 0;}
+	else {nmu3cand = 0; nDiMu = 0;}
 	// Dealing with dimu vertices
 	reco::VertexCollection myDimuvtxcands3;
 	if (DiMuVtxCands3.isValid()) {

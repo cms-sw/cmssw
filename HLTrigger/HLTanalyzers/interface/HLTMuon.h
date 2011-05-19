@@ -103,7 +103,9 @@ private:
   float *oniaPixelpt, *oniaPixeleta, *oniaPixelphi, *oniaPixeldr, *oniaPixeldz, *oniaPixelNormChi2;
   float *oniaTrackpt, *oniaTracketa, *oniaTrackphi, *oniaTrackdr, *oniaTrackdz, *oniaTrackNormChi2;
   int *oniaPixelchg, *oniaTrackchg, *oniaPixelHits, *oniaTrackHits;
-  int nDiMuVtx;
+  int nDiMu,nDiMuVtx;
+  float *dimudca;
+  int *dimu1st,*dimu2nd;
   float *dimuvtxchi2,*dimuvtxr,*dimuvtxrsig,*dimuvtxroversig,*dimuvtxcosalpha;
   float *dimuvtxmu2dipmax, *dimuvtxmu2dipmin, *dimuvtxmu2dipsigmax, *dimuvtxmu2dipsigmin;
  	
