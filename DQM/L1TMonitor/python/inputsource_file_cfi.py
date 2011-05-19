@@ -12,7 +12,8 @@ dataType = 'RAW'
 
 
 # runNumber for RAW only 
-runNumber = 161312
+runNumber = 163661
+#runNumber = 161312
 #runNumber = 143657
 #runNumber = 137028
 
@@ -67,6 +68,15 @@ if dataType == 'RAW' :
 
         secFiles.extend([
             ])    
+    elif runNumber == 163661 : 
+    
+        readFiles.extend( [
+            '/store/data/Run2011A/MinimumBias/RAW/v1/000/163/661/2E455CA5-2272-E011-A3A8-003048F024F6.root'
+            ] );
+
+        secFiles.extend([
+            ])    
+   
    
 elif dataType == 'StreamFile' : 
 

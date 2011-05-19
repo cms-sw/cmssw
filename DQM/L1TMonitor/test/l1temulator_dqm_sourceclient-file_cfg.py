@@ -75,7 +75,7 @@ else :
     process.load("DQM.L1TMonitor.environment_file_cfi")
 
     process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-    process.GlobalTag.globaltag = 'GR_R_311_V1::All'
+    process.GlobalTag.globaltag = 'GR_P_V20::All'
     es_prefer_GlobalTag = cms.ESPrefer('GlobalTag')
 
 
