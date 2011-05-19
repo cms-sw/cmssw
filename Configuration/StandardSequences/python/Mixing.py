@@ -81,12 +81,12 @@ addMixingScenario("FS_LowLumiPileUp",{'file': 'FastSimulation.PileUpProducer.Pil
 addMixingScenario("FS_FlatDist10_2011EarlyData_50ns",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_FlatDist10_2011EarlyData_50ns_cff'})
 
 ##slch section
-addMixingScenario("SLHC_LowLumiPileUp_R39F16",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R39F16_cff'})
-addMixingScenario("SLHC_LowLumiPileUp_R39F16_smpx",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R39F16_cff'})
-addMixingScenario("SLHC_LowLumiPileUp_R34F16",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R34F16_cff'})
-addMixingScenario("SLHC_LowLumiPileUp_R34F16_smpx",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R34F16_smpx_cff'})
+addMixingScenario("SLHC_LowLumiPileUp_Phase1_R39F16",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R39F16_cff'})
+addMixingScenario("SLHC_LowLumiPileUp_Phase1_R39F16_smpx",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R39F16_smpx_cff'})
+addMixingScenario("SLHC_LowLumiPileUp_Phase1_R34F16",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R34F16_cff'})
+addMixingScenario("SLHC_LowLumiPileUp_Phase1_R34F16_smpx",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R34F16_smpx_cff'})
 addMixingScenario("SLHC_LowLumiPileUp_stdgeom",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_stdgeom_cff'})
-#addMixingScenario("SLHC_LowLumiPileUp_R39F16_HCal_cff",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R39F16_HCal_cff'})
+#addMixingScenario("SLHC_LowLumiPileUp_Phase1_R39F16_HCal_cff",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R39F16_HCal_cff'})
 
 MixingDefaultKey = 'NoPileUp'
 
