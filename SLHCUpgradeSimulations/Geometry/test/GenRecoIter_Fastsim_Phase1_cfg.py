@@ -12,7 +12,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('FastSimulation.Configuration.EventContent_cff')
-process.load('FastSimulation.PileUpProducer.PileUpSimulator_NoPileUp_cff')
+process.load('SLHCUpgradeSimulations.Geometry.mixLowLumPU_FastSim14TeV_cff')
 #process.load('FastSimulation.Configuration.Geometries_MC_cff')
 process.load('FastSimulation.Configuration.Geometries_cff')
 process.load('FastSimulation.Configuration.FamosSequences_cff')
@@ -124,7 +124,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.303.2.3 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('SLHCUpgradeSimulations/Configuration/python/FourMuPt_1_50_cfi.py nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
