@@ -1,10 +1,10 @@
-// $Id: EcalTools.cc,v 1.2 2011/04/20 13:30:11 argiro Exp $
+// $Id: EcalTools.cc,v 1.3 2011/05/17 09:28:02 argiro Exp $
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalNextToDeadChannel.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalNextToDeadChannelRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -52,18 +52,17 @@ float EcalTools::swissCross( const DetId& id,
 
 bool EcalTools::isNextToDead( const DetId& id, const edm::EventSetup& es){
   
-  edm::ESHandle<EcalChannelStatus> chStatus;
-  es.get<EcalChannelStatusRcd>().get(chStatus);
+  edm::ESHandle<EcalNextToDeadChannel> dch;
+  es.get<EcalNextToDeadChannelRcd>().get(dch);
   
-  EcalChannelStatus::const_iterator chIt = chStatus->find( id );
+  EcalNextToDeadChannel::const_iterator chIt = dch->find( id );
 
-  if ( chIt != chStatus->end() ) {
-    return chIt->isNextToDead();
+  if ( chIt != dch->end() ) {
+    return *chIt;
   } else {
     edm::LogError("EcalDBError") 
-      << "No channel status found for xtal " 
-      << id.rawId() 
-      << "! something wrong with EcalChannelStatus in your DB? ";
+      << "No NextToDead  status found for xtal " 
+      << id.rawId() ;
   }
 
   return false;
@@ -71,24 +70,24 @@ bool EcalTools::isNextToDead( const DetId& id, const edm::EventSetup& es){
 }
 
 bool EcalTools::isNextToDeadFromNeighbours( const DetId& id, 
-					    const edm::EventSetup& es,
-					    int chStatusThreshold){
+					    const EcalChannelStatus& chs,
+					    int chStatusThreshold) {
   
-  if (deadNeighbour(id,es, chStatusThreshold, 1, 0)) return true;
-  if (deadNeighbour(id,es, chStatusThreshold,-1, 0)) return true;
-  if (deadNeighbour(id,es, chStatusThreshold, 0, 1)) return true;
-  if (deadNeighbour(id,es, chStatusThreshold, 0,-1)) return true;
-  if (deadNeighbour(id,es, chStatusThreshold, 1,-1)) return true;
-  if (deadNeighbour(id,es, chStatusThreshold, 1, 1)) return true;
-  if (deadNeighbour(id,es, chStatusThreshold,-1, 1)) return true;
-  if (deadNeighbour(id,es, chStatusThreshold,-1,-1)) return true;
+  if (deadNeighbour(id,chs, chStatusThreshold, 1, 0)) return true;
+  if (deadNeighbour(id,chs, chStatusThreshold,-1, 0)) return true;
+  if (deadNeighbour(id,chs, chStatusThreshold, 0, 1)) return true;
+  if (deadNeighbour(id,chs, chStatusThreshold, 0,-1)) return true;
+  if (deadNeighbour(id,chs, chStatusThreshold, 1,-1)) return true;
+  if (deadNeighbour(id,chs, chStatusThreshold, 1, 1)) return true;
+  if (deadNeighbour(id,chs, chStatusThreshold,-1, 1)) return true;
+  if (deadNeighbour(id,chs, chStatusThreshold,-1,-1)) return true;
 
   return false;
 }
 
 
 bool EcalTools::deadNeighbour(const DetId& id, 
-			      const edm::EventSetup& es,
+			      const EcalChannelStatus& chs,
                               int chStatusThreshold, 
 			      int dx, int dy){
 
@@ -97,21 +96,12 @@ bool EcalTools::deadNeighbour(const DetId& id,
   if( id.subdetId() == EcalBarrel) nid = EBDetId::offsetBy( id, dx, dy );
   else if( id.subdetId() == EcalEndcap) nid = EEDetId::offsetBy( id, dx, dy );
 
-  if (nid) return (getChannelStatus(nid,es)>=chStatusThreshold );
-  
-  return false;
-  
-}
+  if (!nid) return false;
 
-uint16_t EcalTools::getChannelStatus(const DetId& id, const edm::EventSetup& es){
-  
-
-  edm::ESHandle<EcalChannelStatus> chStatus;
-  es.get<EcalChannelStatusRcd>().get(chStatus);
-
-  EcalChannelStatus::const_iterator chIt = chStatus->find( id );
+  EcalChannelStatus::const_iterator chIt = chs.find( nid );
   uint16_t dbStatus = 0;
-  if ( chIt != chStatus->end() ) {
+  if ( chIt != chs.end() ) {
+    // note that 
     dbStatus = chIt->getStatusCode() ;
   } else {
     edm::LogError("EcalDBError") 
@@ -119,9 +109,11 @@ uint16_t EcalTools::getChannelStatus(const DetId& id, const edm::EventSetup& es)
       << id.rawId() 
       << "! something wrong with EcalChannelStatus in your DB? ";
   }
-  return dbStatus & 0x1F; 
 
+  return (dbStatus>=chStatusThreshold );
+  
 }
+
 
 
 float EcalTools::recHitE( const DetId id, 
