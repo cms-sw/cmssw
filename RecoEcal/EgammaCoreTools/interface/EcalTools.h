@@ -3,7 +3,7 @@
    Declaration of class EcalTools
 
    \author Stefano Argiro
-   \version $Id: EcalTools.h,v 1.2 2011/04/20 13:30:11 argiro Exp $
+   \version $Id: EcalTools.h,v 1.3 2011/05/17 09:28:03 argiro Exp $
    \date 11 Jan 2011
 */
 
@@ -12,6 +12,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 class EcalTools{
@@ -37,15 +38,16 @@ public:
       Use sparingly, might slow you down
         
    */
+
   static bool isNextToDeadFromNeighbours( const DetId& id, 
-					  const edm::EventSetup& es,
-					  int chStatusThreshold); 
+					  const EcalChannelStatus& chs,
+					  int chStatusThreshold) ; 
 
   /// true if near a crack or ecal border
   static bool isNextToBoundary (const DetId& id);
 
   /// return true if the channel at offsets dx,dy is dead 
-  static bool deadNeighbour(const DetId& id, const edm::EventSetup& es, 
+  static bool deadNeighbour(const DetId& id, const EcalChannelStatus& chs, 
 			    int chStatusThreshold, 
 			    int dx, int dy); 
 
@@ -56,7 +58,7 @@ private:
 			int dEta, int dPhi );
   static float recHitApproxEt( const DetId id, 
 			       const EcalRecHitCollection &recHits );
-  static uint16_t getChannelStatus(const DetId& id, const edm::EventSetup& es);
+
 
 
 };

@@ -2,6 +2,7 @@
 <use   name="DataFormats/EgammaReco"/>
 <use   name="DataFormats/Math"/>
 <use   name="FWCore/Framework"/>
+<use   name="FWCore/Utilities"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="RecoLocalCalo/EcalRecAlgos"/>
