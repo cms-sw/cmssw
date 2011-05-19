@@ -103,6 +103,7 @@ namespace {
       if ((el_message.find("dictionary") != std::string::npos) ||
           (el_message.find("already in TClassTable") != std::string::npos) ||
           (el_message.find("matrix not positive definite") != std::string::npos) ||
+          (el_message.find("not a TStreamerInfo object") != std::string::npos) ||
           (el_location.find("Fit") != std::string::npos) ||
           (el_location.find("TDecompChol::Solve") != std::string::npos) ||
           (el_location.find("THistPainter::PaintInit") != std::string::npos) ||
