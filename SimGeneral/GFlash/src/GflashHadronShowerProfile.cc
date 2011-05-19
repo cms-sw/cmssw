@@ -327,7 +327,7 @@ double GflashHadronShowerProfile::longitudinalProfile() {
     }
     else  {
       heightProfile = 0.;
-      std::cout << "negative shiftDepth for showerType 0 " << shiftDepth << std::endl;
+      //      std::cout << "negative shiftDepth for showerType 0 " << shiftDepth << std::endl;
     }
   }  
   else if(showerType == 1 || showerType == 5 ) {

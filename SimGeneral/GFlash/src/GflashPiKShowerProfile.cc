@@ -23,17 +23,17 @@ void GflashPiKShowerProfile::loadParameters()
       do {
 	r1 = CLHEP::RandGaussQ::shoot();
 
-	energyScale[Gflash::kESPM] = einc*(1.15*fTanh(einc,Gflash::pion_emscale[0]) + 0.8*fTanh(einc,Gflash::pion_emscale[1])*r1);
+	energyScale[Gflash::kESPM] = einc*(fTanh(einc,Gflash::pion_emscale[0]) + fTanh(einc,Gflash::pion_emscale[1])*r1);
 
 	//LogNormal mean and sigma of Hcal energy
 	energyMeanHcal  = (fTanh(einc,Gflash::pion_hadscale[0]) +
-			   1.5*fTanh(einc,Gflash::pion_hadscale[1])*depthScale(position.getRho(),Gflash::RFrontCrystalEB,Gflash::LengthCrystalEB));
+			   fTanh(einc,Gflash::pion_hadscale[1])*depthScale(position.getRho(),Gflash::RFrontCrystalEB,Gflash::LengthCrystalEB));
 	energySigmaHcal = (fTanh(einc,Gflash::pion_hadscale[2]) +  
 			   fTanh(einc,Gflash::pion_hadscale[3])*depthScale(position.getRho(),Gflash::RFrontCrystalEB,Gflash::LengthCrystalEB));
          
 	r2 = CLHEP::RandGaussQ::shoot();
-	energyScale[Gflash::kHB] = exp(energyMeanHcal+0.5*energySigmaHcal*(energyRho*r1 + sqrt(1.0- energyRho*energyRho)*r2 ));
-      } while ( energyScale[Gflash::kESPM] < 0 || energyScale[Gflash::kHB] > einc ); 
+	energyScale[Gflash::kHB] = exp(energyMeanHcal+energySigmaHcal*(energyRho*r1 + sqrt(1.0- energyRho*energyRho)*r2 ));
+      } while ( energyScale[Gflash::kESPM] < 0 || energyScale[Gflash::kHB] > einc*1.5 ); 
     }
     else {
       do {
@@ -47,13 +47,13 @@ void GflashPiKShowerProfile::loadParameters()
 			   fTanh(einc,Gflash::pion_hadscale[3])*depthScale(std::fabs(position.getZ()),Gflash::ZFrontCrystalEE,Gflash::LengthCrystalEE));
 	r2 = CLHEP::RandGaussQ::shoot();
 	energyScale[Gflash::kHE] = exp(energyMeanHcal+energySigmaHcal*(energyRho*r1 + sqrt(1.0- energyRho*energyRho)*r2 ));
-      } while ( energyScale[Gflash::kENCA] < 0 || energyScale[Gflash::kHE] > einc ); 
+      } while ( energyScale[Gflash::kENCA] < 0 || energyScale[Gflash::kHE] > einc*1.5 ); 
     }
   }
   else if(showerType == 2 || showerType == 3 || showerType == 6 || showerType == 7) { 
     //Hcal response for mip-like pions (mip)
     
-    energyMeanHcal  = fTanh(einc,Gflash::pion_hadscale[4]) + 0.05;
+    energyMeanHcal  = fTanh(einc,Gflash::pion_hadscale[4]);
     energySigmaHcal = fTanh(einc,Gflash::pion_hadscale[5]);
 
     double gap_corr = einc*fTanh(einc,Gflash::pion_hadscale[6]);
@@ -63,8 +63,8 @@ void GflashPiKShowerProfile::loadParameters()
 
       do {
 	r1 = CLHEP::RandGaussQ::shoot();
-	energyScale[Gflash::kHB] = exp(energyMeanHcal+0.85*energySigmaHcal*r1);
-      } while ( energyScale[Gflash::kHB] > einc );
+	energyScale[Gflash::kHB] = exp(energyMeanHcal+energySigmaHcal*r1);
+      } while ( energyScale[Gflash::kHB] > einc*1.5 );
 
       if(showerType == 2) {
         energyScale[Gflash::kHE] = std::max(0.0,energyScale[Gflash::kHB]
@@ -76,8 +76,8 @@ void GflashPiKShowerProfile::loadParameters()
 
       do {
 	r1 = CLHEP::RandGaussQ::shoot();
-        energyScale[Gflash::kHE] = exp(energyMeanHcal+0.85*energySigmaHcal*r1);
-      } while ( energyScale[Gflash::kHE] > einc );
+        energyScale[Gflash::kHE] = exp(energyMeanHcal+energySigmaHcal*r1);
+      } while ( energyScale[Gflash::kHE] > einc*1.5 );
 
       if(showerType == 6) {
         energyScale[Gflash::kHE] = std::max(0.0,energyScale[Gflash::kHE]
