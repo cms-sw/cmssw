@@ -114,53 +114,53 @@ def toCSVTotDelivered(lumidata,filename,resultlines,isverbose):
     sortedresult=sorted(result,key=lambda x : int(x[0]))
     r.writeRow(fieldnames)
     r.writeRows(sortedresult)
-def toScreenLSDelivered(lumidata,resultlines,isverbose):
-    result=[]
-    for run in sorted(lumidata):
-        rundata=lumidata[run]
-        if rundata is None:
-            result.append([str(run),'n/a','n/a','n/a','n/a','n/a','n/a'])
-            continue
-        for lsdata in rundata:
-            if lsdata is None or len(lsdata)==0:
-                result.append([str(run),'n/a','n/a','n/a','n/a','n/a','n/a'])
-                continue
-            else:
-                lumils=lsdata[0]
-                cmsls=lsdata[1]
-                lsts=lsdata[2]
-                beamstatus=lsdata[3]
-                beamenergy=lsdata[4]
-                delivered=lsdata[5]
-                result.append([str(run),str(lumils),str(cmsls),'%.3f'%delivered,lsts.strftime('%m/%d/%y %H:%M:%S'),beamstatus,'%.1f'%beamenergy])
-    labels = [('Run','lumils','cmsls','Delivered(/ub)','UTCTime','Beam Status','E(GeV)')]
-    print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
-                               prefix = '| ', postfix = ' |', justify = 'right',
-                               delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
+#def toScreenLSDelivered(lumidata,resultlines,isverbose):
+#    result=[]
+#    for run in sorted(lumidata):
+#        rundata=lumidata[run]
+#        if rundata is None:
+#            result.append([str(run),'n/a','n/a','n/a','n/a','n/a','n/a'])
+#            continue
+#        for lsdata in rundata:
+#            if lsdata is None or len(lsdata)==0:
+#                result.append([str(run),'n/a','n/a','n/a','n/a','n/a','n/a'])
+#                continue
+#            else:
+#                lumils=lsdata[0]
+#                cmsls=lsdata[1]
+#                lsts=lsdata[2]
+#                beamstatus=lsdata[3]
+#                beamenergy=lsdata[4]
+#                delivered=lsdata[5]
+#                result.append([str(run),str(lumils),str(cmsls),'%.3f'%delivered,lsts.strftime('%m/%d/%y %H:%M:%S'),beamstatus,'%.1f'%beamenergy])
+#    labels = [('Run','lumils','cmsls','Delivered(/ub)','UTCTime','Beam Status','E(GeV)')]
+#    print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
+#                               prefix = '| ', postfix = ' |', justify = 'right',
+#                               delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
          
-def toCSVLSDelivered(lumidata,filename,resultlines,isverbose):
-    result=[]
-    fieldnames=['Run','lumils','cmsls','Delivered(/ub)','UTCTime','BeamStatus','E(GeV)']
-    r=csvReporter.csvReporter(filename)
-    for run in sorted(lumidata):
-        rundata=lumidata[run]
-        if rundata is None:
-            result.append([run,'n/a','n/a','n/a','n/a','n/a','n/a'])
-            continue
-        for lsdata in rundata:
-            if lsdata is None:
-                result.append([run,'n/a','n/a','n/a','n/a','n/a','n/a'])
-                continue
-            else:
-                lumils=lsdata[0]
-                cmsls=lsdata[1]
-                lsts=lsdata[2]
-                beamstatus=lsdata[3]
-                beamenergy=lsdata[4]
-                delivered=lsdata[5]
-                result.append([run,lumils,cmsls,delivered,lsts,beamstatus,beamenergy])
-    r.writeRow(fieldnames)
-    r.writeRows(result)
+#def toCSVLSDelivered(lumidata,filename,resultlines,isverbose):
+#    result=[]
+#    fieldnames=['Run','lumils','cmsls','Delivered(/ub)','UTCTime','BeamStatus','E(GeV)']
+#    r=csvReporter.csvReporter(filename)
+#    for run in sorted(lumidata):
+#        rundata=lumidata[run]
+#        if rundata is None:
+#            result.append([run,'n/a','n/a','n/a','n/a','n/a','n/a'])
+#            continue
+#        for lsdata in rundata:
+#            if lsdata is None:
+#                result.append([run,'n/a','n/a','n/a','n/a','n/a','n/a'])
+#                continue
+#            else:
+#                lumils=lsdata[0]
+#                cmsls=lsdata[1]
+#                lsts=lsdata[2]
+#                beamstatus=lsdata[3]
+#                beamenergy=lsdata[4]
+#                delivered=lsdata[5]
+#                result.append([run,lumils,cmsls,delivered,lsts,beamstatus,beamenergy])
+#    r.writeRow(fieldnames)
+#    r.writeRows(result)
 
 def toScreenOverview(lumidata,resultlines,isverbose):
     '''
