@@ -4,8 +4,8 @@
 /*
  * \file L1TSync.h
  *
- * $Date: 2011/04/14 13:03:11 $
- * $Revision: 1.2 $
+ * $Date: 2011/05/12 13:50:40 $
+ * $Revision: 1.3 $
  * \author J. Pela
  *
 */
@@ -67,8 +67,9 @@ class L1TSync : public edm::EDAnalyzer {
    
     // Int
     int                                    m_refPrescaleSet;
-    unsigned int                           m_currentLS;           // Current Luminosity Section
-    unsigned int                           m_eventLS;
+    unsigned int                            m_currentLS;           // Current Luminosity Section
+    unsigned int                            m_eventLS;
+    unsigned int                            m_lhcFill;             //
 
     // Vectors
     std::vector<bool>                      m_bunchStructure;      // Current Bunch Structure
@@ -86,6 +87,7 @@ class L1TSync : public edm::EDAnalyzer {
 
     // Input tags
     edm::InputTag                          m_scalersSource;       // Where to get L1 Scalers
+    edm::InputTag                          m_l1GtEvmSource;
     edm::InputTag                          m_l1GtDataDaqInputTag;
 
 };

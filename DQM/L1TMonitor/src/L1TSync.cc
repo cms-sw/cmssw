@@ -1,8 +1,8 @@
 /*
  * \file L1TSync.cc
  *
- * $Date: 2011/04/14 13:03:11 $
- * $Revision: 1.2 $
+ * $Date: 2011/05/12 13:50:40 $
+ * $Revision: 1.3 $
  * \author J. Pela, P. Musella
  *
  */
@@ -11,11 +11,14 @@
 #include "DQM/L1TMonitor/interface/L1TSync.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/Scalers/interface/Level1TriggerRates.h"
-// Not sure if needed
 #include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
+
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
+
 #include "DataFormats/Common/interface/ConditionsInEdm.h" // Parameters associated to Run, LS and Event
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
@@ -26,8 +29,8 @@
 #include "CondFormats/L1TObjects/interface/L1GtMuonTemplate.h"
 
 // Luminosity Information
-#include "DataFormats/Luminosity/interface/LumiDetails.h"
-#include "DataFormats/Luminosity/interface/LumiSummary.h"
+//#include "DataFormats/Luminosity/interface/LumiDetails.h"
+//#include "DataFormats/Luminosity/interface/LumiSummary.h"
 
 // L1TMonitor includes
 #include "DQM/L1TMonitor/interface/L1TMenuHelper.h"
@@ -42,11 +45,13 @@ using namespace std;
 //-------------------------------------------------------------------------------------
 L1TSync::L1TSync(const ParameterSet & pset){
 
+  m_lhcFill    = 0;
   m_parameters = pset;
 
   // Mapping parameter input variables
   m_scalersSource       = pset.getParameter         <InputTag>("inputTagScalersResults");
   m_l1GtDataDaqInputTag = pset.getParameter         <InputTag>("inputTagL1GtDataDaq");
+  m_l1GtEvmSource       = pset.getParameter         <InputTag>("inputTagtEvmSource");
   m_verbose             = pset.getUntrackedParameter<bool>    ("verbose",false);
   m_refPrescaleSet      = pset.getParameter         <int>     ("refPrescaleSet");  
 
@@ -235,35 +240,19 @@ void L1TSync::endJob(void){
 //-------------------------------------------------------------------------------------
 void L1TSync::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
 
-  int maxNbins = 2001;
+  int maxNbins = 10001;
 
   // Cleaning in the begining of the run
   m_algoBit.clear();
-
-  // Retriving parameters
-  string oracleDB   = m_parameters.getParameter<string>("oracleDB");
-  string pathCondDB = m_parameters.getParameter<string>("pathCondDB");
 
   ESHandle<L1GtTriggerMenu> menuRcd;
   iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd);
   const L1GtTriggerMenu* menu = menuRcd.product();
 
   // Getting fill number for this run
-  Handle<ConditionsInRunBlock> runConditions;
-  iRun.getByType(runConditions);
-  int lhcFillNumber = runConditions->lhcFillNumber;
-
-  L1TOMDSHelper myOMDSHelper = L1TOMDSHelper();
-  string conError = "";
-  myOMDSHelper.connect(oracleDB,pathCondDB,conError);
-
-  if(conError == ""){
-    string errorRetrive = "";
-    m_bunchStructure = myOMDSHelper.getBunchStructure(lhcFillNumber,errorRetrive);
-    if(errorRetrive != ""){cout << "L1TRate: " << errorRetrive << endl;}
-  }else{
-    cout << "L1TRate: " << conError << endl;
-  }
+  //Handle<ConditionsInRunBlock> runConditions;
+  //iRun.getByType(runConditions);
+  //int lhcFillNumber = runConditions->lhcFillNumber;
 
   //ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
   //iSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);
@@ -307,6 +296,8 @@ void L1TSync::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
 //-------------------------------------------------------------------------------------
 void L1TSync::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
 
+  if(m_lhcFill !=0){
+
   unsigned int eventLS = lumiBlock.id().luminosityBlock();
 
   // --> Fill LS by LS - ratio of trigger out of sync
@@ -336,6 +327,8 @@ void L1TSync::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
     }
   }
 
+  }
+
 }
 
 //_____________________________________________________________________
@@ -344,9 +337,13 @@ void L1TSync::endRun(const edm::Run& run, const edm::EventSetup& iSetup){}
 //_____________________________________________________________________
 void L1TSync::analyze(const Event & iEvent, const EventSetup & eventSetup){
 
+  // Retriving parameters
+  string oracleDB   = m_parameters.getParameter<string>("oracleDB");
+  string pathCondDB = m_parameters.getParameter<string>("pathCondDB");
+
   // Initializing Handles
-  edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecordData;
- 
+  edm::Handle<L1GlobalTriggerReadoutRecord>    gtReadoutRecordData;
+
   // Retriving data from the event
   iEvent.getByLabel(m_l1GtDataDaqInputTag, gtReadoutRecordData);
 
@@ -355,6 +352,28 @@ void L1TSync::analyze(const Event & iEvent, const EventSetup & eventSetup){
   // --> Getting BX difference between BPTX and selected algos
   // Getting Final Decision Logic (FDL) Data from GT
   const vector<L1GtFdlWord>& gtFdlVectorData = gtReadoutRecordData->gtFdlVector();
+
+  if(m_lhcFill == 0){
+    edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord;
+    iEvent.getByLabel(m_l1GtEvmSource, gtEvmReadoutRecord);
+
+    const L1GtfeExtWord& gtfeEvmWord = gtEvmReadoutRecord ->gtfeWord();
+    m_lhcFill = gtfeEvmWord.lhcFillNumber();
+
+    L1TOMDSHelper myOMDSHelper = L1TOMDSHelper();
+    string conError = "";
+    myOMDSHelper.connect(oracleDB,pathCondDB,conError);
+
+    if(conError == ""){
+      string errorRetrive = "";
+      m_bunchStructure = myOMDSHelper.getBunchStructure(m_lhcFill,errorRetrive);
+      if(errorRetrive != ""){cout << "L1TRate: " << errorRetrive << endl;}
+    }else{
+      cout << "L1TRate: " << conError << endl;
+    }
+  }
+
+  if(m_lhcFill !=0){
 
   // Running over selected triggers
   for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
@@ -395,6 +414,8 @@ void L1TSync::analyze(const Event & iEvent, const EventSetup & eventSetup){
 
       }
     }
+  }
+
   }
 
 }

@@ -1,8 +1,8 @@
 /*
  * \file L1TRate.cc
  *
- * $Date: 2011/04/14 13:03:11 $
- * $Revision: 1.2 $
+ * $Date: 2011/05/12 13:50:40 $
+ * $Revision: 1.3 $
  * \author J. Pela, P. Musella
  *
  */
@@ -42,7 +42,7 @@ using namespace std;
 L1TRate::L1TRate(const ParameterSet & ps){
 
   // Maximum LS for each run (for binning purposes)
-  m_maxNbins = 2001;
+  m_maxNbins = 10001;
 
   m_parameters = ps;
 
