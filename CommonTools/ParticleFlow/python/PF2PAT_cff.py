@@ -21,9 +21,10 @@ from CommonTools.ParticleFlow.genForPF2PAT_cff import *
 PF2PAT = cms.Sequence(
     pfNoPileUpSequence + 
     # pfSortByTypeSequence +
-    pfAllNeutralHadrons+
-    pfAllChargedHadrons+
-    pfAllPhotons+
+    # pfAllNeutralHadrons+
+    # pfAllChargedHadrons+
+    # pfAllPhotons+
+    pfSortByTypeSequence +
     # pfAllMuons + in 'pfMuonSequence' 
     pfMuonSequence + 
     pfNoMuon +
