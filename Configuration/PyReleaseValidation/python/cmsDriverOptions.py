@@ -49,10 +49,11 @@ parser.add_option("--fileout",
                    dest="fileout")
 
 parser.add_option("--filetype",
-                   help="The type of the infile (EDM, LHE or MCDB).",
-                   default=defaultOptions.filetype,
-                   dest="filetype",
-                  choices=['EDM','DAT','LHE','MDCB','DQM'])
+                  help="The type of the infile (EDM, LHE or MCDB).",
+                  default=defaultOptions.filetype,
+                  dest="filetype",
+                  choices=['EDM','DAT','LHE','MDCB','DQM']
+                  )
 
 parser.add_option("-n", "--number",
                   help="The number of events. The default is 1.",
@@ -362,6 +363,18 @@ if options.step in stepsAliases:
 
 options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
 
+# add on the end of job sequence...
+addEndJob = False
+if ("FASTSIM" in options.step and not "VALIDATION" in options.step) or "HARVESTING" in options.step or "ALCAHARVEST" in options.step or "ALCAOUTPUT" in options.step or options.step == "": 
+    addEndJob = False
+if ("SKIM" in options.step and not "RECO" in options.step):
+    addEndJob = False
+if ("ENDJOB" in options.step):
+    addEndJob = False
+if (('DQM' in options.datatier or 'DQM' in options.eventcontent) and ('DQMEDM' in options.datatier)):
+    addEndJob = True
+if addEndJob:    
+    options.step=options.step+',ENDJOB'
 
 
 #determine the type of file on input
@@ -396,16 +409,6 @@ if options.fileout=="" and not first_step in ("HARVESTING", "ALCAHARVEST"):
 # Prepare the name of the config file
 python_config_filename = standardFileName+'.py'
 
-# add on the end of job sequence...
-addEndJob = True
-if ("FASTSIM" in options.step and not "VALIDATION" in options.step) or "HARVESTING" in options.step or "ALCAHARVEST" in options.step or "ALCAOUTPUT" in options.step or options.step == "": 
-    addEndJob = False
-if ("SKIM" in options.step and not "RECO" in options.step):
-    addEndJob = False
-if ("ENDJOB" in options.step):
-    addEndJob = False
-if addEndJob:    
-    options.step=options.step+',ENDJOB'
 print options.step
 
 
