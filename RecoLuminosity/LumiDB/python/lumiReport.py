@@ -74,7 +74,8 @@ def toScreenTotDelivered(lumidata,resultlines,isverbose):
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,40) )
     print ' ==  =  Total : '
-    (totalDeliveredVal,totalDeliveredUni)=CommonUtil.guessUnit(totdelivered+totOldDelivered)
+    if (totdelivered+totOldDelivered)!=0:
+        (totalDeliveredVal,totalDeliveredUni)=CommonUtil.guessUnit(totdelivered+totOldDelivered)
     totrowlabels = [('Delivered LS','Delivered('+totalDeliveredUni+')')]
     totaltable.append([str(totls+totOldDeliveredLS),'%.3f'%totalDeliveredVal])
     print tablePrinter.indent (totrowlabels+totaltable, hasHeader = True, separateRows = False, prefix = '| ',
@@ -282,17 +283,48 @@ def toCSVOverview(lumidata,filename,resultlines,isverbose):
     r.writeRow(fieldnames)
     r.writeRows(sortedresult)
 def toScreenLumiByLS(lumidata,resultlines,isverbose):
+    '''
+    input:
+    lumidata {run:[lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,recordedlumi,calibratedlumierror,(bxidx,bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}
+    resultlines [[resultrow1],[resultrow2],...,] existing result row
+    '''
     result=[]
     labels = [ ('Run','LS','UTCTime','Beam Status','E(GeV)','Delivered(/ub)','Recorded(/ub)')]
-    totalrow = []                  
+    totalrow = []
+    
     totalDeliveredLS = 0
     totalSelectedLS = 0
     totalDelivered = 0.0
-    totalRecorded = 0.0    
-    for run in sorted(lumidata):
+    totalRecorded = 0.0
+
+    totOldDeliveredLS = 0
+    totOldSelectedLS = 0
+    totOldDelivered = 0.0
+    totOldRecorded = 0.0
+
+    for rline in resultlines:
+        myls=rline[1]
+        if myls!='n/a':
+            [luls,cmls]=myls.split(':')
+            totOldDeliveredLS+=1
+            if cmls!='0':
+                totOldSelectedLS+=1
+        dl=0.0
+        if rline[5]!='n/a':
+            dl=float(rline[5])#delivered in /ub 
+            rline[5]='%.2f'%(dl)
+            totOldDelivered+=dl
+        if rline[6]!='n/a':
+           rl=float(rline[6])#recorded in /ub
+           rline[6]='%.2f'%(rl)
+           totOldRecorded+=rl
+        result.append(rline)
+        
+    for run in lumidata.keys():
         rundata=lumidata[run]
         if rundata is None:
-           result.append([str(run),'n/a','n/a','n/a','n/a','n/a'])
+            result.append([str(run),'n/a','n/a','n/a','n/a','n/a'])
+            continue
         for lsdata in rundata:
             lumilsnum=lsdata[0]
             cmslsnum=lsdata[1]
@@ -304,19 +336,22 @@ def toScreenLumiByLS(lumidata,resultlines,isverbose):
             result.append([str(run),str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,'%.1f'%begev,'%.2f'%deliveredlumi,'%.2f'%recordedlumi])
             totalDelivered+=deliveredlumi
             totalRecorded+=recordedlumi
-            totalSelectedLS+=1
+            totalDeliveredLS+=1
+            if(cmslsnum!=0):
+                totalSelectedLS+=1
     totdeliveredlumi=0.0
     deliveredlumiunit='/ub'
-    if totalDelivered!=0:
-        (totdeliveredlumi,deliveredlumiunit)=CommonUtil.guessUnit(totalDelivered)    
+    if (totalDelivered+totOldDelivered)!=0:
+        (totdeliveredlumi,deliveredlumiunit)=CommonUtil.guessUnit(totalDelivered+totOldDelivered)
     totrecordedlumi=0.0
     recordedlumiunit='/ub'
-    if totalRecorded!=0:
-        (totrecordedlumi,recordedlumiunit)=CommonUtil.guessUnit(totalRecorded)
-    lastrowlabels = [ ('Selected LS', 'Delivered('+deliveredlumiunit+')', 'Recorded('+recordedlumiunit+')')]
-    totalrow.append ([str(totalSelectedLS),'%.3f'%totdeliveredlumi,'%.3f'%totrecordedlumi])
+    if (totalRecorded+totOldRecorded)!=0:
+        (totrecordedlumi,recordedlumiunit)=CommonUtil.guessUnit(totalRecorded+totOldRecorded)
+    lastrowlabels = [ ('Delivered LS','Selected LS', 'Delivered('+deliveredlumiunit+')', 'Recorded('+recordedlumiunit+')')]
+    totalrow.append ([str(totalDeliveredLS+totOldDeliveredLS),str(totalSelectedLS+totOldSelectedLS),'%.3f'%totdeliveredlumi,'%.3f'%totrecordedlumi])
+    sortedresult=sorted(result,key=lambda x : int(x[0]))
     print ' ==  = '
-    print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False, prefix = '| ',
+    print tablePrinter.indent (labels+sortedresult, hasHeader = True, separateRows = False, prefix = '| ',
                                postfix = ' |', justify = 'right', delim = ' | ',
                                wrapfunc = lambda x: wrap_onspace_strict (x, 22))
     print ' ==  =  Total : '
@@ -327,12 +362,16 @@ def toScreenLumiByLS(lumidata,resultlines,isverbose):
                   
 def toCSVLumiByLS(lumidata,filename,resultlines,isverbose):
     result=[]
-    fieldnames=['Run','LumiLS','CMSLS','UTCTime','Beam Status','E(GeV)','Delivered(/ub)','Recorded(/ub)']
+    fieldnames=['Run','LS','UTCTime','Beam Status','E(GeV)','Delivered(/ub)','Recorded(/ub)']
     r=csvReporter.csvReporter(filename)
+
+    for rline in resultlines:
+        result.append(rline)
+        
     for run in sorted(lumidata):
         rundata=lumidata[run]
         if rundata is None:
-            result.append([run,'n/a','n/a','n/a','n/a','n/a','n/a'])
+            result.append([run,'n/a','n/a','n/a','n/a','n/a'])
             continue
         for lsdata in rundata:
             lumilsnum=lsdata[0]
@@ -342,9 +381,10 @@ def toCSVLumiByLS(lumidata,filename,resultlines,isverbose):
             begev=lsdata[4]
             deliveredlumi=lsdata[5]
             recordedlumi=lsdata[6]
-            result.append([run,lumilsnum,cmslsnum,ts.strftime('%m/%d/%y %H:%M:%S'),bs,begev,deliveredlumi,recordedlumi])
+            result.append([run,str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,begev,deliveredlumi,recordedlumi])
+    sortedresult=sorted(result,key=lambda x : int(x[0]))
     r.writeRow(fieldnames)
-    r.writeRows(result)
+    r.writeRows(sortedresult)
 
 def toScreenLSEffective(lumidata,resultlines,isverbose):
     '''
