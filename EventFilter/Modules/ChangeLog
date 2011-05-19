@@ -1,3 +1,8 @@
+2011-05-19 Emilio Meschi <Remigius.Mommsen@cern.ch>
+
+	* tag V00-08-05
+	* small change to adapt to modifications in MicroStateService
+	
 2011-04-14 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V00-08-04

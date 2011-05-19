@@ -18,7 +18,7 @@
  * - DQMServices/NodeROOT/src/SenderBase.cc
  * - DQMServices/NodeROOT/src/ReceiverBase.cc
  *
- * $Id: FUShmDQMOutputService.cc,v 1.20 2010/04/30 15:53:10 mommsen Exp $
+ * $Id: FUShmDQMOutputService.cc,v 1.21 2011/04/14 15:24:51 mommsen Exp $
  */
 
 #include "EventFilter/Modules/interface/FUShmDQMOutputService.h"
@@ -59,6 +59,9 @@ FUShmDQMOutputService::FUShmDQMOutputService(const edm::ParameterSet &pset,
   , updateNumber_(0)
   , shmBuffer_(0)
   , nbUpdates_(0)
+  , dqm("DQM")
+  , in("INPUT")
+
 {
 
   // specify the routine to be called after event processing.  This routine
@@ -150,8 +153,6 @@ void FUShmDQMOutputService::publish(xdata::InfoSpace *is)
 
 void FUShmDQMOutputService::postEndLumi(edm::LuminosityBlock const &lb, edm::EventSetup const &es)
 {
-  std::string dqm = "DQM";
-  std::string in = "INPUT";
   evf::MicroStateService *mss = 0;
   try{
     mss = edm::Service<evf::MicroStateService>().operator->();
