@@ -27,7 +27,7 @@ hltTauMonitor = cms.EDAnalyzer("HLTTauDQMSource",
             DQMFolder             = cms.untracked.string('HLT/TauOnline/Inclusive/EleTau'),
             Filter                = cms.untracked.VInputTag(
                                         cms.InputTag("hltL1sL1SingleEG12","",hltTauDQMProcess), 
-                                        cms.InputTag("hltEle18CaloIdVTTrkIdTCaloIsoTTrkIsoTTrackIsolFilter","",hltTauDQMProcess),
+                                        cms.InputTag("hltEle18CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilter","",hltTauDQMProcess),
                                         cms.InputTag("hltPFTau20","",hltTauDQMProcess),
                                         cms.InputTag("hltPFTau20Track","",hltTauDQMProcess),
                                         cms.InputTag("hltPFTau20TrackLooseIso","",hltTauDQMProcess),
@@ -238,7 +238,7 @@ hltTauElectronMonitor = cms.EDAnalyzer("HLTTauDQMSource",
     ),
     
    doMatching = cms.bool(True),
-   matchFilter       = cms.untracked.VInputTag(cms.InputTag("hltEle18CaloIdVTTrkIdTCaloIsoTTrkIsoTTrackIsolFilter","",hltTauDQMProcess) ),
+   matchFilter       = cms.untracked.VInputTag(cms.InputTag("hltEle18CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilter","",hltTauDQMProcess) ),
    matchObjectID       = cms.untracked.vint32(11),
    matchObjectMinPt    = cms.untracked.vdouble(10),
    TriggerEvent = cms.InputTag("hltTriggerSummaryAOD","",hltTauDQMProcess )                          
