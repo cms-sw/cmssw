@@ -102,15 +102,19 @@ useL7Parton     = True
 
 # list of input files
 useRelVals = True # if 'False', "inputFiles" is used
-inputFiles = [ '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RECO/START42_V12_FastSim_PU_156BxLumiPileUp-v1/0072/0635AA67-B37C-E011-B61F-002618943944.root'
-             , '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RECO/START42_V12_FastSim_PU_156BxLumiPileUp-v1/0072/0E153885-B17C-E011-8C7D-001A928116E0.root'
-             , '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RECO/START42_V12_FastSim_PU_156BxLumiPileUp-v1/0072/105E01FE-B57C-E011-9AB4-0018F3D09708.root'
-             , '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RECO/START42_V12_FastSim_PU_156BxLumiPileUp-v1/0072/120718C8-B67C-E011-A070-001A928116D2.root'
-             , '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RECO/START42_V12_FastSim_PU_156BxLumiPileUp-v1/0072/1232DFFA-AF7C-E011-983D-002618943831.root'
-             ]   # overwritten, if "useRelVals" is 'True'
+inputFiles = [ '/store/data/Run2011A/MuHad/AOD/PromptReco-v4/000/165/129/42DDEE9E-7B81-E011-AF29-003048F024DC.root'
+             , '/store/data/Run2011A/MuHad/AOD/PromptReco-v4/000/165/103/8AF0C4CD-EE80-E011-96B1-003048F1BF68.root'
+             , '/store/data/Run2011A/MuHad/AOD/PromptReco-v4/000/165/102/1298E7B3-CF80-E011-86E9-001617E30F4C.root'
+             , '/store/data/Run2011A/MuHad/AOD/PromptReco-v4/000/165/099/16D66DF0-D07F-E011-A922-003048F118C4.root'
+             , '/store/data/Run2011A/MuHad/AOD/PromptReco-v4/000/165/098/66526A73-DA7F-E011-84B4-003048F1BF68.root'
+             , '/store/data/Run2011A/MuHad/AOD/PromptReco-v4/000/165/093/2E545F72-C27F-E011-8CC1-003048D2C1C4.root'
+             , '/store/data/Run2011A/MuHad/AOD/PromptReco-v4/000/165/088/DED0B748-E47F-E011-9C6E-0030487C6A66.root'
+             , '/store/data/Run2011A/MuHad/AOD/PromptReco-v4/000/165/071/283C53A0-C37F-E011-A06F-0030487CD6D8.root'
+             ] # overwritten, if "useRelVals" is 'True'
 
 # maximum number of events
 maxInputEvents = -1 # reduce for testing
+maxInputEvents = 10000
 
 ### Conditions
 
@@ -265,10 +269,10 @@ if runPF2PAT:
   applyPostfix( process, 'pfNoJet'     , postfix ).enable = useNoJet
   applyPostfix( process, 'pfNoTau'     , postfix ).enable = useNoTau
   if useL1FastJet:
-    applyPostfix( process, 'pfJets', postfix ).Vertices      = cms.InputTag( 'goodOfflinePrimaryVertices' )
+    applyPostfix( process, 'pfPileUp', postfix ).Vertices            = cms.InputTag( 'goodOfflinePrimaryVertices' )
+    applyPostfix( process, 'pfPileUp', postfix ).checkClosestZVertex = False
     applyPostfix( process, 'pfJets', postfix ).doAreaFastjet = True
     applyPostfix( process, 'pfJets', postfix ).doRhoFastjet  = False
-    applyPostfix( process, 'pfPileUp', postfix ).checkClosestZVertex = False
 
 # remove MC matching, object cleaning, photons and taus
 if useStandardPAT:

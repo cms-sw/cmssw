@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.patSequences_cff import *
+from TopQuarkAnalysis.Configuration.patRefSel_common_cfi import *
 
 ### Muons
 
@@ -35,12 +36,7 @@ tightPatMuons = cleanPatMuons.clone(
 )
 step3a = step3b.clone( src = cms.InputTag( 'tightPatMuons' ) )
 
-step4 = cms.EDFilter(
-  "PATCandViewCountFilter"
-, src = cms.InputTag( 'selectedPatMuons' )
-, minNumber = cms.uint32( 0 )
-, maxNumber = cms.uint32( 1 ) # includes the signal muon
-)
+step4 = countPatMuons.clone( maxNumber = 1 ) # includes the signal muon
 
 ### Jets
 
@@ -59,15 +55,6 @@ goodPatJets = cleanPatJets.clone(
   )
 )
 
-from RecoJets.Configuration.RecoPFJets_cff import kt6PFJets
-kt6PFJetsChs = kt6PFJets.clone(
-  rParam = cms.double( 0.6 )
-, src    = cms.InputTag( 'pfNoElectron' )
-, doAreaFastjet = cms.bool( True )
-, doRhoFastjet = cms.bool( True )
-, voronoiRfact = cms.double( 0.9 )
-)
-
 step6a = cms.EDFilter(
   "PATCandViewCountFilter"
 , src = cms.InputTag( 'goodPatJets' )
@@ -80,10 +67,5 @@ step7  = step6a.clone( minNumber = 4 )
 
 ### Electrons
 
-step5 = cms.EDFilter(
-  "PATCandViewCountFilter"
-, src = cms.InputTag( 'selectedPatElectrons' )
-, minNumber = cms.uint32( 0 )
-, maxNumber = cms.uint32( 0 )
-)
+step5 = countPatElectrons.clone( maxNumber = 0 )
 
