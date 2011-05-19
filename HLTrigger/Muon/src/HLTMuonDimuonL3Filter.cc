@@ -202,11 +202,10 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        
        // Pt threshold cut
        double pt1 = tk1->pt();
-       double err1 = tk1->error(0);
-       double abspar1 = fabs(tk1->parameter(0));
+       //       double err1 = tk1->error(0);
+       //       double abspar1 = fabs(tk1->parameter(0));
        double ptLx1 = pt1;
-       // convert 50% efficiency threshold to 90% efficiency threshold
-       if (abspar1>0) ptLx1 += nsigma_Pt_*err1/abspar1*pt1;
+       // Don't convert to 90% efficiency threshold
        LogDebug("HLTMuonDimuonL3Filter") << " ... 1st muon in loop, pt1= "
 					 << pt1 << ", ptLx1= " << ptLx1;
        std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_it2 = L2toL3s_it1;
@@ -237,11 +236,10 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      
 	      // Pt threshold cut
 	      double pt2 = tk2->pt();
-	      double err2 = tk2->error(0);
-	      double abspar2 = fabs(tk2->parameter(0));
+        //	      double err2 = tk2->error(0);
+        //	      double abspar2 = fabs(tk2->parameter(0));
 	      double ptLx2 = pt2;
-	      // convert 50% efficiency threshold to 90% efficiency threshold
-	      if (abspar2>0) ptLx2 += nsigma_Pt_*err2/abspar2*pt2;
+	      // Don't convert to 90% efficiency threshold
 	      LogDebug("HLTMuonDimuonL3Filter") << " ... 2nd muon in loop, pt2= "
 						<< pt2 << ", ptLx2= " << ptLx2;
 	      
