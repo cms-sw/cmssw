@@ -52,7 +52,7 @@ parser.add_option("--filetype",
                    help="The type of the infile (EDM, LHE or MCDB).",
                    default=defaultOptions.filetype,
                    dest="filetype",
-                  choices=['EDM','DAT','LHE','MDCB'])
+                  choices=['EDM','DAT','LHE','MDCB','DQM'])
 
 parser.add_option("-n", "--number",
                   help="The number of events. The default is 1.",
@@ -373,7 +373,7 @@ if options.filetype==defaultOptions.filetype:
     else:
         options.filetype="EDM"
 
-filesuffix = {"LHE": "lhe", "EDM": "root", "MCDB": ""}[options.filetype]
+filesuffix = {"LHE": "lhe", "EDM": "root", "MCDB": "", "DQM":"root"}[options.filetype]
 
 if options.filein=="" and not (first_step in ("ALL","GEN","SIM_CHAIN")):
     options.dirin="file:"+options.dirin.replace('file:','')

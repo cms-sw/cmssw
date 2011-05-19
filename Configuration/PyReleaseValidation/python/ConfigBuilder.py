@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.320 $"
+__version__ = "$Revision: 1.321 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -191,7 +191,12 @@ class ConfigBuilder(object):
                self.process.source=cms.Source("MCDBSource",
 					      articleID = cms.uint32(int(self._options.filein.replace('mcdb:',''))),
 					      supportedProtocols = cms.untracked.vstring("rfio"))
-
+	   elif self._options.filetype == "DQM":
+		   self.process.source=cms.Source("DQMRootSource",
+						  fileNames = cms.untracked.vstring())
+		   for entry in self._options.filein.split(','):
+			   self.process.source.fileNames.append(self._options.dirin+entry)
+			   
            if 'HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys():
                self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
 
@@ -303,7 +308,7 @@ class ConfigBuilder(object):
 				
 			if theStreamType=='ALCARECO' and not theFilterName:
 				theFilterName='StreamALCACombined'
-			output = cms.OutputModule("PoolOutputModule",
+			output = cms.OutputModule(CppType,
 						  theEventContent.clone(),
 						  fileName = cms.untracked.string(theFileName),
 						  dataset = cms.untracked.PSet(
@@ -354,8 +359,9 @@ class ConfigBuilder(object):
                 else:
                         theFileName=self._options.outfile_name.replace('.root','_in'+streamType+'.root')
                         theFilterName=self._options.filtername
-
-                output = cms.OutputModule("PoolOutputModule",
+		CppType='PoolOutputModule'
+		if streamType=='DQM': CppType='DQMRootOutputModule'
+                output = cms.OutputModule(CppType,
                                           theEventContent,
                                           fileName = cms.untracked.string(theFileName),
                                           dataset = cms.untracked.PSet(dataTier = cms.untracked.string(tier),
@@ -1421,7 +1427,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.320 $"),
+                                            (version=cms.untracked.string("$Revision: 1.321 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
