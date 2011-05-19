@@ -909,6 +909,8 @@ bool FUEventProcessor::receiving(toolbox::task::WorkLoop *)
 	fclose(stderr);
 	exit(EXIT_SUCCESS);
       }
+    if(msg->mtype==MSQM_MESSAGE_TYPE_FSTOP)
+      _exit(EXIT_SUCCESS);
   }
   catch(evf::Exception &e){}
   return true;
@@ -1128,8 +1130,30 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		  nbdead_++;
 		}
 	    }
+	  if(nbp->value_!=0){
+	    for(unsigned int i = 0; i < subs_.size(); i++)
+	      {
+		if(subs_[i].params().nbp == 0){
+		  // check that the process is not stuck
+		  if(subs_[i].alive()>0 && subs_[i].params().ms == 0)
+		    {
+		      subs_[i].found_invalid();
+		      if(subs_[i].nfound_invalid() > 10){
+			MsgBuf msg3(NUMERIC_MESSAGE_SIZE,MSQM_MESSAGE_TYPE_FSTOP);			
+			subs_[i].post(msg3,false);
+			std::ostringstream ost1;
+			ost1 << "-W- Process in slot " << i << " Never reached the running state - forcestopping it"; 
+			localLog(ost1.str());
+			XCEPT_DECLARE(evf::Exception,
+				      sentinelException, ost1.str());
+			notifyQualified("error",sentinelException);
+
+		      }
+		    }
+		}
+	      }
+	  }
 	}
-      
     }
     catch(std::exception &e){
       LOG4CPLUS_INFO(getApplicationLogger(),"std exception - " << e.what());    
@@ -1359,7 +1383,7 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 		  int retval = pthread_mutex_lock(&stop_lock_);
 		  if(retval != 0) perror("error");
 		  running = fsm_.stateName()->toString()=="Enabled";
-		  if(count>5) exit(-1);
+		  if(count>5) _exit(-1);
 		  pthread_mutex_unlock(&stop_lock_);
 		  if(running) {::sleep(1); count++;}
 		}
@@ -1831,7 +1855,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.126 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.127 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

@@ -1,3 +1,10 @@
+2011-05-19 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-06
+	* use FSTOP signal to exit processes with invalid (stuck) state
+	* issue sentinel error when FSTOP is used
+	* call _exit instead of exit
+
 2011-05-13 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V02-04-05

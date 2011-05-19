@@ -27,6 +27,7 @@ namespace evf{
       , save_ndqm_(0)
       , save_scalers_(0)
       , reported_inconsistent_(false)
+      , nfound_invalid_(0)
       {}
     SubProcess(int ind, pid_t pid)
       : ind_(ind)
@@ -41,6 +42,7 @@ namespace evf{
       , save_ndqm_(0)
       , save_scalers_(0)
       , reported_inconsistent_(false)
+      , nfound_invalid_(0)
       {
 	mqm_->drain();
 	mqs_->drain();
@@ -54,6 +56,7 @@ namespace evf{
       , restart_countdown_(b.restart_countdown_)
       , restart_count_(b.restart_count_)
       , reported_inconsistent_(b.reported_inconsistent_)
+      , nfound_invalid_(b.nfound_invalid_)
       {
       }
     SubProcess &operator=(const SubProcess &b);
@@ -128,6 +131,8 @@ namespace evf{
     unsigned int &restartCount(){return restart_count_;}
     int get_save_nbp() const {return save_nbp_;}
     int get_save_nba() const {return save_nba_;}
+    void found_invalid() {nfound_invalid_++;}
+    unsigned int nfound_invalid() const { return nfound_invalid_;}
     static const unsigned int monitor_queue_offset_ = 200;
 
   private:
@@ -148,6 +153,7 @@ namespace evf{
     unsigned int save_ndqm_;
     unsigned int save_scalers_;
     bool reported_inconsistent_;
+    unsigned int nfound_invalid_;
   };
 
 

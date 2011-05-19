@@ -63,6 +63,7 @@ namespace evf{
     pid_t retval = -1;
     retval = fork();
     reported_inconsistent_ = false;
+    nfound_invalid_ = 0;
     if(retval>0)
       {
 	pid_ = retval;
