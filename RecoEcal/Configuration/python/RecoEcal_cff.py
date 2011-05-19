@@ -9,6 +9,9 @@ from RecoEcal.EgammaClusterProducers.multi5x5ClusteringSequence_cff import *
 from RecoEcal.EgammaClusterProducers.multi5x5PreshowerClusteringSequence_cff import *
 #reduced recHit collection producer
 from RecoEcal.EgammaClusterProducers.reducedRecHitsSequence_cff import *
+
+#create the EcalNextToDeadChannel record on the fly
+from RecoEcal.EgammaCoreTools.EcalNextToDeadChannelESProducer_cff import *
 # create path with all clustering algos
 # NB: preshower MUST be run after multi5x5 clustering in the endcap
 
