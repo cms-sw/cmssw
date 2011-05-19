@@ -32,6 +32,9 @@ import re
 import copy
 import array
 import os.path
+import sys
+import fnmatch
+from random import gauss
 
 ################ Define classes
 
@@ -161,7 +164,8 @@ class Hist(object):
         c = copy.copy(self)
         for i in range(len(self)):
             c.y[i] += b.y[i]
-            c.yerr[i] += b.yerr[i]
+            c.yerr[0][i] += b.yerr[0][i]
+            c.yerr[1][i] += b.yerr[1][i]
         c.overflow += b.overflow
         c.underflow += b.underflow
         return c
@@ -170,7 +174,8 @@ class Hist(object):
         c = copy.copy(self)
         for i in range(len(self)):
             c.y[i] -= b.y[i]
-            c.yerr[i] -= b.yerr[i]
+            c.yerr[0][i] -= b.yerr[0][i]
+            c.yerr[1][i] -= b.yerr[1][i]
         c.overflow -= b.overflow
         c.underflow -= b.underflow
         return c
@@ -266,6 +271,11 @@ class Hist(object):
         This function is called by the division operator:
             hist3 = hist1.divide_wilson(hist2) <--> hist3 = hist1 / hist2
         """
+        if len(self) != len(denominator):
+            raise TypeError("Cannot divide %s with %i bins by "
+                            "%s with %i bins." % 
+                            (denominator.name, len(denominator), 
+                             self.name, len(self)))
         quotient = copy.deepcopy(self)
         num_yerr = self.av_yerr()
         den_yerr = denominator.av_yerr()
@@ -284,6 +294,11 @@ class Hist(object):
         return quotient
     def divide_wilson(self, denominator):
         """Return an efficiency plot with Wilson score interval errors."""
+        if len(self) != len(denominator):
+            raise TypeError("Cannot divide %s with %i bins by "
+                            "%s with %i bins." % 
+                            (denominator.name, len(denominator), 
+                             self.name, len(self)))
         eff, upper_err, lower_err = wilson_interval(self.y, denominator.y)
         quotient = copy.deepcopy(self)
         quotient.y = eff
@@ -355,6 +370,10 @@ class HistStack(object):
         if "label" in kwargs:
             hist.label = kwargs['label']
             del kwargs['label']
+        if len(self) > 0:
+            if hist.xedges != self.hists[0].xedges:
+                raise ValueError("Cannot add %s to stack; all Hists must "
+                                 "have the same binning." % hist.name)
         self.hists.append(hist)
         self.kwargs.append(kwargs)
 
@@ -410,6 +429,34 @@ def get(object_name):
 
 
 ################ Define additional helping functions
+
+def loadROOT(batch=True):
+    ## We need to temporarily change sys.argv so that ROOT doesn't intercept 
+    ## options from the command-line
+    saved_argv = sys.argv[:]
+    argstring = ' '.join(sys.argv)
+    sys.argv = [sys.argv[0]]
+    try:
+        import ROOT
+    except ImportError:
+        print """\
+The program was unable to access PyROOT.  Usually, this just requires switching
+to the same major version of python that used when compiling ROOT.  To
+determine which version that is, try the following command:
+    root -config 2>&1 | tr ' ' '\\n' | egrep 'python|PYTHON'
+If this is different from the python version you are currently using, try
+changing your PATH to point to the new one."""
+        sys.exit(1)
+    ## Enter batch mode, unless outputting to C macros
+    ## There is a bug in pyROOT that fails to export colors in batch mode
+    if batch:
+        ROOT.gROOT.SetBatch()
+    ROOT.gErrorIgnoreLevel = ROOT.kWarning
+    ## PyROOT picks up ~/.rootlogon if it exists, but not ./rootlogon.C 
+    if os.path.exists('rootlogon.C'):
+        ROOT.gROOT.Macro('rootlogon.C')
+    sys.argv = saved_argv[:]
+    return ROOT
 
 def replace(string, replacements):
     """
@@ -470,3 +517,84 @@ def find_num_processors():
         except:
             num_processors = 1
     return num_processors
+
+def testfile():
+    outfile = ROOT.TFile("test.root", "recreate")
+    for i in range(4):
+        d = outfile.mkdir("dir%i" % (i + 1))
+        d.cd()
+        for j in range(4):
+            hist = ROOT.TH1F("hist%i" % (j + 1), "A Histogram", 10, 0, 10)
+            hist.Fill(j)
+            hist.Write()
+    outfile.Write()
+    return outfile
+
+#### Functions for globbing within root files
+
+glob_magic_check = re.compile('[*?[]')
+
+def has_glob_magic(s):
+    return glob_magic_check.search(s) is not None
+
+# These 2 helper functions non-recursively glob inside a literal directory.
+# They return a list of basenames. `_rootglob1` accepts a pattern while 
+# `_rootglob0` takes a literal basename (so it only has to check for its 
+# existence).
+
+def _rootglob1(tdirectory, dirname, pattern):
+    if not tdirectory.GetDirectory(dirname):
+        return []
+    names = [key.GetName() for key in 
+             tdirectory.GetDirectory(dirname).GetListOfKeys()]
+    return fnmatch.filter(names, pattern)
+
+def _rootglob0(tdirectory, dirname, basename):
+    if tdirectory.Get(os.path.join(dirname, basename)):
+        return [basename]
+    return []
+
+def rootglob(tdirectory, pathname):
+    """Return a list of paths matching a pathname pattern.
+
+    The pattern may contain simple shell-style wildcards a la fnmatch.
+
+    >>> import rootplot.utilities
+    >>> f = rootplot.utilities.testfile()
+    >>> rootglob(f, '*')
+    ['dir1', 'dir2', 'dir3', 'dir4']
+    >>> rootglob(f, 'dir1/*')
+    ['dir1/hist1', 'dir1/hist2', 'dir1/hist3', 'dir1/hist4']
+    >>> rootglob(f, '*/hist1')
+    ['dir1/hist1', 'dir2/hist1', 'dir3/hist1', 'dir4/hist1']
+    >>> rootglob(f, 'dir1/hist[1-2]')
+    ['dir1/hist1', 'dir1/hist2']
+    """
+    return list(irootglob(tdirectory, pathname))
+
+def irootglob(tdirectory, pathname):
+    """Return an iterator which yields the paths matching a pathname pattern.
+
+    The pattern may contain simple shell-style wildcards a la fnmatch.
+
+    """
+    if not has_glob_magic(pathname):
+        if tdirectory.Get(pathname):
+            yield pathname
+        return
+    dirname, basename = os.path.split(pathname)
+    if has_glob_magic(dirname):
+        dirs = irootglob(tdirectory, dirname)
+    else:
+        dirs = [dirname]
+    if has_glob_magic(basename):
+        glob_in_dir = _rootglob1
+    else:
+        glob_in_dir = _rootglob0
+    for dirname in dirs:
+        for name in glob_in_dir(tdirectory, dirname, basename):
+            yield os.path.join(dirname, name)
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()

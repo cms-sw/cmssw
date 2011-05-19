@@ -62,6 +62,8 @@ class Hist2D(utilities.Hist2D):
         return cs
     def col(self, **kwargs):
         """Draw a colored box plot using :func:`matplotlib.pyplot.imshow`."""
+        if 'cmap' in kwargs:
+            kwargs['cmap'] = plt.get_cmap(kwargs['cmap'])
         plot = plt.imshow(self.content, interpolation='nearest',
                           extent=[self.xedges[0], self.xedges[-1],
                                   self.yedges[0], self.yedges[-1]],
@@ -118,7 +120,7 @@ class Hist(utilities.Hist):
         plt.xlim(self.xedges[0], self.xedges[-1])
 
     def _prepare_yaxis(self, rotation=0, alignment='center'):
-        """Apply bound and text labels on y axis."""
+        """Apply bounds and text labels on y axis."""
         if self.binlabels is not None:
             binwidth = (self.xedges[-1] - self.xedges[0]) / self.nbins
             plt.yticks(self.x, self.binlabels,
@@ -248,7 +250,7 @@ class HistStack(utilities.HistStack):
         """
         contents = np.dstack([hist.y for hist in self.hists])
         xedges = self.hists[0].xedges
-        x = np.dstack([hist.x for hist in self.hists])
+        x = np.dstack([hist.x for hist in self.hists])[0]
         labels = [hist.label for hist in self.hists]
         try:
             clist = [item['color'] for item in self.kwargs]
@@ -301,6 +303,30 @@ class HistStack(utilities.HistStack):
             if not bottom: bottom = [0. for i in range(self.hists[0].nbins)]
             bottom = [sum(pair) for pair in zip(bottom, hist.y)]
         return plots
+    def histstack(self, **kwargs):
+        """
+        Make a matplotlib hist plot, with each Hist stacked upon the last.
+
+        Any additional keyword arguments will be passed to
+        :func:`matplotlib.pyplot.hist`.
+        """
+        bottom = None # if this is set to zeroes, it fails for log y
+        plots = []
+        cumhist = None
+        for i, hist in enumerate(self.hists):
+            if cumhist:
+                cumhist = hist + cumhist
+            else:
+                cumhist = copy.copy(hist)
+            if self.title  is not None: cumhist.title  = self.title
+            if self.xlabel is not None: cumhist.xlabel = self.xlabel
+            if self.ylabel is not None: cumhist.ylabel = self.ylabel
+            all_kwargs = copy.copy(kwargs)
+            all_kwargs.update(self.kwargs[i])
+            zorder = 0 + float(len(self) - i)/len(self) # plot in reverse order
+            plot = cumhist.hist(zorder=zorder, **all_kwargs)
+            plots.append(plot)
+        return plots
     def barcluster(self, width=0.8, **kwargs):
         """
         Make a clustered bar plot.
@@ -345,7 +371,7 @@ class HistStack(utilities.HistStack):
 
         Any additional keyword arguments will be passed to
         :func:`matplotlib.pyplot.bar`.  You will probably want to set a 
-        transparency value (i.e. *alpha*=0.5).
+        transparency value (i.e. *alpha* = 0.5).
         """
         plots = []
         for i, hist in enumerate(self.hists):

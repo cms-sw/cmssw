@@ -47,8 +47,21 @@ import os
 import re
 import tempfile
 import copy
-from utilities import RootFile, Hist, Hist2D, HistStack, find_num_processors
 from os.path import join as joined
+
+
+##############################################################################
+######## Import ROOT and rootplot libraries ##################################
+
+from utilities import RootFile, Hist, Hist2D, HistStack
+from utilities import find_num_processors, loadROOT
+
+argstring = ' '.join(sys.argv)
+## Use ROOT's batch mode, unless outputting to C macros, since there is
+## a bug in pyROOT that fails to export colors in batch mode
+batch = (not re.search('--ext[ =]*C', argstring) and
+         not re.search('-e[ ]*C', argstring))
+ROOT = loadROOT(batch=batch)
 
 
 ##############################################################################
@@ -65,36 +78,6 @@ try:
     use_multiprocessing = True
 except ImportError:
     use_multiprocessing = False
-
-
-##############################################################################
-######## Import ROOT #########################################################
-
-## We need to temporarily change sys.argv so that ROOT doesn't intercept 
-## options from the command-line
-saved_argv = sys.argv[:]
-argstring = ' '.join(sys.argv)
-sys.argv = [sys.argv[0]]
-try:
-    import ROOT
-except ImportError:
-    print """\
-The program was unable to access PyROOT.  Usually, this just requires switching
-to the same major version of python that used when compiling ROOT.  To
-determine which version that is, try the following command:
-    root -config 2>&1 | tr ' ' '\\n' | egrep 'python|PYTHON'
-If this is different from the python version you are currently using, try
-changing your PATH to point the new one.  For CMS users, this will all be set
-up by running 'cmsenv'."""
-    sys.exit(1)
-## Enter batch mode, unless outputting to C macros
-## There is a bug in pyROOT that fails to export colors in batch mode
-if not (re.search('--ext[ =]*C', argstring) or re.search('-e[ ]*C', argstring)):
-    ROOT.gROOT.SetBatch()
-ROOT.gErrorIgnoreLevel = ROOT.kWarning
-if os.path.exists('rootlogon.C'):
-    ROOT.gROOT.Macro('rootlogon.C')
-sys.argv = saved_argv[:]
 
 
 ##############################################################################
@@ -223,9 +206,10 @@ marker_colors = []              # normally filled by options.colors
 mpl:::errorbar_colors = []      # color for bars around the central value
 root::marker_sizes = []         # in pixels
 mpl:::marker_sizes = []         # in points
-root::line_styles = []          # 1 (solid), 2 (dashed), 3 (dotted), 4 (dashdot), ...
+root::line_styles = []          # 1 (solid), 2 (dashed), 4 (dashdot), 3 (dotted), ...
 mpl:::line_styles = []          # 'solid', 'dashed', 'dashdot', 'dotted'
 root::fill_styles = []          # 0 (hollow), 1001 (solid), 2001 (hatched), ...
+mpl:::fill_styles = []          # None, '/', '\', '|', '-', '+', 'x', 'o', 'O', ...
 root::draw_commands = []        # a TH1::Draw option, include 'stack' to make stacked
 mpl:::plot_styles = []          # 'bar', 'hist', 'errorbar', 'stack'
 mpl:::alphas = []               # transparencies for fills (value from 0 to 1)
@@ -265,6 +249,8 @@ root::     3, # asterisk
     ]
 
 #### Styles for --data
+root::data_linestyle = 1
+mpl:::data_linestyle = 'solid'
 data_color = (0,0,0)      # black
 mc_color = (50, 150, 150) # used when there are exactly 2 targets; set to
                           # None to pick up the normal color
@@ -272,8 +258,9 @@ root::data_marker = 4           # marker style (circle)
 mpl:::data_marker = 'o'         # marker style
 
 #### Settings for --ratio-split or --efficiency-split
-ratio_max = None
-ratio_min = None
+ratio_max  = None
+ratio_min  = None
+ratio_logy = False
 ratio_fraction = 0.3  # Fraction of the canvas that bottom plot occupies
 ratio_label = 'Ratio to %(ratio_file)s' # Label for the bottom plot
 efficiency_label = 'Efficiency vs. %(ratio_file)s'
@@ -493,7 +480,6 @@ except ImportError:
   from PhysicsTools.PythonAnalysis.rootplot.core import report_progress
 import ROOT
 import multiprocessing as multi
-from Queue import Empty
 
 import os
 os.chdir('..')  # return to the directory with the ROOT files
@@ -510,6 +496,7 @@ for call in calls:
     queue.put(call)
 
 def qfunc(queue, qglobals):
+    from Queue import Empty
     while True:
         try: mycall = queue.get(timeout=5)
         except (Empty, IOError): break
@@ -774,6 +761,7 @@ def rootplot(*args, **kwargs):
         if use_mpl:
             width, height = [x * options.dpi for x in options.size]
         for path, dirs, files in os.walk(options.output):
+            dirs, files = sorted(dirs), sorted(files)
             make_html_index(path, dirs, files, options.ext,
                             options.html_template, options.ncolumns_html,
                             width, height)
@@ -951,6 +939,7 @@ def plot_hists_root(hists, options):
             roothist = hist.TH1F(name=name.replace('/', '__'))
         else:
             roothist = hist.TH2F(name=name)
+        roothist.SetLineStyle(options.line_styles[i])
         roothist.SetLineColor(options.line_colors[i])
         roothist.SetFillColor(options.fill_colors[i])
         roothist.SetMarkerColor(options.marker_colors[i])
@@ -1013,8 +1002,10 @@ def plot_hists_root(hists, options):
         for pad in objects['pads']:
             pad.SetLogx(True)
     if options.logy:
-        for pad in objects['pads']:
-            pad.SetLogy(True)
+        objects['pads'][0].SetLogy(True)
+    if options.ratio_logy:
+        if len(objects['pads']) > 1:
+            objects['pads'][1].SetLogy(True)
     if options.numbering:
         display_page_number(options)
     if roothist.InheritsFrom('TH1'):
@@ -1056,6 +1047,8 @@ def plot_hists_mpl(hists, options):
                     hist.y[j] = max(hist.y[j], 1e-10)
             if options.plot_styles[i] in ['barh', 'barcluster', 'stack']:
                 objects['stack'].add(hist, log=options.logy,
+                                     hatch=options.fill_styles[i],
+                                     linestyle=options.line_styles[i],
                                      edgecolor=options.line_colors[i],
                                      facecolor=options.fill_colors[i])
             fullstack.add(hist)
@@ -1072,9 +1065,10 @@ def plot_hists_mpl(hists, options):
             if hist:
                 if options.plot_styles[i] == "errorbar":
                     if options.logy:
+                        axes.set_yscale('log')
                         # Logy would fail if hist all zeroes
-                        if np.nonzero(hist.y)[0].tolist():
-                            axes.set_yscale('log')
+                        if not np.nonzero(hist.y)[0].tolist():
+                            continue
                         # Errorbars get messed up when they extend down to zero
                         for j in range(hist.nbins):
                             yerr = hist.yerr[0][j]
@@ -1092,6 +1086,7 @@ def plot_hists_mpl(hists, options):
                     hist.bar(alpha=options.alphas[i], 
                              log=options.logy,
                              width=options.barwidth,
+                             hatch=options.fill_styles[i],
                              edgecolor=options.line_colors[i],
                              facecolor=options.fill_colors[i],
                              label_rotation=options.xlabel_rotation,
@@ -1103,6 +1098,7 @@ def plot_hists_mpl(hists, options):
                     hist.hist(alpha=options.alphas[i],
                               histtype=histtype,
                               log=options.logy,
+                              hatch=options.fill_styles[i],
                               edgecolor=options.line_colors[i],
                               facecolor=options.fill_colors[i],
                               label_rotation=options.xlabel_rotation,
@@ -1112,8 +1108,8 @@ def plot_hists_mpl(hists, options):
                         ax.set_xscale('log')
         if objects['stack'].hists:
             if 'stack' in options.plot_styles:
-                objects['stack'].barstack(
-                    width=options.barwidth,
+                objects['stack'].histstack(
+                    histtype='stepfilled',
                     label_rotation=options.xlabel_rotation,
                     label_alignment=options.xlabel_alignment)
             elif 'barh' in options.plot_styles:
@@ -1176,7 +1172,10 @@ def plot_hists_mpl(hists, options):
     elif type(refhist) is Hist2D:
         drawfunc = getattr(hist, options.draw2D)
         if 'col' in options.draw2D:
-            drawfunc()
+            if options.cmap:
+                drawfunc(cmap=options.cmap)
+            else:
+                drawfunc()
         else:
             drawfunc(color=options.fill_colors[0])
     axes.set_title(r2m.replace(refhist.title, options.replace))
@@ -1263,6 +1262,10 @@ def initialize_hists(args, kwargs):
         roothist.Delete()
         hists.append(hist)
     for i, hist in enumerate(hists):
+        if use_mpl:
+            stacked = 'stack' in options.plot_styles[i]
+        else:
+            stacked = 'stack' in options.draw_commands[i]
         if dimension == 1:
             if options.overflow:
                 hist.y[-1] += hist.overflow
@@ -1420,9 +1423,16 @@ def prep_first_draw(hist, histmax, options):
         if options.split:
             hist.Draw()
             hist.GetXaxis().SetBinLabel(1, '') # Don't show tick labels
-            hist.GetXaxis().SetTitle('')
+            if ';' in hist.GetTitle():
+                # dealing with bug in THStack title handling
+                titles = hist.GetTitle().split(';')
+                if len(titles) > 1: titles[1] = ''
+                hist.SetTitle(';'.join(titles))
+            else:
+                hist.GetXaxis().SetTitle('')
             ## Avoid overlap of y-axis numbers by supressing zero
-            if (hist.GetMaximum() > 0 and
+            if (not options.logy and
+                hist.GetMaximum() > 0 and
                 hist.GetMinimum() / hist.GetMaximum() < 0.25):
                 hist.SetMinimum(hist.GetMaximum() / 10000)
         else:
@@ -1532,6 +1542,8 @@ def plot_ratio_mpl(axes, hists, options):
         stack.add(ratio_hist, fmt=options.marker_styles[i],
                   color=options.fill_colors[i],
                   ecolor=options.errorbar_colors[i])
+    if options.ratio_logy:
+        axes.set_yscale('log')
     stack.errorbar(yerr=True)
     axes.yaxis.set_major_locator(
         mpl.ticker.MaxNLocator(nbins=5, steps=[1, 2, 5, 10]))
@@ -1728,11 +1740,6 @@ def process_options(options):
     else:
         if not options.line_styles:
             options.line_styles = [1 for i in xrange(nhists)]
-        if not options.fill_styles:
-            if options.fill:
-                options.fill_styles = [1001 for i in xrange(nhists)]
-            else:
-                options.fill_styles = [0 for i in xrange(nhists)]
         if not options.draw_commands:
             if options.stack:
                 options.draw_commands = ['stack ' + options.draw
@@ -1740,6 +1747,14 @@ def process_options(options):
             else:
                 options.draw_commands = [options.draw
                                          for i in xrange(nhists)]
+    if not options.fill_styles:
+        if use_mpl:
+            options.fill_styles = [None for i in xrange(nhists)]
+        else:
+            if options.fill:
+                options.fill_styles = [1001 for i in xrange(nhists)]
+            else:
+                options.fill_styles = [0 for i in xrange(nhists)]
     if not options.marker_sizes:
         if options.markers:
             if use_mpl: size = mpl.rcParams['lines.markersize']
@@ -1749,8 +1764,10 @@ def process_options(options):
         options.marker_sizes = [size for i in xrange(nhists)]
     if options.data:
         i = options.data - 1
+        options.line_styles[i] = options.data_linestyle
         options.line_colors[i] = options.data_color
         options.fill_colors[i] = options.data_color
+        options.marker_colors[i] = options.data_color
         if use_mpl:
             options.plot_styles[i] = 'errorbar'
         else:
@@ -1824,7 +1841,6 @@ def parse_arguments(argv, scope='global'):
     parser = optparse.OptionParser(usage=usage, formatter=help_formatter,
                                    version='%s %s' % ('%prog', __version__))
     Group = optparse.OptionGroup
-    g_control = Group(parser, "Control the overall behavior of rootplot")
     g_control = Group(parser, "Control the overall behavior of rootplot")
     g_output  = Group(parser, "Control the output format")
     g_hist    = Group(parser, "Manipulate your histograms")
@@ -1969,6 +1985,8 @@ def parse_arguments(argv, scope='global'):
     addopt(g_style, '--gridy', action='store_true', default=False,
                       help="toggle the grid on or off for the y axis")
     if use_mpl:
+        addopt(g_style, '--cmap',
+               help="matplotlib colormap to use for 2D plots")
         addopt(g_style, '--barwidth', metadefault=1.0, type=float,
                help="fraction of the bin width for bars to fill")
         addopt(g_style, '--alpha', type='float', metadefault=0.5,
