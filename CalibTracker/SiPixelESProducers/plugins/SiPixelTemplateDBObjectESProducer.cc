@@ -10,9 +10,11 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/do_nothing_deleter.h"
 
 #include <boost/shared_ptr.hpp>
 #include "boost/mpl/vector.hpp"
+
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
@@ -54,8 +56,7 @@ boost::shared_ptr<SiPixelTemplateDBObject> SiPixelTemplateDBObjectESProducer::pr
 	if(std::fabs(theMagField-dbobject->sVector()[22])>0.1)
 		edm::LogWarning("UnexpectedMagneticFieldUsingNonIdealPixelTemplate") << "Magnetic field is " << theMagField << " Template Magnetic field is " << dbobject->sVector()[22];
 	
-	boost::shared_ptr<SiPixelTemplateDBObject> dbptr(new SiPixelTemplateDBObject(*(dbobject)));
-	return dbptr;
+	return boost::shared_ptr<SiPixelTemplateDBObject>(const_cast<SiPixelTemplateDBObject*>(&(*dbobject)), edm::do_nothing_deleter());
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(SiPixelTemplateDBObjectESProducer);
