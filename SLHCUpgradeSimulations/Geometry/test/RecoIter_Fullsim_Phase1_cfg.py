@@ -23,7 +23,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.11 $'),
+    version = cms.untracked.string('$Revision: 1.12 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -190,9 +190,31 @@ process.trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
 #process.trackValidator.associators = ['TrackAssociatorByHits']
 process.trackValidator.associators = cms.vstring('quickTrackAssociatorByHits')
 process.trackValidator.UseAssociators = True
-process.trackValidator.nint = cms.int32(20)
-process.trackValidator.nintpT = cms.int32(100)
-process.trackValidator.maxpT = cms.double(200.0)
+## options to match with 363 histos for comparison
+process.trackValidator.histoProducerAlgoBlock.nintEta = cms.int32(20)
+process.trackValidator.histoProducerAlgoBlock.nintPt = cms.int32(100)
+process.trackValidator.histoProducerAlgoBlock.maxPt = cms.double(200.0)
+process.trackValidator.histoProducerAlgoBlock.useLogPt = cms.untracked.bool(True)
+process.trackValidator.histoProducerAlgoBlock.minDxy = cms.double(-3.0)
+process.trackValidator.histoProducerAlgoBlock.maxDxy = cms.double(3.0)
+process.trackValidator.histoProducerAlgoBlock.nintDxy = cms.int32(100)
+process.trackValidator.histoProducerAlgoBlock.minDz = cms.double(-10.0)
+process.trackValidator.histoProducerAlgoBlock.maxDz = cms.double(10.0)
+process.trackValidator.histoProducerAlgoBlock.nintDz = cms.int32(100)
+process.trackValidator.histoProducerAlgoBlock.maxVertpos = cms.double(5.0)
+process.trackValidator.histoProducerAlgoBlock.nintVertpos = cms.int32(100)
+process.trackValidator.histoProducerAlgoBlock.minZpos = cms.double(-10.0)
+process.trackValidator.histoProducerAlgoBlock.maxZpos = cms.double(10.0)
+process.trackValidator.histoProducerAlgoBlock.nintZpos = cms.int32(100)
+process.trackValidator.histoProducerAlgoBlock.phiRes_rangeMin = cms.double(-0.003)
+process.trackValidator.histoProducerAlgoBlock.phiRes_rangeMax = cms.double(0.003)
+process.trackValidator.histoProducerAlgoBlock.phiRes_nbin = cms.int32(100)
+process.trackValidator.histoProducerAlgoBlock.cotThetaRes_rangeMin = cms.double(-0.01)
+process.trackValidator.histoProducerAlgoBlock.cotThetaRes_rangeMax = cms.double(+0.01)
+process.trackValidator.histoProducerAlgoBlock.cotThetaRes_nbin = cms.int32(120)
+process.trackValidator.histoProducerAlgoBlock.dxyRes_rangeMin = cms.double(-0.01)
+process.trackValidator.histoProducerAlgoBlock.dxyRes_rangeMax = cms.double(0.01)
+process.trackValidator.histoProducerAlgoBlock.dxyRes_nbin = cms.int32(100)
 
 process.slhcTracksValidation = cms.Sequence(process.cutsRecoTracksHp*
                                  process.cutsRecoTracksHpwbtagc*
