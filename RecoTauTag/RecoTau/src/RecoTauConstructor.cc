@@ -192,7 +192,7 @@ std::auto_ptr<reco::PFTau> RecoTauConstructor::get(bool setupLeadingObjects) {
                       getCollection(kSignal, kChargedHadron)->end()));
 
   // Set PDG id
-  tau_->setPdgId(tau_->charge() > 0 ? 15 : -15);
+  tau_->setPdgId(tau_->charge() < 0 ? 15 : -15);
 
   // Set P4
   tau_->setP4(p4_);
