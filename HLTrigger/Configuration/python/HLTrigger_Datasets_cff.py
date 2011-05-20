@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V81
+# /dev/CMSSW_4_2_0/GRun/V83
 
 import FWCore.ParameterSet.Config as cms
 
@@ -53,7 +53,6 @@ streamA_datasetDoubleElectron_selector.triggerConditions = cms.vstring('HLT_Doub
     'HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v4', 
     'HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass30_v2', 
     'HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v4', 
-    'HLT_Ele25_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v1', 
     'HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_v1', 
     'HLT_Ele8_CaloIdL_CaloIsoVL_Jet40_v4', 
     'HLT_Ele8_CaloIdL_CaloIsoVL_v4', 
@@ -285,12 +284,12 @@ streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Jpsi
     'HLT_Dimuon0_Upsilon_Muon_v1', 
     'HLT_Dimuon0_Upsilon_v1', 
     'HLT_Dimuon10_Jpsi_Barrel_v1', 
-    'HLT_Dimuon4_Bs_Barrel_v2', 
+    'HLT_Dimuon4_Bs_Barrel_v3', 
     'HLT_Dimuon5_Upsilon_Barrel_v1', 
-    'HLT_Dimuon6_Bs_v1', 
+    'HLT_Dimuon6_Bs_v2', 
     'HLT_Dimuon7_Jpsi_Displaced_v1', 
     'HLT_Dimuon7_Jpsi_X_Barrel_v1', 
-    'HLT_Dimuon7_LowMass_Displaced_v1', 
+    'HLT_Dimuon7_LowMass_Displaced_v2', 
     'HLT_Dimuon7_PsiPrime_v1', 
     'HLT_DoubleMu2_Bs_v3', 
     'HLT_Mu5_L2Mu2_Jpsi_v4', 
@@ -379,7 +378,8 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetSingleElectron_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetSingleElectron_selector.l1tResults = cms.InputTag('')
 streamA_datasetSingleElectron_selector.throw      = cms.bool(False)
-streamA_datasetSingleElectron_selector.triggerConditions = cms.vstring('HLT_Ele32_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v1', 
+streamA_datasetSingleElectron_selector.triggerConditions = cms.vstring('HLT_Ele25_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v1', 
+    'HLT_Ele32_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v1', 
     'HLT_Ele32_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v3', 
     'HLT_Ele42_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v1', 
     'HLT_Ele42_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1', 
