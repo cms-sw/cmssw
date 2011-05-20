@@ -170,6 +170,60 @@ int L1TOMDSHelper::getNumberCollidingBunches(int lhcFillNumber,string &error){
 }
 
 //_____________________________________________________________________
+BeamConfiguration L1TOMDSHelper::getBeamConfiguration(int lhcFillNumber,string &error){
+
+  BeamConfiguration bConfig;
+  error = "";
+
+  // Fields to retrive in the query
+  string rtlSchema = "CMS_RUNTIME_LOGGER";
+  string table     = "FILL_INITLUMIPERBUNCH";
+  string atribute1 = "LHCFILL";
+
+  // Setting the strings we want to recover from OMDS
+  vector<std::string> qStrings ;
+  qStrings.push_back("BUNCH");
+  qStrings.push_back("BEAM1CONFIG"); 
+  qStrings.push_back("BEAM2CONFIG");  
+
+  l1t::OMDSReader::QueryResults qResults = m_omdsReader->basicQuery(qStrings,rtlSchema,table,atribute1,m_omdsReader->singleAttribute(lhcFillNumber));
+
+  if(qResults.queryFailed()){
+    edm::LogError( "L1TOMDSHelper" ) << "OMDS query error: Query Failed";
+    error = "WARNING: OMDS query failed\n";
+  }
+  else{
+
+    if(qResults.numberRows() != 3564){
+      error = "WARNING: Initial bunch luminosity was not correctly retrived from DB\n" ;
+    }
+    else{
+
+      bConfig.m_valid = true;
+
+      for(int i=0; i<qResults.numberRows();++i){    
+        int   bunch;
+        bool  beam1config,beam2config;
+        qResults.fillVariableFromRow("BUNCH"      ,i,bunch);
+        qResults.fillVariableFromRow("BEAM1CONFIG",i,beam1config);
+        qResults.fillVariableFromRow("BEAM2CONFIG",i,beam2config);
+
+        if(beam1config){bConfig.beam1.push_back(true);}
+        else           {bConfig.beam1.push_back(false);}
+
+        if(beam2config){bConfig.beam2.push_back(true);}
+        else           {bConfig.beam2.push_back(false);}
+
+      }
+    }
+  }
+
+  return bConfig;
+
+}
+
+
+//_____________________________________________________________________
 vector<bool> L1TOMDSHelper::getBunchStructure(int lhcFillNumber,string &error){
 
   vector<bool> BunchStructure;

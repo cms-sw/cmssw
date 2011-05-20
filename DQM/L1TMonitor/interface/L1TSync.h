@@ -4,8 +4,8 @@
 /*
  * \file L1TSync.h
  *
- * $Date: 2011/05/12 13:50:40 $
- * $Revision: 1.3 $
+ * $Date: 2011/05/19 15:15:50 $
+ * $Revision: 1.4 $
  * \author J. Pela
  *
 */
@@ -28,6 +28,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DQM/L1TMonitor/interface/L1TOMDSHelper.h"
 
 #include <TString.h>
 
@@ -72,23 +74,23 @@ class L1TSync : public edm::EDAnalyzer {
     unsigned int                            m_lhcFill;             //
 
     // Vectors
-    std::vector<bool>                      m_bunchStructure;      // Current Bunch Structure
+    BeamConfiguration                      m_beamConfig;      // Current Bunch Structure
 
     // Const Vectors
     const std::vector< std::vector<int> >* ListsPrescaleFactors;  // Collection os all sets of prescales
 
     // Maps
-    std::map<TString,int>                  m_algoBit;
-    std::map<TString,MonitorElement*>      m_algoCertification;
-    std::map<TString,MonitorElement*>      m_algoVsBunchStructure;
+    std::map<TString,int>                 m_algoBit;
+    std::map<TString,MonitorElement*>     m_algoCertification;
+    std::map<TString,MonitorElement*>     m_algoVsBunchStructure;
 
-    std::map<std::string,bool>             m_algoAutoSelect;      // Map of categories to monitor
-    std::map<std::string,std::string>      m_selectedTriggers;    // Map of what trigger to monitor for each category
+    std::map<std::string,bool>            m_algoAutoSelect;      // Map of categories to monitor
+    std::map<std::string,std::string>     m_selectedTriggers;    // Map of what trigger to monitor for each category
 
     // Input tags
-    edm::InputTag                          m_scalersSource;       // Where to get L1 Scalers
-    edm::InputTag                          m_l1GtEvmSource;
-    edm::InputTag                          m_l1GtDataDaqInputTag;
+    edm::InputTag                         m_scalersSource;       // Where to get L1 Scalers
+    edm::InputTag                         m_l1GtEvmSource;
+    edm::InputTag                         m_l1GtDataDaqInputTag;
 
 };
 

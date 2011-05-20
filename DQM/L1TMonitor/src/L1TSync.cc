@@ -1,8 +1,8 @@
 /*
  * \file L1TSync.cc
  *
- * $Date: 2011/05/12 13:50:40 $
- * $Revision: 1.3 $
+ * $Date: 2011/05/19 15:15:50 $
+ * $Revision: 1.4 $
  * \author J. Pela, P. Musella
  *
  */
@@ -34,7 +34,6 @@
 
 // L1TMonitor includes
 #include "DQM/L1TMonitor/interface/L1TMenuHelper.h"
-#include "DQM/L1TMonitor/interface/L1TOMDSHelper.h"
 
 #include "TList.h"
 
@@ -45,7 +44,6 @@ using namespace std;
 //-------------------------------------------------------------------------------------
 L1TSync::L1TSync(const ParameterSet & pset){
 
-  m_lhcFill    = 0;
   m_parameters = pset;
 
   // Mapping parameter input variables
@@ -240,30 +238,31 @@ void L1TSync::endJob(void){
 //-------------------------------------------------------------------------------------
 void L1TSync::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
 
-  int maxNbins = 10001;
+  // Initializing variables
+  int maxNbins = 2501;
 
-  // Cleaning in the begining of the run
+  // Reseting run dependent variables
+  m_lhcFill = 0; 
   m_algoBit.clear();
 
+  // Getting Trigger menu from GT
   ESHandle<L1GtTriggerMenu> menuRcd;
   iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd);
   const L1GtTriggerMenu* menu = menuRcd.product();
+
+  // Filling Alias-Bit Map
+  for (CItAlgo algo = menu->gtAlgorithmAliasMap().begin(); algo!=menu->gtAlgorithmAliasMap().end(); ++algo){
+    m_algoBit[(algo->second).algoAlias()] = (algo->second).algoBitNumber();
+  }
 
   // Getting fill number for this run
   //Handle<ConditionsInRunBlock> runConditions;
   //iRun.getByType(runConditions);
   //int lhcFillNumber = runConditions->lhcFillNumber;
-
+  //
   //ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
   //iSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);
   //const L1GtPrescaleFactors* m_l1GtPfAlgo = l1GtPfAlgo.product();
-
-  for (CItAlgo algo = menu->gtAlgorithmAliasMap().begin(); algo!=menu->gtAlgorithmAliasMap().end(); ++algo){
-    m_algoBit[(algo->second).algoAlias()] = (algo->second).algoBitNumber();
-  }
-
-  // Getting reference prescale factors
-  //const vector<int>& RefPrescaleFactors = (*ListsPrescaleFactors).at(m_refPrescaleSet);
 
   L1TMenuHelper myMenuHelper = L1TMenuHelper(iSetup);  
          
@@ -296,37 +295,62 @@ void L1TSync::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
 //-------------------------------------------------------------------------------------
 void L1TSync::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
 
-  if(m_lhcFill !=0){
+  // If we have the information already retrived the information for the bunch 
+  // structure we compute the LS by LS syncronization fraction
+  if(m_beamConfig.isValid()){
 
-  unsigned int eventLS = lumiBlock.id().luminosityBlock();
+    unsigned int eventLS = lumiBlock.id().luminosityBlock();
 
-  // --> Fill LS by LS - ratio of trigger out of sync
-  // Running over all selectec unprescaled algos 
-  for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
+    // --> Fill LS by LS - ratio of trigger out of sync
+    // Running over all selected unprescaled algos 
+    for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
 
-    string tTrigger = (*i).second;
+      string tTrigger = (*i).second;
 
-    if(tTrigger != "Undefined" && tTrigger != "Undefined (Wrong Name)"){
+      if(tTrigger != "Undefined" && tTrigger != "Undefined (Wrong Name)"){
 
-      // Getting events with 0 bx difference between BPTX and Algo for current LS
-      double CountSync = m_algoVsBunchStructure[tTrigger]->getBinContent(eventLS+1,3);
-      double CountAll  = 0;
+        // Getting events with 0 bx difference between BPTX and Algo for current LS
+        double CountSync = m_algoVsBunchStructure[tTrigger]->getBinContent(eventLS+1,3);
+        double CountAll  = 0;
   
-      // Adding all entries for current LS
-      for(int a=1 ; a<6 ; a++){CountAll += m_algoVsBunchStructure[tTrigger]->getBinContent(eventLS+1,a);}
+        // Adding all entries for current LS
+        for(int a=1 ; a<6 ; a++){CountAll += m_algoVsBunchStructure[tTrigger]->getBinContent(eventLS+1,a);}
 
-      // Filling this LS summary
-      if(CountAll > 0){
-        int binResult = m_algoCertification[tTrigger]->getTH1()->FindBin(eventLS);
-        m_algoCertification[tTrigger]->setBinContent(binResult,CountSync/CountAll);
+        // Filling this LS summary
+        if(CountAll > 0){
+          int binResult = m_algoCertification[tTrigger]->getTH1()->FindBin(eventLS);
+          m_algoCertification[tTrigger]->setBinContent(binResult,CountSync/CountAll);
+        }
+
+      }else{
+        int ibin = m_algoCertification[tTrigger]->getTH1()->FindBin(eventLS);
+        m_algoCertification[tTrigger]->setBinContent(ibin,-1);
       }
-
-    }else{
-      int ibin = m_algoCertification[tTrigger]->getTH1()->FindBin(eventLS);
-      m_algoCertification[tTrigger]->setBinContent(ibin,-1);
     }
   }
 
+  // If we already have the LHC Fill Number and still do not have the bunch structure
+  // we retry to getting if from OMDS
+  if(m_lhcFill != 0 && !m_beamConfig.isValid()){
+
+    // Retriving module parameters
+    string oracleDB   = m_parameters.getParameter<string>("oracleDB");
+    string pathCondDB = m_parameters.getParameter<string>("pathCondDB");
+
+    // Connecting to OMDS 
+    L1TOMDSHelper myOMDSHelper = L1TOMDSHelper();
+    string conError = "";
+    myOMDSHelper.connect(oracleDB,pathCondDB,conError);
+
+    if(conError == ""){
+      string errorRetrive = "";
+      m_beamConfig = myOMDSHelper.getBeamConfiguration(m_lhcFill,errorRetrive);
+      if(errorRetrive != ""){
+        edm::LogError( "L1TSync" ) << errorRetrive << endl;
+      }
+    }else{
+      edm::LogError( "L1TSync" ) << conError;
+    }
   }
 
 }
@@ -337,87 +361,107 @@ void L1TSync::endRun(const edm::Run& run, const edm::EventSetup& iSetup){}
 //_____________________________________________________________________
 void L1TSync::analyze(const Event & iEvent, const EventSetup & eventSetup){
 
-  // Retriving parameters
-  string oracleDB   = m_parameters.getParameter<string>("oracleDB");
-  string pathCondDB = m_parameters.getParameter<string>("pathCondDB");
-
-  // Initializing Handles
-  edm::Handle<L1GlobalTriggerReadoutRecord>    gtReadoutRecordData;
-
-  // Retriving data from the event
-  iEvent.getByLabel(m_l1GtDataDaqInputTag, gtReadoutRecordData);
-
-  unsigned int eventLS = iEvent.id().luminosityBlock();
-
-  // --> Getting BX difference between BPTX and selected algos
-  // Getting Final Decision Logic (FDL) Data from GT
-  const vector<L1GtFdlWord>& gtFdlVectorData = gtReadoutRecordData->gtFdlVector();
-
+  // If LHC Fill is absent for this run:
+  // -> Retrive LHC Fill Number from GT
+  // -> Retrive from OMDS the bunch structure for this fill
   if(m_lhcFill == 0){
+
+    // Retriving module parameters
+    string oracleDB   = m_parameters.getParameter<string>("oracleDB");
+    string pathCondDB = m_parameters.getParameter<string>("pathCondDB");
+
+    //Retriving LHC Fill number from GT
     edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord;
     iEvent.getByLabel(m_l1GtEvmSource, gtEvmReadoutRecord);
 
-    const L1GtfeExtWord& gtfeEvmWord = gtEvmReadoutRecord ->gtfeWord();
-    m_lhcFill = gtfeEvmWord.lhcFillNumber();
+    if(gtEvmReadoutRecord.isValid()){
 
-    L1TOMDSHelper myOMDSHelper = L1TOMDSHelper();
-    string conError = "";
-    myOMDSHelper.connect(oracleDB,pathCondDB,conError);
+      const L1GtfeExtWord& gtfeEvmWord = gtEvmReadoutRecord ->gtfeWord();
+      m_lhcFill = gtfeEvmWord.lhcFillNumber();
 
-    if(conError == ""){
-      string errorRetrive = "";
-      m_bunchStructure = myOMDSHelper.getBunchStructure(m_lhcFill,errorRetrive);
-      if(errorRetrive != ""){cout << "L1TRate: " << errorRetrive << endl;}
-    }else{
-      cout << "L1TRate: " << conError << endl;
+      // Connecting to OMDS 
+      L1TOMDSHelper myOMDSHelper = L1TOMDSHelper();
+      string conError = "";
+      myOMDSHelper.connect(oracleDB,pathCondDB,conError);
+
+      if(conError == ""){
+        string errorRetrive = "";
+        m_beamConfig = myOMDSHelper.getBeamConfiguration(m_lhcFill,errorRetrive);
+        if(errorRetrive != ""){
+          edm::LogError( "L1TSync" ) << errorRetrive << endl;
+        }
+      }else{
+        edm::LogError( "L1TSync" ) << conError;
+      }
     }
+    else{edm::LogError( "L1TSync" ) << "ERROR: Unable to retrive L1GlobalTriggerEvmReadoutRecord";}
   }
 
-  if(m_lhcFill !=0){
+  if(m_beamConfig.isValid()){
 
-  // Running over selected triggers
-  for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
+    unsigned int eventLS = iEvent.id().luminosityBlock();
 
-    string tTrigger = (*i).second;
+    // Getting Final Decision Logic (FDL) Data from GT
+    edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecordData;
+    iEvent.getByLabel(m_l1GtDataDaqInputTag, gtReadoutRecordData);
 
-    if(tTrigger != "Undefined" && tTrigger != "Undefined (Wrong Name)"){
-      
-      bool firedAlgo = false;  // Algo fired in this event
-      int  firedInBx = -1;      
+    if(gtReadoutRecordData.isValid()){
 
-      // Running over FDL results to get which bits fired
-      for(unsigned int a=0 ; a<gtFdlVectorData.size() ; a++){
+      const vector<L1GtFdlWord>& gtFdlVectorData = gtReadoutRecordData->gtFdlVector();
+
+      // Running over selected triggers
+      for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
+
+        string tTrigger = (*i).second;
+
+        // Analyse only defined triggers
+        if(tTrigger != "Undefined" && tTrigger != "Undefined (Wrong Name)"){
+
+          bool beamSingleConfig = false; // Single beam configured for this event
+          bool firedAlgo        = false; // Algo fired in this event
+          int  eventBx        = -1;      
+
+          // Running over FDL results to get which bits fired
+          for(unsigned int a=0 ; a<gtFdlVectorData.size() ; a++){
    
-        // Selecting the 
-        if(gtFdlVectorData[a].bxInEvent() == 0){
-          if(gtFdlVectorData[a].gtDecisionWord()[ m_algoBit[tTrigger] ]){
-            firedAlgo = true;
-            firedInBx = gtFdlVectorData[a].localBxNr();
+            // Selecting the FDL that triggered
+            if(gtFdlVectorData[a].bxInEvent() == 0){
+              eventBx = gtFdlVectorData[a].localBxNr();
+              if(gtFdlVectorData[a].gtDecisionWord()[ m_algoBit[tTrigger] ]){firedAlgo = true;}
+            }
+          }
+
+          // Checking beam configuration
+          if( m_beamConfig.beam1[eventBx] && !m_beamConfig.beam2[eventBx]){beamSingleConfig = true;}
+          if(!m_beamConfig.beam1[eventBx] &&  m_beamConfig.beam2[eventBx]){beamSingleConfig = true;}
+
+          // Analyse only if this trigger fired in this event
+          // NOTE: Veto cases where a single beam is configured since
+          //       for this cases this could be a real-satelite bunch collision
+          // -> Calculate the minimum bx diference between this event and a configured bx
+          if(firedAlgo && !beamSingleConfig){
+
+            int DifAlgoVsBunchStructure = 9999; // Majorated
+
+            for(unsigned int a=0 ; a<gtFdlVectorData.size() ; a++){
+
+              int bxFDL     = gtFdlVectorData[a].localBxNr();
+              int bxInEvent = gtFdlVectorData[a].bxInEvent();
+
+              if(m_beamConfig.bxConfig(bxFDL) && abs(bxInEvent)<abs(DifAlgoVsBunchStructure)){
+                DifAlgoVsBunchStructure = -1*bxInEvent;
+              }
+            }
+
+            m_algoVsBunchStructure[tTrigger]->Fill(eventLS,DifAlgoVsBunchStructure);
+
           }
         }
-      }
-
-      if(firedAlgo){
-
-        int DifAlgoVsBunchStructure = 5; // Majorated
-
-        for(unsigned int a=0 ; a<gtFdlVectorData.size() ; a++){
-
-          int bxFDL     = gtFdlVectorData[a].localBxNr();
-          int bxInEvent = gtFdlVectorData[a].bxInEvent();
-          if(m_bunchStructure[bxFDL] && abs(bxInEvent)<abs(DifAlgoVsBunchStructure)){
-            DifAlgoVsBunchStructure = -1*bxInEvent;
-          }
-        }
-
-        m_algoVsBunchStructure[tTrigger]->Fill(eventLS,DifAlgoVsBunchStructure);
-
       }
     }
-  }
+    else{edm::LogError( "L1TSync" ) << "ERROR: Unable to retrive L1GlobalTriggerReadoutRecord";}
 
   }
-
 }
 
 //define this as a plug-in
