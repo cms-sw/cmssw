@@ -1,3 +1,8 @@
+2011-05-20 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-07
+	* adjust parameters of stuck process detection
+	
 2011-05-19 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V02-04-06

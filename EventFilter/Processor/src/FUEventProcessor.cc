@@ -1130,20 +1130,21 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		  nbdead_++;
 		}
 	    }
-	  if(nbp->value_!=0){
+	  if(nbp->value_>32){//have some slaves already processed more than one event ? (eventually make this == number of raw cells)
 	    for(unsigned int i = 0; i < subs_.size(); i++)
 	      {
-		if(subs_[i].params().nbp == 0){
+		if(subs_[i].params().nbp == 0){ // a slave has processed 0 events 
 		  // check that the process is not stuck
-		  if(subs_[i].alive()>0 && subs_[i].params().ms == 0)
+		  if(subs_[i].alive()>0 && subs_[i].params().ms == 0) // the process is seen alive but in us=Invalid(0)
 		    {
-		      subs_[i].found_invalid();
-		      if(subs_[i].nfound_invalid() > 10){
-			MsgBuf msg3(NUMERIC_MESSAGE_SIZE,MSQM_MESSAGE_TYPE_FSTOP);			
+		      subs_[i].found_invalid();//increase the "found_invalid" counter
+		      if(subs_[i].nfound_invalid() > 60){ //wait x monitor cycles (~1 min a goot time ?) before doing something about a stuck slave
+			MsgBuf msg3(NUMERIC_MESSAGE_SIZE,MSQM_MESSAGE_TYPE_FSTOP);	// send a force-stop signal		
 			subs_[i].post(msg3,false);
 			std::ostringstream ost1;
 			ost1 << "-W- Process in slot " << i << " Never reached the running state - forcestopping it"; 
 			localLog(ost1.str());
+			LOG4CPLUS_ERROR(getApplicationLogger(),ost1.str());    
 			XCEPT_DECLARE(evf::Exception,
 				      sentinelException, ost1.str());
 			notifyQualified("error",sentinelException);
@@ -1855,7 +1856,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.127 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.128 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
