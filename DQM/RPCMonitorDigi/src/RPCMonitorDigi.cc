@@ -214,8 +214,8 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
   }
 
  
-  if( useMuonDigis_ && muonRPCEvents_ != 0 )  muonRPCEvents_->Fill(muonCounter_);
-  if( noiseRPCEvents_ != 0)  noiseRPCEvents_->Fill(noiseCounter_);
+  if( useMuonDigis_ && muonRPCEvents_ != 0 )  muonRPCEvents_->Fill(1);
+  if( noiseRPCEvents_ != 0)  noiseRPCEvents_->Fill(1);
 
   if(useMuonDigis_ ) this->performSourceOperation(rechitMuon, muonFolder_);
   this->performSourceOperation(rechitNoise, noiseFolder_);
