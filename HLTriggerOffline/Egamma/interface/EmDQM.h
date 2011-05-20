@@ -63,6 +63,12 @@ private:
   std::vector<std::pair<double,double> > plotBounds; 
   std::vector<unsigned int> nCandCuts;
   std::string theHltName;
+  unsigned verbosity;
+  // verbosity levels
+  static const unsigned OUTPUT_SILENT = 0;
+  static const unsigned OUTPUT_ERRORS = 1;
+  static const unsigned OUTPUT_WARNINGS = 2;
+  static const unsigned OUTPUT_ALL = 3;
 
   ////////////////////////////////////////////////////////////
   //          Read from configuration file                  //
