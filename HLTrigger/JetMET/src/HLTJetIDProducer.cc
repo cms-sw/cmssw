@@ -3,16 +3,14 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-HLTJetIDProducer::HLTJetIDProducer(const edm::ParameterSet& iConfig)
+HLTJetIDProducer::HLTJetIDProducer(const edm::ParameterSet& iConfig) :
+  jetsInput_   (iConfig.getParameter<edm::InputTag>("jetsInput")),
+  min_EMF_     (iConfig.getParameter<double>("min_EMF")),
+  max_EMF_     (iConfig.getParameter<double>("max_EMF")),
+  min_N90_     (iConfig.getParameter<int>("min_N90")),
+  min_N90hits_ (iConfig.getParameter<int>("min_N90hits")),
+  jetID_       (iConfig.getParameter<edm::ParameterSet>("JetIDParams"))
 {
-  jetsInput_ = iConfig.getParameter<edm::InputTag>("jetsInput");
-  min_EMF_ = iConfig.getParameter<double>("min_EMF");
-  max_EMF_ = iConfig.getParameter<double>("max_EMF");
-  min_N90_ = iConfig.getParameter<int>("min_N90");
-  min_N90hits_ = iConfig.getParameter<int>("min_N90hits");
-
-  jetID_ = new reco::helper::JetIDHelper(iConfig.getParameter<edm::ParameterSet>("JetIDParams"));
-
   //  produces< reco::CaloJetCollection > ( "hltJetIDCollection" );
   produces< reco::CaloJetCollection > ();
 }
@@ -41,8 +39,8 @@ void HLTJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     if (fabs(calojetc->eta()) >= 2.6) {
       result->push_back(*calojetc);
     } else {
-      if (min_N90hits_>0) jetID_->calculate( iEvent, *calojetc );
-      if ((calojetc->emEnergyFraction() >= min_EMF_) && ((min_N90hits_<=0) || (jetID_->n90Hits() >= min_N90hits_))  && (calojetc->n90() >= min_N90_) && (calojetc->emEnergyFraction() <= max_EMF_)) {
+      if (min_N90hits_>0) jetID_.calculate( iEvent, *calojetc );
+      if ((calojetc->emEnergyFraction() >= min_EMF_) && ((min_N90hits_<=0) || (jetID_.n90Hits() >= min_N90hits_))  && (calojetc->n90() >= min_N90_) && (calojetc->emEnergyFraction() <= max_EMF_)) {
 	result->push_back(*calojetc);
       }
     }

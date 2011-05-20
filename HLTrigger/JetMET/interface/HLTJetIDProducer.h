@@ -20,7 +20,7 @@ class HLTJetIDProducer : public edm::EDProducer {
   int min_N90_;            // mininum N90
   int min_N90hits_;        // mininum Nhit90
 
-  reco::helper::JetIDHelper *jetID_;
+  reco::helper::JetIDHelper jetID_;
 
 };
 
