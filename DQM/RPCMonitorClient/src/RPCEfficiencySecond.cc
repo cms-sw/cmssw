@@ -5,35 +5,33 @@ Universidad de los Andes Bogota Colombia
 camilo.carrilloATcern.ch
 ****************************************/
 
-#include <memory>
+#include "DQM/RPCMonitorDigi/interface/utils.h"
+#include "DQM/RPCMonitorClient/interface/RPCEfficiencySecond.h"
+#include "DQM/RPCMonitorDigi/interface/RPCBookFolderStructure.h"
 
-// user include files
+// #include <memory>
+// #include <string>
+// #include <fstream>
+// #include <iostream>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
-#include "FWCore/Framework/interface/ESHandle.h"
 
-#include <DataFormats/MuonDetId/interface/RPCDetId.h>
-#include "DQMServices/Core/interface/MonitorElement.h"
+// #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 
-#include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
-#include "DQM/RPCMonitorDigi/interface/utils.h"
-#include<string>
-#include<fstream>
-#include<iostream>
-#include <vector>
-#include "DQM/RPCMonitorClient/interface/RPCEfficiencySecond.h"
-#include "DQM/RPCMonitorDigi/interface/RPCBookFolderStructure.h"
+// #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "TH1F.h"
+//#include "TH1F.h"
 
 
 RPCEfficiencySecond::RPCEfficiencySecond(const edm::ParameterSet& iConfig){

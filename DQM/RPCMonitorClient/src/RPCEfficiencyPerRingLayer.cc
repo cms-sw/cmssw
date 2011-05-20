@@ -8,16 +8,16 @@
 #include <sstream>
 
 //CondFormats
-#include "CondFormats/RunInfo/interface/RunInfo.h"
-#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
+//#include "CondFormats/RunInfo/interface/RunInfo.h"
+//#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 // Framework
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
+//#include "FWCore/MessageLogger/interface/MessageLogger.h"
+//#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //DQM Services
-#include "DQMServices/Core/interface/DQMStore.h"
+
 
 RPCEfficiencyPerRingLayer::RPCEfficiencyPerRingLayer(const edm::ParameterSet& ps) {
 
@@ -41,7 +41,7 @@ void RPCEfficiencyPerRingLayer::beginRun(const edm::Run& r, const edm::EventSetu
   if(dbe_ == 0) return;
 
   dbe_->setCurrentFolder(globalFolder_);
-  EfficiencyPerRing = dbe_->book1D("EfficiencyPerRing","Efficiency per Ring in the whole endcap",12,0.5,12.5);
+  EfficiencyPerRing = dbe_->book1D("EfficiencyPerRing","Efficiency per Ring",12,0.5,12.5);
   EfficiencyPerLayer = dbe_->book1D("EfficiencyPerLayer","Efficiency per Layer",6,0.5,6.5);
 
 }

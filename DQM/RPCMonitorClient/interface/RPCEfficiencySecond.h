@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring: use RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2011/03/02 16:59:58 $
- *  $Revision: 1.9 $
+ *  $Date: 2011/05/19 12:17:58 $
+ *  $Revision: 1.10 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -22,18 +22,18 @@
 
 
 #include<string>
-#include<vector>
+//#include<vector>
 #include<map>
 #include<fstream>
 
 class RPCDetId;
-class TFile;
-class TH1F;
-class TFile;
-class TCanvas;
-class TH2F;
-class TString;
-class TGaxis;
+/* class TFile; */
+/* class TH1F; */
+/* class TFile; */
+/* class TCanvas; */
+/* class TH2F; */
+/* class TString; */
+/* class TGaxis; */
 
 
 class RPCEfficiencySecond : public edm::EDAnalyzer {
@@ -42,8 +42,8 @@ class RPCEfficiencySecond : public edm::EDAnalyzer {
       ~RPCEfficiencySecond();
       int rollY(std::string shortname,std::vector<std::string> rollNames);
   
-  TFile * theFile;
-  TFile * theFileout;
+ /*  TFile * theFile; */
+/*   TFile * theFileout; */
 
   MonitorElement * statistics;
   MonitorElement * statistics2;

@@ -6,7 +6,7 @@
  * *
  *  RPCEfficiencyPerRingLayer
  *
- *  $Date: 2011/05/13 12:58:43 $
+ *  $Date: 2011/05/19 12:34:43 $
  *  $Revision: 1.1 $
  *  \author Cesare Calabria
  *   
@@ -23,9 +23,9 @@
 #include <memory>
 #include <string>
 
-
-class DQMStore;
-class RPCDetId;
+#include "DQMServices/Core/interface/DQMStore.h"
+//class DQMStore;
+//class RPCDetId;
 
 
 class RPCEfficiencyPerRingLayer:public edm::EDAnalyzer {
