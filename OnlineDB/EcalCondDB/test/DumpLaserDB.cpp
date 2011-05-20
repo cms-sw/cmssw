@@ -208,175 +208,177 @@ public:
 	  subrunstart = ri->getSubRunStart().cmsNanoSeconds();
 	  subrunstop  = ri->getSubRunEnd().cmsNanoSeconds();
 	  // *** get data ***
-	  LMFRunDat run_dat(econn);
-	  run_dat.setLMFRunIOV(*ri);
-	  //run_dat.setWhereClause("LOGIC_ID > 2000000000"); // selects only endcap primitives
-	  run_dat.fetch();
-          LMFPnPrimDat pnPrim(econn, color, "LASER"); 
-	  pnPrim.setLMFRunIOV(*ri);
-	  //pnPrim.setWhereClause("LOGIC_ID > 2000000000"); // selects only endcap primitives
-	  pnPrim.fetch();
 	  LMFPrimDat prim(econn, color, "LASER");
 	  prim.setLMFRunIOV(*ri);
 	  //prim.setWhereClause("LOGIC_ID > 2000000000"); // selects only endcap primitives
 	  prim.fetch();
-	  // *** run dat ***
-	  std::list<int> logic_ids = run_dat.getLogicIds();
-	  std::list<int>::const_iterator li = logic_ids.begin();
-	  std::list<int>::const_iterator le = logic_ids.end();
-	  int count = 0;
-	  int xcount = 0;
-	  std::vector<LMFData> lmfdata(detids.size());
-	  zero(lmfdata);
-	  while (li != le) {
-	    // here the logic_id's are those of a LMR: transform into crystals
-	    int logic_id = *li;
-	    std::vector<EcalLogicID> xtals = 
-	      econn->getEcalLogicIDForLMR(logic_id);
-	    std::cout << " Size = " << std::setw(4) << xtals.size(); 
-	    for (unsigned int j = 0; j < xtals.size(); j++) {
-	      int xtal_id  = xtals[j].getLogicID();
-	      int detId    = detids[xtal_id];
+	  if (prim.getLogicIds().size() > 0) {
+	    LMFRunDat run_dat(econn);
+	    run_dat.setLMFRunIOV(*ri);
+	    //run_dat.setWhereClause("LOGIC_ID > 2000000000"); // selects only endcap primitives
+	    run_dat.fetch();
+	    LMFPnPrimDat pnPrim(econn, color, "LASER"); 
+	    pnPrim.setLMFRunIOV(*ri);
+	    //pnPrim.setWhereClause("LOGIC_ID > 2000000000"); // selects only endcap primitives
+	    pnPrim.fetch();
+	    // *** run dat ***
+	    std::list<int> logic_ids = run_dat.getLogicIds();
+	    std::list<int>::const_iterator li = logic_ids.begin();
+	    std::list<int>::const_iterator le = logic_ids.end();
+	    int count = 0;
+	    int xcount = 0;
+	    std::vector<LMFData> lmfdata(detids.size());
+	    zero(lmfdata);
+	    while (li != le) {
+	      // here the logic_id's are those of a LMR: transform into crystals
+	      int logic_id = *li;
+	      std::vector<EcalLogicID> xtals = 
+		econn->getEcalLogicIDForLMR(logic_id);
+	      std::cout << " Size = " << std::setw(4) << xtals.size(); 
+	      for (unsigned int j = 0; j < xtals.size(); j++) {
+		int xtal_id  = xtals[j].getLogicID();
+		int detId    = detids[xtal_id];
+		detIdData dd = getCoords(detId);
+		int index    = dd.hashedIndex; 
+		lmfdata[index].nevts = run_dat.getEvents(logic_id);
+		lmfdata[index].detId = detId;
+		lmfdata[index].logic_id = xtal_id;
+		lmfdata[index].quality = run_dat.getQualityFlag(logic_id);
+		lmfdata[index].eta = dd.eta;
+		lmfdata[index].phi = dd.phi;
+		lmfdata[index].x   = dd.x; 
+		lmfdata[index].y   = dd.y; 
+		lmfdata[index].z   = dd.z; 
+		xcount++; 
+	      }
+	      // 
+	      li++;
+	      count++; 
+	    }
+	    std::cout << "   RunDat: " << std::setw(4) << count << " (" 
+		      << std::setw(4) << xcount << ")";
+	    count = 0;  
+	    xcount = 0;
+	    /*** pnPrim Dat ***/
+	    logic_ids.clear();
+	    logic_ids = pnPrim.getLogicIds();
+	    li = logic_ids.begin();
+	    le = logic_ids.end();
+	    while (li != le) {
+	      int logic_id = *li;
+	      std::vector<EcalLogicID> xtals = 
+		econn->getEcalLogicIDForLMPN(logic_id);
+	      for (unsigned int j = 0; j < xtals.size(); j++) {
+		int xtal_id  = xtals[j].getLogicID();
+		int detId    = detids[xtal_id];
+		detIdData dd = getCoords(detId);
+		int index    = dd.hashedIndex; 
+		lmfdata[index].pnMean = pnPrim.getMean(logic_id);
+		lmfdata[index].pnRMS  = pnPrim.getRMS(logic_id);
+		lmfdata[index].pnM3   = pnPrim.getM3(logic_id);
+		lmfdata[index].pnAoverpnBMean = 
+		  pnPrim.getPNAoverBMean(logic_id);
+		lmfdata[index].pnAoverpnBRMS  = 
+		  pnPrim.getPNAoverBRMS(logic_id);
+		lmfdata[index].pnAoverpnBM3   = 
+		  pnPrim.getPNAoverBM3(logic_id);
+		lmfdata[index].pnFlag = pnPrim.getFlag(logic_id);
+		lmfdata[index].detId = detids[xtal_id];
+		lmfdata[index].logic_id = xtal_id;
+		lmfdata[index].eta = dd.eta;
+		lmfdata[index].phi = dd.phi;
+		lmfdata[index].x   = dd.x; 
+		lmfdata[index].y   = dd.y; 
+		lmfdata[index].z   = dd.z; 
+		xcount++; 
+	      }
+	      li++;
+	      count++; 
+	    }
+	    std::cout << "   PnDat: " << std::setw(4) << count << " (" 
+		      << std::setw(4) << xcount << ")";
+	    count = 0; 
+	    xcount = 0;
+	    /*** Prm Dat ***/
+	    logic_ids.clear();
+	    logic_ids = prim.getLogicIds();
+	    li = logic_ids.begin();
+	    le = logic_ids.end();
+	    while (li != le) {
+	      int logic_id = *li;
+	      int detId    = detids[logic_id];
 	      detIdData dd = getCoords(detId);
 	      int index    = dd.hashedIndex; 
-	      lmfdata[index].nevts = run_dat.getEvents(logic_id);
 	      lmfdata[index].detId = detId;
-	      lmfdata[index].logic_id = xtal_id;
-	      lmfdata[index].quality = run_dat.getQualityFlag(logic_id);
+	      lmfdata[index].logic_id = logic_id;
 	      lmfdata[index].eta = dd.eta;
 	      lmfdata[index].phi = dd.phi;
 	      lmfdata[index].x   = dd.x; 
 	      lmfdata[index].y   = dd.y; 
 	      lmfdata[index].z   = dd.z; 
-	      xcount++; 
+	      // 
+	      lmfdata[index].Mean = prim.getMean(logic_id);
+	      lmfdata[index].RMS  = prim.getRMS(logic_id);
+	      lmfdata[index].M3   = prim.getM3(logic_id);
+	      lmfdata[index].APDoverPNAMean = prim.getAPDoverAMean(logic_id);
+	      lmfdata[index].APDoverPNARMS  = prim.getAPDoverARMS(logic_id);
+	      lmfdata[index].APDoverPNAM3   = prim.getAPDoverAM3(logic_id);
+	      lmfdata[index].APDoverPNBMean = prim.getAPDoverBMean(logic_id);
+	      lmfdata[index].APDoverPNBRMS  = prim.getAPDoverBRMS(logic_id);
+	      lmfdata[index].APDoverPNBM3   = prim.getAPDoverBM3(logic_id);
+	      lmfdata[index].APDoverPNMean  = prim.getAPDoverPnMean(logic_id);
+	      lmfdata[index].APDoverPNRMS   = prim.getAPDoverPnRMS(logic_id);
+	      lmfdata[index].APDoverPNM3    = prim.getAPDoverPnM3(logic_id);
+	      lmfdata[index].alpha  = prim.getAlpha(logic_id);
+	      lmfdata[index].beta   = prim.getBeta(logic_id);
+	      lmfdata[index].flag = prim.getFlag(logic_id);
+	      li++;
+	      count++;
+	      xcount++;
 	    }
-	    // 
-	    li++;
-	    count++; 
-	  }
-	  std::cout << "   RunDat: " << std::setw(4) << count << " (" 
-		    << std::setw(4) << xcount << ")";
-	  count = 0;  
-	  xcount = 0;
-	  /*** pnPrim Dat ***/
-	  logic_ids.clear();
-	  logic_ids = pnPrim.getLogicIds();
-	  li = logic_ids.begin();
-	  le = logic_ids.end();
-	  while (li != le) {
-	    int logic_id = *li;
-	    std::vector<EcalLogicID> xtals = 
-	      econn->getEcalLogicIDForLMPN(logic_id);
-	    for (unsigned int j = 0; j < xtals.size(); j++) {
-	      int xtal_id  = xtals[j].getLogicID();
-	      int detId    = detids[xtal_id];
-	      detIdData dd = getCoords(detId);
-	      int index    = dd.hashedIndex; 
-	      lmfdata[index].pnMean = pnPrim.getMean(logic_id);
-	      lmfdata[index].pnRMS  = pnPrim.getRMS(logic_id);
-	      lmfdata[index].pnM3   = pnPrim.getM3(logic_id);
-	      lmfdata[index].pnAoverpnBMean = 
-		pnPrim.getPNAoverBMean(logic_id);
-	      lmfdata[index].pnAoverpnBRMS  = 
-		pnPrim.getPNAoverBRMS(logic_id);
-	      lmfdata[index].pnAoverpnBM3   = 
-		pnPrim.getPNAoverBM3(logic_id);
-	      lmfdata[index].pnFlag = pnPrim.getFlag(logic_id);
-	      lmfdata[index].detId = detids[xtal_id];
-	      lmfdata[index].logic_id = xtal_id;
-	      lmfdata[index].eta = dd.eta;
-	      lmfdata[index].phi = dd.phi;
-	      lmfdata[index].x   = dd.x; 
-	      lmfdata[index].y   = dd.y; 
-	      lmfdata[index].z   = dd.z; 
-	      xcount++; 
+	    std::cout << "   PrimDat: " << std::setw(4) << count << " (" 
+		      << std::setw(4) << xcount << ")";
+	    // fill the tree
+	    xcount = 0;
+	    for (unsigned int i = 0; i < lmfdata.size(); i++) {
+	      if ((userCheck(lmfdata[i])) && (lmfdata[i].Mean > 0)) {
+		detId = lmfdata[i].detId;
+		logic_id = lmfdata[i].logic_id;
+		eta = lmfdata[i].eta;
+		phi = lmfdata[i].phi;
+		x = lmfdata[i].x;
+		y = lmfdata[i].y;
+		z = lmfdata[i].z;
+		nevts = lmfdata[i].nevts;
+		quality = lmfdata[i].quality;
+		pnMean = lmfdata[i].pnMean;
+		pnRMS = lmfdata[i].pnRMS;
+		pnM3 = lmfdata[i].pnM3;
+		pnAoverBMean = lmfdata[i].pnAoverpnBMean;
+		pnAoverBRMS = lmfdata[i].pnAoverpnBRMS;
+		pnAoverBM3 = lmfdata[i].pnAoverpnBM3;
+		pnFlag = lmfdata[i].pnFlag;
+		Mean = lmfdata[i].Mean;
+		RMS = lmfdata[i].RMS;
+		M3 = lmfdata[i].M3;
+		APDoverPNAMean = lmfdata[i].APDoverPNAMean;
+		APDoverPNARMS = lmfdata[i].APDoverPNARMS;
+		APDoverPNAM3 = lmfdata[i].APDoverPNAM3;
+		APDoverPNBMean = lmfdata[i].APDoverPNBMean;
+		APDoverPNBRMS = lmfdata[i].APDoverPNBRMS;
+		APDoverPNBM3 = lmfdata[i].APDoverPNBM3;
+		APDoverPNMean = lmfdata[i].APDoverPNMean;
+		APDoverPNRMS = lmfdata[i].APDoverPNRMS;
+		APDoverPNM3 = lmfdata[i].APDoverPNM3;
+		alpha = lmfdata[i].alpha;
+		beta = lmfdata[i].beta;
+		flag = lmfdata[i].flag;
+		tree->Fill();
+		xcount++; 
+	      }
 	    }
-	    li++;
-	    count++; 
+	    std::cout << " Tree: " << xcount; 
 	  }
-	  std::cout << "   PnDat: " << std::setw(4) << count << " (" 
-		    << std::setw(4) << xcount << ")";
-	  count = 0; 
-	  xcount = 0;
-	  /*** pnPrm Dat ***/
-	  logic_ids.clear();
-	  logic_ids = prim.getLogicIds();
-	  li = logic_ids.begin();
-	  le = logic_ids.end();
-	  while (li != le) {
-	    int logic_id = *li;
-	    int detId    = detids[logic_id];
-	    detIdData dd = getCoords(detId);
-	    int index    = dd.hashedIndex; 
-	    lmfdata[index].detId = detId;
-	    lmfdata[index].logic_id = logic_id;
-	    lmfdata[index].eta = dd.eta;
-	    lmfdata[index].phi = dd.phi;
-	    lmfdata[index].x   = dd.x; 
-	    lmfdata[index].y   = dd.y; 
-	    lmfdata[index].z   = dd.z; 
-	    // 
-	    lmfdata[index].Mean = prim.getMean(logic_id);
-	    lmfdata[index].RMS  = prim.getRMS(logic_id);
-	    lmfdata[index].M3   = prim.getM3(logic_id);
-	    lmfdata[index].APDoverPNAMean = prim.getAPDoverAMean(logic_id);
-	    lmfdata[index].APDoverPNARMS  = prim.getAPDoverARMS(logic_id);
-	    lmfdata[index].APDoverPNAM3   = prim.getAPDoverAM3(logic_id);
-	    lmfdata[index].APDoverPNBMean = prim.getAPDoverBMean(logic_id);
-	    lmfdata[index].APDoverPNBRMS  = prim.getAPDoverBRMS(logic_id);
-	    lmfdata[index].APDoverPNBM3   = prim.getAPDoverBM3(logic_id);
-	    lmfdata[index].APDoverPNMean  = prim.getAPDoverPnMean(logic_id);
-	    lmfdata[index].APDoverPNRMS   = prim.getAPDoverPnRMS(logic_id);
-	    lmfdata[index].APDoverPNM3    = prim.getAPDoverPnM3(logic_id);
-	    lmfdata[index].alpha  = prim.getAlpha(logic_id);
-	    lmfdata[index].beta   = prim.getBeta(logic_id);
-	    lmfdata[index].flag = prim.getFlag(logic_id);
-	    li++;
-	    count++;
-	    xcount++;
-	  }
-	  std::cout << "   PrimDat: " << std::setw(4) << count << " (" 
-		    << std::setw(4) << xcount << ")";
-	  // fill the tree
-	  xcount = 0;
-	  for (unsigned int i = 0; i < lmfdata.size(); i++) {
-	    if ((userCheck(lmfdata[i])) && (lmfdata[i].Mean > 0)) {
-	      detId = lmfdata[i].detId;
-	      logic_id = lmfdata[i].logic_id;
-	      eta = lmfdata[i].eta;
-	      phi = lmfdata[i].phi;
-	      x = lmfdata[i].x;
-	      y = lmfdata[i].y;
-	      z = lmfdata[i].z;
-	      nevts = lmfdata[i].nevts;
-	      quality = lmfdata[i].quality;
-	      pnMean = lmfdata[i].pnMean;
-	      pnRMS = lmfdata[i].pnRMS;
-	      pnM3 = lmfdata[i].pnM3;
-	      pnAoverBMean = lmfdata[i].pnAoverpnBMean;
-	      pnAoverBRMS = lmfdata[i].pnAoverpnBRMS;
-	      pnAoverBM3 = lmfdata[i].pnAoverpnBM3;
-	      pnFlag = lmfdata[i].pnFlag;
-	      Mean = lmfdata[i].Mean;
-	      RMS = lmfdata[i].RMS;
-	      M3 = lmfdata[i].M3;
-	      APDoverPNAMean = lmfdata[i].APDoverPNAMean;
-	      APDoverPNARMS = lmfdata[i].APDoverPNARMS;
-	      APDoverPNAM3 = lmfdata[i].APDoverPNAM3;
-	      APDoverPNBMean = lmfdata[i].APDoverPNBMean;
-	      APDoverPNBRMS = lmfdata[i].APDoverPNBRMS;
-	      APDoverPNBM3 = lmfdata[i].APDoverPNBM3;
-	      APDoverPNMean = lmfdata[i].APDoverPNMean;
-	      APDoverPNRMS = lmfdata[i].APDoverPNRMS;
-	      APDoverPNM3 = lmfdata[i].APDoverPNM3;
-	      alpha = lmfdata[i].alpha;
-	      beta = lmfdata[i].beta;
-	      flag = lmfdata[i].flag;
-	      tree->Fill();
-	      xcount++; 
-	    }
-	  }
-	  std::cout << " Tree: " << xcount; 
 	  ri++;
 	}
 	si++;
