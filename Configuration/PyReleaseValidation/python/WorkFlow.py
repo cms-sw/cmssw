@@ -25,11 +25,7 @@ class WorkFlow(object):
         # raw data are treated differently ...
         if 'DATAINPUT' in cmd: return cmd
 
-        # force the number of events to process to be 10
-        reN = re.compile('\s*-n\s*\d+\s*')
-        newCmd = reN.sub(' -n 10 ', cmd)
-        if not reN.match(newCmd) : # -n not specified, add it:
-            newCmd += ' -n '+str(nEvtDefault)+' '
-
-        return newCmd
+        if ' -n ' not in cmd:
+            cmd+=' -n '+str(nEvtDefault)+' '
+        return cmd
 
