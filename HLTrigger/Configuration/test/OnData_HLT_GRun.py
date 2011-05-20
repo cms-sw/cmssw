@@ -28964,9 +28964,12 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('L1GtTrigReport')
     process.MessageLogger.categories.append('HLTrigReport')
 
-# 43X only: additional ESProducer in cfg files
+# version specific customizations
 import os
-if os.getenv("CMSSW_VERSION")>="CMSSW_4_3":
+cmsswVersion = os.environ['CMSSW_VERSION']
+
+# from CMSSW_4_3_0_pre6: additional ESProducer in cfg files
+if cmsswVersion > "CMSSW_4_3":
     process.hltESPStripLorentzAngleDep = cms.ESProducer("SiStripLorentzAngleDepESProducer",
         LatencyRecord = cms.PSet(
             record = cms.string('SiStripLatencyRcd'),
@@ -28981,4 +28984,9 @@ if os.getenv("CMSSW_VERSION")>="CMSSW_4_3":
             label = cms.untracked.string('peak')
         )
 )
+
+# from CMSSW_4_3_0_pre6: ECAL severity flags migration
+if cmsswVersion > "CMSSW_4_3":
+  import HLTrigger.Configuration.Tools.updateEcalSeverityFlags
+  HLTrigger.Configuration.Tools.updateEcalSeverityFlags.update( process.__dict__ )
 
