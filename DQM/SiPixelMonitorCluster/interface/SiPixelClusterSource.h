@@ -19,7 +19,7 @@
 // Updated by: Lukas Wehrli
 // for pixel offline DQM 
 //         Created:  
-// $Id: SiPixelClusterSource.h,v 1.18 2010/04/19 20:36:53 merkelp Exp $
+// $Id: SiPixelClusterSource.h,v 1.19 2010/12/13 14:18:23 merkelp Exp $
 
 #include <memory>
 
@@ -35,7 +35,6 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 
 
 #include "FWCore/Framework/interface/EDProducer.h"

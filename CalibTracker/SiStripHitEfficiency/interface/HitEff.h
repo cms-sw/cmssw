@@ -8,7 +8,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"

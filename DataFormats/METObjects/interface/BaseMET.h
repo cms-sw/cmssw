@@ -12,7 +12,6 @@
  *
  ************************************************************/
 
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/METObjects/interface/CommonMETData.h"
 
 #include <vector>

@@ -2,7 +2,6 @@
 #define RecoLocalCalo_EcalRecProducers_ESRecHitProducer_HH
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"

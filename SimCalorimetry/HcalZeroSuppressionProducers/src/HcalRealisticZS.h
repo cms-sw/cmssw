@@ -2,7 +2,6 @@
 #define HCALSIMPLEREALISTICZS_H 1
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -16,8 +15,8 @@
 
 /** \class HcalSimpleRealisticZS
 	
-$Date: 2008/10/07 17:13:38 $
-$Revision: 1.1 $
+$Date: 2009/09/14 11:01:26 $
+$Revision: 1.2 $
 \author J. Mans - Minnesota
 */
 class HcalRealisticZS : public edm::EDProducer {

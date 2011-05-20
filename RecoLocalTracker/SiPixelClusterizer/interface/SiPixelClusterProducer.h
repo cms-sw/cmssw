@@ -38,7 +38,6 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 
 
 #include "FWCore/Framework/interface/EDProducer.h"

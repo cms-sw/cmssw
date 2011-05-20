@@ -9,7 +9,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 

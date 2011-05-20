@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCFakeAnalyzer.h,v 1.1 2009/10/07 08:46:28 charlot Exp $
+// $Id: GsfElectronMCFakeAnalyzer.h,v 1.2 2009/10/09 13:06:23 chamont Exp $
 //
 //
 
@@ -21,7 +21,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 

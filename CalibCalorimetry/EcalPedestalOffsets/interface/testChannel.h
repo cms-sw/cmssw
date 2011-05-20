@@ -5,8 +5,8 @@
  * \file testChannel.h
  * \class testChannel
  * \brief calculate the best DAC value to obtain a pedestal = 200
- * $Date: 2008/04/23 14:59:08 $
- * $Revision: 1.5 $
+ * $Date: 2010/01/04 15:06:29 $
+ * $Revision: 1.6 $
  * \author P. Govoni (testChannel.govoni@cernNOSPAM.ch)
  *
 */
@@ -15,7 +15,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "DataFormats/Common/interface/EDProduct.h" 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/TPedValues.h"
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/TPedResult.h"

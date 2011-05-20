@@ -7,7 +7,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"

@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: DQMAnalyzer.h,v 1.3 2010/02/20 21:00:53 wmtan Exp $
+// $Id: DQMAnalyzer.h,v 1.4 2010/02/26 18:47:24 wdd Exp $
 //
 //
 
@@ -19,7 +19,6 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"

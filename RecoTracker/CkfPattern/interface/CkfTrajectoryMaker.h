@@ -6,7 +6,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleaner.h"

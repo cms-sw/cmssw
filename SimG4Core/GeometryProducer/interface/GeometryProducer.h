@@ -9,7 +9,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
  
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"

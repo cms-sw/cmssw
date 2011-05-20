@@ -5,7 +5,7 @@
 // Package:         RecoEgamma/EgammaHLTProducers
 // Class:           EgammaHLTPixelMatchElectronProducers
 // 
-// $Id: EgammaHLTPixelMatchElectronProducers.h,v 1.2 2007/03/07 09:22:02 monicava Exp $
+// $Id: EgammaHLTPixelMatchElectronProducers.h,v 1.3 2009/10/14 14:32:23 covarell Exp $
   
   
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -13,7 +13,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

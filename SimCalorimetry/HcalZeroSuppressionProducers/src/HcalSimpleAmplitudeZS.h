@@ -2,7 +2,6 @@
 #define HCALSIMPLEAMPLITUDEZS_H 1
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -13,8 +12,8 @@
 
 /** \class HcalSimpleAmplitudeZS
 	
-$Date: 2007/03/20 17:34:31 $
-$Revision: 1.1 $
+$Date: 2007/09/13 15:02:50 $
+$Revision: 1.2 $
 \author J. Mans - Minnesota
 */
 class HcalSimpleAmplitudeZS : public edm::EDProducer {

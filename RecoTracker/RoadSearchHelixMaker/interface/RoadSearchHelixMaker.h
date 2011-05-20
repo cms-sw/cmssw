@@ -12,8 +12,8 @@
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/31 23:28:42 $
-// $Revision: 1.4 $
+// $Date: 2007/03/07 22:04:03 $
+// $Revision: 1.5 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -21,7 +21,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

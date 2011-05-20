@@ -38,7 +38,6 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/TriggerResults.h"

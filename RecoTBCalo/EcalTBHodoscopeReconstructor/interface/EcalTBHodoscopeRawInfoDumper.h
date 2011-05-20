@@ -2,7 +2,6 @@
 #define RecoTBCalo_EcalTBHodoscopeReconstructor_EcalTBHodoscopeRawInfoDumper_HH
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 

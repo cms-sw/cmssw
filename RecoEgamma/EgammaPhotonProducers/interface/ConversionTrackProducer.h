@@ -11,8 +11,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: bendavid $
-// $Date: 2010/09/17 19:46:18 $
-// $Revision: 1.1 $
+// $Date: 2010/09/27 09:27:14 $
+// $Revision: 1.2 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -22,7 +22,6 @@
 
 
 
-#include "DataFormats/Common/interface/EDProduct.h"
 
 #include "DataFormats/EgammaTrackReco/interface/ConversionTrack.h"
 #include "DataFormats/EgammaTrackReco/interface/ConversionTrackFwd.h"

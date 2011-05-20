@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.h,v 1.8 2010/01/07 17:03:54 merkelp Exp $
+// $Id: SiPixelRecHitSource.h,v 1.9 2010/01/11 16:20:50 merkelp Exp $
 //
 // Updated by: Keith Rose
 // for use in SiPixelMonitorRecHits
@@ -39,7 +39,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 
 
 #include "FWCore/Framework/interface/EDProducer.h"

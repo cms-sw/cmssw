@@ -10,7 +10,7 @@
 // Original Author:  A. Kyriakis NCSR "Demokritos" Athens
 //                    D Maletic, "Vinca" Belgrade
 //         Created:   Mar 27 13:22:06 CEST 2009
-// $Id: SimplePi0DiscAnalyzer.h,v 1.1 2009/05/26 10:46:01 akyriaki Exp $
+// $Id: SimplePi0DiscAnalyzer.h,v 1.2 2010/10/19 17:34:56 wmtan Exp $
 //
 //
 
@@ -21,7 +21,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"

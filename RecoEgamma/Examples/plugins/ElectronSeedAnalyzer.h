@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedAnalyzer.h,v 1.3 2009/10/07 23:34:44 charlot Exp $
+// $Id: ElectronSeedAnalyzer.h,v 1.4 2009/11/04 11:10:22 charlot Exp $
 //
 //
 
@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"

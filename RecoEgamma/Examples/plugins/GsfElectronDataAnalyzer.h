@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.h,v 1.19 2010/02/20 21:00:54 wmtan Exp $
+// $Id: GsfElectronDataAnalyzer.h,v 1.20 2010/02/26 18:47:24 wdd Exp $
 //
 //
 
@@ -21,7 +21,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 

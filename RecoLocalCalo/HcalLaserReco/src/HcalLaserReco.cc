@@ -1,5 +1,4 @@
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"

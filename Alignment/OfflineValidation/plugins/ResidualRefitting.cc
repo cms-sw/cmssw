@@ -3,7 +3,6 @@
 #include <iomanip>
 
 //framework includes
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"

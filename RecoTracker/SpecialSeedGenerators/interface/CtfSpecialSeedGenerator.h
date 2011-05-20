@@ -13,7 +13,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 //DataFormats
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"    
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 //RecoTracker

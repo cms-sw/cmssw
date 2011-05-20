@@ -4,14 +4,13 @@
 /*
  * \file EcalZeroSuppressor.h
  *
- * $Date: 2007/03/07 10:12:43 $
- * $Revision: 1.3 $
+ * $Date: 2007/09/28 10:02:04 $
+ * $Revision: 1.4 $
  * \author F. Cossutti
  *
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"

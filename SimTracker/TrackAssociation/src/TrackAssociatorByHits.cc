@@ -5,7 +5,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"

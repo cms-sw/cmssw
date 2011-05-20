@@ -19,7 +19,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"

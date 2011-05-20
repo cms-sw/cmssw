@@ -17,7 +17,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 

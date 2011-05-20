@@ -13,7 +13,7 @@
 //
 // Original Author:  Sergey Petrushanko
 //         Created:  Fri Jul 11 10:05:00 2008
-// $Id: EvtPlaneProducer.cc,v 1.8 2010/05/17 11:05:24 yilmaz Exp $
+// $Id: EvtPlaneProducer.cc,v 1.9 2010/11/03 19:47:15 yilmaz Exp $
 //
 //
 
@@ -39,7 +39,6 @@
 #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Ref.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"

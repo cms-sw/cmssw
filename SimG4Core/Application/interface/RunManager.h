@@ -2,7 +2,6 @@
 #define SimG4Core_RunManager_H
 
 #include <memory>
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 // #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Handle.h"

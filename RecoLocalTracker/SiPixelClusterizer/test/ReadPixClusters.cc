@@ -23,7 +23,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
 
 //#include "DataFormats/SiPixelCluster/interface/SiPixelClusterCollection.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"

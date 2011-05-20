@@ -22,7 +22,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 
 //--- for SimHit
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"

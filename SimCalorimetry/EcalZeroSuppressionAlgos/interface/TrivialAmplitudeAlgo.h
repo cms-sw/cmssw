@@ -4,8 +4,8 @@
 /*
  * \file TrivialAmplitudeAlgo.h
  *
- * $Date: 2006/11/14 09:49:46 $
- * $Revision: 1.4 $
+ * $Date: 2007/03/07 10:12:43 $
+ * $Revision: 1.5 $
  * \author F. Cossutti
  *
  * simple weights algorithm for energy and pedestal reconstruction
@@ -14,7 +14,6 @@
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"

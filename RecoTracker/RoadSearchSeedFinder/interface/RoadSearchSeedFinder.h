@@ -12,8 +12,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/28 22:54:06 $
-// $Revision: 1.3 $
+// $Date: 2007/03/07 21:46:50 $
+// $Revision: 1.4 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -22,7 +22,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
 
 #include "RecoTracker/RoadSearchSeedFinder/interface/RoadSearchSeedFinderAlgorithm.h"
 

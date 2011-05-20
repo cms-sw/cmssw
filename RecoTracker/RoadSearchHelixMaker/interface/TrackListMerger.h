@@ -11,8 +11,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: stevew $
-// $Date: 2007/07/16 23:46:08 $
-// $Revision: 1.1 $
+// $Date: 2007/07/21 23:31:59 $
+// $Revision: 1.2 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -20,7 +20,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

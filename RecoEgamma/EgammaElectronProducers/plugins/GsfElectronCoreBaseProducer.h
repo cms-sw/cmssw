@@ -24,7 +24,6 @@ namespace edm
  }
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"

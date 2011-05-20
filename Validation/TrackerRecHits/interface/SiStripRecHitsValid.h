@@ -20,7 +20,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //DQM services for histogram

@@ -10,9 +10,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: stevew $
-// $Date: 2006/07/14 01:02:21 $
-// $Revision: 1.1 $
+// $Author: gutsche $
+// $Date: 2007/03/07 22:04:03 $
+// $Revision: 1.2 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -20,7 +20,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

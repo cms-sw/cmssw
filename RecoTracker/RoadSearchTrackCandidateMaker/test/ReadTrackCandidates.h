@@ -9,8 +9,8 @@
 // Created:         Wed Mar 29 20:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/29 20:10:38 $
-// $Revision: 1.1 $
+// $Date: 2007/03/07 21:46:52 $
+// $Revision: 1.2 $
 //
 
 #ifndef ReadTrackCandidates_h
@@ -21,7 +21,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

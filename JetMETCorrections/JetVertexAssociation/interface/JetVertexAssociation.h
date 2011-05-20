@@ -2,7 +2,6 @@
 #define JetVertexAssociation_h
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 
 #include "JetMETCorrections/JetVertexAssociation/interface/JetVertexMain.h"
 

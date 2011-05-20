@@ -3,13 +3,12 @@
 /*
  * \file TBHodoActiveVolumeRawInfoProducer.h
  *
- * $Id: TBHodoActiveVolumeRawInfoProducer.h,v 1.2 2007/03/21 12:55:56 fabiocos Exp $
+ * $Id: TBHodoActiveVolumeRawInfoProducer.h,v 1.3 2007/04/08 03:37:31 wmtan Exp $
  *
  */
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

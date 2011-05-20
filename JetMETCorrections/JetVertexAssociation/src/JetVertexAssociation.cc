@@ -15,7 +15,7 @@
 // Modified by Eduardo Luiggi
 //
 //         Created:  Tue Oct 31 10:52:41 CET 2006
-// $Id: JetVertexAssociation.cc,v 1.6 2007/08/23 17:15:26 ratnik Exp $
+// $Id: JetVertexAssociation.cc,v 1.7 2007/08/31 12:46:24 kodolova Exp $
 //
 //
 
@@ -38,7 +38,6 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

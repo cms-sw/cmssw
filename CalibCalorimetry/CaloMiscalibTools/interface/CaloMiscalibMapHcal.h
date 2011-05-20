@@ -5,7 +5,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 

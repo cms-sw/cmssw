@@ -5,7 +5,6 @@
 // #include "CommonReco/GSFTools/interface/KeepingNonZeroWeightsMerger.h"
 // #include "TrackingTools/GsfTools/interface/LargestWeightsStateMerger.h"
 // #include "TrackingTools/GsfTools/interface/RCMultiGaussianState.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 

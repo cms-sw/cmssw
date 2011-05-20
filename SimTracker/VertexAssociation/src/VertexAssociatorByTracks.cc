@@ -1,4 +1,3 @@
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
