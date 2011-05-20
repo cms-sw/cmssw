@@ -17,7 +17,7 @@
 // part of the code was inspired by http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/YGao/LhcTrackAnalyzer/
 // part of the code was inspired by 
 // other inputs from Andrea Giammanco, Gaelle Boudoul, Andrea Venturi, Steven Lowette, Gavril Giurgiu
-// $Id: TrackerDpgAnalysis.cc,v 1.9 2010/07/29 09:52:09 delaer Exp $
+// $Id: TrackerDpgAnalysis.cc,v 1.10 2011/04/05 13:20:25 delaer Exp $
 //
 //
 
@@ -60,7 +60,6 @@
 #include <Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h>
 #include <Geometry/CommonTopologies/interface/PixelTopology.h>
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"

@@ -2,7 +2,6 @@
 #define HCALHITRECONSTRUCTOR_H 1
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -29,8 +28,8 @@
 
     /** \class HcalHitReconstructor
 	
-    $Date: 2011/05/10 09:08:22 $
-    $Revision: 1.15 $
+    $Date: 2011/05/17 09:18:48 $
+    $Revision: 1.16 $
     \author J. Temple & E. Yazgan
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
