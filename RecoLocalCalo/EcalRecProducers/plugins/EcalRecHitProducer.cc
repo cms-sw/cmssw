@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.15 2011/02/15 20:13:35 argiro Exp $
- *  $Date: 2011/02/15 20:13:35 $
- *  $Revision: 1.15 $
+ *  $Id: EcalRecHitProducer.cc,v 1.16 2011/05/17 10:26:34 vlimant Exp $
+ *  $Date: 2011/05/17 10:26:34 $
+ *  $Revision: 1.16 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -263,7 +263,12 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
                 }
         }
 
-
+	// without re-sorting, find (used below in cleaning) will lead
+        // to undefined results
+	ebRecHits->sort();
+        eeRecHits->sort();
+	
+	// apply spike cleaning
 	if (cleaningAlgo_){
 	  cleaningAlgo_->setFlags(*ebRecHits);
 	  cleaningAlgo_->setFlags(*eeRecHits);
