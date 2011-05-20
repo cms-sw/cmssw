@@ -140,6 +140,7 @@ HLT_Dimuon10_Jpsi_Barrel_v*
 HLT_Dimuon0_Jpsi_Muon_v*
 HLT_Dimuon0_Upsilon_Muon_v*
 HLT_Mu13_Mu8_v*
+HLT_Mu17_Mu8_v*
 HLT_TripleMu5_v*
 HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v*
 HLT_Mu5_L2Mu2_Jpsi_v*
