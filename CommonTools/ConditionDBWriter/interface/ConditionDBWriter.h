@@ -171,6 +171,7 @@ public:
     else  edm::LogError("ConditionDBWriter::ConditionDBWriter(): ERROR - unknown IOV interval write mode...will not store anything on the DB") << std::endl;
     Record_=iConfig.getParameter<std::string>("Record");
     doStore_=iConfig.getParameter<bool>("doStoreOnDB");
+    alwaysUseCurrentTime_=iConfig.getUntrackedParameter<bool>("AlwaysUseCurrentTime", false);
     
     if(! SinceAppendMode_ ) 
       edm::LogError("ConditionDBWriter::endJob(): ERROR - only SinceAppendMode support!!!!");
@@ -314,7 +315,7 @@ private:
     }
     
     cond::Time_t since = 
-      ( mydbservice->isNewTagRequest(Record_) ) ? mydbservice->beginOfTime() : Time_;
+      ( mydbservice->isNewTagRequest(Record_) && !alwaysUseCurrentTime_ ) ? mydbservice->beginOfTime() : Time_;
     
     edm::LogInfo("ConditionDBWriter") << "appending a new object to tag " 
 				      <<Record_ <<" in since mode " << std::endl;
@@ -385,6 +386,8 @@ private:
   bool setSinceTime_;
 
   bool firstRun_;
+
+  bool alwaysUseCurrentTime_;
 };
 
 #endif
