@@ -12,7 +12,7 @@
 //
 // Original Author:  Thomas Reis,40 4-B24,+41227671567,
 //         Created:  Tue Mar 15 12:24:11 CET 2011
-// $Id: EmDQMFeeder.h,v 1.1 2011/05/18 09:09:08 treis Exp $
+// $Id: EmDQMFeeder.h,v 1.1 2011/05/18 16:32:39 treis Exp $
 //
 //
 
@@ -62,7 +62,8 @@ class EmDQMFeeder : public edm::EDAnalyzer {
 
       const edm::ParameterSet& iConfig;
 
-      std::string processName_; // process name of (HLT) process for which to get HLT configuration
+      //std::string processName_; // process name of (HLT) process for which to get HLT configuration
+      edm::InputTag triggerObject_;
       /// The instance of the HLTConfigProvider as a data member
       HLTConfigProvider hltConfig_;
 
@@ -79,7 +80,6 @@ class EmDQMFeeder : public edm::EDAnalyzer {
       edm::ParameterSet makePSetForEgammaGenericQuadraticFilter(const std::string&);
       edm::ParameterSet makePSetForElectronGenericFilter(const std::string&);
       edm::ParameterSet makePSetForEgammaDoubleEtDeltaPhiFilter(const std::string&);
-      edm::ParameterSet makePSetForEgammaDoubleLegCombFilter(const std::string&);
 
       std::vector<EmDQM*> emDQMmodules;
 
@@ -89,6 +89,11 @@ class EmDQMFeeder : public edm::EDAnalyzer {
       static const unsigned TYPE_DOUBLE_PHOTON = 3;
       static const unsigned TYPE_TRIPLE_ELE = 4;
 
+      unsigned verbosity_;
+      static const unsigned OUTPUT_SILENT = 0;
+      static const unsigned OUTPUT_ERRORS = 1;
+      static const unsigned OUTPUT_WARNINGS = 2;
+      static const unsigned OUTPUT_ALL = 3;
 
 };
 
