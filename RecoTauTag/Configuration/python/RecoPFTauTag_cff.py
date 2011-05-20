@@ -106,7 +106,6 @@ tautagInfoModifer = cms.PSet(
 shrinkingConePFTauProducer.modifiers.append(tautagInfoModifer)
 combinatoricRecoTaus.modifiers.append(tautagInfoModifer)
 
-
 recoTauPileUpVertices = cms.EDFilter(
     "RecoTauPileUpVertexSelector",
     src = PFTauQualityCuts.primaryVertexSrc,
@@ -117,6 +116,9 @@ recoTauPileUpVertices = cms.EDFilter(
 # Temp
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesDA_cfi import \
         offlinePrimaryVerticesDA
+from RecoJets.Configuration.RecoPFJets_cff import kt6PFJets
+kt6PFJets.Rho_EtaMax = cms.double(2.5)
+kt6PFJets.doRhoFastjet = True
 
 recoTauCommonSequence = cms.Sequence()
 
@@ -126,6 +128,8 @@ import RecoTauTag.Configuration.tools.recoTauConfTools as recoTauConfTools
 if recoTauConfTools.cmssw_version() < (4, 2, 0):
     print "INFO: Adding DA vertex production to the PFTau sequence"
     recoTauCommonSequence += offlinePrimaryVerticesDA
+    print "INFO: Adding kt6PFJet producer to the PFTau sequence"
+    recoTauCommonSequence += kt6PFJets
 
 recoTauCommonMainSequence = cms.Sequence(
     ak5PFJetTracksAssociatorAtVertex *

@@ -43,17 +43,11 @@ hpsPFTauDiscriminationByLooseIsolation.Prediscriminants = requireDecayMode.clone
 # First apply only charged isolation
 hpsPFTauDiscriminationByLooseChargedIsolation = hpsPFTauDiscriminationByLooseIsolation.clone()
 hpsPFTauDiscriminationByLooseChargedIsolation.ApplyDiscriminationByECALIsolation = False
-hpsPFTauDiscriminationByLooseChargedIsolation.applyDeltaBetaCorrection = False
+#hpsPFTauDiscriminationByLooseChargedIsolation.applyDeltaBetaCorrection = False
 
 hpsPFTauDiscriminationByLooseIsolation.ApplyDiscriminationByTrackerIsolation = False
 hpsPFTauDiscriminationByLooseIsolation.ApplyDiscriminationByECALIsolation = True
-hpsPFTauDiscriminationByLooseIsolation.applyDeltaBetaCorrection = True
-# Instead of occupancy, we use sum pt so the DeltaBeta correction is continuous
-hpsPFTauDiscriminationByLooseIsolation.applyOccupancyCut = False
-hpsPFTauDiscriminationByLooseIsolation.applySumPtCut = True
-hpsPFTauDiscriminationByLooseIsolation.maximumSumPtCut = \
-        hpsPFTauDiscriminationByLooseIsolation.qualityCuts.\
-        isolationQualityCuts.minGammaEt
+hpsPFTauDiscriminationByLooseIsolation.applyOccupancyCut = True
 # Apply the charged prediscriminant before computed the ECAL isolation
 hpsPFTauDiscriminationByLooseIsolation.Prediscriminants.preIso = cms.PSet(
     Producer = cms.InputTag("hpsPFTauDiscriminationByLooseChargedIsolation"),
@@ -70,9 +64,6 @@ hpsPFTauDiscriminationByVLooseChargedIsolation.isoConeSizeForDeltaBeta = cms.dou
 hpsPFTauDiscriminationByVLooseIsolation = hpsPFTauDiscriminationByLooseIsolation.clone()
 hpsPFTauDiscriminationByVLooseIsolation.qualityCuts.isolationQualityCuts.minTrackPt = 1.5
 hpsPFTauDiscriminationByVLooseIsolation.qualityCuts.isolationQualityCuts.minGammaEt = 2.0
-hpsPFTauDiscriminationByVLooseIsolation.maximumSumPtCut = \
-        hpsPFTauDiscriminationByVLooseIsolation.qualityCuts.\
-        isolationQualityCuts.minGammaEt
 
 hpsPFTauDiscriminationByVLooseIsolation.customOuterCone = cms.double(0.3)
 hpsPFTauDiscriminationByVLooseIsolation.isoConeSizeForDeltaBeta = cms.double(0.3)
@@ -90,9 +81,6 @@ hpsPFTauDiscriminationByMediumChargedIsolation.Prediscriminants.preIso = cms.PSe
 hpsPFTauDiscriminationByMediumIsolation = hpsPFTauDiscriminationByLooseIsolation.clone()
 hpsPFTauDiscriminationByMediumIsolation.qualityCuts.isolationQualityCuts.minTrackPt = 0.8
 hpsPFTauDiscriminationByMediumIsolation.qualityCuts.isolationQualityCuts.minGammaEt = 0.8
-hpsPFTauDiscriminationByMediumIsolation.maximumSumPtCut = \
-        hpsPFTauDiscriminationByMediumIsolation.qualityCuts.\
-        isolationQualityCuts.minGammaEt
 hpsPFTauDiscriminationByMediumIsolation.Prediscriminants.preIso.Producer = \
         cms.InputTag("hpsPFTauDiscriminationByMediumChargedIsolation")
 
@@ -107,11 +95,146 @@ hpsPFTauDiscriminationByTightChargedIsolation.Prediscriminants.preIso = cms.PSet
 hpsPFTauDiscriminationByTightIsolation = hpsPFTauDiscriminationByLooseIsolation.clone()
 hpsPFTauDiscriminationByTightIsolation.qualityCuts.isolationQualityCuts.minTrackPt = 0.5
 hpsPFTauDiscriminationByTightIsolation.qualityCuts.isolationQualityCuts.minGammaEt = 0.5
-hpsPFTauDiscriminationByTightIsolation.maximumSumPtCut = \
-        hpsPFTauDiscriminationByTightIsolation.qualityCuts.\
-        isolationQualityCuts.minGammaEt
 hpsPFTauDiscriminationByTightIsolation.Prediscriminants.preIso.Producer = \
         cms.InputTag("hpsPFTauDiscriminationByTightChargedIsolation")
+
+hpsPFTauDiscriminationByChargedIsolationSeq = cms.Sequence(
+    hpsPFTauDiscriminationByVLooseChargedIsolation*
+    hpsPFTauDiscriminationByLooseChargedIsolation*
+    hpsPFTauDiscriminationByMediumChargedIsolation*
+    hpsPFTauDiscriminationByTightChargedIsolation
+)
+
+hpsPFTauDiscriminationByIsolationSeq = cms.Sequence(
+    hpsPFTauDiscriminationByVLooseIsolation*
+    hpsPFTauDiscriminationByLooseIsolation*
+    hpsPFTauDiscriminationByMediumIsolation*
+    hpsPFTauDiscriminationByTightIsolation
+)
+
+_isolation_types = ['VLoose', 'Loose', 'Medium', 'Tight']
+# Now build the sequences that apply PU corrections
+
+# Make rho corrections
+hpsPFTauDiscriminationByIsolationSeqRhoCorr = cms.Sequence()
+for iso_type in _isolation_types:
+    base_name = 'hpsPFTauDiscriminationBy%sIsolation' % iso_type
+    configuration = globals()[base_name].clone()
+    configuration.applyRhoCorrection = True
+    configuration.applyOccupancyCut = False
+    configuration.applySumPtCut = True
+    configuration.maximumSumPtCut = \
+            configuration.qualityCuts.isolationQualityCuts.minGammaEt
+    new_name = base_name + "RhoCorr"
+    globals()[new_name] = configuration
+    hpsPFTauDiscriminationByIsolationSeqRhoCorr += configuration
+
+
+# Stores the slopes of the pileup dependence for the tracks & gammas @ different
+# thresholds
+_sumPtSlopes = {
+    'track' : {
+        'Tight' : 0.1687, # e.g. pt > 0.5
+    },
+    'gamma' : {
+        'VLoose' : 0.0123, # NB not yet measured
+        'Loose' : 0.0123,
+        'Medium' : 0.0462,
+        'Tight' : 0.0772
+    },
+}
+
+# Stores the slopes of the pileup dependence for the tracks & gammas @ different
+# thresholds
+_occupancySlopes = {
+    'track' : {
+        'Tight' : 0.1583, # e.g. pt > 0.5
+    },
+    'gamma' : {
+        'VLoose' : 0.0069, # NB not yet measured!
+        'Loose' : 0.0069,
+        'Medium' : 0.0356,
+        'Tight' : 0.0827
+    },
+}
+
+# Make Delta Beta corrections (on occupancy cut)
+hpsPFTauDiscriminationByIsolationSeqDBOccCorr = cms.Sequence()
+for iso_type in _isolation_types:
+    base_name = 'hpsPFTauDiscriminationBy%sIsolation' % iso_type
+    configuration = globals()[base_name].clone()
+
+    configuration.deltaBetaPUTrackPtCutOverride = cms.double(0.5)
+    trackSlope = _occupancySlopes['track']['Tight']
+    gammaSlope = _occupancySlopes['gamma'][iso_type]
+
+    # DB correction parameters
+    configuration.applyDeltaBetaCorrection = True
+    configuration.isoConeSizeForDeltaBeta = 0.08
+    configuration.deltaBetaPUTrackPtCutOverride = cms.double(0.5)
+    configuration.deltaBetaFactor = "%0.4f*x" % (gammaSlope/trackSlope)
+
+    configuration.applyOccupancyCut = True
+    configuration.applySumPtCut = False
+
+    new_name = base_name + "DBOccCorr"
+    globals()[new_name] = configuration
+    hpsPFTauDiscriminationByIsolationSeqDBOccCorr += configuration
+
+# Make Delta Beta corrections (on SumPt quantity)
+hpsPFTauDiscriminationByIsolationSeqDBSumPtCorr = cms.Sequence()
+for iso_type in _isolation_types:
+    base_name = 'hpsPFTauDiscriminationBy%sIsolation' % iso_type
+    configuration = globals()[base_name].clone()
+
+    configuration.deltaBetaPUTrackPtCutOverride = cms.double(0.5)
+    trackSlope = _sumPtSlopes['track']['Tight']
+    gammaSlope = _sumPtSlopes['gamma'][iso_type]
+
+    # DB correction parameters
+    configuration.applyDeltaBetaCorrection = True
+    configuration.isoConeSizeForDeltaBeta = 0.08
+    configuration.deltaBetaFactor = "%0.4f*x" % (gammaSlope/trackSlope)
+
+    configuration.applyOccupancyCut = False
+    configuration.applySumPtCut = True
+    configuration.maximumSumPtCut = \
+            configuration.qualityCuts.isolationQualityCuts.minGammaEt
+
+    new_name = base_name + "DBSumPtCorr"
+    globals()[new_name] = configuration
+    hpsPFTauDiscriminationByIsolationSeqDBSumPtCorr += configuration
+
+_combinedSumPtThresholds = {
+    'VLoose' : 2.0,
+    'Loose' : 1.5,
+    'Medium' : 1.0,
+    'Tight' : 0.8,
+}
+
+# Make Delta Beta corrections (on combined SumPt quantity)
+hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr = cms.Sequence()
+for iso_type in _isolation_types:
+    base_name = 'hpsPFTauDiscriminationBy%sIsolationDBSumPtCorr' % iso_type
+    configuration = globals()[base_name].clone()
+
+    configuration.deltaBetaPUTrackPtCutOverride = cms.double(0.5)
+    trackSlope = _sumPtSlopes['track']['Tight']
+    gammaSlope = _sumPtSlopes['gamma'][iso_type]
+
+    # DB correction parameters
+    configuration.applyDeltaBetaCorrection = True
+    configuration.isoConeSizeForDeltaBeta = 0.08
+    configuration.deltaBetaFactor = "%0.4f*x" % (gammaSlope/trackSlope)
+
+    configuration.ApplyDiscriminationByTrackerIsolation = True
+    configuration.applyOccupancyCut = False
+    configuration.applySumPtCut = True
+    configuration.maximumSumPtCut = _combinedSumPtThresholds[iso_type]
+    new_name = base_name.replace('Isolation', 'CombinedIsolation')
+    globals()[new_name] = configuration
+    configuration.Prediscriminants = requireDecayMode.clone()
+    hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr += configuration
 
 #copying discriminator against electrons and muons
 hpsPFTauDiscriminationByLooseElectronRejection = copy.deepcopy(pfRecoTauDiscriminationAgainstElectron)
@@ -193,15 +316,12 @@ produceHPSPFTaus = cms.Sequence(
 produceAndDiscriminateHPSPFTaus = cms.Sequence(
     produceHPSPFTaus*
     hpsPFTauDiscriminationByDecayModeFinding*
-    hpsPFTauDiscriminationByVLooseChargedIsolation*
-    hpsPFTauDiscriminationByVLooseIsolation*
-    hpsPFTauDiscriminationByLooseChargedIsolation*
-    hpsPFTauDiscriminationByLooseIsolation*
-    hpsPFTauDiscriminationByMediumChargedIsolation*
-    hpsPFTauDiscriminationByMediumIsolation*
-    hpsPFTauDiscriminationByTightChargedIsolation*
-    hpsPFTauDiscriminationByTightIsolation*
-
+    hpsPFTauDiscriminationByChargedIsolationSeq*
+    hpsPFTauDiscriminationByIsolationSeq*
+    hpsPFTauDiscriminationByIsolationSeqRhoCorr*
+    hpsPFTauDiscriminationByIsolationSeqDBSumPtCorr*
+    hpsPFTauDiscriminationByIsolationSeqDBOccCorr*
+    hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr*
     hpsPFTauDiscriminationByLooseElectronRejection*
     hpsPFTauDiscriminationByMediumElectronRejection*
     hpsPFTauDiscriminationByTightElectronRejection*
