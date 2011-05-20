@@ -124,7 +124,7 @@ K562by225={'--relval': '56250,225'}
 ecalHcal={
     '-s':'GEN,SIM,DIGI,DIGI2RAW,RAW2DIGI,L1Reco,RECO',
     '--datatier':'GEN-SIM-DIGI-RAW-RECO',
-    '--geometry':'ECALHCAL',
+    #    '--geometry':'ECALHCAL',
     '--eventcontent':'FEVTDEBUG',
     '--customise':'Validation/Configuration/ECALHCAL.customise',
     '--beamspot':'NoSmear'}
