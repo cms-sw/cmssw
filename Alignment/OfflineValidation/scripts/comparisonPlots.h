@@ -31,6 +31,8 @@ class comparisonPlots
 		void plot3x5(TCut Cut, char* dirName, bool savePlot = false, std::string plotName = "plot3x5.eps", bool autolimits = false,int ColorCode = 1);
 		void plot3x5Profile(TCut Cut, char* dirName, int nBins, bool savePlot = false, std::string plotName = "plot3x5Profile.eps", bool autolimits = false,int ColorCode = 1);
 		
+                void plotTwist(TCut Cut, char* dirName, bool savePlot = false, std::string plotName = "plot3x5.eps", bool autolimits = false,int ColorCode = 1);
+                
 		float arrowSize;
 		void Write();
 		TFile* fin;

@@ -57,6 +57,86 @@ void comparisonPlots::readTree(){
 	data->SetBranchAddress("detDim",&detDim_);
 }
 
+void comparisonPlots::plotTwist(TCut Cut, char* dirName, bool savePlot, std::string plotName, bool autolimits,int ColorCode)
+{
+  gStyle->SetTitleAlign(22);
+  gStyle->SetTitleX(0.5);
+  gStyle->SetTitleY(0.97);
+  gStyle->SetTitleFont(62); 
+  
+  TDirectory* plotDir = output->mkdir( dirName );
+  
+  double minimum, maximum;
+  
+  if (autolimits)
+    {
+      TH1F* phdphi = new TH1F("phdphi", "phdphi", 200, -10, 10);
+      data->Project("phdphi","dphi",Cut);
+      getHistMaxMin(phdphi, maximum, minimum, 1);
+      delete phdphi;
+    }
+  else
+    {
+      minimum = -1, maximum = 1;
+    }
+
+
+  TH2F* h_dphiVz = new TH2F("h_dphiVz","#Delta #phi vs. z", 200,minimum,maximum, 200,minimum,maximum);
+  h_dphiVz->SetMarkerStyle(6);
+
+  int j = 2;
+  TCut zCut[6];
+  zCut[0] = "z < 0";
+  zCut[1] = "z >= 0";
+  
+  
+  if (ColorCode == 1) {
+    j = 6;
+    //    zCut[6];
+    zCut[0] = "sublevel==1";
+    zCut[1] = "sublevel==2";
+    zCut[2] = "sublevel==3";
+    zCut[3] = "sublevel==4";
+    zCut[4] = "sublevel==5";
+    zCut[5] = "sublevel==6";
+  } 
+  
+  data->Project("h_dphiVz", "dphi:z",Cut);
+  TGraph* gr_dphiVz_Array[j];
+  TMultiGraph* mgr_dphiVz=new TMultiGraph();
+  for ( int i = 0; i < j; i++) {
+    data->Draw("dphi:z",Cut+zCut[i]);	  
+    gr_dphiVz_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
+    gr_dphiVz_Array[i]->SetMarkerColor(int(i/4)+i+1);	  
+    gr_dphiVz_Array[i]->SetMarkerStyle(6);
+    mgr_dphiVz->Add(gr_dphiVz_Array[i],"p");
+  }
+
+
+  
+  // ---------  draw histograms ---------
+  TCanvas* c = new TCanvas("c_twist", "c_twist", 200, 10, 600, 600);
+  c->SetFillColor(0);
+  data->SetMarkerSize(0.5);
+  data->SetMarkerStyle(6);
+  c->Divide(1,1);
+
+  mgr_dphiVz->SetTitle("#Delta #phi vs. z");
+  if (!autolimits)
+    h_dphiVz->Draw();
+  else
+    mgr_dphiVz->Draw("a");
+  	
+  c->Update();
+  plotDir->cd();
+
+  h_dphiVz->Write();
+  if (savePlot) c->Print((_outputDir+"plotTwist_"+plotName).c_str());
+	
+  delete c;
+  delete h_dphiVz;
+}
+
 void comparisonPlots::plot3x5(TCut Cut, char* dirName, bool savePlot, std::string plotName, bool autolimits, int ColorCode ){
 	
   //int ColorCodeHalfBarrels = 1; //color seperation of moodules corresponding to the different subdets
@@ -165,7 +245,7 @@ void comparisonPlots::plot3x5(TCut Cut, char* dirName, bool savePlot, std::strin
 
 	if (ColorCode == 1) {
 	  j = 6;
-	  zCut[6];
+          //	  zCut[6];
 	  zCut[0] = "sublevel==1";
 	  zCut[1] = "sublevel==2";
 	  zCut[2] = "sublevel==3";
@@ -470,7 +550,7 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 
 	if (ColorCode == 1) {
 	  j = 6;
-	  zCut[6];
+          //	  zCut[6];
 	  zCut[0] = "sublevel==1";
 	  zCut[1] = "sublevel==2";
 	  zCut[2] = "sublevel==3";

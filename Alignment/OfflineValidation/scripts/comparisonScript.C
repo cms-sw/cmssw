@@ -51,6 +51,16 @@ void comparisonScript(string inFile="../test/testComparison.root",string outDir=
 	c1.plot3x5( levelCut+TOBCut, "TOB", true,  "TOB.eps", true ,0);
 	c1.plot3x5( levelCut+TECCut, "TEC", true,  "TEC.eps", true ,0);
 
+        c1.plotTwist( levelCut, "TwistTracker",true,"Tracker.eps", true,1 );
+	c1.plotTwist( levelCut+PXBCut, "TwistPXB", true,  "PXB.eps", true ,0);
+	c1.plotTwist( levelCut+PXFCut, "TwistPXF", true,  "PXF.eps", true ,0);
+	c1.plotTwist( levelCut+TIBCut, "TwistTIB", true,  "TIB.eps", true ,0);
+	c1.plotTwist( levelCut+TIDCut, "TwistTID", true,  "TID.eps", true ,0);
+	c1.plotTwist( levelCut+TOBCut, "TwistTOB", true,  "TOB.eps", true ,0);
+	c1.plotTwist( levelCut+TECCut, "TwistTEC", true,  "TEC.eps", true ,0);
+
+
+
 	//again this time only for 2D modules
 
 	c1.plot3x5( levelCut+Det2dCut, "Tracker2D",true,"Tracker2D.eps", true ,1);
@@ -61,6 +71,17 @@ void comparisonScript(string inFile="../test/testComparison.root",string outDir=
 	c1.plot3x5( levelCut+TOBCut+Det2dCut, "TOB2D", true,  "TOB2D.eps", true,0 );
 	c1.plot3x5( levelCut+TECCut+Det2dCut, "TEC2D", true,  "TEC2D.eps", true ,0);
 	
+
+	c1.plotTwist( levelCut+Det2dCut, "TwistTracker2D",true,"Tracker2D.eps", true ,1);
+	//c1.plotTwist( levelCut+PXBCut+Det2dCut, "TwistPXB2D", true,  "PXB2D.eps", true );
+	//c1.plotTwist( levelCut+PXFCut+Det2dCut, "TwistPXF2D", true,  "PXF2D.eps", true );
+	c1.plotTwist( levelCut+TIBCut+Det2dCut, "TwistTIB2D", true,  "TIB2D.eps", true ,0);
+	c1.plotTwist( levelCut+TIDCut+Det2dCut, "TwistTID2D", true,  "TID2D.eps", true ,0);
+	c1.plotTwist( levelCut+TOBCut+Det2dCut, "TwistTOB2D", true,  "TOB2D.eps", true,0 );
+	c1.plotTwist( levelCut+TECCut+Det2dCut, "TwistTEC2D", true,  "TEC2D.eps", true ,0);
+	
+
+
 	
 	// plots the normal 3x3 plus dx/dy vs. r/z/phi 2D profile plots
 	// second argument is the nBinsX for profile plot
