@@ -9,17 +9,20 @@ using std::endl;
 LMFDat::LMFDat() : LMFUnique() { 
   m_tableName = ""; 
   m_max = -1; 
+  _where = "";
 }
 
 LMFDat::LMFDat(EcalDBConnection *c) : LMFUnique(c) {
   m_tableName = "";
   m_max = -1;
+  _where = "";
 }
 
 LMFDat::LMFDat(oracle::occi::Environment* env,
 	       oracle::occi::Connection* conn) : LMFUnique(env, conn) {
   m_tableName = "";
   m_max = -1;
+  _where = "";
 }
 
 std::string LMFDat::foreignKeyName() const {
@@ -114,16 +117,29 @@ std::string LMFDat::getIovIdFieldName() const {
   return "LMF_IOV_ID";
 }
 
+void LMFDat::setWhereClause(std::string where) {
+  // to be used by experts to restrict the results of a query
+  _where = where;
+}
+
 std::string LMFDat::buildSelectSql(int logic_id, int direction) {
   // create the insert statement
   // if logic_id = 0 select all channels for a given iov_id
   std::stringstream sql;
   int count = 1;
   if (getLMFRunIOVID() > 0) {
+    if (_where.length() > 0) {
+      // check if this is an expert query. If so, add a WHERE clause
+      _where = " AND " + _where;
+    }
     // in this case we are looking for all data collected during the same
     // IOV. There can be many logic_ids per IOV.
     sql << "SELECT * FROM CMS_ECAL_LASER_COND." << getTableName() << " WHERE "
-	<< getIovIdFieldName() << " = " << getLMFRunIOVID();
+	<< getIovIdFieldName() << " = " << getLMFRunIOVID() 
+	<< _where;
+    // the expert query must be specified each time the expert makes the query
+    // then empty it
+    _where = "";
   } else {
     // in this case we are looking for a specific logic_id whose
     // data have been collected at a given time. There is only

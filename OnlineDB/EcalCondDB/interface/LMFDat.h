@@ -135,6 +135,7 @@ class LMFDat : public LMFUnique {
     throw(std::runtime_error);
 
   virtual bool isValid();
+  void setWhereClause(std::string w);
  protected:
   void getNeighbour(LMFDat *dat, int which) throw(std::runtime_error);
   int writeDB() throw(std::runtime_error);
@@ -152,6 +153,8 @@ class LMFDat : public LMFUnique {
   std::map<std::string, unsigned int> m_keys;
   std::string m_tableName;
   std::string m_Error;
+  // experts only
+  std::string _where;
 };
 
 #endif
