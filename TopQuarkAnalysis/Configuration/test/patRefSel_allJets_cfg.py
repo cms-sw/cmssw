@@ -1,6 +1,24 @@
 import sys
 
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
+
+# setup 'standard' options
+options = VarParsing.VarParsing ('standard')
+options.register('runOnMC', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "decide if run on MC or data")
+
+# parsing command line arguments
+if( hasattr(sys, "argv") ):
+  #options.parseArguments()
+  if(len(sys.argv) > 1):
+    print "Parsing command line arguments:"
+  for args in sys.argv :
+    arg = args.split(',')
+    for val in arg:
+      val = val.split('=')
+      if(len(val)==2):
+        print "Setting *", val[0], "* to:", val[1]
+        setattr(options,val[0], val[1])
 
 process = cms.Process( 'PAT' )
 
@@ -14,7 +32,7 @@ process = cms.Process( 'PAT' )
 
 
 ### Data or MC?
-runOnMC = True
+runOnMC = options.runOnMC
 
 ### Standard and PF reconstruction
 useStandardPAT = True
@@ -23,12 +41,17 @@ runPF2PAT      = True
 ### Switch on/off selection steps
 
 # Step 1
+# (trigger selection: QuadJet50_Jet40)
 useTrigger      = True
 # Step 2
+# (good vertex selection)
 useGoodVertex   = True
 # Step 3a
+# (6 jets: pt > 30 GeV & |eta| < 2.4)
 use6JetsLoose   = True
 # Step 3b
+# (4 jets: pt > 60 GeV, 5 jets: pt > 50 GeV, 6 jets: pt > 30 GeV, for all jets: |eta| < 2.4)
+# (the cuts for the 4 and 5 leading jets are configurable via jetCutHard / jetCutMedium respectivly)
 use6JetsTight   = False
 
 addTriggerMatching = True
@@ -45,6 +68,8 @@ from TopQuarkAnalysis.Configuration.patRefSel_refAllJets import *
 #jetCutPF               = ''
 #jetMuonsDRPF           = 0.1
 #electronCutPF          = ''
+#jetCutMedium           = ''
+#jetCutHard             = ''
 
 # Trigger selection according to run range resp. MC sample:
 # lower range limits for data available as suffix;
@@ -89,19 +114,18 @@ useL7Parton     = True
 
 # list of input files
 useRelVals = False # if 'False', "inputFiles" is used
-inputFiles = ['/store/mc/Summer11/QCD_Pt-15to3000_TuneD6T_Flat_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/023735A8-297E-E011-A8B0-0026189438AD.root',
-              '/store/mc/Summer11/QCD_Pt-15to3000_TuneD6T_Flat_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/56FA5813-387E-E011-B48D-001A928116D6.root',
-              #'/store/mc/Summer11/QCD_Pt-15to3000_TuneD6T_Flat_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/B4B3A73C-2B7E-E011-B703-0026189437FA.root',
-              '/store/mc/Summer11/QCD_Pt-15to3000_TuneD6T_Flat_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/84488536-2B7E-E011-989D-001A92810A94.root'
-              ]   # overwritten, if "useRelVals" is 'True'
+inputFiles = [ '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RECO/START42_V12_FastSim_PU_156BxLumiPileUp-v1/0072/0635AA67-B37C-E011-B61F-002618943944.root'
+             , '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RECO/START42_V12_FastSim_PU_156BxLumiPileUp-v1/0072/0E153885-B17C-E011-8C7D-001A928116E0.root'
+             , '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RECO/START42_V12_FastSim_PU_156BxLumiPileUp-v1/0072/105E01FE-B57C-E011-9AB4-0018F3D09708.root'
+             , '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RECO/START42_V12_FastSim_PU_156BxLumiPileUp-v1/0072/120718C8-B67C-E011-A070-001A928116D2.root'
+             , '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RECO/START42_V12_FastSim_PU_156BxLumiPileUp-v1/0072/1232DFFA-AF7C-E011-983D-002618943831.root'
+             ]   # overwritten, if "useRelVals" is 'True'
 
-             #[ '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RECO/START42_V12_FastSim_PU_156BxLumiPileUp-v1/0072/0635AA67-B37C-E011-B61F-002618943944.root'
-             #, '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RECO/START42_V12_FastSim_PU_156BxLumiPileUp-v1/0072/0E153885-B17C-E011-8C7D-001A928116E0.root'
-             #, '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RECO/START42_V12_FastSim_PU_156BxLumiPileUp-v1/0072/105E01FE-B57C-E011-9AB4-0018F3D09708.root'
-             #, '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RECO/START42_V12_FastSim_PU_156BxLumiPileUp-v1/0072/120718C8-B67C-E011-A070-001A928116D2.root'
-             #, '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RECO/START42_V12_FastSim_PU_156BxLumiPileUp-v1/0072/1232DFFA-AF7C-E011-983D-002618943831.root'
-             #]   # overwritten, if "useRelVals" is 'True'
-
+             #['/store/mc/Summer11/QCD_Pt-15to3000_TuneD6T_Flat_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/023735A8-297E-E011-A8B0-0026189438AD.root',
+             # '/store/mc/Summer11/QCD_Pt-15to3000_TuneD6T_Flat_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/56FA5813-387E-E011-B48D-001A928116D6.root',
+             # '/store/mc/Summer11/QCD_Pt-15to3000_TuneD6T_Flat_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/84488536-2B7E-E011-989D-001A92810A94.root'
+             # ]   # overwritten, if "useRelVals" is 'True'
+             
 # maximum number of events
 maxInputEvents = -1 # reduce for testing
 
@@ -326,9 +350,9 @@ if useStandardPAT:
                                       )
     process.out.outputCommands.append( 'keep double_*_*_' + process.name_() )
 
-  process.goodPatJets   = goodPatJets.clone()
-  process.goodPatJets50 = process.goodPatJets.clone()
-  process.goodPatJets60 = process.goodPatJets.clone()
+  process.goodPatJets       = goodPatJets.clone()
+  process.goodPatJetsMedium = process.goodPatJets.clone()
+  process.goodPatJetsHard   = process.goodPatJets.clone()
 
 if runPF2PAT:
 
@@ -368,10 +392,10 @@ if runPF2PAT:
   setattr( process, 'goodPatJets' + postfix, goodPatJetsPF )
   getattr( process, 'goodPatJets' + postfix ).checkOverlaps.muons.src = cms.InputTag( 'intermediatePatMuons' + postfix )
 
-  goodPatJets50PF = getattr( process, 'goodPatJets' + postfix ).clone()
-  setattr( process, 'goodPatJets50' + postfix, goodPatJets50PF )
-  goodPatJets60PF = getattr( process, 'goodPatJets' + postfix ).clone()
-  setattr( process, 'goodPatJets60' + postfix, goodPatJets60PF )
+  goodPatJetsMediumPF = getattr( process, 'goodPatJets' + postfix ).clone()
+  setattr( process, 'goodPatJetsMedium' + postfix, goodPatJetsMediumPF )
+  goodPatJetsHardPF = getattr( process, 'goodPatJets' + postfix ).clone()
+  setattr( process, 'goodPatJetsHard' + postfix, goodPatJetsHardPF )
 
   step3aPF = step3a.clone( src = cms.InputTag( 'goodPatJets' + postfix ) )
   setattr( process, 'step3a' + postfix, step3aPF )
@@ -416,9 +440,9 @@ if useStandardPAT:
 
   ### Jets
 
-  process.goodPatJets.preselection   = jetCut
-  process.goodPatJets50.preselection = jetCut + " & pt>50"
-  process.goodPatJets60.preselection = jetCut + " & pt>60"
+  process.goodPatJets.preselection       = jetCut
+  process.goodPatJetsMedium.preselection = jetCut + jetCutMedium
+  process.goodPatJetsHard.preselection   = jetCut + jetCutHard
 
   ### Electrons
 
@@ -440,12 +464,12 @@ if runPF2PAT:
 
   ### Jets
 
-  getattr( process, 'goodPatJets'   + postfix ).preselection               = jetCutPF
-  getattr( process, 'goodPatJets'   + postfix ).checkOverlaps.muons.deltaR = jetMuonsDRPF
-  getattr( process, 'goodPatJets50' + postfix ).preselection               = jetCutPF + " & pt>50"
-  getattr( process, 'goodPatJets50' + postfix ).checkOverlaps.muons.deltaR = jetMuonsDRPF
-  getattr( process, 'goodPatJets60' + postfix ).preselection               = jetCutPF + " & pt>60"
-  getattr( process, 'goodPatJets60' + postfix ).checkOverlaps.muons.deltaR = jetMuonsDRPF
+  getattr( process, 'goodPatJets'       + postfix ).preselection               = jetCutPF
+  getattr( process, 'goodPatJets'       + postfix ).checkOverlaps.muons.deltaR = jetMuonsDRPF
+  getattr( process, 'goodPatJetsMedium' + postfix ).preselection               = jetCutPF + jetCutMedium
+  getattr( process, 'goodPatJetsMedium' + postfix ).checkOverlaps.muons.deltaR = jetMuonsDRPF
+  getattr( process, 'goodPatJetsHard'   + postfix ).preselection               = jetCutPF + jetCutHard
+  getattr( process, 'goodPatJetsHard'   + postfix ).checkOverlaps.muons.deltaR = jetMuonsDRPF
 
   ### Electrons
 
@@ -462,19 +486,19 @@ if useStandardPAT:
   process.patAddOnSequence = cms.Sequence(
     process.intermediatePatMuons
   * process.goodPatJets
-  * process.goodPatJets50
-  * process.goodPatJets60
+  * process.goodPatJetsMedium
+  * process.goodPatJetsHard
   * process.loosePatMuons
   * process.tightPatMuons
   )
 if runPF2PAT:
   patAddOnSequence = cms.Sequence(
     getattr( process, 'intermediatePatMuons' + postfix )
-  * getattr( process, 'goodPatJets'   + postfix )
-  * getattr( process, 'goodPatJets50' + postfix )
-  * getattr( process, 'goodPatJets60' + postfix )
-  * getattr( process, 'loosePatMuons' + postfix )
-  * getattr( process, 'tightPatMuons' + postfix )
+  * getattr( process, 'goodPatJets'          + postfix )
+  * getattr( process, 'goodPatJetsMedium'    + postfix )
+  * getattr( process, 'goodPatJetsHard'      + postfix )
+  * getattr( process, 'loosePatMuons'        + postfix )
+  * getattr( process, 'tightPatMuons'        + postfix )
   )
   setattr( process, 'patAddOnSequence' + postfix, patAddOnSequence )
 

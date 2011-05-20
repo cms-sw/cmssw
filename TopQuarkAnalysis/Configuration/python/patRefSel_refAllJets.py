@@ -25,6 +25,11 @@ triggerSelection_Summer11= 'HLT_QuadJet50_Jet40_v*'  # run < 147196
 triggerSelectionData = triggerSelection_160404
 triggerSelectionMC   = triggerSelection_Summer11
 
+### Jet selection
+
+jetCutMedium = ' && pt > 50.'
+jetCutHard   = ' && pt > 60.'
+
 ### Trigger matching
 
 # Trigger object selection
