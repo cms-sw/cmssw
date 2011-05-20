@@ -20,11 +20,20 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
     #'file:/uscms/home/aeverett/work/CMSSW_4_2_3/src/skimSingleMuonAll.root'
     #'file:skimAll.root'
-    'file:DoubleMu/res/merge.root'
+    #'file:DoubleMu/res/merge.root'
+    'file:DoubleElectron/res/skimAll_10_1_2JY.root',
+    'file:DoubleElectron/res/skimAll_1_1_wv1.root',
+    'file:DoubleElectron/res/skimAll_2_1_FKd.root',
+    'file:DoubleElectron/res/skimAll_4_1_5Ox.root',
+    'file:DoubleElectron/res/skimAll_5_1_jdQ.root',
+    'file:DoubleElectron/res/skimAll_6_1_IDK.root',
+    'file:DoubleElectron/res/skimAll_8_1_utp.root',
+    'file:DoubleElectron/res/skimAll_9_1_Ueg.root',
+    
     )
 )
 
-process.TFileService = cms.Service("TFileService", fileName = cms.string("histo.root") )
+process.TFileService = cms.Service("TFileService", fileName = cms.string("histoDE.root") )
 process.load("SUSYBSMAnalysis.Skimming.skimSummary_cfi")
 #process.HotLineSummary.histoFileName = cms.untracked.string('hotLineSummaryPlot.root')
 process.SkimSummary.HltLabel = cms.InputTag("TriggerResults","","SKIM")

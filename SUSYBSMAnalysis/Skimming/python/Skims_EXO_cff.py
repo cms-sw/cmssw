@@ -28,3 +28,83 @@ SKIMStreamEXOLLRes = cms.FilteredStream(
         selectEvents = cms.untracked.PSet(),
         dataTier = cms.untracked.string('AOD')
         )
+
+from SUSYBSMAnalysis.Skimming.EXOEle_cff import *
+exoElePath = cms.Path(exoEleLowetSeqReco)
+SKIMStreamEXOEle = cms.FilteredStream(
+    responsible = 'EXO',
+    name = 'EXOEle',
+    paths = (exoElePath),
+    content = skimAodContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
+
+from SUSYBSMAnalysis.Skimming.EXOMu_cff import *
+exoMuPath = cms.Path(exoMuSequence)
+SKIMStreamEXOMu = cms.FilteredStream(
+    responsible = 'EXO',
+    name = "EXOMu",
+    paths = (exoMuPath),
+    content = skimAodContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
+
+from SUSYBSMAnalysis.Skimming.EXOTriLepton_cff import *
+exoTriMuPath = cms.Path(exoTriMuonSequence)
+SKIMStreamEXOTriMu = cms.FilteredStream(
+    responsible = 'EXO',
+    name = 'EXOTriMu',
+    paths = (exoTriMuPath),
+    content = skimAodContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
+exoTriElePath = cms.Path(exoTriElectronSequence)
+SKIMStreamEXOTriEle = cms.FilteredStream(
+    responsible = 'EXO',
+    name = 'EXOTriEle',
+    paths = (exoTriElePath),
+    content = skimAodContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
+exo1E2MuPath = cms.Path(exo1E2MuSequence)
+SKIMStreamEXO1E2Mu = cms.FilteredStream(
+    responsible = 'EXO',
+    name = 'EXO1E2Mu',
+    paths = (exo1E2MuPath),
+    content = skimAodContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
+
+from SUSYBSMAnalysis.Skimming.EXODiLepton_cff import *
+exoDiMuPath = cms.Path(exoDiMuSequence)
+exoDiElePath = cms.Path(exoDiMuSequence)
+exoEMuPath = cms.Path(exoEMuSequence)
+SKIMStreamEXODiMu = cms.FilteredStream(
+    responsible = 'EXO',
+    name = 'EXODiMu',
+    paths = (exoDiMuPath),
+    content = skimAodContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
+SKIMStreamEXODiEle = cms.FilteredStream(
+    responsible = 'EXO',
+    name = 'EXODiEle',
+    paths = (exoDiElePath),
+    content = skimAodContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
+SKIMStreamEXOEMu = cms.FilteredStream(
+    responsible = 'EXO',
+    name = 'EXOEMu',
+    paths = (exoEMuPath),
+    content = skimAodContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
