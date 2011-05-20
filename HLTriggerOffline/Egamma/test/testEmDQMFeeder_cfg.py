@@ -19,6 +19,9 @@ process.source = cms.Source("PoolSource",
 
 process.load("HLTriggerOffline.Egamma.EgammaValidationAutoConf_cff")
 
+# set output to verbose = all
+process.dqmFeeder.verbosity = cms.untracked.uint32(3)
+
 process.p = cms.Path(
                      # require generated particles in fiducial volume
                      process.egammaSelectors *     
