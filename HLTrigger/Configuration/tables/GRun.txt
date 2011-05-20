@@ -36,8 +36,8 @@ HLT_DiCentralJet20_BTagIP_MET65_v*
 HLT_CentralJet46_BTagIP3D_CentralJet38_BTagIP3D_v*
 HLT_QuadJet40_v*
 HLT_QuadJet40_IsoPFTau40_v*
-HLT_QuadJet50_BTagIP_v*
-HLT_QuadJet50_Jet40_v*
+HLT_QuadJet45_IsoPFTau45_v*
+HLT_QuadJet50_Jet40_Jet30_v*
 HLT_QuadJet60_v*
 HLT_QuadJet70_v*
 HLT_ExclDiJet60_HFOR_v*

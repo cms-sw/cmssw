@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V85
+# /dev/CMSSW_4_2_0/GRun/V86
 
 import FWCore.ParameterSet.Config as cms
 
@@ -313,8 +313,8 @@ streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_CentralJet
     'HLT_L1MultiJet_v2', 
     'HLT_QuadJet40_IsoPFTau40_v5', 
     'HLT_QuadJet40_v4', 
-    'HLT_QuadJet50_BTagIP_v4', 
-    'HLT_QuadJet50_Jet40_v3', 
+    'HLT_QuadJet45_IsoPFTau45_v1', 
+    'HLT_QuadJet50_Jet40_Jet30_v1', 
     'HLT_QuadJet60_v3', 
     'HLT_QuadJet70_v3')
 
