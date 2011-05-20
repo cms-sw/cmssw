@@ -18,6 +18,12 @@ using namespace edm;
 using namespace std;
 
 namespace {
+  struct CompareTwoTracks {
+    int operator() ( const reco::TransientTrack & a, const reco::TransientTrack & b ) {
+            return ( a.impactPointState().globalMomentum().perp() >
+                     b.impactPointState().globalMomentum().perp() ) ;
+    };
+  };
   // typedef ReferenceCountingPointer<VertexTrack<5> > RefCountedVertexTrack;
   typedef AdaptiveVertexFitter::RefCountedVertexTrack RefCountedVertexTrack;
 
@@ -152,14 +158,16 @@ void AdaptiveVertexFitter::setParameters ( const edm::ParameterSet & s )
 }
 
 CachingVertex<5>
-AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks) const
+AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & unstracks) const
 {
-  if ( tracks.size() < 2 )
+  if ( unstracks.size() < 2 )
   {
     LogError("RecoVertex|AdaptiveVertexFitter")
       << "Supplied fewer than two tracks. Vertex is invalid.";
     return CachingVertex<5>(); // return invalid vertex
   };
+  vector < reco::TransientTrack > tracks = unstracks;
+  sort ( tracks.begin(), tracks.end(), CompareTwoTracks() );
   // Linearization Point
   GlobalPoint linP = theLinP->getLinearizationPoint(tracks);
   // Initial vertex seed, with a very large error matrix
@@ -424,6 +432,8 @@ AdaptiveVertexFitter::reWeightTracks(
 
     finalTracks.push_back(vTrData);
   }
+  sort ( finalTracks.begin(), finalTracks.end(), 
+         DistanceToRefPoint ( vertex.position() ) );
   return finalTracks;
 }
 
