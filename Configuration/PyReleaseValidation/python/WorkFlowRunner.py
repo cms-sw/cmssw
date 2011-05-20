@@ -127,8 +127,9 @@ class WorkFlowRunner(Thread):
                         inFile = "NoFileFoundInDBS"
                         retStep1 = -90
         else:
+            cmd += self.wf.cmdStep1
             if not 'fileout' in self.wf.cmdStep1:
-                cmd += self.wf.cmdStep1 + ' --fileout file:raw.root '
+                cmd += ' --fileout file:raw.root '
             cmd += ' > %s 2>&1; ' % ('step1_'+self.wf.nameId+'.log ',)
             retStep1 = self.doCmd(cmd)
 
