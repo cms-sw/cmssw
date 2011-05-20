@@ -109,24 +109,6 @@ class MatrixReader(object):
             for step in stepList:
                 if len(name) > 0 : name += '+'
                 stepName = step
-                # check if we have explicit selections and overlapping requests:
-                """
-                print useInput,str(num),stepIndex,(str(num) in useInput)
-                if stepIndex==0 and useInput and (str(num) in useInput and not "all" in useInput):
-                    print "indeed"
-                    if fromScratch and (str(num) in fromScratch and not "all" in fromScratch):
-                        msg = "FATAL ERROR: request for both fromScratch and input for workflow "+str(num)
-                        raise MatrixException(msg)
-                    else:
-                        if step+'INPUT' in self.relvalModule.step1.keys():
-                            stepName = step+"INPUT"
-                if stepIndex==0 and useInput and ("all" == useInput):
-                    if fromScratch and (str(num) in fromScratch or "all" in fromScratch):
-                        pass
-                    else:
-                        if step+'INPUT' in self.relvalModule.step1.keys():
-                            stepName = step+"INPUT"
-                """
                 #use input check, only for step0
                 if stepIndex==0:
                     if useInput and (str(num) in useInput or "all" in useInput):
@@ -148,6 +130,11 @@ class MatrixReader(object):
                     msg = "FATAL ERROR: found both cfg and input for workflow "+str(num)+' step '+stepName
                     raise MatrixException(msg)
 
+                if (not input) and (stepIndex!=0) and (not 'filein' in opts):
+                    opts+=' --filein file:step%d.root '%(stepIndex,)
+                if (not input) and (not 'fileout' in opts):
+                    opts+=' --fileout file:step%d.root '%(stepIndex+1,)
+                
                 if cfg:
                     cmd  = 'cmsDriver.py '+cfg+' '+opts
                 if stepIndex==0 and not inputInfo and input: # only if we didn't already set the input
@@ -155,7 +142,12 @@ class MatrixReader(object):
                     # map input dataset to the one from the reference release:
                     inputInfo.dataSet = inputInfo.dataSet.replace('CMSSW_4_2_0_pre4', refRel)
                     cmd = 'DATAINPUT from '+inputInfo.dataSet+' on '+inputInfo.location
-                    
+                    if input.run:
+                        cmd+=' run %d'%(input.run)
+                    from Configuration.PyReleaseValidation.relval_steps import InputInfoNDefault
+                    if input.events!=InputInfoNDefault:
+                        cmd+=' N %d'%(input.events)
+                        
                 if stepIndex > 0:
                     cmd  = 'cmsDriver.py step'+str(stepIndex+1)+' '+opts
                     
@@ -163,7 +155,7 @@ class MatrixReader(object):
                 stepIndex += 1
 
             self.step1WorkFlows[(float(num),prefix)] = (str(float(num)), name, stepCmds[0], stepCmds[1], stepCmds[2], stepCmds[3], inputInfo)
-        
+            
         return
 
     def showRaw(self, useInput, refRel='CMSSW_4_2_0_pre2', fromScratch=None, what='all',step1Only=False):
@@ -297,7 +289,6 @@ class MatrixReader(object):
             id, pref = item
             if pref != prefixIn : continue
             ids.append( float(id) )
-            
         ids.sort()
         n1 = 0
         n2 = 0
@@ -331,7 +322,6 @@ class MatrixReader(object):
                         cmd4 = step4
                     #print '\tstep3 : ', self.step3WorkFlows[step3]
             self.workFlows.append( WorkFlow(num, name, cmd, cmd2, cmd3, cmd4, inputInfo) )
-
         return
 
     def prepare(self, useInput=None, refRel='', fromScratch=None):
@@ -346,13 +336,14 @@ class MatrixReader(object):
             except Exception, e:
                 print "ERROR reading file:", matrixFile, str(e)
                 raise
-
+            
             try:
                 self.createWorkFlows(matrixFile)
             except Exception, e:
                 print "ERROR creating workflows :", str(e)
                 raise
             
+                
     def show(self, selected=None):    
         # self.showRaw()
         self.showWorkFlows(selected)
