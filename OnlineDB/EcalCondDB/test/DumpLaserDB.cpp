@@ -21,6 +21,8 @@
 #include <TFile.h>
 #include <TTree.h>
 
+#include "boost/program_options.hpp"
+
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/all_lmf_types.h"
 
@@ -164,6 +166,12 @@ public:
     return ret;
   }
 
+  bool userCheck(LMFData d) {
+    /*** EXPERTS ONLY ***/
+    bool ret = true;
+    return ret;
+  }
+
   void doRun() {
     init();
     std::map<int, int> detids = econn->getLogicId2DetIdMap();
@@ -202,12 +210,15 @@ public:
 	  // *** get data ***
 	  LMFRunDat run_dat(econn);
 	  run_dat.setLMFRunIOV(*ri);
+	  //run_dat.setWhereClause("LOGIC_ID > 2000000000"); // selects only endcap primitives
 	  run_dat.fetch();
           LMFPnPrimDat pnPrim(econn, color, "LASER"); 
 	  pnPrim.setLMFRunIOV(*ri);
+	  //pnPrim.setWhereClause("LOGIC_ID > 2000000000"); // selects only endcap primitives
 	  pnPrim.fetch();
 	  LMFPrimDat prim(econn, color, "LASER");
 	  prim.setLMFRunIOV(*ri);
+	  //prim.setWhereClause("LOGIC_ID > 2000000000"); // selects only endcap primitives
 	  prim.fetch();
 	  // *** run dat ***
 	  std::list<int> logic_ids = run_dat.getLogicIds();
@@ -329,7 +340,7 @@ public:
 	  // fill the tree
 	  xcount = 0;
 	  for (unsigned int i = 0; i < lmfdata.size(); i++) {
-	    if (lmfdata[i].Mean > 0) {
+	    if ((userCheck(lmfdata[i])) && (lmfdata[i].Mean > 0)) {
 	      detId = lmfdata[i].detId;
 	      logic_id = lmfdata[i].logic_id;
 	      eta = lmfdata[i].eta;
@@ -453,7 +464,7 @@ void CondDBApp::init() {
   tree->Branch("subrunstart",   &subrunstart,   "subrunstart/l");    
   tree->Branch("subrunstop",    &subrunstart,   "subrunstop/l");  
   tree->Branch("detId",         &detId,         "detId/I");  
-  tree->Branch("logic_id",         &logic_id,         "logic_id/I");  
+  tree->Branch("logic_id",      &logic_id,      "logic_id/I");  
   tree->Branch("eta",           &eta,           "eta/I");  
   tree->Branch("phi",           &phi,           "phi/I");  
   tree->Branch("x",             &x,             "x/I");  
@@ -489,11 +500,10 @@ void CondDBApp::init() {
 void help() {
   std::cout << "DumpLaserDB\n";
   std::cout << " Reads laser DB and build a root ntuple.\n";
-  std::cout << " DumpLaserDB <sid> <user> <password> <run_min> [<run_max>]\n";
   std::cout << std::endl;
-  std::cout << " The last parameter is optional. Loops on runs between\n";
-  std::cout << " run_min and (if present) run_max. For each run loops on\n";
-  std::cout << " each Laser Sequence. Each sequence contains up to 92 LMR\n";
+  std::cout << " Loops on runs between run_min and (if present) run_max.\n";
+  std::cout << " For each run loops on each Laser Sequence. Each sequence\n";
+  std::cout << " contains up to 92 LMR.\n";
   std::cout << " For each region gets:\n";
   std::cout << "   a) run data, such as the number of events acquired\n";
   std::cout << "   b) pn primitives\n";
@@ -514,35 +524,81 @@ void help() {
 
 int main (int argc, char* argv[])
 {
-  std::string sid;
-  std::string user;
-  std::string pass;
 
-  if (argc < 5) {
-    if (argc >= 2) {
-      std::string swtch = argv[1]; 
-      if (swtch.find_first_of("--h") == 0) {
-	help();
-      }
-    }
-    std::cout << "Usage:" << std::endl;
-    std::cout << "  " << argv[0] 
-	      << " <SID> <user> <pass> <run-min> [<run-max>]" 
-	      << std::endl << "  " << argv[0] 
-	      << " --help"
-	      << std::endl;
-    exit(-1);
-  }
+  namespace po = boost::program_options;
 
-  sid = argv[1];
-  user = argv[2];
-  pass = argv[3];
-  int run1 = atoi(argv[4]);
+  int run1 = 0;
   int run2 = 0;
 
-  if (argc > 5) {
-    run2 = atoi(argv[5]); 
+  std::string sid = "CMS_ORCOFF_PROD";
+  std::string user = "CMS_ECAL_R";
+  std::string pass = "";
+
+  std::string confFile = "";
+
+  try {
+    // options definition
+    po::options_description desc("Allowed options");
+    desc.add_options()
+      ("help", "shows help message")
+      ("rmin", po::value<int>()->default_value(0), "set minimum run number to analyze (mandatory)")
+      ("rmax", po::value<int>()->default_value(0), "set maximum run number to analyze (optional)")
+      ("sid",  po::value<std::string>()->default_value(sid), "Oracle System ID (SID) (defaulted)")
+      ("user", po::value<std::string>()->default_value(user), "SID user (defaulted)")
+      ("pass", po::value<std::string>(), "password (mandatory)")
+      ("file", po::value<std::string>(), "configuration file name (optional)")
+      ;
+    
+    po::positional_options_description p;
+    p.add("sid", 1);
+    p.add("user", 1);
+    p.add("pass", 1);
+    p.add("rmin", 1);
+    p.add("rmax", 1);
+
+    // parsing and decoding options
+    po::variables_map vm;
+    //    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
+    
+    if (vm.count("help")) {
+      std::cout << desc << std::endl;
+      help();
+      return 1;
+    }
+    
+    if (vm.count("rmin") && (vm["rmin"].as<int>() > 0)) {
+      run1 = vm["rmin"].as<int>();
+      run2 = vm["rmax"].as<int>();
+    } else {
+      std::cout << desc << std::endl;
+      return 1;
+    }
+    if (vm.count("rmax")) {
+      run2 = vm["rmax"].as<int>();
+    } 
+    if (vm.count("sid")) {
+      sid = vm["sid"].as<std::string>();
+    } 
+    if (vm.count("user")) {
+      user = vm["user"].as<std::string>();
+    } 
+    if (vm.count("pass")) {
+      pass = vm["pass"].as<std::string>();
+    } else {
+      std::cout << desc << std::endl;
+      return 1;
+    }
+    if (vm.count("file")) {
+      confFile = vm["file"].as<std::string>();
+    } 
+    po::notify(vm);  
   }
+  catch (std::exception &e) {
+    std::cout << e.what() << std::endl;
+    return 1;
+  }
+
   try {
     CondDBApp app(sid, user, pass, run1, run2);
     app.doRun();
