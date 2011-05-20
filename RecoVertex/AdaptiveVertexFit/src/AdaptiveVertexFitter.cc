@@ -234,10 +234,10 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
  *  The specified LinearizationPointFinder will be used to find the linearization point.
  */
 CachingVertex<5> 
-AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
+AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & unstracks,
 			       const reco::BeamSpot& beamSpot) const
 {
-  if ( tracks.size() < 1 )
+  if ( unstracks.size() < 1 )
   {
     LogError("RecoVertex|AdaptiveVertexFitter")
       << "Supplied no tracks. Vertex is invalid.";
@@ -246,6 +246,9 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
 
   VertexState beamSpotState(beamSpot);
   vector<RefCountedVertexTrack> vtContainer;
+
+  vector < reco::TransientTrack > tracks = unstracks;
+  sort ( tracks.begin(), tracks.end(), CompareTwoTracks() );
 
   if (tracks.size() > 1) {
     // Linearization Point search if there are more than 1 track
