@@ -143,7 +143,7 @@ if __name__ == '__main__':
     raw  = None
     refRel = ''
     step1Only=False
-    what = None
+    what = 'all'
     for opt, arg in opts :
         if opt in ('-h','--help'):
             usage()
