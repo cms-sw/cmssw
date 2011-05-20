@@ -69,6 +69,7 @@ EmDQM::EmDQM(const edm::ParameterSet& pset)
   plotBins   = pset.getUntrackedParameter<unsigned int>("Nbins",40);
   plotMinEtForEtaEffPlot = pset.getUntrackedParameter<unsigned int>("minEtForEtaEffPlot", 15);
   useHumanReadableHistTitles = pset.getUntrackedParameter<bool>("useHumanReadableHistTitles", false);
+  verbosity = pset.getUntrackedParameter<unsigned int>("verbosity",0);
 
   //preselction cuts 
   gencutCollection_= pset.getParameter<edm::InputTag>("cutcollection");
@@ -339,7 +340,8 @@ bool EmDQM::checkGeneratedParticlesRequirement(const edm::Event & event)
    edm::Handle< edm::View<reco::Candidate> > genParticles;
    event.getByLabel("genParticles", genParticles);
    if(!genParticles.isValid()) {
-     edm::LogWarning("EmDQM") << "genParticles invalid.";
+     if (verbosity >= OUTPUT_WARNINGS)
+        edm::LogWarning("EmDQM") << "genParticles invalid.";
      return false;
    }
 
@@ -393,7 +395,8 @@ bool EmDQM::checkRecoParticlesRequirement(const edm::Event & event)
   edm::Handle< edm::View<reco::Candidate> > referenceParticles;
   event.getByLabel(gencutCollection_,referenceParticles);
   if(!referenceParticles.isValid()) {
-     edm::LogWarning("EmDQM") << "referenceParticles invalid.";
+     if (verbosity >= OUTPUT_WARNINGS)
+        edm::LogWarning("EmDQM") << "referenceParticles invalid.";
      return false;
   }
 
@@ -448,7 +451,8 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
   edm::Handle<trigger::TriggerEventWithRefs> triggerObj;
   event.getByLabel(triggerobjwithrefs,triggerObj);
   if(!triggerObj.isValid()) {
-    edm::LogWarning("EmDQM") << "parameter triggerobject (" << triggerobjwithrefs << ") does not corresond to a valid TriggerEventWithRefs product. Please check especially the process name (e.g. when running over reprocessed datasets)";
+    if (verbosity >= OUTPUT_WARNINGS)
+       edm::LogWarning("EmDQM") << "parameter triggerobject (" << triggerobjwithrefs << ") does not corresond to a valid TriggerEventWithRefs product. Please check especially the process name (e.g. when running over reprocessed datasets)";
     return;
   }
 
@@ -585,7 +589,8 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
   ///////////////////////////////////////////////////
   for (unsigned int j=0; j<recoecalcands.size(); j++){
     if(!( recoecalcands.at(j).isAvailable())){
-      edm::LogError("EmDQMInvalidRefs") << "Event content inconsistent: TriggerEventWithRefs contains invalid Refs. Invalid refs for: " << theHLTCollectionLabels[n].label() << ". The Collection that this module uses may has been dropped in the event.";
+      if (verbosity >= OUTPUT_ERRORS)
+         edm::LogError("EmDQMInvalidRefs") << "Event content inconsistent: TriggerEventWithRefs contains invalid Refs. Invalid refs for: " << theHLTCollectionLabels[n].label() << ". The Collection that this module uses may has been dropped in the event.";
       return;
     }
   }
@@ -779,11 +784,13 @@ void EmDQM::endJob(){
   // there was at least one label which was never found
   // (note that this could also be because the corresponding
   // trigger path slowly fades out to zero efficiency)
-  edm::LogWarning("EmDQM") << "There were some HLTCollectionLabels which were never found:";
+  if (verbosity >= OUTPUT_WARNINGS)
+     edm::LogWarning("EmDQM") << "There were some HLTCollectionLabels which were never found:";
 
   BOOST_FOREACH(const edm::InputTag &tag, labelsNeverFound)
   {
-    edm::LogPrint("EmDQM") << "  " << tag;
+    if (verbosity >= OUTPUT_ALL)
+       edm::LogPrint("EmDQM") << "  " << tag;
   }
 
 
