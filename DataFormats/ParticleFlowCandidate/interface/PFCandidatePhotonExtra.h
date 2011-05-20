@@ -3,6 +3,7 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 
 #include <iosfwd>
 
@@ -38,6 +39,13 @@ namespace reco {
     /// return Single Leg Conversion mva
     const std::vector<float>& singleLegConvMva() const {return assoSingleLegMva_;}
 
+    /// add Conversions from PF
+    void addConversionRef(const reco::ConversionRef& convref);
+
+    /// return Conversions from PF
+    reco::ConversionRefVector conversionRef() const {return assoConversionsRef_;} 
+
+
  private:
     
     /// Ref to supercluster
@@ -48,6 +56,10 @@ namespace reco {
 
     ///  vector of Mvas from Single Leg conversions
     std::vector<float> assoSingleLegMva_;
+
+    /// vector of ConversionRef from PF
+    reco::ConversionRefVector assoConversionsRef_;
+
   };
 }
 #endif

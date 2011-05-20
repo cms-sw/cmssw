@@ -17,3 +17,7 @@ void PFCandidatePhotonExtra::addSingleLegConvTrackRef(const reco::TrackRef& trac
 void PFCandidatePhotonExtra::addSingleLegConvMva(float& mvasingleleg){
   assoSingleLegMva_.push_back(mvasingleleg);
 }
+
+void PFCandidatePhotonExtra::addConversionRef(const reco::ConversionRef& convref){
+  assoConversionsRef_.push_back(convref);
+}
