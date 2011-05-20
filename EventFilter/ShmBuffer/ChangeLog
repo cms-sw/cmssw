@@ -1,3 +1,8 @@
+2011-05-20  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-08-11
+	* fixed server side discard methods and asserts
+	
 2011-05-11  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-08-10

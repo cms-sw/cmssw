@@ -444,10 +444,8 @@ void FUShmBuffer::scheduleRawCellForDiscardServerSide(unsigned int iCell)
   if (rawCellReadyForDiscard(iCell)) {
     rawDiscardIndex_=iCell;
     evt::State_t  state=evtState(iCell);
-    assert(state==evt::RAWWRITTEN
-	   ||state==evt::LUMISECTION
-	   );
-    setEvtState(iCell,evt::PROCESSED);
+    if(state!=evt::LUMISECTION && state!=evt::EMPTY && state!=evt::USEDLS) setEvtState(iCell,evt::PROCESSED);
+    if(state==evt::LUMISECTION) setEvtState(iCell,evt::USEDLS);
     postRawDiscarded();
   }
   else postRawDiscard();
