@@ -9,7 +9,7 @@ from options import globalTag
 
 class HLTProcess(object):
   # paths not supported by FastSim
-  fastsimUnsupportedPaths = [
+  fastsimUnsupportedPaths = (
 
   # paths for which a recovery is not foreseen/possible
     "AlCa_EcalEta_v*",
@@ -72,7 +72,7 @@ class HLTProcess(object):
     "HLT_HT250_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT35_v*",
     "HLT_HT300_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT40_v*",
     "HLT_HT350_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT45_v*",
-    ]
+  )
 
   def __init__(self, configuration):
     self.config = configuration
