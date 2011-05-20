@@ -105,7 +105,7 @@ private:
   int *oniaPixelchg, *oniaTrackchg, *oniaPixelHits, *oniaTrackHits;
   int nDiMu,nDiMuVtx;
   float *dimudca;
-  int *dimu1st,*dimu2nd;
+  int *dimu1st,*dimu2nd,*dimuvtx1st,*dimuvtx2nd;
   float *dimuvtxchi2,*dimuvtxr,*dimuvtxrsig,*dimuvtxroversig,*dimuvtxcosalpha;
   float *dimuvtxmu2dipmax, *dimuvtxmu2dipmin, *dimuvtxmu2dipsigmax, *dimuvtxmu2dipsigmin;
  	

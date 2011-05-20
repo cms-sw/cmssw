@@ -100,6 +100,8 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 	dimu1st = new int[kMaxDiMu];
 	dimu2nd = new int[kMaxDiMu];
 	const int kMaxDiMuVtx = 500;
+	dimuvtx1st = new int[kMaxDiMuVtx];
+	dimuvtx2nd = new int[kMaxDiMuVtx];
 	dimuvtxchi2 = new float[kMaxDiMuVtx];
 	dimuvtxr = new float[kMaxDiMuVtx];
 	dimuvtxrsig = new float[kMaxDiMuVtx];
@@ -175,12 +177,14 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 	HltTree->Branch("ohMuL2NoVtxPtErr",muonl2novtxpterr,"ohMuL2NoVtxPtErr[NohMuL2NoVtx]/F"); 
 	HltTree->Branch("ohMuL2NoVtxDr",muonl2novtxdr,"ohMuL2NoVtxDr[NohMuL2NoVtx]/F"); 
 	HltTree->Branch("ohMuL2NoVtxDz",muonl2novtxdz,"ohMuL2NoVtxDz[NohMuL2NoVtx]/F"); 
-	HltTree->Branch("ohMuL2NoVtxL1idx",muonl2novtx1idx,"ohMuL2NoVtxL1idx[NohMuL2NoVtx]/I");    
+	HltTree->Branch("ohMuL2NoVtxL1idx",muonl2novtx1idx,"ohMuL2NoVtxL1idx[NohMuL2NoVtx]/I");   
 	HltTree->Branch("NohDiMu",&nDiMu,"NohDiMu/I");    
 	HltTree->Branch("ohDiMuDCA",dimudca,"ohDiMuDCA[NohDiMu]/F");    
 	HltTree->Branch("ohDiMu1st",dimu1st,"ohDiMu1st[NohDiMu]/I");    
 	HltTree->Branch("ohDiMu2nd",dimu2nd,"ohDiMu2nd[NohDiMu]/I");    
 	HltTree->Branch("NohDiMuVtx",&nDiMuVtx,"NohDiMuVtx/I");    
+    	HltTree->Branch("ohDiMuVtx1st",dimuvtx1st,"ohDiMuVtx1st[NohDiMuVtx]/I");    
+	HltTree->Branch("ohDiMuVtx2nd",dimuvtx2nd,"ohDiMuVtx2nd[NohDiMuVtx]/I");    
 	HltTree->Branch("ohDiMuVtxChi2",dimuvtxchi2,"ohDiMuVtxChi2[NohDiMuVtx]/F");    
 	HltTree->Branch("ohDiMuVtxR",dimuvtxr,"ohDiMuVtxR[NohDiMuVtx]/F");    
 	HltTree->Branch("ohDiMuVtxRSig",dimuvtxrsig,"ohDiMuVtxRSig[NohDiMuVtx]/F");    
@@ -426,7 +430,6 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
 				muonl3iso[imu3c] = muon1IsIsolated;
 			}
 			else {muonl3iso[imu3c] = -999;}
-
 			//Check DCA for muon combinations
 			int imu3c2nd = imu3c + 1;// This will be the index in the hltTree for the 2nd muon of the dimuon combination
 
@@ -454,7 +457,8 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
 		}
 		nDiMu = idimuc;
 	}
-	else {nmu3cand = 0; nDiMu = 0;}
+
+	else {nmu3cand = 0;  nDiMu = 0;}
 	// Dealing with dimu vertices
 	reco::VertexCollection myDimuvtxcands3;
 	if (DiMuVtxCands3.isValid()) {
@@ -468,6 +472,11 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
 		  reco::TrackRef vertextkRef1 = (*trackIt).castTo<reco::TrackRef>();
 		  ++trackIt;
 		  reco::TrackRef vertextkRef2 = (*trackIt).castTo<reco::TrackRef>();
+		  dimuvtx2nd[idimu3c] = -1; dimuvtx1st[idimu3c] = -1;
+		  for (int j=0 ; j<nmu3cand ; j++){
+		    if(fabs(muonl3pt[j] - vertextkRef1->pt()) < 0.0001 && fabs(muonl3eta[j] - vertextkRef1->eta()) < 0.0001 && fabs(muonl3phi[j] - vertextkRef1->phi()) < 0.0001) dimuvtx1st[idimu3c] = j; 
+		    if(fabs(muonl3pt[j] - vertextkRef2->pt()) < 0.0001 && fabs(muonl3eta[j] - vertextkRef2->eta()) < 0.0001 && fabs(muonl3phi[j] - vertextkRef2->phi()) < 0.0001) dimuvtx2nd[idimu3c] = j; 
+		  }
 		  math::XYZVector pperp(vertextkRef1->px() + vertextkRef2->px(), 
 					vertextkRef1->py() + vertextkRef2->py(), 
 					0.);

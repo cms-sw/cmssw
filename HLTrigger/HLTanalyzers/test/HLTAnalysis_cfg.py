@@ -56,24 +56,22 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(False)
 )
 
-process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring(
-                                '/store/data/Run2011A/SingleMu/RAW/v1/000/160/406/CA9EFACF-A14D-E011-ACB9-00304879EDEA.root'
-                                )
-                            )
+## process.source = cms.Source("PoolSource",
+##                             fileNames = cms.untracked.vstring(
+##     '/store/data/Run2011A/MuOnia/RAW/v1/000/165/364/1C94C2CB-9382-E011-9913-0030487CD6E8.root'
+##                                 )
+##                             )
 
-##process.source = cms.Source("PoolSource",
-##    fileNames = cms.untracked.vstring(
-##    '/store/data/Run2011A/Jet/RECO/PromptReco-v1/000/161/103/9CE9D4FC-AB56-E011-BB74-0030487CD6E6.root',
-##    '/store/data/Run2011A/Jet/RECO/PromptReco-v1/000/161/103/9802528B-A456-E011-9133-0030487CAF5E.root',
-##    '/store/data/Run2011A/Jet/RECO/PromptReco-v1/000/161/103/10F88E31-9F56-E011-9AEB-0030487CD14E.root'
-##     ),
-##    secondaryFileNames =  cms.untracked.vstring(
-##    '/store/data/Run2011A/Jet/RAW/v1/000/161/103/E26D5DA4-8654-E011-A83F-001D09F28D4A.root',
-##    '/store/data/Run2011A/Jet/RAW/v1/000/161/103/D68B264D-8054-E011-A7B2-001617E30D0A.root',
-##    '/store/data/Run2011A/Jet/RAW/v1/000/161/103/8654BB88-8254-E011-B1A1-001617C3B65A.root'
-##    )
-##)
+process.source = cms.Source("PoolSource",
+   fileNames = cms.untracked.vstring(
+    '/store/data/Run2011A/MuOnia/RECO/PromptReco-v4/000/165/205/86911218-C782-E011-81F3-0019B9F72CE5.root',
+    ),
+   secondaryFileNames =  cms.untracked.vstring(
+    '/store/data/Run2011A/MuOnia/RAW/v1/000/165/205/800B07D2-F680-E011-B2C3-003048F117B4.root',
+    '/store/data/Run2011A/MuOnia/RAW/v1/000/165/205/1C677B58-FA80-E011-A39D-003048F11CF0.root',
+    '/store/data/Run2011A/MuOnia/RAW/v1/000/165/205/0E702227-0281-E011-8081-000423D98950.root'
+   )
+)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( NEVTS ),
