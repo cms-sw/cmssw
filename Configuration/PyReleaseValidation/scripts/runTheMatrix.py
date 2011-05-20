@@ -69,9 +69,9 @@ def runData(testList, nThreads=4, show=False, useInput=None, refRel='', fromScra
 
 # --------------------------------------------------------------------------------
 
-def runAll(testList=None, nThreads=4, show=False, useInput=None, refRel='', fromScratch=None) :
+def runAll(testList=None, nThreads=4, show=False, useInput=None, refRel='', fromScratch=None,what='all') :
 
-    mrd = MatrixReader(noRun=(nThreads==0))
+    mrd = MatrixReader(noRun=(nThreads==0),what=what)
     mrd.prepare(useInput, refRel, fromScratch)
 
     ret = 0
@@ -122,7 +122,7 @@ if __name__ == '__main__':
     import getopt
     
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hj:sl:nqo:d:i:r:", ['help',"nproc=",'selected','list=','showMatrix','only=','data=','useInput=','raw=', 'refRelease=','fromScratch=','step1'])
+        opts, args = getopt.getopt(sys.argv[1:], "hj:sl:nqo:d:i:r:", ['help',"nproc=",'selected','list=','showMatrix','only=','data=','useInput=','raw=', 'refRelease=','fromScratch=','step1','what='])
     except getopt.GetoptError, e:
         print "unknown option", str(e)
         sys.exit(2)
@@ -143,6 +143,7 @@ if __name__ == '__main__':
     raw  = None
     refRel = ''
     step1Only=False
+    what = None
     for opt, arg in opts :
         if opt in ('-h','--help'):
             usage()
@@ -167,6 +168,8 @@ if __name__ == '__main__':
             data = arg.split(',')
         if opt in ('-r','--raw') :
             raw = arg
+        if opt in ('-w','--what'):
+            what=arg
         if opt in ('--step1'):
             step1Only=True
             
@@ -189,6 +192,6 @@ if __name__ == '__main__':
     elif data != None:
         ret = runData(testList=data, show=show, nThreads=np, useInput=useInput, refRel=refRel,fromScratch=fromScratch)
     else:
-        ret = runAll(show=show, nThreads=np, useInput=useInput, refRel=refRel,fromScratch=fromScratch)
+        ret = runAll(show=show, nThreads=np, useInput=useInput, refRel=refRel,fromScratch=fromScratch,what=what)
 
     sys.exit(ret)
