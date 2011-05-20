@@ -10,12 +10,14 @@ LMFDat::LMFDat() : LMFUnique() {
   m_tableName = ""; 
   m_max = -1; 
   _where = "";
+  _wherePars.clear();
 }
 
 LMFDat::LMFDat(EcalDBConnection *c) : LMFUnique(c) {
   m_tableName = "";
   m_max = -1;
   _where = "";
+  _wherePars.clear();
 }
 
 LMFDat::LMFDat(oracle::occi::Environment* env,
@@ -23,6 +25,7 @@ LMFDat::LMFDat(oracle::occi::Environment* env,
   m_tableName = "";
   m_max = -1;
   _where = "";
+  _wherePars.clear();
 }
 
 std::string LMFDat::foreignKeyName() const {
@@ -120,6 +123,17 @@ std::string LMFDat::getIovIdFieldName() const {
 void LMFDat::setWhereClause(std::string where) {
   // to be used by experts to restrict the results of a query
   _where = where;
+}
+
+void LMFDat::setWhereClause(std::string where, 
+			    std::vector<std::string> parameters) {
+  // to be used by experts to restrict the results of a query
+  // in this case the where clause can contains positional parameter,
+  // identified as :/I, :/S, :/F for, respectively, integer, string or
+  // float parameters. The parameters are all passed as strings
+  // in parameters
+  _wherePars  = parameters;
+  _where      = where;
 }
 
 std::string LMFDat::buildSelectSql(int logic_id, int direction) {
@@ -238,6 +252,32 @@ void LMFDat::fetch(int logic_id, const Tm &tm)
   fetch(logic_id, &tm, 1);
 }
 
+void LMFDat::adjustParameters(int count, std::string &sql, 
+			      Statement *stmt) {
+  // adjust positional parameters and change them according to their
+  // decalred type
+  std::size_t nw = 0;
+  std::size_t n = sql.find(":"); 
+  for (int done = 1; done < count; done++) {
+    // skip already bound variables
+    n = sql.find(":", n + 1);
+  }
+  while (n != std::string::npos) {
+    char type = sql.at(n + 1);
+    if (type == 'S') {
+      stmt->setString(nw + count, _wherePars[nw]);
+      nw++;
+    } else if (type == 'F') {
+      stmt->setFloat(nw + count, atof(_wherePars[nw].c_str()));
+      nw++;
+    } else if (type == 'I') {
+      stmt->setInt(nw + count, atoi(_wherePars[nw].c_str()));
+      nw++; 
+    } 
+    n = sql.find(":", n + 1); 
+  }
+}
+
 void LMFDat::fetch(int logic_id, const Tm *timestamp, int direction) 
   throw(std::runtime_error)
 {
@@ -268,8 +308,9 @@ void LMFDat::fetch(int logic_id, const Tm *timestamp, int direction)
 	  stmt->setString(count, timestamp->str());
 	  count++;
 	}
-	stmt->setInt(count, logic_id);
+	stmt->setInt(count++, logic_id);
       }
+      adjustParameters(count, sql, stmt);
       ResultSet *rset = stmt->executeQuery();
       std::vector<float> x;
       int nData = m_keys.size();
