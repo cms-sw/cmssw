@@ -9,7 +9,7 @@ from Configuration.PyReleaseValidation.WorkFlowRunner import WorkFlowRunner
 
 class MatrixRunner(object):
 
-    def __init__(self, wfIn=None, nThrMax=8):
+    def __init__(self, wfIn=None, nThrMax=4):
 
         self.workFlows = wfIn
 
@@ -37,8 +37,13 @@ class MatrixRunner(object):
     	    os.environ['CMS_PATH'] = cmsPath
 
     	report=''    	
+        if self.maxThreads == 0:
+            print 'resetting to default number of threads'
+            self.maxThreads=4
+
     	print 'Running in %s thread(s)' % self.maxThreads
-                
+
+            
         for wf in self.workFlows:
 
             if testList and float(wf.numId) not in [float(x) for x in testList]: continue

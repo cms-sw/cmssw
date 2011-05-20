@@ -28,7 +28,7 @@ def runSelected(testList, nThreads=4, show=False, useInput=None, refRel='', from
                   '123.3', # TTBar FastSim
                    ]
 
-    mrd = MatrixReader()
+    mrd = MatrixReader(noRun=(nThreads==0))
     mrd.prepare(useInput, refRel, fromScratch)
 
     if testList == []:
@@ -71,7 +71,7 @@ def runData(testList, nThreads=4, show=False, useInput=None, refRel='', fromScra
 
 def runAll(testList=None, nThreads=4, show=False, useInput=None, refRel='', fromScratch=None) :
 
-    mrd = MatrixReader()
+    mrd = MatrixReader(noRun=(nThreads==0))
     mrd.prepare(useInput, refRel, fromScratch)
 
     ret = 0

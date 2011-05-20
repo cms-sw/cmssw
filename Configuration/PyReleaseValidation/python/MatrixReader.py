@@ -15,10 +15,10 @@ class MatrixException(Exception):
 
 class MatrixReader(object):
 
-    def __init__(self, what='all'):
+    def __init__(self, what='all',noRun=False):
 
         self.reset(what)
-
+        self.noRun = noRun
         return
 
     def reset(self, what='all'):
@@ -66,6 +66,8 @@ class MatrixReader(object):
                 continue # do not append to cmd, return separately
             #print k,v
             cmd += ' ' + k + ' ' + str(v)
+        if self.noRun:
+            cmd += ' --no_exec '
         return cfg, input, cmd
     
     def readMatrix(self, fileNameIn, useInput=None, refRel='CMSSW_4_2_0_pre2', fromScratch=None):
