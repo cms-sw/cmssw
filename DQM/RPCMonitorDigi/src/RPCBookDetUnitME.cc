@@ -31,7 +31,7 @@ void RPCMonitorDigi::bookRollME(RPCDetId & detId, const edm::EventSetup & iSetup
 
   os.str("");
   os<<"BXDistribution_"<<nameRoll;
-  meMap[os.str()] = dbe->book1D(os.str(), os.str(), 21, -10.5, 10.5);
+  meMap[os.str()] = dbe->book1D(os.str(), os.str(), 9, -4.5, 4.5);
   
   os.str("");
   os<<"ClusterSize_"<<nameRoll;
@@ -49,7 +49,7 @@ void RPCMonitorDigi::bookRollME(RPCDetId & detId, const edm::EventSetup & iSetup
   
   os.str("");
   os<<"NumberOfClusters_"<<nameRoll;
-  meMap[os.str()] = dbe->book1D(os.str(), os.str(),20,0.5,20.5);
+  meMap[os.str()] = dbe->book1D(os.str(), os.str(),10,0.5,10.5);
   
 
   delete folderStr;
@@ -84,9 +84,9 @@ void RPCMonitorDigi::bookSectorRingME(const std::string &recHitType, std::map<st
 	rpcdqm::utils rpcUtils;
 	rpcUtils.labelYAxisRoll( meMap[os.str()], 0, wheel);
 	
-	os.str("");
-	os<<"BxDistribution_Wheel_"<<wheel<<"_Sector_"<<sector;
-	meMap[os.str()] = dbe->book1D(os.str(), os.str(), 11, -5.5, 5.5);
+// 	os.str("");
+// 	os<<"BxDistribution_Wheel_"<<wheel<<"_Sector_"<<sector;
+// 	meMap[os.str()] = dbe->book1D(os.str(), os.str(), 11, -5.5, 5.5);
 
       }
   }
@@ -161,9 +161,9 @@ void RPCMonitorDigi::bookSectorRingME(const std::string &recHitType, std::map<st
 	}
    
         
-	os.str("");
-	os<<"BxDistribution_Disk_"<<(region * disk)<<"_Ring_"<<ring;
-	meMap[os.str()] = dbe->book1D(os.str(), os.str(), 11, -5.5, 5.5);
+// 	os.str("");
+// 	os<<"BxDistribution_Disk_"<<(region * disk)<<"_Ring_"<<ring;
+// 	meMap[os.str()] = dbe->book1D(os.str(), os.str(), 11, -5.5, 5.5);
 	
       }  //loop ring
     } //loop disk
@@ -206,7 +206,7 @@ void RPCMonitorDigi::bookWheelDiskME(const std::string &recHitType, std::map<std
 
     os.str("");
     os<<"BxDistribution_Wheel_"<<wheel;
-    meMap[os.str()] = dbe->book1D(os.str(), os.str(), 11, -5.5, 5.5);
+    meMap[os.str()] = dbe->book1D(os.str(), os.str(), 9, -4.5, 4.5);
     
 
     for(int layer = 1 ; layer <= 6 ; layer ++){
@@ -225,15 +225,7 @@ void RPCMonitorDigi::bookWheelDiskME(const std::string &recHitType, std::map<std
   for (int disk = - RPCMonitorDigi::numberOfDisks_; disk <=  RPCMonitorDigi::numberOfDisks_; disk++){
     
     if(disk == 0) continue;
-    
-    os.str("");
-    os<<"1DOccupancy_Disk_"<<disk;
-    meMap[os.str()] = dbe->book1D(os.str(), os.str(),3 - RPCMonitorDigi::numberOfInnerRings_ + 1, (RPCMonitorDigi::numberOfInnerRings_ - 0.5), 3.5);
-    for(int i= 1 ; i<= 3 - RPCMonitorDigi::numberOfInnerRings_ + 1 ; i++) {
-      label.str("");
-      label<<"Ring "<<RPCMonitorDigi::numberOfInnerRings_+i-1;
-      meMap[os.str()] ->setBinLabel(i, label.str(), 1); 
-    }
+  
 
     os.str("");
     os<<"Occupancy_Ring_vs_Segment_Disk_"<<disk;                                  
@@ -244,7 +236,7 @@ void RPCMonitorDigi::bookWheelDiskME(const std::string &recHitType, std::map<std
 
     os.str("");
     os<<"BxDistribution_Disk_"<<disk;
-    meMap[os.str()] = dbe->book1D(os.str(), os.str(), 11, -5.5, 5.5);
+    meMap[os.str()] = dbe->book1D(os.str(), os.str(), 9, -4.5, 4.5);
 
 
     for(int ring = RPCMonitorDigi::numberOfInnerRings_  ; ring <= 3 ; ring ++){
@@ -258,6 +250,21 @@ void RPCMonitorDigi::bookWheelDiskME(const std::string &recHitType, std::map<std
     }
     
   }
+
+   for(int ring = RPCMonitorDigi::numberOfInnerRings_  ; ring <= 3 ; ring ++){
+     os.str("");
+     os<<"1DOccupancy_Ring_"<<ring;
+     meMap[os.str()] = dbe->book1D(os.str(), os.str(), RPCMonitorDigi::numberOfDisks_ + 1, -(RPCMonitorDigi::numberOfDisks_ + 0.5), (RPCMonitorDigi::numberOfDisks_ + 0.5));
+     for(int xbin= 1 ; xbin<=(RPCMonitorDigi::numberOfDisks_ *2) ; xbin++) {
+       label.str("");
+       if ((xbin - 4)!=0) label<<"Disk "<< (xbin - 4);
+       else label<<"-";
+       meMap[os.str()] ->setBinLabel(xbin, label.str(), 1); 
+     }
+   }
+
+
+
       
   //  return meMap; 
 }
@@ -347,24 +354,19 @@ void RPCMonitorDigi::bookRegionME(const std::string & recHitType, std::map<std::
   }
 
 
-  me = dbe->get(currentFolder+ "/Occupancy_for_Endcap-");
+  me = dbe->get(currentFolder+ "/Occupancy_for_Endcap");
   if (me) dbe->removeElement(me->getName());
-  meMap["Occupancy_for_Endcap-"] = dbe -> book2D("Occupancy_for_Endcap-", "Occupancy Endcap-", 6, 0.5 , 6.5, 4, -4.5, -0.5 );
-  meMap["Occupancy_for_Endcap-"] ->setAxisTitle("Sec", 1);
-  meMap["Occupancy_for_Endcap-"] ->setAxisTitle("Disk", 2);
+  meMap["Occupancy_for_Endcap"] = dbe -> book2D("Occupancy_for_Endcap", "Occupancy Endcap", 6, 0.5, 6.5, 2, 1.5, 3.5);
+  meMap["Occupancy_for_Endcap"] ->setAxisTitle("Disk", 1);
+  meMap["Occupancy_for_Endcap"] ->setAxisTitle("Ring", 2);
+
+
 
   me = dbe->get(currentFolder+ "/Occupancy_for_Barrel");
   if (me) dbe->removeElement(me->getName());
   meMap["Occupancy_for_Barrel"]  = dbe -> book2D("Occupancy_for_Barrel", "Occupancy Barrel", 12, 0.5 , 12.5, 5, -2.5, 2.5 );
   meMap["Occupancy_for_Barrel"] ->setAxisTitle("Sec", 1);
   meMap["Occupancy_for_Barrel"] ->setAxisTitle("Wheel", 2);
-
-
-  me = dbe->get(currentFolder+ "/Occupancy_for_Endcap+");
-  if (me) dbe->removeElement(me->getName());
-  meMap["Occupancy_for_Endcap+"]= dbe -> book2D("Occupancy_for_Endcap+", "Occupancy Endcap+", 6, 0.5 , 6.5, 4, 0.5, 4.5 );
-  meMap["Occupancy_for_Endcap+"] ->setAxisTitle("Sec", 1);
-  meMap["Occupancy_for_Endcap+"] ->setAxisTitle("Disk", 2);
 
 
   //  return meMap; 

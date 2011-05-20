@@ -77,7 +77,7 @@ MonitorElement*> &);
 	MonitorElement * NumberOfMuon_;
 
 	int numberOfDisks_, numberOfInnerRings_;
-	int muonCounter_, noiseCounter_;
+	//	int muonCounter_, noiseCounter_;
 
 	std::map< uint32_t, std::map<std::string, MonitorElement*> >   meMuonCollection;
 	std::map<std::string, MonitorElement*>  wheelDiskMuonCollection;

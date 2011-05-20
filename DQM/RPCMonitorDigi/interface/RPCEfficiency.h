@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2010/01/13 11:25:57 $
- *  $Revision: 1.2 $
+ *  $Date: 2011/03/02 16:45:36 $
+ *  $Revision: 1.5 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -112,7 +112,7 @@ class RPCEfficiency : public edm::EDAnalyzer {
       virtual void beginRun(const edm::Run&, const edm::EventSetup&);
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      std::map<std::string, MonitorElement*> bookDetUnitSeg(RPCDetId & detId,int nstrips, std::string folder);
+      void bookDetUnitSeg(RPCDetId & detId,int nstrips, std::string folder, std::map<std::string, MonitorElement*> & );
       virtual void endRun(const edm::Run& r, const edm::EventSetup& iSetup);
       std::map<DTStationIndex,std::set<RPCDetId> > rollstoreDT;
       std::map<CSCStationIndex,std::set<RPCDetId> > rollstoreCSC;

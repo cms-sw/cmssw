@@ -167,7 +167,7 @@ void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
 	RPCGeomServ rpcsrv(rpcId);
 	std::string nameRoll = rpcsrv.name();
 	if(debug) std::cout<<"Booking for "<<rpcId.rawId()<<std::endl;
-	meCollection[rpcId.rawId()] = bookDetUnitSeg(rpcId,(*r)->nstrips(),folderPath+"MuonSegEff/");
+	bookDetUnitSeg(rpcId,(*r)->nstrips(),folderPath+"MuonSegEff/", 	meCollection[rpcId.rawId()] );
 	 
 	if(region==0&&(incldt||incldtMB4)){
 	  //std::cout<<"--Filling the dtstore"<<rpcId<<std::endl;
