@@ -4,6 +4,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtra.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtraFwd.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
@@ -37,6 +39,7 @@ class PFPhotonAlgo {
   bool isPhotonValidCandidate(const reco::PFBlockRef&  blockRef,
 			      std::vector< bool >&  active,
 			      std::auto_ptr< reco::PFCandidateCollection > &pfPhotonCandidates,
+			      std::vector<reco::PFCandidatePhotonExtra>& pfPhotonExtraCandidates,
 			      std::auto_ptr< reco::PFCandidateCollection > & // this is dummy for noe, can later be used to pass electrons if needed
 			      )
   {
@@ -46,7 +49,8 @@ class PFPhotonAlgo {
     // ... TODO: maybe can be replaced by checking for the size of the CandCollection.....
     RunPFPhoton(blockRef,
 		active,
-		pfPhotonCandidates);
+		pfPhotonCandidates,
+		pfPhotonExtraCandidates);
 
     return isvalid_;
   };
@@ -78,7 +82,8 @@ private:
 
   void RunPFPhoton(const reco::PFBlockRef&  blockRef,
 		   std::vector< bool >& active,
-		   std::auto_ptr< reco::PFCandidateCollection > &pfPhotonCandidates);
+		   std::auto_ptr< reco::PFCandidateCollection > &pfPhotonCandidates,
+		   std::vector<reco::PFCandidatePhotonExtra>& pfPhotonExtraCandidates);
 
   bool EvaluateSingleLegMVA(const reco::PFBlockRef& blockref, 
 			    const reco::Vertex& primaryvtx, 

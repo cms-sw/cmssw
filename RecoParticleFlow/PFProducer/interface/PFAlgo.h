@@ -19,6 +19,8 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateElectronExtra.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateElectronExtraFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtra.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtraFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
@@ -143,7 +145,10 @@ class PFAlgo {
 			 const reco::VertexCollection& primaryVertices );
 
   // Post Electron Extra Ref
-  void setElectronExtraRef(const edm::OrphanHandle<reco::PFCandidateElectronExtraCollection >& extrah);		   
+  void setElectronExtraRef(const edm::OrphanHandle<reco::PFCandidateElectronExtraCollection >& extrah);	
+	   
+  // Post Photon Extra Ref
+  void setPhotonExtraRef(const edm::OrphanHandle<reco::PFCandidatePhotonExtraCollection >& pf_extrah);	
 
   /// \return collection of candidates
   const std::auto_ptr< reco::PFCandidateCollection >& pfCandidates() const {
@@ -160,6 +165,15 @@ class PFAlgo {
   std::auto_ptr< reco::PFCandidateElectronExtraCollection> transferElectronExtra()  {
     std::auto_ptr< reco::PFCandidateElectronExtraCollection> result(new reco::PFCandidateElectronExtraCollection);
     result->insert(result->end(),pfElectronExtra_.begin(),pfElectronExtra_.end());
+    return result;
+  }
+
+
+  /// \return the unfiltered photon extra collection
+  // done this way because the pfPhotonExtra is needed later in the code to create the Refs and with an auto_ptr, it would be destroyed
+  std::auto_ptr< reco::PFCandidatePhotonExtraCollection> transferPhotonExtra()  {
+    std::auto_ptr< reco::PFCandidatePhotonExtraCollection> result(new reco::PFCandidatePhotonExtraCollection);
+    result->insert(result->end(),pfPhotonExtra_.begin(),pfPhotonExtra_.end());
     return result;
   }
 
@@ -276,6 +290,8 @@ class PFAlgo {
 
   /// the unfiltered electron collection 
   reco::PFCandidateElectronExtraCollection    pfElectronExtra_;
+  /// the extra photon collection 
+  reco::PFCandidatePhotonExtraCollection      pfPhotonExtra_; 
 
   ///Checking if a given cluster is a satellite cluster
   ///of a given charged hadron (track)

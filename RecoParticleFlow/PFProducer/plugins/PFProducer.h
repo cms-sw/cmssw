@@ -44,6 +44,7 @@ class PFProducer : public edm::EDProducer {
   std::vector<edm::InputTag>  inputTagCleanedHF_;
   std::string electronOutputCol_;
   std::string electronExtraOutputCol_;
+  std::string photonExtraOutputCol_;
 
   /// verbose ?
   bool  verbose_;

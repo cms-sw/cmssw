@@ -108,6 +108,11 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
     produces<reco::PFCandidateElectronExtraCollection>(electronExtraOutputCol_);
   }
 
+  if (usePFPhotons_) {
+    produces<reco::PFCandidatePhotonExtraCollection>(photonExtraOutputCol_);
+  }
+
+
   double nSigmaECAL 
     = iConfig.getParameter<double>("pf_nsigma_ECAL");
   double nSigmaHCAL 
@@ -469,6 +474,17 @@ PFProducer::produce(Event& iEvent,
     const edm::OrphanHandle<reco::PFCandidateElectronExtraCollection > electronExtraProd=
       iEvent.put(pOutputElectronCandidateExtraCollection,electronExtraOutputCol_);      
     pfAlgo_->setElectronExtraRef(electronExtraProd);
+  }
+
+  // Daniele 18/05/2011
+  // Save the PFPhoton Extra Collection First as to be able to create valid References  
+  if(usePFPhotons_)   {  
+    auto_ptr< reco::PFCandidatePhotonExtraCollection >
+      pOutputPhotonCandidateExtraCollection( pfAlgo_->transferPhotonExtra() ); 
+
+    const edm::OrphanHandle<reco::PFCandidatePhotonExtraCollection > photonExtraProd=
+      iEvent.put(pOutputPhotonCandidateExtraCollection,photonExtraOutputCol_);      
+    pfAlgo_->setPhotonExtraRef(photonExtraProd);
   }
 
 

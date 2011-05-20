@@ -331,6 +331,7 @@ void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks ) {
 
   // not a auto_ptr; shout not be deleted after transfer
   pfElectronExtra_.clear();
+  pfPhotonExtra_.clear();
   
   if( debug_ ) {
     cout<<"*********************************************************"<<endl;
@@ -461,10 +462,11 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     
     if(debug_)
       cout<<endl<<"--------------- entering PFPhotonAlgo ----------------"<<endl;
-    
+    vector<PFCandidatePhotonExtra> pfPhotonExtraCand;
     if ( pfpho_->isPhotonValidCandidate(blockref,               // passing the reference to the PFBlock
 					active,                 // std::vector<bool> containing information about acitivity
 					pfPhotonCandidates_,    // pointer to candidate vector, to be filled by the routine
+					pfPhotonExtraCand,      // candidate extra vector, to be filled by the routine   
 					pfElectronCandidates_   // pointer to some auziliary UNTOUCHED FOR NOW
 					) ) {
       if(debug_)
@@ -474,11 +476,15 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       // ........ we should NOT fill the PFCandidate-vector with the electrons above (***)
       
       // Here we need to add all the photon cands to the pfCandidate list
+      unsigned int extracand =0;
       PFCandidateCollection::const_iterator cand = pfPhotonCandidates_->begin();      
-      for( ; cand != pfPhotonCandidates_->end(); ++cand)
-	pfCandidates_->push_back(*cand);      
+      for( ; cand != pfPhotonCandidates_->end(); ++cand, ++extracand) {
+	pfCandidates_->push_back(*cand);    
+	pfPhotonExtra_.push_back(pfPhotonExtraCand[extracand]);
+      }
       
     } // end of 'if' in case photons are found    
+    pfPhotonExtraCand.clear();
     pfPhotonCandidates_->clear();
   } // end of Photon algo
   
@@ -3858,4 +3864,30 @@ void PFAlgo::setElectronExtraRef(const edm::OrphanHandle<reco::PFCandidateElectr
     }
   }
 
+}
+void PFAlgo::setPhotonExtraRef(const edm::OrphanHandle<reco::PFCandidatePhotonExtraCollection >& ph_extrah) {
+  if(!usePFPhotons_) return;  
+  unsigned int size=pfCandidates_->size();
+  unsigned int sizePhExtra = pfPhotonExtra_.size();
+  for(unsigned ic=0;ic<size;++ic) {
+    // select the electrons and add the extra
+    if((*pfCandidates_)[ic].particleId()==PFCandidate::gamma && (*pfCandidates_)[ic].mva_nothing_gamma() > 0.99) {
+      if((*pfCandidates_)[ic].superClusterRef().isNonnull()) {
+	bool found = false;
+	for(unsigned pcextra=0;pcextra<sizePhExtra;++pcextra) {
+	  if((*pfCandidates_)[ic].superClusterRef() == pfPhotonExtra_[pcextra].superClusterRef()) {
+	    reco::PFCandidatePhotonExtraRef theRef(ph_extrah,pcextra);
+	    (*pfCandidates_)[ic].setPFPhotonExtraRef(theRef);
+	    found = true;
+	    break;
+	  }
+	}
+	if(!found) 
+	  (*pfCandidates_)[ic].setPFPhotonExtraRef((PFCandidatePhotonExtraRef())); // null ref
+      }
+      else {
+	(*pfCandidates_)[ic].setPFPhotonExtraRef((PFCandidatePhotonExtraRef())); // null ref
+      }
+    }
+  }      
 }

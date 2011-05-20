@@ -45,7 +45,8 @@ PFPhotonAlgo::PFPhotonAlgo(std::string mvaweightfile,
 
 void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 			       std::vector<bool>& active,
-			       std::auto_ptr<PFCandidateCollection> &pfCandidates){
+			       std::auto_ptr<PFCandidateCollection> &pfCandidates,
+			       std::vector<reco::PFCandidatePhotonExtra>& pfPhotonExtraCandidates){
   
   //std::cout<<" calling RunPFPhoton "<<std::endl;
   
@@ -66,6 +67,12 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
   std::vector<bool>::const_iterator                      actIter          = active.begin();
   PFBlock::LinkData                                      linkData         = blockRef->linkData();
   bool                                                   isActive         = true;
+
+
+  // Daniele example for mvaValues
+  // do the same for single leg trackRef and convRef
+  //  vector<float> mvaValues;
+
 
   if(elements.size() != active.size()) {
     // throw excpetion...
@@ -310,6 +317,12 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	//Check if track is a Single leg from a Conversion  
 	mvaValue=-999;  
 	hasSingleleg=EvaluateSingleLegMVA(blockRef,  primaryVertex_, track->second);  
+
+	// Daniele; example for mvaValues, do the same for single leg trackRef and convRef
+	//          
+	// 	if(hasSingleleg)
+	// 	  mvaValues.push_back(mvaValue);
+
 	//If it is not then it will be used to check Track Isolation at the end  
 	if(!hasSingleleg)  
 	  {  
@@ -606,6 +619,17 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	if(active[*it])photonCand.addElementInBlock(blockRef,*it);
 	active[*it] = false;
       }
+
+    // here add the extra information
+    PFCandidatePhotonExtra myExtra(sc->superClusterRef());
+
+    //    Daniele example for mvaValues
+    //    do the same for single leg trackRef and convRef
+    //    for(unsigned int ic = 0; ic < mvaValues.size(); ic++)
+    //       myExtra.addSingleLegConvMva(mvaValues[ic]);
+  
+    pfPhotonExtraCandidates.push_back(myExtra);
+
     pfCandidates->push_back(photonCand);
     // ... and reset the vector
     elemsToLock.resize(0);
