@@ -7,7 +7,7 @@
 [oval run] TEST_GLOBAL_STARTUP_TAG = START310_V3
 [oval run] TEST_GLOBAL_VERSION = v1
 [oval run] TEST_OUTPUT_BASE = electronHistos.root
-[oval run] TEST_OUTPUT_FILE = electronHistos.${OVAL_ENVNAME}.root
+[oval run] TEST_HISTOS_FILE = electronHistos.${OVAL_ENVNAME}.root
 [oval run] TEST_OUTPUT_LOGS = *.${OVAL_ENVNAME}.olog
 [oval run] DBS_RELEASE = CMSSW_${TEST_RELEASE}
 [oval run] DBS_TIER = -RECO

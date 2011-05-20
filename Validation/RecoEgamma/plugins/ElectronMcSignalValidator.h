@@ -2,7 +2,8 @@
 #ifndef Validation_RecoEgamma_ElectronMcSignalValidator_h
 #define Validation_RecoEgamma_ElectronMcSignalValidator_h
 
-#include "Validation/RecoEgamma/interface/ElectronValidator.h"
+#include "DQMOffline/EGamma/interface/ElectronDqmAnalyzerBase.h"
+//#include "Validation/RecoEgamma/interface/ElectronValidator.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -12,15 +13,13 @@ class MagneticField;
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-class ElectronMcSignalValidator : public ElectronValidator
+class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
  {
   public:
 
     explicit ElectronMcSignalValidator( const edm::ParameterSet & conf ) ;
     virtual ~ElectronMcSignalValidator() ;
-
-    virtual void beginJob() ;
-    virtual void endJob() ;
+    virtual void book() ;
     virtual void analyze( const edm::Event& e, const edm::EventSetup & c ) ;
 
   private:
@@ -32,7 +31,7 @@ class ElectronMcSignalValidator : public ElectronValidator
     edm::InputTag electronSeedCollection_;
     edm::InputTag beamSpotTag_ ;
     bool readAOD_;
-    std::string outputFile_ ;
+    //std::string outputFile_ ;
 
     TrajectoryStateTransform transformer_ ;
     edm::ESHandle<TrackerGeometry> pDD ;
@@ -72,31 +71,31 @@ class ElectronMcSignalValidator : public ElectronValidator
     MonitorElement *h1_eleNum;
     MonitorElement *h1_gamNum;
 
-    MonitorElement *h1_recEleNum_ ;
-    MonitorElement *h1_recCoreNum_ ;
-    MonitorElement *h1_recTrackNum_ ;
-    MonitorElement *h1_recSeedNum_ ;
+    MonitorElement *h1_recEleNum;
+    MonitorElement *h1_recCoreNum;
+    MonitorElement *h1_recTrackNum;
+    MonitorElement *h1_recSeedNum;
 
-    MonitorElement *h1_simEta;
-    MonitorElement *h1_simAbsEta;
-    MonitorElement *h1_simP;
-    MonitorElement *h1_simPt;
-    MonitorElement *h1_simPhi;
-    MonitorElement *h1_simZ;
-    MonitorElement *h2_simPtEta;
+    MonitorElement *h1_mc_Eta;
+    MonitorElement *h1_mc_AbsEta;
+    MonitorElement *h1_mc_P;
+    MonitorElement *h1_mc_Pt;
+    MonitorElement *h1_mc_Phi;
+    MonitorElement *h1_mc_Z;
+    MonitorElement *h2_mc_PtEta;
 
-    MonitorElement *h1_ele_simEta_matched;
-    MonitorElement *h1_ele_simAbsEta_matched;
-    MonitorElement *h1_ele_simPt_matched;
-    MonitorElement *h1_ele_simPhi_matched;
-    MonitorElement *h1_ele_simZ_matched;
-    MonitorElement *h2_ele_simPtEta_matched;
+    MonitorElement *h1_mc_Eta_matched;
+    MonitorElement *h1_mc_AbsEta_matched;
+    MonitorElement *h1_mc_Pt_matched;
+    MonitorElement *h1_mc_Phi_matched;
+    MonitorElement *h1_mc_Z_matched;
+    MonitorElement *h2_mc_PtEta_matched;
 
-    MonitorElement *h1_ele_simEta_matched_qmisid;
-    MonitorElement *h1_ele_simAbsEta_matched_qmisid;
-    MonitorElement *h1_ele_simPt_matched_qmisid;
-    MonitorElement *h1_ele_simPhi_matched_qmisid;
-    MonitorElement *h1_ele_simZ_matched_qmisid;
+    MonitorElement *h1_mc_Eta_matched_qmisid;
+    MonitorElement *h1_mc_AbsEta_matched_qmisid;
+    MonitorElement *h1_mc_Pt_matched_qmisid;
+    MonitorElement *h1_mc_Phi_matched_qmisid;
+    MonitorElement *h1_mc_Z_matched_qmisid;
 
     MonitorElement *h1_ele_EoverP_all;
     MonitorElement *h1_ele_EoverP_all_barrel;
@@ -165,7 +164,7 @@ class ElectronMcSignalValidator : public ElectronValidator
     MonitorElement *h2_ele_vertexTIPVsPhi;
     MonitorElement *h2_ele_vertexTIPVsPt;
 
-    MonitorElement *h1_scl_En_ ;
+    MonitorElement *h1_scl_En;
     MonitorElement *h1_scl_EoEtrue_barrel;
     MonitorElement *h1_scl_EoEtrue_endcaps;
     MonitorElement *h1_scl_EoEtrue_barrel_eg;
@@ -184,45 +183,45 @@ class ElectronMcSignalValidator : public ElectronValidator
     MonitorElement *h1_scl_EoEtrue_ebeegap_new;
     MonitorElement *h1_scl_EoEtrue_endcaps_new_deegap;
     MonitorElement *h1_scl_EoEtrue_endcaps_new_ringgap;
-    MonitorElement *h1_scl_Et_ ;
-    MonitorElement *h2_scl_EtVsEta_ ;
-    MonitorElement *h2_scl_EtVsPhi_ ;
-    MonitorElement *h2_scl_EtaVsPhi_ ;
-    MonitorElement *h1_scl_Eta_ ;
-    MonitorElement *h1_scl_Phi_ ;
+    MonitorElement *h1_scl_Et;
+    MonitorElement *h2_scl_EtVsEta;
+    MonitorElement *h2_scl_EtVsPhi;
+    MonitorElement *h2_scl_EtaVsPhi;
+    MonitorElement *h1_scl_Eta;
+    MonitorElement *h1_scl_Phi;
 
     MonitorElement *h2_scl_EoEtruePfVsEg ;
 
-    MonitorElement *h1_scl_SigEtaEta_ ;
-    MonitorElement *h1_scl_SigEtaEta_barrel_ ;
-    MonitorElement *h1_scl_SigEtaEta_endcaps_ ;
-    MonitorElement *h1_scl_SigIEtaIEta_ ;
-    MonitorElement *h1_scl_SigIEtaIEta_barrel_ ;
-    MonitorElement *h1_scl_SigIEtaIEta_endcaps_ ;
-    MonitorElement *h1_scl_E1x5_ ;
-    MonitorElement *h1_scl_E1x5_barrel_ ;
-    MonitorElement *h1_scl_E1x5_endcaps_ ;
-    MonitorElement *h1_scl_E2x5max_ ;
-    MonitorElement *h1_scl_E2x5max_barrel_ ;
-    MonitorElement *h1_scl_E2x5max_endcaps_ ;
-    MonitorElement *h1_scl_E5x5_ ;
-    MonitorElement *h1_scl_E5x5_barrel_ ;
-    MonitorElement *h1_scl_E5x5_endcaps_ ;
-    MonitorElement *h1_scl_SigEtaEta_eg_ ;
-    MonitorElement *h1_scl_SigEtaEta_eg_barrel_ ;
-    MonitorElement *h1_scl_SigEtaEta_eg_endcaps_ ;
-    MonitorElement *h1_scl_SigIEtaIEta_eg_ ;
-    MonitorElement *h1_scl_SigIEtaIEta_eg_barrel_ ;
-    MonitorElement *h1_scl_SigIEtaIEta_eg_endcaps_ ;
-    MonitorElement *h1_scl_E1x5_eg_ ;
-    MonitorElement *h1_scl_E1x5_eg_barrel_ ;
-    MonitorElement *h1_scl_E1x5_eg_endcaps_ ;
-    MonitorElement *h1_scl_E2x5max_eg_;
-    MonitorElement *h1_scl_E2x5max_eg_barrel_;
-    MonitorElement *h1_scl_E2x5max_eg_endcaps_;
-    MonitorElement *h1_scl_E5x5_eg_ ;
-    MonitorElement *h1_scl_E5x5_eg_barrel_ ;
-    MonitorElement *h1_scl_E5x5_eg_endcaps_ ;
+    MonitorElement *h1_scl_SigEtaEta;
+    MonitorElement *h1_scl_SigEtaEta_barrel;
+    MonitorElement *h1_scl_SigEtaEta_endcaps;
+    MonitorElement *h1_scl_SigIEtaIEta;
+    MonitorElement *h1_scl_SigIEtaIEta_barrel;
+    MonitorElement *h1_scl_SigIEtaIEta_endcaps;
+    MonitorElement *h1_scl_E1x5;
+    MonitorElement *h1_scl_E1x5_barrel;
+    MonitorElement *h1_scl_E1x5_endcaps;
+    MonitorElement *h1_scl_E2x5max;
+    MonitorElement *h1_scl_E2x5max_barrel;
+    MonitorElement *h1_scl_E2x5max_endcaps;
+    MonitorElement *h1_scl_E5x5;
+    MonitorElement *h1_scl_E5x5_barrel;
+    MonitorElement *h1_scl_E5x5_endcaps;
+    MonitorElement *h1_scl_SigEtaEta_eg;
+    MonitorElement *h1_scl_SigEtaEta_eg_barrel;
+    MonitorElement *h1_scl_SigEtaEta_eg_endcaps;
+    MonitorElement *h1_scl_SigIEtaIEta_eg;
+    MonitorElement *h1_scl_SigIEtaIEta_eg_barrel;
+    MonitorElement *h1_scl_SigIEtaIEta_eg_endcaps;
+    MonitorElement *h1_scl_E1x5_eg;
+    MonitorElement *h1_scl_E1x5_eg_barrel;
+    MonitorElement *h1_scl_E1x5_eg_endcaps;
+    MonitorElement *h1_scl_E2x5max_eg;
+    MonitorElement *h1_scl_E2x5max_eg_barrel;
+    MonitorElement *h1_scl_E2x5max_eg_endcaps;
+    MonitorElement *h1_scl_E5x5_eg;
+    MonitorElement *h1_scl_E5x5_eg_barrel;
+    MonitorElement *h1_scl_E5x5_eg_endcaps;
 
     MonitorElement *h1_ele_ambiguousTracks;
     MonitorElement *h2_ele_ambiguousTracksVsEta;
@@ -382,29 +381,28 @@ class ElectronMcSignalValidator : public ElectronValidator
     MonitorElement *h2_ele_dPhiEleClVsPhi_propOut;
     MonitorElement *h2_ele_dPhiEleClVsPt_propOut;
 
-    MonitorElement *h1_ele_seed_subdet2_;
-    MonitorElement *h1_ele_seed_mask_;
-    MonitorElement *h1_ele_seed_mask_bpix_;
-    MonitorElement *h1_ele_seed_mask_fpix_;
-    MonitorElement *h1_ele_seed_mask_tec_;
-    MonitorElement *h1_ele_seed_dphi2_;
-    MonitorElement *h2_ele_seed_dphi2VsEta_;
-    MonitorElement *h2_ele_seed_dphi2VsPt_ ;
-    MonitorElement *h1_ele_seed_dphi2pos_;
-    MonitorElement *h2_ele_seed_dphi2posVsEta_;
-    MonitorElement *h2_ele_seed_dphi2posVsPt_ ;
-    MonitorElement *h1_ele_seed_drz2_;
-    MonitorElement *h2_ele_seed_drz2VsEta_;
-    MonitorElement *h2_ele_seed_drz2VsPt_;
-    MonitorElement *h1_ele_seed_drz2pos_;
-    MonitorElement *h2_ele_seed_drz2posVsEta_;
-    MonitorElement *h2_ele_seed_drz2posVsPt_;
+    MonitorElement *h1_ele_seed_subdet2;
+    MonitorElement *h1_ele_seed_mask;
+    MonitorElement *h1_ele_seed_mask_bpix;
+    MonitorElement *h1_ele_seed_mask_fpix;
+    MonitorElement *h1_ele_seed_mask_tec;
+    MonitorElement *h1_ele_seed_dphi2;
+    MonitorElement *h2_ele_seed_dphi2VsEta;
+    MonitorElement *h2_ele_seed_dphi2VsPt;
+    MonitorElement *h1_ele_seed_dphi2pos;
+    MonitorElement *h2_ele_seed_dphi2posVsEta;
+    MonitorElement *h2_ele_seed_dphi2posVsPt;
+    MonitorElement *h1_ele_seed_drz2;
+    MonitorElement *h2_ele_seed_drz2VsEta;
+    MonitorElement *h2_ele_seed_drz2VsPt;
+    MonitorElement *h1_ele_seed_drz2pos;
+    MonitorElement *h2_ele_seed_drz2posVsEta;
+    MonitorElement *h2_ele_seed_drz2posVsPt;
 
     MonitorElement *h1_ele_classes;
     MonitorElement *h1_ele_eta;
     MonitorElement *h1_ele_eta_golden;
     MonitorElement *h1_ele_eta_bbrem;
-    MonitorElement *h1_ele_eta_narrow;
     MonitorElement *h1_ele_eta_shower;
 
     MonitorElement *h1_ele_HoE;

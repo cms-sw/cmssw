@@ -9,7 +9,7 @@ process.source.secondaryFileNames = cms.untracked.vstring()
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
-process.RECOSIMoutput.fileName = cms.untracked.string(os.environ['TEST_OUTPUT_FILE'])
+process.RECOSIMoutput.fileName = cms.untracked.string(os.environ['TEST_HISTOS_FILE'])
 process.RECOSIMoutput.outputCommands = cms.untracked.vstring('drop *', 
   'keep recoBeamSpot*_*_*_*',
   'keep recoGenParticle*_*_*_*',

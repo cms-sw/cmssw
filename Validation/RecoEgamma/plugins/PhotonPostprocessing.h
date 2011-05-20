@@ -1,5 +1,5 @@
-#ifndef ConversionPostprocessing_H
-#define ConversionPostprocessing_H
+#ifndef PhotonPostprocessing_H
+#define PhotonPostprocessing_H
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -31,11 +31,11 @@
 
 #include <vector>
 
-/** \class ConversionPostprocessing
+/** \class PhotonPostprocessing
  **  
  **
- **  $Id: ConversionPostprocessing
- **  $Date: 2010/10/20 12:33:40 $ 
+ **  $Id: PhotonPostprocessing
+ **  $Date: 2011/03/29 14:32:27 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **     
@@ -50,14 +50,14 @@ class TProfile;
 class TTree;
 
 
-class ConversionPostprocessing : public edm::EDAnalyzer
+class PhotonPostprocessing : public edm::EDAnalyzer
 {
 
  public:
    
   //
-  explicit ConversionPostprocessing( const edm::ParameterSet& pset ) ;
-  virtual ~ConversionPostprocessing();
+  explicit PhotonPostprocessing( const edm::ParameterSet& pset ) ;
+  virtual ~PhotonPostprocessing();
                                    
       
   virtual void analyze(const edm::Event&, const edm::EventSetup&  ) ;
@@ -65,6 +65,7 @@ class ConversionPostprocessing : public edm::EDAnalyzer
   virtual void endJob() ;
   virtual void endLuminosityBlock( const edm::LuminosityBlock& , const edm::EventSetup& ) ;
   virtual void endRun(const edm::Run& , const edm::EventSetup& ) ;
+ 
 
  private:
   //
@@ -79,7 +80,8 @@ class ConversionPostprocessing : public edm::EDAnalyzer
   int verbosity_;
 
   edm::ParameterSet parameters_;
-  
+
+
   bool standAlone_;
   bool batch_;
   std::string outputFileName_;
@@ -104,7 +106,16 @@ class ConversionPostprocessing : public edm::EDAnalyzer
   double zMin;
   double zMax;
   int    zBin;
-  
+
+
+
+  MonitorElement*  phoRecoEffEta_;
+  MonitorElement*  phoRecoEffPhi_;
+  MonitorElement*  phoRecoEffEt_;
+
+  MonitorElement*  phoDeadChEta_;
+  MonitorElement*  phoDeadChPhi_;
+  MonitorElement*  phoDeadChEt_;
 
 
   MonitorElement*  convEffEtaTwoTracks_;
@@ -118,12 +129,25 @@ class ConversionPostprocessing : public edm::EDAnalyzer
   MonitorElement*  convEffRTwoTracksAndVtxProbGT0_;
   MonitorElement*  convEffRTwoTracksAndVtxProbGT0005_;
 
+  MonitorElement*  convEffEtaOneTrack_;
+  MonitorElement*  convEffROneTrack_;
+  MonitorElement*  convEffEtOneTrack_;
 
   MonitorElement*  convFakeRateEtaTwoTracks_;
   MonitorElement*  convFakeRatePhiTwoTracks_;
   MonitorElement*  convFakeRateRTwoTracks_;
   MonitorElement*  convFakeRateZTwoTracks_;
   MonitorElement*  convFakeRateEtTwoTracks_;
+
+  MonitorElement*  bkgRecoEffEta_;
+  MonitorElement*  bkgRecoEffPhi_;
+  MonitorElement*  bkgRecoEffEt_;
+
+  MonitorElement*  bkgDeadChEta_;
+  MonitorElement*  bkgDeadChPhi_;
+  MonitorElement*  bkgDeadChEt_;
+
+  MonitorElement*  convVsEt_[2];
 
    
 };

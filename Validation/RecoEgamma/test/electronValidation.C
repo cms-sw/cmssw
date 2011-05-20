@@ -66,13 +66,15 @@ void CompareHistoNames
   Join(h2_tokens,h2_specific) ;
  }
 
-void RenderHisto( TObject * obj )
+void RenderHisto( TObject * obj, TCanvas * canvas )
  {
   assert(obj->InheritsFrom("TH1")) ;
+  TH1 * histo = dynamic_cast<TH1*>(obj) ;
+  assert(histo) ;
 
-  //TString histo_option = ((TH1 *)obj)->GetOption() ;
-  //if (histo_option.Contains("ELE_LOGY")==kTRUE)
-  // { c->SetLogy(1) ; }
+  TString histo_option = ((TH1 *)obj)->GetOption() ;
+  if ((histo_option.Contains("ELE_LOGY")==kTRUE)&&(histo->GetMaximum()>0))
+   { canvas->SetLogy(1) ; }
 
   int histo_name_flag = 1 ; // use 0 to switch off
   if ( obj->InheritsFrom("TH2") )
@@ -151,10 +153,11 @@ int electronValidation()
 
   gROOT->ForceStyle();
 
-  TString internal_path("DQMData/EgammaV/") ;
+  TString internal_path("DQMData/Run 1/EgammaV/Run summary/") ;
+  TString old_internal_path("DQMData/EgammaV/") ;
 
   TString val_ref_file_url ;
-  TString file_ref_dir = internal_path ;
+  TString file_ref_dir ;
   TFile * file_ref = 0 ;
   if ( val_ref_file_name != "" )
    {
@@ -168,15 +171,22 @@ int electronValidation()
         val_ref_file_url.Remove(0,val_web.Length()) ;
         val_ref_file_url.Prepend(val_web_url) ;
        }
-      if (file_ref->cd(internal_path)!=kTRUE)
+      if (file_ref->cd(internal_path)==kTRUE)
        {
-        std::cerr<<"Failed move to: "<<internal_path<<std::endl ;
-        file_ref_dir = "" ;
+        std::cerr<<"cd "<<internal_path<<std::endl ;
+        file_ref_dir = internal_path ;
+        file_ref->cd() ;
+       }
+      else if (file_ref->cd(old_internal_path)==kTRUE)
+       {
+        std::cerr<<"cd "<<old_internal_path<<std::endl ;
+        file_ref_dir = old_internal_path ;
+        file_ref->cd() ;
        }
       else
        {
-        std::cerr<<"cd "<<internal_path<<std::endl ;
-        file_ref->cd() ;
+        std::cerr<<"Failed move to: "<<internal_path<<" and "<<old_internal_path<<std::endl ;
+        file_ref_dir = "" ;
        }
      }
     else
@@ -198,15 +208,22 @@ int electronValidation()
         val_new_file_url.Remove(0,val_web.Length()) ;
         val_new_file_url.Prepend(val_web_url) ;
        }
-      if (file_new->cd(internal_path)!=kTRUE)
+      if (file_new->cd(internal_path)==kTRUE)
        {
-        std::cerr<<"Failed move to: "<<internal_path<<std::endl ;
-        file_new_dir = "" ;
+        std::cerr<<"cd "<<internal_path<<std::endl ;
+        file_new_dir = internal_path ;
+        file_new->cd() ;
+       }
+      else if (file_new->cd(old_internal_path)==kTRUE)
+       {
+        std::cerr<<"cd "<<old_internal_path<<std::endl ;
+        file_new_dir = old_internal_path ;
+        file_new->cd() ;
        }
       else
        {
-        std::cerr<<"cd "<<internal_path<<std::endl ;
-        file_new->cd() ;
+        std::cerr<<"Failed move to: "<<internal_path<<" and "<<old_internal_path<<std::endl ;
+        file_new_dir = "" ;
        }
      }
     else
@@ -247,8 +264,8 @@ int electronValidation()
    }
   web_page
     <<" They were made using analyzer "
-    <<"<a href=\"http://cmslxr.fnal.gov/lxr/source/Validation/RecoEgamma/interface/"<<val_analyzer<<".h\">"
-    <<"Validation/RecoEgamma/interface/"<<val_analyzer<<".h"
+    <<"<a href=\"http://cmslxr.fnal.gov/lxr/source/Validation/RecoEgamma/plugins/"<<val_analyzer<<".h\">"
+    <<"Validation/RecoEgamma/plugins/"<<val_analyzer<<".h"
     <<"</a> and configuration "
     <<"<a href=\"http://cmslxr.fnal.gov/lxr/source/Validation/RecoEgamma/test/"<<val_configuration<<"\">"
     <<"Validation/RecoEgamma/test/"<<val_configuration
@@ -268,13 +285,14 @@ int electronValidation()
   TString dl_short_histo_name, dl_histo_name ;
   TString num_ref, denom_ref, num_full, denom_full ;
   Int_t n_ele_charge ;
-  int scaled, log, err ;
+  int scaled, err ;
   int divide;
-  std::string histo_path, num, denom, cat ;
+  std::string cat, line, histo_path, num, denom ;
   int eol ; // end of line
   int eoc ; // enf of category
 
   std::ifstream histo_file1(histos_path.c_str()) ;
+  
   web_page
     <<"<br><table border=\"1\" cellpadding=\"5\" width=\"100%\">"
     <<"<tr valign=\"top\"><td width=\"20%\">\n" ;
@@ -284,12 +302,21 @@ int electronValidation()
   do
    {
     std::getline(histo_file1,cat) ;
-   } while (cat.empty()) ;
+   } while (cat.find_first_not_of(" \t")==std::string::npos) ;
 
   web_page<<"<b>"<<cat<<"</b><br><br>" ;
 
-  while (histo_file1>>histo_path>>scaled>>log>>err>>divide>>num>>denom>>eol>>eoc)
+  while (std::getline(histo_file1,line))
    {
+    if (line.empty()) continue ;
+    std::size_t first = line.find_first_not_of(" \t") ;
+    if (first==std::string::npos) continue ;
+    if (line[first]=='#') continue ;
+    
+    std::istringstream linestream(line) ;
+    divide = 0 ; num = denom = "" ;
+    linestream >> histo_path >> scaled >> err >> eol >> eoc >> divide >> num >> denom ;
+   
     histo_name = histo_path ;
     Ssiz_t pos = histo_name.Last('/') ;
     if (pos!=kNPOS) histo_name.Remove(0,pos+1) ;
@@ -341,7 +368,7 @@ int electronValidation()
       do
        {
         std::getline(histo_file1,cat) ;
-       } while (cat.empty()) ;
+       } while (cat.find_first_not_of(" \t")==std::string::npos) ;
       web_page<<"<b>"<<cat<<"</b><br><br>" ;
      }
    }
@@ -358,8 +385,17 @@ int electronValidation()
     std::getline(histo_file2,cat) ;
    } while (cat.empty()) ;
 
-  while (histo_file2>>histo_path>>scaled>>log>>err>>divide>>num>>denom>>eol>>eoc)
+  while (std::getline(histo_file2,line))
    {
+    if (line.empty()) continue ;
+    std::size_t first = line.find_first_not_of(" \t") ;
+    if (first==std::string::npos) continue ;
+    if (line[first]=='#') continue ;
+    
+    std::istrstream linestream(line) ;
+    divide = 0 ; num = denom = "" ;
+    linestream >> histo_path >> scaled >> err >> eol >> eoc >> divide >> num >> denom ;
+
     histo_name = histo_path.c_str() ;
     histo_ref = 0 ;
     histo_new = 0 ;
@@ -438,7 +474,7 @@ int electronValidation()
       histo_new->SetLineColor(kRed) ;
       histo_new->SetMarkerColor(2) ;
       histo_new->SetLineWidth(3) ;
-      RenderHisto(histo_new) ;
+      RenderHisto(histo_new,canvas) ;
       histo_new->Draw(newDrawOptions) ;
       canvas->Update() ;
       st_new = (TPaveStats*)histo_new->FindObject("stats");
@@ -460,7 +496,7 @@ int electronValidation()
            }
           histo_ref = DivideHistos(file_ref,histo_ref,file_ref_dir+num_ref,file_ref_dir+denom_ref) ;
          }
-        RenderHisto(histo_ref) ;
+        RenderHisto(histo_ref,canvas) ;
         histo_ref->SetLineColor(kBlue) ;
         histo_ref->SetLineWidth(3) ;
         histo_ref->Draw("sames hist") ;
@@ -481,8 +517,8 @@ int electronValidation()
       if (st_new!=0) st_new->Draw() ;
 
       // eventual log scale
-      if ( (log==1) && ( (histo_new->GetEntries()>0) || ( (histo_ref!=0) && (histo_ref->GetEntries()!=0) ) ) )
-       { canvas->SetLogy(1) ; }
+      //if ( (log==1) && ( (histo_new->GetEntries()>0) || ( (histo_ref!=0) && (histo_ref->GetEntries()!=0) ) ) )
+      // { canvas->SetLogy(1) ; }
 
       std::cout<<histo_name
         <<" has "<<histo_new->GetEffectiveEntries()<<" entries"

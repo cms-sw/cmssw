@@ -2,7 +2,8 @@
 #ifndef Validation_RecoEgamma_ElectronMcFakeValidator_h
 #define Validation_RecoEgamma_ElectronMcFakeValidator_h
 
-#include "Validation/RecoEgamma/interface/ElectronValidator.h"
+#include "DQMOffline/EGamma/interface/ElectronDqmAnalyzerBase.h"
+//#include "Validation/RecoEgamma/interface/ElectronValidator.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -12,15 +13,13 @@ class MagneticField;
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-class ElectronMcFakeValidator : public ElectronValidator
+class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
  {
   public:
 
     explicit ElectronMcFakeValidator( const edm::ParameterSet & conf ) ;
     virtual ~ElectronMcFakeValidator() ;
-
-    virtual void beginJob() ;
-    virtual void endJob() ;
+    virtual void book() ;
     virtual void analyze( const edm::Event& e, const edm::EventSetup & c ) ;
 
   private:
@@ -32,7 +31,7 @@ class ElectronMcFakeValidator : public ElectronValidator
     edm::InputTag  matchingObjectCollection_;
     edm::InputTag beamSpotTag_;
     bool readAOD_;
-    std::string outputFile_ ;
+    //std::string outputFile_ ;
 
     TrajectoryStateTransform transformer_ ;
     edm::ESHandle<TrackerGeometry> pDD ;

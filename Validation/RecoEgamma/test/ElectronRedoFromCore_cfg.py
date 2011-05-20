@@ -43,12 +43,12 @@ process.out = cms.OutputModule("PoolOutputModule",
         'keep *_gsfElectronCores_*_*', 
         'keep *_gsfElectrons_*_*'
     ),
-    fileName = cms.untracked.string(os.environ['TEST_OUTPUT_FILE'])
+    fileName = cms.untracked.string(os.environ['TEST_HISTOS_FILE'])
 )
 
 process.p = cms.Path(process.gsfElectrons)
 process.outpath = cms.EndPath(process.out)
-process.out.fileName = cms.untracked.string(os.environ['TEST_OUTPUT_FILE'])
+process.out.fileName = cms.untracked.string(os.environ['TEST_HISTOS_FILE'])
 process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']+'::All'
 
 

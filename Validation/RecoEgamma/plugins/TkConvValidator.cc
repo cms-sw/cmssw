@@ -3,7 +3,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 //
-#include "Validation/RecoEgamma/interface/TkConvValidator.h"
+#include "Validation/RecoEgamma/plugins/TkConvValidator.h"
 
 //
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -39,8 +39,8 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -91,32 +91,32 @@
 #include "TTree.h"
 #include "TVector3.h"
 #include "TProfile.h"
-// 
+//
 /** \class TkConvValidator
- **  
+ **
  **
  **  $Id: TkConvValidator
- **  $Date: 2011/03/03 20:53:30 $ 
- **  $Revision: 1.13 $
+ **  $Date: 2011/03/27 16:49:11 $
+ **  $Revision: 1.14 $
  **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/
 
 using namespace std;
 
- 
+
 TkConvValidator::TkConvValidator( const edm::ParameterSet& pset )
   {
- 
+
     fName_     = pset.getUntrackedParameter<std::string>("Name");
     verbosity_ = pset.getUntrackedParameter<int>("Verbosity");
     parameters_ = pset;
-  
+
     conversionCollectionProducer_ = pset.getParameter<std::string>("convProducer");
     conversionCollection_ = pset.getParameter<std::string>("conversionCollection");
     // conversionTrackProducer_ = pset.getParameter<std::string>("trackProducer");
     dqmpath_ = pset.getParameter<std::string>("dqmpath");
-    minPhoEtCut_ = pset.getParameter<double>("minPhoEtCut");   
+    minPhoEtCut_ = pset.getParameter<double>("minPhoEtCut");
     generalTracksOnly_ = pset.getParameter<bool>("generalTracksOnly");
     arbitratedMerged_ = pset.getParameter<bool>("arbitratedMerged");
     arbitratedEcalSeeded_ = pset.getParameter<bool>("arbitratedEcalSeeded");
@@ -125,7 +125,7 @@ TkConvValidator::TkConvValidator( const edm::ParameterSet& pset )
     minProb_ = pset.getParameter<double>("minProb");
     maxHitsBeforeVtx_ = pset.getParameter<uint>("maxHitsBeforeVtx");
     minLxy_           = pset.getParameter<double>("minLxy");
-    isRunCentrally_=   pset.getParameter<bool>("isRunCentrally"); 
+    isRunCentrally_=   pset.getParameter<bool>("isRunCentrally");
   }
 
 
@@ -144,12 +144,12 @@ void  TkConvValidator::beginJob() {
   nRecConv_=0;
   nRecConvAss_=0;
   nRecConvAssWithEcal_=0;
-   
+
   nInvalidPCA_=0;
-  
+
   dbe_ = 0;
   dbe_ = edm::Service<DQMStore>().operator->();
-  
+
 
   double etMin = parameters_.getParameter<double>("etMin");
   double etMax = parameters_.getParameter<double>("etMax");
@@ -159,13 +159,13 @@ void  TkConvValidator::beginJob() {
   double resMin = parameters_.getParameter<double>("resMin");
   double resMax = parameters_.getParameter<double>("resMax");
   int resBin = parameters_.getParameter<int>("resBin");
- 
+
   double etaMin = parameters_.getParameter<double>("etaMin");
   double etaMax = parameters_.getParameter<double>("etaMax");
   int etaBin = parameters_.getParameter<int>("etaBin");
   int etaBin2 = parameters_.getParameter<int>("etaBin2");
 
- 
+
   double phiMin = parameters_.getParameter<double>("phiMin");
   double phiMax = parameters_.getParameter<double>("phiMax");
   int    phiBin = parameters_.getParameter<int>("phiBin");
@@ -178,22 +178,22 @@ void  TkConvValidator::beginJob() {
   double zMin = parameters_.getParameter<double>("zMin");
   double zMax = parameters_.getParameter<double>("zMax");
   int    zBin = parameters_.getParameter<int>("zBin");
- 
-  double dPhiTracksMin = parameters_.getParameter<double>("dPhiTracksMin"); 
-  double dPhiTracksMax = parameters_.getParameter<double>("dPhiTracksMax"); 
-  int dPhiTracksBin = parameters_.getParameter<int>("dPhiTracksBin"); 
-  
+
+  double dPhiTracksMin = parameters_.getParameter<double>("dPhiTracksMin");
+  double dPhiTracksMax = parameters_.getParameter<double>("dPhiTracksMax");
+  int dPhiTracksBin = parameters_.getParameter<int>("dPhiTracksBin");
+
   //  double dEtaTracksMin = parameters_.getParameter<double>("dEtaTracksMin");  // unused
   //  double dEtaTracksMax = parameters_.getParameter<double>("dEtaTracksMax"); // unused
   //  int    dEtaTracksBin = parameters_.getParameter<int>("dEtaTracksBin");  // unused
 
-  double dCotTracksMin = parameters_.getParameter<double>("dCotTracksMin"); 
-  double dCotTracksMax = parameters_.getParameter<double>("dCotTracksMax"); 
-  int    dCotTracksBin = parameters_.getParameter<int>("dCotTracksBin"); 
+  double dCotTracksMin = parameters_.getParameter<double>("dCotTracksMin");
+  double dCotTracksMax = parameters_.getParameter<double>("dCotTracksMax");
+  int    dCotTracksBin = parameters_.getParameter<int>("dCotTracksBin");
 
 
-  double chi2Min = parameters_.getParameter<double>("chi2Min"); 
-  double chi2Max = parameters_.getParameter<double>("chi2Max"); 
+  double chi2Min = parameters_.getParameter<double>("chi2Min");
+  double chi2Max = parameters_.getParameter<double>("chi2Max");
 
 
   double rMinForXray = parameters_.getParameter<double>("rMinForXray");
@@ -213,7 +213,7 @@ void  TkConvValidator::beginJob() {
   maxPhoZForPurity = parameters_.getParameter<double>("maxPhoZForPurity");
   maxPhoRForPurity = parameters_.getParameter<double>("maxPhoRForPurity");
 
-  if (dbe_) {  
+  if (dbe_) {
 
     //// All MC photons
     // SC from reco photons
@@ -224,7 +224,7 @@ void  TkConvValidator::beginJob() {
     //
     // simulation information about conversions
     /// Histograms for efficiencies
-    std::string histname = "nOfSimConversions";    
+    std::string histname = "nOfSimConversions";
     h_nSimConv_[0] = dbe_->book1D(histname,"# of Sim conversions per event ",20,-0.5,19.5);
     /// Denominators
     histname = "h_AllSimConvEta";
@@ -238,7 +238,7 @@ void  TkConvValidator::beginJob() {
     histname = "h_AllSimConvEt";
     h_AllSimConv_[4] =  dbe_->book1D(histname," All conversions: simulated Et",etBin,etMin,etMax);
     //
-    histname = "nOfVisSimConversions";    
+    histname = "nOfVisSimConversions";
     h_nSimConv_[1] = dbe_->book1D(histname,"# of Sim conversions per event ",20,-0.5,19.5);
     histname = "h_VisSimConvEta";
     h_VisSimConv_[0] =  dbe_->book1D(histname," All vis conversions: simulated #eta",etaBin2,etaMin, etaMax);
@@ -285,7 +285,7 @@ void  TkConvValidator::beginJob() {
     histname = "h_SimConvTwoMTracksEtAndVtxPGT0";
     h_SimConvTwoMTracksAndVtxPGT0_[4] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated Et",etBin,etMin, etMax);
 
-    // 
+    //
     histname = "h_SimConvTwoMTracksEtaAndVtxPGT0005";
     h_SimConvTwoMTracksAndVtxPGT0005_[0] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated #eta",etaBin2,etaMin, etaMax);
     histname = "h_SimConvTwoMTracksPhiAndVtxPGT0005";
@@ -308,17 +308,17 @@ void  TkConvValidator::beginJob() {
     histname = "h_SimRecConvTwoMTracksEt";
     h_SimRecConvTwoMTracks_[4] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks: simulated Et",etBin,etMin, etMax);
     //
-    
+
 
     h_SimConvEtaPix_[0] = dbe_->book1D("simConvEtaPix"," sim converted Photon Eta: Pix ",etaBin,etaMin, etaMax) ;
     h_simTkPt_ = dbe_->book1D("simTkPt","Sim conversion tracks pt ",etBin*3,0.,etMax);
     h_simTkEta_ = dbe_->book1D("simTkEta","Sim conversion tracks eta ",etaBin,etaMin,etaMax);
 
-    h_simConvVtxRvsZ_[0] =   dbe_->book2D("simConvVtxRvsZAll"," Photon Sim conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray); 
-    h_simConvVtxRvsZ_[1] =   dbe_->book2D("simConvVtxRvsZBarrel"," Photon Sim conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray); 
-    h_simConvVtxRvsZ_[2] =   dbe_->book2D("simConvVtxRvsZEndcap"," Photon Sim conversion vtx position",zBin2ForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray); 
-    h_simConvVtxRvsZ_[3] =   dbe_->book2D("simConvVtxRvsZBarrel2"," Photon Sim conversion vtx position when reco R<4cm",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray); 
-    h_simConvVtxYvsX_ =   dbe_->book2D("simConvVtxYvsXTrkBarrel"," Photon Sim conversion vtx position, (x,y) eta<1 ",100, -80., 80., 100, -80., 80.); 
+    h_simConvVtxRvsZ_[0] =   dbe_->book2D("simConvVtxRvsZAll"," Photon Sim conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+    h_simConvVtxRvsZ_[1] =   dbe_->book2D("simConvVtxRvsZBarrel"," Photon Sim conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+    h_simConvVtxRvsZ_[2] =   dbe_->book2D("simConvVtxRvsZEndcap"," Photon Sim conversion vtx position",zBin2ForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+    h_simConvVtxRvsZ_[3] =   dbe_->book2D("simConvVtxRvsZBarrel2"," Photon Sim conversion vtx position when reco R<4cm",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+    h_simConvVtxYvsX_ =   dbe_->book2D("simConvVtxYvsXTrkBarrel"," Photon Sim conversion vtx position, (x,y) eta<1 ",100, -80., 80., 100, -80., 80.);
 
     std::string convpath = dqmpath_ + "ConversionInfo";
     dbe_->setCurrentFolder(convpath);
@@ -347,9 +347,9 @@ void  TkConvValidator::beginJob() {
     h_convR_[2][0]  =  dbe_->book1D("convRFake"," Fake converted photon R",rBin,rMin, rMax);
     h_convZ_[2][0] =  dbe_->book1D("convZFake"," Fake converted photon Z",zBin,zMin, zMax);
     h_convPt_[2][0] = dbe_->book1D("convPtFake","Fake conversions Transverse Energy: all eta ", etBin,etMin, etMax);
-  
-    h_convRplot_  =  dbe_->book1D("convRplot"," converted photon R",600, 0.,120.);   
-    h_convZplot_  =  dbe_->book1D("convZplot"," converted photon Z",320,-160.,160.);   
+
+    h_convRplot_  =  dbe_->book1D("convRplot"," converted photon R",600, 0.,120.);
+    h_convZplot_  =  dbe_->book1D("convZplot"," converted photon Z",320,-160.,160.);
 
 
     histname = "convPtRes";
@@ -374,15 +374,15 @@ void  TkConvValidator::beginJob() {
 
 
     histname="hDPhiTracksAtVtx";
-    h_DPhiTracksAtVtx_[0][0] =dbe_->book1D(histname+"All", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: all Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax); 
-    h_DPhiTracksAtVtx_[0][1] =dbe_->book1D(histname+"Barrel", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Barrel Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax); 
-    h_DPhiTracksAtVtx_[0][2] =dbe_->book1D(histname+"Endcap", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Endcap Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax); 
-    h_DPhiTracksAtVtx_[1][0] =dbe_->book1D(histname+"All_Ass", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: all Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax); 
-    h_DPhiTracksAtVtx_[1][1] =dbe_->book1D(histname+"Barrel_Ass", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Barrel Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax); 
-    h_DPhiTracksAtVtx_[1][2] =dbe_->book1D(histname+"Endcap_Ass", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Endcap Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax); 
-    h_DPhiTracksAtVtx_[2][0] =dbe_->book1D(histname+"All_Fakes", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: all Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax); 
-    h_DPhiTracksAtVtx_[2][1] =dbe_->book1D(histname+"Barrel_Fakes", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Barrel Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax); 
-    h_DPhiTracksAtVtx_[2][2] =dbe_->book1D(histname+"Endcap_Fakes", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Endcap Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax); 
+    h_DPhiTracksAtVtx_[0][0] =dbe_->book1D(histname+"All", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: all Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+    h_DPhiTracksAtVtx_[0][1] =dbe_->book1D(histname+"Barrel", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Barrel Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+    h_DPhiTracksAtVtx_[0][2] =dbe_->book1D(histname+"Endcap", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Endcap Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+    h_DPhiTracksAtVtx_[1][0] =dbe_->book1D(histname+"All_Ass", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: all Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+    h_DPhiTracksAtVtx_[1][1] =dbe_->book1D(histname+"Barrel_Ass", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Barrel Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+    h_DPhiTracksAtVtx_[1][2] =dbe_->book1D(histname+"Endcap_Ass", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Endcap Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+    h_DPhiTracksAtVtx_[2][0] =dbe_->book1D(histname+"All_Fakes", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: all Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+    h_DPhiTracksAtVtx_[2][1] =dbe_->book1D(histname+"Barrel_Fakes", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Barrel Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+    h_DPhiTracksAtVtx_[2][2] =dbe_->book1D(histname+"Endcap_Fakes", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Endcap Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
 
 
 
@@ -394,19 +394,19 @@ void  TkConvValidator::beginJob() {
     histname="hDPhiTracksAtVtxVsR";
     h2_DPhiTracksAtVtxVsR_ = dbe_->book2D(histname+"All","  Photons:Tracks from conversions: #delta#phi Tracks at vertex vs R",rBin,rMin, rMax,100, -0.5, 0.5);
     histname="pDPhiTracksAtVtxVsR";
-    p_DPhiTracksAtVtxVsR_ = dbe_->bookProfile(histname+"All"," Photons:Tracks from conversions: #delta#phi Tracks at vertex vs R ",rBin,rMin, rMax,100, -0.5, 0.5,""); 
+    p_DPhiTracksAtVtxVsR_ = dbe_->bookProfile(histname+"All"," Photons:Tracks from conversions: #delta#phi Tracks at vertex vs R ",rBin,rMin, rMax,100, -0.5, 0.5,"");
 
 
     histname="hDCotTracks";
-    h_DCotTracks_[0][0]= dbe_->book1D(histname+"All"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: all Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax); 
-    h_DCotTracks_[0][1]= dbe_->book1D(histname+"Barrel"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Barrel Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax); 
-    h_DCotTracks_[0][2]= dbe_->book1D(histname+"Endcap"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Endcap Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax); 
-    h_DCotTracks_[1][0]= dbe_->book1D(histname+"All_Ass"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: all Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax); 
-    h_DCotTracks_[1][1]= dbe_->book1D(histname+"Barrel_Ass"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Barrel Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax); 
-    h_DCotTracks_[1][2]= dbe_->book1D(histname+"Endcap_Ass"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Endcap Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax); 
-    h_DCotTracks_[2][0]= dbe_->book1D(histname+"All_Fakes"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: all Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax); 
-    h_DCotTracks_[2][1]= dbe_->book1D(histname+"Barrel_Fakes"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Barrel Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax); 
-    h_DCotTracks_[2][2]= dbe_->book1D(histname+"Endcap_Fakes"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Endcap Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax); 
+    h_DCotTracks_[0][0]= dbe_->book1D(histname+"All"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: all Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
+    h_DCotTracks_[0][1]= dbe_->book1D(histname+"Barrel"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Barrel Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
+    h_DCotTracks_[0][2]= dbe_->book1D(histname+"Endcap"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Endcap Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
+    h_DCotTracks_[1][0]= dbe_->book1D(histname+"All_Ass"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: all Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
+    h_DCotTracks_[1][1]= dbe_->book1D(histname+"Barrel_Ass"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Barrel Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
+    h_DCotTracks_[1][2]= dbe_->book1D(histname+"Endcap_Ass"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Endcap Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
+    h_DCotTracks_[2][0]= dbe_->book1D(histname+"All_Fakes"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: all Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
+    h_DCotTracks_[2][1]= dbe_->book1D(histname+"Barrel_Fakes"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Barrel Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
+    h_DCotTracks_[2][2]= dbe_->book1D(histname+"Endcap_Fakes"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Endcap Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
 
 
     histname="hDCotTracksVsEta";
@@ -417,30 +417,30 @@ void  TkConvValidator::beginJob() {
     histname="hDCotTracksVsR";
     h2_DCotTracksVsR_ = dbe_->book2D(histname+"All","  Photons:Tracks from conversions:  #delta cotg(#Theta)  Tracks at vertex vs R",rBin,rMin, rMax,100, -0.2, 0.2);
     histname="pDCotTracksVsR";
-    p_DCotTracksVsR_ = dbe_->bookProfile(histname+"All"," Photons:Tracks from conversions:  #delta cotg(#Theta) Tracks at vertex vs R ",rBin,rMin, rMax,100, -0.2, 0.2,""); 
+    p_DCotTracksVsR_ = dbe_->bookProfile(histname+"All"," Photons:Tracks from conversions:  #delta cotg(#Theta) Tracks at vertex vs R ",rBin,rMin, rMax,100, -0.2, 0.2,"");
 
 
     histname="hDistMinAppTracks";
     h_distMinAppTracks_[0][0]= dbe_->book1D(histname+"All"," Photons:Tracks from conversions Min Approach Dist Tracks: all Ecal ",120, -0.5, 1.0);
     h_distMinAppTracks_[0][1]= dbe_->book1D(histname+"Barrel"," Photons:Tracks from conversions Min Approach Dist Tracks: Barrel Ecal ",120, -0.5, 1.0);
     h_distMinAppTracks_[0][2]= dbe_->book1D(histname+"Endcap"," Photons:Tracks from conversions Min Approach Dist Tracks: Endcap Ecal ",120, -0.5, 1.0);
-    h_distMinAppTracks_[1][0]= dbe_->book1D(histname+"All_Ass"," Photons:Tracks from conversions Min Approach Dist Tracks: all Ecal ",120, -0.5, 1.0); 
-    h_distMinAppTracks_[1][1]= dbe_->book1D(histname+"Barrel_Ass"," Photons:Tracks from conversions Min Approach Dist Tracks: Barrel Ecal ",120, -0.5, 1.0); 
+    h_distMinAppTracks_[1][0]= dbe_->book1D(histname+"All_Ass"," Photons:Tracks from conversions Min Approach Dist Tracks: all Ecal ",120, -0.5, 1.0);
+    h_distMinAppTracks_[1][1]= dbe_->book1D(histname+"Barrel_Ass"," Photons:Tracks from conversions Min Approach Dist Tracks: Barrel Ecal ",120, -0.5, 1.0);
     h_distMinAppTracks_[1][2]= dbe_->book1D(histname+"Endcap_Ass"," Photons:Tracks from conversions Min Approach Dist Tracks: Endcap Ecal ",120, -0.5, 1.0);
     h_distMinAppTracks_[2][0]= dbe_->book1D(histname+"All_Fakes"," Photons:Tracks from conversions Min Approach Dist Tracks: all Ecal ",120, -0.5, 1.0);
     h_distMinAppTracks_[2][1]= dbe_->book1D(histname+"Barrel_Fakes"," Photons:Tracks from conversions Min Approach Dist Tracks: Barrel Ecal ",120, -0.5, 1.0);
-    h_distMinAppTracks_[2][2]= dbe_->book1D(histname+"Endcap_Fakes"," Photons:Tracks from conversions Min Approach Dist Tracks: Endcap Ecal ",120, -0.5, 1.0); 
+    h_distMinAppTracks_[2][2]= dbe_->book1D(histname+"Endcap_Fakes"," Photons:Tracks from conversions Min Approach Dist Tracks: Endcap Ecal ",120, -0.5, 1.0);
 
 
-    h_convVtxRvsZ_[0] =   dbe_->book2D("convVtxRvsZAll"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray); 
-    h_convVtxRvsZ_[1] =   dbe_->book2D("convVtxRvsZBarrel"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray); 
-    h_convVtxRvsZ_[2] =   dbe_->book2D("convVtxRvsZEndcap"," Photon Reco conversion vtx position",zBin2ForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray); 
+    h_convVtxRvsZ_[0] =   dbe_->book2D("convVtxRvsZAll"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+    h_convVtxRvsZ_[1] =   dbe_->book2D("convVtxRvsZBarrel"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+    h_convVtxRvsZ_[2] =   dbe_->book2D("convVtxRvsZEndcap"," Photon Reco conversion vtx position",zBin2ForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
     h_convVtxYvsX_ =   dbe_->book2D("convVtxYvsXTrkBarrel"," Photon Reco conversion vtx position, (x,y) eta<1 ", 1000, -60., 60., 1000, -60., 60.);
     /// zooms
-    h_convVtxRvsZ_zoom_[0] =  dbe_->book2D("convVtxRvsZBarrelZoom1"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, -10., 40.); 
-    h_convVtxRvsZ_zoom_[1] =  dbe_->book2D("convVtxRvsZBarrelZoom2"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, -10., 20.); 
-    h_convVtxYvsX_zoom_[0] =   dbe_->book2D("convVtxYvsXTrkBarrelZoom1"," Photon Reco conversion vtx position, (x,y) eta<1 ",100, -40., 40., 100, -40., 40.); 
-    h_convVtxYvsX_zoom_[1] =   dbe_->book2D("convVtxYvsXTrkBarrelZoom2"," Photon Reco conversion vtx position, (x,y) eta<1 ",100, -20., 20., 100, -20., 20.); 
+    h_convVtxRvsZ_zoom_[0] =  dbe_->book2D("convVtxRvsZBarrelZoom1"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, -10., 40.);
+    h_convVtxRvsZ_zoom_[1] =  dbe_->book2D("convVtxRvsZBarrelZoom2"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, -10., 20.);
+    h_convVtxYvsX_zoom_[0] =   dbe_->book2D("convVtxYvsXTrkBarrelZoom1"," Photon Reco conversion vtx position, (x,y) eta<1 ",100, -40., 40., 100, -40., 40.);
+    h_convVtxYvsX_zoom_[1] =   dbe_->book2D("convVtxYvsXTrkBarrelZoom2"," Photon Reco conversion vtx position, (x,y) eta<1 ",100, -20., 20., 100, -20., 20.);
 
     h_convVtxdR_ =   dbe_->book1D("convVtxdR"," Photon Reco conversion vtx dR",100, -10.,10.);
     h_convVtxdX_ =   dbe_->book1D("convVtxdX"," Photon Reco conversion vtx dX",100, -10.,10.);
@@ -476,7 +476,7 @@ void  TkConvValidator::beginJob() {
     p2_convVtxdZVsRZ_ =  dbe_->bookProfile2D("p2ConvVtxdZVsRZ","Conversion vtx dZ vs RZ" ,zBin,zMin, zMax,rBin,rMin,rMax,100, 0.,20.,"s");
 
 
-    
+
     h2_convVtxRrecVsTrue_ =  dbe_->book2D("h2ConvVtxRrecVsTrue","Photon Reco conversion vtx R rec vs true" ,rBin,rMin, rMax,rBin,rMin, rMax);
 
     histname="vtxChi2Prob";
@@ -529,7 +529,7 @@ void  TkConvValidator::beginJob() {
     h_leadNHitsBeforeVtx_[2][0] = dbe_->book1D(histname+"All_Fakes","vertex #chi^{2} all", 16, -0.5, 15.5);
     h_leadNHitsBeforeVtx_[2][1] = dbe_->book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 16, -0.5, 15.5);
     h_leadNHitsBeforeVtx_[2][2] = dbe_->book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 16, -0.5, 15.5);
-    
+
     histname="trailNHitsBeforeVtx";
     h_trailNHitsBeforeVtx_[0][0] = dbe_->book1D(histname+"All","vertex #chi^{2} all", 16, -0.5, 15.5);
     h_trailNHitsBeforeVtx_[0][1] = dbe_->book1D(histname+"Barrel","vertex #chi^{2} barrel", 16, -0.5, 15.5);
@@ -539,8 +539,8 @@ void  TkConvValidator::beginJob() {
     h_trailNHitsBeforeVtx_[1][2] = dbe_->book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 16, -0.5, 15.5);
     h_trailNHitsBeforeVtx_[2][0] = dbe_->book1D(histname+"All_Fakes","vertex #chi^{2} all", 16, -0.5, 15.5);
     h_trailNHitsBeforeVtx_[2][1] = dbe_->book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 16, -0.5, 15.5);
-    h_trailNHitsBeforeVtx_[2][2] = dbe_->book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 16, -0.5, 15.5);    
-    
+    h_trailNHitsBeforeVtx_[2][2] = dbe_->book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 16, -0.5, 15.5);
+
     histname="sumNHitsBeforeVtx";
     h_sumNHitsBeforeVtx_[0][0] = dbe_->book1D(histname+"All","vertex #chi^{2} all", 16, -0.5, 15.5);
     h_sumNHitsBeforeVtx_[0][1] = dbe_->book1D(histname+"Barrel","vertex #chi^{2} barrel", 16, -0.5, 15.5);
@@ -550,8 +550,8 @@ void  TkConvValidator::beginJob() {
     h_sumNHitsBeforeVtx_[1][2] = dbe_->book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 16, -0.5, 15.5);
     h_sumNHitsBeforeVtx_[2][0] = dbe_->book1D(histname+"All_Fakes","vertex #chi^{2} all", 16, -0.5, 15.5);
     h_sumNHitsBeforeVtx_[2][1] = dbe_->book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 16, -0.5, 15.5);
-    h_sumNHitsBeforeVtx_[2][2] = dbe_->book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 16, -0.5, 15.5);    
-    
+    h_sumNHitsBeforeVtx_[2][2] = dbe_->book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 16, -0.5, 15.5);
+
     histname="maxDlClosestHitToVtx";
     h_maxDlClosestHitToVtx_[0][0] = dbe_->book1D(histname+"All","vertex #chi^{2} all", 100, -10., 10.);
     h_maxDlClosestHitToVtx_[0][1] = dbe_->book1D(histname+"Barrel","vertex #chi^{2} barrel", 100, -10., 10.);
@@ -584,7 +584,7 @@ void  TkConvValidator::beginJob() {
     h_deltaExpectedHitsInner_[2][0] = dbe_->book1D(histname+"All_Fakes","vertex #chi^{2} all", 31, -15.5, 15.5);
     h_deltaExpectedHitsInner_[2][1] = dbe_->book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 31, -15.5, 15.5);
     h_deltaExpectedHitsInner_[2][2] = dbe_->book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 31, -15.5, 15.5);
-    
+
     histname="leadExpectedHitsInner";
     h_leadExpectedHitsInner_[0][0] = dbe_->book1D(histname+"All","vertex #chi^{2} all", 16, -0.5, 15.5);
     h_leadExpectedHitsInner_[0][1] = dbe_->book1D(histname+"Barrel","vertex #chi^{2} barrel", 16, -0.5, 15.5);
@@ -594,8 +594,8 @@ void  TkConvValidator::beginJob() {
     h_leadExpectedHitsInner_[1][2] = dbe_->book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 16, -0.5, 15.5);
     h_leadExpectedHitsInner_[2][0] = dbe_->book1D(histname+"All_Fakes","vertex #chi^{2} all", 16, -0.5, 15.5);
     h_leadExpectedHitsInner_[2][1] = dbe_->book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 16, -0.5, 15.5);
-    h_leadExpectedHitsInner_[2][2] = dbe_->book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 16, -0.5, 15.5);     
-    
+    h_leadExpectedHitsInner_[2][2] = dbe_->book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 16, -0.5, 15.5);
+
     histname="nSharedHits";
     h_nSharedHits_[0][0] = dbe_->book1D(histname+"All","vertex #chi^{2} all", 16, -0.5, 15.5);
     h_nSharedHits_[0][1] = dbe_->book1D(histname+"Barrel","vertex #chi^{2} barrel", 16, -0.5, 15.5);
@@ -605,8 +605,8 @@ void  TkConvValidator::beginJob() {
     h_nSharedHits_[1][2] = dbe_->book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 16, -0.5, 15.5);
     h_nSharedHits_[2][0] = dbe_->book1D(histname+"All_Fakes","vertex #chi^{2} all", 16, -0.5, 15.5);
     h_nSharedHits_[2][1] = dbe_->book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 16, -0.5, 15.5);
-    h_nSharedHits_[2][2] = dbe_->book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 16, -0.5, 15.5);         
-    
+    h_nSharedHits_[2][2] = dbe_->book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 16, -0.5, 15.5);
+
     //////////////////// plots per track
     histname="nHits";
     nHits_[0] =  dbe_->book2D(histname+"AllTracks","Photons:Tracks from conversions: # of hits all tracks",etaBin,etaMin, etaMax,30,0., 30.);
@@ -635,24 +635,24 @@ void  TkConvValidator::beginJob() {
     p_nHitsVsR_[2] =  dbe_->bookProfile(histname+"AllTracks_Fakes","Photons:Tracks from conversions: # of hits vs radius all tracks",rBin,rMin, rMax, 30,-0.5, 29.5,"");
 
     histname="tkChi2";
-    h_tkChi2_[0] = dbe_->book1D(histname+"AllTracks","Photons:Tracks from conversions: #chi^{2} of all tracks", 100, chi2Min, chi2Max);  
-    h_tkChi2_[1] = dbe_->book1D(histname+"AllTracks_Ass","Photons:Tracks from conversions: #chi^{2} of all tracks", 100, chi2Min, chi2Max);  
-    h_tkChi2_[2] = dbe_->book1D(histname+"AllTracks_Fakes","Photons:Tracks from conversions: #chi^{2} of all tracks", 100, chi2Min, chi2Max);  
+    h_tkChi2_[0] = dbe_->book1D(histname+"AllTracks","Photons:Tracks from conversions: #chi^{2} of all tracks", 100, chi2Min, chi2Max);
+    h_tkChi2_[1] = dbe_->book1D(histname+"AllTracks_Ass","Photons:Tracks from conversions: #chi^{2} of all tracks", 100, chi2Min, chi2Max);
+    h_tkChi2_[2] = dbe_->book1D(histname+"AllTracks_Fakes","Photons:Tracks from conversions: #chi^{2} of all tracks", 100, chi2Min, chi2Max);
 
     histname="tkChi2Large";
-    h_tkChi2Large_[0] = dbe_->book1D(histname+"AllTracks","Photons:Tracks from conversions: #chi^{2} of all tracks", 1000, 0., 5000.0); 
-    h_tkChi2Large_[1] = dbe_->book1D(histname+"AllTracks_Ass","Photons:Tracks from conversions: #chi^{2} of all tracks", 1000, 0., 5000.0); 
-    h_tkChi2Large_[2] = dbe_->book1D(histname+"AllTracks_Fakes","Photons:Tracks from conversions: #chi^{2} of all tracks", 1000, 0., 5000.0); 
+    h_tkChi2Large_[0] = dbe_->book1D(histname+"AllTracks","Photons:Tracks from conversions: #chi^{2} of all tracks", 1000, 0., 5000.0);
+    h_tkChi2Large_[1] = dbe_->book1D(histname+"AllTracks_Ass","Photons:Tracks from conversions: #chi^{2} of all tracks", 1000, 0., 5000.0);
+    h_tkChi2Large_[2] = dbe_->book1D(histname+"AllTracks_Fakes","Photons:Tracks from conversions: #chi^{2} of all tracks", 1000, 0., 5000.0);
 
 
     histname="h2Chi2VsEta";
-    h2_Chi2VsEta_[0]=dbe_->book2D(histname+"All"," Reco Track  #chi^{2} vs #eta: All ",etaBin2,etaMin, etaMax,100, chi2Min, chi2Max); 
-    h2_Chi2VsEta_[1]=dbe_->book2D(histname+"All_Ass"," Reco Track  #chi^{2} vs #eta: All ",etaBin2,etaMin, etaMax,100, chi2Min, chi2Max); 
-    h2_Chi2VsEta_[2]=dbe_->book2D(histname+"All_Fakes"," Reco Track  #chi^{2} vs #eta: All ",etaBin2,etaMin, etaMax,100, chi2Min, chi2Max); 
+    h2_Chi2VsEta_[0]=dbe_->book2D(histname+"All"," Reco Track  #chi^{2} vs #eta: All ",etaBin2,etaMin, etaMax,100, chi2Min, chi2Max);
+    h2_Chi2VsEta_[1]=dbe_->book2D(histname+"All_Ass"," Reco Track  #chi^{2} vs #eta: All ",etaBin2,etaMin, etaMax,100, chi2Min, chi2Max);
+    h2_Chi2VsEta_[2]=dbe_->book2D(histname+"All_Fakes"," Reco Track  #chi^{2} vs #eta: All ",etaBin2,etaMin, etaMax,100, chi2Min, chi2Max);
     histname="pChi2VsEta";
-    p_Chi2VsEta_[0]=dbe_->bookProfile(histname+"All"," Reco Track #chi^{2} vs #eta : All ",etaBin2,etaMin, etaMax, 100, chi2Min, chi2Max,""); 
-    p_Chi2VsEta_[1]=dbe_->bookProfile(histname+"All_Ass"," Reco Track #chi^{2} vs #eta : All ",etaBin2,etaMin, etaMax, 100, chi2Min, chi2Max,""); 
-    p_Chi2VsEta_[2]=dbe_->bookProfile(histname+"All_Fakes"," Reco Track #chi^{2} vs #eta : All ",etaBin2,etaMin, etaMax, 100, chi2Min, chi2Max,""); 
+    p_Chi2VsEta_[0]=dbe_->bookProfile(histname+"All"," Reco Track #chi^{2} vs #eta : All ",etaBin2,etaMin, etaMax, 100, chi2Min, chi2Max,"");
+    p_Chi2VsEta_[1]=dbe_->bookProfile(histname+"All_Ass"," Reco Track #chi^{2} vs #eta : All ",etaBin2,etaMin, etaMax, 100, chi2Min, chi2Max,"");
+    p_Chi2VsEta_[2]=dbe_->bookProfile(histname+"All_Fakes"," Reco Track #chi^{2} vs #eta : All ",etaBin2,etaMin, etaMax, 100, chi2Min, chi2Max,"");
 
     histname="h2Chi2VsR";
     h2_Chi2VsR_[0]=dbe_->book2D(histname+"All"," Reco Track  #chi^{2} vs R: All ",rBin,rMin, rMax,100,chi2Min, chi2Max);
@@ -709,7 +709,7 @@ void  TkConvValidator::beginJob() {
     h_match_= dbe_->book1D("h_match"," ", 3, -0.5,2.5);
 
 
-  } // if DQM 
+  } // if DQM
 
 
 
@@ -718,10 +718,10 @@ void  TkConvValidator::beginJob() {
 
 
  void  TkConvValidator::beginRun (edm::Run const & r, edm::EventSetup const & theEventSetup) {
-   
+
    //get magnetic field
   edm::LogInfo("ConvertedPhotonProducer") << " get magnetic field" << "\n";
-  theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);  
+  theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);
 
 
   edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
@@ -731,7 +731,7 @@ void  TkConvValidator::beginJob() {
 
 
 
-  thePhotonMCTruthFinder_ = new PhotonMCTruthFinder();  
+  thePhotonMCTruthFinder_ = new PhotonMCTruthFinder();
 
 }
 
@@ -744,7 +744,7 @@ void  TkConvValidator::endRun (edm::Run& r, edm::EventSetup const & theEventSetu
 
 
 void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup ) {
-  
+
   using namespace edm;
   //  const float etaPhiDistance=0.01;
   // Fiducial region
@@ -756,7 +756,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   //  const Float_t mElec= 0.000511; // unused
 
 
-  nEvt_++;  
+  nEvt_++;
   LogInfo("TkConvValidator") << "TkConvValidator Analyzing event number: " << e.id() << " Global Counter " << nEvt_ <<"\n";
   //  std::cout << "TkConvValidator Analyzing event number: "  << e.id() << " Global Counter " << nEvt_ <<"\n";
 
@@ -771,12 +771,12 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 
   ///// Get the recontructed  conversions
-  Handle<reco::ConversionCollection> convHandle; 
+  Handle<reco::ConversionCollection> convHandle;
   e.getByLabel(conversionCollectionProducer_, conversionCollection_ , convHandle);
   const reco::ConversionCollection convCollection = *(convHandle.product());
   if (!convHandle.isValid()) {
     edm::LogError("ConversionsProducer") << "Error! Can't get the  collection "<< std::endl;
-    return; 
+    return;
   }
 
   // offline  Primary vertex
@@ -817,12 +817,12 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   //get simtrack info
   std::vector<SimTrack> theSimTracks;
   std::vector<SimVertex> theSimVertices;
-  
+
   edm::Handle<SimTrackContainer> SimTk;
   edm::Handle<SimVertexContainer> SimVtx;
   e.getByLabel("g4SimHits",SimTk);
   e.getByLabel("g4SimHits",SimVtx);
-  
+
   bool useTP= parameters_.getParameter<bool>("useTP");
   TrackingParticleCollection tpForEfficiency;
   TrackingParticleCollection tpForFakeRate;
@@ -839,7 +839,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
   theSimTracks.insert(theSimTracks.end(),SimTk->begin(),SimTk->end());
   theSimVertices.insert(theSimVertices.end(),SimVtx->begin(),SimVtx->end());
-  std::vector<PhotonMCTruth> mcPhotons=thePhotonMCTruthFinder_->find (theSimTracks,  theSimVertices);  
+  std::vector<PhotonMCTruth> mcPhotons=thePhotonMCTruthFinder_->find (theSimTracks,  theSimVertices);
 
   edm::Handle<edm::HepMCProduct> hepMC;
   e.getByLabel("generator",hepMC);
@@ -852,33 +852,33 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   reco::GenJetCollection genJetCollection = *(GenJetsHandle.product());
 
   ConversionHitChecker hitChecker;
-  
+
   // ################  SIM to RECO ######################### //
   std::map<const reco::Track*,TrackingParticleRef> myAss;
   std::map<const reco::Track*,TrackingParticleRef>::const_iterator itAss;
 
   for ( std::vector<PhotonMCTruth>::const_iterator mcPho=mcPhotons.begin(); mcPho !=mcPhotons.end(); mcPho++) {
 
-    mcConvPt_= (*mcPho).fourMomentum().et();     
+    mcConvPt_= (*mcPho).fourMomentum().et();
     float mcPhi= (*mcPho).fourMomentum().phi();
     mcPhi_= phiNormalization(mcPhi);
-    mcEta_= (*mcPho).fourMomentum().pseudoRapidity();   
-    mcEta_ = etaTransformation(mcEta_, (*mcPho).primaryVertex().z() ); 
-    mcConvR_= (*mcPho).vertex().perp();   
-    mcConvX_= (*mcPho).vertex().x();    
-    mcConvY_= (*mcPho).vertex().y();    
-    mcConvZ_= (*mcPho).vertex().z();  
-    mcConvEta_= (*mcPho).vertex().eta();    
-    mcConvPhi_= (*mcPho).vertex().phi();  
-    
+    mcEta_= (*mcPho).fourMomentum().pseudoRapidity();
+    mcEta_ = etaTransformation(mcEta_, (*mcPho).primaryVertex().z() );
+    mcConvR_= (*mcPho).vertex().perp();
+    mcConvX_= (*mcPho).vertex().x();
+    mcConvY_= (*mcPho).vertex().y();
+    mcConvZ_= (*mcPho).vertex().z();
+    mcConvEta_= (*mcPho).vertex().eta();
+    mcConvPhi_= (*mcPho).vertex().phi();
+
     if ( fabs(mcEta_) > END_HI ) continue;
-    
+
     if (mcConvPt_<minPhoPtForEffic) continue;
     if (fabs(mcEta_)>maxPhoEtaForEffic) continue;
     if (fabs(mcConvZ_)>maxPhoZForEffic) continue;
     if (mcConvR_>maxPhoRForEffic) continue;
-    ////////////////////////////////// extract info about simulated conversions 
-    
+    ////////////////////////////////// extract info about simulated conversions
+
     bool goodSimConversion=false;
     bool visibleConversion=false;
     bool visibleConversionsWithTwoSimTracks=false;
@@ -889,12 +889,12 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       h_AllSimConv_[2]->Fill( mcConvR_ );
       h_AllSimConv_[3]->Fill( mcConvZ_ );
       h_AllSimConv_[4]->Fill(  (*mcPho).fourMomentum().et());
-      
+
       if ( mcConvR_ <15) h_SimConvEtaPix_[0]->Fill( mcEta_ ) ;
-      
-      if ( ( fabs(mcEta_) <= BARL && mcConvR_ <85 )  || 
+
+      if ( ( fabs(mcEta_) <= BARL && mcConvR_ <85 )  ||
 	   ( fabs(mcEta_) > BARL && fabs(mcEta_) <=END_HI && fabs( (*mcPho).vertex().z() ) < 210 )  ) visibleConversion=true;
-      
+
       theConvTP_.clear();
       //      std::cout << " TkConvValidator TrackingParticles   TrackingParticleCollection size "<<  trackingParticles.size() <<  "\n";
       //duplicated TP collections for two associations
@@ -903,23 +903,23 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	if ( fabs( tp->vx() - (*mcPho).vertex().x() ) < 0.0001   &&
 	     fabs( tp->vy() - (*mcPho).vertex().y() ) < 0.0001   &&
 	     fabs( tp->vz() - (*mcPho).vertex().z() ) < 0.0001) {
-	  theConvTP_.push_back( tp );	
+	  theConvTP_.push_back( tp );
 	}
       }
-      //std::cout << " TkConvValidator  theConvTP_ size " <<   theConvTP_.size() << std::endl;	
-      
+      //std::cout << " TkConvValidator  theConvTP_ size " <<   theConvTP_.size() << std::endl;
+
       if ( theConvTP_.size() == 2 )   visibleConversionsWithTwoSimTracks=true;
       goodSimConversion=false;
-      
+
       if (   visibleConversion && visibleConversionsWithTwoSimTracks )  goodSimConversion=true;
       if ( goodSimConversion ) {
-	nSimConv_[1]++;	
+	nSimConv_[1]++;
 	h_VisSimConv_[0]->Fill( mcEta_ ) ;
 	h_VisSimConv_[1]->Fill( mcPhi_ );
 	h_VisSimConv_[2]->Fill( mcConvR_ );
 	h_VisSimConv_[3]->Fill( mcConvZ_ );
 	h_VisSimConv_[4]->Fill(  (*mcPho).fourMomentum().et());
-	
+
       }
 
       for ( edm::RefVector<TrackingParticleCollection>::iterator iTrk=theConvTP_.begin(); iTrk!=theConvTP_.end(); ++iTrk) {
@@ -929,7 +929,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 
     }  ////////////// End of info from sim conversions //////////////////////////////////////////////////
-    
+
     if ( ! (visibleConversion &&  visibleConversionsWithTwoSimTracks ) ) continue;
 
       h_simConvVtxRvsZ_[0] ->Fill ( fabs (mcConvZ_), mcConvR_  ) ;
@@ -937,20 +937,20 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	h_simConvVtxRvsZ_[1] ->Fill ( fabs (mcConvZ_), mcConvR_  ) ;
 	h_simConvVtxYvsX_ ->Fill ( mcConvX_, mcConvY_  ) ;
       }
-      else 
+      else
 	h_simConvVtxRvsZ_[2] ->Fill ( fabs (mcConvZ_), mcConvR_  ) ;
 
-      //std::cout << " TkConvValidator  theConvTP_ size " <<   theConvTP_.size() << std::endl;	
+      //std::cout << " TkConvValidator  theConvTP_ size " <<   theConvTP_.size() << std::endl;
       for ( edm::RefVector<TrackingParticleCollection>::iterator iTP= theConvTP_.begin(); iTP!=theConvTP_.end(); iTP++)
 	{
 	  //  std::cout << " SIM to RECO TP vertex " << (*iTP)->vx() << " " <<  (*iTP)->vy() << " " << (*iTP)->vz() << " pt " << (*iTP)->pt() << std::endl;
 	}
 
-     bool recomatch = false;  
+     bool recomatch = false;
      float chi2Prob = 0.;
-      //////////////////Measure reco efficiencies  
+      //////////////////Measure reco efficiencies
      for (reco::ConversionCollection::const_iterator conv = convHandle->begin();conv!=convHandle->end();++conv) {
-       
+
 	const reco::Conversion aConv = (*conv);
         if ( arbitratedMerged_ && !aConv.quality(reco::Conversion::arbitratedMerged)  ) continue;
 	if ( generalTracksOnly_ && !aConv.quality(reco::Conversion::generalTracksOnly) ) continue;
@@ -966,14 +966,14 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	const reco::Vertex& vtx = aConv.conversionVertex();
 	//requires two tracks and a valid vertex
 	if (tracks.size() !=2 || !(vtx.isValid())) continue;
-        	
+
 
         if (ChiSquaredProbability( aConv.conversionVertex().chi2(),  aConv.conversionVertex().ndof() ) <= minProb_) continue;
         if (aConv.nHitsBeforeVtx().size()>1 && max(aConv.nHitsBeforeVtx().at(0),aConv.nHitsBeforeVtx().at(1)) > maxHitsBeforeVtx_ ) continue;
 
 
         //compute transverse decay length with respect to beamspot
-        math::XYZVectorF  themom = aConv.refittedPairMomentum(); 
+        math::XYZVectorF  themom = aConv.refittedPairMomentum();
         double dbsx = aConv.conversionVertex().x() - thebs.x0();
         double dbsy = aConv.conversionVertex().y() - thebs.y0();
         double lxy = (themom.x()*dbsx + themom.y()*dbsy)/themom.rho();
@@ -985,7 +985,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	RefToBase<reco::Track> tfrb1 = aConv.tracks().front();
 	RefToBase<reco::Track> tfrb2 = aConv.tracks().back();
 
-        if ( ecalalgotracks_ && ( !(tfrb1->algo()==15 || tfrb1->algo()==16) || !(tfrb2->algo()==15 || tfrb2->algo()==16)  )  ) continue; 
+        if ( ecalalgotracks_ && ( !(tfrb1->algo()==15 || tfrb1->algo()==16) || !(tfrb2->algo()==15 || tfrb2->algo()==16)  )  ) continue;
 
 
 	//reco::TrackRef tk1 = aConv.tracks().front();
@@ -999,7 +999,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	bool isAssociated = false;
 	reco::SimToRecoCollection q1 = theTrackAssociator_->associateSimToReco(tc1,theConvTP_,&e);
 	reco::SimToRecoCollection q2 = theTrackAssociator_->associateSimToReco(tc2,theConvTP_,&e);
-	//try { 
+	//try {
 	  std::vector<std::pair<RefToBase<reco::Track>, double> > trackV1, trackV2;
 
 	  int tp_1 = 0, tp_2 = 1;//the index of associated tp in theConvTP_ for two tracks
@@ -1033,9 +1033,9 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 
 	isAssociated = true;
-        recomatch = true;	  
+        recomatch = true;
         chi2Prob = ChiSquaredProbability( aConv.conversionVertex().chi2(),  aConv.conversionVertex().ndof() );
-        
+
         if (isAssociated) {
           h_SimRecConvTwoMTracks_[0]->Fill( mcEta_ ) ;
           h_SimRecConvTwoMTracks_[1]->Fill( mcPhi_ );
@@ -1043,36 +1043,36 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
           h_SimRecConvTwoMTracks_[3]->Fill( mcConvZ_ );
           h_SimRecConvTwoMTracks_[4]->Fill(  (*mcPho).fourMomentum().et());
         }
-        
+
        // break;
       } // loop over reco conversions
       if (recomatch) {
-        ////////// Numerators for conversion efficiencies, both tracks are associated 
+        ////////// Numerators for conversion efficiencies, both tracks are associated
         h_SimConvTwoMTracks_[0]->Fill( mcEta_ ) ;
         h_SimConvTwoMTracks_[1]->Fill( mcPhi_ );
         h_SimConvTwoMTracks_[2]->Fill( mcConvR_ );
         h_SimConvTwoMTracks_[3]->Fill( mcConvZ_ );
         h_SimConvTwoMTracks_[4]->Fill(  (*mcPho).fourMomentum().et());
-        
-        
+
+
         if (   chi2Prob > 0) {
           h_SimConvTwoMTracksAndVtxPGT0_[0]->Fill( mcEta_ ) ;
           h_SimConvTwoMTracksAndVtxPGT0_[1]->Fill( mcPhi_ );
-          h_SimConvTwoMTracksAndVtxPGT0_[2]->Fill( mcConvR_ ); 
+          h_SimConvTwoMTracksAndVtxPGT0_[2]->Fill( mcConvR_ );
           h_SimConvTwoMTracksAndVtxPGT0_[3]->Fill( mcConvZ_ );
-          h_SimConvTwoMTracksAndVtxPGT0_[4]->Fill(  (*mcPho).fourMomentum().et()); 
+          h_SimConvTwoMTracksAndVtxPGT0_[4]->Fill(  (*mcPho).fourMomentum().et());
         }
         if (   chi2Prob > 0.0005) {
           h_SimConvTwoMTracksAndVtxPGT0005_[0]->Fill( mcEta_ ) ;
           h_SimConvTwoMTracksAndVtxPGT0005_[1]->Fill( mcPhi_ );
-          h_SimConvTwoMTracksAndVtxPGT0005_[2]->Fill( mcConvR_ ); 
+          h_SimConvTwoMTracksAndVtxPGT0005_[2]->Fill( mcConvR_ );
           h_SimConvTwoMTracksAndVtxPGT0005_[3]->Fill( mcConvZ_ );
-          h_SimConvTwoMTracksAndVtxPGT0005_[4]->Fill(  (*mcPho).fourMomentum().et()); 
-          
+          h_SimConvTwoMTracksAndVtxPGT0005_[4]->Fill(  (*mcPho).fourMomentum().et());
+
         }
       }
 
-  } //End loop over simulated conversions 
+  } //End loop over simulated conversions
 
 
   // ########################### RECO to SIM ############################## //
@@ -1094,18 +1094,18 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     if (tracks.size() !=2 || !(vtx.isValid())) continue;
     //if (tracks.size() !=2) continue;
 
-    
+
     if (ChiSquaredProbability( aConv.conversionVertex().chi2(),  aConv.conversionVertex().ndof() ) <= minProb_) continue;
     if (aConv.nHitsBeforeVtx().size()>1 && max(aConv.nHitsBeforeVtx().at(0),aConv.nHitsBeforeVtx().at(1)) > maxHitsBeforeVtx_ ) continue;
 
     //compute transverse decay length with respect to beamspot
-    math::XYZVectorF  themom = aConv.refittedPairMomentum(); 
+    math::XYZVectorF  themom = aConv.refittedPairMomentum();
     double dbsx = aConv.conversionVertex().x() - thebs.x0();
     double dbsy = aConv.conversionVertex().y() - thebs.y0();
     double lxy = (themom.x()*dbsx + themom.y()*dbsy)/themom.rho();
 
     if (lxy<minLxy_) continue;
-    
+
     bool  phoIsInBarrel=false;
     bool  phoIsInEndcap=false;
     RefToBase<reco::Track> tk1 = aConv.tracks().front();
@@ -1114,7 +1114,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     tc1.push_back(tk1);
     tc2.push_back(tk2);
 
-   if ( ecalalgotracks_ && ( !(tk1->algo()==15 || tk1->algo()==16) || !(tk2->algo()==15 || tk2->algo()==16)  )  ) continue; 
+   if ( ecalalgotracks_ && ( !(tk1->algo()==15 || tk1->algo()==16) || !(tk2->algo()==15 || tk2->algo()==16)  )  ) continue;
 
 
     //std::cout << " RECO to SIM conversion track pt " << tk1->pt() << " " << tk2->pt() << endl;
@@ -1123,7 +1123,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
     //TODO replace it with phi at vertex
     float  dPhiTracksAtVtx =  aConv.dPhiTracksAtVtx();
-    // override with the phi calculated at the vertex    
+    // override with the phi calculated at the vertex
     math::XYZVector p1AtVtx= recalculateMomentumAtFittedVertex (  (*theMF_), *trackerGeom, tk1,  aConv.conversionVertex() );
     math::XYZVector p2AtVtx= recalculateMomentumAtFittedVertex (  (*theMF_), *trackerGeom, tk2,  aConv.conversionVertex() );
     if (  sqrt(p1AtVtx.perp2())  >  sqrt(p2AtVtx.perp2())  )
@@ -1131,17 +1131,17 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     else
       dPhiTracksAtVtx = p2AtVtx.phi() - p1AtVtx.phi();
 
-    
-    math::XYZVector convMom =  tk1->momentum() + tk2->momentum(); 
+
+    math::XYZVector convMom =  tk1->momentum() + tk2->momentum();
     math::XYZVectorF refittedMom =  aConv.refittedPairMomentum();
 
-    
+
     if (fabs(refittedMom.eta())< 1.479 ) {
       phoIsInBarrel=true;
     } else {
       phoIsInEndcap=true;
     }
-    
+
     nRecConv_++;
 
     ///////////  Quantities per conversion
@@ -1152,7 +1152,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     uint sumNHitsBeforeVtx = aConv.nHitsBeforeVtx().size()>1 ? aConv.nHitsBeforeVtx().at(0) + aConv.nHitsBeforeVtx().at(1) : 0;
     float maxDlClosestHitToVtx = aConv.dlClosestHitToVtx().size()>1 ? max(aConv.dlClosestHitToVtx().at(0).value(),aConv.dlClosestHitToVtx().at(1).value()) : 0;
     float maxDlClosestHitToVtxSig = aConv.dlClosestHitToVtx().size()>1 ? max(aConv.dlClosestHitToVtx().at(0).value()/aConv.dlClosestHitToVtx().at(0).error(),aConv.dlClosestHitToVtx().at(1).value()/aConv.dlClosestHitToVtx().at(1).error()) : 0;
-    
+
     int ilead = 0, itrail = 1;
     if (tk2->pt() > tk1->pt()) {
       ilead = 1;
@@ -1167,87 +1167,87 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     uint trailNHitsBeforeVtx = aConv.nHitsBeforeVtx().size()>1 ? aConv.nHitsBeforeVtx().at(itrail) : 0;
 
 
-    h_convEta_[match][0]->Fill( refittedMom.eta() );		
-    h_convEta2_[match][0]->Fill( refittedMom.eta() );		
-    h_convPhi_[match][0]->Fill( refittedMom.phi() );		
+    h_convEta_[match][0]->Fill( refittedMom.eta() );
+    h_convEta2_[match][0]->Fill( refittedMom.eta() );
+    h_convPhi_[match][0]->Fill( refittedMom.phi() );
     h_convR_[match][0]->Fill( sqrt(aConv.conversionVertex().position().perp2()) );
     h_convRplot_->Fill( sqrt(aConv.conversionVertex().position().perp2()) );
     h_convZ_[match][0]->Fill( aConv.conversionVertex().position().z() );
     h_convZplot_->Fill( aConv.conversionVertex().position().z() );
-    h_convPt_[match][0]->Fill(  sqrt(refittedMom.perp2()) );		
+    h_convPt_[match][0]->Fill(  sqrt(refittedMom.perp2()) );
     h_invMass_[match][0] ->Fill( invM);
-    h_vtxChi2Prob_[match][0] ->Fill (chi2Prob);  
-    h_lxybs_[match][0] ->Fill (lxy);  
-    h_maxNHitsBeforeVtx_[match][0] ->Fill (maxNHitsBeforeVtx);  
-    h_leadNHitsBeforeVtx_[match][0] ->Fill (leadNHitsBeforeVtx);  
-    h_trailNHitsBeforeVtx_[match][0] ->Fill (trailNHitsBeforeVtx);  
+    h_vtxChi2Prob_[match][0] ->Fill (chi2Prob);
+    h_lxybs_[match][0] ->Fill (lxy);
+    h_maxNHitsBeforeVtx_[match][0] ->Fill (maxNHitsBeforeVtx);
+    h_leadNHitsBeforeVtx_[match][0] ->Fill (leadNHitsBeforeVtx);
+    h_trailNHitsBeforeVtx_[match][0] ->Fill (trailNHitsBeforeVtx);
     h_sumNHitsBeforeVtx_[match][0] ->Fill (sumNHitsBeforeVtx);
-    h_deltaExpectedHitsInner_[match][0] ->Fill (deltaExpectedHitsInner);  
-    h_leadExpectedHitsInner_[match][0] ->Fill (leadExpectedHitsInner);  
-    h_maxDlClosestHitToVtx_[match][0] ->Fill (maxDlClosestHitToVtx);  
-    h_maxDlClosestHitToVtxSig_[match][0] ->Fill (maxDlClosestHitToVtxSig);  
-    h_nSharedHits_[match][0] ->Fill (aConv.nSharedHits());  
-
-    
-    
+    h_deltaExpectedHitsInner_[match][0] ->Fill (deltaExpectedHitsInner);
+    h_leadExpectedHitsInner_[match][0] ->Fill (leadExpectedHitsInner);
+    h_maxDlClosestHitToVtx_[match][0] ->Fill (maxDlClosestHitToVtx);
+    h_maxDlClosestHitToVtxSig_[match][0] ->Fill (maxDlClosestHitToVtxSig);
+    h_nSharedHits_[match][0] ->Fill (aConv.nSharedHits());
 
 
-  
-    
-  
+
+
+
+
+
+
     h_distMinAppTracks_[match][0] ->Fill (aConv.distOfMinimumApproach());
     h_DPhiTracksAtVtx_[match][0]->Fill( dPhiTracksAtVtx);
     h2_DPhiTracksAtVtxVsEta_->Fill( mcEta_, dPhiTracksAtVtx);
     h2_DPhiTracksAtVtxVsR_->Fill( mcConvR_, dPhiTracksAtVtx);
     p_DPhiTracksAtVtxVsEta_->Fill( mcEta_, dPhiTracksAtVtx);
     p_DPhiTracksAtVtxVsR_->Fill( mcConvR_, dPhiTracksAtVtx);
-    
+
     h_DCotTracks_[match][0] ->Fill ( aConv.pairCotThetaSeparation() );
     h2_DCotTracksVsEta_->Fill( mcEta_, aConv.pairCotThetaSeparation() );
     h2_DCotTracksVsR_->Fill( mcConvR_, aConv.pairCotThetaSeparation() );
     p_DCotTracksVsEta_->Fill( mcEta_, aConv.pairCotThetaSeparation() );
     p_DCotTracksVsR_->Fill( mcConvR_, aConv.pairCotThetaSeparation() );
-    
+
     if ( phoIsInBarrel ) {
       h_invMass_[match][1] ->Fill(invM);
-      h_vtxChi2Prob_[match][1] ->Fill (chi2Prob);    
+      h_vtxChi2Prob_[match][1] ->Fill (chi2Prob);
       h_distMinAppTracks_[match][1] ->Fill (aConv.distOfMinimumApproach());
       h_DPhiTracksAtVtx_[match][1]->Fill( dPhiTracksAtVtx);
       h_DCotTracks_[match][1] ->Fill ( aConv.pairCotThetaSeparation() );
-      h_lxybs_[match][1] ->Fill (lxy);  
-      h_maxNHitsBeforeVtx_[match][1] ->Fill (maxNHitsBeforeVtx);  
-      h_leadNHitsBeforeVtx_[match][1] ->Fill (leadNHitsBeforeVtx);  
-      h_trailNHitsBeforeVtx_[match][1] ->Fill (trailNHitsBeforeVtx);  
+      h_lxybs_[match][1] ->Fill (lxy);
+      h_maxNHitsBeforeVtx_[match][1] ->Fill (maxNHitsBeforeVtx);
+      h_leadNHitsBeforeVtx_[match][1] ->Fill (leadNHitsBeforeVtx);
+      h_trailNHitsBeforeVtx_[match][1] ->Fill (trailNHitsBeforeVtx);
       h_sumNHitsBeforeVtx_[match][1] ->Fill (sumNHitsBeforeVtx);
-      h_deltaExpectedHitsInner_[match][1] ->Fill (deltaExpectedHitsInner);  
-      h_leadExpectedHitsInner_[match][1] ->Fill (leadExpectedHitsInner);        
-      h_maxDlClosestHitToVtx_[match][1] ->Fill (maxDlClosestHitToVtx);  
-      h_maxDlClosestHitToVtxSig_[match][1] ->Fill (maxDlClosestHitToVtxSig);  
-      h_nSharedHits_[match][1] ->Fill (aConv.nSharedHits());  
-      
+      h_deltaExpectedHitsInner_[match][1] ->Fill (deltaExpectedHitsInner);
+      h_leadExpectedHitsInner_[match][1] ->Fill (leadExpectedHitsInner);
+      h_maxDlClosestHitToVtx_[match][1] ->Fill (maxDlClosestHitToVtx);
+      h_maxDlClosestHitToVtxSig_[match][1] ->Fill (maxDlClosestHitToVtxSig);
+      h_nSharedHits_[match][1] ->Fill (aConv.nSharedHits());
+
     }
-    
-        
+
+
     if ( phoIsInEndcap ) {
       h_invMass_[match][2] ->Fill(invM);
-      h_vtxChi2Prob_[match][2] ->Fill (chi2Prob);  
+      h_vtxChi2Prob_[match][2] ->Fill (chi2Prob);
       h_distMinAppTracks_[match][2] ->Fill (aConv.distOfMinimumApproach());
       h_DPhiTracksAtVtx_[match][2]->Fill( dPhiTracksAtVtx);
       h_DCotTracks_[match][2] ->Fill ( aConv.pairCotThetaSeparation() );
-      h_lxybs_[match][2] ->Fill (lxy);  
-      h_maxNHitsBeforeVtx_[match][2] ->Fill (maxNHitsBeforeVtx);  
-      h_leadNHitsBeforeVtx_[match][2] ->Fill (leadNHitsBeforeVtx);  
-      h_trailNHitsBeforeVtx_[match][2] ->Fill (trailNHitsBeforeVtx);  
+      h_lxybs_[match][2] ->Fill (lxy);
+      h_maxNHitsBeforeVtx_[match][2] ->Fill (maxNHitsBeforeVtx);
+      h_leadNHitsBeforeVtx_[match][2] ->Fill (leadNHitsBeforeVtx);
+      h_trailNHitsBeforeVtx_[match][2] ->Fill (trailNHitsBeforeVtx);
       h_sumNHitsBeforeVtx_[match][2] ->Fill (sumNHitsBeforeVtx);
-      h_deltaExpectedHitsInner_[match][2] ->Fill (deltaExpectedHitsInner);  
-      h_leadExpectedHitsInner_[match][2] ->Fill (leadExpectedHitsInner);        
-      h_maxDlClosestHitToVtx_[match][2] ->Fill (maxDlClosestHitToVtx);  
+      h_deltaExpectedHitsInner_[match][2] ->Fill (deltaExpectedHitsInner);
+      h_leadExpectedHitsInner_[match][2] ->Fill (leadExpectedHitsInner);
+      h_maxDlClosestHitToVtx_[match][2] ->Fill (maxDlClosestHitToVtx);
       h_maxDlClosestHitToVtxSig_[match][2] ->Fill (maxDlClosestHitToVtxSig);
-      h_nSharedHits_[match][2] ->Fill (aConv.nSharedHits());  
+      h_nSharedHits_[match][2] ->Fill (aConv.nSharedHits());
 
     }
 
-    h_convVtxRvsZ_[0] ->Fill ( fabs (aConv.conversionVertex().position().z() ),  sqrt(aConv.conversionVertex().position().perp2())  ) ;    
+    h_convVtxRvsZ_[0] ->Fill ( fabs (aConv.conversionVertex().position().z() ),  sqrt(aConv.conversionVertex().position().perp2())  ) ;
     h_convVtxYvsX_ ->Fill (  aConv.conversionVertex().position().x(), aConv.conversionVertex().position().y() );
     h_convVtxYvsX_zoom_[0] ->Fill (  aConv.conversionVertex().position().x(), aConv.conversionVertex().position().y() );
     h_convVtxYvsX_zoom_[1] ->Fill (  aConv.conversionVertex().position().x(), aConv.conversionVertex().position().y() );
@@ -1262,51 +1262,51 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	d0 = tracks[i]->d0();
       }
       h_TkD0_[match]->Fill ( d0* tracks[i]->charge() );
-      h_nHitsBeforeVtx_[match]->Fill ( aConv.nHitsBeforeVtx().size()>1 ? aConv.nHitsBeforeVtx().at(i) : 0 ); 
-      h_dlClosestHitToVtx_[match]->Fill ( aConv.dlClosestHitToVtx().size()>1 ? aConv.dlClosestHitToVtx().at(i).value() : 0 ); 
-      h_dlClosestHitToVtxSig_[match]->Fill ( aConv.dlClosestHitToVtx().size()>1 ? aConv.dlClosestHitToVtx().at(i).value()/aConv.dlClosestHitToVtx().at(i).error() : 0 ); 
+      h_nHitsBeforeVtx_[match]->Fill ( aConv.nHitsBeforeVtx().size()>1 ? aConv.nHitsBeforeVtx().at(i) : 0 );
+      h_dlClosestHitToVtx_[match]->Fill ( aConv.dlClosestHitToVtx().size()>1 ? aConv.dlClosestHitToVtx().at(i).value() : 0 );
+      h_dlClosestHitToVtxSig_[match]->Fill ( aConv.dlClosestHitToVtx().size()>1 ? aConv.dlClosestHitToVtx().at(i).value()/aConv.dlClosestHitToVtx().at(i).error() : 0 );
 
       nHitsVsEta_[match] ->Fill (mcEta_,   float(tracks[i]->numberOfValidHits()) );
       nHitsVsR_[match] ->Fill (mcConvR_,   float(tracks[i]->numberOfValidHits()) );
       p_nHitsVsEta_[match] ->Fill (mcEta_,   float(tracks[i]->numberOfValidHits()) -0.0001);
       p_nHitsVsR_[match] ->Fill (mcConvR_,   float(tracks[i]->numberOfValidHits()) -0.0001);
-      h_tkChi2_[match] ->Fill (tracks[i]->normalizedChi2() ); 
-      h_tkChi2Large_[match] ->Fill (tracks[i]->normalizedChi2() ); 
-      h2_Chi2VsEta_[match] ->Fill(  mcEta_, tracks[i]->normalizedChi2() ); 
-      h2_Chi2VsR_[match] ->Fill(  mcConvR_, tracks[i]->normalizedChi2() ); 
-      p_Chi2VsEta_[match] ->Fill(  mcEta_, tracks[i]->normalizedChi2() ); 
-      p_Chi2VsR_[match] ->Fill(  mcConvR_, tracks[i]->normalizedChi2() ); 
+      h_tkChi2_[match] ->Fill (tracks[i]->normalizedChi2() );
+      h_tkChi2Large_[match] ->Fill (tracks[i]->normalizedChi2() );
+      h2_Chi2VsEta_[match] ->Fill(  mcEta_, tracks[i]->normalizedChi2() );
+      h2_Chi2VsR_[match] ->Fill(  mcConvR_, tracks[i]->normalizedChi2() );
+      p_Chi2VsEta_[match] ->Fill(  mcEta_, tracks[i]->normalizedChi2() );
+      p_Chi2VsR_[match] ->Fill(  mcConvR_, tracks[i]->normalizedChi2() );
 
     }
 
-    bool associated = false;  
-    float mcConvPt_= -99999999; 
+    bool associated = false;
+    float mcConvPt_= -99999999;
     //    float mcPhi= 0; // unused
     float simPV_Z=0;
     for ( std::vector<PhotonMCTruth>::const_iterator mcPho=mcPhotons.begin(); mcPho !=mcPhotons.end(); mcPho++) {
-      mcConvPt_= (*mcPho).fourMomentum().et();     
+      mcConvPt_= (*mcPho).fourMomentum().et();
       float mcPhi= (*mcPho).fourMomentum().phi();
       simPV_Z = (*mcPho).primaryVertex().z();
       mcPhi_= phiNormalization(mcPhi);
-      mcEta_= (*mcPho).fourMomentum().pseudoRapidity();   
-      mcEta_ = etaTransformation(mcEta_, (*mcPho).primaryVertex().z() ); 
-      mcConvR_= (*mcPho).vertex().perp();   
-      mcConvX_= (*mcPho).vertex().x();    
-      mcConvY_= (*mcPho).vertex().y();    
-      mcConvZ_= (*mcPho).vertex().z();  
-      mcConvEta_= (*mcPho).vertex().eta();    
+      mcEta_= (*mcPho).fourMomentum().pseudoRapidity();
+      mcEta_ = etaTransformation(mcEta_, (*mcPho).primaryVertex().z() );
+      mcConvR_= (*mcPho).vertex().perp();
+      mcConvX_= (*mcPho).vertex().x();
+      mcConvY_= (*mcPho).vertex().y();
+      mcConvZ_= (*mcPho).vertex().z();
+      mcConvEta_= (*mcPho).vertex().eta();
       mcConvPhi_= (*mcPho).vertex().phi();
       if ( fabs(mcEta_) > END_HI ) continue;
       if (mcConvPt_<minPhoPtForPurity) continue;
       if (fabs(mcEta_)>maxPhoEtaForPurity) continue;
       if (fabs(mcConvZ_)>maxPhoZForPurity) continue;
       if (mcConvR_>maxPhoRForEffic) continue;
-      
+
       if (  (*mcPho).isAConversion() != 1 ) continue;
-      if (!( ( fabs(mcEta_) <= BARL && mcConvR_ <85 )  || 
+      if (!( ( fabs(mcEta_) <= BARL && mcConvR_ <85 )  ||
 	     ( fabs(mcEta_) > BARL && fabs(mcEta_) <=END_HI && fabs( (*mcPho).vertex().z() ) < 210 )  ) )
 	continue;
-      
+
 
       theConvTP_.clear();
       for(size_t i = 0; i < tpForFakeRate.size(); ++i){
@@ -1314,9 +1314,9 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	if ( fabs( tp->vx() - (*mcPho).vertex().x() ) < 0.0001   &&
 	     fabs( tp->vy() - (*mcPho).vertex().y() ) < 0.0001   &&
 	     fabs( tp->vz() - (*mcPho).vertex().z() ) < 0.0001) {
-	  theConvTP_.push_back( tp );	
-	  
-	  
+	  theConvTP_.push_back( tp );
+
+
 	}
       }
 
@@ -1325,7 +1325,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       //associated = false;
       reco::RecoToSimCollection p1 =  theTrackAssociator_->associateRecoToSim(tc1,theConvTP_,&e);
       reco::RecoToSimCollection p2 =  theTrackAssociator_->associateRecoToSim(tc2,theConvTP_,&e);
-      try{ 
+      try{
 	std::vector<std::pair<TrackingParticleRef, double> > tp1 = p1[tk1];
 	std::vector<std::pair<TrackingParticleRef, double> > tp2 = p2[tk2];
 	if (!(tp1.size()&&tp2.size())){
@@ -1336,7 +1336,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  TrackingParticleRef tpr1 = tp1.front().first;
 	  TrackingParticleRef tpr2 = tp2.front().first;
 	  if (abs(tpr1->pdgId())==11&&abs(tpr2->pdgId())==11&& tpr1->pdgId()*tpr2->pdgId()<0) {
-	    if ( (tpr1->parentVertex()->sourceTracks_end()-tpr1->parentVertex()->sourceTracks_begin()==1) && 
+	    if ( (tpr1->parentVertex()->sourceTracks_end()-tpr1->parentVertex()->sourceTracks_begin()==1) &&
 		 (tpr2->parentVertex()->sourceTracks_end()-tpr2->parentVertex()->sourceTracks_begin()==1)) {
 	      if (tpr1->parentVertex().key()==tpr2->parentVertex().key() && ((*tpr1->parentVertex()->sourceTracks_begin())->pdgId()==22)) {
 		mcConvR_ = sqrt(tpr1->parentVertex()->position().Perp2());
@@ -1361,67 +1361,67 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       }
 
     }// end loop on sim photons
-    
+
 
     if (0) {
         theConvTP_.clear();
         for(size_t i = 0; i < tpForFakeRate.size(); ++i){
           TrackingParticleRef tp (TPHandleForFakeRate,i);
-            theConvTP_.push_back( tp );            
+            theConvTP_.push_back( tp );
         }
         reco::RecoToSimCollection p1incl =  theTrackAssociator_->associateRecoToSim(tc1,theConvTP_,&e);
         reco::RecoToSimCollection p2incl =  theTrackAssociator_->associateRecoToSim(tc2,theConvTP_,&e);
-  
+
 
       for ( std::vector<PhotonMCTruth>::const_iterator mcPho=mcPhotons.begin(); mcPho !=mcPhotons.end(); mcPho++) {
-        mcConvPt_= (*mcPho).fourMomentum().et();     
+        mcConvPt_= (*mcPho).fourMomentum().et();
         float mcPhi= (*mcPho).fourMomentum().phi();
         simPV_Z = (*mcPho).primaryVertex().z();
         mcPhi_= phiNormalization(mcPhi);
-        mcEta_= (*mcPho).fourMomentum().pseudoRapidity();   
-        mcEta_ = etaTransformation(mcEta_, (*mcPho).primaryVertex().z() ); 
-        mcConvR_= (*mcPho).vertex().perp();   
-        mcConvX_= (*mcPho).vertex().x();    
-        mcConvY_= (*mcPho).vertex().y();    
-        mcConvZ_= (*mcPho).vertex().z();  
-        mcConvEta_= (*mcPho).vertex().eta();    
+        mcEta_= (*mcPho).fourMomentum().pseudoRapidity();
+        mcEta_ = etaTransformation(mcEta_, (*mcPho).primaryVertex().z() );
+        mcConvR_= (*mcPho).vertex().perp();
+        mcConvX_= (*mcPho).vertex().x();
+        mcConvY_= (*mcPho).vertex().y();
+        mcConvZ_= (*mcPho).vertex().z();
+        mcConvEta_= (*mcPho).vertex().eta();
         mcConvPhi_= (*mcPho).vertex().phi();
         if ( fabs(mcEta_) > END_HI ) continue;
         if (mcConvPt_<minPhoPtForPurity) continue;
         if (fabs(mcEta_)>maxPhoEtaForPurity) continue;
         if (fabs(mcConvZ_)>maxPhoZForPurity) continue;
         if (mcConvR_>maxPhoRForEffic) continue;
-        
+
         if (  (*mcPho).isAConversion() != 1 ) continue;
-        if (!( ( fabs(mcEta_) <= BARL && mcConvR_ <85 )  || 
+        if (!( ( fabs(mcEta_) <= BARL && mcConvR_ <85 )  ||
               ( fabs(mcEta_) > BARL && fabs(mcEta_) <=END_HI && fabs( (*mcPho).vertex().z() ) < 210 )  ) )
           continue;
-        
-  
+
+
         theConvTP_.clear();
         for(size_t i = 0; i < tpForFakeRate.size(); ++i){
           TrackingParticleRef tp (TPHandleForFakeRate,i);
           if ( fabs( tp->vx() - (*mcPho).vertex().x() ) < 0.0001   &&
               fabs( tp->vy() - (*mcPho).vertex().y() ) < 0.0001   &&
               fabs( tp->vz() - (*mcPho).vertex().z() ) < 0.0001) {
-            theConvTP_.push_back( tp );   
-            
-            
+            theConvTP_.push_back( tp );
+
+
           }
         }
-  
+
         if ( theConvTP_.size() < 2 )   continue;
-  
+
         //associated = false;
         reco::RecoToSimCollection p1 =  theTrackAssociator_->associateRecoToSim(tc1,theConvTP_,&e);
         reco::RecoToSimCollection p2 =  theTrackAssociator_->associateRecoToSim(tc2,theConvTP_,&e);
-  
-  
-        
-  
-  
+
+
+
+
+
           if ( (p1incl.size() && p2incl.size()) && (p1.size() || p2.size()) ) { // associated = true;
-            try{ 
+            try{
               std::vector<std::pair<TrackingParticleRef, double> > tp1 = p1incl[tk1];
               std::vector<std::pair<TrackingParticleRef, double> > tp2 = p2incl[tk2];
               if (!(tp1.size()&&tp2.size())){
@@ -1432,7 +1432,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
                 TrackingParticleRef tpr1 = tp1.front().first;
                 TrackingParticleRef tpr2 = tp2.front().first;
                 if (abs(tpr1->pdgId())==11&&abs(tpr2->pdgId())==11 && tpr1->pdgId()*tpr2->pdgId()<0) {
-                  if ( ((tpr1->parentVertex()->sourceTracks_end()-tpr1->parentVertex()->sourceTracks_begin()>=1) && (*tpr1->parentVertex()->sourceTracks_begin())->pdgId()==22) && 
+                  if ( ((tpr1->parentVertex()->sourceTracks_end()-tpr1->parentVertex()->sourceTracks_begin()>=1) && (*tpr1->parentVertex()->sourceTracks_begin())->pdgId()==22) &&
                       ((tpr2->parentVertex()->sourceTracks_end()-tpr2->parentVertex()->sourceTracks_begin()>=1) && (*tpr2->parentVertex()->sourceTracks_begin())->pdgId()==22) ) {
 
                    // if ( fabs(tpr1->vx() - tpr2->vx()) < 0.1 && fabs(tpr1->vy() - tpr2->vy()) < 0.1 && fabs(tpr1->vz() - tpr2->vz()) < 0.1) {
@@ -1458,88 +1458,88 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
               //cout << "do not continue: " << event.what()  << endl;
               //continue;
             }
-  
+
           }
 
         }
       }
 
       if ( associated ) match=1;
-      else 
+      else
 	match=2;
-      
+
       h_match_->Fill(float(match));
       //////// here reco is matched to sim or is fake
-      if ( match == 1) nRecConvAss_++; 
-      h_convEta_[match][0]->Fill( refittedMom.eta() );		
-      h_convPhi_[match][0]->Fill( refittedMom.phi() );	
+      if ( match == 1) nRecConvAss_++;
+      h_convEta_[match][0]->Fill( refittedMom.eta() );
+      h_convPhi_[match][0]->Fill( refittedMom.phi() );
       h_convR_[match][0]->Fill( sqrt(aConv.conversionVertex().position().perp2()) );
       h_convZ_[match][0]->Fill( aConv.conversionVertex().position().z() );
-      h_convPt_[match][0]->Fill(  sqrt(refittedMom.perp2()) );		
+      h_convPt_[match][0]->Fill(  sqrt(refittedMom.perp2()) );
       h_invMass_[match][0] ->Fill( invM);
-      h_vtxChi2Prob_[match][0] ->Fill (chi2Prob);  
+      h_vtxChi2Prob_[match][0] ->Fill (chi2Prob);
       h_DPhiTracksAtVtx_[match][0]->Fill( dPhiTracksAtVtx);
       h_DCotTracks_[match][0] ->Fill ( aConv.pairCotThetaSeparation() );
       h_distMinAppTracks_[match][0] ->Fill (aConv.distOfMinimumApproach());
-      h_lxybs_[match][0] ->Fill (lxy);  
-      h_maxNHitsBeforeVtx_[match][0] ->Fill (maxNHitsBeforeVtx);  
-      h_leadNHitsBeforeVtx_[match][0] ->Fill (leadNHitsBeforeVtx);  
-      h_trailNHitsBeforeVtx_[match][0] ->Fill (trailNHitsBeforeVtx);  
+      h_lxybs_[match][0] ->Fill (lxy);
+      h_maxNHitsBeforeVtx_[match][0] ->Fill (maxNHitsBeforeVtx);
+      h_leadNHitsBeforeVtx_[match][0] ->Fill (leadNHitsBeforeVtx);
+      h_trailNHitsBeforeVtx_[match][0] ->Fill (trailNHitsBeforeVtx);
       h_sumNHitsBeforeVtx_[match][0] ->Fill (sumNHitsBeforeVtx);
-      h_deltaExpectedHitsInner_[match][0] ->Fill (deltaExpectedHitsInner);  
-      h_leadExpectedHitsInner_[match][0] ->Fill (leadExpectedHitsInner);      
-      h_maxDlClosestHitToVtx_[match][0] ->Fill (maxDlClosestHitToVtx);  
-      h_maxDlClosestHitToVtxSig_[match][0] ->Fill (maxDlClosestHitToVtxSig);  
-      h_nSharedHits_[match][0] ->Fill (aConv.nSharedHits());  
+      h_deltaExpectedHitsInner_[match][0] ->Fill (deltaExpectedHitsInner);
+      h_leadExpectedHitsInner_[match][0] ->Fill (leadExpectedHitsInner);
+      h_maxDlClosestHitToVtx_[match][0] ->Fill (maxDlClosestHitToVtx);
+      h_maxDlClosestHitToVtxSig_[match][0] ->Fill (maxDlClosestHitToVtxSig);
+      h_nSharedHits_[match][0] ->Fill (aConv.nSharedHits());
 
-      
+
       if ( match==1) {
 	h2_photonPtRecVsPtSim_->Fill ( mcConvPt_, sqrt(refittedMom.perp2()) );
-	h_convPtRes_[0]->Fill (  sqrt(refittedMom.perp2())/mcConvPt_);        
+	h_convPtRes_[0]->Fill (  sqrt(refittedMom.perp2())/mcConvPt_);
       }
 
     if ( phoIsInBarrel ) {
       h_invMass_[match][1] ->Fill(invM);
-      h_vtxChi2Prob_[match][1] ->Fill (chi2Prob);  
+      h_vtxChi2Prob_[match][1] ->Fill (chi2Prob);
       h_DPhiTracksAtVtx_[match][1]->Fill( dPhiTracksAtVtx);
       h_DCotTracks_[match][1] ->Fill ( aConv.pairCotThetaSeparation() );
       h_distMinAppTracks_[match][1] ->Fill (aConv.distOfMinimumApproach());
-      h_lxybs_[match][1] ->Fill (lxy);  
-      h_maxNHitsBeforeVtx_[match][1] ->Fill (maxNHitsBeforeVtx);  
-      h_leadNHitsBeforeVtx_[match][1] ->Fill (leadNHitsBeforeVtx);  
-      h_trailNHitsBeforeVtx_[match][1] ->Fill (trailNHitsBeforeVtx);  
+      h_lxybs_[match][1] ->Fill (lxy);
+      h_maxNHitsBeforeVtx_[match][1] ->Fill (maxNHitsBeforeVtx);
+      h_leadNHitsBeforeVtx_[match][1] ->Fill (leadNHitsBeforeVtx);
+      h_trailNHitsBeforeVtx_[match][1] ->Fill (trailNHitsBeforeVtx);
       h_sumNHitsBeforeVtx_[match][1] ->Fill (sumNHitsBeforeVtx);
-      h_deltaExpectedHitsInner_[match][1] ->Fill (deltaExpectedHitsInner);  
-      h_leadExpectedHitsInner_[match][1] ->Fill (leadExpectedHitsInner);       
-      h_maxDlClosestHitToVtx_[match][1] ->Fill (maxDlClosestHitToVtx);  
-      h_maxDlClosestHitToVtxSig_[match][1] ->Fill (maxDlClosestHitToVtxSig);  
-      h_nSharedHits_[match][1] ->Fill (aConv.nSharedHits());  
-      
-      if ( match==1) h_convPtRes_[1]->Fill (  sqrt(refittedMom.perp2())/mcConvPt_); 
+      h_deltaExpectedHitsInner_[match][1] ->Fill (deltaExpectedHitsInner);
+      h_leadExpectedHitsInner_[match][1] ->Fill (leadExpectedHitsInner);
+      h_maxDlClosestHitToVtx_[match][1] ->Fill (maxDlClosestHitToVtx);
+      h_maxDlClosestHitToVtxSig_[match][1] ->Fill (maxDlClosestHitToVtxSig);
+      h_nSharedHits_[match][1] ->Fill (aConv.nSharedHits());
+
+      if ( match==1) h_convPtRes_[1]->Fill (  sqrt(refittedMom.perp2())/mcConvPt_);
     }
-      
-      
+
+
     if ( phoIsInEndcap ) {
       h_invMass_[match][2] ->Fill(invM);
-      h_vtxChi2Prob_[match][2] ->Fill (chi2Prob);  
+      h_vtxChi2Prob_[match][2] ->Fill (chi2Prob);
       h_DPhiTracksAtVtx_[match][2]->Fill( dPhiTracksAtVtx);
       h_DCotTracks_[match][2] ->Fill ( aConv.pairCotThetaSeparation() );
       h_distMinAppTracks_[match][2] ->Fill (aConv.distOfMinimumApproach());
-      h_lxybs_[match][2] ->Fill (lxy);  
-      h_maxNHitsBeforeVtx_[match][2] ->Fill (maxNHitsBeforeVtx);  
-      h_leadNHitsBeforeVtx_[match][2] ->Fill (leadNHitsBeforeVtx);  
-      h_trailNHitsBeforeVtx_[match][2] ->Fill (trailNHitsBeforeVtx);  
+      h_lxybs_[match][2] ->Fill (lxy);
+      h_maxNHitsBeforeVtx_[match][2] ->Fill (maxNHitsBeforeVtx);
+      h_leadNHitsBeforeVtx_[match][2] ->Fill (leadNHitsBeforeVtx);
+      h_trailNHitsBeforeVtx_[match][2] ->Fill (trailNHitsBeforeVtx);
       h_sumNHitsBeforeVtx_[match][2] ->Fill (sumNHitsBeforeVtx);
-      h_deltaExpectedHitsInner_[match][2] ->Fill (deltaExpectedHitsInner);  
-      h_leadExpectedHitsInner_[match][2] ->Fill (leadExpectedHitsInner);        
-      h_maxDlClosestHitToVtx_[match][2] ->Fill (maxDlClosestHitToVtx);  
-      h_maxDlClosestHitToVtxSig_[match][2] ->Fill (maxDlClosestHitToVtxSig); 
-      h_nSharedHits_[match][2] ->Fill (aConv.nSharedHits());  
-      
-      if ( match==1) h_convPtRes_[2]->Fill (  sqrt(refittedMom.perp2())/mcConvPt_); 	
+      h_deltaExpectedHitsInner_[match][2] ->Fill (deltaExpectedHitsInner);
+      h_leadExpectedHitsInner_[match][2] ->Fill (leadExpectedHitsInner);
+      h_maxDlClosestHitToVtx_[match][2] ->Fill (maxDlClosestHitToVtx);
+      h_maxDlClosestHitToVtxSig_[match][2] ->Fill (maxDlClosestHitToVtxSig);
+      h_nSharedHits_[match][2] ->Fill (aConv.nSharedHits());
+
+      if ( match==1) h_convPtRes_[2]->Fill (  sqrt(refittedMom.perp2())/mcConvPt_);
     }
-      
-      
+
+
     if ( match == 1 ) {
       h_convVtxdX_ ->Fill ( aConv.conversionVertex().position().x() - mcConvX_);
       h_convVtxdY_ ->Fill ( aConv.conversionVertex().position().y() - mcConvY_);
@@ -1558,15 +1558,15 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
       float dR=sqrt(aConv.conversionVertex().position().perp2()) - mcConvR_;
       float dZ=aConv.conversionVertex().position().z() - mcConvZ_;
-      p2_convVtxdRVsRZ_ ->Fill (mcConvZ_,mcConvR_, dR );      
+      p2_convVtxdRVsRZ_ ->Fill (mcConvZ_,mcConvR_, dR );
       p2_convVtxdZVsRZ_ ->Fill (mcConvZ_,mcConvR_, dZ );
 
 
 
 
       h2_convVtxRrecVsTrue_ -> Fill (mcConvR_, sqrt(aConv.conversionVertex().position().perp2()) );
-      
-      
+
+
       h_zPVFromTracks_[match]->Fill ( aConv.zOfPrimaryVertexFromTracks() );
       h_dzPVFromTracks_[match]->Fill ( aConv.zOfPrimaryVertexFromTracks() - simPV_Z );
       h2_dzPVVsR_ ->Fill(mcConvR_, aConv.zOfPrimaryVertexFromTracks() - simPV_Z );
@@ -1577,14 +1577,14 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	h_convVtxdY_barrel_ ->Fill ( aConv.conversionVertex().position().y() - mcConvY_);
 	h_convVtxdZ_barrel_ ->Fill ( aConv.conversionVertex().position().z() - mcConvZ_);
 	h_convVtxdR_barrel_ ->Fill ( sqrt(aConv.conversionVertex().position().perp2()) - mcConvR_);
-	
+
       }
       if ( phoIsInEndcap ) {
 	h_convVtxdX_endcap_ ->Fill ( aConv.conversionVertex().position().x() - mcConvX_);
 	h_convVtxdY_endcap_ ->Fill ( aConv.conversionVertex().position().y() - mcConvY_);
 	h_convVtxdZ_endcap_ ->Fill ( aConv.conversionVertex().position().z() - mcConvZ_);
 	h_convVtxdR_endcap_ ->Fill ( sqrt(aConv.conversionVertex().position().perp2()) - mcConvR_);
-	
+
       }
 
 
@@ -1600,27 +1600,27 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       nHitsVsR_[match] ->Fill (mcConvR_,   float(tracks[i]->numberOfValidHits()) );
       p_nHitsVsEta_[match] ->Fill (mcEta_,   float(tracks[i]->numberOfValidHits()) -0.0001);
       p_nHitsVsR_[match] ->Fill (mcConvR_,   float(tracks[i]->numberOfValidHits()) -0.0001);
-      h_tkChi2_[match] ->Fill (tracks[i]->normalizedChi2() ); 
-      h_tkChi2Large_[match] ->Fill (tracks[i]->normalizedChi2() ); 
-      h2_Chi2VsEta_[match] ->Fill(  mcEta_, tracks[i]->normalizedChi2() ); 
-      h2_Chi2VsR_[match] ->Fill(  mcConvR_, tracks[i]->normalizedChi2() ); 
-      p_Chi2VsEta_[match] ->Fill(  mcEta_, tracks[i]->normalizedChi2() ); 
-      p_Chi2VsR_[match] ->Fill(  mcConvR_, tracks[i]->normalizedChi2() ); 
+      h_tkChi2_[match] ->Fill (tracks[i]->normalizedChi2() );
+      h_tkChi2Large_[match] ->Fill (tracks[i]->normalizedChi2() );
+      h2_Chi2VsEta_[match] ->Fill(  mcEta_, tracks[i]->normalizedChi2() );
+      h2_Chi2VsR_[match] ->Fill(  mcConvR_, tracks[i]->normalizedChi2() );
+      p_Chi2VsEta_[match] ->Fill(  mcEta_, tracks[i]->normalizedChi2() );
+      p_Chi2VsR_[match] ->Fill(  mcConvR_, tracks[i]->normalizedChi2() );
       double d0;
       if (valid_pvtx){
 	d0 = - tracks[i]->dxy(the_pvtx.position());
       } else {
 	d0 = tracks[i]->d0();
       }
-      h_TkD0_[match]->Fill (d0* tracks[i]->charge() );	
-      h_nHitsBeforeVtx_[match]->Fill ( aConv.nHitsBeforeVtx().size()>1 ? aConv.nHitsBeforeVtx().at(i) : 0 ); 
-      h_dlClosestHitToVtx_[match]->Fill ( aConv.dlClosestHitToVtx().size()>1 ? aConv.dlClosestHitToVtx().at(i).value() : 0 ); 
-      h_dlClosestHitToVtxSig_[match]->Fill ( aConv.dlClosestHitToVtx().size()>1 ? aConv.dlClosestHitToVtx().at(i).value()/aConv.dlClosestHitToVtx().at(i).error() : 0 ); 
+      h_TkD0_[match]->Fill (d0* tracks[i]->charge() );
+      h_nHitsBeforeVtx_[match]->Fill ( aConv.nHitsBeforeVtx().size()>1 ? aConv.nHitsBeforeVtx().at(i) : 0 );
+      h_dlClosestHitToVtx_[match]->Fill ( aConv.dlClosestHitToVtx().size()>1 ? aConv.dlClosestHitToVtx().at(i).value() : 0 );
+      h_dlClosestHitToVtxSig_[match]->Fill ( aConv.dlClosestHitToVtx().size()>1 ? aConv.dlClosestHitToVtx().at(i).value()/aConv.dlClosestHitToVtx().at(i).error() : 0 );
 
 
       if ( itAss == myAss.end()  ) continue;
       reco::Track refTrack= aConv.conversionVertex().refittedTracks()[i];
- 
+
       float simPt = sqrt( ((*itAss).second)->momentum().perp2() );
       float recPt = refTrack.pt();
       float ptres= recPt - simPt ;
@@ -1629,26 +1629,26 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       h2_PtRecVsPtSim_[0]->Fill ( simPt, recPt);
       h_TkPtPull_[0] ->Fill(ptres/pterror);
       h2_TkPtPull_[0] ->Fill(mcEta_, ptres/pterror);
-		
+
       if ( phoIsInBarrel ) {
 	h_TkPtPull_[1] ->Fill(ptres/pterror);
 	h2_PtRecVsPtSim_[1]->Fill ( simPt, recPt);
       }
-      if ( phoIsInEndcap ) { 
+      if ( phoIsInEndcap ) {
 	h_TkPtPull_[2] ->Fill(ptres/pterror);
 	h2_PtRecVsPtSim_[2]->Fill ( simPt, recPt);
       }
     } // end loop over track
-      
-   
+
+
 
   } // loop over reco conversions
 
- 
+
   h_nConv_[0][0]->Fill (float(nRecConv_));
   h_nConv_[1][0]->Fill (float(nRecConvAss_));
 
-  
+
 
 }
 
@@ -1663,11 +1663,11 @@ void TkConvValidator::endJob() {
   if ( ! isRunCentrally_ ) {
     dbe_->save(outputFileName);
   }
-  
+
   edm::LogInfo("TkConvValidator") << "Analyzed " << nEvt_  << "\n";
   // std::cout  << "::endJob Analyzed " << nEvt_ << " events " << " with total " << nPho_ << " Photons " << "\n";
   //  std::cout  << "TkConvValidator::endJob Analyzed " << nEvt_ << " events " << "\n";
-    
+
   return ;
 }
 
@@ -1677,15 +1677,15 @@ math::XYZVector TkConvValidator::recalculateMomentumAtFittedVertex ( const Magne
   math::XYZVector result;
   Surface::RotationType rot;
   ReferenceCountingPointer<BoundCylinder>  theBarrel_(new BoundCylinder( Surface::PositionType(0,0,0), rot,
-									 SimpleCylinderBounds(  sqrt(vtx.position().perp2())-0.001, 
-												sqrt(vtx.position().perp2())+0.001, 
-												-fabs(vtx.position().z()), 
+									 SimpleCylinderBounds(  sqrt(vtx.position().perp2())-0.001,
+												sqrt(vtx.position().perp2())+0.001,
+												-fabs(vtx.position().z()),
 												fabs(vtx.position().z()))));
 
   ReferenceCountingPointer<BoundDisk>      theDisk_(new BoundDisk( Surface::PositionType( 0, 0, vtx.position().z()), rot,
 								   SimpleDiskBounds( 0,  sqrt(vtx.position().perp2()), -0.001, 0.001)));
 
-  TrajectoryStateTransform transformer;  
+  TrajectoryStateTransform transformer;
   const TrajectoryStateOnSurface myTSOS = transformer.innerStateOnSurface(*tk, trackerGeom, &mf);
   PropagatorWithMaterial propag( anyDirection, 0.000511, &mf );
   TrajectoryStateOnSurface  stateAtVtx;
@@ -1698,12 +1698,12 @@ math::XYZVector TkConvValidator::recalculateMomentumAtFittedVertex ( const Magne
   } else {
     return  math::XYZVector(0.,0.,0.);
   }
-  
+
 
 
 }
 
- 
+
 float TkConvValidator::phiNormalization(float & phi)
 {
   //---Definitions
@@ -1728,27 +1728,27 @@ float TkConvValidator::etaTransformation(  float EtaParticle , float Zvertex)  {
   //---Definitions for ECAL
   const float R_ECAL           = 136.5;
   const float Z_Endcap         = 328.0;
-  const float etaBarrelEndcap  = 1.479; 
-   
+  const float etaBarrelEndcap  = 1.479;
+
   //---ETA correction
 
-  float Theta = 0.0  ; 
+  float Theta = 0.0  ;
   float ZEcal = R_ECAL*sinh(EtaParticle)+Zvertex;
 
   if(ZEcal != 0.0) Theta = atan(R_ECAL/ZEcal);
   if(Theta<0.0) Theta = Theta+PI ;
   float ETA = - log(tan(0.5*Theta));
-         
+
   if( fabs(ETA) > etaBarrelEndcap )
     {
       float Zend = Z_Endcap ;
       if(EtaParticle<0.0 )  Zend = -Zend ;
       float Zlen = Zend - Zvertex ;
-      float RR = Zlen/sinh(EtaParticle); 
+      float RR = Zlen/sinh(EtaParticle);
       Theta = atan(RR/Zend);
       if(Theta<0.0) Theta = Theta+PI ;
-      ETA = - log(tan(0.5*Theta));		      
-    } 
+      ETA = - log(tan(0.5*Theta));
+    }
   //---Return the result
   return ETA;
   //---end

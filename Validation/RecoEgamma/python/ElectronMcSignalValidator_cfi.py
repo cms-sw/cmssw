@@ -20,14 +20,23 @@ electronMcSignalHistosCfg = cms.PSet(
 )
 
 electronMcSignalValidator = cms.EDAnalyzer("ElectronMcSignalValidator",
+
+  Verbosity = cms.untracked.int32(0),
+  FinalStep = cms.string("AtRunEnd"),
+  InputFile = cms.string(""),
+  OutputFile = cms.string(""),
+  InputFolderName = cms.string("EgammaV/ElectronMcSignalValidator"),
+  OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidator"),
+    
   mcTruthCollection = cms.InputTag("genParticles"),
   electronCollection = cms.InputTag("gsfElectrons"),
   electronCoreCollection = cms.InputTag("gsfElectronCores"),
   electronTrackCollection = cms.InputTag("electronGsfTracks"),
   electronSeedCollection = cms.InputTag("electronMergedSeeds"),
+
   beamSpot = cms.InputTag("offlineBeamSpot"),
   readAOD = cms.bool(False),
-  outputFile = cms.string(""),
+  
   MaxPt = cms.double(100.0),
   DeltaR = cms.double(0.05),
   MaxAbsEta = cms.double(2.5),

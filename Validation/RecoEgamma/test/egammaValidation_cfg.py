@@ -17,7 +17,7 @@ process.source.fileNames.extend(electronDbsDiscovery.search())
 
 process.load("Validation.RecoEgamma.egammaValidation_cfi")
 
-process.electronMcFakeValidator.outputFile = cms.string(os.environ['TEST_OUTPUT_FILE'])
+process.electronMcFakeValidator.outputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
 
 process.p = cms.Path(process.egammaValidation*process.dqmStoreStats)
 
