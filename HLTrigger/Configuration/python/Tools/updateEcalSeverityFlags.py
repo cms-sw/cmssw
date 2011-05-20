@@ -52,14 +52,11 @@ def update(process):
     import helper
     for name, module in helper.findEDProducers(process).iteritems():
         if module.type_() in ('HybridClusterProducer', 'EgammaHLTHybridClusterProducer', ):
-            print 'fixing', name
             fixEcalSeverityFlagsForEcalClusters( module, 'RecHitFlagToBeExcluded' )
             fixEcalSeverityFlagsForEcalClusters( module, 'RecHitSeverityToBeExcluded' )
 
         if module.type_() in ('Multi5x5ClusterProducer', 'EgammaHLTMulti5x5ClusterProducer', ):
-            print 'fixing', name
             fixEcalSeverityFlagsForEcalClusters( module, 'RecHitFlagToBeExcluded' )
 
         if module.type_() in ('CaloTowersCreator', ):
-            print 'fixing', name
             fixEcalSeverityFlagsForCaloTowers( module )
