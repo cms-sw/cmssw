@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HIon/V93 (CMSSW_4_2_0_HLT8)
+# /dev/CMSSW_4_2_0/HIon/V94 (CMSSW_4_2_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V93')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V94')
 )
 
 streams = cms.PSet( 
@@ -67,8 +67,7 @@ datasets = cms.PSet(
     'HLT_HIMinBiasHfOrBSC',
     'HLT_HIPhoton30_Cleaned_Core' ),
   LogMonitor = cms.vstring( 'HLT_LogMonitor_v1' ),
-  OfflineMonitor = cms.vstring( 'HLT_HcalCalibration_v2',
-    'HLT_LogMonitor_v1' ),
+  OfflineMonitor = cms.vstring( 'HLT_LogMonitor_v1' ),
   OfflineMonitorHI = cms.vstring( 'HLT_HIActivityHF_Coincidence3',
     'HLT_HIActivityHF_Single3',
     'HLT_HIBptxXOR',

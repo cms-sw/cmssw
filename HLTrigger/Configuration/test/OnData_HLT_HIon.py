@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V93 (CMSSW_4_2_0_HLT8)
+# /dev/CMSSW_4_2_0/HIon/V94 (CMSSW_4_2_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V93')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V94')
 )
 
 process.streams = cms.PSet( 
@@ -68,8 +68,7 @@ process.datasets = cms.PSet(
     'HLT_HIMinBiasHfOrBSC',
     'HLT_HIPhoton30_Cleaned_Core' ),
   LogMonitor = cms.vstring( 'HLT_LogMonitor_v1' ),
-  OfflineMonitor = cms.vstring( 'HLT_HcalCalibration_v2',
-    'HLT_LogMonitor_v1' ),
+  OfflineMonitor = cms.vstring( 'HLT_LogMonitor_v1' ),
   OfflineMonitorHI = cms.vstring( 'HLT_HIActivityHF_Coincidence3',
     'HLT_HIActivityHF_Single3',
     'HLT_HIBptxXOR',
@@ -4530,7 +4529,7 @@ process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     triggerConditions = cms.vstring( 'HLT_DTCalibration_v1 / 10',
       'HLT_EcalCalibration_v2 / 10',
       'HLT_HcalCalibration_v2',
-      'HLT_TrackerCalibration_v2 / 10',
+      'HLT_TrackerCalibration_v2',
       'HLT_LogMonitor_v1' ),
     hltResults = cms.InputTag( "TriggerResults" ),
     l1tResults = cms.InputTag( "hltGtDigis" ),
@@ -5017,7 +5016,6 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_HIZeroBias',
   'HLT_HIZeroBiasPixel_SingleTrack',
   'HLT_HIZeroBiasXOR',
-  'HLT_HcalCalibration_v2',
   'HLT_LogMonitor_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep *_hltAlCaEtaRecHitsFilter_*_*',

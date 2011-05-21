@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HLT/V348 (CMSSW_4_2_0_HLT8)
+# /dev/CMSSW_4_2_0/HLT/V350 (CMSSW_4_2_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V348')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V350')
 )
 
 streams = cms.PSet( 
@@ -78,7 +78,6 @@ datasets = cms.PSet(
   Cosmics = cms.vstring( 'HLT_BeamHalo_v3',
     'HLT_L1SingleMuOpen_AntiBPTX_v2',
     'HLT_L1TrackerCosmics_v3',
-    'HLT_L2MuOpen_NoVertex_v2',
     'HLT_L3MuonsCosmicTracking_v4',
     'HLT_RegionalCosmicTracking_v4' ),
   DoubleElectron = cms.vstring( 'HLT_DoubleEle10_CaloIdL_TrkIdVL_Ele10_v5',
@@ -536,7 +535,6 @@ datasets = cms.PSet(
     'HLT_HT450_v5',
     'HLT_HT500_v5',
     'HLT_HT550_v5',
-    'HLT_HcalCalibration_v2',
     'HLT_HcalNZS_v4',
     'HLT_HcalPhiSym_v4',
     'HLT_IsoMu12_v5',
@@ -550,10 +548,8 @@ datasets = cms.PSet(
     'HLT_IsoMu17_QuadCentralJet30_v1',
     'HLT_IsoMu17_TriCentralJet30_v1',
     'HLT_IsoMu17_v9',
-    'HLT_IsoMu20_v4',
     'HLT_IsoMu24_v5',
     'HLT_IsoMu30_v5',
-    'HLT_IsoMu5_DoubleMu5_v5',
     'HLT_IsoPFTau35_Trk20_MET60_v1',
     'HLT_IsoPFTau35_Trk20_v1',
     'HLT_IsoPFTau45_Trk20_MET60_v1',
@@ -598,7 +594,6 @@ datasets = cms.PSet(
     'HLT_L2Mu20_v3',
     'HLT_L2Mu60_1Hit_MET40_v1',
     'HLT_L2Mu60_1Hit_MET60_v1',
-    'HLT_L2MuOpen_NoVertex_v2',
     'HLT_L3MuonsCosmicTracking_v4',
     'HLT_LogMonitor_v1',
     'HLT_MET100_HBHENoiseFiltered_v2',
@@ -622,11 +617,11 @@ datasets = cms.PSet(
     'HLT_Mu17_Ele8_CaloIdL_v5',
     'HLT_Mu17_Mu8_v2',
     'HLT_Mu17_QuadCentralJet30_v1',
-    'HLT_Mu17_TriCentralJet30_v6')+cms.vstring( 'HLT_Mu20_HT200_v3',
+    'HLT_Mu17_TriCentralJet30_v6',
+    'HLT_Mu20_HT200_v3',
     'HLT_Mu20_v3',
     'HLT_Mu24_v3',
-    'HLT_Mu30_v3',
-    'HLT_Mu3_DiJet30_v2',
+    'HLT_Mu30_v3')+cms.vstring( 'HLT_Mu3_DiJet30_v2',
     'HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT150_v3',
     'HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT150_v3',
     'HLT_Mu3_QuadJet30_v2',
@@ -952,7 +947,6 @@ datasets = cms.PSet(
     'HLT_IsoMu17_v9',
     'HLT_IsoMu24_v5',
     'HLT_IsoMu30_v5',
-    'HLT_IsoMu5_DoubleMu5_v5',
     'HLT_IsoPFTau35_Trk20_MET60_v1',
     'HLT_IsoPFTau35_Trk20_v1',
     'HLT_IsoPFTau45_Trk20_MET60_v1',
@@ -997,7 +991,6 @@ datasets = cms.PSet(
     'HLT_L2Mu20_v3',
     'HLT_L2Mu60_1Hit_MET40_v1',
     'HLT_L2Mu60_1Hit_MET60_v1',
-    'HLT_L2MuOpen_NoVertex_v2',
     'HLT_L3MuonsCosmicTracking_v4',
     'HLT_LogMonitor_v1',
     'HLT_MET100_HBHENoiseFiltered_v2',
@@ -1024,9 +1017,9 @@ datasets = cms.PSet(
     'HLT_Mu17_TriCentralJet30_v6',
     'HLT_Mu20_HT200_v3',
     'HLT_Mu20_v3',
-    'HLT_Mu24_v3')+cms.vstring( 'HLT_Mu30_v3',
-    'HLT_Mu3_DiJet30_v2',
-    'HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT150_v3',
+    'HLT_Mu24_v3',
+    'HLT_Mu30_v3',
+    'HLT_Mu3_DiJet30_v2')+cms.vstring( 'HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT150_v3',
     'HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT150_v3',
     'HLT_Mu3_QuadJet30_v2',
     'HLT_Mu3_TriJet30_v2',
@@ -1350,7 +1343,6 @@ datasets = cms.PSet(
     'HLT_IsoMu17_v9',
     'HLT_IsoMu24_v5',
     'HLT_IsoMu30_v5',
-    'HLT_IsoMu5_DoubleMu5_v5',
     'HLT_IsoPFTau35_Trk20_MET60_v1',
     'HLT_IsoPFTau35_Trk20_v1',
     'HLT_IsoPFTau45_Trk20_MET60_v1',
@@ -1395,7 +1387,6 @@ datasets = cms.PSet(
     'HLT_L2Mu20_v3',
     'HLT_L2Mu60_1Hit_MET40_v1',
     'HLT_L2Mu60_1Hit_MET60_v1',
-    'HLT_L2MuOpen_NoVertex_v2',
     'HLT_L3MuonsCosmicTracking_v4',
     'HLT_LogMonitor_v1',
     'HLT_MET100_HBHENoiseFiltered_v2',
@@ -1424,9 +1415,9 @@ datasets = cms.PSet(
     'HLT_Mu20_v3',
     'HLT_Mu24_v3',
     'HLT_Mu30_v3',
-    'HLT_Mu3_DiJet30_v2')+cms.vstring( 'HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT150_v3',
-    'HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT150_v3',
-    'HLT_Mu3_QuadJet30_v2',
+    'HLT_Mu3_DiJet30_v2',
+    'HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT150_v3',
+    'HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT150_v3')+cms.vstring( 'HLT_Mu3_QuadJet30_v2',
     'HLT_Mu3_TriJet30_v2',
     'HLT_Mu3_v5',
     'HLT_Mu40_v1',

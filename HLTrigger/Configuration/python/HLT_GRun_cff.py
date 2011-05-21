@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/GRun/V92 (CMSSW_4_2_0_HLT8)
+# /dev/CMSSW_4_2_0/GRun/V93 (CMSSW_4_2_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V92')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V93')
 )
 
 streams = cms.PSet( 
@@ -466,7 +466,6 @@ datasets = cms.PSet(
     'HLT_HT450_v5',
     'HLT_HT500_v5',
     'HLT_HT550_v5',
-    'HLT_HcalCalibration_v2',
     'HLT_HcalNZS_v4',
     'HLT_HcalPhiSym_v4',
     'HLT_IsoMu12_v5',
@@ -554,8 +553,8 @@ datasets = cms.PSet(
     'HLT_Mu5_L2Mu2_Jpsi_v4',
     'HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v4',
     'HLT_Mu5_Track2_Jpsi_v4',
-    'HLT_Mu5_v5')+cms.vstring( 'HLT_Mu7_Track7_Jpsi_v5',
-    'HLT_Mu8_Ele17_CaloIdL_v5',
+    'HLT_Mu5_v5',
+    'HLT_Mu7_Track7_Jpsi_v5')+cms.vstring( 'HLT_Mu8_Ele17_CaloIdL_v5',
     'HLT_Mu8_Jet40_v6',
     'HLT_Mu8_Photon20_CaloIdVT_IsoT_v5',
     'HLT_Mu8_R005_MR200_v2',
