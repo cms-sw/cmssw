@@ -116,7 +116,7 @@ mkdir  hltintegration
 cd     hltintegration
 
 # find the list of all trigger paths
-TRIGGERS=$(hltListPaths -p "$MENU" | grep AlCa)
+TRIGGERS=$(hltListPaths -p "$MENU")
 
 # create all dumps
 log "Extracting full menu dump"
@@ -135,10 +135,35 @@ if [ "$SETUP" ]; then
 fi
 
 # run all HLT dumps
-eval declare -a COMMANDS=$(echo "("; for TRIGGER in $TRIGGERS; do echo -n "\"cmsRun $TRIGGER.py >& $TRIGGER.log < /dev/zero\" " ; done; echo ")")
-for COMMAND in "${COMMANDS[@]}"; do
-  schedule "$COMMAND"
-done
+cat > .makefile << @EOF
+TRIGGERS=$(echo $TRIGGERS)
+CFGS=\$(TRIGGERS:%=%.py)
+LOGS=\$(TRIGGERS:%=%.log)
+DONE=\$(TRIGGERS:%=%.done)
+
+.PHONY: all clean hlt \$(TRIGGERS)
+
+all: hlt \$(TRIGGERS)
+
+clean:
+	@rm -f hlt.log hlt.done \$(LOGS) \$(DONE)
+
+hlt: hlt.done
+
+hlt.done: hlt.py
+	@echo -e "\tfull menu dump"
+	@cmsRun hlt.py >& hlt.log < /dev/zero && touch hlt.done
+
+\$(TRIGGERS): %: %.done
+
+\$(DONE): %.done: %.py
+	@echo -e "\t\$*"
+	@cmsRun \$*.py >& \$*.log < /dev/zero && touch \$*.done
+
+@EOF
+
+log "Running..."
+make -f .makefile -j$JOBS -k
 
 # done
 cd ..
