@@ -1,11 +1,11 @@
 #! /bin/bash
 
 function log() {
-  echo -e "$@" > /dev/stdout
+  echo -e "$@"
 }
 
 function err() {
-  echo -e "$@" > /dev/stderr
+  echo -e "$@" 1>&2
 }
 
 
