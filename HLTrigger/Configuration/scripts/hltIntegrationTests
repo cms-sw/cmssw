@@ -84,7 +84,7 @@ while true; do
       ;;
     "-n" | "--size" )
       SIZE=$2
-      if ((SIZE == 0)) and [ "$SIZE" != "0" ]; then
+      if ((SIZE == 0)) && [ "$SIZE" != "0" ]; then
         err "$NAME error: invalid option \"$1 $2\""
         err "Try '$NAME --help' for more information."
         exit 1
@@ -129,16 +129,23 @@ cd     hltintegration
 # find the list of all trigger paths
 TRIGGERS=$(hltListPaths -p "$MENU")
 
+# print some info
+log "Will run $(echo $TRIGGERS | wc -w) HLT paths over $SIZE events, with $JOBS jobs in parallel"
+
 # create all dumps
 log "Extracting full menu dump"
 hltGetConfiguration "$MENU" --full --offline --data $INPUT --unprescale --process "TEST" > hlt.py
+# adapt the number of events
+sed -i -e "s/input = cms.untracked.int32( .* )/input = cms.untracked.int32( $SIZE )/" hlt.py
+grep 'input = cms.untracked.int32' hlt.py
+
 log "Extracting single path dumps"
 for TRIGGER in $TRIGGERS; do
   log "\t$TRIGGER"
   hltGetConfiguration "$MENU" --full --offline --data $INPUT --unprescale --process "TEST" --no-output --paths "$TRIGGER" > "$TRIGGER".py
+  # adapt the number of events
+  sed -i -e "s/input = cms.untracked.int32( .* )/input = cms.untracked.int32( $SIZE )/" "$TRIGGER".py
 done
-# adapt the number of events
-sed -i -e "s/input = cms.untracked.int32( .* )/input = cms.untracked.int32( $SIZE )/" hlt.py $(for TRIGGER in $TRIGGERS; do echo "$TRIGGER".py; done)
 
 # if a separate setup is requested, create the setup_cff.py file and patch all dumps to use it
 if [ "$SETUP" ]; then
