@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V90 (CMSSW_4_2_0_HLT8)
+# /dev/CMSSW_4_2_0/GRun/V91 (CMSSW_4_2_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V90')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V91')
 )
 
 process.streams = cms.PSet( 
@@ -21113,7 +21113,7 @@ process.hltL2Mu10CenJetL2Filtered10 = cms.EDFilter( "HLTMuonL2PreFilter",
 process.hltL1Mu10CenJetL3MuFiltered17 = cms.EDFilter( "HLTMuonL3PreFilter",
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
     CandTag = cms.InputTag( "hltL3MuonCandidates" ),
-    PreviousCandTag = cms.InputTag( "hltL1Mu10CenJetL2MuFiltered10" ),
+    PreviousCandTag = cms.InputTag( "hltL2Mu10CenJetL2Filtered10" ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
     MinNhits = cms.int32( 0 ),
