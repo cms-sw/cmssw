@@ -22,7 +22,8 @@ Usage:
   -s | --setup SETUP        Use the Services and EventSetup modules from a different menu 
                             (usefull when testing a ConfDB area with only some new paths)
   -i | --input INPUT        Use the specified RAW data file as input
-  -j | --jobs  JOBS         Run JOBS jobs in parallel
+  -n | --size  EVENTS       Run on EVENTS events (-1 for all, default is 100)
+  -j | --jobs  JOBS         Run JOBS jobs in parallel (default is 4)
   -h | --help               Print this help message and exit.
 
 
@@ -50,7 +51,7 @@ Exmples:
 "
 
 # parse command line argument and options
-OPTS=$(getopt -n "$NAME" -o "s:i:j:h" -l "setup:,input:,jobs:,help" -- "$@")
+OPTS=$(getopt -n "$NAME" -o "s:i:j:n:h" -l "setup:,input:,jobs:,size:,help" -- "$@")
 
 # invalid options
 if [ $? != 0 ]; then 
@@ -63,7 +64,8 @@ eval set -- "$OPTS"
 MENU=""
 SETUP=""
 INPUT=""
-JOBS=1
+SIZE=100
+JOBS=4
 
 # parse options
 while true; do
@@ -78,6 +80,15 @@ while true; do
       ;;
     "-i" | "--input" )
       INPUT="--input $2"
+      shift 2
+      ;;
+    "-n" | "--size" )
+      SIZE=$2
+      if ((SIZE == 0)) and [ "$SIZE" != "0" ]; then
+        err "$NAME error: invalid option \"$1 $2\""
+        err "Try '$NAME --help' for more information."
+        exit 1
+      fi
       shift 2
       ;;
     "-j" | "--jobs" )
@@ -126,6 +137,8 @@ for TRIGGER in $TRIGGERS; do
   log "\t$TRIGGER"
   hltGetConfiguration "$MENU" --full --offline --data $INPUT --unprescale --process "TEST" --no-output --paths "$TRIGGER" > "$TRIGGER".py
 done
+# adapt the number of events
+sed -i -e "s/input = cms.untracked.int32( .* )/input = cms.untracked.int32( $SIZE )/" hlt.py $(for TRIGGER in $TRIGGERS; do echo "$TRIGGER".py; done)
 
 # if a separate setup is requested, create the setup_cff.py file and patch all dumps to use it
 if [ "$SETUP" ]; then
