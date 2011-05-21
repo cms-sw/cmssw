@@ -1,0 +1,144 @@
+#! /bin/bash
+
+function log() {
+  echo -e "$@" > /dev/stdout
+}
+
+function err() {
+  echo -e "$@" > /dev/stderr
+}
+
+
+NAME=$(basename $0)
+
+HELP="Run the integration tests over all paths in a given HLT menu.
+
+Usage:
+  $NAME -h|--help
+  $NAME [-s|--setup SETUP] [-i|--input RAW] MENU
+
+  MENU is the HLT menu to test. 
+  
+  -s | --setup SETUP        Use the Services and EventSetup modules from a different menu 
+                            (usefull when testing a ConfDB area with only some new paths)
+  -i | --input INPUT        Use the specified RAW data file as input
+  -j | --jobs  JOBS         Run JOBS jobs in parallel
+  -h | --help               Print this help message and exit.
+
+
+  The supported formats for both menu specifications are:
+    - [hltdev:]/path/to/configuration[/Vn]
+    - orcoff:/path/to/configuration[/Vn]
+    - run:runnumber
+  The possible databases are \"hltdev\" (default, used for offline development) and \"orcoff\" 
+  (used for online menus). If no version is specified, the latest one is automatically used.
+  If \"run:\" is used instead, the actual HLT menu for the given run number is looked up and used.
+
+
+Exmples:
+
+  $NAME /dev/CMSSW_4_2_0/GRun
+
+      will test the latest version of the GRun menu.
+
+
+  $NAME /users/fwyzard/physics/HLT/V6 -s orcoff:/cdaq/physics/Run2011/1e33/v1.3/HLT/V6
+
+      will test the paths from /users/fwyzard/physics/HLT/V6, using the environment from the 
+      online menu \"1e33\" v1.3 V6
+
+"
+
+# parse command line argument and options
+OPTS=$(getopt -n "$NAME" -o "s:i:j:h" -l "setup:,input:,jobs:,help" -- "$@")
+
+# invalid options
+if [ $? != 0 ]; then 
+  exit 1
+fi
+
+# reload the parsed options into the environment
+eval set -- "$OPTS"
+
+MENU=""
+SETUP=""
+INPUT=""
+JOBS=1
+
+# parse options
+while true; do
+  case "$1" in
+    "-h" | "--help" )
+      echo "$HELP"
+      exit 0
+      ;;
+    "-s" | "--setup" )
+      SETUP="$2"
+      shift 2
+      ;;
+    "-i" | "--input" )
+      INPUT="--input $2"
+      shift 2
+      ;;
+    "-j" | "--jobs" )
+      JOBS=$2
+      if ((JOBS == 0)); then
+        err "$NAME error: invalid option \"$1 $2\""
+        err "Try '$NAME --help' for more information."
+        exit 1
+      fi
+      shift 2
+      ;;
+    "--" )
+      shift
+      break
+      ;;
+  esac
+done
+
+# parse required argument
+if (( $# == 0 )); then
+  err "$NAME error: missing argument."
+  err "Try '$NAME --help' for more information."
+  exit 1
+elif (( $# > 1 )); then
+  err "$NAME error: too many arguments."
+  err "Try '$NAME --help' for more information."
+  exit 1
+else
+  MENU="$1"
+fi
+
+
+# run the tests
+rm -rf hltintegration
+mkdir  hltintegration
+cd     hltintegration
+
+# find the list of all trigger paths
+TRIGGERS=$(hltListPaths -p "$MENU" | grep AlCa)
+
+# create all dumps
+log "Extracting full menu dump"
+hltGetConfiguration "$MENU" --full --offline --data $INPUT --unprescale --process "TEST" > hlt.py
+log "Extracting single path dumps"
+for TRIGGER in $TRIGGERS; do
+  log "\t$TRIGGER"
+  hltGetConfiguration "$MENU" --full --offline --data $INPUT --unprescale --process "TEST" --paths "$TRIGGER" > "$TRIGGER".py
+done
+
+# if a separate setup is requested, create the setup_cff.py file and patch all dumps to use it
+if [ "$SETUP" ]; then
+  log "Extracting setup_cff dump"
+  edmConfigFromDB --cff --configName "$SETUP" --nopaths > setup_cff.py
+  sed -i -e's/process = cms.Process(.*)/&\nprocess.load("setup_cff")/' hlt.py $(for TRIGGER in $TRIGGERS; do echo "$TRIGGER".py; done)
+fi
+
+# run all HLT dumps
+eval declare -a COMMANDS=$(echo "("; for TRIGGER in $TRIGGERS; do echo -n "\"cmsRun $TRIGGER.py >& $TRIGGER.log < /dev/zero\" " ; done; echo ")")
+for COMMAND in "${COMMANDS[@]}"; do
+  schedule "$COMMAND"
+done
+
+# done
+cd ..
