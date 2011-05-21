@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V93
+# /dev/CMSSW_4_2_0/GRun/V95
 
 import FWCore.ParameterSet.Config as cms
 
@@ -265,9 +265,17 @@ streamA_datasetMuHad_selector.triggerConditions = cms.vstring('HLT_DoubleMu3_HT1
     'HLT_HT300_Mu5_PFMHT40_v3', 
     'HLT_HT350_Mu5_PFMHT45_v3', 
     'HLT_IsoMu17_CentralJet30_BTagIP_v5', 
+    'HLT_IsoMu17_CentralJet30_v1', 
+    'HLT_IsoMu17_DiCentralJet30_v1', 
+    'HLT_IsoMu17_QuadCentralJet30_v1', 
+    'HLT_IsoMu17_TriCentralJet30_v1', 
     'HLT_Mu12_DiCentralJet30_BTagIP3D_v1', 
     'HLT_Mu15_HT200_v3', 
     'HLT_Mu17_CentralJet30_BTagIP_v5', 
+    'HLT_Mu17_CentralJet30_v6', 
+    'HLT_Mu17_DiCentralJet30_v6', 
+    'HLT_Mu17_QuadCentralJet30_v1', 
+    'HLT_Mu17_TriCentralJet30_v6', 
     'HLT_Mu20_HT200_v3', 
     'HLT_Mu3_DiJet30_v2', 
     'HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT150_v3', 
