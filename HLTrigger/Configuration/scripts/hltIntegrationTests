@@ -124,7 +124,7 @@ hltGetConfiguration "$MENU" --full --offline --data $INPUT --unprescale --proces
 log "Extracting single path dumps"
 for TRIGGER in $TRIGGERS; do
   log "\t$TRIGGER"
-  hltGetConfiguration "$MENU" --full --offline --data $INPUT --unprescale --process "TEST" --paths "$TRIGGER" > "$TRIGGER".py
+  hltGetConfiguration "$MENU" --full --offline --data $INPUT --unprescale --process "TEST" --no-outout --paths "$TRIGGER" > "$TRIGGER".py
 done
 
 # if a separate setup is requested, create the setup_cff.py file and patch all dumps to use it
