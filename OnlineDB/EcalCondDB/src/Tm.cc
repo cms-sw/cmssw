@@ -118,6 +118,11 @@ uint64_t Tm::cmsNanoSeconds() const
   return microsTime()/1000000 << 32;
 }
 
+uint64_t Tm::unixTime() const 
+{
+  return microsTime()/1000000;
+}
+
 uint64_t Tm::microsTime() const
 {
   uint64_t result = 0;

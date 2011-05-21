@@ -188,9 +188,9 @@ public:
       std::map<int, LMFSeqDat>::const_iterator se = sequences.end();
       while (si != se) {
 	// seq start
-	seqStart = si->second.getSequenceStart().cmsNanoSeconds();
+	seqStart = si->second.getSequenceStart().epoch();
 	// seq stop
-	seqStop  = si->second.getSequenceStop().cmsNanoSeconds();
+	seqStop  = si->second.getSequenceStop().epoch();
 	// seq number
 	seqNum = si->second.getSequenceNumber();
 	std::cout << std::endl << " Seq. " << seqNum;
@@ -205,21 +205,26 @@ public:
 	  // color
 	  sprintf(&color[0], "%s", ri->getColorShortName().c_str());
 	  // subrun times
-	  subrunstart = ri->getSubRunStart().cmsNanoSeconds();
-	  subrunstop  = ri->getSubRunEnd().cmsNanoSeconds();
+	  subrunstart = ri->getSubRunStart().epoch();
+	  subrunstop  = ri->getSubRunEnd().epoch();
 	  // *** get data ***
 	  LMFPrimDat prim(econn, color, "LASER");
 	  prim.setLMFRunIOV(*ri);
-	  //prim.setWhereClause("LOGIC_ID > 2000000000"); // selects only endcap primitives
+	  std::vector<std::string> channels;
+	  // test : selects just three channels
+	  channels.push_back("2012043034");
+	  channels.push_back("2012060033");
+	  channels.push_back("2012034040");
+	  prim.setWhereClause("(LOGIC_ID = :I1 OR LOGIC_ID = :I2 OR LOGIC_ID = :I3)", channels); // selects only endcap primitives
 	  prim.fetch();
 	  if (prim.getLogicIds().size() > 0) {
 	    LMFRunDat run_dat(econn);
 	    run_dat.setLMFRunIOV(*ri);
-	    //run_dat.setWhereClause("LOGIC_ID > 2000000000"); // selects only endcap primitives
+	    run_dat.setWhereClause("LOGIC_ID > 2000000000"); // selects only endcap primitives
 	    run_dat.fetch();
 	    LMFPnPrimDat pnPrim(econn, color, "LASER"); 
 	    pnPrim.setLMFRunIOV(*ri);
-	    //pnPrim.setWhereClause("LOGIC_ID > 2000000000"); // selects only endcap primitives
+	    pnPrim.setWhereClause("LOGIC_ID > 2000000000"); // selects only endcap primitives
 	    pnPrim.fetch();
 	    // *** run dat ***
 	    std::list<int> logic_ids = run_dat.getLogicIds();
