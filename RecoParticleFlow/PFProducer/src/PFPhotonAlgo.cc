@@ -107,7 +107,9 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     std::vector<unsigned int> IsoTracks(0);  
     std::multimap<unsigned int, unsigned int>ClusterAddPS1;  
     std::multimap<unsigned int, unsigned int>ClusterAddPS2;
-
+    std::vector<reco::TrackRef>singleLegRef;
+    std::vector<float>MVA_values(0);
+    reco::ConversionRefVector ConversionsRef_;
     isActive = *(actIter);
     //cout << " Found a SuperCluster.  Energy " ;
     const reco::PFBlockElementSuperCluster *sc = dynamic_cast<const reco::PFBlockElementSuperCluster*>(&(*ele));
@@ -335,7 +337,17 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	//For now only Pre-ID tracks that are not already identified as Conversions  
 	if(hasSingleleg &&!(trackRef->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)))  
 	  {  
-	    elemsToLock.push_back(track->second);  
+	    elemsToLock.push_back(track->second);
+	    
+	    reco::TrackRef t_ref=elements[track->second].trackRef();
+	    bool matched=false;
+	    for(unsigned int ic=0; ic<singleLegRef.size(); ic++)
+	      if(singleLegRef[ic]==t_ref)matched=true;
+	    
+	    if(!matched){
+	      singleLegRef.push_back(t_ref);
+	      MVA_values.push_back(mvaValue);
+	    }
 	    //find all the clusters linked to this track  
 	    std::multimap<double, unsigned int> moreClusters;  
 	    blockRef->associatedElements( track->second,  
@@ -371,8 +383,12 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	// .... for now we simply skip non id'ed tracks
 	if( ! (trackRef->trackType(reco::PFBlockElement::T_FROM_GAMMACONV) ) ) continue;  
 	hasConvTrack=true;  
-	elemsToLock.push_back(track->second);  
+	elemsToLock.push_back(track->second);
 	//again look at the clusters linked to this track  
+	//if(elements[track->second].convRef().isNonnull())
+	//{	    
+	//  ConversionsRef_.push_back(elements[track->second].convRef());
+	//}
 	std::multimap<double, unsigned int> moreClusters;  
 	blockRef->associatedElements( track->second,  
 				      linkData,  
@@ -398,24 +414,24 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	      }  
 	    if(!included)AddClusters.push_back(clust->second);//again only add if it is not already included with the supercluster  
 	  }
-
+	
 	// we need to check for other TRACKS linked to this conversion track, that point possibly no an ECAL cluster not included in the SC
 	// .... This is basically CASE 4.
-
+	
 	std::multimap<double, unsigned int> moreTracks;
 	blockRef->associatedElements( track->second,
 				      linkData,
 				      moreTracks,
 				      reco::PFBlockElement::TRACK,
 				      reco::PFBlock::LINKTEST_ALL);
-
+	
 	for(std::multimap<double, unsigned int>::iterator track2 = moreTracks.begin();
 	    track2 != moreTracks.end(); ++track2) {
 	  
 	  // first check if is it's still active
 	  if( ! (active[track2->second]) ) continue;
 	  //skip over the 1st leg already found above  
-	  if(track->second==track2->second)continue;
+	  if(track->second==track2->second)continue;	  
 	  // check if it's a CONV track
 	  const reco::PFBlockElementTrack * track2Ref = dynamic_cast<const reco::PFBlockElementTrack*>((&elements[track2->second])); 	
 	  if( ! (track2Ref->trackType(reco::PFBlockElement::T_FROM_GAMMACONV) ) ) continue;  // Possibly need to be more smart about them (CASE 5)
@@ -431,8 +447,8 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	  float p_in=sqrt(elements[track->second].trackRef()->innerMomentum().x()*elements[track->second].trackRef()->innerMomentum().x()+
 			  elements[track->second].trackRef()->innerMomentum().y()*elements[track->second].trackRef()->innerMomentum().y()+  
 			  elements[track->second].trackRef()->innerMomentum().z()*elements[track->second].trackRef()->innerMomentum().z());  
-
-
+	  
+	  
 	  float linked_E=0;
 	  for(std::multimap<double, unsigned int>::iterator itConvEcal = convEcal.begin();
 	      itConvEcal != convEcal.end(); ++itConvEcal) {
@@ -585,15 +601,13 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 
     if(sum_track_pt>(2+ 0.001* photonMomentum.pt()))
       continue;//THIS SC is not a Photon it fails track Isolation
-
-    /*
     std::cout<<" Created Photon with energy = "<<photonEnergy_<<std::endl;
     std::cout<<"                         pT = "<<photonMomentum.pt()<<std::endl;
     std::cout<<"                     RawEne = "<<RawEcalEne<<std::endl;
     std::cout<<"                          E = "<<photonMomentum.e()<<std::endl;
     std::cout<<"                        eta = "<<photonMomentum.eta()<<std::endl;
     std::cout<<"             TrackIsolation = "<< sum_track_pt <<std::endl;
-    */
+    
 
     reco::PFCandidate photonCand(0,photonMomentum, reco::PFCandidate::gamma);
     
@@ -606,8 +620,6 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     if(hasConvTrack || hasSingleleg)photonCand.setFlag( reco::PFCandidate::GAMMA_TO_GAMMACONV, true);
 
     //photonCand.setPositionAtECALEntrance(math::XYZPointF(photonMom_.position()));
-
-    
     // set isvalid_ to TRUE since we've found at least one photon candidate
     isvalid_ = true;
     // push back the candidate into the collection ...
@@ -616,20 +628,43 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     for(std::vector<unsigned int>::const_iterator it = elemsToLock.begin();
 	it != elemsToLock.end(); ++it)
       {
-	if(active[*it])photonCand.addElementInBlock(blockRef,*it);
-	active[*it] = false;
+	if(active[*it])
+	  {
+	    photonCand.addElementInBlock(blockRef,*it);
+	    if( elements[*it].type() == reco::PFBlockElement::TRACK  )
+	      {
+		if(elements[*it].convRef().isNonnull())
+		  {
+		    //make sure it is not stored already as the partner track
+		    bool matched=false;
+		    for(unsigned int ic = 0; ic < ConversionsRef_.size(); ic++)
+		      {
+			if(ConversionsRef_[ic]==elements[*it].convRef())matched=true;
+		      }
+		    if(!matched)ConversionsRef_.push_back(elements[*it].convRef());
+		  }
+	      }
+	  }
+	active[*it] = false;	
       }
-
+    
     // here add the extra information
     PFCandidatePhotonExtra myExtra(sc->superClusterRef());
 
     //    Daniele example for mvaValues
     //    do the same for single leg trackRef and convRef
-    //    for(unsigned int ic = 0; ic < mvaValues.size(); ic++)
-    //       myExtra.addSingleLegConvMva(mvaValues[ic]);
-  
+    for(unsigned int ic = 0; ic < MVA_values.size(); ic++)
+      {
+	myExtra.addSingleLegConvMva(MVA_values[ic]);
+	myExtra.addSingleLegConvTrackRef(singleLegRef[ic]);
+	//cout<<"Single Leg Tracks "<<singleLegRef[ic]->pt()<<" MVA "<<MVA_values[ic]<<endl;
+      }
+    for(unsigned int ic = 0; ic < ConversionsRef_.size(); ic++)
+      {
+	myExtra.addConversionRef(ConversionsRef_[ic]);
+	//cout<<"Conversion Pairs "<<ConversionsRef_[ic]->pairMomentum()<<endl;
+      }
     pfPhotonExtraCandidates.push_back(myExtra);
-
     pfCandidates->push_back(photonCand);
     // ... and reset the vector
     elemsToLock.resize(0);
