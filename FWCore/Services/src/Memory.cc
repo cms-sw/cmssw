@@ -90,9 +90,9 @@ namespace edm {
       unsigned int timeout; // %u
       unsigned int itrealvalue; // %u
       int starttime; // %d
-      unsigned int vsize; // %u
-      unsigned int rss; // %u
-      unsigned int rlim; // %u
+      unsigned long vsize; // %lu
+      unsigned long rss; // %lu
+      unsigned long rlim; // %lu
       unsigned int startcode; // %u
       unsigned int endcode; // %u
       unsigned int startstack; // %u
@@ -124,7 +124,7 @@ namespace edm {
         buf_[cnt] = '\0';
 
         sscanf(buf_,
-               "%d %s %c %d %d %d %d %d %u %u %u %u %u %d %d %d %d %d %d %u %u %d %u %u %u %u %u %u %u %u %d %d %d %d %u",
+               "%d %s %c %d %d %d %d %d %u %u %u %u %u %d %d %d %d %d %d %u %u %d %lu %lu %lu %u %u %u %u %u %d %d %d %d %u",
                &pinfo.pid, // %d
                pinfo.comm, // %s
                &pinfo.state, // %c
@@ -147,9 +147,9 @@ namespace edm {
                &pinfo.timeout, // %u
                &pinfo.itrealvalue, // %u
                &pinfo.starttime, // %d
-               &pinfo.vsize, // %u
-               &pinfo.rss, // %u
-               &pinfo.rlim, // %u
+               &pinfo.vsize, // %lu
+               &pinfo.rss, // %lu
+               &pinfo.rlim, // %lu
                &pinfo.startcode, // %u
                &pinfo.endcode, // %u
                &pinfo.startstack, // %u
