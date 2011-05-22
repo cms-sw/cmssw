@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for muon reco track
  *
- *  $Date: 2010/01/22 11:35:28 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/01/22 18:41:55 $
+ *  $Revision: 1.1 $
  *  \author S. Goy Lopez, CIEMAT
  */
 
@@ -95,6 +95,12 @@ class MuonKinVsEtaAnalyzer : public MuonAnalyzerBase {
   std::vector<MonitorElement*> phiStaTrack;
   std::vector<MonitorElement*> pStaTrack;
   std::vector<MonitorElement*> ptStaTrack;
+
+  // GMPT muon
+  std::vector<MonitorElement*> etaGMPTTrack;
+  std::vector<MonitorElement*> phiGMPTTrack;
+  std::vector<MonitorElement*> pGMPTTrack;
+  std::vector<MonitorElement*> ptGMPTTrack;
 
 };
 #endif

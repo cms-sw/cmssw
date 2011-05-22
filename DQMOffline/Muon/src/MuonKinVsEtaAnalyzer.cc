@@ -1,9 +1,8 @@
-
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/22 11:35:23 $
- *  $Revision: 1.22 $
+ *  $Date: 2010/01/22 18:41:49 $
+ *  $Revision: 1.1 $
  *  \author S. Goy Lopez, CIEMAT 
  */
 
@@ -65,29 +64,33 @@ void MuonKinVsEtaAnalyzer::beginJob(DQMStore * dbe) {
 
   std::string EtaName;
   for(unsigned int iEtaRegion=0;iEtaRegion<3;iEtaRegion++){
-    if (iEtaRegion==0) EtaName = "Barrel_";   
-    if (iEtaRegion==1) EtaName = "EndCap_";   
-    if (iEtaRegion==2) EtaName = "Overlap_";   
+    if (iEtaRegion==0) EtaName = "Barrel";   
+    if (iEtaRegion==1) EtaName = "EndCap";   
+    if (iEtaRegion==2) EtaName = "Overlap";   
 
     // monitoring of eta parameter
-    etaGlbTrack.push_back(dbe->book1D("GlbMuon_"+EtaName+"Glb_eta", "#eta_{GLB}_"+EtaName, etaBin, etaMin, etaMax));
-    etaTrack.push_back(dbe->book1D("TkMuon_eta_"+EtaName, "#eta_{TK}_"+EtaName, etaBin, etaMin, etaMax));
-    etaStaTrack.push_back(dbe->book1D("StaMuon_eta_"+EtaName, "#eta_{STA}_"+EtaName, etaBin, etaMin, etaMax));
+    etaGlbTrack.push_back(dbe->book1D("GlbMuon_eta_"+EtaName, "#eta_{GLB} "+EtaName, etaBin, etaMin, etaMax));
+    etaTrack.push_back(dbe->book1D("TkMuon_eta_"+EtaName, "#eta_{TK} "+EtaName, etaBin, etaMin, etaMax));
+    etaStaTrack.push_back(dbe->book1D("StaMuon_eta_"+EtaName, "#eta_{STA} "+EtaName, etaBin, etaMin, etaMax));
+    etaGMPTTrack.push_back(dbe->book1D("GMPTMuon_eta_"+EtaName, "#eta_{GMPT} "+EtaName, etaBin, etaMin, etaMax));
 
     // monitoring of phi paramater
-    phiGlbTrack.push_back(dbe->book1D("GlbMuon_"+EtaName+"Glb_phi", "#phi_{GLB}"+EtaName+ "(rad)", phiBin, phiMin, phiMax));
-    phiTrack.push_back(dbe->book1D("TkMuon_phi"+EtaName, "#phi_{TK}" +EtaName +"(rad)", phiBin, phiMin, phiMax));
-    phiStaTrack.push_back(dbe->book1D("StaMuon_phi"+EtaName, "#phi_{STA}"+EtaName+" (rad)", phiBin, phiMin, phiMax));
+    phiGlbTrack.push_back(dbe->book1D("GlbMuon_phi_"+EtaName, "#phi_{GLB} "+EtaName+ "(rad)", phiBin, phiMin, phiMax));
+    phiTrack.push_back(dbe->book1D("TkMuon_phi_"+EtaName, "#phi_{TK}" +EtaName +"(rad)", phiBin, phiMin, phiMax));
+    phiStaTrack.push_back(dbe->book1D("StaMuon_phi_"+EtaName, "#phi_{STA}"+EtaName+" (rad)", phiBin, phiMin, phiMax));
+    phiGMPTTrack.push_back(dbe->book1D("GMPTMuon_phi_"+EtaName, "#phi_{GMPT}_"+EtaName, phiBin, phiMin, phiMax));
 
     // monitoring of the momentum
-    pGlbTrack.push_back(dbe->book1D("GlbMuon_"+EtaName+"Glb_p", "p_{GLB}_"+EtaName, pBin, pMin, pMax));
-    pTrack.push_back(dbe->book1D("TkMuon_p"+EtaName, "p_{TK}_"+EtaName, pBin, pMin, pMax));
-    pStaTrack.push_back(dbe->book1D("StaMuon_p"+EtaName, "p_{STA}_"+EtaName, pBin, pMin, pMax));
+    pGlbTrack.push_back(dbe->book1D("GlbMuon_p_"+EtaName, "p_{GLB} "+EtaName, pBin, pMin, pMax));
+    pTrack.push_back(dbe->book1D("TkMuon_p"+EtaName, "p_{TK} "+EtaName, pBin, pMin, pMax));
+    pStaTrack.push_back(dbe->book1D("StaMuon_p"+EtaName, "p_{STA} "+EtaName, pBin, pMin, pMax));
+    pGMPTTrack.push_back(dbe->book1D("GMPTMuon_p_"+EtaName, "p_{GMPT} "+EtaName, pBin, pMin, pMax));
 
     // monitoring of the transverse momentum
-    ptGlbTrack.push_back(dbe->book1D("GlbMuon_"+EtaName+"Glb_pt", "pt_{GLB}_"+EtaName, ptBin, ptMin, ptMax));
-    ptTrack.push_back(dbe->book1D("TkMuon_pt"+EtaName, "pt_{TK}_"+EtaName, ptBin, ptMin, ptMax));
-    ptStaTrack.push_back(dbe->book1D("StaMuon_pt"+EtaName, "pt_{STA}_"+EtaName, ptBin, ptMin, pMax));
+    ptGlbTrack.push_back(dbe->book1D("GlbMuon_pt_" +EtaName, "pt_{GLB} "+EtaName, ptBin, ptMin, ptMax));
+    ptTrack.push_back(dbe->book1D("TkMuon_pt_"+EtaName, "pt_{TK} "+EtaName, ptBin, ptMin, ptMax));
+    ptStaTrack.push_back(dbe->book1D("StaMuon_pt_"+EtaName, "pt_{STA} "+EtaName, ptBin, ptMin, pMax));
+    ptGMPTTrack.push_back(dbe->book1D("GMPTMuon_pt_"+EtaName, "pt_{GMPT} "+EtaName, ptBin, ptMin, ptMax));
   }
 }
 
@@ -138,6 +141,16 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	ptStaTrack[iEtaRegion]->Fill(recoStaTrack->pt());
       }
     }
+    if (recoMu.isGlobalMuon() && recoMu.combinedMuon()->normalizedChi2()<10. 
+	&& recoMu.combinedMuon()->hitPattern().numberOfValidMuonHits() >0 ) {
+      LogTrace(metname)<<"[MuonKinVsEtaAnalyzer] The mu is GMPT - filling the histos";
+      reco::TrackRef recoGMPTTrack = recoMu.combinedMuon();
+      if(fabs(recoGMPTTrack->eta())>EtaCutMin && fabs(recoGMPTTrack->eta())<EtaCutMax){
+	etaGMPTTrack[iEtaRegion]->Fill(recoGMPTTrack->eta());
+	phiGMPTTrack[iEtaRegion]->Fill(recoGMPTTrack->phi());
+	pGMPTTrack[iEtaRegion]->Fill(recoGMPTTrack->p());
+	ptGMPTTrack[iEtaRegion]->Fill(recoGMPTTrack->pt());
+      }
+    }
   }
-
 }
