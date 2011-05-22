@@ -6849,8 +6849,8 @@ void OHltTree::CheckOpenHlt(
   else if (isIsoPFTauX_TrkX_METXTrigger(triggerName, thresholds)){
     if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1){
       if (prescaleResponse(menu, cfg, rcounter, it)){
-        if (OpenHltTightConeIsoPFTauPassed(thresholds[0], 99.,  thresholds[2], 14., 30.)>=1 ){
-	  if (recoMetCal > thresholds[3]) {
+        if (OpenHltTightConeIsoPFTauPassed(thresholds[0], 99.,  thresholds[1], 14., 30.)>=1 ){
+	  if (recoMetCal > thresholds[2]) {
 	    triggerBit[it] = true;
 	  }
         }
@@ -6861,7 +6861,7 @@ void OHltTree::CheckOpenHlt(
   else if (isIsoPFTauX_TrkXTrigger(triggerName, thresholds)){ 
     if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1){ 
       if (prescaleResponse(menu, cfg, rcounter, it)){ 
-	if (OpenHltTightConeIsoPFTauPassed(thresholds[0], 99.,  thresholds[2], 14., 30.)>=1 ){ 
+	if (OpenHltTightConeIsoPFTauPassed(thresholds[0], 99.,  thresholds[1], 14., 30.)>=1 ){ 
 	  triggerBit[it] = true; 
 	} 
       }
