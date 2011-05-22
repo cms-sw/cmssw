@@ -1060,6 +1060,32 @@ bool isSingleIsoTauX_TrkX_METXTrigger(
     return false;
 }
 
+bool isIsoPFTauX_TrkX_METXTrigger(
+                                      TString triggerName,
+                                      vector<double> &thresholds)
+{
+
+  TString pattern =
+    "(OpenHLT_IsoPFTau([0-9]+)_Trk([0-9]+)_MET([0-9]+)){1}$";
+  TPRegexp matchThreshold(pattern);
+
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdTau = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdTrk = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdMET = (((TObjString *)subStrL->At(4))->GetString()).Atof();
+      thresholds.push_back(thresholdTau);
+      thresholds.push_back(thresholdTrk);
+      thresholds.push_back(thresholdMET);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
+
 bool isCentralJetXU_METXTrigger(TString triggerName, vector<double> &thresholds)
 {
 	
@@ -1523,20 +1549,42 @@ bool isHTX_EleX_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_pfMHTXTrigger(
     return false;
 }
 
+bool isIsoPFTauX_TrkXTrigger( 
+                                            TString triggerName, 
+                                            vector<double> &thresholds) 
+{ 
+  TString pattern = "(OpenHLT_IsoPFTau([0-9]+)_Trk([0-9]+))$"; 
+  TPRegexp matchThreshold(pattern); 
+         
+  if (matchThreshold.MatchB(triggerName)) 
+    { 
+      TObjArray *subStrL     = TPRegexp(pattern).MatchS(triggerName); 
+      double thresholdTau0   = (((TObjString *)subStrL->At(2))->GetString()).Atof(); 
+      double thresholdTrk    = (((TObjString *)subStrL->At(3))->GetString()).Atof(); 
+      thresholds.push_back(thresholdTau0); 
+      thresholds.push_back(thresholdTrk); 
+      delete subStrL; 
+      return true; 
+    } 
+  else 
+    return false; 
+} 
+
+
 bool isDoubleIsoPFTauX_X_TrkX_eta2pXTrigger(
                                             TString triggerName,
                                             vector<double> &thresholds)
 {
-  TString pattern = "(OpenHLT_DoubleIsoPFTau([0-9]+)_([0-9]+)_Trk([0-9]+)_eta2p([0-9]+))$";
+  TString pattern = "(OpenHLT_DoubleIsoPFTau([0-9]+)_Trk([0-9]+)_eta2p([0-9]+))$";
   TPRegexp matchThreshold(pattern);
         
   if (matchThreshold.MatchB(triggerName))
     {
       TObjArray *subStrL     = TPRegexp(pattern).MatchS(triggerName);
       double thresholdTau0   = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      double thresholdTau1   = (((TObjString *)subStrL->At(3))->GetString()).Atof();
-      double thresholdTrk    = (((TObjString *)subStrL->At(4))->GetString()).Atof();
-      double thresholdEta    = (((TObjString *)subStrL->At(5))->GetString()).Atof();
+      double thresholdTau1   = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdTrk    = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdEta    = (((TObjString *)subStrL->At(4))->GetString()).Atof();
       thresholds.push_back(thresholdTau0);
       thresholds.push_back(thresholdTau1);
       thresholds.push_back(thresholdTrk);
@@ -2222,6 +2270,17 @@ void OHltTree::CheckOpenHlt(
 	  if (prescaleResponse(menu, cfg, rcounter, it))
 	    {
 	      if ((OpenHlt1CorJetPassed(50)>=4) && (OpenHlt1CorJetPassed(40)>=5))
+		triggerBit[it] = true;
+	    }
+	}
+    }
+  else if (triggerName.CompareTo("OpenHLT_QuadJet50_Jet40_Jet30") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if ((OpenHlt1CorJetPassed(50)>=4) && (OpenHlt1CorJetPassed(40)>=5) && (OpenHlt1CorJetPassed(30)>=6))
 		triggerBit[it] = true;
 	    }
 	}
@@ -3394,6 +3453,19 @@ void OHltTree::CheckOpenHlt(
 		}
 	    }
 	}
+    }
+  else if (triggerName.CompareTo("OpenHLT_Mu17_Mu8") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+        {
+          if (prescaleResponse(menu, cfg, rcounter, it))
+            {
+              if (OpenHlt2MuonPassed(3., 4., 8., 2., 0)>=2 && OpenHlt1MuonPassed(7., 7., 17., 2., 0)>=1)
+                {
+                  triggerBit[it] = true;
+                }
+            }
+        }
     }
 	
   else if (triggerName.CompareTo("OpenHLT_L1DoubleMuOpen") == 0)
@@ -6774,6 +6846,28 @@ void OHltTree::CheckOpenHlt(
 	}
     }
 	
+  else if (isIsoPFTauX_TrkX_METXTrigger(triggerName, thresholds)){
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1){
+      if (prescaleResponse(menu, cfg, rcounter, it)){
+        if (OpenHltTightConeIsoPFTauPassed(thresholds[0], 99.,  thresholds[2], 14., 30.)>=1 ){
+	  if (recoMetCal > thresholds[3]) {
+	    triggerBit[it] = true;
+	  }
+        }
+      }
+    }
+  }
+
+  else if (isIsoPFTauX_TrkXTrigger(triggerName, thresholds)){ 
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1){ 
+      if (prescaleResponse(menu, cfg, rcounter, it)){ 
+	if (OpenHltTightConeIsoPFTauPassed(thresholds[0], 99.,  thresholds[2], 14., 30.)>=1 ){ 
+	  triggerBit[it] = true; 
+	} 
+      }
+    } 
+  }
+
   else if (isDoubleIsoPFTauX_X_TrkX_eta2pXTrigger(triggerName, thresholds)){
     if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1){
       if (prescaleResponse(menu, cfg, rcounter, it)){
@@ -8596,8 +8690,6 @@ void OHltTree::CheckOpenHlt(
 	    }	 
 	}	 
     }	 
- 	 
- 
 
   else if (triggerName.CompareTo("OpenHLT_Mu17_CentralJet30") == 0)
     {
@@ -8613,7 +8705,6 @@ void OHltTree::CheckOpenHlt(
 	    }
 	}
     }
-	
   else if (triggerName.CompareTo("OpenHLT_Mu17_DiCentralJet30") == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -8628,7 +8719,6 @@ void OHltTree::CheckOpenHlt(
 	    }
 	}
     }
-	
   else if (triggerName.CompareTo("OpenHLT_Mu17_TriCentralJet30") == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -8643,6 +8733,77 @@ void OHltTree::CheckOpenHlt(
 	    }
 	}
     }
+  else if (triggerName.CompareTo("OpenHLT_Mu17_QuadCentralJet30") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+        {
+          if (prescaleResponse(menu, cfg, rcounter, it))
+            {
+              if (OpenHlt1MuonPassed(7., 7., 17., 2., 0)>=1
+                  && OpenHlt1CorJetPassed( 30, 2.6)>=4)
+                {
+                  triggerBit[it] = true;
+                }
+            }
+        }
+    }
+  else if (triggerName.CompareTo("OpenHLT_IsoMu17_CentralJet30") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+        {
+          if (prescaleResponse(menu, cfg, rcounter, it))
+            {
+              if (OpenHlt1MuonPassed(7., 7., 17., 2., 1)>=1
+                  && OpenHlt1CorJetPassed( 30, 2.6)>=1)
+                {
+                  triggerBit[it] = true;
+                }
+            }
+        }
+    }
+  else if (triggerName.CompareTo("OpenHLT_IsoMu17_DiCentralJet30") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+        {
+          if (prescaleResponse(menu, cfg, rcounter, it))
+            {
+              if (OpenHlt1MuonPassed(7., 7., 17., 2., 1)>=1
+                  && OpenHlt1CorJetPassed( 30, 2.6)>=2)
+                {
+                  triggerBit[it] = true;
+                }
+            }
+        }
+    }
+  else if (triggerName.CompareTo("OpenHLT_IsoMu17_TriCentralJet30") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+        {
+          if (prescaleResponse(menu, cfg, rcounter, it))
+            {
+              if (OpenHlt1MuonPassed(7., 7., 17., 2., 1)>=1
+                  && OpenHlt1CorJetPassed( 30, 2.6)>=3)
+                {
+                  triggerBit[it] = true;
+                }
+            }
+        }
+    }
+  else if (triggerName.CompareTo("OpenHLT_IsoMu17_QuadCentralJet30") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+        {
+          if (prescaleResponse(menu, cfg, rcounter, it))
+            {
+              if (OpenHlt1MuonPassed(7., 7., 17., 2., 1)>=1
+                  && OpenHlt1CorJetPassed( 30, 2.6)>=4)
+                {
+                  triggerBit[it] = true;
+                }
+            }
+        }
+    }
+
 	
   else if (triggerName.CompareTo("OpenHLT_DoubleMu3_HT100U") == 0)
     {
@@ -10828,12 +10989,12 @@ void OHltTree::CheckOpenHlt(
     }
 	
 	
-  else if (triggerName.BeginsWith("OpenHLT_Photon26")==1)
+  else if (triggerName.BeginsWith("OpenHLT_Photon36")==1)
     {
       // Photon Paths (V. Rekovic)
 		
-      int lowerEt = 18;
-      int upperEt = 26;
+      int lowerEt = 22;
+      int upperEt = 36;
 		
       // Names of Photon Paths With Mass Cut
       // -------------------------------------
