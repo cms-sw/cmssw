@@ -5,29 +5,29 @@ import sys
 import fileinput
 import string
 
-NewVersion='4_3_0_pre2'
-RefVersion='4_3_0_pre1'
+NewVersion='4_2_0_pre8'
+RefVersion='4_2_0_pre7'
 NewRelease='CMSSW_'+NewVersion
 RefRelease='CMSSW_'+RefVersion
 #NewRelease='Summer09'
 #RefRelease='Summer09_pre1'
 
-NewCondition='MC'
-RefCondition='MC'
-#NewCondition='STARTUP'
-#RefCondition='STARTUP'
+#NewCondition='MC'
+#RefCondition='MC'
+NewCondition='STARTUP'
+RefCondition='STARTUP'
 
 NewFastSim=False
 RefFastSim=False
 
 if (NewCondition=='MC'):
-    samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar']
+    samples= ['RelValZMM']
     if (NewFastSim|RefFastSim):
-        samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValTTbar']
+        samples= ['RelValZMM']
 elif (NewCondition=='STARTUP'):
-    samples= ['RelValTTbar','RelValZMM','RelValJpsiMM']
+    samples= ['RelValZMM']
     if (NewFastSim|RefFastSim):
-        samples= ['RelValTTbar']
+        samples= ['RelValZMM']
 
 
 Submit=True
@@ -36,59 +36,63 @@ Publish=False
 # Where to get the root file from.
 # By default, if the root files are already in the local area, they won't be overwritten
 
-#GetFilesFrom='WEB'       # --> Take root files from the MuonPOG Validation repository on the web
+GetFilesFrom='WEB'       # --> Take root files from the MuonPOG Validation repository on the web
 #GetFilesFrom='CASTOR'    # --> Copy root files from castor
-GetFilesFrom='GUI'       # --> Copy root files from the DQM GUI server
-#GetRefsFrom='WEB'
+#GetFilesFrom='GUI'       # --> Copy root files from the DQM GUI server
+GetRefsFrom='WEB'
 #GetRefsFrom='CASTOR'
-GetRefsFrom='GUI'
+#GetRefsFrom='GUI'
 
-DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_3_x/'
-#DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_2_x/'
-DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_3_x/'
-#DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_2_x/'
-CastorRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
+DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_2_x/'
+#DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_2_x/'
+DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_2_x/'
+CastorRepository = '/castor/cern.ch/user/a/asvyatko/ValidationRecoMuon'
 if ((GetFilesFrom=='GUI')|(GetRefsFrom=='GUI')):
     print "*** Did you remind doing:"
+
 # USE THIS WITH wget
-#    print " > source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.csh"
+#    print " > source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.(c)sh"
 # USE THIS WITH curl
-    print " > source /afs/cern.ch/project/gd/LCG-share/sl5/etc/profile.d/grid_env.csh "
-    print " > voms-proxy-init "
+    print " > source /afs/cern.ch/project/gd/LCG-share/sl5/etc/profile.d/grid_env.(c)sh"
+    print " > voms-proxy-init"
 
 
 # These are only needed if you copy any root file from the DQM GUI:
-NewLabel='MC_42_V9'
+NewLabel='MC_42_V7'
 if (NewCondition=='STARTUP'):
-    NewLabel='START42_V9'
-RefLabel='MC_42_V7'
+    NewLabel='START42_V7'
+RefLabel='MC_42_V6'
 if (RefCondition=='STARTUP'):
-    RefLabel='START42_V7'
+    RefLabel='START42_V6'
 
 
-ValidateHLT=True
+ValidateHLT=False
 ValidateRECO=True
 if (NewFastSim|RefFastSim):
     ValidateDQM=False
     ValidateISO=True
 else:
-    ValidateDQM=True
+    ValidateDQM=False
     ValidateISO=True
 
-#NewFormat='GEN-SIM-RECO'
-#RefFormat='GEN-SIM-RECO'
-NewFormat='DQM'
-RefFormat='DQM'
+NewFormat='GEN-SIM-RECO'
+RefFormat='GEN-SIM-RECO'
 NewTag = NewCondition+'_noPU_ootb'
 RefTag = RefCondition+'_noPU_ootb'
+
+#specify if any of the files compared is from FastSim
+isFastSimNew = ''
+isFastSimOld = ''
 if (NewFastSim):
-    NewTag = NewTag+'_FSIM'
-    NewCondition=NewCondition+'_FSIM'
+    isFastSimNew = 'FS'
+    NewTag = NewTag+isFastSimNew
+    NewCondition=NewCondition+isFastSimNew
     NewLabel=NewLabel+'_FastSim'
-    NewFormat='GEN-SIM-DIGI-RECO'
+    NewFormat='GEN-SIM-DIGI-RECO'    
 if (RefFastSim):
-    RefTag = RefTag+'_FSIM'
-    RefCondition=RefCondition+'_FSIM'
+    isFastSimOld = 'FS'
+    RefTag = RefTag+isFastSimOld
+    RefCondition=RefCondition+isFastSimOld
     RefLabel=RefLabel+'_FastSim'
     RefFormat='GEN-SIM-DIGI-RECO'
 
@@ -97,7 +101,7 @@ RefLabel=RefLabel+'-v1'
 
 
 WebRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
-CastorRefRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'    
+CastorRefRepository = '/castor/cern.ch/user/a/asvyatko/ValidationRecoMuon'    
 
 #specify macros used to plot here
 macro='macro/TrackValHistoPublisher.C'
@@ -138,11 +142,8 @@ for sample in samples :
         if (os.path.isfile(NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root')==True):
             print "New file found at: "+NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root'+' -> Use that one'
         elif (GetFilesFrom=='GUI'):
-#            os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+DqmGuiNewRepository+'DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root ')
-            os.system('/usr/bin/curl -O -L --capath $X509_CERT_DIR --key $X509_USER_PROXY --cert $X509_USER_PROXY '+DqmGuiNewRepository+'DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root ')
-            os.system('mv DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
-#            os.system('/usr/bin/curl -O -L --capath $X509_CERT_DIR --key $X509_USER_PROXY --cert $X509_USER_PROXY '+DqmGuiNewRepository+'DQM_V0002_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root ')
-#            os.system('mv DQM_V0002_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
+            os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+DqmGuiNewRepository+'DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root ')
+#            os.system('mv DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
         elif (GetFilesFrom=='CASTOR'):
             os.system('rfcp '+CastorRepository+'/'+NewRelease+'_'+NewCondition+'_'+sample+'_val.'+sample+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
         elif ((GetFilesFrom=='WEB') & (os.path.isfile(newSampleOnWeb))) :
@@ -161,6 +162,7 @@ for sample in samples :
             os.system('mv DQM_V0001_R000000001__'+sample+'__'+RefRelease+'-'+RefLabel+'__'+RefFormat+'.root '+RefRelease+'/'+RefTag+'/'+sample+'/'+'val.'+sample+'.root')
         elif (GetRefsFrom=='CASTOR'):
             print '*** Getting reference file from castor'
+            print 'rfcp '+CastorRefRepository+'/'+RefRelease+'_'+RefCondition+'_'+sample+'_val.'+sample+'.root '+RefRelease+'/'+RefTag+'/'+sample+'/'+'val.'+sample+'.root'
             os.system('rfcp '+CastorRefRepository+'/'+RefRelease+'_'+RefCondition+'_'+sample+'_val.'+sample+'.root '+RefRelease+'/'+RefTag+'/'+sample+'/'+'val.'+sample+'.root')
         elif ((GetRefsFrom=='WEB') & (os.path.isfile(refSampleOnWeb))):
             print '*** Getting reference file from '+RefRelease
@@ -171,8 +173,8 @@ for sample in samples :
 
         cfgFileName=sample+'_'+NewRelease+'_'+RefRelease
         hltcfgFileName='HLT'+sample+'_'+NewRelease+'_'+RefRelease
-        seedcfgFileName='DQMSEED'+sample+'_'+NewRelease+'_'+RefRelease
-        recocfgFileName='DQMRECO'+sample+'_'+NewRelease+'_'+RefRelease
+        seedcfgFileName='SEED'+sample+'_'+NewRelease+'_'+RefRelease
+        recocfgFileName='RECO'+sample+'_'+NewRelease+'_'+RefRelease
         recomuoncfgFileName='RECO'+sample+'_'+NewRelease+'_'+RefRelease
         isolcfgFileName='ISOL'+sample+'_'+NewRelease+'_'+RefRelease
 
@@ -186,7 +188,7 @@ for sample in samples :
             if (ValidateISO):
                 replace_map_ISOL = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'IsoValHistoPublisher': isolcfgFileName}
             if (ValidateRECO):
-                replace_map_RECO = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'RecoMuonValHistoPublisher': recomuoncfgFileName} 
+                replace_map_RECO = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'IS_FSIM':isFastSimOld, 'IS_FSIM':isFastSimNew, 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'RecoMuonValHistoPublisher': recomuoncfgFileName} 
         else:
             print "No reference file found at: ", RefRelease+'/'+RefTag+'/'+sample
             replace_map = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': cfgFileName}
@@ -198,7 +200,7 @@ for sample in samples :
             if (ValidateISO):
                 replace_map_ISOL = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'IsoValHistoPublisher': isolcfgFileName}
             if (ValidateRECO):
-                replace_map_RECO = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'RecoMuonValHistoPublisher': recomuoncfgFileName}
+                replace_map_RECO = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'IS_FSIM':isFastSimOld, 'IS_FSIM':isFastSimNew, 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'RecoMuonValHistoPublisher': recomuoncfgFileName}
 
         templatemacroFile = open(macro, 'r')
         macroFile = open(cfgFileName+'.C' , 'w' )
