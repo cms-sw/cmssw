@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cmath>
 #include<cstdlib>
+#include <cstdio>
 
 namespace almostEqualDetail {
   union fasi {
