@@ -17,6 +17,9 @@ namespace pos{
 *
 *   A longer explanation will be placed here later
 */
+  class PixelROCName;
+  std::ostream& operator<<(std::ostream& s, const PixelROCName& pixelroc);
+
   class PixelROCName {
 
   public:
@@ -109,6 +112,5 @@ namespace pos{
     unsigned int id_;
     
   };
-  std::ostream& operator<<(std::ostream& s, const PixelROCName& pixelroc);
 }
 #endif

@@ -16,6 +16,10 @@ namespace pos{
 *
 *   A longer explanation will be placed here later
 */
+  class PixelHdwAddress;
+
+  std::ostream& operator<<(std::ostream& s, const PixelHdwAddress& pixelroc);
+
   class PixelHdwAddress {
 
   public:
@@ -81,7 +85,6 @@ namespace pos{
 
     
   };
-  std::ostream& operator<<(std::ostream& s, const PixelHdwAddress& pixelroc);
   
 }
 #endif

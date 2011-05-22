@@ -61,6 +61,9 @@ namespace pos{
 *
 *   A longer explanation will be placed here later
 */
+  class PixelCalibConfiguration;
+  std::ostream& operator<<(std::ostream& s, const PixelCalibConfiguration& calib);
+
   class PixelCalibConfiguration : public PixelCalibBase, public PixelConfigBase {
 
   public:

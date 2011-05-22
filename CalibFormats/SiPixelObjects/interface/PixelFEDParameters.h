@@ -16,6 +16,9 @@ namespace pos{
 *
 *   A longer explanation will be placed here later
 */
+  class PixelFEDParameters;
+  std::ostream& operator <<(std::ostream& s ,const PixelFEDParameters &pFEDp);
+
   class PixelFEDParameters {
 
   public:
@@ -38,6 +41,5 @@ namespace pos{
     unsigned int vmebaseaddress_;   
 
   };
-  std::ostream& operator <<(std::ostream& s ,const PixelFEDParameters &pFEDp);
 }
 #endif
