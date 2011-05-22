@@ -6,8 +6,9 @@ pfMuonSelector = cms.PSet(
     D0 = cms.double(0.02),
     NHits = cms.int32(11),
     NValMuHits = cms.int32(0),
-    PFIso = cms.double(0.15),
+    PFIso = cms.double(0.2),
     nPixelHits = cms.int32(1),
-    nMatchedStations=cms.int32(1)
+    nMatchedStations=cms.int32(1),
+    cutsToIngnore=cms.vstring('Chi2','D0','NHits','NValMuHits','nPixelHits','nMatchedStations')
     )
 
