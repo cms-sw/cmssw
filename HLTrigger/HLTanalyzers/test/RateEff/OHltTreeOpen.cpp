@@ -4965,6 +4965,41 @@ void OHltTree::CheckOpenHlt(
 	    }
 	}
     }
+
+	//2011-05-22:
+else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//new
+{
+	if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+		if (prescaleResponse(menu, cfg, rcounter, it))
+		{
+            if (OpenHlt1ElectronSamHarperPassed(8., 0, // ET, L1isolation  
+												999.,
+												999., // Track iso barrel, Track iso endcap  
+												999,
+												999, // Track/pT iso barrel, Track/pT iso endcap  
+												999.,
+												999., // H/ET iso barrel, H/ET iso endcap  
+												999.,
+												999., // E/ET iso barrel, E/ET iso endcap  
+												0.1,
+												0.075, // H/E barrel, H/E endcap 
+												0.011,
+												0.031, // cluster shape barrel, cluster shape endcap 
+												999.,
+												999., // R9 barrel, R9 endcap 
+												0.008,
+												0.008, // Deta barrel, Deta endcap
+												0.07,
+												0.05 // Dphi barrel, Dphi endcap 
+												)>=2 )
+            {
+				triggerBit[it] = true;
+            }
+		}
+	}
+}
+
 	
 	
   // 2011-05-11: promoted to v4. Removed R9 cut.
@@ -6536,6 +6571,41 @@ void OHltTree::CheckOpenHlt(
 	    }
 	}
     }
+
+//2011-05-22
+   else if (triggerName.CompareTo("OpenHLT_Photon48_CaloIdL_Photon38_CaloIdL_v1") == 0)
+   {
+	   if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	   {
+		   if (prescaleResponse(menu, cfg, rcounter, it))
+		   {
+			   if (OpenHltPhoCuts(48, 0.15, 0.10, 0.014, 0.035, 999, 999) >= 1
+				   && OpenHltPhoCuts(38, 0.15, 0.10, 0.014, 0.035, 999, 999)
+				   >= 2)
+			   {
+				   triggerBit[it] = true;
+			   }
+		   }
+	   }
+   }
+	
+	//2011-05-22
+   else if (triggerName.CompareTo("OpenHLT_Photon40_CaloIdL_Photon28_CaloIdL_v1") == 0)
+   {
+	   if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	   {
+		   if (prescaleResponse(menu, cfg, rcounter, it))
+		   {
+			   if (OpenHltPhoCuts(40, 0.15, 0.10, 0.014, 0.035, 999, 999) >= 1
+				   && OpenHltPhoCuts(28, 0.15, 0.10, 0.014, 0.035, 999, 999)
+				   >= 2)
+			   {
+				   triggerBit[it] = true;
+			   }
+		   }
+	   }
+   }
+
 	
   // to be removed ??
   /*PhotonX_(M)HTX */
