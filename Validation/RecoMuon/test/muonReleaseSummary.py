@@ -21,14 +21,13 @@ NewFastSim=False
 RefFastSim=False
 
 if (NewCondition=='MC'):
-    samples= ['RelValZMM']
+    samples= ['RelValZMM'] #['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar']
     if (NewFastSim|RefFastSim):
-        samples= ['RelValZMM']
+        samples= ['RelValZMM'] #['RelValSingleMuPt10','RelValSingleMuPt100','RelValTTbar']
 elif (NewCondition=='STARTUP'):
-    samples= ['RelValZMM']
+    samples= ['RelValZMM'] #['RelValTTbar','RelValZMM','RelValJpsiMM']
     if (NewFastSim|RefFastSim):
-        samples= ['RelValZMM']
-
+        samples= ['RelValZMM'] #['RelValTTbar']
 
 Submit=True
 Publish=False
@@ -46,14 +45,14 @@ GetRefsFrom='WEB'
 DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_2_x/'
 #DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_2_x/'
 DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_2_x/'
-CastorRepository = '/castor/cern.ch/user/a/asvyatko/ValidationRecoMuon'
+CastorRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
 if ((GetFilesFrom=='GUI')|(GetRefsFrom=='GUI')):
     print "*** Did you remind doing:"
 
 # USE THIS WITH wget
-#    print " > source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.(c)sh"
+#    print " > source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.csh"
 # USE THIS WITH curl
-    print " > source /afs/cern.ch/project/gd/LCG-share/sl5/etc/profile.d/grid_env.(c)sh"
+    print " > source /afs/cern.ch/project/gd/LCG-share/sl5/etc/profile.d/grid_env.csh"
     print " > voms-proxy-init"
 
 
@@ -101,7 +100,7 @@ RefLabel=RefLabel+'-v1'
 
 
 WebRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
-CastorRefRepository = '/castor/cern.ch/user/a/asvyatko/ValidationRecoMuon'    
+CastorRefRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'    
 
 #specify macros used to plot here
 macro='macro/TrackValHistoPublisher.C'
@@ -142,8 +141,11 @@ for sample in samples :
         if (os.path.isfile(NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root')==True):
             print "New file found at: "+NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root'+' -> Use that one'
         elif (GetFilesFrom=='GUI'):
-            os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+DqmGuiNewRepository+'DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root ')
-#            os.system('mv DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
+#            os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+DqmGuiNewRepository+'DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root ')
+            os.system('/usr/bin/curl -O -L --capath $X509_CERT_DIR --key $X509_USER_PROXY --cert $X509_USER_PROXY '+DqmGuiNewRepository+'DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root ')
+            os.system('mv DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
+#            os.system('/usr/bin/curl -O -L --capath $X509_CERT_DIR --key $X509_USER_PROXY --cert $X509_USER_PROXY '+DqmGuiNewRepository+'DQM_V0002_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root ')
+#            os.system('mv DQM_V0002_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
         elif (GetFilesFrom=='CASTOR'):
             os.system('rfcp '+CastorRepository+'/'+NewRelease+'_'+NewCondition+'_'+sample+'_val.'+sample+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
         elif ((GetFilesFrom=='WEB') & (os.path.isfile(newSampleOnWeb))) :
@@ -173,8 +175,8 @@ for sample in samples :
 
         cfgFileName=sample+'_'+NewRelease+'_'+RefRelease
         hltcfgFileName='HLT'+sample+'_'+NewRelease+'_'+RefRelease
-        seedcfgFileName='SEED'+sample+'_'+NewRelease+'_'+RefRelease
-        recocfgFileName='RECO'+sample+'_'+NewRelease+'_'+RefRelease
+        seedcfgFileName='DQMSEED'+sample+'_'+NewRelease+'_'+RefRelease
+        recocfgFileName='DQMRECO'+sample+'_'+NewRelease+'_'+RefRelease
         recomuoncfgFileName='RECO'+sample+'_'+NewRelease+'_'+RefRelease
         isolcfgFileName='ISOL'+sample+'_'+NewRelease+'_'+RefRelease
 
