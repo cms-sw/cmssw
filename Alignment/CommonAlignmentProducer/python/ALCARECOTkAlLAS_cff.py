@@ -19,7 +19,8 @@ ALCARECOTkAlLASDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatus.clone(
 
 import EventFilter.SiStripRawToDigi.SiStripDigis_cfi
 ALCARECOTkAlLASsiStripDigis = EventFilter.SiStripRawToDigi.SiStripDigis_cfi.siStripDigis.clone(
-  ProductLabel = 'source'
+  ProductLabel = 'hltTrackerCalibrationRaw'
+#  ProductLabel = 'source'
 )
 
 import Alignment.LaserAlignment.LaserAlignmentEventFilter_cfi
