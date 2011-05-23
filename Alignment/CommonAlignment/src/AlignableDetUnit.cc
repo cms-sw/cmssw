@@ -15,7 +15,8 @@
 AlignableDetUnit::AlignableDetUnit(const GeomDetUnit *geomDetUnit) : // rely on non-NULL pointer!
   Alignable(geomDetUnit->geographicalId().rawId(), geomDetUnit->surface()),
   theAlignmentPositionError(0),
-  theSurfaceDeformation(0)
+  theSurfaceDeformation(0),
+  theCachedSurfaceDeformation(0)
 {
   if (geomDetUnit->alignmentPositionError()) { // take over APE from geometry
     // 2nd argument w/o effect:
@@ -36,6 +37,7 @@ AlignableDetUnit::~AlignableDetUnit()
 {
   delete theAlignmentPositionError;
   delete theSurfaceDeformation;
+  delete theCachedSurfaceDeformation;
 }
 
 //__________________________________________________________________________________________________
@@ -166,7 +168,6 @@ void AlignableDetUnit::dump() const
 //__________________________________________________________________________________________________
 Alignments* AlignableDetUnit::alignments() const
 {
-
   Alignments* m_alignments = new Alignments();
   RotationType rot( this->globalRotation() );
   
@@ -217,4 +218,37 @@ int AlignableDetUnit::surfaceDeformationIdPairs(std::vector<std::pair<int,Surfac
   }
   
   return 0;
+}
+ 
+//__________________________________________________________________________________________________
+void AlignableDetUnit::cacheTransformation()
+{
+  theCachedSurface = theSurface;
+  theCachedDisplacement = theDisplacement;
+  theCachedRotation = theRotation;
+
+  if (theCachedSurfaceDeformation) {
+    delete theCachedSurfaceDeformation;
+    theCachedSurfaceDeformation = 0;
+  }
+
+  if (theSurfaceDeformation)
+    theCachedSurfaceDeformation = theSurfaceDeformation->clone();
+}
+
+//__________________________________________________________________________________________________
+void AlignableDetUnit::restoreCachedTransformation()
+{
+  theSurface = theCachedSurface;
+  theDisplacement = theCachedDisplacement;
+  theRotation = theCachedRotation;
+
+  if (theSurfaceDeformation) {
+    delete theSurfaceDeformation;
+    theSurfaceDeformation = 0;
+  }
+
+  if (theCachedSurfaceDeformation) {
+    this->setSurfaceDeformation(theCachedSurfaceDeformation, false);
+  }
 }

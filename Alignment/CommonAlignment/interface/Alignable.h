@@ -18,9 +18,9 @@ class SurfaceDeformation;
  * Any Alignable object can be moved and rotated.
  * Also an alignment uncertainty can be set.
  *
- *  $Date: 2010/10/26 19:53:53 $
- *  $Revision: 1.33 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2010/10/29 12:16:28 $
+ *  $Revision: 1.34 $
+ *  (last update by $Author: mussgill $)
  */
 
 class AlignmentParameters;
@@ -195,6 +195,12 @@ public:
   /// and pointers to surface deformations
   virtual int surfaceDeformationIdPairs(std::vector<std::pair<int,SurfaceDeformation*> > &) const = 0;
 
+  /// cache the current position, rotation and other parameters (e.g. surface deformations)
+  virtual void cacheTransformation();
+
+  /// restore the previously cached transformation
+  virtual void restoreCachedTransformation();
+
   /// Return survey info
   const SurveyDet* survey() const { return theSurvey; }
 
@@ -217,6 +223,10 @@ protected:
 
   GlobalVector theDisplacement; // total linear displacement
   RotationType theRotation;     // total angular displacement
+
+  AlignableSurface theCachedSurface;
+  GlobalVector theCachedDisplacement;
+  RotationType theCachedRotation;
 
   Alignables theDeepComponents; // list of lowest daughters
                                 // contain itself if Alignable is a unit

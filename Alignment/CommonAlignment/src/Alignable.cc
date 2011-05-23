@@ -1,8 +1,8 @@
 /** \file Alignable.cc
  *
- *  $Date: 2008/02/13 20:20:47 $
- *  $Revision: 1.20 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2010/10/29 12:20:22 $
+ *  $Revision: 1.21 $
+ *  (last update by $Author: mussgill $)
  */
 
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
@@ -20,6 +20,7 @@ Alignable::Alignable(align::ID id, const AlignableSurface& surf):
   theDetId(id), // FIXME: inconsistent with other ctr., but needed for AlignableNavigator 
   theId(id),    // (finally get rid of one of the IDs!)
   theSurface(surf),
+  theCachedSurface(surf),
   theAlignmentParameters(0),
   theMother(0),
   theSurvey(0)
@@ -31,6 +32,7 @@ Alignable::Alignable(align::ID id, const RotationType& rot):
   theDetId(), // FIXME: inconsistent with other ctr., cf. above
   theId(id),
   theSurface(PositionType(), rot),
+  theCachedSurface(PositionType(), rot),
   theAlignmentParameters(0),
   theMother(0),
   theSurvey(0)
@@ -237,6 +239,20 @@ AlignmentSurfaceDeformations* Alignable::surfaceDeformations( void ) const
   
   return allSurfaceDeformations;
 
+}
+ 
+void Alignable::cacheTransformation()
+{
+  theCachedSurface = theSurface;
+  theCachedDisplacement = theDisplacement;
+  theCachedRotation = theRotation;
+}
+
+void Alignable::restoreCachedTransformation()
+{
+  theSurface = theCachedSurface;
+  theDisplacement = theCachedDisplacement;
+  theRotation = theCachedRotation;
 }
 
 //__________________________________________________________________________________________________

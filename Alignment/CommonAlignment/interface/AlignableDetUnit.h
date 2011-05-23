@@ -73,6 +73,12 @@ public:
   /// Return surface deformations
   virtual int surfaceDeformationIdPairs(std::vector<std::pair<int,SurfaceDeformation*> > &) const;
  
+  /// cache the current position, rotation and other parameters (e.g. surface deformations)
+  virtual void cacheTransformation();
+
+  /// restore the previously cached transformation
+  virtual void restoreCachedTransformation();
+
   /// alignment position error - for checking only, otherwise use alignmentErrors() above!  
   const AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError;}
 
@@ -80,6 +86,7 @@ private:
 
   AlignmentPositionError* theAlignmentPositionError;
   SurfaceDeformation* theSurfaceDeformation;
+  SurfaceDeformation* theCachedSurfaceDeformation;
 };
 
 #endif 
