@@ -72,6 +72,7 @@ using namespace trigger;
 std::vector<stSignal> signals;
 std::vector<stMC>     MCsample;
 std::vector<string>   DataFileName;
+double CutMass;
 
 double CutPt;
 double CutI;
@@ -290,8 +291,18 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
 
 
    double Mass = GetMass(track->p(),dedxMObj.dEdx());   
+   if(Mass<CutMass)return;
+
+
    double dz  = track->dz (vertex.position());
    double dxy = track->dxy(vertex.position());
+   for(unsigned int i=1;i<vertexColl.size();i++){
+      if(fabs(track->dz (vertexColl[i].position())) < fabs(dz) ){
+         dz  = track->dz (vertexColl[i].position());
+         dxy = track->dxy(vertexColl[i].position());
+      }
+   }
+   double v3d = sqrt(dz*dz+dxy*dxy);
 
    fprintf(pFile,"\n");
    fprintf(pFile,"---------------------------------------------------------------------------------------------------\n");
@@ -301,13 +312,16 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
       edm::TriggerResultsByName tr = ev.triggerResultsByName("Merge");
    fprintf(pFile,"Trigger: SingleMu=%i  DoubleMu=%i  PFMHT=%i (CaloMET=%i)\n",(int)tr.accept(tr.triggerIndex("HscpPathSingleMu")), (int)tr.accept(tr.triggerIndex("HscpPathDoubleMu")), (int)tr.accept(tr.triggerIndex("HscpPathPFMet")), (int)tr.accept(tr.triggerIndex("HscpPathCaloMet")));
    fprintf(pFile,"------------------------------------------ INNER TRACKER ------------------------------------------\n");
-   fprintf(pFile,"Quality = %i Chi2/NDF=%6.2f dz=+%6.2f dxy=%+6.2f charge:%+i\n",track->qualityMask(), track->chi2()/track->ndof(), dz, dxy, track->charge());
+   fprintf(pFile,"Quality = %i Chi2/NDF=%6.2f dz=+%6.2f dxy=%+6.2f V3D=%+6.2f charge:%+i\n",track->qualityMask(), track->chi2()/track->ndof(), dz, dxy, v3d, track->charge());
    fprintf(pFile,"P=%7.2f  Pt=%7.2f+-%6.2f (Cut=%6.2f) Eta=%+6.2f  Phi=%+6.2f  NOH=%2i\n",track->p(),track->pt(), track->ptError(), CutPt, track->eta(), track->phi(), track->found() );
 
    fprintf(pFile,"------------------------------------------ DEDX INFO ----------------------------------------------\n");
    fprintf(pFile,"dEdx for selection     :%6.2f (Cut=%6.2f) NOM %2i NOS %2i\n",dedxSObj.dEdx(),CutI,dedxSObj.numberOfMeasurements(),dedxSObj.numberOfSaturatedMeasurements());
    fprintf(pFile,"dEdx for mass reco     :%6.2f             NOM %2i NOS %2i  --> Beta dEdx = %6.2f\n",dedxMObj.dEdx(),dedxMObj.numberOfMeasurements(),dedxMObj.numberOfSaturatedMeasurements(), GetIBeta(dedxMObj.dEdx()) );
    fprintf(pFile,"dEdx for mass reco (NP):%6.2f             NOM %2i NOS %2i  --> Beta dEdx = %6.2f\n",dedxMNPObj.dEdx(),dedxMNPObj.numberOfMeasurements(),dedxMNPObj.numberOfSaturatedMeasurements(), GetIBeta(dedxMNPObj.dEdx()) );
+
+   fprintf(pFile,"dEdx mass error     :%6.2f (1Sigma dEdx) or %6.2f (1Sigma P)\n",  GetMass(track->p(),0.95*dedxMObj.dEdx()),  GetMass(track->p()*(1-track->ptError()/track->pt()),dedxMObj.dEdx()) );
+
    for(unsigned int h=0;h<track->recHitsSize();h++){
         TrackingRecHit* recHit = (track->recHit(h))->clone();
         if(const SiStripMatchedRecHit2D* matchedHit=dynamic_cast<const SiStripMatchedRecHit2D*>(recHit)){
@@ -380,8 +394,11 @@ bool PassTrigger(const fwlite::ChainEvent& ev)
 }
 
 
-void DumpInfo(string Pattern, int CutIndex=0)
+void DumpInfo(string Pattern, int CutIndex=0, double MassMin=0)
 {
+   CutMass = MassMin;
+
+
    setTDRStyle();
    gStyle->SetPadTopMargin   (0.05);
    gStyle->SetPadBottomMargin(0.10);

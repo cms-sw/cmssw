@@ -78,8 +78,8 @@ void Analysis_Step5()
 //   PredictionAndControlPlot(InputDir);
 
 
-//  InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";   unsigned int CutIndex = 24;//41
-   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type2/";   unsigned int CutIndex = 82;//18;
+  InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";   unsigned int CutIndex = 24;//41
+//   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type2/";   unsigned int CutIndex = 82;//18;
 
 //   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";   unsigned int CutIndex = 84;
 //   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type2/";   unsigned int CutIndex = 113;
@@ -106,9 +106,7 @@ void CutFlow(string InputPattern){
    MakeDirectories(SavePath);
 
    TFile* InputFile = new TFile(Input.c_str());
-//   TFile* InputFileData = new TFile((InputPattern + "Histos_Data.root").c_str());
-   TFile* InputFileData = new TFile((InputPattern + "Histos.root").c_str());
-
+   TFile* InputFileData = new TFile((InputPattern + "Histos_Data.root").c_str());
 
    stPlots DataPlots, MCTrPlots, SignPlots[signals.size()];
    stPlots_InitFromFile(InputFile, DataPlots,"Data", InputFileData);
@@ -807,6 +805,9 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
 
 void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuffix)
 {
+   bool IsTkOnly = (InputPattern.find("Type0",0)<std::string::npos);
+
+
    double Rescale, RMS;
 //   GetPredictionRescale(InputPattern,Rescale, RMS, RecomputeRescale);
 //   RMS = fabs(1.0-Rescale)/2.0;
@@ -816,7 +817,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    string outpath = InputPattern;
    MakeDirectories(outpath);
 
-   TFile* InputFile;
+   TFile* InputFile_Data;
    string Input;
 
    std::vector<string> legend;
@@ -824,11 +825,14 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
 
    char Buffer[2048];
    sprintf(Buffer,"%s/Histos_Data.root",InputPattern.c_str());
-   InputFile = new TFile(Buffer);
-   if(!InputFile || InputFile->IsZombie() || !InputFile->IsOpen() || InputFile->TestBit(TFile::kRecovered) )return;
-   TH1D* Pred     = ((TH2D*)GetObjectFromPath(InputFile, string("Pred_") + HistoSuffix   ))->ProjectionY("TmpPredMass"    ,CutIndex+1,CutIndex+1,"o");
-   TH1D* Data     = ((TH2D*)GetObjectFromPath(InputFile, string("Data/") + HistoSuffix   ))->ProjectionY("TmpDataMass"    ,CutIndex+1,CutIndex+1,"o");
+   InputFile_Data = new TFile(Buffer);
+   if(!InputFile_Data || InputFile_Data->IsZombie() || !InputFile_Data->IsOpen() || InputFile_Data->TestBit(TFile::kRecovered) )return;
+   TH1D* Pred     = ((TH2D*)GetObjectFromPath(InputFile_Data, string("Pred_") + HistoSuffix   ))->ProjectionY("TmpPredMass"    ,CutIndex+1,CutIndex+1,"o");
+   TH1D* Data     = ((TH2D*)GetObjectFromPath(InputFile_Data, string("Data/") + HistoSuffix   ))->ProjectionY("TmpDataMass"    ,CutIndex+1,CutIndex+1,"o");
 
+   TFile* InputFile = new TFile((InputPattern+"/Histos.root").c_str());
+   TH1D* Gluino600   = ((TH2D*)GetObjectFromPath(InputFile, string("Gluino600/") + HistoSuffix   ))->ProjectionY("TmpG600Mass"    ,CutIndex+1,CutIndex+1,"o");
+   TH1D* GMStau156   = ((TH2D*)GetObjectFromPath(InputFile, string("GMStau156/") + HistoSuffix   ))->ProjectionY("TmpS156Mass"    ,CutIndex+1,CutIndex+1,"o");
 
       double D,P,Perr;
       D = Data->Integral( Data->GetXaxis()->FindBin(0.0),  Data->GetXaxis()->FindBin(75.0));
@@ -852,21 +856,23 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
 
 
 
-   TH1D*  H_A            = (TH1D*)GetObjectFromPath(InputFile, "H_A");
-   TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile, "H_B");
-   TH1D*  H_C            = (TH1D*)GetObjectFromPath(InputFile, "H_C");
-   TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, "H_D");
-   TH1D*  H_E            = (TH1D*)GetObjectFromPath(InputFile, "H_E");
-   TH1D*  H_F            = (TH1D*)GetObjectFromPath(InputFile, "H_F");
-   TH1D*  H_G            = (TH1D*)GetObjectFromPath(InputFile, "H_G");
-   TH1D*  H_H            = (TH1D*)GetObjectFromPath(InputFile, "H_H");
-   TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile, "H_P");
+   TH1D*  H_A            = (TH1D*)GetObjectFromPath(InputFile_Data, "H_A");
+   TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile_Data, "H_B");
+   TH1D*  H_C            = (TH1D*)GetObjectFromPath(InputFile_Data, "H_C");
+   TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile_Data, "H_D");
+   TH1D*  H_E            = (TH1D*)GetObjectFromPath(InputFile_Data, "H_E");
+   TH1D*  H_F            = (TH1D*)GetObjectFromPath(InputFile_Data, "H_F");
+   TH1D*  H_G            = (TH1D*)GetObjectFromPath(InputFile_Data, "H_G");
+   TH1D*  H_H            = (TH1D*)GetObjectFromPath(InputFile_Data, "H_H");
+   TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile_Data, "H_P");
    printf("OBSERVED  EVENTS = %6.2E\n",H_D->GetBinContent(CutIndex+1));
    printf("PREDICTED EVENTS = %6.2E+-%6.2E\n",H_P->GetBinContent(CutIndex+1), H_P->GetBinError(CutIndex+1));
 
 
    Pred->Rebin(2);
    Data->Rebin(2);
+   Gluino600->Rebin(2);
+   GMStau156->Rebin(2);
 
    double Max = 2.0 * std::max(Data->GetMaximum(), Pred->GetMaximum());
    double Min = 0.1 * std::min(0.01,Pred->GetMaximum());
@@ -900,6 +906,15 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    PredErr->SetAxisRange(0,1400,"X");
    PredErr->Draw("E5");
 
+   TH1D* Signal = Gluino600;
+   if(!IsTkOnly)Signal = GMStau156;
+   Signal->SetMarkerStyle(21);
+   Signal->SetMarkerColor(4);
+   Signal->SetMarkerSize(1.5);
+   Signal->SetLineColor(4);
+   Signal->SetFillColor(38);
+   Signal->Draw("same HIST");
+
    Pred->SetMarkerStyle(22);
    Pred->SetMarkerColor(2);
    Pred->SetMarkerSize(1.5);
@@ -914,6 +929,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    Data->SetFillColor(0);
    Data->Draw("E1 same");
 
+
    leg = new TLegend(0.79,0.93,0.40,0.68);
    leg->SetHeader(LegendFromType(InputPattern).c_str());
    leg->SetFillColor(0);
@@ -921,8 +937,10 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    TH1D* PredLeg = (TH1D*) Pred->Clone("RescLeg");
    PredLeg->SetFillColor(PredErr->GetFillColor());
    PredLeg->SetFillStyle(PredErr->GetFillStyle());
-   leg->AddEntry(PredLeg, "Data-based prediction"  ,"PF");
    leg->AddEntry(Data, "Data"        ,"P");
+   leg->AddEntry(PredLeg, "Data-based prediction"  ,"PF");
+   if(IsTkOnly)leg->AddEntry(Signal, "MC - Gluino (M=600 GeV/c^{2})"        ,"F");
+   else        leg->AddEntry(Signal, "MC - Stau (M=156 GeV/c^{2})"        ,"F");
    leg->Draw();
 
    DrawPreliminary(IntegratedLuminosity);

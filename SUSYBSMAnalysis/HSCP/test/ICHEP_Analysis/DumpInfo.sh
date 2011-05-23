@@ -11,6 +11,6 @@ root -l -b << EOF
   gSystem->Load("libDataFormatsCommon.so");
   gSystem->Load("libDataFormatsHepMCCandidate.so");
   gSystem->Load("libDataFormatsTrackerRecHit2D.so");
-  .x DumpInfo.C++("Results/dedxASmi/combined/Eta25/PtMin25/Type0/",30);
+  .x DumpInfo.C++("Results/dedxASmi/combined/Eta25/PtMin25/Type0/",14,300);
 EOF
 
