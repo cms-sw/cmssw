@@ -72,14 +72,14 @@ void EgammaPFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     reco::PFCandidate cand(candPtr);
     
     // if not an electron 
-    if( (cand.particleId()!=reco::PFCandidate::e) || (cand.particleId()!=reco::PFCandidate::gamma) ) {
+    if( (cand.particleId()!=reco::PFCandidate::e) && (cand.particleId()!=reco::PFCandidate::gamma) ) {
       pfCandidates_p->push_back(cand);
       // watch out
       continue;
     }
 
     // if it is an electron. Find the GsfElectron with the same GsfTrack
-    if (cand.particleId()!=reco::PFCandidate::e) {
+    if (cand.particleId()==reco::PFCandidate::e) {
       const reco::GsfTrackRef & gsfTrackRef(cand.gsfTrackRef());
       GsfElectronEqual myEqual(gsfTrackRef);
       std::vector<reco::GsfElectron>::const_iterator itcheck=find_if(gsfElectrons->begin(),gsfElectrons->end(),myEqual);
@@ -97,7 +97,7 @@ void EgammaPFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     }  
   
     // if it is a photon, find the one with the same PF super-cluster
-    if (cand.particleId()!=reco::PFCandidate::gamma) {
+    if (cand.particleId()==reco::PFCandidate::gamma && cand.mva_nothing_gamma()>0.) {
       const reco::SuperClusterRef & scRef(cand.superClusterRef());
       PhotonEqual myEqual(scRef);
       std::vector<reco::Photon>::const_iterator itcheck=find_if(photons->begin(),photons->end(),myEqual);
