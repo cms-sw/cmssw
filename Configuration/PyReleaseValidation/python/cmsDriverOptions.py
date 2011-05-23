@@ -290,6 +290,10 @@ expertSettings.add_option("--inputEventContent",
                           help="specify the input event content",
                           default=None,
                           dest="inputEventContent")
+expertSettings.add_option("--slhc",
+                          help="Specify the SLHC scenario version",
+                          default=None,
+                          dest="slhc")
 
 (options,args) = parser.parse_args() # by default the arg is sys.argv[1:]
 

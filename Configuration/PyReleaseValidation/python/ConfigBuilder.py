@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.326 $"
+__version__ = "$Revision: 1.327 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -55,6 +55,7 @@ defaultOptions.outputDefinition =''
 defaultOptions.inputCommands = None
 defaultOptions.inputEventContent = None
 defaultOptions.relval = None
+defaultOptions.slhc = None
 
 # some helper routines
 def dumpPython(process,name):
@@ -483,6 +484,9 @@ class ConfigBuilder(object):
         if len(conditions) > 2:
             self.executeAndRemember("process.GlobalTag.pfnPrefix = cms.untracked.string('%s')" % pfnPrefix)
 
+	if self._options.slhc:
+		self.loadAndRemember("SLHCUpgradeSimulations/Geometry/fakeConditions_%s_cff"%(self._options.slhc,))
+		
         if self._options.custom_conditions!="":
                 specs=self._options.custom_conditions.split('+')
                 self.executeAndRemember("process.GlobalTag.toGet = cms.VPSet()")
@@ -753,6 +757,13 @@ class ConfigBuilder(object):
         if self._options.eventcontent != None:
             self.eventcontent=self._options.eventcontent
 
+	if self._options.slhc:
+		if 'stdgeom' not in self._options.slhc:
+			self.GeometryCFF='SLHCUpgradeSimulations.Geometry.%s_cmsSimIdealGeometryXML_cff'%(self._options.slhc,)
+		self.DIGIDefaultCFF='SLHCUpgradeSimulations/Geometry/Digi_%s_cff'%(self._options.slhc,)
+		if self._options.pileup!=defaultOptions.pileup:
+			self._options.pileup='SLHC_%s_%s'%(self._options.pileup,self._options.slhc)
+		
     # for alca, skims, etc
     def addExtraStream(self,name,stream,workflow='full'):
             # define output module and go from there
@@ -1431,7 +1442,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.326 $"),
+                                            (version=cms.untracked.string("$Revision: 1.327 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
