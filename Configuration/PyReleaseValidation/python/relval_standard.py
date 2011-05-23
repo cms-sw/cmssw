@@ -16,18 +16,35 @@ workflows[3] = ['', ['ProdQCD_Pt_3000_3500','DIGIPROD1','RECOPROD1']]
 
 ### data ###
 workflows[4.5]  = ['', ['RunCosmicsA','RECOCOSD','ALCACOSD']]
-workflows[4.45] = ['', ['RunCosmicsA','RECOD']]
+#workflows[4.45] = ['', ['RunCosmicsA','RECOD']]
 workflows[4.6]  = ['', ['MinimumBias2010A','RECOVALSKIM','HARVESTD']]
 workflows[4.7]  = ['', ['MinimumBias2010B','RECOVALSKIMALCA']]
 workflows[4.8]  = ['', ['WZMuSkim2010A','RECOVALSKIM']]
 workflows[4.9]  = ['', ['WZEGSkim2010A','RECOVALSKIM']]
 workflows[4.10] = ['', ['WZMuSkim2010B','RECOVALSKIM']]
 workflows[4.11] = ['', ['WZEGSkim2010B','RECOVALSKIM']]
+
 workflows[4.12] = ['', ['RunMinBias2010B','RECOD']]
 workflows[4.13] = ['', ['RunMu2010B','RECOD']]
 workflows[4.14] = ['', ['RunElectron2010B','RECOD']]
 workflows[4.15] = ['', ['RunPhoton2010B','RECOD']]
 workflows[4.16] = ['', ['RunJet2010B','RECOD']]
+
+
+workflows[4.17] = ['', ['RunMinBias2011A','RECOD','HARVESTD']]
+workflows[4.18] = ['', ['RunMu2011A','RECOD']]
+workflows[4.19] = ['', ['RunElectron2011A','RECOD']]
+workflows[4.20] = ['', ['RunPhoton2011A','RECOD']]
+workflows[4.21] = ['', ['RunJet2011A','RECOD']]
+
+workflows[4.22] = ['', ['RunCosmics2011A','RECOCOSD','ALCACOSD']]
+
+#workflows[4.23] = ['',[]
+workflows[4.24] = ['',['WMuSkim2011A','RECOVALSKIM']]
+workflows[4.25] = ['',['WElSkim2011A','RECOVALSKIM']]
+workflows[4.26] = ['',['ZMuSkim2011A','RECOVALSKIM']]
+workflows[4.27] = ['',['ZElSkim2011A','RECOVALSKIM']]
+workflows[4.28] = ['',['HighMet2011A','RECOVALSKIM']]
 
 ### fastsim ###
 workflows[5.1] = ['TTbar', ['TTbarFS1']]
