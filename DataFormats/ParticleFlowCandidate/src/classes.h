@@ -33,7 +33,10 @@ namespace {
     edm::Wrapper<edm::ValueMap<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > > bla333;
     edm::ValueMap<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > >  bla334;
     std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > bla335;
-
+    edm::Wrapper<edm::ValueMap<edm::Ptr<reco::PFCandidate> > > bla336;
+    edm::ValueMap<edm::Ptr<std::vector<reco::PFCandidate> > >  bla337;
+    std::vector<edm::Ptr<std::vector<reco::PFCandidate> > > bla338;
+    edm::ValueMap<edm::Ptr<reco::PFCandidate> > bla339;
     reco::PFCandidate::ElementInBlock jo1;
     reco::PFCandidate::ElementsInBlocks jo2;  
 
