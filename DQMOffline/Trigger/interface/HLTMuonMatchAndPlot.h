@@ -11,8 +11,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2011/01/27 19:10:10 $
- *  $Revision: 1.15 $
+ *  $Date: 2011/04/29 22:00:26 $
+ *  $Revision: 1.16 $
  *  
  *  \author  J. Slaunwhite, Jeff Klukas
  */
@@ -109,6 +109,8 @@ class HLTMuonMatchAndPlot {
   edm::ParameterSet probeParams_;
 
   // Member Variables
+  std::string triggerLevel_;
+  unsigned int cutMinPt_;
   std::string hltPath_;
   std::vector<std::string> moduleLabels_;
   DQMStore * dbe_;
