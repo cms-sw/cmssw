@@ -5,10 +5,10 @@
 //--- Our components which we want Framework to know about:
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 //--- The CPE ES Producers
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGenericESProducer.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPETemplateRecoESProducer.h"
+#include "PixelCPEGenericESProducer.h"
+#include "PixelCPETemplateRecoESProducer.h"
 //---- The RecHit ED producer
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelRecHitConverter.h"
+#include "SiPixelRecHitConverter.h"
 //--- The header files for the Framework infrastructure (macros etc):
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"

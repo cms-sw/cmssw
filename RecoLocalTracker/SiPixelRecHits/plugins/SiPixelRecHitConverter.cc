@@ -10,9 +10,9 @@
  */
 
 // Our own stuff
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelRecHitConverter.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPETemplateReco.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGeneric.h"
+#include "SiPixelRecHitConverter.h"
+#include "PixelCPETemplateReco.h"
+#include "PixelCPEGeneric.h"
 
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"

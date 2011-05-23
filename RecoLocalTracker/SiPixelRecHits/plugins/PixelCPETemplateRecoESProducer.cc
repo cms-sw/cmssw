@@ -1,5 +1,5 @@
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPETemplateRecoESProducer.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPETemplateReco.h"
+#include "PixelCPETemplateRecoESProducer.h"
+#include "PixelCPETemplateReco.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
