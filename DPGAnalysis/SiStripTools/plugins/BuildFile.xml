@@ -19,6 +19,8 @@
 <use   name="CommonTools/TrackerMap"/>
 <use   name="CalibFormats/SiStripObjects"/>
 <use   name="CalibTracker/Records"/>
+<use   name="MagneticField/Records"/>
+<use   name="MagneticField/Engine"/>
 <use   name="RecoTracker/TransientTrackingRecHit"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
