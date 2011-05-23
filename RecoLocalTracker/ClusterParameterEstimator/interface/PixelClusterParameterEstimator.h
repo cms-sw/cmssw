@@ -9,6 +9,8 @@
 class PixelClusterParameterEstimator : public  ClusterParameterEstimator<SiPixelCluster> {
   public:
 
+  PixelClusterParameterEstimator() : clusterProbComputationFlag_(0){}
+
   //--- Flag to control how SiPixelRecHits compute clusterProbability().
   //--- Note this is set via the configuration file, and it's simply passed
   //--- to each TSiPixelRecHit.
