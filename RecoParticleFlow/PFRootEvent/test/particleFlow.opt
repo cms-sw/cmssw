@@ -5,7 +5,7 @@ root outtree 0
 //colin	mode 1
 
 //root file display.root
-root file ../../Configuration/test/display.root
+root file /tmp/rpatel/display_1.root
 // Warning: no cleaning of the HF is done in fast sim, due to the absence of timing simulation and to an unreliable transverse shower shape simulation in the HF. 
 //          Thus you shall switch it off in PFRootEvent also by changing the thresholds to the following values: 
 //                                                             clustering thresh_Clean_HFEM            1E5 
@@ -411,7 +411,7 @@ particle_flow   convID_mvaWeightFile   /afs/cern.ch/cms/data/CMSSW/RecoParticleF
 
 // EG photons  Et cut; Track iso (cste;slope), Ecal iso (cste, slope), Hcal iso (cste, slope), H/E
 particle_flow   useEGPhotons 1
-particle_flow   photonSelection 10 2.0 0.001 4.2 0.003 2.2 0.001 0.05
+particle_flow   photonSelection 1 10 2.0 0.001 4.2 0.003 2.2 0.001 0.05 10 .10
 
 // EG
 
