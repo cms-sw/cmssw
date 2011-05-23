@@ -72,12 +72,12 @@ highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
                              egammaHighLevelRecoPostPF*
                              jetHighLevelReco*
                              tautagging*
+                             regionalCosmicTracksSeq*
+                             muoncosmichighlevelreco*
                              metrecoPlusHCALNoise*
                              btagging*
                              recoPFMET*
                              PFTau*
-                             regionalCosmicTracksSeq*
-                             muoncosmichighlevelreco*
                              reducedRecHits
                              )
 
