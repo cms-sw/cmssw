@@ -72,7 +72,7 @@ class WorkFlowRunner(Thread):
         if 'cms/caf/cms' in os.environ['CMS_PATH']:
             onCAF = True
 
-        inFile = 'file:raw.root'
+        inFile = None
         if self.wf.cmdStep1.startswith('DATAINPUT'):
             print "going to run with file input ... "
             if self.wf.input.run:
@@ -154,13 +154,11 @@ class WorkFlowRunner(Thread):
             if ( '40.0' in str(self.wf.numId) ) :
                 fullcmd += ' --himix '
                 inFile = '/store/relval/CMSSW_3_9_7/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V7HI-v1/0054/102FF831-9B0F-E011-A3E9-003048678BC6.root'
-                fullcmd += ' --filein '+inFile
             if ( '41.0' in str(self.wf.numId) ) : 
                 fullcmd += ' --himix '
                 inFile = '/store/relval/CMSSW_3_9_7/RelValPyquen_GammaJet_pt20_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V7HI-v1/0054/06B4F699-A50F-E011-AD62-0018F3D0962E.root'
-                fullcmd += ' --filein '+inFile
 
-            if not 'filein' in self.wf.cmdStep2:
+            if (not 'filein' in self.wf.cmdStep2) or inFile:
                 fullcmd += ' --filein '+inFile+ ' '
                 
             fullcmd += ' > %s 2>&1; ' % ('step2_'+self.wf.nameId+'.log ',)
@@ -174,7 +172,7 @@ class WorkFlowRunner(Thread):
                 if ' -n ' not in fullcmd : fullcmd += ' -n -1 '
                 # FIXME: dirty hack for beam-spot dedicated relval
                 if not '134' in str(self.wf.numId):
-                    if 'HARVESTING' in fullcmd and not 'filein' in fullcmd:
+                    if 'HARVESTING' in fullcmd:
                         fullcmd += ' --filein file:step2_inDQM.root --fileout file:step3.root '
                     else:
                         if not 'filein' in fullcmd:
