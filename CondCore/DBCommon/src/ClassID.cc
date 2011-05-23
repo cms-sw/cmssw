@@ -41,7 +41,7 @@ namespace cond {
 
 
 
-
+  /**
   ClassIDRegistry::ClassIDRegistry(std::string const & pfix) : prefix(pfix+"/"){}
 
   const char * ClassIDRegistry::registerMe(const std::type_info& t) {
@@ -57,8 +57,7 @@ namespace cond {
   std::string ClassInfo::pluginName(std::string const & prefix) const {
     return prefix + "/" +id(tinfo);
   }
-
-  
+  **/  
 
 }
 

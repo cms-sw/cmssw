@@ -15,7 +15,7 @@ namespace cond {
 
   char const * className(const std::type_info& t);
 
-  class ClassIDRegistry;
+  //class ClassIDRegistry;
 
   class ClassInfo {
   public:
@@ -26,13 +26,13 @@ namespace cond {
     std::string pluginName(std::string const & prefix) const;
     virtual std::string resource() const=0;
   private:
-    ClassIDRegistry * registry;
-    const char * registerMe(const std::type_info& t);
+    //ClassIDRegistry * registry;
+    //const char * registerMe(const std::type_info& t);
     const std::type_info& tinfo;
   };
   
   
-  class ClassIDRegistry {
+  /**class ClassIDRegistry {
   public:
     typedef ClassInfo Elem;
     std::vector<std::string> sids;
@@ -45,6 +45,7 @@ namespace cond {
     std::string prefix;
     
   };
+  **/
 
   template<typename T>
   struct ClassID : public  ClassInfo {
@@ -68,10 +69,6 @@ namespace cond {
 namespace cond{
   typedef edmplugin::PluginFactory<ClassInfo*() > ClassInfoFactory;
 }
-
-#define CLASS_ID(type_)  \
-namespace{ cond::ClassID<type_>  EDM_PLUGIN_SYM(instance_cld, __LINE__)(0); }	\
- DEFINE_EDM_PLUGIN(cond::ClassInfoFactory, cond::ClassID<type_>  , cond::ClassID<type_>().pluginName(cond::idCategories::dictIDCategory).c_str() )
 
 #define PYTHON_ID(type_, plugName_, uname_)					\
   namespace pythonID { struct EDM_PLUGIN_SYM(plugName_, uname_)  : public cond::ClassID<type_> { EDM_PLUGIN_SYM(plugName_ , uname_) () : cond::ClassID<type_>(::plugName_){}};} \
