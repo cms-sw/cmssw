@@ -1,8 +1,8 @@
 # Auto generated configuration file
 # using: 
-# Revision: 1.303.2.3 
-# Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: skim -s SKIM:HighMET+LogError+DiJet --data --conditions FT_R_42_V10A::All --python_filenam skim_Jet.py --magField AutoFromDBCurrent --no_exec
+# Revision: 1.303.2.7 
+# Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
+# with command line options: skim -s SKIM:HighMET+LogError --data --conditions FT_R_42_V13A::All --python_filenam skim_Jet.py --magField AutoFromDBCurrent --no_exec
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('SKIM')
@@ -32,7 +32,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.303.2.3 $'),
+    version = cms.untracked.string('$Revision: 1.303.2.7 $'),
     annotation = cms.untracked.string('skim nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -40,46 +40,6 @@ process.configurationMetadata = cms.untracked.PSet(
 # Output definition
 
 # Additional output definition
-process.SKIMStreamDiJet = cms.OutputModule("PoolOutputModule",
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('diJetAveSkimPath')
-    ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep recoCaloJets_kt4CaloJets_*_*', 
-        'keep recoCaloJets_kt6CaloJets_*_*', 
-        'keep recoCaloJets_ak5CaloJets_*_*', 
-        'keep recoCaloJets_ak7CaloJets_*_*', 
-        'keep recoCaloJets_iterativeCone5CaloJets_*_*', 
-        'keep *_kt4JetID_*_*', 
-        'keep *_kt6JetID_*_*', 
-        'keep *_ak5JetID_*_*', 
-        'keep *_ak7JetID_*_*', 
-        'keep *_ic5JetID_*_*', 
-        'keep recoPFJets_kt4PFJets_*_*', 
-        'keep recoPFJets_kt6PFJets_*_*', 
-        'keep recoPFJets_ak5PFJets_*_*', 
-        'keep recoPFJets_ak7PFJets_*_*', 
-        'keep recoPFJets_iterativeCone5PFJets_*_*', 
-        'keep *_JetPlusTrackZSPCorJetAntiKt5_*_*', 
-        'keep edmTriggerResults_TriggerResults_*_*', 
-        'keep *_hltTriggerSummaryAOD_*_*', 
-        'keep L1GlobalTriggerObjectMapRecord_*_*_*', 
-        'keep L1GlobalTriggerReadoutRecord_*_*_*', 
-        'keep recoTracks_generalTracks_*_*', 
-        'keep *_towerMaker_*_*', 
-        'keep *_EventAuxilary_*_*', 
-        'keep *_offlinePrimaryVertices_*_*', 
-        'keep *_hcalnoise_*_*', 
-        'keep *_metHO_*_*', 
-        'keep *_metNoHF_*_*', 
-        'keep *_metNoHFHO_*_*', 
-        'keep *_met_*_*'),
-    fileName = cms.untracked.string('DiJet.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string('DiJet'),
-        dataTier = cms.untracked.string('USER')
-    )
-)
 process.SKIMStreamHighMET = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pfPath', 
@@ -90,7 +50,8 @@ process.SKIMStreamHighMET = cms.OutputModule("PoolOutputModule",
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('HighMET'),
         dataTier = cms.untracked.string('RAW-RECO')
-    )
+    ),
+    eventAutoFlushCompressedSize = cms.untracked.int32(5242880)
 )
 process.SKIMStreamLogError = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
@@ -101,16 +62,16 @@ process.SKIMStreamLogError = cms.OutputModule("PoolOutputModule",
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('LogError'),
         dataTier = cms.untracked.string('RAW-RECO')
-    )
+    ),
+    eventAutoFlushCompressedSize = cms.untracked.int32(5242880)
 )
 
 # Other statements
-process.GlobalTag.globaltag = 'FT_R_42_V10A::All'
+process.GlobalTag.globaltag = 'FT_R_42_V13A::All'
 
 # Path and EndPath definitions
-process.SKIMStreamDiJetOutPath = cms.EndPath(process.SKIMStreamDiJet)
 process.SKIMStreamHighMETOutPath = cms.EndPath(process.SKIMStreamHighMET)
 process.SKIMStreamLogErrorOutPath = cms.EndPath(process.SKIMStreamLogError)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.pathlogerror,process.pfPath,process.tcPath,process.diJetAveSkimPath,process.SKIMStreamDiJetOutPath,process.SKIMStreamHighMETOutPath,process.SKIMStreamLogErrorOutPath)
+process.schedule = cms.Schedule(process.pathlogerror,process.pfPath,process.tcPath,process.SKIMStreamHighMETOutPath,process.SKIMStreamLogErrorOutPath)
