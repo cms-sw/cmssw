@@ -47,19 +47,8 @@ TSiPixelRecHit::TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh,
   }
 
   // Additionally, fill the SiPixeRecHitQuality from the PixelCPE.
-  const PixelCPEBase * cpeB = dynamic_cast< const PixelCPEBase* >( cpe );
-  if (cpeB) {
-    theHitData.setRawQualityWord( cpeB->rawQualityWord() );
-    theClusterProbComputationFlag = cpeB->clusterProbComputationFlag(); 
-  }
-  // else {
-    //  Huh?  We are using the obsolete CPEFromDetPosition???
-    //  &&& Possibly complain in here.
-
-    //  &&& In fact, a better long-term option is to simply move this interface
-    //  &&&   into the ClusterParameterEstimator and make it a real interface
-    //  &&&   class.
-  //  }
+  theHitData.setRawQualityWord( cpe->rawQualityWord() );
+  theClusterProbComputationFlag = cpe->clusterProbComputationFlag(); 
 
 }
 
@@ -78,19 +67,8 @@ TSiPixelRecHit::TSiPixelRecHit( const LocalPoint& pos, const LocalError& err,
   theCPE(cpe)
 {
   // Additionally, fill the SiPixeRecHitQuality from the PixelCPE.
-  const PixelCPEBase * cpeB = dynamic_cast< const PixelCPEBase* >( cpe );
-  if (cpeB) {
-    theHitData.setRawQualityWord( cpeB->rawQualityWord() );
-    theClusterProbComputationFlag = cpeB->clusterProbComputationFlag(); 
-  }
-  // else {
-    //  Huh?  We are using the obsolete CPEFromDetPosition???
-    //  &&& Possibly complain in here.
-
-    //  &&& In fact, a better long-term option is to simply move this interface
-    //  &&&   into the ClusterParameterEstimator and make it a real interface
-    //  &&&   class.
-  //  }
+  theHitData.setRawQualityWord( cpe->rawQualityWord() );
+  theClusterProbComputationFlag = cpe->clusterProbComputationFlag(); 
 }
 
 
