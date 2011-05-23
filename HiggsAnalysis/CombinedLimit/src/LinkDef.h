@@ -3,6 +3,7 @@
 #include "../interface/VerticalInterpPdf.h"
 #include "../interface/AsymPow.h"
 #include "../interface/CombDataSetFactory.h"
+#include "../interface/TH1Keys.h"
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -13,4 +14,5 @@
 #pragma link C++ class VerticalInterpPdf+;
 #pragma link C++ class AsymPow+;
 #pragma link C++ class CombDataSetFactory+;
+#pragma link C++ class TH1Keys+;
 #endif

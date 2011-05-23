@@ -1,0 +1,159 @@
+#include "../interface/TH1Keys.h"
+#include <RooBinning.h>
+#include <stdexcept>
+#include <vector>
+
+TH1Keys::TH1Keys() :
+    x_(0),
+    dataset_(0),
+    underflow_(0.0), overflow_(0.0),
+    globalScale_(1.0),
+    cache_(0),
+    isCacheGood_(false)
+{
+}
+
+TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,Double_t xlow,Double_t xup, RooKeysPdf::Mirror mirror, Double_t rho) :
+    TH1(name,title,nbinsx,xlow,xup),
+    min_(xlow), max_(xup),
+    x_(new RooRealVar("x", "x", min_, max_)),
+    point_(*x_),
+    dataset_(new RooDataSet(name, title, point_)),
+    underflow_(0.0), overflow_(0.0),
+    globalScale_(1.0),
+    mirror_(mirror),
+    rho_(rho),
+    cache_(0),
+    isCacheGood_(false)
+{
+    fDimension = 1;
+    x_->setBins(nbinsx);
+}
+
+TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Float_t  *xbins, RooKeysPdf::Mirror mirror, Double_t rho) :
+    TH1(name,title,nbinsx,xbins),
+    min_(xbins[0]), max_(xbins[nbinsx]),
+    x_(new RooRealVar("x", "x", min_, max_)),
+    point_(*x_),
+    dataset_(new RooDataSet(name, title, point_)),
+    underflow_(0.0), overflow_(0.0),
+    globalScale_(1.0),
+    mirror_(mirror),
+    rho_(rho),
+    cache_(0),
+    isCacheGood_(false)
+{
+    fDimension = 1;
+    std::vector<Double_t> boundaries(nbinsx+1);
+    for (Int_t i = 0; i <= nbinsx; ++i) boundaries[i] = xbins[i];
+    x_->setBinning(RooBinning(nbinsx, &boundaries[0]));
+}
+
+TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Double_t *xbins, RooKeysPdf::Mirror mirror, Double_t rho) :
+    TH1(name,title,nbinsx,xbins),
+    min_(xbins[0]), max_(xbins[nbinsx]),
+    x_(new RooRealVar("x", "x", min_, max_)),
+    point_(*x_),
+    dataset_(new RooDataSet(name, title, point_)),
+    underflow_(0.0), overflow_(0.0),
+    globalScale_(1.0),
+    mirror_(mirror),
+    rho_(rho),
+    cache_(0),
+    isCacheGood_(false)
+{
+    fDimension = 1;
+    x_->setBinning(RooBinning(nbinsx, xbins));
+}
+
+
+TH1Keys::TH1Keys(const TH1Keys &other)  :
+    TH1(other),
+    min_(other.min_), max_(other.max_),
+    x_(new RooRealVar("x", "x", min_, max_)),
+    point_(*x_),
+    dataset_(new RooDataSet(other.GetName(), other.GetTitle(), point_)),
+    underflow_(other.underflow_), overflow_(other.overflow_),
+    globalScale_(other.globalScale_),
+    mirror_(other.mirror_),
+    rho_(other.rho_),
+    cache_(0),
+    isCacheGood_(false)
+{
+    fDimension = 1;
+    x_->setBinning(other.x_->getBinning());
+}
+
+
+TH1Keys::~TH1Keys() 
+{
+    delete cache_;
+    delete dataset_;
+    delete x_;
+}
+
+Int_t TH1Keys::Fill(Double_t x, Double_t w)
+{
+    isCacheGood_ = false;
+    if (x >= max_) overflow_ += w;
+    else if (x < min_) underflow_ += w;
+    else {
+        x_->setVal(x);
+        dataset_->add(point_, w);
+        return 1;
+    } 
+    return -1;
+}
+
+void TH1Keys::FillN(Int_t ntimes, const Double_t *x, const Double_t *w, Int_t stride)
+{
+    isCacheGood_ = false;
+    for (Int_t i = 0; i < ntimes; i += stride) {
+        if (x[i] >= max_) overflow_ += w[i];
+        else if (x[i] < min_) underflow_ += w[i];
+        else {
+            x_->setVal(x[i]);
+            dataset_->add(point_, w[i]);
+        }
+    }
+}
+
+void TH1Keys::Add(const TH1 *h1, Double_t c1) 
+{
+    if (c1 != 1.0) dont("Add with constant != 1");
+    const TH1Keys *other = dynamic_cast<const TH1Keys *>(h1);
+    if (other == 0) dont("Add with a non TH1Keys");
+    dataset_->append(const_cast<RooDataSet&>(*other->dataset_));
+    isCacheGood_ = false;
+}
+
+void TH1Keys::Scale(Double_t c1, Option_t *option)
+{
+    globalScale_ *= c1;
+    if (cache_) cache_->Scale(c1);
+}
+
+void TH1Keys::Reset(Option_t *option) {
+    dataset_->reset();
+    overflow_ = underflow_ = 0.0;
+    globalScale_ = 1.0;
+    isCacheGood_ = false;
+}
+
+// ------------------------------------------------------------
+
+void TH1Keys::FillH1() const
+{
+    delete cache_;
+    RooKeysPdf pdf("","",*x_,*dataset_);
+    cache_ = pdf.createHistogram(GetName(), *x_);
+    cache_->SetBinContent(0,                     underflow_);
+    cache_->SetBinContent(cache_->GetNbinsX()+1, overflow_);
+    if (dataset_->sumEntries()) cache_->Scale(dataset_->sumEntries() * globalScale_);
+    isCacheGood_ = true;
+}
+
+void TH1Keys::dont(const char *msg) const {
+    TObject::Error("TH1Keys",msg);
+    throw std::runtime_error(std::string("Error in TH1Keys: ")+msg);
+}
