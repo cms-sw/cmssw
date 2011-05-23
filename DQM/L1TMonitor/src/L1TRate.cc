@@ -1,8 +1,8 @@
 /*
  * \file L1TRate.cc
  *
- * $Date: 2011/05/19 15:15:50 $
- * $Revision: 1.4 $
+ * $Date: 2011/05/20 19:20:30 $
+ * $Revision: 1.5 $
  * \author J. Pela, P. Musella
  *
  */
@@ -184,7 +184,7 @@ void L1TRate::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
     }
 
     dbe->setCurrentFolder("L1T/L1TRate/TriggerCrossSections");
-    m_xSecVsInstLumi[tTrigger] = dbe->bookProfile(tCategory,"Cross Sec. vs Inst. Lumi Algo: "+tTrigger+tErrorMessage,m_maxNbins,10,300,0,500); 
+    m_xSecVsInstLumi[tTrigger] = dbe->bookProfile(tCategory,"Cross Sec. vs Inst. Lumi Algo: "+tTrigger+tErrorMessage,m_maxNbins,100,2000,0,500); 
     m_xSecVsInstLumi[tTrigger] ->setAxisTitle("Instantaneous Luminosity [10^{30}cm^{-2}s^{-1}]" ,1);
     m_xSecVsInstLumi[tTrigger] ->setAxisTitle("Algorithm #sigma [#mu b]" ,2);
     m_xSecVsInstLumi[tTrigger] ->getTProfile()->GetListOfFunctions()->Add(tTestFunction);
