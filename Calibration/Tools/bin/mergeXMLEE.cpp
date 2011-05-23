@@ -64,6 +64,7 @@ inline int radShifter (const int radOld)
    {
      if (radOld < 0) return radOld + 85 ;
      else if (radOld > 0) return radOld + 84 ;
+     assert(false);
    }
 
 

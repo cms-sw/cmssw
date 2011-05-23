@@ -35,6 +35,7 @@ inline int etaShifter (const int etaOld)
    {
      if (etaOld < 0) return etaOld + 85 ;
      else if (etaOld > 0) return etaOld + 84 ;
+     assert(false);     
    }
 
 
