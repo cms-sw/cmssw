@@ -61,7 +61,7 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     # Photon selection. Et cut; Track iso (cste;slope), Ecal iso (cste, slope), Hcal iso (cste, slope), H/E
     # just put infinite Et cut to disable the photon import
     useEGPhotons = cms.bool(True),                                   
-    PhotonSelectionCuts = cms.vdouble(10,2.0, 0.001, 4.2, 0.003, 2.2, 0.001, 0.05)                                   
+    PhotonSelectionCuts = cms.vdouble(0,10,2.0, 0.001, 4.2, 0.003, 2.2, 0.001, 0.05, 10, 0.10)                                   
 )
 
 

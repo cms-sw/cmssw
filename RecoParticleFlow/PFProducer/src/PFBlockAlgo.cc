@@ -48,7 +48,13 @@ void PFBlockAlgo::setParameters( std::vector<double>& DPtovPtCut,
 					     photonSelectionCuts[1], photonSelectionCuts[2],   
 					     photonSelectionCuts[3], photonSelectionCuts[4],    
 					     photonSelectionCuts[5], photonSelectionCuts[6],    
-					     photonSelectionCuts[7]);
+					     photonSelectionCuts[7],
+					     photonSelectionCuts[8],
+					     photonSelectionCuts[9],
+					     photonSelectionCuts[10]
+					     );
+
+
 }
 
 PFBlockAlgo::~PFBlockAlgo() {
