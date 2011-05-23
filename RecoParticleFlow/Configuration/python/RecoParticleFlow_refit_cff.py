@@ -14,6 +14,6 @@ particleFlowReco = cms.Sequence(
     ckftracks*
     trackerDrivenElectronSeeds*
     particleFlowBlock*
-    particleFlow
+    particleFlowTmp
     )
 

@@ -11,5 +11,5 @@ from RecoParticleFlow.PFProducer.particleFlow_cff import *
 
 particleFlowRecoConversion = cms.Sequence( particleFlowTrackWithConversion*
                                            particleFlowBlock*
-                                           particleFlow )
+                                           particleFlowTmp )
 

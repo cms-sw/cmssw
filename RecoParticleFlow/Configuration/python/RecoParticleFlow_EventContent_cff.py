@@ -32,6 +32,8 @@ RecoParticleFlowFEVT = cms.PSet(
     'keep recoPFDisplacedVertexs_particleFlowDisplacedVertex_*_*',
     'keep *_pfElectronTranslator_*_*',
     'keep *_pfPhotonTranslator_*_*',
+    'keep *_particleFlow_electrons_*',
+    'keep *_particleFlow_photons_*',
     'keep *_trackerDrivenElectronSeeds_preid_*')
     )
 # RECO content
@@ -61,6 +63,8 @@ RecoParticleFlowRECO = cms.PSet(
     'keep recoPFDisplacedVertexs_particleFlowDisplacedVertex_*_*',
     'keep *_pfElectronTranslator_*_*',
     'keep *_pfPhotonTranslator_*_*',
+    'keep *_particleFlow_electrons_*',
+    'keep *_particleFlow_photons_*',
     'keep *_trackerDrivenElectronSeeds_preid_*')
 )    
     
@@ -80,6 +84,8 @@ RecoParticleFlowAOD = cms.PSet(
     'keep recoPFRecHits_particleFlowRecHitPS_Cleaned_*',
     #'keep recoPFCandidates_*_*_*',
     'keep recoPFCandidates_particleFlow_*_*',
+    'keep *_particleFlow_electrons_*',
+    'keep *_particleFlow_photons_*',
     'keep recoCaloClusters_pfElectronTranslator_*_*',
     'keep recoPreshowerClusters_pfElectronTranslator_*_*',
     'keep recoSuperClusters_pfElectronTranslator_*_*',

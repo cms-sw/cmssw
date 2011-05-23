@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-particleFlow = cms.EDProducer("PFProducer",
+particleFlowTmp = cms.EDProducer("PFProducer",
 
     # PF Blocks label
     blocks = cms.InputTag("particleFlowBlock"),

@@ -12,7 +12,7 @@ from RecoParticleFlow.PFTracking.nuclearRemainingHits_cff import *
 particleFlowRecoNuclear = cms.Sequence(
     nuclearRemainingHits*
     particleFlowTrackWithNuclear*
-    particleFlowBlock*particleFlow
+    particleFlowBlock*particleFlowTmp
     )
 particleFlowBlock.useNuclear = True
 

@@ -11,8 +11,12 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-      '/store/relval/CMSSW_3_9_5/RelValTTbar/GEN-SIM-RECO/START39_V6-v1/0008/0AEEDFA4-88FA-DF11-B6FF-001A92811718.root'
-    )
+       '/store/relval/CMSSW_4_2_3/RelValH130GGgluonfusion/GEN-SIM-RECO/START42_V12-v2/0067/0A2A882D-087C-E011-B6E4-00248C0BE016.root',
+       '/store/relval/CMSSW_4_2_3/RelValH130GGgluonfusion/GEN-SIM-RECO/START42_V12-v2/0063/7E911D11-B47B-E011-A719-001A92971AD8.root',
+       '/store/relval/CMSSW_4_2_3/RelValH130GGgluonfusion/GEN-SIM-RECO/START42_V12-v2/0063/12BDD2DE-857B-E011-8019-002618943906.root',
+       '/store/relval/CMSSW_4_2_3/RelValH130GGgluonfusion/GEN-SIM-RECO/START42_V12-v2/0062/62E92439-357B-E011-A3FF-001A928116D0.root',
+       '/store/relval/CMSSW_4_2_3/RelValH130GGgluonfusion/GEN-SIM-RECO/START42_V12-v2/0062/1E08A9B0-2C7B-E011-905B-00261894395F.root'
+       )
 )
 
 
@@ -21,15 +25,34 @@ process.source = cms.Source("PoolSource",
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.load("RecoParticleFlow.PFProducer.pfBasedElectronIso_cff")
+process.load("RecoParticleFlow.PFProducer.pfBasedPhotonIso_cff")
+process.load("RecoParticleFlow.PFProducer.pfGsfElectronLinker_cfi")
+process.egammaLinker.ProducePFCandidates = False
 
+process.isoReader = cms.EDAnalyzer("PFIsoReader",
+                                   PFCandidates = cms.InputTag('pfSelectedPhotons'),
+                                   Electrons=cms.InputTag('gsfElectrons'),
+                                   Photons=cms.InputTag('pfPhotonTranslator:pfphot'),
+                                   ElectronValueMap=cms.InputTag('egammaLinker:electrons'),
+                                   PhotonValueMap=cms.InputTag('egammaLinker:photons'),
+                                   ElectronIsoDeposits = cms.VInputTag(cms.InputTag('isoDepElectronWithCharged'),
+                                                                       cms.InputTag('isoDepElectronWithPhotons'),
+                                                                       cms.InputTag('isoDepElectronWithNeutral')),
+                                   PhotonIsoDeposits = cms.VInputTag(cms.InputTag('isoDepPhotonWithCharged'),
+                                                                     cms.InputTag('isoDepPhotonWithPhotons'),
+                                                                     cms.InputTag('isoDepPhotonWithNeutral')),
+                                   useEGPFValueMaps=cms.bool(True))
+                                                          
 
 process.p = cms.Path(
-    process.pfBasedElectronIsoSequence
+    process.pfBasedElectronIsoSequence+
+    process.pfBasedPhotonIsoSequence+
+    process.egammaLinker+
+    process.isoReader
     )
 
 # output ------------------------------------------------------------
 
-#process.load("FastSimulation.Configuration.EventContent_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 
 process.out = cms.OutputModule("PoolOutputModule",
