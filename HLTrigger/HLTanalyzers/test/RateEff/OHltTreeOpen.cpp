@@ -7221,7 +7221,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
 	      int njets = 0;
 	      
 	      for (int j = 0; j < NohBJetL2Corrected ; j++)
-		if (ohBJetL2CorrectedEt[j] > 30. && fabs(ohBJetL2CorrectedEta[j]) < 2.6.) // ET and eta cuts
+		if (ohBJetL2CorrectedEt[j] > 30. && fabs(ohBJetL2CorrectedEta[j]) < 2.6) // ET and eta cuts
 		  njets ++;
 	      
 	      int max = (NohBJetL2Corrected > 4) ? 4 : NohBJetL2Corrected;
