@@ -256,9 +256,10 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
   const G4LogicalVolumeStore *  lvs = G4LogicalVolumeStore::GetInstance();
   std::vector<G4LogicalVolume *>::const_iterator lvcite;
   bool dodet=true;
+  std::string lvnamx, lvnamy, lvname;  
   while (dodet) {
-    std::string matname  = fv.logicalPart().material().name().name();
-    std::string lvname   = fv.logicalPart().name().name();
+    const std::string &matname = fv.logicalPart().material().name().name();
+    lvname = fv.logicalPart().name().name();
     G4LogicalVolume* lv=0;
     for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
       if (!strcmp((*lvcite)->GetName().c_str(), lvname.c_str())) {
@@ -267,10 +268,9 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
       }
     }
     if (depth1Name != " ") {
-      std::string lvnamx = lvname.substr(0,4);
-      if (strcmp(lvnamx.c_str(), depth1Name.c_str()) == 0) {
+      if (strncmp(lvname.c_str(), depth1Name.c_str(), 4) == 0) {
 	if (std::count(useDepth1.begin(),useDepth1.end(),lv) == 0) {
-	  useDepth1.push_back(lv);
+ 	  useDepth1.push_back(lv);
 #ifdef DebugLog
 	  LogDebug("EcalSim") << "ECalSD::initMap Logical Volume " << lvname
 			      <<" in Depth 1 volume list";
@@ -294,8 +294,7 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
       }
     }
     if (depth2Name != " ") {
-      std::string lvnamx = lvname.substr(0,4);
-      if (strcmp(lvnamx.c_str(), depth2Name.c_str()) == 0) {
+      if (strncmp(lvname.c_str(), depth2Name.c_str(), 4) == 0) {
 	if (std::count(useDepth2.begin(),useDepth2.end(),lv) == 0) {
 	  useDepth2.push_back(lv);
 #ifdef DebugLog
@@ -303,10 +302,10 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
 			      <<" in Depth 2 volume list";
 #endif
 	}
-	lvnamx = lvname + "_refl";
+	lvnamy = lvname + "_refl";
 	G4LogicalVolume* lvr = 0;
 	for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-	  if (!strcmp((*lvcite)->GetName().c_str(), lvnamx.c_str())) {
+	  if (!strcmp((*lvcite)->GetName().c_str(), lvnamy.c_str())) {
 	    lvr = (*lvcite);
 	    break;
 	  }
@@ -314,7 +313,7 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
 	if (lvr != 0 && std::count(useDepth2.begin(),useDepth2.end(),lvr)==0) {
 	  useDepth2.push_back(lvr);
 #ifdef DebugLog
-	  LogDebug("EcalSim") << "ECalSD::initMap Logical Volume " << lvnamx
+	  LogDebug("EcalSim") << "ECalSD::initMap Logical Volume " << lvnamy
 			      <<" in Depth 2 volume list";
 #endif
 	}

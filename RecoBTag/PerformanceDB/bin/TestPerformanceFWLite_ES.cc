@@ -18,7 +18,7 @@ int main(int argc, char ** argv)
 {
   AutoLibraryLoader::enable();
   
-  std::cout << "Test!!!" << std::endl << std::endl;
+
   TFile f("performance_ssvm.root","READ");
       
   fwlite::EventSetup es(&f);
@@ -38,9 +38,9 @@ int main(int argc, char ** argv)
   std::cout << "Got record ID " << testRecID << es.get(testRecID).startSyncValue().eventID()<<std::endl;
 
   fwlite::ESHandle< PerformancePayload > plHandle;
-  es.get(testRecID).get(plHandle,"MCPfTCHEMb");
+  es.get(testRecID).get(plHandle,"PTRELSSVM");
   fwlite::ESHandle< PerformanceWorkingPoint > wpHandle;
-  es.get(testRecID).get(wpHandle,"MCPfTCHEMb");
+  es.get(testRecID).get(wpHandle,"PTRELSSVM");
 
   if ( plHandle.isValid() && wpHandle.isValid() ) {
     BtagPerformance perf(*plHandle, *wpHandle);
@@ -58,14 +58,14 @@ int main(int argc, char ** argv)
     std::cout <<" test eta=0.6, et=55"<<std::endl;
 
 
-    p.insert(BinningVariables::JetAbsEta,0.6);
+    p.insert(BinningVariables::JetEta,0.6);
     p.insert(BinningVariables::JetEt,55);
     std::cout <<" nbeff/nberr ?"<<perf.isResultOk(PerformanceResult::BTAGNBEFF,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGNBERR,p)<<std::endl;
     std::cout <<" beff/berr ?"<<perf.isResultOk(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGBERR,p)<<std::endl;
     std::cout <<" beff/berr ="<<perf.getResult(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.getResult(PerformanceResult::BTAGBERR,p)<<std::endl;
 	
     std::cout <<" test eta=1.9, et=33"<<std::endl;
-    p.insert(BinningVariables::JetAbsEta,1.9);
+    p.insert(BinningVariables::JetEta,1.9);
     p.insert(BinningVariables::JetEt,33);
     std::cout <<" beff/berr ?"<<perf.isResultOk(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGBERR,p)<<std::endl;
     std::cout <<" beff/berr ="<<perf.getResult(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.getResult(PerformanceResult::BTAGBERR,p)<<std::endl;

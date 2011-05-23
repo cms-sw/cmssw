@@ -5,11 +5,11 @@
 
 #include "Rtypes.h"
 class TBranch;
-class TFile;
 class TTree;
 class TTreeCache;
 class TClass;
 
+#include "InputFile.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 
 namespace edm {
@@ -40,8 +40,8 @@ namespace edm {
     typedef Long64_t EntryNumber;
     Int_t getEntry(TBranch* branch, EntryNumber entryNumber);
     Int_t getEntry(TTree* tree, EntryNumber entryNumber);
-    Int_t getEntryWithCache(TBranch* branch, EntryNumber entryNumber, TTreeCache* treeCache, TFile* filePtr);
-    Int_t getEntryWithCache(TTree* tree, EntryNumber entryNumber, TTreeCache* treeCache, TFile* filePtr);
+    Int_t getEntryWithCache(TBranch* branch, EntryNumber entryNumber, TTreeCache* treeCache, InputFile* filePtr);
+    Int_t getEntryWithCache(TTree* tree, EntryNumber entryNumber, TTreeCache* treeCache, InputFile* filePtr);
   }
 }
 #endif

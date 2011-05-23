@@ -17,7 +17,7 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
 
                         # Set offset between firstSample value and
                         # first sample to be stored in aux word
-                        firstAuxOffset = cms.int32(0),
+                        firstAuxOffset = cms.int32(-1), # if firstSample = 4, offset should be -1 so that aux word begins storing digis starting at TS = 3
 
                         setHSCPFlags  = cms.bool(True),
                         setSaturationFlags = cms.bool(True),
@@ -25,7 +25,7 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                         setPulseShapeFlags = cms.bool(False),  # not yet defined for HF
 
                         digistat= cms.PSet(HFdigiflagFirstSample     = cms.int32(3),  # These may be different from samples used for reconstruction
-                                           HFdigiflagSamplesToAdd    = cms.int32(4),
+                                           HFdigiflagSamplesToAdd    = cms.int32(3), # if using 2 TS reco, sum pulse shape over 3 TS 
                                            HFdigiflagExpectedPeak    = cms.int32(4), # expected TS position of pulse peak
                                            HFdigiflagMinEthreshold  = cms.double(40), # minimum energy required to be flagged as noisy
                                            # Following parameters are used for determining
@@ -79,7 +79,7 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
     longETParams            = cms.vdouble([0,0,0,0,
                                            0,0,0,0,
                                            0,0,0,0,0]),
-
+    
     flagsToSkip              = cms.int32(string.atoi('11000',2)), # HFPET (bit 4), HFDigiTime (bit 1) and HFS8S1Ratio (bit 3) should be skipped, but not HFDigiTime in MC
     isS8S1                   = cms.bool(False),
     ),

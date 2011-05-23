@@ -1,4 +1,4 @@
-//$Id: Utils.cc,v 1.17 2010/12/10 19:38:48 mommsen Exp $
+//$Id: Utils.cc,v 1.18.4.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: Utils.cc
 
 #include "EventFilter/StorageManager/interface/Exception.h"
@@ -20,7 +20,7 @@ namespace stor
   namespace utils
   {
     
-    std::string timeStamp(time_point_t theTime)
+    std::string timeStamp(TimePoint_t theTime)
     {
       typedef boost::date_time::c_local_adjustor<boost::posix_time::ptime> local_adj;
       tm ptm = boost::posix_time::to_tm( local_adj::utc_to_local(theTime) );
@@ -35,7 +35,7 @@ namespace stor
     }
 
 
-    std::string timeStampUTC(time_point_t theTime)
+    std::string timeStampUTC(TimePoint_t theTime)
     {
       tm ptm = to_tm(theTime);
       std::ostringstream timeStampStr;
@@ -46,7 +46,7 @@ namespace stor
    }
 
 
-    std::string asctimeUTC(time_point_t theTime)
+    std::string asctimeUTC(TimePoint_t theTime)
     {
       tm ptm =  to_tm(theTime);
       char buf[30];
@@ -57,7 +57,7 @@ namespace stor
     }
 
 
-    std::string dateStamp(time_point_t theTime)
+    std::string dateStamp(TimePoint_t theTime)
     {
       typedef boost::date_time::c_local_adjustor<boost::posix_time::ptime> local_adj;
       tm ptm = boost::posix_time::to_tm( local_adj::utc_to_local(theTime) );
@@ -79,9 +79,14 @@ namespace stor
     
     void checkDirectory(const std::string& path)
     {
+      #if linux
       struct stat64 results;
-      
       int retVal = stat64(path.c_str(), &results);
+      #else
+      struct stat results;
+      int retVal = stat(path.c_str(), &results);
+      #endif
+
       if( retVal !=0 )
       {
         std::ostringstream msg;

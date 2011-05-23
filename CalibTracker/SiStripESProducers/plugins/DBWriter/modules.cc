@@ -70,10 +70,6 @@ DEFINE_FWK_MODULE(SiStripDetVOffDummyDBWriter);
 typedef DummyCondDBWriter<SiStripLatency,SiStripLatency,SiStripLatencyRcd> SiStripLatencyDummyDBWriter;
 DEFINE_FWK_MODULE(SiStripLatencyDummyDBWriter);
 
-#include "CondFormats/SiStripObjects/interface/SiStripBaseDelay.h"
-typedef DummyCondDBWriter<SiStripBaseDelay,SiStripBaseDelay,SiStripBaseDelayRcd> SiStripBaseDelayDummyDBWriter;
-DEFINE_FWK_MODULE(SiStripBaseDelayDummyDBWriter);
-
 #include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
 typedef DummyCondDBWriter<SiStripConfObject,SiStripConfObject, SiStripConfObjectRcd> SiStripConfObjectDummyDBWriter;
 DEFINE_FWK_MODULE(SiStripConfObjectDummyDBWriter);
@@ -137,13 +133,6 @@ DEFINE_FWK_MODULE(SiStripBadChannelDummyPrinter);
 
 typedef DummyCondObjPrinter<SiStripLatency,SiStripLatencyRcd> SiStripLatencyDummyPrinter;
 DEFINE_FWK_MODULE(SiStripLatencyDummyPrinter);
-
-typedef DummyCondObjPrinter<SiStripBaseDelay,SiStripBaseDelayRcd> SiStripBaseDelayDummyPrinter;
-DEFINE_FWK_MODULE(SiStripBaseDelayDummyPrinter);
-
-#include "CalibFormats/SiStripObjects/interface/SiStripDelay.h"
-typedef DummyCondObjPrinter<SiStripDelay,SiStripDelayRcd> SiStripDelayDummyPrinter;
-DEFINE_FWK_MODULE(SiStripDelayDummyPrinter);
 
 typedef DummyCondObjPrinter<SiStripConfObject,SiStripConfObjectRcd> SiStripConfObjectDummyPrinter;
 DEFINE_FWK_MODULE(SiStripConfObjectDummyPrinter);

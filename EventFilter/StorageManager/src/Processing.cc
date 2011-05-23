@@ -1,4 +1,4 @@
-// $Id: Processing.cc,v 1.16 2010/05/17 15:59:10 mommsen Exp $
+// $Id: Processing.cc,v 1.17.6.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: Processing.cc
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
@@ -72,17 +72,17 @@ Processing::do_processI2OFragment( I2OChain& frag ) const
     // match is enforced.
     try
     {
-      uint32_t runNumber = outermost_context().getSharedResources()->_configuration->getRunNumber();
+      uint32_t runNumber = outermost_context().getSharedResources()->configuration_->getRunNumber();
       frag.assertRunNumber(runNumber);
     }
     catch(stor::exception::RunNumberMismatch &e)
     {
       // Just raise an alarm, but continue to process the event
-      outermost_context().getSharedResources()->_statisticsReporter->
+      outermost_context().getSharedResources()->statisticsReporter_->
         alarmHandler()->notifySentinel(AlarmHandler::ERROR, e);
     }
     outermost_context().getEventDistributor()->addEventToRelevantQueues(frag);
-    outermost_context().getSharedResources()->_discardManager->sendDiscardMessage(frag);
+    outermost_context().getSharedResources()->discardManager_->sendDiscardMessage(frag);
   }
   else
   {
@@ -104,7 +104,7 @@ Processing::do_processI2OFragment( I2OChain& frag ) const
   // is backpressure within the SM, the true number of events in the fragment
   // store is zero, and putting the sampling here reflects that.
   ThroughputMonitorCollection& tmc = 
-    outermost_context().getSharedResources()->_statisticsReporter->
+    outermost_context().getSharedResources()->statisticsReporter_->
     getThroughputMonitorCollection();
   tmc.setFragmentStoreSize(fragmentStore->size());
   tmc.setFragmentStoreMemoryUsed(fragmentStore->memoryUsed());
@@ -116,14 +116,14 @@ Processing::do_noFragmentToProcess() const
   I2OChain staleEvent;
 
   WorkerThreadParams workerParams =
-    outermost_context().getSharedResources()->_configuration->getWorkerThreadParams();
+    outermost_context().getSharedResources()->configuration_->getWorkerThreadParams();
   bool gotStaleEvent = 
     outermost_context().getFragmentStore()->
-    getStaleEvent(staleEvent, workerParams._staleFragmentTimeOut);
+    getStaleEvent(staleEvent, workerParams.staleFragmentTimeOut_);
 
   if ( gotStaleEvent )
   {
-    outermost_context().getSharedResources()->_discardManager->sendDiscardMessage(staleEvent);
+    outermost_context().getSharedResources()->discardManager_->sendDiscardMessage(staleEvent);
     outermost_context().getEventDistributor()->addEventToRelevantQueues(staleEvent);
   }
   outermost_context().getEventDistributor()->checkForStaleConsumers();

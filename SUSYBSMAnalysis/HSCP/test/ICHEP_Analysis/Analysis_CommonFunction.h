@@ -4,42 +4,8 @@
 
 
 
-double CutFromEfficiency(TH1* Histo, double Efficiency, bool DoesKeepLeft=false)
-{
-   if(DoesKeepLeft){  Efficiency = 1 - Efficiency;  }
+///////////////////////////////////////////////////////////////////////////////////////  STUFF RELATED TO THE SUBSAMPLES
 
-   char Buffer[1024];
-   sprintf(Buffer,"%s_NTracks",Histo->GetName());
-   TH1D* Temp = new TH1D(Buffer,Buffer, Histo->GetXaxis()->GetNbins(), Histo->GetXaxis()->GetXmin(), Histo->GetXaxis()->GetXmax());
-
-   double Entries  = Histo->Integral(0,Histo->GetNbinsX()+1);
-   Temp->SetBinContent(0,Entries);
-
-   double Integral = 0;
-   for(int i=0;i<=Histo->GetXaxis()->GetNbins()+1;i++){
-      Integral += Histo->GetBinContent(i);
-      if(Integral>Entries)Integral = Entries;
-       Temp->SetBinContent(i,   Entries - Integral);      
-   }
-
-   unsigned int CutPosition = Temp->GetXaxis()->GetNbins()+1;
-   for(int c=0;c<=Temp->GetXaxis()->GetNbins()+1;c++){
-      if(Temp->GetBinContent(c)/Entries <= Efficiency){ CutPosition = c;  break; }
-   }
-
-   if(Temp->GetBinContent(CutPosition)<=0.0)CutPosition = Temp->GetXaxis()->GetNbins()+1;
-
-   delete Temp;
-
-
-
-
-   if(DoesKeepLeft){
-      return Histo->GetXaxis()->GetBinLowEdge(CutPosition);
-   }else{
-      return Histo->GetXaxis()->GetBinUpEdge(CutPosition);
-   }
-}
 
 double Efficiency(TH1* Histo, double CutX){
    double Entries  = Histo->Integral(0,Histo->GetNbinsX()+1);
@@ -70,43 +36,53 @@ double EfficiencyAndError(TH1* Histo, double CutX, double& error){
 
 
 
-double GetEventInRange(double min, double max, TH1D* hist){
+double GetEventInRange(double min, double max, TH1D* hist, double& error){
   int binMin = hist->GetXaxis()->FindBin(min);
   int binMax = hist->GetXaxis()->FindBin(max);
+  error = 0; for(int i=binMin;i<binMax;i++){ error += pow(hist->GetBinError(i),2); }  error = sqrt(error);
   return hist->Integral(binMin,binMax);
 }
 
-void FillArray(int HitIndex, int EtaIndex, double* Array, double value){
-   Array[ 0                 ] +=  value;
-   Array[           EtaIndex] +=  value;
-   Array[HitIndex           ] +=  value;
-   Array[HitIndex + EtaIndex] +=  value;
+
+double GetTOFMass(double P, double TOF){
+   double beta = 1/TOF;
+   double gamma = 1/sqrt(1-beta*beta);
+   return P/(beta*gamma);
 }
 
-void FillHisto(int HitIndex, int EtaIndex, TH1D** Histo, double value, double weight){
-   Histo[ 0                 ]->Fill(value,weight);
-   Histo[           EtaIndex]->Fill(value,weight);
-   Histo[HitIndex           ]->Fill(value,weight);
-   Histo[HitIndex + EtaIndex]->Fill(value,weight);
+
+double GetIBeta(double I, bool MC=false){
+   double K, C;
+
+   if(MC){
+      K = dEdxK_MC;
+      C = dEdxC_MC;
+   }else{
+      K = dEdxK_Data;
+      C = dEdxC_Data;
+   }
+
+   double a = K / (I-C);
+   double b2 = a / (a+1);
+
+   if(b2<0)return -1*sqrt(b2);
+   return sqrt(b2);
 }
 
-void FillHisto(int HitIndex, int EtaIndex, TH2D** Histo, double value1, double value2, double weight){
-   Histo[ 0                 ]->Fill(value1,value2,weight);
-   Histo[           EtaIndex]->Fill(value1,value2,weight);
-   Histo[HitIndex           ]->Fill(value1,value2,weight);
-   Histo[HitIndex + EtaIndex]->Fill(value1,value2,weight);
-}
+
 
 double GetMass(double P, double I, bool MC=false){
    if(MC){
-      const double& K = dEdxK_MC[dEdxMassIndex];
-      const double& C = dEdxC_MC[dEdxMassIndex];
+      const double& K = dEdxK_MC;
+      const double& C = dEdxC_MC;
 
+      if(I-C<0)return -1;
       return sqrt((I-C)/K)*P;
    }else{
-      const double& K = dEdxK_Data[dEdxMassIndex];
-      const double& C = dEdxC_Data[dEdxMassIndex];
+      const double& K = dEdxK_Data;
+      const double& C = dEdxC_Data;
 
+      if(I-C<0)return -1;
       return sqrt((I-C)/K)*P;
    }
 
@@ -117,11 +93,11 @@ TF1* GetMassLine(double M, bool MC=false)
 {
    double K;   double C;
    if(MC){
-      K = dEdxK_MC[dEdxMassIndex];
-      C = dEdxC_MC[dEdxMassIndex];
+      K = dEdxK_MC;
+      C = dEdxC_MC;
    }else{
-      K = dEdxK_Data[dEdxMassIndex];
-      C = dEdxC_Data[dEdxMassIndex];
+      K = dEdxK_Data;
+      C = dEdxC_Data;
    }
 
    double BetaMax = 0.9;
@@ -141,45 +117,7 @@ TF1* GetMassLine(double M, bool MC=false)
    return MassLine;
 }
 
-void GetIndices(int NOM, double Eta, int& HitIndex, int& EtaIndex)
-{
-   int NOM2 = NOM;
-   if(NOM2<=8)NOM2=8;
-   if(NOM2>=17)NOM2=17;
 
-   HitIndex = NOM2*6;
-   EtaIndex = 0;
-
-         if(fabs(Eta)<0.5)EtaIndex = 1;
-   else  if(fabs(Eta)<1.0)EtaIndex = 2;
-   else  if(fabs(Eta)<1.5)EtaIndex = 3;
-   else  if(fabs(Eta)<2.0)EtaIndex = 4;
-   else                   EtaIndex = 5;
-}
-
-int GetCutIndex(int HitIndex, int EtaIndex){
-   int CutIndex;
-   if(SplitMode==0){
-      CutIndex = 0;
-   }else if(SplitMode==1){
-      CutIndex = HitIndex;
-   }else{
-      CutIndex = HitIndex + EtaIndex;
-   }
-   return CutIndex;
-}
-
-void GetNameFromIndex(char* NameExt, int index)
-{
-      unsigned int Hit = index/6;
-      unsigned int Eta = index%6;
-      if(Hit>=1)sprintf(NameExt,"%s_SSHit%02i",NameExt,Hit);
-      if(Eta==1)sprintf(NameExt,"%s_Eta00to05",NameExt);
-      if(Eta==2)sprintf(NameExt,"%s_Eta05to10",NameExt);
-      if(Eta==3)sprintf(NameExt,"%s_Eta10to15",NameExt);
-      if(Eta==4)sprintf(NameExt,"%s_Eta15to20",NameExt);
-      if(Eta==5)sprintf(NameExt,"%s_Eta20to25",NameExt);
-}
 
 double deltaR(double eta1, double phi1, double eta2, double phi2) {
    double deta = eta1 - eta2;
@@ -187,6 +125,17 @@ double deltaR(double eta1, double phi1, double eta2, double phi2) {
    while (dphi >   M_PI) dphi -= 2*M_PI;
    while (dphi <= -M_PI) dphi += 2*M_PI;
    return sqrt(deta*deta + dphi*dphi);
+}
+
+
+string LegendFromType(const string& InputPattern){
+   if(InputPattern.find("Type0",0)<string::npos){
+      return string("Tracker - Only");
+   }else if(InputPattern.find("Type1",0)<string::npos){
+      return string("Tracker + Muon");
+   }else{
+      return string("Tracker + TOF");
+   }
 }
 
 
@@ -220,13 +169,15 @@ void GetPredictionRescale(string InputPattern, double& Rescale, double& RMS, boo
          if(!InputFile || InputFile->IsZombie() || !InputFile->IsOpen() || InputFile->TestBit(TFile::kRecovered) )continue;
 
          double d=0, p=0;//, m=0;
-         TH1D* Hd = (TH1D*)GetObjectFromPath(InputFile, "Mass_Data");if(Hd){d=GetEventInRange(0,75,Hd);delete Hd;}
-         TH1D* Hp = (TH1D*)GetObjectFromPath(InputFile, "Mass_Pred");if(Hp){p=GetEventInRange(0,75,Hp);delete Hp;}
+         double error =0;
+         TH1D* Hd = (TH1D*)GetObjectFromPath(InputFile, "Mass_Data");if(Hd){d=GetEventInRange(0,75,Hd,error);delete Hd;}
+         TH1D* Hp = (TH1D*)GetObjectFromPath(InputFile, "Mass_Pred");if(Hp){p=GetEventInRange(0,75,Hp,error);delete Hp;}
 //       TH1D* Hm = (TH1D*)GetObjectFromPath(InputFile, "Mass_MCTr");if(Hm){m=GetEventInRange(0,75,Hm);delete Hm;}
 
 //       if(!(d!=d) && p>0 && d>10 && (WP_Pt+WP_I)<=-3){
 //         if(!(d!=d) && p>0 && d>20 && (WP_Pt+WP_I)<=-3){
          if(!(d!=d) && p>0 && d>20 && (WP_Pt+WP_I)<=-2){
+//         if(!(d!=d) && p>0 && d>500 && (WP_Pt+WP_I)<=-2){
             DValue.push_back(d);
             PValue.push_back(p);
             printf("%6.2f %6.2f (eff=%6.2E) --> %f  (d=%6.2E)\n",WP_Pt,WP_I, pow(10,WP_Pt+WP_I),d/p, d);
@@ -251,205 +202,3 @@ void GetPredictionRescale(string InputPattern, double& Rescale, double& RMS, boo
    }
    printf("Mean Rescale = %f   RMS = %f\n",Rescale, RMS);
 }
-
-
-
-
-void MassPredictionFromABCD(string InputPattern, TH1D* Pred_Mass)
-{
-   int SplitMode=0;
-   if(InputPattern.find("SplitMode1",0)<string::npos)SplitMode=1;
-   if(InputPattern.find("SplitMode2",0)<string::npos)SplitMode=2;
-
-   string Input     = InputPattern + "DumpHistos.root";
-   TFile* InputFile = new TFile(Input.c_str());
-
-   printf("Predicting (Finding Prob)    :");
-   int TreeStep = (40*6)/50;if(TreeStep==0)TreeStep=1;
-   int CountStep = 0;
-   for(unsigned int i=0;i<40*6;i++){
-      if(SplitMode==0 && i>0)continue;
-      if(SplitMode==1 && (i==0 || i%6!=0))continue;
-      if(SplitMode==2 && (i< 6 || i%6==0))continue;
-      if(i%TreeStep==0 && CountStep<=50){printf(".");fflush(stdout);CountStep++;}
-
-      char PredExt[1024];
-      char DataExt[1024];
-      sprintf(PredExt,"Pred");
-      GetNameFromIndex(PredExt, i);
-      sprintf(DataExt,"Data");
-      GetNameFromIndex(DataExt, i);
-
-      TH1D* Pred_MassSubSample = (TH1D*)Pred_Mass->Clone("subsamplesprediction");
-      Pred_MassSubSample->Reset();
-
-      TH1D* Pred_P    = (TH1D*)GetObjectFromPath(InputFile, string("P_"   ) + PredExt);
-      TH1D* Pred_I    = (TH1D*)GetObjectFromPath(InputFile, string("I_"   ) + PredExt);
-      TH2D* Data_PI_A = (TH2D*)GetObjectFromPath(InputFile, string("PI_A_") + DataExt);
-      TH2D* Data_PI_B = (TH2D*)GetObjectFromPath(InputFile, string("PI_B_") + DataExt);
-      TH2D* Data_PI_C = (TH2D*)GetObjectFromPath(InputFile, string("PI_C_") + DataExt);
-      TH2D* Data_PI_D = (TH2D*)GetObjectFromPath(InputFile, string("PI_D_") + DataExt);
-
-      double N_A = Data_PI_A->Integral();	double N_Aerr = N_A;
-      double N_B = Data_PI_B->Integral();	double N_Berr = N_B;
-      double N_C = Data_PI_C->Integral();	double N_Cerr = N_C;
-      double N_D = Data_PI_D->Integral();	double N_Derr = N_D;
-
-
-
-      double IntegralP = Pred_P->Integral(0, Pred_P->GetNbinsX()+1);
-      double IntegralI = Pred_I->Integral(0, Pred_I->GetNbinsX()+1);
-      if(IntegralP>0)Pred_P->Scale(1.0/IntegralP);
-      if(IntegralI>0)Pred_I->Scale(1.0/IntegralI);
-      IntegralP = N_C;
-      IntegralI = N_B;
-
-//      printf("%6.2E %6.2E %6.2E %6.2E | %6.2E %6.2E\n",N_A,N_B,N_C,N_D, IntegralP, IntegralI);
-
-
-      double N_A_L = N_A - sqrt(N_Aerr); if(N_A_L<0)N_A_L=0;
-      double N_A_C = N_A;                if(N_A_C<0)N_A_C=0;
-      double N_A_U = N_A + sqrt(N_Aerr); if(N_A_U<0)N_A_U=0;
-
-      double N_B_L = N_B - sqrt(N_Berr); if(N_B_L<0)N_B_L=0;
-      double N_B_C = N_B;                if(N_B_C<0)N_B_C=0;
-      double N_B_U = N_B + sqrt(N_Berr); if(N_B_U<0)N_B_U=0;
-
-      double N_C_L = N_C - sqrt(N_Cerr); if(N_C_L<0)N_C_L=0;
-      double N_C_C = N_C;                if(N_C_C<0)N_C_C=0;
-      double N_C_U = N_C + sqrt(N_Cerr); if(N_C_U<0)N_C_U=0;
-
-      double NExpectedBckgEntriesC;
-      double NExpectedBckgEntriesC2;
-
-      if(N_A>0){
-         NExpectedBckgEntriesC  = ((N_C*N_B)/N_A);
-         NExpectedBckgEntriesC2 = sqrt((pow(N_B/N_A,2)*N_Cerr) + (pow(N_C/N_A,2)*N_Berr) + (pow((N_B*(N_C)/(N_A*N_A)),2)*N_Aerr));
-      }else{
-         NExpectedBckgEntriesC  = 0;
-         NExpectedBckgEntriesC2 = 0;
-      }
-
-      //Loop on Mass Line
-      for(int m=0;m<Pred_Mass->GetNbinsX()+1;m++){
-         //Find which bins contributes to this particular mass bin
-         std::vector<std::pair<int,int> > BinThatGivesThisMass;
-         for(int x=1;x<Pred_P->GetNbinsX()+1;x++){
-         for(int y=1;y<Pred_I->GetNbinsX()+1;y++){
-            double Mass = GetMass( Pred_P->GetXaxis()->GetBinCenter(x) , Pred_I->GetXaxis()->GetBinCenter(y) );
-            if(Mass>Pred_Mass->GetXaxis()->GetBinLowEdge(m) && Mass<Pred_Mass->GetXaxis()->GetBinUpEdge(m)){
-               BinThatGivesThisMass.push_back(std::make_pair(x,y));
-            }
-         }}
-
-         double MBinContent=0;
-         double MBinError2 =0;
-
-         //Loops on the bins that contribute to this mass bin.
-
-	 /////////////////BEGINNING OF MODIFICATIONS BY GIACOMO ////////////////////////////////////////////////////////////////////
-	   /// Variable ErrMassBin is the statistical error on the considered mass bin. To compute the statistical error on the prediction in [75, 2000] GeV, just use the same code below with variable BinThatGivesThisMass filled with all pairs of p-I bins that contribute to this interval.
-
-	   //GGG
-	   /// bx1 -->i1; by1-->j1; vx1 --> Ci1 ; vy1 --> Bj1 ; ****MISTAKE - MUST USE MBinContent INSTEAD ***NExpectedBckgEntriesC --> N ********** ; N_A[i] --> A ;         
-	   double Err_Numer_ijSum=0.;  
-	   double Err_Denom_ijSum=0.;
-	   double Err_Numer_CorrelSum=0.;
-	   double ErrSquared=0.;
-	   double ErrMassBin=0.;
-	   ////////
-
-         for(unsigned int b1=0;b1<BinThatGivesThisMass.size();b1++){
-            double bx1 = BinThatGivesThisMass[b1].first;
-            double by1 = BinThatGivesThisMass[b1].second;
-            double vx1 = Pred_P->GetBinContent(bx1);
-            double vy1 = Pred_I->GetBinContent(by1);
-            double ex1 = Pred_P->GetBinError(bx1);
-            double ey1 = Pred_I->GetBinError(by1);
-            double vz1 = vx1*vy1;
-
-	    //GGG
-	    double vxN1=vx1 *IntegralP; 
-	    double vyN1=vy1 *IntegralI; 
-
-	    Err_Numer_ijSum += (vxN1*vyN1*(vxN1+vyN1)); 
-	    Err_Denom_ijSum += (vxN1*vyN1); // will square at the end of the loop 
-	    /////////
-
-            MBinContent += vz1*NExpectedBckgEntriesC;
-//            Pred_PI[i]->SetBinContent(bx1,by1,vz1*NExpectedBckgEntriesC);
-
-	    //GGG
-            //Compute the errors with a covariance matrix (on the fly) --> Only vertical and horizontal term contributes.
-	    ///bx2 -->i2; by2-->j2; vxN2 --> Ci2 ; vyN2 --> Bj2 ;
-	    /////
-
-            for(unsigned int b2=0;b2<BinThatGivesThisMass.size();b2++){
-               double bx2 = BinThatGivesThisMass[b2].first;
-               double by2 = BinThatGivesThisMass[b2].second;
-               double vx2 = Pred_P->GetBinContent(bx2);
-               double vy2 = Pred_I->GetBinContent(by2);
-               //double ex2 = Pred_P[i]->GetBinError(bx2);
-               //double ey2 = Pred_I[i]->GetBinError(by2);
-
-
-	       //GGG
-	       double vxN2=vx2*IntegralP; 
-	       double vyN2=vy2*IntegralI; 
-
-	       /////////
-
-
-
-
-               if(bx1==bx2 && by1==by2){
-                  //Correlation with itself!
-                  MBinError2 += NExpectedBckgEntriesC2*(ex1*ex1+ey1*ey1)*vz1*vz1;
-               }else if(by1==by2){
-                  //Vertical term
-                  MBinError2 += NExpectedBckgEntriesC2*vx1*vx2*ey1;
-
-		  //GGG
-		  Err_Numer_CorrelSum += vyN2*vxN1*vxN2;
-		  /////
-
-               }else if(bx1==bx2){
-                  //Horizontal term
-                  MBinError2 += NExpectedBckgEntriesC2*vy1*vy2*ex1;
-
-
-		  //GGG
-		  Err_Numer_CorrelSum += vxN2*vyN1*vyN2;
-		  /////
-
-
-               }else{
-                  //Diagonal term... do nothing
-               }
-            }
-//            printf("Interval %i --> M = %i --> %f +- %f, %f+-%f\n",i,m,vx1,ex1,vy1,ey1);
-//            printf("Interval %i --> M = %i --> %i Bins concerned --> %fEntries -->  %f +- %f\n",i,m,BinThatGivesThisMass.size(),NExpectedBckgEntriesC,MBinContent,NExpectedBckgEntriesC*sqrt(MBinError));
-         }
-
-         Pred_MassSubSample->SetBinContent(m, MBinContent);
-//         Pred_Mass[i]->SetBinError  (m, sqrt(MBinError2));
-
-	 //GGG
-	 // squared error on predicted background in considered  mass bin
-	 if ( N_A != 0 && Err_Denom_ijSum != 0 ) ErrSquared= ( MBinContent * MBinContent)*(1./N_A + (Err_Numer_ijSum + Err_Numer_CorrelSum)/(Err_Denom_ijSum*Err_Denom_ijSum) );
-	 //final statistical error
-	 ErrMassBin = sqrt(ErrSquared);
-         Pred_MassSubSample->SetBinError  (m, ErrMassBin);
-	 /////////
-	 /////////////////END OF MODIFICATIONS BY GIACOMO ////////////////////////////////////////////////////////////////////
-
-
-         BinThatGivesThisMass.clear();
-      }
-//      if(SplitMode!=0)Pred_PI   [0]->Add(Pred_PI   [i],1);
-      Pred_Mass->Add(Pred_MassSubSample,1);     
-      delete Pred_MassSubSample;
-   }
-   printf("\n");
-}
-

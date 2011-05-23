@@ -7,7 +7,7 @@
 #  execution:  mkesprod packagename
 # 
 #  output:  packagename/
-#                         Buildfile
+#                         BuildFile.xml
 #                         interface/
 #                         src/packagename.cc
 #                         doc/
@@ -23,7 +23,7 @@
 #  example:
 #  mkdatapkg MyPackage 
 #        --> write  MyPackage/
-#                               Buildfile
+#                               BuildFile.xml
 #                               interface/
 #                               src/MyPackage.cc
 #                               doc/
@@ -79,7 +79,7 @@ $skeletons{"$skel_dir/DataPkg/classes.h"} =
 $skeletons{"$skel_dir/DataPkg/classes_def.xml"} =
     "$name/src/classes_def.xml";
 $skeletons{"$skel_dir/DataPkg/BuildFile.temp"} =
-    "$name/BuildFile";
+    "$name/BuildFile.xml";
 
 if ( ! $do_list )
 {
@@ -178,7 +178,7 @@ mkdatapkg  h:
 mkdatapkg  h: execution:  mkdatapkg packagename
 mkdatapkg  h:
 mkdatapkg  h: output:  packagename/
-mkdatapkg  h:                       BuildFile
+mkdatapkg  h:                       BuildFile.xml
 mkdatapkg  h:                       interface/
 mkdatapkg  h:                       src/classes.h classes_def.xml
 mkdatapkg  h:                       doc/
@@ -195,7 +195,7 @@ mkdatapkg  h:
 mkdatapkg  h: example:
 mkdatapkg  h: mkdatapkg MyPackage
 mkdatapkg  h:       --> write  MyPackage/
-mkdatapkg  h:                              BuildFile
+mkdatapkg  h:                              BuildFile.xml
 mkdatapkg  h:                              interface/
 mkdatapkg  h:                              src/classes.h classes_def.xml
 mkdatapkg  h:                              doc/

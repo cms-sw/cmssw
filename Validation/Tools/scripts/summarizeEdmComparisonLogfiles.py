@@ -30,8 +30,10 @@ if __name__ == "__main__":
     success1RE     = re.compile (r"{'eventsCompared':\s+(\d+),\s+'count_(\S+)':\s+(\d+)\s*}")
     success2RE     = re.compile (r"{'count_(\S+)':\s+(\d+),\s+'eventsCompared':\s+(\d+)\s*}")
     loadingSoRE    = re.compile (r'loading (genobjectrootlibs/\w+)')
+    creatingSoRE   = re.compile (r'creating shared library (\S+)')
     compRootRE     = re.compile (r' --compRoot=(\S+)')
     descriptionRE  = re.compile (r'^edmOneToOneComparison.py (\w+).txt')
+    edmCommandRE  = re.compile (r'^(edmOneToOneComparison.py .+?)\s*$')
     # problem regexs
     labelErrorRE   = re.compile (r"labelDict = GenObject._ntupleDict\[tupleName\]\['_label'\]")
     missingLabelRE = re.compile (r'not able to get')
@@ -57,9 +59,15 @@ if __name__ == "__main__":
     parser.add_option ("--counts", dest="counts",
                        action="store_true", default=False,
                        help="Display counts only.")
+    parser.add_option ('--mismatch', dest='mismatch',
+                       action='store_true',
+                       help='Displays only mismatch output')
     parser.add_option ("--diffTree", dest="diffTree",
                        action="store_true", default=False,
                        help="Shows diffTree printout.")
+    parser.add_option ('--makeCompRoot', dest='makeCompRoot',
+                       action='store_true',
+                       help='Prints commands to make compRoot files for difftree')
     parser.add_option ("--problem", dest="problem", type='string',
                        help="Displays problems matching PROBLEM")
 
@@ -90,7 +98,9 @@ if __name__ == "__main__":
     objectName   = ''
     compRoot     = ''
     soName       = ''
+    command      = ''
     diffOutput   = {}
+    goShlib      = ''
     for log in files:
         problemSet = set()
         source = open (log, 'r')
@@ -100,6 +110,15 @@ if __name__ == "__main__":
         summaryLines = ''
         for line in source:
             line = line.rstrip('\n')
+            match = edmCommandRE.search (line)
+            if match:
+                command = match.group(1)
+            match = loadingSoRE.search (line)
+            if match:
+                goShlib = match.group(1)                
+            match = creatingSoRE.search (line)
+            if match:
+                goShlib = match.group(1)                
             if options.diffTree:
                 match = descriptionRE.search (line)
                 if match:
@@ -153,8 +172,9 @@ if __name__ == "__main__":
                 weird += 1
         if not problems.has_key (log) and not ok[0]:
             if not ok[0] and summary:
-                key = 'mismatch'
+                key = 'mismatch'                
                 problems[log] = pprint.pformat (summary, indent=4)
+                #pprint.pprint (summary, indent=4)
                 if objectName and compRoot and soName:
                     # do the diffTree magic
                     varNames = summary.get(objectName, {}).\
@@ -165,7 +185,7 @@ if __name__ == "__main__":
                             variables.append (var)
                     diffCmd = 'diffTreeTool.py --skipUndefined %s %s %s' \
                               % (compRoot, soName, " ".join(variables))
-                    #print diffCmd
+                    # print diffCmd
                     diffOutput[log] = diffCmd
             else:
                 problems[log] = ['other','ran:%s' % ran,
@@ -175,27 +195,38 @@ if __name__ == "__main__":
                 problemTypes[key] = 1
             else:
                 problemTypes[key] += 1
-    print "total:     ", len (files)
-    print "success:   ", succeeded
-    print "weird:     ", weird
-    print "Problem types:"
+    mismatches = problemTypes.get('mismatch', 0)
+    if problemTypes.has_key ('mismatch'):
+        del problemTypes['mismatch']
+    print "total:      ", len (files)
+    print "success:    ", succeeded
+    print "mismatches: ", mismatches
+    print "weird:      ", weird
+    print "Tool issue types:"
     total = 0
     for key, value in sorted (problemTypes.iteritems()):
         print "  %-15s: %4d" % (key, value)
         total += value
     print " ", '-'*13, " : ----"
-    print "  %-15s: %4d + %d = %d" \
-          % ('total', total, succeeded, total + succeeded),
+    print "  %-15s: %4d + %d + %d + %d = %d" \
+          % ('total', total, succeeded, mismatches, weird,
+             total + succeeded + mismatches + weird)
+    
     if not options.counts:
         print "\nDetailed Problems list:"
         for key, problemList in sorted (problems.iteritems()):
             if options.problem and problemList[0] != options.problem:
                 continue
+            if options.mismatch and not isinstance (problemList, str):
+                continue
+            #if options.mismatch and 
             print "   %s:\n   %s\n" % (key, problemList)
+            if options.mismatch and goShlib and compRoot:
+                print "diffTree %s %s" % (goShlib, compRoot)
             diffCmd = diffOutput.get(key)
             if diffCmd:                
                 print commands.getoutput (diffCmd)
-        if not options.problem:
+        if not options.problem and not options.mismatch:
             print "\n", '='*78, '\n'
             print "Success list:"
             for key, successesList in sorted (successes.iteritems()):

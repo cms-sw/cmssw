@@ -32,7 +32,6 @@ HcalDeadCellMonitor::HcalDeadCellMonitor(const edm::ParameterSet& ps)
 
   // minimum number of events required for lumi section-based dead cell checks
   minDeadEventCount_    = ps.getUntrackedParameter<int>("minDeadEventCount",1000);
-
   excludeHORing2_       = ps.getUntrackedParameter<bool>("excludeHORing2",false);
 
   // Set which dead cell checks will be performed
@@ -76,7 +75,10 @@ void HcalDeadCellMonitor::setup()
   if (!dbe_) return;
 
   dbe_->setCurrentFolder(subdir_);
-  
+  MonitorElement* excludeHO2=dbe_->bookInt("ExcludeHOring2");
+  // Fill with 0 if ring is not to be excluded; fill with 1 if it is to be excluded
+  if (excludeHO2) excludeHO2->Fill(excludeHORing2_==true ? 1 : 0);
+
   Nevents = dbe_->book1D("NumberOfDeadCellEvents","Number of Events Seen by DeadCellMonitor",2,0,2);
   Nevents->setBinLabel(1,"allEvents");
   Nevents->setBinLabel(2,"lumiCheck");
@@ -399,6 +401,7 @@ void HcalDeadCellMonitor::reset()
 	    // Don't fill ring2 SiPMs, since they will still be active even if the rest of HO is excluded.
 	    if (isSiPM(ieta,iphi,4)==false)
 	      DigiPresentByDepth.depth[3]->Fill(ieta,iphi,2);
+	    //std::cout <<" FILLING ("<<-1*ieta<<", "<<iphi<<") with '2'"<<std::endl;
 	    DigiPresentByDepth.depth[3]->Fill(-1*ieta,iphi,2);
 	  }
     }
