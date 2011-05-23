@@ -1,0 +1,7 @@
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="CondFormats/SiPixelObjects"/>
+<use   name="boost"/>
+<export>
+  <lib   name="1"/>
+</export>
