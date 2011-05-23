@@ -1,8 +1,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2010/05/05 10:54:53 $
- * $Revision: 1.30 $
+ * $Date: 2010/05/25 10:37:50 $
+ * $Revision: 1.31 $
  *
  */
 
@@ -2202,8 +2202,8 @@ void EcalSelectiveReadoutValidation::initAsciiFile(){
 //this feature.
 template<class T> //T must be either an EBSrFlagCollection or an EESrFlagCollection
 void EcalSelectiveReadoutValidation::compareSrfColl(const edm::Event& event, T& srfFromData, T& computedSrf){
-  typedef class T::const_iterator SrFlagCollectionConstIt;
-  typedef class T::key_type MyRuDetIdType;
+  typedef typename T::const_iterator SrFlagCollectionConstIt;
+  typedef typename T::key_type MyRuDetIdType;
   SrFlagCollectionConstIt itSrfFromData = srfFromData.begin();
   SrFlagCollectionConstIt itComputedSr = computedSrf.begin();
 
@@ -2335,8 +2335,8 @@ void EcalSelectiveReadoutValidation::selectFedsForLog(){
 template<class T>
 void EcalSelectiveReadoutValidation::checkSrApplication(const edm::Event& event,
                                                         T& srfs){
-  typedef class T::const_iterator SrFlagCollectionConstIt;
-  typedef class T::key_type MyRuDetIdType;
+  typedef typename T::const_iterator SrFlagCollectionConstIt;
+  typedef typename T::key_type MyRuDetIdType;
 
   for(SrFlagCollectionConstIt itSrf = srfs.begin();
       itSrf != srfs.end(); ++itSrf){
