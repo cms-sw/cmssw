@@ -14,12 +14,15 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignAlgoResolutions.cc,v 1.6 2009/11/23 14:38:07 fblekman Exp $
+// $Id: SignAlgoResolutions.cc,v 1.7 2010/11/29 10:14:17 akhukhun Exp $
 //
 //
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
+
 
 #include <math.h>
 
@@ -32,7 +35,9 @@
 metsig::SignAlgoResolutions::SignAlgoResolutions(const edm::ParameterSet &iConfig):
     functionmap_(),
     ptResol_(0),
-    phiResol_(0)
+    phiResol_(0),
+    pfcalib_(),
+    pfresol_()
 {
   addResolutions(iConfig);
 }
@@ -88,9 +93,10 @@ metsig::SigInputObj  metsig::SignAlgoResolutions::evalPF(const reco::PFCandidate
 
   double d_et=0, d_phi=0; //d_phi here is the error on phi component of the et
   reco::TrackRef trackRef = candidate->trackRef();
-  if(!trackRef.isNull() && type!=2){
-    d_et = trackRef->ptError();
+  if(!trackRef.isNull()){
     d_phi = et*trackRef->phiError();
+    d_et  = (type==2) ?  ElectronPtResolution(candidate) : trackRef->ptError();
+    //if(type==2) std::cout << eval(thetype,ET,et,phi,eta) << "    " << trackRef->ptError() << "    "<< ElectronPtResolution(candidate) << std::endl;
   }
   else{
     d_et = eval(thetype,ET,et,phi,eta);
@@ -404,3 +410,117 @@ metsig::SignAlgoResolutions::initializeJetResolutions( const edm::ParameterSet &
     phiResol_ = new JetResolution(phiFileName,false);
   }
 }
+
+double 
+metsig::SignAlgoResolutions::ElectronPtResolution(const reco::PFCandidate *c) const{
+
+    using namespace std;
+    using namespace reco;
+
+    bool applyCrackCorrections = false;
+
+    //cout << " NEW ELECTRON:: momentum = " << c->p() <<  endl;
+
+    reco::GsfTrackRef refGsf = c->gsfTrackRef();
+      
+    //double P_Track = refGsf->pMode();
+    //double dP_Track = refGsf->ptModeError()*(refGsf->pMode()/refGsf->ptMode());
+    //cout << " TRACK Momentum " <<  P_Track << " +/- " << dP_Track << " Eta " << refGsf->etaMode() << endl;
+
+    // Re-compute the Electron Ecal energy and its error.
+    double E_Ecal =0.; 
+    double dE_Ecal=0.;
+    const PFCandidate::ElementsInBlocks& theElements = c->elementsInBlocks();
+    typedef PFCandidate::ElementsInBlocks::const_iterator IEB; 
+    for (IEB ieb=theElements.begin(); ieb<theElements.end(); ++ieb) {
+	const PFBlock& block = *(ieb->first);
+	PFBlock::LinkData linkData =  block.linkData();
+	const PFBlockElement& pfbe = block.elements()[ieb->second];
+	
+	if(pfbe.type()==reco::PFBlockElement::ECAL) {
+
+	  // find the closest PS clusters
+	  unsigned iEcal = ieb->second;
+	  vector<double> ps1Ene;
+	  vector<double> ps2Ene;
+	  ps1Ene.clear();
+	  ps2Ene.clear();
+	
+	  // Find PS1 clusters
+	  std::multimap<double, unsigned int> PS1Elems;
+	  block.associatedElements( iEcal,linkData,
+				    PS1Elems,
+				    reco::PFBlockElement::PS1,
+				    reco::PFBlock::LINKTEST_ALL );
+	  
+	  for( std::multimap<double, unsigned int>::iterator it = PS1Elems.begin(); it != PS1Elems.end();it++) {
+		unsigned int index = it->second;
+		// Check that this cluster is not closer to another ECAL cluster
+		std::multimap<double, unsigned> sortedECAL;
+		block.associatedElements( index,  linkData,
+				      sortedECAL,
+				      reco::PFBlockElement::ECAL,
+				      reco::PFBlock::LINKTEST_ALL );
+		unsigned jEcal = sortedECAL.begin()->second;
+		if ( jEcal != iEcal) continue; 
+	    
+		// push_back PS1 energy
+		const PFBlockElement& psel = block.elements()[index];
+		PFClusterRef  psref = psel.clusterRef();
+		// cout << " PS1 Energy " << psref->energy() << endl;
+		ps1Ene.push_back(psref->energy());
+	  }
+
+	  // Find PS2 clusters
+	  std::multimap<double, unsigned int> PS2Elems;
+	  block.associatedElements( iEcal,linkData,
+				    PS2Elems,
+				    reco::PFBlockElement::PS2,
+				    reco::PFBlock::LINKTEST_ALL );
+	  
+	  for( std::multimap<double, unsigned int>::iterator it = PS2Elems.begin(); it != PS2Elems.end();it++) {
+		unsigned int index = it->second;
+		// Check that this cluster is not closer to another ECAL cluster
+		std::multimap<double, unsigned> sortedECAL;
+		block.associatedElements( index,  linkData,
+				      sortedECAL,
+				      reco::PFBlockElement::ECAL,
+				      reco::PFBlock::LINKTEST_ALL );
+		unsigned jEcal = sortedECAL.begin()->second;
+		if ( jEcal != iEcal) continue; 
+	    
+		// push_back PS2 energy	    
+		const PFBlockElement& psel = block.elements()[index];
+		PFClusterRef  psref = psel.clusterRef();
+		// cout << " PS2 Energy " << psref->energy() << endl;
+		ps2Ene.push_back(psref->energy());
+	  }
+	  
+	  
+	  reco::PFClusterRef clusterRef = pfbe.clusterRef();
+	  double ps1,ps2;
+	  ps1=ps2=0.;
+	  double E_Clust = pfcalib_->energyEm(*clusterRef,ps1Ene,ps2Ene,ps1,ps2,applyCrackCorrections);	  
+	  double Eta_Clust = clusterRef->position().eta();
+	  double dE_Clust = pfresol_->getEnergyResolutionEm(E_Clust,Eta_Clust);
+	  
+	  // cout << " ECAL Energy " << E_Clust << endl;
+	  E_Ecal += E_Clust;
+	  dE_Ecal += dE_Clust*dE_Clust;
+	  
+	}
+    }
+      
+    // Ecal Energy and Error
+    dE_Ecal = sqrt(dE_Ecal);
+    //cout << " Raw ECAL Energy " << E_Ecal  << " +/- " << dE_Ecal << endl;
+
+    // Take the corrected energy from the candidates and scale the error properly. 
+    double E_EcalCorr = c->ecalEnergy();
+    double dE_EcalCorr = dE_Ecal * (E_EcalCorr/E_Ecal); 
+
+    //cout << " Corrected ECAL Energy " << E_EcalCorr  << " +/- " << dE_EcalCorr << endl;
+
+    return dE_EcalCorr;
+}
+
