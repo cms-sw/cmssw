@@ -112,3 +112,18 @@ SKIMStreamHWW = cms.FilteredStream(
         selectEvents = cms.untracked.PSet(),
         dataTier = cms.untracked.string('AOD')
         )
+
+
+from Configuration.Skimming.PDWG_HZZSkim_cff import *
+HZZmmPath = cms.Path(zzdiMuonSequence)
+HZZeePath = cms.Path(zzdiElectronSequence)
+HZZemPath = cms.Path(zzeleMuSequence)
+SKIMStreamHZZ = cms.FilteredStream(
+        responsible = 'PDWG',
+        name = 'HZZ',
+        paths = (HZZmmPath,HZZeePath,HZZemPath),
+        content = skimAodContent.outputCommands,
+        selectEvents = cms.untracked.PSet(),
+        dataTier = cms.untracked.string('AOD')
+        )
+
