@@ -580,7 +580,7 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
              nVertex.position().perp()>120.)
         {
           // were more than 100 m off!!
-          LogInfo ("AdaptiveVertexFitter" ) << "Vertex candidate just took off to " << nVertex.position()
+          LogWarning ("AdaptiveVertexFitter" ) << "Vertex candidate just took off to " << nVertex.position()
 					    << "! Will discard this update!";
 // 	    //<< "track pt was " << (**i).linearizedTrack()->track().pt()
 // 					     << "track momentum was " << (**i).linearizedTrack()->track().initialFreeState().momentum()
@@ -593,7 +593,7 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
 	        fVertex = nVertex;
         }
       } else {
-        LogInfo("RecoVertex|AdaptiveVertexFitter") 
+        LogWarning("RecoVertex/AdaptiveVertexFitter") 
           << "The updator returned an invalid vertex when adding track "
           << i-globalVTracks.begin() 
 	        << ".\n Your vertex might just have lost one good track.";
