@@ -1,8 +1,8 @@
 # Auto generated configuration file
 # using: 
-# Revision: 1.303.2.3 
-# Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: skim -s SKIM:WElectron+HighMET+LogError+HWW+Tau --data --conditions FT_R_42_V13A::All --python_filenam skim_SingleElectron.py --magField AutoFromDBCurrent --no_exec
+# Revision: 1.303.2.7 
+# Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
+# with command line options: skim -s SKIM:WElectron+HighMET+LogError+HWW+HZZ+Tau --data --conditions FT_R_42_V13A::All --python_filenam skim_SingleElectron.py --magField AutoFromDBCurrent --no_exec
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('SKIM')
@@ -32,7 +32,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.303.2.3 $'),
+    version = cms.untracked.string('$Revision: 1.303.2.7 $'),
     annotation = cms.untracked.string('skim nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -232,7 +232,203 @@ process.SKIMStreamHWW = cms.OutputModule("PoolOutputModule",
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('HWW'),
         dataTier = cms.untracked.string('AOD')
-    )
+    ),
+    eventAutoFlushCompressedSize = cms.untracked.int32(5242880)
+)
+process.SKIMStreamHZZ = cms.OutputModule("PoolOutputModule",
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('HZZmmPath', 
+            'HZZeePath', 
+            'HZZemPath')
+    ),
+    outputCommands = cms.untracked.vstring('drop *', 
+        'keep *_castorreco_*_*', 
+        'keep *_reducedHcalRecHits_*_*', 
+        'keep *_selectDigi_*_*', 
+        'keep EcalRecHitsSorted_reducedEcalRecHitsEB_*_*', 
+        'keep EcalRecHitsSorted_reducedEcalRecHitsEE_*_*', 
+        'keep EcalRecHitsSorted_reducedEcalRecHitsES_*_*', 
+        'keep recoSuperClusters_correctedHybridSuperClusters_*_*', 
+        'keep recoCaloClusters_hybridSuperClusters_*_*', 
+        'keep recoSuperClusters_hybridSuperClusters_uncleanOnlyHybridSuperClusters_*', 
+        'keep recoCaloClusters_multi5x5BasicClusters_multi5x5EndcapBasicClusters_*', 
+        'keep recoSuperClusters_correctedMulti5x5SuperClustersWithPreshower_*_*', 
+        'keep recoPreshowerClusters_multi5x5SuperClustersWithPreshower_*_*', 
+        'keep recoPreshowerClusterShapes_multi5x5PreshowerClusterShape_*_*', 
+        'keep recoTracks_GsfGlobalElectronTest_*_*', 
+        'keep recoGsfTracks_electronGsfTracks_*_*', 
+        'keep recoTracks_generalTracks_*_*', 
+        'keep recoTracks_rsWithMaterialTracks_*_*', 
+        'keep recoTracks_beamhaloTracks_*_*', 
+        'keep recoTracks_regionalCosmicTracks_*_*', 
+        'keep recoTracks_ctfPixelLess_*_*', 
+        'keep *_dedxHarmonic2_*_*', 
+        'keep *_dedxDiscrimASmi_*_*', 
+        'keep *_trackExtrapolator_*_*', 
+        'keep *_kt4CaloJets_*_*', 
+        'keep *_kt6CaloJets_*_*', 
+        'keep *_ak5CaloJets_*_*', 
+        'keep *_ak7CaloJets_*_*', 
+        'keep *_kt4PFJets_*_*', 
+        'keep *_kt6PFJets_*_*', 
+        'keep *_ak5PFJets_*_*', 
+        'keep *_ak7PFJets_*_*', 
+        'keep *_JetPlusTrackZSPCorJetAntiKt5_*_*', 
+        'keep *_ak5TrackJets_*_*', 
+        'keep recoRecoChargedRefCandidates_trackRefsForJets_*_*', 
+        'keep *_caloTowers_*_*', 
+        'keep *_towerMaker_*_*', 
+        'keep *_CastorTowerReco_*_*', 
+        'keep *_ak5JetTracksAssociatorAtVertex_*_*', 
+        'keep *_ak7JetTracksAssociatorAtVertex_*_*', 
+        'keep *_kt4JetExtender_*_*', 
+        'keep *_ak5JetExtender_*_*', 
+        'keep *_ak7JetExtender_*_*', 
+        'keep *_ak5JetID_*_*', 
+        'keep *_ak7JetID_*_*', 
+        'keep *_kt4JetID_*_*', 
+        'keep *_kt6JetID_*_*', 
+        'keep *_ak7BasicJets_*_*', 
+        'keep *_ak7CastorJetID_*_*', 
+        'keep recoCaloMETs_met_*_*', 
+        'keep recoCaloMETs_metNoHF_*_*', 
+        'keep recoCaloMETs_metHO_*_*', 
+        'keep recoCaloMETs_corMetGlobalMuons_*_*', 
+        'keep recoMETs_htMetAK5_*_*', 
+        'keep recoMETs_htMetAK7_*_*', 
+        'keep recoMETs_htMetIC5_*_*', 
+        'keep recoMETs_htMetKT4_*_*', 
+        'keep recoMETs_htMetKT6_*_*', 
+        'keep recoMETs_tcMet_*_*', 
+        'keep recoMETs_tcMetWithPFclusters_*_*', 
+        'keep recoPFMETs_pfMet_*_*', 
+        'keep recoMuonMETCorrectionDataedmValueMap_muonMETValueMapProducer_*_*', 
+        'keep recoMuonMETCorrectionDataedmValueMap_muonTCMETValueMapProducer_*_*', 
+        'drop recoHcalNoiseRBXs_*_*_*', 
+        'keep HcalNoiseSummary_hcalnoise_*_*', 
+        'keep *GlobalHaloData_*_*_*', 
+        'keep *BeamHaloSummary_BeamHaloSummary_*_*', 
+        'keep recoTracks_standAloneMuons_*_*', 
+        'keep recoTrackExtras_standAloneMuons_*_*', 
+        'keep TrackingRecHitsOwned_standAloneMuons_*_*', 
+        'keep recoTracks_globalMuons_*_*', 
+        'keep recoTrackExtras_globalMuons_*_*', 
+        'keep recoTracks_tevMuons_*_*', 
+        'keep recoTrackExtras_tevMuons_*_*', 
+        'keep recoTracksToOnerecoTracksAssociation_tevMuons_*_*', 
+        'keep recoTracks_generalTracks_*_*', 
+        'keep recoMuons_muons_*_*', 
+        'keep booledmValueMap_muid*_*_*', 
+        'keep recoMuonTimeExtraedmValueMap_muons_*_*', 
+        'keep *_muonShowerInformation_*_*', 
+        'keep recoTracks_cosmicMuons_*_*', 
+        'keep recoTracks_globalCosmicMuons_*_*', 
+        'keep recoMuons_muonsFromCosmics_*_*', 
+        'keep recoTracks_cosmicMuons1Leg_*_*', 
+        'keep recoTracks_globalCosmicMuons1Leg_*_*', 
+        'keep recoMuons_muonsFromCosmics1Leg_*_*', 
+        'keep recoMuonCosmicCompatibilityedmValueMap_cosmicsVeto_*_*', 
+        'keep uintedmValueMap_cosmicsVeto_*_*', 
+        'keep *_muIsoDepositTk_*_*', 
+        'keep *_muIsoDepositCalByAssociatorTowers_*_*', 
+        'keep *_muIsoDepositCalByAssociatorHits_*_*', 
+        'keep *_muIsoDepositJets_*_*', 
+        'keep *_trackCountingHighEffBJetTags_*_*', 
+        'keep *_trackCountingHighPurBJetTags_*_*', 
+        'keep *_jetProbabilityBJetTags_*_*', 
+        'keep *_jetBProbabilityBJetTags_*_*', 
+        'keep *_simpleSecondaryVertexBJetTags_*_*', 
+        'keep *_simpleSecondaryVertexHighEffBJetTags_*_*', 
+        'keep *_simpleSecondaryVertexHighPurBJetTags_*_*', 
+        'keep *_combinedSecondaryVertexBJetTags_*_*', 
+        'keep *_combinedSecondaryVertexMVABJetTags_*_*', 
+        'keep *_ghostTrackBJetTags_*_*', 
+        'keep *_softElectronBJetTags_*_*', 
+        'keep *_softElectronByIP3dBJetTags_*_*', 
+        'keep *_softElectronByPtBJetTags_*_*', 
+        'keep *_softMuonBJetTags_*_*', 
+        'keep *_softMuonByIP3dBJetTags_*_*', 
+        'keep *_softMuonByPtBJetTags_*_*', 
+        'keep *_combinedMVABJetTags_*_*', 
+        'keep *_ak5PFJetsRecoTauPiZeros_*_*', 
+        'keep *_hpsPFTauProducer*_*_*', 
+        'keep *_hpsPFTauDiscrimination*_*_*', 
+        'keep *_shrinkingConePFTauProducer*_*_*', 
+        'keep *_shrinkingConePFTauDiscrimination*_*_*', 
+        'keep *_hpsTancTaus_*_*', 
+        'keep *_hpsTancTausDiscrimination*_*_*', 
+        'keep *_TCTauJetPlusTrackZSPCorJetAntiKt5_*_*', 
+        'keep *_caloRecoTauTagInfoProducer_*_*', 
+        'keep recoCaloTaus_caloRecoTauProducer*_*_*', 
+        'keep *_caloRecoTauDiscrimination*_*_*', 
+        'keep  *_offlinePrimaryVertices_*_*', 
+        'keep  *_offlinePrimaryVerticesWithBS_*_*', 
+        'keep  *_offlinePrimaryVerticesFromCosmicTracks_*_*', 
+        'keep  *_nuclearInteractionMaker_*_*', 
+        'keep *_generalV0Candidates_*_*', 
+        'keep recoGsfElectronCores_gsfElectronCores_*_*', 
+        'keep recoGsfElectrons_gsfElectrons_*_*', 
+        'keep floatedmValueMap_eidRobustLoose_*_*', 
+        'keep floatedmValueMap_eidRobustTight_*_*', 
+        'keep floatedmValueMap_eidRobustHighEnergy_*_*', 
+        'keep floatedmValueMap_eidLoose_*_*', 
+        'keep floatedmValueMap_eidTight_*_*', 
+        'keep recoPhotonCores_photonCore_*_*', 
+        'keep recoPhotons_photons_*_*', 
+        'keep recoConversions_conversions_*_*', 
+        'drop *_conversions_uncleanedConversions_*', 
+        'keep recoConversions_allConversions_*_*', 
+        'keep recoTracks_ckfOutInTracksFromConversions_*_*', 
+        'keep recoTracks_ckfInOutTracksFromConversions_*_*', 
+        'keep *_PhotonIDProd_*_*', 
+        'keep *_hfRecoEcalCandidate_*_*', 
+        'keep *_hfEMClusters_*_*', 
+        'drop CaloTowersSorted_towerMakerPF_*_*', 
+        'drop *_pfElectronTranslator_*_*', 
+        'keep recoPFRecHits_particleFlowClusterECAL_Cleaned_*', 
+        'keep recoPFRecHits_particleFlowClusterHCAL_Cleaned_*', 
+        'keep recoPFRecHits_particleFlowClusterHFEM_Cleaned_*', 
+        'keep recoPFRecHits_particleFlowClusterHFHAD_Cleaned_*', 
+        'keep recoPFRecHits_particleFlowClusterPS_Cleaned_*', 
+        'keep recoPFRecHits_particleFlowRecHitECAL_Cleaned_*', 
+        'keep recoPFRecHits_particleFlowRecHitHCAL_Cleaned_*', 
+        'keep recoPFRecHits_particleFlowRecHitPS_Cleaned_*', 
+        'keep recoPFCandidates_particleFlow_*_*', 
+        'keep recoCaloClusters_pfElectronTranslator_*_*', 
+        'keep recoPreshowerClusters_pfElectronTranslator_*_*', 
+        'keep recoSuperClusters_pfElectronTranslator_*_*', 
+        'keep recoCaloClusters_pfPhotonTranslator_*_*', 
+        'keep recoPreshowerClusters_pfPhotonTranslator_*_*', 
+        'keep recoSuperClusters_pfPhotonTranslator_*_*', 
+        'keep recoPhotons_pfPhotonTranslator_*_*', 
+        'keep *_offlineBeamSpot_*_*', 
+        'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*', 
+        'keep *_l1GtRecord_*_*', 
+        'keep *_l1GtTriggerMenuLite_*_*', 
+        'keep *_conditionsInEdm_*_*', 
+        'keep *_l1extraParticles_*_*', 
+        'keep LumiSummary_lumiProducer_*_*', 
+        'drop *_hlt*_*_*', 
+        'keep *_hltL1GtObjectMap_*_*', 
+        'keep edmTriggerResults_*_*_*', 
+        'keep triggerTriggerEvent_*_*_*', 
+        'keep L1AcceptBunchCrossings_*_*_*', 
+        'keep L1TriggerScalerss_*_*_*', 
+        'keep Level1TriggerScalerss_*_*_*', 
+        'keep LumiScalerss_*_*_*', 
+        'keep BeamSpotOnlines_*_*_*', 
+        'keep DcsStatuss_*_*_*', 
+        'keep *_logErrorHarvester_*_*', 
+        'keep PileupSummaryInfo_*_*_*', 
+        'keep PileupSummaryInfos_*_*_*', 
+        'drop *_MEtoEDMConverter_*_*', 
+        'drop *_*_*_SKIM'),
+    fileName = cms.untracked.string('HZZ.root'),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string('HZZ'),
+        dataTier = cms.untracked.string('AOD')
+    ),
+    eventAutoFlushCompressedSize = cms.untracked.int32(5242880)
 )
 process.SKIMStreamHighMET = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
@@ -244,7 +440,8 @@ process.SKIMStreamHighMET = cms.OutputModule("PoolOutputModule",
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('HighMET'),
         dataTier = cms.untracked.string('RAW-RECO')
-    )
+    ),
+    eventAutoFlushCompressedSize = cms.untracked.int32(5242880)
 )
 process.SKIMStreamLogError = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
@@ -255,7 +452,8 @@ process.SKIMStreamLogError = cms.OutputModule("PoolOutputModule",
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('LogError'),
         dataTier = cms.untracked.string('RAW-RECO')
-    )
+    ),
+    eventAutoFlushCompressedSize = cms.untracked.int32(5242880)
 )
 process.SKIMStreamTau = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
@@ -266,7 +464,8 @@ process.SKIMStreamTau = cms.OutputModule("PoolOutputModule",
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('Tau'),
         dataTier = cms.untracked.string('RAW-RECO')
-    )
+    ),
+    eventAutoFlushCompressedSize = cms.untracked.int32(5242880)
 )
 process.SKIMStreamWElectron = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
@@ -277,7 +476,8 @@ process.SKIMStreamWElectron = cms.OutputModule("PoolOutputModule",
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('WElectron'),
         dataTier = cms.untracked.string('RAW-RECO')
-    )
+    ),
+    eventAutoFlushCompressedSize = cms.untracked.int32(5242880)
 )
 
 # Other statements
@@ -285,10 +485,11 @@ process.GlobalTag.globaltag = 'FT_R_42_V13A::All'
 
 # Path and EndPath definitions
 process.SKIMStreamHWWOutPath = cms.EndPath(process.SKIMStreamHWW)
+process.SKIMStreamHZZOutPath = cms.EndPath(process.SKIMStreamHZZ)
 process.SKIMStreamHighMETOutPath = cms.EndPath(process.SKIMStreamHighMET)
 process.SKIMStreamLogErrorOutPath = cms.EndPath(process.SKIMStreamLogError)
 process.SKIMStreamTauOutPath = cms.EndPath(process.SKIMStreamTau)
 process.SKIMStreamWElectronOutPath = cms.EndPath(process.SKIMStreamWElectron)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.pathlogerror,process.tauSkimBy1Path,process.WElectronPath,process.HWWmmPath,process.HWWeePath,process.HWWemPath,process.pfPath,process.tcPath,process.SKIMStreamHWWOutPath,process.SKIMStreamHighMETOutPath,process.SKIMStreamLogErrorOutPath,process.SKIMStreamTauOutPath,process.SKIMStreamWElectronOutPath)
+process.schedule = cms.Schedule(process.pathlogerror,process.tauSkimBy1Path,process.WElectronPath,process.HZZmmPath,process.HZZeePath,process.HZZemPath,process.HWWmmPath,process.HWWeePath,process.HWWemPath,process.pfPath,process.tcPath,process.SKIMStreamHWWOutPath,process.SKIMStreamHZZOutPath,process.SKIMStreamHighMETOutPath,process.SKIMStreamLogErrorOutPath,process.SKIMStreamTauOutPath,process.SKIMStreamWElectronOutPath)
