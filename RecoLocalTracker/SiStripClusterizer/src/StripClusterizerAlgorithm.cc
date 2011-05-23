@@ -28,24 +28,13 @@ initialize(const edm::EventSetup& es) {
   }
 }
 
-inline 
+
 void StripClusterizerAlgorithm::
 setDetId(const uint32_t id) {
   gainRange =  gainHandle->getRange(id); 
   noiseRange = noiseHandle->getRange(id);
   qualityRange = qualityHandle->getRange(id);
   detId = id;
-}
-
-template<class T> 
-inline
-void StripClusterizerAlgorithm::
-clusterize_(const T& input, output_t& output) {
-  for(typename T::const_iterator it = input.begin(); it!=input.end(); it++) {
-    output_t::FastFiller ff(output, it->detId());
-    clusterizeDetUnit(*it, ff);
-    if(ff.empty()) ff.abort();
-  }
 }
 
 void StripClusterizerAlgorithm::clusterize(const   edm::DetSetVector<SiStripDigi>& input,  output_t& output) {clusterize_(input, output);}

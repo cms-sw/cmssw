@@ -48,7 +48,14 @@ class StripClusterizerAlgorithm {
 
  private:
 
-  template<class T> void clusterize_(const T&, output_t&);
+  template<class T> void clusterize_(const T& input, output_t& output) {
+    for(typename T::const_iterator it = input.begin(); it!=input.end(); it++) {
+      output_t::FastFiller ff(output, it->detId());	
+      clusterizeDetUnit(*it, ff);	
+      if(ff.empty()) ff.abort();	
+    }	
+  }
+
 
   SiStripApvGain::Range gainRange;
   SiStripNoises::Range  noiseRange;
