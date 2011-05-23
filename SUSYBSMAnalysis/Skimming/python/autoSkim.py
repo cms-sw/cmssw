@@ -13,11 +13,11 @@ autoSkim = {
     'Jet':'HighMET+LogError+DiJet',
     'METFwd':'HighMET+LogError',
 
-    'SingleMu' : 'WMu+ZMu+HighMET+LogError+HWW+DiTau',
-    'DoubleMu' : 'WMu+ZMu+HighMET+LogError+HWW',
-    'SingleElectron' : 'WElectron+HighMET+LogError+HWW+Tau',
-    'DoubleElectron' : 'ZElectron+LogError+HWW',
-    'MuEG' : 'LogError+HWW',
+    'SingleMu' : 'WMu+ZMu+HighMET+LogError+HWW+DiTau+EXOLLRes+EXOMu',
+    'DoubleMu' : 'WMu+ZMu+HighMET+LogError+HWW+EXOLLRes+EXOTriMu+EXODiMu',
+    'SingleElectron' : 'WElectron+HighMET+LogError+HWW+Tau+EXOEle',
+    'DoubleElectron' : 'ZElectron+LogError+HWW+EXOLLRes+EXOTriEle+EXODiEle',
+    'MuEG' : 'LogError+HWW+EXOLLRes+EXO1E2Mu',
     'METBTag': 'HighMET+LogError',
     'MET': 'HighMET+LogError',
 
