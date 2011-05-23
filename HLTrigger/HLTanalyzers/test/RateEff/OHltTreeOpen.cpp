@@ -7240,7 +7240,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
 		  } // ET cut
 		}//loop over jets
 				
-	      if (njets >=2 && rc >= 1 && OpenHlt1MuonPassed(0., 7., 12., 2., 0)>=1)
+	      if (njets >=2 && rc >= 1 && OpenHlt1MuonPassed(10., 10., 12., 2., 0)>=1)
 		{
 		  triggerBit[it] = true;
 		}
