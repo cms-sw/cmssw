@@ -23,8 +23,8 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,Double_t xlow,D
     globalScale_(1.0),
     mirror_(mirror),
     rho_(rho),
-    cache_(0),
-    isCacheGood_(false)
+    cache_(new TH1F(name,title,nbinsx,xlow,xup)),
+    isCacheGood_(true)
 {
     fDimension = 1;
     x_->setBins(nbinsx);
@@ -40,8 +40,8 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Float_t  
     globalScale_(1.0),
     mirror_(mirror),
     rho_(rho),
-    cache_(0),
-    isCacheGood_(false)
+    cache_(new TH1F(name,title,nbinsx,xbins)),
+    isCacheGood_(true)
 {
     fDimension = 1;
     std::vector<Double_t> boundaries(nbinsx+1);
@@ -59,8 +59,8 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Double_t 
     globalScale_(1.0),
     mirror_(mirror),
     rho_(rho),
-    cache_(0),
-    isCacheGood_(false)
+    cache_(new TH1F(name,title,nbinsx,xbins)),
+    isCacheGood_(true)
 {
     fDimension = 1;
     x_->setBinning(RooBinning(nbinsx, xbins));
@@ -77,8 +77,8 @@ TH1Keys::TH1Keys(const TH1Keys &other)  :
     globalScale_(other.globalScale_),
     mirror_(other.mirror_),
     rho_(other.rho_),
-    cache_(0),
-    isCacheGood_(false)
+    cache_((TH1*)other.cache_->Clone()),
+    isCacheGood_(other.isCacheGood_)
 {
     fDimension = 1;
     x_->setBinning(other.x_->getBinning());
@@ -137,19 +137,24 @@ void TH1Keys::Reset(Option_t *option) {
     dataset_->reset();
     overflow_ = underflow_ = 0.0;
     globalScale_ = 1.0;
-    isCacheGood_ = false;
+    cache_->Reset();
+    isCacheGood_ = true;
 }
 
 // ------------------------------------------------------------
 
 void TH1Keys::FillH1() const
 {
-    delete cache_;
-    RooKeysPdf pdf("","",*x_,*dataset_);
-    cache_ = pdf.createHistogram(GetName(), *x_);
-    cache_->SetBinContent(0,                     underflow_);
-    cache_->SetBinContent(cache_->GetNbinsX()+1, overflow_);
-    if (dataset_->sumEntries()) cache_->Scale(dataset_->sumEntries() * globalScale_);
+    if (dataset_->numEntries() == 0) {
+        cache_->Reset(); // make sure it's empty
+    } else {
+        delete cache_;
+        RooKeysPdf pdf("","",*x_,*dataset_);
+        cache_ = pdf.createHistogram(GetName(), *x_);
+        cache_->SetBinContent(0,                     underflow_);
+        cache_->SetBinContent(cache_->GetNbinsX()+1, overflow_);
+        if (dataset_->sumEntries()) cache_->Scale(dataset_->sumEntries() * globalScale_);
+    }
     isCacheGood_ = true;
 }
 
