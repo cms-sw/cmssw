@@ -137,7 +137,6 @@ log "Extracting full menu dump"
 hltGetConfiguration "$MENU" --full --offline --data $INPUT --unprescale --process "TEST" > hlt.py
 # adapt the number of events
 sed -i -e "s/input = cms.untracked.int32( .* )/input = cms.untracked.int32( $SIZE )/" hlt.py
-grep 'input = cms.untracked.int32' hlt.py
 
 log "Extracting single path dumps"
 for TRIGGER in $TRIGGERS; do
