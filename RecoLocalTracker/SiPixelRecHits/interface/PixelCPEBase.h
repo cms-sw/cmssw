@@ -150,14 +150,6 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   inline bool  spansTwoRocks() const { return spansTwoROCs_ ;  }
   inline bool  hasFilledProb() const { return hasFilledProb_ ; }
   
-  //--- Flag to control how SiPixelRecHits compute clusterProbability().
-  //--- Note this is set via the configuration file, and it's simply passed
-  //--- to each TSiPixelRecHit.
-  inline unsigned int clusterProbComputationFlag() const 
-    { 
-      return clusterProbComputationFlag_ ; 
-    }
-  
   
   //-----------------------------------------------------------------------------
   //! A convenience method to fill a whole SiPixelRecHitQuality word in one shot.
@@ -165,7 +157,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   //! code and not expose the Transient SiPixelRecHit to it as well.  The name
   //! of this function is chosen to match the one in SiPixelRecHit.
   //-----------------------------------------------------------------------------
-  SiPixelRecHitQuality::QualWordType rawQualityWord() const;
+  virtual SiPixelRecHitQuality::QualWordType rawQualityWord() const;
 
 
  protected:
@@ -229,13 +221,6 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   mutable bool  spansTwoROCs_ ;
   mutable bool  hasFilledProb_ ;
 
-  //--- A flag that could be used to change the behavior of
-  //--- clusterProbability() in TSiPixelRecHit (the *transient* one).  
-  //--- The problem is that the transient hits are made after the CPE runs
-  //--- and they don't get the access to the PSet, so we pass it via the
-  //--- CPE itself...
-  //
-  unsigned int clusterProbComputationFlag_ ;
 
   //---------------------------
 
