@@ -44,10 +44,9 @@ def listFilesLocal(dir,type = 'root'):
 
     return files
 
-def copyFilesFromCastor(castor_dir,output_dir,type='root',prefix='rfio:',suffix=None):
+def copyFilesFromCastor(castor_dir,output_dir,type='root'):
     from subprocess import call
-    files = listFilesInCastor(castor_dir,type,prefix)
-    if suffix: files = [item + suffix for item in files]
+    files = listFilesInCastor(castor_dir,type,'')
 
     print "Copying files from %s to %s" % (castor_dir,output_dir) 
     for item in files:

@@ -573,8 +573,8 @@ def runNoiseWorkflow(mode,run,config,execute=True):
             retcode = copyFilesLocal(crab_output_dir,result_dir,'noise')
         elif config.stageOutCAF:
             castor_dir = config.castorpath + "/" + config.userdircaf
-            retcode = copyFilesFromCastor(castor_dir,result_dir,'dtNoiseCalib','rfio://castorcms/','?svcClass=cmscafuser')
-            retcode = copyFilesFromCastor(castor_dir,result_dir,'noise','rfio://castorcms/','?svcClass=cmscafuser')
+            retcode = copyFilesFromCastor(castor_dir,result_dir,'dtNoiseCalib')
+            retcode = copyFilesFromCastor(castor_dir,result_dir,'noise')
 
     return 0
 
