@@ -52,6 +52,17 @@ EcalUnpackerWorker::EcalUnpackerWorker(const edm::ParameterSet & conf){
 				  DCCpset.getParameter<bool>("feIdCheck"),
                                   DCCpset.getParameter<bool>("forceKeepFRData") 
                                   );
+  edm::LogInfo("EcalRawToRecHit")
+    <<"\n ECAL RawToDigi within RawToRecHit configuration:"
+    <<"\n Header  unpacking is "<<DCCpset.getParameter<bool>("headerUnpacking")
+    <<"\n SRP Bl. unpacking is "<<DCCpset.getParameter<bool>("srpUnpacking")
+    <<"\n TCC Bl. unpacking is "<<DCCpset.getParameter<bool>("tccUnpacking")
+    <<"\n FE  Bl. unpacking is "<<DCCpset.getParameter<bool>("feUnpacking")
+    <<"\n MEM Bl. unpacking is "<<DCCpset.getParameter<bool>("memUnpacking")
+    <<"\n sync check is "<<DCCpset.getParameter<bool>("syncCheck")
+    <<"\n feID check is "<<DCCpset.getParameter<bool>("feIdCheck")
+    <<"\n force keep FR data is "<<DCCpset.getParameter<bool>("forceKeepFRData")
+    <<"\n";
   
   unpacker_->setEBDigisCollection(&productDigisEB);
   unpacker_->setEEDigisCollection(&productDigisEE);
@@ -115,7 +126,7 @@ void EcalUnpackerWorker::update(const edm::Event & e)const{
   /// keep the event
   evt=&e;
 
-  const bool reserveMem =false;
+  const bool reserveMem =true;
 
   /// DCCDataUnpacker
   productDigisEB.reset(new EBDigiCollection);
@@ -158,7 +169,7 @@ std::auto_ptr< EcalRecHitCollection > EcalUnpackerWorker::work(const uint32_t & 
   const FEDRawData & fedData = rawdata.FEDData(fedIndex);
 
   //remember where the iterators were before unpacking
-  /*R*/ LogDebug("EcalRawToRecHit|Worker")
+   LogDebug("EcalRawToRecHit|Worker")
     <<"size of digi collections before unpacking: "
     <<(*unpacker_->ebDigisCollection())->size()
     <<" "<<(*unpacker_->eeDigisCollection())->size()
@@ -175,25 +186,25 @@ std::auto_ptr< EcalRecHitCollection > EcalUnpackerWorker::work(const uint32_t & 
     if(myMap_->setActiveDCC(fedIndex)){
       smId = myMap_->getActiveSM();
       uint64_t * pData = (uint64_t *)(fedData.data());
-      /*R*/ LogDebug("EcalRawToRecHit|Worker")<<"calling the unpacker: "<<length<<" "<<smId<<" "<<fedIndex
+       LogDebug("EcalRawToRecHit|Worker")<<"calling the unpacker: "<<length<<" "<<smId<<" "<<fedIndex
 					      <<watcher.lap();
       unpacker_->unpack( pData, static_cast<unsigned int>(length),smId,fedIndex);
-      /*R*/ LogDebug("EcalRawToRecHit|Worker")<<"unpacking done."
+       LogDebug("EcalRawToRecHit|Worker")<<"unpacking done."
 					      <<watcher.lap();
     }
     else{
       edm::LogInfo("EcalUnpackerWorker")<<"cannot set: "<<fedIndex<<" to be an active DCC.";
-      /*R*/ LogDebug("EcalRawToRecHit|Worker")<<"cannot set: "<<fedIndex<<" to be an active DCC.";
+       LogDebug("EcalRawToRecHit|Worker")<<"cannot set: "<<fedIndex<<" to be an active DCC.";
       return std::auto_ptr< EcalRecHitCollection >(new EcalRecHitCollection);
     }
   }
   else {
     edm::LogInfo("EcalUnpackerWorker")<<"empty event on this FED: "<<fedIndex<<" length: "<<length;
-    /*R*/ LogDebug("EcalRawToRecHit|Worker")<<"empty event on this FED: "<<fedIndex<<" length: "<<length;
+     LogDebug("EcalRawToRecHit|Worker")<<"empty event on this FED: "<<fedIndex<<" length: "<<length;
     return std::auto_ptr< EcalRecHitCollection >(new EcalRecHitCollection);
   }
 
-  /*R*/ LogDebug("EcalRawToRecHit|Worker")
+   LogDebug("EcalRawToRecHit|Worker")
     <<"size of digi collections after unpacking: "
     <<(*unpacker_->ebDigisCollection())->size()
     <<" "<<(*unpacker_->eeDigisCollection())->size()
@@ -205,7 +216,7 @@ std::auto_ptr< EcalRecHitCollection > EcalUnpackerWorker::work(const uint32_t & 
   std::auto_ptr< EcalRecHitCollection > ecalrechits( new EcalRecHitCollection );
   std::auto_ptr< EcalUncalibratedRecHitCollection > uncalibRecHits( new EcalUncalibratedRecHitCollection );
   
-  /*R*/ LogDebug("EcalRawToRecHit|Worker")<<"going to work on EE rechits from: "<<endDigiEE-beginDigiEE<<" digis."
+   LogDebug("EcalRawToRecHit|Worker")<<"going to work on EE rechits from: "<<endDigiEE-beginDigiEE<<" digis."
 					    <<"\ngoing to work on EB rechits from: "<<endDigiEB-beginDigiEB<<" digis."
 					  <<watcher.lap();
   // EB
@@ -213,7 +224,7 @@ std::auto_ptr< EcalRecHitCollection > EcalUnpackerWorker::work(const uint32_t & 
   if (beginDigiEB!=endDigiEB){
     work<EBDetId>(beginDigiEB, endDigiEB, uncalibRecHits, ecalrechits);
   }
-  /*R*/ LogDebug("EcalRawToRecHit|Worker")<<uncalibRecHits->size()<<" uncalibrated rechit created so far\n"
+   LogDebug("EcalRawToRecHit|Worker")<<uncalibRecHits->size()<<" uncalibrated rechit created so far\n"
 					  <<ecalrechits->size()<<" rechit created so far."
 					  <<watcher.lap();
   
@@ -221,7 +232,7 @@ std::auto_ptr< EcalRecHitCollection > EcalUnpackerWorker::work(const uint32_t & 
   if (beginDigiEE!=endDigiEE){
     work<EEDetId>(beginDigiEE, endDigiEE, uncalibRecHits, ecalrechits);
   } 
-  /*R*/ LogDebug("EcalRawToRecHit|Worker")<<uncalibRecHits->size()<<" uncalibrated rechit created eventually\n"
+   LogDebug("EcalRawToRecHit|Worker")<<uncalibRecHits->size()<<" uncalibrated rechit created eventually\n"
 					  <<ecalrechits->size()<<" rechit created eventually"
 					  <<watcher.lap();
 
