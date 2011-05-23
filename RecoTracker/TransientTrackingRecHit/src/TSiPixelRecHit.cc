@@ -1,7 +1,6 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include<typeinfo>
 
