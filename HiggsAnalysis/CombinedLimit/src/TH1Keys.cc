@@ -1,5 +1,7 @@
 #include "../interface/TH1Keys.h"
 #include <RooBinning.h>
+#include <RooMsgService.h>
+
 #include <stdexcept>
 #include <vector>
 
@@ -23,9 +25,10 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,Double_t xlow,D
     globalScale_(1.0),
     mirror_(mirror),
     rho_(rho),
-    cache_(new TH1F(name,title,nbinsx,xlow,xup)),
+    cache_(new TH1F("",title,nbinsx,xlow,xup)),
     isCacheGood_(true)
 {
+    cache_->SetDirectory(0);
     fDimension = 1;
     x_->setBins(nbinsx);
 }
@@ -40,9 +43,10 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Float_t  
     globalScale_(1.0),
     mirror_(mirror),
     rho_(rho),
-    cache_(new TH1F(name,title,nbinsx,xbins)),
+    cache_(new TH1F("",title,nbinsx,xbins)),
     isCacheGood_(true)
 {
+    cache_->SetDirectory(0);
     fDimension = 1;
     std::vector<Double_t> boundaries(nbinsx+1);
     for (Int_t i = 0; i <= nbinsx; ++i) boundaries[i] = xbins[i];
@@ -59,9 +63,10 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Double_t 
     globalScale_(1.0),
     mirror_(mirror),
     rho_(rho),
-    cache_(new TH1F(name,title,nbinsx,xbins)),
+    cache_(new TH1F("",title,nbinsx,xbins)),
     isCacheGood_(true)
 {
+    cache_->SetDirectory(0);
     fDimension = 1;
     x_->setBinning(RooBinning(nbinsx, xbins));
 }
@@ -148,12 +153,15 @@ void TH1Keys::FillH1() const
     if (dataset_->numEntries() == 0) {
         cache_->Reset(); // make sure it's empty
     } else {
+        RooFit::MsgLevel gKill = RooMsgService::instance().globalKillBelow();
+        RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
         delete cache_;
         RooKeysPdf pdf("","",*x_,*dataset_);
         cache_ = pdf.createHistogram(GetName(), *x_);
         cache_->SetBinContent(0,                     underflow_);
         cache_->SetBinContent(cache_->GetNbinsX()+1, overflow_);
-        if (dataset_->sumEntries()) cache_->Scale(dataset_->sumEntries() * globalScale_);
+        cache_->Scale(dataset_->sumEntries() * globalScale_);
+        RooMsgService::instance().setGlobalKillBelow(gKill);
     }
     isCacheGood_ = true;
 }
