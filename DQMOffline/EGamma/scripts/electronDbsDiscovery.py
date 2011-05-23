@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import os, sys
+if len(sys.argv) > 1:
+  os.environ['DBS_STRATEGY'] = sys.argv[1]
 
 import DQMOffline.EGamma.electronDbsDiscovery as dbs
 

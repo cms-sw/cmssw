@@ -31,11 +31,8 @@
 #import httplib, urllib, urllib2, types, string, os, sys
 import os, sys
 
-if len(sys.argv) > 1:
-  os.environ['DBS_STRATEGY'] = sys.argv[1]
-elif not os.environ.has_key('DBS_STRATEGY'):
+if not os.environ.has_key('DBS_STRATEGY'):
   os.environ['DBS_STRATEGY'] = "search"
-
 if not os.environ.has_key('DBS_RELEASE'):
   os.environ['DBS_RELEASE'] = "Any"
 if not os.environ.has_key('DBS_SAMPLE'):
