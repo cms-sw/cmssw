@@ -488,6 +488,7 @@ reconstructionWithFamos = cms.Sequence(
     famosPhotonSequence+
     famosParticleFlowSequence+
     egammaHighLevelRecoPostPF+
+    particleFlow+
     caloJetMetGen+
     caloJetMet+
     PFJetMet+

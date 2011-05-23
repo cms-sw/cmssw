@@ -44,7 +44,7 @@ famosParticleFlowSequence = cms.Sequence(
 #    pfTrackElec+
     particleFlowTrackWithDisplacedVertex+
     particleFlowBlock+
-    particleFlow+
+    particleFlowTmp+
     FSparticleFlow+
     pfElectronTranslatorSequence+
     pfPhotonTranslatorSequence

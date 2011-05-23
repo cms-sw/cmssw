@@ -12,6 +12,7 @@ from RecoParticleFlow.PFProducer.pfPhotonTranslator_cff import *
 from RecoParticleFlow.PFTracking.trackerDrivenElectronSeeds_cff import *
 from RecoParticleFlow.PFTracking.mergedElectronSeeds_cfi import *
 from FastSimulation.ParticleFlow.FSparticleFlow_cfi import *
+from RecoParticleFlow.PFProducer.pfEgammaLinker_cff import *
 
 particleFlowSimParticle.sim = 'famosSimHits'
 
@@ -44,7 +45,7 @@ famosParticleFlowSequence = cms.Sequence(
 #    pfTrackElec+
     particleFlowTrackWithDisplacedVertex+
     particleFlowBlock+
-    particleFlow+
+    particleFlowTmp+
     FSparticleFlow+
     pfElectronTranslatorSequence+
     pfPhotonTranslatorSequence
