@@ -8,7 +8,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: zstream.icc,v 1.2 2007/05/25 16:37:59 saout Exp $
+// $Id: zstream.icc,v 1.3 2008/03/16 11:37:29 saout Exp $
 //
 
 #include <iostream>
@@ -152,7 +152,7 @@ basic_izstreambuf<Item_t, Traits_t, Allocator_t>::basic_izstreambuf(
 
 	err = inflateInit(&zipStream);
 
-	setg(&buffer.front() + 4, &buffer.front() + 4, &buffer.front() + 4);
+	this->setg(&buffer.front() + 4, &buffer.front() + 4, &buffer.front() + 4);
 }
 
 template<typename Item_t, typename Traits_t, typename Allocator_t>
@@ -187,7 +187,7 @@ basic_izstreambuf<Item_t, Traits_t, Allocator_t>::underflow()
 	if (size <= 0)
 		return traits_type::eof();
 
-	setg(&buffer.front() + (4 - nPutback),
+	this->setg(&buffer.front() + (4 - nPutback),
 	     &buffer.front() + 4,
 	     &buffer.front() + (4 + size));
 

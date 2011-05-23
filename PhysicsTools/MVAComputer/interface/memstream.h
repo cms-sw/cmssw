@@ -8,7 +8,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: memstream.h,v 1.2 2007/05/25 16:37:58 saout Exp $
+// $Id: memstream.h,v 1.3 2007/07/15 22:31:46 saout Exp $
 //
 
 #include <iostream>
@@ -75,7 +75,7 @@ class basic_imemstream : private std::basic_streambuf<Item_t, Traits_t>,
 			std::basic_istream<Item_t, Traits_t>(this)
 	{
 		this->exceptions(std::ios_base::badbit);
-		setg(const_cast<char_type*>(buf),
+		this->setg(const_cast<char_type*>(buf),
 		     const_cast<char_type*>(buf),
 		     const_cast<char_type*>(buf + size));
 	}
