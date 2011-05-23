@@ -1069,7 +1069,7 @@ void FUResourceTable::lastResort()
   while(shmBuffer_->nbRawCellsToRead()!=0){
     FUShmRawCell* newCell=shmBuffer_->rawCellToRead();
     std::cout << "lastResort: " << shmBuffer_->nbRawCellsToRead() << std::endl;
-    shmBuffer_->scheduleRawCellForDiscardServerSide(newCell);
+    shmBuffer_->scheduleRawCellForDiscardServerSide(newCell->index());
     std::cout << "lastResort: schedule raw cell for discard" << std::endl;
   }
 }
