@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-import sys
-import os
+import os, sys
+if len(sys.argv) > 1:
+  os.environ['DBS_STRATEGY'] = sys.argv[1]
 
 import DQMOffline.EGamma.electronDbsDiscovery as dbs
 os.environ['TEST_HARVESTED_FILE'] = 'rfio:/castor/cern.ch/cms'+dbs.search()[0]
