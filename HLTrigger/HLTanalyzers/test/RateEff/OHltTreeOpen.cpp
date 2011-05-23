@@ -7240,13 +7240,56 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
 		  } // ET cut
 		}//loop over jets
 				
-	      if (njets >=2 && rc >= 1 && OpenHlt1MuonPassed(10., 10., 12., 2., 0)>=1)
+	      if (njets >=2 && rc >= 1 && OpenHlt1MuonPassed(0., 7., 12., 2., 0)>=1)
 		{
 		  triggerBit[it] = true;
 		}
 	    }
 	}
     }
+
+ else if (triggerName.CompareTo("OpenHLT_CentralJet46_BTagIP3D_CentralJet38_BTagIP3D") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      int rc = 0;
+	      int njets = 0;
+	      int njetsht = 0;
+	      
+	      for (int j = 0; j < NohBJetL2Corrected ; j++){
+		if (ohBJetL2CorrectedEt[j] > 38. && fabs(ohBJetL2CorrectedEta[j]) < 2.6) // ET and eta cuts
+		  {
+		    njets ++;
+		    if (ohBJetL2CorrectedEt[j] > 46.) njetsht++;
+		  }
+	      }
+
+	      int max = (NohBJetL2Corrected > 4) ? 4 : NohBJetL2Corrected;
+	      for (int j = 0; j < max; j++)
+		{//loop over jets
+		  
+		  if (ohBJetL2CorrectedEt[j] > 30.) {// ET cut on L2.5 jets
+		    
+		    if (ohBJetIPL25Tag[j] > 2.5)
+		      { // Level 2.5 b tag  
+			if (ohBJetIPL3Tag[j] > 3.5)
+			  { // Level 3 b tag  
+			    rc++;
+			  }
+		      }
+		  } // ET cut
+		}//loop over jets
+				
+	      if (njets >=2 && njetsht >= 1 && rc >= 1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+
 
   /**********************************************/
 	
