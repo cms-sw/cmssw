@@ -1,7 +1,7 @@
 
-    
+InputInfoNDefault=2000000    
 class InputInfo(object):
-    def __init__(self,dataSet,label='',run=0,files=1000,events=2000000,location='CAF') :
+    def __init__(self,dataSet,label='',run=0,files=1000,events=InputInfoNDefault,location='CAF') :
         self.run = run
         self.files = files
         self.events = events
@@ -221,8 +221,8 @@ U80by2={'--relval': '80,2'}
 hiDefaults={'--conditions':'auto:starthi',
            '--scenario':'HeavyIons'}
 
-step1['HydjetQ_MinBias_2760GeV']=merge([{'-n':'0'},hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U500by5)])
-step1['HydjetQ_B0_2760GeV']=merge([{'-n':'0'},hiDefaults,genS('Hydjet_Quenched_B0_2760GeV_cfi',U80by2)])
+step1['HydjetQ_MinBias_2760GeV']=merge([{'-n':0},hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U500by5)])
+step1['HydjetQ_B0_2760GeV']=merge([{'-n':0},hiDefaults,genS('Hydjet_Quenched_B0_2760GeV_cfi',U80by2)])
 step1['HydjetQ_B0_2760GeVPUINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B0_2760GeV/*/GEN-SIM-DIGI-RAW-HLTDEBUG')}
 
 
@@ -388,7 +388,7 @@ step2['Pyquen_ZeemumuJets_pt10_2760GeV']=merge([{'cfg':'Pyquen_ZeemumuJets_pt10_
 # step3 
 step3Defaults = { 'cfg'           : 'step3',
                   '-s'            : 'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
-                  '--filein'      : 'file:reco.root',
+                  #'--filein'      : 'file:reco.root',
                   '--conditions'  : 'auto:mc',
                   '--no_exec'     : '',
                   '--datatier'    : 'GEN-SIM-RECO,DQM',
@@ -425,14 +425,14 @@ step3['ALCAPROMPT']={'-s':'ALCA:PromptCalibProd',
                      '--datatier':'ALCARECO',
                      '--eventcontent':'ALCARECO'}
 step3['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
-                   '--conditions':'auto:com10'
+                   '--conditions':'auto:com10',
                    '--data':'',
                    '--scenario':'pp'}
 # step4
 step4Defaults = { 'cfg'           : 'step4',
                   '-s'            : 'ALCA:TkAlMuonIsolated+TkAlMinBias+EcalCalElectron+HcalCalIsoTrk+MuAlOverlaps',
                   '-n'            : 1000,
-                  '--filein'      : 'file:reco.root',
+                  #'--filein'      : 'file:reco.root',
                   '--conditions'  : 'auto:mc',
                   '--datatier'    : 'ALCARECO',
                   '--eventcontent': 'ALCARECO',
@@ -460,14 +460,15 @@ step2['HARVGEN']={'-s':'HARVESTING:genHarvesting',
                   '--harvesting':'AtJobEnd',
                   '--conditions':'auto:mc',
                   '--mc':'',
-                  '--filein':'file:raw.root'}
+                  #'--filein':'file:raw.root'
+                  }
 
 step4['HARVEST']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
-                   '--conditions':'auto:mc'
+                   '--conditions':'auto:mc',
                    '--mc':'',
                    '--scenario':'pp'}
 step4['HARVEST2']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
-                   '--conditions':'auto:startup'
+                   '--conditions':'auto:startup',
                    '--mc':'',
                    '--scenario':'pp'}
                  
