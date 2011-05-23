@@ -238,6 +238,11 @@ HLT_Mu3_TriJet30_v*
 HLT_Mu3_QuadJet30_v*
 HLT_Mu5_DoubleEle8_CaloIdL_TrkIdVL_v*
 HLT_Mu8_Ele17_CaloIdL_v*
+#
+# the following 2 cross-triggers to be added in May 19th train
+# HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_v*
+# HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_v*
+#
 HLT_Mu8_Photon20_CaloIdVT_IsoT_v*
 HLT_Mu8_Jet40_v*
 HLT_Mu15_Photon20_CaloIdL_v*
@@ -303,7 +308,7 @@ HLT_Ele17_CaloIdVT_TrkIdT_CentralJet30_CentralJet25_v*
 HLT_Ele17_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT15_v*
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20_v*
 #
-# the following 7 H->WW->evjj to be added in May19th/2E33 train
+# the following 7 H->WW->evjj to be added in May 19th train
 # HLT_Ele15_CaloIdVT_TrkIdT_Jet35_Jet25_Deta3_Jet20_v*
 # HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3_Jet20_v*
 # HLT_Ele17_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3p5_Jet25_v*
