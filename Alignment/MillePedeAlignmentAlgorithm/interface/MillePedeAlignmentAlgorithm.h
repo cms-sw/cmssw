@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.31 $
-///  $Date: 2010/09/10 13:27:42 $
+///  $Revision: 1.32 $
+///  $Date: 2011/02/16 13:11:57 $
 ///  (last update by $Author: mussgill $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
@@ -78,7 +78,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 
   /// called in order to pass parameters to alignables for a specific run
   /// range in case the algorithm supports run range dependent alignment.
-  virtual void setParametersForRunRange(const RunRange &runrange);
+  virtual bool setParametersForRunRange(const RunRange &runrange);
 
  private:
   enum MeasurementDirection {kLocalX = 0, kLocalY};

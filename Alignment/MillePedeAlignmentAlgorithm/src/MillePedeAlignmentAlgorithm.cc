@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.71 $
- *  $Date: 2011/02/16 13:11:57 $
+ *  $Revision: 1.72 $
+ *  $Date: 2011/02/18 17:08:13 $
  *  (last update by $Author: mussgill $)
  */
 
@@ -191,7 +191,7 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   
   // 3) Now create steerings with 'final' start position:
   thePedeSteer->buildSubSteer(tracker, muon, extras);
-
+  
   // After (!) 1-3 of PedeSteerer which uses the SelectionUserVariables attached to the parameters:
   this->buildUserVariables(theAlignables); // for hit statistics and/or pede result
 
@@ -222,17 +222,30 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   theDoSurveyPixelBarrel = pxbSurveyCfg.getParameter<bool>("doSurvey");
   if (theDoSurveyPixelBarrel) addPxbSurvey(pxbSurveyCfg);
   }
+
+  
 }
 
-void MillePedeAlignmentAlgorithm::setParametersForRunRange(const RunRange &runrange)
+bool MillePedeAlignmentAlgorithm::setParametersForRunRange(const RunRange &runrange)
 {
   if (this->isMode(myPedeReadBit)) {
+
+    // restore initial positions, rotations and deformations
+    theAlignmentParameterStore->restoreCachedTransformations();
+
+    // Needed to shut up later warning from checkAliParams:
+    theAlignmentParameterStore->resetParameters();
+    
     if (!this->readFromPede(theConfig.getParameter<edm::ParameterSet>("pedeReader"), true, runrange)) {
-      edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::terminate"
+      edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::setParametersForRunRange"
                                  << "Problems reading pede result, but applying!";
     }
     theAlignmentParameterStore->applyParameters();
+
+    this->doIO(2);
   }
+  
+  return true;
 }
 
 // Call at end of job ---------------------------------------------------------
@@ -253,25 +266,17 @@ void MillePedeAlignmentAlgorithm::terminate()
       files.push_back(theDir + *i);
     }
   }
+  
+  // cache all positions, rotations and deformations
+  theAlignmentParameterStore->cacheTransformations();
+
   const std::string masterSteer(thePedeSteer->buildMasterSteer(files));// do only if myPedeSteerBit?
   if (this->isMode(myPedeRunBit)) {
     thePedeSteer->runPede(masterSteer);
   }
-  
-  if (this->isMode(myPedeReadBit)) {
-    RunRange runrange(cond::timeTypeSpecs[cond::runnumber].beginValue,
-		      cond::timeTypeSpecs[cond::runnumber].endValue);
-    if (!this->readFromPede(theConfig.getParameter<edm::ParameterSet>("pedeReader"), true, runrange)) {
-      edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::terminate"
-                                 << "Problems reading pede result, but applying!";
-    }
-    theAlignmentParameterStore->applyParameters();
-  }
 
   if (this->isMode(myMilleBit)) { // if mille was run, we store trees with suffix _1...
     this->doIO(1);
-  } else if (this->isMode(myPedeReadBit)) {// if pede runs otherwise, we use _2 (=> probably merge)
-    this->doIO(2);
   }
 }
 
