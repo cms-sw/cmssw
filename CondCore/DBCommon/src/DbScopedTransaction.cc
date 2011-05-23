@@ -8,7 +8,9 @@ cond::DbScopedTransaction::DbScopedTransaction( cond::DbSession& session ):
 }
 
 cond::DbScopedTransaction::~DbScopedTransaction(){
-  if(m_locallyActive) m_session.transaction().rollback();
+  if(m_locallyActive) {
+    m_session.transaction().rollback();
+  }
 }
 
 int cond::DbScopedTransaction::start(bool readOnly){
@@ -42,7 +44,6 @@ int cond::DbScopedTransaction::isActive() const {
 
 bool cond::DbScopedTransaction::isReadOnly() const 
 {
-  /*if(m_locallyActive) */return m_session.transaction().isReadOnly();
-  //return true;
+  return m_session.transaction().isReadOnly();
 }
 

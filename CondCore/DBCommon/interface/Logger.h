@@ -3,7 +3,7 @@
 
 #include "CondCore/DBCommon/interface/DbSession.h"
 #include <string>
-//#include <iostream>
+
 //
 // Package: CondCore/DBCommon   
 // Class  : Logger    
@@ -13,7 +13,7 @@
 //
 // Author:      Zhen Xie
 //
-//#include "UserLogInfo.h"
+
 namespace coral{
   //class ISchema;  
   class IQuery;
@@ -26,8 +26,6 @@ namespace cond{
   public:
     explicit Logger(DbSession& sessionHandle);
     ~Logger();
-    bool getWriteLock() throw ();
-    bool releaseWriteLock() throw ();
     //NB. for oracle only schema owner can do this 
     void createLogDBIfNonExist();
     //

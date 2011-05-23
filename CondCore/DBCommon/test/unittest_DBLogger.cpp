@@ -4,8 +4,7 @@
 #include "CondCore/DBCommon/interface/LogDBEntry.h"
 #include "CondCore/DBCommon/interface/Logger.h"
 #include "CondCore/ORA/interface/PoolToken.h"
-#include "CondCore/DBCommon/interface/SharedLibraryName.h"
-#include "CondCore/DBCommon/interface/UserLogInfo.h"
+#include "CondCore/ORA/interface/SharedLibraryName.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
 #include "FWCore/PluginManager/interface/standard.h"
@@ -29,7 +28,7 @@ namespace cond{
 	      const std::string& containerName,
 	      int pkcolumnValue=0) {
       
-      cond::SharedLibraryName libName;
+      ora::SharedLibraryName libName;
       edmplugin::SharedLibrary shared( libName(dictLib) );
       m_token = writeToken(containerName, 0, pkcolumnValue, className);
     }

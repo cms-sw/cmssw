@@ -30,6 +30,10 @@ namespace cond{
   **/
   class DbSession{
   public:
+  static const char* COND_SCHEMA_VERSION;   
+  static const char* CHANGE_SCHEMA_VERSION;
+
+  public:
     DbSession();
 
     explicit DbSession( const DbConnection& connection );

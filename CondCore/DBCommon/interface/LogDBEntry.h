@@ -2,6 +2,16 @@
 #define CondCore_DBCommon_LogDBEntry_H
 #include <string>
 namespace cond{
+
+  class UserLogInfo{
+    public:
+      std::string provenance;
+      std::string usertext;
+  };
+
+  class NullUserLogInfo : public UserLogInfo{
+  };
+
   class LogDBEntry{
   public:
     unsigned long long logId;

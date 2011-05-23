@@ -13,9 +13,6 @@
 
 namespace cond {
 
-  static const char* THIS_SCHEMA_VERSION = "2.0.0";   
-  static const char* CHANGE_SCHEMA_VERSION = "2.0.0";
-
   inline std::auto_ptr<cond::TechnologyProxy> buildTechnologyProxy(const std::string&userconnect, 
 								   const DbConnection& connection){
     std::string protocol;
@@ -97,6 +94,8 @@ namespace cond {
 
 }
 
+const char* cond::DbSession::COND_SCHEMA_VERSION = "2.0.0";   
+const char* cond::DbSession::CHANGE_SCHEMA_VERSION = "2.0.0";
 
 cond::DbSession::DbSession():
   m_implementation( new SessionImpl ){ 
@@ -173,7 +172,7 @@ bool cond::DbSession::createDatabase(){
   bool created = false;
   if ( !storage().exists() ){
     created = true;
-    storage().create( std::string(THIS_SCHEMA_VERSION) );
+    storage().create( std::string(COND_SCHEMA_VERSION) );
   }  
   return created;
 }

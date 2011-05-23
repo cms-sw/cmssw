@@ -1,8 +1,8 @@
 #include "CondCore/DBCommon/interface/Logger.h"
 #include "CondCore/DBCommon/interface/LogDBEntry.h"
-#include "CondCore/DBCommon/interface/UserLogInfo.h"
 #include "CondCore/DBCommon/interface/SequenceManager.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
+#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/ORA/interface/PoolToken.h"
 #include "RelationalAccess/ISchema.h"
@@ -30,41 +30,16 @@ namespace cond{
 }
 cond::Logger::Logger(cond::DbSession& sessionHandle):m_sessionHandle(sessionHandle),m_locked(false),m_statusEditorHandle(0),m_sequenceManager(0),m_logTableExists(false){
 }
-bool
-cond::Logger::getWriteLock()throw() {
-  try{
-    m_sessionHandle.transaction().start(false);
-    coral::ITable& statusTable=m_sessionHandle.nominalSchema().tableHandle(LogDBNames::LogTableName());
-    //Instructs the server to lock the rows involved in the result set.
-    m_statusEditorHandle=statusTable.newQuery();
-    m_statusEditorHandle->setForUpdate();
-    m_statusEditorHandle->execute();
-  }catch(const std::exception& er){
-    delete m_statusEditorHandle;
-    m_statusEditorHandle=0;
-    return false;
-  }
-  m_locked=true;
-  return true;
-}
-bool
-cond::Logger::releaseWriteLock()throw() {
-  if(m_locked){
-    delete m_statusEditorHandle;
-    m_statusEditorHandle=0;
-  }
-  m_locked=false;
-  m_sessionHandle.transaction().commit();
-  return !m_locked;
-}
+
 void 
 cond::Logger::createLogDBIfNonExist(){
   if(m_logTableExists) return;
-  m_sessionHandle.transaction().start(false);
+  cond::DbScopedTransaction trans( m_sessionHandle );
+  trans.start(false);
   if(m_sessionHandle.nominalSchema().existsTable(cond::LogDBNames::SequenceTableName()) &&
      m_sessionHandle.nominalSchema().existsTable(cond::LogDBNames::LogTableName())){
     m_logTableExists=true;
-    m_sessionHandle.transaction().commit();
+    trans.commit();
     return;
   }
   //create sequence table
@@ -118,7 +93,7 @@ cond::Logger::createLogDBIfNonExist(){
 	  coral::AttributeSpecification::typeNameForType<std::string>() );
   m_sessionHandle.nominalSchema().createTable( description ).privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select );
   m_logTableExists=true;
-  m_sessionHandle.transaction().commit();
+  trans.commit();
 }
 void 
 cond::Logger::logOperationNow(
@@ -131,6 +106,8 @@ cond::Logger::logOperationNow(
 			      unsigned int payloadIdx,
 			      unsigned long long lastSince
 			      ){
+  cond::DbScopedTransaction trans( m_sessionHandle );
+  trans.start(false);
   //aquireutctime
   //using namespace boost::posix_time;
   boost::posix_time::ptime p=boost::posix_time::microsec_clock::universal_time();
@@ -142,6 +119,7 @@ cond::Logger::logOperationNow(
   unsigned long long targetLogId=m_sequenceManager->incrementId(LogDBNames::LogTableName());
   //insert log record with the new id
   this->insertLogRecord(targetLogId,now,destDB,payloadClass,payloadToken,userlogInfo,iovtag,iovtimetype,payloadIdx,lastSince,"OK");
+  trans.commit();
 }
 void 
 cond::Logger::logFailedOperationNow(
@@ -155,8 +133,10 @@ cond::Logger::logFailedOperationNow(
 			       unsigned long long lastSince,
 			       const std::string& exceptionMessage
 				    ){
-  //aquirelocaltime
-  boost::posix_time::ptime p=boost::posix_time::microsec_clock::local_time();
+  cond::DbScopedTransaction trans( m_sessionHandle );
+  trans.start(false);
+  //aquireutctime
+  boost::posix_time::ptime p=boost::posix_time::microsec_clock::universal_time();
   std::string now=cond::to_string(p.date().year())+"-"+cond::to_string(p.date().month())+"-"+cond::to_string(p.date().day())+"-"+cond::to_string(p.time_of_day().hours())+":"+cond::to_string(p.time_of_day().minutes())+":"+cond::to_string(p.time_of_day().seconds());
   //aquireentryid
   if(!m_sequenceManager){
@@ -165,13 +145,13 @@ cond::Logger::logFailedOperationNow(
   unsigned long long targetLogId=m_sequenceManager->incrementId(LogDBNames::LogTableName());
   //insert log record with the new id
   this->insertLogRecord(targetLogId,now,destDB,payloadClass,payloadToken,userlogInfo,iovtag,iovtimetype,payloadIdx,lastSince,exceptionMessage);
+  trans.commit();
 }
 
 void 
 cond::Logger::LookupLastEntryByProvenance(const std::string& provenance,
 					  LogDBEntry& logentry,
 					  bool filterFailedOp) const{
-  //select max(logid),etc from  logtable where etc"
   //construct where
   std::string whereClause=cond::LogDBNames::LogTableName();
   whereClause+=".PROVENANCE=:provenance";
@@ -187,50 +167,42 @@ cond::Logger::LookupLastEntryByProvenance(const std::string& provenance,
   BindVariableList["execmessage"].data<std::string>()="OK";
   m_sessionHandle.transaction().start(true);
   {
-    std::auto_ptr<coral::IQuery> query(m_sessionHandle.nominalSchema().newQuery());
+    std::auto_ptr<coral::IQuery> query(m_sessionHandle.nominalSchema().tableHandle( cond::LogDBNames::LogTableName() ).newQuery());
     // construct select
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".LOGID" );
-    query->defineOutputType( cond::LogDBNames::LogTableName()+".LOGID", "unsigned long long" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".DESTINATIONDB" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".PROVENANCE" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".USERTEXT" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".IOVTAG" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".IOVTIMETYPE" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADINDEX" );
-    query->defineOutputType( cond::LogDBNames::LogTableName()+".PAYLOADINDEX", "unsigned int" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".LASTSINCE" );
-    query->defineOutputType( cond::LogDBNames::LogTableName()+".LASTSINCE", "unsigned long long" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADCLASS" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADTOKEN" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".EXECTIME" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".EXECMESSAGE" );
+    query->addToOutputList( "LOGID" );
+    query->defineOutputType( "LOGID", "unsigned long long" );
+    query->addToOutputList( "DESTINATIONDB" );
+    query->addToOutputList( "PROVENANCE" );
+    query->addToOutputList( "USERTEXT" );
+    query->addToOutputList( "IOVTAG" );
+    query->addToOutputList( "IOVTIMETYPE" );
+    query->addToOutputList( "PAYLOADINDEX" );
+    query->defineOutputType( "PAYLOADINDEX", "unsigned int" );
+    query->addToOutputList( "LASTSINCE" );
+    query->defineOutputType( "LASTSINCE", "unsigned long long" );
+    query->addToOutputList( "PAYLOADCLASS" );
+    query->addToOutputList( "PAYLOADTOKEN" );
+    query->addToOutputList( "EXECTIME" );
+    query->addToOutputList( "EXECMESSAGE" );
     
-    coral::IQueryDefinition& subquery=query->defineSubQuery("subQ");
-    query->addToTableList("subQ");
-    query->addToTableList(cond::LogDBNames::LogTableName());
-    subquery.addToTableList( cond::LogDBNames::LogTableName() );
-    subquery.addToOutputList( "max(LOGID)", "max_logid");
-    subquery.setCondition( whereClause, BindVariableList );
-    query->setCondition(cond::LogDBNames::LogTableName()+std::string(".LOGID=subQ.max_logid"),coral::AttributeList() );
-    query->defineOutputType( "subQ.max_logid", "unsigned long long" );
-    
+    query->setCondition( whereClause, BindVariableList );
+    query->addToOrderList( cond::LogDBNames::LogTableName()+".LOGID desc" );
+    query->limitReturnedRows();
     coral::ICursor& cursor = query->execute();
     if( cursor.next() ) {
       const coral::AttributeList& row = cursor.currentRow();
-      logentry.logId=row[cond::LogDBNames::LogTableName()+".LOGID"].data<unsigned long long>();
-      logentry.destinationDB=row[cond::LogDBNames::LogTableName()+".DESTINATIONDB"].data<std::string>();
-      logentry.provenance=row[cond::LogDBNames::LogTableName()+".PROVENANCE"].data<std::string>();
-      logentry.usertext=row[cond::LogDBNames::LogTableName()+".USERTEXT"].data<std::string>();
-      logentry.iovtag=row[cond::LogDBNames::LogTableName()+".IOVTAG"].data<std::string>();
-      logentry.iovtimetype=row[cond::LogDBNames::LogTableName()+".IOVTIMETYPE"].data<std::string>();
-      logentry.payloadIdx=row[cond::LogDBNames::LogTableName()+".PAYLOADINDEX"].data<unsigned int>();
-      logentry.lastSince=row[cond::LogDBNames::LogTableName()+".LASTSINCE"].data<unsigned long long>();
-      logentry.payloadClass=row[cond::LogDBNames::LogTableName()+".PAYLOADCLASS"].data<std::string>();
-      logentry.payloadToken=row[cond::LogDBNames::LogTableName()+".PAYLOADTOKEN"].data<std::string>();
-      logentry.exectime=row[cond::LogDBNames::LogTableName()+".EXECTIME"].data<std::string>();
-      logentry.execmessage=row[cond::LogDBNames::LogTableName()+".EXECMESSAGE"].data<std::string>();
-      
-      //row.toOutputStream( std::cout ) << std::endl;
+      logentry.logId=row["LOGID"].data<unsigned long long>();
+      logentry.destinationDB=row["DESTINATIONDB"].data<std::string>();
+      logentry.provenance=row["PROVENANCE"].data<std::string>();
+      logentry.usertext=row["USERTEXT"].data<std::string>();
+      logentry.iovtag=row["IOVTAG"].data<std::string>();
+      logentry.iovtimetype=row["IOVTIMETYPE"].data<std::string>();
+      logentry.payloadIdx=row["PAYLOADINDEX"].data<unsigned int>();
+      logentry.lastSince=row["LASTSINCE"].data<unsigned long long>();
+      logentry.payloadClass=row["PAYLOADCLASS"].data<std::string>();
+      logentry.payloadToken=row["PAYLOADTOKEN"].data<std::string>();
+      logentry.exectime=row["EXECTIME"].data<std::string>();
+      logentry.execmessage=row["EXECMESSAGE"].data<std::string>();
     }
   }
   m_sessionHandle.transaction().commit();
@@ -240,77 +212,62 @@ cond::Logger::LookupLastEntryByTag( const std::string& iovtag,
 				    const std::string & connectionStr,
 				    cond::LogDBEntry& logentry,
 				    bool filterFailedOp) const{
-  /**
-     select * from "COND_LOG_TABLE" where "LOGID"=(select max("LOGID") AS "max_logid" from "COND_LOG_TABLE" where "IOVTAG"='mytag1' and "EXECMESSAGE"='OK');
-     
-  */
-  std::string whereClause=cond::LogDBNames::LogTableName();
-  whereClause+=std::string(".IOVTAG=:iovtag");
   coral::AttributeList BindVariableList;
-  BindVariableList.extend("iovtag",typeid(std::string) );
-  BindVariableList["iovtag"].data<std::string>()=iovtag;
+  BindVariableList.extend("IOVTAG",typeid(std::string) );
+  BindVariableList["IOVTAG"].data<std::string>()=iovtag;
+  std::string whereClause("");
+  whereClause+=std::string("IOVTAG=:IOVTAG");
   if(connectionStr!=""){
     whereClause+=std::string(" AND ");
-    whereClause+=cond::LogDBNames::LogTableName();
-    whereClause+=std::string(".DESTINATIONDB=:destinationdb");
-    BindVariableList.extend("destinationdb",typeid(std::string) ); 
-    BindVariableList["destinationdb"].data<std::string>()=connectionStr;
-  }
+    whereClause+=std::string("DESTINATIONDB=:DESTINATIONDB");
+    BindVariableList.extend("DESTINATIONDB",typeid(std::string) ); 
+    BindVariableList["DESTINATIONDB"].data<std::string>()=connectionStr;
+  }   
   if(filterFailedOp){
     whereClause+=std::string(" AND ");
-    whereClause+=cond::LogDBNames::LogTableName();
-    whereClause+=std::string(".EXECMESSAGE=:execmessage");
-    BindVariableList.extend("execmessage",typeid(std::string) );
-    BindVariableList["execmessage"].data<std::string>()="OK"; 
+    whereClause+=std::string("EXECMESSAGE=:EXECMESSAGE");
+    BindVariableList.extend("EXECMESSAGE",typeid(std::string) );
+    BindVariableList["EXECMESSAGE"].data<std::string>()="OK"; 
   }
-  
   m_sessionHandle.transaction().start(true);
-  //coral::IQuery* query = m_coraldb.nominalSchema().tableHandle(cond::LogDBNames::LogTableName()).newQuery();
   {
-    std::auto_ptr<coral::IQuery> query(m_sessionHandle.nominalSchema().newQuery());
+    std::auto_ptr<coral::IQuery> query( m_sessionHandle.nominalSchema().tableHandle(cond::LogDBNames::LogTableName()).newQuery() );
     // construct select
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".LOGID" );
-    query->defineOutputType( cond::LogDBNames::LogTableName()+".LOGID", "unsigned long long" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".DESTINATIONDB" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".PROVENANCE" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".USERTEXT" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".IOVTAG" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".IOVTIMETYPE" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADINDEX" );
-    query->defineOutputType( cond::LogDBNames::LogTableName()+".PAYLOADINDEX", "unsigned int" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".LASTSINCE" );
-    query->defineOutputType( cond::LogDBNames::LogTableName()+".LASTSINCE", "unsigned long long" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADCLASS" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".PAYLOADTOKEN" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".EXECTIME" );
-    query->addToOutputList( cond::LogDBNames::LogTableName()+".EXECMESSAGE" );
+    query->addToOutputList( "LOGID" );
+    query->defineOutputType( "LOGID", "unsigned long long" );
+    query->addToOutputList( "DESTINATIONDB" );
+    query->addToOutputList( "PROVENANCE" );
+    query->addToOutputList( "USERTEXT" );
+    query->addToOutputList( "IOVTAG" );
+    query->addToOutputList( "IOVTIMETYPE" );
+    query->addToOutputList( "PAYLOADINDEX" );
+    query->defineOutputType( "PAYLOADINDEX", "unsigned int" );
+    query->addToOutputList( "LASTSINCE" );
+    query->defineOutputType( "LASTSINCE", "unsigned long long" );
+    query->addToOutputList( "PAYLOADCLASS" );
+    query->addToOutputList( "PAYLOADTOKEN" );
+    query->addToOutputList( "EXECTIME" );
+    query->addToOutputList( "EXECMESSAGE" );
     
-    coral::IQueryDefinition& subquery=query->defineSubQuery("subQ");
-    query->addToTableList("subQ");
-    query->addToTableList(cond::LogDBNames::LogTableName());
-    subquery.addToTableList( cond::LogDBNames::LogTableName() );
-    subquery.addToOutputList( "max(LOGID)", "max_logid");
-    subquery.setCondition( whereClause, BindVariableList );
-    query->setCondition(cond::LogDBNames::LogTableName()+std::string(".LOGID=subQ.max_logid"),coral::AttributeList() );
-    query->defineOutputType( "subQ.max_logid", "unsigned long long" );
-    
+    query->setCondition( whereClause, BindVariableList );
+    query->addToOrderList( "LOGID DESC" );
+    query->limitReturnedRows();
     coral::ICursor& cursor = query->execute();
     if( cursor.next() ) {
       const coral::AttributeList& row = cursor.currentRow();
-      logentry.logId=row[cond::LogDBNames::LogTableName()+".LOGID"].data<unsigned long long>();
-      logentry.destinationDB=row[cond::LogDBNames::LogTableName()+".DESTINATIONDB"].data<std::string>();
-      logentry.provenance=row[cond::LogDBNames::LogTableName()+".PROVENANCE"].data<std::string>();
-      logentry.usertext=row[cond::LogDBNames::LogTableName()+".USERTEXT"].data<std::string>();
-      logentry.iovtag=row[cond::LogDBNames::LogTableName()+".IOVTAG"].data<std::string>();
-      logentry.iovtimetype=row[cond::LogDBNames::LogTableName()+".IOVTIMETYPE"].data<std::string>();
-      logentry.payloadIdx=row[cond::LogDBNames::LogTableName()+".PAYLOADINDEX"].data<unsigned int>();
-      logentry.lastSince=row[cond::LogDBNames::LogTableName()+".LASTSINCE"].data<unsigned long long>();
-      logentry.payloadClass=row[cond::LogDBNames::LogTableName()+".PAYLOADCLASS"].data<std::string>();
-      logentry.payloadToken=row[cond::LogDBNames::LogTableName()+".PAYLOADTOKEN"].data<std::string>();
-      logentry.exectime=row[cond::LogDBNames::LogTableName()+".EXECTIME"].data<std::string>();
-      logentry.execmessage=row[cond::LogDBNames::LogTableName()+".EXECMESSAGE"].data<std::string>();
+      logentry.logId=row["LOGID"].data<unsigned long long>();
+      logentry.destinationDB=row["DESTINATIONDB"].data<std::string>();
+      logentry.provenance=row["PROVENANCE"].data<std::string>();
+      logentry.usertext=row["USERTEXT"].data<std::string>();
+      logentry.iovtag=row["IOVTAG"].data<std::string>();
+      logentry.iovtimetype=row["IOVTIMETYPE"].data<std::string>();
+      logentry.payloadIdx=row["PAYLOADINDEX"].data<unsigned int>();
+      logentry.lastSince=row["LASTSINCE"].data<unsigned long long>();
+      logentry.payloadClass=row["PAYLOADCLASS"].data<std::string>();
+      logentry.payloadToken=row["PAYLOADTOKEN"].data<std::string>();
+      logentry.exectime=row["EXECTIME"].data<std::string>();
+      logentry.execmessage=row["EXECMESSAGE"].data<std::string>();
       
-      //row.toOutputStream( std::cout ) << std::endl;
     }
   }  
   m_sessionHandle.transaction().commit();
