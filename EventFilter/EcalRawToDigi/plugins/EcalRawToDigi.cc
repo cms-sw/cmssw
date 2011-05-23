@@ -101,6 +101,7 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
     for (unsigned int i=0; i<fedUnpackList_.size(); i++) 
       loggerOutput_ << fedUnpackList_[i] << " ";
     edm::LogInfo("EcalRawToDigi") << "EcalRawToDigi will unpack FEDs ( " << loggerOutput_.str() << ")";
+    LogDebug("EcalRawToDigi") << "EcalRawToDigi will unpack FEDs ( " << loggerOutput_.str() << ")";
   }
   
   edm::LogInfo("EcalRawToDigi")
@@ -109,7 +110,12 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
     <<"\n SRP Bl. unpacking is "<<srpUnpacking_
     <<"\n TCC Bl. unpacking is "<<tccUnpacking_  
     <<"\n FE  Bl. unpacking is "<<feUnpacking_
-    <<"\n MEM Bl. unpacking is "<<memUnpacking_<<"\n";
+    <<"\n MEM Bl. unpacking is "<<memUnpacking_
+    <<"\n sync check is "<<syncCheck_
+    <<"\n feID check is "<<feIdCheck_
+    <<"\n force keep FR data is "<<forceToKeepFRdata_
+    <<"\n";
+  
   
   // Producer products :
   produces<EBDigiCollection>("ebDigis"); 
@@ -404,6 +410,10 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
 
         uint64_t * pData = (uint64_t *)(fedData.data());
         theUnpacker_->unpack( pData, static_cast<unsigned int>(length),smId,*i);
+
+	LogDebug("EcalRawToDigi")<<" in EE :"<<productDigisEE->size()
+				 <<" in EB :"<<productDigisEB->size();
+	
       }
     }
     
