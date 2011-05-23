@@ -5,29 +5,29 @@ import sys
 import fileinput
 import string
 
-NewVersion='4_2_0_pre8'
-RefVersion='4_2_0_pre7'
+NewVersion='4_2_3'
+RefVersion='4_2_2'
 NewRelease='CMSSW_'+NewVersion
 RefRelease='CMSSW_'+RefVersion
 #NewRelease='Summer09'
 #RefRelease='Summer09_pre1'
 
-#NewCondition='MC'
-#RefCondition='MC'
-NewCondition='STARTUP'
-RefCondition='STARTUP'
+NewCondition='MC'
+RefCondition='MC'
+#NewCondition='STARTUP'
+#RefCondition='STARTUP'
 
 NewFastSim=False
 RefFastSim=False
 
 if (NewCondition=='MC'):
-    samples= ['RelValZMM'] #['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar']
+    samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar']
     if (NewFastSim|RefFastSim):
-        samples= ['RelValZMM'] #['RelValSingleMuPt10','RelValSingleMuPt100','RelValTTbar']
+        samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValTTbar']
 elif (NewCondition=='STARTUP'):
-    samples= ['RelValZMM'] #['RelValTTbar','RelValZMM','RelValJpsiMM']
+    samples= ['RelValTTbar','RelValZMM','RelValJpsiMM']
     if (NewFastSim|RefFastSim):
-        samples= ['RelValZMM'] #['RelValTTbar']
+        samples= ['RelValTTbar']
 
 Submit=True
 Publish=False
@@ -35,16 +35,17 @@ Publish=False
 # Where to get the root file from.
 # By default, if the root files are already in the local area, they won't be overwritten
 
-GetFilesFrom='WEB'       # --> Take root files from the MuonPOG Validation repository on the web
+#GetFilesFrom='WEB'       # --> Take root files from the MuonPOG Validation repository on the web
 #GetFilesFrom='CASTOR'    # --> Copy root files from castor
-#GetFilesFrom='GUI'       # --> Copy root files from the DQM GUI server
-GetRefsFrom='WEB'
+GetFilesFrom='GUI'       # --> Copy root files from the DQM GUI server
+#GetRefsFrom='WEB'
 #GetRefsFrom='CASTOR'
-#GetRefsFrom='GUI'
+GetRefsFrom='GUI'
 
-DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_2_x/'
-#DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_2_x/'
-DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_2_x/'
+#DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_2_x/'
+DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_2_x/'
+#DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_2_x/'
+DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_2_x/'
 CastorRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
 if ((GetFilesFrom=='GUI')|(GetRefsFrom=='GUI')):
     print "*** Did you remind doing:"
@@ -57,25 +58,27 @@ if ((GetFilesFrom=='GUI')|(GetRefsFrom=='GUI')):
 
 
 # These are only needed if you copy any root file from the DQM GUI:
-NewLabel='MC_42_V7'
+NewLabel='MC_42_V12'
 if (NewCondition=='STARTUP'):
-    NewLabel='START42_V7'
-RefLabel='MC_42_V6'
+    NewLabel='START42_V12'
+RefLabel='MC_42_V11'
 if (RefCondition=='STARTUP'):
-    RefLabel='START42_V6'
+    RefLabel='START42_V11'
 
 
-ValidateHLT=False
+ValidateHLT=True
 ValidateRECO=True
 if (NewFastSim|RefFastSim):
     ValidateDQM=False
     ValidateISO=True
 else:
-    ValidateDQM=False
+    ValidateDQM=True
     ValidateISO=True
 
-NewFormat='GEN-SIM-RECO'
-RefFormat='GEN-SIM-RECO'
+#NewFormat='GEN-SIM-RECO'
+#RefFormat='GEN-SIM-RECO'
+NewFormat='DQM'
+RefFormat='DQM'
 NewTag = NewCondition+'_noPU_ootb'
 RefTag = RefCondition+'_noPU_ootb'
 
