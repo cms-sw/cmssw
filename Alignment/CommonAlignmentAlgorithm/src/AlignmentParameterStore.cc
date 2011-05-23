@@ -1,8 +1,8 @@
 /**
  * \file AlignmentParameterStore.cc
  *
- *  $Revision: 1.29 $
- *  $Date: 2010/10/26 20:15:41 $
+ *  $Revision: 1.30 $
+ *  $Date: 2010/12/09 19:47:16 $
  *  (last update by $Author: flucke $)
  */
 
@@ -21,7 +21,6 @@
 #include "Alignment/CommonAlignmentParametrization/interface/ParametersToParametersDerivatives.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentExtendedCorrelationsStore.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
-
 
 //__________________________________________________________________________________________________
 AlignmentParameterStore::AlignmentParameterStore( const align::Alignables &alis,
@@ -323,6 +322,23 @@ void AlignmentParameterStore::resetParameters( Alignable* ali )
                                  << "argument is NULL";
 }
 
+
+//__________________________________________________________________________________________________
+void AlignmentParameterStore::cacheTransformations(void)
+{
+  align::Alignables::const_iterator iali;
+  for ( iali = theAlignables.begin(); iali != theAlignables.end(); ++iali) 
+    (*iali)->cacheTransformation();
+}
+
+
+//__________________________________________________________________________________________________
+void AlignmentParameterStore::restoreCachedTransformations(void)
+{
+  align::Alignables::const_iterator iali;
+  for ( iali = theAlignables.begin(); iali != theAlignables.end(); ++iali) 
+    (*iali)->restoreCachedTransformation();
+}
 
 //__________________________________________________________________________________________________
 void AlignmentParameterStore::acquireRelativeParameters(void)

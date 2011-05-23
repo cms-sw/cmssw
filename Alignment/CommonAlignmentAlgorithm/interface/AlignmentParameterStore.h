@@ -10,8 +10,8 @@
 ///
 /// Basic class for management of alignment parameters and correlations 
 ///
-///  $Date: 2009/02/24 13:24:55 $
-///  $Revision: 1.17 $
+///  $Date: 2010/12/09 19:47:16 $
+///  $Revision: 1.18 $
 /// (last update by $Author: flucke $)
 
 namespace edm { class ParameterSet; }
@@ -81,6 +81,12 @@ public:
 
   /// reset parameters of a given alignable 
   void resetParameters(Alignable* ali);
+
+  /// cache the current position, rotation and other parameters
+  void cacheTransformations(void);
+
+  /// restore the previously cached position, rotation and other parameters
+  void restoreCachedTransformations(void);
 
   /// acquire shifts/rotations from alignables of the store and copy into 
   ///  alignment parameters (local frame) 
