@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.50 $
-///  last update: $Date: 2011/03/02 20:17:17 $
+///  Revision   : $Revision: 1.51 $
+///  last update: $Date: 2011/03/05 19:57:00 $
 ///  by         : $Author: mussgill $
 
 #include "AlignmentProducer.h"
@@ -300,52 +300,19 @@ void AlignmentProducer::endOfJob()
       // Expand run ranges and make them unique
       edm::VParameterSet RunRangeSelectionVPSet = theParameterSet.getParameter<edm::VParameterSet>( "RunRangeSelection" );
       RunRanges uniqueRunRanges = makeNonOverlappingRunRanges(RunRangeSelectionVPSet);
-
-      if ( doTracker_ ) { // first tracker
-	const AlignTransform *trackerGlobal = 0; // will be 'removed' from constants 
-	if (globalPositions_) { // i.e. applied before in applyDB
-	  trackerGlobal = &align::DetectorGlobalPosition(*globalPositions_,
-							 DetId(DetId::Tracker));
-	}
-	// Get alignments+errors - ownership taken over by writeDB(..), so no delete
-	
+      if (uniqueRunRanges.size()>1) {
 	for (std::vector<RunRange>::const_iterator iRunRange = uniqueRunRanges.begin();
 	     iRunRange != uniqueRunRanges.end();
 	     ++iRunRange) {
 	  theAlignmentAlgo->setParametersForRunRange(*iRunRange);
-	  Alignments *alignments = theAlignableTracker->alignments();
-	  AlignmentErrors *alignmentErrors = theAlignableTracker->alignmentErrors();
-	  this->writeDB(alignments, "TrackerAlignmentRcd",
-			alignmentErrors, "TrackerAlignmentErrorRcd", trackerGlobal,
-			(*iRunRange).first);
+	  this->writeForRunRange((*iRunRange).first);
 	}
+      } else {
+	RunRange runrange(cond::timeTypeSpecs[cond::runnumber].beginValue,
+			  cond::timeTypeSpecs[cond::runnumber].endValue);
+	theAlignmentAlgo->setParametersForRunRange(runrange);
+	this->writeForRunRange();
       }
-      
-      if ( doMuon_ ) { // now muon
-	const AlignTransform *muonGlobal = 0; // will be 'removed' from constants 
-	if (globalPositions_) { // i.e. applied before in applyDB
-	  muonGlobal = &align::DetectorGlobalPosition(*globalPositions_,
-						      DetId(DetId::Muon));
-	}
-	// Get alignments+errors, first DT - ownership taken over by writeDB(..), so no delete
-	Alignments      *alignments       = theAlignableMuon->dtAlignments();
-	AlignmentErrors *alignmentErrors  = theAlignableMuon->dtAlignmentErrors();
-	this->writeDB(alignments, "DTAlignmentRcd",
-		      alignmentErrors, "DTAlignmentErrorRcd", muonGlobal);
-	
-	// Get alignments+errors, now CSC - ownership taken over by writeDB(..), so no delete
-	alignments       = theAlignableMuon->cscAlignments();
-	alignmentErrors  = theAlignableMuon->cscAlignmentErrors();
-	this->writeDB(alignments, "CSCAlignmentRcd",
-		      alignmentErrors, "CSCAlignmentErrorRcd", muonGlobal);
-      }
-      
-      // Save surface deformations to database
-      if (saveDeformationsToDB_ && doTracker_) {
-	AlignmentSurfaceDeformations *alignmentSurfaceDeformations = theAlignableTracker->surfaceDeformations();
-	this->writeDB(alignmentSurfaceDeformations, "TrackerSurfaceDeformationRcd");
-      }
-      
     }
   }
   
@@ -755,6 +722,50 @@ void AlignmentProducer::applyDB(G* geometry, const edm::EventSetup &iSetup) cons
   aligner.attachSurfaceDeformations<G>(geometry, &(*surfaceDeformations));
 }
 
+//////////////////////////////////////////////////
+void AlignmentProducer::writeForRunRange(cond::Time_t time)
+{
+  if ( doTracker_ ) { // first tracker
+    const AlignTransform *trackerGlobal = 0; // will be 'removed' from constants 
+    if (globalPositions_) { // i.e. applied before in applyDB
+      trackerGlobal = &align::DetectorGlobalPosition(*globalPositions_,
+						     DetId(DetId::Tracker));
+    }
+	
+    Alignments *alignments = theAlignableTracker->alignments();
+    AlignmentErrors *alignmentErrors = theAlignableTracker->alignmentErrors();
+    this->writeDB(alignments, "TrackerAlignmentRcd",
+		  alignmentErrors, "TrackerAlignmentErrorRcd", trackerGlobal,
+		  time);	
+  }
+      
+  if ( doMuon_ ) { // now muon
+    const AlignTransform *muonGlobal = 0; // will be 'removed' from constants 
+    if (globalPositions_) { // i.e. applied before in applyDB
+      muonGlobal = &align::DetectorGlobalPosition(*globalPositions_,
+						  DetId(DetId::Muon));
+    }
+    // Get alignments+errors, first DT - ownership taken over by writeDB(..), so no delete
+    Alignments      *alignments       = theAlignableMuon->dtAlignments();
+    AlignmentErrors *alignmentErrors  = theAlignableMuon->dtAlignmentErrors();
+    this->writeDB(alignments, "DTAlignmentRcd",
+		  alignmentErrors, "DTAlignmentErrorRcd", muonGlobal,
+		  time);
+    
+    // Get alignments+errors, now CSC - ownership taken over by writeDB(..), so no delete
+    alignments       = theAlignableMuon->cscAlignments();
+    alignmentErrors  = theAlignableMuon->cscAlignmentErrors();
+    this->writeDB(alignments, "CSCAlignmentRcd",
+		  alignmentErrors, "CSCAlignmentErrorRcd", muonGlobal,
+		  time);
+  }
+      
+  // Save surface deformations to database
+  if (saveDeformationsToDB_ && doTracker_) {
+    AlignmentSurfaceDeformations *alignmentSurfaceDeformations = theAlignableTracker->surfaceDeformations();
+    this->writeDB(alignmentSurfaceDeformations, "TrackerSurfaceDeformationRcd", time);
+  }
+}
 
 //////////////////////////////////////////////////
 void AlignmentProducer::writeDB(Alignments *alignments,
@@ -812,7 +823,8 @@ void AlignmentProducer::writeDB(Alignments *alignments,
 
 //////////////////////////////////////////////////
 void AlignmentProducer::writeDB(AlignmentSurfaceDeformations *alignmentSurfaceDeformations,
-				const std::string &surfaceDeformationRcd) const
+				const std::string &surfaceDeformationRcd,
+				cond::Time_t time) const
 {
   // Call service
   edm::Service<cond::service::PoolDBOutputService> poolDb;
@@ -824,7 +836,7 @@ void AlignmentProducer::writeDB(AlignmentSurfaceDeformations *alignmentSurfaceDe
   if (saveDeformationsToDB_) {
     edm::LogInfo("Alignment") << "Writing AlignmentSurfaceDeformations to "
 			      << surfaceDeformationRcd  << ".";
-    poolDb->writeOne<AlignmentSurfaceDeformations>(alignmentSurfaceDeformations, poolDb->beginOfTime(),
+    poolDb->writeOne<AlignmentSurfaceDeformations>(alignmentSurfaceDeformations, 0, time,
 						   surfaceDeformationRcd);
   } else { // poolDb->writeOne(..) takes over 'surfaceDeformation' ownership,...
     delete alignmentSurfaceDeformations; // ...otherwise we have to delete, as promised!

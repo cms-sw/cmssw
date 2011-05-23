@@ -7,8 +7,8 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.20 $
-///  last update: $Date: 2011/02/16 12:45:59 $
+///  Revision   : $Revision: 1.22 $
+///  last update: $Date: 2011/03/02 20:10:29 $
 ///  by         : $Author: mussgill $
 
 #include <vector>
@@ -123,6 +123,10 @@ class AlignmentProducer : public edm::ESProducerLooper
   template<class G, class DeformationRcd>
     void applyDB(G *geometry, const edm::EventSetup &iSetup) const;
 
+  // write alignments and alignment errors for all sub detectors and
+  // the given run number
+  void writeForRunRange(cond::Time_t time = cond::timeTypeSpecs[cond::runnumber].beginValue);
+
   /// Write alignment and/or errors to DB for record names
   /// (removes *globalCoordinates before writing if non-null...).
   /// Takes over ownership of alignments and alignmentErrrors.
@@ -133,7 +137,8 @@ class AlignmentProducer : public edm::ESProducerLooper
   /// Write surface deformations (bows & kinks) to DB for given record name
   /// Takes over ownership of alignmentsurfaceDeformations.
   void writeDB(AlignmentSurfaceDeformations *alignmentSurfaceDeformations,
-	       const std::string &surfaceDeformationRcd) const;
+	       const std::string &surfaceDeformationRcd,
+	       cond::Time_t time = cond::timeTypeSpecs[cond::runnumber].beginValue) const;
 
   /// Add survey info to an alignable
   void addSurveyInfo_(Alignable*);
