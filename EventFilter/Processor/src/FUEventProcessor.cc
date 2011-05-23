@@ -980,6 +980,7 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		    XCEPT_DECLARE(evf::Exception,
 				  sentinelException, ost1.str());
 		    notifyQualified("error",sentinelException);
+		    subs_[i].disconnect();
 		    continue;
 		  }
 		  subs_[i].restartCount()++;
@@ -1856,7 +1857,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.128 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.129 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
