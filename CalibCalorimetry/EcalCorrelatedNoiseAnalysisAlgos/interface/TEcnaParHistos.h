@@ -18,28 +18,16 @@
 #include "TVectorD.h"
 #include "TMatrixD.h"
 
-#include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaObject.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParEcal.h"
-#include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNumbering.h"               
+#include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNumbering.h"
 
-///-----------------------------------------------------------
-///   TEcnaParHistos.h
-///   Update: 15/02/2011
-///   Author:    B.Fabbro (bernard.fabbro@cea.fr)
-///              DSM/IRFU/SPP CEA-Saclay
-///   Copyright: Those valid for CEA sofware
-///
-///   ECNA web page:
-///     http://cms-fabbro.web.cern.ch/cms-fabbro/
-///     cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
-///-----------------------------------------------------------
-///
-///    Values of different parameters for plots in the framework of TEcnaHistos
-///    (see TEcnaHistos documentation)
-///
-///    Examples of parameters:  ymin and ymax values for histos, title sizes,
-///                             margins for plots, etc...
-///              
+//------------------------ TEcnaParHistos.h -----------------
+//
+//   For questions or comments, please send e-mail to:
+//
+//   Bernard Fabbro             
+//   fabbro@hep.saclay.cea.fr 
+//--------------------------------------------------------
 
 class TEcnaParHistos : public TObject {
 
@@ -70,23 +58,15 @@ class TEcnaParHistos : public TObject {
   Int_t    fNbOfRunsDisplayed;  
   Int_t    fMaxNbOfRunsInLists;
 
-  TString fOnlyOnePlot;
-  TString fSeveralPlot;
-  TString fSameOnePlot;
-  TString fAllXtalsInStinPlot;
-  Int_t   fPlotAllXtalsInStin;
-
  public:
 
   //..... Methods
 
            TEcnaParHistos();
-           TEcnaParHistos(TEcnaObject*, const TString);
            TEcnaParHistos(const TString, const TEcnaParEcal*, const TEcnaNumbering*);
   virtual  ~TEcnaParHistos();
 
   void     Init();
-  void     SetEcalSubDetector(const TString);
   void     SetEcalSubDetector(const TString, const TEcnaParEcal*, const TEcnaNumbering*);
 
   //...................................................... PLOT methods
@@ -109,6 +89,7 @@ class TEcnaParHistos : public TObject {
   Double_t GetMarginAutoMinMax();
 
   void     SetViewHistoStyle(const TString);
+  //  void     SetViewHistoPadMargins(const TString);
   void     SetViewHistoPadMargins(const TString, const TString);
   void     SetViewHistoStats(TH1D*, const TString);
   void     SetViewHistoOffsets(TH1D*, const TString, const TString);
@@ -156,7 +137,6 @@ class TEcnaParHistos : public TObject {
   TPaveText* SetPaveStin(const Int_t&, const Int_t&);
   TPaveText* SetPaveStinsXY(const Int_t&, const Int_t&);
   TPaveText* SetPaveCrystal(const Int_t&, const Int_t&, const Int_t&);
-  TPaveText* SetPaveCrystal(const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Int_t&);
   TPaveText* SetPaveCrystalSample(const Int_t&, const Int_t&, const Int_t&, const Int_t&);
 
   TString  GetHistoType(const TString);
@@ -168,19 +148,6 @@ class TEcnaParHistos : public TObject {
   Double_t GetYmaxDefaultValue(const TString);
 
   Int_t MaxNbOfRunsInLists();
-
-  //...............................................................
-  TString BuildStandardDetectorCode(const TString);
-  TString BuildStandardPlotOption(const TString, const TString);
-  TString BuildStandardHistoCode(const TString, const TString);
-  TString GetTechHistoCode(const TString);
-  TString GetTechHistoCode(const TString, const TString);
-
-  TString GetCodeOnlyOnePlot();
-  TString GetCodeSeveralPlot();
-  TString GetCodeSameOnePlot();
-  TString GetCodeAllXtalsInStinPlot();
-  Int_t   GetCodePlotAllXtalsInStin();
 
 ClassDef(TEcnaParHistos,1)// Parameter management for CNA (Correlated Noises Analysis)
 

@@ -15,22 +15,6 @@ TFileDirectory::getBareDirectory (const string &subdir) const
    return _cd (subdir, false);
 }
 
-TH1*
-TFileDirectory::getHist (const string &histname, const string &subdir) const
-{
-   TObject *objPtr = _getObj (histname, subdir);
-   // Ok, we've got it.  Let's see if it's a histogram
-   TH1* retval = dynamic_cast< TH1* > ( objPtr );
-   if ( ! retval )
-   {
-      // object isn't a derivative of TH1 so it's not a histogram
-      throw
-         cms::Exception ("ObjectNotHistogram")
-         << "Object named " << histname << " is not a histogram";
-   }
-   return retval;
-}
-
 bool
 TFileDirectory::cd () const
 {

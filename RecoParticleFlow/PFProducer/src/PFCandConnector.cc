@@ -1,6 +1,7 @@
 #include "RecoParticleFlow/PFProducer/interface/PFCandConnector.h"
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h" 
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h" 
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h" 
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h" 
 
@@ -88,10 +89,16 @@ PFCandConnector::connect(std::auto_ptr<PFCandidateCollection>& pfCand) {
 
 	analyseNuclearWPrim(pfCand, ce1);
 	    
-	if (debug_) 
+	if (debug_){
 	  cout << "After Connection the candidate " << ce1 
 	       << " is " << pfCand->at(ce1) << endl << endl;
-
+	  
+	  PFCandidate::ElementsInBlocks elementsInBlocks = pfCand->at(ce1).elementsInBlocks();
+	  for (unsigned blockElem = 0; blockElem < elementsInBlocks.size(); blockElem++){
+	    if (blockElem == 0) cout << *(elementsInBlocks[blockElem].first) << endl;  
+	    cout << " position " << elementsInBlocks[blockElem].second;
+	  }	    
+	}
 
       }
 
@@ -113,15 +120,26 @@ PFCandConnector::connect(std::auto_ptr<PFCandidateCollection>& pfCand) {
 	if (debug_) (pfCand->at(ce1)).displacedVertexRef(fT_FROM_DISP_)->Dump();
 		
 	analyseNuclearWSec(pfCand, ce1);
-
-	if (debug_) 
+	
+	if (debug_) {
 	  cout << "After Connection the candidate " << ce1 
-	       << " is " << pfCand->at(ce1) << endl << endl;
+	       << " is " << pfCand->at(ce1)
+	       << " and elements connected to it are: " << endl;
+	  
+	  PFCandidate::ElementsInBlocks elementsInBlocks = pfCand->at(ce1).elementsInBlocks();
+	  for (unsigned blockElem = 0; blockElem < elementsInBlocks.size(); blockElem++){
+	    if (blockElem == 0) cout << *(elementsInBlocks[blockElem].first) << endl;  
+	    cout << " position " << elementsInBlocks[blockElem].second;
+	  }	    
+	}
 
       }
-    }   
 
-  }
+
+    }
+  }   
+  
+
     
 
   for( unsigned int ce1=0; ce1 < pfCand->size(); ++ce1)
@@ -182,17 +200,31 @@ PFCandConnector::analyseNuclearWPrim(std::auto_ptr<PFCandidateCollection>& pfCan
 	  if(ref1_bis.isNonnull()) analyseNuclearWPrim(pfCand, ce2);  
 	}
 
+	// Take now the parameters of the secondary track that are relevant and use them to construct the NI candidate
+
+	PFCandidate::ElementsInBlocks elementsInBlocks = pfCand->at(ce2).elementsInBlocks();
+	PFCandidate::ElementsInBlocks elementsAlreadyInBlocks = pfCand->at(ce1).elementsInBlocks();
+	for (unsigned blockElem = 0; blockElem < elementsInBlocks.size(); blockElem++){
+	  bool isAlreadyHere = false;
+	  for (unsigned alreadyBlock = 0; alreadyBlock < elementsAlreadyInBlocks.size(); alreadyBlock++){
+	    if (elementsAlreadyInBlocks[alreadyBlock].second == elementsInBlocks[blockElem].second) isAlreadyHere = true;
+	  }
+	  if (!isAlreadyHere) pfCand->at(ce1).addElementInBlock( elementsInBlocks[blockElem].first,  elementsInBlocks[blockElem].second);
+	}
+
 	double caloEn = pfCand->at(ce2).ecalEnergy() + pfCand->at(ce2).hcalEnergy();
 	double deltaEn =  pfCand->at(ce2).p4().E() - caloEn;
 	int nMissOuterHits = pfCand->at(ce2).trackRef()->trackerExpectedHitsOuter().numberOfHits();
 	
 
+	// Check if the difference Track Calo is not too large and if we can trust the track, ie it doesn't miss too much hits.
 	if (deltaEn > 1  && nMissOuterHits > 1) {
 	  math::XYZTLorentzVectorD momentumToAdd = pfCand->at(ce2).p4()*caloEn/pfCand->at(ce2).p4().E();
 	  momentumSec += momentumToAdd;
 	  if (debug_) cout << "The difference track-calo s really large and the track miss at least 2 hits. A secondary NI may have happened. Let's trust the calo energy" << endl << "add " << momentumToAdd << endl;
 	  
 	} else {
+	  // Check if the difference Track Calo is not too large and if we can trust the track, ie it doesn't miss too much hits.
 	  if (caloEn > 0.01 && deltaEn > 1  && nMissOuterHits > 0) {
 	    math::XYZTLorentzVectorD momentumExcess = pfCand->at(ce2).p4()*deltaEn/pfCand->at(ce2).p4().E();
 	    candidatesWithTrackExcess[pfCand->at(ce2).trackRef()->pt()/pfCand->at(ce2).trackRef()->ptError()] =  momentumExcess;
@@ -270,14 +302,20 @@ PFCandConnector::analyseNuclearWPrim(std::auto_ptr<PFCandidateCollection>& pfCan
   } else {
 
     math::XYZVector primDir =  ref1->primaryDirection();
+
     
     if (primDir.Mag2() < 0.1){
+      // It might be 0 but this situation should never happend. Throw a warning if it happens.
+      edm::LogWarning("PFCandConnector") << "A Nuclear Interaction do not have primary direction" << std::endl;
       pfCand->at(ce1).setP4(momentumSec);
       return;
     } else {
-      double px = momentumSec.P()*primDir.x();
-      double py = momentumSec.P()*primDir.y();
-      double pz = momentumSec.P()*primDir.z();
+      // rescale the primary direction to the optimal momentum. But take care of the factthat it shall not be completly 0 to avoid a warning if Jet Area. 
+      double momentumS = momentumSec.P();
+      if (momentumS < 1e-4) momentumS = 1e-4;
+      double px = momentumS*primDir.x();
+      double py = momentumS*primDir.y();
+      double pz = momentumS*primDir.z();
       double E  = sqrt(px*px + py*py + pz*pz + pion_mass2);
       
       math::XYZTLorentzVectorD momentum(px, py, pz, E);
@@ -386,6 +424,17 @@ PFCandConnector::analyseNuclearWSec(std::auto_ptr<PFCandidateCollection>& pfCand
 			 << " dE(Trk-CALO) = " << pfCand->at(ce2).trackRef()->p()-pfCand->at(ce2).ecalEnergy()-pfCand->at(ce2).hcalEnergy() 
 			 << " Nmissing hits = " << pfCand->at(ce2).trackRef()->trackerExpectedHitsOuter().numberOfHits() << endl;
 
+	// Take now the parameters of the secondary track that are relevant and use them to construct the NI candidate
+	PFCandidate::ElementsInBlocks elementsInBlocks = pfCand->at(ce2).elementsInBlocks();
+	PFCandidate::ElementsInBlocks elementsAlreadyInBlocks = pfCand->at(ce1).elementsInBlocks();
+	for (unsigned blockElem = 0; blockElem < elementsInBlocks.size(); blockElem++){
+	  bool isAlreadyHere = false;
+	  for (unsigned alreadyBlock = 0; alreadyBlock < elementsAlreadyInBlocks.size(); alreadyBlock++){
+	    if (elementsAlreadyInBlocks[alreadyBlock].second == elementsInBlocks[blockElem].second) isAlreadyHere = true;
+	  }
+	  if (!isAlreadyHere) pfCand->at(ce1).addElementInBlock( elementsInBlocks[blockElem].first,  elementsInBlocks[blockElem].second);
+	}
+
 	double caloEn = pfCand->at(ce2).ecalEnergy() + pfCand->at(ce2).hcalEnergy();
 	double deltaEn =  pfCand->at(ce2).p4().E() - caloEn;
 	int nMissOuterHits = pfCand->at(ce2).trackRef()->trackerExpectedHitsOuter().numberOfHits();  
@@ -408,12 +457,17 @@ PFCandConnector::analyseNuclearWSec(std::auto_ptr<PFCandidateCollection>& pfCand
   math::XYZVector primDir =  ref1->primaryDirection();
 
   if (primDir.Mag2() < 0.1){
+    // It might be 0 but this situation should never happend. Throw a warning if it happens.
     pfCand->at(ce1).setP4(momentumSec);
+    edm::LogWarning("PFCandConnector") << "A Nuclear Interaction do not have primary direction" << std::endl;
     return;
   } else {
-    double px = momentumSec.P()*primDir.x();
-    double py = momentumSec.P()*primDir.y();
-    double pz = momentumSec.P()*primDir.z();
+    // rescale the primary direction to the optimal momentum. But take care of the factthat it shall not be completly 0 to avoid a warning if Jet Area.
+    double momentumS = momentumSec.P();
+    if (momentumS < 1e-4) momentumS = 1e-4;
+    double px = momentumS*primDir.x();
+    double py = momentumS*primDir.y();
+    double pz = momentumS*primDir.z();
     double E  = sqrt(px*px + py*py + pz*pz + pion_mass2);
      
     math::XYZTLorentzVectorD momentum(px, py, pz, E);

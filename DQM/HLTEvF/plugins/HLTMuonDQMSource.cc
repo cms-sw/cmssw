@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.40 2010/08/07 14:55:56 wmtan Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.42 2011/03/20 11:13:49 hdyoo Exp $
 // Modification:  Sanghyeon Song (Chonnam National University)
 // contact: sanghyeon.song@cern.ch
 //
@@ -1701,7 +1701,7 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
 
     reco::BeamSpot beamSpot;
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-    event.getByLabel("hltOfflineBeamSpot",recoBeamSpotHandle);
+    event.getByLabel("hltOnlineBeamSpot",recoBeamSpotHandle);
     if (!recoBeamSpotHandle.failedToGet())  beamSpot = *recoBeamSpotHandle;
 
     if (!l2mucands.failedToGet() && l2mucands.isValid() ) {

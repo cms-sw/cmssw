@@ -1,4 +1,4 @@
-// $Id: EventServerProxy.icc,v 1.1.4.2 2011/03/07 11:33:05 mommsen Exp $
+// $Id: EventServerProxy.icc,v 1.2 2011/03/07 15:31:32 mommsen Exp $
 /// @file: EventServerProxy.icc
 
 #include "EventFilter/StorageManager/interface/CurlInterface.h"
@@ -27,6 +27,7 @@ namespace stor
   EventServerProxy<RegInfo>::EventServerProxy(edm::ParameterSet const& ps) :
   regInfo_(ps),
   consumerId_(0),
+  minEventRequestInterval_(regInfo_.minEventRequestInterval()),
   alreadySaidHalted_(false),
   alreadySaidWaiting_(false),
   failedAttemptsToGetData_(0)

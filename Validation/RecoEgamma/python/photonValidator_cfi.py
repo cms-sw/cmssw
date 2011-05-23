@@ -1,5 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
+import SimTracker.TrackAssociation.TrackAssociatorByHits_cfi
+trackAssociatorByHitsForPhotonValidation = SimTracker.TrackAssociation.TrackAssociatorByHits_cfi.TrackAssociatorByHits.clone()
+trackAssociatorByHitsForPhotonValidation.ComponentName = cms.string('trackAssociatorByHitsForPhotonValidation')
+trackAssociatorByHitsForPhotonValidation.Cut_RecoToSim = 0.5
+trackAssociatorByHitsForPhotonValidation.Quality_SimToReco = 0.5
+trackAssociatorByHitsForPhotonValidation.Purity_SimToReco = 0.5
+trackAssociatorByHitsForPhotonValidation.SimToRecoDenominator = 'reco'
+
+
 photonValidation = cms.EDAnalyzer("PhotonValidator",
     Name = cms.untracked.string('photonValidation'),
     OutputFileName = cms.string('PhotonValidationHistos.root'),
@@ -35,7 +44,7 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
 #                                  
     etBin = cms.int32(100),                                  
     etMax = cms.double(250.),                                  
-    etMin = cms.double(00),
+    etMin = cms.double(0.0),
 #
     etaBin = cms.int32(100),
     etaBin2 = cms.int32(25),
