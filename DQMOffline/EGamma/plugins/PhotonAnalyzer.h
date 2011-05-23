@@ -84,7 +84,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2010/11/29 00:25:44 $ 
+ **  $Date: 2011/04/08 15:55:00 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -126,11 +126,13 @@ class PhotonAnalyzer : public edm::EDAnalyzer
 
   MonitorElement* bookHisto(std::string histoName, std::string title, int bin, double min, double max);
 
-  std::vector<std::vector<MonitorElement*> > book2DHistoVector(std::string histoType, std::string histoName, std::string title, 
+  void book2DHistoVector(std::vector<std::vector<MonitorElement*> > & toFill,
+			 std::string histoType, std::string histoName, std::string title,			 
 							       int xbin, double xmin, double xmax,
 							       int ybin=1,double ymin=1, double ymax=2);
 
-  std::vector<std::vector<std::vector<MonitorElement*> > > book3DHistoVector(std::string histoType, std::string histoName, std::string title, 
+  void book3DHistoVector( std::vector<std::vector<std::vector<MonitorElement*> > > & toFill,
+			  std::string histoType, std::string histoName, std::string title, 
 							       int xbin, double xmin, double xmax,
 							       int ybin=1,double ymin=1, double ymax=2);
 
