@@ -10,12 +10,12 @@ l1tSync = cms.EDAnalyzer("L1TSync",
   inputTagtEvmSource      = cms.InputTag("l1GtEvmUnpack","","DQM"),
 
   # Online
-  #oracleDB   = cms.string("oracle://CMS_OMDS_LB/CMS_TRG_R"),
-  #pathCondDB = cms.string("/nfshome0/centraltspro/secure/"),                
+  oracleDB   = cms.string("oracle://CMS_OMDS_LB/CMS_TRG_R"),
+  pathCondDB = cms.string("/nfshome0/centraltspro/secure/"),                
 
   # Offline
-  oracleDB   = cms.string("oracle://cms_orcoff_prod/CMS_COND_31X_L1T"), # For offline
-  pathCondDB = cms.string("/afs/cern.ch/cms/DB/conddb"),                
+  #oracleDB   = cms.string("oracle://cms_orcoff_prod/CMS_COND_31X_L1T"), # For offline
+  #pathCondDB = cms.string("/afs/cern.ch/cms/DB/conddb"),                
 
   # Index for the prescale set to be used 
   # as reference
