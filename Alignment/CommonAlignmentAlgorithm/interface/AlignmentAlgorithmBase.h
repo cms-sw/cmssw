@@ -99,7 +99,7 @@ public:
 
   /// called in order to pass parameters to alignables for a specific run
   /// range in case the algorithm supports run range dependent alignment.
-  virtual void setParametersForRunRange(const RunRange& rr) {};
+  virtual bool setParametersForRunRange(const RunRange& rr) { return false; };
 };
 
 #endif
