@@ -23,7 +23,7 @@ jobname = (os.environ.get('JOB_NAME','test'))
 print 'jobname (default=test) = '+str(jobname)
 #
 # --- [number of events (default=1000)]
-nevents = int(os.environ.get('NEVENTS','1000'))
+nevents = int(os.environ.get('NEVENTS','5000'))
 print 'nevents (default=1000)  = '+str(nevents)
 #
 # --- [turn on all histograms (default=True)?]
@@ -31,7 +31,7 @@ allhist = (os.environ.get('ALL_HISTS','True'))
 print 'allhist (default=True) = '+str(allhist)
 #
 #--- [read list of input files from a text file? or not (default=False)]
-read_from_file = (os.environ.get('READ_LIST_FROM_FILE','False'))
+read_from_file = (os.environ.get('READ_LIST_FROM_FILE','True'))
 print 'read list of input files from a text file (default=False) = '+str(read_from_file)
 #
 #--- [trigger set (default=HLT)]
@@ -42,7 +42,7 @@ print 'trigger set name (default=HLT) = '+str(trigger_set)
 inputfiles = []
 if read_from_file=="True":
   #--- [name of the text file (default=inputfile_list_default.txt)]
-  filename = (os.environ.get('INPUTFILES_LIST','inputfile_list_default.txt'))
+  filename = (os.environ.get('INPUTFILES_LIST','inputfiles.txt'))
   file=open(filename)
   print file.read()
   f = open(filename)
@@ -82,9 +82,11 @@ process.load("Configuration/StandardSequences/Geometry_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
-process.load("RecoMET/Configuration/RecoMET_BeamHaloId_cff")
+#process.load("RecoMET/Configuration/RecoMET_BeamHaloId_cff")
 #process.GlobalTag.globaltag ='GR_R_38X_V13A::All'
-process.GlobalTag.globaltag ='GR10_P_V12::All'
+
+#process.GlobalTag.globaltag ='GR_P_V14::All'
+process.GlobalTag.globaltag ='GR_R_42_V13::All'
 
 # the task - JetMET objects
 if iscosmics =="True":
@@ -128,7 +130,7 @@ process.load("DQMServices.Components.DQMStoreStats_cfi")
 #
 # /Wmunu/Summer09-MC_31X_V3-v1/GEN-SIM-RECO
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(*inputfiles))
+    fileNames = cms.untracked.vstring(inputfiles))
 
 #
 process.source.inputCommands = cms.untracked.vstring('keep *', 'drop *_MEtoEDMConverter_*_*')
@@ -176,19 +178,19 @@ process.options = cms.untracked.PSet(
 )
 
 if iscosmics=="True":
-  process.p = cms.Path(process.BeamHaloId
-                     * process.jetMETDQMOfflineSourceCosmic
-                     #* process.dqmStoreStats
-                     #* process.MEtoEDMConverter
+  process.p = cms.Path(#process.BeamHaloId
+                       process.jetMETDQMOfflineSourceCosmic
+                     * process.dqmStoreStats
+                     * process.MEtoEDMConverter
                      )
 else:
-  process.p = cms.Path(process.BeamHaloId
-                     * process.jetMETDQMOfflineSource
-                     #* process.dqmStoreStats
-                     #* process.MEtoEDMConverter
+  process.p = cms.Path(#process.BeamHaloId
+                       process.jetMETDQMOfflineSource
+                     * process.dqmStoreStats
+                     * process.MEtoEDMConverter
                      )
 
-#process.outpath = cms.EndPath(process.FEVT)
+process.outpath = cms.EndPath(process.FEVT)
 process.DQM.collectorHost = ''
 
 
