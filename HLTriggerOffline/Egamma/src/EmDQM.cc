@@ -69,6 +69,7 @@ EmDQM::EmDQM(const edm::ParameterSet& pset)
   plotBins   = pset.getUntrackedParameter<unsigned int>("Nbins",40);
   plotMinEtForEtaEffPlot = pset.getUntrackedParameter<unsigned int>("minEtForEtaEffPlot", 15);
   useHumanReadableHistTitles = pset.getUntrackedParameter<bool>("useHumanReadableHistTitles", false);
+  mcMatchedOnly = pset.getUntrackedParameter<bool>("mcMatchedOnly", true);
   verbosity = pset.getUntrackedParameter<unsigned int>("verbosity",0);
 
   //preselction cuts 
@@ -130,12 +131,14 @@ EmDQM::beginJob()
 
   std::string histName="total_eff";
   std::string histTitle = "total events passing";
-  // This plot will have bins equal to 2+(number of
-  //        HLTCollectionLabels in the config file)
-  total = dbe->book1D(histName.c_str(),histTitle.c_str(),numOfHLTCollectionLabels+2,0,numOfHLTCollectionLabels+2);
-  total->setBinLabel(numOfHLTCollectionLabels+1,"Total");
-  total->setBinLabel(numOfHLTCollectionLabels+2,"Gen");
-  for (unsigned int u=0; u<numOfHLTCollectionLabels; u++){total->setBinLabel(u+1,theHLTCollectionLabels[u].label().c_str());}
+  if (!mcMatchedOnly) {
+     // This plot will have bins equal to 2+(number of
+     //        HLTCollectionLabels in the config file)
+     total = dbe->book1D(histName.c_str(),histTitle.c_str(),numOfHLTCollectionLabels+2,0,numOfHLTCollectionLabels+2);
+     total->setBinLabel(numOfHLTCollectionLabels+1,"Total");
+     total->setBinLabel(numOfHLTCollectionLabels+2,"Gen");
+     for (unsigned int u=0; u<numOfHLTCollectionLabels; u++){total->setBinLabel(u+1,theHLTCollectionLabels[u].label().c_str());}
+  }
 
   histName="total_eff_MC_matched";
   histTitle="total events passing (mc matched)";
@@ -187,24 +190,44 @@ EmDQM::beginJob()
   }
  
   for(unsigned int i = 0; i< numOfHLTCollectionLabels ; i++){
-    // Et distribution of HLT objects passing filter i
-    histName = theHLTCollectionLabels[i].label()+"et_all";
-    histTitle = HltHistTitle[i]+" Et (ALL)";
-    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
-    ethist.push_back(tmphisto);
-    
-    // Eta distribution of HLT objects passing filter i
-    histName = theHLTCollectionLabels[i].label()+"eta_all";
-    histTitle = HltHistTitle[i]+" #eta (ALL)";
-    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
-    etahist.push_back(tmphisto);          
+    if (!mcMatchedOnly) {
+       // Et distribution of HLT objects passing filter i
+       histName = theHLTCollectionLabels[i].label()+"et_all";
+       histTitle = HltHistTitle[i]+" Et (ALL)";
+       tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
+       ethist.push_back(tmphisto);
+       
+       // Eta distribution of HLT objects passing filter i
+       histName = theHLTCollectionLabels[i].label()+"eta_all";
+       histTitle = HltHistTitle[i]+" #eta (ALL)";
+       tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
+       etahist.push_back(tmphisto);          
 
-    // Phi distribution of HLT objects passing filter i
-    histName = theHLTCollectionLabels[i].label()+"phi_all";
-    histTitle = HltHistTitle[i]+" #phi (ALL)";
-    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
-    phihist.push_back(tmphisto);
+       // Phi distribution of HLT objects passing filter i
+       histName = theHLTCollectionLabels[i].label()+"phi_all";
+       histTitle = HltHistTitle[i]+" #phi (ALL)";
+       tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+       phihist.push_back(tmphisto);
 
+ 
+       // Et distribution of HLT object that is closest delta-R match to sorted gen particle(s)
+       histName  = theHLTCollectionLabels[i].label()+"et";
+       histTitle = HltHistTitle[i]+" Et";
+       tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
+       histEtOfHltObjMatchToGen.push_back(tmphisto);
+
+       // eta distribution of HLT object that is closest delta-R match to sorted gen particle(s)
+       histName  = theHLTCollectionLabels[i].label()+"eta";
+       histTitle = HltHistTitle[i]+" eta";
+       tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
+       histEtaOfHltObjMatchToGen.push_back(tmphisto);
+
+       // phi distribution of HLT object that is closest delta-R match to sorted gen particle(s)
+       histName  = theHLTCollectionLabels[i].label()+"phi";
+       histTitle = HltHistTitle[i]+" phi";
+       tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+       histPhiOfHltObjMatchToGen.push_back(tmphisto);
+   }
 
     // Et distribution of gen object matching HLT object passing filter i
     histName = theHLTCollectionLabels[i].label()+"et_MC_matched";
@@ -225,57 +248,60 @@ EmDQM::beginJob()
     phihistmatch.push_back(tmphisto);
 
 
-
-    // Et distribution of HLT object that is closest delta-R match to sorted gen particle(s)
-    histName  = theHLTCollectionLabels[i].label()+"et";
-    histTitle = HltHistTitle[i]+" Et";
-    tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
-    histEtOfHltObjMatchToGen.push_back(tmphisto);
-
-    // eta distribution of HLT object that is closest delta-R match to sorted gen particle(s)
-    histName  = theHLTCollectionLabels[i].label()+"eta";
-    histTitle = HltHistTitle[i]+" eta";
-    tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
-    histEtaOfHltObjMatchToGen.push_back(tmphisto);
-
-    // phi distribution of HLT object that is closest delta-R match to sorted gen particle(s)
-    histName  = theHLTCollectionLabels[i].label()+"phi";
-    histTitle = HltHistTitle[i]+" phi";
-    tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
-    histPhiOfHltObjMatchToGen.push_back(tmphisto);
-
-
-
     if (!plotiso[i]) {
       tmpiso = NULL;
-      etahistiso.push_back(tmpiso);
-      phihistiso.push_back(tmpiso);
-      ethistiso.push_back(tmpiso);
+      if (!mcMatchedOnly) {
+         etahistiso.push_back(tmpiso);
+         phihistiso.push_back(tmpiso);
+         ethistiso.push_back(tmpiso);
+         histEtaIsoOfHltObjMatchToGen.push_back(tmpiso);
+         histPhiIsoOfHltObjMatchToGen.push_back(tmpiso);
+         histEtIsoOfHltObjMatchToGen.push_back(tmpiso);
+      }
       etahistisomatch.push_back(tmpiso);
       phihistisomatch.push_back(tmpiso);
       ethistisomatch.push_back(tmpiso);
-      histEtaIsoOfHltObjMatchToGen.push_back(tmpiso);
-      histPhiIsoOfHltObjMatchToGen.push_back(tmpiso);
-      histEtIsoOfHltObjMatchToGen.push_back(tmpiso);
     } else {
-      // 2D plot: Isolation values vs eta for all objects
-      histName  = theHLTCollectionLabels[i].label()+"eta_isolation_all";
-      histTitle = HltHistTitle[i]+" isolation vs #eta (all)";
-      tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax,plotBins,plotBounds[i].first,plotBounds[i].second);
-      etahistiso.push_back(tmpiso);
+      if (!mcMatchedOnly) {
+         // 2D plot: Isolation values vs eta for all objects
+         histName  = theHLTCollectionLabels[i].label()+"eta_isolation_all";
+         histTitle = HltHistTitle[i]+" isolation vs #eta (all)";
+         tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+         etahistiso.push_back(tmpiso);
 
-      // 2D plot: Isolation values vs phi for all objects
-      histName  = theHLTCollectionLabels[i].label()+"phi_isolation_all";
-      histTitle = HltHistTitle[i]+" isolation vs #phi (all)";
-      tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax,plotBins,plotBounds[i].first,plotBounds[i].second);
-      phihistiso.push_back(tmpiso);
+         // 2D plot: Isolation values vs phi for all objects
+         histName  = theHLTCollectionLabels[i].label()+"phi_isolation_all";
+         histTitle = HltHistTitle[i]+" isolation vs #phi (all)";
+         tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+         phihistiso.push_back(tmpiso);
 
+         // 2D plot: Isolation values vs et for all objects
+         histName  = theHLTCollectionLabels[i].label()+"et_isolation_all";
+         histTitle = HltHistTitle[i]+" isolation vs Et (all)";
+         tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+         ethistiso.push_back(tmpiso);
+ 
+         // 2D plot: Isolation values vs eta for HLT object that 
+         // is closest delta-R match to sorted gen particle(s)
+         histName  = theHLTCollectionLabels[i].label()+"eta_isolation";
+         histTitle = HltHistTitle[i]+" isolation vs #eta";
+         tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+         histEtaIsoOfHltObjMatchToGen.push_back(tmpiso);
 
-      // 2D plot: Isolation values vs et for all objects
-      histName  = theHLTCollectionLabels[i].label()+"et_isolation_all";
-      histTitle = HltHistTitle[i]+" isolation vs Et (all)";
-      tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax,plotBins,plotBounds[i].first,plotBounds[i].second);
-      ethistiso.push_back(tmpiso);
+         // 2D plot: Isolation values vs phi for HLT object that
+         // is closest delta-R match to sorted gen particle(s)
+         histName  = theHLTCollectionLabels[i].label()+"phi_isolation";
+         histTitle = HltHistTitle[i]+" isolation vs #phi";
+         tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+         histPhiIsoOfHltObjMatchToGen.push_back(tmpiso);
+
+         // 2D plot: Isolation values vs et for HLT object that 
+         // is closest delta-R match to sorted gen particle(s)
+         histName  = theHLTCollectionLabels[i].label()+"et_isolation";
+         histTitle = HltHistTitle[i]+" isolation vs Et";
+         tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+         histEtIsoOfHltObjMatchToGen.push_back(tmpiso);
+      }
 
       // 2D plot: Isolation values vs eta for matched objects
       histName  = theHLTCollectionLabels[i].label()+"eta_isolation_MC_matched";
@@ -296,27 +322,6 @@ EmDQM::beginJob()
       tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       ethistisomatch.push_back(tmpiso);
 
-
-      // 2D plot: Isolation values vs eta for HLT object that 
-      // is closest delta-R match to sorted gen particle(s)
-      histName  = theHLTCollectionLabels[i].label()+"eta_isolation";
-      histTitle = HltHistTitle[i]+" isolation vs #eta";
-      tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax,plotBins,plotBounds[i].first,plotBounds[i].second);
-      histEtaIsoOfHltObjMatchToGen.push_back(tmpiso);
-
-      // 2D plot: Isolation values vs phi for HLT object that
-      // is closest delta-R match to sorted gen particle(s)
-      histName  = theHLTCollectionLabels[i].label()+"phi_isolation";
-      histTitle = HltHistTitle[i]+" isolation vs #phi";
-      tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax,plotBins,plotBounds[i].first,plotBounds[i].second);
-      histPhiIsoOfHltObjMatchToGen.push_back(tmpiso);
-
-      // 2D plot: Isolation values vs et for HLT object that 
-      // is closest delta-R match to sorted gen particle(s)
-      histName  = theHLTCollectionLabels[i].label()+"et_isolation";
-      histTitle = HltHistTitle[i]+" isolation vs Et";
-      tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax,plotBins,plotBounds[i].first,plotBounds[i].second);
-      histEtIsoOfHltObjMatchToGen.push_back(tmpiso);
     } // END of HLT histograms
 
   }
@@ -482,7 +487,7 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
   //  Fill the bin labeled "Total"                          //
   //   This will be the number of events looked at.         //
   ////////////////////////////////////////////////////////////
-  total->Fill(numOfHLTCollectionLabels+0.5);
+  if (!mcMatchedOnly) total->Fill(numOfHLTCollectionLabels+0.5);
   totalmatch->Fill(numOfHLTCollectionLabels+0.5);
 
 
@@ -515,7 +520,7 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
       phigen->Fill( sortedGen[i].phi() );
     }
   } // END of loop over Generated particles
-  if (gencut_ >= reqNum) total->Fill(numOfHLTCollectionLabels+1.5); // this isn't really needed anymore keep for backward comp.
+  if (gencut_ >= reqNum && !mcMatchedOnly) total->Fill(numOfHLTCollectionLabels+1.5); // this isn't really needed anymore keep for backward comp.
   if (gencut_ >= reqNum) totalmatch->Fill(numOfHLTCollectionLabels+1.5); // this isn't really needed anymore keep for backward comp.
 	  
 
@@ -580,7 +585,7 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
   }
 
   //if (recoecalcands.size() >= reqNum ) 
-  if (recoecalcands.size() >= nCandCuts.at(n) ) 
+  if (recoecalcands.size() >= nCandCuts.at(n) && !mcMatchedOnly) 
     total->Fill(n+0.5);
 
   ///////////////////////////////////////////////////
@@ -595,100 +600,102 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
     }
   }
 
-  ////////////////////////////////////////////////////////////
-  // Loop over the Generated Particles, and find the        //
-  // closest HLT object match.                              //
-  ////////////////////////////////////////////////////////////
-  //for (unsigned int i=0; i < gencut_; i++) {
-  for (unsigned int i=0; i < nCandCuts.at(n); i++) {
-    math::XYZVector currentGenParticleMomentum = sortedGen[i].momentum();
+  if (!mcMatchedOnly) {
+    ////////////////////////////////////////////////////////////
+    // Loop over the Generated Particles, and find the        //
+    // closest HLT object match.                              //
+    ////////////////////////////////////////////////////////////
+    //for (unsigned int i=0; i < gencut_; i++) {
+    for (unsigned int i=0; i < nCandCuts.at(n); i++) {
+      math::XYZVector currentGenParticleMomentum = sortedGen[i].momentum();
 
-    float closestDeltaR = 0.5;
-    int closestEcalCandIndex = -1;
-    for (unsigned int j=0; j<recoecalcands.size(); j++) {
-      float deltaR = DeltaR(recoecalcands[j]->momentum(),currentGenParticleMomentum);
+      float closestDeltaR = 0.5;
+      int closestEcalCandIndex = -1;
+      for (unsigned int j=0; j<recoecalcands.size(); j++) {
+        float deltaR = DeltaR(recoecalcands[j]->momentum(),currentGenParticleMomentum);
 
-      if (deltaR < closestDeltaR) {
-        closestDeltaR = deltaR;
-        closestEcalCandIndex = j;
+        if (deltaR < closestDeltaR) {
+          closestDeltaR = deltaR;
+          closestEcalCandIndex = j;
+        }
       }
-    }
 
-    // If an HLT object was found within some delta-R
-    // of this gen particle, store it in a histogram
-    if ( closestEcalCandIndex >= 0 ) {
-      histEtOfHltObjMatchToGen[n] ->Fill( recoecalcands[closestEcalCandIndex]->et()  );
-      histEtaOfHltObjMatchToGen[n]->Fill( recoecalcands[closestEcalCandIndex]->eta() );
-      histPhiOfHltObjMatchToGen[n]->Fill( recoecalcands[closestEcalCandIndex]->phi() );
-      
-      // Also store isolation info
-      if (n+1 < numOfHLTCollectionLabels){ // can't plot beyond last
-        if (plotiso[n+1] ){  // only plot if requested in config
-          for (unsigned int j =  0 ; j < isoNames[n+1].size() ;j++  ){
-            edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap; 
-            iEvent.getByLabel(isoNames[n+1].at(j),depMap);
-	    if (depMap.isValid()){ //Map may not exist if only one candidate passes a double filter
-	      typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[closestEcalCandIndex]);
-              if (mapi!=depMap->end()) {  // found candidate in isolation map! 
-	        histEtaIsoOfHltObjMatchToGen[n+1]->Fill( recoecalcands[closestEcalCandIndex]->eta(),mapi->val);
-	        histPhiIsoOfHltObjMatchToGen[n+1]->Fill( recoecalcands[closestEcalCandIndex]->phi(),mapi->val);
-                histEtIsoOfHltObjMatchToGen[n+1] ->Fill( recoecalcands[closestEcalCandIndex]->et(), mapi->val);
+      // If an HLT object was found within some delta-R
+      // of this gen particle, store it in a histogram
+      if ( closestEcalCandIndex >= 0 ) {
+        histEtOfHltObjMatchToGen[n] ->Fill( recoecalcands[closestEcalCandIndex]->et()  );
+        histEtaOfHltObjMatchToGen[n]->Fill( recoecalcands[closestEcalCandIndex]->eta() );
+        histPhiOfHltObjMatchToGen[n]->Fill( recoecalcands[closestEcalCandIndex]->phi() );
+        
+        // Also store isolation info
+        if (n+1 < numOfHLTCollectionLabels){ // can't plot beyond last
+          if (plotiso[n+1] ){  // only plot if requested in config
+            for (unsigned int j =  0 ; j < isoNames[n+1].size() ;j++  ){
+              edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap; 
+              iEvent.getByLabel(isoNames[n+1].at(j),depMap);
+              if (depMap.isValid()){ //Map may not exist if only one candidate passes a double filter
+                typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[closestEcalCandIndex]);
+                if (mapi!=depMap->end()) {  // found candidate in isolation map! 
+                  histEtaIsoOfHltObjMatchToGen[n+1]->Fill( recoecalcands[closestEcalCandIndex]->eta(),mapi->val);
+                  histPhiIsoOfHltObjMatchToGen[n+1]->Fill( recoecalcands[closestEcalCandIndex]->phi(),mapi->val);
+                  histEtIsoOfHltObjMatchToGen[n+1] ->Fill( recoecalcands[closestEcalCandIndex]->et(), mapi->val);
+                }
               }
             }
           }
         }
-      }
-    } // END of if closestEcalCandIndex >= 0
-  }
-
-  ////////////////////////////////////////////////////////////
-  //  Loop over all HLT objects in this filter step, and    //
-  //  fill histograms.                                      //
-  ////////////////////////////////////////////////////////////
-  //  bool foundAllMatches = false;
-  //  unsigned int numOfHLTobjectsMatched = 0;
-  for (unsigned int i=0; i<recoecalcands.size(); i++) {
-    //// See if this HLT object has a gen-level match
-    //float closestGenParticleDr = 99.0;
-    //for(unsigned int j =0; j < gencut_; j++) {
-    //  math::XYZVector currentGenParticle = sortedGen[j].momentum();
-
-    //  double currentDeltaR = DeltaR(recoecalcands[i]->momentum(),currentGenParticle);
-    //  if ( currentDeltaR < closestGenParticleDr ) {
-    //    closestGenParticleDr = currentDeltaR;
-    //  }
-    //}
-    //// If this HLT object did not have a gen particle match, go to next HLT object
-    //if ( !(fabs(closestGenParticleDr < 0.3)) ) continue;
- 
-    //numOfHLTobjectsMatched++;
-    //if (numOfHLTobjectsMatched >= gencut_) foundAllMatches=true;
-
-    // Fill HLT object histograms
-    ethist[n] ->Fill(recoecalcands[i]->et() );
-    etahist[n]->Fill(recoecalcands[i]->eta() );
-    phihist[n]->Fill(recoecalcands[i]->phi() );
+      } // END of if closestEcalCandIndex >= 0
+    }
 
     ////////////////////////////////////////////////////////////
-    //  Plot isolation variables (show the not-yet-cut        //
-    //  isolation, i.e. associated to next filter)            //
+    //  Loop over all HLT objects in this filter step, and    //
+    //  fill histograms.                                      //
     ////////////////////////////////////////////////////////////
-    if ( n+1 < numOfHLTCollectionLabels ) { // can't plot beyond last
-      if (plotiso[n+1]) {
-	for (unsigned int j =  0 ; j < isoNames[n+1].size() ;j++  ){
-	  edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap; 
-	  iEvent.getByLabel(isoNames[n+1].at(j),depMap);
-	  if (depMap.isValid()){ //Map may not exist if only one candidate passes a double filter
-	    typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[i]);
-	    if (mapi!=depMap->end()){  // found candidate in isolation map! 
-	      etahistiso[n+1]->Fill(recoecalcands[i]->eta(),mapi->val);
-	      phihistiso[n+1]->Fill(recoecalcands[i]->phi(),mapi->val);
-	      ethistiso[n+1]->Fill(recoecalcands[i]->et(),mapi->val);
-	    }
-	  }
-	}
-      }
-    } // END of if n+1 < then the number of hlt collections
+    //  bool foundAllMatches = false;
+    //  unsigned int numOfHLTobjectsMatched = 0;
+    for (unsigned int i=0; i<recoecalcands.size(); i++) {
+      //// See if this HLT object has a gen-level match
+      //float closestGenParticleDr = 99.0;
+      //for(unsigned int j =0; j < gencut_; j++) {
+      //  math::XYZVector currentGenParticle = sortedGen[j].momentum();
+
+      //  double currentDeltaR = DeltaR(recoecalcands[i]->momentum(),currentGenParticle);
+      //  if ( currentDeltaR < closestGenParticleDr ) {
+      //    closestGenParticleDr = currentDeltaR;
+      //  }
+      //}
+      //// If this HLT object did not have a gen particle match, go to next HLT object
+      //if ( !(fabs(closestGenParticleDr < 0.3)) ) continue;
+   
+      //numOfHLTobjectsMatched++;
+      //if (numOfHLTobjectsMatched >= gencut_) foundAllMatches=true;
+
+      // Fill HLT object histograms
+      ethist[n] ->Fill(recoecalcands[i]->et() );
+      etahist[n]->Fill(recoecalcands[i]->eta() );
+      phihist[n]->Fill(recoecalcands[i]->phi() );
+
+      ////////////////////////////////////////////////////////////
+      //  Plot isolation variables (show the not-yet-cut        //
+      //  isolation, i.e. associated to next filter)            //
+      ////////////////////////////////////////////////////////////
+      if ( n+1 < numOfHLTCollectionLabels ) { // can't plot beyond last
+        if (plotiso[n+1]) {
+          for (unsigned int j =  0 ; j < isoNames[n+1].size() ;j++  ){
+            edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap; 
+            iEvent.getByLabel(isoNames[n+1].at(j),depMap);
+            if (depMap.isValid()){ //Map may not exist if only one candidate passes a double filter
+              typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[i]);
+              if (mapi!=depMap->end()){  // found candidate in isolation map! 
+                etahistiso[n+1]->Fill(recoecalcands[i]->eta(),mapi->val);
+                phihistiso[n+1]->Fill(recoecalcands[i]->phi(),mapi->val);
+                ethistiso[n+1]->Fill(recoecalcands[i]->et(),mapi->val);
+              }
+            }
+          }
+        }
+      } // END of if n+1 < then the number of hlt collections
+    }
   }
 
 
