@@ -188,8 +188,11 @@ class WorkFlowRunner(Thread):
                     fullcmd += self.wf.cmdStep4
                     if ' -n ' not in fullcmd : fullcmd += ' -n -1 '
                     # FIXME: dirty hack for beam-spot dedicated relval
-                    if not '134' in str(self.wf.numId) and not 'filein' in fullcmd:
-                        fullcmd += ' --filein file:step3.root '
+                    if not '134' in str(self.wf.numId):
+                        if 'HARVESTING' in fullcmd:
+                            fullcmd += ' --filein file:step3_inDQM.root --fileout file:step4.root '
+                        else:
+                            fullcmd += ' --filein file:step3.root '
                     fullcmd += ' > %s 2>&1; ' % ('step4_'+self.wf.nameId+'.log ',)
                     # print fullcmd
                     retStep4 = self.doCmd(fullcmd)
