@@ -11,8 +11,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: dlange $
-// $Date: 2011/04/11 13:43:21 $
-// $Revision: 1.1 $
+// $Date: 2011/05/24 04:35:17 $
+// $Revision: 1.2 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -63,7 +63,7 @@ namespace cms
     bool copyExtras_;
     bool makeReKeyedSeeds_;
 
-    std::vector<std::string> trackProducers_;
+    std::vector<edm::InputTag> trackProducers_;
     double maxNormalizedChisq_;
     double minPT_;
     unsigned int minFound_;

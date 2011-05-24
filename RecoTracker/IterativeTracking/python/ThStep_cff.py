@@ -282,7 +282,7 @@ thSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSe
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 thStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-    TrackProducers = ('thWithMaterialTracks','thWithMaterialTracks'),
+    TrackProducers = cms.VInputTag(cms.InputTag('thWithMaterialTracks'),cms.InputTag('thWithMaterialTracks')),
     hasSelector=cms.vint32(1,1),
     selectedTrackQuals = cms.VInputTag(cms.InputTag("thSelector","thStepVtx"),cms.InputTag("thSelector","thStepTrk")),
     setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1), pQual=cms.bool(True) ))

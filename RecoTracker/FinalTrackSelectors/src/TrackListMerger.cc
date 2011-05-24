@@ -8,8 +8,8 @@
 // Created:         April 4, 2011
 //
 // $Author: dlange $
-// $Date: 2011/04/11 13:43:21 $
-// $Revision: 1.1 $
+// $Date: 2011/05/24 04:35:17 $
+// $Revision: 1.2 $
 //
 
 #include <memory>
@@ -72,7 +72,7 @@ namespace cms
   TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
     copyExtras_ = conf.getUntrackedParameter<bool>("copyExtras", true);
 
-    trackProducers_ = conf.getParameter<std::vector<std::string> >("TrackProducers");
+    trackProducers_ = conf.getParameter<std::vector<edm::InputTag> >("TrackProducers");
     //which of these do I need to turn into vectors?
     maxNormalizedChisq_ =  conf.getParameter<double>("MaxNormalizedChisq");
     minPT_ =  conf.getParameter<double>("MinPT");
