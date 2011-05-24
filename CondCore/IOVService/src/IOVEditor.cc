@@ -111,7 +111,6 @@ namespace cond {
   }
  
   void IOVEditor::flushInserts(){
-    m_dbSess.createDatabase();
     // ***** TEMPORARY FOR TRANSITION PHASE
     if( m_dbSess.isOldSchema() ){
       PoolTokenWriter writer( m_dbSess.storage() );

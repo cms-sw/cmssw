@@ -15,8 +15,6 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondFormats/Common/interface/Time.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
-#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
-
 #include "CondCore/DBCommon/interface/ConvertIOVSyncValue.h"
 
 #include "CondCore/ESSources/interface/ProxyFactory.h"
@@ -26,9 +24,9 @@
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include <cstdlib>
 #include "CondCore/TagCollection/interface/TagCollectionRetriever.h"
 #include <exception>
+//#include <cstdlib>
 //#include <iostream>
 
 
@@ -183,15 +181,11 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
       //open db get tag info (i.e. the IOV token...)
       nsess = m_connection.createSession();
       nsess.open( it->pfn, true );
-      // keep transaction open if source is not transactional (such as FronTier)
-      if (!nsess.isTransactional()) nsess.transaction().start(true);
       sessions.insert(std::make_pair(it->pfn,nsess));
     } else nsess = (*p).second;
     cond::MetaData metadata(nsess);
-    cond::DbScopedTransaction transaction(nsess);
-    transaction.start(true);
+    nsess.transaction().start(true);
     std::string iovtoken = metadata.getToken(it->tag);
-    transaction.commit();
     // owenship...
     ProxyP proxy(proxyWrappers[ipb++]);
    //  instert in the map
@@ -200,6 +194,7 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
     proxy->lateInit(nsess,iovtoken, 
 		    it->labelname, it->pfn, it->tag
 		    );
+    nsess.transaction().commit();
   }
 
   // one loaded expose all other tags to the Proxy! 
@@ -368,11 +363,10 @@ CondDBESSource::fillTagCollectionFromDB( const std::string & coraldb,
      throw cond::Exception(std::string("ESSource: requested global tag ")+roottag+" but not connection string given");
    cond::DbSession session = m_connection.createSession();
    session.open( coraldb, true );
-   cond::DbScopedTransaction transaction(session);
-   transaction.start(true);
+   session.transaction().start(true);
    cond::TagCollectionRetriever tagRetriever( session, prefix, postfix );
    tagRetriever.getTagCollection(roottag,tagcoll);
-   transaction.commit();
+   session.transaction().commit();
   } 
 
   std::set<cond::TagMetadata>::iterator it;

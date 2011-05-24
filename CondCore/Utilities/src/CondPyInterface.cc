@@ -19,11 +19,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
+//#include "FWCore/PluginManager/interface/PluginCapabilities.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 #include "CondCore/DBCommon/interface/DbTransaction.h"
-#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/FipProtocolParser.h"
+#include "CondCore/DBCommon/interface/ClassID.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/DBCommon/interface/Logger.h"
 #include "CondCore/TagCollection/interface/TagCollectionRetriever.h"
@@ -142,9 +144,7 @@ namespace cond {
 
     cond::MetaData metadata_svc(me);
     std::vector<std::string> alltags;
-    me.transaction().start(true);
     metadata_svc.listAllTags(alltags);
-    me.transaction().commit();
     
     std::copy (alltags.begin(),
 	       alltags.end(),
@@ -155,23 +155,22 @@ namespace cond {
 
   std::string CondDB::iovToken(std::string const & tag) const {
     cond::MetaData metadata_svc(me);
-    me.transaction().start(true);
     std::string token=metadata_svc.getToken(tag);
-    me.transaction().commit();
     return token;
   }
   
   // fix commit problem....
   IOVProxy CondDB::iov(std::string const & tag) const {
-    return IOVProxy(me,iovToken(tag),true,true);
+    return IOVProxy(me,iovToken(tag));
   }
   
   IOVProxy CondDB::iovWithLib(std::string const & tag) const {
-    return IOVProxy(me,iovToken(tag),false,true);
+    return IOVProxy(me,iovToken(tag));
   }
+
   IOVElementProxy CondDB::payLoad(std::string const & token) const {
     ///FIXME: must be IOVElementProxy(since, till, token, me)
-    return IOVElementProxy(0,0,token,me);
+    return IOVElementProxy(0,0,token);
   }
 
 
@@ -189,7 +188,12 @@ namespace cond {
     return entry;
   }
 
-
+  void CondDB::startTransaction() const {
+    me.transaction().start();
+  }
+  void CondDB::commitTransaction() const {
+    me.transaction().commit();
+  }
 
   RDBMS::RDBMS() : connection(new DbConnection) {
     //topinit();
@@ -248,12 +252,11 @@ namespace cond {
 				      std::string const & postfix) const {
     DbSession session = connection->createSession();
     session.open( connstr );
-    cond::DbScopedTransaction tr(session);
-    tr.start(true);
+    session.transaction().start( true );
     TagCollectionRetriever gtr(session, prefix,postfix);
     const_cast<GlobalTag&>(m_globalTag).clear();
     gtr.getTagCollection(gname,const_cast<GlobalTag&>(m_globalTag));
-    tr.commit();
+    session.transaction().commit();
     return m_globalTag;  
   }
 

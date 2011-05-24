@@ -14,23 +14,6 @@
 #include <vector>
 
 namespace cond {
-  // to be moved elsewhere
-  class PoolTransactionSentry {
-  public:
-    PoolTransactionSentry(){}
-    explicit PoolTransactionSentry(cond::DbSession & db) : 
-      elem(new Elem(db)){}      
-  private:
-    struct Elem {
-      Elem(cond::DbSession & db) : pooldb(db){
-	pooldb.transaction().start(true);
-      }
-      ~Elem() { pooldb.transaction().commit();}
-      cond::DbSession pooldb;
-    };
-    boost::shared_ptr<Elem> elem;
-      
-  };
 
   template<typename T>
   class BaseValueExtractor {
@@ -93,12 +76,8 @@ namespace cond {
     
     PayLoadInspector(const cond::IOVElementProxy & elem): m_since(elem.since()), m_token(elem.token()) {
       ROOT::Cintex::Cintex::Enable();
-      cond::DbSession db = elem.db();
-      db.transaction().start(true);
-      load(db,m_token);
-      db.transaction().commit();
     } 
-    
+
     std::string dumpXML(std::string filename) const {
       size_t pos = filename.find(".xml");
       if(pos == std::string::npos)
@@ -158,18 +137,14 @@ namespace cond {
       return m_object; 
     }
     
-  private:
-    bool load( cond::DbSession & db, std::string const & token) {
+    bool load( cond::DbSession & db ) {
       bool ok = false;
-      //m_Data =  db.getTypedObject<DataT>(token);
-      m_object = db.getObject(token);
-      //if (m_Data.get()) ok =  true;
+      m_object = db.getObject(m_token);
       if(m_object.address()) ok = true;    
       return ok;
     }
     
   private:
-    //boost::shared_ptr<DataT> m_Data;
     ora::Object m_object;
     cond::Time_t m_since;
     std::string m_token;

@@ -51,8 +51,12 @@ int cond::XMLUtilities::execute(){
   std::string token;
   cond::DbScopedTransaction transaction(session);
   transaction.start(true);
+  if( !metadata_svc.hasTag( tag ) ){
+    std::cout <<"Tag \""<<tag<<"\" has not been found."<<std::endl;
+    transaction.commit();
+    return 0; 
+  }
   token=metadata_svc.getToken(tag);
-  transaction.commit();
   cond::Time_t since = std::numeric_limits<cond::Time_t>::min();
   if( hasOptionValue("beginTime" )) since = getOptionValue<cond::Time_t>("beginTime");
   cond::Time_t till = std::numeric_limits<cond::Time_t>::max();
@@ -64,17 +68,16 @@ int cond::XMLUtilities::execute(){
   if (!multi) xml = TFile::Open(std::string(tag+".xml").c_str(),"recreate");
 
 
-  cond::IOVProxy iov( session, token, false, true);
+  cond::IOVProxy iov( session, token );
 
   since = std::max(since, cond::timeTypeSpecs[iov.timetype()].beginValue);
   till  = std::min(till,  cond::timeTypeSpecs[iov.timetype()].endValue);
   iov.setRange(since,till);
  
-if (verbose)
-  std::cout << "dumping " << tag << " from "<< since << " to " << till
-	    << " in file " << ((multi) ? std::string(tag+"_since.xml") : std::string(tag+".xml")) 
-	    << std::endl;
-	
+  if (verbose)
+    std::cout << "dumping " << tag << " from "<< since << " to " << till
+	      << " in file " << ((multi) ? std::string(tag+"_since.xml") : std::string(tag+".xml")) 
+	      << std::endl;
 
   unsigned int counter=0;
   std::set<std::string> const&  payloadClasses=iov.payloadClasses();
@@ -103,6 +106,8 @@ if (verbose)
   for( std::set<std::string>::const_iterator iCl = payloadClasses.begin(); iCl !=payloadClasses.end(); iCl++){
     std::cout <<*iCl<<std::endl;
   }
+  transaction.commit();
+
   if (!multi) xml->Close();
   if (verbose)  std::cout<<"Total # of payload objects: "<<counter<<std::endl;
 

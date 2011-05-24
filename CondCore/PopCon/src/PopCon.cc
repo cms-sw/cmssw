@@ -2,8 +2,7 @@
 #include "CondCore/PopCon/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include<iostream>
+#include <iostream>
 
 namespace popcon {
 

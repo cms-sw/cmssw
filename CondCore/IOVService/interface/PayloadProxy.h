@@ -85,6 +85,7 @@ namespace cond {
     bool m_doThrow;
     IOVProxy m_iov;
     IOVElementProxy m_element;
+    mutable DbSession m_session;
 
   protected:
     // current loaded payload

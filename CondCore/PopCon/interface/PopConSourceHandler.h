@@ -55,23 +55,18 @@ namespace popcon {
       Ref() : m_dbsession(){}
       Ref(cond::DbSession& dbsession, std::string token) : 
         m_dbsession(dbsession){
-	      m_dbsession.transaction().start(true);
-	      m_d = m_dbsession.getTypedObject<T>(token);
+	m_d = m_dbsession.getTypedObject<T>(token);
       }
       ~Ref() {
-        if(m_dbsession.isOpen())
-          m_dbsession.transaction().commit();
       }
       
       Ref(const Ref & ref) :
         m_dbsession(ref.m_dbsession), m_d(ref.m_d) {
-        //ref.m_dbsession=0; // avoid commit;
       }
       
       Ref & operator=(const Ref & ref) {
         m_dbsession = ref.m_dbsession;
         m_d = ref.m_d;
-        //ref.m_dbsession=0; // avoid commit;
         return *this;
       }
       

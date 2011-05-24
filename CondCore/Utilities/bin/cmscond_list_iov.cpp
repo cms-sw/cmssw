@@ -115,13 +115,12 @@ int cond::ListIOVUtilities::execute(){
   bool dump = hasOptionValue("outputfile");
   std::auto_ptr<std::ofstream> outFile;
   cond::DbSession session = openDbSession( "connect", true );
+  cond::DbScopedTransaction transaction(session);
+  transaction.start(true);
   if( listAll ){
     cond::MetaData metadata_svc(session);
     std::vector<std::string> alltags;
-    cond::DbScopedTransaction transaction(session);
-    transaction.start(true);
     metadata_svc.listAllTags(alltags);
-    transaction.commit();
     std::copy (alltags.begin(),
                alltags.end(),
                std::ostream_iterator<std::string>(std::cout,"\n")
@@ -133,10 +132,7 @@ int cond::ListIOVUtilities::execute(){
     outFileName += ".dump";
     cond::MetaData metadata_svc(session);
     std::string token;
-    cond::DbScopedTransaction transaction(session);
-    transaction.start(true);
     token=metadata_svc.getToken(tag);
-    transaction.commit();
     {
       bool verbose = hasOptionValue("verbose");
       bool details = hasOptionValue("summary");
@@ -144,7 +140,7 @@ int cond::ListIOVUtilities::execute(){
       if (details) {
 	xml =  TFile::Open(std::string(tag+".xml").c_str(),"recreate");
       } 
-      cond::IOVProxy iov( session, token, !details, true);
+      cond::IOVProxy iov( session, token );
       unsigned int counter=0;
       const std::set<std::string>& payloadClasses=iov.payloadClasses();
       size_t maxClassSize = 16;
@@ -221,9 +217,9 @@ int cond::ListIOVUtilities::execute(){
        outFile->close();
      }
      std::cout<<"\tTotal # of payload objects: "<<counter<<std::endl;
-     session.transaction().commit();
     }
   }
+  transaction.commit();
   return 0;
 }
 

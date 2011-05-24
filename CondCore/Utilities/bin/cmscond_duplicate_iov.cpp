@@ -11,7 +11,6 @@
 
 #include "CondCore/DBCommon/interface/Logger.h"
 #include "CondCore/DBCommon/interface/LogDBEntry.h"
-#include "CondCore/DBCommon/interface/UserLogInfo.h"
 #include "CondCore/DBCommon/interface/TagInfo.h"
 
 #include "CondCore/IOVService/interface/IOVNames.h"
@@ -125,25 +124,7 @@ int cond::DuplicateIOVUtilities::execute(){
   }
   */
 
-  std::auto_ptr<cond::Logger> logdb;
-  if(doLog){
-    cond::DbSession logSession = openDbSession( "logDB" );
-    // setup logDB
-    logdb.reset(new cond::Logger( logSession ));
-    //logdb->getWriteLock();
-    logdb->createLogDBIfNonExist();
-    //logdb->releaseWriteLock();
-  }
   
-  cond::UserLogInfo a;
-  a.provenance=destConnect+"/"+destTag;
-  a.usertext="duplicateIOV V1.0;";
-  {
-    std::ostringstream ss;
-    ss << "From="<< from <<"; Since="<< since <<"; " << usertext;
-    a.usertext +=ss.str();
-  }
-
   // create if does not exist;
   if (newIOV) {
     cond::IOVEditor editor(destDb);
@@ -167,10 +148,21 @@ int cond::DuplicateIOVUtilities::execute(){
 
   ::sleep(1);
   
+  // setup logDB and write on it...
   if (doLog){
-    logdb->getWriteLock();
+    std::auto_ptr<cond::Logger> logdb;
+    cond::DbSession logSession = openDbSession( "logDB" );
+    logdb.reset(new cond::Logger( logSession ));
+    logdb->createLogDBIfNonExist();
+
+    cond::UserLogInfo a;
+    a.provenance=destConnect+"/"+destTag;
+    a.usertext="duplicateIOV V1.0;";
+    std::ostringstream ss;
+    ss << "From="<< from <<"; Since="<< since <<"; " << usertext;
+    a.usertext +=ss.str();
+
     logdb->logOperationNow(a,destConnect,payloadClass,payload,destTag,timetypestr,size,since);
-    logdb->releaseWriteLock();
   }
 
   return 0;

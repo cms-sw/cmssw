@@ -9,7 +9,6 @@
 
 #include "CondCore/DBCommon/interface/Logger.h"
 #include "CondCore/DBCommon/interface/LogDBEntry.h"
-#include "CondCore/DBCommon/interface/UserLogInfo.h"
 #include "CondCore/DBCommon/interface/TagInfo.h"
 
 #include "CondCore/IOVService/interface/IOVNames.h"
@@ -105,7 +104,7 @@ int cond::ExportIOVUtilities::execute(){
     destiovtoken=metadata.getToken(destTag);
     newIOV = false;
     // grab info
-    IOVProxy iov(destdb, destiovtoken, true, true);
+    IOVProxy iov(destdb, destiovtoken);
     oldSize=iov.size();
     if (sourceiovtype!=iov.timetype()) {
       throw std::runtime_error("iov type in source and dest differs");
@@ -118,39 +117,6 @@ int cond::ExportIOVUtilities::execute(){
   since = std::max(since, cond::timeTypeSpecs[sourceiovtype].beginValue);
   till  = std::min(till,  cond::timeTypeSpecs[sourceiovtype].endValue);
   
-  // setup logDB
-  std::auto_ptr<cond::Logger> logdb;
-  if (doLog) {
-    cond::DbSession logSession = openDbSession( "logDB");
-    logdb.reset(new cond::Logger(logSession));
-    //   logdb->getWriteLock();
-    logdb->createLogDBIfNonExist();
-    // logdb->releaseWriteLock();
-  }
-  cond::UserLogInfo a;
-  a.provenance=sourceConnect+"/"+inputTag;
-  a.usertext="exportIOV V2.1;";
-  if (newIOV) a.usertext+= "new tag;";
-  
-  if (newIOV) {
-    /***
-    // store payload mapping
-    if (exportMapping) {
-      bool stored = destdb.importMapping( sourceConnect, payloadContainer );
-      sourcedb.transaction().forceCommit();
-      sourcedb.transaction().start(true); //FIXME: ORA closes the transaction: is CORAL???
-      if(debug)
-	std::cout<< "payload mapping " << (stored ? "" : "not ") << "stored"<<std::endl;
-      if (stored) a.usertext+="mapping stored;";
-    }
-    ****/
-  }
-  
-  {
-    std::ostringstream ss;
-    ss << "since="<< since <<", till="<< till << ", " << usertext << ";";
-    a.usertext +=ss.str();
-  }
   destiovtoken=iovmanager.exportIOVRangeWithPayload( destdb,
 						     sourceiovtoken,
 						     destiovtoken,
@@ -164,14 +130,13 @@ int cond::ExportIOVUtilities::execute(){
       std::cout<<"dest iov type "<<sourceiovtype<<std::endl;
     }
   }
-  transaction.commit();
   sourcedb.transaction().commit();
   
   ::sleep(1);
 
   // grab info
   // call IOV proxy with keep open option: it is required to lookup the payload class. A explicit commit will be needed at the end.
-  IOVProxy iov(destdb, destiovtoken, true, true);
+  IOVProxy iov(destdb, destiovtoken);
   std::string const & timetypestr = cond::timeTypeSpecs[sourceiovtype].name;
   cond::TagInfo result;
   result.name=destTag;
@@ -186,20 +151,27 @@ int cond::ExportIOVUtilities::execute(){
     result.lastPayloadToken=last.token();
     lastPayloadClass = destdb.classNameForItem( result.lastPayloadToken );
   }
-  destdb.transaction().commit();
+  transaction.commit();
   
-  {
-    std::ostringstream ss;
-    ss << "copied="<< result.size-oldSize <<";";
-    a.usertext +=ss.str();
-  }
-  
-  if (doLog){
-    logdb->getWriteLock();
-    logdb->logOperationNow(a,destConnect,lastPayloadClass,result.lastPayloadToken,destTag,timetypestr,result.size-1,since);
-    logdb->releaseWriteLock();
-  }
+  // setup logDB and write on it...
+  if (doLog) {
+    std::auto_ptr<cond::Logger> logdb;
+    cond::DbSession logSession = openDbSession( "logDB");
+    logdb.reset(new cond::Logger(logSession));
+    logdb->createLogDBIfNonExist();
 
+    cond::UserLogInfo a;
+    a.provenance=sourceConnect+"/"+inputTag;
+    a.usertext="exportIOV V3.0;";
+    if (newIOV) a.usertext+= "new tag;";
+    std::ostringstream ss;
+    ss << "since="<< since <<", till="<< till << ", " << usertext << ";";
+    ss << " copied="<< result.size-oldSize <<";";
+    a.usertext +=ss.str();  
+
+    logdb->logOperationNow(a,destConnect,lastPayloadClass,result.lastPayloadToken,destTag,timetypestr,result.size-1,since);
+  }
+    
   return 0;
 }
 

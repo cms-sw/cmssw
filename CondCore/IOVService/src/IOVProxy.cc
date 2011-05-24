@@ -11,43 +11,28 @@ namespace cond {
 
     struct IOVImpl {
       IOVImpl(cond::DbSession& dbs,
-	      const std::string & token,
-	      bool /*nolib*/,
-	      bool keepOpen) : poolDb(dbs), m_token(token), /*m_nolib(nolib),*/ m_keepOpen(keepOpen){
+	      const std::string & token) : dbSession(dbs), m_token(token){
 	refresh();
-	if (m_keepOpen) {
-	  if(poolDb.transaction().isActive() && !poolDb.transaction().isReadOnly())
-	    poolDb.transaction().start(false);
-	  else poolDb.transaction().start(true);
-	}
       }
       
       void refresh() {
-	cond::DbScopedTransaction transaction(poolDb);
-	if(transaction.isActive() && !transaction.isReadOnly())
-	  transaction.start(false);
-	else transaction.start(true);
-	iov = poolDb.getTypedObject<cond::IOVSequence>( m_token );
+	iov = dbSession.getTypedObject<cond::IOVSequence>( m_token );
         // loading the lazy-loading Queryable vector...
         iov->loadAll();
         //**** temporary for the schema transition
-        if( poolDb.isOldSchema() ){
-          PoolTokenParser parser(  poolDb.storage() ); 
+        if( dbSession.isOldSchema() ){
+          PoolTokenParser parser(  dbSession.storage() ); 
           iov->swapTokens( parser );
         }
         //****
-	transaction.commit();
       }
       
-      ~IOVImpl(){
-	if (m_keepOpen) poolDb.transaction().commit();
+      ~IOVImpl(){  
       }
       
-      cond::DbSession poolDb;
+      cond::DbSession dbSession;
       boost::shared_ptr<cond::IOVSequence> iov;
       std::string m_token;
-      //bool m_nolib;
-      bool m_keepOpen;
     };
   }
   
@@ -63,17 +48,15 @@ namespace cond {
   }
 
   IOVProxy::IterHelp::IterHelp(impl::IOVImpl & impl) :
-    iov(&(*impl.iov)), elem(impl.poolDb){}
+    iov(&(*impl.iov)), elem(){}
   
   IOVProxy::IOVProxy() : m_low(0), m_high(0){}
  
   IOVProxy::~IOVProxy() {}
 
   IOVProxy::IOVProxy(cond::DbSession& dbSession,
-                     const std::string & token,
-                     bool nolib,
-                     bool keepOpen)
-    :m_iov(new impl::IOVImpl(dbSession,token,nolib,keepOpen)), m_low(0), m_high(size()){}
+                     const std::string & token)
+    :m_iov(new impl::IOVImpl(dbSession,token)), m_low(0), m_high(size()){}
 
 
   bool IOVProxy::refresh() {
@@ -150,7 +133,7 @@ namespace cond {
   }
 
   cond::DbSession& IOVProxy::db() const {
-    return m_iov->poolDb;
+    return m_iov->dbSession;
   }
 
 

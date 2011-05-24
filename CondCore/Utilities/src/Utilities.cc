@@ -11,7 +11,7 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
-#include "CondCore/DBCommon/interface/SharedLibraryName.h"
+#include "CondCore/ORA/interface/SharedLibraryName.h"
 #include <boost/foreach.hpp>                   
 #include <fstream>
 
@@ -74,7 +74,7 @@ int cond::Utilities::run( int argc, char** argv ){
 	m_values["dictionary"].as<std::vector<std::string> >();
       if(!dictionaries.empty()){
 	initializePluginManager();
-	cond::SharedLibraryName libName;
+	ora::SharedLibraryName libName;
 	BOOST_FOREACH(std::string const & dict, dictionaries)
 	  edmplugin::SharedLibrary( libName(dict) );
       }

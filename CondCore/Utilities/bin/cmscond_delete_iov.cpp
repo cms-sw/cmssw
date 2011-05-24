@@ -33,21 +33,19 @@ int cond::DeleteIOVUtilities::execute(){
   bool withPayload = hasOptionValue("withPayload");
   cond::DbSession rdbms = openDbSession( "connect" );
 
+  cond::DbScopedTransaction transaction( rdbms );
+  transaction.start(false);
   if( deleteAll ){
-    cond::DbScopedTransaction transaction( rdbms );
     // irrelevant which tymestamp
     cond::IOVService iovservice(rdbms);
     transaction.start(false);
     iovservice.deleteAll(withPayload);
     cond::MetaData metadata_svc(rdbms);
     metadata_svc.deleteAllEntries();
-    transaction.commit();
   }else{
     std::string tag = getOptionValue<std::string>("tag");
     
-    cond::DbScopedTransaction transaction( rdbms );
     cond::MetaData metadata_svc(rdbms);
-    transaction.start(false);
     std::string token=metadata_svc.getToken(tag);
     if( token.empty() ) {
       std::cout<<"non-existing tag "<<tag<<std::endl;
@@ -57,8 +55,8 @@ int cond::DeleteIOVUtilities::execute(){
     std::auto_ptr<cond::IOVEditor> ioveditor(iovservice.newIOVEditor(token));
     ioveditor->deleteEntries(withPayload);
     metadata_svc.deleteEntryByTag(tag);
-    transaction.commit();      
   }
+  transaction.commit();
   return 0;
 }
 

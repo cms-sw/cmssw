@@ -57,6 +57,9 @@ namespace cond {
    cond::LogDBEntry lastLogEntry(std::string const & tag) const;
    cond::LogDBEntry lastLogEntryOK(std::string const & tag) const;
 
+   void startTransaction() const;
+   void commitTransaction() const;
+
    DbSession& session() { return me;}
 
  private:

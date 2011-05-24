@@ -2,7 +2,6 @@
 
 #include "CondCore/ORA/interface/Exception.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/ORA/interface/OId.h"
 
 namespace {
@@ -25,7 +24,7 @@ namespace cond {
   BasePayloadProxy::BasePayloadProxy(cond::DbSession& session,
                                      const std::string & token,
                                      bool errorPolicy) :
-    m_doThrow(errorPolicy), m_iov(session,token,true,false) {
+    m_doThrow(errorPolicy), m_iov(session,token),m_session(session) {
     ++gstats.nProxy;
     BasePayloadProxy::Stats s = {0,0,0,ObjIds()};
     stats = s;
@@ -54,16 +53,13 @@ namespace cond {
     if ( isValid()) {
       // check if (afterall) the payload is still the same...
       if (m_element.token()==token()) return;
-      cond::DbTransaction& trans = m_element.db().transaction();
-      trans.start(true);
       try {
-        ok = load( m_element.db(),m_element.token());
+        ok = load( m_session ,m_element.token());
 	if (ok) m_token = m_element.token();
       }	catch( const ora::Exception& e) {
         if (m_doThrow) throw cond::Exception(std::string("Condition Payload loader: ")+ e.what());
         ok = false;
       }
-      trans.commit();
     }
 
     if (!ok) {

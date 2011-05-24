@@ -131,12 +131,9 @@ namespace popcon {
 								 m_tagInfo,m_logDBEntry); 
     Container const & payloads = *ret.first;
     
-    
-    
     if(m_LoggingOn)
       m_dbService->setLogHeaderForRecord(m_record,source.id(),"PopCon v4.0; " + 
 					 cond::userInfo() + displayIovHelper(payloads) +  ret.second);
-    
     
     displayHelper(payloads);
     

@@ -109,7 +109,7 @@ int main(){
     // use Proxy
     {
       std::cout<<"test proxy "<<std::endl;
-      cond::IOVProxy iov(pooldb,iovtok, true, false);
+      cond::IOVProxy iov(pooldb,iovtok);
       std::cout << "size " << iov.size()
 		<<", Time Type " << iov.timetype() << std::endl;
       std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
@@ -128,7 +128,7 @@ int main(){
     }
     {
       // test "copy shallow"
-      cond::IOVProxy iov( pooldb,iovtok, true, false);
+      cond::IOVProxy iov( pooldb,iovtok);
       pooldb.close();
       std::cout << "size " << iov.size()
 		<<", Time Type " << iov.timetype() << std::endl;

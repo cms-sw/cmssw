@@ -186,7 +186,7 @@ int main(){
     }
     
 
-    cond::IOVProxy iov( pooldb, token, true, false);
+    cond::IOVProxy iov( pooldb, token );
     for ( cond::IOVProxy::const_iterator it =iov.begin(); it!=iov.end(); ++it) {
       std::cout<<"payloadToken "<<it->token();
       std::cout<<", since "<<it->since();

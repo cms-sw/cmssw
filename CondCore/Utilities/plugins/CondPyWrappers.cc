@@ -16,20 +16,23 @@
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
+#include "CondCore/Utilities/interface/PayLoadInspector.h"
+
+
 using namespace boost::python;
 
 #include<iostream>
 
 namespace {
-  
+
   // decode token
   std::string classID(std::string const & token) {
     static std::string const clid("CLID=");
     std::string::size_type s = token.find(clid) + clid.size();
     std::string::size_type e = token.find(']',s);
     return token.substr(s,e-s);
-
   }
+
   // find and return
   boost::shared_ptr<cond::ClassInfo> pyInfo(std::string const & token) {
     //    topinit();    
@@ -195,6 +198,8 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .def("moduleName",moduleName)
     .def("lastLogEntry", &cond::CondDB::lastLogEntry)
     .def("lastLogEntryOK", &cond::CondDB::lastLogEntryOK)
+    .def("startTransaction", &cond::CondDB::startTransaction)
+    .def("commitTransaction", &cond::CondDB::commitTransaction)
     ;
   
 
@@ -206,7 +211,6 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .def("getReadOnlyDB", &cond::RDBMS::getReadOnlyDB)
     .def("globalTag",  &cond::RDBMS::globalTag, return_value_policy<copy_const_reference>())
     ;
-
 
 //  register_exception_translator<edm::Exception>(exceptionTranslator);
   register_exception_translator<std::exception>(exceptionTranslator);

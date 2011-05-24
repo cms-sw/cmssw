@@ -81,7 +81,8 @@ bool CondBasicIter::forward(){
   return iter!=iov.end();
 }
 
+
 bool CondBasicIter::make(){
-  return load((*iter).db(),(*iter).token());
+  return load(db.session(),(*iter).token());
 }
 
