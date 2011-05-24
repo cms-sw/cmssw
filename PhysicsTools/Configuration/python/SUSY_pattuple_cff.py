@@ -480,10 +480,11 @@ def addSUSYJetCollection(process,jetMetCorrections,jets = 'IC5Calo',mcVersion=''
                      genJetCollection = cms.InputTag('%(collection)sGenJets' % locals())
                      )
 
-    if ("L1FastJet" in jetMetCorrections):
-        setattr(getattr(process, jetCollection), "doAreaFastjet", True)
-    else:
-        setattr(getattr(process, jetCollection), "doAreaFastjet", False)
+    if (type == 'PF'):
+        if ("L1FastJet" in jetMetCorrections):
+            setattr(getattr(process, jetCollection), "doAreaFastjet", True)
+        else:
+            setattr(getattr(process, jetCollection), "doAreaFastjet", False)
 
 def addJetMET(process,theJetNames,jetMetCorrections,mcVersion):
     #-- Extra Jet/MET collections -------------------------------------------------
