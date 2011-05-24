@@ -171,7 +171,7 @@ public:
     else  edm::LogError("ConditionDBWriter::ConditionDBWriter(): ERROR - unknown IOV interval write mode...will not store anything on the DB") << std::endl;
     Record_=iConfig.getParameter<std::string>("Record");
     doStore_=iConfig.getParameter<bool>("doStoreOnDB");
-    alwaysUseCurrentTime_=iConfig.getUntrackedParameter<bool>("AlwaysUseCurrentTime", false);
+    timeFromEndRun_=iConfig.getUntrackedParameter<bool>("TimeFromEndRun", false);
     
     if(! SinceAppendMode_ ) 
       edm::LogError("ConditionDBWriter::endJob(): ERROR - only SinceAppendMode support!!!!");
@@ -228,6 +228,7 @@ private:
 
   void analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   {
+    std::cout << "Running over event" << std::endl;
     if(setSinceTime_ ){
       setTime(); //set new since time for possible next upload to DB  
       setSinceTime_=false;
@@ -266,6 +267,7 @@ private:
       T * objPointer = getNewObject();
       
       if(objPointer ){
+	if( timeFromEndRun_ ) Time_ = run.id().run();
 	storeOnDb(objPointer);
       }
       else {
@@ -315,8 +317,12 @@ private:
     }
     
     cond::Time_t since = 
-      ( mydbservice->isNewTagRequest(Record_) && !alwaysUseCurrentTime_ ) ? mydbservice->beginOfTime() : Time_;
+      ( mydbservice->isNewTagRequest(Record_) && !timeFromEndRun_ ) ? mydbservice->beginOfTime() : Time_;
     
+    std::cout << "beginOfTime = " << mydbservice->beginOfTime() << std::endl;
+    std::cout << "currentTime = " << mydbservice->currentTime() << std::endl;
+    std::cout << "Time_ = " << Time_ << std::endl;
+
     edm::LogInfo("ConditionDBWriter") << "appending a new object to tag " 
 				      <<Record_ <<" in since mode " << std::endl;
     mydbservice->writeOne<T>(objPointer, since, Record_);
@@ -328,10 +334,12 @@ private:
     
     if( mydbservice.isAvailable() ){
       Time_ = mydbservice->currentTime();
+      std::cout << "ConditionDBWriter::setTime: time set to " << Time_ << std::endl;
       edm::LogInfo("ConditionDBWriter::setTime: time set to ") << Time_ << std::endl;
     }
     else{
       edm::LogError("ConditionDBWriter::setTime(): PoolDBOutputService is not available...cannot set current time") << std::endl;
+      std::cout << "ConditionDBWriter::setTime: ERROR" << std::endl;
     }
   }
 
@@ -387,7 +395,7 @@ private:
 
   bool firstRun_;
 
-  bool alwaysUseCurrentTime_;
+  bool timeFromEndRun_;
 };
 
 #endif
