@@ -260,8 +260,18 @@ cond::PoolTokenParser::PoolTokenParser( ora::Database& db ):
 
 ora::OId cond::PoolTokenParser::parse( const std::string& poolToken ){
   std::pair<std::string,int> oidData = parseToken( poolToken );
+  if( oidData.first.empty() ){
+    throwException("Could not resolve Container name from token=\""+poolToken+"\".","PoolTokenParser::parse");
+  }
   ora::Container cont = m_db.containerHandle(  oidData.first );
   return ora::OId( cont.id(), oidData.second );
+}
+
+std::string cond::PoolTokenParser::className( const std::string& oraToken ){
+  ora::OId oid;
+  oid.fromString( oraToken );
+  ora::Container cont = m_db.containerHandle(  oid.containerId() );
+  return cont.className();
 }
 
 cond::PoolTokenWriter::PoolTokenWriter( ora::Database& db ):

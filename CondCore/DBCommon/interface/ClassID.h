@@ -7,7 +7,6 @@
 namespace cond {
 
   namespace idCategories {
-    std::string const dictIDCategory("LCGDictID");
     std::string const pythonIDCategory("CondPythonID");
   }
 
@@ -15,13 +14,12 @@ namespace cond {
 
   char const * className(const std::type_info& t);
 
-  //class ClassIDRegistry;
 
   class ClassInfo {
   public:
     virtual ~ClassInfo(){}
     inline ClassInfo(const std::type_info& t) : tinfo(t) {}
-    inline ClassInfo(const std::type_info& t, int);
+    //inline ClassInfo(const std::type_info& t, int);
     inline const std::type_info& type() const { return tinfo;}
     std::string pluginName(std::string const & prefix) const;
     virtual std::string resource() const=0;
@@ -60,10 +58,11 @@ namespace cond {
     
 }
 
+/**
 // magic: works only if a file local registry exists in the file
 #define ELEM_CONSTR(xx_)						\
   cond::ClassInfo::ClassInfo(const std::type_info& t,int) : tinfo(t) {registry = &xx_;registerMe(t);} 
-
+**/
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 namespace cond{

@@ -105,6 +105,8 @@ namespace cond{
     ~PoolTokenParser(){
     }
     ora::OId parse( const std::string& poolToken );
+    std::string className( const std::string& poolToken );
+
     private:
     ora::Database& m_db;
   };

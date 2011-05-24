@@ -10,7 +10,6 @@ namespace cond {
     return __cxxabiv1::__cxa_demangle(t.name(), 0, 0, &status); 
   }
 
-
   namespace {
     std::string id(const std::type_info& t) {
       const Reflex::Type type=Reflex::Type::ByTypeInfo(t);
@@ -40,7 +39,6 @@ namespace cond {
   }
 
 
-
   /**
   ClassIDRegistry::ClassIDRegistry(std::string const & pfix) : prefix(pfix+"/"){}
 
@@ -54,10 +52,12 @@ namespace cond {
     return registry->registerMe(t);
   }
 
+  **/  
+
   std::string ClassInfo::pluginName(std::string const & prefix) const {
+    //return prefix + "/" +className(tinfo);
     return prefix + "/" +id(tinfo);
   }
-  **/  
 
 }
 

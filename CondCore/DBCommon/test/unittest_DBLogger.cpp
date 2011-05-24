@@ -66,25 +66,10 @@ int main(){
   cond::UserLogInfo a;
   a.provenance="me";
   mylogger.createLogDBIfNonExist();
-  if(mylogger.getWriteLock()){
-    std::cout<<"1. table locked"<<std::endl;
-  }else{
-    std::cout<<"1. table lock failed"<<std::endl;
-  }
   mylogger.logOperationNow(a,constr,std::string("Pedestals"),tok1,"mytag1","runnumber",0,1);
   std::cout<<"1. waiting"<<std::endl;
   sleep(1);
   std::cout<<"1. stop waiting"<<std::endl;
-  if(mylogger.releaseWriteLock()){
-    std::cout<<"1. table lock released"<<std::endl;
-  }else{
-    std::cout<<"1. failed to release table lock"<<std::endl;
-  }
-  if(mylogger.getWriteLock()){
-    std::cout<<"1. table locked"<<std::endl;
-  }else{
-    std::cout<<"1. table lock failed"<<std::endl;
-  }
   std::cout<<"1. waiting"<<std::endl;
   sleep(1);
   std::cout<<"1. stop waiting"<<std::endl;
@@ -92,17 +77,6 @@ int main(){
   std::cout<<"1. waiting"<<std::endl;
   sleep(1);
   std::cout<<"1. stop waiting"<<std::endl;
-  if(mylogger.releaseWriteLock()){
-    std::cout<<"1. table lock released"<<std::endl;
-  }else{
-    std::cout<<"1. failed to release table lock"<<std::endl;
-  }
-  
-  if(mylogger.getWriteLock()){
-    std::cout<<"1. table locked"<<std::endl;
-  }else{
-    std::cout<<"1. table lock failed"<<std::endl;
-  }
   
   std::cout<<"1. waiting"<<std::endl;
   sleep(1);
@@ -111,11 +85,6 @@ int main(){
   std::cout<<"1. waiting"<<std::endl;
   sleep(1);
   std::cout<<"1. stop waiting"<<std::endl;
-  if(mylogger.releaseWriteLock()){
-    std::cout<<"1. table lock released"<<std::endl;
-  }else{
-    std::cout<<"1. failed to release table lock"<<std::endl;
-  }   
   /*std::cout<<"about to lookup last entry"<<std::endl;
   cond::LogDBEntry result;
   mylogger.LookupLastEntryByProvenance("me",result);
