@@ -7,9 +7,9 @@
 // Original Author: David Lange
 // Created:         April 4, 2011
 //
-// $Author: dlange $
-// $Date: 2011/05/24 04:35:17 $
-// $Revision: 1.2 $
+// $Author: vlimant $
+// $Date: 2011/05/24 17:51:18 $
+// $Revision: 1.3 $
 //
 
 #include <memory>
@@ -223,7 +223,8 @@ namespace cms
 	}//end loop over tracks
       }//end more than 0 track
     } // loop over trackcolls
-    
+
+   
 
     //cache the rechits and valid hits
     std::vector<std::vector<const TrackingRecHit*> > rh1(rSize);
@@ -244,9 +245,9 @@ namespace cms
 
     //DL here    
     for ( unsigned int ltm=0; ltm<listsToMerge_.size(); ltm++) {
-
+      if ( rSize==0 ) continue;
       std::vector<int> saveSelected(rSize);
-      for ( unsigned int i=0; i<rSize-1; i++) saveSelected[i]=selected[i];
+      for ( unsigned int i=0; i<rSize; i++) saveSelected[i]=selected[i];
 
       //DL protect against 0 tracks? 
       for ( unsigned int i=0; i<rSize-1; i++) {
@@ -353,6 +354,7 @@ namespace cms
       }//end track loop
     } //end loop over track list sets
 
+
     //
     //  output selected tracks - if any
     //
@@ -378,6 +380,7 @@ namespace cms
 	refTrajSeeds = e.getRefBeforePut<TrajectorySeedCollection>();
       }
     }
+
 
     outputTrajs = std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>()); 
     outputTrajs->reserve(rSize);
@@ -513,6 +516,8 @@ namespace cms
     e.put(outputTrajs);
     e.put(outputTTAss);
     return;
+
+    std::cout << "done\n";
 
   }//end produce
 }
