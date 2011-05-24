@@ -158,6 +158,7 @@ void TH1Keys::FillH1() const
         delete cache_;
         RooKeysPdf pdf("","",*x_,*dataset_);
         cache_ = pdf.createHistogram(GetName(), *x_);
+        if (cache_->Integral()) cache_->Scale(1.0/cache_->Integral());
         cache_->SetBinContent(0,                     underflow_);
         cache_->SetBinContent(cache_->GetNbinsX()+1, overflow_);
         cache_->Scale(dataset_->sumEntries() * globalScale_);
