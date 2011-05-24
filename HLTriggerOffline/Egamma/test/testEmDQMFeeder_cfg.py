@@ -21,6 +21,8 @@ process.load("HLTriggerOffline.Egamma.EgammaValidationAutoConf_cff")
 
 # set output to verbose = all
 process.dqmFeeder.verbosity = cms.untracked.uint32(3)
+# switch to select between only MC matched histograms or all histograms
+#process.dqmFeeder.mcMatchedOnly = cms.untracked.bool(False)
 
 process.p = cms.Path(
                      # require generated particles in fiducial volume
