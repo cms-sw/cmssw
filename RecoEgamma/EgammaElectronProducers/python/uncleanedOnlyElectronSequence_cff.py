@@ -10,7 +10,15 @@ from RecoEcal.EgammaClusterProducers.correctedHybridSuperClusters_cfi import *
 uncleanedOnlyCorrectedHybridSuperClusters = correctedHybridSuperClusters.clone()
 uncleanedOnlyCorrectedHybridSuperClusters.rawSuperClusterProducer = cms.InputTag("hybridSuperClusters","uncleanOnlyHybridSuperClusters")
 
-uncleanedOnlyClustering = cms.Sequence(uncleanedOnlyCorrectedHybridSuperClusters)
+from RecoEcal.EgammaClusterProducers.multi5x5SuperClustersWithPreshower_cfi import *
+uncleanedOnlyMulti5x5SuperClustersWithPreshower = multi5x5SuperClustersWithPreshower.clone()
+uncleanedOnlyMulti5x5SuperClustersWithPreshower.endcapSClusterProducer = cms.InputTag("multi5x5SuperClusters","uncleanOnlyMulti5x5EndcapSuperClusters")
+
+from RecoEcal.EgammaClusterProducers.correctedMulti5x5SuperClustersWithPreshower_cfi import *
+uncleanedOnlyCorrectedMulti5x5SuperClustersWithPreshower = correctedMulti5x5SuperClustersWithPreshower.clone()
+uncleanedOnlyCorrectedMulti5x5SuperClustersWithPreshower.rawSuperClusterProducer = cms.InputTag("uncleanedOnlyMulti5x5SuperClustersWithPreshower")
+
+uncleanedOnlyClustering = cms.Sequence(uncleanedOnlyCorrectedHybridSuperClusters*uncleanedOnlyMulti5x5SuperClustersWithPreshower*uncleanedOnlyCorrectedMulti5x5SuperClustersWithPreshower)
 
 #
 # Tracking
@@ -19,7 +27,7 @@ uncleanedOnlyClustering = cms.Sequence(uncleanedOnlyCorrectedHybridSuperClusters
 from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cfi import *
 uncleanedOnlyElectronSeeds = ecalDrivenElectronSeeds.clone()
 uncleanedOnlyElectronSeeds.barrelSuperClusters = cms.InputTag("uncleanedOnlyCorrectedHybridSuperClusters")
-uncleanedOnlyElectronSeeds.endcapSuperClusters = cms.InputTag("")
+uncleanedOnlyElectronSeeds.endcapSuperClusters = cms.InputTag("uncleanedOnlyCorrectedMulti5x5SuperClustersWithPreshower")
 
 from TrackingTools.GsfTracking.CkfElectronCandidateMaker_cff import *
 uncleanedOnlyElectronCkfTrackCandidates = electronCkfTrackCandidates.clone()
@@ -39,8 +47,8 @@ from RecoEgamma.EgammaPhotonProducers.conversionTrackCandidates_cfi import *
 uncleanedOnlyConversionTrackCandidates = conversionTrackCandidates.clone()
 uncleanedOnlyConversionTrackCandidates.scHybridBarrelProducer = cms.InputTag("uncleanedOnlyCorrectedHybridSuperClusters")
 uncleanedOnlyConversionTrackCandidates.bcBarrelCollection  = cms.InputTag("hybridSuperClusters","uncleanOnlyHybridSuperClusters")
-#uncleanedOnlyConversionTrackCandidates.scIslandEndcapProducer  = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower")
-#uncleanedOnlyConversionTrackCandidates.bcEndcapCollection  = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters")
+uncleanedOnlyConversionTrackCandidates.scIslandEndcapProducer  = cms.InputTag("uncleanedOnlyCorrectedMulti5x5SuperClustersWithPreshower")
+uncleanedOnlyConversionTrackCandidates.bcEndcapCollection  = cms.InputTag("multi5x5SuperClusters","uncleanOnlyMulti5x5EndcapBasicClusters")
 
 from RecoEgamma.EgammaPhotonProducers.ckfOutInTracksFromConversions_cfi import *
 uncleanedOnlyCkfOutInTracksFromConversions = ckfOutInTracksFromConversions.clone()
@@ -94,8 +102,8 @@ from RecoEgamma.EgammaPhotonProducers.allConversions_cfi import *
 uncleanedOnlyAllConversions = allConversions.clone()
 uncleanedOnlyAllConversions.scBarrelProducer = cms.InputTag("uncleanedOnlyCorrectedHybridSuperClusters")
 uncleanedOnlyAllConversions.bcBarrelCollection  = cms.InputTag("hybridSuperClusters","uncleanOnlyHybridSuperClusters")
-#uncleanedOnlyAllConversions.scEndcapProducer = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower")
-#uncleanedOnlyAllConversions.bcEndcapCollection = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters")
+uncleanedOnlyAllConversions.scEndcapProducer = cms.InputTag("uncleanedOnlyCorrectedMulti5x5SuperClustersWithPreshower")
+uncleanedOnlyAllConversions.bcEndcapCollection = cms.InputTag("multi5x5SuperClusters","uncleanOnlyMulti5x5EndcapBasicClusters")
 uncleanedOnlyAllConversions.src = cms.InputTag("uncleanedOnlyGsfGeneralInOutOutInConversionTrackMerger")
 
 uncleanedOnlyConversions = cms.Sequence(uncleanedOnlyCkfTracksFromConversions*uncleanedOnlyConversionTrackProducers*uncleanedOnlyConversionTrackMergers*uncleanedOnlyAllConversions)
