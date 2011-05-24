@@ -51,6 +51,8 @@ famosParticleFlowSequence = cms.Sequence(
     pfPhotonTranslatorSequence
 )
 
+particleFlowLinks = cms.Sequence(particleFlow)
+
 # PF Reco Jets and MET
 from RecoJets.Configuration.RecoPFJets_cff import *
 from RecoMET.Configuration.RecoPFMET_cff import *
