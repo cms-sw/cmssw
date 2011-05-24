@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/03/11 15:14:10 $
- *  $Revision: 1.70 $
+ *  $Date: 2011/04/02 13:30:17 $
+ *  $Revision: 1.71 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -356,10 +356,11 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
       LogDebug("JetMETAnalyzer") << "HLTConfigProvider failed to initialize.";
     }
   }
-
+  
+  /*
   hltpathME = 0;
   if (_hlt_initialized) {
-  //if (hltConfig_.init(iRun,iSetup,processname_,changed)) {
+    //if (hltConfig_.init(iRun,iSetup,processname_,changed)) {
     if (hltConfig_.size()){
       dbe->setCurrentFolder("JetMET");
       hltpathME = dbe->book1D("hltpath", "hltpath", 300, 0., 300.);
@@ -369,7 +370,8 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
       if (hltpathME) hltpathME->setBinLabel(j+1,hltConfig_.triggerName(j));
       // if (hltConfig_.triggerName(j)=="HLT_PhysicsDeclared") 
     }
-  }  
+  }
+  */ 
   //
   //--- Jet
 
@@ -437,6 +439,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	if(_doHLTPhysicsOn) bPhysicsDeclared = true;
       }
 
+    /*
     //sanity check
     if (_hlt_initialized && hltConfig_.size() && triggerResults->size()==hltConfig_.size()){
       //check the trigger results
@@ -446,6 +449,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	}
       }
     }
+    */
   }
   
   if (DEBUG)  std::cout << "trigger label " << theTriggerResultsLabel << std::endl;
@@ -510,16 +514,19 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       reco::VertexCollection vertexCollection = *(vertexHandle.product());
       int vertex_number     = vertexCollection.size();
       reco::VertexCollection::const_iterator v = vertexCollection.begin();
-      double vertex_chi2    = v->normalizedChi2();
-      double vertex_ndof    = v->ndof();
-      bool   fakeVtx        = v->isFake();
-      double vertex_Z       = v->z();
-      
-      if (  !fakeVtx
-	    && vertex_number>=_nvtx_min
-	    && vertex_ndof   >_vtxndof_min
-	    && vertex_chi2   <_vtxchi2_max
-	    && fabs(vertex_Z)<_vtxz_max ) bPrimaryVertex = true;
+      for ( ; v != vertexCollection.end(); ++v) {
+	double vertex_chi2    = v->normalizedChi2();
+	double vertex_ndof    = v->ndof();
+	bool   fakeVtx        = v->isFake();
+	double vertex_Z       = v->z();
+	
+	if (  !fakeVtx
+	      && vertex_number>=_nvtx_min
+	      && vertex_ndof   >_vtxndof_min
+	      && vertex_chi2   <_vtxchi2_max
+	      && fabs(vertex_Z)<_vtxz_max )
+	  bPrimaryVertex = true;
+      }
     }
   }
   // ==========================================================
