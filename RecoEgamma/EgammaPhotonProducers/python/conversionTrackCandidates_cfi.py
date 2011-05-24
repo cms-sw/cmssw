@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 #  configuration for producer of converted photons
-#  $Id: conversionTrackCandidates_cfi.py,v 1.27 2011/02/26 14:59:32 nancy Exp $
+#  $Id: conversionTrackCandidates_cfi.py,v 1.28 2011/03/04 12:40:58 sani Exp $
 #
 # stripCPE
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
@@ -29,7 +29,7 @@ from RecoEgamma.EgammaPhotonProducers.propOppoMomentumWithMaterialForElectrons_c
 conversionTrackCandidates = cms.EDProducer("ConversionTrackCandidateProducer",
 #    beamSpot = cms.InputTag("offlineBeamSpot"),
     bcBarrelCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
-    bcEndcapCollection = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
+    bcEndcapCollection = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters"),
     scHybridBarrelProducer = cms.InputTag("correctedHybridSuperClusters"),
     scIslandEndcapProducer = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
     outInTrackCandidateSCAssociationCollection = cms.string('outInTrackCandidateSCAssociationCollection'),                                           
