@@ -50,7 +50,7 @@ class _bqueue_item : public BlockWipedAllocated<_bqueue_item<T> > {
 #endif
         boost::intrusive_ptr< _bqueue_item<T> > back;
         T value;
-        size_t refCount;
+        unsigned int refCount;
 };
 
 template<class T> inline void intrusive_ptr_add_ref(_bqueue_item<T> *it) { it->addRef(); }
@@ -87,6 +87,7 @@ class bqueue {
         typedef boost::intrusive_ptr< _bqueue_item<value_type> >  itemptr;
         typedef _bqueue_itr<value_type>       iterator;
         typedef const _bqueue_itr<value_type> const_iterator;
+
         bqueue() : m_size(0), m_bound(), m_head(m_bound), m_tail(m_bound) { }
         ~bqueue() { }
         bqueue(const bqueue<T> &cp) : m_size(cp.m_size), m_bound(cp.m_bound), m_head(cp.m_head), m_tail(cp.m_tail) { }
@@ -117,6 +118,7 @@ class bqueue {
         bqueue<T> fork() {
             return bqueue<T>(m_size,m_bound,m_head,m_tail);
         }
+
         void push_back(const T& val) {
             m_tail = itemptr(new item(this->m_tail, val)); 
             if ((++m_size) == 1) { m_head = m_tail; };
@@ -178,6 +180,7 @@ class bqueue {
     private:
         bqueue(size_type size, itemptr bound, itemptr head, itemptr tail) :
             m_size(size), m_bound(bound), m_head(head), m_tail(tail) { }
+
         size_type m_size;
         itemptr m_bound, m_head, m_tail;
         
