@@ -6,6 +6,7 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 #process.load("Configuration.StandardSequences.MagneticField_4T_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.load("RecoEgamma.Configuration.RecoEgamma_cff")
 #from Configuration.PyReleaseValidation.autoCond import autoCond
 #process.GlobalTag.globaltag = autoCond['mc']
 from Configuration.AlCa.autoCond import autoCond 
@@ -15,7 +16,7 @@ process.GlobalTag.globaltag = cms.string( autoCond[ 'startup' ] )
 
 #process.Timing =cms.Service("Timing")
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(200)
+    input = cms.untracked.int32(-1)
 )
 
 process.source = cms.Source(
@@ -51,6 +52,7 @@ process.localReReco = cms.Sequence(process.particleFlowCluster)
 
 # Particle Flow re-processing
 process.pfReReco = cms.Sequence(process.particleFlowReco+
+                                process.particleFlowLinks+
                                 process.recoPFJets+
                                 process.recoPFMET+
                                 process.PFTau)
