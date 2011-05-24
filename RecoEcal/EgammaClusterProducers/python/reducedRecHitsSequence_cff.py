@@ -13,7 +13,7 @@ interestingEcalDetIdEBU = RecoEcal.EgammaClusterProducers.interestingDetIdCollec
     )
 
 interestingEcalDetIdEE = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
-    basicClustersLabel = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
+    basicClustersLabel = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters"),
     recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE")
     )
 

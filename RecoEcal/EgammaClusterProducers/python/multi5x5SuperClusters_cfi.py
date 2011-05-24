@@ -1,15 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: multi5x5SuperClusters.cfi,v 1.3 2008/05/26 15:10:23 dlevans Exp $
+# $Id: multi5x5SuperClusters_cfi.py,v 1.2 2008/05/30 15:43:17 rpw Exp $
 #
 # Multi5x5 SuperCluster producer
-multi5x5SuperClusters = cms.EDProducer("Multi5x5SuperClusterProducer",
+multi5x5SuperClustersCleaned = cms.EDProducer("Multi5x5SuperClusterProducer",
     barrelSuperclusterCollection = cms.string('multi5x5BarrelSuperClusters'),
     endcapEtaSearchRoad = cms.double(0.14),
-    barrelClusterCollection = cms.string('multi5x5BarrelBasicClusters'),
+    barrelClusterCollection = cms.string('multi5x5BarrelBasicClustersCleaned'),
     dynamicPhiRoad = cms.bool(False),
-    endcapClusterProducer = cms.string('multi5x5BasicClusters'),
+    endcapClusterProducer = cms.string('multi5x5BasicClustersCleaned'),
     barrelPhiSearchRoad = cms.double(0.8),
     endcapPhiSearchRoad = cms.double(0.6),
     VerbosityLevel = cms.string('ERROR'),
@@ -40,3 +40,25 @@ multi5x5SuperClusters = cms.EDProducer("Multi5x5SuperClusterProducer",
 )
 
 
+multi5x5SuperClustersUncleaned = multi5x5SuperClustersCleaned.clone()
+multi5x5SuperClustersUncleaned.endcapClusterProducer = cms.string('multi5x5BasicClustersUncleaned')
+multi5x5SuperClustersUncleaned.endcapClusterProducer = cms.string('multi5x5BasicClustersUncleaned')
+
+
+multi5x5SuperClusters=cms.EDProducer("UnifiedSCCollectionProducer",
+            # input collections:
+            cleanBcCollection   = cms.InputTag('multi5x5BasicClustersCleaned',
+                                               'multi5x5EndcapBasicClusters'),
+            cleanScCollection   = cms.InputTag('multi5x5SuperClustersCleaned',
+                                               'multi5x5EndcapSuperClusters'),
+            uncleanBcCollection = cms.InputTag('multi5x5BasicClustersUncleaned',
+                                               'multi5x5EndcapBasicClusters'),
+            uncleanScCollection = cms.InputTag('multi5x5SuperClustersUncleaned',
+                                               'multi5x5EndcapSuperClusters'),
+            # names of collections to be produced:
+            bcCollection = cms.string('multi5x5EndcapBasicClusters'),
+            scCollection = cms.string('multi5x5EndcapSuperClusters'),
+            bcCollectionUncleanOnly = cms.string('uncleanOnlyMulti5x5EndcapBasicClusters'),
+            scCollectionUncleanOnly = cms.string('uncleanOnlyMulti5x5EndcapSuperClusters'),
+
+            )

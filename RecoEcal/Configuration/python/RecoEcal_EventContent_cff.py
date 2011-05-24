@@ -38,7 +38,7 @@ RecoEcalRECO = cms.PSet(
         'keep *_hybridSuperClusters_*_*',
         'keep recoSuperClusters_correctedHybridSuperClusters_*_*',
 	# Endcap clusters
-        'keep *_multi5x5BasicClusters_*_*',
+        'keep *_multi5x5SuperClusters_*_*',
         'keep recoSuperClusters_multi5x5SuperClusters_*_*',
         'keep recoSuperClusters_multi5x5SuperClustersWithPreshower_*_*',
         'keep recoSuperClusters_correctedMulti5x5SuperClustersWithPreshower_*_*',
@@ -65,7 +65,7 @@ RecoEcalAOD = cms.PSet(
         'keep recoCaloClusters_hybridSuperClusters_*_*',
         'keep recoSuperClusters_hybridSuperClusters_uncleanOnlyHybridSuperClusters_*',
 	# Endcap clusters	
-	'keep recoCaloClusters_multi5x5BasicClusters_multi5x5EndcapBasicClusters_*',
+	'keep recoCaloClusters_multi5x5SuperClusters_multi5x5EndcapBasicClusters_*',
         'keep recoSuperClusters_correctedMulti5x5SuperClustersWithPreshower_*_*',
 	# Preshower clusters
         'keep recoPreshowerClusters_multi5x5SuperClustersWithPreshower_*_*', 

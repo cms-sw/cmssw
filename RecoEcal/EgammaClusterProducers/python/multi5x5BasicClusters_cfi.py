@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 # Multi5x5 BasicCluster producer
-multi5x5BasicClusters = cms.EDProducer("Multi5x5ClusterProducer",
+multi5x5BasicClustersCleaned = cms.EDProducer("Multi5x5ClusterProducer",
 
     # which regions should be clusterized
     doEndcap = cms.bool(True),
@@ -42,3 +42,8 @@ multi5x5BasicClusters = cms.EDProducer("Multi5x5ClusterProducer",
 
     )
 )
+
+# with no cleaning
+
+multi5x5BasicClustersUncleaned = multi5x5BasicClustersCleaned.clone()
+multi5x5BasicClustersUncleaned.RecHitFlagToBeExcluded= cms.vstring()
