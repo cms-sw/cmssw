@@ -8,6 +8,7 @@
 <use   name="clhep"/>
 <use   name="boost"/>
 <use   name="root"/>
-<flags   EDM_PLUGIN="1"/>
 <library   file="*.cc" name="TTRHBuilderTest">
+<flags   EDM_PLUGIN="1"/>
 </library>
+<bin file="TrackerHitSizes.cpp"/>
