@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/10/15 13:49:55 $
- *  $Revision: 1.22 $
+ *  $Date: 2011/03/11 15:14:14 $
+ *  $Revision: 1.23 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -213,12 +213,15 @@ void JetAnalyzer::beginJob(DQMStore * dbe) {
   msigmaEta                   = dbe->book1D("sigmaEta", "sigmaEta", 50, 0., 0.5);
   msigmaPhi                   = dbe->book1D("sigmaPhi", "sigmaPhi", 50, 0., 0.5);
   
-  if(makedijetselection==1 && fillJIDPassFrac==1) {
-    mLooseJIDPassFractionVSeta  = dbe->bookProfile("LooseJIDPassFractionVSeta","LooseJIDPassFractionVSeta",50, -3., 3.,0.,1.2);
-    mLooseJIDPassFractionVSpt   = dbe->bookProfile("LooseJIDPassFractionVSpt","LooseJIDPassFractionVSpt",ptBin, ptMin, ptMax,0.,1.2);
-    mTightJIDPassFractionVSeta  = dbe->bookProfile("TightJIDPassFractionVSeta","TightJIDPassFractionVSeta",50, -3., 3.,0.,1.2);
-    mTightJIDPassFractionVSpt   = dbe->bookProfile("TightJIDPassFractionVSpt","TightJIDPassFractionVSpt",ptBin, ptMin, ptMax,0.,1.2);
-
+  if(makedijetselection==1) {
+    mDijetAsymmetry                   = dbe->book1D("DijetAsymmetry", "DijetAsymmetry", 100, -1., 1.);
+    mDijetBalance                     = dbe->book1D("DijetBalance",   "DijetBalance",   100, -10., 10.);
+    if (fillJIDPassFrac==1) {
+      mLooseJIDPassFractionVSeta  = dbe->bookProfile("LooseJIDPassFractionVSeta","LooseJIDPassFractionVSeta",50, -3., 3.,0.,1.2);
+      mLooseJIDPassFractionVSpt   = dbe->bookProfile("LooseJIDPassFractionVSpt","LooseJIDPassFractionVSpt",ptBin, ptMin, ptMax,0.,1.2);
+      mTightJIDPassFractionVSeta  = dbe->bookProfile("TightJIDPassFractionVSeta","TightJIDPassFractionVSeta",50, -3., 3.,0.,1.2);
+      mTightJIDPassFractionVSpt   = dbe->bookProfile("TightJIDPassFractionVSpt","TightJIDPassFractionVSpt",ptBin, ptMin, ptMax,0.,1.2);
+    }
   }
 }
 
