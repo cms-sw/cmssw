@@ -156,7 +156,7 @@ void TH1Keys::FillH1() const
         RooFit::MsgLevel gKill = RooMsgService::instance().globalKillBelow();
         RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
         delete cache_;
-        RooKeysPdf pdf("","",*x_,*dataset_);
+        RooKeysPdf pdf("","",*x_,*dataset_,mirror_,rho_);
         cache_ = pdf.createHistogram(GetName(), *x_);
         if (cache_->Integral()) cache_->Scale(1.0/cache_->Integral());
         cache_->SetBinContent(0,                     underflow_);
