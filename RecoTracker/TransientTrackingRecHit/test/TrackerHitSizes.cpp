@@ -23,7 +23,7 @@ int main() {
   PSIZE(TSiStripRecHit2DLocalPos);
   PSIZE(TSiStripRecHit1D);
   PSIZE(TSiStripMatchedRecHit);
-  PSIZE(/TSiPixelRecHit);
+  PSIZE(TSiPixelRecHit);
   PSIZE(InvalidTransientRecHit);
   PSIZE(SiStripMatchedRecHit2D);
   PSIZE(ProjectedSiStripRecHit2D);
