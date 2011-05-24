@@ -212,7 +212,7 @@ tobtecSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTra
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 tobtecStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-    TrackProducers = cms.vstring('fifthWithMaterialTracks'),
+    TrackProducers = cms.VInputTag(cms.InputTag('fifthWithMaterialTracks')),
     hasSelector=cms.vint32(1),
     selectedTrackQuals = cms.VInputTag(cms.InputTag("tobtecSelector","tobtecStep")),
     setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0), pQual=cms.bool(True) ))

@@ -173,7 +173,7 @@ pixellessSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multi
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 pixellessStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-    TrackProducers = cms.vstring('fourthWithMaterialTracks'),
+    TrackProducers = cms.VInputTag(cms.InputTag('fourthWithMaterialTracks')),
     hasSelector=cms.vint32(1),
     selectedTrackQuals = cms.VInputTag(cms.InputTag("pixellessSelector","pixellessStep")),
     setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0), pQual=cms.bool(True) ))
