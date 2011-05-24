@@ -36,6 +36,7 @@ class HLTProcess(object):
     "HLT_JetE50_NoBPTX3BX_NoHalo_v*",
     
   # TODO: paths likely not supportable, but it should be checked nonetheless
+    "HLT_MET65_HBHENoiseFiltered_v*",
     "HLT_MET100_HBHENoiseFiltered_v*",
     "HLT_MET120_HBHENoiseFiltered_v*",
     "HLT_MET200_HBHENoiseFiltered_v*",
