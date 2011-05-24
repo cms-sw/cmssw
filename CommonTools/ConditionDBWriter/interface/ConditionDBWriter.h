@@ -228,7 +228,6 @@ private:
 
   void analyze(const edm::Event& event, const edm::EventSetup& iSetup)
   {
-    std::cout << "Running over event" << std::endl;
     if(setSinceTime_ ){
       setTime(); //set new since time for possible next upload to DB  
       setSinceTime_=false;
@@ -318,10 +317,6 @@ private:
     
     cond::Time_t since = 
       ( mydbservice->isNewTagRequest(Record_) && !timeFromEndRun_ ) ? mydbservice->beginOfTime() : Time_;
-    
-    std::cout << "beginOfTime = " << mydbservice->beginOfTime() << std::endl;
-    std::cout << "currentTime = " << mydbservice->currentTime() << std::endl;
-    std::cout << "Time_ = " << Time_ << std::endl;
 
     edm::LogInfo("ConditionDBWriter") << "appending a new object to tag " 
 				      <<Record_ <<" in since mode " << std::endl;
@@ -334,12 +329,10 @@ private:
     
     if( mydbservice.isAvailable() ){
       Time_ = mydbservice->currentTime();
-      std::cout << "ConditionDBWriter::setTime: time set to " << Time_ << std::endl;
       edm::LogInfo("ConditionDBWriter::setTime: time set to ") << Time_ << std::endl;
     }
     else{
       edm::LogError("ConditionDBWriter::setTime(): PoolDBOutputService is not available...cannot set current time") << std::endl;
-      std::cout << "ConditionDBWriter::setTime: ERROR" << std::endl;
     }
   }
 
