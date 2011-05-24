@@ -73,7 +73,8 @@ dqmFeeder = cms.EDAnalyzer('EmDQMFeeder',
                            genEtAcc = cms.double(2.0),
                            PtMax = cms.untracked.double(100.0),
                            isData = cms.bool(False),
-                           verbosity = cms.untracked.uint32(0)
+                           verbosity = cms.untracked.uint32(0),
+                           mcMatchedOnly = cms.untracked.bool(True)
                           )
 
 # selectors go into separate "prevalidation" sequence
