@@ -5,7 +5,7 @@
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/DBCommon/interface/Logger.h"
-#include "CondCore/DBCommon/interface/UserLogInfo.h"
+#include "CondCore/DBCommon/interface/LogDBEntry.h"
 #include "CondCore/DBCommon/interface/TagInfo.h"
 #include "Reflex/Type.h"
 #include <string>
@@ -18,7 +18,6 @@
 // #define COND_EXP_WARNING
 #endif
 
-//#include <iostream>
 //
 // Package:     DBOutputService
 // Class  :     PoolDBOutputService
@@ -57,8 +56,7 @@ namespace cond{
     
     
     struct GetToken {
-      virtual std::string operator()(cond::DbSession&, bool) const =0;
-      static unsigned int sizeDSW();
+      virtual std::string operator()(cond::DbSession&) const =0;
     };
     
     struct GetTrivialToken : public GetToken {
@@ -66,7 +64,7 @@ namespace cond{
       GetTrivialToken(std::string token) :
 	m_token(token){}
       virtual ~GetTrivialToken(){}
-      virtual std::string operator()(cond::DbSession&, bool) const {
+      virtual std::string operator()(cond::DbSession&) const {
 	return m_token;
       }
       std::string m_token;
@@ -84,7 +82,7 @@ namespace cond{
       GetTokenFromPointer(T * p, Summary * s=0) :
 	m_p(p), m_s(s){}
       
-      virtual std::string operator()(cond::DbSession& pooldb, bool /* withWrapper */) const {
+      virtual std::string operator()(cond::DbSession& pooldb) const {
 	std::string className = classNameForPointer( m_p );
 	boost::shared_ptr<T> sptr( m_p );
 	return pooldb.storeObject(m_p,className);
@@ -260,8 +258,7 @@ namespace cond{
 		  m_idName(),
 		  m_iovtoken(),
                   m_closeIOV(false),
-		  m_freeInsert(false),
-		  m_withWrapper(false)
+		  m_freeInsert(false)
 	{}
 
 	std::string timetypestr() const { return cond::timeTypeSpecs[m_timetype].name;}
@@ -272,7 +269,6 @@ namespace cond{
 	cond::TimeType m_timetype;
         bool m_closeIOV;
 	bool m_freeInsert;
-	bool m_withWrapper;
     };      
 
 
@@ -288,12 +284,11 @@ namespace cond{
       void add( GetToken const & token,  
 		cond::Time_t time,
 		const std::string& recordName,
-		bool withlogging=false);
-      
+		bool withlogging=false);      
       
       void connect();    
       void disconnect();
-      void initDB();
+      void initDB( bool forReading=true );
       unsigned int appendIOV(cond::DbSession&,
                              Record& record,
                              const std::string& payloadToken,
@@ -305,8 +300,7 @@ namespace cond{
 		Record& record,
 		const std::string& payloadToken,
 		cond::Time_t tillTime);
-      //			    const std::string& recordName);
-      
+
       Record & lookUpRecord(const std::string& recordName);
       cond::UserLogInfo& lookUpUserLogInfo(const std::string& recordName);
       
@@ -326,8 +320,6 @@ namespace cond{
       bool m_closeIOV;
       
       bool m_freeInsert;
-      
-      bool m_withWrapper;
       
       std::map<std::string, cond::UserLogInfo> m_logheaders;
 
