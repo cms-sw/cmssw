@@ -2,7 +2,6 @@
 import FWCore.ParameterSet.Config as cms
 
 electronMcFakeHistosCfg = cms.PSet(
-
   Nbinxyz = cms.int32(50),
   Nbinp = cms.int32(50), Nbinp2D = cms.int32(50), Pmax = cms.double(300.0),
   Nbinpt = cms.int32(50), Nbinpt2D = cms.int32(50), Nbinpteff = cms.int32(19),Ptmax = cms.double(100.0),
@@ -17,8 +16,7 @@ electronMcFakeHistosCfg = cms.PSet(
   Nbineop = cms.int32(50), Nbineop2D = cms.int32(30), Eopmax = cms.double(5.0), Eopmaxsht = cms.double(3.0),
   Nbinmee = cms.int32(100), Meemin = cms.double(0.0), Meemax = cms.double(150.),
   Nbinhoe = cms.int32(100), Hoemin = cms.double(0.0), Hoemax = cms.double(0.5),
-  Nbinpopmatching = cms.int32(75), Popmatchingmin = cms.double(0.0), Popmatchingmax = cms.double(1.5)
-  
+  Nbinpopmatching = cms.int32(75), Popmatchingmin = cms.double(0.0), Popmatchingmax = cms.double(1.5) 
 )
 
 electronMcFakeValidator = cms.EDAnalyzer("ElectronMcFakeValidator",
@@ -44,6 +42,7 @@ electronMcFakeValidator = cms.EDAnalyzer("ElectronMcFakeValidator",
   MaxAbsEta = cms.double(2.5),
   histosCfg = cms.PSet(electronMcFakeHistosCfg)
 )
+
 
 
 

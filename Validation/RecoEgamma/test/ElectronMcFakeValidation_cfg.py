@@ -17,7 +17,7 @@ process.source.fileNames.extend(dbs.search())
 
 process.load("Validation.RecoEgamma.ElectronMcFakeValidator_cfi")
 
-process.electronMcFakeValidator.0utputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
+process.electronMcFakeValidator.OutputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
 
 process.p = cms.Path(process.electronMcFakeValidator*process.dqmStoreStats)
 

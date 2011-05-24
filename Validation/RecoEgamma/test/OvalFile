@@ -91,8 +91,8 @@ This set of targets is currently used for the validation of electrons.
   The tags below are to be used when you want to process some files
   made with a modified code, and generated locally, thanks to the
   targets RedoFrom% defined later on.
-  <var name="DBS_STRATEGY" value="local">
-  <var name="DBS_COND" value="MC">
+  <!--var name="DBS_STRATEGY" value="local"-->
+  <!--var name="DBS_COND" value="MC"-->
   <file name="electronDbsDiscovery.txt">
   ${TEST_AFS_DIR}/RelValSingleElectronPt10-MC-RECO.root
   ${TEST_AFS_DIR}/RelValSingleElectronPt35-MC-RECO.root

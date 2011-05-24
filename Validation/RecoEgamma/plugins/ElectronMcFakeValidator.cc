@@ -417,15 +417,15 @@ void ElectronMcFakeValidator::book()
   h2_ele_seed_drz2VsPt_ = bookH2("seedDrz2_VsPt","ele seed dr/dz 2nd layer vs pt",pt2D_nbin,0.,pt_max,50,-0.03,+0.03) ;
   h1_ele_seed_drz2pos_ = bookH1withSumw2("seedDrz2Pos","ele seed dr (dz) 2nd layer positron", 50,-0.03,+0.03,"r(z)_{hit}-r(z)_{pred} (cm)") ;
   h2_ele_seed_drz2posVsEta_ = bookH2("seedDrz2Pos_VsEta","ele seed dr/dz 2nd layer positron vs eta",eta2D_nbin,eta_min,eta_max,50,-0.03,+0.03) ;
-  h2_ele_seed_drz2posVsPt_ = bookH2("seedDrz2PoVs_Pt","ele seed dr/dz 2nd layer positron vs pt",pt2D_nbin,0.,pt_max,50,-0.03,+0.03) ;
+  h2_ele_seed_drz2posVsPt_ = bookH2("seedDrz2Pos_VsPt","ele seed dr/dz 2nd layer positron vs pt",pt2D_nbin,0.,pt_max,50,-0.03,+0.03) ;
 
   // classes
   h1_ele_classes = bookH1withSumw2("classes","ele classes",20,0.0,20.,"class Id");
   h1_ele_eta = bookH1withSumw2("eta","ele electron eta",eta_nbin/2,0.0,eta_max);
   h1_ele_eta_golden = bookH1withSumw2("eta_golden","ele electron eta golden",eta_nbin/2,0.0,eta_max);
   h1_ele_eta_bbrem = bookH1withSumw2("eta_bbrem","ele electron eta bbrem",eta_nbin/2,0.0,eta_max);
-  h1_ele_eta_narrow = bookH1withSumw2("eta_narrow","ele electron eta narrow",eta_nbin/2,0.0,eta_max);
-  h1_ele_eta_shower = bookH1withSumw2("eta_show","ele electron eta showering",eta_nbin/2,0.0,eta_max);
+  //h1_ele_eta_narrow = bookH1withSumw2("eta_narrow","ele electron eta narrow",eta_nbin/2,0.0,eta_max);
+  h1_ele_eta_shower = bookH1withSumw2("eta_shower","ele electron eta showering",eta_nbin/2,0.0,eta_max);
   h2_ele_PinVsPoutGolden_mode = bookH2("PinVsPoutGolden_mode","ele track inner p vs outer p vs eta, golden, mode of GSF components" ,p2D_nbin,0.,p_max,50,0.,p_max);
   h2_ele_PinVsPoutShowering_mode = bookH2("PinVsPoutShowering_mode","ele track inner p vs outer p vs eta, showering, mode of GSF components" ,p2D_nbin,0.,p_max,50,0.,p_max);
   h2_ele_PinVsPoutGolden_mean = bookH2("PinVsPoutGolden_mean","ele track inner p vs outer p vs eta, golden, mean of GSF components" ,p2D_nbin,0.,p_max,50,0.,p_max);

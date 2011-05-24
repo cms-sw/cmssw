@@ -23,6 +23,8 @@ process.electronMcFakePostValidator.OutputFile = cms.string(os.environ['TEST_HIS
 #process.dqmsave_step = cms.Path(process.DQMSaver)
 #
 #process.p = cms.Path(process.electronMcFakePostValidator*process.dqmStoreStats*process.DQMSaver)
-process.p = cms.Path(process.electronMcFakePostValidator*process.dqmStoreStats*process.DQMSaver)
+process.p = cms.Path(process.electronMcFakePostValidator*process.dqmStoreStats)
+
+
 
 

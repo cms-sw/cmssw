@@ -18,11 +18,11 @@ void ElectronMcFakePostValidator::finalize()
   setBookPrefix("h_ele") ;
 
   edm::LogInfo("ElectronMcFakePostValidator::finalize") << "efficiency calculation " ;
-  bookH1andDivide("etaEff","matchingObjectEta_matched","matchingObjectEta","#eta","Efficiency");
-  bookH1andDivide("zEff","matchingObjectZ_matched","matchingObjectZ","z (cm)","Efficiency");
-  bookH1andDivide("absetaEff","matchingObjectAbsEta_matched","matchingObjectAbsEta","|#eta|","Efficiency");
-  bookH1andDivide("ptEff","matchingObjectPt_matched","matchingObjectPt","p_{T} (GeV/c)","Efficiency");
-  bookH1andDivide("phiEff","matchingObjectPhi_matched","matchingObjectPhi","#phi (rad)","Efficiency");
+  bookH1andDivide("etaEff","matchingObjectEta_matched","matchingObject_eta","#eta","Efficiency");
+  bookH1andDivide("zEff","matchingObjectZ_matched","matchingObject_z","z (cm)","Efficiency");
+  bookH1andDivide("absetaEff","matchingObjectAbsEta_matched","matchingObject_abseta","|#eta|","Efficiency");
+  bookH1andDivide("ptEff","matchingObjectPt_matched","matchingObject_Pt","p_{T} (GeV/c)","Efficiency");
+  bookH1andDivide("phiEff","matchingObjectPhi_matched","matchingObject_phi","#phi (rad)","Efficiency");
 //    bookH2andDivide("ptEtaEff","matchingObjectPtEta_matched","matchingObjectPtEta","#eta","p_{T} (GeV/c)");
 //
 //    std::cout << "[ElectronMcFakePostValidator] q-misid calculation " << std::endl;
@@ -32,13 +32,13 @@ void ElectronMcFakePostValidator::finalize()
 //    bookH1andDivide("ptQmisid","matchingObjectPt_matched_qmisid","h_simPt","p_{T} (GeV/c)","q misId");
 
   edm::LogInfo("ElectronMcFakePostValidator::finalize") << "all reco electrons " ;
-  bookH1andDivide("etaEff_all","vertexEta_all","matchingObjectEta","#eta","N_{rec}/N_{gen}");
-  bookH1andDivide("ptEff_all", "vertexPt_all","matchingObjectPt","p_{T} (GeV/c)","N_{rec}/N_{gen}");
+  bookH1andDivide("etaEff_all","vertexEta_all","matchingObject_eta","#eta","N_{rec}/N_{gen}");
+  bookH1andDivide("ptEff_all", "vertexPt_all","matchingObject_Pt","p_{T} (GeV/c)","N_{rec}/N_{gen}");
 
   edm::LogInfo("ElectronMcFakePostValidator::finalize") << "classes" ;
   bookH1andDivide("eta_goldenFrac","eta_golden","h_ele_eta","|#eta|","Fraction of electrons","fraction of golden electrons vs eta");
   bookH1andDivide("eta_bbremFrac" ,"eta_bbrem", "h_ele_eta","|#eta|","Fraction of electrons","fraction of big brem electrons vs eta");
-  bookH1andDivide("eta_narrowFrac","eta_narrow","h_ele_eta","|#eta|","Fraction of electrons","fraction of narrow electrons vs eta");
+//  bookH1andDivide("eta_narrowFrac","eta_narrow","h_ele_eta","|#eta|","Fraction of electrons","fraction of narrow electrons vs eta");
   bookH1andDivide("eta_showerFrac","eta_shower","h_ele_eta","|#eta|","Fraction of electrons","fraction of showering electrons vs eta");
 
   // fbrem
@@ -78,14 +78,14 @@ void ElectronMcFakePostValidator::finalize()
   profileX("vertexTIPVsEta","mean tip (wrt gen vtx) vs eta","#eta","<TIP> (cm)");
   profileX("vertexTIPVsPhi","mean tip (wrt gen vtx) vs phi","#phi","<TIP> (cm)");
   profileX("vertexTIPVsPt","mean tip (wrt gen vtx) vs phi","p_{T} (GeV/c)","<TIP> (cm)");
-  profileX("seed_dphi2VsEta","mean ele seed dphi 2nd layer vs eta","#eta","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
-  profileX("seed_dphi2VsPt","mean ele seed dphi 2nd layer vs pt","p_{T} (GeV/c)","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
-  profileX("seed_drz2VsEta","mean ele seed dr(dz) 2nd layer vs eta","#eta","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
-  profileX("seed_drz2VsPt","mean ele seed dr(dz) 2nd layer vs pt","p_{T} (GeV/c)","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
-  profileX("seed_dphi2posVsEta","mean ele seed dphi 2nd layer positron vs eta","#eta","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
-  profileX("seed_dphi2posVsPt","mean ele seed dphi 2nd layer positron vs pt","p_{T} (GeV/c)","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
-  profileX("seed_drz2posVsEta","mean ele seed dr(dz) 2nd layer positron vs eta","#eta","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
-  profileX("seed_drz2posVsPt","mean ele seed dr(dz) 2nd layer positron vs pt","p_{T} (GeV/c)","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
+  profileX("seedDphi2_VsEta","mean ele seed dphi 2nd layer vs eta","#eta","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
+  profileX("seedDphi2_VsPt","mean ele seed dphi 2nd layer vs pt","p_{T} (GeV/c)","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
+  profileX("seedDrz2_VsEta","mean ele seed dr(dz) 2nd layer vs eta","#eta","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
+  profileX("seedDrz2_VsPt","mean ele seed dr(dz) 2nd layer vs pt","p_{T} (GeV/c)","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
+  profileX("seedDphi2Pos_VsEta","mean ele seed dphi 2nd layer positron vs eta","#eta","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
+  profileX("seedDphi2Pos_VsPt","mean ele seed dphi 2nd layer positron vs pt","p_{T} (GeV/c)","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
+  profileX("seedDrz2Pos_VsEta","mean ele seed dr(dz) 2nd layer positron vs eta","#eta","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
+  profileX("seedDrz2Pos_VsPt","mean ele seed dr(dz) 2nd layer positron vs pt","p_{T} (GeV/c)","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
  }
 
 
