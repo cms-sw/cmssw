@@ -15,7 +15,7 @@
 
 template <class T, class Cloner > 
 class ProxyBase {
-public:
+protected:
 
   ProxyBase() : theData(0) {}
 
@@ -26,7 +26,7 @@ public:
     if (theData) theData->addReference();
   }
 
-  virtual ~ProxyBase() { 
+  ~ProxyBase() { 
     destroy();
   }
 
