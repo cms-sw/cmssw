@@ -1,3 +1,10 @@
+2011-05-24 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-02-02
+	* Correct the number of connected EPs by the number of error events,
+	  i.e. the number of EPs which got restarted.
+	* Convert xhtmlmaker_t.cpp into a proper CPPUNIT test.
+
 2011-05-18 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-02-01
