@@ -37,7 +37,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
 #include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h" 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtra.h"
 
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -65,7 +65,6 @@ PFPhotonTranslator::PFPhotonTranslator(const edm::ParameterSet & iConfig) {
 
   inputTagPFCandidates_ 
     = iConfig.getParameter<edm::InputTag>("PFCandidate");
-
   
   edm::ParameterSet isoVals  = iConfig.getParameter<edm::ParameterSet> ("isolationValues");
   inputTagIsoVals_.push_back(isoVals.getParameter<edm::InputTag>("pfChargedHadrons"));
@@ -96,7 +95,7 @@ PFPhotonTranslator::PFPhotonTranslator(const edm::ParameterSet & iConfig) {
   produces<reco::SuperClusterCollection>(PFSuperClusterCollection_); 
   produces<reco::PhotonCoreCollection>(PFPhotonCoreCollection_);
   produces<reco::PhotonCollection>(PFPhotonCollection_); 
-
+  produces<reco::ConversionCollection>(PFConversionCollection_);
 }
 
 PFPhotonTranslator::~PFPhotonTranslator() {}
@@ -114,6 +113,8 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   std::auto_ptr<reco::PreshowerClusterCollection>
     psClusters_p(new reco::PreshowerClusterCollection);
 
+  std::auto_ptr<reco::ConversionCollection>
+    SingleLeg(new reco::ConversionCollection);
 
   reco::SuperClusterCollection outputSuperClusterCollection;
   reco::PhotonCoreCollection outputPhotonCoreCollection;
@@ -148,7 +149,7 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   preshowerClusterPtr_.clear();
   CandidatePtr_.clear();
   egSCRef_.clear();
-
+  pfConv_.clear();
 
 
   // loop on the candidates 
@@ -163,6 +164,15 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
 
     const reco::PFCandidate& cand = (*pfCandidates)[i];    
     if(cand.particleId()!=reco::PFCandidate::gamma) continue; 
+    if(cand. mva_nothing_gamma()>0.001)//Found PFPhoton with PFPhoton Extras saved
+      {
+	
+	//std::cout << "nconv="<<cand.photonExtraRef()->conversionRef().size()<<std::endl;
+	pfConv_.push_back(cand.photonExtraRef()->conversionRef());	
+	//
+	//cand.photonExtraRef()->singleLegConvTrackRef();	
+	
+      }
 
     photPFCandidateIndex_.push_back(i);
 
@@ -211,6 +221,7 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
 	  createPreshowerCluster(pfbe,preshowerClusters_[iphot],2);
 	}    
 
+
     }   // loop on the elements
 
         // save the basic clusters
@@ -231,7 +242,7 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   //preshower clusters
   const edm::OrphanHandle<reco::PreshowerClusterCollection> psRefProd = 
     iEvent.put(psClusters_p,PFPreshowerClusterCollection_);
-
+  
   // now that the Basic clusters are in the event, the Ref can be created
   createBasicClusterPtrs(bcRefProd);
   // now that the preshower clusters are in the event, the Ref can be created
@@ -247,6 +258,8 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   std::auto_ptr<reco::SuperClusterCollection> superClusters_p(new reco::SuperClusterCollection(outputSuperClusterCollection));  
   const edm::OrphanHandle<reco::SuperClusterCollection> scRefProd = iEvent.put(superClusters_p,PFSuperClusterCollection_); 
 
+  const edm::OrphanHandle<reco::ConversionCollection> ConvRefProd = 
+    iEvent.put(SingleLeg,PFConversionCollection_);
   /*
   int ipho=0;
   for (reco::SuperClusterCollection::const_iterator gamIter = scRefProd->begin(); gamIter != scRefProd->end(); ++gamIter){
@@ -254,8 +267,6 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
     ipho++;
   }
   */
-
-  
   //create photon cores
   //if(status) createPhotonCores(pfCandidates, scRefProd, *photonCores_p);
   if(status) createPhotonCores(scRefProd, outputPhotonCoreCollection);
@@ -266,12 +277,15 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   std::auto_ptr<reco::PhotonCoreCollection> photonCores_p(new reco::PhotonCoreCollection(outputPhotonCoreCollection));  
   //std::cout << "photon core collection put in auto_ptr"<<std::endl;
   const edm::OrphanHandle<reco::PhotonCoreCollection> pcRefProd = iEvent.put(photonCores_p,PFPhotonCoreCollection_); 
-
+  
   //std::cout << "photon core have been put in the event"<<std::endl;
   /*
-  ipho=0;
+  int ipho=0;
   for (reco::PhotonCoreCollection::const_iterator gamIter = pcRefProd->begin(); gamIter != pcRefProd->end(); ++gamIter){
     std::cout << "PhotonCore i="<<ipho<<" energy="<<gamIter->pfSuperCluster()->energy()<<std::endl;
+    //for (unsigned int i=0; i<)
+
+    std::cout << "PhotonCore i="<<ipho<<" nconv="<<gamIter->conversions().size()<<std::endl;
     ipho++;
   }
   */
@@ -324,9 +338,7 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   std::auto_ptr<reco::PhotonCollection> photons_p(new reco::PhotonCollection(outputPhotonCollection));  
   //std::cout << "photon collection put in auto_ptr"<<std::endl;
   const edm::OrphanHandle<reco::PhotonCollection> photonRefProd = iEvent.put(photons_p,PFPhotonCollection_); 
-
   //std::cout << "photons have been put in the event"<<std::endl;
-
   /*
   ipho=0;
   for (reco::PhotonCollection::const_iterator gamIter = photonRefProd->begin(); gamIter != photonRefProd->end(); ++gamIter){
@@ -334,8 +346,6 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
     ipho++;
   }
   */
-
-
   
 }
 
@@ -521,7 +531,7 @@ void PFPhotonTranslator::createSuperClusters(const reco::PFCandidateCollection &
 
       superClusters.push_back(mySuperCluster);
       //std::cout << "nb super clusters in collection : "<<superClusters.size()<<std::endl;
-   }
+    }
 }
 
 void PFPhotonTranslator::createPhotonCores(const edm::OrphanHandle<reco::SuperClusterCollection> & superClustersHandle, reco::PhotonCoreCollection &photonCores)
@@ -543,6 +553,9 @@ void PFPhotonTranslator::createPhotonCores(const edm::OrphanHandle<reco::SuperCl
       myPhotonCore.setStandardPhoton(false);
       myPhotonCore.setPflowSuperCluster(SCref);
       myPhotonCore.setSuperCluster(egSCRef_[iphot]);
+      reco::ConversionRefVector ConvToAdd=pfConv_[iphot];
+      for(unsigned int iConv=0; iConv<ConvToAdd.size(); iConv++)myPhotonCore.addConversion(ConvToAdd[iConv]);
+
       photonCores.push_back(myPhotonCore);
       
     }

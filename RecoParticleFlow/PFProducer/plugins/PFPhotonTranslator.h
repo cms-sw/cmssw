@@ -41,6 +41,8 @@
 #include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h" 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+
 #include <iostream>
 #include <string>
 #include <map>
@@ -54,10 +56,6 @@
 #include <Math/VectorUtil.h>
 #include "TLorentzVector.h"
 #include "TMath.h"
-
-
-
-
 
 class PFPhotonTranslator : public edm::EDProducer
 {
@@ -107,7 +105,6 @@ class PFPhotonTranslator : public edm::EDProducer
 
   const reco::PFCandidate & correspondingDaughterCandidate(const reco::PFCandidate & cand, const reco::PFBlockElement & pfbe) const;
 
-
   edm::InputTag inputTagPFCandidates_;
   std::vector<edm::InputTag> inputTagIsoVals_;
   std::string PFBasicClusterCollection_;
@@ -115,6 +112,7 @@ class PFPhotonTranslator : public edm::EDProducer
   std::string PFSuperClusterCollection_;
   std::string PFPhotonCoreCollection_;
   std::string PFPhotonCollection_;
+  std::string PFConversionCollection_;
   std::string  vertexProducer_;
   edm::InputTag barrelEcalHits_;
   edm::InputTag endcapEcalHits_;
@@ -139,7 +137,9 @@ class PFPhotonTranslator : public edm::EDProducer
   std::vector<reco::CandidatePtr> CandidatePtr_;
   // the e/g SC associated
   std::vector<reco::SuperClusterRef> egSCRef_;
+  //Vector of vector of Conversions Refs
 
+  std::vector<reco::ConversionRefVector > pfConv_;
   edm::ESHandle<CaloTopology> theCaloTopo_;
   edm::ESHandle<CaloGeometry> theCaloGeom_;
 
