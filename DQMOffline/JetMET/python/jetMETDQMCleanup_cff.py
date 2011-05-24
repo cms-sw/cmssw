@@ -40,9 +40,9 @@ cleaningParameters = cms.PSet(
     #Vertex cleanup parameters
     nvtx_min       = cms.int32(1), 
     nvtxtrks_min   = cms.int32(0), #not used by default
-    vtxndof_min    = cms.int32(5),
+    vtxndof_min    = cms.int32(4),
     vtxchi2_max    = cms.double(9999), #not used by default
-    vtxz_max       = cms.double(15.0),
+    vtxz_max       = cms.double(24.0),
     
     #Switch on  tight filters for BeamHalo, JetID, HCALnoise
     tightBHFiltering      = cms.bool(False),
