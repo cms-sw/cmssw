@@ -377,7 +377,7 @@ class SequencePlaceholder(_Sequenceable):
     def resolve(self, processDict):
         if not self._name in processDict:
             #print str(processDict.keys())
-            raise RuntimeError("The SequencePlaceholder "+self._name+ " cannot be resolved.i\n Known keys are:"+str(processDict.keys()))
+            raise RuntimeError("The SequencePlaceholder "+self._name+ " cannot be resolved.\n Known keys are:"+str(processDict.keys()))
         return  processDict[self._name]
 
     def _clonesequence(self, lookuptable):
@@ -1125,6 +1125,12 @@ if __name__=="__main__":
             p2.replace(b,e)
             self.assertEqual(p1.dumpPython(None),"cms.Path(process.a+process.b+process.c)\n")
             self.assertEqual(p2.dumpPython(None),"cms.Path(process.a+process.e+process.c)\n")
+            p1 = Path(a+b+c)
+            p2 = p1.copy()
+            p1 += e
+            self.assertEqual(p1.dumpPython(None),"cms.Path(process.a+process.b+process.c+process.e)\n")
+            self.assertEqual(p2.dumpPython(None),"cms.Path(process.a+process.b+process.c)\n")
+        
         def testInsertInto(self):
             from FWCore.ParameterSet.Types import vstring
             class TestPSet(object):
