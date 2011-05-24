@@ -21,6 +21,8 @@ class RunExpressProcessing:
         self.writeRaw = False
         self.writeReco = False
         self.writeFevt = False
+        self.writeAlca = False
+        self.writeDqm = False
         self.noOutput = False
         self.globalTag = None
         self.inputLFN = None
@@ -57,6 +59,12 @@ class RunExpressProcessing:
         if self.writeFevt:
             dataTiers.append("FEVT")
             print "Configuring to Write out Fevt..."
+        if self.writeAlca:
+            dataTiers.append("ALCARECO")
+            print "Configuring to Write out Alca..."
+        if self.writeDqm:
+            dataTiers.append("DQM")
+            print "Configuring to Write out Dqm..."
 
         try:
             if self.noOutput:
@@ -91,7 +99,7 @@ class RunExpressProcessing:
 
 
 if __name__ == '__main__':
-    valid = ["scenario=", "raw", "reco", "fevt", "no-output",
+    valid = ["scenario=", "raw", "reco", "fevt", "alca", "dqm", "no-output",
              "global-tag=", "lfn="]
     usage = \
 """
@@ -102,13 +110,15 @@ Where options are:
  --raw (to enable RAW output)
  --reco (to enable RECO output)
  --fevt (to enable FEVT output)
+ --alca (to enable ALCARECO output)
+ --dqm (to enable DQM output)
  --no-output (create config with no output, overrides other settings)
  --global-tag=GlobalTag
  --lfn=/store/input/lfn
 
 
 Example:
-python2.4 RunPromptReco.py --scenario=Cosmics --global-tag GLOBALTAG::ALL --lfn=/store/whatever
+python RunExpressProcessing.py --scenario cosmics --global-tag GLOBALTAG::ALL --lfn /store/whatever --fevt --alca --dqm
 
 """
     try:
@@ -130,6 +140,10 @@ python2.4 RunPromptReco.py --scenario=Cosmics --global-tag GLOBALTAG::ALL --lfn=
             expressinator.writeReco = True
         if opt == "--fevt":
             expressinator.writeFevt = True
+        if opt == "--alca":
+            expressinator.writeAlca = True
+        if opt == "--dqm":
+            expressinator.writeDqm = True
         if opt == "--no-output":
             expressinator.noOutput = True
         if opt == "--global-tag":
