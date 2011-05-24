@@ -71,8 +71,8 @@ void EgammaPFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     edm::Ptr<reco::PFCandidate> candPtr(pfCandidates,i);
     reco::PFCandidate cand(candPtr);
     
-    // if not an electron 
-    if( (cand.particleId()!=reco::PFCandidate::e) && (cand.particleId()!=reco::PFCandidate::gamma) ) {
+    // if not an electron or a photon with mva_nothing_gamma>0 
+    if(! (cand.particleId()==reco::PFCandidate::e) || ((cand.particleId()==reco::PFCandidate::gamma)&&(cand.mva_nothing_gamma()>0.))) {
       pfCandidates_p->push_back(cand);
       // watch out
       continue;
