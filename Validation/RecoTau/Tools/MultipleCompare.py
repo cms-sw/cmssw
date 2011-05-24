@@ -2,8 +2,25 @@ import FWCore.ParameterSet.Config as cms
 import sys
 import os
 import math
-from ROOT import gROOT, TCanvas, TFile, gStyle, TLegend, TH1F, TPad
+from ROOT import *
 import Validation.RecoTau.RecoTauValidation_cfi as validation
+
+def GetContent(dir):
+    tempList = dir.GetListOfKeys()
+    retList = []
+    for it in range(0,tempList.GetSize()):
+       retList.append(tempList.At(it).ReadObj())
+    return retList
+
+def MapDirStructure( directory, dirName, objectList ):
+    dirContent = GetContent(directory)
+    for entry in dirContent:
+        if type(entry) is TDirectory or type(entry) is TDirectoryFile:
+            subdirName = os.path.join(dirName,entry.GetName())
+            MapDirStructure(entry, subdirName,objectList)
+        else:
+            pathname = os.path.join(dirName,entry.GetName())
+            objectList.append(pathname)
 
 def Match(required, got):
     for part in required.split('*'):
@@ -42,6 +59,8 @@ gStyle.SetPadTopMargin(0.1)
 test = ''
 ref = ''
 ylabel = ''
+testLabel = ''
+refLabel = None
 toPlot = []
 maxLog = 3
 minDiv = 0.001
@@ -56,6 +75,10 @@ for option in sys.argv:
         maxDiv= float(option[option.find('=')+1:])
     elif(option.find('logDiv=') != -1):
         logDiv= option[option.find('=')+1:] == 'True'
+    elif option.find('testLabel=') != -1:
+        testLabel = option[option.find('=')+1:]
+    elif option.find('refLabel=') != -1:
+        refLabel = option[option.find('=')+1:]
     elif option.find('test=') != -1:
         test = option[option.find('=')+1:]
     elif option.find('ref=') != -1:
@@ -66,21 +89,19 @@ for option in sys.argv:
         toPlot.append(option)
 
 testFile = TFile(test)
-refFile = TFile(ref)
+refFile = None
+if ref != '':
+    refFile = TFile(ref)
+
 if ylabel != 'Efficiency' and ylabel != 'Fake rate' and ylabel != 'Significance':
     print 'Please specify in the label arg: "Efficiency" or "Fake rate" or "Significance". Exiting...'
     sys.exit()
 
 
 #Takes the position of all plots that were produced
+#Takes the position of all plots that were produced
 plotList = []
-parList = ['pt', 'eta', 'phi', 'pileup']
-for attr in dir(validation.TauEfficiencies.plots):
-    if type(getattr(validation.TauEfficiencies.plots,attr)) is cms.PSet:
-        pset = getattr(validation.TauEfficiencies.plots,attr)
-        effPlot = pset.efficiency.value()
-        for par in parList:
-            plotList.append('DQMData/'+effPlot.replace('#PAR#',par))
+MapDirStructure( testFile,'',plotList)
 
 histoList = []
 for plot in toPlot:
@@ -91,7 +112,12 @@ for plot in toPlot:
 print histoList
 legend = TLegend(0.6,0.83,0.6+0.39,0.83+0.17)
 legend.SetFillColor(0)
-legend.SetHeader('')
+header = ''
+if testLabel != '':
+    header += 'Dots: '+testLabel
+if refLabel != '':
+    header += ' Line: '+refLabel
+legend.SetHeader(header)
 canvas = TCanvas('MultiPlot','MultiPlot',validation.standardDrawingStuff.canvasSizeX.value(),832)
 effPad = TPad('effPad','effPad',0,0.25,1.,1.,0,0)
 effPad.Draw()
@@ -126,6 +152,8 @@ for histoPath,color in zip(histoList,colors):
             effPad.Update()
     else:
         testH.Draw('same ex0 l')
+    if refFile == None:
+        continue
     refH = refFile.Get(histoPath)
     if type(refH) != TH1F:
         print 'Ref plot not found! It will not be plotted!'
@@ -142,36 +170,36 @@ firstD = True
 if ylabel == 'significance':
     diffPad = TCanvas('Efficiency','Efficiency',validation.standardDrawingStuff.canvasSizeX.value(),validation.standardDrawingStuff.canvasSizeY.value())
 
-for histo,color in zip(divHistos,colors):
-    diffPad.cd()
-    histo.SetMarkerSize(1)
-    histo.SetMarkerStyle(20)
-    histo.SetMarkerColor(color)
-    histo.GetYaxis().SetLabelSize(0.08)
-    histo.GetYaxis().SetTitleOffset(0.6)
-    histo.GetYaxis().SetTitleSize(0.08)
-
-    histo.GetXaxis().SetLabelSize(0.)
-    histo.GetXaxis().SetTitleSize(0.)
-    if firstD:
-        histo.GetYaxis().SetRangeUser(minDiv,maxDiv)
-        if ylabel == 'significance':
-            histo.GetYaxis().SetTitle('Signal eff. / Background eff.')
-        if logDiv:
-            diffPad.SetLogy()
-        histo.Draw('ex0')
-        firstD = False
+if refFile != None:
+    for histo,color in zip(divHistos,colors):
+        diffPad.cd()
+        histo.SetMarkerSize(1)
+        histo.SetMarkerStyle(20)
+        histo.SetMarkerColor(color)
+        histo.GetYaxis().SetLabelSize(0.08)
+        histo.GetYaxis().SetTitleOffset(0.6)
+        histo.GetYaxis().SetTitleSize(0.08)
+        histo.GetXaxis().SetLabelSize(0.)
+        histo.GetXaxis().SetTitleSize(0.)
+        if firstD:
+            histo.GetYaxis().SetRangeUser(minDiv,maxDiv)
+            if ylabel == 'significance':
+                histo.GetYaxis().SetTitle('Signal eff. / Background eff.')
+            if logDiv:
+                diffPad.SetLogy()
+            histo.Draw('ex0')
+            firstD = False
+        else:
+            histo.Draw('same ex0')
+            diffPad.Update()
+    if ylabel == 'significance':
+        diffPad.cd()
+        legend.Draw()
+        diffPad.Print('MultipleCompare.png')
     else:
-        histo.Draw('same ex0')
-    diffPad.Update()
-if ylabel == 'significance':
-    diffPad.cd()
-    legend.Draw()
-    diffPad.Print('MultipleCompare.pdf')
-else:
-    effPad.cd()
-    legend.Draw()
-    canvas.Print('MultipleCompare.pdf')
+        effPad.cd()
+        legend.Draw()
+        canvas.Print('MultipleCompare.png')
 
 
 
