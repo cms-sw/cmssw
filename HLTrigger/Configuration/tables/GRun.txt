@@ -79,6 +79,7 @@ HLT_MET65_v*
 HLT_MET100_v*
 HLT_MET120_v*
 HLT_MET200_v*
+HLT_MET65_HBHENoiseFiltered_v*
 HLT_MET100_HBHENoiseFiltered_v*
 HLT_MET120_HBHENoiseFiltered_v*
 HLT_MET200_HBHENoiseFiltered_v*
