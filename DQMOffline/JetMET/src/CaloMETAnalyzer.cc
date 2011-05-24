@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/04/02 13:30:17 $
- *  $Revision: 1.55 $
+ *  $Date: 2011/04/11 13:55:05 $
+ *  $Revision: 1.56 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -807,18 +807,21 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     if ( vertexHandle.isValid() ){
       reco::VertexCollection vertexCollection = *(vertexHandle.product());
       int vertex_number     = vertexCollection.size();
+      std::cout<<"found vertex collection with "<<vertex_number<<" vertices"<<std::endl;
       reco::VertexCollection::const_iterator v = vertexCollection.begin();
-      double vertex_chi2    = v->normalizedChi2();
-      double vertex_ndof    = v->ndof();
-      bool   fakeVtx        = v->isFake();
-      double vertex_Z       = v->z();
-      
-      if (  !fakeVtx
-	    && vertex_number>=_nvtx_min
-	    && vertex_ndof   >_vtxndof_min
-	    && vertex_chi2   <_vtxchi2_max
-	    && fabs(vertex_Z)<_vtxz_max ) 
-	bPrimaryVertex = true;
+      for ( ; v != vertexCollection.end(); ++v) {
+	double vertex_chi2    = v->normalizedChi2();
+	double vertex_ndof    = v->ndof();
+	bool   fakeVtx        = v->isFake();
+	double vertex_Z       = v->z();
+	
+	if (  !fakeVtx
+	      && vertex_number>=_nvtx_min
+	      && vertex_ndof   >_vtxndof_min
+	      && vertex_chi2   <_vtxchi2_max
+	      && fabs(vertex_Z)<_vtxz_max ) 
+	  bPrimaryVertex = true;
+      }
     }
   }
   // ==========================================================
@@ -1058,26 +1061,20 @@ void CaloMETAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
   bool bLumiSecPlot=false;
   if (DirName.find("All")) bLumiSecPlot=true;
 
-  if (_trig_JetMB) fillMonitorElement(iEvent,DirName,"",calomet, bLumiSecPlot);
-  //if (_hlt_HighPtJet.size() && _trig_HighPtJet) 
+  if (_trig_JetMB)
+    fillMonitorElement(iEvent,DirName,"",calomet, bLumiSecPlot);
   if (_trig_HighPtJet)
     fillMonitorElement(iEvent,DirName,"HighPtJet",calomet,false);
-  //if (_hlt_LowPtJet.size() && _trig_LowPtJet) 
   if (_trig_LowPtJet)
     fillMonitorElement(iEvent,DirName,"LowPtJet",calomet,false);
-  //if (_hlt_MinBias.size() && _trig_MinBias) 
   if (_trig_MinBias)
     fillMonitorElement(iEvent,DirName,"MinBias",calomet,false);
-  //if (_hlt_HighMET.size() && _trig_HighMET) 
   if (_trig_HighMET)
     fillMonitorElement(iEvent,DirName,"HighMET",calomet,false);
-  //if (_hlt_LowMET.size() && _trig_LowMET) 
   if (_trig_LowMET)
     fillMonitorElement(iEvent,DirName,"LowMET",calomet,false);
-  //if (_hlt_Ele.size() && _trig_Ele) 
   if (_trig_Ele)
     fillMonitorElement(iEvent,DirName,"Ele",calomet,false);
-  //if (_hlt_Muon.size() && _trig_Muon) 
   if (_trig_Muon)
     fillMonitorElement(iEvent,DirName,"Muon",calomet,false);
 
