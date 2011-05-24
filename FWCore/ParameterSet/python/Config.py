@@ -100,6 +100,7 @@ def findProcess(module):
 class Process(object):
     """Root class for a CMS configuration process"""
     def __init__(self,name):
+        """The argument 'name' will be the name applied to this Process"""
         self.__dict__['_Process__name'] = name
         self.__dict__['_Process__filters'] = {}
         self.__dict__['_Process__producers'] = {}
@@ -130,13 +131,17 @@ class Process(object):
 
     # some user-friendly methods for command-line browsing
     def producerNames(self):
+        """Returns a string containing all the EDProducer labels separated by a blank"""
         return ' '.join(self.producers_().keys())
     def analyzerNames(self):
+        """Returns a string containing all the EDAnalyzer labels separated by a blank"""
         return ' '.join(self.analyzers_().keys())
     def filterNames(self):
-       return ' '.join(self.filters_().keys())
+        """Returns a string containing all the EDFilter labels separated by a blank"""
+        return ' '.join(self.filters_().keys())
     def pathNames(self):
-       return ' '.join(self.paths_().keys())
+        """Returns a string containing all the Path names separated by a blank"""
+        return ' '.join(self.paths_().keys())
 
     def __setstate__(self, pkldict):
         """
@@ -485,7 +490,7 @@ class Process(object):
             returnValue +=options.indentation()+typeName+' '+name+' = '+item.dumpConfig(options)
         return returnValue
     def dumpConfig(self, options=PrintOptions()):
-        """return a string containing the equivalent process defined using the configuration language"""
+        """return a string containing the equivalent process defined using the old configuration language"""
         config = "process "+self.__name+" = {\n"
         options.indent()
         if self.source_():
@@ -602,7 +607,7 @@ class Process(object):
            result += value.dumpPythonAs(name,options)+'\n'
         return result
     def dumpPython(self, options=PrintOptions()):
-        """return a string containing the equivalent process defined using the configuration language"""
+        """return a string containing the equivalent process defined using python"""
         result = "import FWCore.ParameterSet.Config as cms\n\n"
         result += "process = cms.Process(\""+self.__name+"\")\n\n"
         if self.source_():
@@ -705,37 +710,57 @@ class Process(object):
 
     def prune(self):
         """ Remove clutter from the process which we think is unnecessary:
-        PSets, and unused modules.  Not working yet, because I need to remove
-        all unneeded sequences and paths that contain removed modules """
+        tracked PSets, VPSets and unused modules and sequences. If a Schedule has been set, then Paths and EndPaths
+        not in the schedule will also be removed, along with an modules and sequences used only by
+        those removed Paths and EndPaths."""
         for name in self.psets_():
-            delattr(self, name)
+            if getattr(self,name).isTracked():
+                delattr(self, name)
         for name in self.vpsets_():
             delattr(self, name)
-
+        #first we need to resolve any SequencePlaceholders being used
+        for x in self.paths.itervalues():
+            x.resolve(self.__dict__)
+        for x in self.endpaths.itervalues():
+            x.resolve(self.__dict__)
+        usedModules = set()
         if self.schedule_():
-            self.pruneSequences()
-            scheduledNames = self.schedule_().moduleNames()
-            self.pruneModules(self.producers_(), scheduledNames)
-            self.pruneModules(self.filters_(), scheduledNames)
-            self.pruneModules(self.analyzers_(), scheduledNames)
-
-    def pruneSequences(self):
-        scheduledSequences = []
-        visitor = SequenceVisitor(scheduledSequences)
-        #self.schedule_()._seq.visit(visitor)
-        #scheduledSequenceNames = set([seq.label_() for seq in scheduledSequences])
-        #sequenceNames = set(self.sequences_().keys())
-        #junk = sequenceNames - scheduledSequenceNames
-        #for name in junk:
-        #    delattr(self, name)
-
-    def pruneModules(self, d, scheduledNames):
+            usedModules=set(self.schedule_().moduleNames())
+            #get rid of unused paths
+            schedNames = set(( x.label_() for x in self.schedule_()))
+            names = set(self.paths)
+            names.update(set(self.endpaths))
+            junk = names - schedNames
+            for n in junk:
+                delattr(self,n)
+        else:
+            pths = list(self.paths.itervalues())
+            pths.extend(self.endpaths.itervalues())
+            temp = Schedule(*pths)
+            usedModules=set(temp.moduleNames())
+        self._pruneModules(self.producers_(), usedModules)
+        self._pruneModules(self.filters_(), usedModules)
+        self._pruneModules(self.analyzers_(), usedModules)
+        #remove sequences that do not appear in remaining paths and endpaths
+        seqs = list()
+        sv = SequenceVisitor(seqs)
+        for p in self.paths.itervalues():
+            p.visit(sv)
+        for p in self.endpaths.itervalues():
+            p.visit(sv)
+        keepSeqSet = set(( s for s in seqs if s.hasLabel_()))
+        availableSeqs = set(self.sequences.itervalues())
+        for s in availableSeqs-keepSeqSet:
+            delattr(self,s.label_())
+                
+    def _pruneModules(self, d, scheduledNames):
         moduleNames = set(d.keys())
         junk = moduleNames - scheduledNames
         for name in junk:
             delattr(self, name)
 
     def fillProcessDesc(self, processPSet):
+        """Used by the framework to convert python to C++ objects"""
         class ServiceInjectorAdaptor(object):
             def __init__(self,ppset,thelist):
                 self.__thelist = thelist
@@ -1051,7 +1076,7 @@ if __name__=="__main__":
             self.assertEqual(str(p.c),'a')
             self.assertEqual(str(p.d),'a')
 
-        def testProcessDumpConfig(self):
+        def testProcessDumpPython(self):
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
             p.p = Path(p.a)
@@ -1117,6 +1142,35 @@ process.p2 = cms.Path(process.r)
 
 process.schedule = cms.Schedule(*[process.p2,process.p])
 """)
+        #use an anonymous sequence
+            p = Process("test")
+            p.a = EDAnalyzer("MyAnalyzer")
+            p.p = Path(p.a)
+            s = Sequence(p.a)
+            p.r = Sequence(s)
+            p.p2 = Path(p.r)
+            p.schedule = Schedule(p.p2,p.p)
+            d=p.dumpPython()
+            self.assertEqual(d,
+            """import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("test")
+
+process.a = cms.EDAnalyzer("MyAnalyzer")
+
+
+process.r = cms.Sequence((process.a))
+
+
+process.p = cms.Path(process.a)
+
+
+process.p2 = cms.Path(process.r)
+
+
+process.schedule = cms.Schedule(*[process.p2,process.p])
+""")
+
         def testSecSource(self):
             p = Process('test')
             p.a = SecSource("MySecSource")
@@ -1190,8 +1244,10 @@ process.schedule = cms.Schedule(*[process.p2,process.p])
             p.a = EDAnalyzer("MyAnalyzer")
             p.b = EDAnalyzer("YourAnalyzer")
             p.c = EDAnalyzer("OurAnalyzer")
+            p.d = EDAnalyzer("OurAnalyzer")
             p.path1 = Path(p.a)
             p.path2 = Path(p.b)
+            p.path3 = Path(p.d)
 
             s = Schedule(p.path1,p.path2)
             self.assertEqual(s[0],p.path1)
@@ -1200,10 +1256,18 @@ process.schedule = cms.Schedule(*[process.p2,process.p])
             self.assert_('b' in p.schedule.moduleNames())
             self.assert_(hasattr(p, 'b'))
             self.assert_(hasattr(p, 'c'))
+            self.assert_(hasattr(p, 'd'))
+            self.assert_(hasattr(p, 'path1'))
+            self.assert_(hasattr(p, 'path2'))
+            self.assert_(hasattr(p, 'path3'))
             p.prune()
             self.assert_('b' in p.schedule.moduleNames())
             self.assert_(hasattr(p, 'b'))
             self.assert_(not hasattr(p, 'c'))
+            self.assert_(not hasattr(p, 'd'))
+            self.assert_(hasattr(p, 'path1'))
+            self.assert_(hasattr(p, 'path2'))
+            self.assert_(not hasattr(p, 'path3'))
 
             #adding a path not attached to the Process should cause an exception
             p = Process("test")
@@ -1222,7 +1286,12 @@ process.schedule = cms.Schedule(*[process.p2,process.p])
             self.assert_('a' in s.moduleNames())
             self.assert_('b' in s.moduleNames())
             self.assert_('c' in s.moduleNames())
-            
+            p.path1 = path1
+            p.schedule = s
+            p.prune()
+            self.assert_('a' in s.moduleNames())
+            self.assert_('b' in s.moduleNames())
+            self.assert_('c' in s.moduleNames())
 
         def testImplicitSchedule(self):
             p = Process("test")
@@ -1236,6 +1305,13 @@ process.schedule = cms.Schedule(*[process.p2,process.p])
             keys = pths.keys()
             self.assertEqual(pths[keys[0]],p.path1)
             self.assertEqual(pths[keys[1]],p.path2)
+            p.prune()
+            self.assert_(hasattr(p, 'a'))
+            self.assert_(hasattr(p, 'b'))
+            self.assert_(not hasattr(p, 'c'))
+            self.assert_(hasattr(p, 'path1'))
+            self.assert_(hasattr(p, 'path2'))
+
 
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
@@ -1403,5 +1479,70 @@ process.subProcess = cms.SubProcess( process = childProcess, SelectEvents = cms.
             self.assertEqual((True,['a']),p.values["@sub_process"][1].values["process"][1].values['@all_modules'])
             self.assertEqual((True,['p']),p.values["@sub_process"][1].values["process"][1].values['@paths'])
             self.assertEqual({'@service_type':(True,'Foo')}, p.values["@sub_process"][1].values["process"][1].values["services"][1][0].values)
+        def testPrune(self):
+            p = Process("test")
+            p.a = EDAnalyzer("MyAnalyzer")
+            p.b = EDAnalyzer("YourAnalyzer")
+            p.c = EDAnalyzer("OurAnalyzer")
+            p.d = EDAnalyzer("OurAnalyzer")
+            p.s = Sequence(p.d)
+            p.path1 = Path(p.a)
+            p.path2 = Path(p.b)
+            self.assert_(p.schedule is None)
+            pths = p.paths
+            keys = pths.keys()
+            self.assertEqual(pths[keys[0]],p.path1)
+            self.assertEqual(pths[keys[1]],p.path2)
+            p.prune()
+            self.assert_(hasattr(p, 'a'))
+            self.assert_(hasattr(p, 'b'))
+            self.assert_(not hasattr(p, 'c'))
+            self.assert_(not hasattr(p, 'd'))
+            self.assert_(not hasattr(p, 's'))
+            self.assert_(hasattr(p, 'path1'))
+            self.assert_(hasattr(p, 'path2'))
+
+            p = Process("test")
+            p.a = EDAnalyzer("MyAnalyzer")
+            p.b = EDAnalyzer("YourAnalyzer")
+            p.c = EDAnalyzer("OurAnalyzer")
+            p.d = EDAnalyzer("OurAnalyzer")
+            p.e = EDAnalyzer("OurAnalyzer")
+            p.s = Sequence(p.d)
+            p.s2 = Sequence(p.b)
+            p.s3 = Sequence(p.e)
+            p.path1 = Path(p.a)
+            p.path2 = Path(p.b)
+            p.path3 = Path(p.b+p.s2)
+            p.path4 = Path(p.b+p.s3)
+            p.schedule = Schedule(p.path1,p.path2,p.path3)
+            pths = p.paths
+            keys = pths.keys()
+            self.assertEqual(pths[keys[0]],p.path1)
+            self.assertEqual(pths[keys[1]],p.path2)
+            p.prune()
+            self.assert_(hasattr(p, 'a'))
+            self.assert_(hasattr(p, 'b'))
+            self.assert_(not hasattr(p, 'c'))
+            self.assert_(not hasattr(p, 'd'))
+            self.assert_(not hasattr(p, 'e'))
+            self.assert_(not hasattr(p, 's'))
+            self.assert_(hasattr(p, 's2'))
+            self.assert_(not hasattr(p, 's3'))
+            self.assert_(hasattr(p, 'path1'))
+            self.assert_(hasattr(p, 'path2'))
+            self.assert_(hasattr(p, 'path3'))
+            self.assert_(not hasattr(p, 'path4'))
+            #test SequencePlaceholder
+            p = Process("test")
+            p.a = EDAnalyzer("MyAnalyzer")
+            p.b = EDAnalyzer("YourAnalyzer")
+            p.s = Sequence(SequencePlaceholder("a")+p.b)
+            p.pth = Path(p.s)
+            p.prune()
+            self.assert_(hasattr(p, 'a'))
+            self.assert_(hasattr(p, 'b'))
+            self.assert_(hasattr(p, 's'))
+            self.assert_(hasattr(p, 'pth'))
 
     unittest.main()
