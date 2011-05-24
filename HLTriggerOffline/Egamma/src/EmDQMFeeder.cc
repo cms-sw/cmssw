@@ -6,7 +6,7 @@
 //
 // Original Author:  Thomas Reis,40 4-B24,+41227671567,
 //         Created:  Tue Mar 15 12:24:11 CET 2011
-// $Id: EmDQMFeeder.cc,v 1.14 2011/05/18 16:36:07 treis Exp $
+// $Id: EmDQMFeeder.cc,v 1.15 2011/05/20 15:13:52 treis Exp $
 //
 //
 
@@ -142,6 +142,7 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 	    paramSet.addUntrackedParameter("Nbins", iConfig.getUntrackedParameter<unsigned int>("Nbins",40));
 	    paramSet.addUntrackedParameter("minEtForEtaEffPlot", iConfig.getUntrackedParameter<unsigned int>("minEtForEtaEffPlot", 15));
 	    paramSet.addUntrackedParameter("useHumanReadableHistTitles", iConfig.getUntrackedParameter<bool>("useHumanReadableHistTitles", false));
+            paramSet.addUntrackedParameter("mcMatchedOnly", iConfig.getUntrackedParameter<bool>("mcMatchedOnly", true));
             paramSet.addUntrackedParameter<unsigned int>("verbosity", verbosity_);
 
 	    //preselction cuts 
