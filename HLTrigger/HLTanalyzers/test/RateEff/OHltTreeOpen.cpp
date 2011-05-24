@@ -11425,8 +11425,270 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
 	    }
 	}
     }
-	
-	
+ 
+   // 2011-05-23 hartl: CHECK
+   else if (triggerName.CompareTo("OpenHLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL") == 0)
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            std::vector<int> firstVector = VectorOpenHlt1PhotonPassed(
+            22,
+            0, //L1iso
+            999., //Tiso
+            999., //Eiso
+            999., //HisoBR
+            999., //HisoEC
+            0.15, //HoverEEB
+            0.10, //HoverEEC
+            999.,//0.98, //R9
+            0.014, //ClusShapEB
+            0.035); //ClusShapEC
+            if (firstVector.size()>=2)
+            {
+               std::vector<int> secondVector = VectorOpenHlt1PhotonPassed(
+               36,
+               0, //L1iso
+               4.0, //Tiso
+               6.0, //Eiso
+               4.0, //HisoBR
+               4.0, //HisoEC
+               0.15, //HoverEEB
+               0.10, //HoverEEC
+               999.,//0.98, //R9
+               0.014, //ClusShapEB
+               0.035); //ClusShapEC
+               if (secondVector.size()>=1)
+               {
+                  triggerBit[it] = true;
+               }
+            }
+         }
+      }
+   }
+
+   // 2011-05-23 hartl
+   else if (triggerName.CompareTo("OpenHLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL") == 0)
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            std::vector<int> firstVector = VectorOpenHlt1PhotonPassed(
+            22,
+            0, //L1iso
+            4.0, //Tiso
+            6.0, //Eiso
+            4.0, //HisoBR
+            4.0, //HisoEC
+            0.15, //HoverEEB
+            0.10, //HoverEEC
+            999.,//0.98, //R9
+            0.014, //ClusShapEB
+            0.035); //ClusShapEC
+            if (firstVector.size()>=2)
+            {
+               std::vector<int> secondVector = VectorOpenHlt1PhotonPassed(
+               36,
+               0, //L1iso
+               4.0, //Tiso
+               6.0, //Eiso
+               4.0, //HisoBR
+               4.0, //HisoEC
+               0.15, //HoverEEB
+               0.10, //HoverEEC
+               999.,//0.98, //R9
+               0.014, //ClusShapEB
+               0.035); //ClusShapEC
+               if (secondVector.size()>=1)
+               {
+                  triggerBit[it] = true;
+               }
+            }
+         }
+      }
+   }
+  
+   // 2011-05-23 hartl: CHECK
+   else if (triggerName.CompareTo("OpenHLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id") == 0)//new
+
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            std::vector<int> firstVector = VectorOpenHlt1PhotonPassedR9ID(
+            22,//Et  
+            0.8, //R9ID 
+            0,
+            999.0, //TrkIso 
+            6.0, //ECAL Iso 
+            4.0,//HCAL Iso BR 
+            4.0, //HCAL Iso EC 
+            0.15, //H/E EB 
+            0.10, // H/E EC 
+            999.,//R9
+            0.014,//Cluster Shape EB 
+            0.035);//Cluster Shape EC
+
+            if (firstVector.size()>=1)
+            {
+               std::vector<int> secondVector = VectorOpenHlt1PhotonPassedR9ID(
+               36,//Et 
+               0.,//R9ID 
+               0,
+               4.0,//TrkIso 
+               6.0,//ECALIso 
+               4.0,//HcalIso Br 
+               4.0,//HcalIso EC
+               0.15, //H/E EB 
+               0.10, // H/E EC
+               999.,
+               0.014, //Cluster Shape EB 
+               0.035); //Cluster Shape EC 
+
+               if (secondVector.size()>=1)
+               {
+                  bool foundone=false;
+                  for (unsigned int j=0; j<firstVector.size() && !foundone; j++)
+                  {
+                     for (unsigned int k=0; k<secondVector.size(); k++)
+                     {
+                        if (firstVector[j]!=secondVector[k])
+                        { //if it's not the same object in the ohPhot list
+                           //compute dR(j,k)
+                           float deltaEta = ohPhotEta[firstVector[j]]-ohPhotEta[secondVector[k]];
+                           float deltaPhi = TMath::Abs(ohPhotPhi[firstVector[j]]-ohPhotPhi[secondVector[k]]);
+                           if (deltaPhi>TMath::Pi())
+                           deltaPhi = 2.0*TMath::Pi()-deltaPhi;
+                           double deltaR = sqrt(pow(deltaEta, 2) + pow(deltaPhi, 2));
+
+                           if (deltaR>0.01)
+                           {
+                              foundone=true;
+                              triggerBit[it] = true;
+                              break;
+                           }
+                        }
+                     }//end for k
+                  }//end for j
+               }//end if second vector has any
+            }//end if photon 22
+         }
+      }
+   }
+
+   // 2011-05-23 hartl: CHECK
+   else if (triggerName.CompareTo("OpenHLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL") == 0)//new
+
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            std::vector<int> firstVector = VectorOpenHlt1PhotonPassedR9ID(
+            22,
+            0.8,
+            0,
+            4.0,
+            6.0,
+            4.0,
+            4.0,
+            0.15, //H/E EB     
+            0.10, // H/E EC    
+            999.,
+            0.014,
+            0.035);
+            if (firstVector.size()>=1)
+            {
+               std::vector<int> secondVector =
+               VectorOpenHlt1PhotonPassedR9ID(
+               36,
+               0.8,
+               0,
+               999.,
+               999.0,
+               999.0,
+               999.0,
+               0.15, //H/E EB 
+               0.10, //H/E EC   
+               999.);
+
+               if (secondVector.size()>=1)
+               {
+                  bool foundone=false;
+                  for (unsigned int j=0; j<firstVector.size() && !foundone; j++)
+                  {
+                     for (unsigned int k=0; k<secondVector.size(); k++)
+                     {
+                        if (firstVector[j]!=secondVector[k])
+                        { //if it's not the same object in the ohPhot list
+                           //compute dR(j,k)
+                           float deltaEta = ohPhotEta[firstVector[j]]-ohPhotEta[secondVector[k]];
+                           float deltaPhi = TMath::Abs(ohPhotPhi[firstVector[j]]-ohPhotPhi[secondVector[k]]);
+                           if (deltaPhi>TMath::Pi())
+                           deltaPhi = 2.0*TMath::Pi()-deltaPhi;
+                           double deltaR = sqrt(pow(deltaEta, 2) + pow(deltaPhi, 2));
+
+                           if (deltaR>0.01)
+                           {
+                              foundone=true;
+                              triggerBit[it] = true;
+                              break;
+                           }
+                        }
+                     }//end for k
+                  }//end for j
+               }//if pho36
+            }//if pho22
+         }
+      }
+   }
+  
+  // 2011-05-23 hartl: CHECK
+   else if (triggerName.CompareTo("OpenHLT_Photon36_R9Id_Photon22_R9Id") == 0)
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            std::vector<int> firstVector = VectorOpenHlt1PhotonPassedR9ID(
+            22,
+            0.8,
+            0,
+            999,
+            999,
+            999,
+            999,
+            0.15, //H/E EB
+            0.10, // H/E EC
+            0.98);
+
+            if (firstVector.size()>=2)
+            {
+               std::vector<int> secondVector =
+               VectorOpenHlt1PhotonPassedR9ID(
+               36,
+               0.8,
+               0,
+               999,
+               999,
+               999,
+               999,
+               0.15, //H/E EB
+               0.10, //H/E EC
+               0.98);
+
+               if (secondVector.size()>=1)
+               {
+                  triggerBit[it] = true;
+               }
+            }
+         }
+      }
+   }
+  
   else if (triggerName.BeginsWith("OpenHLT_Photon26")==1)
     {
       // Photon Paths (V. Rekovic)
