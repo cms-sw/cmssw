@@ -10,9 +10,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: vlimant $
-// $Date: 2009/05/14 15:06:08 $
-// $Revision: 1.6 $
+// $Author: dlange $
+// $Date: 2011/04/11 13:43:21 $
+// $Revision: 1.1 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -30,7 +30,7 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace cms
@@ -72,6 +72,8 @@ namespace cms
 
     std::vector< std::vector< int> > listsToMerge_;
     std::vector<bool> promoteQuality_;
+    std::vector<int> hasSelector_;
+    std::vector<edm::InputTag> selectors_;
 
     bool allowFirstHitShare_;
     reco::TrackBase::TrackQuality qualityToSet_;

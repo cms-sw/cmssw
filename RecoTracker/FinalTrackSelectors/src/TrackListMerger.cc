@@ -7,9 +7,9 @@
 // Original Author: David Lange
 // Created:         April 4, 2011
 //
-// $Author: innocent $
-// $Date: 2010/12/14 15:03:08 $
-// $Revision: 1.27 $
+// $Author: dlange $
+// $Date: 2011/04/11 13:43:21 $
+// $Revision: 1.1 $
 //
 
 #include <memory>
@@ -98,6 +98,9 @@ namespace cms
       promoteQuality_.push_back(setsToMerge[i].getParameter<bool>("pQual"));   
     }
 
+    hasSelector_=conf.getParameter<std::vector<int> >("hasSelector");
+    selectors_=conf.getParameter<std::vector<edm::InputTag> >("selectedTrackQuals");   
+
     produces<reco::TrackCollection>();
 
     makeReKeyedSeeds_ = conf.getUntrackedParameter<bool>("makeReKeyedSeeds",false);
@@ -170,14 +173,37 @@ namespace cms
     int i=-1;
 
     std::vector<int> selected(rSize,1); 
+    std::vector<bool> trkUpdated(rSize,false); 
     std::vector<int> trackCollNum(rSize,0);
+    std::vector<int> trackQuals(rSize,0);
+
     for (unsigned int j=0; j< trackColls.size(); j++) {
       const reco::TrackCollection *tC1=trackColls[j];
 
+      edm::Handle<std::vector <int> > trackSelColl;
+      if ( hasSelector_[j]>0 ){
+	e.getByLabel(selectors_[j], trackSelColl);
+      }
+
       if ( 0<tC1->size() ){
+	unsigned int iC=0;
 	for (reco::TrackCollection::const_iterator track=tC1->begin(); track!=tC1->end(); track++){
-	  i++;
+	  i++; 
 	  trackCollNum[i]=j;
+	  trackQuals[i]=track->qualityMask();
+
+	  if ( hasSelector_[j]>0 ) {
+	    if ( trackSelColl->at(iC) < 0 ) {
+	      selected[i]=0;
+	      iC++;
+	      continue;
+	    }
+	    else{
+	      trackQuals[i]=trackSelColl->at(iC);
+	    }
+	  }
+	  iC++;
+	  selected[i]=trackQuals[i]+10;//10 is magic number used throughout...
 	  if ((short unsigned)track->ndof() < 1){
 	    selected[i]=0; 
 	    continue;
@@ -235,7 +261,7 @@ namespace cms
 	unsigned int trackNum=i-trackCollFirsts[collNum];
 	const reco::Track *track=&((trackColls[collNum])->at(trackNum)); 
 	unsigned nh1=rh1[i].size();
-	int qualityMaskT1 = track->qualityMask();
+	int qualityMaskT1 = trackQuals[i];
 
 	int nhit1 = validHits[i];
 
@@ -281,7 +307,7 @@ namespace cms
 	  int newQualityMask = -9; //avoid resetting quality mask if not desired 10+ -9 =1
 	  if (promoteQuality_[ltm]) {
 	    int maskT1= saveSelected[i]>1? saveSelected[i]-10 : qualityMaskT1;
-	    int maskT2= saveSelected[j]>1? saveSelected[j]-10 : track2->qualityMask();
+	    int maskT2= saveSelected[j]>1? saveSelected[j]-10 : trackQuals[j];
 	    newQualityMask =(maskT1 | maskT2); // take OR of trackQuality 
 	  }
 	  int nhit2 = validHits[j];
@@ -290,26 +316,32 @@ namespace cms
 	    if ( nhit1 > nhit2 ){
 	      selected[j]=0; 
 	      selected[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
+	      trkUpdated[i]=true;
 	    }else{
 	      if ( nhit1 < nhit2 ){
 		selected[i]=0; 
 		selected[j]=10+newQualityMask;  // add 10 to avoid the case where mask = 1
+		trkUpdated[j]=true;
 	      }else{
 		const double almostSame = 1.001;
 		if (track->normalizedChi2() > almostSame * track2->normalizedChi2()) {
 		  selected[i]=0;
 		  selected[j]=10+newQualityMask; // add 10 to avoid the case where mask = 1
+		  trkUpdated[j]=true;
 		}else if (track2->normalizedChi2() > almostSame * track->normalizedChi2()) {
 		  selected[j]=0;
 		  selected[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
+		  trkUpdated[i]=true;
 		}else{
 		  // If tracks from both iterations are virtually identical, choose the one from the first iteration.
 		  if (track->algo() <= track2->algo()) {
 		    selected[j]=0;
 		    selected[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
+		    trkUpdated[i]=true;
 		  }else{
 		    selected[i]=0;
 		    selected[j]=10+newQualityMask; // add 10 to avoid the case where mask = 1
+		    trkUpdated[j]=true;
 		  }
 		}
 	      }//end fi > or = fj
@@ -365,7 +397,8 @@ namespace cms
       outputTrks->push_back( reco::Track( *track ) );
       if (selected[i]>1 ) { 
 	outputTrks->back().setQualityMask(selected[i]-10);
-	outputTrks->back().setQuality(qualityToSet_);
+	if (trkUpdated[i])
+	  outputTrks->back().setQuality(qualityToSet_);
       }
 
       //fill the TrackCollection

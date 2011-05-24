@@ -30,6 +30,8 @@ trackListMerger = cms.EDProducer("TrackListMerger",
     MinFound = cms.int32(3),
     # always override these in the clone                             
     TrackProducers = cms.vstring('',''),
+    hasSelector = cms.vint32(0,0),
+    selectedTrackQuals = cms.VInputTag(cms.InputTag(""),cms.InputTag("")),                             
     setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1), pQual=cms.bool(False)),
                              cms.PSet( tLists=cms.vint32(2,3), pQual=cms.bool(True) ),
                              cms.PSet( tLists=cms.vint32(4,5), pQual=cms.bool(True) ),

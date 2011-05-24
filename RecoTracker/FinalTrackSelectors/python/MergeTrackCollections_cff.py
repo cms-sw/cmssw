@@ -56,7 +56,9 @@ else:
 # new merging module
     import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
     generalTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-    TrackProducers = ('firstStepTracksWithQuality','secStep','thStep','pixellessStep','tobtecStep'),
+    TrackProducers = ('firstStepTracksWithQuality','secStep','thStepDup','pixellessStep','tobtecStep'),
+    hasSelector=cms.vint32(0,0,0,0,0),
+    selectedTrackQuals = cms.VInputTag(cms.InputTag(""),cms.InputTag(""),cms.InputTag(""),cms.InputTag(""),cms.InputTag("")),
     setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(1,2), pQual=cms.bool(True) ),
                              cms.PSet( tLists=cms.vint32(3,4), pQual=cms.bool(True) ),
                              cms.PSet( tLists=cms.vint32(1,2,3,4), pQual=cms.bool(True) ),
