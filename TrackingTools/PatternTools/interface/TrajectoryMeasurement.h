@@ -91,7 +91,7 @@ public:
     theBwdPredictedState(bwdPredTrajectoryStateOnSurface),
     theUpdatedState(uTrajectoryStateOnSurface),
     theRecHit(aRecHit),
-    theEstimate(0), theLayer(0) {}
+    theLayer(0), theEstimate(0) {}
 
   /** Constructor with forward predicted, backward predicted & updated state, 
    *  RecHit, estimate
@@ -104,7 +104,7 @@ public:
     theBwdPredictedState(bwdPredTrajectoryStateOnSurface),
     theUpdatedState(uTrajectoryStateOnSurface),
     theRecHit(aRecHit),
-    theEstimate(aEstimate), theLayer(0) {}
+    theLayer(0), theEstimate(aEstimate) {}
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
 			TrajectoryStateOnSurface bwdPredTrajectoryStateOnSurface,
                         TrajectoryStateOnSurface uTrajectoryStateOnSurface,
@@ -114,7 +114,7 @@ public:
     theBwdPredictedState(bwdPredTrajectoryStateOnSurface),
     theUpdatedState(uTrajectoryStateOnSurface),
     theRecHit(aRecHit),
-    theEstimate(aEstimate), theLayer(layer) {}
+    theLayer(layer), theEstimate(aEstimate) {}
 
  
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
