@@ -90,7 +90,7 @@ public:
 			    const MagneticField* field,
 			    double weight);
 
-  virtual ~TrajectoryStateOnSurface() {}
+  ~TrajectoryStateOnSurface() {}
 
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
 
