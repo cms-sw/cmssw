@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerEvent
 //
-// $Id: TriggerEvent.h,v 1.13 2011/04/06 19:03:42 vadler Exp $
+// $Id: TriggerEvent.h,v 1.14 2011/04/08 16:16:48 vadler Exp $
 //
 /**
   \class    pat::TriggerEvent TriggerEvent.h "DataFormats/PatCandidates/interface/TriggerEvent.h"
@@ -19,7 +19,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerEvent
 
   \author   Volker Adler
-  \version  $Id: TriggerEvent.h,v 1.13 2011/04/06 19:03:42 vadler Exp $
+  \version  $Id: TriggerEvent.h,v 1.14 2011/04/08 16:16:48 vadler Exp $
 */
 
 
@@ -317,11 +317,11 @@ namespace pat {
       /// setting 'all' to 'false' returns the run filters only.
       TriggerFilterRefVector pathModules( const std::string & namePath, bool all = true ) const;
       /// Get a vector of references to all active HLT filters assigned to a certain path given by name
-      TriggerFilterRefVector pathFilters( const std::string & namePath ) const;
+      TriggerFilterRefVector pathFilters( const std::string & namePath, bool firing = true ) const;
       /// Checks, if a filter is assigned to and was run in a certain path given by name
-      bool filterInPath( const TriggerFilterRef & filterRef, const std::string & namePath ) const;
+      bool filterInPath( const TriggerFilterRef & filterRef, const std::string & namePath, bool firing = true ) const;
       /// Get a vector of references to all paths, which have a certain filter assigned
-      TriggerPathRefVector filterPaths( const TriggerFilterRef & filterRef ) const;
+      TriggerPathRefVector filterPaths( const TriggerFilterRef & filterRef, bool firing = true ) const;
       /// Get a list of all trigger object collections used in a certain filter given by name
       std::vector< std::string > filterCollections( const std::string & labelFilter ) const;
       /// Get a vector of references to all objects, which were used in a certain filter given by name
@@ -329,13 +329,13 @@ namespace pat {
       /// Checks, if an object was used in a certain filter given by name
       bool objectInFilter( const TriggerObjectRef & objectRef, const std::string & labelFilter ) const;
       /// Get a vector of references to all filters, which have a certain object assigned
-      TriggerFilterRefVector objectFilters( const TriggerObjectRef & objectRef ) const;
+      TriggerFilterRefVector objectFilters( const TriggerObjectRef & objectRef, bool firing = true ) const;
       /// Get a vector of references to all objects, which were used in a certain path given by name
-      TriggerObjectRefVector pathObjects( const std::string & namePath ) const;
+      TriggerObjectRefVector pathObjects( const std::string & namePath, bool firing = true ) const;
       /// Checks, if an object was used in a certain path given by name
-      bool objectInPath( const TriggerObjectRef & objectRef, const std::string & namePath ) const;
+      bool objectInPath( const TriggerObjectRef & objectRef, const std::string & namePath, bool firing = true ) const;
       /// Get a vector of references to all paths, which have a certain object assigned
-      TriggerPathRefVector objectPaths( const TriggerObjectRef & objectRef  ) const;
+      TriggerPathRefVector objectPaths( const TriggerObjectRef & objectRef, bool firing = true  ) const;
 
       /// Add a pat::TriggerObjectMatch association
       /// returns 'false', if 'matcher' alreadey exists

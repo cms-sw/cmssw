@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerProducer.cc,v 1.25 2011/02/22 18:29:50 vadler Exp $
+// $Id: PATTriggerProducer.cc,v 1.26 2011/03/16 13:03:53 vadler Exp $
 //
 
 
@@ -346,7 +346,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
     std::auto_ptr< TriggerPathCollection > triggerPaths( new TriggerPathCollection() );
     triggerPaths->reserve( onlyStandAlone_ ? 0 : sizePaths );
     std::map< std::string, int > moduleStates;
-    std::multimap< std::string, std::pair< std::string, bool > > filterPaths;
+    std::multimap< std::string, std::pair< std::string, std::pair< bool, bool > > > filterPaths;
 
     for ( size_t iP = 0; iP < sizePaths; ++iP ) {
       const std::string namePath( hltConfig_.triggerName( iP ) );
@@ -365,12 +365,15 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         const std::string nameFilter( hltConfig_.moduleLabel( indexPath, iM ) );
         const unsigned indexFilter( handleTriggerEvent->filterIndex( InputTag( nameFilter, "", nameProcess_ ) ) );
         if ( indexFilter < sizeFilters ) {
-          std::pair< std::string, bool > pathAndStatus( namePath, handleTriggerResults->wasrun( indexPath ) && handleTriggerResults->accept( indexPath ) && indexFilter == indexLastFilterFilters );
-          filterPaths.insert( std::pair< std::string, std::pair< std::string, bool > >( nameFilter, pathAndStatus ) );
+          bool pathLastFilterAccepted( handleTriggerResults->wasrun( indexPath ) && handleTriggerResults->accept( indexPath ) && indexFilter == indexLastFilterFilters );
+          bool pathL3FilterAccepted( handleTriggerResults->wasrun( indexPath ) && handleTriggerResults->accept( indexPath ) && hltConfig_.saveTags( nameFilter ) );
+          std::pair< bool, bool > pathStatusValues( pathLastFilterAccepted, pathL3FilterAccepted );
+          std::pair< std::string, std::pair< bool, bool > > pathAndStatus( namePath, pathStatusValues );
+          filterPaths.insert( std::pair< std::string, std::pair< std::string, std::pair< bool, bool > > >( nameFilter, pathAndStatus ) );
         }
       }
       if ( ! onlyStandAlone_ ) {
-        TriggerPath triggerPath( namePath, indexPath, hltConfig_.prescaleValue( set, namePath ), handleTriggerResults->wasrun( indexPath ), handleTriggerResults->accept( indexPath ), handleTriggerResults->error( indexPath ), indexLastFilterPath );
+        TriggerPath triggerPath( namePath, indexPath, hltConfig_.prescaleValue( set, namePath ), handleTriggerResults->wasrun( indexPath ), handleTriggerResults->accept( indexPath ), handleTriggerResults->error( indexPath ), indexLastFilterPath, hltConfig_.saveTagsModules( namePath ).size() );
         // add module names to path and states' map
         assert( indexLastFilterPath < sizeModulesPath );
         std::map< unsigned, std::string > indicesModules;
@@ -460,9 +463,9 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
       for ( std::multimap< trigger::size_type, std::string >::iterator iM = filterLabels.begin(); iM != filterLabels.end(); ++iM ) {
         if ( iM->first == iO ) {
           triggerObjectStandAlone.addFilterLabel( iM->second );
-          for ( std::multimap< std::string, std::pair< std::string, bool > >::iterator iP = filterPaths.begin(); iP != filterPaths.end(); ++iP ) {
+          for ( std::multimap< std::string, std::pair< std::string, std::pair< bool, bool > > >::iterator iP = filterPaths.begin(); iP != filterPaths.end(); ++iP ) {
             if ( iP->first == iM->second ) {
-              triggerObjectStandAlone.addPathName( iP->second.first, iP->second.second );
+              triggerObjectStandAlone.addPathName( iP->second.first, iP->second.second.first, iP->second.second.second );
             }
           }
         }
@@ -485,6 +488,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         // set filter type
         const std::string typeFilter( hltConfig_.moduleType( nameFilter ) );
         triggerFilter.setType( typeFilter );
+        triggerFilter.setSaveTags( hltConfig_.saveTags( nameFilter ) );
         // set keys and trigger object types of used objects
         for ( size_t iK = 0; iK < keys.size(); ++iK ) { // identical to types.size()
           // check, if current object is excluded
