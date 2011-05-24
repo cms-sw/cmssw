@@ -51,84 +51,87 @@ public:
    * copy vector<Trajectory> in the edm::Event
    */
   
-  TempTrajectory() :  theChiSquared(0), theValid(true),
+  TempTrajectory() :  
+    theChiSquared(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(alongMomentum), theDirectionValidity(false),
-    theSeed()  
-    {}
-
-
+    theDirection(alongMomentum), theDirectionValidity(false), 
+    theValid(true)
+  {}
+  
+  
   /** Constructor of an empty trajectory with undefined direction.
    *  The direction will be defined at the moment of the push of a second
    *  measurement, from the relative radii of the first and second 
    *  measurements.
    */
-    
+  
   TempTrajectory( const TrajectorySeed& seed) : 
-    theChiSquared(0), theValid(true),
+    theSeed( new TrajectorySeed(seed) ),
+    theChiSquared(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(alongMomentum), theDirectionValidity(false),
-    theSeed( new TrajectorySeed(seed) )
+    theValid(true)  
   {}
-
+  
   /** Constructor of an empty trajectory with defined direction.
    *  No check is made in the push method that measurements are
    *  added in the correct direction.
    */
   TempTrajectory( const TrajectorySeed& seed, PropagationDirection dir) : 
-    theChiSquared(0), theValid(true),
+    theSeed( new TrajectorySeed(seed) ),
+    theChiSquared(0), 
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(dir), theDirectionValidity(true),
-    theSeed( new TrajectorySeed(seed) )
+    theValid(true)
   {}
-
+  
   /** Constructor of an empty trajectory with defined direction.
    *  No check is made in the push method that measurements are
    *  added in the correct direction.
    */
   TempTrajectory( const boost::shared_ptr<const TrajectorySeed> & seed, PropagationDirection dir) : 
-    theChiSquared(0), theValid(true),
+    theSeed( seed ),
+    theChiSquared(0), 
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(dir), theDirectionValidity(true),
-    theSeed( seed )
+    theValid(true)
   {}
-
-
+  
+  
   /** Constructor of an empty trajectory with defined direction.
    *  No check is made in the push method that measurements are
    *  added in the correct direction.
    */
   TempTrajectory(PropagationDirection dir) : 
-    theChiSquared(0), theValid(true),
+    theChiSquared(0), 
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(dir), theDirectionValidity(true),
-    theSeed()
+    theValid(true)
   {}
-
-
+  
+  
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
-
+  
   TempTrajectory(TempTrajectory const & rh) : 
+    theSeed(rh.theSeed),
     theData(rh.theData),
-    theChiSquared(rh.theChiSquared), theValid(rh.theValid),
+    theChiSquared(rh.theChiSquared), 
     theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
-    theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity),
-    theSeed(rh.theSeed)
+    theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity),theValid(rh.theValid)
   {}
-
+  
   
   TempTrajectory & operator=(TempTrajectory const & rh) {
     DataContainer aData(rh.theData);
     using std::swap;
     swap(theData,aData);
-
+    theSeed = rh.theSeed;
     theChiSquared=rh.theChiSquared;
-    theValid=rh.theValid;
     theNumberOfFoundHits=rh.theNumberOfFoundHits;
     theNumberOfLostHits=rh.theNumberOfLostHits;
     theDirection=rh.theDirection; 
     theDirectionValidity=rh.theDirectionValidity;
-    theSeed = rh.theSeed;
+    theValid=rh.theValid;
  
     return *this;
 
@@ -136,23 +139,24 @@ public:
   
 
   TempTrajectory(TempTrajectory && rh) :
+    theSeed(std::move(rh.theSeed)),
     theData(std::move(rh.theData)),
-    theChiSquared(rh.theChiSquared), theValid(rh.theValid),
+    theChiSquared(rh.theChiSquared), 
     theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
     theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity),
-    theSeed(std::move(rh.theSeed))
-  {}
+    theValid(rh.theValid)
+   {}
 
   TempTrajectory & operator=(TempTrajectory && rh) {
     using std::swap;
+    swap(theSeed,rh.theSeed);
     swap(theData,rh.theData);
     theChiSquared=rh.theChiSquared;
-    theValid=rh.theValid;
     theNumberOfFoundHits=rh.theNumberOfFoundHits;
     theNumberOfLostHits=rh.theNumberOfLostHits;
     theDirection=rh.theDirection;
     theDirectionValidity=rh.theDirectionValidity;
-    swap(theSeed,rh.theSeed);
+    theValid=rh.theValid;
 
     return *this;
 
@@ -299,17 +303,18 @@ private:
 private:
 
 
+  boost::shared_ptr<const TrajectorySeed>    theSeed;
   DataContainer theData;
+
   double theChiSquared;
-  bool theValid;
 
   int theNumberOfFoundHits;
   int theNumberOfLostHits;
 
   PropagationDirection theDirection;
   bool                 theDirectionValidity;
+  bool theValid;
 
-  boost::shared_ptr<const TrajectorySeed>    theSeed;
 
   void check() const;
 };

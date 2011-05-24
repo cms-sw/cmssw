@@ -36,22 +36,23 @@ public:
     theFwdPredictedState(fwdTrajectoryStateOnSurface),
     theUpdatedState(fwdTrajectoryStateOnSurface),
     theRecHit(aRecHit),
-    theEstimate(0), theLayer(0) {}
+    theLayer(0), theEstimate(0) {}
 
   /// Constructor with forward predicted state, RecHit, estimate
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdTrajectoryStateOnSurface,
                         ConstRecHitPointer aRecHit, float aEstimate) :
     theFwdPredictedState(fwdTrajectoryStateOnSurface),
     theUpdatedState(fwdTrajectoryStateOnSurface),
-    theRecHit(aRecHit),
-    theEstimate(aEstimate), theLayer(0) {}
+    theRecHit(aRecHit), 
+    theLayer(0),
+    theEstimate(aEstimate) {}
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdTrajectoryStateOnSurface,
                         ConstRecHitPointer aRecHit, float aEstimate,
 			const DetLayer* layer) :
     theFwdPredictedState(fwdTrajectoryStateOnSurface),
     theUpdatedState(fwdTrajectoryStateOnSurface),
-    theRecHit(aRecHit),
-    theEstimate(aEstimate), theLayer(layer) {}
+    theRecHit(aRecHit), theLayer(layer) ,
+    theEstimate(aEstimate){}
 
   /// Constructor with forward predicted & updated state, RecHit
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
@@ -59,8 +60,8 @@ public:
                         ConstRecHitPointer aRecHit) :
     theFwdPredictedState(fwdPredTrajectoryStateOnSurface),
     theUpdatedState(uTrajectoryStateOnSurface),
-    theRecHit(aRecHit),
-    theEstimate(0), theLayer(0) {}
+    theRecHit(aRecHit), theLayer(0),
+    theEstimate(0) {}
 
   /// Constructor with forward predicted & updated state, RecHit, estimate 
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
@@ -68,16 +69,16 @@ public:
                         ConstRecHitPointer aRecHit, float aEstimate) :
     theFwdPredictedState(fwdPredTrajectoryStateOnSurface),
     theUpdatedState(uTrajectoryStateOnSurface),
-    theRecHit(aRecHit),
-    theEstimate(aEstimate), theLayer(0) {}
+    theRecHit(aRecHit), theLayer(0),
+    theEstimate(aEstimate) {}
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
                         TrajectoryStateOnSurface uTrajectoryStateOnSurface,
                         ConstRecHitPointer aRecHit, float aEstimate,
 			const DetLayer* layer) :
     theFwdPredictedState(fwdPredTrajectoryStateOnSurface),
     theUpdatedState(uTrajectoryStateOnSurface),
-    theRecHit(aRecHit),
-    theEstimate(aEstimate), theLayer(layer) {}
+    theRecHit(aRecHit), theLayer(layer),
+    theEstimate(aEstimate) {}
 
   /** Constructor with forward predicted, backward predicted & updated state, 
    *  RecHit
@@ -121,8 +122,8 @@ public:
     theFwdPredictedState(rh.theFwdPredictedState),
     theBwdPredictedState(rh.theBwdPredictedState),
     theUpdatedState(rh.theUpdatedState),
-    theRecHit(rh.theRecHit),
-    theEstimate(rh.theEstimate), theLayer(rh.theLayer) {}
+    theRecHit(rh.theRecHit), theLayer(rh.theLayer),
+    theEstimate(rh.theEstimate) {}
                         
   TrajectoryMeasurement & operator=( TrajectoryMeasurement const & rh) {   
     theFwdPredictedState = rh.theFwdPredictedState;   
@@ -141,8 +142,8 @@ public:
     theFwdPredictedState(std::move(rh.theFwdPredictedState)),
     theBwdPredictedState(std::move(rh.theBwdPredictedState)),
     theUpdatedState(std::move(rh.theUpdatedState)),
-    theRecHit(std::move(rh.theRecHit)),
-    theEstimate(rh.theEstimate), theLayer(rh.theLayer) {}
+    theRecHit(std::move(rh.theRecHit)), theLayer(rh.theLayer),
+    theEstimate(rh.theEstimate) {}
 
   TrajectoryMeasurement & operator=( TrajectoryMeasurement && rh) {
     using std::swap;
@@ -198,8 +199,8 @@ private:
   TrajectoryStateOnSurface theBwdPredictedState;
   TrajectoryStateOnSurface theUpdatedState;
   ConstRecHitPointer       theRecHit;
-  float theEstimate;
   const DetLayer* theLayer;
+  float theEstimate;
 };
 
 #endif
