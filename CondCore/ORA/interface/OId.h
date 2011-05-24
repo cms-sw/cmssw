@@ -53,6 +53,7 @@ namespace ora {
     }
 
     virtual OId parse( const std::string& poolToken ) = 0;
+    virtual std::string className( const std::string& poolToken ) = 0;
   };
 
   class ITokenWriter {

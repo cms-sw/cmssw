@@ -133,6 +133,9 @@ namespace cond {
     for( IOVSequence::const_iterator iT = m_iovs.begin();
          iT != m_iovs.end(); ++iT ){
       iT->swapToken( parser );
+      // adding the classname 'by hand'
+      std::string className = parser.className( iT->token() );
+      const_cast<IOVSequence* >(this)->m_payloadClasses.insert( className );
     }
   }
 

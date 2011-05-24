@@ -25,12 +25,8 @@ void ora::RflxDeleter::operator()( void* ptr ){
 }
 
 void ora::ClassUtils::loadDictionary( const std::string& className ){
-  try {
-    static std::string const prefix("LCGReflex/");
-    edmplugin::PluginCapabilities::get()->load(prefix + className);
-  } catch (...){
-    throwException( "Failure while loading dictionary for class \""+className+"\".","ClassUtils::loadDictionary" );
-  }
+  static std::string const prefix("LCGReflex/");
+  edmplugin::PluginCapabilities::get()->load(prefix + className);
 }
 
 void* ora::ClassUtils::upCast( const Reflex::Type& type,
