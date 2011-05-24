@@ -124,64 +124,70 @@ fourthWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProd
     AlgorithmName = cms.string('iter4')
     )
 
-# TRACK SELECTION AND QUALITY FLAG SETTING.
-import RecoTracker.FinalTrackSelectors.selectLoose_cfi
-import RecoTracker.FinalTrackSelectors.selectTight_cfi
-import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
 
-pixellessStepLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone(
-    src = 'fourthWithMaterialTracks',
-    keepAllTracks = False,
-    copyExtras = False,
-    copyTrajectories = True,
-    chi2n_par = 0.5,
-    res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 5,
-    maxNumberLostLayers = 1,
-    minNumber3DLayers = 3,
-    d0_par1 = ( 1.5, 4.0 ),
-    dz_par1 = ( 1.5, 4.0 ),
-    d0_par2 = ( 1.5, 4.0 ),
-    dz_par2 = ( 1.5, 4.0 )
-    )
+import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
+pixellessSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+    src='fourthWithMaterialTracks',
+    trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            name = 'pixellessStepLoose',
+            chi2n_par = 0.5,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 5,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 1.5, 4.0 ),
+            dz_par1 = ( 1.5, 4.0 ),
+            d0_par2 = ( 1.5, 4.0 ),
+            dz_par2 = ( 1.5, 4.0 )
+            ), #end of pset for thStepVtxLoose
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            name = 'pixellessStepTight',
+            preFilterName = 'pixellessStepLoose',
+            chi2n_par = 0.35,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 5,
+            maxNumberLostLayers = 0,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 1.2, 4.0 ),
+            dz_par1 = ( 1.2, 4.0 ),
+            d0_par2 = ( 1.2, 4.0 ),
+            dz_par2 = ( 1.2, 4.0 )
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'pixellessStep',
+            preFilterName = 'pixellessStepTight',
+            chi2n_par = 0.25,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 5,
+            maxNumberLostLayers = 0,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 1., 4.0 ),
+            dz_par1 = ( 1., 4.0 ),
+            d0_par2 = ( 1., 4.0 ),
+            dz_par2 = ( 1., 4.0 )
+            ),
+        ) #end of vpset
+    ) #end of clone
 
-pixellessStepTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone(
-    src = 'pixellessStepLoose',
-    keepAllTracks = True,
-    copyExtras = False,
-    copyTrajectories = True,
-    chi2n_par = 0.35,
-    res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 5,
-    maxNumberLostLayers = 0,
-    minNumber3DLayers = 3,
-    d0_par1 = ( 1.2, 4.0 ),
-    dz_par1 = ( 1.2, 4.0 ),
-    d0_par2 = ( 1.2, 4.0 ),
-    dz_par2 = ( 1.2, 4.0 )
-    )
 
-pixellessStep = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
-    src = 'pixellessStepTight',
-    keepAllTracks = True,
-    copyExtras = False,
-    copyTrajectories = True,
-    chi2n_par = 0.25,
-    res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 5,
-    maxNumberLostLayers = 0,
-    minNumber3DLayers = 3,
-    d0_par1 = ( 1.0, 4.0 ),
-    dz_par1 = ( 1.0, 4.0 ),
-    d0_par2 = ( 1.0, 4.0 ),
-    dz_par2 = ( 1.0, 4.0 )
-    )
+import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
+pixellessStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
+    TrackProducers = cms.vstring('fourthWithMaterialTracks'),
+    hasSelector=cms.vint32(1),
+    selectedTrackQuals = cms.VInputTag(cms.InputTag("pixellessSelector","pixellessStep")),
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0), pQual=cms.bool(True) ))
+)                        
+
+
+
 
 fourthStep = cms.Sequence(thfilter*fourthClusters*
                           fourthPixelRecHits*fourthStripRecHits*
                           fourthPLSeeds*
                           fourthTrackCandidates*
                           fourthWithMaterialTracks*
-                          pixellessStepLoose*
-                          pixellessStepTight*
+                          pixellessSelector*
+#                          pixellessStepLoose*
+#                          pixellessStepTight*
                           pixellessStep)

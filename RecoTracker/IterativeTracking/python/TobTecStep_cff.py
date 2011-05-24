@@ -163,64 +163,66 @@ fifthWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProdu
     Fitter = 'fifthFittingSmootherWithOutlierRejection',
     )
 
-# TRACK SELECTION AND QUALITY FLAG SETTING.
-import RecoTracker.FinalTrackSelectors.selectLoose_cfi
-import RecoTracker.FinalTrackSelectors.selectTight_cfi
-import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
 
-tobtecStepLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone(
-    src = 'fifthWithMaterialTracks',
-    keepAllTracks = False,
-    copyExtras = False,
-    copyTrajectories = True,
-    chi2n_par = 0.4,
-    res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 5,
-    maxNumberLostLayers = 1,
-    minNumber3DLayers = 2,
-    d0_par1 = ( 2.0, 4.0 ),
-    dz_par1 = ( 1.8, 4.0 ),
-    d0_par2 = ( 2.0, 4.0 ),
-    dz_par2 = ( 1.8, 4.0 )
-    )
+import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
+tobtecSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+    src='fifthWithMaterialTracks',
+    trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            name = 'tobtecStepLoose',
+            chi2n_par = 0.4,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 5,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 2,
+            d0_par1 = ( 2.0, 4.0 ),
+            dz_par1 = ( 1.8, 4.0 ),
+            d0_par2 = ( 2.0, 4.0 ),
+            dz_par2 = ( 1.8, 4.0 )
+            ), #end of pset for thStepVtxLoose
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            name = 'tobtecStepTight',
+            preFilterName = 'tobtecStepLoose',
+            chi2n_par = 0.3,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 5,
+            maxNumberLostLayers = 0,
+            minNumber3DLayers = 2,
+            d0_par1 = ( 1.5, 4.0 ),
+            dz_par1 = ( 1.4, 4.0 ),
+            d0_par2 = ( 1.5, 4.0 ),
+            dz_par2 = ( 1.4, 4.0 )
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'tobtecStep',
+            preFilterName = 'tobtecStepTight',
+            chi2n_par = 0.2,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 5,
+            maxNumberLostLayers = 0,
+            minNumber3DLayers = 2,
+            d0_par1 = ( 1.4, 4.0 ),
+            dz_par1 = ( 1.3, 4.0 ),
+            d0_par2 = ( 1.4, 4.0 ),
+            dz_par2 = ( 1.3, 4.0 )
+            ),
+        ) #end of vpset
+    ) #end of clone
 
-tobtecStepTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone(
-    src = 'tobtecStepLoose',
-    keepAllTracks = True,
-    copyExtras = False,
-    copyTrajectories = True,
-    chi2n_par = 0.3,
-    res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 5,
-    maxNumberLostLayers = 0,
-    minNumber3DLayers = 2,
-    d0_par1 = ( 1.5, 4.0 ),
-    dz_par1 = ( 1.4, 4.0 ),
-    d0_par2 = ( 1.5, 4.0 ),
-    dz_par2 = ( 1.4, 4.0 )
-    )
 
-tobtecStep = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
-    src = 'tobtecStepTight',
-    keepAllTracks = True,
-    copyExtras = False,
-    copyTrajectories = True,
-    chi2n_par = 0.2,
-    res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 5,
-    maxNumberLostLayers = 0,
-    minNumber3DLayers = 2,
-    d0_par1 = ( 1.4, 4.0 ),
-    dz_par1 = ( 1.3, 4.0 ),
-    d0_par2 = ( 1.4, 4.0 ),
-    dz_par2 = ( 1.3, 4.0 )
-    )
+import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
+tobtecStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
+    TrackProducers = cms.vstring('fifthWithMaterialTracks'),
+    hasSelector=cms.vint32(1),
+    selectedTrackQuals = cms.VInputTag(cms.InputTag("tobtecSelector","tobtecStep")),
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0), pQual=cms.bool(True) ))
+)                        
+
 
 fifthStep = cms.Sequence(fourthfilter*fifthClusters*
                           fifthPixelRecHits*fifthStripRecHits*
                           fifthSeeds*
                           fifthTrackCandidates*
                           fifthWithMaterialTracks*
-                          tobtecStepLoose*
-                          tobtecStepTight*
+                          tobtecSelector*
                           tobtecStep)
