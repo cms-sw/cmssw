@@ -1446,7 +1446,7 @@ bool isHTX_Mu5_pfMHTXTrigger(
 			     TString triggerName,
 			     vector<double> &thresholds)
 {
-  TString pattern = "(OpenHLT_HT([0-9]+)_Mu5_pfMHT([0-9]+))$";
+  TString pattern = "(OpenHLT_HT([0-9]+)_Mu5_PFMHT([0-9]+))$";
   TPRegexp matchThreshold(pattern);
 	
   if (matchThreshold.MatchB(triggerName))
@@ -1467,7 +1467,7 @@ bool isHTX_Mu15_pfMHTXTrigger(
 			      TString triggerName,
 			      vector<double> &thresholds)
 {
-  TString pattern = "(OpenHLT_HT([0-9]+)_Mu15_pfMHT([0-9]+))$";
+  TString pattern = "(OpenHLT_HT([0-9]+)_Mu15_PFMHT([0-9]+))$";
   TPRegexp matchThreshold(pattern);
 	
   if (matchThreshold.MatchB(triggerName))
@@ -1530,7 +1530,7 @@ bool isHTX_EleX_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_pfMHTXTrigger(
 								  TString triggerName,
 								  vector<double> &thresholds)
 {
-  TString pattern = "(OpenHLT_HT([0-9]+)_Ele([0-9]+)_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_pfMHT([0-9]+))$";
+  TString pattern = "(OpenHLT_HT([0-9]+)_Ele([0-9]+)_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT([0-9]+))$";
   TPRegexp matchThreshold(pattern);
 	
   if (matchThreshold.MatchB(triggerName))
@@ -1683,7 +1683,43 @@ bool isJetX_BTagIPTrigger(TString triggerName, vector<double> &thresholds)
     return false;
 }
 
+bool isDoubleEleX_CaloIdL_TrkIdVL_HTXTrigger(TString triggerName, vector<double> &thresholds)
+{
+ TString pattern = "(OpenHLT_DoubleEle([0-9]+)_CaloIdL_TrkIdVL_HT([0-9]+)){1}$";
+  TPRegexp matchThreshold(pattern);
 
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL  = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdEle = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdHT = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdEle);
+      thresholds.push_back(thresholdHT);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+ 
+bool isDoubleEleX_CaloIdT_TrkIdVL_HTXTrigger(TString triggerName, vector<double> &thresholds)
+{
+ TString pattern = "(OpenHLT_DoubleEle([0-9]+)_CaloIdT_TrkIdVL_HT([0-9]+)){1}$";
+  TPRegexp matchThreshold(pattern);
+
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL  = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdEle = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdHT = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdEle);
+      thresholds.push_back(thresholdHT);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
 
 void OHltTree::CheckOpenHlt(
 			    OHltConfig *cfg,
@@ -7367,7 +7403,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
 	
   /*Electron-jet cross-triggers*/
 
-  else if (triggerName.CompareTo("OpenHLT_Ele8_CaloIdT_TrkIdT_Dijet30") == 0)	 
+  else if (triggerName.CompareTo("OpenHLT_Ele8_CaloIdT_TrkIdT_DiJet30") == 0)	 
     {	 
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)	 
 	{	 
@@ -7399,7 +7435,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
 	    }	 
 	}	 
     }	 
-  else if (triggerName.CompareTo("OpenHLT_Ele8_CaloIdT_TrkIdT_Trijet30") == 0)	 
+  else if (triggerName.CompareTo("OpenHLT_Ele8_CaloIdT_TrkIdT_TriJet30") == 0)	 
     {	 
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)	 
 	{	 
@@ -7431,7 +7467,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
 	    }	 
 	}	 
     }	 
-  else if (triggerName.CompareTo("OpenHLT_Ele8_CaloIdT_TrkIdT_Quadjet30") == 0)	 
+  else if (triggerName.CompareTo("OpenHLT_Ele8_CaloIdT_TrkIdT_QuadJet30") == 0)	 
     {	 
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)	 
 	{	 
@@ -7677,7 +7713,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
   // Single Top Triggers : Electron channel
 	
   /**********************************************/
-  else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_TrkIdT_CentralJet30_BTagIP_v2")
+  else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_TrkIdT_CentralJet30_BTagIP")
 	   == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -7735,7 +7771,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
     }
 	
   //Isolated Ele path
-  else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_BTagIP_v1")
+  else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_BTagIP")
 	   == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -7793,7 +7829,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
     }
 	
   // 2011-03-29 promoted to v2 TODO check
-  else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_TrkIdT_CentralJet40_BTagIP_v2")
+  else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_TrkIdT_CentralJet30_BTagIP")
 	   == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -7819,7 +7855,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
 						  0.008, // Deta barrel, Deta endcap 
 						  0.07,
 						  0.05 // Dphi barrel, Dphi endcap 
-						  )>=1 && OpenHlt1BJetPassedEleRemoval(40., 3.0, 0.3, // jet ET, eta, DrCut
+						  )>=1 && OpenHlt1BJetPassedEleRemoval(30., 3.0, 0.3, // jet ET, eta, DrCut
 										       0.,
 										       2.0, // discL25, discL3
 										       25.,
@@ -7853,7 +7889,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
    /* e + 1/2/3/4 jets */
 
    // 2011-05-03 fixed the jets cleaning according to ConfDB implementation
-   else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_TrkIdT_CentralJet30_v3") == 0)
+   else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_TrkIdT_CentralJet30") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
@@ -7907,7 +7943,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
       }
    }
 
-   else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_TrkIdT_CentralDiJet30_v3") == 0)
+   else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_TrkIdT_DiCentralJet30") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
@@ -7961,7 +7997,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
       }
    }
 
-   else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_TrkIdT_CentralTriJet30_v3") == 0)
+   else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_TrkIdT_TriCentralJet30") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
@@ -8015,7 +8051,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
       }
    }
 
-   else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_TrkIdT_QuadCentralJet30_v3") == 0)
+   else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_TrkIdT_QuadCentralJet30") == 0)
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
@@ -8068,6 +8104,42 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
          }
       }
    }
+
+  //May5th
+ else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL") == 0)
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            if (OpenHlt1ElectronSamHarperPassed(25., 0, // ET, L1isolation
+                  999.,
+                  999., // Track iso barrel, Track iso endcap
+                  0.2,
+                  0.2, // Track/pT iso barrel, Track/pT iso endcap
+                  0.2,
+                  0.2, // H/ET iso barrel, H/ET iso endcap
+                  0.2,
+                  0.2, // E/ET iso barrel, E/ET iso endcap
+                  0.15,
+                  0.10, // H/E barrel, H/E endcap
+                  0.014,
+                  0.035, // cluster shape barrel, cluster shape endcap
+                  0.98,
+                  1.0, // R9 barrel, R9 endcap
+                  0.01,
+                  0.01, // Deta barrel, Deta endcap
+                  0.15,
+                  0.10 // Dphi barrel, Dphi endcap
+						)>=1 )
+            {
+               triggerBit[it] = true;
+            }
+         }
+      }
+   }
+
+
 
    /* loose iso/ loose ID e + 1/2/3 jets */
    //added for 1E33 to be deployed on 2011-05-19
@@ -8510,7 +8582,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
   /* tight iso/ tight ID e + 1/2/3/4 jets */
   //added for 1E33 to be deployed on 2011-05-19
 
-   else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_v3") == 0)
+   else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30") == 0)
      {
        if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	 {
@@ -8564,7 +8636,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
 	 }
      }
 
-   else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralJet30_v3") == 0)
+   else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralJet30") == 0)
      {
        if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	 {
@@ -8618,7 +8690,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
 	 }
      }
 
-   else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralJet30_v3") == 0)
+   else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralJet30") == 0)
      {
        if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	 {
@@ -8672,7 +8744,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
 	 }
      }
 
-   else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_QuadCentralJet30_v3") == 0)
+   else if (triggerName.CompareTo("OpenHLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_QuadCentralJet30") == 0)
      {
        if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	 {
@@ -9260,7 +9332,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
   }
   //AGB - HT + 2Tau (+MET)
 	
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT200_DoubleLooseIsoPFTau10trk3_pfMHT35") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT200_DoubleLooseIsoPFTau10trk3_PFMHT35") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1){
       if (prescaleResponse(menu,cfg,rcounter,it)){
 	if(OpenHltpfMHT(35.) && 
@@ -9285,7 +9357,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
     }
   }
 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT200_DoubleTightIsoPFTau10trk3_pfMHT35") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT200_DoubleTightIsoPFTau10trk3_PFMHT35") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1){
       if (prescaleResponse(menu,cfg,rcounter,it)){
 	if(OpenHltpfMHT(35.) && 
@@ -9310,7 +9382,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
     }
   }
 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT250_DoubleLooseIsoPFTau10trk3_pfMHT35") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT250_DoubleLooseIsoPFTau10trk3_PFMHT35") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1){
       if (prescaleResponse(menu,cfg,rcounter,it)){
 	if(OpenHltpfMHT(35.) && 
@@ -9335,7 +9407,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
     }
   }
   
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT300_DoubleLooseIsoPFTau10trk3_pfMHT40") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT300_DoubleLooseIsoPFTau10trk3_PFMHT40") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1){
       if (prescaleResponse(menu,cfg,rcounter,it)){
 	if(OpenHltpfMHT(40.) && 
@@ -9360,7 +9432,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
     }
   }
   
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT350_DoubleLooseIsoPFTau10trk3_pfMHT45") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT350_DoubleLooseIsoPFTau10trk3_PFMHT45") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1){
       if (prescaleResponse(menu,cfg,rcounter,it)){
 	if(OpenHltpfMHT(45.) && 
@@ -10876,14 +10948,14 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
     }
 	
   // 2011-03-29 promoted to v3 TODO check
-  else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdL_TrkIdVL_HT160_v3") == 0)
+  else if (isDoubleEleX_CaloIdL_TrkIdVL_HTXTrigger(triggerName, thresholds))
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	{
 	  if (prescaleResponse(menu, cfg, rcounter, it))
 	    {
-	      if (OpenHltSumCorHTPassed(160, 40)>0
-		  && OpenHlt2ElectronsSamHarperPassed(8., 0, // ET, L1isolation
+	      if (OpenHltSumCorHTPassed(thresholds[1], 40)>0
+		  && OpenHlt2ElectronsSamHarperPassed(thresholds[0], 0, // ET, L1isolation
 						      999.,
 						      999., // Track iso barrel, Track iso endcap
 						      999.,
@@ -10911,14 +10983,14 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
     }
 	
   // 2011-03-29 promoted to v3 TODO check
-  else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdVL_HT160_v3") == 0)
+  else if (isDoubleEleX_CaloIdT_TrkIdVL_HTXTrigger(triggerName, thresholds))
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	{
 	  if (prescaleResponse(menu, cfg, rcounter, it))
 	    {
-	      if (OpenHltSumCorHTPassed(160, 40)>0
-		  && OpenHlt2ElectronsSamHarperPassed(8., 0, // ET, L1isolation
+	      if (OpenHltSumCorHTPassed(thresholds[1], 40)>0
+		  && OpenHlt2ElectronsSamHarperPassed(thresholds[0], 0, // ET, L1isolation
 						      999.,
 						      999., // Track iso barrel, Track iso endcap
 						      999.,
