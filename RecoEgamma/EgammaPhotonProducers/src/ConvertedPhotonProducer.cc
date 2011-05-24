@@ -352,7 +352,7 @@ void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,
     
     //// Set here first quantities for the converted photon
     const reco::Particle::Point  vtx( 0, 0, 0 );
-    reco::Vertex  theConversionVertex;
+
    
     math::XYZVector direction =aClus->position() - vtx;
     math::XYZVector momentum = direction.unit() * aClus->energy();
@@ -366,7 +366,8 @@ void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,
 
       for (  std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr>::const_iterator iPair= allPairs.begin(); iPair!= allPairs.end(); ++iPair ) {
 	scPtrVec.clear();
-       
+
+	reco::Vertex  theConversionVertex;       
 	reco::CaloClusterPtr caloPtr=iPair->second;
 	if ( !( aClus == caloPtr ) ) continue;
             
