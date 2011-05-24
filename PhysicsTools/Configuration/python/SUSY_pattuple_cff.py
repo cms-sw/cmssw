@@ -179,11 +179,14 @@ def loadPAT(process,jetMetCorrections,extMatch):
     process.kt6PFJets.doRhoFastjet = True
     process.kt6PFJets.Rho_EtaMax = cms.double(3.0)
 
-    process.pfJets.doAreaFastjet = True
-    process.pfJets.Rho_EtaMax = cms.double(3.0)
+    # apply FastJet corrections only if demanded
+    #print jetMetCorrections
+    if ("L1FastJet" in jetMetCorrections):
+        process.pfJets.doAreaFastjet = True
+        process.pfJets.Rho_EtaMax = cms.double(3.0)
 
-    process.pfJetsPF.doAreaFastjet = True
-    process.pfJetsPF.Rho_EtaMax = cms.double(3.0)
+        process.pfJetsPF.doAreaFastjet = True
+        process.pfJetsPF.Rho_EtaMax = cms.double(3.0)
 
     # place kt6jets before jet corrections in default sequence
     process.patJetCorrFactors.levels = jetMetCorrections 
@@ -476,6 +479,11 @@ def addSUSYJetCollection(process,jetMetCorrections,jets = 'IC5Calo',mcVersion=''
 		             jetIdLabel       = jetIdLabel,
                      genJetCollection = cms.InputTag('%(collection)sGenJets' % locals())
                      )
+
+    if ("L1FastJet" in jetMetCorrections):
+        setattr(getattr(process, jetCollection), "doAreaFastjet", True)
+    else:
+        setattr(getattr(process, jetCollection), "doAreaFastjet", False)
 
 def addJetMET(process,theJetNames,jetMetCorrections,mcVersion):
     #-- Extra Jet/MET collections -------------------------------------------------
