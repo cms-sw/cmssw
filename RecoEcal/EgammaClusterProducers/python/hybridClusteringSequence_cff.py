@@ -19,5 +19,6 @@ hybridClusteringSequence = cms.Sequence(
                 cleanedHybridSuperClusters *
                 uncleanedHybridSuperClusters *
                 hybridSuperClusters *
-                correctedHybridSuperClusters)
+                correctedHybridSuperClusters*
+                uncleanedOnlyCorrectedHybridSuperClusters)
 

@@ -16,5 +16,6 @@ multi5x5ClusteringSequence = cms.Sequence(multi5x5BasicClustersCleaned*
                                           multi5x5SuperClustersUncleaned*
                                           #now unify clean and unclean  
                                           multi5x5SuperClusters*
-                                          multi5x5SuperClustersWithPreshower)
+                                          multi5x5SuperClustersWithPreshower
+                                          )
 
