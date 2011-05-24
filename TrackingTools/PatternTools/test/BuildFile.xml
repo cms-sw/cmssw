@@ -3,3 +3,5 @@
 <use   name="boost"/>
 <bin   file="ClosestApproachInRPhi_t.cpp">
 </bin>
+<bin   file="TrajSizes_t.cpp">
+</bin>
