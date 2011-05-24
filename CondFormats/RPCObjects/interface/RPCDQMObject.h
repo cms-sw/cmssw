@@ -10,6 +10,9 @@ class RPCDQMObject {
 
  public:
 
+  int dqmv;
+  int run;
+
   //structure suitable for cluster size
   struct DQMObjectItem {
     int dpid;
@@ -20,6 +23,7 @@ class RPCDQMObject {
     float numdigi;
     float numcluster;
     int status;
+    float weight;
   };
   
   RPCDQMObject(){}
