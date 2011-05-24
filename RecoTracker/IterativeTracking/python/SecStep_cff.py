@@ -120,110 +120,96 @@ secWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduce
     )
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
-import RecoTracker.FinalTrackSelectors.selectLoose_cfi
-import RecoTracker.FinalTrackSelectors.selectTight_cfi
-import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
-import RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi
+import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
+secSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+    src='secWithMaterialTracks',
+    trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            name = 'secStepVtxLoose',
+            chi2n_par = 1.6,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 3,
+            d0_par1 = ( 1.2, 3.0 ),
+            dz_par1 = ( 1.2, 3.0 ),
+            d0_par2 = ( 1.3, 3.0 ),
+            dz_par2 = ( 1.3, 3.0 )
+            ), #end of pset for thStepVtxLoose
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            name = 'secStepTrkLoose',
+            chi2n_par = 0.7,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 3,
+            d0_par1 = ( 1.6, 4.0 ),
+            dz_par1 = ( 1.6, 4.0 ),
+            d0_par2 = ( 1.6, 4.0 ),
+            dz_par2 = ( 1.6, 4.0 )
+            ), #end of pset for thStepTrkLoose
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            name = 'secStepVtxTight',
+            preFilterName = 'secStepVtxLoose',
+            chi2n_par = 0.7,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 3,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 0.95, 3.0 ),
+            dz_par1 = ( 0.9, 3.0 ),
+            d0_par2 = ( 1.0, 3.0 ),
+            dz_par2 = ( 1.0, 3.0 )
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            name = 'secStepTrkTight',
+            preFilterName = 'secStepTrkLoose',
+            chi2n_par = 0.5,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 5,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 1.1, 4.0 ),
+            dz_par1 = ( 1.1, 4.0 ),
+            d0_par2 = ( 1.1, 4.0 ),
+            dz_par2 = ( 1.1, 4.0 )
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'secStepVtx',
+            preFilterName = 'secStepVtxTight',
+            chi2n_par = 0.7,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 3,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 0.85, 3.0 ),
+            dz_par1 = ( 0.8, 3.0 ),
+            d0_par2 = ( 0.9, 3.0 ),
+            dz_par2 = ( 0.9, 3.0 )
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'secStepTrk',
+            preFilterName = 'secStepTrkTight',
+            chi2n_par = 0.4,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 5,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 3,
+            d0_par1 = ( 1.0, 4.0 ),
+            dz_par1 = ( 1.0, 4.0 ),
+            d0_par2 = ( 1.0, 4.0 ),
+            dz_par2 = ( 1.0, 4.0 )
+            )
+        ) #end of vpset
+    ) #end of clone
 
-secStepVtxLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone(
-    src = 'secWithMaterialTracks',
-    keepAllTracks = False,
-    copyExtras = False,
-    copyTrajectories = True,
-    chi2n_par = 1.6,
-    res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 3,
-    d0_par1 = ( 1.2, 3.0 ),
-    dz_par1 = ( 1.2, 3.0 ),
-    d0_par2 = ( 1.3, 3.0 ),
-    dz_par2 = ( 1.3, 3.0 )
-    )
 
-secStepTrkLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone(
-    src = 'secWithMaterialTracks',
-    keepAllTracks = False,
-    copyExtras = False,
-    copyTrajectories = True,
-    chi2n_par = 0.7,
-    res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 3,
-    d0_par1 = ( 1.6, 4.0 ),
-    dz_par1 = ( 1.6, 4.0 ),
-    d0_par2 = ( 1.6, 4.0 ),
-    dz_par2 = ( 1.6, 4.0 )
-    )
+import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
+secStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
+    TrackProducers = ('secWithMaterialTracks','secWithMaterialTracks'),
+    hasSelector=cms.vint32(1,1),
+    selectedTrackQuals = cms.VInputTag(cms.InputTag("secSelector","secStepVtx"),cms.InputTag("secSelector","secStepTrk")),
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1), pQual=cms.bool(True) ))
+)                        
 
 
-secStepVtxTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone(
-    src = 'secStepVtxLoose',
-    keepAllTracks = True,
-    copyExtras = False,
-    copyTrajectories = True,
-    chi2n_par = 0.7,
-    res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 3,
-    maxNumberLostLayers = 1,
-    minNumber3DLayers = 3,
-    d0_par1 = ( 0.95, 3.0 ),
-    dz_par1 = ( 0.9, 3.0 ),
-    d0_par2 = ( 1.0, 3.0 ),
-    dz_par2 = ( 1.0, 3.0 )
-    )
 
-secStepTrkTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone(
-    src = 'secStepTrkLoose',
-    keepAllTracks = True,
-    copyExtras = False,
-    copyTrajectories = True,
-    chi2n_par = 0.5,
-    res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 5,
-    minNumber3DLayers = 3,
-    maxNumberLostLayers = 1,
-    d0_par1 = ( 1.1, 4.0 ),
-    dz_par1 = ( 1.1, 4.0 ),
-    d0_par2 = ( 1.1, 4.0 ),
-    dz_par2 = ( 1.1, 4.0 )
-    )
-
-
-secStepVtx = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
-    src = 'secStepVtxTight',
-    keepAllTracks = True,
-    copyExtras = False,
-    copyTrajectories = True,
-    chi2n_par = 0.7,
-    res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 3,
-    minNumber3DLayers = 3,
-    maxNumberLostLayers = 1,
-    d0_par1 = ( 0.85, 3.0 ),
-    dz_par1 = ( 0.8, 3.0 ),
-    d0_par2 = ( 0.9, 3.0 ),
-    dz_par2 = ( 0.9, 3.0 )
-)
-
-secStepTrk = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
-    src = 'secStepTrkTight',
-    keepAllTracks = True,
-    copyExtras = False,
-    copyTrajectories = True,
-    chi2n_par = 0.4,
-    res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 5,
-    minNumber3DLayers = 3,
-    maxNumberLostLayers = 1,
-    d0_par1 = ( 1.0, 4.0 ),
-    dz_par1 = ( 1.0, 4.0 ),
-    d0_par2 = ( 1.0, 4.0 ),
-    dz_par2 = ( 1.0, 4.0 )
-    )
-
-secStep = RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi.simpleTrackListMerger.clone(
-    TrackProducer1 = 'secStepVtx',
-    TrackProducer2 = 'secStepTrk',
-    promoteTrackQuality = True
-    )
 
 secondStep = cms.Sequence(firstfilter*
                           secClusters*
@@ -231,6 +217,4 @@ secondStep = cms.Sequence(firstfilter*
                           secTriplets*
                           secTrackCandidates*
                           secWithMaterialTracks*
-                          secStepVtxLoose*secStepTrkLoose*
-                          secStepVtxTight*secStepTrkTight*
-                          secStepVtx*secStepTrk*secStep)
+                          secSelector*secStep)
