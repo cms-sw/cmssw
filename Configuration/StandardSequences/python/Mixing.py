@@ -86,7 +86,7 @@ addMixingScenario("SLHC_LowLumiPileUp_Phase1_R39F16_smpx",{'file':'SLHCUpgradeSi
 addMixingScenario("SLHC_LowLumiPileUp_Phase1_R34F16",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R34F16_cff'})
 addMixingScenario("SLHC_LowLumiPileUp_Phase1_R34F16_smpx",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R34F16_smpx_cff'})
 addMixingScenario("SLHC_LowLumiPileUp_stdgeom",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_stdgeom_cff'})
-#addMixingScenario("SLHC_LowLumiPileUp_Phase1_R39F16_HCal_cff",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R39F16_HCal_cff'})
+addMixingScenario("SLHC_LowLumiPileUp_Phase1_R39F16_HCal_cff",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R39F16_HCal_cff'})
 
 MixingDefaultKey = 'NoPileUp'
 
