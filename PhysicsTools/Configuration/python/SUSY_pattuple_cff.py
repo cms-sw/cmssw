@@ -483,6 +483,10 @@ def addSUSYJetCollection(process,jetMetCorrections,jets = 'IC5Calo',mcVersion=''
     if (type == 'PF'):
         if ("L1FastJet" in jetMetCorrections):
             setattr(getattr(process, jetCollection), "doAreaFastjet", True)
+            process.patDefaultSequence.replace(
+                process.kt6PFJets,
+                process.kt6PFJets + getattr(process, jetCollection)
+                )
         else:
             setattr(getattr(process, jetCollection), "doAreaFastjet", False)
 
