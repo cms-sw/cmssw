@@ -13,7 +13,7 @@
 #include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
 #include "time.h"
 #include <vector>
-#include "Alignment/CocoaAnalysis/interface/FittedEntry.h"
+#include "Alignment/CocoaFit/interface/FittedEntry.h"
 //#ifdef MAT_MESCHACH
 #include "Alignment/CocoaModel/interface/MatrixMeschach.h"
 //typedef MatrixMeschach ALIMatrix;

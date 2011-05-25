@@ -23,9 +23,9 @@
 #include "Alignment/CocoaUtilities/interface/ALIFileOut.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 #include "Alignment/CocoaModel/interface/DeviationsFromFileSensor2D.h"
-#include "Alignment/CocoaAnalysis/interface/NtupleManager.h"
-#include "Alignment/CocoaAnalysis/interface/FittedEntriesManager.h"
-#include "Alignment/CocoaAnalysis/interface/FittedEntriesSet.h"
+#include "Alignment/CocoaFit/interface/NtupleManager.h"
+#include "Alignment/CocoaFit/interface/FittedEntriesManager.h"
+#include "Alignment/CocoaFit/interface/FittedEntriesSet.h"
 #ifdef COCOA_VIS
 #include "Alignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"

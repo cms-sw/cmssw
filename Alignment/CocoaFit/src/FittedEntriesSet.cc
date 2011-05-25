@@ -7,7 +7,7 @@
 
 #include <fstream>
 #include <map>
-#include "Alignment/CocoaAnalysis/interface/FittedEntriesSet.h"
+#include "Alignment/CocoaFit/interface/FittedEntriesSet.h"
 #include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaModel/interface/Measurement.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"

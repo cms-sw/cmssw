@@ -11,7 +11,7 @@
 #define _FittedEntriesManager_HH
 
 #include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
-#include "Alignment/CocoaAnalysis/interface/FittedEntriesSet.h"
+#include "Alignment/CocoaFit/interface/FittedEntriesSet.h"
 
 
 class FittedEntriesManager

@@ -7,7 +7,7 @@
 #include <map>
 #include <fstream>
 
-#include "Alignment/CocoaAnalysis/interface/FittedEntriesManager.h"
+#include "Alignment/CocoaFit/interface/FittedEntriesManager.h"
 #include <iostream>
 #include <iomanip>
 #include "Alignment/CocoaModel/interface/Model.h"
