@@ -753,7 +753,7 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
 	}
 	//   singles.insertDigi(CSCDetId(st_iter->getDetId().rawId()),*st_iter);
 	//tracksFromSingles.push_back(L1CSCTrack(track,singles));
-	track.setPtLUTAddress( (11<<16) | ((bestStub->etaPacked()<<9)&0xf000) );
+	track.setPtLUTAddress( (1<<16) | ((bestStub->etaPacked()<<9)&0xf000) );
 	ptadd thePtAddress( track.ptLUTAddress() );
 	ptdat thePtData = ptLUT_->Pt(thePtAddress);
 	if( thePtAddress.track_fr ){
