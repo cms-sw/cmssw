@@ -5,20 +5,19 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/LocalError.h"
 
-class   ErrorFrameTransformer {
-public:
-
+struct   ErrorFrameTransformer {
+  
   typedef Surface::Scalar         Scalar;
-
-  GlobalError transform(const LocalError& le, const Surface& surf) const {
+  
+  static GlobalError transform(const LocalError& le, const Surface& surf) {
     // the GlobalError is a sym matrix, initialisation takes only
     // 6 T because GlobalError is stored as a lower triangular matrix.
     Scalar cxx = le.xx();
     Scalar cxy = le.xy();
     Scalar cyy = le.yy();
-
+    
     Surface::RotationType r=surf.rotation();
-
+    
     return GlobalError( r.xx()*(r.xx()*cxx+r.yx()*cxy) + r.yx()*(r.xx()*cxy+r.yx()*cyy) ,
                         r.xx()*(r.xy()*cxx+r.yy()*cxy) + r.yx()*(r.xy()*cxy+r.yy()*cyy) ,
                         r.xy()*(r.xy()*cxx+r.yy()*cxy) + r.yy()*(r.xy()*cxy+r.yy()*cyy) ,
@@ -27,12 +26,12 @@ public:
                         r.xz()*(r.xz()*cxx+r.yz()*cxy) + r.yz()*(r.xz()*cxy+r.yz()*cyy) );
   }
   
-  LocalError transform(const GlobalError& ge, const Surface& surf) const {
+  static LocalError transform(const GlobalError& ge, const Surface& surf) {
     Scalar cxx = ge.cxx(); Scalar cyx = ge.cyx(); Scalar cyy = ge.cyy();
     Scalar czx = ge.czx(); Scalar czy = ge.czy(); Scalar czz = ge.czz();
     
     Surface::RotationType r=surf.rotation();
-
+    
     Scalar l11 
       = r.xx()*(r.xx()*cxx + r.xy()*cyx + r.xz()*czx)
       + r.xy()*(r.xx()*cyx + r.xy()*cyy + r.xz()*czy)
@@ -45,7 +44,7 @@ public:
       = r.yx()*(r.yx()*cxx + r.yy()*cyx + r.yz()*czx)
       + r.yy()*(r.yx()*cyx + r.yy()*cyy + r.yz()*czy)
       + r.yz()*(r.yx()*czx + r.yy()*czy + r.yz()*czz);
-
+    
     return LocalError( l11, l12, l22);
   }
 
