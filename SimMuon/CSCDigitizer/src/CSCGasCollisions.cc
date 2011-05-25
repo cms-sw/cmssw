@@ -19,6 +19,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <fstream>
+#include <cassert>
 
 // stdlib math functions
 // for 'abs':
