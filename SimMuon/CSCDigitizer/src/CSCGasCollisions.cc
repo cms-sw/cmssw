@@ -155,7 +155,7 @@ void CSCGasCollisions::setRandomEngine(CLHEP::HepRandomEngine & engine)
 }
 
 
-void CSCGasCollisions::simulate( const PSimHit& simHit, const CSCLayer * layer,
+void CSCGasCollisions::simulate( const PSimHit& simHit, 
   std::vector<LocalPoint>& positions, std::vector<int>& electrons ) {
 
   const float epsilonL = 0.01;                     // Shortness of simhit 'length'
@@ -215,13 +215,8 @@ void CSCGasCollisions::simulate( const PSimHit& simHit, const CSCLayer * layer,
   int n_try        = 0;  // no. of tries to generate steps
   double step      = -1.; // Sentinel for start
 
-  //LocalPoint chamberLocalPoint( simHit.entryPoint() );
-  // translate to layer local coordinates
-  //GlobalPoint globalPoint( layer->chamber()->toGlobal(chamberLocalPoint) );
-  //LocalPoint layerLocalPoint( layer->toLocal(globalPoint) );
   LocalPoint layerLocalPoint( simHit.entryPoint() );
 
-  //std::cout << "DEBUG " << chamberLocalPoint << " " << layerLocalPoint << std::endl;
   // step/primary collision loop
   while ( sum_steps < gapSize) {
     ++n_try;

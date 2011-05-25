@@ -12,7 +12,6 @@
  */
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimMuon/CSCDigitizer/src/CSCCrossGap.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
@@ -32,7 +31,7 @@ public:
 
    void setRandomEngine(CLHEP::HepRandomEngine & engine);
 
-   void simulate(const PSimHit&, const CSCLayer * layer,
+   void simulate(const PSimHit&, 
       std::vector<LocalPoint>& clusters, std::vector<int>& electrons );
 
    static const int N_GAMMA = 21;
