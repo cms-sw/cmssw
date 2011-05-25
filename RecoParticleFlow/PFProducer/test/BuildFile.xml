@@ -18,6 +18,5 @@
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/MessageLogger"/>
   <use   name="FWCore/ParameterSet"/>
-  <flags CXXFLAGS="-g -O0"/> 
   <flags   EDM_PLUGIN="1"/>
 </library>
