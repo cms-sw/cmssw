@@ -154,10 +154,12 @@ class WorkFlowRunner(Thread):
             if ( '40.0' in str(self.wf.numId) ) :
                 fullcmd += ' --himix '
                 inFile = '/store/relval/CMSSW_3_9_7/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V7HI-v1/0054/102FF831-9B0F-E011-A3E9-003048678BC6.root'
+                fullcmd += ' --process HIMIX '
             if ( '41.0' in str(self.wf.numId) ) : 
                 fullcmd += ' --himix '
                 inFile = '/store/relval/CMSSW_3_9_7/RelValPyquen_GammaJet_pt20_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V7HI-v1/0054/06B4F699-A50F-E011-AD62-0018F3D0962E.root'
-
+                fullcmd += ' --process HIMIX '
+                
             if (not 'filein' in self.wf.cmdStep2) or inFile:
                 fullcmd += ' --filein '+inFile+ ' '
                 
