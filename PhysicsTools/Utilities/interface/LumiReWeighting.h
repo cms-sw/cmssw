@@ -40,12 +40,15 @@ namespace edm {
     
     LumiReWeighting( std::vector< float > MC_distr, std::vector< float > Lumi_distr);
 
+    LumiReWeighting ( ) { } ;
 
     double weight( int npv ) const;
 
     double weight( const edm::Event &e ) const;
 
+    double weightOOT( const edm::Event &e ) const;
 
+    void weightOOT_init(); 
     
   protected:
 
@@ -56,6 +59,9 @@ namespace edm {
     boost::shared_ptr<TFile>     generatedFile_;
     boost::shared_ptr<TFile>     dataFile_;
     boost::shared_ptr<TH1F>      weights_;
+
+    double WeightOOTPU_[25][25];
+
   };
 }
 
