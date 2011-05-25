@@ -77,7 +77,7 @@ void comparisonPlots::plotTwist(TCut Cut, char* dirName, bool savePlot, std::str
     }
   else
     {
-      minimum = -1, maximum = 1;
+      minimum = -0.0004, maximum = 0.0004;
     }
 
 
@@ -101,14 +101,21 @@ void comparisonPlots::plotTwist(TCut Cut, char* dirName, bool savePlot, std::str
     zCut[5] = "sublevel==6";
   } 
   
-  data->Project("h_dphiVz", "dphi:z",Cut);
+  std::stringstream st;
+  st << "dphi > " << minimum << " && dphi < " << maximum;
+  
+  TCut minmaxCut(st.str().c_str());
+
+  data->Project("h_dphiVz", "dphi:z",Cut+minmaxCut);
   TGraph* gr_dphiVz_Array[j];
   TMultiGraph* mgr_dphiVz=new TMultiGraph();
   for ( int i = 0; i < j; i++) {
-    data->Draw("dphi:z",Cut+zCut[i]);	  
+    data->Draw("dphi:z",Cut+zCut[i]+minmaxCut);	  
     gr_dphiVz_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
     gr_dphiVz_Array[i]->SetMarkerColor(int(i/4)+i+1);	  
     gr_dphiVz_Array[i]->SetMarkerStyle(6);
+    gr_dphiVz_Array[i]->SetMaximum(maximum);
+    gr_dphiVz_Array[i]->SetMinimum(minimum);
     mgr_dphiVz->Add(gr_dphiVz_Array[i],"p");
   }
 
@@ -122,15 +129,17 @@ void comparisonPlots::plotTwist(TCut Cut, char* dirName, bool savePlot, std::str
   c->Divide(1,1);
 
   mgr_dphiVz->SetTitle("#Delta #phi vs. z");
-  if (!autolimits)
-    h_dphiVz->Draw();
-  else
-    mgr_dphiVz->Draw("a");
+  // if (!autolimits)
+  //   h_dphiVz->Draw();
+  // else
+  mgr_dphiVz->SetMaximum(maximum);
+  mgr_dphiVz->SetMinimum(minimum);
+  mgr_dphiVz->Draw("a");
   	
   c->Update();
   plotDir->cd();
 
-  h_dphiVz->Write();
+  //h_dphiVz->Write();
   if (savePlot) c->Print((_outputDir+"plotTwist_"+plotName).c_str());
 	
   delete c;
