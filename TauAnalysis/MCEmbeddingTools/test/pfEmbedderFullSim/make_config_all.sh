@@ -11,7 +11,7 @@ cmsDriver.py TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff \
        --fileout=embedded.root  \
        --python_filename=embed.py \
        --customise=TauAnalysis/MCEmbeddingTools/pf_01_customizeAll.py \
-       -n -1
+       -n 10
 
 
 

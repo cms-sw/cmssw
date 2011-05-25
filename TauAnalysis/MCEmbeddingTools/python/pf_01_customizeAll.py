@@ -94,6 +94,13 @@ def customise(process):
     index += 1  
 
 
+  # needs more care
+  # process.offlinePrimaryVertices.beamSpotLabel = cms.InputTag("offlineBeamSpot","","REDIGI311X")
+  # process.offlinePrimaryVerticesWithBS.beamSpotLabel = cms.InputTag("offlineBeamSpot","","REDIGI311X")
+  process.offlinePrimaryVertices.beamSpotLabel =        cms.InputTag("offlineBeamSpot","","REDIGI41X")
+  process.offlinePrimaryVerticesWithBS.beamSpotLabel =  cms.InputTag("offlineBeamSpot","","REDIGI41X")
+
+
   hltProcessName = "HLT"	#"REDIGI38X"
   # the following block can be used for more efficient processing by replacing the HLT variable below automatically
   try:
@@ -202,13 +209,12 @@ def customise(process):
   except:
     pass
 
-  return(process)
 # -*- coding: utf-8 -*-
 
 
   process.tmfTracks = cms.EDProducer("RecoTracksMixer",
       trackCol1 = cms.InputTag("dimuonsGlobal"),
-      trackCol2 = cms.InputTag("generalTracks","","SELECTandSIM")
+      trackCol2 = cms.InputTag("generalTracks","","EmbeddedRECO")
   )  
 
   process.offlinePrimaryVerticesWithBS.TrackLabel = cms.InputTag("tmfTracks")
@@ -264,7 +270,7 @@ def customise(process):
           col2 = cms.untracked.InputTag("particleFlowORG", "")
   )
 
- 
+  process.filterEmptyEv.src = cms.untracked.InputTag("generator","","EmbeddedRECO")
 
   from FWCore.ParameterSet.Types import InputTag
   for p in process.paths:
@@ -297,6 +303,7 @@ def customise(process):
        #seqVis.catch=0
        #i.__iadd__(source)
 
+ 
 
   print "#############################################################"
   print " Warning! PFCandidates 'electron' collection is not mixed, "
