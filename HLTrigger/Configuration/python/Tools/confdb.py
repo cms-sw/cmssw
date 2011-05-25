@@ -34,12 +34,6 @@ class HLTProcess(object):
     "HLT_JetE30_NoBPTX*_v*",
     "HLT_JetE50_NoBPTX*_v*",
     "HLT_JetE50_NoBPTX3BX_NoHalo_v*",
-    
-  # TODO: paths likely not supportable, but it should be checked nonetheless
-    "HLT_MET65_HBHENoiseFiltered_v*",
-    "HLT_MET100_HBHENoiseFiltered_v*",
-    "HLT_MET120_HBHENoiseFiltered_v*",
-    "HLT_MET200_HBHENoiseFiltered_v*",
   
   # TODO: paths not supported by FastSim, but for which a recovery should be attempted
     "HLT_Mu3_Track3_Jpsi_v*",
@@ -929,6 +923,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTL2HcalIsolTrackSequenceHB" )
       self.options['sequences'].append( "-HLTL2HcalIsolTrackSequenceHE" )
       self.options['sequences'].append( "-HLTL3HcalIsolTrackSequence" )
+      self.options['sequences'].append( "-HLTHBHENoiseSequence" )
 
       # remove HLTAnalyzerEndpath from fastsim cff's
       if self.config.fragment:
