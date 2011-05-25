@@ -7,8 +7,6 @@
 //#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
@@ -20,6 +18,10 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -50,8 +52,19 @@ ElectronMcSignalValidator::ElectronMcSignalValidator( const edm::ParameterSet & 
   electronCoreCollection_ = conf.getParameter<edm::InputTag>("electronCoreCollection");
   electronTrackCollection_ = conf.getParameter<edm::InputTag>("electronTrackCollection");
   electronSeedCollection_ = conf.getParameter<edm::InputTag>("electronSeedCollection");
+
   beamSpotTag_ = conf.getParameter<edm::InputTag>("beamSpot") ;
   readAOD_ = conf.getParameter<bool>("readAOD");
+
+  isoFromDepsTk03Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsTk03" ) ;
+  isoFromDepsTk04Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsTk04" ) ;
+  isoFromDepsEcalFull03Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsEcalFull03" ) ;
+  isoFromDepsEcalFull04Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsEcalFull03" ) ;
+  isoFromDepsEcalReduced03Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsEcalReduced03" ) ;
+  isoFromDepsEcalReduced04Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsEcalReduced03" ) ;
+  isoFromDepsHcal03Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsHcal03" ) ;
+  isoFromDepsHcal04Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsHcal03" ) ;
+
   maxPt_ = conf.getParameter<double>("MaxPt");
   maxAbsEta_ = conf.getParameter<double>("MaxAbsEta");
   deltaR_ = conf.getParameter<double>("DeltaR");
@@ -569,6 +582,15 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
   iEvent.getByLabel(mcTruthCollection_, genParticles) ;
   edm::Handle<reco::BeamSpot> theBeamSpot ;
   iEvent.getByLabel(beamSpotTag_,theBeamSpot) ;
+
+  edm::Handle<edm::ValueMap<double> > isoFromDepsTk03Handle          ;   iEvent.getByLabel( isoFromDepsTk03Tag_         , isoFromDepsTk03Handle          ) ;
+  edm::Handle<edm::ValueMap<double> > isoFromDepsTk04Handle          ;   iEvent.getByLabel( isoFromDepsTk04Tag_         , isoFromDepsTk04Handle          ) ;
+  edm::Handle<edm::ValueMap<double> > isoFromDepsEcalFull03Handle    ;   iEvent.getByLabel( isoFromDepsEcalFull03Tag_   , isoFromDepsEcalFull03Handle    ) ;
+  edm::Handle<edm::ValueMap<double> > isoFromDepsEcalFull04Handle    ;   iEvent.getByLabel( isoFromDepsEcalFull04Tag_   , isoFromDepsEcalFull04Handle    ) ;
+  edm::Handle<edm::ValueMap<double> > isoFromDepsEcalReduced03Handle ;   iEvent.getByLabel( isoFromDepsEcalReduced03Tag_, isoFromDepsEcalReduced03Handle ) ;
+  edm::Handle<edm::ValueMap<double> > isoFromDepsEcalReduced04Handle ;   iEvent.getByLabel( isoFromDepsEcalReduced04Tag_, isoFromDepsEcalReduced04Handle ) ;
+  edm::Handle<edm::ValueMap<double> > isoFromDepsHcal03Handle        ;   iEvent.getByLabel( isoFromDepsHcal03Tag_       , isoFromDepsHcal03Handle        ) ;
+  edm::Handle<edm::ValueMap<double> > isoFromDepsHcal04Handle        ;   iEvent.getByLabel( isoFromDepsHcal04Tag_       , isoFromDepsHcal04Handle        ) ;
 
   edm::LogInfo("ElectronMcSignalValidator::analyze")
     <<"Treating event "<<iEvent.id()

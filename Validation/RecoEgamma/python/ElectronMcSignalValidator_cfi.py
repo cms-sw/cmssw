@@ -33,9 +33,18 @@ electronMcSignalValidator = cms.EDAnalyzer("ElectronMcSignalValidator",
   electronCoreCollection = cms.InputTag("gsfElectronCores"),
   electronTrackCollection = cms.InputTag("electronGsfTracks"),
   electronSeedCollection = cms.InputTag("electronMergedSeeds"),
-
+  
   beamSpot = cms.InputTag("offlineBeamSpot"),
   readAOD = cms.bool(False),
+  
+  isoFromDepsTk03            = cms.InputTag("eleIsoFromDepsTk03"),
+  isoFromDepsTk04            = cms.InputTag("eleIsoFromDepsTk04"),
+  isoFromDepsEcalFull03      = cms.InputTag("eleIsoFromDepsEcalFromHitsByCrystalFull03"),
+  isoFromDepsEcalFull04      = cms.InputTag("eleIsoFromDepsEcalFromHitsByCrystalFull04"),
+  isoFromDepsEcalReduced03   = cms.InputTag("eleIsoFromDepsEcalFromHitsByCrystalReduced03"),
+  isoFromDepsEcalReduced04   = cms.InputTag("eleIsoFromDepsEcalFromHitsByCrystalReduced04"),
+  isoFromDepsHcal03          = cms.InputTag("eleIsoFromDepsHcalFromTowers03"),
+  isoFromDepsHcal04          = cms.InputTag("eleIsoFromDepsHcalFromTowers04"),
   
   MaxPt = cms.double(100.0),
   DeltaR = cms.double(0.05),

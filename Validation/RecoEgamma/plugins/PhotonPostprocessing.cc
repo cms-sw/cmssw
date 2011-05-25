@@ -1,29 +1,29 @@
 #include <iostream>
 //
 
-#include "Validation/RecoEgamma/interface/PhotonPostprocessing.h"
+#include "Validation/RecoEgamma/plugins/PhotonPostprocessing.h"
 
 
 //#define TWOPI 6.283185308
-// 
+//
 
 /** \class PhotonPostprocessing
- **  
+ **
  **
  **  $Id: PhotonPostprocessing
- **  $Date: 2011/05/13 00:08:29 $ 
- **  author: 
- **   Nancy Marinelli, U. of Notre Dame, US  
- **   
- **     
+ **  $Date: 2011/05/20 13:55:42 $
+ **  author:
+ **   Nancy Marinelli, U. of Notre Dame, US
+ **
+ **
  ***/
 
 
 
 using namespace std;
 
- 
-PhotonPostprocessing::PhotonPostprocessing(const edm::ParameterSet& pset) 
+
+PhotonPostprocessing::PhotonPostprocessing(const edm::ParameterSet& pset)
 {
 
   dbe_ = 0;
@@ -61,7 +61,7 @@ PhotonPostprocessing::PhotonPostprocessing(const edm::ParameterSet& pset)
   zMax = parameters_.getParameter<double>("zMax");
   zBin = parameters_.getParameter<int>("zBin");
 
- 
+
 
 }
 
@@ -99,7 +99,7 @@ void PhotonPostprocessing::runPostprocessing()
   std::string simInfoPathName = "EgammaV/PhotonValidator/SimulationInfo/";
   std::string convPathName    = "EgammaV/PhotonValidator/ConversionInfo/";
   std::string effPathName     = "EgammaV/PhotonValidator/Efficiencies/";
-  std::string photonPathName  = "EgammaV/PhotonValidator/Photons/"; 
+  std::string photonPathName  = "EgammaV/PhotonValidator/Photons/";
 
   if(batch_)  dbe_->open(inputFileName_);
 
@@ -142,7 +142,7 @@ void PhotonPostprocessing::runPostprocessing()
 
   histname = "convEffVsEtTwoTracks";
   convEffEtTwoTracks_ =  dbe_->book1D(histname,histname,etBin,etMin, etMax);
-  // 
+  //
   histname = "convEffVsEtaTwoTracksAndVtxProbGT0";
   convEffEtaTwoTracksAndVtxProbGT0_ =  dbe_->book1D(histname,histname,etaBin2,etaMin, etaMax);
   histname = "convEffVsEtaTwoTracksAndVtxProbGT0005";
@@ -184,7 +184,7 @@ void PhotonPostprocessing::runPostprocessing()
   histname = "deadChVsEtBkg";
   bkgDeadChEt_ =  dbe_->book1D(histname,"Fraction of bkg with >=1 dead Xtal vs simulated Et",etBin,etMin, etMax) ;
 
-  
+
 
   // efficiencies
   dividePlots(dbe_->get(effPathName+"convVsEtBarrel"),dbe_->get(photonPathName+"EtR9Less093ConvBarrel"),dbe_->get(photonPathName+"EtR9Less093Barrel"), "effic");
@@ -227,13 +227,13 @@ void PhotonPostprocessing::runPostprocessing()
   dividePlots(dbe_->get(effPathName+"deadChVsEtaBkg"),dbe_->get(simInfoPathName+"h_MatchedSimJetBadChEta"),dbe_->get(simInfoPathName+"h_MatchedSimJetEta"), "effic");
   dividePlots(dbe_->get(effPathName+"deadChVsPhiBkg"),dbe_->get(simInfoPathName+"h_MatchedSimJetBadChPhi"),dbe_->get(simInfoPathName+"h_MatchedSimJetPhi"),"effic");
   dividePlots(dbe_->get(effPathName+"deadChVsEtBkg"), dbe_->get(simInfoPathName+"h_MatchedSimJetBadChEt"),dbe_->get(simInfoPathName+"h_MatchedSimJetEt"),"effic");
-  
+
 
 
   if(standAlone_) dbe_->save(outputFileName_);
   else if(batch_) dbe_->save(inputFileName_);
- 
-  
+
+
 
 }
 
@@ -241,7 +241,7 @@ void PhotonPostprocessing::runPostprocessing()
 void PhotonPostprocessing::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup)
 {
 
- 
+
 }
 
 
@@ -255,7 +255,7 @@ void  PhotonPostprocessing::dividePlots(MonitorElement* dividend, MonitorElement
 	value = ((double) numerator->getBinContent(j))/((double) denominator->getBinContent(j));
       else if (type=="fakerate")
 	value = 1-((double) numerator->getBinContent(j))/((double) denominator->getBinContent(j));
-      else return; 
+      else return;
       err = sqrt( value*(1-value) / ((double) denominator->getBinContent(j)) );
       dividend->setBinContent(j, value);
       if ( err !=0 ) dividend->setBinError(j,err);
