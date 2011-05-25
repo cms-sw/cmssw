@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerObjectStandAlone
 //
-// $Id: TriggerObjectStandAlone.h,v 1.13 2011/02/22 18:29:50 vadler Exp $
+// $Id: TriggerObjectStandAlone.h,v 1.14 2011/05/24 15:56:25 vadler Exp $
 //
 /**
   \class    pat::TriggerObjectStandAlone TriggerObjectStandAlone.h "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
@@ -20,7 +20,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerObjectStandAlone
 
   \author   Volker Adler
-  \version  $Id: TriggerObjectStandAlone.h,v 1.13 2011/02/22 18:29:50 vadler Exp $
+  \version  $Id: TriggerObjectStandAlone.h,v 1.14 2011/05/24 15:56:25 vadler Exp $
 */
 
 
@@ -100,9 +100,9 @@ namespace pat {
       /// Adds a new L1 condition name
       void addConditionName( const std::string & conditionName ) { addFilterOrCondition( conditionName ); };
       /// Adds a new HLT path name
-      void addPathName( const std::string & pathName, bool pathLastFilterAccepted, bool pathL3FilterAccepted ) { addPathOrAlgorithm( pathName, pathLastFilterAccepted, pathL3FilterAccepted ); };
+      void addPathName( const std::string & pathName, bool pathLastFilterAccepted = true, bool pathL3FilterAccepted = true ) { addPathOrAlgorithm( pathName, pathLastFilterAccepted, pathL3FilterAccepted ); };
       /// Adds a new L1 algorithm name
-      void addAlgorithmName( const std::string & algorithmName, bool algoCondAccepted ) { addPathOrAlgorithm( algorithmName, algoCondAccepted, false ); };
+      void addAlgorithmName( const std::string & algorithmName, bool algoCondAccepted = true ) { addPathOrAlgorithm( algorithmName, algoCondAccepted, false ); };
       /// Gets all HLT filter labels
       std::vector< std::string > filterLabels() const { return filtersOrConditions(); };
       /// Gets all L1 condition names
