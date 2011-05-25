@@ -502,14 +502,13 @@ def main():
         logfilename=basename+'_log'+extension        
         mlog.drawPNG(logfilename)
     else:
-        raise Exception('unsupported yscale for batch mode : '+args.yscale)
-    if not args.interactive:
-        return
-    if args.interactive is True and args.yscale=='linear':
-        m.drawInteractive()
-    elif args.interactive is True and args.yscale=='log':
-        mlog.drawInteractive()
-    else:
-        raise Exception('unsupported yscale for interactive mode : '+args.yscale)
+        if not args.interactive:
+            return
+        if args.interactive is True and args.yscale=='linear':
+            m.drawInteractive()
+        elif args.interactive is True and args.yscale=='log':
+            mlog.drawInteractive()
+        else:
+            raise Exception('unsupported yscale for interactive mode : '+args.yscale)
 if __name__=='__main__':
     main()
