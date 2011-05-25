@@ -2,25 +2,32 @@ import FWCore.ParameterSet.Config as cms
 
 dtNoiseCalibration = cms.EDAnalyzer("DTNoiseCalibration",
     # Label to retrieve DT digis from the event
-    # RAW: dtunpacker DIGI: muonDTDigis
-    digiLabel = cms.untracked.string('muonDTDigis'),
-    # Trigger mode
-    cosmicRun = cms.untracked.bool(True),
-    # Database option (to set if cosmicRun=True)
-    readDB = cms.untracked.bool(False),
-    # The trigger width(TDC counts) (to set if cosmicRun=True and readDB=False)
-    defaultTtrig = cms.untracked.int32(322),
-    theOffset = cms.untracked.double(100.),
-    # The trigger width(ns) (to set if cosmicRun=False)
-    TriggerWidth = cms.untracked.int32(2000),
+    digiLabel = cms.InputTag('muonDTDigis'),
     # Output ROOT file name 
     rootFileName = cms.untracked.string('dtNoiseCalib.root'),
-    # Enable debug option
-    debug = cms.untracked.bool(False),
-    # "Fast analysis" option
-    fastAnalysis = cms.untracked.bool(True),
-    # Define the wheel of interest (to set if fastAnalysis=False)
-    wheel = cms.untracked.int32(0),
-    # Define the sector of interest (to set if fastAnalysis=False)
-    sector = cms.untracked.int32(11)
+    # Trigger mode
+    useTimeWindow = cms.bool(True),
+    # The trigger width(ns) (full window used if useTimeWindow = False)
+    triggerWidth = cms.int32(2000),
+    # Time window defined as tTrig - offset (TDC counts). If defaultTtrig not set reads from DB.
+    defaultTtrig = cms.int32(322),
+    timeWindowOffset = cms.int32(100),
+    # Noise threshold
+    maximumNoiseRate = cms.double(2000),
+    # Use absolute rate per channel or subtract average rate in layer  
+    useAbsoluteRate = cms.bool(False),
+    # Cells with detailed histos
+    cellsWithHisto = cms.vstring(
+        '-1 1 3 1 2 48',
+        '0 1 7 1 1 8',
+        '0 1 8 2 3 56',
+        '2 1 8 2 2 56',
+        '2 1 8 2 2 57',
+        '2 1 12 1 2 3',
+        '2 1 12 1 3 2',
+        '0 2 2 1 2 3',
+        '-2 3 3 1 2 2',
+        '1 3 3 1 4 27',
+        '1 3 3 1 4 29'
+    )
 )

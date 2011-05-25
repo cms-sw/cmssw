@@ -4,27 +4,24 @@
 /*
  * \file DTNoiseCalibration.h
  *
- * $Date: 2010/02/16 10:03:23 $
- * $Revision: 1.8 $
+ * $Date: 2010/07/19 22:17:25 $
+ * $Revision: 1.9 $
  * \author G. Mila - INFN Torino
  *
 */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <string>
-#include <map>
 #include <vector>
-
-namespace edm {
-  class Event;
-  class EventSetup;
-}
+#include <map>
 
 class DTGeometry;
+class DTSuperLayerId;
+class DTLayerId; 
+class DTWireId;
 class DTTtrig;
 class TFile;
 class TH2F;
@@ -33,77 +30,59 @@ class TH1F;
 class DTNoiseCalibration: public edm::EDAnalyzer{
 
  public:
-
   /// Constructor
   DTNoiseCalibration(const edm::ParameterSet& ps);
-  
   /// Destructor
   virtual ~DTNoiseCalibration();
 
-virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup );
- 
-  /// Analyze
+  void beginJob();
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup );
   void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-  /// Endjob
   void endJob();
 
-
-protected:
-
 private:
+  std::string getChannelName(const DTWireId& wId) const;
+  // Get the name of the layer
+  std::string getLayerName(const DTLayerId& lId) const;
+  // Get the name of the superLayer
+  std::string getSuperLayerName(const DTSuperLayerId& dtSLId) const;
 
-  bool debug;
-  int nevents;
-  int counter;
+  edm::InputTag digiLabel_;
+  bool useTimeWindow_;
+  int triggerWidth_;
+  int timeWindowOffset_;
+  double maximumNoiseRate_;
+  bool useAbsoluteRate_; 
 
-  /// variables to set by configuration file
-  int TriggerWidth;
-  float upperLimit;
-  bool cosmicRun;
-  bool fastAnalysis;
+  /*bool fastAnalysis;
   int wh;
-  int sect;
+  int sect;*/
 
-  /// tTrig from the DB
-  float tTrig;
-  float tTrigRMS;
-  float kFactor;
+  bool readDB_;
+  int defaultTtrig_;
+  std::string dbLabel_;
 
-  double theOffset;
+  std::vector<DTWireId> wireIdWithHisto_;
+  unsigned int lumiMax_;
 
-  std::string dbLabel;
-
-  // The label used to retrieve digis from the event
-  std::string digiLabel;
-
-  edm::ParameterSet parameters;
-
-  // TDC digi distribution
-  TH1F *hTDCTriggerWidth;
+  int nevents_;
+  //int counter;
 
   // Get the DT Geometry
-  edm::ESHandle<DTGeometry> dtGeom;
+  edm::ESHandle<DTGeometry> dtGeom_;
+  // tTrig map
+  edm::ESHandle<DTTtrig> tTrigMap_;
 
-  // Get the tTrigMap
-  edm::ESHandle<DTTtrig> tTrigMap;
-
-  // The file which will contain the occupancy plot and the digi event plot
-  TFile *theFile;
-
-   // Map of the histograms with the number of events per evt per wire
-  std::map<DTLayerId, TH2F*> theHistoEvtPerWireMap;
-  
+  TFile* rootFile_;
+  // TDC digi distribution
+  TH1F* hTDCTriggerWidth_;
   // Map of the occupancy histograms by layer
-  std::map<DTLayerId, TH1F*> theHistoOccupancyMap;
-
+  std::map<DTLayerId, TH1F*> theHistoOccupancyMap_;
+  // Map of occupancy by lumi by wire
+  std::map<DTWireId, TH1F*> theHistoOccupancyVsLumiMap_; 
+  // Map of the histograms with the number of events per evt per wire
+  //std::map<DTLayerId, TH2F*> theHistoEvtPerWireMap_;
   // Map of skipped histograms
-  std::map<DTLayerId, int> skippedPlot;
-
-  /// Get the name of the layer
-  std::string getLayerName(const DTLayerId& lId) const;
-
-  /// Get the name of the superLayer
-  std::string getSuperLayerName(const DTSuperLayerId& dtSLId) const;
+  //std::map<DTLayerId, int> skippedPlot;
 };
 #endif
