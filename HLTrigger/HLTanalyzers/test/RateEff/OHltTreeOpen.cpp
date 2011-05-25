@@ -11594,21 +11594,21 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
             22,//Et  
             0.8, //R9ID 
             0,
-            999.0, //TrkIso 
-            6.0, //ECAL Iso 
-            4.0,//HCAL Iso BR 
-            4.0, //HCAL Iso EC 
+            999., //TrkIso 
+            999., //ECAL Iso 
+            999.,//HCAL Iso BR 
+            999., //HCAL Iso EC 
             0.15, //H/E EB 
             0.10, // H/E EC 
             999.,//R9
-            0.014,//Cluster Shape EB 
-            0.035);//Cluster Shape EC
+            999.,//Cluster Shape EB 
+            999.);//Cluster Shape EC
 
             if (firstVector.size()>=1)
             {
                std::vector<int> secondVector = VectorOpenHlt1PhotonPassedR9ID(
                36,//Et 
-               0.,//R9ID 
+               0.8,//R9ID 
                0,
                4.0,//TrkIso 
                6.0,//ECALIso 
