@@ -5,7 +5,7 @@
 //   History: v1.0 
 //   Pedro Arce
 
-#include "Alignment/CocoaFit/interface/FittedEntry.h"
+#include "Alignment/CocoaAnalysis/interface/FittedEntry.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
 #include "Alignment/CocoaModel/interface/Entry.h"
 #include "Alignment/CocoaModel/interface/Model.h"

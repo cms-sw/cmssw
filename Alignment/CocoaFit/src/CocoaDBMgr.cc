@@ -344,7 +344,8 @@ AlignTransformError* CocoaDBMgr::GetAlignInfoErrorFromOptO( OpticalObject* opto 
 		  0.,
 		  1.);
   //double(dx*dx),  0., double(dy*dy),     0., 0., double(dz*dz) ) ;
-  CLHEP::HepSymMatrix errms = asHepMatrix(gerr.matrix());
+ // Does not compile on slc5_ia32_gcc434  CLHEP::HepSymMatrix errms = asHepMatrix(gerr.matrix());
+  CLHEP::HepSymMatrix errms = gerr.matrix();
   AlignTransformError* alignError = new AlignTransformError( errms, cmsswID );
   return alignError;
 

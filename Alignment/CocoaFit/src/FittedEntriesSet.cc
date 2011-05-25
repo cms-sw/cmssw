@@ -7,18 +7,15 @@
 
 #include <fstream>
 #include <map>
-#include "Alignment/CocoaFit/interface/FittedEntriesSet.h"
+#include "Alignment/CocoaAnalysis/interface/FittedEntriesSet.h"
 #include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaModel/interface/Measurement.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
 #include "Alignment/CocoaModel/interface/Entry.h"
 
-#ifdef MAT_MESCHACH
-#include "Alignment/CocoaFit/interface/MatrixMeschach.h"
-#endif
 //
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2
-FittedEntriesSet::FittedEntriesSet( MatrixMeschach* AtWAMatrix )
+FittedEntriesSet::FittedEntriesSet( MatrixMeschach AtWAMatrix )
 {
   //- theTime = Model::MeasurementsTime();
   theDate = Measurement::getCurrentDate();
@@ -40,7 +37,7 @@ FittedEntriesSet::FittedEntriesSet( std::vector<ALIstring> wl )
   theTime = "99:99";
   
   theMinEntryQuality = 2;
-  theEntriesErrorMatrix = (MatrixMeschach*)0;
+  theEntriesErrorMatrix = MatrixMeschach();
   
   FillEntriesFromFile( wl );
 
@@ -53,7 +50,7 @@ FittedEntriesSet::FittedEntriesSet( std::vector<FittedEntriesSet*> vSets )
   theTime = "99:99";
   
   theMinEntryQuality = 2;
-  theEntriesErrorMatrix = (MatrixMeschach*)0;
+  theEntriesErrorMatrix = MatrixMeschach();
   
   FillEntriesAveragingSets( vSets );
 
@@ -83,8 +80,8 @@ void FittedEntriesSet::FillEntries()
       //      ALIdouble dimv =  (*vecite)->ValueDimensionFactor();
       //  ALIdouble dims =  (*vecite)->SigmaDimensionFactor();
       ALIint ipos = (*vecite)->fitPos();
-      FittedEntry* fe = new FittedEntry( (*vecite), ipos, sqrt(theEntriesErrorMatrix->Mat()->me[ipos][ipos]));
-      //-      std::cout << fe << "IN fit FE " << fe->theValue<< " " << fe->Sigma()<< " "  << sqrt(theEntriesErrorMatrix->Mat()->me[NoEnt][NoEnt]) / dims<< std::endl;
+      FittedEntry* fe = new FittedEntry( (*vecite), ipos, sqrt(theEntriesErrorMatrix.Mat()->me[ipos][ipos]));
+      //-      std::cout << fe << "IN fit FE " << fe->theValue<< " " << fe->Sigma()<< " "  << sqrt(theEntriesErrorMatrix.Mat()->me[NoEnt][NoEnt]) / dims<< std::endl;
       theFittedEntries.push_back( fe );
     }
   }
@@ -110,10 +107,10 @@ void FittedEntriesSet::FillCorrelations()
   ALIuint ii;
   for( ii = 0; ii < nent; ii++) {
     for(ALIuint jj = ii+1; jj < nent; jj++) {
-      ALIdouble corr = theEntriesErrorMatrix->Mat()->me[ii][jj];
+      ALIdouble corr = theEntriesErrorMatrix.Mat()->me[ii][jj];
       if (corr != 0) {
-	corr /= ( sqrt(theEntriesErrorMatrix->Mat()->me[ii][ii])
-	  / sqrt(theEntriesErrorMatrix->Mat()->me[jj][jj]) );
+	corr /= ( sqrt(theEntriesErrorMatrix.Mat()->me[ii][ii])
+	  / sqrt(theEntriesErrorMatrix.Mat()->me[jj][jj]) );
 	theCorrelationMatrix[ii][jj] = corr;
       }
     }
