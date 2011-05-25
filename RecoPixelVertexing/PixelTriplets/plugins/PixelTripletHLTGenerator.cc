@@ -165,20 +165,20 @@ void PixelTripletHLTGenerator::hitTriplets(
           Range allowedZ = predictionRZ(p3_r);
           correction.correctRZRange(allowedZ);
 
-          float zErr = nSigmaRZ * std::sqrt(float(hit->globalPositionError().czz()));
+          float zErr = nSigmaRZ * hit->errorGlobalZ();
           Range hitRange(p3_z-zErr, p3_z+zErr);
           Range crossingRange = allowedZ.intersection(hitRange);
           if (crossingRange.empty())  continue;
         } else {
           Range allowedR = predictionRZ(p3_z);
           correction.correctRZRange(allowedR); 
-          float rErr = nSigmaRZ * std::sqrt(float(hit->globalPositionError().rerr( hit->globalPosition())));
+          float rErr = nSigmaRZ * hit->errorGlobalR();
           Range hitRange(p3_r-rErr, p3_r+rErr);
           Range crossingRange = allowedR.intersection(hitRange);
           if (crossingRange.empty())  continue;
         }
 
-	float phiErr = nSigmaPhi*std::sqrt(float(hit->globalPositionError().phierr(hit->globalPosition())));
+	float phiErr = nSigmaPhi*hit->errorGlobalRPhi();
         for (int icharge=-1; icharge <=1; icharge+=2) {
           Range rangeRPhi = predictionRPhi(p3_r, icharge);
           correction.correctRPhiRange(rangeRPhi);
