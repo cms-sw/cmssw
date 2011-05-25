@@ -7,7 +7,7 @@ l1tSync = cms.EDAnalyzer("L1TSync",
   verbose                 = cms.untracked.bool(False),
   inputTagScalersResults  = cms.InputTag("scalersRawToDigi","","DQM"),
   inputTagL1GtDataDaq     = cms.InputTag("gtDigis"),
-  inputTagtEvmSource      = cms.InputTag("l1GtEvmUnpack","","DQM"),
+  inputTagtEvmSource      = cms.InputTag("gtEvmDigis","","DQM"),
 
   # Online
   oracleDB   = cms.string("oracle://CMS_OMDS_LB/CMS_TRG_R"),
