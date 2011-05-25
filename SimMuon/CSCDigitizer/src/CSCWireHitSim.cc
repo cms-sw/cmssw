@@ -69,7 +69,7 @@ CSCWireHitSim::getIonizationClusters(const PSimHit & simHit,
 
   std::vector<LocalPoint> positions;
   std::vector<int> electrons;
-  theGasIonizer->simulate( simHit, layer, positions, electrons );
+  theGasIonizer->simulate( simHit, positions, electrons );
 
   std::vector<LocalPoint> results; // start empty
 
