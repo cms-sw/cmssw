@@ -31,6 +31,7 @@
   <class name="std::vector<reco::MuonSegmentMatch>"/>
 
   <class name="reco::MuonIsolation"/>
+  <class name="reco::MuonPFIsolation"/>
 
   <class name="reco::CaloMuon"/>
   <class name="std::vector<reco::CaloMuon>"/>

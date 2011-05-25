@@ -8,7 +8,7 @@ Muon::Muon(  Charge q, const LorentzVector & p4, const Point & vtx ) :
      energyValid_  = false;
      matchesValid_ = false;
      isolationValid_ = false;
-     qualityValid_ = false;
+     pfIsolationValid_ = false;
      caloCompatibility_ = -9999.;
      type_ = 0;
 }
@@ -17,6 +17,7 @@ Muon::Muon() {
    energyValid_  = false;
    matchesValid_ = false;
    isolationValid_ = false;
+   pfIsolationValid_ = false;
    qualityValid_ = false;
    caloCompatibility_ = -9999.;
    type_ = 0;
@@ -715,6 +716,25 @@ void Muon::setIsolation( const MuonIsolation& isoR03, const MuonIsolation& isoR0
    isolationR05_ = isoR05;
    isolationValid_ = true; 
 }
+
+
+void Muon::setPFIsolation( const MuonPFIsolation& isoR03, const MuonPFIsolation& isoR04 )
+{ 
+   pfIsolationR03_ = isoR03;
+   pfIsolationR04_ = isoR04;
+   pfIsolationValid_ = true; 
+}
+
+
+void Muon::setPFMuon( const PFCandidateRef& pfMuon )
+{ 
+  if(pfMuon.isNonnull()) {
+    pfMuon_ = pfMuon;
+    type_ = type_ | PFMuon;
+  }
+}
+
+
 
 void Muon::setOuterTrack( const TrackRef & t ) { outerTrack_ = t; }
 void Muon::setInnerTrack( const TrackRef & t ) { innerTrack_ = t; }

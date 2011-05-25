@@ -10,6 +10,7 @@
 #include <boost/cstdint.hpp> 
 #include "DataFormats/MuonReco/interface/MuonFwd.h" 
 #include "DataFormats/MuonReco/interface/MuonIsolation.h"
+#include "DataFormats/MuonReco/interface/MuonPFIsolation.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraFwd.h"
@@ -37,6 +38,7 @@ namespace {
     edm::helpers::Key<edm::RefProd<std::vector<reco::Muon> > > hkrv1;
 
     reco::MuonIsolation rmi;
+    reco::MuonPFIsolation rmi2;
     reco::MuonTime rmt;
     reco::MuonTimeExtra rmt1;
     

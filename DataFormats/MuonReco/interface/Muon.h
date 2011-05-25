@@ -10,12 +10,14 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.58 2010/06/28 08:06:37 dmytro Exp $
+ * \version $Id: Muon.h,v 1.59 2011/01/29 00:32:44 jribnik Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/MuonReco/interface/MuonChamberMatch.h"
 #include "DataFormats/MuonReco/interface/MuonIsolation.h"
+#include "DataFormats/MuonReco/interface/MuonPFIsolation.h"
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
 #include "DataFormats/MuonReco/interface/MuonTime.h"
 #include "DataFormats/MuonReco/interface/MuonQuality.h"
@@ -52,7 +54,17 @@ namespace reco {
     /// set reference to Track
     virtual void setGlobalTrack( const TrackRef & t );
     virtual void setCombined( const TrackRef & t );
-    
+
+
+
+    ///set reference to PFCandidate
+    ///
+    /// ====================== PF BLOCK ===========================
+    ///
+
+    PFCandidateRef pfMuon() {return pfMuon_;}
+    virtual void setPFMuon( const PFCandidateRef & muon ); 
+
     ///
     /// ====================== ENERGY BLOCK ===========================
     ///
@@ -108,8 +120,16 @@ namespace reco {
     /// Summary of muon isolation information 
     const MuonIsolation& isolationR03() const { return isolationR03_; }
     const MuonIsolation& isolationR05() const { return isolationR05_; }
+
+    const MuonPFIsolation& pfIsolationR03() const { return pfIsolationR03_; }
+    const MuonPFIsolation& pfIsolationR04() const { return pfIsolationR04_; }
+
     void setIsolation( const MuonIsolation& isoR03, const MuonIsolation& isoR05 );
     bool isIsolationValid() const { return isolationValid_; }
+
+    void setPFIsolation( const MuonPFIsolation& isoR03, const MuonPFIsolation& isoR04 );
+    bool isPFIsolationValid() const { return pfIsolationValid_; }
+
 
     /// define arbitration schemes
     enum ArbitrationType { NoArbitration, SegmentArbitration, SegmentAndTrackArbitration, SegmentAndTrackArbitrationCleaned };
@@ -141,6 +161,8 @@ namespace reco {
     static const unsigned int TrackerMuon    =  1<<2;
     static const unsigned int StandAloneMuon =  1<<3;
     static const unsigned int CaloMuon =  1<<4;
+    static const unsigned int PFMuon =  1<<5;
+
     void setType( unsigned int type ) { type_ = type; }
     unsigned int type() const { return type_; }
     // override of method in base class reco::Candidate
@@ -149,6 +171,7 @@ namespace reco {
     bool isTrackerMuon()    const { return type_ & TrackerMuon; }
     bool isStandAloneMuon() const { return type_ & StandAloneMuon; }
     bool isCaloMuon() const { return type_ & CaloMuon; }
+    bool isPFMuon() {return type_ & PFMuon;} //fix me ! Has to go to type
     
   private:
     /// check overlap with another candidate
@@ -167,18 +190,26 @@ namespace reco {
     std::vector<MuonChamberMatch> muMatches_;
     /// timing
     MuonTime time_;
-     
     bool energyValid_;
     bool matchesValid_;
     bool isolationValid_;
+    bool pfIsolationValid_;
     bool qualityValid_;
     /// muon hypothesis compatibility with observer calorimeter energy
     float caloCompatibility_;
     /// Isolation information for two cones with dR=0.3 and dR=0.5
     MuonIsolation isolationR03_;
     MuonIsolation isolationR05_;
+
+    /// PF Isolation information for two cones with dR=0.3 and dR=0.4
+    MuonPFIsolation pfIsolationR03_;
+    MuonPFIsolation pfIsolationR04_;
+
     /// muon type mask
     unsigned int type_;
+
+    //PF muon ref
+    PFCandidateRef pfMuon_;
 
     // FixMe: Still missing trigger information
 
