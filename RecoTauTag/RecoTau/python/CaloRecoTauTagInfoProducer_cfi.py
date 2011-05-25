@@ -16,7 +16,7 @@ caloRecoTauTagInfoProducer = cms.EDProducer("CaloRecoTauTagInfoProducer",
     tkQuality = cms.string('highPurity'),
     
     BarrelBasicClustersSource = cms.InputTag("hybridSuperClusters", "hybridBarrelBasicClusters"),
-    EndcapBasicClustersSource = cms.InputTag("multi5x5BasicClusters", "multi5x5EndcapBasicClusters"),
+    EndcapBasicClustersSource = cms.InputTag("multi5x5SuperClusters", "multi5x5EndcapBasicClusters"),
 
     smearedPVsigmaY = cms.double(0.0015),
     smearedPVsigmaX = cms.double(0.0015),
