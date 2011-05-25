@@ -9,7 +9,7 @@
 #include "Alignment/CocoaModel/interface/MatrixMeschach.h"
 
 #include <iomanip>
-#include <math.h>
+#include <cmath>  
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 MatrixMeschach::MatrixMeschach()
