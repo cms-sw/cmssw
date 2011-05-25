@@ -68,6 +68,7 @@ from FastSimulation.ParticleFlow.ParticleFlowFastSim_cff import *
 from RecoJets.Configuration.RecoJetsGlobal_cff import *
 #from RecoJets.Configuration.JetIDProducers_cff import *
 from RecoMET.Configuration.RecoMET_cff import *
+metreco.remove(BeamHaloId)
 
 caloJetMet = cms.Sequence(
     recoJets+
