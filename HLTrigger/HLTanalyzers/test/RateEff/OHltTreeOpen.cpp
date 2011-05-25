@@ -11608,7 +11608,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
             {
                std::vector<int> secondVector = VectorOpenHlt1PhotonPassedR9ID(
                36,//Et 
-               0.8,//R9ID 
+               0.0,//R9ID 
                0,
                4.0,//TrkIso 
                6.0,//ECALIso 
@@ -11661,7 +11661,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
          {
             std::vector<int> firstVector = VectorOpenHlt1PhotonPassedR9ID(
             22,
-            0.8,
+            0.0,
             0,
             4.0,
             6.0,
