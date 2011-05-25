@@ -85,6 +85,11 @@ namespace gen {
       
       // member function(s)
       float flat();
+      void decodeMDTAU( int );
+      void selectDecayByMDTAU();
+      int selectLeptonic();
+      int selectHadronic();
+      
       
       //
       CLHEP::HepRandomEngine*                  fRandomEngine;            
@@ -93,6 +98,13 @@ namespace gen {
       edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
       edm::ParameterSet*                       fPSet;
       bool                                     fIsInitialized;
+      
+      int                                      fMDTAU;
+      bool                                     fSelectDecayByEvent;
+      std::vector<int>                         fLeptonModes;
+      std::vector<int>                         fHadronModes;
+      std::vector<double>                      fScaledLeptonBrRatios;
+      std::vector<double>                      fScaledHadronBrRatios;
       
       static TauolaInterface*                  fInstance;
        
