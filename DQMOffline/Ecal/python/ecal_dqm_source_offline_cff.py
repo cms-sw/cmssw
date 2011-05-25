@@ -124,13 +124,13 @@ ecalBarrelClusterTask.BasicClusterCollection = 'hybridSuperClusters:hybridBarrel
 ecalBarrelClusterTask.SuperClusterCollection = 'correctedHybridSuperClusters:'
 
 ecalEndcapClusterTask.EcalRawDataCollection = 'ecalDigis:'
-ecalEndcapClusterTask.BasicClusterCollection = 'multi5x5BasicClusters:multi5x5EndcapBasicClusters'
+ecalEndcapClusterTask.BasicClusterCollection = 'multi5x5SuperClusters:multi5x5EndcapBasicClusters'
 ecalEndcapClusterTask.SuperClusterCollection = 'multi5x5SuperClusters:multi5x5EndcapSuperClusters'
 
 ecalBarrelClusterTaskExtras.BasicClusterCollection = 'hybridSuperClusters:hybridBarrelBasicClusters'
 ecalBarrelClusterTaskExtras.SuperClusterCollection = 'correctedHybridSuperClusters:'
 
-ecalEndcapClusterTaskExtras.BasicClusterCollection = 'multi5x5BasicClusters:multi5x5EndcapBasicClusters'
+ecalEndcapClusterTaskExtras.BasicClusterCollection = 'multi5x5SuperClusters:multi5x5EndcapBasicClusters'
 ecalEndcapClusterTaskExtras.SuperClusterCollection = 'multi5x5SuperClusters:multi5x5EndcapSuperClusters'
 
 ecalBarrelHltTask.EBDetIdCollection0 = 'ecalDigis:EcalIntegrityDCCSizeErrors'
