@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from FWCore.GuiBrowsers.ConfigToolBase import *
 from PhysicsTools.PatAlgos.tools.helpers import *
 from PhysicsTools.PatAlgos.tools.jetTools import *
-from Configuration.PyReleaseValidation.autoCond import autoCond
+from Configuration.AlCa.autoCond import autoCond
 
 import os
 import socket
