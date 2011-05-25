@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V99
+# /dev/CMSSW_4_2_0/GRun/V102
 
 import FWCore.ParameterSet.Config as cms
 
@@ -96,7 +96,7 @@ streamA_datasetElectronHad_selector.triggerConditions = cms.vstring('HLT_DoubleE
     'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3_v4', 
     'HLT_Ele15_CaloIdVT_TrkIdT_Jet35_Jet25_Deta2_v4', 
     'HLT_Ele17_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT15_v4', 
-    'HLT_Ele17_CaloIdVT_TrkIdT_CentralJet30_CentralJet25_v3', 
+    'HLT_Ele17_CaloIdVT_TrkIdT_CentralJet30_CentralJet25_v4', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_BTagIP_v1', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20_v4', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_v1', 
@@ -131,16 +131,16 @@ streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_DiJet130_PT130_v
     'HLT_HT250_AlphaT0p53_v3', 
     'HLT_HT250_AlphaT0p54_v3', 
     'HLT_HT250_DoubleDisplacedJet60_v4', 
-    'HLT_HT250_MHT60_v5', 
-    'HLT_HT250_MHT70_v2', 
-    'HLT_HT250_MHT80_v2', 
+    'HLT_HT250_MHT60_v6', 
+    'HLT_HT250_MHT70_v3', 
+    'HLT_HT250_MHT80_v3', 
     'HLT_HT250_v5', 
     'HLT_HT300_AlphaT0p52_v4', 
     'HLT_HT300_AlphaT0p53_v3', 
     'HLT_HT300_CentralJet30_BTagIP_PFMHT55_v3', 
     'HLT_HT300_CentralJet30_BTagIP_PFMHT75_v3', 
     'HLT_HT300_CentralJet30_BTagIP_v3', 
-    'HLT_HT300_MHT75_v6', 
+    'HLT_HT300_MHT75_v7', 
     'HLT_HT300_PFMHT55_v3', 
     'HLT_HT300_v6', 
     'HLT_HT350_AlphaT0p51_v4', 
@@ -381,10 +381,10 @@ streamA_datasetPhotonHad_selector.triggerConditions = cms.vstring('HLT_Photon40_
     'HLT_Photon40_R020_MR300_v3', 
     'HLT_Photon40_R025_MR200_v3', 
     'HLT_Photon40_R038_MR150_v3', 
-    'HLT_Photon70_CaloIdL_HT300_v5', 
-    'HLT_Photon70_CaloIdL_HT350_v4', 
-    'HLT_Photon70_CaloIdL_MHT50_v5', 
-    'HLT_Photon70_CaloIdL_MHT70_v4')
+    'HLT_Photon70_CaloIdL_HT300_v6', 
+    'HLT_Photon70_CaloIdL_HT350_v5', 
+    'HLT_Photon70_CaloIdL_MHT50_v6', 
+    'HLT_Photon70_CaloIdL_MHT70_v5')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetSingleElectron_selector
 streamA_datasetSingleElectron_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')

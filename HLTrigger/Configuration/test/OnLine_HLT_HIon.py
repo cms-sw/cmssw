@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V99 (CMSSW_4_2_0_HLT8)
+# /dev/CMSSW_4_2_0/HIon/V102 (CMSSW_4_2_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V99')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V102')
 )
 
 process.streams = cms.PSet( 
@@ -4821,7 +4821,6 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltAlCaPhiSymStream_*_*',
       'keep *_hltAlCaPi0RecHitsFilter_*_*',
       'keep *_hltAntiKT5CaloJets_*_*',
-      'keep *_hltAntiKT5L2L3CorrCaloJets_*_*',
       'keep *_hltAntiKT5PFJetsForTaus_*_*',
       'keep *_hltAntiKT5PFJets_*_*',
       'keep *_hltBSoftMuonDiJet110Mu5L3FilterByDR_*_*',
@@ -4833,6 +4832,9 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltBSoftMuonDiJet70Mu5L3FilterByDR_*_*',
       'keep *_hltBSoftMuonDiJet70Mu5SelL3BJetTagsByDR_*_*',
       'keep *_hltBSoftMuonMu5L3_*_*',
+      'keep *_hltCaloJetCorrectedRegional_*_*',
+      'keep *_hltCaloJetCorrected_*_*',
+      'keep *_hltCalojetCorrectedNoId_*_*',
       'keep *_hltConvPFTauTightIsoTrackPt20Isolation_*_*',
       'keep *_hltConvPFTauTightIsoTrackPt20_*_*',
       'keep *_hltConvPFTausTightIsoTrackFinding_*_*',
@@ -4907,6 +4909,7 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltMuonDTDigis_*_*',
       'keep *_hltMuonRPCDigis_*_*',
       'keep *_hltOfflineBeamSpot_*_*',
+      'keep *_hltOnlineBeamSpot_*_*',
       'keep *_hltOverlapFilterIsoEle15IsoPFTau15_*_*',
       'keep *_hltOverlapFilterIsoEle18IsoPFTau20_*_*',
       'keep *_hltOverlapFilterIsoMu15IsoPFTau15_*_*',
@@ -5021,7 +5024,6 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep *_hltAlCaEtaRecHitsFilter_*_*',
       'keep *_hltAlCaPi0RecHitsFilter_*_*',
       'keep *_hltAntiKT5CaloJets_*_*',
-      'keep *_hltAntiKT5L2L3CorrCaloJets_*_*',
       'keep *_hltAntiKT5PFJetsForTaus_*_*',
       'keep *_hltAntiKT5PFJets_*_*',
       'keep *_hltBSoftMuonDiJet110Mu5L3FilterByDR_*_*',
@@ -5033,6 +5035,9 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep *_hltBSoftMuonDiJet70Mu5L3FilterByDR_*_*',
       'keep *_hltBSoftMuonDiJet70Mu5SelL3BJetTagsByDR_*_*',
       'keep *_hltBSoftMuonMu5L3_*_*',
+      'keep *_hltCaloJetCorrectedRegional_*_*',
+      'keep *_hltCaloJetCorrected_*_*',
+      'keep *_hltCalojetCorrectedNoId_*_*',
       'keep *_hltConvPFTauTightIsoTrackPt20Isolation_*_*',
       'keep *_hltConvPFTauTightIsoTrackPt20_*_*',
       'keep *_hltConvPFTausTightIsoTrackFinding_*_*',
@@ -5080,6 +5085,7 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep *_hltMuonCSCDigis_*_*',
       'keep *_hltMuonDTDigis_*_*',
       'keep *_hltMuonRPCDigis_*_*',
+      'keep *_hltOnlineBeamSpot_*_*',
       'keep *_hltOverlapFilterIsoEle15IsoPFTau15_*_*',
       'keep *_hltOverlapFilterIsoEle18IsoPFTau20_*_*',
       'keep *_hltOverlapFilterIsoMu15IsoPFTau15_*_*',
