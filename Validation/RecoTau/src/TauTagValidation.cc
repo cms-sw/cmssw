@@ -15,7 +15,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2008
-// $Id: TauTagValidation.cc,v 1.22 2011/04/06 12:17:44 mverzett Exp $
+// $Id: TauTagValidation.cc,v 1.23 2011/04/21 11:05:32 olzem Exp $
 //
 //
 // user include files
@@ -37,7 +37,7 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig)
   // We need different matching criteria if we talk about leptons or jets
   matchDeltaR_Leptons_ = iConfig.getParameter<double>("MatchDeltaR_Leptons");
   matchDeltaR_Jets_    = iConfig.getParameter<double>("MatchDeltaR_Jets");
-  leadingTrackCut_     = iConfig.getParameter<double>("LeadingTrackPtCut");
+  TauPtCut_     = iConfig.getParameter<double>("TauPtCut");
   // The output histograms can be stored or not
   saveoutputhistograms_ = iConfig.getParameter<bool>("SaveOutputHistograms");
 
@@ -277,7 +277,7 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	PFTauRef thePFTau(thePFTauHandle, thePFTauClosest);
 	Handle<PFTauDiscriminator> currentDiscriminator;
 
-	if(thePFTau->pt() < leadingTrackCut_ )
+	if(thePFTau->pt() < TauPtCut_ )
 	  continue;
 
 	for ( std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++) 
@@ -363,7 +363,7 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	PFTauRef thePFTau(thePFTauHandle, thePFTauClosest);
 	Handle<PFTauDiscriminator> currentDiscriminator;
 	
-	if(thePFTau->pt() < leadingTrackCut_ )
+	if(thePFTau->pt() < TauPtCut_ )
 	  continue;
 
 	for ( std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++) 

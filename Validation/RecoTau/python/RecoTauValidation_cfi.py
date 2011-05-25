@@ -97,7 +97,7 @@ StandardMatchingParameters = cms.PSet(
    SaveOutputHistograms         = cms.bool(False), #TRUE FOR TEST ONLY
    #RefCollection                = cms.InputTag("TauGenJetProducer","selectedGenTauDecaysToHadronsPt5Cumulative"),
    RefCollection                = denominator,
-   LeadingTrackPtCut            = cms.double(0.),
+   TauPtCut            = cms.double(0.),
 )
 
 PFTausHighEfficiencyLeadingPionBothProngs = cms.EDAnalyzer("TauTagValidation",
