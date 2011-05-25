@@ -3,6 +3,9 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
+#include "FWCore/Utilities/interface/Likely.h"
+
+
 const GeomDetUnit * TransientTrackingRecHit::detUnit() const
 {
   return dynamic_cast<const GeomDetUnit*>(det());
@@ -10,7 +13,7 @@ const GeomDetUnit * TransientTrackingRecHit::detUnit() const
 
 
 GlobalPoint TransientTrackingRecHit::globalPosition() const {
-  if(! hasGlobalPosition_){
+  if unlikely(! hasGlobalPosition_){
     globalPosition_ = surface()->toGlobal(localPosition());
     hasGlobalPosition_ = true;
     return globalPosition_;
@@ -19,8 +22,14 @@ GlobalPoint TransientTrackingRecHit::globalPosition() const {
   }
 }
 
+
+#ifdef TTRH_NOGE
 GlobalError TransientTrackingRecHit::globalPositionError() const {
-  if(! hasGlobalError_){
+  return ErrorFrameTransformer().transform( localPositionError(), *surface() );
+}
+#else
+GlobalError TransientTrackingRecHit::globalPositionError() const {
+  if unlikely(! hasGlobalError_){
     setPositionErrors();
     return globalError_;
   }else{
@@ -28,10 +37,11 @@ GlobalError TransientTrackingRecHit::globalPositionError() const {
   }
 
 }   
+#endif
 
 float 
 TransientTrackingRecHit::errorGlobalR() const {
-  if(!hasGlobalError_){
+  if unlikely(!hasGlobalError_){
     setPositionErrors();
     return errorR_;
   }else{
@@ -41,7 +51,7 @@ TransientTrackingRecHit::errorGlobalR() const {
 
 float 
 TransientTrackingRecHit::errorGlobalZ() const {
-  if(!hasGlobalError_){
+  if unlikely(!hasGlobalError_){
     setPositionErrors();
     return errorZ_;
   }else{
@@ -51,7 +61,7 @@ TransientTrackingRecHit::errorGlobalZ() const {
 
 float 
 TransientTrackingRecHit::errorGlobalRPhi() const {
-  if(!hasGlobalError_){
+  if unlikely(!hasGlobalError_){
     setPositionErrors();
     return errorRPhi_;
   }else{
@@ -61,7 +71,10 @@ TransientTrackingRecHit::errorGlobalRPhi() const {
 
 void
 TransientTrackingRecHit::setPositionErrors() const {
-  globalError_ = ErrorFrameTransformer().transform( localPositionError(), *surface() );
+#ifdef TTRH_NOGE
+GlobalError  
+#endif
+  globalError_ = ErrorFrameTransformer::transform( localPositionError(), *surface() );
   errorRPhi_ = globalPosition().perp()*sqrt(globalError_.phierr(globalPosition())); 
   errorR_ = sqrt(globalError_.rerr(globalPosition()));
   errorZ_ = sqrt(globalError_.czz());
