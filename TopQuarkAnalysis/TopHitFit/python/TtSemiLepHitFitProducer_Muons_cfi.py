@@ -19,7 +19,15 @@ hitFitTtSemiLepEvent = cms.EDProducer("TtSemiLepHitFitProducerMuon",
     # take all)
     #-------------------------------------------------
     maxNComb = cms.int32(1),
-                                      
+    
+    # ------------------------------------------------
+    # option to use b-tagging
+    # ------------------------------------------------
+    bTagAlgo          = cms.string("trackCountingHighEffBJetTags"),
+    minBDiscBJets     = cms.double(1.0),
+    maxBDiscLightJets = cms.double(3.0),
+    useBTagging       = cms.bool(False),
+    
     # ------------------------------------------------
     # set mass values used in the constraints
     # set mass to 0 for no constrain

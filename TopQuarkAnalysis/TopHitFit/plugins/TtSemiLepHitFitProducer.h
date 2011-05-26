@@ -36,6 +36,15 @@ class TtSemiLepHitFitProducer : public edm::EDProducer {
   int maxNJets_;
   /// maximal number of combinations to be written to the event
   int maxNComb_;
+  
+  /// input tag for b-tagging algorithm
+  std::string bTagAlgo_;
+  /// min value of bTag for a b-jet
+  double minBTagValueBJet_;
+  /// max value of bTag for a non-b-jet
+  double maxBTagValueNonBJet_;
+  /// switch to tell whether to use b-tagging or not
+  bool useBTag_;
 
   /// constraints
   double mW_;
@@ -84,6 +93,10 @@ TtSemiLepHitFitProducer<LeptonCollection>::TtSemiLepHitFitProducer(const edm::Pa
   mets_                    (cfg.getParameter<edm::InputTag>("mets")),
   maxNJets_                (cfg.getParameter<int>          ("maxNJets"            )),
   maxNComb_                (cfg.getParameter<int>          ("maxNComb"            )),
+  bTagAlgo_                (cfg.getParameter<std::string>  ("bTagAlgo"            )),
+  minBTagValueBJet_        (cfg.getParameter<double>       ("minBDiscBJets"       )),
+  maxBTagValueNonBJet_     (cfg.getParameter<double>       ("maxBDiscLightJets"   )),
+  useBTag_                 (cfg.getParameter<bool>         ("useBTagging"         )),
   mW_                      (cfg.getParameter<double>       ("mW"                  )),
   mTop_                    (cfg.getParameter<double>       ("mTop"                )),
   jetCorrectionLevel_      (cfg.getParameter<std::string>  ("jetCorrectionLevel"  )),
@@ -300,7 +313,26 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
       hitfit::Lepjets_Event_Jet lepB_ = fittedEvent.jet(hitCombi[TtSemiLepEvtPartons::LepB     ]);
       hitfit::Lepjets_Event_Lep lepL_ = fittedEvent.lep(0);
       
-      if (hitFitResult[fit].chisq() > 0) { // only take into account converged fits
+      /*
+  /// input tag for b-tagging algorithm
+  std::string bTagAlgo_;
+  /// min value of bTag for a b-jet
+  double minBTagValueBJet_;
+  /// max value of bTag for a non-b-jet
+  double maxBTagValueNonBJet_;
+  /// switch to tell whether to use b-tagging or not
+  bool useBTag_;
+      */
+      
+      if (   hitFitResult[fit].chisq() > 0    // only take into account converged fits
+          && (!useBTag_ || (   useBTag_       // use btag information if chosen
+                            && jets->at(hitCombi[TtSemiLepEvtPartons::LightQ   ]).bDiscriminator(bTagAlgo_) < maxBTagValueNonBJet_
+                            && jets->at(hitCombi[TtSemiLepEvtPartons::LightQBar]).bDiscriminator(bTagAlgo_) < maxBTagValueNonBJet_
+                            && jets->at(hitCombi[TtSemiLepEvtPartons::HadB     ]).bDiscriminator(bTagAlgo_) > minBTagValueBJet_
+                            && jets->at(hitCombi[TtSemiLepEvtPartons::LepB     ]).bDiscriminator(bTagAlgo_) > minBTagValueBJet_
+                            )
+             )
+          ) { 
         FitResult result;
         result.Status = 0;
         result.Chi2 = hitFitResult[fit].chisq();
