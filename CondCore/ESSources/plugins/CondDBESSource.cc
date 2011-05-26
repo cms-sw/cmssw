@@ -74,7 +74,7 @@ namespace {
 	<< state.comment()
 	<< "\n  "
 	<< "refresh " << proxy.proxy()->stats.nRefresh
-	<< "/" << proxy.proxy()->stats.nAeefresh
+	<< "/" << proxy.proxy()->stats.nArefresh
 	<< ", make " << proxy.proxy()->stats.nMake
 	<< ", load " << proxy.proxy()->stats.nLoad
       ;
