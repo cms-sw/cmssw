@@ -18,15 +18,20 @@ hltMonMuDQM = cms.EDAnalyzer("HLTMuonDQMSource",
 		directoryName = cms.string('L2PassThrough'),
 		triggerBits = cms.vstring('HLT_L2Mu10_v3','HLT_L2Mu20_v3')
 	),
-    	# L3 muon
+    	# L3 muon no iso
 	cms.PSet(
 		directoryName = cms.string('L3Triggers'),
-		triggerBits = cms.vstring('HLT_Mu20_v3','HLT_Mu24_v3','HLT_Mu30_v3', 'HLT_Mu40_v1', 'HLT_Mu3_v5','HLT_Mu5_v5','HLT_Mu8_v3','HLT_IsoMu12_v3','HLT_IsoMu15_v7','HLT_IsoMu17_v7','HLT_IsoMu24_v3','HLT_IsoMu30_v3')
+		triggerBits = cms.vstring('HLT_Mu20_v3','HLT_Mu24_v3','HLT_Mu30_v3', 'HLT_Mu40_v1', 'HLT_Mu3_v5','HLT_Mu5_v5','HLT_Mu8_v3')
+	),
+    	# L3 muon with iso
+	cms.PSet(
+		directoryName = cms.string('L3Triggers_ISO'),
+		triggerBits = cms.vstring('HLT_IsoMu12_v5','HLT_IsoMu15_v9','HLT_IsoMu17_v9','HLT_IsoMu24_v5','HLT_IsoMu30_v5')
 	),
     	# DoubleMu
 	cms.PSet(
 		directoryName = cms.string('DoubleMu'),
-		triggerBits = cms.vstring('HLT_L1DoubleMu0_v2','HLT_L2DoubleMu0_v4','HLT_DoubleMu3_v5','HLT_DoubleMu6_v3','HLT_DoubleMu7_v3')
+		triggerBits = cms.vstring('HLT_L1DoubleMu0_v2','HLT_L2DoubleMu0_v4','HLT_DoubleMu3_v5','HLT_DoubleMu6_v3','HLT_DoubleMu7_v3','HLT_Mu13_Mu8_v2','HLT_Mu17_Mu8_v2')
 	),
 	# No tracker
 	cms.PSet(
