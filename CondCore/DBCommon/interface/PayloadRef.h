@@ -1,5 +1,6 @@
 #ifndef CondCore_DBCommon_PayloadRef_h
 #define CondCore_DBCommon_PayloadRef_h
+#include "CondCore/DBCommon/interface/DbTransaction.h"
 
 namespace cond {
 
@@ -25,8 +26,10 @@ namespace cond {
     bool load( DbSession& dbSess, std::string const & itoken) {
       clear();
       bool ok = false;
-      
+      // is it ok to open a transaction here? or could be at higher level?
+      dbSess.transaction().start(); 
       boost::shared_ptr<DataT> tmp = dbSess.getTypedObject<DataT>( itoken );
+      dbSess.transaction().commit();
       if (tmp.get()) {
 	m_Data = tmp;
 	ok =  true;
