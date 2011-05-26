@@ -1,3 +1,4 @@
+# "GRun" menu
 HLT_Activity_Ecal_SC7_v*
 HLT_L1SingleJet16_v*
 HLT_L1SingleJet36_v*
@@ -8,6 +9,11 @@ HLT_Jet110_v*
 HLT_Jet150_v*
 HLT_Jet190_v*
 HLT_Jet240_v*
+#
+# the following paths to be added in May 19th train
+#HLT_Jet240_CentralJet30_BTagIP_v*
+#HLT_Jet270_CentralJet30_BTagIP_v*
+#
 HLT_Jet300_v*
 HLT_Jet370_v*
 HLT_Jet370_NoJetID_v*
@@ -20,6 +26,13 @@ HLT_DiJetAve190_v*
 HLT_DiJetAve240_v*
 HLT_DiJetAve300_v*
 HLT_DiJetAve370_v*
+#
+# the following paths to be added in May 19th train
+#HLT_FatJetMass300_DR1p1_DEta2p0_CentralJet30_BTagIP_v*
+#HLT_FatJetMass350_DR1p1_DEta2p0_CentralJet30_BTagIP_v*
+#HLT_FatJetMass750_DR1p1_DEta2p0_v*
+#HLT_FatJetMass850_DR1p1_DEta2p0_v*
+#
 HLT_DoubleJet30_ForwardBackward_v*
 HLT_DoubleJet60_ForwardBackward_v*
 HLT_DoubleJet70_ForwardBackward_v*
@@ -376,3 +389,32 @@ NanoDSTOutput
 OnlineErrorsOutput
 RPCMONOutput
 TrackerCalibrationOutput
+#
+# the following SUSY paths be added in May 19th train
+#HLT_DoubleEle10_CaloIdL_TrkIdVL_Ele10_CaloIdT_TrkIdVL_v* 
+#HLT_DoubleEle8_CaloIdT_TrkIdVL_Mass4_HT150_v* 
+#HLT_DoubleMu3_Mass4_HT150_v* 
+#HLT_DoubleMu5_Ele8_CaloIdT_TrkIdVL_v* 
+#HLT_DoubleMu5_IsoMu5_v* 
+#HLT_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT250_PFMHT25_v* 
+#HLT_HT200_AlphaT0p55_v* 
+#HLT_HT250_AlphaT0p55_v* 
+#HLT_HT250_MHT100_v* 
+#HLT_HT250_MHT90_v* 
+#HLT_HT250_Mu15_PFMHT40_v* 
+#HLT_HT300_AlphaT0p54_v* 
+#HLT_HT300_MHT80_v* 
+#HLT_HT300_MHT90_v* 
+#HLT_HT350_AlphaT0p52_v* 
+#HLT_HT350_MHT70_v* 
+#HLT_HT350_MHT80_v* 
+#HLT_HT400_AlphaT0p52_v* 
+#HLT_HT450_AlphaT0p51_v* 
+#HLT_HT450_AlphaT0p52_v* 
+#HLT_Mu30_HT200_v* 
+#HLT_Mu40_HT200_v* 
+#HLT_Mu5_DoubleEle8_CaloIdT_TrkIdVL_v* 
+#HLT_Mu5_Ele8_CaloIdT_TrkIdVL_Ele8_CaloIdL_TrkIdVL_v* 
+#HLT_Photon70_CaloIdL_HT400_v* 
+#HLT_Photon70_CaloIdL_MHT90_v* 
+#
