@@ -128,6 +128,7 @@ SKIMStreamHZZ = cms.FilteredStream(
         )
 
 ## exo skims
+"""
 from SUSYBSMAnalysis.Skimming.EXOLLResSkim_cff import *
 exoLLResmmPath = cms.Path(exoLLResdiMuonSequence)
 exoLLReseePath = cms.Path(exoLLResdiElectronSequence)
@@ -220,3 +221,4 @@ SKIMStreamEXOEMu = cms.FilteredStream(
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('AOD')
     )
+"""
