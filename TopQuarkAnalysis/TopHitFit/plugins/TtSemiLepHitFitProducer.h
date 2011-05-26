@@ -37,23 +37,11 @@ class TtSemiLepHitFitProducer : public edm::EDProducer {
   /// maximal number of combinations to be written to the event
   int maxNComb_;
 
-  /// maximal number of iterations to be performed for the fit
-  unsigned int maxNrIter_;
-  /// maximal chi2 equivalent
-  double maxDeltaS_;
-  /// maximal deviation for contstraints
-  double maxF_;
-  unsigned int jetParam_;
-  unsigned int lepParam_;
-  unsigned int metParam_;
-  /// constrains
-  std::vector<unsigned> constraints_;
+  /// constraints
   double mW_;
   double mTop_;
-  /// smear factor for jet resolutions
-  double jetEnergyResolutionSmearFactor_;
 
-  struct HitFitResult {
+  struct FitResult {
     int Status;
     double Chi2;
     double Prob;
@@ -66,7 +54,7 @@ class TtSemiLepHitFitProducer : public edm::EDProducer {
     pat::Particle LepL;
     pat::Particle LepN;
     std::vector<int> JetCombi;
-    bool operator< (const HitFitResult& rhs) { return Chi2 < rhs.Chi2; };
+    bool operator< (const FitResult& rhs) { return Chi2 < rhs.Chi2; };
   };
   
   typedef hitfit::RunHitFit<pat::Electron,pat::Muon,pat::Jet,pat::MET> PatHitFit;
@@ -77,10 +65,6 @@ class TtSemiLepHitFitProducer : public edm::EDProducer {
   edm::FileInPath hitfitUdscJetResolution_;
   edm::FileInPath hitfitBJetResolution_;
   edm::FileInPath hitfitMETResolution_;
-  
-  double      hitfitLepWMass_;
-  double      hitfitHadWMass_;
-  double      hitfitTopMass_;
   
   hitfit::LeptonTranslatorBase<pat::Electron> electronTranslator_;
   hitfit::LeptonTranslatorBase<pat::Muon>     muonTranslator_;
@@ -115,7 +99,7 @@ TtSemiLepHitFitProducer<LeptonCollection>::TtSemiLepHitFitProducer(const edm::Pa
   hitfitMETResolution_     (cfg.getUntrackedParameter<edm::FileInPath>(std::string("hitfitElectronResolution"),
                             edm::FileInPath(std::string("TopQuarkAnalysis/TopHitFit/data/resolution/tqafKtResolution.txt")))),
 
-  // The following three initializers instantiate the translator between PAT objects
+  // The following four initializers instantiate the translator between PAT objects
   // and HitFit objects using the ASCII text files which contains the resolutions.
   electronTranslator_(hitfitElectronResolution_.fullPath()),
   muonTranslator_    (hitfitMuonResolution_.fullPath()),
@@ -180,14 +164,14 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   edm::Handle<LeptonCollection> leps;
   evt.getByLabel(leps_, leps);
 
-  unsigned int nPartons = 4;
-
   // -----------------------------------------------------
   // skip events with no appropriate lepton candidate in
   // or empty MET or less jets than partons
   // -----------------------------------------------------
+  
+  unsigned int nPartons = 4;
 
-  if( leps->empty() || mets->empty() || jets->size()<nPartons ) {
+  if( leps->empty() || mets->empty() || jets->size() < nPartons ) {
     // the kinFit getters return empty objects here
     pPartonsHadP->push_back( pat::Particle() );
     pPartonsHadQ->push_back( pat::Particle() );
@@ -225,22 +209,13 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
     return;
   }
 
-  std::list<HitFitResult> HitFitResultList;
-  
-  // Boolean flag for
-  // true  = ejets
-  // false = mujets
-  bool channel = false;
+  std::list<FitResult> FitResultList;
   
   // Clear the internal state
   HitFit->clear();
   
   // Add the lepton into HitFit
-  if (channel) {
-      HitFit->AddLepton((*leps)[0]);
-  } else {
-      HitFit->AddLepton((*leps)[0]);
-  }
+  HitFit->AddLepton((*leps)[0]);
 
   // Add jets into HitFit
   for (int jet = 0 ; jet != maxNJets_ ; ++jet) {
@@ -257,146 +232,111 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   // In this part are variables from the
   // kinematic fit procedure
 
-  // Number of all permutation of the event
+  // Number of all permutations of the event
   size_t nHitFit    = 0 ;
 
   // Number of jets in the event
   size_t nHitFitJet = 0 ;
 
-  // Results of the fit for all jet permutation of the event
-  std::vector<hitfit::Fit_Result>     hitfitResult;
-
-//TODO
-  // String-encoded jet permutation
-  // b = leptonic b-jet
-  // B = hadronic b-jet
-  // w = hadronic jet from W boson decay
-  std::vector<std::string>            jetPermutation;
-
-  // mass of the top quark after fit
-  std::vector<double> fittedTopMass;
-
-  // uncertainty in the mass of the top quark after fit
-  std::vector<double> fittedTopMassSigma;
-
-  // the chi-square of the fit
-  // a negative value means the fit of a particular permutation did not converge
-  std::vector<double> fitChi2;
-
-  // boolean flag if the fit of a particular permutation converges or not
-  std::vector<bool>   fitConverge;
-
-  // normalized weight of a particular permutation
-  std::vector<double> fitWeight;
+  // Results of the fit for all jet permutations of the event
+  std::vector<hitfit::Fit_Result> hitFitResult;
 
   //
   // R U N   H I T F I T
   //
-  // Run the kinematic fit and get how many permutations is possible
+  // Run the kinematic fit and get how many permutations are possible
   // in the fit
   
   nHitFit         = HitFit->FitAllPermutation();
   
   //
-  // BEGIN PART WHICH EXTRACT INFORMATION FROM HITFIT
+  // BEGIN PART WHICH EXTRACTS INFORMATION FROM HITFIT
   //
 
   // Get the number of jets
-  nHitFitJet      = HitFit->GetUnfittedEvent()[0].njets();
+  nHitFitJet = HitFit->GetUnfittedEvent()[0].njets();
 
-  // Get the fit results for all permutation
-  hitfitResult    = HitFit->GetFitAllPermutation();
+  // Get the fit results for all permutations
+  hitFitResult = HitFit->GetFitAllPermutation();
 
-  // Loop over all permutation and extract the information
+  // Loop over all permutations and extract the information
   for (size_t fit = 0 ; fit != nHitFit ; ++fit) {
 
       // Get the event after the fit
-      hitfit::Lepjets_Event fittedEvent   = hitfitResult[fit].ev();
+      hitfit::Lepjets_Event fittedEvent = hitFitResult[fit].ev();
       
-      std::vector<int> hitcombi(4);
       /*
+        Get jet permutation according to TQAF convention
         11 : leptonic b
         12 : hadronic b
         13 : hadronic W
         14 : hadronic W
       */
+      std::vector<int> hitCombi(4);
       for (size_t jet = 0 ; jet != nHitFitJet ; ++jet) {
           int jet_type = fittedEvent.jet(jet).type();
           
           switch(jet_type) {
-            case 11: hitcombi[TtSemiLepEvtPartons::LepB     ] = jet;
+            case 11: hitCombi[TtSemiLepEvtPartons::LepB     ] = jet;
               break;
-            case 12: hitcombi[TtSemiLepEvtPartons::HadB     ] = jet;
+            case 12: hitCombi[TtSemiLepEvtPartons::HadB     ] = jet;
               break;
-            case 13: hitcombi[TtSemiLepEvtPartons::LightQ   ] = jet;
+            case 13: hitCombi[TtSemiLepEvtPartons::LightQ   ] = jet;
               break;
-            case 14: hitcombi[TtSemiLepEvtPartons::LightQBar] = jet;
+            case 14: hitCombi[TtSemiLepEvtPartons::LightQBar] = jet;
               break;
           }
       }
 
       // Store the kinematic quantities in the corresponding containers.
-
-      fittedTopMass.push_back(hitfitResult[fit].mt());
-      fittedTopMassSigma.push_back(hitfitResult[fit].sigmt());
-      fitChi2.push_back(hitfitResult[fit].chisq());
-      fitConverge.push_back(hitfitResult[fit].chisq() > 0);
-      if (fitConverge.back()) {
-          fitWeight.push_back(exp(-1.0*(fitChi2.back())/2.0));
-      } else {
-          fitWeight.push_back(0.0);
-      }
-
-      jetPermutation.push_back(fittedEvent.jet_permutation());
-      
-      hitfit::Lepjets_Event_Jet hadP_ = fittedEvent.jet(hitcombi[TtSemiLepEvtPartons::LightQ   ]);
-      hitfit::Lepjets_Event_Jet hadQ_ = fittedEvent.jet(hitcombi[TtSemiLepEvtPartons::LightQBar]);
-      hitfit::Lepjets_Event_Jet hadB_ = fittedEvent.jet(hitcombi[TtSemiLepEvtPartons::HadB     ]);
-      hitfit::Lepjets_Event_Jet lepB_ = fittedEvent.jet(hitcombi[TtSemiLepEvtPartons::LepB     ]);
-      
+     
+      hitfit::Lepjets_Event_Jet hadP_ = fittedEvent.jet(hitCombi[TtSemiLepEvtPartons::LightQ   ]);
+      hitfit::Lepjets_Event_Jet hadQ_ = fittedEvent.jet(hitCombi[TtSemiLepEvtPartons::LightQBar]);
+      hitfit::Lepjets_Event_Jet hadB_ = fittedEvent.jet(hitCombi[TtSemiLepEvtPartons::HadB     ]);
+      hitfit::Lepjets_Event_Jet lepB_ = fittedEvent.jet(hitCombi[TtSemiLepEvtPartons::LepB     ]);
       hitfit::Lepjets_Event_Lep lepL_ = fittedEvent.lep(0);
       
-      if (hitfitResult[fit].chisq() > 0) { // only take into account converged fits
-        HitFitResult hitresult;
-        hitresult.Status = 0;
-        hitresult.Chi2 = hitfitResult[fit].chisq();
-        hitresult.Prob = exp(-1.0*(hitfitResult[fit].chisq())/2.0);
-        hitresult.MT   = hitfitResult[fit].mt();
-        hitresult.SigMT= hitfitResult[fit].sigmt();
-        hitresult.HadB = pat::Particle(reco::LeafCandidate(0,
+      if (hitFitResult[fit].chisq() > 0) { // only take into account converged fits
+        FitResult result;
+        result.Status = 0;
+        result.Chi2 = hitFitResult[fit].chisq();
+        result.Prob = exp(-1.0*(hitFitResult[fit].chisq())/2.0);
+        result.MT   = hitFitResult[fit].mt();
+        result.SigMT= hitFitResult[fit].sigmt();
+        result.HadB = pat::Particle(reco::LeafCandidate(0,
                                        math::XYZTLorentzVector(hadB_.p().x(), hadB_.p().y(),
                                        hadB_.p().z(), hadB_.p().t()), math::XYZPoint()));
-        hitresult.HadP = pat::Particle(reco::LeafCandidate(0,
+        result.HadP = pat::Particle(reco::LeafCandidate(0,
                                        math::XYZTLorentzVector(hadP_.p().x(), hadP_.p().y(),
                                        hadP_.p().z(), hadP_.p().t()), math::XYZPoint()));
-        hitresult.HadQ = pat::Particle(reco::LeafCandidate(0,
+        result.HadQ = pat::Particle(reco::LeafCandidate(0,
                                        math::XYZTLorentzVector(hadQ_.p().x(), hadQ_.p().y(),
                                        hadQ_.p().z(), hadQ_.p().t()), math::XYZPoint()));
-        hitresult.LepB = pat::Particle(reco::LeafCandidate(0,
+        result.LepB = pat::Particle(reco::LeafCandidate(0,
                                        math::XYZTLorentzVector(lepB_.p().x(), lepB_.p().y(),
                                        lepB_.p().z(), lepB_.p().t()), math::XYZPoint()));
-        hitresult.LepL = pat::Particle(reco::LeafCandidate(0,
+        result.LepL = pat::Particle(reco::LeafCandidate(0,
                                        math::XYZTLorentzVector(lepL_.p().x(), lepL_.p().y(),
                                        lepL_.p().z(), lepL_.p().t()), math::XYZPoint()));
-        hitresult.LepN = pat::Particle(reco::LeafCandidate(0,
+        result.LepN = pat::Particle(reco::LeafCandidate(0,
                                        math::XYZTLorentzVector(fittedEvent.met().x(), fittedEvent.met().y(),
                                        fittedEvent.met().z(), fittedEvent.met().t()), math::XYZPoint()));
-        hitresult.JetCombi = hitcombi;
+        result.JetCombi = hitCombi;
 
-        HitFitResultList.push_back(hitresult);
+        FitResultList.push_back(result);
       }
 
   }
 
   // sort results w.r.t. chi2 values
-  HitFitResultList.sort();
+  FitResultList.sort();
   
   // -----------------------------------------------------
   // feed out result
   // starting with the JetComb having the smallest chi2
   // -----------------------------------------------------
 
-  if( HitFitResultList.size() < 1 ) { // in case no fit results were stored in the list (all fits aborted)
+  if( FitResultList.size() < 1 ) { // in case no fit results were stored in the list (all fits aborted)
     pPartonsHadP->push_back( pat::Particle() );
     pPartonsHadQ->push_back( pat::Particle() );
     pPartonsHadB->push_back( pat::Particle() );
@@ -420,7 +360,7 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   }
   else {
     unsigned int iComb = 0;
-    for(typename std::list<HitFitResult>::const_iterator result = HitFitResultList.begin(); result != HitFitResultList.end(); ++result) {
+    for(typename std::list<FitResult>::const_iterator result = FitResultList.begin(); result != FitResultList.end(); ++result) {
       if(maxNComb_ >= 1 && iComb == (unsigned int) maxNComb_) break;
       iComb++;
       // partons
