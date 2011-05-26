@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/16 10:03:23 $
- *  $Revision: 1.12 $
+ *  $Date: 2011/05/25 21:03:56 $
+ *  $Revision: 1.13 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -46,13 +46,12 @@ DTNoiseCalibration::DTNoiseCalibration(const edm::ParameterSet& pset):
   timeWindowOffset_( pset.getParameter<int>("timeWindowOffset") ),
   maximumNoiseRate_( pset.getParameter<double>("maximumNoiseRate") ),
   useAbsoluteRate_( pset.getParameter<bool>("useAbsoluteRate") ), 
-  readDB_(true), defaultTtrig_(0), dbLabel_(""),
+  readDB_(true), defaultTtrig_(0), 
+  dbLabel_( pset.getUntrackedParameter<string>("dbLabel", "") ),
   //fastAnalysis_( pset.getParameter<bool>("fastAnalysis", true) ),
   wireIdWithHisto_( std::vector<DTWireId>() ),
   lumiMax_(5000)
   {
-
-  LogVerbatim("Calibration") << "[DTNoiseCalibration]: Constructor";
 
   // Get the debug parameter for verbose output
   //debug = ps.getUntrackedParameter<bool>("debug");
@@ -64,7 +63,6 @@ DTNoiseCalibration::DTNoiseCalibration(const edm::ParameterSet& pset):
   if( pset.exists("defaultTtrig") ){
      readDB_ = false;
      defaultTtrig_ = pset.getParameter<int>("defaultTtrig");
-     dbLabel_ = pset.getUntrackedParameter<string>("dbLabel", ""); 
   }
 
   if( pset.exists("cellsWithHisto") ){
@@ -88,8 +86,11 @@ DTNoiseCalibration::DTNoiseCalibration(const edm::ParameterSet& pset):
 }
 
 void DTNoiseCalibration::beginJob() {
+  LogVerbatim("Calibration") << "[DTNoiseCalibration]: Begin job";
+  
   nevents_ = 0;
   
+  TH1::SetDefaultSumw2(true);
   int numBin = (triggerWidth_*32/25)/50;
   hTDCTriggerWidth_ = new TH1F("TDC_Time_Distribution", "TDC_Time_Distribution", numBin, 0, triggerWidth_*32/25);
 }
@@ -157,9 +158,10 @@ void DTNoiseCalibration::analyze(const edm::Event& event, const edm::EventSetup&
 
         const DTLayerId dtLId = (*dtLayerId_It).first;
         const DTTopology& dtTopo = dtGeom_->layer(dtLId)->specificTopology();
-        const int nWires = dtTopo.channels();
         const int firstWire = dtTopo.firstChannel();
         const int lastWire = dtTopo.lastChannel();
+        //const int nWires = dtTopo.channels();
+        const int nWires = lastWire - firstWire + 1;
 
         // Book the occupancy histos
         if( theHistoOccupancyMap_.find(dtLId) == theHistoOccupancyMap_.end() ){
@@ -313,9 +315,10 @@ void DTNoiseCalibration::endJob(){
         rootFile_->cd();
         (*lHisto).second->Write();
         const DTTopology& dtTopo = dtGeom_->layer((*lHisto).first)->specificTopology();
-        const int nWires = dtTopo.channels();
         const int firstWire = dtTopo.firstChannel();
         const int lastWire = dtTopo.lastChannel();
+        //const int nWires = dtTopo.channels();
+        const int nWires = lastWire - firstWire + 1;
         // Find average in layer
         double averageRate = 0.;  
         for(int bin=firstWire; bin<=lastWire; ++bin) averageRate += (*lHisto).second->GetBinContent(bin);

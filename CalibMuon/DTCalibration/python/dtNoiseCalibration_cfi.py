@@ -10,10 +10,10 @@ dtNoiseCalibration = cms.EDAnalyzer("DTNoiseCalibration",
     # The trigger width(ns) (full window used if useTimeWindow = False)
     triggerWidth = cms.int32(2000),
     # Time window defined as tTrig - offset (TDC counts). If defaultTtrig not set reads from DB.
-    defaultTtrig = cms.int32(322),
+    #defaultTtrig = cms.int32(322),
     timeWindowOffset = cms.int32(100),
-    # Noise threshold
-    maximumNoiseRate = cms.double(2000),
+    # Noise threshold (Hz)
+    maximumNoiseRate = cms.double(1000),
     # Use absolute rate per channel or subtract average rate in layer  
     useAbsoluteRate = cms.bool(False),
     # Cells with detailed histos
@@ -28,6 +28,8 @@ dtNoiseCalibration = cms.EDAnalyzer("DTNoiseCalibration",
         '0 2 2 1 2 3',
         '-2 3 3 1 2 2',
         '1 3 3 1 4 27',
-        '1 3 3 1 4 29'
+        '1 3 3 1 4 28',
+        '1 3 3 1 4 29',
+        '1 3 3 1 4 30'
     )
 )
