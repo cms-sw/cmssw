@@ -97,7 +97,8 @@ if __name__ == '__main__':
     #optional args for data and normalization version control
     #
     parser.add_argument('-lumiversion',dest='lumiversion',action='store',default=None,required=False,help='data version, optional')
-    parser.add_argument('-n',dest='normfactor',action='store',default=None,required=False,help='use specify the name or the value of the normalization to use,optional')
+    parser.add_argument('-norm',dest='normfactor',action='store',default=None,required=False,help='use specify the name or the value of the normalization to use,optional')
+    parser.add_argument('-n',dest='scalefactor',action='store',type=float,default=1.0,required=False,help='user defined global scaling factor on displayed lumi values,optional')
     #
     #command configuration 
     #
@@ -124,6 +125,7 @@ if __name__ == '__main__':
         print '\tlumi data version: ',options.lumiversion
         print '\tsiteconfpath: ',options.siteconfpath
         print '\toutputfile: ',options.outputfile
+        print '\tscalefactor: ',options.scalefactor
         if options.action=='recorded' and options.hltpath:
             print 'Action: effective luminosity in hltpath: ',options.hltpath
         else:
@@ -186,26 +188,26 @@ if __name__ == '__main__':
         result=lumiCalcAPI.deliveredLumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor)
         session.transaction().commit()
         if not options.outputfile:
-            lumiReport.toScreenTotDelivered(result,iresults,options.verbose)
+            lumiReport.toScreenTotDelivered(result,iresults,options.scalefactor,options.verbose)
         else:
-            lumiReport.toCSVTotDelivered(result,options.outputfile,iresults,options.verbose)           
+            lumiReport.toCSVTotDelivered(result,options.outputfile,iresults,options.scalefactor,options.verbose)           
     if options.action == 'overview':
        session.transaction().start(True)
        result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor)
        session.transaction().commit()
        if not options.outputfile:
-           lumiReport.toScreenOverview(result,iresults,options.verbose)
+           lumiReport.toScreenOverview(result,iresults,options.scalefactor,options.verbose)
        else:
-           lumiReport.toCSVOverview(result,options.outputfile,iresults,options.verbose)
+           lumiReport.toCSVOverview(result,options.outputfile,iresults,options.scalefactor,options.verbose)
     if options.action == 'lumibyls':
        if not options.hltpath:
            session.transaction().start(True)
            result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor)
            session.transaction().commit()
            if not options.outputfile:
-               lumiReport.toScreenLumiByLS(result,iresults,options.verbose)
+               lumiReport.toScreenLumiByLS(result,iresults,options.scalefactor,options.verbose)
            else:
-               lumiReport.toCSVLumiByLS(result,options.outputfile,iresults,options.verbose)
+               lumiReport.toCSVLumiByLS(result,options.outputfile,iresults,options.scalefactor,options.verbose)
        else:
            hltname=options.hltpath
            hltpat=None
@@ -218,9 +220,9 @@ if __name__ == '__main__':
            result=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),irunlsdict,hltpathname=hltname,hltpathpattern=hltpat,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor)
            session.transaction().commit()
            if not options.outputfile:
-               lumiReport.toScreenLSEffective(result,iresults,options.verbose)
+               lumiReport.toScreenLSEffective(result,iresults,options.scalefactor,options.verbose)
            else:
-               lumiReport.toCSVLSEffective(result,options.outputfile,iresults,options.verbose)
+               lumiReport.toCSVLSEffective(result,options.outputfile,iresults,options.scalefactor,options.verbose)
     if options.action == 'recorded':#recorded actually means effective because it needs to show all the hltpaths...
        session.transaction().start(True)
        hltname=options.hltpath
@@ -234,16 +236,16 @@ if __name__ == '__main__':
        result=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),irunlsdict,hltpathname=hltname,hltpathpattern=hltpat,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor)
        session.transaction().commit()
        if not options.outputfile:
-           lumiReport.toScreenTotEffective(result,iresults,options.verbose)
+           lumiReport.toScreenTotEffective(result,iresults,options.scalefactor,options.verbose)
        else:
-           lumiReport.toCSVTotEffective(result,options.outputfile,iresults,options.verbose)
+           lumiReport.toCSVTotEffective(result,options.outputfile,iresults,options.scalefactor,options.verbose)
     if options.action == 'lumibylsXing':
        session.transaction().start(True)
        result=lumiCalcAPI.lumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,xingMinLum=options.xingMinLum,withBeamInfo=False,withBXInfo=True,bxAlgo=options.xingAlgo)
        session.transaction().commit()           
        if not options.outputfile:
-           lumiReport.toScreenLumiByLS(result,iresults,options.verbose)
+           lumiReport.toScreenLumiByLS(result,iresults,options.scalefactor,options.verbose)
        else:
-           lumiReport.toCSVLumiByLSXing(result,options.outputfile)
+           lumiReport.toCSVLumiByLSXing(result,options.scalefactor,options.outputfile)
     del session
     del svc 

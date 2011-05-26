@@ -12,7 +12,7 @@ def toScreenNorm(normdata):
         result.append([name,amodetag,egev,normval])
     print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,prefix = '| ', postfix = ' |', justify = 'left',delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) ) 
 
-def toScreenTotDelivered(lumidata,resultlines,isverbose):
+def toScreenTotDelivered(lumidata,resultlines,scalefactor,isverbose):
     '''
     inputs:
     lumidata {run:[lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,calibratedlumierror,(bxidx,bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}
@@ -58,9 +58,9 @@ def toScreenTotDelivered(lumidata,resultlines,isverbose):
         runstarttime=lsdata[0][2]
         if isverbose:
             selectedls=[(x[0],x[1]) for x in lsdata]
-            result.append([str(run),str(nls),'%.3f'%(totlumival)+' ('+lumiunit+')',runstarttime.strftime("%m/%d/%y %H:%M:%S"),'%.1f'%(avgbeamenergy), str(selectedls)])
+            result.append([str(run),str(nls),'%.3f'%(totlumival*scalefactor)+' ('+lumiunit+')',runstarttime.strftime("%m/%d/%y %H:%M:%S"),'%.1f'%(avgbeamenergy), str(selectedls)])
         else:
-            result.append([str(run),str(nls),'%.3f'%(totlumival)+' ('+lumiunit+')',runstarttime.strftime("%m/%d/%y %H:%M:%S"),'%.1f'%(avgbeamenergy)])
+            result.append([str(run),str(nls),'%.3f'%(totlumival*scalefactor)+' ('+lumiunit+')',runstarttime.strftime("%m/%d/%y %H:%M:%S"),'%.1f'%(avgbeamenergy)])
     sortedresult=sorted(result,key=lambda x : int(x[0]))
     print ' ==  = '
     if isverbose:
@@ -77,12 +77,12 @@ def toScreenTotDelivered(lumidata,resultlines,isverbose):
     if (totdelivered+totOldDelivered)!=0:
         (totalDeliveredVal,totalDeliveredUni)=CommonUtil.guessUnit(totdelivered+totOldDelivered)
     totrowlabels = [('Delivered LS','Delivered('+totalDeliveredUni+')')]
-    totaltable.append([str(totls+totOldDeliveredLS),'%.3f'%totalDeliveredVal])
+    totaltable.append([str(totls+totOldDeliveredLS),'%.3f'%(totalDeliveredVal*scalefactor)])
     print tablePrinter.indent (totrowlabels+totaltable, hasHeader = True, separateRows = False, prefix = '| ',
                                postfix = ' |', justify = 'right', delim = ' | ',
                                wrapfunc = lambda x: wrap_onspace (x, 20))
     
-def toCSVTotDelivered(lumidata,filename,resultlines,isverbose):
+def toCSVTotDelivered(lumidata,filename,resultlines,scalefactor,isverbose):
     '''
     input:  {run:[lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,calibratedlumierror,(bxidx,bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}
     '''
@@ -109,9 +109,9 @@ def toCSVTotDelivered(lumidata,filename,resultlines,isverbose):
         runstarttime=lsdata[0][2]
         if isverbose:
             selectedls=[(x[0],x[1]) for x in lsdata]
-            result.append([run,nls,totlumival,runstarttime.strftime("%m/%d/%y %H:%M:%S"),avgbeamenergy, str(selectedls)])
+            result.append([run,nls,totlumival*scalefactor,runstarttime.strftime("%m/%d/%y %H:%M:%S"),avgbeamenergy, str(selectedls)])
         else:
-            result.append([run,nls,totlumival,runstarttime.strftime("%m/%d/%y %H:%M:%S"),avgbeamenergy])
+            result.append([run,nls,totlumival*scalefactor,runstarttime.strftime("%m/%d/%y %H:%M:%S"),avgbeamenergy])
     sortedresult=sorted(result,key=lambda x : int(x[0]))
     r.writeRow(fieldnames)
     r.writeRows(sortedresult)
@@ -163,7 +163,7 @@ def toCSVTotDelivered(lumidata,filename,resultlines,isverbose):
 #    r.writeRow(fieldnames)
 #    r.writeRows(result)
 
-def toScreenOverview(lumidata,resultlines,isverbose):
+def toScreenOverview(lumidata,resultlines,scalefactor,isverbose):
     '''
     input:
     lumidata {run:[lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,recordedlumi,calibratedlumierror,(bxidx,bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}
@@ -232,7 +232,7 @@ def toScreenOverview(lumidata,resultlines,isverbose):
             selectedlsStr='n/a'
         else:
             selectedlsStr = CommonUtil.splitlistToRangeString(selectedcmsls)
-        result.append([str(run),str(nls),'%.3f'%(totdeliveredlumi)+' ('+deliveredlumiunit+')',selectedlsStr,'%.3f'%(totrecordedlumi)+' ('+recordedlumiunit+')'])
+        result.append([str(run),str(nls),'%.3f'%(totdeliveredlumi*scalefactor)+' ('+deliveredlumiunit+')',selectedlsStr,'%.3f'%(totrecordedlumi*scalefactor)+' ('+recordedlumiunit+')'])
     sortedresult=sorted(result,key=lambda x : int(x[0]))    
     print ' ==  = '
     print tablePrinter.indent (labels+sortedresult, hasHeader = True, separateRows = False,
@@ -242,12 +242,12 @@ def toScreenOverview(lumidata,resultlines,isverbose):
     (totalDeliveredVal,totalDeliveredUni)=CommonUtil.guessUnit(totalDelivered+totOldDelivered)
     (totalRecordedVal,totalRecordedUni)=CommonUtil.guessUnit(totalRecorded+totOldRecorded)
     totrowlabels = [('Delivered LS','Delivered('+totalDeliveredUni+')','Selected LS','Recorded('+totalRecordedUni+')')]
-    totaltable.append([str(totalDeliveredLS+totOldDeliveredLS),'%.3f'%totalDeliveredVal,str(totalSelectedLS+totOldSelectedLS),'%.3f'%totalRecordedVal])
+    totaltable.append([str(totalDeliveredLS+totOldDeliveredLS),'%.3f'%(totalDeliveredVal*scalefactor),str(totalSelectedLS+totOldSelectedLS),'%.3f'%(totalRecordedVal*scalefactor)])
     print tablePrinter.indent (totrowlabels+totaltable, hasHeader = True, separateRows = False, prefix = '| ',
                                postfix = ' |', justify = 'right', delim = ' | ',
                                wrapfunc = lambda x: wrap_onspace (x, 20))
     
-def toCSVOverview(lumidata,filename,resultlines,isverbose):
+def toCSVOverview(lumidata,filename,resultlines,scalefactor,isverbose):
     '''
     input:
     lumidata {run:[lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,recordedlumi,calibratedlumierror,(bxidx,bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}
@@ -278,11 +278,11 @@ def toCSVOverview(lumidata,filename,resultlines,isverbose):
             selectedlsStr='n/a'
         else:
             selectedlsStr = CommonUtil.splitlistToRangeString(selectedcmsls)
-        result.append([run,nls,totdeliveredlumi,selectedlsStr,totrecordedlumi])
+        result.append([run,nls,totdeliveredlumi*scalefactor,selectedlsStr,totrecordedlumi*scalefactor])
     sortedresult=sorted(result,key=lambda x : int(x[0]))
     r.writeRow(fieldnames)
     r.writeRows(sortedresult)
-def toScreenLumiByLS(lumidata,resultlines,isverbose):
+def toScreenLumiByLS(lumidata,resultlines,scalefactor,isverbose):
     '''
     input:
     lumidata {run:[lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,recordedlumi,calibratedlumierror,(bxidx,bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}
@@ -333,7 +333,7 @@ def toScreenLumiByLS(lumidata,resultlines,isverbose):
             begev=lsdata[4]
             deliveredlumi=lsdata[5]
             recordedlumi=lsdata[6]
-            result.append([str(run),str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,'%.1f'%begev,'%.2f'%deliveredlumi,'%.2f'%recordedlumi])
+            result.append([str(run),str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,'%.1f'%begev,'%.2f'%(deliveredlumi*scalefactor),'%.2f'%(recordedlumi*scalefactor)])
             totalDelivered+=deliveredlumi
             totalRecorded+=recordedlumi
             totalDeliveredLS+=1
@@ -348,7 +348,7 @@ def toScreenLumiByLS(lumidata,resultlines,isverbose):
     if (totalRecorded+totOldRecorded)!=0:
         (totrecordedlumi,recordedlumiunit)=CommonUtil.guessUnit(totalRecorded+totOldRecorded)
     lastrowlabels = [ ('Delivered LS','Selected LS', 'Delivered('+deliveredlumiunit+')', 'Recorded('+recordedlumiunit+')')]
-    totalrow.append ([str(totalDeliveredLS+totOldDeliveredLS),str(totalSelectedLS+totOldSelectedLS),'%.3f'%totdeliveredlumi,'%.3f'%totrecordedlumi])
+    totalrow.append ([str(totalDeliveredLS+totOldDeliveredLS),str(totalSelectedLS+totOldSelectedLS),'%.3f'%(totdeliveredlumi*scalefactor),'%.3f'%(totrecordedlumi*scalefactor)])
     sortedresult=sorted(result,key=lambda x : int(x[0]))
     print ' ==  = '
     print tablePrinter.indent (labels+sortedresult, hasHeader = True, separateRows = False, prefix = '| ',
@@ -360,7 +360,7 @@ def toScreenLumiByLS(lumidata,resultlines,isverbose):
                                wrapfunc = lambda x: wrap_onspace (x, 20))    
 
                   
-def toCSVLumiByLS(lumidata,filename,resultlines,isverbose):
+def toCSVLumiByLS(lumidata,filename,resultlines,scalefactor,isverbose):
     result=[]
     fieldnames=['Run','LS','UTCTime','Beam Status','E(GeV)','Delivered(/ub)','Recorded(/ub)']
     r=csvReporter.csvReporter(filename)
@@ -381,12 +381,12 @@ def toCSVLumiByLS(lumidata,filename,resultlines,isverbose):
             begev=lsdata[4]
             deliveredlumi=lsdata[5]
             recordedlumi=lsdata[6]
-            result.append([run,str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,begev,deliveredlumi,recordedlumi])
+            result.append([run,str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,begev,deliveredlumi*scalefactor,recordedlumi*scalefactor])
     sortedresult=sorted(result,key=lambda x : int(x[0]))
     r.writeRow(fieldnames)
     r.writeRows(sortedresult)
 
-def toScreenLSEffective(lumidata,resultlines,isverbose):
+def toScreenLSEffective(lumidata,resultlines,scalefactor,isverbose):
     '''
     input:  {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata]}
     '''
@@ -415,15 +415,15 @@ def toScreenLSEffective(lumidata,resultlines,isverbose):
                 hltprescale=pathdata[2]
                 lumival=pathdata[3]
                 if lumival is not None:
-                    result.append([str(run),str(cmslsnum),hltpathname,l1name,str(hltprescale),str(l1prescale),'%.2f'%recorded,'%.2f'%lumival])
+                    result.append([str(run),str(cmslsnum),hltpathname,l1name,str(hltprescale),str(l1prescale),'%.2f'%(recorded*scalefactor),'%.2f'%(lumival*scalefactor)])
                 else:
-                    result.append([str(run),str(cmslsnum),hltpathname,l1name,str(hltprescale),str(l1prescale),'%.2f'%recorded,'n/a'])
+                    result.append([str(run),str(cmslsnum),hltpathname,l1name,str(hltprescale),str(l1prescale),'%.2f'%(recorded*scalefactor),'n/a'])
     labels = [('Run','LS','HLTpath','L1bit','HLTpresc','L1presc','Recorded(/ub)','Effective(/ub)')]
     print ' ==  = '
     print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace_strict(x,22) )
-def toCSVLSEffective(lumidata,filename,resultlines,isverbose):
+def toCSVLSEffective(lumidata,filename,resultlines,scalefactor,isverbose):
     '''
     input:  {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata]}
     '''
@@ -454,14 +454,14 @@ def toCSVLSEffective(lumidata,filename,resultlines,isverbose):
                 hltprescale=pathdata[2]
                 lumival=pathdata[3]
                 if lumival is not None:
-                    result.append([run,cmslsnum,hltpathname,l1name,hltprescale,l1prescale,recorded,lumival])
+                    result.append([run,cmslsnum,hltpathname,l1name,hltprescale,l1prescale,recorded*scalefactor,lumival*scalefactor])
                 else:
-                    result.append([run,cmslsnum,hltpathname,l1name,hltprescale,l1prescale,recorded,'n/a'])
+                    result.append([run,cmslsnum,hltpathname,l1name,hltprescale,l1prescale,recorded*scalefactor,'n/a'])
     fieldnames = ['Run','LS','HLTpath','L1bit','HLTpresc','L1presc','Recorded(/ub)','Effective(/ub)']
     r.writeRow(fieldnames)
     r.writeRows(result)
 
-def toScreenTotEffective(lumidata,resultlines,isverbose):
+def toScreenTotEffective(lumidata,resultlines,scalefactor,isverbose):
     '''
     input:  {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata]}
     '''
@@ -495,7 +495,7 @@ def toScreenTotEffective(lumidata,resultlines,isverbose):
                     pathmap[hltpathname]=pathdata[0]
         for name in sorted(totefflumiDict):
             (efflumival,efflumiunit)=CommonUtil.guessUnit(totefflumiDict[name])
-            result.append([str(run),name,pathmap[name],'%.3f'%efflumival+'('+efflumiunit+')'])
+            result.append([str(run),name,pathmap[name],'%.3f'%(efflumival*scalefactor)+'('+efflumiunit+')'])
     labels = [('Run','HLTpath','L1bit','Effective')]
     print ' ==  = '
     print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
@@ -508,12 +508,12 @@ def toScreenTotEffective(lumidata,resultlines,isverbose):
         hdata=totdict[hname]
         totnls=hdata[0]
         (toteffval,toteffunit)=CommonUtil.guessUnit(hdata[1])
-        totresult.append([hname,str(totnls),'%.2f'%toteffval+'('+toteffunit+')'])
+        totresult.append([hname,str(totnls),'%.2f'%(toteffval*scalefactor)+'('+toteffunit+')'])
     print tablePrinter.indent (lastrowlabels+totresult, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
     
-def toCSVTotEffective(lumidata,filename,resultlines,isverbose):
+def toCSVTotEffective(lumidata,filename,resultlines,scalefactor,isverbose):
     result=[]#[run,hltpath,l1bitname,totefflumi]
     r=csvReporter.csvReporter(filename)
     for run in sorted(lumidata):#loop over runs
@@ -541,11 +541,11 @@ def toCSVTotEffective(lumidata,filename,resultlines,isverbose):
                     else:
                         pathmap[hltpathname]=pathdata[0].replace('\"','')
         for name in sorted(totefflumiDict):
-            result.append([run,name,pathmap[name],totefflumiDict[name]])
+            result.append([run,name,pathmap[name],totefflumiDict[name]*scalefactor])
     fieldnames=['Run','HLTpath','L1bit','Effective(/ub)']
     r.writeRow(fieldnames)
     r.writeRows(result)
-def toCSVLumiByLSXing(lumidata,filename):
+def toCSVLumiByLSXing(lumidata,scalefactor,filename):
     '''
     input:{run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata]}
     output:
@@ -568,10 +568,10 @@ def toCSVLumiByLSXing(lumidata,filename):
             bxresult=[]
             if bxidxlist and bxvaluelist:
                 bxinfo=CommonUtil.transposed([bxidxlist,bxvaluelist])
-                bxresult=CommonUtil.flatten([run,cmslsnum,deliveredlumi,recordedlumi,bxinfo])
+                bxresult=CommonUtil.flatten([run,cmslsnum,deliveredlumi*scalefactor,recordedlumi*scalefactor,bxinfo])
                 result.append(bxresult)
             else:
-                result.append([run,cmslsnum,deliveredlumi,recordedlumi])
+                result.append([run,cmslsnum,deliveredlumi*scalefactor,recordedlumi*scalefactor])
     r.writeRow(fieldnames)
     r.writeRows(result)
     
