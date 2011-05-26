@@ -232,6 +232,7 @@ hltTauElectronMonitor = cms.EDAnalyzer("HLTTauDQMSource",
         "Path",
         "Path",
         "Path",
+        "Path",
         "LitePath",
         "L1",
         "Summary"
