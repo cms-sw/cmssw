@@ -25,6 +25,9 @@ from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypMVADisc_cff import *
 ## kinFit hypothesis
 from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypKinFit_cff import *
 
+## hitFit hypothesis
+from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypHitFit_cff import *
+
 ## make all considered event hypotheses
 makeTtSemiLepHypotheses  = cms.Sequence(makeHypothesis_genMatch)  # makeHypothesis_geom
                                                                   # makeHypothesis_wMassDeltaTopMass
