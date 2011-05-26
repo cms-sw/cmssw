@@ -563,7 +563,6 @@ def toCSVLumiByLSXing(lumidata,scalefactor,filename):
             cmslsnum=lsdata[1]
             deliveredlumi=lsdata[5]
             recordedlumi=lsdata[6]
-            #print lsdata[8]
             (bxidxlist,bxvaluelist,bxerrorlist)=lsdata[8]
             bxresult=[]
             if bxidxlist and bxvaluelist:

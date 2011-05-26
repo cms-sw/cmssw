@@ -376,36 +376,41 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
             bxdata=None
             if withBXInfo:
                 bxinfo=perlsdata[8]
-                bxvalueblob=None
-                bxerrblob=None
-                if bxinfo:
-                    bxvalueblob=bxinfo[0]
-                    bxerrblob=bxinfo[1]
+                bxvalueArray=None
+                bxerrArray=None
                 bxidxlist=[]
                 bxvaluelist=[]
                 bxerrorlist=[]
-                if bxvalueblob and bxerrblob:
-                    bxvaluearray=CommonUtil.unpackBlobtoArray(bxvalueblob,'f')
-                    bxerrorarray=CommonUtil.unpackBlobtoArray(bxerrblob,'f')
-                    for idx,bxval in enumerate(bxvaluearray):
+                if bxinfo:
+                    bxvalueArray=bxinfo[0]
+                    bxerrArray=bxinfo[1]
+                    #if cmslsnum==1:
+                    #    print 'bxvalueArray ',bxvalueArray
+                    for idx,bxval in enumerate(bxvalueArray):
                         if bxval*perbunchnormval>xingMinLum:
                             bxidxlist.append(idx)
                             bxvaluelist.append(bxval*perbunchnormval)
-                            bxerrorlist.append(bxerrorarray[idx]*perbunchnormval)
+                            bxerrorlist.append(bxerrArray[idx]*perbunchnormval)
+                    del bxvalueArray[:]
+                    del bxerrArray[:]
                 bxdata=(bxidxlist,bxvaluelist,bxerrorlist)
             beamdata=None
             if withBeamInfo:
-                bxindexblob=perlsdata[10]
-                beam1intensityblob=perlsdata[11]
-                beam2intensityblob=perlsdata[12]
+                beaminfo=perlsdata[9]
                 bxindexlist=[]
                 b1intensitylist=[]
-                b2intensitylist=[]
-                if bxindexblob is not None and beam1intensity is not None and beam2intensity is not None:
-                    bxindexlist=CommonUtil.unpackBlobtoArray(bxindexblob,'h').tolist()
-                    b1intensitylist=CommonUtil.unpackBlobtoArray(beam1intensityblob,'f').tolist()
-                    b2intensitylist=CommonUtil.unpackBlobtoArray(beam2intensityblob,'f').tolist()
-                beamdata=(bxindexlist,b1intensitylist,b2intensitylist)
+                b2intensitylist=[]                
+                if beaminfo:
+                    bxindexarray=beaminfo[0]
+                    beam1intensityarray=beaminfo[1]
+                    beam2intensityarray=beaminfo[2]                    
+                    bxindexlist=bxindexarray.tolist()
+                    b1intensitylist=beam1intensityarray.tolist()
+                    b2intensitylist=beam2intensityarray.tolist()
+                    del bxindexarray[:]
+                    del beam1intensityarray[:]
+                    del beam2intensityarray[:]
+                beamdata=(bxindexlist,b1intensitylist,b2intensitylist)                
             perrunresult.append([lumilsnum,triggeredls,timestamp,bstatus,begev,deliveredlumi,recordedlumi,calibratedlumierror,bxdata,beamdata])            
         result[run]=perrunresult    
     return result

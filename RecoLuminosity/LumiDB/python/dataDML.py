@@ -1,5 +1,5 @@
 import os,coral
-from RecoLuminosity.LumiDB import nameDealer,dbUtil,revisionDML,lumiTime
+from RecoLuminosity.LumiDB import nameDealer,dbUtil,revisionDML,lumiTime,CommonUtil
 import array
 
 #
@@ -489,7 +489,9 @@ def lumiLSById(schema,dataid,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',with
                 bxvalueblob=cursor.currentRow()['bxvalue'].data()
                 bxerrblob=cursor.currentRow()['bxerror'].data()
                 if bxvalueblob and bxerrblob:
-                    bxinfo=(bxvalueblob,bxerrblob)
+                    bxvaluesArray=CommonUtil.unpackBlobtoArray(bxvalueblob,'f')
+                    bxerrArray=CommonUtil.unpackBlobtoArray(bxerrblob,'f')
+                    bxinfo=(bxvaluesArray,bxerrArray)
             bxindexblob=None
             beam1intensity=None
             beam2intensity=None
@@ -499,10 +501,11 @@ def lumiLSById(schema,dataid,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',with
                 beam1intensity=cursor.currentRow()['beam1intensity'].data()
                 beam2intensity=cursor.currentRow()['beam2intensity'].data()
                 if bxindexblob :
-                    beaminfo=(bxindexblob,beam1intensity,beam2intensity)
-            if not result.has_key(lumilsnum):
-                result[lumilsnum]=[]
-            result[lumilsnum].extend([cmslsnum,instlumi,instlumierr,instlumiqlty,bs,begev,numorbit,startorbit,bxinfo,beaminfo])           
+                    bxindexArray=CommonUtil.unpackBlobtoArray(bxindexblob,'h')
+                    beam1intensityArray=CommonUtil.unpackBlobtoArray(beam1intensity,'f')
+                    beam2intensityArray=CommonUtil.unpackBlobtoArray(beam2intensity,'f')
+                    beaminfo=(bxindexArray,beam1intensityArray,beam2intensityArray)
+            result[lumilsnum]=[cmslsnum,instlumi,instlumierr,instlumiqlty,bs,begev,numorbit,startorbit,bxinfo,beaminfo]
     except :
         del qHandle
         raise 
