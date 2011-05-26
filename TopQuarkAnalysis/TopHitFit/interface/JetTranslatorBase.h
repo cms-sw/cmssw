@@ -1,5 +1,5 @@
 //
-//     $Id: JetTranslatorBase.h,v 1.11 2010/08/06 22:00:10 haryo Exp $
+//     $Id: JetTranslatorBase.h,v 1.1 2011/05/26 09:46:53 mseidel Exp $
 //
 
 /**
@@ -65,6 +65,23 @@ namespace hitfit{
          */
         JetTranslatorBase(const std::string& udscFile,
                           const std::string& bFile);
+        
+        /**
+           @brief Constructor, instantiate a JetTranslatorBase object
+           using the names of input files in std::string format.
+
+           @param udscFile The path of the input file containing
+           resolution for \f$udsc\f$ jets.
+
+           @param bFile The path of the input file containing
+           resolution for \f$b\f$ jets.
+           
+           @param jetCorrectionLevel The jet correction level.
+
+         */
+        JetTranslatorBase(const std::string& udscFile,
+                          const std::string& bFile,
+                          const std::string& jetCorrectionLevel);
 
         /**
            @brief Destructor.
@@ -122,6 +139,11 @@ namespace hitfit{
            @brief The  \f$ \eta- \f$ dependent resolution for $b$ jets.
          */
         EtaDepResolution bResolution_;
+        
+        /**
+           @brief The jet correction level.
+         */
+        std::string jetCorrectionLevel_;
 
     };
 

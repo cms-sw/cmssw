@@ -19,48 +19,18 @@ hitFitTtSemiLepEvent = cms.EDProducer("TtSemiLepHitFitProducerElectron",
     # take all)
     #-------------------------------------------------
     maxNComb = cms.int32(1),
-
-    # ------------------------------------------------
-    # option to take only a given jet combination
-    # instead of going through the full combinatorics
-    # ------------------------------------------------
-    match = cms.InputTag("findTtSemiLepJetCombMVA"),
-    useOnlyMatch = cms.bool(False),
-
-    # ------------------------------------------------
-    # option to use b-tagging
-    # ------------------------------------------------
-    bTagAlgo          = cms.string("trackCountingHighEffBJetTags"),
-    minBDiscBJets     = cms.double(1.0),
-    maxBDiscLightJets = cms.double(3.0),
-    useBTagging       = cms.bool(False),
-
-    # ------------------------------------------------
-    # settings for the KinFitter
-    # ------------------------------------------------    
-    maxNrIter = cms.uint32(500),
-    maxDeltaS = cms.double(5e-05),
-    maxF      = cms.double(0.0001),
-    # ------------------------------------------------
-    # select parametrisation
-    # 0: EMom, 1: EtEtaPhi, 2: EtThetaPhi
-    # ------------------------------------------------
-    jetParametrisation = cms.uint32(1),
-    lepParametrisation = cms.uint32(1),
-    metParametrisation = cms.uint32(1),
-
-    # ------------------------------------------------
-    # set constraints
-    # 1: Whad-mass, 2: Wlep-mass, 3: thad-mass,
-    # 4: tlep-mass, 5: nu-mass, 6: equal t-masses
-    # ------------------------------------------------                                   
-    constraints = cms.vuint32(1, 2),
-
+                                      
     # ------------------------------------------------
     # set mass values used in the constraints
+    # set mass to 0 for no constrain
     # ------------------------------------------------    
     mW   = cms.double(80.4),
-    mTop = cms.double(173.)                                      
+    mTop = cms.double(0.),
+    
+    ## specify jet correction level as, Uncorrected, L1Offset, L2Relative, L3Absolute, L4Emf,
+    ## L5Hadron, L6UE, L7Parton, a flavor specification will be added automatically, when
+    ## chosen    
+    jetCorrectionLevel = cms.string("L3Absolute"),                                  
 )
 
 

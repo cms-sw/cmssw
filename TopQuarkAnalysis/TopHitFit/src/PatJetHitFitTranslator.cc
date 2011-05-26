@@ -9,7 +9,7 @@
     @par Created
     Sat Jun 27 17:49:21 2009 UTC
 
-    @version $Id: PatJetHitFitTranslator.cc,v 1.11 2011/01/26 16:07:59 haryo Exp $
+    @version $Id: PatJetHitFitTranslator.cc,v 1.1 2011/05/26 09:47:00 mseidel Exp $
  */
 
 
@@ -28,6 +28,7 @@ JetTranslatorBase<pat::Jet>::JetTranslatorBase()
         std::string("/src/TopQuarkAnalysis/PatHitFit/data/exampleJetResolution.txt");
     udscResolution_ = EtaDepResolution(resolution_filename);
     bResolution_    = EtaDepResolution(resolution_filename);
+    jetCorrectionLevel_ = "L7Parton";
 
 } // JetTranslatorBase<pat::Jet>::JetTranslatorBase()
 
@@ -57,6 +58,38 @@ JetTranslatorBase<pat::Jet>::JetTranslatorBase(const std::string& udscFile,
 
     udscResolution_ = EtaDepResolution(udscResolution_filename);
     bResolution_    = EtaDepResolution(bResolution_filename);
+    jetCorrectionLevel_ = "L7Parton";
+
+} // JetTranslatorBase<pat::Jet>::JetTranslatorBase(const std::string& ifile)
+
+
+template<>
+JetTranslatorBase<pat::Jet>::JetTranslatorBase(const std::string& udscFile,
+                                               const std::string& bFile,
+                                               const std::string& jetCorrectionLevel)
+{
+
+    std::string CMSSW_BASE(getenv("CMSSW_BASE"));
+    std::string udscResolution_filename;
+    std::string bResolution_filename;
+
+    if (udscFile.empty()) {
+        udscResolution_filename = CMSSW_BASE +
+        std::string("/src/TopQuarkAnalysis/TopHitFit/data/resolution/tqafUdscJetResolution.txt");
+    } else {
+        udscResolution_filename = udscFile;
+    }
+
+    if (bFile.empty()) {
+        bResolution_filename = CMSSW_BASE +
+        std::string("/src/TopQuarkAnalysis/TopHitFit/data/resolution/tqafBJetResolution.txt");
+    } else {
+        bResolution_filename = bFile;
+    }
+
+    udscResolution_ = EtaDepResolution(udscResolution_filename);
+    bResolution_    = EtaDepResolution(bResolution_filename);
+    jetCorrectionLevel_ = jetCorrectionLevel;
 
 } // JetTranslatorBase<pat::Jet>::JetTranslatorBase(const std::string& ifile)
 
@@ -89,12 +122,12 @@ JetTranslatorBase<pat::Jet>::operator()(const pat::Jet& jet,
 
     if (type == hitfit::hadb_label || type == hitfit::lepb_label || type == hitfit::higgs_label) {
         jet_resolution = bResolution_.GetResolution(jet_eta);
-        pat::Jet bPartonCorrJet(jet.correctedJet("L7Parton","BOTTOM"));
+        pat::Jet bPartonCorrJet(jet.correctedJet(jetCorrectionLevel_,"BOTTOM"));
         p = Fourvec(bPartonCorrJet.px(),bPartonCorrJet.py(),bPartonCorrJet.pz(),bPartonCorrJet.energy());
 
     } else {
         jet_resolution = udscResolution_.GetResolution(jet_eta);
-        pat::Jet udsPartonCorrJet(jet.correctedJet("L7Parton","UDS"));
+        pat::Jet udsPartonCorrJet(jet.correctedJet(jetCorrectionLevel_,"UDS"));
         p = Fourvec(udsPartonCorrJet.px(),udsPartonCorrJet.py(),udsPartonCorrJet.pz(),udsPartonCorrJet.energy());
     }
 
