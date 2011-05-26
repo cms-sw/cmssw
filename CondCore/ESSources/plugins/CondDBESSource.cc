@@ -73,7 +73,9 @@ namespace {
 	<< cond::time::to_boost(state.timestamp())     << "\n  "
 	<< state.comment()
 	<< "\n  "
-	<< " make " << proxy.proxy()->stats.nMake
+	<< "refresh " << proxy.proxy()->stats.nRefresh
+	<< "/" << proxy.proxy()->stats.nAeefresh
+	<< ", make " << proxy.proxy()->stats.nMake
 	<< ", load " << proxy.proxy()->stats.nLoad
       ;
     if ( proxy.proxy()->stats.nLoad>0) {
@@ -101,11 +103,12 @@ namespace {
  */
 CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
   m_connection(), 
-  lastRun(0),  // for the refresh
+  lastRun(0),  // for the stat
+  lastLumi(0),  // for the stat
   doRefresh(iConfig.getUntrackedParameter<bool>("RefreshEachRun",false)),
   doDump(iConfig.getUntrackedParameter<bool>("DumpStat",false))
 {
-  Stats s = {0,0,0,0,0};
+  Stats s = {0,0,0,0,0,0};
   stats=s;	
   //std::cout<<"CondDBESSource::CondDBESSource"<<std::endl;
   /*parameter set parsing and pool environment setting
@@ -223,6 +226,7 @@ CondDBESSource::~CondDBESSource() {
 	      << "DataProxy " << stats.nData
 	      <<" setInterval " << stats.nSet
 	      <<" Runs " << stats.nRun
+	      <<" Lumis " << stats.nLumi
 	      <<" Refresh " << stats.nRefresh
 	      <<" Actual Refresh " << stats.nActualRefresh;
     std::cout << std::endl;
@@ -254,6 +258,18 @@ void
 CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey, const edm::IOVSyncValue& iTime, edm::ValidityInterval& oInterval ){
 
   stats.nSet++;
+  {
+    // not really required, keep here for the time being
+    if(iTime.eventID().run()!=lastRun) {
+      lastRun=iTime.eventID().run();
+      stats.nRun++;
+    }
+    if(iTime.luminosityBlockNumber()!=lastLumi) {
+      lastRun=iTime.luminosityBlockNumber();
+      stats.nLumi++;
+    }
+  }
+ 
 
   std::string recordname=iKey.name();
   oInterval = edm::ValidityInterval::invalidInterval();
@@ -272,19 +288,13 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   bool userTime=true;
   for (ProxyMap::const_iterator p=b;p!=e;++p) {
     // refresh if required...
+ 
     if (doRefresh)  { 
       stats.nActualRefresh += (*p).second->proxy()->refresh(); 
       stats.nRefresh++;
     }
     
-    {
-      // not required anymore, keep here for the time being
-      if(iTime.eventID().run()!=lastRun) {
-	lastRun=iTime.eventID().run();
-	stats.nRun++;
-      }
-    }
-    
+   
     
     timetype = (*p).second->proxy()->timetype();
     

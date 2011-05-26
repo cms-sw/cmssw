@@ -31,6 +31,8 @@ namespace cond {
     typedef  std::vector<ObjId> ObjIds;
     struct Stats {
       int nProxy;
+      int nRefresh;
+      int nArefresh;
       int nMake;
       int nLoad;
       ObjIds ids;

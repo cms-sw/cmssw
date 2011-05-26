@@ -18,7 +18,7 @@ namespace {
 
 namespace cond {
 
-  BasePayloadProxy::Stats BasePayloadProxy::gstats = {0,0,0};
+  BasePayloadProxy::Stats BasePayloadProxy::gstats = {0,0,0,0,0};
 
 
   BasePayloadProxy::BasePayloadProxy(cond::DbSession& session,
@@ -26,7 +26,7 @@ namespace cond {
                                      bool errorPolicy) :
     m_doThrow(errorPolicy), m_iov(session,token),m_session(session) {
     ++gstats.nProxy;
-    BasePayloadProxy::Stats s = {0,0,0,ObjIds()};
+    BasePayloadProxy::Stats s = {0,0,0,0,0,ObjIds()};
     stats = s;
   }
 
@@ -90,8 +90,12 @@ namespace cond {
 
 
   bool  BasePayloadProxy::refresh() {
+    ++gstats.nRefresh; ++stats.nRefresh;
     bool anew = m_iov.refresh();
-    if (anew)  m_element = IOVElementProxy();
+    if (anew)  {
+      m_element = IOVElementProxy();
+      ++gstats.nArefresh; ++stats.nArefresh;
+    }
     return anew;
   }
 
