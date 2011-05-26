@@ -3,6 +3,13 @@ import FWCore.ParameterSet.Config as cms
 # A set of quality cuts used for the PFTaus.  Note that the quality cuts are
 # different for the signal and isolation regions.  (Currently, only in Nhits)
 
+import RecoTauTag.Configuration.tools.recoTauConfTools as recoTauConfTools
+
+_vertexSource = "offlinePrimaryVerticesDA"
+if recoTauConfTools.cmssw_version() >= (4, 2, 0):
+    # In 4_2_X they are the default vertex collection
+    _vertexSource = "offlinePrimaryVertices"
+
 PFTauQualityCuts = cms.PSet(
     signalQualityCuts = cms.PSet(
         minTrackPt                   = cms.double(0.5),  # filter PFChargedHadrons below given pt
@@ -27,20 +34,8 @@ PFTauQualityCuts = cms.PSet(
         minGammaEt                   = cms.double(1.5),
         useTracksInsteadOfPFHadrons  = cms.bool(False),
     ),
-    #pileupQualityCuts = cms.PSet(
-        #minTrackPt                   = cms.double(1.5),
-        #maxTrackChi2                 = cms.double(100.),
-        #maxTransverseImpactParameter = cms.double(0.03),
-        ## NB that these cuts are inverted w.r.t. signal and isolation cuts!
-        ## maxTrack instead of minTrack, minDZ instead of maxDZ
-        #maxTrackVertexWeight         = cms.double(10e-4),
-        #minDeltaZ                    = cms.double(0.2),
-        #minTrackPixelHits            = cms.uint32(0),
-        #minTrackHits                 = cms.uint32(3),
-        #minGammaEt                   = cms.double(1.5),
-    #),
     # The central definition of primary vertex source.
-    primaryVertexSrc = cms.InputTag("offlinePrimaryVerticesDA"),
+    primaryVertexSrc = cms.InputTag(_vertexSource),
     # Possible algorithms are: highestPtInEvent, closestInDeltaZ,
     # highestWeightForLeadTrack
     pvFindingAlgo = cms.string("highestWeightForLeadTrack"),
