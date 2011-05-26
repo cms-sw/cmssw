@@ -246,18 +246,22 @@ def loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,pos
     process.isoValMuonWithPhotonsPF.deposits[0].deltaR = 0.3
 
     #-- Enable pileup sequence -------------------------------------------------------------
-    process.pfPileUpPF.Vertices = "offlinePrimaryVertices"
-    process.pfPileUpPF.Enable = True
-
-    if not doSusyTopProjection:
-        return
-    #-- Top projection selection -----------------------------------------------------------
     #Vertices
     process.goodVertices = cms.EDFilter("VertexSelector",
         src = cms.InputTag("offlinePrimaryVertices"),
         cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
         filter = cms.bool(False),
     )
+
+    process.pfPileUpPF.Vertices = "goodVertices"
+    process.pfPileUpPF.Enable = True
+
+    process.pfNoPileUpSequencePF.replace(process.pfPileUpPF,
+                                         process.goodVertices + process.pfPileUpPF)
+
+    if not doSusyTopProjection:
+        return
+    #-- Top projection selection -----------------------------------------------------------
     #Electrons
     #relax all selectors *before* pat-lepton creation
     process.pfElectronsFromVertexPF.dzCut = 9999.0
