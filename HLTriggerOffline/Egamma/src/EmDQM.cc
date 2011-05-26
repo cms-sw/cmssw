@@ -528,6 +528,12 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
   //            Loop over filter modules                    //
   ////////////////////////////////////////////////////////////
   for(unsigned int n=0; n < numOfHLTCollectionLabels ; n++) {
+    // check that there are not less sortedGen particles than nCandCut requires for this filter
+    if (sortedGen.size() < nCandCuts.at(n)) {
+       edm::LogError("EmDQM") << "There are less generated particles than the module '" << theHLTCollectionLabels[n].label() << "' requires.";
+       continue;
+    }
+
     // These numbers are from the Parameter Set, such as:
     //   theHLTOutputTypes = cms.uint32(100)
     switch(theHLTOutputTypes[n]) 
