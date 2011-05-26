@@ -3,10 +3,18 @@
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include<iostream>
 
 //#define DebugLog
+//#define mkodebug
 
-int HFFibreFiducial::PMTNumber(G4ThreeVector pe_effect) {
+int HFFibreFiducial::PMTNumber(G4ThreeVector pe_effect)
+{
+#ifdef mkodebug
+  static double mX=0.;
+  static double mY=0.;
+  static double mZ=0.;
+#endif
   double xv  = pe_effect.x();          // X in global system
   double yv  = pe_effect.y();          // Y in global system
 #ifdef DebugLog
@@ -19,23 +27,28 @@ int HFFibreFiducial::PMTNumber(G4ThreeVector pe_effect) {
   int   nphi = phi/dph;                // 10 deg sector #
 #ifdef DebugLog
   edm::LogInfo("HFShower") <<"HFFibreFiducial:***> P = " << pe_effect 
-			   << ", phi = " << phi/CLHEP::deg;
+                           << ", phi = " << phi/CLHEP::deg;
 #endif
   if (nphi > 35) nphi=35;              // Just for security
   double xl=0.;                        // local sector coordinates (left/right)
   double yl=0.;                        // local sector coordinates (down/up)
   int nwid=0;                          // CMS widget number (@@ not used now M.K.)
   double phir= 0.;                     // phi for rotation to the sector system
-  if (nphi==0 || nphi==35) {
+  if (nphi==0 || nphi==35)
+  {
     yl=xv;
     xl=yv;
     nwid=6;
-  } else if (nphi==17 || nphi==18) {
+  }
+  else if (nphi==17 || nphi==18)
+  {
     yl=-xv;
     xl=-yv;
     nwid=15;
     phir=CLHEP::pi;                    // nr=9 ?
-  } else {
+  }
+  else
+  {
     int nr = (nphi+1)/2;               // a sector # (@@ internal definition)
     nwid = 6-nr;
     if(nwid <= 0) nwid+=18;            // @@ +z || -z M.K. to be improved
@@ -49,7 +62,6 @@ int HFFibreFiducial::PMTNumber(G4ThreeVector pe_effect) {
 #endif
   }
   if (yl < 0) yl =-yl;
-
 #ifdef DebugLog
   edm::LogInfo("HFShower") << "HFFibreFiducial: Global Point " << pe_effect
                            << " nphi " << nphi << " Local Sector Coordinates (" 
@@ -61,38 +73,42 @@ int HFFibreFiducial::PMTNumber(G4ThreeVector pe_effect) {
   // npmt = 0 for No Hit, 1-24 for H(Long) PMT, 25-48 for E(Short) PMT, negative for souces
 
   static const int nWidM=36;
-  if (nwid > nWidM || nwid <= 0) {
+  if (nwid > nWidM || nwid <= 0)
+  {
 #ifdef DebugLog
     edm::LogInfo("HFShower") << "-Warning-HFFibreFiducial::PMTNumber: "
-              << nwid << " == wrong widget number";
+                             << nwid << " == wrong widget number";
 #endif
     return 0;
   }
   static const double yMin= 13.1*CLHEP::cm; // start of the active area (Conv to mm?)
   static const double yMax=129.6*CLHEP::cm; // finish of the active area (Conv to mm?)
-  if( yl < yMin || yl >= yMax ) {
+  if( yl < yMin || yl >= yMax )
+  {
 #ifdef DebugLog
     edm::LogInfo("HFShower") << "-Warning-HFFibreFiducial::PMTNumber: Point "
                              << "with y = " << yl << " outside acceptance [" 
                              << yMin << ":" << yMax << "],  X = " << xv
-			     << ", Y = " << yv << ", x = " << xl << ", nW = " 
-			     << nwid << ", phi = " << phi/CLHEP::deg 
-			     << ", phir = " << phir/CLHEP::deg;
+                             << ", Y = " << yv << ", x = " << xl << ", nW = " 
+                             << nwid << ", phi = " << phi/CLHEP::deg 
+                             << ", phir = " << phir/CLHEP::deg;
 #endif
     return 0;                     // ===> out of the acceptance
   }
   bool left=true;                 // flag of the left part of the widget
   double r=xl/yl;                 // for the widget acceptance check
-  if (r < 0) {
+  if (r < 0)
+  {
     r=-r;
     left=false;
   }
   static const double tg10=.17632698070847; // phi-angular acceptance of the widget
-  if (r > tg10) {
+  if (r > tg10)
+  {
 #ifdef DebugLog
     edm::LogInfo("HFShower") << "-Warning-HFFibreFiducial::PMTNumber: (x = "
-        << xl << ", y = " << yl << ", tg = " << r 
-        << ") out of the widget acceptance tg(10) " << tg10;
+                             << xl << ", y = " << yl << ", tg = " << r 
+                             << ") out of the widget acceptance tg(10) " << tg10;
 #endif
     return 0;
   }
@@ -1516,26 +1532,41 @@ int HFFibreFiducial::PMTNumber(G4ThreeVector pe_effect) {
   else       xl=-xl;      // make x positive (@@ x=0. belongs to the left, negative X)
   double     fx=xl/cellSize;
   int ny=static_cast<int>((yl-yMin)/cellSize);   // Layer number (starting from 0)
-  if (ny < 0 || ny >= nLay) { // Sould never happen as was checked beforehand
+  if (ny < 0 || ny >= nLay) // Sould never happen as was checked beforehand
+  {
 #ifdef DebugLog
     edm::LogInfo("HFShower") << "-Warning-HFFibreFiducial::PMTNumber: "
-			     << "check limits y = " << yl << ", nL=" << nLay;
+                             << "check limits y = " << yl << ", nL=" << nLay;
 #endif
     return 0;
   }
   int nx=static_cast<int>(fx);           // Cell number (starting from 0)
+#ifdef mkodebug
+  double phist=atan2(xl, yl)/CLHEP::deg;
+  if(sqr(mX-xv)+sqr(mY-yv)+sqr(mZ-zv) > 9.)
+  {
+    std::cout<<"HFFibreFiducial::PMTNumber:X="<<xv<<",Y="<<yv<<",Z="<<zv<<",fX="<<fx
+             <<"->nX="<<nx<<",nY="<<ny<<",mX="<<nSL[ny]<<",x="<<xl<<",y="<<yl<<",s="
+             <<cellSize<<",nW="<<nwid<<",phi="<<phi/CLHEP::deg<<",phist="<<phist
+             <<",phir="<<phir/CLHEP::deg<<std::endl;
+    mX=xv;
+    mY=yv;
+    mZ=zv;
+  }
+#endif
 #ifdef DebugLog
   double phis=atan2(xl, yl)/CLHEP::deg;
   edm::LogInfo("HFShower") << "HFFibreFiducial::PMTNumber:X = " << xv 
-			   << ", Y = " << yv << ", Z = " << zv << ", fX = "
-			   << fx << "-> nX = " << nx << ", nY = " << ny 
-			   << ", mX = " << nSL[ny] << ", x = " << xl << ", y = "
-			   << yl << ", s = " << cellSize << ", nW = "
-			   << nwid << ", phi = " << phi/CLHEP::deg 
-			   << ", phis = " << phis << ", phir = "
-			   << phir/CLHEP::deg;
+      << ", Y = " << yv << ", Z = " << zv << ", fX = "
+      << fx << "-> nX = " << nx << ", nY = " << ny 
+      << ", mX = " << nSL[ny] << ", x = " << xl << ", y = "
+      << yl << ", s = " << cellSize << ", nW = "
+      << nwid << ", phi = " << phi/CLHEP::deg 
+      << ", phis = " << phis << ", phir = "
+      << phir/CLHEP::deg;
 #endif
-  if (nx >= nSL[ny]) {
+  if (nx >= nSL[ny])
+  {
 #ifdef DebugLog
     edm::LogInfo("HFShower") << "-Warning-HFFibreFiducial::nx/ny (" << nx 
                              << "," << ny <<") " << " above limit " << nSL[ny];
@@ -1550,8 +1581,8 @@ int HFFibreFiducial::PMTNumber(G4ThreeVector pe_effect) {
   bool src= false;                       // by default: not a source-tube
 #ifdef DebugLog
   edm::LogInfo("HFShower") << "HFFibreFiducial::nx/ny (" << nx << ","
-			   << ny << ") code/flag/npmt " <<  code << "/" << flag
-			   << "/" << npmt;
+                           << ny << ") code/flag/npmt " <<  code << "/" << flag
+                           << "/" << npmt;
 #endif
   if (!flag) return 0;                   // ===> no fiber in the cell
   else if (flag==1) npmt += 24;
@@ -1561,7 +1592,7 @@ int HFFibreFiducial::PMTNumber(G4ThreeVector pe_effect) {
   }
 #ifdef DebugLog
   edm::LogInfo("HFShower") << "HFFibreFiducial::PMTNumber: src = " << src 
-			   << ", npmt =" << npmt;
+                           << ", npmt =" << npmt;
 #endif
   if (src) return -npmt;                 // return the negative number for the source
   return npmt;

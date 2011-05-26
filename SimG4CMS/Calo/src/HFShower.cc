@@ -4,6 +4,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SimG4CMS/Calo/interface/HFShower.h"
+#include "SimG4CMS/Calo/interface/HFFibreFiducial.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -18,19 +19,28 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 //#define DebugLog
+//#define mkdebug
+//#define mkodebug
+#ifdef mkdebug
+#include<iostream>
+#endif
+#ifdef mkodebug
+#include<iostream>
+#endif
 
 HFShower::HFShower(std::string & name, const DDCompactView & cpv, 
-		   edm::ParameterSet const & p, int chk) : cherenkov(0),
-							   fibre(0),
-							   chkFibre(chk) {
+                   edm::ParameterSet const & p, int chk) : cherenkov(0),
+                                                           fibre(0),
+                                                           chkFibre(chk) // =0 (HCalSD.cc)
+{
 
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
-  probMax          = m_HF.getParameter<double>("ProbMax");
+  applyFidCut            = m_HF.getParameter<bool>("ApplyFiducialCut");
+  probMax                = m_HF.getParameter<double>("ProbMax");
 
   edm::LogInfo("HFShower") << "HFShower:: Maximum probability cut off " 
-			   << probMax << " Check flag " << chkFibre;
+                           << probMax << " Check flag " << chkFibre;
 
-  
   G4String attribute = "ReadOutName";
   G4String value     = name;
   DDSpecificsFilter filter;
@@ -39,50 +49,58 @@ HFShower::HFShower(std::string & name, const DDCompactView & cpv,
   DDFilteredView fv(cpv);
   fv.addFilter(filter);
   bool dodet = fv.firstChild();
-  if (dodet) {
+  if ( dodet )
+  {
     DDsvalues_type sv(fv.mergedSpecifics());
 
     //Special Geometry parameters
     int ngpar = 7;
-    gpar      = getDDDArray("gparHF",sv,ngpar);
+    gpar      = getDDDArray("gparHF", sv,ngpar);
     edm::LogInfo("HFShower") << "HFShower: " << ngpar << " gpar (cm)";
     for (int ig=0; ig<ngpar; ig++)
       edm::LogInfo("HFShower") << "HFShower: gpar[" << ig << "] = "
-			       << gpar[ig]/cm << " cm";
-  } else {
-    edm::LogError("HFShower") << "HFShower: cannot get filtered "
-			      << " view for " << attribute << " matching "
-			      << name;
-    throw cms::Exception("Unknown", "HFShower")
-      << "cannot match " << attribute << " to " << name <<"\n";
+                               << gpar[ig]/cm << " cm";
   }
-
+  else
+  {
+    edm::LogError("HFShower") << "HFShower: cannot get filtered "
+                              << " view for " << attribute << " matching " << name;
+    throw cms::Exception("Unknown", "HFShower")
+                              << "cannot match " << attribute << " to " << name <<"\n";
+  }
   cherenkov = new HFCherenkov(m_HF);
   fibre     = new HFFibre(name, cpv, p);
 }
 
-HFShower::~HFShower() { 
+HFShower::~HFShower()
+{ 
   if (cherenkov) delete cherenkov;
   if (fibre)     delete fibre;
 }
 
-std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep) {
-
+std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep)
+{
+#ifdef mkodebug
+  static int mPMT=0;
+#endif
   std::vector<HFShower::Hit> hits;
   int    nHit    = 0;
 
   double edep    = aStep->GetTotalEnergyDeposit();
   double stepl   = 0.;
- 
+
   if (aStep->GetTrack()->GetDefinition()->GetPDGCharge() != 0.)
     stepl = aStep->GetStepLength();
-  if ((edep == 0.) || (stepl == 0.)) {
+#ifdef mkdebug
+  std::cout<<"HFShower::getHits: *Called* edep="<<edep<<", stepl="<<stepl<<std::endl;
+#endif 
+  if ((edep == 0.) || (stepl == 0.))
+  {
 #ifdef DebugLog
     LogDebug("HFShower") << "HFShower::getHits: Number of Hits " << nHit;
 #endif
     return hits;
   }
-
   G4Track *aTrack = aStep->GetTrack();
   const G4DynamicParticle *aParticle = aTrack->GetDynamicParticle();
  
@@ -96,18 +114,63 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep) {
   G4ThreeVector momentumDir = aParticle->GetMomentumDirection();
   G4ParticleDefinition *particleDef = aTrack->GetDefinition();
      
-  G4StepPoint *     preStepPoint = aStep->GetPreStepPoint();
-  G4ThreeVector     globalPos    = preStepPoint->GetPosition();
-  G4String          name         = 
-    preStepPoint->GetTouchable()->GetSolid(0)->GetName();
-  double            zv = std::abs(globalPos.z()) - gpar[4] - 0.5*gpar[1];
-  G4ThreeVector     localPos     = G4ThreeVector(globalPos.x(),globalPos.y(),
-						 zv);
-  G4ThreeVector     localMom     = preStepPoint->GetTouchable()->GetHistory()->
-    GetTopTransform().TransformAxis(momentumDir);
-  int               depth        = 
-    (preStepPoint->GetTouchable()->GetReplicaNumber(0))%10;
-  G4ThreeVector     translation  = preStepPoint->GetTouchable()->GetVolume(1)->GetObjectTranslation();
+  G4StepPoint * preStepPoint = aStep->GetPreStepPoint();
+  G4ThreeVector globalPos    = preStepPoint->GetPosition();
+  G4String      name         = preStepPoint->GetTouchable()->GetSolid(0)->GetName();
+  //double        zv           = std::abs(globalPos.z()) - gpar[4] - 0.5*gpar[1];
+  double        zv           = std::abs(globalPos.z()) - gpar[4];
+  G4ThreeVector localPos     = G4ThreeVector(globalPos.x(),globalPos.y(), zv);
+  G4ThreeVector localMom     = preStepPoint->GetTouchable()->GetHistory()->
+                               GetTopTransform().TransformAxis(momentumDir);
+  // @@ Here the depth should be changed  (Fibers all long in Geometry!)
+  int  depth = 1;
+  int  npmt  = 0;
+  bool ok    = true;
+  if (zv < 0. || zv > gpar[1])
+  {
+#ifdef mkodebug
+    std::cout<<"-Z cut-HFShower::getHits: |z|="<<zv<<" > max="<<gpar[1]<<std::endl;
+#endif
+    ok = false; // beyond the fiber in Z
+  }
+#ifdef mkdebug
+  std::cout<<"HFShower::getHits: FibreFiducialFlag="<<applyFidCut<<std::endl;
+  applyFidCut = true;
+#endif
+  if (ok && applyFidCut)
+  {
+    npmt = HFFibreFiducial:: PMTNumber(globalPos);
+#ifdef mkdebug
+    std::cout<<"HFShower::getHits: #PMT="<<npmt<<", z="<<zv<<std::endl;
+#endif
+    if (npmt <= 0)
+    {
+#ifdef mkodebug
+      std::cout<<"-#PMT=0 cut-HFShower::getHits: npmt="<<npmt<<std::endl;
+#endif
+      ok = false;
+    }
+    else if (npmt > 24)
+    { // a short fibre
+      if (zv > gpar[0]) depth = 2; 
+      else
+      {
+#ifdef mkodebug
+        std::cout<<"-SHORT cut-HFShower::getHits: z="<<zv<<" < zMin="<<gpar[0]<<std::endl;
+#endif
+        ok = false;
+      }
+    }
+#ifdef DebugLog
+    edm::LogInfo("HFShower") << "HFShower: npmt " << npmt 
+                             << " zv " << std::abs(pe_effect.z()) 
+                             << ":" << gpar[4] << ":" << zv << ":" 
+                             << gpar[0] << " ok " << ok << " depth " << depth;
+#endif
+  }
+  else depth      = (preStepPoint->GetTouchable()->GetReplicaNumber(0))%10; // All LONG!
+  G4ThreeVector translation =
+                        preStepPoint->GetTouchable()->GetVolume(1)->GetObjectTranslation();
 
   double u        = localMom.x();
   double v        = localMom.y();
@@ -119,30 +182,57 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep) {
 
 #ifdef DebugLog
   LogDebug("HFShower") << "HFShower::getHits: in " << name << " Z " << zCoor 
-		       << "(" << globalPos.z() << ") " << zFibre << " Trans "
-		       << translation << " Time " << tSlice  << " " << time 
-		       << "\n                  Direction " << momentumDir 
-		       << " Local " << localMom;
+                       << "(" << globalPos.z() << ") " << zFibre << " Trans "
+                       << translation << " Time " << tSlice  << " " << time 
+                       << "\n                  Direction " << momentumDir 
+                       << " Local " << localMom;
 #endif 
-  int npe = cherenkov->computeNPE(particleDef, pBeta, u, v, w, stepl, zFibre, 
-				  dose, npeDose);
-  std::vector<double> wavelength = cherenkov->getWL();
-  std::vector<double> momz       = cherenkov->getMom();
-  
-  for (int i = 0; i<npe; ++i) {
-    double p   = fibre->attLength(wavelength[i]);
+  // Here npe should be 0 if there is no fiber (@@ M.K.)
+#ifdef mkodebug
+  if(ok && npmt<25 && npmt!=mPMT)
+  {
+    std::cout<<"*>*>HFShower::getHits: #PMT="<<npmt<<", z="<<zv<<std::endl;
+    mPMT=npmt;
+  }
+#endif
+  int npe = 1;
+  std::vector<double> wavelength;
+  std::vector<double> momz;
+  if (!applyFidCut) // _____ Tmp close of the cherenkov function
+  {
+    if(ok) npe = cherenkov->computeNPE(particleDef,pBeta,u,v,w,stepl,zFibre,dose, npeDose);
+    wavelength = cherenkov->getWL();
+    momz       = cherenkov->getMom();
+  } // ^^^^^ End of Tmp close of the cherenkov function
+  if(ok && npe>0) for (int i = 0; i<npe; ++i)
+  {
+    double p=1.;
+    if (!applyFidCut) p   = fibre->attLength(wavelength[i]); 
     double r1  = G4UniformRand();
     double r2  = G4UniformRand();
 #ifdef DebugLog
     LogDebug("HFShower") << "HFShower::getHits: " << i << " attenuation " << r1
-			 <<":" << exp(-p*zFibre) << " r2 " << r2 << ":" 
-			 << probMax << " Survive: " 
-			 << (r1 <= exp(-p*zFibre) && r2 <= probMax);
+                         <<":" << exp(-p*zFibre) << " r2 " << r2 << ":" 
+                         << probMax << " Survive: " 
+                         << (r1 <= exp(-p*zFibre) && r2 <= probMax);
 #endif
-    if (chkFibre < 0 || (r1 <= exp(-p*zFibre) && r2 <= probMax)) {
-      hit.time = tSlice+time;
-      hit.wavelength = wavelength[i];
-      hit.momentum   = momz[i];
+    if (applyFidCut || chkFibre < 0 || (r1 <= exp(-p*zFibre) && r2 <= probMax))
+    {
+#ifdef mkdebug
+      std::cout<<"HFShower::getHits:i="<<i<<", wl="<<wavelength[i]<<std::endl;
+#endif
+      hit.depth      = depth;
+      hit.time       = tSlice+time;
+      if (!applyFidCut)
+      {
+        hit.wavelength = wavelength[i]; // Tmp
+        hit.momentum   = momz[i]; // Tmp
+      }
+      else
+      {
+        hit.wavelength = 300.; // Tmp
+        hit.momentum   = 1.; // Tmp
+      }
       hit.position   = globalPos;
       hits.push_back(hit);
       nHit++;
@@ -151,18 +241,18 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep) {
 
 #ifdef DebugLog
   LogDebug("HFShower") << "HFShower::getHits: Number of Hits " << nHit;
-  for (int i=0; i<nHit; i++)
+  for (int i=0; i<nHit; ++i)
     LogDebug("HFShower") << "HFShower::Hit " << i << " WaveLength " 
-			 << hits[i].wavelength << " Time " << hits[i].time
-			 << " Momentum " << hits[i].momentum << " Position "
-			 << hits[i].position;
+                         << hits[i].wavelength << " Time " << hits[i].time
+                         << " Momentum " << hits[i].momentum << " Position "
+                         << hits[i].position;
 #endif
   return hits;
 
 } 
 
-std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep, bool forLibrary) {
-
+std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep, bool forLibrary)
+{
   std::vector<HFShower::Hit> hits;
   int    nHit    = 0;
 
@@ -171,7 +261,11 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep, bool forLibrary) {
 
   if (aStep->GetTrack()->GetDefinition()->GetPDGCharge() != 0.)
     stepl = aStep->GetStepLength();
-  if ((edep == 0.) || (stepl == 0.)) {
+#ifdef mkdebug
+  std::cout<<"HFShower::getHits:(SL) *Called* edep="<<edep<<", stepl="<<stepl<<std::endl;
+#endif 
+  if ((edep == 0.) || (stepl == 0.))
+  {
 #ifdef DebugLog
     LogDebug("HFShower") << "HFShower::getHits: Number of Hits " << nHit;
 #endif
@@ -191,16 +285,62 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep, bool forLibrary) {
   G4ThreeVector momentumDir = aParticle->GetMomentumDirection();
   G4ParticleDefinition *particleDef = aTrack->GetDefinition();
 
-  G4StepPoint *     preStepPoint = aStep->GetPreStepPoint();
-  G4ThreeVector     globalPos    = preStepPoint->GetPosition();
-  G4String          name         = preStepPoint->GetTouchable()->GetSolid(0)->GetName();
-  double            zv = std::abs(globalPos.z()) - gpar[4] - 0.5*gpar[1];
-  G4ThreeVector     localPos     = G4ThreeVector(globalPos.x(),globalPos.y(),
-						 zv);
-  G4ThreeVector     localMom     = preStepPoint->GetTouchable()->GetHistory()->
-    GetTopTransform().TransformAxis(momentumDir);
-  int               depth        = (preStepPoint->GetTouchable()->GetReplicaNumber(0))%10;
-  G4ThreeVector     translation  = preStepPoint->GetTouchable()->GetVolume(1)->GetObjectTranslation();
+  G4StepPoint * preStepPoint = aStep->GetPreStepPoint();
+  G4ThreeVector globalPos    = preStepPoint->GetPosition();
+  G4String      name         = preStepPoint->GetTouchable()->GetSolid(0)->GetName();
+  double        zv           = std::abs(globalPos.z()) - gpar[4] - 0.5*gpar[1];
+  G4ThreeVector localPos     = G4ThreeVector(globalPos.x(),globalPos.y(), zv);
+  G4ThreeVector localMom     = preStepPoint->GetTouchable()->GetHistory()->
+                                   GetTopTransform().TransformAxis(momentumDir);
+  // @@ Here the depth should be changed (Fibers are all long in Geometry!)
+  int depth  = 1;
+  int npmt   = 0;
+  bool ok    = true;
+  if (zv < 0 || zv > gpar[1])
+  {
+#ifdef mkodebug
+    std::cout<<"-Z cut-HFShower::getHits: |z|="<<zv<<" > max="<<gpar[1]<<std::endl;
+#endif
+    ok = false; // beyond the fiber in Z
+  }
+#ifdef mkdebug
+  std::cout<<"HFShower::getHits:(LS) FibreFiducialFlag="<<applyFidCut<<std::endl;
+  applyFidCut = true;
+#endif
+  if (ok && applyFidCut)
+  {
+    npmt = HFFibreFiducial:: PMTNumber(globalPos);
+#ifdef mkdebug
+    std::cout<<"HFShower::getHits(SL): #PMT="<<npmt<<", z="<<zv<<std::endl;
+#endif
+    if (npmt <= 0)
+    {
+#ifdef mkodebug
+      std::cout<<"-#PMT=0 cut-HFShower::getHits(SL): npmt="<<npmt<<std::endl;
+#endif
+      ok = false;
+    }
+    else if (npmt > 24)
+    { // a short fibre
+      if (zv > gpar[0]) depth = 2; 
+      else
+      {
+#ifdef mkodebug
+        std::cout<<"-SHORT cut-HFShower::getHits(SL):z="<<zv<<"<zMin="<<gpar[0]<<std::endl;
+#endif
+        ok = false;
+      }
+    }
+#ifdef DebugLog
+    edm::LogInfo("HFShower") << "HFShower:getHits(SL): npmt " << npmt 
+                             << " zv " << std::abs(pe_effect.z()) 
+                             << ":" << gpar[4] << ":" << zv << ":" 
+                             << gpar[0] << " ok " << ok << " depth " << depth;
+#endif
+  }
+  else depth      = (preStepPoint->GetTouchable()->GetReplicaNumber(0))%10; // All LONG!
+  G4ThreeVector translation  =
+                        preStepPoint->GetTouchable()->GetVolume(1)->GetObjectTranslation();
 
   double u        = localMom.x();
   double v        = localMom.y();
@@ -211,18 +351,24 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep, bool forLibrary) {
   double time     = fibre->tShift(localPos, depth, chkFibre);
 
 #ifdef DebugLog
-  LogDebug("HFShower") << "HFShower::getHits: in " << name << " Z " << zCoor
-		       << "(" << globalPos.z() << ") " << zFibre << " Trans "
-		       << translation << " Time " << tSlice  << " " << time
-		       << "\n                  Direction " << momentumDir
-		       << " Local " << localMom;
+  LogDebug("HFShower") << "HFShower::getHits(SL): in " << name << " Z " << zCoor
+                       << "(" << globalPos.z() << ") " << zFibre << " Trans "
+                       << translation << " Time " << tSlice  << " " << time
+                       << "\n                  Direction " << momentumDir
+                       << " Local " << localMom;
 #endif
-  int npe = cherenkov->computeNPE(particleDef, pBeta, u, v, w, stepl, zFibre,
-				  dose, npeDose);
+  // npe should be 0
+#ifdef mkodebug
+  if(ok && npmt<25)
+    std::cout<<"*>*>*>*>*>*>*>*>HFShower::getHits:(SL) #PMT="<<npmt<<", z="<<zv<<std::endl;
+#endif
+  int npe = 0;
+  if(ok) npe = cherenkov->computeNPE(particleDef,pBeta,u,v,w, stepl,zFibre, dose, npeDose);
   std::vector<double> wavelength = cherenkov->getWL();
   std::vector<double> momz       = cherenkov->getMom();
 
-  for (int i = 0; i<npe; ++i) {
+  for (int i = 0; i<npe; ++i)
+  {
     hit.time = tSlice+time;
     hit.wavelength = wavelength[i];
     hit.momentum   = momz[i];
@@ -232,47 +378,65 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep, bool forLibrary) {
   }
 
   return hits;
-
 }
 
 std::vector<double> HFShower::getDDDArray(const std::string & str, 
-					  const DDsvalues_type & sv, 
-					  int & nmin) {
-
+                                          const DDsvalues_type & sv, 
+                                                int & nmin)
+{
 #ifdef DebugLog
   LogDebug("HFShower") << "HFShower:getDDDArray called for " << str 
-		       << " with nMin " << nmin;
+                       << " with nMin " << nmin;
 #endif
   DDValue value(str);
-  if (DDfetch(&sv,value)) {
+  if (DDfetch(&sv, value))
+  {
 #ifdef DebugLog
     LogDebug("HFShower") << value;
 #endif
     const std::vector<double> & fvec = value.doubles();
     int nval = fvec.size();
-    if (nmin > 0) {
-      if (nval < nmin) {
-	edm::LogError("HFShower") << "HFShower : # of " << str 
-				  << " bins " << nval << " < " << nmin 
-				  << " ==> illegal";
-	throw cms::Exception("Unknown", "HFShower")
-	  << "nval < nmin for array " << str << "\n";
+    if (nmin > 0)
+    {
+      if (nval < nmin)
+      {
+        edm::LogError("HFShower") << "HFShower : # of " << str << " bins "
+                                  << nval << " < " << nmin  << " ==> illegal";
+        throw cms::Exception("Unknown", "HFShower")
+                                  << "nval < nmin for array " << str << "\n";
       }
-    } else {
-      if (nval < 2) {
-	edm::LogError("HFShower") << "HFShower : # of " << str 
-				  << " bins " << nval << " < 2 ==> illegal"
-				  << " (nmin=" << nmin << ")";
-	throw cms::Exception("Unknown", "HFShower")
-	  << "nval < 2 for array " << str << "\n";
+    }
+    else
+    {
+      if (nval < 2)
+      {
+        edm::LogError("HFShower") << "HFShower : # of " << str << " bins " << nval
+                                  << " < 2 ==> illegal" << " (nmin=" << nmin << ")";
+        throw cms::Exception("Unknown", "HFShower")
+                                  << "nval < 2 for array " << str << "\n";
       }
     }
     nmin = nval;
 
     return fvec;
-  } else {
-    edm::LogError("HFShower") << "HFShower : cannot get array " << str;
-    throw cms::Exception("Unknown", "HFShower") 
-      << "cannot get array " << str << "\n";
   }
+  else
+  {
+    edm::LogError("HFShower") << "HFShower : cannot get array " << str;
+    throw cms::Exception("Unknown", "HFShower") << "cannot get array " << str << "\n";
+  }
+}
+
+void HFShower::initRun(G4ParticleTable * theParticleTable) // Define PDG codes
+{
+  //emPDG = theParticleTable->FindParticle("e-")->GetPDGEncoding();
+  //epPDG = theParticleTable->FindParticle("e+")->GetPDGEncoding();
+  //gammaPDG = theParticleTable->FindParticle("gamma")->GetPDGEncoding();
+#ifdef DebugLog
+  edm::LogInfo("HFShower") << "HFShower: Particle codes"
+  //                       << " for e- = " << emPDG
+  //                       << " for e+ = " << epPDG
+  //                       << " for gamma = " << gammaPDG
+  ;
+#endif
 }

@@ -18,40 +18,43 @@ class G4Step;
 
 #include <vector>
  
-class HFShower {
-
+class HFShower
+{
 public:    
 
   HFShower(std::string & name, const DDCompactView & cpv, 
-	   edm::ParameterSet const & p, int chk=0);
+	     edm::ParameterSet const & p, int chk=0);
   virtual ~HFShower();
 
 public:
 
-  struct Hit {
+  struct Hit
+  {
     Hit() {}
-    double                   time;
-    double                   wavelength;
-    double                   momentum;
-    G4ThreeVector            position;
+    int               depth;
+    double            time;
+    double            wavelength;
+    double            momentum;
+    G4ThreeVector     position;
   };
 
-  std::vector<Hit>           getHits(G4Step * aStep);
-  std::vector<Hit>           getHits(G4Step * aStep, bool forLibrary);
+  void                initRun(G4ParticleTable *);
+  std::vector<Hit>    getHits(G4Step * aStep);
+  std::vector<Hit>    getHits(G4Step * aStep, bool forLibrary);
 
 private:    
 
-  std::vector<double>        getDDDArray(const std::string&, 
-					 const DDsvalues_type&,  int&);
+  std::vector<double> getDDDArray(const std::string &, const DDsvalues_type &, int &);
+  bool                applyFidCut;
 
 private:    
 
-  HFCherenkov*               cherenkov;
-  HFFibre*                   fibre;
+  HFCherenkov*        cherenkov;
+  HFFibre*            fibre;
 
-  int                        chkFibre;
-  double                     probMax;
-  std::vector<double>        gpar;
+  int                 chkFibre;
+  double              probMax;
+  std::vector<double> gpar;
 
 };
 

@@ -28,12 +28,12 @@ class G4LogicalVolume;
 class G4Material;
 class G4Step;
 
-class HCalSD : public CaloSD {
-
+class HCalSD : public CaloSD
+{
 public:    
 
   HCalSD(G4String , const DDCompactView &, SensitiveDetectorCatalog &,
-	 edm::ParameterSet const &, const SimTrackManager*);
+         edm::ParameterSet const &, const SimTrackManager*);
   virtual ~HCalSD();
   virtual bool                  ProcessHits(G4Step * , G4TouchableHistory * );
   virtual double                getEnergyDeposit(G4Step* );
@@ -49,7 +49,7 @@ private:
 
   uint32_t                      setDetUnitId(int, G4ThreeVector, int, int);
   std::vector<double>           getDDDArray(const std::string&, 
-					    const DDsvalues_type&);
+                                            const DDsvalues_type&);
   std::vector<G4String>         getNames(DDFilteredView&);
   bool                          isItHF(G4Step *);
   bool                          isItHF(G4String);
@@ -68,7 +68,7 @@ private:
   void                          readWeightFromFile(std::string);
   double                        layerWeight(int, G4ThreeVector, int, int);
   void                          plotProfile(G4Step* step, G4ThreeVector pos, 
-					    double edep, double time, int id);
+                                            double edep, double time, int id);
 
   HcalNumberingFromDDD*         numberingFromDDD;
   HcalNumberingScheme*          numberingScheme;
@@ -77,7 +77,7 @@ private:
   HFShowerParam *               showerParam;
   HFShowerPMT *                 showerPMT;
   HFShowerFibreBundle *         showerBundle;
-  bool                          useBirk, useLayerWt, useFibreBundle;
+  bool                          useBirk, useLayerWt, useFibreBundle, applyFidCut;
   double                        birk1, birk2, birk3, betaThr;
   bool                          useHF, useShowerLibrary, useParam, usePMTHit;
   double                        eminHitHB, eminHitHE, eminHitHO, eminHitHF;

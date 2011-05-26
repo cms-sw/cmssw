@@ -45,14 +45,14 @@ class CaloSD : public SensitiveCaloDetector,
                public Observer<const BeginOfEvent *>,
                public Observer<const BeginOfTrack *>,
                public Observer<const EndOfTrack *>,
-               public Observer<const EndOfEvent *> {
-
+               public Observer<const EndOfEvent *>
+{
 public:    
   
   CaloSD(G4String  aSDname, const DDCompactView & cpv,
-	 SensitiveDetectorCatalog & clg, 
-	 edm::ParameterSet const & p, const SimTrackManager*,
-	 int tSlice=1, bool ignoreTkID=false);
+         SensitiveDetectorCatalog & clg, 
+         edm::ParameterSet const & p, const SimTrackManager*,
+  int tSlice=1, bool ignoreTkID=false);
   virtual ~CaloSD();
   virtual bool     ProcessHits(G4Step * step,G4TouchableHistory * tHistory);
   virtual bool     ProcessHits(G4GFlashSpot*aSpot,G4TouchableHistory*);
@@ -77,7 +77,7 @@ protected:
   void             updateHit(CaloG4Hit*);
   void             resetForNewPrimary(G4ThreeVector, double);
   double           getAttenuation(G4Step* aStep, double birk1, double birk2,
-				  double birk3);
+                                  double birk3);
 
   virtual void     update(const BeginOfRun *);
   virtual void     update(const BeginOfEvent *);
@@ -91,6 +91,7 @@ protected:
   virtual int      getTrackID(G4Track*);
   virtual uint16_t getDepth(G4Step*);   
   double           getResponseWt(G4Track*);
+  int              getNumberOfHits();
 
 private:
 
