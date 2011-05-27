@@ -726,12 +726,10 @@ void Muon::setPFIsolation( const MuonPFIsolation& isoR03, const MuonPFIsolation&
 }
 
 
-void Muon::setPFMuon( const PFCandidateRef& pfMuon )
+void Muon::setPFP4( const reco::Candidate::LorentzVector& p4 )
 { 
-  if(pfMuon.isNonnull()) {
-    pfMuon_ = pfMuon;
+    pfP4_ = p4;
     type_ = type_ | PFMuon;
-  }
 }
 
 

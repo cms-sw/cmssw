@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.59 2011/01/29 00:32:44 jribnik Exp $
+ * \version $Id: Muon.h,v 1.60 2011/05/25 22:02:20 bachtis Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -62,8 +62,8 @@ namespace reco {
     /// ====================== PF BLOCK ===========================
     ///
 
-    PFCandidateRef pfMuon() {return pfMuon_;}
-    virtual void setPFMuon( const PFCandidateRef & muon ); 
+    reco::Candidate::LorentzVector  pfP4() const  {return pfP4_;}
+    virtual void setPFP4( const reco::Candidate::LorentzVector& p4_ ); 
 
     ///
     /// ====================== ENERGY BLOCK ===========================
@@ -208,8 +208,8 @@ namespace reco {
     /// muon type mask
     unsigned int type_;
 
-    //PF muon ref
-    PFCandidateRef pfMuon_;
+    //PF muon p4
+    reco::Candidate::LorentzVector pfP4_;
 
     // FixMe: Still missing trigger information
 
