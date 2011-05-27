@@ -27,6 +27,11 @@
 
 #include <sstream>
 
+/**
+ * Creates a TrackerMap for each track and draws the position of the
+ * corresponding hits.
+*/
+
 class TrackHitPositions : public edm::EDAnalyzer {
 
  public:
