@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: CSCOverlapsTrackPreparation.cc,v 1.7 2010/05/04 01:16:05 pivarski Exp $
+// $Id: CSCOverlapsTrackPreparation.cc,v 1.3 2009/03/27 09:20:48 flucke Exp $
 //
 //
 
@@ -146,7 +146,7 @@ CSCOverlapsTrackPreparation::produce(edm::Event& iEvent, const edm::EventSetup& 
 	const Surface &layerSurface = cscGeometry->idToDet(id)->surface();
 	TrajectoryMeasurement::ConstRecHitPointer hitPtr(muonTransBuilder.build(&**hit, globalGeometry));
 
-	AlgebraicVector5 params;   // meaningless, CSCOverlapsAlignmentAlgorithm does the fit internally
+	AlgebraicVector params(5);   // meaningless, CSCOverlapsAlignmentAlgorithm does the fit internally
 	params[0] = 1.;  // straight-forward direction
 	params[1] = 0.;
 	params[2] = 0.;

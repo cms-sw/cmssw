@@ -27,10 +27,6 @@
 
 #include <boost/tokenizer.hpp>
 
-// to handle pt file descriptors left open at fork
-#include "pt/PeerTransportReceiver.h"
-#include "pt/PeerTransportAgent.h"
-
 #include "xcept/tools.h"
 #include "xgi/Method.h"
 
@@ -451,12 +447,16 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
   //protect manipulation of subprocess array
   pthread_mutex_lock(&start_lock_);
   subs_.clear();
-  subs_.resize(nbSubProcesses_.value_);
-  pthread_mutex_unlock(&start_lock_);
+  subs_.resize(nbSubProcesses_.value_); // this should not be necessary
   pid_t retval = -1;
   for(unsigned int i=0; i<nbSubProcesses_.value_; i++)
     {
       subs_[i]=SubProcess(i,retval); //this will replace all the scattered variables
+    }
+  pthread_mutex_unlock(&start_lock_);
+
+  for(unsigned int i=0; i<nbSubProcesses_.value_; i++)
+    {
       retval = subs_[i].forkNew();
       if(retval==0)
 	{
@@ -465,15 +465,7 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 	  if(retval != 0) perror("error");
 	  retval = pthread_mutex_init(&stop_lock_,0);
 	  if(retval != 0) perror("error");
-	  try{
-	    pt::PeerTransport * ptr =
-	      pt::getPeerTransportAgent()->getPeerTransport("http","soap",pt::Receiver);
-	    delete ptr;
-	  }
-	  catch (pt::exception::PeerTransportNotFound & e ){
-	    LOG4CPLUS_WARN(getApplicationLogger()," ***Slave Failed to shutdown ptHTTP");
-	  }
-	  fsm_.disableRcmsStateNotification();
+ 	  fsm_.disableRcmsStateNotification();
 	  return enableMPEPSlave();
 	  // the loop is broken in the child 
 	}
@@ -604,17 +596,26 @@ void FUEventProcessor::subWeb(xgi::Input  *in, xgi::Output *out)
       strcpy(msg1->mtext,meth.c_str());
       strcpy(msg1->mtext+meth.length(),ost.str().c_str());
       subs_[i].post(msg1,true);
+      unsigned int keep_supersleep_original_value = superSleepSec_.value_;
+      superSleepSec_.value_=10*keep_supersleep_original_value;
       MsgBuf msg(MAX_MSG_SIZE,MSQS_MESSAGE_TYPE_WEB);
       bool done = false;
       std::vector<char *>pieces;
       while(!done){
-	subs_[i].rcv(msg,true);
+	unsigned long retval1 = subs_[i].rcvNonBlocking(msg,true);
+	if(retval1 == MSGQ_MESSAGE_TYPE_RANGE){
+	  ::sleep(1);
+	  continue;
+	}
 	unsigned int nbytes = atoi(msg->mtext);
 	if(nbytes < MAX_PIPE_BUFFER_SIZE) done = true; // this will break the while loop
 	char *buf= new char[nbytes];
-	read(anonymousPipe_[PIPE_READ],buf,nbytes);
+	ssize_t retval = read(anonymousPipe_[PIPE_READ],buf,nbytes);
+	if(retval!=nbytes) std::cout 
+	  << "CAREFUL HERE, read less bytes than expected from pipe in subWeb" << std::endl;
 	pieces.push_back(buf);
       }
+      superSleepSec_.value_=keep_supersleep_original_value;
       for(unsigned int j = 0; j < pieces.size(); j++){
 	*out<<pieces[j];    // chain the buffers into the output strstream
 	delete[] pieces[j]; //make sure to release all buffers used for reading the pipe
@@ -965,8 +966,21 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 	for(unsigned int i = 0; i < subs_.size(); i++)
 	  {
 	    if(subs_[i].alive() != 1){
-	      if(subs_[i].countdown()-- == 0)
+	      if(subs_[i].countdown() == 0)
 		{
+		  if(subs_[i].restartCount()>2){
+		    LOG4CPLUS_WARN(getApplicationLogger()," Not restarting subprocess in slot " << i 
+				   << " - maximum restart count reached");
+		    std::ostringstream ost1;
+		    ost1 << "-W- Dead Process in slot " << i << " reached maximum restart count"; 
+		    localLog(ost1.str());
+		    subs_[i].countdown()--;
+		    XCEPT_DECLARE(evf::Exception,
+				  sentinelException, ost1.str());
+		    notifyQualified("error",sentinelException);
+		    continue;
+		  }
+		  subs_[i].restartCount()++;
 		  pid_t rr = subs_[i].forkNew();
 		  if(rr==0)
 		    {
@@ -976,14 +990,6 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		      if(retval != 0) perror("error");
 		      retval = pthread_mutex_init(&stop_lock_,0);
 		      if(retval != 0) perror("error");
-		      try{
-			pt::PeerTransport * ptr =
-			  pt::getPeerTransportAgent()->getPeerTransport("http","soap",pt::Receiver);
-			delete ptr;
-		      }
-		      catch (pt::exception::PeerTransportNotFound & e ){
-			LOG4CPLUS_WARN(getApplicationLogger()," ***Slave Failed to shutdown ptHTTP");
-		      }
 		      fsm_.disableRcmsStateNotification();
 		      fsm_.fireEvent("Stop",this); // need to set state in fsm first to allow stopDone transition
 		      fsm_.fireEvent("StopDone",this); // need to set state in fsm first to allow stopDone transition
@@ -1019,6 +1025,7 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		      localLog(ost1.str());
 		    }
 		}
+	      if(subs_[i].countdown()>=0) subs_[i].countdown()--;
 	    }
 	  }
 	pthread_mutex_unlock(&stop_lock_);
@@ -1092,10 +1099,7 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 			      << evtProcessor_.stateNameFromIndex(p->Ms) << " mstate="
 			      << evtProcessor_.moduleNameFromIndex(p->ms) 
 			      << " - Look into possible error messages from HLT process";
-			  XCEPT_DECLARE(evf::Exception,
-					sentinelException, ost.str());
-			  notifyQualified("error",sentinelException);
-			  subs_[i].setReportedInconsistent();
+			  LOG4CPLUS_WARN(getApplicationLogger(),ost.str());
 			}
 		      nbp->value_ += subs_[i].params().nbp;
 		      nba->value_  += subs_[i].params().nba;
@@ -1346,19 +1350,18 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	  { 
 	    // after each monitoring cycle check if we are in inconsistent state and exit if configured to do so  
 	    //	    std::cout << getpid() << "receivingAndMonitor: trying to acquire stop lock " << std::endl;
-	    int retval = pthread_mutex_lock(&stop_lock_);
-	    if(retval != 0) perror("error");
-	    //	    std::cout << getpid() << " stop lock acquired" << std::endl;
-	    bool running = fsm_.stateName()->toString()=="Enabled";
-	    pthread_mutex_unlock(&stop_lock_);
 	    if(data->Ms == edm::event_processor::sStopping || data->Ms == edm::event_processor::sError) 
-	      {    
-		::usleep(10000); 
-		//check the state again in case stop signal has arrived 
-		pthread_mutex_lock(&stop_lock_);
-		running = fsm_.stateName()->toString()=="Enabled";
-		pthread_mutex_unlock(&stop_lock_);
-		if(running){::sleep(5); exit(-1);}
+	      { 
+		bool running = true;
+		int count = 0;
+		while(running){
+		  int retval = pthread_mutex_lock(&stop_lock_);
+		  if(retval != 0) perror("error");
+		  running = fsm_.stateName()->toString()=="Enabled";
+		  if(count>5) exit(-1);
+		  pthread_mutex_unlock(&stop_lock_);
+		  if(running) {::sleep(1); count++;}
+		}
 	      }
 	    
 	  }
@@ -1514,7 +1517,7 @@ bool FUEventProcessor::enableClassic()
   }
   
   //  implementation moved to EPWrapper
-  startScalersWorkLoop();
+  //  startScalersWorkLoop(); // this is now not done any longer 
   localLog("-I- Start completed");
   return retval;
 }
@@ -1599,23 +1602,28 @@ void FUEventProcessor::stopSlavesAndAcknowledge()
     {
       pthread_mutex_lock(&stop_lock_);
       if(subs_[i].alive()>0)subs_[i].post(msg,false);
-
-      if(subs_[i].alive()<=0) 
-	{
-	  pthread_mutex_unlock(&stop_lock_);
-	  continue;
+      pthread_mutex_unlock(&stop_lock_);
+    }
+  for(unsigned int i = 0; i < subs_.size(); i++)
+    {
+      pthread_mutex_lock(&stop_lock_);
+      if(subs_[i].alive()>0){
+	try{
+	  subs_[i].rcv(msg1,false);
 	}
-      try{
-	subs_[i].rcv(msg1,false);
+	catch(evf::Exception &e){
+	  std::ostringstream ost;
+	  ost << "failed to get STOP - errno ->" << errno << " " << e.what(); 
+	  reasonForFailedState_ = ost.str();
+	  LOG4CPLUS_WARN(getApplicationLogger(),reasonForFailedState_);
+	  fsm_.fireFailed(reasonForFailedState_,this);
+	  localLog(reasonForFailedState_);
+	  break;
+	}
       }
-      catch(evf::Exception &e){
-	std::ostringstream ost;
-	ost << "failed to get STOP - errno ->" << errno << " " << e.what(); 
-	reasonForFailedState_ = ost.str();
-	LOG4CPLUS_WARN(getApplicationLogger(),reasonForFailedState_);
-	fsm_.fireFailed(reasonForFailedState_,this);
-	localLog(reasonForFailedState_);
-	break;
+      else {
+	pthread_mutex_unlock(&stop_lock_);
+	continue;
       }
       pthread_mutex_unlock(&stop_lock_);
       if(msg1->mtype==MSQS_MESSAGE_TYPE_STOP)
@@ -1683,7 +1691,10 @@ void FUEventProcessor::microState(xgi::Input *in,xgi::Output *out)
 		     <<subs_[i].pid()<<"</td><td colspan=\"5\">" << subs_[i].reasonForFailed();
 		if(subs_[i].alive()!=0 && subs_[i].alive()!=-1000) 
 		  {
-		    if(autoRestartSlaves_) *out << " will restart in " << subs_[i].countdown() << " s";
+		    if(autoRestartSlaves_ && subs_[i].restartCount()<=2) 
+		      *out << " will restart in " << subs_[i].countdown() << " s";
+		    else if(autoRestartSlaves_)
+		      *out << " reached maximum restart count";
 		    else *out << " autoRestart is disabled ";
 		  }
 		*out << "</td><td>" << subs_[i].params().dqm 
@@ -1811,7 +1822,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.119 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.124 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

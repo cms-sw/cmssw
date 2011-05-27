@@ -2,7 +2,6 @@
 #include <DataFormats/EcalDigi/interface/EEDataFrame.h>
 #include <CondFormats/EcalObjects/interface/EcalTPGFineGrainStripEE.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <iostream>
 
 EcalFenixStripFgvbEE::EcalFenixStripFgvbEE()
 {
@@ -29,21 +28,18 @@ void EcalFenixStripFgvbEE::process( std::vector<std::vector<int> > &linout ,std:
     indexLut[i]=0;
     for (unsigned int ixtal=0;ixtal<linout.size();ixtal++) {
       int adc=linout[ixtal][i];
-      int res = (((adc & 0xffff) > threshold_fg) || ((adc & 0x30000) != 0x0)) ? 1 : 0;
-      //int res= ((adc>threshold_fg) || ((adc & 0x30000) > 0x0)) ? 1 : 0;
-      //indexLut[i]=indexLut[i] | (res <<ixtal & maskFgvb[ixtal]);
-      indexLut[i] = indexLut[i] | (res << ixtal);
+      int res= (adc>threshold_fg) ? 1 : 0;
+      indexLut[i]=indexLut[i] | (res <<ixtal & maskFgvb[ixtal]);
     }
-    int mask = 1<<(indexLut[i]);
-    output[i]= ((lut_fg & mask) == 0x0) ? 0 : 1;
-    if(i > 0) output[i-1] = output[i]; // Delay one clock
+    int mask = 1<<indexLut[i];
+    output[i]= lut_fg & mask;
+    if (output[i]>0) output[i]=1;
   }
   return;
 }  
 
 void EcalFenixStripFgvbEE::setParameters(uint32_t id,const EcalTPGFineGrainStripEE * ecaltpgFgStripEE)
 {
-  id_ = id;
   const EcalTPGFineGrainStripEEMap &fgmap = ecaltpgFgStripEE -> getMap();
   EcalTPGFineGrainStripEEMapIterator it=fgmap.find(id);
   if (it!=fgmap.end()) fgparams_=&(*it).second;

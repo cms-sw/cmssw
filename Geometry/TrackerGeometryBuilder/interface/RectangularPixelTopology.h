@@ -45,39 +45,107 @@ namespace {
 
 class RectangularPixelTopology : public PixelTopology {
  private:
-  // This is temporary before we find a better way
-  static const int ROWS_PER_ROC = 80;     // Num of cols per ROC
-  static const int COLS_PER_ROC = 52;     // Num of Rows per ROC
-  static const int BIG_PIX_PER_ROC_X = 1; // in x direction, rows
-  static const int BIG_PIX_PER_ROC_Y = 2; // in y direction, cols
+
 
 public:
+
+   // This is temporary before we find a better way
+  static const int ROWS_PER_ROC = 80;//mlwtest = 80;     // Num of cols per ROC
+  static const int COLS_PER_ROC = 52;//mlwtest = 52;     // Num of Rows per ROC
+  static const int BIG_PIX_PER_ROC_X = 0; // in x direction, rows
+  static const int BIG_PIX_PER_ROC_Y = 0; // in y direction, cols
+  static const int ROCS_X = 2;
+  static const int ROCS_Y = 8;
+
+  int ROWS_PER_ROC_L;     // Num of cols per ROC
+  int COLS_PER_ROC_L;     // Num of Rows per ROC
+  int ROCS_X_L;
+  int ROCS_Y_L;
+
+  static const int ROWS_PER_ROC_L1= 80;     // Num of cols per ROC
+  static const int COLS_PER_ROC_L1= 52;     // Num of Rows per ROC
+  static const int ROCS_X_L1 = 2;
+  static const int ROCS_Y_L1 = 8;
+
+  static const int ROWS_PER_ROC_L2 = 80;     // Num of cols per ROC
+  static const int COLS_PER_ROC_L2 = 52;     // Num of Rows per ROC
+  static const int ROCS_X_L2 = 2;
+  static const int ROCS_Y_L2 = 8;
+  
+  static const int ROWS_PER_ROC_L3 = 80;     // Num of cols per ROC
+  static const int COLS_PER_ROC_L3 = 52;     // Num of Rows per ROC
+  static const int ROCS_X_L3 = 2;
+  static const int ROCS_Y_L3 = 8;
+
+  static const int ROWS_PER_ROC_L4 = 80;     // Num of cols per ROC
+  static const int COLS_PER_ROC_L4 = 52;     // Num of Rows per ROC 
+  static const int ROCS_X_L4 = 2;
+  static const int ROCS_Y_L4 = 8;
+
 
   // Constructor, initilize 
   RectangularPixelTopology( int nrows, int ncols, float pitchx, 
 			    float pitchy) :
     m_nrows(nrows), m_ncols(ncols), 
     m_pitchx(pitchx), m_pitchy(pitchy) {
-				
-    //using std::cout;
-    //using std::endl;
+    
+    ROWS_PER_ROC_L =ROWS_PER_ROC;
+    COLS_PER_ROC_L = COLS_PER_ROC;
+    ROCS_X_L = ROCS_X;
+    ROCS_Y_L = ROCS_Y;
+    
+    std::cout<<"RECTPICTOPO not from pixelBuilder"<<std::endl;
+
+    //mwl test
+    //  ROWS_PER_ROC = 80;     // Num of cols per ROC
+    //COLS_PER_ROC = 52;		
+    
+    // Calculate the edge of the active sensor with respect to the center,
+    // that is simply the half-size.       
+    // Take into account large pixels
+    m_xoffset = -(m_nrows + BIG_PIX_PER_ROC_X*m_nrows/ROWS_PER_ROC_L)/2. * 
+      m_pitchx;
+    m_yoffset = -(m_ncols + BIG_PIX_PER_ROC_Y*m_ncols/COLS_PER_ROC_L)/2. * 
+      m_pitchy;
+    
+    if(TP_DEBUG) std::cout<<" RectangularPixelTopology: "
+			  <<m_nrows<<" "<<m_ncols<<" "
+			  <<m_pitchx<<" "<<m_pitchy<<" "<<m_xoffset<<" "<<m_yoffset
+			  <<BIG_PIX_PER_ROC_X<<" "<<BIG_PIX_PER_ROC_Y<<" "
+			  <<ROWS_PER_ROC<<" "<<COLS_PER_ROC<<std::endl;
+  }
+  
+  //added for StrawmanB with differing layer size
+  RectangularPixelTopology( int nrows, int ncols, float pitchx, float pitchy,
+			    int rocsX, int rocsY, int rowsPerRoc, int colsPerRoc
+			    ) :
+    m_nrows(nrows), m_ncols(ncols), 
+    m_pitchx(pitchx), m_pitchy(pitchy) {
+    
+    ROWS_PER_ROC_L = rowsPerRoc;//mlwtest = 80;     // Num of cols per ROC
+    COLS_PER_ROC_L = colsPerRoc;//mlwtest = 52;     // Num of Rows per ROC
+    ROCS_X_L = rocsX;
+    ROCS_Y_L = rocsY;
+
+    //std::cout<<"RECT PIX  Topo: Row "<<ROWS_PER_ROC_L<<" Col "<<COLS_PER_ROC_L<<" RocX "<<ROCS_X_L<<" RoxY "<< ROCS_Y_L<<std::endl;
 
     // Calculate the edge of the active sensor with respect to the center,
     // that is simply the half-size.       
     // Take into account large pixels
-    m_xoffset = -(m_nrows + BIG_PIX_PER_ROC_X*m_nrows/ROWS_PER_ROC)/2. * 
+    m_xoffset = -(m_nrows + BIG_PIX_PER_ROC_X*m_nrows/ROWS_PER_ROC_L)/2. * 
       m_pitchx;
-    m_yoffset = -(m_ncols + BIG_PIX_PER_ROC_Y*m_ncols/COLS_PER_ROC)/2. * 
+    m_yoffset = -(m_ncols + BIG_PIX_PER_ROC_Y*m_ncols/COLS_PER_ROC_L)/2. * 
       m_pitchy;
-
+    
     if(TP_DEBUG) std::cout<<" RectangularPixelTopology: "
-		  <<m_nrows<<" "<<m_ncols<<" "
-		  <<m_pitchx<<" "<<m_pitchy<<" "<<m_xoffset<<" "<<m_yoffset
-		  <<BIG_PIX_PER_ROC_X<<" "<<BIG_PIX_PER_ROC_Y<<" "
-		  <<ROWS_PER_ROC<<" "<<COLS_PER_ROC<<std::endl;
+			  <<m_nrows<<" "<<m_ncols<<" "
+			  <<m_pitchx<<" "<<m_pitchy<<" "<<m_xoffset<<" "<<m_yoffset
+			  <<BIG_PIX_PER_ROC_X<<" "<<BIG_PIX_PER_ROC_Y<<" "
+			  <<ROWS_PER_ROC<<" "<<COLS_PER_ROC<<std::endl;
   }
 
-  // Topology interface, go from Masurement to Local corrdinates
+
+// Topology interface, go from Masurement to Local corrdinates
   // pixel coordinates (mp) -> cm (LocalPoint)
   virtual LocalPoint localPosition( const MeasurementPoint& mp) const;
 
@@ -117,11 +185,15 @@ public:
   // Return the BIG pixel information for a given pixel
   //
   virtual bool isItBigPixelInX(const int ixbin) const {
-    return ( (ixbin == 79) || (ixbin == 80));
+    // return ( (ixbin == 79) || (ixbin == 80));
+    //mlw
+    return false;
   } 
   virtual bool isItBigPixelInY(const int iybin) const {
-    int iybin0 = iybin%52;
-    return ( (iybin0 == 0) || (iybin0 == 51));
+    //int iybin0 = iybin%52;
+    //return ( (iybin0 == 0) || (iybin0 == 51));
+    //mlw
+    return false;
   } 
   //-------------------------------------------------------------
   // Return BIG pixel flag in a given pixel range
@@ -148,13 +220,35 @@ public:
   }
   // Return number of rows
   virtual int nrows() const {
-    return m_nrows;
+    //mletest  return m_nrows;
+    return ROWS_PER_ROC_L*ROCS_X_L;
   }
   // Return number of cols
   virtual int ncolumns() const {
-    return m_ncols;
+    //mlw test return m_ncols;
+    return COLS_PER_ROC_L*ROCS_Y_L;
+  }
+ 
+
+ // mlw Return number of ROCS Y
+  virtual int rocsY() const {
+      return ROCS_Y_L;
+  }
+    // mlw Return number of ROCS X
+  virtual int rocsX() const {
+      return ROCS_X_L;
+  } 
+
+ // mlw Return number of rows per roc
+  virtual int rowsperroc() const {
+      return ROWS_PER_ROC_L;
   }
   
+  // mlw Return number of cols per roc
+  virtual int colsperroc() const {
+      return COLS_PER_ROC_L;
+  } 
+
 private:
   int m_nrows;
   int m_ncols;

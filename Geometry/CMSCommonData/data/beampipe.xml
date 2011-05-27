@@ -21,7 +21,7 @@
  <Constant name="BeampipeRin17"  value="10.2700*cm"/>
  <Constant name="BeampipeRin18"  value="11.9200*cm"/>
  <Constant name="BeampipeRin19"  value="15.6700*cm"/>
- <Constant name="BeampipeRin20"  value="8.5000*cm"/>
+ <Constant name="BeampipeRin20"  value="8.0000*cm"/>
  <Constant name="BeampipeRin21"  value="10.0000*cm"/>
  <Constant name="BeampipeRin22"  value="10.2000*cm"/>
  <Constant name="BeampipeRin23"  value="20.1000*cm"/>
@@ -72,7 +72,7 @@
  <Constant name="BeampipeRout33" value="12.6000*cm"/>
  <Constant name="BeampipeRout34" value="15.3000*cm"/>
  <Constant name="BeampipeRout35" value="11.2000*cm"/>
- <Constant name="BeampipeRout36" value="8.7500*cm"/>
+ <Constant name="BeampipeRout36" value="8.2500*cm"/>
  <Constant name="BeampipeRout37" value="10.2500*cm"/>
  <Constant name="BeampipeRout38" value="10.4500*cm"/>
  <Constant name="BeampipeRout39" value="20.3000*cm"/>
@@ -122,7 +122,7 @@
  <Constant name="BeampipeZ31"    value="10.6050*m"/>
  <Constant name="BeampipeZ32"    value="10.6641*m"/>
  <Constant name="BeampipeZ33"    value="10.7159*m"/>
- <Constant name="BeampipeZ34"    value="10.8100*m"/>
+ <Constant name="BeampipeZ34"    value="10.82625*m"/>
  <Constant name="BeampipeZ35"    value="13.3350*m"/>
  <Constant name="BeampipeZ36"    value="13.3410*m"/>
  <Constant name="BeampipeZ37"    value="13.3610*m"/>

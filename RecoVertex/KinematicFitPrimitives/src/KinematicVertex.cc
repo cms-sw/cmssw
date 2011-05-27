@@ -49,8 +49,8 @@ bool KinematicVertex::operator==(const KinematicVertex& other)const
  {
   GlobalPoint cPos = this->position();
   GlobalPoint oPos = other.position();
-  AlgebraicMatrix33 const & cCov = this->error().matrix();
-  AlgebraicMatrix33 const & oCov = other.error().matrix();
+  AlgebraicMatrix cCov = this->error().matrix();
+  AlgebraicMatrix oCov = other.error().matrix();
   if((cPos.x()==oPos.x())&&(cPos.y()==oPos.y())&&(cPos.z()==oPos.z())
                                                       &&(cCov==oCov))
   res = true;

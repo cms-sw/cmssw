@@ -7,8 +7,8 @@
  *  This class is an EDAnalyzer implementing TrigReport (statistics
  *  printed to log file) for HL triggers
  *
- *  $Date: 2011/03/11 16:34:14 $
- *  $Revision: 1.15 $
+ *  $Date: 2011/03/21 14:55:29 $
+ *  $Revision: 1.16 $
  *
  *  \author Martin Grunewald
  *
@@ -27,10 +27,21 @@
 //
 
 class HLTrigReport : public edm::EDAnalyzer {
+   private:
+      enum ReportEvery {
+        NEVER       = 0,
+        EVERY_EVENT = 1,
+        EVERY_LUMI  = 2,
+        EVERY_RUN   = 3,
+        EVERY_JOB   = 4
+      };
 
    public:
       explicit HLTrigReport(const edm::ParameterSet&);
       ~HLTrigReport();
+
+      static
+      ReportEvery decode(const std::string & value);
 
       virtual void beginJob();
       virtual void endJob();
@@ -52,7 +63,6 @@ class HLTrigReport : public edm::EDAnalyzer {
       const std::vector<unsigned int>& datasetCounts() const;
 
    private:
-
       void dumpReport(std::string const & header = std::string());
 
       edm::InputTag hlTriggerResults_;      // Input tag for TriggerResults
@@ -90,10 +100,9 @@ class HLTrigReport : public edm::EDAnalyzer {
       unsigned int refIndex_;                                   // index of the reference path for rate calculation
       double refRate_;                                         // rate of the reference path, the rate of all other paths will be normalized to this
 
-      // working mode: 0=never/1=event/2=lumi/3=run/4=job
-      int reportBy_;                // dump report for every never/event/lumi/run/job
-      int resetBy_;                 // reset counters  every never/event/lumi/run/job
-      int serviceBy_;               // call to service every never/event/lumi/run/job
+      ReportEvery reportBy_;        // dump report for every never/event/lumi/run/job
+      ReportEvery resetBy_;         // reset counters  every never/event/lumi/run/job
+      ReportEvery serviceBy_;       // call to service every never/event/lumi/run/job
       HLTConfigProvider hltConfig_; // to get configuration for L1s/Pre
 };
 

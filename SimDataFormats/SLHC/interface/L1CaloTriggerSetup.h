@@ -37,8 +37,10 @@ class L1CaloTriggerSetup
   int isolationThrEG_;//Isolation threshold EG;
   int isolationThrTau_;//Isolation threshold Tau;
   int isolationZone_;//Number of towers that define the isolation zone;
-  int jetCenter_ ; //jet Center Deviation
+  //  int jetCenter_ ; //jet Center Deviation
   int jetET_ ; //jet Center Deviation
+  int fineGrainPass_; //ignore fine grain bit (set it to 0)
+
 
 
  public:
@@ -47,58 +49,58 @@ class L1CaloTriggerSetup
   std::map<int ,std::pair<int,int> > geoMap_;
 
   //Lattice Navigation helper Functions
-  int getEta(int bin)     //get the ieta of a specific Bin
+  int getEta(int bin)   const  //get the ieta of a specific Bin
     {
       return bin%latticeDim_;
       
     } 
-  int getPhi(int bin)     //get the iphi of a specific bin
+  int getPhi(int bin)   const  //get the iphi of a specific bin
     {  
       return bin/latticeDim_;
     }
 
-  int getBin(int eta,int phi) //get the bin for a ieta,iphi pair
+  int getBin(int eta,int phi) const //get the bin for a ieta,iphi pair
     {
       return phi*latticeDim_+eta;
     }
 
-    int etaMin()
+    int etaMin() const
     {
       return latticeEta0_;
     }
 
-  int etaMax()
+  int etaMax() const
     {
       return latticeEtaM_;
     }
 
-    int phiMin()
+    int phiMin() const
     {
       return latticePhi0_;
     }
 
-  int phiMax()
+  int phiMax() const
     {
       return latticePhiM_;
     }
 
 
-  int ecalActivityThr()
+  int ecalActivityThr() const
     {
       return ecalActivityCut_;
     }
 
-  int hcalActivityThr()
+  int hcalActivityThr() const
     {
       return hcalActivityCut_;
     }
 
-  int clusterThr()
+  int clusterThr() const
     {
       return clusterCut_;
     }
 
-  int seedTowerThr()
+  int seedTowerThr() const
     {
       return tauSeedTower_;
     }
@@ -113,20 +115,26 @@ class L1CaloTriggerSetup
       return a;
     }
 
-  int nIsoTowers()
+  int nIsoTowers() const
     {
       return isolationZone_;
     }
 
-  int jetCenterDev()
-    {
-      return jetCenter_;
-    }
+/*   int jetCenterDev() */
+/*     { */
+/*       return jetCenter_; */
+/*     } */
 
-  int minJetET()
+  int minJetET() const
     {
       return jetET_;
     }
+
+  int fineGrainPass() const
+  {
+    return fineGrainPass_;
+  }
+
 
   std::vector<int> isoThr()
     {
@@ -200,7 +208,7 @@ class L1CaloTriggerSetup
     }
 
  
-  void setThresholds(int ecal_a_c,int hcal_a_c,int egammaA,int egammaB,int egammaC,int tauSeed,int clusterCut,int isoRatioEA,int isoRatioEB,int isoRatioTA,int isoRatioTB,int isoZone,int isoThresEG,int isoThresTau,int jetc,int jetet)
+  void setThresholds(int ecal_a_c,int hcal_a_c,int egammaA,int egammaB,int egammaC,int tauSeed,int clusterCut,int isoRatioEA,int isoRatioEB,int isoRatioTA,int isoRatioTB,int isoZone,int isoThresEG,int isoThresTau,int jetet, int fgp)
     {
 
       ecalActivityCut_ = ecal_a_c;
@@ -217,8 +225,9 @@ class L1CaloTriggerSetup
       isolationZone_ = isoZone;
       isolationThrEG_ = isoThresEG;
       isolationThrTau_ = isoThresTau;
-      jetCenter_ = jetc;
+      //      jetCenter_ = jetc;
       jetET_ = jetet;
+      fineGrainPass_ = fgp;
     }
 
 

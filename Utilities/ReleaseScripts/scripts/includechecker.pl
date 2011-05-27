@@ -27,6 +27,7 @@ $config_cache->{SOURCE_EXT}{"\\.(cc|CC|cpp|C|c|CPP|cxx|CXX)\$"}=1;
 $config_cache->{SKIP_INCLUDE_INDIRECT_ADD}={};
 $config_cache->{SKIP_INCLUDES}={};
 $config_cache->{LOCAL_HEADERS}{'^(.+)/[^/]+$:"$1/.+"'}=1;
+$SCRAMGenUtils::CacheType=1;
 
 if(&GetOptions(
                "--config=s",\$config,
@@ -72,11 +73,7 @@ if(defined $detail){$detail=1;}
 else{$detail=0;}
 
 if(defined $skipheaders){$skipheaders=1;}
-else
-{
-  print "MSG:Forcing skipheaders. Current version of include checker do to support checking of header files.\n";
-  $skipheaders=1;
-}
+else{$skipheaders=0;}
 
 if(defined $recursive){$recursive=1;}
 else{$recursive=0;}

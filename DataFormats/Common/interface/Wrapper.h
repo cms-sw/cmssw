@@ -12,17 +12,15 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 #include "DataFormats/Common/interface/RefVectorHolder.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "DataFormats/Common/interface/fwd_setPtr.h"
+#include "DataFormats/Common/interface/fwd_fillPtrVector.h"
 
 #include "boost/mpl/if.hpp"
 
 #include <algorithm>
-#include <deque>
-#include <list>
 #include <memory>
-#include <set>
 #include <string>
 #include <typeinfo>
-#include <vector>
 
 namespace edm {
 

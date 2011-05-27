@@ -344,24 +344,17 @@ std::map<std::string, MonitorElement*>   RPCMonitorDigi::bookRegionME(std::strin
   }
 
 
-  me = dbe->get(currentFolder+ "/Occupancy_for_Endcap-");
+  me = dbe->get(currentFolder+ "/Occupancy_for_Endcap");
   if (me) dbe->removeElement(me->getName());
-  meMap["Occupancy_for_Endcap-"] = dbe -> book2D("Occupancy_for_Endcap-", "Occupancy Endcap-", 6, 0.5 , 6.5, 4, -4.5, -0.5 );
-  meMap["Occupancy_for_Endcap-"] ->setAxisTitle("Sec", 1);
-  meMap["Occupancy_for_Endcap-"] ->setAxisTitle("Disk", 2);
+  meMap["Occupancy_for_Endcap"] = dbe -> book2D("Occupancy_for_Endcap", "Occupancy Endcap", 6, 0.5 , 6.5, 2, 1.5, 3.5 );
+  meMap["Occupancy_for_Endcap"] ->setAxisTitle("Disk", 1);
+  meMap["Occupancy_for_Endcap"] ->setAxisTitle("Ring", 2);
 
   me = dbe->get(currentFolder+ "/Occupancy_for_Barrel");
   if (me) dbe->removeElement(me->getName());
   meMap["Occupancy_for_Barrel"]  = dbe -> book2D("Occupancy_for_Barrel", "Occupancy Barrel", 12, 0.5 , 12.5, 5, -2.5, 2.5 );
   meMap["Occupancy_for_Barrel"] ->setAxisTitle("Sec", 1);
   meMap["Occupancy_for_Barrel"] ->setAxisTitle("Wheel", 2);
-
-
-  me = dbe->get(currentFolder+ "/Occupancy_for_Endcap+");
-  if (me) dbe->removeElement(me->getName());
-  meMap["Occupancy_for_Endcap+"]= dbe -> book2D("Occupancy_for_Endcap+", "Occupancy Endcap+", 6, 0.5 , 6.5, 4, 0.5, 4.5 );
-  meMap["Occupancy_for_Endcap+"] ->setAxisTitle("Sec", 1);
-  meMap["Occupancy_for_Endcap+"] ->setAxisTitle("Disk", 2);
 
 
   return meMap; 

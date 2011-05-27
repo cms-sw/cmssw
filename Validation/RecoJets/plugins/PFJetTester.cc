@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: PFJetTester.cc,v 1.14 2010/08/07 14:56:05 wmtan Exp $
+// $Id: PFJetTester.cc,v 1.11.2.1 2010/06/16 19:25:43 srappocc Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -34,8 +34,6 @@
 
 #include <cmath>
 
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
-
 using namespace edm;
 using namespace reco;
 using namespace std;
@@ -54,7 +52,6 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
     mGenEnergyFractionThreshold (iConfig.getParameter<double>("genEnergyFractionThreshold")),
     mReverseEnergyFractionThreshold (iConfig.getParameter<double>("reverseEnergyFractionThreshold")),
     mRThreshold (iConfig.getParameter<double>("RThreshold")),
-    JetCorrectionService  (iConfig.getParameter<std::string>  ("JetCorrectionService"  )),
     mTurnOnEverything (iConfig.getUntrackedParameter<std::string>("TurnOnEverything",""))
 {
     numberofevents
@@ -64,12 +61,10 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
     = mEtaFirst = mPhiFirst = mEFirst = mEFirst_80 = mEFirst_3000 = mPtFirst = mPtFirst_80 = mPtFirst_3000
     = mMjj = mMjj_3000 = mDelEta = mDelPhi = mDelPt 
       //    = mMaxEInEmTowers = mMaxEInHadTowers 
-      //    = mHadEnergyInHO = mHadEnergyInHB = mHadEnergyInHE 
-      = mHadEnergyInHF = mHadEnergyInHF_80 = mHadEnergyInHF_3000
+      //    = mHadEnergyInHO = mHadEnergyInHB = mHadEnergyInHF = mHadEnergyInHE 
       //    = mHadEnergyInHO_80 = mHadEnergyInHB_80 = mHadEnergyInHE_80 
       //    = mHadEnergyInHO_3000 = mHadEnergyInHB_3000 = mHadEnergyInHE_3000 
-      //    = mEmEnergyInEB = mEmEnergyInEE
-      = mEmEnergyInHF = mEmEnergyInHF_80 = mEmEnergyInHF_3000
+      //    = mEmEnergyInEB = mEmEnergyInEE = mEmEnergyInHF 
       //    = mEmEnergyInEB_80 = mEmEnergyInEE_80
       //    = mEmEnergyInEB_3000 = mEmEnergyInEE_3000
       //    = mEnergyFractionHadronic = mEnergyFractionEm 
@@ -78,9 +73,6 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
     = mChargedEmEnergy_80 = mChargedHadronEnergy_80 = mNeutralEmEnergy_80 = mNeutralHadronEnergy_80
     = mChargedEmEnergy_3000 = mChargedHadronEnergy_3000 = mNeutralEmEnergy_3000 = mNeutralHadronEnergy_3000
     = mChargedEmEnergyFraction = mChargedHadronEnergyFraction = mNeutralEmEnergyFraction = mNeutralHadronEnergyFraction
-    = mElectronEnergy = mElectronEnergy_80 = mElectronEnergy_3000
-    = mMuonEnergy = mMuonEnergy_80 = mMuonEnergy_3000
-    = mPhotonEnergy = mPhotonEnergy_80 = mPhotonEnergy_3000
     = mCaloMEx = mCaloMEx_3000 = mCaloMEy = mCaloMEy_3000 = mCaloMETSig = mCaloMETSig_3000
     = mCaloMET = mCaloMET_3000 =  mCaloMETPhi = mCaloSumET  = mCaloSumET_3000   
     = mHadTiming = mEmTiming 
@@ -103,11 +95,6 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
     = mHBEne = mHBTime = mHEEne = mHETime = mHFEne = mHFTime = mHOEne = mHOTime
     = mEBEne = mEBTime = mEEEne = mEETime 
     = mPthat_80 = mPthat_3000
-
-      //Corr Jet
-    = mCorrJetPt =mCorrJetPt_80 = mCorrJetPt_3000 =mCorrJetEta =mCorrJetPhi =mpTRatio
-      = mpTRatioB_d = mpTRatioE_d = mpTRatioF_d
-      = mpTRatio_60_120_d = mpTRatio_200_300_d = mpTRatio_600_900_d = mpTRatio_2700_3500_d
     = 0;
   
   DQMStore* dbe = &*edm::Service<DQMStore>();
@@ -166,9 +153,7 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
     //    mMaxEInHadTowers  = dbe->book1D("MaxEInHadTowers", "MaxEInHadTowers", 100, 0, 100); 
     //    mHadEnergyInHO    = dbe->book1D("HadEnergyInHO", "HadEnergyInHO", 100, 0, 10); 
     //    mHadEnergyInHB    = dbe->book1D("HadEnergyInHB", "HadEnergyInHB", 100, 0, 50); 
-    mHadEnergyInHF    = dbe->book1D("HadEnergyInHF", "HadEnergyInHF", 100, 0, 2500); 
-    mHadEnergyInHF_80    = dbe->book1D("HadEnergyInHF_80", "HadEnergyInHF_80", 100, 0, 3000); 
-    mHadEnergyInHF_3000    = dbe->book1D("HadEnergyInHF_3000", "HadEnergyInHF_3000", 100, 0, 1800); 
+    //    mHadEnergyInHF    = dbe->book1D("HadEnergyInHF", "HadEnergyInHF", 100, 0, 50); 
     //    mHadEnergyInHE    = dbe->book1D("HadEnergyInHE", "HadEnergyInHE", 100, 0, 100); 
     //
     //    mHadEnergyInHO_80    = dbe->book1D("HadEnergyInHO_80", "HadEnergyInHO_80", 100, 0, 50); 
@@ -180,9 +165,7 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
     //
     //    mEmEnergyInEB     = dbe->book1D("EmEnergyInEB", "EmEnergyInEB", 100, 0, 50); 
     //    mEmEnergyInEE     = dbe->book1D("EmEnergyInEE", "EmEnergyInEE", 100, 0, 50); 
-    mEmEnergyInHF     = dbe->book1D("EmEnergyInHF", "EmEnergyInHF", 100, -20, 450); 
-    mEmEnergyInHF_80     = dbe->book1D("EmEnergyInHF_80", "EmEnergyInHF_80", 100, -20, 440); 
-    mEmEnergyInHF_3000     = dbe->book1D("EmEnergyInHF_3000", "EmEnergyInHF_3000", 100, -20, 190); 
+    //    mEmEnergyInHF     = dbe->book1D("EmEnergyInHF", "EmEnergyInHF", 120, -20, 100); 
     //    mEmEnergyInEB_80  = dbe->book1D("EmEnergyInEB_80", "EmEnergyInEB_80", 100, 0, 200); 
     //    mEmEnergyInEE_80  = dbe->book1D("EmEnergyInEE_80", "EmEnergyInEE_80", 100, 0, 1000); 
     //    mEmEnergyInEB_3000= dbe->book1D("EmEnergyInEB_3000", "EmEnergyInEB_3000", 100, 0, 3000); 
@@ -218,15 +201,6 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
     mNeutralEmEnergyFraction = dbe->book1D("NeutralEmEnergyFraction","NeutralEmEnergyFraction",120,-0.1,1.1);
     mNeutralHadronEnergyFraction = dbe->book1D("NeutralHadronEnergyFraction","NeutralHadronEnergyFraction",120,-0.1,1.1);
 
-    mElectronEnergy   = dbe->book1D("ElectronEnergy","ElectronEnergy", 100, 0, 1400);
-    mElectronEnergy_80   = dbe->book1D("ElectronEnergy_80","ElectronEnergy_80", 100, 0, 490);
-    mElectronEnergy_3000   = dbe->book1D("ElectronEnergy_3000","ElectronEnergy_3000", 100, 0, 3000);
-    mMuonEnergy   = dbe->book1D("MuonEnergy","MuonEnergy", 100, 0, 800);
-    mMuonEnergy_80   = dbe->book1D("MuonEnergy_80","MuonEnergy_80", 100, 0, 230);
-    mMuonEnergy_3000   = dbe->book1D("MuonEnergy_3000","MuonEnergy_3000", 100, 0, 1200);
-    mPhotonEnergy   = dbe->book1D("PhotonEnergy","PhotonEnergy", 100, 0, 1600);
-    mPhotonEnergy_80   = dbe->book1D("PhotonEnergy_80","PhotonEnergy_80", 100, 0, 1000);
-    mPhotonEnergy_3000   = dbe->book1D("PhotonEnergy_3000","PhotonEnergy_3000", 100, 0, 3000);
 
     mGenEta           = dbe->book1D("GenEta", "GenEta", 100, -5, 5);
     mGenPhi           = dbe->book1D("GenPhi", "GenPhi", 70, -3.5, 3.5);
@@ -273,14 +247,6 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
     //
     mPthat_80            = dbe->book1D("Pthat_80", "Pthat_80", 100, 40.0, 160.0); 
     mPthat_3000          = dbe->book1D("Pthat_3000", "Pthat_3000", 100, 2500.0, 4000.0); 
-
-    //Corr
-    mCorrJetPt  = dbe->book1D("CorrPt", "CorrPt", 100, 0, 50);
-    mCorrJetPt_80 = dbe->book1D("CorrPt_80", "CorrPt_80", 100, 0, 140);
-    mCorrJetPt_3000  = dbe->book1D("CorrPt_3000", "CorrPt_3000", 100, 0, 4000);
-    mCorrJetEta = dbe->book1D("CorrEta", "CorrEta", 100, -5, 5);
-    mCorrJetPhi = dbe->book1D("CorrPhi", "CorrPhi", 70, -3.5, 3.5);
- 
     //
     double log10PtMin = 0.5; //=3.1622766
     double log10PtMax = 3.75; //=5623.41325
@@ -402,23 +368,6 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
 					    100, 0, 2);
     mpTScale1D_2700_3500 = dbe->book1D("pTScale1D_2700_3500", "pTScale_distribution_for_2700<pt<3500",
 					    100, 0, 2);
-
- ///////////Corr profile//////////////
-    mpTRatio = dbe->bookProfile("pTRatio", "pTRatio",
-                                log10PtBins, log10PtMin, log10PtMax, 100, 0.,5., " ");
-    mpTRatioB_d = dbe->bookProfile("pTRatioB_d", "pTRatio_d_0<|eta|<1.3",
-                                   log10PtBins, log10PtMin, log10PtMax, 0, 5, " ");
-    mpTRatioE_d = dbe->bookProfile("pTRatioE_d", "pTRatio_d_1.3<|eta|<3.0",
-                                   log10PtBins, log10PtMin, log10PtMax, 0, 5, " ");
-    mpTRatioF_d = dbe->bookProfile("pTRatioF_d", "pTRatio_d_3.0<|eta|<5.0",
-                                   log10PtBins, log10PtMin, log10PtMax, 0, 5, " ");
-    mpTRatio_60_120_d    = dbe->bookProfile("pTRatio_60_120_d", "pTRatio_d_60<pT<120",
-                                          etaBins, etaMin, etaMax, 0., 5., " ");
-    mpTRatio_200_300_d   = dbe->bookProfile("pTRatio_200_300_d", "pTRatio_d_200<pT<300",
-                                          etaBins, etaMin, etaMax, 0., 5., " ");
-    mpTRatio_600_900_d   = dbe->bookProfile("pTRatio_600_900_d", "pTRatio_d_600<pT<900",
-                                          etaBins, etaMin, etaMax, 0., 5., " "); mpTRatio_2700_3500_d = dbe->bookProfile("pTRatio_2700_3500_d", "pTRatio_d_2700<pt<3500",
-                                          etaBins, etaMin, etaMax, 0., 5., " ");
 
   }
 
@@ -684,9 +633,7 @@ void PFJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetu
     //    if (mHadEnergyInHB) mHadEnergyInHB->Fill (jet->hadEnergyInHB());
     //    if (mHadEnergyInHB_80)   mHadEnergyInHB_80->Fill (jet->hadEnergyInHB());
     //    if (mHadEnergyInHB_3000) mHadEnergyInHB_3000->Fill (jet->hadEnergyInHB());
-    if (mHadEnergyInHF) mHadEnergyInHF->Fill (jet->HFHadronEnergy());
-    if (mHadEnergyInHF_80) mHadEnergyInHF_80->Fill (jet->HFHadronEnergy());
-    if (mHadEnergyInHF_3000) mHadEnergyInHF_3000->Fill (jet->HFHadronEnergy());
+    //    if (mHadEnergyInHF) mHadEnergyInHF->Fill (jet->hadEnergyInHF());
     //    if (mHadEnergyInHE) mHadEnergyInHE->Fill (jet->hadEnergyInHE());
     //    if (mHadEnergyInHE_80)   mHadEnergyInHE_80->Fill (jet->hadEnergyInHE());
     //    if (mHadEnergyInHE_3000) mHadEnergyInHE_3000->Fill (jet->hadEnergyInHE());
@@ -696,9 +643,7 @@ void PFJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetu
     //    if (mEmEnergyInEE) mEmEnergyInEE->Fill (jet->emEnergyInEE());
     //    if (mEmEnergyInEE_80)   mEmEnergyInEE_80->Fill (jet->emEnergyInEE());
     //    if (mEmEnergyInEE_3000) mEmEnergyInEE_3000->Fill (jet->emEnergyInEE());
-    if (mEmEnergyInHF) mEmEnergyInHF->Fill (jet->HFEMEnergy());
-    if (mEmEnergyInHF_80) mEmEnergyInHF_80->Fill (jet->HFEMEnergy());
-    if (mEmEnergyInHF_3000) mEmEnergyInHF_3000->Fill (jet->HFEMEnergy());
+    //    if (mEmEnergyInHF) mEmEnergyInHF->Fill (jet->emEnergyInHF());
     //    if (mEnergyFractionHadronic) mEnergyFractionHadronic->Fill (jet->energyFractionHadronic());
     //    if (mEnergyFractionEm) mEnergyFractionEm->Fill (jet->emEnergyFraction());
     //
@@ -726,17 +671,6 @@ void PFJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetu
     if (mChargedHadronEnergyFraction) mChargedHadronEnergyFraction->Fill (jet->chargedHadronEnergyFraction());
     if (mNeutralEmEnergyFraction) mNeutralEmEnergyFraction->Fill (jet->neutralEmEnergyFraction());
     if (mNeutralHadronEnergyFraction) mNeutralHadronEnergyFraction->Fill (jet->neutralHadronEnergyFraction());
-
-    if (mElectronEnergy) mElectronEnergy->Fill (jet->electronEnergy());
-    if (mElectronEnergy_80) mElectronEnergy_80->Fill (jet->electronEnergy());
-    if (mElectronEnergy_3000) mElectronEnergy_3000->Fill (jet->electronEnergy());
-    if (mMuonEnergy) mMuonEnergy->Fill (jet->muonEnergy());
-    if (mMuonEnergy_80) mMuonEnergy_80->Fill (jet->muonEnergy());
-    if (mMuonEnergy_3000) mMuonEnergy_3000->Fill (jet->muonEnergy());
-    if (mPhotonEnergy) mPhotonEnergy->Fill (jet->photonEnergy());
-    if (mPhotonEnergy_80) mPhotonEnergy_80->Fill (jet->photonEnergy());
-    if (mPhotonEnergy_3000) mPhotonEnergy_3000->Fill (jet->photonEnergy());
-
 
     //    if (mN90) mN90->Fill (jet->n90());
     mJetEnergyProfile->Fill (jet->eta(), jet->phi(), jet->energy());
@@ -773,50 +707,6 @@ void PFJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetu
       if ( cal->pt() > ptStep ) njet++;
     }
     mNJets2->Fill( ptStep, njet );
-  }
-
- // Correction jets
-  const JetCorrector* corrector = JetCorrector::getJetCorrector (JetCorrectionService,mSetup);
-
-  for (PFJetCollection::const_iterator jet = pfJets->begin(); jet !=pfJets ->end(); jet++) 
-  {
- 
-      PFJet  correctedJet = *jet;
-      double scale = corrector->correction(jet->p4()); 
-      correctedJet.scaleEnergy(scale); 
-      mCorrJetPt->Fill(correctedJet.pt());
-      mCorrJetPt_80->Fill(correctedJet.pt());
-      mCorrJetPt_3000->Fill(correctedJet.pt());
-      mCorrJetEta->Fill(correctedJet.eta());
-      mCorrJetPhi->Fill(correctedJet.phi());
-      mpTRatio->Fill(log10(jet->pt()),correctedJet.pt()/jet->pt());
-
-      if (fabs(jet->eta())<1.3) {
-           mpTRatioB_d->Fill(log10(jet->pt()), correctedJet.pt()/jet->pt());
-      }
-
-     if (fabs(jet->eta())>1.3 && fabs(jet->eta())<3.0) {
-        mpTRatioE_d->Fill (log10(jet->pt()), correctedJet.pt()/jet->pt());
-     }
-     if (fabs(jet->eta())>3.0 && fabs(jet->eta())<5.0) {
-        mpTRatioF_d->Fill (log10(jet->pt()), correctedJet.pt()/jet->pt());
-    }
-     if (jet->pt()>60.0 && jet->pt()<120.0) {
-    mpTRatio_60_120_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
-  }
-   if (jet->pt()>200.0 && jet->pt()<300.0) {
-    mpTRatio_200_300_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
-  }
-if (jet->pt()>600.0 && jet->pt()<900.0) {
-    mpTRatio_600_900_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
-  }
-if (jet->pt()>2700.0 && jet->pt()<3500.0) {
-    mpTRatio_2700_3500_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
-  }
-
-
-
-
   }
 
   // Gen jet analysis

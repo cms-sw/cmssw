@@ -49,7 +49,7 @@ std::auto_ptr<SiPixelLorentzAngle> SiPixelFakeLorentzAngleESSource::produce(cons
 	using namespace edm::es;
 	unsigned int nmodules = 0;
 	SiPixelLorentzAngle * obj = new SiPixelLorentzAngle();
-	SiPixelDetInfoFileReader reader(fp_.fullPath());
+	SiPixelDetInfoFileReader reader(fp_.fullPath(), true); //Read ROCinfo
 	const std::vector<uint32_t> DetIds = reader.getAllDetIds();
 	
 	// Loop over detectors

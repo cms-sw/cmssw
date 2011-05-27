@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2011/03/03 22:05:50 $
- * $Revision: 1.59 $
+ * $Date: 2010/11/11 08:40:51 $
+ * $Revision: 1.57 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -37,10 +37,6 @@
 
 #include "DQM/EcalEndcapMonitorTasks/interface/EESelectiveReadoutTask.h"
 
-#include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
-#include "CondFormats/DataRecord/interface/EcalSRSettingsRcd.h"
-
-
 EESelectiveReadoutTask::EESelectiveReadoutTask(const edm::ParameterSet& ps){
 
   init_ = false;
@@ -61,8 +57,7 @@ EESelectiveReadoutTask::EESelectiveReadoutTask(const edm::ParameterSet& ps){
   FEDRawDataCollection_ = ps.getParameter<edm::InputTag>("FEDRawDataCollection");
   firstFIRSample_ = ps.getParameter<int>("ecalDccZs1stSample");
 
-  useCondDb_ = ps.getParameter<bool>("configFromCondDB");
-  if(!useCondDb_) configFirWeights(ps.getParameter<std::vector<double> >("dccWeights"));
+  configFirWeights(ps.getParameter<std::vector<double> >("dccWeights"));
 
   // histograms...
   EEDccEventSize_ = 0;
@@ -142,25 +137,6 @@ void EESelectiveReadoutTask::beginRun(const edm::Run& r, const edm::EventSetup& 
         nEvtAnyInterest[ix][iy][iz] = 0;
       }
     }
-  }
-
-  //getting selective readout configuration
-  if(useCondDb_) {
-    edm::ESHandle<EcalSRSettings> hSr;
-    c.get<EcalSRSettingsRcd>().get(hSr);
-    settings_ = hSr.product();
-    std::vector<double> wsFromDB;
-    
-    std::vector<std::vector<float> > dccs = settings_->dccNormalizedWeights_;
-    int nws = dccs.size();
-    if(nws == 1) {
-      for(std::vector<float>::const_iterator it = dccs[0].begin(); it != dccs[0].end(); it++) {
-	wsFromDB.push_back(*it);
-      }
-    }
-    else edm::LogWarning("EESelectiveReadoutTask") << "DCC weight set is not exactly 1.";
-
-    configFirWeights(wsFromDB);
   }
 
 }
