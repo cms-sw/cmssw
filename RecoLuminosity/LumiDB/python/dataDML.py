@@ -1,4 +1,4 @@
-import os,coral
+import os,coral,fnmatch
 from RecoLuminosity.LumiDB import nameDealer,dbUtil,revisionDML,lumiTime,CommonUtil
 import array
 
@@ -311,7 +311,7 @@ def trgRunById(schema,dataid):
             #print 'bitzeroname ',bitzeroname
             bitnameclob=cursor.currentRow()['bitnameclob'].data()
             #print 'bitnameclob ',bitnameclob
-            #print 'bitnameclob ',bitnameclob
+            print 'bitnameclob ',bitnameclob
             result.extend([runnum,source,bitzeroname,bitnameclob])
     except :
         del qHandle
@@ -319,12 +319,26 @@ def trgRunById(schema,dataid):
     del qHandle
     return result
 
-def trgLSById(schema,dataid,withblobdata=False):
+def trgLSById(schema,dataid,trgbitname=None,trgbitnamepattern=None,withblobdata=False):
     '''
-    result (runnum,{cmslsnum:[deadtimecount(0),bitzerocount(1),bitzeroprescale(2),deadfrac(3),prescalesblob(4),trgcountblob(5)]})
+    result (runnum,{cmslsnum:[deadtimecount(0),bitzerocount(1),bitzeroprescale(2),deadfrac(3),[(bitname,trgcount,prescale)](4)]})
     '''
     runnum=0
     result={}
+    trgnamedict={}
+    if withblobdata:
+        trgrundata=trgRunById(schema,dataid)
+        trgnames=trgrundata[3].split(',')
+        for trgnameidx,trgname in enumerate(trgnames):
+            if trgbitname :
+                if trgname==trgbitname:
+                    trgnamedict[trgnameidx]=trgname
+                    break
+            elif trgbitnamepattern:
+                if fnmatch.fnmatch(trgname,trgbitnamepattern):
+                    trgnamedict[trgnameidx]=trgname
+            else:
+                trgnamedict[trgnameidx]=trgname
     qHandle=schema.newQuery()
     try:
         qHandle.addToTableList(nameDealer.lstrgTableName())
@@ -370,9 +384,17 @@ def trgLSById(schema,dataid,withblobdata=False):
             prescalesblob=None
             trgcountblob=None
             if withblobdata:
+                extradata=[]
                 prescalesblob=cursor.currentRow()['prescalesblob'].data()
                 trgcountblob=cursor.currentRow()['trgcountblob'].data()
-                result[cmslsnum].extend([prescalesblob,trgcountblob])
+                prescales=CommonUtil.unpackBlobtoArray(prescalesblob,'L')
+                trgcounts=CommonUtil.unpackBlobtoArray(trgcountblob,'L')
+                for bitidx,presc in enumerate(prescales):
+                    if trgnamedict.has_key(bitidx):
+                        extradata.append((trgnamedict[bitidx],presc,trgcounts[bitidx]))
+                result[cmslsnum].extend(extradata)
+                del prescales[:]
+                del trgcounts[:]
     except:
         del qHandle
         raise 
@@ -1491,7 +1513,7 @@ if __name__ == "__main__":
     #print 'lumibx by algo OCC1'
     #print lumiBXByAlgo(schema,lumidataid,'OCC1')
     print 'trg run, trgdataid ',trgdataid
-    print trgRunById(schema,trgdataid)
+    print trgRunById(schema,trgdataid,withblobdata=True)  
     #print 'trg ls'
     #print trgLSById(schema,trgdataid)
     #print 'hlt run'
