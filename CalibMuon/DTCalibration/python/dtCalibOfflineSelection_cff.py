@@ -8,7 +8,7 @@ es_prefer_l1GtTriggerMaskTechTrig = cms.ESPrefer("L1GtTriggerMaskTechTrigTrivial
 import copy
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 hltL1SingleMuOpen = copy.deepcopy(hltHighLevel)
-hltL1SingleMuOpen.HLTPaths = ['HLT_L1SingleMuOpen*']
+hltL1SingleMuOpen.HLTPaths = ['HLT_L1SingleMuOpen_AntiBPTX_v*']
 
 from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import *
 l1tech = hltLevel1GTSeed.clone()
