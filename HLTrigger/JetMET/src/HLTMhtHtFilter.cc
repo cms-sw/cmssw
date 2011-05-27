@@ -53,7 +53,7 @@ HLTMhtHtFilter::HLTMhtHtFilter(const edm::ParameterSet& iConfig)
   if (       (minPtJet_.size()    !=  etaJet_.size())
        || (  (minPtJet_.size()<1) || (etaJet_.size()<1) )
        || ( ((minPtJet_.size()<2) || (etaJet_.size()<2))
-	    && ( (mode_==1) || (mode_==2) || (mode_ == 5))) ) {
+      && ( (mode_==1) || (mode_==2) || (mode_ == 5))) ) {
     edm::LogError("HLTMhtHtFilter") << "inconsistent module configuration!";
   }
 
@@ -149,14 +149,17 @@ bool
       }
       if(mode_ == 5){
         double mHT = sqrt( (mhtx*mhtx) + (mhty*mhty) );
-        dht += ( nj < 2 ? jetVar : -1.* jetVar ); //@@ only use for njets < 4
+	// Make sure to apply jet selection to the jets going into deltaHT as well!!!!!
+        if (jetVar > minPtJet_.at(0) && fabs(recocalojet->eta()) < etaJet_.at(0)) {
+	  dht += ( nj < 2 ? jetVar : -1.* jetVar ); //@@ only use for njets < 4
+        }
         if ( nj == 2 || nj == 3 ) {
           aT = ( ht - fabs(dht) ) / ( 2. * sqrt( ( ht*ht ) - ( mHT*mHT  ) ) );
         } else if ( nj > 3 ) {
           aT = ht / ( 2.*sqrt( ( ht*ht ) - ( mHT*mHT  ) ) );
         }
         if(ht > minHt_ && aT > minAlphaT_){
-  // put filter object into the Event
+    // put filter object into the Event
           flag = 1;
         }
       }
