@@ -169,7 +169,7 @@ bool shapeSelection(const std::vector<uint8_t> & ampls)
 			MaxPos=i-(recur254/2);
 		 	if(ampls[i]>ampls[i+1]){NofMax=NofMax+1;MaxInMiddle=true;}
 		}
-          }
+            }
 	 }
 	// Fin avec un max
          if(ampls.size()>1){
@@ -231,7 +231,10 @@ bool shapeSelection(const std::vector<uint8_t> & ampls)
 
 		if(MaxInMiddle==true){
 			C_M=(Float_t)ampls[MaxPos];
-			if(ampls[MaxPos-1]<ampls[MaxPos+1]){ C_D=(Float_t)ampls[MaxPos+1]; C_Mn=(Float_t)ampls[MaxPos-1];CDPos=MaxPos+1;} else{ C_D=(Float_t)ampls[MaxPos-1]; C_Mn=(Float_t)ampls[MaxPos+1];CDPos=MaxPos-1;}
+                        int LeftOfMaxPos=MaxPos-1;if(LeftOfMaxPos<=0)LeftOfMaxPos=0;
+                        int RightOfMaxPos=MaxPos+1;if(RightOfMaxPos>=(int)ampls.size())RightOfMaxPos=ampls.size()-1;
+                        //int after = RightOfMaxPos; int before = LeftOfMaxPos; if (after>=(int)ampls.size() ||  before<0)  std::cout<<"invalid read MaxPos:"<<MaxPos <<"size:"<<ampls.size() <<std::endl; 
+			if(ampls[LeftOfMaxPos]<ampls[RightOfMaxPos]){ C_D=(Float_t)ampls[RightOfMaxPos]; C_Mn=(Float_t)ampls[LeftOfMaxPos];CDPos=RightOfMaxPos;} else{ C_D=(Float_t)ampls[LeftOfMaxPos]; C_Mn=(Float_t)ampls[RightOfMaxPos];CDPos=LeftOfMaxPos;}
 			if(C_Mn<coeff1*coeffn*C_M+coeff2*coeffnn*C_D+2*noise || C_M==255){ 
 				if(ampls.size()==3) shapecdtn=true ;
 				else if(ampls.size()>3){
@@ -264,10 +267,9 @@ bool shapeSelection(const std::vector<uint8_t> & ampls)
 							C_Dn=(Float_t)ampls[CDPos-1];
 							C_Dnn=(Float_t)ampls[CDPos-2];
 						}
-						if(ampls.size()-MaxPos-1>1){
+                                                if(ampls.size()-LeftOfMaxPos>1 && MaxPos+2<(int)(ampls.size())-1){
 							C_Mnn=(Float_t)ampls[MaxPos+2];
-						}
-						else if(ampls.size()-MaxPos-1<=1) C_Mnn=0;							
+						}else C_Mnn=0;							
 					}
 					if((C_Dn<=coeff1*coeffn*C_D+coeff2*coeffnn*C_M+2*noise || C_D==255)
 					   && C_Mnn<=coeff1*coeffn*C_Mn+coeff2*coeffnn*C_M+2*noise

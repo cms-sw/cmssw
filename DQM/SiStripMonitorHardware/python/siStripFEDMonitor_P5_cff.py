@@ -17,7 +17,7 @@ siStripFEDMonitor.BadActiveChannelStatusBitsHistogramConfig.Enabled = True
 #Sub sets of FE problems
 siStripFEDMonitor.FEOverflowsHistogramConfig.Enabled = True
 siStripFEDMonitor.FEMissingHistogramConfig.Enabled = True
-siStripFEDMonitor.BadMajorityAddressesHistogramConfig.Enabled = True
+siStripFEDMonitor.BadMajorityAddressesHistogramConfig.Enabled = False
 #Sub sets of DAQ problems
 siStripFEDMonitor.DataMissingHistogramConfig.Enabled = True
 siStripFEDMonitor.BadIDsHistogramConfig.Enabled = True

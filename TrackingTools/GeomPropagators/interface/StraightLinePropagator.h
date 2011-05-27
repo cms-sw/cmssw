@@ -69,6 +69,18 @@ private:
   // compute propagated state, with errors if needed
   TrajectoryStateOnSurface propagatedState(const FreeTrajectoryState& fts, 
 					   const Surface& surface, 
+					   const AlgebraicMatrix& jacobian, 
+					   const GlobalPoint& x, 
+					   const GlobalVector& p) const;
+
+  TrajectoryStateOnSurface propagatedState(const FreeTrajectoryState& fts, 
+					   const Surface& surface, 
+					   const AlgebraicMatrix& jacobian, 
+					   const LocalPoint& x, 
+					   const LocalVector& p) const;
+
+  TrajectoryStateOnSurface propagatedState(const FreeTrajectoryState& fts, 
+					   const Surface& surface, 
 					   const AlgebraicMatrix55& jacobian, 
 					   const GlobalPoint& x, 
 					   const GlobalVector& p) const;
@@ -82,6 +94,7 @@ private:
 
   // compute jacobian of transform
   AlgebraicMatrix55 jacobian(double& s) const;
+  AlgebraicMatrix jacobian_old(double& s) const;
 
   // compute propagated x and p and path s, return true when propagation is OK
   bool propagateParametersOnCylinder(const FreeTrajectoryState& fts, 

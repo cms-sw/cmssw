@@ -65,3 +65,9 @@ JacobianLocalToCartesian::JacobianLocalToCartesian(const Surface& surface,
   //dbg::dbg_trace(1,"Loc2Ca", localParameters.vector(),g1,g2,g3,theJacobian);
 }
 
+const AlgebraicMatrix65& JacobianLocalToCartesian::jacobian() const{
+  return theJacobian;
+}
+const AlgebraicMatrix JacobianLocalToCartesian::jacobian_old() const{
+  return asHepMatrix(theJacobian);
+}

@@ -437,6 +437,23 @@ void FUShmBuffer::scheduleRawCellForDiscard(unsigned int iCell)
 
 
 //______________________________________________________________________________
+void FUShmBuffer::scheduleRawCellForDiscardServerSide(unsigned int iCell)
+{
+  waitRawDiscard();
+  if (rawCellReadyForDiscard(iCell)) {
+    rawDiscardIndex_=iCell;
+    evt::State_t  state=evtState(iCell);
+    assert(state==evt::RAWWRITTEN
+	   ||state==evt::LUMISECTION
+	   );
+    setEvtState(iCell,evt::PROCESSED);
+    postRawDiscarded();
+  }
+  else postRawDiscard();
+}
+
+
+//______________________________________________________________________________
 void FUShmBuffer::discardRawCell(FUShmRawCell* cell)
 {
   releaseRawCell(cell);
@@ -454,6 +471,16 @@ void FUShmBuffer::discardRecoCell(unsigned int iCell)
     //assert(state==evt::SENT);
     scheduleRawCellForDiscard(iRawCell);
   }
+  cell->clear();
+  if (segmentationMode_) shmdt(cell);
+  postRecoIndexToWrite(iCell);
+  postRecoWrite();
+}
+
+//______________________________________________________________________________
+void FUShmBuffer::discardOrphanedRecoCell(unsigned int iCell)
+{
+  FUShmRecoCell* cell=recoCell(iCell);
   cell->clear();
   if (segmentationMode_) shmdt(cell);
   postRecoIndexToWrite(iCell);

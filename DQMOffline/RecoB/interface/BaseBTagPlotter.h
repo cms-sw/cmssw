@@ -33,7 +33,7 @@ class BaseBTagPlotter {
 
   // the extension string to be used in histograms etc.
   const EtaPtBin etaPtBin_;
-  const std::string tagName_, theExtensionString,  ;
+  const std::string tagName_, theExtensionString;
 //   const int   nBinEffPur_ ;
 //   const double startEffPur_ ; 
 //   const double endEffPur_ ; 

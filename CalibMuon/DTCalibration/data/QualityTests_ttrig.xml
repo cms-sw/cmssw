@@ -25,8 +25,8 @@
 
 <QTEST name="ResidualsMeanInRange">
 	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">-0.02</PARAM>
-	<PARAM name="ymax">0.02</PARAM>
+	<PARAM name="ymin">-0.05</PARAM>
+	<PARAM name="ymax">0.05</PARAM>
 	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
 	<PARAM name="useEmptyBins">1</PARAM>
@@ -36,7 +36,7 @@
 <QTEST name="ResidualsSigmaInRange">
 	<TYPE>ContentsYRange</TYPE>	
 	<PARAM name="ymin">0</PARAM>
-	<PARAM name="ymax">0.08</PARAM>
+	<PARAM name="ymax">0.07</PARAM>
 	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
 	<PARAM name="useEmptyBins">1</PARAM>
@@ -194,7 +194,7 @@
 </LINK>
 
 <LINK name="*SigmaTest*">
-	<TestName activate="true">ResidualsSigmaInRange</TestName>
+	<TestName activate="false">ResidualsSigmaInRange</TestName>
 </LINK>
 
 <LINK name="*SlopeTest*">

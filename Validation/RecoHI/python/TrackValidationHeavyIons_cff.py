@@ -39,8 +39,8 @@ hiTrackValidator.label = cms.VInputTag(cms.InputTag('cutsRecoTracks'),
                                        )
 
 # track validation sequence
-hiTrackValidation = cms.Sequence(cms.ignore(findableSimTracks)
-                                 * cms.ignore(cutsTPFake)
-                                 * cms.ignore(cutsRecoTracks)
-                                 * cms.ignore(cutsRecoTracksHP)
+hiTrackValidation = cms.Sequence(findableSimTracks
+                                 * cutsTPFake
+                                 * cutsRecoTracks
+                                 * cutsRecoTracksHP
                                  * hiTrackValidator)
