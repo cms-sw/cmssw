@@ -1,5 +1,5 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/CosmicTrackingRegion.h"
-#include "RecoTracker/SpecialSeedGenerators/interface/EtaPhiMeasurementEstimator.h"
+#include "TrackingTools/KalmanUpdators/interface/EtaPhiMeasurementEstimator.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 
