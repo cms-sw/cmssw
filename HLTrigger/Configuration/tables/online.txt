@@ -130,6 +130,7 @@ HLT_Mu20_v*
 HLT_Mu24_v*
 HLT_Mu30_v*
 HLT_Mu40_v*
+HLT_Mu100_v*
 HLT_IsoMu12_v*
 HLT_IsoMu15_v*
 HLT_IsoMu17_v*
@@ -139,6 +140,7 @@ HLT_L2DoubleMu23_NoVertex_v*
 HLT_DoubleMu3_v*
 HLT_DoubleMu6_v*
 HLT_DoubleMu7_v*
+HLT_DoubleMu45_v*
 HLT_DoubleMu4_Acoplanarity03_v*
 HLT_DoubleMu5_Acoplanarity03_v*
 HLT_DoubleMu2_Bs_v*
@@ -227,6 +229,7 @@ HLT_Ele65_CaloIdVT_TrkIdT_v*
 HLT_DoubleEle8_CaloIdL_TrkIdVL_v*
 HLT_DoubleEle33_v*
 HLT_DoubleEle33_CaloIdL_v*
+HLT_DoubleEle45_CaloIdL_v*
 HLT_IsoPFTau35_Trk20_v*
 HLT_IsoPFTau35_Trk20_MET60_v*
 HLT_IsoPFTau45_Trk20_MET60_v*

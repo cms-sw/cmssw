@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HLT/V400 (CMSSW_4_2_0_HLT8)
+# /dev/CMSSW_4_2_0/HLT/V401 (CMSSW_4_2_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V400')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V401')
 )
 
 streams = cms.PSet( 
@@ -141,8 +141,6 @@ datasets = cms.PSet(
     'HLT_Ele25_CaloIdVT_TrkIdT_DiCentralJet30_v4',
     'HLT_Ele25_CaloIdVT_TrkIdT_QuadCentralJet30_v1',
     'HLT_Ele25_CaloIdVT_TrkIdT_TriCentralJet30_v4',
-    'HLT_Ele25_WP80_PFMT40_v1',
-    'HLT_Ele27_WP70_PFMT40_PFMHT20_v1',
     'HLT_Ele8_CaloIdT_TrkIdT_DiJet30_v2',
     'HLT_Ele8_CaloIdT_TrkIdT_QuadJet30_v2',
     'HLT_Ele8_CaloIdT_TrkIdT_TriJet30_v2',
@@ -1860,6 +1858,8 @@ datasets = cms.PSet(
     'AlCa_RPCMuonNoTriggers_v4',
     'AlCa_RPCMuonNormalisation_v4' ),
   SingleElectron = cms.vstring( 'HLT_Ele25_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v1',
+    'HLT_Ele25_WP80_PFMT40_v1',
+    'HLT_Ele27_WP70_PFMT40_PFMHT20_v1',
     'HLT_Ele32_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v2',
     'HLT_Ele32_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v4',
     'HLT_Ele42_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v1',
