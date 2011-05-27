@@ -62,7 +62,7 @@ namespace edm {
 
     double WeightOOTPU_[25][25];
 
-    int  LastRun_;
+    int  OldLumiSection_;
     bool Reweight_4_2_2p2_;
     bool FirstWarning_;
 

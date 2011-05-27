@@ -67,7 +67,7 @@ LumiReWeighting::LumiReWeighting( std::string generatedFile,
 	weightOOT_init();
 
 	FirstWarning_ = true;
-	LastRun_ = -1;
+	OldLumiSection_ = -1;
 }
 
 LumiReWeighting::LumiReWeighting( std::vector< float > MC_distr, std::vector< float > Lumi_distr) {
@@ -116,7 +116,7 @@ LumiReWeighting::LumiReWeighting( std::vector< float > MC_distr, std::vector< fl
   weightOOT_init();
 
   FirstWarning_ = true;
-  LastRun_ = -1;
+  OldLumiSection_ = -1;
 }
 
 double LumiReWeighting::weight( int npv ) {
@@ -972,11 +972,12 @@ double LumiReWeighting::weightOOT( const edm::Event &e ) {
     0
   };                        
 
-  int Run = e.run();
+  //int Run = e.run();
+  int LumiSection = e.luminosityBlock();
   
-  // do some caching here
+  // do some caching here, attempt to catch file boundaries
 
-  if(Run != LastRun_) {
+  if(LumiSection != OldLumiSection_) {
 
     Reweight_4_2_2p2_ = false;
 
@@ -1004,7 +1005,7 @@ double LumiReWeighting::weightOOT( const edm::Event &e ) {
 	}
       }
     }
-    LastRun_ = Run;
+    OldLumiSection_ = LumiSection;
   }
 
   // find the pileup summary information
