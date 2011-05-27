@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/04/11 13:55:05 $
- *  $Revision: 1.56 $
+ *  $Date: 2011/05/24 14:22:06 $
+ *  $Revision: 1.57 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -807,7 +807,6 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     if ( vertexHandle.isValid() ){
       reco::VertexCollection vertexCollection = *(vertexHandle.product());
       int vertex_number     = vertexCollection.size();
-      std::cout<<"found vertex collection with "<<vertex_number<<" vertices"<<std::endl;
       reco::VertexCollection::const_iterator v = vertexCollection.begin();
       for ( ; v != vertexCollection.end(); ++v) {
 	double vertex_chi2    = v->normalizedChi2();
