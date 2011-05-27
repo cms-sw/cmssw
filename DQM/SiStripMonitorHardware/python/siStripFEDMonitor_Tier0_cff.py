@@ -114,8 +114,8 @@ siStripFEDMonitor.nFEDsWithFEBadMajorityAddressesHistogramConfig = cms.untracked
 siStripFEDMonitor.nUnconnectedChannelsHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(True),
   NBins = cms.untracked.uint32(250),
-  Min = cms.untracked.double(0),
-  Max = cms.untracked.double(500)
+  Min = cms.untracked.double(6000),
+  Max = cms.untracked.double(8000)
 )
 siStripFEDMonitor.nAPVStatusBitHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(False),
