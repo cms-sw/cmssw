@@ -22,8 +22,12 @@ namespace edm {
                                        ProductRegistry& iReg,
                                        bool iIsListener) {
     std::string const prefix("LCGReflex/");
+    Reflex::Type null;
     for (TypeLabelList::const_iterator p = iBegin; p != iEnd; ++p) {
-      edmplugin::PluginCapabilities::get()->tryToLoad(prefix + p->typeID_.userClassName());
+      if(null == Reflex::Type::ByName(p->typeID_.userClassName()) ) {
+        //attempt to load
+        edmplugin::PluginCapabilities::get()->tryToLoad(prefix + p->typeID_.userClassName());
+      }
       BranchDescription pdesc(p->branchType_,
                               iDesc.moduleLabel(),
                               iDesc.processName(),
