@@ -1,15 +1,12 @@
 <environment>
-  <use   name="rootcintex"/>
-  <use   name="SimCalorimetry/HcalSimAlgos"/>
-  <use   name="SimDataFormats/CrossingFrame"/>
-  <bin   file="HcalDigitizerTest.cpp">
-  </bin>
-  <bin   file="HPDIonFeedbackTest.cpp">
-  </bin>
-  <bin   file="writeHPDLibrary.cc">
-  </bin>
-  <bin   file="readHPDLibrary.cc">
-  </bin>
+  <use name="rootcintex"/>
+  <use name="SimCalorimetry/HcalSimAlgos"/>
+  <use name="SimDataFormats/CrossingFrame"/>
+  <bin file="HcalDigitizerTest.cpp"/>
+  <bin file="HPDIonFeedbackTest.cpp"/>
+  <bin file="writeHPDLibrary.cc"/>
+  <bin file="readHPDLibrary.cc"/>
+  <bin file="HcalShapeIntegratorTest.cpp"/>
   <library   file="HcalSignalGeneratorTest.cpp" name="HcalSignalGeneratorTest">
     <flags   EDM_PLUGIN="1"/>
   </library>
