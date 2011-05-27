@@ -35,7 +35,6 @@ from DQM.L1TMonitor.L1TLTC_cff import *
 # RCT DQM module 
 from DQM.L1TMonitor.L1TRCT_cfi import *
 
-
 # GCT DQM module 
 from DQM.L1TMonitor.L1TGCT_cfi import *
 
@@ -74,12 +73,19 @@ from DQM.L1TMonitor.L1TSync_cfi import *
 # other, non pure-L1 stuff
 #
 
-# fiter used by RCT and GCT DQM modules
+# filter used by RCT and GCT DQM modules
 from HLTrigger.special.HLTTriggerTypeFilter_cfi import *
 hltTriggerTypeFilter.SelectedTriggerType = 1
 
 # scaler modules (SM and SCAL) - it uses DQM.TrigXMonitor
-from DQM.L1TMonitor.L1TMonScalers_cff import *
+#
+# SCAL scalers
+from DQM.TrigXMonitor.L1TScalersSCAL_cfi import *
+#
+# SM scalers
+from DQM.TrigXMonitor.L1Scalers_cfi import *
+l1s.l1GtData = cms.InputTag("gtDigis","","DQM")
+l1s.dqmFolder = cms.untracked.string("L1T/L1Scalers_SM") 
 
 
 #
