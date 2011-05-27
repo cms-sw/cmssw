@@ -374,7 +374,7 @@ namespace edm {
         // TClasses. During this phase we do not want to actually force TClasses to have to 
         // come into existence.
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,6)
-        if (loadLibraryForClass(classname) and not isInitializingCintex_) {
+        if (not isInitializingCintex_ and loadLibraryForClass(classname)) {
 #else
          if (loadLibraryForClass(classname)) {
 #endif
