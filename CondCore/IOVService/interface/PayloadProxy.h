@@ -45,8 +45,15 @@ namespace cond {
 
     // errorPolicy=true will throw on load, false will set interval and token to invalid
     BasePayloadProxy(cond::DbSession& session,
+                     bool errorPolicy);
+
+    // errorPolicy=true will throw on load, false will set interval and token to invalid
+    BasePayloadProxy(cond::DbSession& session,
                      const std::string & token,
                      bool errorPolicy);
+
+    void loadIov( const std::string iovToken );
+    void loadTag( const std::string tag );
     
     virtual ~BasePayloadProxy();
 
@@ -104,6 +111,11 @@ namespace cond {
   public:
  
     PayloadProxy(cond::DbSession& session,
+                 bool errorPolicy,
+                 const char * source=0) :
+      BasePayloadProxy(session, errorPolicy) {}
+
+    PayloadProxy(cond::DbSession& session,
                  const std::string & token,
                  bool errorPolicy,
                  const char * source=0) :
@@ -124,7 +136,9 @@ namespace cond {
 
   protected:
     virtual bool load(cond::DbSession& session, std::string const & itoken) {
+      session.transaction().start();
       return m_data.load(session,itoken);
+      session.transaction().commit();
     }
 
   private:

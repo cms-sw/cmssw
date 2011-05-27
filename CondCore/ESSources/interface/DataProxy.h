@@ -71,6 +71,8 @@ namespace cond {
     // late initialize (to allow to load ALL library first)
     virtual void lateInit(cond::DbSession& session, const std::string & iovtoken,
 			  std::string const & il, std::string const & cs, std::string const & tag)=0;
+    virtual void lateInit(cond::DbSession& session, const std::string & tag,
+			  std::string const & il, std::string const & cs)=0;
 
     void addInfo(std::string const & il, std::string const & cs, std::string const & tag);
     
@@ -107,19 +109,27 @@ public:
     m_edmProxy(new DataProxy(m_proxy)){
     //NOTE: We do this so that the type 'DataT' will get registered
     // when the plugin is dynamically loaded
-    //std::cout<<"DataProxy constructor"<<std::endl;
     m_type = edm::eventsetup::DataKey::makeTypeTag<DataT>();
-    //std::cout<<"about to get out of DataProxy constructor"<<std::endl;
   }
 
   // constructor from plugin...
   explicit DataProxyWrapper(const char * source=0) : m_source (source ? source : "") {
     //NOTE: We do this so that the type 'DataT' will get registered
     // when the plugin is dynamically loaded
-    //std::cout<<"DataProxy constructor"<<std::endl;
     m_type = edm::eventsetup::DataKey::makeTypeTag<DataT>();
   }
 
+  // late initialize (to allow to load ALL library first)
+  virtual void lateInit(cond::DbSession& session, const std::string & tag,
+			std::string const & il, std::string const & cs) {
+    m_proxy.reset(new PayProxy(session,true, //errorPolicy set to true: PayloadProxy should catch and re-throw ORA exceptions
+			       m_source.empty() ?  (const char *)(0) : m_source.c_str() 
+			       )
+		  );
+    m_proxy->loadTag( tag);
+    m_edmProxy.reset(new DataProxy(m_proxy));
+    addInfo(il, cs, tag);
+  }
   // late initialize (to allow to load ALL library first)
   virtual void lateInit(cond::DbSession& session, const std::string & iovtoken,
 			std::string const & il, std::string const & cs, std::string const & tag) {

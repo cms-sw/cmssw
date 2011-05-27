@@ -186,18 +186,20 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
       nsess.open( it->pfn, true );
       sessions.insert(std::make_pair(it->pfn,nsess));
     } else nsess = (*p).second;
-    cond::MetaData metadata(nsess);
-    nsess.transaction().start(true);
-    std::string iovtoken = metadata.getToken(it->tag);
+    //cond::MetaData metadata(nsess);
+    //nsess.transaction().start(true);
+    //std::string iovtoken = metadata.getToken(it->tag);
     // owenship...
     ProxyP proxy(proxyWrappers[ipb++]);
    //  instert in the map
     m_proxies.insert(std::make_pair(it->recordname, proxy));
     // initialize
-    proxy->lateInit(nsess,iovtoken, 
-		    it->labelname, it->pfn, it->tag
-		    );
-    nsess.transaction().commit();
+    //proxy->lateInit(nsess,iovtoken, 
+    //		    it->labelname, it->pfn, it->tag
+    //	    );
+    proxy->lateInit(nsess,it->tag, 
+		    it->labelname, it->pfn);
+    //nsess.transaction().commit();
   }
 
   // one loaded expose all other tags to the Proxy! 
