@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V106 (CMSSW_4_2_0_HLT8)
+# /dev/CMSSW_4_2_0/GRun/V107 (CMSSW_4_2_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V106')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V107')
 )
 
 process.streams = cms.PSet( 
@@ -3116,6 +3116,9 @@ process.PrescaleService = cms.Service( "PrescaleService",
       cms.PSet(  pathName = cms.string( "HLT_Mu20_v3" ),
         prescales = cms.vuint32( 120, 84, 60, 42, 30, 18, 12, 8, 6, 1 )
       ),
+      cms.PSet(  pathName = cms.string( "HLT_Mu24_v3" ),
+        prescales = cms.vuint32( 60, 45, 30, 20, 15, 10, 5, 1, 1, 1 )
+      ),
       cms.PSet(  pathName = cms.string( "HLT_IsoMu12_v5" ),
         prescales = cms.vuint32( 20, 140, 100, 70, 50, 30, 20, 14, 10, 1 )
       ),
@@ -3227,14 +3230,14 @@ process.PrescaleService = cms.Service( "PrescaleService",
       cms.PSet(  pathName = cms.string( "HLT_Ele25_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v1" ),
         prescales = cms.vuint32( 400, 300, 200, 150, 100, 70, 50, 20, 10, 1 )
       ),
-      cms.PSet(  pathName = cms.string( "HLT_Ele25_WP80_PFMT40_v1" ),
-        prescales = cms.vuint32( 40, 30, 20, 15, 10, 7, 5, 3, 1, 1 )
-      ),
       cms.PSet(  pathName = cms.string( "HLT_Ele32_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v2" ),
         prescales = cms.vuint32( 200, 150, 100, 70, 50, 30, 25, 10, 5, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Ele32_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v4" ),
         prescales = cms.vuint32( 20, 10, 1, 1, 1, 1, 1, 1, 1, 1 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_Ele42_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v1" ),
+        prescales = cms.vuint32( 75, 50, 40, 35, 30, 25, 15, 10, 5, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_DoubleEle8_CaloIdL_TrkIdVL_v2" ),
         prescales = cms.vuint32( 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 )
@@ -3381,7 +3384,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Random_v1" ),
-        prescales = cms.vuint32( 6000, 6000, 6000, 6000, 6000, 6000, 6000, 6000, 6000, 6000 )
+        prescales = cms.vuint32( 600, 600, 600, 600, 600, 600, 600, 600, 600, 600 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_L1ETM30_v2" ),
         prescales = cms.vuint32( 2400, 1680, 1200, 840, 600, 360, 240, 168, 120, 1 )
