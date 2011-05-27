@@ -63,6 +63,7 @@ HcalDeadCellMonitor::HcalDeadCellMonitor(const edm::ParameterSet& ps)
 
 HcalDeadCellMonitor::~HcalDeadCellMonitor()
 {
+  if (logicalMap_ == 0) delete logicalMap_;
 } //destructor
 
 
@@ -390,6 +391,7 @@ void HcalDeadCellMonitor::reset()
   HcalBaseDQMonitor::reset();
   zeroCounters();
   deadevt_=0;
+  is_RBX_loss_ = 0; 
   ProblemsVsLB->Reset(); ProblemsVsLB_HB->Reset(); ProblemsVsLB_HE->Reset(); ProblemsVsLB_HO->Reset(); ProblemsVsLB_HF->Reset(); ProblemsVsLB_HBHEHF->Reset();
   NumberOfNeverPresentDigis->Reset(); NumberOfNeverPresentDigisHB->Reset(); NumberOfNeverPresentDigisHE->Reset(); NumberOfNeverPresentDigisHO->Reset(); NumberOfNeverPresentDigisHF->Reset();
 
