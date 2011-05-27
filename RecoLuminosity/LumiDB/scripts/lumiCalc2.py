@@ -65,50 +65,106 @@ if __name__ == '__main__':
     #
     # basic arguments
     #
-    parser.add_argument('action',choices=allowedActions,help='command actions')
-    parser.add_argument('-c',dest='connect',action='store',required=False,help='connect string to lumiDB,optional',default='frontier://LumiCalc/CMS_LUMI_PROD')
-    parser.add_argument('-P',dest='authpath',action='store',required=False,help='path to authentication file (optional)')
-    parser.add_argument('-r',dest='runnumber',action='store',type=int,required=False,help='run number (optional)')
-    parser.add_argument('-o',dest='outputfile',action='store',required=False,help='output to csv file (optional)')
+    parser.add_argument('action',choices=allowedActions,
+                        help='command actions')
+    parser.add_argument('-c',dest='connect',action='store',
+                        required=False,
+                        help='connect string to lumiDB,optional',default='frontier://LumiCalc/CMS_LUMI_PROD')
+    parser.add_argument('-P',dest='authpath',action='store',
+                        required=False,
+                        help='path to authentication file (optional)')
+    parser.add_argument('-r',dest='runnumber',action='store',type=int,
+                        required=False,
+                        help='run number (optional)')
+    parser.add_argument('-o',dest='outputfile',action='store',
+                        required=False,
+                        help='output to csv file (optional)')
     #
     #optional arg to select exact run and ls
     #
-    parser.add_argument('-i',dest='inputfile',action='store',required=False,help='lumi range selection file (optional)')
+    parser.add_argument('-i',dest='inputfile',action='store',
+                        required=False,
+                        help='lumi range selection file (optional)')
     #
     #optional arg to select exact hltpath or pattern
     #
-    parser.add_argument('-hltpath',dest='hltpath',action='store',default=None,required=False,help='specific hltpath or hltpath pattern to calculate the effectived luminosity (optional)')
+    parser.add_argument('-hltpath',dest='hltpath',action='store',
+                        default=None,required=False,
+                        help='specific hltpath or hltpath pattern to calculate the effectived luminosity (optional)')
     #
     #optional args to filter *runs*, they do not select on LS level.
     #
-    parser.add_argument('-b',dest='beammode',action='store',choices=beamModeChoices,required=False,help='beam mode choices [stable] (optional)')
-    parser.add_argument('-fill',dest='fillnum',action='store',default=None,required=False,help='fill number (optional) ')
-    parser.add_argument('-amodetag',dest='amodetag',action='store',choices=amodetagChoices,required=False,help='specific accelerator mode choices [PROTOPHYS,IONPHYS] (optional)')
-    parser.add_argument('-beamenergy',dest='beamenergy',action='store',type=float,default=None,help='nominal beam energy in GeV')
-    parser.add_argument('-beamfluctuation',dest='beamfluctuation',type=float,action='store',default=0.2,required=False,help='fluctuation in fraction allowed to nominal beam energy, default 0.2, to be used together with -beamenergy  (optional)')
-    parser.add_argument('-begin',dest='begin',action='store',default=None,required=False,help='min run start time, mm/dd/yy hh:mm:ss (optional)')
-    parser.add_argument('-end',dest='end',action='store',default=None,required=False,help='max run start time, mm/dd/yy hh:mm:ss (optional)')    
+    parser.add_argument('-b',dest='beammode',action='store',
+                        choices=beamModeChoices,
+                        required=False,
+                        help='beam mode choices [stable] (optional)')
+    parser.add_argument('-fill',dest='fillnum',action='store',
+                        default=None,required=False,
+                        help='fill number (optional) ')
+    parser.add_argument('-amodetag',dest='amodetag',action='store',
+                        choices=amodetagChoices,
+                        required=False,
+                        help='specific accelerator mode choices [PROTOPHYS,IONPHYS] (optional)')
+    parser.add_argument('-beamenergy',dest='beamenergy',action='store',
+                        type=float,
+                        default=None,
+                        help='nominal beam energy in GeV')
+    parser.add_argument('-beamfluctuation',dest='beamfluctuation',
+                        type=float,action='store',
+                        default=0.2,
+                        required=False,
+                        help='fluctuation in fraction allowed to nominal beam energy, default 0.2, to be used together with -beamenergy  (optional)')
+    parser.add_argument('-begin',dest='begin',action='store',
+                        default=None,
+                        required=False,
+                        help='min run start time, mm/dd/yy hh:mm:ss (optional)')
+    parser.add_argument('-end',dest='end',action='store',
+                        default=None,required=False,
+                        help='max run start time, mm/dd/yy hh:mm:ss (optional)')    
     #
     #optional args to filter ls
     #
-    parser.add_argument('-xingMinLum', dest = 'xingMinLum', type=float,default=1e-03,required=False,help='Minimum luminosity considered for lumibylsXing action, default=1e-03')
-    parser.add_argument('-xingAlgo', dest = 'xingAlgo', default='OCC1',required=False,help='algorithm name for per-bunch lumi ')
+    parser.add_argument('-xingMinLum', dest = 'xingMinLum',
+                        type=float,
+                        default=1e-03,
+                        required=False,
+                        help='Minimum luminosity considered for lumibylsXing action, default=1e-03')
+    parser.add_argument('-xingAlgo', dest = 'xingAlgo',
+                        default='OCC1',
+                        required=False,
+                        help='algorithm name for per-bunch lumi ')
     #
     #optional args for data and normalization version control
     #
-    parser.add_argument('-lumiversion',dest='lumiversion',action='store',default=None,required=False,help='data version, optional')
-    parser.add_argument('-norm',dest='normfactor',action='store',default=None,required=False,help='use specify the name or the value of the normalization to use,optional')
-    parser.add_argument('-n',dest='scalefactor',action='store',type=float,default=1.0,required=False,help='user defined global scaling factor on displayed lumi values,optional')
+    parser.add_argument('-lumiversion',dest='lumiversion',action='store',
+                        default=None,
+                        required=False,
+                        help='data version, optional')
+    parser.add_argument('-norm',dest='normfactor',action='store',
+                        default=None,
+                        required=False,
+                        help='use specify the name or the value of the normalization to use,optional')
+    parser.add_argument('-n',dest='scalefactor',action='store',
+                        type=float,
+                        default=1.0,
+                        required=False,
+                        help='user defined global scaling factor on displayed lumi values,optional')
     #
     #command configuration 
     #
-    parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',default=None,required=False,help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')
+    parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',
+                        default=None,
+                        required=False,
+                        help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')
     #
     #switches
     #
-    parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode for printing' )
-    parser.add_argument('--nowarning',dest='nowarning',action='store_true',help='suppress bad for lumi warnings' )
-    parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
+    parser.add_argument('--verbose',dest='verbose',action='store_true',
+                        help='verbose mode for printing' )
+    parser.add_argument('--nowarning',dest='nowarning',action='store_true',
+                        help='suppress bad for lumi warnings' )
+    parser.add_argument('--debug',dest='debug',action='store_true',
+                        help='debug')
     
     options=parser.parse_args()
     if options.authpath:
