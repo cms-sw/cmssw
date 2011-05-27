@@ -7010,7 +7010,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
 				
 	      // apply L2 cut on jets 
 	      for (int i = 0; i < NohBJetL2; i++)
-		if (ohBJetL2Et[i] > thresholds[0] && abs(ohBJetL2Eta[i]) < 3.0) // change this ET cut to 20 for the 20U patath 
+		if (ohBJetL2Et[i] > thresholds[0] && fabs(ohBJetL2Eta[i]) < 3.0) // change this ET cut to 20 for the 20U patath 
 		  njets++;
 				
 	      // apply b-tag cut 
@@ -7077,7 +7077,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
 				
 	      // apply L2 cut on jets
 	      for (int i = 0; i < NohBJetL2; i++)
-		if (ohBJetL2Et[i] > thresholds[0] && abs(ohBJetL2Eta[i]) < 3.0) // change this ET cut to 20 for the 20U patath
+		if (ohBJetL2Et[i] > thresholds[0] && fabs(ohBJetL2Eta[i]) < 3.0) // change this ET cut to 20 for the 20U patath
 		  njets++;
 				
 	      // apply b-tag cut
@@ -7113,7 +7113,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
 				
 	      // apply L2 cut on jets
 	      for (int i = 0; i < NohBJetL2; i++)
-		if (ohBJetL2Et[i] > thresholds[0] && abs(ohBJetL2Eta[i]) < 3.0)
+		if (ohBJetL2Et[i] > thresholds[0] && fabs(ohBJetL2Eta[i]) < 3.0)
 		  njets++;
 				
 	      // apply b-tag cut
@@ -7153,7 +7153,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
 				
 	      // apply L2 cut on jets
 	      for (int i = 0; i < NohBJetL2Corrected; i++)
-		if (ohBJetL2CorrectedEt[i] > thresholds[0] && abs(ohBJetL2Eta[i]) < 3.0)
+		if (ohBJetL2CorrectedEt[i] > thresholds[0] && fabs(ohBJetL2Eta[i]) < 3.0)
 		  njets++;
 				
 	      // apply b-tag cut
@@ -7707,6 +7707,127 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
 	    }
 	}
     }
+
+//2011-05-27: Update once pfMHTphi becmoes available in ntuple
+else if (triggerName.CompareTo("Ele25_CaloIdWP80_CaloIsoWP80_TrkIdWP80_TrkIsoWP80_PFMT40") //newb
+		 == 0)//WARNING! this uses cluster shape for sigmaIetaIeta. JB says that's ok; is it?
+{
+	if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+		if (prescaleResponse(menu, cfg, rcounter, it))
+		{
+			std::vector<int> eleVector = VectorOpenHlt1ElectronSamHarperPassed(25., 0, // ET, L1isolation  x
+											   999.,
+											   999., // Track iso barrel, Track iso endcap  
+											   0.09,
+											   0.04, // Track/pT iso barrel, Track/pT iso endcap  x
+											   0.1,
+											   0.025, // H/ET iso barrel, H/ET iso endcap  x
+											   0.07,
+											   0.05, // E/ET iso barrel, E/ET iso endcap x
+											   0.04,
+											   0.025, // H/E barrel, H/E endcap  x
+											   0.01,
+											   0.03, // cluster shape barrel, cluster shape endcap x
+											   999.,
+											   999., // R9 barrel, R9 endcap  
+											   0.004,
+											   0.007, // Deta barrel, Deta endcap  x
+											   0.06,
+											   0.03 // Dphi barrel, Dphi endcap  x
+											   );
+			if(eleVector.size()>=1)
+			{
+					//calculate pfMHTphi. Once the new producer module is in place, section should be replaced by the pfMHTPhi in ntuple
+				float pfMHTphi = 0.;
+				TLorentzVector sum;
+				TLorentzVector thisjet;
+				for(int ijet = 0; ijet<NohPFJet; ijet++){
+					thisjet.SetPtEtaPhiM(pfJetPt[ijet], pfJetEta[ijet], pfJetPhi[ijet], 0.);
+					sum += thisjet;
+				}
+				pfMHTphi = (-sum).Phi();
+					//end calculate pfMHTphi
+
+					
+				//do any of the passing ele make pfMT 40 with pfMHT?
+				for (unsigned int iele = 0; iele<eleVector.size(); iele++) {
+					int i = eleVector[iele];
+					float dphi = fabs(pfMHTphi-ohElePhi[i]);
+					if (dphi > 3.14159){ dphi = (2.0 * 3.14159) - dphi; }
+					float pfMT = 2.*ohEleEt[i]*pfMHT*(1.-cos(dphi));
+					if (pfMT > 40) {
+						triggerBit[it] = true;
+						break;
+					}
+				}//end for all ele
+			}//end if there are passing electrons
+		}
+	}
+}
+
+//2011-05-27: Update once pfMHTphi becmoes available in ntuple
+else if (triggerName.CompareTo("Ele27_CaloIdWP70_CaloIsoWP70_TrkIdWP70_TrkIsoWP70_PFMT40_PFMHT20") //new
+		 == 0)//WARNING! this does not yet encorperate sigmaIetaIeta
+{
+	if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+		if (prescaleResponse(menu, cfg, rcounter, it))
+		{
+			
+			if (pfMHT > 20.){
+				std::vector<int> eleVector = VectorOpenHlt1ElectronSamHarperPassed(
+												   27., 0, // ET, L1isolation 
+												   999.,
+												   999., // Track iso barrel, Track iso endcap  
+												   0.05,
+												   0.025, // Track/pT iso barrel, Track/pT iso endcap
+												   0.03,
+												   0.02, // H/ET iso barrel, H/ET iso endcap
+												   0.06,
+												   0.025, // E/ET iso barrel, E/ET iso endcap
+												   0.025,
+												   0.025, // H/E barrel, H/E endcap
+												   0.01,
+												   0.03, // cluster shape barrel, cluster shape endcap  x
+												   999.,
+												   999., // R9 barrel, R9 endcap  
+												   0.004,
+												   0.005, // Deta barrel, Deta endcap
+												   0.03,
+												   0.02 // Dphi barrel, Dphi endcap
+												   );
+				if(eleVector.size()>=1)
+				{
+						//calculate pfMHTphi. Once the new producer module is in place, section should be replaced by the pfMHTPhi in ntuple
+					float pfMHTphi = 0.;
+					TLorentzVector sum;
+					TLorentzVector thisjet;
+					for(int ijet = 0; ijet<NohPFJet; ijet++){
+						thisjet.SetPtEtaPhiM(pfJetPt[ijet], pfJetEta[ijet], pfJetPhi[ijet], 0.);
+						sum += thisjet;
+					}
+					pfMHTphi = (-sum).Phi();
+						//end calculate pfMHTphi
+					
+					
+					//do any of the passing ele make pfMT 40 with pfMHT?
+					for (unsigned int iele = 0; iele<eleVector.size(); iele++) { 
+						int i = eleVector[iele];
+						float dphi = fabs(pfMHTphi-ohElePhi[i]);
+						if (dphi > 3.14159){ dphi = (2.0 * 3.14159) - dphi; }
+						float pfMT = 2.*ohEleEt[i]*pfMHT*(1.-cos(dphi));
+						if (pfMT > 40) {
+							triggerBit[it] = true;
+							break;
+						}
+					}//end for all ele
+				}//end if there are passing electrons
+			}//end pfMHT cut
+		}
+	}
+}
+
 	
   /**********************************************/
 	
@@ -12870,7 +12991,7 @@ int OHltTree::OpenHltPFTauPassedNoEle(
     {
       //        if (ohpfTauJetPt[i] >= Et) 
       if (ohpfTauPt[i] >= Et)
-	if (abs(ohpfTauEta[i])<2.5)
+	if (fabs(ohpfTauEta[i])<2.5)
 	  if (ohpfTauLeadTrackPt[i] >= L25TrkPt)
 	    if (ohpfTauTrkIso[i] < L3TrkIso)
 	      if (ohpfTauGammaIso[i] < L3GammaIso)
@@ -18449,7 +18570,7 @@ int OHltTree::OpenHltPFTauPassedNoMuonIDNoEleID(float Et,float L25TrkPt, float L
   // Loop over all oh pfTaus
   for (int i=0;i < NohpfTau;i++) {
     if (ohpfTauPt[i] >= Et){
-      if(abs(ohpfTauEta[i])<2.5){
+      if(fabs(ohpfTauEta[i])<2.5){
 	if (ohpfTauLeadTrackPt[i] >= L25TrkPt){
 	  if (ohpfTauTrkIso[i] < L3TrkIso){
 	    if (ohpfTauGammaIso[i] < L3GammaIso ){
