@@ -316,7 +316,8 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     recordValidity.first = std::max(recordValidity.first,validity.first);
     recordValidity.second = std::min(recordValidity.second,validity.second);
  
-    LogDebug ("CondDBESSource") <<"setting validity "<<recordValidity.first<<" "<<recordValidity.second<<" for ibtime "<<abtime<< std::endl;
+    LogDebug ("CondDBESSource") <<"setting validity " << recordname << " " << 
+				<<recordValidity.first<<" "<<recordValidity.second<<" for ibtime "<<abtime<< std::endl;
  
   }      
    
