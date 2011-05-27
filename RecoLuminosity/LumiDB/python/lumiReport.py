@@ -74,8 +74,8 @@ def toScreenTotDelivered(lumidata,resultlines,scalefactor,isverbose):
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,40) )
     print ' ==  =  Total : '
-    if (totdelivered+totOldDelivered)!=0:
-        (totalDeliveredVal,totalDeliveredUni)=CommonUtil.guessUnit(totdelivered+totOldDelivered)
+    #if (totdelivered+totOldDelivered)!=0:
+    (totalDeliveredVal,totalDeliveredUni)=CommonUtil.guessUnit(totdelivered+totOldDelivered)
     totrowlabels = [('Delivered LS','Delivered('+totalDeliveredUni+')')]
     totaltable.append([str(totls+totOldDeliveredLS),'%.3f'%(totalDeliveredVal*scalefactor)])
     print tablePrinter.indent (totrowlabels+totaltable, hasHeader = True, separateRows = False, prefix = '| ',
@@ -341,12 +341,12 @@ def toScreenLumiByLS(lumidata,resultlines,scalefactor,isverbose):
                 totalSelectedLS+=1
     totdeliveredlumi=0.0
     deliveredlumiunit='/ub'
-    if (totalDelivered+totOldDelivered)!=0:
-        (totdeliveredlumi,deliveredlumiunit)=CommonUtil.guessUnit(totalDelivered+totOldDelivered)
+    #if (totalDelivered+totOldDelivered)!=0:
+    (totdeliveredlumi,deliveredlumiunit)=CommonUtil.guessUnit(totalDelivered+totOldDelivered)
     totrecordedlumi=0.0
     recordedlumiunit='/ub'
-    if (totalRecorded+totOldRecorded)!=0:
-        (totrecordedlumi,recordedlumiunit)=CommonUtil.guessUnit(totalRecorded+totOldRecorded)
+    #if (totalRecorded+totOldRecorded)!=0:
+    (totrecordedlumi,recordedlumiunit)=CommonUtil.guessUnit(totalRecorded+totOldRecorded)
     lastrowlabels = [ ('Delivered LS','Selected LS', 'Delivered('+deliveredlumiunit+')', 'Recorded('+recordedlumiunit+')')]
     totalrow.append ([str(totalDeliveredLS+totOldDeliveredLS),str(totalSelectedLS+totOldSelectedLS),'%.3f'%(totdeliveredlumi*scalefactor),'%.3f'%(totrecordedlumi*scalefactor)])
     sortedresult=sorted(result,key=lambda x : int(x[0]))
