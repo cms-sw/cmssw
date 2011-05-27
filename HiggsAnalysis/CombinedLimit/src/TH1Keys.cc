@@ -19,8 +19,9 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,Double_t xlow,D
     TH1(name,title,nbinsx,xlow,xup),
     min_(xlow), max_(xup),
     x_(new RooRealVar("x", "x", min_, max_)),
+    w_(new RooRealVar("w", "w", 1.0)),
     point_(*x_),
-    dataset_(new RooDataSet(name, title, point_)),
+    dataset_(new RooDataSet(name, title, RooArgSet(*x_, *w_), "w")),
     underflow_(0.0), overflow_(0.0),
     globalScale_(1.0),
     mirror_(mirror),
@@ -37,8 +38,9 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Float_t  
     TH1(name,title,nbinsx,xbins),
     min_(xbins[0]), max_(xbins[nbinsx]),
     x_(new RooRealVar("x", "x", min_, max_)),
+    w_(new RooRealVar("w", "w", 1.0)),
     point_(*x_),
-    dataset_(new RooDataSet(name, title, point_)),
+    dataset_(new RooDataSet(name, title, RooArgSet(*x_, *w_), "w")),
     underflow_(0.0), overflow_(0.0),
     globalScale_(1.0),
     mirror_(mirror),
@@ -57,8 +59,9 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Double_t 
     TH1(name,title,nbinsx,xbins),
     min_(xbins[0]), max_(xbins[nbinsx]),
     x_(new RooRealVar("x", "x", min_, max_)),
+    w_(new RooRealVar("w", "w", 1.0)),
     point_(*x_),
-    dataset_(new RooDataSet(name, title, point_)),
+    dataset_(new RooDataSet(name, title, RooArgSet(*x_, *w_), "w")),
     underflow_(0.0), overflow_(0.0),
     globalScale_(1.0),
     mirror_(mirror),
@@ -76,8 +79,9 @@ TH1Keys::TH1Keys(const TH1Keys &other)  :
     TH1(other),
     min_(other.min_), max_(other.max_),
     x_(new RooRealVar("x", "x", min_, max_)),
+    w_(new RooRealVar("w", "w", 1.0)),
     point_(*x_),
-    dataset_(new RooDataSet(other.GetName(), other.GetTitle(), point_)),
+    dataset_(new RooDataSet(other.GetName(), other.GetTitle(), RooArgSet(*x_, *w_), "w")),
     underflow_(other.underflow_), overflow_(other.overflow_),
     globalScale_(other.globalScale_),
     mirror_(other.mirror_),
@@ -114,12 +118,7 @@ void TH1Keys::FillN(Int_t ntimes, const Double_t *x, const Double_t *w, Int_t st
 {
     isCacheGood_ = false;
     for (Int_t i = 0; i < ntimes; i += stride) {
-        if (x[i] >= max_) overflow_ += w[i];
-        else if (x[i] < min_) underflow_ += w[i];
-        else {
-            x_->setVal(x[i]);
-            dataset_->add(point_, w[i]);
-        }
+        Fill(x[i], w[i]);
     }
 }
 

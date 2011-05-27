@@ -49,7 +49,7 @@ class TH1Keys : public TH1 {
 
     private:
         Double_t    min_, max_;
-        RooRealVar *x_;
+        RooRealVar *x_, *w_;
         RooArgSet   point_;
         RooDataSet *dataset_;
         Double_t    underflow_, overflow_;
