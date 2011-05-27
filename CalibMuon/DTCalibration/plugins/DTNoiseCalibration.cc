@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/05/25 21:03:56 $
- *  $Revision: 1.13 $
+ *  $Date: 2011/05/26 16:04:55 $
+ *  $Revision: 1.14 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -321,16 +321,19 @@ void DTNoiseCalibration::endJob(){
         const int nWires = lastWire - firstWire + 1;
         // Find average in layer
         double averageRate = 0.;  
-        for(int bin=firstWire; bin<=lastWire; ++bin) averageRate += (*lHisto).second->GetBinContent(bin);
+        for(int bin = 1; bin <= (*lHisto).second->GetNbinsX(); ++bin)
+           averageRate += (*lHisto).second->GetBinContent(bin);
+
         if(nWires) averageRate /= nWires;  
         LogTrace("Calibration") << "  Average rate = " << averageRate;
 
-        for(int bin=firstWire; bin<=lastWire; ++bin){
+        for(int i_wire = firstWire; i_wire <= lastWire; ++i_wire){
 	   // From definition of "noisy cell"
+           int bin = i_wire - firstWire + 1;
            double channelRate = (*lHisto).second->GetBinContent(bin);
            double rateOffset = (useAbsoluteRate_) ? 0. : averageRate;
 	   if( (channelRate - rateOffset) > maximumNoiseRate_ ){
-	      DTWireId wireID((*lHisto).first, bin);
+	      DTWireId wireID((*lHisto).first, i_wire);
 	      statusMap->setCellNoise(wireID,1);
               LogVerbatim("Calibration") << ">>> Channel noisy: " << wireID;
 	   }
