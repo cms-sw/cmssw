@@ -42,14 +42,14 @@ namespace edm {
 
     LumiReWeighting ( ) { } ;
 
-    double weight( int npv ) const;
+    double weight( int npv ) ;
 
-    double weight( const edm::Event &e ) const;
+    double weight( const edm::Event &e ) ;
 
-    double weightOOT( const edm::Event &e ) const;
+    double weightOOT( const edm::Event &e ) ;
 
     void weightOOT_init(); 
-    
+
   protected:
 
     std::string generatedFileName_;
@@ -61,6 +61,10 @@ namespace edm {
     boost::shared_ptr<TH1F>      weights_;
 
     double WeightOOTPU_[25][25];
+
+    int  LastRun_;
+    bool Reweight_4_2_2p2_;
+    bool FirstWarning_;
 
   };
 }
