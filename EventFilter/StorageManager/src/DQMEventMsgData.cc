@@ -1,4 +1,4 @@
-// $Id: DQMEventMsgData.cc,v 1.10.6.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: DQMEventMsgData.cc,v 1.10.6.2 2011/03/28 13:46:31 mommsen Exp $
 /// @file: DQMEventMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
@@ -102,7 +102,7 @@ namespace stor
       {
         std::ostringstream errorMsg;
         errorMsg << "Run number " << do_runNumber() 
-          << " of DQM event " << do_eventNumber() <<
+          << " of DQM event for LS " << do_lumiSection() <<
           " received from " << hltURL() << 
           " (FU process id " << fuProcessId() << ")" <<
           " does not match the run number " << runNumber << 

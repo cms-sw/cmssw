@@ -9,7 +9,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
-process.GlobalTag.globaltag = 'START39_V8::All'
+process.GlobalTag.globaltag = 'START311_V2A::All'
 
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
@@ -25,7 +25,7 @@ process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMCo
 process.load('SUSYBSMAnalysis.Skimming.EXOHSCP_cff')
 process.load('SUSYBSMAnalysis.Skimming.EXOHSCP_EventContent_cfi')
 process.load("SUSYBSMAnalysis.HSCP.HSCParticleProducerFromSkim_cff")  #IF RUNNING ON HSCP SKIM
-process.load("SUSYBSMAnalysis.HSCP.HSCPTreeBuilder_cff")
+#process.load("SUSYBSMAnalysis.HSCP.HSCPTreeBuilder_cff")
 
 ########################################################################  SPECIAL CASE FOR MC
 
@@ -41,7 +41,7 @@ process.genParticles.abortOnUnknownPDGCode = cms.untracked.bool(False)
 
 process.generalTracksSkim.filter       = cms.bool(False)
 process.HSCParticleProducer.filter     = cms.bool(False)
-process.HSCPTreeBuilder.reccordGenInfo = cms.untracked.bool(True)
+#process.HSCPTreeBuilder.reccordGenInfo = cms.untracked.bool(True)
 
 process.dedxHarm2.calibrationPath      = cms.string("file:Gains.root")
 process.dedxTru40.calibrationPath      = cms.string("file:Gains.root")
@@ -49,6 +49,8 @@ process.dedxProd.calibrationPath       = cms.string("file:Gains.root")
 process.dedxASmi.calibrationPath       = cms.string("file:Gains.root")
 process.dedxNPHarm2.calibrationPath    = cms.string("file:Gains.root")
 process.dedxNPTru40.calibrationPath    = cms.string("file:Gains.root")
+process.dedxNSHarm2.calibrationPath    = cms.string("file:Gains.root")
+process.dedxNSTru40.calibrationPath    = cms.string("file:Gains.root")
 process.dedxNPProd.calibrationPath     = cms.string("file:Gains.root")
 process.dedxNPASmi.calibrationPath     = cms.string("file:Gains.root")
 
@@ -58,6 +60,8 @@ process.dedxProd.UseCalibration        = cms.bool(True)
 process.dedxASmi.UseCalibration        = cms.bool(True)
 process.dedxNPHarm2.UseCalibration     = cms.bool(True)
 process.dedxNPTru40.UseCalibration     = cms.bool(True)
+process.dedxNSHarm2.UseCalibration     = cms.bool(True)
+process.dedxNSTru40.UseCalibration     = cms.bool(True)
 process.dedxNPProd.UseCalibration      = cms.bool(True)
 process.dedxNPASmi.UseCalibration      = cms.bool(True)
 
@@ -101,9 +105,9 @@ process.OUT = cms.OutputModule("PoolOutputModule",
          "keep triggerTriggerEvent_hltTriggerSummaryAOD_*_*",
     ),
     fileName = cms.untracked.string('HSCP.root'),
-    SelectEvents = cms.untracked.PSet(
-       SelectEvents = cms.vstring('p1')
-    ),
+#    SelectEvents = cms.untracked.PSet(
+#       SelectEvents = cms.vstring('p1')
+#    ),
 )
 
 ########################################################################
@@ -111,7 +115,6 @@ process.OUT = cms.OutputModule("PoolOutputModule",
 
 #LOOK AT SD PASSED PATH IN ORDER to avoid as much as possible duplicated events (make the merging of .root file faster)
 process.p1 = cms.Path(process.genParticles + process.exoticaHSCPSeq + process.HSCParticleProducerSeq)
-#process.p1 = cms.Path(process.HSCParticleProducerSeq)
 process.endPath = cms.EndPath(process.OUT)
 
 

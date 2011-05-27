@@ -10,8 +10,8 @@ import FastSimulation.Tracking.HLTPixelTracksProducer_cfi
 hltPixelTracksForMinBias = FastSimulation.Tracking.HLTPixelTracksProducer_cfi.hltPixelTracks.clone()
 hltPixelTracksForHighMult = FastSimulation.Tracking.HLTPixelTracksProducer_cfi.hltPixelTracks.clone()
 from FastSimulation.Tracking.PixelTracksProducer_cfi import *
-import HLTrigger.HLTfilters.hltBool_cfi
-hltFilterTriggerType = HLTrigger.HLTfilters.hltBool_cfi.hltBool.clone()
+#import HLTrigger.HLTfilters.hltBool_cfi
+#hltFilterTriggerType = HLTrigger.HLTfilters.hltBool_cfi.hltBool.clone()
 #--- Changes needed for HLT.cff with 1E32 menu ---#
 # replace hltL1sHcalPhiSym.L1SeedsLogicalExpression = "L1_ZeroBias"
 # replace hltL1sEcalPhiSym.L1SeedsLogicalExpression = "L1_ZeroBias"

@@ -378,7 +378,7 @@ void TriggerReportHelpers::packTriggerReport(edm::TriggerReport &tr,
       unsigned int j = i + trp->trigPathsInMenu;
       edm::FUShmOutputModule *o = sor->get(outname_[j]);
       if(!o) {
-	sor->dumpRegistry();
+	//	sor->dumpRegistry();
 	continue;
       }
       trp->endPathSummaries[i].timesRun    = 
@@ -419,7 +419,7 @@ void TriggerReportHelpers::packTriggerReport(edm::TriggerReport &tr,
     {
       edm::FUShmOutputModule *o = sor->get(outname_[i+trp->trigPathsInMenu]);
       if(!o) {
-	sor->dumpRegistry();
+	//	sor->dumpRegistry();
 	continue;
       }
       trp_.endPathSummaries[i].timesPassed = o->getCounts();

@@ -210,7 +210,7 @@ void TwoBodyDecayTrajectory::constructSingleTsosWithErrors( const TrajectoryStat
 							    int iTsos,
 							    const MagneticField* field )
 {
-  AlgebraicSymMatrix55 localErrors;
+  AlgebraicSymMatrix localErrors( 5, 0 );
   const double coeff = 1e-2;
 
   double invP = tsos.localParameters().signedInverseMomentum();

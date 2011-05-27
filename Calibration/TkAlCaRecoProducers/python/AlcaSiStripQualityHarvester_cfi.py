@@ -33,7 +33,8 @@ alcaSiStripQualityHarvester = cms.EDAnalyzer("SiStripQualityHotStripIdentifierRo
     rootDirPath = cms.untracked.string('AlCaReco'),
     rootFilename = cms.untracked.string(''),
     doStoreOnDB = cms.bool(True),
-    OccupancyH_Nbin = cms.untracked.uint32(1001)
+    OccupancyH_Nbin = cms.untracked.uint32(1001),
+    TimeFromEndRun = cms.untracked.bool(True)
 )
 
 

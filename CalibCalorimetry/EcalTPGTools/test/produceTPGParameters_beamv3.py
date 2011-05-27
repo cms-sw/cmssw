@@ -75,17 +75,16 @@ process.maxEvents = cms.untracked.PSet(
 process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
 
     #### inputs/ouputs control ####
-    #writeToDB  = cms.bool(True),
-    writeToDB  = cms.bool(False), #modif 
+    writeToDB  = cms.bool(False),
     allowDBEE  = cms.bool(True),
 
     DBsid   = cms.string('cms_omds_lb'),
     ## P5 online DB
-    DBuser  = cms.string('cms_ecal_conf'),
-    DBpass  = cms.string('0r4cms_3c4lc0nf'),
+    ##DBuser  = cms.string('cms_ecal_conf'),
+    ##DBpass  = cms.string('0r4cms_3c4lc0nf'),
     ## test DB
-    ##DBuser  = cms.string('cms_ecal_conf_test'),
-    ##DBpass  = cms.string('0r4cms_3c4l'),
+    DBuser  = cms.string('cms_ecal_conf_test'),
+    DBpass  = cms.string('0r4cms_3c4l'),
     DBport  = cms.uint32(10121),
 
     TPGWritePed = cms.uint32(1),
@@ -98,7 +97,7 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
     TPGWriteBtt = cms.uint32(0), #do not change
 
     writeToFiles = cms.bool(True),
-    outFile = cms.string('TPG_beamv3_test3.txt'), #modif
+    outFile = cms.string('TPG_beamv3.txt'),
    #### TPG config tag and version (if not given it will be automatically given ) ####
     TPGtag = cms.string('BEAMV3'),
     TPGversion = cms.uint32(1),
@@ -142,10 +141,10 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
     TTF_lowThreshold_EE = cms.double(1.0),   ## EE Trigger Tower Flag low threshold in GeV
     TTF_highThreshold_EE = cms.double(2.0),  ## EE Trigger Tower Flag high threshold in GeV
 
-    FG_lowThreshold_EB = cms.double(3.9),      ## EB Fine Grain Et low threshold in GeV
-    FG_highThreshold_EB = cms.double(3.9),     ## EB Fine Grain Et high threshold in GeV
-    FG_lowRatio_EB = cms.double(0.9),          ## EB Fine Grain low-ratio
-    FG_highRatio_EB = cms.double(0.9),         ## EB Fine Grain high-ratio
+    FG_lowThreshold_EB = cms.double(0.3125),   ## EB Fine Grain Et low threshold in GeV
+    FG_highThreshold_EB = cms.double(0.3125),  ## EB Fine Grain Et high threshold in GeV
+    FG_lowRatio_EB = cms.double(0.8),          ## EB Fine Grain low-ratio
+    FG_highRatio_EB = cms.double(0.8),         ## EB Fine Grain high-ratio
     FG_lut_EB = cms.uint32(0x08),              ## EB Fine Grain Look-up table. Put something != 0 if you really know what you do!
     FG_Threshold_EE = cms.double(18.75),       ## EE Fine threshold in GeV
     FG_lut_strip_EE = cms.uint32(0xfffefee8),  ## EE Fine Grain strip Look-up table

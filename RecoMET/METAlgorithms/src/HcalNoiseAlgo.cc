@@ -1,6 +1,9 @@
 #include "RecoMET/METAlgorithms/interface/HcalNoiseAlgo.h"
 
-CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, double minRecHitE, double minLowHitE, double minHighHitE)
+CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, double minRecHitE,
+   double minLowHitE, double minHighHitE, double TS4TS5EnergyThreshold,
+   std::vector<std::pair<double, double> > &TS4TS5UpperCut,
+   std::vector<std::pair<double, double> > &TS4TS5LowerCut)
 {
   // energy
   energy_ = rbx.recHitEnergy(minRecHitE); 
@@ -8,6 +11,24 @@ CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, do
   // ratio
   e2ts_ = rbx.allChargeHighest2TS();
   e10ts_ = rbx.allChargeTotal();
+
+  // TS4TS5
+  TS4TS5Decision_ = true;
+  if(energy_ > TS4TS5EnergyThreshold)   // check filter
+  {
+     std::vector<float> AllCharge = rbx.allCharge();
+     double BaseCharge = AllCharge[4] + AllCharge[5];
+     if(BaseCharge < 1)
+        BaseCharge = 1;
+     double TS4TS5 = (AllCharge[4] - AllCharge[5]) / BaseCharge;
+
+     if(CheckPassFilter(BaseCharge, TS4TS5, TS4TS5UpperCut, 1) == false)
+        TS4TS5Decision_ = false;
+     if(CheckPassFilter(BaseCharge, TS4TS5, TS4TS5LowerCut, -1) == false)
+        TS4TS5Decision_ = false;
+  }
+  else
+     TS4TS5Decision_ = true;
 
   // # of hits
   numHPDHits_ = 0;
@@ -255,3 +276,54 @@ void JoinCaloTowerRefVectorsWithoutDuplicates::operator()(edm::RefVector<CaloTow
   }
   return;
 }
+
+bool CommonHcalNoiseRBXData::CheckPassFilter(double Charge, double Discriminant,
+   std::vector<std::pair<double, double> > &Cuts, int Side)
+{
+   //
+   // Checks whether Discriminant value passes Cuts for the specified Charge.  True if pulse is good.
+   //
+   // The "Cuts" pairs are assumed to be sorted in terms of size from small to large,
+   //    where each "pair" = (Charge, Discriminant)
+   // "Side" is either positive or negative, which determines whether to discard the pulse if discriminant
+   //    is greater or smaller than the cut value
+   //
+
+   if(Cuts.size() == 0)   // safety check that there are some cuts defined
+      return true;
+
+   if(Charge <= Cuts[0].first)   // too small to cut on
+      return true;
+
+   int IndexLargerThanCharge = -1;   // find the range it is falling in
+   for(int i = 1; i < (int)Cuts.size(); i++)
+   {
+      if(Cuts[i].first > Charge)
+      {
+         IndexLargerThanCharge = i;
+         break;
+      }
+   }
+
+   double limit = 1000000;
+
+   if(IndexLargerThanCharge == -1)   // if charge is greater than the last entry, assume flat line
+      limit = Cuts[Cuts.size()-1].second;
+   else   // otherwise, do a linear interpolation to find the cut position
+   {
+      double C1 = Cuts[IndexLargerThanCharge].first;
+      double C2 = Cuts[IndexLargerThanCharge-1].first;
+      double L1 = Cuts[IndexLargerThanCharge].second;
+      double L2 = Cuts[IndexLargerThanCharge-1].second;
+
+      limit = (Charge - C1) / (C2 - C1) * (L2 - L1) + L1;
+   }
+
+   if(Side > 0 && Discriminant > limit)
+      return false;
+   if(Side < 0 && Discriminant < limit)
+      return false;
+
+   return true;
+}
+

@@ -48,7 +48,5 @@ ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.applyChargeFilter = True
 ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.charge = 0
 ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.acoplanarDistance = 1 ##radian
-ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.PDGMass = 9.460
-ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.numberOfCandidates = 5
 
 seqALCARECOTkAlUpsilonMuMu = cms.Sequence(ALCARECOTkAlUpsilonMuMuHLT+ALCARECOTkAlUpsilonMuMuDCSFilter+ALCARECOTkAlUpsilonMuMuGoodMuonSelector+ALCARECOTkAlUpsilonMuMu)

@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2011/01/24 14:23:01 $
- *  $Revision: 1.36 $
+ *  $Date: 2011/05/01 09:25:29 $
+ *  $Revision: 1.38 $
  *
  *  \author Martin Grunewald
  *
@@ -101,6 +101,12 @@ class HLTConfigProvider {
   const std::vector<std::string>& moduleLabels(const std::string& trigger) const {
     return hltConfigData_->moduleLabels(trigger);
   }
+  const std::vector<std::string>& saveTagsModules(unsigned int trigger) const {
+    return hltConfigData_->saveTagsModules(trigger);
+  }
+  const std::vector<std::string>& saveTagsModules(const std::string& trigger) const {
+    return hltConfigData_->saveTagsModules(trigger);
+  }
   const std::string& moduleLabel(unsigned int trigger, unsigned int module) const {
     return hltConfigData_->moduleLabel(trigger,module);
   }
@@ -134,6 +140,11 @@ class HLTConfigProvider {
   /// ParameterSet of module
   const edm::ParameterSet& modulePSet(const std::string& module) const {
     return hltConfigData_->modulePSet(module);
+  }
+
+  /// Is module an L3 filter (ie, tracked saveTags=true)
+  const bool saveTags(const std::string& module) const {
+    return hltConfigData_->saveTags(module);
   }
 
 
