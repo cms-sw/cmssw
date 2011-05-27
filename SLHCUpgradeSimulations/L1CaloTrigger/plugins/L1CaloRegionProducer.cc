@@ -1,86 +1,83 @@
-/* L1CaloRegionProducer
-Performs Clustering in Calorimeter
-and produces a Cluster Collection
+#include "SLHCUpgradeSimulations/L1CaloTrigger/interface/L1CaloAlgoBase.h"
 
-M.Bachtis,S.Dasu
-University of Wisconsin-Madison
-*/
+#include "SimDataFormats/SLHC/interface/L1CaloTower.h"
+#include "SimDataFormats/SLHC/interface/L1CaloRegion.h"
+#include "SimDataFormats/SLHC/interface/L1CaloTowerFwd.h"
+#include "SimDataFormats/SLHC/interface/L1CaloRegionFwd.h"
 
 
-// system include files
-#include <memory>
 
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SLHCUpgradeSimulations/L1CaloTrigger/interface/RegionModule.h"
-#include "SimDataFormats/SLHC/interface/L1CaloTriggerSetup.h"
-#include "SimDataFormats/SLHC/interface/L1CaloTriggerSetupRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+class L1CaloRegionProducer:public L1CaloAlgoBase < l1slhc::L1CaloTowerCollection, l1slhc::L1CaloRegionCollection >
+{
+  public:
+	L1CaloRegionProducer( const edm::ParameterSet & );
+	 ~L1CaloRegionProducer(  );
 
-class L1CaloRegionProducer : public edm::EDProducer {
-   public:
-      explicit L1CaloRegionProducer(const edm::ParameterSet&);
-      ~L1CaloRegionProducer();
+	// void initialize( );
 
-   private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      /*INPUTS*/
+	void algorithm( const int &, const int & );
 
-      //Calorimeter Digis
-      edm::InputTag towers_;
-      RegionModule module;
+  private:
+
 };
 
 
-   using namespace edm;
-   using namespace std;
-
-   using namespace l1slhc;
 
 
-L1CaloRegionProducer::L1CaloRegionProducer(const edm::ParameterSet& iConfig):
-  towers_(iConfig.getParameter<edm::InputTag>("src"))
+
+
+
+L1CaloRegionProducer::L1CaloRegionProducer( const edm::ParameterSet & aConfig ):
+L1CaloAlgoBase < l1slhc::L1CaloTowerCollection, l1slhc::L1CaloRegionCollection > ( aConfig )
 {
-  //Register Product
-  produces<l1slhc::L1CaloRegionCollection>();
+mPhiOffset = -3;
+mEtaOffset = -3;
+mPhiIncrement = 4;
+mEtaIncrement = 4;
+}
+
+L1CaloRegionProducer::~L1CaloRegionProducer(  )
+{
+}
+
+/* 
+void L1CaloRegionProducer::initialize( )
+{
+}
+*/
+
+void L1CaloRegionProducer::algorithm( const int &aEta, const int &aPhi )
+{
+	int lRegionEnergy = 0;
+	for ( int lTowerEta = aEta; lTowerEta < aEta + 4; ++lTowerEta )
+	{
+		for ( int lTowerPhi = aPhi; lTowerPhi < aPhi + 4; ++lTowerPhi )
+		{
+			l1slhc::L1CaloTowerCollection::const_iterator lTowerItr = fetch( lTowerEta, lTowerPhi );
+			if ( lTowerItr != mInputCollection->end(  ) )
+			{
+				// this is no longer done in filling map, so do it here
+				if ( lTowerItr->E(  ) > 0 )
+					lRegionEnergy += lTowerItr->E(  ) + lTowerItr->H(  );
+			}
+
+		}
+	}
+
+
+	if ( lRegionEnergy > 0 )
+	{
+		int lRegionIndex = mCaloTriggerSetup->getBin( aEta, aPhi );
+		std::pair < int, int >lClusterEtaPhi = mCaloTriggerSetup->getTowerEtaPhi( lRegionIndex );
+
+		l1slhc::L1CaloRegion lCaloRegion( lClusterEtaPhi.first, lClusterEtaPhi.second, lRegionEnergy );
+		mOutputCollection->insert( lClusterEtaPhi.first, lClusterEtaPhi.second, lCaloRegion );
+	}
+
 }
 
 
-L1CaloRegionProducer::~L1CaloRegionProducer()
-{
-
-}
 
 
-
-void
-L1CaloRegionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-
-
-
-  ESHandle<L1CaloTriggerSetup> setup;
-  iSetup.get<L1CaloTriggerSetupRcd>().get(setup);
-  module = RegionModule(*setup);
-  
-  //Get ECAL + HCAL Digits from the EVent
-  edm::Handle<L1CaloTowerCollection> towers;
-  iEvent.getByLabel(towers_,towers);
-  
-  //Book the Collection
-   std::auto_ptr<L1CaloRegionCollection> regions (new L1CaloRegionCollection);
-   module.clusterize(*regions,towers);
-
-
-   //Put Clusters to file
-   iEvent.put(regions);
-}
-//#define DEFINE_ANOTHER_FWK_MODULE(type) DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<type>,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
-DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<L1CaloRegionProducer>,"L1CaloRegionProducer"); DEFINE_FWK_PSET_DESC_FILLER(L1CaloRegionProducer);
-//DEFINE_ANOTHER_FWK_MODULE(L1CaloRegionProducer);
+DEFINE_EDM_PLUGIN( edm::MakerPluginFactory, edm::WorkerMaker < L1CaloRegionProducer >, "L1CaloRegionProducer" );
+DEFINE_FWK_PSET_DESC_FILLER( L1CaloRegionProducer );

@@ -1,89 +1,125 @@
-/* L1CaloClusterFilter
-Removes Cluster Overlap
-and applies isolation criteria
-M.Bachtis,S.Dasu
-University of Wisconsin-Madison
-*/
-// system include files
-#include <memory>
+#include "SLHCUpgradeSimulations/L1CaloTrigger/interface/L1CaloAlgoBase.h"
 
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SLHCUpgradeSimulations/L1CaloTrigger/interface/FilteringModule.h"
-#include "SLHCUpgradeSimulations/L1CaloTrigger/interface/IsolationModule.h"
-#include "SimDataFormats/SLHC/interface/L1CaloTriggerSetup.h"
-#include "SimDataFormats/SLHC/interface/L1CaloTriggerSetupRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "SimDataFormats/SLHC/interface/L1CaloCluster.h"
+#include "SimDataFormats/SLHC/interface/L1CaloClusterFwd.h"
 
-class L1CaloClusterIsolator : public edm::EDProducer {
-   public:
-      explicit L1CaloClusterIsolator(const edm::ParameterSet&);
-      ~L1CaloClusterIsolator();
 
-   private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      /*INPUTS*/
+class L1CaloClusterIsolator:public L1CaloAlgoBase < l1slhc::L1CaloClusterCollection , l1slhc::L1CaloClusterCollection >
+{
+  public:
+	L1CaloClusterIsolator( const edm::ParameterSet & );
+	 ~L1CaloClusterIsolator(  );
 
-      //Calorimeter Digis
-      edm::InputTag clusters_;
-      IsolationModule isolationModule;
+	void algorithm( const int &, const int & );
+//	void initialize(  );
+
+  private:
+	bool isoLookupTable( const int& clusters, const int& aCoeffA, const int& aCoeffB, const int& E );
+
 };
 
 
-using namespace edm;
-using namespace std;
-using namespace l1slhc;
 
 
-L1CaloClusterIsolator::L1CaloClusterIsolator(const edm::ParameterSet& iConfig):
- clusters_(iConfig.getParameter<edm::InputTag>("src"))
+
+
+
+L1CaloClusterIsolator::L1CaloClusterIsolator( const edm::ParameterSet & aConfig ):
+L1CaloAlgoBase < l1slhc::L1CaloClusterCollection , l1slhc::L1CaloClusterCollection > ( aConfig )
 {
-  //Register Product
-  produces<l1slhc::L1CaloClusterCollection>();
+// mPhiOffset = 0; 
+mEtaOffset = -1;
+//mPhiIncrement = 1; 
+//mEtaIncrement = 1;
 }
 
 
-L1CaloClusterIsolator::~L1CaloClusterIsolator()
+L1CaloClusterIsolator::~L1CaloClusterIsolator(  )
 {
+}
+
+/*
+void L1CaloClusterIsolator::initialize(  )
+{
+}
+*/
+
+void L1CaloClusterIsolator::algorithm( const int &aEta, const int &aPhi )
+{
+
+		// Look if there is a cluster here and if the cluster is central (not pruned)
+
+			l1slhc::L1CaloClusterCollection::const_iterator lClusterItr = fetch( aEta, aPhi );
+			if ( lClusterItr != mInputCollection->end(  ) )
+			{
+
+				if ( lClusterItr->isCentral(  ) )
+				{
+					int lEgammaClusterCount= 0;
+					int lTauClusterCount = 0;
+					l1slhc::L1CaloCluster lIsolatedCluster( *lClusterItr );
+
+					// There is a cluster here:Calculate isoDeposits
+					for ( int lPhi = aPhi - mCaloTriggerSetup->nIsoTowers(  ); lPhi <= aPhi + mCaloTriggerSetup->nIsoTowers(  ) + 1; ++lPhi )
+					{
+						for ( int lEta = aEta - mCaloTriggerSetup->nIsoTowers(  ); lEta <= aEta + mCaloTriggerSetup->nIsoTowers(  ) + 1; ++lEta )
+						{
+							if ( !( lEta == aEta && lPhi == aPhi ) )
+							{
+								// If neighbor exists
+								l1slhc::L1CaloClusterCollection::const_iterator lNeighbourItr = fetch( lEta, lPhi );
+								if ( lNeighbourItr != mInputCollection->end(  ) )
+								{
+									if ( lNeighbourItr->E(  ) >= mCaloTriggerSetup->isoThr(0) )
+									{
+										lEgammaClusterCount++;
+									}
+									if ( lNeighbourItr->E(  ) >= mCaloTriggerSetup->isoThr(1) )
+									{
+										lTauClusterCount++;
+									}
+								}
+							}
+						}
+					}
+
+
+					lIsolatedCluster.setIsoClusters( lEgammaClusterCount, lTauClusterCount );
+
+
+					// Calculate Bits Tau isolation / electron Isolation
+					if ( isoLookupTable( lEgammaClusterCount, mCaloTriggerSetup->isolationE(0), mCaloTriggerSetup->isolationE(1), lIsolatedCluster.E(  ) ) )
+					{
+						lIsolatedCluster.setIsoEG( true );
+					}
+
+					// Add the LUT inputs 
+
+					if ( isoLookupTable( lTauClusterCount, mCaloTriggerSetup->isolationT(0), mCaloTriggerSetup->isolationT(1), lIsolatedCluster.E(  ) ) )
+					{
+						lIsolatedCluster.setIsoTau( true );
+					}
+					mOutputCollection->insert( lIsolatedCluster.iEta(  ) , lIsolatedCluster.iPhi() , lIsolatedCluster );
+				}
+			}
+
 
 }
 
 
 
-void
-L1CaloClusterIsolator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool L1CaloClusterIsolator::isoLookupTable( const int& aClusters, const int& aCoeffA, const int& aCoeffB, const int& aE )	// takes as input the # Clusters the isolation coefficients
 {
+	if( aE < 0 ) return false;
+	if( aE >= 160 ) return true;
 
-  edm::LogInfo ("INFO") << "Starting Cluster Filtering Algorithm" << endl;
+	int lRegime = (16*(aE/16))+8;
 
-  ESHandle<L1CaloTriggerSetup> setup;
-  iSetup.get<L1CaloTriggerSetupRcd>().get(setup);
+	int lThresh = aCoeffA + int( double( aCoeffB * lRegime ) / 1000. );
 
-  isolationModule = IsolationModule(*setup);
-
-   //Get ECAL + HCAL Digits from the EVent
-   edm::Handle<L1CaloClusterCollection> clusters;
-   iEvent.getByLabel(clusters_,clusters);
-
-   //Book a temporary collection
-   L1CaloClusterCollection tmp;
-
-   //Book the Collection to be saved
-   std::auto_ptr<L1CaloClusterCollection> isolatedClusters (new L1CaloClusterCollection);
-
-   //Apply the algorithms
-   isolationModule.isoDeposits(clusters,*isolatedClusters);
-
-   //Put Clusters to file
-   iEvent.put(isolatedClusters);
-
+	return ( aClusters <= lThresh );
 }
-//#define DEFINE_ANOTHER_FWK_MODULE(type) DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<type>,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
-DEFINE_EDM_PLUGIN(edm::MakerPluginFactory,edm::WorkerMaker<L1CaloClusterIsolator>,"L1CaloClusterIsolator");DEFINE_FWK_PSET_DESC_FILLER(L1CaloClusterIsolator);
-//DEFINE_ANOTHER_FWK_MODULE(L1CaloClusterIsolator);
+
+
+DEFINE_EDM_PLUGIN(edm::MakerPluginFactory,edm::WorkerMaker<L1CaloClusterIsolator>,"L1CaloClusterIsolator");
+DEFINE_FWK_PSET_DESC_FILLER(L1CaloClusterIsolator);

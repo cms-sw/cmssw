@@ -48,8 +48,8 @@ L1CaloJetExpander = cms.EDProducer("L1CaloJetExpander",
 rawSLHCL1ExtraParticles = cms.EDProducer("L1ExtraTranslator",
                                   Clusters = cms.InputTag("L1CaloClusterIsolator"),
                                   Jets = cms.InputTag("L1CaloJetExpander"),
-                                  NParticles = cms.int32(8),
-                                  NJets      = cms.int32(12)
+                                  NParticles = cms.uint32(8),
+                                  NJets      = cms.uint32(12)
                               
 )
 
