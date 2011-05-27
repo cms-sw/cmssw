@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.36 2011/05/11 13:34:37 organtin Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.37 2011/05/18 12:59:17 organtin Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -211,6 +211,9 @@ class EcalCondDBInterface : public EcalDBConnection {
    *  so an exception is thrown if more than one result exists.
    */
   RunIOV fetchRunIOV(std::string location, run_t run)
+    throw(std::runtime_error);
+
+  RunIOV fetchRunIOV(std::string location, const Tm &t)
     throw(std::runtime_error);
 
 
