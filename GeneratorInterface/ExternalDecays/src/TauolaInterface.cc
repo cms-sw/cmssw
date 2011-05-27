@@ -889,15 +889,13 @@ void TauolaInterface::selectDecayByMDTAU()
 int TauolaInterface::selectLeptonic()
 {
    
-   float prob = 0.;
-   int len = 1;
-   ranmar_(&prob,&len);
+   float prob = flat();
    
-   if ( prob > 0. && prob >= fScaledLeptonBrRatios[0] ) 
+   if ( prob > 0. && prob <= fScaledLeptonBrRatios[0] ) 
    {
       return 1;
    }
-   else
+   else if ( prob > fScaledLeptonBrRatios[1] && prob <=1. )
    {
       return 2;
    }
