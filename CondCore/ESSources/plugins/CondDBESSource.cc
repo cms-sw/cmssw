@@ -267,7 +267,7 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
       stats.nRun++;
     }
     if(iTime.luminosityBlockNumber()!=lastLumi) {
-      lastRun=iTime.luminosityBlockNumber();
+      lastLumi=iTime.luminosityBlockNumber();
       stats.nLumi++;
     }
   }
