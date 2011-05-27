@@ -311,7 +311,7 @@ def trgRunById(schema,dataid):
             #print 'bitzeroname ',bitzeroname
             bitnameclob=cursor.currentRow()['bitnameclob'].data()
             #print 'bitnameclob ',bitnameclob
-            print 'bitnameclob ',bitnameclob
+            #print 'bitnameclob ',bitnameclob
             result.extend([runnum,source,bitzeroname,bitnameclob])
     except :
         del qHandle
