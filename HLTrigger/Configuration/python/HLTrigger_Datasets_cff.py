@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V103
+# /dev/CMSSW_4_2_0/GRun/V104
 
 import FWCore.ParameterSet.Config as cms
 
@@ -46,6 +46,7 @@ streamA_datasetDoubleElectron_selector.hltResults = cms.InputTag('TriggerResults
 streamA_datasetDoubleElectron_selector.l1tResults = cms.InputTag('')
 streamA_datasetDoubleElectron_selector.throw      = cms.bool(False)
 streamA_datasetDoubleElectron_selector.triggerConditions = cms.vstring('HLT_DoubleEle10_CaloIdL_TrkIdVL_Ele10_v6', 
+    'HLT_DoubleEle45_CaloIdL_v1', 
     'HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v6', 
     'HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFT_v1', 
     'HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v5', 
@@ -67,6 +68,7 @@ streamA_datasetDoubleMu_selector.hltResults = cms.InputTag('TriggerResults', '',
 streamA_datasetDoubleMu_selector.l1tResults = cms.InputTag('')
 streamA_datasetDoubleMu_selector.throw      = cms.bool(False)
 streamA_datasetDoubleMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu3_v5', 
+    'HLT_DoubleMu45_v1', 
     'HLT_DoubleMu4_Acoplanarity03_v4', 
     'HLT_DoubleMu5_Acoplanarity03_v1', 
     'HLT_DoubleMu6_v3', 
@@ -411,6 +413,7 @@ streamA_datasetSingleMu_selector.triggerConditions = cms.vstring('HLT_IsoMu12_v5
     'HLT_L1SingleMu20_v2', 
     'HLT_L2Mu10_v3', 
     'HLT_L2Mu20_v3', 
+    'HLT_Mu100_v1', 
     'HLT_Mu12_v3', 
     'HLT_Mu15_v4', 
     'HLT_Mu20_v3', 
