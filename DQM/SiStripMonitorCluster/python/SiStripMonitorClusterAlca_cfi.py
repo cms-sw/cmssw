@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 SiStripCalZeroBiasMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
     # by default do not write out any file with histograms
     # can overwrite this in .cfg file with: replace SiStripMonitorCluster.OutputMEsInRootFile = true
-    ClusterProducer = cms.InputTag("calZeroBiasClusters"),
+    ClusterProducerStrip = cms.InputTag("calZeroBiasClusters"),
     ClusterProducerPix = cms.InputTag('siPixelClusters'),
     OutputMEsInRootFile = cms.bool(False),
     OutputFileName = cms.string('SiStripMonitorCluster.root'),
