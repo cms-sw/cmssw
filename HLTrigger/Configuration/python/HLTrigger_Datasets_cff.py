@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V105
+# /dev/CMSSW_4_2_0/GRun/V106
 
 import FWCore.ParameterSet.Config as cms
 
@@ -438,7 +438,8 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetTauPlusX_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetTauPlusX_selector.l1tResults = cms.InputTag('')
 streamA_datasetTauPlusX_selector.throw      = cms.bool(False)
-streamA_datasetTauPlusX_selector.triggerConditions = cms.vstring('HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v5', 
+streamA_datasetTauPlusX_selector.triggerConditions = cms.vstring('HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v8', 
+    'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v5', 
     'HLT_Ele15_CaloIdVT_TrkIdT_LooseIsoPFTau20_v2', 
     'HLT_Ele18_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v2', 
     'HLT_HT250_DoubleIsoPFTau10_Trk3_PFMHT35_v3', 
