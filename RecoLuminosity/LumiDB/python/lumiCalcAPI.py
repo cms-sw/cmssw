@@ -59,7 +59,7 @@ def trgbitsForRange(schema,runlist,datatag=None):
     '''
     input: runlist [run],(required)
            datatag: data version (optional)
-    output: {runnumber:bitzeroname,[bitnames]}
+    output: {runnumber:[bitnames]}
     '''
     pass
 
@@ -79,12 +79,24 @@ def trgForRange(schema,inputRange,trgbitname=None,trgbitnamepattern=None,datatag
     input :
             inputRange  {run:[cmsls]} (required)
             trgbitname exact match  trgbitname (optional)
-            trgbitnamepattern regex match trgbitname (optional)
+            trgbitnamepattern match trgbitname (optional)
             datatag : data version
     output
-            result {run,{cmslsnum:[deadtimecount,bitzero_count,bitzero_prescale,deadfraction,{bitname:[prescale,counts]}]}}
+            result {(run,cmslsnum):[deadfrac,deadtimecount,bitzero_count,bitzero_prescale,{bitname:[prescale,counts]}]}
     '''
-    pass
+    result={}
+    withprescaleblob=True
+    withtrgblob=True
+    for run in inputRange.keys():
+        lslist=inputRange[run]
+        if lslist is not None and len(lslist)==0:
+            result[run]=[]#if no LS is selected for a run
+            continue
+        trgdataid=dataDML.guessLumiDataIdByRun(schema,run)
+        if trgdataid is None:
+            continue #run non exist
+        trgdata=dataDML.trgLSById(trgdataid,trgbitname=trgbitname,trgbitnamepattern=trgbitnamepattern,datatag=datatag)        
+    return result
 
 def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,datatag=None):
     '''
