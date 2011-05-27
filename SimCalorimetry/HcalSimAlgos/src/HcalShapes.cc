@@ -1,7 +1,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShapes.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloShapeIntegrator.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloCachedShapeIntegrator.h"
 #include "CondFormats/HcalObjects/interface/HcalMCParam.h"
 #include "CondFormats/HcalObjects/interface/HcalMCParams.h"
 #include "CondFormats/DataRecord/interface/HcalMCParamsRcd.h"
@@ -16,11 +16,11 @@ HcalShapes::HcalShapes()
   theZDCShape(),
   theSiPMShape()
 {
-  theShapes[0] = new CaloShapeIntegrator(&theHcalShape);
-  theShapes[1] = new CaloShapeIntegrator(&theHcalShape);
-  theShapes[2] = new CaloShapeIntegrator(&theSiPMShape);
-  theShapes[3] = new CaloShapeIntegrator(&theHFShape);
-  theShapes[4] = new CaloShapeIntegrator(&theZDCShape);
+  theShapes[0] = new CaloCachedShapeIntegrator(&theHcalShape);
+  theShapes[1] = new CaloCachedShapeIntegrator(&theHcalShape);
+  theShapes[2] = new CaloCachedShapeIntegrator(&theSiPMShape);
+  theShapes[3] = new CaloCachedShapeIntegrator(&theHFShape);
+  theShapes[4] = new CaloCachedShapeIntegrator(&theZDCShape);
 }
 
 
