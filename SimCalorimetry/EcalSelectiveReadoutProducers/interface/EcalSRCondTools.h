@@ -2,7 +2,7 @@
 #define SRCONDACCESS_H
 
 /*
- * $Id: EcalSRCondTools.h,v 1.2 2010/06/14 10:45:16 pgras Exp $
+ * $Id: EcalSRCondTools.h,v 1.1 2010/06/09 14:02:44 pgras Exp $
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -49,7 +49,7 @@ public:
    * is available as an stl string of a c-string: stringstream buf; buf << s;
    * @param debug verbosity flag. If true, imported parameter are displayed on stdout.
    */
-  static void importSrpConfigFile(EcalSRSettings& sr, std::istream& f, bool debug = false);
+  void importSrpConfigFile(EcalSRSettings& sr, std::istream& f, bool debug = false);
   
   ///convert hardware weights (interger weights)
   ///into normalized weights. The former reprensentation is used in DCC firmware

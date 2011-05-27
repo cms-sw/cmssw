@@ -145,13 +145,8 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 
 
      //current change of geometry:
-    float X2shift = pitch/2.;
-    float Y2shift = pitchW/2.;
-    //
-    float Xshift = pitch/4.;
-    float Yshift = pitchW/4.;
-    //  float Xshift = pitch/2.;
-    //  float Yshift = pitchW/2.;
+    float Xshift = pitch/2.;
+    float Yshift = pitchW/2.;
     
     //
     int nmetcurx=0;
@@ -236,18 +231,6 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 	      }
 	    }
 	    //
-	    //   .
-	    if(zmodule==2 || zmodule==4 ) {
-	      // X-type: x-coord
-	      if (UseHalfPitchShiftInX == true){
-		dXXcur += X2shift;
-	      }
-	      // X-type: y-coord
-	      if (UseHalfPitchShiftInXW == true){
-		dXXWcur -= Y2shift;
-	      }
-	    }
-	    //
 	    double XXXDelta = 0.0;
 	    if(copyinlayer==2) { XXXDelta = XsensorSize;}
 	    if(copyinlayer==3) { XXXDelta = 2.*XsensorSize;}
@@ -280,8 +263,8 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 	    }
 	    //============================================================================================================
 	    
-	    vector<ClusterFP420>::const_iterator simHitIter = currentclust.begin();
-	    vector<ClusterFP420>::const_iterator simHitIterEnd = currentclust.end();
+	    std::vector<ClusterFP420>::const_iterator simHitIter = currentclust.begin();
+	    std::vector<ClusterFP420>::const_iterator simHitIterEnd = currentclust.end();
 	    
 	    if(xytype ==1){
 	      if(ii != ii0) {
@@ -354,8 +337,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 		xX[nX[ii]-1][ii] = icluster.barycenter()*pitch+0.5*pitch+XXXDelta;
 		yXW[nX[ii]-1][ii] = icluster.barycenterW()*pitchW+0.5*pitchW;
 		// go to global system:
-		xX[nX[ii]-1][ii] =+(xX[nX[ii]-1][ii]+dXXcur); 
-		//	xX[nX[ii]-1][ii] =-(xX[nX[ii]-1][ii]+dXXcur); 
+		xX[nX[ii]-1][ii] =-(xX[nX[ii]-1][ii]+dXXcur); 
 		wX[nX[ii]-1][ii] = 1./(icluster.barycerror()*pitch);//reciprocal of the variance for each datapoint in y
 		wX[nX[ii]-1][ii] *= wX[nX[ii]-1][ii];//reciprocal of the variance for each datapoint in y
 		if(det == 2) {
@@ -462,10 +444,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 
     //  sigman=0.18, ssigma = 3.3, sigmam=0.18;// before geometry update for 4 sensors per superlayer
     //    sigman=0.30, ssigma = 7.1, sigmam=0.40;// for update
-
-    //      sigman=0.30, ssigma = 8.0, sigmam=1.0;// for matching update to find point nearby to fit track in 1st plane of 2nd Station 
-
-     sigman=0.50, ssigma = 9.0, sigmam=1.5;// for matching update to find point nearby to fit track in 1st plane of 2nd Station 
+     sigman=0.30, ssigma = 8.0, sigmam=1.0;// for matching update to find point nearby to fit track in 1st plane of 2nd Station 
     //
   }
   if (verbos > 0) {
@@ -593,7 +572,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 		double dymin=9999999., df2; int cl2=-1;
 		for (int cl=0; cl<nA[ii]; ++cl) {
 		  if(qA[cl][ii]){
-		    df2 = abs(fyY[fip]-yA[cl][ii]);
+		    df2 = std::abs(fyY[fip]-yA[cl][ii]);
 		    if(df2 < dymin) {
 		      dymin = df2;
 		      cl2=cl;
@@ -608,7 +587,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 		  if (verbos > 0) {
 		    std::cout << " t= " << t << " tg0= " << tg0 << std::endl;
 		  }
-		  if(abs(t)<tg0) { 
+		  if(std::abs(t)<tg0) { 
 		    qA[cl2][ii] = false;//point is taken, mark it for not using again
 		    fyY[py-1]=yA[cl2][ii];
 		    fzY[py-1]=zA[cl2][ii];
@@ -683,7 +662,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 			  for (int clmatch=0; clmatch<nA[ii]; ++clmatch) {
 			    if(qA[clmatch][ii]){
 			      double smmatch = c0Y+ c1Y*zA[clmatch][ii];
-			      df2 = abs(smmatch-yA[clmatch][ii]);
+			      df2 = std::abs(smmatch-yA[clmatch][ii]);
 			      if(df2 < dymin) {
 				dymin = df2;
 				cl2match=clmatch;
@@ -725,7 +704,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 			  std::cout << " diffpo= " << diffpo << " yA[cl][ii]= " << yA[cl][ii] << " sm= " << sm << " sigma= " << sigma << std::endl;
 			}
 			
-			if(abs(diffpo) < sigma ) {
+			if(std::abs(diffpo) < sigma ) {
 			  if(NewStation){
 			    ++stattimes;
 			    if(stattimes==1) {
@@ -993,13 +972,13 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 		//if(Bx[trx] != 0.) yyyyyy = Ay[tr]-(Ax[trx]-xxxvtx)*By[tr]/Bx[trx];
 		//double xxxxxx = 999999.;
 		//if(By[tr] != 0.) xxxxxx = Ax[trx]-(Ay[tr]-yyyvtx)*Bx[trx]/By[tr];
-		//double  dthdif= abs(yyyyyy-yyyvtx) + abs(xxxxxx-xxxvtx);
+		//double  dthdif= std::abs(yyyyyy-yyyvtx) + std::abs(xxxxxx-xxxvtx);
 		
-		double  dthdif= abs(AxW[trx]-Ay[tr]) + abs(BxW[trx]-By[tr]);
+		double  dthdif= std::abs(AxW[trx]-Ay[tr]) + std::abs(BxW[trx]-By[tr]);
 		
 		if (verbos > 0) {
 		  //  std::cout << " yyyyyy= " << yyyyyy << " xxxxxx= " << xxxxxx << " dthdif= " << dthdif << std::endl;
-		  std::cout << " abs(AxW[trx]-Ay[tr]) = " << abs(AxW[trx]-Ay[tr]) << " abs(BxW[trx]-By[tr])= " << abs(BxW[trx]-By[tr]) << " dthdif= " << dthdif << std::endl;
+		  std::cout << " abs(AxW[trx]-Ay[tr]) = " << std::abs(AxW[trx]-Ay[tr]) << " abs(BxW[trx]-By[tr])= " << std::abs(BxW[trx]-By[tr]) << " dthdif= " << dthdif << std::endl;
 		}
 		//--------------------------------------------------------------------	    ----	----	----	----	----	----
 		if( dthdif < dthmin ) {

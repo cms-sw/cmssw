@@ -8,6 +8,13 @@ HcalUpgradeDataFrame::HcalUpgradeDataFrame() : id_(0),
 {
 }
 
+HcalUpgradeDataFrame::HcalUpgradeDataFrame(HcalDetId id) : id_(id),
+							   capId_(0),
+							   size_(0),
+							   presamples_(0) 
+{
+}
+
 HcalUpgradeDataFrame::HcalUpgradeDataFrame(HcalDetId id, int capId, int samples, int presamples) : id_(id),
                                                                                    capId_(capId)
 {

@@ -12,8 +12,8 @@
     
    This class sets status bit in the status words for the revised CaloRecHit objets according to informatino from the digi associated to the hit.
     
-   $Date: 2011/02/09 23:07:52 $
-   $Revision: 1.12 $
+   $Date: 2011/02/22 20:39:32 $
+   $Revision: 1.13 $
    \author J. Temple -- University of Maryland and E. Yazgan
 */
 
@@ -29,10 +29,8 @@ public:
   // The important stuff!  Methods for setting the status flag values
   void hfSetFlagFromDigi(HFRecHit& hf, const HFDataFrame& digi,
 			 const HcalCoder& coder,
-			 const HcalCalibrations& calib,
-			 int recoFirstSample,
-			 int recoSamplesToAdd);
-  void resetFlagTimeSamples(int firstSample, int samplesToAdd);
+			 const HcalCalibrations& calib);
+  void resetFlagTimeSamples(int firstSample, int samplesToAdd, int expectedPeak);
 
 private:
 

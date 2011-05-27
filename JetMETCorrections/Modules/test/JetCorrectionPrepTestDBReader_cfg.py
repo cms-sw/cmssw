@@ -12,15 +12,15 @@ from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import *
 
 process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(record = cms.string("JetCorrectionsRecord"),
-             tag = cms.string("JetCorrectorParametersCollection_Jec10V1_AK5Calo"),
+             tag = cms.string("JetCorrectorParametersCollection_Spring10_V8_AK5Calo"),
              connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS"),
              label=cms.untracked.string("AK5CaloNew")),
     cms.PSet(record = cms.string("JetCorrectionsRecord"),
-             tag = cms.string("JetCorrectorParametersCollection_Jec10V1_AK5JPT"),
+             tag = cms.string("JetCorrectorParametersCollection_Summer10_V8_AK5JPT"),
              connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS"),
              label=cms.untracked.string("AK5JPTNew")),
     cms.PSet(record = cms.string("JetCorrectionsRecord"),
-             tag = cms.string("JetCorrectorParametersCollection_Jec10V1_IC5Calo"),
+             tag = cms.string("JetCorrectorParametersCollection_Spring10_V8_IC5Calo"),
              connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS"),
              label=cms.untracked.string("IC5CaloNew")),    
     )

@@ -15,8 +15,6 @@ $testpulsedir   = "${datadir}/TestPulse/Analyzed";
 $runsdir        = "${datadir}/Runs";
 $listdir        = "$dir";
 
-print " datadir: $datadir , dir: $dir , firstRun: $firstRun , lastRun: $lastRun \n"; 
-
 if( $firstRun eq "" )
 {
     $firstRun = "0"; $lastRun = "100000000";
@@ -30,32 +28,10 @@ elsif( $lastRun eq "" )
     $lastRun = $firstRun;
 }
 
-$runlistred="${listdir}/runlist_IRed_Laser";
-$runlistblue="${listdir}/runlist_Blue_Laser";
-$runlisttp="${listdir}/runlist_Test_Pulse";
 
-$runlistredtmp="${listdir}/runlist_IRed_Laser_tmp";
-$runlistbluetmp="${listdir}/runlist_Blue_Laser_tmp";
-$runlisttptmp="${listdir}/runlist_Test_Pulse_tmp";
-
-$runlistredinit="${listdir}/runlist_IRed_Laser_init";
-$runlistblueinit="${listdir}/runlist_Blue_Laser_init";
-$runlisttpinit="${listdir}/runlist_Test_Pulse_init";
-
-if( -e "$runlistredinit"){
-    system "cp  $runlistredinit $runlistredtmp";
-}
-if( -e "$runlistblueinit"){
-    system "cp  $runlistblueinit $runlistbluetmp";
-}
-if( -e "$runlisttpinit"){
-    system "cp  $runlisttpinit $runlisttptmp";
-}
-
-
-open( LREDLIST,  ">>${listdir}/runlist_IRed_Laser_tmp")    || die "cannot open output file\n";
-open( LBLUELIST, ">>${listdir}/runlist_Blue_Laser_tmp")   || die "cannot open output file\n";
-open( TPLIST,    ">>${listdir}/runlist_Test_Pulse_tmp")   || die "cannot open output file\n";
+open( LREDLIST,  ">${listdir}/runlist_Red_Laser")    || die "cannot open output file\n";
+open( LBLUELIST, ">${listdir}/runlist_Blue_Laser")   || die "cannot open output file\n";
+open( TPLIST,    ">${listdir}/runlist_Test_Pulse")   || die "cannot open output file\n";
 
 $firstLaser = 1;
 $firstTP    = 1;
@@ -117,12 +93,12 @@ foreach my $rundir (@runsdir)
         if( $theLine =~ /MPGA_GAIN = (.*)/ ){ $mgpagain = $1; }
         if( $theLine =~ /MEM_GAIN  = (.*)/ ){ $memgain = $1; }
         if( $theLine =~ /blue laser/ ){ $curcolor = "BLUE"; }
-        if( $theLine =~ /red laser/ ){  $curcolor = "IRED"; }
+        if( $theLine =~ /red laser/ ){  $curcolor = "RED"; }
 
         if( $theLine =~ /events = (.*)/ ){
             if( $curcolor eq "BLUE" ){
                 $blueevents = $1;
-            }elsif ( $curcolor eq "IRED" ){
+            }elsif ( $curcolor eq "RED" ){
 		$redevents = $1;
             }
         }
@@ -130,14 +106,14 @@ foreach my $rundir (@runsdir)
         if( $theLine =~ /power  = (.*)/ ){
             if( $curcolor eq "BLUE" ){
                 $bluepower = $1;
-            }elsif ( $curcolor eq "IRED" ){
+            }elsif ( $curcolor eq "RED" ){
                 $redpower = $1;
             }
         }
         if( $theLine =~ /filter = (.*)/ ){
             if( $curcolor eq "BLUE" ){
                 $bluefilter = $1;
-            }elsif ( $curcolor eq "IRED" ){
+            }elsif ( $curcolor eq "RED" ){
                 $redfilter = $1;
             }
         }
@@ -145,7 +121,7 @@ foreach my $rundir (@runsdir)
         if( $theLine =~ /delay  = (.*)/ ){
             if( $curcolor eq "BLUE" ){
                 $bluedelay = $1;
-            }elsif ( $curcolor eq "IRED" ){
+            }elsif ( $curcolor eq "RED" ){
                 $reddelay = $1;
             }
         }
@@ -160,7 +136,7 @@ foreach my $rundir (@runsdir)
         }
     }
     $diffTS = $timestampbeg - $firstTS ;
-    if($redevents >0 && $timestampbeg > 30000000000000){
+    if($redevents >0 ){
         print LREDLIST "Run${run}_LB${lumiblock}\t$run\t$lumiblock\t$redevents\t$timestampbeg\t$timestampend\t$mgpagain\t$memgain\t$redpower\t$redfilter\t$reddelay\n";
     }
     if($blueevents > 0 ){
@@ -231,29 +207,9 @@ foreach my $rundir (@runsdir)
             $firstTS = $timestamp_beg;
         }
     }
-    if($events > 0 && $timestampbeg> 30000000000000 ){
+    if($events > 0 ){
         print TPLIST "Run${run}_LB${lumiblock}\t$run\t$lumiblock\t$events\t$timestampbeg\t$timestampend\t$mgpagain\t$memgain -1 -1 -1\n";
     }
 }
 closedir( RUNSDIR );
 close( TPLIST );
-
-my $command;
-
-#$command="cp $runlistredtmp $runlistredinit";
-#system ${command};
-
-$command="mv $runlistredtmp $runlistred";
-system ${command};
-
-#$command="cp $runlistbluetmp $runlistblueinit";
-#system ${command};
-
-$command="mv $runlistbluetmp $runlistblue";
-system ${command};
-
-#$command="cp $runlisttptmp $runlisttpinit";
-#system ${command};
-
-$command="mv $runlisttptmp $runlisttp";
-system ${command};

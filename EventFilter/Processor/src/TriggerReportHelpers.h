@@ -48,7 +48,7 @@ namespace evf{
       void packTriggerReport(edm::TriggerReport &, ShmOutputModuleRegistry *);
       void sumAndPackTriggerReport(MsgBuf &);
       void resetPackedTriggerReport();
-      void adjustLsIndexForRestart(){adjustLsIndex_ = true; lumiSectionIndex_--;}
+      void adjustLsIndexForRestart(){adjustLsIndex_ = true; if(lumiSectionIndex_>1) lumiSectionIndex_--;}
       void resetTriggerReport();
       evf::MsgBuf & getPackedTriggerReport(){return cache_;}
       TriggerReportStatic *getPackedTriggerReportAsStruct(){return (TriggerReportStatic *)cache_->mtext;}

@@ -5,6 +5,7 @@
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalDigi/interface/ZDCDataFrame.h"
+#include "DataFormats/HcalDigi/interface/HcalUpgradeDataFrame.h"
 #include "CLHEP/Random/RandFlat.h"
 
 
@@ -58,6 +59,10 @@ void HcalElectronicsSim::analogToDigital(CaloSamples & lf, ZDCDataFrame & result
   convert<ZDCDataFrame>(lf, result);
 }
 
+void HcalElectronicsSim::analogToDigital(CaloSamples & lf, 
+					 HcalUpgradeDataFrame & result) {
+  convert<HcalUpgradeDataFrame>(lf, result);
+}
 
 void HcalElectronicsSim::newEvent() {
   // pick a new starting Capacitor ID

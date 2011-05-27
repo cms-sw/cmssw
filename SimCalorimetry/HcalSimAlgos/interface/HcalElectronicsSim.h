@@ -12,6 +12,7 @@ class HBHEDataFrame;
 class HODataFrame;
 class HFDataFrame;
 class ZDCDataFrame;
+class HcalUpgradeDataFrame;
 
 class HcalAmplifier;
 class HcalCoderFactory;
@@ -28,6 +29,8 @@ public:
   void analogToDigital(CaloSamples & linearFrame, HODataFrame & result);
   void analogToDigital(CaloSamples & linearFrame, HFDataFrame & result);
   void analogToDigital(CaloSamples & linearFrame, ZDCDataFrame & result);
+  void analogToDigital(CaloSamples & linearFrame, 
+		       HcalUpgradeDataFrame & result);
 
   /// Things that need to be initialized every event
   /// sets starting CapID randomly

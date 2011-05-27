@@ -25,12 +25,12 @@ def finds(fileList, regularExpression, exceptRegEx = []):
 #exceptRegEx is the list of regular expressions that says to skip line if one of these regEx matches
 def find(file, regularExpression, exceptRegEx = []):
     lines = []
-    matchException = False
 
     if type(file).__name__ != 'list':
         fileLines = open(file).readlines()
     else: fileLines = file
     for i in range(len(fileLines)):
+        matchException = False
         if re.search(regularExpression, fileLines[i]) != None:
             for regEx in exceptRegEx:
                 if re.search(regEx, fileLines[i]) != None:

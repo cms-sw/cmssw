@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_PFCandProducer_PFIsoDepositAlgo_
-#define PhysicsTools_PFCandProducer_PFIsoDepositAlgo_
+#ifndef CommonTools_ParticleFlow_PFIsoDepositAlgo_
+#define CommonTools_ParticleFlow_PFIsoDepositAlgo_
 
 // system include files
 #include <memory>

@@ -14,6 +14,5 @@ FedChannelDigis = cms.EDProducer("SiStripRawToDigiModule",
     #Quiet             = cms.untracked.bool(False)
     UnpackCommonModeValues = cms.bool(False),
     DoAllCorruptBufferChecks = cms.bool(False),
-    ErrorThreshold = cms.uint32(7174)
 )
 

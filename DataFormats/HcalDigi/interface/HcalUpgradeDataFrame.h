@@ -16,6 +16,7 @@ public:
   typedef HcalDetId key_type; ///< For the sorted collection
 
   HcalUpgradeDataFrame(); 
+  HcalUpgradeDataFrame(HcalDetId id);
   HcalUpgradeDataFrame(HcalDetId id, int capId, int samples, int presamples) ;
 
   const HcalDetId& id() const { return id_; }
