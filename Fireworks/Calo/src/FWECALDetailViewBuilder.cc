@@ -6,6 +6,7 @@
 #include "TEveViewer.h"
 #include "TEveCalo.h"
 #include "TAxis.h"
+#include "TMath.h"
 #include "THLimitsFinder.h"
 #include "TLatex.h"
 
@@ -71,8 +72,22 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
    }
 
    if( handle_hits.isValid() ) 
-      // fill
+   {
       fillData( hits, data );
+   }
+   else
+   {
+      fwLog(fwlog::kWarning) <<"ECALDetailView::build(): No endcap rechits are available.\n";
+
+        // add dummy background 
+        if (fabs(m_eta) < 1.5)
+           data->AddTower(fw3dlego::xbins[0] , fw3dlego::xbins[82], -TMath::Pi(), TMath::Pi() );
+        else 
+           data->AddTower( -140, 140, -140, 140 );
+
+       data->FillSlice( 0, 0 );
+   }
+
 
    // axis
    Double_t etaMin(0), etaMax(0), phiMin(0), phiMax(0);
