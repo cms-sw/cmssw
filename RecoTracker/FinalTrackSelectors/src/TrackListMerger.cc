@@ -7,9 +7,9 @@
 // Original Author: David Lange
 // Created:         April 4, 2011
 //
-// $Author: vlimant $
-// $Date: 2011/05/24 17:51:18 $
-// $Revision: 1.3 $
+// $Author: dlange $
+// $Date: 2011/05/24 18:55:31 $
+// $Revision: 1.4 $
 //
 
 #include <memory>
@@ -403,6 +403,10 @@ namespace cms
 	if (trkUpdated[i])
 	  outputTrks->back().setQuality(qualityToSet_);
       }
+      //might duplicate things, but doesnt hurt
+      if ( selected[i]==1 )
+	outputTrks->back().setQualityMask(trackQuals[i]);
+
 
       //fill the TrackCollection
       if (copyExtras_) {
