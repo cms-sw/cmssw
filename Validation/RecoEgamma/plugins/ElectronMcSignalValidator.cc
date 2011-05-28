@@ -59,11 +59,11 @@ ElectronMcSignalValidator::ElectronMcSignalValidator( const edm::ParameterSet & 
   isoFromDepsTk03Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsTk03" ) ;
   isoFromDepsTk04Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsTk04" ) ;
   isoFromDepsEcalFull03Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsEcalFull03" ) ;
-  isoFromDepsEcalFull04Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsEcalFull03" ) ;
+  isoFromDepsEcalFull04Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsEcalFull04" ) ;
   isoFromDepsEcalReduced03Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsEcalReduced03" ) ;
-  isoFromDepsEcalReduced04Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsEcalReduced03" ) ;
+  isoFromDepsEcalReduced04Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsEcalReduced04" ) ;
   isoFromDepsHcal03Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsHcal03" ) ;
-  isoFromDepsHcal04Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsHcal03" ) ;
+  isoFromDepsHcal04Tag_ = conf.getParameter<edm::InputTag>( "isoFromDepsHcal04" ) ;
 
   maxPt_ = conf.getParameter<double>("MaxPt");
   maxAbsEta_ = conf.getParameter<double>("MaxAbsEta");
@@ -541,6 +541,15 @@ void ElectronMcSignalValidator::book()
   h1_ele_hcalTowerSumEt_dr04_depth1_endcaps = bookH1withSumw2("hcalTowerSumEt_dr04_depth1_endcaps","hcal depth1 isolation sum, dR=0.4, endcaps",100,0.0,20.,"Hcal1IsoSum, cone 0.4 (GeV)","Events","ELE_LOGY E1 P");
   h1_ele_hcalTowerSumEt_dr04_depth2 = bookH1withSumw2("hcalTowerSumEt_dr04_depth2","hcal depth2 isolation sum, dR=0.4",100,0.0,20.,"Hcal2IsoSum, cone 0.4 (GeV)","Events","ELE_LOGY E1 P");
 
+  h1_ele_dIso_tkSumPt_dr03 = bookH1withSumw2("dIso_tkSumPt_dr03","diff with iso from deposits, tk isolation sum, dR=0.3",21,-10.0,10.,"TkIsoSum diff, cone 0.3 (GeV/c)","Events","ELE_LOGY E1 P");
+  h1_ele_dIso_tkSumPt_dr04 = bookH1withSumw2("dIso_tkSumPt_dr04","diff with iso from deposits, tk isolation sum, dR=0.4",21,-10.0,10.,"TkIsoSum diff, cone 0.4 (GeV/c)","Events","ELE_LOGY E1 P");
+  h1_ele_dIso_ecalFullRecHitSumEt_dr03 = bookH1withSumw2("dIso_ecalFullRecHitSumEt_dr03","diff with iso from deposits, ecal isolation sum, dR=0.3",21,-10.0,10.,"EcalIsoSum diff, cone 0.3 (GeV)","Events","ELE_LOGY E1 P");
+  h1_ele_dIso_ecalFullRecHitSumEt_dr04 = bookH1withSumw2("dIso_ecalFullRecHitSumEt_dr04","diff with iso from deposits, ecal isolation sum, dR=0.4",21,-10.0,10.,"EcalIsoSum diff, cone 0.4 (GeV)","Events","ELE_LOGY E1 P");
+  h1_ele_dIso_ecalReducedRecHitSumEt_dr03 = bookH1withSumw2("dIso_ecalReducedRecHitSumEt_dr03","diff with iso from deposits, ecal isolation sum, dR=0.3",21,-10.0,10.,"EcalIsoSum diff, cone 0.3 (GeV)","Events","ELE_LOGY E1 P");
+  h1_ele_dIso_ecalReducedRecHitSumEt_dr04 = bookH1withSumw2("dIso_ecalReducedRecHitSumEt_dr04","diff with iso from deposits, ecal isolation sum, dR=0.4",21,-10.0,10.,"EcalIsoSum diff, cone 0.4 (GeV)","Events","ELE_LOGY E1 P");
+  h1_ele_dIso_hcalTowerSumEt_dr03 = bookH1withSumw2("dIso_hcalTowerSumEt_dr03","diff with iso from deposits, hcal depth1 isolation sum, dR=0.3",21,-10.0,10.,"Hcal1IsoSum diff, cone 0.3 (GeV)","Events","ELE_LOGY E1 P");
+  h1_ele_dIso_hcalTowerSumEt_dr04 = bookH1withSumw2("dIso_hcalTowerSumEt_dr04","diff with iso from deposits, hcal depth1 isolation sum, dR=0.4",21,-10.0,10.,"Hcal1IsoSum diff, cone 0.4 (GeV)","Events","ELE_LOGY E1 P");
+
   // fbrem
   h1_ele_fbrem = bookH1withSumw2("fbrem","ele brem fraction, mode of GSF components",100,0.,1.,"P_{in} - P_{out} / P_{in}");
   h1_ele_fbrem_eg = bookH1withSumw2("brem_eg","ele brem fraction, mode of GSF components, ecal driven",100,0.,1.);
@@ -814,8 +823,10 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
     bool okGsfFound = false ;
     double gsfOkRatio = 999999. ;
     reco::GsfElectron bestGsfElectron ;
+    reco::GsfElectronRef bestGsfElectronRef ;
     reco::GsfElectronCollection::const_iterator gsfIter ;
-    for ( gsfIter=gsfElectrons->begin() ; gsfIter!=gsfElectrons->end() ; gsfIter++ )
+    reco::GsfElectronCollection::size_type iElectron ;
+    for ( gsfIter=gsfElectrons->begin(), iElectron=0 ; gsfIter!=gsfElectrons->end() ; gsfIter++, iElectron++ )
      {
       double dphi = gsfIter->phi()-mcIter->phi() ;
       if (std::abs(dphi)>CLHEP::pi)
@@ -831,6 +842,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
            {
             gsfOkRatio = tmpGsfRatio;
             bestGsfElectron=*gsfIter;
+            bestGsfElectronRef=reco::GsfElectronRef(gsfElectrons,iElectron);
             okGsfFound = true;
            }
          }
@@ -1218,6 +1230,16 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
     if (bestGsfElectron.isEB()) h1_ele_hcalTowerSumEt_dr04_depth1_barrel->Fill(bestGsfElectron.dr04HcalDepth1TowerSumEt());
     if (bestGsfElectron.isEE()) h1_ele_hcalTowerSumEt_dr04_depth1_endcaps->Fill(bestGsfElectron.dr04HcalDepth1TowerSumEt());
     h1_ele_hcalTowerSumEt_dr04_depth2->Fill(bestGsfElectron.dr04HcalDepth2TowerSumEt());
+
+    // isolation : difference with iso deposits
+    h1_ele_dIso_tkSumPt_dr03->Fill(bestGsfElectron.dr03TkSumPt()-((*isoFromDepsTk03Handle)[bestGsfElectronRef])) ;
+    h1_ele_dIso_tkSumPt_dr04->Fill(bestGsfElectron.dr04TkSumPt()-((*isoFromDepsTk04Handle)[bestGsfElectronRef])) ;
+    h1_ele_dIso_ecalFullRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt()-((*isoFromDepsEcalFull03Handle)[bestGsfElectronRef])) ;
+    h1_ele_dIso_ecalFullRecHitSumEt_dr04->Fill(bestGsfElectron.dr04EcalRecHitSumEt()-((*isoFromDepsEcalFull04Handle)[bestGsfElectronRef])) ;
+    h1_ele_dIso_ecalReducedRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt()-((*isoFromDepsEcalReduced03Handle)[bestGsfElectronRef])) ;
+    h1_ele_dIso_ecalReducedRecHitSumEt_dr04->Fill(bestGsfElectron.dr04EcalRecHitSumEt()-((*isoFromDepsEcalReduced04Handle)[bestGsfElectronRef])) ;
+    h1_ele_dIso_hcalTowerSumEt_dr03->Fill(bestGsfElectron.dr03HcalTowerSumEt()-((*isoFromDepsHcal03Handle)[bestGsfElectronRef])) ;
+    h1_ele_dIso_hcalTowerSumEt_dr04->Fill(bestGsfElectron.dr04HcalTowerSumEt()-((*isoFromDepsHcal04Handle)[bestGsfElectronRef])) ;
 
     // conversion rejection
     int flags = bestGsfElectron.convFlags() ;

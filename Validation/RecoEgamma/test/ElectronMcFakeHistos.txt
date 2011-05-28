@@ -98,32 +98,55 @@ ElectronMcFakeValidator/h_ele_seedDphi2Pos_VsEta_pfx              0 1 0 0
 ElectronMcFakeValidator/h_ele_seedDphi2Pos_VsPt_pfx               0 1 1 0
 ElectronMcFakeValidator/h_ele_seedDrz2                            1 1 0 0
 ElectronMcFakeValidator/h_ele_seedDrz2_VsEta_pfx                  0 1 0 0
-ElectronMcFakeValidator/h_ele_seedDrz2_VsPt_pfx                   0 1 1 1
+ElectronMcFakeValidator/h_ele_seedDrz2_VsPt_pfx                   0 1 1 0
 ElectronMcFakeValidator/h_ele_seedDrz2Pos                         1 1 0 0
 ElectronMcFakeValidator/h_ele_seedDrz2Pos_VsEta_pfx               0 1 0 0
 ElectronMcFakeValidator/h_ele_seedDrz2Pos_VsPt_pfx                0 1 1 1
 
 Brem fraction and related distributions
 
-ElectronMcFakeValidator/h_ele_fbrem                               1 1 0 0 0 1 0
-ElectronMcFakeValidator/h_ele_classes                             1	1 0 0 0 1 0
+ElectronMcFakeValidator/h_ele_fbrem                               1 1 1 0
+ElectronMcFakeValidator/h_ele_classes                             1	1 1 0
 ElectronMcFakeValidator/h_ele_eta_goldenFrac                      0 0 1 0 0 ElectronMcFakeValidator/h_ele_eta_golden  ElectronMcFakeValidator/h_ele_eta
 ElectronMcFakeValidator/h_ele_eta_bbremFrac                       0 0 1 0 0 ElectronMcFakeValidator/h_ele_eta_bbrem   ElectronMcFakeValidator/h_ele_eta
 ElectronMcFakeValidator/h_ele_eta_narrowFrac                      0 0 1 0 0 ElectronMcFakeValidator/h_ele_eta_narrow  ElectronMcFakeValidator/h_ele_eta
 ElectronMcFakeValidator/h_ele_eta_showerFrac                      0 0 1 0 0 ElectronMcFakeValidator/h_ele_eta_show    ElectronMcFakeValidator/h_ele_eta
-ElectronMcFakeValidator/h_ele_fbremvsEtamean                      0 1 0 0 0 1 0
-ElectronMcFakeValidator/h_ele_fbremvsEtamode                      0 1 0 0 0 1 1
+ElectronMcFakeValidator/h_ele_fbremvsEtamean                      0 1 1 0
+ElectronMcFakeValidator/h_ele_fbremvsEtamode                      0 1 1 1
 
 Isolation sums
 
-ElectronMcFakeValidator/h_ele_tkSumPt_dr03                        1 1 1 0
-ElectronMcFakeValidator/h_ele_ecalRecHitSumEt_dr03                1 1 1 0
+ElectronMcFakeValidator/h_ele_tkSumPt_dr03                        1 1 0 0
+ElectronMcFakeValidator/h_ele_tkSumPt_dr03_barrel                 1 1 0 0
+ElectronMcFakeValidator/h_ele_tkSumPt_dr03_endcaps                1 1 1 0
+ElectronMcFakeValidator/h_ele_ecalRecHitSumEt_dr03                1 1 0 0
+ElectronMcFakeValidator/h_ele_ecalRecHitSumEt_dr03_barrel         1 1 0 0
+ElectronMcFakeValidator/h_ele_ecalRecHitSumEt_dr03_endcaps        1 1 1 0
 ElectronMcFakeValidator/h_ele_hcalTowerSumEt_dr03_depth1          1 1 0 0
+ElectronMcFakeValidator/h_ele_hcalTowerSumEt_dr03_depth1_barrel   1 1 0 0
+ElectronMcFakeValidator/h_ele_hcalTowerSumEt_dr03_depth1_endcaps  1 1 1 0
 ElectronMcFakeValidator/h_ele_hcalTowerSumEt_dr03_depth2          1 1 1 0
-ElectronMcFakeValidator/h_ele_tkSumPt_dr04                        1 1 1 0
-ElectronMcFakeValidator/h_ele_ecalRecHitSumEt_dr04                1 1 1 0
+ElectronMcFakeValidator/h_ele_tkSumPt_dr04                        1 1 0 0
+ElectronMcFakeValidator/h_ele_tkSumPt_dr04_barrel                 1 1 0 0
+ElectronMcFakeValidator/h_ele_tkSumPt_dr04_endcaps                1 1 1 0
+ElectronMcFakeValidator/h_ele_ecalRecHitSumEt_dr04                1 1 0 0
+ElectronMcFakeValidator/h_ele_ecalRecHitSumEt_dr04_barrel         1 1 0 0
+ElectronMcFakeValidator/h_ele_ecalRecHitSumEt_dr04_endcaps        1 1 1 0
 ElectronMcFakeValidator/h_ele_hcalTowerSumEt_dr04_depth1          1 1 0 0
+ElectronMcFakeValidator/h_ele_hcalTowerSumEt_dr04_depth1_barrel   1 1 0 0
+ElectronMcFakeValidator/h_ele_hcalTowerSumEt_dr04_depth1_endcaps  1 1 1 0
 ElectronMcFakeValidator/h_ele_hcalTowerSumEt_dr04_depth2          1 1 1 1
+
+Difference with isolation from deposits
+
+ElectronMcFakeValidator/h_ele_dIso_tkSumPt_dr03                        1 1 0 0
+ElectronMcFakeValidator/h_ele_dIso_tkSumPt_dr04                        1 1 1 0
+ElectronMcFakeValidator/h_ele_dIso_ecalFullRecHitSumEt_dr03            1 1 0 0
+ElectronMcFakeValidator/h_ele_dIso_ecalFullRecHitSumEt_dr04            1 1 1 0
+ElectronMcFakeValidator/h_ele_dIso_ecalReducedRecHitSumEt_dr03         1 1 0 0
+ElectronMcFakeValidator/h_ele_dIso_ecalReducedRecHitSumEt_dr04         1 1 1 0
+ElectronMcFakeValidator/h_ele_dIso_hcalTowerSumEt_dr03                 1 1 0 0
+ElectronMcFakeValidator/h_ele_dIso_hcalTowerSumEt_dr04                 1 1 1 1
 
 Distributions for all reconstructed electrons (i.e. not requiring a match with a reco jet)
 
@@ -158,11 +181,11 @@ ElectronMcFakeValidator/h_ele_convRadius_all                      1 1 1 1
 
 Reconstruction efficiency
 
-ElectronMcFakeValidator/h_ele_absetaEff   0 1  1 0 0 ElectronMcFakeValidator/h_ele_matchingObjectAbsEta_matched ElectronMcFakeValidator/h_matchingObject_abseta
-ElectronMcFakeValidator/h_ele_etaEff      0 1  1 0 0 ElectronMcFakeValidator/h_ele_matchingObjectEta_matched    ElectronMcFakeValidator/h_matchingObject_eta   
-ElectronMcFakeValidator/h_ele_ptEff       0 1  1 0 0 ElectronMcFakeValidator/h_ele_matchingObjectPt_matched     ElectronMcFakeValidator/h_matchingObject_Pt    
-ElectronMcFakeValidator/h_ele_phiEff      0 1  1 0 0 ElectronMcFakeValidator/h_ele_matchingObjectPhi_matched    ElectronMcFakeValidator/h_matchingObject_phi   
-ElectronMcFakeValidator/h_ele_zEff        0 1  1 0 0 ElectronMcFakeValidator/h_ele_matchingObjectZ_matched      ElectronMcFakeValidator/h_matchingObject_z     
-ElectronMcFakeValidator/h_ele_etaEff_all  0 1  1 0 0 ElectronMcFakeValidator/h_ele_vertexEta_all                ElectronMcFakeValidator/h_matchingObject_eta   
-ElectronMcFakeValidator/h_ele_ptEff_all   0 1  1 0 0 ElectronMcFakeValidator/h_ele_vertexPt_all                 ElectronMcFakeValidator/h_matchingObject_Pt    
+ElectronMcFakeValidator/h_ele_absetaEff   0 1 1 0 0 ElectronMcFakeValidator/h_ele_matchingObjectAbsEta_matched ElectronMcFakeValidator/h_matchingObject_abseta
+ElectronMcFakeValidator/h_ele_etaEff      0 1 1 0 0 ElectronMcFakeValidator/h_ele_matchingObjectEta_matched    ElectronMcFakeValidator/h_matchingObject_eta   
+ElectronMcFakeValidator/h_ele_ptEff       0 1 1 0 0 ElectronMcFakeValidator/h_ele_matchingObjectPt_matched     ElectronMcFakeValidator/h_matchingObject_Pt    
+ElectronMcFakeValidator/h_ele_phiEff      0 1 1 0 0 ElectronMcFakeValidator/h_ele_matchingObjectPhi_matched    ElectronMcFakeValidator/h_matchingObject_phi   
+ElectronMcFakeValidator/h_ele_zEff        0 1 1 0 0 ElectronMcFakeValidator/h_ele_matchingObjectZ_matched      ElectronMcFakeValidator/h_matchingObject_z     
+ElectronMcFakeValidator/h_ele_etaEff_all  0 1 1 0 0 ElectronMcFakeValidator/h_ele_vertexEta_all                ElectronMcFakeValidator/h_matchingObject_eta   
+ElectronMcFakeValidator/h_ele_ptEff_all   0 1 1 0 0 ElectronMcFakeValidator/h_ele_vertexPt_all                 ElectronMcFakeValidator/h_matchingObject_Pt    
 
