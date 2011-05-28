@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:    Validation/RecoVertex
-// Class:      BeamSpotAnalyzer
+// Class:      AnotherBeamSpotAnalyzer
 // 
-/**\class BeamSpotAnalyzer BeamSpotAnalyzer.cc Validation/RecoVertex/plugins/BeamSpotAnalyzer.cc
+/**\class AnotherBeamSpotAnalyzer BeamSpotAnalyzer.cc Validation/RecoVertex/plugins/BeamSpotAnalyzer.cc
 
  Description: <one line class summary>
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Mon Oct 27 17:37:53 CET 2008
-// $Id: BeamSpotAnalyzer.cc,v 1.2 2010/11/30 09:07:06 venturia Exp $
+// $Id: BeamSpotAnalyzer.cc,v 1.1 2011/03/08 17:11:26 venturia Exp $
 //
 //
 
@@ -46,10 +46,10 @@
 // class decleration
 //
 
-class BeamSpotAnalyzer : public edm::EDAnalyzer {
+class AnotherBeamSpotAnalyzer : public edm::EDAnalyzer {
    public:
-      explicit BeamSpotAnalyzer(const edm::ParameterSet&);
-      ~BeamSpotAnalyzer();
+      explicit AnotherBeamSpotAnalyzer(const edm::ParameterSet&);
+      ~AnotherBeamSpotAnalyzer();
 
 
 private:
@@ -78,7 +78,7 @@ private:
 //
 // constructors and destructor
 //
-BeamSpotAnalyzer::BeamSpotAnalyzer(const edm::ParameterSet& iConfig):
+AnotherBeamSpotAnalyzer::AnotherBeamSpotAnalyzer(const edm::ParameterSet& iConfig):
   _bshm(iConfig.getParameter<edm::ParameterSet>("bsHistogramMakerPSet")),
   _bscollection(iConfig.getParameter<edm::InputTag>("bsCollection"))
 {
@@ -91,7 +91,7 @@ BeamSpotAnalyzer::BeamSpotAnalyzer(const edm::ParameterSet& iConfig):
 }
 
 
-BeamSpotAnalyzer::~BeamSpotAnalyzer()
+AnotherBeamSpotAnalyzer::~AnotherBeamSpotAnalyzer()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -106,7 +106,7 @@ BeamSpotAnalyzer::~BeamSpotAnalyzer()
 
 // ------------ method called to for each event  ------------
 void
-BeamSpotAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+AnotherBeamSpotAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
   
@@ -121,25 +121,25 @@ BeamSpotAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-BeamSpotAnalyzer::beginJob()
+AnotherBeamSpotAnalyzer::beginJob()
 { }
 
 void
-BeamSpotAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+AnotherBeamSpotAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 
   _bshm.beginRun(iRun.run());
 
 }
 
 void
-BeamSpotAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+AnotherBeamSpotAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 
 }
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-BeamSpotAnalyzer::endJob() {
+AnotherBeamSpotAnalyzer::endJob() {
 }
 
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(BeamSpotAnalyzer);
+DEFINE_FWK_MODULE(AnotherBeamSpotAnalyzer);

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-beamspotanalyzer = cms.EDAnalyzer('BeamSpotAnalyzer',
+beamspotanalyzer = cms.EDAnalyzer('AnotherBeamSpotAnalyzer',
                                          bsCollection = cms.InputTag("offlineBeamSpot"),
                                          bsHistogramMakerPSet = cms.PSet(
                                                histoParameters = cms.untracked.PSet(
