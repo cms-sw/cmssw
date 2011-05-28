@@ -73,7 +73,7 @@ void FWFileEntry::openFile()
             rel[2] = i->releaseVersion()[11];
             int relInt = atoi(rel);
             if (relInt < 420)
-               throw std::runtime_error("Incompatible data file. Process with version CMSSW_4_2_X required.");
+               throw std::runtime_error("Incompatible data file. Process with version CMSSW_4_2_X or more required.");
          }
       }
 
