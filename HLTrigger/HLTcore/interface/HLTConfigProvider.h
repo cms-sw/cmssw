@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2011/05/01 10:32:13 $
- *  $Revision: 1.39 $
+ *  $Date: 2011/05/28 11:14:15 $
+ *  $Revision: 1.40 $
  *
  *  \author Martin Grunewald
  *
@@ -53,7 +53,7 @@ class HLTConfigProvider {
 
   /// process name
   const std::string& processName() const {
-    return processName_;
+    return hltConfigData_->processName();
   }
   /// initialised?
   const bool inited() const {
@@ -253,7 +253,7 @@ class HLTConfigProvider {
 
  private:
 
-  void getDataFrom(const edm::ParameterSetID& iID, const std::string& iProcessName );
+  void getDataFrom(const edm::ParameterSetID& iID);
   void init(const edm::ProcessHistory& iHistory, const std::string& processName);
   void init(const std::string& processName);
   void clear();
