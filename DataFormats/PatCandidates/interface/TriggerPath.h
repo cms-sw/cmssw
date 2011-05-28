@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerPath
 //
-// $Id: TriggerPath.h,v 1.9 2011/02/22 18:29:50 vadler Exp $
+// $Id: TriggerPath.h,v 1.10 2011/05/24 15:56:25 vadler Exp $
 //
 /**
   \class    pat::TriggerPath TriggerPath.h "DataFormats/PatCandidates/interface/TriggerPath.h"
@@ -18,7 +18,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerPath
 
   \author   Volker Adler
-  \version  $Id: TriggerPath.h,v 1.9 2011/02/22 18:29:50 vadler Exp $
+  \version  $Id: TriggerPath.h,v 1.10 2011/05/24 15:56:25 vadler Exp $
 */
 
 
@@ -130,7 +130,7 @@ namespace pat {
       unsigned l3Filters() const { return l3Filters_; };
       /// Determines, if the path is a x-trigger, based on the number of modules identified as L3 filter
       /// available starting from CMSSW_4_2_3
-      unsigned xTrigger() const { return ( l3Filters_ > 2 ); };
+      bool xTrigger() const { return ( l3Filters_ > 2 ); };
       /// Get all module labels
       std::vector< std::string > modules() const { return modules_; };
       /// Get all trigger fillter collection indeces
