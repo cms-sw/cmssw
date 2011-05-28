@@ -6,6 +6,7 @@
 <use name="DataFormats/EcalRecHit"/>
 <use name="DataFormats/FWLite"/>
 <use name="DataFormats/L1GlobalTrigger"/>
+<use name="DataFormats/Provenance"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/MuonDetId"/>
 <use name="DataFormats/Provenance"/>

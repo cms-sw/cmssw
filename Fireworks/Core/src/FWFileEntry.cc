@@ -9,6 +9,8 @@
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "DataFormats/Provenance/interface/ReleaseVersion.h"
 
 #define private public
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -50,6 +52,34 @@ void FWFileEntry::openFile()
    { 
       throw std::runtime_error("Cannot find TTree 'Events' in the data file");
    }
+
+   // check CMSSW relese version for compatibility
+   {
+      typedef std::vector<edm::ProcessConfiguration> provList;
+  
+      TTree   *metaData = dynamic_cast<TTree*>(m_file->Get("MetaData"));
+      TBranch *b = metaData->GetBranch("ProcessConfiguration");
+      provList *x = 0;
+      b->SetAddress(&x);
+      b->GetEntry(0);
+      char rel[4] = { 0, 0, 0, 0 };
+      for (provList::iterator i = x->begin(); i != x->end(); ++i)
+      {
+         // std::cout << i->releaseVersion() << "  " << i->processName() << std::endl;
+         if (i->releaseVersion().size() > 11)
+         {
+            rel[0] = i->releaseVersion()[7];
+            rel[1] = i->releaseVersion()[9];
+            rel[2] = i->releaseVersion()[11];
+            int relInt = atoi(rel);
+            if (relInt < 420)
+               throw std::runtime_error("Incompatible data file. Process with version CMSSW_4_2_X required.");
+         }
+      }
+
+      b->SetAddress(0);
+   }
+
 
    // This now set in DataHelper
    //TTreeCache::SetLearnEntries(2);
