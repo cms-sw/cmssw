@@ -144,16 +144,76 @@ preFilterStepOneTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduc
 ### BOTH STEPS TOGETHER ###
 
 # Set track quality flags for both steps
-from RecoTracker.FinalTrackSelectors.TracksWithQuality_cff import *
 
-# Merge step 0 and step 1
-from RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff import *
+import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
+zeroSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+    src='preFilterZeroStepTracks',
+    trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            name = 'zeroStepWithLooseQuality',
+            ), #end of pset
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            name = 'zeroStepWithTightQuality',
+            preFilterName = 'zeroStepWithLooseQuality',
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'zeroStepTracksWithQuality',
+            preFilterName = 'zeroStepWithTightQuality',
+            ),
+        ) #end of vpset
+    ) #end of clone
+
+firstSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+    src='preFilterStepOneTracks',
+    trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            name = 'firstStepWithLooseQuality',
+            ), #end of pset
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            name = 'firstStepWithTightQuality',
+            preFilterName = 'firstStepWithLooseQuality',
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'preMergingFirstStepTracksWithQuality',
+            preFilterName = 'firstStepWithTightQuality',
+            ),
+        ) #end of vpset
+    ) #end of clone
+
+
+
+import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
+
+
+#hopefully we can get rid of these two lists...
+preMergingFirstStepTracksWithQuality = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
+    TrackProducers = cms.VInputTag(cms.InputTag('preFilterStepOneTracks')),
+    hasSelector=cms.vint32(1),
+    selectedTrackQuals = cms.VInputTag(cms.InputTag("firstSelector","preMergingFirstStepTracksWithQuality")),
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0), pQual=cms.bool(False) ))
+)                        
+
+
+zeroStepTracksWithQuality = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
+    TrackProducers = cms.VInputTag(cms.InputTag('preFilterZeroStepTracks')),
+    hasSelector=cms.vint32(1),
+    selectedTrackQuals = cms.VInputTag(cms.InputTag("zeroSelector","zeroStepTracksWithQuality")),
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0), pQual=cms.bool(False) ))
+)                        
+
+#then merge everything together
+firstStepTracksWithQuality = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
+    TrackProducers = cms.VInputTag(cms.InputTag('preFilterZeroStepTracks'),cms.InputTag('preFilterStepOneTracks')),
+    hasSelector=cms.vint32(1,1),
+    selectedTrackQuals = cms.VInputTag(cms.InputTag("zeroSelector","zeroStepTracksWithQuality"),cms.InputTag("firstSelector","preMergingFirstStepTracksWithQuality")),
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1), pQual=cms.bool(False) ))
+)                        
 
 # Final sequence
-firstStep = cms.Sequence(newSeedFromTriplets*newTrackCandidateMaker*preFilterZeroStepTracks*tracksWithQualityZeroStep*
+firstStep = cms.Sequence(newSeedFromTriplets*newTrackCandidateMaker*preFilterZeroStepTracks*zeroSelector*zeroStepTracksWithQuality*
                          zeroStepFilter*newClusters*newPixelRecHits*newStripRecHits*
-                         newSeedFromPairs*stepOneTrackCandidateMaker*preFilterStepOneTracks*tracksWithQualityStepOne*
-                         firstStepTracksWithQuality)
+                         newSeedFromPairs*stepOneTrackCandidateMaker*preFilterStepOneTracks*
+                         firstSelector*preMergingFirstStepTracksWithQuality*firstStepTracksWithQuality)
 
 
 
