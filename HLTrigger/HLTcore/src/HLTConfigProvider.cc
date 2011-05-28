@@ -2,14 +2,15 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/12/23 12:48:46 $
- *  $Revision: 1.60 $
+ *  $Date: 2011/01/24 14:23:01 $
+ *  $Revision: 1.61 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "FWCore/Utilities/interface/RegexMatch.h"
 #include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -18,7 +19,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 
 typedef edm::detail::ThreadSafeRegistry<edm::ParameterSetID, HLTConfigData> HLTConfigDataRegistry;
 
@@ -303,4 +303,13 @@ std::pair<int,int>  HLTConfigProvider::prescaleValues(const edm::Event& iEvent, 
   }
 
   return result;
+}
+
+const std::vector<std::string> HLTConfigProvider::matched(const std::vector<std::string>& inputs, const std::string& pattern) const {
+
+  const std::vector< std::vector<std::string>::const_iterator >& matches(edm::regexMatch(inputs,pattern));
+  const unsigned int n(matches.size());
+  std::vector<std::string> matched(n);
+  for (unsigned int i=0; i<n; ++i) matched[i]=*(matches[i]);
+  return matched;
 }
