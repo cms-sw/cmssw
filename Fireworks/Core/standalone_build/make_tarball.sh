@@ -1,5 +1,5 @@
 #!/bin/bash
-set -xv
+#set -xv
 
 if [ $# -lt 1 ]; then
   echo "Usage: $0  [tar-dir]"
@@ -7,42 +7,50 @@ if [ $# -lt 1 ]; then
 fi
 
 # TODO: add 'std' option so file name is automatically created from release name and date
-tard=${PWD}/$1
 
-# TODO: sample file location should be external parameter or downloaded from web
-dataDir=${PWD}/data
+tard=${PWD}/$1
+if [ -f $tard ]; then
+   echo "dir exist alreday"
+   exit
+fi
+mkdir $tard
+echo "tar dir $tard"
 
 #----------------------------------------------------------------
 # root
 # can be linked or installed at $ROOTSYS
 
 mkdir  ${tard}/external
+
 ROOTSYS=`echo $ROOTSYS |  sed 's/\/$//'` # remove '/' character  at end of string, becuse it invalidates symblic link interpretation
+origr=$ROOTSYS
 if [ -L ${ROOTSYS} ]; then
    b=${ROOTSYS}
    origr=`readlink ${ROOTSYS}`
-   cd ${origr}
-   ROOTSYS=${tard}/external/root make install
-   mkdir -p ${tard}   ROOTSYS=${origr}
-else
-   cd $ROOTSYS   
-   ROOTSYS=${tard}/external/root make install
 fi
+
+echo "copy root from $origr to ${tard}/external/root"
+cp -a $origr  ${tard}/external/root
 
 #----------------------------------------------------------------
 # external libraries
+extdl=${tard}/external/lib
+mkdir $extdl
 
-mkdir ${tard}/external/lib
 ext=`dirname ${CMSSW_DATA_PATH}`/external
-cp -a $ext/*/*/lib/*  ${tard}/external/lib
 
-if [ `uname` = "Darwin" ]; then
-   # compatibility problem on 10.5
-   rm  ${tard}/external/lib/libcrypto.*
-fi
+echo "Copying external libraries from $ext to $extdl."
 
-# remove 160MB large Qt libraries, not needed for event display
-rm  ${tard}/external/lib/libQt*
+# cp -a $ext/*/*/lib/*  ${tard}/external/lib
+for i in boost bz2lib castor clhep dcap db4 dcap \
+	elementtree expat fftw3 gdbm gsl hepmc\
+	libjpg libpng libtiff libungif \
+	openldap openssl pcre \
+	sigcpp sqlite xrootd zlib
+do
+	echo "cp -a $ext/$i/*/lib/* === ${extdl}"
+	cp -a $ext/$i/*/lib/* ${extdl}
+done
 
 #----------------------------------------------------------------
 # cmssw
@@ -56,42 +64,20 @@ cp -a $CMSSW_BASE/lib/*/* ${tard}/lib/
 # plugins cache file
 touch ${tard}/lib/.edmplugincache
 cat  $CMSSW_RELEASE_BASE/lib/*/.edmplugincache > ${tard}/lib/.edmplugincache
-cat  $CMSSW_BASE/lib/*/.edmplugincache >> ${tard}/lib/.edmplugincache
+echo "get $CMSSW_RELEASE_BASE/lib/*/.edmplugincache > ${tard}/lib/.edmplugincache"
+# cat  $CMSSW_BASE/lib/*/.edmplugincache >> ${tard}/lib/.edmplugincache
 
 # binary 
 cp $CMSSW_BASE/bin/*/cmsShow.exe ${tard}
 
 # version file, icons, and configuration files
-# TODO: should be in etc, but have to change Fireworks source code first
-
 mkdir -p ${tard}/src
+cvs co -p Fireworks/Core/macros/default.fwc > default.fwc
+cvs co -p Fireworks/Core/macros/ispy.fwc > ispy.fwc
+cvs co -p Fireworks/Core/macros/pflow.fwc > pflow.fwc
+cvs co -p Fireworks/Core/macros/hflego.fwc > hflego.fwc
+
 cd ${tard}/src
-cvs co Fireworks/Core/macros
 cvs co Fireworks/Core/icons
 cvs co Fireworks/Core/data
 
-#----------------------------------------------------------------
-
-# sample files
-dwnCmd="wget"
-if [ `uname` = "Darwin" ]; then
-   # compatibility problem on 10.5
-   dwnCmd="curl -O"
-fi
-cd ${tard}
-$dwnCmd http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/data.root
-$dwnCmd http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/mc.root
-$dwnCmd http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/cmsGeom10.root
-# temprary here till fwlite build is excepted
-$dwnCmd http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/cmsShow 
-chmod a+x cmsShow
-
-#----------------------------------------------------------------
-# tar file
-
-cd `dirname $tard`
-tarname=`basename $tard`.`uname`.tar.gz
-tar -czf ${tarname}  `basename ${tard}`
-
-# rm -rf ${tard} 
-# cp $tarname  /afs/cern.ch/cms/fireworks/standalone-build/
