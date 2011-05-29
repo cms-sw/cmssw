@@ -421,7 +421,7 @@ CaloGeometryAnalyzer::checkDiff( int            i1      ,
 				 XorYorZ        iXYZ    ,
 				 double         diff      )
 {
-   if( 2.5 < fabs( diff ) ) 
+   if( 3.0 < fabs( diff ) ) 
    {
       std::cout<<"For a volume "<<( kCenter==iCtrCor ? "CENTER" : "CORNER" )
 	       <<", & "
