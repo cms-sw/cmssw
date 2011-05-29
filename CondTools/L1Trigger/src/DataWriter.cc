@@ -141,7 +141,8 @@ DataWriter::updateIOV( const std::string& esRecordName,
 
   if( iovUpdated )
     {
-      edm::LogVerbatim( "L1-O2O" ) << esRecordName
+      edm::LogVerbatim( "L1-O2O" ) << esRecordName << " "
+				   << poolDb->tag( esRecordName )
 				   << " SINCE " << sinceRun ;
     }
 
