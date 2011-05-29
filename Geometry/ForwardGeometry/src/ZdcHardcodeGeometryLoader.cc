@@ -5,6 +5,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 
+typedef CaloCellGeometry::CCGFloat CCGFloat ;
+
 ZdcHardcodeGeometryLoader::ZdcHardcodeGeometryLoader() :
    theTopology ( new ZdcTopology ) ,
    extTopology ( theTopology )
@@ -165,23 +167,23 @@ ZdcHardcodeGeometryLoader::makeCell(const HcalZDCDetId& detId,
       }
    }
 
-   const GlobalPoint faceCenter ( x, y, z );
+   const GlobalPoint fc ( x, y, z );
 
    const double dy ( dh*cos( an ) ) ;
 
-   std::vector<double> zz ;
+   std::vector<CCGFloat> zz ;
    zz.reserve( ZdcGeometry::k_NumberOfParametersPerShape ) ;
    zz.push_back( an ) ;
    zz.push_back( dx ) ;
    zz.push_back( dy ) ;
    zz.push_back( dz ) ;
 
-   return new calogeom::IdealZDCTrapezoid( 
-      faceCenter, 
-      geom->cornersMgr(),
-      CaloCellGeometry::getParmPtr( zz, 
-				    geom->parMgr(), 
-				    geom->parVecVec() ) );
+   return geom->newCell( fc, fc, fc, 
+			 geom->cornersMgr(),
+			 CaloCellGeometry::getParmPtr( zz, 
+						       geom->parMgr(), 
+						       geom->parVecVec() ),
+			 detId ) ;
 }
 
 

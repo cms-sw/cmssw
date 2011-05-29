@@ -6,6 +6,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 
+typedef CaloCellGeometry::CCGFloat CCGFloat ;
+
 CastorHardcodeGeometryLoader::CastorHardcodeGeometryLoader() :
    theTopology ( new CastorTopology ) ,
    extTopology ( theTopology )
@@ -161,7 +163,7 @@ CastorHardcodeGeometryLoader::makeCell( const HcalCastorDetId&   detId ,
 
    const GlobalPoint fc ( xc, yc, zc ) ;
 
-   std::vector<double> zz ;
+   std::vector<CCGFloat> zz ;
    zz.reserve( CastorGeometry::k_NumberOfParametersPerShape ) ;
    zz.push_back( dxl ) ;
    zz.push_back( dxh ) ;
@@ -170,12 +172,12 @@ CastorHardcodeGeometryLoader::makeCell( const HcalCastorDetId&   detId ,
    zz.push_back( an ) ;
    zz.push_back( dR ) ;
 
-   return new calogeom::IdealCastorTrapezoid( 
-      fc, 
-      geom->cornersMgr(),
-      CaloCellGeometry::getParmPtr( zz, 
-				    geom->parMgr(), 
-				    geom->parVecVec() ) );
+   return geom->newCell( fc, fc, fc, 
+			 geom->cornersMgr(),
+			 CaloCellGeometry::getParmPtr( zz, 
+						       geom->parMgr(), 
+						       geom->parVecVec() ),
+			 detId ) ;
 }
 
 

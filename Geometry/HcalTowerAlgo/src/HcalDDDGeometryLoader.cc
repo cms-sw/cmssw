@@ -8,6 +8,8 @@
 
 #include<string>
 
+typedef CaloCellGeometry::CCGFloat CCGFloat ;
+
 //#define DebugLog
 
 HcalDDDGeometryLoader::HcalDDDGeometryLoader(const DDCompactView & cpv) {
@@ -216,29 +218,27 @@ HcalDDDGeometryLoader::makeCell( const HcalDetId& detId,
 		       << " dphi = " << dphi << " thickness = " << thickness
 		       << " isBarrel = " << isBarrel << " " << rzType;
 #endif
+
+  std::vector<CCGFloat> hp ;
+  hp.reserve(3) ;
   
-  if (subdet==HcalForward) {
-    std::vector<double> hf ;
-    hf.reserve(3) ;
-    hf.push_back(deta/2.) ;
-    hf.push_back(dphi/2.) ;
-    hf.push_back(thickness/2.) ;
-    return new calogeom::IdealZPrism(point, 
-				     geom->cornersMgr(),
-				     CaloCellGeometry::getParmPtr(hf, 
-								  geom->parMgr(), 
-								  geom->parVecVec() ) );
-  } else  { 
-    const double sign ( isBarrel ? 1 : -1 ) ;
-    std::vector<double> hh ;
-    hh.reserve(3) ;
-    hh.push_back(deta/2.) ;
-    hh.push_back(dphi/2.) ;
-    hh.push_back(sign*thickness/2.) ;
-    return new calogeom::IdealObliquePrism(point,
-					   geom->cornersMgr(),
-					   CaloCellGeometry::getParmPtr(hh, 
-									geom->parMgr(), 
-									geom->parVecVec() ) );
+  if (subdet==HcalForward) 
+  {
+    hp.push_back(deta/2.) ;
+    hp.push_back(dphi/2.) ;
+    hp.push_back(thickness/2.) ;
   }
+  else
+  { 
+    const double sign ( isBarrel ? 1 : -1 ) ;
+    hp.push_back(deta/2.) ;
+    hp.push_back(dphi/2.) ;
+    hp.push_back(sign*thickness/2.) ;
+  }
+  return geom->newCell( point, point, point,
+			geom->cornersMgr(),
+			CaloCellGeometry::getParmPtr( hp, 
+						      geom->parMgr(), 
+						      geom->parVecVec() ),
+			detId ) ;
 }

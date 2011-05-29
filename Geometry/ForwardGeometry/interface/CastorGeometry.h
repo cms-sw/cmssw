@@ -4,6 +4,7 @@
 #include "CondFormats/AlignmentRecord/interface/CastorAlignmentRcd.h"
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/ForwardGeometry/interface/IdealCastorTrapezoid.h"
 #include "Geometry/ForwardGeometry/interface/CastorTopology.h"
 #include "Geometry/Records/interface/CastorGeometryRecord.h"
 #include "Geometry/Records/interface/PCastorRcd.h"
@@ -13,6 +14,13 @@
 class CastorGeometry : public CaloSubdetectorGeometry 
 {
    public:
+
+      typedef std::vector<IdealCastorTrapezoid> CellVec ;
+
+      typedef CaloCellGeometry::CCGFloat CCGFloat ;
+      typedef CaloCellGeometry::Pt3D     Pt3D     ;
+      typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+      typedef CaloCellGeometry::Tr3D     Tr3D     ;
 
       typedef CastorAlignmentRcd   AlignmentRecord ;
       typedef CastorGeometryRecord AlignedRecord   ;
@@ -51,16 +59,17 @@ class CastorGeometry : public CaloSubdetectorGeometry
 
       static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
 
-      static std::vector<HepGeom::Point3D<double> > localCorners( const double* pv, 
-						   unsigned int  i,
-						   HepGeom::Point3D<double> &   ref ) ;
+      static void localCorners( Pt3DVec&        lc  ,
+				const CCGFloat* pv , 
+				unsigned int    i  ,
+				Pt3D&           ref  ) ;
 
-      static CaloCellGeometry* newCell( const GlobalPoint& f1 ,
-					const GlobalPoint& f2 ,
-					const GlobalPoint& f3 ,
-					CaloCellGeometry::CornersMgr* mgr,
-					const double*      parm,
-					const DetId&       detId     ) ;
+      virtual CaloCellGeometry* newCell( const GlobalPoint& f1 ,
+					 const GlobalPoint& f2 ,
+					 const GlobalPoint& f3 ,
+					 CaloCellGeometry::CornersMgr* mgr,
+					 const CCGFloat*    parm,
+					 const DetId&       detId     ) ;
 
 private:
 
@@ -69,6 +78,8 @@ private:
       mutable int lastReqSubdet_;
       mutable std::vector<DetId> m_validIds;
       bool m_ownsTopology ;
+
+      CellVec m_cellVec ;
 };
 
 

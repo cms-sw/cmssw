@@ -1,21 +1,25 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
-#include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
-#include "Geometry/CaloGeometry/interface/IdealZPrism.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/HcalTowerAlgo//src/HcalHardcodeGeometryData.h"
 #include <algorithm>
+
+typedef CaloCellGeometry::CCGFloat CCGFloat ;
+typedef CaloCellGeometry::Pt3D     Pt3D     ;
+typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 
 HcalGeometry::HcalGeometry() :
    theTopology    ( new HcalTopology ),
    m_ownsTopology ( true )
 {
+   init() ;
 }
 
 HcalGeometry::HcalGeometry( const HcalTopology* topology ) :
    theTopology    ( topology ) ,
    m_ownsTopology ( false ) 
 {
+   init() ;
 }
   
 
@@ -24,6 +28,15 @@ HcalGeometry::~HcalGeometry()
    if( m_ownsTopology ) delete theTopology ;
 }
 
+
+void
+HcalGeometry::init()
+{
+   m_hbCellVec = HBCellVec( HcalDetId::kHBSize ) ;
+   m_heCellVec = HECellVec( HcalDetId::kHESize ) ;
+   m_hoCellVec = HOCellVec( HcalDetId::kHOSize ) ;
+   m_hfCellVec = HFCellVec( HcalDetId::kHFSize ) ;
+}
 
 void
 HcalGeometry::fillDetIds() const
@@ -328,20 +341,21 @@ HcalGeometry::alignmentTransformIndexGlobal( const DetId& id )
    return (unsigned int)DetId::Hcal - 1 ;
 }
 
-std::vector<HepGeom::Point3D<double> > 
-HcalGeometry::localCorners( const double* pv,
-			    unsigned int  i,
-			    HepGeom::Point3D<double> &   ref )
+void
+HcalGeometry::localCorners( Pt3DVec&        lc  ,
+			    const CCGFloat* pv  ,
+			    unsigned int    i   ,
+			    Pt3D&           ref  )
 {
    const HcalDetId hid ( HcalDetId::detIdFromDenseIndex( i ) ) ;
    const CaloGenericDetId cgid ( hid ) ;
    if( cgid.isHF() )
    {
-      return ( calogeom::IdealZPrism::localCorners( pv, ref ) ) ;
+      IdealZPrism::localCorners( lc, pv, ref ) ;
    }
    else
    {
-      return ( calogeom::IdealObliquePrism::localCorners( pv, ref ) ) ;
+      IdealObliquePrism::localCorners( lc, pv, ref ) ;
    }
 }
 
@@ -350,19 +364,47 @@ HcalGeometry::newCell( const GlobalPoint& f1 ,
 		       const GlobalPoint& f2 ,
 		       const GlobalPoint& f3 ,
 		       CaloCellGeometry::CornersMgr* mgr,
-		       const double*      parm ,
+		       const CCGFloat*    parm ,
 		       const DetId&       detId   ) 
 {
    const CaloGenericDetId cgid ( detId ) ;
 
+   const unsigned int din ( cgid.denseIndex() ) ;
+
    assert( cgid.isHcal() ) ;
 
-   if( cgid.isHF() )
+   if( cgid.isHB() )
    {
-      return ( new calogeom::IdealZPrism( f1, mgr, parm ) ) ;
+      m_hbCellVec[ din ] = IdealObliquePrism( f1, mgr, parm ) ;
+      return &m_hbCellVec[ din ] ;
    }
    else
    {
-      return ( new calogeom::IdealObliquePrism( f1, mgr, parm ) ) ;
+      if( cgid.isHE() )
+      {
+	 const unsigned int index ( din - m_hbCellVec.size() ) ;
+	 m_heCellVec[ index ] = IdealObliquePrism( f1, mgr, parm ) ;
+	 return &m_heCellVec[ index ] ;
+      }
+      else
+      {
+	 if( cgid.isHO() )
+	 {
+	    const unsigned int index ( din 
+				       - m_hbCellVec.size() 
+				       - m_heCellVec.size() ) ;
+	    m_hoCellVec[ index ] = IdealObliquePrism( f1, mgr, parm ) ;
+	    return &m_hoCellVec[ index ] ;
+	 }
+	 else
+	 {
+	    const unsigned int index ( din 
+				       - m_hbCellVec.size() 
+				       - m_heCellVec.size() 
+				       - m_hoCellVec.size() ) ;
+	    m_hfCellVec[ index ] = IdealZPrism( f1, mgr, parm ) ;
+	    return &m_hfCellVec[ index ] ;
+	 }
+      }
    }
 }

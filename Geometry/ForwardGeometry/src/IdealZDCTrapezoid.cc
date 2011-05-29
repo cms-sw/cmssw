@@ -1,76 +1,144 @@
 #include "Geometry/ForwardGeometry/interface/IdealZDCTrapezoid.h"
 #include <math.h>
 
-namespace calogeom {
+typedef CaloCellGeometry::CCGFloat CCGFloat ;
+typedef CaloCellGeometry::Pt3D     Pt3D     ;
+typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 
-   std::vector<HepGeom::Point3D<double> >
-   IdealZDCTrapezoid::localCorners( const double* pv  ,
-				    HepGeom::Point3D<double> &   ref   )
+IdealZDCTrapezoid::IdealZDCTrapezoid() :
+   CaloCellGeometry()
+{
+}
+
+IdealZDCTrapezoid::IdealZDCTrapezoid( const IdealZDCTrapezoid& idzt ) 
+{
+   *this = idzt ;
+}
+
+IdealZDCTrapezoid& 
+IdealZDCTrapezoid::operator=( const IdealZDCTrapezoid& idzt ) 
+{
+   if( &idzt != this ) CaloCellGeometry::operator=( idzt ) ;
+   return *this ;
+}
+
+IdealZDCTrapezoid::IdealZDCTrapezoid( const GlobalPoint& faceCenter,
+				      const CornersMgr*  mgr       ,
+				      const CCGFloat*    parm        ) :  
+   CaloCellGeometry ( faceCenter, mgr, parm )  
+{
+}
+	 
+IdealZDCTrapezoid::~IdealZDCTrapezoid() {}
+
+const CCGFloat 
+IdealZDCTrapezoid::an() const { return param()[0] ; }
+
+const CCGFloat 
+IdealZDCTrapezoid::dx() const 
+{
+   return param()[1] ; 
+}
+
+const CCGFloat 
+IdealZDCTrapezoid::dy() const 
+{
+   return param()[2] ; 
+}
+
+const CCGFloat 
+IdealZDCTrapezoid::dz() const 
+{
+   return param()[3] ; 
+}
+
+const CCGFloat 
+IdealZDCTrapezoid::ta() const 
+{
+   return tan( an() ) ; 
+}
+
+const CCGFloat 
+IdealZDCTrapezoid::dt() const 
+{
+   return dy()*ta() ; 
+}
+
+void 
+IdealZDCTrapezoid::vocalCorners( Pt3DVec&        vec ,
+				 const CCGFloat* pv  ,
+				 Pt3D&           ref  ) const 
+{
+   localCorners( vec, pv, ref ) ; 
+}
+
+void
+IdealZDCTrapezoid::localCorners( Pt3DVec&        lc  ,
+				 const CCGFloat* pv  ,
+				 Pt3D&           ref   )
+{
+   assert( 8 == lc.size() ) ;
+   assert( 0 != pv ) ;
+
+   const CCGFloat an ( pv[0] ) ;
+   const CCGFloat dx ( pv[1] ) ;
+   const CCGFloat dy ( pv[2] ) ;
+   const CCGFloat dz ( pv[3] ) ;
+   const CCGFloat ta ( tan( an ) ) ;
+   const CCGFloat dt ( dy*ta ) ;
+
+   lc[0] = Pt3D ( -dx, -dy, +dz+dt ) ;
+   lc[1] = Pt3D ( -dx, +dy, +dz-dt ) ;
+   lc[2] = Pt3D ( +dx, +dy, +dz-dt ) ;
+   lc[3] = Pt3D ( +dx, -dy, +dz+dt ) ;
+   lc[4] = Pt3D ( -dx, -dy, -dz+dt ) ;
+   lc[5] = Pt3D ( -dx, +dy, -dz-dt ) ;
+   lc[6] = Pt3D ( +dx, +dy, -dz-dt ) ;
+   lc[7] = Pt3D ( +dx, -dy, -dz+dt ) ;
+
+   ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
+}
+
+const CaloCellGeometry::CornersVec& 
+IdealZDCTrapezoid::getCorners() const 
+{
+   const CornersVec& co ( CaloCellGeometry::getCorners() ) ;
+   if( co.uninitialized() ) 
    {
-      assert( 0 != pv ) ;
+      CaloCellGeometry::CornersVec& corners ( setCorners() ) ;
+      const GlobalPoint& p ( getPosition() ) ;
+      const CCGFloat zsign ( 0 < p.z() ? 1. : -1. ) ;
+      const Pt3D  gf ( p.x(), p.y(), p.z() ) ;
 
-      const double an ( pv[0] ) ;
-      const double dx ( pv[1] ) ;
-      const double dy ( pv[2] ) ;
-      const double dz ( pv[3] ) ;
-      const double ta ( tan( an ) ) ;
-      const double dt ( dy*ta ) ;
+      Pt3D  lf ;
+      Pt3DVec lc ( 8, Pt3D(0,0,0) ) ;
+      localCorners( lc, param(), lf ) ;
+      const Pt3D  lb ( lf.x() , lf.y() , lf.z() - 2.*dz() ) ;
+      const Pt3D  ls ( lf.x() - dx(), lf.y(), lf.z() ) ;
+      
+      const Pt3D  gb ( gf.x() , gf.y() , gf.z() + 2.*zsign*dz() ) ;
 
-      std::vector<HepGeom::Point3D<double> >  lc ( 8, HepGeom::Point3D<double> ( 0,0,0) ) ;
+      const Pt3D  gs ( gf.x() - zsign*dx(),
+		       gf.y() ,
+		       gf.z()         ) ;
 
-      lc[0] = HepGeom::Point3D<double> ( -dx, -dy, +dz+dt ) ;
-      lc[1] = HepGeom::Point3D<double> ( -dx, +dy, +dz-dt ) ;
-      lc[2] = HepGeom::Point3D<double> ( +dx, +dy, +dz-dt ) ;
-      lc[3] = HepGeom::Point3D<double> ( +dx, -dy, +dz+dt ) ;
-      lc[4] = HepGeom::Point3D<double> ( -dx, -dy, -dz+dt ) ;
-      lc[5] = HepGeom::Point3D<double> ( -dx, +dy, -dz-dt ) ;
-      lc[6] = HepGeom::Point3D<double> ( +dx, +dy, -dz-dt ) ;
-      lc[7] = HepGeom::Point3D<double> ( +dx, -dy, -dz+dt ) ;
+      const HepGeom::Transform3D tr ( lf, lb, ls,
+				      gf, gb, gs ) ;
 
-      ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
-      return lc ;
-   }
-
-   const CaloCellGeometry::CornersVec& 
-   IdealZDCTrapezoid::getCorners() const 
-   {
-      const CornersVec& co ( CaloCellGeometry::getCorners() ) ;
-      if( co.uninitialized() ) 
+      for( unsigned int i ( 0 ) ; i != 8 ; ++i )
       {
-	 CaloCellGeometry::CornersVec& corners ( setCorners() ) ;
-	 const GlobalPoint& p ( getPosition() ) ;
-	 const double zsign ( 0 < p.z() ? 1. : -1. ) ;
-	 const HepGeom::Point3D<double>  gf ( p.x(), p.y(), p.z() ) ;
-
-	 HepGeom::Point3D<double>  lf ;
-	 const std::vector<HepGeom::Point3D<double> > lc ( localCorners( param(), lf ) ) ;
-	 const HepGeom::Point3D<double>  lb ( lf.x() , lf.y() , lf.z() - 2.*dz() ) ;
-	 const HepGeom::Point3D<double>  ls ( lf.x() - dx(), lf.y(), lf.z() ) ;
-
-	 const HepGeom::Point3D<double>   gb ( gf.x() , gf.y() , gf.z() + 2.*zsign*dz() ) ;
-
-	 const HepGeom::Point3D<double>  gs ( gf.x() - zsign*dx(),
-			       gf.y() ,
-			       gf.z()         ) ;
-
-	 const HepGeom::Transform3D tr ( lf, lb, ls,
-				   gf, gb, gs ) ;
-
-	 for( unsigned int i ( 0 ) ; i != 8 ; ++i )
-	 {
-	    const HepGeom::Point3D<double>  gl ( tr*lc[i] ) ;
-	    corners[i] = GlobalPoint( gl.x(), gl.y(), gl.z() ) ;
-	 }
+	 const Pt3D  gl ( tr*lc[i] ) ;
+	 corners[i] = GlobalPoint( gl.x(), gl.y(), gl.z() ) ;
       }
-      return co ;
    }
+   return co ;
+}
 
-   std::ostream& operator<<( std::ostream& s, const IdealZDCTrapezoid& cell ) 
-   {
-      s << "Center: " <<  cell.getPosition() << std::endl ;
-      s << "TiltAngle = " << cell.an()*180./M_PI << " deg, dx = " 
-	<< cell.dx() 
-	<< ", dy = " << cell.dy() << ", dz = " << cell.dz() << std::endl ;
-      return s;
-   }
+std::ostream& operator<<( std::ostream& s, const IdealZDCTrapezoid& cell ) 
+{
+   s << "Center: " <<  cell.getPosition() << std::endl ;
+   s << "TiltAngle = " << cell.an()*180./M_PI << " deg, dx = " 
+     << cell.dx() 
+     << ", dy = " << cell.dy() << ", dz = " << cell.dz() << std::endl ;
+   return s;
 }

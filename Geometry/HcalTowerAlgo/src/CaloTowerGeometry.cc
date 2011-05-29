@@ -1,9 +1,13 @@
-#include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/HcalTowerAlgo/interface/CaloTowerGeometry.h"
 
-CaloTowerGeometry::CaloTowerGeometry() {
+typedef CaloCellGeometry::CCGFloat CCGFloat ;
+typedef CaloCellGeometry::Pt3D     Pt3D     ;
+typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+
+CaloTowerGeometry::CaloTowerGeometry() :
+   m_cellVec ( k_NumberOfCellsForCorners ) 
+{
 }
   
 
@@ -37,12 +41,13 @@ CaloTowerGeometry::alignmentTransformIndexGlobal( const DetId& id )
    return (unsigned int) DetId::Calo - 1 ;
 }
 
-std::vector<HepGeom::Point3D<double> > 
-CaloTowerGeometry::localCorners( const double* pv,
-				 unsigned int  i,
-				 HepGeom::Point3D<double> &   ref )
+void
+CaloTowerGeometry::localCorners( Pt3DVec&        lc  ,
+				 const CCGFloat* pv  ,
+				 unsigned int    i   ,
+				 Pt3D&           ref  )
 {
-   return ( calogeom::IdealObliquePrism::localCorners( pv, ref ) ) ;
+   IdealObliquePrism::localCorners( lc, pv, ref ) ;
 }
 
 CaloCellGeometry* 
@@ -50,12 +55,16 @@ CaloTowerGeometry::newCell( const GlobalPoint& f1 ,
 			    const GlobalPoint& f2 ,
 			    const GlobalPoint& f3 ,
 			    CaloCellGeometry::CornersMgr* mgr,
-			    const double*      parm ,
+			    const CCGFloat*    parm ,
 			    const DetId&       detId   ) 
 {
    const CaloGenericDetId cgid ( detId ) ;
 
    assert( cgid.isCaloTower() ) ;
 
-   return ( new calogeom::IdealObliquePrism( f1, mgr, parm ) ) ;
+   const unsigned int di ( cgid.denseIndex() ) ;
+
+   m_cellVec[ di ] = IdealObliquePrism( f1, mgr, parm ) ;
+
+   return &m_cellVec[ di ] ;
 }

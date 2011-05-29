@@ -5,11 +5,16 @@
 #include "ZdcHardcodeGeometryData.h"
 #include <algorithm>
 
+typedef CaloCellGeometry::CCGFloat CCGFloat ;
+typedef CaloCellGeometry::Pt3D     Pt3D     ;
+typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+
 ZdcGeometry::ZdcGeometry() :
    theTopology( new ZdcTopology ),
    lastReqDet_(DetId::Detector(0)), 
    lastReqSubdet_(0),
-   m_ownsTopology ( true )
+   m_ownsTopology ( true ),
+   m_cellVec ( k_NumberOfCellsForCorners )
 {
 }
 
@@ -17,7 +22,8 @@ ZdcGeometry::ZdcGeometry( const ZdcTopology* topology) :
    theTopology(topology),
    lastReqDet_(DetId::Detector(0)), 
    lastReqSubdet_(0),
-   m_ownsTopology ( false )
+   m_ownsTopology ( false ),
+   m_cellVec ( k_NumberOfCellsForCorners )
 {
 }
 
@@ -95,12 +101,13 @@ ZdcGeometry::alignmentTransformIndexGlobal( const DetId& id )
    return (unsigned int)DetId::Calo - 1 ;
 }
 
-std::vector<HepGeom::Point3D<double> > 
-ZdcGeometry::localCorners( const double* pv,
-			   unsigned int  i,
-			   HepGeom::Point3D<double> &   ref )
+void
+ZdcGeometry::localCorners( Pt3DVec&        lc  ,
+			   const CCGFloat* pv ,
+			   unsigned int    i  ,
+			   Pt3D&           ref  )
 {
-   return ( calogeom::IdealZDCTrapezoid::localCorners( pv, ref ) ) ;
+   IdealZDCTrapezoid::localCorners( lc, pv, ref ) ;
 }
 
 CaloCellGeometry* 
@@ -108,13 +115,17 @@ ZdcGeometry::newCell( const GlobalPoint& f1 ,
 		      const GlobalPoint& f2 ,
 		      const GlobalPoint& f3 ,
 		      CaloCellGeometry::CornersMgr* mgr,
-		      const double*      parm ,
+		      const CCGFloat*    parm ,
 		      const DetId&       detId   ) 
 {
    const CaloGenericDetId cgid ( detId ) ;
 
    assert( cgid.isZDC() ) ;
 
-   return ( new calogeom::IdealZDCTrapezoid( f1, mgr, parm ) ) ;
+   const unsigned int di ( cgid.denseIndex() ) ;
+
+   m_cellVec[ di ] = IdealZDCTrapezoid( f1, mgr, parm ) ;
+
+   return &m_cellVec[ di ] ;
 }
 

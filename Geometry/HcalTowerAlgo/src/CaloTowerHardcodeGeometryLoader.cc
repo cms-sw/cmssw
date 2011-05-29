@@ -5,6 +5,8 @@
 #include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+typedef CaloCellGeometry::CCGFloat CCGFloat ;
+
 std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load() {
   CaloTowerGeometry* geom=new CaloTowerGeometry();
 
@@ -100,7 +102,7 @@ CaloTowerHardcodeGeometryLoader::makeCell( int ieta,
   GlobalPoint point(x,y,z);
 
   const double mysign ( !alongZ ? 1 : -1 ) ;
-  std::vector<double> hh ;
+  std::vector<CCGFloat> hh ;
   hh.reserve(5) ;
   hh.push_back( deta/2 ) ;
   hh.push_back( dphi_half ) ;
@@ -109,10 +111,10 @@ CaloTowerHardcodeGeometryLoader::makeCell( int ieta,
   hh.push_back( fabs( eta ) ) ;
   hh.push_back( fabs( z ) ) ;
 
-  return new calogeom::IdealObliquePrism(
-     point,
-     geom->cornersMgr(),
-     CaloCellGeometry::getParmPtr( hh, 
-				   geom->parMgr(), 
-				   geom->parVecVec() ) );
+  return geom->newCell( point, point, point,
+			geom->cornersMgr(),
+			CaloCellGeometry::getParmPtr( hh, 
+						      geom->parMgr(), 
+						      geom->parVecVec() ),
+			CaloTowerDetId( ieta, iphi ) ) ;
 }

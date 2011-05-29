@@ -3,7 +3,6 @@
 
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
-namespace calogeom {
   /** \class IdealCastorTrapezoid
     
   Trapezoid class used for CASTOR volumes.  
@@ -27,45 +26,55 @@ namespace calogeom {
   
   Total: 6+3 parameters 
   
-  $Date: 2009/05/25 09:34:16 $
-  $Revision: 1.10 $
+  $Date: 2010/04/20 17:25:13 $
+  $Revision: 1.11 $
   \author P. Katsas - UoA
   */
-   class IdealCastorTrapezoid: public CaloCellGeometry 
-   {
-      public:
+class IdealCastorTrapezoid: public CaloCellGeometry 
+{
+   public:
 
-	 IdealCastorTrapezoid( const GlobalPoint& faceCenter,
-			       const CornersMgr*  mgr       ,
-			       const double*      parm        ) :  
-	    CaloCellGeometry ( faceCenter, mgr, parm )  {}
+      typedef CaloCellGeometry::CCGFloat CCGFloat ;
+      typedef CaloCellGeometry::Pt3D     Pt3D     ;
+      typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+      typedef CaloCellGeometry::Tr3D     Tr3D     ;
+
+      IdealCastorTrapezoid() ;
+
+      IdealCastorTrapezoid( const IdealCastorTrapezoid& idct ) ;
+      
+      IdealCastorTrapezoid& operator=( const IdealCastorTrapezoid& idct ) ;
+      
+      IdealCastorTrapezoid( const GlobalPoint& faceCenter,
+			    const CornersMgr*  mgr       ,
+			    const CCGFloat*      parm        ) ;
 	 
-	 virtual ~IdealCastorTrapezoid() {}
+      virtual ~IdealCastorTrapezoid() ;
 	 
-	 virtual const CornersVec& getCorners() const;
+      virtual const CornersVec& getCorners() const;
 
-	 const double dxl() const { return param()[0] ; }
-	 const double dxh() const { return param()[1] ; }
-	 const double dx()  const { return ( dxl()+dxh() )/2. ; }
-	 const double dh()  const { return param()[2] ; }
-	 const double dy()  const { return dh()*sin(an()) ; }
-	 const double dz()  const { return param()[3] ; }
-	 const double dhz() const { return dh()*cos(an()) ; }
-	 const double dzb() const { return dz() + dhz() ; }
-	 const double dzs() const { return dz() - dhz() ; }
-	 const double an()  const { return param()[4] ; }
-	 const double dR()  const { return param()[5] ; }
+      const CCGFloat dxl() const ; 
+      const CCGFloat dxh() const ; 
+      const CCGFloat dx()  const ; 
+      const CCGFloat dh()  const ;
+      const CCGFloat dy()  const ; 
+      const CCGFloat dz()  const ;
+      const CCGFloat dhz() const ; 
+      const CCGFloat dzb() const ; 
+      const CCGFloat dzs() const ;
+      const CCGFloat an()  const ;
+      const CCGFloat dR()  const ;
 
-	 virtual std::vector<HepGeom::Point3D<double> > vocalCorners( const double* pv,
-						       HepGeom::Point3D<double> &   ref ) const 
-	 { return localCorners( pv, ref ) ; }
+      virtual void vocalCorners( Pt3DVec&        vec ,
+				 const CCGFloat* pv  ,
+				 Pt3D&           ref  ) const ;
 
-	 static std::vector<HepGeom::Point3D<double> > localCorners( const double* pv, 
-						      HepGeom::Point3D<double> &   ref ) ;
-     private:
-  };
+      static void localCorners( Pt3DVec&        vec ,
+				const CCGFloat* pv  , 
+				Pt3D&           ref   ) ;
+   private:
+};
 
-   std::ostream& operator<<( std::ostream& s , const IdealCastorTrapezoid& cell ) ;
-}
+std::ostream& operator<<( std::ostream& s , const IdealCastorTrapezoid& cell ) ;
 
 #endif

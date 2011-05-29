@@ -3,7 +3,6 @@
 
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
-namespace calogeom {
   /** \class IdealZDCTrapezoid
     
   Trapezoid class used for ZDC volumes.  
@@ -16,41 +15,52 @@ namespace calogeom {
   
   Total: 7 parameters 
   
-  $Date: 2009/05/25 09:34:16 $
-  $Revision: 1.7 $
+  $Date: 2010/04/20 17:25:13 $
+  $Revision: 1.8 $
   \author E. Garcia - UIC
   */
-   class IdealZDCTrapezoid: public CaloCellGeometry 
-   {
-      public:
 
-	 IdealZDCTrapezoid( const GlobalPoint& faceCenter,
-			    const CornersMgr*  mgr       ,
-			    const double*      parm        ) :  
-	    CaloCellGeometry ( faceCenter, mgr, parm )  {}
+class IdealZDCTrapezoid: public CaloCellGeometry 
+{
+   public:
+
+      typedef CaloCellGeometry::CCGFloat CCGFloat ;
+      typedef CaloCellGeometry::Pt3D     Pt3D     ;
+      typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+      typedef CaloCellGeometry::Tr3D     Tr3D     ;
+
+      IdealZDCTrapezoid() ;
+
+      IdealZDCTrapezoid( const IdealZDCTrapezoid& idzt ) ;
+      
+      IdealZDCTrapezoid& operator=( const IdealZDCTrapezoid& idzt ) ;
+
+      IdealZDCTrapezoid( const GlobalPoint& faceCenter,
+			 const CornersMgr*  mgr       ,
+			 const CCGFloat*    parm        ) ;
 	 
-	virtual ~IdealZDCTrapezoid() {}
+      virtual ~IdealZDCTrapezoid() ;
 
-	virtual const CornersVec& getCorners() const;
+      virtual const CornersVec& getCorners() const ;
 
-	const double an() const { return param()[0] ; }
-	const double dx() const { return param()[1] ; }
-	const double dy() const { return param()[2] ; }
-	const double dz() const { return param()[3] ; }
-	const double ta() const { return tan( an() ) ; }
-	const double dt() const { return dy()*ta() ; }
+      const CCGFloat an() const ;
+      const CCGFloat dx() const ;
+      const CCGFloat dy() const ;
+      const CCGFloat dz() const ;
+      const CCGFloat ta() const ;
+      const CCGFloat dt() const ;
 
-	 virtual std::vector<HepGeom::Point3D<double> > vocalCorners( const double* pv,
-						       HepGeom::Point3D<double> &   ref ) const 
-	 { return localCorners( pv, ref ) ; }
+      virtual void vocalCorners( Pt3DVec&        vec ,
+				 const CCGFloat* pv  ,
+				 Pt3D&           ref  ) const ;
 
-	 static std::vector<HepGeom::Point3D<double> > localCorners( const double* pv, 
-						      HepGeom::Point3D<double> &   ref ) ;
+      static void localCorners( Pt3DVec&        vec ,
+				const CCGFloat* pv  , 
+				Pt3D&           ref  ) ;
     
-     private:
-  };
+   private:
+};
 
-   std::ostream& operator<<( std::ostream& s , const IdealZDCTrapezoid& cell ) ;
-}
+std::ostream& operator<<( std::ostream& s , const IdealZDCTrapezoid& cell ) ;
 
 #endif

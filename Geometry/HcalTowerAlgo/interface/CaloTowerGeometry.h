@@ -1,6 +1,7 @@
 #ifndef GEOMETRY_HCALTOWERALGO_CALOTOWERGEOMETRY_H
 #define GEOMETRY_HCALTOWERALGO_CALOTOWERGEOMETRY_H 1
 
+#include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 //#include "CondFormats/AlignmentRecord/interface/CaloTowerAlignmentRcd.h"
@@ -10,13 +11,19 @@
   *  
   * Only DetId::Calo, subdet=1 DetIds are handled by this class.
   *
-  * $Date: 2009/01/29 22:28:52 $
-  * $Revision: 1.4 $
+  * $Date: 2009/05/25 09:45:20 $
+  * $Revision: 1.5 $
   * \author J. Mans - Minnesota
   */
 class CaloTowerGeometry : public CaloSubdetectorGeometry 
 {
    public:
+
+      typedef std::vector<IdealObliquePrism> CellVec ;
+
+      typedef CaloCellGeometry::CCGFloat CCGFloat ;
+      typedef CaloCellGeometry::Pt3D     Pt3D     ;
+      typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 
       typedef CaloTowerAlignmentRcd    AlignmentRecord ;
       typedef CaloTowerGeometryRecord  AlignedRecord   ;
@@ -46,17 +53,20 @@ class CaloTowerGeometry : public CaloSubdetectorGeometry
 
       static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
 
-      static std::vector<HepGeom::Point3D<double> > localCorners( const double* pv, 
-						   unsigned int  i,
-						   HepGeom::Point3D<double> &   ref ) ;
+      static void localCorners( Pt3DVec&        lc  ,
+				const CCGFloat* pv  , 
+				unsigned int    i   ,
+				Pt3D&           ref   ) ;
 
-      static CaloCellGeometry* newCell( const GlobalPoint& f1 ,
-					const GlobalPoint& f2 ,
-					const GlobalPoint& f3 ,
-					CaloCellGeometry::CornersMgr* mgr,
-					const double*      parm,
-					const DetId&       detId     ) ;
-					
+      virtual CaloCellGeometry* newCell( const GlobalPoint& f1 ,
+					 const GlobalPoint& f2 ,
+					 const GlobalPoint& f3 ,
+					 CaloCellGeometry::CornersMgr* mgr,
+					 const CCGFloat*    parm,
+					 const DetId&       detId     ) ;
+   private:
+
+      CellVec m_cellVec ;
 };
 
 #endif

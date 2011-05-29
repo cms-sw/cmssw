@@ -7,6 +7,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 
+typedef CaloCellGeometry::CCGFloat CCGFloat ;
+
 HcalHardcodeGeometryLoader::HcalHardcodeGeometryLoader():
    theTopology ( new HcalTopology ),
    extTopology ( theTopology      )
@@ -250,40 +252,32 @@ HcalHardcodeGeometryLoader::makeCell( const HcalDetId& detId ,
    y = r * sin(phi);
    GlobalPoint point(x,y,z);
 
+   std::vector<CCGFloat> hp ;
+   hp.reserve(5) ;
 
    if (subdet==HcalForward) 
    {
-      std::vector<double> hf ;
-      hf.reserve(5) ;
-      hf.push_back( deta ) ;
-      hf.push_back( dphi_half ) ;
-      hf.push_back( thickness/2 ) ;
-      hf.push_back( fabs( point.eta() ) ) ;
-      hf.push_back( fabs( point.z() ) ) ;
-      return new calogeom::IdealZPrism( 
-	 point, 
-	 geom->cornersMgr(),
-	 CaloCellGeometry::getParmPtr( hf, 
-				       geom->parMgr(), 
-				       geom->parVecVec() ) );
+      hp.push_back( deta ) ;
+      hp.push_back( dphi_half ) ;
+      hp.push_back( thickness/2 ) ;
+      hp.push_back( fabs( point.eta() ) ) ;
+      hp.push_back( fabs( point.z() ) ) ;
    } 
    else 
    { 
       const double mysign ( isBarrel ? 1 : -1 ) ;
-      std::vector<double> hh ;
-      hh.reserve(5) ;
-      hh.push_back( deta ) ;
-      hh.push_back( dphi_half ) ;
-      hh.push_back( mysign*thickness/2. ) ;
-      hh.push_back( fabs( point.eta() ) ) ;
-      hh.push_back( fabs( point.z() ) ) ;
-      return new calogeom::IdealObliquePrism(
-	 point,
-	 geom->cornersMgr(),
-	 CaloCellGeometry::getParmPtr( hh, 
-				       geom->parMgr(), 
-				       geom->parVecVec() ) );
+      hp.push_back( deta ) ;
+      hp.push_back( dphi_half ) ;
+      hp.push_back( mysign*thickness/2. ) ;
+      hp.push_back( fabs( point.eta() ) ) ;
+      hp.push_back( fabs( point.z() ) ) ;
    }
+   return geom->newCell( point, point, point,
+			 geom->cornersMgr(),
+			 CaloCellGeometry::getParmPtr( hp, 
+						       geom->parMgr(), 
+						       geom->parVecVec() ),
+			 detId );
 }
 
 

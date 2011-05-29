@@ -3,6 +3,8 @@
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
+#include "Geometry/CaloGeometry/interface/IdealZPrism.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CondFormats/AlignmentRecord/interface/HcalAlignmentRcd.h"
 #include "Geometry/Records/interface/HcalGeometryRecord.h"
@@ -10,6 +12,15 @@
 class HcalGeometry : public CaloSubdetectorGeometry 
 {
    public:
+
+      typedef std::vector<IdealObliquePrism> HBCellVec ;
+      typedef std::vector<IdealObliquePrism> HECellVec ;
+      typedef std::vector<IdealObliquePrism> HOCellVec ;
+      typedef std::vector<IdealZPrism>       HFCellVec ;
+
+      typedef CaloCellGeometry::CCGFloat CCGFloat ;
+      typedef CaloCellGeometry::Pt3D     Pt3D     ;
+      typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 
       typedef HcalAlignmentRcd   AlignmentRecord ;
       typedef HcalGeometryRecord AlignedRecord   ;
@@ -65,21 +76,24 @@ class HcalGeometry : public CaloSubdetectorGeometry
 
       static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
 
-      static std::vector<HepGeom::Point3D<double> > localCorners( const double* pv, 
-						   unsigned int  i,
-						   HepGeom::Point3D<double> &   ref ) ;
+      static void localCorners( Pt3DVec&        lc  ,
+				const CCGFloat* pv  , 
+				unsigned int    i   ,
+				Pt3D&           ref   ) ;
 
-      static CaloCellGeometry* newCell( const GlobalPoint& f1 ,
-					const GlobalPoint& f2 ,
-					const GlobalPoint& f3 ,
-					CaloCellGeometry::CornersMgr* mgr,
-					const double*      parm,
-					const DetId&       detId     ) ;
+      virtual CaloCellGeometry* newCell( const GlobalPoint& f1 ,
+					 const GlobalPoint& f2 ,
+					 const GlobalPoint& f3 ,
+					 CaloCellGeometry::CornersMgr* mgr,
+					 const CCGFloat*    parm,
+					 const DetId&       detId     ) ;
 					
 
    private:
 
       void fillDetIds() const ;
+
+      void init() ;
 
       /// helper methods for getClosestCell
       int etaRing(HcalSubdetector bc, double abseta) const;
@@ -94,6 +108,11 @@ class HcalGeometry : public CaloSubdetectorGeometry
       mutable std::vector<DetId> m_hfIds ;
       mutable std::vector<DetId> m_emptyIds ;
       bool m_ownsTopology ;
+
+      HBCellVec m_hbCellVec ;
+      HECellVec m_heCellVec ;
+      HOCellVec m_hoCellVec ;
+      HFCellVec m_hfCellVec ;
 };
 
 

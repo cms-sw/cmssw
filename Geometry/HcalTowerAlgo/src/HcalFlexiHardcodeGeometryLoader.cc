@@ -7,6 +7,8 @@
 
 #include <vector>
 
+typedef CaloCellGeometry::CCGFloat CCGFloat ;
+
 namespace {
   const int MAX_HCAL_PHI = 72;
   const float DEGREE2RAD = M_PI / 180.;
@@ -267,7 +269,7 @@ namespace {
 	  float z = iside * param.rMin * sinh(etaCenter);
 	  // make cell geometry
 	  GlobalPoint refPoint (x,y,z); // center of the cell's face
-	  std::vector<double> cellParams;
+	  std::vector<CCGFloat> cellParams;
 	  cellParams.reserve (5);
 	  cellParams.push_back (0.5 * (param.etaMax - param.etaMin)); // deta_half
 	  cellParams.push_back (0.5 * param.dphi * DEGREE2RAD);  // dphi_half
@@ -278,15 +280,16 @@ namespace {
 // 	  std::cout << "HcalFlexiHardcodeGeometryLoader::fillHBHO-> " << hid << hid.ieta() << '/' << hid.iphi() << '/' << hid.depth()
 // 		    << refPoint << '/' << cellParams [0] << '/' << cellParams [1] << '/' << cellParams [2] << std::endl;
 	  
-	  CaloCellGeometry* newcell = 
-	     new calogeom::IdealObliquePrism( refPoint, 
-					      fGeometry->cornersMgr(),
-					      CaloCellGeometry::getParmPtr(
-						 cellParams, 
-						 fGeometry->parMgr(), 
-						 fGeometry->parVecVec()));
+	  CaloCellGeometry* newcell (  
+	     fGeometry->newCell( refPoint,  refPoint,  refPoint, 
+				 fGeometry->cornersMgr(),
+				 CaloCellGeometry::getParmPtr(
+				    cellParams, 
+				    fGeometry->parMgr(), 
+				    fGeometry->parVecVec() ),
+				 hid ) ) ;
 	  // ... and store it
-	  fGeometry->addCell (hid, newcell);						       
+	  fGeometry->addCell (hid, newcell);
 	}
       }
     }
@@ -307,7 +310,7 @@ namespace {
 	  float z = iside * param.zMin;
 	  // make cell geometry
 	  GlobalPoint refPoint (x,y,z); // center of the cell's face
-	  std::vector<double> cellParams;
+	  std::vector<CCGFloat> cellParams;
 	  cellParams.reserve (5);
 	  cellParams.push_back (0.5 * (param.etaMax - param.etaMin)); // deta_half
 	  cellParams.push_back (0.5 * param.dphi * DEGREE2RAD);  // dphi_half
@@ -317,15 +320,16 @@ namespace {
 	  
 // 	  std::cout << "HcalFlexiHardcodeGeometryLoader::fillHE-> " << hid << refPoint << '/' << cellParams [0] << '/' << cellParams [1] << '/' << cellParams [2] << std::endl;
 	  
-	  CaloCellGeometry* newcell = 
-	    new calogeom::IdealObliquePrism( refPoint, 
-					     fGeometry->cornersMgr(),
-					     CaloCellGeometry::getParmPtr(
-						cellParams, 
-						fGeometry->parMgr(), 
-						fGeometry->parVecVec()));
+	  CaloCellGeometry* newcell (
+	     fGeometry->newCell( refPoint,  refPoint,  refPoint, 
+				 fGeometry->cornersMgr(),
+				 CaloCellGeometry::getParmPtr(
+				    cellParams, 
+				    fGeometry->parMgr(), 
+				    fGeometry->parVecVec() ) ,
+				 hid ) ) ;
 	  // ... and store it
-	  fGeometry->addCell (hid, newcell);						       
+	  fGeometry->addCell (hid, newcell);
 	}
       }
     }
@@ -350,7 +354,7 @@ namespace {
 	  float z = iside * param.zMin;
 	  // make cell geometry
 	  GlobalPoint refPoint (x,y,z); // center of the cell's face
-	  std::vector<double> cellParams;
+	  std::vector<CCGFloat> cellParams;
 	  cellParams.reserve (5);
 	  cellParams.push_back (0.5 * ( iEta - oEta )); // deta_half
 	  cellParams.push_back (0.5 * param.dphi * DEGREE2RAD);  // dphi_half
@@ -360,13 +364,14 @@ namespace {
 	  
 // 	  std::cout << "HcalFlexiHardcodeGeometryLoader::fillHF-> " << hid << refPoint << '/' << cellParams [0] << '/' << cellParams [1] << '/' << cellParams [2] << std::endl;
 	  
-	  CaloCellGeometry* newcell = 
-	    new calogeom::IdealZPrism( refPoint, 
-				       fGeometry->cornersMgr(),
-				       CaloCellGeometry::getParmPtr(
-					  cellParams, 
-					  fGeometry->parMgr(), 
-					  fGeometry->parVecVec()));
+	  CaloCellGeometry* newcell (
+	     fGeometry->newCell( refPoint,  refPoint,  refPoint, 
+				 fGeometry->cornersMgr(),
+				 CaloCellGeometry::getParmPtr(
+				    cellParams, 
+				    fGeometry->parMgr(), 
+				    fGeometry->parVecVec() ),
+				 hid ) ) ;
 	  // ... and store it
 	  fGeometry->addCell (hid, newcell);						       
 	}

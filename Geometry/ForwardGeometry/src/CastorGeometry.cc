@@ -5,11 +5,16 @@
 #include "CastorGeometryData.h"
 #include <algorithm>
 
+typedef CaloCellGeometry::CCGFloat CCGFloat ;
+typedef CaloCellGeometry::Pt3D     Pt3D     ;
+typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+
 CastorGeometry::CastorGeometry() :
    theTopology( new CastorTopology ), 
    lastReqDet_(DetId::Detector(0)),
    lastReqSubdet_(0),
-   m_ownsTopology ( true )
+   m_ownsTopology ( true ),
+   m_cellVec ( k_NumberOfCellsForCorners )
 {
 }
 
@@ -17,7 +22,8 @@ CastorGeometry::CastorGeometry( const CastorTopology* topology ) :
    theTopology(topology), 
    lastReqDet_(DetId::Detector(0)),
    lastReqSubdet_(0),
-   m_ownsTopology ( false )
+   m_ownsTopology ( false ),
+   m_cellVec ( k_NumberOfCellsForCorners )
 {
 }
 
@@ -103,12 +109,13 @@ CastorGeometry::alignmentTransformIndexGlobal( const DetId& id )
    return (unsigned int)DetId::Calo - 1 ;
 }
 
-std::vector<HepGeom::Point3D<double> > 
-CastorGeometry::localCorners( const double* pv,
-			      unsigned int  i,
-			      HepGeom::Point3D<double> &   ref )
+void
+CastorGeometry::localCorners( Pt3DVec&        lc  ,
+			      const CCGFloat* pv ,
+			      unsigned int    i  ,
+			      Pt3D&           ref )
 {
-   return ( calogeom::IdealCastorTrapezoid::localCorners( pv, ref ) ) ;
+   IdealCastorTrapezoid::localCorners( lc, pv, ref ) ;
 }
 
 CaloCellGeometry* 
@@ -116,12 +123,16 @@ CastorGeometry::newCell( const GlobalPoint& f1 ,
 			 const GlobalPoint& f2 ,
 			 const GlobalPoint& f3 ,
 			 CaloCellGeometry::CornersMgr* mgr,
-			 const double*      parm ,
+			 const CCGFloat*    parm ,
 			 const DetId&       detId   ) 
 {
    const CaloGenericDetId cgid ( detId ) ;
    
    assert( cgid.isCastor() ) ;
 
-   return ( new calogeom::IdealCastorTrapezoid( f1, mgr, parm ) ) ;
+   const unsigned int di ( cgid.denseIndex() ) ;
+
+   m_cellVec[ di ] = IdealCastorTrapezoid( f1, mgr, parm ) ;
+
+   return &m_cellVec[ di ] ;
 }
