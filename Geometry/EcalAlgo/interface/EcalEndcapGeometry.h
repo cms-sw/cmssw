@@ -19,6 +19,12 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
 {
    public:
 
+      typedef std::vector<TruncatedPyramid> CellVec ;
+
+      typedef CaloCellGeometry::CCGFloat CCGFloat ;
+      typedef CaloCellGeometry::Pt3D     Pt3D     ;
+      typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+
       typedef IdealGeometryRecord      IdealRecord   ;
       typedef EcalEndcapGeometryRecord AlignedRecord ;
       typedef EEAlignmentRcd           AlignmentRecord ;
@@ -65,7 +71,7 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
 
       virtual void initializeParms() ;
 
-      double avgAbsZFrontFaceCenter() const ; // average over both endcaps. Positive!
+      CCGFloat avgAbsZFrontFaceCenter() const ; // average over both endcaps. Positive!
 
       static std::string hitString() { return "EcalHitsEE" ; }
 
@@ -79,16 +85,17 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
 
       static DetId detIdFromLocalAlignmentIndex( unsigned int iLoc ) ;
 
-      static std::vector<HepGeom::Point3D<double> > localCorners( const double* pv,
-						   unsigned int  i,
-						   HepGeom::Point3D<double> &   ref ) ;
+      static void localCorners( Pt3DVec&        lc  ,
+				const CCGFloat* pv  ,
+				unsigned int    i   ,
+				Pt3D&           ref   ) ;
 
-      static CaloCellGeometry* newCell( const GlobalPoint& f1 ,
-					const GlobalPoint& f2 ,
-					const GlobalPoint& f3 ,
-					CaloCellGeometry::CornersMgr* mgr,
-					const double*      parm ,
-					const DetId&       detId   ) ;
+      virtual CaloCellGeometry* newCell( const GlobalPoint& f1 ,
+					 const GlobalPoint& f2 ,
+					 const GlobalPoint& f3 ,
+					 CaloCellGeometry::CornersMgr* mgr,
+					 const CCGFloat*    parm ,
+					 const DetId&       detId   ) ;
 
    private:
 
@@ -100,14 +107,14 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
       /// number of crystals per module
       int _nncrys; 
 
-      double zeP, zeN;
+      CCGFloat zeP, zeN;
 
-      double m_wref, m_xlo[2], m_xhi[2], m_ylo[2], m_yhi[2], m_xoff[2], m_yoff[2], m_del ;
+      CCGFloat m_wref, m_xlo[2], m_xhi[2], m_ylo[2], m_yhi[2], m_xoff[2], m_yoff[2], m_del ;
 
       unsigned int m_nref ;
 
-      unsigned int xindex( double x, double z ) const ;
-      unsigned int yindex( double y, double z ) const ;
+      unsigned int xindex( CCGFloat x, CCGFloat z ) const ;
+      unsigned int yindex( CCGFloat y, CCGFloat z ) const ;
 
       EEDetId gId( float x, float y, float z ) const ;
 
@@ -115,7 +122,9 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
 
       mutable VecOrdListEBDetIdPtr* m_borderPtrVec ;
 
-      mutable double m_avgZ ;
+      mutable CCGFloat m_avgZ ;
+
+      CellVec m_cellVec ;
 } ;
 
 

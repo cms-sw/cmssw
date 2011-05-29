@@ -3,6 +3,7 @@
 
 #include "Geometry/EcalCommonData/interface/EcalPreshowerNumberingScheme.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/PreshowerStrip.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/EcalPreshowerGeometryRecord.h"
 #include "CondFormats/AlignmentRecord/interface/ESAlignmentRcd.h"
@@ -13,6 +14,12 @@
 class EcalPreshowerGeometry : public CaloSubdetectorGeometry
 {
    public:
+
+      typedef std::vector<PreshowerStrip> CellVec ;
+
+      typedef CaloCellGeometry::CCGFloat CCGFloat ;
+      typedef CaloCellGeometry::Pt3D     Pt3D     ;
+      typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 
       typedef IdealGeometryRecord         IdealRecord   ;
       typedef EcalPreshowerGeometryRecord AlignedRecord ;
@@ -40,10 +47,10 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
       /// The EcalPreshowerGeometry will delete all its cell geometries at destruction time
       virtual ~EcalPreshowerGeometry();
 
-      void setzPlanes( float z1minus, 
-		       float z2minus,
-		       float z1plus, 
-		       float z2plus ) ;
+      void setzPlanes( CCGFloat z1minus, 
+		       CCGFloat z2minus,
+		       CCGFloat z1plus, 
+		       CCGFloat z2plus ) ;
 
       // Get closest cell
       virtual DetId getClosestCell( const GlobalPoint& r ) const ;
@@ -69,27 +76,30 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
 
       static DetId detIdFromLocalAlignmentIndex( unsigned int iLoc ) ;
 
-      static std::vector<HepGeom::Point3D<double> > localCorners( const double* pv,
-						   unsigned int  i,
-						   HepGeom::Point3D<double> &   ref ) ;
+      static void localCorners( Pt3DVec&        lc  ,
+				const CCGFloat* pv  ,
+				unsigned int    i   ,
+				Pt3D&           ref   ) ;
 
-      static CaloCellGeometry* newCell( const GlobalPoint& f1 ,
-					const GlobalPoint& f2 ,
-					const GlobalPoint& f3 ,
-					CaloCellGeometry::CornersMgr* mgr,
-					const double*      parm ,
-					const DetId&       detId   ) ;
+      virtual CaloCellGeometry* newCell( const GlobalPoint& f1 ,
+					 const GlobalPoint& f2 ,
+					 const GlobalPoint& f3 ,
+					 CaloCellGeometry::CornersMgr* mgr,
+					 const CCGFloat*    parm ,
+					 const DetId&       detId   ) ;
 
    private:
 
-      const double m_xWidWaf      ;
-      const double m_xInterLadGap ;
-      const double m_xIntraLadGap ;
+      const CCGFloat m_xWidWaf      ;
+      const CCGFloat m_xInterLadGap ;
+      const CCGFloat m_xIntraLadGap ;
 
-      const double m_yWidAct      ;
-      const double m_yCtrOff      ;
+      const CCGFloat m_yWidAct      ;
+      const CCGFloat m_yCtrOff      ;
 
-      double m_zplane[4];
+      CCGFloat m_zplane[4];
+
+      CellVec m_cellVec ;
 };
 
 

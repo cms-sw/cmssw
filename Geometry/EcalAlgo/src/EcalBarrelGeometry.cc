@@ -12,13 +12,19 @@
 #include <iomanip>
 #include <iostream>
 
+typedef CaloCellGeometry::CCGFloat CCGFloat ;
+typedef CaloCellGeometry::Pt3D     Pt3D     ;
+typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+typedef HepGeom::Plane3D<CCGFloat> Pl3D     ;
+
 EcalBarrelGeometry::EcalBarrelGeometry() :
    _nnxtalEta     ( 85 ) ,
    _nnxtalPhi     ( 360 ) ,
    _PhiBaskets    ( 18 ) ,
    m_borderMgr    ( 0 ),
    m_borderPtrVec ( 0 ) ,
-   m_radius       ( -1. )
+   m_radius       ( -1. ),
+   m_cellVec      ( k_NumberOfCellsForCorners )
 {
    const int neba[] = {25,45,65,85} ;
    _EtaBaskets = std::vector<int>( &neba[0], &neba[3] ) ;
@@ -63,15 +69,15 @@ EcalBarrelGeometry::getClosestCell(const GlobalPoint& r) const
   // z is the easy one
   int leverx = 1;
   int levery = 1;
-  double pointz = r.z();
+  CCGFloat pointz = r.z();
   int zbin=1;
   if(pointz<0)
     zbin=-1;
 
   // Now find the closest eta
-  double pointeta = r.eta();
+  CCGFloat pointeta = r.eta();
   //  double eta;
-  double deta=999.;
+  CCGFloat deta=999.;
   int etabin=1;
   
   int guessed_eta = (int)( fabs(pointeta) / 0.0174)+1;
@@ -87,7 +93,7 @@ EcalBarrelGeometry::getClosestCell(const GlobalPoint& r) const
 	    if (!present(EBDetId(zbin*bin,1,EBDetId::ETAPHIMODE)))
 	      continue;
 
-	    double eta = getGeometry(EBDetId(zbin*bin,1,EBDetId::ETAPHIMODE))->getPosition().eta();
+	    CCGFloat eta = getGeometry(EBDetId(zbin*bin,1,EBDetId::ETAPHIMODE))->getPosition().eta();
 
 	    if(fabs(pointeta-eta)<deta)
 	      {
@@ -103,11 +109,11 @@ EcalBarrelGeometry::getClosestCell(const GlobalPoint& r) const
     
 
   // Now the closest phi. always same number of phi bins(!?)
-  const double twopi = M_PI+M_PI;
+  const CCGFloat twopi = M_PI+M_PI;
 
   // 10 degree tilt
-  const double tilt=twopi/36.;
-  double pointphi = r.phi()+tilt;
+  const CCGFloat tilt=twopi/36.;
+  CCGFloat pointphi = r.phi()+tilt;
 
   // put phi in correct range (0->2pi)
   if(pointphi > twopi)
@@ -130,17 +136,17 @@ EcalBarrelGeometry::getClosestCell(const GlobalPoint& r) const
       if (!present(myCell))
 	return DetId(0);
       
-      HepGeom::Point3D<double>   A;
-      HepGeom::Point3D<double>   B;
-      HepGeom::Point3D<double>   C;
-      HepGeom::Point3D<double>   point(r.x(),r.y(),r.z());
+      Pt3D A;
+      Pt3D B;
+      Pt3D C;
+      Pt3D point(r.x(),r.y(),r.z());
 
       // D.K. : equation of plane : AA*x+BB*y+CC*z+DD=0;
       // finding equation for each edge
 
       // Since the point can lie between crystals, it is necessary to keep track of the movements
       // to avoid infinite loops
-      std::vector<double> history;
+      std::vector<CCGFloat> history;
       history.resize(4,0.);
       //
       // stop movement in eta direction when closest cell was found (point between crystals)
@@ -153,17 +159,17 @@ EcalBarrelGeometry::getClosestCell(const GlobalPoint& r) const
 	  levery = 0;
 	  const CaloCellGeometry::CornersVec& corners 
 	     ( getGeometry(myCell)->getCorners() ) ;
-	  std::vector<double> SS;
+	  std::vector<CCGFloat> SS;
 
 	  // compute the distance of the point with respect of the 4 crystal lateral planes
 	  for (short i=0; i < 4 ; ++i)
 	    {
-	      A = HepGeom::Point3D<double> (corners[i%4].x(),corners[i%4].y(),corners[i%4].z());
-	      B = HepGeom::Point3D<double> (corners[(i+1)%4].x(),corners[(i+1)%4].y(),corners[(i+1)%4].z());
-	      C = HepGeom::Point3D<double> (corners[4+(i+1)%4].x(),corners[4+(i+1)%4].y(),corners[4+(i+1)%4].z());
-	      HepGeom::Plane3D<double>  plane(A,B,C);
+	      A = Pt3D(corners[i%4].x(),corners[i%4].y(),corners[i%4].z());
+	      B = Pt3D(corners[(i+1)%4].x(),corners[(i+1)%4].y(),corners[(i+1)%4].z());
+	      C = Pt3D(corners[4+(i+1)%4].x(),corners[4+(i+1)%4].y(),corners[4+(i+1)%4].z());
+	      Pl3D plane(A,B,C);
 	      plane.normalize();
-	      double distance = plane.distance(point);
+	      CCGFloat distance = plane.distance(point);
 	      if(plane.d()>0.) distance=-distance;
 	      if (corners[0].z()<0.) distance=-distance;
 	      SS.push_back(distance);
@@ -428,17 +434,24 @@ EcalBarrelGeometry::getClosestEndcapCells( EBDetId id ) const
    return ptr ;
 }
 
-std::vector<HepGeom::Point3D<double> > 
-EcalBarrelGeometry::localCorners( const double* pv, 
-				  unsigned int  i,
-				  HepGeom::Point3D<double> &   ref )
+void
+EcalBarrelGeometry::localCorners( Pt3DVec&        lc  ,
+				  const CCGFloat* pv  , 
+				  unsigned int    i   ,
+				  Pt3D&           ref   )
 {
    const bool negz ( EBDetId::kSizeForDenseIndexing/2 >  i ) ;
    const bool odd  ( 1 == i%2 ) ;
 
-   return ( ( ( negz  && !odd ) ||
-	      ( !negz && odd  )    ) ? TruncatedPyramid::localCornersReflection( pv, ref ) :
-	    TruncatedPyramid::localCornersSwap( pv, ref ) ) ;
+   if( ( ( negz  && !odd ) ||
+	 ( !negz && odd  )    ) )
+   {
+      TruncatedPyramid::localCornersReflection( lc, pv, ref ) ;
+   }
+   else
+   {
+      TruncatedPyramid::localCornersSwap( lc, pv, ref ) ;
+   }
 }
 
 CaloCellGeometry* 
@@ -446,18 +459,31 @@ EcalBarrelGeometry::newCell( const GlobalPoint& f1 ,
 			     const GlobalPoint& f2 ,
 			     const GlobalPoint& f3 ,
 			     CaloCellGeometry::CornersMgr* mgr,
-			     const double*      parm ,
+			     const CCGFloat*    parm ,
 			     const DetId&       detId   ) 
 {
-   return ( new TruncatedPyramid( mgr, f1, f2, f3, parm ) ) ;
+   const unsigned int cellIndex ( EBDetId( detId ).denseIndex() ) ;
+   m_cellVec[ cellIndex ] =
+      TruncatedPyramid( mgr, f1, f2, f3, parm ) ;
+   return &m_cellVec[ cellIndex ] ;
 }
-
-double 
+/*
+CaloCellGeometry* 
+EcalBarrelGeometry::newCell( const CaloCellGeometry::CornersVec& corners ,
+			     const CCGFloat*                        parm ,
+			     const DetId&                          detId )
+{
+   const unsigned int cellIndex ( EBDetId( detId ).denseIndex() ) ;
+   m_cellVec[ cellIndex ] = TruncatedPyramid( corners, parm ) ;
+   return &m_cellVec[ cellIndex ] ;
+}
+*/
+CCGFloat 
 EcalBarrelGeometry::avgRadiusXYFrontFaceCenter() const 
 {
    if( 0 > m_radius )
    {
-      double sum ( 0 ) ;
+      CCGFloat sum ( 0 ) ;
       const CaloSubdetectorGeometry::CellCont& cells ( cellGeometries() ) ;
       for( unsigned int i ( 0 ) ; i != cells.size() ; ++i )
       {

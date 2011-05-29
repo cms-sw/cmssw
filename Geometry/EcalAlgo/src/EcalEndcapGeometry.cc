@@ -6,12 +6,18 @@
 #include <CLHEP/Geometry/Point3D.h>
 #include <CLHEP/Geometry/Plane3D.h>
 
+typedef CaloCellGeometry::CCGFloat CCGFloat ;
+typedef CaloCellGeometry::Pt3D     Pt3D     ;
+typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+typedef HepGeom::Plane3D<CCGFloat> Pl3D     ;
+
 EcalEndcapGeometry::EcalEndcapGeometry() :
    _nnmods ( 316 ) ,
    _nncrys ( 25 ) ,
    m_borderMgr ( 0 ),
    m_borderPtrVec ( 0 ),
-   m_avgZ ( -1 )
+   m_avgZ ( -1 ),
+   m_cellVec      ( k_NumberOfCellsForCorners )
 {
 }
 
@@ -58,7 +64,7 @@ EcalEndcapGeometry::initializeParms()
      if( 0 != cellGeometries()[i] )
      {
 //      addCrystalToZGridmap(i->first,dynamic_cast<const TruncatedPyramid*>(i->second));
-	const double z ( cellGeometries()[i]->getPosition().z() ) ;
+	const CCGFloat z ( cellGeometries()[i]->getPosition().z() ) ;
 	if(z>0.)
 	{
 	   zeP+=z;
@@ -76,8 +82,8 @@ EcalEndcapGeometry::initializeParms()
 	if( iy > m_nref ) m_nref = iy ;
      }
   }
-  if( 0 < nP ) zeP/=(double)nP;
-  if( 0 < nN ) zeN/=(double)nN;
+  if( 0 < nP ) zeP/=(CCGFloat)nP;
+  if( 0 < nN ) zeN/=(CCGFloat)nN;
 
   m_xlo[0] =  999 ;
   m_xhi[0] = -999 ;
@@ -92,10 +98,10 @@ EcalEndcapGeometry::initializeParms()
      if( 0 != cellGeometries()[i] )
      {
 	const GlobalPoint p ( cellGeometries()[i]->getPosition()  ) ;
-	const double z ( p.z() ) ;
-	const double zz ( 0 > z ? zeN : zeP ) ;
-	const double x ( p.x()*zz/z ) ;
-	const double y ( p.y()*zz/z ) ;
+	const CCGFloat z ( p.z() ) ;
+	const CCGFloat zz ( 0 > z ? zeN : zeP ) ;
+	const CCGFloat x ( p.x()*zz/z ) ;
+	const CCGFloat y ( p.y()*zz/z ) ;
 
 	if( 0 > z && x < m_xlo[0] ) m_xlo[0] = x ;
 	if( 0 < z && x < m_xlo[1] ) m_xlo[1] = x ;
@@ -144,10 +150,10 @@ EcalEndcapGeometry::initializeParms()
 
 
 unsigned int 
-EcalEndcapGeometry::xindex( double x,
-			    double z ) const
+EcalEndcapGeometry::xindex( CCGFloat x,
+			    CCGFloat z ) const
 {
-   const double xlo ( 0 > z ? m_xlo[0]  : m_xlo[1]  ) ;
+   const CCGFloat xlo ( 0 > z ? m_xlo[0]  : m_xlo[1]  ) ;
    const int i ( 1 + int( ( x - xlo )/m_wref ) ) ;
 
    return ( 1 > i ? 1 :
@@ -156,10 +162,10 @@ EcalEndcapGeometry::xindex( double x,
 }
 
 unsigned int 
-EcalEndcapGeometry::yindex( double y,
-			    double z  ) const
+EcalEndcapGeometry::yindex( CCGFloat y,
+			    CCGFloat z  ) const
 {
-   const double ylo ( 0 > z ? m_ylo[0]  : m_ylo[1]  ) ;
+   const CCGFloat ylo ( 0 > z ? m_ylo[0]  : m_ylo[1]  ) ;
    const int i ( 1 + int( ( y - ylo )/m_wref ) ) ;
 
    return ( 1 > i ? 1 :
@@ -171,7 +177,7 @@ EcalEndcapGeometry::gId( float x,
 			 float y, 
 			 float z ) const
 {
-   const double       fac ( fabs( ( 0 > z ? zeN : zeP )/z ) ) ;
+   const CCGFloat     fac ( fabs( ( 0 > z ? zeN : zeP )/z ) ) ;
    const unsigned int ix  ( xindex( x*fac, z ) ) ; 
    const unsigned int iy  ( yindex( y*fac, z ) ) ; 
    const unsigned int iz  ( z>0 ? 1 : -1 ) ;
@@ -215,19 +221,19 @@ EcalEndcapGeometry::getClosestCell( const GlobalPoint& r ) const
       {
 	 // now get points in convenient ordering
 
-	 HepGeom::Point3D<double>   A;
-	 HepGeom::Point3D<double>   B;
-	 HepGeom::Point3D<double>   C;
-	 HepGeom::Point3D<double>   point(r.x(),r.y(),r.z());
+	 Pt3D A;
+	 Pt3D B;
+	 Pt3D C;
+	 Pt3D point(r.x(),r.y(),r.z());
 	 // D.K. : equation of plane : AA*x+BB*y+CC*z+DD=0;
 	 // finding equation for each edge
 	 
 	 // ================================================================
-	 double x,y,z;
+	 CCGFloat x,y,z;
 	 unsigned offset=0;
 	 int zsign=1;
 	 //================================================================
-	 std::vector<double> SS;
+	 std::vector<CCGFloat> SS;
       
 	 // compute the distance of the point with respect of the 4 crystal lateral planes
 
@@ -279,12 +285,12 @@ EcalEndcapGeometry::getClosestCell( const GlobalPoint& r ) const
 	    
 	    for (short i=0; i < 4 ; ++i)
 	    {
-	       A = HepGeom::Point3D<double> (corners[i%4].x(),corners[i%4].y(),corners[i%4].z());
-	       B = HepGeom::Point3D<double> (corners[(i+1)%4].x(),corners[(i+1)%4].y(),corners[(i+1)%4].z());
-	       C = HepGeom::Point3D<double> (corners[4+(i+1)%4].x(),corners[4+(i+1)%4].y(),corners[4+(i+1)%4].z());
-	       HepGeom::Plane3D<double>  plane(A,B,C);
+	       A = Pt3D(corners[i%4].x(),corners[i%4].y(),corners[i%4].z());
+	       B = Pt3D(corners[(i+1)%4].x(),corners[(i+1)%4].y(),corners[(i+1)%4].z());
+	       C = Pt3D(corners[4+(i+1)%4].x(),corners[4+(i+1)%4].y(),corners[4+(i+1)%4].z());
+	       Pl3D plane(A,B,C);
 	       plane.normalize();
-	       double distance = plane.distance(point);
+	       CCGFloat distance = plane.distance(point);
 	       if (corners[0].z()<0.) distance=-distance;
 	       SS.push_back(distance);
 	    }
@@ -444,12 +450,13 @@ EcalEndcapGeometry::getClosestBarrelCells( EEDetId id ) const
    return ptr ;
 }
 
-std::vector<HepGeom::Point3D<double> > 
-EcalEndcapGeometry::localCorners( const double* pv,
-				  unsigned int  i,
-				  HepGeom::Point3D<double> &   ref )
+void
+EcalEndcapGeometry::localCorners( Pt3DVec&        lc  ,
+				  const CCGFloat* pv  ,
+				  unsigned int    i   ,
+				  Pt3D&           ref   )
 {
-   return ( TruncatedPyramid::localCorners( pv, ref ) ) ;
+   TruncatedPyramid::localCorners( lc, pv, ref ) ;
 }
 
 CaloCellGeometry* 
@@ -457,19 +464,22 @@ EcalEndcapGeometry::newCell( const GlobalPoint& f1 ,
 			     const GlobalPoint& f2 ,
 			     const GlobalPoint& f3 ,
 			     CaloCellGeometry::CornersMgr* mgr,
-			     const double*      parm ,
+			     const CCGFloat*    parm ,
 			     const DetId&       detId   ) 
 {
-   return ( new TruncatedPyramid( mgr, f1, f2, f3, parm ) ) ;
+   const unsigned int cellIndex ( EEDetId( detId ).denseIndex() ) ;
+   m_cellVec[ cellIndex ] =
+      TruncatedPyramid( mgr, f1, f2, f3, parm ) ;
+   return &m_cellVec[ cellIndex ] ;
 }
 
 
-double 
+CCGFloat 
 EcalEndcapGeometry::avgAbsZFrontFaceCenter() const
 {
    if( 0 > m_avgZ )
    {
-      double sum ( 0 ) ;
+      CCGFloat sum ( 0 ) ;
       const CaloSubdetectorGeometry::CellCont& cells ( cellGeometries() ) ;
       for( unsigned int i ( 0 ) ; i != cells.size() ; ++i )
       {

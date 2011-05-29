@@ -4,6 +4,7 @@
 #include "Geometry/CaloGeometry/interface/EZArrayFL.h"
 #include "Geometry/EcalCommonData/interface/EcalBarrelNumberingScheme.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/EcalBarrelGeometryRecord.h"
 #include "CondFormats/AlignmentRecord/interface/EBAlignmentRcd.h"
@@ -16,6 +17,12 @@
 class EcalBarrelGeometry : public CaloSubdetectorGeometry 
 {
    public:
+
+      typedef std::vector<TruncatedPyramid> CellVec ;
+
+      typedef CaloCellGeometry::CCGFloat CCGFloat ;
+      typedef CaloCellGeometry::Pt3D     Pt3D     ;
+      typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 
       typedef IdealGeometryRecord      IdealRecord   ;
       typedef EcalBarrelGeometryRecord AlignedRecord ;
@@ -69,7 +76,7 @@ class EcalBarrelGeometry : public CaloSubdetectorGeometry
       virtual CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
 							  double             dR ) const ;
 
-      double avgRadiusXYFrontFaceCenter() const ;
+      CCGFloat avgRadiusXYFrontFaceCenter() const ;
 
       static std::string hitString() { return "EcalHitsEB" ; }
 
@@ -83,18 +90,24 @@ class EcalBarrelGeometry : public CaloSubdetectorGeometry
 
       static DetId detIdFromLocalAlignmentIndex( unsigned int iLoc ) ;
 
-      static std::vector<HepGeom::Point3D<double> > localCorners( const double* pv, 
-						   unsigned int  i,
-						   HepGeom::Point3D<double> &   ref ) ;
+      static void localCorners( Pt3DVec&        lc  ,
+				const CCGFloat* pv  , 
+				unsigned int    i   ,
+				Pt3D&           ref   ) ;
 
-      static CaloCellGeometry* newCell( const GlobalPoint& f1 ,
-					const GlobalPoint& f2 ,
-					const GlobalPoint& f3 ,
-					CaloCellGeometry::CornersMgr* mgr,
-					const double*      parm ,
-					const DetId&       detId ) ;
-					
+      virtual CaloCellGeometry* newCell( const GlobalPoint& f1 ,
+					 const GlobalPoint& f2 ,
+					 const GlobalPoint& f3 ,
+					 CaloCellGeometry::CornersMgr* mgr,
+					 const CCGFloat*    parm ,
+					 const DetId&       detId ) ;
+/*
+      CaloCellGeometry* newCell( const CaloCellGeometry::CornersVec& corners ,
+				 const CCGFloat*                     parm    ,
+				 const DetId&                        detId    ) ;
+*/					
    private:
+
       /** number of crystals in eta direction */
       int _nnxtalEta;
   
@@ -114,7 +127,9 @@ class EcalBarrelGeometry : public CaloSubdetectorGeometry
 
       mutable VecOrdListEEDetIdPtr* m_borderPtrVec ;
 
-      mutable double m_radius ;
+      mutable CCGFloat m_radius ;
+
+      CellVec m_cellVec ;
 };
 
 

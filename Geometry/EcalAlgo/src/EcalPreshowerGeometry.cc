@@ -5,6 +5,11 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 
+typedef CaloCellGeometry::CCGFloat CCGFloat ;
+typedef CaloCellGeometry::Pt3D     Pt3D     ;
+typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+typedef HepGeom::Plane3D<CCGFloat> Pl3D     ;
+
 EcalPreshowerGeometry::EcalPreshowerGeometry() :
    m_xWidWaf      ( 6.3  ) ,
    m_xInterLadGap ( 0.05 ) , // additional gap between wafers in adj ladders
@@ -78,10 +83,10 @@ EcalPreshowerGeometry::initializeParms()
    unsigned int n2minus ( 0 ) ;
    unsigned int n1plus ( 0 ) ;
    unsigned int n2plus ( 0 ) ;
-   double z1minus ( 0 ) ;
-   double z2minus ( 0 ) ;
-   double z1plus ( 0 ) ;
-   double z2plus ( 0 ) ;
+   CCGFloat z1minus ( 0 ) ;
+   CCGFloat z2minus ( 0 ) ;
+   CCGFloat z1plus ( 0 ) ;
+   CCGFloat z2plus ( 0 ) ;
    const std::vector<DetId>& esDetIds ( getValidDetIds() ) ;
    const Cont& con ( cellGeometries() ) ;
    for( unsigned int i ( 0 ) ; i != con.size() ; ++i )
@@ -134,10 +139,10 @@ EcalPreshowerGeometry::initializeParms()
 
 
 void 
-EcalPreshowerGeometry::setzPlanes( float z1minus, 
-				   float z2minus,
-				   float z1plus, 
-				   float z2plus ) 
+EcalPreshowerGeometry::setzPlanes( CCGFloat z1minus, 
+				   CCGFloat z2minus,
+				   CCGFloat z1plus, 
+				   CCGFloat z2plus ) 
 {
    assert( 0 > z1minus &&
 	   0 > z2minus &&
@@ -162,9 +167,9 @@ DetId
 EcalPreshowerGeometry::getClosestCellInPlane( const GlobalPoint& point,
 					      int                plane          ) const
 {
-   const double x ( point.x() ) ;
-   const double y ( point.y() ) ;
-   const double z ( point.z() ) ;
+   const CCGFloat x ( point.x() ) ;
+   const CCGFloat y ( point.y() ) ;
+   const CCGFloat z ( point.z() ) ;
 
    if( 0 == z    ||
        1 > plane ||
@@ -172,19 +177,19 @@ EcalPreshowerGeometry::getClosestCellInPlane( const GlobalPoint& point,
 
    const unsigned int iz ( ( 0>z ? 0 : 2 ) + plane - 1 ) ;
 
-   const double ze ( m_zplane[iz] ) ;
-   const double xe ( x * ze/z ) ;
-   const double ye ( y * ze/z ) ;
+   const CCGFloat ze ( m_zplane[iz] ) ;
+   const CCGFloat xe ( x * ze/z ) ;
+   const CCGFloat ye ( y * ze/z ) ;
 
-   const double x0 ( 1 == plane ? xe : ye ) ;
-   const double y0 ( 1 == plane ? ye : xe ) ;
+   const CCGFloat x0 ( 1 == plane ? xe : ye ) ;
+   const CCGFloat y0 ( 1 == plane ? ye : xe ) ;
 
-   static const double xWid ( m_xWidWaf + m_xIntraLadGap + m_xInterLadGap ) ;
+   static const CCGFloat xWid ( m_xWidWaf + m_xIntraLadGap + m_xInterLadGap ) ;
 
    const int row ( 1 + int( y0 + 20.*m_yWidAct - m_yCtrOff )/m_yWidAct ) ;
    const int col ( 1 + int( ( x0 + 20.*xWid )/xWid ) ) ;
 
-   double closest ( 1e9 ) ; 
+   CCGFloat closest ( 1e9 ) ; 
 
    DetId detId ( 0 ) ;
 
@@ -206,7 +211,7 @@ EcalPreshowerGeometry::getClosestCellInPlane( const GlobalPoint& point,
 	       const ESDetId esId ( jstrip, jx, jy, plane, jz ) ;
 	       const unsigned int index ( esId.denseIndex() ) ;
 	       const GlobalPoint& p ( cellGeometries()[ index ]->getPosition() ) ;
-	       const double dist2 ( (p.x()-xe)*(p.x()-xe) + (p.y()-ye)*(p.y()-ye) ) ;
+	       const CCGFloat dist2 ( (p.x()-xe)*(p.x()-xe) + (p.y()-ye)*(p.y()-ye) ) ;
 	       if( dist2 < closest && present( esId ) )
 	       {
 		  closest = dist2 ;
@@ -219,12 +224,13 @@ EcalPreshowerGeometry::getClosestCellInPlane( const GlobalPoint& point,
    return detId ;
 }
 
-std::vector<HepGeom::Point3D<double> > 
-EcalPreshowerGeometry::localCorners( const double* pv,
-				     unsigned int  i,
-				     HepGeom::Point3D<double> &   ref )
+void
+EcalPreshowerGeometry::localCorners( Pt3DVec&        lc  ,
+				     const CCGFloat* pv  ,
+				     unsigned int    i   ,
+				     Pt3D&           ref   )
 {
-   return ( PreshowerStrip::localCorners( pv, ref ) ) ;
+   PreshowerStrip::localCorners( lc, pv, ref ) ;
 }
 
 CaloCellGeometry* 
@@ -232,8 +238,10 @@ EcalPreshowerGeometry::newCell( const GlobalPoint& f1 ,
 				const GlobalPoint& f2 ,
 				const GlobalPoint& f3 ,
 				CaloCellGeometry::CornersMgr* mgr,
-				const double*      parm ,
+				const CCGFloat*    parm ,
 				const DetId&       detId    ) 
 {
-   return ( new PreshowerStrip( f1, mgr , parm ) ) ;
+   const unsigned int cellIndex ( ESDetId( detId ).denseIndex() ) ;
+   m_cellVec[ cellIndex ] = PreshowerStrip( f1, mgr, parm ) ;
+   return &m_cellVec[ cellIndex ] ;
 }

@@ -21,7 +21,6 @@
 
 #include "CondFormats/GeometryObjects/interface/PCaloGeometry.h"
 
-
 #include "CondFormats/Alignment/interface/Alignments.h"
 
 #include <Math/Transform3D.h>
@@ -37,6 +36,11 @@ template <class T, class U>
 class CaloGeometryDBEP : public edm::ESProducer 
 {
    public:
+
+      typedef CaloCellGeometry::CCGFloat CCGFloat ;
+      typedef CaloCellGeometry::Pt3D     Pt3D     ;
+      typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+      typedef CaloCellGeometry::Tr3D     Tr3D     ;
 
       typedef boost::shared_ptr< CaloSubdetectorGeometry > PtrType ;
       typedef CaloSubdetectorGeometry::TrVec  TrVec      ;
@@ -128,9 +132,9 @@ class CaloGeometryDBEP : public edm::ESProducer
 	       ++dsrc ;
 	    }
 
-	    const double* myParm ( CaloCellGeometry::getParmPtr( dims, 
-								 ptr->parMgr(), 
-								 ptr->parVecVec() ) ) ;
+	    const CCGFloat* myParm ( CaloCellGeometry::getParmPtr( dims, 
+								   ptr->parMgr(), 
+								   ptr->parVecVec() ) ) ;
 
 
 	    const DetId id ( T::DetIdType::detIdFromDenseIndex( i ) ) ;
@@ -156,15 +160,16 @@ class CaloGeometryDBEP : public edm::ESProducer
 
 	    const CaloGenericDetId gId ( id ) ;
 
-	    HepGeom::Point3D<double>  lRef ;
-	    const std::vector<HepGeom::Point3D<double> > lc ( T::localCorners( &dims.front(), i, lRef ) ) ;
+	    Pt3D  lRef ;
+	    Pt3DVec lc ( 8, Pt3D(0,0,0) ) ;
+	    T::localCorners( lc, &dims.front(), i, lRef ) ;
 
-	    const HepGeom::Point3D<double>  lBck ( 0.25*(lc[4]+lc[5]+lc[6]+lc[7] ) ) ; // ctr rear  face in local
-	    const HepGeom::Point3D<double>  lCor ( lc[0] ) ;
+	    const Pt3D lBck ( 0.25*(lc[4]+lc[5]+lc[6]+lc[7] ) ) ; // ctr rear  face in local
+	    const Pt3D lCor ( lc[0] ) ;
 
 	    //----------------------------------- create transform from 6 numbers ---
 	    const unsigned int jj ( i*nTrParm ) ;
-	    HepGeom::Transform3D tr ;
+	    Tr3D tr ;
 	    const ROOT::Math::Translation3D tl ( tvec[jj], tvec[jj+1], tvec[jj+2] ) ;
 	    const ROOT::Math::EulerAngles ea (
 	       6==nTrParm ?
@@ -173,26 +178,27 @@ class CaloGeometryDBEP : public edm::ESProducer
 	    const ROOT::Math::Transform3D rt ( ea, tl ) ;
 	    double xx,xy,xz,dx,yx,yy,yz,dy,zx,zy,zz,dz;
 	    rt.GetComponents(xx,xy,xz,dx,yx,yy,yz,dy,zx,zy,zz,dz) ;
-	    tr = HepGeom::Transform3D( CLHEP::HepRep3x3( xx, xy, xz,
-						   yx, yy, yz,
-						   zx, zy, zz ), 
-				 CLHEP::Hep3Vector(dx,dy,dz)     );
+	    tr = Tr3D( CLHEP::HepRep3x3( xx, xy, xz,
+					 yx, yy, yz,
+					 zx, zy, zz ), 
+		       CLHEP::Hep3Vector(dx,dy,dz)     );
 
 	    // now prepend alignment(s) for final transform
-	    const HepGeom::Transform3D atr ( 0 == at ? tr :
-				       ( 0 == gt ? at->transform()*tr :
-					 at->transform()*gt->transform()*tr ) ) ;
+	    const Tr3D atr ( 0 == at ? tr :
+			     ( 0 == gt ? at->transform()*tr :
+			       at->transform()*gt->transform()*tr ) ) ;
 	    //--------------------------------- done making transform  ---------------
 
-	    const HepGeom::Point3D<double>   gRef ( atr*lRef ) ;
+	    const Pt3D        gRef ( atr*lRef ) ;
 	    const GlobalPoint fCtr ( gRef.x(), gRef.y(), gRef.z() ) ;
-	    const HepGeom::Point3D<double>   gBck ( atr*lBck ) ;
+	    const Pt3D        gBck ( atr*lBck ) ;
 	    const GlobalPoint fBck ( gBck.x(), gBck.y(), gBck.z() ) ;
-	    const HepGeom::Point3D<double>   gCor ( atr*lCor ) ;
+	    const Pt3D        gCor ( atr*lCor ) ;
 	    const GlobalPoint fCor ( gCor.x(), gCor.y(), gCor.z() ) ;
 
-	    CaloCellGeometry* cell ( T::newCell(  fCtr, fBck, fCor,
-						  ptr->cornersMgr() , myParm, id ) ) ;
+	    CaloCellGeometry* cell ( 
+	       ptr->newCell(  fCtr, fBck, fCor,
+			      ptr->cornersMgr() , myParm, id ) ) ;
 
 	    ptr->addCell( id, cell ) ;    
 	 }
