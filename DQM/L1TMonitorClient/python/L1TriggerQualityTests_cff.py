@@ -106,6 +106,12 @@ seqL1TriggerObjNoIsoEGQualityTests = cms.Sequence(l1TriggerObjNoIsoEGQualityTest
 from DQM.L1TMonitorClient.L1TriggerObjMuQualityTests_cfi import *
 seqL1TriggerObjMuQualityTests = cms.Sequence(l1TriggerObjMuQualityTests)
 
+# L1 trigger rate quality test
+from DQM.L1TMonitorClient.L1TriggerRateQualityTests_cfi import *
+
+# L1 trigger synchronization quality test
+from DQM.L1TMonitorClient.L1TriggerSyncQualityTests_cfi import *
+
 # sequence for L1 systems
 l1TriggerSystemQualityTests = cms.Sequence(
                                 seqL1TriggerEcalQualityTests + 
@@ -143,6 +149,8 @@ l1TriggerObjectQualityTests = cms.Sequence(
 # general sequence
 l1TriggerQualityTests = cms.Sequence(
                                       l1TriggerSystemQualityTests + 
-                                      l1TriggerObjectQualityTests
+                                      l1TriggerObjectQualityTests + 
+                                      l1TriggerRateQualityTests +
+                                      l1TriggerSyncQualityTests
                                       )
 

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tcsctf = cms.EDAnalyzer("L1TCSCTF",
+l1tCsctf = cms.EDAnalyzer("L1TCSCTF",
     gmtProducer = cms.InputTag("gtDigis::DQM"),
 
     statusProducer = cms.InputTag("csctfDigis"),

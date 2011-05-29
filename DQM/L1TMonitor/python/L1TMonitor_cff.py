@@ -125,7 +125,7 @@ l1tMonitor = cms.Sequence(
                           l1tGt + 
                           l1ExtraDqmSeq +
                           l1tRate +
-                          l1tSyc +
+                          l1tSync +
                           l1tRctSeq +
                           l1tGctSeq
                           )

@@ -80,7 +80,7 @@ l1tsClient.dqmFolder = cms.untracked.string("L1T/L1Scalers_SM")
 # define sequences 
 #
 
-# L1T monitor client sequence 
+# L1T monitor client sequence (system clients and quality tests)
 l1TriggerClients = cms.Sequence(
                         l1tGctClient +
                         l1tDttfClient +

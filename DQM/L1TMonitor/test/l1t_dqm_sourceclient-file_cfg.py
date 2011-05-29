@@ -59,57 +59,103 @@ if l1DqmEnv == 'live' :
     # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
     process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
     es_prefer_GlobalTag = cms.ESPrefer('GlobalTag')
+    process.GlobalTag.RefreshEachRun = cms.untracked.bool(True)
 
 elif l1DqmEnv == 'playback' :
     print 'FIXME'
     
+elif l1DqmEnv == 'file-P5' :
+    process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+    es_prefer_GlobalTag = cms.ESPrefer('GlobalTag')
+    process.GlobalTag.RefreshEachRun = cms.untracked.bool(True)
+    
 else : 
-    # running on a file
+    # running on a file, on lxplus (not on .cms)
     process.load("DQM.L1TMonitor.environment_file_cfi")
 
     process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-    process.GlobalTag.globaltag = 'GR_R_36X_V10::All'
+    process.GlobalTag.globaltag = 'GR_P_V20::All'
     es_prefer_GlobalTag = cms.ESPrefer('GlobalTag')
 
 
 process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
 
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
-
-#-----------------------------
-#
-#  L1 DQM SOURCES
+#-------------------------------------
+# sequences needed for L1 trigger DQM
 #
 
-process.load("DQM.L1TMonitor.L1TMonitor_cff")
-process.load("DQM.L1TMonitorClient.L1TMonitorClient_cff")
+# standard unpacking sequence 
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")    
 
-process.load("DQM.TrigXMonitor.L1Scalers_cfi")
-process.load("DQM.TrigXMonitorClient.L1TScalersClient_cfi")
-process.l1s.l1GtData = cms.InputTag("l1GtUnpack","","DQM")
-process.l1s.dqmFolder = cms.untracked.string("L1T/L1Scalers_SM") 
-process.l1tsClient.dqmFolder = cms.untracked.string("L1T/L1Scalers_SM")
-process.p3 = cms.EndPath(process.l1s+process.l1tsClient)
+# L1 Trigger sequences 
 
-process.load("DQM.TrigXMonitor.HLTScalers_cfi")
-process.load("DQM.TrigXMonitorClient.HLTScalersClient_cfi")
-process.hlts.dqmFolder = cms.untracked.string("L1T/HLTScalers_SM")
-process.hltsClient.dqmFolder = cms.untracked.string("L1T/HLTScalers_SM")
-process.p = cms.EndPath(process.hlts+process.hltsClient)
+# l1tMonitor and l1tMonitorEndPathSeq
+process.load("DQM.L1TMonitor.L1TMonitor_cff")    
 
-# removed modules
-#process.hltMonScal.remove("l1tscalers")
+# l1tMonitorClient and l1tMonitorClientEndPathSeq
+process.load("DQM.L1TMonitorClient.L1TMonitorClient_cff")    
 
-##  Available data masks (case insensitive):
-##    all, gt, muons, jets, taujets, isoem, nonisoem, met
-process.l1tEventInfoClient.dataMaskedSystems = cms.untracked.vstring(
-    "Muons","Jets","TauJets","IsoEm","NonIsoEm","MET"
-    )
+#-------------------------------------
+# paths & schedule for L1 Trigger DQM
+#
 
-##  Available emulator masks (case insensitive):
-##    all, dttf, dttpg, csctf, csctpg, rpc, gmt, ecal, hcal, rct, gct, glt
+# TODO define a L1 trigger L1TriggerRawToDigi in the standard sequence 
+# to avoid all these remove
+process.rawToDigiPath = cms.Path(process.RawToDigi)
+#
+process.RawToDigi.remove("siPixelDigis")
+process.RawToDigi.remove("siStripDigis")
+process.RawToDigi.remove("scalersRawToDigi")
+process.RawToDigi.remove("castorDigis")
+# for GCT, unpack all five samples
+process.RawToDigi.gctDigis.numberOfGctSamplesToUnpack = cms.uint32(5)
+
+# 
+process.l1tMonitorPath = cms.Path(process.l1tMonitor)
+
+#
+process.l1tMonitorClientPath = cms.Path(process.l1tMonitorClient)
+
+#
+process.l1tMonitorEndPath = cms.EndPath(process.l1tMonitorEndPathSeq)
+
+#
+process.l1tMonitorClientEndPath = cms.EndPath(process.l1tMonitorClientEndPathSeq)
+
+#
+process.dqmEndPath = cms.EndPath(
+                                 process.dqmEnv *
+                                 process.dqmSaver
+                                 )
+
+#
+process.schedule = cms.Schedule(process.rawToDigiPath,
+                                process.l1tMonitorPath,
+                                process.l1tMonitorClientPath,
+                                process.l1tMonitorEndPath,
+                                process.l1tMonitorClientEndPath,
+                                process.dqmEndPath
+                                )
+
+#---------------------------------------------
+
+# examples for quick fixes in case of troubles 
+#    please do not modify the commented lines
+#
+
+
+#
+# turn on verbosity in L1TEventInfoClient
+#
+# process.l1tEventInfoClient.verbose = cms.untracked.bool(True)
+
+
+#
+# available data masks (case insensitive):
+#    all, gt, muons, jets, taujets, isoem, nonisoem, met
+process.l1tEventInfoClient.dataMaskedSystems = cms.untracked.vstring("Muons","Jets","TauJets","IsoEm","NonIsoEm","MET")
+
+#
+# available emulator masks (case insensitive):
+#    all, dttf, dttpg, csctf, csctpg, rpc, gmt, ecal, hcal, rct, gct, glt
 process.l1tEventInfoClient.emulatorMaskedSystems = cms.untracked.vstring("All")
-
-
-
