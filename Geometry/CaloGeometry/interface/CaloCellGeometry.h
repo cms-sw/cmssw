@@ -13,86 +13,84 @@
 
 Abstract base class for an individual cell's geometry.
     
-$Date: 2009/05/25 09:06:11 $
-$Revision: 1.17 $
+$Date: 2010/04/20 17:23:11 $
+$Revision: 1.18 $
 \author J. Mans, P. Meridiani
 */
-
-
-
-
 
 class CaloCellGeometry 
 {
    public:
 
+      typedef float                      CCGFloat ;
+      typedef HepGeom::Transform3D       Tr3D     ;
+      typedef HepGeom::Point3D<CCGFloat> Pt3D     ;
+      typedef std::vector<Pt3D>          Pt3DVec  ;
+
       typedef EZArrayFL< GlobalPoint > CornersVec ;
       typedef EZMgrFL< GlobalPoint >   CornersMgr ;
 
-      typedef EZArrayFL<double>   ParVec ;
+      typedef EZArrayFL<CCGFloat> ParVec ;
       typedef std::vector<ParVec> ParVecVec ;
-      typedef EZMgrFL< double >   ParMgr ;
+      typedef EZMgrFL< CCGFloat > ParMgr ;
 
       enum CornersSize { k_cornerSize = 8 };
 
-      static const float k_ScaleFromDDDtoGeant ;
+      static const CCGFloat k_ScaleFromDDDtoGeant ;
 
-      virtual ~CaloCellGeometry() {}
+      virtual ~CaloCellGeometry() ;
       
       // Returns the corner points of this cell's volume
       virtual const CornersVec& getCorners() const = 0 ;
 
       // Returns the position of reference for this cell 
-      const GlobalPoint& getPosition() const { return m_refPoint ; }
+      const GlobalPoint& getPosition() const ;
 
       // Returns true if the specified point is inside this cell
       bool inside( const GlobalPoint & point ) const ;  
 
-      bool emptyCorners() const { return m_corners.empty() ; }
+      bool emptyCorners() const ;
 
-      const double* param() const { return m_parms ; }
+      const CCGFloat* param() const ;
 
-      static const double* checkParmPtr( const std::vector<double>& vd  ,
-					 ParVecVec&                 pvv ) ;
+      static const CCGFloat* checkParmPtr( const std::vector<CCGFloat>& vd  ,
+					   ParVecVec&                   pvv   ) ;
 
-      static const double* getParmPtr( const std::vector<double>& vd  ,
-				       ParMgr*                    mgr ,
-				       ParVecVec&                 pvv ) ;
+      static const CCGFloat* getParmPtr( const std::vector<CCGFloat>& vd  ,
+					 ParMgr*                      mgr ,
+					 ParVecVec&                   pvv   ) ;
 
 
 //----------- only needed by specific utility; overloaded when needed ----
-      virtual HepGeom::Transform3D getTransform( std::vector<HepGeom::Point3D<double> >* lptr ) const ;
+      virtual void getTransform( Tr3D& tr, Pt3DVec* lptr ) const ;
 //------------------------------------------------------------------------
 
-      virtual std::vector<HepGeom::Point3D<double> > vocalCorners( const double* pv,
-						    HepGeom::Point3D<double> &   ref ) const = 0 ;
+      virtual void vocalCorners( Pt3DVec&        vec ,
+				 const CCGFloat* pv  ,
+				 Pt3D&           ref  ) const = 0 ;
 
    protected:
 
       CaloCellGeometry( CornersVec::const_reference gp ,
 			const CornersMgr*           mgr,
-			const double*               par ) :
-	 m_refPoint ( gp  ),
-	 m_corners  ( mgr ),
-	 m_parms    ( par ) {}
+			const CCGFloat*             par ) ;
 
       CaloCellGeometry( const CornersVec& cv,
-			const double*     par ) : 
-	 m_refPoint ( GlobalPoint( 0.25*( cv[0].x() + cv[1].x() + cv[2].x() + cv[3].x() ),
-				   0.25*( cv[0].y() + cv[1].y() + cv[2].y() + cv[3].y() ),
-				   0.25*( cv[0].z() + cv[1].z() + cv[2].z() + cv[3].z() )  ) ), 
-	 m_corners  ( cv ),
-	 m_parms    ( par ) {}
+			const CCGFloat*   par ) ;
 
-      CornersVec& setCorners() const { return m_corners ; }
+      CornersVec& setCorners() const ;
+
+      CaloCellGeometry() ;
+      CaloCellGeometry( const CaloCellGeometry& cell ) ;
+      CaloCellGeometry& operator=( const CaloCellGeometry& cell ) ;
 
    private:
 
-      const   GlobalPoint m_refPoint ;
+      GlobalPoint         m_refPoint ;
 
-      mutable CornersVec  m_corners ;
+      mutable CornersVec  m_corners  ;
 
-      const double*        m_parms  ;
+      const CCGFloat*     m_parms    ;
 };
 
 std::ostream& operator<<( std::ostream& s, const CaloCellGeometry& cell ) ;

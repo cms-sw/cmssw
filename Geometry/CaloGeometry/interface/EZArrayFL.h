@@ -30,6 +30,9 @@ class EZArrayFL
       typedef typename MgrType::size_type       size_type ;
       typedef typename MgrType::value_type      value_type ;
 
+      EZArrayFL< T >() : m_begin ( 0 ) ,
+			 m_mgr   (   ) {}
+
       EZArrayFL< T >( const MgrType* mgr  ) : m_begin ( 0 ) ,
 					      m_mgr   ( mgr )   {}
 
@@ -83,7 +86,6 @@ class EZArrayFL
 
    private:
 
-      EZArrayFL< T >() ; //stop
       //EZArrayFL( const EZArrayFL& ) ; //stop
       //EZArrayFL& operator=( const EZArrayFL& ) ; //stop
       mutable iterator m_begin   ;

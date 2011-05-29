@@ -1,7 +1,86 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include <CLHEP/Geometry/Plane3D.h>
 
+typedef CaloCellGeometry::CCGFloat CCGFloat ;
+typedef CaloCellGeometry::Pt3D     Pt3D     ;
+typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+typedef CaloCellGeometry::Tr3D     Tr3D     ;
+
+typedef HepGeom::Vector3D<CCGFloat> Vec3D   ;
+typedef HepGeom::Plane3D<CCGFloat>  Plane3D ;
+
 const float CaloCellGeometry::k_ScaleFromDDDtoGeant ( 0.1 ) ;
+
+CaloCellGeometry::CaloCellGeometry() :
+   m_refPoint ( 0., 0., 0. ),
+   m_corners  (  ) ,
+   m_parms    ( (CCGFloat*) 0 ) 
+{
+}
+
+CaloCellGeometry::CaloCellGeometry( const CaloCellGeometry& cell )
+{
+   *this = cell ;
+}
+
+CaloCellGeometry&
+CaloCellGeometry::operator=( const CaloCellGeometry& cell )
+{
+   if( this != &cell )
+   {
+      m_refPoint = cell.m_refPoint ;
+      m_corners  = cell.m_corners  ;
+      m_parms    = cell.m_parms    ;
+   }
+   return *this ;
+}
+
+CaloCellGeometry::~CaloCellGeometry()
+{
+}
+
+const GlobalPoint& 
+CaloCellGeometry::getPosition() const 
+{
+   return m_refPoint ; 
+}
+
+bool 
+CaloCellGeometry::emptyCorners() const 
+{
+   return m_corners.empty() ;
+}
+
+const CCGFloat* 
+CaloCellGeometry::param() const 
+{
+   return m_parms ;
+}
+
+CaloCellGeometry::CaloCellGeometry( CornersVec::const_reference gp ,
+				    const CornersMgr*           mgr,
+				    const CCGFloat*             par ) :
+   m_refPoint ( gp  ),
+   m_corners  ( mgr ),
+   m_parms    ( par ) 
+{
+}
+
+CaloCellGeometry::CaloCellGeometry( const CornersVec& cv,
+				    const CCGFloat*   par ) : 
+   m_refPoint ( 0.25*( cv[0].x() + cv[1].x() + cv[2].x() + cv[3].x() ),
+		0.25*( cv[0].y() + cv[1].y() + cv[2].y() + cv[3].y() ),
+		0.25*( cv[0].z() + cv[1].z() + cv[2].z() + cv[3].z() )  ), 
+   m_corners  ( cv ),
+   m_parms    ( par ) 
+{
+}
+
+CaloCellGeometry::CornersVec& 
+CaloCellGeometry::setCorners() const 
+{
+   return m_corners ; 
+}
 
 const CaloCellGeometry::CornersVec&
 CaloCellGeometry::getCorners() const
@@ -28,58 +107,57 @@ std::ostream& operator<<( std::ostream& s, const CaloCellGeometry& cell )
    return s ;
 }
 
-HepGeom::Transform3D
-CaloCellGeometry::getTransform( std::vector<HepGeom::Point3D<double> >* lptr ) const 
+void
+CaloCellGeometry::getTransform( Tr3D& tr , Pt3DVec* lptr ) const 
 {
    const GlobalPoint& p ( CaloCellGeometry::getPosition() ) ;
-   const HepGeom::Point3D<double>    gFront ( p.x(), p.y(), p.z() ) ;
+   const Pt3D gFront ( p.x(), p.y(), p.z() ) ;
 
-   HepGeom::Point3D<double>  lFront ;
-   assert(                               0 != param() ) ;
-   std::vector<HepGeom::Point3D<double> > lc ( vocalCorners( param(), lFront ) ) ;
+   Pt3D lFront ;
+   assert( 0 != param() ) ;
+   Pt3DVec lc ( 8, Pt3D(0,0,0) ) ;
+   vocalCorners( lc, param(), lFront ) ;
 
-   HepGeom::Point3D<double>  lBack  ( 0.25*(lc[4]+lc[5]+lc[6]+lc[7]) ) ;
+   Pt3D lBack ( 0.25*(lc[4]+lc[5]+lc[6]+lc[7]) ) ;
 
-   const HepGeom::Point3D<double>  lOne  ( lc[0] ) ;
+   Pt3D lOne ( lc[0] ) ;
 
    const CornersVec& cor ( getCorners() ) ;
-   std::vector<HepGeom::Point3D<double> > kor ( 8, HepGeom::Point3D<double> (0,0,0) ) ;
+   Pt3DVec kor ( 8, Pt3D(0,0,0) ) ;
    for( unsigned int i ( 0 ) ; i != 8 ; ++i )
    {
-      kor[i] = HepGeom::Point3D<double> ( cor[i].x(), cor[i].y(), cor[i].z() ) ;
+      kor[i] = Pt3D ( cor[i].x(), cor[i].y(), cor[i].z() ) ;
    }
 
-   HepGeom::Point3D<double>  gBack ( 0.25*( kor[4]+kor[5]+kor[6]+kor[7] ) ) ;
+   Pt3D  gBack ( 0.25*( kor[4]+kor[5]+kor[6]+kor[7] ) ) ;
 
-   const HepGeom::Vector3D<double>  gAxis ( (gBack-gFront).unit() ) ;
+   const Vec3D gAxis ( (gBack-gFront).unit() ) ;
 
    gBack = ( gFront + (lBack-lFront).mag()*gAxis ) ;
-   const HepGeom::Point3D<double>  gOneT ( gFront + ( lOne - lFront ).mag()*( kor[0] - gFront ).unit() ) ;
+   const Pt3D  gOneT ( gFront + ( lOne - lFront ).mag()*( kor[0] - gFront ).unit() ) ;
 
-   const double langle ( ( lBack - lFront).angle( lOne - lFront ) ) ;
-   const double gangle ( ( gBack - gFront).angle( gOneT- gFront ) ) ;
-   const double dangle ( langle - gangle ) ;
+   const float langle ( ( lBack - lFront).angle( lOne - lFront ) ) ;
+   const float gangle ( ( gBack - gFront).angle( gOneT- gFront ) ) ;
+   const float dangle ( langle - gangle ) ;
 
-   const HepGeom::Plane3D<double>  gPl (  gFront, gOneT, gBack ) ;
-   const HepGeom::Point3D<double>  p2  ( gFront + gPl.normal().unit() ) ;
+   const Plane3D gPl ( gFront, gOneT, gBack ) ;
+   const Pt3D    p2  ( gFront + gPl.normal().unit() ) ;
 
-   const HepGeom::Point3D<double>  gOne ( gFront + HepGeom::Rotate3D( -dangle, gFront, p2 )*
-			   HepGeom::Vector3D<double> ( gOneT - gFront ) ) ;
+   const Pt3D  gOne ( gFront + HepGeom::Rotate3D( -dangle, gFront, p2 )*
+		      Vec3D ( gOneT - gFront ) ) ;
 
-   const HepGeom::Transform3D tr ( lFront , lBack , lOne ,
-			     gFront , gBack , gOne    ) ;
+   tr = Tr3D( lFront , lBack , lOne ,
+	      gFront , gBack , gOne    ) ;
 
    if( 0 != lptr ) (*lptr) = lc ;
-
-   return tr ;
 }
 
-const double* 
+const float* 
 CaloCellGeometry::checkParmPtr(
-   const std::vector<double>&   vv  ,
+   const std::vector<float>&   vv  ,
    CaloCellGeometry::ParVecVec& pvv  )
 {
-   const double* pP ( 0 ) ;
+   const float* pP ( 0 ) ;
 
    for( unsigned int ii ( 0 ) ; ii != pvv.size() ; ++ii )
    {
@@ -101,13 +179,13 @@ CaloCellGeometry::checkParmPtr(
    return pP ;
 }
 
-const double* 
+const float* 
 CaloCellGeometry::getParmPtr(
-   const std::vector<double>&   vv  ,
+   const std::vector<float>&   vv  ,
    CaloCellGeometry::ParMgr*    mgr ,
    CaloCellGeometry::ParVecVec& pvv  )
 {
-   const double* pP ( checkParmPtr( vv, pvv ) ) ;
+   const float* pP ( checkParmPtr( vv, pvv ) ) ;
 
    if( 0 == pP )
    {
@@ -126,25 +204,25 @@ bool
 CaloCellGeometry::inside( const GlobalPoint& point ) const
 {
    bool ans ( false ) ;
-   const HepGeom::Point3D<double>  p ( point.x(), point.y(), point.z() ) ;
+   const Pt3D  p ( point.x(), point.y(), point.z() ) ;
    const CornersVec& cog ( getCorners() ) ;
-   HepGeom::Point3D<double>  co[8] ;
+   Pt3D  co[8] ;
    for( unsigned int i ( 0 ) ; i != 8 ; ++i )
    {
-      co[i] = HepGeom::Point3D<double> ( cog[i].x(), cog[i].y(), cog[i].z() ) ;
+      co[i] = Pt3D ( cog[i].x(), cog[i].y(), cog[i].z() ) ;
    }
 
-   const HepGeom::Plane3D<double>  AA ( co[0], co[1], co[2] ) ; // z<0
-   const HepGeom::Plane3D<double>  BB ( co[6], co[5], co[4] ) ; // z>0
+   const Plane3D  AA ( co[0], co[1], co[2] ) ; // z<0
+   const Plane3D  BB ( co[6], co[5], co[4] ) ; // z>0
 
    if( AA.distance(p)*BB.distance(p) >= 0 )
    {
-     const HepGeom::Plane3D<double>  CC ( co[0], co[4], co[5] ) ; // x<0
-     const HepGeom::Plane3D<double>  DD ( co[2], co[6], co[7] ) ; // x>0
+     const Plane3D  CC ( co[0], co[4], co[5] ) ; // x<0
+     const Plane3D  DD ( co[2], co[6], co[7] ) ; // x>0
      if( CC.distance(p)*DD.distance(p) >= 0 )
      {
-       const HepGeom::Plane3D<double>  EE ( co[3], co[7], co[4] ) ; // y<0
-       const HepGeom::Plane3D<double>  FF ( co[1], co[5], co[6] ) ; // y>0
+       const Plane3D  EE ( co[3], co[7], co[4] ) ; // y<0
+       const Plane3D  FF ( co[1], co[5], co[6] ) ; // y>0
        if( EE.distance(p)*FF.distance(p) >= 0 )
        {
 	   ans = true ;

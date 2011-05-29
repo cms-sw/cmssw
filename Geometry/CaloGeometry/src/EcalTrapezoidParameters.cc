@@ -19,6 +19,9 @@
 // user include files
 #include "Geometry/CaloGeometry/interface/EcalTrapezoidParameters.h"
 
+typedef EcalTrapezoidParameters::TPFloat    TPFloat    ;
+typedef EcalTrapezoidParameters::VertexList VertexList ;
+typedef CaloCellGeometry::Pt3D              Pt3D       ;
 
 // STL classes
 
@@ -36,15 +39,15 @@
 // constructors and destructor
 //
 EcalTrapezoidParameters::EcalTrapezoidParameters(
-   double aHalfLengthXNegZLoY , // bl1, A/2
-   double aHalfLengthXPosZLoY , // bl2
-   double aHalfLengthXPosZHiY , // tl2
-   double aHalfLengthYNegZ    , // h1
-   double aHalfLengthYPosZ    , // h2
-   double aHalfLengthZ        , // dz,  L/2
-   double aAngleAD            , // alfa1
-   double aCoord15X           , // x15
-   double aCoord15Y             // y15
+   TPFloat aHalfLengthXNegZLoY , // bl1, A/2
+   TPFloat aHalfLengthXPosZLoY , // bl2
+   TPFloat aHalfLengthXPosZHiY , // tl2
+   TPFloat aHalfLengthYNegZ    , // h1
+   TPFloat aHalfLengthYPosZ    , // h2
+   TPFloat aHalfLengthZ        , // dz,  L/2
+   TPFloat aAngleAD            , // alfa1
+   TPFloat aCoord15X           , // x15
+   TPFloat aCoord15Y             // y15
    ) 
 {
    m_dz  = aHalfLengthZ        ;
@@ -68,11 +71,11 @@ EcalTrapezoidParameters::EcalTrapezoidParameters(
    m_A   = 2*m_bl1 ;
 
    // derive everything else
-   const double sina1 ( sin( m_a1 ) ) ;
-   const double cosa1 ( cos( m_a1 ) ) ;
-   const double tana1 ( tan( m_a1 - M_PI_2 ) ) ;
+   const TPFloat sina1 ( sin( m_a1 ) ) ;
+   const TPFloat cosa1 ( cos( m_a1 ) ) ;
+   const TPFloat tana1 ( tan( m_a1 - M_PI_2 ) ) ;
 
-   const double tana4 ( ( m_tl2 - m_bl2 - m_h2*tana1 )/m_h2 ) ;
+   const TPFloat tana4 ( ( m_tl2 - m_bl2 - m_h2*tana1 )/m_h2 ) ;
 
    m_a4  = M_PI_2 + atan( tana4 ) ;
 
@@ -81,22 +84,22 @@ EcalTrapezoidParameters::EcalTrapezoidParameters(
    m_d   = m_h/sina1 ;
    m_D   = m_H/sina1 ;
 
-   const double tanalp1 ( ( m_D*cosa1 + m_tl1 - m_bl1 )/m_H ) ;
-   const double tanalp2 ( ( m_d*cosa1 + m_tl2 - m_bl2 )/m_h ) ;
+   const TPFloat tanalp1 ( ( m_D*cosa1 + m_tl1 - m_bl1 )/m_H ) ;
+   const TPFloat tanalp2 ( ( m_d*cosa1 + m_tl2 - m_bl2 )/m_h ) ;
    m_alp1 = atan( tanalp1 ) ;
    m_alp2 = atan( tanalp2 ) ;
 
-   const double sina4 ( sin( m_a4 ) ) ;
+   const TPFloat sina4 ( sin( m_a4 ) ) ;
    m_c   = m_h/sina4 ;
    m_C   = m_H/sina4 ;
    m_B   = 2*m_tl1 ; // same as m_A - m_D*cosa1 - m_C*cos( m_a4 ) ;
 
    m_hDd = fabs( m_x15 )*sina1 - m_hAa*cosa1 ;
 
-   const double xd5 ( ( m_hAa + m_hDd*cosa1 )/sina1 ) ;
-   const double xd6 ( m_D - m_d - xd5 ) ;
-   const double z6  ( sqrt( m_hDd*m_hDd + xd6*xd6 ) ) ;
-   double gb6 ;
+   const TPFloat xd5 ( ( m_hAa + m_hDd*cosa1 )/sina1 ) ;
+   const TPFloat xd6 ( m_D - m_d - xd5 ) ;
+   const TPFloat z6  ( sqrt( m_hDd*m_hDd + xd6*xd6 ) ) ;
+   TPFloat gb6 ;
    if( 0. == z6 || 1. < fabs( m_hDd/z6 ) )
    {
       gb6 = 0 ;
@@ -107,10 +110,10 @@ EcalTrapezoidParameters::EcalTrapezoidParameters(
    }
    m_hBb = z6*sin( gb6 ) ;
 
-   const double xb6 ( z6*cos( gb6 ) ) ;
-   const double xb7 ( m_B - xb6 - m_b ) ;
-   const double z7  ( sqrt( m_hBb*m_hBb + xb7*xb7 ) ) ;
-   double gc7 ;
+   const TPFloat xb6 ( z6*cos( gb6 ) ) ;
+   const TPFloat xb7 ( m_B - xb6 - m_b ) ;
+   const TPFloat z7  ( sqrt( m_hBb*m_hBb + xb7*xb7 ) ) ;
+   TPFloat gc7 ;
    if( 0 == z7 || 1. < fabs( m_hBb/z7 ) )
    {
       gc7 = 0 ;
@@ -121,11 +124,10 @@ EcalTrapezoidParameters::EcalTrapezoidParameters(
    }
    m_hCc = z7*sin( gc7 ) ;
 
-   const HepGeom::Point3D<double>  fc ( m_bl2 + m_h2*tanalp2, m_h2, 0 ) ;
-   const HepGeom::Point3D<double>  v5 ( m_x15 , m_y15 , -m_L ) ;
-   const HepGeom::Point3D<double>  bc ( v5 +
-		   HepGeom::Point3D<double> ( m_bl1 + m_h1*tanalp1, m_h1, 0 ) ) ;
-   const HepGeom::Point3D<double>  dc ( fc - bc ) ;
+   const Pt3D fc ( m_bl2 + m_h2*tanalp2, m_h2, 0 ) ;
+   const Pt3D v5 ( m_x15 , m_y15 , -m_L ) ;
+   const Pt3D bc ( v5 + Pt3D ( m_bl1 + m_h1*tanalp1, m_h1, 0 ) ) ;
+   const Pt3D dc ( fc - bc ) ;
 
    m_th  = dc.theta() ;
    m_ph  = dc.phi()   ;
@@ -163,37 +165,37 @@ EcalTrapezoidParameters::EcalTrapezoidParameters(
 //
 // const member functions
 //
-double EcalTrapezoidParameters::dz()    const { return m_dz   ; }
-double EcalTrapezoidParameters::theta() const { return m_th   ; }
-double EcalTrapezoidParameters::phi()   const { return m_ph   ; }
-double EcalTrapezoidParameters::h1()    const { return m_h1   ; }
-double EcalTrapezoidParameters::bl1()   const { return m_bl1  ; }
-double EcalTrapezoidParameters::tl1()   const { return m_tl1  ; }
-double EcalTrapezoidParameters::alp1()  const { return m_alp1 ; }
-double EcalTrapezoidParameters::h2()    const { return m_h2   ; }
-double EcalTrapezoidParameters::bl2()   const { return m_bl2  ; }
-double EcalTrapezoidParameters::tl2()   const { return m_tl2  ; }
-double EcalTrapezoidParameters::alp2()  const { return m_alp2 ; }
+TPFloat EcalTrapezoidParameters::dz()    const { return m_dz   ; }
+TPFloat EcalTrapezoidParameters::theta() const { return m_th   ; }
+TPFloat EcalTrapezoidParameters::phi()   const { return m_ph   ; }
+TPFloat EcalTrapezoidParameters::h1()    const { return m_h1   ; }
+TPFloat EcalTrapezoidParameters::bl1()   const { return m_bl1  ; }
+TPFloat EcalTrapezoidParameters::tl1()   const { return m_tl1  ; }
+TPFloat EcalTrapezoidParameters::alp1()  const { return m_alp1 ; }
+TPFloat EcalTrapezoidParameters::h2()    const { return m_h2   ; }
+TPFloat EcalTrapezoidParameters::bl2()   const { return m_bl2  ; }
+TPFloat EcalTrapezoidParameters::tl2()   const { return m_tl2  ; }
+TPFloat EcalTrapezoidParameters::alp2()  const { return m_alp2 ; }
 
-double EcalTrapezoidParameters::x15()   const { return m_x15  ; }
-double EcalTrapezoidParameters::y15()   const { return m_y15  ; }
-double EcalTrapezoidParameters::hAa()   const { return m_hAa  ; }
-double EcalTrapezoidParameters::hBb()   const { return m_hBb  ; }
-double EcalTrapezoidParameters::hCc()   const { return m_hCc  ; }
-double EcalTrapezoidParameters::hDd()   const { return m_hDd  ; }
-double EcalTrapezoidParameters::a1()    const { return m_a1   ; }
-double EcalTrapezoidParameters::a4()    const { return m_a4   ; }
-double EcalTrapezoidParameters::L()     const { return m_L    ; }
-double EcalTrapezoidParameters::a()     const { return m_a    ; }
-double EcalTrapezoidParameters::b()     const { return m_b    ; }
-double EcalTrapezoidParameters::c()     const { return m_c    ; }
-double EcalTrapezoidParameters::d()     const { return m_d    ; }
-double EcalTrapezoidParameters::h()     const { return m_h    ; }
-double EcalTrapezoidParameters::A()     const { return m_A    ; }
-double EcalTrapezoidParameters::B()     const { return m_B    ; }
-double EcalTrapezoidParameters::C()     const { return m_C    ; }
-double EcalTrapezoidParameters::D()     const { return m_D    ; }
-double EcalTrapezoidParameters::H()     const { return m_H    ; }
+TPFloat EcalTrapezoidParameters::x15()   const { return m_x15  ; }
+TPFloat EcalTrapezoidParameters::y15()   const { return m_y15  ; }
+TPFloat EcalTrapezoidParameters::hAa()   const { return m_hAa  ; }
+TPFloat EcalTrapezoidParameters::hBb()   const { return m_hBb  ; }
+TPFloat EcalTrapezoidParameters::hCc()   const { return m_hCc  ; }
+TPFloat EcalTrapezoidParameters::hDd()   const { return m_hDd  ; }
+TPFloat EcalTrapezoidParameters::a1()    const { return m_a1   ; }
+TPFloat EcalTrapezoidParameters::a4()    const { return m_a4   ; }
+TPFloat EcalTrapezoidParameters::L()     const { return m_L    ; }
+TPFloat EcalTrapezoidParameters::a()     const { return m_a    ; }
+TPFloat EcalTrapezoidParameters::b()     const { return m_b    ; }
+TPFloat EcalTrapezoidParameters::c()     const { return m_c    ; }
+TPFloat EcalTrapezoidParameters::d()     const { return m_d    ; }
+TPFloat EcalTrapezoidParameters::h()     const { return m_h    ; }
+TPFloat EcalTrapezoidParameters::A()     const { return m_A    ; }
+TPFloat EcalTrapezoidParameters::B()     const { return m_B    ; }
+TPFloat EcalTrapezoidParameters::C()     const { return m_C    ; }
+TPFloat EcalTrapezoidParameters::D()     const { return m_D    ; }
+TPFloat EcalTrapezoidParameters::H()     const { return m_H    ; }
 
 EcalTrapezoidParameters::VertexList
 EcalTrapezoidParameters::vertexList() const
@@ -201,42 +203,42 @@ EcalTrapezoidParameters::vertexList() const
    VertexList vtx ;
    vtx.reserve( 8 ) ;
 
-   const double dztanth ( dz()*tan( theta() ) ) ;
+   const TPFloat dztanth ( dz()*tan( theta() ) ) ;
 
-   const double ph ( phi() ) ;
-   const HepGeom::Point3D<double>  fc ( dztanth*cos(ph), dztanth*sin(ph), dz() ) ;
+   const TPFloat ph ( phi() ) ;
+   const Pt3D  fc ( dztanth*cos(ph), dztanth*sin(ph), dz() ) ;
 
-   const double h_ ( h() ) ;
-   const double H_ ( H() ) ;
-   const double b_ ( b() ) ;
-   const double B_ ( B() ) ;
-   const double a_ ( a() ) ;
-   const double A_ ( A() ) ;
+   const TPFloat h_ ( h() ) ;
+   const TPFloat H_ ( H() ) ;
+   const TPFloat b_ ( b() ) ;
+   const TPFloat B_ ( B() ) ;
+   const TPFloat a_ ( a() ) ;
+   const TPFloat A_ ( A() ) ;
 
-//   const double tl1 ( tl1() ) ;
+//   const TPFloat tl1 ( tl1() ) ;
 
-   const double tanalp1 ( tan(alp1()) ) ;
+   const TPFloat tanalp1 ( tan(alp1()) ) ;
 
-   const double tanalp2 ( tan(alp2()) ) ;
+   const TPFloat tanalp2 ( tan(alp2()) ) ;
 
-   const double tana1   ( tan( a1() - M_PI_2 )  ) ;
+   const TPFloat tana1   ( tan( a1() - M_PI_2 )  ) ;
 
-   const HepGeom::Point3D<double>  f1 ( -HepGeom::Point3D<double> ( bl2() + h2()*tanalp2,  h2(), 0 ) ) ;
+   const Pt3D f1 ( -Pt3D( bl2() + h2()*tanalp2,  h2(), 0 ) ) ;
 
-   const HepGeom::Point3D<double>  f2 ( HepGeom::Point3D<double> ( -h_*tana1, h_, 0 ) + f1 ) ;
+   const Pt3D f2 ( Pt3D( -h_*tana1, h_, 0 ) + f1 ) ;
 
-   const HepGeom::Point3D<double>  f3 ( f2 + HepGeom::Point3D<double> ( b_,0,0 ) ) ;
+   const Pt3D f3 ( f2 + Pt3D( b_,0,0 ) ) ;
 
-   const HepGeom::Point3D<double>  f4 ( HepGeom::Point3D<double> ( a_,0,0 ) + f1 ) ;
+   const Pt3D f4 ( Pt3D( a_,0,0 ) + f1 ) ;
 
 
-   const HepGeom::Point3D<double>  f5 ( -HepGeom::Point3D<double> ( bl1() + h1()*tanalp1,  h1(),      0 ) ) ;
+   const Pt3D f5 ( -Pt3D( bl1() + h1()*tanalp1,  h1(),      0 ) ) ;
 
-   const HepGeom::Point3D<double>  f6 ( HepGeom::Point3D<double> ( -H_*tana1, H_, 0 ) + f5 ) ;
+   const Pt3D f6 ( Pt3D( -H_*tana1, H_, 0 ) + f5 ) ;
 
-   const HepGeom::Point3D<double>  f7 ( f6 + HepGeom::Point3D<double> ( B_,0,0 ) ) ;
+   const Pt3D f7 ( f6 + Pt3D( B_,0,0 ) ) ;
 
-   const HepGeom::Point3D<double>  f8 ( HepGeom::Point3D<double> ( A_,0,0 ) + f5 ) ;
+   const Pt3D f8 ( Pt3D( A_,0,0 ) + f5 ) ;
 
    vtx.push_back(  fc + f1 ) ;
    vtx.push_back(  fc + f2 ) ;

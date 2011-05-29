@@ -15,8 +15,8 @@
 
    \brief A base class to handle the shape of preshower strips.
 
-$Date: 2010/04/20 17:23:11 $
-$Revision: 1.9 $
+$Date: 2011/04/28 21:09:32 $
+$Revision: 1.10 $
 \author F. Cossutti
    
 */
@@ -26,28 +26,36 @@ class PreshowerStrip : public CaloCellGeometry
 {
    public:
 
-      PreshowerStrip( const GlobalPoint& po ,
-		      const CornersMgr*  mgr,
-		      const double*      parm ) :
+      typedef CaloCellGeometry::CCGFloat CCGFloat ;
+      typedef CaloCellGeometry::Pt3D     Pt3D     ;
+      typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+      typedef CaloCellGeometry::Tr3D     Tr3D     ;
+
+      PreshowerStrip( const GlobalPoint& po   ,
+		      const CornersMgr*  mgr  ,
+		      const CCGFloat*    parm  ) :
 	 CaloCellGeometry ( po , mgr, parm ) {}
 
       virtual ~PreshowerStrip() {}
 
       virtual const CornersVec& getCorners() const ;
 
-      const double dx() const { return param()[0] ; }
-      const double dy() const { return param()[1] ; }
-      const double dz() const { return param()[2] ; }
-      const double tilt() const { return param()[3] ; }
+      const CCGFloat dx() const { return param()[0] ; }
+      const CCGFloat dy() const { return param()[1] ; }
+      const CCGFloat dz() const { return param()[2] ; }
+      const CCGFloat tilt() const { return param()[3] ; }
 
-      virtual std::vector<HepGeom::Point3D<double> > vocalCorners( const double* pv,
-						    HepGeom::Point3D<double> &   ref ) const 
-      { return localCorners( pv, ref ) ; }
+      virtual void vocalCorners( Pt3DVec&        vec ,
+				 const CCGFloat* pv  ,
+				 Pt3D&           ref  ) const 
+      { localCorners( vec, pv, ref ) ; }
 
-      static std::vector<HepGeom::Point3D<double> > localCorners( const double* pv, 
-						   HepGeom::Point3D<double> &   ref ) ;
-      virtual HepGeom::Transform3D getTransform( std::vector<HepGeom::Point3D<double> >* lptr ) const
-      { return HepGeom::Transform3D() ; }
+      static void localCorners( Pt3DVec&        vec ,
+				const CCGFloat* pv  , 
+				Pt3D&           ref  ) ;
+
+      virtual Tr3D getTransform( Pt3DVec* lptr ) const
+      { return Tr3D() ; }
 
    private:
 };

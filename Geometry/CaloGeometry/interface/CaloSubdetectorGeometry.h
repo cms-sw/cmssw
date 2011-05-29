@@ -14,13 +14,15 @@ Base class for a geometry container for a specific calorimetry
 subdetector.
 
 
-$Date: 2009/08/25 21:10:52 $
-$Revision: 1.23 $
+$Date: 2010/05/24 22:07:01 $
+$Revision: 1.24 $
 \author J. Mans - Minnesota
 */
 class CaloSubdetectorGeometry {
 
    public:
+
+      typedef CaloCellGeometry::CCGFloat CCGFloat ;
 
       typedef  std::vector< const CaloCellGeometry * > CellCont;
 
@@ -30,9 +32,9 @@ class CaloSubdetectorGeometry {
       typedef CaloCellGeometry::ParVec    ParVec ;
       typedef CaloCellGeometry::ParVecVec ParVecVec ;
 
-      typedef std::vector<double>         TrVec  ;
-      typedef std::vector<unsigned int>   IVec   ;
-      typedef std::vector<double>         DimVec ;
+      typedef std::vector<CCGFloat>     TrVec  ;
+      typedef std::vector<unsigned int> IVec   ;
+      typedef std::vector<CCGFloat>     DimVec ;
 
       CaloSubdetectorGeometry() ;
 
@@ -45,6 +47,13 @@ class CaloSubdetectorGeometry {
       /// Add a cell to the geometry
       void addCell( const DetId&      id, 
 		    CaloCellGeometry* ccg ) ;
+
+      virtual CaloCellGeometry* newCell( const GlobalPoint& f1 ,
+					 const GlobalPoint& f2 ,
+					 const GlobalPoint& f3 ,
+					 CaloCellGeometry::CornersMgr* mgr,
+					 const CCGFloat*    parm ,
+					 const DetId&       detId ) {return 0;}
 
       /// is this detid present in the geometry?
       virtual bool present( const DetId& id ) const;
@@ -70,12 +79,9 @@ class CaloSubdetectorGeometry {
       */
       virtual DetIdSet getCells( const GlobalPoint& r, double dR ) const ;
 
+      CCGFloat deltaPhi( const DetId& detId ) const ;
 
-      double deltaPhi( const DetId& detId ) const ;
-
-      double deltaEta( const DetId& detId ) const ;
-
-
+      CCGFloat deltaEta( const DetId& detId ) const ;
 
       void allocateCorners( CaloCellGeometry::CornersVec::size_type n ) ;
 
@@ -105,8 +111,8 @@ class CaloSubdetectorGeometry {
 
       ParVecVec m_parVecVec ;
 
-      static double deltaR( const GlobalPoint& p1,
-			    const GlobalPoint& p2  ) 
+      static CCGFloat deltaR( const GlobalPoint& p1,
+			      const GlobalPoint& p2  ) 
       { return reco::deltaR( p1, p2 ) ; }
 
    private:
@@ -125,8 +131,8 @@ class CaloSubdetectorGeometry {
 
       mutable std::vector<DetId> m_validIds ;
 
-      mutable std::vector<double>*  m_deltaPhi ;
-      mutable std::vector<double>*  m_deltaEta ;
+      mutable std::vector<CCGFloat>*  m_deltaPhi ;
+      mutable std::vector<CCGFloat>*  m_deltaEta ;
 };
 
 

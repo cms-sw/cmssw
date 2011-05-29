@@ -8,7 +8,6 @@
 #include <CLHEP/Geometry/Transform3D.h>
 #include <vector>
 
-
 /**
 
    \class TruncatedPyramid
@@ -17,97 +16,79 @@
    
 */
 
-
-
-
-
-
 class TruncatedPyramid : public CaloCellGeometry
 {
    public:
 
-      typedef std::vector< HepGeom::Plane3D<double>  > BoundaryVec ;
+      typedef CaloCellGeometry::CCGFloat CCGFloat ;
+      typedef CaloCellGeometry::Pt3D     Pt3D     ;
+      typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+      typedef CaloCellGeometry::Tr3D     Tr3D     ;
+
+      TruncatedPyramid() ;
+
+      TruncatedPyramid( const TruncatedPyramid& tr ) ;
+
+      TruncatedPyramid& operator=( const TruncatedPyramid& tr ) ;
 
       TruncatedPyramid( const CornersMgr*  cMgr ,
 			const GlobalPoint& fCtr ,
 			const GlobalPoint& bCtr ,
 			const GlobalPoint& cor1 ,
-			const double*      parV   ) :
-	 CaloCellGeometry ( fCtr, cMgr, parV ) ,
-	 m_axis           ( ( bCtr - fCtr ).unit() ) ,
-	 m_corOne         ( new HepGeom::Point3D<double> ( cor1.x(), cor1.y(), cor1.z() ) )
-      {} 
+			const CCGFloat*    parV   ) ;
 
-      TruncatedPyramid( const CornersVec& corn,
-			const double*     par  ) :
-	 CaloCellGeometry ( corn, par   ) , 
-	 m_axis           ( makeAxis() ) ,
-	 m_corOne         ( new HepGeom::Point3D<double> ( corn[0].x(),
-					    corn[0].y(),
-					    corn[0].z()  ) )    {} 
+      TruncatedPyramid( const CornersVec& corn ,
+			const CCGFloat*   par    ) ;
 
-      virtual ~TruncatedPyramid() { delete m_corOne ; }
+      virtual ~TruncatedPyramid() ;
 
-      /** Position corresponding to the center of the front face at a certain
-	  depth (default is zero) along the crystal axis.
-	  If "depth" is <=0, the nomial position of the cell is returned
-	  (center of the front face).
-      */
-      const GlobalPoint getPosition( float depth ) const 
-      { return CaloCellGeometry::getPosition() + depth*m_axis ; }
+      const GlobalPoint getPosition( CCGFloat depth ) const ;
 
-      virtual const CornersVec& getCorners()       const ;
+      virtual const CornersVec& getCorners() const ;
 
       // Return thetaAxis polar angle of axis of the crystal
-      float getThetaAxis()                         const { return m_axis.theta() ; } 
+      CCGFloat getThetaAxis() const ;
 
       // Return phiAxis azimuthal angle of axis of the crystal
-      float getPhiAxis()                           const { return m_axis.phi() ; } 
+      CCGFloat getPhiAxis() const ;
 
-      const GlobalVector& axis()                   const { return m_axis ; }
-
+      const GlobalVector& axis() const ;
 
       // for geometry creation in other classes
-      static void createCorners( const std::vector<double>&  pv ,
-				 const HepGeom::Transform3D&       tr ,
-				 CornersVec&                 co   ) ;
+/*      static void createCorners( const std::vector<CCGFloat>& pv ,
+				 const Tr3D&                  tr ,
+				 CornersVec&                  co   ) ;*/
+      static void createCorners( const std::vector<CCGFloat>& pv ,
+				 const Tr3D&                  tr ,
+				 std::vector<GlobalPoint>&    co   ) ;
 
-      virtual std::vector<HepGeom::Point3D<double> > vocalCorners( const double* pv,
-						    HepGeom::Point3D<double> &   ref ) const
-      { return localCorners( pv, ref ) ; }
+      virtual void vocalCorners( Pt3DVec&        vec ,
+				 const CCGFloat* pv  ,
+				 Pt3D&           ref  ) const ;
 
-      static std::vector<HepGeom::Point3D<double> > localCorners( const double* pv,
-						   HepGeom::Point3D<double> &   ref ) ;
-      static std::vector<HepGeom::Point3D<double> > localCornersReflection( const double* pv,
-							     HepGeom::Point3D<double> &   ref ) ;
+      static void localCorners( Pt3DVec&        vec ,
+				const CCGFloat* pv  ,
+				Pt3D&           ref  ) ;
 
-      static std::vector<HepGeom::Point3D<double> > localCornersSwap( const double* pv,
-						       HepGeom::Point3D<double> &   ref ) ;
+      static void localCornersReflection( Pt3DVec&        vec ,
+					  const CCGFloat* pv  ,
+					  Pt3D&           ref  ) ;
 
-      virtual HepGeom::Transform3D getTransform( std::vector<HepGeom::Point3D<double> >* lptr ) const ;
+      static void localCornersSwap( Pt3DVec&        vec ,
+				    const CCGFloat* pv  ,
+				    Pt3D&           ref  ) ;
+
+      virtual void getTransform( Tr3D& tr, Pt3DVec* lptr ) const ;
 
    private:
 
+      GlobalVector makeAxis() ;
 
-      GlobalVector makeAxis() 
-      { 
-	 return GlobalVector( backCtr() -
-			      CaloCellGeometry::getPosition() ).unit() ;
-      }
-
-      const GlobalPoint backCtr() const 
-      {
-	 return GlobalPoint( 0.25*( getCorners()[4].x() + getCorners()[5].x() +
-				    getCorners()[6].x() + getCorners()[7].x() ),
-			     0.25*( getCorners()[4].y() + getCorners()[5].y() +
-				    getCorners()[6].y() + getCorners()[7].y() ),
-			     0.25*( getCorners()[4].z() + getCorners()[5].z() +
-				    getCorners()[6].z() + getCorners()[7].z() ) ) ;
-      }
+      const GlobalPoint backCtr() const ;
       
-      GlobalVector         m_axis ;
+      GlobalVector m_axis ;
 
-      mutable HepGeom::Point3D<double> *  m_corOne ;
+      Pt3D         m_corOne ;
 };
 
 std::ostream& operator<<( std::ostream& s, const TruncatedPyramid& cell ) ;

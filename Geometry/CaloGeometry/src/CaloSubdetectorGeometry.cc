@@ -4,6 +4,12 @@
 #include <Math/Transform3D.h>
 #include <Math/EulerAngles.h>
 
+typedef CaloCellGeometry::Pt3D     Pt3D     ;
+typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+typedef CaloCellGeometry::Tr3D     Tr3D     ;
+
+typedef CaloSubdetectorGeometry::CCGFloat CCGFloat ;
+
 CaloSubdetectorGeometry::CaloSubdetectorGeometry() : 
    m_parMgr ( 0 ) ,
    m_cmgr   ( 0 ) ,
@@ -16,12 +22,12 @@ CaloSubdetectorGeometry::CaloSubdetectorGeometry() :
 
 CaloSubdetectorGeometry::~CaloSubdetectorGeometry() 
 { 
-   for( CellCont::iterator i ( m_cellG.begin() );
+/*   for( CellCont::iterator i ( m_cellG.begin() );
 	i!=m_cellG.end(); ++i )
    {
       delete *i ;
    }
-
+*/
    delete m_cmgr ; // must delete *after* geometries!
    delete m_parMgr ; 
    delete m_deltaPhi ;
@@ -88,10 +94,10 @@ CaloSubdetectorGeometry::present( const DetId& id ) const
 DetId 
 CaloSubdetectorGeometry::getClosestCell( const GlobalPoint& r ) const 
 {
-   const double eta ( r.eta() ) ;
-   const double phi ( r.phi() ) ;
+   const CCGFloat eta ( r.eta() ) ;
+   const CCGFloat phi ( r.phi() ) ;
    uint32_t index ( ~0 ) ;
-   double closest ( 1e9 ) ;
+   CCGFloat closest ( 1e9 ) ;
 
    CellCont::const_iterator cBeg ( cellGeometries().begin() ) ;
    for( CellCont::const_iterator i ( cBeg ); 
@@ -100,9 +106,9 @@ CaloSubdetectorGeometry::getClosestCell( const GlobalPoint& r ) const
       if( 0 != *i )
       {
 	 const GlobalPoint& p ( (*i)->getPosition() ) ;
-	 const double eta0 ( p.eta() ) ;
-	 const double phi0 ( p.phi() ) ;
-	 const double dR2 ( reco::deltaR2( eta0, phi0, eta, phi ) ) ;
+	 const CCGFloat eta0 ( p.eta() ) ;
+	 const CCGFloat phi0 ( p.phi() ) ;
+	 const CCGFloat dR2 ( reco::deltaR2( eta0, phi0, eta, phi ) ) ;
 	 if( dR2 < closest ) 
 	 {
 	    closest = dR2 ;
@@ -137,15 +143,15 @@ CaloSubdetectorGeometry::getCells( const GlobalPoint& r,
 	 if( 0 != *i )
 	 {
 	    const GlobalPoint& p ( (*i)->getPosition() ) ;
-	    const double eta0 ( p.eta() ) ;
+	    const CCGFloat eta0 ( p.eta() ) ;
 	    if( fabs( eta - eta0 ) < dR )
 	    {
-	       const double phi0 ( p.phi() ) ;
-	       double delp ( fabs( phi - phi0 ) ) ;
+	       const CCGFloat phi0 ( p.phi() ) ;
+	       CCGFloat delp ( fabs( phi - phi0 ) ) ;
 	       if( delp > M_PI ) delp = 2*M_PI - delp ;
 	       if( delp < dR )
 	       {
-		  const double dist2 ( reco::deltaR2( eta0, phi0, eta, phi ) ) ;
+		  const CCGFloat dist2 ( reco::deltaR2( eta0, phi0, eta, phi ) ) ;
 		  const DetId tid ( m_validIds.front() ) ;
 		  if( dist2 < dR2 ) dss.insert( CaloGenericDetId( tid.det(),
 								  tid.subdetId(),
@@ -200,9 +206,10 @@ CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
    for( CellCont::const_iterator i ( cellGeometries().begin() ) ; 
 	i != cellGeometries().end() ; ++i )
    {
-      HepGeom::Transform3D tr ( (*i)->getTransform( ( std::vector<HepGeom::Point3D<double> >* ) 0 ) ) ;
+      Tr3D tr ;
+      (*i)->getTransform( tr, ( Pt3DVec* ) 0 ) ;
 
-      if( HepGeom::Transform3D() == tr ) // for preshower there is no rotation
+      if( Tr3D() == tr ) // for preshower there is no rotation
       {
 	 const GlobalPoint& gp ( (*i)->getPosition() ) ; 
 	 tr = HepGeom::Translate3D( gp.x(), gp.y(), gp.z() ) ;
@@ -225,13 +232,13 @@ CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
 	 tVec.push_back( ea.Psi() ) ;
       }
 
-      const double* par ( (*i)->param() ) ;
+      const CCGFloat* par ( (*i)->param() ) ;
 
       unsigned int ishape ( 9999 ) ;
       for( unsigned int ivv ( 0 ) ; ivv != parVecVec().size() ; ++ivv )
       {
 	 bool ok ( true ) ;
-	 const double* pv ( &(*parVecVec()[ivv].begin() ) ) ;
+	 const CCGFloat* pv ( &(*parVecVec()[ivv].begin() ) ) ;
 	 for( unsigned int k ( 0 ) ; k != numberOfParametersPerShape() ; ++k )
 	 {
 	    ok = ok && ( fabs( par[k] - pv[k] ) < 1.e-6 ) ;
@@ -249,7 +256,7 @@ CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
    }
 }
 
-double 
+CCGFloat
 CaloSubdetectorGeometry::deltaPhi( const DetId& detId ) const
 {
    const CaloGenericDetId cgId ( detId ) ;
@@ -257,11 +264,11 @@ CaloSubdetectorGeometry::deltaPhi( const DetId& detId ) const
    if( 0 == m_deltaPhi )
    {
       const uint32_t kSize ( cgId.sizeForDenseIndexing() ) ;
-      m_deltaPhi = new std::vector<double> ( kSize ) ;
+      m_deltaPhi = new std::vector<CCGFloat> ( kSize ) ;
       for( uint32_t i ( 0 ) ; i != kSize ; ++i )
       {
 	 const CaloCellGeometry& cell ( *cellGeometries()[ i ] ) ;
-	 double dPhi1 ( fabs(
+	 CCGFloat dPhi1 ( fabs(
 			   GlobalPoint( ( cell.getCorners()[0].x() + 
 					  cell.getCorners()[1].x() )/2. ,
 					( cell.getCorners()[0].y() + 
@@ -274,7 +281,7 @@ CaloSubdetectorGeometry::deltaPhi( const DetId& detId ) const
 					  cell.getCorners()[3].y() )/2. ,
 					( cell.getCorners()[2].z() + 
 					  cell.getCorners()[3].z() )/2.  ).phi() ) ) ;
-	 double dPhi2 ( fabs(
+	 CCGFloat dPhi2 ( fabs(
 			   GlobalPoint( ( cell.getCorners()[0].x() + 
 					  cell.getCorners()[3].x() )/2. ,
 					( cell.getCorners()[0].y() + 
@@ -295,7 +302,7 @@ CaloSubdetectorGeometry::deltaPhi( const DetId& detId ) const
    return (*m_deltaPhi)[ cgId.denseIndex() ] ;
 }
 
-double 
+CCGFloat 
 CaloSubdetectorGeometry::deltaEta( const DetId& detId ) const
 {
    const CaloGenericDetId cgId ( detId ) ;
@@ -303,11 +310,11 @@ CaloSubdetectorGeometry::deltaEta( const DetId& detId ) const
    if( 0 == m_deltaEta )
    {
       const uint32_t kSize ( cgId.sizeForDenseIndexing() ) ;
-      m_deltaEta = new std::vector<double> ( kSize ) ;
+      m_deltaEta = new std::vector<CCGFloat> ( kSize ) ;
       for( uint32_t i ( 0 ) ; i != kSize ; ++i )
       {
 	 const CaloCellGeometry& cell ( *cellGeometries()[ i ] ) ;
-	 const double dEta1 ( fabs(
+	 const CCGFloat dEta1 ( fabs(
 	    GlobalPoint( ( cell.getCorners()[0].x() + 
 			   cell.getCorners()[1].x() )/2. ,
 			 ( cell.getCorners()[0].y() + 
@@ -320,7 +327,7 @@ CaloSubdetectorGeometry::deltaEta( const DetId& detId ) const
 			   cell.getCorners()[3].y() )/2. ,
 			 ( cell.getCorners()[2].z() + 
 			   cell.getCorners()[3].z() )/2.  ).eta() ) ) ;
-	 const double dEta2 ( fabs(
+	 const CCGFloat dEta2 ( fabs(
 	    GlobalPoint( ( cell.getCorners()[0].x() + 
 			   cell.getCorners()[3].x() )/2. ,
 			 ( cell.getCorners()[0].y() + 

@@ -3,60 +3,78 @@
 
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
-namespace calogeom 
-{
-   /** \class IdealZPrism
+/** \class IdealZPrism
     
-   Prism class used for HF volumes.  HF volumes are prisms with axes along the Z direction whose
-   face shapes are set by 
-  
-   Required parameters for an ideal Z prism:
-  
-   - eta, phi of axis
-   - Z location of front and back faces
-   - eta width and phi width of frontface
-  
-   Total: 6 parameters
-  
-   Internally, the "point of reference" is the center (eta/phi) of the
-   front face of the prism.  Therefore, the only internally stored
-   parameters are eta and phi HALF-widths and the tower z thickness.
+Prism class used for HF volumes.  HF volumes are prisms with axes along the Z direction whose
+face shapes are set by 
 
-   $Date: 2009/05/25 09:06:11 $
-   $Revision: 1.7 $
-   \author J. Mans - Minnesota
-   */
-   class IdealZPrism : public CaloCellGeometry 
-   {
-      public:
+Required parameters for an ideal Z prism:
 
-	 IdealZPrism( const GlobalPoint& faceCenter , 
-                      const CornersMgr*  mgr ,
-		      const double*      parm          )  : 
-	    CaloCellGeometry ( faceCenter, mgr, parm )   {}
+- eta, phi of axis
+- Z location of front and back faces
+- eta width and phi width of frontface
 
-	 virtual ~IdealZPrism() {}
+Total: 6 parameters
 
-	 virtual const CornersVec& getCorners()           const ;
+Internally, the "point of reference" is the center (eta/phi) of the
+front face of the prism.  Therefore, the only internally stored
+parameters are eta and phi HALF-widths and the tower z thickness.
 
-	 double dEta() const { return param()[0] ; }
-	 double dPhi() const { return param()[1] ; }
-	 double dz()   const { return param()[2] ; }
-	 double eta()  const { return param()[3] ; }
-	 double z()    const { return param()[4] ; }
+$Date: 2010/04/20 17:23:11 $
+$Revision: 1.8 $
+\author J. Mans - Minnesota
+*/
+class IdealZPrism : public CaloCellGeometry 
+{
+   public:
+      
+      typedef CaloCellGeometry::CCGFloat CCGFloat ;
+      typedef CaloCellGeometry::Pt3D     Pt3D     ;
+      typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+      
+      IdealZPrism() ;
+      
+      IdealZPrism( const IdealZPrism& idzp ) ;
+      
+      IdealZPrism& operator=( const IdealZPrism& idzp ) ;
+      
+      IdealZPrism( const GlobalPoint& faceCenter , 
+		   const CornersMgr*  mgr        ,
+		   const CCGFloat*    parm         ) ;
+      
+      virtual ~IdealZPrism() ;
+      
+      virtual const CornersVec& getCorners() const ;
+      
+      CCGFloat dEta() const ;
+      CCGFloat dPhi() const ;
+      CCGFloat dz()   const ;
+      CCGFloat eta()  const ;
+      CCGFloat z()    const ;
+      
+      static void localCorners( Pt3DVec&        vec ,
+				const CCGFloat* pv  ,
+				Pt3D&           ref   ) ;
+      
+      virtual void vocalCorners( Pt3DVec&        vec ,
+				 const CCGFloat* pv  ,
+				 Pt3D&           ref   ) const ;
+      
+   private:
 
-	 static std::vector<HepGeom::Point3D<double> > localCorners( const double* pv,
-						      HepGeom::Point3D<double> &   ref ) ;
+      static GlobalPoint etaPhiR( float eta ,
+				  float phi ,
+				  float rad   ) ;
 
-	 virtual std::vector<HepGeom::Point3D<double> > vocalCorners( const double* pv,
-						       HepGeom::Point3D<double> &   ref ) const 
-	 { return localCorners( pv, ref ) ; }
+      static GlobalPoint etaPhiPerp( float eta , 
+				     float phi , 
+				     float perp  ) ;
 
-      private:
-   };
+      static GlobalPoint etaPhiZ( float eta , 
+				  float phi ,
+				  float z    ) ;
+};
 
-   std::ostream& operator<<( std::ostream& s , const IdealZPrism& cell ) ;
-}
-
+std::ostream& operator<<( std::ostream& s , const IdealZPrism& cell ) ;
 
 #endif

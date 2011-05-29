@@ -3,7 +3,6 @@
 
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
-namespace calogeom {
   /** \class IdealObliquePrism
     
   Oblique prism class used for HCAL  (HB, HE, HO) volumes.
@@ -24,41 +23,53 @@ namespace calogeom {
   is encoded in the sign of the thickness.  (positive = parallel to
   z-axis, negative = perpendicular)
 
-  $Date: 2009/05/25 09:06:11 $
-  $Revision: 1.8 $
+  $Date: 2010/04/20 17:23:11 $
+  $Revision: 1.9 $
   \author J. Mans - Minnesota
   */
-   class IdealObliquePrism : public CaloCellGeometry 
-   {
-      public:
+class IdealObliquePrism : public CaloCellGeometry 
+{
+   public:
 
-	 IdealObliquePrism( const GlobalPoint& faceCenter, 
-			    const CornersMgr*  mgr       ,
-			    const double*      parm       ) : 
-	    CaloCellGeometry ( faceCenter, mgr, parm ) {}
+      typedef CaloCellGeometry::CCGFloat CCGFloat ;
+      typedef CaloCellGeometry::Pt3D     Pt3D     ;
+      typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 
-	 virtual ~IdealObliquePrism() {}
+      IdealObliquePrism() ;
 
-	 virtual const CornersVec& getCorners() const ;
+      IdealObliquePrism( const IdealObliquePrism& idop ) ;
 
-	 double dEta()  const { return param()[0] ; }
-	 double dPhi()  const { return param()[1] ; }
-	 double dz()    const { return param()[2] ; }
-	 double eta()   const { return param()[3] ; }
-	 double z()     const { return param()[4] ; }
+      IdealObliquePrism& operator=( const IdealObliquePrism& idop ) ;
+	 
+      IdealObliquePrism( const GlobalPoint& faceCenter, 
+			 const CornersMgr*  mgr       ,
+			 const CCGFloat*    parm       ) ;
 
-	 static std::vector<HepGeom::Point3D<double> > localCorners( const double* pv,
-						      HepGeom::Point3D<double> &   ref ) ;
+      virtual ~IdealObliquePrism() ;
 
-	 virtual std::vector<HepGeom::Point3D<double> > vocalCorners( const double* pv,
-						       HepGeom::Point3D<double> &   ref ) const 
-	 { return localCorners( pv, ref ) ; }
+      virtual const CornersVec& getCorners() const ;
 
-      private:
-   };
+      CCGFloat dEta() const ;
+      CCGFloat dPhi() const ;
+      CCGFloat dz()   const ;
+      CCGFloat eta()  const ;
+      CCGFloat z()    const ;
 
-   std::ostream& operator<<( std::ostream& s , const IdealObliquePrism& cell ) ;
-}
+      static void localCorners( Pt3DVec&        vec ,
+				const CCGFloat* pv  ,
+				Pt3D&           ref  ) ;
 
+      virtual void vocalCorners( Pt3DVec&        vec ,
+				 const CCGFloat* pv  ,
+				 Pt3D&           ref  ) const ;
+
+   private:
+
+      static GlobalPoint etaPhiPerp( float eta, float phi, float perp ) ;
+
+      static GlobalPoint etaPhiZ(float eta, float phi, float z) ;
+};
+
+std::ostream& operator<<( std::ostream& s , const IdealObliquePrism& cell ) ;
 
 #endif

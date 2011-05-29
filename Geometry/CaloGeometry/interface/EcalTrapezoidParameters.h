@@ -60,6 +60,8 @@
 #include <vector>
 #include <CLHEP/Geometry/Point3D.h>
 
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+
 // forward declarations
 
 
@@ -69,19 +71,21 @@ class EcalTrapezoidParameters
    public:
       // ---------- constants, enums and typedefs --------------
 
-      typedef std::vector<HepGeom::Point3D<double> > VertexList ;
+      typedef CaloCellGeometry::Pt3DVec VertexList ;
+
+      typedef CaloCellGeometry::CCGFloat TPFloat ;
 
       // ---------- Constructors and destructor ----------------
 
-      EcalTrapezoidParameters( double aHalfLengthXNegZLoY , // bl1, A/2
-			       double aHalfLengthXPosZLoY , // bl2, a/2
-			       double aHalfLengthXPosZHiY , // tl2, b/2
-			       double aHalfLengthYNegZ    , // h1,  H/2
-			       double aHalfLengthYPosZ    , // h2,  h/2
-			       double aHalfLengthZ        , // dz,  L/2
-			       double aAngleAD            , // alfa1
-			       double aCoord15X           , // x15
-			       double aCoord15Y             // y15
+      EcalTrapezoidParameters( TPFloat aHalfLengthXNegZLoY , // bl1, A/2
+			       TPFloat aHalfLengthXPosZLoY , // bl2, a/2
+			       TPFloat aHalfLengthXPosZHiY , // tl2, b/2
+			       TPFloat aHalfLengthYNegZ    , // h1,  H/2
+			       TPFloat aHalfLengthYPosZ    , // h2,  h/2
+			       TPFloat aHalfLengthZ        , // dz,  L/2
+			       TPFloat aAngleAD            , // alfa1
+			       TPFloat aCoord15X           , // x15
+			       TPFloat aCoord15Y             // y15
 	 ) ;
 
       //virtual ~EcalTrapezoidParameters() ;
@@ -90,39 +94,39 @@ class EcalTrapezoidParameters
       // ---------- const member functions ---------------------
 
       // GEANT parameters, in order
-      double dz()    const ;
-      double theta() const ;
-      double phi()   const ;
-      double h1()    const ;
-      double bl1()   const ;
-      double tl1()   const ;
-      double alp1()  const ;
-      double h2()    const ;
-      double bl2()   const ;
-      double tl2()   const ;
-      double alp2()  const ;
+      TPFloat dz()    const ;
+      TPFloat theta() const ;
+      TPFloat phi()   const ;
+      TPFloat h1()    const ;
+      TPFloat bl1()   const ;
+      TPFloat tl1()   const ;
+      TPFloat alp1()  const ;
+      TPFloat h2()    const ;
+      TPFloat bl2()   const ;
+      TPFloat tl2()   const ;
+      TPFloat alp2()  const ;
 
       // everything else
-      double x15()   const ;
-      double y15()   const ;
-      double hAa()   const ;
-      double hBb()   const ;
-      double hCc()   const ;
-      double hDd()   const ;
-      double a1()    const ;
-      double a4()    const ;
+      TPFloat x15()   const ;
+      TPFloat y15()   const ;
+      TPFloat hAa()   const ;
+      TPFloat hBb()   const ;
+      TPFloat hCc()   const ;
+      TPFloat hDd()   const ;
+      TPFloat a1()    const ;
+      TPFloat a4()    const ;
 
-      double L()     const ;
-      double a()     const ;
-      double b()     const ;
-      double c()     const ;
-      double d()     const ;
-      double h()     const ;
-      double A()     const ;
-      double B()     const ;
-      double C()     const ;
-      double D()     const ;
-      double H()     const ;
+      TPFloat L()     const ;
+      TPFloat a()     const ;
+      TPFloat b()     const ;
+      TPFloat c()     const ;
+      TPFloat d()     const ;
+      TPFloat h()     const ;
+      TPFloat A()     const ;
+      TPFloat B()     const ;
+      TPFloat C()     const ;
+      TPFloat D()     const ;
+      TPFloat H()     const ;
 
       VertexList vertexList() const ; // order is as in picture above: index=vtx-1
 
@@ -142,11 +146,10 @@ class EcalTrapezoidParameters
       // ---------- private const member functions -------------
       // ---------- data members -------------------------------
 
-      double m_dz, m_th, m_ph, m_h1, m_bl1, m_tl1, m_alp1, 
-	                       m_h2, m_bl2, m_tl2, m_alp2 ;
-      double m_a1, m_hAa, m_x15, m_y15 ;
-      double m_a4, m_hBb, m_hCc, m_hDd ;
-      double m_L, m_a, m_b, m_c, m_d, m_h, m_A, m_B, m_C, m_D, m_H ;
+      TPFloat m_dz, m_th, m_ph, m_h1, m_bl1, m_tl1, m_alp1, m_h2, m_bl2, m_tl2, m_alp2 ;
+      TPFloat m_a1, m_hAa, m_x15, m_y15 ;
+      TPFloat m_a4, m_hBb, m_hCc, m_hDd ;
+      TPFloat m_L, m_a, m_b, m_c, m_d, m_h, m_A, m_B, m_C, m_D, m_H ;
 
       // ---------- static data members ------------------------
 };
