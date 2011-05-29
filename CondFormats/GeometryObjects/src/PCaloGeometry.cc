@@ -3,8 +3,8 @@
 
 PCaloGeometry::PCaloGeometry(){}
 
-PCaloGeometry::PCaloGeometry( std::vector<double>   const & tra ,
-			      std::vector<double>   const & dim , 
+PCaloGeometry::PCaloGeometry( std::vector<float>    const & tra ,
+			      std::vector<float>    const & dim , 
 			      std::vector<uint32_t> const & ind   ) :
   m_translation(tra),
   m_dimension(dim),
