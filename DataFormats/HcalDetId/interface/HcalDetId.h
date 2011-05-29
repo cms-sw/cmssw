@@ -9,8 +9,8 @@
 /** \class HcalDetId
  *  Cell identifier class for the HCAL subdetectors, precision readout cells only
  *
- *  $Date: 2008/11/06 10:30:38 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/11/04 02:55:13 $
+ *  $Revision: 1.14 $
  *  \author J. Mans - Minnesota
  *
  *  Rev.1.11: A.Kubik,R.Ofierzynski: add the hashed_index
@@ -76,6 +76,10 @@ public:
    public:
 
       enum { kSizeForDenseIndexing = 2*kHcalhalf } ;
+      enum { kHBSize = 2*kHBhalf } ;
+      enum { kHESize = 2*kHEhalf } ;
+      enum { kHOSize = 2*kHOhalf } ;
+      enum { kHFSize = 2*kHFhalf } ;
 
 };
 
