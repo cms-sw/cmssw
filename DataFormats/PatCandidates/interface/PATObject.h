@@ -1,5 +1,5 @@
 //
-// $Id: PATObject.h,v 1.33 2011/02/22 18:29:50 vadler Exp $
+// $Id: PATObject.h,v 1.34 2011/05/25 11:38:07 vadler Exp $
 //
 
 #ifndef DataFormats_PatCandidates_PATObject_h
@@ -15,7 +15,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Volker Adler, Sal Rappoccio
-  \version  $Id: PATObject.h,v 1.33 2011/02/22 18:29:50 vadler Exp $
+  \version  $Id: PATObject.h,v 1.34 2011/05/25 11:38:07 vadler Exp $
 */
 
 
@@ -167,6 +167,10 @@ namespace pat {
       const TriggerObjectStandAloneCollection triggerObjectMatchesByPath( const char * namePath, const bool pathLastFilterAccepted, const bool pathL3FilterAccepted = true ) const {
         return triggerObjectMatchesByPath( std::string( namePath ), pathLastFilterAccepted, pathL3FilterAccepted );
       };
+      // added for backwards compatibility
+      const TriggerObjectStandAloneCollection triggerObjectMatchesByPath( const std::string & namePath) const {
+	return triggerObjectMatchesByPath(namePath, true, true);
+      }
       // for the cut string parser
       const TriggerObjectStandAloneCollection triggerObjectMatchesByPath( const std::string & namePath, const unsigned pathLastFilterAccepted, const unsigned pathL3FilterAccepted = 1 ) const {
         return triggerObjectMatchesByPath( namePath, bool( pathLastFilterAccepted ), bool( pathL3FilterAccepted ) );
