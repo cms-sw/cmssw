@@ -929,8 +929,8 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
     if (htrUnSuppressed) {
       UScount[dcc_][spigot]++;
       int here=1+(HcalDCCHeader::SPIGOT_COUNT*(dcc_))+spigot;
-      meUSFractSpigs_->setBinContent(here,
-				     ((double)UScount[dcc_][spigot])/(double)ievt_);}
+      meUSFractSpigs_->Fill(here,
+			    ((double)UScount[dcc_][spigot]));}
 
     MonitorElement* tmpErr = 0;
     HcalDetId HDI = hashedHcalDetId_[hashup(dcc_,spigot)];
