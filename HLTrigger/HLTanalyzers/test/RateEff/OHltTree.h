@@ -56,6 +56,7 @@ public:
    Float_t ohJetCalE[43000]; //[NohJetCal]
    Float_t ohJetCalEMF[43000]; //[NohJetCal]
    Float_t ohJetCalN90[43000]; //[NohJetCal]
+   Float_t ohJetCalN90hits[43000]; //[NohJetCal]
 
    Float_t ohJetCorCalPt[43000]; //[NohJetCorCal]
    Float_t ohJetCorCalPhi[43000]; //[NohJetCorCal]
@@ -63,13 +64,15 @@ public:
    Float_t ohJetCorCalE[43000]; //[NohJetCorCal]
    Float_t ohJetCorCalEMF[43000]; //[NohJetCal]
    Float_t ohJetCorCalN90[43000]; //[NohJetCal]
-
+   Float_t ohJetCorCalN90hits[43000]; //[NohJetCal]
+ 
    Float_t recoJetCalPt[43000]; //[NrecoJetCal]
    Float_t recoJetCalPhi[43000]; //[NrecoJetCal]
    Float_t recoJetCalEta[43000]; //[NrecoJetCal]
    Float_t recoJetCalE[43000]; //[NrecoJetCal]
    Float_t recoJetCalEMF[43000]; //[NrecoJetCal]
    Float_t recoJetCalN90[43000]; //[NrecoJetCal]
+   Float_t recoJetCalN90hits[43000]; //[NrecoJetCal]
 
    Float_t recoJetCorCalPt[43000]; //[NrecoJetCorCal]
    Float_t recoJetCorCalPhi[43000]; //[NrecoJetCorCal]
@@ -77,6 +80,7 @@ public:
    Float_t recoJetCorCalE[43000]; //[NrecoJetCorCal]
    Float_t recoJetCorCalEMF[43000]; //[NrecoJetCal]
    Float_t recoJetCorCalN90[43000]; //[NrecoJetCal]
+   Float_t recoJetCorCalN90hits[43000]; //[NrecoJetCal]
 
    Float_t recoJetGenPt[68000]; //[NrecoJetGen]
    Float_t recoJetGenPhi[68000]; //[NrecoJetGen]
@@ -4508,6 +4512,7 @@ public:
    TBranch *b_ohJetCalE; //!
    TBranch *b_ohJetCalEMF; //!
    TBranch *b_ohJetCalN90; //!
+   TBranch *b_ohJetCalN90hits; //!
 
    TBranch *b_ohJetCorCalPt; //!
    TBranch *b_ohJetCorCalPhi; //!
@@ -4515,6 +4520,7 @@ public:
    TBranch *b_ohJetCorCalE; //!
    TBranch *b_ohJetCorCalEMF; //!
    TBranch *b_ohJetCorCalN90; // !  
+   TBranch *b_ohJetCorCalN90hits; // !  
 
    TBranch *b_recoJetCalPt; //!
    TBranch *b_recoJetCalPhi; //!
@@ -4522,6 +4528,7 @@ public:
    TBranch *b_recoJetCalE; //!
    TBranch *b_recoJetCalEMF; //!
    TBranch *b_recoJetCalN90; //!
+   TBranch *b_recoJetCalN90hits; //!
 
    TBranch *b_recoJetCorCalPt; //!
    TBranch *b_recoJetCorCalPhi; //!
@@ -4529,6 +4536,7 @@ public:
    TBranch *b_recoJetCorCalE; //!
    TBranch *b_recoJetCorCalEMF; //!
    TBranch *b_recoJetCorCalN90; // !  
+   TBranch *b_recoJetCorCalN90hits; // !  
 
    TBranch *b_recoJetGenPt; //!
    TBranch *b_recoJetGenPhi; //!
@@ -10108,6 +10116,7 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("ohJetCalE", ohJetCalE, &b_ohJetCalE);
    fChain->SetBranchAddress("ohJetCalEMF", ohJetCalEMF, &b_ohJetCalEMF);
    fChain->SetBranchAddress("ohJetCalN90", ohJetCalN90, &b_ohJetCalN90);
+   fChain->SetBranchAddress("ohJetCalN90hits", ohJetCalN90hits, &b_ohJetCalN90hits);
 
    fChain->SetBranchAddress("ohJetCorCalPt", ohJetCorCalPt, &b_ohJetCorCalPt);
    fChain->SetBranchAddress("ohJetCorCalPhi", ohJetCorCalPhi, &b_ohJetCorCalPhi);
@@ -10115,6 +10124,7 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("ohJetCorCalE", ohJetCorCalE, &b_ohJetCorCalE);
    fChain->SetBranchAddress("ohJetCorCalEMF", ohJetCorCalEMF, &b_ohJetCorCalEMF);
    fChain->SetBranchAddress("ohJetCorCalN90", ohJetCorCalN90, &b_ohJetCorCalN90);
+   fChain->SetBranchAddress("ohJetCorCalN90hits", ohJetCorCalN90hits, &b_ohJetCorCalN90hits);
 
    fChain->SetBranchAddress("recoJetCalPt", recoJetCalPt, &b_recoJetCalPt);
    fChain->SetBranchAddress("recoJetCalPhi", recoJetCalPhi, &b_recoJetCalPhi);
@@ -10122,6 +10132,7 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("recoJetCalE", recoJetCalE, &b_recoJetCalE);
    fChain->SetBranchAddress("recoJetCalEMF", recoJetCalEMF, &b_recoJetCalEMF);
    fChain->SetBranchAddress("recoJetCalN90", recoJetCalN90, &b_recoJetCalN90);
+   fChain->SetBranchAddress("recoJetCalN90hits", recoJetCalN90hits, &b_recoJetCalN90hits);
 
    fChain->SetBranchAddress("recoJetCorCalPt", recoJetCorCalPt, &b_recoJetCorCalPt);
    fChain->SetBranchAddress("recoJetCorCalPhi", recoJetCorCalPhi, &b_recoJetCorCalPhi);
@@ -10129,6 +10140,7 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("recoJetCorCalE", recoJetCorCalE, &b_recoJetCorCalE);
    fChain->SetBranchAddress("recoJetCorCalEMF", recoJetCorCalEMF, &b_recoJetCorCalEMF);
    fChain->SetBranchAddress("recoJetCorCalN90", recoJetCorCalN90, &b_recoJetCorCalN90);
+   fChain->SetBranchAddress("recoJetCorCalN90hits", recoJetCorCalN90hits, &b_recoJetCorCalN90hits);
 
    fChain->SetBranchAddress("recoJetGenPt", &recoJetGenPt, &b_recoJetGenPt);
    fChain->SetBranchAddress("recoJetGenPhi", &recoJetGenPhi, &b_recoJetGenPhi);

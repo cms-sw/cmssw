@@ -17057,7 +17057,7 @@ bool OHltTree::OpenJetID(int jetindex)
   if (jetindex>=NohJetCorCal) return false;
   bool jetID = true ; //jetID is true by default
   if (fabs(ohJetCorCalEta[jetindex])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
-    jetID =  (ohJetCorCalEMF[jetindex] > 1.0E-6) && (ohJetCorCalEMF[jetindex] < 999.0) && ohJetCorCalN90[jetindex]>=2;
+    jetID =  (ohJetCorCalEMF[jetindex] > 1.0E-6) && (ohJetCorCalEMF[jetindex] < 999.0) && ohJetCorCalN90hits[jetindex]>=2;
   }
   return jetID;
 	
@@ -17175,14 +17175,14 @@ int OHltTree::OpenHltDiJetAvePassed(double pt)
     {
       bool jetID0 = true ; //jetID is true by default
       if (fabs(ohJetCalEta[i])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
-	jetID0 =  (ohJetCalEMF[i] > 1.0E-6) && (ohJetCalEMF[i] < 999.0) && ohJetCalN90[i]>=2;
+	jetID0 =  (ohJetCalEMF[i] > 1.0E-6) && (ohJetCalEMF[i] < 999.0) && ohJetCalN90hits[i]>=2;
       }
       if (!jetID0) continue;
       for (int j=0; j<NohJetCal && j!=i; j++)
 	{
 	  bool jetID1 = true ; //jetID is true by default
 	  if (fabs(ohJetCalEta[i])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
-	    jetID1 =  (ohJetCalEMF[i] > 1.0E-6) && (ohJetCalEMF[i] < 999.0) && ohJetCalN90[i]>=2;
+	    jetID1 =  (ohJetCalEMF[i] > 1.0E-6) && (ohJetCalEMF[i] < 999.0) && ohJetCalN90hits[i]>=2;
 	  }
 	  if (jetID1 && (ohJetCalPt[i]+ohJetCalPt[j])/2.0 > pt)
 	    { // Jet pT cut 
@@ -17205,14 +17205,14 @@ int OHltTree::OpenHltCorDiJetAvePassed(double pt)
     {
       bool jetID0 = true ; //jetID is true by default
       if (fabs(ohJetCorCalEta[i])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
-	jetID0 =  (ohJetCorCalEMF[i] > 1.0E-6) && (ohJetCorCalEMF[i] < 999.0) && ohJetCorCalN90[i]>=2;
+	jetID0 =  (ohJetCorCalEMF[i] > 1.0E-6) && (ohJetCorCalEMF[i] < 999.0) && ohJetCorCalN90hits[i]>=2;
       }
       if (!jetID0) continue;
       for (int j=0; j<NohJetCal && j!=i; j++)
 	{
 	  bool jetID1 = true ; //jetID is true by default
 	  if (fabs(ohJetCorCalEta[i])< 2.6) {//jetID might be changed to false only for central jets : jetID is a cut only meant for central jets
-	    jetID1 =  (ohJetCorCalEMF[i] > 1.0E-6) && (ohJetCorCalEMF[i] < 999.0) && ohJetCorCalN90[i]>=2;
+	    jetID1 =  (ohJetCorCalEMF[i] > 1.0E-6) && (ohJetCorCalEMF[i] < 999.0) && ohJetCorCalN90hits[i]>=2;
 	  }
 	  if (jetID1 && (ohJetCorCalPt[i]+ohJetCorCalPt[j])/2.0 > pt)
 	    { // Jet pT cut 
@@ -18234,7 +18234,7 @@ int OHltTree::OpenHltCleanedDiJetPassed(
    float ohMyJetEt[200];
    float ohMyJetE[200];
    float ohMyJetEMF[200];
-   float ohMyJetN90[200];
+   float ohMyJetN90hits[200];
 
    if ( (cor == false) && (algo == "Calo"))
    {
@@ -18247,7 +18247,7 @@ int OHltTree::OpenHltCleanedDiJetPassed(
                *ohJetCalEta[ohMyJetIt])));
          ohMyJetE[ohMyJetIt] = ohJetCalE[ohMyJetIt];
          ohMyJetEMF[ohMyJetIt] = ohJetCalEMF[ohMyJetIt];
-         ohMyJetN90[ohMyJetIt] = ohJetCalN90[ohMyJetIt];
+         ohMyJetN90hits[ohMyJetIt] = ohJetCalN90hits[ohMyJetIt];
       }
    }
 
@@ -18263,7 +18263,7 @@ int OHltTree::OpenHltCleanedDiJetPassed(
          ohMyJetEt[ohMyJetIt] = ohJetCorCalPt[ohMyJetIt];
          ohMyJetE[ohMyJetIt] = ohJetCorCalE[ohMyJetIt];
          ohMyJetEMF[ohMyJetIt] = ohJetCorCalEMF[ohMyJetIt];
-         ohMyJetN90[ohMyJetIt] = ohJetCorCalN90[ohMyJetIt];
+         ohMyJetN90hits[ohMyJetIt] = ohJetCorCalN90hits[ohMyJetIt];
       }
    }
 
@@ -18276,7 +18276,7 @@ int OHltTree::OpenHltCleanedDiJetPassed(
          ohMyJetPhi[ohMyJetIt] = pfJetPhi[ohMyJetIt];
          ohMyJetEt[ohMyJetIt] = pfJetPt[ohMyJetIt];
          ohMyJetEMF[ohMyJetIt] = -1.;
-         ohMyJetN90[ohMyJetIt] = -1.;
+         ohMyJetN90hits[ohMyJetIt] = -1.;
       }
    }
 
@@ -18287,7 +18287,7 @@ int OHltTree::OpenHltCleanedDiJetPassed(
    float ohCleanedJetEt[200];
    float ohCleanedJetE[200];
    float ohCleanedJetEMF[200];
-   float ohCleanedJetN90[200];
+   float ohCleanedJetN90hits[200];
 
    for (int ohMyJetIt = 0; ohMyJetIt < NohMyJet; ++ohMyJetIt)
    {
@@ -18304,7 +18304,7 @@ int OHltTree::OpenHltCleanedDiJetPassed(
       ohCleanedJetEt[NohCleanedJet] = ohMyJetEt[ohMyJetIt];
       ohCleanedJetE[NohCleanedJet] = ohMyJetE[ohMyJetIt];
       ohCleanedJetEMF[NohCleanedJet] = ohMyJetEMF[ohMyJetIt];
-      ohCleanedJetN90[NohCleanedJet] = ohMyJetN90[ohMyJetIt];
+      ohCleanedJetN90hits[NohCleanedJet] = ohMyJetN90hits[ohMyJetIt];
       ++NohCleanedJet;
    }
 
@@ -18320,7 +18320,7 @@ int OHltTree::OpenHltCleanedDiJetPassed(
             && (ohCleanedJetEMF[i] < 0.01))
          continue;
       if ( (jetID == true) && (TMath::Abs(ohCleanedJetEta[i]) < 2.6)
-            && (ohCleanedJetN90[i] < 2))
+            && (ohCleanedJetN90hits[i] < 2))
          continue;
 
       for (int j = i+1; j < NohCleanedJet; j++)
@@ -18329,7 +18329,7 @@ int OHltTree::OpenHltCleanedDiJetPassed(
                && (ohCleanedJetEMF[j] < 0.01))
             continue;
          if ( (jetID == true) && (TMath::Abs(ohCleanedJetEta[j]) < 2.6)
-               && (ohCleanedJetN90[j] < 2))
+               && (ohCleanedJetN90hits[j] < 2))
             continue;
 
          PtEtaPhiELorentzVector j1(
