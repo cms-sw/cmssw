@@ -334,13 +334,14 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       withSystematics = false;
   } else if (!withSystematics && nuisances != 0) {
     std::cout << "Will set nuisance parameters to constants: " ;
-    std::auto_ptr<TIterator> iter(nuisances->createIterator());
-    for (TObject *a = iter->Next(); a != 0; a = iter->Next()) {
-       RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-       if (rrv) { rrv->setConstant(true); std::cout << " " << rrv->GetName(); }
-    }
-    std::cout << std::endl;
+    utils::setAllConstant(*nuisances, true);
   }
+
+  // make sure these things are set consistently with what we expect
+  if (mc->GetNuisanceParameters() && withSystematics) utils::setAllConstant(*mc->GetNuisanceParameters(), false);
+  if (mc->GetGlobalObservables()) utils::setAllConstant(*mc->GetGlobalObservables(), true);
+  if (mc_bonly->GetNuisanceParameters() && withSystematics) utils::setAllConstant(*mc_bonly->GetNuisanceParameters(), false);
+  if (mc_bonly->GetGlobalObservables()) utils::setAllConstant(*mc_bonly->GetGlobalObservables(), true);
 
   w->saveSnapshot("clean", w->allVars());
 
