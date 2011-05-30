@@ -13,7 +13,7 @@ dtNoiseCalibration = cms.EDAnalyzer("DTNoiseCalibration",
     #defaultTtrig = cms.int32(322),
     timeWindowOffset = cms.int32(100),
     # Noise threshold (Hz)
-    maximumNoiseRate = cms.double(1000),
+    maximumNoiseRate = cms.double(2000),
     # Use absolute rate per channel or subtract average rate in layer  
     useAbsoluteRate = cms.bool(False),
     # Cells with detailed histos

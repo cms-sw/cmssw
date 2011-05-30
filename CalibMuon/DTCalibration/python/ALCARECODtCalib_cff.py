@@ -32,5 +32,3 @@ noscraping = cms.EDFilter("FilterOutScraping",
 )
 
 seqALCARECODtCalib = cms.Sequence(primaryVertexFilter * noscraping * ALCARECODtCalibHLTFilter * DTCalibMuonSelection * dt4DSegmentsNoWire) 
-#seqALCARECODtCalibCosmics = cms.Sequence(ALCARECODtCalibCosmicsHLTFilter * DTCalibMuonSelection * dt4DSegmentsNoWire)
-seqALCARECODtCalibCosmics = cms.Sequence(DTCalibMuonSelection * dt4DSegmentsNoWire)
