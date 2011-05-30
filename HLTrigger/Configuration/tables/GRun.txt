@@ -273,6 +273,7 @@ HLT_Mu17_TriCentralJet30_v*
 HLT_Mu17_QuadCentralJet30_v*
 HLT_Mu17_Ele8_CaloIdL_v*
 HLT_Mu12_DiCentralJet30_BTagIP3D_v*
+HLT_Mu12_DiCentralJet20_DiBTagIP3D1stTrack_v*
 HLT_Mu17_CentralJet30_BTagIP_v*
 HLT_Mu15_HT200_v*
 HLT_Mu20_HT200_v*
