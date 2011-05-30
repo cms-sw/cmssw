@@ -446,8 +446,9 @@ int LMFDat::writeDB()
 	for (int i = 0; i < nData; i++) {
 	  iovid_vec[i] = iov_id;
 	}
+	sb2 indicator; // variable used to control NULL insertions 
 	stmt->setDataBuffer(1, (dvoid*)iovid_vec, oracle::occi::OCCIINT,
-			    sizeof(iovid_vec[0]), intSize);
+			    sizeof(iovid_vec[0]), intSize, &indicator);
 	// build the data array for second column: the logic ids
 	int c = 0;
 	while (b != e) {
