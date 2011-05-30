@@ -7,6 +7,26 @@ typedef PreshowerStrip::Pt3DVec  Pt3DVec  ;
 typedef PreshowerStrip::Tr3D     Tr3D     ;
 
 
+PreshowerStrip::PreshowerStrip() : 
+   CaloCellGeometry()
+{
+}
+
+PreshowerStrip::PreshowerStrip( const PreshowerStrip& tr ) 
+{
+   *this = tr ; 
+}
+
+PreshowerStrip& 
+PreshowerStrip::operator=( const PreshowerStrip& tr ) 
+{
+   CaloCellGeometry::operator=( tr ) ;
+   if( this != &tr )
+   {
+   }
+   return *this ; 
+}
+
 const CaloCellGeometry::CornersVec& 
 PreshowerStrip::getCorners() const 
 {

@@ -15,7 +15,8 @@ EcalPreshowerGeometry::EcalPreshowerGeometry() :
    m_xInterLadGap ( 0.05 ) , // additional gap between wafers in adj ladders
    m_xIntraLadGap ( 0.04 ) , // gap between wafers in same ladder
    m_yWidAct      ( 6.1  ) ,
-   m_yCtrOff      ( 0.05 )   // gap at center
+   m_yCtrOff      ( 0.05 ) ,  // gap at center
+   m_cellVec      ( k_NumberOfCellsForCorners )
 {
 }
 

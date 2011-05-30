@@ -5,11 +5,24 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/HcalCommonData/interface/HcalCellType.h"
 
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
+#include "Geometry/CaloGeometry/interface/IdealZPrism.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "CondFormats/AlignmentRecord/interface/HcalAlignmentRcd.h"
+#include "Geometry/Records/interface/HcalGeometryRecord.h"
+
 #include <vector>
 
 class HcalDDDGeometry : public CaloSubdetectorGeometry {
 
 public:
+
+      typedef std::vector<IdealObliquePrism> HBCellVec ;
+      typedef std::vector<IdealObliquePrism> HECellVec ;
+      typedef std::vector<IdealObliquePrism> HOCellVec ;
+      typedef std::vector<IdealZPrism>       HFCellVec ;
 
   explicit HcalDDDGeometry();
   /// The HcalDDDGeometry will delete all its cell geometries at destruction time
@@ -22,6 +35,14 @@ public:
 
   int insertCell (std::vector<HcalCellType> const & );
 
+      virtual CaloCellGeometry* newCell( const GlobalPoint& f1 ,
+					 const GlobalPoint& f2 ,
+					 const GlobalPoint& f3 ,
+					 CaloCellGeometry::CornersMgr* mgr,
+					 const CCGFloat*    parm,
+					 const DetId&       detId     ) ;
+					
+
 private:
 
   mutable std::vector<DetId> m_validIds ;
@@ -32,6 +53,11 @@ private:
 
   double                                  twopi, deg;
   double                                  etaMax_, firstHFQuadRing_;
+
+      HBCellVec m_hbCellVec ;
+      HECellVec m_heCellVec ;
+      HOCellVec m_hoCellVec ;
+      HFCellVec m_hfCellVec ;
 };
 
 

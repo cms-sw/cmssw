@@ -15,8 +15,8 @@
 
    \brief A base class to handle the shape of preshower strips.
 
-$Date: 2011/04/28 21:09:32 $
-$Revision: 1.10 $
+$Date: 2011/05/29 18:06:58 $
+$Revision: 1.11 $
 \author F. Cossutti
    
 */
@@ -30,6 +30,12 @@ class PreshowerStrip : public CaloCellGeometry
       typedef CaloCellGeometry::Pt3D     Pt3D     ;
       typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
       typedef CaloCellGeometry::Tr3D     Tr3D     ;
+
+      PreshowerStrip() ;
+
+      PreshowerStrip( const PreshowerStrip& tr ) ;
+
+      PreshowerStrip& operator=( const PreshowerStrip& tr ) ;
 
       PreshowerStrip( const GlobalPoint& po   ,
 		      const CornersMgr*  mgr  ,
