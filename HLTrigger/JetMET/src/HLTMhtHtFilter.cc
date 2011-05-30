@@ -168,7 +168,7 @@ bool
   if( mode_==1 && sqrt(mhtx*mhtx + mhty*mhty) > minMht_) flag=1;
   if( mode_==2 && sqrt(mhtx*mhtx + mhty*mhty)+ht > minMeff_) flag=1;
   if( mode_==3 && sqrt(mhtx*mhtx + mhty*mhty) > minPT12_ && nj>1) flag=1;
-  if( mode_==4 && ht > minHt_) flag=1;
+  if( mode_==4 && ht > minHt_ && nj >= minNJet_ ) flag=1;
 
   if (flag==1) {
     for (reco::CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); recocalojet!=recocalojets->end(); recocalojet++) {
