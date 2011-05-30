@@ -22,6 +22,8 @@ class ModelBuilderBase():
         elif options.out != None:
             #stderr.write("Will save workspace to HLF file %s" % options.out)
             self.out = open(options.out, "w");
+        if not options.bin:
+            stderr.write("\nWARNING: You're not using binary mode. This is is DEPRECATED and NOT SUPPORTED anymore, and can give WRONG results.\n\n")
         if options.cexpr:
             global ROOFIT_EXPR;
             ROOFIT_EXPR = "cexpr"            
@@ -83,8 +85,9 @@ class ModelBuilder(ModelBuilderBase):
         for (n,pdf,args,errline) in self.DC.systs: 
             if pdf == "lnN" or pdf.startswith("shape"):
                 #print "%s_Pdf = Gaussian(%s[-5,5], 0, 1);" % (n,n)
-                self.doObj("%s_Pdf" % n, "Gaussian", "%s[-5,5], %s_In[0], 1" % (n,n));
+                self.doObj("%s_Pdf" % n, "Gaussian", "%s[-5,5], %s_In[0,-5,5], 1" % (n,n));
                 globalobs.append("%s_In" % n)
+                if self.options.bin: self.out.var("%s_In" % n).setConstant(True)
             elif pdf == "gmM":
                 val = 0;
                 for c in errline.values(): #list channels
@@ -95,10 +98,12 @@ class ModelBuilder(ModelBuilderBase):
                         val = v;
                 if val == 0: raise RuntimeError, "Error: line %s contains all zeroes"
                 theta = val*val; kappa = 1/theta
-                self.doObj("%s_Pdf" % n, "Gamma", "%s[1,%f,%f], %g, %g, 0" % (n, max(0.01,1-5*val), 1+5*val, kappa, theta))
+                self.doObj("%s_Pdf" % n, "Gamma", "%s[1,%f,%f], %s_In[%g,%g,%g], %g, 0" % (n, max(0.01,1-5*val), 1+5*val, n, kappa, 1, 2*kappa+4, theta))
+                if self.options.bin: self.out.var("%s_In" % n).setConstant(True)
             elif pdf == "gmN":
-                self.doObj("%s_Pdf" % n, "Poisson", "%s_In[%d], %s[0,%d]" % (n,args[0],n,2*args[0]+5))
+                self.doObj("%s_Pdf" % n, "Poisson", "%s_In[%d,0,%d], %s[0,%d]" % (n,args[0],2*args[0]+5,n,2*args[0]+5))
                 globalobs.append("%s_In" % n)
+                if self.options.bin: self.out.var("%s_In" % n).setConstant(True)
             elif pdf == "param":
                 mean = float(args[0])
                 if "/" in args[1]: 
@@ -111,7 +116,8 @@ class ModelBuilder(ModelBuilderBase):
                         sigma = float(args[1])
                         self.doVar("%s[%g,%g]" % (n, mean-4*float(sigmaL), mean+4*float(sigmaR)))
                     self.out.var(n).setVal(mean)
-                    self.doObj("%s_Pdf" % n, "BifurGauss", "%s, %s_In[%s], %s, %s" % (n, n, args[0], sigmaL, sigmaR))
+                    self.doObj("%s_Pdf" % n, "BifurGauss", "%s, %s_In[%s,%g,%g], %s, %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), sigmaL, sigmaR))
+                    self.out.var("%s_In" % n).setConstant(True)
                 else:
                     if len(args) == 3: # mean, sigma, range
                         self.doVar("%s%s" % (n,args[2]))
@@ -119,7 +125,8 @@ class ModelBuilder(ModelBuilderBase):
                         sigma = float(args[1])
                         self.doVar("%s[%g,%g]" % (n, mean-4*sigma, mean+4*sigma))
                     self.out.var(n).setVal(mean)
-                    self.doObj("%s_Pdf" % n, "Gaussian", "%s, %s_In[%s], %s" % (n, n, args[0], args[1]))
+                    self.doObj("%s_Pdf" % n, "Gaussian", "%s, %s_In[%s,%g,%g], %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), args[1]))
+                    self.out.var("%s_In" % n).setConstant(True)
                 globalobs.append("%s_In" % n)
             else: raise RuntimeError, "Unsupported pdf %s" % pdf
         if self.options.bin:
