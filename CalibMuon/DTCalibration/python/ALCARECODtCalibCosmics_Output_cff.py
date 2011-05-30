@@ -19,5 +19,5 @@ OutALCARECODtCalibCosmics_noDrop = cms.PSet(
 
 
 import copy
-OutALCARECODtCalibCosmics = copy.deepcopy(OutALCARECODtCalib_noDrop)
+OutALCARECODtCalibCosmics = copy.deepcopy(OutALCARECODtCalibCosmics_noDrop)
 OutALCARECODtCalibCosmics.outputCommands.insert(0, "drop *")
