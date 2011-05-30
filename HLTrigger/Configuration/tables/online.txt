@@ -199,6 +199,7 @@ HLT_Photon125_v*
 HLT_Photon200_NoHE_v*
 HLT_DoublePhoton33_v*
 HLT_DoublePhoton33_HEVT_v*
+HLT_DoublePhoton38_HEVT_v*
 HLT_DoublePhoton50_v*
 HLT_DoublePhoton60_v*
 HLT_DoublePhoton5_IsoVL_CEP_v*
