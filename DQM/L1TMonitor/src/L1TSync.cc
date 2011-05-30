@@ -1,8 +1,8 @@
 /*
  * \file L1TSync.cc
  *
- * $Date: 2011/05/19 15:15:50 $
- * $Revision: 1.4 $
+ * $Date: 2011/05/20 19:20:30 $
+ * $Revision: 1.5 $
  * \author J. Pela, P. Musella
  *
  */
@@ -59,6 +59,7 @@ L1TSync::L1TSync(const ParameterSet & pset){
   bool forceGlobalParameters = Categories.getParameter<bool>("forceGlobalParameters");
   bool doGlobalAutoSelection = Categories.getParameter<bool>("doGlobalAutoSelection");
 
+  ParameterSet CatBPTX    = Categories.getParameter<ParameterSet>("BPTX");
   ParameterSet CatMu      = Categories.getParameter<ParameterSet>("Mu");  
   ParameterSet CatEG      = Categories.getParameter<ParameterSet>("EG");  
   ParameterSet CatIsoEG   = Categories.getParameter<ParameterSet>("IsoEG");  
@@ -123,6 +124,10 @@ L1TSync::L1TSync(const ParameterSet & pset){
 
   // If we are using algo-by-algo parametes we get them and set what is needed
   }else{
+
+    if(CatBPTX.getParameter<bool>("monitor")){
+      m_selectedTriggers["BPTX"] = CatBPTX.getParameter<string>("algo");
+    }
 
     if(CatMu.getParameter<bool>("monitor")){
       m_algoAutoSelect["Mu"] = CatMu.getParameter<bool>("doAutoSelection");
