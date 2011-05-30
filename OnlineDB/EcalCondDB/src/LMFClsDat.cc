@@ -115,8 +115,8 @@ LMFClsDat& LMFClsDat::setFlag(EcalLogicID &id, int v) {
   return *this;
 }
 
-LMFClsDat& LMFClsDat::setEFlag(EcalLogicID &id, float v) {
-  LMFDat::setData(id, "EFLAG", v);
+LMFClsDat& LMFClsDat::setFlagNorm(EcalLogicID &id, float v) {
+  LMFDat::setData(id, "FLAGNORM", v);
   return *this;
 }
 
@@ -148,8 +148,7 @@ int LMFClsDat::getFlag(EcalLogicID &id) {
   return getData(id, "FLAG");
 }
 
-float LMFClsDat::getEFlag(EcalLogicID &id) {
-  return getData(id, "EFLAG");
+float LMFClsDat::getFlagNorm(EcalLogicID &id) {
+  return getData(id, "FLAGNORM");
 }
-
 
