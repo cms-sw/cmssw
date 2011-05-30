@@ -354,11 +354,13 @@ void stripBand(TDirectory *in, TString band1, int m1, int m2=0, int m3=0, int m4
 }
 
 void stripBands(TDirectory *in, TString band,  int m1, int m2=0, int m3=0, int m4=0, int m5=0) {
+    stripBand(in, band+"_obs",       m1,m2,m3,m4,m5);
     stripBand(in, band+"_mean",      m1,m2,m3,m4,m5);
     stripBand(in, band+"_median",    m1,m2,m3,m4,m5);
     stripBand(in, band+"_mean_95",   m1,m2,m3,m4,m5);
     stripBand(in, band+"_median_95", m1,m2,m3,m4,m5);
     stripBand(in, band+"_asimov",    m1,m2,m3,m4,m5);
+    stripBand(in, band+"_nosyst_obs",       m1,m2,m3,m4,m5);
     stripBand(in, band+"_nosyst_mean",      m1,m2,m3,m4,m5);
     stripBand(in, band+"_nosyst_median",    m1,m2,m3,m4,m5);
     stripBand(in, band+"_nosyst_mean_95",   m1,m2,m3,m4,m5);
