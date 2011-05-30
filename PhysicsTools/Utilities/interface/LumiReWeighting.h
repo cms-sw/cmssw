@@ -35,8 +35,8 @@ namespace edm {
   public:
     LumiReWeighting( std::string generatedFile,
 		     std::string dataFile,
-		     std::string histName1,
-		     std::string histName2);
+		     std::string GenHistName,
+		     std::string DataHistName);
     
     LumiReWeighting( std::vector< float > MC_distr, std::vector< float > Lumi_distr);
 
@@ -54,8 +54,8 @@ namespace edm {
 
     std::string generatedFileName_;
     std::string dataFileName_;
-    std::string histName1_;
-    std::string histName2_;
+    std::string GenHistName_;
+    std::string DataHistName_;
     boost::shared_ptr<TFile>     generatedFile_;
     boost::shared_ptr<TFile>     dataFile_;
     boost::shared_ptr<TH1F>      weights_;
