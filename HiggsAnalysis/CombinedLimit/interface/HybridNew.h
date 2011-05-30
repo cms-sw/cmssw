@@ -54,7 +54,6 @@ private:
 
   static bool optimizeProductPdf_;
   static bool optimizeTestStatistics_;
-  static bool optimizeNew_;
  
   // graph, used to compute the limit, not just for plotting!
   std::auto_ptr<TGraphErrors> limitPlot_;

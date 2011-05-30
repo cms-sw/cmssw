@@ -60,7 +60,6 @@ bool HybridNew::importanceSamplingAlt_  = false;
 std::string HybridNew::algo_ = "logSecant";
 bool HybridNew::optimizeProductPdf_     = true;
 bool HybridNew::optimizeTestStatistics_ = true;
-bool HybridNew::optimizeNew_            = true;
 std::string HybridNew::plot_;
 std::string HybridNew::minimizerAlgo_ = "Minuit2";
 float       HybridNew::minimizerTolerance_ = 1e-2;
@@ -92,7 +91,6 @@ LimitAlgo("HybridNew specific options") {
                                    "Use optimized test statistics if the likelihood is not extended (works for LEP and TEV test statistics).")
         ("optimizeProductPdf",     boost::program_options::value<bool>(&optimizeProductPdf_)->default_value(optimizeProductPdf_),      
                                    "Optimize the code factorizing pdfs")
-        ("optimizeNew", boost::program_options::value<bool>(&optimizeNew_)->default_value(optimizeNew_), "Try out new optimizations (experimental!)")
         ("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value(minimizerAlgo_), "Choice of minimizer used for profiling (Minuit vs Minuit2)")
         ("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer used for profiling")
         ("plot",   boost::program_options::value<std::string>(&plot_), "Save a plot of the result (test statistics distributions or limit scan)")
@@ -451,16 +449,16 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     r->setConstant(true); r->setVal(0);
     timer.Start();
     {
-    CloseCoutSentry sentry(verbose < 3);
-    fitZero.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::NumCPU(fork_?fork_:1)));
+        CloseCoutSentry sentry(verbose < 3);
+        fitZero.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::NumCPU(fork_?fork_:1)));
     }
     if (verbose > 1) { std::cout << "Zero signal fit" << std::endl; fitZero->Print("V"); }
     if (verbose > 1) { std::cout << "Fitting of the signa hypothesis done in " << timer.RealTime() << " s" << std::endl; }
     r->setConstant(true); r->setVal(rVal);
     timer.Start();
     {
-    CloseCoutSentry sentry(verbose < 3);
-    fitMu.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::NumCPU(fork_?fork_:1)));
+       CloseCoutSentry sentry(verbose < 3);
+       fitMu.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::NumCPU(fork_?fork_:1)));
     }
     if (verbose > 1) { std::cout << "Reference signal fit (r = " << rVal << ")" << std::endl; fitMu->Print("V"); }
     if (verbose > 1) { std::cout << "Fitting of the signa hypothesis done in " << timer.RealTime() << " s" << std::endl; }
@@ -505,14 +503,11 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   if (fitNuisances_) poiZero.addClone(fitZero->floatParsFinal());
   setup.modelConfig.SetSnapshot(poi);
   setup.modelConfig_bonly.SetSnapshot(poiZero);
+  (const_cast<RooArgSet&>(*setup.modelConfig.GetSnapshot())) = poi;           // make sure we reset the values
   (const_cast<RooArgSet&>(*setup.modelConfig_bonly.GetSnapshot())) = poiZero; // make sure we reset the values
-  if (testStat_ == "Atlas" || testStat_ == "Profile") {
-      (const_cast<RooArgSet*>(setup.modelConfig_bonly.GetSnapshot()))->setRealValue(r->GetName(), rVal); // issues with over-writing snapshots
-  } else {
-      (const_cast<RooArgSet*>(setup.modelConfig_bonly.GetSnapshot()))->setRealValue(r->GetName(),    0); // issues with over-writing snapshots
-  }
 
-  // Create pdfs without nusiances terms, can be used when not generating global observables
+  // Create pdfs without nusiances terms, can be used for LEP tests statistics and
+  // for generating toys when not generating global observables
   RooAbsPdf *factorizedPdf_s = setup.modelConfig.GetPdf(), *factorizedPdf_b = setup.modelConfig_bonly.GetPdf();
   if (withSystematics && optimizeProductPdf_ && !genGlobalObs_) {
         RooArgList constraints;
@@ -532,7 +527,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
       snapS.setRealValue(r->GetName(), rVal);
       snapB.setRealValue(r->GetName(),    0);
       if (optimizeTestStatistics_) {
-          if (!optimizeNew_ && !mc_s->GetPdf()->canBeExtended()) {
+          if (!mc_s->GetPdf()->canBeExtended()) {
               setup.qvar.reset(new SimplerLikelihoodRatioTestStat(*factorizedPdf_s,*factorizedPdf_s, snapB, snapS));
           } else {
               setup.qvar.reset(new SimplerLikelihoodRatioTestStatOpt(*mc_s->GetObservables(), *factorizedPdf_s, *factorizedPdf_s, snapB, snapS));
@@ -544,13 +539,8 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
       }
   } else if (testStat_ == "TEV") {
       if (optimizeTestStatistics_) {
-          if (optimizeNew_) {
-              setup.qvar.reset(new ProfiledLikelihoodRatioTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(), poiZero, poi));
-              ((ProfiledLikelihoodRatioTestStatOpt&)*setup.qvar).setPrintLevel(verbose-1);
-          } else {
-              setup.qvar.reset(new ProfiledLikelihoodRatioTestStatExt(*mc_s->GetObservables(), *mc_s->GetPdf(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(), poiZero, poi));
-              ((ProfiledLikelihoodRatioTestStatExt&)*setup.qvar).setPrintLevel(verbose-1);
-          }
+          setup.qvar.reset(new ProfiledLikelihoodRatioTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(), poiZero, poi));
+          ((ProfiledLikelihoodRatioTestStatOpt&)*setup.qvar).setPrintLevel(verbose-1);
       } else {   
           setup.qvar.reset(new RatioOfProfiledLikelihoodsTestStat(*mc_s->GetPdf(), *mc_s->GetPdf(), setup.modelConfig.GetSnapshot()));
           ((RatioOfProfiledLikelihoodsTestStat&)*setup.qvar).SetSubtractMLE(false);
@@ -559,7 +549,9 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     setup.qvar.reset(new ProfileLikelihoodTestStat(*mc_s->GetPdf()));
     if (testStat_ == "Atlas") {
        ((ProfileLikelihoodTestStat&)*setup.qvar).SetOneSided(true);
-        if (optimizeNew_ && mc_s->GetPdf()->canBeExtended()) setup.qvar.reset(new ProfiledLikelihoodTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(), mc_s->GetGlobalObservables(), *setup.modelConfig.GetSnapshot()));
+        if (optimizeTestStatistics_) {
+            setup.qvar.reset(new ProfiledLikelihoodTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(),  *setup.modelConfig.GetSnapshot()));
+        }
     }
   }
   
