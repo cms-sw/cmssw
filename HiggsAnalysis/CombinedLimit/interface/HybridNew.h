@@ -43,14 +43,18 @@ private:
   static bool CLs_;
   static bool saveHybridResult_, readHybridResults_; 
   static std::string rule_, testStat_;
+  static bool genNuisances_, genGlobalObs_, fitNuisances_;
   static double rValue_;
   static unsigned int nCpu_, fork_;
   static bool importanceSamplingNull_, importanceSamplingAlt_;
   static std::string algo_;
   static std::string plot_;
+  static std::string minimizerAlgo_;
+  static float       minimizerTolerance_;
 
   static bool optimizeProductPdf_;
   static bool optimizeTestStatistics_;
+  static bool optimizeNew_;
  
   // graph, used to compute the limit, not just for plotting!
   std::auto_ptr<TGraphErrors> limitPlot_;
@@ -60,10 +64,10 @@ private:
 
   struct Setup {
     RooStats::ModelConfig modelConfig, modelConfig_bonly;
-    std::auto_ptr<RooAbsPdf> nuisancePdf;
     std::auto_ptr<RooStats::TestStatistic> qvar;
     std::auto_ptr<RooStats::ToyMCSampler>  toymcsampler;
     std::auto_ptr<RooStats::ProofConfig> pc;
+    RooArgSet cleanupList;
   };
 
   void validateOptions() ;
@@ -73,6 +77,8 @@ private:
   std::pair<double,double> eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive=false, double clsTarget=-1) ;
   RooStats::HypoTestResult *evalWithFork(RooStats::HybridCalculator &hc);
   RooStats::HypoTestResult *readToysFromFile(double rValue=0);
+
+  void readAllToysFromFile(); 
 
 };
 
