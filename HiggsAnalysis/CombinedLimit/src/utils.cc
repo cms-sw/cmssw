@@ -185,3 +185,16 @@ void utils::getClients(const RooAbsCollection &values, const RooAbsCollection &a
         }
     }
 }
+
+bool utils::setAllConstant(const RooAbsCollection &coll, bool constant) {
+    bool changed = false;
+    std::auto_ptr<TIterator> iter(coll.createIterator());
+    for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+        RooRealVar *v = dynamic_cast<RooRealVar *>(a);
+        if (v && (v->isConstant() != constant)) {
+            changed = true;
+            v->setConstant(constant);
+        }
+    }
+    return changed;
+}

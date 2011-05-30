@@ -33,5 +33,8 @@ namespace utils {
 
     /// add to 'clients' all object within allObjects that *directly* depend on values
     void getClients(const RooAbsCollection &values, const RooAbsCollection &allObjects, RooAbsCollection &clients) ;
+
+    /// set all RooRealVars to constants. return true if at least one changed status
+    bool setAllConstant(const RooAbsCollection &coll, bool constant=true) ;
 }
 #endif
