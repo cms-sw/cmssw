@@ -118,7 +118,7 @@ l1temuEventInfoClient = cms.EDAnalyzer("L1TEMUEventInfoClient",
                                                       "qualComp_1d",
 
                                                       "dtStubPhi_1d"),
-                        QualityTestSummaryEnabled = cms.vuint32(1,1,1,0,1,
+                        QualityTestSummaryEnabled = cms.vuint32(1,1,1,1,1,
                                                                 1,1,1,1,1,
                                                                 1)         
                         ),
