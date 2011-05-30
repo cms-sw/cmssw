@@ -92,8 +92,12 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 # l1tMonitor and l1tMonitorEndPathSeq
 process.load("DQM.L1TMonitor.L1TMonitor_cff")    
 
+# L1 trigger synchronization module - it uses also HltHighLevel filter
+process.load("DQM.L1TMonitor.L1TSync_cff")    
+
 # l1tMonitorClient and l1tMonitorClientEndPathSeq
-process.load("DQM.L1TMonitorClient.L1TMonitorClient_cff")    
+process.load("DQM.L1TMonitorClient.L1TMonitorClient_cff")   
+
 
 #-------------------------------------
 # paths & schedule for L1 Trigger DQM
@@ -108,10 +112,13 @@ process.RawToDigi.remove("siStripDigis")
 process.RawToDigi.remove("scalersRawToDigi")
 process.RawToDigi.remove("castorDigis")
 # for GCT, unpack all five samples
-process.RawToDigi.gctDigis.numberOfGctSamplesToUnpack = cms.uint32(5)
+process.gctDigis.numberOfGctSamplesToUnpack = cms.uint32(5)
 
 # 
 process.l1tMonitorPath = cms.Path(process.l1tMonitor)
+
+# separate L1TSync path due to the use of the HltHighLevel filter
+process.l1tSyncPath = cms.Path(process.l1tSyncHltFilter+process.l1tSync)
 
 #
 process.l1tMonitorClientPath = cms.Path(process.l1tMonitorClient)
@@ -131,6 +138,7 @@ process.dqmEndPath = cms.EndPath(
 #
 process.schedule = cms.Schedule(process.rawToDigiPath,
                                 process.l1tMonitorPath,
+                                process.l1tSyncPath,
                                 process.l1tMonitorClientPath,
                                 process.l1tMonitorEndPath,
                                 process.l1tMonitorClientEndPath,
@@ -150,10 +158,38 @@ process.schedule = cms.Schedule(process.rawToDigiPath,
 # process.l1tEventInfoClient.verbose = cms.untracked.bool(True)
 
 
+# remove module(s) or system sequence from l1tMonitorPath
+#
+#process.l1tMonitor.remove("bxTiming")
+#process.l1tMonitor.remove("l1tLtc")
+#process.l1tMonitor.remove("l1tDttf")
+#process.l1tMonitor.remove("l1tCsctf") 
+#process.l1tMonitor.remove("l1tRpctf")
+#process.l1tMonitor.remove("l1tGmt")
+#process.l1tMonitor.remove("l1tGt") 
+#process.l1tMonitor.remove("l1ExtraDqmSeq")
+#process.l1tMonitor.remove("l1tRate")
+#process.l1tMonitor.remove("l1tRctSeq")
+#process.l1tMonitor.remove("l1tGctSeq")
+
+
+# remove module(s) or system sequence from l1tMonitorEndPath
+#
+#process.l1tMonitorEndPathSeq.remove("l1s")
+#process.l1tMonitorEndPathSeq.remove("l1tscalers")
+
+                                    
 #
 # available data masks (case insensitive):
 #    all, gt, muons, jets, taujets, isoem, nonisoem, met
-process.l1tEventInfoClient.dataMaskedSystems = cms.untracked.vstring("Muons","Jets","TauJets","IsoEm","NonIsoEm","MET")
+process.l1tEventInfoClient.dataMaskedSystems = cms.untracked.vstring(
+                                                            "Muons",
+                                                            "Jets",
+                                                            "TauJets",
+                                                            "IsoEm",
+                                                            "NonIsoEm",
+                                                            "MET"
+                                                            )
 
 #
 # available emulator masks (case insensitive):

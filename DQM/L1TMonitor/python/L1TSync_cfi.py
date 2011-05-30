@@ -1,22 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-
-l1tSyncFilter = hltHighLevel.clone(TriggerResultsTag ="TriggerResults::HLT")
-l1tSyncFilter.throw = cms.bool(False)
-l1tSyncFilter.HLTPaths = ['HLT_ZeroBias_v*',
-                          'HLT_L1ETM30_v*',
-                          'HLT_L1MultiJet_v*',
-                          'HLT_L1SingleEG12_v',
-                          'HLT_L1SingleEG5_v*',
-                          'HLT_L1SingleJet16_v*',
-                          'HLT_L1SingleJet36_v*',
-                          'HLT_L1SingleMu10_v*',
-                          'HLT_L1SingleMu20_v*']
-
-
-
-l1tSyncMonitor = cms.EDAnalyzer("L1TSync",
+l1tSync = cms.EDAnalyzer("L1TSync",
 
   dqmStore                = cms.untracked.bool(True),
   disableROOToutput       = cms.untracked.bool(True),
@@ -105,5 +89,3 @@ l1tSyncMonitor = cms.EDAnalyzer("L1TSync",
       ),
   ),
 )
-
-l1tSync = cms.Sequence(l1tSyncFilter*l1tSyncMonitor)

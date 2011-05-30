@@ -65,10 +65,6 @@ from DQM.L1TMonitor.L1ExtraDQM_cff import *
 # L1 rates DQM module
 from DQM.L1TMonitor.L1TRate_cfi import *
 
-# L1 synchronization DQM module
-from DQM.L1TMonitor.L1TSync_cfi import *
-
-
 #
 # other, non pure-L1 stuff
 #
@@ -125,7 +121,6 @@ l1tMonitor = cms.Sequence(
                           l1tGt + 
                           l1ExtraDqmSeq +
                           l1tRate +
-                          l1tSync +
                           l1tRctSeq +
                           l1tGctSeq
                           )
