@@ -400,6 +400,7 @@ TrackerCalibrationOutput
 #HLT_DoubleMu5_IsoMu5_v* 
 #HLT_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT250_PFMHT25_v* 
 #HLT_HT200_AlphaT0p55_v* 
+#HLT_HT200_DoubleEle5_CaloIdVL_MassJPsi_v*
 #HLT_HT250_AlphaT0p55_v* 
 #HLT_HT250_MHT100_v* 
 #HLT_HT250_MHT90_v* 
