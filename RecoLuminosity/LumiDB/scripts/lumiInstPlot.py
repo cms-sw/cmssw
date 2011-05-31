@@ -202,7 +202,7 @@ def main():
             maxTime=datetime.datetime.utcnow() #to now
         else:
             maxTime=t.StrToDatetime(args.end,timeformat)
-        #print minTime,maxTime
+        print minTime,maxTime
         qHandle=session.nominalSchema().newQuery()
         runDict=lumiQueryAPI.runsByTimerange(qHandle,minTime,maxTime)#xrawdata
         session.transaction().commit()
@@ -213,7 +213,15 @@ def main():
         print 'unsupported action ',args.action
         exit
     #print 'runList ',runList
-    #print 'runDict ', runDict               
+    #print 'runDict ', runDict
+    startRunTime=''
+    stopRunTime=''
+    if len(runList)!=0:
+        runmin=min(runList)
+        runmax=max(runList)
+        startRunTime=runDict[runmin][0]
+        stopRunTime=runDict[runmax][1]
+        
     fig=Figure(figsize=(6,4.5),dpi=100)
     m=matplotRender.matplotRender(fig)
 
@@ -254,8 +262,8 @@ def main():
             result[day]=[todaysmaxrun,todaysmaxls,todaysmaxinst]
             if args.outputfile :
                 reporter.writeRow([day,todaysmaxrun,todaysmaxls,todaysmaxinst])
-        m.plotPeakPerday_Time(result,minTime,maxTime,annotateBoundaryRunnum=args.annotateboundary,yscale='linear')
-        mlog.plotPeakPerday_Time(result,minTime,maxTime,annotateBoundaryRunnum=args.annotateboundary,yscale='log')
+        m.plotPeakPerday_Time(result,startRunTime,stopRunTime,annotateBoundaryRunnum=args.annotateboundary,yscale='linear')
+        mlog.plotPeakPerday_Time(result,startRunTime,stopRunTime,annotateBoundaryRunnum=args.annotateboundary,yscale='log')
         
     if args.action == 'run':
         runnumber=runList[0]
