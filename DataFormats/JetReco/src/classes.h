@@ -70,6 +70,8 @@ namespace {
     edm::helpers::Key<edm::RefProd<std::vector<reco::CaloJet> > > k1;
     edm::helpers::KeyVal<edm::RefProd<reco::CaloJetCollection>,edm::RefProd<std::vector<reco::Track> > > kv1;
     std::vector<edm::Ref<std::vector<reco::CaloJet> > > vrvr1;
+    std::vector<reco::CaloJetRefVector> vrv1;    
+    edm::Wrapper<std::vector<reco::CaloJetRefVector> > wfvrv1;
 
     reco::GenJetCollection o2;
     reco::GenJetRef r2;
