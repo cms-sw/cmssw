@@ -116,6 +116,9 @@ cond::service::PoolDBOutputService::initDB( bool forReading )
   DbOpenTransaction trans( m_session.transaction() );
   try{
     if(!forReading) {
+      if(m_session.createDatabase()){
+	m_session.storage().createContainer( IOVNames::container() );
+      }
       m_session.storage().lockContainer( IOVNames::container() );
     }
     //init logdb if required
