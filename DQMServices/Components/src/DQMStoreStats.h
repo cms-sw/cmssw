@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2010/01/18 14:52:31 $
- *  $Revision: 1.7 $
+ *  $Date: 2011/03/30 21:01:57 $
+ *  $Revision: 1.8 $
  *  \author Andreas Meyer CERN
  *  \author Jan Olzem DESY
  *   
@@ -40,14 +40,15 @@
 ///
 class DQMStoreStatsSubfolder {
  public:
-  DQMStoreStatsSubfolder() { totalHistos_ = 0; totalBins_ = 0; totalMemory_ = 0; }
+  DQMStoreStatsSubfolder() { totalHistos_ = 0; totalBins_ = 0; totalMemory_ = 0; totalEmptyBins_ =0; }
   std::string subfolderName_;
   unsigned int totalHistos_;
   unsigned int totalBins_;
+  unsigned int totalEmptyBins_;
   unsigned int totalMemory_;
-  void AddBinsF( unsigned int nBins ) { ++totalHistos_; totalBins_ += nBins; totalMemory_ += ( nBins *= sizeof( float ) ); }
-  void AddBinsS( unsigned int nBins ) { ++totalHistos_; totalBins_ += nBins; totalMemory_ += ( nBins *= sizeof( short ) ); }
-  void AddBinsD( unsigned int nBins ) { ++totalHistos_; totalBins_ += nBins; totalMemory_ += ( nBins *= sizeof( double ) ); }
+  void AddBinsF( unsigned int nBins, unsigned int nEmptyBins ) { ++totalHistos_; totalBins_ += nBins; totalEmptyBins_ += nEmptyBins; totalMemory_ += ( nBins *= sizeof( float ) ); }
+  void AddBinsS( unsigned int nBins, unsigned int nEmptyBins ) { ++totalHistos_; totalBins_ += nBins; totalEmptyBins_ += nEmptyBins; totalMemory_ += ( nBins *= sizeof( short ) ); }
+  void AddBinsD( unsigned int nBins, unsigned int nEmptyBins ) { ++totalHistos_; totalBins_ += nBins; totalEmptyBins_ += nEmptyBins; totalMemory_ += ( nBins *= sizeof( double ) ); }
 };
 
 ///
