@@ -241,7 +241,7 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits 
         castorHists.meRECHIT_N_event->Fill(iHit);
 
       ////---- do histograms per channel once per 100 events     
-      if(ievt_%100 == 0 && doPerChannel_) 
+      if( doPerChannel_) 
          CastorRecHitPerChan::perChanHists<CastorRecHit>(*CASTORiter, castorHists.meRECHIT_E, castorHists.meRECHIT_T, m_dbe, baseFolder_); 
      }///////////////////////////------------------- end of loop over all hits
 
