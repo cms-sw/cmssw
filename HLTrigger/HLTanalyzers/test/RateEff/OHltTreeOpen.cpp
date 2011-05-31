@@ -1570,21 +1570,20 @@ bool isIsoPFTauX_TrkXTrigger(
     return false; 
 } 
 
-
 bool isDoubleIsoPFTauX_X_TrkX_eta2pXTrigger(
                                             TString triggerName,
                                             vector<double> &thresholds)
 {
-  TString pattern = "(OpenHLT_DoubleIsoPFTau([0-9]+)_Trk([0-9]+)_eta2p([0-9]+))$";
+  TString pattern = "(OpenHLT_DoubleIsoPFTau([0-9]+)_([0-9]+)_Trk([0-9]+)_eta2p([0-9]+))$";
   TPRegexp matchThreshold(pattern);
         
   if (matchThreshold.MatchB(triggerName))
     {
       TObjArray *subStrL     = TPRegexp(pattern).MatchS(triggerName);
       double thresholdTau0   = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      double thresholdTau1   = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      double thresholdTrk    = (((TObjString *)subStrL->At(3))->GetString()).Atof();
-      double thresholdEta    = (((TObjString *)subStrL->At(4))->GetString()).Atof();
+      double thresholdTau1   = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdTrk    = (((TObjString *)subStrL->At(4))->GetString()).Atof();
+      double thresholdEta    = (((TObjString *)subStrL->At(5))->GetString()).Atof();
       thresholds.push_back(thresholdTau0);
       thresholds.push_back(thresholdTau1);
       thresholds.push_back(thresholdTrk);
