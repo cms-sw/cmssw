@@ -34,7 +34,7 @@ public:
  */  
  KinematicParticle(){}
  
- virtual ~KinematicParticle(){}
+ virtual ~KinematicParticle();
 							   
 /**
  * Comparison by contents operators
