@@ -314,12 +314,13 @@ def main():
         if not args.end:
             session.transaction().start(True)
             schema=session.nominalSchema()
-            lastrun=max(lumiQueryAPI.allruns(schema,requireRunsummary=True,requireLumisummary=True,requireTrg=True,requireHlt=True))
+            lastrun=max(lumiQueryAPI.allruns(schema,requireRunsummary=True,requireLumisummary=True,requireTrg=True,requireHlt=False))
             session.transaction().commit()
         else:
             lastrun=int(args.end)
         for r in range(int(args.begin),lastrun+1):
             runList.append(r)
+        runList.sort()
     elif args.action == 'fill':
         session.transaction().start(True)
         maxfill=None
@@ -338,6 +339,8 @@ def main():
             if fillDict.has_key(fill): #fill exists
                 for run in fillDict[fill]:
                     runList.append(run)
+        runList.sort()
+        
     elif args.action == 'time' or args.action == 'perday':
         session.transaction().start(True)
         t=lumiTime.lumiTime()
@@ -352,16 +355,17 @@ def main():
         session.transaction().commit()
         runList=runDict.keys()        
         del qHandle
+        runList.sort()
+        if len(runList)!=0:
+            runmin=min(runList)
+            runmax=max(runList)       
+            startRunTime=runDict[runmin][0]
+            stopRunTime=runDict[runmax][1]
         #print 'run list: ',runDict
     else:
         print 'unsupported action ',args.action
         exit
-    runList.sort()
-    if len(runList)!=0:
-        runmin=min(runList)
-        runmax=max(runList)
-        startRunTime=runDict[runmin][0]
-        stopRunTime=runDict[runmax][1]
+        
         
     #print 'runList ',runList
     #print 'runDict ', runDict

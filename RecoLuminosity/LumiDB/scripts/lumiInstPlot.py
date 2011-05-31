@@ -177,6 +177,8 @@ def main():
     session=svc.connect(connectstring,accessMode=coral.access_Update)
     session.typeConverter().setCppTypeForSqlType("unsigned int","NUMBER(10)")
     session.typeConverter().setCppTypeForSqlType("unsigned long long","NUMBER(20)")
+    startRunTime=''
+    stopRunTime=''
     if ifilename:
         ifparser=inputFilesetParser(ifilename)
         runsandls=ifparser.runsandls()
@@ -209,18 +211,17 @@ def main():
         runList=runDict.keys()
         del qHandle
         runList.sort()
+        if len(runList)!=0:
+            runmin=min(runList)
+            runmax=max(runList)
+            startRunTime=runDict[runmin][0]
+            stopRunTime=runDict[runmax][1]
     else:
         print 'unsupported action ',args.action
         exit
     #print 'runList ',runList
     #print 'runDict ', runDict
-    startRunTime=''
-    stopRunTime=''
-    if len(runList)!=0:
-        runmin=min(runList)
-        runmax=max(runList)
-        startRunTime=runDict[runmin][0]
-        stopRunTime=runDict[runmax][1]
+    
         
     fig=Figure(figsize=(6,4.5),dpi=100)
     m=matplotRender.matplotRender(fig)
