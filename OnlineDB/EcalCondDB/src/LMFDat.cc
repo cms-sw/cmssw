@@ -429,6 +429,7 @@ int LMFDat::writeDB()
       ub2 * floatSize = new ub2[nData];
       size_t intTotalSize = sizeof(int)*nData;
       size_t floatTotalSize = sizeof(float)*nData;
+      sb2 *indicator = new sb2[nData]; // variable used to control NULL insertions 
       try {
 	Statement * stmt = m_conn->createStatement();
 	std::string sql = buildInsertSql();
@@ -445,10 +446,10 @@ int LMFDat::writeDB()
 	std::map<int, std::vector<float> >::const_iterator e = data2write.end();
 	for (int i = 0; i < nData; i++) {
 	  iovid_vec[i] = iov_id;
+	  indicator[i] = -1;
 	}
-	sb2 indicator; // variable used to control NULL insertions 
 	stmt->setDataBuffer(1, (dvoid*)iovid_vec, oracle::occi::OCCIINT,
-			    sizeof(iovid_vec[0]), intSize, &indicator);
+			    sizeof(iovid_vec[0]), intSize, indicator);
 	// build the data array for second column: the logic ids
 	int c = 0;
 	while (b != e) {
@@ -522,6 +523,10 @@ int LMFDat::writeDB()
       } catch (oracle::occi::SQLException &e) {
 	debug();
 	setMaxDataToDump(nData);
+	// get the Foreign Key
+	LMFRunIOV *runiov = (LMFRunIOV*)m_foreignKeys[foreignKeyName()];
+        int iov_id = runiov->getID();
+	std::cout << "==== This object refers to IOV " << iov_id << std::endl;
 	dump();
 	m_conn->rollback();
 	throw(std::runtime_error(m_className + "::writeDB: " + 
