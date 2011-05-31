@@ -273,12 +273,15 @@ HLT_Mu8_R020_MR200_v*
 HLT_Mu8_R025_MR200_v*
 HLT_HT250_Mu5_PFMHT35_v*
 HLT_HT250_Mu15_PFMHT20_v*
+HLT_HT250_Mu15_PFMHT40_v*
 HLT_HT300_Mu5_PFMHT40_v*
 HLT_HT350_Mu5_PFMHT45_v*
 HLT_Mu3_DiJet30_v*
 HLT_Mu3_TriJet30_v*
 HLT_Mu3_QuadJet30_v*
 HLT_Mu5_DoubleEle8_CaloIdL_TrkIdVL_v*
+HLT_Mu5_DoubleEle8_CaloIdT_TrkIdVL_v*
+HLT_Mu5_Ele8_CaloIdT_TrkIdVL_Ele8_CaloIdL_TrkIdVL_v*
 HLT_Mu8_Ele17_CaloIdL_v*
 #
 # the following 2 cross-triggers to be added in May 19th train
@@ -311,6 +314,7 @@ HLT_IsoMu17_TriCentralJet30_v*
 HLT_IsoMu17_QuadCentralJet30_v*
 HLT_IsoMu17_CentralJet30_BTagIP_v*
 HLT_DoubleMu3_HT150_v*
+HLT_DoubleMu3_Mass4_HT150_v* 
 HLT_DoubleMu3_HT200_v*
 HLT_DoubleMu5_Ele8_v*
 HLT_DoubleMu5_Ele8_CaloIdL_TrkIdVL_v*
@@ -365,8 +369,10 @@ HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20_v*
 # HLT_Ele22_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20_v*
 # HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralJet30_PFMHT25_v*
 #
+HLT_HT200_DoubleEle5_CaloIdVL_MassJPsi_v*
 HLT_DoubleEle8_CaloIdL_TrkIdVL_HT150_v*
 HLT_DoubleEle8_CaloIdT_TrkIdVL_HT150_v*
+HLT_DoubleEle8_CaloIdT_TrkIdVL_Mass4_HT150_v* 
 HLT_DoubleEle10_CaloIdL_TrkIdVL_Ele10_v*
 HLT_DoubleEle10_CaloIdL_TrkIdVL_Ele10_CaloIdT_TrkIdVL_v*
 HLT_TripleEle10_CaloIdL_TrkIdVL_v*
@@ -421,12 +427,3 @@ NanoDSTOutput
 OnlineErrorsOutput
 RPCMONOutput
 TrackerCalibrationOutput
-#
-# the following SUSY paths be added in May 19th train
-#HLT_DoubleEle8_CaloIdT_TrkIdVL_Mass4_HT150_v* 
-#HLT_DoubleMu3_Mass4_HT150_v* 
-#HLT_HT200_DoubleEle5_CaloIdVL_MassJPsi_v*
-#HLT_HT250_Mu15_PFMHT40_v* 
-#HLT_Mu5_DoubleEle8_CaloIdT_TrkIdVL_v* 
-#HLT_Mu5_Ele8_CaloIdT_TrkIdVL_Ele8_CaloIdL_TrkIdVL_v* 
-#
