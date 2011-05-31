@@ -127,15 +127,15 @@ HLT_R025_MR150_v*
 HLT_R025_MR450_v*
 HLT_R029_MR250_CentralJet40_BTagIP_v*
 HLT_R029_MR300_CentralJet40_BTagIP_v*
-HLT_R029_MR450_Jet40_v*
+#HLT_R029_MR450_Jet40_v*                                                        # SUSY May 19th path - missing
 HLT_R033_MR200_CentralJet40_BTagIP_v*
 #HLT_R033_MR300_v*                                                              # SUSY May 5th path - removed in May 19th
 HLT_R033_MR350_v*
 HLT_R036_MR200_CentralJet40_BTagIP_v*
-HLT_R036_MR350_Jet40_v*
+#HLT_R036_MR350_Jet40_v*                                                        # SUSY May 19th path - missing
 #HLT_R038_MR200_v*                                                              # SUSY May 5th path - removed in May 19th
 HLT_R038_MR250_v*
-HLT_R042_MR250_Jet40_v*
+#HLT_R042_MR250_Jet40_v*                                                        # SUSY May 19th path - missing
 HLT_L1SingleMuOpen_v*
 HLT_L1SingleMuOpen_DT_v*
 HLT_L1SingleMu10_v*
