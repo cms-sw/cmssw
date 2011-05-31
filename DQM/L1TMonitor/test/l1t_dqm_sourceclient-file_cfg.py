@@ -115,7 +115,7 @@ process.RawToDigi.remove("castorDigis")
 process.gctDigis.numberOfGctSamplesToUnpack = cms.uint32(5)
 
 # 
-process.l1tMonitorPath = cms.Path(process.l1tMonitor)
+process.l1tMonitorPath = cms.Path(process.l1tMonitorOnline)
 
 # separate L1TSync path due to the use of the HltHighLevel filter
 process.l1tSyncPath = cms.Path(process.l1tSyncHltFilter+process.l1tSync)
@@ -159,24 +159,38 @@ process.schedule = cms.Schedule(process.rawToDigiPath,
 
 
 # remove module(s) or system sequence from l1tMonitorPath
+#        quality test disabled also
 #
-#process.l1tMonitor.remove("bxTiming")
-#process.l1tMonitor.remove("l1tLtc")
-#process.l1tMonitor.remove("l1tDttf")
-#process.l1tMonitor.remove("l1tCsctf") 
-#process.l1tMonitor.remove("l1tRpctf")
-#process.l1tMonitor.remove("l1tGmt")
-#process.l1tMonitor.remove("l1tGt") 
-#process.l1tMonitor.remove("l1ExtraDqmSeq")
-#process.l1tMonitor.remove("l1tRate")
-#process.l1tMonitor.remove("l1tRctSeq")
-#process.l1tMonitor.remove("l1tGctSeq")
+#process.l1tMonitorOnline.remove(process.bxTiming)
+
+#process.l1tMonitorOnline.remove(process.l1tLtc)
+
+#process.l1tMonitorOnline.remove(process.l1Dttf)
+
+#process.l1tMonitorOnline.remove(process.l1tCsctf) 
+
+#process.l1tMonitorOnline.remove(process.l1tRpctf)
+
+#process.l1tMonitorOnline.remove(process.l1tGmt)
+
+#process.l1tMonitorOnline.remove(process.l1tGt) 
+
+#process.l1tMonitorOnline.remove(process.l1ExtraDqmSeq)
+
+process.l1tMonitorOnline.remove(process.l1tRate)
+
+#process.l1tMonitorOnline.remove(process.l1tRctSeq)
+
+#process.l1tMonitorOnline.remove(process.l1tGctSeq)
 
 
 # remove module(s) or system sequence from l1tMonitorEndPath
 #
-#process.l1tMonitorEndPathSeq.remove("l1s")
-#process.l1tMonitorEndPathSeq.remove("l1tscalers")
+#process.l1tMonitorEndPathSeq.remove(process.l1s)
+#process.l1tMonitorEndPathSeq.remove(process.l1tscalers)
+
+#
+process.schedule.remove(process.l1tSyncPath)
 
                                     
 #
@@ -195,3 +209,11 @@ process.l1tEventInfoClient.dataMaskedSystems = cms.untracked.vstring(
 # available emulator masks (case insensitive):
 #    all, dttf, dttpg, csctf, csctpg, rpc, gmt, ecal, hcal, rct, gct, glt
 process.l1tEventInfoClient.emulatorMaskedSystems = cms.untracked.vstring("All")
+
+
+# 
+# un-comment next lines in case you use the file for private tests on the L1T server
+#
+#process.dqmSaver.dirName = '.'
+#process.dqmSaver.saveByRun = 1
+#process.dqmSaver.saveAtJobEnd = True

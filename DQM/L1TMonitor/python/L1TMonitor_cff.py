@@ -111,7 +111,7 @@ l1ExtraDqmSeq = cms.Sequence(
 #     modules are independent, so the order is irrelevant 
 #     (except l1tRctSeq and l1tGctSeq, due to the filter, which must be the last in the sequence) 
 
-l1tMonitor = cms.Sequence(
+l1tMonitorOnline = cms.Sequence(
                           bxTiming +
                           l1tLtc +
                           l1tDttf +
@@ -124,6 +124,7 @@ l1tMonitor = cms.Sequence(
                           l1tRctSeq +
                           l1tGctSeq
                           )
+
 
 # sequence for L1 Trigger DQM modules on EndPath 
 # FIXME clarify why needed on EndPath
