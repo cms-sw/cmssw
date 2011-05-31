@@ -10,6 +10,8 @@
 #include "DataFormats/GeometrySurface/interface/BlockWipedAllocator.h"
 
 
+// make tis default
+#define TTRH_NOGE
 
 
 class GeomDetUnit;
