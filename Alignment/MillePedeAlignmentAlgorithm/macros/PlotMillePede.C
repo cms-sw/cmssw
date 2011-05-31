@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2010/10/26 21:34:25 $
+// last change    : $Date: 2011/02/11 10:49:02 $
 // by             : $Author: flucke $
 
 #include "PlotMillePede.h"
@@ -141,12 +141,16 @@ void PlotMillePede::DrawPedeParam(Option_t *option, unsigned int nNonRigidParam)
     TH1 *hBySi = this->CreateHist(Parenth(MpT() += Par(iPar)) += Div() += ParSi(iPar),
                                   parSel + AndL() += ParSiOk(iPar), hNameBySi);
     TH1 *hBySiInv = 0;
+    TH2 *hSiVsPar = 0;
     if (hBySi->GetEntries() == 0.) {
       delete hBySi; hBySi = 0;
     } else {
       const TString hNameBySiInv(this->Unique(Form("pedeParBySiInv%d", iPar)) += "(100,-20,20)"); // 
       hBySiInv = this->CreateHist(ParSi(iPar) += Div() += Parenth(MpT() += Par(iPar)),
                                   parSel + AndL() += ParSiOk(iPar), hNameBySiInv);
+      const TString hNameSiVsPar(this->Unique(Form("pedeParVsSi%d", iPar))); // 
+      hSiVsPar = this->CreateHist2D(Parenth(MpT() += Par(iPar)) += toMum, ParSi(iPar) += toMum,
+				    parSel + AndL() += ParSiOk(iPar), hNameSiVsPar, "BOX");
     }
     
     // parameters vs hits
@@ -182,6 +186,9 @@ void PlotMillePede::DrawPedeParam(Option_t *option, unsigned int nNonRigidParam)
       hBySiInv->SetTitle("pede: #sigma_{" + namI + "}/" + namI + titleAdd + ";"
                          + Fun("#sigma", namI) += Div() += namI + ";#alignables");
       fHistManager->AddHist(hBySiInv, layer+3+(hGlobCor ? 1 : 0)+addParVsPar);
+      hSiVsPar->SetTitle("pede: #sigma_{" + namI + " } vs " + namI + titleAdd + ";"
+                         + namI + UnitPede(iPar) + ";" + Fun("#sigma", namI) += UnitPede(iPar));
+      fHistManager->AddHist(hSiVsPar, layer+4+(hGlobCor ? 1 : 0)+addParVsPar);
     }
     ++nPlot;
   }
@@ -395,18 +402,31 @@ void PlotMillePede::DrawSurfaceDeformations(const TString &whichOne,
   TString parSel(Valid(0) += AndL() += Fixed(0, false)); // HACK: if u1 determination is fine
   this->AddBasicSelection(parSel);
 
-  for (unsigned int i = 0; i < maxNumPars; ++i) {
-    const TString hName(this->Unique(Form("hSurf%u", i)));
-    TH1 *h = this->CreateHist(DeformValue(i, whichOne) += this->ToMumMuRadSurfDef(i),
-			      parSel + AndL() += Parenth(NumDeformValues(whichOne)),
-			      hName);
+  TObjArray whichOnes;
+  if (whichOne.Contains("result", TString::kIgnoreCase)) whichOnes.Add(new TObjString("result"));
+  if (whichOne.Contains("start",  TString::kIgnoreCase)) whichOnes.Add(new TObjString("start"));
+  if (whichOne.Contains("diff",   TString::kIgnoreCase)) whichOnes.Add(new TObjString("diff"));
+  //  whichOnes.Print();
 
-    if (!h || 0. == h->GetEntries()) continue;
-    h->SetTitle("SurfaceDeformation " + (whichOne + " ") += NameSurfDef(i) += titleAdd + ";"
-		+ NameSurfDef(i) += UnitSurfDef(i));
-    fHistManager->AddHist(h, layer);
+  for (Int_t wi = 0; wi < whichOnes.GetEntriesFast(); ++wi) {
+    for (unsigned int i = 0; i < maxNumPars; ++i) {
+      const TString hName(this->Unique(Form("hSurf%s%u", whichOnes[wi]->GetName(),i))
+			  += Form("(101,-%f,%f)", fMaxDev, fMaxDev));
+      TH1 *h = this->CreateHist(DeformValue(i, whichOnes[wi]->GetName()) += this->ToMumMuRadSurfDef(i),
+				parSel + AndL() += Parenth(NumDeformValues(whichOnes[wi]->GetName())),
+				hName);
+      
+      if (!h || 0. == h->GetEntries()) continue;
+      h->SetTitle(Form("SurfaceDeformation %s ", whichOnes[wi]->GetName())
+		  + NameSurfDef(i) += titleAdd + ";"
+		  + NameSurfDef(i) += UnitSurfDef(i));
+      fHistManager->AddHistSame(h, layer, i, whichOnes[wi]->GetName());
+      //fHistManager->AddHistSame(hBef, layer, nPlot, "misaligned");
+
+    }
   }
 
+  whichOnes.Delete();
   fHistManager->Draw();
 }
 
@@ -715,8 +735,7 @@ void PlotMillePede::DrawPosMisVsLocation(bool addPlots, const TString &selection
   TString sel(selection);
   this->AddBasicSelection(sel);
 
-  //  const TString posNames[] = {"rphi", "r", "z", "phi", "x", "y"};
-  const TString posNames[] = {"rphi", "r", "z", "x", "y"};
+  const TString posNames[] = {"rphi", "r", "z", "x", "y", "phi"};
 
   const TString titleAdd = this->TitleAdd();
   UInt_t nPlot = 0;
