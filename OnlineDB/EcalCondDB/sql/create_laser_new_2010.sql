@@ -1136,6 +1136,22 @@ CREATE OR REPLACE TRIGGER LMF_CHECK_LASERCONF_TG
   END;
 /
 
+CREATE OR REPLACE TRIGGER LMF_CHECK_TRIPLETS_TG
+  BEFORE INSERT ON LMF_LMR_SUB_IOV
+  REFERENCING NEW AS new_sub_iov
+  FOR EACH ROW
+    BEGIN
+      IF ((:new_sub_iov.t2 < :new_sub_iov.t1) OR
+          (:new_sub_iov.t3 < :new_sub_iov.t2) OR
+          (:new_sub_iov.t3 < :new_sub_iov.t1))
+      THEN
+        RAISE_APPLICATION_ERROR (
+           num => -20000,
+           msg =>       'Wrong triplets detected: T2 < T1 or T3 < T2');
+      END IF;
+    END;
+/
+ 
 /*
 CREATE SYNONYM RUN_TYPE_DEF FOR CMS_ECAL_COND.RUN_TYPE_DEF;
 CREATE SYNONYM RUN_IOV FOR CMS_ECAL_COND.RUN_IOV;
