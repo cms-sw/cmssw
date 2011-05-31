@@ -119,7 +119,7 @@ HLT_R020_MR500_v*
 HLT_R020_MR550_v*
 HLT_R023_MR350_CentralJet40_BTagIP_v*
 HLT_R023_MR400_CentralJet40_BTagIP_v*
-# SUSY May 19th trigger - missing
+# SUSY May 19th paths - missing
 #HLT_R023_MR550_Jet40_v*
 HLT_R025_MR150_v*
 HLT_R025_MR250_CentralJet40_BTagIP_v*
@@ -205,6 +205,8 @@ HLT_Photon30_CaloIdVL_v*
 HLT_Photon30_CaloIdVL_IsoL_v*
 HLT_Photon36_IsoVL_Photon22_v*
 HLT_Photon36_CaloIdL_Photon22_CaloIdL_v*
+# SUSY May 19th paths - missing
+#HLT_Photon36_CaloIdVL_Photon22_CaloIdVL_v*
 HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_v*
 HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v*
 HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v*
@@ -356,6 +358,10 @@ HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R005_MR200_v*
 HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R020_MR200_v*
 HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R025_MR200_v*
 HLT_Ele10_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_R020_MR200_v*
+# SUSY May 19th paths - missing
+#HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdL_TrkIsoVL_R005_MR200_v*
+#HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdL_TrkIsoVL_R025_MR200_v*
+#HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdL_TrkIsoVL_R029_MR200_v*
 HLT_Ele15_CaloIdVT_TrkIdT_LooseIsoPFTau20_v*
 HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v*
 HLT_Ele18_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v*
