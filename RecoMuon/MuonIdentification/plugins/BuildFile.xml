@@ -19,5 +19,6 @@
   <use   name="TrackingTools/TransientTrackingRecHit"/>
   <use   name="boost_regex"/>
   <use   name="CommonTools/Utils"/>
+  <use   name="DataFormats/ParticleFlowCandidate"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
