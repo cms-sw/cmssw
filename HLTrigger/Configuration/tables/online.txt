@@ -54,36 +54,26 @@ HLT_JetE30_NoBPTX_NoHalo_v*
 HLT_JetE30_NoBPTX3BX_NoHalo_v*
 HLT_JetE50_NoBPTX3BX_NoHalo_v*
 HLT_HT150_v*
-#HLT_HT150_AlphaT0p60_v*                                                        # SUSY May  5th path - removed in May 19th
 HLT_HT200_v*
-#HLT_HT200_AlphaT0p53_v*                                                        # SUSY May  5th path - removed in May 19th
 HLT_HT200_AlphaT0p55_v* 
-#HLT_HT200_AlphaT0p60_v*                                                        # SUSY May  5th path - removed in May 19th
 HLT_HT250_v*
 HLT_HT250_AlphaT0p53_v*
-#HLT_HT250_AlphaT0p54_v*                                                        # SUSY May  5th path - removed in May 19th
 HLT_HT250_AlphaT0p55_v* 
 HLT_HT250_DoubleDisplacedJet60_v*
-#HLT_HT250_MHT60_v*                                                             # SUSY May  5th path - removed in May 19th
-#HLT_HT250_MHT70_v*                                                             # SUSY May  5th path - removed in May 19th
-#HLT_HT250_MHT80_v*                                                             # SUSY May  5th path - removed in May 19th
 HLT_HT250_MHT90_v* 
 HLT_HT250_MHT100_v* 
 HLT_HT300_v*
-#HLT_HT300_MHT75_v*                                                             # SUSY May  5th path - removed in May 19th
 HLT_HT300_MHT80_v*
 HLT_HT300_MHT90_v*
 HLT_HT300_PFMHT55_v*
 HLT_HT300_CentralJet30_BTagIP_v*
 HLT_HT300_CentralJet30_BTagIP_PFMHT55_v*
 HLT_HT300_CentralJet30_BTagIP_PFMHT75_v*
-#HLT_HT300_AlphaT0p52_v*                                                        # SUSY May  5th path - removed in May 19th
 HLT_HT300_AlphaT0p53_v*
 HLT_HT300_AlphaT0p54_v*
 HLT_HT350_v*
 HLT_HT350_MHT70_v*
 HLT_HT350_MHT80_v*
-#HLT_HT350_AlphaT0p51_v*                                                        # SUSY May  5th path - removed in May 19th
 HLT_HT350_AlphaT0p52_v* 
 HLT_HT350_AlphaT0p53_v*
 HLT_HT400_v*
@@ -105,29 +95,22 @@ HLT_MET120_HBHENoiseFiltered_v*
 HLT_MET200_HBHENoiseFiltered_v*
 HLT_R014_MR150_v*
 HLT_R014_MR150_CentralJet40_BTagIP_v*
-#HLT_R014_MR450_CentralJet40_BTagIP_v*                                          # SUSY May  5th path - removed in May 19th
 HLT_R017_MR450_CentralJet40_BTagIP_v*
 HLT_R017_MR500_CentralJet40_BTagIP_v*
 HLT_R020_MR150_v*
-#HLT_R020_MR350_CentralJet40_BTagIP_v*                                          # SUSY May  5th path - removed in May 19th
-#HLT_R020_MR500_v*                                                              # SUSY May  5th path - removed in May 19th
 HLT_R020_MR550_v*
 HLT_R023_MR350_CentralJet40_BTagIP_v*
 HLT_R023_MR400_CentralJet40_BTagIP_v*
 HLT_R023_MR550_v*
 HLT_R025_MR150_v*
-#HLT_R025_MR250_CentralJet40_BTagIP_v*                                          # SUSY May  5th path - removed in May 19th
-#HLT_R025_MR400_v*                                                              # SUSY May  5th path - removed in May 19th
 HLT_R025_MR450_v*
 HLT_R029_MR250_CentralJet40_BTagIP_v*
 HLT_R029_MR300_CentralJet40_BTagIP_v*
 HLT_R029_MR450_v*
 HLT_R033_MR200_CentralJet40_BTagIP_v*
-#HLT_R033_MR300_v*                                                              # SUSY May  5th path - removed in May 19th
 HLT_R033_MR350_v*
 HLT_R036_MR200_CentralJet40_BTagIP_v*
 HLT_R036_MR350_v*
-#HLT_R038_MR200_v*                                                              # SUSY May  5th path - removed in May 19th
 HLT_R038_MR250_v*
 HLT_R042_MR250_v*
 HLT_L1SingleMuOpen_v*
@@ -211,10 +194,8 @@ HLT_Photon44_CaloIdL_Photon34_CaloIdL_v*
 HLT_Photon48_CaloIdL_Photon38_CaloIdL_v*
 HLT_Photon50_CaloIdVL_v*
 HLT_Photon50_CaloIdVL_IsoL_v*
-#HLT_Photon70_CaloIdL_HT300_v*                                                  # SUSY May  5th path - removed in May 19th
 HLT_Photon70_CaloIdL_HT350_v*
 HLT_Photon70_CaloIdL_HT400_v*
-#HLT_Photon70_CaloIdL_MHT50_v*                                                  # SUSY May  5th path - removed in May 19th
 HLT_Photon70_CaloIdL_MHT70_v*
 HLT_Photon70_CaloIdL_MHT90_v*
 HLT_Photon75_CaloIdVL_v*
@@ -254,7 +235,6 @@ HLT_Ele42_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*
 HLT_Ele42_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v*
 HLT_Ele52_CaloIdVT_TrkIdT_v*
 HLT_Ele65_CaloIdVT_TrkIdT_v*
-#HLT_DoubleEle8_CaloIdL_TrkIdVL_v*                                              # SUSY May  5th path - removed in May 19th
 HLT_DoubleEle8_CaloIdT_TrkIdVL_v*
 HLT_DoubleEle8_CaloIdT_TrkIdT_v*
 HLT_DoubleEle33_v*
@@ -265,19 +245,15 @@ HLT_IsoPFTau35_Trk20_MET60_v*
 HLT_IsoPFTau45_Trk20_MET60_v*
 HLT_DoubleIsoPFTau35_Trk5_eta2p1_v*
 HLT_DoubleIsoPFTau40_Trk5_eta2p1_v*
-#HLT_HT250_DoubleIsoPFTau10_Trk3_PFMHT35_v*                                     # SUSY May  5th path - removed in May 19th
 HLT_HT300_DoubleIsoPFTau10_Trk3_PFMHT40_v*
 HLT_HT350_DoubleIsoPFTau10_Trk3_PFMHT45_v*
 HLT_BTagMu_DiJet20_Mu5_v*
 HLT_BTagMu_DiJet40_Mu5_v*
 HLT_BTagMu_DiJet70_Mu5_v*
 HLT_BTagMu_DiJet110_Mu5_v*
-#HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT150_v*                                          # SUSY May  5th path - removed in May 19th
 HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT150_v*
 HLT_Mu8_R005_MR200_v*
-#HLT_Mu8_R020_MR200_v*                                                          # SUSY May  5th path - removed in May 19th
 HLT_Mu8_R025_MR200_v*
-#HLT_HT250_Mu5_PFMHT35_v*                                                       # SUSY May  5th path - removed in May 19th
 HLT_HT250_Mu15_PFMHT20_v*
 HLT_HT250_Mu15_PFMHT40_v*
 HLT_HT300_Mu5_PFMHT40_v*
@@ -285,7 +261,6 @@ HLT_HT350_Mu5_PFMHT45_v*
 HLT_Mu3_DiJet30_v*
 HLT_Mu3_TriJet30_v*
 HLT_Mu3_QuadJet30_v*
-#HLT_Mu5_DoubleEle8_CaloIdL_TrkIdVL_v*                                          # SUSY May  5th path - removed in May 19th
 HLT_Mu5_DoubleEle8_CaloIdT_TrkIdVL_v*
 HLT_Mu5_Ele8_CaloIdT_TrkIdVL_Ele8_CaloIdL_TrkIdVL_v*
 HLT_Mu8_Ele17_CaloIdL_v*
@@ -304,8 +279,6 @@ HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_v*
 HLT_Mu12_DiCentralJet30_BTagIP3D_v*
 HLT_Mu12_DiCentralJet20_DiBTagIP3D1stTrack_v*
 HLT_Mu17_CentralJet30_BTagIP_v*
-#HLT_Mu15_HT200_v*                                                              # SUSY May  5th path - removed in May 19th
-#HLT_Mu20_HT200_v*                                                              # SUSY May  5th path - removed in May 19th
 HLT_Mu30_HT200_v*
 HLT_Mu40_HT200_v*
 HLT_IsoMu15_LooseIsoPFTau15_v*
@@ -319,38 +292,30 @@ HLT_IsoMu17_CentralJet30_BTagIP_v*
 HLT_DoubleMu3_HT150_v*
 HLT_DoubleMu3_Mass4_HT150_v* 
 HLT_DoubleMu3_HT200_v*
-#HLT_DoubleMu5_Ele8_v*                                                          # SUSY May  5th path - removed in May 19th
 HLT_DoubleMu5_Ele8_CaloIdL_TrkIdVL_v*
 HLT_DoubleMu5_Ele8_CaloIdT_TrkIdVL_v*
 HLT_Photon40_CaloIdL_R005_MR150_v*
-#HLT_Photon40_CaloIdL_R014_MR450_v*                                             # SUSY May  5th path - removed in May 19th
 HLT_Photon40_CaloIdL_R014_MR500_v*
 HLT_Photon40_CaloIdL_R017_MR500_v*
-#HLT_Photon40_CaloIdL_R020_MR300_v*                                             # SUSY May  5th path - removed in May 19th
 HLT_Photon40_CaloIdL_R020_MR350_v*
 HLT_Photon40_CaloIdL_R023_MR350_v*
-#HLT_Photon40_CaloIdL_R025_MR200_v*                                             # SUSY May  5th path - removed in May 19th
 HLT_Photon40_CaloIdL_R025_MR250_v*
 HLT_Photon40_CaloIdL_R029_MR250_v*
-#HLT_Photon40_CaloIdL_R038_MR150_v*                                             # SUSY May  5th path - removed in May 19th
 HLT_Photon40_CaloIdL_R038_MR200_v*
 HLT_Photon40_CaloIdL_R042_MR200_v*
 HLT_DoublePhoton40_MR150_v*
 HLT_DoublePhoton40_R014_MR150_v*
-#HLT_HT250_Ele5_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_PFMHT35_v*                  # SUSY May  5th path - removed in May 19th
 HLT_HT300_Ele5_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_PFMHT40_v*
 HLT_HT350_Ele5_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_PFMHT45_v*
 HLT_Ele8_CaloIdT_TrkIdT_DiJet30_v*
 HLT_Ele8_CaloIdT_TrkIdT_TriJet30_v*
 HLT_Ele8_CaloIdT_TrkIdT_QuadJet30_v*
 HLT_Ele8_CaloIdL_CaloIsoVL_Jet40_v*
-#HLT_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT200_v*                           # SUSY May  5th path - removed in May 19th
 HLT_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT250_v*
 HLT_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT250_PFMHT25_v*
 HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R005_MR200_v*
 HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R020_MR200_v*
 HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R025_MR200_v*
-#HLT_Ele10_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_R020_MR200_v*                     # SUSY May  5th path - removed in May 19th
 HLT_Ele15_CaloIdVT_TrkIdT_LooseIsoPFTau20_v*
 HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v*
 HLT_Ele18_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v*
@@ -381,10 +346,8 @@ HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20_v*
 # HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralJet30_PFMHT25_v*
 #
 HLT_HT200_DoubleEle5_CaloIdVL_MassJPsi_v*
-#HLT_DoubleEle8_CaloIdL_TrkIdVL_HT150_v*                                        # SUSY May  5th path - removed in May 19th
 HLT_DoubleEle8_CaloIdT_TrkIdVL_HT150_v*
 HLT_DoubleEle8_CaloIdT_TrkIdVL_Mass4_HT150_v* 
-#HLT_DoubleEle10_CaloIdL_TrkIdVL_Ele10_v*                                       # SUSY May  5th path - removed in May 19th
 HLT_DoubleEle10_CaloIdL_TrkIdVL_Ele10_CaloIdT_TrkIdVL_v*
 HLT_TripleEle10_CaloIdL_TrkIdVL_v*
 HLT_PixelTracks_Multiplicity80_v*
