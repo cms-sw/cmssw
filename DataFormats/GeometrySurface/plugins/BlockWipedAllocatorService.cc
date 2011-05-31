@@ -32,6 +32,7 @@ namespace {
 class BlockWipedAllocatorService {
 private:
   bool m_useAlloc;
+  bool m_silent;
   bool m_dump;
   int  m_clearFreq;
   BlockWipedPool pool;
@@ -43,6 +44,7 @@ public:
 	  ) {
     
     m_useAlloc = iConfig.getUntrackedParameter<bool>("usePoolAllocator",false);
+    m_silent = iConfig.getUntrackedParameter<bool>("silent",true);
     m_dump = iConfig.getUntrackedParameter<bool>("dumpEachModule",false);
     m_clearFreq = std::max(1,iConfig.getUntrackedParameter<int>("clearFrequency",20));
 
@@ -64,6 +66,7 @@ public:
   }
 
   void dump() {
+    if (silent) return;
     std::cout << "ReferenceCounted stat"<< std::endl;
     std::cout << "still alive/referenced " 
 	      << ReferenceCountedPoolAllocated::s_alive
