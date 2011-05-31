@@ -2,15 +2,18 @@
 #define RecoMuon_MuonIdentification_MuonProducer_H
 
 /** \class MuonProducer
- *  No description available.
+ *  Producer meant for the Post PF reconstruction.
  *
- *  $Date: 2007/05/12 22:14:39 $
- *  $Revision: 1.1 $
- *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
+ * This class takes the muon collection produced before the PF is run (muons1Step) and the information calculated after that 
+ * the entire event has been reconstructed. The collections produced here are meant to be used for the final analysis (or as PAT input).
+ * The previous muon collection is meant to be transient.
+ *
+ *  $Date: 2010/02/11 00:14:29 $
+ *  $Revision: 1.2 $
+ *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
-//#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 
@@ -42,14 +45,11 @@ private:
     theAlias=alias;
   }
 
-  // tmp
-  void printTrackRecHits(const reco::Track &track, 
-			 edm::ESHandle<GlobalTrackingGeometry> trackingGeometry) const;
-
-
 private:
+  bool debug_;
 
-  edm::InputTag theLinksCollectionLabel;
+  edm::InputTag theMuonsCollectionLabel;
+  edm::InputTag thePFCandLabel;
 };
 #endif
 

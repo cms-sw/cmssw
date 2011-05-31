@@ -1,8 +1,8 @@
 /** \class MuonProducer
  *  No description available.
  *
- *  $Date: 2007/05/12 22:14:39 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/03/25 14:08:49 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -17,46 +17,54 @@
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
-// tmp
-#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
+#include "DataFormats/Common/interface/ValueMap.h"
+
+#include <boost/foreach.hpp>
+#define foreach BOOST_FOREACH
+
+#ifndef dout
+#define dout if(debug_) std::cout
+#endif
+
+using std::endl;
+
+typedef std::map<reco::MuonRef, reco::Candidate::LorentzVector> MuToPFMap;
 
 /// Constructor
-MuonProducer::MuonProducer(const edm::ParameterSet& pSet){
+MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrackedParameter<bool>("ActivateDebug",false)){
 
-  theLinksCollectionLabel = pSet.getParameter<edm::InputTag>("InputObjects");
+  theMuonsCollectionLabel = pSet.getParameter<edm::InputTag>("InputMuons");
+  thePFCandLabel = pSet.getParameter<edm::InputTag>("PFCandidates");
 
-  setAlias(pSet.getParameter<std::string>("@module_label"));
-  produces<reco::MuonCollection>().setBranchAlias(theAlias + "s");
+  // FIXME: need to update the asso map too!!!!!!
+  //  setAlias(pSet.getParameter<std::string>("@module_label"));
+  //  produces<reco::MuonCollection>().setBranchAlias(theAlias + "s");
+  produces<reco::MuonCollection>();
+//   produces<reco::MuonTimeExtraMap>("combined");
+//   produces<reco::MuonTimeExtraMap>("dt");
+//   produces<reco::MuonTimeExtraMap>("csc");
+
+//  if (fillIsolation_ && writeIsoDeposits_){
+//      trackDepositName_ = iConfig.getParameter<std::string>("trackDepositName");
+//      produces<reco::IsoDepositMap>(trackDepositName_);
+//      ecalDepositName_ = iConfig.getParameter<std::string>("ecalDepositName");
+//      produces<reco::IsoDepositMap>(ecalDepositName_);
+//      hcalDepositName_ = iConfig.getParameter<std::string>("hcalDepositName");
+//      produces<reco::IsoDepositMap>(hcalDepositName_);
+//      hoDepositName_ = iConfig.getParameter<std::string>("hoDepositName");
+//      produces<reco::IsoDepositMap>(hoDepositName_);
+//      jetDepositName_ = iConfig.getParameter<std::string>("jetDepositName");
+//      produces<reco::IsoDepositMap>(jetDepositName_);
+//    }
 }
 
 /// Destructor
-MuonProducer::~MuonProducer(){
+MuonProducer::~MuonProducer(){ 
 
 }
-
-void MuonProducer::printTrackRecHits(const reco::Track &track, 
-				     edm::ESHandle<GlobalTrackingGeometry> trackingGeometry) const{
-
-  const std::string metname = "Muon|RecoMuon|MuonIdentification|MuonProducer";
-
-  LogTrace(metname) << "Valid RecHits: "<<track.found() << " invalid RecHits: " << track.lost();
-  
-  int i = 0;
-  for(trackingRecHit_iterator recHit = track.recHitsBegin(); recHit != track.recHitsEnd(); ++recHit)
-    if((*recHit)->isValid()){
-      const GeomDet* geomDet = trackingGeometry->idToDet((*recHit)->geographicalId());
-      double r = geomDet->surface().position().perp();
-      double z = geomDet->toGlobal((*recHit)->localPosition()).z();
-      LogTrace(metname) << i++ <<" r: "<< r <<" z: "<<z <<" "<<geomDet->toGlobal((*recHit)->localPosition())
-			<<std::endl;
-    }
-}
-
 
 
 /// reconstruct muons
@@ -65,55 +73,76 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
    const std::string metname = "Muon|RecoMuon|MuonIdentification|MuonProducer";
 
    // the muon collection, it will be loaded in the event
-   std::auto_ptr<reco::MuonCollection> muonCollection(new reco::MuonCollection());
+   std::auto_ptr<reco::MuonCollection> outputMuons(new reco::MuonCollection());
+   // FIXME: need to update the asso map too!!!!!!
    
 
-   edm::Handle<reco::MuonTrackLinksCollection> linksCollection; 
-   event.getByLabel(theLinksCollectionLabel,linksCollection);
+   edm::Handle<reco::MuonCollection> inputMuons; 
+   event.getByLabel(theMuonsCollectionLabel, inputMuons);
 
-   if(linksCollection->empty()) {
-     event.put(muonCollection);
+   edm::Handle<reco::PFCandidateCollection> pfCandidates; 
+   event.getByLabel(thePFCandLabel, pfCandidates);
+
+
+   if(inputMuons->empty()) {
+     // FIXME! Needs to check that all the default variables (the new one) are properly set
+     event.put(outputMuons);
+     // FIXME: need to update the asso map too!!!!!!
      return;
    }
    
-
-   // Global Tracking Geometry
-   edm::ESHandle<GlobalTrackingGeometry> trackingGeometry; 
-   eventSetup.get<GlobalTrackingGeometryRecord>().get(trackingGeometry); 
+   // FIXME: add the option to swith off the Muon-PF "info association".
    
-   for(reco::MuonTrackLinksCollection::const_iterator links = linksCollection->begin();
-       links != linksCollection->end(); ++links){
 
-     // some temporary print-out
-     LogTrace(metname) << "trackerTrack";
-     printTrackRecHits(*(links->trackerTrack()),trackingGeometry);
-     LogTrace(metname) << "standAloneTrack";
-     printTrackRecHits(*(links->standAloneTrack()),trackingGeometry);
-     LogTrace(metname) << "globalTrack";
-     printTrackRecHits(*(links->globalTrack()),trackingGeometry);
-    
-     // Fill the muon 
-     reco::Muon muon;
-     muon.setStandAlone(links->standAloneTrack());
-     muon.setTrack(links->trackerTrack());
-     muon.setCombined(links->globalTrack());
+   MuToPFMap muToPFMap;
+
+   dout << "Number of PFCandidates: " << pfCandidates->size() << endl;
+   foreach(const reco::PFCandidate &pfCand, *pfCandidates)
+     if(abs(pfCand.pdgId()) == 13){
+       muToPFMap[pfCand.muonRef()] = pfCand.p4();     
+       dout << "MuonRef: " << pfCand.muonRef().id() << " " << pfCand.muonRef().key() << " PF p4: " << pfCand.p4() << endl;
+     }
+
+
+   dout << "Number of PFMuons: " << muToPFMap.size() << endl;
+   dout << "Number of Muons in the original collection: " << inputMuons->size() << endl;
+
+
+   reco::MuonRef::key_type muIndex = 0;
+   foreach(const reco::Muon &inMuon, *inputMuons){
+	  
+     reco::MuonRef muRef(inputMuons, muIndex++);
+
+     // Copy the muon 
+     reco::Muon outMuon = inMuon;
+
+     // search for the corresponding pf candidate
+     MuToPFMap::iterator iter =  muToPFMap.find(muRef);
+     if(iter != muToPFMap.end()){
+       outMuon.setPFP4(iter->second);
+       muToPFMap.erase(iter);
+       dout << "MuonRef: " << muRef.id() << " " << muRef.key() 
+	    << " Is it PF? " << outMuon.isPFMuon() 
+	 // << " PF p4: " << outMuon.isPFMuon() ? outMuon.pfP4() : 0 << endl;
+	    << " PF p4: " << outMuon.pfP4() << endl;
+     }
      
-     // FIXME: can this break in case combined info cannot be added to some tracks?
-     muon.setCharge(links->globalTrack()->charge());
 
-     //FIXME: E = sqrt(p^2 + m^2), where m == 0.105658369(9)GeV 
-     double energy = sqrt(links->globalTrack()->p() * links->globalTrack()->p() + 0.011163691);
-     math::XYZTLorentzVector p4(links->globalTrack()->px(),
-				links->globalTrack()->py(),
-				links->globalTrack()->pz(),
-				energy);
+     dout << "MuonRef: " << muRef.id() << " " << muRef.key() 
+	  << " Is it PF? " << outMuon.isPFMuon() << endl;
+   
+     dout << "GLB "  << outMuon.isGlobalMuon()
+	  << " TM "  << outMuon.isTrackerMuon()
+	  << " STA " << outMuon.isStandAloneMuon() 
+	  << " p4 "  << outMuon.p4() << endl;
 
-     muon.setP4(p4);
-     muon.setVertex(links->globalTrack()->vertex());
+       // FIXME: Fill iso quantities too!
+
+
        
-    muonCollection->push_back(muon);
-     
+     outputMuons->push_back(outMuon);    
    }
 
-   event.put(muonCollection);
+   dout << "Number of Muons in the new muon collection: " << outputMuons->size() << endl;
+   event.put(outputMuons);
 }
