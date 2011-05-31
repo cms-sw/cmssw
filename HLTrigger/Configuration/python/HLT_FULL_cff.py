@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HLT/V428 (CMSSW_4_2_0_HLT8)
+# /dev/CMSSW_4_2_0/HLT/V431 (CMSSW_4_2_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V428')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V431')
 )
 
 streams = cms.PSet( 
@@ -6551,8 +6551,8 @@ hltDoubleEG5EtFilterUnseeded = cms.EDFilter( "HLTEgammaEtFilter",
     etcutEE = cms.double( 5.0 ),
     ncandcut = cms.int32( 2 ),
     saveTags = cms.bool( False ),
-    L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
-    L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
+    L1IsoCand = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
+    L1NonIsoCand = cms.InputTag( "" )
 )
 hltActivityPhotonClusterShape = cms.EDProducer( "EgammaHLTClusterShapeProducer",
     recoEcalCandidateProducer = cms.InputTag( "hltRecoEcalSuperClusterActivityCandidate" ),
