@@ -1,37 +1,3 @@
 <TESTSCONFIGURATION>
 
-    <QTEST name="dttpgCorrFracInRange">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
-        <PARAM name="error">0.23</PARAM>
-        <PARAM name="warning">0.25</PARAM>
-        <PARAM name="minMean">0.40</PARAM>
-        <PARAM name="maxMean">1.00</PARAM>
-        <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
-        <PARAM name="minEntries">0</PARAM>
-    </QTEST>
-
-    <QTEST name="dttpg2ndFracInRange">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>    
-        <PARAM name="error">0.95</PARAM>
-        <PARAM name="warning">0.99</PARAM>
-        <PARAM name="minMean">0.00</PARAM>
-        <PARAM name="maxMean">0.15</PARAM>
-        <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
-        <PARAM name="minEntries">0</PARAM>
-    </QTEST>
- 
-
-    <LINK name="*DT_TPG_phi_map_corr_frac*">
-        <TestName activate="true">dttpgCorrFracInRange</TestName>
-    </LINK>
-
-    <LINK name="*DT_TPG_phi_map_2nd_frac*">
-        <TestName activate="true">dttpg2ndFracInRange</TestName>
-    </LINK>
-
-
 </TESTSCONFIGURATION>
