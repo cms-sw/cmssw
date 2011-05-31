@@ -66,7 +66,7 @@ public:
   }
 
   void dump() {
-    if (silent) return;
+    if (m_silent) return;
     std::cout << "ReferenceCounted stat"<< std::endl;
     std::cout << "still alive/referenced " 
 	      << ReferenceCountedPoolAllocated::s_alive
