@@ -2,8 +2,8 @@
  * \file DQMStoreStats.cc
  * \author Andreas Meyer
  * Last Update:
- * $Date: 2011/03/30 21:01:57 $
- * $Revision: 1.11 $
+ * $Date: 2011/05/31 10:50:26 $
+ * $Revision: 1.12 $
  * $Author: rovere $
  *
  * Description: Print out statistics of histograms in DQMStore
@@ -191,146 +191,144 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
 
   // OUTPUT
 
-  if (!dumpToFWJR_)
-  {
-    std::cout << endl;
-    std::cout << "===========================================================================================" << std::endl;
-    std::cout << "[DQMStoreStats::calcstats] -- Dumping stats results ";
-    if( mode == DQMStoreStats::considerAllME ) std::cout << "FOR ALL ME" << std::endl;
-    else if( mode == DQMStoreStats::considerOnlyLumiProductME ) std::cout << "FOR LUMI PRODUCTS ONLY" << std::endl;
-    std::cout << "===========================================================================================" << std::endl;
-    std::cout << endl;
+  std::cout << endl;
+  std::cout << "===========================================================================================" << std::endl;
+  std::cout << "[DQMStoreStats::calcstats] -- Dumping stats results ";
+  if( mode == DQMStoreStats::considerAllME ) std::cout << "FOR ALL ME" << std::endl;
+  else if( mode == DQMStoreStats::considerOnlyLumiProductME ) std::cout << "FOR LUMI PRODUCTS ONLY" << std::endl;
+  std::cout << "===========================================================================================" << std::endl;
+  std::cout << endl;
 
-    std::cout << "------------------------------------------------------------------------------------------" << std::endl;
-    std::cout << "Configuration:" << std::endl;
-    std::cout << "------------------------------------------------------------------------------------------" << std::endl;
-    std::cout << " > running ";
-    if (runonendrun_) std::cout << "on run end." << std::endl;
-    if (runonendlumi_) std::cout << "on lumi end." << std::endl;
-    if (runonendjob_) std::cout << "on job end." << std::endl;
-    if (runineventloop_) std::cout << "in event loop." << std::endl;
-    std::cout << " > pathNameMatch = \"" << pathnamematch_ << "\"" << std::endl;
-    std::cout << std::endl;
+  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+  std::cout << "Configuration:" << std::endl;
+  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+  std::cout << " > running ";
+  if (runonendrun_) std::cout << "on run end." << std::endl;
+  if (runonendlumi_) std::cout << "on lumi end." << std::endl;
+  if (runonendjob_) std::cout << "on job end." << std::endl;
+  if (runineventloop_) std::cout << "in event loop." << std::endl;
+  std::cout << " > pathNameMatch = \"" << pathnamematch_ << "\"" << std::endl;
+  std::cout << std::endl;
 
-    // dump folder structure
-    std::cout << "------------------------------------------------------------------------------------------" << std::endl;
-    std::cout << "Top level folder tree:" << std::endl;
-    std::cout << "------------------------------------------------------------------------------------------" << std::endl;
-    for( DQMStoreStatsTopLevel::const_iterator it0 = dqmStoreStatsTopLevel.begin(); it0 < dqmStoreStatsTopLevel.end(); ++it0 ) {
-      std::cout << it0->subsystemName_ << " (subsystem)" << std::endl;
+  // dump folder structure
+  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+  std::cout << "Top level folder tree:" << std::endl;
+  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+  for( DQMStoreStatsTopLevel::const_iterator it0 = dqmStoreStatsTopLevel.begin(); it0 < dqmStoreStatsTopLevel.end(); ++it0 ) {
+    std::cout << it0->subsystemName_ << " (subsystem)" << std::endl;
     
-      for( DQMStoreStatsSubsystem::const_iterator it1 = it0->begin(); it1 < it0->end(); ++it1 ) {
-	std::cout << "  |--> " << it1->subfolderName_ << " (subfolder)" << std::endl;
-      }
-    
+    for( DQMStoreStatsSubsystem::const_iterator it1 = it0->begin(); it1 < it0->end(); ++it1 ) {
+      std::cout << "  |--> " << it1->subfolderName_ << " (subfolder)" << std::endl;
     }
-
-    // dump mem/bin table
-
-    unsigned int overallNHistograms = 0, overallNBins = 0, overallNEmptyBins = 0, overallNBytes = 0;
-
-    std::cout << std::endl;
-    std::cout << "------------------------------------------------------------------------------------------" << std::endl;
-    std::cout << "Detailed ressource usage information ";
-    if( mode == DQMStoreStats::considerAllME ) std::cout << "FOR ALL ME" << std::endl;
-    else if( mode == DQMStoreStats::considerOnlyLumiProductME ) std::cout << "FOR LUMI PRODUCTS ONLY" << std::endl;
-    std::cout << "------------------------------------------------------------------------------------------" << std::endl;
-    std::cout << "subsystem/folder                          histograms       bins        Empty bins     Empty/Total      bins per       MB         kB per" << std::endl;
-    std::cout << "                                           (total)        (total)        (total)                      histogram     (total)    histogram  " << std::endl;
-    std::cout << "------------------------------------------------------------------------------------------" << std::endl;
-    for( DQMStoreStatsTopLevel::const_iterator it0 = dqmStoreStatsTopLevel.begin(); it0 < dqmStoreStatsTopLevel.end(); ++it0 ) {
-      std::cout << it0->subsystemName_ << std::endl;
     
-      unsigned int nHistograms = 0, nBins = 0, nEmptyBins = 0, nBytes = 0;
-
-      for( DQMStoreStatsSubsystem::const_iterator it1 = it0->begin(); it1 < it0->end(); ++it1 ) {
-
-	// fixed-size working copy
-	std::string thisSubfolderName( it1->subfolderName_ );
-	if( thisSubfolderName.size() > 30 ) {
-	  thisSubfolderName.resize( 30 );
-	  thisSubfolderName.replace( thisSubfolderName.size() - 3, 3, 3, '.' );
-	}
-
-	std::cout << " -> " << std::setw( 30 ) << std::left << thisSubfolderName;
-	std::cout << std::setw( 14 ) << std::right << it1->totalHistos_;
-	std::cout << std::setw( 14 ) << std::right << it1->totalBins_;
-	std::cout << std::setw( 14 ) << std::right << it1->totalEmptyBins_;
-	std::cout << std::setw( 14 ) << std::right << std::setprecision( 3 ) << (float)it1->totalEmptyBins_/(float)it1->totalBins_;
-
-	// bins/histogram, need to catch nan if histos=0
-	if( it1->totalHistos_ ) {
-	  std::cout << std::setw( 14 ) << std::right << std::setprecision( 3 ) << it1->totalBins_ / float( it1->totalHistos_ );
-	} 
-	else std::cout << std::setw( 14 ) << std::right << "-";
-
-	std::cout << std::setw( 14 ) << std::right << std::setprecision( 3 ) << it1->totalMemory_ / 1024. / 1000.;
-
-	// mem/histogram, need to catch nan if histos=0
-	if( it1->totalHistos_ ) {
-	  std::cout << std::setw( 14 ) << std::right << std::setprecision( 3 ) << it1->totalMemory_ / 1024. / it1->totalHistos_;
-	}
-	else std::cout << std::setw( 14 ) << std::right << "-";
-
-	std::cout << std::endl;
-
-	// collect totals
-	nHistograms += it1->totalHistos_; 
-	nBins       += it1->totalBins_;   
-	nEmptyBins  += it1->totalEmptyBins_;   
-	nBytes      += it1->totalMemory_; 
-
-      }
-
-
-
-
-      overallNHistograms += nHistograms;
-      overallNBins       += nBins;
-      overallNEmptyBins  += nEmptyBins;
-      overallNBytes      += nBytes;
-
-      // display totals
-      std::cout << "    " << std::setw( 30 ) << std::left << "SUBSYSTEM TOTAL";
-      std::cout << std::setw( 14 ) << std::right << nHistograms;
-      std::cout << std::setw( 14 ) << std::right << nBins;
-      std::cout << std::setw( 14 ) << std::right << nEmptyBins;
-      std::cout << std::setw( 14 ) << std::right << (float)nEmptyBins/(float)nBins;
-      std::cout << std::setw( 14 ) << std::right << std::setprecision( 3 ) << nBins / float( nHistograms );
-      std::cout << std::setw( 14 ) << std::right << std::setprecision( 3 ) << nBytes / 1024. / 1000.;
-      std::cout << std::setw( 14 ) << std::right << std::setprecision( 3 ) << nBytes / 1024. / nHistograms;
-      std::cout << std::endl;
-      
-      std::cout << ".........................................................................................." << std::endl;
-
-    }
-
-
-    // dump total
-    std::cout << std::endl;
-    std::cout << "------------------------------------------------------------------------------------------" << std::endl;
-    std::cout << "Grand total ";
-    if( mode == DQMStoreStats::considerAllME ) std::cout << "FOR ALL ME:" << std::endl;
-    else if( mode == DQMStoreStats::considerOnlyLumiProductME ) std::cout << "FOR LUMI PRODUCTS ONLY:" << std::endl;
-    std::cout << "------------------------------------------------------------------------------------------" << std::endl;
-    std::cout << "Number of subsystems: " << dqmStoreStatsTopLevel.size() << std::endl;
-    std::cout << "Total number of histograms: " << overallNHistograms << " with: " << overallNBins << " bins alltogether" << std::endl;
-    std::cout << "Total memory occupied by histograms (excl. overhead): " << overallNBytes / 1024. / 1000. << " MB" << std::endl;
-
-
-
-    std::cout << endl;
-    std::cout << "===========================================================================================" << std::endl;
-    std::cout << "[DQMStoreStats::calcstats] -- End of output ";
-    if( mode == DQMStoreStats::considerAllME ) std::cout << "FOR ALL ME." << std::endl;
-    else if( mode == DQMStoreStats::considerOnlyLumiProductME ) std::cout << "FOR LUMI PRODUCTS ONLY." << std::endl;
-    std::cout << "===========================================================================================" << std::endl;
-    std::cout << endl;
   }
+
+  // dump mem/bin table
+
+  unsigned int overallNHistograms = 0, overallNBins = 0, overallNEmptyBins = 0, overallNBytes = 0;
+
+  std::cout << std::endl;
+  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+  std::cout << "Detailed ressource usage information ";
+  if( mode == DQMStoreStats::considerAllME ) std::cout << "FOR ALL ME" << std::endl;
+  else if( mode == DQMStoreStats::considerOnlyLumiProductME ) std::cout << "FOR LUMI PRODUCTS ONLY" << std::endl;
+  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+  std::cout << "subsystem/folder                          histograms       bins        Empty bins     Empty/Total      bins per       MB         kB per" << std::endl;
+  std::cout << "                                           (total)        (total)        (total)                      histogram     (total)    histogram  " << std::endl;
+  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+  for( DQMStoreStatsTopLevel::const_iterator it0 = dqmStoreStatsTopLevel.begin(); it0 < dqmStoreStatsTopLevel.end(); ++it0 ) {
+    std::cout << it0->subsystemName_ << std::endl;
+    
+    unsigned int nHistograms = 0, nBins = 0, nEmptyBins = 0, nBytes = 0;
+
+    for( DQMStoreStatsSubsystem::const_iterator it1 = it0->begin(); it1 < it0->end(); ++it1 ) {
+
+      // fixed-size working copy
+      std::string thisSubfolderName( it1->subfolderName_ );
+      if( thisSubfolderName.size() > 30 ) {
+	thisSubfolderName.resize( 30 );
+	thisSubfolderName.replace( thisSubfolderName.size() - 3, 3, 3, '.' );
+      }
+
+      std::cout << " -> " << std::setw( 30 ) << std::left << thisSubfolderName;
+      std::cout << std::setw( 14 ) << std::right << it1->totalHistos_;
+      std::cout << std::setw( 14 ) << std::right << it1->totalBins_;
+      std::cout << std::setw( 14 ) << std::right << it1->totalEmptyBins_;
+      std::cout << std::setw( 14 ) << std::right << std::setprecision( 3 ) << (float)it1->totalEmptyBins_/(float)it1->totalBins_;
+
+      // bins/histogram, need to catch nan if histos=0
+      if( it1->totalHistos_ ) {
+	std::cout << std::setw( 14 ) << std::right << std::setprecision( 3 ) << it1->totalBins_ / float( it1->totalHistos_ );
+      } 
+      else std::cout << std::setw( 14 ) << std::right << "-";
+
+      std::cout << std::setw( 14 ) << std::right << std::setprecision( 3 ) << it1->totalMemory_ / 1024. / 1000.;
+
+      // mem/histogram, need to catch nan if histos=0
+      if( it1->totalHistos_ ) {
+	std::cout << std::setw( 14 ) << std::right << std::setprecision( 3 ) << it1->totalMemory_ / 1024. / it1->totalHistos_;
+      }
+      else std::cout << std::setw( 14 ) << std::right << "-";
+
+      std::cout << std::endl;
+
+      // collect totals
+      nHistograms += it1->totalHistos_; 
+      nBins       += it1->totalBins_;   
+      nEmptyBins  += it1->totalEmptyBins_;   
+      nBytes      += it1->totalMemory_; 
+
+    }
+
+
+
+
+    overallNHistograms += nHistograms;
+    overallNBins       += nBins;
+    overallNEmptyBins  += nEmptyBins;
+    overallNBytes      += nBytes;
+
+    // display totals
+    std::cout << "    " << std::setw( 30 ) << std::left << "SUBSYSTEM TOTAL";
+    std::cout << std::setw( 14 ) << std::right << nHistograms;
+    std::cout << std::setw( 14 ) << std::right << nBins;
+    std::cout << std::setw( 14 ) << std::right << nEmptyBins;
+    std::cout << std::setw( 14 ) << std::right << (float)nEmptyBins/(float)nBins;
+    std::cout << std::setw( 14 ) << std::right << std::setprecision( 3 ) << nBins / float( nHistograms );
+    std::cout << std::setw( 14 ) << std::right << std::setprecision( 3 ) << nBytes / 1024. / 1000.;
+    std::cout << std::setw( 14 ) << std::right << std::setprecision( 3 ) << nBytes / 1024. / nHistograms;
+    std::cout << std::endl;
+      
+    std::cout << ".........................................................................................." << std::endl;
+
+  }
+
+
+  // dump total
+  std::cout << std::endl;
+  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+  std::cout << "Grand total ";
+  if( mode == DQMStoreStats::considerAllME ) std::cout << "FOR ALL ME:" << std::endl;
+  else if( mode == DQMStoreStats::considerOnlyLumiProductME ) std::cout << "FOR LUMI PRODUCTS ONLY:" << std::endl;
+  std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+  std::cout << "Number of subsystems: " << dqmStoreStatsTopLevel.size() << std::endl;
+  std::cout << "Total number of histograms: " << overallNHistograms << " with: " << overallNBins << " bins alltogether" << std::endl;
+  std::cout << "Total memory occupied by histograms (excl. overhead): " << overallNBytes / 1024. / 1000. << " MB" << std::endl;
+
+
+
+  std::cout << endl;
+  std::cout << "===========================================================================================" << std::endl;
+  std::cout << "[DQMStoreStats::calcstats] -- End of output ";
+  if( mode == DQMStoreStats::considerAllME ) std::cout << "FOR ALL ME." << std::endl;
+  else if( mode == DQMStoreStats::considerOnlyLumiProductME ) std::cout << "FOR LUMI PRODUCTS ONLY." << std::endl;
+  std::cout << "===========================================================================================" << std::endl;
+  std::cout << endl;
+
   // Put together a simplified version of the complete dump that is
   // sent to std::cout. Just dump the very basic information,
   // i.e. summary for each folder, both for run and LS products.
-  else
+  if (dumpToFWJR_)
   {
     edm::Service<edm::JobReport> jr;
     // Do not even try if the FWJR service is not available.
