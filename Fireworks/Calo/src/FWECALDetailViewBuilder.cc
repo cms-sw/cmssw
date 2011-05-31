@@ -34,18 +34,38 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
 
    if (fabs(m_eta) < 1.5)
    {
+      // first search in ecalRecHit
       try
       {
          edm::InputTag tag("ecalRecHit", "EcalRecHitsEB");
          m_event->getByLabel(tag, handle_hits);
 	 if (handle_hits.isValid())
+         {
 	    hits = &*handle_hits;
+         }
       }
       catch (...)
       {
-         fwLog(fwlog::kWarning) <<"no barrel ECAL rechits are available, "
-            "showing crystal location but not energy" << std::endl;
+         fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::build():: Failed to access EcalRecHitsEB collection." << std::endl;
       }
+
+      // first search in ReducedEcalRecHit
+      if ( ! handle_hits.isValid()) {
+         try{
+            edm::InputTag tag("reducedEcalRecHitsEB");
+            m_event->getByLabel(tag, handle_hits);
+            if (handle_hits.isValid())
+            {
+               hits = &*handle_hits;
+            }
+
+         }
+         catch (...)
+         {
+            fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::build():: Failed to access reducedEcalRecHitsEB collection." << std::endl;
+         }
+      }
+   
    }
    else
    {
@@ -58,8 +78,25 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
       }
       catch (...)
       {
-         fwLog(fwlog::kWarning) <<"no endcap ECAL rechits are available, "
-            "showing crystal location but not energy" << std::endl;
+         fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::build():: Failed to access ecalRecHitsEE collection." << std::endl;
+      }
+
+      if ( ! handle_hits.isValid()) {
+         try {
+            edm::InputTag tag("reducedEcalRecHitsEE");
+            m_event->getByLabel(tag, handle_hits);
+            if (handle_hits.isValid())
+            {
+               hits = &*handle_hits;
+            }
+
+         }
+         catch (...)
+         {     
+            fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::build():: Failed to access reducedEcalRecHitsEE collection." << std::endl;
+    
+         }
+
       }
    }
      
@@ -77,15 +114,15 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
    }
    else
    {
-      fwLog(fwlog::kWarning) <<"ECALDetailView::build(): No endcap rechits are available.\n";
+      fwLog(fwlog::kWarning) <<"ECALDetailView::build(): No EcalRecHits are available.\n";
 
-        // add dummy background 
-        if (fabs(m_eta) < 1.5)
-           data->AddTower(fw3dlego::xbins[0] , fw3dlego::xbins[82], -TMath::Pi(), TMath::Pi() );
-        else 
-           data->AddTower( -140, 140, -140, 140 );
+      // add dummy background 
+      if (fabs(m_eta) < 1.5)
+         data->AddTower(fw3dlego::xbins[0] , fw3dlego::xbins[82], -TMath::Pi(), TMath::Pi() );
+      else 
+         data->AddTower( -140, 140, -140, 140 );
 
-       data->FillSlice( 0, 0 );
+      data->FillSlice( 0, 0 );
    }
 
 
