@@ -16,6 +16,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
+process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+
 process.load("CalibMuon.DTCalibration.dtCalibValidation_cfi")
 process.load("CalibMuon.DTCalibration.ALCARECODtCalibHLTDQM_cfi")
 process.ALCARECODtCalibHLTDQM.directory = "DT/HLTSummary"

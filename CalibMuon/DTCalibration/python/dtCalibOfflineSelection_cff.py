@@ -82,20 +82,27 @@ goodMuonsPt5 = cms.EDFilter("CandViewSelector",
 )
 muonSelectionPt5 = cms.Sequence(goodMuonsPt5)
 
+goodCosmicTracksPt5 = cms.EDFilter("TrackSelector",
+    src = cms.InputTag("cosmicMuons"),
+    cut = cms.string('pt > 5.0'),
+    filter = cms.bool(True)
+)
+
 offlineSelectionPt15 = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelectionPt15)
 offlineSelectionALCARECOPt15 = cms.Sequence(muonSelectionPt15)
 offlineSelectionPt5 = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelectionPt5)
 offlineSelectionALCARECOPt5 = cms.Sequence(muonSelectionPt5)
+offlineSelectionCosmicsPt5 = cms.Sequence(hltL1SingleMuOpen + goodCosmicTracksPt5)
 
 offlineSelection = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelectionPt15)
 offlineSelectionALCARECO = cms.Sequence(muonSelectionPt15)
-#offlineSelectionCosmics = cms.Sequence(l1SingleMuOpen)
 offlineSelectionCosmics = cms.Sequence(hltL1SingleMuOpen)
 
 dtCalibOfflineSelectionPt15 = cms.Sequence(offlineSelectionPt15)
 dtCalibOfflineSelectionALCARECOPt15 = cms.Sequence(offlineSelectionALCARECOPt15)
 dtCalibOfflineSelectionPt5 = cms.Sequence(offlineSelectionPt5)
 dtCalibOfflineSelectionALCARECOPt5 = cms.Sequence(offlineSelectionALCARECOPt5)
+dtCalibOfflineSelectionCosmicsPt5 = cms.Sequence(offlineSelectionCosmicsPt5)
 
 dtCalibOfflineSelection = cms.Sequence(offlineSelection)
 dtCalibOfflineSelectionALCARECO = cms.Sequence(offlineSelectionALCARECO)
