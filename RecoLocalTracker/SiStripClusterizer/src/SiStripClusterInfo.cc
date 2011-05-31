@@ -46,12 +46,15 @@ variance() const {
 
 std::vector<float> SiStripClusterInfo::
 stripNoisesRescaledByGain() const { 
-  std::vector<float> noises = stripNoises();  
-  std::vector<float> gains = stripGains();
-  transform(noises.begin(), noises.end(), gains.begin(), 
-	    noises.begin(), 
-	    std::divides<double>());
-  return noises;
+  SiStripNoises::Range detNoiseRange = noiseHandle->getRange(cluster()->geographicalId());  
+  SiStripApvGain::Range detGainRange = gainHandle->getRange(cluster()->geographicalId());
+
+  std::vector<float> results;
+  results.reserve(width());
+  for(size_t i = 0, e = width(); i < e; i++){
+    results.push_back(noiseHandle->getNoise(firstStrip()+i, detNoiseRange) / gainHandle->getStripGain( firstStrip()+i, detGainRange));
+  }
+  return results;
 }
 
 std::vector<float> SiStripClusterInfo::
@@ -59,6 +62,7 @@ stripNoises() const {
   SiStripNoises::Range detNoiseRange = noiseHandle->getRange(cluster()->geographicalId());  
   
   std::vector<float> noises;
+  noises.reserve(width());
   for(size_t i=0; i < width(); i++){
     noises.push_back( noiseHandle->getNoise( firstStrip()+i, detNoiseRange) );
   }
@@ -70,6 +74,7 @@ stripGains() const {
   SiStripApvGain::Range detGainRange = gainHandle->getRange(cluster()->geographicalId());	
 
   std::vector<float> gains;
+  gains.reserve(width());
   for(size_t i=0; i< width(); i++){	
     gains.push_back( gainHandle->getStripGain( firstStrip()+i, detGainRange) );
   } 
@@ -79,6 +84,7 @@ stripGains() const {
 std::vector<bool> SiStripClusterInfo::
 stripQualitiesBad() const {
   std::vector<bool> isBad;
+  isBad.reserve(width());
   for(int i=0; i< width(); i++) {
     isBad.push_back( qualityHandle->IsStripBad( cluster()->geographicalId(), 
 						 firstStrip()+i) );
