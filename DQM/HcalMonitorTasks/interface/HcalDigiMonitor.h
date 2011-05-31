@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2010/11/10 20:00:33 $
-  * $Revision: 1.64 $
+  * $Date: 2010/11/17 19:17:30 $
+  * $Revision: 1.65 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -88,6 +88,7 @@ public:
 private:  ///Methods, variables accessible only within class code
   bool passedMinBiasHLT_;
   bool excludeHORing2_;
+  bool excludeHO1P02_;
  
   void fill_Nevents();
   void zeroCounters();
@@ -97,6 +98,8 @@ private:  ///Methods, variables accessible only within class code
   void UpdateHists(DigiHists& h);
 
   bool doFCpeds_;
+
+  int HO0bad, HO12bad, HFlumibad;
 
   int shapeThresh_;
   int shapeThreshHB_;
