@@ -286,7 +286,8 @@ def main():
     selectionDict={}
     minTime=''
     maxTime=''
-
+    startRunTime=''
+    stopRunTime=''
     #if len(ifilename)!=0 :
     #    f=open(ifilename,'r')
     #    inputfilecontent=f.read()
@@ -349,13 +350,19 @@ def main():
         qHandle=session.nominalSchema().newQuery()
         runDict=lumiQueryAPI.runsByTimerange(qHandle,minTime,maxTime)#xrawdata
         session.transaction().commit()
-        runList=runDict.keys()
+        runList=runDict.keys()        
         del qHandle
         #print 'run list: ',runDict
     else:
         print 'unsupported action ',args.action
         exit
     runList.sort()
+    if len(runList)!=0:
+        runmin=min(runList)
+        runmax=max(runList)
+        startRunTime=runDict[runmin][0]
+        stopRunTime=runDict[runmax][1]
+        
     #print 'runList ',runList
     #print 'runDict ', runDict
     
@@ -437,8 +444,8 @@ def main():
             xdata[run]=[starttime,stoptime]
             if args.outputfile :
                 reporter.writeRow([run,starttime,stoptime,lumiDict[run][0],lumiDict[run][1]])
-        m.plotSumX_Time(xdata,ydata,minTime,maxTime,hltpath=hltpath,annotateBoundaryRunnum=args.annotateboundary,yscale='linear')
-        mlog.plotSumX_Time(xdata,ydata,minTime,maxTime,hltpath=hltpath,annotateBoundaryRunnum=args.annotateboundary,yscale='log')
+        m.plotSumX_Time(xdata,ydata,startRunTime,stopRunTime,hltpath=hltpath,annotateBoundaryRunnum=args.annotateboundary,yscale='linear')
+        mlog.plotSumX_Time(xdata,ydata,startRunTime,stopRunTime,hltpath=hltpath,annotateBoundaryRunnum=args.annotateboundary,yscale='log')
     elif args.action == 'perday':
         daydict={}#{day:[[run,cmslsnum,lsstarttime,delivered,recorded]]}
         lumibyls=getLumiOrderByLS(session,c,runList,selectionDict,hltpath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation)
@@ -484,8 +491,8 @@ def main():
         #print 'beginfo ',beginfo
         #print 'endinfo ',endinfo
         #print resultbyday
-        m.plotPerdayX_Time( range(daymin,daymax+1) ,resultbyday,minTime,maxTime,boundaryInfo=[beginfo,endinfo],annotateBoundaryRunnum=args.annotateboundary,yscale='linear')
-        mlog.plotPerdayX_Time( range(daymin,daymax+1),resultbyday,minTime,maxTime,boundaryInfo=[beginfo,endinfo],annotateBoundaryRunnum=args.annotateboundary,yscale='log')
+        m.plotPerdayX_Time( range(daymin,daymax+1) ,resultbyday,startRunTime,stopRunTime,boundaryInfo=[beginfo,endinfo],annotateBoundaryRunnum=args.annotateboundary,yscale='linear')
+        mlog.plotPerdayX_Time( range(daymin,daymax+1),resultbyday,startRunTime,stopRunTime,boundaryInfo=[beginfo,endinfo],annotateBoundaryRunnum=args.annotateboundary,yscale='log')
     else:
         raise Exception,'must specify the type of x-axi'
 
