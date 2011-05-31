@@ -235,7 +235,7 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   HitFit->AddLepton((*leps)[0]);
 
   // Add jets into HitFit
-  for (int jet = 0 ; jet != maxNJets_ ; ++jet) {
+  for (int jet = 0; jet != maxNJets_ && jet != (int) (*jets).size(); ++jet) {
       HitFit->AddJet((*jets)[jet]);
   }
 
