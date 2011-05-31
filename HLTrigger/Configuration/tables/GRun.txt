@@ -9,11 +9,8 @@ HLT_Jet110_v*
 HLT_Jet150_v*
 HLT_Jet190_v*
 HLT_Jet240_v*
-#
-# the following paths to be added in May 19th train
-#HLT_Jet240_CentralJet30_BTagIP_v*
-#HLT_Jet270_CentralJet30_BTagIP_v*
-#
+HLT_Jet240_CentralJet30_BTagIP_v*
+HLT_Jet270_CentralJet30_BTagIP_v*
 HLT_Jet300_v*
 HLT_Jet370_v*
 HLT_Jet370_NoJetID_v*
@@ -26,13 +23,10 @@ HLT_DiJetAve190_v*
 HLT_DiJetAve240_v*
 HLT_DiJetAve300_v*
 HLT_DiJetAve370_v*
-#
-# the following paths to be added in May 19th train
-#HLT_FatJetMass300_DR1p1_DEta2p0_CentralJet30_BTagIP_v*
-#HLT_FatJetMass350_DR1p1_DEta2p0_CentralJet30_BTagIP_v*
-#HLT_FatJetMass750_DR1p1_DEta2p0_v*
-#HLT_FatJetMass850_DR1p1_DEta2p0_v*
-#
+HLT_FatJetMass300_DR1p1_DEta2p0_CentralJet30_BTagIP_v*
+HLT_FatJetMass350_DR1p1_DEta2p0_CentralJet30_BTagIP_v*
+HLT_FatJetMass750_DR1p1_DEta2p0_v*
+HLT_FatJetMass850_DR1p1_DEta2p0_v*
 HLT_DoubleJet30_ForwardBackward_v*
 HLT_DoubleJet60_ForwardBackward_v*
 HLT_DoubleJet70_ForwardBackward_v*
