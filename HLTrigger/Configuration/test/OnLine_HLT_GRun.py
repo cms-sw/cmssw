@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V113 (CMSSW_4_2_0_HLT8)
+# /dev/CMSSW_4_2_0/GRun/V114 (CMSSW_4_2_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V113')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V114')
 )
 
 process.streams = cms.PSet( 
@@ -25718,7 +25718,7 @@ process.hltEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTTriJet20Cleaned = cms.EDFilter( "HL
     MinN = cms.int32( 3 )
 )
 process.hltEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTJet35Jet25Deta3 = cms.EDFilter( "HLTJetVBFFilter",
-    inputTag = cms.InputTag( "hltCleanEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTFromAK5CorrJetsJet35Jet25Deta3" ),
+    inputTag = cms.InputTag( "hltCleanEle15CaloIdVTCaloIsoTTrkIdTTrkIsoTFromAK5CorrJets" ),
     saveTags = cms.bool( True ),
     minEtLow = cms.double( 25.0 ),
     minEtHigh = cms.double( 35.0 ),
