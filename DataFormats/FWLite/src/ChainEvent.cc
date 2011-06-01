@@ -15,6 +15,7 @@
 // user include files
 #include "DataFormats/FWLite/interface/ChainEvent.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TROOT.h"
@@ -238,6 +239,12 @@ std::vector<std::string> const&
 ChainEvent::getProcessHistory() const
 {
   return event_->getProcessHistory();
+}
+
+edm::ProcessHistory const&
+ChainEvent::processHistory() const
+{
+  return event_->processHistory();
 }
 
 edm::EventAuxiliary const&

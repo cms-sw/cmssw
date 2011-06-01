@@ -50,7 +50,7 @@ namespace edm {
   class Event : public EventBase {
   public:
     Event(EventPrincipal& ep, ModuleDescription const& md);
-    ~Event();
+    virtual ~Event();
 
     // AUX functions are defined in EventBase
     EventAuxiliary const& eventAuxiliary() const {return aux_;}
@@ -77,7 +77,7 @@ namespace edm {
 
     EventSelectionIDVector const& eventSelectionIDs() const;
 
-    ProcessHistoryID const& processHistoryID() const;
+    virtual ProcessHistoryID const& processHistoryID() const;
 
     ///Put a new product.
     template<typename PROD>
