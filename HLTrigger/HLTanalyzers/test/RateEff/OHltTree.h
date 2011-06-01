@@ -294,7 +294,19 @@ public:
    Int_t ohMuL2NoVtxChg[2000]; //[NohMuL2NoVtx] 
    Float_t ohMuL2NoVtxPtErr[2000]; //[NohMuL2NoVtx] 
    Float_t ohMuL2NoVtxDr[2000]; //[NohMuL2NoVtx] 
-   Float_t ohMuL2NoVtxDz[2000]; //[NohMuL2NoVtx] 
+   Float_t ohMuL2NoVtxDz[2000]; //[NohMuL2NoVtx]
+   Int_t NohDiMu;
+   Float_t ohDiMuDCA[1000]; //[NohDiMu]
+   Int_t ohDiMu1st[1000]; //[NohDiMu]
+   Int_t ohDiMu2nd[1000]; //[NohDiMu]
+   Int_t NohDiMuVtx;
+   Int_t ohDiMuVtx1st[1000]; //[NohDiMuVtx]
+   Int_t ohDiMuVtx2nd[1000]; //[NohDiMuVtx]
+   Float_t ohDiMuVtxChi2[1000]; //[NohDiMuVtx]
+   Float_t ohDiMuVtxR[1000]; //[NohDiMuVtx]
+   Float_t ohDiMuVtxRSig[1000]; //[NohDiMuVtx]
+   Float_t ohDiMuVtxROverSig[1000]; //[NohDiMuVtx]
+   Float_t ohDiMuVtxCosAlpha[1000]; //[NohDiMuVtx]
    Int_t NohOniaPixel;
    Float_t ohOniaPixelPt[200]; //[NohOniaPixel]
    Float_t ohOniaPixelPhi[200]; //[NohOniaPixel]
@@ -4889,7 +4901,19 @@ public:
    TBranch *b_ohMuL2NoVtxChg; //! 
    TBranch *b_ohMuL2NoVtxPtErr; //! 
    TBranch *b_ohMuL2NoVtxDr; //! 
-   TBranch *b_ohMuL2NoVtxDz; //! 
+   TBranch *b_ohMuL2NoVtxDz; //!
+   TBranch *b_NohDiMu; //!
+   TBranch *b_ohDiMuDCA; //!
+   TBranch *b_ohDiMu1st; //!
+   TBranch *b_ohDiMu2nd; //!
+   TBranch *b_NohDiMuVtx; //!
+   TBranch *b_ohDiMuVtx1st; //!
+   TBranch *b_ohDiMuVtx2nd; //!
+   TBranch *b_ohDiMuVtxChi2; //!
+   TBranch *b_ohDiMuVtxR; //!
+   TBranch *b_ohDiMuVtxRSig; //!
+   TBranch *b_ohDiMuVtxROverSig; //!
+   TBranch *b_ohDiMuVtxCosAlpha; //!
    TBranch *b_NohOniaPixel; //!
    TBranch *b_ohOniaPixelPt; //!
    TBranch *b_ohOniaPixelPhi; //!
@@ -10129,6 +10153,47 @@ public:
 			   float DR,
 			   float DiFatJetMass);
 
+   int OpenHlt2MuonOSMassDCAPassed(
+				   double ptl1,
+				   double ptl2,
+				   double ptl3,
+				   double dr,
+				   int iso,
+				   double masslow,
+				   double masshigh,
+				   double etal3,
+				   double dimupt,
+				   double dca);
+
+   int OpenHlt2MuonOSMassVtxPassed(
+				   double ptl1,
+				   double ptl2,
+				   double ptl3,
+				   double dr,
+				   int iso,
+				   double masslow,
+				   double masshigh,
+				   double etal3,
+				   double dimupt,
+				   double dca,
+				   double chi2,
+				   double cos,
+				   double lxysig);
+   
+   int OpenHlt3MuonOSMassVtxPassed(
+				   double ptl1,
+				   double ptl2,
+				   double ptl3,
+				   double dr,
+				   int iso,
+				   double masslow,
+				   double masshigh,
+				   double etal3,
+				   double dimupt,
+				   double dca,
+				   double chi2,
+				   double cos,
+				   double lxysig);
 
    int readRefPrescaleFromFile(TString st);
 
@@ -10664,6 +10729,18 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("ohIsoPixelTrackHEL3Eta", ohIsoPixelTrackHEL3Eta, &b_ohIsoPixelTrackHEL3Eta);
    fChain->SetBranchAddress("ohIsoPixelTrackHEL3Phi", ohIsoPixelTrackHEL3Phi, &b_ohIsoPixelTrackHEL3Phi);
    fChain->SetBranchAddress("ohIsoPixelTrackHEL3MaxNearP", ohIsoPixelTrackHEL3MaxNearP, &b_ohIsoPixelTrackHEL3MaxNearP);
+   fChain->SetBranchAddress("NohDiMu", &NohDiMu, &b_NohDiMu);
+   fChain->SetBranchAddress("ohDiMuDCA", ohDiMuDCA, &b_ohDiMuDCA);
+   fChain->SetBranchAddress("ohDiMu1st", ohDiMu1st, &b_ohDiMu1st);
+   fChain->SetBranchAddress("ohDiMu2nd", ohDiMu2nd, &b_ohDiMu2nd);
+   fChain->SetBranchAddress("NohDiMuVtx", &NohDiMuVtx, &b_NohDiMuVtx);
+   fChain->SetBranchAddress("ohDiMuVtx1st", ohDiMuVtx1st, &b_ohDiMuVtx1st);
+   fChain->SetBranchAddress("ohDiMuVtx2nd", ohDiMuVtx2nd, &b_ohDiMuVtx2nd);
+   fChain->SetBranchAddress("ohDiMuVtxChi2", ohDiMuVtxChi2, &b_ohDiMuVtxChi2);
+   fChain->SetBranchAddress("ohDiMuVtxR", ohDiMuVtxR, &b_ohDiMuVtxR);
+   fChain->SetBranchAddress("ohDiMuVtxRSig", ohDiMuVtxRSig, &b_ohDiMuVtxRSig);
+   fChain->SetBranchAddress("ohDiMuVtxROverSig", ohDiMuVtxROverSig, &b_ohDiMuVtxROverSig);
+   fChain->SetBranchAddress("ohDiMuVtxCosAlpha", ohDiMuVtxCosAlpha, &b_ohDiMuVtxCosAlpha);
    fChain->SetBranchAddress("NohOniaPixel", &NohOniaPixel, &b_NohOniaPixel);
    fChain->SetBranchAddress("ohOniaPixelPt", ohOniaPixelPt, &b_ohOniaPixelPt);
    fChain->SetBranchAddress("ohOniaPixelPhi", ohOniaPixelPhi, &b_ohOniaPixelPhi);

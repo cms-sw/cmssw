@@ -4865,9 +4865,244 @@ void OHltTree::CheckOpenHlt(
 	    }
 	}
     }    
+
+  /*MuOnia 1e33 and 2e33*/
+ else if (triggerName.CompareTo("OpenHLT_Dimuon0_Jpsi_Muon_v1") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHlt3MuonOSMassVtxPassed(0., 0., 0., 2., 0, 2.8, 3.35, 2.5, 0.0, 0.5, 7.8794, -2, 0.)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+  else if (triggerName.CompareTo("OpenHLT_Dimuon0_Jpsi_v1") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHlt2MuonOSMassVtxPassed(0., 0., 0., 2., 0, 2.8, 3.35, 2.5, 0.0, 0.5, 7.8794, -2, 0.)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+  else if (triggerName.CompareTo("OpenHLT_Dimuon0_Upsilon_Muon_v1") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHlt3MuonOSMassVtxPassed(0., 0., 0., 2., 0, 8.5, 11.5, 2.5, 0.0, 0.5, 7.8794, -2, 0.)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+  else if (triggerName.CompareTo("OpenHLT_Dimuon0_Upsilon_v1") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHlt2MuonOSMassVtxPassed(0., 0., 0., 2., 0, 8.5, 11.5, 2.5, 0.0, 0.5, 7.8794, -2, 0.)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+  else if (triggerName.CompareTo("OpenHLT_Dimuon10_Jpsi_Barrel_v1") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHlt2MuonOSMassVtxPassed(0., 0., 0., 2., 0, 2.8, 3.35, 2.5, 9.9, 0.5, 7.8794, -2, 0.)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+  else if (triggerName.CompareTo("OpenHLT_Dimuon15_Jpsi_Barrel_v1") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHlt2MuonOSMassVtxPassed(0., 0., 0., 2., 0, 2.8, 3.35, 2.5, 14.9, 0.5, 7.8794, -2, 0.)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+  else if (triggerName.CompareTo("OpenHLT_Dimuon4_Bs_Barrel_v2") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHlt2MuonOSMassDCAPassed(0., 0., 2., 2., 0, 4.8, 6.0, 1.5, 3.9, 0.5)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+  else if (triggerName.CompareTo("OpenHLT_Dimuon5_Upsilon_Barrel_v1") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHlt2MuonOSMassVtxPassed(0., 0., 0., 2., 0, 8.5, 11.5, 2.5, 4.9, 0.5, 7.8794, -2, 0.)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+  else if (triggerName.CompareTo("OpenHLT_Dimuon10_Upsilon_Barrel_v1") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHlt2MuonOSMassVtxPassed(0., 0., 0., 2., 0, 8.5, 11.5, 2.5, 9.9, 0.5, 7.8794, -2, 0.)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+  else if (triggerName.CompareTo("OpenHLT_Dimuon6_Bs_v1") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHlt2MuonOSMassDCAPassed(0., 0., 2., 2., 0, 4.8, 6.0, 2.5, 5.9, 0.5)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+  else if (triggerName.CompareTo("OpenHLT_Dimuon7_Jpsi_Displaced_v1") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHlt2MuonOSMassVtxPassed(0., 0., 0., 2., 0, 2.9, 3.3, 2.5, 6.9, 0.5, 7.8794, 0.9, 3.)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+  else if (triggerName.CompareTo("OpenHLT_DoubleMu3p5_Jpsi_Displaced_v1") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHlt2MuonOSMassVtxPassed(0., 0., 3.5, 2., 0, 2.9, 3.3, 2.2, 6.9, 0.5, 2.7055, 0.9, 3.)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+  else if (triggerName.CompareTo("OpenHLT_Dimuon7_Jpsi_X_Barrel_v1") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHlt2MuonOSMassVtxPassed(0., 0., 0., 2., 0, 2.95, 3.25, 2.5, 6.9, 0.5, 7.8794, -2, 0.)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+  else if (triggerName.CompareTo("OpenHLT_Dimuon12_Jpsi_X_Barrel_v1") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHlt2MuonOSMassVtxPassed(0., 0., 0., 2., 0, 2.95, 3.25, 2.5, 11.9, 0.5, 7.8794, -2, 0.)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+  else if (triggerName.CompareTo("OpenHLT_Dimuon7_LowMass_Displaced_v1") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHlt2MuonOSMassVtxPassed(0., 0., 3., 2., 0, 1.0, 4.8, 2.2, 6.9, 0.5, 3.8414, 0.9, 3.)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+  else if (triggerName.CompareTo("OpenHLT_DoubleMu4_LowMass_Displaced_v1") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHlt2MuonOSMassVtxPassed(0., 0., 4., 2., 0, 1.0, 4.8, 2.2, 6.9, 0.5, 2.0722, 0.9, 3.)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+  else if (triggerName.CompareTo("OpenHLT_Dimuon7_PsiPrime_v1") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHlt2MuonOSMassVtxPassed(0., 0., 0., 2., 0, 3.35, 4.05, 2.5, 6.9, 0.5, 7.8794, -2, 0.)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+  else if (triggerName.CompareTo("OpenHLT_Dimuon12_PsiPrime_v1") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHlt2MuonOSMassVtxPassed(0., 0., 0., 2., 0, 3.35, 4.05, 2.5, 11.9, 0.5, 7.8794, -2, 0.)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
 	
-	
-	
+		
 	
   /* Electrons */
 	
@@ -15683,63 +15918,6 @@ int OHltTree::OpenHlt1MuonPassed(
   return rcL1L2L3;
 }
 
-int OHltTree::OpenHlt2MuonOSMassPassed(
-				       double ptl1,
-				       double ptl2,
-				       double ptl3,
-				       double dr,
-				       int iso,
-				       double masslow,
-				       double masshigh)
-{
-  int rc = 0;
-  TLorentzVector mu1;
-  TLorentzVector mu2;
-  TLorentzVector diMu;
-  const double muMass = 0.105658367;
-	
-  for (int i=0; i<NohMuL3; i++)
-    {
-      for (int j=i+1; j<NohMuL3; j++)
-	{
-	  if (ohMuL3Pt[i] > ptl3 && ohMuL3Pt[j] > ptl3)
-	    { // L3 pT cut
-	      if (ohMuL3Dr[i] < dr && ohMuL3Dr[j] < dr)
-		{ // L3 DR cut
-		  if ((ohMuL3Chg[i] * ohMuL3Chg[j]) < 0)
-		    { // opposite charge
-						
-		      mu1.SetPtEtaPhiM(
-				       ohMuL3Pt[i],
-				       ohMuL3Eta[i],
-				       ohMuL3Phi[i],
-				       muMass);
-		      mu2.SetPtEtaPhiM(
-				       ohMuL3Pt[j],
-				       ohMuL3Eta[j],
-				       ohMuL3Phi[j],
-				       muMass);
-		      diMu = mu1 + mu2;
-		      float diMuMass = diMu.M();
-						
-		      if ((diMuMass <= masshigh) && (diMuMass >= masslow))
-			{
-			  int l2match1 = ohMuL3L2idx[i];
-			  int l2match2 = ohMuL3L2idx[j];
-							
-			  if ( (ohMuL2Pt[l2match1] > ptl2)
-			       && (ohMuL2Pt[l2match2] > ptl2))
-			    { // L2 pT cut
-			      rc++;
-			    }
-			}
-		    }
-		}
-	    }
-	}
-    }
-  return rc;
-}
 
 //// Separating between Jets and Muon.....
 int OHltTree::OpenHlt1MuonIsoJetPassed(
@@ -18652,4 +18830,294 @@ int OHltTree::OpenHltQuadJetCORPassedPlusTauPFIdNewIso(double pt, double etaJet,
 	
   return rc;
 }
+
+int OHltTree::OpenHlt2MuonOSMassPassed(
+				       double ptl1,
+				       double ptl2,
+				       double ptl3,
+				       double dr,
+				       int iso,
+				       double masslow,
+				       double masshigh)
+{
+  int rc = 0;
+  TLorentzVector mu1;
+  TLorentzVector mu2;
+  TLorentzVector diMu;
+  const double muMass = 0.105658367;
+  
+  for (int i=0; i<NohMuL3; i++)
+    {
+      for (int j=i+1; j<NohMuL3; j++)
+	{
+	  if (ohMuL3Pt[i] > ptl3 && ohMuL3Pt[j] > ptl3)
+	    { // L3 pT cut
+	      if (ohMuL3Dr[i] < dr && ohMuL3Dr[j] < dr)
+		{ // L3 DR cut
+		  if ((ohMuL3Chg[i] * ohMuL3Chg[j]) < 0)
+		    { // opposite charge
+		      
+		      mu1.SetPtEtaPhiM(
+				       ohMuL3Pt[i],
+				       ohMuL3Eta[i],
+				       ohMuL3Phi[i],
+				       muMass);
+		      mu2.SetPtEtaPhiM(
+				       ohMuL3Pt[j],
+				       ohMuL3Eta[j],
+				       ohMuL3Phi[j],
+				       muMass);
+		      diMu = mu1 + mu2;
+		      float diMuMass = diMu.M();
+		      
+		      if ((diMuMass <= masshigh) && (diMuMass >= masslow))
+			{
+			  int l2match1 = ohMuL3L2idx[i];
+			  int l2match2 = ohMuL3L2idx[j];
+			  
+			  if ( (ohMuL2Pt[l2match1] > ptl2)
+			       && (ohMuL2Pt[l2match2] > ptl2))
+			    { // L2 pT cut
+			      rc++;
+			    }
+			}
+		    }
+		}
+	    }
+	}
+    }
+  return rc;
+}
+
+int OHltTree::OpenHlt2MuonOSMassDCAPassed(
+					  double ptl1,
+					  double ptl2,
+					  double ptl3,
+					  double dr,
+					  int iso,
+					  double masslow,
+					  double masshigh,
+					  double etal3,
+					  double dimupt,
+					  double dca)
+{
+  int rc = 0;
+  TLorentzVector mu1;
+  TLorentzVector mu2;
+  TLorentzVector diMu;
+  const double muMass = 0.105658367;
+  
+  for (int i=0; i<NohDiMu; i++) 
+    {
+      if (ohDiMuDCA[i]<dca)
+	{
+	  if (ohMuL3Pt[ohDiMu1st[i]] > ptl3 && ohMuL3Pt[ohDiMu2nd[i]] > ptl3)
+	    { // L3 pT cut
+	      if (fabs(ohMuL3Eta[ohDiMu1st[i]]) < etal3 && fabs(ohMuL3Eta[ohDiMu2nd[i]]) < etal3)
+		{ // L3 eta cut
+		  if (ohMuL3Dr[ohDiMu1st[i]] < dr && ohMuL3Dr[ohDiMu2nd[i]] < dr)
+		    { // L3 DR cut
+		      if ((ohMuL3Chg[ohDiMu1st[i]] * ohMuL3Chg[ohDiMu2nd[i]]) < 0)
+			{ // opposite charge
+			  
+			  mu1.SetPtEtaPhiM(
+					   ohMuL3Pt[ohDiMu1st[i]],
+					   ohMuL3Eta[ohDiMu1st[i]],
+					   ohMuL3Phi[ohDiMu1st[i]],
+					   muMass);
+			  mu2.SetPtEtaPhiM(
+					   ohMuL3Pt[ohDiMu2nd[i]],
+					   ohMuL3Eta[ohDiMu2nd[i]],
+					   ohMuL3Phi[ohDiMu2nd[i]],
+					   muMass);
+			  diMu = mu1 + mu2;
+			  float diMuMass = diMu.M();
+			  float diMuPt = diMu.Pt();
+			  
+			  if ((diMuMass <= masshigh) && (diMuMass >= masslow) && diMuPt > dimupt)
+			    {
+			      int l2match1 = ohMuL3L2idx[ohDiMu1st[i]];
+			      int l2match2 = ohMuL3L2idx[ohDiMu2nd[i]];
+			      
+			      if ( (ohMuL2Pt[l2match1] > ptl2)
+				   && (ohMuL2Pt[l2match2] > ptl2))
+				{ // L2 pT cut
+				  rc++;
+				}
+			    }
+			}
+		    }
+		}
+	    }
+	}
+    }
+  return rc;
+}
+
+int OHltTree::OpenHlt2MuonOSMassVtxPassed(
+					  double ptl1,
+					  double ptl2,
+					  double ptl3,
+					  double dr,
+					  int iso,
+					  double masslow,
+					  double masshigh,
+					  double etal3,
+					  double dimupt,
+					  double dca,
+					  double chi2,
+					  double cos,
+					  double lxysig)
+{
+  int rc = 0;
+  TLorentzVector mu1;
+  TLorentzVector mu2;
+  TLorentzVector diMu;
+  const double muMass = 0.105658367;
+  
+  for (int i=0; i<NohDiMu; i++) 
+    {
+      if (ohDiMuDCA[i]<dca)
+	{
+	  for (int j=0 ; j<NohDiMuVtx; j++)
+	    {
+	      if ((ohDiMu1st[i]==ohDiMuVtx1st[j] && ohDiMu2nd[i]==ohDiMuVtx2nd[j]) || (ohDiMu1st[i]==ohDiMuVtx2nd[j] && ohDiMu2nd[i]==ohDiMuVtx1st[j]))
+		{
+		  if (ohDiMuVtxROverSig[j]>=lxysig && ohDiMuVtxCosAlpha[j]>cos && ohDiMuVtxChi2[j]<chi2)
+		    {
+		      if (ohMuL3Pt[ohDiMu1st[i]] > ptl3 && ohMuL3Pt[ohDiMu2nd[i]] > ptl3)
+			{ // L3 pT cut
+			  if (fabs(ohMuL3Eta[ohDiMu1st[i]]) < etal3 && fabs(ohMuL3Eta[ohDiMu2nd[i]]) < etal3)
+			    { // L3 eta cut
+			      if (ohMuL3Dr[ohDiMu1st[i]] < dr && ohMuL3Dr[ohDiMu2nd[i]] < dr)
+				{ // L3 DR cut
+				  if ((ohMuL3Chg[ohDiMu1st[i]] * ohMuL3Chg[ohDiMu2nd[i]]) < 0)
+				    { // opposite charge
+				      mu1.SetPtEtaPhiM(
+						       ohMuL3Pt[ohDiMu1st[i]],
+						       ohMuL3Eta[ohDiMu1st[i]],
+						       ohMuL3Phi[ohDiMu1st[i]],
+						       muMass);
+				      mu2.SetPtEtaPhiM(
+						       ohMuL3Pt[ohDiMu2nd[i]],
+						       ohMuL3Eta[ohDiMu2nd[i]],
+						       ohMuL3Phi[ohDiMu2nd[i]],
+						       muMass);
+				      diMu = mu1 + mu2;
+				      float diMuMass = diMu.M();
+				      float diMuPt = diMu.Pt();
+				      
+
+				      if ((diMuMass <= masshigh) && (diMuMass >= masslow) && diMuPt > dimupt)
+					{
+					  
+					  int l2match1 = ohMuL3L2idx[ohDiMu1st[i]];
+					  int l2match2 = ohMuL3L2idx[ohDiMu2nd[i]];
+					  
+					  if ( (ohMuL2Pt[l2match1] > ptl2)
+					       && (ohMuL2Pt[l2match2] > ptl2))
+					    { // L2 pT cut
+					      rc++;
+					    }
+					}
+				    }
+				}
+			    }
+			}
+		    }
+		}
+	    }
+	}
+    }
+  return rc;
+}
+
+int OHltTree::OpenHlt3MuonOSMassVtxPassed(
+					  double ptl1,
+					  double ptl2,
+					  double ptl3,
+					  double dr,
+					  int iso,
+					  double masslow,
+					  double masshigh,
+					  double etal3,
+					  double dimupt,
+					  double dca,
+					  double chi2,
+					  double cos,
+					  double lxysig)
+{
+  int rc = 0;
+  TLorentzVector mu1;
+  TLorentzVector mu2;
+  TLorentzVector diMu;
+  const double muMass = 0.105658367;
+  
+  for (int i=0; i<NohDiMu; i++) 
+    {
+      if (ohDiMuDCA[i]<dca)
+	{
+	  for (int j=0 ; j<NohDiMuVtx; j++)
+	    {
+	      if ((ohDiMu1st[i]==ohDiMuVtx1st[j] && ohDiMu2nd[i]==ohDiMuVtx2nd[j]) || (ohDiMu1st[i]==ohDiMuVtx2nd[j] && ohDiMu2nd[i]==ohDiMuVtx1st[j]))
+		{
+		  if (ohDiMuVtxROverSig[j]>lxysig && ohDiMuVtxCosAlpha[j]>cos && ohDiMuVtxChi2[j]<chi2)
+		    {
+		      if (ohMuL3Pt[ohDiMu1st[i]] > ptl3 && ohMuL3Pt[ohDiMu2nd[i]] > ptl3)
+			{ // L3 pT cut
+			  if (fabs(ohMuL3Eta[ohDiMu1st[i]]) < etal3 && fabs(ohMuL3Eta[ohDiMu2nd[i]]) < etal3)
+			    { // L3 eta cut
+			      if (ohMuL3Dr[ohDiMu1st[i]] < dr && ohMuL3Dr[ohDiMu2nd[i]] < dr)
+				{ // L3 DR cut
+				  if ((ohMuL3Chg[ohDiMu1st[i]] * ohMuL3Chg[ohDiMu2nd[i]]) < 0)
+				    { // opposite charge
+				      
+				      mu1.SetPtEtaPhiM(
+						       ohMuL3Pt[ohDiMu1st[i]],
+						       ohMuL3Eta[ohDiMu1st[i]],
+						       ohMuL3Phi[ohDiMu1st[i]],
+						       muMass);
+				      mu2.SetPtEtaPhiM(
+						       ohMuL3Pt[ohDiMu2nd[i]],
+						       ohMuL3Eta[ohDiMu2nd[i]],
+						       ohMuL3Phi[ohDiMu2nd[i]],
+						       muMass);
+				      diMu = mu1 + mu2;
+				      float diMuMass = diMu.M();
+				      float diMuPt = diMu.Pt();
+				      
+				      if ((diMuMass <= masshigh) && (diMuMass >= masslow) && diMuPt > dimupt)
+					{
+					  for (int k=0 ; k<NohMuL3 ; k++)
+					    {
+					      if (k!=ohDiMu1st[i] && k!=ohDiMu2nd[i] && ohMuL3Pt[k] > ptl3 && fabs(ohMuL3Eta[k]) < etal3)
+  						{
+						  int l2match1 = ohMuL3L2idx[ohDiMu1st[i]];
+						  int l2match2 = ohMuL3L2idx[ohDiMu2nd[i]];
+						  int l2match3 = ohMuL3L2idx[k];
+						  
+						  if ( (ohMuL2Pt[l2match1] > ptl2)
+						       && (ohMuL2Pt[l2match2] > ptl2)
+						       && (ohMuL2Pt[l2match3] > ptl2))
+						    { // L2 pT cut
+						      rc++;
+						    }
+						}
+					    }
+					}
+				    }
+				}
+			    }
+			}
+		    }
+		}
+	    }
+	}
+    }
+  return rc;
+}
+
+
+
+
 
