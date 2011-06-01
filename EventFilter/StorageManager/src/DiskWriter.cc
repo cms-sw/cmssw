@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.26 2011/03/07 15:31:32 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.27 2011/05/18 15:47:41 mommsen Exp $
 /// @file: DiskWriter.cc
 
 #include <algorithm>
@@ -311,8 +311,8 @@ namespace stor {
     rmc.getEoLSSeenMQ().getStats(eolsSeenStats);
     
     const uint32_t lastLumi = std::max(
-      lumiSectionsSeenStats.getLastSampleValue(),
-      eolsSeenStats.getLastSampleValue()
+      lumiSectionsSeenStats.getValueMax(),
+      eolsSeenStats.getValueMax()
     );
 
     std::ostringstream str;
