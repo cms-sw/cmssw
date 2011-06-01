@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Feb 17 17:32:06 EST 2009
-// $Id: HiMixingModule.cc,v 1.7 2010/02/25 00:34:23 wmtan Exp $
+// $Id: HiMixingModule.cc,v 1.8 2011/04/25 15:38:56 yilmaz Exp $
 //
 //
 
@@ -42,6 +42,7 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -222,7 +223,9 @@ HiMixingModule::HiMixingModule(const edm::ParameterSet& pset)
 	    
 	    LogInfo("HiMixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;	 
       }
-   }  
+   }
+
+   produces<PileupMixingContent>();
 }
    
 
@@ -248,6 +251,10 @@ HiMixingModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for(size_t i = 0; i < workers_.size(); ++i){
       (workers_[i])->addSignals(iEvent);
    }
+
+   std::auto_ptr< PileupMixingContent > PileupMixing_ = std::auto_ptr< PileupMixingContent >(new PileupMixingContent());
+   iEvent.put(PileupMixing_);
+
 }
 
 // ------------ method called once each job just before starting event loop  ------------
