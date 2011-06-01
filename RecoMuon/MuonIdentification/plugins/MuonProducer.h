@@ -8,14 +8,16 @@
  * the entire event has been reconstructed. The collections produced here are meant to be used for the final analysis (or as PAT input).
  * The previous muon collection is meant to be transient.
  *
- *  $Date: 2010/02/11 00:14:29 $
- *  $Revision: 1.2 $
+ *  $Date: 2011/05/31 14:47:01 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 
 namespace reco {class Track;}
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -37,7 +39,12 @@ public:
 protected:
 
 private:
-
+  template<typename TYPE>
+    void fillMuonMap(edm::Event& event,
+		     const edm::OrphanHandle<reco::MuonCollection>& muonHandle,
+		     const std::vector<TYPE>& muonExtra,
+		     const std::string& label);
+  
   std::string theAlias;
 
   void setAlias( std::string alias ){
@@ -50,6 +57,18 @@ private:
 
   edm::InputTag theMuonsCollectionLabel;
   edm::InputTag thePFCandLabel;
+
+  bool fillIsolation_;
+  bool writeIsoDeposits_;
+  
+  edm::InputTag theTrackDepositName;
+  edm::InputTag theEcalDepositName;
+  edm::InputTag theHcalDepositName;
+  edm::InputTag theHoDepositName;
+  edm::InputTag theJetDepositName;
+
+
 };
 #endif
+
 

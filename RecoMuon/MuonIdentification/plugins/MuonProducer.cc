@@ -1,8 +1,8 @@
 /** \class MuonProducer
  *  See header file.
  *
- *  $Date: 2011/05/31 14:47:01 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/05/31 17:41:18 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
@@ -15,14 +15,14 @@
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 
 #include <boost/foreach.hpp>
 #define foreach BOOST_FOREACH
@@ -49,18 +49,18 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
   produces<reco::MuonTimeExtraMap>("dt");
   produces<reco::MuonTimeExtraMap>("csc");
   
-//  if (fillIsolation_ && writeIsoDeposits_){
-//      trackDepositName_ = iConfig.getParameter<std::string>("trackDepositName");
-//      produces<reco::IsoDepositMap>(trackDepositName_);
-//      ecalDepositName_ = iConfig.getParameter<std::string>("ecalDepositName");
-//      produces<reco::IsoDepositMap>(ecalDepositName_);
-//      hcalDepositName_ = iConfig.getParameter<std::string>("hcalDepositName");
-//      produces<reco::IsoDepositMap>(hcalDepositName_);
-//      hoDepositName_ = iConfig.getParameter<std::string>("hoDepositName");
-//      produces<reco::IsoDepositMap>(hoDepositName_);
-//      jetDepositName_ = iConfig.getParameter<std::string>("jetDepositName");
-//      produces<reco::IsoDepositMap>(jetDepositName_);
-//    }
+  //  if (fillIsolation_ && writeIsoDeposits_){
+    theTrackDepositName = pSet.getParameter<edm::InputTag>("TrackIsoDeposits");
+    produces<reco::IsoDepositMap>(theTrackDepositName.label());
+    theJetDepositName = pSet.getParameter<edm::InputTag>("JetIsoDeposits");
+    produces<reco::IsoDepositMap>(theJetDepositName.label());
+    theEcalDepositName = pSet.getParameter<edm::InputTag>("EcalIsoDeposits");
+    produces<reco::IsoDepositMap>(theEcalDepositName.instance());
+    theHcalDepositName = pSet.getParameter<edm::InputTag>("HcalIsoDeposits");
+    produces<reco::IsoDepositMap>(theHcalDepositName.instance());
+    theHoDepositName = pSet.getParameter<edm::InputTag>("HoIsoDeposits");
+    produces<reco::IsoDepositMap>(theHoDepositName.instance());
+    //  }
 }
 
 /// Destructor
@@ -89,12 +89,6 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
    // FIXME: need to update the asso map too!!!!!!
    
    // Fill timing information
-   std::auto_ptr<reco::MuonTimeExtraMap> muonTimeMap(new reco::MuonTimeExtraMap());
-   reco::MuonTimeExtraMap::Filler filler(*muonTimeMap);
-   std::auto_ptr<reco::MuonTimeExtraMap> muonTimeMapDT(new reco::MuonTimeExtraMap());
-   reco::MuonTimeExtraMap::Filler fillerDT(*muonTimeMapDT);
-   std::auto_ptr<reco::MuonTimeExtraMap> muonTimeMapCSC(new reco::MuonTimeExtraMap());
-   reco::MuonTimeExtraMap::Filler fillerCSC(*muonTimeMapCSC);
 
 
    edm::Handle<reco::MuonTimeExtraMap> timeMapCmb;
@@ -112,6 +106,28 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
    event.getByLabel(theMuonsCollectionLabel.label(),"dt",timeMapDT);
    event.getByLabel(theMuonsCollectionLabel.label(),"csc",timeMapCSC);
    
+
+   std::vector<reco::IsoDeposit> trackDepColl(nMuons);
+   std::vector<reco::IsoDeposit> ecalDepColl(nMuons);
+   std::vector<reco::IsoDeposit> hcalDepColl(nMuons);
+   std::vector<reco::IsoDeposit> hoDepColl(nMuons);
+   std::vector<reco::IsoDeposit> jetDepColl(nMuons);
+
+
+   edm::Handle<reco::IsoDepositMap> trackIsoDepMap;
+   edm::Handle<reco::IsoDepositMap> ecalIsoDepMap;
+   edm::Handle<reco::IsoDepositMap> hcalIsoDepMap;
+   edm::Handle<reco::IsoDepositMap> hoIsoDepMap;
+   edm::Handle<reco::IsoDepositMap> jetIsoDepMap;
+
+
+   event.getByLabel(theTrackDepositName,trackIsoDepMap);
+   event.getByLabel(theEcalDepositName,ecalIsoDepMap);
+   event.getByLabel(theHcalDepositName,hcalIsoDepMap);
+   event.getByLabel(theHoDepositName,hoIsoDepMap);
+   event.getByLabel(theJetDepositName,jetIsoDepMap);
+
+
    
 
    if(inputMuons->empty()) {
@@ -178,8 +194,13 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 
 
      // FIXME: Fill iso quantities too!
-    
-
+     
+     trackDepColl[i] = (*trackIsoDepMap)[muRef];
+     ecalDepColl[i]  = (*ecalIsoDepMap)[muRef];
+     hcalDepColl[i]  = (*hcalIsoDepMap)[muRef];
+     hoDepColl[i]    = (*hoIsoDepMap)[muRef];
+     jetDepColl[i]   = (*jetIsoDepMap)[muRef];;
+     
        
      outputMuons->push_back(outMuon); 
      ++i;
@@ -188,15 +209,34 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
    dout << "Number of Muons in the new muon collection: " << outputMuons->size() << endl;
    edm::OrphanHandle<reco::MuonCollection> muonHandle = event.put(outputMuons);
 
-   filler.insert(muonHandle, combinedTimeColl.begin(), combinedTimeColl.end());
-   filler.fill();
-   fillerDT.insert(muonHandle, dtTimeColl.begin(), dtTimeColl.end());
-   fillerDT.fill();
-   fillerCSC.insert(muonHandle, cscTimeColl.begin(), cscTimeColl.end());
-   fillerCSC.fill();
+   fillMuonMap<reco::MuonTimeExtra>(event, muonHandle, combinedTimeColl,"combined");
+   fillMuonMap<reco::MuonTimeExtra>(event, muonHandle, dtTimeColl,"dt");
+   fillMuonMap<reco::MuonTimeExtra>(event, muonHandle, cscTimeColl,"csc");
 
-   event.put(muonTimeMap,"combined");
-   event.put(muonTimeMapDT,"dt");
-   event.put(muonTimeMapCSC,"csc");
-   
+
+   fillMuonMap<reco::IsoDeposit>(event, muonHandle, trackDepColl, theTrackDepositName.label());
+   fillMuonMap<reco::IsoDeposit>(event, muonHandle, jetDepColl,   theJetDepositName.label());
+   fillMuonMap<reco::IsoDeposit>(event, muonHandle, ecalDepColl,  theEcalDepositName.instance());
+   fillMuonMap<reco::IsoDeposit>(event, muonHandle, hcalDepColl,  theHcalDepositName.instance());
+   fillMuonMap<reco::IsoDeposit>(event, muonHandle, hoDepColl,    theHoDepositName.instance());
 }
+
+template<typename TYPE>
+void MuonProducer::fillMuonMap(edm::Event& event,
+			       const edm::OrphanHandle<reco::MuonCollection>& muonHandle,
+			       const std::vector<TYPE>& muonExtra,
+			       const std::string& label){
+
+  typedef typename edm::ValueMap<TYPE>::Filler FILLER; 
+
+  std::auto_ptr<edm::ValueMap<TYPE> > muonMap(new edm::ValueMap<TYPE>());
+  FILLER filler(*muonMap);
+  filler.insert(muonHandle, muonExtra.begin(), muonExtra.end());
+  filler.fill();
+  event.put(muonMap,label);
+}
+
+
+
+
+
