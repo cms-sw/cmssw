@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2011/05/28 11:14:15 $
- *  $Revision: 1.40 $
+ *  $Date: 2011/05/28 13:30:42 $
+ *  $Revision: 1.41 $
  *
  *  \author Martin Grunewald
  *
@@ -248,8 +248,10 @@ class HLTConfigProvider {
     return hltConfigData_->prescaleTable();
   }
 
-  /// regexp matching
-  const std::vector<std::string> matched(const std::vector<std::string>& inputs, const std::string& pattern) const;
+  /// regexp processing
+  static const std::vector<std::string> matched(const std::vector<std::string>& inputs, const std::string& pattern);
+  static const std::string removeVersion(const std::string& trigger);
+  static const std::vector<std::string> restoreVersion(const std::vector<std::string>& inputs, const std::string& trigger);
 
  private:
 

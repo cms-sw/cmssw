@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/05/28 11:14:16 $
- *  $Revision: 1.62 $
+ *  $Date: 2011/05/28 13:31:22 $
+ *  $Revision: 1.63 $
  *
  *  \author Martin Grunewald
  *
@@ -19,6 +19,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include <boost/regex.hpp> 
 
 typedef edm::detail::ThreadSafeRegistry<edm::ParameterSetID, HLTConfigData> HLTConfigDataRegistry;
 
@@ -330,11 +332,22 @@ std::pair<int,int>  HLTConfigProvider::prescaleValues(const edm::Event& iEvent, 
   return result;
 }
 
-const std::vector<std::string> HLTConfigProvider::matched(const std::vector<std::string>& inputs, const std::string& pattern) const {
-
-  const std::vector< std::vector<std::string>::const_iterator >& matches(edm::regexMatch(inputs,pattern));
-  const unsigned int n(matches.size());
-  std::vector<std::string> matched(n);
-  for (unsigned int i=0; i<n; ++i) matched[i]=*(matches[i]);
+const std::vector<std::string> HLTConfigProvider::matched(const std::vector<std::string>& inputs, const std::string& pattern) {
+  std::vector<std::string> matched;
+  const boost::regex regexp(edm::glob2reg(pattern));
+  const unsigned int n(inputs.size());
+  for (unsigned int i=0; i<n; ++i) {
+    const std::string& input(inputs[i]);
+    if (boost::regex_match(input,regexp)) matched.push_back(input);
+  }
   return matched;
+}
+
+const std::string HLTConfigProvider::removeVersion(const std::string& trigger) {
+  const boost::regex regexp("_v[0-9]+$");
+  return boost::regex_replace(trigger,regexp,"");
+}
+
+const std::vector<std::string> HLTConfigProvider::restoreVersion(const std::vector<std::string>& inputs, const std::string& trigger) {
+  return matched(inputs,trigger+"_v[0-9]+$");
 }
