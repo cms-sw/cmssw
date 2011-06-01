@@ -27,6 +27,8 @@
 
 namespace {
 
+  enum Indices {kUncompressed,kCompressed};
+
   typedef std::valarray<Long64_t> size_type; 
 
   size_type getBasketSize( TBranch *);
@@ -46,9 +48,9 @@ namespace {
     size_type result(static_cast<Long64_t>(0),2);
     if ( b != 0 ) {
       if ( b->GetZipBytes() > 0 ) {
-	result[0]  = b->GetTotBytes();  result[1] = b->GetZipBytes();
+	result[kUncompressed]  = b->GetTotBytes();  result[kCompressed] = b->GetZipBytes();
       } else {
-	result[0] = b->GetTotalSize(); result[1] = b->GetTotalSize();
+	result[kUncompressed] = b->GetTotalSize(); result[kCompressed] = b->GetTotalSize();
       }
       result += getBasketSize( b->GetListOfBranches() );
     }
@@ -61,7 +63,7 @@ namespace {
     TBranch::Class()->WriteBuffer( buf, br );
     size_type size = getBasketSize(br);
     if ( br->GetZipBytes() > 0 )
-      size[0] += buf.Length();
+      size[kUncompressed] += buf.Length();
     return size;
   }
 }
@@ -109,7 +111,7 @@ namespace perftools {
       std::string const name( b->GetName() );
       if ( name == "EventAux" ) continue;
       size_type s = getTotalSize(b);
-      m_branches.push_back( BranchRecord(name, double(s[0])/double(m_nEvents), double(s[1])/double(m_nEvents)) );
+      m_branches.push_back( BranchRecord(name, double(s[kCompressed])/double(m_nEvents), double(s[kUncompressed])/double(m_nEvents)) );
     }
     std::sort(m_branches.begin(),m_branches.end(), 
 	      boost::bind(std::greater<double>(),
@@ -157,14 +159,16 @@ namespace perftools {
   namespace detail {
 
     void dump(ostream& co, EdmEventSize::BranchRecord const & br) {
-      co << br.name << " " <<  br.compr_size <<  " " << br.uncompr_size << "\n"; 
+      co << br.name << " " <<  br.uncompr_size <<  " " << br.compr_size << "\n"; 
     }
   }
 
   
   void EdmEventSize::dump(std::ostream & co, bool header) const {
-    if (header) 
+    if (header) {
       co << "File " << m_fileName << " Events " << m_nEvents << "\n";
+      co <<"Branch Name | Average Uncompressed Size (Bytes/Event) | Average Compressed Size (Bytes/Event) \n";
+    }
     std::for_each(m_branches.begin(),m_branches.end(),
 		  boost::bind(detail::dump,boost::ref(co),_1));
   }
