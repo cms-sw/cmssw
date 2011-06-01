@@ -136,6 +136,8 @@ HLT_Mu100_v*
 HLT_IsoMu12_v*
 HLT_IsoMu15_v*
 HLT_IsoMu17_v*
+HLT_IsoMu17_eta2p1_v*
+HLT_IsoMu20_eta2p1_v*
 HLT_IsoMu24_v*
 HLT_IsoMu30_v*
 HLT_L2DoubleMu23_NoVertex_v*
