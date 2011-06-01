@@ -52,7 +52,7 @@ Exmples:
 "
 
 # parse command line argument and options
-OPTS=$(getopt -n "$NAME" -o "s:i:j:n:h" -l "setup:,input:,jobs:,size:,help" -- "$@")
+OPTS=$(getopt -n "$NAME" -o "s:d:i:j:n:h" -l "setup:,dir:,input:,jobs:,size:,help" -- "$@")
 
 # invalid options
 if [ $? != 0 ]; then 
