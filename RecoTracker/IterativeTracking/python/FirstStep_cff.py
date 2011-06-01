@@ -60,15 +60,12 @@ preFilterZeroStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProdu
 
 ### STEP 1 ###
 
-# Lock hits from step0 tracks
-zeroStepFilter = cms.EDProducer("QualityFilter",
-    TrackQuality = cms.string('highPurity'),
-    recTracks = cms.InputTag("zeroStepTracksWithQuality:")
-)
 
 # new hit collection
 newClusters = cms.EDProducer("TrackClusterRemover",
-    trajectories = cms.InputTag("zeroStepFilter"), 
+    trajectories = cms.InputTag("preFilterZeroStepTracks"),
+    overrideTrkQuals = cms.InputTag('zeroSelector','zeroStepTracksWithQuality'),                         
+    TrackQuality = cms.string('highPurity'),                         
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
     Common = cms.PSet(
@@ -184,23 +181,6 @@ firstSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrac
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 
-
-#hopefully we can get rid of these two lists...
-preMergingFirstStepTracksWithQuality = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-    TrackProducers = cms.VInputTag(cms.InputTag('preFilterStepOneTracks')),
-    hasSelector=cms.vint32(1),
-    selectedTrackQuals = cms.VInputTag(cms.InputTag("firstSelector","preMergingFirstStepTracksWithQuality")),
-    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0), pQual=cms.bool(False) ))
-)                        
-
-
-zeroStepTracksWithQuality = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-    TrackProducers = cms.VInputTag(cms.InputTag('preFilterZeroStepTracks')),
-    hasSelector=cms.vint32(1),
-    selectedTrackQuals = cms.VInputTag(cms.InputTag("zeroSelector","zeroStepTracksWithQuality")),
-    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0), pQual=cms.bool(False) ))
-)                        
-
 #then merge everything together
 firstStepTracksWithQuality = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = cms.VInputTag(cms.InputTag('preFilterZeroStepTracks'),cms.InputTag('preFilterStepOneTracks')),
@@ -210,10 +190,10 @@ firstStepTracksWithQuality = RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 )                        
 
 # Final sequence
-firstStep = cms.Sequence(newSeedFromTriplets*newTrackCandidateMaker*preFilterZeroStepTracks*zeroSelector*zeroStepTracksWithQuality*
-                         zeroStepFilter*newClusters*newPixelRecHits*newStripRecHits*
+firstStep = cms.Sequence(newSeedFromTriplets*newTrackCandidateMaker*preFilterZeroStepTracks*zeroSelector*
+                         newClusters*newPixelRecHits*newStripRecHits*
                          newSeedFromPairs*stepOneTrackCandidateMaker*preFilterStepOneTracks*
-                         firstSelector*preMergingFirstStepTracksWithQuality*firstStepTracksWithQuality)
+                         firstSelector*firstStepTracksWithQuality)
 
 
 

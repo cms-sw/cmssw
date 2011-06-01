@@ -4,16 +4,11 @@ import FWCore.ParameterSet.Config as cms
 # Low Pt tracking using pixel-triplet seeding #
 ###############################################
 
-# REMOVE HITS ASSIGNED TO GOOD TRACKS FROM PREVIOUS ITERATIONS
-
-firstfilter = cms.EDProducer("QualityFilter",
-    TrackQuality = cms.string('highPurity'),
-    recTracks = cms.InputTag("preMergingFirstStepTracksWithQuality")
-)
-
 secClusters = cms.EDProducer("TrackClusterRemover",
     oldClusterRemovalInfo = cms.InputTag("newClusters"),
-    trajectories = cms.InputTag("firstfilter"),
+    trajectories = cms.InputTag("preFilterStepOneTracks"),
+    overrideTrkQuals = cms.InputTag('firstSelector','preMergingFirstStepTracksWithQuality'),                         
+    TrackQuality = cms.string('highPurity'),
     pixelClusters = cms.InputTag("newClusters"),
     stripClusters = cms.InputTag("newClusters"),
     Common = cms.PSet(
@@ -205,14 +200,22 @@ secStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.cl
     TrackProducers = cms.VInputTag(cms.InputTag('secWithMaterialTracks'),cms.InputTag('secWithMaterialTracks')),
     hasSelector=cms.vint32(1,1),
     selectedTrackQuals = cms.VInputTag(cms.InputTag("secSelector","secStepVtx"),cms.InputTag("secSelector","secStepTrk")),
-    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1), pQual=cms.bool(True) ))
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1), pQual=cms.bool(True) )),
+    writeOnlyTrkQuals=cms.bool(True)
 )                        
 
 
+#import RecoTracker.FinalTrackSelectors.trackQualMerger_cfi
+#secQualMerger = RecoTracker.FinalTrackSelectors.trackQualMerger_cfi.trackQualMerger.clone()
+
+#secQualMerger = cms.EDProducer("TrackQualMerger",
+#                               src=cms.InputTag('secWithMaterialTracks'),
+#                               trackSelectors=cms.VInputTag(cms.InputTag("secSelector","secStepVtx"),cms.InputTag("secSelector","secStepTrk"))
+#                               )
 
 
-secondStep = cms.Sequence(firstfilter*
-                          secClusters*
+
+secondStep = cms.Sequence(secClusters*
                           secPixelRecHits*secStripRecHits*
                           secTriplets*
                           secTrackCandidates*

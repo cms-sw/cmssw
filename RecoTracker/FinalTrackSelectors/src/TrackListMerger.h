@@ -10,9 +10,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: dlange $
-// $Date: 2011/05/24 04:35:17 $
-// $Revision: 1.2 $
+// $Author: vlimant $
+// $Date: 2011/05/24 17:51:18 $
+// $Revision: 1.3 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -78,7 +78,7 @@ namespace cms
     bool allowFirstHitShare_;
     reco::TrackBase::TrackQuality qualityToSet_;
     bool use_sharesInput_;
-
+    bool trkQualMod_;
 
   };
 }

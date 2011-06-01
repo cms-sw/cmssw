@@ -1,6 +1,7 @@
 #include "RecoTracker/FinalTrackSelectors/src/MultiTrackSelector.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include <Math/DistFunc.h>
 #include "TMath.h"
 
@@ -100,7 +101,8 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
 	  
     }
 
-    produces<std::vector<int> >(name_[i]).setBranchAlias( name_[i] + "TrackQuals");
+    //    produces<std::vector<int> >(name_[i]).setBranchAlias( name_[i] + "TrackQuals");
+    produces<edm::ValueMap<int> >(name_[i]).setBranchAlias( name_[i] + "TrackQuals");
   }
 }
 
@@ -132,7 +134,9 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
   
   //loop over all of the selectors...
   for (unsigned int i=0; i<qualityToSet_.size(); i++) {  
-    auto_ptr<std::vector<int> > selTracks = auto_ptr<std::vector<int> >(new std::vector<int>(trkSize,0));
+    std::vector<int> selTracks(trkSize,0);
+    auto_ptr<edm::ValueMap<int> > selTracksValueMap = auto_ptr<edm::ValueMap<int> >(new edm::ValueMap<int>);
+    edm::ValueMap<int>::Filler filler(*selTracksValueMap);
 
     std::vector<Point> points;
     selectVertices(i,*hVtx, points);
@@ -148,7 +152,7 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
       //already removed
       bool ok=true;
       if (preFilter_[i]<i && selTracksSave[preFilter_[i]*trkSize+current] < 0) {
-	selTracks->at(current)=-1;
+	selTracks.at(current)=-1;
 	ok=false;
 	if ( !keepAllTracks_[i]) 
 	  continue;
@@ -158,7 +162,7 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
 	if (!ok) { 
 	  LogTrace("TrackSelection") << "track with pt="<< trk.pt() << " NOT selected";
 	  if (!keepAllTracks_[i]) { 
-	    selTracks->at(current)=-1;
+	    selTracks.at(current)=-1;
 	    continue;
 	  }
 	}
@@ -167,25 +171,29 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
       }
 
       if (preFilter_[i]<i ) {
-	selTracks->at(current)=selTracksSave[preFilter_[i]*trkSize+current];
+	selTracks.at(current)=selTracksSave[preFilter_[i]*trkSize+current];
       }
       else {
-	selTracks->at(current)=trk.qualityMask();
+	selTracks.at(current)=trk.qualityMask();
       }
       if ( ok && setQualityBit_[i]) {
-	selTracks->at(current)= (selTracks->at(current) | (1<<qualityToSet_[i]));
+	selTracks.at(current)= (selTracks.at(current) | (1<<qualityToSet_[i]));
 	if (!points.empty()) {
 	  if (qualityToSet_[i]==TrackBase::loose) {
-	    selTracks->at(current)=(selTracks->at(current) | (1<<TrackBase::looseSetWithPV));
+	    selTracks.at(current)=(selTracks.at(current) | (1<<TrackBase::looseSetWithPV));
 	  }
 	  else if (qualityToSet_[i]==TrackBase::highPurity) {
-	    selTracks->at(current)=(selTracks->at(current) | (1<<TrackBase::highPuritySetWithPV));
+	    selTracks.at(current)=(selTracks.at(current) | (1<<TrackBase::highPuritySetWithPV));
 	  }
 	}
       }
     }
-    for ( unsigned int j=0; j< trkSize; j++ ) selTracksSave[j+i*trkSize]=selTracks->at(j);
-    evt.put(selTracks,name_[i]);
+    for ( unsigned int j=0; j< trkSize; j++ ) selTracksSave[j+i*trkSize]=selTracks.at(j);
+    filler.insert(hSrcTrack, selTracks.begin(),selTracks.end());
+    filler.fill();
+
+    //    evt.put(selTracks,name_[i]);
+    evt.put(selTracksValueMap,name_[i]);
   }
 }
 

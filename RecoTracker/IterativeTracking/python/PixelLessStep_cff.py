@@ -4,16 +4,12 @@ import FWCore.ParameterSet.Config as cms
 # Large impact parameter tracking using TIB/TID/TEC stereo layer seeding #
 ##########################################################################
 
-# REMOVE HITS ASSIGNED TO GOOD TRACKS FROM PREVIOUS ITERATIONS
-
-thfilter = cms.EDProducer("QualityFilter",
-    TrackQuality = cms.string('highPurity'),
-    recTracks = cms.InputTag("thStep")
-)
 
 fourthClusters = cms.EDProducer("TrackClusterRemover",
     oldClusterRemovalInfo = cms.InputTag("thClusters"),
-    trajectories = cms.InputTag("thfilter"),
+    trajectories = cms.InputTag("thWithMaterialTracks"),
+    overrideTrkQuals = cms.InputTag('thStep'),                         
+    TrackQuality = cms.string('highPurity'),
     pixelClusters = cms.InputTag("thClusters"),
     stripClusters = cms.InputTag("thClusters"),
     Common = cms.PSet(
@@ -171,23 +167,9 @@ pixellessSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multi
     ) #end of clone
 
 
-import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
-pixellessStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-    TrackProducers = cms.VInputTag(cms.InputTag('fourthWithMaterialTracks')),
-    hasSelector=cms.vint32(1),
-    selectedTrackQuals = cms.VInputTag(cms.InputTag("pixellessSelector","pixellessStep")),
-    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0), pQual=cms.bool(True) ))
-)                        
-
-
-
-
-fourthStep = cms.Sequence(thfilter*fourthClusters*
+fourthStep = cms.Sequence(fourthClusters*
                           fourthPixelRecHits*fourthStripRecHits*
                           fourthPLSeeds*
                           fourthTrackCandidates*
                           fourthWithMaterialTracks*
-                          pixellessSelector*
-#                          pixellessStepLoose*
-#                          pixellessStepTight*
-                          pixellessStep)
+                          pixellessSelector)

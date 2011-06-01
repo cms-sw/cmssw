@@ -42,7 +42,9 @@ trackListMerger = cms.EDProducer("TrackListMerger",
     # set new quality for confirmed tracks for each merged pair and then for the final pair
     allowFirstHitShare = cms.bool(True),
     newQuality = cms.string('confirmed'),
-    copyExtras = cms.untracked.bool(False)
+    copyExtras = cms.untracked.bool(False),
+    writeOnlyTrkQuals = cms.bool(False)
+
 )
 
 

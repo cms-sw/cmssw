@@ -4,15 +4,12 @@ import FWCore.ParameterSet.Config as cms
 # Large impact parameter Tracking using mixed-pair seeding #
 ############################################################
 
-# REMOVE HITS ASSIGNED TO GOOD TRACKS FROM PREVIOUS ITERATIONS
-secfilter = cms.EDProducer("QualityFilter",
-    TrackQuality = cms.string('highPurity'),
-    recTracks = cms.InputTag("secStep")
-)
 
 thClusters = cms.EDProducer("TrackClusterRemover",
     oldClusterRemovalInfo = cms.InputTag("secClusters"),
-    trajectories = cms.InputTag("secfilter"),
+    TrackQuality = cms.string('highPurity'),
+    trajectories = cms.InputTag("secWithMaterialTracks"),
+    overrideTrkQuals = cms.InputTag('secStep'),                         
     pixelClusters = cms.InputTag("secClusters"),
     stripClusters = cms.InputTag("secClusters"),
     Common = cms.PSet(
@@ -285,11 +282,18 @@ thStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clo
     TrackProducers = cms.VInputTag(cms.InputTag('thWithMaterialTracks'),cms.InputTag('thWithMaterialTracks')),
     hasSelector=cms.vint32(1,1),
     selectedTrackQuals = cms.VInputTag(cms.InputTag("thSelector","thStepVtx"),cms.InputTag("thSelector","thStepTrk")),
-    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1), pQual=cms.bool(True) ))
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1), pQual=cms.bool(True) )),
+    writeOnlyTrkQuals=cms.bool(True)
 )                        
 
-thirdStep = cms.Sequence(secfilter*
-                         thClusters*
+#import RecoTracker.FinalTrackSelectors.trackQualMerger_cfi
+#thQualMerger = RecoTracker.FinalTrackSelectors.trackQualMerger_cfi.trackQualMerger.clone(
+#    src=cms.InputTag('thWithMaterialTracks'),
+#    trackSelectors=cms.VInputTag(cms.InputTag("thSelector","thStepVtx"),cms.InputTag("thSelector","thStepTrk"))
+#    )
+
+
+thirdStep = cms.Sequence(thClusters*
                          thPixelRecHits*thStripRecHits*
                          thTripletsA*thTripletsB*thTriplets*
                          thTrackCandidates*

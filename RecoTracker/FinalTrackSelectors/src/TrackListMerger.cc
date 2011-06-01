@@ -8,8 +8,8 @@
 // Created:         April 4, 2011
 //
 // $Author: dlange $
-// $Date: 2011/05/24 18:55:31 $
-// $Revision: 1.4 $
+// $Date: 2011/05/28 02:33:06 $
+// $Revision: 1.5 $
 //
 
 #include <memory>
@@ -25,7 +25,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -101,22 +101,34 @@ namespace cms
     hasSelector_=conf.getParameter<std::vector<int> >("hasSelector");
     selectors_=conf.getParameter<std::vector<edm::InputTag> >("selectedTrackQuals");   
 
-    produces<reco::TrackCollection>();
-
-    makeReKeyedSeeds_ = conf.getUntrackedParameter<bool>("makeReKeyedSeeds",false);
-    if (makeReKeyedSeeds_){
-      copyExtras_=true;
-      produces<TrajectorySeedCollection>();
+    trkQualMod_=conf.getParameter<bool>("writeOnlyTrkQuals");
+    if ( trkQualMod_) {
+      bool ok=true;
+      for ( unsigned int i=1; i<trackProducers_.size(); i++) {
+	if (!(trackProducers_[i]==trackProducers_[0])) ok=false;
+      }
+      if ( !ok) {
+	throw cms::Exception("Bad input") << "to use writeOnlyTrkQuals=True all input InputTags must be the same";
+      }
+      produces<edm::ValueMap<int> >();
     }
-
-    if (copyExtras_) {
+    else{
+      produces<reco::TrackCollection>();
+      
+      makeReKeyedSeeds_ = conf.getUntrackedParameter<bool>("makeReKeyedSeeds",false);
+      if (makeReKeyedSeeds_){
+	copyExtras_=true;
+	produces<TrajectorySeedCollection>();
+      }
+      
+      if (copyExtras_) {
         produces<reco::TrackExtraCollection>();
         produces<TrackingRecHitCollection>();
+      }
+      produces< std::vector<Trajectory> >();
+      produces< TrajTrackAssociationCollection >();
     }
-    produces< std::vector<Trajectory> >();
-    produces< TrajTrackAssociationCollection >();
-    
-
+      
   }
 
 
@@ -141,21 +153,18 @@ namespace cms
     static const reco::TrackCollection s_empty;
 
     std::vector<const reco::TrackCollection *> trackColls;
+    std::vector<edm::Handle<reco::TrackCollection> > trackHandles(trackProducers_.size());
     for ( unsigned int i=0; i<trackProducers_.size(); i++) {
       trackColls.push_back(0);
-      edm::Handle<reco::TrackCollection> trackColl;
-      e.getByLabel(trackProducers_[i], trackColl);
-      if (trackColl.isValid()) {
-	trackColls[i]= trackColl.product();
+      //edm::Handle<reco::TrackCollection> trackColl;
+      e.getByLabel(trackProducers_[i], trackHandles[i]);
+      if (trackHandles[i].isValid()) {
+	trackColls[i]= trackHandles[i].product();
       } else {
 	edm::LogWarning("TrackListMerger") << "TrackCollection " << trackProducers_[i] <<" not found";
 	trackColls[i]=&s_empty;
       }
     }
-
-    // Step B: create empty output collection
-    outputTrks = std::auto_ptr<reco::TrackCollection>(new reco::TrackCollection);
-    refTrks = e.getRefBeforePut<reco::TrackCollection>();      
 
     unsigned int rSize=0;
     std::vector<unsigned int> trackCollSizes(trackColls.size(),0);
@@ -180,7 +189,7 @@ namespace cms
     for (unsigned int j=0; j< trackColls.size(); j++) {
       const reco::TrackCollection *tC1=trackColls[j];
 
-      edm::Handle<std::vector <int> > trackSelColl;
+      edm::Handle<edm::ValueMap<int> > trackSelColl;
       if ( hasSelector_[j]>0 ){
 	e.getByLabel(selectors_[j], trackSelColl);
       }
@@ -193,13 +202,15 @@ namespace cms
 	  trackQuals[i]=track->qualityMask();
 
 	  if ( hasSelector_[j]>0 ) {
-	    if ( trackSelColl->at(iC) < 0 ) {
+	    reco::TrackRef trkRef=reco::TrackRef(trackHandles[j],iC);
+	    int qual=(*trackSelColl)[trkRef];
+	    if ( qual < 0 ) {
 	      selected[i]=0;
 	      iC++;
 	      continue;
 	    }
 	    else{
-	      trackQuals[i]=trackSelColl->at(iC);
+	      trackQuals[i]=qual;
 	    }
 	  }
 	  iC++;
@@ -220,6 +231,7 @@ namespace cms
 	    selected[i]=0; 
 	    continue;
 	  }
+	  //if ( beVerb) std::cout << "inverb " << track->pt() << " " << selected[i] << std::endl;
 	}//end loop over tracks
       }//end more than 0 track
     } // loop over trackcolls
@@ -355,9 +367,38 @@ namespace cms
     } //end loop over track list sets
 
 
+
+    // special case - if just doing the trkquals 
+    if (trkQualMod_) {
+      std::auto_ptr<edm::ValueMap<int> > vm = std::auto_ptr<edm::ValueMap<int> >(new edm::ValueMap<int>);
+      edm::ValueMap<int>::Filler filler(*vm);
+
+      unsigned int tSize=trackColls[0]->size();
+      std::vector<int> finalQuals(tSize,-1); //default is unselected
+      for ( unsigned int i=0; i<rSize; i++) {
+	unsigned int tNum=i%tSize;
+
+	if (selected[i]>1 ) { 
+	  finalQuals[tNum]=selected[i]-10;
+	  if (trkUpdated[i])
+	    finalQuals[tNum]=(finalQuals[tNum] | (1<<qualityToSet_));
+	}
+	if ( selected[i]==1 )
+	  finalQuals[tNum]=trackQuals[i];
+      }
+
+      filler.insert(trackHandles[0], finalQuals.begin(),finalQuals.end());
+      filler.fill();
+  
+      e.put(vm);
+      return;
+    }
+
+
     //
     //  output selected tracks - if any
     //
+
     trackRefs.resize(rSize);
     std::vector<edm::RefToBase<TrajectorySeed> > seedsRefs(rSize);
 
@@ -365,7 +406,10 @@ namespace cms
     for ( unsigned int i=0; i<rSize; i++) 
       if (selected[i]!=0) nToWrite++;
 
+
+    outputTrks = std::auto_ptr<reco::TrackCollection>(new reco::TrackCollection);
     outputTrks->reserve(nToWrite);
+    refTrks = e.getRefBeforePut<reco::TrackCollection>();      
 
     if (copyExtras_) {
       outputTrkExtras = std::auto_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection);
@@ -407,6 +451,7 @@ namespace cms
       if ( selected[i]==1 )
 	outputTrks->back().setQualityMask(trackQuals[i]);
 
+      // if ( beVerb ) std::cout << "selected " << outputTrks->back().pt() << " " << outputTrks->back().qualityMask() << " " << selected[i] << std::endl;
 
       //fill the TrackCollection
       if (copyExtras_) {
@@ -520,8 +565,6 @@ namespace cms
     e.put(outputTrajs);
     e.put(outputTTAss);
     return;
-
-    std::cout << "done\n";
 
   }//end produce
 }

@@ -4,16 +4,11 @@ import FWCore.ParameterSet.Config as cms
 # Very large impact parameter tracking using TOB + TEC ring 5 seeding #
 #######################################################################
 
-# REMOVE HITS ASSIGNED TO GOOD TRACKS FROM PREVIOUS ITERATIONS
-
-fourthfilter = cms.EDProducer("QualityFilter",
-    TrackQuality = cms.string('highPurity'),
-    recTracks = cms.InputTag("pixellessStep")
-)
-
 fifthClusters = cms.EDProducer("TrackClusterRemover",
     oldClusterRemovalInfo = cms.InputTag("fourthClusters"),
-    trajectories = cms.InputTag("fourthfilter"),
+    trajectories = cms.InputTag("fourthWithMaterialTracks"),
+    overrideTrkQuals = cms.InputTag('pixellessSelector','pixellessStep'),                         
+    TrackQuality = cms.string('highPurity'),
     pixelClusters = cms.InputTag("fourthClusters"),
     stripClusters = cms.InputTag("fourthClusters"),
     Common = cms.PSet(
@@ -210,19 +205,11 @@ tobtecSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTra
     ) #end of clone
 
 
-import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
-tobtecStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-    TrackProducers = cms.VInputTag(cms.InputTag('fifthWithMaterialTracks')),
-    hasSelector=cms.vint32(1),
-    selectedTrackQuals = cms.VInputTag(cms.InputTag("tobtecSelector","tobtecStep")),
-    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0), pQual=cms.bool(True) ))
-)                        
 
-
-fifthStep = cms.Sequence(fourthfilter*fifthClusters*
+fifthStep = cms.Sequence( fifthClusters*
                           fifthPixelRecHits*fifthStripRecHits*
                           fifthSeeds*
                           fifthTrackCandidates*
                           fifthWithMaterialTracks*
-                          tobtecSelector*
-                          tobtecStep)
+                          tobtecSelector)
+
