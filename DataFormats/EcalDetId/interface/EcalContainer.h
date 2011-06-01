@@ -26,6 +26,9 @@ class EcalContainer {
                 typedef typename std::vector<Item>::const_iterator const_iterator;
                 typedef typename std::vector<Item>::iterator iterator;
 
+                   
+                EcalContainer() {checkAndResize();}
+
                 void insert(std::pair<uint32_t, Item> const &a) {
                         (*this)[a.first] = a.second;
                 }
