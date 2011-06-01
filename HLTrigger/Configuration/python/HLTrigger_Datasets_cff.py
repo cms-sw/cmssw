@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V118
+# /dev/CMSSW_4_2_0/GRun/V119
 
 import FWCore.ParameterSet.Config as cms
 
@@ -130,10 +130,10 @@ streamA_datasetHT_selector.l1tResults = cms.InputTag('')
 streamA_datasetHT_selector.throw      = cms.bool(False)
 streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_DiJet130_PT130_v3', 
     'HLT_DiJet160_PT160_v3', 
-    'HLT_FatJetMass300_DR1p1_DEta2p0_CentralJet30_BTagIP_v1', 
-    'HLT_FatJetMass350_DR1p1_DEta2p0_CentralJet30_BTagIP_v1', 
-    'HLT_FatJetMass750_DR1p1_DEta2p0_v1', 
-    'HLT_FatJetMass850_DR1p1_DEta2p0_v1', 
+    'HLT_FatJetMass300_DR1p1_Deta2p0_CentralJet30_BTagIP_v1', 
+    'HLT_FatJetMass350_DR1p1_Deta2p0_CentralJet30_BTagIP_v1', 
+    'HLT_FatJetMass750_DR1p1_Deta2p0_v1', 
+    'HLT_FatJetMass850_DR1p1_Deta2p0_v1', 
     'HLT_HT150_v5', 
     'HLT_HT200_AlphaT0p55_v1', 
     'HLT_HT200_v5', 
@@ -446,7 +446,9 @@ streamA_datasetSingleMu_selector.l1tResults = cms.InputTag('')
 streamA_datasetSingleMu_selector.throw      = cms.bool(False)
 streamA_datasetSingleMu_selector.triggerConditions = cms.vstring('HLT_IsoMu12_v5', 
     'HLT_IsoMu15_v9', 
+    'HLT_IsoMu17_eta2p1_v1', 
     'HLT_IsoMu17_v9', 
+    'HLT_IsoMu20_eta2p1_v1', 
     'HLT_IsoMu24_v5', 
     'HLT_IsoMu30_v5', 
     'HLT_L1SingleMu10_v2', 
