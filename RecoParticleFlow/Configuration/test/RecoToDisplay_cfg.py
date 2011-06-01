@@ -72,6 +72,7 @@ process.globalReReco =  cms.Sequence(process.offlineBeamSpot+
 
 # Particle Flow re-processing
 process.pfReReco = cms.Sequence(process.particleFlowReco+
+                                process.particleFlowLinks+
                                 process.recoPFJets+
                                 process.recoPFMET+
                                 process.PFTau)
