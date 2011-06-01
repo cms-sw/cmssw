@@ -1,8 +1,8 @@
 /** \class MuonProducer
  *  See header file.
  *
- *  $Date: 2011/06/01 09:54:55 $
- *  $Revision: 1.5 $
+ *  $Date: 2011/06/01 11:19:07 $
+ *  $Revision: 1.6 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
@@ -268,7 +268,7 @@ void MuonProducer::fillMuonMap(edm::Event& event,
 			       const edm::OrphanHandle<reco::MuonCollection>& muonHandle,
 			       const std::vector<TYPE>& muonExtra,
 			       const std::string& label){
-
+ 
   typedef typename edm::ValueMap<TYPE>::Filler FILLER; 
 
   std::auto_ptr<edm::ValueMap<TYPE> > muonMap(new edm::ValueMap<TYPE>());

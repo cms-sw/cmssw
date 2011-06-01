@@ -8,8 +8,8 @@
  * the entire event has been reconstructed. The collections produced here are meant to be used for the final analysis (or as PAT input).
  * The previous muon collection is meant to be transient.
  *
- *  $Date: 2011/06/01 09:54:55 $
- *  $Revision: 1.4 $
+ *  $Date: 2011/06/01 11:19:07 $
+ *  $Revision: 1.5 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
@@ -75,3 +75,4 @@ private:
 #endif
 
 
+ 
