@@ -295,17 +295,17 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     TCDzMin = cms.double(-400.0),                                                
 
     # NCluster Pixel
-    NClusPxBin = cms.int32(50),
+    NClusPxBin = cms.int32(150),
     NClusPxMax = cms.double(14999.5),                      
     NClusPxMin = cms.double(-0.5),
 
     # NCluster Strip
-    NClusStrBin = cms.int32(150),
+    NClusStrBin = cms.int32(750),
     NClusStrMax = cms.double(74999.5),                      
     NClusStrMin = cms.double(-0.5),
 
     # NCluster Vs Tracks
-    NClus2DTotBin = cms.int32(200),
+    NClus2DTotBin = cms.int32(1000),
     NClus2DTotMax = cms.double(99999.5),                      
     NClus2DTotMin = cms.double(-0.5),
     NTrk2DBin     = cms.int32(50),
