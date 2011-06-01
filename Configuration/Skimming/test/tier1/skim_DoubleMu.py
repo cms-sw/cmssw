@@ -1,8 +1,8 @@
 # Auto generated configuration file
 # using: 
 # Revision: 1.303.2.7 
-# Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: skim -s SKIM:WMu+ZMu+HighMET+LogError+HWW+HZZ --data --conditions FT_R_42_V13A::All --python_filenam skim_DoubleMu.py --magField AutoFromDBCurrent --no_exec
+# Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
+# with command line options: skim -s SKIM:WMu+ZMu+HighMET+LogError+HWW+HZZ+EXOHSCP --data --conditions FT_R_42_V13A::All --python_filenam skim_DoubleMu.py --magField AutoFromDBCurrent --no_exec
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('SKIM')
@@ -40,6 +40,49 @@ process.configurationMetadata = cms.untracked.PSet(
 # Output definition
 
 # Additional output definition
+process.SKIMStreamEXOHSCP = cms.OutputModule("PoolOutputModule",
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('EXOHSCPPath')
+    ),
+    outputCommands = cms.untracked.vstring('drop *', 
+        'keep GenEventInfoProduct_generator_*_*', 
+        'keep L1GlobalTriggerReadoutRecord_*_*_*', 
+        'keep recoVertexs_offlinePrimaryVertices_*_*', 
+        'keep recoMuons_muonsSkim_*_*', 
+        'keep SiStripClusteredmNewDetSetVector_generalTracksSkim_*_*', 
+        'keep SiPixelClusteredmNewDetSetVector_generalTracksSkim_*_*', 
+        'keep recoTracks_generalTracksSkim_*_*', 
+        'keep recoTrackExtras_generalTracksSkim_*_*', 
+        'keep TrackingRecHitsOwned_generalTracksSkim_*_*', 
+        'keep *_dt1DRecHits_*_*', 
+        'keep *_dt4DSegments_*_*', 
+        'keep *_csc2DRecHits_*_*', 
+        'keep *_cscSegments_*_*', 
+        'keep *_rpcRecHits_*_*', 
+        'keep recoTracks_standAloneMuons_*_*', 
+        'keep recoTrackExtras_standAloneMuons_*_*', 
+        'keep TrackingRecHitsOwned_standAloneMuons_*_*', 
+        'keep recoTracks_globalMuons_*_*', 
+        'keep recoTrackExtras_globalMuons_*_*', 
+        'keep TrackingRecHitsOwned_globalMuons_*_*', 
+        'keep EcalRecHitsSorted_reducedHSCPEcalRecHitsEB_*_*', 
+        'keep EcalRecHitsSorted_reducedHSCPEcalRecHitsEE_*_*', 
+        'keep HBHERecHitsSorted_reducedHSCPhbhereco__*', 
+        'keep edmTriggerResults_TriggerResults__*', 
+        'keep *_hltTriggerSummaryAOD_*_*', 
+        'keep *_HSCPIsolation01__*', 
+        'keep *_HSCPIsolation03__*', 
+        'keep *_HSCPIsolation05__*', 
+        'keep recoPFJets_ak5PFJets__*', 
+        'keep recoPFMETs_pfMet__*', 
+        'keep recoBeamSpot_offlineBeamSpot__*'),
+    fileName = cms.untracked.string('EXOHSCP.root'),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string('EXOHSCP'),
+        dataTier = cms.untracked.string('USER')
+    ),
+    eventAutoFlushCompressedSize = cms.untracked.int32(5242880)
+)
 process.SKIMStreamHWW = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('HWWmmPath', 
@@ -485,6 +528,7 @@ process.SKIMStreamZMu = cms.OutputModule("PoolOutputModule",
 process.GlobalTag.globaltag = 'FT_R_42_V13A::All'
 
 # Path and EndPath definitions
+process.SKIMStreamEXOHSCPOutPath = cms.EndPath(process.SKIMStreamEXOHSCP)
 process.SKIMStreamHWWOutPath = cms.EndPath(process.SKIMStreamHWW)
 process.SKIMStreamHZZOutPath = cms.EndPath(process.SKIMStreamHZZ)
 process.SKIMStreamHighMETOutPath = cms.EndPath(process.SKIMStreamHighMET)
@@ -493,4 +537,4 @@ process.SKIMStreamWMuOutPath = cms.EndPath(process.SKIMStreamWMu)
 process.SKIMStreamZMuOutPath = cms.EndPath(process.SKIMStreamZMu)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.ZMuSkimPath,process.pathlogerror,process.HZZmmPath,process.HZZeePath,process.HZZemPath,process.HWWmmPath,process.HWWeePath,process.HWWemPath,process.pfPath,process.tcPath,process.WtcMetSkimPath,process.WpfMetSkimPath,process.SKIMStreamHWWOutPath,process.SKIMStreamHZZOutPath,process.SKIMStreamHighMETOutPath,process.SKIMStreamLogErrorOutPath,process.SKIMStreamWMuOutPath,process.SKIMStreamZMuOutPath)
+process.schedule = cms.Schedule(process.ZMuSkimPath,process.pathlogerror,process.HWWmmPath,process.HWWeePath,process.HWWemPath,process.HZZmmPath,process.HZZeePath,process.HZZemPath,process.EXOHSCPPath,process.pfPath,process.tcPath,process.WtcMetSkimPath,process.WpfMetSkimPath,process.SKIMStreamEXOHSCPOutPath,process.SKIMStreamHWWOutPath,process.SKIMStreamHZZOutPath,process.SKIMStreamHighMETOutPath,process.SKIMStreamLogErrorOutPath,process.SKIMStreamWMuOutPath,process.SKIMStreamZMuOutPath)
