@@ -1,15 +1,16 @@
-# /dev/CMSSW_4_2_0/HIon/V114 (CMSSW_4_2_0_HLT8)
+# /dev/CMSSW_4_2_0/HIon/V115 (CMSSW_4_2_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V114')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V115')
 )
 
 streams = cms.PSet( 
   A = cms.vstring( 'HIAllPhysics',
-    'HICorePhysics' ),
+    'HICorePhysics',
+    'LogMonitor' ),
   Calibration = cms.vstring( 'TestEnablesEcalHcalDT' ),
   DQM = cms.vstring( 'OnlineMonitor',
     'OnlineMonitorHI' ),
@@ -20,7 +21,6 @@ streams = cms.PSet(
   HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
   HLTMON = cms.vstring( 'OfflineMonitor',
     'OfflineMonitorHI' ),
-  OnlineErrors = cms.vstring( 'LogMonitor' ),
   TrackerCalibration = cms.vstring( 'TestEnablesTracker' )
 )
 datasets = cms.PSet( 

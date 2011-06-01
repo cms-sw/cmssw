@@ -1,16 +1,17 @@
-# /dev/CMSSW_4_2_0/HIon/V114 (CMSSW_4_2_0_HLT8)
+# /dev/CMSSW_4_2_0/HIon/V115 (CMSSW_4_2_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V114')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V115')
 )
 
 process.streams = cms.PSet( 
   A = cms.vstring( 'HIAllPhysics',
-    'HICorePhysics' ),
+    'HICorePhysics',
+    'LogMonitor' ),
   Calibration = cms.vstring( 'TestEnablesEcalHcalDT' ),
   DQM = cms.vstring( 'OnlineMonitor',
     'OnlineMonitorHI' ),
@@ -21,7 +22,6 @@ process.streams = cms.PSet(
   HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
   HLTMON = cms.vstring( 'OfflineMonitor',
     'OfflineMonitorHI' ),
-  OnlineErrors = cms.vstring( 'LogMonitor' ),
   TrackerCalibration = cms.vstring( 'TestEnablesTracker' )
 )
 process.datasets = cms.PSet( 
@@ -4598,10 +4598,6 @@ process.hltPreNanoDSTOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltPreOnlineErrorsOutput = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    offset = cms.uint32( 0 )
-)
 process.hltPreRPCMONOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
@@ -4650,7 +4646,8 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_HIUpcEcal_Core',
   'HLT_HIUpcMu_Core',
   'HLT_HIZeroBias',
-  'HLT_HIZeroBiasXOR' ) ),
+  'HLT_HIZeroBiasXOR',
+  'HLT_LogMonitor_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep *_hltL1GtObjectMap_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
@@ -5134,17 +5131,6 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep triggerTriggerEventWithRefs_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
-process.hltOutputOnlineErrors = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputOnlineErrors.root" ),
-    fastCloning = cms.untracked.bool( False ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_LogMonitor_v1' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
-      'keep *_hltL1GtObjectMap_*_*',
-      'keep FEDRawDataCollection_rawDataCollector_*_*',
-      'keep FEDRawDataCollection_source_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
 process.hltOutputTrackerCalibration = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputTrackerCalibration.root" ),
     fastCloning = cms.untracked.bool( False ),
@@ -5253,7 +5239,6 @@ process.HLTDQMOutput = cms.EndPath( process.hltPreHLTDQMOutput + process.hltPreH
 process.HLTDQMResultsOutput = cms.EndPath( process.hltPreHLTDQMResultsOutput + process.hltOutputHLTDQMResults )
 process.HLTMONOutput = cms.EndPath( process.hltPreHLTMONOutput + process.hltPreHLTMONOutputSmart + process.hltOutputHLTMON )
 process.NanoDSTOutput = cms.EndPath( process.hltPreNanoDSTOutput )
-process.OnlineErrorsOutput = cms.EndPath( process.hltPreOnlineErrorsOutput + process.hltOutputOnlineErrors )
 process.RPCMONOutput = cms.EndPath( process.hltPreRPCMONOutput )
 process.TrackerCalibrationOutput = cms.EndPath( process.hltPreTrackerCalibrationOutput + process.hltOutputTrackerCalibration )
 
