@@ -642,8 +642,8 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	  // trigger decision is based on 'OR' of any specified trigger names
 	  for (unsigned int k=0;k<HcalHLTBits_.size();++k)
 	    {
-	      // std::cout<<triggerNames.triggerName(i)<<std::endl;
-	      if (triggerNames.triggerName(i)==HcalHLTBits_[k] && hltRes->accept(i))
+	      // if (triggerNames.triggerName(i)==HcalHLTBits_[k] && hltRes->accept(i))
+	      if (triggerNames.triggerName(i).find(HcalHLTBits_[k])!=std::string::npos && hltRes->accept(i))
 		{ 
 		  passedHcalHLT=true;
 		  break;
@@ -652,7 +652,8 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	  // repeat for minbias triggers
 	  for (unsigned int k=0;k<MinBiasHLTBits_.size();++k)
 	    {
-	      if (triggerNames.triggerName(i)==MinBiasHLTBits_[k] && hltRes->accept(i))
+	      // if (triggerNames.triggerName(i)==MinBiasHLTBits_[k] && hltRes->accept(i))		
+	      if (triggerNames.triggerName(i).find(MinBiasHLTBits_[k])!=std::string::npos && hltRes->accept(i))
 		{ 
 		  passedMinBiasHLT=true;
 		  break;

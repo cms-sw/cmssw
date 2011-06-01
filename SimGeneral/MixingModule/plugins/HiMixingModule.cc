@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Feb 17 17:32:06 EST 2009
-// $Id: HiMixingModule.cc,v 1.6 2010/02/16 17:10:07 wmtan Exp $
+// $Id: HiMixingModule.cc,v 1.7 2010/02/25 00:34:23 wmtan Exp $
 //
 //
 
@@ -95,13 +95,13 @@ namespace edm{
 	 std::vector<Handle<std::vector<T> > > handles;
 	 bool get = true;
 	 for(size_t itag = 0; itag < tags_.size(); ++itag){
-	    std::cout<<"itag "<<itag<<std::endl;
-	    std::cout<<"label "<<tags_[itag].label()<<std::endl;
-	    std::cout<<"instance "<<tags_[itag].instance()<<std::endl;
+	   LogInfo("HiEmbedding")<<"itag "<<itag;
+	   LogInfo("HiEmbedding")<<"label "<<tags_[itag].label();
+	   LogInfo("HiEmbedding")<<"instance "<<tags_[itag].instance();
 	    Handle<std::vector<T> > hand;
 	    handles.push_back(hand);
 	    get = get && e.getByLabel(tags_[itag],handles[itag]);
-	    if(!get)  LogError("Product inconsistency")<<"One of the sub-events is missing the product with type "
+	    if(!get)  LogWarning("Product inconsistency")<<"One of the sub-events is missing the product with type "
 						       <<object_
 						       <<", instance "
 						       <<tags_[itag].instance()
@@ -128,7 +128,7 @@ void HiMixingWorker<HepMCProduct>::addSignals(edm::Event &e){
       Handle<HepMCProduct> hand;
       handles.push_back(hand);
       get = get && e.getByLabel(tags_[itag],handles[itag]);
-      if(!get)  LogError("Product inconsistency")<<"One of the sub-events is missing the product with type "
+      if(!get)  LogWarning("Product inconsistency")<<"One of the sub-events is missing the product with type "
 						 <<object_
 						 <<", instance "
 						 <<tags_[itag].instance()
@@ -220,8 +220,7 @@ HiMixingModule::HiMixingModule(const edm::ParameterSet& pset)
 	       produces<CrossingFrame<PCaloHit> >(label);
 	    }else LogInfo("Error")<<"What the hell is this object?!";
 	    
-	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;	 
-	    cout<<"The COUT : "<<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label<<endl;	 
+	    LogInfo("HiMixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;	 
       }
    }  
 }

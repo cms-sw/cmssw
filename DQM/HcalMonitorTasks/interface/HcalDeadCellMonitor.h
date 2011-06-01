@@ -4,6 +4,8 @@
 #include "DQM/HcalMonitorTasks/interface/HcalBaseDQMonitor.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
+#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 
 // Channel status DB stuff
 
@@ -21,8 +23,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2010/11/17 19:17:30 $
-  * $Revision: 1.48 $
+  * $Date: 2011/04/28 00:28:21 $
+  * $Revision: 1.50 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -61,6 +63,8 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
   bool deadmon_makeDiagnostics_;
   int minDeadEventCount_;
 
+  HcalLogicalMap* logicalMap_;
+
   // Booleans to control which of the dead cell checking routines are used
   bool deadmon_test_digis_;
   bool deadmon_test_rechits_;
@@ -95,15 +99,19 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
   bool present_rechit[85][72][4]; // tests that rechit with energy > threshold at least once
   unsigned int recentoccupancy_digi[85][72][4]; // tests that cells haven't gone missing for long periods
   unsigned int recentoccupancy_rechit[85][72][4]; // tests that cells haven't dropped below threshold for long periods
+  unsigned int occupancy_RBX[132];
   
   int deadevt_; // running count of events processed since last dead cell check
-  int NumBadHB, NumBadHE, NumBadHO, NumBadHF, NumBadHFLUMI, NumBadHO0, NumBadHO12;
+  int is_RBX_loss_;
+  unsigned int NumBadHB, NumBadHE, NumBadHO, NumBadHF, NumBadHFLUMI, NumBadHO0, NumBadHO12;
   edm::InputTag digiLabel_;
   edm::InputTag hbheRechitLabel_, hoRechitLabel_, hfRechitLabel_;
 
   bool endLumiProcessed_;
 
   bool excludeHORing2_;
+  bool excludeHO1P02_;
+  int NumBadHO1P02;
 };
 
 #endif

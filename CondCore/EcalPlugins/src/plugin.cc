@@ -43,8 +43,6 @@
 #include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibErrors.h"
 #include "CondFormats/DataRecord/interface/EcalTimeCalibErrorsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
-#include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
@@ -111,12 +109,6 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
 #include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
 
-#include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h"
-#include "CondFormats/DataRecord/interface/EcalTPGStripStatusRcd.h"
-
-#include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
-#include "CondFormats/DataRecord/interface/EcalTPGSpikeRcd.h"
-
 #include "CondFormats/EcalObjects/interface/EcalDCSTowerStatus.h"
 #include "CondFormats/DataRecord/interface/EcalDCSTowerStatusRcd.h"
 
@@ -140,7 +132,6 @@ REGISTER_PLUGIN(EcalIntercalibConstantsRcd,EcalFloatCondObjectContainer);
 REGISTER_PLUGIN(EcalIntercalibConstantsMCRcd,EcalFloatCondObjectContainer);
 REGISTER_PLUGIN(EcalTimeCalibConstantsRcd,EcalFloatCondObjectContainer);
 REGISTER_PLUGIN(EcalTimeCalibErrorsRcd,EcalFloatCondObjectContainer);
-REGISTER_PLUGIN(EcalTimeOffsetConstantRcd,EcalTimeOffsetConstant);
 REGISTER_PLUGIN(EcalIntercalibErrorsRcd,EcalFloatCondObjectContainer);
 REGISTER_PLUGIN(EcalADCToGeVConstantRcd,EcalADCToGeVConstant);
 REGISTER_PLUGIN(EcalLaserAlphasRcd,EcalFloatCondObjectContainer);
@@ -169,8 +160,6 @@ REGISTER_PLUGIN(EcalTPGWeightGroupRcd,EcalTPGWeightGroup);
 REGISTER_PLUGIN(EcalTPGWeightIdMapRcd,EcalTPGWeightIdMap);
 REGISTER_PLUGIN(EcalTPGCrystalStatusRcd,EcalTPGCrystalStatus);
 REGISTER_PLUGIN(EcalTPGTowerStatusRcd,EcalTPGTowerStatus);
-REGISTER_PLUGIN(EcalTPGStripStatusRcd,EcalTPGStripStatus);
-REGISTER_PLUGIN(EcalTPGSpikeRcd,EcalTPGSpike);
 
 REGISTER_PLUGIN(EcalDCSTowerStatusRcd,EcalDCSTowerStatus);
 REGISTER_PLUGIN(EcalDAQTowerStatusRcd,EcalDAQTowerStatus);

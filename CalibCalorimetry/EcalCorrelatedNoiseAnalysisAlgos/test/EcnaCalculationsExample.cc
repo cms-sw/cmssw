@@ -1,5 +1,5 @@
 //################## EcnaCalculationsExample.cc ####################
-// B. Fabbro       21/10/2010
+// B. Fabbro       08/04/2010
 //
 //
 
@@ -30,14 +30,14 @@ int main ( int argc, char **argv )
   //--------------------------------------------------------------------
   Int_t   fKeyNbOfSamples =    10;      // Number of required samples
 
-  TEcnaObject* myTEcnaManager = new TEcnaObject();
-  TEcnaRun* MyRunEB = new TEcnaRun(myTEcnaManager, "EB", fKeyNbOfSamples);       xCnew++;
+  TEcnaRun* MyRunEB = 0;  
+  if ( MyRunEB == 0 ){MyRunEB = new TEcnaRun("EB", fKeyNbOfSamples);       xCnew++;}
 
   //.............. Declarations and default values
 
   TString fKeyAnaType     = "AdcPeg12";  // Analysis name for the Adc file
   TString fKeyStdType     = "StdPeg12";  // Analysis name for the Std (calculated) file
-  Int_t   fKeyRunNumber   = 136098;      // Run number
+  Int_t   fKeyRunNumber   = 132440;      // Run number
   Int_t   fKeyFirstEvt    =      1;      // First Event number (to be analyzed)
   Int_t   fKeyLastEvt     =      0;      // Last Event number  (to be analyzed)
   Int_t   fKeyNbOfEvts    =    150;      // Number of events (events to be analyzed)
@@ -45,23 +45,35 @@ int main ( int argc, char **argv )
   
   MyRunEB->GetReadyToReadData(fKeyAnaType.Data(),  fKeyRunNumber,
 			      fKeyFirstEvt,        fKeyLastEvt,  fKeyNbOfEvts, fKeySuMoNumber);
-
-  Bool_t ok_read = MyRunEB->ReadSampleAdcValues();
+  Bool_t ok_read = MyRunEB->ReadEventDistributions();
   
   if( ok_read == kTRUE )
     {
       MyRunEB->GetReadyToCompute();
+      MyRunEB->SampleMeans();
+      MyRunEB->SampleSigmas();
+      MyRunEB->CorrelationsBetweenSamples();
+      
+      MyRunEB->Pedestals();
+      MyRunEB->TotalNoise();
+      MyRunEB->MeanOfCorrelationsBetweenSamples();
+      MyRunEB->LowFrequencyNoise();
+      MyRunEB->HighFrequencyNoise();
+      MyRunEB->SigmaOfCorrelationsBetweenSamples();
 
-      //------- Standard calculations
-      MyRunEB->StandardCalculations();
-           
-      //------- Expert 1 calculations long time, big file
-      //MyRunEB->Expert1Calculations();
-
-
-      //------- Expert 2 calculations long time
-      //MyRunEB->Expert2Calculations();
-
+      MyRunEB->AveragedPedestals();
+      MyRunEB->AveragedTotalNoise();
+      MyRunEB->AveragedMeanOfCorrelationsBetweenSamples();
+      MyRunEB->AveragedLowFrequencyNoise();
+      MyRunEB->AveragedHighFrequencyNoise();
+      MyRunEB->AveragedSigmaOfCorrelationsBetweenSamples();
+            
+      //------- long time, big file
+      //MyRunEB->LowFrequencyCorrelationsBetweenChannels();
+      //MyRunEB->HighFrequencyCorrelationsBetweenChannels();
+      //------- long time
+      //MyRunEB->LowFrequencyMeanCorrelationsBetweenTowers();
+      //MyRunEB->HighFrequencyMeanCorrelationsBetweenTowers();
 
       Bool_t ok_root_file = MyRunEB->WriteNewRootFile(fKeyStdType.Data());
 

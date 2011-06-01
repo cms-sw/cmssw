@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2011/01/24 14:23:01 $
- *  $Revision: 1.10 $
+ *  $Date: 2011/05/01 09:25:29 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
@@ -63,6 +63,8 @@ class HLTConfigData {
   /// label(s) of module(s) on a trigger path
   const std::vector<std::string>& moduleLabels(unsigned int trigger) const;
   const std::vector<std::string>& moduleLabels(const std::string& trigger) const;
+  const std::vector<std::string>& saveTagsModules(unsigned int trigger) const;
+  const std::vector<std::string>& saveTagsModules(const std::string& trigger) const;
   const std::string& moduleLabel(unsigned int trigger, unsigned int module) const;
   const std::string& moduleLabel(const std::string& trigger, unsigned int module) const;
 
@@ -81,6 +83,9 @@ class HLTConfigData {
 
   /// ParameterSet of module
   const edm::ParameterSet& modulePSet(const std::string& module) const;
+
+  /// Is module an L3 filter (ie, tracked saveTags=true)
+  const bool saveTags(const std::string& module) const;
 
 
   /// HLTLevel1GTSeed module
@@ -142,6 +147,7 @@ class HLTConfigData {
   std::string tableName_;
   std::vector<std::string> triggerNames_;
   std::vector<std::vector<std::string> > moduleLabels_;
+  std::vector<std::vector<std::string> > saveTagsModules_;
 
   std::map<std::string,unsigned int> triggerIndex_;
   std::vector<std::map<std::string,unsigned int> > moduleIndex_;

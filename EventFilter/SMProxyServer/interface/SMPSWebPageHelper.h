@@ -1,4 +1,4 @@
-// $Id: SMPSWebPageHelper.h,v 1.1.4.2 2011/03/07 12:01:12 mommsen Exp $
+// $Id: SMPSWebPageHelper.h,v 1.2 2011/03/07 15:41:54 mommsen Exp $
 /// @file: SMPSWebPageHelper.h
 
 #ifndef EventFilter_SMProxyServer_SMPSWebPageHelper_h
@@ -16,8 +16,8 @@ namespace smproxy {
    * Helper class to handle SM proxy server web page requests
    *
    * $Author: mommsen $
-   * $Revision: 1.1.4.2 $
-   * $Date: 2011/03/07 12:01:12 $
+   * $Revision: 1.2 $
+   * $Date: 2011/03/07 15:41:54 $
    */
   
   class SMPSWebPageHelper : public stor::WebPageHelper<SMPSWebPageHelper>
@@ -114,7 +114,7 @@ namespace smproxy {
     (
       stor::XHTMLMaker&,
       stor::XHTMLMaker::Node* table,
-      DataRetrieverMonitorCollection::EventTypeStats const&
+      DataRetrieverMonitorCollection::EventTypePerConnectionStats const&
     ) const;
  
     /**

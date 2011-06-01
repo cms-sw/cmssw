@@ -26,9 +26,6 @@ HLT_CentralJet80_MET80_v*
 HLT_CentralJet80_MET100_v*
 HLT_CentralJet80_MET160_v*
 HLT_DiJet60_MET45_v*
-HLT_DiJet70_PT70_v*
-HLT_DiJet100_PT100_v*
-HLT_DiJet130_PT130_v*
 HLT_QuadJet40_v*
 HLT_QuadJet40_IsoPFTau40_v*
 HLT_QuadJet50_BTagIP_v*
@@ -223,7 +220,6 @@ HLT_HcalCalibration_v*
 HLT_TrackerCalibration_v*
 HLT_Random_v*
 HLT_L1SingleMuOpen_AntiBPTX_v*
-HLT_L2MuOpen_NoVertex_v*
 HLT_L1TrackerCosmics_v*
 HLT_RegionalCosmicTracking_v*
 HLT_L3MuonsCosmicTracking_v*

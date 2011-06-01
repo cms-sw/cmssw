@@ -103,9 +103,10 @@ std::auto_ptr<DTConfigManager> DTConfigDBProducer::produce(const DTConfigManager
      readDBPedestalsConfig(iRecord); // no return code if fails exception is raised by ESHandle getter
    }
    if(code==-1) {
-     throw cms::Exception("DTTPG") << "DTConfigDBProducer::produce : " << endl
-				   << "generic error pharsing DT CCB config strings." << endl
-                                   << "Run module with debug flags enable to get more info" << endl;
+     //throw cms::Exception("DTTPG") << "DTConfigDBProducer::produce : " << endl
+     //				   << "generic error pharsing DT CCB config strings." << endl
+     //                              << "Run module with debug flags enable to get more info" << endl;
+     m_manager->setCCBConfigValidity(false);
    } else if(code==2) {
      LogVerbatim ("DTTPG") << "DTConfigDBProducer::produce : Trivial : " << endl
                            << "configurations has been read from cfg" << endl; 
@@ -152,7 +153,9 @@ void DTConfigDBProducer::readDBPedestalsConfig(const DTConfigManagerRcd& iRecord
 int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
 {
   using namespace edm::eventsetup;
-  
+
+  // initialize CCB validity flag
+  m_manager->setCCBConfigValidity(true);
 
   // get DTCCBConfigRcd from DTConfigManagerRcd (they are dependent records)
   edm::ESHandle<DTCCBConfig> ccb_conf;
@@ -178,8 +181,9 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
 	    
   // if there are no data in the container, configuration from cfg files...	    
   if( ndata==0 ){
-    throw cms::Exception("DTTPG") << "DTConfigDBProducer::readDTCCBConfig : " << endl 
-				  << "DTCCBCOnfigRcd is empty!" << endl;
+    //throw cms::Exception("DTTPG") << "DTConfigDBProducer::readDTCCBConfig : " << endl 
+    //				  << "DTCCBConfigRcd is empty!" << endl;
+    m_manager->setCCBConfigValidity(false);
   }
 
   // get DTTPGMap for retrieving bti number and traco number
@@ -455,15 +459,19 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
   }
 
   // moved to exception handling no attempt to configure from cfg is DB is missing
+  // SV comment exception handling and activate flag in DTConfigManager
   if(!flagDBBti || !flagDBTraco || !flagDBTSS || !flagDBTSM ){
-    throw cms::Exception("DTTPG") << "DTConfigDBProducer::readDTCCBConfig :"  << endl
-				  << "(at least) part of the CCB strings needed to configure"  << endl
-				  << "DTTPG emulator were not found in DTCCBCOnfigRcd" << endl;
+    //throw cms::Exception("DTTPG") << "DTConfigDBProducer::readDTCCBConfig :"  << endl
+    //				  << "(at least) part of the CCB strings needed to configure"  << endl
+    //				  << "DTTPG emulator were not found in DTCCBConfigRcd" << endl;
+    m_manager->setCCBConfigValidity(false);
+    
   }
   if(!flagDBLUTS && m_manager->lutFromDB()==true){
-    throw cms::Exception("DTTPG") << "DTConfigDBProducer::readDTCCBConfig : " << endl
-				  << "Asked to configure the emulator using Lut seeds from DB "
-				  << "but no configuration parameters found in DTCCBCOnfigRcd." << endl;
+    //throw cms::Exception("DTTPG") << "DTConfigDBProducer::readDTCCBConfig : " << endl
+    //				  << "Asked to configure the emulator using Lut seeds from DB "
+    //				  << "but no configuration parameters found in DTCCBConfigRcd." << endl;
+    m_manager->setCCBConfigValidity(false);
   } 
   
   return 0;
@@ -485,6 +493,9 @@ std::string DTConfigDBProducer::mapEntryName(const DTChamberId & chambid) const
 
 
 void DTConfigDBProducer::configFromCfg(){
+
+  // ... but still set CCB validity flag to let the emulator run
+  m_manager->setCCBConfigValidity(true);
 
   //create config classes&C.
   edm::ParameterSet conf_ps = m_ps.getParameter<edm::ParameterSet>("DTTPGParameters");

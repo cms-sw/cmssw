@@ -11,8 +11,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2011/01/03 21:10:33 $
- *  $Revision: 1.14 $
+ *  $Date: 2011/04/29 22:00:26 $
+ *  $Revision: 1.16 $
  *  
  *  \author  J. Slaunwhite, Jeff Klukas
  */
@@ -82,7 +82,7 @@ class HLTMuonMatchAndPlot {
     fillMapFromPSet(std::map<std::string, T> &, edm::ParameterSet, std::string);
   template <class T1, class T2> std::vector<size_t> 
     matchByDeltaR(const std::vector<T1> &, const std::vector<T2> &, 
-                  const double maxDeltaR);
+                  const double maxDeltaR = NOMATCH);
 
  private:
 
@@ -109,6 +109,8 @@ class HLTMuonMatchAndPlot {
   edm::ParameterSet probeParams_;
 
   // Member Variables
+  std::string triggerLevel_;
+  unsigned int cutMinPt_;
   std::string hltPath_;
   std::vector<std::string> moduleLabels_;
   DQMStore * dbe_;

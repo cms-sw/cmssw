@@ -102,8 +102,11 @@ namespace pat {
     std::string payload_;
     /// label for L1Offset primaryVertex collection
     edm::InputTag primaryVertices_;
-    // label for L1FastJet energy density parameter rho
+    /// label for L1FastJet energy density parameter rho
     edm::InputTag rho_;
+    /// use the NPV and rho with the JEC? (used for L1Offset/L1FastJet and L1FastJet, resp.)
+    bool useNPV_;
+    bool useRho_;
     /// jec levels for different flavors. In the default configuration 
     /// this map would look like this:
     /// GLUON  : 'L2Relative', 'L3Absolute', 'L5FLavor_jg', L7Parton_jg'

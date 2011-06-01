@@ -1,4 +1,4 @@
-// $Id: StateMachine.cc,v 1.1.4.3 2011/03/23 14:20:51 mommsen Exp $
+// $Id: StateMachine.cc,v 1.3 2011/03/24 17:26:25 mommsen Exp $
 /// @file: StateMachine.cc
 
 #include "EventFilter/SMProxyServer/interface/DataManager.h"
@@ -154,6 +154,15 @@ namespace smproxy
   }
   
   
+  void StateMachine::setAlarms()
+  {
+    AlarmParams alarmParams =
+      configuration_->getAlarmParams();
+    statisticsReporter_->getDataRetrieverMonitorCollection().
+      configureAlarms(alarmParams);
+  }
+  
+  
   void StateMachine::clearInitMsgCollection()
   {
     initMsgCollection_->clear();
@@ -210,6 +219,8 @@ namespace smproxy
     stateMachine.updateConfiguration();
     boost::this_thread::interruption_point();
     stateMachine.setQueueSizes();
+    boost::this_thread::interruption_point();
+    stateMachine.setAlarms();
     boost::this_thread::interruption_point();
     stateMachine.processEvent( ConfiguringDone() );
   }

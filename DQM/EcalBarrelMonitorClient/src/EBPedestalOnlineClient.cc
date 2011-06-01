@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2010/08/30 13:14:07 $
- * $Revision: 1.160 $
+ * $Date: 2010/10/17 18:06:34 $
+ * $Revision: 1.161 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -77,7 +77,8 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const edm::ParameterSet& ps) {
 
   expectedMean_ = 200.0;
   discrepancyMean_ = 25.0;
-  RMSThreshold_ = 2.0;
+  RMSThreshold_ = 3.0;
+  RMSThresholdHighEta_ = 6.0;
 
 }
 
@@ -336,7 +337,7 @@ void EBPedestalOnlineClient::analyze(void) {
           val = 1.;
           if ( std::abs(mean03 - expectedMean_) > discrepancyMean_ )
             val = 0.;
-          if ( rms03 > RMSThreshold_ )
+          if ( (ie<=40 && rms03 > RMSThreshold_) || (ie>40 && rms03 > RMSThresholdHighEta_) )
             val = 0.;
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(ie, ip, val);
 

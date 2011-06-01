@@ -2,14 +2,15 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/12/23 12:48:46 $
- *  $Revision: 1.60 $
+ *  $Date: 2011/05/28 13:31:22 $
+ *  $Revision: 1.63 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "FWCore/Utilities/interface/RegexMatch.h"
 #include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -19,6 +20,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <boost/regex.hpp> 
 
 typedef edm::detail::ThreadSafeRegistry<edm::ParameterSetID, HLTConfigData> HLTConfigDataRegistry;
 
@@ -65,35 +67,60 @@ void HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const std::str
    using namespace std;
    using namespace edm;
 
-   /// Check uniqueness (uniqueness should [soon] be enforced by Fw)
    const ProcessHistory::const_iterator hb(iHistory.begin());
    const ProcessHistory::const_iterator he(iHistory.end());
+
+   ProcessConfiguration processConfiguration;
+   const edm::ParameterSet* processPSet(0);
+
+   processName_=processName;
+   if (processName_=="*") {
+     // auto-discovery of process name
+     for (ProcessHistory::const_iterator hi=hb; hi!=he; ++hi) {
+       if (iHistory.getConfigurationForProcess(hi->processName(),processConfiguration)) {
+	 processPSet = edm::pset::Registry::instance()->getMapped(processConfiguration.parameterSetID());
+	 if ((processPSet!=0) && (processPSet->exists("hltTriggerSummaryAOD"))) {
+	   processName_=hi->processName();
+	 }	 
+       }
+     }
+     LogInfo("HLTConfigData") << "Auto-discovered processName: '"
+			      << processName_ << "'"
+			      << endl;
+   }
+   if (processName_=="*") {
+     clear();
+     LogError("HLTConfigData") << "Auto-discovery of processName failed!"
+			       << endl;
+     return;
+   }
+
+   /// Check uniqueness (uniqueness should [soon] be enforced by Fw)
    unsigned int n(0);
    for (ProcessHistory::const_iterator hi=hb; hi!=he; ++hi) {
-     if (hi->processName()==processName) {n++;}
+     if (hi->processName()==processName_) {n++;}
    }
    if (n>1) {
      clear();
-     LogError("HLTConfigProvider") << " ProcessName '"<< processName
+     LogError("HLTConfigProvider") << " ProcessName '"<< processName_
 				   << " found " << n
 				   << " times in history!" << endl;
      return;
    }
 
    ///
-   ProcessConfiguration processConfiguration;
-   if (iHistory.getConfigurationForProcess(processName,processConfiguration)) {
+   if (iHistory.getConfigurationForProcess(processName_,processConfiguration)) {
      if ((hltConfigData_ !=s_dummyHLTConfigData()) && (processConfiguration.parameterSetID() == hltConfigData_->id())) {
        changed_ = false;
        inited_  = true;
        return;
      } else {
-       getDataFrom(processConfiguration.parameterSetID(),processName);
+       getDataFrom(processConfiguration.parameterSetID());
      }
    } else {
      LogError("HLTConfigProvider") << "Falling back to processName-only init!";
      clear();
-     init(processName);
+     init(processName_);
      if (!inited_) {
        LogError("HLTConfigProvider") << "ProcessName not found in history!";
      }
@@ -101,7 +128,7 @@ void HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const std::str
    }
 }
 
-void HLTConfigProvider::getDataFrom(const edm::ParameterSetID& iID, const std::string& processName )
+void HLTConfigProvider::getDataFrom(const edm::ParameterSetID& iID)
 {
   //is it in our registry?
   HLTConfigDataRegistry* reg = HLTConfigDataRegistry::instance();
@@ -206,7 +233,7 @@ void HLTConfigProvider::init(const std::string& processName)
      return;
    }
 
-   getDataFrom(psetID,processName);
+   getDataFrom(psetID);
 
    return;
 
@@ -303,4 +330,24 @@ std::pair<int,int>  HLTConfigProvider::prescaleValues(const edm::Event& iEvent, 
   }
 
   return result;
+}
+
+const std::vector<std::string> HLTConfigProvider::matched(const std::vector<std::string>& inputs, const std::string& pattern) {
+  std::vector<std::string> matched;
+  const boost::regex regexp(edm::glob2reg(pattern));
+  const unsigned int n(inputs.size());
+  for (unsigned int i=0; i<n; ++i) {
+    const std::string& input(inputs[i]);
+    if (boost::regex_match(input,regexp)) matched.push_back(input);
+  }
+  return matched;
+}
+
+const std::string HLTConfigProvider::removeVersion(const std::string& trigger) {
+  const boost::regex regexp("_v[0-9]+$");
+  return boost::regex_replace(trigger,regexp,"");
+}
+
+const std::vector<std::string> HLTConfigProvider::restoreVersion(const std::vector<std::string>& inputs, const std::string& trigger) {
+  return matched(inputs,trigger+"_v[0-9]+$");
 }
