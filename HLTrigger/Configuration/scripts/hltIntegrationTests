@@ -15,12 +15,13 @@ HELP="Run the integration tests over all paths in a given HLT menu.
 
 Usage:
   $NAME -h|--help
-  $NAME [-s|--setup SETUP] [-i|--input RAW] MENU
+  $NAME [-d|--dir WORKDIR] [-s|--setup SETUP] [-i|--input RAW] MENU
 
   MENU is the HLT menu to test. 
   
   -s | --setup SETUP        Use the Services and EventSetup modules from a different menu 
                             (usefull when testing a ConfDB area with only some new paths)
+  -d | --dir   WORKDIR      Create all files and run all tests inside WORKDIR (defauls: ./hltintegration)
   -i | --input INPUT        Use the specified RAW data file as input
   -n | --size  EVENTS       Run on EVENTS events (-1 for all, default is 100)
   -j | --jobs  JOBS         Run JOBS jobs in parallel (default is 4)
@@ -66,6 +67,7 @@ SETUP=""
 INPUT=""
 SIZE=100
 JOBS=4
+WORKDIR="hltintegration"
 
 # parse options
 while true; do
@@ -76,6 +78,10 @@ while true; do
       ;;
     "-s" | "--setup" )
       SETUP="$2"
+      shift 2
+      ;;
+    "-d" | "--dir" )
+      WORKDIR="$2"
       shift 2
       ;;
     "-i" | "--input" )
@@ -122,9 +128,9 @@ fi
 
 
 # run the tests
-rm -rf hltintegration
-mkdir  hltintegration
-cd     hltintegration
+rm -rf "$WORKDIR"
+mkdir  "$WORKDIR"
+cd     "$WORKDIR"
 
 # find the list of all trigger paths
 TRIGGERS=$(hltListPaths -p "$MENU")
