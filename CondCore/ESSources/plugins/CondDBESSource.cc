@@ -289,6 +289,25 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   cond::TimeType timetype;
   bool userTime=true;
   for (ProxyMap::const_iterator p=b;p!=e;++p) {
+
+    timetype = (*p).second->proxy()->timetype();
+    
+    cond::Time_t abtime = cond::fromIOVSyncValue(iTime,timetype);
+    userTime = (0==abtime);
+    
+    //std::cout<<"abtime "<<abtime<<std::endl;
+
+    if (userTime) return; //  oInterval invalid to avoid that make is called...
+    /*
+      // make oInterval valid For Ever
+    {
+     oInterval = edm::ValidityInterval(cond::toIOVSyncValue(recordValidity.first,  cond::runnumber, true), 
+                                       cond::toIOVSyncValue(recordValidity.second, cond::runnumber, false));
+     return;
+    }    
+    */
+
+
     // refresh if required...
     if (doRefresh)  {
       LogDebug ("CondDBESSource") << "Refresh " << recordname << " " << iTime.eventID() << std::endl; 
@@ -298,19 +317,7 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     
    
     
-    timetype = (*p).second->proxy()->timetype();
-    
-    cond::Time_t abtime = cond::fromIOVSyncValue(iTime,timetype);
-    userTime = (0==abtime);
-    
-    //std::cout<<"abtime "<<abtime<<std::endl;
 
-    if (userTime) // make oInterval valid For Ever
-    {
-     oInterval = edm::ValidityInterval(cond::toIOVSyncValue(recordValidity.first,  cond::runnumber, true), 
-                                       cond::toIOVSyncValue(recordValidity.second, cond::runnumber, false));
-     return;
-    }    
 
     //query the IOVSequence
     cond::ValidityInterval validity = (*p).second->proxy()->setIntervalFor(abtime);
