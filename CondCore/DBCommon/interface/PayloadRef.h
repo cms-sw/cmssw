@@ -27,9 +27,7 @@ namespace cond {
       clear();
       bool ok = false;
       // is it ok to open a transaction here? or could be at higher level?
-      //dbSess.transaction().start(); 
       boost::shared_ptr<DataT> tmp = dbSess.getTypedObject<DataT>( itoken );
-      //dbSess.transaction().commit();
       if (tmp.get()) {
 	m_Data = tmp;
 	ok =  true;

@@ -8,7 +8,6 @@ namespace cond {
   KeyList::KeyList(IOVKeysDescription const * idescr) : m_description(idescr){}
   
   void KeyList::load(std::vector<unsigned long long> const & keys) {
-    m_sequence.db().transaction().start(true);
     m_data.resize(keys.size());
     for (size_t i=0; i<keys.size(); ++i) {
       m_data[i].reset();
@@ -19,7 +18,6 @@ namespace cond {
 	}
       }
     }
-    m_sequence.db().transaction().commit();
   }
 
 

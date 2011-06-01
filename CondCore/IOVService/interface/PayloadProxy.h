@@ -136,9 +136,7 @@ namespace cond {
 
   protected:
     virtual bool load(cond::DbSession& session, std::string const & itoken) {
-      session.transaction().start();
       return m_data.load(session,itoken);
-      session.transaction().commit();
     }
 
   private:
