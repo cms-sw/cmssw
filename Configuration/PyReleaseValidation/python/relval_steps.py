@@ -373,6 +373,19 @@ step2['RECOD']=merge([{'--scenario':'pp',},dataReco])
 step2['RECOVALSKIM']=merge([{'--scenario':'pp','--customise':'Configuration/DataProcessing/RecoTLR.customiseVALSKIM','-s':'RAW2DIGI,L1Reco,RECO,DQM'},step2['RECOD']])
 step2['RECOVALSKIMALCA']=merge([{'--scenario':'pp','--customise':'Configuration/DataProcessing/RecoTLR.customiseVALSKIM'},step2['RECOD']])
 
+step2['TIER0']=merge([{'--scenario':'pp',
+                       '--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt',
+                       '-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@AllForPrompt,L1HwVal,DQM,ENDJOB',
+                       '--datatier':'RECO,AOD,ALCARECO,DQM',
+                       '--eventcontent':'RECO,AOD,ALCARECO,DQM',
+                       '--process':'RECO'
+                       },dataReco])
+step2['TIER0'].pop('--inputCommands')
+step2['TIER0EXP']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@StreamExpress,L1HwVal,DQM,ENDJOB',
+                          '--datatier':'ALCARECO,DQM',
+                          '--eventcontent':'ALCARECO,DQM',
+                          '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
+                          },step2['TIER0']])
 
 step2['RECOCOSD']=merge([{'--scenario':'cosmics',
                           '-s':'RAW2DIGI,L1Reco,RECO,L1HwVal,DQM,ALCA:MuAlCalIsolatedMu+DtCalib',
@@ -427,8 +440,10 @@ step3['ALCAPROMPT']={'-s':'ALCA:PromptCalibProd',
                      '--conditions':'auto:com10',
                      '--datatier':'ALCARECO',
                      '--eventcontent':'ALCARECO'}
+
 step3['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
                    '--conditions':'auto:com10',
+                   '--filein':'file:step2_inDQM.root',
                    '--data':'',
                    '--scenario':'pp'}
 # step4
@@ -474,6 +489,13 @@ step4['HARVEST2']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--conditions':'auto:startup',
                    '--mc':'',
                    '--scenario':'pp'}
+step4['ALCASPLIT']={'-s':'ALCAOUTPUT:@AllForPrompt',
+                    '--conditions':'auto:com10',
+                    '--scenario':'pp',
+                    '--data':'',
+                    '--triggerResultsProcess':'RECO',
+                    '--filein':'file:step2_inALCARECO.root'}
+
                  
 
 #### for special wfs ###
