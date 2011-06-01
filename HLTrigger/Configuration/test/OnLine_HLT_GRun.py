@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V115 (CMSSW_4_2_0_HLT8)
+# /dev/CMSSW_4_2_0/GRun/V116 (CMSSW_4_2_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V115')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V116')
 )
 
 process.streams = cms.PSet( 
@@ -31030,7 +31030,7 @@ process.HLTBeginSequence = cms.Sequence( process.hltTriggerType + process.HLTL1U
 process.HLTStoppedHSCPLocalHcalReco = cms.Sequence( process.hltHcalDigis + process.hltHbhereco )
 process.HLTStoppedHSCPJetSequence = cms.Sequence( process.hltStoppedHSCPTowerMakerForAll + process.hltStoppedHSCPIterativeCone5CaloJets )
 process.HLTBeginSequenceAntiBPTX = cms.Sequence( process.hltTriggerType + process.HLTL1UnpackerSequence + process.hltBPTXAntiCoincidence + process.HLTBeamSpot )
-process.HLTDoubleEle5CaloIdVLSequenceUnseeded = cms.Sequence( process.HLTEcalActivitySequence + process.hltDoubleEG5EtFilterUnseeded + process.hltActivityPhotonClusterShape + process.hltDoubleEG5CaloIdVLClusterShapeFilterUnseeded + process.hltActivityPhotonHcalForHE + process.hltDoubleEG5CaloIdVLHEFilterUnseeded + process.HLTDoLocalPixelSequence + process.hltActivityStartUpElectronPixelSeeds + process.hltDoubleEle5CaloIdVLPixelMatchFilterUnseeded )
+process.HLTDoubleEle5CaloIdVLSequenceUnseeded = cms.Sequence( process.HLTEcalActivitySequence + process.hltDoubleEG5EtFilterUnseeded + process.hltActivityPhotonClusterShape + process.hltDoubleEG5CaloIdVLClusterShapeFilterUnseeded + process.hltActivityPhotonHcalForHE + process.hltDoubleEG5CaloIdVLHEFilterUnseeded + process.HLTDoLocalPixelSequence + process.HLTDoLocalStripSequence + process.hltActivityStartUpElectronPixelSeeds + process.hltDoubleEle5CaloIdVLPixelMatchFilterUnseeded )
 process.HLTRecopixelvertexing24cmSequence = cms.Sequence( process.hltPixelTracks24cm + process.hltPixelVertices24cm )
 process.HLT2DisplacedHT250SequenceL25 = cms.Sequence( process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexing24cmSequence + process.hltDisplacedHT250L25Associator + process.hltDisplacedHT250L25TagInfos + process.hltDisplacedHT250L25JetTags + process.hlt2DisplacedHT250L25Filter )
 process.HLT2DisplacedHT250SequenceL3 = cms.Sequence( process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexing24cmSequence + process.HLTDoLocalStripSequence + process.hltDisplacedHT250RegionalPixelSeedGenerator + process.hltDisplacedHT250RegionalCkfTrackCandidates + process.hltDisplacedHT250RegionalCtfWithMaterialTracks + process.hltDisplacedHT250L3Associator + process.hltDisplacedHT250L3TagInfos + process.hltDisplacedHT250L3JetTags + process.hlt2DisplacedHT250L3Filter )
