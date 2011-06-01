@@ -389,6 +389,5 @@ HLTDQMOutput
 HLTDQMResultsOutput
 HLTMONOutput
 NanoDSTOutput
-OnlineErrorsOutput
 RPCMONOutput
 TrackerCalibrationOutput
