@@ -42,6 +42,7 @@ echo "inspect db"
 cmscond_list_iov -c sqlite_file:pop_test.db -a
 cmscond_list_iov -c sqlite_file:pop_test1.db -a
 cmscond_list_iov -c sqlite_file:pop_test2.db -a
+cmscond_list_iov -c sqlite_file:pop_test3.db -a
 
 echo "get iov details"
 cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag -s -v
@@ -50,7 +51,7 @@ cmscond_list_iov -c sqlite_file:pop_test1.db -t Example_tag -s -v
 cmscond_list_iov -c sqlite_file:pop_test2.db -t Example_tag -s -v
 cmscond_list_iov -c sqlite_file:pop_test3.db -t Example_tag2 -s -v
 
-
+#FIXME! Change export...
 echo "import"
 
 echo "shall fail"
@@ -85,7 +86,7 @@ cmscond_list_iov -c sqlite_file:pop_test.db -t copyOfExample_tag -s -v
 
 
 echo "rename"
-cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag > Example_tag.dump
+cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag -o
 sed -i 's/Example_tag/Example_tag_renamed/' Example_tag.dump
 cmscond_load_iov -c sqlite_file:pop_test.db Example_tag.dump 
 cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag_renamed -s -v
