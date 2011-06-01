@@ -22,6 +22,7 @@
  * GO 20110301: final (hopefully) version with pre-partitioned 
  *              tables and local indices, as well as with
  *              splitted DB sequences.
+ * GO 20110531: added support for CLS classes. Added partitions %_11b. 
  */
 
 PROMPT "Starting creating laser tables: "
@@ -296,8 +297,6 @@ CREATE TABLE LMF_CLS_BLUE_DAT
   CONSTRAINTS LMF_CLS_BLUE_DAT_FK2 FOREIGN KEY(VMAX)
     REFERENCES LMF_PRIM_VERS(VERS),
   CONSTRAINTS LMF_CLS_BLUE_DAT_FK3 FOREIGN KEY(LMF_IOV_ID)
-    REFERENCES LMF_RUN_IOV(LMF_IOV_ID),
-  CONSTRAINTS LMF_CLS_BLUE_DAT_FK4 FOREIGN KEY(LMF_IOV_ID_REF)
     REFERENCES LMF_RUN_IOV(LMF_IOV_ID)
 )
 PARTITION BY RANGE ("LMF_IOV_ID")
@@ -326,8 +325,6 @@ CREATE TABLE LMF_CLS_IR_DAT
   CONSTRAINTS LMF_CLS_IR_DAT_FK2 FOREIGN KEY(VMAX)
     REFERENCES LMF_PRIM_VERS(VERS),
   CONSTRAINTS LMF_CLS_IR_DAT_FK3 FOREIGN KEY(LMF_IOV_ID)
-    REFERENCES LMF_RUN_IOV(LMF_IOV_ID),
-  CONSTRAINTS LMF_CLS_IR_DAT_FK4 FOREIGN KEY(LMF_IOV_ID_REF)
     REFERENCES LMF_RUN_IOV(LMF_IOV_ID)
 )
 PARTITION BY RANGE ("LMF_IOV_ID")
@@ -1148,6 +1145,45 @@ CREATE OR REPLACE TRIGGER LMF_CHECK_TRIPLETS_TG
         RAISE_APPLICATION_ERROR (
            num => -20000,
            msg =>       'Wrong triplets detected: T2 < T1 or T3 < T2');
+      END IF;
+    END;
+/
+
+/* create triggers to support 0 values in LMF_IOV_ID_REF and ensure referential
+   integrity */
+
+CREATE OR REPLACE TRIGGER LMF_CLS_BLUE_DAT_TG
+  BEFORE INSERT ON LMF_CLS_BLUE_DAT
+  REFERENCING NEW AS new
+  FOR EACH ROW
+    DECLARE
+      rowcount NUMBER;
+    BEGIN
+      IF (:new.LMF_IOV_ID_REF != 0) THEN
+        SELECT COUNT(LMF_IOV_ID) INTO rowcount FROM LMF_RUN_IOV WHERE LMF_IOV_ID = :n\
+ew.LMF_IOV_ID_REF;
+        IF (rowcount = 0) THEN
+          RAISE_APPLICATION_ERROR(-20001, 'LMF_IOV_ID_REF = ' || :new.LMF_IOV_ID_REF \
+|| ' not found');
+        END IF;
+      END IF;
+    END;
+/
+
+CREATE OR REPLACE TRIGGER LMF_CLS_IR_DAT_TG
+  BEFORE INSERT ON LMF_CLS_IR_DAT
+  REFERENCING NEW AS new
+  FOR EACH ROW
+    DECLARE
+      rowcount NUMBER;
+    BEGIN
+      IF (:new.LMF_IOV_ID_REF != 0) THEN
+        SELECT COUNT(LMF_IOV_ID) INTO rowcount FROM LMF_RUN_IOV WHERE LMF_IOV_ID = :n\
+ew.LMF_IOV_ID_REF;
+        IF (rowcount = 0) THEN
+          RAISE_APPLICATION_ERROR(-20001, 'LMF_IOV_ID_REF = ' || :new.LMF_IOV_ID_REF \
+|| ' not found');
+        END IF;
       END IF;
     END;
 /
