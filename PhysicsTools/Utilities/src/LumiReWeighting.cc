@@ -24,7 +24,10 @@
 #include <boost/shared_ptr.hpp>
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
 #include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Common/interface/EventBase.h"
 
 using namespace edm;
 
@@ -128,7 +131,7 @@ double LumiReWeighting::weight( int npv ) {
 // using the true number of interactions in the in-time beam crossing.
 
 
-double LumiReWeighting::weight( const edm::Event &e ) {
+double LumiReWeighting::weight( const edm::EventBase &e ) {
 
   // find provenance of event objects, just to check at the job beginning if there might be an issue  
 
@@ -941,7 +944,7 @@ void LumiReWeighting::weightOOT_init() {
 // As of May 2011, CMS is only sensitive to a bunch that is 50ns "late", which corresponds to
 // BunchCrossing +1.  So, we use that here for re-weighting.
 
-double LumiReWeighting::weightOOT( const edm::Event &e ) {
+double LumiReWeighting::weightOOT( const edm::EventBase &e ) {
 
 
   static double Correct_Weights2011[25] = { // residual correction to match lumi spectrum

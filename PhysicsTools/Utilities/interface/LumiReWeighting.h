@@ -21,16 +21,8 @@
 #include <boost/shared_ptr.hpp>
 #include <vector>
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Selector.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Common/interface/Handle.h"
-
-
 namespace edm {
+  class EventBase;
   class LumiReWeighting {
   public:
     LumiReWeighting( std::string generatedFile,
@@ -44,9 +36,9 @@ namespace edm {
 
     double weight( int npv ) ;
 
-    double weight( const edm::Event &e ) ;
+    double weight( const edm::EventBase &e ) ;
 
-    double weightOOT( const edm::Event &e ) ;
+    double weightOOT( const edm::EventBase &e ) ;
 
     void weightOOT_init(); 
 
