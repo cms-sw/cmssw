@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import FWCore.ParameterSet.Config as cms
 
 from FWCore.ParameterSet.Modules import _Module
 # Searches for self.lookFor module in cms.Path. When found, next and prev module is stored
@@ -156,8 +156,8 @@ def customise(process):
 
 
   import sys
-  if hasattr(sys, "argv") == True:
-    options.parseArguments()
+  #if hasattr(sys, "argv") == True:
+  #  options.parseArguments()
 
   print "Setting mdtau to ", options.mdtau
   process.generator.ZTauTau.TauolaOptions.InputCards.mdtau = options.mdtau 
@@ -222,10 +222,10 @@ def customise(process):
   process.muons.TrackExtractorPSet.inputTrackCollection = cms.InputTag("tmfTracks")
   # it should be the best solution to take the original beam spot for the
   # reconstruction of the new primary vertex
-  #process.offlinePrimaryVertices.beamSpotLabel = cms.InputTag("offlineBeamSpot","","RECO")
-  #process.offlinePrimaryVerticesWithBS.beamSpotLabel = cms.InputTag("offlineBeamSpot","","RECO")
-  process.offlinePrimaryVertices.beamSpotLabel = cms.InputTag("offlineBeamSpot","","REDIGI311X")
-  process.offlinePrimaryVerticesWithBS.beamSpotLabel = cms.InputTag("offlineBeamSpot","","REDIGI311X")
+  process.offlinePrimaryVertices.beamSpotLabel = cms.InputTag("offlineBeamSpot","","RECO")
+  process.offlinePrimaryVerticesWithBS.beamSpotLabel = cms.InputTag("offlineBeamSpot","","RECO")
+  #process.offlinePrimaryVertices.beamSpotLabel = cms.InputTag("offlineBeamSpot","","REDIGI311X")
+  #process.offlinePrimaryVerticesWithBS.beamSpotLabel = cms.InputTag("offlineBeamSpot","","REDIGI311X")
   
   try:
   	process.metreco.remove(process.BeamHaloId)
