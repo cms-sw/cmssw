@@ -8,8 +8,8 @@
  * the entire event has been reconstructed. The collections produced here are meant to be used for the final analysis (or as PAT input).
  * The previous muon collection is meant to be transient.
  *
- *  $Date: 2011/05/31 14:47:01 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/06/01 09:54:55 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
@@ -35,6 +35,9 @@ public:
 
   /// reconstruct muons
   virtual void produce(edm::Event&, const edm::EventSetup&);
+
+
+  typedef std::vector<edm::InputTag> InputTags;
 
 protected:
 
@@ -67,7 +70,7 @@ private:
   edm::InputTag theHoDepositName;
   edm::InputTag theJetDepositName;
 
-
+  InputTags theSelectorMapNames;
 };
 #endif
 

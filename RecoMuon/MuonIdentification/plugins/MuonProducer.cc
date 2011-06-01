@@ -1,8 +1,8 @@
 /** \class MuonProducer
  *  See header file.
  *
- *  $Date: 2011/05/31 17:41:18 $
- *  $Revision: 1.4 $
+ *  $Date: 2011/06/01 09:54:55 $
+ *  $Revision: 1.5 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
@@ -61,6 +61,13 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
     theHoDepositName = pSet.getParameter<edm::InputTag>("HoIsoDeposits");
     produces<reco::IsoDepositMap>(theHoDepositName.instance());
     //  }
+    
+    theSelectorMapNames = pSet.getParameter<InputTags>("SelectorMaps");
+    
+    for(InputTags::const_iterator tag = theSelectorMapNames.begin(); tag != theSelectorMapNames.end(); ++tag)
+      produces<edm::ValueMap<bool> >(tag->label());
+    
+
 }
 
 /// Destructor
@@ -128,12 +135,34 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
    event.getByLabel(theJetDepositName,jetIsoDepMap);
 
 
-   
+   unsigned int s=0;
+   std::vector<edm::Handle<edm::ValueMap<bool> > >  selectorMaps(theSelectorMapNames.size()); 
+   std::vector<std::vector<bool> > selectorMapResults(theSelectorMapNames.size());
+   for(InputTags::const_iterator tag = theSelectorMapNames.begin(); tag != theSelectorMapNames.end(); ++tag, ++s){
+     event.getByLabel(*tag,selectorMaps[s]);
+     selectorMapResults[s].resize(nMuons);
+   }
 
    if(inputMuons->empty()) {
-     // FIXME! Needs to check that all the default variables (the new one) are properly set
-     event.put(outputMuons);
-     // FIXME: need to update the asso map too!!!!!!
+     edm::OrphanHandle<reco::MuonCollection> muonHandle = event.put(outputMuons);
+     
+     fillMuonMap<reco::MuonTimeExtra>(event, muonHandle, combinedTimeColl,"combined");
+     fillMuonMap<reco::MuonTimeExtra>(event, muonHandle, dtTimeColl,"dt");
+     fillMuonMap<reco::MuonTimeExtra>(event, muonHandle, cscTimeColl,"csc");
+     
+     fillMuonMap<reco::IsoDeposit>(event, muonHandle, trackDepColl, theTrackDepositName.label());
+     fillMuonMap<reco::IsoDeposit>(event, muonHandle, jetDepColl,   theJetDepositName.label());
+     fillMuonMap<reco::IsoDeposit>(event, muonHandle, ecalDepColl,  theEcalDepositName.instance());
+     fillMuonMap<reco::IsoDeposit>(event, muonHandle, hcalDepColl,  theHcalDepositName.instance());
+     fillMuonMap<reco::IsoDeposit>(event, muonHandle, hoDepColl,    theHoDepositName.instance());
+     
+
+     unsigned int s = 0;
+     for(InputTags::const_iterator tag = theSelectorMapNames.begin(); 
+	 tag != theSelectorMapNames.end(); ++tag, ++s){
+       fillMuonMap<bool>(event, muonHandle, selectorMapResults[s], tag->label());
+     }
+     // FIXME: need to update the TeV, ID, showers, cosmicID asso map too!!!!!!
      return;
    }
    
@@ -200,8 +229,12 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
      hcalDepColl[i]  = (*hcalIsoDepMap)[muRef];
      hoDepColl[i]    = (*hoIsoDepMap)[muRef];
      jetDepColl[i]   = (*jetIsoDepMap)[muRef];;
-     
-       
+
+     s = 0;
+     for(InputTags::const_iterator tag = theSelectorMapNames.begin(); 
+	 tag != theSelectorMapNames.end(); ++tag, ++s)
+       selectorMapResults[s][i] = (*selectorMaps[s])[muRef];
+
      outputMuons->push_back(outMuon); 
      ++i;
    }
@@ -219,6 +252,15 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
    fillMuonMap<reco::IsoDeposit>(event, muonHandle, ecalDepColl,  theEcalDepositName.instance());
    fillMuonMap<reco::IsoDeposit>(event, muonHandle, hcalDepColl,  theHcalDepositName.instance());
    fillMuonMap<reco::IsoDeposit>(event, muonHandle, hoDepColl,    theHoDepositName.instance());
+
+   s = 0;
+   for(InputTags::const_iterator tag = theSelectorMapNames.begin(); 
+       tag != theSelectorMapNames.end(); ++tag, ++s)
+     fillMuonMap<bool>(event, muonHandle, selectorMapResults[s], tag->label());
+   
+
+
+
 }
 
 template<typename TYPE>
@@ -230,13 +272,12 @@ void MuonProducer::fillMuonMap(edm::Event& event,
   typedef typename edm::ValueMap<TYPE>::Filler FILLER; 
 
   std::auto_ptr<edm::ValueMap<TYPE> > muonMap(new edm::ValueMap<TYPE>());
-  FILLER filler(*muonMap);
-  filler.insert(muonHandle, muonExtra.begin(), muonExtra.end());
-  filler.fill();
+  if(!muonExtra.empty()){
+    FILLER filler(*muonMap);
+    filler.insert(muonHandle, muonExtra.begin(), muonExtra.end());
+    filler.fill();
+  }
   event.put(muonMap,label);
 }
-
-
-
 
 
