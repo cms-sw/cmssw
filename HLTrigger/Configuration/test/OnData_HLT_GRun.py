@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V116 (CMSSW_4_2_0_HLT8)
+# /dev/CMSSW_4_2_0/GRun/V117 (CMSSW_4_2_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V116')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V117')
 )
 
 process.streams = cms.PSet( 
@@ -19582,7 +19582,7 @@ process.hltEle8CaloIdTTrkIdVLDetaDoubleFilter = cms.EDFilter( "HLTElectronGeneri
     L1NonIsoCand = cms.InputTag( "hltPixelMatchElectronsL1NonIso" )
 )
 process.hltEle8CaloIdTTrkIdVLDphiDoubleFilter = cms.EDFilter( "HLTElectronGenericFilter",
-    candTag = cms.InputTag( "hltEle8CaloIdTTrkIdTDetaDoubleFilter" ),
+    candTag = cms.InputTag( "hltEle8CaloIdTTrkIdVLDetaDoubleFilter" ),
     isoTag = cms.InputTag( 'hltElectronL1IsoDetaDphi','Dphi' ),
     nonIsoTag = cms.InputTag( 'hltElectronL1NonIsoDetaDphi','Dphi' ),
     lessThan = cms.bool( True ),
