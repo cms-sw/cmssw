@@ -17,7 +17,7 @@ autoSkim = {
     'SingleElectron' : 'WElectron+HighMET+LogError+HWW+HZZ+Tau',
     'DoubleElectron' : 'ZElectron+LogError+HWW+HZZ',
     'MuEG' : 'LogError+HWW+HZZ',
-    'METBTag': 'HighMET+LogError++EXOHSCP',
+    'METBTag': 'HighMET+LogError+EXOHSCP',
     'MET': 'HighMET+LogError',
 
     'HT': 'HighMET+LogError',
