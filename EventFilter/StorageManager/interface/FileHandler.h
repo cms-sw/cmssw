@@ -1,4 +1,4 @@
-// $Id: FileHandler.h,v 1.16.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: FileHandler.h,v 1.17 2011/03/07 15:31:31 mommsen Exp $
 /// @file: FileHandler.h 
 
 #ifndef EventFilter_StorageManager_FileHandler_h
@@ -25,8 +25,8 @@ namespace stor {
    * Abstract representation of a physical file
    *
    * $Author: mommsen $
-   * $Revision: 1.16.4.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.17 $
+   * $Date: 2011/03/07 15:31:31 $
    */
 
   class FileHandler
@@ -113,11 +113,6 @@ namespace stor {
     //////////////////////
     // File bookkeeping //
     //////////////////////
-    
-    /**
-     * Write summary information in file catalog
-     */
-    void writeToSummaryCatalog() const;
 
     /**
      * Write command to update the file information in the CMS_STOMGR.TIER0_INJECTION table

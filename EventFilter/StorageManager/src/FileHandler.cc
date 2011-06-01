@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.26.4.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: FileHandler.cc,v 1.27 2011/03/07 15:31:32 mommsen Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -65,25 +65,6 @@ namespace stor {
   //////////////////////
   // File bookkeeping //
   //////////////////////
-  
-  void FileHandler::writeToSummaryCatalog() const
-  {
-    std::ostringstream currentStat;
-    std::string ind(":");
-    currentStat
-      << fileRecord_->filePath() << ind
-        << fileRecord_->fileName() << ind
-        << fileSize() << ind 
-        << events() << ind
-        << utils::timeStamp(lastEntry_) << ind
-        << (lastEntry_ - firstEntry_).total_seconds() << ind
-        << fileRecord_->whyClosed << std::endl;
-    std::string currentStatString (currentStat.str());
-    std::ofstream of(diskWritingParams_.fileCatalog_.c_str(), std::ios_base::ate | std::ios_base::out | std::ios_base::app );
-    of << currentStatString;
-    of.close();
-  }
-  
   
   void FileHandler::updateDatabase() const
   {

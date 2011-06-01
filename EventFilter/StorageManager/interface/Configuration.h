@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.28 2011/03/30 15:16:48 mommsen Exp $
+// $Id: Configuration.h,v 1.29 2011/04/19 16:01:55 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -33,7 +33,6 @@ namespace stor
     std::string fileName_;
     std::string filePath_;
     std::string dbFilePath_;
-    std::string fileCatalog_;
     std::string setupLabel_;
     int nLogicalDisk_;
     int maxFileSizeMB_;
@@ -160,8 +159,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.28 $
-   * $Date: 2011/03/30 15:16:48 $
+   * $Revision: 1.29 $
+   * $Date: 2011/04/19 16:01:55 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -340,7 +339,6 @@ namespace stor
     xdata::String filePath_;
     xdata::String dbFilePath_;
     xdata::Vector<xdata::String> otherDiskPaths_;
-    xdata::String fileCatalog_;
     xdata::String setupLabel_;
     xdata::Integer nLogicalDisk_;
     xdata::Integer maxFileSize_;
