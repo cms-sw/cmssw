@@ -137,6 +137,7 @@ bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mo
     limitErr = 0; // start with 0, as some algorithms don't compute it
     ret = algo->run(w, mc_s, mc_b, data, limit, limitErr, (hashint ? &hint : 0));    
   } catch (std::exception &ex) {
+    if (strcmp(ex.what(), "done") == 0) throw; 
     std::cerr << "Caught exception " << ex.what() << std::endl;
     return false;
   }
