@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V117
+# /dev/CMSSW_4_2_0/GRun/V118
 
 import FWCore.ParameterSet.Config as cms
 
@@ -86,8 +86,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetElectronHad_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetElectronHad_selector.l1tResults = cms.InputTag('')
 streamA_datasetElectronHad_selector.throw      = cms.bool(False)
-streamA_datasetElectronHad_selector.triggerConditions = cms.vstring('HLT_DoubleEle8_CaloIdT_TrkIdT_v1', 
-    'HLT_DoubleEle8_CaloIdT_TrkIdVL_HT150_v3', 
+streamA_datasetElectronHad_selector.triggerConditions = cms.vstring('HLT_DoubleEle8_CaloIdT_TrkIdVL_HT150_v3', 
     'HLT_DoubleEle8_CaloIdT_TrkIdVL_Mass4_HT150_v1', 
     'HLT_DoubleEle8_CaloIdT_TrkIdVL_v1', 
     'HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R005_MR200_v3', 

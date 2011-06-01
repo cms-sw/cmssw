@@ -236,7 +236,6 @@ HLT_Ele42_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v*
 HLT_Ele52_CaloIdVT_TrkIdT_v*
 HLT_Ele65_CaloIdVT_TrkIdT_v*
 HLT_DoubleEle8_CaloIdT_TrkIdVL_v*
-HLT_DoubleEle8_CaloIdT_TrkIdT_v*
 HLT_DoubleEle33_v*
 HLT_DoubleEle33_CaloIdL_v*
 HLT_DoubleEle45_CaloIdL_v*
