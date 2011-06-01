@@ -1,4 +1,10 @@
-2011-05-27 Remi Mommsen <Remigius.Mommsen@cern.ch>
+2011-06-01 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-02-04
+	* Fix reporting of latest lumi section in case that the last EoLS signal
+	  received is from an earlier LS.
+
+011-05-27 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-02-03
 	* Disable xhtmlmaker multithread test, which still fails.
