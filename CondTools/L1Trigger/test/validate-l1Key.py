@@ -16,7 +16,7 @@ initCondDBSource(
 process.maxEvents = cms.untracked.PSet(
     input=cms.untracked.int32(50)
 )
-readFiles = cms.untracked.vstring('file:Raw.root')
+readFiles = cms.untracked.vstring('file:Raw_160329.root')
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source(
     'PoolSource',
@@ -77,8 +77,32 @@ process.load('Configuration/EventContent/EventContent_cff')
 # load and configure modules via Global Tag
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
 #process.GlobalTag.globaltag = 'GR10_H_V4::All'
-process.GlobalTag.globaltag = 'GR10_H_V8::All'
+#process.GlobalTag.globaltag = 'GR10_H_V8::All'
+process.GlobalTag.globaltag = 'GR_H_V20::All'
 process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_31X_GLOBALTAG"
+
+process.GlobalTag.toGet = cms.VPSet()
+process.GlobalTag.toGet.append(
+    cms.PSet(
+    record = cms.string('DTCCBConfigRcd'),
+    tag = cms.string('DT_config_V04'),
+    connect = cms.untracked.string('frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_31X_DT')
+    )
+    )
+process.GlobalTag.toGet.append(
+    cms.PSet(
+    record = cms.string('DTKeyedConfigListRcd'),
+    tag = cms.string('DT_keyedConfListIOV_V01'),
+    connect = cms.untracked.string('frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_31X_DT')
+    )
+    )
+process.GlobalTag.toGet.append(
+    cms.PSet(
+    record = cms.string('DTKeyedConfigContainerRcd'),
+    tag = cms.string('DT_keyedConfBricks_V01'),
+    connect = cms.untracked.string('frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_31X_DT')
+    )
+    )
 
 process.p = cms.Path(
     process.ecalDigis * process.hcalDigis 
