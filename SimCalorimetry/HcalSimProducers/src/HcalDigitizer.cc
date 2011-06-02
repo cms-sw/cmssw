@@ -201,14 +201,14 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
   if(doTimeSlew) {
     // no time slewing for HF
-    /*
+    /*  
     theHitCorrection = new HcalHitCorrection(theParameterMap);
     if(theHBHEResponse) theHBHEResponse->setHitCorrection(theHitCorrection);
     if(theHBHESiPMResponse) theHBHESiPMResponse->setHitCorrection(theHitCorrection);
     if(theHOResponse) theHOResponse->setHitCorrection(theHitCorrection);
     if(theHOSiPMResponse) theHOSiPMResponse->setHitCorrection(theHitCorrection);
     theZDCResponse->setHitCorrection(theHitCorrection);
-    */
+    */ 
     theTimeSlewSim = new HcalTimeSlewSim(theParameterMap);
     theHBHEAmplifier->setTimeSlewSim(theTimeSlewSim);
     theHOAmplifier->setTimeSlewSim(theTimeSlewSim);
@@ -260,6 +260,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   if(theHODigitizer) theHODigitizer->setRandomEngine(engine);
   if(theHOSiPMDigitizer) theHOSiPMDigitizer->setRandomEngine(engine);
   if(theIonFeedback) theIonFeedback->setRandomEngine(engine);
+  if(theTimeSlewSim) theTimeSlewSim->setRandomEngine(engine);
   theHFDigitizer->setRandomEngine(engine);
   theZDCDigitizer->setRandomEngine(engine);
 
