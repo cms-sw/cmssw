@@ -61,8 +61,6 @@ CmsShowMainBase::CmsShowMainBase()
 
 CmsShowMainBase::~CmsShowMainBase()
 {
-   //avoids a seg fault from eve which happens if eve is terminated after the GUI is gone
-   m_selectionManager->clearSelection();
 }
 
 void

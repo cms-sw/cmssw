@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.188 2011/02/23 14:07:03 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.189 2011/06/02 03:00:06 amraktad Exp $
 //
 
 // system include files
@@ -328,7 +328,10 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
 //
 
 CmsShowMain::~CmsShowMain()
-{}
+{
+   //avoids a seg fault from eve which happens if eve is terminated after the GUI is gone
+   selectionManager()->clearSelection();
+}
 
 class DieTimer : public TTimer
 {
