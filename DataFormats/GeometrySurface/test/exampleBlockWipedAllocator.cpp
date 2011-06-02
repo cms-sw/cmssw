@@ -71,7 +71,7 @@ struct E0
 {
   virtual ~E0(){}
   virtual E0 * clone() const =0;
-
+  virtual unsigned int size() const =0;
   typedef BWAFactory<E0> Factory;
   typedef Factory::UP UP;
   virtual UP cloneTransient() const=0;
@@ -88,19 +88,51 @@ protected:
 
 struct E1 : public E0
 {
-  virtual E0 * clone() const { 
+  virtual E1 * clone() const { 
     return new E1(*this);
   }
   
   virtual E0::UP cloneTransient() const {
     return cloneMe(*this);
   }
+  virtual unsigned int size() const { return sizeof(*this); }
 
   float a;
   char c[12];
   long long  l;
 
 };
+
+struct A4 : public B
+#ifdef BALLOC
+	  , public  SizeBlockWipedAllocated<A3> 
+#endif
+{
+
+  explicit A4(E0 * it) : me(it){}
+  explicit A4(E0 const & it) : me(it.cloneTransient()){}
+  
+  void releaseIt() {
+    me.release();
+  }
+  void cloneIt() {
+    E0::UP it = me.release()->cloneTransient();
+    me = std::move(it);
+  }
+
+  virtual A4* clone() const {
+    return nullptr;
+  }
+  
+  float a;
+  char c[12];
+  long long  l;
+
+  E0::UP me;
+
+};
+
+
 #endif
 
 
@@ -189,7 +221,7 @@ void gen(BP & bp) {
 void go() {
 
   bool started=true;
-  LocalCache<A3> lc0;
+  LocalCache<A4> lc0;
   dump("start");
 
   for (int i=0;i<500;i++) {
@@ -236,21 +268,25 @@ void go() {
     
     {
       std::vector<BP> vev;
+      std::vector<E1> es(2002);
       for (int i=0;i<2002;i++){
-	static LocalCache<A3> * lc;
+	static LocalCache<A4> * lc;
 	// to allow multiple loop: fake static init
 	if (started) { 
 	  started=false;
 	  lc =  &lc0;
 	}
-	std::auto_ptr<A3> & ptr = lc->ptr;
+	std::auto_ptr<A4> & ptr = lc->ptr;
 	if (ptr.get()) {
-	  ptr->~A3();
-	  new(ptr.get()) A3;
+	  ptr->~A4();
+	  new(ptr.get()) A4(&es[i]);
 	} else {
-	  ptr.reset(new A3);
+	  ptr.reset(new A4(&es[i]));
 	}
-	if (i%5==0) vev.push_back(BP(ptr.release()));			       
+	if (i%5==0) {
+	  ptr->cloneIt();
+	  vev.push_back(BP(ptr.release()));
+	}else ptr->releaseIt();  
       }
       dump("after 2002/5 local caches");
       
@@ -278,6 +314,7 @@ void go() {
 	    << " " << sizeof(A2)
 	    << " " << sizeof(A3)
 	    << " " << sizeof(D)
+	    << " " << sizeof(E1)
 	    << std::endl;
 
   

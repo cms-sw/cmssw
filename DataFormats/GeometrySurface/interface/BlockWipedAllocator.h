@@ -251,8 +251,9 @@ struct BWADestroy {
     BWADestroy() {}
     void operator () (B* p) { 
       if (0==p) return;
+      BlockWipedPoolAllocated::s_alive--;
       if (BlockWipedPoolAllocated::s_usePool) {
-	BlockWipedAllocator & local =  blockWipedPool().allocator(sizeof(*p));
+	BlockWipedAllocator & local =  blockWipedPool().allocator(p->size());
 	p->~B();
 	local.dealloc(p);
       }
