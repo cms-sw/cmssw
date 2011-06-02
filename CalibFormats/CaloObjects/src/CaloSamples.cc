@@ -31,6 +31,27 @@ CaloSamples::operator+=(double value)
    return (*this);
 }
 
+CaloSamples &
+CaloSamples::offsetTime(double offset)
+{
+  double data[MAXSAMPLES];
+  for( int i ( 0 ) ; i != MAXSAMPLES ; ++i )
+  {
+    double t = i*25. - offset;
+    int firstbin = floor(t/25.);
+    double f = t/25. - firstbin;
+    int nextbin = firstbin + 1;
+    double v1 = (firstbin < 0 || firstbin >= MAXSAMPLES) ? 0. : data_[firstbin];
+    double v2 = (nextbin < 0  || nextbin  >= MAXSAMPLES) ? 0. : data_[nextbin];
+    data[i] = (v1*(1.-f)+v2*f);
+  }
+  for( int i ( 0 ) ; i != MAXSAMPLES ; ++i )
+  {
+    data_[i] = data[i];
+  }
+  return (*this);
+}
+
 bool 
 CaloSamples::isBlank() const // are the samples blank (zero?)
 {
