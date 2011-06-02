@@ -221,7 +221,7 @@ hltTauElectronMonitor = cms.EDAnalyzer("HLTTauDQMSource",
             L1Dirs                  = cms.vstring("HLT/TauOnline/Electrons/L1"),
             caloDirs                = cms.vstring(""),
             trackDirs               = cms.vstring(""),
-            pathDirs                = cms.vstring("HLT/TauOnline/Electrons/DoubleTau","HLT/TauOnline/Electrons/SingleTau","HLT/TauOnline/Electrons/LoosePFTau"),
+            pathDirs                = cms.vstring("HLT/TauOnline/Electrons/DoubleTau","HLT/TauOnline/Electrons/SingleTau","HLT/TauOnline/Electrons/LoosePFTau","HLT/TauOnline/Electrons/TightPFTau"),
             pathSummaryDirs         = cms.vstring("HLT/TauOnline/Electrons/Summary")
         ),
     
