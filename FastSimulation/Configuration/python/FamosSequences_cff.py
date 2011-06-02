@@ -11,6 +11,9 @@ from PhysicsTools.HepMCCandAlgos.genParticleCandidatesFast_cfi import *
 # Famos PileUp Producer
 from FastSimulation.PileUpProducer.PileUpProducer_cff import *
 
+# PileupSummaryInfo
+from SimGeneral.PileupInformation.AddPileupSummary_cfi import *
+
 # Famos SimHits producer
 from FastSimulation.EventProducer.FamosSimHits_cff import *
 
@@ -253,6 +256,7 @@ famosBTaggingSequence = cms.Sequence(
 famosSimulationSequence = cms.Sequence(
     offlineBeamSpot+
     famosPileUp+
+    #addPileupInfo+ ###PLACEHOLDER: to be activated after Mike's fixes to SimGeneral/PileupInformation/plugin
     famosSimHits+
     MuonSimHits+
     mix
