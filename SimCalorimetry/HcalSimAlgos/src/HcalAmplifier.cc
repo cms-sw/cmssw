@@ -1,6 +1,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameters.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDIonFeedbackSim.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalTimeSlewSim.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVNoiseSignalGenerator.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
@@ -25,6 +26,7 @@ HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNo
   theParameterMap(parameters),
   theNoiseSignalGenerator(0),
   theIonFeedbackSim(0),
+  theTimeSlewSim(0),
   theStartingCapId(0), 
   addNoise_(addNoise),
   useOldHB(false),
@@ -55,6 +57,10 @@ void HcalAmplifier::amplify(CaloSamples & frame) const {
     theIonFeedbackSim->addThermalNoise(frame);
   }
   pe2fC(frame);
+  if(theTimeSlewSim)
+  {
+    theTimeSlewSim->delay(frame);
+  }
   if(theNoiseSignalGenerator==0 || !theNoiseSignalGenerator->contains(frame.id()))
   {
     addPedestals(frame);

@@ -16,6 +16,7 @@ class CaloVNoiseSignalGenerator;
 
 class HcalDbService;
 class HPDIonFeedbackSim;
+class HcalTimeSlewSim;
 
 class HcalAmplifier {
 public:
@@ -31,6 +32,9 @@ public:
   /// if it has already added noise
   void setNoiseSignalGenerator(const CaloVNoiseSignalGenerator * noiseSignalGenerator) {
     theNoiseSignalGenerator = noiseSignalGenerator;
+  }
+  void setTimeSlewSim(const HcalTimeSlewSim * timeSlewSim) {
+    theTimeSlewSim = timeSlewSim;
   }
 
   virtual void amplify(CaloSamples & linearFrame) const;
@@ -60,6 +64,7 @@ private:
   const CaloVSimParameterMap * theParameterMap;
   const CaloVNoiseSignalGenerator * theNoiseSignalGenerator;
   HPDIonFeedbackSim * theIonFeedbackSim;
+  const  HcalTimeSlewSim * theTimeSlewSim;
   unsigned theStartingCapId;
   bool addNoise_;
   bool useOldHB;
