@@ -78,7 +78,7 @@ AnalysisRootpleProducer::AnalysisRootpleProducer( const edm::ParameterSet& pset 
 void AnalysisRootpleProducer::beginJob()
 {
  
-  // use TFileService for output to root file
+  // used TFileService for output to root file
 
  AnalysisTree = fs->make<TTree>("AnalysisTree","MBUE Analysis Tree ");
 
