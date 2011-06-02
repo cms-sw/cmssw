@@ -19,6 +19,7 @@ class HPDIonFeedbackSim;
 class HcalCoderFactory;
 class HcalElectronicsSim;
 class HcalHitCorrection;
+class HcalTimeSlewSim;
 class HcalBaseSignalGenerator;
 class HcalShapes;
 
@@ -89,6 +90,7 @@ private:
   ZDCHitFilter  theZDCHitFilter;
 
   HcalHitCorrection * theHitCorrection;
+  HcalTimeSlewSim * theTimeSlewSim;
   CaloVNoiseSignalGenerator * theNoiseGenerator;
   CaloVNoiseHitGenerator * theNoiseHitGenerator;
 

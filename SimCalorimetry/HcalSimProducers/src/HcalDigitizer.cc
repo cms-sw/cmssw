@@ -8,6 +8,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalHitCorrection.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalTimeSlewSim.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMHitResponse.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDIonFeedbackSim.h"
@@ -200,12 +201,17 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
   if(doTimeSlew) {
     // no time slewing for HF
+    /*
     theHitCorrection = new HcalHitCorrection(theParameterMap);
     if(theHBHEResponse) theHBHEResponse->setHitCorrection(theHitCorrection);
     if(theHBHESiPMResponse) theHBHESiPMResponse->setHitCorrection(theHitCorrection);
     if(theHOResponse) theHOResponse->setHitCorrection(theHitCorrection);
     if(theHOSiPMResponse) theHOSiPMResponse->setHitCorrection(theHitCorrection);
     theZDCResponse->setHitCorrection(theHitCorrection);
+    */
+    theTimeSlewSim = new HcalTimeSlewSim(theParameterMap);
+    if(theHOAmplifier) theHOAmplifier->setTimeSlewSim(theTimeSlewSim);
+    if(theZDCAmplifier) theZDCAmplifier->setTimeSlewSim(theTimeSlewSim);
   }
 
   theHFDigitizer = new HFDigitizer(theHFResponse, theHFElectronicsSim, doEmpty);
