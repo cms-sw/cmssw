@@ -9852,6 +9852,14 @@ public:
          double ptl3,
          double dr,
          int iso);
+
+   int OpenHlt1MuonEtaRestrictedPassed( 
+       double ptl1, 
+       double ptl2, 
+       double ptl3, 
+       double dr, 
+       int iso,
+       double etal3); 
    
    int OpenHlt2MuonPassed(
          double ptl1,
