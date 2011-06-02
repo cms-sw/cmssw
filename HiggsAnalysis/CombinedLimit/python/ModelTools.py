@@ -77,7 +77,11 @@ class ModelBuilder(ModelBuilderBase):
         self.doSet("POI","r")
         if self.options.mass != 0:
             self.doComment(" --- We also write the higgs mass --- ")
-            self.doVar("MH[%g]" % self.options.mass); 
+            if self.out.var("MH"):
+              self.out.var("MH").removeRange()
+              self.out.var("MH").setVal(self.options.mass)
+            else:
+              self.doVar("MH[%g]" % self.options.mass); 
     def doNuisances(self):
         if len(self.DC.systs) == 0: return
         self.doComment(" ----- nuisances -----")
@@ -114,7 +118,10 @@ class ModelBuilder(ModelBuilderBase):
                         self.doVar("%s%s" % (n,args[2]))
                     else:
                         sigma = float(args[1])
-                        self.doVar("%s[%g,%g]" % (n, mean-4*float(sigmaL), mean+4*float(sigmaR)))
+                        if self.out.var(n):
+                          self.out.var(n).setRange(mean-4*float(sigmaL),mean+4*float(sigmaR))
+                        else:
+                          self.doVar("%s[%g,%g]" % (n, mean-4*float(sigmaL), mean+4*float(sigmaR)))
                     self.out.var(n).setVal(mean)
                     self.doObj("%s_Pdf" % n, "BifurGauss", "%s, %s_In[%s,%g,%g], %s, %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), sigmaL, sigmaR))
                     self.out.var("%s_In" % n).setConstant(True)
@@ -123,7 +130,10 @@ class ModelBuilder(ModelBuilderBase):
                         self.doVar("%s%s" % (n,args[2]))
                     else:
                         sigma = float(args[1])
-                        self.doVar("%s[%g,%g]" % (n, mean-4*sigma, mean+4*sigma))
+                        if self.out.var(n):
+                          self.out.var(n).setRange(mean-4*sigma, mean+4*sigma)
+                        else:
+                          self.doVar("%s[%g,%g]" % (n, mean-4*sigma, mean+4*sigma))
                     self.out.var(n).setVal(mean)
                     self.doObj("%s_Pdf" % n, "Gaussian", "%s, %s_In[%s,%g,%g], %s" % (n, n, args[0], self.out.var(n).getMin(), self.out.var(n).getMax(), args[1]))
                     self.out.var("%s_In" % n).setConstant(True)

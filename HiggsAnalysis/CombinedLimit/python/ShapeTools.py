@@ -39,7 +39,7 @@ class ShapeBuilder(ModelBuilder):
                 extranorm = self.getExtraNorm(b,p)
                 if extranorm:
                     self.doObj("n_exp_final_bin%s_proc_%s" % (b,p), "prod", "n_exp_bin%s_proc_%s, %s" % (b,p, extranorm))
-                    coeff = self.out.function("n_exp_final_bin%s_proc_%s" % (b,p))
+                    coeff = self.out.function("n_exp_final_bin%s_proc_%s" % (b,p))                    
                 pdfs.add(pdf); coeffs.add(coeff)
                 if not self.DC.isSignal[p]:
                     bgpdfs.add(pdf); bgcoeffs.add(coeff)
@@ -72,7 +72,7 @@ class ShapeBuilder(ModelBuilder):
         else:
             self.out._import(self.out.pdf("pdf_bin%s"       % self.DC.bins[0]).clone("model_s"), ROOT.RooFit.Silence())
             self.out._import(self.out.pdf("pdf_bin%s_bonly" % self.DC.bins[0]).clone("model_b"), ROOT.RooFit.Silence())
-
+  
     ## --------------------------------------
     ## -------- High level helpers ----------
     ## --------------------------------------
@@ -158,8 +158,8 @@ class ShapeBuilder(ModelBuilder):
             self.out._import(self.out.data_obs)
         elif self.out.mode == "unbinned":
             combiner = ROOT.CombDataSetFactory(self.out.obs, self.out.binCat)
-            for b in self.DC.bins: combiner.addSet(b, self.getData(b,"data_obs"))
-            self.out.data_obs = combiner.doneUnbinned("data_obs","data_obs")
+            for b in self.DC.bins: combiner.addSet(b, self.getData(b,self.options.dataname))
+            self.out.data_obs = combiner.doneUnbinned(self.options.dataname,self.options.dataname)
             self.out._import(self.out.data_obs)
         else: raise RuntimeException, "Only combined datasets are supported"
     ## -------------------------------------
@@ -197,6 +197,12 @@ class ShapeBuilder(ModelBuilder):
                 if not ret: raise RuntimeError, "Object %s in workspace %s in file %s does not exist or it's neither a data nor a pdf" % (oname, wname, finalNames[0])
                 ret.SetName("shape_%s_%s%s" % (process,channel, "_"+syst if syst else ""))
                 _cache[(channel,process,syst)] = ret
+                if not syst:
+                  normname = "%s_norm" % (oname)
+                  norm = wsp.arg(normname)
+                  if norm: 
+                    norm.SetName("shape_%s_%s%s_norm" % (process,channel, "_"))
+                    self.out._import(norm, ROOT.RooFit.RecycleConflictNodes()) 
                 if self.options.verbose: print "import (%s,%s) -> %s\n" % (finalNames[0],objname,ret.GetName())
                 return ret;
             elif wsp.ClassName() == "TTree":
@@ -278,8 +284,10 @@ class ShapeBuilder(ModelBuilder):
             # FIXME no extra norm for dummy pdfs (could be changed)
             return None
         if shapeNominal.InheritsFrom("RooAbsPdf"): 
-            # FIXME no extra norm for parametric pdfs (could be changed)
-            return None
+            # return nominal multiplicative normalization constant
+            normname = "shape_%s_%s%s_norm" % (process,channel, "_")
+            if self.out.arg(normname): return normname
+            else: return None
         normNominal = 0
         if shapeNominal.InheritsFrom("TH1"): normNominal = shapeNominal.Integral()
         elif shapeNominal.InheritsFrom("RooDataHist"): normNominal = shapeNominal.sumEntries()
