@@ -76,8 +76,10 @@ void GflashKaonMinusShowerProfile::loadParameters()
 
       do {
 	r1 = CLHEP::RandGaussQ::shoot();
+        energyMeanHcal += std::log(1.0-fTanh(einc,Gflash::kminus_hadscale[7]));
         energyScale[Gflash::kHE] = exp(energyMeanHcal+energySigmaHcal*r1);
       } while ( energyScale[Gflash::kHE] > einc*1.5 );
+
 
       if(showerType == 6) {
         energyScale[Gflash::kHE] = std::max(0.0,energyScale[Gflash::kHE]

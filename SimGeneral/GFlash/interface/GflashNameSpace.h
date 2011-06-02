@@ -94,7 +94,7 @@ namespace Gflash {
     {  1.8918e-01,  2.2620e-02,  4.2555e+00,  1.8317e+00, -6.1358e-03 }
   };
 
-  const double pion_hadscale[7][5] = {
+  const double pion_hadscale[8][5] = {
     //based on LogNormal of Had Energy - RegionI
     { -4.4752e+00,  3.8163e+00,  2.7962e-01, -7.6887e-01,  9.6721e-01 },
     {  1.1228e+00,  6.5039e-01,  4.5585e+00, -8.0282e+00, -1.7630e-01 },
@@ -104,7 +104,8 @@ namespace Gflash {
     { -8.1787e-02,  8.3243e+00,  3.7488e-03,  3.2653e+00,  9.5662e-01 },
     {  1.0567e-01, -2.0485e-01,  2.3345e-01,  4.5563e-01,  2.3694e-02 },
     //correction of response if ssp is between Ecal and Hcal
-    {  1.8736e-01,  1.7391e-01,  1.0991e+00,  3.3557e+00,  0.0000e+00 }
+    {  1.8736e-01,  1.7391e-01,  1.0991e+00,  3.3557e+00,  0.0000e+00 },
+    {  5.3155e-02,  9.3601e-02,  8.8143e-01,  2.3251e+00, -2.1999e-02 }
   };
 
   const double pion_correl_hadem[5] = 
@@ -239,7 +240,7 @@ namespace Gflash {
     {  1.6413e-01,  5.2570e-03,  1.8876e+02,  1.2887e+00, -4.0266e-03 }
   };
 
-  const double pro_hadscale[7][5] = {
+  const double pro_hadscale[8][5] = {
     //based on LogNormal of Had Energy 
     { -1.2767e+02,  1.2691e+02,  2.6892e-01, -8.4621e+00,  9.7956e-01 },
     {  1.2283e+00,  1.6307e-01, -3.6863e+00,  1.8677e+00, -4.5990e-02 },
@@ -249,7 +250,8 @@ namespace Gflash {
     { -1.0927e+01,  1.0727e+01,  2.9922e+00, -8.2073e-01,  9.8722e-01 },
     {  7.2797e-02,  2.3601e-02, -1.4900e+00,  1.8989e+00,  3.4294e-04 },
     //correction of response if ssp is between Ecal and Hcal
-    {  1.8736e-01,  1.7391e-01,  1.0991e+00,  3.3557e+00,  0.0000e+00 }
+    {  1.8736e-01,  1.7391e-01,  1.0991e+00,  3.3557e+00,  0.0000e+00 },
+    {  4.7858e-01,  5.8552e-01,  3.9112e-01,  2.6945e+00, -1.7791e-01 }
   };
 
   const double pro_correl_hadem[5] = 
@@ -384,7 +386,7 @@ namespace Gflash {
     {  3.5744e+00,  3.3661e+00, -4.9667e-01, -4.1388e+00, -8.8824e-03 }
   };
 
-  const double pbar_hadscale[7][5] = {
+  const double pbar_hadscale[8][5] = {
     //based on LogNormal of Had Energy 
     { -1.8857e+00,  9.4549e-01,  1.0173e+00,  2.3654e+00,  1.0381e+00 },
     {  1.4276e+00,  8.3835e-01, -9.1466e-01,  2.3945e+00,  0.0000e+00 },
@@ -394,7 +396,8 @@ namespace Gflash {
     {  1.5770e+00,  1.1215e+00,  4.2471e-01,  3.8321e+00,  5.2852e-01 },
     { -6.5624e-02,  2.7895e-01, -3.2639e-01,  2.3605e+00,  6.3871e-02 },
     //correction of response if ssp is between Ecal and Hcal
-    {  1.8736e-01,  1.7391e-01,  1.0991e+00,  3.3557e+00,  0.0000e+00 }
+    {  1.8736e-01,  1.7391e-01,  1.0991e+00,  3.3557e+00,  0.0000e+00 },
+    {  9.1334e-02,  8.4321e-02,  9.1042e-01,  2.7686e+00, -3.0344e-02 }
   };
 
   const double pbar_correl_hadem[5] = 
@@ -528,7 +531,7 @@ namespace Gflash {
     {  2.3334e-01,  3.6810e-02,  1.0247e+01,  1.8556e+00, -1.9288e-02 }
   };
 
-  const double kminus_hadscale[7][5] = {
+  const double kminus_hadscale[8][5] = {
     //based on LogNormal of Had Energy 
     { -5.9393e+01,  6.4013e+01,  1.0843e-01, -1.2441e+01,  4.2589e-01 },
     {  1.3649e+01,  1.2266e+01, -4.9381e-01, -3.6921e+00, -1.1441e-01 },
@@ -538,7 +541,8 @@ namespace Gflash {
     {  1.7106e-01,  1.3766e-01,  7.3972e-01,  4.1351e+00,  9.0284e-01 },
     {  5.7520e-01, -1.2499e+00,  8.0351e-02, -4.7481e+00,  6.0937e-02 },
     //correction of response if ssp is between Ecal and Hcal
-    {  1.8736e-01,  1.7391e-01,  1.0991e+00,  3.3557e+00,  0.0000e+00 }
+    {  1.8736e-01,  1.7391e-01,  1.0991e+00,  3.3557e+00,  0.0000e+00 },
+    {  4.2896e-02,  6.7448e-02,  7.4893e-01,  2.8837e+00, -1.1509e-02 }
   };
 
   const double kminus_correl_hadem[5] = 
@@ -673,7 +677,7 @@ namespace Gflash {
     {  2.2224e-01,  1.7480e-02,  1.1984e+01,  1.8265e+00, -1.6718e-02 }
   };
 
-  const double kplus_hadscale[7][5] = {
+  const double kplus_hadscale[8][5] = {
     //based on LogNormal of Had Energy 
     { -1.1629e+02,  1.1506e+02,  4.8753e-01, -4.4057e+00,  1.0940e+00 },
     {  2.2018e+00,  1.1327e+00, -6.4208e-01,  1.2240e-01, -7.2109e-02 },
@@ -683,7 +687,8 @@ namespace Gflash {
     {  3.4887e-01,  1.9201e-01,  8.5205e-01,  3.8457e+00,  8.5097e-01 },
     {  5.1252e-01,  7.7619e-01, -1.3001e-01, -4.1296e+00,  3.8339e-02 },
     //correction of response if ssp is between Ecal and Hcal
-    {  1.8736e-01,  1.7391e-01,  1.0991e+00,  3.3557e+00,  0.0000e+00 }
+    {  1.8736e-01,  1.7391e-01,  1.0991e+00,  3.3557e+00,  0.0000e+00 },
+    {  8.2313e-01,  1.3027e+00,  2.5263e-01,  2.8203e+00, -2.8548e-01 }
   };
 
   const double kplus_correl_hadem[5] = 
