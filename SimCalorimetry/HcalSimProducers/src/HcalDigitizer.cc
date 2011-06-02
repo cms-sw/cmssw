@@ -210,8 +210,9 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
     theZDCResponse->setHitCorrection(theHitCorrection);
     */
     theTimeSlewSim = new HcalTimeSlewSim(theParameterMap);
-    if(theHOAmplifier) theHOAmplifier->setTimeSlewSim(theTimeSlewSim);
-    if(theZDCAmplifier) theZDCAmplifier->setTimeSlewSim(theTimeSlewSim);
+    theHBHEAmplifier->setTimeSlewSim(theTimeSlewSim);
+    theHOAmplifier->setTimeSlewSim(theTimeSlewSim);
+    theZDCAmplifier->setTimeSlewSim(theTimeSlewSim);
   }
 
   theHFDigitizer = new HFDigitizer(theHFResponse, theHFElectronicsSim, doEmpty);
