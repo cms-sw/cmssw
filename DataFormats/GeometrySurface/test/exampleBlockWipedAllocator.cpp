@@ -23,7 +23,7 @@ struct B
 
 struct A1 : public B
 #ifdef BALLOC
-	  , public BlockWipedAllocated<A1> 
+	  , public  SizeBlockWipedAllocated<A1> 
 #endif
 {
   virtual A1* clone() const {
@@ -38,7 +38,7 @@ struct A1 : public B
 
 struct A2 : public B
 #ifdef BALLOC
-	  , public BlockWipedAllocated<A2> 
+	  , public  SizeBlockWipedAllocated<A2> 
 #endif
 {
   virtual A2* clone() const {
@@ -53,7 +53,7 @@ struct A2 : public B
 
 struct A3 : public B
 #ifdef BALLOC
-	  , public BlockWipedAllocated<A3> 
+	  , public  SizeBlockWipedAllocated<A3> 
 #endif
 {
   virtual A3* clone() const {
@@ -65,6 +65,57 @@ struct A3 : public B
   long long  l;
 
 };
+
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
+struct E0
+{
+  virtual ~E0(){}
+  virtual E0 * clone() const =0;
+
+  typedef BWAFactory<E0> Factory;
+  typedef Factory::UP UP;
+  virtual UP cloneTransient() const=0;
+protected:
+  template<typename T>
+  static UP cloneMe(T const & t) {
+    return Factory::create<T>(t);
+  }
+
+  int i;
+
+};
+
+
+struct E1 : public E0
+{
+  virtual E0 * clone() const { 
+    return new E1(*this);
+  }
+  
+  virtual E0::UP cloneTransient() const {
+    return cloneMe(*this);
+  }
+
+  float a;
+  char c[12];
+  long long  l;
+
+};
+#endif
+
+
+struct D : public BlockWipedAllocated<D> {
+ 
+  float a;
+  char c[12];
+  long long  l;
+
+};
+
+
+
+
+
 
 /*
 BlockAllocated<A1>::s_allocator =  BlockAllocated<A1>::allocator(10);
@@ -86,17 +137,20 @@ struct Dumper {
   
 };
  
+bool noPool=true;
+
 void dump(std::string const & mess="") {
 #ifdef DEBUG
   std::cout << mess << std::endl;
 #ifdef PBALLOC
   std::cout << "BlockAllocator stat"<< std::endl;
   std::cout << "still alive " << BlockWipedPoolAllocated::s_alive << std::endl;
+  if (noPool) return;
   Dumper dumper;
   blockWipedPool().visit(dumper);
 #endif
 #ifdef BALLOC
-  BlockWipedAllocator::Stat sa1 = BlockWipedAllocated<A1>::stat();
+  BlockWipedAllocator::Stat sa1 = SizeBlockWipedAllocated<A1>::stat();
   BlockWipedAllocator::Stat sa2 = SizeBlockWipedAllocated<A2>::stat();
   std::cout << "A1 " << sa1.blockSize
 	    << " " << sa1.currentOccupancy
@@ -117,6 +171,7 @@ void dump(std::string const & mess="") {
 }
 
 typedef boost::shared_ptr<B> BP;
+typedef boost::shared_ptr<D> DP;
 
 bool flop=false;
 
@@ -129,26 +184,31 @@ void gen(BP & bp) {
   flip = !flip;
 }
 
-int main(int v, char **) {
-  BlockWipedPool pool(1096,1096);
-  blockWipedPool(&pool);
-  if (v==1) BlockWipedPoolAllocated::usePool();
 
-  dump();
+
+void go() {
+
+  bool started=true;
+  LocalCache<A3> lc0;
+  dump("start");
 
   for (int i=0;i<500;i++) {
     {
       flop = !flop;
-      blockWipedPool().wipe();
-      if (i%10==0)  blockWipedPool().clear();
+      if (!noPool) {
+	blockWipedPool().wipe();
+	if (i%10==0)  blockWipedPool().clear();
+      }
       BP b1(new A1);
       BP b2(new A2);
       BP b3(new A3);
+      DP d(new D);
       dump();
       {
 	BP bb1(b1->clone());
 	BP bb2(b2->clone());
 	BP bb3(b3->clone());
+	DP d2(new D(*d));
 	dump();
       }
       dump("after clone destr");
@@ -156,10 +216,12 @@ int main(int v, char **) {
       BP b11(new A1);
       BP b22(new A2);
       BP b23(new A2);
+      DP d2(new D);
       dump();
       b1.reset();
       b2.reset();
       b3.reset();
+      d.reset();
       dump("after first destr");
     }
     dump();
@@ -175,8 +237,13 @@ int main(int v, char **) {
     {
       std::vector<BP> vev;
       for (int i=0;i<2002;i++){
-	static LocalCache<A3> lc;
-	std::auto_ptr<A3> & ptr = lc.ptr;
+	static LocalCache<A3> * lc;
+	// to allow multiple loop: fake static init
+	if (started) { 
+	  started=false;
+	  lc =  &lc0;
+	}
+	std::auto_ptr<A3> & ptr = lc->ptr;
 	if (ptr.get()) {
 	  ptr->~A3();
 	  new(ptr.get()) A3;
@@ -186,7 +253,7 @@ int main(int v, char **) {
 	if (i%5==0) vev.push_back(BP(ptr.release()));			       
       }
       dump("after 2002/5 local caches");
-    
+      
       for (int i=0;i<3;i++){
 	std::vector<BP> v(2432);
 	std::for_each(v.begin(),v.end(),&gen);
@@ -203,11 +270,44 @@ int main(int v, char **) {
     }
     dump("loop end");
   }
-  std::cout << sizeof(B)
+  if (!noPool) blockWipedPool().clear();
+  dump("the end");
+
+  std::cout << "\n" << sizeof(B)
 	    << " " << sizeof(A1)
 	    << " " << sizeof(A2)
 	    << " " << sizeof(A3)
+	    << " " << sizeof(D)
 	    << std::endl;
+
+  
+  std::cout << "\nEND OF JOB" << std::endl;
+
+}
+int  main() {
+  noPool=true;
+  {
+    std::cout << "no pool" << std::endl;
+    go();
+  }
+  noPool=false; 
+  {
+    BlockWipedPoolAllocated::s_alive=0;
+    std::cout << "unused pool" << std::endl;
+    BlockWipedPool pool(1096,1096);
+    blockWipedPool(&pool);
+    go();
+  }
+  
+  {
+    std::cout << "used pool" << std::endl;
+    BlockWipedPoolAllocated::s_alive=0;
+
+    BlockWipedPool pool(1096,1096);
+    blockWipedPool(&pool);
+    BlockWipedPoolAllocated::usePool();
+    go();
+  }
   return 0;
 }
 
