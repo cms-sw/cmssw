@@ -23,7 +23,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.12 $'),
+    version = cms.untracked.string('$Revision: 1.13 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -248,6 +248,7 @@ process.anal = cms.EDAnalyzer("EventContentAnalyzer")
 #process.load("IOMC.RandomEngine.IOMC_cff")
 
 ### back to standard job commands ##################################################
+process.pdigi.remove(process.simCastorDigis)
 
 # Path and EndPath definitions
 process.mix_step 		= cms.Path(process.mix)
