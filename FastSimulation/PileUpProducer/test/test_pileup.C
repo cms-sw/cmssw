@@ -16,10 +16,20 @@ void test_pileup()
   fwlite::Event ev(&file);
 
   for( ev.toBegin(); ! ev.atEnd(); ++ev) {
+
+    // method 1
+    std::cout << "##### PileupMixingContent " << std::endl;
     fwlite::Handle< PileupMixingContent > pmc;
     pmc.getByLabel(ev,"famosPileUp");
-    // now can access data
     std::cout <<" bunch crossing "<<pmc.ptr()->getMix_bunchCrossing().at(0)<<std::endl;
     std::cout <<" interaction number  "<<pmc.ptr()->getMix_Ninteractions().at(0)<<std::endl;
+
+    // method 2
+    std::cout << "##### PileupSummaryInfo " << std::endl;
+    fwlite::Handle< std::vector< PileupSummaryInfo > > psi;
+    psi.getByLabel(ev,"addPileupInfo");
+    std::cout <<" bunch crossing "<< psi.ptr()->at(0).getBunchCrossing() <<std::endl;
+    std::cout <<" interaction number  "<< psi.ptr()->at(0).getPU_NumInteractions()<<std::endl;
+
   }
 }
