@@ -9851,16 +9851,10 @@ public:
          double ptl2,
          double ptl3,
          double dr,
-         int iso);
+         int iso,
+	 double etal2 = 2.5,
+	 double etal3 = 2.5);
 
-   int OpenHlt1MuonEtaRestrictedPassed( 
-       double ptl1, 
-       double ptl2, 
-       double ptl3, 
-       double dr, 
-       int iso,
-       double etal3); 
-   
    int OpenHlt2MuonPassed(
          double ptl1,
          double ptl2,
