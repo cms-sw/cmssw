@@ -34,8 +34,6 @@ else
     fi
 fi
 
-
-
 # see if we are running in standalone mode
 FROM_RELEASE=""
 if [ -n "$CMSSW_BASE" ] && [ `expr "$SHELLDIR" : "$CMSSW_BASE"` -gt 0 ]; then
@@ -59,8 +57,8 @@ if [ -z "$FROM_RELEASE" ]; then
   export CMSSW_DATA_PATH="."
   export ROOTSYS=$CMSSW_BASE/external/root 
   export LD_LIBRARY_PATH=${CMSSW_BASE}/lib:${CMSSW_BASE}/external/gcc/lib:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib:$LD_LIBRARY_PATH
-  export LD_LIBRARY_PATH=${CMSSW_BASE}:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib:$LD_LIBRARY_PATH
-  export DYLD_LIBRARY_PATH=${CMSSW_BASE}:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib:$DYLD_LIBRARY_PATH
+  export DYLD_LIBRARY_PATH="/usr/lib"
+  export DYLD_FALLBACK_LIBRARY_PATH=${LD_LIBRARY_PATH}
   export PATH=${ROOTSYS}/bin:$PATH
 fi
 
