@@ -7,6 +7,35 @@ if [ ! -n "$SHELLDIR" ] || [ "$SHELLDIR" == "." ] ; then
   export SHELLDIR=$PWD
 fi
 
+
+osname=`uname -s`
+if [ f$osname == f"Darwin" ]; then
+    arch=`sysctl hw | grep 64bit | awk '{print $2;}'`
+    if [ $arch -eq 0 ]; then
+        echo "###################################"
+        echo "Only 64-bit OSX-10.6 is supported!"
+        echo "###################################"
+        exit 1;
+    fi
+    osv=`sw_vers -productVersion` 
+    osvs=`echo  ${osv%.*}`
+    if [ f${osvs} != f"10.6" ]; then
+        echo "###################################"
+        echo "Only OSX-10.6 is supported!"
+        echo "###################################"
+    fi
+else
+    arch=`uname -m`
+    if [ f$arch != f"x86_64" -a f$arch != f"amd64" ]; then
+        echo "###################################"
+        echo "Only 64-bit GNU/linux is supported!"
+        echo "###################################"
+        exit 1
+    fi
+fi
+
+
+
 # see if we are running in standalone mode
 FROM_RELEASE=""
 if [ -n "$CMSSW_BASE" ] && [ `expr "$SHELLDIR" : "$CMSSW_BASE"` -gt 0 ]; then
@@ -29,7 +58,7 @@ if [ -z "$FROM_RELEASE" ]; then
   export CMSSW_SEARCH_PATH="."
   export CMSSW_DATA_PATH="."
   export ROOTSYS=$CMSSW_BASE/external/root 
-  export LD_LIBRARY_PATH=${CMSSW_BASE}:${CMSSW_BASE}/external/gcc/lib:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib:$LD_LIBRARY_PATH
+  export LD_LIBRARY_PATH=${CMSSW_BASE}/lib:${CMSSW_BASE}/external/gcc/lib:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib:$LD_LIBRARY_PATH
   export LD_LIBRARY_PATH=${CMSSW_BASE}:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib:$LD_LIBRARY_PATH
   export DYLD_LIBRARY_PATH=${CMSSW_BASE}:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib:$DYLD_LIBRARY_PATH
   export PATH=${ROOTSYS}/bin:$PATH
