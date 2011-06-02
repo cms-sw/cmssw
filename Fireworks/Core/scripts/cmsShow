@@ -23,6 +23,7 @@ if [ f$osname == f"Darwin" ]; then
         echo "###################################"
         echo "Only OSX-10.6 is supported!"
         echo "###################################"
+	exit 1;
     fi
 else
     arch=`uname -m`
