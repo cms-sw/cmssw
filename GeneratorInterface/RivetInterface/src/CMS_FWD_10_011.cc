@@ -156,7 +156,7 @@ namespace Rivet
 		vetoEvent;
 		cout << "Event not rejected! Should be rejected! Check bug!"  << endl;}
 	
-	cnt_eventspassingnd += 1.0;
+	cnt_eventspassingnd += weight;
 	
 	
       const FastJets& jetpro = applyProjection<FastJets>(event, "Jets"); 
@@ -170,15 +170,15 @@ namespace Rivet
 
 	//loop over particles to calculate the energy
         _hist_part_mul->fill(fsv.particles().size(),1.0 );
-	evcounter_mb ++;
+	evcounter_mb += weight;
 	foreach (const Particle& p, fsv.particles())
 	{
 		_hist_part_pt->fill(p.momentum().pT(),1.0 );
 		_hist_part_eta->fill(p.momentum().pseudorapidity(),1.0 );
 		_hist_part_E->fill(p.momentum().E(),1.0 );
-		if (p.momentum().pseudorapidity()>= 3.15 && p.momentum().pseudorapidity()<= 3.5) sum_E1_f += p.momentum().E()/GeV;
-		if(sqrts/GeV == 900) {_hist_CMS_FWD_10_011_mb_09->fill(fabs(p.momentum().pseudorapidity()), p.momentum().E()/GeV );}
-		if(sqrts/GeV == 7000) {_hist_CMS_FWD_10_011_mb_7->fill(fabs(p.momentum().pseudorapidity()), p.momentum().E()/GeV );}
+		if (p.momentum().pseudorapidity()>= 3.15 && p.momentum().pseudorapidity()<= 3.5) sum_E1_f += weight*p.momentum().E()/GeV;
+		if(sqrts/GeV == 900) {_hist_CMS_FWD_10_011_mb_09->fill(fabs(p.momentum().pseudorapidity()), weight*p.momentum().E()/GeV );}
+		if(sqrts/GeV == 7000) {_hist_CMS_FWD_10_011_mb_7->fill(fabs(p.momentum().pseudorapidity()), weight*p.momentum().E()/GeV );}
 	}//foreach particle
 	
     
@@ -262,10 +262,12 @@ namespace Rivet
 								//pt cut
 			if(jets[index_1].momentum().pT()/GeV > 8.0 && jets[index_2].momentum().pT()/GeV >8.0)
 			{				
+					cnt_eventspassingptdijet += weight;
 	
 				//eta cut	for the central jets
 				if(fabs(jets[index_1].momentum().pseudorapidity())<2.5 && fabs(jets[index_2].momentum().pseudorapidity())<2.5)
 				{
+					cnt_eventspassingetadijet += weight;
       												
 										
 					// fill the histogram with the number of Jets after the pt and eta cut 
@@ -274,7 +276,8 @@ namespace Rivet
 					//back to back condition of the jets
 					if(fabs(diffphi-PI)<1.0)
 					{	
-						evcounter_dijet = evcounter_dijet + weight;
+						cnt_eventspassingdphidijet += weight;
+						evcounter_dijet += weight;
 						
 					
 						//  fill varios jet distributions (for cross-checks, no data published) 						
@@ -292,7 +295,7 @@ namespace Rivet
 						{	
 														
 							//energy cut for the particles
- 							   _hist_CMS_FWD_10_011_dijet_09->fill(fabs(p.momentum().pseudorapidity()), p.momentum().E()/GeV);
+ 							   _hist_CMS_FWD_10_011_dijet_09->fill(fabs(p.momentum().pseudorapidity()), weight*p.momentum().E()/GeV);
 						}//foreach particle
 						
 													
@@ -318,7 +321,7 @@ namespace Rivet
 			//pt cut
 			if(jets[index_1].momentum().pT()/GeV > 20.0 && jets[index_2].momentum().pT()/GeV >20.0)
 			{	
-					cnt_eventspassingptdijet += 1.0;
+					cnt_eventspassingptdijet += weight;
 			
 				//eta cut	for the central jets
 				if(fabs(jets[index_1].momentum().pseudorapidity())<2.5 && fabs(jets[index_2].momentum().pseudorapidity())<2.5)
@@ -327,14 +330,14 @@ namespace Rivet
 				
 //_hist_num_jcut XXXXXXXXXXXXXXXXXXXXXX    fill the histogram with the number of Jets after the pt and eta cut 
 			
-					cnt_eventspassingetadijet += 1.0;
+					cnt_eventspassingetadijet += weight;
 					_hist_num_jcut->fill(jets.size(), weight);
 						
 					//back to back condition of the jets
 					if(fabs(diffphi-PI)<1.0)
 					{	
-						evcounter_dijet ++;
-					cnt_eventspassingdphidijet += 1.0;
+						evcounter_dijet += weight;
+						cnt_eventspassingdphidijet += weight;
 						
 					
 
@@ -357,7 +360,7 @@ namespace Rivet
 							
 							//energy cut for the particles
 //AK 							if(p.momentum().E()/GeV>4.0){
-							_hist_CMS_FWD_10_011_dijet_7->fill(fabs(p.momentum().pseudorapidity()), p.momentum().E()/GeV);
+							_hist_CMS_FWD_10_011_dijet_7->fill(fabs(p.momentum().pseudorapidity()), weight*p.momentum().E()/GeV);
 //AK 							}//energy cut
 						}//foreach particle
 					}//if(dphi)
@@ -379,7 +382,6 @@ namespace Rivet
     void finalize() 
     {
       
-       /// @todo Normalise, scale and otherwise manipulate histograms here
       const double sclfactor = 1.0/sumOfWeights();
       scale(_hist_jets1, sclfactor); // norm to cross section
       scale(_hist_jets2, sclfactor);
@@ -410,7 +412,7 @@ namespace Rivet
      getLog() << Log::INFO << " " << endl;
      getLog() << Log::INFO << "Efficient number of events generated (weight=1.0):  " << cnt_eventsgenerated_noweight << "        (Average weight:" << cnt_eventsgenerated/cnt_eventsgenerated_noweight << ")" << endl;
      getLog() << Log::INFO << "Number of events generated:  " << cnt_eventsgenerated << "        (" << 100.0*cnt_eventsgenerated/cnt_eventsgenerated << "%)" <<endl;
-     getLog() << Log::INFO << "Number of events passing  ND selection:  " << cnt_eventspassingnd<<  "        (" << 100.0*cnt_eventspassingnd/cnt_eventsgenerated << "%)" <<endl;
+     getLog() << Log::INFO << "Number of events passing ND selection:  " << cnt_eventspassingnd <<  "        (" << 100.0*cnt_eventspassingnd/cnt_eventsgenerated << "%)" <<endl;
      getLog() << Log::INFO << "Number of events passing ND + jet-Pt cut:  " << cnt_eventspassingptdijet <<  "        (" << 100.0*cnt_eventspassingptdijet/cnt_eventsgenerated << "%)" <<endl;
      getLog() << Log::INFO << "Number of events passing ND + jet-Pt + jet-eta:  " <<cnt_eventspassingetadijet  <<  "        (" << 100.0*cnt_eventspassingetadijet/cnt_eventsgenerated << "%)" <<endl;
      getLog() << Log::INFO << "Number of events passing ND + jet-Pt + jet-eta + DeltaPhi cut:  " << cnt_eventspassingdphidijet <<  "        (" << 100.0*cnt_eventspassingdphidijet/cnt_eventsgenerated << "%)" <<endl;

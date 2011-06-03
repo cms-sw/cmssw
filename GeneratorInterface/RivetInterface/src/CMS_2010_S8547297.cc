@@ -17,7 +17,7 @@ namespace Rivet {
 
 //AK =====================================================INIT
     void init() {
-      ChargedFinalState cfs(-2.5, 2.5, 0.1*GeV);
+      ChargedFinalState cfs(-2.5, 2.5, 0.0*GeV);
       addProjection(cfs, "CFS");
       addProjection(Beam(), "Beam");
 
@@ -33,42 +33,46 @@ namespace Rivet {
       }
       
       
-	//AK 900 GeV - pt spectra in eta bins
-	_h_dNch_dpT_900[0] = bookHistogram1D(1, 1, 1);
-	_h_dNch_dpT_900[1] = bookHistogram1D(1, 1, 2);
-	_h_dNch_dpT_900[2] = bookHistogram1D(1, 1, 3);
-	_h_dNch_dpT_900[3] = bookHistogram1D(1, 1, 4);
+	//AK 900 GeV
+	 if(fuzzyEquals(sqrtS(), 900, 1E-3)){
+	  _h_dNch_dpT_900[0] = bookHistogram1D(1, 1, 1);
+	  _h_dNch_dpT_900[1] = bookHistogram1D(1, 1, 2);
+	  _h_dNch_dpT_900[2] = bookHistogram1D(1, 1, 3);
+	  _h_dNch_dpT_900[3] = bookHistogram1D(1, 1, 4);
 	
-	_h_dNch_dpT_900[4] = bookHistogram1D(2, 1, 1);
-	_h_dNch_dpT_900[5] = bookHistogram1D(2, 1, 2);
-	_h_dNch_dpT_900[6] = bookHistogram1D(2, 1, 3);
-	_h_dNch_dpT_900[7] = bookHistogram1D(2, 1, 4);
+	  _h_dNch_dpT_900[4] = bookHistogram1D(2, 1, 1);
+	  _h_dNch_dpT_900[5] = bookHistogram1D(2, 1, 2);
+	  _h_dNch_dpT_900[6] = bookHistogram1D(2, 1, 3);
+	  _h_dNch_dpT_900[7] = bookHistogram1D(2, 1, 4);
 	
-	_h_dNch_dpT_900[8] = bookHistogram1D(3, 1, 1);
-	_h_dNch_dpT_900[9] = bookHistogram1D(3, 1, 2);
-	_h_dNch_dpT_900[10] = bookHistogram1D(3, 1, 3);
-	_h_dNch_dpT_900[11] = bookHistogram1D(3, 1, 4);
-	
-	//AK 2360 GeV - pt spectra in eta bins
-	_h_dNch_dpT_2360[0] = bookHistogram1D(4, 1, 1);
-	_h_dNch_dpT_2360[1] = bookHistogram1D(4, 1, 2);
-	_h_dNch_dpT_2360[2] = bookHistogram1D(4, 1, 3);
-	_h_dNch_dpT_2360[3] = bookHistogram1D(4, 1, 4);
-	
-	_h_dNch_dpT_2360[4] = bookHistogram1D(5, 1, 1);
-	_h_dNch_dpT_2360[5] = bookHistogram1D(5, 1, 2);
-	_h_dNch_dpT_2360[6] = bookHistogram1D(5, 1, 3);
-	_h_dNch_dpT_2360[7] = bookHistogram1D(5, 1, 4);
-	
-	_h_dNch_dpT_2360[8] = bookHistogram1D(6, 1, 1);
-	_h_dNch_dpT_2360[9] = bookHistogram1D(6, 1, 2);
-	_h_dNch_dpT_2360[10] = bookHistogram1D(6, 1, 3);
-	_h_dNch_dpT_2360[11] = bookHistogram1D(6, 1, 4);
+	  _h_dNch_dpT_900[8] = bookHistogram1D(3, 1, 1);
+	  _h_dNch_dpT_900[9] = bookHistogram1D(3, 1, 2);
+	  _h_dNch_dpT_900[10] = bookHistogram1D(3, 1, 3);
+	  _h_dNch_dpT_900[11] = bookHistogram1D(3, 1, 4);
+	  
+	  _h_dNch_dEta_900 = bookHistogram1D(8, 1, 1);
+	}
 	
 	
-	//Eta spectra
-	_h_dNch_dEta_900 = bookHistogram1D(8, 1, 1);
-	_h_dNch_dEta_2360 = bookHistogram1D(8, 1, 2);
+	//AK 2360 GeV
+	 if(fuzzyEquals(sqrtS(), 2360, 1E-3)){
+	   _h_dNch_dpT_2360[0] = bookHistogram1D(4, 1, 1);
+	   _h_dNch_dpT_2360[1] = bookHistogram1D(4, 1, 2);
+	   _h_dNch_dpT_2360[2] = bookHistogram1D(4, 1, 3);
+	   _h_dNch_dpT_2360[3] = bookHistogram1D(4, 1, 4);
+	
+	   _h_dNch_dpT_2360[4] = bookHistogram1D(5, 1, 1);
+	   _h_dNch_dpT_2360[5] = bookHistogram1D(5, 1, 2);
+	   _h_dNch_dpT_2360[6] = bookHistogram1D(5, 1, 3);
+	   _h_dNch_dpT_2360[7] = bookHistogram1D(5, 1, 4);
+	
+	   _h_dNch_dpT_2360[8] = bookHistogram1D(6, 1, 1);
+	   _h_dNch_dpT_2360[9] = bookHistogram1D(6, 1, 2);
+	   _h_dNch_dpT_2360[10] = bookHistogram1D(6, 1, 3);
+	   _h_dNch_dpT_2360[11] = bookHistogram1D(6, 1, 4);
+	
+	   _h_dNch_dEta_2360 = bookHistogram1D(8, 1, 2);
+	}
 	
     }
 
@@ -76,13 +80,12 @@ namespace Rivet {
     void analyze(const Event& event) {
       const double weight = event.weight();
 
-      //charge particles
-      const ChargedFinalState& charged = applyProjection<ChargedFinalState>(event, "CFS");
-      if (charged.particles().size()<1) {
-        vetoEvent;
-         
-      } 
-      
+//AK       //charge particles
+//AK       const ChargedFinalState& charged = applyProjection<ChargedFinalState>(event, "CFS");
+//AK       if (charged.particles().size()<1) {
+//AK         vetoEvent;
+//AK          
+//AK       } 
       
       _Nevt_after_cuts += weight;
  

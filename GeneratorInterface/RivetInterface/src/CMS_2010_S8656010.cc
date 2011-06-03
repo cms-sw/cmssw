@@ -57,12 +57,12 @@ namespace Rivet {
     void analyze(const Event& event) {
       const double weight = event.weight();
 
-      //charge particles
-      const ChargedFinalState& charged = applyProjection<ChargedFinalState>(event, "CFS");
-      if (charged.particles().size()<1) {
-        vetoEvent;
-         
-      } 
+//AK       //charge particles
+//AK       const ChargedFinalState& charged = applyProjection<ChargedFinalState>(event, "CFS");
+//AK       if (charged.particles().size()<1) {
+//AK         vetoEvent;
+//AK          
+//AK       } 
       
       
       _Nevt_after_cuts += weight;
