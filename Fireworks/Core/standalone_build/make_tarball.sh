@@ -14,8 +14,9 @@ if [ -f $tard ]; then
    exit
 fi
 mkdir $tard
-echo "tar dir $tard"
+echo "Info: set $tard for destination"
 
+origd=$PWD;
 #----------------------------------------------------------------
 # root
 # can be linked or installed at $ROOTSYS
@@ -25,13 +26,13 @@ mkdir  ${tard}/external
 ROOTSYS=`echo $ROOTSYS |  sed 's/\/$//'` # remove '/' character  at end of string, becuse it invalidates symblic link interpretation
 origr=$ROOTSYS
 if [ -L ${ROOTSYS} ]; then
-   b=${ROOTSYS}
-   origr=`readlink ${ROOTSYS}`
+   b=`dirname ${ROOTSYS}`
+   origr=${b}/`readlink ${ROOTSYS}`
 fi
 
 echo "copy root from $origr to ${tard}/external/root"
 cp -a $origr  ${tard}/external/root
-
+#exit
 #----------------------------------------------------------------
 # external libraries
 extdl=${tard}/external/lib
@@ -67,17 +68,44 @@ cat  $CMSSW_RELEASE_BASE/lib/*/.edmplugincache > ${tard}/lib/.edmplugincache
 echo "get $CMSSW_RELEASE_BASE/lib/*/.edmplugincache > ${tard}/lib/.edmplugincache"
 # cat  $CMSSW_BASE/lib/*/.edmplugincache >> ${tard}/lib/.edmplugincache
 
+#----------------------------------------------------------------
+
 # binary 
 cp $CMSSW_BASE/bin/*/cmsShow.exe ${tard}
 
-# version file, icons, and configuration files
-mkdir -p ${tard}/src
-cvs co -p Fireworks/Core/macros/default.fwc > default.fwc
-cvs co -p Fireworks/Core/macros/ispy.fwc > ispy.fwc
-cvs co -p Fireworks/Core/macros/pflow.fwc > pflow.fwc
-cvs co -p Fireworks/Core/macros/hflego.fwc > hflego.fwc
+# src
+srcDir="${tard}/src/Fireworks/Core"
+mkdir -p $srcDir
+cp -a  $CMSSW_BASE/src/Fireworks/Core/macros $srcDir
+cp -a  $CMSSW_BASE/src/Fireworks/Core/icons $srcDir
+cp -a  $CMSSW_BASE/src/Fireworks/Core/data $srcDir
+cp -a  $CMSSW_BASE/src/Fireworks/Core/scripts/cmsShow $tard
 
-cd ${tard}/src
-cvs co Fireworks/Core/icons
-cvs co Fireworks/Core/data
+ln -s  $CMSSW_BASE/src/Fireworks/Core/macros/default.fwc  $tard
+ln -s  $CMSSW_BASE/src/Fireworks/Core/macros/ispy.fwc  $tard
+ln -s  $CMSSW_BASE/src/Fireworks/Core/macros/pflow.fwc  $tard
+ln -s  $CMSSW_BASE/src/Fireworks/Core/macros/hfLego.fwc  $tard
 
+cp  $CMSSW_DATA_PATH/data-Fireworks-Geometry/4-cms/Fireworks/Geometry/data/* .
+
+#----------------------------------------------------------------
+
+# sample files
+cd $tard
+dwnCmd="wget"
+if [ `uname` = "Darwin" ]; then
+   # compatibility problem on 10.5
+   dwnCmd="curl -O"
+fi
+cd ${tard}
+name=`perl -e '($ver, $a, $b, $c) = split('_', $ENV{CMSSW_VERSION}); print  "data", $a, $b, ".root"  '`
+$dwnCmd http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/$name
+mv $name data.root
+
+
+cd $origd
+echo "Creating tarball ..."
+if [ `uname` = "Darwin" ]; then
+    echo "tar -czf ${tard}.mac.tar.gz $tard"
+else
+    echo "tar -czf ${tard}.linux.tar.gz $tard"
