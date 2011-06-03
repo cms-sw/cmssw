@@ -184,9 +184,11 @@ string TagProbeFitter::calculateEfficiency(string dirName, vector<string> effCat
 
  
   //now add the necessary mass and passing variables to make the unbinned RooDataSet
-  RooDataSet data("data", "data", inputTree, 
+   TTree* Atree = inputTree->CloneTree();
+   RooDataSet data("data", "data", Atree, 
                   dataVars,
                   /*selExpr=*/"", /*wgtVarName=*/(weightVar.empty() ? 0 : weightVar.c_str()));
+   delete Atree;
 
    // Now add all expressions that are computed dynamically
    for(vector<pair<pair<string,string>, pair<string, vector<string> > > >::const_iterator ev = expressionVars.begin(), eve = expressionVars.end(); ev != eve; ++ev){
@@ -615,6 +617,7 @@ void TagProbeFitter::saveFitPlot(RooWorkspace* w){
   // draw only the parameter box not the whole frame
   frames.back()->findObject(Form("%s_paramBox",pdf.GetName()))->Draw();
   //save and clean up
+  canvas.Draw();
   canvas.Write();
   for (size_t i=0; i<frames.size(); i++) {
     delete frames[i];
@@ -659,6 +662,7 @@ void TagProbeFitter::saveDistributionsPlot(RooWorkspace* w){
     dataAll->statOn(frames.back());
     frames.back()->Draw();
   }
+  canvas.Draw();
   canvas.Write();
   for (size_t i=0; i<frames.size(); i++) {
     delete frames[i];
@@ -727,6 +731,7 @@ void TagProbeFitter::makeEfficiencyPlot1D(RooDataSet& eff, RooRealVar& v, TStrin
   p->SetYTitle(TString("Efficiency of ")+effName);
   p->SetAxisRange(0,1,"Y");
   p->Draw();
+  canvas.Draw();
   canvas.Write();
   delete p;  
 }
@@ -751,6 +756,7 @@ void TagProbeFitter::makeEfficiencyPlot2D(RooDataSet& eff, RooRealVar& v1, RooRe
     h->SetBinError(h->FindBin(v1_->getVal(), v2_->getVal()), (e->getErrorHi()-e->getErrorLo())/2.);
   }
   h->Draw();
+  canvas.Draw();
   canvas.Write();
   delete h;
 }
