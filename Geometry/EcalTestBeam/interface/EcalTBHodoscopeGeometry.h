@@ -1,53 +1,54 @@
 #ifndef Geometry_EcalTestBeam_EcalTBHodoscopeGeometry_HH
 #define Geometry_EcalTestBeam_EcalTBHodoscopeGeometry_HH
 
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/PreshowerStrip.h"
+
 #include <vector>
 
-class EcalTBHodoscopeGeometry {
+class EcalTBHodoscopeGeometry : public CaloSubdetectorGeometry
+{
 
- public:
+   public:
 
-  EcalTBHodoscopeGeometry() {};
-  ~EcalTBHodoscopeGeometry(){};
+      typedef std::vector<PreshowerStrip> CellVec ;
 
-  float getFibreLp(const int& plane, const int& fibre) const
-    { 
-      if (plane < nPlanes_ && fibre < nFibres_ )
-	return fibrePos_[plane][fibre].lp;
-      else
-	return -99999.;
-    }
-	  
-  float getFibreRp(const int& plane, const int& fibre) const
-    {
-      if (plane < nPlanes_ && fibre < nFibres_ )
-	return fibrePos_[plane][fibre].rp;
-      else
-	return -99999.;
-    }
+      typedef CaloCellGeometry::CCGFloat CCGFloat ;
+      typedef CaloCellGeometry::Pt3D     Pt3D     ;
+      typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+
+      EcalTBHodoscopeGeometry() ;
+      ~EcalTBHodoscopeGeometry() ;
+
+      virtual CaloCellGeometry* newCell( const GlobalPoint& f1 ,
+					 const GlobalPoint& f2 ,
+					 const GlobalPoint& f3 ,
+					 CaloCellGeometry::CornersMgr* mgr,
+					 const CCGFloat*    parm ,
+					 const DetId&       detId   ) ;
+
+      static float getFibreLp( int plane, int fibre ) ;
+      
+      static float getFibreRp( int plane, int fibre ) ;
   
-  std::vector<int> getFiredFibresInPlane(const float& xtr, const int& plane) const;
-  
-  int getNPlanes() const 
-    {
-      return nPlanes_;
-    }
+      static std::vector<int> getFiredFibresInPlane( float xtr, int plane ) ;
 
-  int getNFibres() const 
-    {
-      return nFibres_;
-    }
+      static int getNPlanes() ;
+      
+      static int getNFibres() ;
+      
+   private:
+      
+      struct fibre_pos 
+      {
+	    float lp, rp ;
+      };
 
- private:
+      static const int nPlanes_=4;
+      static const int nFibres_=64;
+      static const fibre_pos fibrePos_[ nPlanes_ ][ nFibres_ ] ;
 
-  struct fibre_pos {
-    float lp, rp;
-  };
-
-  static const int nPlanes_=4;
-  static const int nFibres_=64;
-  static const fibre_pos fibrePos_[nPlanes_][nFibres_];
-  
+      CellVec m_cellVec ;
 };
 
 #endif

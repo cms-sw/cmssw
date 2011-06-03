@@ -32,6 +32,8 @@
 #include <vector>
 #include <fstream>
 
+typedef CaloCellGeometry::CCGFloat CCGFloat ;
+
 template <class T>
 const double 
 CaloGeometryLoaderTest<T>::k_ScaleFromDDDtoGeant ( 0.1 ) ;
@@ -129,7 +131,7 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
    static HepGeom::Point3D<double>  GG0 ;
    static HepGeom::Point3D<double>  HH0 ;
 
-   std::vector<double> pv ;
+   std::vector<CCGFloat> pv ;
    pv.reserve( vv.size() ) ;
    for( unsigned int i ( 0 ) ; i != vv.size() ; ++i )
    {
@@ -137,8 +139,10 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
       pv.push_back( factor*vv[i] ) ;
    }
 
-   CaloCellGeometry::CornersVec corners ( geom->cornersMgr() ) ;
-   corners.resize() ;
+//   CaloCellGeometry::CornersVec corners ( geom->cornersMgr() ) ;
+//   corners.resize() ;
+
+   std::vector<GlobalPoint> corners ( 8 ) ;
 
    TruncatedPyramid::createCorners( pv, tr, corners ) ;
 

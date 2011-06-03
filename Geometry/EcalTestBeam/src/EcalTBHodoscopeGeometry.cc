@@ -1,6 +1,77 @@
 #include "Geometry/EcalTestBeam/interface/EcalTBHodoscopeGeometry.h"
 
-const EcalTBHodoscopeGeometry::fibre_pos EcalTBHodoscopeGeometry::fibrePos_[EcalTBHodoscopeGeometry::nPlanes_][EcalTBHodoscopeGeometry::nFibres_] = 
+#include "SimDataFormats/EcalTestBeam/interface/HodoscopeDetId.h"
+
+typedef CaloCellGeometry::CCGFloat CCGFloat ;
+
+EcalTBHodoscopeGeometry::EcalTBHodoscopeGeometry() :
+   m_cellVec( nPlanes_*nFibres_ ) 
+{
+}
+
+EcalTBHodoscopeGeometry::~EcalTBHodoscopeGeometry()
+{
+}
+
+float 
+EcalTBHodoscopeGeometry::getFibreLp( int plane, int fibre )
+{ 
+   if( plane < nPlanes_ &&
+       fibre < nFibres_     )
+   {
+      return fibrePos_[ plane ][ fibre ].lp ;
+   }
+   else
+   {
+      return -99999. ;
+   }
+}
+
+float 
+EcalTBHodoscopeGeometry::getFibreRp( int plane, int fibre )
+{
+   if( plane < nPlanes_ && 
+       fibre < nFibres_    )
+   {
+      return fibrePos_[ plane ][ fibre ].rp ;
+   }
+   else
+   {
+      return -99999.;
+   }
+}
+
+int 
+EcalTBHodoscopeGeometry::getNPlanes()
+{
+   return nPlanes_;
+}
+
+int 
+EcalTBHodoscopeGeometry::getNFibres()
+{
+   return nFibres_;
+}
+
+CaloCellGeometry* 
+EcalTBHodoscopeGeometry::newCell( const GlobalPoint& f1 ,
+				  const GlobalPoint& f2 ,
+				  const GlobalPoint& f3 ,
+				  CaloCellGeometry::CornersMgr* mgr,
+				  const CCGFloat*    parm ,
+				  const DetId&       detId   ) 
+{
+   const HodoscopeDetId hid ( detId ) ;
+
+   const unsigned int cellIndex ( hid.denseIndex() ) ;
+
+   m_cellVec[ cellIndex ] = PreshowerStrip( f1, mgr, parm ) ;
+
+   return &m_cellVec[ cellIndex ] ;
+}
+
+const EcalTBHodoscopeGeometry::fibre_pos 
+EcalTBHodoscopeGeometry::fibrePos_[EcalTBHodoscopeGeometry::nPlanes_][EcalTBHodoscopeGeometry::nFibres_] = 
   {
     {
     // Position is in mm      
@@ -289,16 +360,18 @@ const EcalTBHodoscopeGeometry::fibre_pos EcalTBHodoscopeGeometry::fibrePos_[Ecal
     }
   };
 
-std::vector<int> EcalTBHodoscopeGeometry::getFiredFibresInPlane(const float& xtr, const int& plane) const
+std::vector<int> 
+EcalTBHodoscopeGeometry::getFiredFibresInPlane( float xtr, 
+						int   plane )
 {
-  std::vector<int> firedFibres;
+   std::vector<int> firedFibres;
   
-  if (plane > EcalTBHodoscopeGeometry::nPlanes_)
-    return firedFibres;
+   if( plane > EcalTBHodoscopeGeometry::nPlanes_ ) return firedFibres;
   
-  for (int i=0; i< nFibres_; ++i)
-    if ((xtr>=fibrePos_[plane][i].lp) &&  (xtr<=fibrePos_[plane][i].rp))
-      firedFibres.push_back(i);
-  
-  return firedFibres;
+   for( int i ( 0 ) ; i != nFibres_ ; ++i )
+   {
+      if( ( xtr >= fibrePos_[plane][i].lp ) &&  
+	  ( xtr <= fibrePos_[plane][i].rp )     ) firedFibres.push_back(i);
+   }
+   return firedFibres ;
 }
