@@ -69,7 +69,6 @@ void GetSignalDefinition(std::vector<stSignal>& signals){
    signals.push_back(stSignal("Gluino", "Gluino400"    , "#tilde{g} 400"                 , 400,  1,   8.980000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino500"    , "#tilde{g} 500"                 , 500,  1,   1.870000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino600"    , "#tilde{g} 600"                 , 600,  1,   0.465000) ); //NLO
-   signals.push_back(stSignal("Gluino", "Gluino600Z2"  , "#tilde{g} 600 Z2"              , 600,  1,   0.465000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino700"    , "#tilde{g} 700"                 , 700,  1,   0.130000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino800"    , "#tilde{g} 800"                 , 800,  1,   0.039600) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino900"    , "#tilde{g} 900"                 , 900,  1,   0.012800) ); //NLO
@@ -83,6 +82,10 @@ void GetSignalDefinition(std::vector<stSignal>& signals){
    signals.push_back(stSignal("Gluino", "Gluino800N"   , "#tilde{g} 800 CS"              , 800,  1,   0.039600) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino900N"   , "#tilde{g} 900 CS"              , 900,  1,   0.012800) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino1000N"  , "#tilde{g} 1000 CS"             ,1000,  1,   0.004300) ); //NLO
+
+   signals.push_back(stSignal("Gluino", "Gluino600Z"   , "#tilde{g} 600 Z2"              , 600,  1,   0.465000) ); //NLO
+   signals.push_back(stSignal("Gluino", "Gluino700Z"   , "#tilde{g} 700 Z2"              , 700,  1,   0.130000) ); //NLO
+   signals.push_back(stSignal("Gluino", "Gluino800Z"   , "#tilde{g} 800 Z2"              , 800,  1,   0.039600) ); //NLO
 
    signals.push_back(stSignal("Stop"  , "Stop130"      , "#tilde{t}_{1} 130"             , 130,  1, 120.000000) ); //NLO
    signals.push_back(stSignal("Stop"  , "Stop200"      , "#tilde{t}_{1} 200"             , 200,  1,  13.000000) ); //NLO
@@ -101,6 +104,10 @@ void GetSignalDefinition(std::vector<stSignal>& signals){
    signals.push_back(stSignal("Stop"  , "Stop600N"     , "#tilde{t}_{1} 600 CS"          , 600,  1,   0.012500) ); //NLO
    signals.push_back(stSignal("Stop"  , "Stop700N"     , "#tilde{t}_{1} 700 CS"          , 700,  1,   0.003560) ); //NLO
    signals.push_back(stSignal("Stop"  , "Stop800N"     , "#tilde{t}_{1} 800 CS"          , 800,  1,   0.001140) ); //NLO
+
+   signals.push_back(stSignal("Stop"  , "Stop300Z"     , "#tilde{t}_{1} 300 Z2"          , 300,  1,   1.310000) ); //NLO
+   signals.push_back(stSignal("Stop"  , "Stop400Z"     , "#tilde{t}_{1} 400 Z2"          , 400,  1,   0.218000) ); //NLO
+   signals.push_back(stSignal("Stop"  , "Stop500Z"     , "#tilde{t}_{1} 500 Z2"          , 500,  0,   0.047800) ); //NLO
 
    signals.push_back(stSignal("Stau"  , "GMStau100"    , "GMSB #tilde{#tau}_{1} 100"     , 100,  1,   1.326000) ); //LO
    signals.push_back(stSignal("Stau"  , "GMStau126"    , "GMSB #tilde{#tau}_{1} 126"     , 126,  1,   0.330000) ); //LO

@@ -71,6 +71,11 @@ def ComputeLimits(InputPattern):
 #        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino900N_f5"', '"Gluino900N"', 0.5739 / 0.3029 , 0.3704 / 0.4955 , 0.0557 / 0.2015])
 #        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino1000N_f5"','"Gluino1000N"',0.5739 / 0.3029 , 0.3704 / 0.4955 , 0.0557 / 0.2015])
 
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino600Z_f1"' , '"Gluino600Z"', 0.3029 / 0.3029 , 0.4955 / 0.4955 , 0.2015 / 0.2015])
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino700Z_f1"' , '"Gluino700Z"', 0.3029 / 0.3029 , 0.4955 / 0.4955 , 0.2015 / 0.2015])
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino800Z_f1"' , '"Gluino800Z"', 0.3029 / 0.3029 , 0.4955 / 0.4955 , 0.2015 / 0.2015])
+
+
 
 #        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Stop130_2C"'   , '"Stop130"', 0.0    / 0.1705 , 0.0    / 0.4868 , 1.0    / 0.3427])
 #        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Stop200_2C"'   , '"Stop200"', 0.0    / 0.1705 , 0.0    / 0.4868 , 1.0    / 0.3427])
@@ -98,6 +103,10 @@ def ComputeLimits(InputPattern):
         LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Stop600N"'     , '"Stop600N"', 0.1705 / 0.1705 , 0.4868 / 0.4868 , 0.3427 / 0.3427])
         LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Stop700N"'     , '"Stop700N"', 0.1705 / 0.1705 , 0.4868 / 0.4868 , 0.3427 / 0.3427])
         LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Stop800N"'     , '"Stop800N"', 0.1705 / 0.1705 , 0.4868 / 0.4868 , 0.3427 / 0.3427])
+
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Stop300Z"'      , '"Stop300Z"', 0.1705 / 0.1705 , 0.4868 / 0.4868 , 0.3427 / 0.3427])
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Stop400Z"'      , '"Stop400Z"', 0.1705 / 0.1705 , 0.4868 / 0.4868 , 0.3427 / 0.3427])
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Stop500Z"'      , '"Stop500Z"', 0.1705 / 0.1705 , 0.4868 / 0.4868 , 0.3427 / 0.3427])
 
         LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"GMStau100"', '"GMStau100"'])
         LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"GMStau126"', '"GMStau126"'])
@@ -134,10 +143,26 @@ elif sys.argv[1]=='0':
         JobName = "HscpAnalysis"
 	LaunchOnCondor.Jobs_RunHere = 1
 	LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)	
-        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_DATA"'  , 0, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0]) #TkOnly
-        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_SIGNAL"', 0, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0]) #TkOnly
-        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_DATA"'  , 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0]) #TkTOF 
-        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_SIGNAL"', 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0]) #TkTOF 
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_DATA"'  , 0, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 25, 2.5]) #TkOnly
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_SIGNAL"', 0, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 25, 2.5]) #TkOnly
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_DATA"'  , 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 25, 2.5]) #TkTOF 
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_SIGNAL"', 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 25, 2.5]) #TkTOF 
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_DATA"'  , 0, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 25, 2.0]) #TkOnly
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_SIGNAL"', 0, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 25, 2.0]) #TkOnly
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_DATA"'  , 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 25, 2.0]) #TkTOF 
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_SIGNAL"', 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 25, 2.0]) #TkTOF
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_DATA"'  , 0, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 25, 1.5]) #TkOnly
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_SIGNAL"', 0, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 25, 1.5]) #TkOnly
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_DATA"'  , 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 25, 1.5]) #TkTOF 
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_SIGNAL"', 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 25, 1.5]) #TkTOF
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_DATA"'  , 0, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 25, 1.0]) #TkOnly
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_SIGNAL"', 0, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 25, 1.0]) #TkOnly
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_DATA"'  , 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 25, 1.0]) #TkTOF 
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_SIGNAL"', 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 25, 1.0]) #TkTOF
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_DATA"'  , 0, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 25, 0.5]) #TkOnly
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_SIGNAL"', 0, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 25, 0.5]) #TkOnly
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_DATA"'  , 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 25, 0.5]) #TkTOF 
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE_SIGNAL"', 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 25, 0.5]) #TkTOF
 	LaunchOnCondor.SendCluster_Submit()
 
 elif sys.argv[1]=='1':
@@ -153,6 +178,8 @@ elif sys.argv[1]=='2':
         LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)
         ComputeLimits('"Results/dedxASmi/combined/Eta25/PtMin25/Type0/"')
         ComputeLimits('"Results/dedxASmi/combined/Eta25/PtMin25/Type2/"')
+        ComputeLimits('"Results/dedxASmi/combined/Eta15/PtMin25/Type0/"')
+        ComputeLimits('"Results/dedxASmi/combined/Eta15/PtMin25/Type2/"')
         LaunchOnCondor.SendCluster_Submit()
 
 

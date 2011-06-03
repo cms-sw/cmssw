@@ -37,10 +37,10 @@ void SelectionPlot (string InputPattern, unsigned int CutIndex);
 void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuffix="Mass");
 void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex);
 void Make2DPlot_Core(string ResultPattern, unsigned int CutIndex);
-
+void SignalMassPlot(string InputPattern, unsigned int CutIndex);
+void GetSystematicOnPrediction(string InputPattern);
 int JobIdToIndex(string JobId);
-
-
+void MassPredictionTight(string InputPattern, unsigned int CutIndex, string HistoSuffix="Mass");
 
 std::vector<stSignal> signals;
 std::vector<stMC>     MCsample;
@@ -65,7 +65,7 @@ void Analysis_Step5()
    GetSignalDefinition(signals);
    GetMCDefinition(MCsample);
 
-   string InputDir;
+   string InputDir;				unsigned int CutIndex;
    std::vector<string> Legends;                 std::vector<string> Inputs;
 
 
@@ -78,27 +78,344 @@ void Analysis_Step5()
 //   PredictionAndControlPlot(InputDir);
 
 
-  InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";   unsigned int CutIndex = 24;//41
-//   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type2/";   unsigned int CutIndex = 82;//18;
-
-//   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";   unsigned int CutIndex = 84;
-//   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type2/";   unsigned int CutIndex = 113;
-
-
-//     Make2DPlot_Core(InputDir,CutIndex);
-
+  InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";   CutIndex = 24;//41
+// Make2DPlot_Core(InputDir,CutIndex);
 //   CutFlow(InputDir);
 //   SelectionPlot(InputDir, CutIndex);
    MassPrediction(InputDir, CutIndex, "Mass");
    MassPrediction(InputDir, CutIndex, "MassTOF");
-//   MassPrediction(InputDir, CutIndex, "MassComb");    
+   MassPrediction(InputDir, CutIndex, "MassComb");    
 //   PredictionAndControlPlot(InputDir, CutIndex);
+// SignalMassPlot(InputDir,0);return;
+// GetSystematicOnPrediction(InputDir);
+
+   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type2/";   CutIndex = 82;//18;
+// Make2DPlot_Core(InputDir,CutIndex);
+//   CutFlow(InputDir);
+//   SelectionPlot(InputDir, CutIndex);
+   MassPrediction(InputDir, CutIndex, "Mass");
+   MassPrediction(InputDir, CutIndex, "MassTOF");
+   MassPrediction(InputDir, CutIndex, "MassComb");     
+//   PredictionAndControlPlot(InputDir, CutIndex);
+// SignalMassPlot(InputDir,0);return;
+// GetSystematicOnPrediction(InputDir);
+
+
+  InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";   CutIndex = 39;  MassPredictionTight(InputDir, CutIndex, "Mass");
+  InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type2/";   CutIndex = 95;  MassPredictionTight(InputDir, CutIndex, "Mass");
+
+
+
    return;
 }
 
 
 
+TH2D* GetCutIndexSliceFromTH3(TH3D* tmp, unsigned int CutIndex, string Name="zy"){
+   tmp->GetXaxis()->SetRange(CutIndex+1,CutIndex+1);
+   return (TH2D*)tmp->Project3D(Name.c_str());
+}
+
+
+TH1D* GetCutIndexSliceFromTH2(TH2D* tmp, unsigned int CutIndex, string Name="_py"){
+   return tmp->ProjectionY(Name.c_str(),CutIndex+1,CutIndex+1);
+}
+
+
 //////////////////////////////////////////////////     CREATE PLOTS OF SELECTION
+
+void GetSystematicOnPrediction(string InputPattern){
+   string Input     = InputPattern + "Histos_Data.root";
+   TFile* InputFile = new TFile(Input.c_str());
+   string SavePath  = InputPattern + "Systematic/";
+   MakeDirectories(SavePath);  
+
+   TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
+   TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I");
+   TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF");
+   TH1D*  H_A            = (TH1D*)GetObjectFromPath(InputFile, "H_A");
+   TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile, "H_B");
+   TH1D*  H_C            = (TH1D*)GetObjectFromPath(InputFile, "H_C");
+   TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, "H_D");
+   TH1D*  H_E            = (TH1D*)GetObjectFromPath(InputFile, "H_E");
+   TH1D*  H_F            = (TH1D*)GetObjectFromPath(InputFile, "H_F");
+   TH1D*  H_G            = (TH1D*)GetObjectFromPath(InputFile, "H_G");
+   TH1D*  H_H            = (TH1D*)GetObjectFromPath(InputFile, "H_H");
+   TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile, "H_P");
+
+   int    ArrN[6];  ArrN[0] = 0; ArrN[1] = 0; ArrN[2] = 0;  ArrN[3] = 0;  ArrN[4] = 0; ArrN[5] = 0;
+   double ArrMean[6][20];
+   double ArrSigma[6][20];
+   double ArrDist[6][20];
+   double ArrMaxDist[6][20];
+   double ArrSum[6][20];
+   double ArrSyst[6][20];
+   double ArrStat[6][20];
+   double ArrPt[6][20];
+   double ArrI[6][20];
+   double ArrT[6][20];
+
+     std::vector<int> Index;   std::vector<int> Plot;
+     Index.push_back(82);      Plot.push_back(0);
+     Index.push_back(83);      Plot.push_back(0);
+     Index.push_back(84);      Plot.push_back(0);
+     Index.push_back(85);      Plot.push_back(0);
+     Index.push_back(86);      Plot.push_back(0);
+     Index.push_back(87);      Plot.push_back(0);
+     Index.push_back(88);      Plot.push_back(0);
+
+     Index.push_back(82);      Plot.push_back(1);
+     Index.push_back(90);      Plot.push_back(1);
+     Index.push_back(98);      Plot.push_back(1);
+     Index.push_back(106);     Plot.push_back(1);
+     Index.push_back(114);     Plot.push_back(1);
+     Index.push_back(122);     Plot.push_back(1);
+     Index.push_back(130);     Plot.push_back(1);
+     Index.push_back(138);     Plot.push_back(1);
+
+     Index.push_back(82);      Plot.push_back(2);
+     Index.push_back(154);     Plot.push_back(2);
+     Index.push_back(226);     Plot.push_back(2);
+     Index.push_back(298);     Plot.push_back(2);
+     Index.push_back(370);     Plot.push_back(2);
+     Index.push_back(442);     Plot.push_back(2);
+     Index.push_back(514);     Plot.push_back(2);
+     Index.push_back(586);     Plot.push_back(2);
+     Index.push_back(658);     Plot.push_back(2);
+     Index.push_back(730);     Plot.push_back(2);
+     Index.push_back(802);     Plot.push_back(2);
+
+     Index.push_back(82 +9);     Plot.push_back(3);
+     Index.push_back(154+9);     Plot.push_back(3);
+     Index.push_back(226+9);     Plot.push_back(3);
+     Index.push_back(298+9);     Plot.push_back(3);
+     Index.push_back(370+9);     Plot.push_back(3);
+     Index.push_back(442+9);     Plot.push_back(3);
+     Index.push_back(514+9);     Plot.push_back(3);
+     Index.push_back(586+9);     Plot.push_back(3);
+     Index.push_back(658+9);     Plot.push_back(3);
+     Index.push_back(730+9);     Plot.push_back(3);
+     Index.push_back(802+9);     Plot.push_back(3);
+
+     Index.push_back(82 +32);     Plot.push_back(4);
+     Index.push_back(154+32);     Plot.push_back(4);
+     Index.push_back(226+32);     Plot.push_back(4);
+     Index.push_back(298+32);     Plot.push_back(4);
+     Index.push_back(370+32);     Plot.push_back(4);
+     Index.push_back(442+32);     Plot.push_back(4);
+     Index.push_back(514+32);     Plot.push_back(4);
+     Index.push_back(586+32);     Plot.push_back(4);
+     Index.push_back(658+32);     Plot.push_back(4);
+     Index.push_back(730+32);     Plot.push_back(4);
+     Index.push_back(802+32);     Plot.push_back(4);
+
+     Index.push_back(82 + 4);     Plot.push_back(5);
+     Index.push_back(154+ 4);     Plot.push_back(5);
+     Index.push_back(226+ 4);     Plot.push_back(5);
+     Index.push_back(298+ 4);     Plot.push_back(5);
+     Index.push_back(370+ 4);     Plot.push_back(5);
+     Index.push_back(442+ 4);     Plot.push_back(5);
+     Index.push_back(514+ 4);     Plot.push_back(5);
+     Index.push_back(586+ 4);     Plot.push_back(5);
+     Index.push_back(658+ 4);     Plot.push_back(5);
+     Index.push_back(730+ 4);     Plot.push_back(5);
+     Index.push_back(802+ 4);     Plot.push_back(5);
+
+
+
+     for(unsigned int i=0;i<Index.size();i++){
+      int CutIndex = Index[i];
+
+      const double& A=H_A->GetBinContent(CutIndex+1);
+      const double& B=H_B->GetBinContent(CutIndex+1);
+      const double& C=H_C->GetBinContent(CutIndex+1);
+      const double& D=H_D->GetBinContent(CutIndex+1);
+      const double& E=H_E->GetBinContent(CutIndex+1);
+      const double& F=H_F->GetBinContent(CutIndex+1);
+      const double& G=H_G->GetBinContent(CutIndex+1);
+      const double& H=H_H->GetBinContent(CutIndex+1);
+
+
+     double Pred[5];
+     double Err [5]; 
+     double N = 0;
+     double Sigma = 0;
+     double Mean = 0;
+
+
+     for(unsigned int p=0;p<5;p++){
+        Pred[p] = -1;
+        Err [p] = -1;
+        if(p==0){
+            if(A<25 || F<25 || G<25 || E<25)continue;
+            Pred[p] = (A*F*G)/(E*E);
+            Err [p] =  Pred [p] * sqrt( 1/A + 1/F + 1/G + 4/E);
+         }else if(p==1){
+            if(C<25 || B<25 || A<25)continue;
+            Pred[p] = ((C*B)/A);
+            Err [p] =  Pred[p] * sqrt( 1/C+1/B+1/A );
+         }else if (p==2){
+            if(C<25 || H<25 || G<25)continue;
+            Pred[p] = ((C*H)/G);
+            Err [p] =  Pred[p] * sqrt( 1/C+ 1/H+ 1/G );
+         }else if (p==3){
+            if(H<25 || B<25 || F<25)continue;
+            Pred[p] = ((H*B)/F);
+            Err [p] =  Pred[p] * sqrt( 1/H + 1/B + 1/F );
+         }else if (p==4){
+            if(F<25 || A<25 || E<25)continue;
+            Pred[p] = ((H*A)/E);
+            Err [p] =  Pred[p] * sqrt( 1/H + 1/A + 1/E );            
+         }
+
+         if(Pred[p]>=0){
+            N++;
+            Mean  += Pred[p]/pow(Err [p],2);
+            Sigma += 1      /pow(Err [p],2);
+         }         
+     }
+     Mean  = Mean/Sigma;
+     Sigma = sqrt(Sigma);
+     
+     double Dist    = fabs(Pred[0] - Mean);
+     double Sum=0, Stat=0, Syst=0;
+
+     for(unsigned int p=0;p<5;p++){
+       if(Pred[p]>=0){
+           Sum  += pow(Pred[p]-Mean,2);
+           Stat += pow(Err [p],2);
+        }
+     }
+     Sum  = sqrt(Sum/N);
+     Stat = sqrt(Stat/N);
+     Syst = sqrt(Sum*Sum - Stat*Stat);
+
+     printf("pT>%6.2f I> %6.2f TOF>%6.2f : ", HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1));
+     printf("A =%6.2E, B=%6.2E, C=%6.2E, D=%6.2E E =%6.2E, F=%6.2E, G=%6.2E, H=%6.2E\n", A,B,C,D, E, F, G, H);
+
+     for(unsigned int p=0;p<5;p++){printf("Method %i --> P =%6.2E+-%6.2E\n", p,Pred[p], Err [p]);}
+     printf("--> N = %1.0f Mean = %8.2E  Sigma=%8.2E  Dist=%8.2E  Sum=%8.2E  Stat=%8.2E  Syst=%8.2E\n", N, Mean, Sigma/Mean, Dist/Mean, Sum/Mean, Stat/Mean, Syst/Mean);
+      if(N>0){
+      ArrMean   [Plot[i]][ArrN[Plot[i]]] = Mean;
+      ArrSigma  [Plot[i]][ArrN[Plot[i]]] = Sigma/Mean;
+      ArrDist   [Plot[i]][ArrN[Plot[i]]] = Dist/Mean;
+      ArrSum    [Plot[i]][ArrN[Plot[i]]] = Sum/Mean;
+      ArrSyst   [Plot[i]][ArrN[Plot[i]]] = Syst/Mean;
+      ArrStat   [Plot[i]][ArrN[Plot[i]]] = Stat/Mean;
+      ArrPt     [Plot[i]][ArrN[Plot[i]]] = HCuts_Pt ->GetBinContent(CutIndex+1); ;
+      ArrI      [Plot[i]][ArrN[Plot[i]]] = HCuts_I  ->GetBinContent(CutIndex+1); ;
+      ArrT      [Plot[i]][ArrN[Plot[i]]] = HCuts_TOF->GetBinContent(CutIndex+1); ;
+      ArrN[Plot[i]]++;
+      }
+    }
+
+
+    for(unsigned int p=0;p<3;p++){
+      string Title; string Name;
+      if(p==0){ Title = "1/#beta cut";  Name="TOF_";}
+      if(p==1){ Title = "dEdx cut";     Name="I_";}
+      if(p==2){ Title = "p_{T} cut";    Name="pT_";}
+
+      TCanvas* c1;
+      c1 = new TCanvas("c1","c1", 600, 600);
+      TGraph* graph_s;
+      if(p==0)graph_s = new TGraph(ArrN[p],ArrT [p],ArrSigma[p]);
+      if(p==1)graph_s = new TGraph(ArrN[p],ArrI [p],ArrSigma[p]);
+      if(p==2)graph_s = new TGraph(ArrN[p],ArrPt[p],ArrSigma[p]);
+      graph_s->SetTitle("");
+      graph_s->GetYaxis()->SetTitle("Prediction #sigma/#mu");
+      graph_s->GetYaxis()->SetTitleOffset(1.70);
+      graph_s->GetXaxis()->SetTitle(Title.c_str());
+      graph_s->Draw("AC*");
+      SaveCanvas(c1,SavePath,Name+"Sigma","true");
+      delete c1;
+
+
+      c1 = new TCanvas("c1","c1", 600, 600);
+      TGraph* graph_d;
+      if(p==0)graph_d = new TGraph(ArrN[p],ArrT [p],ArrDist[p]);
+      if(p==1)graph_d = new TGraph(ArrN[p],ArrI [p],ArrDist[p]);
+      if(p==2)graph_d = new TGraph(ArrN[p],ArrPt[p],ArrDist[p]);
+      graph_d->SetTitle("");
+      graph_d->GetYaxis()->SetTitle("Prediction Dist/#mu");
+      graph_d->GetYaxis()->SetTitleOffset(1.70);
+      graph_d->GetXaxis()->SetTitle(Title.c_str());
+      graph_d->Draw("AC*");
+      SaveCanvas(c1,SavePath,Name+"Dist","true");
+      delete c1;
+
+      c1 = new TCanvas("c1","c1", 600, 600);
+      TGraph* graph_sum;
+      if(p==0)graph_sum = new TGraph(ArrN[p],ArrT [p],ArrSum[p]);
+      if(p==1)graph_sum = new TGraph(ArrN[p],ArrI [p],ArrSum[p]);
+      if(p==2)graph_sum = new TGraph(ArrN[p+2],ArrPt[p+2],ArrSum[p+2]);
+      graph_sum->SetTitle("");
+      graph_sum->GetYaxis()->SetTitle("Prediction #sigma_{Stat+Syst}/#mu");
+      graph_sum->GetYaxis()->SetTitleOffset(1.70);
+      graph_sum->GetXaxis()->SetTitle(Title.c_str());
+      
+      graph_sum->Draw("AC*");
+      graph_sum->GetYaxis()->SetRangeUser(0,1);
+
+      if(p==2){
+         TGraph* graph_sum2 = new TGraph(ArrN[p+1],ArrPt[p+1],ArrSum[p+1]);
+         graph_sum2->SetLineColor(2);
+         graph_sum2->SetMarkerColor(2);
+         graph_sum2->Draw("C*");
+
+         TGraph* graph_sum3 = new TGraph(ArrN[p+0],ArrPt[p+0],ArrSum[p+0]);
+         graph_sum3->SetLineColor(4);
+         graph_sum3->SetMarkerColor(4);
+         graph_sum3->Draw("C*");
+
+         TGraph* graph_sum4 = new TGraph(ArrN[p+3],ArrPt[p+3],ArrSum[p+3]);
+         graph_sum4->SetLineColor(8);
+         graph_sum4->SetMarkerColor(8);
+         graph_sum4->Draw("C*");
+
+      }
+      SaveCanvas(c1,SavePath,Name+"Sum","true");
+      delete c1;
+
+
+
+
+      c1 = new TCanvas("c1","c1", 600, 600);
+      TGraph* graph_stat;
+      if(p==0)graph_stat = new TGraph(ArrN[p],ArrT [p],ArrStat[p]);
+      if(p==1)graph_stat = new TGraph(ArrN[p],ArrI [p],ArrStat[p]);
+      if(p==2)graph_stat = new TGraph(ArrN[p+2],ArrPt[p+2],ArrStat[p+2]);
+      graph_stat->SetTitle("");
+      graph_stat->GetYaxis()->SetTitle("Prediction #sigma_{Stat}/#mu");
+      graph_stat->GetYaxis()->SetTitleOffset(1.70);
+      graph_stat->GetXaxis()->SetTitle(Title.c_str());
+      
+      graph_stat->Draw("AC*");
+      graph_stat->GetYaxis()->SetRangeUser(0,1);
+
+      if(p==2){
+         TGraph* graph_stat2 = new TGraph(ArrN[p+1],ArrPt[p+1],ArrStat[p+1]);
+         graph_stat2->SetLineColor(2);
+         graph_stat2->SetMarkerColor(2);
+         graph_stat2->Draw("C*");
+
+         TGraph* graph_stat3 = new TGraph(ArrN[p+0],ArrPt[p+0],ArrStat[p+0]);
+         graph_stat3->SetLineColor(4);
+         graph_stat3->SetMarkerColor(4);
+         graph_stat3->Draw("C*");
+
+         TGraph* graph_stat4 = new TGraph(ArrN[p+3],ArrPt[p+3],ArrStat[p+3]);
+         graph_stat4->SetLineColor(8);
+         graph_stat4->SetMarkerColor(8);
+         graph_stat4->Draw("C*");
+
+      }
+      SaveCanvas(c1,SavePath,Name+"Stat","true");
+      delete c1;
+
+    }
+}
+
 
 void CutFlow(string InputPattern){
    string Input     = InputPattern + "Histos.root";
@@ -138,6 +455,40 @@ void CutFlow(string InputPattern){
    }
 }
 
+void SignalMassPlot(string InputPattern, unsigned int CutIndex){
+
+   string SavePath  = InputPattern + "MassPlots/";
+   MakeDirectories(SavePath);
+
+   string Input     = InputPattern + "Histos.root";
+   TFile* InputFile = new TFile(Input.c_str());
+   for(unsigned int s=0;s<signals.size();s++){
+      TH1D* Mass = GetCutIndexSliceFromTH2((TH2D*)GetObjectFromPath(InputFile, signals[s].Name + "/Mass"    ), CutIndex, "SignalMass");
+      Mass->Scale(1.0/Mass->Integral());
+
+      char YAxisLegend[1024];
+      sprintf(YAxisLegend,"#tracks / %2.0f GeV/c^{2}",Mass->GetXaxis()->GetBinWidth(1));
+
+
+      TCanvas* c1 = new TCanvas("c1","c1", 600, 600);
+      Mass->SetAxisRange(0,1250,"X");
+//    Mass->SetAxisRange(Min,Max,"Y");
+      Mass->SetTitle("");
+//      Mass->SetStats(kFALSE);
+      Mass->GetXaxis()->SetTitle("m (GeV/c^{2})");
+      Mass->GetYaxis()->SetTitle(YAxisLegend);
+      Mass->SetLineWidth(2);
+      Mass->SetLineColor(Color[0]);
+      Mass->SetMarkerColor(Color[0]);
+      Mass->SetMarkerStyle(Marker[0]);
+      Mass->Draw("HIST E1");
+      c1->SetLogy(true);
+      SaveCanvas(c1,SavePath,signals[s].Name,"true");   
+      delete c1;
+   }
+}
+
+
 
 void SelectionPlot(string InputPattern, unsigned int CutIndex){
 
@@ -171,7 +522,8 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
 //   stPlots_Draw(SignPlots[SID_GS126 ], SavePath + "/Selection_" +  signals[SID_GS126 ].Name, LegendTitle);
 
 //   stPlots_DrawComparison(SavePath + "/Selection_Comp_Data" , LegendTitle, CutIndex, &DataPlots);
-   stPlots_DrawComparison(SavePath + "/Selection_Comp_Gluino" , LegendTitle, CutIndex, &DataPlots, &SignPlots[0], &SignPlots[2], &SignPlots[6], &SignPlots[8]);
+   stPlots_DrawComparison(SavePath + "/Selection_Comp_Gluino" , LegendTitle, CutIndex, &DataPlots, &SignPlots[0], &SignPlots[3], &SignPlots[6]);
+   stPlots_DrawComparison(SavePath + "/Selection_Comp_GMStau" , LegendTitle, CutIndex, &DataPlots, &SignPlots[38], &SignPlots[40], &SignPlots[42]);
    return;
 
    stPlots_DrawComparison(SavePath + "/Selection_Comp_Gluino" , LegendTitle, CutIndex, &DataPlots, &SignPlots[SID_GL200 ], &SignPlots[SID_GL500 ], &SignPlots[SID_GL900 ]);
@@ -254,7 +606,7 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
    Histos[1] = CtrlPt_S2_Is;                     legend.push_back(" 35<p_{T}< 50 GeV");
    Histos[2] = CtrlPt_S3_Is;                     legend.push_back(" 50<p_{T}<100 GeV");
    Histos[3] = CtrlPt_S4_Is;                     legend.push_back("100<p_{T}");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend, "arbitrary units", 0,0, 0,0);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend, "arbitrary units", 0,0.5, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
@@ -288,7 +640,7 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
    Histos[1] = CtrlPt_S2_TOF;                    legend.push_back(" 35<p_{T}< 50 GeV");
    Histos[2] = CtrlPt_S3_TOF;                    legend.push_back(" 50<p_{T}<100 GeV");
    Histos[3] = CtrlPt_S4_TOF;                    legend.push_back("100<p_{T}");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,1.5, 0,0); 
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,1.4, 0,0); 
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
@@ -304,14 +656,14 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
    Histos[1] = CtrlIs_S2_TOF;                     legend.push_back("0.1<I_{as}<0.2");
    Histos[2] = CtrlIs_S3_TOF;                     legend.push_back("0.2<I_{as}<0.3");
 //   Histos[3] = CtrlIs_S4_TOF;                     legend.push_back("0.3<I_{as}");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,1.5, 0,0);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,1.2, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"ControlIs_TOFSpectrum");
    delete c1;
 
-
+/*
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    c1->SetLogy(true);
    Histos[0] = (TH1D*)(Data_P->ProjectionY("PA",CutIndex+1,CutIndex+1,"o"));   legend.push_back("Observed");
@@ -412,19 +764,11 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
    SaveCanvas(c1,SavePath,"Prediction_Data");
    delete c1;
 
-
+*/
 
 }
 
-TH2D* GetCutIndexSliceFromTH3(TH3D* tmp, unsigned int CutIndex, string Name="zy"){
-   tmp->GetXaxis()->SetRange(CutIndex+1,CutIndex+1);
-   return (TH2D*)tmp->Project3D(Name.c_str());
-}
 
-
-TH1D* GetCutIndexSliceFromTH2(TH2D* tmp, unsigned int CutIndex, string Name="_py"){
-   return tmp->ProjectionY(Name.c_str(),CutIndex+1,CutIndex+1);
-}
 
 void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    TCanvas* c1;
@@ -812,7 +1156,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
 //   GetPredictionRescale(InputPattern,Rescale, RMS, RecomputeRescale);
 //   RMS = fabs(1.0-Rescale)/2.0;
    Rescale = 1.0;
-   RMS     = 0.05;
+   RMS     = 0.15;
 
    string outpath = InputPattern;
    MakeDirectories(outpath);
@@ -839,6 +1183,14 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       P = Pred->Integral( Pred->GetXaxis()->FindBin(0.0),  Pred->GetXaxis()->FindBin(75.0));
       Perr = 0; for(int i=Pred->GetXaxis()->FindBin(0.0);i<Pred->GetXaxis()->FindBin(75.0);i++){ Perr += pow(Pred->GetBinError(i),2); }  Perr = sqrt(Perr);
       printf("%3.0f<M<%3.0f --> D=%9.3f P = %9.3f +- %6.3f(stat) +- %6.3f(syst) (=%6.3f)\n", 0.0,75.0, D, P, Perr, P*(2*RMS),sqrt(Perr*Perr + pow(P*(2*RMS),2)));
+
+      D = Data->Integral( Data->GetXaxis()->FindBin(140.0),  Data->GetXaxis()->FindBin(2000.0));
+      P = Pred->Integral( Pred->GetXaxis()->FindBin(140.0),  Pred->GetXaxis()->FindBin(2000.0));
+      Perr = 0; for(int i=Pred->GetXaxis()->FindBin(140.0);i<Pred->GetXaxis()->FindBin(2000.0);i++){ Perr += pow(Pred->GetBinError(i),2); }  Perr = sqrt(Perr);
+      printf("%3.0f<M<%3.0f --> D=%9.3f P = %9.3f +- %6.3f(stat) +- %6.3f(syst) (=%6.3f)\n", 140.0,2000.0, D, P, Perr, P*(2*RMS),sqrt(Perr*Perr + pow(P*(2*RMS),2)));
+
+
+
 
 
    for(double M=0;M<500;M+=100){
@@ -869,13 +1221,14 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    printf("PREDICTED EVENTS = %6.2E+-%6.2E\n",H_P->GetBinContent(CutIndex+1), H_P->GetBinError(CutIndex+1));
 
 
-   Pred->Rebin(2);
-   Data->Rebin(2);
-   Gluino600->Rebin(2);
-   GMStau156->Rebin(2);
+   Pred->Rebin(4);
+   Data->Rebin(4);
+   TH1D* Signal = Gluino600;
+   if(!IsTkOnly)Signal = GMStau156;
+   Signal->Rebin(4);
 
-   double Max = 2.0 * std::max(Data->GetMaximum(), Pred->GetMaximum());
-   double Min = 0.1 * std::min(0.01,Pred->GetMaximum());
+   double Max = 2.0 * std::max(std::max(Data->GetMaximum(), Pred->GetMaximum()), Signal->GetMaximum());
+   double Min = 0.01;// 0.1 * std::min(0.01,Pred->GetMaximum());
 
    TLegend* leg;
    c1 = new TCanvas("c1","c1,",600,600);
@@ -904,16 +1257,15 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    PredErr->SetMaximum(Max);
    PredErr->SetMinimum(Min);
    PredErr->SetAxisRange(0,1400,"X");
-   PredErr->Draw("E5");
+   PredErr->Draw("AXIS");
 
-   TH1D* Signal = Gluino600;
-   if(!IsTkOnly)Signal = GMStau156;
    Signal->SetMarkerStyle(21);
    Signal->SetMarkerColor(4);
    Signal->SetMarkerSize(1.5);
    Signal->SetLineColor(4);
    Signal->SetFillColor(38);
    Signal->Draw("same HIST");
+   PredErr->Draw("same E5");
 
    Pred->SetMarkerStyle(22);
    Pred->SetMarkerColor(2);
@@ -928,7 +1280,6 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    Data->SetLineColor(1);
    Data->SetFillColor(0);
    Data->Draw("E1 same");
-
 
    leg = new TLegend(0.79,0.93,0.40,0.68);
    leg->SetHeader(LegendFromType(InputPattern).c_str());
@@ -1189,6 +1540,130 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    delete c1;
 
 */
+   InputFile->Close();
+}
+
+void MassPredictionTight(string InputPattern, unsigned int CutIndex, string HistoSuffix)
+{
+   bool IsTkOnly = (InputPattern.find("Type0",0)<std::string::npos);
+
+
+   double Rescale, RMS;
+   Rescale = 1.0;
+   RMS     = 0.15;
+
+   string outpath = InputPattern;
+   MakeDirectories(outpath);
+
+   TFile* InputFile_Data;
+   string Input;
+
+   std::vector<string> legend;
+   TCanvas* c1;
+
+   char Buffer[2048];
+   sprintf(Buffer,"%s/Histos_Data.root",InputPattern.c_str());
+   InputFile_Data = new TFile(Buffer);
+   if(!InputFile_Data || InputFile_Data->IsZombie() || !InputFile_Data->IsOpen() || InputFile_Data->TestBit(TFile::kRecovered) )return;
+   TH1D* Pred     = ((TH2D*)GetObjectFromPath(InputFile_Data, string("Pred_") + HistoSuffix   ))->ProjectionY("TmpPredMass"    ,CutIndex+1,CutIndex+1,"o");
+   TH1D* Data     = ((TH2D*)GetObjectFromPath(InputFile_Data, string("Data/") + HistoSuffix   ))->ProjectionY("TmpDataMass"    ,CutIndex+1,CutIndex+1,"o");
+
+   TFile* InputFile = new TFile((InputPattern+"/Histos.root").c_str());
+   TH1D* GMStau247   = ((TH2D*)GetObjectFromPath(InputFile, string("GMStau247/") + HistoSuffix   ))->ProjectionY("TmpS247Mass"    ,CutIndex+1,CutIndex+1,"o");
+   TH1D* GMStau156   = ((TH2D*)GetObjectFromPath(InputFile, string("GMStau156/") + HistoSuffix   ))->ProjectionY("TmpS156Mass"    ,CutIndex+1,CutIndex+1,"o");
+
+   TH1D* Gluino600   = ((TH2D*)GetObjectFromPath(InputFile, string("Gluino600/") + HistoSuffix   ))->ProjectionY("TmpG600Mass"    ,CutIndex+1,CutIndex+1,"o");
+
+
+   Pred->Rebin(4);
+   Data->Rebin(4);
+   TH1D* Signal = GMStau247;
+   if(!IsTkOnly)Signal = GMStau156;
+   Signal->Rebin(4);
+   Gluino600->Rebin(4);
+
+   double Max = 10.0 * std::max(std::max(Data->GetMaximum(), Pred->GetMaximum()), std::max(Signal->GetMaximum(), Gluino600->GetMaximum()));
+   double Min = 0.01;// 0.1 * std::min(0.01,Pred->GetMaximum());
+
+   TLegend* leg;
+   c1 = new TCanvas("c1","c1,",600,600);
+
+   char YAxisLegend[1024];
+   sprintf(YAxisLegend,"Tracks / %2.0f GeV/c^{2}",Data->GetXaxis()->GetBinWidth(1));
+
+   TH1D* PredErr = (TH1D*) Pred->Clone("PredErr");
+   for(unsigned int i=0;i<(unsigned int)Pred->GetNbinsX();i++){
+      double error = sqrt(pow(PredErr->GetBinError(i),2) + pow(PredErr->GetBinContent(i)*2*RMS,2));
+      PredErr->SetBinError(i,error);       
+      if(PredErr->GetBinContent(i)<Min && i>5){for(unsigned int j=i+1;j<(unsigned int)PredErr->GetNbinsX();j++)PredErr->SetBinContent(j,0);}
+   }
+   PredErr->SetLineColor(8);
+   PredErr->SetFillColor(8);
+   PredErr->SetFillStyle(3001);
+   PredErr->SetMarkerStyle(22);
+   PredErr->SetMarkerColor(2);
+   PredErr->SetMarkerSize(1.0);
+   PredErr->GetXaxis()->SetNdivisions(505);
+   PredErr->SetTitle("");
+   PredErr->SetStats(kFALSE);
+   PredErr->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
+   PredErr->GetYaxis()->SetTitle(YAxisLegend);
+   PredErr->GetYaxis()->SetTitleOffset(1.50);
+   PredErr->SetMaximum(Max);
+   PredErr->SetMinimum(Min);
+   PredErr->SetAxisRange(0,1400,"X");
+   PredErr->Draw("AXIS");
+
+   Gluino600->SetMarkerStyle(21);
+   Gluino600->SetMarkerColor(46);
+   Gluino600->SetMarkerSize(1.5);
+   Gluino600->SetLineColor(46);
+   Gluino600->SetFillColor(46);
+   Gluino600->Draw("same HIST");
+
+   Signal->SetMarkerStyle(21);
+   Signal->SetMarkerColor(4);
+   Signal->SetMarkerSize(1.5);
+   Signal->SetLineColor(4);
+   Signal->SetFillColor(38);
+   Signal->Draw("same HIST");
+
+
+   PredErr->Draw("same E5");
+
+   Pred->SetMarkerStyle(22);
+   Pred->SetMarkerColor(2);
+   Pred->SetMarkerSize(1.5);
+   Pred->SetLineColor(2);
+   Pred->SetFillColor(0);
+   Pred->Draw("same HIST P");
+
+   Data->SetMarkerStyle(20);
+   Data->SetMarkerColor(1);
+   Data->SetMarkerSize(1.0);
+   Data->SetLineColor(1);
+   Data->SetFillColor(0);
+   Data->Draw("E1 same");
+
+   leg = new TLegend(0.79,0.93,0.40,0.68);
+   leg->SetHeader(LegendFromType(InputPattern).c_str());
+   leg->SetFillColor(0);
+   leg->SetBorderSize(0);
+   TH1D* PredLeg = (TH1D*) Pred->Clone("RescLeg");
+   PredLeg->SetFillColor(PredErr->GetFillColor());
+   PredLeg->SetFillStyle(PredErr->GetFillStyle());
+   leg->AddEntry(Data, "Data"        ,"P");
+   leg->AddEntry(PredLeg, "Data-based prediction"  ,"PF");
+   if(IsTkOnly)leg->AddEntry(Signal, "MC - Stau (M=247 GeV/c^{2})"        ,"F");
+   else        leg->AddEntry(Signal, "MC - Stau (M=156 GeV/c^{2})"        ,"F");
+   leg->AddEntry(Gluino600, "MC - Gluino (M=600 GeV/c^{2})"        ,"F");
+   leg->Draw();
+
+   DrawPreliminary(IntegratedLuminosity);
+   c1->SetLogy(true);
+   SaveCanvas(c1, outpath, string("RescaleTight_") + HistoSuffix);
+   delete c1;
+
    InputFile->Close();
 }
 
