@@ -36,7 +36,7 @@ EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(
    const DDCompactView*     cpv ,
    CaloSubdetectorGeometry* ebg  )
 {
-   if( ebg->cornersMgr() == 0 ) ebg->allocateCorners( 256 ) ;
+   if( ebg->cornersMgr() == 0 ) ebg->allocateCorners( CaloTowerDetId::kSizeForDenseIndexing ) ;
    if( ebg->parMgr()     == 0 ) ebg->allocatePar( 10, 3 ) ;
   
    DDFilter* filter = getDDFilter();
