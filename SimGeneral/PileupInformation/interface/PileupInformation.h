@@ -57,6 +57,7 @@ private:
     double                   pTcut_2_;
 
     edm::InputTag            trackingTruth_;
+    edm::InputTag            PileupInfoLabel_;
 
     std::string MessageCategory_;
     std::string simHitLabel_;
