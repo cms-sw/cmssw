@@ -17,8 +17,10 @@ mkdir $tard
 echo "Info: set $tard for destination"
 
 origd=$PWD;
-#----------------------------------------------------------------
-# root
+
+echo "=========================================================="
+echo "=========================================================="
+
 # can be linked or installed at $ROOTSYS
 
 mkdir  ${tard}/external
@@ -32,9 +34,11 @@ fi
 
 echo "copy root from $origr to ${tard}/external/root"
 cp -a $origr  ${tard}/external/root
-#exit
-#----------------------------------------------------------------
+
+
 # external libraries
+echo "=========================================================="
+echo "=========================================================="
 extdl=${tard}/external/lib
 mkdir $extdl
 
@@ -53,14 +57,18 @@ do
 	cp -a $ext/$i/*/lib/* ${extdl}
 done
 
-#----------------------------------------------------------------
+
+echo "=========================================================="
+echo "=========================================================="
 # cmssw
-   
+  
 mkdir -p ${tard}/lib
 
 # cms libraries
+ echo "getting libs from $CMSSW_RELEASE_BASE/lib/*/* ${tard}/lib/"
 cp -a $CMSSW_RELEASE_BASE/lib/*/* ${tard}/lib/
-cp -a $CMSSW_BASE/lib/*/* ${tard}/lib/
+ echo "getting libs from -f ${tard}/lib"
+cp -f $CMSSW_BASE/lib/*/* ${tard}/lib/
 
 # plugins cache file
 touch ${tard}/lib/.edmplugincache
@@ -69,7 +77,8 @@ echo "get $CMSSW_RELEASE_BASE/lib/*/.edmplugincache > ${tard}/lib/.edmplugincach
 # cat  $CMSSW_BASE/lib/*/.edmplugincache >> ${tard}/lib/.edmplugincache
 
 #----------------------------------------------------------------
-
+echo "=========================================================="
+echo "getting sources."
 # binary 
 cp $CMSSW_BASE/bin/*/cmsShow.exe ${tard}
 
@@ -86,7 +95,7 @@ ln -s  $CMSSW_BASE/src/Fireworks/Core/macros/ispy.fwc  $tard
 ln -s  $CMSSW_BASE/src/Fireworks/Core/macros/pflow.fwc  $tard
 ln -s  $CMSSW_BASE/src/Fireworks/Core/macros/hfLego.fwc  $tard
 
-cp  $CMSSW_DATA_PATH/data-Fireworks-Geometry/4-cms/Fireworks/Geometry/data/* .
+cp  $CMSSW_DATA_PATH/data-Fireworks-Geometry/4-cms/Fireworks/Geometry/data/* $tard
 
 #----------------------------------------------------------------
 
@@ -109,3 +118,4 @@ if [ `uname` = "Darwin" ]; then
     echo "tar -czf ${tard}.mac.tar.gz $tard"
 else
     echo "tar -czf ${tard}.linux.tar.gz $tard"
+fi
