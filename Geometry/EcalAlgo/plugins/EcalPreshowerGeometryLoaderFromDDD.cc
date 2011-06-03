@@ -54,7 +54,7 @@ EcalPGL::fillGeom( EcalPreshowerGeometry*      geom ,
 
    const CCGFloat tilt ( asin( 0.5*zdif/( vv[1]>vv[0] ? vv[1] : vv[0] ) ) ) ;
 
-   vv.push_back( 0 ) ; //tilt ) ;
+   vv.push_back( tilt ) ;
 
    const CCGFloat* pP ( CaloCellGeometry::getParmPtr( vv, 
 						      geom->parMgr(), 
