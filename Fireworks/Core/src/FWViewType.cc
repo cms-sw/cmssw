@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Mar 26 12:25:02 CET 2010
-// $Id: FWViewType.cc,v 1.18 2011/01/26 11:47:07 amraktad Exp $
+// $Id: FWViewType.cc,v 1.19 2011/06/01 22:38:27 amraktad Exp $
 //
 
 // system include files
@@ -93,7 +93,7 @@ FWViewType::idToName(int id)
 
 const std::string& switchName (const std::string& old, FWViewType::EType id)
 {
-   fwLog(fwlog::kWarning) << old << " view has been renamed to "<< FWViewType::idToName(id) << ".\n";
+   fwLog(fwlog::kInfo) << old << " view has been renamed to "<< FWViewType::idToName(id) << ".\n";
    return  (const std::string&)FWViewType::idToName(id);
 }
 
