@@ -19,11 +19,11 @@
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
-FWFileEntry::FWFileEntry(const std::string& name) :
+FWFileEntry::FWFileEntry(const std::string& name, bool checkVersion) :
    m_name(name), m_file(0), m_eventTree(0), m_event(0),
    m_needUpdate(true), m_globalEventList(0)
 {
-   openFile();
+   openFile(checkVersion);
 }
 
 FWFileEntry::~FWFileEntry()
@@ -34,7 +34,7 @@ FWFileEntry::~FWFileEntry()
    delete m_globalEventList;
 }
 
-void FWFileEntry::openFile()
+void FWFileEntry::openFile(bool checkVersion)
 {
    gErrorIgnoreLevel = 3000; // suppress warnings about missing dictionaries
    TFile *newFile = TFile::Open(m_name.c_str());
@@ -54,7 +54,8 @@ void FWFileEntry::openFile()
    }
 
    // check CMSSW relese version for compatibility
-   {
+   if (checkVersion) {
+      bool pass = false;
       typedef std::vector<edm::ProcessConfiguration> provList;
   
       TTree   *metaData = dynamic_cast<TTree*>(m_file->Get("MetaData"));
@@ -72,12 +73,20 @@ void FWFileEntry::openFile()
             rel[1] = i->releaseVersion()[9];
             rel[2] = i->releaseVersion()[11];
             int relInt = atoi(rel);
-            if (relInt < 420)
-               throw std::runtime_error("Incompatible data file. Process with version CMSSW_4_2_X or more required.");
+            if (relInt >= 420)
+            {
+               pass = true;
+               break;
+            }
          }
       }
 
       b->SetAddress(0);
+
+      if (!pass)
+      {
+         throw std::runtime_error("Incompatible data file. Process with version CMSSW_4_2_X or more required.\nUse --no-version-check option is want to still view the file.\n");                                   
+      }
    }
 
 

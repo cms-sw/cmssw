@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.189 2011/06/02 03:00:06 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.190 2011/06/02 05:20:36 amraktad Exp $
 //
 
 // system include files
@@ -99,6 +99,7 @@ static const char* const kFreePaletteCommandOpt = "free-palette";
 static const char* const kAutoSaveAllViews = "auto-save-all-views";
 static const char* const kEnableFPE        = "enable-fpe";
 static const char* const kZeroWinOffsets   = "zero-window-offsets";
+static const char* const kNoVersionCheck   = "no-version-check";
 
 
 //
@@ -119,7 +120,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
      m_liveTimer(new SignalTimer()),
      m_liveTimeout(600000),
      m_lastPointerPositionX(-999),
-     m_lastPointerPositionY(-999)
+     m_lastPointerPositionY(-999),
+     m_noVersionCheck(false)
 {
    try {
       TGLWidget* w = TGLWidget::Create(gClient->GetDefaultRoot(), kTRUE, kTRUE, 0, 10, 10);
@@ -165,6 +167,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       (kFreePaletteCommandOpt,                            "Allow free color selection (requires special configuration!)")
       (kAutoSaveAllViews, po::value<std::string>(),       "Auto-save all views with given prefix (run_event_lumi_view.png is appended)")
       (kZeroWinOffsets,                                   "Disable auto-detection of window position offsets.")
+      (kNoVersionCheck,                                     "No file version check.")
       (kHelpCommandOpt,                                   "Display help message");
    po::positional_options_description p;
    p.add(kInputFilesOpt, -1);
@@ -310,6 +313,9 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       std::string fmt = vm[kAutoSaveAllViews].as<std::string>();
       fmt += "%d_%d_%d_%s.png";
       setAutoSaveAllViewsFormat(fmt);
+   }
+   if(vm.count(kNoVersionCheck)) {
+      m_noVersionCheck=true;
    }
    if(vm.count(kEnableFPE)) {
       gSystem->SetFPEMask();
