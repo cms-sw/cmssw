@@ -1,6 +1,7 @@
 #include "Geometry/EcalTestBeam/plugins/EcalTBHodoscopeGeometryLoaderFromDDD.h"
 
 #include "Geometry/EcalTestBeam/interface/EcalTBHodoscopeGeometry.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
