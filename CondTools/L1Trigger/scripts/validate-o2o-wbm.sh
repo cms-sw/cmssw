@@ -93,8 +93,8 @@ run=`echo ${next} | cut -f 1 -d ' '`
 
 if [ -z $run ]
     then
-    echo "`date` : validate-o2o-wbm.sh" > ${summaryFile}
-    echo "No new run to be validated" >> ${summaryFile}
+#    echo "`date` : validate-o2o-wbm.sh" > ${summaryFile}
+#    echo "No new run to be validated" >> ${summaryFile}
     exit
 fi
 
