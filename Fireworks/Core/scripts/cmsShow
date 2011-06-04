@@ -3,13 +3,13 @@
 # strip of the directory name for this shell script
 export SHELLDIR=`dirname $0`
 # if no directory specified we need to use the local directory
-if [ ! -n "$SHELLDIR" ] || [ "$SHELLDIR" == "." ] ; then
+if [ ! -n "$SHELLDIR" ] || [ "$SHELLDIR" = "." ] ; then
   export SHELLDIR=$PWD
 fi
 
 
 osname=`uname -s`
-if [ f$osname == f"Darwin" ]; then
+if [ f$osname = f"Darwin" ]; then
     arch=`sysctl hw | grep 64bit | awk '{print $2;}'`
     if [ $arch -eq 0 ]; then
         echo "###################################"
@@ -63,6 +63,28 @@ if [ -z "$FROM_RELEASE" ]; then
   export PATH=${ROOTSYS}/bin:$PATH
 fi
 
+# Running via ssh can lead to dis-synchronization between server and
+# client due to bugs and incompatibilities of GLX implementations.
+# Here we apply some workarounds for known problems.
+if [ f$osname != f"Darwin" -a -n "$SSH_CLIENT" ]; then
+  export LIBGL_NO_DRAWARRAYS=1
+  if ldd $ROOTSYS/lib/libRGL.so | grep libGL.so | grep -q nvidia; then
+      echo "################################################################################"
+      echo "# WARNING"
+      echo "################################################################################"
+      echo "You are running remotely on a machine that uses NVIDIA drivers."
+      echo "This is known to cause problems with some client configurations."
+      if [ -e /usr/lib64/libGL.so.1.2 ]; then
+	  echo "To avoid this problem libGL.so from MesaGL package will be preloaded."
+	  export LD_PRELOAD=/usr/lib64/libGL.so.1.2
+      else
+	  echo "Can not find replacement libGL.so from MesaGL."
+	  echo "If you run into trouble try installing mesa-libGL package on remote machine."
+      fi
+      echo "################################################################################"
+  fi
+fi
+
 # We store in originalOptions all the options that need to be passed to the
 # actual cmsShow.exe executable but not those that are specific for the wrapper
 # file itself.
@@ -109,7 +131,7 @@ else
    $SHELLDIR/cmsShow.exe $originalOptions
    exitStatus=$?
    if [ $exitStatus -gt 128 ] ; then
-      if [ "$rootflag" == "off" ] ; then
+      if [ "$rootflag" = "off" ] ; then
          echo ""
          echo "  ########################################################################"
          echo "  #                                                                      #"
