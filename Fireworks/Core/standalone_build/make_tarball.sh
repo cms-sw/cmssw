@@ -48,8 +48,14 @@ mkdir $extdl
 
 ext=`dirname ${CMSSW_DATA_PATH}`/external
 
-echo "Copying external libraries from $ext to $extdl."
+# on linux ship compiler
+gccd=${tard}/external
+if [ `uname` = "Linux" ]; then
+   echo "Copy gcc from  $ext/gcc/4.3.4-cms/ to ${gccd}"
+   cp -a $ext/gcc/4.3.4-cms/ ${gccd}/gcc
+fi
 
+echo "Copying external libraries from $ext to $extdl."
 # cp -a $ext/*/*/lib/*  ${tard}/external/lib
 for i in boost bz2lib castor clhep dcap db4 dcap \
 	elementtree expat fftw3 gdbm gsl hepmc\
@@ -60,7 +66,6 @@ do
 	echo "cp -a $ext/$i/*/lib/* === ${extdl}"
 	cp -a $ext/$i/*/lib/* ${extdl}
 done
-
 
 echo "=========================================================="
 echo "=========================================================="
@@ -92,12 +97,14 @@ mkdir -p $srcDir
 cp -a  $CMSSW_BASE/src/Fireworks/Core/macros $srcDir
 cp -a  $CMSSW_BASE/src/Fireworks/Core/icons $srcDir
 cp -a  $CMSSW_BASE/src/Fireworks/Core/data $srcDir
-cp -a  $CMSSW_BASE/src/Fireworks/Core/scripts/cmsShow $tard
+cp -a  $CMSSW_BASE/src/Fireworks/Core/scripts $srcDir
+
 
 ln -s  $CMSSW_BASE/src/Fireworks/Core/macros/default.fwc  $tard
 ln -s  $CMSSW_BASE/src/Fireworks/Core/macros/ispy.fwc  $tard
 ln -s  $CMSSW_BASE/src/Fireworks/Core/macros/pflow.fwc  $tard
 ln -s  $CMSSW_BASE/src/Fireworks/Core/macros/hfLego.fwc  $tard
+ln -s  $CMSSW_BASE/src/Fireworks/Core/scripts/cmsShow $tard
 
 cp  $CMSSW_DATA_PATH/data-Fireworks-Geometry/4-cms/Fireworks/Geometry/data/* $tard
 
@@ -117,9 +124,11 @@ mv $name data.root
 
 
 cd $origd
-echo "Creating tarball ..."
+bdir=`basename $tard`
 if [ `uname` = "Darwin" ]; then
-    echo "tar -czf ${tard}.mac.tar.gz $tard"
+    echo "Packing tarball ${bdir}.mac.tar.gz"
+    tar -czf ${bdir}.mac.tar.gz $bdir
 else
-    echo "tar -czf ${tard}.linux.tar.gz $tard"
+    echo "Packing tarball ${bdir}.linux.tar.gz"
+    tar -czf ${bdir}.linux.tar.gz $bdir
 fi
