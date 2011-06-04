@@ -14,8 +14,8 @@ Base class for a geometry container for a specific calorimetry
 subdetector.
 
 
-$Date: 2011/05/29 18:06:58 $
-$Revision: 1.25 $
+$Date: 2011/05/30 16:40:35 $
+$Revision: 1.26 $
 \author J. Mans - Minnesota
 */
 class CaloSubdetectorGeometry {
@@ -23,8 +23,6 @@ class CaloSubdetectorGeometry {
    public:
 
       typedef CaloCellGeometry::CCGFloat CCGFloat ;
-
-      typedef  std::vector< const CaloCellGeometry * > CellCont;
 
       typedef std::set<DetId>       DetIdSet;
 
@@ -41,19 +39,11 @@ class CaloSubdetectorGeometry {
       /// The base class DOES assume that it owns the CaloCellGeometry objects
       virtual ~CaloSubdetectorGeometry();
 
-      /// the cells
-      const CellCont& cellGeometries() const { return m_cellG ; }  
-
-      /// Add a cell to the geometry
-      void addCell( const DetId&      id, 
-		    CaloCellGeometry* ccg ) ;
-
-      virtual CaloCellGeometry* newCell( const GlobalPoint& f1 ,
-					 const GlobalPoint& f2 ,
-					 const GlobalPoint& f3 ,
-					 CaloCellGeometry::CornersMgr* mgr,
-					 const CCGFloat*    parm ,
-					 const DetId&       detId ) = 0 ;
+      virtual void newCell( const GlobalPoint& f1 ,
+			    const GlobalPoint& f2 ,
+			    const GlobalPoint& f3 ,
+			    const CCGFloat*    parm ,
+			    const DetId&       detId ) = 0 ;
 
       /// is this detid present in the geometry?
       virtual bool present( const DetId& id ) const;
@@ -109,11 +99,15 @@ class CaloSubdetectorGeometry {
 
    protected:
 
+      virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const = 0 ;
+
       ParVecVec m_parVecVec ;
 
       static CCGFloat deltaR( const GlobalPoint& p1,
 			      const GlobalPoint& p2  ) 
       { return reco::deltaR( p1, p2 ) ; }
+
+      mutable std::vector<DetId> m_validIds ;
 
    private:
 
@@ -125,11 +119,7 @@ class CaloSubdetectorGeometry {
       CaloSubdetectorGeometry(            const CaloSubdetectorGeometry& ) ;
       CaloSubdetectorGeometry& operator=( const CaloSubdetectorGeometry& ) ;
 
-      CellCont m_cellG ;    
-
       mutable bool m_sortedIds ;
-
-      mutable std::vector<DetId> m_validIds ;
 
       mutable std::vector<CCGFloat>*  m_deltaPhi ;
       mutable std::vector<CCGFloat>*  m_deltaEta ;

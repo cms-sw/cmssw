@@ -22,48 +22,10 @@ CaloSubdetectorGeometry::CaloSubdetectorGeometry() :
 
 CaloSubdetectorGeometry::~CaloSubdetectorGeometry() 
 { 
-/*   for( CellCont::iterator i ( m_cellG.begin() );
-	i!=m_cellG.end(); ++i )
-   {
-      delete *i ;
-   }
-*/
-   delete m_cmgr ; // must delete *after* geometries!
+   delete m_cmgr ;
    delete m_parMgr ; 
    delete m_deltaPhi ;
    delete m_deltaEta ;
-}
-
-void 
-CaloSubdetectorGeometry::addCell( const DetId&      id  , 
-				  CaloCellGeometry* ccg   )
-{
-   const CaloGenericDetId cdid ( id ) ;
-/*   if( cdid.validDetId() )
-   {
-*/
-   const uint32_t index ( cdid.denseIndex() ) ;
-
-/*
-      if( cdid.rawId() == CaloGenericDetId( cdid.det(), 
-					    cdid.subdetId(),
-					    index           ) ) // double check all is ok
-      {
-	 if( index >= m_cellG.size() ) std::cout<<" Index ="<< index<< ", but len = "<<m_cellG.size() <<std::endl ;
-*/
-	 m_cellG[    index ] = ccg ;
-	 m_validIds.push_back( id )  ;
-/*      }
-      else
-      {
-	 std::cout<<"Bad index in CaloSubdetectorGeometry.cc: "<< index 
-		  <<", id="<<cdid<< std::endl ;
-      }
-   }
-   else
-   {
-      std::cout<<"Bad id in CaloSubdetectorGeometry.cc: "<<cdid<<std::endl ;
-      }*/
 }
 
 const std::vector<DetId>& 
@@ -81,14 +43,13 @@ CaloSubdetectorGeometry::getValidDetIds( DetId::Detector det    ,
 const CaloCellGeometry* 
 CaloSubdetectorGeometry::getGeometry( const DetId& id ) const
 {
-   return m_cellG[ CaloGenericDetId( id ).denseIndex() ] ;
+   return cellGeomPtr( CaloGenericDetId( id ).denseIndex() ) ;
 }
 
 bool 
 CaloSubdetectorGeometry::present( const DetId& id ) const 
 {
-//   return m_cellG.find( id ) != m_cellG.end() ;
-   return 0 != m_cellG[ CaloGenericDetId( id ).denseIndex() ] ;
+   return 0 != cellGeomPtr( CaloGenericDetId( id ).denseIndex() )->param() ;
 }
 
 DetId 
@@ -99,23 +60,18 @@ CaloSubdetectorGeometry::getClosestCell( const GlobalPoint& r ) const
    uint32_t index ( ~0 ) ;
    CCGFloat closest ( 1e9 ) ;
 
-   CellCont::const_iterator cBeg ( cellGeometries().begin() ) ;
-   for( CellCont::const_iterator i ( cBeg ); 
-	i != m_cellG.end() ; ++i ) 
+   for( uint32_t i ( 0 ); i != m_validIds.size() ; ++i ) 
    {
-      if( 0 != *i )
+      const GlobalPoint& p ( cellGeomPtr( i )->getPosition() ) ;
+      const CCGFloat eta0 ( p.eta() ) ;
+      const CCGFloat phi0 ( p.phi() ) ;
+      const CCGFloat dR2 ( reco::deltaR2( eta0, phi0, eta, phi ) ) ;
+      if( dR2 < closest ) 
       {
-	 const GlobalPoint& p ( (*i)->getPosition() ) ;
-	 const CCGFloat eta0 ( p.eta() ) ;
-	 const CCGFloat phi0 ( p.phi() ) ;
-	 const CCGFloat dR2 ( reco::deltaR2( eta0, phi0, eta, phi ) ) ;
-	 if( dR2 < closest ) 
-	 {
-	    closest = dR2 ;
-	    index   = i - cBeg ;
-	 }
+	 closest = dR2 ;
+	 index   = i   ;
       }
-   }   
+   }
    const DetId tid ( m_validIds.front() ) ;
    return ( closest > 0.9e9 ||
 	    (uint32_t)(~0) == index       ? DetId(0) :
@@ -134,29 +90,24 @@ CaloSubdetectorGeometry::getCells( const GlobalPoint& r,
 
    DetIdSet dss;
    
-   CellCont::const_iterator cBeg ( cellGeometries().begin() ) ;
    if( 0.000001 < dR )
    {
-      for( CellCont::const_iterator i ( m_cellG.begin() ); 
-	   i != m_cellG.end() ; ++i ) 
+      for( uint32_t i ( 0 ); i != m_validIds.size() ; ++i ) 
       {
-	 if( 0 != *i )
+	 const GlobalPoint& p ( cellGeomPtr( i )->getPosition() ) ;
+	 const CCGFloat eta0 ( p.eta() ) ;
+	 if( fabs( eta - eta0 ) < dR )
 	 {
-	    const GlobalPoint& p ( (*i)->getPosition() ) ;
-	    const CCGFloat eta0 ( p.eta() ) ;
-	    if( fabs( eta - eta0 ) < dR )
+	    const CCGFloat phi0 ( p.phi() ) ;
+	    CCGFloat delp ( fabs( phi - phi0 ) ) ;
+	    if( delp > M_PI ) delp = 2*M_PI - delp ;
+	    if( delp < dR )
 	    {
-	       const CCGFloat phi0 ( p.phi() ) ;
-	       CCGFloat delp ( fabs( phi - phi0 ) ) ;
-	       if( delp > M_PI ) delp = 2*M_PI - delp ;
-	       if( delp < dR )
-	       {
-		  const CCGFloat dist2 ( reco::deltaR2( eta0, phi0, eta, phi ) ) ;
-		  const DetId tid ( m_validIds.front() ) ;
-		  if( dist2 < dR2 ) dss.insert( CaloGenericDetId( tid.det(),
-								  tid.subdetId(),
-								  i - cBeg )     ) ;
-	       }
+	       const CCGFloat dist2 ( reco::deltaR2( eta0, phi0, eta, phi ) ) ;
+	       const DetId tid ( m_validIds.front() ) ;
+	       if( dist2 < dR2 ) dss.insert( CaloGenericDetId( tid.det(),
+							       tid.subdetId(),
+							       i )     ) ;
 	    }
 	 }
       }   
@@ -172,9 +123,6 @@ CaloSubdetectorGeometry::allocateCorners( CaloCellGeometry::CornersVec::size_typ
 					      CaloCellGeometry::k_cornerSize        ) ; 
 
    m_validIds.reserve( n ) ;
-
-   m_cellG.reserve(    n ) ;
-   m_cellG.assign(     n, CellCont::value_type ( 0 ) ) ;
 }
 
 void 
@@ -190,8 +138,8 @@ CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
 				     CaloSubdetectorGeometry::IVec&   iVec ,   
 				     CaloSubdetectorGeometry::DimVec& dVec   )  const
 {
-   tVec.reserve( cellGeometries().size()*numberOfTransformParms() ) ;
-   iVec.reserve( numberOfShapes()==1 ? 1 : cellGeometries().size() ) ;
+   tVec.reserve( m_validIds.size()*numberOfTransformParms() ) ;
+   iVec.reserve( numberOfShapes()==1 ? 1 : m_validIds.size() ) ;
    dVec.reserve( numberOfShapes()*numberOfParametersPerShape() ) ;
 
    for( ParVecVec::const_iterator ivv ( parVecVec().begin() ) ; ivv != parVecVec().end() ; ++ivv )
@@ -203,15 +151,15 @@ CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
       }
    }
 
-   for( CellCont::const_iterator i ( cellGeometries().begin() ) ; 
-	i != cellGeometries().end() ; ++i )
+   for( uint32_t i ( 0 ) ; i != m_validIds.size() ; ++i )
    {
       Tr3D tr ;
-      (*i)->getTransform( tr, ( Pt3DVec* ) 0 ) ;
+      const CaloCellGeometry* ptr ( cellGeomPtr( i ) ) ;
+      ptr->getTransform( tr, ( Pt3DVec* ) 0 ) ;
 
       if( Tr3D() == tr ) // for preshower there is no rotation
       {
-	 const GlobalPoint& gp ( (*i)->getPosition() ) ; 
+	 const GlobalPoint& gp ( ptr->getPosition() ) ; 
 	 tr = HepGeom::Translate3D( gp.x(), gp.y(), gp.z() ) ;
       }
 
@@ -232,7 +180,7 @@ CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
 	 tVec.push_back( ea.Psi() ) ;
       }
 
-      const CCGFloat* par ( (*i)->param() ) ;
+      const CCGFloat* par ( ptr->param() ) ;
 
       unsigned int ishape ( 9999 ) ;
       for( unsigned int ivv ( 0 ) ; ivv != parVecVec().size() ; ++ivv )
@@ -251,7 +199,7 @@ CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
       }
       assert( 9999 != ishape ) ;
 
-      const unsigned int nn (( numberOfShapes()==1) ? (unsigned int)1 : cellGeometries().size() ) ; 
+      const unsigned int nn (( numberOfShapes()==1) ? (unsigned int)1 : m_validIds.size() ) ; 
       if( iVec.size() < nn ) iVec.push_back( ishape ) ;
    }
 }
@@ -267,7 +215,7 @@ CaloSubdetectorGeometry::deltaPhi( const DetId& detId ) const
       m_deltaPhi = new std::vector<CCGFloat> ( kSize ) ;
       for( uint32_t i ( 0 ) ; i != kSize ; ++i )
       {
-	 const CaloCellGeometry& cell ( *cellGeometries()[ i ] ) ;
+	 const CaloCellGeometry& cell ( *cellGeomPtr( i ) ) ;
 	 CCGFloat dPhi1 ( fabs(
 			   GlobalPoint( ( cell.getCorners()[0].x() + 
 					  cell.getCorners()[1].x() )/2. ,
@@ -313,7 +261,7 @@ CaloSubdetectorGeometry::deltaEta( const DetId& detId ) const
       m_deltaEta = new std::vector<CCGFloat> ( kSize ) ;
       for( uint32_t i ( 0 ) ; i != kSize ; ++i )
       {
-	 const CaloCellGeometry& cell ( *cellGeometries()[ i ] ) ;
+	 const CaloCellGeometry& cell ( *cellGeomPtr( i ) ) ;
 	 const CCGFloat dEta1 ( fabs(
 	    GlobalPoint( ( cell.getCorners()[0].x() + 
 			   cell.getCorners()[1].x() )/2. ,
