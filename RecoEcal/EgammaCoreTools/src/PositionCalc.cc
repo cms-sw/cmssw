@@ -103,11 +103,11 @@ PositionCalc::Calculate_Location( const std::vector< std::pair<DetId, float> >& 
 	     m_esGeom != iESGeom    )
 	 {
 	    m_esGeom = iESGeom ;
-	    const CaloSubdetectorGeometry::CellCont& cells ( iESGeom->cellGeometries() ) ;
-	    for( CaloSubdetectorGeometry::CellCont::const_iterator ic ( cells.begin() ) ;
-		 ic != cells.end() && ( (!m_esPlus) || (!m_esMinus) ) ; ++ic )
+	    for( uint32_t ic ( 0 ) ;
+		 ( ic != m_esGeom->getValidDetIds().size() ) &&
+		    ( (!m_esPlus) || (!m_esMinus) ) ; ++ic )
 	    {
-	       const double z ( (*ic)->getPosition().z() ) ;
+	       const double z ( m_esGeom->getGeometry( m_esGeom->getValidDetIds()[ic] )->getPosition().z() ) ;
 	       m_esPlus  = m_esPlus  || ( 0 < z ) ;
 	       m_esMinus = m_esMinus || ( 0 > z ) ;
 	    }
