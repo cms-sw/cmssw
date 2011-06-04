@@ -196,11 +196,7 @@ class CaloGeometryDBEP : public edm::ESProducer
 	    const Pt3D        gCor ( atr*lCor ) ;
 	    const GlobalPoint fCor ( gCor.x(), gCor.y(), gCor.z() ) ;
 
-	    CaloCellGeometry* cell ( 
-	       ptr->newCell(  fCtr, fBck, fCor,
-			      ptr->cornersMgr() , myParm, id ) ) ;
-
-	    ptr->addCell( id, cell ) ;    
+	    ptr->newCell(  fCtr, fBck, fCor, myParm, id ) ;
 	 }
 
 	 ptr->initializeParms() ; // initializations; must happen after cells filled
