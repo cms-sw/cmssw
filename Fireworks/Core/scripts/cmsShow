@@ -74,12 +74,21 @@ if [ f$osname != f"Darwin" -a -n "$SSH_CLIENT" ]; then
       echo "################################################################################"
       echo "You are running remotely on a machine that uses NVIDIA drivers."
       echo "This is known to cause problems with some client configurations."
-      if [ -e /usr/lib64/libGL.so.1.2 ]; then
-	  echo "To avoid this problem libGL.so from MesaGL package will be preloaded."
-	  export LD_PRELOAD=/usr/lib64/libGL.so.1.2
-      else
-	  echo "Can not find replacement libGL.so from MesaGL."
-	  echo "If you run into trouble try installing mesa-libGL package on remote machine."
+      if [ -e /etc/redhat-release ]; then
+	  grep -q 'Scientific Linux CERN SLC' /etc/redhat-release && grep -q '5.' /etc/redhat-release
+	  is_slc5=$?
+	  grep -q 'CentOS' /etc/redhat-release && grep -q '5.' /etc/redhat-release
+	  is_centos5=$?
+	  if [ $is_slc5 = 0 -o $is_centos5 = 0 ]; then
+	      echo "We are running on SLC5 or CentOS5."
+	      if [ -e /usr/lib64/libGL.so.1.2 ]; then
+		  echo "To avoid this problem libGL.so from MesaGL package will be preloaded."
+		  export LD_PRELOAD=/usr/lib64/libGL.so.1.2
+	      else
+		  echo "Can not find replacement libGL.so from MesaGL."
+		  echo "If you run into trouble try installing mesa-libGL package on remote machine."
+	      fi
+	  fi
       fi
       echo "################################################################################"
   fi
