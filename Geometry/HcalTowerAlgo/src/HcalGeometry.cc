@@ -359,11 +359,10 @@ HcalGeometry::localCorners( Pt3DVec&        lc  ,
    }
 }
 
-CaloCellGeometry* 
+void
 HcalGeometry::newCell( const GlobalPoint& f1 ,
 		       const GlobalPoint& f2 ,
 		       const GlobalPoint& f3 ,
-		       CaloCellGeometry::CornersMgr* mgr,
 		       const CCGFloat*    parm ,
 		       const DetId&       detId   ) 
 {
@@ -375,16 +374,14 @@ HcalGeometry::newCell( const GlobalPoint& f1 ,
 
    if( cgid.isHB() )
    {
-      m_hbCellVec[ din ] = IdealObliquePrism( f1, mgr, parm ) ;
-      return &m_hbCellVec[ din ] ;
+      m_hbCellVec[ din ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
    }
    else
    {
       if( cgid.isHE() )
       {
 	 const unsigned int index ( din - m_hbCellVec.size() ) ;
-	 m_heCellVec[ index ] = IdealObliquePrism( f1, mgr, parm ) ;
-	 return &m_heCellVec[ index ] ;
+	 m_heCellVec[ index ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
       }
       else
       {
@@ -393,7 +390,45 @@ HcalGeometry::newCell( const GlobalPoint& f1 ,
 	    const unsigned int index ( din 
 				       - m_hbCellVec.size() 
 				       - m_heCellVec.size() ) ;
-	    m_hoCellVec[ index ] = IdealObliquePrism( f1, mgr, parm ) ;
+	    m_hoCellVec[ index ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
+	 }
+	 else
+	 {
+	    const unsigned int index ( din 
+				       - m_hbCellVec.size() 
+				       - m_heCellVec.size() 
+				       - m_hoCellVec.size() ) ;
+	    m_hfCellVec[ index ] = IdealZPrism( f1, cornersMgr(), parm ) ;
+	 }
+      }
+   }
+   m_validIds.push_back( detId ) ;
+}
+
+const CaloCellGeometry* 
+HcalGeometry::cellGeomPtr( uint32_t din ) const
+{
+   if( m_hbCellVec.size() > din )
+   {
+      return &m_hbCellVec[ din ] ;
+   }
+   else
+   {
+      if( m_hbCellVec.size() +
+	  m_heCellVec.size() > din )
+      {
+	 const unsigned int index ( din - m_hbCellVec.size() ) ;
+	 return &m_heCellVec[ index ] ;
+      }
+      else
+      {
+	 if( m_hbCellVec.size() +
+	     m_heCellVec.size() +
+	     m_hoCellVec.size() > din )
+	 {
+	    const unsigned int index ( din 
+				       - m_hbCellVec.size() 
+				       - m_heCellVec.size() ) ;
 	    return &m_hoCellVec[ index ] ;
 	 }
 	 else
@@ -402,7 +437,6 @@ HcalGeometry::newCell( const GlobalPoint& f1 ,
 				       - m_hbCellVec.size() 
 				       - m_heCellVec.size() 
 				       - m_hoCellVec.size() ) ;
-	    m_hfCellVec[ index ] = IdealZPrism( f1, mgr, parm ) ;
 	    return &m_hfCellVec[ index ] ;
 	 }
       }

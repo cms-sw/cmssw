@@ -118,11 +118,10 @@ CastorGeometry::localCorners( Pt3DVec&        lc  ,
    IdealCastorTrapezoid::localCorners( lc, pv, ref ) ;
 }
 
-CaloCellGeometry* 
+void
 CastorGeometry::newCell( const GlobalPoint& f1 ,
 			 const GlobalPoint& f2 ,
 			 const GlobalPoint& f3 ,
-			 CaloCellGeometry::CornersMgr* mgr,
 			 const CCGFloat*    parm ,
 			 const DetId&       detId   ) 
 {
@@ -132,7 +131,12 @@ CastorGeometry::newCell( const GlobalPoint& f1 ,
 
    const unsigned int di ( cgid.denseIndex() ) ;
 
-   m_cellVec[ di ] = IdealCastorTrapezoid( f1, mgr, parm ) ;
+   m_cellVec[ di ] = IdealCastorTrapezoid( f1, cornersMgr(), parm ) ;
+   m_validIds.push_back( detId ) ;
+}
 
-   return &m_cellVec[ di ] ;
+const CaloCellGeometry* 
+CastorGeometry::cellGeomPtr( uint32_t index ) const
+{
+   return &m_cellVec[ index ] ;
 }

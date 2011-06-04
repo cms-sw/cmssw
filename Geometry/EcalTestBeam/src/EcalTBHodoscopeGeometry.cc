@@ -53,11 +53,10 @@ EcalTBHodoscopeGeometry::getNFibres()
    return nFibres_;
 }
 
-CaloCellGeometry* 
+void
 EcalTBHodoscopeGeometry::newCell( const GlobalPoint& f1 ,
 				  const GlobalPoint& f2 ,
 				  const GlobalPoint& f3 ,
-				  CaloCellGeometry::CornersMgr* mgr,
 				  const CCGFloat*    parm ,
 				  const DetId&       detId   ) 
 {
@@ -65,9 +64,8 @@ EcalTBHodoscopeGeometry::newCell( const GlobalPoint& f1 ,
 
    const unsigned int cellIndex ( hid.denseIndex() ) ;
 
-   m_cellVec[ cellIndex ] = PreshowerStrip( f1, mgr, parm ) ;
-
-   return &m_cellVec[ cellIndex ] ;
+   m_cellVec[ cellIndex ] = PreshowerStrip( f1, cornersMgr(), parm ) ;
+   m_validIds.push_back( detId ) ;
 }
 
 const EcalTBHodoscopeGeometry::fibre_pos 
@@ -374,4 +372,10 @@ EcalTBHodoscopeGeometry::getFiredFibresInPlane( float xtr,
 	  ( xtr <= fibrePos_[plane][i].rp )     ) firedFibres.push_back(i);
    }
    return firedFibres ;
+}
+
+const CaloCellGeometry* 
+EcalTBHodoscopeGeometry::cellGeomPtr( uint32_t index ) const
+{
+   return &m_cellVec[ index ] ;
 }

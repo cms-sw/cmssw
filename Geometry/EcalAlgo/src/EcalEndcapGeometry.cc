@@ -59,28 +59,24 @@ EcalEndcapGeometry::initializeParms()
   unsigned nN=0;
   m_nref = 0 ;
 
-  for( uint32_t i ( 0 ) ; i != cellGeometries().size() ; ++i )
+  for( uint32_t i ( 0 ) ; i != m_cellVec.size() ; ++i )
   {
-     if( 0 != cellGeometries()[i] )
+     const CCGFloat z ( cellGeomPtr(i)->getPosition().z() ) ;
+     if(z>0.)
      {
-//      addCrystalToZGridmap(i->first,dynamic_cast<const TruncatedPyramid*>(i->second));
-	const CCGFloat z ( cellGeometries()[i]->getPosition().z() ) ;
-	if(z>0.)
-	{
-	   zeP+=z;
-	   ++nP;
-	}
-	else
-	{
-	   zeN+=z;
-	   ++nN;
-	}
-	const EEDetId myId ( EEDetId::detIdFromDenseIndex(i) ) ;
-	const unsigned int ix ( myId.ix() ) ;
-	const unsigned int iy ( myId.iy() ) ;
-	if( ix > m_nref ) m_nref = ix ;
-	if( iy > m_nref ) m_nref = iy ;
+	zeP+=z;
+	++nP;
      }
+     else
+     {
+	zeN+=z;
+	++nN;
+     }
+     const EEDetId myId ( EEDetId::detIdFromDenseIndex(i) ) ;
+     const unsigned int ix ( myId.ix() ) ;
+     const unsigned int iy ( myId.iy() ) ;
+     if( ix > m_nref ) m_nref = ix ;
+     if( iy > m_nref ) m_nref = iy ;
   }
   if( 0 < nP ) zeP/=(CCGFloat)nP;
   if( 0 < nN ) zeN/=(CCGFloat)nN;
@@ -93,26 +89,23 @@ EcalEndcapGeometry::initializeParms()
   m_xhi[1] = -999 ;
   m_ylo[1] =  999 ;
   m_yhi[1] = -999 ;
-  for( uint32_t i ( 0 ) ; i != cellGeometries().size() ; ++i )
+  for( uint32_t i ( 0 ) ; i != m_cellVec.size() ; ++i )
   {
-     if( 0 != cellGeometries()[i] )
-     {
-	const GlobalPoint p ( cellGeometries()[i]->getPosition()  ) ;
-	const CCGFloat z ( p.z() ) ;
-	const CCGFloat zz ( 0 > z ? zeN : zeP ) ;
-	const CCGFloat x ( p.x()*zz/z ) ;
-	const CCGFloat y ( p.y()*zz/z ) ;
+     const GlobalPoint p ( cellGeomPtr(i)->getPosition()  ) ;
+     const CCGFloat z ( p.z() ) ;
+     const CCGFloat zz ( 0 > z ? zeN : zeP ) ;
+     const CCGFloat x ( p.x()*zz/z ) ;
+     const CCGFloat y ( p.y()*zz/z ) ;
 
-	if( 0 > z && x < m_xlo[0] ) m_xlo[0] = x ;
-	if( 0 < z && x < m_xlo[1] ) m_xlo[1] = x ;
-	if( 0 > z && y < m_ylo[0] ) m_ylo[0] = y ;
-	if( 0 < z && y < m_ylo[1] ) m_ylo[1] = y ;
-
-	if( 0 > z && x > m_xhi[0] ) m_xhi[0] = x ;
-	if( 0 < z && x > m_xhi[1] ) m_xhi[1] = x ;
-	if( 0 > z && y > m_yhi[0] ) m_yhi[0] = y ;
-	if( 0 < z && y > m_yhi[1] ) m_yhi[1] = y ;
-     }
+     if( 0 > z && x < m_xlo[0] ) m_xlo[0] = x ;
+     if( 0 < z && x < m_xlo[1] ) m_xlo[1] = x ;
+     if( 0 > z && y < m_ylo[0] ) m_ylo[0] = y ;
+     if( 0 < z && y < m_ylo[1] ) m_ylo[1] = y ;
+     
+     if( 0 > z && x > m_xhi[0] ) m_xhi[0] = x ;
+     if( 0 < z && x > m_xhi[1] ) m_xhi[1] = x ;
+     if( 0 > z && y > m_yhi[0] ) m_yhi[0] = y ;
+     if( 0 < z && y > m_yhi[1] ) m_yhi[1] = y ;
   }
 
   m_xoff[0] = ( m_xhi[0] + m_xlo[0] )/2. ;
@@ -459,18 +452,17 @@ EcalEndcapGeometry::localCorners( Pt3DVec&        lc  ,
    TruncatedPyramid::localCorners( lc, pv, ref ) ;
 }
 
-CaloCellGeometry* 
+void
 EcalEndcapGeometry::newCell( const GlobalPoint& f1 ,
 			     const GlobalPoint& f2 ,
 			     const GlobalPoint& f3 ,
-			     CaloCellGeometry::CornersMgr* mgr,
 			     const CCGFloat*    parm ,
 			     const DetId&       detId   ) 
 {
    const unsigned int cellIndex ( EEDetId( detId ).denseIndex() ) ;
    m_cellVec[ cellIndex ] =
-      TruncatedPyramid( mgr, f1, f2, f3, parm ) ;
-   return &m_cellVec[ cellIndex ] ;
+      TruncatedPyramid( cornersMgr(), f1, f2, f3, parm ) ;
+   m_validIds.push_back( detId ) ;
 }
 
 
@@ -480,15 +472,20 @@ EcalEndcapGeometry::avgAbsZFrontFaceCenter() const
    if( 0 > m_avgZ )
    {
       CCGFloat sum ( 0 ) ;
-      const CaloSubdetectorGeometry::CellCont& cells ( cellGeometries() ) ;
-      for( unsigned int i ( 0 ) ; i != cells.size() ; ++i )
+      for( unsigned int i ( 0 ) ; i != m_cellVec.size() ; ++i )
       {
-	 if( 0 != cells[i] )
+	 if( 0 != cellGeomPtr(i)->param() )
 	 {
-	    sum += fabs( cells[i]->getPosition().z() ) ;
+	    sum += fabs( cellGeomPtr(i)->getPosition().z() ) ;
 	 }
       }
-      m_avgZ = sum/cells.size() ;
+      m_avgZ = sum/m_cellVec.size() ;
    }
    return m_avgZ ;
+}
+
+const CaloCellGeometry* 
+EcalEndcapGeometry::cellGeomPtr( uint32_t index ) const
+{
+   return &m_cellVec[ index ] ;
 }

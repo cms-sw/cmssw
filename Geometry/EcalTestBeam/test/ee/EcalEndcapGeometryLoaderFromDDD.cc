@@ -71,10 +71,9 @@ EcalEGL::fillGeom( EcalEndcapGeometry*     geom ,
 				    corners[6].z() + 
 				    corners[7].z()   ) ) ;
 
-   geom->addCell( id, geom->newCell( front, back, corners[0],
-				     geom->cornersMgr() ,
-				     parmPtr, 
-				     id ) ) ;
+   geom->newCell( front, back, corners[0],
+		  parmPtr, 
+		  id ) ;
 }
 
 template <>

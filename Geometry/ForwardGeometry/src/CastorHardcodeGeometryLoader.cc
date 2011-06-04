@@ -91,11 +91,11 @@ CastorHardcodeGeometryLoader::fill( HcalCastorDetId::Section section ,
 	   castorIdItr ( castorIds.begin() ) ;
 	castorIdItr != castorIds.end() ; ++castorIdItr )
    {
-      geom->addCell( *castorIdItr, makeCell( *castorIdItr, geom ) ) ;
+      makeCell( *castorIdItr, geom ) ;
    }
 }
 
-CaloCellGeometry*
+void
 CastorHardcodeGeometryLoader::makeCell( const HcalCastorDetId&   detId , 
 					CaloSubdetectorGeometry* geom   ) const 
 {
@@ -172,12 +172,11 @@ CastorHardcodeGeometryLoader::makeCell( const HcalCastorDetId&   detId ,
    zz.push_back( an ) ;
    zz.push_back( dR ) ;
 
-   return geom->newCell( fc, fc, fc, 
-			 geom->cornersMgr(),
-			 CaloCellGeometry::getParmPtr( zz, 
-						       geom->parMgr(), 
-						       geom->parVecVec() ),
-			 detId ) ;
+   geom->newCell( fc, fc, fc, 
+		  CaloCellGeometry::getParmPtr( zz, 
+						geom->parMgr(), 
+						geom->parVecVec() ),
+		  detId ) ;
 }
 
 

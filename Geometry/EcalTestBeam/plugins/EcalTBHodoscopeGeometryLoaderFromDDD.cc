@@ -102,10 +102,9 @@ EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(
 
       //Adding cell to the Geometry
 
-      ebg->addCell( detId, ebg->newCell( refPoint, refPoint, refPoint,
-					 ebg->cornersMgr(),
-					 pP, 
-					 detId ) ) ;
+      ebg->newCell( refPoint, refPoint, refPoint,
+		    pP, 
+		    detId ) ;
    } // loop over all children
 }
 

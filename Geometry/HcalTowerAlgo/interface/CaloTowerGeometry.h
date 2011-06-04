@@ -11,8 +11,8 @@
   *  
   * Only DetId::Calo, subdet=1 DetIds are handled by this class.
   *
-  * $Date: 2009/05/25 09:45:20 $
-  * $Revision: 1.5 $
+  * $Date: 2011/05/29 18:40:09 $
+  * $Revision: 1.6 $
   * \author J. Mans - Minnesota
   */
 class CaloTowerGeometry : public CaloSubdetectorGeometry 
@@ -58,12 +58,15 @@ class CaloTowerGeometry : public CaloSubdetectorGeometry
 				unsigned int    i   ,
 				Pt3D&           ref   ) ;
 
-      virtual CaloCellGeometry* newCell( const GlobalPoint& f1 ,
-					 const GlobalPoint& f2 ,
-					 const GlobalPoint& f3 ,
-					 CaloCellGeometry::CornersMgr* mgr,
-					 const CCGFloat*    parm,
-					 const DetId&       detId     ) ;
+      virtual void newCell( const GlobalPoint& f1 ,
+			    const GlobalPoint& f2 ,
+			    const GlobalPoint& f3 ,
+			    const CCGFloat*    parm,
+			    const DetId&       detId     ) ;
+   protected:
+
+      virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
+
    private:
 
       CellVec m_cellVec ;

@@ -114,7 +114,7 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector          subdet,
 #endif
         HcalDetId id(subdet, etaRing, iphi, depthBin);
         hcalIds.push_back(id);
-        geom->addCell( id, makeCell(id,hcalCells[i],phi,dphi,geom) );
+        makeCell(id,hcalCells[i],phi,dphi,geom) ;
       }
       if (hcalCells[i].nHalves() > 1) {
         ok = true;
@@ -129,7 +129,7 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector          subdet,
 #endif
           HcalDetId id(subdet, -etaRing, iphi, depthBin);
           hcalIds.push_back(id);
-  	  geom->addCell( id, makeCell(id,hcalCells[i],phi,dphi,geom) );
+  	  makeCell(id,hcalCells[i],phi,dphi,geom) ;
         }
       }
       iphi += phiInc;
@@ -141,7 +141,7 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector          subdet,
 			   << " is " << hcalIds.size();
 }
 
-CaloCellGeometry* 
+void
 HcalDDDGeometryLoader::makeCell( const HcalDetId& detId,
 				 HcalCellType hcalCell,
 				 double phi, 
@@ -235,10 +235,9 @@ HcalDDDGeometryLoader::makeCell( const HcalDetId& detId,
     hp.push_back(dphi/2.) ;
     hp.push_back(sign*thickness/2.) ;
   }
-  return geom->newCell( point, point, point,
-			geom->cornersMgr(),
-			CaloCellGeometry::getParmPtr( hp, 
-						      geom->parMgr(), 
-						      geom->parVecVec() ),
-			detId ) ;
+  geom->newCell( point, point, point,
+		 CaloCellGeometry::getParmPtr( hp, 
+					       geom->parMgr(), 
+					       geom->parVecVec() ),
+		 detId ) ;
 }

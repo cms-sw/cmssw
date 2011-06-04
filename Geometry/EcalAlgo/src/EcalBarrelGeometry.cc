@@ -454,43 +454,37 @@ EcalBarrelGeometry::localCorners( Pt3DVec&        lc  ,
    }
 }
 
-CaloCellGeometry* 
+void
 EcalBarrelGeometry::newCell( const GlobalPoint& f1 ,
 			     const GlobalPoint& f2 ,
 			     const GlobalPoint& f3 ,
-			     CaloCellGeometry::CornersMgr* mgr,
 			     const CCGFloat*    parm ,
 			     const DetId&       detId   ) 
 {
    const unsigned int cellIndex ( EBDetId( detId ).denseIndex() ) ;
    m_cellVec[ cellIndex ] =
-      TruncatedPyramid( mgr, f1, f2, f3, parm ) ;
-   return &m_cellVec[ cellIndex ] ;
+      TruncatedPyramid( cornersMgr(), f1, f2, f3, parm ) ;
+   m_validIds.push_back( detId ) ;
 }
-/*
-CaloCellGeometry* 
-EcalBarrelGeometry::newCell( const CaloCellGeometry::CornersVec& corners ,
-			     const CCGFloat*                        parm ,
-			     const DetId&                          detId )
-{
-   const unsigned int cellIndex ( EBDetId( detId ).denseIndex() ) ;
-   m_cellVec[ cellIndex ] = TruncatedPyramid( corners, parm ) ;
-   return &m_cellVec[ cellIndex ] ;
-}
-*/
+
 CCGFloat 
 EcalBarrelGeometry::avgRadiusXYFrontFaceCenter() const 
 {
    if( 0 > m_radius )
    {
       CCGFloat sum ( 0 ) ;
-      const CaloSubdetectorGeometry::CellCont& cells ( cellGeometries() ) ;
-      for( unsigned int i ( 0 ) ; i != cells.size() ; ++i )
+      for( uint32_t i ( 0 ) ; i != m_cellVec.size() ; ++i )
       {
-	 sum += cells[i]->getPosition().perp() ;
+	 const GlobalPoint& pos ( cellGeomPtr(i)->getPosition() ) ;
+	 sum += pos.perp() ;
       }
-      m_radius = sum/cells.size() ;
+      m_radius = sum/m_cellVec.size() ;
    }
    return m_radius ;
 }
 
+const CaloCellGeometry* 
+EcalBarrelGeometry::cellGeomPtr( uint32_t index ) const
+{
+   return &m_cellVec[ index ] ;
+}

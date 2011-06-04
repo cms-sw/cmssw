@@ -54,7 +54,7 @@ EcalPGL::fillGeom( EcalPreshowerGeometry*      geom ,
 
    const CCGFloat tilt ( asin( 0.5*zdif/( vv[1]>vv[0] ? vv[1] : vv[0] ) ) ) ;
 
-   vv.push_back( tilt ) ;
+   vv.push_back( 0 ) ; //tilt ) ;
 
    const CCGFloat* pP ( CaloCellGeometry::getParmPtr( vv, 
 						      geom->parMgr(), 
@@ -64,17 +64,15 @@ EcalPGL::fillGeom( EcalPreshowerGeometry*      geom ,
 
    const GlobalPoint refPoint ( ctr.x(), ctr.y(), ctr.z() ) ;
 
-   PreshowerStrip* cell ( new PreshowerStrip( refPoint,
-					      geom->cornersMgr(),
-					      pP ) ) ;
-
-   geom->addCell( id, cell );
+   geom->newCell( refPoint, refPoint, refPoint,
+		  pP,
+		  id );
 }
 
 template <>
 void 
 EcalPGL::fillNamedParams( DDFilteredView         fv   ,
-						     EcalPreshowerGeometry* geom  )
+			  EcalPreshowerGeometry* geom  )
 {
    // nothing yet for preshower
 }

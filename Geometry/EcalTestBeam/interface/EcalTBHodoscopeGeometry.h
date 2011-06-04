@@ -20,12 +20,11 @@ class EcalTBHodoscopeGeometry : public CaloSubdetectorGeometry
       EcalTBHodoscopeGeometry() ;
       ~EcalTBHodoscopeGeometry() ;
 
-      virtual CaloCellGeometry* newCell( const GlobalPoint& f1 ,
-					 const GlobalPoint& f2 ,
-					 const GlobalPoint& f3 ,
-					 CaloCellGeometry::CornersMgr* mgr,
-					 const CCGFloat*    parm ,
-					 const DetId&       detId   ) ;
+      virtual void newCell( const GlobalPoint& f1 ,
+			    const GlobalPoint& f2 ,
+			    const GlobalPoint& f3 ,
+			    const CCGFloat*    parm ,
+			    const DetId&       detId   ) ;
 
       static float getFibreLp( int plane, int fibre ) ;
       
@@ -36,6 +35,10 @@ class EcalTBHodoscopeGeometry : public CaloSubdetectorGeometry
       static int getNPlanes() ;
       
       static int getNFibres() ;
+
+   protected:
+
+      virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
       
    private:
       

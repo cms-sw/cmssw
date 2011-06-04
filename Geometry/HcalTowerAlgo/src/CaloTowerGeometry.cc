@@ -50,11 +50,10 @@ CaloTowerGeometry::localCorners( Pt3DVec&        lc  ,
    IdealObliquePrism::localCorners( lc, pv, ref ) ;
 }
 
-CaloCellGeometry* 
+void
 CaloTowerGeometry::newCell( const GlobalPoint& f1 ,
 			    const GlobalPoint& f2 ,
 			    const GlobalPoint& f3 ,
-			    CaloCellGeometry::CornersMgr* mgr,
 			    const CCGFloat*    parm ,
 			    const DetId&       detId   ) 
 {
@@ -64,7 +63,12 @@ CaloTowerGeometry::newCell( const GlobalPoint& f1 ,
 
    const unsigned int di ( cgid.denseIndex() ) ;
 
-   m_cellVec[ di ] = IdealObliquePrism( f1, mgr, parm ) ;
+   m_cellVec[ di ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
+   m_validIds.push_back( detId ) ;
+}
 
-   return &m_cellVec[ di ] ;
+const CaloCellGeometry* 
+CaloTowerGeometry::cellGeomPtr( uint32_t index ) const
+{
+   return &m_cellVec[ index ] ;
 }

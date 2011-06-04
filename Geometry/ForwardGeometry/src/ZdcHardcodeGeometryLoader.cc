@@ -74,11 +74,11 @@ void ZdcHardcodeGeometryLoader::fill( HcalZDCDetId::Section section,
  for(std::vector<HcalZDCDetId>::const_iterator zdcIdItr = zdcIds.begin();
      zdcIdItr != zdcIds.end(); ++zdcIdItr)
    {
-      geom->addCell( *zdcIdItr, makeCell(*zdcIdItr, geom ) );
+      makeCell( *zdcIdItr, geom ) ;
    }
 }
 
-CaloCellGeometry*
+void
 ZdcHardcodeGeometryLoader::makeCell(const HcalZDCDetId& detId,
 				    ReturnType          geom) const 
 {
@@ -178,12 +178,11 @@ ZdcHardcodeGeometryLoader::makeCell(const HcalZDCDetId& detId,
    zz.push_back( dy ) ;
    zz.push_back( dz ) ;
 
-   return geom->newCell( fc, fc, fc, 
-			 geom->cornersMgr(),
-			 CaloCellGeometry::getParmPtr( zz, 
-						       geom->parMgr(), 
-						       geom->parVecVec() ),
-			 detId ) ;
+   geom->newCell( fc, fc, fc, 
+		  CaloCellGeometry::getParmPtr( zz, 
+						geom->parMgr(), 
+						geom->parVecVec() ),
+		  detId ) ;
 }
 
 

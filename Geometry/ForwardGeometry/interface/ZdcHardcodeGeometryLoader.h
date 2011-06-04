@@ -11,8 +11,8 @@ class HcalZDCDetId;
 
 /** \class ZdcHardcodeGeometryLoader
  *
- * $Date: 2008/04/21 22:20:16 $
- * $Revision: 1.3 $
+ * $Date: 2008/08/27 15:53:47 $
+ * $Revision: 1.4 $
  * \author E. Garcia - UIC
 */
 
@@ -31,8 +31,8 @@ public:
 private:
   void init();
   void fill(HcalZDCDetId::Section section,CaloSubdetectorGeometry* cg);
-  CaloCellGeometry* makeCell(const HcalZDCDetId & detId,
-			     CaloSubdetectorGeometry* geom) const;
+  void makeCell(const HcalZDCDetId & detId,
+		CaloSubdetectorGeometry* geom) const;
 
   ZdcTopology*       theTopology;
   const ZdcTopology* extTopology;

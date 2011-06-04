@@ -280,16 +280,12 @@ namespace {
 // 	  std::cout << "HcalFlexiHardcodeGeometryLoader::fillHBHO-> " << hid << hid.ieta() << '/' << hid.iphi() << '/' << hid.depth()
 // 		    << refPoint << '/' << cellParams [0] << '/' << cellParams [1] << '/' << cellParams [2] << std::endl;
 	  
-	  CaloCellGeometry* newcell (  
-	     fGeometry->newCell( refPoint,  refPoint,  refPoint, 
-				 fGeometry->cornersMgr(),
-				 CaloCellGeometry::getParmPtr(
-				    cellParams, 
-				    fGeometry->parMgr(), 
-				    fGeometry->parVecVec() ),
-				 hid ) ) ;
-	  // ... and store it
-	  fGeometry->addCell (hid, newcell);
+	  fGeometry->newCell( refPoint,  refPoint,  refPoint, 
+			      CaloCellGeometry::getParmPtr(
+				 cellParams, 
+				 fGeometry->parMgr(), 
+				 fGeometry->parVecVec() ),
+			      hid ) ;
 	}
       }
     }
@@ -320,16 +316,12 @@ namespace {
 	  
 // 	  std::cout << "HcalFlexiHardcodeGeometryLoader::fillHE-> " << hid << refPoint << '/' << cellParams [0] << '/' << cellParams [1] << '/' << cellParams [2] << std::endl;
 	  
-	  CaloCellGeometry* newcell (
-	     fGeometry->newCell( refPoint,  refPoint,  refPoint, 
-				 fGeometry->cornersMgr(),
-				 CaloCellGeometry::getParmPtr(
-				    cellParams, 
-				    fGeometry->parMgr(), 
-				    fGeometry->parVecVec() ) ,
-				 hid ) ) ;
-	  // ... and store it
-	  fGeometry->addCell (hid, newcell);
+	  fGeometry->newCell( refPoint,  refPoint,  refPoint, 
+			      CaloCellGeometry::getParmPtr(
+				 cellParams, 
+				 fGeometry->parMgr(), 
+				 fGeometry->parVecVec() ) ,
+			      hid ) ;
 	}
       }
     }
@@ -364,16 +356,12 @@ namespace {
 	  
 // 	  std::cout << "HcalFlexiHardcodeGeometryLoader::fillHF-> " << hid << refPoint << '/' << cellParams [0] << '/' << cellParams [1] << '/' << cellParams [2] << std::endl;
 	  
-	  CaloCellGeometry* newcell (
-	     fGeometry->newCell( refPoint,  refPoint,  refPoint, 
-				 fGeometry->cornersMgr(),
-				 CaloCellGeometry::getParmPtr(
-				    cellParams, 
-				    fGeometry->parMgr(), 
-				    fGeometry->parVecVec() ),
-				 hid ) ) ;
-	  // ... and store it
-	  fGeometry->addCell (hid, newcell);						       
+	  fGeometry->newCell( refPoint,  refPoint,  refPoint, 
+			      CaloCellGeometry::getParmPtr(
+				 cellParams, 
+				 fGeometry->parMgr(), 
+				 fGeometry->parVecVec() ),
+			      hid ) ;
 	}
       }
     }

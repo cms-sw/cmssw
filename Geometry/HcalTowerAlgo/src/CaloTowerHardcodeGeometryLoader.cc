@@ -36,7 +36,7 @@ std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load() {
     for (int iphi=1; iphi<=72; iphi++) {
       if (abs(ieta)>=limits.firstHFQuadPhiRing() && ((iphi-1)%4)==0) continue;
       if (abs(ieta)>=limits.firstHEDoublePhiRing() && ((iphi-1)%2)!=0) continue;
-      geom->addCell(CaloTowerDetId(ieta,iphi),makeCell(ieta,iphi, geom));
+      makeCell(ieta,iphi, geom);
       n++;
     }
   }
@@ -44,7 +44,7 @@ std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load() {
   return std::auto_ptr<CaloSubdetectorGeometry>(geom); 
 }
 
-CaloCellGeometry* 
+void
 CaloTowerHardcodeGeometryLoader::makeCell( int ieta,
 					   int iphi,
 					   CaloSubdetectorGeometry* geom ) const {
@@ -111,10 +111,9 @@ CaloTowerHardcodeGeometryLoader::makeCell( int ieta,
   hh.push_back( fabs( eta ) ) ;
   hh.push_back( fabs( z ) ) ;
 
-  return geom->newCell( point, point, point,
-			geom->cornersMgr(),
-			CaloCellGeometry::getParmPtr( hh, 
-						      geom->parMgr(), 
-						      geom->parVecVec() ),
-			CaloTowerDetId( ieta, iphi ) ) ;
+  geom->newCell( point, point, point,
+		 CaloCellGeometry::getParmPtr( hh, 
+					       geom->parMgr(), 
+					       geom->parVecVec() ),
+		 CaloTowerDetId( ieta, iphi ) ) ;
 }

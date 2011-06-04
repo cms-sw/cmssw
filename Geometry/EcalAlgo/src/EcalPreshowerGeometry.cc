@@ -79,7 +79,6 @@ EcalPreshowerGeometry::alignmentTransformIndexGlobal( const DetId& id )
 void 
 EcalPreshowerGeometry::initializeParms() 
 {
-   typedef CaloSubdetectorGeometry::CellCont Cont ;
    unsigned int n1minus ( 0 ) ;
    unsigned int n2minus ( 0 ) ;
    unsigned int n1plus ( 0 ) ;
@@ -89,20 +88,20 @@ EcalPreshowerGeometry::initializeParms()
    CCGFloat z1plus ( 0 ) ;
    CCGFloat z2plus ( 0 ) ;
    const std::vector<DetId>& esDetIds ( getValidDetIds() ) ;
-   const Cont& con ( cellGeometries() ) ;
-   for( unsigned int i ( 0 ) ; i != con.size() ; ++i )
+
+   for( unsigned int i ( 0 ) ; i != m_cellVec.size() ; ++i )
    {
       const ESDetId esid ( esDetIds[i] ) ;
       if( 1 == esid.plane() )
       {
 	 if( 0 > esid.zside() )
 	 {
-	    z1minus += con[i]->getPosition().z() ;
+	    z1minus += cellGeomPtr(i)->getPosition().z() ;
 	    ++n1minus ;
 	 }
 	 else
 	 {
-	    z1plus += con[i]->getPosition().z() ;
+	    z1plus += cellGeomPtr(i)->getPosition().z() ;
 	    ++n1plus ;
 	 }
       }
@@ -110,12 +109,12 @@ EcalPreshowerGeometry::initializeParms()
       {
 	 if( 0 > esid.zside() )
 	 {
-	    z2minus += con[i]->getPosition().z() ;
+	    z2minus += cellGeomPtr(i)->getPosition().z() ;
 	    ++n2minus ;
 	 }
 	 else
 	 {
-	    z2plus += con[i]->getPosition().z() ;
+	    z2plus += cellGeomPtr(i)->getPosition().z() ;
 	    ++n2plus ;
 	 }
       }
@@ -211,7 +210,7 @@ EcalPreshowerGeometry::getClosestCellInPlane( const GlobalPoint& point,
 	    {
 	       const ESDetId esId ( jstrip, jx, jy, plane, jz ) ;
 	       const unsigned int index ( esId.denseIndex() ) ;
-	       const GlobalPoint& p ( cellGeometries()[ index ]->getPosition() ) ;
+	       const GlobalPoint& p ( cellGeomPtr( index )->getPosition() ) ;
 	       const CCGFloat dist2 ( (p.x()-xe)*(p.x()-xe) + (p.y()-ye)*(p.y()-ye) ) ;
 	       if( dist2 < closest && present( esId ) )
 	       {
@@ -234,15 +233,20 @@ EcalPreshowerGeometry::localCorners( Pt3DVec&        lc  ,
    PreshowerStrip::localCorners( lc, pv, ref ) ;
 }
 
-CaloCellGeometry* 
+void
 EcalPreshowerGeometry::newCell( const GlobalPoint& f1 ,
 				const GlobalPoint& f2 ,
 				const GlobalPoint& f3 ,
-				CaloCellGeometry::CornersMgr* mgr,
 				const CCGFloat*    parm ,
 				const DetId&       detId    ) 
 {
    const unsigned int cellIndex ( ESDetId( detId ).denseIndex() ) ;
-   m_cellVec[ cellIndex ] = PreshowerStrip( f1, mgr, parm ) ;
-   return &m_cellVec[ cellIndex ] ;
+   m_cellVec[ cellIndex ] = PreshowerStrip( f1, cornersMgr(), parm ) ;
+   m_validIds.push_back( detId ) ;
+}
+
+const CaloCellGeometry* 
+EcalPreshowerGeometry::cellGeomPtr( uint32_t index ) const
+{
+   return &m_cellVec[ index ] ;
 }

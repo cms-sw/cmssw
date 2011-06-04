@@ -81,12 +81,14 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
 				unsigned int    i   ,
 				Pt3D&           ref   ) ;
 
-      virtual CaloCellGeometry* newCell( const GlobalPoint& f1 ,
-					 const GlobalPoint& f2 ,
-					 const GlobalPoint& f3 ,
-					 CaloCellGeometry::CornersMgr* mgr,
-					 const CCGFloat*    parm ,
-					 const DetId&       detId   ) ;
+      virtual void newCell( const GlobalPoint& f1 ,
+			    const GlobalPoint& f2 ,
+			    const GlobalPoint& f3 ,
+			    const CCGFloat*    parm ,
+			    const DetId&       detId   ) ;
+   protected:
+
+      virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
 
    private:
 
