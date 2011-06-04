@@ -17,7 +17,7 @@ namespace Rivet {
 
 //AK =====================================================INIT
     void init() {
-      ChargedFinalState cfs(-2.5, 2.5, 0.0*GeV);
+      ChargedFinalState cfs(-2.5, 2.5, 0.1*GeV);
       addProjection(cfs, "CFS");
       addProjection(Beam(), "Beam");
 
@@ -80,8 +80,8 @@ namespace Rivet {
     void analyze(const Event& event) {
       const double weight = event.weight();
 
-//AK       //charge particles
-//AK       const ChargedFinalState& charged = applyProjection<ChargedFinalState>(event, "CFS");
+      //charge particles
+      const ChargedFinalState& charged = applyProjection<ChargedFinalState>(event, "CFS");
 //AK       if (charged.particles().size()<1) {
 //AK         vetoEvent;
 //AK          
