@@ -28,8 +28,12 @@ mkdir  ${tard}/external
 ROOTSYS=`echo $ROOTSYS |  sed 's/\/$//'` # remove '/' character  at end of string, becuse it invalidates symblic link interpretation
 origr=$ROOTSYS
 if [ -L ${ROOTSYS} ]; then
-   b=`dirname ${ROOTSYS}`
-   origr=${b}/`readlink ${ROOTSYS}`
+   b=`dirname ${ROOTSYS}`   
+   if [ `uname` = "Linux" ]; then
+       origr=`readlink -f ${ROOTSYS}`
+   else
+       origr=`readlink ${ROOTSYS}`
+   fi
 fi
 
 echo "copy root from $origr to ${tard}/external/root"
