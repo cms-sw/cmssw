@@ -97,18 +97,18 @@ GeometryTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     edm::ESHandle<PCaloGeometry> ebgeo;
     iSetup.get<PEcalBarrelRcd>().get(ebgeo);
     std::cout<<"ECAL BARREL\n";
-    std::vector<double> tseb = ebgeo->getTranslation();
-    std::vector<double> dimeb = ebgeo->getDimension();
+    std::vector<float> tseb = ebgeo->getTranslation();
+    std::vector<float> dimeb = ebgeo->getDimension();
     std::vector<uint32_t> indeb = ebgeo->getIndexes();
     std::cout << "Translations " << tseb.size() << "\n";
     std::cout << "Dimensions " << dimeb.size() << "\n";
     std::cout << "Indices " << indeb.size() << "\n";
-    for( std::vector<double>::const_iterator it = tseb.begin(), end = tseb.end(); it != end; ++it )
+    for( std::vector<float>::const_iterator it = tseb.begin(), end = tseb.end(); it != end; ++it )
     {
       std::cout << (*it);
     } 
     std::cout << "\n";
-    for( std::vector<double>::const_iterator it = dimeb.begin(), end = dimeb.end(); it != end; ++it )
+    for( std::vector<float>::const_iterator it = dimeb.begin(), end = dimeb.end(); it != end; ++it )
     {
       std::cout << (*it);
     } 
@@ -122,18 +122,18 @@ GeometryTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     edm::ESHandle<PCaloGeometry> eegeo;
     iSetup.get<PEcalEndcapRcd>().get(eegeo);
     std::cout<<"ECAL ENDCAP\n";
-    std::vector<double> tsee = eegeo->getTranslation();
-    std::vector<double> dimee = eegeo->getDimension();
+    std::vector<float> tsee = eegeo->getTranslation();
+    std::vector<float> dimee = eegeo->getDimension();
     std::vector<uint32_t> indee = eegeo->getIndexes();
     std::cout << "Translations " << tsee.size() << "\n";
     std::cout << "Dimensions " << dimee.size() << "\n";
     std::cout << "Indices " << indee.size() << "\n";
-    for( std::vector<double>::const_iterator it = tsee.begin(), end = tsee.end(); it != end; ++it )
+    for( std::vector<float>::const_iterator it = tsee.begin(), end = tsee.end(); it != end; ++it )
     {
       std::cout << (*it);
     } 
     std::cout << "\n";
-    for( std::vector<double>::const_iterator it = dimee.begin(), end = dimee.end(); it != end; ++it )
+    for( std::vector<float>::const_iterator it = dimee.begin(), end = dimee.end(); it != end; ++it )
     {
       std::cout << (*it);
     } 
@@ -147,18 +147,18 @@ GeometryTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     edm::ESHandle<PCaloGeometry> epgeo;
     iSetup.get<PEcalPreshowerRcd>().get(epgeo);
     std::cout<<"ECAL PRESHOWER\n";
-    std::vector<double> tsep = epgeo->getTranslation();
-    std::vector<double> dimep = epgeo->getDimension();
+    std::vector<float> tsep = epgeo->getTranslation();
+    std::vector<float> dimep = epgeo->getDimension();
     std::vector<uint32_t> indep = epgeo->getIndexes();
     std::cout << "Translations " << tsep.size() << "\n";
     std::cout << "Dimensions " << dimep.size() << "\n";
     std::cout << "Indices " << indep.size() << "\n";
-    for( std::vector<double>::const_iterator it = tsep.begin(), end = tsep.end(); it != end; ++it )
+    for( std::vector<float>::const_iterator it = tsep.begin(), end = tsep.end(); it != end; ++it )
     {
       std::cout << (*it);
     } 
     std::cout << "\n";
-    for( std::vector<double>::const_iterator it = dimep.begin(), end = dimep.end(); it != end; ++it )
+    for( std::vector<float>::const_iterator it = dimep.begin(), end = dimep.end(); it != end; ++it )
     {
       std::cout << (*it);
     } 
@@ -175,18 +175,18 @@ GeometryTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     edm::ESHandle<PCaloGeometry> hgeo;
     iSetup.get<PHcalRcd>().get(hgeo);
     std::cout << "HCAL\n";
-    std::vector<double> tsh = hgeo->getTranslation();
-    std::vector<double> dimh = hgeo->getDimension();
+    std::vector<float> tsh = hgeo->getTranslation();
+    std::vector<float> dimh = hgeo->getDimension();
     std::vector<uint32_t> indh = hgeo->getIndexes();
     std::cout << "Translations " << tsh.size() << "\n";
     std::cout << "Dimensions " << dimh.size() << "\n";
     std::cout << "Indices " << indh.size() << "\n";
-    for( std::vector<double>::const_iterator it = tsh.begin(), end = tsh.end(); it != end; ++it )
+    for( std::vector<float>::const_iterator it = tsh.begin(), end = tsh.end(); it != end; ++it )
     {
       std::cout << (*it);
     } 
     std::cout << "\n";
-    for( std::vector<double>::const_iterator it = dimh.begin(), end = dimh.end(); it != end; ++it )
+    for( std::vector<float>::const_iterator it = dimh.begin(), end = dimh.end(); it != end; ++it )
     {
       std::cout << (*it);
     } 
@@ -203,18 +203,18 @@ GeometryTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     edm::ESHandle<PCaloGeometry> ctgeo;
     iSetup.get<PCaloTowerRcd>().get(ctgeo);
     std::cout << "CALO TOWER:\n";
-    std::vector<double> tsct = ctgeo->getTranslation();
-    std::vector<double> dimct = ctgeo->getDimension();
+    std::vector<float> tsct = ctgeo->getTranslation();
+    std::vector<float> dimct = ctgeo->getDimension();
     std::vector<uint32_t> indct = ctgeo->getIndexes();
     std::cout << "Translations " << tsct.size() << "\n";
     std::cout << "Dimensions " << dimct.size() << "\n";
     std::cout << "Indices " << indct.size() << "\n";
-    for( std::vector<double>::const_iterator it = tsct.begin(), end = tsct.end(); it != end; ++it )
+    for( std::vector<float>::const_iterator it = tsct.begin(), end = tsct.end(); it != end; ++it )
     {
       std::cout << (*it);
     } 
     std::cout << "\n";
-    for( std::vector<double>::const_iterator it = dimct.begin(), end = dimct.end(); it != end; ++it )
+    for( std::vector<float>::const_iterator it = dimct.begin(), end = dimct.end(); it != end; ++it )
     {
       std::cout << (*it);
     } 
@@ -230,8 +230,8 @@ GeometryTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     edm::ESHandle<PCaloGeometry> castgeo;
     iSetup.get<PCastorRcd>().get(castgeo);
     std::cout<<"CASTOR"<<std::endl;
-    std::vector<double> tscast = castgeo->getTranslation();
-    std::vector<double> dimcast = castgeo->getDimension();
+    std::vector<float> tscast = castgeo->getTranslation();
+    std::vector<float> dimcast = castgeo->getDimension();
     std::vector<uint32_t> indcast = castgeo->getIndexes();
     for(uint32_t i=0;i<tscast.size();i++){
       std::cout<<tscast[i];
@@ -252,8 +252,8 @@ GeometryTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     edm::ESHandle<PCaloGeometry> zdcgeo;
     iSetup.get<PZdcRcd>().get(zdcgeo);
     std::cout<<"ZDC"<<std::endl;
-    std::vector<double> tszdc = zdcgeo->getTranslation();
-    std::vector<double> dimzdc = zdcgeo->getDimension();
+    std::vector<float> tszdc = zdcgeo->getTranslation();
+    std::vector<float> dimzdc = zdcgeo->getDimension();
     std::vector<uint32_t> indzdc = zdcgeo->getIndexes();
     for(uint32_t i=0;i<tszdc.size();i++){
       std::cout<<tszdc[i];
