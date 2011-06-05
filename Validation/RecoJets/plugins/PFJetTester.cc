@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: PFJetTester.cc,v 1.16 2011/04/21 12:31:27 kovitang Exp $
+// $Id: PFJetTester.cc,v 1.17 2011/04/21 16:25:35 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -472,7 +472,7 @@ void PFJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetu
   // *********************************
   // *** Get pThat
   // *********************************
-
+if (!mEvent.isRealData()){
   edm::Handle<HepMCProduct> evt;
   mEvent.getByLabel("generator", evt);
   if (evt.isValid()) {
@@ -485,7 +485,7 @@ void PFJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetu
 
   delete myGenEvent; 
   }
-
+}
   // ***********************************
   // *** Get CaloMET
   // ***********************************
@@ -832,6 +832,7 @@ if (jet->pt()>2700.0 && jet->pt()<3500.0) {
 
   }
 
+if (!mEvent.isRealData()){
   // Gen jet analysis
   Handle<GenJetCollection> genJets;
   mEvent.getByLabel(mInputGenCollection, genJets);
@@ -987,6 +988,7 @@ if (jet->pt()>2700.0 && jet->pt()<3500.0) {
   }
 }
 
+}//// Gen Close
 
 void PFJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::PFJet& fPFJet) {
   double logPtGen = log10 (fGenJet.pt());

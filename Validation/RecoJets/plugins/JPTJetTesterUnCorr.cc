@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTesterUnCorr.cc,v 1.1 2011/02/23 16:57:16 kovitang Exp $
+// $Id: JPTJetTesterUnCorr.cc,v 1.2 2011/04/21 12:31:27 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -402,7 +402,7 @@ void JPTJetTesterUnCorr::analyze(const edm::Event& mEvent, const edm::EventSetup
   // *********************************
   // *** Get pThat
   // *********************************
-
+if (!mEvent.isRealData()){
   edm::Handle<HepMCProduct> evt;
   mEvent.getByLabel("generator", evt);
   if (evt.isValid()) {
@@ -415,7 +415,7 @@ void JPTJetTesterUnCorr::analyze(const edm::Event& mEvent, const edm::EventSetup
 
   delete myGenEvent; 
   }
-
+}
   // ***********************************
   // *** Get CaloMET
   // ***********************************
@@ -708,6 +708,7 @@ void JPTJetTesterUnCorr::analyze(const edm::Event& mEvent, const edm::EventSetup
     mNJets2->Fill( ptStep, njet );
   }
 
+if (!mEvent.isRealData()){
   // Gen jet analysis
   Handle<GenJetCollection> genJets;
   mEvent.getByLabel(mInputGenCollection, genJets);
@@ -813,6 +814,7 @@ void JPTJetTesterUnCorr::analyze(const edm::Event& mEvent, const edm::EventSetup
   }
 }
 
+}///// Gen Close
 
 void JPTJetTesterUnCorr::fillMatchHists (const reco::GenJet& fGenJet, const reco::JPTJet& fJPTJet) {
   double logPtGen = log10 (fGenJet.pt());

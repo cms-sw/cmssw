@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.25 2011/02/23 16:50:56 kovitang Exp $
+// $Id: CaloJetTester.cc,v 1.26 2011/04/21 12:31:27 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -450,7 +450,7 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
   // *********************************
   // *** Get pThat
   // *********************************
-
+if (!mEvent.isRealData()){
   edm::Handle<HepMCProduct> evt;
   mEvent.getByLabel("generator", evt);
   if (evt.isValid()) {
@@ -463,7 +463,7 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
 
   delete myGenEvent; 
   }
-
+}
   // ***********************************
   // *** Get CaloMET
   // ***********************************
@@ -784,7 +784,7 @@ if (jet->pt()>2700.0 && jet->pt()<3500.0) {
   }
   }
 
-
+if (!mEvent.isRealData()){
   // Gen jet analysis
   Handle<GenJetCollection> genJets;
   mEvent.getByLabel(mInputGenCollection, genJets);
@@ -936,6 +936,8 @@ if (jet->pt()>2700.0 && jet->pt()<3500.0) {
   }
 }
 
+}///// Gen close
+
 void CaloJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::CaloJet& fCaloJet) {
   double logPtGen = log10 (fGenJet.pt());
   double PtGen = fGenJet.pt();
@@ -1052,8 +1054,6 @@ void CaloJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::Cal
     mpTScale_2700_3500_d->Fill (fGenJet.eta(),fCaloJet.pt()/fGenJet.pt());
     //mpTScale1D_2700_3500->Fill (fCaloJet.pt()/fGenJet.pt());
   }
-
-
 
 }
 

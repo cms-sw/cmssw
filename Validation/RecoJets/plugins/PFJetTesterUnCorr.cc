@@ -416,7 +416,7 @@ void PFJetTesterUnCorr::analyze(const edm::Event& mEvent, const edm::EventSetup&
   // *********************************
   // *** Get pThat
   // *********************************
-
+if (!mEvent.isRealData()){
   edm::Handle<HepMCProduct> evt;
   mEvent.getByLabel("generator", evt);
   if (evt.isValid()) {
@@ -429,7 +429,7 @@ void PFJetTesterUnCorr::analyze(const edm::Event& mEvent, const edm::EventSetup&
 
   delete myGenEvent; 
   }
-
+}
   // ***********************************
   // *** Get CaloMET
   // ***********************************
@@ -732,6 +732,7 @@ void PFJetTesterUnCorr::analyze(const edm::Event& mEvent, const edm::EventSetup&
     mNJets2->Fill( ptStep, njet );
   }
 
+if (!mEvent.isRealData()){
   // Gen jet analysis
   Handle<GenJetCollection> genJets;
   mEvent.getByLabel(mInputGenCollection, genJets);
@@ -841,6 +842,7 @@ void PFJetTesterUnCorr::analyze(const edm::Event& mEvent, const edm::EventSetup&
   }
 }
 
+}///Gen Close
 
 void PFJetTesterUnCorr::fillMatchHists (const reco::GenJet& fGenJet, const reco::PFJet& fPFJet) {
   double logPtGen = log10 (fGenJet.pt());
