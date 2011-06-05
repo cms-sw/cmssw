@@ -1,7 +1,7 @@
 
-<var name="TEST_RELEASE" value="4_3_0_pre5">
-<var name="TEST_GLOBAL_TAG" value="MC_43_V1">
-<var name="TEST_GLOBAL_STARTUP_TAG" value="START43_V1">
+<var name="TEST_RELEASE" value="4_3_0_pre6">
+<var name="TEST_GLOBAL_TAG" value="MC_43_V3">
+<var name="TEST_GLOBAL_STARTUP_TAG" value="START43_V3">
 <var name="TEST_GLOBAL_VERSION" value="v1">
 
 The value of OVAL_ENVNAME is automatically set by Oval to the name
@@ -26,9 +26,9 @@ The VAL_* variables are configuration variables for electronValidation.csh,
 which compares the histograms from two releases. electronValidation.csh relies
 on the ROOT script electronValidation.C.
 
-<var name="VAL_NEW_RELEASE" value="4_3_0_pre5">
-<var name="VAL_REF_RELEASE" value="4_3_0_pre4">
-<var name="VAL_COMMENT" value="No electron code change.">
+<var name="VAL_NEW_RELEASE" value="4_3_0_pre6">
+<var name="VAL_REF_RELEASE" value="4_3_0_pre5">
+<var name="VAL_COMMENT" value="Small upgrade for severity levels.">
 
 <var name="STORE_RELEASE" value="${VAL_NEW_RELEASE}">
 
