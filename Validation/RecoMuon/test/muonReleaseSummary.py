@@ -71,6 +71,7 @@ ValidateRECO=True
 ValidateISO=True
 if (NewFastSim|RefFastSim):
     ValidateDQM=False
+#    ValidateRECO=False
 else:
     ValidateDQM=True
 
@@ -86,13 +87,13 @@ isFastSimNew = ''
 isFastSimOld = ''
 if (NewFastSim):
     isFastSimNew = 'FS'
-    NewTag = NewTag+isFastSimNew
+    NewTag = NewTag+'_FSIM'
     NewCondition=NewCondition+isFastSimNew
     NewLabel=NewLabel+'_FastSim'
     NewFormat='GEN-SIM-DIGI-RECO'    
 if (RefFastSim):
     isFastSimOld = 'FS'
-    RefTag = RefTag+isFastSimOld
+    RefTag = RefTag+'_FSIM'
     RefCondition=RefCondition+isFastSimOld
     RefLabel=RefLabel+'_FastSim'
     RefFormat='GEN-SIM-DIGI-RECO'
