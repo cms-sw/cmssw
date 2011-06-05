@@ -165,8 +165,6 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    // Normalize to the same number of "new" events:
    NormalizeHistograms(rh1,sh1);
    NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rh3,sh3);
-   NormalizeHistogramsPeakRegion(rh4,sh4);
 
    plot4histos(canvas,
 	       sh1,rh1,sh2,rh2,
@@ -216,12 +214,6 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    rh4->GetYaxis()->SetTitleOffset(1.2);
 
    canvas = new TCanvas("RecEffHistosGlb","Distributions for GlobalMuons (GLB), efficiencies and fractions",1000,1050);
-
-   // Normalize to the same number of "new" events:
-   NormalizeHistograms(rh1,sh1);
-   NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rh3,sh3);
-   NormalizeHistogramsPeakRegion(rh4,sh4);
 
    plot4histos(canvas,
                sh1,rh1,sh2,rh2,
@@ -275,8 +267,6 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    // Normalize to the same number of "new" events:
    NormalizeHistograms(rh1,sh1);
    NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rh3,sh3);
-   NormalizeHistogramsPeakRegion(rh4,sh4);
 
    plot4histos(canvas,
                sh1,rh1,sh2,rh2,
@@ -326,12 +316,6 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    rh4->GetYaxis()->SetTitleOffset(1.2);
 
    canvas = new TCanvas("RecEffHistosGlbPF","Distributions for PFGlobalMuons (GLBPF), efficiencies and fractions",1000,1050);
-
-   // Normalize to the same number of "new" events:
-   NormalizeHistograms(rh1,sh1);
-   NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rh3,sh3);
-   NormalizeHistogramsPeakRegion(rh4,sh4);
 
    plot4histos(canvas,
                sh1,rh1,sh2,rh2,
@@ -386,8 +370,6 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    // Normalize to the same number of "new" events:
    NormalizeHistograms(rh1,sh1);
    NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rh3,sh3);
-   NormalizeHistogramsPeakRegion(rh4,sh4);
 
    plot4histos(canvas,
                sh1,rh1,sh2,rh2,
@@ -437,12 +419,6 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    rh4->GetYaxis()->SetTitleOffset(1.2);
 
    canvas = new TCanvas("RecEffHistosSta","Distributions for StandAloneMuons (STA), efficiencies and fractions",1000,1050);
-
-   // Normalize to the same number of "new" events:
-   NormalizeHistograms(rh1,sh1);
-   NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rh3,sh3);
-   NormalizeHistogramsPeakRegion(rh4,sh4);
 
    plot4histos(canvas,
                sh1,rh1,sh2,rh2,
@@ -496,8 +472,6 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    // Normalize to the same number of "new" events:
    NormalizeHistograms(rh1,sh1);
    NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rh3,sh3);
-   NormalizeHistogramsPeakRegion(rh4,sh4);
 
    plot4histos(canvas,
                sh1,rh1,sh2,rh2,
@@ -548,12 +522,6 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    rh4->GetYaxis()->SetTitleOffset(1.2);
 
    canvas = new TCanvas("RecEffHistosTrk","Distributions for TrackerMuons (TRK), efficiencies and fractions",1000,1050);
-
-   // Normalize to the same number of "new" events:
-   NormalizeHistograms(rh1,sh1);
-   NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rh3,sh3);
-   NormalizeHistogramsPeakRegion(rh4,sh4);
 
    plot4histos(canvas,
                sh1,rh1,sh2,rh2,
