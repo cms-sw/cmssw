@@ -475,8 +475,12 @@ EcalBarrelGeometry::avgRadiusXYFrontFaceCenter() const
       CCGFloat sum ( 0 ) ;
       for( uint32_t i ( 0 ) ; i != m_cellVec.size() ; ++i )
       {
-	 const GlobalPoint& pos ( cellGeomPtr(i)->getPosition() ) ;
-	 sum += pos.perp() ;
+	 const CaloCellGeometry* cell ( cellGeomPtr(i) ) ;
+	 if( 0 != cell )
+	 {
+	    const GlobalPoint& pos ( cell->getPosition() ) ;
+	    sum += pos.perp() ;
+	 }
       }
       m_radius = sum/m_cellVec.size() ;
    }
@@ -486,5 +490,7 @@ EcalBarrelGeometry::avgRadiusXYFrontFaceCenter() const
 const CaloCellGeometry* 
 EcalBarrelGeometry::cellGeomPtr( uint32_t index ) const
 {
-   return &m_cellVec[ index ] ;
+   const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
+   return ( m_cellVec.size() < index ||
+	    0 == cell->param() ? 0 : cell ) ;
 }

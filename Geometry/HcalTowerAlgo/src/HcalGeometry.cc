@@ -408,9 +408,10 @@ HcalGeometry::newCell( const GlobalPoint& f1 ,
 const CaloCellGeometry* 
 HcalGeometry::cellGeomPtr( uint32_t din ) const
 {
+   const CaloCellGeometry* cell ( 0 ) ;
    if( m_hbCellVec.size() > din )
    {
-      return &m_hbCellVec[ din ] ;
+      cell = &m_hbCellVec[ din ] ;
    }
    else
    {
@@ -418,7 +419,7 @@ HcalGeometry::cellGeomPtr( uint32_t din ) const
 	  m_heCellVec.size() > din )
       {
 	 const unsigned int index ( din - m_hbCellVec.size() ) ;
-	 return &m_heCellVec[ index ] ;
+	 cell = &m_heCellVec[ index ] ;
       }
       else
       {
@@ -429,16 +430,23 @@ HcalGeometry::cellGeomPtr( uint32_t din ) const
 	    const unsigned int index ( din 
 				       - m_hbCellVec.size() 
 				       - m_heCellVec.size() ) ;
-	    return &m_hoCellVec[ index ] ;
+	    cell = &m_hoCellVec[ index ] ;
 	 }
 	 else
 	 {
-	    const unsigned int index ( din 
-				       - m_hbCellVec.size() 
-				       - m_heCellVec.size() 
-				       - m_hoCellVec.size() ) ;
-	    return &m_hfCellVec[ index ] ;
+	    if( m_hbCellVec.size() +
+		m_heCellVec.size() +
+		m_hoCellVec.size() +
+		m_hfCellVec.size() > din )
+	    {
+	       const unsigned int index ( din 
+					  - m_hbCellVec.size() 
+					  - m_heCellVec.size() 
+					  - m_hoCellVec.size() ) ;
+	       cell = &m_hfCellVec[ index ] ;
+	    }
 	 }
       }
    }
+   return ( 0 == cell || 0 == cell->param() ? 0 : cell ) ;
 }

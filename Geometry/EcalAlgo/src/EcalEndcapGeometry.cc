@@ -61,22 +61,26 @@ EcalEndcapGeometry::initializeParms()
 
   for( uint32_t i ( 0 ) ; i != m_cellVec.size() ; ++i )
   {
-     const CCGFloat z ( cellGeomPtr(i)->getPosition().z() ) ;
-     if(z>0.)
+     const CaloCellGeometry* cell ( cellGeomPtr(i) ) ;
+     if( 0 != cell )
      {
-	zeP+=z;
-	++nP;
+	const CCGFloat z ( cell->getPosition().z() ) ;
+	if(z>0.)
+	{
+	   zeP+=z;
+	   ++nP;
+	}
+	else
+	{
+	   zeN+=z;
+	   ++nN;
+	}
+	const EEDetId myId ( EEDetId::detIdFromDenseIndex(i) ) ;
+	const unsigned int ix ( myId.ix() ) ;
+	const unsigned int iy ( myId.iy() ) ;
+	if( ix > m_nref ) m_nref = ix ;
+	if( iy > m_nref ) m_nref = iy ;
      }
-     else
-     {
-	zeN+=z;
-	++nN;
-     }
-     const EEDetId myId ( EEDetId::detIdFromDenseIndex(i) ) ;
-     const unsigned int ix ( myId.ix() ) ;
-     const unsigned int iy ( myId.iy() ) ;
-     if( ix > m_nref ) m_nref = ix ;
-     if( iy > m_nref ) m_nref = iy ;
   }
   if( 0 < nP ) zeP/=(CCGFloat)nP;
   if( 0 < nN ) zeN/=(CCGFloat)nN;
@@ -91,21 +95,25 @@ EcalEndcapGeometry::initializeParms()
   m_yhi[1] = -999 ;
   for( uint32_t i ( 0 ) ; i != m_cellVec.size() ; ++i )
   {
-     const GlobalPoint p ( cellGeomPtr(i)->getPosition()  ) ;
-     const CCGFloat z ( p.z() ) ;
-     const CCGFloat zz ( 0 > z ? zeN : zeP ) ;
-     const CCGFloat x ( p.x()*zz/z ) ;
-     const CCGFloat y ( p.y()*zz/z ) ;
+     const CaloCellGeometry* cell ( cellGeomPtr(i) ) ;
+     if( 0 != cell )
+     {
+	const GlobalPoint p ( cell->getPosition()  ) ;
+	const CCGFloat z ( p.z() ) ;
+	const CCGFloat zz ( 0 > z ? zeN : zeP ) ;
+	const CCGFloat x ( p.x()*zz/z ) ;
+	const CCGFloat y ( p.y()*zz/z ) ;
 
-     if( 0 > z && x < m_xlo[0] ) m_xlo[0] = x ;
-     if( 0 < z && x < m_xlo[1] ) m_xlo[1] = x ;
-     if( 0 > z && y < m_ylo[0] ) m_ylo[0] = y ;
-     if( 0 < z && y < m_ylo[1] ) m_ylo[1] = y ;
+	if( 0 > z && x < m_xlo[0] ) m_xlo[0] = x ;
+	if( 0 < z && x < m_xlo[1] ) m_xlo[1] = x ;
+	if( 0 > z && y < m_ylo[0] ) m_ylo[0] = y ;
+	if( 0 < z && y < m_ylo[1] ) m_ylo[1] = y ;
      
-     if( 0 > z && x > m_xhi[0] ) m_xhi[0] = x ;
-     if( 0 < z && x > m_xhi[1] ) m_xhi[1] = x ;
-     if( 0 > z && y > m_yhi[0] ) m_yhi[0] = y ;
-     if( 0 < z && y > m_yhi[1] ) m_yhi[1] = y ;
+	if( 0 > z && x > m_xhi[0] ) m_xhi[0] = x ;
+	if( 0 < z && x > m_xhi[1] ) m_xhi[1] = x ;
+	if( 0 > z && y > m_yhi[0] ) m_yhi[0] = y ;
+	if( 0 < z && y > m_yhi[1] ) m_yhi[1] = y ;
+     }
   }
 
   m_xoff[0] = ( m_xhi[0] + m_xlo[0] )/2. ;
@@ -474,9 +482,10 @@ EcalEndcapGeometry::avgAbsZFrontFaceCenter() const
       CCGFloat sum ( 0 ) ;
       for( unsigned int i ( 0 ) ; i != m_cellVec.size() ; ++i )
       {
-	 if( 0 != cellGeomPtr(i)->param() )
+	 const CaloCellGeometry* cell ( cellGeomPtr(i) ) ;
+	 if( 0 != cell )
 	 {
-	    sum += fabs( cellGeomPtr(i)->getPosition().z() ) ;
+	    sum += fabs( cell->getPosition().z() ) ;
 	 }
       }
       m_avgZ = sum/m_cellVec.size() ;
@@ -487,5 +496,7 @@ EcalEndcapGeometry::avgAbsZFrontFaceCenter() const
 const CaloCellGeometry* 
 EcalEndcapGeometry::cellGeomPtr( uint32_t index ) const
 {
-   return &m_cellVec[ index ] ;
+   const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
+   return ( m_cellVec.size() < index ||
+	    0 == cell->param() ? 0 : cell ) ;
 }

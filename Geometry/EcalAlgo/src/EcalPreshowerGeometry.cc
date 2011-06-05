@@ -89,38 +89,40 @@ EcalPreshowerGeometry::initializeParms()
    CCGFloat z2plus ( 0 ) ;
    const std::vector<DetId>& esDetIds ( getValidDetIds() ) ;
 
-   for( unsigned int i ( 0 ) ; i != m_cellVec.size() ; ++i )
+   for( unsigned int i ( 0 ) ; i != esDetIds.size() ; ++i )
    {
       const ESDetId esid ( esDetIds[i] ) ;
-      if( 1 == esid.plane() )
+      const CaloCellGeometry* cell ( getGeometry( esid ) ) ;
+      if( 0 != cell )
       {
-	 if( 0 > esid.zside() )
+	 const CCGFloat zz ( cell->getPosition().z() ) ; 
+	 if( 1 == esid.plane() )
 	 {
-	    z1minus += cellGeomPtr(i)->getPosition().z() ;
-	    ++n1minus ;
+	    if( 0 > esid.zside() )
+	    {
+	       z1minus += zz ;
+	       ++n1minus ;
+	    }
+	    else
+	    {
+	       z1plus += zz ;
+	       ++n1plus ;
+	    }
 	 }
-	 else
+	 if( 2 == esid.plane() )
 	 {
-	    z1plus += cellGeomPtr(i)->getPosition().z() ;
-	    ++n1plus ;
+	    if( 0 > esid.zside() )
+	    {
+	       z2minus += zz ;
+	       ++n2minus ;
+	    }
+	    else
+	    {
+	       z2plus += zz ;
+	       ++n2plus ;
+	    }
 	 }
       }
-      if( 2 == esid.plane() )
-      {
-	 if( 0 > esid.zside() )
-	 {
-	    z2minus += cellGeomPtr(i)->getPosition().z() ;
-	    ++n2minus ;
-	 }
-	 else
-	 {
-	    z2plus += cellGeomPtr(i)->getPosition().z() ;
-	    ++n2plus ;
-	 }
-      }
-//      if( 0 == z1 && 1 == esid.plane() ) z1 = fabs( i->second->getPosition().z() ) ;
-//      if( 0 == z2 && 2 == esid.plane() ) z2 = fabs( i->second->getPosition().z() ) ;
-//      if( 0 != z1 && 0 != z2 ) break ;
    }
    assert( 0 != n1minus &&
 	   0 != n2minus &&
@@ -209,13 +211,16 @@ EcalPreshowerGeometry::getClosestCellInPlane( const GlobalPoint& point,
 	    if( ESDetId::validDetId( jstrip, jx, jy, plane, jz ) )
 	    {
 	       const ESDetId esId ( jstrip, jx, jy, plane, jz ) ;
-	       const unsigned int index ( esId.denseIndex() ) ;
-	       const GlobalPoint& p ( cellGeomPtr( index )->getPosition() ) ;
-	       const CCGFloat dist2 ( (p.x()-xe)*(p.x()-xe) + (p.y()-ye)*(p.y()-ye) ) ;
-	       if( dist2 < closest && present( esId ) )
+	       const CaloCellGeometry* cell ( getGeometry( esId ) ) ;
+	       if( 0 != cell )
 	       {
-		  closest = dist2 ;
-		  detId   = esId  ;
+		  const GlobalPoint& p ( cell->getPosition() ) ;
+		  const CCGFloat dist2 ( (p.x()-xe)*(p.x()-xe) + (p.y()-ye)*(p.y()-ye) ) ;
+		  if( dist2 < closest && present( esId ) )
+		  {
+		     closest = dist2 ;
+		     detId   = esId  ;
+		  }
 	       }
 	    }
 	 }
@@ -248,5 +253,7 @@ EcalPreshowerGeometry::newCell( const GlobalPoint& f1 ,
 const CaloCellGeometry* 
 EcalPreshowerGeometry::cellGeomPtr( uint32_t index ) const
 {
-   return &m_cellVec[ index ] ;
+   const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
+   return ( m_cellVec.size() < index ||
+	    0 == cell->param() ? 0 : cell ) ;
 }

@@ -49,7 +49,7 @@ CaloSubdetectorGeometry::getGeometry( const DetId& id ) const
 bool 
 CaloSubdetectorGeometry::present( const DetId& id ) const 
 {
-   return 0 != cellGeomPtr( CaloGenericDetId( id ).denseIndex() )->param() ;
+   return ( 0 != getGeometry( id ) ) ;
 }
 
 DetId 
@@ -62,22 +62,23 @@ CaloSubdetectorGeometry::getClosestCell( const GlobalPoint& r ) const
 
    for( uint32_t i ( 0 ); i != m_validIds.size() ; ++i ) 
    {
-      const GlobalPoint& p ( cellGeomPtr( i )->getPosition() ) ;
-      const CCGFloat eta0 ( p.eta() ) ;
-      const CCGFloat phi0 ( p.phi() ) ;
-      const CCGFloat dR2 ( reco::deltaR2( eta0, phi0, eta, phi ) ) ;
-      if( dR2 < closest ) 
+      const CaloCellGeometry* cell ( getGeometry( m_validIds[ i ] ) ) ;
+      if( 0 != cell )
       {
-	 closest = dR2 ;
-	 index   = i   ;
+	 const GlobalPoint& p ( cell->getPosition() ) ;
+	 const CCGFloat eta0 ( p.eta() ) ;
+	 const CCGFloat phi0 ( p.phi() ) ;
+	 const CCGFloat dR2 ( reco::deltaR2( eta0, phi0, eta, phi ) ) ;
+	 if( dR2 < closest ) 
+	 {
+	    closest = dR2 ;
+	    index   = i   ;
+	 }
       }
    }
-   const DetId tid ( m_validIds.front() ) ;
    return ( closest > 0.9e9 ||
 	    (uint32_t)(~0) == index       ? DetId(0) :
-	    CaloGenericDetId( tid.det(),
-			      tid.subdetId(),
-			      index           ) ) ;
+	    m_validIds[index] ) ;
 }
 
 CaloSubdetectorGeometry::DetIdSet 
@@ -94,20 +95,21 @@ CaloSubdetectorGeometry::getCells( const GlobalPoint& r,
    {
       for( uint32_t i ( 0 ); i != m_validIds.size() ; ++i ) 
       {
-	 const GlobalPoint& p ( cellGeomPtr( i )->getPosition() ) ;
-	 const CCGFloat eta0 ( p.eta() ) ;
-	 if( fabs( eta - eta0 ) < dR )
+	 const CaloCellGeometry* cell ( getGeometry( m_validIds[i] ) ) ;
+	 if( 0 != cell )
 	 {
-	    const CCGFloat phi0 ( p.phi() ) ;
-	    CCGFloat delp ( fabs( phi - phi0 ) ) ;
-	    if( delp > M_PI ) delp = 2*M_PI - delp ;
-	    if( delp < dR )
+	    const GlobalPoint& p ( cell->getPosition() ) ;
+	    const CCGFloat eta0 ( p.eta() ) ;
+	    if( fabs( eta - eta0 ) < dR )
 	    {
-	       const CCGFloat dist2 ( reco::deltaR2( eta0, phi0, eta, phi ) ) ;
-	       const DetId tid ( m_validIds.front() ) ;
-	       if( dist2 < dR2 ) dss.insert( CaloGenericDetId( tid.det(),
-							       tid.subdetId(),
-							       i )     ) ;
+	       const CCGFloat phi0 ( p.phi() ) ;
+	       CCGFloat delp ( fabs( phi - phi0 ) ) ;
+	       if( delp > M_PI ) delp = 2*M_PI - delp ;
+	       if( delp < dR )
+	       {
+		  const CCGFloat dist2 ( reco::deltaR2( eta0, phi0, eta, phi ) ) ;
+		  if( dist2 < dR2 ) dss.insert( m_validIds[i] ) ;
+	       }
 	    }
 	 }
       }   
@@ -154,7 +156,8 @@ CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
    for( uint32_t i ( 0 ) ; i != m_validIds.size() ; ++i )
    {
       Tr3D tr ;
-      const CaloCellGeometry* ptr ( cellGeomPtr( i ) ) ;
+      const CaloCellGeometry* ptr ( getGeometry( m_validIds[i] ) ) ;
+      assert( 0 != ptr ) ;
       ptr->getTransform( tr, ( Pt3DVec* ) 0 ) ;
 
       if( Tr3D() == tr ) // for preshower there is no rotation
@@ -215,36 +218,40 @@ CaloSubdetectorGeometry::deltaPhi( const DetId& detId ) const
       m_deltaPhi = new std::vector<CCGFloat> ( kSize ) ;
       for( uint32_t i ( 0 ) ; i != kSize ; ++i )
       {
-	 const CaloCellGeometry& cell ( *cellGeomPtr( i ) ) ;
-	 CCGFloat dPhi1 ( fabs(
-			   GlobalPoint( ( cell.getCorners()[0].x() + 
-					  cell.getCorners()[1].x() )/2. ,
-					( cell.getCorners()[0].y() + 
-					  cell.getCorners()[1].y() )/2. ,
-					( cell.getCorners()[0].z() + 
-					  cell.getCorners()[1].z() )/2.  ).phi() -
-			   GlobalPoint( ( cell.getCorners()[2].x() + 
-					  cell.getCorners()[3].x() )/2. ,
-					( cell.getCorners()[2].y() + 
-					  cell.getCorners()[3].y() )/2. ,
-					( cell.getCorners()[2].z() + 
-					  cell.getCorners()[3].z() )/2.  ).phi() ) ) ;
-	 CCGFloat dPhi2 ( fabs(
-			   GlobalPoint( ( cell.getCorners()[0].x() + 
-					  cell.getCorners()[3].x() )/2. ,
-					( cell.getCorners()[0].y() + 
-					  cell.getCorners()[3].y() )/2. ,
-					( cell.getCorners()[0].z() + 
-					  cell.getCorners()[3].z() )/2.  ).phi() -
-			   GlobalPoint( ( cell.getCorners()[2].x() + 
-					  cell.getCorners()[1].x() )/2. ,
-					( cell.getCorners()[2].y() + 
-					  cell.getCorners()[1].y() )/2. ,
-					( cell.getCorners()[2].z() + 
-					  cell.getCorners()[1].z() )/2.  ).phi() ) ) ;
-	 if( M_PI < dPhi1 ) dPhi1 = fabs( dPhi1 - 2.*M_PI ) ;
-	 if( M_PI < dPhi2 ) dPhi2 = fabs( dPhi2 - 2.*M_PI ) ;
-	 (*m_deltaPhi)[i] = dPhi1>dPhi2 ? dPhi1 : dPhi2 ;
+	 const CaloCellGeometry* cellPtr ( cellGeomPtr( i ) ) ;
+	 if( 0 != cellPtr )
+	 {
+	    const CaloCellGeometry& cell ( *cellPtr ) ;
+	    CCGFloat dPhi1 ( fabs(
+				GlobalPoint( ( cell.getCorners()[0].x() + 
+					       cell.getCorners()[1].x() )/2. ,
+					     ( cell.getCorners()[0].y() + 
+					       cell.getCorners()[1].y() )/2. ,
+					     ( cell.getCorners()[0].z() + 
+					       cell.getCorners()[1].z() )/2.  ).phi() -
+				GlobalPoint( ( cell.getCorners()[2].x() + 
+					       cell.getCorners()[3].x() )/2. ,
+					     ( cell.getCorners()[2].y() + 
+					       cell.getCorners()[3].y() )/2. ,
+					     ( cell.getCorners()[2].z() + 
+					       cell.getCorners()[3].z() )/2.  ).phi() ) ) ;
+	    CCGFloat dPhi2 ( fabs(
+				GlobalPoint( ( cell.getCorners()[0].x() + 
+					       cell.getCorners()[3].x() )/2. ,
+					     ( cell.getCorners()[0].y() + 
+					       cell.getCorners()[3].y() )/2. ,
+					     ( cell.getCorners()[0].z() + 
+					       cell.getCorners()[3].z() )/2.  ).phi() -
+				GlobalPoint( ( cell.getCorners()[2].x() + 
+					       cell.getCorners()[1].x() )/2. ,
+					     ( cell.getCorners()[2].y() + 
+					       cell.getCorners()[1].y() )/2. ,
+					     ( cell.getCorners()[2].z() + 
+					       cell.getCorners()[1].z() )/2.  ).phi() ) ) ;
+	    if( M_PI < dPhi1 ) dPhi1 = fabs( dPhi1 - 2.*M_PI ) ;
+	    if( M_PI < dPhi2 ) dPhi2 = fabs( dPhi2 - 2.*M_PI ) ;
+	    (*m_deltaPhi)[i] = dPhi1>dPhi2 ? dPhi1 : dPhi2 ;
+	 }
       }
    }
    return (*m_deltaPhi)[ cgId.denseIndex() ] ;
@@ -261,34 +268,38 @@ CaloSubdetectorGeometry::deltaEta( const DetId& detId ) const
       m_deltaEta = new std::vector<CCGFloat> ( kSize ) ;
       for( uint32_t i ( 0 ) ; i != kSize ; ++i )
       {
-	 const CaloCellGeometry& cell ( *cellGeomPtr( i ) ) ;
-	 const CCGFloat dEta1 ( fabs(
-	    GlobalPoint( ( cell.getCorners()[0].x() + 
-			   cell.getCorners()[1].x() )/2. ,
-			 ( cell.getCorners()[0].y() + 
-			   cell.getCorners()[1].y() )/2. ,
-			 ( cell.getCorners()[0].z() + 
-			   cell.getCorners()[1].z() )/2.  ).eta() -
-	    GlobalPoint( ( cell.getCorners()[2].x() + 
-			   cell.getCorners()[3].x() )/2. ,
-			 ( cell.getCorners()[2].y() + 
-			   cell.getCorners()[3].y() )/2. ,
-			 ( cell.getCorners()[2].z() + 
-			   cell.getCorners()[3].z() )/2.  ).eta() ) ) ;
-	 const CCGFloat dEta2 ( fabs(
-	    GlobalPoint( ( cell.getCorners()[0].x() + 
-			   cell.getCorners()[3].x() )/2. ,
-			 ( cell.getCorners()[0].y() + 
-			   cell.getCorners()[3].y() )/2. ,
-			 ( cell.getCorners()[0].z() + 
-			   cell.getCorners()[3].z() )/2.  ).eta() -
-	    GlobalPoint( ( cell.getCorners()[2].x() + 
-			   cell.getCorners()[1].x() )/2. ,
-			 ( cell.getCorners()[2].y() + 
-			   cell.getCorners()[1].y() )/2. ,
-			 ( cell.getCorners()[2].z() + 
-			   cell.getCorners()[1].z() )/2.  ).eta() ) ) ;
-	 (*m_deltaEta)[i] = dEta1>dEta2 ? dEta1 : dEta2 ;
+	 const CaloCellGeometry* cellPtr ( cellGeomPtr( i ) ) ;
+	 if( 0 != cellPtr )
+	 {
+	    const CaloCellGeometry& cell ( *cellPtr ) ;
+	    const CCGFloat dEta1 ( fabs(
+				      GlobalPoint( ( cell.getCorners()[0].x() + 
+						     cell.getCorners()[1].x() )/2. ,
+						   ( cell.getCorners()[0].y() + 
+						     cell.getCorners()[1].y() )/2. ,
+						   ( cell.getCorners()[0].z() + 
+						     cell.getCorners()[1].z() )/2.  ).eta() -
+				      GlobalPoint( ( cell.getCorners()[2].x() + 
+						     cell.getCorners()[3].x() )/2. ,
+						   ( cell.getCorners()[2].y() + 
+						     cell.getCorners()[3].y() )/2. ,
+						   ( cell.getCorners()[2].z() + 
+						     cell.getCorners()[3].z() )/2.  ).eta() ) ) ;
+	    const CCGFloat dEta2 ( fabs(
+				      GlobalPoint( ( cell.getCorners()[0].x() + 
+						     cell.getCorners()[3].x() )/2. ,
+						   ( cell.getCorners()[0].y() + 
+						     cell.getCorners()[3].y() )/2. ,
+						   ( cell.getCorners()[0].z() + 
+						     cell.getCorners()[3].z() )/2.  ).eta() -
+				      GlobalPoint( ( cell.getCorners()[2].x() + 
+						     cell.getCorners()[1].x() )/2. ,
+						   ( cell.getCorners()[2].y() + 
+						     cell.getCorners()[1].y() )/2. ,
+						   ( cell.getCorners()[2].z() + 
+						     cell.getCorners()[1].z() )/2.  ).eta() ) ) ;
+	    (*m_deltaEta)[i] = dEta1>dEta2 ? dEta1 : dEta2 ;
+	 }
       }
    }
    return (*m_deltaEta)[ cgId.denseIndex() ] ;
