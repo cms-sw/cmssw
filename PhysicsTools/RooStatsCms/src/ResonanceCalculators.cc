@@ -2,7 +2,7 @@
 
 #include "TStopwatch.h"
 
-void runResCalc(ResonanceCalculatorAbs& rc, const char* label)
+void runResCalc(ResonanceCalculatorAbs& rc, const char* label, bool goFast)
 {
   // start the stopwatch
   TStopwatch t;
@@ -13,35 +13,61 @@ void runResCalc(ResonanceCalculatorAbs& rc, const char* label)
   std::sprintf(rootfilename,"%s_%d.root",label, rc.getRandomSeed());
 
   // run the calculator
-  std::vector<std::pair<double, double> > teststats;
+  std::vector<std::pair<double, double> > teststatsfloat, teststatsfixed;
   double bumpMass, bumpTestStat;
-  double sig=rc.calculate(rootfilename, teststats, bumpMass, bumpTestStat); // go!
+  rc.calculate(rootfilename, teststatsfloat, teststatsfixed, bumpMass, bumpTestStat, goFast); // go!
 
   // print some basic output
   std::cout << "\n\n";
-  std::cout << "*********************************************************************" << std::endl;
+  std::cout << "***************************************************************************************************" << std::endl;
   std::cout << "Most significant bump found at " << bumpMass << std::endl;
-  if(rc.getNumPseudoExperiments()==0) {
-    std::cout << "LEE un-corrected significance=" << sig << std::endl;
-    std::cout << "LEE un-corrected p-value=" << ResonanceCalculatorAbs::zScoreToPValue(sig) << std::endl;
-  } else {
-    std::cout << "LEE un-corrected significance=" << bumpTestStat << std::endl;
-    std::cout << "LEE un-corrected p-value=" << ResonanceCalculatorAbs::zScoreToPValue(bumpTestStat) << std::endl;
+  std::cout << "LEE un-corrected significance from likelihood ratio  = " << bumpTestStat << std::endl;
+  std::cout << "LEE un-corrected p-value from likelihood ratio       = " << ResonanceCalculatorAbs::zScoreToPValue(bumpTestStat) << std::endl;
+  std::cout << std::endl;
+  if(rc.getNumPseudoExperiments()>0) {
 
-    std::cout << "LEE corrected significance=" << sig << std::endl;
-    std::cout << "LEE corrected p-value=" << ResonanceCalculatorAbs::zScoreToPValue(sig) << std::endl;
+    double pvalueFloat=ResonanceCalculatorAbs::getPValue(teststatsfloat, bumpTestStat);
+    double pvalueFixed=ResonanceCalculatorAbs::getPValue(teststatsfixed, bumpTestStat);
+    double zscoreFloat=ResonanceCalculatorAbs::getZScore(teststatsfloat, bumpTestStat);
+    double zscoreFixed=ResonanceCalculatorAbs::getZScore(teststatsfixed, bumpTestStat);
+    
+    std::pair<double, double> pvalueFloat68Range=ResonanceCalculatorAbs::getPValueRange(teststatsfloat, bumpTestStat, 1.0-0.68);
+    std::pair<double, double> zscoreFloat68Range=ResonanceCalculatorAbs::getZScoreRange(teststatsfloat, bumpTestStat, 1.0-0.68);
+    std::pair<double, double> pvalueFloat95Range=ResonanceCalculatorAbs::getPValueRange(teststatsfloat, bumpTestStat, 1.0-0.95);
+    std::pair<double, double> zscoreFloat95Range=ResonanceCalculatorAbs::getZScoreRange(teststatsfloat, bumpTestStat, 1.0-0.95);
 
-    std::pair<double, double> pvalueRange=ResonanceCalculatorAbs::getPValueRange(teststats, bumpTestStat, 1.0-0.68);
-    std::pair<double, double> zscoreRange=ResonanceCalculatorAbs::getZScoreRange(teststats, bumpTestStat, 1.0-0.68);
-    std::cout << "LEE corrected significance 68% C.L. range=[" << zscoreRange.first << ", " << zscoreRange.second << "]" << std::endl;
-    std::cout << "LEE corrected p-value 68% C.L. range=[" << pvalueRange.first << ", " << pvalueRange.second << "]" << std::endl;
+    std::pair<double, double> pvalueFixed68Range=ResonanceCalculatorAbs::getPValueRange(teststatsfixed, bumpTestStat, 1.0-0.68);
+    std::pair<double, double> zscoreFixed68Range=ResonanceCalculatorAbs::getZScoreRange(teststatsfixed, bumpTestStat, 1.0-0.68);
+    std::pair<double, double> pvalueFixed95Range=ResonanceCalculatorAbs::getPValueRange(teststatsfixed, bumpTestStat, 1.0-0.95);
+    std::pair<double, double> zscoreFixed95Range=ResonanceCalculatorAbs::getZScoreRange(teststatsfixed, bumpTestStat, 1.0-0.95);
 
-    pvalueRange=ResonanceCalculatorAbs::getPValueRange(teststats, bumpTestStat, 1.0-0.95);
-    zscoreRange=ResonanceCalculatorAbs::getZScoreRange(teststats, bumpTestStat, 1.0-0.95);
-    std::cout << "LEE corrected significance 95% C.L. range=[" << zscoreRange.first << ", " << zscoreRange.second << "]" << std::endl;
-    std::cout << "LEE corrected p-value 95% C.L. range=[" << pvalueRange.first << ", " << pvalueRange.second << "]" << std::endl;
+    std::cout << "LEE uncorrected significance from pseudo-experiments = " << zscoreFixed << "\n"
+	      << "                                                     = [" << zscoreFixed68Range.first << ", "
+	      << zscoreFixed68Range.second << "] @ 68% C.L.\n"
+	      << "                                                     = [" << zscoreFixed95Range.first << ", "
+	      << zscoreFixed95Range.second << "] @ 95% C.L." << std::endl;
+    std::cout << "LEE uncorrected p-value from pseudo-experiments      = " << pvalueFixed << "\n"
+	      << "                                                     = [" << pvalueFixed68Range.first << ", "
+	      << pvalueFixed68Range.second << "] @ 68% C.L.\n"
+	      << "                                                     = [" << pvalueFixed95Range.first << ", "
+	      << pvalueFixed95Range.second << "] @ 95% C.L." << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "LEE corrected significance from pseudo-experiments   = " << zscoreFloat << "\n"
+	      << "                                                     = [" << zscoreFloat68Range.first << ", "
+	      << zscoreFloat68Range.second << "] @ 68% C.L.\n"
+	      << "                                                     = [" << zscoreFloat95Range.first << ", "
+	      << zscoreFloat95Range.second << "] @ 95% C.L." << std::endl;
+    std::cout << "LEE corrected p-value from pseudo-experiments        = " << pvalueFloat << "\n"
+	      << "                                                     = [" << pvalueFloat68Range.first << ", "
+	      << pvalueFloat68Range.second << "] @ 68% C.L.\n"
+	      << "                                                     = [" << pvalueFloat95Range.first << ", "
+	      << pvalueFloat95Range.second << "] @ 95% C.L." << std::endl;
+
+    std::cout << std::endl;
+
   }
-  std::cout << "*********************************************************************" << std::endl;
+  std::cout << "***************************************************************************************************" << std::endl;
 
   // stop and print the stopwatch
   t.Stop();

@@ -19,12 +19,12 @@ void rescalc_standalone(void)
   // run the calculator
   int numPEs=100;
   int seed=1;
-  FactoryResCalc rc("signal", "RooGaussian::signal(obs, signalmass, signalwidth)",
-		    "background", "EXPR::background('pow(1.0-obs/7000.0,p1)/pow(obs/7000.0,p2+p3*log(obs/7000.0))', p1[10,-40,40], p2[7,-20,20], p3[0.1,-20,20], obs)",
-		    "signalwidth", "prod::signalwidth(0.02, signalmass)");
-  rc.setBinnedData(newhist);
+  FactoryResCalc rc("RooGaussian::signal(obs, signalmass, signalwidth)",
+		    "EXPR::background('pow(1.0-obs/7000.0,p1)/pow(obs/7000.0,p2+p3*log(obs/7000.0))', p1[10,-40,40], p2[7,-20,20], p3[0.1,-20,20], obs)",
+		    "prod::signalwidth(0.02, signalmass)");
+  rc.setBinnedData(newhist,21,200);
   rc.setNumBinsToDraw(newhist->GetNbinsX());
-  rc.setMinMaxSignalMass(140., 500.);
+  rc.setMinMaxSignalMass(180., 500.);
   rc.setNumPseudoExperiments(numPEs);
   rc.setRandomSeed(seed);
   runResCalc(rc, "output");

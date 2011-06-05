@@ -34,22 +34,17 @@ class TH1;
 //   * "obs" - the observable
 //   * "signalmass" - the signal resonance mass
 // The arguements in the constructor specify
-//   * the name of the signal pdf
-//   * the expression which instantiates the signal pdf
-//   * the name of the background pdf
-//   * the expression which instantiates the background pdf
-//   * the name of the signal width variable
-//   * the expression which instantiates the signal width
+//   * the expression which instantiates the signal pdf.  This pdf must be named "signal"
+//   * the name of the background pdf.  This pdf must be named "background"
+//   * the name of the signal width variable.  This variable or expression must be named "signalwidth"
 //
 ////////////////////////////////////////////////////////////////////////////////
 
 class FactoryResCalc : public ResonanceCalculatorAbs
 {
 public:
-  FactoryResCalc(const char *sigpdfname, const char* sigexpr,
-		 const char *bkgpdfname, const char* bkgexpr,
-		 const char *widthname, const char* widthexpr) : ResonanceCalculatorAbs() {
-    setupWorkspaceViaFactory(sigpdfname, sigexpr, bkgpdfname, bkgexpr, widthname, widthexpr);
+  FactoryResCalc(const char* sigexpr, const char* bkgexpr, const char* widthexpr) : ResonanceCalculatorAbs() {
+    setupWorkspaceViaFactory(sigexpr, bkgexpr, widthexpr);
   }
   virtual ~FactoryResCalc() {}
 
@@ -113,7 +108,7 @@ protected:
 // function calls
 ////////////////////////////////////////////////////////////////////////////////
 
-void runResCalc(ResonanceCalculatorAbs& rc, const char* label);
+void runResCalc(ResonanceCalculatorAbs& rc, const char* label, bool goFast=true);
 
 
 

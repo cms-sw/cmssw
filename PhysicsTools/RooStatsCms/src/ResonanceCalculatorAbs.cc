@@ -28,14 +28,14 @@
 int ResonanceCalculatorAbs::printLevel_=1;
 
 ResonanceCalculatorAbs::ResonanceCalculatorAbs()
-  : numPEs_(100), nBinsToDraw_(100), whichTestStatistic_(1), searchStepSize_(1.0), randomSeed_(1), fitStrategy_(2), controlMin_(1.), controlMax_(0.), dataIntegral_(-1), ws_(0)
+  : numPEs_(100), nBinsToDraw_(100), whichTestStatistic_(1), searchStepSize_(1.0), fixedSearchStepSize_(-999), randomSeed_(1), fitStrategy_(2), controlMin_(1.), controlMax_(0.), dataIntegral_(-1), ws_(0)
 {
   // default constructor
 }
 
 ResonanceCalculatorAbs::ResonanceCalculatorAbs(const ResonanceCalculatorAbs& other)
   : numPEs_(other.numPEs_), nBinsToDraw_(other.nBinsToDraw_), whichTestStatistic_(other.whichTestStatistic_),
-    searchStepSize_(other.searchStepSize_), randomSeed_(other.randomSeed_), fitStrategy_(other.fitStrategy_), controlMin_(other.controlMin_), controlMax_(other.controlMax_),
+    searchStepSize_(other.searchStepSize_), fixedSearchStepSize_(other.fixedSearchStepSize_), randomSeed_(other.randomSeed_), fitStrategy_(other.fitStrategy_), controlMin_(other.controlMin_), controlMax_(other.controlMax_),
     dataBinning_(other.dataBinning_), dataIntegral_(other.dataIntegral_)
 {
   // copy constructor
@@ -65,29 +65,30 @@ ResonanceCalculatorAbs::~ResonanceCalculatorAbs()
   
 }
 
-double ResonanceCalculatorAbs::calculate(const char* rootfilename)
+double ResonanceCalculatorAbs::calculate(const char* rootfilename, bool fastAlgo)
 {
   double bumpMass, bumpTestStat;
-  std::vector<std::pair<double, double> > teststats;
-  return calculate(rootfilename, teststats, bumpMass, bumpTestStat);
+  std::vector<std::pair<double, double> > teststatsfloat, teststatsfixed;
+  return calculate(rootfilename, teststatsfloat, teststatsfixed, bumpMass, bumpTestStat, fastAlgo);
 }
 
-double ResonanceCalculatorAbs::calculate(const char* rootfilename, std::vector<std::pair<double, double> >& teststats_, double& bumpMass_, double& bumpTestStat_)
+double ResonanceCalculatorAbs::calculate(const char* rootfilename, std::vector<std::pair<double, double> >& teststatsfloat_, std::vector<std::pair<double, double> >& teststatsfixed_, double& bumpMass_, double& bumpTestStat_, bool fastAlgo)
 {
   // find the bump, and put the results and diagnostic plots into rootfilename
-
+  
   // clear out the vector, just in case
-  teststats_.clear();
-
+  teststatsfloat_.clear();
+  teststatsfixed_.clear();
+  
   // set the random seed
   RooRandom::randomGenerator()->SetSeed(randomSeed_);
-
+  
   // open the file and create a directory based on the random seed
   TFile* rootfile=new TFile(rootfilename, "RECREATE");
   rootfile->cd();
   TString dirname="seed";
   dirname+=randomSeed_;
-
+  
   // setup a tree to store the test statistic values
   TTree* tree=new TTree("rescalctree","Resonance Calculator Tree");
   int randomSeed;
@@ -110,19 +111,24 @@ double ResonanceCalculatorAbs::calculate(const char* rootfilename, std::vector<s
   // find a bump
   rootfile->mkdir(dirname+"_data");
   rootfile->cd(dirname+"_data");
-  if(controlMin_>controlMax_) scanForBump("data");
-  else                        scanForBumpWithControl("data");
+  if(controlMin_>controlMax_) {
+    if(fastAlgo) scanFastestForBump("data");
+    else         scanForBump("data");
+  } else {
+    if(fastAlgo) scanFastestForBumpWithControl("data");
+    else         scanForBumpWithControl("data");
+  }
 
   if(nsig_->getVal()==0) {
     if(printLevel_>=0) std::cout << "There was no bump found." << std::endl;
     numPEs_=0; // don't run any PEs, that would be silly
   }
-
+  
   bumpMass=sigmass_->getVal();
   bumpTestStat=evaluateTestStatistic();
   bumpTestStat_=bumpTestStat;
   bumpMass_=bumpMass;
-
+  
   // keep the original parameters and for later reference
   RooArgList originalBackgroundParams;
   originalBackgroundParams.addClone(*bkgparams_);
@@ -132,7 +138,7 @@ double ResonanceCalculatorAbs::calculate(const char* rootfilename, std::vector<s
   for(int i=0; i<numPEs_; i++) {
     // copy the original background parameters from the data fit
     copyValuesToBkgParams(&originalBackgroundParams);
-
+    
     // make pseudodata
     if(dynamic_cast<RooDataHist*>(originalData))
       data_ = generateBinned(background_, dynamic_cast<RooDataHist*>(originalData), dataIntegral_);
@@ -140,7 +146,7 @@ double ResonanceCalculatorAbs::calculate(const char* rootfilename, std::vector<s
       data_ = generateUnbinned(background_, dataIntegral_);
     else
       assert(1);
-
+    
     // set the label and descend into the directory
     TString label("PE");
     label+=i;
@@ -155,13 +161,19 @@ double ResonanceCalculatorAbs::calculate(const char* rootfilename, std::vector<s
     testStatFixed[i]=evaluateTestStatistic();
 
     // scan for a bump in the pseudodata
-    if(controlMin_>controlMax_) scanForBump(label);
-    else                        scanForBumpWithControl(label);
+    if(controlMin_>controlMax_) {
+      if(fastAlgo) scanFastestForBump(label);
+      else         scanForBump(label);
+    } else {
+      if(fastAlgo) scanFastestForBumpWithControl(label);
+      else         scanForBumpWithControl(label);
+    }
     testStatFloat[i]=evaluateTestStatistic();
     testStatMass[i]=sigmass_->getVal();
 
-    teststats_.push_back(std::pair<double, double>(testStatFloat[i], 1.0));
-
+    teststatsfloat_.push_back(std::pair<double, double>(testStatFloat[i], 1.0));
+    teststatsfixed_.push_back(std::pair<double, double>(testStatFixed[i], 1.0));
+    
     // delete the pseudodata when we're through with it
     delete data_;
   }
@@ -178,7 +190,7 @@ double ResonanceCalculatorAbs::calculate(const char* rootfilename, std::vector<s
   rootfile->cd("/");
   tree->Write();
   rootfile->Close();
-
+  
   delete[] testStatFloat;
   delete[] testStatFixed;
   delete[] testStatMass;
@@ -186,9 +198,60 @@ double ResonanceCalculatorAbs::calculate(const char* rootfilename, std::vector<s
   // if we aren't running any PEs, just return the bump test statistic now
   if(numPEs_<=0) return bumpTestStat_;
 
-  return getZScore(teststats_, bumpTestStat_);
+  return getZScore(teststatsfloat_, bumpTestStat_);
 }
 
+
+void ResonanceCalculatorAbs::setBinnedData(TH1* dataHist, int minBin, int maxBin)
+{
+  // Creates a dataset based on the histogram and imports it into the workspace.
+  // The minimum and maximum values of the observable are set here, being determined by
+  // the minBin and maxBin
+  
+  if(!dataHist) {
+    std::cerr << "ResonanceCalculatorAbs::setBinnedData(): Bad Histogram input" << std::endl;
+    return;
+  }
+
+  // use the name of the histogram to give the dataset a name
+  TString dataname = dataHist->GetName();
+
+  // if there is already a dataset around, get a new name
+  if(data_) dataname = TString(data_->GetName())+"_";
+
+  // set the range of the observable to the minimum and maximum values found in the histogram
+  obs_->setRange(dataHist->GetXaxis()->GetBinLowEdge(minBin), dataHist->GetXaxis()->GetBinUpEdge(maxBin));
+  obs_->setVal(dataHist->GetXaxis()->GetBinLowEdge(minBin));
+
+  // store the data binning (amazingly, this is needed to throw PEs)
+  if(dataHist->GetXaxis()->GetXbins()->GetArray()) {
+    std::cerr << "ResonanceCalculatorAbs::setBinnedData(): You cannot use variable binning!!" << std::endl;
+    assert(0);
+    //    RooBinning binning(dataHist->GetNbinsX(), dataHist->GetXaxis()->GetXbins()->GetArray());
+  } else {
+    RooBinning binning(dataHist->GetNbinsX(), dataHist->GetXaxis()->GetBinLowEdge(minBin), dataHist->GetXaxis()->GetBinUpEdge(maxBin));
+    dataBinning_ = binning;
+  }
+
+  // create the datahist
+  data_ = new RooDataHist(dataname, "binned data", RooArgSet(*obs_), RooFit::Import(*dataHist, kFALSE));
+  ws_->import(*data_);
+
+  // delete the dataset now that we've imported it into the workspace
+  delete data_;
+
+  // get back a pointer to the imported dataset
+  data_ = dynamic_cast<RooDataHist*>(ws_->data(dataname));  
+
+  // store the integral of the data
+  dataIntegral_ = data_->sumEntries();
+  nbkg_->setVal(dataIntegral_);
+
+  // determine the default range for the minimum and maximum mass to search for
+  findMinMaxMass();
+
+  return;
+}
 
 void ResonanceCalculatorAbs::setBinnedData(TH1* dataHist)
 {
@@ -213,8 +276,9 @@ void ResonanceCalculatorAbs::setBinnedData(TH1* dataHist)
 
   // store the data binning (amazingly, this is needed to throw PEs)
   if(dataHist->GetXaxis()->GetXbins()->GetArray()) {
-    RooBinning binning(dataHist->GetNbinsX(), dataHist->GetXaxis()->GetXbins()->GetArray());
-    dataBinning_ = binning;
+    std::cerr << "ResonanceCalculatorAbs::setBinnedData(): You cannot use variable binning!!" << std::endl;
+    assert(0);
+    //    RooBinning binning(dataHist->GetNbinsX(), dataHist->GetXaxis()->GetXbins()->GetArray());
   } else {
     RooBinning binning(dataHist->GetNbinsX(), dataHist->GetXaxis()->GetXmin(), dataHist->GetXaxis()->GetXmax());
     dataBinning_ = binning;
@@ -364,9 +428,7 @@ void ResonanceCalculatorAbs::setUnbinnedData(const char* filename, double minx, 
   return;
 }
 
-void ResonanceCalculatorAbs::setupWorkspaceViaFactory(const char *sigpdfname, const char* sigexpr,
-						      const char *bkgpdfname, const char* bkgexpr,
-						      const char *widthname, const char* widthexpr)
+void ResonanceCalculatorAbs::setupWorkspaceViaFactory(const char* sigexpr, const char* bkgexpr, const char* widthexpr)
 {
   // setup internal workspace via a factory mechanism
 
@@ -384,26 +446,26 @@ void ResonanceCalculatorAbs::setupWorkspaceViaFactory(const char *sigpdfname, co
 
   // setup background pdf
   ws_->factory(bkgexpr);
-  background_ = ws_->pdf(bkgpdfname);
+  background_ = ws_->pdf("background");
   if(!background_) {
-    std::cerr << "ResonanceCalculatorAbs::setupWorkspaceViaFactory(): Failed to import the background pdf named " << bkgpdfname << std::endl;
+    std::cerr << "ResonanceCalculatorAbs::setupWorkspaceViaFactory(): Failed to import the background pdf" << std::endl;
     assert(0);
   }
 
   // setup signal width parameter
   ws_->factory(widthexpr);
-  sigwidth_ = ws_->var(widthname);
-  if(!sigwidth_) sigwidth_ = ws_->function(widthname);
+  sigwidth_ = ws_->var("signalwidth");
+  if(!sigwidth_) sigwidth_ = ws_->function("signalwidth");
   if(!sigwidth_) {
-    std::cerr << "ResonanceCalculatorAbs::setupWorkspaceViaFactory(): Failed to import the signal width expression named " << widthname << std::endl;
+    std::cerr << "ResonanceCalculatorAbs::setupWorkspaceViaFactory(): Failed to import the signal width expression" << std::endl;
     assert(0);
   }
 
   // setup background pdf
   ws_->factory(sigexpr);
-  signal_ = ws_->pdf(sigpdfname);
+  signal_ = ws_->pdf("signal");
   if(!signal_) {
-    std::cerr << "ResonanceCalculatorAbs::setupWorkspaceViaFactory(): Failed to import the signal pdf named " << sigpdfname << std::endl;
+    std::cerr << "ResonanceCalculatorAbs::setupWorkspaceViaFactory(): Failed to import the signal pdf" << std::endl;
     assert(0);
   }
 
@@ -491,25 +553,53 @@ void ResonanceCalculatorAbs::setupWorkspace(void)
   return;
 }
 
+void ResonanceCalculatorAbs::scanFastestForBump(const char* label)
+{
+  // do B-only fit, first
+  doBkgOnlyFit(label);
+  
+  // setup a SCAN for the best bump
+  nbkg_->setConstant(true);
+  setBkgParamsConst(true);
+  nsig_->setConstant(false);
+  nsig_->setRange(0.01,nbkg_->getVal());
+  nsig_->setVal(nbkg_->getVal()/2.0);
+  sigmass_->setConstant(false);
+  setSigParamsConst(false);
+
+  // SCAN
+  obs_->setRange("full",obs_->getMin(), obs_->getMax());
+    RooFitResult* fit=model_->fitTo(*data_, RooFit::Save(kTRUE), RooFit::Extended(kTRUE), RooFit::Strategy(0), RooFit::PrintLevel(printLevel_), RooFit::Minimizer("GSLSimAn"));
+  if(printLevel_>=2) fit->Print();
+  drawFitResult(TString(label)+"_siman","full");
+
+  // do things more carefully
+  doBkgOnlyExcludeWindowFit(label);
+  double minmassrange=std::max(sigmass_->getVal()-1.1*getStepSize(), sigmass_->getMin());
+  double maxmassrange=std::min(sigmass_->getVal()+1.1*getStepSize(), sigmass_->getMax());
+  doSigOnlyFloatMassFit(label, minmassrange, maxmassrange);
+  
+  return;
+}
+
 void ResonanceCalculatorAbs::scanForBump(const char* label)
 {
-
   // do B-only fit, first
   doBkgOnlyFit(label);
 
   // scan the mass range starting at the minimum
   sigmass_->setVal(sigmass_->getMin());
   double currmass=sigmass_->getVal();
-  double currwidth=sigwidth_->getVal();
-  double nextmass=currmass+searchStepSize_*currwidth;
+  double nextmass=currmass+getStepSize();
   double bestSig=0.0, bestSigMass=0.0;
+  RooArgList bestSignalParams;
   int counter=0;
   while(currmass<sigmass_->getMax()) {
     ++counter;
 
     // do a fit
-    double minmassrange=std::max(currmass-searchStepSize_*1.1*currwidth, sigmass_->getMin());
-    double maxmassrange=std::min(currmass+searchStepSize_*1.1*currwidth, sigmass_->getMax());
+    double minmassrange=std::max(currmass-1.1*getStepSize(), sigmass_->getMin());
+    double maxmassrange=std::min(currmass+1.1*getStepSize(), sigmass_->getMax());
     char newlabel[1000];
     sprintf(newlabel, "%sRegion%d",label,counter);
     if(doBkgPlusSigFloatMassFit(newlabel, minmassrange, maxmassrange)->status()!=0) continue;
@@ -522,11 +612,14 @@ void ResonanceCalculatorAbs::scanForBump(const char* label)
 
       // fit for the signal, with fixed background
       if(doSigOnlyFloatMassFit(newlabel, minmassrange, maxmassrange)->status()!=0) continue;
+      //      if(doBkgPlusSigFloatMassFit(newlabel, minmassrange, maxmassrange)->status()!=0) continue;
     }
 
     // see if the bump is significant
     double significance=evaluateTestStatistic();
     if(significance>bestSig) {
+      bestSignalParams.removeAll();
+      bestSignalParams.addClone(*sigparams_);
       bestSig=significance;
       bestSigMass=sigmass_->getVal();
     }
@@ -542,8 +635,7 @@ void ResonanceCalculatorAbs::scanForBump(const char* label)
     // step
     sigmass_->setVal(nextmass);
     currmass=sigmass_->getVal();
-    currwidth=sigwidth_->getVal();
-    nextmass=currmass+searchStepSize_*currwidth;
+    nextmass=currmass+getStepSize();
   }
 
   if(bestSig<=0.0) {
@@ -552,12 +644,52 @@ void ResonanceCalculatorAbs::scanForBump(const char* label)
     return;
   }
 
-  // redraw fit, if we want to show it
+  // redo fit
+  copyValuesToSigParams(&bestSignalParams);
   sigmass_->setVal(bestSigMass);
   doBkgOnlyExcludeWindowFit(label);
   doSigOnlyFixMassFit(label);
 
 
+  return;
+}
+
+void ResonanceCalculatorAbs::scanFastestForBumpWithControl(const char* label)
+{
+  // check for an overlap between the signal and control regions
+  if((sigmass_->getMin()>controlMin_ && sigmass_->getMin()<controlMax_) ||
+     (sigmass_->getMax()>controlMin_ && sigmass_->getMax()<controlMax_) ||
+     (sigmass_->getMin()<controlMin_ && sigmass_->getMax()>controlMax_)) {
+    if(printLevel_>=0) std::cout << "The signal and control regions overlap.  Are you sure you want to do that?" << std::endl;
+  }
+  
+  // do B-only fit, first
+  double oldMin=obs_->getMin();
+  double oldMax=obs_->getMax();
+  obs_->setRange(controlMin_, controlMax_);
+  doBkgOnlyFit(label);
+  obs_->setRange(oldMin, oldMax);
+  
+  // setup a SCAN for the best bump
+  nbkg_->setConstant(true);
+  setBkgParamsConst(true);
+  nsig_->setConstant(false);
+  nsig_->setRange(0.01,nbkg_->getVal());
+  nsig_->setVal(nbkg_->getVal()/2.0);
+  sigmass_->setConstant(false);
+  setSigParamsConst(false);
+
+  // SCAN
+  obs_->setRange("full",obs_->getMin(), obs_->getMax());
+    RooFitResult* fit=model_->fitTo(*data_, RooFit::Save(kTRUE), RooFit::Extended(kTRUE), RooFit::Strategy(0), RooFit::PrintLevel(printLevel_), RooFit::Minimizer("GSLSimAn"));
+  if(printLevel_>=2) fit->Print();
+  drawFitResult(TString(label)+"_siman","full");
+
+  // do things more carefully
+  double minmassrange=std::max(sigmass_->getVal()-1.1*getStepSize(), sigmass_->getMin());
+  double maxmassrange=std::min(sigmass_->getVal()+1.1*getStepSize(), sigmass_->getMax());
+  doSigOnlyFloatMassFit(label, minmassrange, maxmassrange);
+  
   return;
 }
 
@@ -580,16 +712,15 @@ void ResonanceCalculatorAbs::scanForBumpWithControl(const char* label)
   // scan the mass range starting at the minimum
   sigmass_->setVal(sigmass_->getMin());
   double currmass=sigmass_->getVal();
-  double currwidth=sigwidth_->getVal();
-  double nextmass=currmass+searchStepSize_*currwidth;
+  double nextmass=currmass+getStepSize();
   double bestSig=0.0, bestSigMass=0.0;
   int counter=0;
   while(currmass<sigmass_->getMax()) {
     ++counter;
 
     // do a fit
-    double minmassrange=std::max(currmass-searchStepSize_*1.1*currwidth, sigmass_->getMin());
-    double maxmassrange=std::min(currmass+searchStepSize_*1.1*currwidth, sigmass_->getMax());
+    double minmassrange=std::max(currmass-1.1*getStepSize(), sigmass_->getMin());
+    double maxmassrange=std::min(currmass+1.1*getStepSize(), sigmass_->getMax());
     char newlabel[1000];
     sprintf(newlabel, "%sRegion%d",label,counter);
     if(doSigOnlyFloatMassFit(newlabel, minmassrange, maxmassrange)->status()!=0) continue;
@@ -612,8 +743,7 @@ void ResonanceCalculatorAbs::scanForBumpWithControl(const char* label)
     // step
     sigmass_->setVal(nextmass);
     currmass=sigmass_->getVal();
-    currwidth=sigwidth_->getVal();
-    nextmass=currmass+searchStepSize_*currwidth;
+    nextmass=currmass+getStepSize();
   }
 
   if(bestSig<=0.0) {
@@ -622,7 +752,7 @@ void ResonanceCalculatorAbs::scanForBumpWithControl(const char* label)
     return;
   }
 
-  // redraw fit, if we want to show it
+  // redo fit
   sigmass_->setVal(bestSigMass);
   doSigOnlyFixMassFit(label);
 
@@ -635,7 +765,8 @@ RooFitResult* ResonanceCalculatorAbs::doBkgOnlyFit(const char* label)
   // do a fit to the background only
   nbkg_->setConstant(false);
   setBkgParamsConst(false);
-  nsig_->setVal(0);
+  nsig_->setMin(0.0);
+  nsig_->setVal(0.0);
   nsig_->setConstant(true);
   sigmass_->setConstant(true);
   setSigParamsConst(true);
@@ -652,6 +783,7 @@ RooFitResult* ResonanceCalculatorAbs::doBkgOnlyExcludeWindowFit(const char* labe
   // do a fit to the background only excluding a window +/- 3 units in width about the resonance mass
   nbkg_->setConstant(false);
   setBkgParamsConst(false);
+  nsig_->setMin(0.0);
   nsig_->setVal(0);
   nsig_->setConstant(true);
   sigmass_->setConstant(true);
@@ -700,7 +832,8 @@ RooFitResult* ResonanceCalculatorAbs::doBkgPlusSigFixMassFit(const char* label)
   // do a fit to signal+background with a fixed mass
   nbkg_->setConstant(false);
   setBkgParamsConst(false);
-  nsig_->setVal(10.0); // set seed away from 0
+  nsig_->setRange(0.01,nbkg_->getVal());
+  nsig_->setVal(nbkg_->getVal()/2.0); // set seed away from 0
   nsig_->setConstant(false);
   sigmass_->setConstant(true);
   setSigParamsConst(false);
@@ -717,7 +850,8 @@ RooFitResult* ResonanceCalculatorAbs::doSigOnlyFixMassFit(const char* label)
   // do a fit to signal-only with a fixed mass
   nbkg_->setConstant(true);
   setBkgParamsConst(true);
-  nsig_->setVal(10.0); // set seed away from 0
+  nsig_->setRange(0.01,nbkg_->getVal());
+  nsig_->setVal(nbkg_->getVal()/2.0); // set seed away from 0
   nsig_->setConstant(false);
   sigmass_->setConstant(true);
   setSigParamsConst(false);
@@ -734,7 +868,8 @@ RooFitResult* ResonanceCalculatorAbs::doSigOnlyFloatMassFit(const char* label, d
   // do a fit to signal only with a floating mass
   nbkg_->setConstant(true);
   setBkgParamsConst(true);
-  nsig_->setVal(10.0); // set seed away from 0
+  nsig_->setRange(0.01,nbkg_->getVal());
+  nsig_->setVal(nbkg_->getVal()/2.0); // set seed away from 0
   nsig_->setConstant(false);
   sigmass_->setConstant(false);
   setSigParamsConst(false);
@@ -762,7 +897,8 @@ RooFitResult* ResonanceCalculatorAbs::doBkgPlusSigFloatMassFit(const char* label
   // do a fit to signal+background with a floating mass
   nbkg_->setConstant(false);
   setBkgParamsConst(false);
-  nsig_->setVal(10.0); // set seed away from 0
+  nsig_->setRange(0.01,nbkg_->getVal());
+  nsig_->setVal(nbkg_->getVal()/2.0); // set seed away from 0
   nsig_->setConstant(false);
   sigmass_->setConstant(false);
   setSigParamsConst(false);
@@ -950,6 +1086,25 @@ void ResonanceCalculatorAbs::copyValuesToBkgParams(RooArgList* params)
   return;
 }
 
+void ResonanceCalculatorAbs::copyValuesToSigParams(RooArgList* params)
+{
+  // set all of the background parameters to the values of the parameters in the argument
+
+  TIterator *iter = sigparams_->createIterator();
+  TObject* obj;
+  while((obj=iter->Next())) {
+    RooRealVar* var=dynamic_cast<RooRealVar*>(obj);
+    if(var) {
+      RooRealVar* varcopy=dynamic_cast<RooRealVar*>(params->find(var->GetName()));
+      if(varcopy) var->setVal(varcopy->getVal());
+    }
+  }
+
+  delete iter;
+
+  return;
+}
+
 
 void ResonanceCalculatorAbs::findMinMaxMass(void)
 {
@@ -971,9 +1126,15 @@ void ResonanceCalculatorAbs::findMinMaxMass(void)
   return;
 }
 
+double ResonanceCalculatorAbs::getStepSize(void) const
+{
+  return fixedSearchStepSize_>0 ? fixedSearchStepSize_ : searchStepSize_*sigwidth_->getVal();
+}
+
 double ResonanceCalculatorAbs::evaluateTestStatistic(void)
 {
   if(whichTestStatistic_==0) {
+    nsig_->setMin(0.0);
     double originalVal=nsig_->getVal();
     nsig_->setConstant(true);
     RooArgSet poi(*nsig_);

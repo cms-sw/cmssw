@@ -48,10 +48,10 @@ public:
   // significance uncorrected for the look elsewhere effect (LEE).
   // If the number of PEs to run is set to >0, it returns the significance,
   // corrected for the LEE.
-  double calculate(const char* rootfilename);
+  double calculate(const char* rootfilename, bool fastAlgo=false);
 
   // Same as above, but also gives the user the (test statistic, weight) pair from each PE.
-  double calculate(const char* rootfilename, std::vector<std::pair<double, double> >& teststats_, double& bumpMass_, double& bumpTestStat_);
+  double calculate(const char* rootfilename, std::vector<std::pair<double, double> >& teststatsfloat_, std::vector<std::pair<double, double> >& teststatsfixed_, double& bumpMass_, double& bumpTestStat_, bool fastAlgo=false);
 
   ////////////////////////////////////////////////////////////////////////////////
   // provide the data
@@ -59,6 +59,7 @@ public:
 
   // input is a 1-D histogram (minimum and maximum bin values are considered the boundaries)
   void setBinnedData(TH1* dataHist);
+  void setBinnedData(TH1* dataHist, int minBin, int maxBin);
 
   // input is a text file with a list of data points, but the data gets binned
   // the number of bins, as well as the minimum and maximum bin values must be specified
@@ -131,9 +132,12 @@ public:
   // use the best fit of the number of signal events divided by the fit error as the test statistic
   void useFitErrorTestStatistic(void) { whichTestStatistic_=1; }
 
-  // set the step size to search for a resonance (in units of resonance width)
-  // default is 1.0
-  void setSearchStepSize(double m) { searchStepSize_=m; }
+  // set the step size to search for a resonance in either units of resonance width
+  // or fixed size
+  // the default is to use 1.0 width units
+  // These are now deprecated
+  void setSearchStepSizeInWidthUnits(double m) { searchStepSize_=m; }
+  void setSearchStepSizeInFixedUnits(double m) { fixedSearchStepSize_=m; }
 
   // set the random seed (default is 1)
   void setRandomSeed(int seed) { randomSeed_=seed; }
@@ -163,9 +167,7 @@ protected:
 
   // one of these must be called by the constructor of the final concrete implementation of this class
   void setupWorkspace(void);
-  void setupWorkspaceViaFactory(const char *sigpdfname, const char* sigexpr,
-				const char *bkgpdfname, const char* bkgexpr,
-				const char *widthname, const char* widthexpr);
+  void setupWorkspaceViaFactory(const char* sigexpr, const char* bkgexpr, const char* widthexpr);
 
   // called by setupWorkspace() to specify the background pdf, signal width, and signal pdf
   virtual RooAbsPdf* setupBackgroundPdf(void) =0;
@@ -180,6 +182,7 @@ protected:
   int nBinsToDraw_;
   int whichTestStatistic_;
   double searchStepSize_;
+  double fixedSearchStepSize_;
   int randomSeed_;
   static int printLevel_;
   int fitStrategy_;
@@ -209,7 +212,9 @@ private:
 
   // helper functions
   void scanForBump(const char* label);
+  void scanFastestForBump(const char* label);
   void scanForBumpWithControl(const char* label);
+  void scanFastestForBumpWithControl(const char* label);
   RooFitResult* doBkgOnlyFit(const char* label);
   RooFitResult* doBkgOnlyExcludeWindowFit(const char* label);
   RooFitResult* doSigOnlyFixMassFit(const char* label);
@@ -221,7 +226,9 @@ private:
   void setSigParamsConst(bool isConst);
   void setBkgParamsConst(bool isConst);
   void copyValuesToBkgParams(RooArgList* params);
+  void copyValuesToSigParams(RooArgList* params);
   void findMinMaxMass(void);
+  double getStepSize(void) const;
   double evaluateTestStatistic(void);
   RooDataHist* generateBinned(RooAbsPdf* pdf, RooDataHist* templateDataHist, int numEntries);
   RooDataSet* generateUnbinned(RooAbsPdf* pdf, int numEntries);
