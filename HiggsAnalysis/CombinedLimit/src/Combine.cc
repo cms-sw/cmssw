@@ -117,7 +117,7 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
       sprintf(modelBName, modelConfigNameB_.c_str(), modelConfigName_.c_str());
       modelConfigNameB_ = modelBName;
   }
-  mass_ = vm["mass"].as<int>();
+  mass_ = vm["mass"].as<float>();
 }
 
 bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) {
@@ -137,7 +137,6 @@ bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mo
     limitErr = 0; // start with 0, as some algorithms don't compute it
     ret = algo->run(w, mc_s, mc_b, data, limit, limitErr, (hashint ? &hint : 0));    
   } catch (std::exception &ex) {
-    if (strcmp(ex.what(), "done") == 0) throw; 
     std::cerr << "Caught exception " << ex.what() << std::endl;
     return false;
   }
@@ -228,6 +227,12 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         throw std::invalid_argument("Missing Workspace"); 
     }
     if (verbose > 1) { std::cout << "Input workspace '" << workspaceName_ << "': \n"; w->Print("V"); }
+    RooRealVar *MH = w->var("MH");
+    if (MH==0) {
+      std::cerr << "Could not find MH var in workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl;
+      throw std::invalid_argument("Missing MH"); 
+    }
+    MH->setVal(mass_);
     mc       = dynamic_cast<RooStats::ModelConfig *>(w->genobj(modelConfigName_.c_str()));
     mc_bonly = dynamic_cast<RooStats::ModelConfig *>(w->genobj(modelConfigNameB_.c_str()));
     if (mc == 0) {  
@@ -259,6 +264,12 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         std::cerr << "Could not read HLF from file " <<  (hlfFile[0] == '/' ? hlfFile : pwd+"/"+hlfFile) << std::endl;
         return;
     }
+    RooRealVar *MH = w->var("MH");
+    if (MH==0) {
+      std::cerr << "Could not find MH var in workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl;
+      throw std::invalid_argument("Missing MH"); 
+    }
+    MH->setVal(mass_);
     if (w->set("observables") == 0) throw std::invalid_argument("The model must define a RooArgSet 'observables'");
     if (w->set("POI")         == 0) throw std::invalid_argument("The model must define a RooArgSet 'POI' for the parameters of interest");
     if (w->pdf("model_b")     == 0) throw std::invalid_argument("The model must define a RooAbsPdf 'model_b'");
