@@ -306,10 +306,10 @@ private:
   boost::shared_ptr<const TrajectorySeed>    theSeed;
   DataContainer theData;
 
-  double theChiSquared;
+  float theChiSquared;
 
-  int theNumberOfFoundHits;
-  int theNumberOfLostHits;
+  signed short theNumberOfFoundHits;
+  signed short theNumberOfLostHits;
 
   PropagationDirection theDirection;
   bool                 theDirectionValidity;

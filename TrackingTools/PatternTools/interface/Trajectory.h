@@ -300,20 +300,19 @@ public:
   const boost::shared_ptr<const TrajectorySeed> & sharedSeed() const { return theSeed; }
 private:
 
+  boost::shared_ptr<const TrajectorySeed>    theSeed;
+  edm::RefToBase<TrajectorySeed> seedRef_;
 
   DataContainer theData;
-  double theChiSquared;
-  double theChiSquaredBad;
-  bool theValid;
+  float theChiSquared;
+  float theChiSquaredBad;
 
-  int theNumberOfFoundHits;
-  int theNumberOfLostHits;
+  signed short theNumberOfFoundHits;
+  signed short theNumberOfLostHits;
 
   PropagationDirection theDirection;
   bool                 theDirectionValidity;
-
-  boost::shared_ptr<const TrajectorySeed>    theSeed;
-  edm::RefToBase<TrajectorySeed> seedRef_;
+  bool theValid;
 
   void check() const;
 };
