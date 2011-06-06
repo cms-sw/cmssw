@@ -9,6 +9,7 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
+#include "DataFormats/Provenance/interface/StoredProductProvenance.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -643,12 +644,15 @@ ProvenanceDumper::work_() {
 
       edm::ParentageRegistry& registry = *edm::ParentageRegistry::instance();
 
+      std::vector<edm::ParentageID> orderedParentageIDs;
+      orderedParentageIDs.reserve(parentageTree->GetEntries());
       for(Long64_t i = 0, numEntries = parentageTree->GetEntries(); i < numEntries; ++i) {
         edm::Parentage parentageBuffer;
         edm::Parentage *pParentageBuffer = &parentageBuffer;
         parentageTree->SetBranchAddress(edm::poolNames::parentageBranchName().c_str(), &pParentageBuffer);
         parentageTree->GetEntry(i);
         registry.insertMapped(parentageBuffer);
+        orderedParentageIDs.push_back(parentageBuffer.id());
       }
       parentageTree->SetBranchAddress(edm::poolNames::parentageBranchName().c_str(), 0);
 
@@ -660,16 +664,37 @@ ProvenanceDumper::work_() {
         std::cerr << "no '" << edm::BranchTypeToProductTreeName(edm::InEvent)<< "' Tree in file so can not show dependencies\n";
         showDependencies_ = false;
       } else {
-        TBranch* productProvBranch = eventMetaTree->GetBranch(edm::BranchTypeToBranchEntryInfoBranchName(edm::InEvent).c_str());
+        TBranch* storedProvBranch = eventMetaTree->GetBranch(edm::BranchTypeToProductProvenanceBranchName(edm::InEvent).c_str());
 
-        std::vector<edm::ProductProvenance> info;
-        std::vector<edm::ProductProvenance>* pInfo = &info;
-        productProvBranch->SetAddress(&pInfo);
-        for(Long64_t i = 0, numEntries = eventMetaTree->GetEntries(); i < numEntries; ++i) {
-          productProvBranch->GetEntry(i);
-          for(std::vector<edm::ProductProvenance>::const_iterator it = info.begin(), itEnd = info.end();
-              it != itEnd; ++it) {
-            perProductParentage[it->branchID()].insert(it->parentageID());
+        if(0!=storedProvBranch) {
+          std::vector<edm::StoredProductProvenance> info;
+          std::vector<edm::StoredProductProvenance>* pInfo = &info;
+          storedProvBranch->SetAddress(&pInfo);
+          for(Long64_t i = 0, numEntries = eventMetaTree->GetEntries(); i < numEntries; ++i) {
+            storedProvBranch->GetEntry(i);
+            for(std::vector<edm::StoredProductProvenance>::const_iterator it = info.begin(), itEnd = info.end();
+                it != itEnd; ++it) {
+              edm::BranchID bid(it->branchID_);
+              perProductParentage[bid].insert(orderedParentageIDs[it->parentageIDIndex_]);
+            }
+          }
+        } else {
+          //backwards compatible check
+          TBranch* productProvBranch = eventMetaTree->GetBranch(edm::BranchTypeToBranchEntryInfoBranchName(edm::InEvent).c_str());
+          if (0 != productProvBranch) {
+            std::vector<edm::ProductProvenance> info;
+            std::vector<edm::ProductProvenance>* pInfo = &info;
+            productProvBranch->SetAddress(&pInfo);
+            for(Long64_t i = 0, numEntries = eventMetaTree->GetEntries(); i < numEntries; ++i) {
+              productProvBranch->GetEntry(i);
+              for(std::vector<edm::ProductProvenance>::const_iterator it = info.begin(), itEnd = info.end();
+                  it != itEnd; ++it) {
+                perProductParentage[it->branchID()].insert(it->parentageID());
+              }
+            }
+          } else {
+            std::cerr <<" could not find provenance information so can not show dependencies\n";
+            showDependencies_=false;
           }
         }
       }
