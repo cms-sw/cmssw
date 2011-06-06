@@ -1,45 +1,21 @@
 <lcgdict>
- <class name="TH1C"/>
  <class name="edm::Wrapper<TH1C>"/>
- <class name="TH1D"/>
  <class name="edm::Wrapper<TH1D>"/>
- <class name="TH1F"/>
  <class name="edm::Wrapper<TH1F>"/>
- <class name="TH1I"/>
  <class name="edm::Wrapper<TH1I>"/>
- <class name="TH1S"/>
  <class name="edm::Wrapper<TH1S>"/>
- <class name="TH2C"/>
  <class name="edm::Wrapper<TH2C>"/>
- <class name="TH2D"/>
  <class name="edm::Wrapper<TH2D>"/>
- <class name="TH2F"/>
  <class name="edm::Wrapper<TH2F>"/>
- <class name="TH2I"/>
  <class name="edm::Wrapper<TH2I>"/>
- <class name="TH2S"/>
  <class name="edm::Wrapper<TH2S>"/>
- <class name="TH3C"/>
  <class name="edm::Wrapper<TH3C>"/>
- <class name="TH3D"/>
  <class name="edm::Wrapper<TH3D>"/>
- <class name="TH3F"/>
  <class name="edm::Wrapper<TH3F>"/>
- <class name="TH3I"/>
  <class name="edm::Wrapper<TH3I>"/>
- <class name="TH3S"/>
  <class name="edm::Wrapper<TH3S>"/>
- <class name="TProfile">
-   <field name="fScaling" transient="true"/>
- </class>
  <class name="edm::Wrapper<TProfile>"/>
- <class name="TProfile2D">
-   <field name="fScaling" transient="true"/>
- </class>
  <class name="edm::Wrapper<TProfile2D>"/>
- <class name="TProfile3D">
-   <field name="fScaling" transient="true"/>
- </class>
  <class name="edm::Wrapper<TProfile3D>"/>
 
  <class name="MEtoEDM<TH1F>"/>
