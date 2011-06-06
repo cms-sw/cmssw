@@ -55,6 +55,62 @@ bool triggerNamePatternMatch(
   return doesMatch;
 }
 
+void getMuThresholds(double L3pt, vector<double> &thresholds){
+
+  thresholds.push_back(0.);
+
+  if (L3pt == 3.) thresholds.push_back(0.);
+  else if (L3pt == 5.) thresholds.push_back(3.);
+  else if (L3pt == 8.) thresholds.push_back(3.);
+  else if (L3pt == 12.) thresholds.push_back(7.);
+  else if (L3pt == 13.) thresholds.push_back(7.);
+  else if (L3pt == 15.) thresholds.push_back(10.);
+  else if (L3pt == 17.) thresholds.push_back(10.);
+  else if (L3pt == 20.) thresholds.push_back(12.);
+  else if (L3pt == 24.) thresholds.push_back(12.);
+  else if (L3pt == 30.) thresholds.push_back(12.);
+  else if (L3pt == 40.) thresholds.push_back(16.);
+  else if (L3pt == 100.) thresholds.push_back(16.);  
+
+  thresholds.push_back(L3pt);
+}
+
+
+bool isMuXTrigger(TString triggerName, vector<double> &thresholds)
+{
+ TString pattern = "(OpenHLT_Mu([0-9]+)){1}$";
+  TPRegexp matchThreshold(pattern);
+
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL   = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdL3Mu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      getMuThresholds(thresholdL3Mu, thresholds);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
+bool isIsoMuXTrigger(TString triggerName, vector<double> &thresholds)
+{
+ TString pattern = "(OpenHLT_IsoMu([0-9]+)){1}$";
+  TPRegexp matchThreshold(pattern);
+
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL   = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdL3Mu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      getMuThresholds(thresholdL3Mu, thresholds);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
+
 
 bool isJetXUTrigger(TString triggerName, vector<double> &thresholds)
 {
@@ -713,18 +769,19 @@ bool isMuX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
   if (matchThreshold.MatchB(triggerName))
     {
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
-      double thresholdMu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdL3Mu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       double thresholdR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       double thresholdMR = (((TObjString *)subStrL->At(4))->GetString()).Atof();
+      getMuThresholds(thresholdL3Mu, thresholds);
       thresholds.push_back(thresholdR/100.);
       thresholds.push_back(thresholdMR);
-      thresholds.push_back(thresholdMu);
       delete subStrL;
       return true;
     }
   else
     return false;
 }
+
 
 bool isEleLX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
 {
@@ -779,10 +836,10 @@ bool isMuX_MR0XTrigger(TString triggerName, vector<double> &thresholds)
   if (matchThreshold.MatchB(triggerName))
     {
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
-      double thresholdMu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdL3Mu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       double thresholdMR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      getMuThresholds(thresholdL3Mu, thresholds);
       thresholds.push_back(thresholdMR);
-      thresholds.push_back(thresholdMu);
       delete subStrL;
       return true;
     }
@@ -1756,62 +1813,6 @@ bool isDoubleMuX_HTXTrigger(TString triggerName, vector<double> &thresholds)
     return false;
 }
 
-void getMuThresholds(double L3pt, vector<double> &thresholds){
-
-  thresholds.push_back(0.);
-
-  if (L3pt == 3.) thresholds.push_back(0.);
-  else if (L3pt == 5.) thresholds.push_back(3.);
-  else if (L3pt == 8.) thresholds.push_back(3.);
-  else if (L3pt == 12.) thresholds.push_back(7.);
-  else if (L3pt == 13.) thresholds.push_back(7.);
-  else if (L3pt == 15.) thresholds.push_back(10.);
-  else if (L3pt == 17.) thresholds.push_back(10.);
-  else if (L3pt == 20.) thresholds.push_back(12.);
-  else if (L3pt == 24.) thresholds.push_back(12.);
-  else if (L3pt == 30.) thresholds.push_back(12.);
-  else if (L3pt == 40.) thresholds.push_back(16.);
-  else if (L3pt == 100.) thresholds.push_back(16.);  
-
-  thresholds.push_back(L3pt);
-}
-
-
-bool isMuXTrigger(TString triggerName, vector<double> &thresholds)
-{
- TString pattern = "(OpenHLT_Mu([0-9]+)TEST){1}$";
-  TPRegexp matchThreshold(pattern);
-
-  if (matchThreshold.MatchB(triggerName))
-    {
-      TObjArray *subStrL   = TPRegexp(pattern).MatchS(triggerName);
-      double thresholdL3Mu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      getMuThresholds(thresholdL3Mu, thresholds);
-      //thresholds.push_back(thresholdL3Mu);
-      delete subStrL;
-      return true;
-    }
-  else
-    return false;
-}
-
-bool isIsoMuXTrigger(TString triggerName, vector<double> &thresholds)
-{
- TString pattern = "(OpenHLT_IsoMu([0-9]+)TEST){1}$";
-  TPRegexp matchThreshold(pattern);
-
-  if (matchThreshold.MatchB(triggerName))
-    {
-      TObjArray *subStrL   = TPRegexp(pattern).MatchS(triggerName);
-      double thresholdL3Mu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      getMuThresholds(thresholdL3Mu, thresholds);
-      //thresholds.push_back(thresholdL3Mu);
-      delete subStrL;
-      return true;
-    }
-  else
-    return false;
-}
 
 
 void OHltTree::CheckOpenHlt(
@@ -3532,7 +3533,7 @@ void OHltTree::CheckOpenHlt(
         { 
           if (prescaleResponse(menu, cfg, rcounter, it)) 
             { 
-              if (OpenHlt1MuonPassed(0., 10., 17., 2., 1, 2.1)>=1) 
+              if (OpenHlt1MuonPassed(0., 10., 17., 2., 1, 2.1, 2.1)>=1) 
                 { 
                   triggerBit[it] = true; 
                 } 
@@ -3546,7 +3547,7 @@ void OHltTree::CheckOpenHlt(
         {  
           if (prescaleResponse(menu, cfg, rcounter, it))  
             {  
-              if (OpenHlt1MuonPassed(0., 10., 20., 2., 1, 2.1)>=1)  
+              if (OpenHlt1MuonPassed(0., 10., 20., 2., 1, 2.1, 2.1)>=1)  
                 {  
                   triggerBit[it] = true;  
                 }  
