@@ -85,7 +85,7 @@ from TopQuarkAnalysis.Configuration.patRefSel_refAllJets import *
 ### Particle flow
 ### takes effect only, if 'runPF2PAT' = True
 
-postfix = 'PF' # needs to be a non-empty string, if 'useStandardPAT' = True
+postfix = 'PF' # needs to be a non-empty string and must not be 'AK5PF', if 'useStandardPAT' = True
 
 # subtract charged hadronic pile-up particles (from wrong PVs)
 # effects also JECs
@@ -140,6 +140,7 @@ inputFiles = [ '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RECO/START42_
              # '/store/mc/Summer11/QCD_Pt-15to3000_TuneD6T_Flat_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/56FA5813-387E-E011-B48D-001A928116D6.root',
              # '/store/mc/Summer11/QCD_Pt-15to3000_TuneD6T_Flat_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/84488536-2B7E-E011-989D-001A92810A94.root'
              # ]   # overwritten, if "useRelVals" is 'True'
+
              
 # maximum number of events
 maxInputEvents = -1 # reduce for testing
@@ -342,6 +343,21 @@ if runPF2PAT:
 if useStandardPAT:
   process.patJetCorrFactors.payload = jecSet
   process.patJetCorrFactors.levels  = jecLevels
+  from PhysicsTools.PatAlgos.tools.jetTools import *
+  jecSetPFNoCHS = jecSetPF.rstrip('chs')
+  addJetCollection(process,cms.InputTag('ak5PFJets'),'AK5','PF',
+                   doJTA        = True,
+                   doBTagging   = True,
+                   jetCorrLabel = (jecSetPFNoCHS, jecLevels),
+                   doType1MET   = False,
+                   doL1Cleaning = False,
+                   doL1Counters = True,
+                   genJetCollection=cms.InputTag('ak5GenJets'),
+                   doJetID      = True,
+                   )
+  from PhysicsTools.PatAlgos.tools.metTools import *
+  addPfMET(process, 'AK5PF')
+
 # additional event content has to be (re-)added _after_ the call to 'removeCleaning()':
 process.out.outputCommands += [ 'keep edmTriggerResults_*_*_*'
                               , 'keep *_hltTriggerSummaryAOD_*_*'
@@ -384,6 +400,9 @@ if useStandardPAT:
   process.goodPatJets       = goodPatJets.clone()
   process.goodPatJetsMedium = process.goodPatJets.clone()
   process.goodPatJetsHard   = process.goodPatJets.clone()
+  process.goodPatJetsAK5PF       = goodPatJets.clone()
+  process.goodPatJetsMediumAK5PF = process.goodPatJets.clone()
+  process.goodPatJetsHardAK5PF   = process.goodPatJets.clone()
 
 if runPF2PAT:
 
@@ -475,6 +494,18 @@ if useStandardPAT:
   process.goodPatJetsMedium.preselection = jetCut + jetCutMedium
   process.goodPatJetsHard.preselection   = jetCut + jetCutHard
 
+  process.goodPatJetsAK5PF.src       = 'selectedPatJetsAK5PF'
+  process.goodPatJetsMediumAK5PF.src = 'selectedPatJetsAK5PF'
+  process.goodPatJetsHardAK5PF.src   = 'selectedPatJetsAK5PF'
+
+  process.goodPatJetsAK5PF.preselection       = jetCutPF
+  process.goodPatJetsMediumAK5PF.preselection = jetCutPF + jetCutMedium
+  process.goodPatJetsHardAK5PF.preselection   = jetCutPF + jetCutHard
+
+  process.goodPatJetsAK5PF.checkOverlaps.muons.deltaR       = jetMuonsDRPF
+  process.goodPatJetsMediumAK5PF.checkOverlaps.muons.deltaR = jetMuonsDRPF
+  process.goodPatJetsHardAK5PF.checkOverlaps.muons.deltaR   = jetMuonsDRPF
+
   ### Electrons
 
   process.selectedPatElectrons.cut = electronCut
@@ -519,6 +550,9 @@ if useStandardPAT:
   * process.goodPatJets
   * process.goodPatJetsMedium
   * process.goodPatJetsHard
+  * process.goodPatJetsAK5PF
+  * process.goodPatJetsMediumAK5PF
+  * process.goodPatJetsHardAK5PF
   * process.loosePatMuons
   * process.tightPatMuons
   )
@@ -588,12 +622,18 @@ if addTriggerMatching:
   if useStandardPAT:
     triggerProducer = patTrigger.clone()
     setattr( process, 'patTrigger', triggerProducer )
-    process.triggerMatch = patJetTriggerMatch.clone( matchedCuts = triggerObjectSelection )
+    process.triggerMatch      = patJetTriggerMatch.clone( matchedCuts = triggerObjectSelection )
+    process.triggerMatchAK5PF = patJetTriggerMatch.clone( matchedCuts = triggerObjectSelection, src = 'selectedPatJetsAK5PF' )
     switchOnTriggerMatchEmbedding( process
-                                 , triggerMatchers = [ 'triggerMatch' ]
+                                 , triggerMatchers = [ 'triggerMatch', 'triggerMatchAK5PF' ]
                                  )
     removeCleaningFromTriggerMatching( process )
-    process.goodPatJets.src = cms.InputTag( 'selectedPatJetsTriggerMatch' )
+    process.goodPatJets.src       = cms.InputTag( 'selectedPatJetsTriggerMatch' )
+    process.goodPatJetsMedium.src = cms.InputTag( 'selectedPatJetsTriggerMatch' )
+    process.goodPatJetsHard.src   = cms.InputTag( 'selectedPatJetsTriggerMatch' )
+    process.goodPatJetsAK5PF.src       = cms.InputTag( 'selectedPatJetsAK5PFTriggerMatch' )
+    process.goodPatJetsMediumAK5PF.src = cms.InputTag( 'selectedPatJetsAK5PFTriggerMatch' )
+    process.goodPatJetsHardAK5PF.src   = cms.InputTag( 'selectedPatJetsAK5PFTriggerMatch' )
   if runPF2PAT:
     triggerProducerPF = patTrigger.clone()
     setattr( process, 'patTrigger' + postfix, triggerProducerPF )
@@ -608,4 +648,6 @@ if addTriggerMatching:
     removeCleaningFromTriggerMatching( process
                                      , sequence = 'patPF2PATSequence' + postfix
                                      )
-    getattr( process, 'goodPatJets' + postfix ).src = cms.InputTag( 'selectedPatJets' + postfix + 'TriggerMatch' )
+    getattr( process, 'goodPatJets'       + postfix ).src = cms.InputTag( 'selectedPatJets' + postfix + 'TriggerMatch' )
+    getattr( process, 'goodPatJetsMedium' + postfix ).src = cms.InputTag( 'selectedPatJets' + postfix + 'TriggerMatch' )
+    getattr( process, 'goodPatJetsHard'   + postfix ).src = cms.InputTag( 'selectedPatJets' + postfix + 'TriggerMatch' )
