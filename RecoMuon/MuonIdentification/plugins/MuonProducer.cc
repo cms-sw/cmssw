@@ -1,8 +1,8 @@
 /** \class MuonProducer
  *  See header file.
  *
- *  $Date: 2011/06/01 11:20:32 $
- *  $Revision: 1.7 $
+ *  $Date: 2011/06/06 13:49:58 $
+ *  $Revision: 1.8 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
@@ -18,6 +18,7 @@
 #include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
 #include "DataFormats/MuonReco/interface/MuonShower.h"
 #include "DataFormats/MuonReco/interface/MuonCosmicCompatibility.h"
+#include "DataFormats/MuonReco/interface/MuonToMuonMap.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -44,6 +45,8 @@ namespace reco {
 
 /// Constructor
 MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrackedParameter<bool>("ActivateDebug",false)){
+
+  setAlias(pSet.getParameter<std::string>("@module_label"));
 
   theMuonsCollectionLabel = pSet.getParameter<edm::InputTag>("InputMuons");
   thePFCandLabel = pSet.getParameter<edm::InputTag>("PFCandidates");
@@ -81,8 +84,10 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
     theCosmicCompMapName = pSet.getParameter<edm::InputTag>("CosmicIdMap");
     produces<edm::ValueMap<reco::MuonCosmicCompatibility> >(theCosmicCompMapName.label());
 
-    produces<edm::ValueMap<unsigned int> >(theCosmicCompMapName.label()); // "cosmicsVeto"
-    produces<edm::ValueMap<reco::MuonCosmicCompatibility> >("cosmicCompatibility");
+    produces<edm::ValueMap<unsigned int> >(theCosmicCompMapName.label());
+
+    theMuToMuMapName = theMuonsCollectionLabel.label()+"2"+theAlias+"sMap";
+    produces<edm::ValueMap<reco::MuonRef> >(theMuToMuMapName);
 
 }
 
@@ -99,9 +104,11 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 
    // the muon collection, it will be loaded in the event
    std::auto_ptr<reco::MuonCollection> outputMuons(new reco::MuonCollection());
+   reco::MuonRefProd outputMuonsRefProd = event.getRefBeforePut<reco::MuonCollection>();
 
    edm::Handle<reco::MuonCollection> inputMuons; 
    event.getByLabel(theMuonsCollectionLabel, inputMuons);
+   edm::OrphanHandle<reco::MuonCollection> inputMuonsOH(inputMuons.product(), inputMuons.id());
    
    edm::Handle<reco::PFCandidateCollection> pfCandidates; 
    event.getByLabel(thePFCandLabel, pfCandidates);
@@ -163,9 +170,6 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 
    std::vector<reco::MuonShower> showerInfoColl(nMuons);
 
-
-   
-
    
    edm::Handle<edm::ValueMap<unsigned int> > cosmicIdMap;
    event.getByLabel(theCosmicCompMapName,cosmicIdMap);
@@ -180,7 +184,7 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 
 
 
-
+   std::vector<reco::MuonRef> muonRefColl(nMuons);
 
 
 
@@ -210,6 +214,8 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 
      fillMuonMap<unsigned int>(event, muonHandle, cosmicIdColl, theCosmicCompMapName.label());
      fillMuonMap<reco::MuonCosmicCompatibility>(event, muonHandle, cosmicCompColl, theCosmicCompMapName.label());
+     
+     fillMuonMap<reco::MuonRef>(event,inputMuonsOH, muonRefColl, theMuToMuMapName);
 
      // FIXME: need to update the TeV, ID, showers, cosmicID asso map too!!!!!!
      return;
@@ -236,8 +242,9 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
    unsigned int i = 0;
    foreach(const reco::Muon &inMuon, *inputMuons){
      
-     reco::MuonRef muRef(inputMuons, muIndex++);
-     
+     reco::MuonRef muRef(inputMuons, muIndex);
+     muonRefColl[i] = reco::MuonRef(outputMuonsRefProd, muIndex++);
+
      // Copy the muon 
      reco::Muon outMuon = inMuon;
      
@@ -291,7 +298,6 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
      cosmicIdColl[i] = (*cosmicIdMap)[muRef];
      cosmicCompColl[i] = (*cosmicCompMap)[muRef];
 
-
      outputMuons->push_back(outMuon); 
      ++i;
    }
@@ -320,7 +326,11 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 
    fillMuonMap<unsigned int>(event, muonHandle, cosmicIdColl, theCosmicCompMapName.label());
    fillMuonMap<reco::MuonCosmicCompatibility>(event, muonHandle, cosmicCompColl, theCosmicCompMapName.label());
-     
+
+
+   fillMuonMap<reco::MuonRef>(event,inputMuonsOH, muonRefColl, theMuToMuMapName);
+   
+
 
 }
 

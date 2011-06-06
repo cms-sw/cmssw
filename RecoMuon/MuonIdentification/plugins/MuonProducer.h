@@ -8,8 +8,8 @@
  * the entire event has been reconstructed. The collections produced here are meant to be used for the final analysis (or as PAT input).
  * The previous muon collection is meant to be transient.
  *
- *  $Date: 2011/06/01 11:20:18 $
- *  $Revision: 1.6 $
+ *  $Date: 2011/06/06 13:49:58 $
+ *  $Revision: 1.7 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
@@ -74,6 +74,8 @@ private:
 
   edm::InputTag theShowerMapName;
   edm::InputTag theCosmicCompMapName;
+
+  std::string theMuToMuMapName;
 };
 #endif
 
