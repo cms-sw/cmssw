@@ -17,139 +17,121 @@ namespace Rivet {
 
 //AK =====================================================INIT
     void init() {
-      ChargedFinalState cfs(-2.5, 2.5, 0.1*GeV);
+      ChargedFinalState cfs(-2.5, 2.5, 0.0*GeV);
       addProjection(cfs, "CFS");
       addProjection(Beam(), "Beam");
 
-      FinalState hfs(-5.5, 5.5, 0.1*GeV);
-      addProjection(hfs, "HFS");
-	
       _Nevt_after_cuts = 0;
-	
-      //eta bins
-      _netabins=12;
-      for (int ietabin=0; ietabin <= _netabins; ietabin++){	
-	_etabins[ietabin]=0.2*ietabin;
+      
+      if(fuzzyEquals(sqrtS(), 900*GeV, 1E-3)){
+	_h_dNch_dpT[0] = bookHistogram1D(1, 1, 1);
+	_h_dNch_dpT[1] = bookHistogram1D(1, 1, 2);
+	_h_dNch_dpT[2] = bookHistogram1D(1, 1, 3);
+	_h_dNch_dpT[3] = bookHistogram1D(1, 1, 4);
+
+	_h_dNch_dpT[4] = bookHistogram1D(2, 1, 1);
+	_h_dNch_dpT[5] = bookHistogram1D(2, 1, 2);
+	_h_dNch_dpT[6] = bookHistogram1D(2, 1, 3);
+	_h_dNch_dpT[7] = bookHistogram1D(2, 1, 4);
+
+	_h_dNch_dpT[8] = bookHistogram1D(3, 1, 1);
+	_h_dNch_dpT[9] = bookHistogram1D(3, 1, 2);
+	_h_dNch_dpT[10] = bookHistogram1D(3, 1, 3);
+	_h_dNch_dpT[11] = bookHistogram1D(3, 1, 4);
+
+	_h_dNch_dpT_all = bookHistogram1D(7, 1, 1);
+
+	_h_dNch_dEta = bookHistogram1D(8, 1, 1);
+      } else if (fuzzyEquals(sqrtS(), 2360*GeV, 1E-3)){
+	_h_dNch_dpT[0] = bookHistogram1D(4, 1, 1);
+	_h_dNch_dpT[1] = bookHistogram1D(4, 1, 2);
+	_h_dNch_dpT[2] = bookHistogram1D(4, 1, 3);
+	_h_dNch_dpT[3] = bookHistogram1D(4, 1, 4);
+
+	_h_dNch_dpT[4] = bookHistogram1D(5, 1, 1);
+	_h_dNch_dpT[5] = bookHistogram1D(5, 1, 2);
+	_h_dNch_dpT[6] = bookHistogram1D(5, 1, 3);
+	_h_dNch_dpT[7] = bookHistogram1D(5, 1, 4);
+
+	_h_dNch_dpT[8] = bookHistogram1D(6, 1, 1);
+	_h_dNch_dpT[9] = bookHistogram1D(6, 1, 2);
+	_h_dNch_dpT[10] = bookHistogram1D(6, 1, 3);
+	_h_dNch_dpT[11] = bookHistogram1D(6, 1, 4);
+
+	_h_dNch_dpT_all = bookHistogram1D(7, 1, 2);
+
+	_h_dNch_dEta = bookHistogram1D(8, 1, 2);
       }
-      
-      
-	//AK 900 GeV
-	 if(fuzzyEquals(sqrtS(), 900, 1E-3)){
-	  _h_dNch_dpT_900[0] = bookHistogram1D(1, 1, 1);
-	  _h_dNch_dpT_900[1] = bookHistogram1D(1, 1, 2);
-	  _h_dNch_dpT_900[2] = bookHistogram1D(1, 1, 3);
-	  _h_dNch_dpT_900[3] = bookHistogram1D(1, 1, 4);
-	
-	  _h_dNch_dpT_900[4] = bookHistogram1D(2, 1, 1);
-	  _h_dNch_dpT_900[5] = bookHistogram1D(2, 1, 2);
-	  _h_dNch_dpT_900[6] = bookHistogram1D(2, 1, 3);
-	  _h_dNch_dpT_900[7] = bookHistogram1D(2, 1, 4);
-	
-	  _h_dNch_dpT_900[8] = bookHistogram1D(3, 1, 1);
-	  _h_dNch_dpT_900[9] = bookHistogram1D(3, 1, 2);
-	  _h_dNch_dpT_900[10] = bookHistogram1D(3, 1, 3);
-	  _h_dNch_dpT_900[11] = bookHistogram1D(3, 1, 4);
-	  
-	  _h_dNch_dEta_900 = bookHistogram1D(8, 1, 1);
-	}
-	
-	
-	//AK 2360 GeV
-	 if(fuzzyEquals(sqrtS(), 2360, 1E-3)){
-	   _h_dNch_dpT_2360[0] = bookHistogram1D(4, 1, 1);
-	   _h_dNch_dpT_2360[1] = bookHistogram1D(4, 1, 2);
-	   _h_dNch_dpT_2360[2] = bookHistogram1D(4, 1, 3);
-	   _h_dNch_dpT_2360[3] = bookHistogram1D(4, 1, 4);
-	
-	   _h_dNch_dpT_2360[4] = bookHistogram1D(5, 1, 1);
-	   _h_dNch_dpT_2360[5] = bookHistogram1D(5, 1, 2);
-	   _h_dNch_dpT_2360[6] = bookHistogram1D(5, 1, 3);
-	   _h_dNch_dpT_2360[7] = bookHistogram1D(5, 1, 4);
-	
-	   _h_dNch_dpT_2360[8] = bookHistogram1D(6, 1, 1);
-	   _h_dNch_dpT_2360[9] = bookHistogram1D(6, 1, 2);
-	   _h_dNch_dpT_2360[10] = bookHistogram1D(6, 1, 3);
-	   _h_dNch_dpT_2360[11] = bookHistogram1D(6, 1, 4);
-	
-	   _h_dNch_dEta_2360 = bookHistogram1D(8, 1, 2);
-	}
-	
+      return;
     }
 
 //AK =====================================================ANALYZE
     void analyze(const Event& event) {
+
+      if (!fuzzyEquals(sqrtS(), 900*GeV, 1E-3) && !fuzzyEquals(sqrtS(), 2360*GeV, 1E-3) ){
+	return;
+      }
+
       const double weight = event.weight();
 
       //charge particles
       const ChargedFinalState& charged = applyProjection<ChargedFinalState>(event, "CFS");
-//AK       if (charged.particles().size()<1) {
-//AK         vetoEvent;
-//AK          
-//AK       } 
       
       _Nevt_after_cuts += weight;
  
       foreach (const Particle& p, charged.particles()) {
-        double pT = p.momentum().pT();      	
-        double eta = p.momentum().eta();
+        const double pT = p.momentum().pT();      	
+        const double eta = p.momentum().eta();
 	
-	 if(fuzzyEquals(sqrtS(), 900, 1E-3)){
-           _h_dNch_dEta_900->fill(eta, weight);	       	
-	   for (int ietabin=0; ietabin <= (_netabins-1); ietabin++){	
-	      if (fabs(eta) < _etabins[ietabin+1] && fabs(eta) > _etabins[ietabin]){
-              _h_dNch_dpT_900[ietabin]->fill(pT, weight);	  
-	      }
-            }
-	 }
-	 
-	 if(fuzzyEquals(sqrtS(), 2360, 1E-3)){
-            _h_dNch_dEta_2360->fill(eta, weight);	       	
-	    for (int ietabin=0; ietabin <= (_netabins-1); ietabin++){	
-	       if (fabs(eta) < _etabins[ietabin+1] && fabs(eta) > _etabins[ietabin]){
-               _h_dNch_dpT_2360[ietabin]->fill(pT, weight);	  
-	       }
-            }
-	 }
-
+	// The data is actually a duplicated folded distribution.  This should mimic it.
+	_h_dNch_dEta->fill(eta, 0.5*weight);
+	_h_dNch_dEta->fill(-eta, 0.5*weight);
+	if (fabs(eta)<2.4 && pT>0.1) {
+	  if (pT<4.0) {
+	    _h_dNch_dpT_all->fill(pT, weight/pT);
+	    if (pT<2.0) {
+	      int ietabin = fabs(eta)/0.2;
+	      _h_dNch_dpT[ietabin]->fill(pT, weight);
+	    }
+	  }
+	}
       }
+      return;
     }
     
 //AK =====================================================FINALIZE
     void finalize() {
-    	double normfac=1.0/_Nevt_after_cuts;  
 
-	getLog() << Log::INFO << "Number of events after event selection: " << _Nevt_after_cuts << endl;	
+      if (!fuzzyEquals(sqrtS(), 900*GeV, 1E-3) && !fuzzyEquals(sqrtS(), 2360*GeV, 1E-3) ){
+	return;
+      }
 
- 	if(fuzzyEquals(sqrtS(), 900, 1E-3)){
-     	   for (int ietabin=0; ietabin < _netabins; ietabin++){
-            scale(_h_dNch_dpT_900[ietabin], normfac/(0.2*2.0)); //AK normalize to events and rapidity-bin
- 	   }
-           scale(_h_dNch_dEta_900, normfac);
-	}
+      const double normfac = 1.0/_Nevt_after_cuts; // Normalizing to unit eta is automatic
+      // The pT distributions in bins of eta must be normalized to unit eta.  This is a factor of 2
+      // for the |eta| times 0.2 (eta range).
+      // The pT distributions over all eta are normalized to unit eta (2.0*2.4) and by 1/2*pi*pT. 
+      // The 1/pT part is taken care of in the filling.  The 1/2pi is taken care of here.
+      const double normpT = normfac/(2.0*0.2);
+      const double normpTall = normfac/(2.0*3.141592654*2.0*2.4);
 
-	if(fuzzyEquals(sqrtS(), 2360, 1E-3)){
-      	   for (int ietabin=0; ietabin < _netabins; ietabin++){
-              scale(_h_dNch_dpT_2360[ietabin], normfac/(0.2*2.0)); //AK normalize to events and rapidity-bin
-	   }
-           scale(_h_dNch_dEta_2360, normfac);
-	}
-	
+      for (int ietabin=0; ietabin < 12; ietabin++){
+	scale(_h_dNch_dpT[ietabin], normpT);
+      }
+      scale(_h_dNch_dpT_all, normpTall);
+      scale(_h_dNch_dEta, normfac);
+      return;
     }
 
 
 //AK =====================================================DECLARATIONS
   private:
 
+    AIDA::IHistogram1D* _h_dNch_dpT[12];
+    AIDA::IHistogram1D* _h_dNch_dpT_all;
 
-    AIDA::IHistogram1D* _h_dNch_dpT_900[12];
-    AIDA::IHistogram1D* _h_dNch_dpT_2360[12];
-
-    AIDA::IHistogram1D* _h_dNch_dEta_900;
-    AIDA::IHistogram1D* _h_dNch_dEta_2360;
+    AIDA::IHistogram1D* _h_dNch_dEta;
         
-    int _netabins;
     double _Nevt_after_cuts;
-    double _etabins[13];
 
 
    };
