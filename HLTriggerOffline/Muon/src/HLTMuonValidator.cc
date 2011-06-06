@@ -1,6 +1,6 @@
 /** \file HLTMuonValidator.cc
- *  $Date: 2011/04/17 14:14:43 $
- *  $Revision: 1.26 $
+ *  $Date: 2011/04/29 21:42:28 $
+ *  $Revision: 1.27 $
  */
 
 
@@ -116,7 +116,6 @@ HLTMuonValidator::initializeHists()
   sources[1] = "rec";
 
   set<string>::iterator iPath;
-  TPRegexp suffixPtCut("[0-9]+$");
 
   for (iPath = hltPaths_.begin(); iPath != hltPaths_.end(); iPath++) {
  
@@ -138,10 +137,15 @@ HLTMuonValidator::initializeHists()
 
     double cutMaxEta = 2.4;
 
+
     // Choose a pT cut for gen/rec muons based on the pT cut in the path
-    unsigned int index = TString(path).Index(suffixPtCut);
     unsigned int threshold = 3;
-    if (index < path.length()) threshold = atoi(path.substr(index).c_str());
+    TPRegexp ptRegexp("Mu([0-9]*)");
+    TObjArray * regexArray = ptRegexp.MatchS(path);
+    if (regexArray->GetEntriesFast() == 2) {
+      threshold = atoi(((TObjString *)regexArray->At(1))->GetString());
+    }
+    delete regexArray;
     // We select a whole number min pT cut slightly above the path's final 
     // pt threshold, then subtract a bit to let through particle gun muons with
     // exact integer pT:
