@@ -12,6 +12,7 @@ public:
 
   OrderedHitPair( const InnerRecHit & ih, const OuterRecHit & oh) 
   {
+    theRecHits.reserve(2);
     theRecHits.push_back(ih);
     theRecHits.push_back(oh);
   }
