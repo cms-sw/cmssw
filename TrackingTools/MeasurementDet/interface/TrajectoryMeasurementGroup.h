@@ -21,6 +21,14 @@ public:
   TrajectoryMeasurementGroup( const std::vector<TrajectoryMeasurement>& meas,
 			      const DetGroup& dg) : measurements_(meas), detGroup_(dg) {}
 
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+  TrajectoryMeasurementGroup(std::vector<TrajectoryMeasurement>&& meas,
+			     const DetGroup& dg) : measurements_(std::move(meas)), detGroup_(dg) {}
+  TrajectoryMeasurementGroup(std::vector<TrajectoryMeasurement>&& meas,
+			     DetGroup&& dg) : measurements_(std::move(meas)), detGroup_(std::move(dg)) {}
+
+#endif
+
   const std::vector<TrajectoryMeasurement>& measurements() const {return measurements_;}
         std::vector<TrajectoryMeasurement>& measurements()       {return measurements_;}
   const DetGroup& detGroup() const {return detGroup_;}
