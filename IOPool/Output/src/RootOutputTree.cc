@@ -152,6 +152,7 @@ namespace edm {
       // If any products were produced (not just event products), the EventAuxiliary will be modified.
       // In that case,  don't fast copy auxiliary branches. Remove them, and add back after fast copying.
       std::map<Int_t, TBranch *> auxIndexes;
+      bool mustRemoveSomeAuxs  =false;
       if (!fastCloneAuxBranches_) {
         for (std::vector<TBranch *>::const_iterator it = auxBranches_.begin(), itEnd = auxBranches_.end();
              it != itEnd; ++it) {
@@ -160,7 +161,22 @@ namespace edm {
           auxIndexes.insert(std::make_pair(auxIndex, *it));
           branches->RemoveAt(auxIndex);
         }
-        branches->Compress();
+        mustRemoveSomeAuxs = true;
+      }
+      
+      //Deal with any aux branches which can never be cloned
+      for (std::vector<TBranch *>::const_iterator it = unclonedAuxBranches_.begin(), 
+           itEnd = unclonedAuxBranches_.end();
+           it != itEnd; ++it) {
+        int auxIndex = branches->IndexOf(*it);
+        assert (auxIndex >= 0);
+        auxIndexes.insert(std::make_pair(auxIndex, *it));
+        branches->RemoveAt(auxIndex);
+        mustRemoveSomeAuxs=true;
+      }
+
+      if(mustRemoveSomeAuxs) {
+        branches->Compress();        
       }
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
@@ -191,7 +207,7 @@ namespace edm {
       rootHandler->enableErrorHandlerWithoutWarnings();
       cloner.Exec();
       rootHandler->enableErrorHandler();
-      if (!fastCloneAuxBranches_) {
+      if (mustRemoveSomeAuxs) {
         for (std::map<Int_t, TBranch *>::const_iterator it = auxIndexes.begin(), itEnd = auxIndexes.end();
              it != itEnd; ++it) {
           // Add the auxiliary branches back after fast copying the rest of the tree.
@@ -251,6 +267,7 @@ namespace edm {
   RootOutputTree::fillTree() const {
     if (currentlyFastCloning_) {
       if (!fastCloneAuxBranches_)fillTTree(auxBranches_);
+      fillTTree(unclonedAuxBranches_);
       fillTTree(producedBranches_);
       fillTTree(unclonedReadBranches_);
     } else {
@@ -290,6 +307,7 @@ namespace edm {
     // The TFile was just closed.
     // Just to play it safe, zero all pointers to quantities in the file.
     auxBranches_.clear();
+    unclonedAuxBranches_.clear();
     producedBranches_.clear();
     readBranches_.clear();
     unclonedReadBranches_.clear();

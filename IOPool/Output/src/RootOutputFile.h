@@ -25,6 +25,7 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
+#include "DataFormats/Provenance/interface/StoredProductProvenance.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/Selections.h"
 #include "IOPool/Output/interface/PoolOutputModule.h"
@@ -79,13 +80,15 @@ namespace edm {
 
     void fillBranches(BranchType const& branchType,
                       Principal const& principal,
-                      ProductProvenanceVector* productProvenanceVecPtr);
+                      StoredProductProvenanceVector* productProvenanceVecPtr);
 
      void insertAncestors(ProductProvenance const& iGetParents,
                           Principal const& principal,
                           bool produced,
-                          std::set<ProductProvenance>& oToFill);
+                          std::set<StoredProductProvenance>& oToFill);
 
+    bool insertProductProvenance(const ProductProvenance&,
+                                 std::set<StoredProductProvenance>& oToInsert);
     //-------------------------------
     // Member data
 
@@ -109,12 +112,12 @@ namespace edm {
     EventAuxiliary const*           pEventAux_;
     LuminosityBlockAuxiliary const* pLumiAux_;
     RunAuxiliary const*             pRunAux_;
-    ProductProvenanceVector eventEntryInfoVector_;
-    ProductProvenanceVector lumiEntryInfoVector_;
-    ProductProvenanceVector runEntryInfoVector_;
-    ProductProvenanceVector*        pEventEntryInfoVector_;
-    ProductProvenanceVector*        pLumiEntryInfoVector_;
-    ProductProvenanceVector*        pRunEntryInfoVector_;
+    StoredProductProvenanceVector eventEntryInfoVector_;
+    StoredProductProvenanceVector lumiEntryInfoVector_;
+    StoredProductProvenanceVector runEntryInfoVector_;
+    StoredProductProvenanceVector*        pEventEntryInfoVector_;
+    StoredProductProvenanceVector*        pLumiEntryInfoVector_;
+    StoredProductProvenanceVector*        pRunEntryInfoVector_;
     BranchListIndexes const*        pBranchListIndexes_;
     EventSelectionIDVector const*   pEventSelectionIDs_;
     RootOutputTree eventTree_;
@@ -122,7 +125,7 @@ namespace edm {
     RootOutputTree runTree_;
     RootOutputTreePtrArray treePointers_;
     bool dataTypeReported_;
-    std::set<ParentageID> parentageIDs_;
+    std::map<ParentageID,unsigned int> parentageIDs_;
     std::set<BranchID> branchesWithStoredHistory_;
   };
 

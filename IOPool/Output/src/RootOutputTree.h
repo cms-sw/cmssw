@@ -34,14 +34,22 @@ namespace edm {
 
     template <typename T>
     void
-    addAuxiliary(std::string const& branchName, T const*& pAux, int bufSize) {
-      auxBranches_.push_back(tree_->Branch(branchName.c_str(), &pAux, bufSize, 0));
+    addAuxiliary(std::string const& branchName, T const*& pAux, int bufSize, bool allowCloning=true) {
+      if(allowCloning) {
+        auxBranches_.push_back(tree_->Branch(branchName.c_str(), &pAux, bufSize, 0));
+      } else {
+        unclonedAuxBranches_.push_back(tree_->Branch(branchName.c_str(), &pAux, bufSize, 0));    
+      }
     }
 
     template <typename T>
     void
-    addAuxiliary(std::string const& branchName, T*& pAux, int bufSize) {
-      auxBranches_.push_back(tree_->Branch(branchName.c_str(), &pAux, bufSize, 0));
+    addAuxiliary(std::string const& branchName, T*& pAux, int bufSize,bool allowCloning=true) {
+      if(allowCloning) {
+        auxBranches_.push_back(tree_->Branch(branchName.c_str(), &pAux, bufSize, 0));
+      } else {
+        unclonedAuxBranches_.push_back(tree_->Branch(branchName.c_str(), &pAux, bufSize, 0));    
+      }
     }
 
     void fastCloneTTree(TTree* in, std::string const& option);
@@ -106,6 +114,7 @@ namespace edm {
     std::vector<TBranch*> producedBranches_; // does not include cloned branches
     std::vector<TBranch*> readBranches_;
     std::vector<TBranch*> auxBranches_;
+    std::vector<TBranch*> unclonedAuxBranches_;
     std::vector<TBranch*> unclonedReadBranches_;
     std::set<std::string> unclonedReadBranchNames_;
     bool currentlyFastCloning_;
