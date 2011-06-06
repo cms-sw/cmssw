@@ -95,6 +95,9 @@ process.localReReco = cms.Sequence(process.siPixelRecHits+
 process.globalReReco =  cms.Sequence(process.offlineBeamSpot+
                                      process.recopixelvertexing+
                                      process.ckftracks+
+                                     process.ctfTracksPixelLess+
+                                     process.offlinePrimaryVertices +
+                                     process.offlinePrimaryVerticesWithBS +
                                      process.caloTowersRec+
                                      process.vertexreco+
                                      process.recoJets+
