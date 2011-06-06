@@ -1,6 +1,6 @@
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 
-HitPairGenerator::HitPairGenerator(unsigned int nSize)
+HitPairGenerator::HitPairGenerator(unsigned int nSize) : m_capacity(nSize)
 {
   thePairs.reserve(nSize);
 }

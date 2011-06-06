@@ -17,7 +17,7 @@ namespace edm { class Event; class EventSetup; }
 class HitPairGenerator : public OrderedHitsGenerator {
 public:
 
-  HitPairGenerator(unsigned int size=30000);
+  explicit HitPairGenerator(unsigned int size=7500);
 
   virtual ~HitPairGenerator() { }
 
@@ -33,10 +33,17 @@ public:
 
   virtual HitPairGenerator* clone() const = 0;
 
-  virtual void clear() { thePairs.clear(); } 
+  virtual void clear() {
+     // back to initial allocation if too large
+     if (thePairs.capacity()> 4*m_capacity) {
+       OrderedHitPairs tmp; tmp.reserve(m_capacity); tmp.swap(thePairs);
+     } 
+     thePairs.clear(); 
+  } 
 
 private:
   OrderedHitPairs thePairs;
+  unsigned int m_capacity;
 
 };
 
