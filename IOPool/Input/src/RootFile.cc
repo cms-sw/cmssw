@@ -18,6 +18,7 @@
 #include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/StoredProductProvenance.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -468,15 +469,22 @@ namespace edm {
 
     ParentageRegistry& registry = *ParentageRegistry::instance();
 
+    parentageIDLookup_.reserve(parentageTree->GetEntries());
     for(Long64_t i = 0, numEntries = parentageTree->GetEntries(); i < numEntries; ++i) {
       roottree::getEntry(parentageTree.get(), i);
       registry.insertMapped(parentageBuffer);
+      parentageIDLookup_.push_back(parentageBuffer.id());
     }
     parentageTree->SetBranchAddress(poolNames::parentageBranchName().c_str(), 0);
   }
 
   void
   RootFile::setIfFastClonable(int remainingEvents, int remainingLumis) {
+    if(fileFormatVersion().noMetaDataTrees() and !fileFormatVersion().storedProductProvenanceUsed()) {
+      //we must avoid copying the old branch which stored the per product per event provenance
+      whyNotFastClonable_ += FileBlock::FileTooOld;
+      return;
+    }
     if(!fileFormatVersion().splitProductIDs()) {
       whyNotFastClonable_ += FileBlock::FileTooOld;
       return;
@@ -1659,9 +1667,74 @@ namespace edm {
     }
   }
 
+  class ReducedProvenanceBranchMapperWithReader : public BranchMapper {
+  public:
+    ReducedProvenanceBranchMapperWithReader(RootTree* iRootTree,
+                                            const std::vector<ParentageID>& iParentageIDLookup);
+  private:
+    virtual void readProvenance_() const;
+    virtual BranchID oldProductIDToBranchID_(ProductID const& oldProductID) const;
+    virtual void reset_();
+    
+    RootTree* rootTree_;
+    TBranch* provBranch_;
+    StoredProductProvenanceVector provVector_;
+    StoredProductProvenanceVector* pProvVector_;
+    const std::vector<ParentageID>& parentageIDLookup_;
+  };
+  
+  ReducedProvenanceBranchMapperWithReader::ReducedProvenanceBranchMapperWithReader(
+                                              RootTree* iRootTree,
+                                              const std::vector<ParentageID>& iParentageIDLookup):
+  BranchMapper(true),
+  rootTree_(iRootTree),
+  pProvVector_(&provVector_),
+  parentageIDLookup_(iParentageIDLookup){
+    provBranch_ = rootTree_->tree()->GetBranch(BranchTypeToProductProvenanceBranchName(rootTree_->branchType()).c_str());
+  }
+  
+  void
+  ReducedProvenanceBranchMapperWithReader::readProvenance_() const
+  {    
+    setRefCoreStreamer(0, false, false);
+    ReducedProvenanceBranchMapperWithReader* me = const_cast<ReducedProvenanceBranchMapperWithReader*>(this);
+    me->rootTree_->fillBranchEntry(me->provBranch_, me->pProvVector_);
+    setRefCoreStreamer(true);
+    for (StoredProductProvenanceVector::const_iterator it = provVector_.begin(), itEnd = provVector_.end();
+         it != itEnd; ++it) {
+      me->insert(ProductProvenance(BranchID(it->branchID_),
+                                   ProductStatus(),
+                                   parentageIDLookup_[it->parentageIDIndex_]));
+    }
+  }
+  
+  BranchID
+  ReducedProvenanceBranchMapperWithReader::oldProductIDToBranchID_(ProductID const& oldProductID) const
+  {
+    return BranchID();
+  }
+  
+  void
+  ReducedProvenanceBranchMapperWithReader::reset_()
+  {
+    setDelayedRead(true);
+  }
+  
+  
   boost::shared_ptr<BranchMapper>
   RootFile::makeBranchMapper(RootTree& rootTree, BranchType const& type) const {
-    if(fileFormatVersion().splitProductIDs()) {
+    if(fileFormatVersion().storedProductProvenanceUsed()) {
+      if(type == InEvent) {
+        if(!eventBranchMapper_) {
+          eventBranchMapper_ = boost::shared_ptr<BranchMapper>(new 
+                                                               ReducedProvenanceBranchMapperWithReader(&rootTree,parentageIDLookup_));                               
+        }
+        eventBranchMapper_->reset();
+        return eventBranchMapper_;
+      }
+      return boost::shared_ptr<BranchMapper>(new 
+                                             ReducedProvenanceBranchMapperWithReader(&rootTree,parentageIDLookup_));
+    } else if(fileFormatVersion().splitProductIDs()) {
       if(type == InEvent) {
         if(!eventBranchMapper_) {
           eventBranchMapper_ = makeBranchMapperInRelease300(rootTree);

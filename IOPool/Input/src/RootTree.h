@@ -120,10 +120,13 @@ namespace edm {
       roottree::getEntry(statusBranch_, entryNumber_); // backward compatibility
     } // backward compatibility
 
+    //For backwards compatibility
     TBranch* const branchEntryInfoBranch() const {return branchEntryInfoBranch_;}
+    
     void trainCache(char const* branchNames);
     void resetTraining() {trainNow_ = true;}
 
+    BranchType branchType() const {return branchType_;}
   private:
     void setCacheSize(unsigned int cacheSize);
     void setTreeMaxVirtualSize(int treeMaxVirtualSize);
@@ -138,7 +141,6 @@ namespace edm {
     TTree* metaTree_;
     BranchType branchType_;
     TBranch* auxBranch_;
-    TBranch* branchEntryInfoBranch_;
 // We use a smart pointer to own the TTreeCache.
 // Unfortunately, ROOT owns it when attached to a TFile, but not after it is detached.
 // So, we make sure to it is detached before closing the TFile so there is no double delete.
@@ -153,6 +155,7 @@ namespace edm {
     unsigned int learningEntries_;
     unsigned int cacheSize_;
 
+    TBranch* branchEntryInfoBranch_; //backwards compatibility
     // below for backward compatibility
     std::vector<ProductStatus> productStatuses_; // backward compatibility
     std::vector<ProductStatus>* pProductStatuses_; // backward compatibility
