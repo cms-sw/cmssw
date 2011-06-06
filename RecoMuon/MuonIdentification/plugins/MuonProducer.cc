@@ -1,8 +1,8 @@
 /** \class MuonProducer
  *  See header file.
  *
- *  $Date: 2011/06/01 11:19:07 $
- *  $Revision: 1.6 $
+ *  $Date: 2011/06/01 11:20:32 $
+ *  $Revision: 1.7 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
@@ -16,6 +16,8 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
+#include "DataFormats/MuonReco/interface/MuonShower.h"
+#include "DataFormats/MuonReco/interface/MuonCosmicCompatibility.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -34,6 +36,11 @@
 using std::endl;
 
 typedef std::map<reco::MuonRef, reco::Candidate::LorentzVector> MuToPFMap;
+
+namespace reco {
+  typedef edm::ValueMap<reco::MuonShower> MuonShowerMap;
+}
+
 
 /// Constructor
 MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrackedParameter<bool>("ActivateDebug",false)){
@@ -68,6 +75,15 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
       produces<edm::ValueMap<bool> >(tag->label());
     
 
+    theShowerMapName = pSet.getParameter<edm::InputTag>("ShowerInfoMap");
+    produces<edm::ValueMap<reco::MuonShower> >(theShowerMapName.label());
+
+    theCosmicCompMapName = pSet.getParameter<edm::InputTag>("CosmicIdMap");
+    produces<edm::ValueMap<reco::MuonCosmicCompatibility> >(theCosmicCompMapName.label());
+
+    produces<edm::ValueMap<unsigned int> >(theCosmicCompMapName.label()); // "cosmicsVeto"
+    produces<edm::ValueMap<reco::MuonCosmicCompatibility> >("cosmicCompatibility");
+
 }
 
 /// Destructor
@@ -96,8 +112,6 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
    // FIXME: need to update the asso map too!!!!!!
    
    // Fill timing information
-
-
    edm::Handle<reco::MuonTimeExtraMap> timeMapCmb;
    edm::Handle<reco::MuonTimeExtraMap> timeMapDT;
    edm::Handle<reco::MuonTimeExtraMap> timeMapCSC;
@@ -143,6 +157,35 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
      selectorMapResults[s].resize(nMuons);
    }
 
+
+   edm::Handle<reco::MuonShowerMap> showerInfoMap;
+   event.getByLabel(theShowerMapName,showerInfoMap);
+
+   std::vector<reco::MuonShower> showerInfoColl(nMuons);
+
+
+   
+
+   
+   edm::Handle<edm::ValueMap<unsigned int> > cosmicIdMap;
+   event.getByLabel(theCosmicCompMapName,cosmicIdMap);
+
+   std::vector<unsigned int> cosmicIdColl(nMuons);
+
+   
+   edm::Handle<edm::ValueMap<reco::MuonCosmicCompatibility> > cosmicCompMap;
+   event.getByLabel(theCosmicCompMapName,cosmicCompMap);
+
+   std::vector<reco::MuonCosmicCompatibility> cosmicCompColl(nMuons);
+
+
+
+
+
+
+
+
+
    if(inputMuons->empty()) {
      edm::OrphanHandle<reco::MuonCollection> muonHandle = event.put(outputMuons);
      
@@ -162,6 +205,12 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 	 tag != theSelectorMapNames.end(); ++tag, ++s){
        fillMuonMap<bool>(event, muonHandle, selectorMapResults[s], tag->label());
      }
+
+     fillMuonMap<reco::MuonShower>(event, muonHandle, showerInfoColl, theShowerMapName.label());
+
+     fillMuonMap<unsigned int>(event, muonHandle, cosmicIdColl, theCosmicCompMapName.label());
+     fillMuonMap<reco::MuonCosmicCompatibility>(event, muonHandle, cosmicCompColl, theCosmicCompMapName.label());
+
      // FIXME: need to update the TeV, ID, showers, cosmicID asso map too!!!!!!
      return;
    }
@@ -235,6 +284,14 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 	 tag != theSelectorMapNames.end(); ++tag, ++s)
        selectorMapResults[s][i] = (*selectorMaps[s])[muRef];
 
+
+     // Fill the Showering Info
+     showerInfoColl[i] = (*showerInfoMap)[muRef];
+
+     cosmicIdColl[i] = (*cosmicIdMap)[muRef];
+     cosmicCompColl[i] = (*cosmicCompMap)[muRef];
+
+
      outputMuons->push_back(outMuon); 
      ++i;
    }
@@ -259,7 +316,11 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
      fillMuonMap<bool>(event, muonHandle, selectorMapResults[s], tag->label());
    
 
+   fillMuonMap<reco::MuonShower>(event, muonHandle, showerInfoColl, theShowerMapName.label());
 
+   fillMuonMap<unsigned int>(event, muonHandle, cosmicIdColl, theCosmicCompMapName.label());
+   fillMuonMap<reco::MuonCosmicCompatibility>(event, muonHandle, cosmicCompColl, theCosmicCompMapName.label());
+     
 
 }
 
