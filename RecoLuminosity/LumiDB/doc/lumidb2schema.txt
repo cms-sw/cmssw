@@ -39,6 +39,7 @@ create table luminorms_entries_id(    #id helper table
 create table luminorms_rev(   
     data_id uint64 not null references luminorms(data_id),
     revision_id uint64 not null references revisions(revision_id) 
+   (data_id,revision_id) PK   
 )
 3.
 create table lumidata(             #versionable data table
@@ -62,6 +63,7 @@ create table lumidata_entries(       #versionable entity table
 create table lumidata_rev(   
     data_id uint64 not null references lumidata(data_id),
     revision_id uint64 not null references revision(revision_id) 
+   (data_id,revision_id) PK 
 )
 constraint lumidata_rev_uc unique(data_id,revision_id)
 create index lumidata_rev_revision_id on lumidata_rev(revision_id);
@@ -121,6 +123,7 @@ create table trgdata(                #verionable data table
 create table trgdata_rev(   
     data_id uint64 not null references trgdata(data_id),
     revision_id uint64 not null references revisions(revision_id) 
+    (data_id,revision_id) PK 
 )
 constraint trgdata_rev_uc unique(data_id,revision_id)
 create table trgdata_entries(       
@@ -170,8 +173,8 @@ create table hltdata_entries_id(
 create table hltdata_rev(   
     data_id uint64 not null references hltdata(data_id),
     revision_id uint64 not null references revisions(revision_id) 
+    (data_id,revision_id) PK 
 )
-constraint hltdata_rev_uc unique(dataid,revision_id)
 9.
 create table lshlt(         
    data_id uint64 not null references hltdata(data_id),
@@ -180,12 +183,14 @@ create table lshlt(
    prescaleblob blob,
    hltcountblob    blob,
    hltacceptblob     blob
+   (data_id,cmslsnum) PK
 )
 10.
 create table trghltmap(           
-   hltkey string not null,
-   hltpathname string not null,
-   l1seed      string not null
+   hltkey string(128) not null,
+   hltpathname string(256) not null,
+   l1seed      string(1024) not null
+   (hltkey,hltpathname,l1seed) PK
 )
 11.
 create table lumivalidation(      
