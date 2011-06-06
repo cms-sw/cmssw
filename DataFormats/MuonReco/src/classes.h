@@ -20,6 +20,7 @@
 #include "DataFormats/MuonReco/interface/MuonQuality.h"
 #include "DataFormats/MuonReco/interface/MuonCosmicCompatibility.h"
 #include "DataFormats/MuonReco/interface/MuonShower.h"
+#include "DataFormats/MuonReco/interface/MuonToMuonMap.h"
 #include "DataFormats/TrackReco/interface/Track.h" 
 #include "DataFormats/Common/interface/AssociationMap.h"
 
@@ -98,6 +99,12 @@ namespace {
     edm::ValueMap<reco::MuonCosmicCompatibility> rmcc_vm;
     edm::ValueMap<reco::MuonCosmicCompatibility>::const_iterator rmcc_vmci;
     edm::Wrapper<edm::ValueMap<reco::MuonCosmicCompatibility> > rmcc_wvm;
+
+
+    edm::ValueMap<reco::MuonRef> rmref_vm;
+    edm::ValueMap<reco::MuonRef>::const_iterator rmref_vmci;
+    edm::Wrapper<edm::ValueMap<reco::MuonRef> > rmref_wvm;
+
 
     //shower block
     reco::MuonShower rms;
