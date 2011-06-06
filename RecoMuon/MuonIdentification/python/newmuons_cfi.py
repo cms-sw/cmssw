@@ -1,3 +1,6 @@
+# This file name is temporary and ment for development only.
+# The content of this file will be moved to muons_cfi as soon as the complete work flow is in place.
+
 import FWCore.ParameterSet.Config as cms
 
 newmuons = cms.EDProducer("MuonProducer",
