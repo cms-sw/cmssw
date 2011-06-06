@@ -10,13 +10,13 @@ process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
 # Global tag
-from Configuration.PyReleaseValidation.autoCond import autoCond
+from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = cms.string( autoCond[ 'com10' ] )
 
 
 # Other statements for 39X (UPDATE FOR LATER CMSSW VERSIONS)
-from Configuration.GlobalRuns.reco_TLR_41X import customisePPData
-customisePPData(process)
+#from Configuration.GlobalRuns.reco_TLR_42X import customisePPData
+#customisePPData(process)
 
 ## particle flow HF cleaning
 #process.particleFlowRecHitHCAL.LongShortFibre_Cut = 30.
@@ -91,30 +91,26 @@ process.localReReco = cms.Sequence(process.siPixelRecHits+
                                    #process.hbhereflag+
                                    process.particleFlowCluster)
 
-#Photon re-reco
-process.photonReReco = cms.Sequence(process.egammaGlobalReco+
-                                    process.photonSequence+
-                                    process.photonIDSequence)
-
 # Track re-reco
 process.globalReReco =  cms.Sequence(process.offlineBeamSpot+
                                      process.recopixelvertexing+
                                      process.ckftracks+
-                                     process.ctfTracksPixelLess+
-                                     process.offlinePrimaryVertices *
-                                     process.offlinePrimaryVerticesWithBS *
                                      process.caloTowersRec+
                                      process.vertexreco+
                                      process.recoJets+
                                      process.muonrecoComplete+
-                                     process.electronGsfTracking+
-                                     process.photonReReco+
+                                     process.muoncosmicreco+
+                                     process.egammaGlobalReco+
+                                     process.pfTrackingGlobalReco+
+                                     process.egammaHighLevelRecoPrePF+
+                                     process.muoncosmichighlevelreco+
                                      process.metreco)
-
 
 
 # Particle Flow re-processing
 process.pfReReco = cms.Sequence(process.particleFlowReco+
+                                process.egammaHighLevelRecoPostPF+
+                                process.particleFlowLinks+
                                 process.recoPFJets+
                                 process.recoPFMET+
                                 process.PFTau#+
