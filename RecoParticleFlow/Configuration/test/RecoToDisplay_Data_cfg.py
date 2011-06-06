@@ -9,8 +9,10 @@ process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cf
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
-# Global tag for 39X (UPDATE FOR LATER CMSSW VERSIONS)
-process.GlobalTag.globaltag = 'GR_R_311_V2::All'
+# Global tag
+from Configuration.PyReleaseValidation.autoCond import autoCond
+process.GlobalTag.globaltag = cms.string( autoCond[ 'com10' ] )
+
 
 # Other statements for 39X (UPDATE FOR LATER CMSSW VERSIONS)
 from Configuration.GlobalRuns.reco_TLR_41X import customisePPData
@@ -26,7 +28,7 @@ customisePPData(process)
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-      'file:lukas.root',
+      'file:jordan.root',
       ),
     #eventsToProcess = cms.untracked.VEventRange('143827:62146418-143827:62146418'),
     )
@@ -59,9 +61,9 @@ process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.load("RecoParticleFlow.Configuration.ReDisplay_EventContent_cff")
 process.display = cms.OutputModule("PoolOutputModule",
-    process.DisplayEventContent,
-    fileName = cms.untracked.string('jordan.root'),
-    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('p'))
+                                   process.DisplayEventContent,
+                                   fileName = cms.untracked.string('jordan.root'),
+                                   SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('p'))
 )
 
 process.load("Configuration.EventContent.EventContent_cff")
@@ -90,7 +92,7 @@ process.localReReco = cms.Sequence(process.siPixelRecHits+
                                    process.particleFlowCluster)
 
 #Photon re-reco
-process.photonReReco = cms.Sequence(process.egammarecoGlobal+
+process.photonReReco = cms.Sequence(process.egammaGlobalReco+
                                     process.photonSequence+
                                     process.photonIDSequence)
 
