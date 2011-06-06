@@ -248,7 +248,11 @@ ostream& reco::operator<<(ostream& out,
 //   for(unsigned ie=0; ie<elements.size(); ie++) {
 //     out<<"\t"<< elements[ie] <<endl;
 //   }
-  
+
+  // Improved printout for electrons if PFCandidateElectronExtra is available
+  if(c.particleId()==PFCandidate::e && c.electronExtraRef().isNonnull() && c.electronExtraRef().isAvailable()) {
+    out << std::endl << *(c.electronExtraRef()) ;
+  }
   out<<resetiosflags(ios::right|ios::fixed);
   return out;
 }
