@@ -28,6 +28,7 @@ namespace edm
     bool hasIndexIntoFile() const;
     bool mergeOnlySequentialRunsOrLumis() const;
     bool noMetaDataTrees() const;
+    bool storedProductProvenanceUsed() const;
     int value() const {return value_;}
     
    private:

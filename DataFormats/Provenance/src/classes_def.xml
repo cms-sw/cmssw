@@ -31,6 +31,8 @@
  <class name="edm::BranchChildren"/>
  <class name="edm::ProductProvenance"/>
  <class name="std::vector<edm::ProductProvenance>"/>
+  <class name="edm::StoredProductProvenance" ClassVersion="3"/>
+  <class name="std::vector<edm::StoredProductProvenance>"/>
  <class name="edm::BranchDescription"/>
  <class name="edm::ParameterSetBlob"/>
  <class name="edm::ProcessConfiguration"/>

@@ -25,6 +25,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
+#include "DataFormats/Provenance/interface/StoredProductProvenance.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunID.h"
@@ -80,6 +81,7 @@ namespace {
   std::vector<std::vector<edm::EventID> > dummyVectorVectorEventID;
   std::vector<std::vector<std::vector<edm::EventID> > > dummyVectorVectorVectorEventID;
   std::vector<edm::ProductProvenance> dummyVectorProductProvenance;
+    std::vector<edm::StoredProductProvenance> dummyVectorStoredProductProvenance;
   std::vector<std::vector<edm::ParameterSetID> > dummyVectorVectorParameterSetID;
   std::pair<edm::ProductID, unsigned int> ppui1;
   std::vector<std::pair<edm::ProductID, unsigned int> > vppui1;

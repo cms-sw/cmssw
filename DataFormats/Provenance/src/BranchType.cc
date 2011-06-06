@@ -14,8 +14,9 @@ namespace edm {
     std::string const auxiliary = "Auxiliary";
     std::string const aux = "Aux"; // backward compatibility
     std::string const productStatus = "ProductStatus";
-    std::string const branchEntryInfo = "BranchEntryInfo";
-
+    std::string const branchEntryInfo = "BranchEntryInfo"; // backward compatibility
+    std::string const productProvenance = "ProductProvenance";
+    
     // Prefixes
     std::string const run = "Run";
     std::string const lumi = "LuminosityBlock";
@@ -42,9 +43,14 @@ namespace edm {
     std::string const lumiProductStatus = lumi + productStatus; // backward compatibility
     std::string const eventProductStatus = event + productStatus; // backward compatibility
 
-    std::string const runEventEntryInfo = run + branchEntryInfo;
-    std::string const lumiEventEntryInfo = lumi + branchEntryInfo;
-    std::string const eventEventEntryInfo = event + branchEntryInfo;
+    std::string const runEventEntryInfo = run + branchEntryInfo; // backward compatibility
+    std::string const lumiEventEntryInfo = lumi + branchEntryInfo; // backward compatibility
+    std::string const eventEventEntryInfo = event + branchEntryInfo; // backward compatibility
+
+    std::string const runProductProvenance = run + productProvenance;
+    std::string const lumiProductProvenance = lumi + productProvenance;
+    std::string const eventProductProvenance = event + productProvenance;
+    
 
     std::string const majorIndex = ".id_.run_";
     std::string const runMajorIndex = runAuxiliary + majorIndex;
@@ -121,6 +127,10 @@ namespace edm {
     return ((branchType == InEvent) ? eventEventEntryInfo : ((branchType == InRun) ? runEventEntryInfo : lumiEventEntryInfo));
   }
 
+  std::string const& BranchTypeToProductProvenanceBranchName(BranchType const& branchType) {
+    return ((branchType == InEvent) ? eventProductProvenance : ((branchType == InRun) ? runProductProvenance : lumiProductProvenance));
+  }
+  
   std::string const& BranchTypeToMajorIndexName(BranchType const& branchType) {
     return ((branchType == InEvent) ? eventMajorIndex : ((branchType == InRun) ? runMajorIndex : lumiMajorIndex));
   }

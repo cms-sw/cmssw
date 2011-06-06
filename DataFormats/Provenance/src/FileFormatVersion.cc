@@ -92,6 +92,12 @@ namespace edm {
     return value_ >= 17;
   }
 
+  bool
+  FileFormatVersion::storedProductProvenanceUsed() const {
+    return value_ >= 18;
+  }
+
+  
   std::ostream&
   operator<< (std::ostream& os, FileFormatVersion const& ff) {
     os << ff.value();

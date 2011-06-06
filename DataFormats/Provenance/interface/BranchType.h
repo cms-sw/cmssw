@@ -24,6 +24,8 @@ namespace edm {
   std::string const& BranchTypeToProductStatusBranchName(BranchType const& branchType); // backward compatibility
 
   std::string const& BranchTypeToBranchEntryInfoBranchName(BranchType const& branchType);
+  
+  std::string const& BranchTypeToProductProvenanceBranchName(BranchType const& BranchType);
 
   std::string const& BranchTypeToMajorIndexName(BranchType const& branchType);
 
