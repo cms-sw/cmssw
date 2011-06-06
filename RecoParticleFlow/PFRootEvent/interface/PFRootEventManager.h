@@ -30,6 +30,9 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateElectronExtra.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateElectronExtraFwd.h"
+
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
@@ -601,6 +604,9 @@ class PFRootEventManager {
 
   /// reconstructed pfCandidates 
   std::auto_ptr< reco::PFCandidateCollection > pfCandidates_;
+ 
+  /// PFCandidateElectronExtra
+  std::auto_ptr< reco::PFCandidateElectronExtraCollection > pfCandidateElectronExtras_;
   
   /// for the reconstruction of jets. The elements will point 
   /// to the objects in pfCandidates_
@@ -837,6 +843,9 @@ class PFRootEventManager {
 
   /// Use EGPhotons
   bool useEGPhotons_;
+
+  /// Use PFElectrons
+  bool usePFElectrons_;
 
   /// Use EGElectrons
   bool useEGElectrons_;

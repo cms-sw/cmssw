@@ -76,6 +76,7 @@ PFRootEventManager::PFRootEventManager(const char* file)
   clustersPS_(new reco::PFClusterCollection),
   pfBlocks_(new reco::PFBlockCollection),
   pfCandidates_(new reco::PFCandidateCollection),
+  pfCandidateElectronExtras_(new reco::PFCandidateElectronExtraCollection),
   //pfJets_(new reco::PFJetCollection),
   outFile_(0),
   calibFile_(0)
@@ -1091,11 +1092,11 @@ void PFRootEventManager::readOptions(const char* file,
   cout<<"use HLT tracking "<<useAtHLT<<endl;
 
 
-  bool usePFElectrons = false;   // set true to use PFElectrons
-  options_->GetOpt("particle_flow", "usePFElectrons", usePFElectrons);
-  cout<<"use PFElectrons "<<usePFElectrons<<endl;
+  usePFElectrons_ = false;   // set true to use PFElectrons
+  options_->GetOpt("particle_flow", "usePFElectrons", usePFElectrons_);
+  cout<<"use PFElectrons "<<usePFElectrons_<<endl;
 
-  if( usePFElectrons ) { 
+  if( usePFElectrons_ ) { 
     // PFElectrons options -----------------------------
     double mvaEleCut = -1.;  // if = -1. get all the pre-id electrons
     options_->GetOpt("particle_flow", "electron_mvaCut", mvaEleCut);
@@ -1115,7 +1116,7 @@ void PFRootEventManager::readOptions(const char* file,
     try { 
       pfAlgo_.setPFEleParameters(mvaEleCut,
 				 mvaWeightFileEleID,
-				 usePFElectrons,
+				 usePFElectrons_,
 				 thePFSCEnergyCalibration,
 				 calibration,
 				 sumEtEcalIsoForEgammaSC_barrel,
@@ -2836,6 +2837,12 @@ void PFRootEventManager::particleFlow() {
   //   pfAlgoOther_.reconstructParticles( blockh );
 
   pfAlgo_.postMuonCleaning(muonsHandle_, *vertexh);
+  
+  if(usePFElectrons_) {
+    pfCandidateElectronExtras_= pfAlgo_.transferElectronExtra();
+    edm::OrphanHandle<reco::PFCandidateElectronExtraCollection > electronExtraProd(&(*pfCandidateElectronExtras_),edm::ProductID(20));
+    pfAlgo_.setElectronExtraRef(electronExtraProd);
+  }
 
   pfAlgo_.checkCleaning( rechitsCLEANED_ );
 
