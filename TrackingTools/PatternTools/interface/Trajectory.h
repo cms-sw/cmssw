@@ -49,10 +49,11 @@ public:
    * copy vector<Trajectory> in the edm::Event
    */
   
-  Trajectory() :  theChiSquared(0), theChiSquaredBad(0), theValid(true),
+  Trajectory() : 
+    theSeed(), seedRef_(),
+    theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(alongMomentum), theDirectionValidity(false),
-    theSeed(), seedRef_()  
+    theDirection(alongMomentum), theDirectionValidity(false), theValid(true)
     {}
 
 
@@ -63,10 +64,10 @@ public:
    */
     
   Trajectory( const TrajectorySeed& seed) : 
-    theChiSquared(0), theChiSquaredBad(0), theValid(true),
+    theSeed( new TrajectorySeed(seed) ), seedRef_(),
+    theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(alongMomentum), theDirectionValidity(false),
-    theSeed( new TrajectorySeed(seed) ), seedRef_()
+    theDirection(alongMomentum), theDirectionValidity(false), theValid(true)
   {}
 
   /** Constructor of an empty trajectory with defined direction.
@@ -74,10 +75,11 @@ public:
    *  added in the correct direction.
    */
   Trajectory( const TrajectorySeed& seed, PropagationDirection dir) : 
-    theChiSquared(0), theChiSquaredBad(0), theValid(true),
+    theSeed( new TrajectorySeed(seed) ), seedRef_(),
+    theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(dir), theDirectionValidity(true),
-    theSeed( new TrajectorySeed(seed) ), seedRef_()
+    theDirection(dir), theDirectionValidity(true), theValid(true)
+   
   {}
 
   /** Constructor of an empty trajectory with defined direction.
@@ -85,29 +87,29 @@ public:
    *  added in the correct direction.
    */
   Trajectory( const boost::shared_ptr<const TrajectorySeed> & seed, PropagationDirection dir) : 
-    theChiSquared(0), theChiSquaredBad(0), theValid(true),
+    theSeed( seed ), seedRef_(),
+    theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(dir), theDirectionValidity(true),
-    theSeed( seed ), seedRef_()
+    theDirection(dir), theDirectionValidity(true), theValid(true)
   {}
 
 
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
  Trajectory(Trajectory const & rh) :
+   theSeed(rh.theSeed), seedRef_(rh.seedRef_),
     theData(rh.theData),
-    theChiSquared(rh.theChiSquared), theChiSquaredBad(rh.theChiSquaredBad), theValid(rh.theValid),
+    theChiSquared(rh.theChiSquared), theChiSquaredBad(rh.theChiSquaredBad),
     theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
-    theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity),
-    theSeed(rh.theSeed), seedRef_(rh.seedRef_)
+    theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity), theValid(rh.theValid)
   {}
 
 
   Trajectory(Trajectory && rh) : 
+    theSeed(std::move(rh.theSeed)), seedRef_(std::move(rh.seedRef_)),
     theData(std::move(rh.theData)),
-    theChiSquared(rh.theChiSquared), theChiSquaredBad(rh.theChiSquaredBad), theValid(rh.theValid),
+    theChiSquared(rh.theChiSquared), theChiSquaredBad(rh.theChiSquaredBad),
     theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
-    theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity),
-    theSeed(std::move(rh.theSeed)), seedRef_(std::move(rh.seedRef_))
+    theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity), theValid(rh.theValid)
   {}
 
   Trajectory & operator=(Trajectory && rh) {
