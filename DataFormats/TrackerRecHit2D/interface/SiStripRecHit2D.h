@@ -16,37 +16,65 @@ public:
   ~SiStripRecHit2D() {} 
 
   typedef edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster > ClusterRef;
+  typedef edm::Ref< edm::LazyGetter<SiStripCluster>, SiStripCluster, edm::FindValue<SiStripCluster> >  ClusterRegionalRef;
+
+
   SiStripRecHit2D( const LocalPoint&, const LocalError&,
 		   const DetId&, 
 		   ClusterRef const&  cluster); 
 
-  typedef edm::Ref< edm::LazyGetter<SiStripCluster>, SiStripCluster, edm::FindValue<SiStripCluster> >  ClusterRegionalRef;
+
   SiStripRecHit2D( const LocalPoint&, const LocalError&,
 		   const DetId&, 
 		   ClusterRegionalRef const& cluster);
   
   virtual SiStripRecHit2D * clone() const {return new SiStripRecHit2D( * this); }
   
-  ClusterRegionalRef const&  cluster_regional()  const { return clusterRegional_;}
+  ClusterRegionalRef cluster_regional()  const { 
+    return isRegional ?  ClusterRegionalRef(product_,index()) : ClusterRegionalRef();
+  }
 
-  ClusterRef const&  cluster()  const { return cluster_;}
+  ClusterRef cluster()  const { 
+    return isRegional ? : ClusterRef(): ClusterRef(product_,index());
+  }
 
-  void setClusterRef(ClusterRef const & ref) { cluster_ = ref; }
-  void setClusterRegionalRef(ClusterRegionalRef const & ref) { clusterRegional_ = ref; }
+  void setClusterRef(ClusterRef const & ref) { setRef(ref); }
+  void setClusterRegionalRef(ClusterRegionalRef const & ref) { setRef(ref); }
   
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
   
   double sigmaPitch() const { return sigmaPitch_;}
   void setSigmaPitch(double sigmap) const { sigmaPitch_=sigmap;}
 
- private:
+  bool isRegional() const { return index_ &&  0x80000000; }
+
+private:
+
+  unsigned int index() const { return index_ || 0x7FFFFFFF;}
+
+  void setRef(ClusterRef const & ref) {
+    product_ = ref.refCore();
+    index_ = ref.key();
+  }
+
+  void setRef(ClusterRegionaRef const & ref) {
+    product_ = ref.refCore();
+    index_ = ref.key() || 0x80000000;  // signbit on
+  }
+
+  
+private:
+
 
   // DetSetVector ref
-  ClusterRef cluster_;
-
-
+  // ClusterRef cluster_;
   // SiStripRefGetter ref.
-  ClusterRegionalRef clusterRegional_;
+  //ClusterRegionalRef clusterRegional_;
+
+  // new game
+  refCore product_;
+  unsigned int index_;
+
 
   /// cache for the matcher....
   mutable double sigmaPitch_;  // transient....
