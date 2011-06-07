@@ -4,8 +4,8 @@
  *  Description:
  *
  *
- *  $Date: 2011/01/09 18:04:55 $
- *  $Revision: 1.13.2.1 $
+ *  $Date: 2011/04/21 01:45:09 $
+ *  $Revision: 1.15 $
  *
  *  Authors :
  *  P. Traczyk, SINS Warsaw
@@ -190,17 +190,17 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
   //                 4 - redo pattern recognition with dynamic truncation
 
   vector<int> stationHits(4,0);
+  map<DetId, int> hitMap;
 
   ConstRecHitContainer allRecHits; // all muon rechits
   ConstRecHitContainer fmsRecHits; // only first muon rechits
   ConstRecHitContainer selectedRecHits; // selected muon rechits
   ConstRecHitContainer DYTRecHits; // rec hits from dynamic truncation algorithm
 
-   LogTrace(theCategory) << " *** GlobalMuonRefitter *** option " << theMuonHitsOption << endl;
-
-   LogTrace(theCategory) << " Track momentum before refit: " << globalTrack.pt() << endl;
-
+  LogTrace(theCategory) << " *** GlobalMuonRefitter *** option " << theMuonHitsOption << endl;
+  LogTrace(theCategory) << " Track momentum before refit: " << globalTrack.pt() << endl;
   LogTrace(theCategory) << " Hits size before : " << allRecHitsTemp.size() << endl;
+
   allRecHits = getRidOfSelectStationHits(allRecHitsTemp);  
   //    printHits(allRecHits);
   LogTrace(theCategory) << " Hits size: " << allRecHits.size() << endl;
@@ -223,8 +223,8 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
       outputTraj.push_back(globalTraj.front());
     
     if (theMuonHitsOption == 3 ) {
-      checkMuonHits(globalTrack, allRecHits, stationHits);
-      selectedRecHits = selectMuonHits(globalTraj.front(),stationHits);
+      checkMuonHits(globalTrack, allRecHits, hitMap);
+      selectedRecHits = selectMuonHits(globalTraj.front(),hitMap);
       LogTrace(theCategory) << " Selected hits size: " << selectedRecHits.size() << endl;  
       outputTraj = transform(globalTrack, track, selectedRecHits);
     }     
@@ -263,24 +263,22 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
 //
 void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon, 
 				       ConstRecHitContainer& all,
-				       std::vector<int>& hits) const {
+				       map<DetId, int> &hitMap) const {
 
   LogTrace(theCategory) << " GlobalMuonRefitter::checkMuonHits " << endl;
 
   float coneSize = 20.0;
-  int dethits[4];
-  for ( int i=0; i<4; i++ ) hits[i]=dethits[i]=0;
 
   // loop through all muon hits and calculate the maximum # of hits in each chamber
   for (ConstRecHitContainer::const_iterator imrh = all.begin(); imrh != all.end(); imrh++ ) {
         
     if ( (*imrh != 0 ) && !(*imrh)->isValid() ) continue;
   
-    int station = 0;
     int detRecHits = 0;
     MuonRecHitContainer dRecHits;
       
     DetId id = (*imrh)->geographicalId();
+    DetId chamberId;
 
     // Skip tracker hits
     if (id.det()!=DetId::Muon) continue;
@@ -288,7 +286,7 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
     if ( id.subdetId() == MuonSubdetId::DT ) {
       DTChamberId did(id.rawId());
       DTLayerId lid(id.rawId());
-      station = did.station();
+      chamberId=did;
 
       // Get the 1d DT RechHits from this layer
       DTRecHitCollection::range dRecHits = theDTRecHits->get(lid);
@@ -303,7 +301,7 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
     else if ( id.subdetId() == MuonSubdetId::CSC ) {
     
       CSCDetId did(id.rawId());
-      station = did.station();
+      chamberId=did.chamberId();
 
       // Get the CSC Rechits from this layer
       CSCRecHit2DCollection::range dRecHits = theCSCRecHits->get(did);      
@@ -320,14 +318,15 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
       continue;      
     }
       
-    if ( (station > 0) && (station < 5) ) {
-      if ( detRecHits > hits[station-1] ) hits[station-1] = detRecHits;
-    }
+    map<DetId,int>::iterator imap=hitMap.find(chamberId);
+    if (imap!=hitMap.end()) {
+      if (detRecHits>imap->second) imap->second=detRecHits;
+    } else hitMap[chamberId]=detRecHits;
 
   } // end of loop over muon rechits
 
-  for ( int i = 0; i < 4; i++ ) 
-    LogTrace(theCategory) <<" Station "<<i+1<<": "<<hits[i]<<" "<<dethits[i] <<endl; 
+  for (map<DetId,int>::iterator imap=hitMap.begin(); imap!=hitMap.end(); imap++ ) 
+    LogTrace(theCategory) << " Station " << imap->first.rawId() << ": " << imap->second <<endl; 
 
   LogTrace(theCategory) << "CheckMuonHits: "<<all.size();
 
@@ -393,7 +392,7 @@ void GlobalMuonRefitter::getFirstHits(const reco::Track& muon,
 //
 GlobalMuonRefitter::ConstRecHitContainer 
 GlobalMuonRefitter::selectMuonHits(const Trajectory& traj, 
-                                   const std::vector<int>& hits) const {
+                                   const map<DetId, int> &hitMap) const {
 
   ConstRecHitContainer muonRecHits;
   const double globalChi2Cut = 200.0;
@@ -412,48 +411,47 @@ GlobalMuonRefitter::selectMuonHits(const Trajectory& traj,
     ConstMuonRecHitPointer immrh = dynamic_cast<const MuonTransientTrackingRecHit*>((*im).recHit().get());
 
     DetId id = immrh->geographicalId();
-    int station = 0;
+    DetId chamberId;
     int threshold = 0;
     double chi2Cut = 0.0;
 
     // get station of hit if it is in DT
     if ( (*immrh).isDT() ) {
       DTChamberId did(id.rawId());
-      station = did.station();
+      chamberId = did;
       threshold = theHitThreshold;
       chi2Cut = theDTChi2Cut;
     }
     // get station of hit if it is in CSC
     else if ( (*immrh).isCSC() ) {
       CSCDetId did(id.rawId());
-      station = did.station();
+      chamberId = did.chamberId();
       threshold = theHitThreshold;
       chi2Cut = theCSCChi2Cut;
     }
     // get station of hit if it is in RPC
     else if ( (*immrh).isRPC() ) {
       RPCDetId rpcid(id.rawId());
-      station = rpcid.station();
+      chamberId = rpcid;
       threshold = theHitThreshold;
       chi2Cut = theRPCChi2Cut;
-    }
-    else
+    } else
       continue;
 
     double chi2ndf = (*im).estimate()/(*im).recHit()->dimension();  
 
     bool keep = true;
-    if ( (station>0) && (station<5) ) {
-      if (hits[station-1]>threshold) keep = false;
-    }   
+    map<DetId,int>::const_iterator imap=hitMap.find(chamberId);
+    if ( imap!=hitMap.end() ) 
+      if (imap->second>threshold) keep = false;
     
     if ( (keep || (chi2ndf<chi2Cut)) && (chi2ndf<globalChi2Cut) ) {
       muonRecHits.push_back((*im).recHit());
     } else {
       LogTrace(theCategory)
-	<< "Skip hit: " << id.det() << " " << station << ", " 
-	<< chi2ndf << " (" << chi2Cut << " chi2 threshold) " 
-	<< hits[station-1] << endl;
+	<< "Skip hit: " << id.rawId() << " chi2=" 
+	<< chi2ndf << " ( threshold: " << chi2Cut << ") Det: " 
+	<< imap->second << endl;
     }
   }
   
