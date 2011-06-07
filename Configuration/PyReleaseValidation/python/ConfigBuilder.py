@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.327 $"
+__version__ = "$Revision: 1.328 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -405,7 +405,8 @@ class ConfigBuilder(object):
 		if '.' in pileupSpec:
 			mixingDict={'file':pileupSpec}
 		else:
-			mixingDict=Mixing[pileupSpec]
+			import copy
+			mixingDict=copy.copy(Mixing[pileupSpec])
 		if len(self._options.pileup.split(','))>1:
 			mixingDict.update(eval(self._options.pileup[self._options.pileup.find(',')+1:]))
 		self.loadAndRemember(mixingDict['file'])
@@ -1442,7 +1443,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.327 $"),
+                                            (version=cms.untracked.string("$Revision: 1.328 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
@@ -1561,10 +1562,15 @@ class ConfigBuilder(object):
                 self.pythonCfgCode +='# filter all path with the production filter sequence\n'
                 self.pythonCfgCode +='for path in process.paths:\n'
                 self.pythonCfgCode +='\tgetattr(process,path)._seq = process.%s * getattr(process,path)._seq \n'%(self.productionFilterSequence,)
+		pfs = getattr(self.process,self.productionFilterSequence)
+		for path in self.process.paths:
+			getattr(self.process,path)._seq = pfs * getattr(self.process,path)._seq
 
         # dump customise fragment
 	self.pythonCfgCode += self.addCustomise()
-        return
+	return
+
+
 
 
 def installFilteredStream(process, schedule, streamName, definitionFile = "Configuration/StandardSequences/AlCaRecoStreams_cff" ):
