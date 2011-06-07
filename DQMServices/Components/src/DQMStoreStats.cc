@@ -2,8 +2,8 @@
  * \file DQMStoreStats.cc
  * \author Andreas Meyer
  * Last Update:
- * $Date: 2011/05/31 10:50:26 $
- * $Revision: 1.12 $
+ * $Date: 2011/05/31 11:54:46 $
+ * $Revision: 1.13 $
  * $Author: rovere $
  *
  * Description: Print out statistics of histograms in DQMStore
@@ -81,6 +81,112 @@ DQMStoreStats::DQMStoreStats( const edm::ParameterSet& ps )
 DQMStoreStats::~DQMStoreStats(){
 }
 
+
+void DQMStoreStats::calcIgProfDump(DQMStoreStatsTopLevel &dqmStoreStatsTopLevel)
+{
+  std::ofstream stream("dqm-bin-stats.sql");
+  stream << ""
+"    PRAGMA journal_mode=OFF;"
+"    PRAGMA count_changes=OFF;"
+"    DROP TABLE IF EXISTS files;"
+"    DROP TABLE IF EXISTS symbols;"
+"    DROP TABLE IF EXISTS mainrows;"
+"    DROP TABLE IF EXISTS children;"
+"    DROP TABLE IF EXISTS parents;"
+"    DROP TABLE IF EXISTS summary;"
+"    CREATE TABLE children ("
+"        self_id INTEGER CONSTRAINT self_exists REFERENCES mainrows(id),"
+"        parent_id INTEGER CONSTRAINT parent_exists REFERENCES mainrows(id),"
+"        from_parent_count INTEGER,"
+"        from_parent_calls INTEGER,"
+"        from_parent_paths INTEGER,"
+"        pct REAL"
+"    );"
+"    CREATE TABLE files ("
+"        id,"
+"        name TEXT"
+"    );"
+"    CREATE TABLE mainrows ("
+"        id INTEGER PRIMARY KEY,"
+"        symbol_id INTEGER CONSTRAINT symbol_id_exists REFERENCES symbols(id),"
+"        self_count INTEGER,"
+"        cumulative_count INTEGER,"
+"        kids INTEGER,"
+"        self_calls INTEGER,"
+"        total_calls INTEGER,"
+"        self_paths INTEGER,"
+"        total_paths INTEGER,"
+"        pct REAL"
+"    );"
+"    CREATE TABLE parents ("
+"        self_id INTEGER CONSTRAINT self_exists REFERENCES mainrows(id),"
+"        child_id INTEGER CONSTRAINT child_exists REFERENCES mainrows(id),"
+"        to_child_count INTEGER,"
+"        to_child_calls INTEGER,"
+"        to_child_paths INTEGER,"
+"        pct REAL"
+"    );"
+"    CREATE TABLE summary ("
+"        counter TEXT,"
+"        total_count INTEGER,"
+"        total_freq INTEGER,"
+"        tick_period REAL"
+"    );"
+"    CREATE TABLE symbols ("
+"        id,"
+"        name TEXT,"
+"        filename_id INTEGER CONSTRAINT file_id_exists REFERENCES files(id)"
+"    );"
+"    CREATE UNIQUE INDEX fileIndex ON files (id);"
+"    CREATE INDEX selfCountIndex ON mainrows(self_count);"
+"    CREATE UNIQUE INDEX symbolsIndex ON symbols (id);"
+"    CREATE INDEX totalCountIndex ON mainrows(cumulative_count);" << std::endl;
+
+  int totalMemory = 0;
+  int totalCalls = 0;
+  for (size_t ii = 0, ie = dqmStoreStatsTopLevel.size(); ii != ie; ++ii)
+  {
+    DQMStoreStatsSubsystem &subsystem = dqmStoreStatsTopLevel[ii];
+    size_t parentId = ii << 16;
+    stream << "INSERT INTO files(id, name) VALUES(" << ii << ",\"" << subsystem.subsystemName_ << "\");\n" ;
+    stream << "INSERT INTO symbols(id, name, filename_id) VALUES (" << parentId << ",\"" << subsystem.subsystemName_ << "\"," << ii << ");\n";
+
+    int subfolderTotalMemory = 0;
+    int subfolderTotalBins = 0;
+    int subfolderTotalFullBins = 0;
+    int subfolderTotalHisto = 0;
+
+    for (size_t ji = 0, je = subsystem.size(); ji != je; ++ji)
+    {
+      DQMStoreStatsSubfolder &folder = subsystem[ji];
+      int symId = (ii << 16) + ji + 1;
+      stream << "INSERT INTO mainrows(id, symbol_id, self_count, cumulative_count, kids, self_calls, total_calls, self_paths, total_paths, pct)"
+                " VALUES(" << symId << ", " << symId << ", "
+             << folder.totalMemory_ << ", " << folder.totalMemory_ << ", 0, "
+             << folder.totalBins_ - folder.totalEmptyBins_ << ", " << folder.totalBins_ << ", "
+             << folder.totalHistos_ << ", " << folder.totalHistos_ << ", 0.0);" << std::endl;
+      stream << "INSERT INTO parents(self_id, child_id, to_child_count, to_child_calls, to_child_paths, pct) VALUES("
+             << parentId << "," << symId << "," << folder.totalMemory_ << "," << folder.totalBins_ << "," << folder.totalHistos_ << ",0"
+             << ");" << std::endl;
+      stream << "INSERT INTO children(self_id, parent_id, from_parent_count, from_parent_calls, from_parent_paths, pct) VALUES("
+             << symId << "," << parentId << "," << folder.totalMemory_ << "," << folder.totalBins_ << "," << folder.totalHistos_ << ",0"
+             << ");" << std::endl;
+      stream << "INSERT INTO symbols(id, name, filename_id) VALUES (" << symId << ",\"" << subsystem.subsystemName_ << "/" << folder.subfolderName_ << "\", "
+             << ii << ");" << std::endl;
+      subfolderTotalMemory += folder.totalMemory_;
+      subfolderTotalBins += folder.totalBins_;
+      subfolderTotalFullBins += folder.totalBins_ - folder.totalEmptyBins_;
+      subfolderTotalHisto += folder.totalHistos_;
+      totalMemory += folder.totalMemory_;
+      totalCalls += folder.totalBins_;
+    }
+    stream << "INSERT INTO mainrows(id, symbol_id, self_count, cumulative_count, kids, self_calls, total_calls, self_paths, total_paths, pct)"
+              << "VALUES(" << parentId << "," << parentId << "," << 0 << "," << subfolderTotalMemory << ", 0," << subfolderTotalFullBins << "," << subfolderTotalBins
+                           << ", 0, " << subfolderTotalHisto << ", 0);" << std::endl;
+
+  }
+  stream << "INSERT INTO summary(counter, total_count, total_freq, tick_period) VALUES (\"BINS_LIVE\"," << totalMemory << "," << totalCalls << ", 1);\n"; 
+}
 
 ///
 /// do the stats here and produce output;
@@ -187,8 +293,7 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
       
   } 
 
-
-
+  calcIgProfDump(dqmStoreStatsTopLevel);
   // OUTPUT
 
   std::cout << endl;

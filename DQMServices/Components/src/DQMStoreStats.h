@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2011/03/30 21:01:57 $
- *  $Revision: 1.8 $
+ *  $Date: 2011/05/31 10:50:26 $
+ *  $Revision: 1.9 $
  *  \author Andreas Meyer CERN
  *  \author Jan Olzem DESY
  *   
@@ -111,6 +111,7 @@ protected:
 private:
 
   int calcstats( int );
+  void calcIgProfDump(DQMStoreStatsTopLevel &);
   void dumpMemoryProfile( void );
   std::pair<unsigned int, unsigned int> readMemoryEntry( void ) const;
   void print();
