@@ -20,7 +20,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.24 2010/09/26 15:54:05 slava77 Exp $
+// $Id: MuonIdProducer.h,v 1.25 2011/03/05 00:09:29 slava77 Exp $
 //
 //
 
@@ -37,6 +37,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -53,8 +54,8 @@ class MuonKinkFinder;
 
 class MuonIdProducer : public edm::EDProducer {
  public:
-   enum TrackType { InnerTrack, OuterTrack, CombinedTrack };
-	
+   typedef reco::Muon::MuonTrackType TrackType;
+  
    explicit MuonIdProducer(const edm::ParameterSet&);
    
    virtual ~MuonIdProducer();
@@ -138,6 +139,9 @@ class MuonIdProducer : public edm::EDProducer {
    edm::Handle<reco::TrackCollection>             outerTrackCollectionHandle_;
    edm::Handle<reco::MuonCollection>              muonCollectionHandle_;
    edm::Handle<reco::MuonTrackLinksCollection>    linkCollectionHandle_;
+   edm::Handle<reco::TrackToTrackMap>             tpfmsCollectionHandle_;
+   edm::Handle<reco::TrackToTrackMap>             pickyCollectionHandle_;
+   edm::Handle<reco::TrackToTrackMap>             dytCollectionHandle_;
    
    MuonCaloCompatibility muonCaloCompatibility_;
    reco::isodeposit::IsoDepositExtractor* muIsoExtractorCalo_;

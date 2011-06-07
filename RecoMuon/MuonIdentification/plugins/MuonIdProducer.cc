@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.60 2010/09/26 15:54:05 slava77 Exp $
+// $Id: MuonIdProducer.cc,v 1.61 2011/03/05 00:09:29 slava77 Exp $
 //
 //
 
@@ -135,7 +135,7 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    if (inputCollectionLabels_.size() != inputCollectionTypes_.size()) 
      throw cms::Exception("ConfigurationError") << "Number of input collection labels is different from number of types. " <<
      "For each collection label there should be exactly one collection type specified.";
-   if (inputCollectionLabels_.size()>4 ||inputCollectionLabels_.empty()) 
+   if (inputCollectionLabels_.size()>7 ||inputCollectionLabels_.empty()) 
      throw cms::Exception("ConfigurationError") << "Number of input collections should be from 1 to 4.";
    
    debugWithTruthMatching_    = iConfig.getParameter<bool>("debugWithTruthMatching");
@@ -176,6 +176,11 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
    linkCollectionHandle_.clear();
    muonCollectionHandle_.clear();
    
+   tpfmsCollectionHandle_.clear();
+   pickyCollectionHandle_.clear();
+   dytCollectionHandle_.clear();
+   
+
    // timers.push("MuonIdProducer::produce::init::getPropagator");
    edm::ESHandle<Propagator> propagator;
    iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", propagator);
@@ -213,6 +218,29 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 LogTrace("MuonIdentification") << "Number of input muons: " << muonCollectionHandle_->size();
 	 continue;
       }
+      if ( inputCollectionTypes_[i] == "tev firstHit" ) {
+	 iEvent.getByLabel(inputCollectionLabels_[i], tpfmsCollectionHandle_);
+	 if (! tpfmsCollectionHandle_.isValid()) 
+	   throw cms::Exception("FatalError") << "Failed to get input muon collection with label: " << inputCollectionLabels_[i];
+	 LogTrace("MuonIdentification") << "Number of input muons: " << tpfmsCollectionHandle_->size();
+	 continue;
+      }
+
+      if ( inputCollectionTypes_[i] == "tev picky" ) {
+	 iEvent.getByLabel(inputCollectionLabels_[i], pickyCollectionHandle_);
+	 if (! pickyCollectionHandle_.isValid()) 
+	   throw cms::Exception("FatalError") << "Failed to get input muon collection with label: " << inputCollectionLabels_[i];
+	 LogTrace("MuonIdentification") << "Number of input muons: " << pickyCollectionHandle_->size();
+	 continue;
+      }
+
+      if ( inputCollectionTypes_[i] == "tev dyt" ) {
+	 iEvent.getByLabel(inputCollectionLabels_[i], dytCollectionHandle_);
+	 if (! dytCollectionHandle_.isValid()) 
+	   throw cms::Exception("FatalError") << "Failed to get input muon collection with label: " << inputCollectionLabels_[i];
+	 LogTrace("MuonIdentification") << "Number of input muons: " << dytCollectionHandle_->size();
+	 continue;
+      }
       throw cms::Exception("FatalError") << "Unknown input collection type: " << inputCollectionTypes_[i];
    }
 }
@@ -223,17 +251,8 @@ reco::Muon MuonIdProducer::makeMuon(edm::Event& iEvent, const edm::EventSetup& i
    LogTrace("MuonIdentification") << "Creating a muon from a track " << track.get()->pt() << 
      " Pt (GeV), eta: " << track.get()->eta();
    reco::Muon aMuon( makeMuon( *(track.get()) ) );
-   switch (type) {
-    case InnerTrack: 
-      aMuon.setInnerTrack( track );
-      break;
-    case OuterTrack:
-      aMuon.setOuterTrack( track );
-      break;
-    case CombinedTrack:
-      aMuon.setGlobalTrack( track );
-      break;
-   }
+
+   aMuon.setMuonTrack(type,track);
    return aMuon;
 }
 
@@ -265,6 +284,11 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
    aMuon.setInnerTrack( links.trackerTrack() );
    aMuon.setOuterTrack( links.standAloneTrack() );
    aMuon.setGlobalTrack( links.globalTrack() );
+
+   aMuon.setMuonTrack(reco::Muon::TPFMS, (*tpfmsCollectionHandle_)[links.globalTrack()]);
+   aMuon.setMuonTrack(reco::Muon::Picky, (*pickyCollectionHandle_)[links.globalTrack()]);
+   aMuon.setMuonTrack(reco::Muon::DYT,   (*dytCollectionHandle_)[links.globalTrack()]);
+
    return aMuon;
 }
 
@@ -491,7 +515,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     {
 		// make muon
 		// timers.push("MuonIdProducer::produce::fillMuonId");
-		reco::Muon trackerMuon( makeMuon(iEvent, iSetup, reco::TrackRef( innerTrackCollectionHandle_, i ), InnerTrack ) );
+	       reco::Muon trackerMuon( makeMuon(iEvent, iSetup, reco::TrackRef( innerTrackCollectionHandle_, i ), reco::Muon::InnerTrack ) );
 		trackerMuon.setType( reco::Muon::TrackerMuon );
 		fillMuonId(iEvent, iSetup, trackerMuon, *direction);
 		// timers.pop();
@@ -573,7 +597,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   if ( newMuon ) {
 	      LogTrace("MuonIdentification") << "No associated stand alone track is found. Making a muon";
 	      outputMuons->push_back( makeMuon(iEvent, iSetup, 
-					       reco::TrackRef( outerTrackCollectionHandle_, i ), OuterTrack ) );
+					       reco::TrackRef( outerTrackCollectionHandle_, i ), reco::Muon::OuterTrack ) );
 	      outputMuons->back().setType( reco::Muon::StandAloneMuon );
 	   }
 	}
