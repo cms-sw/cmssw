@@ -56,6 +56,7 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 	muonl2chg = new int[kMaxMuonL2];
 	muonl2pterr = new float[kMaxMuonL2];
 	muonl2iso = new int[kMaxMuonL2];
+        muonl2nhits = new int[kMaxMuonL2]; 
  	muonl21idx = new int[kMaxMuonL2];
 	const int kMaxMuonL3 = 500;
 	muonl3pt = new float[kMaxMuonL3];
@@ -67,6 +68,7 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 	muonl3chg = new int[kMaxMuonL3];
 	muonl3pterr = new float[kMaxMuonL3];
 	muonl3iso = new int[kMaxMuonL3];
+        muonl3nhits = new int[kMaxMuonL3]; 
 	muonl32idx = new int[kMaxMuonL3];
 	const int kMaxOniaPixel = 500;
 	oniaPixelpt = new float[kMaxOniaPixel];
@@ -94,6 +96,7 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 	muonl2novtxdz = new float[kMaxMuonL2NoVtx]; 
 	muonl2novtxchg = new int[kMaxMuonL2NoVtx]; 
 	muonl2novtxpterr = new float[kMaxMuonL2NoVtx]; 
+	muonl2novtxnhits = new int[kMaxMuonL2NoVtx];
 	muonl2novtx1idx = new int[kMaxMuonL2NoVtx]; 
 	const int kMaxDiMu = 500;
 	dimudca = new float[kMaxDiMu];
@@ -139,6 +142,7 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 	HltTree->Branch("ohMuL2Dr",muonl2dr,"ohMuL2Dr[NohMuL2]/F");
 	HltTree->Branch("ohMuL2Dz",muonl2dz,"ohMuL2Dz[NohMuL2]/F");
 	HltTree->Branch("ohMuL2VtxZ",muonl2vtxz,"ohMuL2VtxZ[NohMuL2]/F");
+        HltTree->Branch("ohMuL2Nhits",muonl2nhits,"ohMuL2Nhits[NohMuL2]/I");   
 	HltTree->Branch("ohMuL2L1idx",muonl21idx,"ohMuL2L1idx[NohMuL2]/I");   
 	HltTree->Branch("NohMuL3",&nmu3cand,"NohMuL3/I");
 	HltTree->Branch("ohMuL3Pt",muonl3pt,"ohMuL3Pt[NohMuL3]/F");
@@ -150,6 +154,7 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 	HltTree->Branch("ohMuL3Dr",muonl3dr,"ohMuL3Dr[NohMuL3]/F");
 	HltTree->Branch("ohMuL3Dz",muonl3dz,"ohMuL3Dz[NohMuL3]/F");
 	HltTree->Branch("ohMuL3VtxZ",muonl3vtxz,"ohMuL3VtxZ[NohMuL3]/F");
+        HltTree->Branch("ohMuL3Nhits",muonl3nhits,"ohMuL3Nhits[NohMuL3]/I");    
 	HltTree->Branch("ohMuL3L2idx",muonl32idx,"ohMuL3L2idx[NohMuL3]/I");
 	HltTree->Branch("NohOniaPixel",&nOniaPixelCand,"NohOniaPixel/I");
 	HltTree->Branch("ohOniaPixelPt",oniaPixelpt,"ohOniaPixelPt[NohOniaPixel]/F");
@@ -177,6 +182,7 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 	HltTree->Branch("ohMuL2NoVtxPtErr",muonl2novtxpterr,"ohMuL2NoVtxPtErr[NohMuL2NoVtx]/F"); 
 	HltTree->Branch("ohMuL2NoVtxDr",muonl2novtxdr,"ohMuL2NoVtxDr[NohMuL2NoVtx]/F"); 
 	HltTree->Branch("ohMuL2NoVtxDz",muonl2novtxdz,"ohMuL2NoVtxDz[NohMuL2NoVtx]/F"); 
+        HltTree->Branch("ohMuL2NoVtxNhits",muonl2novtxnhits,"ohMuL2NoVtxNhits[NohMuL2NoVtx]/I");  
 	HltTree->Branch("ohMuL2NoVtxL1idx",muonl2novtx1idx,"ohMuL2NoVtxL1idx[NohMuL2NoVtx]/I");   
 	HltTree->Branch("NohDiMu",&nDiMu,"NohDiMu/I");    
 	HltTree->Branch("ohDiMuDCA",dimudca,"ohDiMuDCA[NohDiMu]/F");    
@@ -296,6 +302,7 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
 			// For baseline triggers, we do no cut (|dz|<9999 cm), neither at L2 nor at L3
 			muonl2dz[imu2c] = tk->dz(BSPosition);
 			muonl2vtxz[imu2c] = tk->dz();
+                        muonl2nhits[imu2c] = tk->numberOfValidHits(); 
 
 			// At present we do not cut on this, but on a 90% CL value "ptLx" defined here below
 			// We should change this in the future and cut directly on "pt", to avoid unnecessary complications and risks
@@ -400,6 +407,7 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
 			//       // For baseline triggers, we do no cut (|dz|<9999 cm), neither at L2 nor at L3
 			muonl3dz[imu3c] = tk->dz(BSPosition);
 			muonl3vtxz[imu3c] = tk->dz();
+                        muonl3nhits[imu3c] = tk->numberOfValidHits();  
 
 			//       // At present we do not cut on this, but on a 90% CL value "ptLx" defined here below
 			//       // We should change this in the future and cut directly on "pt", to avoid unnecessary complications and risks
@@ -534,6 +542,7 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
 			muonl2novtxphi[imu2c] = tk->phi();
 			muonl2novtxdr[imu2c] = fabs(tk->dxy(BSPosition));
 			muonl2novtxdz[imu2c] = tk->dz(BSPosition);
+			muonl2novtxnhits[imu2c] = tk->numberOfValidHits();
 
 			double l2_err0 = tk->error(0); // error on q/p
 			double l2_abspar0 = fabs(tk->parameter(0)); // |q/p|

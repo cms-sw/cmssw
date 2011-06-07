@@ -98,7 +98,7 @@ private:
   float *muonl2novtxpt, *muonl2novtxeta, *muonl2novtxphi, *muonl2novtxdr, *muonl2novtxdz; 
   float *muonl2pterr, *muonl3pterr, *muonl2novtxpterr;
   int nmuon, nmu2cand, nmu3cand, nmu2novtxcand;
-  int *muonl2chg, *muonl2iso, *muonl3chg, *muonl3iso, *muonl32idx, *muonl21idx, *muonl2novtxchg, *muonl2novtxiso, *muonl2novtx1idx;
+  int *muonl2chg, *muonl2iso, *muonl2nhits, *muonl3chg, *muonl3iso, *muonl32idx, *muonl3nhits, *muonl21idx, *muonl2novtxchg, *muonl2novtxiso, *muonl2novtx1idx, *muonl2novtxnhits;
   int nOniaPixelCand, nOniaTrackCand;
   float *oniaPixelpt, *oniaPixeleta, *oniaPixelphi, *oniaPixeldr, *oniaPixeldz, *oniaPixelNormChi2;
   float *oniaTrackpt, *oniaTracketa, *oniaTrackphi, *oniaTrackdr, *oniaTrackdz, *oniaTrackNormChi2;
