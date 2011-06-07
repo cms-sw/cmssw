@@ -195,6 +195,12 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         fillJIDPassFrac   = cms.int32(1)
     ),
 
+    PFDijetAnalysis = cleanedJetDQMParameters.clone(
+        makedijetselection = cms.int32(1),
+        ptThreshold = cms.double(10.),
+        fillJIDPassFrac   = cms.int32(1)
+    ),
+
     #
     # For Pt jet Analysis
     #
