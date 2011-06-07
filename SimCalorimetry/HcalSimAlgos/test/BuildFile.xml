@@ -7,6 +7,7 @@
   <bin file="writeHPDLibrary.cc"/>
   <bin file="readHPDLibrary.cc"/>
   <bin file="HcalShapeIntegratorTest.cpp"/>
+  <bin file="HcalTimeSlewTest.cpp"/>
   <library   file="HcalSignalGeneratorTest.cpp" name="HcalSignalGeneratorTest">
     <flags   EDM_PLUGIN="1"/>
   </library>
