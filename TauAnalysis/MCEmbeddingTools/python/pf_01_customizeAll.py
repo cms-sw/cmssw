@@ -251,17 +251,21 @@ def customise(process):
 
   process.particleFlowORG = process.particleFlow.clone()
   if hasattr(process,"famosParticleFlowSequence"):
+    process.famosParticleFlowSequence.remove(process.pfPhotonTranslatorSequence)
     process.famosParticleFlowSequence.remove(process.pfElectronTranslatorSequence)
     process.famosParticleFlowSequence.remove(process.particleFlow)
     process.famosParticleFlowSequence.__iadd__(process.particleFlowORG)
     process.famosParticleFlowSequence.__iadd__(process.particleFlow)
     process.famosParticleFlowSequence.__iadd__(process.pfElectronTranslatorSequence)
+    process.famosParticleFlowSequence.__iadd__(process.pfPhotonTranslatorSequence)
   elif hasattr(process,"particleFlowReco"):
+    process.particleFlowReco.remove(process.pfPhotonTranslatorSequence)
     process.particleFlowReco.remove(process.pfElectronTranslatorSequence)
     process.particleFlowReco.remove(process.particleFlow)
     process.particleFlowReco.__iadd__(process.particleFlowORG)
     process.particleFlowReco.__iadd__(process.particleFlow)
     process.particleFlowReco.__iadd__(process.pfElectronTranslatorSequence)
+    process.particleFlowReco.__iadd__(process.pfPhotonTranslatorSequence)
   else :
     raise "Cannot find tracking sequence"
 
@@ -303,7 +307,9 @@ def customise(process):
        #seqVis.catch=0
        #i.__iadd__(source)
 
- 
+  process.pfSelectedElectrons.src = cms.InputTag("particleFlowORG")
+  process.pfSelectedPhotons.src   = cms.InputTag("particleFlowORG")
+
 
   print "#############################################################"
   print " Warning! PFCandidates 'electron' collection is not mixed, "
