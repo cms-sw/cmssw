@@ -4,13 +4,10 @@
 /** \class AlignableMuon
  *  The alignable muon.
  *
- *  $Date: 2008/04/15 09:21:23 $
- *  $Revision: 1.20 $
+ *  $Date: 2008/04/25 21:23:15 $
+ *  $Revision: 1.21 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
-
-
-#include <vector>
 
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -49,23 +46,23 @@ public:
   
 
   /// Return all components
-  virtual std::vector<Alignable*> components() const { return theMuonComponents; }
+  virtual align::Alignables components() const { return theMuonComponents; }
 
   /// Alignable tracker has no mother
   virtual Alignable* mother() { return 0; }
 
   // Methods to return specific of components
-  std::vector<Alignable*> DTLayers();
-  std::vector<Alignable*> DTSuperLayers();
-  std::vector<Alignable*> DTChambers();
-  std::vector<Alignable*> DTStations();
-  std::vector<Alignable*> DTWheels();
-  std::vector<Alignable*> DTBarrel();
-  std::vector<Alignable*> CSCLayers();
-  std::vector<Alignable*> CSCChambers();
-  std::vector<Alignable*> CSCStations();
-  std::vector<Alignable*> CSCRings();
-  std::vector<Alignable*> CSCEndcaps();
+  align::Alignables DTLayers();
+  align::Alignables DTSuperLayers();
+  align::Alignables DTChambers();
+  align::Alignables DTStations();
+  align::Alignables DTWheels();
+  align::Alignables DTBarrel();
+  align::Alignables CSCLayers();
+  align::Alignables CSCChambers();
+  align::Alignables CSCStations();
+  align::Alignables CSCRings();
+  align::Alignables CSCEndcaps();
 
   // Get DT alignments sorted by DetId
   Alignments* dtAlignments();
@@ -124,12 +121,9 @@ private:
   std::vector<AlignableCSCRing*>     theCSCRings;
   std::vector<AlignableCSCEndcap*>   theCSCEndcaps;
 
-  std::vector<Alignable*> theMuonComponents;
+  align::Alignables theMuonComponents;
 
 };
 
 #endif //AlignableMuon_H
-
-
-
 
