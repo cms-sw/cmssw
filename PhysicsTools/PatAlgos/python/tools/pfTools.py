@@ -280,9 +280,8 @@ def addPFCandidates(process,src,patLabel='PFParticles',cut="",postfix=""):
         applyPostfix(process, "selectedPatCandidateSummary", postfix),
         filter+applyPostfix(process, "selectedPatCandidateSummary", postfix)
     )
-
-    tmpCountPatCandidates = applyPostfix(process, "countPatCandidates", postfix)
-    tmpCountPatCandidates+=counter
+    index = len( applyPostfix( process, "patDefaultSequence", postfix ).moduleNames() )
+    applyPostfix( process, "patDefaultSequence", postfix ).insert( index, counter )
     # summary tables
     applyPostfix(process, "patCandidateSummary", postfix).candidates.append(cms.InputTag('pat' + patLabel))
     applyPostfix(process, "selectedPatCandidateSummary", postfix).candidates.append(cms.InputTag('selectedPat' + patLabel))
