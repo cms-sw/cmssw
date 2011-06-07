@@ -155,7 +155,7 @@ void RPCMonitorDigi::bookSectorRingME(const std::string &recHitType, std::map<st
 	meMap[os.str()] = dbe->book2D(os.str(), os.str(), 96, 0.5, 96.5, 12 , 18.5,  36.5);
 	meMap[os.str()]->setAxisTitle("strip", 1);
 	
-	for (int i = 1 ; i<= 18; i++) {
+	for (int i = 1 ; i<= 12; i++) {
 	  yLabel.str("");
 	  yLabel<<"R"<<ring<<"_CH"<<i+12;
 	  meMap[os.str()]->setBinLabel(i, yLabel.str(), 2);
