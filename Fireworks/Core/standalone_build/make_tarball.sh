@@ -80,10 +80,10 @@ cp -a $CMSSW_RELEASE_BASE/lib/*/* ${tard}/lib/
 cp -f $CMSSW_BASE/lib/*/* ${tard}/lib/
 
 # plugins cache file
-touch ${tard}/lib/.edmplugincache
-cat  $CMSSW_RELEASE_BASE/lib/*/.edmplugincache > ${tard}/lib/.edmplugincache
 echo "get $CMSSW_RELEASE_BASE/lib/*/.edmplugincache > ${tard}/lib/.edmplugincache"
-# cat  $CMSSW_BASE/lib/*/.edmplugincache >> ${tard}/lib/.edmplugincache
+touch ${tard}/lib/.edmplugincache
+cat  $CMSSW_RELEASE_BASE/lib/*/.edmplugincache | grep -v Fireworks > ${tard}/lib/.edmplugincache
+cat  $CMSSW_BASE/lib/*/.edmplugincache >> ${tard}/lib/.edmplugincache
 
 #----------------------------------------------------------------
 echo "=========================================================="
@@ -99,12 +99,13 @@ cp -a  $CMSSW_BASE/src/Fireworks/Core/icons $srcDir
 cp -a  $CMSSW_BASE/src/Fireworks/Core/data $srcDir
 cp -a  $CMSSW_BASE/src/Fireworks/Core/scripts $srcDir
 
+cd  $tard
+ln -s  src/Fireworks/Core/macros/default.fwc .
+ln -s  src/Fireworks/Core/macros/ispy.fwc  .
+ln -s  src/Fireworks/Core/macros/pflow.fwc  .
+ln -s  src/Fireworks/Core/macros/hfLego.fwc  .
 
-ln -s  $CMSSW_BASE/src/Fireworks/Core/macros/default.fwc  $tard
-ln -s  $CMSSW_BASE/src/Fireworks/Core/macros/ispy.fwc  $tard
-ln -s  $CMSSW_BASE/src/Fireworks/Core/macros/pflow.fwc  $tard
-ln -s  $CMSSW_BASE/src/Fireworks/Core/macros/hfLego.fwc  $tard
-ln -s  $CMSSW_BASE/src/Fireworks/Core/scripts/cmsShow $tard
+ln -s  src/Fireworks/Core/scripts/cmsShow .
 
 cp  $CMSSW_DATA_PATH/data-Fireworks-Geometry/4-cms/Fireworks/Geometry/data/* $tard
 
@@ -122,7 +123,7 @@ name=`perl -e '($ver, $a, $b, $c) = split('_', $ENV{CMSSW_VERSION}); print  "dat
 $dwnCmd http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/$name
 mv $name data.root
 
-
+exit
 cd $origd
 bdir=`basename $tard`
 if [ `uname` = "Darwin" ]; then
