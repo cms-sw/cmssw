@@ -448,6 +448,7 @@ void HcalBeamMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
 	      if (id.depth()==1) --ring1totalchannels_;
 	      else if (id.depth()==2) --ring2totalchannels_;
 	    }
+	  delete mystatus;
 	} // if ((id.depth()==1) ...
     } // for (unsigned int i=0;...)
     

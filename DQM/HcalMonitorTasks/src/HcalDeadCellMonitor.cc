@@ -390,6 +390,7 @@ void HcalDeadCellMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c
 	      KnownBadCells_[id.rawId()]=status;
 	    }
 	} 
+      delete chanquality;
     } // if (badChannelStatusMask_>0)
   return;
 } //void HcalDeadCellMonitor::beginRun(...)
