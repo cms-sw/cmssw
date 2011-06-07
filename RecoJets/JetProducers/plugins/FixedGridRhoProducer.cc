@@ -14,7 +14,7 @@ FixedGridRhoProducer::FixedGridRhoProducer(const edm::ParameterSet& iConfig) {
     edm::LogWarning("FixedGridRhoProducer") << "Wrong EtaRegion parameter: " << etaRegion << ". Using EtaRegion = Central";  
     myEtaRegion = FixedGridEnergyDensity::Central;
   }
-  produces<float>();
+  produces<double>();
 }
 
 FixedGridRhoProducer::~FixedGridRhoProducer(){} 
@@ -26,8 +26,8 @@ void FixedGridRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
    algo = new FixedGridEnergyDensity(pfColl.product());
 
-   float result = algo->fixedGridRho(myEtaRegion);
-   std::auto_ptr<float> output(new float(result));
+   double result = algo->fixedGridRho(myEtaRegion);
+   std::auto_ptr<double> output(new double(result));
    iEvent.put(output);
 
    delete algo;
