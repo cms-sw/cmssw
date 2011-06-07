@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.44 2010/11/19 12:45:53 flucke Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.45 2011/02/16 21:26:25 flucke Exp $
 //
 //
 
@@ -476,6 +476,9 @@ TrackerOfflineValidation::bookGlobalHists(DirectoryWrapper& tfd )
   vTrackProfiles_.push_back(tfd.make<TProfile>("p_chi2Prob_vs_phi",
 					       "#chi^{2} probablility vs. #phi;#phi_{Track};#LT #chi^{2} probability#GT",
 					       100,-3.15,3.15));
+  vTrackProfiles_.push_back(tfd.make<TProfile>("p_chi2Prob_vs_d0",
+                                               "#chi^{2} probablility vs. |d_{0}|;|d_{0}|[cm];#LT #chi^{2} probability#GT",
+                                               100,0,80));
   vTrackProfiles_.push_back(tfd.make<TProfile>("p_normchi2_vs_phi",
 					       "#chi^{2}/ndof vs. #phi;#phi_{Track};#LT #chi^{2}/ndof #GT",
 					       100,-3.15,3.15));
@@ -527,7 +530,10 @@ TrackerOfflineValidation::bookGlobalHists(DirectoryWrapper& tfd )
 					   100, -3.15, 3.15, 500, 0., 500.));
   vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_chi2Prob_vs_phi",
 					   "#chi^{2} probability vs. #phi;#phi_{Track};#chi^{2} probability",
-					  100, -3.15, 3.15, 100, 0., 1.));
+					   100, -3.15, 3.15, 100, 0., 1.));
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_chi2Prob_vs_d0",
+                                           "#chi^{2} probability vs. |d_{0}|;|d_{0}| [cm];#chi^{2} probability",
+					   100, 0, 80, 100, 0., 1.));
   vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_normchi2_vs_phi",
 					   "#chi^{2}/ndof vs. #phi;#phi_{Track};#chi^{2}/ndof",
 					   100, -3.15, 3.15, 100, 0., 10.));
@@ -1008,6 +1014,8 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     vTrackProfiles_[chiphiindex]->Fill(itT->phi,itT->chi2);
     static const int chiProbphiindex = this->GetIndex(vTrackProfiles_,"p_chi2Prob_vs_phi");
     vTrackProfiles_[chiProbphiindex]->Fill(itT->phi,itT->chi2Prob);
+    static const int chiProbabsd0index = this->GetIndex(vTrackProfiles_,"p_chi2Prob_vs_d0");
+    vTrackProfiles_[chiProbabsd0index]->Fill(fabs(itT->d0),itT->chi2Prob);
     static const int normchiphiindex = this->GetIndex(vTrackProfiles_,"p_normchi2_vs_phi");
     vTrackProfiles_[normchiphiindex]->Fill(itT->phi,itT->normchi2);
     static const int chietaindex = this->GetIndex(vTrackProfiles_,"p_chi2_vs_eta");
@@ -1042,6 +1050,8 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     vTrack2DHistos_[chiphiindex_2d]->Fill(itT->phi,itT->chi2);
     static const int chiProbphiindex_2d = this->GetIndex(vTrack2DHistos_,"h2_chi2Prob_vs_phi");
     vTrack2DHistos_[chiProbphiindex_2d]->Fill(itT->phi,itT->chi2Prob);
+    static const int chiProbabsd0index_2d = this->GetIndex(vTrack2DHistos_,"h2_chi2Prob_vs_d0");
+    vTrack2DHistos_[chiProbabsd0index_2d]->Fill(fabs(itT->d0),itT->chi2Prob);
     static const int normchiphiindex_2d = this->GetIndex(vTrack2DHistos_,"h2_normchi2_vs_phi");
     vTrack2DHistos_[normchiphiindex_2d]->Fill(itT->phi,itT->normchi2);
     static const int chietaindex_2d = this->GetIndex(vTrack2DHistos_,"h2_chi2_vs_eta");
