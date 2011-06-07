@@ -195,6 +195,12 @@ suppressionLists ( ParameterSet const & pset )
     flaws << "MessageLogger" << " PSet: \n"
 	  << "Use of wildcard (*) in suppressWarning is not supported\n";
   }
+  suppressError = check<vString>
+  	(pset, "MessageLogger", "suppressError");
+  if (wildcard(suppressError)) {
+    flaws << "MessageLogger" << " PSet: \n"
+	  << "Use of wildcard (*) in suppressError is not supported\n";
+  }
 
 } // suppressionLists
 
@@ -235,6 +241,7 @@ allowedVstring (std::string const & s)
   if (s == "suppressInfo") 	return true;
   if (s == "suppressDebug") 	return true;
   if (s == "suppressWarning") 	return true;
+  if (s == "suppressError") 	return true;
   return false;
 }  // allowedVstring
 
@@ -346,6 +353,7 @@ keywordCheck(std::string const & word)
   if (word == "suppressInfo") 	return false;
   if (word == "suppressDebug") 	return false;
   if (word == "suppressWarning")return false;
+  if (word == "suppressError")  return false;
   if (word == "threshold") 	return false;
   if (word == "ERROR") 		return false;
   if (word == "WARNING") 	return false;
