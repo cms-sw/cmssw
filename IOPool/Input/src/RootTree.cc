@@ -38,7 +38,6 @@ namespace edm {
     metaTree_(dynamic_cast<TTree*>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToMetaDataTreeName(branchType).c_str()) : 0)),
     branchType_(branchType),
     auxBranch_(tree_ ? getAuxiliaryBranch(tree_, branchType_) : 0),
-    branchEntryInfoBranch_(metaTree_ ? getProductProvenanceBranch(metaTree_, branchType_) : (tree_ ? getProductProvenanceBranch(tree_, branchType_) : 0)),
     treeCache_(),
     rawTreeCache_(),
     entries_(tree_ ? tree_->GetEntries() : 0),
@@ -49,6 +48,7 @@ namespace edm {
     switchOverEntry_(-1),
     learningEntries_(learningEntries),
     cacheSize_(cacheSize),
+    branchEntryInfoBranch_(metaTree_ ? getProductProvenanceBranch(metaTree_, branchType_) : (tree_ ? getProductProvenanceBranch(tree_, branchType_) : 0)),
     productStatuses_(), // backward compatibility
     pProductStatuses_(&productStatuses_), // backward compatibility
     infoTree_(dynamic_cast<TTree*>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()) : 0)), // backward compatibility
