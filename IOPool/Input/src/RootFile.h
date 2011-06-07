@@ -125,6 +125,9 @@ namespace edm {
     bool wasFirstEventJustRead() const;
     IndexIntoFile::IndexIntoFileItr indexIntoFileIter() const;
     void setPosition(IndexIntoFile::IndexIntoFileItr const& position);
+    EventPrincipal& secondaryEventPrincipal() {
+      return *secondaryEventPrincipal_;
+    }
 
   private:
     void checkReleaseVersion();
@@ -189,10 +192,11 @@ namespace edm {
     TTree* eventHistoryTree_;
     boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs_;
     boost::shared_ptr<BranchListIndexes> branchListIndexes_;
-    boost::shared_ptr<History> history_;
+    boost::scoped_ptr<History> history_;
     boost::shared_ptr<BranchChildren> branchChildren_;
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
-    boost::shared_ptr<ProvenanceAdaptor> provenanceAdaptor_;
+    boost::scoped_ptr<ProvenanceAdaptor> provenanceAdaptor_;
+    mutable boost::scoped_ptr<EventPrincipal> secondaryEventPrincipal_;
     mutable boost::shared_ptr<BranchMapper> eventBranchMapper_;
     std::vector<ParentageID> parentageIDLookup_;
   }; // class RootFile

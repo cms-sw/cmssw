@@ -263,6 +263,24 @@ namespace edm {
     return primaryFileSequence_->goToEvent(eventID);
   }
 
+  EventPrincipal*
+  PoolSource::readOneRandom() {
+    assert(!secondaryFileSequence_);
+    return primaryFileSequence_->readOneRandom();
+  }
+
+  EventPrincipal*
+  PoolSource::readOneSequential() {
+    assert(!secondaryFileSequence_);
+    return primaryFileSequence_->readOneSequential();
+  }
+
+  EventPrincipal*
+  PoolSource::readOneSpecified(EventID const& id) {
+    assert(!secondaryFileSequence_);
+    return primaryFileSequence_->readOneSpecified(id);
+  }
+
   void
   PoolSource::readMany_(int number, EventPrincipalVector& result) {
     assert (!secondaryFileSequence_);
@@ -289,7 +307,7 @@ namespace edm {
 
   void
   PoolSource::dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) {
-    assert (!secondaryFileSequence_);
+    assert(!secondaryFileSequence_);
     primaryFileSequence_->dropUnwantedBranches_(wantedBranches);
   }
 

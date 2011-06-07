@@ -555,6 +555,84 @@ namespace edm {
     groupSelectorRules_ = GroupSelectorRules(pset, "inputCommands", "InputSource");
   }
 
+  EventPrincipal*
+  RootInputFileSequence::readOneSequential() {
+    skipBadFiles_ = false;
+    if(fileIter_ == fileIterEnd_ || !rootFile_) {
+      if(fileIterEnd_ == fileIterBegin_) {
+        throw Exception(errors::Configuration) << "RootInputFileSequence::readOneSequential(): no input files specified.\n";
+      }
+      fileIter_ = fileIterBegin_;
+      initFile(false);
+      rootFile_->setAtEventEntry(0);
+    }
+    EventPrincipal* ep = rootFile_->readCurrentEvent(rootFile_->secondaryEventPrincipal(), rootFile_);
+    if(ep == 0) {
+      ++fileIter_;
+      if(fileIter_ == fileIterEnd_) {
+        return 0;
+      }
+      initFile(false);
+      rootFile_->setAtEventEntry(0);
+      return readOneSequential();
+    }
+    rootFile_->nextEventEntry();
+    return ep;
+  }
+
+  EventPrincipal*
+  RootInputFileSequence::readOneSpecified(EventID const& id) {
+    skipBadFiles_ = false;
+    bool found = skipToItem(id.run(), id.luminosityBlock(), id.event());
+    if(!found) {
+      throw Exception(errors::NotFound) <<
+         "RootInputFileSequence::readOneSpecified(): Secondary Input file " <<
+         fileIter_->fileName() <<
+         " does not contain specified event:\n" << id << "\n";
+    }
+    EventPrincipal* ep = rootFile_->readCurrentEvent(rootFile_->secondaryEventPrincipal(), rootFile_);
+    assert(ep != 0);
+    return ep;
+  }
+
+  EventPrincipal*
+  RootInputFileSequence::readOneRandom() {
+    if(fileIterEnd_ == fileIterBegin_) {
+      throw Exception(errors::Configuration) << "RootInputFileSequence::readOneRandom(): no input files specified.\n";
+    }
+    if(!flatDistribution_) {
+      Service<RandomNumberGenerator> rng;
+      CLHEP::HepRandomEngine& engine = rng->getEngine();
+      flatDistribution_.reset(new CLHEP::RandFlat(engine));
+    }
+    skipBadFiles_ = false;
+    unsigned int currentSeqNumber = fileIter_ - fileIterBegin_;
+    while(eventsRemainingInFile_ == 0) {
+      fileIter_ = fileIterBegin_ + flatDistribution_->fireInt(fileCatalogItems().size());
+      unsigned int newSeqNumber = fileIter_ - fileIterBegin_;
+      if(newSeqNumber != currentSeqNumber) {
+        initFile(false);
+        currentSeqNumber = newSeqNumber;
+      }
+      eventsRemainingInFile_ = rootFile_->eventTree().entries();
+      if(eventsRemainingInFile_ == 0) {
+        throw Exception(errors::NotFound) <<
+           "RootInputFileSequence::readOneRandom(): Secondary Input file " << fileIter_->fileName() << " contains no events.\n";
+      }
+      rootFile_->setAtEventEntry(flatDistribution_->fireInt(eventsRemainingInFile_));
+    }
+
+    EventPrincipal* ep = rootFile_->readCurrentEvent(rootFile_->secondaryEventPrincipal(), rootFile_);
+    if(ep == 0) {
+      rewindFile();
+      ep = rootFile_->readCurrentEvent(rootFile_->secondaryEventPrincipal(), rootFile_);
+      assert(ep != 0);
+    }
+    --eventsRemainingInFile_;
+    rootFile_->nextEventEntry();
+    return ep;
+  }
+
   void
   RootInputFileSequence::readMany(int number, EventPrincipalVector& result) {
     for(int i = 0; i < number; ++i) {

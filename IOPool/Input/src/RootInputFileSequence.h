@@ -59,6 +59,10 @@ namespace edm {
     bool skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event);
     void rewind_();
     void reset(PrincipalCache& cache);
+    EventPrincipal* readOneRandom();
+    EventPrincipal* readOneSequential();
+    EventPrincipal* readOneSpecified(EventID const& id);
+
     void readMany(int number, EventPrincipalVector& result);
     void readManyRandom(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
     void readManySequential(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
