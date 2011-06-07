@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.329 $"
+__version__ = "$Revision: 1.330 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -153,7 +153,7 @@ class ConfigBuilder(object):
 			    raise Exception("%s is not a number" % eventInterval)
 		    profilerInterval = int(eventInterval)
 	    if len(profileOpts):
-		    options.profilerFormat = profileOpts.pop(0)
+		    profilerFormat = profileOpts.pop(0)
 
 
 	    if not profilerFormat:
@@ -1494,7 +1494,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.329 $"),
+                                            (version=cms.untracked.string("$Revision: 1.330 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
