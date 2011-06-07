@@ -357,12 +357,16 @@ from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import *
 
 if useStandardPAT:
 
+  ### Muons
+
   process.intermediatePatMuons = intermediatePatMuons.clone()
   process.loosePatMuons        = loosePatMuons.clone()
   process.step1a               = step1a.clone()
   process.tightPatMuons        = tightPatMuons.clone()
   process.step1b               = step1b.clone()
   process.step2                = step2.clone()
+
+  ### Jets
 
   if useL1FastJet:
     process.kt6PFJets = kt6PFJets.clone( doRhoFastjet = True )
@@ -377,6 +381,8 @@ if useStandardPAT:
   process.step4c      = step4c.clone()
   process.step5       = step5.clone()
 
+  ### Electrons
+
   process.step3 = step3.clone()
 
 if runPF2PAT:
@@ -390,17 +396,17 @@ if runPF2PAT:
   setattr( process, 'loosePatMuons' + postfix, loosePatMuonsPF )
   getattr( process, 'loosePatMuons' + postfix ).checkOverlaps.jets.src = cms.InputTag( 'goodPatJets' + postfix )
 
-  step3bPF = step1a.clone( src = cms.InputTag( 'loosePatMuons' + postfix ) )
-  setattr( process, 'step1a' + postfix, step3bPF )
+  step1aPF = step1a.clone( src = cms.InputTag( 'loosePatMuons' + postfix ) )
+  setattr( process, 'step1a' + postfix, step1aPF )
 
   tightPatMuonsPF = tightPatMuons.clone( src = cms.InputTag( 'loosePatMuons' + postfix ) )
   setattr( process, 'tightPatMuons' + postfix, tightPatMuonsPF )
 
-  step3aPF = step1b.clone( src = cms.InputTag( 'tightPatMuons' + postfix ) )
-  setattr( process, 'step1b' + postfix, step3aPF )
+  step1bPF = step1b.clone( src = cms.InputTag( 'tightPatMuons' + postfix ) )
+  setattr( process, 'step1b' + postfix, step1bPF )
 
-  step4PF = step2.clone( src = cms.InputTag( 'selectedPatMuons' + postfix ) )
-  setattr( process, 'step2' + postfix, step4PF )
+  step2PF = step2.clone( src = cms.InputTag( 'selectedPatMuons' + postfix ) )
+  setattr( process, 'step2' + postfix, step2PF )
 
   ### Jets
 
@@ -426,19 +432,19 @@ if runPF2PAT:
   setattr( process, 'goodPatJets' + postfix, goodPatJetsPF )
   getattr( process, 'goodPatJets' + postfix ).checkOverlaps.muons.src = cms.InputTag( 'intermediatePatMuons' + postfix )
 
-  step6aPF = step4a.clone( src = cms.InputTag( 'goodPatJets' + postfix ) )
-  setattr( process, 'step4a' + postfix, step6aPF )
-  step6bPF = step4b.clone( src = cms.InputTag( 'goodPatJets' + postfix ) )
-  setattr( process, 'step4b' + postfix, step6bPF )
-  step6cPF = step4c.clone( src = cms.InputTag( 'goodPatJets' + postfix ) )
-  setattr( process, 'step4c' + postfix, step6cPF )
-  step7PF = step5.clone( src = cms.InputTag( 'goodPatJets' + postfix ) )
-  setattr( process, 'step5'  + postfix, step7PF  )
+  step4aPF = step4a.clone( src = cms.InputTag( 'goodPatJets' + postfix ) )
+  setattr( process, 'step4a' + postfix, step4aPF )
+  step4bPF = step4b.clone( src = cms.InputTag( 'goodPatJets' + postfix ) )
+  setattr( process, 'step4b' + postfix, step4bPF )
+  step4cPF = step4c.clone( src = cms.InputTag( 'goodPatJets' + postfix ) )
+  setattr( process, 'step4c' + postfix, step4cPF )
+  step5PF = step5.clone( src = cms.InputTag( 'goodPatJets' + postfix ) )
+  setattr( process, 'step5'  + postfix, step5PF  )
 
   ### Electrons
 
-  step5PF = step3.clone( src = cms.InputTag( 'selectedPatElectrons' + postfix ) )
-  setattr( process, 'step3' + postfix, step5PF )
+  step3PF = step3.clone( src = cms.InputTag( 'selectedPatElectrons' + postfix ) )
+  setattr( process, 'step3' + postfix, step3PF )
 
 process.out.outputCommands.append( 'keep *_intermediatePatMuons*_*_*' )
 process.out.outputCommands.append( 'keep *_loosePatMuons*_*_*' )
@@ -471,6 +477,8 @@ if useStandardPAT:
 
   ### Electrons
 
+  process.patElectrons.electronIDSources = electronIDSources
+
   process.selectedPatElectrons.cut = electronCut
 
 if runPF2PAT:
@@ -494,12 +502,26 @@ if runPF2PAT:
 
   ### Electrons
 
+  applyPostfix( process, 'patElectrons', postfix ).electronIDSources = electronIDSources
+
   applyPostfix( process, 'selectedPatElectrons', postfix ).cut = electronCutPF
 
 
 ###
 ### Scheduling
 ###
+
+# CiC electron ID
+
+process.load( "RecoEgamma.ElectronIdentification.cutsInCategoriesElectronIdentificationV06_cfi" )
+process.eidCiCSequence = cms.Sequence(
+  process.eidVeryLooseMC
++ process.eidLooseMC
++ process.eidMediumMC
++ process.eidTightMC
++ process.eidSuperTightMC
++ process.eidHyperTight1MC
+)
 
 # The additional sequence
 
@@ -529,6 +551,7 @@ if useStandardPAT:
   process.p += process.goodOfflinePrimaryVertices
   if useGoodVertex:
     process.p += process.step0b
+  process.p += process.eidCiCSequence
   process.p += process.patDefaultSequence
   process.p += process.patAddOnSequence
   if useLooseMuon:
@@ -558,6 +581,7 @@ if runPF2PAT:
   pPF += process.goodOfflinePrimaryVertices
   if useGoodVertex:
     pPF += process.step0b
+  pPF += process.eidCiCSequence
   pPF += getattr( process, 'patPF2PATSequence' + postfix )
   pPF += getattr( process, 'patAddOnSequence' + postfix )
   if useLooseMuon:
