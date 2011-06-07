@@ -135,8 +135,8 @@ namespace cond {
     TH2F* endc_m_6O1 = new TH2F("EE-_6O1","EE- gain 6/1",100,1,101,100,1,101);
     TH1F* b_12O6 = new TH1F("b_12O6","EB gain 12/6", 50, 1.8, 2.1);
     TH1F* e_12O6 = new TH1F("e_12O6","EE gain 12/6", 50, 1.8, 2.1);
-    TH1F* b_6O1 = new TH1F("b_6O1","EB gain 6/1", 50, 5.35, 5.85);
-    TH1F* e_6O1 = new TH1F("e_6O1","EE gain 6/1", 50, 5.35, 5.85);
+    TH1F* b_6O1 = new TH1F("b_6O1","EB gain 6/1", 100, 5.3, 6.3);
+    TH1F* e_6O1 = new TH1F("e_6O1","EE gain 6/1", 100, 5.3, 6.3);
 
     for (int sign=0; sign < kSides; sign++) {
       int thesign = sign==1 ? 1:-1;
@@ -197,7 +197,7 @@ namespace cond {
       61, 66, 66, 71, 71, 76, 76, 86, 86, 88,  0, 51, 51, 56, 56, 61, 61,  0, 46, 46, 
       41, 41, 36, 36, 31, 31, 26, 26,  0, 40, 31, 31, 16, 16,  6,  0, 40, 31, 31, 16, 16,  6};
   
-    float min12O6 = 1.9, max12O6 = 2.0, min6O1 = 5.4, max6O1 = 5.8;
+    float min12O6 = 1.8, max12O6 = 2.1, min6O1 = 5.3, max6O1 = 6.3;
     pad[0][0]->cd();
     endc_m_12O6->SetStats(0);
     endc_m_12O6->SetMaximum(max12O6);
