@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.328 $"
+__version__ = "$Revision: 1.329 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -56,6 +56,7 @@ defaultOptions.inputCommands = None
 defaultOptions.inputEventContent = None
 defaultOptions.relval = None
 defaultOptions.slhc = None
+defaultOptions.profile = None
 
 # some helper routines
 def dumpPython(process,name):
@@ -126,7 +127,48 @@ class ConfigBuilder(object):
 
         self.productionFilterSequence = None
 
+    def profileOptions(self):
+	    """
+	    addIgProfService
+	    Function to add the igprof profile service so that you can dump in the middle
+	    of the run.
+	    """
+	    profileOpts = self._options.profile.split(':')
+	    profilerStart = 1
+	    profilerInterval = 100
+	    profilerFormat = None
+	    profilerJobFormat = None
+	    
+	    if len(profileOpts):
+		    #type, given as first argument is unused here
+		    profileOpts.pop(0) 
+	    if len(profileOpts):   
+		    startEvent = profileOpts.pop(0)
+		    if not startEvent.isdigit():
+			    raise Exception("%s is not a number" % startEvent)
+		    profilerStart = int(startEvent)
+	    if len(profileOpts):
+		    eventInterval = profileOpts.pop(0)
+		    if not eventInterval.isdigit():
+			    raise Exception("%s is not a number" % eventInterval)
+		    profilerInterval = int(eventInterval)
+	    if len(profileOpts):
+		    options.profilerFormat = profileOpts.pop(0)
 
+
+	    if not profilerFormat:
+		    profilerFormat = "%s___%s___%s___%s___%s___%s___%%I.gz" % (self._options.evt_type.replace("_cfi", ""),
+									       self._options.step,
+									       self._options.pileup,
+									       self._options.conditions,
+									       self._options.datatier,
+									       self._options.profileTypeLabel)
+	    if not profilerJobFormat and profilerFormat.endswith(".gz"):
+		    profilerJobFormat = profilerFormat.replace(".gz", "_EndOfJob.gz")
+	    elif not profilerJobFormat:
+		    profilerJobFormat = profilerFormat + "_EndOfJob.gz"
+
+	    return (profilerStart,profilerInterval,profilerFormat,profilerJobFormat)
 
     def loadAndRemember(self, includeFile):
         """helper routine to load am memorize imports"""
@@ -163,6 +205,15 @@ class ConfigBuilder(object):
             #self.process.cmsDriverCommand = cms.untracked.PSet( command=cms.untracked.string('cmsDriver.py '+self._options.arguments) )
             #self.addedObjects.append(("what cmsDriver command was used","cmsDriverCommand"))
 
+	    if self._options.profile:
+		    (start, interval, eventFormat, jobFormat)=self.profileOptions()
+		    self.process.IgProfService = cms.Service("IgProfService",
+							     reportFirstEvent            = cms.untracked.int32(start),
+							     reportEventInterval         = cms.untracked.int32(interval),
+							     reportToFileAtPostEvent     = cms.untracked.string("| gzip -c > %s"%(eventFormat)),
+							     reportToFileAtPostEndJob    = cms.untracked.string("| gzip -c > %s"%(jobFormat)))
+		    self.addedObjects.append(("Setup IGProf Service for profiling","IgProfService"))
+							     
     def addMaxEvents(self):
         """Here we decide how many evts will be processed"""
         self.process.maxEvents=cms.untracked.PSet(input=cms.untracked.int32(int(self._options.number)))
@@ -1443,7 +1494,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.328 $"),
+                                            (version=cms.untracked.string("$Revision: 1.329 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )

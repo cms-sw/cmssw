@@ -290,12 +290,18 @@ expertSettings.add_option("--inputEventContent",
                           help="specify the input event content",
                           default=None,
                           dest="inputEventContent")
+
 expertSettings.add_option("--slhc",
                           help="Specify the SLHC scenario version",
                           default=None,
                           dest="slhc")
+
 expertSettings.add_option("--evt_type",
                           help="specify the gen fragment",
                           default=None,
                           dest="evt_type")
 
+expertSettings.add_option("--profile",
+                          help="add the IgprofService with the parameter provided PROFILER:START:STEP:PEREVENOUTPUTFORMAT:ENDOFJOBOUTPUTFORMAT",
+                          default=None,
+                          dest="profile")

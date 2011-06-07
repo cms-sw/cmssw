@@ -191,5 +191,24 @@ def OptionsFromItems(items):
         else:
             print 'We have determined that this is real data (if not, rerun cmsDriver.py with --mc)'
 
+    if options.profile:
+        if options.profile and options.prefix:
+            raise Exception("--profile and --prefix are incompatible")
+        profilerType = 'pp'
+        profileOpts = options.profile.split(':')
+        if len(profileOpts):
+            profilerType = profileOpts[0].replace("=", " ")
+
+        if profilerType == "pp":
+            options.profileTypeLabel = "performance"
+        elif profilerType == "mp":
+            options.profileTypeLabel = "memory"
+        elif profilerType.startswith("fp "):
+            options.profileTypeLabel = profilerType.replace("fp ", "")
+        else:	
+            raise Exception("Not a valid profiler type %s. Alternatives are pp, mp, fp=<function>."%(profilerType))
+
+        options.prefix = "igprof -%s" % profilerType
+        
     return options
 
