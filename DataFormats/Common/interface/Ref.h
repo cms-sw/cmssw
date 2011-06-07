@@ -288,7 +288,7 @@ namespace edm {
     
     //Used by ROOT storage
     CMS_CLASS_VERSION(10)
-  private:
+    //  private:
     // Constructor from member of RefVector
     Ref(RefCore const& refCore, key_type const& key) : 
       product_(refCore), index_(key) {
@@ -412,7 +412,7 @@ namespace edm {
   inline
   bool
   operator==(Ref<C, T, F> const& lhs, Ref<C, T, F> const& rhs) {
-    return lhs.refCore() == rhs.refCore() && lhs.key() == rhs.key();
+    return lhs.key() == rhs.key() && lhs.refCore() == rhs.refCore() ;
   }
 
   template <typename C, typename T, typename F>
