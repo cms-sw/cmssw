@@ -16,7 +16,7 @@ RefCore: The component of edm::Ref containing the product ID and product getter.
 namespace edm {
   class RefCore {
   public:
-    RefCore() : processIndex_(0),productIndex_(0), prodPtr_(0),prodGetter_(0),clientCache_(0),transient_() {}
+    RefCore() :  prodPtr_(0),prodGetter_(0),clientCache_(0), processIndex_(0),productIndex_(0), transient_() {}
 
     RefCore(ProductID const& theId, void const* prodPtr, EDProductGetter const* prodGetter, bool transient);
 
@@ -77,12 +77,12 @@ namespace edm {
     }
     void setTransient() {transient_.transient_ = true;}
 
-    //The following are what is stored in a ProductID
-    ProcessIndex processIndex_;
-    ProductIndex productIndex_;
     mutable void const* prodPtr_;               // transient
     mutable EDProductGetter const* prodGetter_; // transient
     mutable void const* clientCache_;           // transient
+    //The following are what is stored in a ProductID
+    ProcessIndex processIndex_;
+    ProductIndex productIndex_;
     CheckTransientOnWrite transient_;           // transient
     
   };

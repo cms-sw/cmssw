@@ -8,11 +8,11 @@
 namespace edm {
 
   RefCore::RefCore(ProductID const& theId, void const* prodPtr, EDProductGetter const* prodGetter, bool transient) :
-      processIndex_(theId.processIndex()),
-      productIndex_(theId.productIndex()),
       prodPtr_(prodPtr),
       prodGetter_(prodGetter),
       clientCache_(0),
+      processIndex_(theId.processIndex()),
+      productIndex_(theId.productIndex()),
       transient_(transient)
       {}
 

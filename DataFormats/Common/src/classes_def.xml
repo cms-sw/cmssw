@@ -1,6 +1,6 @@
 <lcgdict>
  <class name="edm::EDProductGetter"/>
- <class name="edm::RefCore" ClassVersion="10">
+ <class name="edm::RefCore" ClassVersion="11">
    <field name="prodPtr_" transient = "true"/>
    <field name="prodGetter_" transient = "true"/>
    <field name="clientCache_" transient = "true"/>
