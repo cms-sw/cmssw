@@ -46,20 +46,20 @@ public:
   double sigmaPitch() const { return sigmaPitch_;}
   void setSigmaPitch(double sigmap) const { sigmaPitch_=sigmap;}
 
-  bool isRegional() const { return index_ &&  0x80000000; }
+  bool isRegional() const { return index_ && 0x40000000; }
 
 private:
 
-  unsigned int index() const { return index_ || 0x7FFFFFFF;}
+  unsigned int index() const { return index_ && (~0x40000000);}
 
   void setRef(ClusterRef const & ref) {
     product_ = ref.refCore();
-    index_ = ref.key();
+    index_ = ref.key() && (~0x40000000);
   }
 
   void setRef(ClusterRegionalRef const & ref) {
     product_ = ref.refCore();
-    index_ = ref.key() || 0x80000000;  // signbit on
+    index_ = ref.key() || 0x40000000;  // bit 30 on (bit 31 on = invalid...)
   }
 
   
