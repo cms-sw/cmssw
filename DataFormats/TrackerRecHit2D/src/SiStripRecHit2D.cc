@@ -37,7 +37,7 @@ SiStripRecHit2D::sharesInput( const TrackingRecHit* other,
     if (cluster().isNonnull()) {
       return (cluster() == otherCast->cluster());
     } else {
-      return (clusterRegional() == otherCast->cluster_regional());
+      return (cluster_regional() == otherCast->cluster_regional());
     }
   } else if (otherType == typeid(SiStripRecHit1D)) {
     const SiStripRecHit1D* otherCast = static_cast<const SiStripRecHit1D*>(other);
@@ -45,7 +45,7 @@ SiStripRecHit2D::sharesInput( const TrackingRecHit* other,
     if (cluster().isNonnull()) {
       return (cluster() == otherCast->cluster());
     } else {
-      return (clusterRegional() == otherCast->cluster_regional());
+      return (cluster_regional() == otherCast->cluster_regional());
     }
   } else if (otherType == typeid(ProjectedSiStripRecHit2D)) {
     const SiStripRecHit2D* otherCast = & (static_cast<const ProjectedSiStripRecHit2D*>(other)->originalHit());
@@ -53,7 +53,7 @@ SiStripRecHit2D::sharesInput( const TrackingRecHit* other,
     if (cluster().isNonnull()) {
       return (cluster() == otherCast->cluster());
     } else {
-      return (clusterRegional() == otherCast->cluster_regional());
+      return (cluster_regional() == otherCast->cluster_regional());
     }
   } else if ((otherType == typeid(SiStripMatchedRecHit2D)) && (what == all)) {
     return false; 

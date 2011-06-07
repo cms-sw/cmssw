@@ -10,7 +10,7 @@
 class SiStripRecHit2D : public  BaseSiTrackerRecHit2DLocalPos{
 public:
 
-  SiStripRecHit2D(): BaseSiTrackerRecHit2DLocalPos(),cluster_(),clusterRegional_(),
+  SiStripRecHit2D(): BaseSiTrackerRecHit2DLocalPos(),
 		     sigmaPitch_(-1.){}
 
   ~SiStripRecHit2D() {} 
@@ -31,11 +31,11 @@ public:
   virtual SiStripRecHit2D * clone() const {return new SiStripRecHit2D( * this); }
   
   ClusterRegionalRef cluster_regional()  const { 
-    return isRegional ?  ClusterRegionalRef(product_,index()) : ClusterRegionalRef();
+    return isRegional() ?  ClusterRegionalRef(product_,index()) : ClusterRegionalRef();
   }
 
   ClusterRef cluster()  const { 
-    return isRegional ? : ClusterRef(): ClusterRef(product_,index());
+    return isRegional() ? ClusterRef() : ClusterRef(product_,index());
   }
 
   void setClusterRef(ClusterRef const & ref) { setRef(ref); }
@@ -57,7 +57,7 @@ private:
     index_ = ref.key();
   }
 
-  void setRef(ClusterRegionaRef const & ref) {
+  void setRef(ClusterRegionalRef const & ref) {
     product_ = ref.refCore();
     index_ = ref.key() || 0x80000000;  // signbit on
   }
@@ -72,7 +72,7 @@ private:
   //ClusterRegionalRef clusterRegional_;
 
   // new game
-  refCore product_;
+  edm::RefCore product_;
   unsigned int index_;
 
 
