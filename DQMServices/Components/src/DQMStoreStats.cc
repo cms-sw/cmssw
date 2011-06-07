@@ -2,9 +2,9 @@
  * \file DQMStoreStats.cc
  * \author Andreas Meyer
  * Last Update:
- * $Date: 2011/05/31 11:54:46 $
- * $Revision: 1.13 $
- * $Author: rovere $
+ * $Date: 2011/06/07 13:42:50 $
+ * $Revision: 1.14 $
+ * $Author: eulisse $
  *
  * Description: Print out statistics of histograms in DQMStore
 */
@@ -160,6 +160,8 @@ void DQMStoreStats::calcIgProfDump(DQMStoreStatsTopLevel &dqmStoreStatsTopLevel)
     {
       DQMStoreStatsSubfolder &folder = subsystem[ji];
       int symId = (ii << 16) + ji + 1;
+      stream << "INSERT INTO symbols(id, name, filename_id) VALUES (" << symId << ",\"" << subsystem.subsystemName_ << "/" << folder.subfolderName_ << "\", "
+             << ii << ");" << std::endl;
       stream << "INSERT INTO mainrows(id, symbol_id, self_count, cumulative_count, kids, self_calls, total_calls, self_paths, total_paths, pct)"
                 " VALUES(" << symId << ", " << symId << ", "
              << folder.totalMemory_ << ", " << folder.totalMemory_ << ", 0, "
@@ -169,10 +171,8 @@ void DQMStoreStats::calcIgProfDump(DQMStoreStatsTopLevel &dqmStoreStatsTopLevel)
              << parentId << "," << symId << "," << folder.totalMemory_ << "," << folder.totalBins_ << "," << folder.totalHistos_ << ",0"
              << ");" << std::endl;
       stream << "INSERT INTO children(self_id, parent_id, from_parent_count, from_parent_calls, from_parent_paths, pct) VALUES("
-             << symId << "," << parentId << "," << folder.totalMemory_ << "," << folder.totalBins_ << "," << folder.totalHistos_ << ",0"
+             << symId << "," << parentId << "," << folder.totalMemory_ << "," << folder.totalBins_ - folder.totalEmptyBins_ << "," << folder.totalHistos_ << ",0"
              << ");" << std::endl;
-      stream << "INSERT INTO symbols(id, name, filename_id) VALUES (" << symId << ",\"" << subsystem.subsystemName_ << "/" << folder.subfolderName_ << "\", "
-             << ii << ");" << std::endl;
       subfolderTotalMemory += folder.totalMemory_;
       subfolderTotalBins += folder.totalBins_;
       subfolderTotalFullBins += folder.totalBins_ - folder.totalEmptyBins_;
@@ -293,7 +293,8 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
       
   } 
 
-  calcIgProfDump(dqmStoreStatsTopLevel);
+  if( mode == DQMStoreStats::considerAllME )
+    calcIgProfDump(dqmStoreStatsTopLevel);
   // OUTPUT
 
   std::cout << endl;
@@ -367,7 +368,7 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
       } 
       else std::cout << std::setw( 14 ) << std::right << "-";
 
-      std::cout << std::setw( 14 ) << std::right << std::setprecision( 3 ) << it1->totalMemory_ / 1024. / 1000.;
+      std::cout << std::setw( 14 ) << std::right << std::setprecision( 3 ) << it1->totalMemory_ / 1024. / 1024.;
 
       // mem/histogram, need to catch nan if histos=0
       if( it1->totalHistos_ ) {
