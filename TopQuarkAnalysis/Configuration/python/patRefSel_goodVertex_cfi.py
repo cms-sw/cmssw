@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 pvSelection = cms.PSet(
-  minNdof = cms.double( 4. )
+  minNdof = cms.double( 7. )
 , maxZ    = cms.double( 24. )
 , maxRho  = cms.double( 2. )
 )
@@ -13,7 +13,7 @@ goodOfflinePrimaryVertices = cms.EDFilter(
 , src          = cms.InputTag( 'offlinePrimaryVertices' )
 )
 
-step2 = cms.EDFilter(
+goodOfflinePrimaryVertexFilter = cms.EDFilter(
 #   "VertexSelector"
 # , src    = pvSrc
 # , cut    = cms.string( '!isFake && ndof > 4 && abs(z) <= 24. && abs(position.rho) <= 2.' )

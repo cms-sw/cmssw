@@ -15,7 +15,7 @@ pfDzCut    = 0.5
 pfMuonSelectionCut = 'pt > 5.'
 
 # Isolation
-pfMuonIsoConeR   = 0.4
+pfMuonIsoConeR   = 0.3
 pfMuonCombIsoCut = 0.15
 
 ### Electron configuration
@@ -26,5 +26,5 @@ pfElectronSelectionCut += ' && gsfTrackRef.isNonnull'
 pfElectronSelectionCut += ' && gsfTrackRef.trackerExpectedHitsInner.numberOfLostHits < 2'
 
 # Isolation
-pfElectronIsoConeR   = 0.4
+pfElectronIsoConeR   = 0.3
 pfElectronCombIsoCut = 0.2

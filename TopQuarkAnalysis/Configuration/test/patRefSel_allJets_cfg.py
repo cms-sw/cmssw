@@ -141,7 +141,7 @@ inputFiles = [ '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RECO/START42_
              # '/store/mc/Summer11/QCD_Pt-15to3000_TuneD6T_Flat_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/84488536-2B7E-E011-989D-001A92810A94.root'
              # ]   # overwritten, if "useRelVals" is 'True'
 
-             
+
 # maximum number of events
 maxInputEvents = -1 # reduce for testing
 
@@ -239,6 +239,7 @@ process.step1 = triggerResults.clone(
 
 ### Good vertex selection
 process.load( "TopQuarkAnalysis.Configuration.patRefSel_goodVertex_cfi" )
+process.step2 = process.goodOfflinePrimaryVertexFilter.clone()
 
 
 ###
@@ -320,7 +321,7 @@ if runPF2PAT:
   applyPostfix( process, 'isoValElectronWithNeutral', postfix ).deposits.deltaR = pfElectronIsoConeR
   applyPostfix( process, 'isoValElectronWithPhotons', postfix ).deposits.deltaR = pfElectronIsoConeR
   applyPostfix( process, 'pfIsolatedElectronsPF'    , postfix ).combinedIsolationCut = pfElectronCombIsoCut
-    
+
 # remove MC matching, object cleaning, photons and taus
 if useStandardPAT:
   if not runOnMC:

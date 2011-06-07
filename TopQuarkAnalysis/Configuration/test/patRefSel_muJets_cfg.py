@@ -28,26 +28,28 @@ runPF2PAT      = True
 
 ### Switch on/off selection steps
 
-# Step 1
+# Step 0a
 useTrigger      = True
-# Step 2
+# Step 0b
 useGoodVertex   = True
-# Step 3b
+# Step 1a
 useLooseMuon    = True
-# Step 3a
+# Step 1b
 useTightMuon    = True
-# Step 4
+# Step 2
 useMuonVeto     = True
-# Step 5
+# Step 3
 useElectronVeto = True
-# Step 6a
+# Step 4a
 use1Jet         = True
-# Step 6b
+# Step 4b
 use2Jets        = False
-# Step 6c
+# Step 4c
 use3Jets        = False
-# Step 7
+# Step 5
 use4Jets        = False
+# Step 6
+useBTag         = False
 
 addTriggerMatching = True
 
@@ -94,7 +96,7 @@ from TopQuarkAnalysis.Configuration.patRefSel_PF2PAT import *
 # vertices
 #pfD0Cut   = 0.2
 #pfDzCut   = 0.5
-#pfVertices = 'offlinePrimaryVertices'
+#pfVertices = 'goodOfflinePrimaryVertices'
 # muons
 #pfMuonSelectionCut = ''
 #pfMuonIsoConeR   = 0.4
@@ -222,12 +224,13 @@ if runOnMC:
 else:
   triggerSelection = triggerSelectionData
 from TopQuarkAnalysis.Configuration.patRefSel_triggerSelection_cff import triggerResults
-process.step1 = triggerResults.clone(
+process.step0a = triggerResults.clone(
   triggerConditions = [ triggerSelection ]
 )
 
 ### Good vertex selection
 process.load( "TopQuarkAnalysis.Configuration.patRefSel_goodVertex_cfi" )
+process.step0b = process.goodOfflinePrimaryVertexFilter.clone()
 
 
 ###
@@ -356,10 +359,10 @@ if useStandardPAT:
 
   process.intermediatePatMuons = intermediatePatMuons.clone()
   process.loosePatMuons        = loosePatMuons.clone()
-  process.step3b               = step3b.clone()
+  process.step1a               = step1a.clone()
   process.tightPatMuons        = tightPatMuons.clone()
-  process.step3a               = step3a.clone()
-  process.step4                = step4.clone()
+  process.step1b               = step1b.clone()
+  process.step2                = step2.clone()
 
   if useL1FastJet:
     process.kt6PFJets = kt6PFJets.clone( doRhoFastjet = True )
@@ -369,12 +372,12 @@ if useStandardPAT:
     process.out.outputCommands.append( 'keep double_*_*_' + process.name_() )
 
   process.goodPatJets = goodPatJets.clone()
-  process.step6a      = step6a.clone()
-  process.step6b      = step6b.clone()
-  process.step6c      = step6c.clone()
-  process.step7       = step7.clone()
+  process.step4a      = step4a.clone()
+  process.step4b      = step4b.clone()
+  process.step4c      = step4c.clone()
+  process.step5       = step5.clone()
 
-  process.step5 = step5.clone()
+  process.step3 = step3.clone()
 
 if runPF2PAT:
 
@@ -387,17 +390,17 @@ if runPF2PAT:
   setattr( process, 'loosePatMuons' + postfix, loosePatMuonsPF )
   getattr( process, 'loosePatMuons' + postfix ).checkOverlaps.jets.src = cms.InputTag( 'goodPatJets' + postfix )
 
-  step3bPF = step3b.clone( src = cms.InputTag( 'loosePatMuons' + postfix ) )
-  setattr( process, 'step3b' + postfix, step3bPF )
+  step3bPF = step1a.clone( src = cms.InputTag( 'loosePatMuons' + postfix ) )
+  setattr( process, 'step1a' + postfix, step3bPF )
 
   tightPatMuonsPF = tightPatMuons.clone( src = cms.InputTag( 'loosePatMuons' + postfix ) )
   setattr( process, 'tightPatMuons' + postfix, tightPatMuonsPF )
 
-  step3aPF = step3a.clone( src = cms.InputTag( 'tightPatMuons' + postfix ) )
-  setattr( process, 'step3a' + postfix, step3aPF )
+  step3aPF = step1b.clone( src = cms.InputTag( 'tightPatMuons' + postfix ) )
+  setattr( process, 'step1b' + postfix, step3aPF )
 
-  step4PF = step4.clone( src = cms.InputTag( 'selectedPatMuons' + postfix ) )
-  setattr( process, 'step4' + postfix, step4PF )
+  step4PF = step2.clone( src = cms.InputTag( 'selectedPatMuons' + postfix ) )
+  setattr( process, 'step2' + postfix, step4PF )
 
   ### Jets
 
@@ -423,19 +426,19 @@ if runPF2PAT:
   setattr( process, 'goodPatJets' + postfix, goodPatJetsPF )
   getattr( process, 'goodPatJets' + postfix ).checkOverlaps.muons.src = cms.InputTag( 'intermediatePatMuons' + postfix )
 
-  step6aPF = step6a.clone( src = cms.InputTag( 'goodPatJets' + postfix ) )
-  setattr( process, 'step6a' + postfix, step6aPF )
-  step6bPF = step6b.clone( src = cms.InputTag( 'goodPatJets' + postfix ) )
-  setattr( process, 'step6b' + postfix, step6bPF )
-  step6cPF = step6c.clone( src = cms.InputTag( 'goodPatJets' + postfix ) )
-  setattr( process, 'step6c' + postfix, step6cPF )
-  step7PF = step7.clone( src = cms.InputTag( 'goodPatJets' + postfix ) )
-  setattr( process, 'step7'  + postfix, step7PF  )
+  step6aPF = step4a.clone( src = cms.InputTag( 'goodPatJets' + postfix ) )
+  setattr( process, 'step4a' + postfix, step6aPF )
+  step6bPF = step4b.clone( src = cms.InputTag( 'goodPatJets' + postfix ) )
+  setattr( process, 'step4b' + postfix, step6bPF )
+  step6cPF = step4c.clone( src = cms.InputTag( 'goodPatJets' + postfix ) )
+  setattr( process, 'step4c' + postfix, step6cPF )
+  step7PF = step5.clone( src = cms.InputTag( 'goodPatJets' + postfix ) )
+  setattr( process, 'step5'  + postfix, step7PF  )
 
   ### Electrons
 
-  step5PF = step5.clone( src = cms.InputTag( 'selectedPatElectrons' + postfix ) )
-  setattr( process, 'step5' + postfix, step5PF )
+  step5PF = step3.clone( src = cms.InputTag( 'selectedPatElectrons' + postfix ) )
+  setattr( process, 'step3' + postfix, step5PF )
 
 process.out.outputCommands.append( 'keep *_intermediatePatMuons*_*_*' )
 process.out.outputCommands.append( 'keep *_loosePatMuons*_*_*' )
@@ -522,28 +525,28 @@ if useStandardPAT:
   if not runOnMC:
     process.p += process.eventCleaning
   if useTrigger:
-    process.p += process.step1
+    process.p += process.step0a
   process.p += process.goodOfflinePrimaryVertices
   if useGoodVertex:
-    process.p += process.step2
+    process.p += process.step0b
   process.p += process.patDefaultSequence
   process.p += process.patAddOnSequence
   if useLooseMuon:
-    process.p += process.step3b
+    process.p += process.step1a
   if useTightMuon:
-    process.p += process.step3a
+    process.p += process.step1b
   if useMuonVeto:
-    process.p += process.step4
+    process.p += process.step2
   if useElectronVeto:
-    process.p += process.step5
+    process.p += process.step3
   if use1Jet:
-    process.p += process.step6a
+    process.p += process.step4a
   if use2Jets:
-    process.p += process.step6b
+    process.p += process.step4b
   if use3Jets:
-    process.p += process.step6c
+    process.p += process.step4c
   if use4Jets:
-    process.p += process.step7
+    process.p += process.step5
   process.out.SelectEvents.SelectEvents.append( 'p' )
 
 if runPF2PAT:
@@ -551,28 +554,28 @@ if runPF2PAT:
   if not runOnMC:
     pPF += process.eventCleaning
   if useTrigger:
-    pPF += process.step1
+    pPF += process.step0a
   pPF += process.goodOfflinePrimaryVertices
   if useGoodVertex:
-    pPF += process.step2
+    pPF += process.step0b
   pPF += getattr( process, 'patPF2PATSequence' + postfix )
   pPF += getattr( process, 'patAddOnSequence' + postfix )
   if useLooseMuon:
-    pPF += getattr( process, 'step3b' + postfix )
+    pPF += getattr( process, 'step1a' + postfix )
   if useTightMuon:
-    pPF += getattr( process, 'step3a' + postfix )
+    pPF += getattr( process, 'step1b' + postfix )
   if useMuonVeto:
-    pPF += getattr( process, 'step4' + postfix )
+    pPF += getattr( process, 'step2' + postfix )
   if useElectronVeto:
-    pPF += getattr( process, 'step5' + postfix )
+    pPF += getattr( process, 'step3' + postfix )
   if use1Jet:
-    pPF += getattr( process, 'step6a' + postfix )
+    pPF += getattr( process, 'step4a' + postfix )
   if use2Jets:
-    pPF += getattr( process, 'step6b' + postfix )
+    pPF += getattr( process, 'step4b' + postfix )
   if use3Jets:
-    pPF += getattr( process, 'step6c' + postfix )
+    pPF += getattr( process, 'step4c' + postfix )
   if use4Jets:
-    pPF += getattr( process, 'step7' + postfix )
+    pPF += getattr( process, 'step5' + postfix )
   setattr( process, 'p' + postfix, pPF )
   process.out.SelectEvents.SelectEvents.append( 'p' + postfix )
 
