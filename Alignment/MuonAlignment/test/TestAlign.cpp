@@ -74,12 +74,12 @@ TestAlign::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   AlignableMuon* theAlignableMuon = align.getAlignableMuon();
   
   // Apply  alignment
-  std::vector<float> displacement;
+  std::vector<double> displacement;
   displacement.push_back(1.0);
   displacement.push_back(0.0);
   displacement.push_back(0.0);
   
-  std::vector<float> rotation;
+  std::vector<double> rotation;
   rotation.push_back(0.0);
   rotation.push_back(0.0);
   rotation.push_back(1.64);
