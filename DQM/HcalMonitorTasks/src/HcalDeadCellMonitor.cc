@@ -500,6 +500,8 @@ void HcalDeadCellMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
   if (ProblemsCurrentLB)
       ProblemsCurrentLB->Reset();
 
+  ProblemsInLastNLB_HBHEHF_alarm->Reset();
+
   for(int i=0; i<132; i++)
     {
       //These RBXs in HO are excluded, set to 1 to ignore
@@ -1420,8 +1422,6 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
 
   if( NumBadHB+NumBadHE+NumBadHF-knownBadHB-knownBadHE-knownBadHF < 50 )    
     alarmer_counter_ = 0;
-
-  ProblemsInLastNLB_HBHEHF_alarm->Reset();
     
   if( alarmer_counter_ > 4 )
     ProblemsInLastNLB_HBHEHF_alarm->Fill( std::min(int(NumBadHB+NumBadHE+NumBadHF-knownBadHB-knownBadHE-knownBadHF), 99) );
