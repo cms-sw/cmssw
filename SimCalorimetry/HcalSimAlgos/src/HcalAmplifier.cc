@@ -57,7 +57,8 @@ void HcalAmplifier::amplify(CaloSamples & frame) const {
     theIonFeedbackSim->addThermalNoise(frame);
   }
   pe2fC(frame);
-  if(theTimeSlewSim)
+  // don't bother for blank signals
+  if(theTimeSlewSim && frame[4] > 1.e-6)
   {
     theTimeSlewSim->delay(frame);
   }
