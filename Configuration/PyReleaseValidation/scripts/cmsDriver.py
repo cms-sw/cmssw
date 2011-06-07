@@ -46,7 +46,7 @@ class forkit(Thread):
             commandString = options.prefix+" cmsRun "+options.suffix
             print "Starting "+commandString+' '+options.python_filename
             commands = commandString.lstrip().split()
-            os.execvpe(commands[0],commands+[python_config_filename],os.environ)
+            os.execvpe(commands[0],commands+[options.python_filename],os.environ)
             sys.exit()
 
 import os
