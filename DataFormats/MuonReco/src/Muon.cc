@@ -741,12 +741,29 @@ void Muon::setStandAlone( const TrackRef & t ) { setOuterTrack(t); }
 void Muon::setGlobalTrack( const TrackRef & t ) { globalTrack_ = t; }
 void Muon::setCombined( const TrackRef & t ) { setGlobalTrack(t); }
 
+
+bool Muon::isAValidMuonTrack(const MuonTrackType& type) const{
+
+  switch (type) {
+  case InnerTrack:     return innerTrack().isNonnull();
+  case OuterTrack:     return standAloneMuon().isNonnull(); 
+  case CombinedTrack:  return globalTrack().isNonnull();
+  default:
+    MuonTrackRefMap::const_iterator iter =  refittedTrackMap_.find(type);
+    if(iter != refittedTrackMap_.end()) return iter->second.isNonnull();
+    else return false;
+  }
+  
+}
+
+
+
 TrackRef Muon::muonTrack(const MuonTrackType& type) const{
 
   switch (type) {
-  case Tracker:        return innerTrack();
-  case StandAlone: return standAloneMuon(); 
-  case Global:     return globalTrack();
+  case InnerTrack:     return innerTrack();
+  case OuterTrack:     return standAloneMuon(); 
+  case CombinedTrack:  return globalTrack();
   default:
     MuonTrackRefMap::const_iterator iter =  refittedTrackMap_.find(type);
     if(iter != refittedTrackMap_.end()) return iter->second;
@@ -758,10 +775,10 @@ TrackRef Muon::muonTrack(const MuonTrackType& type) const{
 void Muon::setMuonTrack(const MuonTrackType& type, const TrackRef& t) {
   
   switch (type) {
-  case Tracker:    setInnerTrack(t);             break;
-  case StandAlone: setStandAlone(t);             break;
-  case Global:     setGlobalTrack(t);            break;
-  default:         refittedTrackMap_[type] = t;  break;
+  case InnerTrack:    setInnerTrack(t);             break;
+  case OuterTrack:    setStandAlone(t);             break;
+  case CombinedTrack: setGlobalTrack(t);            break;
+  default:            refittedTrackMap_[type] = t;  break;
   }
 
 }

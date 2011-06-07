@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik, Riccardo Bellan, Michalis Bachtis
  *
- * \version $Id: Muon.h,v 1.61 2011/05/27 20:23:06 bachtis Exp $
+ * \version $Id: Muon.h,v 1.62 2011/06/07 15:21:46 bellan Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -35,7 +35,7 @@ namespace reco {
     
     
     /// map for Global Muon refitters
-    enum MuonTrackType {Tracker, StandAlone, Global, TPFMS, Picky, DYT};
+    enum MuonTrackType {InnerTrack, OuterTrack, CombinedTrack, TPFMS, Picky, DYT};
     typedef std::map<MuonTrackType, reco::TrackRef> MuonTrackRefMap;
     
 
@@ -58,7 +58,7 @@ namespace reco {
     TrackRef pickyTrack() const { return muonTrack(Picky);}
     TrackRef dytTrack()   const { return muonTrack(DYT);}
     
-
+    bool isAValidMuonTrack(const MuonTrackType& type) const;
     TrackRef muonTrack(const MuonTrackType&) const;
 
     /// set reference to Track
