@@ -12,7 +12,6 @@
 #include "ATOOLS/Math/Random.H"
 #include "ATOOLS/Org/Exception.H"
 #include "ATOOLS/Org/Run_Parameter.H"
-#include "ATOOLS/Org/My_Root.H"
 #include "SHERPA/Tools/Input_Output_Handler.H"
 #include "SHERPA/Tools/HepMC2_Interface.H"
 
@@ -90,6 +89,8 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   std::string shRun  = "./Sherpa";
   //Path where the Sherpa libraries are stored
   std::string shPath = "PATH=" + SherpaLibDir;
+  // new for Sherpa 1.3.0, suggested by authors
+  std::string shPathPiece = "PATH_PIECE=" + SherpaLibDir; 
   //Path where results are stored 
   // std::string shRes  = "RESULT_DIRECTORY=" + SherpaLibDir + "/" + SherpaResultDir; // for Sherpa <=1.1.3
   std::string shRes  = "RESULT_DIRECTORY=" + SherpaResultDir; // from Sherpa 1.2.0 on
@@ -97,11 +98,12 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   std::string shRng  = "EXTERNAL_RNG=CMS_SHERPA_RNG";
   
   //create the command line
-  char* argv[4];
+  char* argv[5];
   argv[0]=(char*)shRun.c_str();
   argv[1]=(char*)shPath.c_str();
-  argv[2]=(char*)shRes.c_str();
-  argv[3]=(char*)shRng.c_str();
+  argv[2]=(char*)shPathPiece.c_str();
+  argv[3]=(char*)shRes.c_str();
+  argv[4]=(char*)shRng.c_str();
   
   //initialize Sherpa with the command line
   Generator.InitializeTheRun(4,argv);

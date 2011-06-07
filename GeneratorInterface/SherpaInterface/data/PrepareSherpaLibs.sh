@@ -8,8 +8,8 @@
 #  author:      Markus Merschmeyer, RWTH Aachen
 #  date:        2009/12/09
 #  version:     2.8
-#  changed: 	Martin Niegel, KIT, 2009/02/24
-#		Fix for CMSSW_3X
+#  changed: 	Martin Niegel, KIT, 2011/06/07
+#		Fix for Sherpa 1.3.0
 
 
 # +-----------------------------------------------------------------------------------------------+
@@ -50,6 +50,7 @@ function build_python_cfi() {
   touch ${shpacfifile}
 
   echo "import FWCore.ParameterSet.Config as cms"             >> ${shpacfifile}
+  echo "import os"                                            >> ${shpacfifile} 
   echo ""                                                     >> ${shpacfifile}
   echo "source = cms.Source(\"EmptySource\")"                 >> ${shpacfifile}
   echo ""                                                     >> ${shpacfifile}
@@ -57,7 +58,7 @@ function build_python_cfi() {
   echo "  maxEventsToPrint = cms.untracked.int32(0),"           >> ${shpacfifile}
   echo "  filterEfficiency = cms.untracked.double(1.0),"        >> ${shpacfifile}
   echo "  crossSection = cms.untracked.double(-1),"             >> ${shpacfifile}
-  echo "  libDir    = cms.untracked.string('"${MYLIBDIR}"')," >> ${shpacfifile}
+  echo "  libDir    = cms.untracked.string(os.getcwd()+'/"${MYLIBDIR}"')," >> ${shpacfifile}
   echo "  resultDir = cms.untracked.string('Result'),"        >> ${shpacfifile}
   echo "  SherpaParameters = cms.PSet(parameterSets = cms.vstring(" >> ${shpacfifile}
   fcnt=0

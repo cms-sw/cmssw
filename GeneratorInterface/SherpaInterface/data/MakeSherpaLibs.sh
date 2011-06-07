@@ -7,7 +7,9 @@
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
 #  date:        28th April 2011
-#  version:     3.2
+#  version:     3.3
+#  changed: 	Martin Niegel, KIT, 2011/06/07
+#		Fix for Sherpa 1.3.0
 #
 
 
@@ -214,6 +216,7 @@ if [ "${SHERPA_LIBRARY_PATH}" = "" ]; then export SHERPA_LIBRARY_PATH=${shr}/lib
 # find 'Run' directory
 shrun=${HDIR}/SHERPATMP
 mkdir -p ${shrun}
+pth=${shrun}/${pth} #SHERPA 1.3.0 needs full path, MN 070611
 
 echo "  -> SHERPA path: '"${shr}"'"
 echo "  -> SHERPA run path: '"${shrun}"'"
@@ -394,7 +397,7 @@ echo " <I> Sherpa executable is "${sherpaexe}
 cd ${shrun}
 if [ "${lbo}" = "LIBS" ] || [ "${lbo}" = "LBCR" ]; then
   echo " <I> creating library code..."
-  ${sherpaexe} "PATH="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_pass1.out 2>${shrun}/${outflbs}_pass1.err
+  ${sherpaexe} "PATH="${pth} "PATH_PIECE="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_pass1.out 2>${shrun}/${outflbs}_pass1.err #Sherpa 1.3.0 needs full path MN 070611
   cd ${pth}
   if [ "${FLGCOMIX}" == "FALSE" ]; then
   testfile=`find ${shr} -type f -name libSherpaMain.so.0.0.0`
@@ -423,7 +426,7 @@ if [ "${FLGCOMIX}" == "FALSE" ]; then
 ## second pass (save integration results)
   if [ "${lbo}" = "LBCR" ] || [ "${lbo}" = "CRSS" ]; then
     echo " <I> calculating cross sections..."
-    ${sherpaexe} "PATH="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_pass2.out 2>${shrun}/${outflbs}_pass2.err
+    ${sherpaexe} "PATH="${pth} "PATH_PIECE="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_pass2.out 2>${shrun}/${outflbs}_pass2.err #Sherpa 1.3.0 needs full path MN 070611
 #    ${sherpaexe} -p ${pth} -g -r ${pth}/${dir2} 1>${shrun}/${outflbs}_pass2.out 2>${shrun}/${outflbs}_pass2.err
     if [ -d ${dir3} ]; then
       mv ${dir3} ${pth}/
@@ -434,13 +437,13 @@ if [ "${FLGCOMIX}" == "FALSE" ]; then
 ## third pass (event generation)
   if [ "${lbo}" = "EVTS" ]; then
     echo " <I> generating events..."
-    ${sherpaexe} "PATH="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_pass3.out 2>${shrun}/${outflbs}_pass3.err
+    ${sherpaexe} "PATH="${pth} "PATH_PIECE="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_pass3.out 2>${shrun}/${outflbs}_pass3.err #Sherpa 1.3.0 needs full path MN 070611
   fi
 fi
 
 
 ## generate tar balls with data cards, libraries, cross sections, events
-cd ${shrun}/${pth}
+cd ${pth} ##Sherpa 1.3.0 needs full path MN 070611
 #MM() cd ${pth}
 
 #if [ "${lbo}" = "LBCR" ] || [ "${lbo}" = "CRSS" ]; then
