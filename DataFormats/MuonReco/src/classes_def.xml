@@ -33,6 +33,8 @@
   <class name="reco::MuonIsolation"/>
   <class name="reco::MuonPFIsolation"/>
 
+  <class name="reco::Muon::MuonTrackRefMap"/>
+
   <class name="reco::CaloMuon"/>
   <class name="std::vector<reco::CaloMuon>"/>
   <class name="edm::Wrapper<std::vector<reco::CaloMuon> >"/>

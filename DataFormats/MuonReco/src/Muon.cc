@@ -741,3 +741,27 @@ void Muon::setStandAlone( const TrackRef & t ) { setOuterTrack(t); }
 void Muon::setGlobalTrack( const TrackRef & t ) { globalTrack_ = t; }
 void Muon::setCombined( const TrackRef & t ) { setGlobalTrack(t); }
 
+TrackRef Muon::muonTrack(const MuonTrackType& type) const{
+
+  switch (type) {
+  case Tracker:        return innerTrack();
+  case StandAlone: return standAloneMuon(); 
+  case Global:     return globalTrack();
+  default:
+    MuonTrackRefMap::const_iterator iter =  refittedTrackMap_.find(type);
+    if(iter != refittedTrackMap_.end()) return iter->second;
+    else return TrackRef();
+  }
+  
+}
+
+void Muon::setMuonTrack(const MuonTrackType& type, const TrackRef& t) {
+  
+  switch (type) {
+  case Tracker:    setInnerTrack(t);             break;
+  case StandAlone: setStandAlone(t);             break;
+  case Global:     setGlobalTrack(t);            break;
+  default:         refittedTrackMap_[type] = t;  break;
+  }
+
+}

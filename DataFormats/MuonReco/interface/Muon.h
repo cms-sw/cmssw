@@ -8,9 +8,9 @@
  *  - muon detector alone
  *  - combined muon plus tracker
  *
- * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
+ * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik, Riccardo Bellan, Michalis Bachtis
  *
- * \version $Id: Muon.h,v 1.60 2011/05/25 22:02:20 bachtis Exp $
+ * \version $Id: Muon.h,v 1.61 2011/05/27 20:23:06 bachtis Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -31,7 +31,15 @@ namespace reco {
     Muon(  Charge, const LorentzVector &, const Point & = Point( 0, 0, 0 ) );
     /// create a clone
     Muon * clone() const;
+
     
+    
+    /// map for Global Muon refitters
+    enum MuonTrackType {Tracker, StandAlone, Global, TPFMS, Picky, DYT};
+    typedef std::map<MuonTrackType, reco::TrackRef> MuonTrackRefMap;
+    
+
+
     ///
     /// ====================== TRACK BLOCK ===========================
     ///
@@ -45,6 +53,14 @@ namespace reco {
     /// reference to Track reconstructed in both tracked and muon detector
     virtual TrackRef globalTrack() const { return globalTrack_; }
     virtual TrackRef combinedMuon() const { return globalTrack(); }
+
+    TrackRef tpfmsTrack() const { return muonTrack(TPFMS);}
+    TrackRef pickyTrack() const { return muonTrack(Picky);}
+    TrackRef dytTrack()   const { return muonTrack(DYT);}
+    
+
+    TrackRef muonTrack(const MuonTrackType&) const;
+
     /// set reference to Track
     virtual void setInnerTrack( const TrackRef & t );
     virtual void setTrack( const TrackRef & t );
@@ -56,6 +72,7 @@ namespace reco {
     virtual void setCombined( const TrackRef & t );
 
 
+    void setMuonTrack(const MuonTrackType&, const TrackRef&);
 
     ///set reference to PFCandidate
     ///
@@ -182,6 +199,9 @@ namespace reco {
     TrackRef outerTrack_;
     /// reference to Track reconstructed in both tracked and muon detector
     TrackRef globalTrack_;
+    /// reference to the Global Track refitted with dedicated TeV reconstructors
+    MuonTrackRefMap refittedTrackMap_;
+
     /// energy deposition 
     MuonEnergy calEnergy_;
     /// quality block

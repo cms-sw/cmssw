@@ -43,6 +43,9 @@ namespace {
     reco::MuonTime rmt;
     reco::MuonTimeExtra rmt1;
     
+    reco::Muon::MuonTrackType rmmttype;
+    reco::Muon::MuonTrackRefMap rmmrrmap;
+
     std::vector<reco::MuonTimeExtra> rmt2;
 //    edm::RefProd<std::vector<reco::MuonTimeExtra> > rmt3;
     edm::Wrapper<std::vector<reco::MuonTimeExtra> > wrmt2;
