@@ -12,6 +12,8 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
 
+#include "boost/shared_ptr.hpp"
+
 namespace edm {
   class SecondaryProducer: public EDProducer {
   public:
@@ -22,9 +24,10 @@ namespace edm {
     /**Default destructor*/
     virtual ~SecondaryProducer();
 
-    /**Cumulates the pileup events onto this event*/
+    /**Accumulates the pileup events into this event*/
     virtual void produce(Event& e1, EventSetup const& c);
 
+    void processOneEvent(EventPrincipal const& eventPrincipal, Event& e);
 
   private:
 
