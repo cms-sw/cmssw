@@ -1454,19 +1454,19 @@ void HcalRecHitMonitor::zeroCounters(void)
   // occupancy
   for (int i=0;i<865;++i)
     {
-      if (i<=260)
+      if (i<260)
 	{
 	  HB_occupancy_[i]=0;
 	  HE_occupancy_[i]=0;
 	  HB_occupancy_thresh_[i]=0;
 	  HE_occupancy_thresh_[i]=0;
 	}
-      if (i<=217)
+      if (i<218)
 	{
 	  HO_occupancy_[i]=0;
 	  HO_occupancy_thresh_[i]=0;
 	}
-      if (i<=173)
+      if (i<174)
 	{
 	  HF_occupancy_[i]=0;
 	  HF_occupancy_thresh_[i]=0;

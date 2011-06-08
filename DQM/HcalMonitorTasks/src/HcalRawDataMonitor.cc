@@ -1226,7 +1226,7 @@ void HcalRawDataMonitor::labelHTRBits(MonitorElement* mePlot,unsigned int axisTy
 
 void HcalRawDataMonitor::stashHDI(int thehash, HcalDetId thehcaldetid) {
   //Let's not allow indexing off the array...
-  if ((thehash<0)||(thehash>(NUMDCCS*NUMSPIGS*HTRCHANMAX)))return;
+  if ((thehash<0)||(thehash>=(NUMDCCS*NUMSPIGS*HTRCHANMAX)))return;
   //...but still do the job requested.
   hashedHcalDetId_[thehash] = thehcaldetid;
 }
