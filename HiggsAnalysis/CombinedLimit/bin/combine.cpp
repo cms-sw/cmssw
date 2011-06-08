@@ -5,6 +5,7 @@
 #include <TTree.h>
 #include <RooRandom.h>
 #include <iostream>
+#include <cstdio>
 #include <cstdlib>
 #include <string>
 #include <stdexcept>
@@ -164,7 +165,17 @@ int main(int argc, char **argv) {
       cout << ">>> method used to hint where the upper limit is " << whichHintMethod << endl;
   }
   
-  std::cout << ">>> random number generator seed is " << seed << std::endl;
+  if (seed == -1) {
+    if (verbose > 0) std::cout << ">>> Using OpenSSL to get a really random seed " << std::endl;
+    FILE *rpipe = popen("openssl rand 8", "r");
+    if (rpipe == 0) { std::cout << "Error when running 'openssl rand 8'" << std::endl; return 2101; }
+    if (fread(&seed, sizeof(int), 1, rpipe) != 1) {
+        std::cout << "Error when reading from 'openssl rand 8'" << std::endl; return 2102; 
+    }
+    std::cout << ">>> Used OpenSSL to get a really random seed " << seed << std::endl;
+  } else {
+    std::cout << ">>> random number generator seed is " << seed << std::endl;
+  }
   RooRandom::randomGenerator()->SetSeed(seed); 
 
   TString massName = TString::Format("mH%g.", iMass);
