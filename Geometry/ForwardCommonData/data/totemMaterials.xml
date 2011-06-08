@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <MaterialSection label="totemMaterials.xml">
@@ -30,6 +30,18 @@
       <rMaterial name="materials:Oxygen"/>
     </MaterialFraction>
   </CompositeMaterial>
+ <CompositeMaterial name="Ar(70%)+CO_2(30%)" density="1.693*mg/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.679283783">
+      <rMaterial name="materials:Argon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.087530334">
+      <rMaterial name="materials:Carbon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.233185883">
+      <rMaterial name="materials:Oxygen"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+
 </MaterialSection>
 
 </DDDefinition>

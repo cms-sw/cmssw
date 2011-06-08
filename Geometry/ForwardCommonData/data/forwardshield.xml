@@ -86,7 +86,7 @@
  <Constant name="RotShldZ13"   value="18.890*m"/>
  <Constant name="RotShldZ14"   value="19.839*m"/>
  <Constant name="RotShldZ15"   value="19.889*m"/>
- <Constant name="RotShldR1"    value="[cms:ForwdDetsR1]"/>
+ <Constant name="RotShldR1"    value="[cms:ForwdBeamR3]"/>
  <Constant name="RotShldR2"    value="40.00*cm"/>
  <Constant name="RotShldR3"    value="74.29*cm"/>
  <Constant name="RotShldR4"    value="70.00*cm"/>
@@ -114,6 +114,7 @@
  <Constant name="QuadR2"       value="3.500*cm"/>
  <Constant name="QuadR3"       value="6.900*cm"/>
  <Constant name="QuadR4"       value="22.00*cm"/>
+ <Constant name="TotemT2Zend"  value="14.360*m"/>
 </ConstantsSection>
 
 <RotationSection label="forwardshield.xml">
@@ -135,7 +136,9 @@
   <ZSection z="[cms:ForwdVcalZ2]" rMin="[cms:ForwdVcalR1]" rMax="[ForwdRmax]"/>
   <ZSection z="[cms:ForwdVcalZ2]" rMin="[cms:ForwdBeamR1]" rMax="[ForwdRmax]"/>
   <ZSection z="[cms:ForwdBeamZ3]" rMin="[cms:ForwdBeamR1]" rMax="[ForwdRmax]"/>
-  <ZSection z="[cms:ForwdBeamZ3]" rMin="[cms:ForwdDetsR1]" rMax="[ForwdRmax]"/>
+  <ZSection z="[cms:ForwdBeamZ3]" rMin="[cms:ForwdBeamR3]" rMax="[ForwdRmax]"/>
+  <ZSection z="[TotemT2Zend]"     rMin="[cms:ForwdBeamR3]" rMax="[ForwdRmax]"/>
+  <ZSection z="[TotemT2Zend]"     rMin="[cms:ForwdDetsR1]" rMax="[ForwdRmax]"/>
   <ZSection z="[cms:ForwdDetsZ1]" rMin="[cms:ForwdDetsR1]" rMax="[ForwdRmax]"/>
   <ZSection z="[cms:ForwdDetsZ1]" rMin="[cms:ForwdBeamR3]" rMax="[ForwdRmax]"/>
   <ZSection z="[cms:ForwdBeamZ9]" rMin="[cms:ForwdBeamR3]" rMax="[ForwdRmax]"/>
@@ -266,8 +269,12 @@
        dz="([ForwdZv01]-[RotShldZ4])/2" startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="RotatedShield05" rMin="[RotShldR6]" rMax="[FixRotRad]" 
        dz="([ForwdZv01]-[RotShldZ4])/2" startPhi="0*deg" deltaPhi="360*deg"/>
- <Tubs name="RotatedShield06" rMin="[RotShldR1]" rMax="[RotShldR7]" 
-       dz="([RotShldZ8]-[ForwdZv01])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Polycone name="RotatedShield06" startPhi="0*deg" deltaPhi="360*deg" >
+  <ZSection z="[ForwdZv01]"   rMin="[RotShldR1]"        rMax="[RotShldR7]" />
+  <ZSection z="[TotemT2Zend]" rMin="[RotShldR1]"        rMax="[RotShldR7]" />
+  <ZSection z="[TotemT2Zend]" rMin="[cms:ForwdDetsR1]"  rMax="[RotShldR7]"/>
+  <ZSection z="[RotShldZ8]"   rMin="[cms:ForwdDetsR1]"  rMax="[RotShldR7]"/>
+ </Polycone> 
  <Polycone name="RotatedShield07" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="[ForwdZv01]"  rMin="[RotShldR7]"  rMax="[RotShldR5]" />
   <ZSection z="[RotShldZ7]"  rMin="[RotShldR7]"  rMax="[RotShldR8]" />
@@ -284,8 +291,12 @@
   <ZSection z="[RotShldZ5]"  rMin="[RotShldR11]" rMax="[RotShldR10]"/>
   <ZSection z="[RotShldZ6]"  rMin="[RotShldR10]" rMax="[RotShldR10]"/>
  </Polycone> 
- <Tubs name="RotatedShield10" rMin="[RotShldR1]" rMax="[RotShldR7]" 
-       dz="([RotShldZ10]-[RotShldZ8])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Polycone name="RotatedShield10" startPhi="0*deg" deltaPhi="360*deg" >
+  <ZSection z="[RotShldZ8]"       rMin="[cms:ForwdDetsR1]" rMax="[RotShldR7]"/>
+  <ZSection z="[cms:ForwdDetsZ1]" rMin="[cms:ForwdDetsR1]" rMax="[RotShldR7]"/>
+  <ZSection z="[cms:ForwdDetsZ1]" rMin="[RotShldR1]"       rMax="[RotShldR7]"/>
+  <ZSection z="[RotShldZ10]"      rMin="[RotShldR1]"       rMax="[RotShldR7]"/>
+ </Polycone> 
  <Polycone name="RotatedShield11" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="[RotShldZ8]"  rMin="[RotShldR7]"  rMax="[RotShldR8]" />
   <ZSection z="[RotShldZ9]"  rMin="[RotShldR7]"  rMax="[RotShldR8]" />
@@ -718,7 +729,7 @@
    <rParent name="forwardshield:OQUA"/>
    <rChild name="forwardshield:RotatedShield06"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="0*fm" y="0*fm" z="([RotShldZ8]+[ForwdZv01])/2" />
+  <Translation x="0*fm" y="0*fm" z="0*fm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="forwardshield:OQUA"/>
@@ -739,7 +750,7 @@
    <rParent name="forwardshield:OQUA"/>
    <rChild name="forwardshield:RotatedShield10"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="0*fm" y="0*fm" z="([RotShldZ10]+[RotShldZ8])/2" />
+  <Translation x="0*fm" y="0*fm" z="0*fm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="forwardshield:OQUA"/>
