@@ -6,7 +6,7 @@ status=0
   
 rm -f u33_all.log
 
-cmsRun -p $LOCAL_TEST_DIR/u33_cfg.py
+cmsRun -p $LOCAL_TEST_DIR/u33_cfg.py || exit $?
  
 for file in u33_all.log
 do

@@ -6,7 +6,7 @@ status=0
   
 rm -f u34_warnings.log
 
-cmsRun -p $LOCAL_TEST_DIR/u34_cfg.py
+cmsRun -p $LOCAL_TEST_DIR/u34_cfg.py || exit $?
  
 for file in u34_warnings.log
 do

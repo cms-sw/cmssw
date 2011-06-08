@@ -6,7 +6,7 @@ status=0
   
 rm -f  u12_warnings.log u12_placeholder.log  
 
-cmsRun -p $LOCAL_TEST_DIR/u12_cfg.py
+cmsRun -p $LOCAL_TEST_DIR/u12_cfg.py || exit $?
  
 for file in  u12_warnings.log    
 do

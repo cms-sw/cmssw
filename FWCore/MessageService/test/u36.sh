@@ -6,7 +6,7 @@ status=0
   
 rm -f u36_only.log
 
-cmsRun -p $LOCAL_TEST_DIR/u36_cfg.py
+cmsRun -p $LOCAL_TEST_DIR/u36_cfg.py || exit $?
  
 for file in u36_only.log
 do

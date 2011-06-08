@@ -6,7 +6,7 @@ status=0
   
 rm -f u5_errors.log u5_default.log u5_noreset.log u5_reset.log 
 
-cmsRun --multithread -p $LOCAL_TEST_DIR/u5_cfg.py
+cmsRun --multithread -p $LOCAL_TEST_DIR/u5_cfg.py || exit $?
  
 for file in u5_errors.log u5_default.log u5_noreset.log u5_reset.log
 do

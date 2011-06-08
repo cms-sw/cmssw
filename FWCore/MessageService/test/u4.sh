@@ -6,7 +6,7 @@ status=0
   
 rm -f u4_errors.log u4_statistics.log u4_another.log 
 
-cmsRun -p $LOCAL_TEST_DIR/u4_cfg.py
+cmsRun -p $LOCAL_TEST_DIR/u4_cfg.py || exit $?
  
 for file in u4_errors.log u4_statistics.log u4_another.log
 do

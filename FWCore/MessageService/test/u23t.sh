@@ -6,7 +6,7 @@ status=0
   
 rm -f u23_infos.log 
 
-cmsRun -p $LOCAL_TEST_DIR/u23_cfg.py
+cmsRun -p $LOCAL_TEST_DIR/u23_cfg.py || exit $?
  
 for file in u23_infos.log 
 do

@@ -6,7 +6,7 @@ status=0
   
 rm -f u21_warnings.log u21_infos.log  
 
-cmsRun -p $LOCAL_TEST_DIR/u21_cfg.py
+cmsRun -p $LOCAL_TEST_DIR/u21_cfg.py || exit $?
  
 for file in u21_warnings.log u21_infos.log   
 do

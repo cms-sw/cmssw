@@ -6,7 +6,7 @@ status=0
   
 rm -f u16_errors.mmlog u16_altWarnings.log u16_infos.mmlog u16_altDebugs.mmlog u16_default.log u16_job_report.mmxml u16_statistics.mslog 
 
-cmsRun -t -e -j u16_job_report.mmxml -p $LOCAL_TEST_DIR/u16_cfg.py
+cmsRun -t -e -j u16_job_report.mmxml -p $LOCAL_TEST_DIR/u16_cfg.py || exit $?
  
 for file in u16_errors.mmlog u16_altWarnings.log u16_infos.mmlog u16_altDebugs.mmlog u16_default.log u16_job_report.mmxml u16_statistics.mslog  
 do

@@ -6,7 +6,7 @@ status=0
   
 rm -f u35_infos.log u35_warnings.log
 
-cmsRun -p $LOCAL_TEST_DIR/u35_cfg.py
+cmsRun -p $LOCAL_TEST_DIR/u35_cfg.py || exit $?
  
 for file in u35_infos.log u35_warnings.log
 do

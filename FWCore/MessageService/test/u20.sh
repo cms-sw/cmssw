@@ -6,7 +6,7 @@ status=0
   
 rm -f u20_cerr.log FrameworkJobReport.xml
 
-cmsRun -e -p $LOCAL_TEST_DIR/u20_cfg.py 2> u20_cerr.log
+cmsRun -e -p $LOCAL_TEST_DIR/u20_cfg.py 2> u20_cerr.log || exit $?
  
 for file in u20_cerr.log FrameworkJobReport.xml   
 do
