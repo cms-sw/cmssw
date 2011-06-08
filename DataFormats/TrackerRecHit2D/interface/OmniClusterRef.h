@@ -50,5 +50,5 @@ private:
 
 };
 
-#endif TrackerRecHit2D_ClusterRef_H
+#endif // TrackerRecHit2D_OmniClusterRef_H
 
