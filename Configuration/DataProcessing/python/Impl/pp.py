@@ -10,7 +10,7 @@ import os
 import sys
 
 from Configuration.DataProcessing.Scenario import Scenario
-from Configuration.DataProcessing.Utils import stepALCAPRODUCER
+from Configuration.DataProcessing.Utils import stepALCAPRODUCER,addMonitoring
 import FWCore.ParameterSet.Config as cms
 from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
 from Configuration.PyReleaseValidation.ConfigBuilder import Options
@@ -74,6 +74,7 @@ class pp(Scenario):
 
         #add the former top level patches here
         customisePrompt(process)
+        addMonitoring(process)
         
         return process
 
@@ -116,7 +117,8 @@ class pp(Scenario):
 
         #add the former top level patches here
         customiseExpress(process)
-        
+        addMonitoring(process)
+                
         return process
 
 
