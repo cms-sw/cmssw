@@ -32,42 +32,6 @@ ZdcGeometry::~ZdcGeometry()
    if( m_ownsTopology ) delete theTopology ;
 }
 
-const std::vector<DetId>& 
-ZdcGeometry::getValidDetIds( DetId::Detector det,
-			     int             subdet ) const 
-{
-   const std::vector<DetId>& baseIds ( CaloSubdetectorGeometry::getValidDetIds() ) ;
-   if( det    == DetId::Detector( 0 ) &&
-       subdet == 0                        )
-   {
-      return baseIds ;
-   }
-   
-   if( lastReqDet_    != det    ||
-       lastReqSubdet_ != subdet    ) 
-   {
-      lastReqDet_     = det    ;
-      lastReqSubdet_  = subdet ;
-      m_validIds.clear();
-      m_validIds.reserve( baseIds.size() ) ;
-   }
-
-   if( m_validIds.empty() ) 
-   {
-      for( unsigned int i ( 0 ) ; i != baseIds.size() ; ++i ) 
-      {
-	 const DetId id ( baseIds[i] );
-	 if( id.det()      == det    &&
-	     id.subdetId() == subdet    )
-	 { 
-	    m_validIds.push_back( id ) ;
-	 }
-      }
-      std::sort(m_validIds.begin(),m_validIds.end());
-   }
-   return m_validIds;
-}
-
 DetId ZdcGeometry::getClosestCell(const GlobalPoint& r) const
 {
    DetId returnId ( 0 ) ;

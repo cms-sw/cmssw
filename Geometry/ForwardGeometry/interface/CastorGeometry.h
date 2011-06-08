@@ -45,10 +45,6 @@ class CastorGeometry : public CaloSubdetectorGeometry
       explicit CastorGeometry(const CastorTopology * topology);
       virtual ~CastorGeometry();
 
-      virtual const std::vector<DetId>& getValidDetIds(
-	 DetId::Detector det    = DetId::Detector(0) ,
-	 int             subdet = 0 ) const ;
-
       virtual DetId getClosestCell(const GlobalPoint& r) const ;
 
       static std::string producerTag() { return "CASTOR" ; }
@@ -80,7 +76,6 @@ private:
       const CastorTopology * theTopology;
       mutable DetId::Detector lastReqDet_;
       mutable int lastReqSubdet_;
-      mutable std::vector<DetId> m_validIds;
       bool m_ownsTopology ;
 
       CellVec m_cellVec ;

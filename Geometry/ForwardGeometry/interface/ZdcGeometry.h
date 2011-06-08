@@ -41,10 +41,6 @@ class ZdcGeometry : public CaloSubdetectorGeometry
       explicit ZdcGeometry(const ZdcTopology * topology);
       virtual ~ZdcGeometry();
   
-      virtual const std::vector<DetId>& getValidDetIds( 
-	 DetId::Detector det    = DetId::Detector ( 0 ) ,
-	 int             subdet = 0   ) const;
-
       virtual DetId getClosestCell(const GlobalPoint& r) const ;
 
       static std::string producerTag() { return "ZDC" ; }
@@ -75,7 +71,6 @@ class ZdcGeometry : public CaloSubdetectorGeometry
       const ZdcTopology * theTopology;
       mutable DetId::Detector lastReqDet_;
       mutable int lastReqSubdet_;
-      mutable std::vector<DetId> m_validIds;
       bool m_ownsTopology ;
 
       CellVec m_cellVec ;
