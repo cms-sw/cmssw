@@ -17,12 +17,18 @@
 using namespace RooStats;
 
 int BayesianFlatPrior::maxDim_ = 4;
+int BayesianFlatPrior::numIters_ = 0;
+std::string BayesianFlatPrior::interationType_ = "default";
 
 BayesianFlatPrior::BayesianFlatPrior() :
     LimitAlgo("BayesianSimple specific options")
 {
     options_.add_options()
         ("maxDim", boost::program_options::value<int>(&maxDim_)->default_value(maxDim_), "Maximum number of dimensions to try doing the integration")
+        ("interationType", boost::program_options::value<std::string>(&interationType_)->default_value(interationType_), "Integration algorithm to use")
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,29,0)
+        ("numIters", boost::program_options::value<int>(&numIters_)->default_value(numIters_), "Number of iterations or calls used within iteration (0=ROOT Default)")
+#endif
         ;
 }
 
@@ -55,6 +61,10 @@ bool BayesianFlatPrior::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooSta
     BayesianCalculator bcalc(data, *mc_s);
     bcalc.SetLeftSideTailFraction(0);
     bcalc.SetConfidenceLevel(cl); 
+    if (interationType_ != "default") bcalc.SetIntegrationType(interationType_.c_str());
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,29,0)
+    if (numIters_) bcalc.SetNumIters(numIters_);
+#endif
     std::auto_ptr<SimpleInterval> bcInterval(bcalc.GetInterval());
     if (bcInterval.get() == 0) return false;
     limit = bcInterval->UpperLimit();
