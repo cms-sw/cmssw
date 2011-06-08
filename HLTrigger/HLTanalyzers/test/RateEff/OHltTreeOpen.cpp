@@ -7798,7 +7798,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
 	}
     }
 
-//2011-05-27: Update once pfMHTphi becmoes available in ntuple
+//2011-06-08: These should be updated once pfMHTphi becmoes available in ntuple
 else if (triggerName.CompareTo("Ele25_CaloIdWP80_CaloIsoWP80_TrkIdWP80_TrkIsoWP80_PFMT40") //newb
 		 == 0)//WARNING! this uses cluster shape for sigmaIetaIeta. JB says that's ok; is it?
 {
@@ -7856,7 +7856,7 @@ else if (triggerName.CompareTo("Ele25_CaloIdWP80_CaloIsoWP80_TrkIdWP80_TrkIsoWP8
 	}
 }
 
-//2011-05-27: Update once pfMHTphi becmoes available in ntuple
+//2011-06-08: These should be updated once pfMHTphi becmoes available in ntuple
 else if (triggerName.CompareTo("Ele27_CaloIdWP70_CaloIsoWP70_TrkIdWP70_TrkIsoWP70_PFMT40_PFMHT20") //new
 		 == 0)//WARNING! this does not yet encorperate sigmaIetaIeta
 {
