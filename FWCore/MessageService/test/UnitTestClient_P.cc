@@ -31,7 +31,7 @@ void
 
   edm::LogError ("keyMessage") << "This message is issued just before abort";
   if  (useLogFlush)  edm::FlushMessageLog();
-  abort();
+  _exit(0);
 
  }  // MessageLoggerClient::analyze()
 
