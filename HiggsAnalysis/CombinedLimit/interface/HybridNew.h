@@ -45,6 +45,7 @@ private:
   static std::string rule_, testStat_;
   static bool genNuisances_, genGlobalObs_, fitNuisances_;
   static double rValue_;
+  static unsigned int iterations_;
   static unsigned int nCpu_, fork_;
   static bool importanceSamplingNull_, importanceSamplingAlt_;
   static std::string algo_;

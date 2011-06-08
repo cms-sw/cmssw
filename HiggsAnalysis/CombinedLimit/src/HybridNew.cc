@@ -49,6 +49,7 @@ std::string HybridNew::testStat_ = "LEP";
 bool HybridNew::genNuisances_ = true;
 bool HybridNew::genGlobalObs_ = false;
 bool HybridNew::fitNuisances_ = false;
+unsigned int HybridNew::iterations_ = 1;
 unsigned int HybridNew::nCpu_ = 0; // proof-lite mode
 unsigned int HybridNew::fork_ = 1; // fork mode
 double HybridNew::rValue_  = 1.0;
@@ -79,6 +80,7 @@ LimitAlgo("HybridNew specific options") {
         ("clsAcc",  boost::program_options::value<double>(&clsAccuracy_ )->default_value(clsAccuracy_),  "Absolute accuracy on CLs to reach to terminate the scan")
         ("rAbsAcc", boost::program_options::value<double>(&rAbsAccuracy_)->default_value(rAbsAccuracy_), "Absolute accuracy on r to reach to terminate the scan")
         ("rRelAcc", boost::program_options::value<double>(&rRelAccuracy_)->default_value(rRelAccuracy_), "Relative accuracy on r to reach to terminate the scan")
+        ("iteration,i", boost::program_options::value<unsigned int>(&iterations_)->default_value(iterations_), "Number of times to throw 'toysH' toys to compute the p-values (for --singlePoint if clsAcc is set to zero disabling adaptive generation)")
         ("fork",    boost::program_options::value<unsigned int>(&fork_)->default_value(fork_),           "Fork to N processes before running the toys (set to 0 for debugging)")
         ("nCPU",    boost::program_options::value<unsigned int>(&nCpu_)->default_value(nCpu_),           "Use N CPUs with PROOF Lite (experimental!)")
         ("saveHybridResult",  "Save result in the output file  (option saveToys must be enabled)")
@@ -212,7 +214,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
           double x = limitPlot_->GetX()[i], y = limitPlot_->GetY()[i], ey = limitPlot_->GetErrorY(i);
           if (verbose > 0) std::cout << "  r " << x << (CLs_ ? ", CLs = " : ", CLsplusb = ") << y << " +/- " << ey << std::endl;
           if (y-3*ey >= clsTarget) { rMin = x; clsMin = CLs_t(y,ey); }
-          if (y+3*ey <= clsTarget) { rMax = x; clsMax = CLs_t(y,ey); }
+          if (y+3*ey <= clsTarget) { rMax = x; clsMax = CLs_t(y,ey); break; }
           if (fabs(y-clsTarget) < minDist) { limit = x; minDist = fabs(y-clsTarget); }
       }
       if (verbose > 0) std::cout << " after scan x ~ " << limit << ", bounds [ " << rMin << ", " << rMax << "]" << std::endl;
@@ -644,6 +646,15 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
     if (adaptive) {
         hc.SetToys(CLs_ ? nToys_ : 1, 4*nToys_);
         while (clsMidErr >= clsAccuracy_ && (clsTarget == -1 || fabs(clsMid-clsTarget) < 3*clsMidErr) ) {
+            std::auto_ptr<HypoTestResult> more(fork_ ? evalWithFork(hc) : hc.GetHypoTest());
+            if (testStat_ == "Atlas" || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
+            hcResult->Append(more.get());
+            clsMid    = (CLs_ ? hcResult->CLs()      : hcResult->CLsplusb());
+            clsMidErr = (CLs_ ? hcResult->CLsError() : hcResult->CLsplusbError());
+            if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << clsMid << " +/- " << clsMidErr << std::endl;
+        }
+    } else if (iterations_ > 1) {
+        for (unsigned int i = 1; i < iterations_; ++i) {
             std::auto_ptr<HypoTestResult> more(fork_ ? evalWithFork(hc) : hc.GetHypoTest());
             if (testStat_ == "Atlas" || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
             hcResult->Append(more.get());
