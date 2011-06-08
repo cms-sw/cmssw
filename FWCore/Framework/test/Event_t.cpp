@@ -126,6 +126,7 @@ class testEvent: public CppUnit::TestFixture {
   typedef modCache_t::iterator iterator_t;
 
   modCache_t moduleDescriptions_;
+  std::vector<boost::shared_ptr<ProcessConfiguration> > processConfigurations_;
 };
 
 ///registration of the test so that the runner can find it
@@ -157,7 +158,8 @@ testEvent::registerProduct(std::string const& tag,
   ProcessConfiguration process(processName, processParams.id(), getReleaseVersion(), getPassID());
 
   boost::shared_ptr<ProcessConfiguration> processX(new ProcessConfiguration(process));
-  ModuleDescription localModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX);
+  processConfigurations_.push_back(processX);
+  ModuleDescription localModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX.get());
 
   TypeID product_type(typeid(T));
 
@@ -200,7 +202,8 @@ testEvent::testEvent() :
   principal_(),
   currentEvent_(),
   currentModuleDescription_(),
-  moduleDescriptions_() {
+  moduleDescriptions_(),
+  processConfigurations_() {
   BranchIDListHelper::clearRegistries();
 
   typedef edmtest::IntProduct prod_t;
@@ -234,7 +237,8 @@ testEvent::testEvent() :
   TypeID product_type(typeid(prod_t));
 
   boost::shared_ptr<ProcessConfiguration> processX(new ProcessConfiguration(process));
-  currentModuleDescription_.reset(new ModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX));
+  processConfigurations_.push_back(processX);
+  currentModuleDescription_.reset(new ModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX.get()));
 
   std::string productInstanceName("int1");
 

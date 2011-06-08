@@ -299,7 +299,7 @@ namespace edm {
     ModuleDescription md(main_input->id(),
                          main_input->getParameter<std::string>("@module_type"),
                          "source",
-                         processConfiguration);
+                         processConfiguration.get());
 
     InputSourceDescription isdesc(md, preg, pCache, areg, common.maxEventsInput_, common.maxLumisInput_);
     areg->preSourceConstructionSignal_(md);

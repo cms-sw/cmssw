@@ -79,7 +79,7 @@ namespace edm {
       ModuleDescription md(trig_pset->id(),
                            "TriggerResultInserter",
                            "TriggerResults",
-                           processConfiguration);
+                           processConfiguration.get());
 
       areg->preModuleConstructionSignal_(md);
       std::auto_ptr<EDProducer> producer(new TriggerResultInserter(*trig_pset, trptr));

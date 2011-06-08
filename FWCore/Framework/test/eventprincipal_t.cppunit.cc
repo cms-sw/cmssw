@@ -131,7 +131,7 @@ test_ep::fake_single_process_branch(std::string const& tag,
   modParams.registerIt();
   boost::shared_ptr<edm::ProcessConfiguration> process(fake_single_module_process(tag, processName, modParams));
   boost::shared_ptr<edm::ProcessConfiguration> processX(new edm::ProcessConfiguration(*process));
-  edm::ModuleDescription mod(modParams.id(), moduleClass, moduleLabel, processX);
+  edm::ModuleDescription mod(modParams.id(), moduleClass, moduleLabel, processX.get());
 
   boost::shared_ptr<edm::BranchDescription> result(
     new edm::BranchDescription(edm::InEvent,

@@ -75,7 +75,7 @@ namespace {
            new edm::ProcessConfiguration());
          pc->setParameterSetID(dummyProcessPset.id());
 
-         edm::ModuleDescription module(iDesc.parameterSetID(), "", "", pc);
+         edm::ModuleDescription module(iDesc.parameterSetID(), "", "", pc.get());
          edm::BranchDescription prod(iDesc.branchType(),
                                      name_,
                                      iDesc.processName(),
@@ -107,12 +107,12 @@ void testProductRegistry::setUp() {
 
   edm::ParameterSet pset;
   pset.registerIt();
-  intModule_.reset(new edm::ModuleDescription(pset.id(), "", "", processConfiguration));
+  intModule_.reset(new edm::ModuleDescription(pset.id(), "", "", processConfiguration.get()));
   intBranch_.reset(new edm::BranchDescription(edm::InEvent, "label", "PROD",
                                           "int", "int", "int",
                                           *intModule_, edm::TypeID(typeid(int))));
 
-  floatModule_.reset(new edm::ModuleDescription(intModule_->parameterSetID(), "", "", processConfiguration));
+  floatModule_.reset(new edm::ModuleDescription(intModule_->parameterSetID(), "", "", processConfiguration.get()));
   floatBranch_.reset(new edm::BranchDescription(edm::InEvent, "label", "PROD",
                                             "float", "float", "float",
                                             *floatModule_, edm::TypeID(typeid(float))));

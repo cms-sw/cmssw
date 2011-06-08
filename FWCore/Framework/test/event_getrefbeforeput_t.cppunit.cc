@@ -80,7 +80,9 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   try {
      edm::ParameterSet pset;
      pset.registerIt();
-     edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs");
+     boost::shared_ptr<edm::ProcessConfiguration> processConfiguration(
+      new edm::ProcessConfiguration());
+     edm::ModuleDescription modDesc(pset.id(), "Blah", "blahs", processConfiguration.get());
      edm::Event event(ep, modDesc);
 
      std::string label("this does not exist");
@@ -114,7 +116,7 @@ void testEventGetRefBeforePut::getRefTest() {
 
   edm::ParameterSet pset;
   pset.registerIt();
-  edm::ModuleDescription modDesc(pset.id(), "Blah", "", processConfiguration);
+  edm::ModuleDescription modDesc(pset.id(), "Blah", "", processConfiguration.get());
 
   edm::BranchDescription product(edm::InEvent,
                                  label,
@@ -148,7 +150,7 @@ void testEventGetRefBeforePut::getRefTest() {
 
   edm::RefProd<edmtest::IntProduct> refToProd;
   try {
-    edm::ModuleDescription modDesc("Blah", label, pcPtr);
+    edm::ModuleDescription modDesc("Blah", label, pcPtr.get());
 
     edm::Event event(ep, modDesc);
     std::auto_ptr<edmtest::IntProduct> pr(new edmtest::IntProduct);

@@ -21,7 +21,7 @@ Maker::createModuleDescription(WorkerParams const &p) const {
   ModuleDescription md(conf.id(),
 		       conf.getParameter<std::string>("@module_type"),
 		       conf.getParameter<std::string>("@module_label"),
-  		       p.processConfiguration_);
+  		       p.processConfiguration_.get());
   return md;
 }
 
