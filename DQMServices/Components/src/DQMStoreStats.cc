@@ -2,9 +2,9 @@
  * \file DQMStoreStats.cc
  * \author Andreas Meyer
  * Last Update:
- * $Date: 2011/06/07 13:42:50 $
- * $Revision: 1.14 $
- * $Author: eulisse $
+ * $Date: 2011/06/07 23:29:24 $
+ * $Revision: 1.15 $
+ * $Author: rovere $
  *
  * Description: Print out statistics of histograms in DQMStore
 */
@@ -81,8 +81,7 @@ DQMStoreStats::DQMStoreStats( const edm::ParameterSet& ps )
 DQMStoreStats::~DQMStoreStats(){
 }
 
-
-void DQMStoreStats::calcIgProfDump(DQMStoreStatsTopLevel &dqmStoreStatsTopLevel)
+void DQMStoreStats::calcIgProfDump(Folder &root)
 {
   std::ofstream stream("dqm-bin-stats.sql");
   stream << ""
@@ -142,50 +141,21 @@ void DQMStoreStats::calcIgProfDump(DQMStoreStatsTopLevel &dqmStoreStatsTopLevel)
 "    CREATE UNIQUE INDEX symbolsIndex ON symbols (id);"
 "    CREATE INDEX totalCountIndex ON mainrows(cumulative_count);" << std::endl;
 
-  int totalMemory = 0;
-  int totalCalls = 0;
-  for (size_t ii = 0, ie = dqmStoreStatsTopLevel.size(); ii != ie; ++ii)
+  std::string sql_statement("");
+
+  root.files(sql_statement);
+  root.symbols(sql_statement);
+  root.mainrows_cumulative(sql_statement);
+  root.summary(sql_statement);
+  VIterator<Folder *> subsystems = root.CreateIterator() ;
+  size_t ii=0;
+  for(subsystems.First() ; !subsystems.IsDone() ; subsystems.Next(), ++ii)
   {
-    DQMStoreStatsSubsystem &subsystem = dqmStoreStatsTopLevel[ii];
-    size_t parentId = ii << 16;
-    stream << "INSERT INTO files(id, name) VALUES(" << ii << ",\"" << subsystem.subsystemName_ << "\");\n" ;
-    stream << "INSERT INTO symbols(id, name, filename_id) VALUES (" << parentId << ",\"" << subsystem.subsystemName_ << "\"," << ii << ");\n";
-
-    int subfolderTotalMemory = 0;
-    int subfolderTotalBins = 0;
-    int subfolderTotalFullBins = 0;
-    int subfolderTotalHisto = 0;
-
-    for (size_t ji = 0, je = subsystem.size(); ji != je; ++ji)
-    {
-      DQMStoreStatsSubfolder &folder = subsystem[ji];
-      int symId = (ii << 16) + ji + 1;
-      stream << "INSERT INTO symbols(id, name, filename_id) VALUES (" << symId << ",\"" << subsystem.subsystemName_ << "/" << folder.subfolderName_ << "\", "
-             << ii << ");" << std::endl;
-      stream << "INSERT INTO mainrows(id, symbol_id, self_count, cumulative_count, kids, self_calls, total_calls, self_paths, total_paths, pct)"
-                " VALUES(" << symId << ", " << symId << ", "
-             << folder.totalMemory_ << ", " << folder.totalMemory_ << ", 0, "
-             << folder.totalBins_ - folder.totalEmptyBins_ << ", " << folder.totalBins_ << ", "
-             << folder.totalHistos_ << ", " << folder.totalHistos_ << ", 0.0);" << std::endl;
-      stream << "INSERT INTO parents(self_id, child_id, to_child_count, to_child_calls, to_child_paths, pct) VALUES("
-             << parentId << "," << symId << "," << folder.totalMemory_ << "," << folder.totalBins_ << "," << folder.totalHistos_ << ",0"
-             << ");" << std::endl;
-      stream << "INSERT INTO children(self_id, parent_id, from_parent_count, from_parent_calls, from_parent_paths, pct) VALUES("
-             << symId << "," << parentId << "," << folder.totalMemory_ << "," << folder.totalBins_ - folder.totalEmptyBins_ << "," << folder.totalHistos_ << ",0"
-             << ");" << std::endl;
-      subfolderTotalMemory += folder.totalMemory_;
-      subfolderTotalBins += folder.totalBins_;
-      subfolderTotalFullBins += folder.totalBins_ - folder.totalEmptyBins_;
-      subfolderTotalHisto += folder.totalHistos_;
-      totalMemory += folder.totalMemory_;
-      totalCalls += folder.totalBins_;
-    }
-    stream << "INSERT INTO mainrows(id, symbol_id, self_count, cumulative_count, kids, self_calls, total_calls, self_paths, total_paths, pct)"
-              << "VALUES(" << parentId << "," << parentId << "," << 0 << "," << subfolderTotalMemory << ", 0," << subfolderTotalFullBins << "," << subfolderTotalBins
-                           << ", 0, " << subfolderTotalHisto << ", 0);" << std::endl;
-
+    subsystems.CurrentItem()->mainrows(sql_statement);
+    subsystems.CurrentItem()->parents(sql_statement);
+    subsystems.CurrentItem()->children(sql_statement);
   }
-  stream << "INSERT INTO summary(counter, total_count, total_freq, tick_period) VALUES (\"BINS_LIVE\"," << totalMemory << "," << totalCalls << ", 1);\n"; 
+  stream << sql_statement << std::endl;
 }
 
 ///
@@ -204,12 +174,13 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
   std::string path = "";
   std::string subsystemname = "";
   std::string subfoldername = "";
-  size_t subsysStringEnd = 0, subfolderStringEnd  = 0;
+  size_t subsysStringEnd = 0, subfolderStringBegin = 0, subfolderStringEnd  = 0;
 
 
   std::vector<MonitorElement*> melist;
   melist = dbe_->getMatchingContents( pathnamematch_ );
 
+  Folder dbeFolder("root");
   DQMStoreStatsTopLevel dqmStoreStatsTopLevel;
 
   // loop all ME
@@ -218,11 +189,25 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
 
     // consider only ME with getLumiFlag() == true ?
     if( mode == DQMStoreStats::considerOnlyLumiProductME && 
-	!( (*it)->getLumiFlag() ) ) continue;
+        !( (*it)->getLumiFlag() ) ) continue;
     
     // figure out subsystem/subfolder names
     std::string path = (*it)->getPathname();
 
+    subfolderStringBegin = 0;
+    Folder * curr = &dbeFolder;
+    while(1)
+    {
+      subfolderStringEnd = path.find( '/', subfolderStringBegin );
+      if( std::string::npos == subfolderStringEnd )
+      {
+        curr = curr->cd(path.substr( subfolderStringBegin, path.size() ));
+        break;
+      }
+      curr = curr->cd(path.substr( subfolderStringBegin, subfolderStringEnd-subfolderStringBegin ));
+      subfolderStringBegin = subfolderStringEnd+1;
+    }
+    
     // protection against ghost ME with empty paths
     if( 0 == path.size() ) continue;
 
@@ -253,10 +238,10 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
 
       // new subfolder?
       if( path.substr( subsysStringEnd + 1, subfolderStringEnd - subsysStringEnd - 1 ) != subfoldername ) {
-	subfoldername = path.substr( subsysStringEnd + 1, subfolderStringEnd - subsysStringEnd - 1 );
-	DQMStoreStatsSubfolder aSubfolder;
-	aSubfolder.subfolderName_ = subfoldername;
-	dqmStoreStatsTopLevel.back().push_back( aSubfolder );
+        subfoldername = path.substr( subsysStringEnd + 1, subfolderStringEnd - subsysStringEnd - 1 );
+        DQMStoreStatsSubfolder aSubfolder;
+        aSubfolder.subfolderName_ = subfoldername;
+        dqmStoreStatsTopLevel.back().push_back( aSubfolder );
       }
 
     }
@@ -267,34 +252,62 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
     switch( (*it)->kind() ) {
       
       // one-dim ME
-    case MonitorElement::DQM_KIND_TH1F: currentSubfolder.AddBinsF( (*it)->getNbinsX(), getEmptyMetric((*it)->getTH1F()->GetArray(), (*it)->getTH1F()->fN, 0, 0) ); break;
-    case MonitorElement::DQM_KIND_TH1S: currentSubfolder.AddBinsS( (*it)->getNbinsX(), getEmptyMetric((*it)->getTH1S()->GetArray(), (*it)->getTH1S()->fN, 0, 0) ); break;
-    case MonitorElement::DQM_KIND_TH1D: currentSubfolder.AddBinsD( (*it)->getNbinsX(), getEmptyMetric((*it)->getTH1D()->GetArray(), (*it)->getTH1D()->fN, 0, 0) ); break;
-    case MonitorElement::DQM_KIND_TPROFILE: currentSubfolder.AddBinsD( (*it)->getNbinsX(), getEmptyMetric((*it)->getTProfile()->GetArray(), (*it)->getTProfile()->fN, 0, 0) ); break;
+    case MonitorElement::DQM_KIND_TH1F:
+      currentSubfolder.AddBinsF( (*it)->getNbinsX(), getEmptyMetric((*it)->getTH1F()->GetArray(), (*it)->getTH1F()->fN, 0, 0) );
+      curr->update( (*it)->getNbinsX(), getEmptyMetric((*it)->getTH1F()->GetArray(), (*it)->getTH1F()->fN, 0, 0),   (*it)->getNbinsX()*sizeof( float ) );
+      break;
+    case MonitorElement::DQM_KIND_TH1S:
+      currentSubfolder.AddBinsS( (*it)->getNbinsX(), getEmptyMetric((*it)->getTH1S()->GetArray(), (*it)->getTH1S()->fN, 0, 0) );
+      curr->update( (*it)->getNbinsX(), getEmptyMetric((*it)->getTH1S()->GetArray(), (*it)->getTH1S()->fN, 0, 0),   (*it)->getNbinsX()*sizeof( short ) );
+      break;
+    case MonitorElement::DQM_KIND_TH1D:
+      currentSubfolder.AddBinsD( (*it)->getNbinsX(), getEmptyMetric((*it)->getTH1D()->GetArray(), (*it)->getTH1D()->fN, 0, 0) );
+      curr->update( (*it)->getNbinsX(), getEmptyMetric((*it)->getTH1D()->GetArray(), (*it)->getTH1D()->fN, 0, 0),   (*it)->getNbinsX()*sizeof( double ) );
+      break;
+    case MonitorElement::DQM_KIND_TPROFILE:
+      currentSubfolder.AddBinsD( (*it)->getNbinsX(), getEmptyMetric((*it)->getTProfile()->GetArray(), (*it)->getTProfile()->fN, 0, 0) );
+      curr->update( (*it)->getNbinsX(), getEmptyMetric((*it)->getTProfile()->GetArray(), (*it)->getTProfile()->fN, 0, 0),   (*it)->getNbinsX()*sizeof( double ) );
+      break;
 
       // two-dim ME
-    case MonitorElement::DQM_KIND_TH2F: currentSubfolder.AddBinsF( (*it)->getNbinsX() * (*it)->getNbinsY(), getEmptyMetric((*it)->getTH2F()->GetArray(), (*it)->getNbinsX()+2,  (*it)->getNbinsY()+2, 0) ); break;
-    case MonitorElement::DQM_KIND_TH2S: currentSubfolder.AddBinsS( (*it)->getNbinsX() * (*it)->getNbinsY(), getEmptyMetric((*it)->getTH2S()->GetArray(), (*it)->getNbinsX()+2,  (*it)->getNbinsY()+2, 0) ); break;
-    case MonitorElement::DQM_KIND_TH2D: currentSubfolder.AddBinsD( (*it)->getNbinsX() * (*it)->getNbinsY(), getEmptyMetric((*it)->getTH2D()->GetArray(), (*it)->getNbinsX()+2,  (*it)->getNbinsY()+2, 0) ); break;
-    case MonitorElement::DQM_KIND_TPROFILE2D: currentSubfolder.AddBinsD( (*it)->getNbinsX() * (*it)->getNbinsY(), getEmptyMetric((*it)->getTProfile2D()->GetArray(), (*it)->getNbinsX()+2,  (*it)->getNbinsY()+2, 0) ); break;
+    case MonitorElement::DQM_KIND_TH2F:
+      currentSubfolder.AddBinsF( (*it)->getNbinsX() * (*it)->getNbinsY(), getEmptyMetric((*it)->getTH2F()->GetArray(), (*it)->getNbinsX()+2,  (*it)->getNbinsY()+2, 0) );
+      curr->update( (*it)->getNbinsX() * (*it)->getNbinsY(), getEmptyMetric((*it)->getTH2F()->GetArray(), (*it)->getNbinsX()+2,  (*it)->getNbinsY()+2, 0),  (*it)->getNbinsX() * (*it)->getNbinsY()*sizeof(float) );
+      break;
+    case MonitorElement::DQM_KIND_TH2S:
+      currentSubfolder.AddBinsS( (*it)->getNbinsX() * (*it)->getNbinsY(), getEmptyMetric((*it)->getTH2S()->GetArray(), (*it)->getNbinsX()+2,  (*it)->getNbinsY()+2, 0) );
+      curr->update( (*it)->getNbinsX() * (*it)->getNbinsY(), getEmptyMetric((*it)->getTH2S()->GetArray(), (*it)->getNbinsX()+2,  (*it)->getNbinsY()+2, 0), (*it)->getNbinsX() * (*it)->getNbinsY()*sizeof(short) );
+      break;
+    case MonitorElement::DQM_KIND_TH2D:
+      currentSubfolder.AddBinsD( (*it)->getNbinsX() * (*it)->getNbinsY(), getEmptyMetric((*it)->getTH2D()->GetArray(), (*it)->getNbinsX()+2,  (*it)->getNbinsY()+2, 0) );
+      curr->update( (*it)->getNbinsX() * (*it)->getNbinsY(), getEmptyMetric((*it)->getTH2D()->GetArray(), (*it)->getNbinsX()+2,  (*it)->getNbinsY()+2, 0), (*it)->getNbinsX() * (*it)->getNbinsY()*sizeof(double) );
+      break;
+    case MonitorElement::DQM_KIND_TPROFILE2D:
+      currentSubfolder.AddBinsD( (*it)->getNbinsX() * (*it)->getNbinsY(), getEmptyMetric((*it)->getTProfile2D()->GetArray(), (*it)->getNbinsX()+2,  (*it)->getNbinsY()+2, 0) );
+      curr->update( (*it)->getNbinsX() * (*it)->getNbinsY(), getEmptyMetric((*it)->getTProfile2D()->GetArray(), (*it)->getNbinsX()+2,  (*it)->getNbinsY()+2, 0), (*it)->getNbinsX() * (*it)->getNbinsY()*sizeof(double) );
+      break;
  
       // three-dim ME
     case MonitorElement::DQM_KIND_TH3F: 
-      currentSubfolder.AddBinsF( (*it)->getNbinsX() * (*it)->getNbinsY() * (*it)->getNbinsZ(), getEmptyMetric( (*it)->getTH3F()->GetArray(), (*it)->getNbinsX()+2,  (*it)->getNbinsY()+2,  (*it)->getNbinsZ()+2 ) ); break;
+      currentSubfolder.AddBinsF( (*it)->getNbinsX() * (*it)->getNbinsY() * (*it)->getNbinsZ(), getEmptyMetric( (*it)->getTH3F()->GetArray(), (*it)->getNbinsX()+2,  (*it)->getNbinsY()+2,  (*it)->getNbinsZ()+2 ) );
+      curr->update( (*it)->getNbinsX() * (*it)->getNbinsY() * (*it)->getNbinsZ(),
+                    getEmptyMetric( (*it)->getTH3F()->GetArray(), (*it)->getNbinsX()+2,  (*it)->getNbinsY()+2,  (*it)->getNbinsZ()+2 ),
+                    (*it)->getNbinsX() * (*it)->getNbinsY() * (*it)->getNbinsZ()*sizeof(float));
+      break;
 
     default: {}
       // here we have a DQM_KIND_INVALID, DQM_KIND_INT, DQM_KIND_REAL or DQM_KIND_STRING
       // which we don't care much about. Alternatively:
 
       //   std::cerr << "[DQMStoreStats::calcstats] ** WARNING: monitor element of kind: " 
-      // 	       << (*it)->kind() << ", name: \"" << (*it)->getName() << "\"\n"
-      // 	       << "  in path: \"" << path << "\" not considered." << std::endl;
+      //               << (*it)->kind() << ", name: \"" << (*it)->getName() << "\"\n"
+      //               << "  in path: \"" << path << "\" not considered." << std::endl;
     }
-      
   } 
 
   if( mode == DQMStoreStats::considerAllME )
-    calcIgProfDump(dqmStoreStatsTopLevel);
+    calcIgProfDump(dbeFolder);
+
   // OUTPUT
 
   std::cout << endl;
@@ -352,8 +365,8 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
       // fixed-size working copy
       std::string thisSubfolderName( it1->subfolderName_ );
       if( thisSubfolderName.size() > 30 ) {
-	thisSubfolderName.resize( 30 );
-	thisSubfolderName.replace( thisSubfolderName.size() - 3, 3, 3, '.' );
+        thisSubfolderName.resize( 30 );
+        thisSubfolderName.replace( thisSubfolderName.size() - 3, 3, 3, '.' );
       }
 
       std::cout << " -> " << std::setw( 30 ) << std::left << thisSubfolderName;
@@ -364,7 +377,7 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
 
       // bins/histogram, need to catch nan if histos=0
       if( it1->totalHistos_ ) {
-	std::cout << std::setw( 14 ) << std::right << std::setprecision( 3 ) << it1->totalBins_ / float( it1->totalHistos_ );
+        std::cout << std::setw( 14 ) << std::right << std::setprecision( 3 ) << it1->totalBins_ / float( it1->totalHistos_ );
       } 
       else std::cout << std::setw( 14 ) << std::right << "-";
 
@@ -372,7 +385,7 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
 
       // mem/histogram, need to catch nan if histos=0
       if( it1->totalHistos_ ) {
-	std::cout << std::setw( 14 ) << std::right << std::setprecision( 3 ) << it1->totalMemory_ / 1024. / it1->totalHistos_;
+        std::cout << std::setw( 14 ) << std::right << std::setprecision( 3 ) << it1->totalMemory_ / 1024. / it1->totalHistos_;
       }
       else std::cout << std::setw( 14 ) << std::right << "-";
 
@@ -466,11 +479,11 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
     {
       unsigned int nHistograms = 0, nBins = 0, nEmptyBins = 0, nBytes = 0;
       for( DQMStoreStatsSubsystem::const_iterator it1 = it0->begin(); it1 < it0->end(); ++it1 ) {
-	// collect totals
-	nHistograms += it1->totalHistos_; 
-	nBins       += it1->totalBins_;   
-	nEmptyBins  += it1->totalEmptyBins_;   
-	nBytes      += it1->totalMemory_; 
+        // collect totals
+        nHistograms += it1->totalHistos_; 
+        nBins       += it1->totalBins_;   
+        nEmptyBins  += it1->totalEmptyBins_;   
+        nBytes      += it1->totalMemory_; 
       }
       overallNHistograms += nHistograms;
       overallNBins       += nBins;
@@ -493,7 +506,7 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
     }
     jr->reportAnalysisFile("DQMStatsReport", jrInfo);
   }
-  
+
   return 0;
 
 }
@@ -534,7 +547,7 @@ void DQMStoreStats::dumpMemoryProfile( void ) {
     memHistoryTree.Branch( "seconds", &aTime, "seconds/I" );
     memHistoryTree.Branch( "megabytes", &aMb, "megabytes/F" );
     for( std::vector<std::pair<time_t, unsigned int> >::const_iterator it = memoryHistoryVector_.begin();
-	 it < memoryHistoryVector_.end(); ++it ) {
+         it < memoryHistoryVector_.end(); ++it ) {
       aTime = it->first - startingTime_;
       aMb = it->second / 1000.;
       memHistoryTree.Fill();
@@ -548,7 +561,7 @@ void DQMStoreStats::dumpMemoryProfile( void ) {
   std::cout << "Approx. maximum total virtual memory size of job: ";
   if( isOpenProcFileSuccessful_ && memoryHistoryVector_.size() ) {
     std::cout << maxItem.second / 1000.
-	      << " MB (reached " << maxItem.first - startingTime_ << " sec. after constructor called)," << std::endl;
+              << " MB (reached " << maxItem.first - startingTime_ << " sec. after constructor called)," << std::endl;
     std::cout << " memory history written to: " << rootOutputFileName.str() << " (" << memoryHistoryVector_.size() << " samples)" << std::endl;
   } else {
     std::cout << "(could not be determined)" << std::endl;
@@ -572,7 +585,7 @@ void DQMStoreStats::print(){
   if (nmesubsys_ > 0) std::cout <<  nbinssubsys_/nmesubsys_ << " bins/histogram " ;
   std::cout << std::endl;
   std::cout <<  "  Largest histogram: " << maxbinsmesubsys_ << " with " <<
-		                         maxbinssubsys_ << " bins." <<  std::endl;
+                                         maxbinssubsys_ << " bins." <<  std::endl;
 }
 
 
@@ -595,8 +608,8 @@ std::pair<unsigned int, unsigned int> DQMStoreStats::readMemoryEntry( void ) con
     while( !procFile.eof() ) {
       procFile >> readBuffer;
       if( std::string( "VmSize:" ) == readBuffer ) {
-	procFile >> memSize;
-	break;
+        procFile >> memSize;
+        break;
       }
     }
 
@@ -648,7 +661,7 @@ void DQMStoreStats::beginRun(const edm::Run& r, const EventSetup& context) {
 //==================== beginLuminosityBlock ========================//
 //==================================================================//
 void DQMStoreStats::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
-					    const EventSetup& context) {
+                                            const EventSetup& context) {
 }
 
 
@@ -673,7 +686,7 @@ void DQMStoreStats::analyze(const Event& iEvent, const EventSetup& iSetup) {
 //========================= endLuminosityBlock =====================//
 //==================================================================//
 void DQMStoreStats::endLuminosityBlock(const LuminosityBlock& lumiSeg,
-					  const EventSetup& context) {
+                                          const EventSetup& context) {
   if (runonendlumi_) { 
     calcstats( DQMStoreStats::considerAllME );
     calcstats( DQMStoreStats::considerOnlyLumiProductME );
