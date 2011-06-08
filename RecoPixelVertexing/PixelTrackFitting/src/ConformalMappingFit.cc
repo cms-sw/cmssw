@@ -20,6 +20,7 @@ ConformalMappingFit::ConformalMappingFit(
 void ConformalMappingFit::findRot(const PointXY & p) 
 {
   myRotation = true;
+  typedef  Rotation::GlobalVector GlobalVector; // ::GlobalVector is float!
   GlobalVector aX = GlobalVector( p.x(), p.y(), 0.).unit();
   GlobalVector aY( -aX.y(), aX.x(), 0.);
   GlobalVector aZ( 0., 0., 1.);
