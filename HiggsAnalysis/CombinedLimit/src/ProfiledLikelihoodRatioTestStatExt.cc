@@ -90,10 +90,10 @@ ProfiledLikelihoodTestStatOpt::ProfiledLikelihoodTestStatOpt(
     poi_.add(snap_);
     if (nuisances) { nuisances_.add(*nuisances); snap_.addClone(*nuisances, /*silent=*/true); }
     params_.reset(pdf_->getParameters(observables));
-    DBGV(DBG_PLTestStat_ctor, (std::cout << "Observables: " << std::endl; observables.Print("V")))
-    DBGV(DBG_PLTestStat_ctor, (std::cout << "All params: " << std::endl; params_->Print("V")))
-    DBGV(DBG_PLTestStat_ctor, (std::cout << "Snapshot: " << std::endl; snap_.Print("V")))
-    DBGV(DBG_PLTestStat_ctor, (std::cout << "POI: " << std::endl; poi_.Print("V")))
+    DBGV(DBG_PLTestStat_ctor, (std::cout << "Observables: " << std::endl)) DBGV(DBG_PLTestStat_ctor, (observables.Print("V")))
+    DBGV(DBG_PLTestStat_ctor, (std::cout << "All params: " << std::endl))  DBGV(DBG_PLTestStat_ctor, (params_->Print("V")))
+    DBGV(DBG_PLTestStat_ctor, (std::cout << "Snapshot: " << std::endl))    DBGV(DBG_PLTestStat_ctor, (snap_.Print("V")))
+    DBGV(DBG_PLTestStat_ctor, (std::cout << "POI: " << std::endl))         DBGV(DBG_PLTestStat_ctor, (poi_.Print("V")))
 }
 
 
@@ -111,12 +111,12 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
     RooRealVar *r   = (RooRealVar *) params_->find(rIn->GetName());
     r->setMin(0); r->setMax(rIn->getVal());
     r->setConstant(false);
-    DBG(DBG_PLTestStat_pars, (std::cout << "r In: "; rIn->Print("")))
+    DBG(DBG_PLTestStat_pars, (std::cout << "r In: ")) DBGV(DBG_PLTestStat_pars, (rIn->Print("")))
     DBG(DBG_PLTestStat_pars, std::cout << "r before the fit: ") DBG(DBG_PLTestStat_pars, r->Print(""))
 
     // Perform unconstrained minimization (denominator)
     double nullNLL = minNLL(*pdf_, data);
-    DBG(DBG_PLTestStat_pars, (std::cout << "r after the fit: "; r->Print("")))
+    DBG(DBG_PLTestStat_pars, (std::cout << "r after the fit: ")) DBGV(DBG_PLTestStat_pars, (r->Print("")))
 
     // Perform unconstrained minimization (numerator)
     r->setVal(rIn->getVal()); 
