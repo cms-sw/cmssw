@@ -2,6 +2,9 @@
 #define SiStripRecHit2D_H
 
 #include "DataFormats/TrackerRecHit2D/interface/BaseSiTrackerRecHit2DLocalPos.h"
+
+#include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
+
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
@@ -15,52 +18,41 @@ public:
 
   ~SiStripRecHit2D() {} 
 
-  typedef edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster > ClusterRef;
-  typedef edm::Ref< edm::LazyGetter<SiStripCluster>, SiStripCluster, edm::FindValue<SiStripCluster> >  ClusterRegionalRef;
+  typedef OmniClusterRef::ClusterRef ClusterRef;
+  typedef OmniClusterRef::ClusterRegionalRef;
 
 
-  SiStripRecHit2D( const LocalPoint&, const LocalError&,
-		   const DetId&, 
-		   ClusterRef const&  cluster); 
+  SiStripRecHit2D( const LocalPoint& pos, const LocalError& err,
+		   const DetId& id,
+		   ClusterRef const& cluster) : 
+    cluster_(cluster),
+    BaseSiTrackerRecHit2DLocalPos(pos,err,id),
+    sigmaPitch_(-1.) {}
 
 
-  SiStripRecHit2D( const LocalPoint&, const LocalError&,
-		   const DetId&, 
-		   ClusterRegionalRef const& cluster);
+  SiStripRecHit2D(const LocalPoint& pos, const LocalError& err,
+		  const DetId& id,
+		  ClusterRegionalRef const& cluster) :
+    cluster_(cluster),
+    BaseSiTrackerRecHit2DLocalPos(pos,err,id),
+    sigmaPitch_(-1.) {}
+						 
   
   virtual SiStripRecHit2D * clone() const {return new SiStripRecHit2D( * this); }
   
   ClusterRegionalRef cluster_regional()  const { 
-    return isRegional() ?  ClusterRegionalRef(product_,index()) : ClusterRegionalRef();
+    return cluster_.cluster_regional();
   }
 
   ClusterRef cluster()  const { 
-    return isRegional() ? ClusterRef() : ClusterRef(product_,index());
+    return cluster_.cluster();
   }
 
-  void setClusterRef(ClusterRef const & ref) { setRef(ref); }
-  void setClusterRegionalRef(ClusterRegionalRef const & ref) { setRef(ref); }
   
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
   
   double sigmaPitch() const { return sigmaPitch_;}
   void setSigmaPitch(double sigmap) const { sigmaPitch_=sigmap;}
-
-  bool isRegional() const { return index_ & 0x40000000; }
-
-private:
-
-  unsigned int index() const { return index_ & (~0x40000000);}
-
-  void setRef(ClusterRef const & ref) {
-    product_ = ref.refCore();
-    index_ = ref.key() & (~0x40000000);
-  }
-
-  void setRef(ClusterRegionalRef const & ref) {
-    product_ = ref.refCore();
-    index_ = ref.key() | 0x40000000;  // bit 30 on (bit 31 on = invalid...)
-  }
 
   
 private:
@@ -72,9 +64,7 @@ private:
   //ClusterRegionalRef clusterRegional_;
 
   // new game
-  edm::RefCore product_;
-  unsigned int index_;
-
+  OmniClusterRef cluster_;
 
   /// cache for the matcher....
   mutable double sigmaPitch_;  // transient....

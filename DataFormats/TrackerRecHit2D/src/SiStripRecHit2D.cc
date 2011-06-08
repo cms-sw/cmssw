@@ -4,23 +4,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
 
-#include<iostream>
-
-SiStripRecHit2D::SiStripRecHit2D( const LocalPoint& pos, const LocalError& err,
-				  const DetId& id,
-				  ClusterRef const & cluster):
-  
-  BaseSiTrackerRecHit2DLocalPos(pos,err,id),
-  sigmaPitch_(-1.)
-{ setRef(cluster); }
-
-
-SiStripRecHit2D::SiStripRecHit2D( const LocalPoint& pos, const LocalError& err,
-				  const DetId& id,
-				  ClusterRegionalRef const& cluster): 
-  BaseSiTrackerRecHit2DLocalPos(pos,err,id), 
-  sigmaPitch_(-1.) { setRef(cluster);}
-
 
 bool 
 SiStripRecHit2D::sharesInput( const TrackingRecHit* other, 

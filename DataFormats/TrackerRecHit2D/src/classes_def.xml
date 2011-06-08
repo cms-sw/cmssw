@@ -4,6 +4,8 @@
      <field name="err_" transient="true" />	 
    </class>	 
   <class name="GSSiTrackerRecHit2DLocalPos"/>
+ 
+  <class name="OmniClusterRef" ClassVersion="10"/>
   <class name="SiStripRecHit2D" ClassVersion="11">
     <field name="sigmaPitch_" transient="true" />
   </class>
