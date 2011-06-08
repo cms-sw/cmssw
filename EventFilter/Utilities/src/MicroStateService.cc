@@ -94,10 +94,10 @@ namespace evf{
 	return *microstate2_;
   }
 
-  void MicroStateService::setMicroState(std::string const &in)
+  void MicroStateService::setMicroState(std::string const *in)
   {
     	boost::mutex::scoped_lock sl(lock_);
-	microstate2_ = &in;
+	microstate2_ = in;
   }
 
 } //end namespace evf
