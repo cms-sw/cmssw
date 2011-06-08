@@ -3,9 +3,9 @@
 /** \class ConvertedPhotonProducer
  **  
  **
- **  $Id: ConvertedPhotonProducer.h,v 1.33 2010/12/09 17:03:01 nancy Exp $ 
- **  $Date: 2010/12/09 17:03:01 $ 
- **  $Revision: 1.33 $
+ **  $Id: ConvertedPhotonProducer.h,v 1.34 2011/02/25 22:16:56 dlange Exp $ 
+ **  $Date: 2011/02/25 22:16:56 $ 
+ **  $Revision: 1.34 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -30,6 +30,7 @@
 #include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackPairFinder.h"
 
 class ConversionTrackEcalImpactPoint;
 class ConversionTrackPairFinder;
@@ -59,7 +60,7 @@ class ConvertedPhotonProducer : public edm::EDProducer {
 			  const edm::Handle<edm::View<reco::CaloCluster> > & bcHandle,
 			  const edm::Handle<CaloTowerCollection> & hcalTowersHandle,
 			  const edm::Handle<reco::TrackCollection>  & trkHandle,
-			  std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr>& allPairs,
+			  std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr, CompareTwoTracksVectors>& allPairs,
 			  reco::ConversionCollection & outputConvPhotonCollection);
   void cleanCollections (const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
 			 const edm::OrphanHandle<reco::ConversionCollection> & conversionHandle,

@@ -30,6 +30,19 @@
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 #include "DataFormats/EgammaTrackReco/interface/TrackCaloClusterAssociation.h"
 
+
+struct CompareTwoTracks {  
+  bool operator() ( const reco::TransientTrack& a, const reco::TransientTrack & b ) const{
+    return a.impactPointState().globalMomentum().perp() > b.impactPointState().globalMomentum().perp();}
+};
+
+struct CompareTwoTracksVectors {
+   bool operator() ( const std::vector<reco::TransientTrack> & a, const std::vector<reco::TransientTrack> & b ) const{
+           return ( a[0].impactPointState().globalMomentum().perp() >
+                     b[0].impactPointState().globalMomentum().perp() ) ;}
+   };
+
+
 class ConversionTrackPairFinder {
 
 public:
@@ -41,7 +54,7 @@ public:
 
 
 
-  std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr>  run(std::vector<reco::TransientTrack> outIn,  
+  std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr, CompareTwoTracksVectors>  run(std::vector<reco::TransientTrack> outIn,  
   					      const edm::Handle<reco::TrackCollection>&  outInTrkHandle,
   					      const edm::Handle<reco::TrackCaloClusterPtrAssociation>&  outInTrackSCAssH, 
   					      std::vector<reco::TransientTrack> inOut,  
@@ -63,7 +76,6 @@ class ByNumOfHits {
     }
   }
 };
-
 
 
 
