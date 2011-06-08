@@ -1,3 +1,8 @@
+2011-06-09 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-09
+	* Varios bug fixes mostly to handling of EOL and MsgBuf
+
 2011-05-20 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V02-04-08

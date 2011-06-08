@@ -54,7 +54,7 @@ namespace evf{
       TriggerReportStatic *getPackedTriggerReportAsStruct(){return (TriggerReportStatic *)cache_->mtext;}
       xdata::String *getPathLegenda(){return &pathLegenda_;}
       void resetLumiSectionReferenceIndex(){lumiSectionIndex_=0;}
-      void withdrawLumiSectionIncrement(){lumiSectionIndex_--;}
+      void withdrawLumiSectionIncrement(){if(lumiSectionIndex_>0) lumiSectionIndex_--;}
       unsigned int getLumiSectionReferenceIndex(){return lumiSectionIndex_;}
       std::string findLabelOfModuleTypeInEndPath(edm::TriggerReport &, 
 						 std::vector<edm::ModuleDescription const*>&,
