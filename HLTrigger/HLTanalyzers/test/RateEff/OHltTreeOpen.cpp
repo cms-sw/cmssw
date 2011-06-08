@@ -4,11 +4,13 @@
 
 #define OHltTreeOpen_cxx
 
-#include "TVector2.h"
 #include "OHltTree.h"
-#include <stdio.h>
 
+#include "TVector2.h"
 #include "TPRegexp.h"
+
+#include <stdio.h>
+#include <iostream>
 
 using namespace std;
 
@@ -17,42 +19,69 @@ typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > PtEtaPhiELor
 
 
 /**
- * method trying to match pattern with trigger name
+ * matches pattern with trigger name
  * returns result as boolean
  * returns by reference vector of matched strings 
  *   (bracketed groups in regex in order of appearance)
  */
 bool triggerNamePatternMatch(
-			     const string& triggerName,
-			     const string& pattern,
-			     vector<string> &vecMatch)
+      const string& triggerName,
+      const string& pattern,
+      vector<string>& vecMatch)
 {
-  TPRegexp re(pattern);
-	
-  // does the regular expression match the triggerName given? 
-  bool doesMatch= re.MatchB(triggerName);
-	
-  // if so, extract matches
-  if (doesMatch)
-    {
+   vecMatch.clear();
+
+   TPRegexp re(pattern);
+
+   // does the regular expression match the triggerName given? 
+   bool doesMatch= re.MatchB(triggerName);
+
+   // if so, extract matches
+   if (doesMatch)
+   {
       // retrieve matches as object array
       TObjArray *objArrMatches = re.MatchS(triggerName);
-		
+
       // extract match objects from array (skip index 0 = whole match)
       // convert each into a string and push back into a vector
       for (int i= 1; i <= objArrMatches->GetLast(); ++i)
-	{
-	  TObject& objMatch= *(objArrMatches->At(i));
-	  TObjString& objStrMatch= dynamic_cast<TObjString&>(objMatch);
-	  vecMatch.push_back(objStrMatch.GetString().Data());
-	}
-		
+      {
+         TObject& objMatch= *(objArrMatches->At(i));
+         TObjString& objStrMatch= dynamic_cast<TObjString&>(objMatch);
+         vecMatch.push_back(objStrMatch.GetString().Data());
+      }
+
       // delete object array
       delete objArrMatches;
-    }
-	
-  // return match result
-  return doesMatch;
+   }
+
+   // return match result
+   return doesMatch;
+}
+
+
+bool triggerNamePatternMatch(
+      const string& triggerName,
+      const string& pattern,
+      vector<double>& vecDblMatch)
+{
+   // get result with vector of strings containing matches
+   vector<string> vecMatch;
+   bool result= triggerNamePatternMatch(triggerName, pattern, vecMatch);
+   
+   // convert matches to doubles
+   vecDblMatch.clear();
+   for (vector<string>::iterator
+         it= vecMatch.begin();
+         it!=vecMatch.end(); ++it)
+   {
+      istringstream iss(*it);
+      double x= 0;
+      iss >> x;
+      vecDblMatch.push_back(x);
+   }
+   
+   return result;
 }
 
 //define L1, L2, L3 sets of thresholds for *standard* muons
@@ -2028,6 +2057,45 @@ void OHltTree::CheckOpenHlt(
 	    }
 	}
     }
+  
+   /*  JetX_CentralJetX_BTagIP  */
+   // hartl 2011-06-08, to be checked
+  
+   else if (triggerNamePatternMatch(
+         triggerName, 
+         "(OpenHLT_Jet([0-9]+)_CentralJet([0-9]+)_BTagIP){1}$", 
+         thresholds))
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second>0)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it) )
+         {
+            double threshJet=        thresholds[0];
+            double threshCentralJet= thresholds[1];
+            
+            if (OpenHlt1CorJetPassed(threshJet) == 1)
+            {
+               int rc = 0;
+               int max = (NohBJetL2Corrected > 6) ? 6 : NohBJetL2Corrected;
+               for (int i = 0; i < max; i++)
+               {
+                  if (ohBJetL2CorrectedEt[i] > threshCentralJet
+                        && fabs(ohBJetL2CorrectedEta[i]) < 3.0)
+                  {
+                     if (ohBJetIPL3Tag[i] > 4.0)
+                     { 
+                        rc++;
+                     }
+                  }
+               }
+               if (rc >= 1)
+               {
+                  triggerBit[it] = true;
+               }
+            }
+         }
+      }
+   }
 	
 	
   /* DoubleJetX(U)_ForwardBackward */
