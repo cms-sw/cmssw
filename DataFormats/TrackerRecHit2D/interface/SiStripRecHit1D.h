@@ -41,7 +41,11 @@ public:
     return cluster_.cluster();
   }
 
+  void setClusterRef(ClusterRef const & ref) { cluster_.setRef(ref); }
+  void setClusterRegionalRef(ClusterRegionalRef const & ref) { cluster_.setRef(ref); }
  
+
+
   virtual void getKfComponents( KfComponentsHolder & holder ) const ; 
 
   virtual LocalPoint localPosition() const;

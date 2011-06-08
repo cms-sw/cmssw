@@ -40,17 +40,21 @@ public:
   
 
   OmniClusterRef const & omniCluster() const { return cluster_;}
-
-
+  
+  
   ClusterRegionalRef cluster_regional()  const { 
     return cluster_.cluster_regional();
   }
-
+  
   ClusterRef cluster()  const { 
     return cluster_.cluster();
   }
 
   
+  void setClusterRef(ClusterRef const & ref) { cluster_.setRef(ref); }
+  void setClusterRegionalRef(ClusterRegionalRef const & ref) { cluster_.setRef(ref); }
+
+
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
   
   double sigmaPitch() const { return sigmaPitch_;}

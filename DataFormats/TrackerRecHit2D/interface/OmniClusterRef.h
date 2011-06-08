@@ -32,7 +32,7 @@ public:
       && product_ == lh.product_;
   }
 
-private:
+public:
 
   unsigned int index() const { return index_ && (~0x40000000);}
 
