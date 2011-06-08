@@ -6924,6 +6924,40 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
 	}
     }
 	
+  // 2011 June 08, Arnaud , copied from above
+  else if (triggerName.CompareTo("OpenHLT_DoublePhoton38_HEVT_v1") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHlt1PhotonSamHarperPassed(38., 0, // ET, L1isolation
+						999.,
+						999., // Track iso barrel, Track iso endcap
+						999.,
+						999., // Track/pT iso barrel, Track/pT iso endcap
+						999.,
+						999., // H iso barrel, H iso endcap
+						999.,
+						999., // E iso barrel, E iso endcap
+						0.05,
+						0.05, // H/E barrel, H/E endcap   
+						999.,
+						999., // cluster shape barrel, cluster shape endcap
+						999.,
+						999., // R9 barrel, R9 endcap 
+						999.,
+						999., // Deta barrel, Deta endcap
+						999.,
+						999. // Dphi barrel, Dphi endcap
+						)>=2)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+	
   // 2011-04-26
   else if (triggerName.CompareTo("OpenHLT_DoublePhoton50_v1") == 0) //new
     {
