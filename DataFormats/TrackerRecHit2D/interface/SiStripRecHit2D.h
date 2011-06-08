@@ -38,6 +38,10 @@ public:
   
   virtual SiStripRecHit2D * clone() const {return new SiStripRecHit2D( * this); }
   
+
+  OmniClusterRef const & omniCluster() const { return cluster_;}
+
+
   ClusterRegionalRef cluster_regional()  const { 
     return cluster_.cluster_regional();
   }

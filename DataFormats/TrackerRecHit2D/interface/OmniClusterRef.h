@@ -1,5 +1,5 @@
 #ifndef TrackerRecHit2D_OmniClusterRef_H
-#define TrackerRecHit2D_OmnniClusterRef_H
+#define TrackerRecHit2D_OmniClusterRef_H
 
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
@@ -25,6 +25,11 @@ public:
   
   ClusterRef cluster()  const { 
     return isRegional() ? ClusterRef() : ClusterRef(product_,index());
+  }
+
+  bool operator==(OmniClusterRef const & lh) const { 
+    return index_ == lh.index_ // in principle this is enough!
+      && product_ == lh.product_;
   }
 
 private:
