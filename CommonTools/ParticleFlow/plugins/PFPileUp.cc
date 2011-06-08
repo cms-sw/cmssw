@@ -32,6 +32,12 @@ PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
     iConfig.getUntrackedParameter<bool>("verbose",false);
 
 
+  if ( iConfig.exists("checkClosestZVertex") ) {
+    checkClosestZVertex_ = iConfig.getParameter<bool>("checkClosestZVertex");
+  } else {
+    checkClosestZVertex_ = false;
+  }
+
 
   produces<reco::PileUpPFCandidateCollection>();
   
@@ -144,7 +150,29 @@ PFPileUp::chargedHadronVertex( const Handle<VertexCollection>& vertices, const P
     return VertexRef( vertices, iVertex);
   }
   // no vertex found with this track. 
-  // keep this track
+
+  // optional: as a secondary solution, associate the closest vertex in z
+  if ( checkClosestZVertex_ ) {
+
+    double dzmin = 10000;
+    double ztrack = pfcand.vertex().z();
+    bool foundVertex = false;
+    index = 0;
+    for(IV iv=vertices->begin(); iv!=vertices->end(); ++iv, ++index) {
+
+      double dz = fabs(ztrack - iv->z());
+      if(dz<dzmin) {
+	dzmin = dz; 
+	iVertex = index;
+	foundVertex = true;
+      }
+    }
+
+    if( foundVertex ) 
+      return VertexRef( vertices, iVertex);  
+
+  }
+
 
   return VertexRef();
 }

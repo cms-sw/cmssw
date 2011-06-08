@@ -21,6 +21,7 @@
 // user include files
 #include "DataFormats/Common/interface/FillView.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "DataFormats/Common/interface/fwd_setPtr.h"
 #include "Reflex/Object.h"
 #include "Reflex/Type.h"
 

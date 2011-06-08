@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     # compile regexs
     percentRE      = re.compile (r'%')
-    startOutputRE  = re.compile (r'^problems$')
+    startOutputRE  = re.compile (r'^Summary$')
     success1RE     = re.compile (r"{'eventsCompared':\s+(\d+),\s+'count_(\S+)':\s+(\d+)\s*}")
     success2RE     = re.compile (r"{'count_(\S+)':\s+(\d+),\s+'eventsCompared':\s+(\d+)\s*}")
     loadingSoRE    = re.compile (r'loading (genobjectrootlibs/\w+)')
@@ -53,6 +53,11 @@ if __name__ == "__main__":
                     'missingCfg'   : missingCfgRE,
                     'noEdmWrapper' : noEdmWrapperRE,
                     'dummy'        : dummyRE,
+                    'operator'     : re.compile (r"onfig file parser error 'operator"),
+                    'useless'      : re.compile (r'no member functions that are useful'),
+                    'lazy'         : re.compile (r': Assertion'),
+                    'detset'       : re.compile (r"AttributeError: 'edm::DetSet"),
+                    'doubleint'    : re.compile (r'AttributeError: (int|double)'),
                     'finish'       : finishRE}
 
     parser = optparse.OptionParser ("Usage: %prog logfilePrefix [directory]")

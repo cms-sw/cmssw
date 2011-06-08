@@ -1,7 +1,3 @@
-#include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/Alignment/interface/AlignTransform.h"
-#include "CondFormats/Alignment/interface/AlignTransformError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBCommon/interface/Exception.h"
@@ -31,6 +27,10 @@
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignments.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurements.h"
+#include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignTransform.h"
+#include "CondFormats/Alignment/interface/AlignTransformError.h"
 
 CocoaDBMgr* CocoaDBMgr::instance = 0;
 
@@ -344,7 +344,7 @@ AlignTransformError* CocoaDBMgr::GetAlignInfoErrorFromOptO( OpticalObject* opto 
 		  0.,
 		  1.);
  //double(dx*dx),  0., double(dy*dy),     0., 0., double(dz*dz) ) ;
-  CLHEP::HepSymMatrix errms = asHepMatrix(gerr.matrix());
+  CLHEP::HepSymMatrix errms = gerr.matrix();
   AlignTransformError* alignError = new AlignTransformError( errms, cmsswID );
   return alignError;
 

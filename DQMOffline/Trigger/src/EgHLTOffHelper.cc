@@ -165,7 +165,7 @@ int OffHelper::getHandles(const edm::Event& event,const edm::EventSetup& setup)
   try { 
     setup.get<CaloGeometryRecord>().get(caloGeom_);
     setup.get<CaloTopologyRecord>().get(caloTopology_);
-    setup.get<EcalSeverityLevelAlgoRcd>().get(ecalSeverityLevel_);
+    //setup.get<EcalSeverityLevelAlgoRcd>().get(ecalSeverityLevel_);
   }catch(...){
     return errCodes::Geom;
   }

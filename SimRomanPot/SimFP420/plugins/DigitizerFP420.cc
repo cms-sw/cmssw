@@ -1,13 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////
 // File: DigitizerFP420.cc
-// Date: 17.2.2011
-// Description: DigitizerFP420 for FP420 & HPS240
+// Date: 12.2006
+// Description: DigitizerFP420 for FP420
 // Modifications: 
 ///////////////////////////////////////////////////////////////////////////////
 //
-
 // system include files
 #include <memory>
+
+#include "DataFormats/Common/interface/DetSetVector.h"
+//#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+//#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+//#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -23,9 +27,15 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 ///////////////////////////////////////////////////////////////////////////
 #include "SimRomanPot/SimFP420/interface/DigitizerFP420.h"
+
+//#include "SimRomanPot/SimFP420/interface/SimRPUtil.h"
+//#include "SimG4CMS/FP420/interface/FP420NumberingScheme.h"
+
 #include "DataFormats/FP420Digi/interface/DigiCollectionFP420.h"
 #include "DataFormats/FP420Digi/interface/HDigiFP420.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
+//#include "SimRomanPot/SimFP420/interface/DigiCollectionFP420.h"
+//#include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
+//#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
 
 //needed for the geometry:
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -34,8 +44,26 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-
+//#include "Geometry/CommonTopologies/interface/StripTopology.h"
+//#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
+//#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+//needed for the magnetic field:
+//#include "MagneticField/Engine/interface/MagneticField.h"
+//#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+//#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+
+//Data Base infromations
+//#include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
+//#include "CalibTracker/Records/interface/SiStripGainRcd.h"
+//#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+//#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
+//#include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
+//#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+//#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
+//#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+//#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+//#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 //Random Number
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -62,10 +90,14 @@ using namespace std;
 
 
 
+
 namespace cms
 {
-  DigitizerFP420::DigitizerFP420(const edm::ParameterSet& conf):conf_(conf),stripDigitizer_(new FP420DigiMain(conf)),HPS240Digitizer_(new HPS240DigiMain(conf)){
+  DigitizerFP420::DigitizerFP420(const edm::ParameterSet& conf):conf_(conf),stripDigitizer_(new FP420DigiMain(conf)) {
+    
+    
     std::string alias ( conf.getParameter<std::string>("@module_label") );
+    
     //  produces<edm::DetSetVector<HDigiFP420> >().setBranchAlias( alias );
     //  produces<edm::DetSetVector<HDigiFP420SimLink> >().setBranchAlias ( alias + "hDigiFP420SimLink");
     produces<DigiCollectionFP420>().setBranchAlias( alias );
@@ -74,31 +106,33 @@ namespace cms
     trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
     
     verbosity = conf_.getUntrackedParameter<int>("VerbosityLevel");
-    // FP420:
     dn0   = conf_.getParameter<int>("NumberFP420Detectors");
     sn0   = conf_.getParameter<int>("NumberFP420Stations");
     pn0 = conf_.getParameter<int>("NumberFP420SPlanes");
-    rn0 = 7;
+      rn0 = 7;
     //rn0 = 3;
+      theFP420NumberingScheme = new FP420NumberingScheme();
     
-    // HPS240:
-    dh0   = conf_.getParameter<int>("NumberHPS240Detectors");
-    sh0   = conf_.getParameter<int>("NumberHPS240Stations");
-    ph0 = conf_.getParameter<int>("NumberHPS240SPlanes");
-    rh0 = 7;
-    //rh0 = 3;
+    //  produces<DigiCollectionFP420>();
     
+    //  produces<StripDigiCollection>();
+    //   produces<HDigiFP420>();
+    //  produces<edm::DetSetVector<HDigiFP420> >().setBranchAlias( alias );  
+    
+    //  produces<DigiCollectionFP420>();
+    // produces<DigiCollectionFP420>("HDigiFP420");
+    
+    //  produces<edm::DigiCollectionFP420>();
+    
+    //   produces<edm::DetSetVector<DigiCollectionFP420> >();
     
     if(verbosity>0) {
+      std::cout << "Creating a DigitizerFP420" << std::endl;
+      std::cout << "DigitizerFP420: dn0=" << dn0 << " sn0=" << sn0 << " pn0=" << pn0 <<  " rn0=" << rn0 << std::endl;
       std::cout << "DigitizerFP420:trackerContainers.size()=" << trackerContainers.size() << std::endl;
-      std::cout << "DigitizerFP420:FP420:     dn0=" << dn0 << " sn0=" << sn0 << " pn0=" << pn0 <<  " rn0=" << rn0 << std::endl;
-      std::cout << "DigitizerFP420:HPS240:    dh0=" << dh0 << " sh0=" << sh0 << " ph0=" << ph0 <<  " rh0=" << rh0 << std::endl;
+      
     }
-    theFP420NumberingScheme = new FP420NumberingScheme();
-  }//
-  
-  
-  
+  }
   
   // Virtual destructor needed.
   DigitizerFP420::~DigitizerFP420() { 
@@ -106,8 +140,6 @@ namespace cms
       std::cout << "Destroying a DigitizerFP420" << std::endl;
     }
     delete stripDigitizer_;
-    delete HPS240Digitizer_;
-    delete theFP420NumberingScheme;
     
   }  
   
@@ -177,6 +209,7 @@ namespace cms
       // Step C: create empty output collection
       std::auto_ptr<DigiCollectionFP420> output(new DigiCollectionFP420);
       //  std::auto_ptr<edm::DetSetVector<HDigiFP420> > outputfinal(new edm::DetSetVector<HDigiFP420>(output) );
+      //  std::auto_ptr<edm::DetSetVector<HDigiFP420> > outputfinal(new edm::DetSetVector<HDigiFP420>(output) );
       //  std::auto_ptr<edm::DetSetVector<HDigiFP420SimLink> > outputlink(new edm::DetSetVector<HDigiFP420SimLink>(output) );
       
       SimHitMap.clear();
@@ -209,7 +242,7 @@ namespace cms
 	SimHitMap[intindex].push_back((*isim));
 	// for development later one( cal be used another index):
 	//	SimHitMap[unitID].push_back((*isim));
-      }//for isim=
+      }
       //============================================================================================================================
       
       if(verbosity>0) {
@@ -217,8 +250,6 @@ namespace cms
 	std::cout <<" ============== DigitizerFP420: put zero to container " << std::endl;
 	std::cout <<" ===" << std::endl;
       }
-      // commented 15.02.2011 
-      /*
       //    put zero to container info from the beginning (important! because not any detID is updated with coming of new event     !!!!!!   
       // clean info of container from previous event
       for (int det=1; det<dn0; det++) {
@@ -239,8 +270,7 @@ namespace cms
 	  }//for
 	}//for
       }//for
-      // 
-*/
+      //                                                                                                                      !!!!!!   
       // if we want to keep Digi container/Collection for one event uncomment the line below and vice versa
       output->clear();   //container_.clear() --> start from the beginning of the container
       
@@ -293,16 +323,25 @@ namespace cms
 	  //  for (int zside=1; zside<rn0; zside++) {
 	  // <------
 	  
+	  
+	  
+	  
+	  
 	  unsigned int iu = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
+	  if(verbosity>0 || verbosity==-50) std::cout <<"for Hits iu = " << iu <<" sector = " << sector <<" zmodule = " << zmodule <<" zside = " << zside << "  det=" << det << std::endl;
+	  //   int zScale=(rn0-1), sScale = (rn0-1)*(pn0-1), dScale = (rn0-1)*(pn0-1)*(sn0-1);
+	  //  unsigned int iu = dScale*(det - 1)+sScale*(sector - 1)+zScale*(zmodule - 1)+zside;
 
 	  if(verbosity>0) {
 	    unsigned int index = theFP420NumberingScheme->FP420NumberingScheme::packFP420Index(det, zside, sector, zmodule);
 	    std::cout << " DigitizerFP420:       index = " <<  index <<  " iu = " << iu  << std::endl;
-	    std::cout <<"for Hits iu = " << iu <<" sector = " << sector <<" zmodule = " << zmodule <<" zside = " << zside << "  det=" << det << std::endl;
 	  }
 	  
 	  //    GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
+	  //      CLHEP::Hep3Vector Bfieldloc=bfield();
 	  G4ThreeVector bfield(  0.,  0.,  0.0  );
+	  //	G4ThreeVector bfield(  0.5,  0.5,  1.0  );
+	  
 	  
 	  if(verbosity>0) {
 	    std::cout <<" ===" << std::endl;
@@ -311,12 +350,13 @@ namespace cms
 	  }
 	  collector.clear();
 	  
-	  if(det>2){
-	    collector= HPS240Digitizer_->run( SimHitMap[iu],bfield,iu);//HPS240
-	  }
-	  else if(det>0){
-	    collector= stripDigitizer_->run( SimHitMap[iu],bfield,iu);// FP420
-	  }
+	  collector= stripDigitizer_->run( SimHitMap[iu],
+					   bfield,
+					   iu
+					   ); // stripDigitizer_.run...  return 
+	  //						 ,sScale
+	  
+	  
 	  
 	  if(verbosity>0) {
 	    std::cout <<" ===" << std::endl;
@@ -385,22 +425,18 @@ namespace cms
 	}// for
       }
 */
-    // det = 1 for +FP420 ,  = 2 for -FP420  
-    // det = 3 for +HPS240 , = 4 for -HPS240 
       if(verbosity==-50) {
-	//     check FP420 access to the collector:
-	std::cout <<" FP420  ===================================================      Checks" << std::endl;
+	//     check of access to the collector:
 	for (int det=1; det<dn0; det++) {
 	  for (int sector=1; sector<sn0; sector++) {
 	    for (int zmodule=1; zmodule<pn0; zmodule++) {
 	      for (int zside=1; zside<rn0; zside++) {
-		std::cout <<"FP420Beginning: sector = " << sector <<" zmodule = " << zmodule <<" zside = " << zside << "  det=" << std::endl;
 		unsigned int iu = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
 		int layer = theFP420NumberingScheme->FP420NumberingScheme::unpackLayerIndex(rn0,zside);
 		int orient = theFP420NumberingScheme->FP420NumberingScheme::unpackOrientation(rn0,zside);
 		std::cout << "****DigitizerFP420:check2" << std::endl;
-		std::cout <<" FP420Beginning: iu = " << iu <<" layer = " << layer <<" orient = " << orient << std::endl;
-		std::cout <<" ===" << std::endl;
+		//	std::cout <<" iu = " << iu <<" sector = " << sector <<" zmodule = " << zmodule <<" zside = " << zside << "  det=" << det << std::endl;
+		//	std::cout <<" layer = " << layer <<" orient = " << orient << std::endl;
 		int newdet, newzside, newsector, newzmodule;
 		theFP420NumberingScheme->FP420NumberingScheme::unpackMYIndex(iu, rn0, pn0, sn0, newdet, newzside, newsector, newzmodule);
 		std::cout <<" newdet = " << newdet <<" newsector = " << newsector <<" newzmodule = " << newzmodule <<" newzside = " << newzside << std::endl;
@@ -420,74 +456,31 @@ namespace cms
 		} // for
 		  //  std::sort(collector.begin(),collector.end());
 		std::cout <<" ===" << std::endl;
-		std::cout <<"======FP420  collector size = " << collector.size() << std::endl;
+		std::cout <<"======  collector size = " << collector.size() << std::endl;
+		if(collector.size()>0) {
+		  std::cout <<" iu = " << iu <<" sector = " << sector <<" zmodule = " << zmodule <<" zside = " << zside << "  det=" << det <<" layer = " << layer <<" orient = " << orient << std::endl;
+		  std::cout <<" ===" << std::endl;
+		}
 		vector<HDigiFP420>::const_iterator simHitIter = collector.begin();
 		vector<HDigiFP420>::const_iterator simHitIterEnd = collector.end();
 		for (;simHitIter != simHitIterEnd; ++simHitIter) {
 		  const HDigiFP420 istrip = *simHitIter;
-		  std::cout << "FP420 strip number=" << istrip.strip() << "  adc=" << istrip.adc() << std::endl;
-		  std::cout <<"FP420 channel =" << istrip.channel() <<" V " << istrip.stripV() <<" VW " << istrip.stripVW() << std::endl;
-		  std::cout <<"FP420 ===" << std::endl;
+		  std::cout << " strip number=" << istrip.strip() << "  adc=" << istrip.adc() << std::endl;
+		  std::cout <<" channel =" << istrip.channel() <<" V " << istrip.stripV() <<" VW " << istrip.stripVW() << std::endl;
+		  std::cout <<" ===" << std::endl;
 		  std::cout <<" ===" << std::endl;
 		  std::cout <<" ===================================================" << std::endl;
 		}
+		
 		//==================================
+		
 	      }   // for
 	    }   // for
 	  }   // for
 	}   // for
+	
 	//     end of check of access to the strip collection
-	//     check FP420 access to the collector:
-	std::cout <<" HPS240  ===================================================      Checks" << std::endl;
-    // det = 3 for +HPS240 , = 4 for -HPS240 
-	int detHPS240 = dh0+2;
-	for (int det=3; det<detHPS240; det++) {
-	  for (int sector=1; sector<sn0; sector++) {
-	    for (int zmodule=1; zmodule<pn0; zmodule++) {
-	      for (int zside=1; zside<rn0; zside++) {
-		std::cout <<"HPS240Beginning: sector = " << sector <<" zmodule = " << zmodule <<" zside = " << zside << "  det=" << std::endl;
-		unsigned int iu = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0, pn0, sn0, det, zside, sector, zmodule);
-		int layer = theFP420NumberingScheme->FP420NumberingScheme::unpackLayerIndex(rn0,zside);
-		int orient = theFP420NumberingScheme->FP420NumberingScheme::unpackOrientation(rn0,zside);
-		std::cout << "****DigitizerHPS240:check2" << std::endl;
-		std::cout <<" HPS240Beginning: iu = " << iu <<" layer = " << layer <<" orient = " << orient << std::endl;
-		std::cout <<" ===" << std::endl;
-		int newdet, newzside, newsector, newzmodule;
-		theFP420NumberingScheme->FP420NumberingScheme::unpackMYIndex(iu, rn0, pn0, sn0, newdet, newzside, newsector, newzmodule);
-		std::cout <<" newdet = " << newdet <<" newsector = " << newsector <<" newzmodule = " << newzmodule <<" newzside = " << newzside << std::endl;
-		
-		collector.clear();
-		DigiCollectionFP420::Range outputRange;
-		//	outputRange = output->get(iu);
-		outputRange = output->get(iu);
-		
-		// fill output in collector vector (for may be sorting? or other checks)
-		std::vector<HDigiFP420> collector;
-		//  collector.clear();
-		DigiCollectionFP420::ContainerIterator sort_begin = outputRange.first;
-		DigiCollectionFP420::ContainerIterator sort_end = outputRange.second;
-		for ( ;sort_begin != sort_end; ++sort_begin ) {
-		  collector.push_back(*sort_begin);
-		} // for
-		  //  std::sort(collector.begin(),collector.end());
-		std::cout <<" ===" << std::endl;
-		std::cout <<"======HPS240  collector size = " << collector.size() << std::endl;
-		vector<HDigiFP420>::const_iterator simHitIter = collector.begin();
-		vector<HDigiFP420>::const_iterator simHitIterEnd = collector.end();
-		for (;simHitIter != simHitIterEnd; ++simHitIter) {
-		  const HDigiFP420 istrip = *simHitIter;
-		  std::cout << "HPS240 strip number=" << istrip.strip() << "  adc=" << istrip.adc() << std::endl;
-		  std::cout <<"HPS240 channel =" << istrip.channel() <<" V " << istrip.stripV() <<" VW " << istrip.stripVW() << std::endl;
-		  std::cout <<"HPS240 ===" << std::endl;
-		  std::cout <<" ===" << std::endl;
-		  std::cout <<" ===================================================" << std::endl;
-		}
-		//==================================
-	      }   // for
-	    }   // for
-	  }   // for
-	}   // for
-	//     end of check of access to the strip collection
+	
       }// if(verbosity	
       //     
       

@@ -10,10 +10,7 @@ from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import *
 l1tech = hltLevel1GTSeed.clone()
 l1tech.L1TechTriggerSeeding = cms.bool(True)
 
-l1Algo = hltLevel1GTSeed.clone()
-l1Algo.L1TechTriggerSeeding = cms.bool(False)
-
-bptx = l1tech.clone()
+bptx =l1tech.clone()
 bptx.L1SeedsLogicalExpression = cms.string('0')
 
 bscAnd = l1tech.clone()
@@ -21,9 +18,6 @@ bscAnd.L1SeedsLogicalExpression = cms.string('40 OR 41')
 
 beamHaloVeto = l1tech.clone()
 beamHaloVeto.L1SeedsLogicalExpression = cms.string('NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND NOT 43) OR (43 AND NOT 42))')
-
-l1SingleMuOpen = l1Algo.clone()
-l1SingleMuOpen.L1SeedsLogicalExpression = cms.string('L1_SingleMuOpen')
 
 #l1Coll = cms.Sequence(bptx + beamHaloVeto)
 l1Coll = cms.Sequence(bptx)
@@ -66,14 +60,14 @@ hltDTActivityFilter = cms.EDFilter( "HLTDTActivityFilter",
 
 goodMuons = cms.EDFilter("CandViewSelector",
     src = cms.InputTag("muons"),
-    cut = cms.string('(isGlobalMuon = 1 | isTrackerMuon = 1) & abs(eta) < 1.2 & pt > 15.0'),
+    cut = cms.string('(isGlobalMuon = 1 | isTrackerMuon = 1) & abs(eta) < 1.2 & pt > 5.0'),
     filter = cms.bool(True) 
 )
 muonSelection = cms.Sequence(goodMuons)
 
 offlineSelection = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelection)
 offlineSelectionALCARECO = cms.Sequence(muonSelection)
-offlineSelectionCosmics = cms.Sequence(l1SingleMuOpen)
+offlineSelectionCosmics = cms.Sequence(muonSelection)
 
 dtCalibOfflineSelection = cms.Sequence(offlineSelection)
 dtCalibOfflineSelectionALCARECO = cms.Sequence(offlineSelectionALCARECO)

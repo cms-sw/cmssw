@@ -1,4 +1,4 @@
-// $Id: StateMachine.cc,v 1.5.12.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: StateMachine.cc,v 1.6 2011/03/07 15:31:32 mommsen Exp $
 /// @file: StateMachine.cc
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
@@ -43,6 +43,9 @@ namespace stor {
   {
     sharedResources_->statisticsReporter_->
       getStateMachineMonitorCollection().updateHistory(tr);
+    // std::ostringstream msg;
+    // msg << tr;
+    // LOG4CPLUS_WARN(sharedResources_->statisticsReporter_->alarmHandler()->getLogger(), msg.str());
   }
   
   void StateMachine::unconsumed_event( bsc::event_base const &event )

@@ -89,8 +89,8 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
     ((theCircle.x0()*py - theCircle.y0()*px) / 
      (magvtx.z()) < 0.) ? 
     -1 : 1;
-  ROOT::Math::SMatrixIdentity id;
-  AlgebraicSymMatrix55 C(id);
+  
+  AlgebraicSymMatrix C(5,1);
   //MP
 
   if ( useBasisVertex ) {

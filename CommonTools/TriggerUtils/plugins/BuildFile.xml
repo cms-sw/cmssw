@@ -1,0 +1,12 @@
+<library   file="*.cc" name="CommonToolsTriggerUtilsPlugins">
+<use   name="CondFormats/DataRecord"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/Scalers"/>
+<use   name="DataFormats/L1GlobalTrigger"/>
+<use   name="FWCore/Framework"/>
+<use   name="L1Trigger/GlobalTriggerAnalyzer"/>
+<use   name="HLTrigger/HLTcore"/>
+<use   name="CommonTools/TriggerUtils"/>
+<flags   EDM_PLUGIN="1"/>
+</library>
+

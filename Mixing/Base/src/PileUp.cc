@@ -35,7 +35,7 @@ namespace edm {
     poissonDistribution_(0),
     playback_(playback),
     sequential_(pset.getUntrackedParameter<bool>("sequential", false)),
-    seed_(pset.getParameter<edm::ParameterSet>("nbPileupEvents").getUntrackedParameter<int>("seed",1234))
+    seed_(pset.getParameter<edm::ParameterSet>("nbPileupEvents").getUntrackedParameter<int>("seed",0))
    {
 
     
@@ -52,8 +52,13 @@ namespace edm {
     
     // Get seed for the case when using user histogram or probability function
     if (histoDistribution_ || probFunctionDistribution_){ 
-      gRandom->SetSeed(seed_);
-      LogInfo("MixingModule") << " Change seed for " << type_ << " mode. The seed is set to " << seed_;
+      if(seed_ !=0) {
+	gRandom->SetSeed(seed_);
+	LogInfo("MixingModule") << " Change seed for " << type_ << " mode. The seed is set to " << seed_;
+      }
+      else {
+	gRandom->SetSeed(engine.getSeed());
+      }
     } 
      
         

@@ -76,6 +76,7 @@ namespace evf{
     , lumiSectionIndex_(1)
     , prescaleSetIndex_(0)
     , lastLumiPrescaleIndex_(0)
+    , lastLumiUsingEol_(0)
     , lsTimedOut_(false)
     , lsToBeRecovered_(true)
     , scalersUpdateAttempted_(0)
@@ -113,6 +114,7 @@ namespace evf{
     applicationInfoSpace_->fireItemAvailable("lumiSectionIndex",        &lumiSectionIndex_);
     applicationInfoSpace_->fireItemAvailable("prescaleSetIndex",        &prescaleSetIndex_);
     applicationInfoSpace_->fireItemAvailable("lastLumiPrescaleIndex",   &lastLumiPrescaleIndex_);
+    applicationInfoSpace_->fireItemAvailable("lastLumiUsingEol",        &lastLumiUsingEol_);
     applicationInfoSpace_->fireItemAvailable("lsTimedOut",              &lsTimedOut_);
     applicationInfoSpace_->fireItemAvailable("lsToBeRecovered",         &lsToBeRecovered_);
 
@@ -127,6 +129,7 @@ namespace evf{
     scalersInfoSpace_->fireItemAvailable("lumiSectionIndex",      &lumiSectionIndex_);
     scalersInfoSpace_->fireItemAvailable("prescaleSetIndex",      &prescaleSetIndex_);
     scalersInfoSpace_->fireItemAvailable("lastLumiPrescaleIndex", &lastLumiPrescaleIndex_);
+    scalersInfoSpace_->fireItemAvailable("lastLumiUsingEol",      &lastLumiUsingEol_);
     scalersLegendaInfoSpace_->fireItemAvailable("scalersLegenda", trh_.getPathLegenda());    
 
     scalersComplete_.addColumn("instance", "unsigned int 32");
