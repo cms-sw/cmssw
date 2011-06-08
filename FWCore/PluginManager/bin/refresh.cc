@@ -21,7 +21,26 @@
 #include <string>
 #include <utility>
 
+#include <sys/wait.h>
+
 using namespace edmplugin;
+
+// We process DSOs by forking and processing them in the child, in bunches of 
+// PER_PROCESS_DSO. Once a bunch has been processed we exit the child and
+// spawn a new one.
+// Due to the different behavior of the linker on different platforms, we process
+// a different number of DSOs per process.
+// For macosx the cost is to actually resolve weak symbols and it grows with
+// the number of libraries as well, so we try to process not too many libraries.
+// In linux the main cost is to load the library itself, so we try to load as 
+// many as reasonable in a single process to avoid having to reload them in 
+// the subsequent process. Obviuously keeping the PER_PROCESS_DSO low keeps the
+// memory usage low as well.
+#ifdef __APPLE__
+#define PER_PROCESS_DSO 20
+#else
+#define PER_PROCESS_DSO 200
+#endif
 
 namespace std {
   ostream& operator<<(std::ostream& o, vector<std::string> const& iValue) {
@@ -175,14 +194,14 @@ int main (int argc, char **argv) {
     path cacheFile(directory);
     cacheFile /= edmplugin::standard::cachefileName();//path(s_cacheFile);
 
-    CacheParser::LoadableToPlugins ltp;
+    CacheParser::LoadableToPlugins old;
     if(exists(cacheFile)) {
       std::ifstream cf(cacheFile.native_file_string().c_str());
       if(!cf) {
         cms::Exception("FailedToOpen") << "unable to open file '" << cacheFile.native_file_string() << "' for reading even though it is present.\n"
         "Please check permissions on the file.";
       }
-      CacheParser::read(cf, ltp);
+      CacheParser::read(cf, old);
     }
 
 
@@ -192,60 +211,127 @@ int main (int argc, char **argv) {
     pfm->newFactory_.connect(boost::bind(boost::mem_fn(&Listener::newFactory), &listener, _1));
     edm::for_all(*pfm, boost::bind(boost::mem_fn(&Listener::newFactory), &listener, _1));
 
-    for(std::vector<std::string>::iterator itFile = files.begin();
-        itFile != files.end();
-        ++itFile) {
+    // We open the cache file before forking so that all the children will
+    // use it.
+    std::string temporaryFilename = (cacheFile.native_file_string() + ".tmp");
+    std::ofstream cf(temporaryFilename.c_str());
+    if(!cf) {
+      cms::Exception("FailedToOpen") << "unable to open file '" 
+          << temporaryFilename << "' for writing.\n"
+      "Please check permissions on the file.";
+    }
+    // Sort the files so that they are loaded "by subsystem", hopefully meaning
+    // they share more dependencies.
+    std::sort(files.begin(), files.end());
+    
+    for(size_t fi = 0, fe = files.size(); fi < fe; fi += PER_PROCESS_DSO)
+    {
+      CacheParser::LoadableToPlugins ltp;
+      pid_t worker = fork();
+      if (worker == 0)
+      {
+        // This the child process.
+        // We load the DSO and find out its plugins, write to the cache 
+        // stream and exit, leaving the parent to spawn a new proces.
+        size_t ci = PER_PROCESS_DSO;
+        while (ci && fi != fe)
+        {
+          path loadableFile(directory);                                                                                                                                                                                                                                          
+          loadableFile /= (files[fi]);
+          listener.nameAndTypes_.clear();
 
-      path loadableFile(directory);
-      loadableFile /= (*itFile);
-      listener.nameAndTypes_.clear();
-      try {
-         edmplugin::SharedLibrary lib(loadableFile);
+          returnValue = 0;
 
-         //PluginCapabilities is special, the plugins do not call it.  Instead, for each shared library load
-         // we need to ask it to try to find plugins
-         PluginCapabilities::get()->tryToFind(lib);
-
-         ltp[*itFile] = listener.nameAndTypes_;
-      } catch(cms::Exception const& iException) {
-         if(iException.category() == "PluginLibraryLoadError") {
-            std::cerr << "Caught exception " << iException.what() << " will ignore " << *itFile << " and continue." << std::endl;
-         } else {
-            throw;
-         }
+          try {
+           try {
+               edmplugin::SharedLibrary lib(loadableFile);
+               //PluginCapabilities is special, the plugins do not call it.  Instead, for each shared library load
+               // we need to ask it to try to find plugins
+               PluginCapabilities::get()->tryToFind(lib);
+               ltp[files[fi]] = listener.nameAndTypes_;
+            
+            } catch(cms::Exception const& iException) {
+               if(iException.category() == "PluginLibraryLoadError") {
+                  std::cerr << "Caught exception " << iException.what() << " will ignore " << files[fi] << " and continue." << std::endl;
+               } else {
+                  throw;
+               }
+            }
+          }catch(std::exception& iException) {
+            std::cerr << "Caught exception " << iException.what() << std::endl;
+            exit(1);
+          }
+          ++fi;
+          --ci;
+        }
+        CacheParser::write(ltp, cf);
+        cf << std::flush;
+        _exit(0);
+      }
+      else
+      {
+        // Throw if any of the child died with non 0 status.
+        int status = 0;
+        waitpid(worker, &status, 0);
+        if (WIFEXITED(status) == true && status != 0)
+        {
+          std::cerr << "Error while processing." << std::endl;
+          exit(status);
+        }
       }
     }
-
+    
+    cf << std::flush;
+    
+    // We read the new cache and we merge it with the old one.
+    CacheParser::LoadableToPlugins ltp;
+    std::ifstream icf(temporaryFilename.c_str());
+    if(!icf) {
+      cms::Exception("FailedToOpen") << "unable to open file '" << temporaryFilename.c_str() << "' for reading even though it is present.\n"
+      "Please check permissions on the file.";
+    }
+    CacheParser::read(icf, ltp);
+    
+    for (CacheParser::LoadableToPlugins::iterator itFile = ltp.begin() ;
+         itFile != ltp.end() ;
+         ++itFile)
+    {
+      old[itFile->first] = itFile->second; 
+    }
+    
+    // If required, we remove the plugins which are missing. Notice that old is
+    // now the most updated copy of the cache.
     if(removeMissingFiles) {
-      for(CacheParser::LoadableToPlugins::iterator itFile = ltp.begin();
-          itFile != ltp.end();
+      for(CacheParser::LoadableToPlugins::iterator itFile = old.begin();
+          itFile != old.end();
           /*don't advance the iterator here because it may have become invalid */) {
         path loadableFile(directory);
         loadableFile /= (itFile->first);
         if(not exists(loadableFile)) {
-          std::cout << "removing file '" << loadableFile.native_file_string() << "'" << std::endl;
+          std::cout << "removing file '" << temporaryFilename.c_str() << "'" << std::endl;
           CacheParser::LoadableToPlugins::iterator itToItemBeingRemoved = itFile;
           //advance the iterator while it is still valid
           ++itFile;
-          ltp.erase(itToItemBeingRemoved);
+          old.erase(itToItemBeingRemoved);
         } else {
           //since we are not advancing the iterator in the for loop, do it here
           ++itFile;
         }
       }
-      //now get rid of the items
     }
-    //now write our new results
-    std::ofstream cf(cacheFile.native_file_string().c_str());
-    if(!cf) {
-      cms::Exception("FailedToOpen") << "unable to open file '" << cacheFile.native_file_string() << "' for writing.\n"
+  
+    // We finally write the final cache.
+    std::ofstream fcf(temporaryFilename.c_str());
+    if(!fcf) {
+      cms::Exception("FailedToOpen") << "unable to open file '" << temporaryFilename.c_str() << "' for writing.\n"
       "Please check permissions on the file.";
     }
-    CacheParser::write(ltp, cf);
-  }catch(std::exception& iException) {
+    CacheParser::write(old, fcf);
+    rename(temporaryFilename.c_str(), cacheFile.native_file_string().c_str());  
+  } catch(std::exception& iException) {
     std::cerr << "Caught exception " << iException.what() << std::endl;
     returnValue = 1;
   }
 
-    return returnValue;
+  return returnValue;
 }
