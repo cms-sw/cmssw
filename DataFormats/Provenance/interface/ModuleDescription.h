@@ -30,7 +30,7 @@ namespace edm {
 
     ModuleDescription(std::string const& modName,
                       std::string const& modLabel,
-                      boost::shared_ptr<ProcessConfiguration const> procConfig);
+                      ProcessConfiguration const* procConfig);
 
     ModuleDescription(ParameterSetID const& pid,
                       std::string const& modName,
@@ -39,7 +39,7 @@ namespace edm {
     ModuleDescription(ParameterSetID const& pid,
                       std::string const& modName,
                       std::string const& modLabel,
-                      boost::shared_ptr<ProcessConfiguration const> procConfig);
+                      ProcessConfiguration const* procConfig);
 
     ~ModuleDescription();
 
@@ -76,7 +76,7 @@ namespace edm {
     std::string moduleLabel_;
 
     // The process configuration.
-    boost::shared_ptr<ProcessConfiguration const> processConfigurationPtr_;
+    ProcessConfiguration const* processConfigurationPtr_;
   };
 
   inline

@@ -13,7 +13,7 @@ namespace edm {
     parameterSetID_(),
     moduleName_(),
     moduleLabel_(),
-    processConfigurationPtr_(new ProcessConfiguration()) {}
+    processConfigurationPtr_(0) {}
 
   ModuleDescription::ModuleDescription(
 		ParameterSetID const& pid,
@@ -22,13 +22,13 @@ namespace edm {
 			parameterSetID_(pid),
 			moduleName_(modName),
 			moduleLabel_(modLabel),
-			processConfigurationPtr_(new ProcessConfiguration()) {}
+			processConfigurationPtr_(0) {}
 
   ModuleDescription::ModuleDescription(
 		ParameterSetID const& pid,
 		std::string const& modName,
 		std::string const& modLabel,
-		boost::shared_ptr<ProcessConfiguration const> procConfig) :
+		ProcessConfiguration const* procConfig) :
 			parameterSetID_(pid),
 			moduleName_(modName),
 			moduleLabel_(modLabel),
@@ -40,12 +40,12 @@ namespace edm {
 			parameterSetID_(),
 			moduleName_(modName),
 			moduleLabel_(modLabel),
-			processConfigurationPtr_(new ProcessConfiguration()) {}
+			processConfigurationPtr_(0) {}
 
   ModuleDescription::ModuleDescription(
 		std::string const& modName,
 		std::string const& modLabel,
-		boost::shared_ptr<ProcessConfiguration const> procConfig) :
+		ProcessConfiguration const* procConfig) :
 			parameterSetID_(),
 			moduleName_(modName),
 			moduleLabel_(modLabel),
