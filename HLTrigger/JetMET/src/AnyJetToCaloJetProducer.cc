@@ -14,17 +14,16 @@ AnyJetToCaloJetProducer::~AnyJetToCaloJetProducer(){ }
 
 void AnyJetToCaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 {
+  std::auto_ptr<reco::CaloJetCollection> newjets(new reco::CaloJetCollection());
 
   edm::Handle<edm::View<reco::Jet> > jets;
-  iEvent.getByLabel( jetSrc_, jets );
-
-  reco::CaloJetCollection * jetCollectionTmp = new reco::CaloJetCollection();
-  for(edm::View<reco::Jet>::const_iterator i = jets->begin(); i != jets->end(); i++ ) {
-    reco::CaloJet jet(i->p4(), i->vertex(), reco::CaloJet::Specific());
-    jetCollectionTmp->push_back(jet);
+  if (iEvent.getByLabel( jetSrc_, jets )) {
+    for(edm::View<reco::Jet>::const_iterator i = jets->begin(); i != jets->end(); i++ ) {
+      reco::CaloJet jet(i->p4(), i->vertex(), reco::CaloJet::Specific());
+      newjets->push_back(jet);
+    }
   }
 
-  std::auto_ptr<reco::CaloJetCollection> newjets(jetCollectionTmp);
   iEvent.put(newjets);
 
 }
