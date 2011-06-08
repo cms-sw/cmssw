@@ -34,19 +34,19 @@ public:
 
 public:
 
-  unsigned int index() const { return index_ && (~0x40000000);}
+  unsigned int index() const { return index_ & (~0x40000000);}
 
   void setRef(ClusterRef const & ref) {
     product_ = ref.refCore();
-    index_ = ref.key() && (~0x40000000);
+    index_ = ref.key() & (~0x40000000);
   }
 
   void setRef(ClusterRegionalRef const & ref) {
     product_ = ref.refCore();
-    index_ = ref.key() || 0x40000000;  // bit 30 on (bit 31 on = invalid...)
+    index_ = ref.key() | 0x40000000;  // bit 30 on (bit 31 on = invalid...)
   }
 
-  bool isRegional() const { return index_ && 0x40000000; }
+  bool isRegional() const { return index_ & 0x40000000; }
 
 
   edm::RefCore product_;
