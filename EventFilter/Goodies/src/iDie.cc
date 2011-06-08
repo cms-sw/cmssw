@@ -47,6 +47,8 @@ iDie::iDie(xdaq::ApplicationStub *s)
   class_   =getApplicationDescriptor()->getClassName();
   instance_=getApplicationDescriptor()->getInstance();
   hostname_=getApplicationDescriptor()->getContextDescriptor()->getURL();
+  getApplicationDescriptor()->setAttribute("icon", "/evf/images/idieapp.jpg");
+
   
   //soap interface
   xoap::bind(this,&evf::iDie::fsmCallback,"Configure",XDAQ_NS_URI);
@@ -55,15 +57,15 @@ iDie::iDie(xdaq::ApplicationStub *s)
   xoap::bind(this,&evf::iDie::fsmCallback,"Halt",     XDAQ_NS_URI);
 
   // web interface
-  xgi::bind(this,&evf::iDie::defaultWeb,  "Default");
-  xgi::bind(this,&evf::iDie::summaryTable,"summary");
-  xgi::bind(this,&evf::iDie::detailsTable,"details");
-  xgi::bind(this,&evf::iDie::dumpTable,   "dump"   );
-  xgi::bind(this,&evf::iDie::updater,     "updater");
-  xgi::bind(this,&evf::iDie::iChoke,      "iChoke" );
-
-  xgi::bind(this,&evf::iDie::postEntry,       "postEntry");
-  xgi::bind(this,&evf::iDie::postEntryiChoke, "postChoke");
+  xgi::bind(this,&evf::iDie::defaultWeb,               "Default");
+  xgi::bind(this,&evf::iDie::summaryTable,             "summary");
+  xgi::bind(this,&evf::iDie::detailsTable,             "details");
+  xgi::bind(this,&evf::iDie::dumpTable,                "dump"   );
+  xgi::bind(this,&evf::iDie::updater,                  "updater");
+  xgi::bind(this,&evf::iDie::iChoke,                   "iChoke" );
+  xgi::bind(this,&evf::iDie::iChokeMiniInterface,      "iChokeMiniInterface" );
+  xgi::bind(this,&evf::iDie::postEntry,                "postEntry");
+  xgi::bind(this,&evf::iDie::postEntryiChoke,          "postChoke");
   //  gui_->setSmallAppIcon("/evf/images/Hilton.gif");
   //  gui_->setLargeAppIcon("/evf/images/Hilton.gif");
 
@@ -251,71 +253,69 @@ void iDie::dumpTable(xgi::Input *in,xgi::Output *out)
 void iDie::iChokeMiniInterface(xgi::Input *in,xgi::Output *out)
   throw (xgi::exception::Exception)
 {
+  unsigned int i = 0;
+
+  std::cout << "iChoke, last_ls= " << last_ls_ << std::endl;
+  if(last_ls_==0) return;
+  *out << "<div id=\"cls\">" << last_ls_ << "</div>" 
+       << "<div id=\"clr\">" << cpuentries_[last_ls_-1] << "</div>" << std::endl;
+  sorted_indices tmp(cpustat_[last_ls_-1]);
+  //  std::sort(tmp.begin(),tmp.end());// figure out how to remap indices of legenda
+  *out << "<tbody id=\"cpue\">";
+  while(i<nstates_){
+    if(tmp[i]!=0) *out << "<tr><td>" << mapmod_[tmp.ii(i)] << "</td>" << "<td>" 
+		       << float(tmp[i])/float(cpuentries_[last_ls_-1]) << "</td></tr>";
+    i++;
+  }
+  *out << "</tbody>\n";
+  *out << "<tbody id=\"cpui\"><tr><td></td>";
+  unsigned int begin = last_ls_<5 ? 0 : last_ls_-5;
+  for(i=begin; i < last_ls_; i++)
+    *out << "<td>" << i +1 << "</td>";
+  *out << "</tr><tr><td></td>";
+  for(i=begin; i < last_ls_; i++)
+    *out << "<td>" << float(cpustat_[i][2])/float(cpuentries_[i]) << "</td>";
+  *out << "</tr></tbody>\n";
+
+  *out << "<tbody id=\"rate\"><tr><td></td>";
+  begin = last_ls_<5 ? 0 : last_ls_-5;
+  for(i=begin; i < last_ls_; i++)
+    *out << "<td>" << float(trp_[i].eventSummary.totalEventsPassed)/float(trp_[i].eventSummary.totalEvents) << "</td>"; 
+  *out << "</tr>\n<tr><td></td>";
+  for(i=begin; i < last_ls_; i++)
+    *out << "<td>" << trp_[i].eventSummary.totalEvents << "</td>"; 
+  *out << "</tr>\n<tr><td></td>";
+  for(int j = 0; j < trp_[last_ls_-1].trigPathsInMenu; j++)
+    {
+      *out << "<tr><td></td>";
+      for(i=begin; i < last_ls_; i++)
+	*out << "<td>" << trp_[i].trigPathSummaries[j].timesPassed << "("
+	     << trp_[i].trigPathSummaries[j].timesPassedL1 << ")("
+	     << trp_[i].trigPathSummaries[j].timesPassedPs << ")</td>";
+      *out << "<td>" << mappath_[j] << "</td>";
+      *out << "</tr>\n";
+    }
+  for(int j = 0; j < trp_[last_ls_-1].endPathsInMenu; j++)
+    {
+      *out << "<tr><td></td>";
+      for(i=begin; i < last_ls_; i++)
+	*out << "<td>" << trp_[i].endPathSummaries[j].timesPassed << "</td>";
+      *out << "<td>" << mappath_[j+trp_[last_ls_-1].trigPathsInMenu] << "</td>";
+      *out << "</tr>\n";
+    }
+  *out << "</tbody>\n";
 }
 
 //______________________________________________________________________________
 void iDie::iChoke(xgi::Input *in,xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  cgicc::Cgicc cgi(in);
-  unsigned int i = 0;
-//   while(i<mapmod_.size()){
-//     *out << i << " " << mapmod_[i] << std::endl;
-//     ++i;
-//   }
-  std::cout << "iChoke, last_ls= " << last_ls_ << std::endl;
-  if(last_ls_==0) return;
-  *out << "Last ls=" << last_ls_ << "Cpu statistics=" 
-       << cpuentries_[last_ls_-1] << std::endl;
-  *out << "================" << std::endl;
-  sorted_indices tmp(cpustat_[last_ls_-1]);
-  //  std::sort(tmp.begin(),tmp.end());// figure out how to remap indices of legenda
-  while(i<nstates_){
-    if(tmp[i]!=0) *out << mapmod_[tmp.ii(i)] << " " << float(tmp[i])/float(cpuentries_[last_ls_-1]) << std::endl;
-    i++;
-  }
-  *out << "\n\n\n";
-  unsigned int begin = last_ls_<10 ? 0 : last_ls_-10;
-  for(i=begin; i < last_ls_; i++)
-    *out << std::setw(9) << i +1 << " ";
-  *out << std::endl;
-  for(i=begin; i < last_ls_; i++)
-    *out << "----------";
-  *out << std::endl;
-  for(i=begin; i < last_ls_; i++)
-    *out << std::setw(8) << float(cpustat_[i][2])/float(cpuentries_[i]) << " ";
-  *out << std::endl;
-  *out << "\n\n\n";
-  begin = last_ls_<10 ? 0 : last_ls_-10;
-  for(i=begin; i < last_ls_; i++)
-    *out << std::setw(9) << i +1 << " ";
-  *out << std::endl;
-  for(i=begin; i < last_ls_; i++)
-    *out << "----------";
-  *out << std::endl;
-  for(i=begin; i < last_ls_; i++)
-    *out << std::setw(8) << float(trp_[i].eventSummary.totalEventsPassed)/float(trp_[i].eventSummary.totalEvents) << " "; 
-  *out << std::endl;
-  for(i=begin; i < last_ls_; i++)
-    *out << std::setw(8) << trp_[i].eventSummary.totalEvents << " "; 
-  *out << std::endl;
+    *out << "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">" 
+	 << "<html><head><title>" << getApplicationDescriptor()->getClassName()
+	 << getApplicationDescriptor()->getInstance() << "</title>"
+	 << "<meta http-equiv=\"REFRESH\" content=\"0;url=/evf/html/ichokePage.html\">"
+	 << "</head></html>";
 
-  for(int j = 0; j < trp_[last_ls_-1].trigPathsInMenu; j++)
-    {
-      for(i=begin; i < last_ls_; i++)
-	*out << std::setw(8) << trp_[i].trigPathSummaries[j].timesPassed << "("
-	     << trp_[i].trigPathSummaries[j].timesPassedL1 << ")("
-	     << trp_[i].trigPathSummaries[j].timesPassedPs << ") ";
-      *out << mappath_[j];
-      *out << std::endl;
-    }
-  for(int j = 0; j < trp_[last_ls_-1].endPathsInMenu; j++)
-    {
-      for(i=begin; i < last_ls_; i++)
-	*out << std::setw(8) << trp_[i].endPathSummaries[j].timesPassed << " ";
-      *out << mappath_[j+trp_[last_ls_-1].trigPathsInMenu];
-      *out << std::endl;
-    }
 
 
 }
@@ -482,7 +482,7 @@ void iDie::parsePathLegenda(std::string leg)
   boost::tokenizer<boost::char_separator<char> > tokens(leg, sep);
   for (boost::tokenizer<boost::char_separator<char> >::iterator tok_iter = tokens.begin();
        tok_iter != tokens.end(); ++tok_iter){
-    mappath_.push_back((*tok_iter));
+      mappath_.push_back((*tok_iter));
   }
 }
 
