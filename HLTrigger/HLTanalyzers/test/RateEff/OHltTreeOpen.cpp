@@ -10,7 +10,7 @@
 #include "TPRegexp.h"
 
 #include <stdio.h>
-#include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -2062,7 +2062,7 @@ void OHltTree::CheckOpenHlt(
    // hartl 2011-06-08, to be checked
   
    else if (triggerNamePatternMatch(
-         triggerName, 
+         triggerName.Data(), 
          "(OpenHLT_Jet([0-9]+)_CentralJet([0-9]+)_BTagIP){1}$", 
          thresholds))
    {
