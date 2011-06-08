@@ -7845,7 +7845,7 @@ else if (triggerName.CompareTo("Ele25_CaloIdWP80_CaloIsoWP80_TrkIdWP80_TrkIsoWP8
 					int i = eleVector[iele];
 					float dphi = fabs(pfMHTphi-ohElePhi[i]);
 					if (dphi > 3.14159){ dphi = (2.0 * 3.14159) - dphi; }
-					float pfMT = 2.*ohEleEt[i]*pfMHT*(1.-cos(dphi));
+					float pfMT = sqrt(2.*ohEleEt[i]*pfMHT*(1.-cos(dphi)));
 					if (pfMT > 40) {
 						triggerBit[it] = true;
 						break;
@@ -7906,7 +7906,7 @@ else if (triggerName.CompareTo("Ele27_CaloIdWP70_CaloIsoWP70_TrkIdWP70_TrkIsoWP7
 						int i = eleVector[iele];
 						float dphi = fabs(pfMHTphi-ohElePhi[i]);
 						if (dphi > 3.14159){ dphi = (2.0 * 3.14159) - dphi; }
-						float pfMT = 2.*ohEleEt[i]*pfMHT*(1.-cos(dphi));
+						float pfMT = sqrt(2.*ohEleEt[i]*pfMHT*(1.-cos(dphi))); 
 						if (pfMT > 40) {
 							triggerBit[it] = true;
 							break;
