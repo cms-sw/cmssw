@@ -245,8 +245,8 @@ void TopProjector< Top, Bottom >::processCollection( const edm::Handle< std::vec
 /* 		 <<basePtr->eta()<<"," */
 /* 		 <<basePtr->phi()<<std::endl; */
 	
-	//std::cout<<"\t"<<topCollection[i]<<std::endl;
-	//printAncestors( ancestors, bottoms );
+	std::cout<<"\t"<<topCollection[i]<<std::endl;
+	printAncestors( ancestors, bottoms );
       }
   
       maskAncestors( ancestors, masked );
