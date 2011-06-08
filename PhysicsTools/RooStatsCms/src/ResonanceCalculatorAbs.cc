@@ -28,7 +28,7 @@
 int ResonanceCalculatorAbs::printLevel_=1;
 
 ResonanceCalculatorAbs::ResonanceCalculatorAbs()
-  : numPEs_(100), nBinsToDraw_(100), whichTestStatistic_(1), searchStepSize_(1.0), fixedSearchStepSize_(-999), randomSeed_(1), fitStrategy_(2), controlMin_(1.), controlMax_(0.), dataIntegral_(-1), ws_(0)
+  : numPEs_(100), nBinsToDraw_(100), whichTestStatistic_(0), searchStepSize_(1.0), fixedSearchStepSize_(-999), randomSeed_(1), fitStrategy_(2), controlMin_(1.), controlMax_(0.), dataIntegral_(-1), ws_(0)
 {
   // default constructor
 }
