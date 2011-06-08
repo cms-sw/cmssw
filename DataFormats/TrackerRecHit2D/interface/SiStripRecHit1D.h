@@ -10,7 +10,7 @@
 class SiStripRecHit1D : public RecHit1D{
 public:
 
-  SiStripRecHit1D(): RecHit1D()
+  SiStripRecHit1D(): RecHit1D(),
 		     sigmaPitch_(-1.){}
   
   

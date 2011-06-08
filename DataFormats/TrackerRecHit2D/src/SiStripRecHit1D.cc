@@ -22,7 +22,7 @@ SiStripRecHit1D::SiStripRecHit1D(const SiStripRecHit2D* hit2D):
   RecHit1D(hit2D->geographicalId()),
   sigmaPitch_(-1),pos_(hit2D->localPosition()),
   err_(hit2D->localPositionError().xx(),0.,DBL_MAX),
-  cluster_(hit2D->omniCluster()),
+  cluster_(hit2D->omniCluster())
 {}
 
 
@@ -90,7 +90,7 @@ SiStripRecHit1D::sharesInput( const TrackingRecHit* other,
   } else if (otherType == typeid(ProjectedSiStripRecHit2D)) {
     const SiStripRecHit2D* otherCast = & (static_cast<const ProjectedSiStripRecHit2D*>(other)->originalHit());
     // as 'null == null' is true, we can't just "or" the two equality tests: one of the two refs is always null! (gpetrucc)
-    if (cluster_.isNonnull()) {
+    if (cluster().isNonnull()) {
       return (cluster() == otherCast->cluster());
     } else {
       return (cluster_regional() == otherCast->cluster_regional());
