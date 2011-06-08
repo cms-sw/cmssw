@@ -25,17 +25,15 @@ public:
   SiStripRecHit2D( const LocalPoint& pos, const LocalError& err,
 		   const DetId& id,
 		   ClusterRef const& cluster) : 
-    cluster_(cluster),
     BaseSiTrackerRecHit2DLocalPos(pos,err,id),
-    sigmaPitch_(-1.) {}
-
+    sigmaPitch_(-1.), cluster_(cluster) {}
+ 
 
   SiStripRecHit2D(const LocalPoint& pos, const LocalError& err,
 		  const DetId& id,
 		  ClusterRegionalRef const& cluster) :
-    cluster_(cluster),
     BaseSiTrackerRecHit2DLocalPos(pos,err,id),
-    sigmaPitch_(-1.) {}
+    sigmaPitch_(-1.), cluster_(cluster) {}
 						 
   
   virtual SiStripRecHit2D * clone() const {return new SiStripRecHit2D( * this); }
@@ -57,6 +55,8 @@ public:
   
 private:
 
+  /// cache for the matcher....
+  mutable double sigmaPitch_;  // transient....
 
   // DetSetVector ref
   // ClusterRef cluster_;
@@ -66,8 +66,6 @@ private:
   // new game
   OmniClusterRef cluster_;
 
-  /// cache for the matcher....
-  mutable double sigmaPitch_;  // transient....
  
 };
 
