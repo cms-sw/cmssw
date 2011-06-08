@@ -14,9 +14,9 @@ public:
   typedef edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster > ClusterRef;
   typedef edm::Ref< edm::LazyGetter<SiStripCluster>, SiStripCluster, edm::FindValue<SiStripCluster> >  ClusterRegionalRef;
 
-  OmniClusterRef(): index(0x80000000) {}
+  OmniClusterRef(): index_(0x80000000) {}
   explicit OmniClusterRef(ClusterRef const & ref) { setRef(ref); }
-   explicit OmniClusterRef(ClusterRegionalRef const & ref) { setRef(ref); }
+  explicit OmniClusterRef(ClusterRegionalRef const & ref) { setRef(ref); }
 
 
   ClusterRegionalRef cluster_regional()  const { 

@@ -18,8 +18,8 @@ public:
 
   ~SiStripRecHit2D() {} 
 
-  typedef OmniClusterRef::ClusterRef ClusterRef;
-  typedef OmniClusterRef::ClusterRegionalRef;
+  typedef OmniClusterRef::ClusterRef         ClusterRef;
+  typedef OmniClusterRef::ClusterRegionalRef ClusterRegionalRef;
 
 
   SiStripRecHit2D( const LocalPoint& pos, const LocalError& err,
