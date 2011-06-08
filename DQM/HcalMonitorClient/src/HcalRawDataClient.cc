@@ -16,8 +16,8 @@
 /*
  * \file HcalRawDataClient.cc
  * 
- * $Date: 2011/03/21 23:02:03 $
- * $Revision: 1.10 $
+ * $Date: 2011/04/12 18:25:42 $
+ * $Revision: 1.11 $
  * \author J. St. John
  * \brief Hcal Raw Data Client class
  */
@@ -218,7 +218,7 @@ void HcalRawDataClient::endJob(){}
 
 void HcalRawDataClient::stashHDI(int thehash, HcalDetId thehcaldetid) {
   //Let's not allow indexing off the array...
-  if ((thehash<0)||(thehash>(NUMDCCS*NUMSPGS*HTRCHANMAX)))return;
+  if ((thehash<0)||(thehash>=(NUMDCCS*NUMSPGS*HTRCHANMAX)))return;
   //...but still do the job requested.
   hashedHcalDetId_[thehash] = thehcaldetid;
 }
