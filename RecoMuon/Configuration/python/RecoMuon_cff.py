@@ -32,6 +32,7 @@ muonsFromCosmics.TimingFillerParameters.DTTimingParameters.DTsegments = 'dt4DCos
 muonsFromCosmics.TimingFillerParameters.CSCTimingParameters.MatchParameters.DTsegments = 'dt4DCosmicSegments'
 muonsFromCosmics.fillIsolation = False
 muonsFromCosmics.fillGlobalTrackQuality = False
+muonsFromCosmics.fillGlobalTrackRefits = False
 
 #from RecoTracker.Configuration.RecoTrackerNotStandard_cff import *
 #add regional cosmic tracks here
@@ -64,6 +65,7 @@ muonsFromCosmics1Leg.TimingFillerParameters.DTTimingParameters.DTsegments = 'dt4
 muonsFromCosmics1Leg.TimingFillerParameters.CSCTimingParameters.MatchParameters.DTsegments = 'dt4DCosmicSegments'
 muonsFromCosmics1Leg.fillIsolation = False
 muonsFromCosmics1Leg.fillGlobalTrackQuality = False
+muonsFromCosmics1Leg.fillGlobalTrackRefits = False
 
 #muoncosmicreco1leg = cms.Sequence(cosmicMuons1Leg*globalCosmicMuons1Leg*muonsFromCosmics1Leg)
 muoncosmicreco1legSTA = cms.Sequence(CosmicMuonSeed*cosmicMuons1Leg)

@@ -32,6 +32,7 @@ muons = cms.EDProducer("MuonIdProducer",
                                        'tev picky',
                                        'tev dyt'),
     addExtraSoftMuons = cms.bool(False),
+    fillGlobalTrackRefits = cms.bool(True),
 
     # internal
     debugWithTruthMatching = cms.bool(False),

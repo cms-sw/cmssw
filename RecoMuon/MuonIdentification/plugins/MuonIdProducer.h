@@ -20,7 +20,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.25 2011/03/05 00:09:29 slava77 Exp $
+// $Id: MuonIdProducer.h,v 1.26 2011/06/07 17:59:13 bellan Exp $
 //
 //
 
@@ -154,6 +154,7 @@ class MuonIdProducer : public edm::EDProducer {
    std::string jetDepositName_;
 
    bool          fillGlobalTrackQuality_;
+   bool          fillGlobalTrackRefits_ ;
    edm::InputTag globalTrackQualityInputTag_;
 
    bool fillTrackerKink_;
