@@ -31,7 +31,9 @@
  <class name="edm::BranchChildren"/>
  <class name="edm::ProductProvenance"/>
  <class name="std::vector<edm::ProductProvenance>"/>
-  <class name="edm::StoredProductProvenance" ClassVersion="3"/>
+  <class name="edm::StoredProductProvenance" ClassVersion="3">
+   <version ClassVersion="3" checksum="1175457242"/>
+  </class>
   <class name="std::vector<edm::StoredProductProvenance>"/>
  <class name="edm::BranchDescription"/>
  <class name="edm::ParameterSetBlob"/>
