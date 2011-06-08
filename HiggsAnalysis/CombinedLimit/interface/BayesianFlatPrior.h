@@ -12,11 +12,14 @@
 
 class BayesianFlatPrior : public LimitAlgo {
 public:
+  BayesianFlatPrior() ;
   virtual bool run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
   virtual const std::string & name() const {
     static const std::string name("BayesianSimple");
     return name;
   }
+private:
+  static int maxDim_;
 };
 
 #endif

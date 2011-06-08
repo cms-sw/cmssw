@@ -11,10 +11,35 @@
 #include "RooStats/SimpleInterval.h"
 #include "RooStats/ModelConfig.h"
 
+#include <stdexcept>
+#include <iostream>
+
 using namespace RooStats;
+
+int BayesianFlatPrior::maxDim_ = 4;
+
+BayesianFlatPrior::BayesianFlatPrior() :
+    LimitAlgo("BayesianSimple specific options")
+{
+    options_.add_options()
+        ("maxDim", boost::program_options::value<int>(&maxDim_)->default_value(maxDim_), "Maximum number of dimensions to try doing the integration")
+        ;
+}
 
 bool BayesianFlatPrior::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
   RooArgSet  poi(*mc_s->GetParametersOfInterest());
+
+  int dim = poi.getSize();
+  if (withSystematics) dim += mc_s->GetNuisanceParameters()->getSize();
+  if (dim >= maxDim_) {
+    std::cerr << "ERROR: Your model has more parameters than the maximum allowed in the BayesianSimple method. \n" << 
+                 "             N(params) = " << dim << ", maxDim = " << maxDim_ << "\n" <<
+                 "       Please use MarkovChainMC method to compute Bayesian limits instead of BayesianSimple. \n" <<
+                 "       If you really want to run BayesianSimple, change the value of the 'maxDim' option, \n" 
+                 "       but note that it's really not supposed to work for N(params) above 5 or so " << std::endl;
+    throw std::logic_error("Too many parameters for BayesianSimple method. Use MarkovChainMC method to compute Bayesian limits instead.");
+  }
+
   RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
   double rMax = r->getMax();
   std::auto_ptr<RooStats::ModelConfig> mc_noNuis(0);
