@@ -28,6 +28,7 @@ interestingTrackEcalDetIds = cms.EDProducer('InterestingTrackEcalDetIdProducer',
 )
 
 
+
 reducedEcalRecHitsEB = cms.EDProducer("ReducedRecHitCollectionProducer",
     recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     interestingDetIdCollections = cms.VInputTag(
@@ -41,6 +42,7 @@ reducedEcalRecHitsEB = cms.EDProducer("ReducedRecHitCollectionProducer",
             #cms.InputTag("caloRecoTauProducer"),
             #pf
             cms.InputTag("pfElectronInterestingEcalDetIdEB"),
+            cms.InputTag("pfPhotonInterestingEcalDetIdEB"),
             # muons
             cms.InputTag("muonEcalDetIds"),
             # high pt tracks
@@ -61,6 +63,7 @@ reducedEcalRecHitsEE = cms.EDProducer("ReducedRecHitCollectionProducer",
             #cms.InputTag("caloRecoTauProducer"),
             #pf
             cms.InputTag("pfElectronInterestingEcalDetIdEE"),
+            cms.InputTag("pfPhotonInterestingEcalDetIdEE"),
             # muons
             cms.InputTag("muonEcalDetIds"),
             # high pt tracks
