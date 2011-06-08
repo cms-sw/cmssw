@@ -22,9 +22,15 @@ process = cms.Process( 'PAT' )
 ### Data or MC?
 runOnMC = True
 
-### Standard and PF reconstruction
-useStandardPAT = True
-runPF2PAT      = True
+### Standard and PF work flow
+
+# Standard
+runStandardPAT = True
+usePFJets      = True
+useCaloJets    = False
+
+# PF2PAT
+runPF2PAT = True
 
 ### Switch on/off selection steps
 
@@ -79,7 +85,7 @@ from TopQuarkAnalysis.Configuration.patRefSel_refMuJets import *
 ### Particle flow
 ### takes effect only, if 'runPF2PAT' = True
 
-postfix = 'PF' # needs to be a non-empty string, if 'useStandardPAT' = True
+postfix = 'PF' # needs to be a non-empty string, if 'runStandardPAT' = True
 
 # subtract charged hadronic pile-up particles (from wrong PVs)
 # effects also JECs
@@ -237,10 +243,14 @@ process.step0b = process.goodOfflinePrimaryVertexFilter.clone()
 ### PAT/PF2PAT configuration
 ###
 
-if useStandardPAT and runPF2PAT:
+pfSuffix = 'PF'
+if runStandardPAT and runPF2PAT:
   if postfix == '':
     sys.exit( 'ERROR: running standard PAT and PF2PAT in parallel requires a defined "postfix" for PF2PAT' )
-if not useStandardPAT and not runPF2PAT:
+  if usePFJets:
+    if postfix == 'Add' + pfSuffix or postfix == jetAlgo + pfSuffix:
+      sys.exit( 'ERROR: running standard PAT with additional PF jets  and PF2PAT in parallel does not allow for the "postfix" %s'%( postfix ) )
+if not runStandardPAT and not runPF2PAT:
   sys.exit( 'ERROR: standard PAT and PF2PAT are both switched off' )
 
 process.load( "PhysicsTools.PatAlgos.patSequences_cff" )
@@ -249,8 +259,9 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 ### Check JECs
 
 # JEC set
-jecSet   = jecSetBase + 'Calo'
-jecSetPF = jecSetBase + 'PF'
+jecSet      = jecSetBase + 'Calo'
+jecSetAddPF = jecSetBase + pfSuffix
+jecSetPF    = jecSetAddPF
 if usePFnoPU:
   jecSetPF += 'chs'
 
@@ -313,8 +324,29 @@ if runPF2PAT:
   applyPostfix( process, 'isoValElectronWithPhotons', postfix ).deposits.deltaR = pfElectronIsoConeR
   applyPostfix( process, 'pfIsolatedElectronsPF'    , postfix ).combinedIsolationCut = pfElectronCombIsoCut
 
-# remove MC matching, object cleaning, photons and taus
-if useStandardPAT:
+# remove MC matching, object cleaning, objects etc.
+if runStandardPAT:
+  if usePFJets:
+    from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
+    from PhysicsTools.PatAlgos.tools.metTools import addPfMET
+    inputTag   = cms.InputTag( jetAlgo.lower() + pfSuffix + 'Jets' )
+    inputTagMC = cms.InputTag( jetAlgo.lower() + 'GenJets' )
+    addJetCollection( process
+                    , inputTag
+                    , jetAlgo
+                    , pfSuffix
+                    , doJTA            = True
+                    , doBTagging       = True
+                    , jetCorrLabel     = ( jecSetAddPF, jecLevels )
+                    , doType1MET       = False
+                    , doL1Cleaning     = False
+                    , doL1Counters     = True
+                    , genJetCollection = inputTagMC
+                    , doJetID          = True
+                    )
+    addPfMET( process
+            , jetAlgo + pfSuffix
+            )
   if not runOnMC:
     runOnData( process )
   removeSpecificPATObjects( process
@@ -331,8 +363,8 @@ if runPF2PAT:
                           , postfix = postfix
                           ) # includes 'removeCleaning'
 
-# JetCorrFactorsProducer configuration has to be fixed _after_ any call to 'removeCleaning()':
-if useStandardPAT:
+# JetCorrFactorsProducer configuration has to be fixed in standard work flow after a call to 'runOnData()':
+if runStandardPAT:
   process.patJetCorrFactors.payload = jecSet
   process.patJetCorrFactors.levels  = jecLevels
 # additional event content has to be (re-)added _after_ the call to 'removeCleaning()':
@@ -355,7 +387,9 @@ if runOnMC:
 
 from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import *
 
-if useStandardPAT:
+goodPatJetsAddPFLabel = 'goodPatJets' + jetAlgo + pfSuffix
+
+if runStandardPAT:
 
   ### Muons
 
@@ -365,6 +399,17 @@ if useStandardPAT:
   process.tightPatMuons        = tightPatMuons.clone()
   process.step1b               = step1b.clone()
   process.step2                = step2.clone()
+
+  if usePFJets:
+    loosePatMuonsAddPF = loosePatMuons.clone()
+    loosePatMuonsAddPF.checkOverlaps.jets.src = cms.InputTag( goodPatJetsAddPFLabel )
+    setattr( process, 'loosePatMuons' + jetAlgo + pfSuffix, loosePatMuonsAddPF )
+    step1aAddPF = step1a.clone( src = cms.InputTag( 'loosePatMuons' + jetAlgo + pfSuffix ) )
+    setattr( process, 'step1a' + jetAlgo + pfSuffix, step1aAddPF )
+    tightPatMuonsAddPF = tightPatMuons.clone( src = cms.InputTag( 'loosePatMuons' + jetAlgo + pfSuffix ) )
+    setattr( process, 'tightPatMuons' + jetAlgo + pfSuffix, tightPatMuonsAddPF )
+    step1bAddPF = step1b.clone( src = cms.InputTag( 'tightPatMuons' + jetAlgo + pfSuffix ) )
+    setattr( process, 'step1b' + jetAlgo + pfSuffix, step1bAddPF )
 
   ### Jets
 
@@ -380,6 +425,18 @@ if useStandardPAT:
   process.step4b      = step4b.clone()
   process.step4c      = step4c.clone()
   process.step5       = step5.clone()
+
+  if usePFJets:
+    goodPatJetsAddPF = goodPatJets.clone( src = cms.InputTag( 'selectedPatJets' + jetAlgo + pfSuffix ) )
+    setattr( process, goodPatJetsAddPFLabel, goodPatJetsAddPF )
+    step4aAddPF = step4a.clone( src = cms.InputTag( goodPatJetsAddPFLabel ) )
+    setattr( process, 'step4a' + jetAlgo + pfSuffix, step4aAddPF )
+    step4bAddPF = step4b.clone( src = cms.InputTag( goodPatJetsAddPFLabel ) )
+    setattr( process, 'step4b' + jetAlgo + pfSuffix, step4bAddPF )
+    step4cAddPF = step4c.clone( src = cms.InputTag( goodPatJetsAddPFLabel ) )
+    setattr( process, 'step4c' + jetAlgo + pfSuffix, step4cAddPF )
+    step5AddPF = step5.clone( src = cms.InputTag( goodPatJetsAddPFLabel ) )
+    setattr( process, 'step5' + jetAlgo + pfSuffix, step5AddPF )
 
   ### Electrons
 
@@ -456,7 +513,7 @@ process.out.outputCommands.append( 'keep *_goodPatJets*_*_*' )
 ### Selection configuration
 ###
 
-if useStandardPAT:
+if runStandardPAT:
 
   ### Muons
 
@@ -468,12 +525,19 @@ if useStandardPAT:
   process.intermediatePatMuons.preselection = looseMuonCut
 
   process.loosePatMuons.checkOverlaps.jets.deltaR = muonJetsDR
+  if usePFJets:
+    getattr( process, 'loosePatMuons' + jetAlgo + pfSuffix ).checkOverlaps.jets.deltaR = muonJetsDR
 
   process.tightPatMuons.preselection = tightMuonCut
+  if usePFJets:
+    getattr( process, 'tightPatMuons' + jetAlgo + pfSuffix ).preselection = tightMuonCut
 
   ### Jets
 
   process.goodPatJets.preselection = jetCut
+  if usePFJets:
+    getattr( process, goodPatJetsAddPFLabel ).preselection               = jetCutPF
+    getattr( process, goodPatJetsAddPFLabel ).checkOverlaps.muons.deltaR = jetMuonsDRPF
 
   ### Electrons
 
@@ -508,6 +572,46 @@ if runPF2PAT:
 
 
 ###
+### Trigger matching
+###
+
+if addTriggerMatching:
+
+  if runOnMC:
+    triggerObjectSelection = triggerObjectSelectionMC
+  else:
+    triggerObjectSelection = triggerObjectSelectionData
+  ### Trigger matching configuration
+  from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import patTrigger
+  from TopQuarkAnalysis.Configuration.patRefSel_triggerMatching_cfi import patMuonTriggerMatch
+  from PhysicsTools.PatAlgos.tools.trigTools import *
+  if runStandardPAT:
+    triggerProducer = patTrigger.clone()
+    setattr( process, 'patTrigger', triggerProducer )
+    process.triggerMatch = patMuonTriggerMatch.clone( matchedCuts = triggerObjectSelection )
+    switchOnTriggerMatchEmbedding( process
+                                 , triggerMatchers = [ 'triggerMatch' ]
+                                 )
+    removeCleaningFromTriggerMatching( process )
+    process.intermediatePatMuons.src = cms.InputTag( 'selectedPatMuonsTriggerMatch' )
+  if runPF2PAT:
+    triggerProducerPF = patTrigger.clone()
+    setattr( process, 'patTrigger' + postfix, triggerProducerPF )
+    triggerMatchPF = patMuonTriggerMatch.clone( matchedCuts = triggerObjectSelection )
+    setattr( process, 'triggerMatch' + postfix, triggerMatchPF )
+    switchOnTriggerMatchEmbedding( process
+                                 , triggerProducer = 'patTrigger' + postfix
+                                 , triggerMatchers = [ 'triggerMatch' + postfix ]
+                                 , sequence        = 'patPF2PATSequence' + postfix
+                                 , postfix         = postfix
+                                 )
+    removeCleaningFromTriggerMatching( process
+                                     , sequence = 'patPF2PATSequence' + postfix
+                                     )
+    getattr( process, 'intermediatePatMuons' + postfix ).src = cms.InputTag( 'selectedPatMuons' + postfix + 'TriggerMatch' )
+
+
+###
 ### Scheduling
 ###
 
@@ -525,7 +629,7 @@ process.eidCiCSequence = cms.Sequence(
 
 # The additional sequence
 
-if useStandardPAT:
+if runStandardPAT:
   process.patAddOnSequence = cms.Sequence(
     process.intermediatePatMuons
   * process.goodPatJets
@@ -542,35 +646,113 @@ if runPF2PAT:
   setattr( process, 'patAddOnSequence' + postfix, patAddOnSequence )
 
 # The paths
-if useStandardPAT:
-  process.p = cms.Path()
-  if not runOnMC:
-    process.p += process.eventCleaning
-  if useTrigger:
-    process.p += process.step0a
-  process.p += process.goodOfflinePrimaryVertices
-  if useGoodVertex:
-    process.p += process.step0b
-  process.p += process.eidCiCSequence
-  process.p += process.patDefaultSequence
-  process.p += process.patAddOnSequence
-  if useLooseMuon:
-    process.p += process.step1a
-  if useTightMuon:
-    process.p += process.step1b
-  if useMuonVeto:
-    process.p += process.step2
-  if useElectronVeto:
-    process.p += process.step3
-  if use1Jet:
-    process.p += process.step4a
-  if use2Jets:
-    process.p += process.step4b
-  if use3Jets:
-    process.p += process.step4c
-  if use4Jets:
-    process.p += process.step5
-  process.out.SelectEvents.SelectEvents.append( 'p' )
+if runStandardPAT:
+  if useCaloJets:
+    process.p = cms.Path()
+    if not runOnMC:
+      process.p += process.eventCleaning
+    if useTrigger:
+      process.p += process.step0a
+    process.p += process.goodOfflinePrimaryVertices
+    if useGoodVertex:
+      process.p += process.step0b
+    process.p += process.eidCiCSequence
+    process.p += process.patDefaultSequence
+    if usePFJets:
+      process.p.remove( getattr( process, 'patJetCorrFactors'                    + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'jetTracksAssociatorAtVertex'          + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'impactParameterTagInfos'              + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'secondaryVertexTagInfos'              + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'softMuonTagInfos'                     + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'jetBProbabilityBJetTags'              + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'jetProbabilityBJetTags'               + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'trackCountingHighPurBJetTags'         + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'trackCountingHighEffBJetTags'         + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'simpleSecondaryVertexHighEffBJetTags' + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'simpleSecondaryVertexHighPurBJetTags' + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'combinedSecondaryVertexBJetTags'      + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'combinedSecondaryVertexMVABJetTags'   + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'softMuonBJetTags'                     + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'softMuonByPtBJetTags'                 + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'softMuonByIP3dBJetTags'               + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'patJetCharge'                         + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'patJetPartonMatch'                    + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'patJetGenJetMatch'                    + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'patJetPartonAssociation'              + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'patJetFlavourAssociation'             + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'patJets'                              + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'patMETs'                              + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'selectedPatJets'                      + jetAlgo + pfSuffix ) )
+      process.p.remove( getattr( process, 'countPatJets'                         + jetAlgo + pfSuffix ) )
+    process.p += process.patAddOnSequence
+    if useLooseMuon:
+      process.p += process.step1a
+    if useTightMuon:
+      process.p += process.step1b
+    if useMuonVeto:
+      process.p += process.step2
+    if useElectronVeto:
+      process.p += process.step3
+    if use1Jet:
+      process.p += process.step4a
+    if use2Jets:
+      process.p += process.step4b
+    if use3Jets:
+      process.p += process.step4c
+    if use4Jets:
+      process.p += process.step5
+    process.out.SelectEvents.SelectEvents.append( 'p' )
+
+  if usePFJets:
+
+    pAddPF = cms.Path()
+    if not runOnMC:
+      pAddPF += process.eventCleaning
+    if useTrigger:
+      pAddPF += process.step0a
+    pAddPF += process.goodOfflinePrimaryVertices
+    if useGoodVertex:
+      pAddPF += process.step0b
+    pAddPF += process.eidCiCSequence
+    pAddPF += process.patDefaultSequence
+    pAddPF.remove( process.patJetCorrFactors )
+    pAddPF.remove( process.patJetCharge )
+    pAddPF.remove( process.patJetPartonMatch )
+    pAddPF.remove( process.patJetGenJetMatch )
+    pAddPF.remove( process.patJetPartonAssociation )
+    pAddPF.remove( process.patJetFlavourAssociation )
+    pAddPF.remove( process.patJets )
+    pAddPF.remove( process.patMETs )
+    pAddPF.remove( process.selectedPatJets )
+    pAddPF.remove( process.countPatJets )
+    pAddPF += process.patAddOnSequence
+    pAddPF.replace( process.loosePatMuons
+                  , getattr( process, 'loosePatMuons' + jetAlgo + pfSuffix )
+                  )
+    pAddPF.replace( process.tightPatMuons
+                  , getattr( process, 'tightPatMuons' + jetAlgo + pfSuffix )
+                  )
+    pAddPF.replace( process.goodPatJets
+                  , getattr( process, 'goodPatJets' + jetAlgo + pfSuffix )
+                  )
+    if useLooseMuon:
+      pAddPF += getattr( process, 'step1a' + jetAlgo + pfSuffix )
+    if useTightMuon:
+      pAddPF += getattr( process, 'step1b' + jetAlgo + pfSuffix )
+    if useMuonVeto:
+      pAddPF += process.step2
+    if useElectronVeto:
+      pAddPF += process.step3
+    if use1Jet:
+      pAddPF += getattr( process, 'step4a' + jetAlgo + pfSuffix )
+    if use2Jets:
+      pAddPF += getattr( process, 'step4b' + jetAlgo + pfSuffix )
+    if use3Jets:
+      pAddPF += getattr( process, 'step4c' + jetAlgo + pfSuffix )
+    if use4Jets:
+      pAddPF += getattr( process, 'step5' + jetAlgo + pfSuffix )
+    setattr( process, 'p' + jetAlgo + pfSuffix, pAddPF )
+    process.out.SelectEvents.SelectEvents.append( 'p' + jetAlgo + pfSuffix )
 
 if runPF2PAT:
   pPF = cms.Path()
@@ -602,43 +784,3 @@ if runPF2PAT:
     pPF += getattr( process, 'step5' + postfix )
   setattr( process, 'p' + postfix, pPF )
   process.out.SelectEvents.SelectEvents.append( 'p' + postfix )
-
-
-###
-### Trigger matching
-###
-
-if addTriggerMatching:
-
-  if runOnMC:
-    triggerObjectSelection = triggerObjectSelectionMC
-  else:
-    triggerObjectSelection = triggerObjectSelectionData
-  ### Trigger matching configuration
-  from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import patTrigger
-  from TopQuarkAnalysis.Configuration.patRefSel_triggerMatching_cfi import patMuonTriggerMatch
-  from PhysicsTools.PatAlgos.tools.trigTools import *
-  if useStandardPAT:
-    triggerProducer = patTrigger.clone()
-    setattr( process, 'patTrigger', triggerProducer )
-    process.triggerMatch = patMuonTriggerMatch.clone( matchedCuts = triggerObjectSelection )
-    switchOnTriggerMatchEmbedding( process
-                                 , triggerMatchers = [ 'triggerMatch' ]
-                                 )
-    removeCleaningFromTriggerMatching( process )
-    process.intermediatePatMuons.src = cms.InputTag( 'selectedPatMuonsTriggerMatch' )
-  if runPF2PAT:
-    triggerProducerPF = patTrigger.clone()
-    setattr( process, 'patTrigger' + postfix, triggerProducerPF )
-    triggerMatchPF = patMuonTriggerMatch.clone( matchedCuts = triggerObjectSelection )
-    setattr( process, 'triggerMatch' + postfix, triggerMatchPF )
-    switchOnTriggerMatchEmbedding( process
-                                 , triggerProducer = 'patTrigger' + postfix
-                                 , triggerMatchers = [ 'triggerMatch' + postfix ]
-                                 , sequence        = 'patPF2PATSequence' + postfix
-                                 , postfix         = postfix
-                                 )
-    removeCleaningFromTriggerMatching( process
-                                     , sequence = 'patPF2PATSequence' + postfix
-                                     )
-    getattr( process, 'intermediatePatMuons' + postfix ).src = cms.InputTag( 'selectedPatMuons' + postfix + 'TriggerMatch' )
