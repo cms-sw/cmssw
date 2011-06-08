@@ -1,3 +1,8 @@
+2011-06-08  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-16-11
+	* fix bug in discard at end of run
+
 2011-05-20  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-16-10
