@@ -94,10 +94,14 @@ LimitAlgo("HybridNew specific options") {
         ("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value(minimizerAlgo_), "Choice of minimizer used for profiling (Minuit vs Minuit2)")
         ("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer used for profiling")
         ("plot",   boost::program_options::value<std::string>(&plot_), "Save a plot of the result (test statistics distributions or limit scan)")
+        ("frequentist", "Shortcut to switch to Frequentist mode (--generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1)")
     ;
 }
 
 void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
+    if (vm.count("frequentist")) {
+        genNuisances_ = 0; genGlobalObs_ = withSystematics; fitNuisances_ = withSystematics;
+    }
     if (vm.count("singlePoint")) {
         if (doSignificance_) throw std::invalid_argument("HybridNew: Can't use --significance and --singlePoint at the same time");
         rValue_ = vm["singlePoint"].as<float>();
@@ -373,7 +377,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
 
 bool HybridNew::runSinglePoint(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
     RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first()); r->setConstant(true);
-    std::pair<double, double> result = eval(w, mc_s, mc_b, data, rValue_);
+    std::pair<double, double> result = eval(w, mc_s, mc_b, data, rValue_, clsAccuracy_ != 0);
     std::cout << "\n -- Hybrid New -- \n";
     std::cout << (CLs_ ? "CLs = " : "CLsplusb = ") << result.first << " +/- " << result.second << std::endl;
     if (verbose > 1) std::cout << "Total toys: " << perf_totalToysRun_ << std::endl;
@@ -450,7 +454,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     timer.Start();
     {
         CloseCoutSentry sentry(verbose < 3);
-        fitZero.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::NumCPU(fork_?fork_:1)));
+        fitZero.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::NumCPU(fork_?fork_:1), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
     }
     if (verbose > 1) { std::cout << "Zero signal fit" << std::endl; fitZero->Print("V"); }
     if (verbose > 1) { std::cout << "Fitting of the signa hypothesis done in " << timer.RealTime() << " s" << std::endl; }
@@ -458,7 +462,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     timer.Start();
     {
        CloseCoutSentry sentry(verbose < 3);
-       fitMu.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::NumCPU(fork_?fork_:1)));
+       fitMu.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::NumCPU(fork_?fork_:1), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
     }
     if (verbose > 1) { std::cout << "Reference signal fit (r = " << rVal << ")" << std::endl; fitMu->Print("V"); }
     if (verbose > 1) { std::cout << "Fitting of the signa hypothesis done in " << timer.RealTime() << " s" << std::endl; }
