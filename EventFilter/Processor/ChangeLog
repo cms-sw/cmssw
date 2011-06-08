@@ -1,3 +1,8 @@
+2011-06-08 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-10
+	* remove debug flags from BuildFile
+
 2011-06-09 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V02-04-09
