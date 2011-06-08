@@ -180,7 +180,7 @@ void ESIntegrityClient::analyze(void) {
     }
     if (hSLinkCRCErr_) {
       if (hSLinkCRCErr_->GetBinContent(i) > 0) 
-	slinkCRCStatus_[i] = 1;
+	slinkCRCStatus_[i-1] = 1;
     }
     for (int j=0; j<36; ++j) {
       if (hFiberBadStatus_) {
