@@ -228,11 +228,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     }
     if (verbose > 1) { std::cout << "Input workspace '" << workspaceName_ << "': \n"; w->Print("V"); }
     RooRealVar *MH = w->var("MH");
-    if (MH==0) {
-      std::cerr << "Could not find MH var in workspace '" << workspaceName_ << "' in file " << fileToLoad << std::endl;
-      throw std::invalid_argument("Missing MH"); 
+    if (MH!=0) {
+      if (verbose > 1) std::cerr << "Setting variable 'MH' in workspace to the higgs mass " << mass_ << std::endl;
+      MH->setVal(mass_);
     }
-    MH->setVal(mass_);
     mc       = dynamic_cast<RooStats::ModelConfig *>(w->genobj(modelConfigName_.c_str()));
     mc_bonly = dynamic_cast<RooStats::ModelConfig *>(w->genobj(modelConfigNameB_.c_str()));
     if (mc == 0) {  
