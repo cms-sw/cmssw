@@ -59,9 +59,8 @@ FUShmDQMOutputService::FUShmDQMOutputService(const edm::ParameterSet &pset,
   , updateNumber_(0)
   , shmBuffer_(0)
   , nbUpdates_(0)
+  , input("INPUT")
   , dqm("DQM")
-  , in("INPUT")
-
 {
 
   // specify the routine to be called after event processing.  This routine
@@ -156,7 +155,7 @@ void FUShmDQMOutputService::postEndLumi(edm::LuminosityBlock const &lb, edm::Eve
   evf::MicroStateService *mss = 0;
   try{
     mss = edm::Service<evf::MicroStateService>().operator->();
-    if(mss) mss->setMicroState(dqm);
+    if(mss) mss->setMicroState(&dqm);
   }
   catch(...) { 
     edm::LogError("FUShmDQMOutputService")<< "exception when trying to get service MicroStateService";
@@ -198,7 +197,7 @@ void FUShmDQMOutputService::postEndLumi(edm::LuminosityBlock const &lb, edm::Eve
     {
 //       std::cout << getpid() << ": :" //<< gettid() 
 // 		<< ":DQMOutputService skipping update for lumiSection " << thisLumiSection << std::endl;
-      if(mss) mss->setMicroState(in);
+      if(mss) mss->setMicroState(&input);
       return;
     }
 //   std::cout << getpid() << ": :" //<< gettid() 
@@ -292,7 +291,7 @@ void FUShmDQMOutputService::postEndLumi(edm::LuminosityBlock const &lb, edm::Eve
     writeShmDQMData(dqmMsgBuilder);
 //     std::cout << getpid() << ": :" // << gettid() 
 // 	      << ":DQMOutputService DONE sending update for lumiSection " << thisLumiSection << std::endl;
-    if(mss) mss->setMicroState(in);
+    if(mss) mss->setMicroState(&input);
 
   }
   
