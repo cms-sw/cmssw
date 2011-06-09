@@ -1,8 +1,8 @@
 # Auto generated configuration file
 # using: 
-# Revision: 1.303.2.3 
-# Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: skim -s SKIM:LogError --data --conditions FT_R_42_V10A::All --python_filenam skim_MuOnia.py --magField AutoFromDBCurrent --no_exec
+# Revision: 1.303.2.7 
+# Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
+# with command line options: skim -s SKIM:LogError --data --conditions None --python_filenam skim_MuOnia.py --magField AutoFromDBCurrent --no_exec
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('SKIM')
@@ -32,7 +32,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.303.2.3 $'),
+    version = cms.untracked.string('$Revision: 1.303.2.7 $'),
     annotation = cms.untracked.string('skim nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -49,11 +49,12 @@ process.SKIMStreamLogError = cms.OutputModule("PoolOutputModule",
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('LogError'),
         dataTier = cms.untracked.string('RAW-RECO')
-    )
+    ),
+    eventAutoFlushCompressedSize = cms.untracked.int32(5242880)
 )
 
 # Other statements
-process.GlobalTag.globaltag = 'FT_R_42_V10A::All'
+process.GlobalTag.globaltag = 'None'
 
 # Path and EndPath definitions
 process.SKIMStreamLogErrorOutPath = cms.EndPath(process.SKIMStreamLogError)
