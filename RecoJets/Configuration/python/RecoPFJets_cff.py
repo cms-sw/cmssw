@@ -17,7 +17,8 @@ ca6PFJets = ca4PFJets.clone( rParam = 0.6 )
 #compute areas for Fastjet PU subtraction  
 kt6PFJets.doRhoFastjet = True
 kt6PFJets.doAreaFastjet = True
-kt6PFJets.voronoiRfact = 0.9
+#use active areas and not Voronoi tessellation for the moment
+#kt6PFJets.voronoiRfact = 0.9
 ak5PFJets.doAreaFastjet = True
 ak7PFJets.doAreaFastjet = True
 
