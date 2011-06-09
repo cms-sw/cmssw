@@ -169,9 +169,14 @@ bool SherpaHadronizer::generatePartonsAndHadronize()
     //convert it to HepMC2
     SHERPA::Input_Output_Handler* ioh = Generator.GetIOHandler();
     SHERPA::HepMC2_Interface* hm2i = ioh->GetHepMC2Interface();
-    HepMC::GenEvent* evt = hm2i->GenEvent();
-    //ugly!! a hard copy, since sherpa deletes the GenEvent internal
-    resetEvent(new HepMC::GenEvent (*evt));         
+    //get the event weight from blobs
+    ATOOLS::Blob_List* blobs = Generator.GetEventHandler()-> GetBlobs();
+    ATOOLS::Blob * sp(blobs->FindFirst(ATOOLS::btp::Signal_Process));
+    double weight((*sp)["Weight"]->Get<double>());
+    //create and empty event and then hand it to SherpaIOHandler to fill it
+    HepMC::GenEvent* evt = new HepMC::GenEvent();
+    hm2i->Sherpa2HepMC(blobs, *evt, weight);
+    resetEvent(evt);         
     return true;
   }
   else {
