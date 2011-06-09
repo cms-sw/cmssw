@@ -1773,7 +1773,7 @@ bool isFatJetMassBTag(TString triggerName, vector<double> &thresholds)
 
 bool isJetX_BTagIPTrigger(TString triggerName, vector<double> &thresholds)
 {
-  TString pattern = "(OpenHLT_Jet([0-9]+)_BTagIP){1}$";
+  TString pattern = "(OpenHLT_Jet([0-9]+)_CentralJet30_BTagIP){1}$";
   TPRegexp matchThreshold(pattern);
 
   if (matchThreshold.MatchB(triggerName))
@@ -2058,46 +2058,6 @@ void OHltTree::CheckOpenHlt(
 	}
     }
   
-   /*  JetX_CentralJetX_BTagIP  */
-   // hartl 2011-06-08, to be checked
-  
-   else if (triggerNamePatternMatch(
-         triggerName.Data(), 
-         "(OpenHLT_Jet([0-9]+)_CentralJet([0-9]+)_BTagIP){1}$", 
-         thresholds))
-   {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second>0)
-      {
-         if (prescaleResponse(menu, cfg, rcounter, it) )
-         {
-            double threshJet=        thresholds[0];
-            double threshCentralJet= thresholds[1];
-            
-            if (OpenHlt1CorJetPassed(threshJet) == 1)
-            {
-               int rc = 0;
-               int max = (NohBJetL2Corrected > 6) ? 6 : NohBJetL2Corrected;
-               for (int i = 0; i < max; i++)
-               {
-                  if (ohBJetL2CorrectedEt[i] > threshCentralJet
-                        && fabs(ohBJetL2CorrectedEta[i]) < 3.0)
-                  {
-                     if (ohBJetIPL3Tag[i] > 4.0)
-                     { 
-                        rc++;
-                     }
-                  }
-               }
-               if (rc >= 1)
-               {
-                  triggerBit[it] = true;
-               }
-            }
-         }
-      }
-   }
-	
-	
   /* DoubleJetX(U)_ForwardBackward */
 	
   else if (isDoubleJetXU_ForwardBackwardTrigger(triggerName, thresholds))
@@ -3022,7 +2982,7 @@ void OHltTree::CheckOpenHlt(
 	 }
      }
 
-/// SingleJet BTAG
+   /// SingleJet BTAG
    else if (isJetX_BTagIPTrigger(triggerName, thresholds))
    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -3031,32 +2991,29 @@ void OHltTree::CheckOpenHlt(
          {
             if (OpenHlt1CorJetPassed(thresholds[0])>=1)
             {
-	      int rc = 0;
-	      int max = (NohBJetL2Corrected > 2) ? 2 : NohBJetL2Corrected;
-	      for (int i = 0; i < max; i++)
-		{
+               int rc = 0;
+               int max = (NohBJetL2Corrected > 2) ? 2 : NohBJetL2Corrected;
+               for (int i = 0; i < max; i++)
+               {
                   if (ohBJetL2CorrectedEt[i] > thresholds[0])
-		    { // ET cut 
-		      if (ohBJetIPL25Tag[i] > 2.5)
-			{ // Level 2.5 b tag 
-			  if (ohBJetIPL3Tag[i] > 3.5)
-			    { // Level 3 b tag 
-			      rc++;
-			    }
-			}
-		    }
-		}
-	      if (rc >= 1)
-		{
-		  triggerBit[it] = true;
-		}
-	    }
-	 }
+                  { // ET cut 
+                     if (ohBJetIPL25Tag[i] > 2.5)
+                     { // Level 2.5 b tag 
+                        if (ohBJetIPL3Tag[i] > 3.5)
+                        { // Level 3 b tag 
+                           rc++;
+                        }
+                     }
+                  }
+               }
+               if (rc >= 1)
+               {
+                  triggerBit[it] = true;
+               }
+            }
+         }
       }
    }
-
-
-
 	
   /****BTagIP_HTX************/
 	
