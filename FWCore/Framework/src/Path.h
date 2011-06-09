@@ -147,7 +147,7 @@ namespace edm {
     //Create the PathSignalSentry before the RunStopwatch so that
     // we only record the time spent in the path not from the signal
     int nwrwue = -1;
-    std::auto_ptr<PathSignalSentry<T> > signaler(new PathSignalSentry<T>(actReg_.get(), name_, nwrwue, state_));
+    PathSignalSentry<T> signaler(actReg_.get(), name_, nwrwue, state_);
 
     // A RunStopwatch, but only if we are processing an event.
     RunStopwatch stopwatch(T::isEvent_ ? stopwatch_ : RunStopwatch::StopwatchPointer());
