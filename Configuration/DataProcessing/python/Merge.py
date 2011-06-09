@@ -23,6 +23,7 @@ def mergeProcess(*inputFiles, **options):
     supported options:
 
     - process_name : name of the procee, defaults to Merge
+    - dqm_format   : specifies that input and output file format should be DQM IO
     - output_file  : sets the output file name
     - output_lfn   : sets the output LFN
 
@@ -34,7 +35,8 @@ def mergeProcess(*inputFiles, **options):
     outputFilename = options.get("output_file", "Merged.root")
     outputLFN = options.get("output_lfn", None)
     dropDQM = options.get("drop_dqm", False)
-
+    dqmFormat = options.get("dqm_format", False)
+    
     #  //
     # // build process
     #//
@@ -43,17 +45,21 @@ def mergeProcess(*inputFiles, **options):
     #  //
     # // input source
     #//
-    process.source = Source("PoolSource")
+    if dqmFormat:
+        process.source = Source("DQMRootSource")
+        process.Merged = OutputModule("DQMRootOutputModule")
+    else:
+        process.source = Source("PoolSource")
+        process.Merged = OutputModule("PoolOutputModule")
+        if dropDQM:
+            process.source.inputCommands = CfgTypes.untracked.vstring('keep *','drop *_EDMtoMEConverter_*_*')
     process.source.fileNames = CfgTypes.untracked(CfgTypes.vstring())
     for entry in inputFiles:
         process.source.fileNames.append(str(entry))
-    if dropDQM:
-        process.source.inputCommands = CfgTypes.untracked.vstring('keep *','drop *_EDMtoMEConverter_*_*')
-
+ 
     #  //
     # // output module
     #//
-    process.Merged = OutputModule("PoolOutputModule")
     process.Merged.fileName = CfgTypes.untracked(CfgTypes.string(
         outputFilename))
 
