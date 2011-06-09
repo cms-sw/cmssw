@@ -39,6 +39,7 @@ namespace ora {
 
       Reflex::Type m_objectType;
       MappingElement& m_mappingElement;
+      int m_columnIndexes[2];
       ContainerSchema& m_schema;
       DataElement* m_dataElement;
       IRelationalData* m_relationalData;
@@ -90,6 +91,7 @@ namespace ora {
 
       Reflex::Type m_objectType;
       MappingElement& m_mappingElement;
+      int m_columnIndexes[2];
       ContainerSchema& m_schema;
       DataElement* m_dataElement;
       IRelationalData* m_relationalData;

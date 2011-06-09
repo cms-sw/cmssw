@@ -12,14 +12,16 @@
 
 namespace ora {
 
-  bool existAttribute(const std::string& attributeName,
-                      const coral::AttributeList& data){
-    bool found = false;
+  int existAttribute(const std::string& attributeName,
+		     const coral::AttributeList& data){
+    int ret = -1;
+    int index = 0;
     for(coral::AttributeList::const_iterator iAttr = data.begin();
-        iAttr!=data.end() && !found; ++iAttr){
-      if( iAttr->specification().name() == attributeName ) found = true;
+        iAttr!=data.end() && (ret==-1); ++iAttr){
+      if( iAttr->specification().name() == attributeName ) ret = index;
+      index++;
     }
-    return found;
+    return ret;
   }
 
   char* conditionOfType( ConditionType condType ){
@@ -38,45 +40,60 @@ ora::InputRelationalData::InputRelationalData():
 ora::InputRelationalData::~InputRelationalData(){
 }
 
-void ora::InputRelationalData::addId(const std::string& columnName){
-  if(!existAttribute( columnName, m_data )){
+int ora::InputRelationalData::addId(const std::string& columnName){
+  int index = existAttribute( columnName, m_data );
+  if(index == -1){
     m_data.extend<int>( columnName );
+    index = m_data.size()-1;
     if(!m_setClause.empty()) m_setClause += ", ";
     m_setClause += ( columnName +"= :"+columnName );
   }
+  return index;
 }
 
-void ora::InputRelationalData::addData(const std::string& columnName,
-                                       const std::type_info& columnType ){
-  if(!existAttribute( columnName, m_data )){
+int ora::InputRelationalData::addData(const std::string& columnName,
+				      const std::type_info& columnType ){
+  int index = existAttribute( columnName, m_data );
+  if(index == -1){
     m_data.extend( columnName, columnType );
+    index = m_data.size()-1;
     if(!m_setClause.empty()) m_setClause += ", ";
     m_setClause += ( columnName +"= :"+columnName );
   }
+  return index;
 }
 
-void ora::InputRelationalData::addBlobData(const std::string& columnName){
-  if(!existAttribute( columnName, m_data )){
+int ora::InputRelationalData::addBlobData(const std::string& columnName){
+  int index = existAttribute( columnName, m_data );
+  if(index == -1){
     m_data.extend<coral::Blob>( columnName );
+    index = m_data.size()-1;
     if(!m_setClause.empty()) m_setClause += ", ";
     m_setClause += ( columnName +"= :"+columnName );
   }
+  return index;
 }
 
-void ora::InputRelationalData::addWhereId( const std::string& columnName ){
-  if(!existAttribute( columnName, m_data )){
+int ora::InputRelationalData::addWhereId( const std::string& columnName ){
+  int index = existAttribute( columnName, m_data );
+  if(index == -1){
     m_data.extend<int>( columnName );
+    index = m_data.size()-1;
   }
   if(!m_whereClause.empty()) m_whereClause += " AND ";
   m_whereClause += ( columnName +"= :"+columnName );
+  return index;
 }
 
-void ora::InputRelationalData::addWhereId( const std::string& columnName, ConditionType condType ){
-  if(!existAttribute( columnName, m_data )){
+int ora::InputRelationalData::addWhereId( const std::string& columnName, ConditionType condType ){
+  int index = existAttribute( columnName, m_data );
+  if( index == -1 ){
     m_data.extend<int>( columnName );
+    index = m_data.size()-1;
     if(!m_whereClause.empty()) m_whereClause += " AND ";
     m_whereClause += ( columnName +conditionOfType(condType)+" :"+columnName );
   }
+  return index;
 }
 
 coral::AttributeList& ora::InputRelationalData::data(){
@@ -255,31 +272,43 @@ void ora::SelectOperation::clear(){
   m_cursor = 0;
 }
 
-void ora::SelectOperation::addId(const std::string& columnName){
-  if(m_spec->index( columnName )==-1){
+int ora::SelectOperation::addId(const std::string& columnName){
+  int idx = m_spec->index( columnName );
+  if( idx == -1){
     m_spec->extend< int >( columnName );
+    idx = m_spec->size()-1;
   }
+  return idx;
 }
 
-void ora::SelectOperation::addData(const std::string& columnName,
-                                   const std::type_info& columnType ){
-  if(m_spec->index( columnName )==-1){
+int ora::SelectOperation::addData(const std::string& columnName,
+				  const std::type_info& columnType ){
+  int idx = m_spec->index( columnName );
+  if( idx == -1){
     m_spec->extend( columnName, columnType );
+    idx = m_spec->size()-1;
   }
+  return idx;
 }
 
-void ora::SelectOperation::addBlobData(const std::string& columnName ){
-  if(m_spec->index( columnName )==-1){
+int ora::SelectOperation::addBlobData(const std::string& columnName ){
+  int idx = m_spec->index( columnName );
+  if( idx == -1){
     m_spec->extend<coral::Blob>( columnName );
+    idx = m_spec->size()-1;
   }
+  return idx;
 }
 
-void ora::SelectOperation::addWhereId( const std::string& columnName ){
-  if(!existAttribute( columnName, m_whereData )){
+int ora::SelectOperation::addWhereId( const std::string& columnName ){
+  int index = existAttribute( columnName, m_whereData );
+  if( index == -1){
     m_whereData.extend<int>( columnName );
+    index = m_whereData.size()-1;
     if(!m_whereClause.empty()) m_whereClause += " AND ";
     m_whereClause += ( columnName +"= :"+columnName );
   }
+  return index;
 }
 
 coral::AttributeList& ora::SelectOperation::data(){

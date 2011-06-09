@@ -47,24 +47,24 @@ ora::InsertCache& ora::MultiRecordInsertOperation::setUp( int ){
   return *m_bulkInserts.back(); 
 }
 
-void ora::MultiRecordInsertOperation::addId( const std::string& columnName ){
-  m_relationalData.addId( columnName );
+int ora::MultiRecordInsertOperation::addId( const std::string& columnName ){
   m_spec.add( columnName, typeid(int) );
+  return m_relationalData.addId( columnName );
 }
 
-void ora::MultiRecordInsertOperation::addData( const std::string& columnName, 
+int ora::MultiRecordInsertOperation::addData( const std::string& columnName, 
                                          const std::type_info& columnType ){
-  m_relationalData.addData( columnName, columnType );
   m_spec.add( columnName, columnType );
+  return m_relationalData.addData( columnName, columnType );
 }
 
-void ora::MultiRecordInsertOperation::addBlobData(const std::string& columnName){
-  m_relationalData.addBlobData( columnName );
+int ora::MultiRecordInsertOperation::addBlobData(const std::string& columnName){
   m_spec.add( columnName, typeid(coral::Blob) );
+  return m_relationalData.addBlobData( columnName );
 }
     
-void ora::MultiRecordInsertOperation::addWhereId( const std::string& columnName ){
-  m_relationalData.addWhereId( columnName );
+int ora::MultiRecordInsertOperation::addWhereId( const std::string& columnName ){
+  return m_relationalData.addWhereId( columnName );
 }
 
 coral::AttributeList& ora::MultiRecordInsertOperation::data(){

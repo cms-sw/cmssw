@@ -27,7 +27,8 @@ namespace ora {
     private:
 
       Reflex::Type m_objectType;
-      const std::vector<std::string>& m_columns;
+      MappingElement& m_mapping;
+      int m_columnIndexes[2];
       ContainerSchema& m_schema;
       DataElement* m_dataElement;
       DataElement* m_dataElemOId0;

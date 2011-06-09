@@ -11,13 +11,10 @@
 ora::PrimitiveStreamerBase::PrimitiveStreamerBase( const Reflex::Type& objectType,
                                                    MappingElement& mapping ):
   m_objectType( objectType ),
-  m_columnName(""),
+  m_mapping(mapping),
+  m_columnIndex(-1),
   m_dataElement( 0 ),
-  m_relationalData( 0 ){
-  
-  if( mapping.columnNames().size() ){
-    m_columnName = mapping.columnNames()[0];
-  }
+  m_relationalData( 0 ){  
 }
 
 ora::PrimitiveStreamerBase::~PrimitiveStreamerBase(){
@@ -25,17 +22,17 @@ ora::PrimitiveStreamerBase::~PrimitiveStreamerBase(){
 
 bool ora::PrimitiveStreamerBase::buildDataElement(DataElement& dataElement,
                                                   IRelationalData& relationalData){
-    
-  if( m_columnName.empty() ){
-    throwException( "Column name not found ",
+  if( m_mapping.columnNames().size()==0 ){
+    throwException( "The mapping element does not contain columns.",
                     "PrimitiveStreamerBase::buildDataElement");
   }
-  
-  m_dataElement = &dataElement;
+
   const std::type_info* attrType = &m_objectType.TypeInfo();
   if(m_objectType.IsEnum()) attrType = &typeid(int);
   if(ClassUtils::isTypeString( m_objectType )) attrType = &typeid(std::string);
-  relationalData.addData( m_columnName, *attrType );
+  std::string columnName = m_mapping.columnNames()[0];
+  m_columnIndex = relationalData.addData( columnName, *attrType );
+  m_dataElement = &dataElement;
   m_relationalData = &relationalData;
   return true;
 }
@@ -46,7 +43,7 @@ void ora::PrimitiveStreamerBase::bindDataForUpdate( const void* data ){
                     "PrimitiveStreamerBase::bindDataForUpdate");
   }
   void* dataElementAddress = m_dataElement->address( data );
-  coral::Attribute& relDataElement = m_relationalData->data()[ m_columnName ];
+  coral::Attribute& relDataElement = m_relationalData->data()[ m_columnIndex ];
   relDataElement.setValueFromAddress( dataElementAddress );
   if(!relDataElement.isValidData()){
     throwException("Data provided for column \""+
@@ -62,7 +59,7 @@ void ora::PrimitiveStreamerBase::bindDataForRead( void* data ){
                     "PrimitiveStreamerBase::bindDataForRead");
   }
   void* dataElementAddress = m_dataElement->address( data );
-  coral::Attribute& relDataElement = m_relationalData->data()[ m_columnName ];
+  coral::Attribute& relDataElement = m_relationalData->data()[ m_columnIndex ];
   relDataElement.copyValueToAddress( dataElementAddress );
 }
 

@@ -21,7 +21,6 @@ int main( int argc, char** argv ){
     //std::string connStr( "sqlite_file:test.db" );
     ora::Serializer serializer( "ORA_TEST" );
     serializer.lock( connStr, std::string(argv[0]) );
-    //db.configuration().setMessageVerbosity( coral::Debug );
     db.connect( connStr );
     ora::ScopedTransaction trans0( db.transaction() );
     trans0.start( false );

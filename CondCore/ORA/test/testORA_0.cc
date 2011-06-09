@@ -19,7 +19,6 @@ int main( int argc, char** argv){
     ora::Serializer serializer( "ORA_TEST" );
     serializer.lock( connStr, std::string(argv[0]) );
     ora::Database db;
-    //db.configuration().setMessageVerbosity( coral::Debug );
     db.connect( connStr );
     ora::ScopedTransaction trans0( db.transaction() );
     trans0.start( false );

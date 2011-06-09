@@ -31,13 +31,14 @@ namespace ora {
       }
 
     void read( const std::vector<int>& fullId, void* destinationAddress){
-     m_reader.select( fullId[0] );
+      m_reader.select( fullId[0] );
       std::vector<int> recordId;
       for(size_t i=1;i<fullId.size();i++) {
          recordId.push_back( fullId[i] );
       }
       m_reader.setRecordId(recordId);
       m_reader.read( destinationAddress );
+      m_reader.clear();
     } 
 
     private:
@@ -268,6 +269,7 @@ namespace ora {
         }
 
         m_arrayHandler->finalize( address );
+	m_query->clear();
       }
 
     private:

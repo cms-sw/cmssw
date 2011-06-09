@@ -1,6 +1,23 @@
 #include "CondCore/ORA/interface/Configuration.h"
 #include "CondCore/ORA/interface/IBlobStreamingService.h"
 #include "CondCore/ORA/interface/IReferenceHandler.h"
+// 
+#include <cstdlib>
+#include <string.h>
+
+static const char* CORAL_MSG_LEVEL = "CORAL_MSG_LEVEL";
+coral::MsgLevel coralMessageLevel( const char* envVar ){
+  coral::MsgLevel ret = coral::Nil;
+  if( ::strcmp(envVar,"VERBOSE")==0 || ::strcmp(envVar,"Verbose")==0 ) ret = coral::Verbose;
+  if( ::strcmp(envVar,"DEBUG")==0 || ::strcmp(envVar,"Debug")==0 ) ret = coral::Debug;
+  if( ::strcmp(envVar,"INFO")==0 || ::strcmp(envVar,"Info")==0 ) ret = coral::Info;
+  if( ::strcmp(envVar,"WARNING")==0 || ::strcmp(envVar,"Warning")==0 ) ret = coral::Warning;
+  if( ::strcmp(envVar,"ERROR")==0 || ::strcmp(envVar,"Error")==0 ) ret = coral::Error;
+  if( ::strcmp(envVar,"FATAL")==0 || ::strcmp(envVar,"Fatal")==0 ) ret = coral::Fatal;
+  if( ::strcmp(envVar,"ALWAYS")==0 || ::strcmp(envVar,"Always")==0 ) ret = coral::Always;
+  if( ::strcmp(envVar,"NUMLEVELS")==0 || ::strcmp(envVar,"NumLevels")==0 ) ret = coral::NumLevels;
+  return ret;
+}
 
 std::string ora::Configuration::automaticDatabaseCreation(){
   static std::string s_automaticDatabaseCreation("ORA_AUTOMATIC_DATABASE_CREATION");
@@ -22,8 +39,11 @@ ora::Configuration::Configuration():
   m_referenceHandler(),
   m_properties(){
   
-  //coral::MessageStream::setMsgVerbosity( coral::Info );
-
+  const char* envVar = ::getenv( CORAL_MSG_LEVEL );
+  if( envVar ){
+    coral::MsgLevel level = coralMessageLevel( envVar );
+    if( level != coral::Nil ) coral::MessageStream::setMsgVerbosity( coralMessageLevel( envVar ) );
+  }
 }
 
 ora::Configuration::~Configuration(){

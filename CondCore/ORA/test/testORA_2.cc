@@ -17,7 +17,6 @@ int main( int argc, char** argv ){
     std::string pathenv(std::string("CORAL_AUTH_PATH=")+authpath);
     ::putenv(const_cast<char*>(pathenv.c_str()));
     ora::Database db;
-    //db.configuration().setMessageVerbosity( coral::Debug );
     //std::string connStr( "sqlite_file:test.db" );
     std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_UNIT_TESTS" );
     ora::Serializer serializer( "ORA_TEST" );

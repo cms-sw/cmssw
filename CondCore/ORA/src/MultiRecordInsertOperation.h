@@ -31,10 +31,10 @@ namespace ora {
     InsertCache& setUp( int rowCacheSize );
 
     public:
-    void addId( const std::string& columnName );
-    void addData( const std::string& columnName, const std::type_info& columnType );
-    void addBlobData(const std::string& columnName);
-    void addWhereId( const std::string& columnName );
+    int addId( const std::string& columnName );
+    int addData( const std::string& columnName, const std::type_info& columnType );
+    int addBlobData(const std::string& columnName);
+    int addWhereId( const std::string& columnName );
     coral::AttributeList& data();
     coral::AttributeList& whereData();
     std::string& whereClause();
