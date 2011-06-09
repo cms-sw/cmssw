@@ -104,6 +104,13 @@ public:
       const edm::Handle<reco::SuperClusterCollection>        & electronHFClusterHandle, 
       const edm::Handle<reco::RecoEcalCandidateCollection>   & electronHFElectronHandle,  
       const edm::Handle<reco::HFEMClusterShapeAssociationCollection> & electronHFClusterAssociation,  
+      const edm::Handle<reco::RecoEcalCandidateCollection>   & activityECAL,   
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & activityEcalIsoMap,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & activityHcalIsoMap,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & activityTrackIsoMap,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & activityR9Map,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & activityR9IDMap,
+      const edm::Handle<reco::RecoEcalCandidateIsolationMap> & activityHoverEHMap,
       TTree* tree);
 
 private:
@@ -182,15 +189,19 @@ private:
   float *photonpt, *photonphi, *photoneta, *photonet, *photone;
   float *photontrkiso, *photonecaliso, *photonhcaliso, *photonhovere, *photonClusShap, *photonr9id;
 
+  float *hecalactivet, *hecalactiveta, *hecalactivphi, *hecalactiveiso, *hecalactivhiso, *hecalactivtiso, *hecalactivhovereh;
   float *hphotet, *hphoteta, *hphotphi, *hphoteiso, *hphothiso, *hphottiso, *hphothovereh;
   float *heleet, *heleeta, *helephi, *helevtxz, *heleE, *helep, *helehiso, *heletiso, *helehovereh, *heleeiso;
-  float *hphotClusShap, *heleClusShap, *heleDeta, *heleDphi;
-  float *hphotR9, *heleR9, *hphotR9ID, *heleR9ID;
-  int *hphotl1iso, *helel1iso, *helePixelSeeds;
+  //float *hphotClusShap, *heleClusShap, *heleDeta, *heleDphi;
+  //float *hphotR9, *heleR9, *hphotR9ID, *heleR9ID;
+  //int *hphotl1iso, *helel1iso, *helePixelSeeds;
+  float *hecalactivClusShap,*hphotClusShap, *heleClusShap, *heleDeta, *heleDphi;
+  float *hecalactivR9, *hphotR9, *heleR9, *hecalactivR9ID, *hphotR9ID, *heleR9ID;
+  int *hecalactivl1iso,*hphotl1iso, *helel1iso, *helePixelSeeds;
   int *eleId, *elNLostHits;//eleId = RL  + 2*RT + 4*L +  4*T  //elNLostHits = conversion rejection  
   bool *elIsEcalDriven;  
   int *heleNewSC;
-  int nele, nphoton, nhltgam, nhltele, nhlthfele, nhlthfeclus;
+  int nele, nphoton, nhltecalactiv, nhltgam, nhltele, nhlthfele, nhlthfeclus;
 
   float *hhfelept, *hhfeleeta, *hhfclustere9e25, *hhfcluster2Dcut, *hhfclustereta, *hhfclusterphi; 
 

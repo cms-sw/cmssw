@@ -89,6 +89,18 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
 	hphothovereh      = new float[kMaxhPhot];
 	hphotR9ID         = new float[kMaxhPhot];
 
+  hecalactivet           = new float[kMaxhPhot];
+  hecalactiveta          = new float[kMaxhPhot];
+  hecalactivphi          = new float[kMaxhPhot];
+  hecalactiveiso         = new float[kMaxhPhot];
+  hecalactivhiso         = new float[kMaxhPhot];
+  hecalactivtiso         = new float[kMaxhPhot];
+  hecalactivl1iso        = new int[kMaxhPhot];
+  hecalactivClusShap     = new float[kMaxhPhot];
+  hecalactivR9           = new float[kMaxhPhot]; 
+  hecalactivhovereh      = new float[kMaxhPhot];
+  hecalactivR9ID         = new float[kMaxhPhot];
+
 	heleet            = new float[kMaxhEle];
 	heleeta           = new float[kMaxhEle];
 	helephi           = new float[kMaxhEle];
@@ -118,6 +130,7 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
 
 	nele        = 0;
 	nphoton     = 0;
+  nhltecalactiv     = 0;
 	nhltgam     = 0;
 	nhltele     = 0;
 	nhlthfele   = 0;
@@ -178,6 +191,19 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
 	HltTree->Branch("ohPhotR9",           hphotR9,            "ohPhotR9[NohPhot]/F");  
 	HltTree->Branch("ohPhotHforHoverE",   hphothovereh,       "ohPhotHforHoverE[NohPhot]/F");   
 	HltTree->Branch("ohPhotR9ID",         hphotR9ID,          "ohPhotR9ID[NohPhot]/F");
+
+  HltTree->Branch("NohEcalActiv",            & nhltecalactiv,          "NohEcalActiv/I");
+  HltTree->Branch("ohEcalActivEt",           hecalactivet,            "ohEcalActivEt[NohEcalActiv]/F");
+  HltTree->Branch("ohEcalActivEta",          hecalactiveta,           "ohEcalActivEta[NohEcalActiv]/F");
+  HltTree->Branch("ohEcalActivPhi",          hecalactivphi,           "ohEcalActivPhi[NohEcalActiv]/F");
+  HltTree->Branch("ohEcalActivEiso",         hecalactiveiso,          "ohEcalActivEiso[NohEcalActiv]/F");
+  HltTree->Branch("ohEcalActivHiso",         hecalactivhiso,          "ohEcalActivHiso[NohEcalActiv]/F");
+  HltTree->Branch("ohEcalActivTiso",         hecalactivtiso,          "ohEcalActivTiso[NohEcalActiv]/F");
+  HltTree->Branch("ohEcalActivL1iso",        hecalactivl1iso,         "ohEcalActivL1iso[NohEcalActiv]/I");
+  HltTree->Branch("ohEcalActivClusShap",     hecalactivClusShap,      "ohEcalActivClusShap[NohEcalActiv]/F");
+  HltTree->Branch("ohEcalActivR9",           hecalactivR9,            "ohEcalActivR9[NohEcalActiv]/F");  
+  HltTree->Branch("ohEcalActivHforHoverE",   hecalactivhovereh,       "ohEcalActivHforHoverE[NohEcalActiv]/F");   
+  HltTree->Branch("ohEcalActivR9ID",         hecalactivR9ID,          "ohEcalActivR9ID[NohEcalActiv]/F");
 
 	HltTree->Branch("NohEle",             & nhltele,          "NohEle/I");
 	HltTree->Branch("ohEleEt",            heleet,             "ohEleEt[NohEle]/F");
@@ -315,6 +341,13 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
 		const edm::Handle<reco::SuperClusterCollection>        & electronHFECALClusters,  
 		const edm::Handle<reco::RecoEcalCandidateCollection>   & electronHFElectrons,   
 		const edm::Handle<reco::HFEMClusterShapeAssociationCollection> & electronHFClusterAssociation, 
+    const edm::Handle<reco::RecoEcalCandidateCollection>   & activityECAL,   
+    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & activityEcalIsoMap,
+    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & activityHcalIsoMap,
+    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & activityTrackIsoMap,
+    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & activityR9Map,
+    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & activityR9IDMap,
+    const edm::Handle<reco::RecoEcalCandidateIsolationMap> & activityHoverEHMap,
 		TTree* HltTree)
 {
 	// reset the tree variables
@@ -434,7 +467,36 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
 		hphotR9[u] = theHLTPhotons[u].r9;
 		hphotR9ID[u] = theHLTPhotons[u].r9ID;
 	}
+  // Activity
+  std::vector<OpenHLTPhoton> theHLTActivityPhotons;
+  MakeL1NonIsolatedPhotons(
+     theHLTActivityPhotons,
+     activityECAL,
+     activityEcalIsoMap,
+     activityHcalIsoMap,
+     activityTrackIsoMap,
+     activityR9Map,
+     activityHoverEHMap,
+     activityR9IDMap,
+     lazyTools);
 
+ std::sort(theHLTActivityPhotons.begin(), theHLTActivityPhotons.end(), EtGreater());
+ nhltecalactiv = theHLTActivityPhotons.size();
+
+ for (int u = 0; u < nhltecalactiv; u++) {
+    hecalactivet[u]    = theHLTActivityPhotons[u].Et;
+    hecalactiveta[u]   = theHLTActivityPhotons[u].eta;
+    hecalactivphi[u]   = theHLTActivityPhotons[u].phi;
+    hecalactiveiso[u]  = theHLTActivityPhotons[u].ecalIsol;
+    hecalactivhiso[u]  = theHLTActivityPhotons[u].hcalIsol;
+    hecalactivtiso[u]  = theHLTActivityPhotons[u].trackIsol;
+    hecalactivl1iso[u] = theHLTActivityPhotons[u].L1Isolated;
+    hecalactivClusShap[u] = theHLTActivityPhotons[u].clusterShape;
+    hecalactivhovereh[u] = theHLTActivityPhotons[u].hovereh; 
+    hecalactivR9[u] = theHLTActivityPhotons[u].r9;
+    hecalactivR9ID[u] = theHLTActivityPhotons[u].r9ID;
+   }
+   
 	/////    Open-HLT electrons /////////////////
 	std::vector<OpenHLTElectron> theHLTElectrons;
 	MakeL1IsolatedElectrons(

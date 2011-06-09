@@ -100,5 +100,12 @@ extern const char * kPixelTracksL3;
 extern const char * kRecoVerticesHLT; 
 extern const char * kRecoVerticesOffline0;
 extern const char * kRecoVerticesOffline1;
+extern const char * kECALActivity;      
+extern const char * kECALActivityEcalIso;
+extern const char * kECALActivityHcalIso;
+extern const char * kECALActivityTrackIso;
+extern const char * kECALActivityR9; 
+extern const char * kECALActivityR9ID; 
+extern const char * kECALActivityHoverEH;
 
 #endif // HLTrigger_HLTanalyzers_HLTMessages_h

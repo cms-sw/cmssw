@@ -147,6 +147,14 @@ private:
   edm::InputTag NonIsoHoverEH_; 
   edm::InputTag HFECALClusters_; 
   edm::InputTag HFElectrons_; 
+  // add ECAL Activity
+  edm::InputTag ECALActivity_;
+  edm::InputTag ActivityEcalIso_;
+  edm::InputTag ActivityHcalIso_;
+  edm::InputTag ActivityTrackIso_;
+  edm::InputTag ActivityR9_;
+  edm::InputTag ActivityR9ID_;
+  edm::InputTag ActivityHoverEH_;
 
   // AlCa OpenHLT input collections  
   edm::InputTag EERecHitTag_; 

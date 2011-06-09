@@ -85,7 +85,16 @@ DoHLTPhoton = cms.Path(
     hltL1NonIsoEgammaRegionalCkfTrackCandidates +
     hltL1NonIsoEgammaRegionalCTFFinalFitWithMaterial +
     hltL1IsolatedPhotonHollowTrackIsol +
-    hltL1NonIsolatedPhotonHollowTrackIsol )
+    hltL1NonIsolatedPhotonHollowTrackIsol +
+    HLTEcalActivitySequence +
+    hltActivityPhotonHcalForHE +
+    hltActivityR9ID +
+    hltActivityPhotonClusterShape +
+    hltActivityPhotonEcalIsol +
+    hltActivityPhotonHcalIsol +
+    HLTEcalActivityEgammaRegionalRecoTrackerSequence +
+    hltActivityPhotonHollowTrackIsol
+    )
 
 DoHLTElectron = cms.Path(
     HLTBeginSequence +

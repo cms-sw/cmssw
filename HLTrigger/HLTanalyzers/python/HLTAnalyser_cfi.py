@@ -72,6 +72,13 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     R9IDNonIsol                     = cms.InputTag("hltL1NonIsoR9ID"),
     HFElectrons                     = cms.InputTag("hltHFRecoEcalCandidate"),
     HFECALClusters                  = cms.InputTag("hltHFEMClusters"),
+    ECALActivity                        = cms.InputTag("hltRecoEcalSuperClusterActivityCandidate"),
+    ActivityEcalIso                 = cms.InputTag("hltActivityPhotonEcalIsol"),
+    ActivityHcalIso                 = cms.InputTag("hltActivityPhotonHcalIsol"),
+    ActivityTrackIso                = cms.InputTag("hltActivityPhotonHollowTrackIsol"),
+    ActivityR9                      = cms.InputTag("hltUnseededR9shape"), # spike cleaning
+    ActivityR9ID                    = cms.InputTag("hltActivityR9ID"),
+    ActivityHcalForHoverE           = cms.InputTag("hltActivityPhotonHcalForHE"),
                              
     ### egamma - standard or startup windows                         
     IsoElectrons                    = cms.InputTag("hltPixelMatchElectronsL1Iso"),

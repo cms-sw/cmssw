@@ -139,6 +139,16 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     HFECALClusters_           = conf.getParameter<edm::InputTag> ("HFECALClusters"); 
     HFElectrons_              = conf.getParameter<edm::InputTag> ("HFElectrons"); 
 
+   // Add ECAL Activity
+   ECALActivity_                    = conf.getParameter<edm::InputTag> ("ECALActivity");
+   ActivityEcalIso_                 = conf.getParameter<edm::InputTag> ("ActivityEcalIso");
+   ActivityHcalIso_                 = conf.getParameter<edm::InputTag> ("ActivityHcalIso");
+   ActivityTrackIso_                = conf.getParameter<edm::InputTag> ("ActivityTrackIso");
+   ActivityR9_                    = conf.getParameter<edm::InputTag> ("ActivityR9"); // spike cleaning
+   ActivityR9ID_                    = conf.getParameter<edm::InputTag> ("ActivityR9ID");
+   ActivityHoverEH_           = conf.getParameter<edm::InputTag> ("ActivityHcalForHoverE");
+
+
     // AlCa OpenHLT input collections  
     EERecHitTag_              = conf.getParameter<edm::InputTag> ("EERecHits"); 
     EBRecHitTag_              = conf.getParameter<edm::InputTag> ("EBRecHits"); 
@@ -299,6 +309,15 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<reco::RecoEcalCandidateIsolationMap>  TrackNonIsolMap;
     edm::Handle<reco::SuperClusterCollection>         electronHFClusterHandle; 
     edm::Handle<reco::RecoEcalCandidateCollection>    electronHFElectronHandle;  
+    // ECAL Activity
+    edm::Handle<reco::RecoEcalCandidateCollection>    ActivityCandsHandle;  
+    edm::Handle<reco::RecoEcalCandidateIsolationMap>  ActivityEcalIsoHandle;
+    edm::Handle<reco::RecoEcalCandidateIsolationMap>  ActivityHcalIsoHandle;
+    edm::Handle<reco::RecoEcalCandidateIsolationMap>  ActivityTrackIsoHandle;
+    edm::Handle<reco::RecoEcalCandidateIsolationMap>  ActivityR9Handle;
+    edm::Handle<reco::RecoEcalCandidateIsolationMap>  ActivityR9IDHandle;
+    edm::Handle<reco::RecoEcalCandidateIsolationMap>  ActivityHoverEHHandle;
+ 
     
     // AlCa OpenHLT input collections   
     edm::Handle<EBRecHitCollection>             ebrechits;  
@@ -412,6 +431,13 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, hPerformanceBJetsL3,      m_performanceBJetsL3,       kBTagPerformanceBJetsL3 );
     getCollection( iEvent, missing, electrons,                Electron_,                  kElectrons );
     getCollection( iEvent, missing, photons,                  Photon_,                    kPhotons );
+    getCollection( iEvent, missing, ActivityCandsHandle, ECALActivity_,                    kECALActivity);       
+    getCollection( iEvent, missing, ActivityEcalIsoHandle, ActivityEcalIso_,               kECALActivityEcalIso); 
+    getCollection( iEvent, missing, ActivityHcalIsoHandle, ActivityHcalIso_,               kECALActivityHcalIso); 
+    getCollection( iEvent, missing, ActivityTrackIsoHandle, ActivityTrackIso_,             kECALActivityTrackIso); 
+    getCollection( iEvent, missing, ActivityR9Handle, ActivityR9_,                     kECALActivityR9); 
+    getCollection( iEvent, missing, ActivityR9IDHandle, ActivityR9ID_,                     kECALActivityR9ID); 
+    getCollection( iEvent, missing, ActivityHoverEHHandle, ActivityHoverEH_,               kECALActivityHoverEH);
     
     //Read offline eleID results
     std::vector<edm::Handle<edm::ValueMap<float> > > eIDValueMap(4); 
@@ -565,6 +591,13 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 			  electronHFClusterHandle,
 			  electronHFElectronHandle,
 			  electronHFClusterAssociation,  
+                          ActivityCandsHandle,
+                          ActivityEcalIsoHandle,
+                          ActivityHcalIsoHandle,
+                          ActivityTrackIsoHandle,
+                          ActivityR9Handle,
+                          ActivityR9IDHandle,
+                          ActivityHoverEHHandle,
                           HltTree);
     
     mct_analysis_.analyze(
