@@ -132,7 +132,9 @@ DTTSM::sortTSM1(int bkmod) {
     } else if( bkmod == 0) { //  { // BACKUP mode ---> sorting on modified dataword
       curr->setBitsBkmod();
     } else {
-      std::cout << "DTTSM::sortTSM1:  bkmod not properly assigned!" << std::endl;
+      if (config()->debug()) {
+	std::cout << "DTTSM::sortTSM1:  bkmod not properly assigned!" << std::endl;
+      }
     }
     
     
@@ -252,7 +254,9 @@ DTTSM::sortTSM2(int bkmod) {
     } else if( bkmod == 0) { //  { // BACKUP mode ---> sorting on modified dataword
       curr->setBitsBkmod();
     } else {
-      std::cout << " DTTSM::sortTSM2 bkmod not properly assigned!" << std::endl;
+      if (config()->debug()) {
+	std::cout << " DTTSM::sortTSM2 bkmod not properly assigned!" << std::endl;
+      }
     }
     
     
