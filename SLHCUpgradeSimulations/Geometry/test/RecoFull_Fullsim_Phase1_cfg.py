@@ -26,7 +26,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.7 $'),
+    version = cms.untracked.string('$Revision: 1.8 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -40,20 +40,19 @@ process.options = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        #'/store/relval/CMSSW_4_2_3_SLHC_pre1/RelValFourMuons/GEN-SIM/DESIGN42_V11_20110605_special-v1/0026/EC71F6CD-8980-E011-AEF0-001A92971B64.root'
-        #'/store/relval/CMSSW_4_2_3_SLHC_pre1/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_20110605_special-v1/0026/F4C5F6C6-8980-E011-ACBA-003048678FD6.root',
-        #'/store/relval/CMSSW_4_2_3_SLHC_pre1/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_20110605_special-v1/0026/E053363C-F27F-E011-9A0B-003048678B92.root',
-        #'/store/relval/CMSSW_4_2_3_SLHC_pre1/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_20110605_special-v1/0026/B41CEE30-0880-E011-B141-003048D3C010.root',
-        #'/store/relval/CMSSW_4_2_3_SLHC_pre1/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_20110605_special-v1/0026/A82A6871-0F80-E011-A989-0018F3D09630.root',
-        #'/store/relval/CMSSW_4_2_3_SLHC_pre1/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_20110605_special-v1/0026/A44BD2FF-0380-E011-A9C3-003048678FF8.root',
-        #'/store/relval/CMSSW_4_2_3_SLHC_pre1/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_20110605_special-v1/0026/6E6218B3-F27F-E011-BDDC-002354EF3BE0.root',
-        #'/store/relval/CMSSW_4_2_3_SLHC_pre1/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_20110605_special-v1/0026/58F46179-0280-E011-A314-002618943925.root',
-        #'/store/relval/CMSSW_4_2_3_SLHC_pre1/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_20110605_special-v1/0026/50390620-F37F-E011-AF35-00304867BFBC.root',
-        #'/store/relval/CMSSW_4_2_3_SLHC_pre1/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_20110605_special-v1/0026/36D18CAA-F57F-E011-9F80-0018F3D09628.root',
-        #'/store/relval/CMSSW_4_2_3_SLHC_pre1/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_20110605_special-v1/0026/2EDE4C37-F47F-E011-8896-003048679150.root',
-        #'/store/relval/CMSSW_4_2_3_SLHC_pre1/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_20110605_special-v1/0026/1A281128-F57F-E011-B2C8-002354EF3BDA.root',
-        #'/store/relval/CMSSW_4_2_3_SLHC_pre1/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_20110605_special-v1/0026/12885030-F67F-E011-A6D1-0018F3D0970E.root',
-        '/store/relval/CMSSW_4_2_3_SLHC_pre1/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_20110605_special-v1/0026/0608F219-F77F-E011-A026-003048D3FC94.root' 
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/FAE740C0-698F-E011-B68F-0030487A1884.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/F83F7254-D68E-E011-BDC1-0030487A1FEC.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/D8DF747F-D38E-E011-B1FB-0030487CAEAC.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/A4E7FE3A-D88E-E011-B82A-0030487CD716.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/A2EBE7A8-D48E-E011-B2BF-0030487CAEAC.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/76F3D653-D78E-E011-8E7C-0030487CD718.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/66486529-D98E-E011-8143-0030487CD6DA.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/54D8B486-D68E-E011-A2DE-0030487CD6DA.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/4E44DA77-D78E-E011-997B-003048F118D2.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/469D9959-D68E-E011-B661-00304879EDEA.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/30478A0F-D88E-E011-A588-0030487CD6D8.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/2854E6C9-D58E-E011-A5E5-0030487CD17C.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/12705C98-D18E-E011-9D2D-0030487C6A66.root' 
     )
 )
 # Output definition
