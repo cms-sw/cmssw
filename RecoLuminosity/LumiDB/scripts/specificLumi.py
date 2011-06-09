@@ -19,8 +19,14 @@ def listfilldir(indir):
     processedfills=[]
     dirList=os.listdir(indir)
     for fname in dirList:
-        if p.match(fname):
-            processedfills.append(int(fname))
+        if p.match(fname) and os.path.isdir(fname):#found fill dir
+            allfs=os.listdir(fname)
+            for myfile in allfs:
+                sumfilenamepat=r'^[0-9]{4}_summary_CMS.txt$'
+                s=re.compile(sumfilenamepat)
+                if s.match(myfile) and os.path.isfile(myfile):
+                                     #only if fill_summary_CMS.txt file exists
+                    processedfills.append(int(fname))
     return processedfills
 
 def lastcompleteFill(infile):
@@ -312,7 +318,7 @@ if __name__ == '__main__':
         print 'last complete fill : ',lastcompletedFill
         for pf in processedfills:
             if pf>lastcompletedFill:
-                print '[INFO] remove unfinished fill from processed list ',pf
+                #print '[INFO] remove unfinished fill from processed list ',pf
                 processedfills.remove(pf)
         #print 'all processed fills : ',sorted(processedfills)
         for fill in allfillsFromDB:
@@ -321,7 +327,7 @@ if __name__ == '__main__':
                     if fill>MINFILL:
                         fillstoprocess.append(fill)
                 else:
-                    print '[INFO] ongoing fill...',fill               
+                    print 'ongoing fill...',fill               
     #print 'new fills : ',fillstoprocess
     if len(fillstoprocess)==0:
         print 'no fill to process, exit '
