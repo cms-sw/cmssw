@@ -44,7 +44,7 @@ HcalSimpleReconstructor::~HcalSimpleReconstructor() { }
 
 void HcalSimpleReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
 
-  if (tsFromTB_==true)
+  if (tsFromDB_==true)
     {
       edm::ESHandle<HcalRecoParams> p;
       es.get<HcalRecoParamsRcd>().get(p);
