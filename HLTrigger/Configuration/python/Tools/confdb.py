@@ -583,6 +583,14 @@ if 'GlobalTag' in %%(dict)s:
 )
 """
 
+      if not 'hltBoolFalse' in self.data:
+        # add hltBoolFalse
+        text += """
+%(process)shltBoolFalse = cms.EDFilter( "HLTBool",
+    result = cms.bool( False )
+)
+"""
+
       # add the definition of HLTriggerFirstPath
       # FIXME in a cff, should also update the HLTSchedule
       text += """
