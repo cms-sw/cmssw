@@ -32,6 +32,7 @@ pointer to a Group, when queried.
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "boost/iterator/filter_iterator.hpp"
+#include "boost/scoped_ptr.hpp"
 #include "boost/shared_ptr.hpp"
 
 #include <map>
@@ -172,8 +173,6 @@ namespace edm {
     // *this is const.
     void resolveProduct(Group const& g, bool fillOnDemand) const {resolveProduct_(g, fillOnDemand);}
 
-    void swapBase(Principal&);
-
     // throws if the pointed to product is already in the Principal.
     void checkUniquenessAndType(WrapperHolder const& prod, Group const* group) const;
 
@@ -213,7 +212,7 @@ namespace edm {
     // defaults to no-op unless overridden in derived class.
     virtual void resolveProduct_(Group const&, bool /*fillOnDemand*/) const {}
 
-    boost::shared_ptr<ProcessHistory> processHistoryPtr_;
+    boost::scoped_ptr<ProcessHistory> processHistoryPtr_;
 
     ProcessHistoryID processHistoryID_;
 
@@ -247,7 +246,7 @@ namespace edm {
     TypeID tid = TypeID(typeid(PROD));
     ep.maybeFlushCache(tid, tag);
     BasicHandle bh = ep.getByLabel(tid, tag.label(), tag.instance(), tag.process(), tag.cachedOffset(), tag.fillCount());
-    if(bh.interface() && 
+    if(bh.interface() &&
        (!(bh.interface()->dynamicTypeInfo() == typeid(PROD)))) {
       handleimpl::throwConvertTypeError(typeid(PROD), bh.interface()->dynamicTypeInfo());
     }
