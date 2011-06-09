@@ -44,14 +44,19 @@ HcalSimpleReconstructor::~HcalSimpleReconstructor() { }
 
 void HcalSimpleReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
 
-    edm::ESHandle<HcalRecoParams> p;
-    es.get<HcalRecoParamsRcd>().get(p);
-    paramTS = new HcalRecoParams(*p.product());
-
+  if (tsFromTB_==true)
+    {
+      edm::ESHandle<HcalRecoParams> p;
+      es.get<HcalRecoParamsRcd>().get(p);
+      paramTS = new HcalRecoParams(*p.product());
+    }
 }
 
 void HcalSimpleReconstructor::endRun(edm::Run&r, edm::EventSetup const & es){
-  if (paramTS) delete paramTS;
+  if (tsFromDB_==true)
+    {
+      if (paramTS) delete paramTS;
+    }
 }
 
 
