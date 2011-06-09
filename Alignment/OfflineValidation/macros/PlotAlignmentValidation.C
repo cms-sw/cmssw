@@ -308,44 +308,64 @@ void PlotAlignmentValidation::plotOutlierModules(const char *outputFileName,stri
       cout<<"There is no variable "<<plotVariable<<" included in the tree."<<endl;
       break;
     }
+//   cout<<"treeMem->entries  "<<treeMem->entries<<endl;  
+//  cout<<"var                  "<<var<<endl;
+//  cout<<"plotVariable_cut     "<<plotVariable_cut<<endl;
+    
     if (var > plotVariable_cut && treeMem->entries > minHits)
-      { 
+      {
+//        cout<<"step 1"<<endl; 
+
 	TFile *f=(*sourceList.begin())->getFile();//(TFile*)sourcelist->First();
-	
-	TH1 *h = (TH1*) f->FindKeyAny(treeMem->histNameX.c_str())->ReadObj();//f->FindObjectAny(treeMem->histNameX.c_str());
-	gStyle->SetOptFit(0111);
-	cout<<"hist name "<<h->GetName()<<endl;
 
-	TString path =(char*)strstr( gDirectory->GetPath(), "TrackerOfflineValidation" );
-	//cout<<"hist path "<<path<<endl;
-	//cout<<"wrote text "<<endl;
-	if(h) cout<<h->GetEntries()<<endl;
+//        cout<<"step 2"<<endl; 
+//        cout<<"histNameX.c_str()  "<<treeMem->histNameX.c_str()<<endl;
+//        TKey *Ktest =(TKey*) f->FindKeyAny(treeMem->histNameX.c_str());	
+//        Ktest->Print();
+//        Ktest->ls();
+//	cout<<"step 3"<<endl; 
+	
+	if(f->FindKeyAny(treeMem->histNameX.c_str())!=0){
+	  TH1 *h = (TH1*) f->FindKeyAny(treeMem->histNameX.c_str())->ReadObj();//f->FindObjectAny(treeMem->histNameX.c_str());
+	  gStyle->SetOptFit(0111);
+	  cout<<"hist name "<<h->GetName()<<endl;
 
-	//modules' location as title
-	c1->cd(0);
-	TPaveText * text=new TPaveText(0,0.95,0.99,0.99);
-	text->AddText(path);
-	text->SetFillColor(0);
-	text->SetShadowColor(0);
-	text->SetBorderSize( 0 );
-	text->Draw();
+	  TString path =(char*)strstr( gDirectory->GetPath(), "TrackerOfflineValidation" );
+	  //cout<<"hist path "<<path<<endl;
+	  //cout<<"wrote text "<<endl;
+	  if(h) cout<<h->GetEntries()<<endl;
+
+	  //modules' location as title
+	  c1->cd(0);
+	  TPaveText * text=new TPaveText(0,0.95,0.99,0.99);
+	  text->AddText(path);
+	  text->SetFillColor(0);
+	  text->SetShadowColor(0);
+	  text->SetBorderSize( 0 );
+	  text->Draw();
 	
-	//residual histogram
-	c1->cd(1);
-	TPad *subpad = (TPad*)c1->GetPad(1);
-	subpad->SetPad(0,0,0.5,0.94);
-	h->Draw();
+	  //residual histogram
+	  c1->cd(1);
+	  TPad *subpad = (TPad*)c1->GetPad(1);
+	  subpad->SetPad(0,0,0.5,0.94);
+	  h->Draw();
 	
-	//norm. residual histogram
-	h = (TH1*) f->FindObjectAny(treeMem->histNameNormX.c_str());
-	if(h) cout<<h->GetEntries()<<endl;
-	c1->cd(2);
-	TPad *subpad2 = (TPad*)c1->GetPad(2);
-	subpad2->SetPad(0.5,0,0.99,0.94);
-	h->Draw();
+	  //norm. residual histogram
+	  h = (TH1*) f->FindObjectAny(treeMem->histNameNormX.c_str());
+	  if(h) cout<<h->GetEntries()<<endl;
+	  c1->cd(2);
+	  TPad *subpad2 = (TPad*)c1->GetPad(2);
+	  subpad2->SetPad(0.5,0,0.99,0.94);
+	  h->Draw();
 	
-	c1->Print(outputFile);
-	counter++;
+	  c1->Print(outputFile);
+	  counter++;
+	}
+	else{
+	  cout<<"There are no residual histograms on module level stored!"<<endl;
+	  cout<<"Please make sure that moduleLevelHistsTransient = cms.bool(False) in the validation job!"<<endl;
+	  break;
+	}
       }
     
   }
