@@ -140,6 +140,25 @@ bool isIsoMuXTrigger(TString triggerName, vector<double> &thresholds)
     return false;
 }
 
+bool isIsoMuX_eta2pXTrigger(TString triggerName, vector<double> &thresholds)
+{
+ TString pattern = "(OpenHLT_IsoMu([0-9]+)_eta2p([0-9]+)){1}$";
+  TPRegexp matchThreshold(pattern);
+
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL   = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdL3Mu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      getMuThresholds(thresholdL3Mu, thresholds);
+      double thresholdEta  = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      thresholds.push_back(2. + thresholdEta/10.);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
 bool isMuX_MuXTrigger(TString triggerName, vector<double> &thresholds)
 {
  TString pattern = "(OpenHLT_Mu([0-9]+)_Mu([0-9]+)){1}$";
@@ -3166,6 +3185,20 @@ void OHltTree::CheckOpenHlt(
 	  if (prescaleResponse(menu, cfg, rcounter, it))
 	    {
 	      if (OpenHlt1MuonPassed(thresholds[0], thresholds[1], thresholds[2], 2., 1)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }	
+
+  else if (isIsoMuX_eta2pXTrigger(triggerName, thresholds))
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHlt1MuonPassed(thresholds[0], thresholds[1], thresholds[2], 2., 1, thresholds[3], thresholds[3])>=1)
 		{
 		  triggerBit[it] = true;
 		}
