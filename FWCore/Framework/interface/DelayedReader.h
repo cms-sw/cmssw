@@ -23,9 +23,11 @@ namespace edm {
       return getProduct_(k, interface, ep);
     }
     void mergeReaders(boost::shared_ptr<DelayedReader> other) {mergeReaders_(other);}
+    void reset() {reset_();}
   private:
     virtual WrapperHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const = 0;
     virtual void mergeReaders_(boost::shared_ptr<DelayedReader>) {}
+    virtual void reset_() {}
   };
 }
 

@@ -13,11 +13,9 @@ is the DataBlock.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/WrapperHolder.h"
-#include "DataFormats/Provenance/interface/BranchMapper.h"
+#include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
-#include "DataFormats/Provenance/interface/BranchListIndex.h"
-#include "FWCore/Framework/interface/NoDelayedReader.h"
 #include "FWCore/Framework/interface/Principal.h"
 
 #include "boost/scoped_ptr.hpp"
@@ -29,6 +27,8 @@ is the DataBlock.
 #include <vector>
 
 namespace edm {
+  class BranchMapper;
+  class DelayedReader;
   class EventID;
   class LuminosityBlockPrincipal;
   class RunPrincipal;
@@ -49,10 +49,10 @@ namespace edm {
 
     void fillEventPrincipal(std::auto_ptr<EventAuxiliary> aux,
         boost::shared_ptr<LuminosityBlockPrincipal> lbp,
-        boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs = boost::shared_ptr<EventSelectionIDVector>(new EventSelectionIDVector),
-        boost::shared_ptr<BranchListIndexes> branchListIndexes = boost::shared_ptr<BranchListIndexes>(new BranchListIndexes),
-        boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
-        boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
+        boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs = boost::shared_ptr<EventSelectionIDVector>(),
+        boost::shared_ptr<BranchListIndexes> branchListIndexes = boost::shared_ptr<BranchListIndexes>(),
+        boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(),
+        boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>());
 
     void clearEventPrincipal();
 

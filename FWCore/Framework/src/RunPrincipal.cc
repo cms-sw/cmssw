@@ -26,9 +26,9 @@ namespace edm {
     if(productRegistry().anyProductProduced()) {
       addToProcessHistory();
     }
-    mapper->processHistoryID() = processHistoryID();
+    branchMapperPtr()->processHistoryID() = processHistoryID();
     for (const_iterator i = this->begin(), iEnd = this->end(); i != iEnd; ++i) {
-      (*i)->setProvenance(mapper);
+      (*i)->setProvenance(branchMapperPtr());
     }
   }
 

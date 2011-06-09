@@ -24,8 +24,8 @@ namespace edm {
           luminosityBlockPrincipal_(),
           unscheduledHandler_(),
           moduleLabelsRunning_(),
-          eventSelectionIDs_(),
-          branchListIndexes_(),
+          eventSelectionIDs_(new EventSelectionIDVector),
+          branchListIndexes_(new BranchListIndexes),
           branchListIndexToProcessIndex_() {}
 
   void
@@ -35,8 +35,8 @@ namespace edm {
     luminosityBlockPrincipal_.reset();
     unscheduledHandler_.reset();
     moduleLabelsRunning_.clear();
-    eventSelectionIDs_.reset();
-    branchListIndexes_.reset();
+    eventSelectionIDs_->clear();
+    branchListIndexes_->clear();
     branchListIndexToProcessIndex_.clear();
   }
 
@@ -50,17 +50,20 @@ namespace edm {
     fillPrincipal(aux->processHistoryID(), mapper, rtrv);
     aux_.reset(aux.release());
     luminosityBlockPrincipal_ = lbp;
-    eventSelectionIDs_ = eventSelectionIDs;
-    branchListIndexes_ = branchListIndexes;
-
+    if(eventSelectionIDs) {
+      eventSelectionIDs_ = eventSelectionIDs;
+    }
     if(luminosityBlockPrincipal_) {
       setProcessHistory(*luminosityBlockPrincipal_);
       aux_->setProcessHistoryID(processHistoryID());
     }
 
-    mapper->processHistoryID() = processHistoryID();
-    BranchIDListHelper::fixBranchListIndexes(*branchListIndexes_);
+    branchMapperPtr()->processHistoryID() = processHistoryID();
+    if(branchListIndexes) {
+      branchListIndexes_ = branchListIndexes;
+    }
 
+    BranchIDListHelper::fixBranchListIndexes(*branchListIndexes_);
     if(productRegistry().productProduced(InEvent)) {
       // Add index into BranchIDListRegistry for products produced this process
       branchListIndexes_->push_back(productRegistry().producedBranchListIndex());
@@ -74,9 +77,10 @@ namespace edm {
       ProcessIndex pix = it - branchListIndexes_->begin();
       branchListIndexToProcessIndex_.insert(std::make_pair(*it, pix));
     }
+
     // Fill in the product ID's in the groups.
     for(const_iterator it = this->begin(), itEnd = this->end(); it != itEnd; ++it) {
-      (*it)->setProvenance(mapper, branchIDToProductID((*it)->branchDescription().branchID()));
+      (*it)->setProvenance(branchMapperPtr(), branchIDToProductID((*it)->branchDescription().branchID()));
     }
   }
 

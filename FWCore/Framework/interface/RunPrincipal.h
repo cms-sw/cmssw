@@ -37,8 +37,8 @@ namespace edm {
     ~RunPrincipal() {}
 
     void fillRunPrincipal(
-        boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
-        boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
+        boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(),
+        boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>());
 
     RunAuxiliary const& aux() const {
       return *aux_;

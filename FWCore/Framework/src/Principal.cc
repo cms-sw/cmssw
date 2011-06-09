@@ -3,9 +3,11 @@
 
 #include "FWCore/Framework/interface/Principal.h"
 
+#include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
+#include "FWCore/Framework/interface/NoDelayedReader.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -28,8 +30,8 @@ namespace edm {
     processConfiguration_(&pc),
     groups_(reg->constProductList().size(), SharedGroupPtr()),
     preg_(reg),
-    branchMapperPtr_(),
-    store_(),
+    branchMapperPtr_(new BranchMapper),
+    store_(new NoDelayedReader),
     productPtrs_(),
     branchType_(bt) {
     //Now that these have been set, we can create the list of Branches we need.
@@ -127,8 +129,8 @@ namespace edm {
   Principal::clearPrincipal() {
     processHistoryPtr_->clear();
     processHistoryID_ = processHistoryPtr_->id();
-    branchMapperPtr_.reset();
-    store_.reset();
+    branchMapperPtr_->reset();
+    store_->reset();
     for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
       (*i)->resetProductData();
     }
@@ -138,8 +140,12 @@ namespace edm {
   // Set the principal for the Event, Lumi, or Run.
   void
   Principal::fillPrincipal(ProcessHistoryID const& hist, boost::shared_ptr<BranchMapper> mapper, boost::shared_ptr<DelayedReader> rtrv) {
-    branchMapperPtr_ = mapper;
-    store_ = rtrv;
+    if(mapper) {
+      branchMapperPtr_ = mapper;
+    }
+    if(rtrv) {
+      store_ = rtrv;
+    }
     if(hist.isValid()) {
       ProcessHistoryRegistry& history(*ProcessHistoryRegistry::instance());
       assert(history.notEmpty());
