@@ -14,8 +14,8 @@ PFLinker::PFLinker(const edm::ParameterSet & iConfig) {
     = iConfig.getParameter<edm::InputTag>("GsfElectrons");
   inputTagPhotons_
     = iConfig.getParameter<edm::InputTag>("Photons");
-  inputTagMuons_
-    = iConfig.getParameter<edm::InputTag>("Muons");
+  //  inputTagMuons_
+  //   = iConfig.getParameter<edm::InputTag>("Muons");
   
   nameOutputPF_ 
     = iConfig.getParameter<std::string>("OutputPF");
@@ -34,7 +34,7 @@ PFLinker::PFLinker(const edm::ParameterSet & iConfig) {
   }
   produces<edm::ValueMap<reco::PFCandidatePtr> > (nameOutputElectronsPF_);
   produces<edm::ValueMap<reco::PFCandidatePtr> > (nameOutputPhotonsPF_);
-  produces<edm::ValueMap<reco::PFCandidatePtr> > (nameOutputMuonsPF_);
+  //  produces<edm::ValueMap<reco::PFCandidatePtr> > (nameOutputMuonsPF_);
 
 }
 
@@ -55,9 +55,9 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     pfMapPhotons_p(new edm::ValueMap<reco::PFCandidatePtr>());
   edm::ValueMap<reco::PFCandidatePtr>::Filler pfMapPhotonFiller(*pfMapPhotons_p);
 
-  std::auto_ptr<edm::ValueMap<reco::PFCandidatePtr> > 
-    pfMapMuons_p(new edm::ValueMap<reco::PFCandidatePtr>());
-  edm::ValueMap<reco::PFCandidatePtr>::Filler pfMapMuonFiller(*pfMapMuons_p);
+  // std::auto_ptr<edm::ValueMap<reco::PFCandidatePtr> > 
+  //   pfMapMuons_p(new edm::ValueMap<reco::PFCandidatePtr>());
+  // edm::ValueMap<reco::PFCandidatePtr>::Filler pfMapMuonFiller(*pfMapMuons_p);
 
 
   edm::Handle<reco::PFCandidateCollection> pfCandidates;

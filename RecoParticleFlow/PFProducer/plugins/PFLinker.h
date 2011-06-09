@@ -67,7 +67,7 @@ class PFLinker : public edm::EDProducer {
   edm::InputTag       inputTagPhotons_;
 
   /// Input Muons
-  edm::InputTag       inputTagMuons_;
+  //  edm::InputTag       inputTagMuons_;
 
   /// name of output collection of PFCandidate
   std::string nameOutputPF_;
@@ -79,7 +79,7 @@ class PFLinker : public edm::EDProducer {
   std::string nameOutputPhotonsPF_;
 
   /// name of output ValueMap photons
-  std::string nameOutputMuonsPF_;
+  // std::string nameOutputMuonsPF_;
 
 
   /// map GsfElectron PFCandidate (index)
