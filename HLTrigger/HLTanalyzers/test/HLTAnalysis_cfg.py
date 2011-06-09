@@ -31,18 +31,9 @@ if (isData):
 # Which AlCa condition for what. 
 
 if (isData):
-    # GLOBAL_TAG='GR09_H_V6OFF::All' # collisions 2009
-    # GLOBAL_TAG='GR10_H_V6A::All' # collisions2010 tag for CMSSW_3_6_X
-    # GLOBAL_TAG='GR10_H_V8_T2::All' # collisions2010 tag for CMSSW_3_8_X
-    # GLOBAL_TAG='GR10_H_V9::All' # collisions2010 tag for CMSSW_3_8_X, updated  
-    # GLOBAL_TAG='GR_R_311_V0::All' # Temporary tag for running in CMSSW_3_11_X
-##    GLOBAL_TAG='L1HLTST311_V0::All'
-    ## Use the same GLOBAL TAG as in the master table
-#    GLOBAL_TAG='TESTL1_GR_P::All'    
-    GLOBAL_TAG='GR_H_V20::All'
+    GLOBAL_TAG='GR_H_V20::All' # 2011 Collisions data, CMSSW_4_2_X
 else:
-    GLOBAL_TAG='START311_V2::All'
-    if (MENU == "GRun"): GLOBAL_TAG= 'START311_V2::All'
+    GLOBAL_TAG='START42_V12::All' # CMSSW_4_2_X MC, STARTUP Conditions
     
 ##################################################################
 
@@ -56,12 +47,14 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(False)
 )
 
+## For running on RAW only 
 ## process.source = cms.Source("PoolSource",
 ##                             fileNames = cms.untracked.vstring(
 ##     '/store/data/Run2011A/MuOnia/RAW/v1/000/165/364/1C94C2CB-9382-E011-9913-0030487CD6E8.root'
 ##                                 )
 ##                             )
 
+## For running on RAW+RECO
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
     '/store/data/Run2011A/MuOnia/RECO/PromptReco-v4/000/165/205/86911218-C782-E011-81F3-0019B9F72CE5.root',
@@ -93,21 +86,11 @@ process.load('Configuration/StandardSequences/SimL1Emulator_cff')
 # Define the HLT reco paths
 process.load("HLTrigger.HLTanalyzers.HLTopen_cff")
 
-# Remove the PrescaleService which, in 31X, it is expected once HLT_XXX_cff is imported
-# del process.PrescaleService ## ccla no longer needed in for releases in 33x+?
-
 process.DQM = cms.Service( "DQM",)
 process.DQMStore = cms.Service( "DQMStore",)
 
-#offline vertices with deterministic annealing. Should become the default as of 4_2_0_pre7. Requires > V01-04-04      RecoVertex/PrimaryVertexProducer
-##process.load("RecoVertex.Configuration.RecoVertex_cff")
-##from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
-##process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
-##process.offlinePrimaryVerticesDA = process.offlinePrimaryVertices.clone()
-
 # Define the analyzer modules
 process.load("HLTrigger.HLTanalyzers.HLTAnalyser_cfi")
-##process.analyzeThis = cms.Path( process.offlinePrimaryVerticesDA + process.HLTBeginSequence + process.hltanalysis )
 process.analyzeThis = cms.Path( process.HLTBeginSequence + process.hltanalysis )
 
 process.hltanalysis.RunParameters.HistogramFile=OUTPUT_HIST
@@ -121,8 +104,6 @@ process.hltanalysis.genmet = "genMetTrue"
 process.hltanalysis.PrimaryVerticesHLT = cms.InputTag('pixelVertices')
 process.hltanalysis.OfflinePrimaryVertices0 = cms.InputTag('offlinePrimaryVertices')
 process.hltanalysis.OfflinePrimaryVertices1 = cms.InputTag('offlinePrimaryVerticesDA')
-
-
 
 # Switch on ECAL alignment to be consistent with full HLT Event Setup
 process.EcalBarrelGeometryEP.applyAlignment = True
@@ -146,7 +127,7 @@ if (MENU == "GRun"):
             process.hltanalysis.l1GtObjectMapRecord = "hltL1GtObjectMap::HLT"
             process.hltanalysis.hltresults = "TriggerResults::HLT"
                                                                                                             
-# pdt
+# pdt, if running on MC
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 # Schedule the whole thing
