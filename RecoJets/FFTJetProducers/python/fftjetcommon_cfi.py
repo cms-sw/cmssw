@@ -59,6 +59,15 @@ fftjet_grid_128_72 = cms.PSet(
     title = cms.untracked.string("128 x 72")
 )
 
+fftjet_grid_256_128 = cms.PSet(
+    nEtaBins = cms.uint32(256),
+    etaMin = cms.double(-2.0*math.pi),
+    etaMax = cms.double(2.0*math.pi),
+    nPhiBins = cms.uint32(128),
+    phiBin0Edge = cms.double(0.0),
+    title = cms.untracked.string("256 x 128")
+)
+
 #
 # Definitions for anomalous towers
 # 
