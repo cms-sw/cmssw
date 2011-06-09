@@ -23,7 +23,7 @@ namespace edm {
                        ProcessConfiguration const& pc,
                        BranchType bt) :
     EDProductGetter(),
-    processHistoryPtr_(boost::shared_ptr<ProcessHistory>(new ProcessHistory)),
+    processHistoryPtr_(new ProcessHistory),
     processHistoryID_(processHistoryPtr_->id()),
     processConfiguration_(&pc),
     groups_(reg->constProductList().size(), SharedGroupPtr()),
@@ -125,7 +125,7 @@ namespace edm {
   // "Zero" the principal so it can be reused for another Event.
   void
   Principal::clearPrincipal() {
-    processHistoryPtr_.reset(new ProcessHistory);
+    processHistoryPtr_->clear();
     processHistoryID_ = processHistoryPtr_->id();
     branchMapperPtr_.reset();
     store_.reset();
@@ -644,17 +644,6 @@ namespace edm {
       g->checkType(prod);
       g->mergeProduct(prod, prov);
     }
-  }
-
-  void
-  Principal::swapBase(Principal& iOther) {
-    std::swap(processHistoryPtr_, iOther.processHistoryPtr_);
-    std::swap(processHistoryID_, iOther.processHistoryID_);
-    std::swap(processConfiguration_, iOther.processConfiguration_);
-    std::swap(groups_, iOther.groups_);
-    std::swap(preg_, iOther.preg_);
-    std::swap(branchMapperPtr_, iOther.branchMapperPtr_);
-    std::swap(store_, iOther.store_);
   }
 
   void
