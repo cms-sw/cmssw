@@ -1,5 +1,5 @@
-#ifndef RecoParticleFlow_PFProducer_EgammaPFLinker_h
-#define RecoParticleFlow_PFProducer_EgammaPFLinker_h
+#ifndef RecoParticleFlow_PFProducer_PFLinker_h
+#define RecoParticleFlow_PFProducer_PFLinker_h
 
 /// Fills the GsfElectron Ref into the PFCandidate
 /// Produces the ValueMap <GsfElectronRef,PFCandidateRef>
@@ -21,12 +21,12 @@
 
 #include <string>
 
-class EgammaPFLinker : public edm::EDProducer {
+class PFLinker : public edm::EDProducer {
  public:
 
-  explicit EgammaPFLinker(const edm::ParameterSet&);
+  explicit PFLinker(const edm::ParameterSet&);
 
-  ~EgammaPFLinker();
+  ~PFLinker();
   
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
@@ -66,6 +66,8 @@ class EgammaPFLinker : public edm::EDProducer {
   /// Input Photons
   edm::InputTag       inputTagPhotons_;
 
+  /// Input Muons
+  edm::InputTag       inputTagMuons_;
 
   /// name of output collection of PFCandidate
   std::string nameOutputPF_;
@@ -75,6 +77,10 @@ class EgammaPFLinker : public edm::EDProducer {
 
   /// name of output ValueMap photons
   std::string nameOutputPhotonsPF_;
+
+  /// name of output ValueMap photons
+  std::string nameOutputMuonsPF_;
+
 
   /// map GsfElectron PFCandidate (index)
   std::map<reco::GsfElectronRef,unsigned> electronCandidateMap_;

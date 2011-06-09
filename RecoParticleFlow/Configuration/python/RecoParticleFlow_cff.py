@@ -11,7 +11,7 @@ from RecoParticleFlow.PFProducer.particleFlow_cff import *
 from RecoParticleFlow.PFProducer.pfElectronTranslator_cff import *
 from RecoParticleFlow.PFProducer.pfPhotonTranslator_cff import *
 
-from RecoParticleFlow.PFProducer.pfEgammaLinker_cff import * 
+from RecoParticleFlow.PFProducer.pfLinker_cff import * 
 
 particleFlowReco = cms.Sequence( particleFlowTrackWithDisplacedVertex*
                                  particleFlowBlock*

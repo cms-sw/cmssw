@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFProducer/plugins/EgammaPFLinker.h"
+#include "RecoParticleFlow/PFProducer/plugins/PFLinker.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -7,13 +7,16 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-EgammaPFLinker::EgammaPFLinker(const edm::ParameterSet & iConfig) {
+PFLinker::PFLinker(const edm::ParameterSet & iConfig) {
   inputTagPFCandidates_ 
     = iConfig.getParameter<edm::InputTag>("PFCandidate");
   inputTagGsfElectrons_
     = iConfig.getParameter<edm::InputTag>("GsfElectrons");
   inputTagPhotons_
     = iConfig.getParameter<edm::InputTag>("Photons");
+  inputTagMuons_
+    = iConfig.getParameter<edm::InputTag>("Muons");
+  
   nameOutputPF_ 
     = iConfig.getParameter<std::string>("OutputPF");
   
@@ -31,13 +34,15 @@ EgammaPFLinker::EgammaPFLinker(const edm::ParameterSet & iConfig) {
   }
   produces<edm::ValueMap<reco::PFCandidatePtr> > (nameOutputElectronsPF_);
   produces<edm::ValueMap<reco::PFCandidatePtr> > (nameOutputPhotonsPF_);
+  produces<edm::ValueMap<reco::PFCandidatePtr> > (nameOutputMuonsPF_);
+
 }
 
-EgammaPFLinker::~EgammaPFLinker() {;}
+PFLinker::~PFLinker() {;}
 
-void EgammaPFLinker::beginRun(edm::Run& run,const edm::EventSetup & es) {;}
+void PFLinker::beginRun(edm::Run& run,const edm::EventSetup & es) {;}
 
-void EgammaPFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   electronCandidateMap_.clear();
   std::auto_ptr<reco::PFCandidateCollection>
     pfCandidates_p(new reco::PFCandidateCollection);
@@ -49,6 +54,11 @@ void EgammaPFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   std::auto_ptr<edm::ValueMap<reco::PFCandidatePtr> > 
     pfMapPhotons_p(new edm::ValueMap<reco::PFCandidatePtr>());
   edm::ValueMap<reco::PFCandidatePtr>::Filler pfMapPhotonFiller(*pfMapPhotons_p);
+
+  std::auto_ptr<edm::ValueMap<reco::PFCandidatePtr> > 
+    pfMapMuons_p(new edm::ValueMap<reco::PFCandidatePtr>());
+  edm::ValueMap<reco::PFCandidatePtr>::Filler pfMapMuonFiller(*pfMapMuons_p);
+
 
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
   bool status=fetchCandidateCollection(pfCandidates, 
@@ -85,8 +95,8 @@ void EgammaPFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       std::vector<reco::GsfElectron>::const_iterator itcheck=find_if(gsfElectrons->begin(),gsfElectrons->end(),myEqual);
       if(itcheck==gsfElectrons->end()) {
 	std::ostringstream err;
-	err << " Problem in EgammaPFLinker: no GsfElectron " << std::endl;
-	edm::LogError("EgammaPFLinker") << err.str();
+	err << " Problem in PFLinker: no GsfElectron " << std::endl;
+	edm::LogError("PFLinker") << err.str();
 	continue; // Watch out ! Continue
       } 
       reco::GsfElectronRef electronRef(gsfElectrons,itcheck-gsfElectrons->begin());
@@ -103,8 +113,8 @@ void EgammaPFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       std::vector<reco::Photon>::const_iterator itcheck=find_if(photons->begin(),photons->end(),myEqual);
       if(itcheck==photons->end()) {
 	std::ostringstream err;
-	err << " Problem in EgammaPFLinker: no Photon " << std::endl;
-	edm::LogError("EgammaPFLinker") << err.str();
+	err << " Problem in PFLinker: no Photon " << std::endl;
+	edm::LogError("PFLinker") << err.str();
 	continue; // Watch out ! Continue
       } 
       reco::PhotonRef photonRef(photons,itcheck-photons->begin());
@@ -130,7 +140,7 @@ void EgammaPFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 }
 
 
-bool EgammaPFLinker::fetchCandidateCollection(edm::Handle<reco::PFCandidateCollection>& c, 
+bool PFLinker::fetchCandidateCollection(edm::Handle<reco::PFCandidateCollection>& c, 
 						    const edm::InputTag& tag, 
 						    const edm::Event& iEvent) const {  
   bool found = iEvent.getByLabel(tag, c);
@@ -140,13 +150,13 @@ bool EgammaPFLinker::fetchCandidateCollection(edm::Handle<reco::PFCandidateColle
       std::ostringstream  err;
       err<<" cannot get PFCandidates: "
 	 <<tag<<std::endl;
-      edm::LogError("EgammaPFLinker")<<err.str();
+      edm::LogError("PFLinker")<<err.str();
     }
   return found;
   
 }
 
-bool EgammaPFLinker::fetchGsfElectronCollection(edm::Handle<reco::GsfElectronCollection>& c, 
+bool PFLinker::fetchGsfElectronCollection(edm::Handle<reco::GsfElectronCollection>& c, 
 						   const edm::InputTag& tag, 
 						   const edm::Event& iEvent) const {
   bool found = iEvent.getByLabel(tag, c);
@@ -156,13 +166,13 @@ bool EgammaPFLinker::fetchGsfElectronCollection(edm::Handle<reco::GsfElectronCol
       std::ostringstream  err;
       err<<" cannot get GsfElectrons: "
 	 <<tag<<std::endl;
-      edm::LogError("EgammaPFLinker")<<err.str();
+      edm::LogError("PFLinker")<<err.str();
     }
   return found;
 
 }
 
-bool EgammaPFLinker::fetchPhotonCollection(edm::Handle<reco::PhotonCollection>& c, 
+bool PFLinker::fetchPhotonCollection(edm::Handle<reco::PhotonCollection>& c, 
 					      const edm::InputTag& tag, 
 					      const edm::Event& iEvent) const {
   bool found = iEvent.getByLabel(tag, c);
@@ -172,14 +182,14 @@ bool EgammaPFLinker::fetchPhotonCollection(edm::Handle<reco::PhotonCollection>& 
       std::ostringstream  err;
       err<<" cannot get Photons: "
 	 <<tag<<std::endl;
-      edm::LogError("EgammaPFLinker")<<err.str();
+      edm::LogError("PFLinker")<<err.str();
     }
   return found;
 
 }
 
 
-void EgammaPFLinker::fillValueMap(edm::Handle<reco::GsfElectronCollection>& electrons,
+void PFLinker::fillValueMap(edm::Handle<reco::GsfElectronCollection>& electrons,
 				  const edm::OrphanHandle<reco::PFCandidateCollection> & pfOrphanHandle,
 				  const edm::Handle<reco::PFCandidateCollection> & pfHandle,
 				  edm::ValueMap<reco::PFCandidatePtr>::Filler & filler) const {
@@ -204,7 +214,7 @@ void EgammaPFLinker::fillValueMap(edm::Handle<reco::GsfElectronCollection>& elec
   filler.insert(electrons,values.begin(),values.end());
 }
 
-void EgammaPFLinker::fillValueMap(edm::Handle<reco::PhotonCollection>& photons,
+void PFLinker::fillValueMap(edm::Handle<reco::PhotonCollection>& photons,
 				     const edm::OrphanHandle<reco::PFCandidateCollection> & pfOrphanHandle,
 				     const edm::Handle<reco::PFCandidateCollection> & pfHandle,
 				     edm::ValueMap<reco::PFCandidatePtr>::Filler & filler) const {
