@@ -80,7 +80,14 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   for( unsigned i=0; i<ncand; ++i ) {
     edm::Ptr<reco::PFCandidate> candPtr(pfCandidates,i);
     reco::PFCandidate cand(candPtr);
+
+    bool isphoton   = cand.particleId() == reco::PFCandidate::gamma && cand.mva_nothing_gamma()>0.;
+    bool iselectron = cand.particleId() == reco::PFCandidate::e;
+
+    // if not an electron or a photon just fill the PFCandidate collection
+    if ( !(isphoton || iselectron)){pfCandidates_p->push_back(cand); continue;}
     
+
     // if not an electron or a photon with mva_nothing_gamma>0 
     if(! (cand.particleId()==reco::PFCandidate::e) || ((cand.particleId()==reco::PFCandidate::gamma)&&(cand.mva_nothing_gamma()>0.))) {
       pfCandidates_p->push_back(cand);
@@ -89,7 +96,7 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
 
     // if it is an electron. Find the GsfElectron with the same GsfTrack
-    if (cand.particleId()==reco::PFCandidate::e) {
+    if (iselectron) {
       const reco::GsfTrackRef & gsfTrackRef(cand.gsfTrackRef());
       GsfElectronEqual myEqual(gsfTrackRef);
       std::vector<reco::GsfElectron>::const_iterator itcheck=find_if(gsfElectrons->begin(),gsfElectrons->end(),myEqual);
@@ -107,7 +114,7 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }  
   
     // if it is a photon, find the one with the same PF super-cluster
-    if (cand.particleId()==reco::PFCandidate::gamma && cand.mva_nothing_gamma()>0.) {
+    if (isphoton) {
       const reco::SuperClusterRef & scRef(cand.superClusterRef());
       PhotonEqual myEqual(scRef);
       std::vector<reco::Photon>::const_iterator itcheck=find_if(photons->begin(),photons->end(),myEqual);
@@ -212,6 +219,7 @@ void PFLinker::fillValueMap(edm::Handle<reco::GsfElectronCollection>& electrons,
     }
   }
   filler.insert(electrons,values.begin(),values.end());
+  filler.fill();
 }
 
 void PFLinker::fillValueMap(edm::Handle<reco::PhotonCollection>& photons,
@@ -237,4 +245,5 @@ void PFLinker::fillValueMap(edm::Handle<reco::PhotonCollection>& photons,
     }
   }
   filler.insert(photons,values.begin(),values.end());
+  filler.fill();
 }
