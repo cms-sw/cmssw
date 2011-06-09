@@ -339,6 +339,7 @@ def trgLSById(schema,dataid,trgbitname=None,trgbitnamepattern=None,withblobdata=
                     trgnamedict[trgnameidx]=trgname
             else:
                 trgnamedict[trgnameidx]=trgname
+#    print trgnamedict
     qHandle=schema.newQuery()
     try:
         qHandle.addToTableList(nameDealer.lstrgTableName())
@@ -387,14 +388,16 @@ def trgLSById(schema,dataid,trgbitname=None,trgbitnamepattern=None,withblobdata=
                 extradata=[]
                 prescalesblob=cursor.currentRow()['prescalesblob'].data()
                 trgcountblob=cursor.currentRow()['trgcountblob'].data()
-                prescales=CommonUtil.unpackBlobtoArray(prescalesblob,'L')
-                trgcounts=CommonUtil.unpackBlobtoArray(trgcountblob,'L')
+                prescales=[]
+                trgcounts=[]
+                if prescalesblob:
+                    prescales=CommonUtil.unpackBlobtoArray(prescalesblob,'I')
+                if trgcountblob:
+                    trgcounts=CommonUtil.unpackBlobtoArray(trgcountblob,'I')
                 for bitidx,presc in enumerate(prescales):
                     if trgnamedict.has_key(bitidx):
                         extradata.append((trgnamedict[bitidx],presc,trgcounts[bitidx]))
-                result[cmslsnum].extend(extradata)
-                del prescales[:]
-                del trgcounts[:]
+                result[cmslsnum].append(extradata)
     except:
         del qHandle
         raise 
@@ -706,11 +709,25 @@ def hlttrgMappingByrun(schema,runnum):
     del queryHandle
     return result
 
-def hltLSById(schema,dataid):
+def hltLSById(schema,dataid,hltpathname=None,hltpathpattern=None):
     '''
-    result (runnum, {cmslsnum:[prescaleblob,hltcountblob,hltacceptblob]} 
+    result (runnum, {cmslsnum:[(pathname,hltcount,prescale)](0)]} 
     '''
     result={}
+    hltnamedict={}
+    
+    hltrundata=hltRunById(schema,dataid)
+    pathnames=hltrundata[3].split(',')
+    for pathnameidx,hltname in enumerate(pathnames):
+        if hltpathname:
+            if hltpathname==hltname:
+                hltnamedict[pathnameidx]=hltname
+                break
+        elif hltpathpattern:
+            if fnmatch.fnmatch(hltname,hltpathpattern):
+                hltnamedict[pathnameidx]=hltname
+        else:
+            hltnamedict[pathnameidx]=hltname
     qHandle=schema.newQuery()
     try:
         qHandle.addToTableList(nameDealer.lshltTableName())
@@ -740,7 +757,30 @@ def hltLSById(schema,dataid):
             hltacceptblob=cursor.currentRow()['hltacceptblob'].data()
             if not result.has_key(cmslsnum):
                 result[cmslsnum]=[]
-            result[cmslsnum].extend([prescaleblob,hltcountblob,hltacceptblob])
+            pathinfo=[]
+            prescales=None
+            hltcounts=None
+            hltaccepts=None
+            if prescaleblob:
+                prescales=CommonUtil.unpackBlobtoArray(prescaleblob,'I')
+            if hltcountblob:
+                hltcounts=CommonUtil.unpackBlobtoArray(hltcountblob,'I')
+            if hltacceptblob:
+                hltaccepts=CommonUtil.unpackBlobtoArray(hltacceptblob,'I')
+            for hltpathidx in hltnamedict.keys():#loop over selected paths
+                thispathname=hltnamedict[hltpathidx]
+                thispresc=0
+                thishltcount=0
+                thisaccept=0
+                if prescales:
+                    thispresc=prescales[hltpathidx]
+                if hltcounts:
+                    thishltcount=hltcounts[hltpathidx]
+                if hltaccepts:
+                    thisaccept=hltaccepts[hltpathidx]
+                thispathinfo=(thispathname,thispresc,thishltcount,thisaccept)
+                pathinfo.append(thispathinfo)
+            result[cmslsnum]=pathinfo
     except :
         del qHandle
         raise

@@ -69,11 +69,13 @@ if __name__ == '__main__':
                         help='command actions')
     parser.add_argument('-c',dest='connect',action='store',
                         required=False,
-                        help='connect string to lumiDB,optional',default='frontier://LumiCalc/CMS_LUMI_PROD')
+                        help='connect string to lumiDB,optional',
+                        default='frontier://LumiCalc/CMS_LUMI_PROD')
     parser.add_argument('-P',dest='authpath',action='store',
                         required=False,
                         help='path to authentication file (optional)')
-    parser.add_argument('-r',dest='runnumber',action='store',type=int,
+    parser.add_argument('-r',dest='runnumber',action='store',
+                        type=int,
                         required=False,
                         help='run number (optional)')
     parser.add_argument('-o',dest='outputfile',action='store',

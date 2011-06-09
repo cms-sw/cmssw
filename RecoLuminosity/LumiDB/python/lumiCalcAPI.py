@@ -503,12 +503,8 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
             continue
         (lumirunnum,lumidata)=dataDML.lumiLSById(schema,lumidataid,beamstatus)
         (trgrunnum,trgdata)=dataDML.trgLSById(schema,trgdataid,withblobdata=True)
-        (hltrunnum,hltdata)=dataDML.hltLSById(schema,hltdataid)
-        trgrundata=dataDML.trgRunById(schema,trgdataid)
-        hltrundata=dataDML.hltRunById(schema,hltdataid)
-        bitnames=trgrundata[3].split(',')
+        (hltrunnum,hltdata)=dataDML.hltLSById(schema,hltdataid,hltpathname=hltpathname,hltpathpattern=hltpathpattern)
         hlttrgmap=dataDML.hlttrgMappingByrun(schema,run)
-        pathnames=hltrundata[3].split(',')
         if not normval:#if norm cannot be decided , look for it according to context per run
             normval=_decidenormForRun(schema,run)
             perbunchnormval=float(normval)/float(1000)
@@ -537,7 +533,7 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
             lslen=lslengthsec(numorbit,numbx)
             deliveredlumi=calibratedlumi*lslen
             recordedlumi=0.0
-            l1prescaleblob=None
+            trgprescalemap={}
             if cmslsnum!=0:
                 if not trgdata.has_key(cmslsnum):
                     #triggeredls=0 #if no trigger, set back to non-cms-active ls
@@ -553,87 +549,35 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                     if deadfrac>1.0:
                         deadfrac=1.0  #artificial correction in case of deadfrac>1
                     recordedlumi=deliveredlumi*(1.0-deadfrac)
-                    l1prescaleblob=trgdata[cmslsnum][4]
+                    l1bitinfo=trgdata[cmslsnum][4]
+                    if l1bitinfo:
+                        for thisbitinfo in l1bitinfo:
+                            thisbitname=thisbitinfo[0]
+                            thisbitprescale=thisbitinfo[2]
+                            trgprescalemap['"'+thisbitname+'"']=thisbitprescale#note:need to double quote bit name!
+                    del trgdata[cmslsnum][:]
             efflumidict={}
-            l1prescalearray=None
-            if l1prescaleblob:
-                l1prescalearray=CommonUtil.unpackBlobtoArray(l1prescaleblob,'I')
-            hltprescaleblob=None
-            hltprescalearray=None
             if cmslsnum!=0 and hltdata.has_key(cmslsnum):                
-                hltprescaleblob=hltdata[cmslsnum][0]
-            if hltprescaleblob:
-                hltprescalearray=CommonUtil.unpackBlobtoArray(hltprescaleblob,'I')
-            if cmslsnum!=0 and l1prescalearray is not None and hltprescalearray is not None:
-                trgprescalemap={} #build trg prescale map for this cmsls {bitname:l1prescale}
-                for bitnum,bitprescale in enumerate(l1prescalearray):
-                    thisbitname=bitnames[bitnum]
-                    trgprescalemap['"'+thisbitname+'"']=bitprescale#note:need to double quote bit name!!
-                if hltpathname is None and hltpathpattern is None: #get all paths
-                    for hpath,l1seedexpr in hlttrgmap.items():
-                        hltprescale=None
-                        l1prescale=None
-                        efflumi=None     
-                        for pathidx,nm in enumerate(pathnames):
-                            if nm==hpath:
-                                hltprescale=hltprescalearray[pathidx]
-                                break
-                        try:
-                            l1bitname=hltTrgSeedMapper.findUniqueSeed(hpath,l1seedexpr)
-                            if l1bitname:
-                                l1prescale=trgprescalemap[l1bitname]#need to match double quoted string!
-                        except KeyError:
-                            l1prescale=None
-                        if l1prescale and hltprescale:
-                            if l1prescale!=0 and hltprescale!=0:
-                                efflumi=recordedlumi/(float(l1prescale)*float(hltprescale))
-                            else:
-                                efflumi=0.0
-                        efflumidict[hpath]=[l1bitname,l1prescale,hltprescale,efflumi]                       
-                elif hltpathname is not None and hltpathpattern is None:  #get exact path
-                    hltprescale=None
-                    l1prescale=None
-                    efflumi=None
+                hltpathdata=hltdata[cmslsnum]
+#                print 'hltpathdata ',hltpathdata
+                hltprescale=None
+                l1prescale=None
+                efflumi=0.0
+                for pathidx,thispathinfo in enumerate(hltpathdata):
+                    hltpathname=thispathinfo[0]
+                    hltprescale=thispathinfo[1]
                     l1seedexpr=hlttrgmap[hltpathname]
-                    for pathidx,nm in enumerate(pathnames):
-                        if nm==hltpathname:
-                            hltprescale=hltprescalearray[pathidx]
-                            break
                     try:
                         l1bitname=hltTrgSeedMapper.findUniqueSeed(hltpathname,l1seedexpr)
                         if l1bitname:
-                            l1prescale=trgprescalemap[l1bitname]
+                            l1prescale=trgprescalemap[l1bitname]#need to match double quoted string!
                     except KeyError:
                         l1prescale=None
                     if l1prescale and hltprescale:
-                        if l1prescale!=0 and hltprescale!=0:
-                            efflumi=recordedlumi/(float(l1prescale)*float(hltprescale))
-                        else:
-                            efflumi=0.0
+                        efflumi=recordedlumi/(float(l1prescale)*float(hltprescale))
+                    else:
+                        efflumi=0.0
                     efflumidict[hltpathname]=[l1bitname,l1prescale,hltprescale,efflumi]
-                elif hltpathpattern is not None: #get paths matching fnmatch pattern
-                    for hpath,l1seexexpr in hlttrgmap.items():
-                        hltprescale=None
-                        l1prescale=None
-                        efflumi=None     
-                        if fnmatch.fnmatch(hpath,hltpathpattern):#use fnmatch rules
-                            for pathidx,nm in enumerate(pathnames):
-                                if nm==hpath:
-                                    hltprescale=hltprescalearray[pathidx]
-                                    break
-                            l1seedexpr=hlttrgmap[hpath]
-                            try:
-                                l1bitname=hltTrgSeedMapper.findUniqueSeed(hpath,l1seedexpr)
-                                if l1bitname:
-                                    l1prescale=trgprescalemap[l1bitname]
-                            except KeyError:
-                                l1prescale=None
-                            if l1prescale and hltprescale:
-                                if l1prescale!=0 and hltprescale!=0:
-                                    efflumi=recordedlumi/(float(l1prescale)*float(hltprescale))
-                                else:
-                                    efflumi=0.0
-                            efflumidict[hpath]=[l1bitname,l1prescale,hltprescale,efflumi]
             bxdata=None
             if withBXInfo:
                 bxvalueblob=lumidata[8]
@@ -663,7 +607,7 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                     beam1intensitylist=CommonUtil.unpackBlobtoArray(beam1intensityblob,'f').tolist()
                     beam2intensitylist=CommonUtil.unpackBlobtoArray(beam2intensityblob,'f').tolist()
                     beamdata=(bxindexlist,b1intensitylist,b2intensitylist)
-            perrunresult.append([lumilsnum,triggeredls,timestamp,bstatus,begev,deliveredlumi,recordedlumi,calibratedlumierror,efflumidict,bxdata,beamdata])
+            perrunresult.append([cmslsnum,triggeredls,timestamp,bstatus,begev,deliveredlumi,recordedlumi,calibratedlumierror,efflumidict,bxdata,beamdata])
         result[run]=perrunresult
         #print result
     return result
