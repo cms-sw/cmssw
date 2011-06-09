@@ -107,7 +107,7 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   argv[4]=(char*)shRng.c_str();
   
   //initialize Sherpa with the command line
-  Generator.InitializeTheRun(4,argv);
+  Generator.InitializeTheRun(5,argv);
 }
 
 SherpaHadronizer::~SherpaHadronizer()
