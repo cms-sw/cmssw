@@ -7,6 +7,7 @@
 <use   name="geant4core"/>
 <use   name="boost"/>
 <use   name="root"/>
+<use   name="expat"/>
 <flags   EDM_PLUGIN="1"/>
 <library   file="FieldStepWatcher.cc" name="testSimG4CoreFieldStepWatcher">
 </library>

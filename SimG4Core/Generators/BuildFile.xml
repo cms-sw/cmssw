@@ -7,3 +7,4 @@
 <use   name="boost"/>
 <use   name="geant4core"/>
 <use   name="rootmath"/>
+<use   name="expat"/>

@@ -6,3 +6,4 @@
 <use   name="SimG4Core/MagneticField"/>
 <use   name="geant4core"/>
 <use   name="heppdt"/>
+<use   name="expat"/>

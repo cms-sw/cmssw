@@ -4,3 +4,4 @@
 <use   name="geant4core"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="rootmath"/>
+<use   name="expat"/>

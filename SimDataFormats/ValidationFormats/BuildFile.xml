@@ -3,6 +3,7 @@
 <use   name="clhep"/>
 <use   name="geant4"/>
 <use   name="rootrflx"/>
+<use   name="expat"/>
 <export>
   <lib   name="1"/>
 </export>
