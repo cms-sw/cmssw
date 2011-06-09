@@ -453,11 +453,11 @@ namespace edm {
         it != itEnd;
         ++it) {
       desc = ptReg.getMapped(*it);
-      //if (0==desc) {
-      //  std::cout<<"unknown parentage id "<<*it<<" "<<Parentage().id()<<std::endl;
-      //}
-      assert(0!=desc);
-      parentageTree_->Fill();
+      if (0!=desc) {
+        //NOTE: some old format files have missing Parentage info
+        // so this can't be fatal.
+        parentageTree_->Fill();
+      }
     }    
   }
 
