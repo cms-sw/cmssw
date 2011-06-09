@@ -10163,8 +10163,10 @@ public:
 		double Beta , 
 		double Jet);
 
-   int OpenHltFatJetPassed(float jetPt,
+   int OpenHltFatJetPassed(
+			   float jetPt,
 			   float DR,
+			   float DEta,
 			   float DiFatJetMass);
 
    int OpenHlt2MuonOSMassDCAPassed(
