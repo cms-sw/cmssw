@@ -49,6 +49,7 @@ hltBLifetimeRegionalPixelSeedGeneratorRA2b = FastSimulation.HighLevelTrigger.Dum
 hltBLifetimeRegionalPixelSeedGeneratorRAzr = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltBLifetimeRegionalPixelSeedGeneratorHbb = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltBLifetimeRegionalPixel3DSeedGeneratorJet30Hbb = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltBLifetimeRegionalPixel3D1stTrkSeedGeneratorJet20Hbb = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltBLifetimeRegionalPixelSeedGeneratorbbPhi = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 
 hltMumuPixelSeedFromL2Candidate = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()

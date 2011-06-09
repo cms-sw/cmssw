@@ -73,6 +73,15 @@ hltBLifetimeRegional3DCtfWithMaterialTracksJet30Hbb = cms.EDProducer("FastTrackM
     minHits = cms.untracked.uint32(8)
 )
 
+hltBLifetimeRegional3D1stTrkCtfWithMaterialTracksJet20Hbb = cms.EDProducer("FastTrackMerger",
+    SaveTracksOnly = cms.untracked.bool(True),
+    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
+                                   cms.InputTag("globalPixelTrackCandidates")),
+    ptMin = cms.untracked.double(1.0),
+    minHits = cms.untracked.uint32(8)
+)
+
+
 hltBLifetimeRegionalCtfWithMaterialTracksbbPhi = cms.EDProducer("FastTrackMerger",
     SaveTracksOnly = cms.untracked.bool(True),
     TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
@@ -90,6 +99,7 @@ hltBLifetimeRegionalCkfTrackCandidatesRA2b = cms.Sequence(globalPixelTracking)
 hltBLifetimeRegionalCkfTrackCandidatesRAzr = cms.Sequence(globalPixelTracking)
 hltBLifetimeRegionalCkfTrackCandidatesHbb = cms.Sequence(globalPixelTracking)
 hltBLifetimeRegional3DCkfTrackCandidatesJet30Hbb = cms.Sequence(globalPixelTracking)
+hltBLifetimeRegional3D1stTrkCkfTrackCandidatesJet20Hbb = cms.Sequence(globalPixelTracking)
 hltBLifetimeRegionalCkfTrackCandidatesbbPhi = cms.Sequence(globalPixelTracking)
 
 

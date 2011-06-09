@@ -48,13 +48,20 @@ class HLTProcess(object):
     "HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT150_v*",
     "HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT150_v*",
     "HLT_Mu5_DoubleEle8_CaloIdL_TrkIdVL_v*",
+    "HLT_Mu5_Ele8_CaloIdT_TrkIdVL_Ele8_CaloIdL_TrkIdVL_v*",
     "HLT_DoubleMu5_Ele8_CaloIdL_TrkIdVL_v*",
-    "HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v*",
     "HLT_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v*",
+    "HLT_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*",
     "HLT_Ele10_CaloIdL_TrkIdVL_CaloIsoVL_TrkIsoVL_R005_MR200_v*",
     "HLT_Ele10_CaloIdL_TrkIdVL_CaloIsoVL_TrkIsoVL_R020_MR200_v*",
     "HLT_Ele10_CaloIdL_TrkIdVL_CaloIsoVL_TrkIsoVL_R025_MR200_v*",
     "HLT_Ele10_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_R020_MR200_v*",
+    "HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R005_MR200_v*",
+    "HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R020_MR200_v*",
+    "HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R025_MR200_v*",
+    "HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v*",
+    "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*",
+    "HLT_Ele25_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*",
     "HLT_HT250_DoubleDisplacedJet60_v*",
     "HLT_HT200_DoubleLooseIsoPFTau10_Trk3_PFMHT35_v*",
     "HLT_HT250_DoubleLooseIsoPFTau10_Trk3_PFMHT35_v*",
@@ -67,6 +74,8 @@ class HLTProcess(object):
     "HLT_HT250_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT35_v*",
     "HLT_HT300_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT40_v*",
     "HLT_HT350_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT45_v*",
+    "HLT_HT300_Ele5_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_PFMHT40_v*",
+    "HLT_HT350_Ele5_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_PFMHT45_v*",
   )
 
   def __init__(self, configuration):
@@ -883,6 +892,9 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltBLifetimeRegionalPixel3DSeedGeneratorJet30Hbb" )
       self.options['modules'].append( "-hltBLifetimeRegional3DCkfTrackCandidatesJet30Hbb" )
       self.options['modules'].append( "-hltBLifetimeRegional3DCtfWithMaterialTracksJet30Hbb" )
+      self.options['modules'].append( "-hltBLifetimeRegionalPixel3D1stTrkSeedGeneratorJet20Hbb" )
+      self.options['modules'].append( "-hltBLifetimeRegional3D1stTrkCtfWithMaterialTracksJet20Hbb" )
+      self.options['modules'].append( "-hltBLifetimeRegional3D1stTrkCkfTrackCandidatesJet20Hbb" )
       self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorbbPhi" )
       self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesbbPhi" )
       self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksbbPhi" )
