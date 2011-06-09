@@ -12,6 +12,7 @@
 #include "ATOOLS/Math/Random.H"
 #include "ATOOLS/Org/Exception.H"
 #include "ATOOLS/Org/Run_Parameter.H"
+#include "ATOOLS/Org/MyStrStream.H"
 #include "SHERPA/Tools/Input_Output_Handler.H"
 #include "SHERPA/Tools/HepMC2_Interface.H"
 
@@ -173,6 +174,11 @@ bool SherpaHadronizer::generatePartonsAndHadronize()
     ATOOLS::Blob_List* blobs = Generator.GetEventHandler()-> GetBlobs();
     ATOOLS::Blob * sp(blobs->FindFirst(ATOOLS::btp::Signal_Process));
     double weight((*sp)["Weight"]->Get<double>());
+    //in case of unweighted events sherpa puts the max weight as event weight. 
+    //This is not optimal, we want 1 for unweighted events, so we check 
+    //whether we are producing unweighted events ("EVENT_GENERATION_MODE" == "1")
+    if ( ATOOLS::ToType<int>( ATOOLS::rpa.gen.Variable("EVENT_GENERATION_MODE") ) == 1 )
+      weight = 1.;
     //create and empty event and then hand it to SherpaIOHandler to fill it
     HepMC::GenEvent* evt = new HepMC::GenEvent();
     hm2i->Sherpa2HepMC(blobs, *evt, weight);
