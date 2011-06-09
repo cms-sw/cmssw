@@ -65,7 +65,7 @@ InclusiveVertexFinder::InclusiveVertexFinder(const edm::ParameterSet &params) :
 	trackCollection(params.getParameter<edm::InputTag>("tracks")),
 	minHits(params.getParameter<unsigned int>("minHits")),
 	maxNTracks(params.getParameter<unsigned int>("maxNTracks")),
-       	maxLIP(params.getParameter<double>("maximumLongitudinalImpactParameter"));
+       	maxLIP(params.getParameter<double>("maximumLongitudinalImpactParameter")),
  	minPt(params.getParameter<double>("minPt")), //0.8
 	min3DIPSignificance(params.getParameter<double>("seedMin3DIPSignificance")),
 	min3DIPValue(params.getParameter<double>("seedMin3DIPValue")),
@@ -203,7 +203,7 @@ void InclusiveVertexFinder::produce(edm::Event &event, const edm::EventSetup &es
 		TrackRef ref(tracks, track - tracks->begin());
 		if (!trackFilter(ref))
 			continue;
-                if( std::abs(track.dz(pv->position())) > maxLIP)
+                if( std::abs(ref->dz(pv.position())) > maxLIP)
 			continue;
  
 		TransientTrack tt = trackBuilder->build(ref);
