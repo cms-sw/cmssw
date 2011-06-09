@@ -108,3 +108,43 @@ SKIMStreamEXOEMu = cms.FilteredStream(
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('AOD')
     )
+
+from SUSYBSMAnalysis.Skimming.EXOSingleJet_cff import *
+exoSingleJetPath = cms.Path(exoSingleJetSequence)
+SKIMStreamEXOSingleJet = cms.FilteredStream(
+    responsible = 'EXO',
+    name = 'EXOSingleJet',
+    paths = (exoSingleJetPath),
+    content = skimAodContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
+
+from SUSYBSMAnalysis.Skimming.EXOLongLived_cff import *
+exoLongLivedMuPath = cms.Path(exoLongLivedMuSequence)
+exoLongLivedPhotonPath = cms.Path(exoLongLivedPhotonSequence)
+exoLongLivedPath = cms.Path(exoLongLivedSequence)
+SKIMStreamEXOLongLivedMu = cms.FilteredStream(
+    responsible = 'EXO',
+    name = 'EXOLongLivedMu',
+    paths = (exoLongLivedMuPath),
+    content = skimRecoContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
+SKIMStreamEXOLongLivedPhoton = cms.FilteredStream(
+    responsible = 'EXO',
+    name = 'EXOLongLivedPhoton',
+    paths = (exoLongLivedPhotonPath),
+    content = skimRecoContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
+SKIMStreamEXOLongLived = cms.FilteredStream(
+    responsible = 'EXO',
+    name = 'EXOLongLived',
+    paths = (exoLongLivedPath),
+    content = skimRecoContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )

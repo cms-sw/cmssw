@@ -35,9 +35,12 @@ autoSkim = {
 
 autoSkimEXO = {
     'SingleMu' : 'WMu+ZMu+LogError+HWW+EXOLLRes',
-    'DoubleMu' : 'WMu+ZMu+LogError+HWW+EXOLLRes',
+    'DoubleMu' : 'WMu+ZMu+LogError+HWW+EXOLLRes+EXOLongLived',
     'DoubleElectron' : 'ZElectron+LogError+HWW+EXOLLRes',
     'MuEG' : 'LogError+HWW+EXOLLRes',
+    'METBTag': 'EXOSingleJet+LogError',
+    'MET': 'EXOSingleJet+LogError',
+    'Photon': 'EXOLongLived+LogError',
     }
 
 autoSkimPDWG = {

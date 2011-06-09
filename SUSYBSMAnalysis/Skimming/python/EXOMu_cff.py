@@ -5,7 +5,7 @@ import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
 exoticaMuHLT = hlt.hltHighLevel.clone()
 exoticaMuHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
 #Define the HLT path to be used.
-exoticaMuHLT.HLTPaths = ['HLT_Mu30*']
+exoticaMuHLT.HLTPaths = cms.vstring('HLT_Mu30*')
 
 #Define the Reco quality cut
 exoticaRecoMuonFilter = cms.EDFilter("MuonRefSelector",
@@ -16,6 +16,8 @@ exoticaRecoMuonFilter = cms.EDFilter("MuonRefSelector",
 )
 
 exoMuSequence = cms.Sequence(
-    exoticaMuHLT+exoticaRecoMuonFilter
+    exoticaMuHLT * exoticaRecoMuonFilter
+#    exoticaMuHLT 
+#    exoticaRecoMuonFilter
 )
 

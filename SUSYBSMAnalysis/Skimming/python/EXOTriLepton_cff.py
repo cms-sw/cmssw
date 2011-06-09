@@ -4,51 +4,51 @@ import FWCore.ParameterSet.Config as cms
 import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
 exoticaTriMuonHLT = hlt.hltHighLevel.clone()
 exoticaTriMuonHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
-exoticaTriMuonHLT.HLTPaths =['HLT_TripleMu*']
+exoticaTriMuonHLT.HLTPaths = cms.vstring('HLT_TripleMu*')
 
 exoticaTriElectronHLT = hlt.hltHighLevel.clone()
 exoticaTriElectronHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
-exoticaTriElectronHLT.HLTPaths =['HLT_Mu5_Ele8_CaloIdL_TrkIdVL_Ele8_v*','HLT_DoubleMu5_Ele8_v*']
+exoticaTriElectronHLT.HLTPaths = cms.vstring('HLT_Mu5_Ele8_CaloIdL_TrkIdVL_Ele8_v*','HLT_DoubleMu5_Ele8_v*')
 
 
 exoticaEMuHLT = hlt.hltHighLevel.clone()
 exoticaEMuHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
-exoticaEMuHLT.HLTPaths =['HLT_DoubleEle5_SW_L1R','HLT_DoubleMu3_v*']
+exoticaEMuHLT.HLTPaths =cms.vstring('HLT_DoubleEle5_SW_L1R','HLT_DoubleMu3_v*')
 exoticaEMuHLT.andOr = cms.bool( True )
 exoticaEMuHLT.throw = cms.bool( False )
 
 #Define the Reco quality cut
-exoticaRecoTriMuonFilter = cms.EDFilter(
+exoticaRecoTriTriMuonFilter = cms.EDFilter(
     "PtMinMuonCountFilter",
     src = cms.InputTag("muons"),
     ptMin = cms.double(5.0),
     minNumber = cms.uint32(3)
 )
-exoticaRecoTriElectronFilter = cms.EDFilter(
+exoticaRecoTriTriElectronFilter = cms.EDFilter(
     "PtMinGsfElectronCountFilter",
     src = cms.InputTag("gsfElectrons"),
     ptMin = cms.double(5.0),
     minNumber = cms.uint32(3)
     )
-exoticaRecoDiMuonFilter = cms.EDFilter(
+exoticaRecoTriDiMuonFilter = cms.EDFilter(
     "PtMinMuonCountFilter",
     src = cms.InputTag("muons"),
     ptMin = cms.double(10.0),		   
     minNumber = cms.uint32(2)
 )
-exoticaRecoDiElectronFilter = cms.EDFilter(
+exoticaRecoTriDiElectronFilter = cms.EDFilter(
     "PtMinGsfElectronCountFilter",
     src = cms.InputTag("gsfElectrons"),
     ptMin = cms.double(5.0),
     minNumber = cms.uint32(2)		   
 )
-exoticaRecoMuonFilter = cms.EDFilter(
+exoticaRecoTriSiMuonFilter = cms.EDFilter(
     "PtMinMuonCountFilter",
     src = cms.InputTag("muons"),
     ptMin = cms.double(5.0),   		     
     minNumber = cms.uint32(1)
 )
-exoticaRecoElectronFilter = cms.EDFilter(
+exoticaRecoTriSiElectronFilter = cms.EDFilter(
     "PtMinGsfElectronCountFilter",
     src = cms.InputTag("gsfElectrons"),
     ptMin = cms.double(10.0), 		   
@@ -57,15 +57,15 @@ exoticaRecoElectronFilter = cms.EDFilter(
 
 #
 exoTriMuonSequence = cms.Sequence(
-    exoticaTriMuonHLT+exoticaRecoTriMuonFilter
+    exoticaTriMuonHLT+exoticaRecoTriTriMuonFilter
 )
 exoTriElectronSequence = cms.Sequence(
-    exoticaTriElectronHLT+exoticaRecoTriElectronFilter
+    exoticaTriElectronHLT+exoticaRecoTriTriElectronFilter
 )
 
 exo1E2MuSequence = cms.Sequence(
-    exoticaEMuHLT+exoticaRecoElectronFilter+exoticaRecoDiMuonFilter
+    exoticaEMuHLT+exoticaRecoTriSiElectronFilter+exoticaRecoTriDiMuonFilter
 )
 exo2E1MuSequence = cms.Sequence(
-    exoticaEMuHLT+exoticaRecoDiElectronFilter+exoticaRecoMuonFilter
+    exoticaEMuHLT+exoticaRecoTriDiElectronFilter+exoticaRecoTriSiMuonFilter
 )
