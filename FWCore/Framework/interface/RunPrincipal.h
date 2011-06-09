@@ -2,7 +2,7 @@
 #define FWCore_Framework_RunPrincipal_h
 
 /*----------------------------------------------------------------------
-  
+
 RunPrincipal: This is the class responsible for management of
 per run EDProducts. It is not seen by reconstruction code;
 such code sees the Run class, which is a proxy for RunPrincipal.
@@ -32,13 +32,13 @@ namespace edm {
 
     RunPrincipal(
         boost::shared_ptr<RunAuxiliary> aux,
-	boost::shared_ptr<ProductRegistry const> reg,
-	ProcessConfiguration const& pc);
+        boost::shared_ptr<ProductRegistry const> reg,
+        ProcessConfiguration const& pc);
     ~RunPrincipal() {}
 
     void fillRunPrincipal(
-	boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
-	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
+        boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
+        boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
     RunAuxiliary const& aux() const {
       return *aux_;
@@ -76,13 +76,11 @@ namespace edm {
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler>) {}
 
     void put(
-	ConstBranchDescription const& bd,
-	WrapperHolder const& edp,
-	std::auto_ptr<ProductProvenance> productProvenance);
+        ConstBranchDescription const& bd,
+        WrapperHolder const& edp,
+        std::auto_ptr<ProductProvenance> productProvenance);
 
     void readImmediate() const;
-
-    void swap(RunPrincipal&);
 
   private:
 

@@ -1,4 +1,5 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/Group.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
@@ -26,22 +27,22 @@ namespace edm {
       setProcessHistory(*runPrincipal_);
     }
     mapper->processHistoryID() = processHistoryID();
-    for (const_iterator i = this->begin(), iEnd = this->end(); i != iEnd; ++i) {
+    for(const_iterator i = this->begin(), iEnd = this->end(); i != iEnd; ++i) {
       (*i)->setProvenance(mapper);
     }
   }
 
-  void 
+  void
   LuminosityBlockPrincipal::put(
-	ConstBranchDescription const& bd,
-	WrapperHolder const& edp,
-	std::auto_ptr<ProductProvenance> productProvenance) {
+        ConstBranchDescription const& bd,
+        WrapperHolder const& edp,
+        std::auto_ptr<ProductProvenance> productProvenance) {
 
     assert(bd.produced());
     if(!edp.isValid()) {
       throw edm::Exception(edm::errors::InsertFailure,"Null Pointer")
-	<< "put: Cannot put because auto_ptr to product is null."
-	<< "\n";
+        << "put: Cannot put because auto_ptr to product is null."
+        << "\n";
     }
     branchMapperPtr()->insert(*productProvenance);
     Group *g = getExistingGroup(bd.branchID());
@@ -52,7 +53,7 @@ namespace edm {
 
   void
   LuminosityBlockPrincipal::readImmediate() const {
-    for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
+    for(Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
       Group const& g = **i;
       if(!g.branchDescription().produced()) {
         if(!g.productUnavailable()) {
@@ -76,13 +77,4 @@ namespace edm {
       putOrMerge(edp, &g);
     }
   }
-
-  void
-  LuminosityBlockPrincipal::swap(LuminosityBlockPrincipal& iOther) {
-    swapBase(iOther);
-    std::swap(runPrincipal_,iOther.runPrincipal_);
-    std::swap(aux_, iOther.aux_);
-  }
-  
 }
-

@@ -2,7 +2,7 @@
 #define FWCore_Framework_LuminosityBlockPrincipal_h
 
 /*----------------------------------------------------------------------
-  
+
 LuminosityBlockPrincipal: This is the class responsible for management of
 per luminosity block EDProducts. It is not seen by reconstruction code;
 such code sees the LuminosityBlock class, which is a proxy for LuminosityBlockPrincipal.
@@ -31,16 +31,16 @@ namespace edm {
     typedef LuminosityBlockAuxiliary Auxiliary;
     typedef Principal Base;
     LuminosityBlockPrincipal(
-	boost::shared_ptr<LuminosityBlockAuxiliary> aux,
-	boost::shared_ptr<ProductRegistry const> reg,
-	ProcessConfiguration const& pc,
-	boost::shared_ptr<RunPrincipal> rp);
+        boost::shared_ptr<LuminosityBlockAuxiliary> aux,
+        boost::shared_ptr<ProductRegistry const> reg,
+        ProcessConfiguration const& pc,
+        boost::shared_ptr<RunPrincipal> rp);
 
     ~LuminosityBlockPrincipal() {}
 
     void fillLuminosityBlockPrincipal(
-	boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
-	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
+        boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
+        boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
     RunPrincipal const& runPrincipal() const {
       return *runPrincipal_;
@@ -85,13 +85,11 @@ namespace edm {
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler>) {}
 
     void put(
-	ConstBranchDescription const& bd,
-	WrapperHolder const& edp,
-	std::auto_ptr<ProductProvenance> productProvenance);
+        ConstBranchDescription const& bd,
+        WrapperHolder const& edp,
+        std::auto_ptr<ProductProvenance> productProvenance);
 
     void readImmediate() const;
-
-    void swap(LuminosityBlockPrincipal&);
 
   private:
     virtual bool unscheduledFill(std::string const&) const {return false;}

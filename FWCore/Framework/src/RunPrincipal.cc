@@ -32,17 +32,17 @@ namespace edm {
     }
   }
 
-  void 
+  void
   RunPrincipal::put(
-	ConstBranchDescription const& bd,
-	WrapperHolder const& edp,
-	std::auto_ptr<ProductProvenance> productProvenance) {
+        ConstBranchDescription const& bd,
+        WrapperHolder const& edp,
+        std::auto_ptr<ProductProvenance> productProvenance) {
 
     assert(bd.produced());
     if(!edp.isValid()) {
       throw edm::Exception(edm::errors::InsertFailure,"Null Pointer")
-	<< "put: Cannot put because auto_ptr to product is null."
-	<< "\n";
+        << "put: Cannot put because auto_ptr to product is null."
+        << "\n";
     }
     branchMapperPtr()->insert(*productProvenance);
     Group *g = getExistingGroup(bd.branchID());
@@ -85,9 +85,9 @@ namespace edm {
     std::string const& processName = processConfiguration().processName();
     for (ProcessHistory::const_iterator it = ph.begin(), itEnd = ph.end(); it != itEnd; ++it) {
       if(processName == it->processName()) {
-	throw edm::Exception(errors::Configuration, "Duplicate Process")
-	  << "The process name " << processName << " was previously used on these products.\n"
-	  << "Please modify the configuration file to use a distinct process name.\n";
+        throw edm::Exception(errors::Configuration, "Duplicate Process")
+          << "The process name " << processName << " was previously used on these products.\n"
+          << "Please modify the configuration file to use a distinct process name.\n";
       }
     }
   }
@@ -106,11 +106,5 @@ namespace edm {
 
     ProcessHistoryRegistry::instance()->insertMapped(ph);
     setProcessHistory(*this);
-  }
-
-  void
-  RunPrincipal::swap(RunPrincipal& iOther) {
-    swapBase(iOther);
-    std::swap(aux_, iOther.aux_);
   }
 }
