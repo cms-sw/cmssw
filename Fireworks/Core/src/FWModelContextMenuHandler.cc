@@ -8,13 +8,17 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:04 CDT 2009
-// $Id: FWModelContextMenuHandler.cc,v 1.17 2010/09/01 18:49:00 amraktad Exp $
+// $Id: FWModelContextMenuHandler.cc,v 1.18 2011/03/25 18:02:46 amraktad Exp $
 //
 
 // system include files
 #include <cassert>
 #include "TGMenu.h"
 #include "KeySymbols.h"
+
+#include "Reflex/Object.h"
+#include "Reflex/Type.h"
+#include "TClass.h"
 
 // user include files
 #include "Fireworks/Core/src/FWModelContextMenuHandler.h"
@@ -32,6 +36,7 @@
 enum MenuOptions {
    kSetVisibleMO,
    kSetColorMO,
+   kPrint,
    kOpenDetailViewMO,
    kAfterOpenDetailViewMO,
    kOpenObjectControllerMO=100,
@@ -226,6 +231,14 @@ FWModelContextMenuHandler::chosenItem(Int_t iChoice)
          m_colorPopup->PlacePopup(m_x, m_y, m_colorPopup->GetDefaultWidth(), m_colorPopup->GetDefaultHeight());
          break;
       }
+      case kPrint:
+      {
+         FWModelId id = *(m_selectionManager->selected().begin());
+         ROOT::Reflex::Type rtype(ROOT::Reflex::Type::ByName(id.item()->modelType()->GetName()));
+         ROOT::Reflex::Object o(rtype, const_cast<void *>(id.item()->modelData(id.index())));
+         o.Invoke("print");
+         break;
+      }
       case kOpenObjectControllerMO:
       {
          m_guiManager->showModelPopup();
@@ -317,7 +330,25 @@ FWModelContextMenuHandler::showSelectedModelContext(Int_t iX, Int_t iY, FWViewCo
       m_modelPopup->UnCheckEntry(kSetVisibleMO);
    }
 
+
    if(m_selectionManager->selected().size()==1) {
+      {
+         std::string dm("print");
+         ROOT::Reflex::Type rtype(ROOT::Reflex::Type::ByName(id.item()->modelType()->GetName()));
+         ROOT::Reflex::Object o(rtype, const_cast<void *>(id.item()->modelData(id.index())));
+
+         if ( rtype.MemberByName(dm))
+         {
+            m_modelPopup->EnableEntry(kPrint);
+            // printf("Disable print \n");
+         }
+         else
+         {           
+            m_modelPopup->DisableEntry(kPrint);
+            //printf("Enable print \n");
+         }
+         
+      }
       //add the detail view entries
       std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(*(m_selectionManager->selected().begin()));
       if(viewChoices.size()>0) {
@@ -373,6 +404,7 @@ FWModelContextMenuHandler::createModelContext() const
       
       m_modelPopup->AddEntry("Set Visible",kSetVisibleMO);
       m_modelPopup->AddEntry("Set Color ...",kSetColorMO);
+      m_modelPopup->AddEntry("Print ...",kPrint);
       m_modelPopup->AddEntry(kOpenDetailView,kOpenDetailViewMO);
       m_nDetailViewEntries=1;
       m_modelPopup->AddSeparator();
