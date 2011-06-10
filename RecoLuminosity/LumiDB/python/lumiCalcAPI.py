@@ -564,26 +564,26 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                     l1bitname=None
                     thisprescale=None
                     l1prescale=None
-                    efflumi=0.0
+                    efflumi=0.0                    
                     for pathidx,thispathinfo in enumerate(hltpathdata):
                         thispathname=thispathinfo[0]
                         thisprescale=thispathinfo[1]
-                        thisl1seed=hlttrgmap[thispathname]
-#                        print 'hltpath, l1seed, hltprescale ',thispathname,thisl1seed,thisprescale
+                        thisl1seed=None
                         try:
-#                            print 'searching bit for ',thispathname
- #                           t0=time.time()
-                            l1bitname=hltTrgSeedMapper.findUniqueSeed(thispathname,thisl1seed)
- #                           print 'l1bit name ',l1bitname
-                            #                        t1=time.time()
-                            #                        print 'bit mapping time ',t1-t0
-                            if l1bitname:
-                                l1prescale=trgprescalemap[l1bitname]#need to match double quoted string!
+                            thisl1seed=hlttrgmap[thispathname]
                         except KeyError:
-                            l1prescale=None
+                            thisl1seed=None
+                            # print 'hltpath, l1seed, hltprescale ',thispathname,thisl1seed,thisprescale
+                        if thisl1seed:                            
+                            try:
+                                l1bitname=hltTrgSeedMapper.findUniqueSeed(thispathname,thisl1seed)
+                                if l1bitname:
+                                    l1prescale=trgprescalemap[l1bitname]#need to match double quoted string!
+                            except KeyError:
+                                l1prescale=None
                         if l1prescale and thisprescale:
                             efflumi=recordedlumi/(float(l1prescale)*float(thisprescale))
-                        efflumidict[thispathname]=[l1bitname,l1prescale,thisprescale,efflumi]
+                            efflumidict[thispathname]=[l1bitname,l1prescale,thisprescale,efflumi]
             bxvaluelist=[]
             bxerrorlist=[]
             bxdata=None
