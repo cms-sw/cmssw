@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/10/07 14:26:43 $
- *  $Revision: 1.13 $
+ *  $Date: 2010/01/05 10:15:46 $
+ *  $Revision: 1.14 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
  */
@@ -38,7 +38,14 @@ protected:
   /// Run client analysis
   void runClientDiagnostic();
 
+  void fillGlobalSummary();
+
  private:
+
+  int nMinEvts;
+
+  
+  
 
 };
 

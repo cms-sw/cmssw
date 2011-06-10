@@ -6,8 +6,8 @@
  * *
  *  DQM Base for TriggerTests
  *
- *  $Date: 2010/01/05 10:15:46 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/01/26 17:46:03 $
+ *  $Revision: 1.9 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
  */
@@ -79,7 +79,7 @@ protected:
   void bookWheelHistos( int wheel, std::string hTag, std::string folder="" );
 
   /// Book the new MEs (CMS summary)
-  void bookCmsHistos( std::string hTag, std::string folder="" );
+  void bookCmsHistos( std::string hTag, std::string folder="" , bool isGlb = false);
 
   /// Calculate phi range for histograms
   std::pair<float,float> phiRange(const DTChamberId& id);

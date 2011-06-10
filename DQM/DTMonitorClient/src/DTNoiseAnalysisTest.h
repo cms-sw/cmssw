@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/11/03 14:21:43 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/01/05 10:15:46 $
+ *  $Revision: 1.5 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -69,6 +69,7 @@ private:
 
 
   int nevents;
+  int nMinEvts;
   
   DQMStore* dbe;
   
@@ -83,6 +84,7 @@ private:
   std::map< int, MonitorElement* > noisyCellHistos;
   MonitorElement* summaryNoiseHisto;
   MonitorElement* summarySynchNoiseHisto;
+  MonitorElement* glbSummarySynchNoiseHisto;
 
   bool doSynchNoise;
   double maxSynchNoiseRate;

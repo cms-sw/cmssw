@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/05 10:15:46 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/01/26 17:46:03 $
+ *  $Revision: 1.16 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -259,7 +259,7 @@ void DTLocalTriggerBaseTest::bookSectorHistos(int wheel,int sector,string hTag,s
   
 }
 
-void DTLocalTriggerBaseTest::bookCmsHistos(string hTag,string folder) {
+void DTLocalTriggerBaseTest::bookCmsHistos(string hTag, string folder, bool isGlb) {
 
   bool isDCC = hwSource == "DCC"; 
   string basedir = topFolder(isDCC);
@@ -268,7 +268,7 @@ void DTLocalTriggerBaseTest::bookCmsHistos(string hTag,string folder) {
   }
   dbe->setCurrentFolder(basedir);
 
-  string hname = fullName(hTag);
+  string hname = isGlb ? hTag : fullName(hTag);
   LogTrace(category()) << "[" << testName << "Test]: booking " << basedir << hname;
 
 
@@ -284,7 +284,7 @@ void DTLocalTriggerBaseTest::bookWheelHistos(int wheel,string hTag,string folder
   stringstream wh; wh << wheel;
   string basedir;  
   bool isDCC = hwSource=="DCC" ;  
-  if (hTag.find("Summary") != string::npos ) {
+  if (hTag.find("Summary") != string::npos) {
     basedir = topFolder(isDCC);   //Book summary histo outside wheel directories
   } else {
     basedir = topFolder(isDCC) + "Wheel" + wh.str() + "/" ;

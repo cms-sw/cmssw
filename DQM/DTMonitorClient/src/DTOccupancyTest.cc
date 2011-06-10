@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/05 10:15:46 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/07/20 02:58:23 $
+ *  $Revision: 1.16 $
  *  \author G. Cerminara - University and INFN Torino
  */
 
@@ -50,6 +50,7 @@ DTOccupancyTest::DTOccupancyTest(const edm::ParameterSet& ps){
   runOnAllHitsOccupancies =  ps.getUntrackedParameter<bool>("runOnAllHitsOccupancies", true);
   runOnNoiseOccupancies =  ps.getUntrackedParameter<bool>("runOnNoiseOccupancies", false);
   runOnInTimeOccupancies = ps.getUntrackedParameter<bool>("runOnInTimeOccupancies", false);
+  nMinEvts  = ps.getUntrackedParameter<int>("nEventsCert", 5000);
 
 }
 
@@ -193,6 +194,20 @@ void DTOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
 				      << getMEName(nameMonitoredHisto, chId) << " not found!" << endl;
     }
 
+  }
+
+  string nEvtsName = "DT/EventInfo/Counters/nProcessedEventsDigi";
+  MonitorElement * meProcEvts = dbe->get(nEvtsName);
+
+  if (meProcEvts) {
+    int nProcEvts = meProcEvts->getFloatValue();
+    glbSummaryHisto->setEntries(nProcEvts < nMinEvts ? 10. : nProcEvts);
+    summaryHisto->setEntries(nProcEvts < nMinEvts ? 10. : nProcEvts);
+  } else {
+    glbSummaryHisto->setEntries(nMinEvts +1);
+    summaryHisto->setEntries(nMinEvts + 1);
+    LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << "[DTOccupancyTest] ME: "
+		       <<  nEvtsName << " not found!" << endl;
   }
 
   // Fill the global summary

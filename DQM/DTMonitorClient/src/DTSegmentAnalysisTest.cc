@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/05 10:15:46 $
- *  $Revision: 1.31 $
+ *  $Date: 2010/01/26 17:46:03 $
+ *  $Revision: 1.32 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -57,6 +57,8 @@ DTSegmentAnalysisTest::DTSegmentAnalysisTest(const ParameterSet& ps){
   topHistoFolder = ps.getUntrackedParameter<string>("topHistoFolder","DT/02-Segments");
   // hlt DQM mode
   hltDQMMode = ps.getUntrackedParameter<bool>("hltDQMMode",false);
+  nMinEvts  = ps.getUntrackedParameter<int>("nEventsCert", 5000);
+
 }
 
 
@@ -237,7 +239,18 @@ void DTSegmentAnalysisTest::performClientDiagnostic() {
     } // end of switch for detailed analysis
     
   } //loop over all the chambers
-  
+
+  string nEvtsName = "DT/EventInfo/Counters/nProcessedEventsSegment";
+  MonitorElement * meProcEvts = dbe->get(nEvtsName);
+
+  if (meProcEvts) {
+    int nProcEvts = meProcEvts->getFloatValue();
+    summaryHistos[4]->setEntries(nProcEvts < nMinEvts ? 10. : nProcEvts);
+  } else {
+    summaryHistos[4]->setEntries(nMinEvts + 1);
+    LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << "[DTOccupancyTest] ME: "
+		       <<  nEvtsName << " not found!" << endl;
+  }
 
   if(detailedAnalysis){
     

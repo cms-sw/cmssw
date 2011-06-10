@@ -2,8 +2,8 @@
 /*
  * \file DTBlockedROChannelsTest.cc
  * 
- * $Date: 2010/02/25 00:29:30 $
- * $Revision: 1.11 $
+ * $Date: 2010/06/21 14:55:01 $
+ * $Revision: 1.12 $
  * \author G. Cerminara - University and INFN Torino
  *
  */
@@ -209,7 +209,7 @@ void DTBlockedROChannelsTest::performClientDiagnostic() {
       double chPercent = (*chAndRobs).second.getChamberPercentage(); 
       wheelHitos[chId.wheel()]->Fill(sectorForPlot, chId.station(),
 				     scale*chPercent);
-      totalPerc += chPercent*scale*1./250.;
+      totalPerc += chPercent*scale*1./240.; // CB has to be 240 as double stations are taken into account by scale factor
 //       if(chPercent != 1.) {
 // 	cout << "Ch: " << (*chAndRobs).first << endl;
 // 	cout << "      perc: " << chPercent << endl;

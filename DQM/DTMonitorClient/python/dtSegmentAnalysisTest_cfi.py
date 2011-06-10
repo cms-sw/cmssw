@@ -13,7 +13,8 @@ segmentTest = cms.EDAnalyzer("DTSegmentAnalysisTest",
                              # top folder for the histograms in DQMStore
                              topHistoFolder = cms.untracked.string("DT/02-Segments"),
                              # hlt DQM mode
-                             hltDQMMode = cms.untracked.bool(False)
+                             hltDQMMode = cms.untracked.bool(False),
+                             nEventsCert = cms.untracked.int32(1000)
                              )
 
 

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/09 13:20:05 $
- *  $Revision: 1.30 $
+ *  $Date: 2010/01/05 10:15:46 $
+ *  $Revision: 1.31 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -38,6 +38,7 @@ DTLocalTriggerTest::DTLocalTriggerTest(const edm::ParameterSet& ps){
   setConfig(ps,"DTLocalTrigger");
   baseFolderDCC = "DT/03-LocalTrigger-DCC/";
   baseFolderDDU = "DT/04-LocalTrigger-DDU/";
+  nMinEvts  = ps.getUntrackedParameter<int>("nEventsCert", 5000);
 
 }
 
@@ -95,20 +96,24 @@ void DTLocalTriggerTest::beginJob(){
       // Loop over the TriggerUnits
       for (int wh=-2; wh<=2; ++wh){
 	if (hwSource=="COM") {
-	  bookWheelHistos(wh,"MatchingSummary","Matching");
+	  bookWheelHistos(wh,"MatchingSummary","Summaries");
 	}
 	else {
-	  bookWheelHistos(wh,"CorrFractionSummary");
-	  bookWheelHistos(wh,"2ndFractionSummary");
+	  bookWheelHistos(wh,"CorrFractionSummary","Summaries");
+	  bookWheelHistos(wh,"2ndFractionSummary","Summaries");
 	}
       }
       if (hwSource=="COM") {
-	bookCmsHistos("MatchingSummary","Matching");
+	bookCmsHistos("MatchingSummary","Summaries");
       }
       else {
 	bookCmsHistos("CorrFractionSummary");
 	bookCmsHistos("2ndFractionSummary");
-      } 
+      }
+      if (hwSource=="DCC") {
+	bookCmsHistos("TrigGlbSummary","",true);
+      }
+       
     }	
   }
 
@@ -380,5 +385,54 @@ void DTLocalTriggerTest::runClientDiagnostic() {
     }
   }
 
+  fillGlobalSummary();
+
 }
 
+void DTLocalTriggerTest::fillGlobalSummary() {
+
+  float glbPerc[5] = { 1., 0.9, 0.6, 0.3, 0.01 };
+  trigSource = "";
+  hwSource = "DCC";  
+
+  int nSecReadout = 0;
+
+  for (int wh=-2; wh<=2; ++wh) {
+    for (int sect=1; sect<=12; ++sect) {
+
+      float maxErr = 8.;
+      int corr   = cmsME.find(fullName("CorrFractionSummary"))->second->getBinContent(sect,wh+3);
+      int second = cmsME.find(fullName("2ndFractionSummary"))->second->getBinContent(sect,wh+3);
+      int lut=0;
+      MonitorElement * lutsME = dbe->get(topFolder(hwSource=="DCC") + "Summaries/TrigLutSummary");
+      if (lutsME) {
+	lut = lutsME->getBinContent(sect,wh+3);
+	maxErr+=4;
+      } else {
+	LogTrace(category()) << "[" << testName 
+	 << "Test]: DCC Lut test Summary histo not found." << endl;
+      }
+      (corr <5 || second<5) && nSecReadout++;
+      int errcode = ((corr<5 ? corr : 4) + (second<5 ? second : 4) + (lut<5 ? lut : 4) );
+      errcode = min(int((errcode/maxErr + 0.01)*5),5);
+      cmsME.find("TrigGlbSummary")->second->setBinContent(sect,wh+3,glbPerc[errcode]);
+    
+    }
+  }
+
+  if (!nSecReadout) 
+    cmsME.find("TrigGlbSummary")->second->Reset(); // white histo id DCC is not RO
+  
+  string nEvtsName = "DT/EventInfo/Counters/nProcessedEventsTrigger";
+  MonitorElement * meProcEvts = dbe->get(nEvtsName);
+
+  if (meProcEvts) {
+    int nProcEvts = meProcEvts->getFloatValue();
+    cmsME.find("TrigGlbSummary")->second->setEntries(nProcEvts < nMinEvts ? 10. : nProcEvts);
+  } else {
+    cmsME.find("TrigGlbSummary")->second->setEntries(nMinEvts + 1);
+    LogVerbatim (category()) << "[" << testName 
+	 << "Test]: ME: " <<  nEvtsName << " not found!" << endl;
+  }
+
+}

@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/03/27 13:26:40 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/01/05 10:15:46 $
+ *  $Revision: 1.8 $
  *  \author  G. Cerminara - University and INFN Torino
  *   
  */
@@ -89,7 +89,8 @@ private:
   std::set<DTLayerId> monitoredLayers;
 
   int lsCounter;
-  
+  int nMinEvts;
+
   bool writeRootFile;
   TFile *rootFile;
   TNtuple *ntuple;

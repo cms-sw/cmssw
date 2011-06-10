@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2010/01/05 10:15:46 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/01/26 17:46:03 $
+ *  $Revision: 1.9 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -82,6 +82,7 @@ private:
   unsigned int nLumiSegs;
   // switch on for detailed analysis
   bool detailedAnalysis;
+  int nMinEvts;
 
   bool runOnline;
 

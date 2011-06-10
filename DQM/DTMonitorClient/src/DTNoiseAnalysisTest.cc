@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/05 10:15:46 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/03/15 09:45:02 $
+ *  $Revision: 1.13 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -48,6 +48,7 @@ DTNoiseAnalysisTest::DTNoiseAnalysisTest(const edm::ParameterSet& ps){
   // switch on/off the summaries for the Synchronous noise
   doSynchNoise = ps.getUntrackedParameter<bool>("doSynchNoise", false);
   maxSynchNoiseRate =  ps.getUntrackedParameter<double>("maxSynchNoiseRate", 0.001);
+  nMinEvts  = ps.getUntrackedParameter<int>("nEventsCert", 5000);
 
 }
 
@@ -169,23 +170,28 @@ void DTNoiseAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
     LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest")
       << "[DTNoiseAnalysisTest]: fill summaries for synch noise" << endl;
     summarySynchNoiseHisto->Reset();
+    glbSummarySynchNoiseHisto->Reset();
     for(int wheel = -2; wheel != 3; ++wheel) {
       // Get the histo produced by DTDigiTask
       MonitorElement * histoNoiseSynch = dbe->get(getSynchNoiseMEName(wheel));
       if(histoNoiseSynch != 0) {
 	for(int sect = 1; sect != 13; ++sect) { // loop over sectors
 	  TH2F * histo = histoNoiseSynch->getTH2F();
+	  float maxSectRate = 0;
 	  for(int sta = 1; sta != 5; ++sta) {
+	    float chRate = histo->GetBinContent(sect, sta)/(float)nevents;
 	    LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest")
 	      << "   Wheel: " << wheel << " sect: " << sect
 	      << " station: " << sta
-	      << " rate is: " << histo->GetBinContent(sect, sta)/(float)nevents << endl;
-	    if(histo->GetBinContent(sect, sta)/(float)nevents > maxSynchNoiseRate) {
-	      summarySynchNoiseHisto->Fill(sect,wheel,1);
-	    } else {
-	        summarySynchNoiseHisto->Fill(sect,wheel,0);
-	    }
+	      << " rate is: " << chRate << endl;
+	    if (chRate > maxSectRate)
+	      maxSectRate = chRate;
 	  }
+	  summarySynchNoiseHisto->Fill(sect,wheel,
+				       maxSectRate > maxSynchNoiseRate ? 1 : 0);
+	  float glbBinValue = 1 - 0.15*maxSectRate/maxSynchNoiseRate;
+	  glbSummarySynchNoiseHisto->Fill(sect,wheel,glbBinValue>0 ? glbBinValue : 0);
+	  
 	}
       } else {
 	LogWarning("DTDQM|DTMonitorClient|DTNoiseAnalysisTest")
@@ -194,6 +200,21 @@ void DTNoiseAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
     }
 
   }
+
+  string nEvtsName = "DT/EventInfo/Counters/nProcessedEventsNoise";
+  MonitorElement * meProcEvts = dbe->get(nEvtsName);
+
+  if (meProcEvts) {
+    int nProcEvts = meProcEvts->getFloatValue();
+    glbSummarySynchNoiseHisto->setEntries(nProcEvts < nMinEvts ? 10. : nProcEvts);
+    summarySynchNoiseHisto->setEntries(nProcEvts < nMinEvts ? 10. : nProcEvts);
+  } else {
+    glbSummarySynchNoiseHisto->setEntries(nMinEvts +1);
+    summarySynchNoiseHisto->setEntries(nMinEvts + 1);
+    LogVerbatim ("DTDQM|DTMonitorClient|DTnoiseAnalysisTest") << "[DTNoiseAnalysisTest] ME: "
+					      <<  nEvtsName << " not found!" << endl;
+  }
+
 
 }	       
 
@@ -260,6 +281,10 @@ void DTNoiseAnalysisTest::bookHistos() {
     summarySynchNoiseHisto = dbe->book2D(histoName.c_str(),"Summary Synch. Noise",12,1,13,5,-2,3);
     summarySynchNoiseHisto->setAxisTitle("Sector",1);
     summarySynchNoiseHisto->setAxisTitle("Wheel",2);
+    histoName =  "SynchNoiseGlbSummary";
+    glbSummarySynchNoiseHisto = dbe->book2D(histoName.c_str(),"Summary Synch. Noise",12,1,13,5,-2,3);
+    glbSummarySynchNoiseHisto->setAxisTitle("Sector",1);
+    glbSummarySynchNoiseHisto->setAxisTitle("Wheel",2);
   }
 
 }

@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2010/07/14 15:36:39 $
- * $Revision: 1.36 $
+ * $Date: 2010/09/07 09:15:14 $
+ * $Revision: 1.37 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -136,10 +136,13 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
     string rosStatusName = "DT/00-DataIntegrity/FED" + dduId_s.str() + "/FED" + dduId_s.str() + "_ROSStatus";
     MonitorElement * FED_ROSStatus = dbe->get(rosStatusName);
      
-    // Fill the summary histo   
     // Get the error summary histo
-    string wheelSummaryName = "DT/00-DataIntegrity/FED" + dduId_s.str() + "_ROSSummary";
-    MonitorElement * FED_ROSSummary = dbe->get(wheelSummaryName);
+    string fedSummaryName = "DT/00-DataIntegrity/FED" + dduId_s.str() + "_ROSSummary";
+    MonitorElement * FED_ROSSummary = dbe->get(fedSummaryName);
+
+    // Get the event lenght plot (used to counr # of processed evts)
+    string fedEvLenName = "DT/00-DataIntegrity/FED" + dduId_s.str() + "/FED" + dduId_s.str() + "_EventLenght";
+    MonitorElement * FED_EvLenght = dbe->get(fedEvLenName);
 
     // Get the histos for FED integrity
     string fedIntegrityFolder = "DT/FEDIntegrity_DT/";
@@ -149,20 +152,21 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 
     if(hFEDEntry && hFEDFatal && hFEDNonFatal) {
 
-      if(FED_ROSSummary && FED_ROSStatus) {
+      if(FED_ROSSummary && FED_ROSStatus && FED_EvLenght) {
 	TH2F * histoFEDSummary = FED_ROSSummary->getTH2F();
 	TH2F * histoROSStatus  = FED_ROSStatus->getTH2F();
+	TH1F * histoEvLenght   = FED_EvLenght->getTH1F();
 	// Check that the FED is in the ReadOut using the FEDIntegrity histos
 	bool fedNotReadout = (hFEDEntry->getBinContent(dduId-769) == 0 &&
 			      hFEDFatal->getBinContent(dduId-769) == 0 &&
-			      hFEDNonFatal->getBinContent(dduId-769) == 0); 
+			      hFEDNonFatal->getBinContent(dduId-769) == 0);
+	int nFEDEvts = histoEvLenght->Integral();
 	for(int rosNumber = 1; rosNumber <= 12; ++rosNumber) { // loop on the ROS
 	  int wheelNumber, sectorNumber;
 	  if (!readOutToGeometry(dduId,rosNumber,wheelNumber,sectorNumber)) {
 	    int result = -2;
 	    float nErrors  = histoFEDSummary->Integral(1,14,rosNumber,rosNumber);
 	    nErrors += histoROSStatus->Integral(2,8,rosNumber,rosNumber);
-	    //nErrors += histoROSStatus->Integral(10,12,rosNumber,rosNumber); Ev Id Mismatch triggers to many minor errors
 	    if(nErrors == 0) { // no errors
 	      result = 0;
 	    } else { // there are errors
@@ -178,7 +182,7 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 	    }
 	    summaryTDCHisto->setBinContent(sectorNumber,wheelNumber+3,tdcResult);
 	    // FIXME: different errors should have different weights
-	    float sectPerc = max((float)0., ((float)nevents-nErrors)/(float)nevents);
+	    float sectPerc = max((float)0., ((float)nFEDEvts-nErrors)/(float)nFEDEvts);
 	    glbSummaryHisto->setBinContent(sectorNumber,wheelNumber+3,sectPerc);
 	   
 	    if(fedNotReadout) {
