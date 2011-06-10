@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.45 2011/02/16 21:26:25 flucke Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.46 2011/06/07 12:53:53 mussgill Exp $
 //
 //
 
@@ -1444,7 +1444,8 @@ TrackerOfflineValidation::fillTree(TTree& tree,
     if(treeMem.subDetId == PixelSubdetector::PixelBarrel){
       PXBDetId pxbId(detId_);
       unsigned int whichHalfBarrel(1), rawId(detId_.rawId());  //DetId does not know about halfBarrels is PXB ...
-      if( (rawId>=302056964 && rawId<302059300) || (rawId>=302123268 && rawId<302127140) || (rawId>=302189572 && rawId<302194980) )whichHalfBarrel=2;
+      if( (rawId>=302056964 && rawId<302059300) || (rawId>=302123268 && rawId<302127140) ||
+	  (rawId>=302189572 && rawId<302194980) ) whichHalfBarrel=2;
       treeMem.layer = pxbId.layer(); 
       treeMem.half = whichHalfBarrel;
       treeMem.rod = pxbId.ladder();     // ... so, ladder is not per halfBarrel-Layer, but per barrel-layer!
@@ -1452,7 +1453,8 @@ TrackerOfflineValidation::fillTree(TTree& tree,
     } else if(treeMem.subDetId == PixelSubdetector::PixelEndcap){
       PXFDetId pxfId(detId_); 
       unsigned int whichHalfCylinder(1), rawId(detId_.rawId());  //DetId does not kmow about halfCylinders in PXF
-      if( (rawId>=352394500 && rawId<352406032) || (rawId>=352460036 && rawId<352471568) || (rawId>=344005892 && rawId<344017424) || (rawId>=344071428 && rawId<344082960) )whichHalfCylinder=2;
+      if( (rawId>=352394500 && rawId<352406032) || (rawId>=352460036 && rawId<352471568) ||
+	  (rawId>=344005892 && rawId<344017424) || (rawId>=344071428 && rawId<344082960) ) whichHalfCylinder=2;
       treeMem.layer = pxfId.disk(); 
       treeMem.side = pxfId.side();
       treeMem.half = whichHalfCylinder;
@@ -1462,10 +1464,14 @@ TrackerOfflineValidation::fillTree(TTree& tree,
     } else if(treeMem.subDetId == StripSubdetector::TIB){
       TIBDetId tibId(detId_); 
       unsigned int whichHalfShell(1), rawId(detId_.rawId());  //DetId does not kmow about halfShells in TIB
-       if ( (rawId>=369120484 && rawId<369120688) || (rawId>=369121540 && rawId<369121776) || (rawId>=369136932 && rawId<369137200) || (rawId>=369137988 && rawId<369138288) ||
-            (rawId>=369153396 && rawId<369153744) || (rawId>=369154436 && rawId<369154800) || (rawId>=369169844 && rawId<369170256) || (rawId>=369170900 && rawId<369171344) ||
-	    (rawId>=369124580 && rawId<369124784) || (rawId>=369125636 && rawId<369125872) || (rawId>=369141028 && rawId<369141296) || (rawId>=369142084 && rawId<369142384) ||
-	    (rawId>=369157492 && rawId<369157840) || (rawId>=369158532 && rawId<369158896) || (rawId>=369173940 && rawId<369174352) || (rawId>=369174996 && rawId<369175440) ) whichHalfShell=2;
+       if ( (rawId>=369120484 && rawId<369120688) || (rawId>=369121540 && rawId<369121776) ||
+	    (rawId>=369136932 && rawId<369137200) || (rawId>=369137988 && rawId<369138288) ||
+            (rawId>=369153396 && rawId<369153744) || (rawId>=369154436 && rawId<369154800) ||
+	    (rawId>=369169844 && rawId<369170256) || (rawId>=369170900 && rawId<369171344) ||
+	    (rawId>=369124580 && rawId<369124784) || (rawId>=369125636 && rawId<369125872) ||
+	    (rawId>=369141028 && rawId<369141296) || (rawId>=369142084 && rawId<369142384) ||
+	    (rawId>=369157492 && rawId<369157840) || (rawId>=369158532 && rawId<369158896) ||
+	    (rawId>=369173940 && rawId<369174352) || (rawId>=369174996 && rawId<369175440) ) whichHalfShell=2;
       treeMem.layer = tibId.layer(); 
       treeMem.side = tibId.string()[0];
       treeMem.half = whichHalfShell;
@@ -1623,6 +1629,26 @@ TrackerOfflineValidation::fillTree(TTree& tree,
       }
       treeMem.histNameNormY = h->GetName();
     }
+    
+    if (moduleLevelProfiles_) {
+      treeMem.meanResXvsX = it->second.ResXvsXProfile->GetMean();
+      treeMem.rmsResXvsX  = it->second.ResXvsXProfile->GetRMS();   
+      
+      treeMem.meanResXvsY = it->second.ResXvsYProfile->GetMean();
+      treeMem.rmsResXvsY  = it->second.ResXvsYProfile->GetRMS();   
+      
+      treeMem.meanResYvsX = it->second.ResYvsXProfile->GetMean();
+      treeMem.rmsResYvsX  = it->second.ResYvsXProfile->GetRMS();   
+      
+      treeMem.meanResYvsY = it->second.ResYvsYProfile->GetMean();
+      treeMem.rmsResYvsY  = it->second.ResYvsYProfile->GetRMS();   
+      
+      treeMem.profileNameResXvsX = it->second.ResXvsXProfile->GetName();
+      treeMem.profileNameResXvsY = it->second.ResXvsYProfile->GetName();
+      treeMem.profileNameResYvsX = it->second.ResYvsXProfile->GetName();
+      treeMem.profileNameResYvsY = it->second.ResYvsYProfile->GetName();
+    }
+    
     tree.Fill();
   }
 }
