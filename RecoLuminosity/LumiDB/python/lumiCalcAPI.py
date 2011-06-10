@@ -1,4 +1,4 @@
-import os,coral,datetime,fnmatch
+import os,coral,datetime,fnmatch,time
 from RecoLuminosity.LumiDB import nameDealer,revisionDML,dataDML,lumiTime,CommonUtil,selectionParser,hltTrgSeedMapper
 
 
@@ -149,8 +149,8 @@ def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bx
             beamdata=None
             if withBXInfo:
                 bxinfo=perlsdata[8]                
-                bxvaluesArray=None
-                bxerrorsArray=None
+                bxvalueArray=None
+                bxerrArray=None
                 if bxinfo:
                     bxvalueArray=bxinfo[0]
                     bxerrArray=bxinfo[1]
@@ -334,6 +334,7 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
            result {run:[lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,recordedlumi,calibratedlumierror,(bxidx,bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}
            lumi unit: 1/ub
     '''
+    numbx=3564
     result = {}
     normval=None
     perbunchnormval=None
@@ -365,7 +366,7 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
         if trgdataid is None :
             trgdata={}
         else:
-            (trgrunnum,trgdata)=dataDML.trgLSById(schema,trgdataid,withblobdata=False)
+            (trgrunnum,trgdata)=dataDML.trgLSById(schema,trgdataid)
             
         if not normval:#if norm cannot be decided , look for it according to context per run
             normval=_decidenormForRun(schema,run)
@@ -379,9 +380,9 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
         #print 'run,lslist ',run,lslist
         for lumilsnum,perlsdata in lumidata.items():
             cmslsnum=perlsdata[0]
-            triggeredls=cmslsnum
+            triggeredls=perlsdata[0]
             if lslist is not None and cmslsnum not in lslist:
-                cmslsnum=0
+                #cmslsnum=0
                 triggeredls=0
                 recordedlumi=0.0
             instlumi=perlsdata[1]
@@ -393,11 +394,10 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
             numorbit=perlsdata[6]
             startorbit=perlsdata[7]
             timestamp=c.OrbitToTime(startTimeStr,startorbit,0)
-            numbx=3564
             lslen=lslengthsec(numorbit,numbx)
             deliveredlumi=calibratedlumi*lslen
             recordedlumi=0.0
-            if cmslsnum!=0:
+            if triggeredls!=0:
                 if not trgdata.has_key(cmslsnum):                    
                    # triggeredls=0 #if no trigger, set back to non-cms-active ls
                     recordedlumi=0.0 # no trigger->nobeam recordedlumi=None
@@ -474,6 +474,7 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
     result {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata]}
            lumi unit: 1/ub
     '''
+    numbx=3564
     result = {}
     normval=None
     perbunchnormval=None
@@ -484,7 +485,7 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
         normval=_decidenormFromContext(schema,amodetag,egev)
         perbunchnormval=float(normval)/float(1000)
     c=lumiTime.lumiTime()
-    for run in sorted(inputRange):
+    for run in inputRange.keys():
         lslist=inputRange[run]
         if lslist is not None and len(lslist)==0:#no selected ls, do nothing for this run
             result[run]=[]
@@ -502,7 +503,7 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
             result[run]=None
             continue
         (lumirunnum,lumidata)=dataDML.lumiLSById(schema,lumidataid,beamstatus)
-        (trgrunnum,trgdata)=dataDML.trgLSById(schema,trgdataid,withblobdata=True)
+        (trgrunnum,trgdata)=dataDML.trgLSById(schema,trgdataid,withPrescale=True)
         (hltrunnum,hltdata)=dataDML.hltLSById(schema,hltdataid,hltpathname=hltpathname,hltpathpattern=hltpathpattern)
         hlttrgmap=dataDML.hlttrgMappingByrun(schema,run)
         if not normval:#if norm cannot be decided , look for it according to context per run
@@ -512,15 +513,15 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
             normval=6370
             perbunchnormval=6.37
             print '[Warning] using default normalization '+str(normval)
+
         perrunresult=[]
-        numbx=3564
         for lumilsnum,perlsdata in lumidata.items():
             cmslsnum=perlsdata[0]            
-            triggeredls=cmslsnum
+            triggeredls=perlsdata[0] 
             if lslist is not None and cmslsnum not in lslist:
-                cmslsnum=0
+                #cmslsnum=0
                 triggeredls=0
-                recordedlumi=0.0                
+                recordedlumi=0.0
             instlumi=perlsdata[1]
             instlumierror=perlsdata[2]
             calibratedlumi=instlumi*normval
@@ -533,8 +534,9 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
             lslen=lslengthsec(numorbit,numbx)
             deliveredlumi=calibratedlumi*lslen
             recordedlumi=0.0
-            trgprescalemap={}
-            if cmslsnum!=0:
+            trgprescalemap={}#trgprescalemap for this ls
+            efflumidict={}
+            if triggeredls!=0:
                 if not trgdata.has_key(cmslsnum):
                     #triggeredls=0 #if no trigger, set back to non-cms-active ls
                     recordedlumi=0.0 # no trigger->nobeam recordedlumi=None
@@ -554,62 +556,74 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                         for thisbitinfo in l1bitinfo:
                             thisbitname=thisbitinfo[0]
                             thisbitprescale=thisbitinfo[2]
-                            trgprescalemap['"'+thisbitname+'"']=thisbitprescale#note:need to double quote bit name!
+                            trgprescalemap['"'+thisbitname+'"']=thisbitprescale#note:need to double quote bit name!                    
                     del trgdata[cmslsnum][:]
-            efflumidict={}
-            if cmslsnum!=0 and hltdata.has_key(cmslsnum):                
-                hltpathdata=hltdata[cmslsnum]
-#                print 'hltpathdata ',hltpathdata
-                hltprescale=None
-                l1prescale=None
-                efflumi=0.0
-                for pathidx,thispathinfo in enumerate(hltpathdata):
-                    hltpathname=thispathinfo[0]
-                    hltprescale=thispathinfo[1]
-                    l1seedexpr=hlttrgmap[hltpathname]
-                    try:
-                        l1bitname=hltTrgSeedMapper.findUniqueSeed(hltpathname,l1seedexpr)
-                        if l1bitname:
-                            l1prescale=trgprescalemap[l1bitname]#need to match double quoted string!
-                    except KeyError:
-                        l1prescale=None
-                    if l1prescale and hltprescale:
-                        efflumi=recordedlumi/(float(l1prescale)*float(hltprescale))
-                    else:
-                        efflumi=0.0
-                    efflumidict[hltpathname]=[l1bitname,l1prescale,hltprescale,efflumi]
+                if hltdata.has_key(cmslsnum):                
+                    hltpathdata=hltdata[cmslsnum]
+                    #print 'hltpathdata ',hltpathdata
+                    l1bitname=None
+                    thisprescale=None
+                    l1prescale=None
+                    efflumi=0.0
+                    for pathidx,thispathinfo in enumerate(hltpathdata):
+                        thispathname=thispathinfo[0]
+                        thisprescale=thispathinfo[1]
+                        thisl1seed=hlttrgmap[thispathname]
+#                        print 'hltpath, l1seed, hltprescale ',thispathname,thisl1seed,thisprescale
+                        try:
+#                            print 'searching bit for ',thispathname
+ #                           t0=time.time()
+                            l1bitname=hltTrgSeedMapper.findUniqueSeed(thispathname,thisl1seed)
+ #                           print 'l1bit name ',l1bitname
+                            #                        t1=time.time()
+                            #                        print 'bit mapping time ',t1-t0
+                            if l1bitname:
+                                l1prescale=trgprescalemap[l1bitname]#need to match double quoted string!
+                        except KeyError:
+                            l1prescale=None
+                        if l1prescale and thisprescale:
+                            efflumi=recordedlumi/(float(l1prescale)*float(thisprescale))
+                        efflumidict[thispathname]=[l1bitname,l1prescale,thisprescale,efflumi]
+            bxvaluelist=[]
+            bxerrorlist=[]
             bxdata=None
-            if withBXInfo:
-                bxvalueblob=lumidata[8]
-                bxerrblob=lumidata[9]
-                bxidxlist=[]
-                bxvaluelist=[]
-                bxerrorlist=[]
-                if bxvalueblob is not None and bxerrblob is not None:
-                    bxvaluearray=CommonUtil.unpackBlobtoArray(bxvalueblob,'f')
-                    bxerrorarray=CommonUtil.unpackBlobtoArray(bxerrblob,'f')
-                for idx,bxval in enumerate(bxvaluearray):
-                    if bxval*perbunchnormval>xingMinLum:
-                        bxidxlist.append(idx)
-                        bxvaluelist.append(bxval*perbunchnormval)
-                        bxerrorlist.append(bxerrorarray[idx]*perbunchnormval)
-                bxdata=(bxidxlist,bxvaluelist,bxerrorlist)
             beamdata=None
+            if withBXInfo:
+                bxinfo=lumidata[8]
+                bxvalueArray=None
+                bxerrArray=None
+                if bxinfo:
+                    bxvalueArray=bxinfo[0]
+                    bxerrArray=bxinfo[1]
+                    for idx,bxval in enumerate(bxvalueArray):
+                        if bxval>xingMinLum:
+                            bxidxlist.append(idx)
+                            bxvaluelist.append(bxval)
+                            bxerrorlist.append(bxerrArray[idx])
+                    del bxvalueArray[:]
+                    del bxerrArray[:]
+                bxdata=(bxidxlist,bxvaluelist,bxerrorlist)    
             if withBeamIntensity:
-                bxindexblob=lumidata[10]
-                beam1intensityblob=lumidata[11]
-                beam2intensityblob=lumidata[12]
+                beaminfo=perlsdata[9]
                 bxindexlist=[]
                 b1intensitylist=[]
                 b2intensitylist=[]
-                if bxindexblob is not None and beam1intensity is not None and beam2intensity is not None:
-                    bxindexlist=CommonUtil.unpackBlobtoArray(bxindexblob,'h').tolist()
-                    beam1intensitylist=CommonUtil.unpackBlobtoArray(beam1intensityblob,'f').tolist()
-                    beam2intensitylist=CommonUtil.unpackBlobtoArray(beam2intensityblob,'f').tolist()
-                    beamdata=(bxindexlist,b1intensitylist,b2intensitylist)
+                if beaminfo:
+                    bxindexarray=beaminfo[0]
+                    beam1intensityarray=beaminfo[1]
+                    beam2intensityarray=beaminfo[2]                    
+                    bxindexlist=bxindexarray.tolist()
+                    b1intensitylist=beam1intensityarray.tolist()
+                    b2intensitylist=beam2intensityarray.tolist()
+                    del bxindexarray[:]
+                    del beam1intensityarray[:]
+                    del beam2intensityarray[:]
+                beamdata=(bxindexlist,b1intensitylist,b2intensitylist)
+#            print cmslsnum,deliveredlumi,recordedlumi,efflumidict
             perrunresult.append([cmslsnum,triggeredls,timestamp,bstatus,begev,deliveredlumi,recordedlumi,calibratedlumierror,efflumidict,bxdata,beamdata])
+            del perlsdata[:]
         result[run]=perrunresult
-        #print result
+    #print result
     return result
 ##===printers
     

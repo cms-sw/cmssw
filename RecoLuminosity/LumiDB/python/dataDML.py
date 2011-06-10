@@ -1,4 +1,4 @@
-import os,coral,fnmatch
+import os,coral,fnmatch,time
 from RecoLuminosity.LumiDB import nameDealer,dbUtil,revisionDML,lumiTime,CommonUtil
 import array
 
@@ -278,13 +278,22 @@ def luminormById(schema,dataid):
     del qHandle
     return result
 
-def trgRunById(schema,dataid):
+def trgRunById(schema,dataid,trgbitname=None,trgbitnamepattern=None):
     '''
-    select RUNNUM,SOURCE,BITZERONAME,BITNAMECLOB from trgdata where DATA_ID=:dataid
-    result [runnum(0),datasource(1),bitzeroname(2),bitnameclob(3)]
+    query: select RUNNUM,SOURCE,BITZERONAME,BITNAMECLOB from trgdata where DATA_ID=:dataid
+    
+    output: [runnum(0),datasource(1),bitzeroname(2),bitnamedict(3)]
+             -- runnumber
+             -- original source database name
+             -- deadtime norm bitname
+             -- bitnamedict [(bitidx,bitname),...]
     '''
     result=[]
     qHandle=schema.newQuery()
+    runnum=None
+    datasource=None
+    bitzeroname=None
+    bitnamedict=[]
     try:
         qHandle.addToTableList(nameDealer.trgdataTableName())
         qHandle.addToOutputList('RUNNUM','runnum')
@@ -300,46 +309,47 @@ def trgRunById(schema,dataid):
         qResult.extend('bitzeroname','string')
         qResult.extend('bitnameclob','string')
         qHandle.defineOutput(qResult)
-        qHandle.setCondition('DATA_ID=:dataid',qCondition)
+        qHandle.setCondition('DATA_ID=:dataid',qCondition)        
         cursor=qHandle.execute()
+        bitnameclob=None
+        bitnames=[]
         while cursor.next():
             runnum=cursor.currentRow()['runnum'].data()
-            #print 'runnum ',runnum
             source=cursor.currentRow()['source'].data()
-            #print 'source ',source
             bitzeroname=cursor.currentRow()['bitzeroname'].data()
-            #print 'bitzeroname ',bitzeroname
             bitnameclob=cursor.currentRow()['bitnameclob'].data()
-            #print 'bitnameclob ',bitnameclob
-            #print 'bitnameclob ',bitnameclob
-            result.extend([runnum,source,bitzeroname,bitnameclob])
+        if bitnameclob:
+            bitnames=bitnameclob.split(',')
+            for trgnameidx,trgname in enumerate(bitnames):
+                if trgbitname :
+                    if trgname==trgbitname:
+                        bitnamedict.append((trgnameidx,trgname))
+                        break
+                elif trgbitnamepattern:
+                    if fnmatch.fnmatch(trgname,trgbitnamepattern):
+                        bitnamedict.append((trgnameidx,trgname))
+                else:
+                    bitnamedict.append((trgnameidx,trgname))
+        result=[runnum,source,bitzeroname,bitnamedict]
     except :
         del qHandle
         raise 
     del qHandle
     return result
 
-def trgLSById(schema,dataid,trgbitname=None,trgbitnamepattern=None,withblobdata=False):
+def trgLSById(schema,dataid,trgbitname=None,trgbitnamepattern=None,withL1Count=False,withPrescale=False):
     '''
-    result (runnum,{cmslsnum:[deadtimecount(0),bitzerocount(1),bitzeroprescale(2),deadfrac(3),[(bitname,trgcount,prescale)](4)]})
+    output: (runnum,{cmslsnum:[deadtimecount(0),bitzerocount(1),bitzeroprescale(2),deadfrac(3),[(bitname,trgcount,prescale)](4)]})
     '''
+#    print 'entering trgLSById ',dataid
+#    t0=time.time()
     runnum=0
     result={}
-    trgnamedict={}
-    if withblobdata:
-        trgrundata=trgRunById(schema,dataid)
-        trgnames=trgrundata[3].split(',')
-        for trgnameidx,trgname in enumerate(trgnames):
-            if trgbitname :
-                if trgname==trgbitname:
-                    trgnamedict[trgnameidx]=trgname
-                    break
-            elif trgbitnamepattern:
-                if fnmatch.fnmatch(trgname,trgbitnamepattern):
-                    trgnamedict[trgnameidx]=trgname
-            else:
-                trgnamedict[trgnameidx]=trgname
-#    print trgnamedict
+    trgnamedict=[]
+    if  withPrescale or withL1Count:
+        trgrundata=trgRunById(schema,dataid,trgbitname=trgbitname,trgbitnamepattern=trgbitnamepattern)
+        trgnamedict=trgrundata[3]
+
     qHandle=schema.newQuery()
     try:
         qHandle.addToTableList(nameDealer.lstrgTableName())
@@ -349,8 +359,9 @@ def trgLSById(schema,dataid,trgbitname=None,trgbitnamepattern=None,withblobdata=
         qHandle.addToOutputList('BITZEROCOUNT','bitzerocount')
         qHandle.addToOutputList('BITZEROPRESCALE','bitzeroprescale')
         qHandle.addToOutputList('DEADFRAC','deadfrac')
-        if withblobdata:
+        if withPrescale:
             qHandle.addToOutputList('PRESCALEBLOB','prescalesblob')
+        if withL1Count:
             qHandle.addToOutputList('TRGCOUNTBLOB','trgcountblob')
         qConditionStr='DATA_ID=:dataid'
         qCondition=coral.AttributeList()
@@ -363,8 +374,9 @@ def trgLSById(schema,dataid,trgbitname=None,trgbitnamepattern=None,withblobdata=
         qResult.extend('bitzerocount','unsigned int')
         qResult.extend('bitzeroprescale','unsigned int')
         qResult.extend('deadfrac','float')
-        if withblobdata:
+        if withPrescale:
             qResult.extend('prescalesblob','blob')
+        if withL1Count:
             qResult.extend('trgcountblob','blob')
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
@@ -384,24 +396,33 @@ def trgLSById(schema,dataid,trgbitname=None,trgbitnamepattern=None,withblobdata=
             result[cmslsnum].append(deadfrac)
             prescalesblob=None
             trgcountblob=None
-            if withblobdata:
-                extradata=[]
+            if withPrescale:
                 prescalesblob=cursor.currentRow()['prescalesblob'].data()
+            if withL1Count:
                 trgcountblob=cursor.currentRow()['trgcountblob'].data()
-                prescales=[]
-                trgcounts=[]
-                if prescalesblob:
-                    prescales=CommonUtil.unpackBlobtoArray(prescalesblob,'I')
-                if trgcountblob:
-                    trgcounts=CommonUtil.unpackBlobtoArray(trgcountblob,'I')
-                for bitidx,presc in enumerate(prescales):
-                    if trgnamedict.has_key(bitidx):
-                        extradata.append((trgnamedict[bitidx],presc,trgcounts[bitidx]))
-                result[cmslsnum].append(extradata)
+            prescales=[]
+            trgcounts=[]
+            if prescalesblob:
+                prescales=CommonUtil.unpackBlobtoArray(prescalesblob,'I')
+            if trgcountblob:
+                trgcounts=CommonUtil.unpackBlobtoArray(trgcountblob,'I')
+            bitinfo=[]
+            for (bitidx,thisbitname) in trgnamedict:
+                thispresc=None
+                thistrgcount=None
+                if prescales:
+                    thispresc=prescales[bitidx]
+                if trgcounts:
+                    thistrgcount=trgcounts[bitidx]
+                thisbitinfo=(thisbitname,thistrgcount,thispresc)
+                bitinfo.append(thisbitinfo)
+            result[cmslsnum].append(bitinfo)
     except:
         del qHandle
         raise 
     del qHandle
+#    t1=time.time()
+#    print 'trgLSById time ',t1-t0
     return (runnum,result)
 def lumiRunById(schema,dataid):
     '''
@@ -437,7 +458,7 @@ def lumiRunById(schema,dataid):
     return result
 def lumiLSById(schema,dataid,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',withBeamIntensity=False):
     '''    
-    result (runnum,{lumilsnum,[cmslsnum(0),instlumi(1),instlumierr(2),instlumiqlty(3),beamstatus(4),beamenergy(5),numorbit(6),startorbit(7),(bxvalueblob,bxerrblob)(8),(bxindexblob,beam1intensity,beam2intensity)(9)]})
+    result (runnum,{lumilsnum,[cmslsnum(0),instlumi(1),instlumierr(2),instlumiqlty(3),beamstatus(4),beamenergy(5),numorbit(6),startorbit(7),(bxvalueArray,bxerrArray)(8),(bxindexArray,beam1intensityArray,beam2intensityArray)(9)]})
     '''
     runnum=0
     result={}
@@ -636,12 +657,19 @@ def lumiBXByAlgo(schema,dataid,algoname):
     del qHandle
     return result
 
-def hltRunById(schema,dataid):
+def hltRunById(schema,dataid,hltpathname=None,hltpathpattern=None):
     '''
-    result [runnum(0),datasource(1),npath(2),pathnameclob(3)]
+    result [runnum(0),datasource(1),npath(2),hltnamedict(3)]
+    output :
+         npath : total number of hltpath in DB
+         hltnamedict : list of all selected paths [(hltpathidx,hltname),(hltpathidx,hltname)]
     '''
-    result=[]
+    result=[]    
     qHandle=schema.newQuery()
+    runnum=None
+    datasource=None
+    npath=None
+    hltnamedict=[]
     try:
         qHandle.addToTableList(nameDealer.hltdataTableName())
         qHandle.addToOutputList('RUNNUM','runnum')
@@ -660,12 +688,26 @@ def hltRunById(schema,dataid):
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
+        pathnameclob=None
+        pathnames=[]
         while cursor.next():
             runnum=cursor.currentRow()['runnum'].data()
             datasource=cursor.currentRow()['datasource'].data()
             npath=cursor.currentRow()['npath'].data()
             pathnameclob=cursor.currentRow()['pathnameclob'].data()
-            result.extend([runnum,datasource,npath,pathnameclob])
+        if pathnameclob:
+            pathnames=pathnameclob.split(',')
+            for pathnameidx,hltname in enumerate(pathnames):
+                if hltpathname:
+                    if hltpathname==hltname:
+                        hltnamedict.append((pathnameidx,hltname))
+                        break
+                elif hltpathpattern:
+                    if fnmatch.fnmatch(hltname,hltpathpattern):
+                        hltnamedict.append((pathnameidx,hltname))
+                else:
+                    hltnamedict.append((pathnameidx,hltname))
+        result=[runnum,datasource,npath,hltnamedict]
     except :
         del qHandle
         raise 
@@ -709,33 +751,29 @@ def hlttrgMappingByrun(schema,runnum):
     del queryHandle
     return result
 
-def hltLSById(schema,dataid,hltpathname=None,hltpathpattern=None):
+def hltLSById(schema,dataid,hltpathname=None,hltpathpattern=None,withL1Pass=False,withHLTAccept=False):
     '''
     result (runnum, {cmslsnum:[(pathname,hltcount,prescale)](0)]} 
     '''
+    #print 'entering hltLSById '
+    #t0=time.time()
     result={}
-    hltnamedict={}
-    
-    hltrundata=hltRunById(schema,dataid)
-    pathnames=hltrundata[3].split(',')
-    for pathnameidx,hltname in enumerate(pathnames):
-        if hltpathname:
-            if hltpathname==hltname:
-                hltnamedict[pathnameidx]=hltname
-                break
-        elif hltpathpattern:
-            if fnmatch.fnmatch(hltname,hltpathpattern):
-                hltnamedict[pathnameidx]=hltname
-        else:
-            hltnamedict[pathnameidx]=hltname
+    hltrundata=hltRunById(schema,dataid,hltpathname=hltpathname,hltpathpattern=hltpathpattern)
+    hltnamedict=hltrundata[3]
+    #tt1=time.time()
+    #print '\thltrunbyid time ',tt1-t0
+    #tt0=time.time()
     qHandle=schema.newQuery()
     try:
         qHandle.addToTableList(nameDealer.lshltTableName())
         qHandle.addToOutputList('RUNNUM','runnum')
         qHandle.addToOutputList('CMSLSNUM','cmslsnum')
-        qHandle.addToOutputList('PRESCALEBLOB','prescaleblob')
-        qHandle.addToOutputList('HLTCOUNTBLOB','hltcountblob')
-        qHandle.addToOutputList('HLTACCEPTBLOB','hltacceptblob')
+        if len(hltnamedict)!=0:
+            qHandle.addToOutputList('PRESCALEBLOB','prescaleblob')
+        if withL1Pass:
+            qHandle.addToOutputList('HLTCOUNTBLOB','hltcountblob')
+        if withHLTAccept:
+            qHandle.addToOutputList('HLTACCEPTBLOB','hltacceptblob')
         qConditionStr='DATA_ID=:dataid'
         qCondition=coral.AttributeList()
         qCondition.extend('dataid','unsigned long long')
@@ -743,18 +781,27 @@ def hltLSById(schema,dataid,hltpathname=None,hltpathpattern=None):
         qResult=coral.AttributeList()
         qResult.extend('runnum','unsigned int')
         qResult.extend('cmslsnum','unsigned int')
-        qResult.extend('prescaleblob','blob')
-        qResult.extend('hltcountblob','blob')
-        qResult.extend('hltacceptblob','blob')
+        if len(hltnamedict)!=0:
+            qResult.extend('prescaleblob','blob')
+        if withL1Pass:
+            qResult.extend('hltcountblob','blob')
+        if withHLTAccept:
+            qResult.extend('hltacceptblob','blob')
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
         while cursor.next():
             runnum=cursor.currentRow()['runnum'].data()
             cmslsnum=cursor.currentRow()['cmslsnum'].data()
-            prescaleblob=cursor.currentRow()['prescaleblob'].data()
-            hltcountblob=cursor.currentRow()['hltcountblob'].data()
-            hltacceptblob=cursor.currentRow()['hltacceptblob'].data()
+            prescaleblob=None
+            hltcountblob=None
+            hltacceptblob=None
+            if len(hltnamedict)!=0:
+                prescaleblob=cursor.currentRow()['prescaleblob'].data()
+            if withL1Pass:
+                hltcountblob=cursor.currentRow()['hltcountblob'].data()
+            if withHLTAccept:
+                hltacceptblob=cursor.currentRow()['hltacceptblob'].data()
             if not result.has_key(cmslsnum):
                 result[cmslsnum]=[]
             pathinfo=[]
@@ -767,8 +814,7 @@ def hltLSById(schema,dataid,hltpathname=None,hltpathpattern=None):
                 hltcounts=CommonUtil.unpackBlobtoArray(hltcountblob,'I')
             if hltacceptblob:
                 hltaccepts=CommonUtil.unpackBlobtoArray(hltacceptblob,'I')
-            for hltpathidx in hltnamedict.keys():#loop over selected paths
-                thispathname=hltnamedict[hltpathidx]
+            for (hltpathidx,thispathname) in hltnamedict:#loop over selected paths
                 thispresc=0
                 thishltcount=0
                 thisaccept=0
@@ -785,6 +831,10 @@ def hltLSById(schema,dataid,hltpathname=None,hltpathpattern=None):
         del qHandle
         raise
     del qHandle
+    #tt1=time.time()
+    #print '\tdb stuff time ',tt1-tt0
+    #t1=time.time()
+    #print 'tot hltLSById time ',t1-t0
     return (runnum,result)
 def guessLumiDataIdByRun(schema,runnum):
     result=None
