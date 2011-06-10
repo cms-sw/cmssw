@@ -274,6 +274,12 @@ topSingleMuonLooseDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
       select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
       max    = cms.int32(4),
     ),
+    cms.PSet(
+      label  = cms.string("pvs:step4"),
+      src    = cms.InputTag("offlinePrimaryVertices"),
+      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
+      max    = cms.int32(2),
+    ),
   )
 )
 
@@ -427,6 +433,12 @@ topSingleMuonMediumDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
       select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
       max    = cms.int32(4),
     ),
+    cms.PSet(
+      label  = cms.string("pvs:step4"),
+      src    = cms.InputTag("offlinePrimaryVertices"),
+      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
+      max    = cms.int32(2),
+    ),
   )
 )
 
@@ -577,6 +589,12 @@ topSingleElectronLooseDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
       src    = cms.InputTag("offlinePrimaryVertices"),
       select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
       max    = cms.int32(4),
+    ),
+    cms.PSet(
+      label  = cms.string("pvs:step4"),
+      src    = cms.InputTag("offlinePrimaryVertices"),
+      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
+      max    = cms.int32(2),
     ),
   )
 )
@@ -729,6 +747,12 @@ topSingleElectronMediumDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
       src    = cms.InputTag("offlinePrimaryVertices"),
       select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
       max    = cms.int32(4),
+    ),
+    cms.PSet(
+      label  = cms.string("pvs:step4"),
+      src    = cms.InputTag("offlinePrimaryVertices"),
+      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
+      max    = cms.int32(2),
     ),
   )
 )
