@@ -16,6 +16,7 @@
 
 class RooRealVar;
 class TGraphErrors;
+class TDirectory;
 
 class HybridNew : public LimitAlgo {
 public:
@@ -41,11 +42,12 @@ private:
   static double clsAccuracy_, rAbsAccuracy_, rRelAccuracy_;
   static bool   rInterval_;
   static bool CLs_;
-  static bool saveHybridResult_, readHybridResults_; 
   static std::string rule_, testStat_;
   static bool genNuisances_, genGlobalObs_, fitNuisances_;
   static double rValue_;
   static unsigned int iterations_;
+  static bool saveHybridResult_, readHybridResults_; 
+  static std::string gridFile_;
   static unsigned int nCpu_, fork_;
   static bool importanceSamplingNull_, importanceSamplingAlt_;
   static std::string algo_;
@@ -78,7 +80,14 @@ private:
   RooStats::HypoTestResult *evalWithFork(RooStats::HybridCalculator &hc);
   RooStats::HypoTestResult *readToysFromFile(double rValue=0);
 
+  std::map<double, RooStats::HypoTestResult *> grid_;
+
   void readAllToysFromFile(); 
+  void clearGrid(); 
+  void readGrid(TDirectory *directory); 
+  void updateGridData(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, bool smart, double clsTarget); 
+  std::pair<double,double> updateGridPoint(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, std::map<double, RooStats::HypoTestResult *>::iterator point);
+  void useGrid();
 
 };
 

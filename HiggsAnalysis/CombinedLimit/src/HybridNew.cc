@@ -56,6 +56,7 @@ double HybridNew::rValue_  = 1.0;
 bool HybridNew::CLs_ = false;
 bool HybridNew::saveHybridResult_  = false;
 bool HybridNew::readHybridResults_ = false; 
+std::string HybridNew::gridFile_ = "";
 bool HybridNew::importanceSamplingNull_ = false;
 bool HybridNew::importanceSamplingAlt_  = false;
 std::string HybridNew::algo_ = "logSecant";
@@ -69,7 +70,7 @@ HybridNew::HybridNew() :
 LimitAlgo("HybridNew specific options") {
     options_.add_options()
         ("rule",    boost::program_options::value<std::string>(&rule_)->default_value(rule_),            "Rule to use: CLs, CLsplusb")
-        ("testStat",boost::program_options::value<std::string>(&testStat_)->default_value(testStat_),    "Test statistics: LEP, TEV, Atlas.")
+        ("testStat",boost::program_options::value<std::string>(&testStat_)->default_value(testStat_),    "Test statistics: LEP, TEV, LHC (previously known as Atlas), Profile.")
         ("singlePoint",  boost::program_options::value<float>(),  "Just compute CLs for the given value of r")
         ("onlyTestStat", "Just compute test statistics, not actual p-values (works only with --singlePoint)")
         ("generateNuisances",            boost::program_options::value<bool>(&genNuisances_)->default_value(genNuisances_), "Generate nuisance parameters for each toy")
@@ -80,11 +81,12 @@ LimitAlgo("HybridNew specific options") {
         ("clsAcc",  boost::program_options::value<double>(&clsAccuracy_ )->default_value(clsAccuracy_),  "Absolute accuracy on CLs to reach to terminate the scan")
         ("rAbsAcc", boost::program_options::value<double>(&rAbsAccuracy_)->default_value(rAbsAccuracy_), "Absolute accuracy on r to reach to terminate the scan")
         ("rRelAcc", boost::program_options::value<double>(&rRelAccuracy_)->default_value(rRelAccuracy_), "Relative accuracy on r to reach to terminate the scan")
-        ("iteration,i", boost::program_options::value<unsigned int>(&iterations_)->default_value(iterations_), "Number of times to throw 'toysH' toys to compute the p-values (for --singlePoint if clsAcc is set to zero disabling adaptive generation)")
+        ("iterations,i", boost::program_options::value<unsigned int>(&iterations_)->default_value(iterations_), "Number of times to throw 'toysH' toys to compute the p-values (for --singlePoint if clsAcc is set to zero disabling adaptive generation)")
         ("fork",    boost::program_options::value<unsigned int>(&fork_)->default_value(fork_),           "Fork to N processes before running the toys (set to 0 for debugging)")
         ("nCPU",    boost::program_options::value<unsigned int>(&nCpu_)->default_value(nCpu_),           "Use N CPUs with PROOF Lite (experimental!)")
         ("saveHybridResult",  "Save result in the output file  (option saveToys must be enabled)")
         ("readHybridResults", "Read and merge results from file (option toysFile must be enabled)")
+        ("grid",    boost::program_options::value<std::string>(&gridFile_)->default_value(gridFile_),            "Use the specified file containing a grid of SamplingDistributions (superceeds option 'toysFile')")
         ("importanceSamplingNull", boost::program_options::value<bool>(&importanceSamplingNull_)->default_value(importanceSamplingNull_),  
                                    "Enable importance sampling for null hypothesis (background only)") 
         ("importanceSamplingAlt",  boost::program_options::value<bool>(&importanceSamplingAlt_)->default_value(importanceSamplingAlt_),    
@@ -103,6 +105,7 @@ LimitAlgo("HybridNew specific options") {
 void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
     if (vm.count("frequentist")) {
         genNuisances_ = 0; genGlobalObs_ = withSystematics; fitNuisances_ = withSystematics;
+        if (vm["testStat"].defaulted()) testStat_ = "LHC";
     }
     if (vm.count("singlePoint")) {
         if (doSignificance_) throw std::invalid_argument("HybridNew: Can't use --significance and --singlePoint at the same time");
@@ -118,7 +121,7 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
     }
     saveHybridResult_ = vm.count("saveHybridResult");
     readHybridResults_ = vm.count("readHybridResults");
-    if (readHybridResults_ && !vm.count("toysFile"))     throw std::invalid_argument("HybridNew: must have 'toysFile' option to have 'readHybridResults'\n");
+    if (readHybridResults_ && !(vm.count("toysFile") || vm.count("grid")))     throw std::invalid_argument("HybridNew: must have 'toysFile' or 'grid' option to have 'readHybridResults'\n");
     if (saveHybridResult_  && !vm.count("saveToys")) throw std::invalid_argument("HybridNew: must have 'saveToys' option to have 'saveHybridResult'\n");
     validateOptions(); 
 }
@@ -137,8 +140,19 @@ void HybridNew::validateOptions() {
     } else {
         throw std::invalid_argument("HybridNew: Rule must be either 'CLs' or 'CLsplusb'");
     }
-    if (testStat_ != "LEP" && testStat_ != "TEV" && testStat_ != "Atlas" && testStat_ != "Profile") {
-        throw std::invalid_argument("HybridNew: Test statistics should be one of 'LEP' or 'TEV' or 'Atlas' or 'Profile'");
+    if (testStat_ == "SimpleLikelihoodRatio"      || testStat_ == "SLR" ) { testStat_ = "LEP";     }
+    if (testStat_ == "RatioOfProfiledLikelihoods" || testStat_ == "ROPL") { testStat_ = "TEV";     }
+    if (testStat_ == "ProfileLikelihood"          || testStat_ == "PL")   { testStat_ = "Profile"; }
+    if (testStat_ == "ModifiedProfileLikelihood"  || testStat_ == "MPL")  { testStat_ = "LHC";     }
+    if (testStat_ == "Atlas") { testStat_ = "LHC"; std::cout << "Note: the Atlas test statistics is now known as LHC test statistics.\n" << std::endl; }
+    if (testStat_ != "LEP" && testStat_ != "TEV" && testStat_ != "LHC" && testStat_ != "Profile") {
+        throw std::invalid_argument("HybridNew: Test statistics should be one of 'LEP' or 'TEV' or 'LHC' (previously known as 'Atlas') or 'Profile'");
+    }
+    if (verbose) {
+        if (testStat_ == "LEP")     std::cout << ">>> using the Simple Likelihood Ratio test statistics (Q_LEP)" << std::endl;
+        if (testStat_ == "TEV")     std::cout << ">>> using the Ratio of Profiled Likelihoods test statistics (Q_TEV)" << std::endl;
+        if (testStat_ == "LHC")     std::cout << ">>> using the Profile Likelihood test statistics modified for upper limits (Q_LHC)" << std::endl;
+        if (testStat_ == "Profile") std::cout << ">>> using the Profile Likelihood test statistics not modified for upper limits (Q_Profile)" << std::endl;
     }
 }
 
@@ -169,7 +183,7 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
         writeToysHere->WriteTObject(new HypoTestResult(*hcResult), name);
         if (verbose) std::cout << "Hybrid result saved as " << name << " in " << writeToysHere->GetFile()->GetName() << " : " << writeToysHere->GetPath() << std::endl;
     }
-    if (testStat_ == "Atlas" || testStat_ == "Profile") {
+    if (testStat_ == "LHC" || testStat_ == "Profile") {
         // I need to flip the P-values
         hcResult->SetPValueIsRightTail(!hcResult->GetPValueIsRightTail());
         hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()-1e-9); // issue with < vs <= in discrete models
@@ -208,14 +222,29 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
   if (readHybridResults_) { 
       if (verbose > 0) std::cout << "Search for upper limit using pre-computed grid of p-values" << std::endl;
 
-      readAllToysFromFile(); 
+      if (!gridFile_.empty()) {
+        if (grid_.empty()) {
+            std::auto_ptr<TFile> gridFile(TFile::Open(gridFile_.c_str()));
+            if (gridFile.get() == 0) throw std::runtime_error(("Can't open grid file "+gridFile_).c_str());
+            TDirectory *toyDir = gridFile->GetDirectory("toys");
+            if (!toyDir) throw std::logic_error("Cannot use readHypoTestResult: empty toy dir in input file empty");
+            readGrid(toyDir);
+        }
+        updateGridData(w, mc_s, mc_b, data, true, clsTarget);
+      } else readAllToysFromFile(); 
+
+      useGrid();
+
       double minDist=1e3;
+      rMin = limitPlot_->GetX()[0]; 
+      rMax = limitPlot_->GetX()[limitPlot_->GetN()-1];
       for (int i = 0, n = limitPlot_->GetN(); i < n; ++i) {
           double x = limitPlot_->GetX()[i], y = limitPlot_->GetY()[i], ey = limitPlot_->GetErrorY(i);
           if (verbose > 0) std::cout << "  r " << x << (CLs_ ? ", CLs = " : ", CLsplusb = ") << y << " +/- " << ey << std::endl;
-          if (y-3*ey >= clsTarget) { rMin = x; clsMin = CLs_t(y,ey); }
-          if (y+3*ey <= clsTarget) { rMax = x; clsMax = CLs_t(y,ey); break; }
+          if (y-3*max(ey,0.01) >= clsTarget) { rMin = x; clsMin = CLs_t(y,ey); }
           if (fabs(y-clsTarget) < minDist) { limit = x; minDist = fabs(y-clsTarget); }
+          rMax = x; clsMax = CLs_t(y,ey);    
+          if (y+3*max(ey,0.01) <= clsTarget) break; 
       }
       if (verbose > 0) std::cout << " after scan x ~ " << limit << ", bounds [ " << rMin << ", " << rMax << "]" << std::endl;
       limitErr = std::max(limit-rMin, rMax-limit);
@@ -393,9 +422,9 @@ bool HybridNew::runTestStatistics(RooWorkspace *w, RooStats::ModelConfig *mc_s, 
     HybridNew::Setup setup;
     std::auto_ptr<RooStats::HybridCalculator> hc(create(w, mc_s, mc_b, data, rValue_, setup));
     RooArgSet nullPOI(*setup.modelConfig_bonly.GetSnapshot());
-    if (testStat_ == "Atlas" || testStat_ == "Profile") nullPOI.setRealValue(r->GetName(), rValue_);
+    if (testStat_ == "LHC" || testStat_ == "Profile") nullPOI.setRealValue(r->GetName(), rValue_);
     limit = -2 * setup.qvar->Evaluate(data, nullPOI);
-    if (testStat_ == "Atlas" || testStat_ == "Profile") limit = -limit; // there's a sign flip for these two
+    if (testStat_ == "LHC" || testStat_ == "Profile") limit = -limit; // there's a sign flip for these two
     std::cout << "\n -- Hybrid New -- \n";
     std::cout << "-2 ln Q_{"<< testStat_<<"} = " << limit << std::endl;
     return true;
@@ -442,7 +471,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
  
   r->setMax(rVal); r->setVal(rVal); 
-  if (testStat_ == "Atlas" || testStat_ == "Profile") {
+  if (testStat_ == "LHC" || testStat_ == "Profile") {
     r->setConstant(false); r->setMin(0); 
   } else {
     r->setConstant(true);
@@ -551,9 +580,9 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
           setup.qvar.reset(new RatioOfProfiledLikelihoodsTestStat(*mc_s->GetPdf(), *mc_s->GetPdf(), setup.modelConfig.GetSnapshot()));
           ((RatioOfProfiledLikelihoodsTestStat&)*setup.qvar).SetSubtractMLE(false);
       }
-  } else if (testStat_ == "Atlas" || testStat_ == "Profile") {
+  } else if (testStat_ == "LHC" || testStat_ == "Profile") {
     setup.qvar.reset(new ProfileLikelihoodTestStat(*mc_s->GetPdf()));
-    if (testStat_ == "Atlas") {
+    if (testStat_ == "LHC") {
        ((ProfileLikelihoodTestStat&)*setup.qvar).SetOneSided(true);
         if (optimizeTestStatistics_) {
             setup.qvar.reset(new ProfiledLikelihoodTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(),  *setup.modelConfig.GetSnapshot()));
@@ -633,7 +662,7 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
         std::cerr << "Hypotest failed" << std::endl;
         return std::pair<double, double>(-1,-1);
     }
-    if (testStat_ == "Atlas" || testStat_ == "Profile") {
+    if (testStat_ == "LHC" || testStat_ == "Profile") {
         // I need to flip the P-values
         hcResult->SetPValueIsRightTail(!hcResult->GetPValueIsRightTail());
         hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()-1e-9); // issue with < vs <= in discrete models
@@ -647,7 +676,7 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
         hc.SetToys(CLs_ ? nToys_ : 1, 4*nToys_);
         while (clsMidErr >= clsAccuracy_ && (clsTarget == -1 || fabs(clsMid-clsTarget) < 3*clsMidErr) ) {
             std::auto_ptr<HypoTestResult> more(fork_ ? evalWithFork(hc) : hc.GetHypoTest());
-            if (testStat_ == "Atlas" || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
+            if (testStat_ == "LHC" || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
             hcResult->Append(more.get());
             clsMid    = (CLs_ ? hcResult->CLs()      : hcResult->CLsplusb());
             clsMidErr = (CLs_ ? hcResult->CLsError() : hcResult->CLsplusbError());
@@ -656,7 +685,7 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
     } else if (iterations_ > 1) {
         for (unsigned int i = 1; i < iterations_; ++i) {
             std::auto_ptr<HypoTestResult> more(fork_ ? evalWithFork(hc) : hc.GetHypoTest());
-            if (testStat_ == "Atlas" || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
+            if (testStat_ == "LHC" || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
             hcResult->Append(more.get());
             clsMid    = (CLs_ ? hcResult->CLs()      : hcResult->CLsplusb());
             clsMidErr = (CLs_ ? hcResult->CLsError() : hcResult->CLsplusbError());
@@ -771,9 +800,13 @@ void HybridNew::readAllToysFromFile() {
     if (!readToysFromHere) throw std::logic_error("Cannot use readHypoTestResult: option toysFile not specified, or input file empty");
     TDirectory *toyDir = readToysFromHere->GetDirectory("toys");
     if (!toyDir) throw std::logic_error("Cannot use readHypoTestResult: empty toy dir in input file empty");
-    std::auto_ptr<RooStats::HypoTestResult> ret;
+    readGrid(toyDir);
+}
+
+void HybridNew::readGrid(TDirectory *toyDir) {
+    clearGrid();
+
     TIter next(toyDir->GetListOfKeys()); TKey *k;
-    std::map<double, RooStats::HypoTestResult *> grid;
     while ((k = (TKey *) next()) != 0) {
         TString name(k->GetName());
         if (name.Index("HypoTestResult_r") != 0 || name.Index("_", name.Index("_")+1) == -1) continue;
@@ -782,15 +815,108 @@ void HybridNew::readAllToysFromFile() {
         double rVal = atof(name.Data());
         if (verbose > 2) std::cout << "  Do " << k->GetName() << " -> " << name << " --> " << rVal << std::endl;
         RooStats::HypoTestResult *toy = dynamic_cast<RooStats::HypoTestResult *>(toyDir->Get(k->GetName()));
-        RooStats::HypoTestResult *&merge = grid[rVal];
+        RooStats::HypoTestResult *&merge = grid_[rVal];
         if (merge == 0) merge = new RooStats::HypoTestResult(*toy);
         else merge->Append(toy);
+        merge->ResetBit(1);
     }
+}
+void HybridNew::updateGridData(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, bool smart, double clsTarget_) {
+    typedef std::map<double, RooStats::HypoTestResult *>::iterator point;
+    if (!smart) {
+        for (point it = grid_.begin(), ed = grid_.end(); it != ed; ++it) {
+            it->second->ResetBit(1);
+            updateGridPoint(w, mc_s, mc_b, data, it);
+        }
+    } else {
+        typedef std::pair<double,double> CLs_t;
+        std::vector<point> points; points.reserve(grid_.size()); 
+        for (point it = grid_.begin(), ed = grid_.end(); it != ed; ++it) { points.push_back(it); }
+        std::vector<CLs_t> values(points.size(), CLs_t(-99,-99));
+        int iMin = 0, iMax = points.size()-1, iMid = -1;
+        while (iMax-iMin > 3) {
+            if (verbose > 1) std::cout << "Bisecting range [" << iMin << ", " << iMax << "]" << std::endl; 
+            int iMid = (iMin+iMax)/2;
+            CLs_t clsMid = values[iMid] = updateGridPoint(w, mc_s, mc_b, data, points[iMid]);
+            if (verbose > 1) std::cout << "    Midpoint " << iMid << " value " << clsMid.first << " +/- " << clsMid.second << std::endl; 
+            if (clsMid.first - 3*max(clsMid.second,0.01) > clsTarget_) { 
+                if (verbose > 1) std::cout << "    Replacing Min" << std::endl; 
+                iMin = iMid; continue;
+            } else if (clsMid.first + 3*max(clsMid.second,0.01) < clsTarget_) {
+                if (verbose > 1) std::cout << "    Replacing Max" << std::endl; 
+                iMax = iMid; continue;
+            } else {
+                if (verbose > 1) std::cout << "    Tightening Range" << std::endl; 
+                while (iMin < iMid-1) {
+                    int iLo = (iMin+iMid)/2;
+                    CLs_t clsLo = values[iLo] = updateGridPoint(w, mc_s, mc_b, data, points[iLo]);
+                    if (verbose > 1) std::cout << "        Lowpoint " << iLo << " value " << clsLo.first << " +/- " << clsLo.second << std::endl; 
+                    if (clsLo.first - 3*max(clsLo.second,0.01) > clsTarget_) iMin = iLo; 
+                    else break;
+                }
+                while (iMax > iMid+1) {
+                    int iHi = (iMax+iMid)/2;
+                    CLs_t clsHi = values[iHi] = updateGridPoint(w, mc_s, mc_b, data, points[iHi]);
+                    if (verbose > 1) std::cout << "        Highpoint " << iHi << " value " << clsHi.first << " +/- " << clsHi.second << std::endl; 
+                    if (clsHi.first + 3*max(clsHi.second,0.01) < clsTarget_) iMax = iHi; 
+                    else break;
+                }
+                break;
+            }
+        }
+        if (verbose > 1) std::cout << "Final range [" << iMin << ", " << iMax << "]" << std::endl; 
+        for (int i = 0; i < iMin; ++i) {
+            points[i]->second->SetBit(1);
+        }
+        for (int i = iMin; i <= iMax; ++i) {
+            points[i]->second->ResetBit(1);
+            if (values[iMid].first == -99) {
+                if (verbose > 1) std::cout << "   Updaing point " << i << std::endl; 
+                updateGridPoint(w, mc_s, mc_b, data, points[i]);
+            }
+            else if (verbose > 1) std::cout << "   Point " << i << " was already updated during search." << std::endl; 
+        }
+        for (int i = iMax+1, n = points.size(); i < n; ++i) {
+            points[i]->second->SetBit(1);
+        }
+    }
+}
+std::pair<double,double> HybridNew::updateGridPoint(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, std::map<double, RooStats::HypoTestResult *>::iterator point) {
+    if (point->first == 0 && CLs_) return std::pair<double,double>(1,0);
 
-    int i = 0, n = grid.size();
-    limitPlot_.reset(new TGraphErrors(n));
-    for (std::map<double, RooStats::HypoTestResult *>::iterator itg = grid.begin(), edg = grid.end(); itg != edg; ++itg, ++i) {
-        limitPlot_->SetPoint(     i, itg->first, CLs_ ? itg->second->CLs()      : itg->second->CLsplusb()); 
-        limitPlot_->SetPointError(i, 0,          CLs_ ? itg->second->CLsError() : itg->second->CLsplusbError());
+    bool isProfile = (testStat_ == "LHC" || testStat_ == "Profile");
+    RooArgSet  poi(*mc_s->GetParametersOfInterest());
+    RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
+    Setup setup;
+    std::auto_ptr<RooStats::HybridCalculator> hc = create(w, mc_s, mc_b, data, point->first, setup);
+    RooArgSet nullPOI(*setup.modelConfig_bonly.GetSnapshot());
+    if (isProfile) nullPOI.setRealValue(r->GetName(), rValue_);
+    double testStat = setup.qvar->Evaluate(data, nullPOI);
+    point->second->SetTestStatisticData(testStat + (isProfile ? -1e-9 : 1e-9));
+    typedef std::pair<double,double> CLs_t;
+    return CLs_ ? CLs_t(point->second->CLs(), point->second->CLsError()) : CLs_t(point->second->CLsplusb(), point->second->CLsplusbError());
+}
+void HybridNew::useGrid() {
+    typedef std::pair<double,double> CLs_t;
+    int i = 0, n = 0;
+    limitPlot_.reset(new TGraphErrors(1));
+    for (std::map<double, RooStats::HypoTestResult *>::iterator itg = grid_.begin(), edg = grid_.end(); itg != edg; ++itg, ++i) {
+        if (itg->second->TestBit(1)) continue;
+        CLs_t val(1,0);
+        if (CLs_) {
+            if (itg->first > 0) val =CLs_t(itg->second->CLs(), itg->second->CLsError());
+        } else {
+            val = CLs_t(itg->second->CLsplusb(), itg->second->CLsplusbError());
+        }
+        limitPlot_->Set(n+1);
+        limitPlot_->SetPoint(     n, itg->first, val.first); 
+        limitPlot_->SetPointError(n, 0,          val.second);
+        n++;
     }
- }
+}
+void HybridNew::clearGrid() {
+    for (std::map<double, RooStats::HypoTestResult *>::iterator it = grid_.begin(), ed = grid_.end(); it != ed; ++it) {
+        delete it->second;
+    }
+    grid_.clear();
+}
