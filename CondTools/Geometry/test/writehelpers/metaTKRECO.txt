@@ -5,5 +5,8 @@ since
 till 
 Timetype runnumber
 IOVCheck offline
+DuplicateTagHLT 
+DuplicateTagEXPRESS 
+DuplicateTagPROMPT 
 usertext Geometry payload for Tracker Reco TagXX
 

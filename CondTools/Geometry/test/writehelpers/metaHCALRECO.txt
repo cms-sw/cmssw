@@ -6,4 +6,7 @@ since
 till 
 Timetype runnumber
 IOVCheck offline
+DuplicateTagHLT 
+DuplicateTagEXPRESS 
+DuplicateTagPROMPT 
 usertext Geometry payload for HCAL Reco TagXX

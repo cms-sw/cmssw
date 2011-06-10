@@ -4,5 +4,8 @@ inputtag
 since
 Timetype runnumber
 IOVCheck offline
+DuplicateTagHLT 
+DuplicateTagEXPRESS 
+DuplicateTagPROMPT 
 usertext Geometry validation special X0Max for Tracker. TagXX
 

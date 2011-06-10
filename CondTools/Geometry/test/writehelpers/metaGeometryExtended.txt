@@ -5,4 +5,7 @@ since
 till 
 Timetype runnumber
 IOVCheck offline
+DuplicateTagHLT 
+DuplicateTagEXPRESS 
+DuplicateTagPROMPT 
 usertext Geometry payload for Full DDD XML Extended config. TagXX
