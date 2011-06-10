@@ -97,8 +97,8 @@ def customise(process):
   # needs more care
   # process.offlinePrimaryVertices.beamSpotLabel = cms.InputTag("offlineBeamSpot","","REDIGI311X")
   # process.offlinePrimaryVerticesWithBS.beamSpotLabel = cms.InputTag("offlineBeamSpot","","REDIGI311X")
-  process.offlinePrimaryVertices.beamSpotLabel =        cms.InputTag("offlineBeamSpot","","REDIGI41X")
-  process.offlinePrimaryVerticesWithBS.beamSpotLabel =  cms.InputTag("offlineBeamSpot","","REDIGI41X")
+  #process.offlinePrimaryVertices.beamSpotLabel =        cms.InputTag("offlineBeamSpot","","REDIGI41X")
+  #process.offlinePrimaryVerticesWithBS.beamSpotLabel =  cms.InputTag("offlineBeamSpot","","REDIGI41X")
 
 
   hltProcessName = "HLT"	#"REDIGI38X"
@@ -167,7 +167,8 @@ def customise(process):
 
   print "options.overrideBeamSpot", options.overrideBeamSpot
   if options.overrideBeamSpot != 0:
-    bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v18_offline") # 41x data PR gt
+    bs = cms.string("Realistic7TeVCollisions2011_START311_V2_v2_mc") #  42x MC PR gt
+    #bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v18_offline") # 41x data PR gt
     # bs = cms.string("BeamSpotObjects_2009_LumiBased_v17_offline") # 38x data gt
     #bs = cms.string("BeamSpotObjects_2009_v14_offline") # 36x data gt
     #  tag = cms.string("Early10TeVCollision_3p8cm_31X_v1_mc_START"), # 35 default
@@ -222,10 +223,13 @@ def customise(process):
   process.muons.TrackExtractorPSet.inputTrackCollection = cms.InputTag("tmfTracks")
   # it should be the best solution to take the original beam spot for the
   # reconstruction of the new primary vertex
-  process.offlinePrimaryVertices.beamSpotLabel = cms.InputTag("offlineBeamSpot","","RECO")
-  process.offlinePrimaryVerticesWithBS.beamSpotLabel = cms.InputTag("offlineBeamSpot","","RECO")
-  #process.offlinePrimaryVertices.beamSpotLabel = cms.InputTag("offlineBeamSpot","","REDIGI311X")
-  #process.offlinePrimaryVerticesWithBS.beamSpotLabel = cms.InputTag("offlineBeamSpot","","REDIGI311X")
+
+  # use the  one produced earlier, do not produce your own
+  for s in process.sequences:
+     seq =  getattr(process,s)
+     seq.remove(process.offlineBeamSpot) 
+
+
   
   try:
   	process.metreco.remove(process.BeamHaloId)
@@ -309,6 +313,8 @@ def customise(process):
 
   process.pfSelectedElectrons.src = cms.InputTag("particleFlowORG")
   process.pfSelectedPhotons.src   = cms.InputTag("particleFlowORG")
+
+  process.schedule.remove(process.DQM_FEDIntegrity_v3)
 
 
   print "#############################################################"
