@@ -11,6 +11,4 @@
 #include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
 
 DEFINE_FWK_MODULE(EcalSelectiveReadoutProducer);
-
 DEFINE_FWK_MODULE(EcalSRCondTools);
-
