@@ -1,9 +1,16 @@
 #ifndef RecoParticleFlow_PFProducer_PFLinker_h
 #define RecoParticleFlow_PFProducer_PFLinker_h
 
-/// Fills the GsfElectron Ref into the PFCandidate
-/// Produces the ValueMap <GsfElectronRef,PFCandidateRef>
-/// F. Beaudette 8 March 2011
+/** \class PFLinker
+ *  Producer meant for the Post PF reconstruction.
+ *
+ *  Fills the GsfElectron, Photon and Muon Ref into the PFCandidate
+ *  Produces the ValueMap between GsfElectronRef/Photon/Mupns with PFCandidateRef
+ *
+ *  $Date: 2011/06/06 13:49:58 $
+ *  $Revision: 1.7 $
+ *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>, F. Beaudette - CERN <Florian.Beaudette@cern.ch>
+ */
 
 #include <iostream>
 #include <string>
@@ -33,27 +40,19 @@ class PFLinker : public edm::EDProducer {
   virtual void beginRun(edm::Run& run,const edm::EventSetup & es);
 
  private:
-  bool fetchCandidateCollection(edm::Handle<reco::PFCandidateCollection>& c, 
-				const edm::InputTag& tag, 
-				const edm::Event& iEvent) const ;
-  
-  bool fetchGsfElectronCollection(edm::Handle<reco::GsfElectronCollection>& c, 
-				  const edm::InputTag& tag, 
-				  const edm::Event& iEvent) const ;
 
-  bool fetchPhotonCollection(edm::Handle<reco::PhotonCollection>& c, 
-				  const edm::InputTag& tag, 
-				  const edm::Event& iEvent) const ;
+  template<typename T>
+    bool fetchCollection(edm::Handle<T>& c, 
+			 const edm::InputTag& tag, 
+			 const edm::Event& iEvent) const ;
   
-  void fillValueMap(edm::Handle<reco::GsfElectronCollection>& c,
-		    const edm::OrphanHandle<reco::PFCandidateCollection> & pfOrphanHandle,
-		    const edm::Handle<reco::PFCandidateCollection> & pfHandle,
-		    edm::ValueMap<reco::PFCandidatePtr>::Filler & filler) const;
-
-  void fillValueMap(edm::Handle<reco::PhotonCollection>& c,
-		    const edm::OrphanHandle<reco::PFCandidateCollection> & pfOrphanHandle,
-		    const edm::Handle<reco::PFCandidateCollection> & pfHandle,
-		    edm::ValueMap<reco::PFCandidatePtr>::Filler & filler) const;
+  template<typename TYPE>
+    void fillValueMap(edm::Event & event,
+		      std::string label,
+		      edm::Handle<TYPE>& inputObjCollection,
+		      const std::map<edm::Ref<TYPE>, unsigned> & mapToTheCandidate,
+		      const edm::Handle<reco::PFCandidateCollection> & oldPFCandColl,
+		      const edm::OrphanHandle<reco::PFCandidateCollection> & newPFCandColl) const;    
 
  private:
  
@@ -67,7 +66,7 @@ class PFLinker : public edm::EDProducer {
   edm::InputTag       inputTagPhotons_;
 
   /// Input Muons
-  //  edm::InputTag       inputTagMuons_;
+  edm::InputTag       inputTagMuons_;
 
   /// name of output collection of PFCandidate
   std::string nameOutputPF_;
@@ -78,19 +77,12 @@ class PFLinker : public edm::EDProducer {
   /// name of output ValueMap photons
   std::string nameOutputPhotonsPF_;
 
-  /// name of output ValueMap photons
-  // std::string nameOutputMuonsPF_;
-
-
-  /// map GsfElectron PFCandidate (index)
-  std::map<reco::GsfElectronRef,unsigned> electronCandidateMap_;
-
-  /// map Photon PFCandidate (index)
-  std::map<reco::PhotonRef,unsigned> photonCandidateMap_;
-
   /// Flags - if true: References will be towards new collection ; if false to the original one
   bool producePFCandidates_;
-  
+
+  /// Set muon refs and produce the value map?
+  bool fillMuonRefs_;
+
 };
 
 #endif

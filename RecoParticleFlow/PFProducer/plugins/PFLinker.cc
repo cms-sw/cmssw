@@ -2,6 +2,10 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/MuonReco/interface/MuonToMuonMap.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+
 #include "RecoParticleFlow/PFProducer/interface/GsfElectronEqual.h"
 #include "RecoParticleFlow/PFProducer/interface/PhotonEqual.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,8 +18,8 @@ PFLinker::PFLinker(const edm::ParameterSet & iConfig) {
     = iConfig.getParameter<edm::InputTag>("GsfElectrons");
   inputTagPhotons_
     = iConfig.getParameter<edm::InputTag>("Photons");
-  //  inputTagMuons_
-  //   = iConfig.getParameter<edm::InputTag>("Muons");
+  inputTagMuons_
+    = iConfig.getParameter<edm::InputTag>("Muons");
   
   nameOutputPF_ 
     = iConfig.getParameter<std::string>("OutputPF");
@@ -29,12 +33,16 @@ PFLinker::PFLinker(const edm::ParameterSet & iConfig) {
   producePFCandidates_  
     = iConfig.getParameter<bool>("ProducePFCandidates");
   
+  fillMuonRefs_
+    = iConfig.getParameter<bool>("FillMuonRefs");
+
+
   if(producePFCandidates_) {
     produces<reco::PFCandidateCollection>(nameOutputPF_);
   }
   produces<edm::ValueMap<reco::PFCandidatePtr> > (nameOutputElectronsPF_);
   produces<edm::ValueMap<reco::PFCandidatePtr> > (nameOutputPhotonsPF_);
-  //  produces<edm::ValueMap<reco::PFCandidatePtr> > (nameOutputMuonsPF_);
+  if(fillMuonRefs_)  produces<edm::ValueMap<reco::PFCandidatePtr> > (inputTagMuons_.label());
 
 }
 
@@ -43,57 +51,60 @@ PFLinker::~PFLinker() {;}
 void PFLinker::beginRun(edm::Run& run,const edm::EventSetup & es) {;}
 
 void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  electronCandidateMap_.clear();
+  
   std::auto_ptr<reco::PFCandidateCollection>
     pfCandidates_p(new reco::PFCandidateCollection);
-
-  std::auto_ptr<edm::ValueMap<reco::PFCandidatePtr> > 
-    pfMapGsfElectrons_p(new edm::ValueMap<reco::PFCandidatePtr>());
-  edm::ValueMap<reco::PFCandidatePtr>::Filler pfMapGsfElectronFiller(*pfMapGsfElectrons_p);
-
-  std::auto_ptr<edm::ValueMap<reco::PFCandidatePtr> > 
-    pfMapPhotons_p(new edm::ValueMap<reco::PFCandidatePtr>());
-  edm::ValueMap<reco::PFCandidatePtr>::Filler pfMapPhotonFiller(*pfMapPhotons_p);
-
-  // std::auto_ptr<edm::ValueMap<reco::PFCandidatePtr> > 
-  //   pfMapMuons_p(new edm::ValueMap<reco::PFCandidatePtr>());
-  // edm::ValueMap<reco::PFCandidatePtr>::Filler pfMapMuonFiller(*pfMapMuons_p);
-
-
+  
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
-  bool status=fetchCandidateCollection(pfCandidates, 
-				       inputTagPFCandidates_, 
-				       iEvent );
-
+  bool status=fetchCollection<reco::PFCandidateCollection>(pfCandidates, 
+							   inputTagPFCandidates_, 
+							   iEvent );
+  
   edm::Handle<reco::GsfElectronCollection> gsfElectrons;
-  status=fetchGsfElectronCollection(gsfElectrons,
-				    inputTagGsfElectrons_,
-				    iEvent );
+  status=fetchCollection<reco::GsfElectronCollection>(gsfElectrons,
+						      inputTagGsfElectrons_,
+						      iEvent );
+  std::map<reco::GsfElectronRef,unsigned int> electronCandidateMap;  
+
 
   edm::Handle<reco::PhotonCollection> photons;
-  status=fetchPhotonCollection(photons,
-			       inputTagPhotons_,
-			       iEvent );
+  status=fetchCollection<reco::PhotonCollection>(photons,
+						 inputTagPhotons_,
+						 iEvent );
+  std::map<reco::PhotonRef,unsigned int> photonCandidateMap;
+
+
+  edm::Handle<reco::MuonToMuonMap> muonMap;
+  if(fillMuonRefs_)
+    status=fetchCollection<reco::MuonToMuonMap>(muonMap,
+						inputTagMuons_,
+						iEvent);
+  std::map<reco::MuonRef,unsigned int> muonCandidateMap;
+
+
 
   unsigned ncand=(status)?pfCandidates->size():0;
 
-  for( unsigned i=0; i<ncand; ++i ) {
+  for( unsigned i=0; i<ncand; ++i) {
     edm::Ptr<reco::PFCandidate> candPtr(pfCandidates,i);
     reco::PFCandidate cand(candPtr);
-
+    
     bool isphoton   = cand.particleId() == reco::PFCandidate::gamma && cand.mva_nothing_gamma()>0.;
     bool iselectron = cand.particleId() == reco::PFCandidate::e;
+    bool ismuon     = cand.particleId() == reco::PFCandidate::mu && fillMuonRefs_;
 
-    // if not an electron or a photon just fill the PFCandidate collection
-    if ( !(isphoton || iselectron)){pfCandidates_p->push_back(cand); continue;}
+    // if not an electron or a photon or a muon just fill the PFCandidate collection
+    if ( !(isphoton || iselectron || ismuon)){pfCandidates_p->push_back(cand); continue;}
     
-
-    // if not an electron or a photon with mva_nothing_gamma>0 
-    if(! (cand.particleId()==reco::PFCandidate::e) || ((cand.particleId()==reco::PFCandidate::gamma)&&(cand.mva_nothing_gamma()>0.))) {
-      pfCandidates_p->push_back(cand);
-      // watch out
-      continue;
+    
+    if (ismuon && fillMuonRefs_) {
+      reco::MuonRef muRef = (*muonMap)[cand.muonRef()];
+      cand.setMuonRef(muRef);
+      muonCandidateMap[muRef] = i;
     }
+     
+
+
 
     // if it is an electron. Find the GsfElectron with the same GsfTrack
     if (iselectron) {
@@ -109,8 +120,7 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       reco::GsfElectronRef electronRef(gsfElectrons,itcheck-gsfElectrons->begin());
       cand.setGsfElectronRef(electronRef);
       cand.setSuperClusterRef(electronRef->superCluster());
-      electronCandidateMap_[electronRef]=i;
-      pfCandidates_p->push_back(cand);
+      electronCandidateMap[electronRef]=i;
     }  
   
     // if it is a photon, find the one with the same PF super-cluster
@@ -127,9 +137,10 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       reco::PhotonRef photonRef(photons,itcheck-photons->begin());
       cand.setPhotonRef(photonRef);
       cand.setSuperClusterRef(photonRef->superCluster());
-      photonCandidateMap_[photonRef]=i;
-      pfCandidates_p->push_back(cand);
+      photonCandidateMap[photonRef]=i;
     }
+
+    pfCandidates_p->push_back(cand);
     
   }
   // save the PFCandidates and get a valid handle
@@ -139,111 +150,87 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   
   // now make the valuemaps
-  fillValueMap(gsfElectrons,pfCandidateRefProd,pfCandidates,pfMapGsfElectronFiller);  
-  fillValueMap(photons,pfCandidateRefProd,pfCandidates,pfMapPhotonFiller);  
+
+  fillValueMap<reco::GsfElectronCollection>(iEvent, 
+					    nameOutputElectronsPF_, 
+					    gsfElectrons, 
+					    electronCandidateMap,
+					    pfCandidates,
+					    pfCandidateRefProd);
   
-  iEvent.put(pfMapGsfElectrons_p,nameOutputElectronsPF_);
-  iEvent.put(pfMapPhotons_p,nameOutputPhotonsPF_);
-}
+  fillValueMap<reco::PhotonCollection>(iEvent, 
+				       nameOutputPhotonsPF_, 
+				       photons, 
+				       photonCandidateMap,
+				       pfCandidates,
+				       pfCandidateRefProd);
 
-
-bool PFLinker::fetchCandidateCollection(edm::Handle<reco::PFCandidateCollection>& c, 
-						    const edm::InputTag& tag, 
-						    const edm::Event& iEvent) const {  
-  bool found = iEvent.getByLabel(tag, c);
-  
-  if(!found )
-    {
-      std::ostringstream  err;
-      err<<" cannot get PFCandidates: "
-	 <<tag<<std::endl;
-      edm::LogError("PFLinker")<<err.str();
-    }
-  return found;
-  
-}
-
-bool PFLinker::fetchGsfElectronCollection(edm::Handle<reco::GsfElectronCollection>& c, 
-						   const edm::InputTag& tag, 
-						   const edm::Event& iEvent) const {
-  bool found = iEvent.getByLabel(tag, c);
-  
-  if(!found )
-    {
-      std::ostringstream  err;
-      err<<" cannot get GsfElectrons: "
-	 <<tag<<std::endl;
-      edm::LogError("PFLinker")<<err.str();
-    }
-  return found;
-
-}
-
-bool PFLinker::fetchPhotonCollection(edm::Handle<reco::PhotonCollection>& c, 
-					      const edm::InputTag& tag, 
-					      const edm::Event& iEvent) const {
-  bool found = iEvent.getByLabel(tag, c);
-  
-  if(!found )
-    {
-      std::ostringstream  err;
-      err<<" cannot get Photons: "
-	 <<tag<<std::endl;
-      edm::LogError("PFLinker")<<err.str();
-    }
-  return found;
-
-}
-
-
-void PFLinker::fillValueMap(edm::Handle<reco::GsfElectronCollection>& electrons,
-				  const edm::OrphanHandle<reco::PFCandidateCollection> & pfOrphanHandle,
-				  const edm::Handle<reco::PFCandidateCollection> & pfHandle,
-				  edm::ValueMap<reco::PFCandidatePtr>::Filler & filler) const {
-  unsigned nElectrons=electrons->size();
-  std::vector<reco::PFCandidatePtr> values;
-  for(unsigned ielec=0;ielec<nElectrons;++ielec) {
-    reco::GsfElectronRef gsfElecRef(electrons,ielec);
-    std::map<reco::GsfElectronRef,unsigned>::const_iterator itcheck=electronCandidateMap_.find(gsfElecRef);
-    if(itcheck==electronCandidateMap_.end()) {
-      values.push_back(reco::PFCandidatePtr());
-    } else {
-      if(producePFCandidates_) {
-	// points to the new collection
-	values.push_back(reco::PFCandidatePtr(pfOrphanHandle,itcheck->second));
-      }
-      else { 
-	// points to the old one
-	values.push_back(reco::PFCandidatePtr(pfHandle,itcheck->second));
-      }
-    }
+  if(fillMuonRefs_){
+    edm::Handle<reco::MuonCollection> muons; 
+    iEvent.getByLabel(inputTagMuons_.label(), muons);
+    
+    fillValueMap<reco::MuonCollection>(iEvent, 
+				       inputTagMuons_.label(), 
+				       muons, 
+				       muonCandidateMap,
+				       pfCandidates,
+				       pfCandidateRefProd);
   }
-  filler.insert(electrons,values.begin(),values.end());
-  filler.fill();
 }
 
-void PFLinker::fillValueMap(edm::Handle<reco::PhotonCollection>& photons,
-				     const edm::OrphanHandle<reco::PFCandidateCollection> & pfOrphanHandle,
-				     const edm::Handle<reco::PFCandidateCollection> & pfHandle,
-				     edm::ValueMap<reco::PFCandidatePtr>::Filler & filler) const {
-  unsigned nPhotons=photons->size();
-  std::vector<reco::PFCandidatePtr> values;
-  for(unsigned iphot=0;iphot<nPhotons;++iphot) {
-    reco::PhotonRef photonRef(photons,iphot);
-    std::map<reco::PhotonRef,unsigned>::const_iterator itcheck=photonCandidateMap_.find(photonRef);
-    if(itcheck==photonCandidateMap_.end()) {
-      values.push_back(reco::PFCandidatePtr());
-    } else {
-      if(producePFCandidates_) {
+template<typename T>
+bool PFLinker::fetchCollection(edm::Handle<T>& c, 
+			       const edm::InputTag& tag, 
+			       const edm::Event& iEvent) const {  
+
+  bool found = iEvent.getByLabel(tag, c);
+  
+  if(!found )
+    {
+      std::ostringstream  err;
+      err<<" cannot get " <<tag<<std::endl;
+      edm::LogError("PFLinker")<<err.str();
+    }
+  return found;
+}
+
+
+
+template<typename TYPE>
+void PFLinker::fillValueMap(edm::Event & event,
+			    std::string label,
+			    edm::Handle<TYPE>& inputObjCollection,
+			    const std::map<edm::Ref<TYPE>, unsigned> & mapToTheCandidate,
+			    const edm::Handle<reco::PFCandidateCollection> & oldPFCandColl,
+			    const edm::OrphanHandle<reco::PFCandidateCollection> & newPFCandColl) const {
+
+  std::auto_ptr<edm::ValueMap<reco::PFCandidatePtr> > pfMap_p(new edm::ValueMap<reco::PFCandidatePtr>());
+  edm::ValueMap<reco::PFCandidatePtr>::Filler filler(*pfMap_p);
+
+  typedef typename std::map<edm::Ref<TYPE>, unsigned int>::const_iterator MapTYPE_it; 
+
+  unsigned nObj=inputObjCollection->size();
+  std::vector<reco::PFCandidatePtr> values(nObj);
+
+  for(unsigned iobj=0; iobj < nObj; ++iobj) {
+
+    edm::Ref<TYPE> objRef(inputObjCollection, iobj);
+    MapTYPE_it  itcheck = mapToTheCandidate.find(objRef);
+
+    reco::PFCandidatePtr candPtr;
+
+    if(itcheck != mapToTheCandidate.end()){
+      if(producePFCandidates_)
 	// points to the new collection
-	values.push_back(reco::PFCandidatePtr(pfOrphanHandle,itcheck->second));
-      }
-      else {
+	candPtr = reco::PFCandidatePtr(newPFCandColl,itcheck->second);
+      else 
 	// points to the old collection
-	values.push_back(reco::PFCandidatePtr(pfHandle,itcheck->second));
-      }
+	candPtr = reco::PFCandidatePtr(oldPFCandColl,itcheck->second);
     }
+    values[iobj] = candPtr;    
   }
-  filler.insert(photons,values.begin(),values.end());
+
+  filler.insert(inputObjCollection,values.begin(),values.end());
   filler.fill();
+  event.put(pfMap_p,label);
 }
