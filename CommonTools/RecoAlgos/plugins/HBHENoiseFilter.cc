@@ -38,6 +38,7 @@
 HBHENoiseFilter::HBHENoiseFilter(const edm::ParameterSet& iConfig)
 {
   //now do what ever initialization is needed
+  label_ = iConfig.getParameter<edm::InputTag>("label");
   minRatio_ = iConfig.getParameter<double>("minRatio");
   maxRatio_ = iConfig.getParameter<double>("maxRatio");
   minHPDHits_ = iConfig.getParameter<int>("minHPDHits");
@@ -72,7 +73,7 @@ HBHENoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // get the Noise summary object
   edm::Handle<HcalNoiseSummary> summary_h;
-  iEvent.getByType(summary_h);
+  iEvent.getByLabel(label_, summary_h);
   if(!summary_h.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound) << " could not find HcalNoiseSummary.\n";
     return true;
