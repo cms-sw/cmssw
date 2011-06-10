@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 /**
    \fn      accept TopDQMHelpers.h "DQM/Physics/interface/TopDQMHelpers.h"
@@ -156,7 +157,7 @@ public:
   bool select(const edm::Event& event);
   /// apply selection override for jets
   bool select(const edm::Event& event, const edm::EventSetup& setup); 
-    
+  bool selectVertex(const edm::Event& event);
 private:
   /// input collection
   edm::InputTag src_;
@@ -183,6 +184,8 @@ private:
   double btagWorkingPoint_;
   /// jetID as an extra selection type 
   edm::InputTag jetIDLabel_;
+
+  edm::InputTag pvs_; 
 
   /// string cut selector
   StringCutObjectSelector<Object> select_;
@@ -255,6 +258,28 @@ bool SelectionStep<Object>::select(const edm::Event& event)
   bool accept=(min_>=0 ? n>=min_:true) && (max_>=0 ? n<=max_:true);
   return (min_<0 && max_<0) ? (n>0):accept;
 }
+template <typename Object> 
+bool SelectionStep<Object>::selectVertex(const edm::Event& event)
+{
+  // fetch input collection
+  edm::Handle<edm::View<Object> > src; 
+  if( !event.getByLabel(src_, src) ) return false;
+
+  // load electronId value map if configured such
+  edm::Handle<edm::ValueMap<float> > electronId;
+  if(!electronId_.label().empty()) {
+    if( !event.getByLabel(electronId_, electronId) ) return false;
+  }
+
+  // determine multiplicity of selected objects
+  int n=0;
+  for(typename edm::View<Object>::const_iterator obj=src->begin(); obj!=src->end(); ++obj){
+   
+      if(select_(*obj))++n;
+  }
+  bool accept=(min_>=0 ? n>=min_:true) && (max_>=0 ? n<=max_:true);
+  return (min_<0 && max_<0) ? (n>0):accept;
+}
 
 /// apply selection (w/o using the template class Object), override for jets
 template <typename Object> 
@@ -270,15 +295,18 @@ bool SelectionStep<Object>::select(const edm::Event& event, const edm::EventSetu
   // another Handle bjets for this purpose
   edm::Handle<edm::View<reco::Jet> > bjets; 
   edm::Handle<reco::JetTagCollection> btagger;
+  edm::Handle<edm::View<reco::Vertex> > pvertex; 
   if(!btagLabel_.label().empty()){ 
     if( !event.getByLabel(src_, bjets) ) return false;
     if( !event.getByLabel(btagLabel_, btagger) ) return false;
+    if( !event.getByLabel(pvs_, pvertex) ) return false;
   }
-  
+
   // load jetID value map if configured such 
   edm::Handle<reco::JetIDValueMap> jetID;
   if(jetIDSelect_){
     if( !event.getByLabel(jetIDLabel_, jetID) ) return false;
+
   }
 
   // load jet corrector if configured such

@@ -15,6 +15,11 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
+<<<<<<< ewkMuDQM_cfg.py
+  
+"rfio:/castor/cern.ch/cms/store/data/Run2010B/Mu/RECO/PromptReco-v2/000/149/442/B0642007-47E6-DF11-ACC0-0030487CD16E.root"
+)
+=======
 # Run 163255 (2011) example for testing
 #"rfio:/castor/cern.ch/cms/store/data/Run2011A/SingleMu/AOD/PromptReco-v2/000/163/255/E019E9CD-306E-E011-96EC-003048F117EA.root",
 #"rfio:/castor/cern.ch/cms/store/data/Run2011A/SingleMu/AOD/PromptReco-v2/000/163/255/E28DA1AB-336E-E011-9D73-003048F118D4.root",
@@ -53,13 +58,20 @@ process.source = cms.Source("PoolSource",
 "rfio:/castor/cern.ch/cms/store/relval/CMSSW_4_3_0_pre3/RelValTTbar/GEN-SIM-DIGI-RECO/MC_43_V1_FastSim-v3/0043/F2E7E93E-F570-E011-8E10-001A92971B0E.root"
 
 )
+>>>>>>> 1.6
 )
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('detailedInfo'),
     detailedInfo = cms.untracked.PSet(
+<<<<<<< ewkMuDQM_cfg.py
+            default = cms.untracked.PSet( limit = cms.untracked.int32(10) ),
+            threshold = cms.untracked.string('DEBUG')
+            #threshold = cms.untracked.string('ERROR')
+=======
             default = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
             threshold = cms.untracked.string('DEBUG')
            #threshold = cms.untracked.string('ERROR')
+>>>>>>> 1.6
     )
 )
 #process.ana = cms.EDAnalyzer("EventContentAnalyzer")

@@ -6,9 +6,14 @@ ewkMuDQM = cms.EDAnalyzer("EwkMuDQM",
       TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
       MuonTag = cms.untracked.InputTag("muons"),
       METTag = cms.untracked.InputTag("pfMet"),
+<<<<<<< ewkMuDQM_cfi.py
+      JetTag = cms.untracked.InputTag("ak5PFJets"),
+      VertexTag= cms.untracked.InputTag("offlinePrimaryVertices"),
+=======
       JetTag = cms.untracked.InputTag("ak5PFJets"),
       VertexTag= cms.untracked.InputTag("offlinePrimaryVertices"),
       TrigPathNames = cms.untracked.vstring("HLT_Mu","HLT_DoubleMu","HLT_IsoMu"),
+>>>>>>> 1.10
 
       # Main cuts ->
       PtCut = cms.untracked.double(25.0),

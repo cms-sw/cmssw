@@ -37,12 +37,18 @@ EwkMuDQM::EwkMuDQM( const ParameterSet & cfg ) :
       // Input collections
       trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
       muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
+<<<<<<< EwkMuDQM.cc
+      metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("pfmet"))),
+      jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("ak5PFJets"))),
+      vertexTag_(cfg.getUntrackedParameter<edm::InputTag> ("VertexTag", edm::InputTag("offlinePrimaryVertices"))),
+=======
       metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("pfmet"))),
       jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("ak5PFJets"))),
       vertexTag_(cfg.getUntrackedParameter<edm::InputTag> ("VertexTag", edm::InputTag("offlinePrimaryVertices"))),
       trigPathNames_(cfg.getUntrackedParameter<std::vector <std::string> >("TrigPathNames")),           
 
 
+>>>>>>> 1.12
 
       // Main cuts 
       ptCut_(cfg.getUntrackedParameter<double>("PtCut", 25.)),
@@ -283,6 +289,8 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 	return;
       }
       const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
+<<<<<<< EwkMuDQM.cc
+=======
       //  LogWarning("")<<"Loop over triggers";
 
 
@@ -308,7 +316,29 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
       }     
       trig_before_->Fill(trigger_fired);
 
+>>>>>>> 1.12
 
+<<<<<<< EwkMuDQM.cc
+      for (unsigned int i=0; i<triggerResults->size(); i++)
+      {
+              const std::string trigName = trigNames.triggerName(i);
+              size_t found = trigName.find("HLT_Mu");
+              if ( found == std::string::npos) continue;
+
+              bool prescaled=false;    
+              for (unsigned int ps= 0; ps<  hltConfigProvider_.prescaleSize(); ps++){
+                  const unsigned int prescaleValue = hltConfigProvider_.prescaleValue(ps, trigName) ;
+                  if (prescaleValue != 1) prescaled =true;
+              }
+              if(prescaled) continue;    
+
+              if( triggerResults->accept(i) )   trigger_fired=true;
+      }     
+      trig_before_->Fill(trigger_fired);
+
+
+=======
+>>>>>>> 1.12
 
 
 

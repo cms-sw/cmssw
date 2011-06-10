@@ -85,10 +85,10 @@ process.p      = cms.Path(
     process.simpleEleId70cIso          *
 #    process.topDiLeptonOfflineDQM      +
 #    process.topSingleLeptonDQM         +
-#    process.topSingleMuonLooseDQM      +    
-    process.topSingleMuonMediumDQM     #+
-#    process.topSingleElectronLooseDQM  +    
-#    process.topSingleElectronMediumDQM
+#    process.topSingleMuonLooseDQM_PU      +    
+    process.topSingleMuonMediumDQM_PU   #  +
+#    process.topSingleElectronLooseDQM_PU  +    
+#    process.topSingleElectronMediumDQM_PU
 )
 process.endjob = cms.Path(
     process.endOfProcess

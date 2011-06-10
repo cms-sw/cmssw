@@ -4,7 +4,8 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DQM/Physics/src/TopSingleLeptonDQM.h"
 #include "DataFormats/Math/interface/deltaR.h"
-
+#include <iostream>
+using namespace std;
 namespace TopSingleLepton {
 
   // maximal number of leading jets 
@@ -23,7 +24,7 @@ namespace TopSingleLepton {
     elecs_= sources.getParameter<edm::InputTag>("elecs");
     jets_ = sources.getParameter<edm::InputTag>("jets" );
     mets_ = sources.getParameter<std::vector<edm::InputTag> >("mets" );
-
+    pvs_ = sources.getParameter<edm::InputTag>("pvs" );
     // electronExtras are optional; they may be omitted or 
     // empty
     if( cfg.existsAs<edm::ParameterSet>("elecExtras") ){
@@ -46,7 +47,15 @@ namespace TopSingleLepton {
 	eidPattern_= elecId.getParameter<int>("pattern");
       }
     }
-
+    // pvExtras are opetional; they may be omitted or empty
+    if(cfg.existsAs<edm::ParameterSet>("pvExtras")){
+      edm::ParameterSet pvExtras=cfg.getParameter<edm::ParameterSet>("pvExtras");
+      // select is optional; in case it's not found no
+      // selection will be applied
+      if( pvExtras.existsAs<std::string>("select") ){
+	pvSelect_= new StringCutObjectSelector<reco::Vertex>(pvExtras.getParameter<std::string>("select"));
+      }
+    }
     // muonExtras are optional; they may be omitted or empty
     if( cfg.existsAs<edm::ParameterSet>("muonExtras") ){
       edm::ParameterSet muonExtras=cfg.getParameter<edm::ParameterSet>("muonExtras");
@@ -144,6 +153,8 @@ namespace TopSingleLepton {
     unsigned int nPaths=triggerPaths_.size();
 
     // --- [STANDARD] --- //
+    // number of selected primary vertices
+    hists_["pvMult_"     ] = store_->book1D("PvMult"     , "N_{pvs}"          ,     100,     0.,    100.);  
     // pt of the leading muon
     hists_["muonPt_"     ] = store_->book1D("MuonPt"     , "pt(#mu)"          ,     50,     0.,    250.);   
     // muon multiplicity before std isolation
@@ -260,6 +271,23 @@ namespace TopSingleLepton {
     if(!triggerTable_.label().empty()) {
       if( !event.getByLabel(triggerTable_, triggerTable) ) return;
     }
+
+    /*
+    ------------------------------------------------------------
+
+    Primary Vertex Monitoring
+
+    ------------------------------------------------------------
+    */
+    // fill monitoring plots for primary verices
+    edm::Handle<edm::View<reco::Vertex> > pvs;
+    if( !event.getByLabel(pvs_, pvs) ) return;
+    unsigned int pvMult = 0;
+    for(edm::View<reco::Vertex>::const_iterator pv=pvs->begin(); pv!=pvs->end(); ++pv){
+      if(!pvSelect_ || (*pvSelect_)(*pv))
+	pvMult++;
+    }
+    fill("pvMult_",    pvMult   );
 
     /* 
     ------------------------------------------------------------
@@ -535,6 +563,7 @@ TopSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup& setu
     if( !event.getByLabel(triggerTable_, triggerTable) ) return;
     if(!accept(event, *triggerTable, triggerPaths_)) return;
   }
+  //cout<<"trig passed"<<endl;
   if(!beamspot_.label().empty()){
     edm::Handle<reco::BeamSpot> beamspot;
     if( !event.getByLabel(beamspot_, beamspot) ) return;
@@ -557,6 +586,12 @@ TopSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup& setu
       if(type=="elecs"){
 	SelectionStep<reco::GsfElectron> step(selection_[key].first);
 	if(step.select(event)){ ++passed;
+	  selection_[key].second->fill(event, setup);
+	} else break;
+      }
+      if(type=="pvs" ){
+	SelectionStep<reco::Vertex> step(selection_[key].first);
+	if(step.selectVertex(event)){ ++passed;
 	  selection_[key].second->fill(event, setup);
 	} else break;
       }

@@ -15,7 +15,7 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 /**
    \class   MonitorEnsemble TopDQMHelpers.h "DQM/Physics/interface/TopDQMHelpers.h"
@@ -82,7 +82,7 @@ namespace TopSingleLepton {
     /// considers a vector of METs
     std::vector<edm::InputTag> mets_;
     /// input sources for monitoring
-    edm::InputTag elecs_, muons_, jets_; 
+    edm::InputTag elecs_, muons_, jets_, pvs_; 
 
     /// trigger table
     edm::InputTag triggerTable_;
@@ -107,7 +107,10 @@ namespace TopSingleLepton {
     StringCutObjectSelector<reco::GsfElectron>* elecIso_;
     /// extra selection on electrons
     StringCutObjectSelector<reco::GsfElectron>* elecSelect_;
-
+    
+    /// extra selection on primary vertices; meant to investigate the pile-up effect
+    StringCutObjectSelector<reco::Vertex>* pvSelect_;
+    
     /// extra isolation criterion on muon
     StringCutObjectSelector<reco::Muon>* muonIso_;
     /// extra selection on muons
@@ -233,6 +236,7 @@ class TopSingleLeptonDQM : public edm::EDAnalyzer  {
   edm::InputTag vertex_;
   /// string cut selector
   StringCutObjectSelector<reco::Vertex>* vertexSelect_;
+
   /// beamspot 
   edm::InputTag beamspot_;
   /// string cut selector

@@ -78,13 +78,13 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ),
     ## [optional] : when omitted the monitoring plots for triggering
     ## will be empty
-    triggerExtras = cms.PSet(
-      src   = cms.InputTag("TriggerResults","","HLT"),
-      paths = cms.vstring(['HLT_Mu3:HLT_QuadJet15U',
-                           'HLT_Mu5:HLT_QuadJet15U',
-                           'HLT_Mu7:HLT_QuadJet15U',
-                           'HLT_Mu9:HLT_QuadJet15U'])
-    )                                            
+    #triggerExtras = cms.PSet(
+    #  src   = cms.InputTag("TriggerResults","","HLT"),
+    #  paths = cms.vstring(['HLT_Mu3:HLT_QuadJet15U',
+    #                       'HLT_Mu5:HLT_QuadJet15U',
+    #                       'HLT_Mu7:HLT_QuadJet15U',
+    #                       'HLT_Mu9:HLT_QuadJet15U'])
+    #)                                            
   ),                                  
   ## ------------------------------------------------------
   ## PRESELECTION
@@ -128,7 +128,7 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   )
 )
 
-topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
+topSingleMuonLooseDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -139,7 +139,7 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## sub-directory to write the monitor histograms to
     ## [mandatory] : should not be changed w/o explicit
     ## communication to TopCom!
-    directory = cms.string("Physics/Top/TopSingleMuonLooseDQM/"),
+    directory = cms.string("Physics/Top/TopSingleMuonLooseDQM_PU/"),
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
@@ -207,14 +207,14 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ),
     ## [optional] : when omitted the monitoring plots for triggering
     ## will be empty
-    triggerExtras = cms.PSet(
-      src   = cms.InputTag("TriggerResults","","HLT"),
-      paths = cms.vstring(['HLT_Mu3:HLT_QuadJet15U',
-                           'HLT_Mu5:HLT_QuadJet15U',
-                           'HLT_Mu7:HLT_QuadJet15U',
-                           'HLT_Mu9:HLT_QuadJet15U',
-                           'HLT_Mu11:HLT_QuadJet15U'])
-    )
+    #triggerExtras = cms.PSet(
+    #  src   = cms.InputTag("TriggerResults","","HLT"),
+     # paths = cms.vstring(['HLT_Mu3:HLT_QuadJet15U',
+    #                       'HLT_Mu5:HLT_QuadJet15U',
+    #                       'HLT_Mu7:HLT_QuadJet15U',
+    #                       'HLT_Mu9:HLT_QuadJet15U',
+    #                       'HLT_Mu11:HLT_QuadJet15U'])
+    #)
   ),
   ## ------------------------------------------------------
   ## PRESELECTION
@@ -250,65 +250,34 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       select = cms.string("pt>10 & abs(eta)<2.1 & isGlobalMuon & innerTrack.numberOfValidHits>10 & globalTrack.normalizedChi2>-1 & globalTrack.normalizedChi2<10"),
       min    = cms.int32(1),
     ),
-    #cms.PSet(
-    #  label  = cms.string("jets/calo:24jets"),
-    #  src    = cms.InputTag("ak5CaloJets"),
-    #  jetCorrector = cms.string("ak5CaloL2L3"),
-    #  select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction>0.01"),
-    #  jetID  = cms.PSet(
-    #    label  = cms.InputTag("ak5JetID"),
-    #    select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-    #  ),
-    #  min = cms.int32(2),                                               
-    #  max = cms.int32(4),                                               
-    #), 
     cms.PSet(
-      label  = cms.string("jets/calo:step1"),
-      src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
-      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction>0.01"),
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
-      min = cms.int32(1),                                               
-    ), 
+      label  = cms.string("pvs:step1"),
+      src    = cms.InputTag("offlinePrimaryVertices"),
+      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
+      max    = cms.int32(10),
+    ),
     cms.PSet(
-      label  = cms.string("jets/calo:step2"),
-      src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
-      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction>0.01"),
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
-      min = cms.int32(2),                                               
-    ), 
+      label  = cms.string("pvs:step2"),
+      src    = cms.InputTag("offlinePrimaryVertices"),
+      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
+      max    = cms.int32(8),
+    ),
     cms.PSet(
-      label  = cms.string("jets/calo:step3"),
-      src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
-      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction>0.01"),
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
-      min = cms.int32(3),                                               
-    ), 
+      label  = cms.string("pvs:step3"),
+      src    = cms.InputTag("offlinePrimaryVertices"),
+      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
+      max    = cms.int32(6),
+    ),
     cms.PSet(
-      label  = cms.string("jets/calo:step4"),
-      src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
-      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction>0.01"),
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
-      min = cms.int32(4),                                               
-    ), 
+      label  = cms.string("pvs:step4"),
+      src    = cms.InputTag("offlinePrimaryVertices"),
+      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
+      max    = cms.int32(4),
+    ),
   )
 )
-topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
+
+topSingleMuonMediumDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -319,7 +288,7 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## sub-directory to write the monitor histograms to
     ## [mandatory] : should not be changed w/o explicit
     ## communication to TopCom!
-    directory = cms.string("Physics/Top/TopSingleMuonMediumDQM/"),
+    directory = cms.string("Physics/Top/TopSingleMuonMediumDQM_PU/"),
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
@@ -390,14 +359,14 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ),
     ## [optional] : when omitted the monitoring plots for triggering
     ## will be empty
-    triggerExtras = cms.PSet(
-      src   = cms.InputTag("TriggerResults","","HLT"),
-     paths = cms.vstring(['HLT_Mu3:HLT_QuadJet15U',
-                          'HLT_Mu5:HLT_QuadJet15U',
-                          'HLT_Mu7:HLT_QuadJet15U',
-                          'HLT_Mu9:HLT_QuadJet15U',
-                          'HLT_Mu11:HLT_QuadJet15U'])      
-    )
+    #triggerExtras = cms.PSet(
+    #  src   = cms.InputTag("TriggerResults","","HLT"),
+    # paths = cms.vstring(['HLT_Mu3:HLT_QuadJet15U',
+    #                      'HLT_Mu5:HLT_QuadJet15U',
+    #                      'HLT_Mu7:HLT_QuadJet15U',
+    #                      'HLT_Mu9:HLT_QuadJet15U',
+    #                      'HLT_Mu11:HLT_QuadJet15U'])      
+    #)
   ),
   ## ------------------------------------------------------
   ## PRESELECTION
@@ -435,53 +404,33 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       max    = cms.int32(1),
     ),
     cms.PSet(
-      label  = cms.string("jets/calo:step1"),
-      src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
-      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction>0.01"),
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
-      min = cms.int32(1),
-    ), 
+      label  = cms.string("pvs:step1"),
+      src    = cms.InputTag("offlinePrimaryVertices"),
+      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
+      max    = cms.int32(10),
+    ),
     cms.PSet(
-      label  = cms.string("jets/calo:step2"),
-      src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
-      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction>0.01"),
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
-      min = cms.int32(2),
-    ), 
+      label  = cms.string("pvs:step2"),
+      src    = cms.InputTag("offlinePrimaryVertices"),
+      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
+      max    = cms.int32(8),
+    ),
     cms.PSet(
-      label  = cms.string("jets/calo:step3"),
-      src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
-      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction>0.01"),
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
-      min = cms.int32(3),                                                
-    ), 
+      label  = cms.string("pvs:step3"),
+      src    = cms.InputTag("offlinePrimaryVertices"),
+      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
+      max    = cms.int32(6),
+    ),
     cms.PSet(
-      label  = cms.string("jets/calo:step4"),
-      src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
-      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction>0.01"),
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
-      min = cms.int32(4),                                                
+      label  = cms.string("pvs:step4"),
+      src    = cms.InputTag("offlinePrimaryVertices"),
+      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
+      max    = cms.int32(4),
     ),
   )
 )
 
-topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
+topSingleElectronLooseDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -492,7 +441,7 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## sub-directory to write the monitor histograms to
     ## [mandatory] : should not be changed w/o explicit
     ## communication to TopCom!
-    directory = cms.string("Physics/Top/TopSingleElectronLooseDQM/"),
+    directory = cms.string("Physics/Top/TopSingleElectronLooseDQM_PU/"),
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
@@ -565,10 +514,10 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ),
     ## [optional] : when omitted the monitoring plots for triggering
     ## will be empty
-    triggerExtras = cms.PSet(
-      src   = cms.InputTag("TriggerResults","","HLT"),
-      paths = cms.vstring(['HLT_Ele15_LW_L1R:HLT_QuadJetU15'])
-    )
+    #triggerExtras = cms.PSet(
+    #  src   = cms.InputTag("TriggerResults","","HLT"),
+    #  paths = cms.vstring(['HLT_Ele15_LW_L1R:HLT_QuadJetU15'])
+    #)
   ),
   ## ------------------------------------------------------
   ## PRESELECTION
@@ -606,53 +555,33 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       min    = cms.int32(1),
     ),
     cms.PSet(
-      label  = cms.string("jets/calo:step1"),
-      src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
-      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction>0.01"),
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
-      min = cms.int32(1),                                                   
-    ), 
+      label  = cms.string("pvs:step1"),
+      src    = cms.InputTag("offlinePrimaryVertices"),
+      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
+      max    = cms.int32(10),
+    ),
     cms.PSet(
-      label  = cms.string("jets/calo:step2"),
-      src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
-      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction>0.01"),
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
-      min = cms.int32(2),
-    ), 
+      label  = cms.string("pvs:step2"),
+      src    = cms.InputTag("offlinePrimaryVertices"),
+      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
+      max    = cms.int32(8),
+    ),
     cms.PSet(
-      label  = cms.string("jets/calo:step3"),
-      src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
-      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction>0.01"),
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
-      min = cms.int32(3),
-    ), 
+      label  = cms.string("pvs:step3"),
+      src    = cms.InputTag("offlinePrimaryVertices"),
+      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
+      max    = cms.int32(6),
+    ),
     cms.PSet(
-      label  = cms.string("jets/calo:step4"),
-      src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
-      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction>0.01"),
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
-      min = cms.int32(4),
-    ), 
+      label  = cms.string("pvs:step4"),
+      src    = cms.InputTag("offlinePrimaryVertices"),
+      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
+      max    = cms.int32(4),
+    ),
   )
 )
 
-topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
+topSingleElectronMediumDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -663,7 +592,7 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## sub-directory to write the monitor histograms to
     ## [mandatory] : should not be changed w/o explicit
     ## communication to TopCom!
-    directory = cms.string("Physics/Top/TopSingleElectronMediumDQM/"),
+    directory = cms.string("Physics/Top/TopSingleElectronMediumDQM_PU/"),
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
@@ -736,10 +665,10 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ),
     ## [optional] : when omitted the monitoring plots for triggering
     ## will be empty
-    triggerExtras = cms.PSet(
-      src   = cms.InputTag("TriggerResults","","HLT"),
-      paths = cms.vstring([ 'HLT_Ele15_LW_L1R:HLT_QuadJetU15'])
-    )
+    #triggerExtras = cms.PSet(
+    #  src   = cms.InputTag("TriggerResults","","HLT"),
+    #  paths = cms.vstring([ 'HLT_Ele15_LW_L1R:HLT_QuadJetU15'])
+    #)
   ),
   ## ------------------------------------------------------
   ## PRESELECTION
@@ -778,48 +707,28 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       max = cms.int32(1),
     ),
     cms.PSet(
-      label = cms.string("jets/calo:step1"),
-      src   = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
-      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction>0.01"),
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
-      min = cms.int32(1),
-    ), 
+      label  = cms.string("pvs:step1"),
+      src    = cms.InputTag("offlinePrimaryVertices"),
+      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
+      max    = cms.int32(10),
+    ),
     cms.PSet(
-      label  = cms.string("jets/calo:step2"),
-      src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
-      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction>0.01"),
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
-      min = cms.int32(2),
-    ), 
+      label  = cms.string("pvs:step2"),
+      src    = cms.InputTag("offlinePrimaryVertices"),
+      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
+      max    = cms.int32(8),
+    ),
     cms.PSet(
-      label  = cms.string("jets/calo:step3"),
-      src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
-      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction>0.01"),
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
-      min = cms.int32(3),
-    ), 
+      label  = cms.string("pvs:step3"),
+      src    = cms.InputTag("offlinePrimaryVertices"),
+      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
+      max    = cms.int32(6),
+    ),
     cms.PSet(
-      label  = cms.string("jets/calo:step4"),
-      src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
-      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction>0.01"),
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
-      min = cms.int32(4),
-    ), 
+      label  = cms.string("pvs:step4"),
+      src    = cms.InputTag("offlinePrimaryVertices"),
+      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake"),
+      max    = cms.int32(4),
+    ),
   )
 )
