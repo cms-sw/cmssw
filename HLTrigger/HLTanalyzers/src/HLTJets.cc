@@ -157,7 +157,6 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     recoPFTauIsoTrDz = new float[kMaxTauIso];
     recoPFTauIsoTrPt = new float[kMaxTauIso];
 
-
     // HLT pf taus
     hltpftauSignalTrToPFTauMatch = new int[kMaxTauIso]; // index of HLTPF tau in tau collection
     HLTPFTauSignalTrDz = new float[kMaxTauIso];
@@ -166,10 +165,6 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     hltpftauIsoTrToPFTauMatch = new int[kMaxTauIso]; // index of HLTPF tau in tau collection
     HLTPFTauIsoTrDz = new float[kMaxTauIso];
     HLTPFTauIsoTrPt = new float[kMaxTauIso];
-
-
-
-
 
     // offline pftau isolation and signal cands
     HltTree->Branch("NoRecoPFTausSignal",&noRecoPFTausSignal,"NoRecoPFTausSignal/I");
@@ -194,10 +189,6 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
                     hltpftauIsoTrToPFTauMatch,"hltpftauIsoTrToPFTauMatch[NoHLTPFTausIso]/I");
     HltTree->Branch("HLTPFTauIsoTrDz", HLTPFTauIsoTrDz,"HLTPFTauIsoTrDz[NoHLTPFTausIso]/F");
     HltTree->Branch("HLTPFTauIsoTrPt", HLTPFTauIsoTrPt,"HLTPFTauIsoTrPt[NoHLTPFTausIso]/F");
-
-
-
-
     
     // Jet- MEt-specific branches of the tree 
 
@@ -268,6 +259,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     
     
     // Taus
+    nohtau = 0;
     HltTree->Branch("NohTau",&nohtau,"NohTau/I");
     HltTree->Branch("ohTauEta",tauEta,"ohTauEta[NohTau]/F");
     HltTree->Branch("ohTauPhi",tauPhi,"ohTauPhi[NohTau]/F");
@@ -277,6 +269,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("ohTauL3Tiso",l3tautckiso,"ohTauL3Tiso[NohTau]/I");
 
     //ohpfTaus
+    nohPFTau = 0;
     HltTree->Branch("NohpfTau",&nohPFTau,"NohpfTau/I");
     HltTree->Branch("ohpfTauPt",ohpfTauPt,"ohpfTauPt[NohpfTau]/F");
     HltTree->Branch("ohpfTauEta",ohpfTauEta,"ohpfTauEta[NohpfTau]/F");
@@ -288,6 +281,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("ohpfTauJetPt",ohpfTauJetPt,"ohpfTauJetPt[NohpfTau]/F");    
 
     //ohpfTaus tight cone
+    nohPFTauTightCone = 0;
     HltTree->Branch("NohpfTauTightCone",&nohPFTauTightCone,"NohpfTauTightCone/I");
     HltTree->Branch("ohpfTauTightConePt",ohpfTauTightConePt,"ohpfTauTightConePt[NohpfTauTightCone]/F");
     HltTree->Branch("ohpfTauTightConeEta",ohpfTauTightConeEta,"ohpfTauEta[NohpfTauTightCone]/F");
@@ -317,6 +311,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("recopfTauDiscrAgainstElec",recopfTauDiscrAgainstElec,"recopfTauDiscrAgainstElec[NRecoPFTau]/F");
   
     //PFJets
+    nohPFJet = 0;
     HltTree->Branch("pfHT",&pfHT,"pfHT/F");
     HltTree->Branch("pfMHT",&pfMHT,"pfMHT/F");
     HltTree->Branch("NohPFJet",&nohPFJet,"NohPFJet/I");
@@ -552,7 +547,6 @@ void HLTJets::analyze(edm::Event const& iEvent,
     
     
     /////////////////////////////// Open-HLT Taus ///////////////////////////////
-    
     if (taujets.isValid()) {      
         nohtau = taujets->size();
         reco::HLTTauCollection mytaujets;

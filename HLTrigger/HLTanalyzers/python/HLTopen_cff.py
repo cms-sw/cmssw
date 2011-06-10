@@ -35,17 +35,13 @@ HLTDisplacemumuSequence = cms.Sequence(  hltL1sL1DoubleMu0 + hltDimuonL1Filtered
 DoHLTJets = cms.Path(HLTBeginSequence + 
     HLTBeginSequence +
     HLTRecoJetSequenceAK5Corrected +
-  # HLTRegionalRecoJetSequenceAK5Corrected +
     HLTRecoMETSequence +
     HLTDoLocalHcalWithoutHOSequence                  
-    #HLTDoJet40HTRecoSequence
 )
 DoHLTJetsU = cms.Path(HLTBeginSequence +
     HLTBeginSequence +
     HLTRecoJetSequenceAK5Uncorrected +
-    # HLTRegionalRecoJetSequenceAK5Corrected +
-    HLTRecoMETSequence #+
- #   HLTDoJet40HTRecoSequence
+    HLTRecoMETSequence
 )
 
 # create the muon HLT reco path
@@ -73,7 +69,6 @@ DoHLTPhoton = cms.Path(
     HLTEgammaR9IDSequence +
     hltL1IsolatedPhotonEcalIsol + 
     hltL1NonIsolatedPhotonEcalIsol + 
-#    HLTDoLocalHcalWithoutHOSequence + 
     hltL1IsolatedPhotonHcalIsol + 
     hltL1NonIsolatedPhotonHcalIsol + 
     HLTDoLocalPixelSequence +
@@ -141,7 +136,6 @@ DoHLTTau = cms.Path(HLTBeginSequence +
                     OpenHLTCaloTausCreatorSequence +
                     openhltL2TauJets +
                     openhltL2TauIsolationProducer +
-                    #                    openhltL2TauRelaxingIsolationSelector +
                     HLTDoLocalPixelSequence +
                     HLTRecopixelvertexingSequence +
                     OpenHLTL25TauTrackReconstructionSequence +
@@ -152,7 +146,6 @@ DoHLTTau = cms.Path(HLTBeginSequence +
                     HLTPFJetTriggerSequenceForTaus +
                     HLTPFTauSequence +
                     HLTEndSequence)
-
 
 # create the b-jet HLT paths
 from HLTrigger.HLTanalyzers.OpenHLT_BJet_cff import *
@@ -192,5 +185,3 @@ DoHLTMinBiasPixelTracks = cms.Path(
     hltPixelTracks +
     hltPixelVertices)
 
-## Thers is no need to do this as by default 5E32 menu makes use of "hltOnlineBeamSpot" for all the modules
-# hltPixelVertices.beamSpot = cms.InputTag( "hltOnlineBeamSpot" )
