@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2011/03/02 11:28:32 $
- * $Revision: 1.72 $
+ * $Date: 2011/03/16 16:53:49 $
+ * $Revision: 1.73 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino), G. Cerminara (INFN Torino)
  *
  */
@@ -33,7 +33,7 @@ int FirstRos=0,nevents=0,n,m;
 const unsigned long long max_bx = 59793997824ULL;
 #include "ROSDebugUtility.h"
 
-DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::ActivityRegistry& reg) : dbe(0) {
+DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::ActivityRegistry& reg) : nevents(0) , dbe(0) {
 
   // Register the methods that we want to schedule
   //   reg.watchPostEndJob(this,&DTDataIntegrityTask::postEndJob);
@@ -53,7 +53,7 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::Activi
 
   fedIntegrityFolder    = ps.getUntrackedParameter<string>("fedIntegrityFolder","DT/FEDIntegrity"); 
   
-string processingMode = ps.getUntrackedParameter<string>("processingMode","Online");
+  string processingMode = ps.getUntrackedParameter<string>("processingMode","Online");
 
   // processing mode flag to select plots to be produced and basedirs CB vedi se farlo meglio...
   if (processingMode == "Online") {
@@ -100,6 +100,10 @@ void DTDataIntegrityTask::postEndJob(){
 
 
 void DTDataIntegrityTask::bookHistos(const int fedMin, const int fedMax) {
+
+  dbe->setCurrentFolder("DT/EventInfo/Counters");
+  nEventMonitor = dbe->bookFloat("nProcessedEventsDataIntegrity");
+
   // Standard FED integrity histos
   dbe->setCurrentFolder(topFolder(true));
 
@@ -136,7 +140,6 @@ void DTDataIntegrityTask::bookHistos(const int fedMin, const int fedMax) {
   hCorruptionSummary->setBinLabel(6,"FCRC bit",2);	
   hCorruptionSummary->setBinLabel(7,"Header check",2);	
   hCorruptionSummary->setBinLabel(8,"Triler Check",2);	
-  
 
 }
 
@@ -1153,8 +1156,8 @@ void DTDataIntegrityTask::fedNonFatal(int dduID) {
 std::string DTDataIntegrityTask::topFolder(bool isFEDIntegrity) const {
 
   string folder = isFEDIntegrity ? fedIntegrityFolder : "DT/00-DataIntegrity";
-
-  if (!isFEDIntegrity) 
+  
+  if (!isFEDIntegrity)
     folder += (mode==1) ? "_SM/" : (mode==3) ? "_EvF/" : "/";
 
   return folder;
@@ -1182,6 +1185,10 @@ void DTDataIntegrityTask::channelsInROS(int cerosMask, vector<int>& channels){
 }
 
 void DTDataIntegrityTask::preProcessEvent(const edm::EventID& iEvtid, const edm::Timestamp& iTime) {
+
+  nevents++;
+  nEventMonitor->Fill(nevents);
+
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask") << "[DTDataIntegrityTask]: preProcessEvent" <<endl;
   // clear the set of BXids from the ROSs
   for(map<int, set<int> >::iterator rosBxIds = rosBxIdsPerFED.begin();
@@ -1196,10 +1203,9 @@ void DTDataIntegrityTask::preProcessEvent(const edm::EventID& iEvtid, const edm:
     (*rosL1AIds).second.clear();
   }
 
-
-
   // reset the error flag
   eventErrorFlag = false;
+
 }
 
 

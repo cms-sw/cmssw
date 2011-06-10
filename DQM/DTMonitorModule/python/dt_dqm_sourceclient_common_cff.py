@@ -38,7 +38,6 @@ dtunpacker.readOutParameters.rosParameters.debug = False
 
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
 dt1DRecHits.dtDigiLabel = 'dtunpacker'
-#DTLinearDriftAlgo_CosmicData.recAlgoConfig.hitResolution = 0.05
 
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
 
@@ -56,8 +55,10 @@ dtDigiMonitor.filterSyncNoise = True
 dtDigiMonitor.lookForSyncNoise = True
 
 # Local Trigger task
-from DQM.DTMonitorModule.dtTriggerTask_cfi import *
+from DQM.DTMonitorModule.dtTriggerBaseTask_cfi import *
+from DQM.DTMonitorModule.dtTriggerLutTask_cfi import *
 from DQM.DTMonitorClient.dtLocalTriggerTest_cfi import *
+from DQM.DTMonitorClient.dtTriggerLutTest_cfi import *
     
 # segment reco task
 from DQM.DTMonitorModule.dtSegmentTask_cfi import *
@@ -101,10 +102,10 @@ unpackers = cms.Sequence(dtunpacker + dttfunpacker)
 reco = cms.Sequence(dt1DRecHits + dt4DSegments)
 
 # sequence of DQM tasks to be run on physics events only
-dtDQMTask = cms.Sequence(dtDigiMonitor + dtSegmentAnalysisMonitor + dtTriggerMonitor + dtNoiseMonitor + dtResolutionAnalysisMonitor)
+dtDQMTask = cms.Sequence(dtDigiMonitor + dtSegmentAnalysisMonitor + dtTriggerBaseMonitor + dtTriggerLutMonitor + dtNoiseMonitor + dtResolutionAnalysisMonitor)
 
 # DQM clients to be run on physics event only
-dtDQMTest = cms.Sequence(dataIntegrityTest + blockedROChannelTest + triggerTest + dtOccupancyTest + segmentTest + dtNoiseAnalysisMonitor + dtSummaryClients + dtqTester)
+dtDQMTest = cms.Sequence(dataIntegrityTest + blockedROChannelTest + triggerLutTest + triggerTest + dtOccupancyTest + segmentTest + dtNoiseAnalysisMonitor + dtSummaryClients + dtqTester)
 
 # DQM tasks and clients to be run on calibration events only
 dtDQMCalib = cms.Sequence(dtTPmonitor + dtTPTriggerMonitor + dtTPmonitorTest + dtTPTriggerTest)

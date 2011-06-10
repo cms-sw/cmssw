@@ -6,15 +6,15 @@ process = cms.Process("DTDQM")
 #### Event Source
 #----------------------------
 process.load("DQM.Integration.test.inputsource_cfi")
-process.EventStreamHttpReader.consumerName = 'DT DQM Consumer'
-#process.source.sourceURL = cms.string('http://dqm-c2d07-30:50082/urn:xdaq-application:lid=29')
-process.source.sourceURL = cms.string('http://dqm-c2d07-04:22100/urn:xdaq-application:lid=30')
+process.EventStreamHttpReader.consumerName = 'DT Private Global DQM Testing Consumer'
+#process.source.sourceURL = cms.string('http://dqm-c2d07-30:50082/urn:xdaq-application:lid=29')  # Playback Server
+process.source.sourceURL = cms.string('http://dqm-c2d07-30:22100/urn:xdaq-application:lid=30')   # General use source for Private DQM
+#process.EventStreamHttpReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_L1Mu*','HLT_L1DoubleMu*','HLT_Mu*','HLT_DoubleMu*','HLT_DTErrors'))
 
 #----------------------------
 #### DQM Environment
 #----------------------------
 process.load("DQMServices.Core.DQM_cfg")
-#process.DQMStore.referenceFileName = "DT_reference.root"
 process.DQMStore.referenceFileName = "/dtdata/dqmdata/global/dt_reference.root"
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
@@ -25,10 +25,10 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 #----------------------------
 process.load("DQM.Integration.test.environment_cfi")
 process.DQM.collectorHost = 'localhost'
-process.DQM.collectorPort = 9991
+process.DQM.collectorPort = 9977
 process.dqmEnv.subSystemFolder = 'DT'
 process.dqmSaver.convention = 'Online'
-process.dqmSaver.dirName = '/dtdata/dqmdata/global' 
+process.dqmSaver.dirName = '/dtdata/dqmdata/testing' 
 #process.dqmSaver.dirName = '.' 
 process.dqmSaver.producer = 'DQM'
 
@@ -42,14 +42,11 @@ process.dqmSaver.saveAtJobEnd = True
 
 # DT reco and DQM sequences
 process.load("Configuration.StandardSequences.Geometry_cff")
+# ideal geometry for LUT task
+process.load("Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff")
 process.load("DQM.DTMonitorModule.dt_dqm_sourceclient_common_cff")
 #---- for P5 (online) DB access
 process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
-
-# process.GlobalTag.connect ="frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_21X_GLOBALTAG"
-# process.GlobalTag.globaltag = "CRAFT_V4H::All"
-#---- for offline DB
-#process.GlobalTag.globaltag = "CRAFT_V2P::All"
 
 # message logger
 process.MessageLogger = cms.Service("MessageLogger",

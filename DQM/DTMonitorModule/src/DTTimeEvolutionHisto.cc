@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/19 10:05:31 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/01/24 14:35:23 $
+ *  $Revision: 1.5 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -23,12 +23,9 @@ DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name,
 					   int lsPrescale,
 					   bool sliding,
 					   int mode) : valueLastTimeSlot(0),
-						       nEventsInLastTimeSlot(0),
 						       theFirstLS(1),
 						       theLSPrescale(lsPrescale),
 						       doSlide(sliding),
-						       nLSinTimeSlot(0),
-						       firstLSinTimeSlot(0),
 						       theMode(mode) {
   
   DTTimeEvolutionHisto(dbe, name, title, nbins, theFirstLS, lsPrescale, sliding, mode);
@@ -43,11 +40,8 @@ DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name,
 // 					   int lsPrescale,
 // 					   bool sliding,
 // 					   int mode) : valueLastTimeSlot(0),
-// 						       nEventsInLastTimeSlot(0),
 // 						       theLSPrescale(lsPrescale),
 // 						       doSlide(sliding),
-// 						       nLSinTimeSlot(0),
-// 						       firstLSinTimeSlot(0),
 // 						       theMode(mode) {
 //   // set the number of bins to be booked
 //   nBookedBins = nbins;
@@ -92,12 +86,9 @@ DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name,
 					   int lsPrescale,
 					   bool sliding,
 					   int mode) : valueLastTimeSlot(0),
-						       nEventsInLastTimeSlot(0),
 						       theFirstLS(firstLS),
 						       theLSPrescale(lsPrescale),
 						       doSlide(sliding),
-						       nLSinTimeSlot(0),
-						       firstLSinTimeSlot(0),
 						       theMode(mode) {
   // set the number of bins to be booked
   nBookedBins = nbins;
@@ -135,12 +126,9 @@ DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name,
 
 
 DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore *dbe, const string& name) : valueLastTimeSlot(0),
-										nEventsInLastTimeSlot(0),
 										theFirstLS(1),
 										theLSPrescale(-1),
 										doSlide(false),
-										nLSinTimeSlot(0),
-										firstLSinTimeSlot(0),
 										theMode(0) { // FIXME: set other memebers to sensible values
   LogVerbatim("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
     << "[DTTimeEvolutionHisto] Retrieve ME with name: " << name << endl;
@@ -187,38 +175,63 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
   
   if(doSlide) { // sliding bins
     // count LS in this time-slot
-    nLSinTimeSlot++;
-    nEventsInLastTimeSlot += nEventsInLS;
+    if (nEventsInLastTimeSlot.find(ls) != nEventsInLastTimeSlot.end()) {
+      nEventsInLastTimeSlot[ls] += nEventsInLS;
+      nLumiTrInLastTimeSlot[ls]++;
+    } else {
+      nEventsInLastTimeSlot[ls] = nEventsInLS;
+      nLumiTrInLastTimeSlot[ls] = 1;
+    }
     
-    if(nLSinTimeSlot == 1) firstLSinTimeSlot = ls;
 
-    if(nLSinTimeSlot%theLSPrescale ==0) { // update the value of the slot and reset the counters
+    if(nEventsInLastTimeSlot.size() > 0 && nEventsInLastTimeSlot.size()%theLSPrescale==0) { // update the value of the slot and reset the counters
+      int firstLSinTimeSlot = nEventsInLastTimeSlot.begin()->first;
+      int lastLSinTimeSlot  = nEventsInLastTimeSlot.rbegin()->first;
+      
+      map<int,int>::const_iterator nEventsIt  = nEventsInLastTimeSlot.begin();
+      map<int,int>::const_iterator nEventsEnd = nEventsInLastTimeSlot.end();
+
+      int nEvents = 0;
+      for (;nEventsIt!=nEventsEnd;++nEventsIt) 
+	nEvents+=nEventsIt->second;	
+	
       LogVerbatim("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
 	<< "[DTTimeEvolutionHisto] Update time-slot, # entries: " << valueLastTimeSlot 
-	<< " # events: " << nEventsInLastTimeSlot << endl;
+	<< " # events: " << nEvents << endl;
       // set the bin content
+
       float value = 0;
       if(theMode == 0) {
-	if(nEventsInLastTimeSlot != 0) value = valueLastTimeSlot/(float)nEventsInLastTimeSlot;
+	if(nEvents != 0) value = valueLastTimeSlot/(float)nEvents;
       } else if(theMode == 1) {
 	value = valueLastTimeSlot;
       } else if(theMode == 2) {
-	value = nEventsInLastTimeSlot;
+	value = nEvents;
       } else if(theMode == 3) {
-	value = valueLastTimeSlot/theLSPrescale;
+	map<int,int>::const_iterator nLumiTrIt  = nLumiTrInLastTimeSlot.begin();
+	map<int,int>::const_iterator nLumiTrEnd = nLumiTrInLastTimeSlot.end();
+
+	float nLumiTr = 0.;
+	for (;nLumiTrIt!=nLumiTrEnd;++nLumiTrIt) 
+	  nLumiTr+=nLumiTrIt->second;	
+
+	value = valueLastTimeSlot/nLumiTr;
       }
       setTimeSlotValue(value, nBookedBins);
       LogVerbatim("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
 	<< "       updated value: " << histo->getBinContent(nBookedBins) << endl;
 
       // set the bin label
-      stringstream binLabel; binLabel << "LS " << firstLSinTimeSlot;
-      if(nLSinTimeSlot > 1) binLabel << "-" << ls;
+      stringstream binLabel; 
+      binLabel << "LS " << firstLSinTimeSlot;
+      if(nEventsInLastTimeSlot.size() > 1) 
+	binLabel << "-" << lastLSinTimeSlot;
+
       histo->setBinLabel(nBookedBins,binLabel.str(),1);
 
       // reset the counters for the time slot
-      nLSinTimeSlot = 0; 
-      nEventsInLastTimeSlot = 0;
+      nEventsInLastTimeSlot.clear();
+      nLumiTrInLastTimeSlot.clear();
       valueLastTimeSlot = 0;
     }
 

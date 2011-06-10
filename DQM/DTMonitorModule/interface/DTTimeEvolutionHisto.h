@@ -4,13 +4,13 @@
 /** \class DTTimeEvolutionHisto
  *  No description available.
  *
- *  $Date: 2009/10/19 15:53:01 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/01/19 10:05:31 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include <string>
-
+#include <map>
 
 class DQMStore;
 class MonitorElement;
@@ -68,13 +68,12 @@ protected:
 
 private:
   float valueLastTimeSlot;
-  int nEventsInLastTimeSlot;
+  std::map<int,int> nEventsInLastTimeSlot;
+  std::map<int,int> nLumiTrInLastTimeSlot;
   int theFirstLS;
   int theLSPrescale;
   bool doSlide;
-  int nLSinTimeSlot;
   int nBookedBins;
-  int firstLSinTimeSlot;
   int theMode;
   MonitorElement *histo;
   

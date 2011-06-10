@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/05 10:14:40 $
- *  $Revision: 1.27 $
+ *  $Date: 2010/04/26 22:22:08 $
+ *  $Revision: 1.28 $
  *  \author G. Cerminara - INFN Torino
  *  revised by G. Mila - INFN Torino
  */
@@ -40,7 +40,7 @@
 using namespace edm;
 using namespace std;
 
-DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) : nEventsInLS(0), hNevtPerLS(0) {
+DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) : nevents(0) , nEventsInLS(0), hNevtPerLS(0) {
 
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "[DTSegmentAnalysisTask] Constructor called!";
 
@@ -78,6 +78,9 @@ void DTSegmentAnalysisTask::beginRun(const Run& run, const edm::EventSetup& cont
    // Get the DT Geometry
   context.get<MuonGeometryRecord>().get(dtGeom);
 
+  theDbe->setCurrentFolder("DT/EventInfo/Counters");
+  nEventMonitor = theDbe->bookFloat("nProcessedEventsSegment");
+    
   // loop over all the DT chambers & book the histos
   vector<DTChamber*> chambers = dtGeom->chambers();
   vector<DTChamber*>::const_iterator ch_it = chambers.begin();
@@ -124,6 +127,10 @@ void DTSegmentAnalysisTask::endJob() {
 
 
 void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSetup& setup) {
+
+  nevents++;
+  nEventMonitor->Fill(nevents);
+
   nEventsInLS++;
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "[DTSegmentAnalysisTask] Analyze #Run: " << event.id().run()
 			       << " #Event: " << event.id().event();

@@ -4,8 +4,8 @@
 /** \class DTNoiseTask
  *  No description available.
  *
- *  $Date: 2010/01/05 10:14:40 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/02/11 00:10:56 $
+ *  $Revision: 1.8 $
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
@@ -85,6 +85,8 @@ private:
 
   //the time boxes
   std::map<DTSuperLayerId, MonitorElement*> tbHistos;
+
+  MonitorElement* nEventMonitor;
 
   // safe margin (ns) between ttrig and beginning of counting area
   double safeMargin;

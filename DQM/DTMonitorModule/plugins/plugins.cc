@@ -48,8 +48,16 @@ DEFINE_FWK_MODULE(DTTriggerEfficiencyTask);
 #include <DQM/DTMonitorModule/src/DTLocalTriggerSynchTask.h>
 DEFINE_FWK_MODULE(DTLocalTriggerSynchTask);
 
+<<<<<<< plugins.cc
+#include <DQM/DTMonitorModule/src/DTLocalTriggerLutTask.h>
+DEFINE_FWK_MODULE(DTLocalTriggerLutTask);
+
+#include <DQM/DTMonitorModule/src/DTLocalTriggerBaseTask.h>
+DEFINE_FWK_MODULE(DTLocalTriggerBaseTask);
+
 #include <DQM/DTMonitorModule/src/DTDCSByLumiTask.h>
 DEFINE_FWK_MODULE(DTDCSByLumiTask);
+
 
 #include <DQM/DTMonitorModule/interface/DTDataIntegrityTask.h>
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"

@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2010/04/14 18:21:20 $
- *  $Revision: 1.28 $
+ *  $Date: 2011/03/02 11:28:32 $
+ *  $Revision: 1.29 $
  *
  * \author Marco Zanetti (INFN Padova), Gianluca Cerminara (INFN Torino)
  *
@@ -81,12 +81,15 @@ private:
   // Plot quantities about SC
   bool getSCInfo;
 
+  int nevents;
+
   // back-end interface
   DQMStore * dbe;
   
   DTROChainCoding coding;
 
   // Monitor Elements
+  MonitorElement* nEventMonitor;
   // <histoType, <index , histo> >    
   std::map<std::string, std::map<int, MonitorElement*> > dduHistos;
   // <histoType, histo> >    
@@ -129,7 +132,7 @@ private:
 
   // flag to toggle the creation of only the summaries (for HLT running)
   int mode;
-  std::string fedIntegrityFolder; 
+  std::string fedIntegrityFolder;
 
 };
 

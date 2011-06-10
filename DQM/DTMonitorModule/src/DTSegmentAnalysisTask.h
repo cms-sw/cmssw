@@ -12,8 +12,8 @@
  *  All histos are produce per Chamber
  *
  *
- *  $Date: 2009/07/16 08:38:39 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/01/05 10:14:40 $
+ *  $Revision: 1.11 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -34,6 +34,8 @@ class MonitorElement;
 class DTTimeEvolutionHisto;
 
 class DTSegmentAnalysisTask: public edm::EDAnalyzer{
+
+
 public:
   /// Constructor
   DTSegmentAnalysisTask(const edm::ParameterSet& pset);
@@ -54,7 +56,9 @@ public:
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup);
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup);
 
+
 protected:
+
 
 private:
 
@@ -87,6 +91,7 @@ private:
   std::map< int, MonitorElement* > summaryHistos;
   std::map<int, std::map<int, DTTimeEvolutionHisto*> > histoTimeEvol;
 
+  int nevents;
   int nEventsInLS;
   DTTimeEvolutionHisto*hNevtPerLS;
 
@@ -100,6 +105,10 @@ private:
   std::string topHistoFolder;
   // hlt DQM mode
   bool hltDQMMode;
+
+  MonitorElement* nEventMonitor;
+
+
 };
 #endif
 

@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2010/01/05 10:14:39 $
- * $Revision: 1.31 $
+ * $Date: 2010/02/11 00:10:54 $
+ * $Revision: 1.32 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -148,7 +148,6 @@ private:
 
   std::map<DTChamberId, int> nSynchNoiseEvents;
   MonitorElement* nEventMonitor;
-
 
 
 };

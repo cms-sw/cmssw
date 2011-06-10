@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/05 10:14:40 $
- *  $Revision: 1.18 $
+ *  $Date: 2010/03/15 09:41:51 $
+ *  $Revision: 1.19 $
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
@@ -98,6 +98,8 @@ void DTNoiseTask::beginLuminosityBlock(const edm::LuminosityBlock&  lumiSeg,
 void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   evtNumber++;
+  nEventMonitor->Fill(evtNumber);
+
   if(evtNumber%1000==0)
      LogVerbatim("DTNoiseTask") <<"[DTNoiseTask]: Analyzing evt number :"<<evtNumber<<endl;
 
@@ -271,6 +273,9 @@ void DTNoiseTask::beginRun(const Run& run, const EventSetup& setup) {
 
   // get the geometry
   setup.get<MuonGeometryRecord>().get(dtGeom);
+
+  dbe->setCurrentFolder("DT/EventInfo/Counters");
+  nEventMonitor = dbe->bookFloat("nProcessedEventsNoise");
 
   // Loop over all the chambers 	 
   vector<DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin(); 	 

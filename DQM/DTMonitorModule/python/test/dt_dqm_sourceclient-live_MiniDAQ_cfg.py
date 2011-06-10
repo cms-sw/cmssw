@@ -1,3 +1,4 @@
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DTDQM")
@@ -6,14 +7,12 @@ process = cms.Process("DTDQM")
 #### Event Source
 #----------------------------
 process.load("DQM.DTMonitorModule.test.inputsource_MiniDAQ_cfi")
-process.EventStreamHttpReader.consumerName = 'DT DQM Consumer'
-
 
 #----------------------------
 #### DQM Environment
 #----------------------------
 process.load("DQMServices.Core.DQM_cfg")
-#process.DQMStore.referenceFileName = "DT_reference.root"
+#process.DQMStore.referenceFileName = "/dtdata/dqmdata/global/dt_reference.root"
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
@@ -40,11 +39,10 @@ process.dqmSaver.saveAtJobEnd = True
 # DT reco and DQM sequences
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("DQM.DTMonitorModule.dt_dqm_sourceclient_common_cff")
+
 #---- for P5 (online) DB access
-process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_31X_GLOBALTAG"                     
-process.GlobalTag.globaltag = "GR10_H_V2::All"
-#---- for offline DB
-#process.GlobalTag.globaltag = "CRAFT_V2P::All"
+process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+
 
 # ------------------------------------------------
 # Special settings for commissioning RUNS
@@ -54,9 +52,7 @@ process.dtDigiMonitor.readDB = False
 process.dtDigiMonitor.filterSyncNoise = False
 process.dtDigiMonitor.lookForSyncNoise = True
 process.dtDigiMonitor.checkNoisyChannels = False
-process.dtDigiMonitor.ResetCycle = 999999999  
 # ------------------------------------------------
-
 
 # message logger
 process.MessageLogger = cms.Service("MessageLogger",
