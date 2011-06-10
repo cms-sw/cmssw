@@ -48,7 +48,6 @@ DEFINE_FWK_MODULE(DTTriggerEfficiencyTask);
 #include <DQM/DTMonitorModule/src/DTLocalTriggerSynchTask.h>
 DEFINE_FWK_MODULE(DTLocalTriggerSynchTask);
 
-<<<<<<< plugins.cc
 #include <DQM/DTMonitorModule/src/DTLocalTriggerLutTask.h>
 DEFINE_FWK_MODULE(DTLocalTriggerLutTask);
 
