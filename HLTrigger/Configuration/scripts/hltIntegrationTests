@@ -144,6 +144,9 @@ hltGetConfiguration "$MENU" --full --offline --data $INPUT --unprescale --proces
 # adapt the number of events
 sed -i -e "s/input = cms.untracked.int32( .* )/input = cms.untracked.int32( $SIZE )/" hlt.py
 
+# check the prescale modules
+hltCheckPrescaleModules -w hlt.py
+
 log "Extracting single path dumps"
 for TRIGGER in $TRIGGERS; do
   log "\t$TRIGGER"
@@ -189,6 +192,13 @@ hlt.done: hlt.py
 
 log "Running..."
 make -f .makefile -j$JOBS -k
+
+
+# compare HLT results
+log "Comparing the results of running each path by iteslf with those from the full menu"
+if hltCompareResults; do
+  log "done"
+done
 
 # done
 cd ..
