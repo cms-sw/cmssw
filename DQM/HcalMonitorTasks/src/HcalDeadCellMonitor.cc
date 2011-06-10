@@ -120,7 +120,7 @@ void HcalDeadCellMonitor::setup()
 			      NLumiBlocks_,0.5,NLumiBlocks_+0.5,132,0,132);
 
   ProblemsInLastNLB_HBHEHF_alarm=dbe_->book1D("ProblemsInLastNLB_HBHEHF_alarm",
-					      "Total Number of Dead HBHEHF Cells in last 5 LS. Last bin contains OverFlow",
+					      "Total Number of Dead HBHEHF Cells in last 10 LS. Last bin contains OverFlow",
 					      100,0,100);
 
 
@@ -536,7 +536,7 @@ void HcalDeadCellMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
       if (ProblemsCurrentLB)
 	{
 	  ProblemsCurrentLB->setBinContent(0,0, levt_);  // underflow bin contains number of events
-	  ProblemsCurrentLB->setBinContent(1,1, 1000*levt_);
+	  ProblemsCurrentLB->setBinContent(1,1, NumBadHB*levt_);
 	  ProblemsCurrentLB->setBinContent(2,1, NumBadHE*levt_);
 	  ProblemsCurrentLB->setBinContent(3,1, NumBadHO*levt_);
 	  ProblemsCurrentLB->setBinContent(4,1, NumBadHF*levt_);
@@ -1424,7 +1424,7 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
   if( NumBadHB+NumBadHE+NumBadHF-knownBadHB-knownBadHE-knownBadHF < 50 )    
     alarmer_counter_ = 0;
     
-  if( alarmer_counter_ > 4 )
+  if( alarmer_counter_ >= 10 )
     ProblemsInLastNLB_HBHEHF_alarm->Fill( std::min(int(NumBadHB+NumBadHE+NumBadHF-knownBadHB-knownBadHE-knownBadHF), 99) );
 
   // if (deadevt_<minDeadEventCount_)
