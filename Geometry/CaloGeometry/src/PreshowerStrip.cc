@@ -1,6 +1,31 @@
 #include "Geometry/CaloGeometry/interface/PreshowerStrip.h"
 #include <iostream>
 
+typedef PreshowerStrip::CCGFloat CCGFloat ;
+typedef PreshowerStrip::Pt3D     Pt3D     ;
+typedef PreshowerStrip::Pt3DVec  Pt3DVec  ;
+typedef PreshowerStrip::Tr3D     Tr3D     ;
+
+
+PreshowerStrip::PreshowerStrip() : 
+   CaloCellGeometry()
+{
+}
+
+PreshowerStrip::PreshowerStrip( const PreshowerStrip& tr ) 
+{
+   *this = tr ; 
+}
+
+PreshowerStrip& 
+PreshowerStrip::operator=( const PreshowerStrip& tr ) 
+{
+   CaloCellGeometry::operator=( tr ) ;
+   if( this != &tr )
+   {
+   }
+   return *this ; 
+}
 
 const CaloCellGeometry::CornersVec& 
 PreshowerStrip::getCorners() const 
@@ -11,9 +36,9 @@ PreshowerStrip::getCorners() const
       CornersVec& corners ( setCorners() ) ;
 
       const GlobalPoint& ctr ( getPosition() ) ;
-      const float x ( ctr.x() ) ;
-      const float y ( ctr.y() ) ;
-      const float z ( ctr.z() ) ;
+      const CCGFloat x ( ctr.x() ) ;
+      const CCGFloat y ( ctr.y() ) ;
+      const CCGFloat z ( ctr.z() ) ;
 
       const double st ( sin(tilt()) ) ;
       const double ct ( cos(tilt()) ) ;
@@ -28,7 +53,7 @@ PreshowerStrip::getCorners() const
 	    {
 	       const double sz ( 0 == iz ? -1.0 : +1.0 ) ;
 	       const unsigned int  i ( 4*iz + 2*ix + 
-				       ( 1 == ix ? 1-iy : iy )) ;
+				       ( 1 == ix ? 1-iy : iy ) ) ;//keeps ordering same as before
 
 	       corners[ i ] = GlobalPoint( 
 		  dy()>dx() ? 
@@ -59,28 +84,26 @@ std::ostream& operator<<( std::ostream& s, const PreshowerStrip& cell )
    return s;
 }
 
-std::vector<HepGeom::Point3D<double> >
-PreshowerStrip::localCorners( const double* pv,
-			      HepGeom::Point3D<double> &   ref )
+void
+PreshowerStrip::localCorners( Pt3DVec&        lc  ,
+			      const CCGFloat* pv  ,
+			      Pt3D&           ref  )
 {
+   assert( 8 == lc.size() ) ;
    assert( 0 != pv ) ;
 
-   const double dx ( pv[0] ) ;
-   const double dy ( pv[1] ) ;
-   const double dz ( pv[2] ) ;
+   const CCGFloat dx ( pv[0] ) ;
+   const CCGFloat dy ( pv[1] ) ;
+   const CCGFloat dz ( pv[2] ) ;
 
-   std::vector<HepGeom::Point3D<double> > lc ( 8, HepGeom::Point3D<double> (0,0,0) ) ;
+   lc[0] = Pt3D( -dx, -dy, -dz ) ;
+   lc[1] = Pt3D( -dx,  dy, -dz ) ;
+   lc[2] = Pt3D(  dx,  dy, -dz ) ;
+   lc[3] = Pt3D(  dx, -dy, -dz ) ;
+   lc[4] = Pt3D( -dx, -dy,  dz ) ;
+   lc[5] = Pt3D( -dx,  dy,  dz ) ;
+   lc[6] = Pt3D(  dx,  dy,  dz ) ;
+   lc[7] = Pt3D(  dx, -dy,  dz ) ;
 
-   lc[0] = HepGeom::Point3D<double> ( -dx, -dy, -dz ) ;
-   lc[1] = HepGeom::Point3D<double> ( -dx,  dy, -dz ) ;
-   lc[2] = HepGeom::Point3D<double> (  dx,  dy, -dz ) ;
-   lc[3] = HepGeom::Point3D<double> (  dx, -dy, -dz ) ;
-   lc[4] = HepGeom::Point3D<double> ( -dx, -dy,  dz ) ;
-   lc[5] = HepGeom::Point3D<double> ( -dx,  dy,  dz ) ;
-   lc[6] = HepGeom::Point3D<double> (  dx,  dy,  dz ) ;
-   lc[7] = HepGeom::Point3D<double> (  dx, -dy,  dz ) ;
-
-   ref   = HepGeom::Point3D<double> (0,0,0) ;
-
-   return lc ;
+   ref   = Pt3D(0,0,0) ;
 }
