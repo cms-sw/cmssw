@@ -9,7 +9,7 @@ standard processing
 
 
 from FWCore.ParameterSet.Config import Process, EndPath
-from FWCore.ParameterSet.Modules import OutputModule, Source
+from FWCore.ParameterSet.Modules import OutputModule, Source, Service
 import FWCore.ParameterSet.Types as CfgTypes
 
 
@@ -54,6 +54,7 @@ def mergeProcess(*inputFiles, **options):
         if dropDQM:
             process.source.inputCommands = CfgTypes.untracked.vstring('keep *','drop *_EDMtoMEConverter_*_*')
     process.source.fileNames = CfgTypes.untracked(CfgTypes.vstring())
+    process.add_(Service("DQMStore"))
     for entry in inputFiles:
         process.source.fileNames.append(str(entry))
  
