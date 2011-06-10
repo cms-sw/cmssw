@@ -561,14 +561,13 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                 if hltdata.has_key(cmslsnum):                
                     hltpathdata=hltdata[cmslsnum]
                     #print 'hltpathdata ',hltpathdata
-                    l1bitname=None
-                    thisprescale=None
-                    l1prescale=None
-                    efflumi=0.0                    
                     for pathidx,thispathinfo in enumerate(hltpathdata):
+                        efflumi=0.0                    
                         thispathname=thispathinfo[0]
                         thisprescale=thispathinfo[1]
                         thisl1seed=None
+                        l1bitname=None
+                        l1prescale=None
                         try:
                             thisl1seed=hlttrgmap[thispathname]
                         except KeyError:
@@ -577,7 +576,7 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                         if thisl1seed:                            
                             try:
                                 l1bitname=hltTrgSeedMapper.findUniqueSeed(thispathname,thisl1seed)
-                                if l1bitname:
+                                if l1bitname :
                                     l1prescale=trgprescalemap[l1bitname]#need to match double quoted string!
                             except KeyError:
                                 l1prescale=None
@@ -620,7 +619,7 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                     del beam2intensityarray[:]
                 beamdata=(bxindexlist,b1intensitylist,b2intensitylist)
 #            print cmslsnum,deliveredlumi,recordedlumi,efflumidict
-            perrunresult.append([cmslsnum,triggeredls,timestamp,bstatus,begev,deliveredlumi,recordedlumi,calibratedlumierror,efflumidict,bxdata,beamdata])
+            perrunresult.append([lumilsnum,triggeredls,timestamp,bstatus,begev,deliveredlumi,recordedlumi,calibratedlumierror,efflumidict,bxdata,beamdata])
             del perlsdata[:]
         result[run]=perrunresult
     #print result

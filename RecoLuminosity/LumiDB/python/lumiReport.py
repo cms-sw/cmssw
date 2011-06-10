@@ -463,7 +463,7 @@ def toCSVLSEffective(lumidata,filename,resultlines,scalefactor,isverbose):
 
 def toScreenTotEffective(lumidata,resultlines,scalefactor,isverbose):
     '''
-    input:  {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata]}
+    input:  {run:[lumilsnum(0),triggeredls(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata](8)}
     '''
     result=[]#[run,hltpath,l1bitname,totefflumi]
     totdict={}#{hltpath:[nls,toteff]}
@@ -483,18 +483,22 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,isverbose):
             for hltpathname,pathdata in efflumiDict.items():
                 if not totefflumiDict.has_key(hltpathname):
                     totefflumiDict[hltpathname]=0.0
-                    pathmap[hltpathname]='n/a'                
+                    pathmap[hltpathname]='n/a'
+                l1name=pathdata[0]
+                l1presc=pathdata[1]
+                hltpresc=pathdata[2]
                 lumival=pathdata[3]
                 if not totdict.has_key(hltpathname):
                     totdict[hltpathname]=[0,0.0]
-                if lsdata[1]!=0:
+                if l1presc and hltpresc and l1presc*hltpresc!=0:
                     totdict[hltpathname][0]+=1   
-                if lumival:
-                    totdict[hltpathname][1]+=lumival
-                    totefflumiDict[hltpathname]+=lumival
-                    pathmap[hltpathname]=pathdata[0]
+                    if lumival:
+                        totdict[hltpathname][1]+=lumival
+                        totefflumiDict[hltpathname]+=lumival
+                        pathmap[hltpathname]=l1name
         for name in sorted(totefflumiDict):
             (efflumival,efflumiunit)=CommonUtil.guessUnit(totefflumiDict[name])
+            #print 'efflumival , efflumiunit ',efflumival,efflumiunit
             result.append([str(run),name,pathmap[name],'%.3f'%(efflumival*scalefactor)+'('+efflumiunit+')'])
     labels = [('Run','HLTpath','L1bit','Effective')]
     print ' ==  = '
