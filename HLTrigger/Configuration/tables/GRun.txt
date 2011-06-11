@@ -14,6 +14,7 @@ HLT_Jet270_CentralJet30_BTagIP_v*
 HLT_Jet300_v*
 HLT_Jet370_v*
 HLT_Jet370_NoJetID_v*
+HLT_Jet800_v*
 HLT_DiJetAve30_v*
 HLT_DiJetAve60_v*
 HLT_DiJetAve80_v*
@@ -47,6 +48,7 @@ HLT_QuadJet45_IsoPFTau45_v*
 HLT_QuadJet50_Jet40_Jet30_v*
 HLT_QuadJet60_v*
 HLT_QuadJet70_v*
+HLT_EightJet120_v*
 HLT_ExclDiJet60_HFOR_v*
 HLT_ExclDiJet60_HFAND_v*
 HLT_JetE30_NoBPTX_v*
@@ -84,6 +86,7 @@ HLT_HT450_AlphaT0p51_v*
 HLT_HT450_AlphaT0p52_v* 
 HLT_HT500_v*
 HLT_HT550_v*
+HLT_HT2000_v*
 HLT_PFMHT150_v*
 HLT_MET65_v*
 HLT_MET100_v*
@@ -93,6 +96,7 @@ HLT_MET65_HBHENoiseFiltered_v*
 HLT_MET100_HBHENoiseFiltered_v*
 HLT_MET120_HBHENoiseFiltered_v*
 HLT_MET200_HBHENoiseFiltered_v*
+HLT_MET400_v*
 HLT_R014_MR150_v*
 HLT_R014_MR150_CentralJet40_BTagIP_v*
 HLT_R017_MR450_CentralJet40_BTagIP_v*
@@ -207,9 +211,11 @@ HLT_Photon90_CaloIdVL_IsoL_v*
 HLT_Photon135_v*
 HLT_Photon200_NoHE_v*
 HLT_Photon225_NoHE_v*
+HLT_Photon400_v*
 HLT_DoublePhoton33_HEVT_v*
 HLT_DoublePhoton38_HEVT_v*
 HLT_DoublePhoton60_v*
+HLT_DoublePhoton80_v*
 HLT_DoublePhoton5_IsoVL_CEP_v*
 HLT_L1SingleEG5_v*
 HLT_L1SingleEG12_v*
@@ -237,6 +243,7 @@ HLT_Ele42_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*
 HLT_Ele42_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v*
 HLT_Ele52_CaloIdVT_TrkIdT_v*
 HLT_Ele65_CaloIdVT_TrkIdT_v*
+HLT_Ele100_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*
 HLT_DoubleEle8_CaloIdT_TrkIdVL_v*
 HLT_DoubleEle33_v*
 HLT_DoubleEle33_CaloIdL_v*
