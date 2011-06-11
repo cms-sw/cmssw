@@ -3,8 +3,8 @@
 
 /** \class CSCDigiToRaw
  *
- *  $Date: 2010/04/23 23:03:04 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/05/04 02:36:24 $
+ *  $Revision: 1.11 $
  *  \author A. Tumanov - Rice
  */
 
@@ -45,25 +45,26 @@ private:
   // specialized because it reverses strip direction
   void add(const CSCStripDigiCollection& stripDigis, 
            const CSCCLCTPreTriggerCollection& preTriggers);
-  void add(const CSCWireDigiCollection& wireDigis);
+  void add(const CSCWireDigiCollection& wireDigis,
+           const CSCALCTDigiCollection & alctDigis);
   // may require CLCTs to read out comparators.  Doesn't add CLCTs.
   void add(const CSCComparatorDigiCollection & comparatorDigis,
            const CSCCLCTDigiCollection & clctDigis);
   void add(const CSCALCTDigiCollection & alctDigis);
   void add(const CSCCLCTDigiCollection & clctDigis);
   void add(const CSCCorrelatedLCTDigiCollection & corrLCTDigis);
-
   /// pick out the correct data object for this chamber
   CSCEventData & findEventData(const CSCDetId & cscDetId);
 
-  /// takes layer ID, converts to chamber ID, switching ME1A to ME11
-  CSCDetId chamberID(const CSCDetId & cscDetId) const;
-
   std::map<CSCDetId, CSCEventData> theChamberDataMap;
   const CSCChamberMap* theElectronicsMap;
-  // used to zero-suppress strips
-  bool requirePreTrigger_;
-  bool requireCLCTForComparators_;
+  int alctWindowMin_;
+  int alctWindowMax_;
+  int clctWindowMin_;
+  int clctWindowMax_;
+  int preTriggerWindowMin_;
+  int preTriggerWindowMax_;
+
 };
 
 
