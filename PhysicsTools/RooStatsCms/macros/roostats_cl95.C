@@ -1,7 +1,7 @@
 static const char* desc =
 "=====================================================================\n"
 "|                                                                    \n"
-"|\033[1m        roostats_cl95.C  version 1.05                 \033[0m\n"
+"|\033[1m        roostats_cl95.C  version 1.06                 \033[0m\n"
 "|                                                                    \n"
 "| Standard c++ routine for 95% C.L. limit calculation                \n"
 "| for cross section in a 'counting experiment'                       \n"
@@ -621,36 +621,54 @@ Double_t CL95Calc::cl95( std::string method ){
   // make RooFit quiet
   RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
 
-  if (method.find("bayesian") != std::string::npos){
+  Int_t _attempt = 0; // allow several attempts for limit calculation, stop after that
+  while(1){
 
-    //prepare Bayesian Calulator
-    delete bcalc;
-    bcalc = new BayesianCalculator(*data, mc);
-    TString namestring = "mybc";
-    bcalc->SetName(namestring);
-    bcalc->SetConfidenceLevel(0.95);
-    bcalc->SetLeftSideTailFraction(0.0);
+    ++_attempt;
     
-    delete sInt;
-    sInt = bcalc->GetInterval();
-    upper_limit = sInt->UpperLimit();
-    delete sInt;
-    sInt = 0;
-   
-  }
-  else if (method.find("mcmc") != std::string::npos){
+    if (method.find("bayesian") != std::string::npos){
+      
+      //prepare Bayesian Calulator
+      delete bcalc;
+      bcalc = new BayesianCalculator(*data, mc);
+      TString namestring = "mybc";
+      bcalc->SetName(namestring);
+      bcalc->SetConfidenceLevel(0.95);
+      bcalc->SetLeftSideTailFraction(0.0);
+      
+      delete sInt;
+      sInt = bcalc->GetInterval();
+      upper_limit = sInt->UpperLimit();
+      delete sInt;
+      sInt = 0;
+      
+    }
+    else if (method.find("mcmc") != std::string::npos){
+      
+      std::cout << "[roostats_cl95]: Bayesian MCMC calculation is still experimental in this context!!!" << std::endl;
+      
+      //prepare Bayesian Markov Chain MC Calulator
+      mcInt = GetMcmcInterval(0.95, 50000, 100, 0.0, 40);
+      upper_limit = printMcmcUpperLimit();
+    }
+    else{
+      std::cout << "[roostats_cl95]: method " << method 
+		<< " is not implemented, exiting" <<std::endl;
+      return -1.0;
+    }
+    
+    // adaptive range in case the POI range was not guessed properly
+    Double_t _poi_max_range = ws->var("xsec")->getMax();
+    if (upper_limit < _poi_max_range/2.0) break;  
+    else if (_attempt > 1){
+      std::cout << "[roostats_cl95]: limit calculation did not converge after two attempts, exiting..." << std::endl;
+    }
+    else{
+      std::cout << "[roostats_cl95]: upper limit is too close to the range boundary. Will double the range and rerun" << std::endl;
+      ws->var("xsec")->setMax(2.0*_poi_max_range);
+    }
 
-    std::cout << "[roostats_cl95]: Bayesian MCMC calculation is still experimental in this context!!!" << std::endl;
-
-    //prepare Bayesian Markov Chain MC Calulator
-    mcInt = GetMcmcInterval(0.95, 50000, 100, 0.0, 40);
-    upper_limit = printMcmcUpperLimit();
-  }
-  else{
-    std::cout << "[roostats_cl95]: method " << method 
-	      << " is not implemented, exiting" <<std::endl;
-    return -1.0;
-  }
+  } // end of while(1) loop
   
   return upper_limit;
   
