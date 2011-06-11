@@ -660,8 +660,9 @@ Double_t CL95Calc::cl95( std::string method ){
     // adaptive range in case the POI range was not guessed properly
     Double_t _poi_max_range = ws->var("xsec")->getMax();
     if (upper_limit < _poi_max_range/2.0) break;  
-    else if (_attempt > 1){
-      std::cout << "[roostats_cl95]: limit calculation did not converge after two attempts, exiting..." << std::endl;
+    else if (_attempt > 5){
+      std::cout << "[roostats_cl95]: limit calculation did not converge, exiting..." << std::endl;
+      return -1.0;
     }
     else{
       std::cout << "[roostats_cl95]: upper limit is too close to the range boundary. Will double the range and rerun" << std::endl;
