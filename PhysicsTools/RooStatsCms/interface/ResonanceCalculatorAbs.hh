@@ -119,6 +119,11 @@ public:
   // One can re-instate the default behavior by setting a minimum greater than the maximum.
   void setMinMaxControlMass(double min, double max) { controlMin_=min; controlMax_=max; return; }  
 
+  // sets the number of background events
+  // if a range is given, then it is allowed to float within the minimum and maxmimum values given
+  void setNumBackgroundEvents(double central) { nbkg_->setVal(central); nbkg_->setConstant(kTRUE); fixNbkg_=true; }
+  void setNumBackgroundEvents(double central, double min, double max) { nbkg_->setRange(min, max); nbkg_->setVal(central); nbkg_->setConstant(kFALSE); }
+
   // set the number of bins used to draw the fit results
   // if you use binned data, drawing the data with a different number of bins than what is used in the data
   // can result in artifacts in the plotting.
@@ -187,6 +192,7 @@ protected:
   static int printLevel_;
   int fitStrategy_;
   double controlMin_, controlMax_;
+  bool fixNbkg_;
 
   // stored values
   RooBinning dataBinning_;

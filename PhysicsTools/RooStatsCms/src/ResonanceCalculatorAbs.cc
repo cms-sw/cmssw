@@ -28,14 +28,14 @@
 int ResonanceCalculatorAbs::printLevel_=1;
 
 ResonanceCalculatorAbs::ResonanceCalculatorAbs()
-  : numPEs_(100), nBinsToDraw_(100), whichTestStatistic_(0), searchStepSize_(1.0), fixedSearchStepSize_(-999), randomSeed_(1), fitStrategy_(2), controlMin_(1.), controlMax_(0.), dataIntegral_(-1), ws_(0)
+  : numPEs_(100), nBinsToDraw_(100), whichTestStatistic_(0), searchStepSize_(1.0), fixedSearchStepSize_(-999), randomSeed_(1), fitStrategy_(2), controlMin_(1.), controlMax_(0.), fixNbkg_(false), dataIntegral_(-1), ws_(0)
 {
   // default constructor
 }
 
 ResonanceCalculatorAbs::ResonanceCalculatorAbs(const ResonanceCalculatorAbs& other)
   : numPEs_(other.numPEs_), nBinsToDraw_(other.nBinsToDraw_), whichTestStatistic_(other.whichTestStatistic_),
-    searchStepSize_(other.searchStepSize_), fixedSearchStepSize_(other.fixedSearchStepSize_), randomSeed_(other.randomSeed_), fitStrategy_(other.fitStrategy_), controlMin_(other.controlMin_), controlMax_(other.controlMax_),
+    searchStepSize_(other.searchStepSize_), fixedSearchStepSize_(other.fixedSearchStepSize_), randomSeed_(other.randomSeed_), fitStrategy_(other.fitStrategy_), controlMin_(other.controlMin_), controlMax_(other.controlMax_), fixNbkg_(other.fixNbkg_),
     dataBinning_(other.dataBinning_), dataIntegral_(other.dataIntegral_)
 {
   // copy constructor
@@ -384,21 +384,17 @@ void ResonanceCalculatorAbs::setUnbinnedData(const char* filename, double minx, 
 
   // fill the temporary dataset (recording the min/max data value)
   std::vector<double> tempDataset;
-  double minobs=numeric_limits<double>::max();
-  double maxobs=-numeric_limits<double>::max();
   while(is.good()) {
     double temp;
     is >> temp;
     if(!is.good()) break;
-    tempDataset.push_back(temp);
-    if(temp<minobs) minobs=temp;
-    if(temp>maxobs) maxobs=temp;
+    if(temp>=minx && temp<=maxx) tempDataset.push_back(temp);
   }
   is.close();
 
   // set the range of the observable
-  obs_->setRange(std::min(minx, minobs), std::max(maxx, maxobs));
-  obs_->setVal(minobs);
+  obs_->setRange(minx, maxx);
+  obs_->setVal(minx);
 
   // create the dataset
   TString dataname = "dataSet";
@@ -763,7 +759,7 @@ void ResonanceCalculatorAbs::scanForBumpWithControl(const char* label)
 RooFitResult* ResonanceCalculatorAbs::doBkgOnlyFit(const char* label)
 {
   // do a fit to the background only
-  nbkg_->setConstant(false);
+  if(!fixNbkg_) nbkg_->setConstant(false);
   setBkgParamsConst(false);
   nsig_->setMin(0.0);
   nsig_->setVal(0.0);
@@ -781,7 +777,7 @@ RooFitResult* ResonanceCalculatorAbs::doBkgOnlyFit(const char* label)
 RooFitResult* ResonanceCalculatorAbs::doBkgOnlyExcludeWindowFit(const char* label)
 {
   // do a fit to the background only excluding a window +/- 3 units in width about the resonance mass
-  nbkg_->setConstant(false);
+  if(!fixNbkg_) nbkg_->setConstant(false);
   setBkgParamsConst(false);
   nsig_->setMin(0.0);
   nsig_->setVal(0);
@@ -830,7 +826,7 @@ RooFitResult* ResonanceCalculatorAbs::doBkgOnlyExcludeWindowFit(const char* labe
 RooFitResult* ResonanceCalculatorAbs::doBkgPlusSigFixMassFit(const char* label)
 {
   // do a fit to signal+background with a fixed mass
-  nbkg_->setConstant(false);
+  if(!fixNbkg_) nbkg_->setConstant(false);
   setBkgParamsConst(false);
   nsig_->setRange(0.01,nbkg_->getVal());
   nsig_->setVal(nbkg_->getVal()/2.0); // set seed away from 0
@@ -895,7 +891,7 @@ RooFitResult* ResonanceCalculatorAbs::doSigOnlyFloatMassFit(const char* label, d
 RooFitResult* ResonanceCalculatorAbs::doBkgPlusSigFloatMassFit(const char* label, double minMass, double maxMass)
 {
   // do a fit to signal+background with a floating mass
-  nbkg_->setConstant(false);
+  if(!fixNbkg_) nbkg_->setConstant(false);
   setBkgParamsConst(false);
   nsig_->setRange(0.01,nbkg_->getVal());
   nsig_->setVal(nbkg_->getVal()/2.0); // set seed away from 0
