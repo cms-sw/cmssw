@@ -14,7 +14,7 @@ TRIGGERS=$(cat hlt.py | grep 'cms.Path' | sed -e's/process.\(\w\+\) = cms.Path.*
 
 # check if thw menu as a whole was run
 if ! [ -f "hlt.done" ]; then
-  err "Execution of the full HLT men failed.\nPlease check the contents of 'hlt.log' for details."
+  err "ERROR: Execution of the full HLT men failed.\nPlease check the contents of 'hlt.log' for details."
   exit 1
 fi
 
@@ -22,15 +22,23 @@ fi
 STATUS=0
 for TRIGGER in $TRIGGERS; do
   if ! [ -f ${TRIGGER}.done ]; then
-    err "Execution of the trigger $TRIGGER failed.\nPlease check the contents of '$TRIGGER.log' for details."
+    err "ERROR: Execution of the trigger $TRIGGER failed.\nPlease check the contents of '$TRIGGER.log' for details."
     STATUS=1
     continue
   fi
   RESULT=$(cat "hlt.log"      | awk "/TrigReport ---------- Modules in Path: $TRIGGER ------------/"'{ while ($1 == "TrigReport") { print; getline; } }' | sed -e's|TrigReport     1 ....|TrigReport     1 xxxx|')
   SINGLE=$(cat "$TRIGGER.log" | awk "/TrigReport ---------- Modules in Path: $TRIGGER ------------/"'{ while ($1 == "TrigReport") { print; getline; } }' | sed -e's|TrigReport     1 ....|TrigReport     1 xxxx|')
-  if [ "$RESULT" != "$SINLGE" ]; then
-    err "Inconsitencies found comparing the result of the trigger $TRIGGER run as part of the whole menu, or standalone.\nPlease compare the contents of 'hlt.log' and '$TRIGGER.log' for details."
+  if [ "$RESULT" != "$SINGLE" ]; then
+    err "ERROR: Inconsitencies found comparing the result of the trigger $TRIGGER run as part of the whole menu, or standalone.\nPlease compare the contents of 'hlt.log' and '$TRIGGER.log' for details."
     STATUS=1
+  fi
+  read VISIT PASS LAST <<< $(echo "$RESULT" | tail -n1 | awk '{ print $4, $5, $8; }')
+  if (( PASS == 0 )); then
+    if [ "$LAST" != "hltBoolFalse" ]; then
+      log "WARNING: path $TRIGGER did not accept any events"
+    elif (( VISIT == 0 )); then
+      log "WARNING: path $TRIGGER was not fully exercised"
+    fi
   fi
 done
 
