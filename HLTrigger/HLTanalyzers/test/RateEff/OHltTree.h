@@ -262,6 +262,16 @@ public:
    Float_t ohEleR9[8000]; //[NohEle] 
    Float_t ohEleHforHoverE[8000]; //[NohEle] 
    Float_t ohEleEiso[8000]; //[NohEle] 
+	
+   Int_t NohHFEle;
+   Float_t ohHFElePt[10000]; //[NohHFEle]
+   Float_t ohHFEleEta[10000]; //[NohHFEle]
+   Int_t NohHFECALClus;
+   Float_t ohHFEleClustere9e25[10000]; //[NohHFECALClus]
+   Float_t ohHFEleCluster2Dcut[10000]; //[NohHFECALClus]
+   Float_t ohHFEleClusterEta[10000]; //[NohHFECALClus]
+   Float_t ohHFEleClusterPhi[10000]; //[NohHFECALClus]
+	
    Int_t NrecoMuon;
    Float_t recoMuonPt[5000]; //[NrecoMuon]
    Float_t recoMuonPhi[5000]; //[NrecoMuon]
@@ -4874,7 +4884,17 @@ public:
    TBranch *b_ohEleNewSC; //!
    TBranch *b_ohEleR9; //! 
    TBranch *b_ohEleHforHoverE; //! 
-   TBranch *b_ohEleEiso; //!   
+   TBranch *b_ohEleEiso; //!  
+	
+   TBranch *b_NohHFEle; // !
+   TBranch *b_ohHFElePt; //!
+   TBranch *b_ohHFEleEta; //!
+   TBranch *b_NohHFECALClus; // !
+   TBranch *b_ohHFEleClustere9e25; //!
+   TBranch *b_ohHFEleCluster2Dcut; //!
+   TBranch *b_ohHFEleClusterEta; //!
+   TBranch *b_ohHFEleClusterPhi; //!
+
    TBranch *b_NrecoMuon; //!
    TBranch *b_recoMuonPt; //!
    TBranch *b_recoMuonPhi; //!
@@ -10677,6 +10697,16 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("ohEleR9", ohEleR9, &b_ohEleR9);
    fChain->SetBranchAddress("ohEleHforHoverE", ohEleHforHoverE, &b_ohEleHforHoverE);
    fChain->SetBranchAddress("ohEleEiso", ohEleEiso, &b_ohEleEiso);
+	
+   fChain->SetBranchAddress("NohHFEle", &NohHFEle, &b_NohHFEle);
+   fChain->SetBranchAddress("ohHFElePt", ohHFElePt, &b_ohHFElePt);
+   fChain->SetBranchAddress("ohHFEleEta", ohHFEleEta, &b_ohHFEleEta);
+   fChain->SetBranchAddress("NohHFECALClus", &NohHFECALClus, &b_NohHFECALClus);
+   fChain->SetBranchAddress("ohHFEleClustere9e25", ohHFEleClustere9e25, &b_ohHFEleClustere9e25);
+   fChain->SetBranchAddress("ohHFEleCluster2Dcut", ohHFEleCluster2Dcut, &b_ohHFEleCluster2Dcut);
+   fChain->SetBranchAddress("ohHFEleClusterEta", ohHFEleClusterEta, &b_ohHFEleClusterEta);
+   fChain->SetBranchAddress("ohHFEleClusterPhi", ohHFEleClusterPhi, &b_ohHFEleClusterPhi);
+	
    fChain->SetBranchAddress("NrecoMuon", &NrecoMuon, &b_NrecoMuon);
    fChain->SetBranchAddress("recoMuonPt", &recoMuonPt, &b_recoMuonPt);
    fChain->SetBranchAddress("recoMuonPhi", &recoMuonPhi, &b_recoMuonPhi);
