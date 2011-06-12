@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V127 (CMSSW_4_2_0_HLT8)
+# /dev/CMSSW_4_2_0/GRun/V128 (CMSSW_4_2_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V127')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V128')
 )
 
 process.streams = cms.PSet( 
@@ -26402,7 +26402,7 @@ process.hltEle22CaloIdVTTrkIdTCentralJet30Cleaned = cms.EDFilter( "HLT1CaloJet",
     MinN = cms.int32( 1 )
 )
 process.hltEle22CaloIdTTrkIdTCleanAK5CaloCorrJets25 = cms.EDProducer( "HLTJetCollForElePlusJets",
-    HltElectronTag = cms.InputTag( "hltEle15CaloIdVTTrkIdTDphiFilter" ),
+    HltElectronTag = cms.InputTag( "hltEle22CaloIdVTTrkIdTDphiFilter" ),
     SourceJetTag = cms.InputTag( "hltCaloJetCorrected" ),
     MinJetPt = cms.double( 25.0 ),
     MaxAbsJetEta = cms.double( 2.6 ),
@@ -31736,7 +31736,7 @@ process.HLT_R020_MR550_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL
 process.HLT_R023_MR350_CentralJet40_BTagIP_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleJet36Central + process.hltPreR023MR350CentralJet40BTagIP + process.HLTRSequenceDiJet56 + process.hltR023MR350 + process.hltBJetRAzr + process.HLTBTagIPSequenceL25SlimRAzr + process.HLTBTagIPSequenceL3RAzr + process.hltBLifetimeL3FilterRAzr + process.HLTEndSequence )
 process.HLT_R023_MR400_CentralJet40_BTagIP_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleJet36Central + process.hltPreR023MR400CentralJet40BTagIP + process.HLTRSequenceDiJet56 + process.hltR023MR400 + process.hltBJetRAzr + process.HLTBTagIPSequenceL25SlimRAzr + process.HLTBTagIPSequenceL3RAzr + process.hltBLifetimeL3FilterRAzr + process.HLTEndSequence )
 process.HLT_R023_MR550_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleJet36Central + process.hltPreR023MR550 + process.HLTRSequenceDiJet56 + process.hltR023MT550 + process.HLTEndSequence )
-process.HLT_R025_MR150_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleJet36Central + process.hltPreR025MR150 + process.HLTRSequenceDiJet56 + process.hltR025MR150 )
+process.HLT_R025_MR150_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleJet36Central + process.hltPreR025MR150 + process.HLTRSequenceDiJet56 + process.hltR025MR150 + process.HLTEndSequence )
 process.HLT_R025_MR450_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleJet36Central + process.hltPreR025MR450 + process.HLTRSequenceDiJet56 + process.hltR025MR450 + process.HLTEndSequence )
 process.HLT_R029_MR250_CentralJet40_BTagIP_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleJet36Central + process.hltPreR029MR250CentralJet40BTagIP + process.HLTRSequenceDiJet56 + process.hltR029MR250 + process.hltBJetRAzr + process.HLTBTagIPSequenceL25SlimRAzr + process.HLTBTagIPSequenceL3RAzr + process.hltBLifetimeL3FilterRAzr + process.HLTEndSequence )
 process.HLT_R029_MR300_CentralJet40_BTagIP_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleJet36Central + process.hltPreR029MR300CentralJet40BTagIP + process.HLTRSequenceDiJet56 + process.hltR029MR300 + process.hltBJetRAzr + process.HLTBTagIPSequenceL25SlimRAzr + process.HLTBTagIPSequenceL3RAzr + process.hltBLifetimeL3FilterRAzr + process.HLTEndSequence )

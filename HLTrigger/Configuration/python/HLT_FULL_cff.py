@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HLT/V471 (CMSSW_4_2_0_HLT8)
+# /dev/CMSSW_4_2_0/HLT/V473 (CMSSW_4_2_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V471')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V473')
 )
 
 streams = cms.PSet( 
@@ -26922,7 +26922,7 @@ hltEle22CaloIdVTTrkIdTCentralJet30Cleaned = cms.EDFilter( "HLT1CaloJet",
     MinN = cms.int32( 1 )
 )
 hltEle22CaloIdTTrkIdTCleanAK5CaloCorrJets25 = cms.EDProducer( "HLTJetCollForElePlusJets",
-    HltElectronTag = cms.InputTag( "hltEle15CaloIdVTTrkIdTDphiFilter" ),
+    HltElectronTag = cms.InputTag( "hltEle22CaloIdVTTrkIdTDphiFilter" ),
     SourceJetTag = cms.InputTag( "hltCaloJetCorrected" ),
     MinJetPt = cms.double( 25.0 ),
     MaxAbsJetEta = cms.double( 2.6 ),
@@ -30689,7 +30689,7 @@ HLT_R020_MR550_v3 = cms.Path( HLTBeginSequence + hltL1sL1DoubleJet36Central + hl
 HLT_R023_MR350_CentralJet40_BTagIP_v1 = cms.Path( HLTBeginSequence + hltL1sL1DoubleJet36Central + hltPreR023MR350CentralJet40BTagIP + HLTRSequenceDiJet56 + hltR023MR350 + hltBJetRAzr + HLTBTagIPSequenceL25SlimRAzr + HLTBTagIPSequenceL3RAzr + hltBLifetimeL3FilterRAzr + HLTEndSequence )
 HLT_R023_MR400_CentralJet40_BTagIP_v1 = cms.Path( HLTBeginSequence + hltL1sL1DoubleJet36Central + hltPreR023MR400CentralJet40BTagIP + HLTRSequenceDiJet56 + hltR023MR400 + hltBJetRAzr + HLTBTagIPSequenceL25SlimRAzr + HLTBTagIPSequenceL3RAzr + hltBLifetimeL3FilterRAzr + HLTEndSequence )
 HLT_R023_MR550_v1 = cms.Path( HLTBeginSequence + hltL1sL1DoubleJet36Central + hltPreR023MR550 + HLTRSequenceDiJet56 + hltR023MT550 + HLTEndSequence )
-HLT_R025_MR150_v3 = cms.Path( HLTBeginSequence + hltL1sL1DoubleJet36Central + hltPreR025MR150 + HLTRSequenceDiJet56 + hltR025MR150 )
+HLT_R025_MR150_v3 = cms.Path( HLTBeginSequence + hltL1sL1DoubleJet36Central + hltPreR025MR150 + HLTRSequenceDiJet56 + hltR025MR150 + HLTEndSequence )
 HLT_R025_MR250_CentralJet40_BTagIP_v4 = cms.Path( HLTBeginSequence + hltL1sL1DoubleJet36Central + hltPreR025MR250CentralJet40BTagIP + HLTRSequenceDiJet56 + hltR025MR250 + hltBJetRAzr + HLTBTagIPSequenceL25SlimRAzr + HLTBTagIPSequenceL3RAzr + hltBLifetimeL3FilterRAzr + HLTEndSequence )
 HLT_R025_MR400_v3 = cms.Path( HLTBeginSequence + hltL1sL1DoubleJet36Central + hltPreR025MR400 + HLTRSequenceDiJet56 + hltR025MR400 + HLTEndSequence )
 HLT_R025_MR450_v3 = cms.Path( HLTBeginSequence + hltL1sL1DoubleJet36Central + hltPreR025MR450 + HLTRSequenceDiJet56 + hltR025MR450 + HLTEndSequence )
