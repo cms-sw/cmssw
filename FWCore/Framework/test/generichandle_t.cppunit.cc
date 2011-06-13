@@ -181,7 +181,6 @@ void testGenericHandle::getbyLabelTest() {
   boost::shared_ptr<edm::Parentage> entryDescriptionPtr(new edm::Parentage);
   std::auto_ptr<edm::ProductProvenance> branchEntryInfoPtr(
       new edm::ProductProvenance(branchFromRegistry.branchID(),
-                              edm::productstatus::present(),
                               entryDescriptionPtr));
   edm::ConstBranchDescription const desc(branchFromRegistry);
   ep.put(desc, pprod, branchEntryInfoPtr);

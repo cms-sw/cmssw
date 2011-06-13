@@ -2,7 +2,6 @@
 ----------------------------------------------------------------------*/
 #include "FWCore/Framework/interface/Group.h"
 
-#include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
@@ -49,7 +48,6 @@ namespace edm {
         boost::shared_ptr<ProductProvenance> productProvenance) {
     assert(provenance()->productProvenanceResolved());
     assert(status() == Present);
-    assert (productProvenancePtr()->productStatus() == productProvenance->productStatus());
     productProvenancePtr() = productProvenance;
     mergeTheProduct(edp);
   }
@@ -173,8 +171,6 @@ namespace edm {
     if(onDemand()) return false;
     // The product is available if and only if a product has been put.
     bool unavailable = !(product() && wrapper().isPresent());
-    assert (!productstatus::presenceUnknown(status()));
-    assert(unavailable == productstatus::notPresent(status()));
     return unavailable;
   }
 

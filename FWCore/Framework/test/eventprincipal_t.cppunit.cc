@@ -16,7 +16,6 @@ Test of the EventPrincipal class.
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
@@ -187,7 +186,6 @@ void test_ep::setUp() {
     boost::shared_ptr<edm::Parentage> entryDescriptionPtr(new edm::Parentage);
     std::auto_ptr<edm::ProductProvenance> branchEntryInfoPtr(
       new edm::ProductProvenance(branchFromRegistry.branchID(),
-                               edm::productstatus::present(),
                                entryDescriptionPtr));
 
     boost::shared_ptr<edm::ProcessConfiguration> process(processConfigurations_[tag]);

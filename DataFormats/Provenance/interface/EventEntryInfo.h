@@ -4,7 +4,7 @@
 /*----------------------------------------------------------------------
   
 EventEntryInfo: The event dependent portion of the description of a product
-and how it came into existence, plus the product identifier and the status.
+and how it came into existence, plus the product identifier.
 
 ----------------------------------------------------------------------*/
 #include <iosfwd>
@@ -13,7 +13,6 @@ and how it came into existence, plus the product identifier and the status.
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Provenance/interface/ProductStatus.h"
 
 /*
   EventEntryInfo
@@ -30,14 +29,12 @@ namespace edm {
 
     BranchID const& branchID() const {return branchID_;}
     ProductID const& productID() const {return productID_;}
-    ProductStatus const& productStatus() const {return productStatus_;}
     EntryDescriptionID const& entryDescriptionID() const {return entryDescriptionID_;}
 
   private:
 
     BranchID branchID_;
     ProductID productID_;
-    ProductStatus productStatus_;
     EntryDescriptionID entryDescriptionID_;
   };
 

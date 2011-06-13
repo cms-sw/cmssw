@@ -11,7 +11,7 @@ namespace edm {
       StreamedProduct* obj = static_cast<StreamedProduct*>(objp);
       obj->clearClassType();
       obj->setNewClassType();
-      if(productstatus::present(obj->status())) {
+      if(obj->present()) {
         obj->allocateForReading();
         obj->classRef()->Streamer(obj->prod(), R__b);
       }
@@ -19,7 +19,7 @@ namespace edm {
       cl_->WriteBuffer(R__b, objp);
       StreamedProduct* obj = static_cast<StreamedProduct*>(objp);
       obj->setNewClassType();
-      if(productstatus::present(obj->status())) {
+      if(obj->present()) {
         assert(obj->prod() != 0);
         obj->classRef()->Streamer(obj->prod(), R__b);
       }

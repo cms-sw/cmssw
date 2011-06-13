@@ -4,7 +4,7 @@
 /*----------------------------------------------------------------------
   
 ProductProvenance: The event dependent portion of the description of a product
-and how it came into existence, plus the status.
+and how it came into existence.
 
 ----------------------------------------------------------------------*/
 #include <iosfwd>
@@ -14,7 +14,6 @@ and how it came into existence, plus the status.
 
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
-#include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "DataFormats/Provenance/interface/Transient.h"
 
@@ -28,16 +27,11 @@ namespace edm {
     ProductProvenance();
     explicit ProductProvenance(BranchID const& bid);
     ProductProvenance(BranchID const& bid,
-		    ProductStatus status);
-    ProductProvenance(BranchID const& bid,
-		    ProductStatus status,
 		    boost::shared_ptr<Parentage> parentagePtr);
     ProductProvenance(BranchID const& bid,
-		    ProductStatus status,
 		    ParentageID const& id);
 
     ProductProvenance(BranchID const& bid,
-		   ProductStatus status,
 		   std::vector<BranchID> const& parents);
 
     ~ProductProvenance() {}
@@ -47,10 +41,8 @@ namespace edm {
     void write(std::ostream& os) const;
 
     BranchID const& branchID() const {return branchID_;}
-    ProductStatus const& productStatus() const {return productStatus_;}
     ParentageID const& parentageID() const {return parentageID_;}
     Parentage const& parentage() const;
-    void setStatus(ProductStatus const& status);
 
     bool & noParentage() const {return transients_.get().noParentage_;}
 
@@ -65,7 +57,6 @@ namespace edm {
     boost::shared_ptr<Parentage> & parentagePtr() const {return transients_.get().parentagePtr_;}
 
     BranchID branchID_;
-    ProductStatus productStatus_;
     ParentageID parentageID_;
     mutable Transient<Transients> transients_;
   };

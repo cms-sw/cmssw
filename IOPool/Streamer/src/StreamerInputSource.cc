@@ -364,7 +364,6 @@ namespace edm {
         // This ProductProvenance constructor inserts into the entry description registry
         std::auto_ptr<ProductProvenance> productProvenance(
              new ProductProvenance(spi->branchID(),
-                                   spi->status(),
                                    *spi->parents()));
 
         if(spi->prod() != 0) {

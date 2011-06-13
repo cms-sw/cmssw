@@ -21,7 +21,6 @@
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
-#include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 
 #include "TClassRef.h"
@@ -32,18 +31,18 @@ namespace edm {
 
   class StreamedProduct {
   public:
-    StreamedProduct() : desc_(0), status_(productstatus::neverCreated()), parents_(0), prod_(0), classRef_() {}
+    StreamedProduct() : desc_(0), present_(false), parents_(0), prod_(0), classRef_() {}
     explicit StreamedProduct(BranchDescription const& desc) :
-      desc_(&desc), status_(productstatus::neverCreated()), parents_(0), prod_(0), classRef_() {}
+      desc_(&desc), present_(false), parents_(0), prod_(0), classRef_() {}
 
     StreamedProduct(void const* prod,
                     BranchDescription const& desc,
-                    ProductStatus status,
+                    bool present,
                     std::vector<BranchID> const* parents);
 
     BranchDescription const* desc() const {return desc_;}
     BranchID branchID() const {return desc_->branchID();}
-    ProductStatus status() const {return status_;}
+    bool present() const {return present_;}
     std::vector<BranchID> const* parents() const {return parents_;}
     void* prod() {return prod_;}
     TClassRef const& classRef() const {return classRef_;}
@@ -55,14 +54,14 @@ namespace edm {
      prod_= 0;
      delete desc_;
      desc_= 0;
-     status_ = productstatus::neverCreated();
+     present_ = false;
      delete parents_;
      parents_ = 0;
   }
 
   private:
     BranchDescription const* desc_;
-    ProductStatus status_;
+    bool present_;
     std::vector<BranchID> const* parents_;
     void* prod_;
     TClassRef classRef_;

@@ -156,13 +156,11 @@ namespace edm {
       std::auto_ptr<ProductProvenance> productProvenancePtr;
       if(!sameAsPrevious) {
         productProvenancePtr = std::auto_ptr<ProductProvenance>(new ProductProvenance(pit->second->branchID(),
-                                                                                      productstatus::present(),
                                                                                       gotBranchIDVector));
         *previousParentageId = productProvenancePtr->parentageID();
         sameAsPrevious = true;
       } else {
         productProvenancePtr = std::auto_ptr<ProductProvenance>(new ProductProvenance(pit->second->branchID(),
-                                                                                      productstatus::present(),
                                                                                       *previousParentageId));
       }
       ep.put(*pit->second, pit->first, productProvenancePtr);

@@ -4,14 +4,13 @@
 /*----------------------------------------------------------------------
   
 RunLumiEntryInfo: The event dependent portion of the description of a product
-and how it came into existence, plus the product identifier and the status.
+and how it came into existence, plus the product identifier.
 
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <vector>
 
 #include "DataFormats/Provenance/interface/BranchID.h"
-#include "DataFormats/Provenance/interface/ProductStatus.h"
 
 /*
   RunLumiEntryInfo
@@ -25,11 +24,9 @@ namespace edm {
     void write(std::ostream& os) const;
 
     BranchID const& branchID() const {return branchID_;}
-    ProductStatus const& productStatus() const {return productStatus_;}
 
   private:
     BranchID branchID_;
-    ProductStatus productStatus_;
   };
 
   inline

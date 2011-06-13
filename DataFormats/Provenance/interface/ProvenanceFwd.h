@@ -34,7 +34,6 @@ namespace cms {
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
 #include "DataFormats/Provenance/interface/PassID.h"
-#include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "DataFormats/Provenance/interface/ReleaseVersion.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProcessConfigurationID.h"

@@ -9,7 +9,6 @@ namespace edm {
   EventEntryInfo::EventEntryInfo() :
     branchID_(),
     productID_(),
-    productStatus_(productstatus::uninitialized()),
     entryDescriptionID_()
   {}
 
@@ -19,7 +18,6 @@ namespace edm {
   EventEntryInfo::write(std::ostream& os) const {
     os << "branch ID = " << branchID() << '\n';
     os << "product ID = " << productID() << '\n';
-    os << "product status = " << static_cast<int>(productStatus()) << '\n';
     os << "entry description ID = " << entryDescriptionID() << '\n';
   }
     
@@ -28,7 +26,6 @@ namespace edm {
     return
       a.branchID() == b.branchID()
       && a.productID() == b.productID()
-      && a.productStatus() == b.productStatus()
       && a.entryDescriptionID() == b.entryDescriptionID();
   }
 }

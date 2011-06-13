@@ -7,8 +7,7 @@
 
 namespace edm {
   RunLumiEntryInfo::RunLumiEntryInfo() :
-    branchID_(),
-    productStatus_(productstatus::uninitialized())
+    branchID_()
   {}
 
   RunLumiEntryInfo::~RunLumiEntryInfo() {}
@@ -16,13 +15,10 @@ namespace edm {
   void
   RunLumiEntryInfo::write(std::ostream& os) const {
     os << "branch ID = " << branchID() << '\n';
-    os << "product status = " << productStatus() << '\n';
   }
     
   bool
   operator==(RunLumiEntryInfo const& a, RunLumiEntryInfo const& b) {
-    return
-      a.branchID() == b.branchID()
-      && a.productStatus() == b.productStatus();
+    return a.branchID() == b.branchID();
   }
 }

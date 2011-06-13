@@ -112,13 +112,6 @@ namespace edm {
     TTree* tree() {return tree_;}
     TTree const* metaTree() const {return metaTree_;}
     BranchMap const& branches() const;
-    std::vector<ProductStatus> const& productStatuses() const {return productStatuses_;} // backward compatibility
-
-    // below for backward compatibility
-    void fillStatus() { // backward compatibility
-      statusBranch_->SetAddress(&pProductStatuses_); // backward compatibility
-      roottree::getEntry(statusBranch_, entryNumber_); // backward compatibility
-    } // backward compatibility
 
     //For backwards compatibility
     TBranch* const branchEntryInfoBranch() const {return branchEntryInfoBranch_;}
@@ -158,8 +151,6 @@ namespace edm {
 
     TBranch* branchEntryInfoBranch_; //backwards compatibility
     // below for backward compatibility
-    std::vector<ProductStatus> productStatuses_; // backward compatibility
-    std::vector<ProductStatus>* pProductStatuses_; // backward compatibility
     TTree* infoTree_; // backward compatibility
     TBranch* statusBranch_; // backward compatibility
   };

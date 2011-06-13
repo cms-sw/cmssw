@@ -69,7 +69,7 @@ namespace edm {
     typedef ProcessConfigurationRegistry::collection_type PCMap;
     PCMap const& procConfigMap = ProcessConfigurationRegistry::instance()->data();
     ProcessConfigurationVector procConfigVector;
-    for (PCMap::const_iterator i = procConfigMap.begin(), e = procConfigMap.end(); i != e; ++i) {
+    for(PCMap::const_iterator i = procConfigMap.begin(), e = procConfigMap.end(); i != e; ++i) {
       procConfigVector.push_back(i->second);
     }
     sort_all(procConfigVector);
@@ -154,16 +154,16 @@ namespace edm {
       BranchID const& id = desc.branchID();
 
       OutputHandle const oh = eventPrincipal.getForOutput(id, true);
-      if (!oh.productProvenance()) {
+      if(!oh.productProvenance()) {
         // No product with this ID was put in the event.
         // Create and write the provenance.
         se.products().push_back(StreamedProduct(desc));
       } else {
         bool found = ParentageRegistry::instance()->getMapped(oh.productProvenanceSharedPtr()->parentageID(), parentage);
-        assert (found);
+        assert(found);
         se.products().push_back(StreamedProduct(oh.wrapper(),
                                                 desc,
-                                                oh.productProvenanceSharedPtr()->productStatus(),
+                                                oh.wrapper() != 0,
                                                 &parentage.parents()));
       }
     }

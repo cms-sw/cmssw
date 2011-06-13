@@ -1600,9 +1600,8 @@ namespace edm {
           BranchEntryDescription* ppb = pb.get();
           br->SetAddress(&ppb);
           roottree::getEntry(br, rootTree.entryNumber());
-          ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
           // Not providing parentage!!!
-          ProductProvenance entry(it->second.branchID(), status, ParentageID());
+          ProductProvenance entry(it->second.branchID(), ParentageID());
           mapper->insert(entry);
           mapper->insertIntoMap(it->second.oldProductID(), it->second.branchID());
         }
@@ -1611,16 +1610,14 @@ namespace edm {
     }
 
     boost::shared_ptr<BranchMapper>
-    makeBranchMapperInRelease200(RootTree& rootTree, BranchType const& type, ProductRegistry const& preg) {
-      rootTree.fillStatus();
+    makeBranchMapperInRelease200(RootTree&, BranchType const& type, ProductRegistry const& preg) {
       boost::shared_ptr<BranchMapperWithReader> mapper(new BranchMapperWithReader());
       mapper->setDelayedRead(false);
       for(ProductRegistry::ProductList::const_iterator it = preg.productList().begin(),
           itEnd = preg.productList().end(); it != itEnd; ++it) {
         if(type == it->second.branchType() && !it->second.transient()) {
-          std::vector<ProductStatus>::size_type index = it->second.oldProductID().oldID() - 1;
           // Not providing parentage!!!
-          ProductProvenance entry(it->second.branchID(), rootTree.productStatuses()[index], ParentageID());
+          ProductProvenance entry(it->second.branchID(), ParentageID());
           mapper->insert(entry);
           mapper->insertIntoMap(it->second.oldProductID(), it->second.branchID());
         }
@@ -1644,7 +1641,7 @@ namespace edm {
           EventEntryDescription eed;
           EntryDescriptionRegistry::instance()->getMapped(it->entryDescriptionID(), eed);
           Parentage parentage(eed.parents());
-          ProductProvenance entry(it->branchID(), it->productStatus(), parentage.id());
+          ProductProvenance entry(it->branchID(), parentage.id());
           mapper->insert(entry);
           mapper->insertIntoMap(it->productID(), it->branchID());
         }
@@ -1657,7 +1654,7 @@ namespace edm {
         setRefCoreStreamer(true);
         for(std::vector<RunLumiEntryInfo>::const_iterator it = infoVector->begin(), itEnd = infoVector->end();
             it != itEnd; ++it) {
-          ProductProvenance entry(it->branchID(), it->productStatus(), ParentageID());
+          ProductProvenance entry(it->branchID(), ParentageID());
           mapper->insert(entry);
         }
       }
@@ -1707,9 +1704,7 @@ namespace edm {
     setRefCoreStreamer(true);
     for (StoredProductProvenanceVector::const_iterator it = provVector_.begin(), itEnd = provVector_.end();
          it != itEnd; ++it) {
-      me->insert(ProductProvenance(BranchID(it->branchID_),
-                                   ProductStatus(),
-                                   parentageIDLookup_[it->parentageIDIndex_]));
+      me->insert(ProductProvenance(BranchID(it->branchID_), parentageIDLookup_[it->parentageIDIndex_]));
     }
   }
 
