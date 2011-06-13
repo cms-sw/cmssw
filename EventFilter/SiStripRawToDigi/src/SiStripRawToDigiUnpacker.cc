@@ -460,7 +460,7 @@ namespace sistrip {
       edm::LogWarning(sistrip::mlRawToDigi_) << ss.str();
     }
     if( (errorThreshold_ != 0) && (detIdsSize > errorThreshold_) ) {
-      edm::LogError("TooManyErrors_") << "Total number of errors = " << detIdsSize;
+      edm::LogError("TooManyErrors") << "Total number of errors = " << detIdsSize;
     }
 
     // update DetSetVectors
