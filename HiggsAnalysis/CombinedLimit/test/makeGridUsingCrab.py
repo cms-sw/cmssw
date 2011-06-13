@@ -5,17 +5,22 @@ from optparse import OptionParser
 import ROOT
 parser = OptionParser(usage="usage: %prog [options] workspace min max \nrun with --help to get list of options")
 parser.add_option("-o", "--out",      dest="out",      default="TestGrid",  type="string", help="output file prefix")
+parser.add_option("--lsf",            dest="lsf",      default=False, action="store_true", help="Run on LSF instead of GRID (can be changed in .cfg file)")
+parser.add_option("-q", "--queue",    dest="queue",    default="8nh80",   type="string", help="LSF queue to use (can be changed in .cfg file)")
 parser.add_option("-O", "--options",  dest="options",  default="--freq",  type="string", help="options to use for combine")
-parser.add_option("-n", "--points",   dest="points",   default=10,  type="int",  help="Points to choose in the range")
-parser.add_option("-T", "--toysH",      dest="T",        default=500, type="int",  help="Toys per point per iteration")
-parser.add_option("-I", "--interleave", dest="interl",   default=1, type="int",    help="If >1, excute only 1/I of the points in each job")
+parser.add_option("-n", "--points",   dest="points",   default=10,  type="int",  help="Points to choose in the range (note: both endpoints are included)")
+parser.add_option("-T", "--toysH",    dest="T",        default=500, type="int",  help="Toys per point per iteration")
+parser.add_option("-t", "--toys",     dest="t",        default=50,  type="int",  help="Total number of iterations per point among all jobs (can be changed in .cfg file)")
+parser.add_option("-j", "--jobs",     dest="j",        default=10,  type="int",  help="Total number of jobs (can be changed in .cfg file)")
+parser.add_option("-I", "--interleave", dest="interl", default=1, type="int",    help="If >1, excute only 1/I of the points in each job")
 parser.add_option("-v", "--verbose",  dest="v",        default=0, type="int",    help="Verbosity")
-parser.add_option("--fork",           dest="fork",     default=1,   type="int",  help="Cores to use")
 parser.add_option("-r", "--random",   dest="random",   default=False, action="store_true", help="Use random seeds for the jobs")
+#parser.add_option("--fork",           dest="fork",     default=1,   type="int",  help="Cores to use (leave to 1)") # no fork in batch jobs for now
 (options, args) = parser.parse_args()
 if len(args) != 3:
     parser.print_usage()
     exit(1)
+options.fork = 1 ## No fork in batch jobs for now
 
 workspace = args[0]
 if workspace.endswith(".txt"):
@@ -80,21 +85,20 @@ cfg = open(options.out+".cfg", "w")
 cfg.write("""
 [CRAB]
 jobtype = cmssw
-scheduler = lsf
-#scheduler = glite
+scheduler = {sched}
 
 [LSF]
-queue = 8nh80
+queue = {queue}
 
 [CMSSW]
 datasetpath = None
 pset = None
 output_file = {out}.root
-total_number_of_events = 10
-number_of_jobs = 10
+total_number_of_events = {total}
+number_of_jobs = {jobs}
 
 [USER]
 script_exe = {out}.sh
 additional_input_files = combine,{wsp}
 return_data = 1
-""".format(wsp=workspace, out=options.out))
+""".format(wsp=workspace, out=options.out, sched=("lsf" if options.lsf else "glite"), queue=options.queue, jobs=options.j, total=options.t))
