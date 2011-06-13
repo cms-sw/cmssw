@@ -10,7 +10,7 @@ import os,os.path,sys,math,array,datetime,time,re
 import coral
 
 from RecoLuminosity.LumiDB import argparse,lumiTime,CommonUtil,lumiQueryAPI
-MINFILL=160405
+MINFILL=1800
 allfillname='allfills.txt'
 
 def listfilldir(indir):
@@ -19,13 +19,13 @@ def listfilldir(indir):
     processedfills=[]
     dirList=os.listdir(indir)
     for fname in dirList:
-        if p.match(fname) and os.path.isdir(fname):#found fill dir
-            allfs=os.listdir(fname)
+        if p.match(fname) and os.path.isdir(os.path.join(indir,fname)):#found fill dir
+            allfs=os.listdir(os.path.join(indir,fname))
             for myfile in allfs:
                 sumfilenamepat=r'^[0-9]{4}_summary_CMS.txt$'
                 s=re.compile(sumfilenamepat)
-                if s.match(myfile) and os.path.isfile(myfile):
-                                     #only if fill_summary_CMS.txt file exists
+                if s.match(myfile):
+                    #only if fill_summary_CMS.txt file exists
                     processedfills.append(int(fname))
     return processedfills
 
@@ -316,19 +316,21 @@ if __name__ == '__main__':
         processedfills=listfilldir(options.outputdir)
         lastcompletedFill=lastcompleteFill(os.path.join(options.inputdir,'runtofill_dqm.txt'))
         print 'last complete fill : ',lastcompletedFill
+        print 'processedfills in '+options.outputdir+' ',processedfills
         for pf in processedfills:
             if pf>lastcompletedFill:
-                #print '[INFO] remove unfinished fill from processed list ',pf
+                print '\tremove unfinished fill from processed list ',pf
                 processedfills.remove(pf)
-        #print 'all processed fills : ',sorted(processedfills)
+        print 'final processed fills : ',sorted(processedfills)
         for fill in allfillsFromDB:
             if fill not in processedfills :
                 if fill<=lastcompletedFill:
+                    #print 'fill less than last complet fill ',fill
                     if fill>MINFILL:
                         fillstoprocess.append(fill)
                 else:
                     print 'ongoing fill...',fill               
-    #print 'new fills : ',fillstoprocess
+    print 'fills to process : ',fillstoprocess
     if len(fillstoprocess)==0:
         print 'no fill to process, exit '
         exit(0)
@@ -348,6 +350,7 @@ if __name__ == '__main__':
         del q
     #write specificlumi to outputdir
     #update inputdir
+    print 'fillstoprocess ',fillstoprocess
     if len(fillstoprocess)!=0 and options.fillnum is None:
         filltofiles(allfillsFromDB,runsperfillFromDB,runtimes,options.inputdir)
     print '===== Start Processing Fills',fillstoprocess
