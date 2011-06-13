@@ -124,7 +124,7 @@ CSCDriftSim::getWireHit(const Local3DPoint & pos, const CSCLayer * layer,
 
   //@@ Parameters which should be defined outside the code
   // f_att is the fraction of drift electrons lost due to attachment
-  static const double f_att = 0.5;
+  //static const double f_att = 0.5;
   static const double f_collected = 0.82;
 
   // Avalanche charge, with fluctuation ('avalancheCharge()' is the fluctuation generator!)
