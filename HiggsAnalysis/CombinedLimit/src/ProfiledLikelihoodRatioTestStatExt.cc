@@ -13,9 +13,9 @@
 #define DBGV(X,Z) if (X>1) { Z; }
 #define DBG_TestStat_params 0 // ProfiledLikelihoodRatioTestStatOpt::Evaluate; 1 = dump nlls; 2 = dump params at each eval
 #define DBG_TestStat_NOFIT  0 // FIXME HACK: if set, don't profile the likelihood, just evaluate it
-#define DBG_PLTestStat_ctor 0 // dump parameters in c-tor
-#define DBG_PLTestStat_pars 0 // dump parameters in eval
-#define DBG_PLTestStat_fit  0 // dump fit result
+#define DBG_PLTestStat_ctor 1 // dump parameters in c-tor
+#define DBG_PLTestStat_pars 1 // dump parameters in eval
+#define DBG_PLTestStat_fit  1 // dump fit result
 #else
 #define DBG(X,Z) 
 #define DBGV(X,Z) 
@@ -90,15 +90,18 @@ ProfiledLikelihoodTestStatOpt::ProfiledLikelihoodTestStatOpt(
     poi_.add(snap_);
     if (nuisances) { nuisances_.add(*nuisances); snap_.addClone(*nuisances, /*silent=*/true); }
     params_.reset(pdf_->getParameters(observables));
-    DBGV(DBG_PLTestStat_ctor, (std::cout << "Observables: " << std::endl)) DBGV(DBG_PLTestStat_ctor, (observables.Print("V")))
-    DBGV(DBG_PLTestStat_ctor, (std::cout << "All params: " << std::endl))  DBGV(DBG_PLTestStat_ctor, (params_->Print("V")))
-    DBGV(DBG_PLTestStat_ctor, (std::cout << "Snapshot: " << std::endl))    DBGV(DBG_PLTestStat_ctor, (snap_.Print("V")))
-    DBGV(DBG_PLTestStat_ctor, (std::cout << "POI: " << std::endl))         DBGV(DBG_PLTestStat_ctor, (poi_.Print("V")))
+    DBG(DBG_PLTestStat_ctor, (std::cout << "Observables: " << std::endl)) DBG(DBG_PLTestStat_ctor, (observables.Print("V")))
+    DBG(DBG_PLTestStat_ctor, (std::cout << "All params: " << std::endl))  DBG(DBG_PLTestStat_ctor, (params_->Print("V")))
+    DBG(DBG_PLTestStat_ctor, (std::cout << "Snapshot: " << std::endl))    DBG(DBG_PLTestStat_ctor, (snap_.Print("V")))
+    DBG(DBG_PLTestStat_ctor, (std::cout << "POI: " << std::endl))         DBG(DBG_PLTestStat_ctor, (poi_.Print("V")))
 }
 
 
 Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*nullPOI*/)
 {
+    // Take snapshot of initial state, to restore it at the end 
+    RooArgSet initialState; params_->snapshot(initialState);
+
     DBG(DBG_PLTestStat_pars, std::cout << "Being evaluated on " << data.GetName() << ": params before snapshot are " << std::endl)
     DBG(DBG_PLTestStat_pars, params_->Print("V"))
     // Initialize parameters
@@ -111,12 +114,12 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
     RooRealVar *r   = (RooRealVar *) params_->find(rIn->GetName());
     r->setMin(0); r->setMax(rIn->getVal());
     r->setConstant(false);
-    DBG(DBG_PLTestStat_pars, (std::cout << "r In: ")) DBGV(DBG_PLTestStat_pars, (rIn->Print("")))
-    DBG(DBG_PLTestStat_pars, std::cout << "r before the fit: ") DBG(DBG_PLTestStat_pars, r->Print(""))
+    DBG(DBG_PLTestStat_pars, (std::cout << "r In: ")) DBG(DBG_PLTestStat_pars, (rIn->Print(""))) DBG(DBG_PLTestStat_pars, std::cout << std::endl)
+    DBG(DBG_PLTestStat_pars, std::cout << "r before the fit: ") DBG(DBG_PLTestStat_pars, r->Print("")) DBG(DBG_PLTestStat_pars, std::cout << std::endl)
 
     // Perform unconstrained minimization (denominator)
     double nullNLL = minNLL(*pdf_, data);
-    DBG(DBG_PLTestStat_pars, (std::cout << "r after the fit: ")) DBGV(DBG_PLTestStat_pars, (r->Print("")))
+    DBG(DBG_PLTestStat_pars, (std::cout << "r after the fit: ")) DBG(DBG_PLTestStat_pars, (r->Print(""))) DBG(DBG_PLTestStat_pars, std::cout << std::endl)
 
     // Perform unconstrained minimization (numerator)
     r->setVal(rIn->getVal()); 
@@ -126,7 +129,8 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
     DBG(DBG_PLTestStat_pars, std::cout << "Was evaluated on " << data.GetName() << ": params before snapshot are " << std::endl)
     DBG(DBG_PLTestStat_pars, params_->Print("V"))
 
-    *params_ = snap_;
+    //Restore initial state, to avoid issues with ToyMCSampler
+    *params_ = initialState;
 
     return thisNLL-nullNLL;
 }

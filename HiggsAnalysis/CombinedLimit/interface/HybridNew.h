@@ -40,7 +40,6 @@ private:
   static WorkingMode workingMode_;
   static unsigned int nToys_;
   static double clsAccuracy_, rAbsAccuracy_, rRelAccuracy_;
-  static bool   rInterval_;
   static bool CLs_;
   static std::string rule_, testStat_;
   static bool genNuisances_, genGlobalObs_, fitNuisances_;
@@ -64,6 +63,10 @@ private:
   // performance counter: remember how many toys have been thrown
   unsigned int perf_totalToysRun_;
 
+  //----- extra variables used for cross-checking the implementation of frequentist toy tossing in RooStats
+  // mutable RooAbsData *realData_;
+  // std::auto_ptr<RooAbsCollection>  snapGlobalObs_;
+
   struct Setup {
     RooStats::ModelConfig modelConfig, modelConfig_bonly;
     std::auto_ptr<RooStats::TestStatistic> qvar;
@@ -77,7 +80,9 @@ private:
   std::pair<double,double> eval(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double rVal, bool adaptive=false, double clsTarget=-1) ;
   std::auto_ptr<RooStats::HybridCalculator> create(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double rVal, Setup &setup);
   std::pair<double,double> eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive=false, double clsTarget=-1) ;
+  RooStats::HypoTestResult *evalGeneric(RooStats::HybridCalculator &hc, bool forceNoFork=false);
   RooStats::HypoTestResult *evalWithFork(RooStats::HybridCalculator &hc);
+  // RooStats::HypoTestResult *evalFrequentist(RooStats::HybridCalculator &hc);  // cross-check implementation, 
   RooStats::HypoTestResult *readToysFromFile(double rValue=0);
 
   std::map<double, RooStats::HypoTestResult *> grid_;

@@ -65,7 +65,7 @@ bool HybridNew::optimizeTestStatistics_ = true;
 std::string HybridNew::plot_;
 std::string HybridNew::minimizerAlgo_ = "Minuit2";
 float       HybridNew::minimizerTolerance_ = 1e-2;
- 
+
 HybridNew::HybridNew() : 
 LimitAlgo("HybridNew specific options") {
     options_.add_options()
@@ -172,7 +172,7 @@ bool HybridNew::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mode
 bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
     HybridNew::Setup setup;
     std::auto_ptr<RooStats::HybridCalculator> hc(create(w, mc_s, mc_b, data, 1.0, setup));
-    std::auto_ptr<HypoTestResult> hcResult(readHybridResults_ ? readToysFromFile() : (fork_ ? evalWithFork(*hc) : hc->GetHypoTest()));
+    std::auto_ptr<HypoTestResult> hcResult(readHybridResults_ ? readToysFromFile() : (evalGeneric(*hc)));
     if (hcResult.get() == 0) {
         std::cerr << "Hypotest failed" << std::endl;
         return false;
@@ -466,6 +466,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   using namespace RooStats;
   
   w->loadSnapshot("clean");
+  // realData_ = &data;  
 
   RooArgSet  poi(*mc_s->GetParametersOfInterest());
   RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
@@ -485,18 +486,18 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     timer.Start();
     {
         CloseCoutSentry sentry(verbose < 3);
-        fitZero.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::NumCPU(fork_?fork_:1), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+        fitZero.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
     }
     if (verbose > 1) { std::cout << "Zero signal fit" << std::endl; fitZero->Print("V"); }
-    if (verbose > 1) { std::cout << "Fitting of the signa hypothesis done in " << timer.RealTime() << " s" << std::endl; }
+    if (verbose > 1) { std::cout << "Fitting of the background hypothesis done in " << timer.RealTime() << " s" << std::endl; }
     r->setConstant(true); r->setVal(rVal);
     timer.Start();
     {
        CloseCoutSentry sentry(verbose < 3);
-       fitMu.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::NumCPU(fork_?fork_:1), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+       fitMu.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
     }
     if (verbose > 1) { std::cout << "Reference signal fit (r = " << rVal << ")" << std::endl; fitMu->Print("V"); }
-    if (verbose > 1) { std::cout << "Fitting of the signa hypothesis done in " << timer.RealTime() << " s" << std::endl; }
+    if (verbose > 1) { std::cout << "Fitting of the signal-plus-background hypothesis done in " << timer.RealTime() << " s" << std::endl; }
   } else { fitNuisances_ = false; }
 
   // since ModelConfig cannot allow re-setting sets, we have to re-make everything 
@@ -507,6 +508,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   if (withSystematics) {
     if (genNuisances_ && mc_s->GetNuisanceParameters()) setup.modelConfig.SetNuisanceParameters(*mc_s->GetNuisanceParameters());
     if (genGlobalObs_ && mc_s->GetGlobalObservables())  setup.modelConfig.SetGlobalObservables(*mc_s->GetGlobalObservables());
+    // if (genGlobalObs_ && mc_s->GetGlobalObservables())  snapGlobalObs_.reset(mc_s->GetGlobalObservables()->snapshot()); 
   }
 
   setup.modelConfig_bonly = ModelConfig("HybridNew_mc_b", w);
@@ -657,7 +659,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
 
 std::pair<double,double> 
 HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, double clsTarget) {
-    std::auto_ptr<HypoTestResult> hcResult(fork_ ? evalWithFork(hc) : hc.GetHypoTest());
+    std::auto_ptr<HypoTestResult> hcResult(evalGeneric(hc));
     if (hcResult.get() == 0) {
         std::cerr << "Hypotest failed" << std::endl;
         return std::pair<double, double>(-1,-1);
@@ -675,7 +677,7 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
     if (adaptive) {
         hc.SetToys(CLs_ ? nToys_ : 1, 4*nToys_);
         while (clsMidErr >= clsAccuracy_ && (clsTarget == -1 || fabs(clsMid-clsTarget) < 3*clsMidErr) ) {
-            std::auto_ptr<HypoTestResult> more(fork_ ? evalWithFork(hc) : hc.GetHypoTest());
+            std::auto_ptr<HypoTestResult> more(evalGeneric(hc));
             if (testStat_ == "LHC" || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
             hcResult->Append(more.get());
             clsMid    = (CLs_ ? hcResult->CLs()      : hcResult->CLsplusb());
@@ -684,7 +686,7 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
         }
     } else if (iterations_ > 1) {
         for (unsigned int i = 1; i < iterations_; ++i) {
-            std::auto_ptr<HypoTestResult> more(fork_ ? evalWithFork(hc) : hc.GetHypoTest());
+            std::auto_ptr<HypoTestResult> more(evalGeneric(hc));
             if (testStat_ == "LHC" || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
             hcResult->Append(more.get());
             clsMid    = (CLs_ ? hcResult->CLs()      : hcResult->CLsplusb());
@@ -718,6 +720,11 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
     return std::pair<double, double>(clsMid, clsMidErr);
 } 
 
+RooStats::HypoTestResult * HybridNew::evalGeneric(RooStats::HybridCalculator &hc, bool noFork) {
+    if (fork_ && !noFork) return evalWithFork(hc);
+    return hc.GetHypoTest();
+}
+
 RooStats::HypoTestResult * HybridNew::evalWithFork(RooStats::HybridCalculator &hc) {
     TStopwatch timer;
     std::auto_ptr<RooStats::HypoTestResult> result(0);
@@ -750,7 +757,7 @@ RooStats::HypoTestResult * HybridNew::evalWithFork(RooStats::HybridCalculator &h
         freopen(TString::Format("%s.%d.out.txt", tmpfile, ich).Data(), "w", stdout);
         freopen(TString::Format("%s.%d.err.txt", tmpfile, ich).Data(), "w", stderr);
         std::cout << " I'm child " << ich << ", seed " << newSeeds[ich] << std::endl;
-        RooStats::HypoTestResult *hcResult = hc.GetHypoTest();
+        RooStats::HypoTestResult *hcResult = evalGeneric(hc, /*noFork=*/true);
         TFile *f = TFile::Open(TString::Format("%s.%d.root", tmpfile, ich), "RECREATE");
         f->WriteTObject(hcResult, "result");
         f->ls();
@@ -765,6 +772,71 @@ RooStats::HypoTestResult * HybridNew::evalWithFork(RooStats::HybridCalculator &h
     if (verbose > 1) { std::cout << "      Evaluation of p-values done in  " << timer.RealTime() << " s" << std::endl; }
     return result.release();
 }
+
+#if 0
+/// Another implementation of frequentist toy tossing without RooStats.
+/// Can use as a cross-check if needed
+
+RooStats::HypoTestResult * HybridNew::evalFrequentist(RooStats::HybridCalculator &hc) {
+    int toysSB = (workingMode_ == MakeSignificance ? 1 : nToys_);
+    int toysB  = (workingMode_ == MakeSignificance ? nToys_ : (CLs_ ? nToys_/4+1 : 1));
+    RooArgSet obs(*hc.GetAlternateModel()->GetObservables());
+    RooArgSet nuis(*hc.GetAlternateModel()->GetNuisanceParameters());
+    RooArgSet gobs(*hc.GetAlternateModel()->GetGlobalObservables());
+    RooArgSet nullPoi(*hc.GetNullModel()->GetSnapshot());
+    std::auto_ptr<RooAbsCollection> parS(hc.GetAlternateModel()->GetPdf()->getParameters(obs));
+    std::auto_ptr<RooAbsCollection> parB(hc.GetNullModel()->GetPdf()->getParameters(obs));
+    RooArgList constraintsS, constraintsB;
+    RooAbsPdf *factorS = hc.GetAlternateModel()->GetPdf();
+    RooAbsPdf *factorB = hc.GetNullModel()->GetPdf();
+    //std::auto_ptr<RooAbsPdf> factorS(utils::factorizePdf(obs, *hc.GetAlternateModel()->GetPdf(),  constraintsS));
+    //std::auto_ptr<RooAbsPdf> factorB(utils::factorizePdf(obs, *hc.GetNullModel()->GetPdf(), constraintsB));
+    std::auto_ptr<RooAbsPdf> nuisPdf(utils::makeNuisancePdf(const_cast<RooStats::ModelConfig&>(*hc.GetAlternateModel())));
+    std::vector<Double_t> distSB, distB;
+    *parS = *snapGlobalObs_;
+    Double_t tsData = hc.GetTestStatSampler()->GetTestStatistic()->Evaluate(*realData_, nullPoi);
+    if (verbose > 2) std::cout << "Test statistics on data: " << tsData << std::endl;
+    for (int i = 0; i < toysSB; ++i) {
+       // Initialize parameters to snapshot
+       *parS = *hc.GetAlternateModel()->GetSnapshot(); 
+       // Throw global observables, and set them
+       if (verbose > 2) { std::cout << "Generating global obs starting from " << std::endl; parS->Print("V"); }
+       std::auto_ptr<RooDataSet> gdata(nuisPdf->generate(gobs, 1));
+       *parS = *gdata->get(0);
+       if (verbose > 2) { std::cout << "Generated global obs" << std::endl; utils::printRAD(&*gdata); }
+       // Throw observables
+       if (verbose > 2) { std::cout << "Generating obs starting from " << std::endl; parS->Print("V"); }
+       std::auto_ptr<RooDataSet> data(factorS->generate(obs, RooFit::Extended()));
+       if (verbose > 2) { std::cout << "Generated obs" << std::endl; utils::printRAD(&*data); }
+       // Evaluate T.S.
+       distSB.push_back(hc.GetTestStatSampler()->GetTestStatistic()->Evaluate(*data, nullPoi));
+       //if std::cout << "Test statistics on S+B : " << distSB.back() << std::endl;
+    }
+    for (int i = 0; i < toysB; ++i) {
+       // Initialize parameters to snapshot
+       *parB = *hc.GetNullModel()->GetSnapshot();
+       //*parB = *hc.GetAlternateModel()->GetSnapshot(); 
+       // Throw global observables, and set them
+       if (verbose > 2) { std::cout << "Generating global obs starting from " << std::endl; parB->Print("V"); }
+       std::auto_ptr<RooDataSet> gdata(nuisPdf->generate(gobs, 1));
+       *parB = *gdata->get(0);
+       if (verbose > 2) { std::cout << "Generated global obs" << std::endl; utils::printRAD(&*gdata); }
+       // Throw observables
+       if (verbose > 2) { std::cout << "Generating obs starting from " << std::endl; parB->Print("V"); }
+       std::auto_ptr<RooDataSet> data(factorB->generate(obs, RooFit::Extended()));
+       if (verbose > 2) { std::cout << "Generated obs" << std::endl; utils::printRAD(&*data); }
+       // Evaluate T.S.
+       distB.push_back(hc.GetTestStatSampler()->GetTestStatistic()->Evaluate(*data, nullPoi));
+       //std::cout << "Test statistics on B   : " << distB.back() << std::endl;
+    }
+    // Load reference global observables
+    RooStats::HypoTestResult *ret = new RooStats::HypoTestResult();
+    ret->SetTestStatisticData(tsData);
+    ret->SetAltDistribution(new RooStats::SamplingDistribution("sb","sb",distSB));
+    ret->SetNullDistribution(new RooStats::SamplingDistribution("b","b",distB));
+    return ret;
+}
+#endif
 
 RooStats::HypoTestResult * HybridNew::readToysFromFile(double rValue) {
     if (!readToysFromHere) throw std::logic_error("Cannot use readHypoTestResult: option toysFile not specified, or input file empty");
