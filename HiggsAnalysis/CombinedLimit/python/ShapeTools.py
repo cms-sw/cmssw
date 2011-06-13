@@ -98,11 +98,11 @@ class ShapeBuilder(ModelBuilder):
                 elif shape.InheritsFrom("RooDataHist"):
                     shapeTypes.append("RooDataHist"); 
                     shapeBins.append(shape.numEntries())
-                    shapeObs[self.argSetToString(shape.get(0))] = shape.get(0)
+                    shapeObs[self.argSetToString(shape.get())] = shape.get()
                     norm = shape.sumEntries()
                 elif shape.InheritsFrom("RooDataSet"):
                     shapeTypes.append("RooDataSet"); 
-                    shapeObs[self.argSetToString(shape.get(0))] = shape.get(0)
+                    shapeObs[self.argSetToString(shape.get())] = shape.get()
                     norm = shape.sumEntries()
                 elif shape.InheritsFrom("TTree"):
                     shapeTypes.append("TTree"); 
