@@ -44,6 +44,7 @@
   <!-- PAT Object Ptrs  -->
   <class name="edm::Ptr<pat::Electron>" />
   <class name="edm::Ptr<pat::Muon>" />
+  <class name="edm::Ptr<pat::Tau>" />
   <class name="edm::Ptr<pat::Jet>" />
   <class name="edm::Ptr<pat::MET>" />
 
