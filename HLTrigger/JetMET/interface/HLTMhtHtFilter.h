@@ -37,6 +37,7 @@ class HLTMhtHtFilter : public HLTFilter {
       bool usePt_;
       double minPT12_;
       double minMeff_;
+      double meffSlope_;
       double minHt_;
       double minAlphaT_;
       bool useTracks_;

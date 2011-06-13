@@ -48,6 +48,7 @@ HLTMhtHtFilter::HLTMhtHtFilter(const edm::ParameterSet& iConfig)
   usePt_= iConfig.getParameter<bool>("usePt");
   minPT12_= iConfig.getParameter<double> ("minPT12");
   minMeff_= iConfig.getParameter<double> ("minMeff");
+  meffSlope_ = iConfig.getParameter<double> ("meffSlope");
   minHt_= iConfig.getParameter<double> ("minHt");
   minAlphaT_= iConfig.getParameter<double> ("minAlphaT");
 
@@ -92,6 +93,7 @@ void HLTMhtHtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<bool>("usePt",true);
   desc.add<double>("minPT12",0.0);
   desc.add<double>("minMeff",180.0);
+  desc.add<double>("meffSlope",1.0);
   desc.add<double>("minHt",0.0);
   desc.add<double>("minAlphaT",0.0);
   desc.add<bool>("useTracks",false);
@@ -193,7 +195,7 @@ bool
     }
 
   if( mode_==1 && sqrt(mhtx*mhtx + mhty*mhty) > minMht_) flag=1;
-  if( mode_==2 && sqrt(mhtx*mhtx + mhty*mhty)+ht > minMeff_) flag=1;
+  if( mode_==2 && sqrt(mhtx*mhtx + mhty*mhty) + meffSlope_*ht > minMeff_) flag=1;
   if( mode_==3 && sqrt(mhtx*mhtx + mhty*mhty) > minPT12_ && nj>1) flag=1;
   if( mode_==4 && ht > minHt_ && nj >= minNJet_ ) flag=1;
 
