@@ -44,7 +44,9 @@ for ich,fname in enumerate(args):
             bout = label if singlebin else label+b
             if not systeffect.has_key(bout): systeffect[bout] = {} 
             for p in DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
-                r = "%.3f" % errline[b][p] if pdf != "gmN" else str(errline[b][p])
+                r = str(errline[b][p]);
+                if type(errline[b][p]) == list: r = "%.3f/%.3f" % (errline[b][p][0], errline[b][p][1])
+                elif type != "lnN": r = "%.3f" % errline[b][p]
                 if errline[b][p] == 0: r = "-"
                 if len(r) > cmax: cmax = len(r) # get max col length, as it's more tricky do do it later with a map
                 systeffect[bout][p] = r
