@@ -39,6 +39,8 @@ class HLTMhtHtFilter : public HLTFilter {
       double minMeff_;
       double minHt_;
       double minAlphaT_;
+      bool useTracks_;
+      edm::InputTag inputTracksTag_;
 };
 
 #endif //HLTMhtHtFilter_h

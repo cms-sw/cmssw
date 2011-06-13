@@ -14,6 +14,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -48,6 +50,9 @@ HLTMhtHtFilter::HLTMhtHtFilter(const edm::ParameterSet& iConfig)
   minMeff_= iConfig.getParameter<double> ("minMeff");
   minHt_= iConfig.getParameter<double> ("minHt");
   minAlphaT_= iConfig.getParameter<double> ("minAlphaT");
+
+  useTracks_ = iConfig.getParameter<bool> ("useTracks");
+  inputTracksTag_ = iConfig.getParameter< edm::InputTag > ("inputTracksTag");
 
   // sanity checks
   if (       (minPtJet_.size()    !=  etaJet_.size())
@@ -89,6 +94,8 @@ void HLTMhtHtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<double>("minMeff",180.0);
   desc.add<double>("minHt",0.0);
   desc.add<double>("minAlphaT",0.0);
+  desc.add<bool>("useTracks",false);
+  desc.add<edm::InputTag>("inputTracksTag",edm::InputTag("hltL3Mouns"));
   descriptions.add("hltMhtHtFilter",desc);
 }
 
@@ -111,6 +118,9 @@ bool
 
   Handle<CaloJetCollection> recocalojets;
   iEvent.getByLabel(inputJetTag_,recocalojets);
+
+  Handle<TrackCollection> tracks;
+  if (useTracks_) iEvent.getByLabel(inputTracksTag_,tracks);
 
   // look at all candidates,  check cuts and add to filter object
   int n(0), nj(0), flag(0);
@@ -162,6 +172,23 @@ bool
     // put filter object into the Event
           flag = 1;
         }
+      }
+    }
+    if (useTracks_) if (tracks->size() > 0) {
+      for (TrackCollection::const_iterator track = tracks->begin();
+           track != tracks->end(); track++) {
+        if (mode_==1 || mode_==2 || mode_ == 5) {//---get MHT
+          if (track->pt() > minPtJet_.at(1) && fabs(track->eta()) < etaJet_.at(1)) {
+            mhtx -= track->px();
+            mhty -= track->py();
+	  }
+	}
+        if (mode_==2 || mode_==4 || mode_==5) {//---get HT
+          if (track->pt() > minPtJet_.at(0) && fabs(track->eta()) < etaJet_.at(0)) {
+            ht += track->pt();
+            nj++;
+	  }
+	}
       }
     }
 
