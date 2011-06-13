@@ -18,9 +18,9 @@ class PFIsoReader : public edm::EDAnalyzer
   virtual void analyze(const edm::Event & iEvent,const edm::EventSetup & c);
 
  private:
-
   typedef std::vector< edm::Handle< edm::ValueMap<reco::IsoDeposit> > > IsoDepositMaps;
-
+  void printIsoDeposits(const IsoDepositMaps & depmap, const reco::PFCandidatePtr & ptr) const;
+  
   edm::InputTag inputTagGsfElectrons_;
   edm::InputTag inputTagPhotons_;
   edm::InputTag inputTagValueMapPhotons_;
