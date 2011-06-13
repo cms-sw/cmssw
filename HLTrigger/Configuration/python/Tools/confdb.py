@@ -59,6 +59,7 @@ class HLTProcess(object):
     "HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R005_MR200_v*",
     "HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R020_MR200_v*",
     "HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R025_MR200_v*",
+    "HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R029_MR200_v*",
     "HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v*",
     "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*",
     "HLT_Ele25_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*",
