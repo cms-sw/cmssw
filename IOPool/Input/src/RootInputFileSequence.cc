@@ -339,7 +339,7 @@ namespace edm {
 
   EventPrincipal*
   RootInputFileSequence::readEvent(EventPrincipal& cache, boost::shared_ptr<LuminosityBlockPrincipal> lb) {
-    return rootFile_->readEvent(cache, rootFile_, lb);
+    return rootFile_->readEvent(cache, lb);
   }
 
   InputSource::ItemType
@@ -566,7 +566,7 @@ namespace edm {
       initFile(false);
       rootFile_->setAtEventEntry(0);
     }
-    EventPrincipal* ep = rootFile_->readCurrentEvent(rootFile_->secondaryEventPrincipal(), rootFile_);
+    EventPrincipal* ep = rootFile_->readCurrentEvent(rootFile_->secondaryEventPrincipal());
     if(ep == 0) {
       ++fileIter_;
       if(fileIter_ == fileIterEnd_) {
@@ -590,7 +590,7 @@ namespace edm {
          fileIter_->fileName() <<
          " does not contain specified event:\n" << id << "\n";
     }
-    EventPrincipal* ep = rootFile_->readCurrentEvent(rootFile_->secondaryEventPrincipal(), rootFile_);
+    EventPrincipal* ep = rootFile_->readCurrentEvent(rootFile_->secondaryEventPrincipal());
     assert(ep != 0);
     return ep;
   }
@@ -622,10 +622,10 @@ namespace edm {
       rootFile_->setAtEventEntry(flatDistribution_->fireInt(eventsRemainingInFile_));
     }
 
-    EventPrincipal* ep = rootFile_->readCurrentEvent(rootFile_->secondaryEventPrincipal(), rootFile_);
+    EventPrincipal* ep = rootFile_->readCurrentEvent(rootFile_->secondaryEventPrincipal());
     if(ep == 0) {
       rewindFile();
-      ep = rootFile_->readCurrentEvent(rootFile_->secondaryEventPrincipal(), rootFile_);
+      ep = rootFile_->readCurrentEvent(rootFile_->secondaryEventPrincipal());
       assert(ep != 0);
     }
     --eventsRemainingInFile_;
@@ -637,7 +637,7 @@ namespace edm {
   RootInputFileSequence::readMany(int number, EventPrincipalVector& result) {
     for(int i = 0; i < number; ++i) {
       boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(rootFile_->productRegistry(), processConfiguration()));
-      EventPrincipal* ev = rootFile_->readCurrentEvent(*ep, rootFile_);
+      EventPrincipal* ev = rootFile_->readCurrentEvent(*ep);
       if(ev == 0) {
         return;
       }
@@ -677,10 +677,10 @@ namespace edm {
     fileSeqNumber = fileIter_ - fileIterBegin_;
     for(int i = 0; i < number; ++i) {
       boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(rootFile_->productRegistry(), processConfiguration()));
-      EventPrincipal* ev = rootFile_->readCurrentEvent(*ep, rootFile_);
+      EventPrincipal* ev = rootFile_->readCurrentEvent(*ep);
       if(ev == 0) {
         rewindFile();
-        ev = rootFile_->readCurrentEvent(*ep, rootFile_);
+        ev = rootFile_->readCurrentEvent(*ep);
         assert(ev != 0);
       }
       assert(ev == ep.get());
@@ -706,7 +706,7 @@ namespace edm {
     unsigned int numberRead = 0;
     for(int i = 0; i < number; ++i) {
       boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(rootFile_->productRegistry(), processConfiguration()));
-      EventPrincipal* ev = rootFile_->readCurrentEvent(*ep, rootFile_);
+      EventPrincipal* ev = rootFile_->readCurrentEvent(*ep);
       if(ev == 0) {
         if(numberRead == 0) {
           ++fileIter_;
@@ -740,7 +740,7 @@ namespace edm {
            " does not contain specified event:\n" << *it << "\n";
       }
       boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(rootFile_->productRegistry(), processConfiguration()));
-      EventPrincipal* ev = rootFile_->readCurrentEvent(*ep, rootFile_);
+      EventPrincipal* ev = rootFile_->readCurrentEvent(*ep);
       if(ev == 0) {
         throw Exception(errors::EventCorruption) <<
            "RootInputFileSequence::readManySpecified_(): Secondary Input file " <<

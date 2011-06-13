@@ -11,19 +11,18 @@
 
 namespace edm {
 
-  RootDelayedReader::RootDelayedReader(EntryNumber const& entry,
-      boost::shared_ptr<BranchMap const> bMap,
+  RootDelayedReader::RootDelayedReader(
       RootTree const& tree,
       FileFormatVersion const& fileFormatVersion,
-      boost::shared_ptr<RootFile> filePtr) :
-   entryNumber_(entry),
-   branches_(bMap),
+      boost::shared_ptr<InputFile> filePtr) :
    tree_(tree),
    filePtr_(filePtr),
    nextReader_(),
-   fileFormatVersion_(fileFormatVersion) {}
+   fileFormatVersion_(fileFormatVersion) {
+  }
 
-  RootDelayedReader::~RootDelayedReader() {}
+  RootDelayedReader::~RootDelayedReader() {
+  }
 
   WrapperHolder
   RootDelayedReader::getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const {
@@ -52,7 +51,7 @@ namespace edm {
     }
     void* p = cp->New();
     br->SetAddress(&p);
-    tree_.getEntry(br, entryNumber_);
+    tree_.getEntry(br, entryNumber());
     setRefCoreStreamer(!fileFormatVersion_.splitProductIDs());
     WrapperHolder edp(p, interface, WrapperHolder::Owned);
     return edp;

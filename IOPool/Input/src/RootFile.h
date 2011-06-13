@@ -70,10 +70,8 @@ namespace edm {
     void reportOpened(std::string const& inputType);
     void close();
     EventPrincipal* readCurrentEvent(EventPrincipal& cache,
-                 boost::shared_ptr<RootFile> rootFilePtr,
                  boost::shared_ptr<LuminosityBlockPrincipal> lb = boost::shared_ptr<LuminosityBlockPrincipal>());
     EventPrincipal* readEvent(EventPrincipal& cache,
-                 boost::shared_ptr<RootFile> rootFilePtr,
                  boost::shared_ptr<LuminosityBlockPrincipal> lb = boost::shared_ptr<LuminosityBlockPrincipal>());
 
     boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();

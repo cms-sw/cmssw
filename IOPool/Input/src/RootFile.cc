@@ -140,9 +140,9 @@ namespace edm {
       hasNewlyDroppedBranch_(),
       branchListIndexesUnchanged_(false),
       eventAux_(),
-      eventTree_(filePtr_, InEvent, treeMaxVirtualSize, treeCacheSize, roottree::defaultLearningEntries),
-      lumiTree_(filePtr_, InLumi, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries),
-      runTree_(filePtr_, InRun, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries),
+      eventTree_(filePtr_, fileFormatVersion_, InEvent, treeMaxVirtualSize, treeCacheSize, roottree::defaultLearningEntries),
+      lumiTree_(filePtr_, fileFormatVersion_, InLumi, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries),
+      runTree_(filePtr_, fileFormatVersion_, InRun, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries),
       treePointers_(),
       lastEventEntryNumberRead_(-1LL),
       productRegistry_(),
@@ -1247,12 +1247,12 @@ namespace edm {
   //  when it is asked to do so.
   //
   EventPrincipal*
-  RootFile::readEvent(EventPrincipal& cache, boost::shared_ptr<RootFile> rootFilePtr, boost::shared_ptr<LuminosityBlockPrincipal> lb) {
+  RootFile::readEvent(EventPrincipal& cache, boost::shared_ptr<LuminosityBlockPrincipal> lb) {
     assert(indexIntoFileIter_ != indexIntoFileEnd_);
     assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kEvent);
     // Set the entry in the tree, and read the event at that entry.
     eventTree_.setEntryNumber(indexIntoFileIter_.entry());
-    EventPrincipal* ep = readCurrentEvent(cache, rootFilePtr, lb);
+    EventPrincipal* ep = readCurrentEvent(cache, lb);
 
     assert(ep != 0);
     assert(eventAux().run() == indexIntoFileIter_.run() + forcedRunOffset_);
@@ -1265,7 +1265,6 @@ namespace edm {
   // Reads event at the current entry in the event tree
   EventPrincipal*
   RootFile::readCurrentEvent(EventPrincipal& cache,
-                             boost::shared_ptr<RootFile> rootFilePtr,
                              boost::shared_ptr<LuminosityBlockPrincipal> lb) {
     if(!eventTree_.current()) {
       return 0;
@@ -1287,7 +1286,7 @@ namespace edm {
                              eventSelectionIDs_,
                              branchListIndexes_,
                              makeBranchMapper(eventTree_, InEvent),
-                             eventTree_.makeDelayedReader(fileFormatVersion(), rootFilePtr));
+                             eventTree_.rootDelayedReader());
 
     // report event read from file
     filePtr_->eventReadFromFile(eventID().run(), eventID().event());
@@ -1351,7 +1350,7 @@ namespace edm {
       return rpCache;
     }
     // End code for backward compatibility before the existence of run trees.
-    rpCache->fillRunPrincipal(makeBranchMapper(runTree_, InRun), runTree_.makeDelayedReader(fileFormatVersion()));
+    rpCache->fillRunPrincipal(makeBranchMapper(runTree_, InRun), runTree_.rootDelayedReader());
     // Read in all the products now.
     rpCache->readImmediate();
     ++indexIntoFileIter_;
@@ -1414,7 +1413,7 @@ namespace edm {
     // End code for backward compatibility before the existence of lumi trees.
     lumiTree_.setEntryNumber(indexIntoFileIter_.entry());
     lbCache->fillLuminosityBlockPrincipal(makeBranchMapper(lumiTree_, InLumi),
-                                         lumiTree_.makeDelayedReader(fileFormatVersion()));
+                                         lumiTree_.rootDelayedReader());
     // Read in all the products now.
     lbCache->readImmediate();
     ++indexIntoFileIter_;

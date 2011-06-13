@@ -29,13 +29,14 @@ namespace edm {
     } // backward compatibility
   }
   RootTree::RootTree(boost::shared_ptr<InputFile> filePtr,
+                     FileFormatVersion const& fileFormatVersion,
                      BranchType const& branchType,
                      unsigned int maxVirtualSize,
                      unsigned int cacheSize,
                      unsigned int learningEntries) :
     filePtr_(filePtr),
-    tree_(dynamic_cast<TTree*>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToProductTreeName(branchType).c_str()) : 0)),
-    metaTree_(dynamic_cast<TTree*>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToMetaDataTreeName(branchType).c_str()) : 0)),
+    tree_(dynamic_cast<TTree*>(filePtr_.get() != 0 ? filePtr_->Get(BranchTypeToProductTreeName(branchType).c_str()) : 0)),
+    metaTree_(dynamic_cast<TTree*>(filePtr_.get() != 0 ? filePtr_->Get(BranchTypeToMetaDataTreeName(branchType).c_str()) : 0)),
     branchType_(branchType),
     auxBranch_(tree_ ? getAuxiliaryBranch(tree_, branchType_) : 0),
     treeCache_(),
@@ -48,6 +49,7 @@ namespace edm {
     switchOverEntry_(-1),
     learningEntries_(learningEntries),
     cacheSize_(cacheSize),
+    rootDelayedReader_(new RootDelayedReader(*this, fileFormatVersion, filePtr)),
     branchEntryInfoBranch_(metaTree_ ? getProductProvenanceBranch(metaTree_, branchType_) : (tree_ ? getProductProvenanceBranch(tree_, branchType_) : 0)),
     productStatuses_(), // backward compatibility
     pProductStatuses_(&productStatuses_), // backward compatibility
@@ -72,6 +74,12 @@ namespace edm {
     } // backward compatibility
     return false;
   }
+
+  boost::shared_ptr<DelayedReader>
+  RootTree::rootDelayedReader() const {
+    rootDelayedReader_->reset();
+    return rootDelayedReader_;
+  }  
 
   void
   RootTree::setPresence(BranchDescription const& prod) {
@@ -127,13 +135,6 @@ namespace edm {
 
   roottree::BranchMap const&
   RootTree::branches() const {return *branches_;}
-
-  boost::shared_ptr<DelayedReader>
-  RootTree::makeDelayedReader(FileFormatVersion const& fileFormatVersion, boost::shared_ptr<RootFile> rootFilePtr) const {
-    boost::shared_ptr<DelayedReader>
-        store(new RootDelayedReader(entryNumber_, branches_, *this, fileFormatVersion, rootFilePtr));
-    return store;
-  }
 
   void
   RootTree::setCacheSize(unsigned int cacheSize) {

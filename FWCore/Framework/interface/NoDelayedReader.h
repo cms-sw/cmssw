@@ -13,7 +13,6 @@ namespace edm {
     virtual ~NoDelayedReader();
   private:
     virtual WrapperHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const;
-    virtual void reset_() {}
   };
 }
 #endif

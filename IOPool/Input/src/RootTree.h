@@ -29,10 +29,9 @@ class TTreeCache;
 
 namespace edm {
   struct BranchKey;
+  class DelayedReader;
   class FileFormatVersion;
   class InputFile;
-  class RootDelayedReader;
-  class RootFile;
   class RootTree;
 
   namespace roottree {
@@ -63,6 +62,7 @@ namespace edm {
     typedef roottree::BranchMap BranchMap;
     typedef roottree::EntryNumber EntryNumber;
     RootTree(boost::shared_ptr<InputFile> filePtr,
+             FileFormatVersion const& fileFormatVersion,
              BranchType const& branchType,
              unsigned int maxVirtualSize,
              unsigned int cacheSize,
@@ -85,7 +85,7 @@ namespace edm {
     EntryNumber const& entries() const {return entries_;}
     void setEntryNumber(EntryNumber theEntryNumber);
     std::vector<std::string> const& branchNames() const {return branchNames_;}
-    boost::shared_ptr<DelayedReader> makeDelayedReader(FileFormatVersion const& fileFormatVersion, boost::shared_ptr<RootFile> rootFilePtr = boost::shared_ptr<RootFile>()) const;
+    boost::shared_ptr<DelayedReader> rootDelayedReader() const;
     template <typename T>
     void fillAux(T*& pAux) {
       auxBranch_->SetAddress(&pAux);
@@ -154,6 +154,7 @@ namespace edm {
     EntryNumber switchOverEntry_;
     unsigned int learningEntries_;
     unsigned int cacheSize_;
+    boost::shared_ptr<DelayedReader> rootDelayedReader_;
 
     TBranch* branchEntryInfoBranch_; //backwards compatibility
     // below for backward compatibility
