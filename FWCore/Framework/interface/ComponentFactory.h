@@ -102,8 +102,10 @@ template<typename T>
            catch (...) { convertException::unknownToEDM(); }
          }
          catch(cms::Exception & iException) {
+           std::string edmtype = iConfiguration.template getParameter<std::string>("@module_edm_type");
+           std::string label = iConfiguration.template getParameter<std::string>("@module_label");
            std::ostringstream ost;
-           ost << "Constructing ESSource or ESProducer of type " << modtype;
+           ost << "Constructing " << edmtype << ": class=" << modtype << " label='" << label << "'";
            iException.addContext(ost.str());
            throw;
          }

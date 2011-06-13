@@ -33,8 +33,8 @@ Maker::throwValidationException(WorkerParams const& p,
   std::string moduleLabel = conf.getParameter<std::string>("@module_label");
 
   std::ostringstream ost;
-  ost << "Validating configuration of module " << moduleName
-      << "/'" << moduleLabel << "'";
+  ost << "Validating configuration of module: class=" << moduleName
+      << " label='" << moduleLabel << "'";
   iException.addContext(ost.str());  
   throw;
 }
@@ -44,7 +44,7 @@ Maker::throwConfigurationException(ModuleDescription const& md,
                                    sigc::signal<void, ModuleDescription const&>& post, 
                                    cms::Exception & iException) const {
   std::ostringstream ost;
-  ost << "Constructing module " << md.moduleName() << "/'" << md.moduleLabel() << "'";
+  ost << "Constructing module: class=" << md.moduleName() << " label='" << md.moduleLabel() << "'";
   iException.addContext(ost.str());
   post(md);
   throw;
