@@ -32,7 +32,7 @@ SiLinearChargeDivider::~SiLinearChargeDivider(){
   delete fluctuate;
 }
 
-SiChargeDivider::ionization_type 
+SiChargeDivider::ionization_type *
 SiLinearChargeDivider::divide(const PSimHit* hit, const LocalVector& driftdir, double moduleThickness, const StripGeomDetUnit& det) {
 
   // computes the number of segments from number of segments per strip times number of strips.
@@ -48,31 +48,28 @@ SiLinearChargeDivider::divide(const PSimHit* hit, const LocalVector& driftdir, d
   float decSignal = TimeResponse(hit, det);
 
   // Prepare output
-  ionization_type _ionization_points;
-  _ionization_points.resize(NumberOfSegmentation);
+  m_ionization_points.resize(NumberOfSegmentation);
+  m_eLossVector.resize(NumberOfSegmentation);
 
   // Fluctuate charge in track subsegments
   LocalVector direction = hit->exitPoint() - hit->entryPoint();  
-  float* eLossVector = new float[NumberOfSegmentation];
-  if( fluctuateCharge ) {
-    fluctuateEloss(hit->particleType(), hit->pabs(), eLoss, direction.mag(), NumberOfSegmentation, eLossVector);   
+   if( fluctuateCharge ) {
+    fluctuateEloss(hit->particleType(), hit->pabs(), eLoss, direction.mag(), NumberOfSegmentation, &m_eLossVector[0]);   
     // Save the energy of each segment
     for ( int i = 0; i != NumberOfSegmentation; i++) {
       // take energy value from vector eLossVector, 
-      _ionization_points[i] = EnergyDepositUnit(eLossVector[i]*decSignal/eLoss,
-                                                hit->entryPoint()+float((i+0.5)/NumberOfSegmentation)*direction);
+      m_ionization_points[i] = EnergyDepositUnit(m_eLossVector[i]*decSignal/eLoss,
+						 hit->entryPoint()+float((i+0.5)/NumberOfSegmentation)*direction);
     }
   } else {
     // Save the energy of each segment
     for ( int i = 0; i != NumberOfSegmentation; i++) {
       // take energy value from eLoss average over n.segments.
-      _ionization_points[i] = EnergyDepositUnit(decSignal/float(NumberOfSegmentation),
-                                                hit->entryPoint()+float((i+0.5)/NumberOfSegmentation)*direction);
+      m_ionization_points[i] = EnergyDepositUnit(decSignal/float(NumberOfSegmentation),
+						 hit->entryPoint()+float((i+0.5)/NumberOfSegmentation)*direction);
     }
   }
- 
-  delete[] eLossVector;
-  return _ionization_points;
+  return &m_ionization_points;
 }
 
 void SiLinearChargeDivider::fluctuateEloss(int pid, float particleMomentum, 
