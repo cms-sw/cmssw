@@ -30,24 +30,12 @@ namespace Rivet
       
       {
       	setBeams(PROTON,PROTON);
-//        setNeedsCrossSection(false);
       }
       
  	double evcounter_dijet;  		//to count the number of selected events
 	double evcounter_mb;  		//to count the number of selected events
  	double rejectedevents;
-	
-	double sum_E1_c;		// Energies  in bins of eta for central
-     	double sum_E2_c;
-     	double sum_E3_c;
-     	double sum_E4_c;
-     	double sum_E5_c;
-	
-	double sum_E1_f;		// Energies  in bins of eta for central
-     	double sum_E2_f;
-     	double sum_E3_f;
-     	double sum_E4_f;
-     	double sum_E5_f;
+		
      	
 	//counters 
 	double cnt_eventsgenerated_noweight;
@@ -74,7 +62,7 @@ namespace Rivet
 
 
 
-// for the MB NSD selection
+      // for the MB NSD selection
       const ChargedFinalState fschrgd(-6.0,6.0,0.0*GeV);             
       addProjection(fschrgd, "fschrgd"); 
       VetoedFinalState fschrgdv(fschrgd);
@@ -82,12 +70,12 @@ namespace Rivet
       fschrgdv.addVetoPairDetail(MUON, 0.0*GeV, 99999.9*GeV);
       addProjection(fschrgdv, "fschrgdv");
 
-	 cnt_eventsgenerated = 0.0;
-	 cnt_eventsgenerated_noweight = 0.0;
-	 cnt_eventspassingnd = 0.0;
-	 cnt_eventspassingptdijet = 0.0;
-	 cnt_eventspassingetadijet = 0.0;
-	 cnt_eventspassingdphidijet = 0.0;
+      cnt_eventsgenerated = 0.0;
+      cnt_eventsgenerated_noweight = 0.0;
+      cnt_eventspassingnd = 0.0;
+      cnt_eventspassingptdijet = 0.0;
+      cnt_eventspassingetadijet = 0.0;
+      cnt_eventspassingdphidijet = 0.0;
  
     
       evcounter_dijet =0;
@@ -112,11 +100,16 @@ namespace Rivet
        
        
        //MAIN HISTOGRAMS for data comparisons
-      _hist_CMS_FWD_10_011_mb_09 	 = bookHistogram1D(1,1,1); 	// energy flow in MB, 0.9 TeV
-      _hist_CMS_FWD_10_011_dijet_09 	 = bookHistogram1D(2,1,1); 	// energy flow in dijet events, 0.9 TeV
-      _hist_CMS_FWD_10_011_mb_7 	 = bookHistogram1D(3,1,1); 	// energy flow in MB, 7 TeV
-      _hist_CMS_FWD_10_011_dijet_7 	 = bookHistogram1D(4,1,1); 	// energy flow in dijet events, 7 TeV
+      if(fuzzyEquals(sqrtS(), 900, 1E-3)){
+ 	 _hist_CMS_FWD_10_011_mb_09 	 = bookHistogram1D(1,1,1); 	// energy flow in MB, 0.9 TeV
+         _hist_CMS_FWD_10_011_dijet_09 	 = bookHistogram1D(2,1,1); 	// energy flow in dijet events, 0.9 TeV
+      }
+      if(fuzzyEquals(sqrtS(), 7000, 1E-3)){     
+         _hist_CMS_FWD_10_011_mb_7 	 = bookHistogram1D(3,1,1); 	// energy flow in MB, 7 TeV
+         _hist_CMS_FWD_10_011_dijet_7 	 = bookHistogram1D(4,1,1); 	// energy flow in dijet events, 7 TeV
 	
+      }
+      
     }
 
 
@@ -130,9 +123,7 @@ namespace Rivet
     cnt_eventsgenerated_noweight += 1.0;
      
      double diffphi;
-                    
-     sqrts = Rivet::sqrtS(beams());
-     
+                         
       	// Skip if the event is empty
        const FinalState& fsv = applyProjection<FinalState>(event, "fsv");
        if (fsv.empty()) 
@@ -147,8 +138,10 @@ namespace Rivet
         const FinalState& fschrgdv = applyProjection<FinalState>(event, "fschrgdv");
 	foreach (const Particle& p, fschrgdv.particles())
 	{
-	   if( 3.9 < p.momentum().pseudorapidity() && p.momentum().pseudorapidity() < 4.4){count_chrg_forward++;}
-	   if(-4.4 < p.momentum().pseudorapidity() && p.momentum().pseudorapidity() < -3.9){count_chrg_backward++;}
+	   if( 3.9 < p.momentum().pseudorapidity() && 
+	             p.momentum().pseudorapidity() < 4.4){count_chrg_forward++;}
+	   if(-4.4 < p.momentum().pseudorapidity() && 
+	             p.momentum().pseudorapidity() < -3.9){count_chrg_backward++;}
 	 
 	}	
         if(count_chrg_forward*count_chrg_backward==0) {
@@ -162,12 +155,8 @@ namespace Rivet
       const FastJets& jetpro = applyProjection<FastJets>(event, "Jets"); 
       const Jets& jets = jetpro.jetsByPt(7.0*GeV);
 	
-	
-//    if(!(weight <= 1.001 && weight >= 0.999)) getLog() << Log::INFO << weight << endl;
-    
-//  XXXXXXXXXXXXXXXXXXXXXXXXXXXX MINIMUM BIAS EVENTS 				
-	
-
+	    
+//  XXXXXXXXXXXXXXXXXXXXXXXXXXXX MINIMUM BIAS EVENTS 					
 	//loop over particles to calculate the energy
         _hist_part_mul->fill(fsv.particles().size(),1.0 );
 	evcounter_mb += weight;
@@ -176,19 +165,21 @@ namespace Rivet
 		_hist_part_pt->fill(p.momentum().pT(),1.0 );
 		_hist_part_eta->fill(p.momentum().pseudorapidity(),1.0 );
 		_hist_part_E->fill(p.momentum().E(),1.0 );
-		if (p.momentum().pseudorapidity()>= 3.15 && p.momentum().pseudorapidity()<= 3.5) sum_E1_f += weight*p.momentum().E()/GeV;
-		if(sqrts/GeV == 900) {_hist_CMS_FWD_10_011_mb_09->fill(fabs(p.momentum().pseudorapidity()), weight*p.momentum().E()/GeV );}
-		if(sqrts/GeV == 7000) {_hist_CMS_FWD_10_011_mb_7->fill(fabs(p.momentum().pseudorapidity()), weight*p.momentum().E()/GeV );}
+		
+		if(fuzzyEquals(sqrtS(), 900, 1E-3)) {_hist_CMS_FWD_10_011_mb_09 -> 
+		  fill(fabs(p.momentum().pseudorapidity()), weight * p.momentum().E()/GeV );}
+		
+		if(fuzzyEquals(sqrtS(), 7000, 1E-3)) {_hist_CMS_FWD_10_011_mb_7 -> 
+		  fill(fabs(p.momentum().pseudorapidity()), weight * p.momentum().E()/GeV );}
+	
 	}//foreach particle
 	
     
     
 //  XXXXXXXXXXXXXXXXXXXXXXXXXXXX DIJET EVENTS 
 	
-  
 
-      _hist_num_j->fill(jets.size(), weight);	
-      
+      _hist_num_j->fill(jets.size(), weight);	      
       
       if(jets.size()<2)
       {
@@ -205,7 +196,7 @@ namespace Rivet
 	double tempmax_2 = -100;
 	
 	//find the jet with the 1.highest pt	
-	for(signed int ijets=0; ijets<(int)jets.size(); ijets++)
+	for(signed int ijets = 0; ijets < (int)jets.size(); ijets++)
 	{
 	  if(tempmax_1 == -100 || tempmax_1 < jets[ijets].momentum().pT()/GeV)
 	  {	
@@ -217,11 +208,11 @@ namespace Rivet
 	
 	
 	//find the jet with the 2. highest pt	
-	for(signed int ijets=0; ijets<(int)jets.size(); ijets++)
+	for(signed int ijets = 0; ijets < (int)jets.size(); ijets++)
 	{		
 	   if(tempmax_2 == -100 || tempmax_2 < jets[ijets].momentum().pT()/GeV)
 	   {	
-	     if(jets[ijets].momentum().pT()/GeV <tempmax_1)
+	     if(jets[ijets].momentum().pT()/GeV < tempmax_1)
 	     {
 		tempmax_2 = jets[ijets].momentum().pT()/GeV;
 		index_2 = ijets;
@@ -232,15 +223,14 @@ namespace Rivet
 	
 	if(index_1 != -1 && index_2 != -1)
 	{
-
-	
+		
 		diffphi = jets[index_2].momentum().phi() - jets[index_1].momentum().phi();    
 				 
-		if(diffphi<-PI)
+		if(diffphi < -PI)
 		{	
 			diffphi += 2.0*PI;  
 		}
-		if(diffphi>PI)
+		if(diffphi > PI)
 		{	
 			diffphi -= 2.0*PI;  
 		}
@@ -257,24 +247,25 @@ namespace Rivet
 
 		
 		//ask for the center of mass energy and do the pt cut
-		if(sqrts/GeV == 900)
+		if(fuzzyEquals(sqrtS(), 900, 1E-3))
 		{	
-								//pt cut
+			//pt cut
 			if(jets[index_1].momentum().pT()/GeV > 8.0 && jets[index_2].momentum().pT()/GeV >8.0)
 			{				
-					cnt_eventspassingptdijet += weight;
+				cnt_eventspassingptdijet += weight;
 	
-				//eta cut	for the central jets
-				if(fabs(jets[index_1].momentum().pseudorapidity())<2.5 && fabs(jets[index_2].momentum().pseudorapidity())<2.5)
+				//eta cut for the central jets
+				if(fabs(jets[index_1].momentum().pseudorapidity()) < 2.5 && 
+				   fabs(jets[index_2].momentum().pseudorapidity()) < 2.5)
 				{
+					
 					cnt_eventspassingetadijet += weight;
-      												
-										
+      																						
 					// fill the histogram with the number of Jets after the pt and eta cut 
 					_hist_num_jcut->fill(jets.size(), weight);						
 				 	
 					//back to back condition of the jets
-					if(fabs(diffphi-PI)<1.0)
+					if(fabs(diffphi-PI) < 1.0)
 					{	
 						cnt_eventspassingdphidijet += weight;
 						evcounter_dijet += weight;
@@ -293,20 +284,13 @@ namespace Rivet
 						//  E-flow 						
 						foreach (const Particle& p, fsv.particles())
 						{	
-														
-							//energy cut for the particles
- 							   _hist_CMS_FWD_10_011_dijet_09->fill(fabs(p.momentum().pseudorapidity()), weight*p.momentum().E()/GeV);
+ 					 	   _hist_CMS_FWD_10_011_dijet_09->
+						     fill(fabs(p.momentum().pseudorapidity()), weight*p.momentum().E()/GeV);
 						}//foreach particle
-						
-													
-																		 
-					}//if(dphi)
-					
+																																				 
+					}//if(dphi)					
 				}// else (eta cut central region)
-				
-			
-			}//pt cut
-			
+			}//pt cut			
 		}// energy request
 		
 		
@@ -316,33 +300,29 @@ namespace Rivet
 		
 		
 		//ask for the center of mass energy and do the pt cut
-		if(sqrts/GeV  == 7000)   
+		if(fuzzyEquals(sqrtS(), 7000, 1E-3))   
 		{					
 			//pt cut
-			if(jets[index_1].momentum().pT()/GeV > 20.0 && jets[index_2].momentum().pT()/GeV >20.0)
+			if(jets[index_1].momentum().pT()/GeV > 20.0 && jets[index_2].momentum().pT()/GeV > 20.0)
 			{	
-					cnt_eventspassingptdijet += weight;
+				cnt_eventspassingptdijet += weight;
 			
-				//eta cut	for the central jets
-				if(fabs(jets[index_1].momentum().pseudorapidity())<2.5 && fabs(jets[index_2].momentum().pseudorapidity())<2.5)
+				//eta cut for the central jets
+				if(fabs(jets[index_1].momentum().pseudorapidity()) < 2.5 && 
+				   fabs(jets[index_2].momentum().pseudorapidity()) < 2.5)
 				{
       				
-				
-//_hist_num_jcut XXXXXXXXXXXXXXXXXXXXXX    fill the histogram with the number of Jets after the pt and eta cut 
-			
 					cnt_eventspassingetadijet += weight;
 					_hist_num_jcut->fill(jets.size(), weight);
 						
 					//back to back condition of the jets
-					if(fabs(diffphi-PI)<1.0)
+					if(fabs(diffphi-PI) < 1.0)
 					{	
 						evcounter_dijet += weight;
 						cnt_eventspassingdphidijet += weight;
 						
-					
-
-//_hist_jets1 _hist_jets2 XXXXXXXXXXXXXXXXXXXXXX   fill varios jet distributions (for cross-checks, no data published) 
-						
+			
+ 						//  fill varios jet distributions (for cross-checks, no data published) 
 						_hist_jets1->fill(jets[index_1].momentum().pT()/GeV ,weight);
 						_hist_jets2->fill(jets[index_2].momentum().pT()/GeV ,weight);
 						_hist_dphi_cut->fill(diffphi, weight);
@@ -352,24 +332,17 @@ namespace Rivet
 						_hist_num_p2->fill(jets[index_2].size(), weight);
 						
 						
-																														
-//_hist_CMS_FWD_10_011_dijet XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX E-flow XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX						
-						
+						//E-flow																								
 						foreach (const Particle& p, fsv.particles())
 						{								
-							
-							//energy cut for the particles
-//AK 							if(p.momentum().E()/GeV>4.0){
-							_hist_CMS_FWD_10_011_dijet_7->fill(fabs(p.momentum().pseudorapidity()), weight*p.momentum().E()/GeV);
-//AK 							}//energy cut
+						   _hist_CMS_FWD_10_011_dijet_7->
+						     fill(fabs(p.momentum().pseudorapidity()), weight*p.momentum().E()/GeV);
 						}//foreach particle
 					}//if(dphi)
 				}// else (eta cut central region)
 			}//pt cut
-		}// energy request
-		
-		
-	}// if index request
+		}// energy 				
+	}// if index 
 		
 	
 }// analysis
@@ -383,7 +356,7 @@ namespace Rivet
     {
       
       const double sclfactor = 1.0/sumOfWeights();
-      scale(_hist_jets1, sclfactor); // norm to cross section
+      scale(_hist_jets1, sclfactor);
       scale(_hist_jets2, sclfactor);
       scale(_hist_eta1, sclfactor);
       scale(_hist_eta2, sclfactor);
@@ -398,11 +371,11 @@ namespace Rivet
       const double norm_dijet =evcounter_dijet*2.0 ; //AK norm factor 2 for the +/- region
       const double norm_mb =evcounter_mb*2.0 ;
       	    
-      if(sqrts/GeV  == 900){
+      if(fuzzyEquals(sqrtS(), 900, 1E-3)){
          scale(_hist_CMS_FWD_10_011_mb_09, 1.0/norm_mb);
          scale(_hist_CMS_FWD_10_011_dijet_09, 1.0/norm_dijet);
       }
-      if(sqrts/GeV  == 7000){
+      if(fuzzyEquals(sqrtS(), 7000, 1E-3)){
         scale(_hist_CMS_FWD_10_011_dijet_7, 1.0/norm_dijet);
         scale(_hist_CMS_FWD_10_011_mb_7, 1.0/norm_mb);
       }	       
@@ -420,11 +393,7 @@ namespace Rivet
     }
 
     
-
-
   private:
-
-    int sqrts;	
 
     AIDA::IHistogram1D *_hist_part_pt;
     AIDA::IHistogram1D *_hist_part_E;
