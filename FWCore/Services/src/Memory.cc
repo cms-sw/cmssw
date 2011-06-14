@@ -107,9 +107,10 @@ namespace edm {
 
     procInfo SimpleMemoryCheck::fetch() {
       procInfo ret;
-      double pr_size = 0.0, pr_rssize = 0.0;
 
 #ifdef LINUX
+      double pr_size = 0.0, pr_rssize = 0.0;
+
       linux_proc pinfo;
       int cnt;
 
