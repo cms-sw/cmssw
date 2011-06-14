@@ -126,7 +126,7 @@ namespace reco {
 
     /// angle
     double theta() const { 
-      return posrep_.theta();
+      return position_.theta();
     }
     
     /// dummy vertex access
