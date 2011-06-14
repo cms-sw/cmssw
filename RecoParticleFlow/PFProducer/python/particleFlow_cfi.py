@@ -6,7 +6,7 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     blocks = cms.InputTag("particleFlowBlock"),
 
     # reco::muons label and Post Muon cleaning
-    muons = cms.InputTag("muons"),
+    muons = cms.InputTag("muons1stStep"),
     postMuonCleaning = cms.bool(True),
 
     # Vertices label

@@ -37,7 +37,7 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     nuclearInteractionsPurity = cms.uint32(1),                          
 
     # input muons
-    RecMuons = cms.InputTag("muons"),
+    RecMuons = cms.InputTag("muons1stStep"),
 
     # input conversions
     PFConversions = cms.InputTag("pfConversions"),
