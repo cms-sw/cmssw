@@ -61,13 +61,14 @@ protected:
   bool match(const TrajectoryStateOnSurface &state,
 	     const TransientTrackingRecHit::ConstRecHitPointer &recHit) const;
     
-  void produceVirtualMeasurement(const edm::ParameterSet &config);
-
-  VirtualMeasurement theVM;
-
   TwoBodyDecayFitter* theFitter;
 
+  double thePrimaryMass;
+  double thePrimaryWidth;
+  double theSecondaryMass;
+
   double theNSigmaCutValue;
+  double theChi2CutValue;
   bool theUseRefittedStateFlag;
   bool theConstructTsosWithErrorsFlag;
 
@@ -79,12 +80,17 @@ protected:
 
 TwoBodyDecayTrajectoryFactory::TwoBodyDecayTrajectoryFactory( const edm::ParameterSet& config )
   : TrajectoryFactoryBase( config ),
-    theFitter( new TwoBodyDecayFitter( config ) ),
-    theNSigmaCutValue( config.getParameter< double >( "NSigmaCut" ) ),
-    theUseRefittedStateFlag( config.getParameter< bool >( "UseRefittedState" ) ),
-    theConstructTsosWithErrorsFlag( config.getParameter< bool >( "ConstructTsosWithErrors" ) )
+    theFitter( new TwoBodyDecayFitter( config ) )
 {
-  produceVirtualMeasurement( config );
+  const edm::ParameterSet ppc = config.getParameter< edm::ParameterSet >( "ParticleProperties" );
+  thePrimaryMass = ppc.getParameter< double >( "PrimaryMass" );
+  thePrimaryWidth = ppc.getParameter< double >( "PrimaryWidth" );
+  theSecondaryMass = ppc.getParameter< double >( "SecondaryMass" );
+
+  theNSigmaCutValue = config.getParameter< double >( "NSigmaCut" );
+  theChi2CutValue = config.getParameter< double >( "Chi2Cut" );
+  theUseRefittedStateFlag = config.getParameter< bool >( "UseRefittedState" );
+  theConstructTsosWithErrorsFlag = config.getParameter< bool >( "ConstructTsosWithErrors" );
 }
 
 
@@ -110,9 +116,10 @@ TwoBodyDecayTrajectoryFactory::trajectories(const edm::EventSetup &setup,
     transientTracks[1].setES( setup );
 
     // estimate the decay parameters
-    TwoBodyDecay tbd = theFitter->estimate( transientTracks, theVM );
+    VirtualMeasurement vm( thePrimaryMass, thePrimaryWidth, theSecondaryMass, beamSpot );
+    TwoBodyDecay tbd = theFitter->estimate( transientTracks, vm );
 
-    if ( !tbd.isValid() )
+    if ( !tbd.isValid() || ( tbd.chi2() > theChi2CutValue ) )
     {
       trajectories.push_back( ReferenceTrajectoryPtr( new TwoBodyDecayTrajectory() ) );
       return trajectories;
@@ -157,9 +164,10 @@ TwoBodyDecayTrajectoryFactory::trajectories(const edm::EventSetup &setup,
       // estimate the decay parameters. the transient tracks are not really associated to the
       // the external tsos, but this is o.k., because the only information retrieved from them
       // is the magnetic field.
-      TwoBodyDecay tbd = theFitter->estimate( transientTracks, external, theVM );
+      VirtualMeasurement vm( thePrimaryMass, thePrimaryWidth, theSecondaryMass, beamSpot );
+      TwoBodyDecay tbd = theFitter->estimate( transientTracks, external, vm );
 
-      if ( !tbd.isValid() )
+      if ( !tbd.isValid()  || ( tbd.chi2() > theChi2CutValue ) )
       {
 	trajectories.push_back( ReferenceTrajectoryPtr( new TwoBodyDecayTrajectory() ) );
 	return trajectories;
@@ -201,7 +209,7 @@ TwoBodyDecayTrajectoryFactory::constructTrajectories( const ConstTrajTrackPairCo
   // produce TwoBodyDecayTrajectoryState (input for TwoBodyDecayTrajectory)
   TsosContainer tsos( input1.first, input2.first );
   ConstRecHitCollection recHits( input1.second, input2.second );
-  TwoBodyDecayTrajectoryState trajectoryState( tsos, tbd, theVM.secondaryMass(), magField );
+  TwoBodyDecayTrajectoryState trajectoryState( tsos, tbd, theSecondaryMass, magField );
 
   if ( !trajectoryState.isValid() )
   {
@@ -260,32 +268,6 @@ bool TwoBodyDecayTrajectoryFactory::match( const TrajectoryStateOnSurface& state
   }
 
   return ( ( fabs(deltaX)/sqrt(varX) < theNSigmaCutValue ) && ( fabs(deltaY)/sqrt(varY) < theNSigmaCutValue ) );
-}
-
-
-void TwoBodyDecayTrajectoryFactory::produceVirtualMeasurement( const edm::ParameterSet& config )
-{
-  const edm::ParameterSet bsc = config.getParameter< edm::ParameterSet >( "BeamSpot" );
-  const edm::ParameterSet ppc = config.getParameter< edm::ParameterSet >( "ParticleProperties" );
-  // FIXME: Should get 3D beamspot and errors from BeamSpot input from
-  //        event with extrapolation of tracks to beam line?
-
-  GlobalPoint theBeamSpot( bsc.getParameter< double >( "MeanX" ),
-			   bsc.getParameter< double >( "MeanY" ),
-			   bsc.getParameter< double >( "MeanZ" ) );
-
-  GlobalError theBeamSpotError( bsc.getParameter< double >( "VarXX" ),
-				bsc.getParameter< double >( "VarXY" ),
-				bsc.getParameter< double >( "VarYY" ),
-				bsc.getParameter< double >( "VarXZ" ),
-				bsc.getParameter< double >( "VarYZ" ),
-				bsc.getParameter< double >( "VarZZ" ) );
-
-  theVM = VirtualMeasurement( ppc.getParameter< double >( "PrimaryMass" ),
-			      ppc.getParameter< double >( "PrimaryWidth" ),
-			      ppc.getParameter< double >( "SecondaryMass" ),
-			      theBeamSpot, theBeamSpotError );
-  return;
 }
 
 

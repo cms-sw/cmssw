@@ -80,17 +80,7 @@ DualBzeroTrajectoryFactory = cms.PSet(
 TwoBodyDecayTrajectoryFactory = cms.PSet(
     TrajectoryFactoryBase,
     NSigmaCut = cms.double(100.0),
-    BeamSpot = cms.PSet(
-        VarYY = cms.double(2.25e-06),
-        VarXX = cms.double(2.25e-06),
-        VarXY = cms.double(0.0),
-        VarYZ = cms.double(0.0),
-        MeanX = cms.double(0.0),
-        MeanY = cms.double(0.0),
-        MeanZ = cms.double(0.0),
-        VarXZ = cms.double(0.0),
-        VarZZ = cms.double(28.09)
-    ),
+    Chi2Cut = cms.double(10000.0),
     ParticleProperties = cms.PSet(
         PrimaryMass = cms.double(91.1876),
         PrimaryWidth = cms.double(2.4952),
