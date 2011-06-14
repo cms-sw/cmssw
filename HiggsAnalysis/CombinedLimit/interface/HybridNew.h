@@ -47,6 +47,8 @@ private:
   static unsigned int iterations_;
   static bool saveHybridResult_, readHybridResults_; 
   static std::string gridFile_;
+  static bool expectedFromGrid_; 
+  static float quantileForExpectedFromGrid_;
   static unsigned int nCpu_, fork_;
   static bool importanceSamplingNull_, importanceSamplingAlt_;
   static std::string algo_;

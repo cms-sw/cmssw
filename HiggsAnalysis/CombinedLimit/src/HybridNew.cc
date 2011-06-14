@@ -56,6 +56,8 @@ double HybridNew::rValue_  = 1.0;
 bool HybridNew::CLs_ = false;
 bool HybridNew::saveHybridResult_  = false;
 bool HybridNew::readHybridResults_ = false; 
+bool  HybridNew::expectedFromGrid_ = false; 
+float HybridNew::quantileForExpectedFromGrid_ = 0.5; 
 std::string HybridNew::gridFile_ = "";
 bool HybridNew::importanceSamplingNull_ = false;
 bool HybridNew::importanceSamplingAlt_  = false;
@@ -86,7 +88,8 @@ LimitAlgo("HybridNew specific options") {
         ("nCPU",    boost::program_options::value<unsigned int>(&nCpu_)->default_value(nCpu_),           "Use N CPUs with PROOF Lite (experimental!)")
         ("saveHybridResult",  "Save result in the output file  (option saveToys must be enabled)")
         ("readHybridResults", "Read and merge results from file (option toysFile must be enabled)")
-        ("grid",    boost::program_options::value<std::string>(&gridFile_)->default_value(gridFile_),            "Use the specified file containing a grid of SamplingDistributions (superceeds option 'toysFile')")
+        ("grid",    boost::program_options::value<std::string>(&gridFile_),            "Use the specified file containing a grid of SamplingDistributions (superceeds option 'toysFile')")
+        ("expectedFromGrid", boost::program_options::value<float>(&quantileForExpectedFromGrid_)->default_value(0.5), "Use the grid to compute the expected limit for this quantile")
         ("importanceSamplingNull", boost::program_options::value<bool>(&importanceSamplingNull_)->default_value(importanceSamplingNull_),  
                                    "Enable importance sampling for null hypothesis (background only)") 
         ("importanceSamplingAlt",  boost::program_options::value<bool>(&importanceSamplingAlt_)->default_value(importanceSamplingAlt_),    
@@ -103,6 +106,11 @@ LimitAlgo("HybridNew specific options") {
 }
 
 void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
+    if (vm.count("expectedFromGrid") && !vm["expectedFromGrid"].defaulted()) {
+        if (!vm.count("grid")) throw std::invalid_argument("HybridNew: Can't use --expectedFromGrid without --grid!");
+        if (quantileForExpectedFromGrid_ <= 0 || quantileForExpectedFromGrid_ >= 1.0) throw std::invalid_argument("HybridNew: the quantile for the expected limit must be between 0 and 1");
+        expectedFromGrid_ = true;
+    } 
     if (vm.count("frequentist")) {
         genNuisances_ = 0; genGlobalObs_ = withSystematics; fitNuisances_ = withSystematics;
         if (vm["testStat"].defaulted()) testStat_ = "LHC";
@@ -120,7 +128,7 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
         workingMode_ = MakeLimit;
     }
     saveHybridResult_ = vm.count("saveHybridResult");
-    readHybridResults_ = vm.count("readHybridResults");
+    readHybridResults_ = vm.count("readHybridResults") || vm.count("grid");
     if (readHybridResults_ && !(vm.count("toysFile") || vm.count("grid")))     throw std::invalid_argument("HybridNew: must have 'toysFile' or 'grid' option to have 'readHybridResults'\n");
     if (saveHybridResult_  && !vm.count("saveToys")) throw std::invalid_argument("HybridNew: must have 'saveToys' option to have 'saveHybridResult'\n");
     validateOptions(); 
@@ -240,7 +248,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
       rMax = limitPlot_->GetX()[limitPlot_->GetN()-1];
       for (int i = 0, n = limitPlot_->GetN(); i < n; ++i) {
           double x = limitPlot_->GetX()[i], y = limitPlot_->GetY()[i], ey = limitPlot_->GetErrorY(i);
-          if (verbose > 0) std::cout << "  r " << x << (CLs_ ? ", CLs = " : ", CLsplusb = ") << y << " +/- " << ey << std::endl;
+          if (verbose > 0) printf("  r %.2f: %s = %6.4f +/- %6.4f\n", x, CLs_ ? ", CLs = " : ", CLsplusb = ", y, ey);
           if (y-3*max(ey,0.01) >= clsTarget) { rMin = x; clsMin = CLs_t(y,ey); }
           if (fabs(y-clsTarget) < minDist) { limit = x; minDist = fabs(y-clsTarget); }
           rMax = x; clsMax = CLs_t(y,ey);    
@@ -903,9 +911,9 @@ void HybridNew::updateGridData(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
     } else {
         typedef std::pair<double,double> CLs_t;
         std::vector<point> points; points.reserve(grid_.size()); 
-        for (point it = grid_.begin(), ed = grid_.end(); it != ed; ++it) { points.push_back(it); }
-        std::vector<CLs_t> values(points.size(), CLs_t(-99,-99));
-        int iMin = 0, iMax = points.size()-1, iMid = -1;
+        std::vector<CLs_t> values; values.reserve(grid_.size());
+        for (point it = grid_.begin(), ed = grid_.end(); it != ed; ++it) { points.push_back(it); values.push_back(CLs_t(-99, -99)); }
+        int iMin = 0, iMax = points.size()-1;
         while (iMax-iMin > 3) {
             if (verbose > 1) std::cout << "Bisecting range [" << iMin << ", " << iMax << "]" << std::endl; 
             int iMid = (iMin+iMax)/2;
@@ -939,33 +947,41 @@ void HybridNew::updateGridData(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
         if (verbose > 1) std::cout << "Final range [" << iMin << ", " << iMax << "]" << std::endl; 
         for (int i = 0; i < iMin; ++i) {
             points[i]->second->SetBit(1);
+            if (verbose > 1) std::cout << "  Will not use point " << i << " (r " << points[i]->first << ")" << std::endl;
         }
         for (int i = iMin; i <= iMax; ++i) {
             points[i]->second->ResetBit(1);
-            if (values[iMid].first == -99) {
-                if (verbose > 1) std::cout << "   Updaing point " << i << std::endl; 
+            if (values[i].first < -2) {
+                if (verbose > 1) std::cout << "   Updaing point " << i << " (r " << points[i]->first << ")" << std::endl; 
                 updateGridPoint(w, mc_s, mc_b, data, points[i]);
             }
-            else if (verbose > 1) std::cout << "   Point " << i << " was already updated during search." << std::endl; 
+            else if (verbose > 1) std::cout << "   Point " << i << " (r " << points[i]->first << ") was already updated during search." << std::endl; 
         }
         for (int i = iMax+1, n = points.size(); i < n; ++i) {
             points[i]->second->SetBit(1);
+            if (verbose > 1) std::cout << "  Will not use point " << i << " (r " << points[i]->first << ")" << std::endl;
         }
     }
 }
 std::pair<double,double> HybridNew::updateGridPoint(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, std::map<double, RooStats::HypoTestResult *>::iterator point) {
-    if (point->first == 0 && CLs_) return std::pair<double,double>(1,0);
-
-    bool isProfile = (testStat_ == "LHC" || testStat_ == "Profile");
-    RooArgSet  poi(*mc_s->GetParametersOfInterest());
-    RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
-    Setup setup;
-    std::auto_ptr<RooStats::HybridCalculator> hc = create(w, mc_s, mc_b, data, point->first, setup);
-    RooArgSet nullPOI(*setup.modelConfig_bonly.GetSnapshot());
-    if (isProfile) nullPOI.setRealValue(r->GetName(), rValue_);
-    double testStat = setup.qvar->Evaluate(data, nullPOI);
-    point->second->SetTestStatisticData(testStat + (isProfile ? -1e-9 : 1e-9));
     typedef std::pair<double,double> CLs_t;
+    bool isProfile = (testStat_ == "LHC" || testStat_ == "Profile");
+    if (point->first == 0 && CLs_) return std::pair<double,double>(1,0);
+    if (expectedFromGrid_) {
+        std::vector<Double_t> btoys = point->second->GetNullDistribution()->GetSamplingDistribution();
+        std::sort(btoys.begin(), btoys.end());
+        Double_t testStat = btoys[std::min<int>(floor((1.-quantileForExpectedFromGrid_) * btoys.size()+0.5), btoys.size())];
+        point->second->SetTestStatisticData(testStat + (isProfile ? -1e-9 : 1e-9));
+    } else {
+        RooArgSet  poi(*mc_s->GetParametersOfInterest());
+        RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
+        Setup setup;
+        std::auto_ptr<RooStats::HybridCalculator> hc = create(w, mc_s, mc_b, data, point->first, setup);
+        RooArgSet nullPOI(*setup.modelConfig_bonly.GetSnapshot());
+        if (isProfile) nullPOI.setRealValue(r->GetName(), rValue_);
+        double testStat = setup.qvar->Evaluate(data, nullPOI);
+        point->second->SetTestStatisticData(testStat + (isProfile ? -1e-9 : 1e-9));
+    }
     return CLs_ ? CLs_t(point->second->CLs(), point->second->CLsError()) : CLs_t(point->second->CLsplusb(), point->second->CLsplusbError());
 }
 void HybridNew::useGrid() {
