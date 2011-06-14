@@ -32,6 +32,7 @@ namespace edm {
     std::string const& fileName() const {return fileName_;}
     std::string const& logicalFileName() const {return logicalFileName_;}
     int const& compressionLevel() const {return compressionLevel_;}
+    std::string const& compressionAlgorithm() const {return compressionAlgorithm_;}
     int const& basketSize() const {return basketSize_;}
     int const eventAutoFlushSize() const {return eventAutoFlushSize_;}
     int const& splitLevel() const {return splitLevel_;}
@@ -132,6 +133,7 @@ namespace edm {
     std::string const catalog_;
     unsigned int const maxFileSize_;
     int const compressionLevel_;
+    std::string const compressionAlgorithm_;
     int const basketSize_;
     int const eventAutoFlushSize_;
     int const splitLevel_;

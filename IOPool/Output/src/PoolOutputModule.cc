@@ -18,6 +18,7 @@
 #include "TTree.h"
 #include "TBranchElement.h"
 #include "TObjArray.h"
+#include "RVersion.h"
 
 #include <fstream>
 #include <iomanip>
@@ -34,6 +35,11 @@ namespace edm {
     catalog_(pset.getUntrackedParameter<std::string>("catalog")),
     maxFileSize_(pset.getUntrackedParameter<int>("maxSize")),
     compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel")),
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0)
+    compressionAlgorithm_(pset.getUntrackedParameter<std::string>("compressionAlgorithm")),
+#else
+    compressionAlgorithm_("ZLIB"),
+#endif
     basketSize_(pset.getUntrackedParameter<int>("basketSize")),
     eventAutoFlushSize_(pset.getUntrackedParameter<int>("eventAutoFlushCompressedSize")),
     splitLevel_(std::min<int>(pset.getUntrackedParameter<int>("splitLevel") + 1, 99)),
@@ -306,6 +312,10 @@ namespace edm {
                      "If over maximum, new output file will be started at next input file transition.");
     desc.addUntracked<int>("compressionLevel", 7)
         ->setComment("ROOT compression level of output file.");
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0)
+    desc.addUntracked<std::string>("compressionAlgorithm", "ZLIB")
+        ->setComment("Algorithm used to compress data in the ROOT output file, allowed values are ZLIB and LZMA");
+#endif
     desc.addUntracked<int>("basketSize", 16384)
         ->setComment("Default ROOT basket size in output file.");
     desc.addUntracked<int>("eventAutoFlushCompressedSize",-1)->setComment("Set ROOT auto flush stored data size (in bytes) for event TTree. The value sets how large the compressed buffer is allowed to get. The uncompressed buffer can be quite a bit larger than this depending on the average compression ratio. The value of -1 just uses ROOT's default value. The value of 0 turns off this feature.");

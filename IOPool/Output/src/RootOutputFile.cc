@@ -36,6 +36,11 @@
 #include "TFile.h"
 #include "TClass.h"
 #include "Rtypes.h"
+#include "RVersion.h"
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0)
+#include "Compression.h"
+#endif
 
 #include <algorithm>
 #include <iomanip>
@@ -95,7 +100,16 @@ namespace edm {
       dataTypeReported_(false),
       parentageIDs_(),
       branchesWithStoredHistory_() {
-
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0)
+    if (om_->compressionAlgorithm() == std::string("ZLIB")) {
+      filePtr_->SetCompressionAlgorithm(ROOT::kZLIB);
+    } else if (om_->compressionAlgorithm() == std::string("LZMA")) {
+      filePtr_->SetCompressionAlgorithm(ROOT::kLZMA);
+    } else {
+      throw Exception(errors::Configuration) << "PoolOutputModule configured with unknown compression algorithm '" << om_->compressionAlgorithm() << "'\n"
+					     << "Allowed compression algorithms are ZLIB and LZMA\n";
+    }
+#endif
     if (-1 != om->eventAutoFlushSize()) {
       eventTree_.setAutoFlush(-1*om->eventAutoFlushSize());
     }
