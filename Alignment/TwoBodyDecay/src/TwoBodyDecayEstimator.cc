@@ -191,7 +191,7 @@ bool TwoBodyDecayEstimator::constructMatrices( const std::vector< RefCountedLine
   // virtual measurement of the primary mass
   vecM( 11 ) = vm.primaryMass();
   // virtual measurement of the beam spot
-  vecM.sub( 12, vm.beamSpot() );
+  vecM.sub( 12, vm.beamSpotPosition() );
 
   // full weight matrix
   matG = AlgebraicSymMatrix( 14, 0 );

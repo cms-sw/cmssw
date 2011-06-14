@@ -3,7 +3,9 @@
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/Math/interface/Point3D.h"
+//#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 /** /class TwoBodyDecayVirtualMeasurement
  *
@@ -22,50 +24,35 @@ public:
   TwoBodyDecayVirtualMeasurement( const double primaryMass,
 				  const double primaryWidth,
 				  const double secondaryMass,
-				  const AlgebraicVector& beamSpot,
-				  const AlgebraicSymMatrix& beamSpotError ) :
+				  const reco::BeamSpot& beamSpot ) :
     thePrimaryMass( primaryMass ),
     thePrimaryWidth( primaryWidth ),
     theSecondaryMass( secondaryMass ),
-    theBeamSpot( beamSpot ),
-    theBeamSpotError( beamSpotError ) {}
+    theBeamSpot( beamSpot ) {}
 
-  TwoBodyDecayVirtualMeasurement( const double primaryMass,
-				  const double primaryWidth,
-				  const double secondaryMass,
-				  const GlobalPoint& beamSpot,
-				  const GlobalError& beamSpotError ) :
-    thePrimaryMass( primaryMass ),
-    thePrimaryWidth( primaryWidth ),
-    theSecondaryMass( secondaryMass ),
-    theBeamSpot( convertGlobalPoint( beamSpot ) ),
-    theBeamSpotError( asHepMatrix(beamSpotError.matrix()) ) {}
+  TwoBodyDecayVirtualMeasurement( const TwoBodyDecayVirtualMeasurement & other ) :
+    thePrimaryMass( other.thePrimaryMass ),
+    thePrimaryWidth( other.thePrimaryWidth ),
+    theSecondaryMass( other.theSecondaryMass ),
+    theBeamSpot( other.theBeamSpot ) {}
 
-  TwoBodyDecayVirtualMeasurement( void ) :
-    thePrimaryMass( 0. ),
-    thePrimaryWidth( 0. ),
-    theSecondaryMass( 0. ),
-    theBeamSpot( AlgebraicVector() ),
-    theBeamSpotError( AlgebraicSymMatrix() ) {}
+  inline const double & primaryMass( void ) const { return thePrimaryMass; }
+  inline const double & primaryWidth( void ) const { return thePrimaryWidth; }
+  inline const double & secondaryMass( void ) const { return theSecondaryMass; }
 
-  inline const double primaryMass( void ) const { return thePrimaryMass; }
-  inline const double primaryWidth( void ) const { return thePrimaryWidth; }
-  inline const double secondaryMass( void ) const { return theSecondaryMass; }
-
-  inline const AlgebraicVector& beamSpot( void ) const { return theBeamSpot; }
-  inline const AlgebraicSymMatrix& beamSpotError( void ) const { return theBeamSpotError; }
+  inline const reco::BeamSpot & beamSpot( void ) const { return theBeamSpot; }
+  inline const AlgebraicVector beamSpotPosition( void ) const { return convertXYZPoint( theBeamSpot.position() ); }
+  inline const AlgebraicSymMatrix beamSpotError( void ) const { return asHepMatrix( theBeamSpot.covariance3D() ); }
 
 private:
 
-  inline const AlgebraicVector convertGlobalPoint( const GlobalPoint & gp ) const
-    { AlgebraicVector v(3); v(1)=gp.x(); v(2)=gp.y(); v(3)=gp.z(); return v; }
+  inline const AlgebraicVector convertXYZPoint( const math::XYZPoint & p ) const
+    { AlgebraicVector v(3); v(1)=p.x(); v(2)=p.y(); v(3)=p.z(); return v; }
 
-  double thePrimaryMass;
-  double thePrimaryWidth;
-  double theSecondaryMass;
-
-  AlgebraicVector theBeamSpot;
-  AlgebraicSymMatrix theBeamSpotError;
+  const double & thePrimaryMass;
+  const double & thePrimaryWidth;
+  const double & theSecondaryMass;
+  const reco::BeamSpot & theBeamSpot;
 
 };
 
