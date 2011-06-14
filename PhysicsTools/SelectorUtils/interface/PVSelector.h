@@ -20,8 +20,10 @@ public:
   {
     retInternal_ = getBitTemplate();
   }
-  
-  bool operator() ( edm::EventBase const & event,  pat::strbitset & ret ) {
+
+   bool operator() ( edm::EventBase const & event,  pat::strbitset & ret ) {return true;}
+
+  bool passPVSelection ( edm::EventBase const & event) {
     event.getByLabel(pvSrc_, h_primVtx);
 
     // check if there is a good primary vertex
