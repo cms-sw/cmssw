@@ -208,8 +208,10 @@ class matplotRender():
         ytotal={}
         xidx=[]
         runs=rawxdata.keys()
+        #print 'rawxdata ',rawxdata
         runs.sort()
         for idx,run in enumerate(runs):
+            #print 'idx,run ',idx,run
             xpoints.append(matplotlib.dates.date2num(rawxdata[run][0]))
             xidx.append(idx)
         if len(xpoints)==0:
@@ -234,7 +236,7 @@ class matplotRender():
         for ylabel,yvalue in rawydata.items():
             ypoints[ylabel]=[]
             for i in xidx:
-                ypoints[ylabel].append(sum(yvalue[0:i])/denomitor)
+                ypoints[ylabel].append(sum(yvalue[0:i+1])/denomitor)
             ytotal[ylabel]=sum(yvalue)/denomitor
         ax=self.__fig.add_subplot(111)
         if yscale=='linear':
