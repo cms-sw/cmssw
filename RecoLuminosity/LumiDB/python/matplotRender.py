@@ -85,7 +85,7 @@ class matplotRender():
         for ylabel,yvalues in rawydata.items():
             ypoints[ylabel]=[]           
             for i in xidx:
-                ypoints[ylabel].append(sum(yvalues[0:i])/denomitor)
+                ypoints[ylabel].append(sum(yvalues[0:i+1])/denomitor)
             ytotal[ylabel]=sum(yvalues)/denomitor  
         ax=self.__fig.add_subplot(111)
         if yscale=='linear':
@@ -161,7 +161,7 @@ class matplotRender():
                 if idx==len(xpoints)-1:
                     endinfo=str(fill)+':'+str(runlist[-1])
                 xidx=rawxdata.index(max(runlist))
-                ypoints[ylabel].append(sum(yvalue[0:xidx])/denomitor)
+                ypoints[ylabel].append(sum(yvalue[0:xidx+1])/denomitor)
         ax=self.__fig.add_subplot(111)
         ax.set_xlabel(r'LHC Fill Number',position=(0.84,0))
         ax.set_ylabel(r'L '+unitstring,position=(0,0.9))
