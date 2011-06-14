@@ -24,6 +24,8 @@ from RecoMuon.MuonIsolationProducers.muIsolation_EventContent_cff import *
 RecoMuonAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_muons_*_*',
                                            'keep *_*_muons_*',
+                                           'drop *_muons_muons1stStep2muonsMap_*',
+                                           # Tracks known by the Muon obj
                                            'keep recoTracks_standAloneMuons_*_*', 
                                            'keep recoTrackExtras_standAloneMuons_*_*', 
                                            'keep TrackingRecHitsOwned_standAloneMuons_*_*', 
@@ -32,7 +34,6 @@ RecoMuonAOD = cms.PSet(
                                            'keep recoTracks_tevMuons_*_*', 
                                            'keep recoTrackExtras_tevMuons_*_*', 
                                            'keep recoTracks_generalTracks_*_*', 
-                                           'keep recoMuons_muons_*_*', 
                                            # Cosmics
                                            'keep recoTracks_cosmicMuons_*_*',
                                            'keep recoTracks_globalCosmicMuons_*_*', 
