@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/02 14:28:25 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/01/05 10:14:40 $
+ *  $Revision: 1.9 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -48,7 +48,7 @@ using namespace std;
 
 DTAlbertoBenvenutiTask::DTAlbertoBenvenutiTask(const edm::ParameterSet& ps){
   
-  debug = ps.getUntrackedParameter<bool>("debug", "false");
+  debug = ps.getUntrackedParameter<bool>("debug", false);
   if(debug)
     cout<<"[DTAlbertoBenvenutiTask]: Constructor"<<endl;
 
@@ -238,7 +238,7 @@ void DTAlbertoBenvenutiTask::analyze(const edm::Event& e, const edm::EventSetup&
 
   if ( !parameters.getUntrackedParameter<bool>("localrun", true) ) e.getByType(ltcdigis);
 
-  bool checkNoisyChannels = parameters.getUntrackedParameter<bool>("checkNoisyChannels","false");
+  bool checkNoisyChannels = parameters.getUntrackedParameter<bool>("checkNoisyChannels",false);
   ESHandle<DTStatusFlag> statusMap;
   if(checkNoisyChannels) {
     // Get the map of noisy channels

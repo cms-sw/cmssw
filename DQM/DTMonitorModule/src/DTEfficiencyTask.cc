@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/02 14:29:03 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/01/05 10:14:40 $
+ *  $Revision: 1.15 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -42,7 +42,7 @@ using namespace std;
 
 DTEfficiencyTask::DTEfficiencyTask(const ParameterSet& pset) {
 
-  debug = pset.getUntrackedParameter<bool>("debug","false");
+  debug = pset.getUntrackedParameter<bool>("debug",false);
 
   // Get the DQM needed services
   theDbe = edm::Service<DQMStore>().operator->();

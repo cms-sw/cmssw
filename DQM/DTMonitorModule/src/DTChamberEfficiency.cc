@@ -57,7 +57,7 @@ using namespace edm;
 DTChamberEfficiency::DTChamberEfficiency(const ParameterSet& pSet)
 {
   // Get the debug parameter for verbose output
-  debug = pSet.getUntrackedParameter<bool>("debug","false");
+  debug = pSet.getUntrackedParameter<bool>("debug",false);
   
   LogVerbatim("DTDQM|DTMonitorModule|DTChamberEfficiency")
     << "DTChamberEfficiency: constructor called";

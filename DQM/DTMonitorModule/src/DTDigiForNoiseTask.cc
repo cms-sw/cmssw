@@ -1,8 +1,8 @@
  /*
  * \file DTDigiForNoiseTask.cc
  * 
- * $Date: 2008/05/06 13:26:47 $
- * $Revision: 1.8 $
+ * $Date: 2010/01/05 10:14:40 $
+ * $Revision: 1.9 $
  * \author G. Mila - INFN Torino
  *
  */
@@ -37,7 +37,7 @@ using namespace std;
 
 DTDigiForNoiseTask::DTDigiForNoiseTask(const edm::ParameterSet& ps){
   
-  debug = ps.getUntrackedParameter<bool>("debug", "false");
+  debug = ps.getUntrackedParameter<bool>("debug", false);
   if(debug)
     cout<<"[DTDigiForNoiseTask]: Constructor"<<endl;
 

@@ -20,7 +20,7 @@ using namespace std;
 DTTriggerCheck::DTTriggerCheck(const ParameterSet& pset){
  theDbe = edm::Service<DQMStore>().operator->();
 
- debug = pset.getUntrackedParameter<bool>("debug","false");
+ debug = pset.getUntrackedParameter<bool>("debug",false);
     parameters = pset;
 
   theDbe->setCurrentFolder("DT/DTTriggerTask");

@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/26 17:46:03 $
- *  $Revision: 1.32 $
+ *  $Date: 2011/06/10 13:50:12 $
+ *  $Revision: 1.33 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -50,7 +50,7 @@ DTSegmentAnalysisTest::DTSegmentAnalysisTest(const ParameterSet& ps){
   dbe = Service<DQMStore>().operator->();
 
   // get the cfi parameters
-  detailedAnalysis = parameters.getUntrackedParameter<bool>("detailedAnalysis","false");
+  detailedAnalysis = parameters.getUntrackedParameter<bool>("detailedAnalysis",false);
   normalizeHistoPlots  = parameters.getUntrackedParameter<bool>("normalizeHistoPlots",false);
   runOnline  = parameters.getUntrackedParameter<bool>("runOnline",true);
   // top folder for the histograms in DQMStore

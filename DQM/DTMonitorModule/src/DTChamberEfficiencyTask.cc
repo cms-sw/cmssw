@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/08 09:08:52 $
- *  $Revision: 1.13 $
+ *  $Date: 2010/01/05 10:14:40 $
+ *  $Revision: 1.14 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -35,7 +35,7 @@ using namespace std;
 
 DTChamberEfficiencyTask::DTChamberEfficiencyTask(const ParameterSet& pset) {
 
-  debug = pset.getUntrackedParameter<bool>("debug","false");
+  debug = pset.getUntrackedParameter<bool>("debug",false);
 
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTChamberEfficiencyTask") << "[DTChamberEfficiencyTask] Constructor called!";
 

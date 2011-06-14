@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/04/26 22:22:08 $
- *  $Revision: 1.28 $
+ *  $Date: 2011/06/10 13:23:26 $
+ *  $Revision: 1.29 $
  *  \author G. Cerminara - INFN Torino
  *  revised by G. Mila - INFN Torino
  */
@@ -45,11 +45,11 @@ DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) : ne
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "[DTSegmentAnalysisTask] Constructor called!";
 
   // switch for detailed analysis
-  detailedAnalysis = pset.getUntrackedParameter<bool>("detailedAnalysis","false");
+  detailedAnalysis = pset.getUntrackedParameter<bool>("detailedAnalysis",false);
   // the name of the 4D rec hits collection
   theRecHits4DLabel = pset.getParameter<string>("recHits4DLabel");
   // Get the map of noisy channels
-  checkNoisyChannels = pset.getUntrackedParameter<bool>("checkNoisyChannels","false");
+  checkNoisyChannels = pset.getUntrackedParameter<bool>("checkNoisyChannels",false);
   // # of bins in the time histos
   nTimeBins = pset.getUntrackedParameter<int>("nTimeBins",100);
   // # of LS per bin in the time histos

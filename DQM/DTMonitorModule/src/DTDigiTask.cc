@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2010/06/21 14:59:53 $
- * $Revision: 1.63 $
+ * $Date: 2011/06/10 13:23:26 $
+ * $Revision: 1.64 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -67,7 +67,7 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   // Setting for the reset of the ME after n (= ResetCycle) luminosity sections
   resetCycle = ps.getUntrackedParameter<int>("ResetCycle", 3);
   // Check the DB of noisy channels
-  checkNoisyChannels = ps.getUntrackedParameter<bool>("checkNoisyChannels","false");
+  checkNoisyChannels = ps.getUntrackedParameter<bool>("checkNoisyChannels",false);
   // Default TTrig to be used when not reading the TTrig DB
   defaultTTrig = ps.getParameter<int>("defaultTtrig");
   inTimeHitsLowerBound = ps.getParameter<int>("inTimeHitsLowerBound");
