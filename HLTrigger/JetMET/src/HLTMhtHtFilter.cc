@@ -177,7 +177,7 @@ bool
         }
       }
     }
-    if (useTracks_ && tracks.isValid()) {
+    if ( (useTracks_) && (tracks->size()>0) ) {
       for (TrackCollection::const_iterator track = tracks->begin();
            track != tracks->end(); track++) {
         if (mode_==1 || mode_==2 || mode_ == 5) {//---get MHT
