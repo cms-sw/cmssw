@@ -79,7 +79,7 @@ class ESFastTDigitizer
     char buffer[200];
     int thisLine = 0;
     while( thisLine==0 ) {
-      m_histofile->getline(buffer,400);
+      m_histofile->getline(buffer,200);
       if (!strstr(buffer,"#") && !(strspn(buffer," ") == strlen(buffer))){	
 	float histoBin; 
 	sscanf(buffer,"%f",&histoBin); 
