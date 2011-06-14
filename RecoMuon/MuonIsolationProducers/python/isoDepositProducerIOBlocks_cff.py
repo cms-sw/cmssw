@@ -3,14 +3,14 @@ import FWCore.ParameterSet.Config as cms
 # -*-TCL-*-
 MIsoDepositViewMultiIOBlock = cms.PSet(
     ExtractForCandidate = cms.bool(False),
-    inputMuonCollection = cms.InputTag("muons"),
+    inputMuonCollection = cms.InputTag("muons1stStep"),
     MultipleDepositsFlag = cms.bool(True),
     InputType = cms.string('MuonCollection'),
     MuonTrackRefType = cms.string('bestTrkSta')
 )
 MIsoDepositViewIOBlock = cms.PSet(
     ExtractForCandidate = cms.bool(False),
-    inputMuonCollection = cms.InputTag("muons"),
+    inputMuonCollection = cms.InputTag("muons1stStep"),
     MultipleDepositsFlag = cms.bool(False),
     InputType = cms.string('MuonCollection'),
     MuonTrackRefType = cms.string('bestTrkSta')

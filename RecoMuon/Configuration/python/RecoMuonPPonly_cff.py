@@ -14,7 +14,7 @@ from RecoMuon.GlobalMuonProducer.tevMuons_cfi import *
 
 # Muon Id producer
 from RecoMuon.MuonIdentification.muonIdProducerSequence_cff import *
-muons.fillGlobalTrackQuality = True
+muons1stStep.fillGlobalTrackQuality = True
 
 #Muon Id isGood flag ValueMap producer sequence
 from RecoMuon.MuonIdentification.muonSelectionTypeValueMapProducer_cff import *
@@ -34,7 +34,7 @@ muontracking_with_SET = cms.Sequence(SETMuonSeed*standAloneSETMuons*globalSETMuo
 muonreco = cms.Sequence(muontracking*muonIdProducerSequence)
 muonrecowith_TeVRefinemen = cms.Sequence(muontracking_with_TeVRefinement*muonIdProducerSequence)
 
-muonsWithSET = RecoMuon.MuonIdentification.muons_cfi.muons.clone()
+muonsWithSET = RecoMuon.MuonIdentification.muons1stStep_cfi.muons1stStep.clone()
 muonsWithSET.inputCollectionLabels = ['generalTracks', 'globalSETMuons', cms.InputTag('standAloneSETMuons','UpdatedAtVtx')] 
 muonsWithSET.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']   
 #muonreco_with_SET = cms.Sequence(muontracking_with_SET*muonsWithSET)
@@ -52,5 +52,6 @@ muonreco_plus_isolation_plus_SET_plus_muIDmaps = cms.Sequence(muonreco_plus_isol
 muonrecoComplete = cms.Sequence(muonreco_plus_isolation_plus_SET*muonSelectionTypeSequence)
 muonrecoComplete_minus_muIDmaps = cms.Sequence(muonreco_plus_isolation_plus_SET)
 muonrecoComplete_minus_SET_minus_muIDmaps = cms.Sequence(muonrecowith_TeVRefinemen*muIsolation)
+
 
 ########################################################

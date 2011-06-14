@@ -22,19 +22,17 @@ import FWCore.ParameterSet.Config as cms
 from RecoMuon.MuonIsolationProducers.muIsolation_EventContent_cff import *
 # AOD content
 RecoMuonAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep recoTracks_standAloneMuons_*_*', 
+    outputCommands = cms.untracked.vstring('keep *_muons_*_*',
+                                           'keep *_*_muons_*',
+                                           'keep recoTracks_standAloneMuons_*_*', 
                                            'keep recoTrackExtras_standAloneMuons_*_*', 
                                            'keep TrackingRecHitsOwned_standAloneMuons_*_*', 
                                            'keep recoTracks_globalMuons_*_*', 
                                            'keep recoTrackExtras_globalMuons_*_*', 
                                            'keep recoTracks_tevMuons_*_*', 
                                            'keep recoTrackExtras_tevMuons_*_*', 
-                                           'keep recoTracksToOnerecoTracksAssociation_tevMuons_*_*', 
                                            'keep recoTracks_generalTracks_*_*', 
                                            'keep recoMuons_muons_*_*', 
-                                           'keep booledmValueMap_muid*_*_*',
-                                           'keep recoMuonTimeExtraedmValueMap_muons_*_*',
-                                           'keep *_muonShowerInformation_*_*',
                                            # Cosmics
                                            'keep recoTracks_cosmicMuons_*_*',
                                            'keep recoTracks_globalCosmicMuons_*_*', 
@@ -42,10 +40,7 @@ RecoMuonAOD = cms.PSet(
                                            # Cosmics 1 leg
                                            'keep recoTracks_cosmicMuons1Leg_*_*',
                                            'keep recoTracks_globalCosmicMuons1Leg_*_*', 
-                                           'keep recoMuons_muonsFromCosmics1Leg_*_*',
-                                           # cosmics ID
-                                           'keep recoMuonCosmicCompatibilityedmValueMap_cosmicsVeto_*_*',
-                                           'keep uintedmValueMap_cosmicsVeto_*_*'
+                                           'keep recoMuons_muonsFromCosmics1Leg_*_*'
                                            )
 )
 # RECO content

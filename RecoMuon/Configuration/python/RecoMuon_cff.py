@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 # Standard pp setup
 from RecoMuon.Configuration.RecoMuonPPonly_cff import *
+from RecoMuon.MuonIdentification.muons_cfi import *
+
 
 ########################################################
 
@@ -21,7 +23,7 @@ from RecoMuon.CosmicMuonProducer.globalCosmicMuons_cff import *
 globalCosmicMuons.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'regionalCosmicTracks'
 
 # Muon Id producer
-muonsFromCosmics = RecoMuon.MuonIdentification.muons_cfi.muons.clone()
+muonsFromCosmics = RecoMuon.MuonIdentification.muons1stStep_cfi.muons1stStep.clone()
 
 muonsFromCosmics.inputCollectionLabels = ['globalCosmicMuons', 'cosmicMuons', 'regionalCosmicTracks']
 muonsFromCosmics.inputCollectionTypes = ['links', 'outer tracks', 'inner tracks' ]
@@ -55,7 +57,7 @@ globalCosmicMuons1Leg.MuonCollectionLabel = 'cosmicMuons1Leg'
 globalCosmicMuons1Leg.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'regionalCosmicTracks'
 
 # Muon Id producer
-muonsFromCosmics1Leg = muons.clone()
+muonsFromCosmics1Leg = muons1stStep.clone()
 muonsFromCosmics1Leg.inputCollectionLabels = ['globalCosmicMuons1Leg', 'cosmicMuons1Leg',  'regionalCosmicTracks' ]
 muonsFromCosmics1Leg.inputCollectionTypes = ['links', 'outer tracks', 'inner tracks' ]
 muonsFromCosmics1Leg.TrackAssociatorParameters.DTRecSegment4DCollectionLabel = 'dt4DCosmicSegments'
@@ -74,3 +76,4 @@ muoncosmicreco1legHighLevel = cms.Sequence(globalCosmicMuons1Leg*muonsFromCosmic
 #muoncosmicreco = cms.Sequence(CosmicMuonSeed*(muoncosmicreco2legs+muoncosmicreco1leg)*cosmicsMuonIdSequence)
 muoncosmicreco = cms.Sequence(muoncosmicreco2legsSTA+muoncosmicreco1legSTA)
 muoncosmichighlevelreco = cms.Sequence((muoncosmicreco2legsHighLevel+muoncosmicreco1legHighLevel)*cosmicsMuonIdSequence)
+muonshighlevelreco = cms.Sequence(muons)
