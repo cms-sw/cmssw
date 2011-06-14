@@ -314,16 +314,8 @@ void PlotAlignmentValidation::plotOutlierModules(const char *outputFileName,stri
     
     if (var > plotVariable_cut && treeMem->entries > minHits)
       {
-//        cout<<"step 1"<<endl; 
 
 	TFile *f=(*sourceList.begin())->getFile();//(TFile*)sourcelist->First();
-
-//        cout<<"step 2"<<endl; 
-//        cout<<"histNameX.c_str()  "<<treeMem->histNameX.c_str()<<endl;
-//        TKey *Ktest =(TKey*) f->FindKeyAny(treeMem->histNameX.c_str());	
-//        Ktest->Print();
-//        Ktest->ls();
-//	cout<<"step 3"<<endl; 
 	
 	if(f->FindKeyAny(treeMem->histNameX.c_str())!=0){
 	  TH1 *h = (TH1*) f->FindKeyAny(treeMem->histNameX.c_str())->ReadObj();//f->FindObjectAny(treeMem->histNameX.c_str());
@@ -555,8 +547,9 @@ TH1* PlotAlignmentValidation::addHists(const char *selection, const TString &res
 				       bool printModuleIds)
 {
   enum ResidType {
-    xPrimeRes, yPrimeRes, xPrimeNormRes, yPrimeNormRes, xRes, yRes, xNormRes /*yResNorm*/
-  };
+    xPrimeRes, yPrimeRes, xPrimeNormRes, yPrimeNormRes, xRes, yRes, xNormRes, /*yResNorm*/
+    ResXvsXProfile,  ResXvsYProfile, ResYvsXProfile, ResYvsYProfile
+ };
   ResidType rType = xPrimeRes;
   if (residType == "xPrime") rType = xPrimeRes;
   else if (residType == "yPrime") rType = yPrimeRes;
@@ -566,6 +559,10 @@ TH1* PlotAlignmentValidation::addHists(const char *selection, const TString &res
   else if (residType == "y") rType = yRes;
   else if (residType == "xNorm") rType = xNormRes;
   // else if (residType == "yNorm") rType = yResNorm;
+  else if (residType == "ResXvsXProfile") rType = ResXvsXProfile;
+  else if (residType == "ResYvsXProfile") rType = ResYvsXProfile;
+  else if (residType == "ResXvsYProfile") rType = ResXvsYProfile;
+  else if (residType == "ResYvsYProfile") rType = ResYvsYProfile;
   else {
     std::cout << "PlotAlignmentValidation::addHists: Unknown residual type "
 	      << residType << std::endl; 
@@ -625,6 +622,10 @@ TH1* PlotAlignmentValidation::addHists(const char *selection, const TString &res
     case yRes:          hName = treeMem->histNameLocalY.c_str();     break;
     case xNormRes:      hName = treeMem->histNameNormLocalX.c_str(); break;
       /*case yResNorm:      hName = treeMem->histNameNormLocalY.c_str(); break;*/
+    case ResXvsXProfile: hName = treeMem->profileNameResXvsX.c_str();    break;
+    case ResXvsYProfile: hName = treeMem->profileNameResXvsY.c_str();    break;
+    case ResYvsXProfile: hName = treeMem->profileNameResYvsX.c_str();    break;
+    case ResYvsYProfile: hName = treeMem->profileNameResYvsY.c_str();    break;
     }
     TH1 *newHist = static_cast<TH1*>(f->FindKeyAny(hName)->ReadObj());
     if (!newHist) {

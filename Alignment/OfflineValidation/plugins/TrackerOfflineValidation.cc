@@ -93,7 +93,9 @@ private:
   struct ModuleHistos{
     ModuleHistos() :  ResHisto(), NormResHisto(), ResYHisto(), /*NormResYHisto(),*/
 		      ResXprimeHisto(), NormResXprimeHisto(), 
-		      ResYprimeHisto(), NormResYprimeHisto() {} 
+		      ResYprimeHisto(), NormResYprimeHisto(),
+                      ResXvsXProfile(), ResXvsYProfile(),
+                      ResYvsXProfile(), ResYvsYProfile() {} 
     TH1* ResHisto;
     TH1* NormResHisto;
     TH1* ResYHisto;
@@ -103,12 +105,13 @@ private:
     TH1* ResYprimeHisto;
     TH1* NormResYprimeHisto;
 
-    TH1* LocalX;
-    TH1* LocalY;
     TProfile* ResXvsXProfile;
     TProfile* ResXvsYProfile;
     TProfile* ResYvsXProfile;
     TProfile* ResYvsYProfile;
+
+    TH1* LocalX;
+    TH1* LocalY;
   };
   
   // container struct to organize collection of histogramms during endJob
@@ -1629,26 +1632,34 @@ TrackerOfflineValidation::fillTree(TTree& tree,
       }
       treeMem.histNameNormY = h->GetName();
     }
-    
+
     if (moduleLevelProfiles_) {
-      treeMem.meanResXvsX = it->second.ResXvsXProfile->GetMean();
-      treeMem.rmsResXvsX  = it->second.ResXvsXProfile->GetRMS();   
-      
-      treeMem.meanResXvsY = it->second.ResXvsYProfile->GetMean();
-      treeMem.rmsResXvsY  = it->second.ResXvsYProfile->GetRMS();   
-      
-      treeMem.meanResYvsX = it->second.ResYvsXProfile->GetMean();
-      treeMem.rmsResYvsX  = it->second.ResYvsXProfile->GetRMS();   
-      
-      treeMem.meanResYvsY = it->second.ResYvsYProfile->GetMean();
-      treeMem.rmsResYvsY  = it->second.ResYvsYProfile->GetRMS();   
-      
-      treeMem.profileNameResXvsX = it->second.ResXvsXProfile->GetName();
-      treeMem.profileNameResXvsY = it->second.ResXvsYProfile->GetName();
-      treeMem.profileNameResYvsX = it->second.ResYvsXProfile->GetName();
-      treeMem.profileNameResYvsY = it->second.ResYvsYProfile->GetName();
+      if (it->second.ResXvsXProfile) {
+	TH1 *h = it->second.ResXvsXProfile;
+	treeMem.meanResXvsX = h->GetMean();
+	treeMem.rmsResXvsX  = h->GetRMS();
+	treeMem.profileNameResXvsX = h->GetName();
+      } 
+      if (it->second.ResXvsYProfile) {
+	TH1 *h = it->second.ResXvsYProfile;
+	treeMem.meanResXvsY = h->GetMean();
+	treeMem.rmsResXvsY  = h->GetRMS();
+	treeMem.profileNameResXvsY = h->GetName();
+      } 
+      if (it->second.ResYvsXProfile) {
+	TH1 *h = it->second.ResYvsXProfile;
+	treeMem.meanResYvsX = h->GetMean();
+	treeMem.rmsResYvsX  = h->GetRMS();
+	treeMem.profileNameResYvsX = h->GetName();
+      } 
+      if (it->second.ResYvsYProfile) {
+	TH1 *h = it->second.ResYvsYProfile;
+	treeMem.meanResYvsY = h->GetMean();
+	treeMem.rmsResYvsY  = h->GetRMS();
+	treeMem.profileNameResYvsY = h->GetName();
+      }
     }
-    
+
     tree.Fill();
   }
 }

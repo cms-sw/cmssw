@@ -52,10 +52,7 @@ struct TkOffTreeVariables
       = numberOfUnderflows = numberOfOverflows = numberOfOutliers = 0.;
 
     meanResXvsX = meanResXvsY = meanResYvsX = meanResYvsY
-      = rmsResXvsX = rmsResXvsY = rmsResYvsX = rmsResYvsY
-      = fitMeanResXvsX = fitMeanResXvsY = fitMeanResYvsX = fitMeanResYvsY
-      = fitSigmaResXvsX = fitSigmaResXvsY = fitSigmaResYvsX = fitSigmaResYvsY
-      = medianResXvsX = medianResXvsY = medianResYvsX = medianResYvsY = 0.;
+      = rmsResXvsX = rmsResXvsY = rmsResYvsX = rmsResYvsY = 0.;
     
     // variable Int_t's
     entries = 0;
@@ -97,9 +94,6 @@ struct TkOffTreeVariables
 
   Float_t meanResXvsX, meanResXvsY, meanResYvsX, meanResYvsY;
   Float_t rmsResXvsX, rmsResXvsY, rmsResYvsX, rmsResYvsY;
-  Float_t fitMeanResXvsX, fitMeanResXvsY, fitMeanResYvsX, fitMeanResYvsY;
-  Float_t fitSigmaResXvsX, fitSigmaResXvsY, fitSigmaResYvsX, fitSigmaResYvsY;
-  Float_t medianResXvsX, medianResXvsY, medianResYvsX, medianResYvsY;
   
   std::string profileNameResXvsX, profileNameResXvsY, profileNameResYvsX, profileNameResYvsY; 
 };
