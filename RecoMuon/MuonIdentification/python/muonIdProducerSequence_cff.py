@@ -11,15 +11,15 @@ from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cf
 # add TrackDetectorAssociator lookup maps to the EventSetup
 from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
 from RecoMuon.MuonIdentification.isolation_cff import *
-from RecoMuon.MuonIdentification.muons_cfi import *
+from RecoMuon.MuonIdentification.muons1stStep_cfi import *
 from RecoMuon.MuonIdentification.muonTiming_cfi import *
 from RecoMuon.MuonIdentification.calomuons_cfi import *
 # Glb Track Quality
 from RecoMuon.GlobalTrackingTools.GlobalTrackQuality_cfi import *
-muons.fillGlobalTrackQuality = True
+muons1stStep.fillGlobalTrackQuality = True
 
 from RecoMuon.MuonIdentification.cosmics_id import *
 
 from RecoMuon.MuonIdentification.muonShowerInformationProducer_cff import *
-muonIdProducerSequence = cms.Sequence(glbTrackQual*muons*calomuons*muonEcalDetIds*muonShowerInformation)
+muonIdProducerSequence = cms.Sequence(glbTrackQual*muons1stStep*calomuons*muonEcalDetIds*muonShowerInformation)
 

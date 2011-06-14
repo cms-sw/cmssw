@@ -12,7 +12,7 @@ refitMuons = cms.EDProducer('MuonsFromRefitTracksProducer',
     # will be taken. The module will only consider globalMuons from
     # the merged muon collection, i.e. trackerMuons, stand-alone muons
     # will be filtered out of the merged MuonCollection.
-    src = cms.InputTag('muons'),
+    src = cms.InputTag('muons1stStep'),
 
     # The particular set of refit tracks to use. Could also be
     # 'tevMuons:default', 'tevMuons:picky', or 'tevMuons:firstHit' to

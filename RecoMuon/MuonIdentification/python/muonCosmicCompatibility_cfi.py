@@ -6,7 +6,7 @@ MuonCosmicCompatibilityParameters = cms.PSet(
       MuonServiceProxy,
     
       InputTrackCollections = cms.VInputTag(cms.InputTag("generalTracks"), cms.InputTag("cosmicsVetoTracks")),
-      InputMuonCollections = cms.VInputTag(cms.InputTag("globalMuons"), cms.InputTag("muons")),
+      InputMuonCollections = cms.VInputTag(cms.InputTag("globalMuons"), cms.InputTag("muons1stStep")),
       InputCosmicMuonCollection = cms.InputTag("muonsFromCosmics1Leg"),
       InputVertexCollection = cms.InputTag("offlinePrimaryVertices"),
       

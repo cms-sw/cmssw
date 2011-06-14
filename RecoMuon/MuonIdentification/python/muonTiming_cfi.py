@@ -4,5 +4,5 @@ from RecoMuon.MuonIdentification.MuonTimingFiller_cfi import *
 
 muontiming = cms.EDProducer('MuonTimingProducer',
   TimingFillerBlock,
-  MuonCollection = cms.InputTag("muons"),
+  MuonCollection = cms.InputTag("muons1stStep"),
 )

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # -*-SH-*-
 cosmicsVetoSeeds = cms.EDProducer("TrajectorySeedFromMuonProducer"
-                                ,muonCollectionTag = cms.InputTag("muons")
+                                ,muonCollectionTag = cms.InputTag("muons1stStep")
                                 ,trackCollectionTag = cms.InputTag("generalTracks")
                                 # ,skipMatchedMuons = cms.bool(True)
                                 ,skipMatchedMuons = cms.bool(False)
@@ -29,7 +29,7 @@ from RecoMuon.MuonIdentification.muonCosmicCompatibility_cfi import *
 
 cosmicsVeto = cms.EDProducer("CosmicsMuonIdProducer"
     ,MuonCosmicCompatibilityParameters 
-    ,muonCollection = cms.InputTag("muons")
+    ,muonCollection = cms.InputTag("muons1stStep")
     ,trackCollections = cms.VInputTag(cms.InputTag("generalTracks"), cms.InputTag("cosmicsVetoTracks")) 
 
     )
