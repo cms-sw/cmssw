@@ -143,6 +143,7 @@ bool
         if (jetVar > minPtJet_.at(1) && fabs(recocalojet->eta()) < etaJet_.at(1)) {
           mhtx -= jetVar*cos(recocalojet->phi());
           mhty -= jetVar*sin(recocalojet->phi());
+          if (mode_==1) ++nj;
         }
       }
       if (mode_==2 || mode_==4 || mode_==5) {//---get HT
@@ -194,7 +195,7 @@ bool
       }
     }
 
-  if( mode_==1 && sqrt(mhtx*mhtx + mhty*mhty) > minMht_) flag=1;
+  if( mode_==1 && sqrt(mhtx*mhtx + mhty*mhty) > minMht_ && nj >= minNJet_ ) flag=1;
   if( mode_==2 && sqrt(mhtx*mhtx + mhty*mhty) + meffSlope_*ht > minMeff_) flag=1;
   if( mode_==3 && sqrt(mhtx*mhtx + mhty*mhty) > minPT12_ && nj>1) flag=1;
   if( mode_==4 && ht > minHt_ && nj >= minNJet_ ) flag=1;
