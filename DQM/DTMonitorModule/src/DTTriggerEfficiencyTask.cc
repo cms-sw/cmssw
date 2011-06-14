@@ -1,8 +1,8 @@
 /*
  * \file DTTriggerEfficiencyTask.cc
  * 
- * $Date: 2010/01/05 10:14:40 $
- * $Revision: 1.5 $
+ * $Date: 2010/02/11 00:10:57 $
+ * $Revision: 1.6 $
  * \author C.Battilana - CIEMAT
  *
 */
@@ -74,9 +74,11 @@ void DTTriggerEfficiencyTask::beginJob(){
 
   for (int wh=-2;wh<=2;++wh){
     if (processDCC) {
-      bookWheelHistos(wh,"DCC_TrigEffDenum");
-      bookWheelHistos(wh,"DCC_TrigEffNum");
-      bookWheelHistos(wh,"DCC_TrigEffCorrNum");
+
+      bookWheelHistos(wh,"DCC_TrigEffDenum","Task");
+      bookWheelHistos(wh,"DCC_TrigEffNum","Task");
+      bookWheelHistos(wh,"DCC_TrigEffCorrNum","Task");
+
       if (detailedPlots) {
 	for (int stat=1;stat<=4;++stat){
 	  for (int sect=1;sect<=12;++sect){
@@ -89,9 +91,11 @@ void DTTriggerEfficiencyTask::beginJob(){
       }
     }
     if (processDDU) {
-      bookWheelHistos(wh,"DDU_TrigEffDenum");
-      bookWheelHistos(wh,"DDU_TrigEffNum");
-      bookWheelHistos(wh,"DDU_TrigEffCorrNum");
+
+      bookWheelHistos(wh,"DDU_TrigEffDenum","Task");
+      bookWheelHistos(wh,"DDU_TrigEffNum","Task");
+      bookWheelHistos(wh,"DDU_TrigEffCorrNum","Task");
+
       if (detailedPlots) {
 	for (int stat=1;stat<=4;++stat){
 	  for (int sect=1;sect<=12;++sect){
@@ -370,14 +374,13 @@ void DTTriggerEfficiencyTask::bookWheelHistos(int wheel,string hTag,string folde
   string basedir;  
   bool isDCC = hTag.substr(0,3)=="DCC" ;  
   if (hTag.find("Summary") != string::npos ) {
-    basedir = topFolder(isDCC);   //Book summary histo outside wheel directories
+    basedir = topFolder(isDCC);   //Book summary histo outside folder directory
   } else {
-    basedir = topFolder(isDCC) + "Wheel" + wh.str() + "/" ;
-    
+    basedir = topFolder(isDCC) + folder + "/" ;
   }
-  if (folder != "") {
-    basedir += folder +"/" ;
-  }
+  //if (folder != "") {
+  //  basedir += folder +"/" ;
+  //}
   dbe->setCurrentFolder(basedir);
 
   string hname    = hTag+ "_W" + wh.str();

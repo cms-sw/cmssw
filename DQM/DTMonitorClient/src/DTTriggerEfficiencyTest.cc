@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/08 14:47:07 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/01/05 10:15:46 $
+ *  $Revision: 1.4 $
  *  \author C. Battilana - CIEMAT
  */
 
@@ -86,8 +86,8 @@ void DTTriggerEfficiencyTest::beginRun(const edm::Run& r,const edm::EventSetup& 
 	      }
 	    }
 	  }
-	  bookWheelHistos(wh,"TrigEffPhi");  
-	  bookWheelHistos(wh,"TrigEffCorrPhi");  
+	  bookWheelHistos(wh,"TrigEffPhi","");  
+	  bookWheelHistos(wh,"TrigEffCorrPhi","");  
 	}
       }
     }
@@ -106,15 +106,15 @@ void DTTriggerEfficiencyTest::runClientDiagnostic() {
       // Loop over the TriggerUnits
       for (int wh=-2; wh<=2; ++wh){
 	
-	TH2F * TrigEffDenum   = getHisto<TH2F>(dbe->get(getMEName("TrigEffDenum","",wh)));
-	TH2F * TrigEffNum     = getHisto<TH2F>(dbe->get(getMEName("TrigEffNum","",wh)));
-	TH2F * TrigEffCorrNum = getHisto<TH2F>(dbe->get(getMEName("TrigEffCorrNum","",wh)));
-	
+	TH2F * TrigEffDenum   = getHisto<TH2F>(dbe->get(getMEName("TrigEffDenum","Task",wh)));
+	TH2F * TrigEffNum     = getHisto<TH2F>(dbe->get(getMEName("TrigEffNum","Task",wh)));
+	TH2F * TrigEffCorrNum = getHisto<TH2F>(dbe->get(getMEName("TrigEffCorrNum","Task",wh)));
+
 	if (TrigEffDenum && TrigEffNum && TrigEffCorrNum && TrigEffDenum->GetEntries()>1) {
 	  
 	  if( whME[wh].find(fullName("TrigEffPhi")) == whME[wh].end() ){
-	    bookWheelHistos(wh,"TrigEffPhi");  
-	    bookWheelHistos(wh,"TrigEffCorrPhi");  
+	    bookWheelHistos(wh,"TrigEffPhi","");  
+	    bookWheelHistos(wh,"TrigEffCorrPhi","");  
 	  }
 	  std::map<std::string,MonitorElement*> *innerME = &(whME[wh]);
 	  makeEfficiencyME2D(TrigEffNum,TrigEffDenum,innerME->find(fullName("TrigEffPhi"))->second);
@@ -181,6 +181,65 @@ void DTTriggerEfficiencyTest::makeEfficiencyME2D(TH2F* numerator, TH2F* denomina
 
 }    
 
+string DTTriggerEfficiencyTest::getMEName(string histoTag, string folder, int wh) {
+
+  stringstream wheel; wheel << wh;
+
+  string folderName =  topFolder(hwSource=="DCC") + folder + "/";
+
+  string histoname = sourceFolder + folderName 
+    + fullName(histoTag) + "_W" + wheel.str();
+  
+  return histoname;
+  
+}
+
+void DTTriggerEfficiencyTest::bookWheelHistos(int wheel,string hTag,string folder) {
+  
+  stringstream wh; wh << wheel;
+  string basedir;  
+  bool isDCC = hwSource=="DCC" ;  
+  basedir = topFolder(isDCC);   //Book summary histo outside Task directory 
+
+  if (folder != "") {
+    basedir += folder +"/" ;
+  }
+  dbe->setCurrentFolder(basedir);
+
+  string fullTag = fullName(hTag);
+  string hname    = fullTag+ "_W" + wh.str();
+
+  LogTrace(category()) << "[" << testName << "Test]: booking "<< basedir << hname;
+  
+  if (hTag.find("Phi")!= string::npos ||
+      hTag.find("Summary") != string::npos ){    
+    MonitorElement* me = dbe->book2D(hname.c_str(),hname.c_str(),12,1,13,4,1,5);
+
+//     setLabelPh(me);
+    me->setBinLabel(1,"MB1",2);
+    me->setBinLabel(2,"MB2",2);
+    me->setBinLabel(3,"MB3",2);
+    me->setBinLabel(4,"MB4",2);
+    me->setAxisTitle("Sector",1);
+    
+    whME[wheel][fullTag] = me;
+    return;
+  }
+  
+  if (hTag.find("Theta") != string::npos){
+    MonitorElement* me =dbe->book2D(hname.c_str(),hname.c_str(),12,1,13,3,1,4);
+
+//     setLabelTh(me);
+    me->setBinLabel(1,"MB1",2);
+    me->setBinLabel(2,"MB2",2);
+    me->setBinLabel(3,"MB3",2);
+    me->setAxisTitle("Sector",1);
+
+    whME[wheel][fullTag] = me;
+    return;
+  }
+  
+}
 
 void DTTriggerEfficiencyTest::bookChambHistos(DTChamberId chambId, string htype, string folder) {
   
