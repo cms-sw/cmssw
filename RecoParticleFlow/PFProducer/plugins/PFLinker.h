@@ -7,8 +7,8 @@
  *  Fills the GsfElectron, Photon and Muon Ref into the PFCandidate
  *  Produces the ValueMap between GsfElectronRef/Photon/Mupns with PFCandidateRef
  *
- *  $Date: 2011/06/06 13:49:58 $
- *  $Revision: 1.7 $
+ *  $Date: 2011/06/10 08:39:47 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>, F. Beaudette - CERN <Florian.Beaudette@cern.ch>
  */
 
@@ -53,11 +53,17 @@ class PFLinker : public edm::EDProducer {
 		      const std::map<edm::Ref<TYPE>, unsigned> & mapToTheCandidate,
 		      const edm::Handle<reco::PFCandidateCollection> & oldPFCandColl,
 		      const edm::OrphanHandle<reco::PFCandidateCollection> & newPFCandColl) const;    
-
+  
+   template<typename TYPE>
+     void fillValueMap(edm::Handle<TYPE>& inputObjCollection,
+		       const std::map<edm::Ref<TYPE>, reco::PFCandidatePtr> & mapToTheCandidate,
+		       const edm::OrphanHandle<reco::PFCandidateCollection> & newPFCandColl,
+		       edm::ValueMap<reco::PFCandidatePtr>::Filler & filler) const ;
+     
  private:
  
   /// Input PFCandidates
-  edm::InputTag       inputTagPFCandidates_;
+  std::vector<edm::InputTag>       inputTagPFCandidates_;
 
   /// Input GsfElectrons
   edm::InputTag       inputTagGsfElectrons_;
@@ -76,6 +82,9 @@ class PFLinker : public edm::EDProducer {
 
   /// name of output ValueMap photons
   std::string nameOutputPhotonsPF_;
+
+  /// name of output ValueMap merged
+  std::string nameOutputMergedPF_;
 
   /// Flags - if true: References will be towards new collection ; if false to the original one
   bool producePFCandidates_;
