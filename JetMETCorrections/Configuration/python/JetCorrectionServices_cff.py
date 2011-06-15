@@ -40,7 +40,8 @@ ak5L1JPTOffset = cms.ESSource(
     level = cms.string('L1JPTOffset'),
     section   = cms.string(''),
     algorithm = cms.string('AK5JPT'),
-    offsetService = cms.string('')
+    offsetService = cms.string('ak5CaloL1Offset'),
+    useCondDB = cms.untracked.bool(True)
     )
 
 # L1 (Fastjet PU Subtraction) Correction Service
@@ -50,10 +51,18 @@ ak5CaloL1Fastjet = cms.ESSource(
     level       = cms.string('L1FastJet'),
     algorithm   = cms.string('AK5Calo'),
     section     = cms.string(''),
+    srcRho      = cms.InputTag('kt6CaloJets','rho'),
+    useCondDB = cms.untracked.bool(True)
+    )
+ak5PFL1Fastjet = cms.ESSource(
+    'L1FastjetCorrectionService',
+    era         = cms.string('Jec10V1'),
+    level       = cms.string('L1FastJet'),
+    algorithm   = cms.string('AK5PF'),
+    section     = cms.string(''),
     srcRho      = cms.InputTag('kt6PFJets','rho'),
     useCondDB = cms.untracked.bool(True)
     )
-ak5PFL1Fastjet = ak5CaloL1Fastjet.clone(algorithm = 'AK5PF')
 ak5JPTL1Fastjet = ak5CaloL1Fastjet.clone()
 
 # L2 (relative eta-conformity) Correction Services
