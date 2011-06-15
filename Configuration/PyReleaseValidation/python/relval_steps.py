@@ -478,7 +478,7 @@ step2['HARVGEN']={'-s':'HARVESTING:genHarvesting',
                   '--harvesting':'AtJobEnd',
                   '--conditions':'auto:startup',
                   '--mc':'',
-                  #'--filein':'file:raw.root'
+                  '--filein':'file:step1.root'
                   }
 
 step4['HARVEST']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
