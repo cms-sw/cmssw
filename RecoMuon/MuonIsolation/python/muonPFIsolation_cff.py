@@ -14,7 +14,7 @@ pfPileUpCandidates = cms.EDProducer(
          verbose = cms.untracked.bool( False ),
          name = cms.untracked.string("pileUpCandidates"),
          topCollection = cms.InputTag("pfNoPileUp"),
-         bottomCollection = cms.InputTag("particleFlow"),
+         bottomCollection = cms.InputTag("particleFlowTmp"),
 )
 
 
@@ -45,11 +45,11 @@ from CommonTools.ParticleFlow.Isolation.tools_cfi import *
 
 
 #Now prepare the iso deposits
-muPFIsoDepositCharged=isoDepositReplace('muons','pfAllChargedHadrons')
-muPFIsoDepositChargedAll=isoDepositReplace('muons','pfAllChargedCandidates')
-muPFIsoDepositNeutral=isoDepositReplace('muons','pfAllNeutralHadrons')
-muPFIsoDepositGamma=isoDepositReplace('muons','pfAllPhotons')
-muPFIsoDepositPU=isoDepositReplace('muons','pfPUChargedCandidates')
+muPFIsoDepositCharged=isoDepositReplace('muons1stStep','pfAllChargedHadrons')
+muPFIsoDepositChargedAll=isoDepositReplace('muons1stStep','pfAllChargedCandidates')
+muPFIsoDepositNeutral=isoDepositReplace('muons1stStep','pfAllNeutralHadrons')
+muPFIsoDepositGamma=isoDepositReplace('muons1stStep','pfAllPhotons')
+muPFIsoDepositPU=isoDepositReplace('muons1stStep','pfPUChargedCandidates')
 
 
 
