@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     17-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.5 $
-#     $Date: 2009/01/20 20:24:23 $
+#     $Revision: 1.6 $
+#     $Date: 2010/08/12 12:55:08 $
 #
 #  Try periodically to fire merge job.
 #  Terminate when done
@@ -63,10 +63,11 @@ while ($done == 0) {
     read_db();
     # loop over mille jobs
     for ($i=0; $i<$nJobs; ++$i) {
-	 if (@JOBSTATUS[$i] ne "RUN" && @JOBSTATUS[$i] ne "DONE" 
-	     && @JOBSTATUS[$i] ne "OK" && @JOBSTATUS[$i] ne  "PEND") {
+	 if ($JOBSTATUS[$i] ne "RUN" && $JOBSTATUS[$i] ne "DONE" 
+	     && $JOBSTATUS[$i] ne "OK" && $JOBSTATUS[$i] ne  "PEND"
+             && !$JOBSTATUS[$i] =~ /DISABLED/) {
 	     $done = 1;
-	     print "Mille job $i in unknown or bad status @JOBSTATUS[$i], stopping.\n";
+	     print "Mille job $i in unknown or bad status $JOBSTATUS[$i], stopping.\n";
 	 }
     }
     if ($done == 0) { # only in case of no problem...

@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg      3-Jul-2007
 #     A. Parenti, DESY Hamburg    21-Apr-2008
-#     $Revision: 1.21 $ by $Author: flucke $
-#     $Date: 2010/10/26 20:54:48 $
+#     $Revision: 1.22 $ by $Author: parenti $
+#     $Date: 2010/10/28 09:12:12 $
 #
 #  Submit jobs that are setup in local mps database
 #  
@@ -129,12 +129,13 @@ if ($fireMerge == 0) {
     # check whether all other jobs OK
     $mergeOK = 1;
     for ($i = 0; $i < $nJobs; ++$i) {
-	if (@JOBSTATUS[$i] ne "OK") {
-	    $mergeOK = 0;
-	    break;
-	}
+      if ($JOBSTATUS[$i] ne "OK" 
+          && !$JOBSTATUS[$i] =~ /DISABLED/) {
+        $mergeOK = 0;
+        break;
+      }
     }
-
+    
     $i = $nJobs;
     while ($i < @JOBDIR) { # loop on all possible merge jobs (usually just 1...)
 	my $jobNumFrom1 = $i + 1;

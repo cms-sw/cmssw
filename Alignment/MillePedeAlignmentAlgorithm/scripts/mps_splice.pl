@@ -147,8 +147,7 @@ $nrep = ($body =~ s/^ *readFiles.extend\(\'file.root\'\)/$MergingFileNames/gm);
 # replace ISN for the root output file
 $nrep = ($body =~ s/ISN/$isn/gm);
 
-
-$body .= "\nprocess.AlignmentProducer.saveDeformationsToDB = False\n";
+$body .= "\n\nprocess.AlignmentProducer.saveDeformationsToDB = False\n";
 
 # store the output file
 open OUTFILE,">$outCfg";

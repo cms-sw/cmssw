@@ -27,7 +27,8 @@ for ($i=0; $i<@JOBID; ++$i) {
 	       or $JOBSTATUS[$i] eq "FETCH"
 	       or $JOBSTATUS[$i] eq "OK"
 	       or $JOBSTATUS[$i] eq "ABEND"
-	       or $JOBSTATUS[$i] eq "FAIL") {
+	       or $JOBSTATUS[$i] eq "FAIL"
+               or $JOBSTATUS[$i] =~ /DISABLED/) {
     $FLAG[$i] = 1; # no need to care
   }
   else {

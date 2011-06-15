@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 #     G. Fluck, Uni Hamburg    13-May-2009
-#     $Revision: 1.16 $ by $Author$
-#     $Date: 2009/05/13 13:55:19 $
+#     $Revision: 1.1 $ by $Author: flucke $
+#     $Date: 2009/06/24 10:37:45 $
 #
 #  Setup an extra pede
 #
@@ -16,6 +16,7 @@ unshift(@INC, dirname($0)."/mpslib");
 use Mpslib;
 
 my $chosenMerge = -1;
+my $onlyactivejobs = -1;
 
 ## parse the arguments
 my $i = 0;
@@ -24,6 +25,9 @@ while (@ARGV) {
   if ($arg =~ /\A-/) {  # check for option 
     if ($arg =~ "h") {
       $helpwanted = 1;
+    }
+    elsif ($arg =~ "a") {
+      $onlyactivejobs = 1;
     }
     else {
 	print "\nWARNING: Unknown option: ".$arg."\n\n";
@@ -106,9 +110,56 @@ $theJobData = "$thePwd/jobData";
 # copy merge job cfg from last merge job
 print "cp -p jobData/$JOBDIR[$iOldMerge]/alignment_merge.py $theJobData/$theJobDir\n";
 system "cp -p jobData/$JOBDIR[$iOldMerge]/alignment_merge.py $theJobData/$theJobDir";
+
+my $tmpc = "";
+$tmpc = " -c" if($onlyactivejobs);
+
 # create merge job script
-print "mps_scriptm.pl $mergeScript jobData/$theJobDir/theScript.sh $theJobData/$theJobDir alignment_merge.py $nJobs $mssDir $mssDirPool\n";
-system "mps_scriptm.pl $mergeScript jobData/$theJobDir/theScript.sh $theJobData/$theJobDir alignment_merge.py $nJobs $mssDir $mssDirPool";
+print "mps_scriptm.pl${tmpc} $mergeScript jobData/$theJobDir/theScript.sh $theJobData/$theJobDir alignment_merge.py $nJobs $mssDir $mssDirPool\n";
+system "mps_scriptm.pl${tmpc} $mergeScript jobData/$theJobDir/theScript.sh $theJobData/$theJobDir alignment_merge.py $nJobs $mssDir $mssDirPool";
 
 # Write to DB
 write_db();
+
+if($onlyactivejobs == 1) {
+  print "try to open <$theJobData/$theJobDir/alignment_merge.py\n";
+  open INFILE,"$theJobData/$theJobDir/alignment_merge.py" || die "error: $!\n";
+  undef $/;
+  my $filebody = <INFILE>;  # read whole file
+  close INFILE;
+  # build list of binary files
+  my $binaryList = "";
+  my $iIsOk = 1;
+  for (my $i=1; $i<=$nJobs; ++$i) {
+    my $sep = ",\n                ";
+    if ($iIsOk == 1) { $sep = "\n                " ;}
+    
+    next if ( $JOBSTATUS[$i-1] ne "OK");
+    ++$iIsOk;
+    
+    my $newName = sprintf "milleBinary%03d.dat",$i;
+    print "a Adding $newName to list of binary files\n";
+    $binaryList = "$binaryList$sep\'$newName\'";
+  }
+  my $nn  = ($filebody =~ s/mergeBinaryFiles = \[(.|\n)*?\]/mergeBinaryFiles = \[$binaryList\]/);
+  $nn += ($filebody =~ s/mergeBinaryFiles = cms.vstring\(\)/mergeBinaryFiles = \[$binaryList\]/);
+  # build list of tree files
+  my $treeList = "";
+  $iIsOk = 1;
+  for (my $i=1; $i<=$nJobs; ++$i) {
+    my $sep = ",\n                ";
+    if ($iIsOk == 1) { $sep = "\n                " ;}
+    
+    if ($JOBSTATUS[$i-1] ne "OK") {next;}
+    ++$iIsOk;
+    my $newName = sprintf "treeFile%03d.root",$i;
+    $treeList = "$treeList$sep\'$newName\'";
+  }
+  # replace list of tree files
+  $nn = ($filebody =~ s/mergeTreeFiles = \[(.|\n)*?\]/mergeTreeFiles = \[$treeList\]/);
+  #print "$filebody\n";
+  # store the output file
+  open OUTFILE,">$theJobData/$theJobDir/alignment_merge.py";
+  print OUTFILE $filebody;
+  close OUTFILE;
+}

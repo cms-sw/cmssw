@@ -105,7 +105,7 @@ else
 fi
 
 # set up the CMS environment
-cd $HOME/cms/CMSSW/CMSSW_3_4_0
+cd CMSSW_RELEASE_AREA
 eval `scram runtime -sh`
 rehash
 

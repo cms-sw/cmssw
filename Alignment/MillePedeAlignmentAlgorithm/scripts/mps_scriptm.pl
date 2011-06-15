@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     06-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.5 $
-#     $Date: 2009/01/07 18:27:03 $
+#     $Revision: 1.6 $
+#     $Date: 2009/05/13 13:48:50 $
 #
 #  Prepare the run script for the merge job.
 #  The main action is to embed the output directory
@@ -98,6 +98,9 @@ if ($nn != 1) {
   exit 1;
 }
 $nn = ($body =~ s/RUNDIR=(.+)$/RUNDIR=$runDir/m);
+
+#replace CMSSW_RELEASE_AREA with evironment variable
+$body =~ s/cd CMSSW_RELEASE_AREA/cd $ENV{'CMSSW_BASE'}/g;
 
 # replace MSSDIR setting
 $nn = ($body =~ m/MSSDIR=(.+)$/m);
