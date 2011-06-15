@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 pvSelection = cms.PSet(
-  minNdof = cms.double( 7. )
+  minNdof = cms.double( 4. )
 , maxZ    = cms.double( 24. )
 , maxRho  = cms.double( 2. )
 )
