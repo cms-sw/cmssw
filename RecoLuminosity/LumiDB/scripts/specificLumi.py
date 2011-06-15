@@ -46,12 +46,15 @@ def calculateSpecificLumi(lumi,lumierr,beam1intensity,beam1intensityerr,beam2int
     '''
     specificlumi=0.0
     specificlumierr=0.0
-    if lumi!=0.0 and beam1intensity!=0.0 and  beam2intensity!=0.0:
+    if beam1intensity!=0.0 and  beam2intensity!=0.0:
         specificlumi=float(lumi)/(float(beam1intensity)*float(beam2intensity))
         specificlumierr=specificlumi*math.sqrt(lumierr**2/lumi**2+beam1intensityerr**2/beam1intensity**2+beam2intensityerr**2/beam2intensity**2)
     return (specificlumi,specificlumierr)
 
 def getFillFromDB(dbsession,parameters,fillnum):
+    '''
+    output: {run:starttime}
+    '''
     runtimesInFill={}
     q=dbsession.nominalSchema().newQuery()
     fillrundict=lumiQueryAPI.runsByfillrange(q,fillnum,fillnum)
@@ -130,15 +133,15 @@ def getSpecificLumi(dbsession,parameters,fillnum,inputdir):
         print 'fill ',fillnum,' , having less than 10 stable beam lS, is not good, skip'
         return fillbypos
     for runnum,starttime in runtimesInFill.items():
-        if not runtimesInFill.has_key(runnum):
-            print 'run '+str(runnum)+' does not exist'
-            continue
+        #if not runtimesInFill.has_key(runnum):
+        #    print 'run '+str(runnum)+' does not exist'
+        #    continue
         q=dbsession.nominalSchema().newQuery()
         occlumidata=lumiQueryAPI.calibratedDetailForRunLimitresult(q,parameters,runnum)#{(startorbit,cmslsnum):[(bxidx,lumivalue,lumierr)]} #values after cut
         del q
         #print occlumidata
         q=dbsession.nominalSchema().newQuery()
-        beamintensitydata=lumiQueryAPI.beamIntensityForRun(q,parameters,runnum)#{startorbit:[(bxidx,beam1intensity,beam2intensity)]}
+        beamintensitydata=lumiQueryAPI.beamIntensityForRun(q,parameters,runnum)#{startorbit:[(bxidx,beam1intensity,beam2intensity),()]}
         #print 'beamintensity for run ',runnum,beamintensitydata
         del q
         for (startorbit,cmslsnum),lumilist in occlumidata.items():
@@ -148,20 +151,28 @@ def getSpecificLumi(dbsession,parameters,fillnum,inputdir):
             if beamstatusflag=='STABLE BEAMS':
                 beamstatusfrac=1.0
             lstimestamp=t.OrbitToUTCTimestamp(starttime,startorbit)
-            if beamintensitydata.has_key(startorbit) and len(beamintensitydata[startorbit])>0:
-                for lumidata in lumilist:
-                    bxidx=lumidata[0]
-                    lumi=lumidata[1]
-                    lumierror=lumidata[2]                    
-                    for beamintensitybx in beamintensitydata[startorbit]:
-                        if beamintensitybx[0]==bxidx:
-                            if not fillbypos.has_key(bxidx):
-                                fillbypos[bxidx]=[]
+            for lumidata in lumilist:#loop over bx
+                bxidx=lumidata[0]
+                lumi=lumidata[1]
+                lumierror=lumidata[2]
+                speclumi=(0.0,0.0)
+                if not fillbypos.has_key(bxidx):
+                    fillbypos[bxidx]=[]
+                if beamintensitydata.has_key(startorbit):
+                    beaminfo=beamintensitydata[startorbit]
+                    for beamintensitybx in beaminfo:
+                        if beamintensitybx[0]==bxidx:                        
                             beam1intensity=beamintensitybx[1]
                             beam2intensity=beamintensitybx[2]
+                            if beam1intensity<0:
+                                beam1intensity=0
+                            if beam2intensity<0:
+                                beam2intensity=0
                             speclumi=calculateSpecificLumi(lumi,lumierror,beam1intensity,0.0,beam2intensity,0.0)
-                            fillbypos[bxidx].append([lstimestamp-referencetime,beamstatusfrac,lumi,lumierror,beam1intensity,beam2intensity,speclumi[0],speclumi[1]])
-    #print fillbypos
+                            break
+                fillbypos[bxidx].append((lstimestamp-referencetime,beamstatusfrac,lumi,lumierror,speclumi[0],speclumi[1]))
+
+    #print 'fillbypos.keys ',fillbypos.keys()
     return fillbypos
 
 #####output methods####
@@ -199,14 +210,14 @@ def specificlumiTofile(fillnum,filldata,outdir):
             beamstatusfrac=perlsdata[1]
             lumi=perlsdata[2]
             lumierror=perlsdata[3]
-            beam1intensity=perlsdata[4]
-            beam2intensity=perlsdata[5]
-            speclumi=perlsdata[6]
-            speclumierror= perlsdata[7]
-            if lumi>0 and lumierror>0 and speclumi>0:
+            #beam1intensity=perlsdata[4]
+            #beam2intensity=perlsdata[5]
+            speclumi=perlsdata[4]
+            speclumierror= perlsdata[5]
+            if lumi>0:
                 linedata.append([ts,beamstatusfrac,lumi,lumierror,speclumi,speclumierror])
             if not timedict.has_key(ts):
-                  timedict[ts]=[]
+                timedict[ts]=[]
             timedict[ts].append([beamstatusfrac,lumi,lumierror,speclumi,speclumierror])
         if len(linedata)>10:#at least 10 good ls
             f=open(os.path.join(filloutdir,filename),'w')

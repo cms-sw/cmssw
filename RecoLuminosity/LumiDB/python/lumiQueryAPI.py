@@ -1466,29 +1466,45 @@ def beamIntensityForRun(query,parameters,runnum):
     while cursor.next():
         #cmslsnum=cursor.currentRow()['cmslsnum'].data()
         startorbit=cursor.currentRow()['startorbit'].data()
+        bxidx=[]
+        bb1=[]
+        bb2=[]
+        bxindexblob=None
+        beamintensityblob1=None
+        beamintensityblob2=None
         if not cursor.currentRow()["bxindexblob"].isNull():
             bxindexblob=cursor.currentRow()['bxindexblob'].data()
-            beamintensityblob1=cursor.currentRow()['beamintensityblob1'].data()
-            beamintensityblob2=cursor.currentRow()['beamintensityblob2'].data()
-            if bxindexblob.readline() is not None and beamintensityblob1.readline() is not None and beamintensityblob2.readline() is not None:
-                bxidx=array.array('h')
-                bxidx.fromstring(bxindexblob.readline())
-                bb1=array.array('f')
-                bb1.fromstring(beamintensityblob1.readline())
-                bb2=array.array('f')
-                bb2.fromstring(beamintensityblob2.readline())
-                for index,bxidxvalue in enumerate(bxidx):
-                    if not result.has_key(startorbit):
-                        result[startorbit]=[]
-                    b1intensity=bb1[index]
-                    b2intensity=bb2[index]
-                    result[startorbit].append((bxidxvalue,b1intensity,b2intensity))
+            if bxindexblob and bxindexblob.readline()!=None:
+                bxidx=CommonUtil.unpackBlobtoArray(bxindexblob,'h')
+                if not cursor.currentRow()['beamintensityblob1'].isNull():
+                    beamintensityblob1=cursor.currentRow()['beamintensityblob1'].data()
+                    if beamintensityblob1 and beamintensityblob1.readline()!=None:
+                        bb1=CommonUtil.unpackBlobtoArray(beamintensityblob1,'f')
+                if not cursor.currentRow()['beamintensityblob2'].isNull():
+                    beamintensityblob2=cursor.currentRow()['beamintensityblob2'].data()
+                    if beamintensityblob2 and beamintensityblob2.readline()!=None:
+                        bb2=CommonUtil.unpackBlobtoArray(beamintensityblob2,'f')
+        if not result.has_key(startorbit):
+            result[startorbit]=[]
+        for idx,bxidxvalue in enumerate(bxidx):
+            try:
+                b1intensity=bb1[idx]
+            except IndexError:
+                b1intensity=0.0
+            try:
+                b2intensity=bb2[idx]
+            except IndexError:
+                b2intensity=0.0
+            result[startorbit].append((bxidxvalue,b1intensity,b2intensity))
+        del bxidx[:]
+        del bb1[:]
+        del bb2[:]
     return result
     
 def calibratedDetailForRunLimitresult(query,parameters,runnum,algoname='OCC1'):
     '''select 
     s.cmslsnum,d.bxlumivalue,d.bxlumierror,d.bxlumiquality,d.algoname from LUMIDETAIL d,LUMISUMMARY s where s.runnum=133885 and d.algoname='OCC1' and s.lumisummary_id=d.lumisummary_id order by s.startorbit,s.cmslsnum
-    result={(startorbit,cmslsnum):[(lumivalue,lumierr),]}
+    result={(startorbit,cmslsnum):[(index,lumivalue,lumierr),]}
     '''
     result={}
     detailOutput=coral.AttributeList()
