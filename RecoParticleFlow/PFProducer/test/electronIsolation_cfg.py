@@ -11,12 +11,11 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-       '/store/relval/CMSSW_4_2_3/RelValH130GGgluonfusion/GEN-SIM-RECO/START42_V12-v2/0067/0A2A882D-087C-E011-B6E4-00248C0BE016.root',
-       '/store/relval/CMSSW_4_2_3/RelValH130GGgluonfusion/GEN-SIM-RECO/START42_V12-v2/0063/7E911D11-B47B-E011-A719-001A92971AD8.root',
-       '/store/relval/CMSSW_4_2_3/RelValH130GGgluonfusion/GEN-SIM-RECO/START42_V12-v2/0063/12BDD2DE-857B-E011-8019-002618943906.root',
-       '/store/relval/CMSSW_4_2_3/RelValH130GGgluonfusion/GEN-SIM-RECO/START42_V12-v2/0062/62E92439-357B-E011-A3FF-001A928116D0.root',
-       '/store/relval/CMSSW_4_2_3/RelValH130GGgluonfusion/GEN-SIM-RECO/START42_V12-v2/0062/1E08A9B0-2C7B-E011-905B-00261894395F.root'
-       )
+    '/store/relval/CMSSW_4_3_0_pre6/RelValH130GGgluonfusion/GEN-SIM-RECO/START43_V3-v1/0086/80467D34-378C-E011-A37C-0018F3D09658.root',
+    '/store/relval/CMSSW_4_3_0_pre6/RelValH130GGgluonfusion/GEN-SIM-RECO/START43_V3-v1/0086/50787FD7-AE8B-E011-AC2B-002618943880.root',
+    '/store/relval/CMSSW_4_3_0_pre6/RelValH130GGgluonfusion/GEN-SIM-RECO/START43_V3-v1/0082/362C873C-808B-E011-A576-0018F3D095EC.root',
+    '/store/relval/CMSSW_4_3_0_pre6/RelValH130GGgluonfusion/GEN-SIM-RECO/START43_V3-v1/0080/92A7BBA9-B78A-E011-B40A-002618FDA248.root'
+    )
 )
 
 
@@ -26,15 +25,18 @@ process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.load("RecoParticleFlow.PFProducer.pfBasedElectronIso_cff")
 process.load("RecoParticleFlow.PFProducer.pfBasedPhotonIso_cff")
-process.load("RecoParticleFlow.PFProducer.pfGsfElectronLinker_cfi")
-process.egammaLinker.ProducePFCandidates = False
+process.load("RecoParticleFlow.PFProducer.pfLinker_cfi")
+process.pfLinker.ProducePFCandidates = cms.bool(False)
+process.pfLinker.PFCandidates = [cms.InputTag('pfSelectedPhotons'), cms.InputTag('pfSelectedElectrons')]
+process.pfLinker.FillMuonRefs = cms.bool(False)
 
 process.isoReader = cms.EDAnalyzer("PFIsoReader",
                                    PFCandidates = cms.InputTag('pfSelectedPhotons'),
                                    Electrons=cms.InputTag('gsfElectrons'),
                                    Photons=cms.InputTag('pfPhotonTranslator:pfphot'),
-                                   ElectronValueMap=cms.InputTag('egammaLinker:electrons'),
-                                   PhotonValueMap=cms.InputTag('egammaLinker:photons'),
+                                   ElectronValueMap=cms.InputTag('pfLinker:electrons'),
+                                   PhotonValueMap=cms.InputTag('pfLinker:photons'),
+                                   MergedValueMap=cms.InputTag('pfLinker:all'),
                                    ElectronIsoDeposits = cms.VInputTag(cms.InputTag('isoDepElectronWithCharged'),
                                                                        cms.InputTag('isoDepElectronWithPhotons'),
                                                                        cms.InputTag('isoDepElectronWithNeutral')),
@@ -44,10 +46,11 @@ process.isoReader = cms.EDAnalyzer("PFIsoReader",
                                    useEGPFValueMaps=cms.bool(True))
                                                           
 
+process.load("FWCore.Modules.printContent_cfi")
 process.p = cms.Path(
     process.pfBasedElectronIsoSequence+
     process.pfBasedPhotonIsoSequence+
-    process.egammaLinker+
+    process.pfLinker+
     process.isoReader
     )
 
