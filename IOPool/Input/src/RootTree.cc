@@ -23,10 +23,6 @@ namespace edm {
       TBranch* branch = tree->GetBranch(BranchTypeToBranchEntryInfoBranchName(branchType).c_str());
       return branch;
     }
-    TBranch* getStatusBranch(TTree* tree, BranchType const& branchType) { // backward compatibility
-      TBranch* branch = tree->GetBranch(BranchTypeToProductStatusBranchName(branchType).c_str()); // backward compatibility
-      return branch; // backward compatibility
-    } // backward compatibility
   }
   RootTree::RootTree(boost::shared_ptr<InputFile> filePtr,
                      FileFormatVersion const& fileFormatVersion,
@@ -51,10 +47,8 @@ namespace edm {
     cacheSize_(cacheSize),
     rootDelayedReader_(new RootDelayedReader(*this, fileFormatVersion, filePtr)),
     branchEntryInfoBranch_(metaTree_ ? getProductProvenanceBranch(metaTree_, branchType_) : (tree_ ? getProductProvenanceBranch(tree_, branchType_) : 0)),
-    productStatuses_(), // backward compatibility
-    pProductStatuses_(&productStatuses_), // backward compatibility
-    infoTree_(dynamic_cast<TTree*>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()) : 0)), // backward compatibility
-    statusBranch_(infoTree_ ? getStatusBranch(infoTree_, branchType_) : 0) { // backward compatibility
+    infoTree_(dynamic_cast<TTree*>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()) : 0)) // backward compatibility
+    {
       assert(tree_);
       setTreeMaxVirtualSize(maxVirtualSize);
       setCacheSize(cacheSize);
@@ -69,7 +63,7 @@ namespace edm {
       return tree_ != 0 && auxBranch_ != 0;
     }
     if (tree_ != 0 && auxBranch_ != 0 && metaTree_ != 0) { // backward compatibility
-      if (branchEntryInfoBranch_ != 0 || statusBranch_ != 0) return true; // backward compatibility
+      if (branchEntryInfoBranch_ != 0 || infoTree_ != 0) return true; // backward compatibility
       return (entries_ == metaTree_->GetEntries() && tree_->GetNbranches() <= metaTree_->GetNbranches() + 1);  // backward compatibility
     } // backward compatibility
     return false;
@@ -224,7 +218,7 @@ namespace edm {
   RootTree::close () {
     // The TFile is about to be closed, and destructed.
     // Just to play it safe, zero all pointers to quantities that are owned by the TFile.
-    auxBranch_  = branchEntryInfoBranch_ = statusBranch_ = 0;
+    auxBranch_  = branchEntryInfoBranch_ = 0;
     tree_ = metaTree_ = infoTree_ = 0;
     // We own the treeCache_.
     // We make sure the treeCache_ is detached from the file,
