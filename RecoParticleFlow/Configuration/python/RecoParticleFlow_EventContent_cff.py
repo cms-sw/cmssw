@@ -92,5 +92,6 @@ RecoParticleFlowAOD = cms.PSet(
     'keep recoCaloClusters_pfPhotonTranslator_*_*',
     'keep recoPreshowerClusters_pfPhotonTranslator_*_*',
     'keep recoSuperClusters_pfPhotonTranslator_*_*',
-    'keep recoPhotons_pfPhotonTranslator_*_*')
+    'keep recoPhotons_pfPhotonTranslator_*_*',
+    'keep recoPhotonCores_pfPhotonTranslator_*_*')
 )
