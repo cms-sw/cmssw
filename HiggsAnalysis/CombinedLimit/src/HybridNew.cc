@@ -179,7 +179,17 @@ bool HybridNew::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mode
 bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
     HybridNew::Setup setup;
     std::auto_ptr<RooStats::HybridCalculator> hc(create(w, mc_s, mc_b, data, 1.0, setup));
-    std::auto_ptr<HypoTestResult> hcResult(readHybridResults_ ? readToysFromFile() : (evalGeneric(*hc)));
+    std::auto_ptr<HypoTestResult> hcResult;
+    if (readHybridResults_) {
+        hcResult.reset(readToysFromFile());
+    } else {
+        hcResult.reset(evalGeneric(*hc));
+        for (unsigned int i = 1; i < iterations_; ++i) {
+            std::auto_ptr<HypoTestResult> more(evalGeneric(*hc));
+            hcResult->Append(more.get());
+            if (verbose) std::cout << "\tCLb = " << hcResult->CLb() << " +/- " << hcResult->CLbError() << std::endl;
+        }
+    }
     if (hcResult.get() == 0) {
         std::cerr << "Hypotest failed" << std::endl;
         return false;
@@ -190,8 +200,8 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
         if (verbose) std::cout << "Hybrid result saved as " << name << " in " << writeToysHere->GetFile()->GetName() << " : " << writeToysHere->GetPath() << std::endl;
     }
     if (testStat_ == "LHC" || testStat_ == "Profile") {
-        // I need to flip the P-values
-        hcResult->SetPValueIsRightTail(!hcResult->GetPValueIsRightTail());
+        // I don't need to flip the P-values for significances, only for limits
+        // hcResult->SetPValueIsRightTail(!hcResult->GetPValueIsRightTail());
         hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()-1e-9); // issue with < vs <= in discrete models
     } else {
         hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()+1e-9); // issue with < vs <= in discrete models
@@ -480,6 +490,11 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   r->setMax(rVal); r->setVal(rVal); 
   if (testStat_ == "LHC" || testStat_ == "Profile") {
     r->setConstant(false); r->setMin(0); 
+    if (workingMode_ == MakeSignificance) {
+        rVal = 0;
+        r->setVal(0);
+        r->removeMax(); 
+    }
   } else {
     r->setConstant(true);
   }
