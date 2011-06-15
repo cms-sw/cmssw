@@ -36,20 +36,7 @@ RecoMuonAOD = cms.PSet(
     'keep recoTrackExtras_globalCosmicMuonsNoRPC_*_*', 
     'keep TrackingRecHitsOwned_globalCosmicMuonsNoRPC_*_*', 
     'keep recoMuons_muonsNoRPC_*_*', 
-
-
-    # cosimic reco in barrel only
-    'keep recoTracks_cosmicMuonsBarrelOnly_*_*', 
-    'keep recoTrackExtras_cosmicMuonsBarrelOnly_*_*', 
-    'keep TrackingRecHitsOwned_cosmicMuonsBarrelOnly_*_*', 
-    'keep recoTracks_globalCosmicMuonsBarrelOnly_*_*', 
-    'keep recoTrackExtras_globalCosmicMuonsBarrelOnly_*_*', 
-    'keep TrackingRecHitsOwned_globalCosmicMuonsBarrelOnly_*_*', 
-    'keep recoMuons_muonsBarrelOnly_*_*', 
-    'keep recoMuons_STAMuonsBarrelOnly_*_*', 
-    'keep recoMuons_GLBMuonsBarrelOnly_*_*',
-    'keep recoMuonTimeExtraedmValueMap_muonsBarrelOnly_*_*',
-    
+  
 
     # cosimic reco "1 Leg type" in barrel only
     'keep recoTracks_cosmicMuons1Leg_*_*', 
@@ -71,17 +58,10 @@ RecoMuonAOD = cms.PSet(
     'keep recoMuons_muonsWitht0Correction_*_*', 
     'keep recoMuonTimeExtraedmValueMap_muonsWitht0Correction_*_*',
 
-    # cosimic reco in endcaps only
+    # cosimic reco in endcaps only  for Beam halo reco
     'keep recoTracks_cosmicMuonsEndCapsOnly_*_*', 
     'keep recoTrackExtras_cosmicMuonsEndCapsOnly_*_*', 
     'keep TrackingRecHitsOwned_cosmicMuonsEndCapsOnly_*_*', 
-    'keep recoTracks_globalCosmicMuonsEndCapsOnly_*_*', 
-    'keep recoTrackExtras_globalCosmicMuonsEndCapsOnly_*_*', 
-    'keep TrackingRecHitsOwned_globalCosmicMuonsEndCapsOnly_*_*', 
-    'keep recoMuons_muonsEndCapsOnly_*_*',
-    'keep recoMuonTimeExtraedmValueMap_muonsEndCapsOnly_*_*',
-    
-    # Beam halo in Encaps only
     'keep recoTracks_globalBeamHaloMuonEndCapslOnly_*_*', 
     'keep recoTrackExtras_globalBeamHaloMuonEndCapslOnly_*_*', 
     'keep TrackingRecHitsOwned_globalBeamHaloMuonEndCapslOnly_*_*',
@@ -89,15 +69,11 @@ RecoMuonAOD = cms.PSet(
     'keep recoMuonTimeExtraedmValueMap_muonsBeamHaloEndCapsOnly_*_*',
     
     # lhc like reco
-    'keep recoTracks_lhcStandAloneMuonsBarrelOnly_*_*', 
-    'keep recoTrackExtras_lhcStandAloneMuonsBarrelOnly_*_*',
-    'keep TrackingRecHitsOwned_lhcStandAloneMuonsBarrelOnly_*_*', 
-    'keep recoMuons_lhcSTAMuonsBarrelOnly_*_*',
-    'keep recoTracks_lhcStandAloneMuonsEndCapsOnly_*_*', 
-    'keep recoTrackExtras_lhcStandAloneMuonsEndCapsOnly_*_*', 
-    'keep TrackingRecHitsOwned_lhcStandAloneMuonsEndCapsOnly_*_*',
-    'keep recoMuons_lhcSTAMuonsEndCapsOnly_*_*',
-    'keep recoMuonTimeExtraedmValueMap_lhcSTAMuonsEndCapsOnly_*_*',
+    'keep recoTracks_standAloneMuons_*_*', 
+    'keep recoTrackExtras_standAloneMuons_*_*',
+    'keep TrackingRecHitsOwned_standAloneMuons_*_*', 
+    'keep recoMuons_lhcSTAMuons_*_*',
+    'keep recoMuonTimeExtraedmValueMap_lhcSTAMuons_*_*',
 
     # Tracker Collections
     'keep recoTracks_ctfWithMaterialTracksP5_*_*', 
@@ -107,11 +83,9 @@ RecoMuonAOD = cms.PSet(
 # RECO content
 RecoMuonRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_CosmicMuonSeed_*_*', 
-                                           'keep *_CosmicMuonSeedBarrelOnly_*_*', 
                                            'keep *_CosmicMuonSeedEndCapsOnly_*_*', 
                                            'keep *_CosmicMuonSeedWitht0Correction_*_*', 
-                                           'keep *_lhcMuonSeedBarrelOnly_*_*', 
-                                           'keep *_lhcMuonSeedEndCapsOnly_*_*')
+                                           'keep *_ancientMuonSeed_*_*') 
 )
 # Full Event content 
 RecoMuonFEVT = cms.PSet(
