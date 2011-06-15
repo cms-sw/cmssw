@@ -6,14 +6,16 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/07/29 11:10:52 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/01/05 10:15:46 $
+ *  $Revision: 1.2 $
  *  \author  C. Battilana - CIEMAT
  *   
  */
 
 
 #include "DQM/DTMonitorClient/src/DTLocalTriggerBaseTest.h"
+
+#include <string>
 
 class DTTrigGeomUtils;
 
@@ -34,6 +36,12 @@ protected:
 
   /// Compute 2D efficiency plots
   void makeEfficiencyME2D(TH2F* numerator, TH2F* denominator, MonitorElement* result);
+
+  /// Book the new MEs (for each wheel)
+  void bookWheelHistos(int wheel,std::string hTag,std::string folder);
+
+  /// Get the ME name (by wheel)
+  std::string getMEName(std::string histoTag, std::string folder, int wh);
 
   /// BeginJob
   void beginJob();
