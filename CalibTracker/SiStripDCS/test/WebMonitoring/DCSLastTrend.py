@@ -14,7 +14,8 @@ for line in inputFile:
             if (time.time() - int(IOVtime)/1000) < 2678400:
                 firstIOV = IOVtime
                 num = len(line.split(firstIOV))
-                outputFile.write("    data: [[" + IOVtime + line.split(firstIOV)[num-2] + IOVtime + line.split(firstIOV)[num-1])
-                break
+                if num > 2:
+                    outputFile.write("    data: [[" + IOVtime + line.split(firstIOV)[num-2] + IOVtime + line.split(firstIOV)[num-1])
+                    break
     else:
         outputFile.write(line)

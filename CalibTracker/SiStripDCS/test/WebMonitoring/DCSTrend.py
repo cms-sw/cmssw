@@ -6,8 +6,23 @@ Loop on the list and fill the dictionary of values.
 """
 
 import os
+import os.path
 import time
 import calendar
+
+
+# This function returns a list of the directory content sorted by time (older first)
+def listDirSortedByTime(dir):
+    # Build up a dictionary of timestamps
+    content = {}
+    for item in os.listdir(dir):
+        content[item] = os.path.getmtime(item)
+    # Sort keys, based on time stamps
+    items = content.keys()
+    items.sort(lambda x,y: cmp(content[x],content[y]))
+    # Report objects in order
+    return items
+
 
 totalTrackerModules = 15148
 
@@ -17,7 +32,8 @@ outputFile.write("{\n")
 outputFile.write("    label: 'High Voltage ON',\n")
 outputFile.write("    data: [")
 
-dirList = os.listdir("./")
+# dirList = os.listdir("./")
+dirList = listDirSortedByTime('./')
 
 # print dirList
 
@@ -42,6 +58,8 @@ first = True
 #firstTimeValue = 0
 #for inputFileName in dirList:
 #    if inputFileName.endswith(".log"):
+
+# Note: sorted is guaranteed to be stable since python 2.2
 for fileBlock in sorted(fileList, key=lambda fileTuple: fileTuple[0]):
     inputFile = open(fileBlock[2], "r")
     totHVoff = 0
@@ -68,7 +86,8 @@ for fileBlock in sorted(fileList, key=lambda fileTuple: fileTuple[0]):
         first = False
     else:
         outputFile.write(", ")
-    outputFile.write("["+str(fileBlock[0])+", "+str(totalTrackerModules - totHVoff)+"], ")
+    outputFile.write("["+str(fileBlock[0]+1)+", "+str(totalTrackerModules - totHVoff)+"], ")
+    # # Add 1 to force it to appear after the previous. The precision is much smaller, so the last three digits always 0 in any case.
     outputFile.write("["+str(fileBlock[1])+", "+str(totalTrackerModules - totHVoff)+"]")
 
 #    if first:
