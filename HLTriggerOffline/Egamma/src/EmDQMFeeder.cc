@@ -6,7 +6,7 @@
 //
 // Original Author:  Thomas Reis,40 4-B24,+41227671567,
 //         Created:  Tue Mar 15 12:24:11 CET 2011
-// $Id: EmDQMFeeder.cc,v 1.16 2011/05/24 07:56:33 treis Exp $
+// $Id: EmDQMFeeder.cc,v 1.17 2011/05/26 08:54:26 treis Exp $
 //
 //
 
@@ -120,7 +120,8 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
             //--------------------	   
 	    edm::ParameterSet paramSet;
 
-	    paramSet.addParameter("@module_label", pathName + "_DQM");
+	    paramSet.addParameter("@module_label", hltConfig_.removeVersion(pathName) + "_DQM");
+	    //paramSet.addParameter("@module_label", pathName + "_DQM");
 	    //paramSet.addParameter("triggerobject", iConfig.getParameter<edm::InputTag>("triggerobject"));
 	    paramSet.addParameter("triggerobject", triggerObject_);
 	    paramSet.addParameter("genEtaAcc", iConfig.getParameter<double>("genEtaAcc"));
