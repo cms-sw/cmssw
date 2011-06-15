@@ -216,10 +216,8 @@ if __name__ == '__main__':
     oparser = OptionParser()
     oparser.add_option("-l","--lib", dest="library",
                        help="specify the library to load. If not set classes are found using the PluginManager")
-    oparser.add_option("-x","--xml_file", dest="xmlfile",default="./classes_def.xml",
-                       help="the classes_def.xml file to read")
-    oparser.add_option("-i","--inc_file", dest="incfile",default="./classes.h",
-                                          help="the classes.xml file to read")
+    oparser.add_option("-d","--dir", dest="filedir",default=".",
+                                          help="the directory holding both the classes_def.xml and classes.h files to read")
     oparser.add_option("-c","--cppopt",dest="cppopt", default="",
                         help="specify the C++ compiler options to pass to gccxml")
 
@@ -277,11 +275,13 @@ if __name__ == '__main__':
         rootsys = os.getenv("ROOTSYS")
         cppopt +=' -I'+rootsys+"/cint -I"+rootsys+"/include"
     #' -I/uscms_data/d2/cdj/build/temp/classVersion/CMSSW_4_3_0_pre6/src -I/uscms_data/d2/cdj/build/temp/classVersion/CMSSW_4_3_0_pre6/include -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/cms/cmssw/CMSSW_4_3_0_pre6/src -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/cms/cmssw/CMSSW_4_3_0_pre6/include -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/external/boost/1.44.0-cms3/include -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/external/uuid/1.38-cms2/include -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/lcg/root/5.27.06b-cms18/cint -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/external/pcre/4.4-cms/include -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/external/zlib/1.2.3-cms/include -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/lcg/root/5.27.06b-cms18/include'
-    nameTree = getNameTreeFromGccXml(options.incfile,gccxml,gccxmlopt,cppopt)
+    incfile = options.filedir+"/classes.h"
+    nameTree = getNameTreeFromGccXml(incfile,gccxml,gccxmlopt,cppopt)
     #print typedefToClasses
     #exit(0)
 
-    p = ClassesDefXmlParser(options.xmlfile)
+    xmlfile = options.filedir+"/classes_def.xml"
+    p = ClassesDefXmlParser(xmlfile)
     #print p.classes
     classesToModify = [x[0] for x in p.classes.iteritems() if not checkIfTypedefOfTemplate([y for y in x[0].split(':') if y != ''],nameTree)]
     
@@ -292,8 +292,8 @@ if __name__ == '__main__':
     #exit(0)
     
     #Now create the updated classes_def.xml file
-    print "creating a 'classes_def.xml.generated' file which you should use to replace",options.xmlfile
-    f = open(options.xmlfile)
+    print "creating a './classes_def.xml.generated' file which you should use to replace",xmlfile
+    f = open(xmlfile)
     outFile = open('classes_def.xml.generated','w')
     out = ''
     for l in f.readlines():
