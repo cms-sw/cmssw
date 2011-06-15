@@ -2,8 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 # Standard pp setup
 from RecoMuon.Configuration.RecoMuonPPonly_cff import *
-from RecoMuon.MuonIdentification.muons_cfi import *
-
 
 ########################################################
 
@@ -76,4 +74,11 @@ muoncosmicreco1legHighLevel = cms.Sequence(globalCosmicMuons1Leg*muonsFromCosmic
 #muoncosmicreco = cms.Sequence(CosmicMuonSeed*(muoncosmicreco2legs+muoncosmicreco1leg)*cosmicsMuonIdSequence)
 muoncosmicreco = cms.Sequence(muoncosmicreco2legsSTA+muoncosmicreco1legSTA)
 muoncosmichighlevelreco = cms.Sequence((muoncosmicreco2legsHighLevel+muoncosmicreco1legHighLevel)*cosmicsMuonIdSequence)
-muonshighlevelreco = cms.Sequence(muons)
+
+
+#### High level sequence (i.e., post PF reconstruction) ###
+
+from RecoMuon.MuonIdentification.muons_cfi import *
+from RecoMuon.MuonIsolation.muonPFIsolation_cff import *
+
+muonshighlevelreco = cms.Sequence(muonPFIsolationSequence*muons)
