@@ -82,9 +82,8 @@ namespace edm {
 
     while(pit != pie) {
         // set provenance
-        std::auto_ptr<ProductProvenance> runEntryInfoPtr(
-              new ProductProvenance(pit->second->branchID()));
-        rp.put(*pit->second, pit->first, runEntryInfoPtr);
+        ProductProvenance prov(pit->second->branchID());
+        rp.put(*pit->second, pit->first, prov);
         // Ownership has passed, so clear the pointer.
         pit->first.reset();
         ++pit;

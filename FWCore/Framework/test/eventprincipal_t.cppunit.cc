@@ -184,9 +184,7 @@ void test_ep::setUp() {
     edm::ConstBranchDescription const branchFromRegistry(it->second);
 
     boost::shared_ptr<edm::Parentage> entryDescriptionPtr(new edm::Parentage);
-    std::auto_ptr<edm::ProductProvenance> branchEntryInfoPtr(
-      new edm::ProductProvenance(branchFromRegistry.branchID(),
-                               entryDescriptionPtr));
+    edm::ProductProvenance prov(branchFromRegistry.branchID(), entryDescriptionPtr);
 
     boost::shared_ptr<edm::ProcessConfiguration> process(processConfigurations_[tag]);
     assert(process);
@@ -199,7 +197,7 @@ void test_ep::setUp() {
     std::auto_ptr<edm::EventAuxiliary> eventAux(new edm::EventAuxiliary(eventID_, uuid, now, true));
     pEvent_.reset(new edm::EventPrincipal(pProductRegistry_, *process));
     pEvent_->fillEventPrincipal(eventAux, lbp);
-    pEvent_->put(branchFromRegistry, product, branchEntryInfoPtr);
+    pEvent_->put(branchFromRegistry, product, prov);
   }
   CPPUNIT_ASSERT(pEvent_->size() == 1);
 }

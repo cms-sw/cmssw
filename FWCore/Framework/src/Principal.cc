@@ -641,7 +641,7 @@ namespace edm {
   }
 
   void
-  Principal::putOrMerge(WrapperHolder const& prod, std::auto_ptr<ProductProvenance> prov, Group* g) {
+  Principal::putOrMerge(WrapperHolder const& prod, ProductProvenance& prov, Group* g) {
     bool willBePut = g->putOrMergeProduct();
     if(willBePut) {
       checkUniquenessAndType(prod, g);

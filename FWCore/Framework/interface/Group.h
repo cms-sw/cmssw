@@ -18,7 +18,6 @@ is the storage unit of such information.
 #include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 
-#include <memory>
 #include <string>
 
 namespace edm {
@@ -50,11 +49,13 @@ namespace edm {
     // Retrieves the wrapped product and type. (non-owning);
     WrapperHolder wrapper() const { return WrapperHolder(productData().wrapper_.get(), productData().getInterface(), WrapperHolder::NotOwned); }
 
-    // Retrieves shared pointer to the per event(lumi)(run) provenance.
-    boost::shared_ptr<ProductProvenance> productProvenancePtr() const {return provenance()->productProvenancePtr();}
+    // Retrieves pointer to the per event(lumi)(run) provenance.
+    ProductProvenance* productProvenancePtr() const {
+      return provenance()->productProvenance();
+    }
 
-    // Sets the pointer to the per event(lumi)(run) provenance.
-    void setProductProvenance(boost::shared_ptr<ProductProvenance> prov) const;
+    // Sets the the per event(lumi)(run) provenance.
+    void setProductProvenance(ProductProvenance const& prov) const;
 
     // Retrieves a reference to the event independent provenance.
     ConstBranchDescription const& branchDescription() const {return *productData().branchDescription();}
@@ -92,11 +93,8 @@ namespace edm {
     ProductID const& productID() const {return productData().prov_.productID();};
 
     // Puts the product and its per event(lumi)(run) provenance into the Group.
-    void putProduct(WrapperHolder const& edp, boost::shared_ptr<ProductProvenance> productProvenance) {
+    void putProduct(WrapperHolder const& edp, ProductProvenance const& productProvenance) {
       putProduct_(edp, productProvenance);
-    }
-    void putProduct(WrapperHolder const& edp, std::auto_ptr<ProductProvenance> productProvenance) {
-      putProduct_(edp, boost::shared_ptr<ProductProvenance>(productProvenance.release()));
     }
 
     // Puts the product into the Group.
@@ -110,11 +108,8 @@ namespace edm {
     }
 
     // merges the product with the pre-existing product
-    void mergeProduct(WrapperHolder const& edp, boost::shared_ptr<ProductProvenance> productProvenance) {
+    void mergeProduct(WrapperHolder const& edp, ProductProvenance& productProvenance) {
       mergeProduct_(edp, productProvenance);
-    }
-    void mergeProduct(WrapperHolder const& edp, std::auto_ptr<ProductProvenance> productProvenance) {
-      mergeProduct_(edp, boost::shared_ptr<ProductProvenance>(productProvenance.release()));
     }
 
     void mergeProduct(WrapperHolder const& edp) const {
@@ -140,9 +135,9 @@ namespace edm {
     virtual void swap_(Group& rhs) = 0;
     virtual bool onDemand_() const = 0;
     virtual bool productUnavailable_() const = 0;
-    virtual void putProduct_(WrapperHolder const& edp, boost::shared_ptr<ProductProvenance> productProvenance) = 0;
+    virtual void putProduct_(WrapperHolder const& edp, ProductProvenance const& productProvenance) = 0;
     virtual void putProduct_(WrapperHolder const& edp) const = 0;
-    virtual void mergeProduct_(WrapperHolder const&  edp, boost::shared_ptr<ProductProvenance> productProvenance) = 0;
+    virtual void mergeProduct_(WrapperHolder const&  edp, ProductProvenance& productProvenance) = 0;
     virtual void mergeProduct_(WrapperHolder const& edp) const = 0;
     virtual bool putOrMergeProduct_() const = 0;
     virtual void checkType_(WrapperHolder const& prod) const = 0;
@@ -175,9 +170,9 @@ namespace edm {
         edm::swap(productData_, other.productData_);
         std::swap(productIsUnavailable_, other.productIsUnavailable_);
       }
-      virtual void putProduct_(WrapperHolder const& edp, boost::shared_ptr<ProductProvenance> productProvenance);
+      virtual void putProduct_(WrapperHolder const& edp, ProductProvenance const& productProvenance);
       virtual void putProduct_(WrapperHolder const& edp) const;
-      virtual void mergeProduct_(WrapperHolder const& edp, boost::shared_ptr<ProductProvenance> productProvenance);
+      virtual void mergeProduct_(WrapperHolder const& edp, ProductProvenance& productProvenance);
       virtual void mergeProduct_(WrapperHolder const& edp) const;
       virtual bool putOrMergeProduct_() const;
       virtual void checkType_(WrapperHolder const&) const {}
@@ -213,9 +208,9 @@ namespace edm {
       GroupStatus const& status() const {return status_();}
       GroupStatus& status() {return status_();}
     private:
-      virtual void putProduct_(WrapperHolder const& edp, boost::shared_ptr<ProductProvenance> productProvenance);
+      virtual void putProduct_(WrapperHolder const& edp, ProductProvenance const& productProvenance);
       virtual void putProduct_(WrapperHolder const& edp) const;
-      virtual void mergeProduct_(WrapperHolder const& edp, boost::shared_ptr<ProductProvenance> productProvenance);
+      virtual void mergeProduct_(WrapperHolder const& edp, ProductProvenance& productProvenance);
       virtual void mergeProduct_(WrapperHolder const& edp) const;
       virtual bool putOrMergeProduct_() const;
       virtual void checkType_(WrapperHolder const& prod) const {

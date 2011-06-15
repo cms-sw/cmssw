@@ -179,11 +179,9 @@ void testGenericHandle::getbyLabelTest() {
   ep.fillEventPrincipal(eventAux, lbp);
   edm::BranchDescription const& branchFromRegistry = it->second;
   boost::shared_ptr<edm::Parentage> entryDescriptionPtr(new edm::Parentage);
-  std::auto_ptr<edm::ProductProvenance> branchEntryInfoPtr(
-      new edm::ProductProvenance(branchFromRegistry.branchID(),
-                              entryDescriptionPtr));
+  edm::ProductProvenance prov(branchFromRegistry.branchID(), entryDescriptionPtr);
   edm::ConstBranchDescription const desc(branchFromRegistry);
-  ep.put(desc, pprod, branchEntryInfoPtr);
+  ep.put(desc, pprod, prov);
 
   edm::GenericHandle h("edmtest::DummyProduct");
   try {

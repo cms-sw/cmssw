@@ -159,7 +159,7 @@ namespace edm {
         // Create and write the provenance.
         se.products().push_back(StreamedProduct(desc));
       } else {
-        bool found = ParentageRegistry::instance()->getMapped(oh.productProvenanceSharedPtr()->parentageID(), parentage);
+        bool found = ParentageRegistry::instance()->getMapped(oh.productProvenance()->parentageID(), parentage);
         assert(found);
         se.products().push_back(StreamedProduct(oh.wrapper(),
                                                 desc,

@@ -33,7 +33,7 @@ namespace edm {
 
     void write(std::ostream& os) const;
 
-    boost::shared_ptr<ProductProvenance> branchIDToProvenance(BranchID const& bid) const;
+    ProductProvenance const* branchIDToProvenance(BranchID const& bid) const;
 
     void insert(ProductProvenance const& provenanceProduct);
 

@@ -23,18 +23,16 @@ namespace edm {
   void
   ProducedGroup::putProduct_(
         WrapperHolder const& edp,
-        boost::shared_ptr<ProductProvenance> productProvenance) {
+        ProductProvenance const& productProvenance) {
     if(product()) {
       throw Exception(errors::InsertFailure)
           << "Attempt to insert more than one product on branch " << productData().branchDescription()->branchName() << "\n";
     }
     assert(branchDescription().produced());
     assert(edp.isValid());
-    assert(!provenance()->productProvenanceResolved());
     assert(status() != Present);
     assert(status() != Uninitialized);
     setProductProvenance(productProvenance);
-    assert(provenance()->productProvenanceResolved());
     if(productData().getInterface() != 0) {
       assert(productData().getInterface() == edp.interface());
     }
@@ -45,10 +43,9 @@ namespace edm {
   void
   ProducedGroup::mergeProduct_(
         WrapperHolder const& edp,
-        boost::shared_ptr<ProductProvenance> productProvenance) {
-    assert(provenance()->productProvenanceResolved());
+        ProductProvenance& productProvenance) {
     assert(status() == Present);
-    productProvenancePtr() = productProvenance;
+    setProductProvenance(productProvenance);
     mergeTheProduct(edp);
   }
 
@@ -70,18 +67,16 @@ namespace edm {
   void
   InputGroup::putProduct_(
         WrapperHolder const& edp,
-        boost::shared_ptr<ProductProvenance> productProvenance) {
+        ProductProvenance const& productProvenance) {
     assert(!product());
-    assert(!provenance()->productProvenanceResolved());
     setProductProvenance(productProvenance);
-    assert(provenance()->productProvenanceResolved());
     setProduct(edp);
   }
 
   void
   InputGroup::mergeProduct_(
         WrapperHolder const&,
-        boost::shared_ptr<ProductProvenance>) {
+        ProductProvenance&) {
     assert(0);
   }
 
@@ -139,7 +134,7 @@ namespace edm {
   }
 
   void
-  Group::setProductProvenance(boost::shared_ptr<ProductProvenance> prov) const {
+  Group::setProductProvenance(ProductProvenance const& prov) const {
     productData().prov_.setProductProvenance(prov);
   }
 

@@ -36,7 +36,7 @@ namespace edm {
   LuminosityBlockPrincipal::put(
         ConstBranchDescription const& bd,
         WrapperHolder const& edp,
-        std::auto_ptr<ProductProvenance> productProvenance) {
+        ProductProvenance& productProvenance) {
 
     assert(bd.produced());
     if(!edp.isValid()) {
@@ -44,7 +44,7 @@ namespace edm {
         << "put: Cannot put because auto_ptr to product is null."
         << "\n";
     }
-    branchMapperPtr()->insert(*productProvenance);
+    branchMapperPtr()->insert(productProvenance);
     Group *g = getExistingGroup(bd.branchID());
     assert(g);
     // Group assumes ownership

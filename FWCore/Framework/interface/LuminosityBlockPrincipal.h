@@ -12,7 +12,6 @@ is the DataBlock.
 
 ----------------------------------------------------------------------*/
 
-#include <memory>
 #include <vector>
 
 #include "boost/shared_ptr.hpp"
@@ -87,7 +86,7 @@ namespace edm {
     void put(
         ConstBranchDescription const& bd,
         WrapperHolder const& edp,
-        std::auto_ptr<ProductProvenance> productProvenance);
+        ProductProvenance& productProvenance);
 
     void readImmediate() const;
 

@@ -178,7 +178,7 @@ namespace edm {
 
     void putOrMerge(WrapperHolder const& prod, Group const* group) const;
 
-    void putOrMerge(WrapperHolder const& prod, std::auto_ptr<ProductProvenance> prov, Group* group);
+    void putOrMerge(WrapperHolder const& prod, ProductProvenance& prov, Group* group);
 
     void setProcessHistory(Principal const& principal);
 

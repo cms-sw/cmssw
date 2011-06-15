@@ -362,9 +362,7 @@ namespace edm {
 
         ConstBranchDescription branchDesc(*spi->desc());
         // This ProductProvenance constructor inserts into the entry description registry
-        std::auto_ptr<ProductProvenance> productProvenance(
-             new ProductProvenance(spi->branchID(),
-                                   *spi->parents()));
+        ProductProvenance productProvenance(spi->branchID(), *spi->parents());
 
         if(spi->prod() != 0) {
           FDEBUG(10) << "addgroup next " << spi->branchID() << std::endl;

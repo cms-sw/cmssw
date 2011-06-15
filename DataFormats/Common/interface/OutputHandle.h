@@ -41,7 +41,7 @@ namespace edm {
     OutputHandle() :
       product_(),
       desc_(0),
-      productProvenance_() {}
+      productProvenance_(0) {}
 
     OutputHandle(OutputHandle const& h) :
       product_(h.product_),
@@ -49,7 +49,7 @@ namespace edm {
       productProvenance_(h.productProvenance_),
       whyFailed_(h.whyFailed_){}
 
-    OutputHandle(WrapperHolder const& product, ConstBranchDescription const* desc, boost::shared_ptr<ProductProvenance> productProvenance) :
+    OutputHandle(WrapperHolder const& product, ConstBranchDescription const* desc, ProductProvenance* productProvenance) :
       product_(product),
       desc_(desc),
       productProvenance_(productProvenance) {}
@@ -58,7 +58,7 @@ namespace edm {
     OutputHandle(boost::shared_ptr<cms::Exception> const& iWhyFailed):
       product_(),
       desc_(0),
-      productProvenance_(),
+      productProvenance_(0),
       whyFailed_(iWhyFailed) {}
     
     ~OutputHandle() {}
@@ -99,10 +99,6 @@ namespace edm {
     }
 
     ProductProvenance const* productProvenance() const {
-      return productProvenance_.get();
-    }
-
-    boost::shared_ptr<ProductProvenance> productProvenanceSharedPtr() const {
       return productProvenance_;
     }
 
@@ -113,7 +109,7 @@ namespace edm {
   private:
     WrapperHolder product_;
     ConstBranchDescription const* desc_;
-    boost::shared_ptr<ProductProvenance> productProvenance_;
+    ProductProvenance* productProvenance_;
     boost::shared_ptr<cms::Exception> whyFailed_;
   };
 

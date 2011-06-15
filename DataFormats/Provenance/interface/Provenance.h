@@ -2,14 +2,11 @@
 #define DataFormats_Provenance_Provenance_h
 
 /*----------------------------------------------------------------------
-  
+
 Provenance: The full description of a product and how it came into
 existence.
 
 ----------------------------------------------------------------------*/
-#include <iosfwd>
-
-#include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchMapper.h"
@@ -21,6 +18,9 @@ existence.
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ReleaseVersion.h"
 
+#include "boost/shared_ptr.hpp"
+
+#include <iosfwd>
 /*
   Provenance
 
@@ -36,12 +36,9 @@ namespace edm {
   class ProductProvenance;
   class Provenance {
   public:
-    Provenance() : branchDescription_(), productID_(), productProvenancePtr_(), store_() {
-    }
+    Provenance();
 
     Provenance(boost::shared_ptr<ConstBranchDescription> const& p, ProductID const& pid);
-
-    ~Provenance() {}
 
     Parentage const& event() const {return parentage();}
     BranchDescription const& product() const {return branchDescription_->me();}
@@ -49,16 +46,16 @@ namespace edm {
     BranchDescription const& branchDescription() const {return branchDescription_->me();}
     ConstBranchDescription const& constBranchDescription() const {return *branchDescription_;}
     boost::shared_ptr<ConstBranchDescription> const& constBranchDescriptionPtr() const {return branchDescription_;}
-    
-    bool productProvenanceResolved() const {
-      return productProvenancePtr_;
-    }
-    boost::shared_ptr<ProductProvenance> resolve() const;
-    boost::shared_ptr<ProductProvenance> productProvenancePtr() const {
-      if (productProvenancePtr_) return productProvenancePtr_;
+
+    ProductProvenance* resolve() const;
+    ProductProvenance* productProvenance() const {
+      if (productProvenanceValid_) return productProvenancePtr_.get();
       return resolve();
     }
-    Parentage const& parentage() const {return productProvenancePtr()->parentage();}
+    bool productProvenanceValid() const {
+      return productProvenanceValid_;
+    }
+    Parentage const& parentage() const {return productProvenance()->parentage();}
     BranchID const& branchID() const {return product().branchID();}
     std::string const& branchName() const {return product().branchName();}
     std::string const& className() const {return product().className();}
@@ -87,30 +84,28 @@ namespace edm {
 
     ProductID const& productID() const {return productID_;}
 
-    void setProductProvenance(boost::shared_ptr<ProductProvenance> prov) const {
-      productProvenancePtr_ = prov;
-    }
+    void setProductProvenance(ProductProvenance const& prov) const;
 
     void setProductID(ProductID const& pid) {
       productID_ = pid;
     }
-    
+
     void setBranchDescription(boost::shared_ptr<ConstBranchDescription> const& p) {
       branchDescription_ = p;
     }
-    void resetProductProvenance() {
-      productProvenancePtr_.reset();
-    }
-    
+
+    void resetProductProvenance() const;
+
     void swap(Provenance&);
-    
+
   private:
     boost::shared_ptr<ConstBranchDescription> branchDescription_;
     ProductID productID_;
+    mutable bool productProvenanceValid_;
     mutable boost::shared_ptr<ProductProvenance> productProvenancePtr_;
     mutable boost::shared_ptr<BranchMapper> store_;
   };
-  
+
   inline
   std::ostream&
   operator<<(std::ostream& os, Provenance const& p) {

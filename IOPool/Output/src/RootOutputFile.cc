@@ -46,7 +46,6 @@
 #include <iomanip>
 #include <sstream>
 
-
 namespace edm {
 
   namespace {
@@ -655,7 +654,7 @@ namespace edm {
     for(std::vector<BranchID>::const_iterator it = parentIDs.begin(), itEnd = parentIDs.end();
           it != itEnd; ++it) {
       branchesWithStoredHistory_.insert(*it);
-      boost::shared_ptr<ProductProvenance> info = iMapper.branchIDToProvenance(*it);
+      ProductProvenance const* info = iMapper.branchIDToProvenance(*it);
       if(info) {
         if(om_->dropMetaData() == PoolOutputModule::DropNone ||
                  principal.getProvenance(info->branchID()).product().produced()) {

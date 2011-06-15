@@ -120,12 +120,12 @@ namespace edm {
     void put(
         ConstBranchDescription const& bd,
         WrapperHolder const& edp,
-        std::auto_ptr<ProductProvenance> productProvenance);
+        ProductProvenance const& productProvenance);
 
     void putOnRead(
         ConstBranchDescription const& bd,
         void const* product,
-        std::auto_ptr<ProductProvenance> productProvenance);
+        ProductProvenance const& productProvenance);
 
     WrapperHolder getIt(ProductID const& pid) const;
 

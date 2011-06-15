@@ -2,6 +2,7 @@
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
 
 /*----------------------------------------------------------------------
 
@@ -9,18 +10,32 @@
 
 namespace edm {
 
+   Provenance::Provenance() :
+    branchDescription_(),
+    productID_(),
+    productProvenanceValid_(false),
+    productProvenancePtr_(new ProductProvenance),
+    store_() {
+  }
+
    Provenance::Provenance(boost::shared_ptr<ConstBranchDescription> const& p, ProductID const& pid) :
     branchDescription_(p),
     productID_(pid),
-    productProvenancePtr_() {
+    productProvenanceValid_(false),
+    productProvenancePtr_(new ProductProvenance),
+    store_() {
   }
 
-  boost::shared_ptr<ProductProvenance>
+  ProductProvenance*
   Provenance::resolve() const {
-    if (productProvenancePtr_.get() == 0) {
-      productProvenancePtr_ = store_->branchIDToProvenance(branchDescription_->branchID());
+    if (!productProvenanceValid_) {
+      ProductProvenance const* prov  = store_->branchIDToProvenance(branchDescription_->branchID());
+      if (prov) {
+        *productProvenancePtr_ = *prov;
+        productProvenanceValid_ = true;
+      }
     }
-    return productProvenancePtr_;
+    return productProvenancePtr_.get();
   }
 
   ProcessConfigurationID 
@@ -89,7 +104,7 @@ namespace edm {
     // This is grossly inadequate, but it is not critical for the
     // first pass.
     product().write(os);
-    productProvenancePtr()->write(os);
+    productProvenance()->write(os);
   }
 
 
@@ -97,14 +112,25 @@ namespace edm {
     return a.product() == b.product();
   }
 
+  void
+  Provenance::resetProductProvenance() const {
+    *productProvenancePtr_ = ProductProvenance();
+    productProvenanceValid_ = false;
+  }
 
-   void 
-   Provenance::swap(Provenance& iOther) {
-      branchDescription_.swap(iOther.branchDescription_);
-      productID_.swap(iOther.productID_);
-      productProvenancePtr_.swap(iOther.productProvenancePtr_);
-      store_.swap(iOther.store_);
-   }
+  void
+  Provenance::setProductProvenance(ProductProvenance const& prov) const {
+    *productProvenancePtr_ = prov;
+    productProvenanceValid_ = true;
+  }
+
+  void 
+  Provenance::swap(Provenance& iOther) {
+    branchDescription_.swap(iOther.branchDescription_);
+    productID_.swap(iOther.productID_);
+    productProvenancePtr_.swap(iOther.productProvenancePtr_);
+    store_.swap(iOther.store_);
+ }
 
 }
 

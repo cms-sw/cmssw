@@ -98,7 +98,7 @@ namespace edm {
   EventPrincipal::put(
         ConstBranchDescription const& bd,
         WrapperHolder const& edp,
-        std::auto_ptr<ProductProvenance> productProvenance) {
+        ProductProvenance const& productProvenance) {
 
     assert(bd.produced());
     if(!edp.isValid()) {
@@ -106,7 +106,7 @@ namespace edm {
         << "put: Cannot put because ptr to product is null."
         << "\n";
     }
-    branchMapperPtr()->insert(*productProvenance);
+    branchMapperPtr()->insert(productProvenance);
     Group* g = getExistingGroup(bd.branchID());
     assert(g);
     checkUniquenessAndType(edp, g);
@@ -118,10 +118,10 @@ namespace edm {
   EventPrincipal::putOnRead(
         ConstBranchDescription const& bd,
         void const* product,
-        std::auto_ptr<ProductProvenance> productProvenance) {
+        ProductProvenance const& productProvenance) {
 
     assert(!bd.produced());
-    branchMapperPtr()->insert(*productProvenance);
+    branchMapperPtr()->insert(productProvenance);
     Group* g = getExistingGroup(bd.branchID());
     assert(g);
     WrapperHolder const edp(product, g->productData().getInterface(), WrapperHolder::Owned);

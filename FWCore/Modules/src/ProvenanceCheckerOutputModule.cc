@@ -89,8 +89,8 @@ namespace edm {
          if(oMap.find(*it) == oMap.end()) {
             //use side effect of calling operator[] which is if the item isn't there it will add it as 'false'
             oMap[*it];
-            boost::shared_ptr<ProductProvenance> pInfo = iMapper.branchIDToProvenance(*it);
-            if(pInfo.get()) {
+            ProductProvenance const* pInfo = iMapper.branchIDToProvenance(*it);
+            if(pInfo) {
                markAncestors(*pInfo, iMapper, oMap, oMapperMissing);
             } else {
                oMapperMissing.insert(*it);
@@ -118,15 +118,15 @@ namespace edm {
                //This call seems to have a side effect of filling the 'ProductProvenance' in the Group
                OutputHandle const oh = e.getForOutput(branchID, false);
 
-               if(!(*it)->productProvenancePtr().get() ) {
+               if(!(*it)->productProvenancePtr()) {
                   missingProductProvenance.insert(branchID);
                   continue;
                }
-               boost::shared_ptr<ProductProvenance> pInfo = mapperPtr->branchIDToProvenance(branchID);
-               if(!pInfo.get()) {
+               ProductProvenance const* pInfo = mapperPtr->branchIDToProvenance(branchID);
+               if(!pInfo) {
                   missingFromMapper.insert(branchID);
                }
-               markAncestors(*((*it)->productProvenancePtr()),*mapperPtr, seenParentInPrincipal, missingFromMapper);
+               markAncestors(*((*it)->productProvenancePtr()), *mapperPtr, seenParentInPrincipal, missingFromMapper);
             }
             seenParentInPrincipal[branchID] = true;
          }
