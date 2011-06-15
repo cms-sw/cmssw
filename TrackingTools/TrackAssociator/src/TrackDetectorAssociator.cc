@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.46 2011/04/07 09:03:04 innocent Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.47 2011/04/21 10:50:11 innocent Exp $
 //
 //
 
@@ -835,7 +835,7 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
                  }
               }
 	   }else{
-	      throw cms::Exception("FatalError") << "Failed to cast GeomDet object to either DTChamber or CSCChamber. Who is this guy anyway?\n";
+	     // throw cms::Exception("FatalError") << "Failed to cast GeomDet object to either DTChamber or CSCChamber. Who is this guy anyway?\n";
 	   }
 	}
 	info.chambers.push_back(*matchedChamber);

@@ -22,6 +22,7 @@
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/CSCGeometry"/>
+<use   name="Geometry/RPCGeometry"/>
 <use   name="Geometry/DTGeometry"/>
 <use   name="Geometry/Records"/>
 <use   name="MagneticField/Engine"/>

@@ -4,7 +4,7 @@ process = cms.Process("TEST")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_31X_V5::All'
+process.GlobalTag.globaltag = 'MC_43_V4::All'
 
 
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
@@ -77,7 +77,7 @@ options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-	'/store/relval/CMSSW_3_5_0/RelValSingleMuPt10/GEN-SIM-RECO/MC_3XY_V21-v1/0013/9263608A-6213-DF11-8763-001A92971AD0.root'
+	'/store/relval/CMSSW_4_3_0_pre6/RelValSingleMuPt10/GEN-SIM-RECO/MC_43_V3-v1/0086/BA16DCB9-2A8C-E011-AD40-0030486791BA.root'
     )
 )
 

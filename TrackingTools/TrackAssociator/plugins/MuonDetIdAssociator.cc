@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: MuonDetIdAssociator.cc,v 1.13 2010/02/18 14:35:48 dmytro Exp $
+// $Id: MuonDetIdAssociator.cc,v 1.1 2011/04/07 09:12:02 innocent Exp $
 //
 //
 
@@ -24,6 +24,7 @@
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
+#include "Geometry/RPCGeometry/interface/RPCChamber.h"
 #include <deque>
 
 void MuonDetIdAssociator::check_setup() const {
@@ -66,6 +67,12 @@ const std::vector<DetId>& MuonDetIdAssociator::getValidDetIds(unsigned int subDe
   const std::vector<GeomDet*>& geomDetsDT = geometry_->slaveGeometry(DTChamberId())->dets();
   for(std::vector<GeomDet*>::const_iterator it = geomDetsDT.begin(); it != geomDetsDT.end(); ++it)
     if (DTChamber* dt = dynamic_cast< DTChamber*>(*it)) validIds_.push_back(dt->id());
+
+  // RPC
+  if (! geometry_->slaveGeometry(RPCDetId()) ) throw cms::Exception("FatalError") << "Cannnot RPCGeometry\n";
+  const std::vector<GeomDet*>& geomDetsRPC = geometry_->slaveGeometry(RPCDetId())->dets();
+  for(std::vector<GeomDet*>::const_iterator it = geomDetsRPC.begin(); it != geomDetsRPC.end(); ++it)
+    if (RPCChamber* rpc = dynamic_cast< RPCChamber*>(*it)) validIds_.push_back(rpc->id());
 
   return validIds_;
 }
