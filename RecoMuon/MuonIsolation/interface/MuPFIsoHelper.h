@@ -1,3 +1,6 @@
+#ifndef RecoMuon_MuonIsolation_MuPFIsoHelper_H
+#define RecoMuon_MuonIsolation_MuPFIsoHelper_H
+
 //MuPFIsoHelper 
 //Class to embed PF2PAT style Isodeposits  
 //To reco::Muon 
@@ -52,4 +55,4 @@ class MuPFIsoHelper {
   
 
 };
-
+#endif
