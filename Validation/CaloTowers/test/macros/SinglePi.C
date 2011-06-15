@@ -72,7 +72,7 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
    f1_prof[4] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths;
    f1_prof[5] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_EH;
 
-   f1_prof[9] = HcalRecHitTask_timing_vs_energy_profile_Low_HB;   
+   f1_prof[9] = HcalRecHitTask_timing_vs_energy_profile_HB;   
    f1_prof[10] = HcalRecHitTask_timing_vs_energy_profile_Low_HE;   
    f1_prof[11] = HcalRecHitTask_timing_vs_energy_profile_Low_HF;   
 
@@ -102,7 +102,7 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
    f2_prof[4] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths;
    f2_prof[5] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_EH;
 
-   f2_prof[9] = HcalRecHitTask_timing_vs_energy_profile_Low_HB;   
+   f2_prof[9] = HcalRecHitTask_timing_vs_energy_profile_HB;   
    f2_prof[10] = HcalRecHitTask_timing_vs_energy_profile_Low_HE;   
    f2_prof[11] = HcalRecHitTask_timing_vs_energy_profile_Low_HF;   
 
@@ -159,11 +159,17 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
    f1_prof[7]->SetMinimum(0.);
    f1_prof[8]->SetMinimum(0.);
 
-   /*
+   f1_prof[9]->GetXaxis()->SetRangeUser(0.,75.);
+   f1_prof[10]->GetXaxis()->SetRangeUser(0.,75.);
+   f1_prof[11]->GetXaxis()->SetRangeUser(0.,75.);
+
+   /* 
    f1_prof[9]->SetMinimum(0.);
    f1_prof[10]->SetMinimum(0.);
    f1_prof[11]->SetMinimum(0.);
    */
+
+
 
    // f1_hist[2]->GetXaxis()->SetRangeUser(0.,1200.);
    // f1_hist[7]->GetXaxis()->SetRangeUser(0.,160.);
