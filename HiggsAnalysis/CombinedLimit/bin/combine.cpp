@@ -67,7 +67,6 @@ int main(int argc, char **argv) {
     ("name,n",     po::value<string>(&name)->default_value("Test"), "Name of the job, affects the name of the output tree")
     ("mass,m",     po::value<float>(&iMass)->default_value(120.), "Higgs mass to store in the output tree")
     ("dataset,D",  po::value<string>(&dataset)->default_value("data_obs"), "Name of the dataset for observed limit")
-    ("saveToys",   "Save results of toy MC or other intermediate results")
     ("toysFile",   po::value<string>(&toysFile)->default_value(""), "Read toy mc or other intermediate results from this file")
     ;
   combiner.miscOptions().add_options()
@@ -195,9 +194,8 @@ int main(int argc, char **argv) {
   t->Branch("t_cpu",   &t_cpu_,  "t_cpu/F");
   t->Branch("t_real",  &t_real_, "t_real/F");
   
-  //if (vm.count("saveToys")) writeToysHere = new RooWorkspace("toys","toys"); 
-  if (vm.count("saveToys")) writeToysHere = test->mkdir("toys","toys"); 
-  if (toysFile != "")       readToysFromHere = TFile::Open(toysFile.c_str());
+  writeToysHere = test->mkdir("toys","toys"); 
+  if (toysFile != "") readToysFromHere = TFile::Open(toysFile.c_str());
   
   syst = withSystematics;
   mass = iMass;

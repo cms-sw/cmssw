@@ -91,6 +91,7 @@ Combine::Combine() :
       ("modelConfigNameB", po::value<std::string>(&modelConfigNameB_)->default_value("%s_bonly"), "Name of the ModelConfig for b-only hypothesis.\n"
                                                                                                   "If not present, it will be made from the singal model taking zero signal strength.\n"
                                                                                                   "A '%s' in the name will be replaced with the modelConfigName.")
+      ("saveToys",   "Save results of toy MC in output file")
       ;
     miscOptions_.add_options()
       ("compile", "Compile expressions instead of interpreting them")
@@ -118,6 +119,7 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
       modelConfigNameB_ = modelBName;
   }
   mass_ = vm["mass"].as<float>();
+  saveToys_ = vm.count("saveToys");
 }
 
 bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) {
@@ -439,8 +441,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	expLimit += limit; 
         limitHistory.push_back(limit);
       }
-      if (writeToysHere) {
-	//writeToysHere->import(*absdata_toy, RooFit::Rename(TString::Format("toy_%d", iToy)), RooFit::Silence());
+      if (saveToys_) {
 	writeToysHere->WriteTObject(absdata_toy, TString::Format("toy_%d", iToy));
       }
       delete absdata_toy;

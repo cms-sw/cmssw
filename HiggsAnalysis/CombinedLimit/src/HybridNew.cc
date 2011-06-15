@@ -86,9 +86,9 @@ LimitAlgo("HybridNew specific options") {
         ("iterations,i", boost::program_options::value<unsigned int>(&iterations_)->default_value(iterations_), "Number of times to throw 'toysH' toys to compute the p-values (for --singlePoint if clsAcc is set to zero disabling adaptive generation)")
         ("fork",    boost::program_options::value<unsigned int>(&fork_)->default_value(fork_),           "Fork to N processes before running the toys (set to 0 for debugging)")
         ("nCPU",    boost::program_options::value<unsigned int>(&nCpu_)->default_value(nCpu_),           "Use N CPUs with PROOF Lite (experimental!)")
-        ("saveHybridResult",  "Save result in the output file  (option saveToys must be enabled)")
-        ("readHybridResults", "Read and merge results from file (option toysFile must be enabled)")
-        ("grid",    boost::program_options::value<std::string>(&gridFile_),            "Use the specified file containing a grid of SamplingDistributions (superceeds option 'toysFile')")
+        ("saveHybridResult",  "Save result in the output file")
+        ("readHybridResults", "Read and merge results from file (requires 'toysFile' or 'grid')")
+        ("grid",    boost::program_options::value<std::string>(&gridFile_),            "Use the specified file containing a grid of SamplingDistributions for the limit (implies readHybridResults).\n For --singlePoint or --signif use --toysFile=x.root --readHybridResult instead of this.")
         ("expectedFromGrid", boost::program_options::value<float>(&quantileForExpectedFromGrid_)->default_value(0.5), "Use the grid to compute the expected limit for this quantile")
         ("importanceSamplingNull", boost::program_options::value<bool>(&importanceSamplingNull_)->default_value(importanceSamplingNull_),  
                                    "Enable importance sampling for null hypothesis (background only)") 
@@ -130,7 +130,6 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
     saveHybridResult_ = vm.count("saveHybridResult");
     readHybridResults_ = vm.count("readHybridResults") || vm.count("grid");
     if (readHybridResults_ && !(vm.count("toysFile") || vm.count("grid")))     throw std::invalid_argument("HybridNew: must have 'toysFile' or 'grid' option to have 'readHybridResults'\n");
-    if (saveHybridResult_  && !vm.count("saveToys")) throw std::invalid_argument("HybridNew: must have 'saveToys' option to have 'saveHybridResult'\n");
     validateOptions(); 
 }
 
@@ -186,7 +185,6 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
         return false;
     }
     if (saveHybridResult_) {
-        if (writeToysHere == 0) throw std::logic_error("Option saveToys must be enabled to turn on saveHypoTestResult");
         TString name = TString::Format("HypoTestResult_r%g_%u", 0., RooRandom::integer(std::numeric_limits<UInt_t>::max() - 1));
         writeToysHere->WriteTObject(new HypoTestResult(*hcResult), name);
         if (verbose) std::cout << "Hybrid result saved as " << name << " in " << writeToysHere->GetFile()->GetName() << " : " << writeToysHere->GetPath() << std::endl;
@@ -719,7 +717,6 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
         delete c1;
     }
     if (saveHybridResult_) {
-        if (writeToysHere == 0) throw std::logic_error("Option saveToys must be enabled to turn on saveHypoTestResult");
         TString name = TString::Format("HypoTestResult_r%g_%u", rVal, RooRandom::integer(std::numeric_limits<UInt_t>::max() - 1));
         writeToysHere->WriteTObject(new HypoTestResult(*hcResult), name);
         if (verbose) std::cout << "Hybrid result saved as " << name << " in " << writeToysHere->GetFile()->GetName() << " : " << writeToysHere->GetPath() << std::endl;
@@ -877,7 +874,7 @@ RooStats::HypoTestResult * HybridNew::readToysFromFile(double rValue) {
 }
 
 void HybridNew::readAllToysFromFile() {
-    if (!readToysFromHere) throw std::logic_error("Cannot use readHypoTestResult: option toysFile not specified, or input file empty");
+    if (!readToysFromHere) throw std::logic_error("Cannot use readHypoTestResult without grid and without option toysFile");
     TDirectory *toyDir = readToysFromHere->GetDirectory("toys");
     if (!toyDir) throw std::logic_error("Cannot use readHypoTestResult: empty toy dir in input file empty");
     readGrid(toyDir);
