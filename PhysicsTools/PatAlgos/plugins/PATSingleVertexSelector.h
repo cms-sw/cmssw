@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_PATSingleVertexSelector_h
 #define PhysicsTools_PatAlgos_PATSingleVertexSelector_h
 //
-// $Id: PATSingleVertexSelector.h,v 1.3 2010/02/20 21:00:27 wmtan Exp $
+// $Id: PATSingleVertexSelector.h,v 1.4 2011/01/18 13:54:10 veelken Exp $
 //
 
 /**
@@ -10,7 +10,7 @@
 
 
   \author   Giovanni Petrucciani
-  \version  $Id: PATSingleVertexSelector.h,v 1.3 2010/02/20 21:00:27 wmtan Exp $
+  \version  $Id: PATSingleVertexSelector.h,v 1.4 2011/01/18 13:54:10 veelken Exp $
 */
 
 #include "FWCore/Framework/interface/EDFilter.h"
@@ -39,7 +39,8 @@ namespace pat {
       typedef StringCutObjectSelector<reco::Candidate> CandSel;
 
       static Mode parseMode(const std::string &name) ;
-      bool filter_(Mode mode, edm::Event & iEvent, const edm::EventSetup & iSetup) ;
+      std::auto_ptr<std::vector<reco::Vertex> >
+        filter_(Mode mode, const edm::Event & iEvent, const edm::EventSetup & iSetup);
       bool hasMode_(Mode mode) const ;
       // configurables
       std::vector<Mode> modes_; // mode + optional fallbacks
@@ -51,7 +52,7 @@ namespace pat {
       // transient data. meaningful while 'filter()' is on the stack
       std::vector<const reco::Vertex *> selVtxs_;
       const reco::Candidate *           bestCand_;
-      
+
       // flag to enable/disable EDFilter functionality:
       // if set to false, PATSingleVertexSelector selects the "one" event vertex,
       // but does not reject any events
