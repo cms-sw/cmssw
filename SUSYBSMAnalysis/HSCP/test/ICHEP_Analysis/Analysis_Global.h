@@ -8,10 +8,10 @@ std::string        dEdxS_Legend    = "I_{as}";
 std::string        dEdxM_Label     = "dedxHarm2";
 double             dEdxM_UpLim     = 15.0;
 std::string        dEdxM_Legend    = "I_{h} (MeV/cm)";
-double             dEdxK_Data      = 2.67;//25857;
-double             dEdxC_Data      = 2.44;//2.5497;
-double             dEdxK_MC        = 2.67;//2.5404;
-double             dEdxC_MC        = 2.44;//2.6433;
+double             dEdxK_Data      = 2.529; //2.67;//25857;
+double             dEdxC_Data      = 2.772; //2.44;//2.5497;
+double             dEdxK_MC        = 2.529; //2.67;//2.5404;
+double             dEdxC_MC        = 2.772; //2.44;//2.6433;
 
 std::string        TOF_Label       = "combined";
 std::string        TOFdt_Label     = "dt";

@@ -78,31 +78,31 @@ void Analysis_Step5()
 //   PredictionAndControlPlot(InputDir);
 
 
-  InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";   CutIndex = 24;//41
-// Make2DPlot_Core(InputDir,CutIndex);
+   InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type0/";   CutIndex = 24;//41
+//   Make2DPlot_Core(InputDir,CutIndex);
 //   CutFlow(InputDir);
 //   SelectionPlot(InputDir, CutIndex);
    MassPrediction(InputDir, CutIndex, "Mass");
    MassPrediction(InputDir, CutIndex, "MassTOF");
    MassPrediction(InputDir, CutIndex, "MassComb");    
-//   PredictionAndControlPlot(InputDir, CutIndex);
+   PredictionAndControlPlot(InputDir, CutIndex);
 // SignalMassPlot(InputDir,0);return;
 // GetSystematicOnPrediction(InputDir);
 
-   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type2/";   CutIndex = 82;//18;
-// Make2DPlot_Core(InputDir,CutIndex);
+   InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type2/";   CutIndex = 82;//18;
+//   Make2DPlot_Core(InputDir,CutIndex);
 //   CutFlow(InputDir);
 //   SelectionPlot(InputDir, CutIndex);
    MassPrediction(InputDir, CutIndex, "Mass");
    MassPrediction(InputDir, CutIndex, "MassTOF");
    MassPrediction(InputDir, CutIndex, "MassComb");     
-//   PredictionAndControlPlot(InputDir, CutIndex);
+   PredictionAndControlPlot(InputDir, CutIndex);
 // SignalMassPlot(InputDir,0);return;
 // GetSystematicOnPrediction(InputDir);
 
 
-  InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";   CutIndex = 39;  MassPredictionTight(InputDir, CutIndex, "Mass");
-  InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type2/";   CutIndex = 95;  MassPredictionTight(InputDir, CutIndex, "Mass");
+  InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type0/";   CutIndex = 29;/*39;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
+  InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type2/";   CutIndex = 167;/*95;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
 
 
 
@@ -522,7 +522,8 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
 //   stPlots_Draw(SignPlots[SID_GS126 ], SavePath + "/Selection_" +  signals[SID_GS126 ].Name, LegendTitle);
 
 //   stPlots_DrawComparison(SavePath + "/Selection_Comp_Data" , LegendTitle, CutIndex, &DataPlots);
-   stPlots_DrawComparison(SavePath + "/Selection_Comp_Gluino" , LegendTitle, CutIndex, &DataPlots, &SignPlots[0], &SignPlots[3], &SignPlots[6]);
+   stPlots_DrawComparison(SavePath + "/Selection_Comp_Gluino" , LegendTitle, CutIndex, &DataPlots, &SignPlots[0], &SignPlots[3], &SignPlots[5]);
+   stPlots_DrawComparison(SavePath + "/Selection_Comp_Stop"   , LegendTitle, CutIndex, &DataPlots, &SignPlots[24]);
    stPlots_DrawComparison(SavePath + "/Selection_Comp_GMStau" , LegendTitle, CutIndex, &DataPlots, &SignPlots[38], &SignPlots[40], &SignPlots[42]);
    return;
 
@@ -1193,7 +1194,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
 
 
 
-   for(double M=0;M<500;M+=100){
+   for(double M=0;M<=1000;M+=200){
       double D,P,Perr;
       D = Data->Integral( Data->GetXaxis()->FindBin(M),  Data->GetXaxis()->FindBin(2000.0));  
       P = Pred->Integral( Pred->GetXaxis()->FindBin(M),  Pred->GetXaxis()->FindBin(2000.0));

@@ -99,10 +99,10 @@ struct stGraph{
    TCutG*  StopThErr;
 };
 
-TGraph* MakePlot(FILE* pFile, string InputPattern, string ModelName, int XSectionType=2, string Mass0="", string Mass1="", string Mass2="", string Mass3="", string Mass4="", string Mass5="", string Mass6="", string Mass7="", string Mass8="", string Mass9="");
+TGraph* MakePlot(FILE* pFile, string InputPattern, string syst, string ModelName, int XSectionType=2, string Mass0="", string Mass1="", string Mass2="", string Mass3="", string Mass4="", string Mass5="", string Mass6="", string Mass7="", string Mass8="", string Mass9="");
 
 
-stAllInfo Exclusion(string pattern, string modelName, string signal, double Ratio_0C=-1, double Ratio_1C=-1, double Ratio_2C=-1);
+stAllInfo Exclusion(string pattern, string modelName, string signal, double Ratio_0C=-1, double Ratio_1C=-1, double Ratio_2C=-1, string syst="");
 int      JobIdToIndex(string JobId);
 
 void GetSignalMeanHSCPPerEvent(string InputPattern, unsigned int CutIndex);
@@ -155,7 +155,7 @@ std::vector<double> signalsMeanHSCPPerEvent_SYSTB;
 double RescaleFactor;
 double RescaleError;
 int Mode=0;
-void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelName="", string signal="", double Ratio_0C=-1, double Ratio_1C=-1, double Ratio_2C=-1){
+void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelName="", string signal="", double Ratio_0C=-1, double Ratio_1C=-1, double Ratio_2C=-1, string syst=""){
    setTDRStyle();
    gStyle->SetPadTopMargin   (0.06);
    gStyle->SetPadBottomMargin(0.10);
@@ -172,65 +172,62 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    if(MODE=="COMPILE")return;
 
    if(MODE=="ANALYSE"){
-      stAllInfo result = Exclusion(InputPattern, modelName, signal, Ratio_0C, Ratio_1C, Ratio_2C);
+      stAllInfo result = Exclusion(InputPattern, modelName, signal, Ratio_0C, Ratio_1C, Ratio_2C, syst);
       return;
    }
 
 
    TCanvas* c1;
 
-   string MuPattern  = "Results/dedxASmi/combined/Eta25/PtMin25/Type2/";
-   string TkPattern  = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";
+   string MuPattern  = "Results/dedxASmi/combined/Eta25/PtMin35/Type2/";
+   string TkPattern  = "Results/dedxASmi/combined/Eta25/PtMin35/Type0/";
 
-   FILE* pFile = fopen("Analysis_Step6_Result.txt","w");
+   FILE* pFile = fopen((string("Analysis_Step6_Result") + syst + ".txt").c_str(),"w");
 
    fprintf(pFile, "\\documentclass{article}\n");
    fprintf(pFile, "\\begin{document}\n\n");
    fprintf(pFile, "\\begin{table}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
 
-//   TGraph* Tk_Obs_Gluino2C  = MakePlot(pFile,TkPattern,"Gluino  (2C)     ", 2, "Gluino300_2C" , "Gluino400_2C" , "Gluino500_2C" , "Gluino600_2C" , "Gluino700_2C", "Gluino800_2C", "Gluino900_2C", "Gluino1000_2C" );
-//   TGraph* Tk_Obs_GluinoF0  = MakePlot(pFile,TkPattern,"Gluino  (f=00\\%)", 2, "Gluino300_f0" , "Gluino400_f0" , "Gluino500_f0" , "Gluino600_f0" , "Gluino700_f0", "Gluino800_f0", "Gluino900_f0", "Gluino1000_f0" );
-   TGraph* Tk_Obs_GluinoF1  = MakePlot(pFile,TkPattern,"Gluino (f=10\\%)", 2, "Gluino300_f1" , "Gluino400_f1" , "Gluino500_f1" , "Gluino600_f1" , "Gluino700_f1", "Gluino800_f1", "Gluino900_f1", "Gluino1000_f1" );
-   TGraph* Tk_Obs_GluinoZF1 = MakePlot(pFile,TkPattern,"Gluino Z2 (f=10\\%)", 2, "Gluino600Z_f1" , "Gluino700Z_f1", "Gluino800Z_f1");
-   TGraph* Tk_Obs_GluinoF5  = MakePlot(pFile,TkPattern,"Gluino (f=50\\%)", 2, "Gluino300_f5" , "Gluino400_f5" , "Gluino500_f5" , "Gluino600_f5" , "Gluino700_f5", "Gluino800_f5", "Gluino900_f5", "Gluino1000_f5" );
-//   TGraph* Tk_Obs_GluinoNF0 = MakePlot(pFile,TkPattern,"GluinoN (f=00\\%)", 2, "Gluino300N_f0", "Gluino400N_f0", "Gluino500N_f0", "Gluino600N_f0", "Gluino700N_f0", "Gluino800N_f0", "Gluino900N_f0", "Gluino1000N_f0" );
-   TGraph* Tk_Obs_GluinoNF1 = MakePlot(pFile,TkPattern,"GluinoN (f=10\\%)", 2, "Gluino300N_f1", "Gluino400N_f1", "Gluino500N_f1", "Gluino600N_f1", "Gluino700N_f1", "Gluino800N_f1", "Gluino900N_f1", "Gluino1000N_f1" );
-//   TGraph* Tk_Obs_GluinoNF5 = MakePlot(pFile,TkPattern,"GluinoN (f=50\\%)", 2, "Gluino300N_f5", "Gluino400N_f5", "Gluino500N_f5", "Gluino600N_f5", "Gluino700N_f5", "Gluino800N_f5" , "Gluino900N_f5" , "Gluino1000N_f5" );
-//   TGraph* Tk_Obs_Stop2C    = MakePlot(pFile,TkPattern,"Stop    (2C)     ", 2, "Stop130_2C"   , "Stop200_2C"   , "Stop300_2C"   , "Stop400_2C"   , "Stop500_2C"   , "Stop600_2C" , "Stop700_2C" , "Stop800_2C"                    );
-   TGraph* Tk_Obs_Stop      = MakePlot(pFile,TkPattern,"Stop"               , 2, "Stop130"      , "Stop200"      , "Stop300"      , "Stop400"      , "Stop500"      , "Stop600"    , "Stop700"    , "Stop800"                       );
-   TGraph* Tk_Obs_StopZ     = MakePlot(pFile,TkPattern,"Stop Z2"            , 2, "Stop300Z"     , "Stop400Z"     , "Stop500Z");
-   TGraph* Tk_Obs_StopN     = MakePlot(pFile,TkPattern,"StopN"              , 2, "Stop130N"     , "Stop200N"     , "Stop300N"     , "Stop400N"     , "Stop500N"     , "Stop600N"   , "Stop700N"   , "Stop800N"                      );
-   TGraph* Tk_Obs_GMStau    = MakePlot(pFile,TkPattern,"GMSB Stau"          , 2, "GMStau100"    , "GMStau126"    , "GMStau156"    , "GMStau200"    , "GMStau247"    , "GMStau308"    );
-//   TGraph* Tk_Obs_PPStau    = MakePlot(pFile,TkPattern,"Pair Prod. Stau  ", 2, "PPStau100"    , "PPStau126"    , "PPStau156"    , "PPStau200"    , "PPStau247"    , "PPStau308"    );
-//   TGraph* Tk_Obs_DCStau    = MakePlot(pFile,TkPattern,"DiChamp    Stau  ", 2, "DCStau121"    , "DCStau182"    , "DCStau242"    , "DCStau302"                                      );
+//   TGraph* Tk_Obs_Gluino2C  = MakePlot(pFile,TkPattern,syst,"Gluino  (2C)     ", 2, "Gluino300_2C" , "Gluino400_2C" , "Gluino500_2C" , "Gluino600_2C" , "Gluino700_2C", "Gluino800_2C", "Gluino900_2C", "Gluino1000_2C" );
+//   TGraph* Tk_Obs_GluinoF0  = MakePlot(pFile,TkPattern,syst,"Gluino  (f=00\\%)", 2, "Gluino300_f0" , "Gluino400_f0" , "Gluino500_f0" , "Gluino600_f0" , "Gluino700_f0", "Gluino800_f0", "Gluino900_f0", "Gluino1000_f0" );
+   TGraph* Tk_Obs_GluinoF1  = MakePlot(pFile,TkPattern,syst,"Gluino (f=10\\%)", 2, "Gluino300_f1" , "Gluino400_f1" , "Gluino500_f1" , "Gluino600_f1" , "Gluino700_f1", "Gluino800_f1", "Gluino900_f1", "Gluino1000_f1" );
+   TGraph* Tk_Obs_GluinoZF1 = MakePlot(pFile,TkPattern,syst,"Gluino Z2 (f=10\\%)", 2, "Gluino600Z_f1" , "Gluino700Z_f1", "Gluino800Z_f1");
+   TGraph* Tk_Obs_GluinoF5  = MakePlot(pFile,TkPattern,syst,"Gluino (f=50\\%)", 2, "Gluino300_f5" , "Gluino400_f5" , "Gluino500_f5" , "Gluino600_f5" , "Gluino700_f5", "Gluino800_f5", "Gluino900_f5", "Gluino1000_f5" );
+//   TGraph* Tk_Obs_GluinoNF0 = MakePlot(pFile,TkPattern,syst,"GluinoN (f=00\\%)", 2, "Gluino300N_f0", "Gluino400N_f0", "Gluino500N_f0", "Gluino600N_f0", "Gluino700N_f0", "Gluino800N_f0", "Gluino900N_f0", "Gluino1000N_f0" );
+   TGraph* Tk_Obs_GluinoNF1 = MakePlot(pFile,TkPattern,syst,"GluinoN (f=10\\%)", 2, "Gluino300N_f1", "Gluino400N_f1", "Gluino500N_f1", "Gluino600N_f1", "Gluino700N_f1", "Gluino800N_f1", "Gluino900N_f1", "Gluino1000N_f1" );
+//   TGraph* Tk_Obs_GluinoNF5 = MakePlot(pFile,TkPattern,syst,"GluinoN (f=50\\%)", 2, "Gluino300N_f5", "Gluino400N_f5", "Gluino500N_f5", "Gluino600N_f5", "Gluino700N_f5", "Gluino800N_f5" , "Gluino900N_f5" , "Gluino1000N_f5" );
+//   TGraph* Tk_Obs_Stop2C    = MakePlot(pFile,TkPattern,syst,"Stop    (2C)     ", 2, "Stop130_2C"   , "Stop200_2C"   , "Stop300_2C"   , "Stop400_2C"   , "Stop500_2C"   , "Stop600_2C" , "Stop700_2C" , "Stop800_2C"                    );
+   TGraph* Tk_Obs_Stop      = MakePlot(pFile,TkPattern,syst,"Stop"               , 2, "Stop130"      , "Stop200"      , "Stop300"      , "Stop400"      , "Stop500"      , "Stop600"    , "Stop700"    , "Stop800"                       );
+   TGraph* Tk_Obs_StopZ     = MakePlot(pFile,TkPattern,syst,"Stop Z2"            , 2, "Stop300Z"     , "Stop400Z"     , "Stop500Z");
+   TGraph* Tk_Obs_StopN     = MakePlot(pFile,TkPattern,syst,"StopN"              , 2, "Stop130N"     , "Stop200N"     , "Stop300N"     , "Stop400N"     , "Stop500N"     , "Stop600N"   , "Stop700N"   , "Stop800N"                      );
+   TGraph* Tk_Obs_GMStau    = MakePlot(pFile,TkPattern,syst,"GMSB Stau"          , 2, "GMStau100"    , "GMStau126"    , "GMStau156"    , "GMStau200"    , "GMStau247"    , "GMStau308"    );
+//   TGraph* Tk_Obs_PPStau    = MakePlot(pFile,TkPattern,syst,"Pair Prod. Stau  ", 2, "PPStau100"    , "PPStau126"    , "PPStau156"    , "PPStau200"    , "PPStau247"    , "PPStau308"    );
+//   TGraph* Tk_Obs_DCStau    = MakePlot(pFile,TkPattern,syst,"DiChamp    Stau  ", 2, "DCStau121"    , "DCStau182"    , "DCStau242"    , "DCStau302"                                      );
    fprintf(pFile,"      \\end{tabular}\n\\end{table}\n\n");
    fprintf(pFile, "\\begin{table}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
 
-//   TGraph* Mu_Obs_Gluino2C  = MakePlot(pFile,MuPattern,"Gluino  (2C)     ", 2, "Gluino300_2C" , "Gluino400_2C" , "Gluino500_2C" , "Gluino600_2C" , "Gluino700_2C", "Gluino800_2C", "Gluino900_2C", "Gluino1000_2C" );
-//   TGraph* Mu_Obs_GluinoF0  = MakePlot(pFile,MuPattern,"Gluino  (f=00\\%)", 2, "Gluino300_f0" , "Gluino400_f0" , "Gluino500_f0" , "Gluino600_f0" , "Gluino700_f0", "Gluino800_f0", "Gluino900_f0", "Gluino1000_f0" );
-   TGraph* Mu_Obs_GluinoF1  = MakePlot(pFile,MuPattern,"Gluino (f=10\\%)", 2, "Gluino300_f1" , "Gluino400_f1" , "Gluino500_f1" , "Gluino600_f1" , "Gluino700_f1", "Gluino800_f1", "Gluino900_f1", "Gluino1000_f1" );
-   TGraph* Mu_Obs_GluinoZF1 = MakePlot(pFile,MuPattern,"Gluino Z2 (f=10\\%)", 2, "Gluino600Z_f1" , "Gluino700Z_f1", "Gluino800Z_f1");
-   TGraph* Mu_Obs_GluinoF5  = MakePlot(pFile,MuPattern,"Gluino (f=50\\%)", 2, "Gluino300_f5" , "Gluino400_f5" , "Gluino500_f5" , "Gluino600_f5" , "Gluino700_f5", "Gluino800_f5", "Gluino900_f5", "Gluino1000_f5" );
-//   TGraph* Mu_Obs_GluinoNF0 = MakePlot(pFile,MuPattern,"GluinoN (f=00\\%)", 2, "Gluino300N_f0", "Gluino400N_f0", "Gluino500N_f0", "Gluino600N_f0", "Gluino700N_f0", "Gluino800N_f0", "Gluino900N_f0", "Gluino1000N_f0" );
-   TGraph* Mu_Obs_GluinoNF1 = MakePlot(pFile,MuPattern,"GluinoN (f=10\\%)", 2, "Gluino300N_f1", "Gluino400N_f1", "Gluino500N_f1", "Gluino600N_f1", "Gluino700N_f1", "Gluino800N_f1", "Gluino900N_f1", "Gluino1000N_f1" );
-//   TGraph* Mu_Obs_GluinoNF5 = MakePlot(pFile,MuPattern,"GluinoN (f=50\\%)", 2, "Gluino300N_f5", "Gluino400N_f5", "Gluino500N_f5", "Gluino600N_f5", "Gluino700N_f5", "Gluino800N_f5" , "Gluino900N_f5" , "Gluino1000N_f5" );
-//   TGraph* Mu_Obs_Stop2C    = MakePlot(pFile,MuPattern,"Stop    (2C)     ", 2, "Stop130_2C"   , "Stop200_2C"   , "Stop300_2C"   , "Stop400_2C"   , "Stop500_2C"   , "Stop600_2C" , "Stop700_2C" , "Stop800_2C"                    );
-   TGraph* Mu_Obs_Stop      = MakePlot(pFile,MuPattern,"Stop"               , 2, "Stop130"      , "Stop200"      , "Stop300"      , "Stop400"      , "Stop500"      , "Stop600"    , "Stop700"    , "Stop800"                       );
-   TGraph* Mu_Obs_StopZ     = MakePlot(pFile,MuPattern,"Stop Z2"            , 2, "Stop300Z"     , "Stop400Z"     , "Stop500Z");
-   TGraph* Mu_Obs_StopN     = MakePlot(pFile,MuPattern,"StopN"              , 2, "Stop130N"     , "Stop200N"     , "Stop300N"     , "Stop400N"     , "Stop500N"     , "Stop600N"   , "Stop700N"   , "Stop800N"                      );
-   TGraph* Mu_Obs_GMStau    = MakePlot(pFile,MuPattern,"GMSB Stau"          , 2, "GMStau100"    , "GMStau126"    , "GMStau156"    , "GMStau200"    , "GMStau247"    , "GMStau308"    );
-//   TGraph* Mu_Obs_PPStau    = MakePlot(pFile,MuPattern,"Pair Prod. Stau  ", 2, "PPStau100"    , "PPStau126"    , "PPStau156"    , "PPStau200"    , "PPStau247"    , "PPStau308"    );
-//   TGraph* Mu_Obs_DCStau    = MakePlot(pFile,MuPattern,"DiChamp    Stau  ", 2, "DCStau121"    , "DCStau182"    , "DCStau242"    , "DCStau302"                                      );
+//   TGraph* Mu_Obs_Gluino2C  = MakePlot(pFile,MuPattern,syst,"Gluino  (2C)     ", 2, "Gluino300_2C" , "Gluino400_2C" , "Gluino500_2C" , "Gluino600_2C" , "Gluino700_2C", "Gluino800_2C", "Gluino900_2C", "Gluino1000_2C" );
+//   TGraph* Mu_Obs_GluinoF0  = MakePlot(pFile,MuPattern,syst,"Gluino  (f=00\\%)", 2, "Gluino300_f0" , "Gluino400_f0" , "Gluino500_f0" , "Gluino600_f0" , "Gluino700_f0", "Gluino800_f0", "Gluino900_f0", "Gluino1000_f0" );
+   TGraph* Mu_Obs_GluinoF1  = MakePlot(pFile,MuPattern,syst,"Gluino (f=10\\%)", 2, "Gluino300_f1" , "Gluino400_f1" , "Gluino500_f1" , "Gluino600_f1" , "Gluino700_f1", "Gluino800_f1", "Gluino900_f1", "Gluino1000_f1" );
+   TGraph* Mu_Obs_GluinoZF1 = MakePlot(pFile,MuPattern,syst,"Gluino Z2 (f=10\\%)", 2, "Gluino600Z_f1" , "Gluino700Z_f1", "Gluino800Z_f1");
+   TGraph* Mu_Obs_GluinoF5  = MakePlot(pFile,MuPattern,syst,"Gluino (f=50\\%)", 2, "Gluino300_f5" , "Gluino400_f5" , "Gluino500_f5" , "Gluino600_f5" , "Gluino700_f5", "Gluino800_f5", "Gluino900_f5", "Gluino1000_f5" );
+//   TGraph* Mu_Obs_GluinoNF0 = MakePlot(pFile,MuPattern,syst,"GluinoN (f=00\\%)", 2, "Gluino300N_f0", "Gluino400N_f0", "Gluino500N_f0", "Gluino600N_f0", "Gluino700N_f0", "Gluino800N_f0", "Gluino900N_f0", "Gluino1000N_f0" );
+   TGraph* Mu_Obs_GluinoNF1 = MakePlot(pFile,MuPattern,syst,"GluinoN (f=10\\%)", 2, "Gluino300N_f1", "Gluino400N_f1", "Gluino500N_f1", "Gluino600N_f1", "Gluino700N_f1", "Gluino800N_f1", "Gluino900N_f1", "Gluino1000N_f1" );
+//   TGraph* Mu_Obs_GluinoNF5 = MakePlot(pFile,MuPattern,syst,"GluinoN (f=50\\%)", 2, "Gluino300N_f5", "Gluino400N_f5", "Gluino500N_f5", "Gluino600N_f5", "Gluino700N_f5", "Gluino800N_f5" , "Gluino900N_f5" , "Gluino1000N_f5" );
+//   TGraph* Mu_Obs_Stop2C    = MakePlot(pFile,MuPattern,syst,"Stop    (2C)     ", 2, "Stop130_2C"   , "Stop200_2C"   , "Stop300_2C"   , "Stop400_2C"   , "Stop500_2C"   , "Stop600_2C" , "Stop700_2C" , "Stop800_2C"                    );
+   TGraph* Mu_Obs_Stop      = MakePlot(pFile,MuPattern,syst,"Stop"               , 2, "Stop130"      , "Stop200"      , "Stop300"      , "Stop400"      , "Stop500"      , "Stop600"    , "Stop700"    , "Stop800"                       );
+   TGraph* Mu_Obs_StopZ     = MakePlot(pFile,MuPattern,syst,"Stop Z2"            , 2, "Stop300Z"     , "Stop400Z"     , "Stop500Z");
+   TGraph* Mu_Obs_StopN     = MakePlot(pFile,MuPattern,syst,"StopN"              , 2, "Stop130N"     , "Stop200N"     , "Stop300N"     , "Stop400N"     , "Stop500N"     , "Stop600N"   , "Stop700N"   , "Stop800N"                      );
+   TGraph* Mu_Obs_GMStau    = MakePlot(pFile,MuPattern,syst,"GMSB Stau"          , 2, "GMStau100"    , "GMStau126"    , "GMStau156"    , "GMStau200"    , "GMStau247"    , "GMStau308"    );
+//   TGraph* Mu_Obs_PPStau    = MakePlot(pFile,MuPattern,syst,"Pair Prod. Stau  ", 2, "PPStau100"    , "PPStau126"    , "PPStau156"    , "PPStau200"    , "PPStau247"    , "PPStau308"    );
+//   TGraph* Mu_Obs_DCStau    = MakePlot(pFile,MuPattern,syst,"DiChamp    Stau  ", 2, "DCStau121"    , "DCStau182"    , "DCStau242"    , "DCStau302"                                      );
    fprintf(pFile,"      \\end{tabular}\n\\end{table}\n\n");
    fprintf(pFile,"\\end{document}\n\n");
 
 
-
-
-
-   TGraph* GMStauXSec = MakePlot(NULL,TkPattern,"GMSB Stau        ", 0, "GMStau100"    , "GMStau126"    , "GMStau156"    , "GMStau200"    , "GMStau247"    , "GMStau308"    );
-//   TGraph* PPStauXSec = MakePlot(NULL,TkPattern,"Pair Prod. Stau  ", 0, "PPStau100"    , "PPStau126"    , "PPStau156"    , "PPStau200"    , "PPStau247"    , "PPStau308"    );
-//   TGraph* DCStauXSec = MakePlot(NULL,TkPattern,"DiChamp    Stau  ", 0, "DCStau121"    , "DCStau182"    , "DCStau242"    , "DCStau302"                                      );
+   TGraph* GMStauXSec = MakePlot(NULL,TkPattern,"","GMSB Stau        ", 0, "GMStau100"    , "GMStau126"    , "GMStau156"    , "GMStau200"    , "GMStau247"    , "GMStau308"    );
+//   TGraph* PPStauXSec = MakePlot(NULL,TkPattern,"","Pair Prod. Stau  ", 0, "PPStau100"    , "PPStau126"    , "PPStau156"    , "PPStau200"    , "PPStau247"    , "PPStau308"    );
+//   TGraph* DCStauXSec = MakePlot(NULL,TkPattern,"","DiChamp    Stau  ", 0, "DCStau121"    , "DCStau182"    , "DCStau242"    , "DCStau302"                                      );
 
    double ThGluinoMass [100]; double ThGluinoXSec [100];  double ThGluinoLow  [100]; double ThGluinoHigh [100]; double ThGluinoErrLow  [100];  double ThGluinoErrHigh [100];
    int ThGluinoN = ReadXSection("gluino_XSec.txt", ThGluinoMass,ThGluinoXSec,ThGluinoLow,ThGluinoHigh, ThGluinoErrLow, ThGluinoErrHigh);
@@ -331,6 +328,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for DCStau   \n", FindIntersection(Mu_Obs_DCStau   , DCStauXSec, 121, 302, 1, 0.0));
 
    fclose(pFile);
+   if(syst!="")return;
 
 
    string outpath = string("Results/EXCLUSION/");
@@ -465,20 +463,20 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 }
 
 
-TGraph* MakePlot(FILE* pFile, string InputPattern, string ModelName, int XSectionType, string Mass0, string Mass1, string Mass2, string Mass3, string Mass4, string Mass5, string Mass6, string Mass7, string Mass8, string Mass9){
+TGraph* MakePlot(FILE* pFile, string InputPattern, string syst, string ModelName, int XSectionType, string Mass0, string Mass1, string Mass2, string Mass3, string Mass4, string Mass5, string Mass6, string Mass7, string Mass8, string Mass9){
    unsigned int N=0;
    stAllInfo Infos[10];
 
-   if(Mass0!=""){Infos[0] = stAllInfo(InputPattern+"/EXCLUSION/"+Mass0+".txt"); N=1;}
-   if(Mass1!=""){Infos[1] = stAllInfo(InputPattern+"/EXCLUSION/"+Mass1+".txt"); N=2;}
-   if(Mass2!=""){Infos[2] = stAllInfo(InputPattern+"/EXCLUSION/"+Mass2+".txt"); N=3;}
-   if(Mass3!=""){Infos[3] = stAllInfo(InputPattern+"/EXCLUSION/"+Mass3+".txt"); N=4;}
-   if(Mass4!=""){Infos[4] = stAllInfo(InputPattern+"/EXCLUSION/"+Mass4+".txt"); N=5;}
-   if(Mass5!=""){Infos[5] = stAllInfo(InputPattern+"/EXCLUSION/"+Mass5+".txt"); N=6;}
-   if(Mass6!=""){Infos[6] = stAllInfo(InputPattern+"/EXCLUSION/"+Mass6+".txt"); N=7;}
-   if(Mass7!=""){Infos[7] = stAllInfo(InputPattern+"/EXCLUSION/"+Mass7+".txt"); N=8;}
-   if(Mass8!=""){Infos[8] = stAllInfo(InputPattern+"/EXCLUSION/"+Mass8+".txt"); N=9;}
-   if(Mass9!=""){Infos[9] = stAllInfo(InputPattern+"/EXCLUSION/"+Mass9+".txt"); N=10;}
+   if(Mass0!=""){Infos[0] = stAllInfo(InputPattern+"/EXCLUSION" + syst + "/"+Mass0+".txt"); N=1;}
+   if(Mass1!=""){Infos[1] = stAllInfo(InputPattern+"/EXCLUSION" + syst + "/"+Mass1+".txt"); N=2;}
+   if(Mass2!=""){Infos[2] = stAllInfo(InputPattern+"/EXCLUSION" + syst + "/"+Mass2+".txt"); N=3;}
+   if(Mass3!=""){Infos[3] = stAllInfo(InputPattern+"/EXCLUSION" + syst + "/"+Mass3+".txt"); N=4;}
+   if(Mass4!=""){Infos[4] = stAllInfo(InputPattern+"/EXCLUSION" + syst + "/"+Mass4+".txt"); N=5;}
+   if(Mass5!=""){Infos[5] = stAllInfo(InputPattern+"/EXCLUSION" + syst + "/"+Mass5+".txt"); N=6;}
+   if(Mass6!=""){Infos[6] = stAllInfo(InputPattern+"/EXCLUSION" + syst + "/"+Mass6+".txt"); N=7;}
+   if(Mass7!=""){Infos[7] = stAllInfo(InputPattern+"/EXCLUSION" + syst + "/"+Mass7+".txt"); N=8;}
+   if(Mass8!=""){Infos[8] = stAllInfo(InputPattern+"/EXCLUSION" + syst + "/"+Mass8+".txt"); N=9;}
+   if(Mass9!=""){Infos[9] = stAllInfo(InputPattern+"/EXCLUSION" + syst + "/"+Mass9+".txt"); N=10;}
 
 
    double Mass   [10];for(unsigned int i=0;i<10;i++){Mass   [i]=Infos[i].Mass;    }
@@ -496,14 +494,14 @@ TGraph* MakePlot(FILE* pFile, string InputPattern, string ModelName, int XSectio
    }
 */
 
-   if(XSectionType>0)for(unsigned int i=0;i<N;i++)printf("%-18s %5.0f --> Pt>%+6.1f & I>%+5.2f & TOF>%+4.2f & M>%3.0f--> NData=%2.0f  NPred=%6.1E+-%6.1E  NSign=%6.1E (Eff=%3.2f)\n",ModelName.c_str(),Infos[i].Mass,Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].WP_TOF,Infos[i].MassCut, Infos[i].NData, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NSign, Infos[i].Eff);
+   if(XSectionType>0 && syst=="")for(unsigned int i=0;i<N;i++)printf("%-18s %5.0f --> Pt>%+6.1f & I>%+5.2f & TOF>%+4.2f & M>%3.0f--> NData=%2.0f  NPred=%6.1E+-%6.1E  NSign=%6.1E (Eff=%3.2f)\n",ModelName.c_str(),Infos[i].Mass,Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].WP_TOF,Infos[i].MassCut, Infos[i].NData, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NSign, Infos[i].Eff);
 
 
 
    if(XSectionType>0){
    for(unsigned int i=0;i<N;i++){
-      if(Infos[i].WP_TOF==-1) fprintf(pFile,"%-20s & %4.0f & %6.0f & %5.2f & / & %4.0f & %6.3f $\\pm$ %6.3f & %2.0f & %3.2f & %6.1E & %6.1E & %6.1E \\\\\n", ModelName.c_str(), Infos[i].Mass,  Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].MassCut, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NData, Infos[i].Eff, Infos[i].XSec_Th,Infos[i].XSec_Exp, Infos[i].XSec_Obs);
-      else                    fprintf(pFile,"%-20s & %4.0f & %6.0f & %5.2f & %4.2f & %4.0f & %6.3f $\\pm$ %6.3f & %2.0f & %3.2f & %6.1E & %6.1E & %6.1E \\\\\n", ModelName.c_str(), Infos[i].Mass,  Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].WP_TOF,Infos[i].MassCut, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NData, Infos[i].Eff, Infos[i].XSec_Th,Infos[i].XSec_Exp, Infos[i].XSec_Obs);
+      if(Infos[i].WP_TOF==-1) fprintf(pFile,"%-20s & %4.0f & %6.0f & %5.2f & / & %4.0f & %6.3f $\\pm$ %6.3f & %2.0f & %4.3f & %6.1E & %6.1E & %6.1E \\\\\n", ModelName.c_str(), Infos[i].Mass,  Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].MassCut, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NData, Infos[i].Eff, Infos[i].XSec_Th,Infos[i].XSec_Exp, Infos[i].XSec_Obs);
+      else                    fprintf(pFile,"%-20s & %4.0f & %6.0f & %5.2f & %4.2f & %4.0f & %6.3f $\\pm$ %6.3f & %2.0f & %4.3f & %6.1E & %6.1E & %6.1E \\\\\n", ModelName.c_str(), Infos[i].Mass,  Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].WP_TOF,Infos[i].MassCut, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NData, Infos[i].Eff, Infos[i].XSec_Th,Infos[i].XSec_Exp, Infos[i].XSec_Obs);
    }}
    
    TGraph* graph = NULL;
@@ -516,7 +514,7 @@ TGraph* MakePlot(FILE* pFile, string InputPattern, string ModelName, int XSectio
    return graph;
 }
 
-stAllInfo Exclusion(string pattern, string modelName, string signal, double Ratio_0C, double Ratio_1C, double Ratio_2C){
+stAllInfo Exclusion(string pattern, string modelName, string signal, double Ratio_0C, double Ratio_1C, double Ratio_2C, string syst){
    GetSignalDefinition(signals);
    CurrentSampleIndex        = JobIdToIndex(signal); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return stAllInfo();  } 
 
@@ -547,10 +545,10 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
 
    double RatioValue[] = {Ratio_0C, Ratio_1C, Ratio_2C};
 
-
+ 
    string outpath = pattern + "/EXCLUSION/";
+   if(syst!=""){outpath = pattern + "/EXCLUSION" + syst + "/";}
    MakeDirectories(outpath);
-
 
    FILE* pFile = fopen((outpath+"/"+modelName+".info").c_str(),"w");
    if(!pFile)printf("Can't open file : %s\n",(outpath+"/"+modelName+".info").c_str());
@@ -577,13 +575,10 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    string InputPathSign     = pattern + "Histos.root";
    TFile* InputFileSign     = new TFile(InputPathSign.c_str());
 
-
-   MassSign[0]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "/Mass");
-   MassSign[1]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC0/Mass");
-   MassSign[2]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC1/Mass");
-   MassSign[3]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC2/Mass");
-
-
+   MassSign[0]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "/Mass" + syst);
+   MassSign[1]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC0/Mass" + syst);
+   MassSign[2]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC1/Mass" + syst);
+   MassSign[3]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC2/Mass" + syst);
 
    TH1D* MassSignProj[4];
    ///##############################################################################"
