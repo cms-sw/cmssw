@@ -294,7 +294,7 @@
      <string>1005</string>
    </config>
    <config name="isVisible" version="0">
-     <string>f</string>
+     <string>t</string>
    </config>
    <config name="layer" version="0">
      <string>1</string>
@@ -326,7 +326,7 @@
      <string>1005</string>
    </config>
    <config name="isVisible" version="0">
-     <string>f</string>
+     <string>t</string>
    </config>
    <config name="layer" version="0">
      <string>1</string>
@@ -416,7 +416,7 @@
      <string></string>
    </config>
    <config name="filterExpression" version="0">
-     <string>abs(pdgId())==211</string>
+     <string>abs(pdgId())==211 &amp;&amp; pt()&gt;1</string>
    </config>
    <config name="color" version="0">
      <string>1005</string>
@@ -448,7 +448,7 @@
      <string></string>
    </config>
    <config name="filterExpression" version="0">
-     <string>pdgId()==130</string>
+     <string>pdgId()==130 &amp;&amp; pt()&gt;1</string>
    </config>
    <config name="color" version="0">
      <string>1002</string>
@@ -480,7 +480,7 @@
      <string></string>
    </config>
    <config name="filterExpression" version="0">
-     <string>pdgId()==22</string>
+     <string>pdgId()==22 &amp;&amp; pt()&gt;1</string>
    </config>
    <config name="color" version="0">
      <string>1008</string>
@@ -576,7 +576,7 @@
      <string></string>
    </config>
    <config name="filterExpression" version="0">
-     <string>pt()&gt;15</string>
+     <string>pt()&gt;20</string>
    </config>
    <config name="color" version="0">
      <string>1000</string>
@@ -658,38 +658,6 @@
      <string>0</string>
    </config>
   </config>
-  <config name="reducedEcalRecHitsEB" version="5">
-   <config name="type" version="0">
-     <string>edm::SortedCollection&lt;EcalRecHit,edm::StrictWeakOrdering&lt;EcalRecHit&gt; &gt;</string>
-   </config>
-   <config name="moduleLabel" version="0">
-     <string>reducedEcalRecHitsEB</string>
-   </config>
-   <config name="productInstanceLabel" version="0">
-     <string></string>
-   </config>
-   <config name="processName" version="0">
-     <string></string>
-   </config>
-   <config name="filterExpression" version="0">
-     <string>energy &gt; 0.02</string>
-   </config>
-   <config name="color" version="0">
-     <string>1011</string>
-   </config>
-   <config name="isVisible" version="0">
-     <string>f</string>
-   </config>
-   <config name="layer" version="0">
-     <string>20</string>
-   </config>
-   <config name="purpose" version="0">
-     <string>Ecal RecHit</string>
-   </config>
-   <config name="transparency" version="0">
-     <string>0</string>
-   </config>
-  </config>
  </config>
  <config name="EventNavigator" version="1">
   <config name="EventFilters" version="1">
@@ -743,7 +711,7 @@
      <string>72</string>
    </config>
    <config name="y" version="0">
-     <string>37</string>
+     <string>44</string>
    </config>
    <config name="width" version="0">
      <string>1175</string>
@@ -851,7 +819,7 @@
       <string>1</string>
     </config>
     <config name="cameraZoomRho Phi" version="0">
-      <string>1.34784</string>
+      <string>6.47872</string>
     </config>
     <config name="cameraMatrix0Rho Phi" version="0">
       <string>1</string>
@@ -890,13 +858,13 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix12Rho Phi" version="0">
-      <string>2339.79</string>
+      <string>2358.79</string>
     </config>
     <config name="cameraMatrix13Rho Phi" version="0">
-      <string>0</string>
+      <string>2.84102</string>
     </config>
     <config name="cameraMatrix14Rho Phi" version="0">
-      <string>0</string>
+      <string>20.1282</string>
     </config>
     <config name="cameraMatrix15Rho Phi" version="0">
       <string>1</string>
@@ -1027,13 +995,13 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix12Rho Z" version="0">
-      <string>374.588</string>
+      <string>395.116</string>
     </config>
     <config name="cameraMatrix13Rho Z" version="0">
-      <string>-0.244042</string>
+      <string>-0.390826</string>
     </config>
     <config name="cameraMatrix14Rho Z" version="0">
-      <string>-0.39287</string>
+      <string>173.202</string>
     </config>
     <config name="cameraMatrix15Rho Z" version="0">
       <string>1</string>
@@ -1125,22 +1093,22 @@
       <string>1</string>
     </config>
     <config name="cameraMatrix0Plain3D" version="0">
-      <string>0.658391</string>
+      <string>-0.662133</string>
     </config>
     <config name="cameraMatrix1Plain3D" version="0">
-      <string>-0.723108</string>
+      <string>0.714694</string>
     </config>
     <config name="cameraMatrix2Plain3D" version="0">
-      <string>0.208892</string>
+      <string>-0.225368</string>
     </config>
     <config name="cameraMatrix3Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix4Plain3D" version="0">
-      <string>0.739421</string>
+      <string>-0.733567</string>
     </config>
     <config name="cameraMatrix5Plain3D" version="0">
-      <string>0.673243</string>
+      <string>-0.679617</string>
     </config>
     <config name="cameraMatrix6Plain3D" version="0">
       <string>0</string>
@@ -1149,25 +1117,25 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix8Plain3D" version="0">
-      <string>-0.140635</string>
+      <string>-0.153164</string>
     </config>
     <config name="cameraMatrix9Plain3D" version="0">
-      <string>0.154459</string>
+      <string>0.165323</string>
     </config>
     <config name="cameraMatrix10Plain3D" version="0">
-      <string>0.977939</string>
+      <string>0.974274</string>
     </config>
     <config name="cameraMatrix11Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix12Plain3D" version="0">
-      <string>1381.96</string>
+      <string>-1381.2</string>
     </config>
     <config name="cameraMatrix13Plain3D" version="0">
-      <string>-1517.8</string>
+      <string>1490.84</string>
     </config>
     <config name="cameraMatrix14Plain3D" version="0">
-      <string>408.569</string>
+      <string>-500.122</string>
     </config>
     <config name="cameraMatrix15Plain3D" version="0">
       <string>1</string>
@@ -1221,7 +1189,7 @@
       <string>1</string>
     </config>
     <config name="Plain3D FOV" version="0">
-      <string>17.3622</string>
+      <string>15.4645</string>
     </config>
    </config>
    <config name="Table" version="1">
@@ -1348,6 +1316,21 @@
       <string>phi</string>
       <string>phi</string>
       <string>3</string>
+      <string>chEFrac</string>
+      <string>chargedHadronEnergyFraction()</string>
+      <string>2</string>
+      <string>photEFrac</string>
+      <string>photonEnergyFraction()</string>
+      <string>2</string>
+      <string>nhEFrac</string>
+      <string>neutralHadronEnergyFraction()</string>
+      <string>2</string>
+      <string>eEFrac</string>
+      <string>electronEnergyFraction()</string>
+      <string>2</string>
+      <string>muEFrac</string>
+      <string>muonEnergyFraction()</string>
+      <string>2</string>
     </config>
     <config name="reco::MET" version="1">
       <string>MET</string>
@@ -1526,24 +1509,12 @@
     </config>
     <config name="TableView" version="1">
      <config name="collection" version="0">
-       <string>PF charged hadrons</string>
+       <string>PF jets</string>
      </config>
      <config name="sortColumn" version="3">
      </config>
      <config name="descendingSort" version="1">
      </config>
-    </config>
-   </config>
-   <config name="HLT Table" version="2">
-    <config name="Filter" version="0">
-      <string></string>
-    </config>
-    <config name="Process" version="0">
-      <string>HLT</string>
-    </config>
-    <config name="sortColumn" version="4294967295">
-    </config>
-    <config name="descendingSort" version="1">
     </config>
    </config>
    <config name="Lego" version="6">
@@ -1629,28 +1600,25 @@
       <string>1</string>
     </config>
     <config name="topViewLego" version="0">
-      <string>1</string>
-    </config>
-    <config name="cameraZoomLego" version="0">
-      <string>0.78</string>
+      <string>0</string>
     </config>
     <config name="cameraMatrix0Lego" version="0">
-      <string>1</string>
+      <string>-0.417725</string>
     </config>
     <config name="cameraMatrix1Lego" version="0">
-      <string>0</string>
+      <string>0.586713</string>
     </config>
     <config name="cameraMatrix2Lego" version="0">
-      <string>0</string>
+      <string>0.693738</string>
     </config>
     <config name="cameraMatrix3Lego" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix4Lego" version="0">
-      <string>0</string>
+      <string>-0.814623</string>
     </config>
     <config name="cameraMatrix5Lego" version="0">
-      <string>1</string>
+      <string>-0.579991</string>
     </config>
     <config name="cameraMatrix6Lego" version="0">
       <string>0</string>
@@ -1659,28 +1627,79 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix8Lego" version="0">
-      <string>0</string>
+      <string>0.402362</string>
     </config>
     <config name="cameraMatrix9Lego" version="0">
-      <string>0</string>
+      <string>-0.565135</string>
     </config>
     <config name="cameraMatrix10Lego" version="0">
-      <string>1</string>
+      <string>0.720227</string>
     </config>
     <config name="cameraMatrix11Lego" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix12Lego" version="0">
-      <string>16.1268</string>
+      <string>-11.3511</string>
     </config>
     <config name="cameraMatrix13Lego" version="0">
-      <string>0</string>
+      <string>15.9431</string>
     </config>
     <config name="cameraMatrix14Lego" version="0">
-      <string>0</string>
+      <string>18.8514</string>
     </config>
     <config name="cameraMatrix15Lego" version="0">
       <string>1</string>
+    </config>
+    <config name="cameraMatrixBase0Lego" version="0">
+      <string>-1</string>
+    </config>
+    <config name="cameraMatrixBase1Lego" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase2Lego" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase3Lego" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase4Lego" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase5Lego" version="0">
+      <string>-1</string>
+    </config>
+    <config name="cameraMatrixBase6Lego" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase7Lego" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase8Lego" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase9Lego" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase10Lego" version="0">
+      <string>1</string>
+    </config>
+    <config name="cameraMatrixBase11Lego" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase12Lego" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase13Lego" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase14Lego" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase15Lego" version="0">
+      <string>1</string>
+    </config>
+    <config name="Lego FOV" version="0">
+      <string>20.8501</string>
     </config>
    </config>
   </config>
@@ -1724,44 +1743,16 @@
        <string>1</string>
      </config>
      <config name="x" version="0">
-       <string>1276</string>
+       <string>1247</string>
      </config>
      <config name="y" version="0">
-       <string>79</string>
+       <string>44</string>
      </config>
      <config name="width" version="0">
-       <string>318</string>
+       <string>597</string>
      </config>
      <config name="height" version="0">
-       <string>404</string>
-     </config>
-    </config>
-   </config>
-   <config name="HLT Table" version="2">
-    <config name="weight" version="0">
-      <string>1</string>
-    </config>
-    <config name="undocked" version="0">
-      <string>1</string>
-    </config>
-    <config name="UndockedWindowPos" version="2">
-     <config name="weight" version="0">
-       <string>1</string>
-     </config>
-     <config name="undocked" version="0">
-       <string>1</string>
-     </config>
-     <config name="x" version="0">
-       <string>1277</string>
-     </config>
-     <config name="y" version="0">
-       <string>505</string>
-     </config>
-     <config name="width" version="0">
-       <string>327</string>
-     </config>
-     <config name="height" version="0">
-       <string>396</string>
+       <string>453</string>
      </config>
     </config>
    </config>
