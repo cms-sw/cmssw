@@ -6,8 +6,8 @@
  *
  * 
  *
- *  $Date: 2011/06/06 13:49:58 $
- *  $Revision: 1.7 $
+ *  $Date: 2011/06/14 16:36:54 $
+ *  $Revision: 1.5 $
  *  \author Dmytro Kovalskyi, R. Bellan - UCSB <riccardo.bellan@cern.ch> 
  */
 
@@ -115,7 +115,22 @@ void TestMuons::printMuonCollections(const edm::Handle<edm::View<reco::Muon> > &
     
     if(muon->isAValidMuonTrack(reco::Muon::DYT))
       std::cout << "DYT pt: " << muon->dytTrack()->pt() << std::endl;     
-    
+   
+    if(muon->isPFIsolationValid()){
+      std::cout << "PF Isolation is Valid." << std::endl 
+		<< "Iso 0.3, (sumChargedHadronPt, sumChargedParticlePt, sumNeutralHadronEt, sumPhotonEt, sumPUPt): "
+		<< muon->pfIsolationR03().sumChargedHadronPt << ", " << muon->pfIsolationR03().sumChargedParticlePt << ", " 
+		<< muon->pfIsolationR03().sumNeutralHadronEt << ", " << muon->pfIsolationR03().sumPhotonEt << ", " 
+		<< muon->pfIsolationR03().sumPUPt <<std::endl;
+      std::cout << "Iso 0.4, (sumChargedHadronPt, sumChargedParticlePt, sumNeutralHadronEt, sumPhotonEt, sumPUPt): "
+		<< muon->pfIsolationR04().sumChargedHadronPt << ", " << muon->pfIsolationR04().sumChargedParticlePt << ", " 
+		<< muon->pfIsolationR04().sumNeutralHadronEt << ", " << muon->pfIsolationR04().sumPhotonEt << ", " 
+		<< muon->pfIsolationR04().sumPUPt <<std::endl;
+
+
+    }
+
+ 
   }
   
 }

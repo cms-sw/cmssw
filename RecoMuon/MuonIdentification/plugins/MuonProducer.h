@@ -8,8 +8,8 @@
  * the entire event has been reconstructed. The collections produced here are meant to be used for the final analysis (or as PAT input).
  * The previous muon collection is meant to be transient.
  *
- *  $Date: 2011/06/06 13:49:58 $
- *  $Revision: 1.7 $
+ *  $Date: 2011/06/06 15:48:59 $
+ *  $Revision: 1.8 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
@@ -22,6 +22,8 @@
 namespace reco {class Track;}
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+
+class MuPFIsoHelper;
 
 
 class MuonProducer : public edm::EDProducer {
@@ -76,6 +78,9 @@ private:
   edm::InputTag theCosmicCompMapName;
 
   std::string theMuToMuMapName;
+
+  MuPFIsoHelper *thePFIsoHelper;
+
 };
 #endif
 

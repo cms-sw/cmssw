@@ -1,12 +1,14 @@
 /** \class MuonProducer
  *  See header file.
  *
- *  $Date: 2011/06/06 13:49:58 $
- *  $Revision: 1.8 $
+ *  $Date: 2011/06/06 15:48:59 $
+ *  $Revision: 1.9 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
 #include "RecoMuon/MuonIdentification/plugins/MuonProducer.h"
+
+#include "RecoMuon/MuonIsolation/interface/MuPFIsoHelper.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -89,11 +91,14 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
     theMuToMuMapName = theMuonsCollectionLabel.label()+"2"+theAlias+"sMap";
     produces<edm::ValueMap<reco::MuonRef> >(theMuToMuMapName);
 
+
+    thePFIsoHelper = new MuPFIsoHelper(pSet.getParameter<edm::ParameterSet>("PFIsolation"));
+
 }
 
 /// Destructor
 MuonProducer::~MuonProducer(){ 
-
+  if (thePFIsoHelper) delete thePFIsoHelper;
 }
 
 
@@ -114,9 +119,9 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
    event.getByLabel(thePFCandLabel, pfCandidates);
 
 
-   // FIXME! Add map between old and new muons! (useful for the following PF step)
+   // fetch collections for PFIso
+   thePFIsoHelper->beginEvent(event);
 
-   // FIXME: need to update the asso map too!!!!!!
    
    // Fill timing information
    edm::Handle<reco::MuonTimeExtraMap> timeMapCmb;
@@ -217,7 +222,6 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
      
      fillMuonMap<reco::MuonRef>(event,inputMuonsOH, muonRefColl, theMuToMuMapName);
 
-     // FIXME: need to update the TeV, ID, showers, cosmicID asso map too!!!!!!
      return;
    }
    
@@ -268,9 +272,12 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 	  << " STA " << outMuon.isStandAloneMuon() 
 	  << " p4 "  << outMuon.p4() << endl;
 
+     // Add PF isolation info
+     thePFIsoHelper->embedPFIsolation(outMuon,muRef);
+
+
      
-     // Fill timing information
-     
+     // Fill timing information   
      
      combinedTimeColl[i] = (*timeMapCmb)[muRef];
      dtTimeColl[i] = (*timeMapDT)[muRef];

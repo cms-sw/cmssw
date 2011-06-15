@@ -6,6 +6,7 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="RecoMuon/Navigation"/>
 <use   name="RecoMuon/TransientTrackingRecHit"/>
+<use   name="RecoMuon/MuonIsolation"/>
 <use   name="RecoTracker/TkDetLayers"/>
 <use   name="RecoTracker/TkMSParametrization"/>
 <use   name="RecoTracker/TransientTrackingRecHit"/>
@@ -33,7 +34,7 @@
 <use   name="roothistmatrix"/>
 <use   name="RecoMuon/TrackingTools"/>
 <use   name="DataFormats/CSCRecHit"/>
-<use   Name="RecoLocalCalo/HcalRecAlgos"/>
+<use   name="RecoLocalCalo/HcalRecAlgos"/>
 <export>
   <lib   name="1"/>
 </export>
