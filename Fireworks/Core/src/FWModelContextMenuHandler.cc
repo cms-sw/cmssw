@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:04 CDT 2009
-// $Id: FWModelContextMenuHandler.cc,v 1.18 2011/03/25 18:02:46 amraktad Exp $
+// $Id: FWModelContextMenuHandler.cc,v 1.19 2011/06/10 01:17:16 amraktad Exp $
 //
 
 // system include files
@@ -233,10 +233,14 @@ FWModelContextMenuHandler::chosenItem(Int_t iChoice)
       }
       case kPrint:
       {
+         using namespace Reflex;
          FWModelId id = *(m_selectionManager->selected().begin());
-         ROOT::Reflex::Type rtype(ROOT::Reflex::Type::ByName(id.item()->modelType()->GetName()));
-         ROOT::Reflex::Object o(rtype, const_cast<void *>(id.item()->modelData(id.index())));
-         o.Invoke("print");
+         void* xx = &std::cout;
+         const std::vector<void*> j(1, xx);
+         Type rtype(ROOT::Reflex::Type::ByName(id.item()->modelType()->GetName()));
+         Object o(rtype, const_cast<void *>(id.item()->modelData(id.index())));
+         Member m = rtype.FunctionMemberByName("print",Type(Type::ByName("void (std::ostream&)"), CONST), 0 ,INHERITEDMEMBERS_ALSO );
+         m.Invoke(o, 0, j);
          break;
       }
       case kOpenObjectControllerMO:
@@ -333,21 +337,21 @@ FWModelContextMenuHandler::showSelectedModelContext(Int_t iX, Int_t iY, FWViewCo
 
    if(m_selectionManager->selected().size()==1) {
       {
-         std::string dm("print");
+         using namespace Reflex;
          ROOT::Reflex::Type rtype(ROOT::Reflex::Type::ByName(id.item()->modelType()->GetName()));
+         printf("id.item()->modelType()->GetName() %s \n",id.item()->modelType()->GetName());
          ROOT::Reflex::Object o(rtype, const_cast<void *>(id.item()->modelData(id.index())));
-
-         if ( rtype.MemberByName(dm))
+         EMEMBERQUERY inh =  INHERITEDMEMBERS_ALSO;
+         if ( rtype.FunctionMemberByName("print",Type(Type::ByName("void (std::ostream&)"), CONST), 0 , inh))
          {
             m_modelPopup->EnableEntry(kPrint);
-            // printf("Disable print \n");
+            // std::cout <<  "Enable " <<std::endl;
          }
          else
          {           
             m_modelPopup->DisableEntry(kPrint);
-            //printf("Enable print \n");
-         }
-         
+            // printf("Disable print \n");
+         }         
       }
       //add the detail view entries
       std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(*(m_selectionManager->selected().begin()));
