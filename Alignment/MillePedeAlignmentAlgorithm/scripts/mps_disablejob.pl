@@ -40,8 +40,10 @@ else
         {
           print "mps_disablejob.pl job $j is already disabled!\n";
         }
-      $JOBSTATUS[$j-1] = "DISABLED".$status;
-      
+      else
+        {
+          $JOBSTATUS[$j-1] = "DISABLED".$status;
+        }
     }
   }
 write_db();
