@@ -194,7 +194,10 @@ class WorkFlowRunner(Thread):
                         if 'HARVESTING' in fullcmd:
                             fullcmd += ' --filein file:step3_inDQM.root --fileout file:step4.root '
                         else:
-                            fullcmd += ' --filein file:step3.root '
+                            if not 'filein' in fullcmd:
+                                fullcmd += ' --filein file:step3.root '
+                            if not 'fileout' in fullcmd:
+                                fullcmd += '--fileout file:step.root '
                     fullcmd += ' > %s 2>&1; ' % ('step4_'+self.wf.nameId+'.log ',)
                     # print fullcmd
                     retStep4 = self.doCmd(fullcmd)
