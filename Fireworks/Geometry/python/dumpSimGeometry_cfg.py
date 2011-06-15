@@ -2,14 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DUMP")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.CSCGeometry.cscGeometry_cfi")
-process.load("Geometry.DTGeometry.dtGeometry_cfi")
-process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
-
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'START36_V10::All'
 
 process.source = cms.Source("EmptySource")
 
