@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/15 09:45:02 $
- *  $Revision: 1.13 $
+ *  $Date: 2011/06/15 10:52:23 $
+ *  $Revision: 1.15 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -265,7 +265,7 @@ void DTNoiseAnalysisTest::bookHistos() {
 
   if(detailedAnalysis) {
     histoName = "NoisyChannels";
-    threshChannelsHisto = dbe->book1D("","# of noisy channels vs threshold",15,500,2000);
+    threshChannelsHisto = dbe->book1D(histoName.c_str(),"# of noisy channels vs threshold",15,500,2000);
     threshChannelsHisto->setAxisTitle("threshold",1);
     threshChannelsHisto->setAxisTitle("# noisy channels",2);
   }
