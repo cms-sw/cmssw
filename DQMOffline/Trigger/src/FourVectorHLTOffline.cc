@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.98 2011/04/20 10:20:16 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.99 2011/05/04 10:20:00 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -979,9 +979,12 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
 
     vector<string> allPaths;
     // fill vectors of Muon, Egamma, JetMet, Rest, and Special paths
+
+    int vi = 0;
+
     for(PathInfoCollection::iterator v = hltPathsDiagonal_.begin(); v!= hltPathsDiagonal_.end(); ++v ) {
 
-      std::string pathName = v->getPath();
+      std::string pathName = removeVersions(v->getPath());
       //int objectType = v->getObjectType();
 
       vector<int> tempCount(5,0);
@@ -992,7 +995,7 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
       allPaths.push_back(pathName);
 
     }
-
+    
     fPathTempCountPair.push_back(make_pair("HLT_Any",0));
 
     fGroupName.push_back("All");
@@ -1030,8 +1033,11 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
 
     setupHltBxPlots();
 
+    vi = 0;
 
     for(PathInfoCollection::iterator v = hltPathsDiagonal_.begin(); v!= hltPathsDiagonal_.end(); ++v ) {
+
+      vi++;
 
        // -------------------------
        //
@@ -1040,8 +1046,9 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
        // -------------------------
        
        // get all modules in this HLT path
-       vector<string> moduleNames = hltConfig_.moduleLabels( v->getPath() ); 
-       
+      std::string pathName = removeVersions(v->getPath());
+      vector<string> moduleNames = hltConfig_.moduleLabels(v->getPath()); 
+
        int numModule = 0;
        string moduleName, moduleType, moduleEDMType;
        unsigned int moduleIndex;
@@ -1087,9 +1094,12 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
        //int nbin_sub = 5;
        int nbin_sub = v->filtersAndIndices.size()+2;
     
+
+       //TString thisPath = v->getPath();
+
        // count plots for subfilter
-       MonitorElement* filters = dbe_->book1D("Filters_" + v->getPath(), 
-                              "Filters_" + v->getPath(),
+       MonitorElement* filters = dbe_->book1D("Filters_" + pathName, 
+					      "Filters_" + pathName,
                               nbin_sub+1, -0.5, 0.5+(double)nbin_sub);
        
        for(unsigned int filt = 0; filt < v->filtersAndIndices.size(); filt++){
@@ -1101,7 +1111,7 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
        // book Count vs LS
        dbe_->setCurrentFolder(pathsIndividualHLTPathsPerLSFolder_.c_str());
        MonitorElement* tempME = dbe_->book1D(v->getPath() + "_count_per_LS", 
-                              v->getPath() + " count per LS",
+                              pathName + " count per LS",
                               nLS_, 0,nLS_);
        tempME->setAxisTitle("Luminosity Section");
 
@@ -1124,8 +1134,10 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
       MonitorElement *offDRL1Off, *offDROnOff, *l1DRL1On=0;
       
 
+      std::string pathName = removeVersions(v->getPath());
       std::string labelname("dummy");
-      labelname = v->getPath() + "_wrt_" + v->getDenomPath();
+      labelname = pathName + "_wrt_" + v->getDenomPath();
+
       std::string histoname(labelname+"_NOn");
       std::string title(labelname+" N online");
       double histEtaMax = 2.5;
@@ -1164,7 +1176,7 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
         histEtaMax = trackEtaMax_; 
       }
 
-      TString pathfolder = dirname_ + TString("/") + v->getPath();
+      TString pathfolder = dirname_ + TString("/") + pathName;
       dbe_->setCurrentFolder(pathfolder.Data());
 
       NOn =  dbe->book1D(histoname.c_str(), title.c_str(),10, 0.5, 10.5);
@@ -2624,3 +2636,21 @@ bool FourVectorHLTOffline::isVBTFMuon(const reco::Muon& muon)
   return true;
 
 }
+
+ string FourVectorHLTOffline::removeVersions(std::string histVersion) {
+   for (int ii = 1; ii < 10; ii++) {
+     string ver = "_v";
+     string version ="";
+     stringstream ss;
+     ss << ver << ii;
+     ss >> version;
+     
+     size_t pos = histVersion.find(version);
+     if (pos != std::string::npos)
+       histVersion.erase(pos,version.size());
+     
+   }
+   
+   return histVersion;
+ }
+ 

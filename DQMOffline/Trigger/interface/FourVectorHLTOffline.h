@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.64 2010/10/26 04:55:28 wmtan Exp $
+// $Id: FourVectorHLTOffline.h,v 1.65 2010/10/28 13:59:09 rekovic Exp $
 //
 //
 // system include files
@@ -156,6 +156,8 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       void selectTaus(const edm::Event& iEvent);
       void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
       void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
+      std::string removeVersions(std::string histVersion);
+
 
       // ----------member data --------------------------- 
       int nev_;
