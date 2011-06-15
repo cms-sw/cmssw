@@ -1,0 +1,326 @@
+#!  /usr/bin/env python
+import string, os
+from optparse import OptionParser
+
+class ClassesDefXmlParser(object):
+    """Parses a classes_def.xml file looking for class declarations that do not contain
+    ClassVersion attributes. Once found looks to see if this is a templated class and
+    ignore if it is.
+    """
+    
+    #The following are constants used to describe what data is kept
+    # in which index in the 'classes' member data
+    originalNameIndex=0
+    classVersionIndex=1
+    versionsToChecksumIndex = 2
+    
+    def __init__(self,filename):
+        self._file = filename
+        self.classes = dict()
+        self._presentClass = None
+        self.readClassesDefXML()
+    def readClassesDefXML(self):
+        import xml.parsers.expat
+        p = xml.parsers.expat.ParserCreate()
+        p.StartElementHandler = self.start_element
+        p.EndElementHandler = self.end_element
+        f = open(self._file)
+        # Replace any occurence of <>& in the attribute values by the xml parameter
+        rxml, nxml = f.read(), ''
+        q1,q2 = 0,0
+        for c in rxml :
+            if   (q1 or q2) and c == '<' : nxml += '&lt;'
+            elif (q1 or q2) and c == '>' : nxml += '&gt;'
+            # elif (q1 or q2) and c == '&' : nxml += '&amp;'
+            else                         : nxml += c
+            if c == '"' : q1 = not q1
+            if c == "'" : q2 = not q2
+        try : p.Parse(nxml)
+        except xml.parsers.expat.ExpatError, e :
+            print '--->> edmCheckClassVersion: ERROR: parsing selection file ',self._file
+            print '--->> edmCheckClassVersion: ERROR: Error is:', e
+            raise
+        f.close()
+    def start_element(self,name,attrs):
+        if name in ('class','struct'):
+            if 'name' in attrs:
+                #only want classes which are not templates and do not already have a ClassVersion assigned
+                if 'ClassVersion' not in attrs:
+                    if '<' not in attrs['name']:
+                        normalizedName = self.genNName(attrs['name'])
+                        self.classes[normalizedName]=attrs['name']
+        pass
+    def end_element(self,name):
+        pass
+    def genNName(self, name ):
+        n_name = string.join(name.split())
+        for e in [ ['long long unsigned int', 'unsigned long long'],
+                   ['long long int',          'long long'],
+                   ['unsigned short int',     'unsigned short'],
+                   ['short unsigned int',     'unsigned short'],
+                   ['short int',              'short'],
+                   ['long unsigned int',      'unsigned long'],
+                   ['unsigned long int',      'unsigned long'],
+                   ['long int',               'long'],
+                   ['std::string',            'std::basic_string<char>']] :
+            n_name = n_name.replace(e[0],e[1])
+        n_name = n_name.replace(' ','')
+        return n_name
+
+#Values used in returned data structure
+isContext = 0
+isTypedef = 1
+
+typeIndex = 0
+childrenIndex = 1
+typedefTypeNameIndex = 2
+
+class GccXmlOutputParser(object):
+    """Parse the output of gccxml looking for typedefs and the classes to which they refer.
+    Returns a 'tree' structure made up of the components of C++ names separated by '::'. The
+    root of the 'tree' is the global namespace but it is removed for convenience.  E.g. the names
+    'Bar', 'foo::Fii', 'foo::Fee', 'std::vector<foo::Fii>' would form the tree
+         Bar
+         foo
+            Fii
+            Fee
+         std
+            vector<foo::Fii>
+    The tree structure also includes information about what kind of node it is (context or typedef) and
+    if a typedef, what is the name of the actual type to which it refers.
+    """
+    def __init__(self,filename):
+        self._fileName = filename
+        self._contexts = {}
+        self._typedefs ={}
+        pass
+    def readGccXmlOutput(self):
+        import xml.parsers.expat
+        p = xml.parsers.expat.ParserCreate()
+        p.StartElementHandler = self.start_element
+        p.EndElementHandler = self.end_element
+        f = open(self._fileName)
+        try : p.Parse(f.read())
+        except xml.parsers.expat.ExpatError, e :
+            print '--->> edmAddClassVersion: ERROR: parsing selection file ',self._file
+            print '--->> edmAddClassVersion: ERROR: Error is:', e
+            raise
+        f.close()
+    def start_element(self,name,attrs):
+        if name in ('Namespace','Class','Struct','Union'):
+            #there is an unnamed namespace sometimes
+            if 'name' in attrs:
+                nsName = attrs['name']
+            else:
+                nsName = ''
+            if nsName != '::':
+                if 'context' in attrs:
+                    self._contexts[attrs['id']]=[nsName,attrs['context']]
+                else:
+                    self._contexts[attrs['id']]=[nsName,None]
+            else:
+                self._contexts[attrs['id']]=['',None]
+        if name in ('Typedef'):
+            tdName = attrs['name']
+            context = None
+            if 'context' in attrs:
+                context = attrs['context']
+            self._typedefs[attrs['id']]=[tdName,context,attrs['type']]
+        pass
+    def end_element(self,name):
+        pass
+    def resolvePossibleTypedef(self,context):
+        atts = self._typedefs.get(context)
+        if atts:
+            return self.resolvePossibleTypedef(atts[1])
+        return context
+    def getNameTree(self):
+        nameTree = {}
+        idToNode = {}
+        for id,atts in self._contexts.iteritems():
+            childList = idToNode.setdefault(id,[isContext,{}])
+            if atts[1]:
+                l=idToNode.setdefault(atts[1],[isContext,{}])
+                l[1][atts[0]]=childList
+            else:
+                nameTree[atts[0]]=childList
+        for id,atts in self._typedefs.iteritems():
+            typeID = self.resolvePossibleTypedef(atts[2])
+            if typeID not in idToNode:
+                continue
+            context = self.resolvePossibleTypedef(atts[1])
+            typeName = self._contexts[typeID][0]
+            childList = idToNode.setdefault(id,[isTypedef,idToNode[typeID][1],typeName])
+            if atts[1]:
+                idToNode[atts[1]][1][atts[0]]=childList
+            returnValue = {}
+            #the actual bottom node doesn't have a name so we remove it
+            for i in nameTree.itervalues():
+                returnValue.update(i[childrenIndex])
+        return returnValue
+        
+def getNameTreeFromGccXml(headerFileName,gccxml,gccxmlopt,cppopt):
+    path, fullname = os.path.split(headerFileName)
+    name = fullname[:fullname.find('.')]
+    xmlfile = os.path.join(path,name+'_gccxmlout.xml')
+    cmd  = '%s %s "%s" -fxml=%s %s -D__REFLEX__' %(gccxml, gccxmlopt, headerFileName, xmlfile, cppopt)
+    status = os.system(cmd)
+    if status :
+      print '\n--->> edmAddClassVersion: ERROR: processing file with gccxml.  Command failed.'
+      exit(1)
+    import subprocess, sys
+
+    s = ''
+    p = subprocess.Popen('"' + gccxml + '" --print', shell=True,
+                         bufsize=-1, stdin=subprocess.PIPE,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE,
+                         close_fds = (sys.platform != 'win32'))
+    (inp, out, err) = (p.stdin, p.stdout, p.stderr)
+    sout = out.read()
+    serr = err.read()
+    if serr :
+      print '--->> genreflex: WARNING: Could not invoke %s --print' % self.gccxml
+      print '--->> genreflex: WARNING: %s' % serr
+      return s
+    try:
+        p = GccXmlOutputParser(xmlfile)
+        p.readGccXmlOutput()
+    finally:
+        os.remove(xmlfile)
+    return p.getNameTree()
+
+def checksumForClass(name):
+    c = ROOT.TClass.GetClass(name)
+    if not c:
+        raise RuntimeError("failed to load dictionary for class '"+name+"'")
+    classChecksum = c.GetCheckSum()
+    return classChecksum
+    
+def checkIfTypedefOfTemplate(nameList,nameTree):
+    """Recursively check each component of the name (held as a list in nameList) to see if
+    the name is actually from a typedef and if it is, is that typedef actually a templated class
+    """
+    nameToCheck = nameList[0]
+    info = nameTree[nameToCheck]
+    if info[typeIndex] == isTypedef:
+        if '<' in info[typedefTypeNameIndex]:
+            return True
+    if len(nameList) == 1:
+        return False
+    return checkIfTypedefOfTemplate(nameList[1:],info[childrenIndex])
+
+if __name__ == '__main__':
+    #Setup the options
+    from optparse import OptionParser
+    oparser = OptionParser()
+    oparser.add_option("-l","--lib", dest="library",
+                       help="specify the library to load. If not set classes are found using the PluginManager")
+    oparser.add_option("-x","--xml_file", dest="xmlfile",default="./classes_def.xml",
+                       help="the classes_def.xml file to read")
+    oparser.add_option("-i","--inc_file", dest="incfile",default="./classes.h",
+                                          help="the classes.xml file to read")
+    oparser.add_option("-c","--cppopt",dest="cppopt", default="",
+                        help="specify the C++ compiler options to pass to gccxml")
+
+    (options,args)=oparser.parse_args()
+
+    import ROOT
+    if options.library is None:
+        if 0 != ROOT.gSystem.Load("libFWCoreFWLite"):
+            raise RuntimeError("failed to load libFWCoreFWLite")
+        ROOT.AutoLibraryLoader.enable()
+    else:
+        if 0 != ROOT.gSystem.Load("libCintex"):
+            raise RuntimeError("failed to load libCintex")
+        ROOT.Cintex.Enable()
+        if 0 != ROOT.gSystem.Load(options.library):
+            raise RuntimeError("failed to load library '"+options.library+"'")
+
+    import subprocess,sys
+    #have to ask scram where to find gccxml
+    p = subprocess.Popen('"scram" tool info gccxml', shell=True,
+                         bufsize=-1, stdin=subprocess.PIPE,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE,
+                         close_fds = (sys.platform != 'win32'))
+    (inp, out, err) = (p.stdin, p.stdout, p.stderr)
+    sout = out.read()
+    serr = err.read()
+    if serr :
+      print '--->> edmAddClassVerion: WARNING: Could not invoke "scram tool info gccxml"'
+      exit(1)
+    gccxmlpath = ''
+    for l in sout.split("\n"):
+        name_value = l.split("=")
+        if len(name_value)==2 and name_value[0]=="PATH":
+            gccxmlpath = name_value[1]
+            break
+    if not gccxmlpath:
+        print '--->> edmAddClassVerion: WARNING: Could not find path to gccxml executable'
+        exit(1)
+        
+
+    #need full path to work else gccxml prints out internal errors
+    gccxml = gccxmlpath+"/gccxml"
+    gccxmlopt ="-m64"
+    cmssw_version = os.getenv("CMSSW_VERSION")
+    cppopt = options.cppopt
+    if not cppopt:
+        cppopt = '-DCMS_DICT_IMPL -D_REENTRANT -DGNUSOURCE -DGNU_GCC -D_GNU_SOURCE -DPROJECT_NAME="CMSSW" -DPROJECT_VERSION="'+cmssw_version+'"'
+        cmssw_base = os.getenv("CMSSW_BASE")
+        cppopt +=' -I'+cmssw_base+"/src -I"+cmssw_base+"/include"
+        cmssw_release_base = os.getenv("CMSSW_RELEASE_BASE")
+        cppopt +=' -I'+cmssw_release_base+"/src -I"+cmssw_release_base+"/include"
+        cmssw_fwlite_include_path = os.getenv("CMSSW_FWLITE_INCLUDE_PATH")
+        cppopt +=' -I'+' -I'.join(cmssw_fwlite_include_path.split(":"))
+        rootsys = os.getenv("ROOTSYS")
+        cppopt +=' -I'+rootsys+"/cint -I"+rootsys+"/include"
+    #' -I/uscms_data/d2/cdj/build/temp/classVersion/CMSSW_4_3_0_pre6/src -I/uscms_data/d2/cdj/build/temp/classVersion/CMSSW_4_3_0_pre6/include -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/cms/cmssw/CMSSW_4_3_0_pre6/src -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/cms/cmssw/CMSSW_4_3_0_pre6/include -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/external/boost/1.44.0-cms3/include -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/external/uuid/1.38-cms2/include -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/lcg/root/5.27.06b-cms18/cint -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/external/pcre/4.4-cms/include -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/external/zlib/1.2.3-cms/include -I/uscmst1/prod/sw/cms/slc5_amd64_gcc434/lcg/root/5.27.06b-cms18/include'
+    nameTree = getNameTreeFromGccXml(options.incfile,gccxml,gccxmlopt,cppopt)
+    #print typedefToClasses
+    #exit(0)
+
+    p = ClassesDefXmlParser(options.xmlfile)
+    #print p.classes
+    classesToModify = [x[0] for x in p.classes.iteritems() if not checkIfTypedefOfTemplate([y for y in x[0].split(':') if y != ''],nameTree)]
+    
+    classesWithChecksum = dict([(x,checksumForClass(x)) for x in classesToModify])
+    print 'Found the following non-templated classes which will be assigned a ClassVersion and the following checksum'
+    for name,checksum in classesWithChecksum.iteritems():
+        print name,checksum
+    #exit(0)
+    
+    #Now create the updated classes_def.xml file
+    print "creating a 'classes_def.xml.generated' file which you should use to replace",options.xmlfile
+    f = open(options.xmlfile)
+    outFile = open('classes_def.xml.generated','w')
+    out = ''
+    for l in f.readlines():
+        newLine = l
+        if -1 != l.find('<class') and -1 == l.find('ClassVersion'):
+            splitArgs = l.split('"')
+            name = splitArgs[1]
+            checksum = classesWithChecksum.get(name,None)
+            if checksum is not None:
+                indent = l.find('<')
+                #this is a class that needs a ClassVersion
+                classVersion = 10
+                hasNoSubElements = (-1 != l.find('/>'))
+                indexToAddInto = l.find('>')
+                if hasNoSubElements:
+                    indexToAddInto -=1
+                newLine = newLine[:indexToAddInto]+' ClassVersion="'+str(classVersion)+'">\n'
+                out +=newLine
+                newLine =' '*indent+' <version ClassVersion="'+str(classVersion)+'" checksum="'+str(checksum)+'"/>\n'
+                if hasNoSubElements:
+                    out += newLine
+                    newLine=' '*indent+'</class>\n'
+        out +=newLine
+
+    outFile.writelines(out)
+
+    #if (len(foundErrors)>0 and not options.generate) or (options.generate and foundRootDoesNotMatchError):
+    #   import sys
+    #   sys.exit(1)
+
