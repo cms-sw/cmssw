@@ -225,7 +225,8 @@ PFRecHitProducerECAL::createRecHits(vector<reco::PFRecHit>& rechits,
       if(energy < thresh_Endcap_ ) continue;
 
       // Check and skip the TT recovered rechits
-      if ( flag == EcalRecHit::kTowerRecovered ) { 
+      if ( erh.checkFlag(EcalRecHit::kTowerRecovered) ) {
+      // if ( flag == EcalRecHit::kTowerRecovered ) { 
 	// std::cout << "Rechit was recovered with energy " << energy << std::endl;
 	continue;
       }
