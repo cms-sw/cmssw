@@ -209,6 +209,7 @@ bool ProfileLikelihood::runSignificance(RooWorkspace *w, RooStats::ModelConfig *
   }
   std::cout << "\n -- Profile Likelihood -- " << "\n";
   std::cout << "Significance: " << limit << std::endl;
+  if (verbose > 0) std::cout << "       (CLb = " << result->CLb() << ")" << std::endl;
   return true;
 }
 
