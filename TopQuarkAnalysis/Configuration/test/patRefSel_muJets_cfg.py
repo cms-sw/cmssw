@@ -331,10 +331,8 @@ if runStandardPAT:
   if usePFJets:
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
     from PhysicsTools.PatAlgos.tools.metTools import addPfMET
-    inputTag   = cms.InputTag( jetAlgo.lower() + pfSuffix + 'Jets' )
-    inputTagMC = cms.InputTag( jetAlgo.lower() + 'GenJets' )
     addJetCollection( process
-                    , inputTag
+                    , cms.InputTag( jetAlgo.lower() + pfSuffix + 'Jets' )
                     , jetAlgo
                     , pfSuffix
                     , doJTA            = True
@@ -343,7 +341,7 @@ if runStandardPAT:
                     , doType1MET       = False
                     , doL1Cleaning     = False
                     , doL1Counters     = True
-                    , genJetCollection = inputTagMC
+                    , genJetCollection = cms.InputTag( jetAlgo.lower() + 'GenJets' )
                     , doJetID          = True
                     )
     addPfMET( process
@@ -415,7 +413,9 @@ if runStandardPAT:
   ### Jets
 
   if useL1FastJet:
-    process.kt6PFJets = kt6PFJets.clone( doRhoFastjet = True )
+    process.kt6PFJets = kt6PFJets.clone( src          = cms.InputTag( 'particleFlow' )
+                                       , doRhoFastjet = True
+                                       )
     process.patDefaultSequence.replace( process.patJetCorrFactors
                                       , process.kt6PFJets * process.patJetCorrFactors
                                       )
@@ -468,7 +468,7 @@ if runPF2PAT:
 
   ### Jets
 
-  applyPostfix( process, 'patJetCorrFactors', postfix ).primaryVertices = cms.InputTag( 'goodOfflinePrimaryVertices' )
+  applyPostfix( process, 'patJetCorrFactors', postfix ).primaryVertices = cms.InputTag( pfVertices )
   if useL1FastJet:
     if usePFnoPU:
       kt6PFJetsPFChs = kt6PFJetsChs.clone( src = cms.InputTag( 'pfNoElectron' + postfix ) )
