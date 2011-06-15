@@ -218,7 +218,7 @@ PFRecHitProducerECAL::createRecHits(vector<reco::PFRecHit>& rechits,
       const EcalRecHit& erh = (*rhcHandle)[i];
       const DetId& detid = erh.detid();
       double energy = erh.energy();
-      uint32_t flag = erh.recoFlag();
+      //uint32_t flag = erh.recoFlag();
       double time = erh.time();
       EcalSubdetector esd=(EcalSubdetector)detid.subdetId();
       if (esd != 2) continue;
