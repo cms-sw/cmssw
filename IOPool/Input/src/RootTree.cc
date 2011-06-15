@@ -161,18 +161,25 @@ namespace edm {
 
   void
   RootTree::getEntry(TBranch* branch, EntryNumber entryNumber) const {
-    if (!treeCache_) {
+    try {
+      if (!treeCache_) {
+        filePtr_->SetCacheRead(0);
+        branch->GetEntry(entryNumber);
+      } else if (treeCache_->IsLearning() && rawTreeCache_) {
+        treeCache_->AddBranch(branch, kTRUE);
+        filePtr_->SetCacheRead(rawTreeCache_.get());
+        branch->GetEntry(entryNumber);
+        filePtr_->SetCacheRead(0);
+      } else {
+        filePtr_->SetCacheRead(treeCache_.get());
+        branch->GetEntry(entryNumber);
+        filePtr_->SetCacheRead(0);
+      }
+    } catch(cms::Exception const& e) {
+      // We make sure the treeCache_ is detached from the file,
+      // so that ROOT does not also delete it.
       filePtr_->SetCacheRead(0);
-      roottree::getEntry(branch, entryNumber);
-    } else if (treeCache_->IsLearning() && rawTreeCache_) {
-      treeCache_->AddBranch(branch, kTRUE);
-      filePtr_->SetCacheRead(rawTreeCache_.get());
-      roottree::getEntry(branch, entryNumber);
-      filePtr_->SetCacheRead(0);
-    } else {
-      filePtr_->SetCacheRead(treeCache_.get());
-      roottree::getEntry(branch, entryNumber);
-      filePtr_->SetCacheRead(0);
+      throw Exception(errors::FileReadError, "", e);
     }
   }
 
