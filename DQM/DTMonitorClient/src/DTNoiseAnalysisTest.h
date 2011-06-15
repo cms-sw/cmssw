@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2010/01/05 10:15:46 $
- *  $Revision: 1.5 $
+ *  $Date: 2011/06/10 13:50:12 $
+ *  $Revision: 1.6 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -83,10 +83,12 @@ private:
   std::map< int, MonitorElement* > noiseHistos;
   std::map< int, MonitorElement* > noisyCellHistos;
   MonitorElement* summaryNoiseHisto;
+  MonitorElement* threshChannelsHisto;
   MonitorElement* summarySynchNoiseHisto;
   MonitorElement* glbSummarySynchNoiseHisto;
 
   bool doSynchNoise;
+  bool detailedAnalysis;
   double maxSynchNoiseRate;
 };
 
