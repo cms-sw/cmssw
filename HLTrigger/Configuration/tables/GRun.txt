@@ -62,6 +62,7 @@ HLT_HT250_v*
 HLT_HT250_AlphaT0p53_v*
 HLT_HT250_AlphaT0p55_v* 
 HLT_HT250_DoubleDisplacedJet60_v*
+HLT_HT250_DoubleDisplacedJet60_PromptTrack_v*
 HLT_HT250_MHT90_v* 
 HLT_HT250_MHT100_v* 
 HLT_HT300_v*
