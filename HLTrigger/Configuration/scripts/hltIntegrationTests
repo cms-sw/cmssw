@@ -158,7 +158,7 @@ done
 # if a separate setup is requested, create the setup_cff.py file and patch all dumps to use it
 if [ "$SETUP" ]; then
   log "Extracting setup_cff dump"
-  edmConfigFromDB --cff --configName "$SETUP" --nopaths > setup_cff.py
+  edmConfigFromDB --cff --configName "$SETUP" --nopaths --services -FUShmDQMOutputService > setup_cff.py
   sed -i -e's/process = cms.Process(.*)/&\nprocess.load("setup_cff")/' hlt.py $(for TRIGGER in $TRIGGERS; do echo "$TRIGGER".py; done)
 fi
 
