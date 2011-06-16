@@ -15,14 +15,11 @@ from RecoParticleFlow.PFProducer.pfLinker_cff import *
 
 from CommonTools.ParticleFlow.ParticleSelectors.pfCandsForIsolation_cff import *
 
-from CommonTools.ParticleFlow.pfPileUpCandidates_cff import *
-
 particleFlowReco = cms.Sequence( particleFlowTrackWithDisplacedVertex*
                                  particleFlowBlock*
                                  particleFlowTmp*
                                  pfElectronTranslatorSequence*
                                  pfPhotonTranslatorSequence*
-                                 pfCandsForIsolationSequence*
-                                 pfPileUpCandidatesSequence )
+                                 pfCandsForIsolationSequence)
 
 particleFlowLinks = cms.Sequence( particleFlow )
