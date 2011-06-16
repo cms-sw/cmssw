@@ -464,18 +464,27 @@ def toCSVLSEffective(lumidata,filename,resultlines,scalefactor,isverbose):
 def toScreenTotEffective(lumidata,resultlines,scalefactor,isverbose):
     '''
     input:  {run:[lumilsnum(0),triggeredls(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata](8)}
+    screen Run,SelectedLS,Recorded,HLTPath,L1Bit,Effective
     '''
-    result=[]#[run,hltpath,l1bitname,totefflumi]
+    result=[]#[run,selectedlsStr,recorded,hltpath,l1bit,efflumi]
     totdict={}#{hltpath:[nls,toteff]}
+    hprescdict={}
+    lprescdict={}
+    alltotrecorded=0.0
     for run in sorted(lumidata):#loop over runs
         rundata=lumidata[run]
         if rundata is None:
-            result.append([str(run),'n/a','n/a','n/a'])
+            result.append([str(run),'n/a','n/a','n/a','n/a'])
             continue
-        selectedcmslsStr=[x[1] for x in rundata if x[1]!=0]
+        selectedcmsls=[x[1] for x in rundata if x[1]!=0]
+        if len(selectedcmsls)==0:
+            selectedlsStr='n/a'
+        else:
+            selectedlsStr = CommonUtil.splitlistToRangeString(selectedcmsls)
         totrecorded=sum([x[6] for x in rundata if x[6] is not None])
+        alltotrecorded+=totrecorded
         totefflumiDict={}
-        pathmap={}
+        pathmap={}#{hltpathname:1lname}
         for lsdata in rundata:
             efflumiDict=lsdata[8]# this ls has no such path?
             if not efflumiDict:
@@ -491,28 +500,42 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,isverbose):
                 if not totdict.has_key(hltpathname):
                     totdict[hltpathname]=[0,0.0]
                 if l1presc and hltpresc and l1presc*hltpresc!=0:
+                    if not hprescdict.has_key(hltpathname):
+                        hprescdict[hltpathname]=[]
+                    hprescdict[hltpathname].append(hltpresc)
+                    if not lprescdict.has_key(l1name):
+                        lprescdict[l1name]=[]
+                    lprescdict[l1name].append(l1presc)
                     totdict[hltpathname][0]+=1   
                     if lumival:
                         totdict[hltpathname][1]+=lumival
                         totefflumiDict[hltpathname]+=lumival
                         pathmap[hltpathname]=l1name
+                
         for name in sorted(totefflumiDict):
             (efflumival,efflumiunit)=CommonUtil.guessUnit(totefflumiDict[name])
+            (totrecval,totrecunit)=CommonUtil.guessUnit(totrecorded)
+            lname=pathmap[name]
+            hprescs=list(set(hprescdict[hltpathname]))
+            lprescs=list(set(lprescdict[lname]))
+            hprescStr='('+','.join(['%d'%(x) for x in hprescs])+')'
+            lprescStr='('+','.join(['%d'%(x) for x in lprescs])+')'
             #print 'efflumival , efflumiunit ',efflumival,efflumiunit
-            result.append([str(run),name,pathmap[name],'%.3f'%(efflumival*scalefactor)+'('+efflumiunit+')'])
-    labels = [('Run','HLTpath','L1bit','Effective')]
+            result.append([str(run),selectedlsStr,'%.3f'%(totrecval*scalefactor)+'('+totrecunit+')',name+hprescStr,lname+lprescStr,'%.3f'%(efflumival*scalefactor)+'('+efflumiunit+')'])
+    labels = [('Run','SelectedLS','Recorded','HLTpath','L1bit','Effective')]
     print ' ==  = '
     print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace_strict(x,22) )
     print ' ==  =  Total : '
-    lastrowlabels=[('HLTPath','SelectedLS','Effective')]
+    lastrowlabels=[('HLTPath','SelectedLS','Recorded','Effective')]
     totresult=[]
+    (alltotrecval,alltotrecunit)=CommonUtil.guessUnit(alltotrecorded)
     for hname in sorted(totdict):
         hdata=totdict[hname]
         totnls=hdata[0]
         (toteffval,toteffunit)=CommonUtil.guessUnit(hdata[1])
-        totresult.append([hname,str(totnls),'%.2f'%(toteffval*scalefactor)+'('+toteffunit+')'])
+        totresult.append([hname,str(totnls),'%.2f'%(alltotrecval*scalefactor)+'('+alltotrecunit+')','%.2f'%(toteffval*scalefactor)+'('+toteffunit+')'])
     print tablePrinter.indent (lastrowlabels+totresult, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
