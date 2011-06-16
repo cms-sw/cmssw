@@ -30,9 +30,11 @@ namespace edm {
     }
     assert(branchDescription().produced());
     assert(edp.isValid());
+    assert(!provenance()->productProvenanceValid());
     assert(status() != Present);
     assert(status() != Uninitialized);
     setProductProvenance(productProvenance);
+    assert(provenance()->productProvenanceValid());
     if(productData().getInterface() != 0) {
       assert(productData().getInterface() == edp.interface());
     }
@@ -44,6 +46,7 @@ namespace edm {
   ProducedGroup::mergeProduct_(
         WrapperHolder const& edp,
         ProductProvenance& productProvenance) {
+    assert(provenance()->productProvenanceValid());
     assert(status() == Present);
     setProductProvenance(productProvenance);
     mergeTheProduct(edp);
@@ -69,7 +72,9 @@ namespace edm {
         WrapperHolder const& edp,
         ProductProvenance const& productProvenance) {
     assert(!product());
+    assert(!provenance()->productProvenanceValid());
     setProductProvenance(productProvenance);
+    assert(provenance()->productProvenanceValid());
     setProduct(edp);
   }
 
