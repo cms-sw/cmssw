@@ -54,6 +54,20 @@ namespace sistrip {
         //does not copy, orginal object looses ownership of collections
         SpyDataCollections& operator = (SpyDataCollections original);
       };
+      struct MatchingOutput
+      {
+        explicit MatchingOutput(FEDRawDataCollection& outputRawData);
+        FEDRawDataCollection& outputRawData_;
+        std::vector<uint32_t> outputTotalEventCounters_;
+        std::vector<uint32_t> outputL1ACounters_;
+        std::vector<uint32_t> outputAPVAddresses_;
+        boost::shared_ptr< std::vector< edm::DetSet<SiStripRawDigi> > > outputScopeDigisVector_;
+        boost::shared_ptr< std::vector< edm::DetSet<SiStripRawDigi> > > outputPayloadDigisVector_;
+        boost::shared_ptr< std::vector< edm::DetSet<SiStripRawDigi> > > outputReorderedDigisVector_;
+        boost::shared_ptr< std::vector< edm::DetSet<SiStripRawDigi> > > outputVirginRawDigisVector_;
+        std::set<uint16_t> alreadyMergedFeds_;
+      };
+
       typedef edm::EventID EventID;
       typedef std::set<EventID> SpyEventList;
       
@@ -66,6 +80,11 @@ namespace sistrip {
       //get data for matching FEDs (non-const because reading events from the source modifies it)
       void getMatchedCollections(const uint32_t eventId, const uint8_t apvAddress, const SpyEventList* matchingEvents,
                                  const SiStripFedCabling& cabling, SpyDataCollections& collectionsToCreate);
+      //helper for getMatchedCollections() 
+      void getCollections(const edm::EventPrincipal& event, const uint32_t eventId,
+                          const uint8_t apvAddress, const SiStripFedCabling& cabling,
+                          MatchingOutput& matchingOutput);
+
     private:
       class EventKey
       {
@@ -101,14 +120,12 @@ namespace sistrip {
       //source for spy events
       typedef edm::VectorInputSource Source;
       //reference counted pointer to an event
-      typedef Source::EventPrincipalVectorElement SpyEventPtr;
             
       static std::auto_ptr<Source> constructSource(const edm::ParameterSet& sourceConfig);
-      bool addNextEventToMap();
-      template <class T> static const T* getProduct(const SpyEventPtr event, const edm::InputTag& tag);
-      static CountersPtr getCounters(const SpyEventPtr event, const edm::InputTag& tag, const bool mapKeyIsByFedID = true);
-      SpyEventPtr readNextEvent();
-      SpyEventPtr readSpecificEvent(const edm::EventID& id);
+      void addNextEventToMap(const edm::EventPrincipal& nextSpyEvent);
+      template <class T> static const T* getProduct(const edm::EventPrincipal& event, const edm::InputTag& tag);
+      static CountersPtr getCounters(const edm::EventPrincipal& event, const edm::InputTag& tag, const bool mapKeyIsByFedID = true);
+      void operator()(const edm::EventPrincipal& event);
       static void findMatchingFeds(const uint32_t eventId, const uint8_t apvAddress,
                                    CountersPtr totalEventCounters,
                                    CountersPtr l1aCounters,
@@ -147,10 +164,10 @@ namespace sistrip {
       static const char* mlLabel_;
   };
   
-  template <class T> const T* SpyEventMatcher::getProduct(const SpyEventPtr event, const edm::InputTag& tag)
+  template <class T> const T* SpyEventMatcher::getProduct(const edm::EventPrincipal& event, const edm::InputTag& tag)
   {
     LogDebug(mlLabel_) << "Retrieving product " << tag;
-    const boost::shared_ptr< const edm::Wrapper<T> > productWrapper = edm::getProductByTag<T>(*event,tag);
+    const boost::shared_ptr< const edm::Wrapper<T> > productWrapper = edm::getProductByTag<T>(event,tag);
     if (productWrapper) {
       return productWrapper->product();
     } else {

@@ -14,7 +14,10 @@
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DQM/SiStripMonitorHardware/interface/SiStripSpyUtilities.h"
+#include "boost/bind.hpp"
+#include "boost/shared_ptr.hpp"
 #include <algorithm>
+#include <limits>
 
 using edm::LogInfo;
 using edm::LogWarning;
@@ -27,6 +30,12 @@ namespace sistrip {
   SpyEventMatcher::EventKey::EventKey(const uint32_t eventId, const uint8_t apvAddress)
     : eventId_(eventId), apvAddress_(apvAddress) {}
   
+  SpyEventMatcher::MatchingOutput::MatchingOutput(FEDRawDataCollection& outputRawData) :
+                           outputRawData_(outputRawData),
+                           outputTotalEventCounters_(sistrip::FED_ID_MAX+1),
+                           outputL1ACounters_(sistrip::FED_ID_MAX+1),
+                           outputAPVAddresses_(sistrip::FED_ID_MAX+1) {}
+
   SpyEventMatcher::~SpyEventMatcher() {}
   
   SpyEventMatcher::SpyEventMatcher(const edm::ParameterSet& config)
@@ -52,7 +61,7 @@ namespace sistrip {
   void SpyEventMatcher::initialize()
   {
     //add spy events to the map until there are none left
-    while ( addNextEventToMap() ) {;}
+    source_->loopSequential(std::numeric_limits<size_t>::max(),boost::bind(&SpyEventMatcher::addNextEventToMap,this,_1));
     //debug
     std::ostringstream ss;
     ss << "Events with possible matches (eventID,apvAddress): ";
@@ -62,14 +71,9 @@ namespace sistrip {
     LogDebug(mlLabel_) << ss.str();
   }
   
-  bool SpyEventMatcher::addNextEventToMap()
+  void SpyEventMatcher::addNextEventToMap(const edm::EventPrincipal& nextSpyEvent)
   {
-    SpyEventPtr nextSpyEvent = readNextEvent();
-    if (!nextSpyEvent) {
-      LogInfo(mlLabel_) << "no more spy events";
-      return false;
-    }
-    edm::EventID spyEventId = nextSpyEvent->id();
+    edm::EventID spyEventId = nextSpyEvent.id();
 
     CountersPtr totalEventCounters = getCounters(nextSpyEvent,totalEventCountersTag_);
     CountersPtr l1aCounters = getCounters(nextSpyEvent,l1aCountersTag_);
@@ -116,38 +120,6 @@ namespace sistrip {
       ss << "(" << iEventFEDCount->first.eventId() << "," << uint16_t(iEventFEDCount->first.apvAddress()) << "," << iEventFEDCount->second << ") ";
     }
     LogDebug(mlLabel_) << ss.str();
-
-    return true;
-  }
-  
-  SpyEventMatcher::SpyEventPtr SpyEventMatcher::readNextEvent()
-  {
-    Source::EventPrincipalVector events;
-    unsigned int file;
-    source_->readManySequential(1,events,file);
-    if (events.size()) {
-      if (events.size() != 1) {
-        LogError(mlLabel_) << events.size() << " events read. Ignoring the rest";
-      }
-      return events[0];
-    } else {
-      return SpyEventPtr();
-    }
-  }
-  
-  SpyEventMatcher::SpyEventPtr SpyEventMatcher::readSpecificEvent(const edm::EventID& id)
-  {
-    Source::EventPrincipalVector events;
-    std::vector<edm::EventID> ids(1,id);
-    source_->readManySpecified(ids,events);
-    if (events.size()) {
-      if (events.size() != 1) {
-        LogError(mlLabel_) << events.size() << " events read for ID " << id.event() << ". Ignoring the rest";
-      }
-      return events[0];
-    } else {
-      throw cms::Exception(mlLabel_) << "Spy event " << id.event() << " is in the map but was not found";
-    }
   }
   
   const SpyEventMatcher::SpyEventList* SpyEventMatcher::matchesForEvent(const uint32_t eventId, const uint8_t apvAddress) const
@@ -168,23 +140,11 @@ namespace sistrip {
       return &(iMatch->second);
     }
   }
-  
-  void SpyEventMatcher::getMatchedCollections(const uint32_t eventId, const uint8_t apvAddress,
-                                            const SpyEventList* matchingEvents, const SiStripFedCabling& cabling,
-                                            SpyDataCollections& collectionsToCreate)
-  {
-    if (!matchingEvents) return;
-    FEDRawDataCollection outputRawData;
-    std::vector<uint32_t> outputTotalEventCounters(sistrip::FED_ID_MAX+1);
-    std::vector<uint32_t> outputL1ACounters(sistrip::FED_ID_MAX+1);
-    std::vector<uint32_t> outputAPVAddresses(sistrip::FED_ID_MAX+1);
-    std::auto_ptr< std::vector< edm::DetSet<SiStripRawDigi> > > outputScopeDigisVector;
-    std::auto_ptr< std::vector< edm::DetSet<SiStripRawDigi> > > outputPayloadDigisVector;
-    std::auto_ptr< std::vector< edm::DetSet<SiStripRawDigi> > > outputReorderedDigisVector;
-    std::auto_ptr< std::vector< edm::DetSet<SiStripRawDigi> > > outputVirginRawDigisVector;
-    std::set<uint16_t> alreadyMergedFeds;
-    for (SpyEventList::const_iterator iMatch = matchingEvents->begin(); iMatch != matchingEvents->end(); ++iMatch) {
-      SpyEventPtr event = readSpecificEvent(*iMatch);
+
+  void SpyEventMatcher::getCollections(const edm::EventPrincipal& event, const uint32_t eventId,
+                                       const uint8_t apvAddress, const SiStripFedCabling& cabling,
+                                       MatchingOutput& mo) {
+
       //read the input collections from the event
       const FEDRawDataCollection* inputRawDataPtr = getProduct< FEDRawDataCollection >(event,rawDataTag_);
       if (!inputRawDataPtr) {
@@ -199,24 +159,24 @@ namespace sistrip {
       const edm::DetSetVector<SiStripRawDigi>* inputReorderedDigis = getProduct< edm::DetSetVector<SiStripRawDigi> >(event,reorderedDigisTag_);
       const edm::DetSetVector<SiStripRawDigi>* inputVirginRawDigis = getProduct< edm::DetSetVector<SiStripRawDigi> >(event,virginRawDigisTag_);
       //construct the output vectors if the digis were found and they do not exist
-      if (inputScopeDigis && !outputScopeDigisVector.get() ) outputScopeDigisVector.reset(new std::vector< edm::DetSet<SiStripRawDigi> >);
-      if (inputPayloadDigis && !outputPayloadDigisVector.get() ) outputPayloadDigisVector.reset(new std::vector< edm::DetSet<SiStripRawDigi> >);
-      if (inputReorderedDigis && !outputReorderedDigisVector.get() ) outputReorderedDigisVector.reset(new std::vector< edm::DetSet<SiStripRawDigi> >);
-      if (inputVirginRawDigis && !outputVirginRawDigisVector.get() ) outputVirginRawDigisVector.reset(new std::vector< edm::DetSet<SiStripRawDigi> >);
+      if (inputScopeDigis && !mo.outputScopeDigisVector_.get() ) mo.outputScopeDigisVector_.reset(new std::vector< edm::DetSet<SiStripRawDigi> >);
+      if (inputPayloadDigis && !mo.outputPayloadDigisVector_.get() ) mo.outputPayloadDigisVector_.reset(new std::vector< edm::DetSet<SiStripRawDigi> >);
+      if (inputReorderedDigis && !mo.outputReorderedDigisVector_.get() ) mo.outputReorderedDigisVector_.reset(new std::vector< edm::DetSet<SiStripRawDigi> >);
+      if (inputVirginRawDigis && !mo.outputVirginRawDigisVector_.get() ) mo.outputVirginRawDigisVector_.reset(new std::vector< edm::DetSet<SiStripRawDigi> >);
       //find matching FEDs
       std::set<uint16_t> matchingFeds;
       findMatchingFeds(eventId,apvAddress,inputTotalEventCounters,inputL1ACounters,inputAPVAddresses,matchingFeds);
-      LogInfo(mlLabel_) << "Spy event " << iMatch->event() << " has " << matchingFeds.size() << " matching FEDs";
+      LogInfo(mlLabel_) << "Spy event " << event.id() << " has " << matchingFeds.size() << " matching FEDs";
       std::ostringstream ss;
-      ss << "Matching FEDs for event " << iMatch->event() << ": ";
+      ss << "Matching FEDs for event " << event.id() << ": ";
       for (std::set<uint16_t>::const_iterator iFedId = matchingFeds.begin(); iFedId != matchingFeds.end(); ++iFedId) {
         ss << *iFedId << " ";
       }
       LogDebug(mlLabel_) << ss.str();
-      //check there are no duplicats
-      std::vector<uint16_t> duplicateFeds( std::min(alreadyMergedFeds.size(),matchingFeds.size()) );
+      //check there are no duplicates
+      std::vector<uint16_t> duplicateFeds( std::min(mo.alreadyMergedFeds_.size(),matchingFeds.size()) );
       std::vector<uint16_t>::iterator duplicatesBegin = duplicateFeds.begin();
-      std::vector<uint16_t>::iterator duplicatesEnd = std::set_intersection(alreadyMergedFeds.begin(),alreadyMergedFeds.end(),
+      std::vector<uint16_t>::iterator duplicatesEnd = std::set_intersection(mo.alreadyMergedFeds_.begin(),mo.alreadyMergedFeds_.end(),
                                                                             matchingFeds.begin(),matchingFeds.end(),
                                                                             duplicatesBegin);
       if ( (duplicatesEnd-duplicatesBegin) != 0 ) {
@@ -231,14 +191,25 @@ namespace sistrip {
       //merge the matching data
       mergeMatchingData(matchingFeds,inputRawData,inputTotalEventCounters,inputL1ACounters,inputAPVAddresses,
                         inputScopeDigis,inputPayloadDigis,inputReorderedDigis,inputVirginRawDigis,
-                        outputRawData,outputTotalEventCounters,outputL1ACounters,outputAPVAddresses,
-                        outputScopeDigisVector.get(),outputPayloadDigisVector.get(),outputReorderedDigisVector.get(),outputVirginRawDigisVector.get(),
+                        mo.outputRawData_,mo.outputTotalEventCounters_,mo.outputL1ACounters_,mo.outputAPVAddresses_,
+                        mo.outputScopeDigisVector_.get(),mo.outputPayloadDigisVector_.get(),
+                        mo.outputReorderedDigisVector_.get(),mo.outputVirginRawDigisVector_.get(),
                         cabling);
-      alreadyMergedFeds.insert(matchingFeds.begin(),matchingFeds.end());
-    }
-    SpyDataCollections collections(outputRawData,outputTotalEventCounters,outputL1ACounters,outputAPVAddresses,
-                                   outputScopeDigisVector.get(),outputPayloadDigisVector.get(),
-                                   outputReorderedDigisVector.get(),outputVirginRawDigisVector.get());
+      mo.alreadyMergedFeds_.insert(matchingFeds.begin(),matchingFeds.end());
+  }
+
+  void SpyEventMatcher::getMatchedCollections(const uint32_t eventId, const uint8_t apvAddress,
+                                              const SpyEventList* matchingEvents, const SiStripFedCabling& cabling,
+                                              SpyDataCollections& collectionsToCreate)
+  {
+    if (!matchingEvents) return;
+    FEDRawDataCollection outputRawData;
+    MatchingOutput mo(outputRawData);
+    source_->loopSpecified(*matchingEvents,boost::bind(&SpyEventMatcher::getCollections,this,_1,
+                                                       eventId,apvAddress,boost::cref(cabling),boost::ref(mo)));
+    SpyDataCollections collections(mo.outputRawData_,mo.outputTotalEventCounters_,mo.outputL1ACounters_,mo.outputAPVAddresses_,
+                                   mo.outputScopeDigisVector_.get(),mo.outputPayloadDigisVector_.get(),
+                                   mo.outputReorderedDigisVector_.get(),mo.outputVirginRawDigisVector_.get());
     collectionsToCreate = collections;
   }
   
@@ -352,7 +323,7 @@ namespace sistrip {
     }
   }
   
-  SpyEventMatcher::CountersPtr SpyEventMatcher::getCounters(const SpyEventMatcher::SpyEventPtr event, const edm::InputTag& tag, const bool mapKeyIsByFedID)
+  SpyEventMatcher::CountersPtr SpyEventMatcher::getCounters(const edm::EventPrincipal& event, const edm::InputTag& tag, const bool mapKeyIsByFedID)
   {
     const std::vector<uint32_t>* vectorFromEvent = getProduct< std::vector<uint32_t> >(event,tag);
     if (vectorFromEvent) {
