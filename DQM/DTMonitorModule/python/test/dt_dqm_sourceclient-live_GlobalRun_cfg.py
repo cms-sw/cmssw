@@ -25,10 +25,10 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 #----------------------------
 process.load("DQM.Integration.test.environment_cfi")
 process.DQM.collectorHost = 'localhost'
-process.DQM.collectorPort = 9977
+process.DQM.collectorPort = 9991
 process.dqmEnv.subSystemFolder = 'DT'
 process.dqmSaver.convention = 'Online'
-process.dqmSaver.dirName = '/dtdata/dqmdata/testing' 
+process.dqmSaver.dirName = '/dtdata/dqmdata/global' 
 #process.dqmSaver.dirName = '.' 
 process.dqmSaver.producer = 'DQM'
 
