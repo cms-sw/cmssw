@@ -506,6 +506,32 @@ reconstructionWithFamos = cms.Sequence(
     famosPFTauTaggingSequence
 )
 
+reconstructionWithFamosNoTk = cms.Sequence(
+    vertexreco+
+    caloRecHits+
+    caloTowersRec+
+    ecalClusters+
+    particleFlowCluster+
+    famosGsfTrackSequence+
+    famosMuonSequence+
+    famosMuonIdAndIsolationSequence+
+    famosConversionSequence+
+    particleFlowTrackWithDisplacedVertex+
+    famosEcalDrivenElectronSequence+
+    famosPhotonSequence+
+    famosParticleFlowSequence+
+    egammaHighLevelRecoPostPF+
+    caloJetMetGen+
+    caloJetMet+
+    PFJetMet+
+    ic5JetTracksAssociatorAtVertex+
+    ak5JetTracksAssociatorAtVertex+
+    famosTauTaggingSequence+
+    reducedRecHits+
+    famosBTaggingSequence+
+    famosPFTauTaggingSequence
+)
+
 # Simulation plus reconstruction
 famosWithEverything = cms.Sequence(
     simulationWithFamos+
