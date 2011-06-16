@@ -49,6 +49,8 @@ namespace ora {
 	db.drop();
       }
       db.create();
+      trans.commit();
+      trans.start( false );
       ora::DatabaseUtility util = db.utility();
       util.importContainerSchema( connStr0, "Cont0" );
       std::cout <<"## Imported Schema for container \"Cont0\""<<std::endl;
