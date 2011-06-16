@@ -42,8 +42,10 @@ struct stAllInfo{
    double XSec_Exp;
    double XSec_Obs;
    double Eff;
-   double Eff_SYSTA;
-   double Eff_SYSTB;
+   double Eff_SYSTP;
+   double Eff_SYSTI;
+   double Eff_SYSTM;
+   double Eff_SYSTT;
    double WP_Pt;
    double WP_I;
    double WP_TOF;
@@ -53,7 +55,7 @@ struct stAllInfo{
    float  NSign;
 
    stAllInfo(string path=""){
-      Mass=-1; XSec_Th=-1; XSec_Err=-1; XSec_Exp=-1; XSec_Obs=-1; Eff=-1; Eff_SYSTA=-1; Eff_SYSTB=-1;
+      Mass=-1; XSec_Th=-1; XSec_Err=-1; XSec_Exp=-1; XSec_Obs=-1; Eff=-1; Eff_SYSTP=-1; Eff_SYSTI=-1;  Eff_SYSTM=-1; Eff_SYSTT=-1;
       if(path=="")return;
       FILE* pFile = fopen(path.c_str(),"r");
       if(!pFile){printf("Can't open %s\n",path.c_str()); return;}
@@ -65,8 +67,10 @@ struct stAllInfo{
       fscanf(pFile,"WP_I      : %lf\n",&WP_I);
       fscanf(pFile,"WP_TOF    : %lf\n",&WP_TOF);
       fscanf(pFile,"Eff       : %lf\n",&Eff);
-      fscanf(pFile,"Eff_SystA : %lf\n",&Eff_SYSTA);
-      fscanf(pFile,"Eff_SystB : %lf\n",&Eff_SYSTB);
+      fscanf(pFile,"Eff_SystP : %lf\n",&Eff_SYSTP);
+      fscanf(pFile,"Eff_SystI : %lf\n",&Eff_SYSTI);
+      fscanf(pFile,"Eff_SystM : %lf\n",&Eff_SYSTM);
+      fscanf(pFile,"Eff_SystT : %lf\n",&Eff_SYSTT);
       fscanf(pFile,"XSec_Th   : %lf\n",&XSec_Th);
       fscanf(pFile,"XSec_Exp  : %lf\n",&XSec_Exp);
       fscanf(pFile,"XSec_Obs  : %lf\n",&XSec_Obs);
@@ -149,8 +153,10 @@ TF1* Gluino_SMC_Fit = NULL;
 
 std::vector<stSignal> signals;
 std::vector<double> signalsMeanHSCPPerEvent;
-std::vector<double> signalsMeanHSCPPerEvent_SYSTA;
-std::vector<double> signalsMeanHSCPPerEvent_SYSTB;
+std::vector<double> signalsMeanHSCPPerEvent_SYSTP;
+std::vector<double> signalsMeanHSCPPerEvent_SYSTT;
+std::vector<double> signalsMeanHSCPPerEvent_SYSTM;
+std::vector<double> signalsMeanHSCPPerEvent_SYSTI;
 
 double RescaleFactor;
 double RescaleError;
@@ -531,8 +537,10 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    toReturn.XSec_Exp  = 1E50;
    toReturn.XSec_Obs  = 1E50;
    toReturn.Eff       = 0;
-   toReturn.Eff_SYSTA = 0;
-   toReturn.Eff_SYSTB = 0;
+   toReturn.Eff_SYSTP = 0;
+   toReturn.Eff_SYSTI = 0;
+   toReturn.Eff_SYSTM = 0;
+   toReturn.Eff_SYSTT = 0;
    toReturn.NData     = 0;
    toReturn.NPred     = 0;
    toReturn.NPredErr  = 0;
@@ -570,7 +578,10 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    TH2D*  MassData      = (TH2D*)GetObjectFromPath(InputFile, "Data/Mass");
    TH2D*  MassPred      = (TH2D*)GetObjectFromPath(InputFile, "Pred_Mass");
    TH2D*  MassSign[4];
-
+   TH2D*  MassSignP[4];
+   TH2D*  MassSignI[4];
+   TH2D*  MassSignM[4];
+   TH2D*  MassSignT[4];
 
    string InputPathSign     = pattern + "Histos.root";
    TFile* InputFileSign     = new TFile(InputPathSign.c_str());
@@ -580,24 +591,42 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    MassSign[2]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC1/Mass" + syst);
    MassSign[3]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC2/Mass" + syst);
 
+   MassSignP[0]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "/Mass_SystP");
+   MassSignP[1]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC0/Mass_SystP");
+   MassSignP[2]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC1/Mass_SystP");
+   MassSignP[3]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC2/Mass_SystP");
+
+   MassSignI[0]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "/Mass_SystI");
+   MassSignI[1]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC0/Mass_SystI");
+   MassSignI[2]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC1/Mass_SystI");
+   MassSignI[3]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC2/Mass_SystI");
+
+   MassSignM[0]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "/Mass_SystM");
+   MassSignM[1]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC0/Mass_SystM");
+   MassSignM[2]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC1/Mass_SystM");
+   MassSignM[3]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC2/Mass_SystM");
+
+   MassSignT[0]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "/Mass_SystT");
+   MassSignT[1]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC0/Mass_SystT");
+   MassSignT[2]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC1/Mass_SystT");
+   MassSignT[3]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC2/Mass_SystT");
+
+
    TH1D* MassSignProj[4];
+   TH1D* MassSignPProj[4];
+   TH1D* MassSignIProj[4];
+   TH1D* MassSignMProj[4];
+   TH1D* MassSignTProj[4];
    ///##############################################################################"
-   //Finding Mass cut for this signal
    MassSignProj[0] = MassSign[0]->ProjectionY("MassSignProj0",1,1);
    double Mean  = MassSignProj[0]->GetMean();
    double Width = MassSignProj[0]->GetRMS();
-//   if(RatioValue[0]>=0 || RatioValue[1]>=0 || RatioValue[2]>=0){
-//      Mean  = (MassSignProj[1]->GetMean()*RatioValue[0] + MassSignProj[2]->GetMean()*RatioValue[1] + MassSignProj[3]->GetMean()*RatioValue[2]) / (RatioValue[0]+RatioValue[1]+RatioValue[2]);
-//      Width = (MassSignProj[1]->GetRMS() *RatioValue[0] + MassSignProj[2]->GetRMS() *RatioValue[1] + MassSignProj[3]->GetRMS() *RatioValue[2]) / (RatioValue[0]+RatioValue[1]+RatioValue[2]);
-//   }
-//   printf("Mean = %f  RMS = %f\n",Mean,Width);
    MinRange = std::max(0.0, Mean-2*Width);
    MinRange = MassSignProj[0]->GetXaxis()->GetBinLowEdge(MassSignProj[0]->GetXaxis()->FindBin(MinRange)); //Round to a bin value to avoid counting prpoblem due to the binning. 
    delete MassSignProj[0];
    ///##############################################################################"
 
    for(int CutIndex=0;CutIndex<MassData->GetNbinsX();CutIndex++){
-
       if(HCuts_Pt ->GetBinContent(CutIndex+1) < 35 ) continue;  // Be sure the pT cut is high enough to get some statistic for both ABCD and mass shape
       if(H_E->GetBinContent(CutIndex+1) >0 && (H_A->GetBinContent(CutIndex+1)<25 || H_F->GetBinContent(CutIndex+1)<25 || H_G->GetBinContent(CutIndex+1)<25))continue;  //Skip events where Prediction (AFG/EE) is not reliable
       if(H_E->GetBinContent(CutIndex+1)==0 && (H_C->GetBinContent(CutIndex+1)<25 || H_B->GetBinContent(CutIndex+1)<25))continue;  //Skip events where Prediction (CB/A) is not reliable
@@ -605,50 +634,88 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
       GetSignalMeanHSCPPerEvent(pattern,CutIndex);
       TH1D* MassDataProj = MassData->ProjectionY("MassDataProj",CutIndex+1,CutIndex+1);
       TH1D* MassPredProj = MassPred->ProjectionY("MassPredProj",CutIndex+1,CutIndex+1);
-//      TH1D* MassSignProj[4];
-      MassSignProj[0] = MassSign[0]->ProjectionY("MassSignProj0",CutIndex+1,CutIndex+1);
-      MassSignProj[1] = MassSign[1]->ProjectionY("MassSignProj1",CutIndex+1,CutIndex+1);
-      MassSignProj[2] = MassSign[2]->ProjectionY("MassSignProj2",CutIndex+1,CutIndex+1);
-      MassSignProj[3] = MassSign[3]->ProjectionY("MassSignProj3",CutIndex+1,CutIndex+1);
+      MassSignProj[0]    = MassSign [0]->ProjectionY("MassSignProj0",CutIndex+1,CutIndex+1);
+      MassSignProj[1]    = MassSign [1]->ProjectionY("MassSignProj1",CutIndex+1,CutIndex+1);
+      MassSignProj[2]    = MassSign [2]->ProjectionY("MassSignProj2",CutIndex+1,CutIndex+1);
+      MassSignProj[3]    = MassSign [3]->ProjectionY("MassSignProj3",CutIndex+1,CutIndex+1);
 
-/*      double Mean  = MassSignProj[0]->GetMean();
-      double Width = MassSignProj[0]->GetRMS();
-      if(RatioValue[0]>=0 || RatioValue[1]>=0 || RatioValue[2]>=0){
-         Mean  = (MassSignProj[1]->GetMean()*RatioValue[0] + MassSignProj[2]->GetMean()*RatioValue[1] + MassSignProj[3]->GetMean()*RatioValue[2]) / (RatioValue[0]+RatioValue[1]+RatioValue[2]);
-         Width = (MassSignProj[1]->GetRMS() *RatioValue[0] + MassSignProj[2]->GetRMS() *RatioValue[1] + MassSignProj[3]->GetRMS() *RatioValue[2]) / (RatioValue[0]+RatioValue[1]+RatioValue[2]);
-      }
+      MassSignPProj[0]   = MassSignP[0]->ProjectionY("MassSignProP0",CutIndex+1,CutIndex+1);
+      MassSignPProj[1]   = MassSignP[1]->ProjectionY("MassSignProP1",CutIndex+1,CutIndex+1);
+      MassSignPProj[2]   = MassSignP[2]->ProjectionY("MassSignProP2",CutIndex+1,CutIndex+1);
+      MassSignPProj[3]   = MassSignP[3]->ProjectionY("MassSignProP3",CutIndex+1,CutIndex+1);
+      MassSignIProj[0]   = MassSignI[0]->ProjectionY("MassSignProI0",CutIndex+1,CutIndex+1);
+      MassSignIProj[1]   = MassSignI[1]->ProjectionY("MassSignProI1",CutIndex+1,CutIndex+1);
+      MassSignIProj[2]   = MassSignI[2]->ProjectionY("MassSignProI2",CutIndex+1,CutIndex+1);
+      MassSignIProj[3]   = MassSignI[3]->ProjectionY("MassSignProI3",CutIndex+1,CutIndex+1);
+      MassSignMProj[0]   = MassSignM[0]->ProjectionY("MassSignProM0",CutIndex+1,CutIndex+1);
+      MassSignMProj[1]   = MassSignM[1]->ProjectionY("MassSignProM1",CutIndex+1,CutIndex+1);
+      MassSignMProj[2]   = MassSignM[2]->ProjectionY("MassSignProM2",CutIndex+1,CutIndex+1);
+      MassSignMProj[3]   = MassSignM[3]->ProjectionY("MassSignProM3",CutIndex+1,CutIndex+1);
+      MassSignTProj[0]   = MassSignT[0]->ProjectionY("MassSignProT0",CutIndex+1,CutIndex+1);
+      MassSignTProj[1]   = MassSignT[1]->ProjectionY("MassSignProT1",CutIndex+1,CutIndex+1);
+      MassSignTProj[2]   = MassSignT[2]->ProjectionY("MassSignProT2",CutIndex+1,CutIndex+1);
+      MassSignTProj[3]   = MassSignT[3]->ProjectionY("MassSignProT3",CutIndex+1,CutIndex+1);
 
-
-      MinRange = std::max(0.0, Mean-2*Width);
-      MinRange = MassDataProj->GetXaxis()->GetBinLowEdge(MassDataProj->GetXaxis()->FindBin(MinRange)); //Round to a bin value to avoid counting prpoblem due to the binning.
-//      MinRange = 0;
-*/
-      //fprintf(pFile  ,"%10s: Signal Mean = %7.2f  Signal RMS = %7.2f --> MinRange=%7.2f\n",signal.c_str(),Mean,Width,MinRange);fflush(stdout);
 
       double NData       = MassDataProj->Integral(MassDataProj->GetXaxis()->FindBin(MinRange), MassDataProj->GetXaxis()->FindBin(MaxRange));
-//      for(int i=MassPredProj->GetXaxis()->FindBin(MinRange); i<=MassPredProj->GetXaxis()->FindBin(MaxRange) ;i++){NPredErr+=pow(MassPredProj->GetBinError(i),2) + pow(MassPredProj->GetBinContent(i)*RescaleError,2);}NPredErr=sqrt(NPredErr);
       double NPred       = MassPredProj->Integral(MassPredProj->GetXaxis()->FindBin(MinRange), MassPredProj->GetXaxis()->FindBin(MaxRange));
       double NPredErr    = pow(NPred*RescaleError,2);
       for(int i=MassPredProj->GetXaxis()->FindBin(MinRange); i<=MassPredProj->GetXaxis()->FindBin(MaxRange) ;i++){NPredErr+=pow(MassPredProj->GetBinError(i),2);}NPredErr=sqrt(NPredErr);
 
       if(isnan(NPred))continue;
       if(NPred<=0){continue;} //Is <=0 only when prediction failed or is not meaningful (i.e. WP=(0,0,0) )
-//      if(NPred<1E-4){continue;} //This will never be the selection which gives the best expected limit (cutting too much on signal) --> Slowdown computation for nothing...
+//    if(NPred<1E-4){continue;} //This will never be the selection which gives the best expected limit (cutting too much on signal) --> Slowdown computation for nothing...
       if(NPred>100){continue;}  //When NPred is too big, expected limits just take an infinite time! 
 
       double Eff       = 0;
+      double EffP      = 0;
+      double EffI      = 0;
+      double EffM      = 0;
+      double EffT      = 0;
       if(RatioValue[0]<0 && RatioValue[1]<0 && RatioValue[2]<0){
             CurrentSampleIndex        = JobIdToIndex(signal); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return toReturn;  } 
             double INTERN_ESign       = MassSignProj[0]->Integral(MassSignProj[0]            ->GetXaxis()->FindBin(MinRange), MassSignProj[0]      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [4*CurrentSampleIndex]; 
             double INTERN_Eff         = INTERN_ESign       / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
-            Eff       = INTERN_Eff;
+            Eff                       = INTERN_Eff;
             //fprintf(pFile  ,"%10s: INTERN_ESign=%6.2E   INTERN_Eff=%6.E   XSec=%6.2E   Lumi=%6.2E\n",signal.c_str(),INTERN_ESign,INTERN_Eff,signals[CurrentSampleIndex].XSec, IntegratedLuminosity);fflush(stdout);
+
+            double INTERN_ESignP      = MassSignPProj[0]->Integral(MassSignPProj[0]            ->GetXaxis()->FindBin(MinRange), MassSignPProj[0]      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [4*CurrentSampleIndex];
+            double INTERN_EffP        = INTERN_ESignP      / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
+            EffP                      = INTERN_EffP;
+
+            double INTERN_ESignI      = MassSignIProj[0]->Integral(MassSignIProj[0]            ->GetXaxis()->FindBin(MinRange), MassSignIProj[0]      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [4*CurrentSampleIndex];
+            double INTERN_EffI        = INTERN_ESignI      / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
+            EffI                      = INTERN_EffI;
+
+            double INTERN_ESignM      = MassSignMProj[0]->Integral(MassSignMProj[0]            ->GetXaxis()->FindBin(MinRange), MassSignMProj[0]      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [4*CurrentSampleIndex];
+            double INTERN_EffM        = INTERN_ESignM      / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
+            EffM                      = INTERN_EffM;
+
+            double INTERN_ESignT      = MassSignTProj[0]->Integral(MassSignTProj[0]            ->GetXaxis()->FindBin(MinRange), MassSignTProj[0]      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [4*CurrentSampleIndex];
+            double INTERN_EffT        = INTERN_ESignT      / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
+            EffT                      = INTERN_EffT;
       }else{
          for(unsigned int i=0;i<3;i++){
             CurrentSampleIndex        = JobIdToIndex(signal); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return toReturn;  }
             double INTERN_ESign       = MassSignProj[i+1]->Integral(MassSignProj[i+1]            ->GetXaxis()->FindBin(MinRange), MassSignProj[i+1]      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [4*CurrentSampleIndex+1+i]; 
             double INTERN_Eff         = INTERN_ESign       / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
-            Eff       += INTERN_Eff   * RatioValue[i];
+            Eff                      += INTERN_Eff   * RatioValue[i];
+
+            double INTERN_ESignP      = MassSignPProj[i+1]->Integral(MassSignPProj[i+1]            ->GetXaxis()->FindBin(MinRange), MassSignPProj[i+1]      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [4*CurrentSampleIndex+1+i];
+            double INTERN_EffP        = INTERN_ESignP      / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
+            EffP                     += INTERN_EffP  * RatioValue[i];
+
+            double INTERN_ESignI      = MassSignIProj[i+1]->Integral(MassSignIProj[i+1]            ->GetXaxis()->FindBin(MinRange), MassSignIProj[i+1]      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [4*CurrentSampleIndex+1+i];
+            double INTERN_EffI        = INTERN_ESignI      / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
+            EffI                     += INTERN_EffI  * RatioValue[i];
+
+            double INTERN_ESignM      = MassSignMProj[i+1]->Integral(MassSignMProj[i+1]            ->GetXaxis()->FindBin(MinRange), MassSignMProj[i+1]      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [4*CurrentSampleIndex+1+i];
+            double INTERN_EffM        = INTERN_ESignM      / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
+            EffM                     += INTERN_EffM  * RatioValue[i];
+
+            double INTERN_ESignT      = MassSignTProj[i+1]->Integral(MassSignTProj[i+1]            ->GetXaxis()->FindBin(MinRange), MassSignTProj[i+1]      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [4*CurrentSampleIndex+1+i];
+            double INTERN_EffT        = INTERN_ESignT      / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
+            EffT                     += INTERN_EffT  * RatioValue[i];
          }
       }
       if(Eff==0)continue;
@@ -685,11 +752,13 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
      toReturn.XSec_Exp  = ExpLimit;
      toReturn.XSec_Obs  = ObsLimit; 
      toReturn.Eff       = Eff;
-     toReturn.Eff_SYSTA = 0;//Eff_SYSTA;
-     toReturn.Eff_SYSTB = 0;//Eff_SYSTB;
+     toReturn.Eff_SYSTP = EffP;
+     toReturn.Eff_SYSTI = EffI;
+     toReturn.Eff_SYSTM = EffM;
+     toReturn.Eff_SYSTT = EffT;
      toReturn.NData     = NData;
      toReturn.NPred     = NPred;
-     toReturn.NPredErr   = NPredErr;
+     toReturn.NPredErr  = NPredErr;
      toReturn.NSign     = Eff*(signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
 
 
@@ -703,8 +772,10 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
      fprintf(pFile2,"WP_I      : %f\n",toReturn.WP_I);
      fprintf(pFile2,"WP_TOF    : %f\n",toReturn.WP_TOF);
      fprintf(pFile2,"Eff       : %f\n",toReturn.Eff);
-     fprintf(pFile2,"Eff_SystA : %f\n",toReturn.Eff_SYSTA);
-     fprintf(pFile2,"Eff_SystB : %f\n",toReturn.Eff_SYSTB);
+     fprintf(pFile2,"Eff_SystP : %f\n",toReturn.Eff_SYSTP);
+     fprintf(pFile2,"Eff_SystI : %f\n",toReturn.Eff_SYSTI);
+     fprintf(pFile2,"Eff_SystM : %f\n",toReturn.Eff_SYSTM);
+     fprintf(pFile2,"Eff_SystT : %f\n",toReturn.Eff_SYSTT);
      fprintf(pFile2,"XSec_Th   : %f\n",toReturn.XSec_Th);
      fprintf(pFile2,"XSec_Exp  : %f\n",toReturn.XSec_Exp);
      fprintf(pFile2,"XSec_Obs  : %f\n",toReturn.XSec_Obs);
@@ -726,8 +797,10 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
   fprintf(pFile2,"WP_I      : %f\n",toReturn.WP_I);
   fprintf(pFile2,"WP_TOF    : %f\n",toReturn.WP_TOF);
   fprintf(pFile2,"Eff       : %f\n",toReturn.Eff);
-  fprintf(pFile2,"Eff_SystA : %f\n",toReturn.Eff_SYSTA);
-  fprintf(pFile2,"Eff_SystB : %f\n",toReturn.Eff_SYSTB);
+  fprintf(pFile2,"Eff_SystP : %f\n",toReturn.Eff_SYSTP);
+  fprintf(pFile2,"Eff_SystI : %f\n",toReturn.Eff_SYSTI);
+  fprintf(pFile2,"Eff_SystM : %f\n",toReturn.Eff_SYSTM);
+  fprintf(pFile2,"Eff_SystT : %f\n",toReturn.Eff_SYSTT);
   fprintf(pFile2,"XSec_Th   : %f\n",toReturn.XSec_Th);
   fprintf(pFile2,"XSec_Exp  : %f\n",toReturn.XSec_Exp);
   fprintf(pFile2,"XSec_Obs  : %f\n",toReturn.XSec_Obs);
@@ -758,13 +831,17 @@ void GetSignalMeanHSCPPerEvent(string InputPattern, unsigned int CutIndex)
    TFile* InputFile     = new TFile(InputPath.c_str());
 
    signalsMeanHSCPPerEvent.clear();
-   signalsMeanHSCPPerEvent_SYSTA.clear();
-   signalsMeanHSCPPerEvent_SYSTB.clear();
+   signalsMeanHSCPPerEvent_SYSTP.clear();
+   signalsMeanHSCPPerEvent_SYSTI.clear();
+   signalsMeanHSCPPerEvent_SYSTM.clear();
+   signalsMeanHSCPPerEvent_SYSTT.clear();
    for(unsigned int s=0;s<signals.size();s++){
    for(unsigned int n=0;n<4;n++){
       signalsMeanHSCPPerEvent.push_back(2.0);
-      signalsMeanHSCPPerEvent_SYSTA.push_back(2.0);
-      signalsMeanHSCPPerEvent_SYSTB.push_back(2.0); 
+      signalsMeanHSCPPerEvent_SYSTP.push_back(2.0);
+      signalsMeanHSCPPerEvent_SYSTI.push_back(2.0); 
+      signalsMeanHSCPPerEvent_SYSTM.push_back(2.0);
+      signalsMeanHSCPPerEvent_SYSTT.push_back(2.0);
    }}
 
    for(unsigned int s=0;s<signals.size();s++){
