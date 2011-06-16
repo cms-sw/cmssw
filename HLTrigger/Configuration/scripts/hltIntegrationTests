@@ -198,7 +198,7 @@ make -f .makefile -j$JOBS -k
 log "Comparing the results of running each path by iteslf with those from the full menu"
 if hltCompareResults; then
   log "done"
-done
+fi
 
 # done
 cd ..
