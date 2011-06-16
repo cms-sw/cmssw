@@ -77,11 +77,72 @@ class TagCollector(object):
 		"""Get the tags of one release."""
 		return self.getReleasesTags((release, ))
 
+	def getTagsetTags(self, tagset):
+		"""Get the tags of one tagset."""
+		return self._openjson('py_getTagsetTags', {'tagset': tagset})
+
+	def getTagsetInformation(self, tagset):
+		"""Get the information of one tagset."""
+		return self._openjson('py_getTagsetInformation', {'tagset': tagset})
+
+	def getPendingApprovalTags(self, args):
+		"""Prints Pending Approval tags of one or more releases,
+                one or more tagsets, or both (i.e. it joins all the tags).
+		Prints an error if several tags appear for a single package.
+		Suitable for piping to addpkg (note: at the moment,
+		addpkg does not read from stdin, use "-f" instead)."""
+		args = json.dumps(args)
+		return self._openjson('py_getPendingApprovalTags', {'args': args})
+
+	def commentTagsets(self, tagset_ids, comment):
+		"""Comment one or more tagsets.
+		Requirement: Signed in."""
+		tagset_ids = json.dumps(tagset_ids)
+		if len(comment) < 1:
+			raise Exception("Error: Expected a comment.")
+		self._open('commentTagsets', {'tagset_ids': tagset_ids, 'comment': comment})
+
+	def signTagsets(self, tagset_ids, comment = ''):
+		"""Sign one or more tagsets.
+		Requirement: Signed in as a L2."""
+		tagset_ids = json.dumps(tagset_ids)
+		self._open('signTagsets', {'tagset_ids': tagset_ids, 'comment': comment})
+
+	def signTagsetsAll(self, tagset_ids, comment = ''):
+		"""Sign all one or more tagsets.
+		Requirement: Signed in as a Release Manager."""
+		tagset_ids = json.dumps(tagset_ids)
+		self._open('signTagsetsAll', {'tagset_ids': tagset_ids, 'comment': comment})
+
+	def rejectTagsetsPendingSignatures(self, tagset_ids, comment = ''):
+		"""Reject one or more tagsets Pending Signatures.
+		Requirement: Signed in as a L2."""
+		tagset_ids = json.dumps(tagset_ids)
+		self._open('rejectTagsetsPendingSignatures', {'tagset_ids': tagset_ids, 'comment': comment})
+
 	def approveTagsets(self, tagset_ids, comment = ''):
 		"""Approve one or more tagsets.
 		Requirement: Signed in as a Release Manager for each tagset's release."""
 		tagset_ids = json.dumps(tagset_ids)
 		self._open('approveTagsets', {'tagset_ids': tagset_ids, 'comment': comment})
+
+	def bypassTagsets(self, tagset_ids, comment = ''):
+		"""Bypass one or more tagsets.
+		Requirement: Signed in as a Release Manager for each tagset's release."""
+		tagset_ids = json.dumps(tagset_ids)
+		self._open('bypassTagsets', {'tagset_ids': tagset_ids, 'comment': comment})
+
+	def rejectTagsetsPendingApproval(self, tagset_ids, comment = ''):
+		"""Reject one or more tagsets Pending Approval.
+		Requirement: Signed in as a Release Manager."""
+		tagset_ids = json.dumps(tagset_ids)
+		self._open('rejectTagsetsPendingApproval', {'tagset_ids': tagset_ids, 'comment': comment})
+
+	def removeTagsets(self, tagset_ids, comment = ''):
+		"""Remove one or more tagsets from the History (i.e. stack of the release).
+		Requirement: Signed in as a Release Manager."""
+		tagset_ids = json.dumps(tagset_ids)
+		self._open('removeTagsets', {'tagset_ids': tagset_ids, 'comment': comment})
 
 	def getPackagesPendingApproval(self):
 		"""Get New Package Requests which are Pending Approval."""
@@ -90,6 +151,11 @@ class TagCollector(object):
 	def getPackageManagersRequested(self, package):
 		"""Get the Package Managers (administrators and developers) requested in a New Package Request."""
 		return self._openjson('py_getPackageManagersRequested', {'package': package})
+
+	def search(self, term):
+		"""Searches for releases, packages, tagsets, users and categories.
+		Requirement: Signed in."""
+		return self._openjson('search', {'term': term})
 
 	def approvePackage(self, package):
 		"""Approve a New Package Request.

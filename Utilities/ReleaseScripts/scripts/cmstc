@@ -1,30 +1,87 @@
 #!/usr/bin/env python
-"""CMS TagCollector command-line tool
+"""CMS TagCollector command-line tool. Feedback and Help: mojedasa@cern.ch
 
-Commands:
+Available commands:
+   tags, diff, difflast, tagset, search, pendingappr, ibs, lastib, pkghist,
+   comment, sign, signall, rejectsign, approve, bypass, rejectappr, remove,
+   pendingpkgs, approvepkgs, cmsdisttags, cmsdistdiff
+
+Common commands:
    tags         Prints all tags of up to 4 releases.
    diff         Same, but only tags that differ.
  ^ difflast     Same, but only print tags of the last release given.
                 (useful for executing 'addpkg -f' later on).
 
-   pendingpkgs  Prints the list of packages pending approval in TC.
-                Optional parameter: '-v' ('--verbose').
-   approvepkgs  Approves packages in TC and **creates them in CVS**.
+   tagset       Prints the tags of one tagset, given its ID.
+   tagsetinfo   Prints the information of one tagset, given its ID.
+                Includes the tags as well.
 
-   cmsdisttags  Prints all CMSDIST's tags of up to 4 CVS tags.
-   cmsdistdiff  Same, but only tags that differ.
+ * search       Searches for releases, packages, tagsets, users and categories
+                and prints anything that matches.
+                Searching for users includes the full names and emails.
+                Returns at most 10 results per type of result
+                (e.g. 10 releases + 10 packages + ...).
 
- ^ ibs          Prints the list of latest IBs for active releases
-                with timestamps, time ordered.
+ ^ tagsappr     Prints Pending Approval tags of one or more releases,
+                one or more tagsets, or both (i.e. it joins all the tags).
+                Prints an error if several tags appear for a single package.
+                Suitable for piping to addpkg (note: at the moment,
+                addpkg does not read from stdin, use "-f" instead).
+
+Integration Build commands:
+   ibs          Prints the list of latest IBs for active releases
+                with creation timestamps, time ordered.
                 Optional parameter: Filter.
- ^ lastib       Prints the last IB given a filter.
+   lastib       Prints the last IB given a filter.
                 Note: Only IBs for active releases are returned.
 
+Miscellaneous commands:
  ^ pkghist      Prints the recent history of a package, i.e.:
                    * Prints recent CVS tags.
                    * Prints the first line of the description of the tag
                      if it was published in TagCollector.
                    * Prints the releases where the tag is, if any.
+
+Tagset commands:
+   > Common commands:
+ * comment      Comment one or more tagsets.
+                Mandatory parameter: '-c' ('--comment').
+
+   > Pending Signatures queue commands:
+ * sign         Sign one or more tagsets, for L2s.
+                Optional parameter: '-c' ('--comment').
+ * signall      Sign all signatures of one or more tagsets,
+                for Release Managers.
+                Optional parameter: '-c' ('--comment').
+ * rejectsign   Reject one or more tagsets from the Pending Signatures queue,
+                for L2s.
+                Optional parameter: '-c' ('--comment').
+
+   > Pending Approval queue commands:
+ * approve      Approve one or more tagsets, for Release Managers.
+                Optional parameter: '-c' ('--comment').
+ * bypass       Same, but bypass (i.e. skip signatures), for Release Managers.
+                Optional parameter: '-c' ('--comment').
+ * rejectappr   Reject one or more tagsets from the Pending Approval queue,
+                for Release Managers.
+                Optional parameter: '-c' ('--comment').
+
+   > History (i.e. stack of the release) commands:
+ * remove       Remove one or more tagsets, for Release Managers.
+                Optional parameter: '-c' ('--comment').
+
+New Package Request commands:
+   pendingpkgs  Prints the list of packages pending approval in TC.
+                Optional parameter: '-v' ('--verbose').
+ * approvepkgs  Approves packages in TC and **creates them in CVS**.
+
+CMSDIST (i.e. externals) commands:
+   cmsdisttags  Prints all CMSDIST's tags of up to 4 CVS tags.
+   cmsdistdiff  Same, but only tags that differ.
+
+--
+
+Commands that require signing in are marked with *.
 
 Experimental commands are marked with ^ (i.e. their output/name/arguments may
 change in the future with high probability, feedback is welcomed).
@@ -39,18 +96,35 @@ Examples:
    cmstc diff          CMSSW_4_1_X CMSSW_4_2_X CMSSW_4_3_X
    cmstc difflast      CMSSW_4_1_2 CMSSW_4_1_X
 
-   cmstc pendingpkgs
-   cmstc pendingpkgs   -v
-   cmstc approvepkgs   TESTSubSystem/TestPackage9 TESTSubSystem/TestPackage10
+   cmstc tagset        12345
+   cmstc tagsetinfo    98765
 
-   cmstc cmsdisttags   CMSSW_4_1_0_pre1
-   cmstc cmsdistdiff   CMSSW_4_1_0_pre1 CMSSW_4_1_0_pre2
+   cmstc search        4_4
+   cmstc search        align
+   cmstc search        2011-01-01
+   cmstc search        miguel
+
+   cmstc tagsappr      CMSSW_4_1_X
+   cmstc tagsappr      12345 98765
+   cmstc tagsappr      CMSSW_4_1_X 12345 98765
 
    cmstc ibs
    cmstc ibs           4_2
    cmstc lastib        4_2
 
    cmstc pkghist       DQM/BeamMonitor
+
+   cmstc sign          12345 98765
+   cmstc approve       -c "this is the comment" 12345 98765
+   cmstc bypass        12345
+   cmstc ...
+
+   cmstc pendingpkgs
+   cmstc pendingpkgs   -v
+   cmstc approvepkgs   TESTSubSystem/TestPackage9 TESTSubSystem/TestPackage10
+
+   cmstc cmsdisttags   CMSSW_4_1_0_pre1
+   cmstc cmsdistdiff   CMSSW_4_1_0_pre1 CMSSW_4_1_0_pre2
 """
 
 __author__ = "Miguel Ojeda"
@@ -214,7 +288,59 @@ def cmd_difflast(releases):
 	a = cmstc.TagCollector().getReleasesTags(releases, True)
 	printTags([(x[0], x[-1]) for x in a])
 
+def cmd_tagset(tagset):
+	if len(tagset) != 1:
+		raise Exception("Error: Expected a tagset.")
+	tagset = tagset[0]
+	printTags(cmstc.TagCollector().getTagsetTags(tagset))
+
+def cmd_tagsetinfo(tagset):
+	if len(tagset) != 1:
+		raise Exception("Error: Expected a tagset.")
+	tagset = tagset[0]
+	information = cmstc.TagCollector().getTagsetInformation(tagset)
+	print '   Tagset: ', information['id']
+	print '  Release: ', information['release_name']
+	print '    State: ', information['state']
+	print '   Author: ', information['author']
+	print
+	print 'Tagset:'
+	printTags(cmstc.TagCollector().getTagsetTags(tagset))
+	print
+	print 'Description:'
+	print information['description']
+
+def cmd_search(term):
+	if len(term) != 1:
+		raise Exception("Error: Expected a single word.")
+	term = term[0]
+	tc = cmstc.TagCollector()
+	tc.signInInteractive()
+	results = tc.search(term)
+	for result in results:
+		print ' '*(10 - len(result['type'])) + result['type'] + '  ' + result['value']
+
+def cmd_tagsappr(args):
+	if len(args) < 1:
+		raise Exception("Error: Expected at least a tagset ID or release name.")
+	printTags(cmstc.TagCollector().getPendingApprovalTags(args))
+
+def cmd_ibs(filt):
+	if filt:
+		filt = filt[0]
+	else:
+		filt = ''
+	printIBs(cmstc.TagCollector().getIBs(filt))
+
+def cmd_lastib(filt):
+	if len(filt) != 1:
+		raise Exception("Error: Expected a filter (single word).")
+	filt = filt[0]
+	printIBsLast(cmstc.TagCollector().getIBs(filt, 1))
+
 def cmd_pkghist(package):
+	if len(package) != 1:
+		raise Exception("Error: Expected a package (single word).")
 	package = package[0]
 	tc = cmstc.TagCollector()
 	tags = tc.getPackageTags(package)
@@ -229,22 +355,43 @@ def cmd_pkghist(package):
 		for tagrelease in tagreleases:
 			print ' ' * _maxtaglen + tagrelease
 
-def cmd_ibs(filt):
-	if filt:
-		filt = filt[0]
-	else:
-		filt = ''
-	printIBs(cmstc.TagCollector().getIBs(filt))
+def tagset_cmd(args, command):
+	parser = optparse.OptionParser()
+	parser.add_option("-c", "--comment", dest="comment", default='')
+	(opts, args) = parser.parse_args(args)
+	tagset_ids = args
+	comment = opts.comment
+	if len(tagset_ids) < 1:
+		raise Exception("Error: Expected at least one tagset ID.")
+	print 'Tagset IDs:', tagset_ids
+	print '   Comment: "' + comment + '"'
+	tc = cmstc.TagCollector()
+	tc.signInInteractive()
+	getattr(tc, command)(tagset_ids, comment)
 
-def cmd_lastib(filt):
-	filt = filt[0]
-	printIBsLast(cmstc.TagCollector().getIBs(filt, 1))
+def cmd_comment(args):
+	tagset_cmd(args, 'commentTagsets')
 
-def cmd_cmsdisttags(cvstags):
-	printTags(getCMSDISTs(cvstags, False), 20)
+def cmd_sign(args):
+	tagset_cmd(args, 'signTagsets')
 
-def cmd_cmsdistdiff(cvstags):
-	printTags(getCMSDISTs(cvstags, True), 20)
+def cmd_signall(args):
+	tagset_cmd(args, 'signTagsetsAll')
+
+def cmd_rejectsign(args):
+	tagset_cmd(args, 'rejectTagsetsPendingSignatures')
+
+def cmd_approve(args):
+	tagset_cmd(args, 'approveTagsets')
+
+def cmd_bypass(args):
+	tagset_cmd(args, 'bypassTagsets')
+
+def cmd_rejectappr(args):
+	tagset_cmd(args, 'rejectTagsetsPendingApproval')
+
+def cmd_remove(args):
+	tagset_cmd(args, 'removeTagsets')
 
 def cmd_pendingpkgs(args):
 	parser = optparse.OptionParser()
@@ -289,6 +436,12 @@ def cmd_approvepkgs(packages):
 		tc.approvePackage(package)
 		print "Approving package in TC... DONE"
 	tc.signOut()
+
+def cmd_cmsdisttags(cvstags):
+	printTags(getCMSDISTs(cvstags, False), 20)
+
+def cmd_cmsdistdiff(cvstags):
+	printTags(getCMSDISTs(cvstags, True), 20)
 
 def main():
 	try:
