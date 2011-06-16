@@ -4,15 +4,15 @@ process = cms.Process("PFAOD")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_4_2_0_pre8/RelValTTbar/GEN-SIM-RECO/START42_V7-v1/0042/4C740530-8B56-E011-8CCE-0018F3D095FC.root'
+#     '/store/relval/CMSSW_4_2_3/RelValZTT/GEN-SIM-RECO/START42_V12-v2/0062/4CEA9C47-287B-E011-BAB7-00261894396B.root'
+    '/store/data/Run2011A/HT/AOD/PromptReco-v4/000/166/921/F277100B-BA97-E011-998D-001D09F24D4E.root'
     )
 )
 
 
-
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False))
 #WARNING!
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2000) )
 
 process.load("Configuration.EventContent.EventContent_cff")
 process.out = cms.OutputModule(

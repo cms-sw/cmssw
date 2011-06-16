@@ -87,12 +87,17 @@ prunedAODForPF2PATEventContent = cms.PSet(
         'drop recoPFTau*_*_*_*',
         'drop recoCaloJet*_*_*_*',
         'drop recoPFJet*_*_*_*',
+        'drop recoJPTJets_*_*_*',
+        'drop recoTrackJets_*_*_*',
+        'drop recoJetIDedmValueMap_*_*_*',
         'drop recoConversions_*_*_*', 
         'drop recoJetedmRefToBaseProdTofloatsAssociationVector_*_*_*',
         'drop recoPreshowerClusters_*_*_*',
         'drop recoMETs_*_*_*',
         'drop recoPFMETs_*_*_*',
         'drop recoCaloMETs_*_*_*',
+# caloMET can always be useful for understanding fake MET 
+        'keep recoCaloMETs_corMetGlobalMuons_*_*',
         'drop *_genMetCalo_*_*',
         'drop *_genMetCaloAndNonPrompt_*_*',
         'drop *_tevMuons_*_*',
@@ -111,6 +116,10 @@ prunedAODForPF2PATEventContent = cms.PSet(
         'drop recoHFEMClusterShapes_*_*_*', 
         'drop recoCaloClustersToOnereco*_*_*_*',
         'drop EcalRecHitsSorted_*_*_*',
+# the next 2 are needed for fake MET event cleaning (RA2 filters)
+        'keep EcalRecHitsSorted_reducedEcalRecHitsEB_*_*',
+        'keep EcalRecHitsSorted_reducedEcalRecHitsEE_*_*',
+        # 'keep EcalTriggerPrimitiveDigisSorted_ecalTPSkim_*_*',
         'drop recoCaloClusters_*_*_*',
 # needed somewhere in PAT. and could be useful in the future. 
 #        'drop *_softPFElectrons_*_*',
@@ -123,7 +132,7 @@ prunedAODForPF2PATEventContent = cms.PSet(
         'keep *_pfElectronTranslator_*_*',
         'keep recoSuperClusters_corrected*_*_*',
          'keep *_TriggerResults_*_*',
-        'keep *_hltTriggerSummaryAOD_*_*'
-
+        'keep *_hltTriggerSummaryAOD_*_*',
+        'keep *_lumiProducer_*_*'
         )
 )
