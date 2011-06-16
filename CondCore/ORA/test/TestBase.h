@@ -24,11 +24,11 @@ namespace ora {
       std::string pathenv(std::string("CORAL_AUTH_PATH=")+authpath);
       ::putenv(const_cast<char*>(pathenv.c_str()));
       try{
+	Serializer serializer;
+	serializer.lock( connectionString );
 	std::set<std::string> exclude;
 	exclude.insert( Serializer::tableName());
 	SchemaUtils::cleanUp( connectionString, exclude );
-	Serializer serializer;
-	serializer.lock( connectionString );
 	execute( connectionString );
 	serializer.release();
       }catch ( const std::exception& exc ){
