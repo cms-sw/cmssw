@@ -1,6 +1,6 @@
-#include "HiggsAnalysis/CombinedLimit/interface/ProfiledLikelihoodRatioTestStatExt.h"
-#include "HiggsAnalysis/CombinedLimit/interface/CloseCoutSentry.h"
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
+#include "../interface/CloseCoutSentry.h"
+#include "../interface/utils.h"
 #include <stdexcept>
 #include <RooRealVar.h>
 #include <RooMinimizer.h>

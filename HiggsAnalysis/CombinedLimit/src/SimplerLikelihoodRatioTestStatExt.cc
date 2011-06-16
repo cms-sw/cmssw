@@ -1,5 +1,5 @@
-#include "HiggsAnalysis/CombinedLimit/interface/SimplerLikelihoodRatioTestStatExt.h"
-#include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "../interface/SimplerLikelihoodRatioTestStatExt.h"
+#include "../interface/utils.h"
 
 SimplerLikelihoodRatioTestStatOpt::SimplerLikelihoodRatioTestStatOpt(
         const RooArgSet &obs, 
