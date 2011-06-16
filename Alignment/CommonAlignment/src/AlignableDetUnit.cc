@@ -198,8 +198,8 @@ AlignmentErrors* AlignableDetUnit::alignmentErrors() const
  
   CLHEP::HepSymMatrix clhepSymMatrix(3,0);
   if ( theAlignmentPositionError ) // Might not be set
-    clhepSymMatrix = theAlignmentPositionError->globalError().matrix();
-
+    clhepSymMatrix = asHepMatrix(theAlignmentPositionError->globalError().matrix());
+  
   AlignTransformError transformError( clhepSymMatrix, detId );
   
   m_alignmentErrors->m_alignError.push_back( transformError );
