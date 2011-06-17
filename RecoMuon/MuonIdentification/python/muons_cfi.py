@@ -24,7 +24,8 @@ muons = cms.EDProducer("MuonProducer",
                                                                       neutralHadron = cms.InputTag("muPFIsoValueNeutral04"),
                                                                       photon = cms.InputTag("muPFIsoValueGamma04"),
                                                                       pu = cms.InputTag("muPFIsoValuePU04"))),
-                                            
+
+                       FillSelectorMaps = cms.bool(True),
                        SelectorMaps = cms.VInputTag(cms.InputTag("muidTMLastStationOptimizedLowPtLoose"),
                                                     cms.InputTag("muidTMLastStationOptimizedLowPtTight"),
                                                     cms.InputTag("muidTM2DCompatibilityLoose"),
@@ -46,6 +47,7 @@ muons = cms.EDProducer("MuonProducer",
                                                     ),
                        
                        ShowerInfoMap = cms.InputTag("muonShowerInformation"),
+
+                       FillCosmicsIdMap = cms.bool(True),
                        CosmicIdMap = cms.InputTag("cosmicsVeto")
-                       
                        )
