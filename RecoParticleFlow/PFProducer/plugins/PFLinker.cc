@@ -153,8 +153,6 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     edm::OrphanHandle<reco::PFCandidateCollection>();
 
   
-  std::cout<<"1"<<std::endl;
-
   // now make the valuemaps
 
   edm::ValueMap<reco::PFCandidatePtr> pfMapGsfElectrons = fillValueMap<reco::GsfElectronCollection>(iEvent, 
@@ -163,15 +161,12 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 								electronCandidateMap,
 								pfCandidateRefProd);
   
-  std::cout<<"2"<<std::endl;
-
   edm::ValueMap<reco::PFCandidatePtr> pfMapPhotons = fillValueMap<reco::PhotonCollection>(iEvent, 
 						      nameOutputPhotonsPF_, 
 						      photons, 
 						      photonCandidateMap,
 						      pfCandidateRefProd);
   
-  std::cout<<"3"<<std::endl;
 
   edm::ValueMap<reco::PFCandidatePtr> pfMapMuons;
 
@@ -184,26 +179,16 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 						    muons, 
 						    muonCandidateMap,
 						    pfCandidateRefProd);
-    std::cout<<"4"<<std::endl;
   }
-
-  std::cout<<"5"<<std::endl;
   
   std::auto_ptr<edm::ValueMap<reco::PFCandidatePtr> > 
     pfMapMerged(new edm::ValueMap<reco::PFCandidatePtr>());
   edm::ValueMap<reco::PFCandidatePtr>::Filler pfMapMergedFiller(*pfMapMerged);
   
-  std::cout<<"6"<<std::endl;
-
-   *pfMapMerged                   += pfMapGsfElectrons;
-   std::cout<<"7"<<std::endl;
-   *pfMapMerged                   += pfMapPhotons;
-   std::cout<<"8"<<std::endl;
-   if(fillMuonRefs_) *pfMapMerged += pfMapMuons;
-   std::cout<<"9"<<std::endl;
-   iEvent.put(pfMapMerged,nameOutputMergedPF_);
-   std::cout<<"10"<<std::endl;
-
+  *pfMapMerged                   += pfMapGsfElectrons;
+  *pfMapMerged                   += pfMapPhotons;
+  if(fillMuonRefs_) *pfMapMerged += pfMapMuons;
+  iEvent.put(pfMapMerged,nameOutputMergedPF_);
 }
 
 template<typename T>
