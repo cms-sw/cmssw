@@ -19,7 +19,7 @@ os.system(com%('','','pp',options.output,options.output,options.TLR%(options.rel
 #cosmics config without Alca
 os.system(com%('','','cosmics',options.output,options.output,options.TLR%(options.rel,),'.customiseCosmicData','','cosmics',options.GT))
 
-from Configuration.PyReleaseValidation.autoAlca import autoAlca
+from Configuration.AlCa.autoAlca import autoAlca
 for PD in autoAlca:
     recoSpec=''
     scenario='pp'
