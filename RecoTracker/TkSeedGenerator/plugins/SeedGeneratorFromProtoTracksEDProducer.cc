@@ -9,7 +9,7 @@
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedFromProtoTrack.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
-#include "SeedFromConsecutiveHitsCreator.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHitsCreator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
