@@ -87,7 +87,7 @@ namespace Rivet {
 
       FourMomentum p_lead = jets[0].momentum();
       const double philead = p_lead.phi();
-      const double etalead = p_lead.eta();
+      //      const double etalead = p_lead.eta();
       const double pTlead  = p_lead.perp();
       //AK  MSG_INFO("Leading track: pT = " << pTlead << ", eta = " << etalead << ", phi = " << philead);
       // These are the charged particles (tracks) with pT > 500 MeV defined above
@@ -95,7 +95,7 @@ namespace Rivet {
           applyProjection<ChargedFinalState>(event, "CFS").particlesByPt();
 
 
-      double nTransverse(0.0), ptSumTransverse(0.0), pT, Nch_average ;
+      double nTransverse(0.0), ptSumTransverse(0.0), pT, Nch_average(0) ;
 	int  i = 0;
       foreach (const Particle& p, particles) {
  //AK  MSG_INFO( "pTlead =  " << pTlead);
