@@ -11,7 +11,7 @@
 //
 // Project: HPD noise library reader
 // Author: T.Yetkin University of Iowa, Feb. 7, 2008
-// $Id: HPDNoiseLibraryReader.cc,v 1.2 2008/07/21 18:30:03 tyetkin Exp $
+// $Id: HPDNoiseLibraryReader.cc,v 1.3 2008/09/19 17:03:50 tyetkin Exp $
 // --------------------------------------------------------
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseLibraryReader.h"
@@ -101,12 +101,12 @@ void HPDNoiseLibraryReader::fillRates() {
 HPDNoiseData *HPDNoiseLibraryReader::getNoiseData(int iphi) {
 
 
-    HPDNoiseData *data;
+    HPDNoiseData *data = 0; //data->size() is checked wherever actually used  
 
     // make sure that iphi from HcalDetId is found noisy at first.
     // In other words, be sure that iphi is in the collection of
     // noisy Phis
-    if (!(IsNoiseApplicable(iphi)))
+    if (!(IsNoiseApplicable(iphi)))         
         return data;
 
     int zside = 1;
