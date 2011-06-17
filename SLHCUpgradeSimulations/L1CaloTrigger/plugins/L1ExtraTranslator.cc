@@ -52,8 +52,8 @@ class L1ExtraTranslator:public edm::EDProducer
 L1ExtraTranslator::L1ExtraTranslator( const edm::ParameterSet & iConfig ):
 mClusters( iConfig.getParameter < edm::InputTag > ( "Clusters" ) ),
 mJets( iConfig.getParameter < edm::InputTag > ( "Jets" ) ), 
-mNparticles( iConfig.getParameter < std::size_t >( "NParticles" ) ), 
-mNjets( iConfig.getParameter < std::size_t >( "NJets" ) )
+mNparticles( iConfig.getParameter < unsigned int >( "NParticles" ) ), 
+mNjets( iConfig.getParameter < unsigned int >( "NJets" ) )
 {
 	// Register Product
 	produces < l1extra::L1EmParticleCollection > ( "EGamma" );
