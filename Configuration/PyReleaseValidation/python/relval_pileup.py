@@ -15,4 +15,4 @@ workflows[202]=['TTbar',['TTbarPU2','DIGIPU1','RECOPU1']]
 #heavy ions tests
 workflows[203]=['Pyquen_GammaJet_pt20_2760GeV',['HydjetQ_B0_2760GeVPUINPUT','Pyquen_GammaJet_pt20_2760GeV','DIGIHISt3','RECOHISt4']]
 workflows[204]=['Pyquen_DiJet_pt80to120_2760GeV',['HydjetQ_B0_2760GeVPUINPUT','Pyquen_DiJet_pt80to120_2760GeV','DIGIHISt3','RECOHISt4']]
-workflows[205]=['Pyquen_ZeemumuJets_pt10_2760GeV',['HydjetQ_B0_2760GeVPUINPUT','Pyquen_DiJet_pt80to120_2760GeV','DIGIHISt3','RECOHISt4']]
+workflows[205]=['Pyquen_ZeemumuJets_pt10_2760GeV',['HydjetQ_B0_2760GeVPUINPUT','Pyquen_ZeemumuJets_pt10_2760GeV','DIGIHISt3','RECOHISt4']]
