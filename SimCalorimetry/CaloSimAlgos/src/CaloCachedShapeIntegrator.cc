@@ -30,8 +30,8 @@ CaloCachedShapeIntegrator::timeToRise() const
 double 
 CaloCachedShapeIntegrator::operator() ( double startTime ) const 
 {
-  // round up, and accoutn for the -25 ns offset 
-  int ibin = static_cast<int>(startTime+25.5);
+  // round up, and account for the -25 ns offset 
+  int ibin = static_cast<int>(startTime+25.0);
   return (ibin<0 || ibin >= NBINS) ? 0. : v_[ibin];
 }
 
