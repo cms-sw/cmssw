@@ -245,7 +245,12 @@ class matplotRender():
             ax.set_yscale('log')
         else:
             raise 'unsupported yscale ',yscale
-        dateFmt=matplotlib.dates.DateFormatter('%d/%m')
+        yearStrMin=minTime.strftime('%Y')
+        yearStrMax=maxTime.strftime('%Y')
+        if yearStrMin==yearStrMax:
+            dateFmt=matplotlib.dates.DateFormatter('%d/%m')
+        else:
+            dateFmt=matplotlib.dates.DateFormatter('%d/%m/%y')
         majorLoc=matplotlib.ticker.LinearLocator(numticks=nticks)
         ax.xaxis.set_major_locator(majorLoc)
         minorLoc=matplotlib.ticker.LinearLocator(numticks=nticks*4)
@@ -274,13 +279,18 @@ class matplotRender():
         if annotateBoundaryRunnum:
             ax.text(xpoints[0],1.025,str(runs[0]),transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))        
             ax.text(xpoints[-1],1.025,str(runs[-1]),transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
-        yearStr=minTime.strftime('%Y')
-        firstimeStr=minTime.strftime('%b %d %H:%M')
-        lasttimeStr=maxTime.strftime('%b %d %H:%M')
-        ax.set_title('Total Integrated Luminosity '+yearStr+' ('+firstimeStr+' UTC - '+lasttimeStr+' UTC)',size='small',family='fantasy')
+        
+        if yearStrMin==yearStrMax:
+            firstimeStr=minTime.strftime('%b %d %H:%M')
+            lasttimeStr=maxTime.strftime('%b %d %H:%M')
+            ax.set_title('Total Integrated Luminosity '+yearStrMin+' ('+firstimeStr+' UTC - '+lasttimeStr+' UTC)',size='small',family='fantasy')
+        else:
+            ax.set_title('Total Integrated Luminosity '+yearStrMin+'-'+yearStrMax,size='small',family='fantasy')
         ax.legend(tuple(legendlist),loc='upper left')
-        self.__fig.autofmt_xdate(bottom=0.18,rotation=0)
-        self.__fig.subplots_adjust(bottom=0.1,left=0.1)
+        ax.autoscale(tight=True)
+        ax.set_xmargin(0.015)
+        self.__fig.autofmt_xdate(bottom=0.18,rotation=15,ha='right')
+        self.__fig.subplots_adjust(bottom=0.2,left=0.15)
         
     def plotPerdayX_Time(self,days,databyday,minTime,maxTime,boundaryInfo=[],nticks=6,annotateBoundaryRunnum=False,yscale='linear'):
         '''input
