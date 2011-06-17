@@ -289,7 +289,6 @@ void PFLinker::fillValueMap(edm::Handle<TYPE>& inputObjCollection,
   typedef typename std::map<edm::Ref<TYPE>, reco::PFCandidatePtr>::const_iterator MapTYPE_it; 
 
   unsigned nObj=inputObjCollection->size();
-  std::cout << " fillValueMap "<< nObj << std::endl;
   std::vector<reco::PFCandidatePtr> values(nObj);
 
   for(unsigned iobj=0; iobj < nObj; ++iobj) {
@@ -309,7 +308,5 @@ void PFLinker::fillValueMap(edm::Handle<TYPE>& inputObjCollection,
     }
     values[iobj] = candPtr;    
   }
-  std::cout << " before insert " << std::endl;
   filler.insert(inputObjCollection,values.begin(),values.end());
-  std::cout << " done " << std::endl;
 }
