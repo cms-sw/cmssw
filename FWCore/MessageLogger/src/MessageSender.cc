@@ -25,15 +25,8 @@ std::map<ErrorSummaryMapKey, unsigned int> MessageSender::errorSummaryMap;
 
 MessageSender::MessageSender( ELseverityLevel const & sev, 
 			      ELstring const & id,
-			      bool verbatim )
-: errorobj_p( new ErrorObj(sev,id,verbatim) )
-{
-  //std::cout << "MessageSender ctor; new ErrorObj at: " << errorobj_p << '\n';
-}
-
-MessageSender::MessageSender( ELseverityLevel const & sev, 
-			      ELstring const & id )
-: errorobj_p( new ErrorObj(sev,id,false) )
+			      bool verbatim, bool suppressed )
+: errorobj_p( suppressed ? 0 : new ErrorObj(sev,id,verbatim) )
 {
   //std::cout << "MessageSender ctor; new ErrorObj at: " << errorobj_p << '\n';
 }
@@ -44,6 +37,9 @@ MessageSender::MessageSender( ELseverityLevel const & sev,
 // if the MessageLogger library is loaded -- even if it is not used.
 MessageSender::~MessageSender()
 {
+  if (errorobj_p == 0) {
+    return;
+  }
   try 
     {
       //std::cout << "MessageSender dtor; ErrorObj at: " << errorobj_p << '\n';

@@ -27,11 +27,10 @@ class MessageSender
 {
 public:
   // ---  birth/death:
+  MessageSender() : errorobj_p(0) {} 
   MessageSender( ELseverityLevel const & sev, 
   		 ELstring const & id,
-		 bool verbatim );
-  MessageSender( ELseverityLevel const & sev, 
-  		 ELstring const & id );
+		 bool verbatim = false, bool suppressed = false );
   ~MessageSender();
 
   // ---  stream out the next part of a message:
@@ -47,6 +46,9 @@ public:
   static bool errorSummaryIsBeingKept;
   static bool freshError;
   static std::map<ErrorSummaryMapKey, unsigned int> errorSummaryMap;
+  bool valid() {
+    return errorobj_p != 0;
+  }
   
 private:
   // no copying:
