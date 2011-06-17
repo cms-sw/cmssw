@@ -90,7 +90,7 @@ namespace edm {
     Reflex::Type productType() const;
 
     // Retrieves the product ID of the product.
-    ProductID const& productID() const {return productData().prov_.productID();};
+    ProductID const& productID() const {return productData().prov_.productID();}
 
     // Puts the product and its per event(lumi)(run) provenance into the Group.
     void putProduct(WrapperHolder const& edp, ProductProvenance const& productProvenance) {
