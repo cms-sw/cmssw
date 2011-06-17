@@ -119,7 +119,7 @@ void GroupLogStatistics(std::string const & category) {
 }
 
 edm::LogDebug_::LogDebug_( std::string const & id, std::string const & file, int line )
-  : ap( new MessageSender(ELsuccess,id) )
+  : ap( ELsuccess,id )
   , debugEnabled(!MessageDrop::debugAlwaysSuppressed)		//9/23/10 mf
 { *this
         << " "
@@ -135,7 +135,7 @@ edm::LogDebug_::stripLeadingDirectoryTree(const std::string & file) const {
 }
 
 edm::LogTrace_::LogTrace_( std::string const & id )
-  : ap( new MessageSender(ELsuccess,id,true) )
+  : ap( ELsuccess,id,true )
   , debugEnabled(!MessageDrop::debugAlwaysSuppressed)		//9/23/10 mf
   {  }
 

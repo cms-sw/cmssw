@@ -62,7 +62,7 @@
 //
 // 13 wmtan 11/18/08 Use explicit non-inlined destructors
 //
-// 14 mf  3/23/09   ap.get() used whenever possible suppression, to avoid
+// 14 mf  3/23/09   ap.valid() used whenever possible suppression, to avoid
 //		    null pointer usage
 //
 // 15 mf  8/11/09   provision for control of standalone threshold and ignores
@@ -115,7 +115,10 @@
 //                      on a per-module basis (needed at HLT)
 //
 // 25 wmtan 7/17/11 Allocate MessageSender on stack rather than heap
-//                  except for logDebug() and logtrace()
+//
+// 26 wmtan 7/17/11 !!BUG FIX
+//                  The replacements for the LogDebug and LogTrace macros
+//                  were missing the surrounding parentheses.  Added them.
 // =================================================
 
 // system include files
@@ -374,28 +377,28 @@ public:
     LogDebug_ & 
     operator<< (T const & t)  
     { if (!debugEnabled) return *this;				// Change log 8
-      if (ap.get()) (*ap) << t; 
+      if (ap.valid()) ap << t; 
       else Exception::throwThis
        (edm::errors::LogicError,"operator << to stale copied LogDebug_ object"); 
       return *this; }
   LogDebug_ & 
   operator<< ( std::ostream&(*f)(std::ostream&))  
     { if (!debugEnabled) return *this;				// Change log 8
-      if (ap.get()) (*ap) << f; 
+      if (ap.valid()) ap << f; 
       else Exception::throwThis
        (edm::errors::LogicError,"operator << to stale copied LogDebug_ object"); 
       return *this; }
   LogDebug_ & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
     { if (!debugEnabled) return *this;				// Change log 8
-      if (ap.get()) (*ap) << f; 
+      if (ap.valid()) ap << f; 
       else Exception::throwThis
        (edm::errors::LogicError,"operator << to stale copied LogDebug_ object"); 
       return *this; }
-			   // Change log 8:  The tests for ap.get() being null 
+			   // Change log 8:  The tests for ap.valid() being null 
 
 private:
-  std::auto_ptr<MessageSender> ap; 
+  MessageSender ap; 
   bool debugEnabled;
   std::string stripLeadingDirectoryTree (const std::string & file) const;
 								// change log 10
@@ -412,28 +415,28 @@ public:
     LogTrace_ & 
     operator<< (T const & t)  
     { if (!debugEnabled) return *this;				// Change log 8
-      if (ap.get()) (*ap) << t; 
+      if (ap.valid()) ap << t; 
       else Exception::throwThis
        (edm::errors::LogicError,"operator << to stale copied LogTrace_ object"); 
       return *this; }
   LogTrace_ & 
   operator<< ( std::ostream&(*f)(std::ostream&))  
     { if (!debugEnabled) return *this;				// Change log 8
-      if (ap.get()) (*ap) << f; 
+      if (ap.valid()) ap << f; 
       else Exception::throwThis
        (edm::errors::LogicError,"operator << to stale copied LogTrace_ object"); 
       return *this; }
   LogTrace_ & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
     { if (!debugEnabled) return *this;				// Change log 8
-      if (ap.get()) (*ap) << f; 
+      if (ap.valid()) ap << f; 
       else Exception::throwThis
        (edm::errors::LogicError,"operator << to stale copied LogTrace_ object"); 
       return *this; }
-			   // Change log 8:  The tests for ap.get() being null 
+			   // Change log 8:  The tests for ap.valid() being null 
  
 private:
-  std::auto_ptr<MessageSender> ap; 
+  MessageSender ap; 
   bool debugEnabled;
   
 };  // LogTrace_
@@ -502,12 +505,12 @@ public:
 // See doc/suppression.txt.
 
 #ifndef EDM_ML_DEBUG 
-#define LogDebug(id) true ? edm::Suppress_LogDebug_() : edm::Suppress_LogDebug_() 
-#define LogTrace(id) true ? edm::Suppress_LogDebug_() : edm::Suppress_LogDebug_() 
+#define LogDebug(id) (true ? edm::Suppress_LogDebug_() : edm::Suppress_LogDebug_()) 
+#define LogTrace(id) (true ? edm::Suppress_LogDebug_() : edm::Suppress_LogDebug_()) 
 #else
 // change log 21
-#define LogDebug(id) (edm::MessageDrop::debugAlwaysSuppressed || !edm::MessageDrop::debugEnabled) ? edm::LogDebug_() : edm::LogDebug_(id, __FILE__, __LINE__) 
-#define LogTrace(id) (edm::MessageDrop::debugAlwaysSuppressed || !edm::MessageDrop::debugEnabled) ? edm::LogTrace_() : edm::LogTrace_(id) 
+#define LogDebug(id) ((edm::MessageDrop::debugAlwaysSuppressed || !edm::MessageDrop::debugEnabled) ? edm::LogDebug_() : edm::LogDebug_(id, __FILE__, __LINE__)) 
+#define LogTrace(id) ((edm::MessageDrop::debugAlwaysSuppressed || !edm::MessageDrop::debugEnabled) ? edm::LogTrace_() : edm::LogTrace_(id))
 #endif
 
 #endif  // MessageLogger_MessageLogger_h
