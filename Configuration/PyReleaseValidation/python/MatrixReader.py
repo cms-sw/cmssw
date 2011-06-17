@@ -127,7 +127,7 @@ class MatrixReader(object):
                     cfg, input, opts = self.makeCmd(copyStep)
                 else:                        
                     cfg, input, opts = self.makeCmd(self.relvalModule.stepList[stepIndex][stepName])
-                        
+
                 if input and cfg :
                     msg = "FATAL ERROR: found both cfg and input for workflow "+str(num)+' step '+stepName
                     raise MatrixException(msg)
@@ -153,14 +153,14 @@ class MatrixReader(object):
                     if input.events!=InputInfoNDefault:
                         cmd+=' N %d'%(input.events)
                         
-                if stepIndex > 0:
+                if stepIndex > 0 and not 'cfg' in self.relvalModule.stepList[stepIndex][stepName]:
                     cmd  = 'cmsDriver.py step'+str(stepIndex+1)+' '+opts
-                    
+    
                 stepCmds[stepIndex] = cmd
                 stepIndex += 1
 
             self.step1WorkFlows[(float(num),prefix)] = (str(float(num)), name, stepCmds[0], stepCmds[1], stepCmds[2], stepCmds[3], inputInfo)
-            
+
         return
 
     def showRaw(self, useInput, refRel='CMSSW_4_2_0_pre2', fromScratch=None, what='all',step1Only=False):
