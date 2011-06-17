@@ -24,9 +24,12 @@ Common commands:
 
  ^ tagsappr     Prints Pending Approval tags of one or more releases,
                 one or more tagsets, or both (i.e. it joins all the tags).
-                Prints an error if several tags appear for a single package.
+                Prints an error if several tags appear for a single package
+                if the '-m' flag is not specified.
                 Suitable for piping to addpkg (note: at the moment,
                 addpkg does not read from stdin, use "-f" instead).
+                Optional parameter: '-m' ('--multiple').
+                   Allows multiple tags for a single package.
 
 Integration Build commands:
    ibs          Prints the list of latest IBs for active releases
@@ -51,10 +54,10 @@ Tagset commands:
  * sign         Sign one or more tagsets, for L2s.
                 Optional parameter: '-c' ('--comment').
  * signall      Sign all signatures of one or more tagsets,
-                for Release Managers.
+                for top-level admins.
                 Optional parameter: '-c' ('--comment').
  * rejectsign   Reject one or more tagsets from the Pending Signatures queue,
-                for L2s.
+                for L2s, Release Managers or authors of the tagsets.
                 Optional parameter: '-c' ('--comment').
 
    > Pending Approval queue commands:
@@ -321,9 +324,13 @@ def cmd_search(term):
 		print ' '*(10 - len(result['type'])) + result['type'] + '  ' + result['value']
 
 def cmd_tagsappr(args):
+	parser = optparse.OptionParser()
+	parser.add_option("-m", "--multiple", action="store_true", dest="multiple", default=False)
+	(opts, args) = parser.parse_args(args)
+	multiple = opts.multiple
 	if len(args) < 1:
 		raise Exception("Error: Expected at least a tagset ID or release name.")
-	printTags(cmstc.TagCollector().getPendingApprovalTags(args))
+	printTags(sorted(cmstc.TagCollector().getPendingApprovalTags(args, multiple)))
 
 def cmd_ibs(filt):
 	if filt:

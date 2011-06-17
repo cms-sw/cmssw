@@ -85,14 +85,15 @@ class TagCollector(object):
 		"""Get the information of one tagset."""
 		return self._openjson('py_getTagsetInformation', {'tagset': tagset})
 
-	def getPendingApprovalTags(self, args):
+	def getPendingApprovalTags(self, args, allow_multiple_tags = False):
 		"""Prints Pending Approval tags of one or more releases,
                 one or more tagsets, or both (i.e. it joins all the tags).
 		Prints an error if several tags appear for a single package.
 		Suitable for piping to addpkg (note: at the moment,
 		addpkg does not read from stdin, use "-f" instead)."""
 		args = json.dumps(args)
-		return self._openjson('py_getPendingApprovalTags', {'args': args})
+		allow_multiple_tags = json.dumps(allow_multiple_tags)
+		return self._openjson('py_getPendingApprovalTags', {'args': args, 'allow_multiple_tags': allow_multiple_tags})
 
 	def commentTagsets(self, tagset_ids, comment):
 		"""Comment one or more tagsets.
@@ -110,13 +111,14 @@ class TagCollector(object):
 
 	def signTagsetsAll(self, tagset_ids, comment = ''):
 		"""Sign all one or more tagsets.
-		Requirement: Signed in as a Release Manager."""
+		Requirement: Signed in as a top-level admin."""
 		tagset_ids = json.dumps(tagset_ids)
 		self._open('signTagsetsAll', {'tagset_ids': tagset_ids, 'comment': comment})
 
 	def rejectTagsetsPendingSignatures(self, tagset_ids, comment = ''):
 		"""Reject one or more tagsets Pending Signatures.
-		Requirement: Signed in as a L2."""
+		Requirement: Signed in as a L2s or as a Release Manager
+                for the tagset's release or as the author of the tagset."""
 		tagset_ids = json.dumps(tagset_ids)
 		self._open('rejectTagsetsPendingSignatures', {'tagset_ids': tagset_ids, 'comment': comment})
 
