@@ -287,8 +287,9 @@ class matplotRender():
         else:
             ax.set_title('Total Integrated Luminosity '+yearStrMin+'-'+yearStrMax,size='small',family='fantasy')
         ax.legend(tuple(legendlist),loc='upper left')
-        ax.autoscale(tight=True)
-        ax.set_xmargin(0.015)
+        ax.autoscale_view(tight=True,scalex=True,scaley=False)
+        #ax.set_ymargin(0.01)
+        #ax.set_xmargin(0.015)
         self.__fig.autofmt_xdate(bottom=0.18,rotation=15,ha='right')
         self.__fig.subplots_adjust(bottom=0.2,left=0.15)
         
@@ -315,8 +316,13 @@ class matplotRender():
                     if v<minvar:
                         databyday[k][i]=minvar
         else:
-            raise 'unsupported yscale ',yscale
-        dateFmt=matplotlib.dates.DateFormatter('%d/%m')
+            raise 'unsupported yscale ',yscale        
+        yearStrMin=minTime.strftime('%Y')
+        yearStrMax=maxTime.strftime('%Y')
+        if yearStrMin==yearStrMax:
+            dateFmt=matplotlib.dates.DateFormatter('%d/%m')
+        else:
+            dateFmt=matplotlib.dates.DateFormatter('%d/%m/%y')
         majorLoc=matplotlib.ticker.LinearLocator(numticks=nticks)
         minorLoc=matplotlib.ticker.LinearLocator(numticks=nticks*4)
         ax.xaxis.set_major_formatter(dateFmt)
@@ -363,12 +369,18 @@ class matplotRender():
                 trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
                 ax.text(matplotlib.dates.date2num(begtime),1.025,beginfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))        
                 ax.text(matplotlib.dates.date2num(endtime),1.025,endinfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
-        yearStr=minTime.strftime('%Y')
-        firstimeStr=minTime.strftime('%b %d %H:%M')
-        lasttimeStr=maxTime.strftime('%b %d %H:%M')
-        ax.set_title('Integrated Luminosity/Day '+yearStr+' ('+firstimeStr+' UTC - '+lasttimeStr+' UTC)',size='small',family='fantasy')
-        self.__fig.autofmt_xdate(bottom=0.18,rotation=0)
-        self.__fig.subplots_adjust(bottom=0.18,left=0.1)
+        if yearStrMin==yearStrMax:
+            firstimeStr=minTime.strftime('%b %d %H:%M')
+            lasttimeStr=maxTime.strftime('%b %d %H:%M')
+            ax.set_title('Integrated Luminosity/Day '+yearStrMin+' ('+firstimeStr+' UTC - '+lasttimeStr+' UTC)',size='small',family='fantasy')
+        else:
+            ax.set_title('Integrated Luminosity/Day '+yearStrMin+'-'+yearStrMax,size='small',family='fantasy')
+        #ax.autoscale(tight=True)
+        ax.autoscale_view(tight=True,scalex=True,scaley=False)
+        ax.set_ymargin(0.01)
+        ax.set_xmargin(0.015)
+        self.__fig.autofmt_xdate(bottom=0.18,rotation=15,ha='right')
+        self.__fig.subplots_adjust(bottom=0.2,left=0.15)
 
     def plotPeakPerday_Time(self,daydict,minTime,maxTime,nticks=6,annotateBoundaryRunnum=False,yscale='linear'):
         '''
@@ -425,7 +437,12 @@ class matplotRender():
                         ypoints[i]=minvar
         else:
             raise 'unsupported yscale ',yscale
-        dateFmt=matplotlib.dates.DateFormatter('%d/%m')
+        yearStrMin=minTime.strftime('%Y')
+        yearStrMax=maxTime.strftime('%Y')
+        if yearStrMin==yearStrMax:
+            dateFmt=matplotlib.dates.DateFormatter('%d/%m')
+        else:
+            dateFmt=matplotlib.dates.DateFormatter('%d/%m/%y')            
         majorLoc=matplotlib.ticker.LinearLocator(numticks=nticks)
         minorLoc=matplotlib.ticker.LinearLocator(numticks=nticks*4)
         ax.xaxis.set_major_formatter(dateFmt)
@@ -453,12 +470,17 @@ class matplotRender():
            ax.text(xpoints[0],1.025,beginfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
            ax.text(xpoints[-1],1.025,endinfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
            ax.annotate(maxinfo,xy=(xmax,ymax),xycoords='data',xytext=(0,13),textcoords='offset points',arrowprops=dict(facecolor='green',shrink=0.05),size='x-small',horizontalalignment='center',color='green',bbox=dict(facecolor='white'))
-        yearStr=minTime.strftime('%Y')
-        firstimeStr=minTime.strftime('%b %d %H:%M')
-        lasttimeStr=maxTime.strftime('%b %d %H:%M')
-        ax.set_title('Peak Luminosity/Day '+yearStr+' ('+firstimeStr+' UTC - '+lasttimeStr+' UTC)',size='small',family='fantasy')
-        self.__fig.autofmt_xdate(bottom=0.18,rotation=0)
-        self.__fig.subplots_adjust(bottom=0.1,left=0.1)
+        if  yearStrMin==yearStrMax: 
+            firstimeStr=minTime.strftime('%b %d %H:%M')
+            lasttimeStr=maxTime.strftime('%b %d %H:%M')
+            ax.set_title('Peak Luminosity/Day '+yearStrMin+' ('+firstimeStr+' UTC - '+lasttimeStr+' UTC)',size='small',family='fantasy')
+        else:
+            ax.set_title('Peak Luminosity/Day '+yearStrMin+'-'+yearStrMax,size='small',family='fantasy')
+        #ax.autoscale(tight=True)
+        ax.autoscale_view(tight=True,scalex=True,scaley=False)        
+        ax.set_xmargin(0.015)
+        self.__fig.autofmt_xdate(bottom=0.18,rotation=15,ha='right')
+        self.__fig.subplots_adjust(bottom=0.2,left=0.15)
 
     def plotInst_RunLS(self,rawxdata,rawydata,nticks=6):
         '''
