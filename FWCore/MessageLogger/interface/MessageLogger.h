@@ -116,9 +116,11 @@
 //
 // 25 wmtan 7/17/11 Allocate MessageSender on stack rather than heap
 //
-// 26 wmtan 7/17/11 !!BUG FIX
-//                  The replacements for the LogDebug and LogTrace macros
-//                  were missing the surrounding parentheses.  Added them.
+// 26 wmtan 7/17/11 Fix clang compilation errors for LogDebug and LogTrace
+//                  by changing the macros in the non-suppressed case
+//                  to use only a single constructor, avoiding a temporary.
+//                  The default constructor is removed, and the other
+//                  constructor handles both cases.
 // =================================================
 
 // system include files
@@ -370,30 +372,23 @@ class LogDebug_
 {
 public:
   explicit LogDebug_( std::string const & id, std::string const & file, int line ); // Change log 17
-  explicit LogDebug_()  : ap(), debugEnabled(false) {}		// Change log 8	
   ~LogDebug_(); 
 
   template< class T >
     LogDebug_ & 
     operator<< (T const & t)  
-    { if (!debugEnabled) return *this;				// Change log 8
+    {
       if (ap.valid()) ap << t; 
-      else Exception::throwThis
-       (edm::errors::LogicError,"operator << to stale copied LogDebug_ object"); 
       return *this; }
   LogDebug_ & 
   operator<< ( std::ostream&(*f)(std::ostream&))  
-    { if (!debugEnabled) return *this;				// Change log 8
+    {
       if (ap.valid()) ap << f; 
-      else Exception::throwThis
-       (edm::errors::LogicError,"operator << to stale copied LogDebug_ object"); 
       return *this; }
   LogDebug_ & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
-    { if (!debugEnabled) return *this;				// Change log 8
+    {
       if (ap.valid()) ap << f; 
-      else Exception::throwThis
-       (edm::errors::LogicError,"operator << to stale copied LogDebug_ object"); 
       return *this; }
 			   // Change log 8:  The tests for ap.valid() being null 
 
@@ -408,30 +403,23 @@ class LogTrace_
 {
 public:
   explicit LogTrace_( std::string const & id );			// Change log 13
-  explicit LogTrace_()  : ap(), debugEnabled(false) {}		// Change log 8	
   ~LogTrace_(); 
 
   template< class T >
     LogTrace_ & 
     operator<< (T const & t)  
-    { if (!debugEnabled) return *this;				// Change log 8
+    { 
       if (ap.valid()) ap << t; 
-      else Exception::throwThis
-       (edm::errors::LogicError,"operator << to stale copied LogTrace_ object"); 
       return *this; }
   LogTrace_ & 
   operator<< ( std::ostream&(*f)(std::ostream&))  
-    { if (!debugEnabled) return *this;				// Change log 8
+    { 
       if (ap.valid()) ap << f; 
-      else Exception::throwThis
-       (edm::errors::LogicError,"operator << to stale copied LogTrace_ object"); 
       return *this; }
   LogTrace_ & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
-    { if (!debugEnabled) return *this;				// Change log 8
+    {
       if (ap.valid()) ap << f; 
-      else Exception::throwThis
-       (edm::errors::LogicError,"operator << to stale copied LogTrace_ object"); 
       return *this; }
 			   // Change log 8:  The tests for ap.valid() being null 
  
@@ -465,9 +453,6 @@ private:
    
 };  // LogWarningThatSuppressesLikeLogInfo
 } // end namespace edmmltest
-
-extern LogDebug_ dummyLogDebugObject_;
-extern LogTrace_ dummyLogTraceObject_;
 
 class Suppress_LogDebug_ 
 { 
@@ -505,12 +490,12 @@ public:
 // See doc/suppression.txt.
 
 #ifndef EDM_ML_DEBUG 
-#define LogDebug(id) (true ? edm::Suppress_LogDebug_() : edm::Suppress_LogDebug_()) 
-#define LogTrace(id) (true ? edm::Suppress_LogDebug_() : edm::Suppress_LogDebug_()) 
+#define LogDebug(id) true ? edm::Suppress_LogDebug_() : edm::Suppress_LogDebug_()
+#define LogTrace(id) true ? edm::Suppress_LogDebug_() : edm::Suppress_LogDebug_()
 #else
 // change log 21
-#define LogDebug(id) ((edm::MessageDrop::debugAlwaysSuppressed || !edm::MessageDrop::debugEnabled) ? edm::LogDebug_() : edm::LogDebug_(id, __FILE__, __LINE__)) 
-#define LogTrace(id) ((edm::MessageDrop::debugAlwaysSuppressed || !edm::MessageDrop::debugEnabled) ? edm::LogTrace_() : edm::LogTrace_(id))
+#define LogDebug(id) (edm::LogDebug_(id, __FILE__, __LINE__)) 
+#define LogTrace(id) (edm::LogTrace_(id))
 #endif
 
 #endif  // MessageLogger_MessageLogger_h
