@@ -288,8 +288,6 @@ class matplotRender():
             ax.set_title('Total Integrated Luminosity '+yearStrMin+'-'+yearStrMax,size='small',family='fantasy')
         ax.legend(tuple(legendlist),loc='upper left')
         ax.autoscale_view(tight=True,scalex=True,scaley=False)
-        #ax.set_ymargin(0.01)
-        #ax.set_xmargin(0.015)
         self.__fig.autofmt_xdate(bottom=0.18,rotation=15,ha='right')
         self.__fig.subplots_adjust(bottom=0.2,left=0.15)
         
@@ -377,8 +375,7 @@ class matplotRender():
             ax.set_title('Integrated Luminosity/Day '+yearStrMin+'-'+yearStrMax,size='small',family='fantasy')
         #ax.autoscale(tight=True)
         ax.autoscale_view(tight=True,scalex=True,scaley=False)
-        ax.set_ymargin(0.01)
-        ax.set_xmargin(0.015)
+        #ax.set_xmargin(0.015)
         self.__fig.autofmt_xdate(bottom=0.18,rotation=15,ha='right')
         self.__fig.subplots_adjust(bottom=0.2,left=0.15)
 
@@ -478,7 +475,7 @@ class matplotRender():
             ax.set_title('Peak Luminosity/Day '+yearStrMin+'-'+yearStrMax,size='small',family='fantasy')
         #ax.autoscale(tight=True)
         ax.autoscale_view(tight=True,scalex=True,scaley=False)        
-        ax.set_xmargin(0.015)
+        #ax.set_xmargin(0.015)
         self.__fig.autofmt_xdate(bottom=0.18,rotation=15,ha='right')
         self.__fig.subplots_adjust(bottom=0.2,left=0.15)
 
