@@ -49,9 +49,11 @@ testPolyhedra::matched_g4_and_dd( void )
   std::cout << "\tg4 volume = " << g4_volume <<" cm3" << std::endl;
   std::cout << "\tdd volume = " << dd_volume << " cm3" <<  std::endl;
   std::cout << "\tDD Information: " << dds << " vol=" << dds_volume << " cm3" << std::endl;
+
+  double tolerance = 3.5;
   
-  CPPUNIT_ASSERT( g4_volume == dd_volume );
-  CPPUNIT_ASSERT( g4_volume == dds_volume );
+  CPPUNIT_ASSERT( fabs( g4_volume - dd_volume ) < tolerance );
+  CPPUNIT_ASSERT( fabs( g4_volume - dds_volume ) < tolerance );
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION( testPolyhedra );

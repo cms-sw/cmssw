@@ -48,9 +48,11 @@ testPolycone::matched_g4_and_dd( void )
   std::cout << "\tg4 volume = " << g4v <<" cm3" << std::endl;
   std::cout << "\tdd volume = " << ddv << " cm3"<<  std::endl;
   std::cout << "\tDD Information: " << dds << " vol= " << ddsv << " cm3" << std::endl;
+
+  double tolerance = 1e-2;
   
-  CPPUNIT_ASSERT( g4v == ddv );
-  CPPUNIT_ASSERT( g4v == ddsv );
+  CPPUNIT_ASSERT( fabs( g4v - ddv ) < tolerance );
+  CPPUNIT_ASSERT( fabs( g4v - ddsv ) < tolerance );
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION( testPolycone );
