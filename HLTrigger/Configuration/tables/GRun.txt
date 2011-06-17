@@ -295,6 +295,7 @@ HLT_IsoMu17_DiCentralJet30_v*
 HLT_IsoMu17_TriCentralJet30_v*
 HLT_IsoMu17_QuadCentralJet30_v*
 HLT_IsoMu17_CentralJet30_BTagIP_v*
+HLT_IsoMu20_DiCentralJet34_v*
 HLT_DoubleMu3_HT150_v*
 HLT_DoubleMu3_Mass4_HT150_v* 
 HLT_DoubleMu3_HT200_v*
