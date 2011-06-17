@@ -24,6 +24,7 @@ class PFIsoReader : public edm::EDAnalyzer
   edm::InputTag inputTagGsfElectrons_;
   edm::InputTag inputTagPhotons_;
   edm::InputTag inputTagValueMapPhotons_;
+  edm::InputTag inputTagValueMapMerged_;
   edm::InputTag inputTagValueMapElectrons_;
   edm::InputTag inputTagPFCandidates_;
   std::vector<edm::InputTag> inputTagElectronIsoDeposits_;

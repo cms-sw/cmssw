@@ -18,6 +18,7 @@ PFIsoReader::PFIsoReader(const edm::ParameterSet& iConfig)
   useValueMaps_ = iConfig.getParameter<bool>("useEGPFValueMaps");
   inputTagValueMapPhotons_   = iConfig.getParameter<edm::InputTag>("PhotonValueMap");  
   inputTagValueMapElectrons_  = iConfig.getParameter<edm::InputTag>("ElectronValueMap");  
+  inputTagValueMapMerged_  = iConfig.getParameter<edm::InputTag>("MergedValueMap");  
 
   inputTagElectronIsoDeposits_ = iConfig.getParameter<std::vector<edm::InputTag> >("ElectronIsoDeposits");
   inputTagPhotonIsoDeposits_ = iConfig.getParameter<std::vector<edm::InputTag> >("PhotonIsoDeposits");
@@ -64,13 +65,17 @@ void PFIsoReader::analyze(const edm::Event & iEvent,const edm::EventSetup & c)
 
   // Get the value maps
 
-  edm::Handle<edm::ValueMap<reco::PFCandidatePtr> > electronValMapH;
-  const edm::ValueMap<reco::PFCandidatePtr> & myElectronValMap(*electronValMapH);
-  
-  edm::Handle<edm::ValueMap<reco::PFCandidatePtr> > photonValMapH;
-  found = iEvent.getByLabel(inputTagValueMapPhotons_,photonValMapH);
+//  edm::Handle<edm::ValueMap<reco::PFCandidatePtr> > electronValMapH;
+//  const edm::ValueMap<reco::PFCandidatePtr> & myElectronValMap(*electronValMapH);
+//  
+//  edm::Handle<edm::ValueMap<reco::PFCandidatePtr> > photonValMapH;
+//  found = iEvent.getByLabel(inputTagValueMapPhotons_,photonValMapH);
+//   const edm::ValueMap<reco::PFCandidatePtr> & myPhotonValMap(*photonValMapH);  
 
-  const edm::ValueMap<reco::PFCandidatePtr> & myPhotonValMap(*photonValMapH);  
+  edm::Handle<edm::ValueMap<reco::PFCandidatePtr> > mergedValMapH;
+  found = iEvent.getByLabel(inputTagValueMapMerged_,mergedValMapH);
+  const edm::ValueMap<reco::PFCandidatePtr> & myMergedValMap(*mergedValMapH);  
+  
   // get the iso deposits
   IsoDepositMaps electronIsoDep(inputTagElectronIsoDeposits_.size());
   IsoDepositMaps photonIsoDep(inputTagPhotonIsoDeposits_.size());   
@@ -86,7 +91,8 @@ void PFIsoReader::analyze(const edm::Event & iEvent,const edm::EventSetup & c)
   unsigned nphot=photonH->size();
   for(unsigned iphot=0; iphot<nphot;++iphot) {
     reco::PhotonRef myPhotRef(photonH,iphot);
-    const reco::PFCandidatePtr & pfPhotPtr(myPhotonValMap[myPhotRef]);
+    //    const reco::PFCandidatePtr & pfPhotPtr(myPhotonValMap[myPhotRef]);
+    const reco::PFCandidatePtr & pfPhotPtr(myMergedValMap[myPhotRef]);
     printIsoDeposits(photonIsoDep,pfPhotPtr);
   }
 
@@ -105,7 +111,8 @@ void PFIsoReader::analyze(const edm::Event & iEvent,const edm::EventSetup & c)
   unsigned nele=0;
   for(unsigned iele=0; iele<nele;++iele) {
     reco::GsfElectronRef myElectronRef(gsfElectronH,iele);
-    const reco::PFCandidatePtr & pfElePtr(myElectronValMap[myElectronRef]);
+    //    const reco::PFCandidatePtr & pfElePtr(myElectronValMap[myElectronRef]);
+    const reco::PFCandidatePtr & pfElePtr(myMergedValMap[myElectronRef]);
     printIsoDeposits(electronIsoDep,pfElePtr);
   }
   
