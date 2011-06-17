@@ -47,23 +47,16 @@ class PFLinker : public edm::EDProducer {
 			 const edm::Event& iEvent) const ;
   
   template<typename TYPE>
-    void fillValueMap(edm::Event & event,
-		      std::string label,
-		      edm::Handle<TYPE>& inputObjCollection,
-		      const std::map<edm::Ref<TYPE>, unsigned> & mapToTheCandidate,
-		      const edm::Handle<reco::PFCandidateCollection> & oldPFCandColl,
-		      const edm::OrphanHandle<reco::PFCandidateCollection> & newPFCandColl) const;    
+    edm::ValueMap<reco::PFCandidatePtr> fillValueMap(edm::Event & event,
+						     std::string label,
+						     edm::Handle<TYPE>& inputObjCollection,
+						     const std::map<edm::Ref<TYPE>, reco::PFCandidatePtr> & mapToTheCandidate,
+						     const edm::OrphanHandle<reco::PFCandidateCollection> & newPFCandColl) const;    
   
-   template<typename TYPE>
-     void fillValueMap(edm::Handle<TYPE>& inputObjCollection,
-		       const std::map<edm::Ref<TYPE>, reco::PFCandidatePtr> & mapToTheCandidate,
-		       const edm::OrphanHandle<reco::PFCandidateCollection> & newPFCandColl,
-		       edm::ValueMap<reco::PFCandidatePtr>::Filler & filler) const ;
-     
  private:
  
   /// Input PFCandidates
-  std::vector<edm::InputTag>       inputTagPFCandidates_;
+  edm::InputTag       inputTagPFCandidates_;
 
   /// Input GsfElectrons
   edm::InputTag       inputTagGsfElectrons_;
@@ -83,7 +76,7 @@ class PFLinker : public edm::EDProducer {
   /// name of output ValueMap photons
   std::string nameOutputPhotonsPF_;
 
-  /// name of output ValueMap merged
+  /// name of output merged ValueMap
   std::string nameOutputMergedPF_;
 
   /// Flags - if true: References will be towards new collection ; if false to the original one
