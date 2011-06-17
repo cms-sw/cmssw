@@ -370,10 +370,10 @@ def main():
     #print 'runList ',runList
     #print 'runDict ', runDict
     
-    fig=Figure(figsize=(6,4.5),dpi=100)
+    fig=Figure(figsize=(7.2,5.4),dpi=120)
     m=matplotRender.matplotRender(fig)
     
-    logfig=Figure(figsize=(6.8,4.5),dpi=100)
+    logfig=Figure(figsize=(7.5,5.7),dpi=135)
     mlog=matplotRender.matplotRender(logfig)
     
     if args.action == 'run':
