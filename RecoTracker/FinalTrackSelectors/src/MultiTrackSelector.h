@@ -6,9 +6,9 @@
  * 
  * \author David Lange
  *
- * \version $Revision: 1.18 $
+ * \version $Revision: 1.1.2.1 $
  *
- * $Id: MultiTrackSelector.h,v 1.18 2011/01/25 13:52:38 gpetrucc Exp $
+ * $Id: MultiTrackSelector.h,v 1.1.2.1 2011/06/18 09:13:46 gpetrucc Exp $
  *
  */
 
@@ -58,6 +58,7 @@ namespace reco { namespace modules {
             /// source collection label
             edm::InputTag src_;
             edm::InputTag beamspot_;
+            bool          useVertices_;
             edm::InputTag vertices_;
             
             /// do I have to set a quality bit?

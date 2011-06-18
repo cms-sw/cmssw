@@ -65,8 +65,8 @@ highpurityMTS= tightMTS.clone(
 multiTrackSelector = cms.EDProducer("MultiTrackSelector",
    src = cms.InputTag("generalTracks"),
    beamspot = cms.InputTag("offlineBeamSpot"),
-   vertices = cms.InputTag("pixelVertices"),
-
+   useVertices = cms.bool(True),
+   vertices    = cms.InputTag("pixelVertices"),
    trackSelectors = cms.VPSet( looseMTS,
                                tightMTS,
                                highpurityMTS)

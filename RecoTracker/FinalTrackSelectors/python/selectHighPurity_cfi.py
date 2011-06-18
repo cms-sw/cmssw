@@ -6,6 +6,7 @@ selectHighPurity = cms.EDProducer("AnalyticalTrackSelector",
     beamspot = cms.InputTag("offlineBeamSpot"),
 
     # vertex selection 
+    useVertices = cms.bool(True),
     vertices = cms.InputTag("pixelVertices"),
     vtxNumber = cms.int32(-1),
     vertexCut = cms.string('ndof>=2&!isFake'),

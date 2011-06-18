@@ -10,8 +10,8 @@ using reco::modules::MultiTrackSelector;
 MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
   src_( cfg.getParameter<edm::InputTag>( "src" ) ),
   beamspot_( cfg.getParameter<edm::InputTag>( "beamspot" ) ),
-  vertices_( cfg.getParameter<edm::InputTag>( "vertices" ) )
-
+  useVertices_( cfg.getParameter<bool>( "useVertices" ) ),
+  vertices_( useVertices_ ? cfg.getParameter<edm::InputTag>( "vertices" ) : edm::InputTag("NONE"))
   // now get the pset for each selector
 {
 
@@ -41,8 +41,8 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
 
     qualityToSet_.push_back( TrackBase::undefQuality );
     // parameters for vertex selection
-    vtxNumber_.push_back( trkSelectors[i].getParameter<int32_t>("vtxNumber") );
-    vertexCut_.push_back(trkSelectors[i].getParameter<std::string>("vertexCut"));
+    vtxNumber_.push_back( useVertices_ ? trkSelectors[i].getParameter<int32_t>("vtxNumber") : 0 );
+    vertexCut_.push_back( useVertices_ ? trkSelectors[i].getParameter<std::string>("vertexCut") : 0);
     //  parameters for adapted optimal cuts on chi2 and primary vertex compatibility
     res_par_.push_back(trkSelectors[i].getParameter< std::vector<double> >("res_par") );
     chi2n_par_.push_back( trkSelectors[i].getParameter<double>("chi2n_par") );
@@ -127,7 +127,7 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
 	
   // Select good primary vertices for use in subsequent track selection
   edm::Handle<reco::VertexCollection> hVtx;
-  evt.getByLabel(vertices_, hVtx);
+  if (useVertices_) evt.getByLabel(vertices_, hVtx);
 
   unsigned int trkSize=hSrcTrack->size();
   std::vector<int> selTracksSave( qualityToSet_.size()*trkSize,0);
@@ -139,7 +139,7 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
     edm::ValueMap<int>::Filler filler(*selTracksValueMap);
 
     std::vector<Point> points;
-    selectVertices(i,*hVtx, points);
+    if (useVertices_) selectVertices(i,*hVtx, points);
 
     // Loop over tracks
     size_t current = 0;
