@@ -717,7 +717,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
     if(recoPfTaus.isValid()) {
         float minTrkPt = minPtCH;
         float minGammaPt = minPtGamma;
-        nRecoPFTau  = pfTaus->size();
+        nRecoPFTau  = recoPfTaus->size();
         reco::PFTauCollection taus = *recoPfTaus;
 
         // disable sorting for proper access to discriminators
