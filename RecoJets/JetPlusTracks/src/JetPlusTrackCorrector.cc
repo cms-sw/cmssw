@@ -147,7 +147,7 @@ double JetPlusTrackCorrector::correction( const reco::Jet& fJet, const reco::Jet
   if ( useElecs_ ) { corrected += elecCorrection( fJet.p4(), elecs ); }
 
   // Define jet direction using total 3-momentum of tracks (overrides above)
-  if ( vectorial_ && !vecResponse_ ) { corrected = jetDirFromTracks( corrected, pions, muons, elecs ); }
+  if ( vectorial_ && !vecResponse_ ) { if( fabs(corrected.eta()) < 2. ) {corrected = jetDirFromTracks( corrected, pions, muons, elecs );} }
   
   // Check if corrected 4-momentum gives negative scale
   double scale = checkScale( fJet.p4(), corrected );
