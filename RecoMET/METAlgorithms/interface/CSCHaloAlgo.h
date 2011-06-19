@@ -111,6 +111,12 @@ class CSCHaloAlgo {
   void SetMaxDtMuonSegment(float x ){ max_dt_muon_segment = x;}
   void SetMaxFreeInverseBeta(float x ){ max_free_inverse_beta = x;}
 
+  // MLR
+  void SetMaxSegmentRDiff(float x) { max_segment_r_diff = x; }
+  void SetMaxSegmentPhiDiff(float x) { max_segment_phi_diff = x; }
+  void SetMaxSegmentTheta(float x) { max_segment_theta = x; }
+  // End MLR
+
  private:
   float deta_threshold;
   float max_outer_theta;
@@ -129,7 +135,11 @@ class CSCHaloAlgo {
   int matching_dwire_threshold;
   float max_dt_muon_segment;
   float max_free_inverse_beta;
-
+  // MLR
+  float max_segment_r_diff;
+  float max_segment_phi_diff;
+  float max_segment_theta;
+  // End MLR
 };
 
 #endif

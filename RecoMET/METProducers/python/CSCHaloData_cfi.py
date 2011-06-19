@@ -72,5 +72,12 @@ CSCHaloData = cms.EDProducer("CSCHaloDataProducer",
                              MaxFreeInverseBeta = cms.double(0.0),
                              
                              # If this is halo we expect ( T_outer_segment - T_inner_segment) to be less than MaxDtMuonSegment
-                             MaxDtMuonSegment = cms.double(-10.0)
+                             MaxDtMuonSegment = cms.double(-10.0),
+
+                             # MLR
+                             # Default values for identifying CSCSegments that are halo-like
+                             MaxSegmentRDiff = cms.double(10.0),
+                             MaxSegmentPhiDiff = cms.double(0.1),
+                             MaxSegmentTheta = cms.double(0.7)
+                             # End MLR
                              )

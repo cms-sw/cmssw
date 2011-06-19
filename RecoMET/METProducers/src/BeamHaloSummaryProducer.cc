@@ -59,6 +59,9 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
   iEvent.getByLabel(IT_CSCHaloData, TheCSCHaloData);
 
   const CSCHaloData CSCData = (*TheCSCHaloData.product() );
+  // MLR
+  // TODO: edit the definitions of loose and tight
+  // End MLR
   //Loose Id (any one of the three criteria)
   if( CSCData.NumberOfHaloTriggers() || CSCData.NumberOfHaloTracks() || CSCData.NumberOfOutOfTimeTriggers() )
     TheBeamHaloSummary->GetCSCHaloReport()[0] = 1;

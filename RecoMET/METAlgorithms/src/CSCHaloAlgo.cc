@@ -42,8 +42,10 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 					 edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits,
 					 edm::Handle < L1MuGMTReadoutCollection >& TheL1GMTReadout,
 					 edm::Handle<edm::TriggerResults>& TheHLTResults,
-					 const edm::TriggerNames * triggerNames, const edm::Handle<CSCALCTDigiCollection>& TheALCTs,
-					 MuonSegmentMatcher *TheMatcher,  const edm::Event &TheEvent)
+					 const edm::TriggerNames * triggerNames, 
+					 const edm::Handle<CSCALCTDigiCollection>& TheALCTs,
+					 MuonSegmentMatcher *TheMatcher,  
+					 const edm::Event& TheEvent)
 {
   reco::CSCHaloData TheCSCHaloData;
   int imucount=0;
@@ -186,7 +188,6 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	    n_tracks_small_beta++;
 	  if ((dT_Segment < max_dt_muon_segment) &&  (freeInverseBeta < max_free_inverse_beta))
 	    n_tracks_small_dT_and_beta++;
-
 	}
       TheCSCHaloData.SetNIncomingTracks(n_tracks_small_dT,n_tracks_small_beta,n_tracks_small_dT_and_beta);
     }
@@ -298,8 +299,9 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 					  
 					  float phi_ = TheGlobalPosition.phi();
 					  float eta_ = TheGlobalPosition.eta();
+					  
 					  deta = deta < TMath::Abs( eta_ - haloeta ) ? deta : TMath::Abs( eta_ - haloeta );
-					  dphi = dphi < TMath::Abs( phi_ - halophi ) ? dphi : TMath::Abs( phi_ - halophi );
+					  dphi = dphi < TMath::ACos(TMath::Cos(phi_ - halophi)) ? dphi : TMath::ACos(TMath::Cos(phi_ - halophi));
 					}
 				    }
 				}
@@ -469,6 +471,61 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 					    << " variables used for halo identification will not be calculated or stored";
      }
    TheCSCHaloData.SetNOutOfTimeHits(n_recHitsP+n_recHitsM);
+
+   // MLR
+   // Loop through CSCSegments and count the number of "flat" segments with the same (r,phi),
+   // saving the value in TheCSCHaloData.
+   short int maxNSegments = 0;
+   bool plus_endcap = false;
+   bool minus_endcap = false;
+   bool both_endcaps = false;
+   if (TheCSCSegments.isValid()) {
+     for(CSCSegmentCollection::const_iterator iSegment = TheCSCSegments->begin();
+         iSegment != TheCSCSegments->end();
+         iSegment++) {
+       // Get local direction vector; if direction runs parallel to beamline,
+       // count this segment as beam halo candidate.
+       LocalPoint iLocalPosition = iSegment->localPosition();
+       LocalVector iLocalDirection = iSegment->localDirection();
+       CSCDetId iCscDetID = iSegment->cscDetId();
+       GlobalPoint iGlobalPosition = TheCSCGeometry.chamber(iCscDetID)->toGlobal(iLocalPosition);
+       GlobalVector iGlobalDirection = TheCSCGeometry.chamber(iCscDetID)->toGlobal(iLocalDirection);
+
+       float iTheta = iGlobalDirection.theta();
+       if (iTheta > max_segment_theta && iTheta < TMath::Pi() - max_segment_theta) continue;
+
+       float iPhi = iGlobalPosition.phi();
+       float iR =  TMath::Sqrt(iGlobalPosition.x()*iGlobalPosition.x() + iGlobalPosition.y()*iGlobalPosition.y());
+       short int nSegs = 0;
+       for (CSCSegmentCollection::const_iterator jSegment = iSegment + 1;
+         jSegment != TheCSCSegments->end();
+         jSegment++) {
+	 LocalPoint jLocalPosition = jSegment->localPosition();
+	 LocalVector jLocalDirection = jSegment->localDirection();
+	 CSCDetId jCscDetID = jSegment->cscDetId();
+	 GlobalPoint jGlobalPosition = TheCSCGeometry.chamber(jCscDetID)->toGlobal(jLocalPosition);
+	 GlobalVector jGlobalDirection = TheCSCGeometry.chamber(jCscDetID)->toGlobal(jLocalDirection);
+	 float jTheta = jGlobalDirection.theta();
+	 float jPhi = jGlobalPosition.phi();
+	 float jR =  TMath::Sqrt(jGlobalPosition.x()*jGlobalPosition.x() + jGlobalPosition.y()*jGlobalPosition.y());
+	 if (TMath::ACos(TMath::Cos(jPhi - iPhi)) <= max_segment_phi_diff 
+	     && TMath::Abs(jR - iR) <= max_segment_r_diff 
+	     && (jTheta < max_segment_theta || jTheta > TMath::Pi() - max_segment_theta)) {
+	   nSegs++;
+	   minus_endcap = iGlobalPosition.z() < 0 || jGlobalPosition.z() < 0;
+	   plus_endcap = iGlobalPosition.z() > 0 || jGlobalPosition.z() > 0;
+	 }
+       }
+       if (nSegs > maxNSegments) {
+	 maxNSegments = nSegs;
+	 both_endcaps = minus_endcap && plus_endcap;
+       }
+     }
+   }
+
+   TheCSCHaloData.SetNFlatHaloSegments(maxNSegments);
+   TheCSCHaloData.SetSegmentsBothEndcaps(both_endcaps);
+   // End MLR
 
    return TheCSCHaloData;
 }

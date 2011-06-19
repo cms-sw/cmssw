@@ -44,6 +44,11 @@ CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig)
   CSCAlgo.SetMinMaxOuterRadius( (float) iConfig.getParameter<double>("OuterRMinParam"), (float) iConfig.getParameter<double>("OuterRMaxParam"));
   CSCAlgo.SetNormChi2Threshold( (float) iConfig.getParameter<double>("NormChi2Param") );
  
+  // MLR
+  CSCAlgo.SetMaxSegmentRDiff( (float) iConfig.getParameter<double>("MaxSegmentRDiff") );
+  CSCAlgo.SetMaxSegmentPhiDiff( (float) iConfig.getParameter<double>("MaxSegmentPhiDiff") );
+  CSCAlgo.SetMaxSegmentTheta( (float) iConfig.getParameter<double>("MaxSegmentTheta") );
+  // End MLR
 
   CSCAlgo.SetMaxDtMuonSegment( (float) iConfig.getParameter<double>("MaxDtMuonSegment") );
   CSCAlgo.SetMaxFreeInverseBeta( (float) iConfig.getParameter<double>("MaxFreeInverseBeta") );
