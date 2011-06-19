@@ -50,6 +50,11 @@ namespace reco {
     short int NTracksSmallBeta() const{ return nTracks_Small_beta; }
     short int NTracksSmallBetaAndSmalldT() const { return nTracks_Small_dT_Small_beta; }
 
+    // MLR
+    short int NFlatHaloSegments() const{ return nFlatHaloSegments; }
+    bool GetSegmentsInBothEndcaps() const{ return segments_in_both_endcaps; }
+    // End MLR
+
     // Get Reference to the Tracks
     edm::RefVector<reco::TrackCollection>& GetTracks(){return TheTrackRefs;}
     const edm::RefVector<reco::TrackCollection>& GetTracks()const {return TheTrackRefs;}
@@ -72,7 +77,14 @@ namespace reco {
     //std::vector<const GlobalPoint>& GetCSCTrackImpactPositions() const {return TheGlobalPositions;}
     const std::vector<GlobalPoint>& GetCSCTrackImpactPositions() const {return TheGlobalPositions;}
     std::vector<GlobalPoint>& GetCSCTrackImpactPositions() {return TheGlobalPositions;}
-    
+
+    // MLR
+    // Set # of CSCSegments that appear to be part of a halo muon
+    // If there is more than 1 muon, this is the number of segments in the halo muon
+    // with the largest number of segments that pass the cut.
+    void SetNFlatHaloSegments(short int nSegments) {nFlatHaloSegments = nSegments;}
+    void SetSegmentsBothEndcaps(bool b) { segments_in_both_endcaps = b; }
+    // End MLR
   private:
     edm::RefVector<reco::TrackCollection> TheTrackRefs;
 
@@ -99,6 +111,12 @@ namespace reco {
     // number of cosmic muon outer (CSC) tracks with both 
     // (T_segment_outer - T_segment_inner) <  max_dt_muon_segment and free inverse beta < max_free_inverse_beta
     short int nTracks_Small_dT_Small_beta;
+
+    // MLR
+    // number of CSCSegments that are flat and have the same (r,phi)
+    short int nFlatHaloSegments;
+    bool segments_in_both_endcaps;
+    // end MLR
 
   };
 
