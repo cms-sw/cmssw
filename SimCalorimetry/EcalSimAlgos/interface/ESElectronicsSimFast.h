@@ -4,47 +4,45 @@
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/EcalDigi/interface/ESSample.h"
-#include "CLHEP/Random/RandGeneral.h"
 #include "CondFormats/ESObjects/interface/ESPedestals.h"
 #include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
 
 #include <vector>
-#include "TFile.h"
+
+namespace CLHEP {
+   class RandGaussQ ; } 
 
 class ESElectronicsSimFast
 {
- public:
+   public:
   
-  enum {MAXADC = 4095};
-  enum {MINADC = 0};
+      enum { MAXADC = 4095,
+	     MINADC =    0 } ;
   
-  ESElectronicsSimFast (bool addNoise);
+      ESElectronicsSimFast( bool addNoise ) ;
+      ~ESElectronicsSimFast() ;
 
-  void setGain (const int gain) { gain_ = gain; }
-  void setPedestals(const ESPedestals* peds) { peds_ = peds; } 
-  void setMIPs(const ESIntercalibConstants* mips) { mips_ = mips; }
-  void setMIPToGeV (const double MIPToGeV) { MIPToGeV_ = MIPToGeV; }
+      void setPedestals( const ESPedestals* peds ) ;
 
-  virtual void analogToDigital(const CaloSamples& cs, ESDataFrame& df, bool wasEmpty, CLHEP::RandGeneral *histoDistribution, double hInf, double hSup, double hBin) const;
-  
-  void digitalToAnalog(const ESDataFrame& df, CaloSamples& cs) const; 
+      void setMIPs( const ESIntercalibConstants* mips ) ;
 
-  ///  anything that needs to be done once per event
-  void newEvent() {}
+      void setMIPToGeV( double MIPToGeV ) ;
 
-  private :
+      virtual void analogToDigital( const CaloSamples& cs, 
+				    ESDataFrame&       df,
+				    bool               isNoise ) const;
 
-    bool addNoise_;
-    int gain_;
-    const ESPedestals *peds_;
-    const ESIntercalibConstants *mips_;
-    double MIPToGeV_;
+   private :
 
-    std::vector<ESSample> standEncode(const CaloSamples& timeframe) const;
-    std::vector<ESSample> fastEncode(const CaloSamples& timeframe, CLHEP::RandGeneral *histoDistribution, double hInf, double hSup, double hBin) const;
+      bool m_addNoise ;
 
-    double decode(const ESSample & sample, const DetId & detId) const;
+      double m_MIPToGeV ;
 
+      const ESPedestals* m_peds ;
+
+      const ESIntercalibConstants* m_mips ;
+
+      CLHEP::RandGaussQ* m_ranGau ;
 } ;
 
 

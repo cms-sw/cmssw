@@ -1,137 +1,118 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSimFast.h"
-#include "DataFormats/EcalDigi/interface/ESSample.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Random/RandGeneral.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
 #include <iostream>
 
-ESElectronicsSimFast::ESElectronicsSimFast (bool addNoise) :
-  addNoise_(addNoise), peds_(0), mips_(0)
+ESElectronicsSimFast::ESElectronicsSimFast( bool addNoise ) :
+   m_addNoise ( addNoise ) ,
+   m_MIPToGeV (        0 ) ,
+   m_peds     (        0 ) ,
+   m_mips     (        0 ) ,
+   m_ranGau   (        0 )
 {
-  // Preshower "Fast" Electronics Simulation
-  // gain = 1 : low gain for data taking 
-  // gain = 2 : high gain for calibration and low energy runs
-  // For 300(310/320) um Si, the MIP is 78.47(81.08/83.7) keV
+   // Preshower "Fast" Electronics Simulation
+   // gain = 1 : low gain for data taking 
+   // gain = 2 : high gain for calibration and low energy runs
+   // For 300(310/320) um Si, the MIP is 78.47(81.08/83.7) keV
+
+   if( m_addNoise )
+   {
+      edm::Service<edm::RandomNumberGenerator> rng;
+      if( !rng.isAvailable() ) 
+      {
+	 throw cms::Exception("Configuration")
+	    << "ESElectroncSimFast requires the RandomNumberGeneratorService\n"
+	    "which is not present in the configuration file.  You must add the service\n"
+	    "in the configuration file or remove the modules that require it.";
+      }
+      m_ranGau = new CLHEP::RandGaussQ( rng->getEngine(), 0, 1 ) ;
+   }
 }
 
-void ESElectronicsSimFast::analogToDigital(const CaloSamples& cs, ESDataFrame& df, bool wasEmpty, CLHEP::RandGeneral *histoDistribution, double hInf, double hSup, double hBin) const 
+ESElectronicsSimFast::~ESElectronicsSimFast()
 {
-  std::vector<ESSample> essamples;
-  if (!wasEmpty) essamples = standEncode(cs);
-  if ( wasEmpty) essamples = fastEncode(cs, histoDistribution, hInf, hSup, hBin);
-  
-  df.setSize(cs.size());
-  for(int i=0; i<df.size(); i++) {
-    df.setSample(i, essamples[i]);
-  }
+   delete m_ranGau ;
 }
 
-void ESElectronicsSimFast::digitalToAnalog(const ESDataFrame& df, CaloSamples& cs) const 
+void 
+ESElectronicsSimFast::setPedestals( const ESPedestals* peds ) 
 {
-  for(int i = 0; i < df.size(); i++) {
-    cs[i] = decode(df[i], df.id());
-  } 
+   m_peds = peds ;
+} 
+
+void 
+ESElectronicsSimFast::setMIPs( const ESIntercalibConstants* mips ) 
+{
+   m_mips = mips ;
 }
 
-std::vector<ESSample>
-ESElectronicsSimFast::standEncode(const CaloSamples& timeframe) const
+void 
+ESElectronicsSimFast::setMIPToGeV( double MIPToGeV )
 {
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "ESElectroncSimFast requires the RandomNumberGeneratorService\n"
-      "which is not present in the configuration file.  You must add the service\n"
-      "in the configuration file or remove the modules that require it.";
-  }
-  
-  std::vector<ESSample> results;
-  results.reserve(timeframe.size());
-  
-  ESPedestals::const_iterator it_ped = peds_->find(timeframe.id());
-  ESIntercalibConstantMap::const_iterator it_mip = mips_->getMap().find(timeframe.id());
-  int baseline_  = (int) it_ped->getMean();
-  double sigma_  = (double) it_ped->getRms();
-  double MIPADC_ = (double) (*it_mip);
-
-  int adc = 0; 
-  double ADCGeV = MIPADC_/MIPToGeV_;
-  for (int i=0; i<timeframe.size(); i++) {
-    
-    double noi = 0;
-    double signal = 0;    
-    
-    if (addNoise_) {
-      CLHEP::RandGaussQ gaussQDistribution(rng->getEngine(), 0, sigma_);
-      noi = gaussQDistribution.fire();
-    }
-    
-    signal = timeframe[i]*ADCGeV + noi + baseline_;
-    
-    if (signal>0) 
-      signal += 0.5;
-    else if (signal<0)
-      signal -= 0.5;
-    
-    adc = int(signal);
-
-    if (adc>MAXADC) adc = MAXADC;
-    if (adc<MINADC) adc = MINADC;
-
-    results.push_back(ESSample(adc));
-  }
-  
-  return results;
+   m_MIPToGeV = MIPToGeV ;
 }
 
-
-std::vector<ESSample>
-ESElectronicsSimFast::fastEncode(const CaloSamples& timeframe, CLHEP::RandGeneral *histoDistribution, double hInf, double hSup, double hBin) const
+void 
+ESElectronicsSimFast::analogToDigital( const CaloSamples& cs, 
+				       ESDataFrame&       df, 
+				       bool               isNoise ) const
 {
-  std::vector<ESSample> results;
-  results.reserve(timeframe.size());
+   assert( 0 != m_peds &&
+	   0 != m_mips &&
+	   0 < m_MIPToGeV ) ; // sanity check
 
-  int bin[3]; 
-  double hBin2 = hBin*hBin;
-  double hBin3 = hBin*hBin*hBin;
-  double width = (hSup - hInf)/hBin;  
+   assert( ( !m_addNoise ) ||
+	   0 != m_ranGau ) ; // sanity check
 
-  double thisRnd  = histoDistribution->fire();  
-  int thisRndCell = (int)((hBin3)*(thisRnd)/width);  
-  bin[2] = (int)(thisRndCell/hBin2);                              // sample2 - bin [0,N-1]
-  bin[1] = (int)((thisRndCell - hBin2*bin[2])/hBin);              // sample1
-  bin[0] = (int)(thisRndCell - hBin*(bin[1] + hBin*bin[2]));      // sample0
+   df.setSize( cs.size() ) ;
 
-  ESPedestals::const_iterator it_ped = peds_->find(timeframe.id());
-  int baseline_  = (int) it_ped->getMean();
+   const DetId id ( cs.id() ) ;
+   ESPedestals::const_iterator it_ped ( m_peds->find( id ) ) ;
+   ESIntercalibConstantMap::const_iterator it_mip (
+      isNoise ? m_mips->getMap().end() : m_mips->getMap().find( id ) ) ;
 
-  int adc[3];
-  double noi[3];
-  for(int ii=0; ii<3; ii++){
+   const double baseline ( (double) it_ped->getMean() ) ;
+   const double sigma    ( isNoise ? 0. : (double) it_ped->getRms() ) ;
+   const double MIPADC   ( isNoise ? 0. : (double) (*it_mip) ) ;
+   const double ADCGeV   ( isNoise ? 1. : MIPADC/m_MIPToGeV ) ;
 
-    noi[ii] = hInf + bin[ii]*width; 
-    if (noi[ii]>0)      noi[ii] += 0.5;
-    else if (noi[ii]<0) noi[ii] -= 0.5;
+   int adc = 0 ;
+   for(int i ( 0 ) ; i != cs.size(); ++i ) 
+   {
+      const double noi ( isNoise || (!m_addNoise) ? 0 :
+			 sigma*m_ranGau->fire() ) ;
     
-    adc[ii] = int(noi[ii]) - 1000 + baseline_;      
+      double signal = cs[i]*ADCGeV + noi + baseline ;
 
-    if (adc[ii]>MAXADC) adc[ii] = MAXADC;
-    if (adc[ii]<MINADC) adc[ii] = MINADC;
+      if( 0 <= signal )
+      { 
+	 signal += 0.5 ;
+      }
+      else
+      {
+	 signal -= 0.5 ;
+      }
     
-    results.push_back(ESSample(adc[ii]));
-  }
-  
-  return results;
+      adc = int( signal ) ;
+      assert( 0 < adc ) ;
+
+      if( 0.5 < signal - adc ) ++adc ;
+
+      if( MAXADC < adc )
+      {
+	 adc = MAXADC ;
+      }
+      else
+      {
+	 if( MINADC > adc ) adc = MINADC ;
+      }
+
+      df.setSample( i, ESSample( adc ) ) ;
+   }
 }
-
-double ESElectronicsSimFast::decode(const ESSample & sample, const DetId & id) const
-{
-  return 0. ;
-}
-
-
-
