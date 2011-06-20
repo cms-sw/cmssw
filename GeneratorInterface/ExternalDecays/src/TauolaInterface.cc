@@ -1,4 +1,4 @@
-/* for old tauola27 */
+/* for old tauola27 
 #include <iostream>
 
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
@@ -268,9 +268,9 @@ void TauolaInterface::statistics()
    return;
 }
 
-/* */
+*/
 
-/* this is the code for the new Tauola++ 
+/* this is the code for the new Tauola++ */
 
 #include <iostream>
 
@@ -931,4 +931,4 @@ int TauolaInterface::selectHadronic()
    return 0;
 
 }
-*/
+/* */

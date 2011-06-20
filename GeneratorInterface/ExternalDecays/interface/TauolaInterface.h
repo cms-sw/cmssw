@@ -21,7 +21,7 @@ class HepRandomEngine;
 
 namespace gen {
 
-/* for old tauola27 */
+/* for old tauola27 
    class TauolaInterface
    {
       public:
@@ -50,9 +50,9 @@ namespace gen {
       //CLHEP::RandFlat*                         fRandomGenerator;
        
    };
-/* */
+*/
 
-/* this is the code for new Tauola++ 
+/* this is the code for new Tauola++ */
 
    extern "C" {
       void ranmar_( float *rvec, int *lenv );
@@ -110,7 +110,7 @@ namespace gen {
        
    };
 
-*/
+/* */
 
 }
 
