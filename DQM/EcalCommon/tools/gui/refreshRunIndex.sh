@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ $# -lt 1 ]; then
-  echo 'Usage: updateRunIndex.sh NUMBER-OF-FILES'
+  echo 'Usage: refreshRunIndex.sh NUMBER-OF-FILES'
   exit
 fi
 
