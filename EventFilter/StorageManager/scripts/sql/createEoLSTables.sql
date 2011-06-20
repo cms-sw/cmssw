@@ -21,6 +21,7 @@ create table CMS_STOMGR.STREAMS (
   LUMISECTION  NUMBER(10)    not NULL,
   STREAM       VARCHAR2(100) not NULL,
   INSTANCE     NUMBER(5)     not NULL,
+  EOLS         NUMBER(1)     check (EOLS in (0, 1)) default 0,
   FILECOUNT    NUMBER(20),
   CTIME        DATE          default sysdate not NULL,
   constraint PK_STREAMS primary key (RUNNUMBER, STREAM, LUMISECTION, INSTANCE)
