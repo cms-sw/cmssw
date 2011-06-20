@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.70 2011/06/20 11:13:13 babar Exp $
+# $Id: InjectWorker.pl,v 1.71 2011/06/20 13:49:49 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -611,6 +611,8 @@ sub update_db {
 
     # If injection was successful, update the summary tables
     if ( $handler =~ /^(?:insert|close)File$/ ) {
+        $kernel->post( 'logger',
+                info => "$handler successfull for $args->{FILENAME}" );
         $kernel->yield(
             update_db               => $args,
             "${handler}SummaryProc" => qw( FILENAME )
