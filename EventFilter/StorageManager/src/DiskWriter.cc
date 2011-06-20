@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.27 2011/05/18 15:47:41 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.28 2011/06/01 11:06:10 mommsen Exp $
 /// @file: DiskWriter.cc
 
 #include <algorithm>
@@ -26,6 +26,7 @@ namespace stor {
   sharedResources_(sr),
   dbFileHandler_(new DbFileHandler()),
   runNumber_(0),
+  latestLumiSectionWritten_(0),
   lastFileTimeoutCheckTime_(utils::getCurrentTime()),
   actionIsActive_(true)
   {
@@ -289,16 +290,19 @@ namespace stor {
   }
   
   
-  void DiskWriter::reportRemainingLumiSections() const
+  void DiskWriter::reportRemainingLumiSections()
   {
     StreamsMonitorCollection& smc =
       sharedResources_->statisticsReporter_->getStreamsMonitorCollection();
     
-    smc.reportAllLumiSectionInfos(dbFileHandler_);
+    uint32_t latestUnreportedLumiSection = smc.reportAllLumiSectionInfos(dbFileHandler_);
+
+    if ( latestUnreportedLumiSection > latestLumiSectionWritten_ )
+      latestLumiSectionWritten_ = latestUnreportedLumiSection;
   }
   
   
-  void DiskWriter::writeEndOfRunMarker() const
+  void DiskWriter::writeEndOfRunMarker()
   {
     RunMonitorCollection& rmc =
       sharedResources_->statisticsReporter_->getRunMonitorCollection();
@@ -310,17 +314,14 @@ namespace stor {
     MonitoredQuantity::Stats eolsSeenStats;
     rmc.getEoLSSeenMQ().getStats(eolsSeenStats);
     
-    const uint32_t lastLumi = std::max(
-      lumiSectionsSeenStats.getValueMax(),
-      eolsSeenStats.getValueMax()
-    );
-
     std::ostringstream str;
     str << "LScount:" << lumiSectionsSeenStats.getSampleCount()
       << "\tEoLScount:" << eolsSeenStats.getSampleCount()
-      << "\tLastLumi:" << lastLumi
+      << "\tLastLumi:" << latestLumiSectionWritten_
       << "\tEoR";
     dbFileHandler_->write(str.str());
+
+    latestLumiSectionWritten_ = 0;
   }
   
   
@@ -337,7 +338,11 @@ namespace stor {
     {
       (*it)->closeFilesForLumiSection(lumiSection, fileCountStr);
     }
+    fileCountStr += "\tEoLS:1";
     dbFileHandler_->write(fileCountStr);
+
+    if ( lumiSection > latestLumiSectionWritten_ )
+      latestLumiSectionWritten_ = lumiSection;
   }
   
 } // namespace stor

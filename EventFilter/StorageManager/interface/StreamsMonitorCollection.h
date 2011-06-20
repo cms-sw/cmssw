@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.h,v 1.12 2011/03/07 15:31:32 mommsen Exp $
+// $Id: StreamsMonitorCollection.h,v 1.13 2011/04/14 12:52:48 mommsen Exp $
 /// @file: StreamsMonitorCollection.h 
 
 #ifndef EventFilter_StorageManager_StreamsMonitorCollection_h
@@ -28,8 +28,8 @@ namespace stor {
    * A collection of MonitoredQuantities of output streams
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2011/03/07 15:31:32 $
+   * $Revision: 1.13 $
+   * $Date: 2011/04/14 12:52:48 $
    */
   
   class StreamsMonitorCollection : public MonitorCollection
@@ -107,7 +107,7 @@ namespace stor {
       return allStreamsBandwidth_;
     }
 
-    void reportAllLumiSectionInfos(DbFileHandlerPtr);
+    uint32_t reportAllLumiSectionInfos(DbFileHandlerPtr);
 
 
   private:

@@ -1,4 +1,4 @@
-// $Id: DiskWriter.h,v 1.12.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: DiskWriter.h,v 1.13 2011/03/07 15:31:31 mommsen Exp $
 /// @file: DiskWriter.h 
 
 #ifndef EventFilter_StorageManager_DiskWriter_h
@@ -34,8 +34,8 @@ namespace stor {
    * to the appropriate stream file(s) on disk. 
    *
    * $Author: mommsen $
-   * $Revision: 1.12.4.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.13 $
+   * $Date: 2011/03/07 15:31:31 $
    */
   
   class DiskWriter : public toolbox::lang::Class
@@ -132,12 +132,12 @@ namespace stor {
     /**
      * Log file statistics for so far unreported lumi sections
      */
-    void reportRemainingLumiSections() const;
+    void reportRemainingLumiSections();
 
     /**
      * Log end-of-run marker
      */
-    void writeEndOfRunMarker() const;
+    void writeEndOfRunMarker();
 
 
     xdaq::Application* app_;
@@ -146,6 +146,7 @@ namespace stor {
     const DbFileHandlerPtr dbFileHandler_;
 
     unsigned int runNumber_;
+    uint32_t latestLumiSectionWritten_;
     boost::posix_time::time_duration timeout_; // Timeout on stream queue
     utils::TimePoint_t lastFileTimeoutCheckTime_; // Last time we checked for time-out files
 
