@@ -608,7 +608,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     if (testStat_ == "LHC") {
        ((ProfileLikelihoodTestStat&)*setup.qvar).SetOneSided(true);
         if (optimizeTestStatistics_) {
-            setup.qvar.reset(new ProfiledLikelihoodTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(),  *setup.modelConfig.GetSnapshot()));
+            setup.qvar.reset(new ProfiledLikelihoodTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(),  *setup.modelConfig.GetSnapshot(), verbose-1));
         }
     }
   }

@@ -26,12 +26,13 @@ ProfiledLikelihoodRatioTestStatOpt::ProfiledLikelihoodRatioTestStatOpt(
     const RooArgSet & observables,
     RooAbsPdf &pdfNull, RooAbsPdf &pdfAlt,
     const RooArgSet *nuisances,
-    const RooArgSet & paramsNull, const RooArgSet & paramsAlt)
+    const RooArgSet & paramsNull, const RooArgSet & paramsAlt,
+    int verbosity)
 : 
     pdfNull_(&pdfNull), pdfAlt_(&pdfAlt),
     paramsNull_(pdfNull_->getVariables()), 
     paramsAlt_(pdfAlt_->getVariables()), 
-    verbosity_(0)
+    verbosity_(verbosity)
 {
     snapNull_.addClone(paramsNull);
     snapAlt_.addClone(paramsAlt);
@@ -80,10 +81,11 @@ ProfiledLikelihoodTestStatOpt::ProfiledLikelihoodTestStatOpt(
     const RooArgSet & observables,
     RooAbsPdf &pdf, 
     const RooArgSet *nuisances, 
-    const RooArgSet & params)
+    const RooArgSet & params,
+    int verbosity)
 :
     pdf_(&pdf),
-    verbosity_()
+    verbosity_(verbosity)
 {
     params.snapshot(snap_,false);
     ((RooRealVar*)snap_.find(params.first()->GetName()))->setConstant(false);
