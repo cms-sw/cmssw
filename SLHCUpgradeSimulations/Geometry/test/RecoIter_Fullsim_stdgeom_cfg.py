@@ -23,7 +23,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.9 $'),
+    version = cms.untracked.string('$Revision: 1.10 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -37,7 +37,7 @@ process.options = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-       '/store/relval/CMSSW_3_6_3_patch2/RelValTTbar/GEN-SIM/DESIGN_36_V10_PU_special-v1/0106/5C1BF635-8C07-E011-9699-0026189437EC.root')
+	'/store/relval/CMSSW_4_2_3_patch3/RelValFourMuPt_1_200/GEN-SIM/DESIGN42_V11_110612_special-v1/0092/F4F48BD9-2595-E011-BEF9-0018F3D09634.root')
 )
 
 # Output definition
