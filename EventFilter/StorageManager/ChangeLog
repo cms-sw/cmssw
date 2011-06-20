@@ -1,3 +1,12 @@
+2011-06-20 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-03-00
+	* Report lastLumi in EoR as last LS for which a EoLS entry was written,
+	  not the last LS the SM knows about. Also flag the EoLS records if they
+	  are based on an EoLS signal from the EVM or not.
+	* Remove summaryCatalog which is essentially unused and tends to get
+	  too large over time.
+
 2011-06-01 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-02-04
