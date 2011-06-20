@@ -25,7 +25,7 @@ typedef CaloTDigitizer<ESDigitizerTraits> ESDigitizer  ;
 
 class APDSimParameters ;
 class CaloHitRespoNew ;
-class CaloHitResponse ;
+class ESHitResponse ;
 class EBHitResponse ;
 class EcalSimParameterMap ;
 class EcalCoder ;
@@ -85,7 +85,7 @@ class EcalDigiProducer : public edm::EDProducer
       EBHitResponse*   m_APDResponse ;
       EBHitResponse*   m_EBResponse ;
       CaloHitRespoNew* m_EEResponse ;
-      CaloHitResponse* m_ESResponse ;
+      ESHitResponse*   m_ESResponse ;
 
       const bool m_addESNoise ;
 

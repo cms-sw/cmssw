@@ -1,4 +1,5 @@
 #include "SimCalorimetry/EcalSimProducers/interface/EcalDigiProducer.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/ESHitResponse.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBHitResponse.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/APDSimParameters.h"
@@ -90,7 +91,7 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params ) :
 				     &m_APDShape       ) ) ,
 
    m_EEResponse ( new CaloHitRespoNew( m_ParameterMap, &m_EEShape, EcalEndcapGeometry::detIdFromLocalAlignmentIndex(0) ) ) ,
-   m_ESResponse ( new CaloHitResponse( m_ParameterMap, &m_ESShape ) ) ,//, EcalPreshowerGeometry::detIdFromLocalAlignmentIndex(0) ) ) ,
+   m_ESResponse ( new ESHitResponse( m_ParameterMap, &m_ESShape ) ) ,//, EcalPreshowerGeometry::detIdFromLocalAlignmentIndex(0) ) ) ,
 
    m_addESNoise           ( params.getParameter<bool> ("doESNoise") ) ,
    m_doFastES             ( params.getParameter<bool> ("doFast"   ) ) ,
@@ -109,8 +110,7 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params ) :
    m_ESDigitizerFast      ( !m_doFastES ? 0 :
 			    new ESFastTDigitizer( m_ESResponse           ,
 						  m_ESElectronicsSimFast ,
-						  m_addESNoise             ,
-						  params.getParameter<int> ("numESdetId") ) ) ,
+						  m_addESNoise            ) ) ,
 
    m_APDDigitizer      ( 0 ) ,
    m_BarrelDigitizer   ( 0 ) ,
@@ -499,7 +499,6 @@ EcalDigiProducer::checkCalibrations( const edm::EventSetup& eventSetup )
       else
       {
 	 m_ESDigitizerFast->setGain(           ESGain     ) ;
-	 m_ESElectronicsSimFast->setGain(      ESGain     ) ;
 	 m_ESElectronicsSimFast->setPedestals( espeds     ) ;
 	 m_ESElectronicsSimFast->setMIPs(      esmips     ) ;
 	 m_ESElectronicsSimFast->setMIPToGeV(  ESMIPToGeV ) ;
