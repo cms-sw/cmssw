@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 import RecoTauTag.Configuration.tools.recoTauConfTools as recoTauConfTools
 
 _vertexSource = "offlinePrimaryVerticesDA"
-if recoTauConfTools.cmssw_version() >= (4, 2, 0):
+if recoTauConfTools.cmssw_version() >= ('4', '2', '0'):
     # In 4_2_X they are the default vertex collection
     _vertexSource = "offlinePrimaryVertices"
 
