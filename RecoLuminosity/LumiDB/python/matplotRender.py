@@ -283,9 +283,9 @@ class matplotRender():
         if yearStrMin==yearStrMax:
             firstimeStr=minTime.strftime('%b %d %H:%M')
             lasttimeStr=maxTime.strftime('%b %d %H:%M')
-            ax.set_title('Total Integrated Luminosity '+yearStrMin+' ('+firstimeStr+' UTC - '+lasttimeStr+' UTC)',size='small',family='fantasy')
+            ax.set_title('CMS Total Integrated Luminosity '+yearStrMin+' ('+firstimeStr+' - '+lasttimeStr+' UTC)',size='small',family='fantasy')
         else:
-            ax.set_title('Total Integrated Luminosity '+yearStrMin+'-'+yearStrMax,size='small',family='fantasy')
+            ax.set_title('CMS Total Integrated Luminosity '+yearStrMin+'-'+yearStrMax,size='small',family='fantasy')
         ax.legend(tuple(legendlist),loc='upper left')
         ax.autoscale_view(tight=True,scalex=True,scaley=False)
         self.__fig.autofmt_xdate(bottom=0.18,rotation=15,ha='right')
@@ -370,9 +370,9 @@ class matplotRender():
         if yearStrMin==yearStrMax:
             firstimeStr=minTime.strftime('%b %d %H:%M')
             lasttimeStr=maxTime.strftime('%b %d %H:%M')
-            ax.set_title('Integrated Luminosity/Day '+yearStrMin+' ('+firstimeStr+' UTC - '+lasttimeStr+' UTC)',size='small',family='fantasy')
+            ax.set_title('CMS Integrated Luminosity/Day '+yearStrMin+' ('+firstimeStr+' - '+lasttimeStr+' UTC)',size='small',family='fantasy')
         else:
-            ax.set_title('Integrated Luminosity/Day '+yearStrMin+'-'+yearStrMax,size='small',family='fantasy')
+            ax.set_title('CMS Integrated Luminosity/Day '+yearStrMin+'-'+yearStrMax,size='small',family='fantasy')
         #ax.autoscale(tight=True)
         ax.autoscale_view(tight=True,scalex=True,scaley=False)
         #ax.set_xmargin(0.015)
@@ -470,9 +470,9 @@ class matplotRender():
         if  yearStrMin==yearStrMax: 
             firstimeStr=minTime.strftime('%b %d %H:%M')
             lasttimeStr=maxTime.strftime('%b %d %H:%M')
-            ax.set_title('Peak Luminosity/Day '+yearStrMin+' ('+firstimeStr+' UTC - '+lasttimeStr+' UTC)',size='small',family='fantasy')
+            ax.set_title('CMS Peak Luminosity/Day '+yearStrMin+' ('+firstimeStr+' - '+lasttimeStr+' UTC)',size='small',family='fantasy')
         else:
-            ax.set_title('Peak Luminosity/Day '+yearStrMin+'-'+yearStrMax,size='small',family='fantasy')
+            ax.set_title('CMS Peak Luminosity/Day '+yearStrMin+'-'+yearStrMax,size='small',family='fantasy')
         #ax.autoscale(tight=True)
         ax.autoscale_view(tight=True,scalex=True,scaley=False)        
         #ax.set_xmargin(0.015)
