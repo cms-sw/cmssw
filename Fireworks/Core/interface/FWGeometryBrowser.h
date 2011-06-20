@@ -22,7 +22,8 @@ class TGeoVolume;
 class TGTextEntry;
 class TGComboBox;
 class TGStatusBar;
-
+class TGeoManager;
+class TEveGeoTopNode;
 
 class FWGUIManager;
 class FWTableWidget;
@@ -48,12 +49,14 @@ public:
                     Int_t iButton, Int_t iKeyMod, 
                     Int_t iGlobalX, Int_t iGlobalY);
   
-   void newIndexSelected(int,int);
    void windowIsClosing();
-
+   void chosenItem(int);
    void browse();
+   void reset();
    void readFile();
    void updateStatusBar(const char* status);
+
+   TGeoManager*   geoManager() { return m_geoManager;}
 
    virtual void setFrom(const FWConfiguration&);
    Bool_t HandleKey(Event_t *event);
@@ -79,16 +82,20 @@ private:
    FWGeometryTableManager *m_tableManager;
 
    TFile                  *m_geometryFile;
-   TGTextButton           *m_fileOpen;
    TGStatusBar            *m_statBar;
    TGCompositeFrame       *m_settersFrame;
+
+   int                     m_selectedIdx;
+
+   TGeoManager            *m_geoManager;
+   TEveGeoTopNode         *m_eveTopNode;
 
 #ifndef __CINT__
    std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
 #endif
    void resetSetters();
    void makeSetter(TGCompositeFrame* frame, FWParameterBase* param);
-
+   void loadGeometry();
 
    ClassDef(FWGeometryBrowser, 0);
 };
