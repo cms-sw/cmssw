@@ -9,6 +9,11 @@ typedef CaloCellGeometry::Tr3D     Tr3D     ;
 typedef HepGeom::Vector3D<CCGFloat> Vec3D   ;
 typedef HepGeom::Plane3D<CCGFloat>  Plane3D ;
 
+typedef HepGeom::Vector3D<double> DVec3D ;
+typedef HepGeom::Plane3D<double>  DPlane3D ;
+typedef HepGeom::Point3D<double>  DPt3D ;
+typedef std::vector<DPt3D>        DPt3DVec ;
+
 const float CaloCellGeometry::k_ScaleFromDDDtoGeant ( 0.1 ) ;
 
 CaloCellGeometry::CaloCellGeometry() :
@@ -112,42 +117,46 @@ CaloCellGeometry::getTransform( Tr3D& tr , Pt3DVec* lptr ) const
 {
    const GlobalPoint& p ( CaloCellGeometry::getPosition() ) ;
    const Pt3D gFront ( p.x(), p.y(), p.z() ) ;
+   const DPt3D dgFront ( p.x(), p.y(), p.z() ) ;
 
    Pt3D lFront ;
    assert( 0 != param() ) ;
    Pt3DVec lc ( 8, Pt3D(0,0,0) ) ;
    vocalCorners( lc, param(), lFront ) ;
 
-   Pt3D lBack ( 0.25*(lc[4]+lc[5]+lc[6]+lc[7]) ) ;
+   DPt3D dlFront ( lFront.x(), lFront.y(), lFront.z() ) ;
 
-   Pt3D lOne ( lc[0] ) ;
+   const Pt3D lBack ( 0.25*(lc[4]+lc[5]+lc[6]+lc[7]) ) ;
+   const DPt3D dlBack ( lBack.x(), lBack.y(), lBack.z() ) ;
+
+   const Pt3D dlOne ( lc[0].x(), lc[0].y(), lc[0].z() ) ;
 
    const CornersVec& cor ( getCorners() ) ;
-   Pt3DVec kor ( 8, Pt3D(0,0,0) ) ;
+   DPt3DVec dkor ( 8, DPt3D(0,0,0) ) ;
    for( unsigned int i ( 0 ) ; i != 8 ; ++i )
    {
-      kor[i] = Pt3D ( cor[i].x(), cor[i].y(), cor[i].z() ) ;
+      dkor[i] = DPt3D ( cor[i].x(), cor[i].y(), cor[i].z() ) ;
    }
 
-   Pt3D  gBack ( 0.25*( kor[4]+kor[5]+kor[6]+kor[7] ) ) ;
+   DPt3D  dgBack ( 0.25*( dkor[4]+dkor[5]+dkor[6]+dkor[7] ) ) ;
 
-   const Vec3D gAxis ( (gBack-gFront).unit() ) ;
+   const DVec3D dgAxis ( (dgBack-dgFront).unit() ) ;
 
-   gBack = ( gFront + (lBack-lFront).mag()*gAxis ) ;
-   const Pt3D  gOneT ( gFront + ( lOne - lFront ).mag()*( kor[0] - gFront ).unit() ) ;
+   dgBack = ( dgFront + (dlBack-dlFront).mag()*dgAxis ) ;
+   const DPt3D  dgOneT ( dgFront + ( dlOne - dlFront ).mag()*( dkor[0] - dgFront ).unit() ) ;
 
-   const float langle ( ( lBack - lFront).angle( lOne - lFront ) ) ;
-   const float gangle ( ( gBack - gFront).angle( gOneT- gFront ) ) ;
-   const float dangle ( langle - gangle ) ;
+   const double dlangle ( ( dlBack - dlFront).angle( dlOne - dlFront ) ) ;
+   const double dgangle ( ( dgBack - dgFront).angle( dgOneT- dgFront ) ) ;
+   const double ddangle ( dlangle - dgangle ) ;
 
-   const Plane3D gPl ( gFront, gOneT, gBack ) ;
-   const Pt3D    p2  ( gFront + gPl.normal().unit() ) ;
+   const DPlane3D dgPl ( dgFront, dgOneT, dgBack ) ;
+   const DPt3D    dp2  ( dgFront + dgPl.normal().unit() ) ;
 
-   const Pt3D  gOne ( gFront + HepGeom::Rotate3D( -dangle, gFront, p2 )*
-		      Vec3D ( gOneT - gFront ) ) ;
+   const DPt3D  dgOne ( dgFront + HepGeom::Rotate3D( -ddangle, dgFront, dp2 )*
+		      DVec3D ( dgOneT - dgFront ) ) ;
 
-   tr = Tr3D( lFront , lBack , lOne ,
-	      gFront , gBack , gOne    ) ;
+   tr = Tr3D( dlFront , dlBack , dlOne ,
+	      dgFront , dgBack , dgOne    ) ;
 
    if( 0 != lptr ) (*lptr) = lc ;
 }
