@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.68 2011/06/20 10:29:25 babar Exp $
+# $Id: InjectWorker.pl,v 1.70 2011/06/20 11:13:13 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -23,6 +23,27 @@ my $nodbwrite   = 0; # SM_DONTWRITEDB : no write to DB but retrieve HLT key
 my $nofilecheck = 0; # SM_NOFILECHECK : no check if files are locally accessible
 my $maxhooks    = 3; # Number of parallel hooks
 ################################################################################
+my %invalidOracleError = (
+    '03113' => 'End-of-file on communication channel',
+    '03114' => 'not connected to Oracle',
+    '03135' => 'Connection lost contact',
+    '01031' => 'insufficient privileges',
+    '01012' => 'not logged on',
+    '01003' => 'no statement parsed',
+    '12545' => 'target host or object does not exist',
+    '17008' => 'closed connection',
+    '25408' => 'can not safely replay call',
+    '25401' => 'can not continue fetches',
+    '25402' => 'transaction must roll back',
+    '25403' => 'could not reconnect',
+    '25404' => 'lost instance',
+    '25405' => 'transaction status unknown',
+    '25406' => 'could not generate a connect address',
+    '25407' => 'connection terminated',
+    '25408' => 'can not safely replay call',
+    '25409' =>
+      'failover happened during the network operation, cannot continue',
+);
 
 # get options from environment
 # XXX Do we really need to test for existence???
@@ -66,6 +87,7 @@ my $heartbeat  = 300;    # Print a heartbeat every 5 minutes
 my $savedelay  = 300;    # Frequency to save offset file, in seconds
 my $retrydelay = 30;     # Backoff time before retrying a DB query, in seconds
 my $maxretries = 10;     # Maximum number of DB retries
+my $dbbackoff  = 10;     # Seconds to wait between 2 DB connection tries
 my $log4perlConfig = '/opt/injectworker/inject/log4perl.conf';
 my $offsetfile     = $logpath . '/offset.txt';
 
@@ -203,12 +225,9 @@ sub setup_lock {
     open my $fh, '>', $lockfile or die "Cannot create $lockfile: $!";
     print $fh "$$\n";    # Fill it with pid
     close $fh;
+    $heap->{LockFile} = $lockfile;
     $kernel->post( 'logger', info => "Set lock to $lockfile for $$" );
 
-    # Cleanup at the end
-    END {
-        unlink $lockfile if $lockfile;
-    }
     $kernel->sig( INT  => 'sig_abort' );
     $kernel->sig( TERM => 'sig_abort' );
     $kernel->sig( QUIT => 'sig_abort' );
@@ -248,12 +267,15 @@ sub setup_main_db {
         debug => "Setting up DB connection for $heap->{dbi}"
           . " and $heap->{reader} write access" );
     my $failed = 0;
+    my $last_failed = $heap->{last_failed_main_db} || 0;
+    return if time - $last_failed < $dbbackoff;
     $heap->{dbh} = DBI->connect_cached( @$heap{qw( dbi reader phrase )} )
       or $failed++;
     if ($failed) {
         $kernel->post( 'logger',
             error => "Connection to $heap->{dbi} failed: $DBI::errstr" );
-        $kernel->delay( setup_main_db => 10 );
+        $kernel->delay( setup_main_db => $dbbackoff );
+        $heap->{last_failed_main_db} = time;
         return;
     }
 
@@ -489,8 +511,8 @@ sub parse_line {
 
 # injection subroutine
 sub update_db {
-    my ( $kernel, $heap, $args, $handler, @params ) =
-      @_[ KERNEL, HEAP, ARG0 .. $#_ ];
+    my ( $kernel, $session, $heap, $args, $handler, @params ) =
+      @_[ KERNEL, SESSION, HEAP, ARG0 .. $#_ ];
 
     # Check that all required parameters are there
     my @bind_params;
@@ -545,12 +567,32 @@ sub update_db {
 
     $rows = 'undef' unless defined $rows;
     if ($errflag) {
+        my $errorString  = $heap->{sths}->{$handler}->errstr;
+        my $oracleError  = ( $errorString =~ /ORA-(\d+):/ );
+        my $errorMessage = '';
+        if ( exists $invalidOracleError{$oracleError} ) {
+            my $delay = $args->{_RetryDelay} ||= $retrydelay;
+            my $retries = ( $args->{_Retries} ||= $maxretries )--;
+            if ($retries) {
+                $errorMessage = $invalidOracleError{$oracleError}
+                  . ". Reconnecting DB & retrying ($retries left) in $delay";
+                $kernel->call( $session => 'setup_main_db' );
+                $kernel->delay(
+                    update_db => $delay,
+                    $args, $handler, @params,
+                );
+            }
+            else {
+                $errorMessage = " Giving up after $maxretries tries.";
+            }
+        }
         $kernel->post( 'logger',
                 error => "DB access error (rows: $rows)"
               . " for $handler when executing ("
               . join( ', ', @bind_params )
               . '), DB returned: '
-              . $heap->{sths}->{$handler}->errstr );
+              . $errorString . '. '
+              . $errorMessage );
         return;
     }
 
@@ -878,6 +920,8 @@ sub shutdown {
             delete $heap->{dbh};
         }
     }
+    my $lockfile = $heap->{LockFile};
+    unlink $lockfile if $lockfile;
     die "Shutting down!";
 }
 
