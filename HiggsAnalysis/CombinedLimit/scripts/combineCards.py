@@ -4,7 +4,8 @@ from sys import argv
 import os.path
 from optparse import OptionParser
 parser = OptionParser()
-parser.add_option("-s", "--stat",   dest="stat",    default=False, action="store_true")  # ignore systematic uncertainties to consider statistical uncertainties only
+parser.add_option("-s", "--stat",   dest="stat",          default=False, action="store_true")  # ignore systematic uncertainties to consider statistical uncertainties only
+parser.add_option("-S", "--force-shape", dest="shape",    default=False, action="store_true")  # ignore systematic uncertainties to consider statistical uncertainties only
 parser.add_option("-a", "--asimov", dest="asimov",  default=False, action="store_true")
 (options, args) = parser.parse_args()
 options.bin = True # fake that is a binary output, so that we parse shape lines
@@ -53,13 +54,22 @@ for ich,fname in enumerate(args):
         if systlines.has_key(lsyst):
             (otherpdf, otherargs, othereffect) = systlines[lsyst]
             if otherpdf != pdf: 
-                raise RuntimeError, "File %s defines systematic %s as using pdf %s, while a previous file defines it as using %s" % (fname,lsyst,pdf,otherpdf)
-            if pdf == "gmN" and int(pdfargs[0]) != int(otherargs[0]): 
-                raise RuntimeError, "File %s defines systematic %s as using gamma with %s events in sideband, while a previous file has %s" % (fname,lsyst,pdfargs[0],otherargs[0])
-            for b,v in systeffect.items(): othereffect[b] = v;
+                if (pdf == "lnN" and otherpdf.startswith("shape")):
+                    if systlines[lsyst][0][-1] != '?': systlines[lsyst][0] += '?'
+                    for b,v in systeffect.items(): othereffect[b] = v;
+                elif (pdf.startswith("shape") and otherpdf == "lnN"):
+                    if pdf[-1] != '?': pdf += '?'
+                    systlines[lsyst][0] = pdf
+                    for b,v in systeffect.items(): othereffect[b] = v;
+                else:
+                    raise RuntimeError, "File %s defines systematic %s as using pdf %s, while a previous file defines it as using %s" % (fname,lsyst,pdf,otherpdf)
+            else:
+                if pdf == "gmN" and int(pdfargs[0]) != int(otherargs[0]): 
+                    raise RuntimeError, "File %s defines systematic %s as using gamma with %s events in sideband, while a previous file has %s" % (fname,lsyst,pdfargs[0],otherargs[0])
+                for b,v in systeffect.items(): othereffect[b] = v;
         else:
             pdfargs = [ str(x) for x in pdfargs ]
-            systlines[lsyst] = (pdf,pdfargs,systeffect)
+            systlines[lsyst] = [pdf,pdfargs,systeffect]
     # put shapes, if available
     if len(DC.shapeMap):
         for b in DC.bins:
@@ -75,6 +85,10 @@ for ich,fname in enumerate(args):
                 xrep = [xi.replace("$CHANNEL",b) for xi in x]
                 if xrep[0] != 'FAKE' and dirname != '': xrep[0] = dirname+"/"+xrep[0]
                 shapeLines.append((p,bout,xrep))
+    elif options.shape:
+        for b in DC.bins:
+            bout = label if singlebin else label+b
+            shapeLines.append(('*',bout,['FAKE']))
     # combine observations, but remove line if any of the datacards doesn't have it
     if len(DC.obs) == 0:
         obsline = None

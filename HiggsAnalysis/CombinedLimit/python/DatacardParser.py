@@ -107,7 +107,7 @@ def parseCard(file, options):
             # just assume everything else is an argument and move on
             args = f[2:]
             if len(args) <= 1: raise RuntimeError, "Uncertainties of type 'param' must have at least two arguments (mean and sigma)"
-            ret.systs.append((lsyst,pdf,args,[]))
+            ret.systs.append([lsyst,pdf,args,[]])
             continue
         else:
             raise RuntimeError, "Unsupported pdf %s" % pdf
@@ -122,7 +122,7 @@ def parseCard(file, options):
                 errline[b][p] = float(r) 
             # set the rate to epsilon for backgrounds with zero observed sideband events.
             if pdf == "gmN" and ret.exp[b][p] == 0 and float(r) != 0: ret.exp[b][p] = 1e-6
-        ret.systs.append((lsyst,pdf,args,errline))
+        ret.systs.append([lsyst,pdf,args,errline])
     # check if there are bins with no rate
     for b in ret.bins:
         np_bin = sum([(ret.exp[b][p] != 0) for (b1,p,s) in ret.keyline if b1 == b])

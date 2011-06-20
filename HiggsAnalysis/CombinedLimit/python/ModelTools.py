@@ -172,6 +172,8 @@ class ModelBuilder(ModelBuilderBase):
                     strargs += ", r";
                     iSyst += 1
                 for (n,pdf,args,errline) in self.DC.systs:
+                    if pdf.startswith("shape") and pdf.endswith("?"): # might be a lnN in disguise
+                        if not self.isShapeSystematic(b,p,n): pdf = "lnN"
                     if pdf == "param" or pdf.startswith("shape"): continue
                     if not errline[b].has_key(p): continue
                     if errline[b][p] == 0.0: continue
@@ -228,6 +230,8 @@ class ModelBuilder(ModelBuilderBase):
             if self.options.verbose > 1: mc.Print("V")
             self.out._import(mc, mc.GetName())
         self.out.writeToFile(self.options.out)
+    def isShapeSystematic(self,channel,process,syst):
+        return False
 
 class CountingModelBuilder(ModelBuilder):
     """ModelBuilder to make a counting experiment"""
