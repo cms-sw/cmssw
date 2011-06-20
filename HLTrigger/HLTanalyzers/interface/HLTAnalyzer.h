@@ -67,12 +67,13 @@ private:
   HLTMuon     muon_analysis_;
   HLTEgamma   elm_analysis_;
   HLTMCtruth  mct_analysis_;
+  /*
   HLTAlCa     alca_analysis_; 
   HLTTrack    track_analysis_;
+  */
   HLTInfo     hlt_analysis_;
   RECOVertex  vrt_analysisHLT_;
   RECOVertex  vrt_analysisOffline0_;
-  RECOVertex  vrt_analysisOffline1_;
 
   int firstLumi_, lastLumi_, towerThreshold_;
   double xSection_, filterEff_, treeWeight;
@@ -157,6 +158,7 @@ private:
   edm::InputTag ActivityHoverEH_;
 
   // AlCa OpenHLT input collections  
+  /*
   edm::InputTag EERecHitTag_; 
   edm::InputTag EBRecHitTag_;  
   edm::InputTag pi0EERecHitTag_;  
@@ -167,14 +169,16 @@ private:
   edm::InputTag IsoPixelTrackTagL3_;
   edm::InputTag IsoPixelTrackTagL2_; 
   edm::InputTag IsoPixelTrackVerticesTag_;
+  */
 
   // Track OpenHLT input collections
+  /*
   edm::InputTag PixelTracksTagL3_; 
+  */
 
   // Reco vertex collection
   edm::InputTag VertexTagHLT_;
   edm::InputTag VertexTagOffline0_;
-  edm::InputTag VertexTagOffline1_;
 
   int errCnt;
   const int errMax(){return 100;}

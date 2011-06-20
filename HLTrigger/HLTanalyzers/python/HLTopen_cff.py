@@ -15,6 +15,7 @@ hltL1NonIsoR9shape = cms.EDProducer( "EgammaHLTR9Producer",
                                      ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' ),
                                      useSwissCross = cms.bool( False )
                                      )
+
 HLTEgammaR9ShapeSequence = cms.Sequence( hltL1IsoR9shape + hltL1NonIsoR9shape )
 
 hltLowMassDisplacedL3Filtered.MaxEta      = cms.double(3.0)

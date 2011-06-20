@@ -101,9 +101,6 @@ process.hltanalysis.hltresults = cms.InputTag( 'TriggerResults','',WhichHLTProce
 process.hltanalysis.HLTProcessName = WhichHLTProcess
 process.hltanalysis.ht = "hltJet40Ht"
 process.hltanalysis.genmet = "genMetTrue"
-process.hltanalysis.PrimaryVerticesHLT = cms.InputTag('pixelVertices')
-process.hltanalysis.OfflinePrimaryVertices0 = cms.InputTag('offlinePrimaryVertices')
-process.hltanalysis.OfflinePrimaryVertices1 = cms.InputTag('offlinePrimaryVerticesDA')
 
 # Switch on ECAL alignment to be consistent with full HLT Event Setup
 process.EcalBarrelGeometryEP.applyAlignment = True

@@ -88,6 +88,7 @@ const char * kIsoR9ID                     = "non-isol R9 ID";
 const char * kIsoHoverEH                  = "H for H/E isol photon map";
 const char * kNonIsoHoverEH               = "H for H/E non-isol photon map";
 
+/*
 const char * kEErechits                   = "ECAL Endcap RecHits";
 const char * kEBrechits                   = "ECAL Barrel RecHits"; 
 const char * kHBHErechits                 = "HCAL Endcap-Barrel RecHits"; 
@@ -99,9 +100,9 @@ const char * kIsoPixelTracksL3            = "L3 Iso Pixel Tracks";
 const char * kIsoPixelTracksL2            = "L2 Iso Pixel Tracks";
 const char * kIsoPixelTrackVertices       = "Pixel Vertices";
 const char * kPixelTracksL3               = "L3 Pixel Tracks"; 
+*/
 const char * kRecoVerticesHLT             = "Reconstructed vertices, HLT"; 
 const char * kRecoVerticesOffline0        = "Reconstructed vertices, Offline0";
-const char * kRecoVerticesOffline1        = "Reconstructed vertices, Offline1";
 const char * kECALActivity                = "ECAL Actvity clust";
 const char * kECALActivityEcalIso         = "ECAL Actvity EIso";
 const char * kECALActivityHcalIso         = "ECAL Activity HIso";

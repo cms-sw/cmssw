@@ -149,7 +149,8 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
    ActivityHoverEH_           = conf.getParameter<edm::InputTag> ("ActivityHcalForHoverE");
 
 
-    // AlCa OpenHLT input collections  
+   // AlCa OpenHLT input collections  
+   /*
     EERecHitTag_              = conf.getParameter<edm::InputTag> ("EERecHits"); 
     EBRecHitTag_              = conf.getParameter<edm::InputTag> ("EBRecHits"); 
     pi0EBRecHitTag_           = conf.getParameter<edm::InputTag> ("pi0EBRecHits");  
@@ -160,14 +161,16 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     IsoPixelTrackTagL3_       = conf.getParameter<edm::InputTag> ("IsoPixelTracksL3"); 
     IsoPixelTrackTagL2_       = conf.getParameter<edm::InputTag> ("IsoPixelTracksL2");
     IsoPixelTrackVerticesTag_       = conf.getParameter<edm::InputTag> ("IsoPixelTrackVertices");
-    
+   */
+ 
     // Track OpenHLT input collections
-    PixelTracksTagL3_         = conf.getParameter<edm::InputTag> ("PixelTracksL3"); 
-    
+   /*
+     PixelTracksTagL3_         = conf.getParameter<edm::InputTag> ("PixelTracksL3"); 
+   */
+
     // Reco Vertex collection
     VertexTagHLT_                = conf.getParameter<edm::InputTag> ("PrimaryVertices");  
     VertexTagOffline0_           = conf.getParameter<edm::InputTag> ("OfflinePrimaryVertices0");
-    VertexTagOffline1_           = conf.getParameter<edm::InputTag> ("OfflinePrimaryVertices1");
 
     m_file = 0;   // set to null
     errCnt = 0;
@@ -196,12 +199,13 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     bjet_analysis_.setup(conf, HltTree);
     elm_analysis_.setup(conf, HltTree);
     muon_analysis_.setup(conf, HltTree);
+    /*
     track_analysis_.setup(conf, HltTree);
+    */
     mct_analysis_.setup(conf, HltTree);
     hlt_analysis_.setup(conf, HltTree);
     vrt_analysisHLT_.setup(conf, HltTree, "HLT");
     vrt_analysisOffline0_.setup(conf, HltTree, "Offline0");
-    vrt_analysisOffline1_.setup(conf, HltTree, "Offline1");
     evt_header_.setup(HltTree);
 }
 
@@ -320,6 +324,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
  
     
     // AlCa OpenHLT input collections   
+    /*
     edm::Handle<EBRecHitCollection>             ebrechits;  
     edm::Handle<EERecHitCollection>             eerechits;   
     edm::Handle<EBRecHitCollection>             pi0ebrechits;   
@@ -331,11 +336,11 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<reco::IsolatedPixelTrackCandidateCollection> isopixeltracksL2;	
     edm::Handle<reco::VertexCollection>         isopixeltrackPixVertices;
     edm::Handle<reco::RecoChargedCandidateCollection> pixeltracksL3; 
+    */
     
     // Reco vertex collection
     edm::Handle<reco::VertexCollection> recoVertexsHLT;
     edm::Handle<reco::VertexCollection> recoVertexsOffline0;
-    edm::Handle<reco::VertexCollection> recoVertexsOffline1;
 
     // new stuff for the egamma EleId
     edm::InputTag ecalRechitEBTag (std::string("hltEcalRegionalEgammaRecHit:EcalRecHitsEB"));
@@ -479,6 +484,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, electronR9IDNonIsoHandle, NonIsoR9ID_,                kNonIsoR9ID);
     getCollection( iEvent, missing, electronHFClusterHandle,  HFECALClusters_,            kHFECALClusters); 
     getCollection( iEvent, missing, electronHFElectronHandle, HFElectrons_,               kHFElectrons); 
+    /*
     getCollection( iEvent, missing, eerechits,                EERecHitTag_,               kEErechits ); 
     getCollection( iEvent, missing, ebrechits,                EBRecHitTag_,               kEBrechits );  
     getCollection( iEvent, missing, pi0eerechits,             pi0EERecHitTag_,            kpi0EErechits );  
@@ -490,9 +496,9 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, isopixeltracksL2,         IsoPixelTrackTagL2_,        kIsoPixelTracksL2 );
     getCollection( iEvent, missing, isopixeltrackPixVertices, IsoPixelTrackVerticesTag_,   kIsoPixelTrackVertices );
     getCollection( iEvent, missing, pixeltracksL3,            PixelTracksTagL3_,          kPixelTracksL3 ); 
+    */
     getCollection( iEvent, missing, recoVertexsHLT,           VertexTagHLT_,              kRecoVerticesHLT ); 
     getCollection( iEvent, missing, recoVertexsOffline0,      VertexTagOffline0_,         kRecoVerticesOffline0 );
-    getCollection( iEvent, missing, recoVertexsOffline1,      VertexTagOffline1_,         kRecoVerticesOffline1 );
     
     double ptHat=-1.;
     if (genEventInfo.isValid()) {ptHat=genEventInfo->qScale();}
@@ -607,13 +613,15 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
                           simVertices,
                           HltTree);
     
+    /*
     track_analysis_.analyze( 
                             isopixeltracksL3, 
                             isopixeltracksL2,
                             isopixeltrackPixVertices,			  
                             pixeltracksL3, 
                             HltTree); 
-    
+    */
+
     hlt_analysis_.analyze(
                           hltresults,
                           l1extemi,
@@ -648,10 +656,6 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 
     vrt_analysisOffline0_.analyze(
 			     recoVertexsOffline0,
-			     HltTree);
-
-    vrt_analysisOffline1_.analyze(
-			     recoVertexsOffline1,
 			     HltTree);
 
     evt_header_.analyze(iEvent, HltTree);

@@ -155,8 +155,12 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     Jets                        = cms.untracked.bool( False ),
 
     ## reco vertices
+    OfflinePrimaryVertices0     = cms.InputTag('offlinePrimaryVertices'),
+
+    # HLT vertices
     PrimaryVertices             = cms.InputTag("hltPixelVertices"),
-                             
+    PrimaryVerticesHLT          = cms.InputTag('pixelVertices'),
+
     ### Run parameters
     RunParameters = cms.PSet(
         HistogramFile = cms.untracked.string('openhlt.root'),

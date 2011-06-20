@@ -86,6 +86,7 @@ extern const char * kIsoHoverEH;
 extern const char * kNonIsoHoverEH;
 extern const char * kHFECALClusters; 
 extern const char * kHFElectrons; 
+/*
 extern const char * kEErechits;
 extern const char * kEBrechits; 
 extern const char * kHBHErechits;  
@@ -97,9 +98,9 @@ extern const char * kIsoPixelTracksL3;
 extern const char * kIsoPixelTracksL2;
 extern const char * kIsoPixelTrackVertices;
 extern const char * kPixelTracksL3; 
+*/
 extern const char * kRecoVerticesHLT; 
 extern const char * kRecoVerticesOffline0;
-extern const char * kRecoVerticesOffline1;
 extern const char * kECALActivity;      
 extern const char * kECALActivityEcalIso;
 extern const char * kECALActivityHcalIso;
