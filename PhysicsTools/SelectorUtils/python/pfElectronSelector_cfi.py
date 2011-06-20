@@ -9,5 +9,5 @@ pfElectronSelector = cms.PSet(
     electronIDused = cms.string('eidTightMC'),
     ConversionRejection = cms.bool(True),
     PFIso = cms.double(0.1),
-    cutsToIgnore = cms.vstring('MaxMissingHits','ConversionRejection')
+    cutsToIgnore = cms.vstring()
     )
