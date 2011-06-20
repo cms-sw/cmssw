@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.5 2011/02/14 11:15:53 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.6 2011/02/14 20:02:51 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -35,10 +35,13 @@ class FWGeometryBrowser;
 
 class TGeoManager;
 class TGeoNode;
+class TEveGeoTopNode;
 
 class FWGeometryTableManager : public FWTableManagerBase
 {
-private:
+   friend class FWGeometryBrowser;
+
+protected:
    struct NodeInfo
    {
       NodeInfo():m_node(0), m_parent(-1), m_level(-1), 
@@ -56,6 +59,7 @@ private:
       const char* name() const;
    };
    
+private:
    struct Match
    {
       bool m_matches;
@@ -90,8 +94,6 @@ private:
 public:
    FWGeometryTableManager(FWGeometryBrowser*);
    virtual ~FWGeometryTableManager();
-   
-   void firstColumnClicked(int row);
 
    // virtual functions of FWTableManagerBase
    
@@ -112,13 +114,21 @@ public:
    void setSelection(int row, int column, int mask); 
    virtual void implSort(int, bool) {}
    
-   void loadGeometry(TGeoManager* geoManager);
+   // geo stuff
+   NodeInfo& refSelected();
+   void loadGeometry();
+   void inspectMaterial(int ) const;
+   void inspectShape(int ) const;
+
 
 private:
    enum   ECol { kName, kColor,  kVisSelf, kVisChild, kMaterial, kPosition, kBBoxSize, kNumCol };
 
    FWGeometryTableManager(const FWGeometryTableManager&); // stop default
    const FWGeometryTableManager& operator=(const FWGeometryTableManager&); // stop default
+
+   
+   void firstColumnClicked(int row);
 
    // table mng
    void changeSelection(int iRow, int iColumn);
@@ -158,7 +168,7 @@ private:
    
    // geo stuff
    FWGeometryBrowser*   m_browser;
-   TGeoManager*       m_geoManager;
+   TEveGeoTopNode*    m_eveTopNode;
       
    mutable Volumes_t  m_volumes;
    Entries_v          m_entries;

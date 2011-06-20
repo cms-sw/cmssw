@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.8 2011/03/07 13:13:51 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.9 2011/03/26 13:02:41 matevz Exp $
 //
 
 //#define PERFTOOL
@@ -25,6 +25,7 @@
 #include "Fireworks/Core/src/FWColorBoxIcon.h"
 #include "Fireworks/TableWidget/interface/GlobalContexts.h"
 #include "Fireworks/TableWidget/src/FWTabularWidget.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 #include "TMath.h"
 #include "TGeoManager.h"
@@ -32,6 +33,9 @@
 #include "TGeoMatrix.h"
 #include "TGeoShape.h"
 #include "TGeoBBox.h"
+#include "TEveManager.h"
+#include "TEveGeoNode.h"
+#include "TEveScene.h"
 
 static const char* redTxt   = "\033[01;31m";
 static const char* greenTxt = "\033[01;32m";
@@ -100,7 +104,6 @@ void FWGeometryTableManager::ColorBoxRenderer::draw(Drawable_t iID, int iX, int 
 FWGeometryTableManager::FWGeometryTableManager(FWGeometryBrowser* browser)
 :    m_selectedRow(-1),
      m_browser(browser),
-     m_geoManager(0),
      m_autoExpand(0),
      m_maxDaughters(10000),
      m_modeVolume(false)
@@ -165,7 +168,7 @@ std::vector<std::string> FWGeometryTableManager::getTitles() const
   
 void FWGeometryTableManager::setSelection (int row, int column, int mask) 
 {
-  
+   printf("FWGeometryTableManager set selection \n");
    changeSelection(row, column);
 }
 
@@ -224,15 +227,9 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
    TGeoNode& gn = *data.m_node;
 
    bool isSelected =  (!filterOff() &&  m_volumes[gn.GetVolume()].m_matches);//(m_selectedRow == unsortedRow);
-   if (0) 
-   {
-      TGGC* gc = ( TGGC*)m_renderer.graphicsContext();
-  
-      if (!filterOff() &&  m_volumes[gn.GetVolume()].m_matches)
-         gc->SetForeground(gVirtualX->GetPixel(kRed));
-      else
-         gc->SetForeground(gVirtualX->GetPixel(kBlack));
-   }
+   TGGC* gc = ( TGGC*)m_renderer.graphicsContext();
+   gc->SetForeground(gVirtualX->GetPixel(kBlack));
+   
 
    if (iCol == kName)
    {
@@ -261,18 +258,25 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
       renderer->setIndentation(0);
       if (iCol == kColor)
       {
-         //renderer->setData(Form("level .. %d", data.m_level),  isSelected);
          m_colorBoxRenderer.setData(gn.GetVolume()->GetLineColor(), isSelected);
          return  &m_colorBoxRenderer;
       }
       else if (iCol == kVisSelf )
       {
-         renderer->setData( gn.IsVisible() ? "on" : "off",  isSelected);
+         const char* txt = Form("Self[%d] pchld[%d]", gn.GetVolume()->IsVisible(),  gn.GetMotherVolume() ? gn.GetMotherVolume()->IsVisibleDaughters() : 77);
+    
+         renderer->setData( txt,  isSelected);
+         if ( !gn.IsVisible())
+            gc->SetForeground(gVirtualX->GetPixel(kGray));
          return renderer;
       }
       else if (iCol == kVisChild )
       {
          renderer->setData( gn.IsVisDaughters() ? "on" : "off",  isSelected);
+         // renderer->setData( txt,  isSelected);
+
+         if ( !gn.IsVisDaughters())
+            gc->SetForeground(gVirtualX->GetPixel(kGray));
          return renderer;
       }
       else if (iCol == kMaterial )
@@ -294,6 +298,7 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
       }
    }
 }
+
 //______________________________________________________________________________
 void FWGeometryTableManager::firstColumnClicked(int row)
 {
@@ -368,12 +373,16 @@ void FWGeometryTableManager::checkUniqueVolume(TGeoVolume* v)
    }
 }
 
-void FWGeometryTableManager::loadGeometry(TGeoManager* geoManager)
+//==============================================================================
+
+void FWGeometryTableManager::loadGeometry()
 {
-   m_geoManager = geoManager;
-   
+   m_row_to_index.clear();
+   m_entries.clear();
    m_volumes.clear();
-   checkUniqueVolume(geoManager->GetTopVolume());
+
+   // fill table
+   checkUniqueVolume(m_browser->geoManager()->GetCurrentVolume());
    if (!filterOff())
       updateFilter();
    
@@ -410,7 +419,7 @@ void FWGeometryTableManager::setTableContent()
 
    // add top node to init
    NodeInfo topNodeInfo;
-   topNodeInfo.m_node   = m_geoManager->GetTopNode();
+   topNodeInfo.m_node   = m_browser->geoManager()->GetCurrentNode();
    topNodeInfo.m_level  = 0;
    topNodeInfo.m_parent = -1;
    m_entries.push_back(topNodeInfo);
@@ -452,8 +461,6 @@ void FWGeometryTableManager::setTableContent()
 }
 
 //==============================================================================
-
-
 
 void
 FWGeometryTableManager::getNNodesTotal(TGeoNode* geoNode, int level, int& off, bool debug) const
@@ -656,7 +663,7 @@ void FWGeometryTableManager::checkChildMatches(TGeoVolume* vol,  std::vector<TGe
 
 void FWGeometryTableManager::updateFilter()
 {
-   if (!m_geoManager) return;
+   if (!m_browser->geoManager()) return;
    
 #ifdef PERFTOOL
    ProfilerStart(m_browser->m_filter.value().c_str());
@@ -669,7 +676,7 @@ void FWGeometryTableManager::updateFilter()
    }  
   
    std::vector<TGeoVolume*> pstack;
-   checkChildMatches(m_geoManager->GetTopVolume(), pstack);
+   checkChildMatches(m_browser->geoManager()->GetCurrentVolume(), pstack);
  
    //   printf("filterChanged \n");
 #ifdef PERFTOOL
@@ -680,14 +687,14 @@ void FWGeometryTableManager::updateFilter()
 
 void FWGeometryTableManager::updateAutoExpand()
 {
-   if (!m_geoManager) return;
+   if (!m_browser->geoManager()) return;
    
    setTableContent();
 }
 
 void FWGeometryTableManager::updateMode()
 {
-   if (!m_geoManager) return;
+   if (!m_browser->geoManager()) return;
    
    setTableContent();
 }
@@ -696,4 +703,9 @@ bool FWGeometryTableManager::filterOff() const
 {
   return  m_browser->m_filter.value().empty();
   //   printf("%d empty off \n", m_browser->m_filter.value().empty());
+}
+
+FWGeometryTableManager::NodeInfo& FWGeometryTableManager::refSelected()
+{
+   return  m_entries[selectedRow()];
 }
