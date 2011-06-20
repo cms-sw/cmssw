@@ -29,6 +29,4 @@ simEcalUnsuppressedDigis = cms.EDProducer("EcalTBDigiProducer",
 
 simEcalUnsuppressedDigis.syncPhase = False
 
-simEcalUnsuppressedDigis.numESdetId = 0
-
 simEcalUnsuppressedDigis.EBdigiCollection = cms.string('TEMP')
