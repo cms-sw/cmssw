@@ -42,12 +42,15 @@ public:
 
   inline const reco::BeamSpot & beamSpot( void ) const { return theBeamSpot; }
   inline const AlgebraicVector beamSpotPosition( void ) const { return convertXYZPoint( theBeamSpot.position() ); }
-  inline const AlgebraicSymMatrix beamSpotError( void ) const { return asHepMatrix( theBeamSpot.covariance3D() ); }
+  inline const AlgebraicSymMatrix beamSpotError( void ) const { return extractBeamSpotError(); }
 
 private:
 
   inline const AlgebraicVector convertXYZPoint( const math::XYZPoint & p ) const
     { AlgebraicVector v(3); v(1)=p.x(); v(2)=p.y(); v(3)=p.z(); return v; }
+
+  inline const AlgebraicSymMatrix extractBeamSpotError() const
+    { AlgebraicSymMatrix bse(3,0); bse[0][0] = theBeamSpot.BeamWidthX(); bse[1][1] = theBeamSpot.BeamWidthY(); bse[2][2] = theBeamSpot.sigmaZ(); return bse; }
 
   const double & thePrimaryMass;
   const double & thePrimaryWidth;
