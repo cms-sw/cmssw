@@ -54,9 +54,11 @@ process.TFileService = cms.Service(
         "background_skim_plots_%s.root" % process.filterConfig.name.value())
 )
 
+mc_mode = False
 # Check if we need to modify triggers for MC running
 if 'GR' not in conditions:
     print "Using MC mode"
+    mc_mode = True
     process.filterConfig.hltPaths = cms.vstring(
         process.filterConfig.hltPaths[0])
 
@@ -160,10 +162,14 @@ process.pfReReco = cms.Sequence(process.particleFlowReco+
 process.kt6PFJets.doRhoFastjet = True
 process.kt6PFJets.Rho_EtaMax = cms.double( 4.4)
 
+process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesDA_cfi")
+
 process.rereco = cms.Sequence(
     process.localReReco*
     process.globalReReco*
-    process.pfReReco)
+    process.pfReReco*
+    process.offlinePrimaryVerticesDA
+)
 
 #################################################################
 # Select our background tau candidates
@@ -389,10 +395,17 @@ configtools.massSearchReplaceAnyInputTag(
 )
 process.buildTaus += process.recoTauHPSTancSequenceBackground
 
+process.qualitySequence = cms.Sequence(
+    process.trigger *
+    process.dataQualityFilters
+)
+
+if mc_mode:
+    process.qualitySequence = cms.Sequence()
+
 # Final path
 process.selectBackground = cms.Path(
-    process.trigger *
-    process.dataQualityFilters *
+    process.qualitySequence *
     process.selectEnrichedEvents * # <-- defined in filterType.py
     process.rereco *
     process.selectAndMatchJets *
@@ -418,6 +431,7 @@ poolOutputCommands = cms.untracked.vstring(
     'keep *_ak5PFJets_*_TANC',
     'keep *_kt6PFJets_*_TANC', # for PU subtraction
     'keep *_offlinePrimaryVertices_*_TANC',
+    'keep *_offlinePrimaryVerticesDA_*_TANC',
     'keep *_offlineBeamSpot_*_TANC',
     'keep recoTracks_generalTracks_*_TANC',
     'keep recoTracks_electronGsfTracks_*_TANC',
@@ -447,4 +461,4 @@ process.write = cms.OutputModule(
 process.out = cms.EndPath(process.write)
 
 # Print out trigger information
-process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+#process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )

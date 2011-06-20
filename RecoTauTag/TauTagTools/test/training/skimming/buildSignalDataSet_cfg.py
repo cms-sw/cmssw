@@ -94,10 +94,14 @@ process.pfReReco = cms.Sequence(process.particleFlowReco+
 process.kt6PFJets.doRhoFastjet = True
 process.kt6PFJets.Rho_EtaMax = cms.double( 4.4)
 
+process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesDA_cfi")
+
 process.rereco = cms.Sequence(
     process.localReReco*
     process.globalReReco*
-    process.pfReReco)
+    process.pfReReco*
+    process.offlinePrimaryVerticesDA
+)
 
 #################################################################
 # Build and select true taus
@@ -341,6 +345,7 @@ poolOutputCommands = cms.untracked.vstring(
     'keep *_ak5PFJets_*_TANC',
     'keep *_kt6PFJets_*_TANC', # for PU subtraction
     'keep *_offlinePrimaryVertices_*_TANC',
+    'keep *_offlinePrimaryVerticesDA_*_TANC',
     'keep *_offlineBeamSpot_*_TANC',
     'keep *_particleFlow_*_TANC',
     'keep recoTracks_generalTracks_*_TANC',
