@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.h,v 1.14 2011/06/20 09:07:22 mommsen Exp $
+// $Id: StreamsMonitorCollection.h,v 1.15 2011/06/20 15:55:52 mommsen Exp $
 /// @file: StreamsMonitorCollection.h 
 
 #ifndef EventFilter_StorageManager_StreamsMonitorCollection_h
@@ -28,8 +28,8 @@ namespace stor {
    * A collection of MonitoredQuantities of output streams
    *
    * $Author: mommsen $
-   * $Revision: 1.14 $
-   * $Date: 2011/06/20 09:07:22 $
+   * $Revision: 1.15 $
+   * $Date: 2011/06/20 15:55:52 $
    */
   
   class StreamsMonitorCollection : public MonitorCollection
@@ -54,7 +54,7 @@ namespace stor {
 
       void incrementFileCount(const uint32_t lumiSection);
       void addSizeInBytes(double);
-      void reportLumiSectionInfo
+      bool reportLumiSectionInfo
       (
         const uint32_t& lumiSection,
         std::string& str
@@ -85,9 +85,8 @@ namespace stor {
       void reset()
       { latestLumiSectionWritten = eolsCount = lsCountWithFiles = 0; }
 
-      void updateForLumiSection(uint32_t ls)
+      void updateLatestWrittenLumiSection(uint32_t ls)
       {
-        ++lsCountWithFiles;
         if (ls > latestLumiSectionWritten) latestLumiSectionWritten = ls;
       }
 

@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.29 2011/06/20 09:07:21 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.30 2011/06/20 15:55:53 mommsen Exp $
 /// @file: DiskWriter.cc
 
 #include <algorithm>
@@ -318,16 +318,20 @@ namespace stor {
     const uint32_t lumiSection = msg.lumiSection();
     
     std::string fileCountStr;
-    
+    bool filesWritten = false;
+
     for (StreamHandlers::const_iterator it = streamHandlers_.begin(),
            itEnd = streamHandlers_.end(); it != itEnd; ++it)
     {
-      (*it)->closeFilesForLumiSection(lumiSection, fileCountStr);
+      if ( (*it)->closeFilesForLumiSection(lumiSection, fileCountStr) )
+        filesWritten = true;
     }
     fileCountStr += "\tEoLS:1";
     dbFileHandler_->write(fileCountStr);
-    endOfRunReport_->updateForLumiSection(lumiSection);
+
     ++(endOfRunReport_->eolsCount);
+    if (filesWritten) ++(endOfRunReport_->lsCountWithFiles);
+    endOfRunReport_->updateLatestWrittenLumiSection(lumiSection);
   }
   
 } // namespace stor

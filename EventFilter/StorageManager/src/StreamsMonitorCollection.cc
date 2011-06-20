@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.cc,v 1.19 2011/06/20 09:07:21 mommsen Exp $
+// $Id: StreamsMonitorCollection.cc,v 1.20 2011/06/20 15:55:53 mommsen Exp $
 /// @file: StreamsMonitorCollection.cc
 
 #include <string>
@@ -83,7 +83,7 @@ namespace stor {
   }
   
   
-  void StreamsMonitorCollection::StreamRecord::reportLumiSectionInfo
+  bool StreamsMonitorCollection::StreamRecord::reportLumiSectionInfo
   (
     const uint32_t& lumiSection,
     std::string& str
@@ -104,6 +104,8 @@ namespace stor {
     }
     msg << "\t" << streamName << ":" << count;
     str += msg.str();
+
+    return (count>0);
   }
   
   
@@ -122,17 +124,22 @@ namespace stor {
            itEnd = unreportedLS.end(); it != itEnd; ++it)
     {
       std::string lsEntry;
+      bool filesWritten = false;
+
       for (StreamRecordList::const_iterator 
              stream = streamRecords_.begin(),
              streamEnd = streamRecords_.end();
            stream != streamEnd;
            ++stream)
       {
-        (*stream)->reportLumiSectionInfo((*it), lsEntry);
+        if ( (*stream)->reportLumiSectionInfo((*it), lsEntry) )
+          filesWritten = true;
       }
       lsEntry += "\tEoLS:0";
       dbFileHandler->write(lsEntry);
-      endOfRunReport->updateForLumiSection(*it);
+
+      if (filesWritten) ++(endOfRunReport->lsCountWithFiles);
+      endOfRunReport->updateLatestWrittenLumiSection(*it);
     }
   }
   
