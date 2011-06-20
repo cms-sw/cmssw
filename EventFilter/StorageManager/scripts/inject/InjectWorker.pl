@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.66 2011/02/17 16:10:42 babar Exp $
+# $Id: InjectWorker.pl,v 1.67 2011/06/20 10:02:28 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -805,6 +805,7 @@ sub got_end_of_run {
 # insert into values STREAMS (137605, 767, 'Calibration',   2, 1, '2010-06-12 00:00:02');
 sub got_end_of_lumi {
     my ( $kernel, $heap, $args ) = @_[ KERNEL, HEAP, ARG0 ];
+    $args->{EoLS} ||= 0; # Ensure default value
     for my $stream (
         sort grep { !/^(?:Timestamp|run|LS|instance|host|EoLS|_.*)$/ }
         keys %$args
