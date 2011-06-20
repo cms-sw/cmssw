@@ -293,8 +293,8 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(inputMuonTimeExtraValueMap_.label(), "combined", combinedMuonTimeExtraValueMapH_);
    iEvent.getByLabel(inputMuonTimeExtraValueMap_.label(), "csc", cscMuonTimeExtraValueMapH_);
    iEvent.getByLabel(inputMuonTimeExtraValueMap_.label(), "dt", dtMuonTimeExtraValueMapH_);
-   iEvent.getByLabel(inputMuonCosmicCompatibilityValueMap_.label(), muonCosmicCompatibilityValueMapH_);
-   iEvent.getByLabel(inputMuonShowerInformationValueMap_.label(), muonShowerInformationValueMapH_);
+   iEvent.getByLabel(inputMuonCosmicCompatibilityValueMap_, muonCosmicCompatibilityValueMapH_);
+   iEvent.getByLabel(inputMuonShowerInformationValueMap_, muonShowerInformationValueMapH_);
   
    iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
 
