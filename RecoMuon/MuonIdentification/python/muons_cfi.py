@@ -4,9 +4,11 @@
 import FWCore.ParameterSet.Config as cms
 
 muons = cms.EDProducer("MuonProducer",
-                       ActivateDebug = cms.untracked.bool(True),
+                       ActivateDebug = cms.untracked.bool(False),
                        InputMuons = cms.InputTag("muons1stStep"),
                        PFCandidates = cms.InputTag("particleFlowTmp"),
+                       FillPFMomentumAndAssociation = cms.bool(True),
+                       FillPFIsolation = cms.bool(True),                     
                        
                        EcalIsoDeposits  = cms.InputTag("muIsoDepositCalByAssociatorTowers","ecal"),
                        HcalIsoDeposits  = cms.InputTag("muIsoDepositCalByAssociatorTowers","hcal"),

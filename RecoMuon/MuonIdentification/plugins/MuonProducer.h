@@ -8,8 +8,8 @@
  * the entire event has been reconstructed. The collections produced here are meant to be used for the final analysis (or as PAT input).
  * The previous muon collection is meant to be transient.
  *
- *  $Date: 2011/06/15 09:44:53 $
- *  $Revision: 1.9 $
+ *  $Date: 2011/06/17 15:03:12 $
+ *  $Revision: 1.10 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
@@ -67,6 +67,8 @@ private:
   bool writeIsoDeposits_;
   bool fillSelectors_;
   bool fillCosmicsIdMap_;
+  bool fillPFMomentum_;
+  bool fillPFIsolation_;
 
   edm::InputTag theTrackDepositName;
   edm::InputTag theEcalDepositName;

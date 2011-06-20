@@ -1,8 +1,8 @@
 /** \class MuonProducer
  *  See header file.
  *
- *  $Date: 2011/06/15 09:44:53 $
- *  $Revision: 1.10 $
+ *  $Date: 2011/06/17 15:03:12 $
+ *  $Revision: 1.11 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
@@ -57,6 +57,8 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
   // Variables to switch on-off the differnt parts
   fillSelectors_ =  pSet.getParameter<bool>("FillSelectorMaps");
   fillCosmicsIdMap_ =  pSet.getParameter<bool>("FillCosmicsIdMap");
+  fillPFMomentum_ =  pSet.getParameter<bool>("FillPFMomentumAndAssociation");
+  fillPFIsolation_ =  pSet.getParameter<bool>("FillPFIsolation");
 
   produces<reco::MuonCollection>();
   produces<reco::MuonTimeExtraMap>("combined");
@@ -95,8 +97,8 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
     theMuToMuMapName = theMuonsCollectionLabel.label()+"2"+theAlias+"sMap";
     produces<edm::ValueMap<reco::MuonRef> >(theMuToMuMapName);
 
-
-    thePFIsoHelper = new MuPFIsoHelper(pSet.getParameter<edm::ParameterSet>("PFIsolation"));
+    if(fillPFIsolation_)
+      thePFIsoHelper = new MuPFIsoHelper(pSet.getParameter<edm::ParameterSet>("PFIsolation"));
 
 }
 
@@ -124,7 +126,7 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 
 
    // fetch collections for PFIso
-   thePFIsoHelper->beginEvent(event);
+   if(fillPFIsolation_) thePFIsoHelper->beginEvent(event);
 
    
    // Fill timing information
@@ -232,17 +234,16 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 
    MuToPFMap muToPFMap;
 
-   dout << "Number of PFCandidates: " << pfCandidates->size() << endl;
-   foreach(const reco::PFCandidate &pfCand, *pfCandidates)
-     if(abs(pfCand.pdgId()) == 13){
-       muToPFMap[pfCand.muonRef()] = pfCand.p4();     
-       dout << "MuonRef: " << pfCand.muonRef().id() << " " << pfCand.muonRef().key() << " PF p4: " << pfCand.p4() << endl;
-     }
-
-
-   dout << "Number of PFMuons: " << muToPFMap.size() << endl;
-   dout << "Number of Muons in the original collection: " << inputMuons->size() << endl;
-
+   if(fillPFMomentum_){
+     dout << "Number of PFCandidates: " << pfCandidates->size() << endl;
+     foreach(const reco::PFCandidate &pfCand, *pfCandidates)
+       if(abs(pfCand.pdgId()) == 13){
+	 muToPFMap[pfCand.muonRef()] = pfCand.p4();     
+	 dout << "MuonRef: " << pfCand.muonRef().id() << " " << pfCand.muonRef().key() << " PF p4: " << pfCand.p4() << endl;
+       }
+     dout << "Number of PFMuons: " << muToPFMap.size() << endl;
+     dout << "Number of Muons in the original collection: " << inputMuons->size() << endl;
+   }
 
    reco::MuonRef::key_type muIndex = 0;
    unsigned int i = 0;
@@ -253,29 +254,30 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 
      // Copy the muon 
      reco::Muon outMuon = inMuon;
-     
+    
+     if(fillPFMomentum_){ 
      // search for the corresponding pf candidate
-     MuToPFMap::iterator iter =  muToPFMap.find(muRef);
-     if(iter != muToPFMap.end()){
-       outMuon.setPFP4(iter->second);
-       muToPFMap.erase(iter);
+       MuToPFMap::iterator iter =  muToPFMap.find(muRef);
+       if(iter != muToPFMap.end()){
+	 outMuon.setPFP4(iter->second);
+	 muToPFMap.erase(iter);
+	 dout << "MuonRef: " << muRef.id() << " " << muRef.key() 
+	      << " Is it PF? " << outMuon.isPFMuon() 
+	      << " PF p4: " << outMuon.pfP4() << endl;
+       }
+       
+       
        dout << "MuonRef: " << muRef.id() << " " << muRef.key() 
-	    << " Is it PF? " << outMuon.isPFMuon() 
-	 // << " PF p4: " << outMuon.isPFMuon() ? outMuon.pfP4() : 0 << endl;
-	    << " PF p4: " << outMuon.pfP4() << endl;
+	    << " Is it PF? " << outMuon.isPFMuon() << endl;
+       
+       dout << "GLB "  << outMuon.isGlobalMuon()
+	    << " TM "  << outMuon.isTrackerMuon()
+	    << " STA " << outMuon.isStandAloneMuon() 
+	    << " p4 "  << outMuon.p4() << endl;
      }
-     
-     
-     dout << "MuonRef: " << muRef.id() << " " << muRef.key() 
-	  << " Is it PF? " << outMuon.isPFMuon() << endl;
-     
-     dout << "GLB "  << outMuon.isGlobalMuon()
-	  << " TM "  << outMuon.isTrackerMuon()
-	  << " STA " << outMuon.isStandAloneMuon() 
-	  << " p4 "  << outMuon.p4() << endl;
 
      // Add PF isolation info
-     thePFIsoHelper->embedPFIsolation(outMuon,muRef);
+     if(fillPFIsolation_) thePFIsoHelper->embedPFIsolation(outMuon,muRef);
 
 
      
