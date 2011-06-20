@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.67 2011/06/20 10:02:28 babar Exp $
+# $Id: InjectWorker.pl,v 1.68 2011/06/20 10:29:25 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -483,7 +483,7 @@ sub parse_line {
             $args{$_} = $value if s/_//g;
         }
     }
-    $args{_WheelOffset} = { $wheelID => $offset };    # Save offset information
+    $args{_WheelOffset} = [ $wheelID => $offset ];    # Save offset information
     $kernel->yield( get_hlt_key => $callback, \%args );
 }
 
@@ -526,7 +526,7 @@ sub update_db {
     my $errflag = 0;
     my $rows = $heap->{sths}->{$handler}->execute(@bind_params) or $errflag = 1;
     if ( $args->{_WheelOffset} ) {
-        my ( $wheelID, $offset ) = %{ $args->{_WheelOffset} };
+        my ( $wheelID, $offset ) = @{ $args->{_WheelOffset} };
         my $current = $heap->{offset}->{$wheelID};
         if ( $current > $offset ) {
             my $file = $heap->{watchlist}->{$wheelID};
@@ -773,7 +773,7 @@ sub parse_lumi_line {
     }
     $hash{Timestamp} =
       gettimestamp( $hash{Timestamp} );    # Change unix timestamp to string
-    $hash{_WheelOffset} = { $wheelID => $offset };    # Save offset information
+    $hash{_WheelOffset} = [ $wheelID => $offset ];    # Save offset information
     if ( $callback =~ /_of_run$/ ) {
         $kernel->yield( get_num_sm => $callback, \%hash );
     }
