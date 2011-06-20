@@ -1,5 +1,4 @@
 #include "RecoTracker/FinalTrackSelectors/interface/AnalyticalTrackSelector.h"
-#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <Math/DistFunc.h>
@@ -298,9 +297,8 @@ void AnalyticalTrackSelector::selectVertices(const reco::VertexCollection &vtxs,
 
     LogDebug("SelectVertex") << " select vertex with z position " << it->z() << " " 
 			     << it->chi2() << " " << it->ndof() << " " << TMath::Prob(it->chi2(), static_cast<int32_t>(it->ndof()));
-    StringCutObjectSelector<Vertex> stringSelector(vertexCut_);
     Vertex vtx = *it;
-    bool pass = stringSelector( vtx );
+    bool pass = vertexCut_( vtx );
     if( pass ) { 
       points.push_back(it->position()); 
       LogTrace("SelectVertex") << " SELECTED vertex with z position " << it->z();

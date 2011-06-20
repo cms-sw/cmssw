@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 24 14:42:32 EST 2008
-// $Id: FWConfigurationManager.cc,v 1.14 2010/05/18 14:40:28 eulisse Exp $
+// $Id: FWConfigurationManager.cc,v 1.15 2010/06/18 10:17:15 yana Exp $
 //
 
 // system include files
@@ -337,7 +337,7 @@ private:
    std::vector<std::pair<std::string, FWConfiguration *> > m_configs;
    enum STATES                                             m_state;
    std::auto_ptr<FWConfiguration>                          m_first;
-   unsigned int                                            m_currentConfigVersion;
+   //   unsigned int                                            m_currentConfigVersion;
    std::string                                             m_currentConfigName;
 };
 

@@ -6,8 +6,10 @@
 #  uses:        the required SHERPA data cards (+ libraries) [see below]
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2010/05/11
-#  version:     3.0
+#  date:        28th April 2011
+#  version:     3.3
+#  changed: 	Martin Niegel, KIT, 2011/06/07
+#		Fix for Sherpa 1.3.0
 #
 
 
@@ -30,7 +32,6 @@ print_help() {
     echo "                         [ 'LIBS' : generate libraries only                   ]" && \
     echo "                         [ 'CRSS' : generate cross sections, needs libraries! ]" && \
     echo "                         [ 'EVTS' : generate events, needs libs + crss. sec.! ]" && \
-    echo "         -c             COMIX only (skip 'makelibs' step) ( "${FLGCOMIX}" )" && \
     echo "         -f  path       output path for SHERPA library & cross section files" && \
     echo "                         -> ( "${fin}" )" && \
     echo "         -D  filename   (optional) name of data card file ( "${cfdc}" )" && \
@@ -156,18 +157,16 @@ inc=${HDIR}                        # path to SHERPA datacards (libraries)
 cfdc=""                            # custom data card file name
 cflb=""                            # custom library file name
 cfcr=""                            # custom cross section file name
-FLGCOMIX="FALSE"                   # COMIX only flag
 fin=${HDIR}                        # output path for SHERPA libraries & cross sections
 
 # get & evaluate options
-while getopts :d:i:p:o:cf:D:L:C:h OPT
+while getopts :d:i:p:o:f:D:L:C:h OPT
 do
   case $OPT in
   d) shr=$OPTARG ;;
   i) inc=$OPTARG ;;
   p) prc=$OPTARG ;;
   o) lbo=$OPTARG ;;
-  c) FLGCOMIX="TRUE" ;;
   f) fin=$OPTARG ;;
   D) cfdc=$OPTARG ;;
   L) cflb=$OPTARG ;;
@@ -188,10 +187,6 @@ do
   esac
 done
 
-# override in case comix is used
-if [ "$FLGCOMIX" = "TRUE" ]; then
-  lbo="LBCR"
-fi
 
 # make sure to use absolute path names...
 cd ${shr} && shr=`pwd`; cd ${HDIR}
@@ -221,6 +216,7 @@ if [ "${SHERPA_LIBRARY_PATH}" = "" ]; then export SHERPA_LIBRARY_PATH=${shr}/lib
 # find 'Run' directory
 shrun=${HDIR}/SHERPATMP
 mkdir -p ${shrun}
+pth=${shrun}/${pth} #SHERPA 1.3.0 needs full path, MN 070611
 
 echo "  -> SHERPA path: '"${shr}"'"
 echo "  -> SHERPA run path: '"${shrun}"'"
@@ -230,7 +226,6 @@ echo "  -> include path: '"${inc}"'"
 echo "  -> custom data card file name: '"${cfdc}"'"
 echo "  -> custom library file name: '"${cflb}"'"
 echo "  -> custom cross section file name: '"${cfcr}"'"
-echo "  -> COMIX only flag: '"${FLGCOMIX}"'"
 echo "  -> output path: '"${fin}"'"
 
 
@@ -326,6 +321,22 @@ else
 fi
 
 
+### find out whether COMIX or AMEGIC is being used
+runfile="Run.dat"
+if [ -e ${runfile} ]; then
+  iamegic=`cat ${runfile} | grep -i "ME_SIGNAL_GENERATOR" | grep -i -c "AMEGIC"`
+  if [ ${iamegic} -gt 0 ]; then
+    FLGCOMIX="FALSE"                   # use AMEGIC
+    echo " <I> using AMEGIC ME generator"
+  else
+    FLGCOMIX="TRUE"                    # use COMIX
+    echo " <I> using COMIX ME generator"
+    lbo="LBCR"
+  fi
+fi
+###exit
+
+
 ### check required subdirectories
 ## generate/clean 'Process' subdirectory
 if [ ! -e ${dir1} ]; then
@@ -386,10 +397,9 @@ echo " <I> Sherpa executable is "${sherpaexe}
 cd ${shrun}
 if [ "${lbo}" = "LIBS" ] || [ "${lbo}" = "LBCR" ]; then
   echo " <I> creating library code..."
-  ${sherpaexe} "PATH="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_pass1.out 2>${shrun}/${outflbs}_pass1.err
+  ${sherpaexe} "PATH="${pth} "PATH_PIECE="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_pass1.out 2>${shrun}/${outflbs}_pass1.err #Sherpa 1.3.0 needs full path MN 070611
   cd ${pth}
   if [ "${FLGCOMIX}" == "FALSE" ]; then
-### (test if Sherpa is 32bit or 64bit)
   testfile=`find ${shr} -type f -name libSherpaMain.so.0.0.0`
   echo "testfile: "${testfile}
   testbit=`echo ${testfile} | grep -i -c "ELF 32"`
@@ -410,14 +420,13 @@ if [ "${lbo}" = "LIBS" ] || [ "${lbo}" = "LBCR" ]; then
   lsize=`du -sh  | cut -f 1-${nf} -d "."`
   echo " <I>  -> clean size: "${lsize}
   cd ${shrun}
-###
 fi
 
 if [ "${FLGCOMIX}" == "FALSE" ]; then
 ## second pass (save integration results)
   if [ "${lbo}" = "LBCR" ] || [ "${lbo}" = "CRSS" ]; then
     echo " <I> calculating cross sections..."
-    ${sherpaexe} "PATH="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_pass2.out 2>${shrun}/${outflbs}_pass2.err
+    ${sherpaexe} "PATH="${pth} "PATH_PIECE="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_pass2.out 2>${shrun}/${outflbs}_pass2.err #Sherpa 1.3.0 needs full path MN 070611
 #    ${sherpaexe} -p ${pth} -g -r ${pth}/${dir2} 1>${shrun}/${outflbs}_pass2.out 2>${shrun}/${outflbs}_pass2.err
     if [ -d ${dir3} ]; then
       mv ${dir3} ${pth}/
@@ -428,13 +437,13 @@ if [ "${FLGCOMIX}" == "FALSE" ]; then
 ## third pass (event generation)
   if [ "${lbo}" = "EVTS" ]; then
     echo " <I> generating events..."
-    ${sherpaexe} "PATH="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_pass3.out 2>${shrun}/${outflbs}_pass3.err
+    ${sherpaexe} "PATH="${pth} "PATH_PIECE="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_pass3.out 2>${shrun}/${outflbs}_pass3.err #Sherpa 1.3.0 needs full path MN 070611
   fi
 fi
 
 
 ## generate tar balls with data cards, libraries, cross sections, events
-cd ${shrun}/${pth}
+cd ${pth} ##Sherpa 1.3.0 needs full path MN 070611
 #MM() cd ${pth}
 
 #if [ "${lbo}" = "LBCR" ] || [ "${lbo}" = "CRSS" ]; then
@@ -447,7 +456,8 @@ if [ "${lbo}" = "LIBS" ] || [ "${lbo}" = "LBCR" ]; then
   find ./${dir1}/ -type f -name '*' -exec md5sum {} \; > ${libsmd5s}
   touch ${libsfile}.tmp
   find ./         -type f -name '*.md5' > tmp.lst && tar --no-recursion -rf ${libsfile}.tmp -T tmp.lst; rm tmp.lst
-  find ./${dir1}/ -type f -name '*'     > tmp.lst && tar --no-recursion -rf ${libsfile}.tmp -T tmp.lst; rm tmp.lst
+##  find ./${dir1}/ -type f -name '*'     > tmp.lst && tar --no-recursion -rf ${libsfile}.tmp -T tmp.lst; rm tmp.lst
+  find ./${dir1}/ -name '*'     > tmp.lst && tar --no-recursion -rf ${libsfile}.tmp -T tmp.lst; rm tmp.lst
   gzip -9 ${libsfile}.tmp && mv ${libsfile}.tmp.gz ${libsfile}
   md5sum ${libsfile} > ${libfmd5s}
   mv ${libsfile} ${shrun}/
@@ -461,9 +471,11 @@ if [ "${lbo}" = "LBCR" ] || [ "${lbo}" = "CRSS" ]; then
   find ./${dir2}/ -type f -name '*' -exec md5sum {} \; > ${crssmd5s}
   touch ${crssfile}.tmp
   find ./         -type f -name '*.md5' > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
-  find ./${dir2}/ -type f -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
+##  find ./${dir2}/ -type f -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
+  find ./${dir2}/ -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
   if [ -e ${dir3} ]; then
-  find ./${dir3}/ -type f -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
+##  find ./${dir3}/ -type f -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
+  find ./${dir3}/ -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
   fi
   gzip -9 ${crssfile}.tmp && mv ${crssfile}.tmp.gz ${crssfile}
   md5sum ${crssfile} > ${crsfmd5s}

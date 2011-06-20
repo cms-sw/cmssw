@@ -4,7 +4,7 @@
 # include "boost/shared_ptr.hpp"
 
 # include "FWCore/Framework/interface/ESProducer.h"
-# include "FWCore/Framework/interface/ESTransientHandle.h"
+# include "FWCore/Framework/interface/ESHandle.h"
 # include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 namespace edm
@@ -46,10 +46,10 @@ private:
   void fillPoints( unsigned int id, std::vector<GlobalPoint>::const_iterator begin, std::vector<GlobalPoint>::const_iterator end );
   void fillShapeAndPlacement( unsigned int id, const GeomDet *det );
   
-  edm::ESTransientHandle<GlobalTrackingGeometry> m_geomRecord;
-  edm::ESTransientHandle<CaloGeometry>           m_caloGeom;
-  const TrackerGeometry*                         m_trackerGeom;
-  boost::shared_ptr<FWRecoGeometry>              m_fwGeometry;
+  edm::ESHandle<GlobalTrackingGeometry> m_geomRecord;
+  edm::ESHandle<CaloGeometry>           m_caloGeom;
+  const TrackerGeometry*                m_trackerGeom;
+  boost::shared_ptr<FWRecoGeometry>     m_fwGeometry;
   
   unsigned int m_current;
 };

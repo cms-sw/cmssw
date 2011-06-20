@@ -1,8 +1,19 @@
 #ifndef _FWPFRHOPHIRECHIT_H_
 #define _FWPFRHOPHIRECHIT_H_
 
-#include <math.h>
+// -*- C++ -*-
+//
+// Package:     ParticleFlow
+// Class  :     FWPFRhoPhiRecHit
+// 
+// Implementation:
+//     <Notes on implementation>
+//
+// Original Author:  Simon Harris
+//
 
+// System include files
+#include <math.h>
 #include "TEveScalableStraightLineSet.h"
 #include "TEveCompound.h"
 
@@ -12,9 +23,8 @@
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 
 //-----------------------------------------------------------------------------
-// RhoPhiRecHit
+// FWPFRhoPhiRecHit
 //-----------------------------------------------------------------------------
-
 class FWPFRhoPhiRecHit
 {
    public:
@@ -23,6 +33,7 @@ class FWPFRhoPhiRecHit
                         float E, float et, double lPhi, double rPhi, std::vector<TEveVector> &bCorners );
       virtual ~FWPFRhoPhiRecHit();
 
+   // --------------------- Member Functions --------------------------
       void     updateScale( TEveScalableStraightLineSet *ls, Double_t scale, unsigned int i );
       void     updateScale( const FWViewContext *vc );
       void     addChild( FWProxyBuilderBase *pb, TEveElement *itemHolder, const FWViewContext *vc, float E, float et );
@@ -39,14 +50,15 @@ class FWPFRhoPhiRecHit
       FWPFRhoPhiRecHit( const FWPFRhoPhiRecHit& );             // Stop default copy constructor
       FWPFRhoPhiRecHit& operator=( const FWPFRhoPhiRecHit& );  // Stop default assignment operator
 
-   // ----------------------- Data Members ---------------------------
-      bool                          m_hasChild;       // Determines whether the tower has a child or not
+   // ----------------------- Data Members ----------------------------
+      bool                          m_hasChild;
       float                         m_energy;
       float                         m_et;
       Double_t                      m_lPhi;
       Double_t                      m_rPhi;
       TEveScalableStraightLineSet   *m_ls;
-      FWPFRhoPhiRecHit              *m_child;         // Pointer to child (the next stacked tower)
+      FWPFRhoPhiRecHit              *m_child; 
       std::vector<TEveVector>       m_corners;
 };
 #endif
+//=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_

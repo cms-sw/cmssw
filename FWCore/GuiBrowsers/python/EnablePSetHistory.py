@@ -438,12 +438,17 @@ def new__Sequenceable_name(self):
     return ''
 cms._Sequenceable._name = new__Sequenceable_name
 
-from FWCore.ParameterSet.SequenceTypes import _SequenceOperator, _SequenceNegation, _SequenceIgnore
+try:
+    # for backwards-compatibility with CMSSW_3_10_X
+    from FWCore.ParameterSet.SequenceTypes import _SequenceOperator
 
+    def new__SequenceOperator_name(self):
+        return str(self._left._name())+str(self._pySymbol)+str(self._right._name())
+    _SequenceOperator._name = new__SequenceOperator_name    
+except:
+    pass
 
-def new__SequenceOperator_name(self):
-    return str(self._left._name())+str(self._pySymbol)+str(self._right._name())
-_SequenceOperator._name = new__SequenceOperator_name    
+from FWCore.ParameterSet.SequenceTypes import _SequenceNegation, _SequenceIgnore
 
 def new__SequenceNegation_name(self):
     return '~'+str(self._operand._name())
@@ -488,21 +493,21 @@ def new__ModuleSequenceType_copy(self):
     return returnValue
 cms._ModuleSequenceType.copy = new__ModuleSequenceType_copy
 
-def new__ModuleSequenceType__replace(self, original, replacement):
+def new__ModuleSequenceType_replace(self, original, replacement):
     stack = auto_inspect()
     self._isModified=True
     self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'replace','old':original._name(),'new':replacement._name()})
-    self.old__replace(original, replacement)
-cms._ModuleSequenceType.old__replace = cms._ModuleSequenceType._replace
-cms._ModuleSequenceType._replace = new__ModuleSequenceType__replace
+    return self.old_replace(original, replacement)
+cms._ModuleSequenceType.old_replace = cms._ModuleSequenceType.replace
+cms._ModuleSequenceType.replace = new__ModuleSequenceType_replace
 
-def new__ModuleSequenceType__remove(self, original):
+def new__ModuleSequenceType_remove(self, original):
     stack = auto_inspect()
     self._isModified=True
     self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'remove','old':original._name(),'new':None})
-    return self.old__remove(original)
-cms._ModuleSequenceType.old__remove = cms._ModuleSequenceType._remove
-cms._ModuleSequenceType._remove = new__ModuleSequenceType__remove
+    return self.old_remove(original)
+cms._ModuleSequenceType.old_remove = cms._ModuleSequenceType.remove
+cms._ModuleSequenceType.remove = new__ModuleSequenceType_remove
 
 def new__ModuleSequenceType__imul__(self,other):
     stack = auto_inspect()

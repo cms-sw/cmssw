@@ -52,12 +52,28 @@ localReconstructionCosmics_HcalNZS = cms.Sequence(trackerCosmics*caloCosmics_Hca
 # global reco
 muonsCosmics = cms.Sequence(muonRecoGR)
 jetsCosmics = cms.Sequence(recoCaloTowersGR*recoJetsGR)
-egammaCosmics = cms.Sequence(egammarecoCosmics_woElectrons)
+egammaCosmics = cms.Sequence(egammarecoGlobal_cosmics*egammarecoCosmics_woElectrons)
 
 
 from FWCore.Modules.logErrorHarvester_cfi import *
 
 
-reconstructionCosmics         = cms.Sequence(localReconstructionCosmics*beamhaloTracksSeq*jetsCosmics*muonsCosmics*metrecoCosmics*egammaCosmics*logErrorHarvester)
-reconstructionCosmics_HcalNZS = cms.Sequence(localReconstructionCosmics_HcalNZS*beamhaloTracksSeq*jetsCosmics*muonsCosmics*metrecoCosmics*egammaCosmics*logErrorHarvester)
-reconstructionCosmics_woTkBHM = cms.Sequence(localReconstructionCosmics*jetsCosmics*muonsCosmics*metrecoCosmics*egammaCosmics)
+reconstructionCosmics         = cms.Sequence(localReconstructionCosmics*
+                                             beamhaloTracksSeq*
+                                             jetsCosmics*
+                                             muonsCosmics*
+                                             metrecoCosmics*
+                                             egammaCosmics*
+                                             logErrorHarvester)
+reconstructionCosmics_HcalNZS = cms.Sequence(localReconstructionCosmics_HcalNZS*
+                                             beamhaloTracksSeq*
+                                             jetsCosmics*
+                                             muonsCosmics*
+                                             metrecoCosmics*
+                                             egammaCosmics*
+                                             logErrorHarvester)
+reconstructionCosmics_woTkBHM = cms.Sequence(localReconstructionCosmics*
+                                             jetsCosmics*
+                                             muonsCosmics*
+                                             metrecoCosmics*
+                                             egammaCosmics)

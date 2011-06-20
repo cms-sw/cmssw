@@ -12,7 +12,7 @@
 #include "ATOOLS/Math/Random.H"
 #include "ATOOLS/Org/Exception.H"
 #include "ATOOLS/Org/Run_Parameter.H"
-#include "ATOOLS/Org/My_Root.H"
+#include "ATOOLS/Org/MyStrStream.H"
 #include "SHERPA/Tools/Input_Output_Handler.H"
 #include "SHERPA/Tools/HepMC2_Interface.H"
 
@@ -28,6 +28,7 @@ public:
   SherpaHadronizer(const edm::ParameterSet &params);
   ~SherpaHadronizer();
   
+  bool readSettings( int ) { return true; }
   bool initializeForInternalPartons();
   bool declareStableParticles(const std::vector<int> &pdgIds);
   bool declareSpecialSettings( const std::vector<std::string> ) { return true; }
@@ -89,6 +90,8 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   std::string shRun  = "./Sherpa";
   //Path where the Sherpa libraries are stored
   std::string shPath = "PATH=" + SherpaLibDir;
+  // new for Sherpa 1.3.0, suggested by authors
+  std::string shPathPiece = "PATH_PIECE=" + SherpaLibDir; 
   //Path where results are stored 
   // std::string shRes  = "RESULT_DIRECTORY=" + SherpaLibDir + "/" + SherpaResultDir; // for Sherpa <=1.1.3
   std::string shRes  = "RESULT_DIRECTORY=" + SherpaResultDir; // from Sherpa 1.2.0 on
@@ -96,14 +99,15 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   std::string shRng  = "EXTERNAL_RNG=CMS_SHERPA_RNG";
   
   //create the command line
-  char* argv[4];
+  char* argv[5];
   argv[0]=(char*)shRun.c_str();
   argv[1]=(char*)shPath.c_str();
-  argv[2]=(char*)shRes.c_str();
-  argv[3]=(char*)shRng.c_str();
+  argv[2]=(char*)shPathPiece.c_str();
+  argv[3]=(char*)shRes.c_str();
+  argv[4]=(char*)shRng.c_str();
   
   //initialize Sherpa with the command line
-  Generator.InitializeTheRun(4,argv);
+  Generator.InitializeTheRun(5,argv);
 }
 
 SherpaHadronizer::~SherpaHadronizer()
@@ -166,9 +170,19 @@ bool SherpaHadronizer::generatePartonsAndHadronize()
     //convert it to HepMC2
     SHERPA::Input_Output_Handler* ioh = Generator.GetIOHandler();
     SHERPA::HepMC2_Interface* hm2i = ioh->GetHepMC2Interface();
-    HepMC::GenEvent* evt = hm2i->GenEvent();
-    //ugly!! a hard copy, since sherpa deletes the GenEvent internal
-    resetEvent(new HepMC::GenEvent (*evt));         
+    //get the event weight from blobs
+    ATOOLS::Blob_List* blobs = Generator.GetEventHandler()-> GetBlobs();
+    ATOOLS::Blob * sp(blobs->FindFirst(ATOOLS::btp::Signal_Process));
+    double weight((*sp)["Weight"]->Get<double>());
+    //in case of unweighted events sherpa puts the max weight as event weight. 
+    //This is not optimal, we want 1 for unweighted events, so we check 
+    //whether we are producing unweighted events ("EVENT_GENERATION_MODE" == "1")
+    if ( ATOOLS::ToType<int>( ATOOLS::rpa.gen.Variable("EVENT_GENERATION_MODE") ) == 1 )
+      weight = 1.;
+    //create and empty event and then hand it to SherpaIOHandler to fill it
+    HepMC::GenEvent* evt = new HepMC::GenEvent();
+    hm2i->Sherpa2HepMC(blobs, *evt, weight);
+    resetEvent(evt);         
     return true;
   }
   else {

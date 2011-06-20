@@ -1,8 +1,8 @@
-// $Id: EventConsumerSelector.h,v 1.7 2010/12/17 18:21:04 mommsen Exp $
+// $Id: EventConsumerSelector.h,v 1.8.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: EventConsumerSelector.h 
 
-#ifndef StorageManager_EventConsumerSelector_h
-#define StorageManager_EventConsumerSelector_h
+#ifndef EventFilter_StorageManager_EventConsumerSelector_h
+#define EventFilter_StorageManager_EventConsumerSelector_h
 
 #include <boost/shared_ptr.hpp>
 
@@ -18,8 +18,8 @@ namespace stor {
    * registration info objects.
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2010/12/17 18:21:04 $
+   * $Revision: 1.8.4.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
 
   class EventConsumerSelector
@@ -31,12 +31,11 @@ namespace stor {
      * Constructs an EventConsumerSelector instance based on the
      * specified registration information.
      */
-    EventConsumerSelector( const EventConsumerRegistrationInfo* registrationInfo ):
-      _initialized( false ),
-      _stale( false ),
-      _outputModuleId( 0 ),
-      _registrationInfo( *registrationInfo ),
-      _acceptedEvents( 0 )
+    EventConsumerSelector( const EventConsRegPtr registrationInfo ):
+      initialized_( false ),
+      outputModuleId_( 0 ),
+      registrationInfo_( registrationInfo ),
+      acceptedEvents_( 0 )
     {}
 
     /**
@@ -60,47 +59,31 @@ namespace stor {
     /**
      * Returns the ID of the queue corresponding to this selector.
      */
-    QueueID const queueId() const { return _registrationInfo.queueId(); }
+    QueueID const queueId() const { return registrationInfo_->queueId(); }
 
     /**
      * Tests whether this selector has been initialized.
      */
-    bool isInitialized() const { return _initialized; }
+    bool isInitialized() const { return initialized_; }
 
     /**
-       Check if stale:
-    */
-    bool isStale() const { return _stale; }
-
-    /**
-       Mark as stale:
-    */
-    void markAsStale() { _stale = true; }
-
-    /**
-       Mark as active:
-    */
-    void markAsActive() { _stale = false; }
-
-    /**
-       Comparison:
-    */
+     *  Comparison:
+     */
     bool operator<(const EventConsumerSelector& other) const;
 
   private:
 
-    bool _initialized;
-    bool _stale;
-    unsigned int _outputModuleId;
-    const EventConsumerRegistrationInfo _registrationInfo;
-    boost::shared_ptr<TriggerSelector> _eventSelector;
-    unsigned long _acceptedEvents;
+    bool initialized_;
+    unsigned int outputModuleId_;
+    const EventConsRegPtr registrationInfo_;
+    TriggerSelectorPtr eventSelector_;
+    unsigned long acceptedEvents_;
 
   };
 
 } // namespace stor
 
-#endif // StorageManager_EventConsumerSelector_h
+#endif // EventFilter_StorageManager_EventConsumerSelector_h
 
 
 /// emacs configuration

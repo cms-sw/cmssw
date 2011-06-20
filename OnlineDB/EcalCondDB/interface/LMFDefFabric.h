@@ -50,6 +50,8 @@ class LMFDefFabric: public IDBObject {
   void debug();
   void noDebug();
 
+  void dump();
+
  protected:
 
   bool _debug;

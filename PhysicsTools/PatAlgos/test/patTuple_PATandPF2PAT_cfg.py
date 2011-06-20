@@ -3,22 +3,17 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 # the source is already defined in patTemplate_cfg.
 # overriding source and various other things
-#process.load("PhysicsTools.PFCandProducer.Sources.source_ZtoEles_DBS_312_cfi")
+#process.load("CommonTools.ParticleFlow.Sources.source_ZtoEles_DBS_312_cfi")
 #process.source = cms.Source("PoolSource", 
 #     fileNames = cms.untracked.vstring('file:myAOD.root')
 #)
 
 
-# process.load("PhysicsTools.PFCandProducer.Sources.source_ZtoMus_DBS_cfi")
+# process.load("CommonTools.ParticleFlow.Sources.source_ZtoMus_DBS_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False))
 
-# process.load("PhysicsTools.PFCandProducer.Sources.source_ZtoMus_DBS_cfi")
+# process.load("CommonTools.ParticleFlow.Sources.source_ZtoMus_DBS_cfi")
 runOnMC = True
-
-if runOnMC == False:
-    # a jet data file at CERN: 
-    process.source.fileNames = cms.untracked.vstring('rfio:////castor/cern.ch/cms/store/data/Run2010B/Jet/RECO/PromptReco-v2/000/149/294/A46DE078-05E5-DF11-88F9-0030487C7E18.root')
-
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.out.fileName = cms.untracked.string('patTuple_PATandPF2PAT.root')
@@ -45,7 +40,7 @@ usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=runOnMC, postfix=post
 #usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo2, runOnMC=True, postfix=postfix2)
 
 # to use tau-cleaned jet collection uncomment the following:
-#useTauCleanedPFJets(process, jetAlgo=jetAlgo, postfix=postfix) 
+#getattr(process,"pfNoTau"+postfix).enable = True 
 
 # to switch default tau to HPS tau uncomment the following:
 #adaptPFTaus(process,"hpsPFTau",postfix=postfix)
@@ -73,16 +68,14 @@ process.out.outputCommands = cms.untracked.vstring('drop *',
 
 
 # top projections in PF2PAT:
-
-process.pfNoPileUpPFlow.enable = True 
-process.pfNoMuonPFlow.enable = True 
-process.pfNoElectronPFlow.enable = True 
-process.pfNoTauPFlow.enable = True 
-process.pfNoJetPFlow.enable = True 
+getattr(process,"pfNoPileUp"+postfix).enable = True 
+getattr(process,"pfNoMuon"+postfix).enable = True 
+getattr(process,"pfNoElectron"+postfix).enable = True 
+getattr(process,"pfNoTau"+postfix).enable = False 
+getattr(process,"pfNoJet"+postfix).enable = True 
 
 # verbose flags for the PF2PAT modules
-
-process.pfNoMuon.verbose = True
+getattr(process,"pfNoMuon"+postfix).verbose = False
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
@@ -95,7 +88,7 @@ process.pfNoMuon.verbose = True
 #    '/store/relval/CMSSW_3_5_0_pre1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0006/14920B0A-0DE8-DE11-B138-002618943926.root'
 #   ]                                     ##  (e.g. 'file:AOD.root')
 #                                         ##
-#   process.maxEvents.input = ...         ##  (e.g. -1 to run on all events)
+#   process.maxEvents.input = 100             ##  (e.g. -1 to run on all events)
 #                                         ##
 #   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
 #                                         ##

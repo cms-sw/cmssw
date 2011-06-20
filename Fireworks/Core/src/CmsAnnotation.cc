@@ -237,6 +237,7 @@ Bool_t CmsAnnotation::Handle(TGLRnrCtx&          rnrCtx,
             delete this;
             return kTRUE;
          }
+         break;
       }
       case kMotionNotify:
       {
@@ -285,6 +286,8 @@ Bool_t CmsAnnotation::Handle(TGLRnrCtx&          rnrCtx,
          return kFALSE;
       }
    }
+
+   return false;
 }
 
 //______________________________________________________________________________

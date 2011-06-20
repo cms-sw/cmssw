@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:26 CDT 2008
-// $Id: FWLongParameterSetter.h,v 1.3 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWLongParameterSetter.h,v 1.4.20.1 2011/02/11 19:42:16 amraktad Exp $
 //
 
 // system include files
@@ -42,7 +42,7 @@ public:
 
    // ---------- member functions ---------------------------
    virtual void attach(FWParameterBase*) ;
-   virtual TGFrame* build(TGFrame* iParent) ;
+   virtual TGFrame* build(TGFrame* iParent, bool labelBack = true) ;
    void doUpdate(Long_t);
 
 private:

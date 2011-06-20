@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.54 2010/09/07 15:46:46 yana Exp $
+// $Id: CmsShowMain.h,v 1.55 2010/11/04 10:48:44 matevz Exp $
 //
 
 #include "Fireworks/Core/interface/CmsShowMainBase.h"
@@ -80,8 +80,11 @@ public:
    const fwlite::Event* getCurrentEvent() const;
    const fireworks::Context* context() const { return m_context.get(); };
 
-   void eventChangedSlot();
    void fileChangedSlot(const TFile *file);
+
+protected:
+   virtual void eventChangedImp();
+
 private:
    CmsShowMain(const CmsShowMain&); // stop default
    const CmsShowMain& operator=(const CmsShowMain&); // stop default

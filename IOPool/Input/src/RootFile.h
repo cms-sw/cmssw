@@ -28,9 +28,7 @@ RootFile.h // used by ROOT input sources
 #include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
-#include "FWCore/MessageLogger/interface/JobReport.h"
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h" // backward compatibility
-class TFile;
 
 namespace edm {
 
@@ -41,6 +39,7 @@ namespace edm {
   class ProvenanceAdaptor;
   class GroupSelectorRules;
   class EventSkipperByID;
+  class InputFile;
 
   class RootFile : private boost::noncopyable {
   public:
@@ -48,7 +47,7 @@ namespace edm {
     RootFile(std::string const& fileName,
              ProcessConfiguration const& processConfiguration,
              std::string const& logicalFileName,
-             boost::shared_ptr<TFile> filePtr,
+             boost::shared_ptr<InputFile> filePtr,
              boost::shared_ptr<EventSkipperByID> eventSkipperByID,
              bool skipAnyEvents,
              int remainingEvents,
@@ -154,7 +153,7 @@ namespace edm {
     std::string const file_;
     std::string const logicalFile_;
     ProcessConfiguration const& processConfiguration_;
-    boost::shared_ptr<TFile> filePtr_;
+    boost::shared_ptr<InputFile> filePtr_;
     boost::shared_ptr<EventSkipperByID> eventSkipperByID_;
     FileFormatVersion fileFormatVersion_;
     FileID fid_;
@@ -171,7 +170,6 @@ namespace edm {
     int whyNotFastClonable_;
     boost::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
     bool branchListIndexesUnchanged_;
-    JobReport::Token reportToken_;
     EventAuxiliary eventAux_;
     RootTree eventTree_;
     RootTree lumiTree_;

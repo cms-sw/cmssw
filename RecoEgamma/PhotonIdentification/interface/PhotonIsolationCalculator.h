@@ -124,9 +124,9 @@ public:
   double trackD0RadiusA_;
 
   int    severityLevelCut_;
-  //float  severityRecHitThreshold_;
-  //float  spikeIdThreshold_;
-  //EcalSeverityLevelAlgo::SpikeId spId_;
+  float  severityRecHitThreshold_;
+  float  spikeIdThreshold_;
+  EcalSeverityLevelAlgo::SpikeId spId_;
   std::vector<int> v_chstatus_;
 
   double photonEcalRecHitConeInnerRadiusB_;

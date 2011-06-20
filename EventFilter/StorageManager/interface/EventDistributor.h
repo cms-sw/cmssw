@@ -1,9 +1,11 @@
-// $Id: EventDistributor.h,v 1.6 2010/03/03 15:19:17 mommsen Exp $
+// $Id: EventDistributor.h,v 1.7.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: EventDistributor.h 
 
-#ifndef StorageManager_EventDistributor_h
-#define StorageManager_EventDistributor_h
+#ifndef EventFilter_StorageManager_EventDistributor_h
+#define EventFilter_StorageManager_EventDistributor_h
 
+#include "EventFilter/StorageManager/interface/DQMEventConsumerRegistrationInfo.h"
+#include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventQueueCollection.h"
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
@@ -15,11 +17,9 @@
 namespace stor {
 
   class DataSenderMonitorCollection;
-  class DQMEventConsumerRegistrationInfo;
   class DQMEventSelector;
   class ErrorStreamConfigurationInfo;
   class ErrorStreamSelector;
-  class EventConsumerRegistrationInfo;
   class EventConsumerSelector;
   class EventStreamConfigurationInfo;
   class EventStreamSelector;
@@ -37,8 +37,8 @@ namespace stor {
    * header.
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2010/03/03 15:19:17 $
+   * $Revision: 1.7.4.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
 
   class EventDistributor
@@ -63,12 +63,12 @@ namespace stor {
     /**
      * Registers a new consumer
      */
-    void registerEventConsumer( const EventConsumerRegistrationInfo* );
+    void registerEventConsumer( const EventConsRegPtr );
 
     /**
      * Registers a new DQM consumer
      */
-    void registerDQMEventConsumer( const DQMEventConsumerRegistrationInfo* );
+    void registerDQMEventConsumer( const DQMEventConsRegPtr );
 
     /**
      * Registers the full set of event streams.
@@ -119,29 +119,29 @@ namespace stor {
 
     void tagCompleteEventForQueues( I2OChain& );
 
-    SharedResourcesPtr _sharedResources;
+    SharedResourcesPtr sharedResources_;
 
     typedef boost::shared_ptr<EventStreamSelector> EvtSelPtr;
-    typedef std::set<EvtSelPtr, utils::ptr_comp<EventStreamSelector> > EvtSelList;
-    EvtSelList _eventStreamSelectors;
+    typedef std::set<EvtSelPtr, utils::ptrComp<EventStreamSelector> > EvtSelList;
+    EvtSelList eventStreamSelectors_;
 
     typedef boost::shared_ptr<DQMEventSelector> DQMEvtSelPtr;
-    typedef std::set<DQMEvtSelPtr, utils::ptr_comp<DQMEventSelector> > DQMEvtSelList;
-    DQMEvtSelList _dqmEventSelectors;
+    typedef std::set<DQMEvtSelPtr, utils::ptrComp<DQMEventSelector> > DQMEvtSelList;
+    DQMEvtSelList dqmEventSelectors_;
 
     typedef boost::shared_ptr<ErrorStreamSelector> ErrSelPtr;
-    typedef std::set<ErrSelPtr, utils::ptr_comp<ErrorStreamSelector> > ErrSelList;
-    ErrSelList _errorStreamSelectors;
+    typedef std::set<ErrSelPtr, utils::ptrComp<ErrorStreamSelector> > ErrSelList;
+    ErrSelList errorStreamSelectors_;
 
     typedef boost::shared_ptr<EventConsumerSelector> ConsSelPtr;
-    typedef std::set<ConsSelPtr, utils::ptr_comp<EventConsumerSelector> > ConsSelList;
-    ConsSelList _eventConsumerSelectors;
+    typedef std::set<ConsSelPtr, utils::ptrComp<EventConsumerSelector> > ConsSelList;
+    ConsSelList eventConsumerSelectors_;
 
   };
   
 } // namespace stor
 
-#endif // StorageManager_EventDistributor_h 
+#endif // EventFilter_StorageManager_EventDistributor_h 
 
 
 /// emacs configuration

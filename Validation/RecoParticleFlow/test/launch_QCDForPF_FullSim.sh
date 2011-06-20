@@ -1,7 +1,7 @@
 
 #!/bin/sh
 
-castorDir=/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/
+castorDir=/castor/cern.ch/user/p/pjanot/CMSSW3100pre6/
 cmsswDir=$CMSSW_BASE/src
 
 for ((job=0;job<150;job++));
@@ -40,7 +40,7 @@ rfcp reco.root $castorDir$recofilename
 
 EOF
 chmod 755 job_${name}.sh
-bsub -q 1nw80 -J $name -R "mem>2000" $PWD/job_${name}.sh
+bsub -q 1nd80 -J $name -R "mem>2000" $PWD/job_${name}.sh
 
 
 done

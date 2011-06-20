@@ -50,7 +50,7 @@ public:
    void Initialize();
 private:
    double mMinimumChargeThreshold;
-   unsigned int mTrianglePeakTS;
+   int mTrianglePeakTS;
    std::vector<double>  mCharge;  // stores charge for each TS in each digi
    // the pair is defined as (threshold, cut position)
    std::vector<std::pair<double, double> > mLambdaLinearCut;

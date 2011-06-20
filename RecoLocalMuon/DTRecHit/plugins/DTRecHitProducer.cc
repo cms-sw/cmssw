@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/08/16 07:08:19 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/01/29 13:18:06 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara
  */
 
@@ -34,7 +34,7 @@ using namespace std;
 
 DTRecHitProducer::DTRecHitProducer(const ParameterSet& config){
   // Set verbose output
-  debug = config.getUntrackedParameter<bool>("debug"); 
+  debug = config.getUntrackedParameter<bool>("debug", false); 
 
   if(debug)
     cout << "[DTRecHitProducer] Constructor called" << endl;

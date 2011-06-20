@@ -1,3 +1,147 @@
+2011-04-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-01-01
+	* Improve handling of droppedEventsCount.
+	* Merge fixes from tags V07-03-01, V07-03-02 and V07-03-03 (branch_3_10_x)
+	  into trunk.
+
+2011-04-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-01-00
+	* Merge changes from tag V07-02-01 and V07-03-00 (branch_3_10_x) into trunk.
+	* Move EventServerProxy template specialization from EventStreamHttpReader
+	  to EventServerProxy.
+	* Fully implement mergeCount and droppedEventsCount for DQM histograms and
+	  data events, respectively.
+
+2011-03-30 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-00-00
+	* Merge the new SM as of tag V07-02-00 (branch_3_10_x)
+	  into trunk.
+	* This tag requires IOPool/Streamer V07-01-00 or later.
+
+2011-04-20 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-04-00
+	* Discard DQM updates older than 16 LS. This number is configurable with
+	  'discardDQMUpdatesForOlderLS'. Setting it to 0 will disable the feature.
+	* Don't raise unwantedEvents alarm on first occurrence.
+	* Fix reporting of number of copy/inject workers in case that this number
+	  has not been determined.
+
+2011-04-18 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-03-06
+	* Hopefully correct way to cancel the ROOT TThread.
+	* Back port a couple of changes from trunk:
+	  - Improved accounting of dropped events in ConcurrentQueue
+	  - Safer handling of stream records in SM hyperdaq page
+	  - Remove consumerPriority from demoSystem config files
+	* Remove logging of state changes.
+
+2011-04-13 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-03-05
+	* Remove log message when resizing info-space vectors.
+	* Log state changes to help with debugging the stopping failures.
+
+2011-04-08 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-03-04
+	* Show total number of complete DQM updates, not average.
+	* Only resize info-space vectors when actually needed. Warn when doing so.
+
+2011-04-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-03-03
+	* Fix unit tests for modified DiscardManager.
+
+2011-04-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-03-02
+	* A couple of minor fixes.
+
+2011-04-06 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-03-01
+	* Create our own pool for discard messages instead of piggy-backing on the one
+	  from ATCP. Various minor improvements in DiscardManager and FUProxy.
+	* Add '--track-origins=yes' to valgrind options.
+
+2011-04-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-03-00
+	* Raise sentinel alarm if we get more DQM top level folder updates than
+	  we expect. Keep statistics about number of complete updates.
+
+2011-03-30 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-02-01
+	* Take DQM event time stamp from event instead of recreating it wrongly.
+
+2011-03-30 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-02-00
+	* Configurable limit on memory consumption of the fragment store.
+	* Limit queue and fragment store memory consumption to 1GB
+	  for each entity.
+
+2011-03-29 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-01-03
+	* Protect static method in DQMHttpSource with static mutex
+	* Switch from xdaq::workloop to a ROOT TThread in DQMEventStore
+	  in order to enable the ROOT thread safety.
+	* Really use UTC for time comparison test to avoid issues with DST.
+
+2011-03-28 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-01-02
+	* Fix error message in case of wrong run number in DQM events.
+
+2011-03-23 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-01-01
+	* Reduced memory footprint for init messages from V06-07-03.
+	* Improved locking logic for DQM event store.
+	* Not starting the DQM event store work-loop for non-DQM consumers.
+
+2011-03-10 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-01-00
+	* Add Srecko's option 'dropOldLumisectionEvents' to EventStreamHttpReader.
+
+2011-03-09 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-00-01
+	* Re-add 'discardedDQMEvents' quantity to infospace.
+	* A couple of minor adjustments.
+
+2011-03-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-00-00
+	* Complete rework of event server part (from SMPSdev_branch)
+	* Conform to CMSSW naming conventions.
+	* Major cleanup of code and old files.
+
+2011-02-17 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-08-00
+	* Minimal changes wrt V06-07-02 for modified
+	  IOPool/Streamer V07-01-00
+
+2011-03-22 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-07-03
+	* Don't store all unique init msg ever received.
+	  It's enough to keep the ones from the current run keyed to output module.
+
+2011-02-02 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-07-02
+	* Fix missing update of 'stateName' in the infospaces.
+
 2011-01-14 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-07-01

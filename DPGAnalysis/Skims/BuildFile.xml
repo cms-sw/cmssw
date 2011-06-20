@@ -21,6 +21,10 @@
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/MuonReco"/>
 <use   name="DataFormats/VertexReco"/>
+<use   name="DataFormats/METReco"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="DataFormats/EgammaCandidates"/>
+<use   name="DataFormats/HcalIsolatedTrack"/>
 <use   name="Geometry/RPCGeometry"/>
 <use   name="DataFormats/L1Trigger"/>
 <use   name="DataFormats/TrackerRecHit2D"/>

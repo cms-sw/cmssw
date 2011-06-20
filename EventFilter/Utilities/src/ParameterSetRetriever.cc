@@ -69,6 +69,7 @@ namespace evf{
 	int success = curl_easy_perform(han);
 	curl_slist_free_all(headers); /* free the header list */
 	curl_easy_cleanup(han);
+	han = 0;
 	if(success != 0)
 	  {
 	    ostringstream msg;
@@ -78,12 +79,17 @@ namespace evf{
 	  }
 
 	//now get path-index table 	
+	han = curl_easy_init();
+	if(han==0)
+	  {
+	    XCEPT_RAISE(evf::Exception,"could not create handle for web ParameterSet");	    
+	  }
 	headers = NULL;
 	headers = curl_slist_append(headers, "Pragma:");
 	curl_easy_setopt(han, CURLOPT_HTTPHEADER, headers);
 	if(sn.check())
 	  curl_easy_setopt(han, CURLOPT_PROXY, "localhost:3128");
-	hostname = getHostString(in,"paths");
+	hostname = getHostString(in,"path");
 	curl_easy_setopt(han, CURLOPT_URL, hostname.c_str());
 	curl_easy_setopt(han, CURLOPT_VERBOSE,"");
 	curl_easy_setopt(han, CURLOPT_NOSIGNAL,"");

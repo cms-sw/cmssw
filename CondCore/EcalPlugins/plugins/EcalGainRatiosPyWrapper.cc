@@ -16,8 +16,6 @@
 #include <string>
 #include <fstream>
 
-#include "CondCore/EcalPlugins/plugins/EcalPyWrapperFunctions.h"
-
 namespace cond {
 
   template<>
@@ -51,45 +49,12 @@ namespace cond {
     return ss.str();
 
   }
- 
-  	class EcalGainRatiosHelper: public EcalPyWrapperHelper<EcalMGPAGainRatio>{
-	public:
-		EcalGainRatiosHelper():EcalPyWrapperHelper<EcalObject>(2){}
-	protected:
-
-		//change me
-		typedef EcalMGPAGainRatio EcalObject;
-
-		type_vValues getValues( const std::vector<EcalObject> & vItems)
-		{
-			//change me
-			//unsigned int totalValues = 2; 
-
-			type_vValues vValues(total_values);
-			
-			//change us
-			vValues[0].first = "gain12Over6";
-			vValues[1].first = "gain6Over1";
-			
-			vValues[0].second = .0;
-			vValues[1].second = .0;
-			
-			//get info:
-			for(std::vector<EcalObject>::const_iterator iItems = vItems.begin(); iItems != vItems.end(); ++iItems){
-				//change us
-				vValues[0].second += iItems->gain12Over6();
-				vValues[1].second += iItems->gain6Over1();
-			}
-			return vValues;
-		}
-	};
-
+  
   template<>
   std::string PayLoadInspector<EcalGainRatios>::summary() const {
-	std::stringstream ss;
-	EcalGainRatiosHelper helper;
-	ss << helper.printBarrelsEndcaps(object().barrelItems(), object().endcapItems());
-	return ss.str();
+
+    std::stringstream ss;   
+    return ss.str();
   }
   
 
