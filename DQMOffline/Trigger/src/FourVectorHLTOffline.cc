@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.99 2011/05/04 10:20:00 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.100 2011/06/15 16:22:10 bjk Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -17,6 +17,7 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig): cu
 
   LogDebug("FourVectorHLTOffline") << "constructor...." ;
 
+  useUM = false;
   fIsSetup = false;
   fSelectedMuons = new reco::MuonCollection;
   fSelectedElectrons = new reco::GsfElectronCollection;
@@ -861,14 +862,14 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
         float ptMin = 0.0;
         float ptMax = 100.0;
 
-        if (objectType == trigger::TriggerPhoton) ptMax = 100.0;
-        if (objectType == trigger::TriggerElectron) ptMax = 100.0;
-        if (objectType == trigger::TriggerMuon) ptMax = 150.0;
-        if (objectType == trigger::TriggerTau) ptMax = 100.0;
-        if (objectType == trigger::TriggerJet) ptMax = 300.0;
+        if (objectType == trigger::TriggerPhoton) ptMax = 400.0;
+        if (objectType == trigger::TriggerElectron) ptMax = 300.0;
+        if (objectType == trigger::TriggerMuon) ptMax = 300.0;
+        if (objectType == trigger::TriggerTau) ptMax = 300.0;
+        if (objectType == trigger::TriggerJet) ptMax = 700.0;
         if (objectType == trigger::TriggerBJet) ptMax = 300.0;
-        if (objectType == trigger::TriggerMET) ptMax = 300.0;
-        if (objectType == trigger::TriggerTET) ptMax = 300.0;
+        if (objectType == trigger::TriggerMET) ptMax = 500.0;
+        if (objectType == trigger::TriggerTET) ptMax = 1000.0;
         if (objectType == trigger::TriggerTrack) ptMax = 100.0;
     
         // keep track of all paths, except for FinalPath
@@ -950,15 +951,16 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
           std::string filtername("dummy");
           float ptMin = 0.0;
           float ptMax = 100.0;
-          if (objectType == trigger::TriggerPhoton) ptMax = 100.0;
-          if (objectType == trigger::TriggerElectron) ptMax = 100.0;
-          if (objectType == trigger::TriggerMuon) ptMax = 150.0;
-          if (objectType == trigger::TriggerTau) ptMax = 100.0;
-          if (objectType == trigger::TriggerJet) ptMax = 300.0;
-          if (objectType == trigger::TriggerBJet) ptMax = 300.0;
-          if (objectType == trigger::TriggerMET) ptMax = 300.0;
-          if (objectType == trigger::TriggerTET) ptMax = 300.0;
-          if (objectType == trigger::TriggerTrack) ptMax = 100.0;
+
+        if (objectType == trigger::TriggerPhoton) ptMax = 400.0;
+        if (objectType == trigger::TriggerElectron) ptMax = 300.0;
+        if (objectType == trigger::TriggerMuon) ptMax = 300.0;
+        if (objectType == trigger::TriggerTau) ptMax = 300.0;
+        if (objectType == trigger::TriggerJet) ptMax = 700.0;
+        if (objectType == trigger::TriggerBJet) ptMax = 300.0;
+        if (objectType == trigger::TriggerMET) ptMax = 500.0;
+        if (objectType == trigger::TriggerTET) ptMax = 1000.0;
+        if (objectType == trigger::TriggerTrack) ptMax = 100.0;
   
           // monitor regardless of the objectType of the path
           if (objectType != 0) {
@@ -1122,18 +1124,38 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
     // now set up all of the histos for each path-denom
     for(PathInfoCollection::iterator v = hltPaths_.begin(); v!= hltPaths_.end(); ++v ) {
 
-      MonitorElement *NOn, *onEtOn, *onOneOverEtOn, *onEtavsonPhiOn=0;
-      MonitorElement *NOff, *offEtOff, *offEtavsoffPhiOff=0;
-      MonitorElement *NL1, *l1EtL1, *l1Etavsl1PhiL1=0;
-      MonitorElement *NL1On, *l1EtL1On, *l1Etavsl1PhiL1On=0;
-      MonitorElement *NL1Off, *offEtL1Off, *offEtavsoffPhiL1Off=0;
-      MonitorElement *NOnOff, *offEtOnOff, *offEtavsoffPhiOnOff=0;
-      MonitorElement *NL1OnUM, *l1EtL1OnUM, *l1Etavsl1PhiL1OnUM=0;
-      MonitorElement *NL1OffUM, *offEtL1OffUM, *offEtavsoffPhiL1OffUM=0;
-      MonitorElement *NOnOffUM, *offEtOnOffUM, *offEtavsoffPhiOnOffUM=0;
-      MonitorElement *offDRL1Off, *offDROnOff, *l1DRL1On=0;
+      MonitorElement *NOn=0; 
+      MonitorElement   *onEtOn=0; 
+      MonitorElement   *onOneOverEtOn=0; 
+      MonitorElement   *onEtavsonPhiOn=0;
+      MonitorElement *NOff=0; 
+      MonitorElement   *offEtOff=0; 
+      MonitorElement   *offEtavsoffPhiOff=0;
+      MonitorElement *NL1=0; 
+      MonitorElement   *l1EtL1=0; 
+      MonitorElement   *l1Etavsl1PhiL1=0;
+      MonitorElement *NL1On=0; 
+      MonitorElement   *l1EtL1On=0; 
+      MonitorElement   *l1Etavsl1PhiL1On=0;
+      MonitorElement *NL1Off=0; 
+      MonitorElement   *offEtL1Off=0; 
+      MonitorElement   *offEtavsoffPhiL1Off=0;
+      MonitorElement *NOnOff=0; 
+      MonitorElement   *offEtOnOff=0; 
+      MonitorElement   *offEtavsoffPhiOnOff=0;
+      MonitorElement *NL1OnUM=0; 
+      MonitorElement   *l1EtL1OnUM=0; 
+      MonitorElement   *l1Etavsl1PhiL1OnUM=0;
+      MonitorElement *NL1OffUM=0; 
+      MonitorElement   *offEtL1OffUM=0; 
+      MonitorElement   *offEtavsoffPhiL1OffUM=0;
+      MonitorElement *NOnOffUM=0; 
+      MonitorElement   *offEtOnOffUM=0; 
+      MonitorElement   *offEtavsoffPhiOnOffUM=0;
+      MonitorElement *offDRL1Off=0; 
+      MonitorElement   *offDROnOff=0; 
+      MonitorElement   *l1DRL1On=0;
       
-
       std::string pathName = removeVersions(v->getPath());
       std::string labelname("dummy");
       labelname = pathName + "_wrt_" + v->getDenomPath();
@@ -1202,20 +1224,6 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
        title = labelname+" N OnOff";
        NOnOff =  dbe->book1D(histoname.c_str(), title.c_str(),10, 0.5, 10.5);
        
-       
-       histoname = labelname+"_NL1OnUM";
-       title = labelname+" N L1OnUM";
-       NL1OnUM =  dbe->book1D(histoname.c_str(), title.c_str(),10, 0.5, 10.5);
-       
-       histoname = labelname+"_NL1OffUM";
-       title = labelname+" N L1OffUM";
-       NL1OffUM =  dbe->book1D(histoname.c_str(), title.c_str(),10, 0.5, 10.5);
-       
-       histoname = labelname+"_NOnOffUM";
-       title = labelname+" N OnOffUM";
-       NOnOffUM =  dbe->book1D(histoname.c_str(), title.c_str(),10, 0.5, 10.5);
-       
-       
        histoname = labelname+"_onEtOn";
        title = labelname+" onE_t online";
        onEtOn =  dbe->book1D(histoname.c_str(), title.c_str(),nBins_, v->getPtMin(), v->getPtMax());
@@ -1269,32 +1277,49 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
        title = labelname+" off#eta vs off#phi online+offline";
        offEtavsoffPhiOnOff =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D_,-histEtaMax,histEtaMax, nBins2D_,-TMath::Pi(), TMath::Pi());
        
-       histoname = labelname+"_l1EtL1OnUM";
-       title = labelname+" l1E_t L1+onlineUM";
-       l1EtL1OnUM =  dbe->book1D(histoname.c_str(), title.c_str(),nBins_, v->getPtMin(), v->getPtMax());
+
+
+       if (useUM) {
+
+	 histoname = labelname+"_NL1OnUM";
+	 title = labelname+" N L1OnUM";
+	 NL1OnUM =  dbe->book1D(histoname.c_str(), title.c_str(),10, 0.5, 10.5);
+	 
+	 histoname = labelname+"_NL1OffUM";
+	 title = labelname+" N L1OffUM";
+	 NL1OffUM =  dbe->book1D(histoname.c_str(), title.c_str(),10, 0.5, 10.5);
+	 
+	 histoname = labelname+"_NOnOffUM";
+	 title = labelname+" N OnOffUM";
+	 NOnOffUM =  dbe->book1D(histoname.c_str(), title.c_str(),10, 0.5, 10.5);
+	 
+	 histoname = labelname+"_l1EtL1OnUM";
+	 title = labelname+" l1E_t L1+onlineUM";
+	 l1EtL1OnUM =  dbe->book1D(histoname.c_str(), title.c_str(),nBins_, v->getPtMin(), v->getPtMax());
+	 
+	 histoname = labelname+"_offEtL1OffUM";
+	 title = labelname+" offE_t L1+offlineUM";
+	 offEtL1OffUM =  dbe->book1D(histoname.c_str(), title.c_str(),nBins_, v->getPtMin(), v->getPtMax());
+	 
+	 histoname = labelname+"_offEtOnOffUM";
+	 title = labelname+" offE_t online+offlineUM";
+	 offEtOnOffUM =  dbe->book1D(histoname.c_str(), title.c_str(),nBins_, v->getPtMin(), v->getPtMax());
+	 
+	 histoname = labelname+"_l1Etal1PhiL1OnUM";
+	 title = labelname+" l1#eta vs l1#phi L1+onlineUM";
+	 l1Etavsl1PhiL1OnUM =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D_,-histEtaMax,histEtaMax, nBins2D_,-TMath::Pi(), TMath::Pi());
+	 
+	 histoname = labelname+"_offEtaoffPhiL1OffUM";
+	 title = labelname+" off#eta vs off#phi L1+offlineUM";
+	 offEtavsoffPhiL1OffUM =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D_,-histEtaMax,histEtaMax, nBins2D_,-TMath::Pi(), TMath::Pi());
+	 
+	 histoname = labelname+"_offEtaoffPhiOnOffUM";
+	 title = labelname+" off#eta vs off#phi online+offlineUM";
+	 offEtavsoffPhiOnOffUM =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D_,-histEtaMax,histEtaMax, nBins2D_,-TMath::Pi(), TMath::Pi());
+	 
+       }    
        
-       histoname = labelname+"_offEtL1OffUM";
-       title = labelname+" offE_t L1+offlineUM";
-       offEtL1OffUM =  dbe->book1D(histoname.c_str(), title.c_str(),nBins_, v->getPtMin(), v->getPtMax());
-       
-       histoname = labelname+"_offEtOnOffUM";
-       title = labelname+" offE_t online+offlineUM";
-       offEtOnOffUM =  dbe->book1D(histoname.c_str(), title.c_str(),nBins_, v->getPtMin(), v->getPtMax());
-       
-       histoname = labelname+"_l1Etal1PhiL1OnUM";
-       title = labelname+" l1#eta vs l1#phi L1+onlineUM";
-       l1Etavsl1PhiL1OnUM =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D_,-histEtaMax,histEtaMax, nBins2D_,-TMath::Pi(), TMath::Pi());
-       
-       histoname = labelname+"_offEtaoffPhiL1OffUM";
-       title = labelname+" off#eta vs off#phi L1+offlineUM";
-       offEtavsoffPhiL1OffUM =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D_,-histEtaMax,histEtaMax, nBins2D_,-TMath::Pi(), TMath::Pi());
-       
-       histoname = labelname+"_offEtaoffPhiOnOffUM";
-       title = labelname+" off#eta vs off#phi online+offlineUM";
-       offEtavsoffPhiOnOffUM =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D_,-histEtaMax,histEtaMax, nBins2D_,-TMath::Pi(), TMath::Pi());
-       
-       
-       
+
        
        histoname = labelname+"_l1DRL1On";
        title = labelname+" l1DR L1+online";
