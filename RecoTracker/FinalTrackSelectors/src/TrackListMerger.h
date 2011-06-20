@@ -10,17 +10,15 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: vlimant $
-// $Date: 2011/05/24 17:51:18 $
-// $Revision: 1.3 $
+// $Author: dlange $
+// $Date: 2011/06/01 03:02:04 $
+// $Revision: 1.4 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
-#include "DataFormats/Common/interface/EDProduct.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
