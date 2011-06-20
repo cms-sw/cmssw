@@ -63,8 +63,22 @@ class TrackWeightInVertex : public std::unary_function<double, reco::VertexRef>
 
 RecoTauVertexAssociator::RecoTauVertexAssociator(
     const edm::ParameterSet& pset) {
-  vertexTag_ = pset.getParameter<edm::InputTag>("primaryVertexSrc");
-  std::string algorithm = pset.getParameter<std::string>("pvFindingAlgo");
+
+  vertexTag_ = edm::InputTag("offlinePrimaryVertices", "");
+  std::string algorithm = "highestPtInEvent";
+
+  // Sanity check, will remove once HLT module configs are updated.
+  if (!pset.exists("primaryVertexSrc") || !pset.exists("pvFindingAlgo")) {
+    edm::LogWarning("NoVertexFindingMethodSpecified") 
+      << "The PSet passed to the RecoTauVertexAssociator was"
+      << " incorrectly configured. The vertex will be taken as the "
+      << "highest Pt vertex from the offlinePrimaryVertices collection."
+      << std::endl;
+  } else {
+    vertexTag_ = pset.getParameter<edm::InputTag>("primaryVertexSrc");
+    algorithm = pset.getParameter<std::string>("pvFindingAlgo");
+  }
+
   if (algorithm == "highestPtInEvent") {
     algo_ = kHighestPtInEvent;
   } else if (algorithm == "closestInDeltaZ") {
