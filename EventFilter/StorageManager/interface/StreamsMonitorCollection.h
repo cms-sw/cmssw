@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.h,v 1.13 2011/04/14 12:52:48 mommsen Exp $
+// $Id: StreamsMonitorCollection.h,v 1.14 2011/06/20 09:07:22 mommsen Exp $
 /// @file: StreamsMonitorCollection.h 
 
 #ifndef EventFilter_StorageManager_StreamsMonitorCollection_h
@@ -28,8 +28,8 @@ namespace stor {
    * A collection of MonitoredQuantities of output streams
    *
    * $Author: mommsen $
-   * $Revision: 1.13 $
-   * $Date: 2011/04/14 12:52:48 $
+   * $Revision: 1.14 $
+   * $Date: 2011/06/20 09:07:22 $
    */
   
   class StreamsMonitorCollection : public MonitorCollection
@@ -78,6 +78,26 @@ namespace stor {
     typedef std::vector<StreamRecordPtr> StreamRecordList;
 
 
+    struct EndOfRunReport
+    {
+      EndOfRunReport() { reset(); }
+
+      void reset()
+      { latestLumiSectionWritten = eolsCount = lsCountWithFiles = 0; }
+
+      void updateForLumiSection(uint32_t ls)
+      {
+        ++lsCountWithFiles;
+        if (ls > latestLumiSectionWritten) latestLumiSectionWritten = ls;
+      }
+
+      uint32_t latestLumiSectionWritten;
+      unsigned int eolsCount;
+      unsigned int lsCountWithFiles;
+    };
+    typedef boost::shared_ptr<EndOfRunReport> EndOfRunReportPtr;
+
+
     explicit StreamsMonitorCollection(const utils::Duration_t& updateInterval);
 
     StreamRecordPtr getNewStreamRecord();
@@ -107,7 +127,7 @@ namespace stor {
       return allStreamsBandwidth_;
     }
 
-    uint32_t reportAllLumiSectionInfos(DbFileHandlerPtr);
+    void reportAllLumiSectionInfos(DbFileHandlerPtr, EndOfRunReportPtr);
 
 
   private:

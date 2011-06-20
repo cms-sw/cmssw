@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.cc,v 1.18 2011/04/21 14:00:05 mommsen Exp $
+// $Id: StreamsMonitorCollection.cc,v 1.19 2011/06/20 09:07:21 mommsen Exp $
 /// @file: StreamsMonitorCollection.cc
 
 #include <string>
@@ -107,12 +107,14 @@ namespace stor {
   }
   
   
-  uint32_t StreamsMonitorCollection::reportAllLumiSectionInfos(DbFileHandlerPtr dbFileHandler)
+  void StreamsMonitorCollection::reportAllLumiSectionInfos
+  (
+    DbFileHandlerPtr dbFileHandler,
+    EndOfRunReportPtr endOfRunReport
+  )
   {
     boost::mutex::scoped_lock sl(streamRecordsMutex_);
 
-    uint32_t latestUnreportedLumiSection = 0;
-    
     UnreportedLS unreportedLS;
     getListOfAllUnreportedLS(unreportedLS);
     
@@ -130,11 +132,8 @@ namespace stor {
       }
       lsEntry += "\tEoLS:0";
       dbFileHandler->write(lsEntry);
-
-      if ( (*it) > latestUnreportedLumiSection )
-        latestUnreportedLumiSection = *it;
+      endOfRunReport->updateForLumiSection(*it);
     }
-    return latestUnreportedLumiSection;
   }
   
   

@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.28 2011/06/01 11:06:10 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.29 2011/06/20 09:07:21 mommsen Exp $
 /// @file: DiskWriter.cc
 
 #include <algorithm>
@@ -26,8 +26,8 @@ namespace stor {
   sharedResources_(sr),
   dbFileHandler_(new DbFileHandler()),
   runNumber_(0),
-  latestLumiSectionWritten_(0),
   lastFileTimeoutCheckTime_(utils::getCurrentTime()),
+  endOfRunReport_(new StreamsMonitorCollection::EndOfRunReport()),
   actionIsActive_(true)
   {
     WorkerThreadParams workerParams =
@@ -295,33 +295,19 @@ namespace stor {
     StreamsMonitorCollection& smc =
       sharedResources_->statisticsReporter_->getStreamsMonitorCollection();
     
-    uint32_t latestUnreportedLumiSection = smc.reportAllLumiSectionInfos(dbFileHandler_);
-
-    if ( latestUnreportedLumiSection > latestLumiSectionWritten_ )
-      latestLumiSectionWritten_ = latestUnreportedLumiSection;
+    smc.reportAllLumiSectionInfos(dbFileHandler_, endOfRunReport_);
   }
   
   
   void DiskWriter::writeEndOfRunMarker()
   {
-    RunMonitorCollection& rmc =
-      sharedResources_->statisticsReporter_->getRunMonitorCollection();
-    // Make sure we report the latest values
-    rmc.calculateStatistics(utils::getCurrentTime());
-    
-    MonitoredQuantity::Stats lumiSectionsSeenStats;
-    rmc.getLumiSectionsSeenMQ().getStats(lumiSectionsSeenStats);
-    MonitoredQuantity::Stats eolsSeenStats;
-    rmc.getEoLSSeenMQ().getStats(eolsSeenStats);
-    
     std::ostringstream str;
-    str << "LScount:" << lumiSectionsSeenStats.getSampleCount()
-      << "\tEoLScount:" << eolsSeenStats.getSampleCount()
-      << "\tLastLumi:" << latestLumiSectionWritten_
+    str << "LScount:" << endOfRunReport_->lsCountWithFiles
+      << "\tEoLScount:" << endOfRunReport_->eolsCount
+      << "\tLastLumi:" << endOfRunReport_->latestLumiSectionWritten
       << "\tEoR";
     dbFileHandler_->write(str.str());
-
-    latestLumiSectionWritten_ = 0;
+    endOfRunReport_->reset();
   }
   
   
@@ -340,9 +326,8 @@ namespace stor {
     }
     fileCountStr += "\tEoLS:1";
     dbFileHandler_->write(fileCountStr);
-
-    if ( lumiSection > latestLumiSectionWritten_ )
-      latestLumiSectionWritten_ = lumiSection;
+    endOfRunReport_->updateForLumiSection(lumiSection);
+    ++(endOfRunReport_->eolsCount);
   }
   
 } // namespace stor

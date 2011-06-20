@@ -1,4 +1,4 @@
-// $Id: DiskWriter.h,v 1.13 2011/03/07 15:31:31 mommsen Exp $
+// $Id: DiskWriter.h,v 1.14 2011/06/20 09:07:22 mommsen Exp $
 /// @file: DiskWriter.h 
 
 #ifndef EventFilter_StorageManager_DiskWriter_h
@@ -19,6 +19,7 @@
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
+#include "EventFilter/StorageManager/interface/StreamsMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
 
 
@@ -34,8 +35,8 @@ namespace stor {
    * to the appropriate stream file(s) on disk. 
    *
    * $Author: mommsen $
-   * $Revision: 1.13 $
-   * $Date: 2011/03/07 15:31:31 $
+   * $Revision: 1.14 $
+   * $Date: 2011/06/20 09:07:22 $
    */
   
   class DiskWriter : public toolbox::lang::Class
@@ -146,13 +147,14 @@ namespace stor {
     const DbFileHandlerPtr dbFileHandler_;
 
     unsigned int runNumber_;
-    uint32_t latestLumiSectionWritten_;
     boost::posix_time::time_duration timeout_; // Timeout on stream queue
     utils::TimePoint_t lastFileTimeoutCheckTime_; // Last time we checked for time-out files
 
     typedef boost::shared_ptr<StreamHandler> StreamHandlerPtr;
     typedef std::vector<StreamHandlerPtr> StreamHandlers;
     StreamHandlers streamHandlers_;
+
+    StreamsMonitorCollection::EndOfRunReportPtr endOfRunReport_;
 
     bool actionIsActive_;
     toolbox::task::WorkLoop* writingWL_;      
