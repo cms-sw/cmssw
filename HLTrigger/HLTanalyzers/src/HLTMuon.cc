@@ -68,8 +68,11 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 	muonl3chg = new int[kMaxMuonL3];
 	muonl3pterr = new float[kMaxMuonL3];
 	muonl3iso = new int[kMaxMuonL3];
-        muonl3nhits = new int[kMaxMuonL3]; 
-	muonl32idx = new int[kMaxMuonL3];
+        muonl3nhits = new int[kMaxMuonL3];
+	muonl3normchi2 = new float[kMaxMuonL3];
+	muonl3ntrackerhits = new int[kMaxMuonL3];
+	muonl3nmuonhits = new int[kMaxMuonL3];
+ 	muonl32idx = new int[kMaxMuonL3];
 	const int kMaxOniaPixel = 500;
 	oniaPixelpt = new float[kMaxOniaPixel];
 	oniaPixelphi = new float[kMaxOniaPixel];
@@ -155,6 +158,9 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 	HltTree->Branch("ohMuL3Dz",muonl3dz,"ohMuL3Dz[NohMuL3]/F");
 	HltTree->Branch("ohMuL3VtxZ",muonl3vtxz,"ohMuL3VtxZ[NohMuL3]/F");
         HltTree->Branch("ohMuL3Nhits",muonl3nhits,"ohMuL3Nhits[NohMuL3]/I");    
+        HltTree->Branch("ohMuL3NormChi2", muonl3normchi2, "ohMuL3NormChi2[NohMuL3]/F");
+        HltTree->Branch("ohMuL3Ntrackerhits", muonl3ntrackerhits, "ohMuL3Ntrackerhits[NohMuL3]/I"); 
+        HltTree->Branch("ohMuL3Nmuonhits", muonl3nmuonhits, "ohMuL3Nmuonhits[NohMuL3]/I"); 
 	HltTree->Branch("ohMuL3L2idx",muonl32idx,"ohMuL3L2idx[NohMuL3]/I");
 	HltTree->Branch("NohOniaPixel",&nOniaPixelCand,"NohOniaPixel/I");
 	HltTree->Branch("ohOniaPixelPt",oniaPixelpt,"ohOniaPixelPt[NohOniaPixel]/F");
@@ -431,6 +437,10 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
 			// We use the charge in some dimuon paths
 			muonl3pterr[imu3c] = l3_err0/l3_abspar0;
 			muonl3chg[imu3c] = tk->charge();
+
+			muonl3normchi2[imu3c] = tk->normalizedChi2();
+			muonl3ntrackerhits[imu3c] = tk->hitPattern().numberOfValidTrackerHits();
+			muonl3nmuonhits[imu3c] = tk->hitPattern().numberOfValidMuonHits();
 
 			if (isoMap3.isValid()){
 				// Isolation flag (this is a bool value: true => isolated)
