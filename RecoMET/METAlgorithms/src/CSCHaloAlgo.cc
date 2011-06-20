@@ -471,7 +471,6 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 					    << " variables used for halo identification will not be calculated or stored";
      }
    TheCSCHaloData.SetNOutOfTimeHits(n_recHitsP+n_recHitsM);
-
    // MLR
    // Loop through CSCSegments and count the number of "flat" segments with the same (r,phi),
    // saving the value in TheCSCHaloData.
@@ -479,6 +478,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
    bool plus_endcap = false;
    bool minus_endcap = false;
    bool both_endcaps = false;
+   float r = 0., phi = 0.;
    if (TheCSCSegments.isValid()) {
      for(CSCSegmentCollection::const_iterator iSegment = TheCSCSegments->begin();
          iSegment != TheCSCSegments->end();
@@ -497,9 +497,12 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
        float iPhi = iGlobalPosition.phi();
        float iR =  TMath::Sqrt(iGlobalPosition.x()*iGlobalPosition.x() + iGlobalPosition.y()*iGlobalPosition.y());
        short int nSegs = 0;
-       for (CSCSegmentCollection::const_iterator jSegment = iSegment + 1;
+
+       // Changed to loop over all Segments (so N^2) to catch as many segments as possible.
+       for (CSCSegmentCollection::const_iterator jSegment = TheCSCSegments->begin();
          jSegment != TheCSCSegments->end();
          jSegment++) {
+	 if (jSegment == iSegment) continue;
 	 LocalPoint jLocalPosition = jSegment->localPosition();
 	 LocalVector jLocalDirection = jSegment->localDirection();
 	 CSCDetId jCscDetID = jSegment->cscDetId();
@@ -508,6 +511,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	 float jTheta = jGlobalDirection.theta();
 	 float jPhi = jGlobalPosition.phi();
 	 float jR =  TMath::Sqrt(jGlobalPosition.x()*jGlobalPosition.x() + jGlobalPosition.y()*jGlobalPosition.y());
+	   
 	 if (TMath::ACos(TMath::Cos(jPhi - iPhi)) <= max_segment_phi_diff 
 	     && TMath::Abs(jR - iR) <= max_segment_r_diff 
 	     && (jTheta < max_segment_theta || jTheta > TMath::Pi() - max_segment_theta)) {
@@ -516,13 +520,17 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	   plus_endcap = iGlobalPosition.z() > 0 || jGlobalPosition.z() > 0;
 	 }
        }
+       // Correct the fact that the way nSegs counts will always be short by 1
+       if (nSegs > 0) nSegs++;
        if (nSegs > maxNSegments) {
+	 // Use value of r, phi to collect halo CSCSegments for examining timing (not coded yet...)
+	 r = iR;
+	 phi = iPhi;
 	 maxNSegments = nSegs;
-	 both_endcaps = minus_endcap && plus_endcap;
+	 both_endcaps = both_endcaps ? both_endcaps : minus_endcap && plus_endcap;
        }
      }
    }
-
    TheCSCHaloData.SetNFlatHaloSegments(maxNSegments);
    TheCSCHaloData.SetSegmentsBothEndcaps(both_endcaps);
    // End MLR
