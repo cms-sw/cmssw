@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.65 2011/02/11 16:56:58 babar Exp $
+# $Id: InjectWorker.pl,v 1.66 2011/02/17 16:10:42 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -323,10 +323,10 @@ sub setup_main_db {
     $sql =
         "insert into CMS_STOMGR.STREAMS "
       . "(RUNNUMBER, LUMISECTION, STREAM, INSTANCE,"
-      . " CTIME,                      FILECOUNT)"
+      . " CTIME,                      FILECOUNT, EOLS)"
       . " values "
       . "(        ?,           ?,      ?,        ?,"
-      . " TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'), ?)";
+      . " TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'), ?,    ?)";
     $sths->{endOfLumi} = $heap->{dbh}->prepare($sql)
       or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
 
@@ -806,14 +806,14 @@ sub got_end_of_run {
 sub got_end_of_lumi {
     my ( $kernel, $heap, $args ) = @_[ KERNEL, HEAP, ARG0 ];
     for my $stream (
-        sort grep { !/^(?:Timestamp|run|LS|instance|host|_.*)$/ }
+        sort grep { !/^(?:Timestamp|run|LS|instance|host|EoLS|_.*)$/ }
         keys %$args
       )
     {
         my %localArgs = ( %$args, stream => $stream );
         $kernel->yield(
             update_db => \%localArgs,
-            endOfLumi => qw( run LS stream instance Timestamp ),
+            endOfLumi => qw( run LS stream instance Timestamp EoLS ),
             $stream
         );
     }
