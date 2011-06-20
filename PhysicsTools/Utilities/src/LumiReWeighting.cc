@@ -1039,7 +1039,16 @@ double LumiReWeighting::weightOOT( const edm::EventBase &e ) {
   // "late" bunch (BX=+1), since that is basically the only one that matters in terms of 
   // energy deposition.  
 
-  if(npv < 0) std::cerr << " no in-time beam crossing found\n! " ;
+  if(npv < 0) {
+    std::cerr << " no in-time beam crossing found\n! " ;
+    std::cerr << " Returning event weight=0\n! ";
+    return 0.;
+  }
+  if(npv50ns < 0) {
+    std::cerr << " no out-of-time beam crossing found\n! " ;
+    std::cerr << " Returning event weight=0\n! ";
+    return 0.;
+  }
 
   int bin = weights_->GetXaxis()->FindBin( npv );
 
@@ -1048,7 +1057,7 @@ double LumiReWeighting::weightOOT( const edm::EventBase &e ) {
   double TotalWeight = 1.0;
 
   if(Reweight_4_2_2p2_) {
-    TotalWeight = inTimeWeight * WeightOOTPU_[bin-1][npv50ns-1] * Correct_Weights2011[bin-1];
+    TotalWeight = inTimeWeight * WeightOOTPU_[bin-1][npv50ns] * Correct_Weights2011[bin-1];
   }
   else {
     TotalWeight = inTimeWeight;
