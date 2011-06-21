@@ -99,17 +99,20 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
   edm::Handle<edm::DetSetVector<SiStripProcessedRawDigi> > rawProcessedDigis;
   iEvent.getByLabel("siStripProcessedRawDigis", "", rawProcessedDigis);
-  
-  BOOST_FOREACH( const edmNew::DetSet<SiStripCluster> ds, *clusters) {
-    const moduleVars moduleV(ds.detId());
-    BOOST_FOREACH( const SiStripCluster cluster, ds) {
-      const SiStripClusterInfo info(cluster, iSetup);
+ 
+  edmNew::DetSetVector<SiStripCluster>::const_iterator itClusters=clusters->begin();
+  for(;itClusters!=clusters->end();++itClusters){
+    uint32_t id = itClusters->id();
+    const moduleVars moduleV(id);
+    for(edmNew::DetSet<SiStripCluster>::const_iterator cluster=itClusters->begin(); cluster!=itClusters->end();++cluster){
+      
+      const SiStripClusterInfo info(*cluster, iSetup, id);
       const NearDigis digis = rawProcessedDigis.isValid() ? NearDigis(info, *rawProcessedDigis) : NearDigis(info);
 
       (number->at(0))++;
       (number->at(moduleV.subdetid))++;
-      width->push_back(        cluster.amplitudes().size()                              );
-      barystrip->push_back(    cluster.barycenter()                                     );
+      width->push_back(        cluster->amplitudes().size()                              );
+      barystrip->push_back(    cluster->barycenter()                                     );
       variance->push_back(     info.variance()                                         );
       middlestrip->push_back(  info.firstStrip() + info.width()/2.0                    );
       charge->push_back(       info.charge()                                           );
@@ -134,7 +137,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       neweta->push_back(       (digis.last-digis.first)/info.charge() );
       newetaerr->push_back(    (sqrt(digis.last+digis.first))/pow(info.charge(),1.5) );
 
-      detid->push_back(            ds.detId()            );                
+      detid->push_back(            id                 );                
       subdetid->push_back(         moduleV.subdetid      );          
       side->push_back(             moduleV.side          );                  
       module->push_back(           moduleV.module        );              
