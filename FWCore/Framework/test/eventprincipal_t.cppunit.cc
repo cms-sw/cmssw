@@ -194,7 +194,7 @@ void test_ep::setUp() {
     boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pProductRegistry_, *process));
     boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, now, now));
     boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pProductRegistry_, *process, rp));
-    std::auto_ptr<edm::EventAuxiliary> eventAux(new edm::EventAuxiliary(eventID_, uuid, now, true));
+    edm::EventAuxiliary eventAux(eventID_, uuid, now, true);
     pEvent_.reset(new edm::EventPrincipal(pProductRegistry_, *process));
     pEvent_->fillEventPrincipal(eventAux, lbp);
     pEvent_->put(branchFromRegistry, product, prov);

@@ -1278,10 +1278,8 @@ namespace edm {
     fillHistory();
     overrideRunNumber(eventAux_.id(), eventAux().isRealData());
 
-    std::auto_ptr<EventAuxiliary> aux(new EventAuxiliary(eventAux()));
-
     // We're not done ... so prepare the EventPrincipal
-    cache.fillEventPrincipal(aux,
+    cache.fillEventPrincipal(eventAux(),
                              lb,
                              eventSelectionIDs_,
                              branchListIndexes_,

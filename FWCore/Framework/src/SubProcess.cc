@@ -160,8 +160,8 @@ namespace edm {
 
   void
   SubProcess::write(EventPrincipal const& principal) {
-    std::auto_ptr<EventAuxiliary> aux(new EventAuxiliary(principal.aux()));
-    aux->setProcessHistoryID(principal.processHistoryID());
+    EventAuxiliary aux(principal.aux());
+    aux.setProcessHistoryID(principal.processHistoryID());
     EventPrincipal& ep = principalCache_.eventPrincipal();
     ep.fillEventPrincipal(aux,
                           principalCache_.lumiPrincipalPtr(),

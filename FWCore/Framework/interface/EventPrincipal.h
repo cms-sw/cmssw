@@ -47,7 +47,7 @@ namespace edm {
         ProcessConfiguration const& pc);
     ~EventPrincipal() {}
 
-    void fillEventPrincipal(std::auto_ptr<EventAuxiliary> aux,
+    void fillEventPrincipal(EventAuxiliary const& aux,
         boost::shared_ptr<LuminosityBlockPrincipal> lbp,
         boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs = boost::shared_ptr<EventSelectionIDVector>(),
         boost::shared_ptr<BranchListIndexes> branchListIndexes = boost::shared_ptr<BranchListIndexes>(),
@@ -89,7 +89,7 @@ namespace edm {
     }
 
     EventAuxiliary const& aux() const {
-      return *aux_;
+      return aux_;
     }
 
     LuminosityBlockNumber_t luminosityBlock() const {
@@ -145,7 +145,7 @@ namespace edm {
 
   private:
 
-    boost::scoped_ptr<EventAuxiliary> aux_;
+    EventAuxiliary aux_;
 
     boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal_;
 

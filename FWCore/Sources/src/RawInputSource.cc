@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RawInputSource.cc,v 1.27 2009/09/23 23:33:07 wmtan Exp $
+$Id: RawInputSource.cc,v 1.28 2010/09/01 16:29:04 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Sources/interface/RawInputSource.h"
@@ -60,8 +60,7 @@ namespace edm {
       setLumiPrematurelyRead();
     }
     EventSourceSentry sentry(*this);
-    std::auto_ptr<EventAuxiliary> aux(new EventAuxiliary(EventID(run, lumi, event),
-      processGUID(), tstamp, true, EventAuxiliary::PhysicsTrigger));
+    EventAuxiliary aux(EventID(run, lumi, event), processGUID(), tstamp, true, EventAuxiliary::PhysicsTrigger);
     eventPrincipalCache()->fillEventPrincipal(aux, luminosityBlockPrincipal());
     eventCached_ = true;
     std::auto_ptr<Event> e(new Event(*eventPrincipalCache(), moduleDescription()));

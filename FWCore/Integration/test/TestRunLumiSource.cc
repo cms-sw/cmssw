@@ -62,7 +62,7 @@ namespace edm {
 
     EventID id(run, lbp2->luminosityBlock(), event);
     currentIndex_ += 3;
-    std::auto_ptr<EventAuxiliary> eventAux(new EventAuxiliary(id, processGUID(), ts, false));
+    EventAuxiliary eventAux(id, processGUID(), ts, false);
     EventPrincipal* result(new EventPrincipal(productRegistry(), processConfiguration()));
     result->fillEventPrincipal(eventAux, lbp2);
     return result;

@@ -31,7 +31,7 @@ namespace edm {
   void
   EventPrincipal::clearEventPrincipal() {
     clearPrincipal();
-    aux_.reset();
+    aux_ = EventAuxiliary();
     luminosityBlockPrincipal_.reset();
     unscheduledHandler_.reset();
     moduleLabelsRunning_.clear();
@@ -41,21 +41,21 @@ namespace edm {
   }
 
   void
-  EventPrincipal::fillEventPrincipal(std::auto_ptr<EventAuxiliary> aux,
+  EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,
         boost::shared_ptr<LuminosityBlockPrincipal> lbp,
         boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs,
         boost::shared_ptr<BranchListIndexes> branchListIndexes,
         boost::shared_ptr<BranchMapper> mapper,
         boost::shared_ptr<DelayedReader> rtrv) {
-    fillPrincipal(aux->processHistoryID(), mapper, rtrv);
-    aux_.reset(aux.release());
+    fillPrincipal(aux.processHistoryID(), mapper, rtrv);
+    aux_ = aux;
     luminosityBlockPrincipal_ = lbp;
     if(eventSelectionIDs) {
       eventSelectionIDs_ = eventSelectionIDs;
     }
     if(luminosityBlockPrincipal_) {
       setProcessHistory(*luminosityBlockPrincipal_);
-      aux_->setProcessHistoryID(processHistoryID());
+      aux_.setProcessHistoryID(processHistoryID());
     }
 
     branchMapperPtr()->processHistoryID() = processHistoryID();

@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2011/04/27 16:03:59 $
- *  $Revision: 1.49 $
+ *  $Date: 2011/05/11 09:46:12 $
+ *  $Revision: 1.50 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -344,14 +344,13 @@ namespace edm {
 
     // make a brand new event
     eventId = EventID(runNumber_,thisEventLSid+1, eventId.event());
-    std::auto_ptr<EventAuxiliary> eventAux(
-      new EventAuxiliary(eventId, processGUID(),
-			 timestamp(),
-			 true,
-			 evttype,
-			 bunchCrossing,
-			 EventAuxiliary::invalidStoreNumber,
-			 orbitNumber));
+    EventAuxiliary eventAux(eventId, processGUID(),
+			    timestamp(),
+			    true,
+			    evttype,
+			    bunchCrossing,
+			    EventAuxiliary::invalidStoreNumber,
+			    orbitNumber);
     eventPrincipalCache()->fillEventPrincipal(eventAux, luminosityBlockPrincipal());
     eventCached_ = true;
     

@@ -76,7 +76,7 @@ namespace edm {
   ConfigurableInputSource::reallyReadEvent() {
     if (processingMode() != RunsLumisAndEvents) return;
     EventSourceSentry sentry(*this);
-    std::auto_ptr<EventAuxiliary> aux(new EventAuxiliary(eventID_, processGUID(), Timestamp(presentTime_), isRealData_, eType_));
+    EventAuxiliary aux(eventID_, processGUID(), Timestamp(presentTime_), isRealData_, eType_);
     eventPrincipalCache()->fillEventPrincipal(aux, luminosityBlockPrincipal());
     Event e(*eventPrincipalCache(), moduleDescription());
     if (!produce(e)) {

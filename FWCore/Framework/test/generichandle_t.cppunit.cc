@@ -86,7 +86,7 @@ void testGenericHandle::failgetbyLabelTest() {
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, preg, pc));
   boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, time, time));
   boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, preg, pc, rp));
-  std::auto_ptr<edm::EventAuxiliary> eventAux(new edm::EventAuxiliary(id, uuid, time, true));
+  edm::EventAuxiliary eventAux(id, uuid, time, true);
   edm::EventPrincipal ep(preg, pc);
   ep.fillEventPrincipal(eventAux, lbp);
   edm::GenericHandle h("edmtest::DummyProduct");
@@ -174,7 +174,7 @@ void testGenericHandle::getbyLabelTest() {
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
   boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, fakeTime, fakeTime));
   boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc, rp));
-  std::auto_ptr<edm::EventAuxiliary> eventAux(new edm::EventAuxiliary(col, uuid, fakeTime, true));
+  edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
   edm::EventPrincipal ep(pregc, pc);
   ep.fillEventPrincipal(eventAux, lbp);
   edm::BranchDescription const& branchFromRegistry = it->second;
