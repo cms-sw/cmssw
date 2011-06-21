@@ -116,35 +116,35 @@ _isolation_types = ['VLoose', 'Loose', 'Medium', 'Tight']
 # Now build the sequences that apply PU corrections
 
 # Make rho corrections
-hpsPFTauDiscriminationByIsolationSeqRhoCorr = cms.Sequence()
-for iso_type in _isolation_types:
-    base_name = 'hpsPFTauDiscriminationBy%sIsolation' % iso_type
-    configuration = globals()[base_name].clone()
-    configuration.applyRhoCorrection = True
-    configuration.applyOccupancyCut = False
-    configuration.applySumPtCut = True
-    configuration.maximumSumPtCut = \
-            configuration.qualityCuts.isolationQualityCuts.minGammaEt
-    new_name = base_name + "RhoCorr"
-    globals()[new_name] = configuration
-    hpsPFTauDiscriminationByIsolationSeqRhoCorr += configuration
+#hpsPFTauDiscriminationByIsolationSeqRhoCorr = cms.Sequence()
+#for iso_type in _isolation_types:
+    #base_name = 'hpsPFTauDiscriminationBy%sIsolation' % iso_type
+    #configuration = globals()[base_name].clone()
+    #configuration.applyRhoCorrection = True
+    #configuration.applyOccupancyCut = False
+    #configuration.applySumPtCut = True
+    #configuration.maximumSumPtCut = \
+            #configuration.qualityCuts.isolationQualityCuts.minGammaEt
+    #new_name = base_name + "RhoCorr"
+    #globals()[new_name] = configuration
+    #hpsPFTauDiscriminationByIsolationSeqRhoCorr += configuration
 
-# Make custom rho corrections
-hpsPFTauDiscriminationByIsolationSeqCustomRhoCorr = cms.Sequence()
-for iso_type in _isolation_types:
-    base_name = 'hpsPFTauDiscriminationBy%sIsolation' % iso_type
-    configuration = globals()[base_name].clone()
-    configuration.applyRhoCorrection = True
-    configuration.applyOccupancyCut = False
-    configuration.applySumPtCut = True
-    configuration.maximumSumPtCut = \
-            configuration.qualityCuts.isolationQualityCuts.minGammaEt
-    configuration.rhoProducer = cms.InputTag(
-        "kt6PFJetsFor%sIso" % iso_type, "rho")
-    configuration.rhoUEOffsetCorrection = 0.0
-    new_name = base_name + "CustomRhoCorr"
-    globals()[new_name] = configuration
-    hpsPFTauDiscriminationByIsolationSeqCustomRhoCorr += configuration
+## Make custom rho corrections
+#hpsPFTauDiscriminationByIsolationSeqCustomRhoCorr = cms.Sequence()
+#for iso_type in _isolation_types:
+    #base_name = 'hpsPFTauDiscriminationBy%sIsolation' % iso_type
+    #configuration = globals()[base_name].clone()
+    #configuration.applyRhoCorrection = True
+    #configuration.applyOccupancyCut = False
+    #configuration.applySumPtCut = True
+    #configuration.maximumSumPtCut = \
+            #configuration.qualityCuts.isolationQualityCuts.minGammaEt
+    #configuration.rhoProducer = cms.InputTag(
+        #"kt6PFJetsFor%sIso" % iso_type, "rho")
+    #configuration.rhoUEOffsetCorrection = 0.0
+    #new_name = base_name + "CustomRhoCorr"
+    #globals()[new_name] = configuration
+    #hpsPFTauDiscriminationByIsolationSeqCustomRhoCorr += configuration
 
 
 # Stores the slopes of the pileup dependence for the tracks & gammas @ different
@@ -160,43 +160,6 @@ _sumPtSlopes = {
         'Tight' : 0.0772
     },
 }
-
-# Stores the slopes of the pileup dependence for the tracks & gammas @ different
-# thresholds
-_occupancySlopes = {
-    'track' : {
-        'Tight' : 0.1583, # e.g. pt > 0.5
-    },
-    'gamma' : {
-        'VLoose' : 0.0069, # NB not yet measured!
-        'Loose' : 0.0069,
-        'Medium' : 0.0356,
-        'Tight' : 0.0827
-    },
-}
-
-# Make Delta Beta corrections (on occupancy cut)
-hpsPFTauDiscriminationByIsolationSeqDBOccCorr = cms.Sequence()
-for iso_type in _isolation_types:
-    base_name = 'hpsPFTauDiscriminationBy%sIsolation' % iso_type
-    configuration = globals()[base_name].clone()
-
-    configuration.deltaBetaPUTrackPtCutOverride = cms.double(0.5)
-    trackSlope = _occupancySlopes['track']['Tight']
-    gammaSlope = _occupancySlopes['gamma'][iso_type]
-
-    # DB correction parameters
-    configuration.applyDeltaBetaCorrection = True
-    configuration.isoConeSizeForDeltaBeta = 0.8
-    configuration.deltaBetaPUTrackPtCutOverride = cms.double(0.5)
-    configuration.deltaBetaFactor = "%0.4f" % (gammaSlope/trackSlope)
-
-    configuration.applyOccupancyCut = True
-    configuration.applySumPtCut = False
-
-    new_name = base_name + "DBOccCorr"
-    globals()[new_name] = configuration
-    hpsPFTauDiscriminationByIsolationSeqDBOccCorr += configuration
 
 # Make Delta Beta corrections (on SumPt quantity)
 hpsPFTauDiscriminationByIsolationSeqDBSumPtCorr = cms.Sequence()
@@ -223,8 +186,8 @@ for iso_type in _isolation_types:
     hpsPFTauDiscriminationByIsolationSeqDBSumPtCorr += configuration
 
 _combinedSumPtThresholds = {
-    'VLoose' : 2.0,
-    'Loose' : 1.5,
+    'VLoose' : 3.0,
+    'Loose' : 2.0,
     'Medium' : 1.0,
     'Tight' : 0.8,
 }
@@ -236,8 +199,11 @@ for iso_type in _isolation_types:
     configuration = globals()[base_name].clone()
 
     configuration.deltaBetaPUTrackPtCutOverride = cms.double(0.5)
+    configuration.qualityCuts.isolationQualityCuts.minTrackPt = 0.5
+    configuration.qualityCuts.isolationQualityCuts.minGammaEt = 0.5
+
     trackSlope = _sumPtSlopes['track']['Tight']
-    gammaSlope = _sumPtSlopes['gamma'][iso_type]
+    gammaSlope = _sumPtSlopes['gamma']['Tight']
 
     # DB correction parameters
     configuration.applyDeltaBetaCorrection = True
@@ -245,6 +211,7 @@ for iso_type in _isolation_types:
     configuration.deltaBetaFactor = "%0.4f" % (gammaSlope/trackSlope)
 
     configuration.ApplyDiscriminationByTrackerIsolation = True
+    configuration.ApplyDiscriminationByECALIsolation = True
     configuration.applyOccupancyCut = False
     configuration.applySumPtCut = True
     configuration.maximumSumPtCut = _combinedSumPtThresholds[iso_type]
@@ -335,10 +302,9 @@ produceAndDiscriminateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByDecayModeFinding*
     hpsPFTauDiscriminationByChargedIsolationSeq*
     hpsPFTauDiscriminationByIsolationSeq*
-    hpsPFTauDiscriminationByIsolationSeqRhoCorr*
-    hpsPFTauDiscriminationByIsolationSeqCustomRhoCorr*
+    #hpsPFTauDiscriminationByIsolationSeqRhoCorr*
+    #hpsPFTauDiscriminationByIsolationSeqCustomRhoCorr*
     hpsPFTauDiscriminationByIsolationSeqDBSumPtCorr*
-    hpsPFTauDiscriminationByIsolationSeqDBOccCorr*
     hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr*
     hpsPFTauDiscriminationByLooseElectronRejection*
     hpsPFTauDiscriminationByMediumElectronRejection*
