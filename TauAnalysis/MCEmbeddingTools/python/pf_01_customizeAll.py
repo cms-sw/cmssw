@@ -94,13 +94,6 @@ def customise(process):
     index += 1  
 
 
-  # needs more care
-  # process.offlinePrimaryVertices.beamSpotLabel = cms.InputTag("offlineBeamSpot","","REDIGI311X")
-  # process.offlinePrimaryVerticesWithBS.beamSpotLabel = cms.InputTag("offlineBeamSpot","","REDIGI311X")
-  #process.offlinePrimaryVertices.beamSpotLabel =        cms.InputTag("offlineBeamSpot","","REDIGI41X")
-  #process.offlinePrimaryVerticesWithBS.beamSpotLabel =  cms.InputTag("offlineBeamSpot","","REDIGI41X")
-
-
   hltProcessName = "HLT"	#"REDIGI38X"
   # the following block can be used for more efficient processing by replacing the HLT variable below automatically
   try:
@@ -135,6 +128,18 @@ def customise(process):
                     VarParsing.VarParsing.varType.int,         
                     "mdtau value for tauola")
 
+  options.register ('transformationMode',
+                    1, #default value
+                    VarParsing.VarParsing.multiplicity.singleton,
+                    VarParsing.VarParsing.varType.int,
+                    "transformation mode. 0=mumu->mumu, 1=mumu->tautau")
+
+  options.register ('minVisibleTransverseMomentum',
+                    0, #default value
+                    VarParsing.VarParsing.multiplicity.singleton,
+                    VarParsing.VarParsing.varType.int, # double??
+                    "generator level cut on visible transverse momentum")
+
   options.register ('useJson',
                     0, # default value, false
                     VarParsing.VarParsing.multiplicity.singleton,
@@ -147,17 +152,17 @@ def customise(process):
                     VarParsing.VarParsing.varType.int,         
                     "should I override beamspot in globaltag?")
 
-  options.register ('primaryProcess',
-                    'RECO', # default value
-                     VarParsing.VarParsing.multiplicity.singleton,
-                     VarParsing.VarParsing.varType.string,
-                     "original processName")
+#  options.register ('primaryProcess',
+#                    'RECO', # default value
+#                     VarParsing.VarParsing.multiplicity.singleton,
+#                     VarParsing.VarParsing.varType.string,
+#                     "original processName")
 
 
 
   import sys
-  #if hasattr(sys, "argv") == True:
-  #  options.parseArguments()
+  if hasattr(sys, "argv") == True:
+    options.parseArguments()
 
   print "Setting mdtau to ", options.mdtau
   process.generator.ZTauTau.TauolaOptions.InputCards.mdtau = options.mdtau 
@@ -165,10 +170,18 @@ def customise(process):
   process.generator.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = options.mdtau 
   process.newSource.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = options.mdtau 
 
+  print "Setting minVisibleTransverseMomentum to ", options.minVisibleTransverseMomentum
+  process.newSource.ZTauTau.minVisibleTransverseMomentum = cms.untracked.double(options.minVisibleTransverseMomentum)
+  process.generator.ZTauTau.minVisibleTransverseMomentum = cms.untracked.double(options.minVisibleTransverseMomentum)
+
+  print "Setting transformationMode to ", options.transformationMode
+  process.generator.ZTauTau.transformationMode = cms.untracked.int32(options.transformationMode)
+  process.newSource.ZTauTau.transformationMode = cms.untracked.int32(options.transformationMode)
+
   print "options.overrideBeamSpot", options.overrideBeamSpot
   if options.overrideBeamSpot != 0:
-    bs = cms.string("Realistic7TeVCollisions2011_START311_V2_v2_mc") #  42x MC PR gt
-    #bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v18_offline") # 41x data PR gt
+    bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v21_offline") # 42x data PR gt
+    # bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v18_offline") # 41x data PR gt
     # bs = cms.string("BeamSpotObjects_2009_LumiBased_v17_offline") # 38x data gt
     #bs = cms.string("BeamSpotObjects_2009_v14_offline") # 36x data gt
     #  tag = cms.string("Early10TeVCollision_3p8cm_31X_v1_mc_START"), # 35 default
@@ -191,25 +204,6 @@ def customise(process):
     process.source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
     process.source.lumisToProcess.extend(myLumis)
 
-  try:
-    process.newSource.ZTauTau.minVisibleTransverseMomentum = cms.untracked.double(__MINVISPT__)
-    process.generator.ZTauTau.minVisibleTransverseMomentum = cms.untracked.double(__MINVISPT__)
-  except:
-    pass
-  try:
-    process.generator.ZTauTau.TauolaOptions.InputCards.mdtau = __MDTAU__
-    process.generator.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = __MDTAU__
-    process.newSource.ZTauTau.TauolaOptions.InputCards.mdtau = __MDTAU__
-    process.newSource.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = __MDTAU__
-  except:
-    pass
-
-  try:
-    process.generator.ZTauTau.transformationMode = cms.untracked.int32(__TRANSFORMATIONMODE__)
-    process.generator.ZTauTau.transformationMode = cms.untracked.int32(__TRANSFORMATIONMODE__)
-  except:
-    pass
-
 # -*- coding: utf-8 -*-
 
 
@@ -223,14 +217,12 @@ def customise(process):
   process.muons.TrackExtractorPSet.inputTrackCollection = cms.InputTag("tmfTracks")
   # it should be the best solution to take the original beam spot for the
   # reconstruction of the new primary vertex
-
   # use the  one produced earlier, do not produce your own
   for s in process.sequences:
      seq =  getattr(process,s)
      seq.remove(process.offlineBeamSpot) 
 
 
-  
   try:
   	process.metreco.remove(process.BeamHaloId)
   except:
@@ -298,7 +290,7 @@ def customise(process):
          attr=getattr(target,targetAttribute) # get actual attribute, not just  the name
          if isinstance(attr, InputTag) and attr.getModuleLabel()=="particleFlow":
            if ( attr.getProductInstanceLabel()!=""  ):
-             print "Changing: ", target, " ", targetAttribute, " ", attr, " to particleFlowORG", 
+             print "Changing: ", target, " ", targetAttribute, " ", attr, " to particleFlowORG"
              attr.setModuleLabel("particleFlowORG")
 
 
