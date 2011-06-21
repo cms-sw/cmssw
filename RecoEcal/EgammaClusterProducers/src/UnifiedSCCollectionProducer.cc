@@ -98,11 +98,29 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
   evt.getByLabel(cleanScCollection_, pCleanSC);
   if (!(pCleanSC.isValid())) 
     {
-  
-      edm::LogError("MissingInput") << "could not handle clean super clusters";
+      
+      edm::LogError("MissingInput") << "could not find clean super clusters";
       return;
     }
   
+  evt.getByLabel(cleanBcCollection_, pCleanBC);
+  if (!(pCleanBC.isValid())) 
+    {
+      
+      edm::LogError("MissingInput") << "could not find " << cleanBcCollection_;
+      return;
+    }
+
+  evt.getByLabel(uncleanBcCollection_, pUncleanBC);
+  if (!(pUncleanBC.isValid())) 
+    {
+      
+      edm::LogError("MissingInput") << "could not find " <<  uncleanBcCollection_;
+      return;
+    }
+
+
+
         evt.getByLabel(uncleanScCollection_, pUncleanSC);
         if (!(pUncleanSC.isValid())) 
         {
@@ -160,10 +178,14 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
                                 // if the clusters are exactly the same then because the clustering
                                 // algorithm works in a deterministic way, the order of the rechits
                                 // will be the same
+			        foundTheSame = true;
                                 for (int i=0; i< chitsSize; ++i) {
-                                        if (uhits[i].first != chits[i].first ) { break;}
+                                        if (uhits[i].first != chits[i].first ) { 
+					  foundTheSame=false;    
+					  break;
+					}
                                 }
-                                foundTheSame = true;
+                                
                         }
                         if (foundTheSame) { // ok you have found it:
                                 // this supercluster belongs to both collections
@@ -344,6 +366,54 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
                 superClusters.push_back(newSC);
 
         } // end loop over clean SC _________________________________________________
+
+
+	// Final check: in the endcap BC may exist that are not associated to SC,
+	// we need to recover them as well
+	// This is should be optimized (SA, 20110621)
+
+
+	// loop on original clean BC collection and see if the BC is missing from the new one
+	for (reco::BasicClusterCollection::const_iterator bc = pCleanBC->begin();
+	     bc!=pCleanBC->end();
+	     ++bc){
+	  
+	  bool foundTheSame = false;
+	  for (reco::BasicClusterCollection::const_iterator cleanonly_bc = basicClusters.begin();
+	       cleanonly_bc!=basicClusters.end();
+	       ++cleanonly_bc){
+	    
+	    
+	    const std::vector<std::pair<DetId,float> > & chits = bc->hitsAndFractions();
+	    int chitsSize =  chits.size();
+	    
+	    const std::vector<std::pair<DetId,float> > & uhits = cleanonly_bc->hitsAndFractions();
+	    int uhitsSize =  uhits.size();
+	    
+	    
+	    if (cleanonly_bc->seed()==bc->seed() && chitsSize == uhitsSize) {
+	        foundTheSame = true;
+		for (int i=0; i< chitsSize; ++i) {
+		  if (uhits[i].first != chits[i].first ) { 
+		    foundTheSame=false;    
+		    break;
+		  }
+		}
+
+	    }
+	    
+	    
+	  } // loop on new clean BC collection
+	  
+	  // clean basic cluster is not associated to SC and does not belong to the 
+	  // new collection, add it
+	  if (!foundTheSame){	      
+	    basicClusters.push_back(*bc);
+	  }
+	  
+	} // loop on original clean BC collection
+
+
 
 
 	LogDebug("UnifiedSC")<< "New SC collection was created";
