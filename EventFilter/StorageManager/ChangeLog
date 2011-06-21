@@ -1,3 +1,8 @@
+2011-06-21 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-03-01
+	* Use local struct instead of relying on MonitoredQuantities for EoR record.
+
 2011-06-20 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-03-00
