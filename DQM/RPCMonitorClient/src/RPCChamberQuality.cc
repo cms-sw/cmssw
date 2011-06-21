@@ -144,7 +144,7 @@ void RPCChamberQuality::fillMonitorElements() {
   int rpcEvents=minEvents;
   RpcEvents = dbe_->get(meName.str());
   
-  if(RpcEvents) rpcEvents= (int)RpcEvents->getIntValue();
+  if(RpcEvents) rpcEvents= (int)RpcEvents->getEntries();
   
   if(rpcEvents >= minEvents){
 

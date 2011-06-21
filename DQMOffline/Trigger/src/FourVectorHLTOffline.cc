@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.95 2011/03/29 11:07:40 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.98 2011/04/20 10:20:16 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -301,6 +301,11 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   }
 
+  // Beam spot
+  if (!iEvent.getByLabel(InputTag("offlineBeamSpot"), fBeamSpotHandle)) {
+        edm::LogInfo("") << ">>> No beam spot found !!!";
+  }
+
   edm::Handle<reco::MuonCollection> muonHandle;
   iEvent.getByLabel(muonRecoCollectionName_,muonHandle);
   if(!muonHandle.isValid())  
@@ -355,11 +360,6 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByLabel("pixelTracks",trackHandle);
   if(!trackHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "trackHandle not found, ";
-
-  // Beam spot
-  if (!iEvent.getByLabel(InputTag("offlineBeamSpot"), fBeamSpotHandle)) {
-        edm::LogInfo("") << ">>> No beam spot found !!!";
-  }
 
 
   // ---------------------
@@ -726,7 +726,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     const int hltIndex = fTriggerObj->filterIndex(filterTag);
     if ( hltIndex >= fTriggerObj->sizeFilters() ) {
 
-      LogTrace("FourVectorHLTOffline") << "WTF no index "<< index << " of that name " << filterTag << endl;
+      LogTrace("FourVectorHLTOffline") << "WTF no index "<< hltIndex << " of that name " << filterTag << endl;
       continue; // not in this event
 
     }
@@ -2510,7 +2510,7 @@ void FourVectorHLTOffline::selectTaus(const edm::Event& iEvent)
 
   //first read the tau collection
   edm::Handle<reco::PFTauCollection> tauHandle;  
-  iEvent.getByLabel("shrinkingConePFTauProducer",tauHandle);
+  iEvent.getByLabel("hpsPFTauProducer",tauHandle);
 
   //Now access a discriminator and see if it passed the tag
   edm::Handle<reco::PFTauDiscriminator> dscrmt1H;

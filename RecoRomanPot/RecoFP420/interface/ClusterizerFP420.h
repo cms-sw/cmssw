@@ -13,7 +13,7 @@
 //#include "SimG4Core/Watcher/interface/SimWatcher.h"
 
 #include "RecoRomanPot/RecoFP420/interface/FP420ClusterMain.h"
-//#include "RecoRomanPot/RecoFP420/interface/ClusterNoiseFP420.h"
+#include "RecoRomanPot/RecoFP420/interface/ClusterNoiseFP420.h"
 
 #include "DataFormats/FP420Digi/interface/DigiCollectionFP420.h"
 
@@ -41,6 +41,9 @@ namespace cms
     
     virtual void beginJob();
     
+    //  virtual void produce(DigiCollectionFP420*, ClusterCollectionFP420 &);
+    // virtual void produce(DigiCollectionFP420 &, ClusterCollectionFP420 &);
+    
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
     
   private:
@@ -58,12 +61,9 @@ namespace cms
    
     FP420NumberingScheme * theFP420NumberingScheme;
     
-    //    std::vector<ClusterNoiseFP420> noise;
-    //    bool UseNoiseBadElectrodeFlagFromDB_;
-
+    std::vector<ClusterNoiseFP420> noise;
+    bool UseNoiseBadElectrodeFlagFromDB_;
     int sn0, pn0, dn0, rn0;
-    int sh0, ph0, dh0, rh0;
-
     int verbosity;
   };
 }

@@ -109,6 +109,7 @@ class PFBlockAlgo {
   ///COLIN: I think this is for particle flow at HLT...
   template< template<typename> class T >
     void setInput(const T<reco::PFRecTrackCollection>&    trackh,
+		  const T<reco::MuonCollection>&    muonh,
 		  const T<reco::PFClusterCollection>&  ecalh,
 		  const T<reco::PFClusterCollection>&  hcalh,
 		  const T<reco::PFClusterCollection>&  hfemh,
@@ -120,7 +121,7 @@ class PFBlockAlgo {
 		  const Mask& psMask = dummyMask_ ) {
     T<reco::GsfPFRecTrackCollection> gsftrackh;
     T<reco::GsfPFRecTrackCollection> convbremgsftrackh;
-    T<reco::MuonCollection> muonh;
+    //T<reco::MuonCollection> muonh;
     T<reco::PFDisplacedTrackerVertexCollection> nuclearh;
     T<reco::PFRecTrackCollection>    nucleartrackh;
     T<reco::PFConversionCollection> convh;

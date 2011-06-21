@@ -1,4 +1,4 @@
-// $Id: MonitoredQuantity.cc,v 1.11.4.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: MonitoredQuantity.cc,v 1.12 2011/03/07 15:31:32 mommsen Exp $
 /// @file: MonitoredQuantity.cc
 
 #include "EventFilter/StorageManager/interface/MonitoredQuantity.h"
@@ -80,8 +80,6 @@ namespace stor {
   void MonitoredQuantity::calculateStatistics(const utils::TimePoint_t& currentTime)
   {
     if (! enabled_) {return;}
-    if (lastCalculationTime_.is_not_a_date_time()) {return;}
-    if (currentTime - lastCalculationTime_ < expectedCalculationInterval_) {return;}
     
     // create local copies of the working values to minimize the
     // time that we could block a thread trying to add a sample.
@@ -96,6 +94,9 @@ namespace stor {
     double latestLastLatchedSampleValue;
     {
       boost::mutex::scoped_lock sl(accumulationMutex_);
+
+      if (lastCalculationTime_.is_not_a_date_time()) {return;}
+      if (currentTime - lastCalculationTime_ < expectedCalculationInterval_) {return;}
       
       latestSampleCount = workingSampleCount_;
       latestValueSum = workingValueSum_;

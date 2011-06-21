@@ -2,6 +2,7 @@
 
 #include "FWCore/MessageService/test/UnitTestClient_Vd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <string>
@@ -11,7 +12,7 @@ namespace edmtest
 {
 
 void
-  UTC_Vd1::analyze( edm::Event      const & e
+  UTC_Vd1::analyze( edm::Event      const & /*unused*/
                             , edm::EventSetup const & /*unused*/
                               )
 {
@@ -36,7 +37,7 @@ void
 }
 
 void
-  UTC_Vd1::beginRun(edm::Run const& r, edm::EventSetup const&  es)
+  UTC_Vd1::beginRun(edm::Run const& /*unused*/, edm::EventSetup const& /*unused*/)
 {
   edm::LogInfo("cat_BR")   << "T1 beginRun info with identifier " 
   			     << identifier << " event " << ev;
@@ -46,7 +47,7 @@ void
 
 void
   UTC_Vd1::beginLuminosityBlock
-  		(edm::LuminosityBlock const& lb, edm::EventSetup const& es )
+  		(edm::LuminosityBlock const& /*unused*/, edm::EventSetup const& /*unused*/)
 {
   edm::LogWarning("cat_BL")   << "T1 beginLumi warning with identifier " 
   			     << identifier << " event " << ev;
@@ -55,7 +56,7 @@ void
 }
 
 void
-  UTC_Vd2::analyze( edm::Event      const & e
+  UTC_Vd2::analyze( edm::Event      const & /*unused*/
                             , edm::EventSetup const & /*unused*/
                               )
 {

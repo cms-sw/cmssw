@@ -1,4 +1,4 @@
-// $Id: DQMEventProcessor.cc,v 1.13 2011/03/07 15:31:32 mommsen Exp $
+// $Id: DQMEventProcessor.cc,v 1.16 2011/04/19 16:01:53 mommsen Exp $
 /// @file: DQMEventProcessor.cc
 
 #include "toolbox/task/WorkLoopFactory.h"
@@ -35,6 +35,8 @@ namespace stor {
   app_(app),
   sharedResources_(sr),
   actionIsActive_(true),
+  latestLumiSection_(0),
+  discardDQMUpdatesForOlderLS_(0),
   dqmEventStore_
   (
     app->getApplicationDescriptor(),
@@ -43,7 +45,8 @@ namespace stor {
     sr->initMsgCollection_.get(),
     &stor::InitMsgCollection::maxMsgCount,
     sr.get(),
-    &stor::SharedResources::moveToFailedState
+    &stor::SharedResources::moveToFailedState,
+    sr->statisticsReporter_->alarmHandler()
   )
   {
     WorkerThreadParams workerParams =
@@ -132,12 +135,27 @@ namespace stor {
       utils::Duration_t elapsedTime = utils::getCurrentTime() - startTime;
       sharedResources_->statisticsReporter_->getThroughputMonitorCollection().
         addDQMEventProcessorIdleSample(elapsedTime);
-      sharedResources_->statisticsReporter_->getThroughputMonitorCollection().
-        addPoppedDQMEventSample(dqmEvent.first.memoryUsed());
-      sharedResources_->statisticsReporter_->getDQMEventMonitorCollection().
-        getDroppedDQMEventCountsMQ().addSample(dqmEvent.second);
-      
-      dqmEventStore_.addDQMEvent(dqmEvent.first);
+
+      if (
+        (discardDQMUpdatesForOlderLS_ > 0) &&
+        (dqmEvent.first.lumiSection() + discardDQMUpdatesForOlderLS_ < latestLumiSection_)
+      )
+        // subtracting unsigned quantities might not yield the right result!
+      {
+        // discard very old LS
+        sharedResources_->statisticsReporter_->getDQMEventMonitorCollection().
+          getDroppedDQMEventCountsMQ().addSample(dqmEvent.second + 1);        
+      }
+      else
+      {
+        sharedResources_->statisticsReporter_->getThroughputMonitorCollection().
+          addPoppedDQMEventSample(dqmEvent.first.memoryUsed());
+        sharedResources_->statisticsReporter_->getDQMEventMonitorCollection().
+          getDroppedDQMEventCountsMQ().addSample(dqmEvent.second);
+        
+        latestLumiSection_ = std::max(latestLumiSection_, dqmEvent.first.lumiSection());
+        dqmEventStore_.addDQMEvent(dqmEvent.first);
+      }
     }
     else
     {
@@ -156,6 +174,7 @@ namespace stor {
       {
         timeout_ = newTimeoutValue;
         dqmEventStore_.setParameters(dqmParams);
+        discardDQMUpdatesForOlderLS_ = dqmParams.discardDQMUpdatesForOlderLS_;
       }
       if (requests.endOfRun)
       {
@@ -172,6 +191,7 @@ namespace stor {
   void DQMEventProcessor::endOfRun()
   {
     dqmEventStore_.purge();
+    latestLumiSection_ = 0;
   }
     
 } // namespace stor

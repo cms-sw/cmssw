@@ -66,7 +66,7 @@ class SiStripDetVOffBuilder
                     std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator & initialIt,
                     std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > & resultVec,
                     const bool last, const unsigned int first );
-  bool FileExists(std::string filename);
+
  private:
   // typedefs
   typedef std::vector< std::pair< std::vector<uint32_t>,coral::TimeStamp> > DetIdTimeStampVector;

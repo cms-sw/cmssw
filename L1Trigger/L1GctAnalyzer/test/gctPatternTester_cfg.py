@@ -4,22 +4,9 @@
 # Alex Tapper 8/9/10
 #
 
-import FWCore.ParameterSet.Config as cms
-
-# options
-import FWCore.ParameterSet.VarParsing as VarParsing
-options = VarParsing.VarParsing()
-options.register('file',
-                 'patternCaptureOrbit_giles__2011_02_23__14h02m08s.txt', #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.string,
-                 "Input File")
-
-
 process = cms.Process('GctPatternTester')
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr.INFO.limit = cms.untracked.int32(100000)
 process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
 process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
@@ -31,12 +18,9 @@ process.maxEvents = cms.untracked.PSet ( input = cms.untracked.int32 ( 3563 ) )
 
 # Input captured ascii file
 process.gctRaw = cms.EDProducer( "TextToRaw",
-                                   filename = cms.untracked.string (options.file),
+                                   filename = cms.untracked.string ( "patternCapture_ts__2010_09_03__13h19m20s.txt" ),
                                    GctFedId = cms.untracked.int32 ( 745 )
                                    )
-
-#LogInfo for Emulator configuration setup
-process.load("L1TriggerConfig.GctConfigProducers.l1GctConfigDump_cfi")
 
 # Settings for pattern test (corresponds to V38_FS_Int11_Tau2_AllPipes_VME key)
 process.load('L1Trigger.L1GctAnalyzer.gctPatternTestConfig_cff')
@@ -83,26 +67,20 @@ process.TFileService = cms.Service("TFileService",
    fileName = cms.string( 'gctErrorAnalyzer.root' )
 )
 
-process.p = cms.Path(
-    process.gctRaw*
-    process.l1GctHwDigis*
-    process.valGctDigis*
-    process.l1compare*
-    process.dumpGctDigis*
-    process.gctErrorAnalyzer#*
-    #process.l1GctConfigDump
-    )
+process.p = cms.Path(process.gctRaw*
+                     process.l1GctHwDigis*
+                     process.valGctDigis*
+                     process.l1compare*
+                     process.dumpGctDigis*
+                     process.gctErrorAnalyzer)
 
 
-process.output = cms.OutputModule(
-    "PoolOutputModule",
-    outputCommands = cms.untracked.vstring (
-        "drop *",
-        "keep *_*_*_GctPatternTester",
+process.output = cms.OutputModule( "PoolOutputModule",
+                                   outputCommands = cms.untracked.vstring (
+    "drop *",
+    "keep *_*_*_GctPatternTester",
     ),
-    fileName = cms.untracked.string( "gctPatternTester.root" ),
-    )
+                                   fileName = cms.untracked.string( "gctPatternTester.root" ),
+                                   )
 
-process.out = cms.EndPath(
-    process.output
-    )
+process.out = cms.EndPath( process.output )

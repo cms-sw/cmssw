@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.42 2011/03/07 15:31:32 mommsen Exp $
+// $Id: Configuration.cc,v 1.44 2011/04/19 16:01:53 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -172,7 +172,6 @@ namespace stor
     diskWriteParamCopy_.filePath_ = "/tmp";
     diskWriteParamCopy_.dbFilePath_ = ""; // use default filePath_+"/log"
     diskWriteParamCopy_.otherDiskPaths_.clear();
-    diskWriteParamCopy_.fileCatalog_ = "summaryCatalog.txt";
     diskWriteParamCopy_.setupLabel_ = "Data";
     diskWriteParamCopy_.nLogicalDisk_ = 0;
     diskWriteParamCopy_.maxFileSizeMB_ = 0;
@@ -207,6 +206,7 @@ namespace stor
     dqmParamCopy_.readyTimeDQM_ = boost::posix_time::seconds(120);
     dqmParamCopy_.useCompressionDQM_ = true;
     dqmParamCopy_.compressionLevelDQM_ = 1;
+    dqmParamCopy_.discardDQMUpdatesForOlderLS_ = 16;
   }
 
   void Configuration::setEventServingDefaults()
@@ -272,7 +272,6 @@ namespace stor
     fileName_ = diskWriteParamCopy_.fileName_;
     filePath_ = diskWriteParamCopy_.filePath_;
     dbFilePath_ = diskWriteParamCopy_.dbFilePath_;
-    fileCatalog_ = diskWriteParamCopy_.fileCatalog_;
     setupLabel_ = diskWriteParamCopy_.setupLabel_;
     nLogicalDisk_ = diskWriteParamCopy_.nLogicalDisk_;
     maxFileSize_ = diskWriteParamCopy_.maxFileSizeMB_;
@@ -292,7 +291,6 @@ namespace stor
     infoSpace->fireItemAvailable("filePath", &filePath_);
     infoSpace->fireItemAvailable("dbFilePath", &dbFilePath_);
     infoSpace->fireItemAvailable("otherDiskPaths", &otherDiskPaths_);
-    infoSpace->fireItemAvailable("fileCatalog", &fileCatalog_);
     infoSpace->fireItemAvailable("setupLabel", &setupLabel_);
     infoSpace->fireItemAvailable("nLogicalDisk", &nLogicalDisk_);
     infoSpace->fireItemAvailable("maxFileSize", &maxFileSize_);
@@ -318,12 +316,14 @@ namespace stor
     readyTimeDQM_ = dqmParamCopy_.readyTimeDQM_.total_seconds();
     useCompressionDQM_ = dqmParamCopy_.useCompressionDQM_;
     compressionLevelDQM_ = dqmParamCopy_.compressionLevelDQM_;
+    discardDQMUpdatesForOlderLS_ = dqmParamCopy_.discardDQMUpdatesForOlderLS_;
 
     // bind the local xdata variables to the infospace
     infoSpace->fireItemAvailable("collateDQM", &collateDQM_);
     infoSpace->fireItemAvailable("readyTimeDQM", &readyTimeDQM_);
     infoSpace->fireItemAvailable("useCompressionDQM", &useCompressionDQM_);
     infoSpace->fireItemAvailable("compressionLevelDQM", &compressionLevelDQM_);
+    infoSpace->fireItemAvailable("discardDQMUpdatesForOlderLS", &discardDQMUpdatesForOlderLS_);
   }
 
   void Configuration::
@@ -443,7 +443,6 @@ namespace stor
       diskWriteParamCopy_.dbFilePath_ = filePath_.value_ + "/log";
     else
       diskWriteParamCopy_.dbFilePath_ = dbFilePath_;
-    diskWriteParamCopy_.fileCatalog_ = fileCatalog_;
     diskWriteParamCopy_.setupLabel_ = setupLabel_;
     diskWriteParamCopy_.nLogicalDisk_ = nLogicalDisk_;
     diskWriteParamCopy_.maxFileSizeMB_ = maxFileSize_;
@@ -468,6 +467,7 @@ namespace stor
       boost::posix_time::seconds( static_cast<int>(readyTimeDQM_) );
     dqmParamCopy_.useCompressionDQM_ = useCompressionDQM_;
     dqmParamCopy_.compressionLevelDQM_ = compressionLevelDQM_;
+    dqmParamCopy_.discardDQMUpdatesForOlderLS_ = discardDQMUpdatesForOlderLS_;
   }
 
   void Configuration::updateLocalEventServingData()

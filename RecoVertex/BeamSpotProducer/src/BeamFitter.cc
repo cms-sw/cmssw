@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
-   version $Id: BeamFitter.cc,v 1.74 2011/02/23 15:36:29 friis Exp $
+   version $Id: BeamFitter.cc,v 1.75 2011/03/18 14:06:38 friis Exp $
 
 ________________________________________________________________**/
 
@@ -502,6 +502,7 @@ bool BeamFitter::runPVandTrkFitter() {
     if(writeTxt_ ) dumpTxtFile(outputTxt_,true); // all reaults
     if(writeDIPTxt_ && ((fit_ok && pv_fit_ok) || writeDIPBadFit_)) {
         dumpTxtFile(outputDIPTxt_,false); // for DQM/DIP
+        for(size_t i= 0; i < 7; i++)ForDIPPV_.push_back(0.0);
     }
 
     return fit_ok && pv_fit_ok;
@@ -681,7 +682,7 @@ void BeamFitter::dumpTxtFile(std::string & fileName, bool append){
       outFile << "BetaStar " << beamspottmp.betaStar() << std::endl;
 
     }
-  }
+  }//if bx results needed
   else {
     outFile << "Runnumber " << frun << std::endl;
     outFile << "BeginTimeOfFit " << fbeginTimeOfFit << " " << freftime[0] << std::endl;
@@ -719,7 +720,19 @@ void BeamFitter::dumpTxtFile(std::string & fileName, bool append){
     outFile << "EmittanceX " << fbeamspot.emittanceX() << std::endl;
     outFile << "EmittanceY " << fbeamspot.emittanceY() << std::endl;
     outFile << "BetaStar " << fbeamspot.betaStar() << std::endl;
-  }
+
+    //write here Pv info for DIP only: This added only if append is false, which happen for DIP only :)
+  if(!append){
+    outFile << "events "<< (int)ForDIPPV_[0] << std::endl;
+    outFile << "meanPV "<< ForDIPPV_[1] << std::endl;
+    outFile << "meanErrPV "<< ForDIPPV_[2] << std::endl;
+    outFile << "rmsPV "<< ForDIPPV_[3] << std::endl;
+    outFile << "rmsErrPV "<< ForDIPPV_[4] << std::endl;
+    outFile << "maxPV "<< (int)ForDIPPV_[5] << std::endl;
+    outFile << "nPV "<< (int)ForDIPPV_[6] << std::endl;
+   }//writeDIPPVInfo_
+  }//else end  here
+
   outFile.close();
 }
 

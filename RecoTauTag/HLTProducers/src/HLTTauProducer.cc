@@ -117,7 +117,7 @@ void HLTTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
       i++;
   }
   
-  std::auto_ptr<reco::HLTTauCollection> selectedTaus(jetCollection);
+  auto_ptr<reco::HLTTauCollection> selectedTaus(jetCollection);
   
   iEvent.put(selectedTaus);
   

@@ -424,11 +424,11 @@ TrajectoryStateOnSurface HICMuonUpdator::updateBarrel(vector<double>& rhit, vect
   double phinew=pRecHit->globalPosition().phi()+aCharge*delphinew;
   GlobalVector pnew(ptnew*cos(psi),ptnew*sin(psi),pznew);
   GlobalPoint xnew(xrclus*cos(phinew),xrclus*sin(phinew),znew);
-  AlgebraicSymMatrix55 m;        
-  m(0,0)=ptnew; m(1,1)=thePhiWin, 
-  m(2,2)=theZWin, 
-  m(3,3)=thePhiWin, 
-  m(4,4)=theZWin;
+  AlgebraicSymMatrix m(5,0);        
+  m(1,1)=ptnew; m(2,2)=thePhiWin, 
+  m(3,3)=theZWin, 
+  m(4,4)=thePhiWin, 
+  m(5,5)=theZWin;
   
 #ifdef UPDATOR_BARREL_DEBUG  
   cout<< "MuUpdator::xnew=" << xnew<<endl;
@@ -541,11 +541,11 @@ TrajectoryStateOnSurface HICMuonUpdator::updateEndcap(vector<double>& rhit, vect
 #endif  
 
     
-  AlgebraicSymMatrix55 m;        
-  m(0,0)=pznew; m(1,1)=thePhiWin, 
-  m(2,2)=theZWin, 
-  m(3,3)=thePhiWin, 
-  m(4,4)=theZWin;
+  AlgebraicSymMatrix m(5,0);        
+  m(1,1)=pznew; m(2,2)=thePhiWin, 
+  m(3,3)=theZWin, 
+  m(4,4)=thePhiWin, 
+  m(5,5)=theZWin;
        
   TrajectoryStateOnSurface tsos(
                            GlobalTrajectoryParameters(xnew, pnew, aCharge, field),
