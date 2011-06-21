@@ -155,7 +155,7 @@ double TxCalculator::getCTx(const reco::Photon cluster, double x, double thresho
          TotalPt = TotalPt + pt;
    }
    
-   double Tx = getTx(cluster,x,threshold,effRatio);
+   double Tx = getTx(cluster,x,threshold,innerDR,effRatio);
    double CTx = Tx - TotalPt / 40.0 * x;
 
    return CTx;
