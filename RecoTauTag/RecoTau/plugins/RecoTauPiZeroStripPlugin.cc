@@ -69,8 +69,8 @@ class RecoTauPiZeroStripPlugin : public RecoTauPiZeroBuilderPlugin {
 
 RecoTauPiZeroStripPlugin::RecoTauPiZeroStripPlugin(
     const edm::ParameterSet& pset):RecoTauPiZeroBuilderPlugin(pset),
-    qcuts_(pset.getParameter<edm::ParameterSet>("qualityCuts").
-        getParameter<edm::ParameterSet>("signalQualityCuts")),
+    qcuts_(pset.getParameterSet(
+          "qualityCuts").getParameterSet("signalQualityCuts")),
     vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts")) {
   inputPdgIds_ = pset.getParameter<std::vector<int> >(
       "stripCandidatesParticleIds");

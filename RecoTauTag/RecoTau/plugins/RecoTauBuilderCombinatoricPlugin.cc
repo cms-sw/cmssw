@@ -37,13 +37,14 @@ class RecoTauBuilderCombinatoricPlugin : public RecoTauBuilderPlugin {
 
 RecoTauBuilderCombinatoricPlugin::RecoTauBuilderCombinatoricPlugin(
     const edm::ParameterSet& pset): RecoTauBuilderPlugin(pset),
-    qcuts_(pset.getParameter<edm::ParameterSet>("qualityCuts")),
-    usePFLeptonsAsChargedHadrons_(pset.getParameter<bool>("usePFLeptons")),
-    isolationConeSize_(pset.getParameter<double>("isolationConeSize")) {
+  qcuts_(pset.getParameterSet(
+        "qualityCuts").getParameterSet("signalQualityCuts")),
+  usePFLeptonsAsChargedHadrons_(pset.getParameter<bool>("usePFLeptons")),
+  isolationConeSize_(pset.getParameter<double>("isolationConeSize")) {
   typedef std::vector<edm::ParameterSet> VPSet;
   const VPSet& decayModes = pset.getParameter<VPSet>("decayModes");
   for (VPSet::const_iterator dm = decayModes.begin();
-       dm != decayModes.end(); ++dm) {
+      dm != decayModes.end(); ++dm) {
     decayModeInfo info;
     info.nCharged_ = dm->getParameter<uint32_t>("nCharged");
     info.nPiZeros_ = dm->getParameter<uint32_t>("nPiZeros");

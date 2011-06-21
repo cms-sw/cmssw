@@ -125,56 +125,102 @@ RecoTauQualityCuts::RecoTauQualityCuts(const edm::ParameterSet &qcuts) {
   QCutFuncCollection gammaCuts;
   QCutFuncCollection neutralHadronCuts;
 
+  // Make sure there are no extra passed options
+  std::set<std::string> passedOptionSet;
+  std::vector<std::string> passedOptions = qcuts.getParameterNames();
+
+  BOOST_FOREACH(const std::string& option, passedOptions) {
+    passedOptionSet.insert(option);
+  }
+
   // Build all the QCuts for tracks
-  if (qcuts.exists("minTrackPt"))
+  if (qcuts.exists("minTrackPt")) {
     chargedHadronCuts.push_back(
         boost::bind(qcuts::ptMin, _1,
                     qcuts.getParameter<double>("minTrackPt")));
+    passedOptionSet.erase("minTrackPt");
+  }
 
-  if (qcuts.exists("maxTrackChi2"))
+  if (qcuts.exists("maxTrackChi2")) {
     chargedHadronCuts.push_back(
         boost::bind(qcuts::trkChi2, _1,
                     qcuts.getParameter<double>("maxTrackChi2")));
+    passedOptionSet.erase("maxTrackChi2");
+  }
 
-  if (qcuts.exists("minTrackPixelHits"))
+  if (qcuts.exists("minTrackPixelHits")) {
     chargedHadronCuts.push_back(boost::bind(
             qcuts::trkPixelHits, _1,
             qcuts.getParameter<uint32_t>("minTrackPixelHits")));
+    passedOptionSet.erase("minTrackPixelHits");
+  }
 
-  if (qcuts.exists("minTrackHits"))
+  if (qcuts.exists("minTrackHits")) {
     chargedHadronCuts.push_back(boost::bind(
             qcuts::trkTrackerHits, _1,
             qcuts.getParameter<uint32_t>("minTrackHits")));
+    passedOptionSet.erase("minTrackHits");
+  }
 
   // The impact parameter functions are bound to our member PV, since they
   // need it to compute the discriminant value.
-  if (qcuts.exists("maxTransverseImpactParameter"))
+  if (qcuts.exists("maxTransverseImpactParameter")) {
     chargedHadronCuts.push_back(boost::bind(
             qcuts::trkTransverseImpactParameter, _1, &pv_,
             qcuts.getParameter<double>("maxTransverseImpactParameter")));
+    passedOptionSet.erase("maxTransverseImpactParameter");
+  }
 
-  if (qcuts.exists("maxDeltaZ"))
+  if (qcuts.exists("maxDeltaZ")) {
     chargedHadronCuts.push_back(boost::bind(
             qcuts::trkLongitudinalImpactParameter, _1, &pv_,
             qcuts.getParameter<double>("maxDeltaZ")));
+    passedOptionSet.erase("maxDeltaZ");
+  }
 
   // Require tracks to contribute a minimum weight to the associated vertex.
   if (qcuts.exists("minTrackVertexWeight")) {
     chargedHadronCuts.push_back(boost::bind(
           qcuts::minTrackVertexWeight, _1, &pv_,
           qcuts.getParameter<double>("minTrackVertexWeight")));
+    passedOptionSet.erase("minTrackVertexWeight");
   }
 
   // Build the QCuts for gammas
-  if (qcuts.exists("minGammaEt"))
+  if (qcuts.exists("minGammaEt")) {
     gammaCuts.push_back(boost::bind(
             qcuts::etMin, _1, qcuts.getParameter<double>("minGammaEt")));
+    passedOptionSet.erase("minGammaEt");
+  }
 
   // Build QCuts for netural hadrons
-  if (qcuts.exists("minNeutralHadronEt"))
+  if (qcuts.exists("minNeutralHadronEt")) {
     neutralHadronCuts.push_back(boost::bind(
             qcuts::etMin, _1,
             qcuts.getParameter<double>("minNeutralHadronEt")));
+    passedOptionSet.erase("minNeutralHadronEt");
+  }
+
+  // Check if there are any remaining unparsed QCuts
+  if (passedOptionSet.size()) {
+    std::string unParsedOptions;
+    BOOST_FOREACH(const std::string& option, passedOptionSet) {
+      unParsedOptions += option;
+      unParsedOptions += "\n";
+    }
+    throw cms::Exception("BadQualityCutConfig")
+      << " The PSet passed to the RecoTauQualityCuts class had"
+      << " the following unrecognized options: " << std::endl
+      << unParsedOptions;
+  }
+
+  // Make sure there are at least some quality cuts
+  size_t nCuts = chargedHadronCuts.size() + gammaCuts.size()
+    + neutralHadronCuts.size();
+  if (!nCuts) {
+    throw cms::Exception("BadQualityCutConfig")
+      << " No options were passed to the quality cut class!" << std::endl;
+  }
 
   // Map our QCut collections to the particle Ids they are associated to.
   qcuts_[PFCandidate::h] = chargedHadronCuts;

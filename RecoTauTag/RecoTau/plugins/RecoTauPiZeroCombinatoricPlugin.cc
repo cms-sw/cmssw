@@ -44,7 +44,8 @@ class RecoTauPiZeroCombinatoricPlugin : public RecoTauPiZeroBuilderPlugin {
 
 RecoTauPiZeroCombinatoricPlugin::RecoTauPiZeroCombinatoricPlugin(
     const edm::ParameterSet& pset):RecoTauPiZeroBuilderPlugin(pset),
-    qcuts_(pset.getParameter<edm::ParameterSet>("qualityCuts")) {
+    qcuts_(pset.getParameterSet(
+          "qualityCuts").getParameterSet("signalQualityCuts")) {
   minMass_ = pset.getParameter<double>("minMass");
   maxMass_ = pset.getParameter<double>("maxMass");
   maxInputGammas_ = pset.getParameter<unsigned int>("maxInputGammas");

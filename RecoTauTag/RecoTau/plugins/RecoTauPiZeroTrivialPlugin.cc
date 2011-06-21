@@ -35,7 +35,8 @@ class RecoTauPiZeroTrivialPlugin : public RecoTauPiZeroBuilderPlugin {
 
 RecoTauPiZeroTrivialPlugin::RecoTauPiZeroTrivialPlugin(
     const edm::ParameterSet& pset):RecoTauPiZeroBuilderPlugin(pset),
-    qcuts_(pset.getParameter<edm::ParameterSet>("qualityCuts")) {}
+    qcuts_(pset.getParameterSet(
+          "qualityCuts").getParameterSet("signalQualityCuts")) {}
 
 RecoTauPiZeroBuilderPlugin::return_type RecoTauPiZeroTrivialPlugin::operator()(
     const reco::PFJet& jet) const {

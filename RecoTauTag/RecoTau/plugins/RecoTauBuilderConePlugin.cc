@@ -56,7 +56,8 @@ class RecoTauBuilderConePlugin : public RecoTauBuilderPlugin {
 // ctor - initialize all of our variables
 RecoTauBuilderConePlugin::RecoTauBuilderConePlugin(
     const edm::ParameterSet& pset):RecoTauBuilderPlugin(pset),
-    qcuts_(pset.getParameter<edm::ParameterSet>("qualityCuts")),
+    qcuts_(pset.getParameterSet(
+          "qualityCuts").getParameterSet("signalQualityCuts")),
     usePFLeptonsAsChargedHadrons_(pset.getParameter<bool>("usePFLeptons")),
     leadObjecPtThreshold_(pset.getParameter<double>("leadObjectPt")),
     matchingCone_(pset.getParameter<std::string>("matchingCone")),
