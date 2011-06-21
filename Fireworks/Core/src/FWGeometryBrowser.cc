@@ -1,5 +1,10 @@
+
+
+#include <boost/bind.hpp>
+
 #include "Fireworks/Core/interface/FWGeometryBrowser.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
 
 #include "Fireworks/Core/interface/FWParameterSetterBase.h"
@@ -7,6 +12,7 @@
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "Fireworks/Core/src/FWPopupMenu.cc"
+#include "Fireworks/Core/src/FWColorSelect.h"
 
 #include "TFile.h"
 #include "TGFileDialog.h"
@@ -22,9 +28,7 @@
 #include "TGeoManager.h"
 #include "TEveScene.h"
 
-
-
-bool geodebug = 1;
+bool geodebug = 0;
 
 enum GeoMenuOptions {
    kSetTopNode,
@@ -33,19 +37,20 @@ enum GeoMenuOptions {
 };
 
 #include <iostream>
-FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager)
+FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager, FWColorManager *colorManager)
    : TGMainFrame(gClient->GetRoot(), 600, 500),
      m_mode(this, "Mode:", 1l, 0l, 1l),
      m_filter(this,"Materials:",std::string()),
      m_autoExpand(this,"AutoExpand:", 3l, 0l, 1000l),
      m_maxDaughters(this,"MaxChildren:", 999l, 0l, 1000l), // debug
      m_guiManager(guiManager),
+     m_colorManager(colorManager),
      m_tableManager(0),
      m_geometryFile(0),
-     //     m_fileOpen(0),
      m_settersFrame(0),
      m_geoManager(0),
-     m_eveTopNode(0)
+     m_eveTopNode(0),
+     m_colorPopup(0)
 {
    m_mode.addEntry(0, "Node");
    m_mode.addEntry(1, "Volume");
@@ -80,6 +85,7 @@ FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager)
                           "cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)");
    m_tableWidget->disableGrowInWidth();
    resetSetters();
+   backgroundChanged();
 
    m_statBar = new TGStatusBar(this, this->GetWidth(), 12);
    m_statBar->SetText("No simulation geomtery loaded.");
@@ -89,6 +95,9 @@ FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager)
    this->Connect("CloseWindow()","FWGeometryBrowser",this,"windowIsClosing()");
    Layout();
    MapSubwindows();
+
+
+   m_colorManager->colorsHaveChanged_.connect(boost::bind(&FWGeometryBrowser::backgroundChanged,this));
 
    gVirtualX->SelectInput(GetId(), kKeyPressMask | kKeyReleaseMask | kExposureMask |
                           kPointerMotionMask | kStructureNotifyMask | kFocusChangeMask |
@@ -158,43 +167,73 @@ FWGeometryBrowser::setFrom(const FWConfiguration& iFrom)
 void 
 FWGeometryBrowser::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMod, Int_t x, Int_t y)
 {
-   FWGeometryTableManager::NodeInfo& ni = m_tableManager->refSelected();
    m_tableManager->setSelection(iRow, iColumn, iButton);
+   FWGeometryTableManager::NodeInfo& ni = m_tableManager->refSelected();
 
    if (iButton == kButton1) 
    {
 
-      if (iColumn == 0)
+      if (iColumn == FWGeometryTableManager::kName)
       {
          m_tableManager->firstColumnClicked(iRow);
          return;
       }
+      else if (iColumn == FWGeometryTableManager::kColor)
+      { 
+         std::vector<Color_t> colors;
+         m_colorManager->fillLimitedColors(colors);
+      
+         if (!m_colorPopup) {
+            m_colorPopup = new FWColorPopup(gClient->GetDefaultRoot(), colors.front());
+            m_colorPopup->InitContent("", colors);
+            m_colorPopup->Connect("ColorSelected(Color_t)","FWGeometryBrowser", const_cast<FWGeometryBrowser*>(this), "nodeColorChangeRequested(Color_t)");
+         }
+         m_colorPopup->SetName("Selected");
+         m_colorPopup->ResetColors(colors, m_colorManager->backgroundColorIndex()==FWColorManager::kBlackIndex);
+         // m_colorPopup->SetSelection(id.item()->modelInfo(id.index()).displayProperties().color());
+         m_colorPopup->PlacePopup(x, y, m_colorPopup->GetDefaultWidth(), m_colorPopup->GetDefaultHeight());
+       
+         return;
+      }
       else
       {
-         if (m_mode.value() == kNode)
-         {
-            TGeoNode* gn = ni.m_node;
-            if (iColumn == 3)
-               gn->SetVisibility(!gn->IsVisible());
-            if (iColumn == 4)
-               gn->VisibleDaughters(!gn->IsVisDaughters());
-         }
-         else
+         /*
+           if (m_mode.value() == kNode)
+           {
+           TGeoNode* gn = ni.m_node;
+           if (iColumn == FWGeometryTableManager::kVisSelf)
+           gn->SetVisibility(!gn->IsVisible());
+           else if (iColumn == FWGeometryTableManager::kVisChild)
+           gn->VisibleDaughters(!gn->IsVisDaughters());
+           }
+           else*/
          { 
-            TGeoVolume* gv = ni.m_node->GetVolume();
-            if (iColumn == 3)
-               gv->SetVisibility(!gv->IsVisible());
-            if (iColumn == 4)
-               gv->VisibleDaughters(!gv->IsVisDaughters());
+            if (ni.m_node && ni.m_node->GetVolume() )
+            {
+               TGeoVolume* gv = ni.m_node->GetVolume();
+               if (iColumn ==  FWGeometryTableManager::kVisSelf)
+                  gv->SetVisibility(!gv->IsVisible());
+               if (iColumn ==  FWGeometryTableManager::kVisChild)
+                  gv->VisibleDaughters(!gv->IsVisDaughters());
+            }
+            else
+            {
+               if (ni.m_node)
+                  fwLog(fwlog::kError) << "Can't find volume for node " <<  ni.name() << std::endl;
+               else
+                  fwLog(fwlog::kError) << "Can't find node " << std::endl;
+
+            }
          }
         
          m_eveTopNode->ElementChanged(true, true);
          gEve->RegisterRedraw3D();
+
          m_tableManager->dataChanged();
       }
 
    }
-   else
+   else if (iColumn == FWGeometryTableManager::kName)
    {
       FWPopupMenu* m_modelPopup = new FWPopupMenu();
       m_modelPopup->AddEntry("Set As Top Node", kSetTopNode);
@@ -230,9 +269,36 @@ void FWGeometryBrowser::chosenItem(int x)
    }
 }
 
+
+void FWGeometryBrowser::backgroundChanged()
+{
+   bool backgroundIsWhite = m_colorManager->backgroundColorIndex()==FWColorManager::kWhiteIndex;
+   if(backgroundIsWhite) {
+      m_tableWidget->SetBackgroundColor(0xffffff);
+      m_tableWidget->SetLineSeparatorColor(0x000000);
+   } else {
+      m_tableWidget->SetBackgroundColor(0x000000);
+       m_tableWidget->SetLineSeparatorColor(0xffffff);
+   }
+   m_tableManager->setBackgroundToWhite(backgroundIsWhite);
+   fClient->NeedRedraw(m_tableWidget);
+   fClient->NeedRedraw(this);
+
+}
+
+void  FWGeometryBrowser::nodeColorChangeRequested(Color_t col)
+{
+   FWGeometryTableManager::NodeInfo& ni = m_tableManager->refSelected();
+   TGeoVolume* gv = ni.m_node->GetVolume();
+   gv->SetLineColor(col);
+ m_eveTopNode->ElementChanged(true, true);
+         gEve->RegisterRedraw3D();
+
+}
+
 void FWGeometryBrowser::reset()
 {
-   m_geoManager->SetTopVolume(m_geoManager->GetTopVolume());
+   m_geoManager->SetTopVolume(m_geoManager->GetMasterVolume());
    loadGeometry();  
 }
 
@@ -340,3 +406,4 @@ FWGeometryBrowser::browse()
 void FWGeometryBrowser::updateStatusBar(const char* status) {
    m_statBar->SetText(status, 0);
 }
+

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.235 2011/02/23 14:07:03 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.236 2011/03/22 18:10:19 amraktad Exp $
 
 
 //
@@ -156,7 +156,7 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       m_detailViewManager  = new FWDetailViewManager(m_context->colorManager());
       m_contextMenuHandler = new FWModelContextMenuHandler(m_context->selectionManager(), m_detailViewManager, m_context->colorManager(), this);
 
-      m_geoBrowser = new FWGeometryBrowser(getGUIManager());
+      m_geoBrowser = new FWGeometryBrowser(getGUIManager(),m_context->colorManager() );
       m_cmsShowMainFrame->bindCSGActionKeys(m_geoBrowser);
 
       getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
@@ -711,7 +711,7 @@ FWGUIManager::showInvMassDialog()
 void
 FWGUIManager::showGeometryBrowser()
 {
-  m_geoBrowser->browse();
+   m_geoBrowser->browse();
    m_geoBrowser->MapRaised();
 }
 

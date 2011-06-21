@@ -26,11 +26,14 @@ class TGeoManager;
 class TEveGeoTopNode;
 
 class FWGUIManager;
+class FWColorManager;
 class FWTableWidget;
 class FWGeometryTableManager;
 class FWConfiguration;
+class FWColorPopup;
 
 class FWParameterBase;
+
 
 class FWGeometryBrowser : public TGMainFrame
 #ifndef __CINT__
@@ -42,7 +45,7 @@ class FWGeometryBrowser : public TGMainFrame
 public:
    enum EMode { kNode, kVolume };
 
-   FWGeometryBrowser(FWGUIManager*);
+   FWGeometryBrowser(FWGUIManager*, FWColorManager*);
    virtual ~FWGeometryBrowser();
   
    void cellClicked(Int_t iRow, Int_t iColumn, 
@@ -56,13 +59,14 @@ public:
    void readFile();
    void updateStatusBar(const char* status);
 
-   TGeoManager*   geoManager() { return m_geoManager;}
+   TGeoManager*   geoManager() { return m_geoManager; }
 
    virtual void setFrom(const FWConfiguration&);
    Bool_t HandleKey(Event_t *event);
    // ---------- const member functions --------------------- 
 
    virtual void addTo(FWConfiguration&) const;
+   void nodeColorChangeRequested(Color_t);
    
 protected:
 #ifndef __CINT__
@@ -77,6 +81,7 @@ private:
    const FWGeometryBrowser& operator=(const FWGeometryBrowser&);
 
    FWGUIManager           *m_guiManager;
+   FWColorManager         *m_colorManager;
 
    FWTableWidget          *m_tableWidget;
    FWGeometryTableManager *m_tableManager;
@@ -90,12 +95,17 @@ private:
    TGeoManager            *m_geoManager;
    TEveGeoTopNode         *m_eveTopNode;
 
+   FWColorPopup           *m_colorPopup;
+
 #ifndef __CINT__
    std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
 #endif
    void resetSetters();
    void makeSetter(TGCompositeFrame* frame, FWParameterBase* param);
    void loadGeometry();
+
+   void backgroundChanged();
+
 
    ClassDef(FWGeometryBrowser, 0);
 };

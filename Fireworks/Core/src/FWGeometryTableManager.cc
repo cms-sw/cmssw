@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.9 2011/03/26 13:02:41 matevz Exp $
+// $Id: FWGeometryTableManager.cc,v 1.10 2011/06/20 23:45:37 amraktad Exp $
 //
 
 //#define PERFTOOL
@@ -36,6 +36,8 @@
 #include "TEveManager.h"
 #include "TEveGeoNode.h"
 #include "TEveScene.h"
+
+#include "TGFrame.h"
 
 static const char* redTxt   = "\033[01;31m";
 static const char* greenTxt = "\033[01;32m";
@@ -83,6 +85,7 @@ void FWGeometryTableManager::ColorBoxRenderer::draw(Drawable_t iID, int iX, int 
    iHeight += 2*FWTabularWidget::kTextBuffer;
 
    m_colorContext->SetFillStyle(kFillSolid);
+Pixel_t baq =  m_colorContext->GetForeground();
    m_colorContext->SetForeground(m_color);
    gVirtualX->FillRectangle(iID, m_colorContext->GetGC(), iX, iY, iWidth, iHeight);
 
@@ -91,6 +94,7 @@ void FWGeometryTableManager::ColorBoxRenderer::draw(Drawable_t iID, int iX, int 
      m_colorContext->SetFillStyle(kFillOpaqueStippled);
      gVirtualX->FillRectangle(iID, m_colorContext->GetGC(), iX, iY, iWidth, iHeight);
    }
+   m_colorContext->SetForeground(baq);
 }
 
 //==============================================================================
@@ -168,7 +172,6 @@ std::vector<std::string> FWGeometryTableManager::getTitles() const
   
 void FWGeometryTableManager::setSelection (int row, int column, int mask) 
 {
-   printf("FWGeometryTableManager set selection \n");
    changeSelection(row, column);
 }
 
@@ -195,21 +198,25 @@ bool FWGeometryTableManager::rowIsSelected(int row) const
 void FWGeometryTableManager::changeSelection(int iRow, int iColumn)
 {     
    if (iRow < 0) return; 
-   if (iRow == m_selectedRow )
-   {
-      m_selectedRow = -1;
-      m_selectedColumn = -1;
-   }  
-   else
-   {
-      m_selectedRow = iRow;
-      m_selectedColumn = iColumn;
-   }
+
+
+   m_selectedRow = iRow;
+   m_selectedColumn = iColumn;
+
    indexSelected_(iRow, iColumn);
    visualPropertiesChanged();
 }    
 
-  
+void  FWGeometryTableManager::setBackgroundToWhite(bool iToWhite )
+{
+   if(iToWhite) {
+      m_renderer.setGraphicsContext(&TGFrame::GetBlackGC());
+   } else {
+      m_renderer.setGraphicsContext(&TGFrame::GetWhiteGC());
+   }
+   m_renderer.setBlackIcon(iToWhite);
+}
+
 FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumber, int iCol) const
 {
    if (static_cast<int>(m_row_to_index.size()) <= iSortedRowNumber)
@@ -227,8 +234,8 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
    TGeoNode& gn = *data.m_node;
 
    bool isSelected =  (!filterOff() &&  m_volumes[gn.GetVolume()].m_matches);//(m_selectedRow == unsortedRow);
-   TGGC* gc = ( TGGC*)m_renderer.graphicsContext();
-   gc->SetForeground(gVirtualX->GetPixel(kBlack));
+   // TGGC* gc = ( TGGC*)m_renderer.graphicsContext();
+   //gc->SetForeground(gVirtualX->GetPixel(kBlack));
    
 
    if (iCol == kName)
@@ -241,7 +248,6 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
          renderer->setData(Form("%s [%d]", gn.GetName(), nD ), isSelected); 
 
       renderer->setIsParent((gn.GetNdaughters() > 0) && (filterOff() || m_volumes[gn.GetVolume()].accepted()));
-      // printf("%s isParent %d\n", gn.GetVolume()->GetName(), isParent);
 
       renderer->setIsOpen(data.m_expanded);
       if (data.m_node->GetNdaughters())
@@ -263,20 +269,13 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
       }
       else if (iCol == kVisSelf )
       {
-         const char* txt = Form("Self[%d] pchld[%d]", gn.GetVolume()->IsVisible(),  gn.GetMotherVolume() ? gn.GetMotherVolume()->IsVisibleDaughters() : 77);
-    
+         const char* txt = gn.GetVolume()->IsVisible() ? "on" : "off";
          renderer->setData( txt,  isSelected);
-         if ( !gn.IsVisible())
-            gc->SetForeground(gVirtualX->GetPixel(kGray));
          return renderer;
       }
       else if (iCol == kVisChild )
       {
-         renderer->setData( gn.IsVisDaughters() ? "on" : "off",  isSelected);
-         // renderer->setData( txt,  isSelected);
-
-         if ( !gn.IsVisDaughters())
-            gc->SetForeground(gVirtualX->GetPixel(kGray));
+         renderer->setData( gn.GetVolume()->IsVisDaughters() ? "on" : "off",  isSelected);
          return renderer;
       }
       else if (iCol == kMaterial )
@@ -351,7 +350,10 @@ void FWGeometryTableManager::recalculateVisibility()
 
 void FWGeometryTableManager::redrawTable() 
 {
-   changeSelection(-1, -1);
+   printf("redrawTable:: change selection \n");
+   changeSelection(0, 0);
+
+
    recalculateVisibility();
    dataChanged();
    visualPropertiesChanged();
