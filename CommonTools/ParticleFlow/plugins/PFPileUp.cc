@@ -39,7 +39,7 @@ PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
   }
 
 
-  produces<reco::PileUpPFCandidateCollection>();
+  produces<reco::PFCandidateCollection>();
   
 }
 
@@ -61,8 +61,8 @@ void PFPileUp::produce(Event& iEvent,
    
   // get PFCandidates
 
-  auto_ptr< reco::PileUpPFCandidateCollection > 
-    pOutput( new reco::PileUpPFCandidateCollection ); 
+  auto_ptr< reco::PFCandidateCollection > 
+    pOutput( new reco::PFCandidateCollection ); 
   
   if(enable_) {
 
@@ -77,7 +77,7 @@ void PFPileUp::produce(Event& iEvent,
   
     for( unsigned i=0; i<pfCandidates->size(); i++ ) {
     
-      // const reco::PFCandidate& cand = (*pfCandidates)[i];
+      const reco::PFCandidate& cand = (*pfCandidates)[i];
       PFCandidatePtr candptr(pfCandidates, i);
 
       //     PFCandidateRef pfcandref(pfCandidates,i); 
@@ -97,7 +97,7 @@ void PFPileUp::produce(Event& iEvent,
       if( vertexref.isNull() || 
 	  vertexref.key()==0 ) continue;
 
-      pOutput->push_back( PileUpPFCandidate( candptr, vertexref ) );
+      pOutput->push_back( cand );
       pOutput->back().setSourceCandidatePtr( candptr );
     }
   }

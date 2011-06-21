@@ -76,7 +76,10 @@ PF2PATStudiesEventContent = cms.PSet(
     'keep recoPFCandidates_*_*_PF2PAT',
     'keep recoPFCandidates_*_*_PAT',    
     'keep recoPFCandidates_particleFlow_*_*',
+    'keep recoTracks_*_*_*',
+    'keep *_offlinePrimaryVertices_*_*',
     'keep recoMuons_*_*_*',
+    'keep recoGsfTracks_*_*_*',
     'keep *_pf*_*_*'
     )
 )

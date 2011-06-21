@@ -1,14 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 from CommonTools.ParticleFlow.pfMET_cfi  import *
-from CommonTools.ParticleFlow.pfNoPileUp_cff  import *
+from CommonTools.ParticleFlow.pfParticleSelection_cff import *
 from CommonTools.ParticleFlow.pfElectrons_cff import *
 from CommonTools.ParticleFlow.pfMuons_cff import *
 from CommonTools.ParticleFlow.pfJets_cff import *
 from CommonTools.ParticleFlow.pfTaus_cff import *
 
 # sequential top projection cleaning
-from CommonTools.ParticleFlow.ParticleSelectors.pfSortByType_cff import *
 from CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi import * 
 from CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi import * 
 from CommonTools.ParticleFlow.TopProjectors.pfNoJet_cfi import *
@@ -19,25 +18,14 @@ from CommonTools.ParticleFlow.genForPF2PAT_cff import *
 
 
 PF2PAT = cms.Sequence(
-    pfNoPileUpSequence + 
-    # pfSortByTypeSequence +
-    # pfAllNeutralHadrons+
-    # pfAllChargedHadrons+
-    # pfAllPhotons+
-    pfSortByTypeSequence +
-    # pfAllMuons + in 'pfMuonSequence' 
+    pfParticleSelectionSequence + 
     pfMuonSequence + 
     pfNoMuon +
-    # pfAllElectrons + in 'pfElectronSequence' 
     pfElectronSequence +
     pfNoElectron + 
-# when uncommenting, change the source of the jet clustering
     pfJetSequence +
     pfNoJet + 
     pfTauSequence +
     pfNoTau +
-# finally run pfMET reco (use pfJets provided by PF2PAT? After tau cleaning or before)
     pfMET
-# now that we have real data, we leave it to the user
-# or maybe to PAT? to run the gen sequence. 
     )
