@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:04 CDT 2009
-// $Id: FWModelContextMenuHandler.cc,v 1.19 2011/06/10 01:17:16 amraktad Exp $
+// $Id: FWModelContextMenuHandler.cc,v 1.20 2011/06/15 03:07:30 amraktad Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
+#include "Fireworks/Core/src/FWPopupMenu.cc"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWViewContextMenuHandlerBase.h"
@@ -43,98 +44,6 @@ enum MenuOptions {
    kOpenCollectionControllerMO,
    kViewOptionsMO=1000,
    kLastOfMO
-};
-
-
-class FWPopupMenu : public TGPopupMenu
-{
-public:
-   FWPopupMenu(const TGWindow* p=0, UInt_t w=10, UInt_t h=10, UInt_t options=0) :
-      TGPopupMenu(p, w, h, options)
-   {
-      AddInput(kKeyPressMask);
-   }
-
-   // virtual void	PlaceMenu(Int_t x, Int_t y, Bool_t stick_mode, Bool_t grab_pointer)
-   // {
-   //    TGPopupMenu::PlaceMenu(x, y, stick_mode, grab_pointer);
-   //    gVirtualX->GrabKey(fId, 0l, kAnyModifier, kTRUE);
-   // }
-
-   virtual void PoppedUp()
-   {
-      TGPopupMenu::PoppedUp();
-      gVirtualX->SetInputFocus(fId);
-      gVirtualX->GrabKey(fId, 0l, kAnyModifier, kTRUE);
-      
-   }
-
-   virtual void PoppedDown()
-   {
-      gVirtualX->GrabKey(fId, 0l, kAnyModifier, kFALSE);
-      TGPopupMenu::PoppedDown();
-   }
-
-   virtual Bool_t HandleKey(Event_t* event)
-   {
-      if (event->fType != kGKeyPress) return kTRUE;
-
-      UInt_t keysym;
-      char tmp[2];
-      gVirtualX->LookupString(event, tmp, sizeof(tmp), keysym);
-
-      TGMenuEntry *ce = fCurrent;
-
-      switch (keysym)
-      {
-         case kKey_Up:
-         {
-            if (ce) ce = (TGMenuEntry*)GetListOfEntries()->Before(ce);
-            while (ce && ((ce->GetType() == kMenuSeparator) ||
-                          (ce->GetType() == kMenuLabel) ||
-                          !(ce->GetStatus() & kMenuEnableMask)))
-            {
-               ce = (TGMenuEntry*)GetListOfEntries()->Before(ce);
-            }
-            if (!ce) ce = (TGMenuEntry*)GetListOfEntries()->Last();
-            Activate(ce);
-            break;
-         }
-         case kKey_Down:
-         {
-            if (ce) ce = (TGMenuEntry*)GetListOfEntries()->After(ce);
-            while (ce && ((ce->GetType() == kMenuSeparator) ||
-                          (ce->GetType() == kMenuLabel) ||
-                          !(ce->GetStatus() & kMenuEnableMask)))
-            {
-               ce = (TGMenuEntry*)GetListOfEntries()->After(ce);
-            }
-            if (!ce) ce = (TGMenuEntry*)GetListOfEntries()->First();
-            Activate(ce);
-            break;
-         }
-         case kKey_Enter:
-         case kKey_Return:
-         {
-            Event_t ev;
-            ev.fType = kButtonRelease;
-            ev.fWindow = fId;
-            return HandleButton(&ev);
-         }
-         case kKey_Escape:
-         {
-            fCurrent = 0;
-            void *dummy = 0;
-            return EndMenu(dummy);
-         }
-         default:
-         {
-            break;
-         }
-      }
-
-      return kTRUE;
-   }
 };
 
 
@@ -192,6 +101,7 @@ FWModelContextMenuHandler::~FWModelContextMenuHandler()
 //
 // member functions
 //
+#include "TROOT.h"
 namespace  {
    class change_visibility {
    public:
@@ -235,12 +145,20 @@ FWModelContextMenuHandler::chosenItem(Int_t iChoice)
       {
          using namespace Reflex;
          FWModelId id = *(m_selectionManager->selected().begin());
-         void* xx = &std::cout;
-         const std::vector<void*> j(1, xx);
          Type rtype(ROOT::Reflex::Type::ByName(id.item()->modelType()->GetName()));
          Object o(rtype, const_cast<void *>(id.item()->modelData(id.index())));
-         Member m = rtype.FunctionMemberByName("print",Type(Type::ByName("void (std::ostream&)"), CONST), 0 ,INHERITEDMEMBERS_ALSO );
-         m.Invoke(o, 0, j);
+
+         // void* xx = &std::cout;
+         //const std::vector<void*> j(1, xx);
+         //Member m = rtype.FunctionMemberByName("print",Type(Type::ByName("void (std::ostream&)"), CONST), 0 ,INHERITEDMEMBERS_ALSO );
+         //m.Invoke(o, 0, j);
+
+         const char* cmd  = Form("FWGUIManager::OStream() << *(%s*)%p ;",  id.item()->modelType()->GetName(), (void*)id.item()->modelData(id.index()));
+         //const char* cmd  = Form("*((std::ostream*)%p) << (%s*)%p ;", (void*)(&std::cout), id.item()->modelType()->GetName(), (void*)id.item()->modelData(id.index()));
+         std::cout << cmd << std::endl;
+         gROOT->ProcessLine(cmd);
+
+
          break;
       }
       case kOpenObjectControllerMO:
@@ -335,7 +253,7 @@ FWModelContextMenuHandler::showSelectedModelContext(Int_t iX, Int_t iY, FWViewCo
    }
 
 
-   if(m_selectionManager->selected().size()==1) {
+   if(0 && m_selectionManager->selected().size()==1) {
       {
          using namespace Reflex;
          ROOT::Reflex::Type rtype(ROOT::Reflex::Type::ByName(id.item()->modelType()->GetName()));
