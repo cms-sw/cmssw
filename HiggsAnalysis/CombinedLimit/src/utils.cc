@@ -25,7 +25,7 @@
 
 void utils::printRDH(RooAbsData *data) {
   std::vector<std::string> varnames, catnames;
-  const RooArgSet *b0 = data->get(0);
+  const RooArgSet *b0 = data->get();
   TIterator *iter = b0->createIterator();
   for (RooAbsArg *a = 0; (a = (RooAbsArg *)iter->Next()) != 0; ) {
     if (a->InheritsFrom("RooRealVar")) {
