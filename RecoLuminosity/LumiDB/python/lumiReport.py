@@ -607,5 +607,49 @@ def toCSVLumiByLSXing(lumidata,scalefactor,filename):
     r.writeRow(fieldnames)
     r.writeRows(result)
     
+def toScreenLSTrg(trgdata,iresults=None,isverbose=False):
+    '''
+    input:[[run,cmslsnum,timestamp,deadfrac,name:(prescale,count)]]
+    '''
+    print trgdata
 
+def toCSVLSTrg(trgdata,ofilename,iresults=None,isverbose=False):
+    '''
+    input:[[run,cmslsnum,timestamp,deadfrac,name:(prescale,count)]]
+    '''
+    print trgdata
+def toScreenConfTrg(trgconfdata,iresults=None,isverbose=False):
+    '''
+    input:[[run,l1key,bitnames]]
+    '''
+    print trgdata
+
+def toCSVConfTrg(trgconfdata,ofilename,iresults=None,isverbose=False):
+    '''
+    input:[[run,l1key,bitnames]]
+    '''
+    print trgconfdata
+
+def toScreenLSHlt(hltdata,iresults=None,isverbose=False):
+    '''
+    input:[[run,cmslsnum,timestamp,deadfrac,name:(prescale,count)]]
+    '''
+    print hltdata
+
+def toCSVLSHlt(hltdata,ofilename,iresults=None,isverbose=False):
+    '''
+    input:[[run,cmslsnum,timestamp,deadfrac,name:(prescale,count)]]
+    '''
+    print hltdata
+def toScreenConfHlt(hltconfdata,iresults=None,isverbose=False):
+    '''
+    input:[[run,hltkey,pathnames]]
+    '''
+    print hltconfdata
+
+def toCSVConfHlt(hltconfdata,ofilename,iresults=None,isverbose=False):
+    '''
+    input:[[run,hltkey,pathnames]]
+    '''
+    print hltconfdata
 
