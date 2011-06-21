@@ -105,6 +105,8 @@ class PFRecoTauDiscriminationByIsolation :
         if (applyRhoCorrection_) {
           rhoProducer_ = pset.getParameter<edm::InputTag>("rhoProducer");
           rhoConeSize_ = pset.getParameter<double>("rhoConeSize");
+          rhoUEOffsetCorrection_ =
+            pset.getParameter<double>("rhoUEOffsetCorrection");
         }
       }
 
@@ -151,6 +153,7 @@ class PFRecoTauDiscriminationByIsolation :
     bool applyRhoCorrection_;
     edm::InputTag rhoProducer_;
     double rhoConeSize_;
+    double rhoUEOffsetCorrection_;
     double rhoCorrectionThisEvent_;
     double rhoThisEvent_;
   };
@@ -188,7 +191,8 @@ void PFRecoTauDiscriminationByIsolation::beginEvent(const edm::Event& event,
   if (applyRhoCorrection_) {
     edm::Handle<double> rhoHandle_;
     event.getByLabel(rhoProducer_, rhoHandle_);
-    rhoThisEvent_ = (*rhoHandle_)*(3.14159)*rhoConeSize_*rhoConeSize_;
+    rhoThisEvent_ = (*rhoHandle_ - rhoUEOffsetCorrection_)*
+      (3.14159)*rhoConeSize_*rhoConeSize_;
   }
 }
 
