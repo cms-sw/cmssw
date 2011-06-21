@@ -58,6 +58,7 @@ public:
    void reset();
    void readFile();
    void updateStatusBar(const char* status);
+   void updateVisLevel();
 
    TGeoManager*   geoManager() { return m_geoManager; }
 
@@ -72,7 +73,8 @@ protected:
 #ifndef __CINT__
    FWEnumParameter         m_mode;
    FWStringParameter       m_filter; 
-   FWLongParameter         m_autoExpand; 
+   FWLongParameter         m_autoExpand;
+   FWLongParameter         m_visLevel;  
    FWLongParameter         m_maxDaughters; 
 #endif
 

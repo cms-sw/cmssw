@@ -42,6 +42,7 @@ FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager, FWColorManager *c
      m_mode(this, "Mode:", 1l, 0l, 1l),
      m_filter(this,"Materials:",std::string()),
      m_autoExpand(this,"AutoExpand:", 3l, 0l, 1000l),
+     m_visLevel(this,"VisLevel:", 3l, 0l, 100l),
      m_maxDaughters(this,"MaxChildren:", 999l, 0l, 1000l), // debug
      m_guiManager(guiManager),
      m_colorManager(colorManager),
@@ -99,6 +100,8 @@ FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager, FWColorManager *c
 
    m_colorManager->colorsHaveChanged_.connect(boost::bind(&FWGeometryBrowser::backgroundChanged,this));
 
+   m_visLevel.changed_.connect(boost::bind(&FWGeometryBrowser::updateVisLevel,this));
+
    gVirtualX->SelectInput(GetId(), kKeyPressMask | kKeyReleaseMask | kExposureMask |
                           kPointerMotionMask | kStructureNotifyMask | kFocusChangeMask |
                           kEnterWindowMask | kLeaveWindowMask);
@@ -123,6 +126,7 @@ FWGeometryBrowser::resetSetters()
    makeSetter(frame, &m_mode);
    makeSetter(frame, &m_filter);
    makeSetter(frame, &m_autoExpand);
+   makeSetter(frame, &m_visLevel);
    if (geodebug) makeSetter(frame, &m_maxDaughters);
    m_settersFrame->MapSubwindows();
    Layout();
@@ -407,3 +411,12 @@ void FWGeometryBrowser::updateStatusBar(const char* status) {
    m_statBar->SetText(status, 0);
 }
 
+void FWGeometryBrowser::updateVisLevel()
+{
+   if (m_eveTopNode) 
+   {
+      m_eveTopNode->SetVisLevel(m_visLevel.value());
+      m_eveTopNode->ElementChanged();
+      gEve->RegisterRedraw3D();
+   }
+}
