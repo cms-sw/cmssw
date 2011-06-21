@@ -35,7 +35,7 @@
   <rSolid name="BOXA"/>
   <rMaterial name="materials:StainlessSteel"/>
  </LogicalPart>
-<LogicalPart name="BOXB" category="unspecified">
+ <LogicalPart name="BOXB" category="unspecified">
   <rSolid name="BOXB"/>
   <rMaterial name="materials:StainlessSteel"/>
  </LogicalPart>
@@ -47,14 +47,16 @@
   <rSolid name="VBOXA"/>
   <rMaterial name="materials:Vacuum"/>
  </LogicalPart>
-<LogicalPart name="VBOXB" category="unspecified">
+ <LogicalPart name="VBOXB" category="unspecified">
   <rSolid name="VBOXB"/>
   <rMaterial name="materials:Vacuum"/>
  </LogicalPart>
-<LogicalPart name="PUMP" category="unspecified">
+<!--
+ <LogicalPart name="PUMP" category="unspecified">
   <rSolid name="PUMP"/>
   <rMaterial name="materials:Air"/>
  </LogicalPart>
+-->
 </LogicalPartSection>
 
 
