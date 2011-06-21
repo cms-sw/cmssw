@@ -5,7 +5,7 @@ from RecoTauTag.RecoTau.TauDiscriminatorTools import adaptTauDiscriminator, \
 from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
 import copy
 
-from RecoTauTag.RecoTau.hpstanc_transforms import transforms
+from RecoTauTag.RecoTau.hpstanc_transforms import transforms, cuts
 
 # Apply the TaNC to the input tau collection
 from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
@@ -21,7 +21,7 @@ combinatoricRecoTausDiscriminationByLeadingPionPtCut = \
 # Steering file that loads the TaNC database, if necessary.  If unused it will
 # be 'None'
 from RecoTauTag.Configuration.RecoTauMVAConfiguration_cfi \
-        import TauTagMVAComputerRecord
+        import TauTagMVAComputerRecord, esPreferLocalTancDB
 
 # Build the tanc discriminates
 from RecoTauTag.RecoTau.RecoTauDiscriminantConfiguration import \
@@ -280,7 +280,7 @@ hpsTancTausDiscriminationByTancLoose = cms.EDProducer(
         BooleanOperator = cms.string("and"),
         tancCut = cms.PSet(
             Producer = cms.InputTag("hpsTancTausDiscriminationByTanc"),
-            cut = cms.double(0.95),
+            cut = cuts.looseCut
         )
     )
 )
@@ -288,15 +288,15 @@ hpsTancTausDiscriminationByTancLoose = cms.EDProducer(
 # Make a very loose cut
 hpsTancTausDiscriminationByTancVLoose = \
         hpsTancTausDiscriminationByTancLoose.clone()
-hpsTancTausDiscriminationByTancVLoose.Prediscriminants.tancCut.cut = 0.90
+hpsTancTausDiscriminationByTancVLoose.Prediscriminants.tancCut.cut = cuts.vlooseCut
 
 hpsTancTausDiscriminationByTancMedium = \
         hpsTancTausDiscriminationByTancLoose.clone()
-hpsTancTausDiscriminationByTancMedium.Prediscriminants.tancCut.cut = 0.97
+hpsTancTausDiscriminationByTancMedium.Prediscriminants.tancCut.cut = cuts.mediumCut
 
 hpsTancTausDiscriminationByTancTight = \
         hpsTancTausDiscriminationByTancLoose.clone()
-hpsTancTausDiscriminationByTancTight.Prediscriminants.tancCut.cut = 0.985
+hpsTancTausDiscriminationByTancTight.Prediscriminants.tancCut.cut = cuts.tightCut
 
 hpsTancTauInitialSequence = cms.Sequence(
     combinatoricRecoTausDiscriminationByLeadingPionPtCut
