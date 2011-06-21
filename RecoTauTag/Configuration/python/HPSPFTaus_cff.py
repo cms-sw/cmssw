@@ -129,6 +129,23 @@ for iso_type in _isolation_types:
     globals()[new_name] = configuration
     hpsPFTauDiscriminationByIsolationSeqRhoCorr += configuration
 
+# Make custom rho corrections
+hpsPFTauDiscriminationByIsolationSeqCustomRhoCorr = cms.Sequence()
+for iso_type in _isolation_types:
+    base_name = 'hpsPFTauDiscriminationBy%sIsolation' % iso_type
+    configuration = globals()[base_name].clone()
+    configuration.applyRhoCorrection = True
+    configuration.applyOccupancyCut = False
+    configuration.applySumPtCut = True
+    configuration.maximumSumPtCut = \
+            configuration.qualityCuts.isolationQualityCuts.minGammaEt
+    configuration.rhoProducer = cms.InputTag(
+        "kt6PFJetsFor%sIso" % iso_type, "rho")
+    configuration.rhoUEOffsetCorrection = 0.0
+    new_name = base_name + "CustomRhoCorr"
+    globals()[new_name] = configuration
+    hpsPFTauDiscriminationByIsolationSeqCustomRhoCorr += configuration
+
 
 # Stores the slopes of the pileup dependence for the tracks & gammas @ different
 # thresholds
@@ -170,9 +187,9 @@ for iso_type in _isolation_types:
 
     # DB correction parameters
     configuration.applyDeltaBetaCorrection = True
-    configuration.isoConeSizeForDeltaBeta = 0.08
+    configuration.isoConeSizeForDeltaBeta = 0.8
     configuration.deltaBetaPUTrackPtCutOverride = cms.double(0.5)
-    configuration.deltaBetaFactor = "%0.4f*x" % (gammaSlope/trackSlope)
+    configuration.deltaBetaFactor = "%0.4f" % (gammaSlope/trackSlope)
 
     configuration.applyOccupancyCut = True
     configuration.applySumPtCut = False
@@ -193,8 +210,8 @@ for iso_type in _isolation_types:
 
     # DB correction parameters
     configuration.applyDeltaBetaCorrection = True
-    configuration.isoConeSizeForDeltaBeta = 0.08
-    configuration.deltaBetaFactor = "%0.4f*x" % (gammaSlope/trackSlope)
+    configuration.isoConeSizeForDeltaBeta = 0.8
+    configuration.deltaBetaFactor = "%0.4f" % (gammaSlope/trackSlope)
 
     configuration.applyOccupancyCut = False
     configuration.applySumPtCut = True
@@ -224,8 +241,8 @@ for iso_type in _isolation_types:
 
     # DB correction parameters
     configuration.applyDeltaBetaCorrection = True
-    configuration.isoConeSizeForDeltaBeta = 0.08
-    configuration.deltaBetaFactor = "%0.4f*x" % (gammaSlope/trackSlope)
+    configuration.isoConeSizeForDeltaBeta = 0.8
+    configuration.deltaBetaFactor = "%0.4f" % (gammaSlope/trackSlope)
 
     configuration.ApplyDiscriminationByTrackerIsolation = True
     configuration.applyOccupancyCut = False
@@ -319,6 +336,7 @@ produceAndDiscriminateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByChargedIsolationSeq*
     hpsPFTauDiscriminationByIsolationSeq*
     hpsPFTauDiscriminationByIsolationSeqRhoCorr*
+    hpsPFTauDiscriminationByIsolationSeqCustomRhoCorr*
     hpsPFTauDiscriminationByIsolationSeqDBSumPtCorr*
     hpsPFTauDiscriminationByIsolationSeqDBOccCorr*
     hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr*
