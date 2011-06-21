@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2011/05/11 09:46:12 $
- *  $Revision: 1.50 $
+ *  $Date: 2011/06/21 18:34:16 $
+ *  $Revision: 1.51 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -357,11 +357,11 @@ namespace edm {
     // have fedCollection managed by a std::auto_ptr<>
     std::auto_ptr<FEDRawDataCollection> bare_product(fedCollection);
 
-    std::auto_ptr<Event> e(new Event(*eventPrincipalCache(), moduleDescription()));
+    Event e(*eventPrincipalCache(), moduleDescription());
     // put the fed collection into the transient event store
-    e->put(bare_product);
+    e.put(bare_product);
     // The commit is needed to complete the "put" transaction.
-    e->commit_();
+    e.commit_();
     if (newLumi_) {
       return IsLumi;
     }
