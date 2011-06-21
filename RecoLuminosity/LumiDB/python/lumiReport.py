@@ -471,23 +471,23 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,isverbose):
     hprescdict={}
     lprescdict={}
     alltotrecorded=0.0
+    selectedcmsls=[]
     for run in sorted(lumidata):#loop over runs
         rundata=lumidata[run]
         if rundata is None:
             result.append([str(run),'n/a','n/a','n/a','n/a'])
             continue
         selectedcmsls=[x[1] for x in rundata if x[1]!=0]
-        if len(selectedcmsls)==0:
-            selectedlsStr='n/a'
-        else:
-            selectedlsStr = CommonUtil.splitlistToRangeString(selectedcmsls)
         totrecorded=sum([x[6] for x in rundata if x[6] is not None])
         alltotrecorded+=totrecorded
         totefflumiDict={}
         pathmap={}#{hltpathname:1lname}
         for lsdata in rundata:
+            cmslsnum=lsdata[1]
             efflumiDict=lsdata[8]# this ls has no such path?
             if not efflumiDict:
+                if cmslsnum in selectedcmsls:
+                    selectedcmsls.remove(cmslsnum)
                 continue
             for hltpathname,pathdata in efflumiDict.items():
                 if not totefflumiDict.has_key(hltpathname):
@@ -511,7 +511,13 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,isverbose):
                         totdict[hltpathname][1]+=lumival
                         totefflumiDict[hltpathname]+=lumival
                         pathmap[hltpathname]=l1name
-                
+                else:
+                    if cmslsnum in selectedcmsls:
+                        selectedcmsls.remove(cmslsnum)
+        if len(selectedcmsls)==0:
+            selectedlsStr='n/a'
+        else:
+            selectedlsStr = CommonUtil.splitlistToRangeString(selectedcmsls)
         for name in sorted(totefflumiDict):
             (efflumival,efflumiunit)=CommonUtil.guessUnit(totefflumiDict[name])
             (totrecval,totrecunit)=CommonUtil.guessUnit(totrecorded)
