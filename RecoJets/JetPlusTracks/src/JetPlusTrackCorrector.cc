@@ -730,7 +730,8 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::jetDirFromTracks( const P4& cor
   P4 corr;
   
   bool tracks_present = false;
-  
+  bool tracks_present_inin = false; 
+ 
   // Correct using pions in-cone at vertex
 
   if ( !pions.inVertexInCalo_.empty() ) {
@@ -739,6 +740,7 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::jetDirFromTracks( const P4& cor
     for ( ; itrk != jtrk; ++itrk ) {
       corr += PtEtaPhiM( (*itrk)->pt(), (*itrk)->eta(), (*itrk)->phi(), 0. );
       tracks_present = true;
+      tracks_present_inin = true;
     }
   }
 
@@ -793,7 +795,7 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::jetDirFromTracks( const P4& cor
   
   // Adjust direction if tracks are present
   
-  if ( !tracks_present ) { corr = corrected; }
+  if ( !tracks_present_inin  ) { corr = corrected; }
   else { 
     corr *= ( corr.P() > 0. ? corrected.P() / corr.P() : 1. ); 
     corr = P4( corr.px(), corr.py(), corr.pz(), corrected.energy() );
