@@ -1,6 +1,5 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSimFast.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/EcalDetId/interface/ESDetId.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
