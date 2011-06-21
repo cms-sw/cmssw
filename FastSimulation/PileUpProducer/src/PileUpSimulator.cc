@@ -3,7 +3,6 @@
 #include "FastSimulation/Particle/interface/RawParticle.h"
 
 #include "HepMC/GenEvent.h"
-#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 //#include <iostream>
 
@@ -29,20 +28,14 @@ void PileUpSimulator::produce(const HepMC::GenEvent* myGenEvent)
   // Loop on all pile-up events
   for ( viter=vbegin; viter!=vend; ++viter ) { 
 
-    //EncodedEventId eventId(0,ievt); // bunch crossing number is always zero, because FastSim doesn't have out-of-time pileup
-
-    //std::cout << "Vertex n0 " << ievt << std::endl;
-
     // The origin vertex (turn it to cm's from GenEvent mm's)
     HepMC::GenVertex* v = *viter;    
     XYZTLorentzVector smearedVertex =  
       XYZTLorentzVector(v->position().x()/10.,v->position().y()/10.,
 			v->position().z()/10.,v->position().t()/10.);
 
-    //std::cout << "Vertex position " << smearedVertex << std::endl;
-
     // Add it to the FBaseSimEvent
-    int mainVertex = mySimEvent->addSimVertex(smearedVertex, -1, FSimVertexType::PILEUP_VERTEX, ievt);
+    int mainVertex = mySimEvent->addSimVertex(smearedVertex, -1, FSimVertexType::PILEUP_VERTEX);
 
     // Particles iterator
     HepMC::GenVertex::particles_out_const_iterator firstDaughterIt = v->particles_out_const_begin();
@@ -65,7 +58,7 @@ void PileUpSimulator::produce(const HepMC::GenEvent* myGenEvent)
 
       // Add the particle to the event (with a genpartIndex 
       // indicating the pileup event index)
-      mySimEvent->addSimTrack(&myPart,mainVertex,-ievt-2,ievt);
+      mySimEvent->addSimTrack(&myPart,mainVertex,-ievt-2);
 
       // End particle loop  
     }
