@@ -8,12 +8,16 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithm.h"
 #include <cmath>
 
-SiStripClusterInfo::SiStripClusterInfo(const SiStripCluster& cluster, 
+
+
+SiStripClusterInfo::SiStripClusterInfo(const SiStripCluster& cluster,
                                        const edm::EventSetup& setup,
-				       std::string quality)
+				       const int detId,
+				       const std::string & quality)
   : cluster_ptr(&cluster),
     es(setup),
-    qualityLabel(quality) {
+    qualityLabel(quality),
+    detId_(detId) {
   es.get<SiStripNoisesRcd>().get(noiseHandle);
   es.get<SiStripGainRcd>().get(gainHandle);
   es.get<SiStripQualityRcd>().get(qualityLabel,qualityHandle);
@@ -59,7 +63,7 @@ stripNoisesRescaledByGain() const {
 
 std::vector<float> SiStripClusterInfo::
 stripNoises() const {  
-  SiStripNoises::Range detNoiseRange = noiseHandle->getRange(cluster()->geographicalId());  
+  SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detId_);  
   
   std::vector<float> noises;
   noises.reserve(width());
@@ -71,7 +75,7 @@ stripNoises() const {
 
 std::vector<float> SiStripClusterInfo::
 stripGains() const {  
-  SiStripApvGain::Range detGainRange = gainHandle->getRange(cluster()->geographicalId());	
+  SiStripApvGain::Range detGainRange = gainHandle->getRange(detId_);	
 
   std::vector<float> gains;
   gains.reserve(width());
@@ -86,7 +90,7 @@ stripQualitiesBad() const {
   std::vector<bool> isBad;
   isBad.reserve(width());
   for(int i=0; i< width(); i++) {
-    isBad.push_back( qualityHandle->IsStripBad( cluster()->geographicalId(), 
+    isBad.push_back( qualityHandle->IsStripBad( detId_, 
 						 firstStrip()+i) );
   }
   return isBad;
@@ -121,25 +125,25 @@ IsAnythingBad() const {
 bool SiStripClusterInfo::
 IsApvBad() const {
   return 
-    qualityHandle->IsApvBad( cluster()->geographicalId(), firstStrip()/128 ) ||
-    qualityHandle->IsApvBad( cluster()->geographicalId(), (firstStrip()+width())/128 ) ;    
+    qualityHandle->IsApvBad( detId_, firstStrip()/128 ) ||
+    qualityHandle->IsApvBad( detId_, (firstStrip()+width())/128 ) ;    
 }
 
 bool SiStripClusterInfo::
 IsFiberBad() const {
   return 
-    qualityHandle->IsFiberBad( cluster()->geographicalId(), firstStrip()/256 ) ||
-    qualityHandle->IsFiberBad( cluster()->geographicalId(), (firstStrip()+width())/256 ) ;
+    qualityHandle->IsFiberBad( detId_, firstStrip()/256 ) ||
+    qualityHandle->IsFiberBad( detId_, (firstStrip()+width())/256 ) ;
 }
 
 bool SiStripClusterInfo::
 IsModuleBad() const {
-  return qualityHandle->IsModuleBad( cluster()->geographicalId() );
+  return qualityHandle->IsModuleBad( detId_ );
 }
 
 bool SiStripClusterInfo::
 IsModuleUsable() const {
-  return qualityHandle->IsModuleUsable( cluster()->geographicalId() );
+  return qualityHandle->IsModuleUsable( detId_ );
 }
 
 std::vector<SiStripCluster> SiStripClusterInfo::
@@ -158,7 +162,7 @@ reclusterize(const edm::ParameterSet& conf) const {
     algorithm = StripClusterizerAlgorithmFactory::create(conf);
   algorithm->initialize(es);
 
-  if( algorithm->stripByStripBegin( detId() )) {
+  if( algorithm->stripByStripBegin( detId_ )) {
     for(unsigned i = 0; i<width(); i++)
       algorithm->stripByStripAdd( firstStrip()+i, charges[i], clusters );
     algorithm->stripByStripEnd( clusters );

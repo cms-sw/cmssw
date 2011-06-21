@@ -14,14 +14,15 @@ class SiStripQuality;
 class SiStripClusterInfo {
 
  public:
-
-  SiStripClusterInfo(const SiStripCluster& cluster, 
+ 
+  SiStripClusterInfo(const SiStripCluster& cluster,
 		     const edm::EventSetup& es, 
-		     std::string qualityLabel="");
-
+		     const int detid,
+		     const std::string & qualityLabel="");
+		     
   const SiStripCluster * cluster() const {return cluster_ptr;}
 
-  uint32_t detId() const      {return cluster()->geographicalId();}
+  uint32_t detId() const      {return detId_;}
   uint16_t width() const      {return cluster()->amplitudes().size();}
   uint16_t firstStrip() const {return cluster()->firstStrip();}
   float    baryStrip() const  {return cluster()->barycenter();}
@@ -62,7 +63,7 @@ class SiStripClusterInfo {
   edm::ESHandle<SiStripGain> gainHandle;
   edm::ESHandle<SiStripQuality> qualityHandle;
   std::string qualityLabel;
-
+  uint32_t detId_;
 };
 
 #endif
