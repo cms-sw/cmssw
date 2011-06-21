@@ -117,66 +117,7 @@ recoTauPileUpVertices = cms.EDFilter(
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesDA_cfi import \
         offlinePrimaryVerticesDA
 
-from RecoJets.Configuration.RecoPFJets_cff import kt6PFJets
-kt6PFJets.Rho_EtaMax = cms.double(2.5)
-kt6PFJets.doRhoFastjet = True
-
-def make_rho_cut_string(charged_pt, gamma_pt):
-    cut = "(charge() && pt() > %f) ||" \
-            "(particleId() == 4 && pt() > %f)"
-    return cms.string(cut % (charged_pt, gamma_pt))
-
-
-pfCandidatesForHPSVLooseIso = cms.EDFilter(
-    "GenericPFCandidateSelector",
-    src = cms.InputTag("particleFlow"),
-    cut = make_rho_cut_string(1.5, 2.0)
-)
-
-pfCandidatesForHPSLooseIso = cms.EDFilter(
-    "GenericPFCandidateSelector",
-    src = cms.InputTag("pfCandidatesForHPSVLooseIso"),
-    cut = make_rho_cut_string(1.0, 1.5)
-)
-
-pfCandidatesForHPSMediumIso = cms.EDFilter(
-    "GenericPFCandidateSelector",
-    src = cms.InputTag("pfCandidatesForHPSLooseIso"),
-    cut = make_rho_cut_string(0.8, 0.8)
-)
-
-pfCandidatesForHPSTightIso = cms.EDFilter(
-    "GenericPFCandidateSelector",
-    src = cms.InputTag("pfCandidatesForHPSMediumIso"),
-    cut = make_rho_cut_string(0.5, 0.5)
-)
-
-kt6PFJetsForVLooseIso = kt6PFJets.clone(
-    src = cms.InputTag("pfCandidatesForHPSVLooseIso")
-)
-
-kt6PFJetsForLooseIso = kt6PFJets.clone(
-    src = cms.InputTag("pfCandidatesForHPSLooseIso")
-)
-
-kt6PFJetsForMediumIso = kt6PFJets.clone(
-    src = cms.InputTag("pfCandidatesForHPSMediumIso")
-)
-
-kt6PFJetsForTightIso = kt6PFJets.clone(
-    src = cms.InputTag("pfCandidatesForHPSTightIso")
-)
-
-recoTauCommonSequence = cms.Sequence(
-    pfCandidatesForHPSVLooseIso *
-    pfCandidatesForHPSLooseIso*
-    pfCandidatesForHPSMediumIso*
-    pfCandidatesForHPSTightIso*
-    kt6PFJetsForVLooseIso*
-    kt6PFJetsForLooseIso*
-    kt6PFJetsForMediumIso*
-    kt6PFJetsForTightIso
-)
+recoTauCommonSequence = cms.Sequence()
 
 # Only add the DA vertices if we are in a release where they are not produced
 # automatically.
