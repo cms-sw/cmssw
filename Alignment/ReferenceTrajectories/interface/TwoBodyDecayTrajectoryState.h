@@ -24,7 +24,8 @@ public:
   TwoBodyDecayTrajectoryState( const TsosContainer & tsos,
 			       const TwoBodyDecay & tbd,
 			       double particleMass,
-			       const MagneticField* magField );
+			       const MagneticField* magField,
+			       bool propagateErrors = false );
 
   /** The constructor takes the two trajectory states that are to be updated (typically the
    *  innermost trajectory states of two tracks) and the decay parameters.
@@ -32,7 +33,8 @@ public:
   TwoBodyDecayTrajectoryState( const TsosContainer & tsos,
 			       const TwoBodyDecayParameters & param,
 			       double particleMass,
-			       const MagneticField* magField );
+			       const MagneticField* magField,
+			       bool propagateErrors = false );
 
   ~TwoBodyDecayTrajectoryState( void ) {}
 
@@ -43,16 +45,24 @@ public:
   inline const TsosContainer& trajectoryStates( bool useRefittedState = true ) const { return useRefittedState ? theRefittedTsos : theOriginalTsos; }
   inline const Derivatives& derivatives( void ) const { return theDerivatives; }
 
+  void rescaleError( double scale );
+
 private:
 
-  void construct( const MagneticField* magField );
+  void construct( const MagneticField* magField,
+		  bool propagateErrors );
 
-  bool propagateSingleState( const GlobalTrajectoryParameters & gtp,
+  bool propagateSingleState( const FreeTrajectoryState & fts,
+			     const GlobalTrajectoryParameters & gtp,
 			     const AlgebraicMatrix & startDeriv,
 			     const Surface & surface,
 			     const MagneticField* magField,
 			     TrajectoryStateOnSurface & tsos,
-			     AlgebraicMatrix & endDeriv );
+			     AlgebraicMatrix & endDeriv ) const;
+
+
+  void setError( FreeTrajectoryState& fts,
+		 AlgebraicMatrix& derivative ) const;
 
   bool theValidityFlag;
 

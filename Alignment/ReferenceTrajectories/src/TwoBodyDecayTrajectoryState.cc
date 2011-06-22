@@ -21,32 +21,44 @@ using namespace std;
 TwoBodyDecayTrajectoryState::TwoBodyDecayTrajectoryState( const TsosContainer & tsos,
 							  const TwoBodyDecay & tbd,
 							  double particleMass,
-							  const MagneticField* magField )
+							  const MagneticField* magField,
+							  bool propagateErrors )
   : theValidityFlag( false ),
     theParticleMass( particleMass ),
     theParameters( tbd.decayParameters() ),
     theDerivatives( AlgebraicMatrix( nLocalParam, nDecayParam ), AlgebraicMatrix( nLocalParam, nDecayParam ) ),
     theOriginalTsos( tsos )
 {
-  construct( magField );
+  construct( magField, propagateErrors );
 }
 
 
 TwoBodyDecayTrajectoryState::TwoBodyDecayTrajectoryState( const TsosContainer & tsos,
 							  const TwoBodyDecayParameters & param,
 							  double particleMass,
-							  const MagneticField* magField )
+							  const MagneticField* magField,
+							  bool propagateErrors )
   : theValidityFlag( false ),
     theParticleMass( particleMass ),
     theParameters( param ),
     theDerivatives( AlgebraicMatrix( 5, 9 ), AlgebraicMatrix( 5, 9 ) ),
     theOriginalTsos( tsos )
 {
-  construct( magField );
+  construct( magField, propagateErrors );
 }
 
 
-void TwoBodyDecayTrajectoryState::construct( const MagneticField* magField )
+void TwoBodyDecayTrajectoryState::rescaleError( double scale )
+{
+  theOriginalTsos.first.rescaleError( scale );
+  theOriginalTsos.second.rescaleError( scale );
+  theRefittedTsos.first.rescaleError( scale );
+  theRefittedTsos.second.rescaleError( scale );
+}
+
+
+void TwoBodyDecayTrajectoryState::construct( const MagneticField* magField,
+					     bool propagateErrors )
 {
   // construct global trajectory parameters at the starting point
   TwoBodyDecayModel tbdDecayModel( theParameters[TwoBodyDecayParameters::mass], theParticleMass );
@@ -65,7 +77,10 @@ void TwoBodyDecayTrajectoryState::construct( const MagneticField* magField )
 		   secondaryMomenta.second[2] );
 
   GlobalTrajectoryParameters gtp1( vtx, p1, theOriginalTsos.first.charge(), magField );
+  FreeTrajectoryState fts1( gtp1 );
+
   GlobalTrajectoryParameters gtp2( vtx, p2, theOriginalTsos.second.charge(), magField );
+  FreeTrajectoryState fts2( gtp2 );
 
   // contruct derivatives at the starting point
   TwoBodyDecayDerivatives tbdDerivatives( theParameters[TwoBodyDecayParameters::mass], theParticleMass );
@@ -79,12 +94,19 @@ void TwoBodyDecayTrajectoryState::construct( const MagneticField* magField )
   deriv2.sub( 1, 1, AlgebraicMatrix( 3, 3, 1 ) );
   deriv2.sub( 4, 4, derivatives.second );
 
-  // propgate states and derivatives from the starting points to the end points
-  bool valid1 = propagateSingleState( gtp1, deriv1, theOriginalTsos.first.surface(), magField,
-				      theRefittedTsos.first, theDerivatives.first );
+  // compute errors of initial states
+  if ( propagateErrors ) {
+    setError( fts1, deriv1 );
+    setError( fts2, deriv2 );
+  }
 
-  bool valid2 = propagateSingleState( gtp2, deriv2, theOriginalTsos.second.surface(), magField,
-				      theRefittedTsos.second, theDerivatives.second );
+
+  // propgate states and derivatives from the starting points to the end points
+  bool valid1 = propagateSingleState( fts1, gtp1, deriv1, theOriginalTsos.first.surface(),
+				      magField, theRefittedTsos.first, theDerivatives.first );
+
+  bool valid2 = propagateSingleState( fts2, gtp2, deriv2, theOriginalTsos.second.surface(),
+				      magField, theRefittedTsos.second, theDerivatives.second );
 
   theValidityFlag = valid1 && valid2;
 
@@ -92,17 +114,18 @@ void TwoBodyDecayTrajectoryState::construct( const MagneticField* magField )
 }
 
 
-bool TwoBodyDecayTrajectoryState::propagateSingleState( const GlobalTrajectoryParameters & gtp,
+bool TwoBodyDecayTrajectoryState::propagateSingleState( const FreeTrajectoryState & fts,
+							const GlobalTrajectoryParameters & gtp,
 							const AlgebraicMatrix & startDeriv,
 							const Surface & surface,
 							const MagneticField* magField,
 							TrajectoryStateOnSurface & tsos,
-							AlgebraicMatrix & endDeriv )
+							AlgebraicMatrix & endDeriv ) const
 {
   AnalyticalPropagator propagator( magField );
 
   // propagate state
-  pair< TrajectoryStateOnSurface, double > tsosWithPath = propagator.propagateWithPath( FreeTrajectoryState( gtp ), surface );
+  pair< TrajectoryStateOnSurface, double > tsosWithPath = propagator.propagateWithPath( fts, surface );
 
   // check if propagation was successful
   if ( !tsosWithPath.first.isValid() ) return false;
@@ -132,4 +155,12 @@ bool TwoBodyDecayTrajectoryState::propagateSingleState( const GlobalTrajectoryPa
   endDeriv = hepMatDeriv*startDeriv;
 
   return true;
+}
+
+
+void TwoBodyDecayTrajectoryState::setError( FreeTrajectoryState& fts,
+					    AlgebraicMatrix& derivative ) const
+{
+  AlgebraicSymMatrix ftsCartesianError( theParameters.covariance().similarity( derivative ) );
+  fts.setCartesianError( asSMatrix<6>( ftsCartesianError ) );
 }
