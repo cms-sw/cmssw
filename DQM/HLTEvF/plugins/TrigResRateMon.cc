@@ -1,6 +1,7 @@
-// $Id: TrigResRateMon.cc,v 1.11 2010/07/26 12:32:21 rekovic Exp $
+// $Id: TrigResRateMon.cc,v 1.12 2010/09/29 23:07:08 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
+#include "TString.h"
 #include "DQM/HLTEvF/interface/TrigResRateMon.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
@@ -166,7 +167,12 @@ TrigResRateMon::TrigResRateMon(const edm::ParameterSet& iConfig): currentRun_(-9
     recHitsEBTag_ = iConfig.getUntrackedParameter<edm::InputTag>("RecHitsEBTag",edm::InputTag("reducedEcalRecHitsEB"));
       recHitsEETag_ = iConfig.getUntrackedParameter<edm::InputTag>("RecHitsEETag",edm::InputTag("reducedEcalRecHitsEE"));
 
-  
+
+      jmsDebug = false;
+      jmsFakeZBCounts = false;
+      found_zbIndex = false;
+      if (jmsDebug ) std::cout << "Printing extra info " << std::endl;
+      
 }
 
 
@@ -196,7 +202,7 @@ TrigResRateMon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   LogDebug("TrigResRateMon")<< " analyze...." ;
 
 
-  
+
 
   edm::Handle<TriggerResults> triggerResults;
   iEvent.getByLabel(triggerResultsLabel_,triggerResults);
@@ -212,8 +218,22 @@ TrigResRateMon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   triggerResults_ = triggerResults;
   const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
 
-  //int npath = triggerResults->size();
 
+  // Find which index is zero bias for this run
+  
+  if(!found_zbIndex){
+    // set default to something that is out-of-bounds
+    zbIndex = triggerNames.size() +2;
+    for (unsigned int i = 0; i < triggerNames.size(); i ++){
+      std::string thisName = triggerNames.triggerName(i);
+      TString checkName(thisName.c_str());
+      if (checkName.Contains("HLT_ZeroBias_v")){
+        zbIndex = i;
+        found_zbIndex = true;
+        if(jmsDebug) std::cout << "Found the ZeroBias index!!!!!!!! It is   " << zbIndex <<std::endl;
+      }
+    }
+  }
 
   // int bx = iEvent.bunchCrossing();
   /*
@@ -228,7 +248,9 @@ TrigResRateMon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   */
 
-  fillHltMatrix(triggerNames);
+
+  
+  fillHltMatrix(triggerNames, iEvent, iSetup);
 
   return;
 
@@ -1091,11 +1113,15 @@ void TrigResRateMon::setupStreamMatrix(const std::string& label, vector<std::str
 
 }
 
-void TrigResRateMon::fillHltMatrix(const edm::TriggerNames & triggerNames) {
+void TrigResRateMon::fillHltMatrix(const edm::TriggerNames & triggerNames, const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
  string fullPathToME; 
  std::vector <std::pair<std::string, bool> > groupAcceptPair;
 
+ // This will store the prescale values
+ std::pair<int,int>  psValueCombo;
+
+  // For each dataset
   for (unsigned int mi=0;mi<fGroupNamePathsPair.size();mi++) {
 
 
@@ -1122,13 +1148,34 @@ void TrigResRateMon::fillHltMatrix(const edm::TriggerNames & triggerNames) {
   int groupBinNumber = hist_2d->GetXaxis()->FindBin(groupBinLabel.c_str()); 
 
   // any triger accepted
-  if(triggerResults_->accept()){
+  //   if(triggerResults_->accept()){
+  
+  //     hist_2d->Fill(anyBinNumber-1,anyBinNumber-1);//binNumber1 = 0 = first filter
+  
+  
+  
+  //     hist_1d->Fill(anyBinNumber-1);//binNumber1 = 0 = first filter
+  
+  //   }
 
-    hist_2d->Fill(anyBinNumber-1,anyBinNumber-1);//binNumber1 = 0 = first filter
-    hist_1d->Fill(anyBinNumber-1);//binNumber1 = 0 = first filter
+    
+ 
 
+  //if (jmsDebug) std::cout << "Setting histograms to HLT_ZeroBias index " << zbIndex << std::endl;
+
+  if (zbIndex < triggerResults_->size() ) {
+    if (triggerResults_->accept(zbIndex) || jmsFakeZBCounts) {
+      if (jmsDebug) std::cout << "Filling bin " << (groupBinNumber-1)
+                              << " (out of " << hist_1d->GetNbinsX()
+                              << ")  with ZB counts in histo "
+                              << hist_1d->GetName() << std::endl;
+      
+      hist_1d->Fill(groupBinNumber-1, 50000);
+      hist_2d->Fill(groupBinNumber-1,groupBinNumber-1, 10000);//binNumber1 = 0 = first filter
+    }
   }
-
+  
+  
   bool groupPassed = false;
   bool groupL1Passed = false;
 
@@ -1165,9 +1212,20 @@ void TrigResRateMon::fillHltMatrix(const edm::TriggerNames & triggerNames) {
 
       hist_2d->Fill(i,groupBinNumber-1);//binNumber1 = 0 = first filter
       hist_2d->Fill(groupBinNumber-1,i);//binNumber1 = 0 = first filter
-     
-      hist_1d->Fill(i);//binNumber1 = 0 = first filter
 
+      if (jmsDebug) std::cout << "Trying to get prescales... " << std::endl;
+  
+      psValueCombo =  hltConfig_.prescaleValues(iEvent, iSetup, hltPathName);
+
+      if (jmsDebug) std::cout << "Path " << hltPathName
+                              << "  L1 PS " << psValueCombo.first
+                              << " and hlt ps " << psValueCombo.second << std::endl;
+      
+      if ( (psValueCombo.first > 0) && (psValueCombo.second > 0) ){
+        hist_1d->Fill(i, psValueCombo.first * psValueCombo.second );//binNumber1 = 0 = first filter
+      } else {
+        hist_1d->Fill(i);
+      }
 
       //for (int j=1; j< hist_2d->GetNbinsY();j++) 
       for (unsigned int j=0; j< fGroupNamePathsPair[mi].second.size(); j++)
@@ -1196,10 +1254,10 @@ void TrigResRateMon::fillHltMatrix(const edm::TriggerNames & triggerNames) {
 
   if(groupPassed) {
     
-    hist_1d->Fill(groupBinNumber-1);//binNumber1 = 0 = first filter
-    hist_2d->Fill(groupBinNumber-1,groupBinNumber-1);//binNumber1 = 0 = first filter
-    hist_2d->Fill(anyBinNumber-1,groupBinNumber-1);//binNumber1 = 0 = first filter
-    hist_2d->Fill(groupBinNumber-1,anyBinNumber-1);//binNumber1 = 0 = first filter
+    //hist_1d->Fill(groupBinNumber-1);//binNumber1 = 0 = first filter
+    //hist_2d->Fill(groupBinNumber-1,groupBinNumber-1);//binNumber1 = 0 = first filter
+    //hist_2d->Fill(anyBinNumber-1,groupBinNumber-1);//binNumber1 = 0 = first filter
+    //hist_2d->Fill(groupBinNumber-1,anyBinNumber-1);//binNumber1 = 0 = first filter
 
   }
 

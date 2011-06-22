@@ -16,7 +16,7 @@
 //        Vladimir Rekovic, July 2010
 //
 //
-// $Id: TrigResRateMon.h,v 1.1 2010/07/21 12:34:41 rekovic Exp $
+// $Id: TrigResRateMon.h,v 1.2 2010/09/29 23:07:07 rekovic Exp $
 //
 //
 
@@ -112,7 +112,7 @@ class TrigResRateMon : public edm::EDAnalyzer {
       void countHLTGroupL1HitsEndLumiBlock(const int & lumi);
       void countHLTGroupBXHitsEndLumiBlock(const int & lumi);
 
-      void fillHltMatrix(const edm::TriggerNames & triggerNames);
+  void fillHltMatrix(const edm::TriggerNames & triggerNames, const edm::Event& iEvent, const edm::EventSetup& iSetup);
       void normalizeHLTMatrix();
 
       int getTriggerTypeParsePathName(const std::string & pathname);
@@ -134,7 +134,10 @@ class TrigResRateMon : public edm::EDAnalyzer {
       // JetID helper
       //reco::helper::JetIDHelper *jetID;
 
-
+  bool jmsDebug;
+  bool jmsFakeZBCounts;
+  unsigned int zbIndex;
+  bool found_zbIndex;
 
       MonitorElement* ME_HLTAll_LS;
       MonitorElement* ME_HLT_BX;
