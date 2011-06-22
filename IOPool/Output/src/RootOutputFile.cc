@@ -46,6 +46,7 @@
 #include <iomanip>
 #include <sstream>
 
+
 namespace edm {
 
   namespace {
@@ -106,29 +107,30 @@ namespace edm {
       filePtr_->SetCompressionAlgorithm(ROOT::kLZMA);
     } else {
       throw Exception(errors::Configuration) << "PoolOutputModule configured with unknown compression algorithm '" << om_->compressionAlgorithm() << "'\n"
-					     << "Allowed compression algorithms are ZLIB and LZMA\n";
+        << "Allowed compression algorithms are ZLIB and LZMA\n";
     }
 #endif
+
     if (-1 != om->eventAutoFlushSize()) {
       eventTree_.setAutoFlush(-1*om->eventAutoFlushSize());
     }
     eventTree_.addAuxiliary<EventAuxiliary>(BranchTypeToAuxiliaryBranchName(InEvent),
                                             pEventAux_, om_->auxItems()[InEvent].basketSize_);
-    eventTree_.addAuxiliary<StoredProductProvenanceVector>(BranchTypeToProductProvenanceBranchName(InEvent),
+    eventTree_.addAuxiliary<ProductProvenanceVector>(BranchTypeToBranchEntryInfoBranchName(InEvent),
                                                      pEventEntryInfoVector_, om_->auxItems()[InEvent].basketSize_);
     eventTree_.addAuxiliary<EventSelectionIDVector>(poolNames::eventSelectionsBranchName(),
-                                                    pEventSelectionIDs_, om_->auxItems()[InEvent].basketSize_,false);
+                                                    pEventSelectionIDs_, om_->auxItems()[InEvent].basketSize_);
     eventTree_.addAuxiliary<BranchListIndexes>(poolNames::branchListIndexesBranchName(),
                                                pBranchListIndexes_, om_->auxItems()[InEvent].basketSize_);
 
     lumiTree_.addAuxiliary<LuminosityBlockAuxiliary>(BranchTypeToAuxiliaryBranchName(InLumi),
                                                      pLumiAux_, om_->auxItems()[InLumi].basketSize_);
-    lumiTree_.addAuxiliary<StoredProductProvenanceVector>(BranchTypeToProductProvenanceBranchName(InLumi),
+    lumiTree_.addAuxiliary<ProductProvenanceVector>(BranchTypeToBranchEntryInfoBranchName(InLumi),
                                                     pLumiEntryInfoVector_, om_->auxItems()[InLumi].basketSize_);
 
     runTree_.addAuxiliary<RunAuxiliary>(BranchTypeToAuxiliaryBranchName(InRun),
                                         pRunAux_, om_->auxItems()[InRun].basketSize_);
-    runTree_.addAuxiliary<StoredProductProvenanceVector>(BranchTypeToProductProvenanceBranchName(InRun),
+    runTree_.addAuxiliary<ProductProvenanceVector>(BranchTypeToBranchEntryInfoBranchName(InRun),
                                                    pRunEntryInfoVector_, om_->auxItems()[InRun].basketSize_);
 
     treePointers_[InEvent] = &eventTree_;
@@ -448,30 +450,14 @@ namespace edm {
       throw Exception(errors::FatalRootError)
         << "Failed to create a branch for Parentages in the output file";
 
-    
-    //NOTE: for some reason the empty Parentage is not added to the registry some of the time
     ParentageRegistry& ptReg = *ParentageRegistry::instance();
-    ptReg.insertMapped(Parentage());
-    
-    std::vector<ParentageID> orderedIDs(parentageIDs_.size());
-    for(std::map<ParentageID,unsigned int>::const_iterator it = parentageIDs_.begin(),
-        itEnd = parentageIDs_.end();
-        it != itEnd;
-        ++it) {
-      orderedIDs[it->second]=it->first;
-    }
-    //now put them into the TTree in the correct order
-    for(std::vector<ParentageID>::const_iterator it = orderedIDs.begin(),
-        itEnd = orderedIDs.end();
-        it != itEnd;
-        ++it) {
-      desc = ptReg.getMapped(*it);
-      if (0!=desc) {
-        //NOTE: some old format files have missing Parentage info
-        // so this can't be fatal.
+    std::set<ParentageID>::const_iterator pidend = parentageIDs_.end();
+    for(ParentageRegistry::const_iterator i = ptReg.begin(), e = ptReg.end(); i != e; ++i) {
+      if(parentageIDs_.find(i->first) != pidend) {
+        desc = &(i->second);
         parentageTree_->Fill();
       }
-    }    
+    }
   }
 
   void RootOutputFile::writeFileFormatVersion() {
@@ -645,7 +631,7 @@ namespace edm {
   RootOutputFile::insertAncestors(ProductProvenance const& iGetParents,
                                   Principal const& principal,
                                   bool produced,
-                                  std::set<StoredProductProvenance>& oToFill) {
+                                  std::set<ProductProvenance>& oToFill) {
     assert(om_->dropMetaData() != PoolOutputModule::DropAll);
     assert(produced || om_->dropMetaData() != PoolOutputModule::DropPrior);
     if(om_->dropMetaData() == PoolOutputModule::DropDroppedPrior && !produced) return;
@@ -654,11 +640,11 @@ namespace edm {
     for(std::vector<BranchID>::const_iterator it = parentIDs.begin(), itEnd = parentIDs.end();
           it != itEnd; ++it) {
       branchesWithStoredHistory_.insert(*it);
-      ProductProvenance const* info = iMapper.branchIDToProvenance(*it);
+      boost::shared_ptr<ProductProvenance> info = iMapper.branchIDToProvenance(*it);
       if(info) {
         if(om_->dropMetaData() == PoolOutputModule::DropNone ||
                  principal.getProvenance(info->branchID()).product().produced()) {
-          if(insertProductProvenance(*info,oToFill) ) {
+          if(oToFill.insert(*info).second) {
             //haven't seen this one yet
             insertAncestors(*info, principal, produced, oToFill);
           }
@@ -670,7 +656,7 @@ namespace edm {
   void RootOutputFile::fillBranches(
                 BranchType const& branchType,
                 Principal const& principal,
-                StoredProductProvenanceVector* productProvenanceVecPtr) {
+                ProductProvenanceVector* productProvenanceVecPtr) {
 
     typedef std::vector<std::pair<TClass*, void const*> > Dummies;
     Dummies dummies;
@@ -679,7 +665,7 @@ namespace edm {
 
     OutputItemList const& items = om_->selectedOutputItemList()[branchType];
 
-    std::set<StoredProductProvenance> provenanceToKeep;
+    std::set<ProductProvenance> provenanceToKeep;
 
     // Loop over EDProduct branches, fill the provenance, and write the branch.
     for(OutputItemList::const_iterator i = items.begin(), iEnd = items.end(); i != iEnd; ++i) {
@@ -697,8 +683,7 @@ namespace edm {
       void const* product = 0;
       OutputHandle const oh = principal.getForOutput(id, getProd);
       if(keepProvenance && oh.productProvenance()) {
-        insertProductProvenance(*oh.productProvenance(),provenanceToKeep);
-        //provenanceToKeep.insert(*oh.productProvenance());
+        provenanceToKeep.insert(*oh.productProvenance());
         assert(principal.branchMapperPtr());
         insertAncestors(*oh.productProvenance(), principal, produced, provenanceToKeep);
       }
@@ -715,27 +700,16 @@ namespace edm {
       }
     }
 
+    for(std::set<ProductProvenance>::const_iterator it = provenanceToKeep.begin(), itEnd=provenanceToKeep.end();
+        it != itEnd; ++it) {
+      parentageIDs_.insert(it->parentageID());
+    }
+
     productProvenanceVecPtr->assign(provenanceToKeep.begin(), provenanceToKeep.end());
     treePointers_[branchType]->fillTree();
     productProvenanceVecPtr->clear();
     for(Dummies::iterator it = dummies.begin(), itEnd = dummies.end(); it != itEnd; ++it) {
       it->first->Destructor(const_cast<void *>(it->second));
     }
-  }
-  
-  bool
-  RootOutputFile::insertProductProvenance(const edm::ProductProvenance& iProv,
-                                          std::set<edm::StoredProductProvenance>& oToInsert) {
-    StoredProductProvenance toStore;
-    toStore.branchID_ = iProv.branchID().id();
-    std::set<edm::StoredProductProvenance>::iterator itFound = oToInsert.find(toStore);
-    if(itFound == oToInsert.end()) {
-      //get the index to the ParentageID or insert a new value if not already present
-      std::pair<std::map<edm::ParentageID,unsigned int>::iterator,bool> i = parentageIDs_.insert(std::make_pair(iProv.parentageID(),static_cast<unsigned int>(parentageIDs_.size())));
-      toStore.parentageIDIndex_ = i.first->second;
-      oToInsert.insert(toStore);
-      return true;
-    }
-    return false;
   }
 }
