@@ -1,4 +1,5 @@
 #include "../interface/utils.h"
+#include "../interface/RooSimultaneousOpt.h"
 
 #include <cstdio>
 #include <iostream>
@@ -76,6 +77,7 @@ void utils::printPdf(RooWorkspace *w, const char *pdfName) {
 RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgList &constraints) {
     const std::type_info & id = typeid(pdf);
     if (id == typeid(RooProdPdf)) {
+        //std::cout << " pdf is product pdf " << pdf.GetName() << std::endl;
         RooProdPdf *prod = dynamic_cast<RooProdPdf *>(&pdf);
         RooArgList newFactors; RooArgSet newOwned;
         RooArgList list(prod->pdfList());
@@ -83,6 +85,7 @@ RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, Roo
         for (int i = 0, n = list.getSize(); i < n; ++i) {
             RooAbsPdf *pdfi = (RooAbsPdf *) list.at(i);
             RooAbsPdf *newpdf = factorizePdf(observables, *pdfi, constraints);
+            //std::cout << "    for " << pdfi->GetName() << "   newpdf  " << (newpdf == 0 ? "null" : (newpdf == pdfi ? "old" : "new"))  << std::endl;
             if (newpdf == 0) { needNew = true; continue; }
             if (newpdf != pdfi) { needNew = true; newOwned.add(*newpdf); }
             newFactors.add(*newpdf);
@@ -93,7 +96,7 @@ RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, Roo
         RooProdPdf *ret = new RooProdPdf(TString::Format("%s_obsOnly", pdf.GetName()), "", newFactors);
         ret->addOwnedComponents(newOwned);
         return ret;
-    } else if (id == typeid(RooSimultaneous)) {
+    } else if (id == typeid(RooSimultaneous) || id == typeid(RooSimultaneousOpt)) {
         RooSimultaneous *sim  = dynamic_cast<RooSimultaneous *>(&pdf);
         RooAbsCategoryLValue *cat = (RooAbsCategoryLValue *) sim->indexCat().Clone();
         int nbins = cat->numBins((const char *)0);
@@ -118,6 +121,11 @@ RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, Roo
             ret->addOwnedComponents(newOwned);
         }
         delete cat;
+        if (id == typeid(RooSimultaneousOpt)) {
+            RooSimultaneousOpt *newret = new RooSimultaneousOpt(*ret);
+            newret->addOwnedComponents(RooArgSet(*ret));
+            ret = newret;
+        }
         return ret;
     } else if (pdf.dependsOn(observables)) {
         return &pdf;

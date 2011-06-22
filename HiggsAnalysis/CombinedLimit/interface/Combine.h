@@ -54,6 +54,7 @@ private:
   // implementation-related variables
   bool compiledExpr_;
   bool makeTempDir_;
+  bool optSimPdf_;
 };
 
 #endif

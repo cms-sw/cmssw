@@ -236,6 +236,11 @@ cacheutils::CachingSimNLL::setup_()
     if (constraints.getSize()) {
         constrainPdf_.reset(new RooProdPdf(TString(pdfOriginal_->GetName())+"_constr", "", constraints));
     } else {
+        std::cerr << "PDF didn't factorize!" << std::endl;
+        std::cout << "Parameters: " << std::endl;
+        params->Print("V");
+        std::cout << "Obs: " << std::endl;
+        dataOriginal_->get()->Print("V");
         factorizedPdf_.release();
         simpdf = dynamic_cast<RooSimultaneous *>(pdfclone);
     }
@@ -248,7 +253,13 @@ cacheutils::CachingSimNLL::setup_()
     for (int ib = 0, nb = pdfs_.size(); ib < nb; ++ib) {
         catClone->setBin(ib);
         RooAddPdf *pdf = dynamic_cast<RooAddPdf *>(simpdf->getPdf(catClone->getLabel()));
-        if (pdf == 0 && (simpdf->getPdf(catClone->getLabel()) != 0)) { std::cerr << "ERROR: not RooAddPdf!" << std::endl; continue; }
+        if (pdf == 0 && (simpdf->getPdf(catClone->getLabel()) != 0)) { 
+            std::string errormsg("ERROR: for channel "); 
+            errormsg += catClone->getLabel();
+            errormsg += " the pdf is not a RooAddPdf but a ";
+            errormsg += typeid(*simpdf->getPdf(catClone->getLabel())).name();
+            throw std::invalid_argument(errormsg);
+        }
         if (pdf != 0) {
             RooAbsData *data = (RooAbsData *) dataSets_->FindObject(catClone->getLabel());
             std::cout << "   bin " << ib << " (label " << catClone->getLabel() << ") has pdf " << pdf->GetName() << " of type " << pdf->ClassName() << " and " << (data ? data->numEntries() : -1) << " dataset entries" << std::endl;

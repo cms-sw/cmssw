@@ -4,6 +4,7 @@
 #include "../interface/AsymPow.h"
 #include "../interface/CombDataSetFactory.h"
 #include "../interface/TH1Keys.h"
+#include "../interface/RooSimultaneousOpt.h"
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -15,4 +16,5 @@
 #pragma link C++ class AsymPow+;
 #pragma link C++ class CombDataSetFactory+;
 #pragma link C++ class TH1Keys+;
+#pragma link C++ class RooSimultaneousOpt+;
 #endif

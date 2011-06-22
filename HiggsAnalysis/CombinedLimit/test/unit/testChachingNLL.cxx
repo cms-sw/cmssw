@@ -15,6 +15,8 @@
 #include <RooStats/RatioOfProfiledLikelihoodsTestStat.h>
 #include "HiggsAnalysis/CombinedLimit/interface/CachingNLL.h"
 #include "HiggsAnalysis/CombinedLimit/interface/utils.h"
+#include "HiggsAnalysis/CombinedLimit/interface/ProfiledLikelihoodRatioTestStatExt.h"
+#include "HiggsAnalysis/CombinedLimit/interface/RooSimultaneousOpt.h"
 
 RooWorkspace *w;
 
@@ -90,14 +92,14 @@ void testCachingSimNLL(RooSimultaneous *pdf, RooAbsData *data, int nattempts)
     double plainTime = 0, alterTime = 0;
     cacheutils::CachingSimNLL onll(pdf, data);
     std::vector<double> plain, alter; 
-    timer.Start(); alter.push_back(onll.getVal()); alterTime += timer.RealTime();
     timer.Start(); plain.push_back(nll->getVal()); plainTime += timer.RealTime();
+    timer.Start(); alter.push_back(onll.getVal()); alterTime += timer.RealTime();
     for (int i = 0; i < nattempts; ++i) {
         RooRealVar *v = (RooRealVar *) params.at(i %  params.getSize());
         if (v->isConstant()) continue;
         v->setVal(v->getVal() +  0.0);
-        timer.Start(); alter.push_back(onll.getVal()); alterTime += timer.RealTime();
         timer.Start(); plain.push_back(nll->getVal()); plainTime += timer.RealTime();
+        timer.Start(); alter.push_back(onll.getVal()); alterTime += timer.RealTime();
     }
     for (int i = 0,  n = plain.size(); i < n; ++i) {
         printf("plain % 10.4f  alter % 10.4f   diff % 10.4f\n", plain[i], alter[i], alter[i]-plain[i]);
@@ -148,6 +150,18 @@ void testCachingSimFit(RooSimultaneous *pdf, RooAbsData *data, int nattempts)
 
 }
 
+void testCachingSimTestStat(RooStats::ModelConfig &mc, RooAbsData *data, int nattempts) 
+{
+    RooSimultaneous *pdf = (RooSimultaneous *) mc.GetPdf();
+    if (nattempts > 0) pdf = new RooSimultaneousOpt(*pdf, "opt");
+    RooArgSet snap;
+    mc.GetNuisanceParameters()->snapshot(snap);
+    mc.GetParametersOfInterest()->snapshot(snap);
+    snap.setRealValue("r", 1);
+    snap.Print("V");
+    ProfiledLikelihoodTestStatOpt testStat(*mc.GetObservables(), *pdf, mc.GetNuisanceParameters(),  snap, 0);
+    std::cout << "value: " << testStat.Evaluate(*data, snap) << std::endl;
+}
 
 
 void testCachingPdf(RooStats::ModelConfig &mc, RooAbsData *data, int tries=0) {
@@ -223,7 +237,8 @@ void runExternal(const char *file, int n, const char *wsp, const char *datan, co
     //testChecker(*mc);  
     //testCachingPdf(*mc, data, n);  
     //testCachingAddNLL(*mc, data, n);  
-    testCachingSimNLL(*mc, data, n);  
+    //testCachingSimNLL(*mc, data, n);  
+    testCachingSimTestStat(*mc, data, n);  
 }
 
 void runPerf(const char *opt, const char *n, const char *file, const char *wsp, const char *datan, const char *mcn) {
