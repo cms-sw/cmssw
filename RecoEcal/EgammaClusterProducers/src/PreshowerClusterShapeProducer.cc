@@ -62,6 +62,7 @@ PreshowerClusterShapeProducer::PreshowerClusterShapeProducer(const ParameterSet&
   
   presh_pi0_algo = new EndcapPiZeroDiscriminatorAlgo(preshStripECut, preshNst, tmpPath.c_str(), debugL_pi0); 
 
+LogTrace("EcalClusters") << "PreshowerClusterShapeProducer:presh_pi0_algo class instantiated " ;
   if ( debugL_pi0 == EndcapPiZeroDiscriminatorAlgo::pDEBUG ) 
                   cout << "PreshowerClusterShapeProducer:presh_pi0_algo class instantiated " << endl; 
   
@@ -78,6 +79,8 @@ PreshowerClusterShapeProducer::~PreshowerClusterShapeProducer() {
 void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
 
   ostringstream ostr; // use this stream for all messages in produce
+
+LogTrace("EcalClusters") << "\n .......  Event " << evt.id() << " with Number = " <<  nEvt_+1 << " is analyzing ....... " ;
 
   if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG )
        cout << "\n .......  Event " << evt.id() << " with Number = " <<  nEvt_+1
@@ -108,6 +111,7 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
   // pointer to the object in the product
   const EcalRecHitCollection* rechits = pRecHits.product(); 
   
+  LogTrace("EcalClusters") << "PreshowerClusterShapeProducer: ### Total # of preshower RecHits: " << rechits->size() ;
   if ( debugL_pi0 == EndcapPiZeroDiscriminatorAlgo::pDEBUG ) 
     cout << "PreshowerClusterShapeProducer: ### Total # of preshower RecHits: "
 	 << rechits->size() << endl;
@@ -120,6 +124,8 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
   for (it = rechits->begin(); it != rechits->end(); it++) {
      rechits_map.insert(make_pair(it->id(), *it));
   }
+  
+  LogTrace("EcalClusters") << "PreshowerClusterShapeProducer: ### Preshower RecHits_map of size " << rechits_map.size() <<" was created!" ;
   if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) cout
     << "PreshowerClusterShapeProducer: ### Preshower RecHits_map of size "
                                 << rechits_map.size() <<" was created!" << endl; 
@@ -135,6 +141,7 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
 
   evt.getByLabel(endcapSClusterProducer_, pSuperClusters);
   const reco::SuperClusterCollection* SClusts = pSuperClusters.product();
+  LogTrace("EcalClusters") << "### Total # Endcap Superclusters: " << SClusts->size() ;
   if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) cout <<"### Total # Endcap Superclusters: " << SClusts->size() << endl;
   SuperClusterCollection::const_iterator it_s;
   for ( it_s=SClusts->begin();  it_s!=SClusts->end(); it_s++ ) {
@@ -144,6 +151,8 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
       float SC_Et   = it_super->energy()*sin(2*atan(exp(-it_super->eta())));
       float SC_eta  = it_super->eta();
       float SC_phi  = it_super->phi();
+
+LogTrace("EcalClusters") << "PreshowerClusterShapeProducer: superCl_E = " << it_super->energy() << " superCl_Et = " << SC_Et << " superCl_Eta = " << SC_eta << " superCl_Phi = " << SC_phi ;
 
       if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
         cout << "PreshowerClusterShapeProducer: superCl_E = " << it_super->energy()
@@ -157,6 +166,7 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
 	  if (geometry)
 	    {
 	      const GlobalPoint pointSC(it_super->x(),it_super->y(),it_super->z()); // get the centroid of the SC
+	      LogTrace("EcalClusters") << "SC centroind = " << pointSC ;
 	      if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) cout << "SC centroind = " << pointSC << endl;
 	      
 	      // Get the Preshower 2-planes RecHit vectors associated with the given SC
@@ -179,6 +189,14 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
 		}	    
 		cout  << endl;
 	      } 
+	    LogTrace("EcalClusters") << "PreshowerClusterShapeProducer : ES Energy vector associated to the given SC = " ;
+	    for(int k1=0;k1<11;k1++) {
+		  LogTrace("EcalClusters") << vout_stripE1[k1] << " " ;
+		}
+	      
+	     for(int k1=0;k1<11;k1++) {
+		 LogTrace("EcalClusters")  << vout_stripE2[k1] << " " ;
+		} 
 	      
 	      reco::PreshowerClusterShape ps1 = reco::PreshowerClusterShape(vout_stripE1,1);
 	      ps1.setSCRef(it_super);
@@ -198,6 +216,7 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
   
   evt.put(ps_cl_for_pi0_disc_x, PreshowerClusterShapeCollectionX_);
   evt.put(ps_cl_for_pi0_disc_y, PreshowerClusterShapeCollectionY_);  
+  LogTrace("EcalClusters") << "PreshowerClusterShapeCollection added to the event" ;
   
   if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) cout << "PreshowerClusterShapeCollection added to the event" << endl;
 

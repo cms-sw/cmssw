@@ -110,7 +110,8 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   edm::Handle<EcalRecHitCollection> rhcHandle;
   //  evt.getByType(rhcHandle);
   evt.getByLabel(hitproducer_, hitcollection_, rhcHandle);
-  if (!(rhcHandle.isValid())) 
+  if (!(rhcHandle.isValid()))
+  // LogTrace("EcalClusters") << "could not get a handle on the EcalRecHitCollection!";
     {
       if (debugL <= HybridClusterAlgo::pINFO)
 	std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
@@ -128,6 +129,7 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   edm::ESHandle<EcalSeverityLevelAlgo> sevLv;
   es.get<EcalSeverityLevelAlgoRcd>().get(sevLv);
 
+LogTrace("EcalClusters") << "\n\n\n" << hitcollection_ << "\n\n";
   if (debugL == HybridClusterAlgo::pDEBUG)
     std::cout << "\n\n\n" << hitcollection_ << "\n\n" << std::endl;
 
@@ -147,15 +149,19 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   hybrid_p->makeClusters(hit_collection, geometry_p, basicClusters, sevLv.product(),false,
 			 std::vector<EcalEtaPhiRegion>());
 
+LogTrace("EcalClusters") << "Finished clustering - BasicClusterCollection returned to producer..." ;
+
   if (debugL == HybridClusterAlgo::pDEBUG)
     std::cout << "Finished clustering - BasicClusterCollection returned to producer..." << std::endl;
 
   // create an auto_ptr to a BasicClusterCollection, copy the clusters into it and put in the Event:
   std::auto_ptr< reco::BasicClusterCollection > basicclusters_p(new reco::BasicClusterCollection);
   basicclusters_p->assign(basicClusters.begin(), basicClusters.end());
-  edm::OrphanHandle<reco::BasicClusterCollection> bccHandle =  evt.put(basicclusters_p, 
-                                                                       basicclusterCollection_);
+  edm::OrphanHandle<reco::BasicClusterCollection> bccHandle =  evt.put(basicclusters_p,basicclusterCollection_);
+								       
   //Basic clusters now in the event.
+  LogTrace("EcalClusters") << "Basic Clusters now put into event." ;
+  
   if (debugL == HybridClusterAlgo::pDEBUG)
     std::cout << "Basic Clusters now put into event." << std::endl;
   
@@ -164,6 +170,7 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   //edm::Handle<reco::BasicClusterCollection> bccHandle;
   // evt.getByLabel("clusterproducer",basicclusterCollection_, bccHandle);
   if (!(bccHandle.isValid())) {
+  LogTrace("EcalClusters") << "could not get a handle on the BasicClusterCollection!" ;
     if (debugL <= HybridClusterAlgo::pINFO)
       std::cout << "could not get a handle on the BasicClusterCollection!" << std::endl;
     return;
@@ -178,6 +185,7 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   }
 
   reco::SuperClusterCollection superClusters = hybrid_p->makeSuperClusters(clusterPtrVector);
+LogTrace("EcalClusters") << "Found: " << superClusters.size() << " superclusters." ;
 
   if (debugL == HybridClusterAlgo::pDEBUG)
     std::cout << "Found: " << superClusters.size() << " superclusters." << std::endl;  
@@ -186,6 +194,7 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   superclusters_p->assign(superClusters.begin(), superClusters.end());
   
   evt.put(superclusters_p, superclusterCollection_);
+LogTrace("EcalClusters") << "Hybrid Clusters (Basic/Super) added to the Event! :-)" ;
 
   if (debugL == HybridClusterAlgo::pDEBUG)
     std::cout << "Hybrid Clusters (Basic/Super) added to the Event! :-)" << std::endl;

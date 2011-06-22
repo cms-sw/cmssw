@@ -125,7 +125,7 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
         int uncleanSize =  pUncleanSC->size();
         int cleanSize =    pCleanSC->size();
 
-        LogDebug("EcalCleaning") << "Size of Clean Collection: " << cleanSize 
+        LogTrace("EcalCleaning") << "Size of Clean Collection: " << cleanSize 
                 << ", uncleanSize: " << uncleanSize  << std::endl;
         //
         // keep whether the SC in unique in the uncleaned collection

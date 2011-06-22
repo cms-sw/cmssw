@@ -6,6 +6,7 @@
 #include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TH1.h"
 
@@ -22,15 +23,19 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
   used_s = used_strips;
 
   int plane = strip.plane();
+  
+  LogTrace("EcalClusters1") << "Preshower Seeded Algorithm - looking for clusters";
+  LogTrace("EcalClusters1")<< "Preshower is intersected at strip" << strip.strip() << ",at plane" << plane ;
 
   if ( debugLevel_ <= pINFO ) {
     std::cout << "Preshower Seeded Algorithm - looking for clusters" << std::endl;
-    std::cout << "Preshower is intersected at strip " << strip.strip() << ", at plane " << plane << std::endl;
+    std::cout << "Preshower is intersected at strip " << strip.strip() << ",at plane" << plane << std::endl;
   }
 
   // create null-cluster
   std::vector< std::pair<DetId,float> > dummy;
-  Point posi(0,0,0);  
+  Point posi(0,0,0); 
+  LogTrace("EcalClusters1") <<  " Creating a null-cluster" ;
   if ( debugLevel_ <= pINFO ) std::cout << " Creating a null-cluster" << std::endl;
   reco::PreshowerCluster nullcluster=reco::PreshowerCluster(0.,posi,dummy,plane);
 
@@ -46,6 +51,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
   navigator.setHome(strip);
  //search for neighbours in the central road
   findRoad(strip,navigator,plane);
+  LogTrace("EcalClusters1") << "Total number of strips in the central road:" << road_2d.size() ;
   if ( debugLevel_ <= pINFO ) std::cout << "Total number of strips in the central road: " << road_2d.size() << std::endl;
 
   if ( plane == 1 ) {
@@ -64,7 +70,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
      findRoad(strip_west,navigator,plane);
      navigator.home();
   }
-
+LogTrace("EcalClusters1") << "Total number of strips in all three roads:" << road_2d.size() ;
   if ( debugLevel_ <= pINFO ) std::cout << "Total number of strips in all three roads: " << road_2d.size() << std::endl;
 
   // Start clustering from strip with max Energy in the road
@@ -74,10 +80,12 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
   // Loop over strips:
   std::vector<ESDetId>::iterator itID;
   for (itID = road_2d.begin(); itID != road_2d.end(); itID++) {
+  LogTrace("EcalClusters1") << "ID ="<<*itID ;
     if ( debugLevel_ == pDEBUG ) std::cout << " ID = " << *itID << std::endl;
     RecHitsMap::iterator strip_it = rechits_map->find(*itID);   
     //if ( strip_it->second.energy() < 0 ) std::cout << "           ##### E = " << strip_it->second.energy() << std::endl;
     if(!goodStrip(strip_it)) continue;
+    LogTrace("EcalClusters1") << " strip is " << ESDetId(strip_it->first) <<"E ="<< strip_it->second.energy();
     if ( debugLevel_ == pDEBUG ) std::cout << " strip is " << ESDetId(strip_it->first) <<"  E = " << strip_it->second.energy() <<std::endl;
     float E = strip_it->second.energy();
     if ( E > E_max) {
@@ -93,6 +101,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
   clusterRecHits.push_back(max_it->second);  
   recHits_pos.insert(std::make_pair(max_it->first, max_it->second));
   used_s->insert(max_it->first);
+  LogTrace("EcalClusters1") << "Central hottest strip" << ESDetId(max_it->first) << "is saved with energy E =" <<  E_max ;
   if ( debugLevel_ <= pINFO ) {
      std::cout << " Central hottest strip " << ESDetId(max_it->first) << " is saved " << std::endl;
      std::cout << " with energy E = " <<  E_max << std::endl;    
@@ -108,6 +117,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
     int nadjacents_east = 0;
     while ( (next=navigator.east()) != ESDetId(0) && next != startES && nadjacents_east < 2 ) {
        ++nadjacents_east;
+       LogTrace("EcalClusters1") << "Adjacent east #" << nadjacents_east <<":"<< next ;
        if ( debugLevel_ == pDEBUG ) std::cout << " Adjacent east #" << nadjacents_east <<": "<< next << std::endl;
        RecHitsMap::iterator strip_it = rechits_map->find(next);
 
@@ -117,6 +127,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
        // save strip for position calculation
        if ( nadjacents_east==1 ) strip_1 = next;
        used_s->insert(strip_it->first);
+       LogTrace("EcalClusters1") << "East adjacent strip #" << nadjacents_east << "is saved with energy E =" << strip_it->second.energy() ;
        if ( debugLevel_ == pDEBUG ) std::cout << " East adjacent strip # " << nadjacents_east << " is saved with energy E = " 
                                               << strip_it->second.energy() << std::endl;             
     }
@@ -125,12 +136,14 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
     int nadjacents_west = 0;
     while ( (next=navigator.west()) != ESDetId(0) && next != startES && nadjacents_west < 2 ) {
        ++nadjacents_west;
+       LogTrace("EcalClusters1") << "Adjacent west #" << nadjacents_west <<":"<< next ;
        if ( debugLevel_ == pDEBUG ) std::cout << " Adjacent west #" << nadjacents_west <<": "<< next << std::endl; 
        RecHitsMap::iterator strip_it = rechits_map->find(next);
        if(!goodStrip(strip_it)) continue;
        clusterRecHits.push_back(strip_it->second);
        if ( nadjacents_west==1 ) strip_2 = next;
        used_s->insert(strip_it->first);
+       LogTrace("EcalClusters1") << "West adjacent strip #" << nadjacents_west << "is saved with energy E =" << strip_it->second.energy();
        if ( debugLevel_ == pDEBUG ) std::cout << " West adjacent strip # " << nadjacents_west << " is saved with energy E = " 
                                              << strip_it->second.energy() << std::endl;           
     }
@@ -141,12 +154,14 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
     int nadjacents_north = 0;
     while ( (next=navigator.north()) != ESDetId(0) && next != startES && nadjacents_north < 2 ) {
        ++nadjacents_north;
-       if ( debugLevel_ == pDEBUG ) std::cout << " Adjacent north #" << nadjacents_north <<": "<< next << std::endl;   
+       LogTrace("EcalClusters1") << "Adjacent north #" << nadjacents_north <<":"<< next ;
+       if ( debugLevel_ == pDEBUG ) std::cout << " Adjacent north #" << nadjacents_north <<":"<< next << std::endl;   
        RecHitsMap::iterator strip_it = rechits_map->find(next); 
        if(!goodStrip(strip_it)) continue;      
        clusterRecHits.push_back(strip_it->second);
        if ( nadjacents_north==1 ) strip_1 = next;
        used_s->insert(strip_it->first);
+       LogTrace("EcalClusters1") << "North adjacent strip #" << nadjacents_north << "is saved with energy E =" << strip_it->second.energy() ;
        if ( debugLevel_ == pDEBUG ) std::cout << " North adjacent strip # " << nadjacents_north << " is saved with energy E = " 
                                              << strip_it->second.energy() << std::endl;     
     }
@@ -155,12 +170,14 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
     int nadjacents_south = 0;
     while ( (next=navigator.south()) != ESDetId(0) && next != startES && nadjacents_south < 2 ) {
        ++nadjacents_south;
+       LogTrace("EcalClusters1") << "Adjacent south #" << nadjacents_south <<":"<< next ;
        if ( debugLevel_ == pDEBUG ) std::cout << " Adjacent south #" << nadjacents_south <<": "<< next << std::endl;   
        RecHitsMap::iterator strip_it = rechits_map->find(next);   
        if(!goodStrip(strip_it)) continue;      
        clusterRecHits.push_back(strip_it->second);
        if ( nadjacents_south==1 ) strip_2 = next;
        used_s->insert(strip_it->first);
+       LogTrace("EcalClusters1") << "South adjacent strip #" << nadjacents_south << "is saved with energy E =" << strip_it->second.energy() ;
        if ( debugLevel_ == pDEBUG ) std::cout << " South adjacent strip # " << nadjacents_south << " is saved with energy E = " 
                                              << strip_it->second.energy() << std::endl;     
     }
@@ -169,6 +186,8 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
     std::cout << " Wrong plane number" << plane <<", null cluster will be returned! " << std::endl;
     return nullcluster;
   } // end of if
+  LogTrace("EcalClusters1") << "Total size of clusterRecHits is" << clusterRecHits.size();
+  LogTrace("EcalClusters1") << "Two adjacent strips for position calculation are:" << strip_1 <<"and" << strip_2;
   if ( debugLevel_ <=pINFO ) std::cout << " Total size of clusterRecHits is " << clusterRecHits.size() << std::endl;
   if ( debugLevel_ <=pINFO ) std::cout << " Two adjacent strips for position calculation are: " 
                                       << strip_1 <<" and " << strip_2 << std::endl; 
@@ -204,6 +223,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
      z_pos /= energy_pos;
   }
   Point pos(x_pos,y_pos,z_pos);
+  LogTrace("EcalClusters1") << "ES Cluster position =" << "("<< x_pos <<","<< y_pos <<","<< z_pos <<")";
   if ( debugLevel_ == pDEBUG ) std::cout << " ES Cluster position = " << "(" << x_pos <<","<< y_pos <<","<< z_pos <<")"<< std::endl;
 
   EcalRecHitCollection::iterator it;
@@ -221,7 +241,12 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
 
   // ES cluster is created from vector clusterRecHits
   reco::PreshowerCluster cluster=reco::PreshowerCluster(Eclust,pos,usedHits,plane);
-
+LogTrace("EcalClusters1") << " ES Cluster is created with:" ;
+LogTrace("EcalClusters1") << " energy =" << cluster.energy();
+LogTrace("EcalClusters1") << " (eta,phi) =" << "("<<cluster.eta()<<","<<cluster.phi()<<")";
+LogTrace("EcalClusters1") << " nhits =" << cluster.nhits();
+LogTrace("EcalClusters1") << " radius =" << cluster.position().r();
+LogTrace("EcalClusters1") << " (x,y,z) =" << "(" << cluster.x() <<", "<< cluster.y() <<","<< cluster.z()<<")" ;
   if ( debugLevel_ <= pINFO ) {
      std::cout << " ES Cluster is created with " << std::endl;
      std::cout << " energy = " << cluster.energy() << std::endl;
@@ -252,6 +277,13 @@ bool PreshowerClusterAlgo::goodStrip(RecHitsMap::iterator candidate_it)
     if (candidate_it->second.energy() <= preshStripEnergyCut_)
         std::cout << " Strip energy " << candidate_it->second.energy() <<" is below threshold " << std::endl; 
   }
+  if ( used_s->find(candidate_it->first) != used_s->end())
+  LogTrace("EcalClusters1") << " This strip is in use";
+  if (candidate_it == rechits_map->end() )
+  LogTrace("EcalClusters1") << " No such a strip in rechits_map";
+  if (candidate_it->second.energy() <= preshStripEnergyCut_)
+  LogTrace("EcalClusters1") << "Strip energy" << candidate_it->second.energy() <<"is below threshold";
+  
   // crystal should not be included...
   if ( (used_s->find(candidate_it->first) != used_s->end())  ||       // ...if it already belongs to a cluster
        (candidate_it == rechits_map->end() )                    ||       // ...if it corresponds to a hit
@@ -259,7 +291,6 @@ bool PreshowerClusterAlgo::goodStrip(RecHitsMap::iterator candidate_it)
     {
       return false;
     }
-
   return true;
 }
 
@@ -273,35 +304,42 @@ void PreshowerClusterAlgo::findRoad(ESDetId strip, EcalPreshowerNavigator theESN
    theESNav.setHome(strip);
 // First, add a central strip to the road 
    road_2d.push_back(strip);   
-   
-   if ( debugLevel_ <= pINFO ) std::cout << "findRoad starts from strip " << strip << std::endl;  
+   LogTrace("EcalClusters1") << "findRoad starts from strip" << strip;
+   if ( debugLevel_ <= pINFO ) std::cout << "findRoad starts from strip" << strip << std::endl;  
    if (plane == 1) {
      // east road
      int n_east= 0;
-     if ( debugLevel_ == pDEBUG ) std::cout << " Go to the East " <<  std::endl;   
+     LogTrace("EcalClusters1") << " Go to the East ";
+     if ( debugLevel_ == pDEBUG ) std::cout << "Go to the East" <<  std::endl;   
      while ( ((next=theESNav.east()) != ESDetId(0) && next != strip) ) {
-        if ( debugLevel_ == pDEBUG ) std::cout << "East: " << n_east << " current strip is " << next << std::endl;  
+     LogTrace("EcalClusters1") << "East:" << n_east << "current strip is"<< next;
+        if ( debugLevel_ == pDEBUG ) std::cout << "East:" << n_east << "current strip is" << next << std::endl;  
         road_2d.push_back(next);   
         ++n_east;  
         if (n_east == preshSeededNstr_) break; 
      }
      // west road
      int n_west= 0;
+     LogTrace("EcalClusters1") <<  "Go to the West" ;
      if ( debugLevel_ == pDEBUG ) std::cout << " Go to the West " <<  std::endl;
      theESNav.home();
      while ( ((next=theESNav.west()) != ESDetId(0) && next != strip )) {
+     LogTrace("EcalClusters1") << "West: " << n_west << "current strip is" << next ;
         if ( debugLevel_ == pDEBUG ) std::cout << "West: " << n_west << " current strip is " << next << std::endl;  
         road_2d.push_back(next);   
         ++n_west;  
         if (n_west == preshSeededNstr_) break; 
      }
-     if ( debugLevel_ == pDEBUG ) std::cout << "Total number of strips found in the road at 1-st plane is " << n_east+n_west << std::endl;
+     LogTrace("EcalClusters1") << "Total number of strips found in the road at 1-st plane is" << n_east+n_west ;
+     if ( debugLevel_ == pDEBUG ) std::cout << "Total number of strips found in the road at 1-st plane is" << n_east+n_west << std::endl;
   } 
   else if (plane == 2) {
     // north road
     int n_north= 0;
+    LogTrace("EcalClusters1") << "Go to the North";
     if ( debugLevel_ == pDEBUG ) std::cout << " Go to the North " <<  std::endl;
-    while ( ((next=theESNav.north()) != ESDetId(0) && next != strip) ) {       
+    while ( ((next=theESNav.north()) != ESDetId(0) && next != strip) ) {   
+        LogTrace("EcalClusters1") << "North:" << n_north << "current strip is" << next ;
        if ( debugLevel_ == pDEBUG ) std::cout << "North: " << n_north << " current strip is " << next << std::endl; 
        road_2d.push_back(next);   
        ++n_north;  
@@ -309,17 +347,21 @@ void PreshowerClusterAlgo::findRoad(ESDetId strip, EcalPreshowerNavigator theESN
     }
     // south road
     int n_south= 0;
+    LogTrace("EcalClusters1") << "Go to the South";
     if ( debugLevel_ == pDEBUG ) std::cout << " Go to the South " <<  std::endl;
     theESNav.home();
     while ( ((next=theESNav.south()) != ESDetId(0) && next != strip) ) {
+    LogTrace("EcalClusters1") << "South:" << n_south << "current strip is" << next ;
        if ( debugLevel_ == pDEBUG ) std::cout << "South: " << n_south << " current strip is " << next << std::endl;      
        road_2d.push_back(next);   
        ++n_south;  
        if (n_south == preshSeededNstr_) break; 
     }
+    LogTrace("EcalClusters1") << "Total number of strips found in the road at 2-nd plane is" << n_south+n_north;
     if ( debugLevel_ == pDEBUG ) std::cout << "Total number of strips found in the road at 2-nd plane is " << n_south+n_north << std::endl;
   } 
   else {
+  LogTrace("EcalClusters1") << " Wrong plane number, null cluster will be returned!";
     if ( debugLevel_ == pDEBUG ) std::cout << " Wrong plane number, null cluster will be returned! " << std::endl;    
   } // end of if
 

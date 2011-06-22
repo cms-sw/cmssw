@@ -98,7 +98,7 @@ void UncleanSCRecoveryProducer::produce(edm::Event& evt,
         int uncleanSize = pUncleanSC->size();
         int cleanSize =   pCleanSC->size();
 
-        LogDebug("EcalCleaning")  << "Size of Clean Collection: " << cleanSize 
+        LogTrace("EcalCleaning")  << "Size of Clean Collection: " << cleanSize 
                 << ", uncleanSize: " << uncleanSize;
 
         // collections are all taken now ____________________________________________
@@ -157,7 +157,7 @@ void UncleanSCRecoveryProducer::produce(edm::Event& evt,
         }
         reco::BasicClusterCollection basicClustersProd = *bccHandle;
 
-        LogDebug("EcalCleaning") <<"Got the BasicClusters from the event again";
+        LogTrace("EcalCleaning") <<"Got the BasicClusters from the event again";
         int bcSize = bccHandle->size();
         //
         // now we can create the SC collection
@@ -212,31 +212,31 @@ void UncleanSCRecoveryProducer::produce(edm::Event& evt,
 
         evt.put(superClusters_p, scCollection_);
 
-        LogDebug("EcalCleaning")<<"Clusters (Basic/Super) added to the Event! :-)";
+        LogTrace("EcalCleaning")<<"Clusters (Basic/Super) added to the Event! :-)";
 
         // ----- debugging ----------
         // print the new collection SC quantities
         // print out the clean collection SC
-        LogDebug("EcalCleaning") << "Clean Collection SC ";
+        LogTrace("EcalCleaning") << "Clean Collection SC ";
         for (int i=0; i < cleanSize; ++i) {
                 const reco::SuperCluster csc = cleanSC[i];
-                LogDebug("EcalCleaning") << " >>> clean    #" << i << "; Energy: " << csc.energy()
+                LogTrace("EcalCleaning") << " >>> clean    #" << i << "; Energy: " << csc.energy()
                         << " eta: " << csc.eta() 
                         << " sc seed detid: " << csc.seed()->seed().rawId();
         }
         // the unclean SC
-        LogDebug("EcalCleaning") << "Unclean Collection SC ";
+        LogTrace("EcalCleaning") << "Unclean Collection SC ";
         for (int i=0; i < uncleanSize; ++i) {
                 const reco::SuperCluster usc = uncleanSC[i];
-                LogDebug("EcalCleaning") << " >>> unclean  #" << i << "; Energy: " << usc.energy()
+                LogTrace("EcalCleaning") << " >>> unclean  #" << i << "; Energy: " << usc.energy()
                         << " eta: " << usc.eta() 
                         << " sc seed detid: " << usc.seed()->seed().rawId();
         }
         // the new collection
-        LogDebug("EcalCleaning")<<"The new SC clean collection with size "<< superClusters.size();
+        LogTrace("EcalCleaning")<<"The new SC clean collection with size "<< superClusters.size();
         for (unsigned int i=0; i <  superClusters.size(); ++i) {
                 const reco::SuperCluster nsc = superClusters[i];
-                LogDebug("EcalCleaning")<< " >>> newSC    #" << i << "; Energy: " << nsc.energy()
+                LogTrace("EcalCleaning")<< " >>> newSC    #" << i << "; Energy: " << nsc.energy()
                         << " eta: " << nsc.eta()  << " isClean=" 
                         << nsc.isInClean() << " isUnclean=" << nsc.isInUnclean()
                         << " sc seed detid: " << nsc.seed()->seed().rawId();
