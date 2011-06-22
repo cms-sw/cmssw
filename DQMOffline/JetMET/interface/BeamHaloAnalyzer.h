@@ -260,9 +260,15 @@ class BeamHaloAnalyzer: public edm::EDAnalyzer {
   MonitorElement* hCSCHaloData_InnerMostTrackHitRMinusZ;
   MonitorElement* hCSCHaloData_InnerMostTrackHitiPhi;
 
-  MonitorElement*hCSCHaloData_SegmentdT;
-  MonitorElement*hCSCHaloData_FreeInverseBeta;
-  MonitorElement*hCSCHaloData_FreeInverseBetaVsSegmentdT;
+  MonitorElement* hCSCHaloData_SegmentdT;
+  MonitorElement* hCSCHaloData_FreeInverseBeta;
+  MonitorElement* hCSCHaloData_FreeInverseBetaVsSegmentdT;
+
+  // MLR
+  MonitorElement* hCSCHaloData_NFlatHaloSegments;
+  MonitorElement* hCSCHaloData_SegmentsInBothEndcaps;
+  MonitorElement* hCSCHaloData_NFlatSegmentsInBothEndcaps;
+  // End MLR
 
   MonitorElement* hGlobalHaloData_MExCorrection;
   MonitorElement* hGlobalHaloData_MEyCorrection;
