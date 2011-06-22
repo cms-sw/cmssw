@@ -613,26 +613,34 @@ def toScreenLSTrg(trgdata,iresults=None,isverbose=False):
     '''
     result=[]
     for run in trgdata.keys():
+        if trgdata[run] is None:
+            ll=[str(run),'n/a','n/a','n/a']
+            if isverbose:
+                ll.append('n/a')
+            print ll
+            result.append(ll)
+            continue
         perrundata=trgdata[run]
         deadfrac=0.0
         bitdataStr='n/a'
         for lsdata in perrundata:
             cmslsnum=lsdata[0]
-            deadfra=lsdata[1]
+            deadfrac=lsdata[1]
+            deadcount=lsdata[2]
             bitdata=lsdata[5]# already sorted by name
             flatbitdata=["("+x[0]+',%d'%x[1]+',%d'%x[2]+")" for x in bitdata if x[0]!='False']
             #print 'flatbit ',flatbitdata
             bitdataStr=', '.join(flatbitdata)
             #print 'bitdataStr ',bitdataStr
             if isverbose:
-                result.append([str(run),str(cmslsnum),'%.2f'%(deadfrac),bitdataStr])
+                result.append([str(run),str(cmslsnum),'%.4f'%(deadfrac),'%d'%deadcount,bitdataStr])
             else:
-                result.append([str(run),str(cmslsnum),'%.2f'%(deadfrac)])
+                result.append([str(run),str(cmslsnum),'%.4f'%(deadfrac),'%d'%deadcount])
     print ' ==  = '
     if isverbose:
-        labels = [('Run', 'LS', 'dfrac','(bit,count,presc)')]
+        labels = [('Run', 'LS', 'dfrac','dcount','(bit,count,presc)')]
     else:
-        labels = [('Run', 'LS', 'dfrac')]
+        labels = [('Run', 'LS', 'dfrac','dcount')]
     print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'left',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,70) )

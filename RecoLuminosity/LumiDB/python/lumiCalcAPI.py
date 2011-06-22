@@ -86,7 +86,7 @@ def trgForRange(schema,inputRange,trgbitname=None,trgbitnamepattern=None,withL1C
     '''
     result={}
     withprescaleblob=True
-    withtrgblob=True
+    withtrgblob=True    
     for run in inputRange.keys():
         lslist=inputRange[run]
         if lslist is not None and len(lslist)==0:
@@ -94,6 +94,7 @@ def trgForRange(schema,inputRange,trgbitname=None,trgbitnamepattern=None,withL1C
             continue
         trgdataid=dataDML.guessTrgDataIdByRun(schema,run)
         if trgdataid is None:
+            result[run]=None
             continue #run non exist
         trgdata=dataDML.trgLSById(schema,trgdataid,trgbitname=trgbitname,trgbitnamepattern=trgbitnamepattern,withL1Count=withL1Count,withPrescale=withPrescale)
         #(runnum,{cmslsnum:[deadtimecount(0),bitzerocount(1),bitzeroprescale(2),deadfrac(3),[(bitname,trgcount,prescale)](4)]})
@@ -105,7 +106,11 @@ def trgForRange(schema,inputRange,trgbitname=None,trgbitnamepattern=None,withL1C
                 deadtimecount=trgdata[1][cmslsnum][0]
                 bitzerocount=trgdata[1][cmslsnum][1]
                 bitzeroprescale=trgdata[1][cmslsnum][2]
-                deadfrac=trgdata[1][cmslsnum][3]
+                if float(bitzerocount)*float(bitzeroprescale)==0.0:
+                    deadfrac=1.0
+                else:
+                    deadfrac=float(deadtimecount)/(float(bitzerocount)*float(bitzeroprescale))
+                #deadfrac=trgdata[1][cmslsnum][3]
                 allbitsinfo=trgdata[1][cmslsnum][4]
                 lsdata.append(cmslsnum)
                 lsdata.append(deadfrac)
