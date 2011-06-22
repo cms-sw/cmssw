@@ -7,7 +7,7 @@ class Datacard():
         self.processes = []; self.signals = []; self.isSignal = {}
         self.keyline = []
         self.exp     = {}  # map bin -> (process -> value)
-        self.systs   = []  # list (name, pdf, args, errline)
+        self.systs   = []  # list (name, nofloat, pdf, args, errline)
                            # errline: map bin -> (process -> value)
         self.shapeMap = {} # map channel -> (process -> [fname, hname, hname_syst])
         self.hasShape = False
@@ -96,7 +96,11 @@ def parseCard(file, options):
         l = re.sub("(?<=\\s)-+(\\s|$)"," 0\\1",l);
         f = l.split();
         if len(f) <= 1: continue
+        nofloat = False
         lsyst = f[0]; pdf = f[1]; args = []; numbers = f[2:];
+        if lsyst.endswith("[nofloat]"):
+          lsyst = lsyst.replace("[nofloat]","")
+          nofloat = True
         if re.match("[0-9]+",lsyst): lsyst = "theta"+lsyst
         if pdf == "lnN" or pdf == "gmM" or pdf.startswith("shape"):
             pass # nothing special to do
@@ -107,7 +111,10 @@ def parseCard(file, options):
             # just assume everything else is an argument and move on
             args = f[2:]
             if len(args) <= 1: raise RuntimeError, "Uncertainties of type 'param' must have at least two arguments (mean and sigma)"
-            ret.systs.append([lsyst,pdf,args,[]])
+            ret.systs.append([lsyst,nofloat,pdf,args,[]])
+            continue
+        elif pdf == "flatParam":
+            #for flat parametric uncertainties, code already does the right thing as long as they are non-constant RooRealVars linked to the model
             continue
         else:
             raise RuntimeError, "Unsupported pdf %s" % pdf
@@ -122,7 +129,7 @@ def parseCard(file, options):
                 errline[b][p] = float(r) 
             # set the rate to epsilon for backgrounds with zero observed sideband events.
             if pdf == "gmN" and ret.exp[b][p] == 0 and float(r) != 0: ret.exp[b][p] = 1e-6
-        ret.systs.append([lsyst,pdf,args,errline])
+        ret.systs.append([lsyst,nofloat,pdf,args,errline])
     # check if there are bins with no rate
     for b in ret.bins:
         np_bin = sum([(ret.exp[b][p] != 0) for (b1,p,s) in ret.keyline if b1 == b])
@@ -133,16 +140,16 @@ def parseCard(file, options):
         if nb_bin == 0: raise RuntimeError, "Bin %s has no background processes contributing to it" % b
     # cleanup systematics that have no effect to avoid zero derivatives
     syst2 = []
-    for lsyst,pdf,args,errline in ret.systs:
+    for lsyst,nofloat,pdf,args,errline in ret.systs:
         nonNullEntries = 0 
         if pdf == "param": # this doesn't have an errline
-            syst2.append((lsyst,pdf,args,errline))
+            syst2.append((lsyst,nofloat,pdf,args,errline))
             continue
         for (b,p,s) in ret.keyline:
             r = errline[b][p]
             nullEffect = (r == 0.0 or (pdf == "lnN" and r == 1.0))
             if not nullEffect and ret.exp[b][p] != 0: nonNullEntries += 1 # is this a zero background?
-        if nonNullEntries != 0: syst2.append((lsyst,pdf,args,errline))
+        if nonNullEntries != 0: syst2.append((lsyst,nofloat,pdf,args,errline))
         elif nuisances != -1: nuisances -= 1 # remove from count of nuisances, since qe skipped it
     ret.systs = syst2
     # remove them if options.stat asks so

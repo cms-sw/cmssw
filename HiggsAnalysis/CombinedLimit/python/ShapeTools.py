@@ -257,7 +257,7 @@ class ShapeBuilder(ModelBuilder):
         nominalPdf = self.shape2Pdf(shapeNominal,channel,process)
         if shapeNominal == None: return nominalPdf # no point morphing a fake shape
         morphs = []; shapeAlgo = None
-        for (syst,pdf,args,errline) in self.DC.systs:
+        for (syst,nofloat,pdf,args,errline) in self.DC.systs:
             if not "shape" in pdf: continue
             allowNoSyst = (pdf[-1] == "?")
             pdf = pdf.replace("?","")
@@ -308,7 +308,7 @@ class ShapeBuilder(ModelBuilder):
         if shapeNominal.InheritsFrom("TH1"): normNominal = shapeNominal.Integral()
         elif shapeNominal.InheritsFrom("RooDataHist"): normNominal = shapeNominal.sumEntries()
         else: return None    
-        for (syst,pdf,args,errline) in self.DC.systs:
+        for (syst,nofloat,pdf,args,errline) in self.DC.systs:
             if "shape" not in pdf: continue
             if errline[channel][process] != 0:
                 if pdf[-1] == "?" and not self.isShapeSystematic(channel,process,syst): continue

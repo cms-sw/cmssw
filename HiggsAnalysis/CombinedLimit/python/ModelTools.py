@@ -86,12 +86,13 @@ class ModelBuilder(ModelBuilderBase):
         if len(self.DC.systs) == 0: return
         self.doComment(" ----- nuisances -----")
         globalobs = []
-        for (n,pdf,args,errline) in self.DC.systs: 
+        for (n,nofloat,pdf,args,errline) in self.DC.systs: 
             if pdf == "lnN" or pdf.startswith("shape"):
                 #print "%s_Pdf = Gaussian(%s[-5,5], 0, 1);" % (n,n)
                 self.doObj("%s_Pdf" % n, "Gaussian", "%s[-5,5], %s_In[0,-5,5], 1" % (n,n));
                 globalobs.append("%s_In" % n)
-                if self.options.bin: self.out.var("%s_In" % n).setConstant(True)
+                if self.options.bin:
+                  self.out.var("%s_In" % n).setConstant(True)
             elif pdf == "gmM":
                 val = 0;
                 for c in errline.values(): #list channels
@@ -139,10 +140,12 @@ class ModelBuilder(ModelBuilderBase):
                     self.out.var("%s_In" % n).setConstant(True)
                 globalobs.append("%s_In" % n)
             else: raise RuntimeError, "Unsupported pdf %s" % pdf
+            if nofloat: 
+              self.out.var("%s" % n).setAttribute("globalConstrained",True)
         if self.options.bin:
             nuisPdfs = ROOT.RooArgList()
             nuisVars = ROOT.RooArgSet()
-            for (n,p,a,e) in self.DC.systs:
+            for (n,nf,p,a,e) in self.DC.systs:
                 nuisVars.add(self.out.var(n))
                 nuisPdfs.add(self.out.pdf(n+"_Pdf"))
             self.out.defineSet("nuisances", nuisVars)
@@ -153,8 +156,8 @@ class ModelBuilder(ModelBuilderBase):
             for g in globalobs: gobsVars.add(self.out.var(g))
             self.out.defineSet("globalObservables", gobsVars)
         else: # doesn't work for too many nuisances :-(
-            self.doSet("nuisances", ",".join(["%s"    % n for (n,p,a,e) in self.DC.systs]))
-            self.doObj("nuisancePdf", "PROD", ",".join(["%s_Pdf" % n for (n,p,a,e) in self.DC.systs]))
+            self.doSet("nuisances", ",".join(["%s"    % n for (n,nf,p,a,e) in self.DC.systs]))
+            self.doObj("nuisancePdf", "PROD", ",".join(["%s_Pdf" % n for (n,nf,p,a,e) in self.DC.systs]))
             self.doSet("globalObservables", ",".join(globalobs))
     def doExpectedEvents(self):
         self.doComment(" --- Expected events in each bin, for each process ----")
@@ -171,7 +174,7 @@ class ModelBuilder(ModelBuilderBase):
                     strexpr += " * @0";
                     strargs += ", r";
                     iSyst += 1
-                for (n,pdf,args,errline) in self.DC.systs:
+                for (n,nofloat,pdf,args,errline) in self.DC.systs:
                     if pdf.startswith("shape") and pdf.endswith("?"): # might be a lnN in disguise
                         if not self.isShapeSystematic(b,p,n): pdf = "lnN"
                     if pdf == "param" or pdf.startswith("shape"): continue
