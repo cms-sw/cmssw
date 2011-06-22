@@ -215,6 +215,10 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
   mc.SetProposalFunction(debugProposal_ > 0 ? *pdfDebugProp : *pdfProp);
   mc.SetLeftSideTailFraction(0);
 
+  if (typeid(*mc_s->GetPriorPdf()) == typeid(RooUniform)) {
+    mc.SetPriorPdf(*((RooAbsPdf *)0));
+  }
+
   std::auto_ptr<MCMCInterval> mcInt;
   try {  
       mcInt.reset((MCMCInterval*)mc.GetInterval()); 
