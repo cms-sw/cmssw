@@ -13,3 +13,5 @@ TauTagMVAComputerRecord = None
 #TauTagMVAComputerRecord.toGet[0].tag = cms.string('Tanc')
 ## Don't conflict with TaNC global tag
 #TauTagMVAComputerRecord.appendToDataLabel = cms.string('hpstanc')
+# Provide hook to enable a local database at the same time as the GT
+esPreferLocalTancDB = None
