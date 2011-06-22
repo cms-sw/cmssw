@@ -68,6 +68,8 @@ std::string HybridNew::plot_;
 std::string HybridNew::minimizerAlgo_ = "Minuit2";
 float       HybridNew::minimizerTolerance_ = 1e-2;
 
+#define EPS 1e-9
+ 
 HybridNew::HybridNew() : 
 LimitAlgo("HybridNew specific options") {
     options_.add_options()
@@ -204,9 +206,9 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
     if (testStat_ == "LHC" || testStat_ == "Profile") {
         // I don't need to flip the P-values for significances, only for limits
         // hcResult->SetPValueIsRightTail(!hcResult->GetPValueIsRightTail());
-        hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()-1e-9); // issue with < vs <= in discrete models
+        hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()-EPS); // issue with < vs <= in discrete models
     } else {
-        hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()+1e-9); // issue with < vs <= in discrete models
+        hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()+EPS); // issue with < vs <= in discrete models
     }
     limit = hcResult->Significance();
     double sigHi = RooStats::PValueToSignificance( 1 - (hcResult->CLb() + hcResult->CLbError()) ) - limit;
@@ -714,9 +716,9 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
     if (testStat_ == "LHC" || testStat_ == "Profile") {
         // I need to flip the P-values
         hcResult->SetPValueIsRightTail(!hcResult->GetPValueIsRightTail());
-        hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()-1e-9); // issue with < vs <= in discrete models
+        hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()-EPS); // issue with < vs <= in discrete models
     } else {
-        hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()+1e-9); // issue with < vs <= in discrete models
+        hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()+EPS); // issue with < vs <= in discrete models
     }
     double clsMid    = (CLs_ ? hcResult->CLs()      : hcResult->CLsplusb());
     double clsMidErr = (CLs_ ? hcResult->CLsError() : hcResult->CLsplusbError());
@@ -1009,7 +1011,7 @@ std::pair<double,double> HybridNew::updateGridPoint(RooWorkspace *w, RooStats::M
         std::vector<Double_t> btoys = point->second->GetNullDistribution()->GetSamplingDistribution();
         std::sort(btoys.begin(), btoys.end());
         Double_t testStat = btoys[std::min<int>(floor((1.-quantileForExpectedFromGrid_) * btoys.size()+0.5), btoys.size())];
-        point->second->SetTestStatisticData(testStat + (isProfile ? -1e-9 : 1e-9));
+        point->second->SetTestStatisticData(testStat + (isProfile ? -EPS : EPS));
     } else {
         RooArgSet  poi(*mc_s->GetParametersOfInterest());
         RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
@@ -1018,7 +1020,7 @@ std::pair<double,double> HybridNew::updateGridPoint(RooWorkspace *w, RooStats::M
         RooArgSet nullPOI(*setup.modelConfig_bonly.GetSnapshot());
         if (isProfile) nullPOI.setRealValue(r->GetName(), rValue_);
         double testStat = setup.qvar->Evaluate(data, nullPOI);
-        point->second->SetTestStatisticData(testStat + (isProfile ? -1e-9 : 1e-9));
+        point->second->SetTestStatisticData(testStat + (isProfile ? -EPS : EPS));
     }
     return CLs_ ? CLs_t(point->second->CLs(), point->second->CLsError()) : CLs_t(point->second->CLsplusb(), point->second->CLsplusbError());
 }

@@ -6,6 +6,8 @@
 #include <RooAbsData.h>
 #include <RooArgSet.h>
 #include <RooStats/TestStatistic.h>
+#include "../interface/RooSimultaneousOpt.h"
+#include "../interface/CachingNLL.h"
 
 
 class ProfiledLikelihoodRatioTestStatOpt : public RooStats::TestStatistic {
@@ -52,10 +54,13 @@ class ProfiledLikelihoodTestStatOpt : public RooStats::TestStatistic {
         RooAbsPdf *pdf_;
         RooArgSet snap_, poi_, nuisances_; 
         std::auto_ptr<RooArgSet> params_;
+        std::auto_ptr<RooAbsReal> nll_;
         RooArgList gobsParams_, gobs_;
         Int_t verbosity_;
 
-        double minNLL(RooAbsPdf &pdf, RooAbsData &data) ;
+        // create NLL. if returns true, it can be kept, if false it should be deleted at the end of Evaluate
+        bool createNLL(RooAbsPdf &pdf, RooAbsData &data) ;
+        double minNLL() ;
 }; // TestSimpleStatistics
 
 

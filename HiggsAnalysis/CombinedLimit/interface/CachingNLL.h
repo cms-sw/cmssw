@@ -68,7 +68,7 @@ class CachingAddNLL : public RooAbsReal {
 
 class CachingSimNLL  : public RooAbsReal {
     public:
-        CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data) ;
+        CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data, const RooArgSet *nuis=0) ;
         CachingSimNLL(const CachingSimNLL &other, const char *name = 0) ;
         virtual CachingSimNLL *clone(const char *name = 0) const ;
         virtual Double_t evaluate() const ;
@@ -81,6 +81,7 @@ class CachingSimNLL  : public RooAbsReal {
         void setup_();
         RooSimultaneous   *pdfOriginal_;
         const RooAbsData  *dataOriginal_;
+        const RooArgSet   *nuis_;
         RooSetProxy        params_;
         RooArgSet piecesForCloning_;
         std::auto_ptr<RooSimultaneous>  factorizedPdf_;

@@ -66,6 +66,9 @@ cacheutils::CachingPdf::eval(const RooAbsData &data)
 {
     if (lastData_ != &data) {
         lastData_ = &data;
+        pdf_->optimizeCacheMode(*data.get());
+        pdf_->attachDataSet(data);
+        const_cast<RooAbsData*>(lastData_)->setDirtyProp(false);
         vals_.resize(data.numEntries());
         realFill_(data);
         checker_.changed(true);
@@ -78,16 +81,12 @@ cacheutils::CachingPdf::eval(const RooAbsData &data)
 void
 cacheutils::CachingPdf::realFill_(const RooAbsData &data) 
 {
-    pdf_->attachDataSet(data);
-    pdf_->optimizeCacheMode(*data.get());
-    const_cast<RooAbsData*>(lastData_)->setDirtyProp(false);
-    const RooArgSet *obs = data.get();
     //std::auto_ptr<RooArgSet> params(pdf_->getObservables(*obs)); // for non-smart handling of pointers
     std::vector<Double_t>::iterator itv = vals_.begin();
     for (int i = 0, n = data.numEntries(); i < n; ++i, ++itv) {
         data.get(i);
         //*params = *data.get(i); // for non-smart handling of pointers
-        *itv = pdf_->getVal(obs);
+        *itv = pdf_->getVal(obs_);
         //std::cout << " at i = " << i << " pdf = " << *itv << std::endl;
     }
 }
@@ -200,9 +199,10 @@ cacheutils::CachingAddNLL::getParameters(const RooArgSet* depList, Bool_t stripD
 }
 
 
-cacheutils::CachingSimNLL::CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data) :
+cacheutils::CachingSimNLL::CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data, const RooArgSet *nuis) :
     pdfOriginal_(pdf),
     dataOriginal_(data),
+    nuis_(nuis),
     params_("params","parameters",this)
 {
     setup_();
@@ -211,6 +211,7 @@ cacheutils::CachingSimNLL::CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data)
 cacheutils::CachingSimNLL::CachingSimNLL(const CachingSimNLL &other, const char *name) :
     pdfOriginal_(other.pdfOriginal_),
     dataOriginal_(other.dataOriginal_),
+    nuis_(other.nuis_),
     params_("params","parameters",this)
 {
     setup_();
@@ -278,7 +279,7 @@ cacheutils::CachingSimNLL::evaluate() const
     for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it) {
         if (*it != 0) ret += (*it)->getVal();
     }
-    if (constrainPdf_.get()) ret -= constrainPdf_->getLogVal(&params_);
+    if (constrainPdf_.get()) ret -= constrainPdf_->getLogVal(nuis_);
     return ret;
 }
 
