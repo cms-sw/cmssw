@@ -2,9 +2,12 @@
 // 
 // Client class for HLT Scalers module.
 // 
-// $Id: HLTScalersClient.h,v 1.14 2010/04/02 20:48:11 wittich Exp $
+// $Id: HLTScalersClient.h,v 1.15 2011/04/13 22:23:14 slaunwhj Exp $
 
 // $Log: HLTScalersClient.h,v $
+// Revision 1.15  2011/04/13 22:23:14  slaunwhj
+// pd rate monitoring
+//
 // Revision 1.14  2010/04/02 20:48:11  wittich
 // updates to scale entries by received number of FU's
 //
@@ -68,6 +71,16 @@ public:
 //   typedef std::pair<int,double> CountLS_t;
 //   //typedef std::deque<CountLS_t> CountLSFifo_t;
 //   typedef std::map<int,double> CountLSFifo_t;
+
+
+
+//printout zerobias
+  double totalNum;
+  double lastLS;
+  //double totalLS = 0;
+  //double * Num[200];
+  //for ( int i = 0; i<200, i++) Num[i]=0;
+
 
   // helper data structures - slightly modified stl objects
   class CountLS_t: public std::pair<int,double>
