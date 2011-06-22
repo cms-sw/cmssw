@@ -110,21 +110,22 @@ if __name__ == '__main__':
                         help='verbose mode for printing' )
     parser.add_argument('--debug',dest='debug',action='store_true',
                         help='debug')
-    parser.add_argument('--detail',dest='detail',action='store_true',
-                        help='print per bit/path info' )
+   
     options=parser.parse_args()
     if options.authpath:
         os.environ['CORAL_AUTH_PATH'] = options.authpath
         
     pbeammode = None
     sname=options.name
+    isdetail=False
     spattern=None
     if sname is not None:
+        isdetail=True
         if sname=='*' or sname=='all':
             sname=None
         elif 1 in [c in sname for c in '*?[]']: #is a fnmatch pattern
             spattern=sname
-            sname=None
+            sname=None            
     if options.beammode=='stable':
         pbeammode    = 'STABLE BEAMS'
     if options.verbose:
@@ -183,9 +184,9 @@ if __name__ == '__main__':
         result=lumiCalcAPI.trgForRange(session.nominalSchema(),irunlsdict,trgbitname=sname,trgbitnamepattern=spattern,withL1Count=True,withPrescale=True)
         session.transaction().commit()
         if not options.outputfile:
-            lumiReport.toScreenLSTrg(result,iresults,options.detail)
+            lumiReport.toScreenLSTrg(result,iresults,isdetail)
         else:
-            lumiReport.toCSVLSTrg(result,options.outputfile,iresults,options.detail)
+            lumiReport.toCSVLSTrg(result,options.outputfile,iresults,isdetail)
     if options.action == 'trgconf':
         session.transaction().start(True)
         result=lumiCalcAPI.trgbitsForRange(session.nominalSchema(),irunlsdict,datatag=None)        
