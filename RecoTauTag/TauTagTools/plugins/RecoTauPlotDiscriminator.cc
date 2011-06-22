@@ -15,6 +15,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
@@ -44,6 +45,8 @@ class RecoTauPlotDiscriminator : public edm::EDAnalyzer {
     VInputTag discs_;
     bool plotPU_;
     double pileupPtCut_;
+    typedef StringCutObjectSelector<reco::PFTau>  TauStringCut;
+    std::auto_ptr<TauStringCut> tauPUCut_;
     edm::InputTag pileupInfoSrc_;
     edm::InputTag pileupVerticesSrc_;
     DiscMap histos_;
@@ -60,7 +63,8 @@ RecoTauPlotDiscriminator::RecoTauPlotDiscriminator(const edm::ParameterSet &pset
 
   plotPU_ = pset.getParameter<bool>("plotPU");
   if (plotPU_) {
-    pileupPtCut_ = pset.getParameter<double>("pileupTauPtCut");
+    tauPUCut_.reset(
+        new TauStringCut(pset.getParameter<std::string>("pileupPlotCut")));
     pileupInfoSrc_ = pset.getParameter<edm::InputTag>("pileupInfo");
     pileupVerticesSrc_ = pset.getParameter<edm::InputTag>("pileupVertices");
   }
@@ -161,7 +165,7 @@ RecoTauPlotDiscriminator::analyze(const edm::Event &evt,
           result, tau->pt(), tau->alternatLorentzVect().pt());
       mymap["vs_eta"]->Fill(result, tau->eta());
       mymap["vs_dm"]->Fill(result, tau->decayMode());
-      if (plotPU_ && tau->pt() > pileupPtCut_) {
+      if (plotPU_ && tauPUCut_.get() && (*tauPUCut_)(*tau)) {
         if (puInfo.isValid())
           mymap["vs_truePU"]->Fill(result, puInfo->getPU_NumInteractions());
         mymap["vs_recoPU"]->Fill(result, puVertices->size());
