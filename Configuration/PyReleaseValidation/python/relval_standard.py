@@ -40,11 +40,11 @@ workflows[4.21] = ['', ['RunJet2011A','RECOD']]
 workflows[4.22] = ['', ['RunCosmics2011A','RECOCOSD','ALCACOSD']]
 
 #workflows[4.23] = ['',[]
-workflows[4.24] = ['',['WMuSkim2011A','RECOVALSKIM']]
-workflows[4.25] = ['',['WElSkim2011A','RECOVALSKIM']]
-workflows[4.26] = ['',['ZMuSkim2011A','RECOVALSKIM']]
-workflows[4.27] = ['',['ZElSkim2011A','RECOVALSKIM']]
-workflows[4.28] = ['',['HighMet2011A','RECOVALSKIM']]
+#workflows[4.24] = ['',['WMuSkim2011A','RECOVALSKIM']]
+#workflows[4.25] = ['',['WElSkim2011A','RECOVALSKIM']]
+#workflows[4.26] = ['',['ZMuSkim2011A','RECOVALSKIM']]
+#workflows[4.27] = ['',['ZElSkim2011A','RECOVALSKIM']]
+#workflows[4.28] = ['',['HighMet2011A','RECOVALSKIM']]
 
 ### fastsim ###
 #workflows[5.1] = ['TTbar', ['TTbarFS1']]
