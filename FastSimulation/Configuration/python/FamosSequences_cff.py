@@ -157,14 +157,6 @@ famosMuonSequence = cms.Sequence(
 #Muon identification sequence
 #from FastSimulation.Configuration.muonIdentification_cff import *
 from RecoMuon.MuonIdentification.muonIdProducerSequence_cff import *
-# Use FastSim tracks and calo hits for muon id
-muons.inputCollectionLabels = cms.VInputTag(
-    'generalTracks',
-    'globalMuons',
-    cms.InputTag("standAloneMuons","UpdatedAtVtx")
-)
-# Use FastSim tracks and calo hits for calo muon id
-calomuons.inputTracks = 'generalTracks'
 
 # Muon isolation
 from RecoMuon.MuonIsolationProducers.muIsolation_cff import *
@@ -174,6 +166,14 @@ famosMuonIdAndIsolationSequence = cms.Sequence(
     muonIdProducerSequence+
     muIsolation
 )
+
+from RecoMuon.MuonIdentification.muons_cfi import *
+muons.FillSelectorMaps = False
+muons.FillCosmicsIdMap = False
+from RecoMuon.MuonIsolation.muonPFIsolation_cff import *
+
+muonshighlevelreco = cms.Sequence(muonPFIsolationSequence*muons)
+
 
 # Electron reconstruction
 from FastSimulation.Tracking.globalCombinedSeeds_cfi import *
@@ -494,6 +494,7 @@ reconstructionWithFamos = cms.Sequence(
     famosPhotonSequence+
     famosParticleFlowSequence+
     egammaHighLevelRecoPostPF+
+    muonshighlevelreco+
     particleFlowLinks+
     caloJetMetGen+
     caloJetMet+
@@ -521,6 +522,7 @@ reconstructionWithFamosNoTk = cms.Sequence(
     famosPhotonSequence+
     famosParticleFlowSequence+
     egammaHighLevelRecoPostPF+
+    muonshighlevelreco+
     caloJetMetGen+
     caloJetMet+
     PFJetMet+
