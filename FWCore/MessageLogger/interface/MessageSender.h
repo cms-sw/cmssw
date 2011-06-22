@@ -6,6 +6,8 @@
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
 
+#include "boost/shared_ptr.hpp"
+
 #include <map>
 
 // Change log
@@ -15,6 +17,10 @@
 //  2  mf 6/22/09	add severity to LoggedErrorsSummary by using 
 //			ErrorSummaryEntry as map key
 //			
+//  3 wmtan 6/22/11     Hold the ErrorObj with a shared pointer with a custom deleter.
+//                      The custom deleter takes over the function of the message sending from the MessageSender destructor.
+//                      This allows MessageSender to be copyable, which fixes the clang compilation errors.
+         
 
 namespace edm
 {
@@ -25,9 +31,14 @@ typedef std::map<ErrorSummaryMapKey, unsigned int>::iterator
 
 class MessageSender
 {
+  struct ErrorObjDeleter {
+    ErrorObjDeleter() {}
+    void operator()(ErrorObj * errorObjPtr);
+  };
+
 public:
   // ---  birth/death:
-  MessageSender() : errorobj_p(0) {} 
+  MessageSender() : errorobj_p() {} 
   MessageSender( ELseverityLevel const & sev, 
   		 ELstring const & id,
 		 bool verbatim = false, bool suppressed = false );
@@ -51,12 +62,8 @@ public:
   }
   
 private:
-  // no copying:
-  MessageSender( MessageSender const & );
-  void operator = ( MessageSender const & );
-
   // data:
-  ErrorObj *  errorobj_p;
+  boost::shared_ptr<ErrorObj> errorobj_p;
 
 };  // MessageSender
 

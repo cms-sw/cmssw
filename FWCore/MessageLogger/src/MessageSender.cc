@@ -26,7 +26,7 @@ std::map<ErrorSummaryMapKey, unsigned int> MessageSender::errorSummaryMap;
 MessageSender::MessageSender( ELseverityLevel const & sev, 
 			      ELstring const & id,
 			      bool verbatim, bool suppressed )
-: errorobj_p( suppressed ? 0 : new ErrorObj(sev,id,verbatim) )
+: errorobj_p( suppressed ? 0 : new ErrorObj(sev,id,verbatim), ErrorObjDeleter())
 {
   //std::cout << "MessageSender ctor; new ErrorObj at: " << errorobj_p << '\n';
 }
@@ -35,9 +35,8 @@ MessageSender::MessageSender( ELseverityLevel const & sev,
 // This destructor must not be permitted to throw. A
 // boost::thread_resoruce_error is thrown at static destruction time,
 // if the MessageLogger library is loaded -- even if it is not used.
-MessageSender::~MessageSender()
-{
-  if (errorobj_p == 0) {
+void MessageSender::ErrorObjDeleter::operator()(ErrorObj * errorObjPtr) {
+  if (errorObjPtr == 0) {
     return;
   }
   try 
@@ -51,17 +50,17 @@ MessageSender::~MessageSender()
       
       MessageDrop * drop = MessageDrop::instance();
       if (drop) {
-	errorobj_p->setModule(drop->moduleContext());		// change log 
-	errorobj_p->setContext(drop->runEvent);
+	errorObjPtr->setModule(drop->moduleContext());		// change log 
+	errorObjPtr->setContext(drop->runEvent);
       } 
 #ifdef TRACE_DROP
       if (!drop) std::cerr << "MessageSender::~MessageSender() - Null drop pointer \n";
 #endif
 								// change log 1
       if ( errorSummaryIsBeingKept && 
-           errorobj_p->xid().severity >= ELwarning ) 
+           errorObjPtr->xid().severity >= ELwarning ) 
       {				
-	ELextendedID const & xid = errorobj_p->xid();
+	ELextendedID const & xid = errorObjPtr->xid();
         ErrorSummaryMapKey key (xid.id, xid.module, xid.severity);
 	ErrorSummaryMapIterator i = errorSummaryMap.find(key);
 	if (i != errorSummaryMap.end()) {
@@ -72,7 +71,7 @@ MessageSender::~MessageSender()
 	freshError = true;
       }
       
-      MessageLoggerQ::MLqLOG(errorobj_p);
+      MessageLoggerQ::MLqLOG(errorObjPtr);
     }
   catch ( ... )
     {
@@ -83,4 +82,7 @@ MessageSender::~MessageSender()
       // and Next or Step so that the exception would be detected.
       // That test has been done 12/14/07.
     }
+}
+MessageSender::~MessageSender()
+{
 }

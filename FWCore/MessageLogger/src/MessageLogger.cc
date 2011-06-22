@@ -119,13 +119,13 @@ void GroupLogStatistics(std::string const & category) {
 }
 
 edm::LogDebug_::LogDebug_( std::string const & id, std::string const & file, int line )
-  : ap( ELsuccess,id,false,(edm::MessageDrop::debugAlwaysSuppressed || !edm::MessageDrop::debugEnabled))
-{ if (ap.valid()) {
+  : ap( ELsuccess,id)
+{
    *this
         << " "
         << stripLeadingDirectoryTree(file)
-        << ":" << line << "\n"; }
-  }
+        << ":" << line << "\n";
+}
 
 std::string
 edm::LogDebug_::stripLeadingDirectoryTree(const std::string & file) const {
@@ -136,7 +136,7 @@ edm::LogDebug_::stripLeadingDirectoryTree(const std::string & file) const {
 }
 
 edm::LogTrace_::LogTrace_( std::string const & id )
-  : ap( ELsuccess,id,true,(edm::MessageDrop::debugAlwaysSuppressed || !edm::MessageDrop::debugEnabled))
+  : ap( ELsuccess,id,true)
   {  }
 
 void setStandAloneMessageThreshold(std::string const & severity) {

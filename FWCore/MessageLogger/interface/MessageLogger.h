@@ -116,11 +116,9 @@
 //
 // 25 wmtan 7/17/11 Allocate MessageSender on stack rather than heap
 //
-// 26 wmtan 7/17/11 Fix clang compilation errors for LogDebug and LogTrace
-//                  by changing the macros in the non-suppressed case
-//                  to use only a single constructor, avoiding a temporary.
-//                  The default constructor is removed, and the other
-//                  constructor handles both cases.
+// 26 wmtan 7/22/11 Fix clang compilation errors for LogDebug and LogTrace
+//                  by making MessageSender copyable, and holding
+//                  the ErrorObj in a shared pointer with a custom deleter.
 // =================================================
 
 // system include files
@@ -371,6 +369,7 @@ void LogStatistics();
 class LogDebug_
 {
 public:
+  LogDebug_() : ap() {}
   explicit LogDebug_( std::string const & id, std::string const & file, int line ); // Change log 17
   ~LogDebug_(); 
 
@@ -394,7 +393,6 @@ public:
 
 private:
   MessageSender ap; 
-  bool debugEnabled;
   std::string stripLeadingDirectoryTree (const std::string & file) const;
 								// change log 10
 };  // LogDebug_
@@ -402,6 +400,7 @@ private:
 class LogTrace_
 {
 public:
+  LogTrace_() : ap() {}
   explicit LogTrace_( std::string const & id );			// Change log 13
   ~LogTrace_(); 
 
@@ -425,7 +424,6 @@ public:
  
 private:
   MessageSender ap; 
-  bool debugEnabled;
   
 };  // LogTrace_
 
@@ -494,8 +492,8 @@ public:
 #define LogTrace(id) true ? edm::Suppress_LogDebug_() : edm::Suppress_LogDebug_()
 #else
 // change log 21
-#define LogDebug(id) (edm::LogDebug_(id, __FILE__, __LINE__)) 
-#define LogTrace(id) (edm::LogTrace_(id))
+#define LogDebug(id) (edm::MessageDrop::debugAlwaysSuppressed || !edm::MessageDrop::debugEnabled) ? edm::LogDebug_() : edm::LogDebug_(id, __FILE__, __LINE__)
+#define LogTrace(id) (edm::MessageDrop::debugAlwaysSuppressed || !edm::MessageDrop::debugEnabled) ? edm::LogTrace_() : edm::LogTrace_(id)
 #endif
 
 #endif  // MessageLogger_MessageLogger_h
