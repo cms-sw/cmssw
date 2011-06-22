@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.7 2011/06/20 23:45:37 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.8 2011/06/21 05:22:04 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -121,6 +121,8 @@ protected:
    NodeInfo& refSelected();
    void loadGeometry();
    void setBackgroundToWhite(bool);
+   void  selectedPath(std::string&);
+
 
 private:
    FWGeometryTableManager(const FWGeometryTableManager&); // stop default
@@ -149,7 +151,6 @@ private:
    void updateFilter();
    void updateAutoExpand();
 
-   bool filterOff() const;
    // ---------- member data --------------------------------
    typedef std::vector<NodeInfo> Entries_v;
    typedef Entries_v::iterator Entries_i;
@@ -163,6 +164,7 @@ private:
 
    std::vector<int>  m_row_to_index;
    int               m_selectedRow;
+   int               m_selectedIdx;
    int               m_selectedColumn;
    
    // geo stuff
@@ -171,23 +173,10 @@ private:
       
    mutable Volumes_t  m_volumes;
    Entries_v          m_entries;
-   
-   // cached values from browser
-   int               m_autoExpand;
-   int               m_maxDaughters;
-   bool              m_modeVolume;
 
+   bool               m_filterOff; //cached
    
    sigc::signal<void,int,int> indexSelected_;
 };
-
-//______________________________________________________________________________
-inline int
-FWGeometryTableManager::getNdaughtersLimited(TGeoNode* geoNode) const
-{
-   // used for debugging of table
-   return TMath::Min(geoNode->GetNdaughters(), m_maxDaughters);
-   //return  geoNode->GetNdaughters();
-}
 
 #endif

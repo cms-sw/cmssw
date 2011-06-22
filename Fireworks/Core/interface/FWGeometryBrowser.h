@@ -37,13 +37,13 @@ class FWParameterBase;
 
 class FWGeometryBrowser : public TGMainFrame
 #ifndef __CINT__
-                      , public FWConfigurableParameterizable , public FWParameterSetterEditorBase
+                        , public FWConfigurableParameterizable , public FWParameterSetterEditorBase
 #endif
 {
-   friend class FWGeometryTableManager;
 
 public:
    enum EMode { kNode, kVolume };
+
 
    FWGeometryBrowser(FWGUIManager*, FWColorManager*);
    virtual ~FWGeometryBrowser();
@@ -55,10 +55,19 @@ public:
    void windowIsClosing();
    void chosenItem(int);
    void browse();
-   void reset();
    void readFile();
    void updateStatusBar(const char* status);
    void updateVisLevel();
+
+   void cdSelected();
+   void cdTop();
+   void cdUp();
+   void updatePath();
+
+   bool getVolumeMode()      const { return m_mode.value(); }
+   std::string getFilter ()  const { return m_filter.value(); }
+   int getAutoExpand()       const { return m_autoExpand.value(); }
+   int getMaxDaughters()     const { return m_maxDaughters.value(); }
 
    TGeoManager*   geoManager() { return m_geoManager; }
 
@@ -68,8 +77,12 @@ public:
 
    virtual void addTo(FWConfiguration&) const;
    void nodeColorChangeRequested(Color_t);
-   
-protected:
+   TGeoNode* m_topGeoNode;
+
+private:
+   FWGeometryBrowser(const FWGeometryBrowser&);
+   const FWGeometryBrowser& operator=(const FWGeometryBrowser&);
+
 #ifndef __CINT__
    FWEnumParameter         m_mode;
    FWStringParameter       m_filter; 
@@ -77,10 +90,6 @@ protected:
    FWLongParameter         m_visLevel;  
    FWLongParameter         m_maxDaughters; 
 #endif
-
-private:
-   FWGeometryBrowser(const FWGeometryBrowser&);
-   const FWGeometryBrowser& operator=(const FWGeometryBrowser&);
 
    FWGUIManager           *m_guiManager;
    FWColorManager         *m_colorManager;
@@ -98,6 +107,8 @@ private:
    TEveGeoTopNode         *m_eveTopNode;
 
    FWColorPopup           *m_colorPopup;
+
+   std::string m_path;
 
 #ifndef __CINT__
    std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;

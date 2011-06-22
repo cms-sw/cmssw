@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.10 2011/06/20 23:45:37 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.11 2011/06/21 05:22:04 amraktad Exp $
 //
 
 //#define PERFTOOL
@@ -107,26 +107,13 @@ Pixel_t baq =  m_colorContext->GetForeground();
 
 FWGeometryTableManager::FWGeometryTableManager(FWGeometryBrowser* browser)
 :    m_selectedRow(-1),
+     m_selectedIdx(0),
+     m_selectedColumn(-1),
      m_browser(browser),
-     m_autoExpand(0),
-     m_maxDaughters(10000),
-     m_modeVolume(false)
+     m_filterOff(true)
 { 
    m_colorBoxRenderer.m_width  =  50;
    m_colorBoxRenderer.m_height =  m_renderer.height();
-   
-   m_browser->m_mode.changed_.connect(boost::bind(&FWGeometryTableManager::updateMode,this));
-   m_browser->m_autoExpand.changed_.connect(boost::bind(&FWGeometryTableManager::updateAutoExpand,this));
-   m_browser->m_maxDaughters.changed_.connect(boost::bind(&FWGeometryTableManager::updateAutoExpand,this));
-   m_browser->m_filter.changed_.connect(boost::bind(&FWGeometryTableManager::updateFilter,this));
-   
-   // debug
-   m_browser->m_maxDaughters.changed_.connect(boost::bind(&FWGeometryTableManager::updateAutoExpand,this));
-   
-   // init here if no config
-   m_modeVolume   =  m_browser->m_mode.value();
-   m_autoExpand   =  m_browser->m_autoExpand.value();
-   m_maxDaughters =  m_browser->m_maxDaughters.value();
 }
 
 FWGeometryTableManager::~FWGeometryTableManager()
@@ -155,7 +142,7 @@ std::vector<std::string> FWGeometryTableManager::getTitles() const
    std::vector<std::string> returnValue;
    returnValue.reserve(numberOfColumns());
 
-   if (m_modeVolume )
+   if (m_browser->getVolumeMode() )
       returnValue.push_back("Volume Name");
    else
       returnValue.push_back("Node Name");
@@ -202,7 +189,7 @@ void FWGeometryTableManager::changeSelection(int iRow, int iColumn)
 
    m_selectedRow = iRow;
    m_selectedColumn = iColumn;
-
+   if (m_row_to_index.size() > 0)   m_selectedIdx = m_row_to_index[iRow];
    indexSelected_(iRow, iColumn);
    visualPropertiesChanged();
 }    
@@ -233,7 +220,7 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
    const NodeInfo& data = m_entries[unsortedRow];
    TGeoNode& gn = *data.m_node;
 
-   bool isSelected =  (!filterOff() &&  m_volumes[gn.GetVolume()].m_matches);//(m_selectedRow == unsortedRow);
+   bool isSelected =  (!m_filterOff &&  m_volumes[gn.GetVolume()].m_matches);//(m_selectedRow == unsortedRow);
    // TGGC* gc = ( TGGC*)m_renderer.graphicsContext();
    //gc->SetForeground(gVirtualX->GetPixel(kBlack));
    
@@ -242,12 +229,12 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
    {
       //   printf("redere\n");
       int nD = getNdaughtersLimited(data.m_node);
-      if (m_modeVolume)
+      if (m_browser->getVolumeMode())
          renderer->setData(Form("%s [%d]", gn.GetVolume()->GetName(), nD), isSelected);
       else    
          renderer->setData(Form("%s [%d]", gn.GetName(), nD ), isSelected); 
 
-      renderer->setIsParent((gn.GetNdaughters() > 0) && (filterOff() || m_volumes[gn.GetVolume()].accepted()));
+      renderer->setIsParent((gn.GetNdaughters() > 0) && (m_filterOff || m_volumes[gn.GetVolume()].accepted()));
 
       renderer->setIsOpen(data.m_expanded);
       if (data.m_node->GetNdaughters())
@@ -269,13 +256,13 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
       }
       else if (iCol == kVisSelf )
       {
-         const char* txt = gn.GetVolume()->IsVisible() ? "on" : "off";
+         const char* txt = gn.IsVisible() ? "on" : "off";
          renderer->setData( txt,  isSelected);
          return renderer;
       }
       else if (iCol == kVisChild )
       {
-         renderer->setData( gn.GetVolume()->IsVisDaughters() ? "on" : "off",  isSelected);
+         renderer->setData( gn.IsVisDaughters() ? "on" : "off",  isSelected);
          return renderer;
       }
       else if (iCol == kMaterial )
@@ -384,8 +371,8 @@ void FWGeometryTableManager::loadGeometry()
    m_volumes.clear();
 
    // fill table
-   checkUniqueVolume(m_browser->geoManager()->GetCurrentVolume());
-   if (!filterOff())
+   checkUniqueVolume(m_browser->geoManager()->GetCurrentNode()->GetVolume());
+   if (!m_filterOff)
       updateFilter();
    
    m_browser->updateStatusBar(Form("FWGeometryTableManager::loadGeometry() %d unique volumes", (int)m_volumes.size()));
@@ -402,10 +389,10 @@ void FWGeometryTableManager::setTableContent()
    m_browser->updateStatusBar("Set table content ...");
 
 #ifdef PERFTOOL  
-   if (filterOff())
-      ProfilerStart(Form("SetTableContent.expand_%d.modeV_%d", m_browser->m_autoExpand.value(), ( m_browser->m_mode.value() == FWGeometryBrowser::kVolume)));
+   if (m_filterOff)
+      ProfilerStart(Form("SetTableContent filter OFF"));
    else  
-      ProfilerStart(Form("SetTableContent.expand_%d.modeV_%d.filter_%s", m_browser->m_autoExpand.value(), ( m_browser->m_mode.value() == FWGeometryBrowser::kVolume),  m_browser->m_filter.value().c_str()));
+      ProfilerStart(Form("SetTableContent filter ON");
 
 #endif
    bool debug = 1;
@@ -413,15 +400,13 @@ void FWGeometryTableManager::setTableContent()
    // clear entries
    m_entries.clear();
    m_row_to_index.clear();
-   
-   // cache browser values   
-   m_autoExpand   = m_browser->m_autoExpand.value();
-   m_maxDaughters =  m_browser->m_maxDaughters.value();
-   m_modeVolume   =  m_browser->m_mode.value() == FWGeometryBrowser::kVolume;
+
 
    // add top node to init
    NodeInfo topNodeInfo;
-   topNodeInfo.m_node   = m_browser->geoManager()->GetCurrentNode();
+   topNodeInfo.m_node   = m_browser->m_topGeoNode;//geoManager()->GetCurrentNode();
+   printf("SET TABLE content current node %s\n", m_browser->geoManager()->GetCurrentNode()->GetName());
+
    topNodeInfo.m_level  = 0;
    topNodeInfo.m_parent = -1;
    m_entries.push_back(topNodeInfo);
@@ -437,7 +422,7 @@ void FWGeometryTableManager::setTableContent()
    ProfilerStop();
 #endif
 
-   if (filterOff())
+   if (m_filterOff)
    {
       m_browser->updateStatusBar(Form("%d entries imported ", (int)m_entries.size()));
    }
@@ -480,7 +465,7 @@ FWGeometryTableManager::getNNodesTotal(TGeoNode* geoNode, int level, int& off, b
       if (m_volumes[vTmp].accepted())
       {
          bool toAdd = true;
-         if (m_modeVolume)
+         if (m_browser->getVolumeMode())
          {
             for (std::vector<int>::iterator u = vi.begin(); u != vi.end(); ++u )
             {
@@ -497,7 +482,7 @@ FWGeometryTableManager::getNNodesTotal(TGeoNode* geoNode, int level, int& off, b
    }
    
    int nV = vi.size();
-   if (level <  m_autoExpand)
+   if (level <  m_browser->getAutoExpand())
    {
       off += nV;
       for (int i = 0; i < nV; ++i )
@@ -533,10 +518,10 @@ void FWGeometryTableManager::importChildren(int parent_idx, bool recurse)
    {
       vTmp = parentGeoNode->GetDaughter(n)->GetVolume();
       
-      if (filterOff() || m_volumes[vTmp].accepted())
+      if (m_filterOff || m_volumes[vTmp].accepted())
       {
          bool toAdd = true;
-         if (m_modeVolume)
+         if (m_browser->getVolumeMode())
          {
             // check duplicates in added
             for (std::vector<int>::iterator u = vi.begin(); u != vi.end(); ++u )
@@ -578,7 +563,7 @@ void FWGeometryTableManager::importChildren(int parent_idx, bool recurse)
    {
       // change of autoExpand parameter
       int dOff = 0;
-      if ((parentLevel+1) < m_autoExpand)
+      if ((parentLevel+1) < m_browser->getAutoExpand())
       {
          for (int n = 0; n != nV; ++n)
          {
@@ -654,7 +639,7 @@ void FWGeometryTableManager::checkChildMatches(TGeoVolume* vol,  std::vector<TGe
 
    pstack.push_back(vol);
 
-   int nD = TMath::Min(m_maxDaughters, vol->GetNdaughters());
+   int nD = TMath::Min(m_browser->getMaxDaughters(), vol->GetNdaughters());
    for (int i = 0; i!=nD; ++i)
       checkChildMatches(vol->GetNode(i)->GetVolume(), pstack);
    
@@ -665,20 +650,23 @@ void FWGeometryTableManager::checkChildMatches(TGeoVolume* vol,  std::vector<TGe
 
 void FWGeometryTableManager::updateFilter()
 {
+   std::string filterExp =  m_browser->getFilter();
+   m_filterOff =  filterExp.empty();
+
    if (!m_browser->geoManager()) return;
    
 #ifdef PERFTOOL
-   ProfilerStart(m_browser->m_filter.value().c_str());
+   ProfilerStart(filterExp);
 #endif
 
    for (Volumes_i i = m_volumes.begin(); i!= m_volumes.end(); ++i) 
    {
-      i->second.m_matches = m_browser->m_filter.value().empty() || strstr(i->first->GetMaterial()->GetName(), m_browser->m_filter.value().c_str());
+      i->second.m_matches = m_filterOff || strstr(i->first->GetMaterial()->GetName(), filterExp.c_str() );
       i->second.m_childMatches = false;
    }  
   
    std::vector<TGeoVolume*> pstack;
-   checkChildMatches(m_browser->geoManager()->GetCurrentVolume(), pstack);
+   checkChildMatches(m_browser->geoManager()->GetCurrentNode()->GetVolume(), pstack);
  
    //   printf("filterChanged \n");
 #ifdef PERFTOOL
@@ -701,13 +689,34 @@ void FWGeometryTableManager::updateMode()
    setTableContent();
 }
 
-bool FWGeometryTableManager::filterOff() const
+int FWGeometryTableManager::getNdaughtersLimited(TGeoNode* geoNode) const
 {
-  return  m_browser->m_filter.value().empty();
-  //   printf("%d empty off \n", m_browser->m_filter.value().empty());
+   // used for debugging of table
+   //  return TMath::Min(geoNode->GetNdaughters(), m_browser->getMaxDaughters());
+   return  geoNode->GetNdaughters();
 }
 
 FWGeometryTableManager::NodeInfo& FWGeometryTableManager::refSelected()
 {
-   return  m_entries[selectedRow()];
+   return  m_entries[m_selectedIdx];
+}
+
+void FWGeometryTableManager::selectedPath(std::string& path)
+{
+   std::vector<std::string> relPath;
+   int idx = m_selectedIdx;
+   while(idx >= 0)
+   { 
+      relPath.push_back( m_entries[idx].name());
+      printf("push %s \n",m_entries[idx].name() );
+      idx  =  m_entries[idx].m_parent;
+   }
+
+   size_t ns = relPath.size();
+   for (size_t i = 1; i < ns; ++i )
+   {
+      path +="/";
+      path += relPath[ns-i -1];
+      printf("push_back add to path %s\n", path.c_str());
+   }
 }
