@@ -31,6 +31,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/Math/interface/deltaR.h"
+
 using namespace edm;
 using namespace std;
 using namespace reco;
@@ -60,7 +62,8 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig) :
    nsigma_Pt_   (iConfig.getParameter<double> ("NSigmaPt")), 
    max_DCAMuMu_  (iConfig.getParameter<double>("MaxDCAMuMu")),
    max_YPair_   (iConfig.getParameter<double>("MaxRapidityPair")),
-   saveTags_  (iConfig.getParameter<bool>("saveTags")) 
+   saveTags_  (iConfig.getParameter<bool>("saveTags")), 
+   cutCowboys_(iConfig.getParameter<bool>("CutCowboys"))
 {
 
    LogDebug("HLTMuonDimuonL3Filter")
@@ -114,6 +117,7 @@ HLTMuonDimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<bool>("saveTags",false);
   desc.add<double>("MaxDCAMuMu",99999.9);
   desc.add<double>("MaxRapidityPair",999999.0);
+  desc.add<bool>("CutCowboys",false);
   descriptions.add("hltMuonDimuonL3Filter",desc);
 }
 
@@ -307,6 +311,10 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
               double rapidity = fabs(p.Rapidity());
               if ( rapidity > max_YPair_) continue;
               
+	      ///
+	      // if cutting on cowboys reject muons that bend towards each other
+	      if(cutCowboys_ && (cand1->charge()*deltaPhi(cand1->phi(), cand2->phi()) > 0.)) continue;
+
 	      // Add this pair
 	      n++;
 	      LogDebug("HLTMuonDimuonL3Filter") << " Track1 passing filter: pt= " << tk1->pt() << ", eta: " << tk1->eta();

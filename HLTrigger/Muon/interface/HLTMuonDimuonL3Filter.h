@@ -52,6 +52,7 @@ class HLTMuonDimuonL3Filter : public HLTFilter {
       double max_DCAMuMu_;      // DCA between the two muons
       double max_YPair_;        // |rapidity| of pair
       bool saveTags_;            // should we save the input collection ?
+      bool cutCowboys_;             ///< if true, reject muon-track pairs that bend towards each other
 
 };
 
