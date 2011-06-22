@@ -110,12 +110,21 @@ if __name__ == '__main__':
                         help='verbose mode for printing' )
     parser.add_argument('--debug',dest='debug',action='store_true',
                         help='debug')
-    
+    parser.add_argument('--detail',dest='detail',action='store_true',
+                        help='print per bit/path info' )
     options=parser.parse_args()
     if options.authpath:
         os.environ['CORAL_AUTH_PATH'] = options.authpath
         
     pbeammode = None
+    sname=options.name
+    spattern=None
+    if sname is not None:
+        if sname=='*' or sname=='all':
+            sname=None
+        elif 1 in [c in sname for c in '*?[]']: #is a fnmatch pattern
+            spattern=sname
+            sname=None
     if options.beammode=='stable':
         pbeammode    = 'STABLE BEAMS'
     if options.verbose:
@@ -123,7 +132,9 @@ if __name__ == '__main__':
         print '\tconnect: ',options.connect
         print '\tauthpath: ',options.authpath
         print '\tsiteconfpath: ',options.siteconfpath
-        print '\toutputfile: ',options.outputfile      
+        print '\toutputfile: ',options.outputfile
+        print '\tname: ',sname
+        print '\tnamepattern: ',spattern
         if options.runnumber: # if runnumber specified, do not go through other run selection criteria
             print '\tselect specific run== ',options.runnumber
         else:
@@ -160,7 +171,7 @@ if __name__ == '__main__':
         else:
             for run in runlist:
                 irunlsdict[run]=None
-    if options.verbose:
+    if options.verbose:  
         print 'Selected run:ls'
         for run in sorted(irunlsdict):
             if irunlsdict[run] is not None:
@@ -169,14 +180,12 @@ if __name__ == '__main__':
                 print '\t%d : all'%run
     if options.action == 'trgbyls':
         session.transaction().start(True)
-        print irunlsdict
-        result=lumiCalcAPI.trgForRange(session.nominalSchema(),irunlsdict,trgbitname=None,trgbitnamepattern=None,withL1Count=True,withPrescale=True)
+        result=lumiCalcAPI.trgForRange(session.nominalSchema(),irunlsdict,trgbitname=sname,trgbitnamepattern=spattern,withL1Count=True,withPrescale=True)
         session.transaction().commit()
-        print 
         if not options.outputfile:
-            lumiReport.toScreenLSTrg(result,iresults,options.verbose)
+            lumiReport.toScreenLSTrg(result,iresults,options.detail)
         else:
-            lumiReport.toCSVLSTrg(result,options.outputfile,iresults,options.verbose)
+            lumiReport.toCSVLSTrg(result,options.outputfile,iresults,options.detail)
     if options.action == 'trgconf':
         session.transaction().start(True)
         result=lumiCalcAPI.trgbitsForRange(session.nominalSchema(),irunlsdict,datatag=None)        
