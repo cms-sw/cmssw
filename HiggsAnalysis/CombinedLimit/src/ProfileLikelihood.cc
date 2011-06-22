@@ -4,6 +4,7 @@
 #include "RooRandom.h"
 #include "RooDataSet.h"
 #include "RooFitResult.h"
+#include "RooMinimizer.h"
 #include "TCanvas.h"
 #include "RooStats/ProfileLikelihoodCalculator.h"
 #include "RooStats/LikelihoodInterval.h"
@@ -26,6 +27,7 @@ float       ProfileLikelihood::maxRelDeviation_ = 0.05;
 float       ProfileLikelihood::maxOutlierFraction_ = 0.25;
 int         ProfileLikelihood::maxOutliers_ = 3;
 bool        ProfileLikelihood::preFit_ = false;
+bool        ProfileLikelihood::useMinos_ = false;
 std::string ProfileLikelihood::plot_ = "";
 
 ProfileLikelihood::ProfileLikelihood() :
@@ -41,11 +43,13 @@ ProfileLikelihood::ProfileLikelihood() :
         ("maxOutliers",        boost::program_options::value<int>(&maxOutliers_)->default_value(maxOutliers_),      "Stop trying after finding N outliers")
         ("plot",   boost::program_options::value<std::string>(&plot_)->default_value(plot_), "Save a plot of the negative log of the profiled likelihood into the specified file")
         ("preFit", "Attept a fit before running the ProfileLikelihood calculator")
+        ("useMinos", "Compute PL limit using Minos directly, bypassing the ProfileLikelihoodCalculator")
     ;
 }
 
 void ProfileLikelihood::applyOptions(const boost::program_options::variables_map &vm) 
 {
+    useMinos_ = vm.count("useMinos");
 }
 
 ProfileLikelihood::MinimizerSentry::MinimizerSentry(std::string &minimizerAlgo, double tolerance) :
@@ -157,7 +161,7 @@ bool ProfileLikelihood::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
     ProfileLikelihoodCalculator plcB(data, *mc_s, 1.0-cl);
     std::auto_ptr<LikelihoodInterval> plInterval(plcB.GetInterval());
     if (plInterval.get() == 0) break;
-    limit = plInterval->UpperLimit(*r); 
+    limit = (!useMinos_) ? plInterval->UpperLimit(*r) : upperLimitWithMinos(*mc_s->GetPdf(), data, *r, minimizerTolerance_, cl) ; 
     if (limit >= 0.75*r->getMax()) { 
       std::cout << "Limit " << r->GetName() << " < " << limit << "; " << r->GetName() << " max < " << r->getMax() << std::endl;
       if (r->getMax()/rMax > 20) break;
@@ -213,3 +217,18 @@ bool ProfileLikelihood::runSignificance(RooWorkspace *w, RooStats::ModelConfig *
   return true;
 }
 
+
+double ProfileLikelihood::upperLimitWithMinos(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, double tolerance, double cl) const {
+    std::auto_ptr<RooArgSet> constrainedParams(pdf.getParameters(data));
+    RooStats::RemoveConstantParameters(constrainedParams.get());
+    std::auto_ptr<RooAbsReal> nll(pdf.createNLL(data, RooFit::Constrain(*constrainedParams)));
+    RooMinimizer minim(*nll);
+    minim.setStrategy(0);
+    minim.setPrintLevel(verbose-1);
+    minim.setErrorLevel(0.5*TMath::ChisquareQuantile(cl,1));
+    minim.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
+    minim.minos(RooArgSet(poi));
+    std::auto_ptr<RooFitResult> res(minim.save());
+    if (verbose > 1) res->Print("V");
+    return poi.getVal() + poi.getAsymErrorHi();
+}
