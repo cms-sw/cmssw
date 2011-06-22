@@ -3,7 +3,6 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "PhysicsTools/PatUtils/interface/TriggerHelper.h"
 #include "PhysicsTools/PatExamples/plugins/PatTriggerAnalyzer.h"
-#include <iostream> // DEBUG
 
 
 using namespace pat;
@@ -51,8 +50,8 @@ void PatTriggerAnalyzer::beginJob()
   histos1D_[ "turnOn" ]->SetXTitle( "candidate p_{T} (GeV)" );
   histos1D_[ "turnOn" ]->SetYTitle( "# of objects" );
   // mean pt for all trigger objects
-  histos1D_[ "ptMean" ] = fileService->make< TH1D >( "ptMean", "Mean p_{T} (GeV) per filter ID", maxID_ - minID_ + 1, minID_ - 0.5, maxID_ + 0.5);
-  histos1D_[ "ptMean" ]->SetXTitle( "filter ID" );
+  histos1D_[ "ptMean" ] = fileService->make< TH1D >( "ptMean", "Mean p_{T} (GeV) per trigger object type", maxID_ - minID_ + 1, minID_ - 0.5, maxID_ + 0.5);
+  histos1D_[ "ptMean" ]->SetXTitle( "trigger object type" );
   histos1D_[ "ptMean" ]->SetYTitle( "mean p_{T} (GeV)" );
 
   // initialize counters for mean pt calculation
@@ -81,7 +80,7 @@ void PatTriggerAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSet
 
   // loop over muon references (PAT muons have been used in the matcher in task 3)
   for( size_t iMuon = 0; iMuon < muons->size(); ++iMuon ) {
-    // we need all these ingedients to recieve matched trigger object from the matchHelper
+    // we need all these ingedients to recieve matched trigger objects from the matchHelper
     const TriggerObjectRef trigRef( matchHelper.triggerMatchObject( muons, iMuon, muonMatch_, iEvent, *triggerEvent ) );
     // finally we can fill the histograms
     if ( trigRef.isAvailable() && trigRef.isNonnull() ) { // check references (necessary!)
@@ -100,7 +99,7 @@ void PatTriggerAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSet
   // loop over selected trigger objects
   for ( TriggerObjectRefVector::const_iterator iTrig = trigRefs.begin(); iTrig != trigRefs.end(); ++iTrig ) {
     // get all matched candidates for the trigger object
-    const reco::CandidateBaseRefVector candRefs( matchHelper.triggerMatchCandidates( ( *iTrig), muonMatch_, iEvent, *triggerEvent ) );
+    const reco::CandidateBaseRefVector candRefs( matchHelper.triggerMatchCandidates( ( *iTrig ), muonMatch_, iEvent, *triggerEvent ) );
     if ( candRefs.empty() ) continue;
     // fill the histogram...
     // (only for the first match, since we resolved ambiguities in the matching configuration,

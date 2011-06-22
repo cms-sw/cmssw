@@ -15,8 +15,8 @@ from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
 process.source = cms.Source(
   "PoolSource"
 , fileNames = cms.untracked.vstring(
-    pickRelValInputFiles( cmsswVersion = 'CMSSW_4_1_3'
-                        , globalTag    = 'START311_V2'
+    pickRelValInputFiles( formerVersion = True
+                        , globalTag     = 'START42_V12'
                         )
   )
 )
@@ -34,8 +34,8 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ## Standard PAT Configuration File
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
+process.patJetCorrFactors.useRho = False
 
-process.patJets.addTagInfos  = False # to save space
 process.selectedPatMuons.cut = 'isTrackerMuon=1 & isGlobalMuon=1 & innerTrack.numberOfValidHits>=11 & globalTrack.normalizedChi2<10.0  & globalTrack.hitPattern.numberOfValidMuonHits>0 & abs(dB)<0.02 & (trackIso+caloIso)/pt<0.05'
 
 ## ---
@@ -59,7 +59,7 @@ process.muonTriggerMatchHLTMuons = cms.EDProducer(
 , src     = cms.InputTag( 'cleanPatMuons' )
 , matched = cms.InputTag( 'patTrigger' )
   # selections of trigger objects
-, matchedCuts = cms.string( 'type( "TriggerMuon" ) && ( path( "HLT_Mu15_v*" ) || path( "HLT_Mu15" ) )' )
+, matchedCuts = cms.string( 'type( "TriggerMuon" ) && path( "HLT_Mu24_v*", 1, 0 )' ) # input does not yet have the 'saveTags' parameter in HLT
   # selection of matches
 , maxDPtRel   = cms.double( 0.5 ) # no effect here
 , maxDeltaR   = cms.double( 0.5 )

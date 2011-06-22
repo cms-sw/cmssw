@@ -15,8 +15,9 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 process.maxEvents.input     = 1000 # reduce number of events for testing.
 process.options.wantSummary = False # to suppress the long output at the end of the job
 # specific
-process.patJets.addTagInfos  = False # to save space
-process.selectedPatMuons.cut = 'isTrackerMuon=1 & isGlobalMuon=1 & innerTrack.numberOfValidHits>=11 & globalTrack.normalizedChi2<10.0  & globalTrack.hitPattern.numberOfValidMuonHits>0 & abs(dB)<0.02 & (trackIso+caloIso)/pt<0.05'
+process.patJetCorrFactors.useRho = False
+process.patJets.addTagInfos      = False # to save space
+process.selectedPatMuons.cut     = 'isTrackerMuon=1 & isGlobalMuon=1 & innerTrack.numberOfValidHits>=11 & globalTrack.normalizedChi2<10.0  & globalTrack.hitPattern.numberOfValidMuonHits>0 & abs(dB)<0.02 & (trackIso+caloIso)/pt<0.05'
 
 ## ---
 ## Define the path
@@ -39,7 +40,7 @@ process.muonTriggerMatchHLTMuons = cms.EDProducer(
 , src     = cms.InputTag( 'cleanPatMuons' )
 , matched = cms.InputTag( 'patTrigger' )
   # selections of trigger objects
-, matchedCuts = cms.string( 'type( "TriggerMuon" ) && ( path( "HLT_Mu15_v*" ) || path( "HLT_Mu15" ) )' )
+, matchedCuts = cms.string( 'type( "TriggerMuon" ) && path( "HLT_Mu24_v*", 1, 0 )' ) # input does not yet have the 'saveTags' parameter in HLT
   # selection of matches
 , maxDPtRel   = cms.double( 0.5 ) # no effect here
 , maxDeltaR   = cms.double( 0.5 )
@@ -58,6 +59,11 @@ process.muonTriggerMatchHLTMuons = cms.EDProducer(
 ## --
 from PhysicsTools.PatAlgos.tools.coreTools import removeCleaning
 removeCleaning( process )
+# to save a bit of disk space
+process.out.outputCommands += [ 'drop recoBaseTagInfosOwned_*_*_*'
+                              , 'drop CaloTowers_*_*_*'
+                              , 'drop recoGenJets_*_*_*'
+                              ]
 
 ## --
 ## Switch on PAT trigger
