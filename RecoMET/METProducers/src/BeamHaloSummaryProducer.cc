@@ -61,7 +61,6 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
   const CSCHaloData CSCData = (*TheCSCHaloData.product() );
   // MLR
   // TODO: edit the definitions of loose and tight
-  // End MLR
   //Loose Id (any one of the three criteria)
   if( CSCData.NumberOfHaloTriggers() || CSCData.NumberOfHaloTracks() || CSCData.NumberOfOutOfTimeTriggers() )
     TheBeamHaloSummary->GetCSCHaloReport()[0] = 1;
@@ -71,17 +70,41 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
       (CSCData.NumberOfHaloTriggers() && CSCData.NumberOfOutOfTimeTriggers()) ||
       (CSCData.NumberOfHaloTracks() && CSCData.NumberOfOutOfTimeTriggers() ) )
     TheBeamHaloSummary->GetCSCHaloReport()[1] = 1;
-  
+
+  // Ronny's proposed new loose and tight rules
+  // Loose Id (any one of the three criteria)
+  if( //CSCData.NumberOfHaloTriggers() ||
+      CSCData.NumberOfHaloTracks()   ||
+      (CSCData.NOutOfTimeHits() > 4 && CSCData.NFlatHaloSegments() ) ||
+      (CSCData.NOutOfTimeTriggers() && CSCData.NFlatHaloSegments() ) ||
+      CSCData.GetSegmentsInBothEndcaps() ||
+      CSCData.NTracksSmalldT() )
+    TheBeamHaloSummary->GetCSCHaloReport()[2] = 1;
+
+  //Tight Id (any two of the previous three criteria)
+  if( (CSCData.NumberOfHaloTriggers() && CSCData.NumberOfHaloTracks()) ||
+      (CSCData.NumberOfHaloTriggers() && CSCData.NumberOfOutOfTimeTriggers()) ||
+      (CSCData.NumberOfHaloTracks()   && CSCData.NumberOfOutOfTimeTriggers() ) ||
+      (CSCData.NOutOfTimeHits() > 4 && CSCData.NumberOfHaloTriggers() ) ||
+      (CSCData.NOutOfTimeHits() > 4 && CSCData.NumberOfHaloTracks() ) || 
+      CSCData.GetSegmentsInBothEndcaps() ||
+      CSCData.NTracksSmalldT() ||
+      (CSCData.NFlatHaloSegments() >=3 && ( CSCData.NumberOfHaloTriggers() ||
+					   CSCData.NOutOfTimeHits() > 4   ||
+					   CSCData.NumberOfHaloTracks()) ))
+    TheBeamHaloSummary->GetCSCHaloReport()[3] = 1;
+  // End MLR
+
   //Ecal Specific Halo Data
   Handle<EcalHaloData> TheEcalHaloData;
   iEvent.getByLabel(IT_EcalHaloData, TheEcalHaloData);
   
   const EcalHaloData EcalData = (*TheEcalHaloData.product() );
-
+  
   bool EcalLooseId = false, EcalTightId = false;
   /*  COMMENTED OUT, NEEDS TO BE TUNED 
-  const std::vector<PhiWedge> EcalWedges = EcalData.GetPhiWedges();
-  for( std::vector<PhiWedge>::const_iterator iWedge = EcalWedges.begin() ; iWedge != EcalWedges.end() ; iWedge++ )
+      const std::vector<PhiWedge> EcalWedges = EcalData.GetPhiWedges();
+      for( std::vector<PhiWedge>::const_iterator iWedge = EcalWedges.begin() ; iWedge != EcalWedges.end() ; iWedge++ )
     {
       bool EcaliPhi = false;
       
@@ -115,15 +138,15 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   edm::ValueMap<float> vm_Angle = EcalData.GetShowerShapesAngle();
   edm::ValueMap<float> vm_Roundness = EcalData.GetShowerShapesRoundness();
-
+  
   //Access selected SuperClusters
   for(unsigned int n = 0 ; n < EcalData.GetSuperClusters().size() ; n++ )
     {
       edm::Ref<SuperClusterCollection> cluster(EcalData.GetSuperClusters(), n );
-
+      
       float angle = vm_Angle[cluster];
       float roundness = vm_Roundness[cluster];
-
+      
       //Loose Selection
       if(  (angle > 0. && angle < L_EcalShowerShapesAngle ) && ( roundness > 0. && roundness < L_EcalShowerShapesRoundness ) )
         {
@@ -138,13 +161,11 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
             EcalTightId = true;
         }
     }
-
- if( EcalLooseId ) 
+  
+  if( EcalLooseId ) 
     TheBeamHaloSummary->GetEcalHaloReport()[0] = 1;
   if( EcalTightId ) 
     TheBeamHaloSummary->GetEcalHaloReport()[1] = 1;
-  
-
 
   // Hcal Specific Halo Data
   Handle<HcalHaloData> TheHcalHaloData;
