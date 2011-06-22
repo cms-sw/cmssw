@@ -109,7 +109,7 @@ LimitAlgo("HybridNew specific options") {
 
 void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
     if (vm.count("expectedFromGrid") && !vm["expectedFromGrid"].defaulted()) {
-        if (!vm.count("grid")) throw std::invalid_argument("HybridNew: Can't use --expectedFromGrid without --grid!");
+        //if (!vm.count("grid")) throw std::invalid_argument("HybridNew: Can't use --expectedFromGrid without --grid!");
         if (quantileForExpectedFromGrid_ <= 0 || quantileForExpectedFromGrid_ >= 1.0) throw std::invalid_argument("HybridNew: the quantile for the expected limit must be between 0 and 1");
         expectedFromGrid_ = true;
         g_quantileExpected_ = quantileForExpectedFromGrid_;
@@ -669,9 +669,17 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   } else if (!CLs_) {
       // we need only S+B toys to compute CLs+b
       hc->SetToys(int(0.01*nToys_)+1, nToys_);
+      //for two sigma bands need an equal number of B
+      if (expectedFromGrid_ && (fabs(0.5-quantileForExpectedFromGrid_)>=0.4) ) {
+        hc->SetToys(nToys_, nToys_);
+      }      
   } else {
       // need both, but more S+B than B 
       hc->SetToys(int(0.25*nToys_)+1, nToys_);
+      //for two sigma bands need an equal number of B
+      if (expectedFromGrid_ && (fabs(0.5-quantileForExpectedFromGrid_)>=0.4) ) {
+        hc->SetToys(nToys_, nToys_);
+      }
   }
 
   static const char * istr = "__HybridNew__importanceSamplingDensity";
@@ -724,7 +732,16 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
     double clsMidErr = (CLs_ ? hcResult->CLsError() : hcResult->CLsplusbError());
     if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << clsMid << " +/- " << clsMidErr << std::endl;
     if (adaptive) {
-        hc.SetToys(CLs_ ? nToys_ : 1, 4*nToys_);
+        if (CLs_) {
+          hc.SetToys(int(0.25*nToys_ + 1), nToys_);
+        }
+        else {
+          hc.SetToys(1, nToys_);
+        }
+        //for two sigma bands need an equal number of B
+        if (expectedFromGrid_ && (fabs(0.5-quantileForExpectedFromGrid_)>=0.4) ) {
+          hc.SetToys(nToys_, nToys_);
+        }
         while (clsMidErr >= clsAccuracy_ && (clsTarget == -1 || fabs(clsMid-clsTarget) < 3*clsMidErr) ) {
             std::auto_ptr<HypoTestResult> more(evalGeneric(hc));
             if (testStat_ == "LHC" || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
@@ -769,8 +786,21 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
 } 
 
 RooStats::HypoTestResult * HybridNew::evalGeneric(RooStats::HybridCalculator &hc, bool noFork) {
-    if (fork_ && !noFork) return evalWithFork(hc);
-    return hc.GetHypoTest();
+    HypoTestResult *hcres = 0;
+    if (fork_ && !noFork) hcres = evalWithFork(hc);
+    else hcres = hc.GetHypoTest();
+    
+    //if we are the parent and expectedFromGrid was asked, re-set the test statistic value from
+    //background-only quantiles
+    if (expectedFromGrid_ && !noFork) {
+        std::vector<Double_t> btoys = hcres->GetNullDistribution()->GetSamplingDistribution();
+        std::sort(btoys.begin(), btoys.end());
+        Double_t testStat = btoys[std::min<int>(floor((1.-quantileForExpectedFromGrid_) * btoys.size()+0.5), btoys.size())];
+        hcres->SetTestStatisticData(testStat);
+    }
+    
+    
+    return hcres;
 }
 
 RooStats::HypoTestResult * HybridNew::evalWithFork(RooStats::HybridCalculator &hc) {
