@@ -193,6 +193,7 @@ int main(int argc, char **argv) {
   t->Branch("iChannel", &iChannel, "iChannel/I");
   t->Branch("t_cpu",   &t_cpu_,  "t_cpu/F");
   t->Branch("t_real",  &t_real_, "t_real/F");
+  t->Branch("quantileExpected",  &g_quantileExpected_, "quantileExpected/F");
   
   writeToysHere = test->mkdir("toys","toys"); 
   if (toysFile != "") readToysFromHere = TFile::Open(toysFile.c_str());
