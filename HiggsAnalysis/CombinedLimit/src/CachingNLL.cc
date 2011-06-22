@@ -249,7 +249,7 @@ cacheutils::CachingSimNLL::setup_()
     std::auto_ptr<RooAbsCategoryLValue> catClone((RooAbsCategoryLValue*) simpdf->indexCat().Clone());
     dataSets_.reset(dataOriginal_->split(simpdf->indexCat(), true));
     pdfs_.resize(catClone->numBins(NULL), 0);
-    std::cout << "Pdf " << simpdf->GetName() <<" is a SimPdf over category " << catClone->GetName() << ", with " << pdfs_.size() << " bins" << std::endl;
+    //std::cout << "Pdf " << simpdf->GetName() <<" is a SimPdf over category " << catClone->GetName() << ", with " << pdfs_.size() << " bins" << std::endl;
     for (int ib = 0, nb = pdfs_.size(); ib < nb; ++ib) {
         catClone->setBin(ib);
         RooAddPdf *pdf = dynamic_cast<RooAddPdf *>(simpdf->getPdf(catClone->getLabel()));
@@ -262,7 +262,7 @@ cacheutils::CachingSimNLL::setup_()
         }
         if (pdf != 0) {
             RooAbsData *data = (RooAbsData *) dataSets_->FindObject(catClone->getLabel());
-            std::cout << "   bin " << ib << " (label " << catClone->getLabel() << ") has pdf " << pdf->GetName() << " of type " << pdf->ClassName() << " and " << (data ? data->numEntries() : -1) << " dataset entries" << std::endl;
+            //std::cout << "   bin " << ib << " (label " << catClone->getLabel() << ") has pdf " << pdf->GetName() << " of type " << pdf->ClassName() << " and " << (data ? data->numEntries() : -1) << " dataset entries" << std::endl;
             if (data == 0) { std::cerr << "Error: no data" << std::endl; continue; }
             pdfs_[ib] = new CachingAddNLL(catClone->getLabel(), "", pdf, data);
         }
