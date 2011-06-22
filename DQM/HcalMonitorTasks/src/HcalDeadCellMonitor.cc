@@ -515,6 +515,9 @@ void HcalDeadCellMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
       if(i >=120 && i <= 130)
 	occupancy_RBX[i] = 1;
       
+      if(i==117 || i==131) // HO SiPMs have much less hits, 10 events not enough. 
+	occupancy_RBX[i] = 1; // Also no RBX loss for SiPMs, so ignore for now.
+      
       if(occupancy_RBX[i]==0)
 	is_RBX_loss_ = 1;
     }
@@ -643,7 +646,23 @@ void HcalDeadCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   ++deadevt_; //increment local counter
 
   if(levt_>10 && tevt_ % 10 == 0 ) //levt_ counts events perLS, but excludes 
-    {                              //"wrong", calibration-type events. Compare with tevt_ instead...
+    {                              //"wrong", calibration-type events. Compare with tevt_ instead...            
+      for(int i=71; i<132; i++)
+	{
+	  //These RBXs in HO are excluded, set to 1 to ignore
+	  if(i >= 72 && i < 85)
+	    occupancy_RBX[i] = 1;
+	  if(i >=85 && i <= 95 && i%2==0)
+	    occupancy_RBX[i] = 1;
+	  if(i >=108 && i <= 119 && i%2==0)
+	    occupancy_RBX[i] = 1;
+	  if(i >=120 && i <= 131)
+	    occupancy_RBX[i] = 1;
+
+	  if(i==117 || i==131) // HO SiPMs have much less hits, 10 events not enough. 
+	    occupancy_RBX[i] = 1;  // Also no RBX loss for SiPMs, so ignore for now.
+	}
+      
       int tmp = 0;
       for (unsigned int i=0;i<132;++i)
 	if(occupancy_RBX[i] == 0) tmp = 1;
@@ -1215,7 +1234,7 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
 	unoccupiedHE+=RBX_loss_HE;
 	unoccupiedHO+=RBX_loss_HO;
       }
-    ////////////////////////////
+  ////////////////////////////
 
   for (unsigned int depth=0;depth<DigiPresentByDepth.depth.size();++depth)
     {
@@ -1378,7 +1397,6 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
     } // depth loop
 
   // Fill with number of problem cells found on this pass
-
   NumberOfNeverPresentDigisHB->Fill(currentLS,neverpresentHB);
   NumberOfNeverPresentDigisHE->Fill(currentLS,neverpresentHE);
   NumberOfNeverPresentDigisHO->Fill(currentLS,neverpresentHO);
@@ -1416,6 +1434,7 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
   ProblemsVsLB_HO->Fill(currentLS,NumBadHO-knownBadHO+0.0001);
   ProblemsVsLB_HF->Fill(currentLS,NumBadHF-knownBadHF+0.0001);
   ProblemsVsLB_HBHEHF->Fill(currentLS,NumBadHB+NumBadHE+NumBadHF-knownBadHB-knownBadHE-knownBadHF+0.0001);
+
   ProblemsVsLB->Fill(currentLS,NumBadHB+NumBadHE+NumBadHO+NumBadHF-knownBadHB-knownBadHE-knownBadHO-knownBadHF+0.0001);
   
   if(excludeHO1P02_==true)
