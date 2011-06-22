@@ -23,6 +23,8 @@
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
+#include "CommonTools/Utils/interface/StringObjectFunction.h"
+
 class RecoTauMVATrainer : public edm::EDAnalyzer {
   public:
     explicit RecoTauMVATrainer(const edm::ParameterSet &pset);
@@ -37,6 +39,15 @@ class RecoTauMVATrainer : public edm::EDAnalyzer {
     edm::InputTag signalWeightsSrc_;
     edm::InputTag backgroundWeightsSrc_;
     VInputTag eventWeights_;
+
+    std::string signalWeightFunction_;
+    std::string backgroundWeightFunction_;
+
+    std::auto_ptr<StringObjectFunction<reco::PFTau> >
+      signalWeightFunctionImpl_;
+
+    std::auto_ptr<StringObjectFunction<reco::PFTau> >
+      backgroundWeightFunctionImpl_;
 };
 
 RecoTauMVATrainer::RecoTauMVATrainer(const edm::ParameterSet &pset)
@@ -45,17 +56,34 @@ RecoTauMVATrainer::RecoTauMVATrainer(const edm::ParameterSet &pset)
          pset.getParameter<edm::ParameterSet>("discriminantOptions")),
     signalSrc_(pset.getParameter<edm::InputTag>("signalSrc")),
     backgroundSrc_(pset.getParameter<edm::InputTag>("backgroundSrc")) {
-      // Check if we want to apply weights
-      applyWeights_ = false;
-      if (pset.exists("signalWeights")) {
-        applyWeights_ = true;
-        signalWeightsSrc_ = pset.getParameter<edm::InputTag>("signalWeights");
-        backgroundWeightsSrc_ = pset.getParameter<edm::InputTag>("backgroundWeights");
-      }
-      if (pset.exists("eventWeights")) {
-        eventWeights_ = pset.getParameter<VInputTag>("eventWeights");
-      }
-    }
+
+  // Check if we want to apply weights
+  applyWeights_ = false;
+  if (pset.exists("signalWeights")) {
+    applyWeights_ = true;
+    signalWeightsSrc_ = pset.getParameter<edm::InputTag>("signalWeights");
+    backgroundWeightsSrc_ = pset.getParameter<edm::InputTag>("backgroundWeights");
+  }
+  if (pset.exists("eventWeights")) {
+    eventWeights_ = pset.getParameter<VInputTag>("eventWeights");
+  }
+
+  // Check if we want to apply a string based weight
+  backgroundWeightFunction_ = pset.exists("backgroundWeightFunction") ?
+    pset.getParameter<std::string>("backgroundWeightFunction") : "null";
+  signalWeightFunction_ = pset.exists("signalWeightFunction") ?
+    pset.getParameter<std::string>("signalWeightFunction") : "null";
+
+  if (backgroundWeightFunction_ != "null") {
+    backgroundWeightFunctionImpl_.reset(
+        new StringObjectFunction<reco::PFTau>(backgroundWeightFunction_));
+  }
+
+  if (signalWeightFunction_ != "null") {
+    signalWeightFunctionImpl_.reset(
+        new StringObjectFunction<reco::PFTau>(signalWeightFunction_));
+  }
+}
 
 namespace {
 
@@ -63,6 +91,7 @@ namespace {
 void uploadTrainingData(reco::tau::RecoTauMVAHelper *helper,
                         const edm::Handle<reco::CandidateView>& taus,
                         const edm::Handle<reco::PFTauDiscriminator>& weights,
+                        const StringObjectFunction<reco::PFTau>* stringWeight,
                         bool isSignal, double eventWeight) {
   // Convert to a vector of refs
   reco::PFTauRefVector tauRefs =
@@ -70,8 +99,17 @@ void uploadTrainingData(reco::tau::RecoTauMVAHelper *helper,
   // Loop over our taus and pass each to the MVA interface
   BOOST_FOREACH(reco::PFTauRef tau, tauRefs) {
     // Lookup the weight if desired
-    double weight = (weights.isValid()) ? (*weights)[tau] : 1.0;
-    helper->train(tau, isSignal, weight*eventWeight);
+    double totalWeight = eventWeight;
+
+    if (stringWeight) {
+      totalWeight *= (*stringWeight)(*tau);
+    }
+
+    if (weights.isValid()) {
+      totalWeight *= (*weights)[tau];
+    }
+
+    helper->train(tau, isSignal, totalWeight);
   }
 }
 
@@ -120,10 +158,11 @@ void RecoTauMVATrainer::analyze(const edm::Event &evt,
     evt.getByLabel(backgroundWeightsSrc_, backgroundWeights);
 
   if (signalExists)
-    uploadTrainingData(&mva_, signal, signalWeights, true, eventWeight);
+    uploadTrainingData(&mva_, signal, signalWeights,
+        signalWeightFunctionImpl_.get(), true, eventWeight);
   if (backgroundExists)
     uploadTrainingData(&mva_, background, backgroundWeights,
-        false, eventWeight);
+        backgroundWeightFunctionImpl_.get(), false, eventWeight);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
