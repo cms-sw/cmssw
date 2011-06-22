@@ -25,8 +25,8 @@ void EMIsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetu
   using namespace std;
   
 typedef std::vector<edm::InputTag> vtag;
- std::auto_ptr<reco::CaloJetCollection> isolatedTaus(new CaloJetCollection); 
- std::auto_ptr<reco::CaloJetCollection> notIsolatedTaus(new CaloJetCollection);
+ auto_ptr<reco::CaloJetCollection> isolatedTaus(new CaloJetCollection); 
+ auto_ptr<reco::CaloJetCollection> notIsolatedTaus(new CaloJetCollection);
  
   for( vtag::const_iterator s = tauSrc.begin(); s != tauSrc.end(); ++ s ) {
     edm::Handle<EMIsolatedTauTagInfoCollection> tauJets;

@@ -929,8 +929,8 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
     if (htrUnSuppressed) {
       UScount[dcc_][spigot]++;
       int here=1+(HcalDCCHeader::SPIGOT_COUNT*(dcc_))+spigot;
-      meUSFractSpigs_->setBinContent(here,
-				     ((double)UScount[dcc_][spigot])/(double)ievt_);}
+      meUSFractSpigs_->Fill(here,
+			    ((double)UScount[dcc_][spigot]));}
 
     MonitorElement* tmpErr = 0;
     HcalDetId HDI = hashedHcalDetId_[hashup(dcc_,spigot)];
@@ -1226,7 +1226,7 @@ void HcalRawDataMonitor::labelHTRBits(MonitorElement* mePlot,unsigned int axisTy
 
 void HcalRawDataMonitor::stashHDI(int thehash, HcalDetId thehcaldetid) {
   //Let's not allow indexing off the array...
-  if ((thehash<0)||(thehash>(NUMDCCS*NUMSPIGS*HTRCHANMAX)))return;
+  if ((thehash<0)||(thehash>=(NUMDCCS*NUMSPIGS*HTRCHANMAX)))return;
   //...but still do the job requested.
   hashedHcalDetId_[thehash] = thehcaldetid;
 }

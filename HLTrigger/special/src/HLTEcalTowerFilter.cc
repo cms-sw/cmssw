@@ -4,8 +4,8 @@
  *  This class is an HLTFilter (-> EDFilter) implementing a
  *  single CaloTower requirement with an emEnergy threshold (not Et!)
  *
- *  $Date: 2009/11/17 13:09:49 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/05/01 08:41:41 $
+ *  $Revision: 1.4 $
  *
  *  \author Seth Cooper
  *
@@ -26,7 +26,7 @@ private:
   virtual bool filter(edm::Event &, const edm::EventSetup &);
 
   edm::InputTag inputTag_; // input tag identifying product
-  bool saveTag_;           // whether to save this tag
+  bool saveTags_;           // whether to save this tag
   double min_E_;           // energy threshold in GeV 
   double max_Eta_;         // maximum eta
   int min_N_;              // minimum number
@@ -47,7 +47,7 @@ private:
 //
 HLTEcalTowerFilter::HLTEcalTowerFilter(const edm::ParameterSet& config) :
   inputTag_ (config.getParameter<edm::InputTag>("inputTag")),
-  saveTag_  (config.getUntrackedParameter<bool>("saveTag", false)),
+  saveTags_  (config.getParameter<bool>("saveTags")),
   min_E_    (config.getParameter<double>       ("MinE"   )),
   max_Eta_  (config.getParameter<double>       ("MaxEta"   )),
   min_N_    (config.getParameter<int>          ("MinN"   ))
@@ -85,7 +85,7 @@ HLTEcalTowerFilter::filter(edm::Event& event, const edm::EventSetup& setup)
 
   // The filter object
   std::auto_ptr<TriggerFilterObjectWithRefs> filterobject (new TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTag_) filterobject->addCollectionTag(inputTag_);
+  if (saveTags_) filterobject->addCollectionTag(inputTag_);
 
   // get hold of collection of objects
   Handle<CaloTowerCollection> towers;

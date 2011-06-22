@@ -43,7 +43,7 @@ def dqmOutputDir(label,config):
 def runTtrigProd(run,runselection,trial,config,runStep=True):
 
     print "Processing tTrig production"
-    #config.runselection = runselection
+    config.runselection = runselection
     datasetstr = getDatasetStr(config.datasetpath)
     config.userdircaf = 'DTCalibration/' + datasetstr + '/Run' + str(run) + '/TTrigCalibration/' + 'TimeBoxes' + '/' + 'v' + str(trial)
    
@@ -89,7 +89,7 @@ def runTtrigWriter(run,config,runStep=True):
 def runResidualCalib(run,runselection,trial,input_db,label,result_file,config,runStep=True):
 
     print "Processing tTrig calibration"
-    #config.runselection = runselection
+    config.runselection = runselection
     datasetstr = getDatasetStr(config.datasetpath)
     config.userdircaf = 'DTCalibration/' + datasetstr + '/Run' + str(run) + '/TTrigCalibration/' + label + '/' + 'v' + str(trial)
     
@@ -143,7 +143,7 @@ def runTtrigResidualCorr(run,input_db,root_file,config,runStep=True):
 def runTtrigValid(run,runselection,trial,input_db,label,config,runStep=True):
 
     print "Processing tTrig validation"
-    #config.runselection = runselection
+    config.runselection = runselection
     datasetstr = getDatasetStr(config.datasetpath)
     config.userdircaf = 'DTCalibration/' + datasetstr + '/Run' + str(run) + '/TTrigValidation/' + label + '/' + 'v' + str(trial)
 
@@ -192,7 +192,7 @@ def runTtrigValidSummary(run,input_file,output_file,config,runStep=True):
 def runVDriftSegmentCalib(run,runselection,trial,label,result_file,config,runStep=True):
 
     print "Processing vDrift calibration"
-    #config.runselection = runselection
+    config.runselection = runselection
     datasetstr = getDatasetStr(config.datasetpath)
     config.userdircaf = 'DTCalibration/' + datasetstr + '/Run' + str(run) + '/VDriftCalibration/' + label + '/' + 'v' + str(trial)
 
@@ -243,7 +243,7 @@ def runVDriftSegmentWriter(run,root_file,config,runStep=True):
 def runVDriftMeanTimerCalib(run,runselection,trial,label,result_file,config,runStep=True):
 
     print "Processing vDrift calibration"
-    #config.runselection = runselection
+    config.runselection = runselection
     datasetstr = getDatasetStr(config.datasetpath)
     config.userdircaf = 'DTCalibration/' + datasetstr + '/Run' + str(run) + '/VDriftCalibration/' + label + '/' + 'v' + str(trial)
 
@@ -319,9 +319,7 @@ def runDQMMerge(run,output_dir,config,runStep=True):
 ############################################################ 
 # tTrig workflow
 ############################################################ 
-def runTtrigWorkflow(mode,run,config,execute=True):
-    trial = config.trial
-    runselection = config.runselection
+def runTtrigWorkflow(mode,config,execute=True):
     ttrig_input_db = None
     if hasattr(config,'inputTTrigDB') and config.inputTTrigDB: ttrig_input_db = os.path.abspath(config.inputTTrigDB)
     result_dir = config.result_dir
@@ -485,9 +483,7 @@ def runTtrigWorkflow(mode,run,config,execute=True):
 ############################################################ 
 # vDrift workflow
 ############################################################
-def runVDriftWorkflow(mode,run,config,execute=True):
-    trial = config.trial
-    runselection = config.runselection
+def runVDriftWorkflow(mode,config,execute=True):
     result_dir = config.result_dir
     if mode == 'segment':
         vDriftHistos = os.path.abspath(result_dir + '/' + 'DTVDriftHistos_' + run + '.root')
@@ -534,63 +530,24 @@ def runVDriftWorkflow(mode,run,config,execute=True):
 ############################################################ 
 # noise workflow
 ############################################################
-def runNoiseWorkflow(mode,run,config,execute=True):
+def runNoiseWorkflow(mode,config,execute=True):
 
     return 0
 
 ############################################################ 
 # t0 workflow
 ############################################################
-def runT0Workflow(mode,run,config,execute=True):
+def runT0Workflow(mode,config,execute=True):
 
     return 0
-
-############################################################ 
-# Validation workflow
-############################################################
-def runValidationWorkflow(mode,run,config,execute=True):
-    trial = config.trial
-    runselection = config.runselection
-    ttrig_input_db = None
-    if hasattr(config,'inputTTrigDB') and config.inputTTrigDB: ttrig_input_db = os.path.abspath(config.inputTTrigDB)
-    result_dir = config.result_dir
-    if not execute:
-        print "Writing configuration files.."
-        if ttrig_input_db:
-            runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',config,False)
-        else:
-            runTtrigValid(run,runselection,trial,None,'Residuals',config,False)
-
-        runDQMMerge(run,'',config,False)
-
-        sys.exit(0)
-
-    if ttrig_input_db:
-        runTtrigValid(run,runselection,trial,ttrig_input_db,'Residuals',config)
-    else:
-        runTtrigValid(run,runselection,trial,None,'Residuals',config)
-
-    """
-    # Summary of validation
-    if not os.path.exists(summaryResiduals):
-        runTtrigValidSummary(run,residualsValid,summaryResiduals,config)
-    if not os.path.exists(summaryResiduals): raise RuntimeError,'Could not produce %s' % summaryResiduals
-    """
-
-    # Produce DQM output 
-    dqm_output_dir = dqmOutputDir('Residuals',config)
-    runDQMMerge(run,dqm_output_dir,config)
-
-    return 0
-
 
 if __name__ == '__main__':
 
     parser = optparse.OptionParser(usage="usage: %prog arg1 arg2 [options]")
     parser.add_option("-r","--run", dest="run", help="set reference run number (typically first or last run in list)")
     parser.add_option("--runselection", dest="runselection", help="run list or range")
-    parser.add_option("--label", dest="label", default="dtCalibration", help="label used in the naming of workflow output")
-    parser.add_option("--trial", dest="trial", type="int", help="trial number used in the naming of output directories")
+    parser.add_option("--label", dest="label", help="label used in the naming of output directories")
+    parser.add_option("--trial", dest="trial", help="trial number used in the naming of output directories")
     parser.add_option("--datasetpath", dest="datasetpath", help="dataset name to process")
     parser.add_option("--globaltag", dest="globaltag", help="global tag identifier (without the '::All' string)")
     parser.add_option("--preselection", dest="preselection", help="configuration fragment and sequence name, separated by a ':', defining a pre-selection filter")
@@ -658,20 +615,12 @@ if __name__ == '__main__':
     if hasattr(input,'trial') and input.trial: trial = input.trial
     else: trial = 1
 
-    label = None
-    if hasattr(input,'label') and input.label: label = input.label
-    else: label = 'dtCalibration'
-
     if hasattr(input,'lumimask') and input.lumimask:
         if not os.path.exists(input.lumimask): parser.error('File "%s" does not exist' % input.lumimask)
  
     ############################################################################### 
     class config: pass
 
-    config.trial = trial
-    config.label = label
-    config.datasetpath = input.datasetpath
-    config.runselection = runselection
     if hasattr(input,'inputVdriftDB') and input.inputVdriftDB: config.inputVdriftDB = os.path.abspath(input.inputVdriftDB)
     if hasattr(input,'inputTTrigDB') and input.inputTTrigDB: config.inputTTrigDB = os.path.abspath(input.inputTTrigDB)
 
@@ -700,6 +649,8 @@ if __name__ == '__main__':
 
     config.useserver = input.useserver
     config.queueAtCAF = input.queueAtCAF
+    config.datasetpath = input.datasetpath
+    config.runselection = runselection
     #config.totalnumberevents = 1000000
     #config.eventsperjob = 50000
     if hasattr(input,'splitByLumi') and input.splitByLumi:
@@ -779,11 +730,11 @@ if __name__ == '__main__':
     execute = True
     if input.no_exec: execute = False
 
-    if input.workflowType == 'ttrig': runTtrigWorkflow(input.workflowMode,run,config,execute)
-    elif input.workflowType == 'vdrift': runVDriftWorkflow(input.workflowMode,run,config,execute)
-    elif input.workflowType == 'noise': runNoiseWorkflow('',run,config,execute)
-    elif input.workflowType == 't0': runT0Workflow('',run,config,execute)
-    elif input.workflowType == 'validation': runValidationWorkflow('',run,config,execute)
+    if input.workflowType == 'ttrig': runTtrigWorkflow(input.workflowMode,config,execute)
+    elif input.workflowType == 'vdrift': runVDriftWorkflow(input.workflowMode,config,execute)
+    elif input.workflowType == 'noise': runNoiseWorkflow('',config,execute)
+    elif input.workflowType == 't0': runT0Workflow('',config,execute)
+    elif input.workflowType == 'validation': pass
 
     #sys.stdout = stdout_original
  

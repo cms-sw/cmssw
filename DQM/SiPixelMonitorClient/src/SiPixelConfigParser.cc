@@ -26,13 +26,13 @@ SiPixelConfigParser::~SiPixelConfigParser() {
 //
 bool SiPixelConfigParser::getMENamesForTrackerMap(string& tkmap_name, 
 						 vector<string>& me_names){
-  if (!doc) {
+  if (!doc()) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
     return false;
   }
 
   me_names.clear();
-  unsigned int tkMapNodes = doc->getElementsByTagName(qtxml::_toDOMS("TkMap"))->getLength();
+  unsigned int tkMapNodes = doc()->getElementsByTagName(qtxml::_toDOMS("TkMap"))->getLength();
   if (tkMapNodes != 1) 
   {
    cout << ACYellow << ACBold 
@@ -43,7 +43,7 @@ bool SiPixelConfigParser::getMENamesForTrackerMap(string& tkmap_name,
    return false;
   }
   /// Get Node
-  DOMNode* tkMapNode = doc->getElementsByTagName(qtxml::_toDOMS("TkMap"))->item(0);
+  DOMNode* tkMapNode = doc()->getElementsByTagName(qtxml::_toDOMS("TkMap"))->item(0);
  //Get QTEST name
   if (! tkMapNode) 
   {
@@ -116,15 +116,15 @@ bool SiPixelConfigParser::getMENamesForTrackerMap(string& tkmap_name,
 // -- Read Update Frequency for the TrackerMap
 //
 bool SiPixelConfigParser::getFrequencyForTrackerMap(int& u_freq){
-  if (!doc) {
+  if (!doc()) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
     return false;
   }
 
-  unsigned int tkMapNodes = doc->getElementsByTagName(qtxml::_toDOMS("TkMap"))->getLength();
+  unsigned int tkMapNodes = doc()->getElementsByTagName(qtxml::_toDOMS("TkMap"))->getLength();
   if (tkMapNodes != 1) return false;
   /// Get Node
-  DOMNode* tkMapNode = doc->getElementsByTagName(qtxml::_toDOMS("TkMap"))->item(0);
+  DOMNode* tkMapNode = doc()->getElementsByTagName(qtxml::_toDOMS("TkMap"))->item(0);
  //Get Node name
   if (! tkMapNode) return false;
   DOMElement* tkMapElement = static_cast<DOMElement *>(tkMapNode);          
@@ -139,16 +139,16 @@ bool SiPixelConfigParser::getFrequencyForTrackerMap(int& u_freq){
 bool SiPixelConfigParser::getMENamesForTree(string& structure_name,
 						vector<string>& me_names) {
   //cout<<"Entering SiPixelConfigParser::getMENamesForTree..."<<endl;
-  if (!doc) {
+  if (!doc()) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
     return false;
   }
 
   me_names.clear();
-  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureLevel"))->getLength();
+  unsigned int structureNodes = doc()->getElementsByTagName(qtxml::_toDOMS("SubStructureLevel"))->getLength();
   if (structureNodes == 0) return false;
   /// Get Node
-  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureLevel"))->item(0);
+  DOMNode* structureNode = doc()->getElementsByTagName(qtxml::_toDOMS("SubStructureLevel"))->item(0);
  //Get QTEST name
   if (! structureNode) return false;
   DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
@@ -176,15 +176,15 @@ bool SiPixelConfigParser::getMENamesForTree(string& structure_name,
 bool SiPixelConfigParser::getMENamesForBarrelSummary(string& structure_name,
 						vector<string>& me_names) {
 //  cout<<"Entering SiPixelConfigParser::getMENamesForBarrelSummary..."<<endl;
-  if (!doc) {
+  if (!doc()) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
     return false;
   }
   me_names.clear();
-  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureBarrelLevel"))->getLength();
+  unsigned int structureNodes = doc()->getElementsByTagName(qtxml::_toDOMS("SubStructureBarrelLevel"))->getLength();
   if (structureNodes == 0) return false;
   /// Get Node
-  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureBarrelLevel"))->item(0);
+  DOMNode* structureNode = doc()->getElementsByTagName(qtxml::_toDOMS("SubStructureBarrelLevel"))->item(0);
  //Get QTEST name
   if (! structureNode) return false;
   DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
@@ -208,16 +208,16 @@ bool SiPixelConfigParser::getMENamesForBarrelSummary(string& structure_name,
 bool SiPixelConfigParser::getMENamesForEndcapSummary(string& structure_name,
 						vector<string>& me_names) {
 //  cout<<"Entering SiPixelConfigParser::getMENamesForEndcapSummary..."<<endl;
-  if (!doc) {
+  if (!doc()) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
     return false;
   }
 
   me_names.clear();
-  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureEndcapLevel"))->getLength();
+  unsigned int structureNodes = doc()->getElementsByTagName(qtxml::_toDOMS("SubStructureEndcapLevel"))->getLength();
   if (structureNodes == 0) return false;
   /// Get Node
-  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureEndcapLevel"))->item(0);
+  DOMNode* structureNode = doc()->getElementsByTagName(qtxml::_toDOMS("SubStructureEndcapLevel"))->item(0);
  //Get QTEST name
   if (! structureNode) return false;
   DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
@@ -244,16 +244,16 @@ bool SiPixelConfigParser::getMENamesForEndcapSummary(string& structure_name,
 bool SiPixelConfigParser::getMENamesForFEDErrorSummary(string& structure_name,
 						       vector<string>& me_names) {
   //cout<<"Entering SiPixelConfigParser::getMENamesForFEDErrorSummary..."<<endl;
-  if (!doc) {
+  if (!doc()) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
     return false;
   }
 
   me_names.clear();
-  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureNonDetId"))->getLength();
+  unsigned int structureNodes = doc()->getElementsByTagName(qtxml::_toDOMS("SubStructureNonDetId"))->getLength();
   if (structureNodes == 0) return false;
   /// Get Node
-  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureNonDetId"))->item(0);
+  DOMNode* structureNode = doc()->getElementsByTagName(qtxml::_toDOMS("SubStructureNonDetId"))->item(0);
  //Get QTEST name
   if (! structureNode) return false;
   DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
@@ -279,15 +279,15 @@ bool SiPixelConfigParser::getMENamesForFEDErrorSummary(string& structure_name,
 // -- Get List of MEs for the summary plot and the
 //
 bool SiPixelConfigParser::getFrequencyForBarrelSummary(int& u_freq) {
-  if (!doc) {
+  if (!doc()) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
     return false;
   }
 
-  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureBarrelLevel"))->getLength();
+  unsigned int structureNodes = doc()->getElementsByTagName(qtxml::_toDOMS("SubStructureBarrelLevel"))->getLength();
   if (structureNodes == 0) return false;
   /// Get Node
-  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureBarrelLevel"))->item(0);
+  DOMNode* structureNode = doc()->getElementsByTagName(qtxml::_toDOMS("SubStructureBarrelLevel"))->item(0);
  //Get Node name
   if (! structureNode) return false;
   DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
@@ -299,15 +299,15 @@ bool SiPixelConfigParser::getFrequencyForBarrelSummary(int& u_freq) {
 
 
 bool SiPixelConfigParser::getFrequencyForEndcapSummary(int& u_freq) {
-  if (!doc) {
+  if (!doc()) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
     return false;
   }
 
-  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureEndcapLevel"))->getLength();
+  unsigned int structureNodes = doc()->getElementsByTagName(qtxml::_toDOMS("SubStructureEndcapLevel"))->getLength();
   if (structureNodes == 0) return false;
   /// Get Node
-  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureEndcapLevel"))->item(0);
+  DOMNode* structureNode = doc()->getElementsByTagName(qtxml::_toDOMS("SubStructureEndcapLevel"))->item(0);
  //Get Node name
   if (! structureNode) return false;
   DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
@@ -321,16 +321,16 @@ bool SiPixelConfigParser::getFrequencyForEndcapSummary(int& u_freq) {
 bool SiPixelConfigParser::getMENamesForGrandBarrelSummary(string& structure_name,
 						vector<string>& me_names) {
   //cout<<"Entering SiPixelConfigParser::getMENamesForGrandBarrelSummary..."<<endl;
-  if (!doc) {
+  if (!doc()) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
     return false;
   }
 
   me_names.clear();
-  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureGrandBarrelLevel"))->getLength();
+  unsigned int structureNodes = doc()->getElementsByTagName(qtxml::_toDOMS("SubStructureGrandBarrelLevel"))->getLength();
   if (structureNodes == 0) return false;
   /// Get Node
-  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureGrandBarrelLevel"))->item(0);
+  DOMNode* structureNode = doc()->getElementsByTagName(qtxml::_toDOMS("SubStructureGrandBarrelLevel"))->item(0);
  //Get QTEST name
   if (! structureNode) return false;
   DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
@@ -357,16 +357,16 @@ bool SiPixelConfigParser::getMENamesForGrandBarrelSummary(string& structure_name
 bool SiPixelConfigParser::getMENamesForGrandEndcapSummary(string& structure_name,
 						vector<string>& me_names) {
   //cout<<"Entering SiPixelConfigParser::getMENamesForGrandEndcapSummary..."<<endl;
-  if (!doc) {
+  if (!doc()) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
     return false;
   }
 
   me_names.clear();
-  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureGrandEndcapLevel"))->getLength();
+  unsigned int structureNodes = doc()->getElementsByTagName(qtxml::_toDOMS("SubStructureGrandEndcapLevel"))->getLength();
   if (structureNodes == 0) return false;
   /// Get Node
-  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureGrandEndcapLevel"))->item(0);
+  DOMNode* structureNode = doc()->getElementsByTagName(qtxml::_toDOMS("SubStructureGrandEndcapLevel"))->item(0);
  //Get QTEST name
   if (! structureNode) return false;
   DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
@@ -391,15 +391,15 @@ bool SiPixelConfigParser::getMENamesForGrandEndcapSummary(string& structure_name
 
 
 bool SiPixelConfigParser::getFrequencyForGrandBarrelSummary(int& u_freq) {
-  if (!doc) {
+  if (!doc()) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
     return false;
   }
 
-  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureGrandBarrelLevel"))->getLength();
+  unsigned int structureNodes = doc()->getElementsByTagName(qtxml::_toDOMS("SubStructureGrandBarrelLevel"))->getLength();
   if (structureNodes == 0) return false;
   /// Get Node
-  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureGrandBarrelLevel"))->item(0);
+  DOMNode* structureNode = doc()->getElementsByTagName(qtxml::_toDOMS("SubStructureGrandBarrelLevel"))->item(0);
  //Get Node name
   if (! structureNode) return false;
   DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
@@ -411,15 +411,15 @@ bool SiPixelConfigParser::getFrequencyForGrandBarrelSummary(int& u_freq) {
 
 
 bool SiPixelConfigParser::getFrequencyForGrandEndcapSummary(int& u_freq) {
-  if (!doc) {
+  if (!doc()) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
     return false;
   }
 
-  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureGrandEndcapLevel"))->getLength();
+  unsigned int structureNodes = doc()->getElementsByTagName(qtxml::_toDOMS("SubStructureGrandEndcapLevel"))->getLength();
   if (structureNodes == 0) return false;
   /// Get Node
-  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("SubStructureGrandEndcapLevel"))->item(0);
+  DOMNode* structureNode = doc()->getElementsByTagName(qtxml::_toDOMS("SubStructureGrandEndcapLevel"))->item(0);
  //Get Node name
   if (! structureNode) return false;
   DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
@@ -431,14 +431,14 @@ bool SiPixelConfigParser::getFrequencyForGrandEndcapSummary(int& u_freq) {
 
 
 bool SiPixelConfigParser::getMessageLimitForQTests(int& u_freq) {
-  if (!doc) {
+  if (!doc()) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
     return false;
   }
-  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("QTestMessageLimit"))->getLength();
+  unsigned int structureNodes = doc()->getElementsByTagName(qtxml::_toDOMS("QTestMessageLimit"))->getLength();
   if (structureNodes == 0) return false;
   /// Get Node
-  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("QTestMessageLimit"))->item(0);
+  DOMNode* structureNode = doc()->getElementsByTagName(qtxml::_toDOMS("QTestMessageLimit"))->item(0);
  //Get Node name
   if (! structureNode) return false;
   DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
@@ -451,14 +451,14 @@ bool SiPixelConfigParser::getMessageLimitForQTests(int& u_freq) {
 
 
 bool SiPixelConfigParser::getSourceType(int& u_freq) {
-  if (!doc) {
+  if (!doc()) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
     return false;
   }
-  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("SourceType"))->getLength();
+  unsigned int structureNodes = doc()->getElementsByTagName(qtxml::_toDOMS("SourceType"))->getLength();
   if (structureNodes == 0) return false;
   /// Get Node
-  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("SourceType"))->item(0);
+  DOMNode* structureNode = doc()->getElementsByTagName(qtxml::_toDOMS("SourceType"))->item(0);
  //Get Node name
   if (! structureNode) return false;
   DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          
@@ -469,14 +469,14 @@ bool SiPixelConfigParser::getSourceType(int& u_freq) {
 }
 
 bool SiPixelConfigParser::getCalibType(int& u_freq) {
-  if (!doc) {
+  if (!doc()) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
     return false;
   }
-  unsigned int structureNodes = doc->getElementsByTagName(qtxml::_toDOMS("CalibType"))->getLength();
+  unsigned int structureNodes = doc()->getElementsByTagName(qtxml::_toDOMS("CalibType"))->getLength();
   if (structureNodes == 0) return false;
   /// Get Node
-  DOMNode* structureNode = doc->getElementsByTagName(qtxml::_toDOMS("CalibType"))->item(0);
+  DOMNode* structureNode = doc()->getElementsByTagName(qtxml::_toDOMS("CalibType"))->item(0);
  //Get Node name
   if (! structureNode) return false;
   DOMElement* structureElement = static_cast<DOMElement *>(structureNode);          

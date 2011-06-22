@@ -2,5 +2,5 @@
   <lib   name="1"/>
 </export>
 <use   name="TrackingTools/TrajectoryParametrization"/>
-<use   name="DataFormats/Math"/>
+<use   name="clhep"/>
 <use   name="rootmath"/>

@@ -192,7 +192,7 @@ void VertexFitterResult::fillParameters (const reco::TrackBase::ParameterVector&
 void VertexFitterResult::fillParameters (const PerigeeTrajectoryParameters & ptp,
 	float* params[5], int trackNumber)
 {
-  const AlgebraicVector5 & perigee = ptp.vector();
+  const AlgebraicVector & perigee = ptp.vector_old();
   params[0][trackNumber] = perigee[0];
   params[1][trackNumber] = perigee[1];
   params[2][trackNumber] = perigee[2];

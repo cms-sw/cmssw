@@ -35,7 +35,7 @@
  **  
  **
  **  $Id: PhotonPostprocessing
- **  $Date: 2010/11/17 18:19:02 $ 
+ **  $Date: 2010/11/15 19:32:39 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **     
@@ -147,7 +147,7 @@ class PhotonPostprocessing : public edm::EDAnalyzer
   MonitorElement*  bkgDeadChPhi_;
   MonitorElement*  bkgDeadChEt_;
 
-  MonitorElement*  convVsEt_[2];
+
 
    
 };

@@ -1,6 +1,12 @@
 #ifndef DDLogicalPart_h
 #define DDLogicalPart_h
 
+/* remove 
+//#include "DetectorDescription/Core/interface/DDMaterial.h"
+//#include "DetectorDescription/Core/interface/DDSolid.h"
+//class DDCompactViewImpl;
+//class DDSpecificsImpl;
+*/ 
 #include <iosfwd>
 #include <vector>
 #include <string>
@@ -10,13 +16,14 @@
 #include "DetectorDescription/Core/interface/DDEnums.h"
 #include "DetectorDescription/Base/interface/Singleton.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
+//#include "DetectorDescription/Core/interface/DDPartSelection.h"
 
 namespace DDI { class LogicalPart; }
-
 class DDMaterial;
 class DDSolid;
 class DDSpecifics;
 class DDLogicalPart;
+//class DDsvalues_type;
 class DDPartSelection;
 
 std::ostream & operator<<( std::ostream &, const DDLogicalPart &);
@@ -88,51 +95,66 @@ std::ostream & operator<<( std::ostream &, const DDLogicalPart &);
 class DDLogicalPart : public DDBase<DDName,DDI::LogicalPart*>
 {
   friend std::ostream & operator<<( std::ostream &, const DDLogicalPart &);
-
+  //friend DDCompactViewImpl;
+  //friend DDSpecificsImpl;
 public:  
   //! The default constructor provides an uninitialzed reference object. 
-  DDLogicalPart( void ) : DDBase<DDName,DDI::LogicalPart*>(){ }   
+  DDLogicalPart() : DDBase<DDName,DDI::LogicalPart*>(){ }   
   
   //! Creates a reference object referring to the appropriate XML specification.
-  DDLogicalPart( const DDName & name );
+  DDLogicalPart(const DDName & name);
     
   //! Registers (creates) a reference object representing a LogicalPart. 
-  DDLogicalPart( const DDName & name,
-		 const DDMaterial & material,
-		 const DDSolid & solid,
-		 DDEnums::Category cat = DDEnums::unspecified );
+  DDLogicalPart(const DDName & name,
+                const DDMaterial & material,
+		const DDSolid & solid,
+		DDEnums::Category cat=DDEnums::unspecified);
   
   //! Returns the categorization of the DDLogicalPart (sensitive detector element, cable, ...)  
-  DDEnums::Category category( void ) const;
+  DDEnums::Category category() const; // { return rep().category(); }
   
+
+    
   //! Returns a reference object of the material this LogicalPart is made of 
-  const DDMaterial & material( void ) const;
+  const DDMaterial & material() const;
   
   //! Returns a reference object of the solid being the shape of this LogicalPart 
-  const DDSolid & solid( void ) const; 
+  const DDSolid & solid() const; 
   
   //! Weight of the LogicalPart viewed as a component, if cached, else -1
-  double & weight( void );
+  double & weight();
   
   //! returns the specific-data attached to the LogicalPart only (not to a DDExpandedNode)
-  std::vector<const DDsvalues_type *> specifics( void ) const;
+  std::vector<const DDsvalues_type *> specifics() const;
   
   //! returns the merged-specifics, i.e. the last specified specifics of this logical-part
-  DDsvalues_type mergedSpecifics( void ) const;
+  DDsvalues_type mergedSpecifics() const;
   
   //! \b don't \b use, internal only /todo make it private
-  void addSpecifics( const std::pair<DDPartSelection*,DDsvalues_type*> &);
-  void removeSpecifics( const std::pair<DDPartSelection*,DDsvalues_type*> &);
-  const std::vector< std::pair<DDPartSelection*,DDsvalues_type*> > & attachedSpecifics( void ) const;
-  bool hasDDValue( const DDValue & ) const;
+  void addSpecifics(const std::pair<DDPartSelection*,DDsvalues_type*> &);
+  void removeSpecifics(const std::pair<DDPartSelection*,DDsvalues_type*> &);
+  const std::vector< std::pair<DDPartSelection*,DDsvalues_type*> > & attachedSpecifics() const;
+  bool hasDDValue(const DDValue &) const;
+  //const std::vector<DDPartSelection*> & partSelections(const DDValue &) const;
+  //! \b don't \b use, internal usage only /todo make it private
+  //const std::vector<DDSpecifics> & specifics() const;
+  
+  //std::vector<DDPosPart>& posParts() const { return rep_->posParts(); }
+/*   static void clear(); */
+  
+private:  
+  //void addSpecifics(const DDSpecifics & sp);
+  //void removeSpecifics(const DDSpecifics & sp);
+  
+  //explicit DDLogicalPart(DDRedirect<DDLogicalPartImpl>* p, bool dummy);
 };
 
+
 // some helpers .... (not very clean, redesign!!)
-std::pair<bool, std::string>
-DDIsValid( const std::string & ns, const std::string & name, std::vector<DDLogicalPart> & result, bool doRegex = true );
+std::pair<bool,std::string> DDIsValid(const std::string & ns, const std::string & name, std::vector<DDLogicalPart> & result,bool doRegex=true);
 // std::maps name to std::vector of namespaces
 // 2009-2010 re-write...FIX: Understand how this is used by DDSpecifics and FIX
-typedef DDI::Singleton<std::map<std::string, std::vector<DDName> > > LPNAMES;
-void DD_NC( const DDName & );
+typedef DDI::Singleton<std::map<std::string,std::vector<DDName> > > LPNAMES;
+void DD_NC(const DDName &);
 
 #endif

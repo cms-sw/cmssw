@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.49 2010/07/07 09:07:02 depasse Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.47 2010/01/29 10:45:27 fra Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -12,7 +12,6 @@
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
@@ -26,6 +25,7 @@ using namespace edm;
 
 EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::ParameterSet&  ps)
 {
+
   // initilize parameters used to produce cond DB objects
   adcToGeVEBConstant_ = ps.getUntrackedParameter<double>("adcToGeVEBConstant",0.035);
   adcToGeVEEConstant_ = ps.getUntrackedParameter<double>("adcToGeVEEConstant",0.060);
@@ -138,20 +138,6 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
     }
     findingRecord<EcalMappingElectronicsRcd>();
   }
-  // Alignment from file
-  getEBAlignmentFromFile_ = ps.getUntrackedParameter<bool>("getEBAlignmentFromFile",false);
-  if(getEBAlignmentFromFile_) {
-    EBAlignmentFile_ = ps.getUntrackedParameter<std::string>("EBAlignmentFile",path+"EBAlignment.txt");
-  }
-
-  getEEAlignmentFromFile_ = ps.getUntrackedParameter<bool>("getEEAlignmentFromFile",false);
-  if(getEEAlignmentFromFile_) {
-    EEAlignmentFile_ = ps.getUntrackedParameter<std::string>("EEAlignmentFile",path+"EEAlignment.txt");
-  }
-
-  getESAlignmentFromFile_ = ps.getUntrackedParameter<bool>("getESAlignmentFromFile",false);
-  if(getESAlignmentFromFile_)
-    ESAlignmentFile_ = ps.getUntrackedParameter<std::string>("ESAlignmentFile",path+"ESAlignment.txt");
 
   verbose_ = ps.getUntrackedParameter<int>("verbose", 0);
 
@@ -258,13 +244,6 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
     // set all constants to 1. or smear as specified by user
     setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalLaserAlphas ) ;
     findingRecord<EcalLaserAlphasRcd> () ;
-    getLaserAlphaFromFile_ = ps.getUntrackedParameter<bool>("getLaserAlphaFromFile",false);
-    std::cout << " getLaserAlphaFromFile_ " <<  getLaserAlphaFromFile_ << std::endl;
-    if(getLaserAlphaFromFile_) {
-      EBLaserAlphaFile_ = ps.getUntrackedParameter<std::string>("EBLaserAlphaFile",path+"EBLaserAlpha.txt");
-      EELaserAlphaFile_ = ps.getUntrackedParameter<std::string>("EELaserAlphaFile",path+"EELaserAlpha.txt");
-      std::cout << " EELaserAlphaFile_ " <<  EELaserAlphaFile_.c_str() << std::endl;
-    }
     setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatiosRef ) ;
     findingRecord<EcalLaserAPDPNRatiosRefRcd> () ;
     setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios) ;
@@ -321,22 +300,6 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
           findingRecord<EcalTPGCrystalStatusRcd>();
   }
 
-  // Alignment
-  producedEcalAlignmentEB_ = ps.getUntrackedParameter<bool>("producedEcalAlignmentEB",true);
-  if ( producedEcalAlignmentEB_ ) {
-    setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalAlignmentEB );
-    findingRecord<EBAlignmentRcd>();
-  }
-  producedEcalAlignmentEE_ = ps.getUntrackedParameter<bool>("producedEcalAlignmentEE",true);
-  if ( producedEcalAlignmentEE_ ) {
-    setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalAlignmentEE );
-    findingRecord<EEAlignmentRcd>();
-  }
-  producedEcalAlignmentES_ = ps.getUntrackedParameter<bool>("producedEcalAlignmentES",true);
-  if ( producedEcalAlignmentES_ ) {
-    setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalAlignmentES );
-    findingRecord<ESAlignmentRcd>();
-  }
   //Tell Finder what records we find
   if (producedEcalPedestals_)  findingRecord<EcalPedestalsRcd>();
 
@@ -821,130 +784,34 @@ EcalTrivialConditionRetriever::produceEcalClusterEnergyUncertaintyParameters( co
 std::auto_ptr<EcalLaserAlphas>
 EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd& )
 {
-
-  std::cout << " produceEcalLaserAlphas " << std::endl;
-  std::auto_ptr<EcalLaserAlphas> ical = std::auto_ptr<EcalLaserAlphas>( new EcalLaserAlphas() );
-  if(getLaserAlphaFromFile_) {
-    std::ifstream fEB(edm::FileInPath(EBLaserAlphaFile_).fullPath().c_str());
-    int SMpos[36] = {-10, 4, -7, -16, 6, -9, 11, -17, 5, 18, 3, -8, 1, -3, -13, 14, -6, 2,
-		     15, -18, 8, 17, -2, 9, -1, 10, -5, 7, -12, -11, 16, -4, -15, -14, 12, 13};
-    // check!
-    int SMCal[36] = {12,17,10, 1, 8, 4,27,20,23,25, 6,34,35,15,18,30,21, 9,
-		     24,22,13,31,26,16, 2,11, 5, 0,29,28,14,33,32, 3, 7,19};
-    /*
-  int slot_to_constr[37]={-1,12,17,10,1,8,4,27,20,23,25,6,34,35,15,18,30,21,9
-			  ,24,22,13,31,26,16,2,11,5,0,29,28,14,33,32,3,7,19};
-  int constr_to_slot[36]={28,4,25,34,6,27,11,35,5,18,3,26,1,21,31,14,24,2,15,
-			  36,8,17,20,9,19,10,23,7,30,29,16,22,33,32,12,13  };
-    */
-    for(int SMcons = 0; SMcons < 36; SMcons++) {
-      int SM = SMpos[SMcons];
-      if(SM < 0) SM = 17 + abs(SM);
-      else SM--;
-      if(SMCal[SM] != SMcons)
-	 std::cout << " SM pb : read SM " <<  SMcons<< " SMpos " << SM
-		   << " SMCal " << SMCal[SM] << std::endl;
+  std::auto_ptr<EcalLaserAlphas>  ical = std::auto_ptr<EcalLaserAlphas>( new EcalLaserAlphas() );
+  for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
+    if(ieta==0) continue;
+    for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
+      if (EBDetId::validDetId(ieta,iphi)) {
+            EBDetId ebid(ieta,iphi);
+            double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
+            ical->setValue( ebid, laserAlphaMean_ + r*laserAlphaSigma_ );
+      }
     }
-    // check
-    std::string type, batch;
-    int readSM, pos, bar, bar2;
-    float alpha = 0;
-    for(int SMcons = 0; SMcons < 36; SMcons++) {
-      int SM = SMpos[SMcons];
-      for(int ic = 0; ic < 1700; ic++) {
-	fEB >> readSM >> pos >> bar >>  bar2 >> type >> batch;
-	//	if(ic == 0) std::cout << readSM << " " << pos << " " << bar << " " << bar2 << " " 
-	//			      << type << " " << batch << std::endl;
-	if(readSM != SMcons || pos != ic + 1) 
-	  std::cout << " barrel read pb read SM " << readSM << " const SM " << SMcons
-		    << " read pos " << pos << " ic " << ic << std::endl;
-	if(SM < 0) SM = 18 + abs(SM);
-	EBDetId ebdetid(SM, pos, EBDetId::SMCRYSTALMODE);
-	if(bar == 33101 || bar == 30301 )
-	  alpha = 1.52;
-	else if(bar == 33106) {
-	  if(bar2 <= 2000)
-	    alpha = 1.0;
-	  else {
-	    std::cout << " problem with barcode first " << bar << " last " << bar2 
-		      << " read SM " << readSM << " read pos " << pos << std::endl;
-	    alpha = 0.0;
-	  }
-	}
-	ical->setValue( ebdetid, alpha );
-      }
-    }  // loop over SMcons
-  }   // laserAlpha from a file
-  else {
-    for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
-      if(ieta==0) continue;
-      for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
-	if (EBDetId::validDetId(ieta,iphi)) {
-	  EBDetId ebid(ieta,iphi);
-	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
-	  ical->setValue( ebid, laserAlphaMean_ + r*laserAlphaSigma_ );
-	}
-      }  // loop over iphi
-    }  // loop over ieta
-  }   // do not read a file
+  }
 
-  std::cout << " produceEcalLaserAlphas EE" << std::endl;
-  if(getLaserAlphaFromFile_) {
-    std::ifstream fEE(edm::FileInPath(EELaserAlphaFile_).fullPath().c_str());
-    int check[101][101];
-    for(int x = 1; x < 101; x++)
-      for(int y = 1; y < 101; y++)
-	check[x][y] = -1;
-    for(int crystal = 0; crystal < 14648; crystal++) {
-      int x, y ,z, bid, bar, bar2;
-      float LY, alpha = 0;
-      fEE >> z >> x >> y >> LY >> bid >> bar >> bar2;
-      if(x < 1 || x > 100 || y < 1 || y > 100)
-	std::cout << " wrong coordinates for barcode " << bar 
-		  << " x " << x << " y " << y << " z " << z << std::endl;
-      else {
-	if(z == 1) check[x][y] = 1;
-	else check[x][y] = 0;
-	if(bar == 33201 || (bar == 30399 && bar2 < 568))
-	  alpha = 1.52;
-	else if((bar == 33106 && bar2 > 2000 && bar2 < 4669) 
-		|| (bar == 30399 && bar2 > 567))
-	  alpha = 1.0;
-	else {
-	  std::cout << " problem with barcode " << bar << " " << bar2 
-		    << " x " << x << " y " << y << " z " << z << std::endl;
-	  alpha = 0.0;
-	}
-      } 
-      if (EEDetId::validDetId(x, y, z)) {
-	EEDetId eedetidpos(x, y, z);
-	ical->setValue( eedetidpos, alpha );
-      }
-      else // should not occur
-	std::cout << " problem with EEDetId " << " x " << x << " y " << y << " z " << z << std::endl;
-    }  // loop over crystal in file
-    for(int x = 1; x < 101; x++)
-      for(int y = 1; y < 101; y++)
-	if(check[x][y] == 1) std::cout << " missing x " << x << " y " << y << std::endl;
-  }  // laserAlpha from a file
-  else {
-    for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
-      for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
-	// make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
-	if (EEDetId::validDetId(iX,iY,1)) {
-	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
-	  EEDetId eedetidpos(iX,iY,1);
-	  ical->setValue( eedetidpos, laserAlphaMean_ + r*laserAlphaSigma_ );
-	}
+   for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
+     for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+       // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+       if (EEDetId::validDetId(iX,iY,1)) {
+             double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
+             EEDetId eedetidpos(iX,iY,1);
+             ical->setValue( eedetidpos, laserAlphaMean_ + r*laserAlphaSigma_ );
+       }
 
-	if (EEDetId::validDetId(iX,iY,-1)) {
-	  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
-	  EEDetId eedetidneg(iX,iY,-1);
-	  ical->setValue( eedetidneg, laserAlphaMean_ + r1*laserAlphaSigma_ );
-	}
-      } // loop over iY
-    } // loop over iX
-  }  // do not read a file
+       if (EEDetId::validDetId(iX,iY,-1)) {
+             double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
+             EEDetId eedetidneg(iX,iY,-1);
+             ical->setValue( eedetidneg, laserAlphaMean_ + r1*laserAlphaSigma_ );
+       }
+     }
+   }
   
   return ical;
 }
@@ -2605,127 +2472,4 @@ EcalTrivialConditionRetriever::produceEcalMappingElectronics( const EcalMappingE
 
         std::auto_ptr<EcalMappingElectronics>  ical = std::auto_ptr<EcalMappingElectronics>( new EcalMappingElectronics() );
         return ical;
-}
-
-// --------------------------------------------------------------------------------
-
-std::auto_ptr<Alignments>
-EcalTrivialConditionRetriever::produceEcalAlignmentEB( const EBAlignmentRcd& ) {
-  double mytrans[3] = {0., 0., 0.};
-  double myeuler[3] = {0., 0., 0.};
-  std::ifstream f(edm::FileInPath(EBAlignmentFile_).fullPath().c_str());
-  std::vector<AlignTransform> my_align;
-  int ieta = 1;
-  int iphi = 0;
-  for(int SM = 1 ; SM < 37; SM++ ) {
-    // make an EBDetId since we need EBDetId::rawId()
-    if(SM > 18) { 
-      iphi = 1 + (SM - 19) * 20;
-      ieta = -1;
-    }
-    else
-      iphi = SM * 20;
-    EBDetId ebdetId(ieta,iphi);
-    if(getEBAlignmentFromFile_) {
-      f >> myeuler[0] >> myeuler[1] >> myeuler[2] >> mytrans[0] >> mytrans[1] >> mytrans[2];
-      std::cout << " translation " << mytrans[0] << " " << mytrans[1] << " " << mytrans[2] << "\n" 
-	   << " euler " << myeuler[0] << " " << myeuler[1] << " " << myeuler[2] << std::endl;
-    }
-    CLHEP::Hep3Vector translation( mytrans[0], mytrans[1], mytrans[2]);
-    CLHEP::HepEulerAngles euler( myeuler[0], myeuler[1], myeuler[2]);
-    AlignTransform transform( translation, euler, ebdetId );
-    my_align.push_back(transform);
-  }
-  /*
-  // check
-  uint32_t m_rawid;
-  double m_x, m_y, m_z;
-  double m_phi, m_theta, m_psi;
-  int SM = 0;
-  for (std::vector<AlignTransform>::const_iterator i = my_align.begin(); i != my_align.end(); ++i){	
-    m_rawid = i->rawId();
-    CLHEP::Hep3Vector translation = i->translation();
-    m_x = translation.x();
-    m_y = translation.y();
-    m_z = translation.z();
-    CLHEP::HepRotation rotation = i->rotation();
-    m_phi = rotation.getPhi();
-    m_theta = rotation.getTheta();
-    m_psi = rotation.getPsi();
-    SM++;
-    std::cout << " SM " << SM << " Id " << m_rawid << " x " << m_x << " y " << m_y << " z " << m_z
-	      << " phi " << m_phi << " theta " << m_theta << " psi " << m_psi << std::endl;
-  }
-  */
-  Alignments a; 
-  a.m_align = my_align; 
-
-  std::auto_ptr<Alignments> ical = std::auto_ptr<Alignments>( new Alignments(a) );
-  return ical;
-}
-
-std::auto_ptr<Alignments>
-EcalTrivialConditionRetriever::produceEcalAlignmentEE( const EEAlignmentRcd& ) {
-  double mytrans[3] = {0., 0., 0.};
-  double myeuler[3] = {0., 0., 0.};
-  std::ifstream f(edm::FileInPath(EEAlignmentFile_).fullPath().c_str());
-  std::vector<AlignTransform> my_align;
-  int ix = 20;
-  int iy = 50;
-  int side = -1;
-  for(int Dee = 0 ; Dee < 4; Dee++ ) {
-    // make an EEDetId since we need EEDetId::rawId()
-    if(Dee == 1 || Dee == 3) 
-      ix = 70;
-    else ix = 20;
-    if(Dee == 2)
-      side = 1;
-    EEDetId eedetId(ix, iy, side);
-    if(getEEAlignmentFromFile_) {
-      f >> myeuler[0] >> myeuler[1] >> myeuler[2] >> mytrans[0] >> mytrans[1] >> mytrans[2];
-      std::cout << " translation " << mytrans[0] << " " << mytrans[1] << " " << mytrans[2] << "\n" 
-	   << " euler " << myeuler[0] << " " << myeuler[1] << " " << myeuler[2] << std::endl;
-    }
-    CLHEP::Hep3Vector translation( mytrans[0], mytrans[1], mytrans[2]);
-    CLHEP::HepEulerAngles euler( myeuler[0], myeuler[1], myeuler[2]);
-    AlignTransform transform( translation, euler, eedetId );
-    my_align.push_back(transform);
-  }
-  Alignments a; 
-  a.m_align = my_align; 
-  std::auto_ptr<Alignments> ical = std::auto_ptr<Alignments>( new Alignments(a) );
-  return ical;
-}
-
-std::auto_ptr<Alignments>
-EcalTrivialConditionRetriever::produceEcalAlignmentES( const ESAlignmentRcd& ) {
-  double mytrans[3] = {0., 0., 0.};
-  double myeuler[3] = {0., 0., 0.};
-  std::ifstream f(edm::FileInPath(ESAlignmentFile_).fullPath().c_str());
-  std::vector<AlignTransform> my_align;
-  //  int ix_vect[10] = {10, 30, 30, 50, 10, 30, 10, 30};
-  int pl_vect[10] = {2, 2, 1, 1, 1, 1, 2, 2};
-  int iy = 10;
-  int side = -1;
-  int strip = 1;
-  for(int layer = 0 ; layer < 8; layer++ ) {
-    // make an ESDetId since we need ESDetId::rawId()
-    int ix = 10 + (layer%2) * 20;
-    int plane = pl_vect[layer];
-    if(layer > 3) side = 1;
-    ESDetId esdetId(strip, ix, iy, plane, side);
-    if(getESAlignmentFromFile_) {
-      f >> myeuler[0] >> myeuler[1] >> myeuler[2] >> mytrans[0] >> mytrans[1] >> mytrans[2];
-      std::cout << " translation " << mytrans[0] << " " << mytrans[1] << " " << mytrans[2] << "\n" 
-		<< " euler " << myeuler[0] << " " << myeuler[1] << " " << myeuler[2] << std::endl;
-    }
-    CLHEP::Hep3Vector translation( mytrans[0], mytrans[1], mytrans[2]);
-    CLHEP::HepEulerAngles euler( myeuler[0], myeuler[1], myeuler[2]);
-    AlignTransform transform( translation, euler, esdetId );
-    my_align.push_back(transform);
-  }
-  Alignments a; 
-  a.m_align = my_align; 
-  std::auto_ptr<Alignments> ical = std::auto_ptr<Alignments>( new Alignments(a) );
-  return ical;
 }

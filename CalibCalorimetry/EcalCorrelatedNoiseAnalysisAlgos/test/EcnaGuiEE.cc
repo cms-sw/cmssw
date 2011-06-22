@@ -2,7 +2,7 @@
 //
 //         E.C.N.A.  dialog box (GUI) for Endcap
 // 
-//         Update: 21/10/2010
+//         Update:13/10/2010
 //
 //---------------------------------------------------------------
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaGui.h"
@@ -30,16 +30,16 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-  TEcnaObject* MyEcnaObjectManager = new TEcnaObject();
-  TEcnaParPaths* pCnaParPaths = new TEcnaParPaths(MyEcnaObjectManager);
-  if( pCnaParPaths->GetPaths() == kTRUE )
+  TEcnaParPaths* pCnaParPaths = new TEcnaParPaths();
+  if( pCnaParPaths->fPathForResultsRootFiles    == kTRUE &&
+      pCnaParPaths->fPathForResultsAsciiFiles   == kTRUE &&
+      pCnaParPaths->fPathForHistoryRunListFiles == kTRUE )
     {
       cout << "*EcnaGuiEE> Starting ROOT session" << endl;
       TRint theApp("App", &argc, argv);
       
       cout << "*EcnaGuiEE> Starting ECNA session" << endl;
-      TEcnaGui* mainWin = new TEcnaGui(MyEcnaObjectManager, "EE", gClient->GetRoot(), 395, 710);
-      mainWin->DialogBox();
+      TEcnaGui* mainWin = new TEcnaGui(gClient->GetRoot(), 395, 710, "EE");
       Bool_t retVal = kTRUE;
       theApp.Run(retVal);
       cout << "*EcnaGuiEE> End of ECNA session." << endl;

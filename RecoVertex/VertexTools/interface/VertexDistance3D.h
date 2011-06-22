@@ -2,6 +2,7 @@
 #define Vertex_VertexDistance3D_H
 
 #include "RecoVertex/VertexTools/interface/VertexDistance.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 
@@ -15,7 +16,7 @@ class VertexDistance3D : public VertexDistance {
 public:
   using VertexDistance::compatibility;
 
-  VertexDistance3D() {}
+  VertexDistance3D() : theNullMatrix(3, 0) {}
 
   /**
    * The signed distance is computed using a vector
@@ -38,7 +39,7 @@ public:
 
 private:
 
-  AlgebraicSymMatrix33 theNullMatrix;
+  AlgebraicSymMatrix theNullMatrix;
   virtual Measurement1D distance(const GlobalPoint & vtx1Position, 
 				 const GlobalError & vtx1PositionError, 
 				 const GlobalPoint & vtx2Position, 

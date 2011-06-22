@@ -642,8 +642,8 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	  // trigger decision is based on 'OR' of any specified trigger names
 	  for (unsigned int k=0;k<HcalHLTBits_.size();++k)
 	    {
-	      // std::cout<<triggerNames.triggerName(i)<<std::endl;
-	      if (triggerNames.triggerName(i)==HcalHLTBits_[k] && hltRes->accept(i))
+	      // if (triggerNames.triggerName(i)==HcalHLTBits_[k] && hltRes->accept(i))
+	      if (triggerNames.triggerName(i).find(HcalHLTBits_[k])!=std::string::npos && hltRes->accept(i))
 		{ 
 		  passedHcalHLT=true;
 		  break;
@@ -652,7 +652,8 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	  // repeat for minbias triggers
 	  for (unsigned int k=0;k<MinBiasHLTBits_.size();++k)
 	    {
-	      if (triggerNames.triggerName(i)==MinBiasHLTBits_[k] && hltRes->accept(i))
+	      // if (triggerNames.triggerName(i)==MinBiasHLTBits_[k] && hltRes->accept(i))		
+	      if (triggerNames.triggerName(i).find(MinBiasHLTBits_[k])!=std::string::npos && hltRes->accept(i))
 		{ 
 		  passedMinBiasHLT=true;
 		  break;
@@ -1453,19 +1454,19 @@ void HcalRecHitMonitor::zeroCounters(void)
   // occupancy
   for (int i=0;i<865;++i)
     {
-      if (i<=260)
+      if (i<260)
 	{
 	  HB_occupancy_[i]=0;
 	  HE_occupancy_[i]=0;
 	  HB_occupancy_thresh_[i]=0;
 	  HE_occupancy_thresh_[i]=0;
 	}
-      if (i<=217)
+      if (i<218)
 	{
 	  HO_occupancy_[i]=0;
 	  HO_occupancy_thresh_[i]=0;
 	}
-      if (i<=173)
+      if (i<174)
 	{
 	  HF_occupancy_[i]=0;
 	  HF_occupancy_thresh_[i]=0;

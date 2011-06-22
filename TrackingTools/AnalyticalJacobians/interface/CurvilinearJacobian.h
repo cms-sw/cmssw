@@ -1,7 +1,7 @@
 #ifndef CurvilinearJacobian_H
 #define CurvilinearJacobian_H
 
-#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 /** Base class for calculations of Jacobians of transformations within the curvilinear frame.
  */
@@ -9,16 +9,12 @@
 class CurvilinearJacobian {
 public:
 
-  CurvilinearJacobian()  : theJacobian(AlgebraicMatrixID()){}
+  CurvilinearJacobian() {}
 
   virtual ~CurvilinearJacobian() {}
 
-  const AlgebraicMatrix55& jacobian() const {return theJacobian;}
-
-protected:
-  
-  AlgebraicMatrix55 theJacobian;
-
+  virtual const AlgebraicMatrix55& jacobian() const = 0;
+  virtual const AlgebraicMatrix jacobian_old() const = 0;
 
 };  
 

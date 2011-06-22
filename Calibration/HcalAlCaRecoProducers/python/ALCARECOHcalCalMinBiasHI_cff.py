@@ -38,11 +38,11 @@ hbherecoNoise.samplesToAdd = 4
 hbherecoNoise.digiLabel = 'hcalDigiAlCaMB'
 
 hfrecoNoise.firstSample = 0
-hfrecoNoise.samplesToAdd = 3
+hfrecoNoise.samplesToAdd = 2
 hfrecoNoise.digiLabel = 'hcalDigiAlCaMB'
 
-hfrecoMBspecial.firstSample = 3
-hfrecoMBspecial.samplesToAdd = 3
+hfrecoMBspecial.firstSample = 2
+hfrecoMBspecial.samplesToAdd = 2
 hfrecoMBspecial.digiLabel = 'hcalDigiAlCaMB'
 
 horecoNoise.firstSample = 0

@@ -7,6 +7,8 @@ using namespace reco;
 
 typedef TrackTransientTrack                              TTT;
 
+TransientTrack::TransientTrack() : 
+  Base() {}
 
 TransientTrack::TransientTrack( const Track & tk , const MagneticField* field) : 
   Base( new TTT(tk, field)) {}
