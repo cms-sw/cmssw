@@ -5,8 +5,8 @@
 //
 // Package:    TauTagValidation
 // Class:      TauTagValidation
-// 
-/* *\class TauTagValidation TauTagValidation.cc 
+//
+/* *\class TauTagValidation TauTagValidation.cc
 
  Description: EDAnalyzer to validate the Collections from the ConeIsolation Producer
  It is supposed to be used for Offline Tau Reconstrction, so PrimaryVertex should be used.
@@ -50,7 +50,7 @@
 typedef math::XYZTLorentzVectorD  LV;
 typedef std::vector<LV>  LVCollection;
 
-// class declaration    
+// class declaration
 class TauTagValidation : public edm::EDAnalyzer {
 
 public:
@@ -85,7 +85,7 @@ private:
   edm::InputTag TauProducerInputTag_, PrimaryVertexCollection_;
   std::string TauProducer_;
 
-  // std::vector<std::string> TauProducerDiscriminators_; 
+  // std::vector<std::string> TauProducerDiscriminators_;
   // std::vector<double> TauDiscriminatorCuts_;
 
   std::vector< edm::ParameterSet > discriminators_;
@@ -99,53 +99,53 @@ private:
   std::map<std::string,  MonitorElement *> etaTauVisibleMap;
   std::map<std::string,  MonitorElement *> phiTauVisibleMap;
   std::map<std::string,  MonitorElement *> pileupTauVisibleMap;
-  
+
   // All the extra MonitorElements that we would like to add for each Tau Tagging step
   // First for the PFTaus
   // Number of PFTau Candidates with a leading charged hadron in it (within a cone of 0.1 avound the jet axis and a minimum pt of 6 GeV)
-  
-  MonitorElement* nPFJet_LeadingChargedHadron_ChargedHadronsSignal_;	  
-  MonitorElement* nPFJet_LeadingChargedHadron_ChargedHadronsIsolAnnulus_; 
-  MonitorElement* nPFJet_LeadingChargedHadron_GammasSignal_;		  
+
+  MonitorElement* nPFJet_LeadingChargedHadron_ChargedHadronsSignal_;
+  MonitorElement* nPFJet_LeadingChargedHadron_ChargedHadronsIsolAnnulus_;
+  MonitorElement* nPFJet_LeadingChargedHadron_GammasSignal_;
   MonitorElement* nPFJet_LeadingChargedHadron_GammasIsolAnnulus_;
-  MonitorElement* nPFJet_LeadingChargedHadron_NeutralHadronsSignal_;	 
+  MonitorElement* nPFJet_LeadingChargedHadron_NeutralHadronsSignal_;
   MonitorElement* nPFJet_LeadingChargedHadron_NeutralHadronsIsolAnnulus_;
 
   // Isolated PFTau with a Leading charged hadron with no Charged Hadrons inside the isolation annulus
 
-  MonitorElement* nIsolated_NoChargedHadrons_ChargedHadronsSignal_;	
-  MonitorElement* nIsolated_NoChargedHadrons_GammasSignal_;		  
-  MonitorElement* nIsolated_NoChargedHadrons_GammasIsolAnnulus_;         
-  MonitorElement* nIsolated_NoChargedHadrons_NeutralHadronsSignal_;	
+  MonitorElement* nIsolated_NoChargedHadrons_ChargedHadronsSignal_;
+  MonitorElement* nIsolated_NoChargedHadrons_GammasSignal_;
+  MonitorElement* nIsolated_NoChargedHadrons_GammasIsolAnnulus_;
+  MonitorElement* nIsolated_NoChargedHadrons_NeutralHadronsSignal_;
   MonitorElement* nIsolated_NoChargedHadrons_NeutralHadronsIsolAnnulus_;
 
   // Isolated PFTau with a Leading charge hadron with no Charged Hadron inside the isolation annulus with no Ecal/Gamma candidates in the isolation annulus
 
-  MonitorElement* nIsolated_NoChargedNoGammas_ChargedHadronsSignal_;    
-  MonitorElement* nIsolated_NoChargedNoGammas_GammasSignal_;         
-  MonitorElement* nIsolated_NoChargedNoGammas_NeutralHadronsSignal_;	 
+  MonitorElement* nIsolated_NoChargedNoGammas_ChargedHadronsSignal_;
+  MonitorElement* nIsolated_NoChargedNoGammas_GammasSignal_;
+  MonitorElement* nIsolated_NoChargedNoGammas_NeutralHadronsSignal_;
   MonitorElement* nIsolated_NoChargedNoGammas_NeutralHadronsIsolAnnulus_;
 
 
   // Second for the CaloTaus
   // Number of CaloJets with a Leading Track (within a cone of 0.1 around the jet axis and a minimum pt of 5. GeV)
 
-  MonitorElement* nCaloJet_LeadingTrack_signalTracksInvariantMass_;	  
+  MonitorElement* nCaloJet_LeadingTrack_signalTracksInvariantMass_;
   MonitorElement* nCaloJet_LeadingTrack_signalTracks_;
   MonitorElement* nCaloJet_LeadingTrack_isolationTracks_;
-  MonitorElement* nCaloJet_LeadingTrack_isolationECALhitsEtSum_;          
+  MonitorElement* nCaloJet_LeadingTrack_isolationECALhitsEtSum_;
 
  // Track Isolated CaloTau with a Leading Track
 
-  MonitorElement* nTrackIsolated_isolationECALhitsEtSum_; 
+  MonitorElement* nTrackIsolated_isolationECALhitsEtSum_;
   MonitorElement* nTrackIsolated_signalTracksInvariantMass_;
-  MonitorElement* nTrackIsolated_signalTracks_;             	          
+  MonitorElement* nTrackIsolated_signalTracks_;
 
  // EM Isolated CaloTau with a Leading with no tracks in the Isolation Annulus
 
-  MonitorElement* nEMIsolated_signalTracksInvariantMass_;    
-  MonitorElement* nEMIsolated_signalTracks_;              
- 
+  MonitorElement* nEMIsolated_signalTracksInvariantMass_;
+  MonitorElement* nEMIsolated_signalTracks_;
+
   // book-keeping variables
 
   DQMStore* dbeTau;
@@ -155,6 +155,9 @@ private:
  protected:
 
   PFBenchmarkAlgo *algo_;
+
+ private:
+  bool chainCuts_;
 
 };
 
