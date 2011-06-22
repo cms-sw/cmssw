@@ -177,17 +177,26 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	    }
 
 	  // Analyze the MuonTimeExtra information
-	  reco::MuonRef muonR(TheCosmicMuons,imucount);
-	  const reco::MuonTimeExtraMap & timeMapCSC = *TheCSCTimeMap;
-	  reco::MuonTimeExtra timecsc = timeMapCSC[muonR];
-	  float freeInverseBeta = timecsc.freeInverseBeta();
+	  if( TheCSCTimeMap.isValid() ) 
+	    {
+	      reco::MuonRef muonR(TheCosmicMuons,imucount);
+	      const reco::MuonTimeExtraMap & timeMapCSC = *TheCSCTimeMap;
+	      reco::MuonTimeExtra timecsc = timeMapCSC[muonR];
+	      float freeInverseBeta = timecsc.freeInverseBeta();
+	      
+	      if (dT_Segment < max_dt_muon_segment )
+		n_tracks_small_dT++;
+	      if (freeInverseBeta < max_free_inverse_beta)
+		n_tracks_small_beta++;
+	      if ((dT_Segment < max_dt_muon_segment) &&  (freeInverseBeta < max_free_inverse_beta))
+		n_tracks_small_dT_and_beta++;
+	    }
+	  else 
+	    {
+	      edm::LogWarning  ("InvalidInputTag") <<  "The MuonTimeExtraMap does not appear to be in the event. Some beam halo "
+						   << " identification variables will be empty" ;
 
-	  if (dT_Segment < max_dt_muon_segment )
-	    n_tracks_small_dT++;
-	  if (freeInverseBeta < max_free_inverse_beta)
-	    n_tracks_small_beta++;
-	  if ((dT_Segment < max_dt_muon_segment) &&  (freeInverseBeta < max_free_inverse_beta))
-	    n_tracks_small_dT_and_beta++;
+	    }
 	}
       TheCSCHaloData.SetNIncomingTracks(n_tracks_small_dT,n_tracks_small_beta,n_tracks_small_dT_and_beta);
     }
@@ -360,22 +369,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 		       for(reco::MuonCollection::const_iterator mu = TheMuons->begin(); mu!= TheMuons->end() && DigiIsGood ; mu++ )
 			 {
 			   if( !mu->isTrackerMuon() && !mu->isGlobalMuon() && mu->isStandAloneMuon() ) continue;
-			   /*
-			     if(!mu->isTrackerMuon())
-				{
-				  if( mu->isStandAloneMuon() )
-				    {
-				      //make sure that this SA muon is not actually a halo-like muon
-				      float theta =  mu->outerTrack()->outerMomentum().theta();
-				      float deta = TMath::Abs(mu->outerTrack()->outerPosition().eta() - mu->outerTrack()->innerPosition().eta());
-				      if( theta < min_outer_theta || theta > max_outer_theta )  //halo-like
-					continue;
-				      else if ( deta > deta_threshold ) //halo-like
-					continue;
-				    }
-				    }
-			   */
-			  
+
 			   const std::vector<MuonChamberMatch> chambers = mu->matches();
 			   for(std::vector<MuonChamberMatch>::const_iterator iChamber = chambers.begin();
 			       iChamber != chambers.end(); iChamber ++ )
@@ -483,17 +477,47 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
      for(CSCSegmentCollection::const_iterator iSegment = TheCSCSegments->begin();
          iSegment != TheCSCSegments->end();
          iSegment++) {
+
+       CSCDetId iCscDetID = iSegment->cscDetId();
+       bool SegmentIsGood=true;
+       //avoid segments from collision muons
+       if( TheMuons.isValid() )
+	 {
+	   for(reco::MuonCollection::const_iterator mu = TheMuons->begin(); mu!= TheMuons->end() && SegmentIsGood ; mu++ )
+	     {
+	       if( !mu->isTrackerMuon() && !mu->isGlobalMuon() && mu->isStandAloneMuon() ) continue;
+	       const std::vector<MuonChamberMatch> chambers = mu->matches();
+	       for(std::vector<MuonChamberMatch>::const_iterator kChamber = chambers.begin();
+		   kChamber != chambers.end(); kChamber ++ )
+		 {
+		   if( kChamber->detector() != MuonSubdetId::CSC ) continue;
+		   for( std::vector<reco::MuonSegmentMatch>::const_iterator kSegment = kChamber->segmentMatches.begin();
+			kSegment != kChamber->segmentMatches.end(); kSegment++ )
+		     {
+		       edm::Ref<CSCSegmentCollection> cscSegRef = kSegment->cscSegmentRef;
+		       CSCDetId kCscDetID = cscSegRef->cscDetId();
+		       
+		       if( kCscDetID == iCscDetID ) 
+			 {
+			   SegmentIsGood = false;
+			 }
+		     }
+		 }
+	     }
+	 }
+       if(!SegmentIsGood) continue;
+
        // Get local direction vector; if direction runs parallel to beamline,
        // count this segment as beam halo candidate.
        LocalPoint iLocalPosition = iSegment->localPosition();
        LocalVector iLocalDirection = iSegment->localDirection();
-       CSCDetId iCscDetID = iSegment->cscDetId();
+
        GlobalPoint iGlobalPosition = TheCSCGeometry.chamber(iCscDetID)->toGlobal(iLocalPosition);
        GlobalVector iGlobalDirection = TheCSCGeometry.chamber(iCscDetID)->toGlobal(iLocalDirection);
 
        float iTheta = iGlobalDirection.theta();
        if (iTheta > max_segment_theta && iTheta < TMath::Pi() - max_segment_theta) continue;
-
+       
        float iPhi = iGlobalPosition.phi();
        float iR =  TMath::Sqrt(iGlobalPosition.x()*iGlobalPosition.x() + iGlobalPosition.y()*iGlobalPosition.y());
        short int nSegs = 0;
@@ -503,6 +527,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
          jSegment != TheCSCSegments->end();
          jSegment++) {
 	 if (jSegment == iSegment) continue;
+
 	 LocalPoint jLocalPosition = jSegment->localPosition();
 	 LocalVector jLocalDirection = jSegment->localDirection();
 	 CSCDetId jCscDetID = jSegment->cscDetId();
@@ -511,13 +536,35 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	 float jTheta = jGlobalDirection.theta();
 	 float jPhi = jGlobalPosition.phi();
 	 float jR =  TMath::Sqrt(jGlobalPosition.x()*jGlobalPosition.x() + jGlobalPosition.y()*jGlobalPosition.y());
-	   
+
 	 if (TMath::ACos(TMath::Cos(jPhi - iPhi)) <= max_segment_phi_diff 
 	     && TMath::Abs(jR - iR) <= max_segment_r_diff 
 	     && (jTheta < max_segment_theta || jTheta > TMath::Pi() - max_segment_theta)) {
-	   nSegs++;
-	   minus_endcap = iGlobalPosition.z() < 0 || jGlobalPosition.z() < 0;
-	   plus_endcap = iGlobalPosition.z() > 0 || jGlobalPosition.z() > 0;
+	   //// Check if Segment matches to a colision muon
+	   if( TheMuons.isValid() ) {
+	     for(reco::MuonCollection::const_iterator mu = TheMuons->begin(); mu!= TheMuons->end() && SegmentIsGood ; mu++ ) {
+	       if( !mu->isTrackerMuon() && !mu->isGlobalMuon() && mu->isStandAloneMuon() ) continue;
+	       const std::vector<MuonChamberMatch> chambers = mu->matches();
+	       for(std::vector<MuonChamberMatch>::const_iterator kChamber = chambers.begin();
+		   kChamber != chambers.end(); kChamber ++ ) {
+		 if( kChamber->detector() != MuonSubdetId::CSC ) continue;
+		 for( std::vector<reco::MuonSegmentMatch>::const_iterator kSegment = kChamber->segmentMatches.begin();
+		      kSegment != kChamber->segmentMatches.end(); kSegment++ ) {
+		   edm::Ref<CSCSegmentCollection> cscSegRef = kSegment->cscSegmentRef;
+		   CSCDetId kCscDetID = cscSegRef->cscDetId();
+		   
+		   if( kCscDetID == jCscDetID ) {
+		     SegmentIsGood = false;
+		   }
+		 }
+	       }
+	     }
+	   }   
+	   if(SegmentIsGood) {
+	     nSegs++;
+	     minus_endcap = iGlobalPosition.z() < 0 || jGlobalPosition.z() < 0;
+	     plus_endcap = iGlobalPosition.z() > 0 || jGlobalPosition.z() > 0;
+	   }
 	 }
        }
        // Correct the fact that the way nSegs counts will always be short by 1
