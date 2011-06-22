@@ -10,7 +10,7 @@ class RooWorkspace;
 class RooAbsData;
 namespace RooStats { class ModelConfig; }
 
-extern Float_t t_cpu_, t_real_;
+extern Float_t t_cpu_, t_real_, g_quantileExpected_;
 //RooWorkspace *writeToysHere = 0;
 extern TDirectory *outputFile;
 extern TDirectory *writeToysHere;

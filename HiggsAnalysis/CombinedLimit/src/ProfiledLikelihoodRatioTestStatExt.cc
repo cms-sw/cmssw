@@ -5,6 +5,8 @@
 #include <RooRealVar.h>
 #include <RooMinimizer.h>
 #include <RooFitResult.h>
+#include <RooSimultaneous.h>
+#include <RooCategory.h>
 #include <Math/MinimizerOptions.h>
 #include <RooStats/RooStatsUtils.h>
 
@@ -44,16 +46,18 @@ Double_t ProfiledLikelihoodRatioTestStatOpt::Evaluate(RooAbsData& data, RooArgSe
     *paramsNull_ = nuisances_;
     *paramsNull_ = snapNull_;
     *paramsNull_ = nullPOI;
-    DBGV(DBG_TestStat_params, (std::cout << "Parameters of null pdf " << pdfNull_->GetName()))
+        
+    DBGV(DBG_TestStat_params, (std::cout << "Parameters of null pdf (pre fit)" << pdfNull_->GetName()))
     DBGV(DBG_TestStat_params, (paramsNull_->Print("V")))
     double nullNLL = minNLL(*pdfNull_, data);
-
+    
     *paramsAlt_ = nuisances_;
     *paramsAlt_ = snapAlt_;
+        
     DBGV(DBG_TestStat_params, (std::cout << "Parameters of alt pdf " << pdfAlt_->GetName()))
     DBGV(DBG_TestStat_params, (paramsAlt_->Print("V")))
     double altNLL = minNLL(*pdfAlt_, data);
-
+    
     DBG(DBG_TestStat_params, (printf("Pln: null = %+8.4f, alt = %+8.4f\n", nullNLL, altNLL)))
     return nullNLL-altNLL;
 }
@@ -82,9 +86,13 @@ ProfiledLikelihoodTestStatOpt::ProfiledLikelihoodTestStatOpt(
     RooAbsPdf &pdf, 
     const RooArgSet *nuisances, 
     const RooArgSet & params,
+    const RooArgList &gobsParams,
+    const RooArgList &gobs,
     int verbosity)
 :
     pdf_(&pdf),
+    gobsParams_(gobsParams),
+    gobs_(gobs),
     verbosity_(verbosity)
 {
     params.snapshot(snap_,false);
@@ -96,6 +104,7 @@ ProfiledLikelihoodTestStatOpt::ProfiledLikelihoodTestStatOpt(
     DBG(DBG_PLTestStat_ctor, (std::cout << "All params: " << std::endl))  DBG(DBG_PLTestStat_ctor, (params_->Print("V")))
     DBG(DBG_PLTestStat_ctor, (std::cout << "Snapshot: " << std::endl))    DBG(DBG_PLTestStat_ctor, (snap_.Print("V")))
     DBG(DBG_PLTestStat_ctor, (std::cout << "POI: " << std::endl))         DBG(DBG_PLTestStat_ctor, (poi_.Print("V")))
+    
 }
 
 
@@ -109,6 +118,14 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
     // Initialize parameters
     *params_ = snap_;
 
+    //set value of "globalConstrained" nuisances to the value of the corresponding global observable and set them constant
+    for (int i=0; i<gobsParams_.getSize(); ++i) {
+      RooRealVar *nuis = (RooRealVar*)gobsParams_.at(i);
+      RooRealVar *gobs = (RooRealVar*)gobs_.at(i);
+      nuis->setVal(gobs->getVal());
+      nuis->setConstant();
+    }
+        
     DBG(DBG_PLTestStat_pars, std::cout << "Being evaluated on " << data.GetName() << ": params after snapshot are " << std::endl)
     DBG(DBG_PLTestStat_pars, params_->Print("V"))
     // Initialize signal strength
@@ -127,7 +144,7 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
     r->setVal(rIn->getVal()); 
     r->setConstant(true);
     double thisNLL = minNLL(*pdf_, data);
-
+    
     DBG(DBG_PLTestStat_pars, std::cout << "Was evaluated on " << data.GetName() << ": params before snapshot are " << std::endl)
     DBG(DBG_PLTestStat_pars, params_->Print("V"))
 
@@ -139,16 +156,19 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
 
 double ProfiledLikelihoodTestStatOpt::minNLL(RooAbsPdf &pdf, RooAbsData &data) 
 {
+
     std::auto_ptr<RooAbsReal> nll(pdf.createNLL(data, RooFit::Constrain(nuisances_)));
     RooMinimizer minim(*nll);
     minim.setStrategy(0);
-    minim.setPrintLevel(verbosity_-1);
+    minim.setPrintLevel(verbosity_-1);    
     minim.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
     if (verbosity_ > 1) {
         minim.hesse();
         std::auto_ptr<RooFitResult> res(minim.save());
         res->Print("V");
     }
+  
     return nll->getVal();
+    
 }
 

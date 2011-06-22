@@ -57,6 +57,7 @@ using namespace RooFit;
 LimitAlgo * algo, * hintAlgo;
 
 Float_t t_cpu_, t_real_;
+Float_t g_quantileExpected_ = -1.0;
 TDirectory *outputFile = 0;
 TDirectory *writeToysHere = 0;
 TDirectory *readToysFromHere = 0;

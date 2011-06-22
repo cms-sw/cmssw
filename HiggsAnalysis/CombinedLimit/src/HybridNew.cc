@@ -110,6 +110,7 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
         if (!vm.count("grid")) throw std::invalid_argument("HybridNew: Can't use --expectedFromGrid without --grid!");
         if (quantileForExpectedFromGrid_ <= 0 || quantileForExpectedFromGrid_ >= 1.0) throw std::invalid_argument("HybridNew: the quantile for the expected limit must be between 0 and 1");
         expectedFromGrid_ = true;
+        g_quantileExpected_ = quantileForExpectedFromGrid_;
     } 
     if (vm.count("frequentist")) {
         genNuisances_ = 0; genGlobalObs_ = withSystematics; fitNuisances_ = withSystematics;
@@ -130,6 +131,7 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
     saveHybridResult_ = vm.count("saveHybridResult");
     readHybridResults_ = vm.count("readHybridResults") || vm.count("grid");
     if (readHybridResults_ && !(vm.count("toysFile") || vm.count("grid")))     throw std::invalid_argument("HybridNew: must have 'toysFile' or 'grid' option to have 'readHybridResults'\n");
+    mass_ = vm["mass"].as<float>();
     validateOptions(); 
 }
 
@@ -195,7 +197,7 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
         return false;
     }
     if (saveHybridResult_) {
-        TString name = TString::Format("HypoTestResult_r%g_%u", 0., RooRandom::integer(std::numeric_limits<UInt_t>::max() - 1));
+        TString name = TString::Format("HypoTestResult_mh%g_r%g_%u",mass_, 0., RooRandom::integer(std::numeric_limits<UInt_t>::max() - 1));
         writeToysHere->WriteTObject(new HypoTestResult(*hcResult), name);
         if (verbose) std::cout << "Hybrid result saved as " << name << " in " << writeToysHere->GetFile()->GetName() << " : " << writeToysHere->GetPath() << std::endl;
     }
@@ -367,7 +369,10 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
       }
 
       expoFit.FixParameter(0,clsTarget);
-      expoFit.SetParameter(1,log(clsMax.first/clsMin.first)/(rMax-rMin));
+      double clsmaxfirst = clsMax.first;
+      if ( clsmaxfirst == 0.0 ) clsmaxfirst = 0.005;
+      double par1guess = log(clsmaxfirst/clsMin.first)/(rMax-rMin);
+      expoFit.SetParameter(1,par1guess);
       expoFit.SetParameter(2,limit);
       double rMinBound, rMaxBound; expoFit.GetRange(rMinBound, rMaxBound);
       limitErr = std::max(fabs(rMinBound-limit), fabs(rMaxBound-limit));
@@ -377,7 +382,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
       }
       for (int i = 0, imax = (readHybridResults_ ? 0 : 8); i <= imax; ++i, ++npoints) {
           limitPlot_->Sort();
-          limitPlot_->Fit(&expoFit,(verbose <= 1 ? "QNR EX0" : "NR EXO"));
+          limitPlot_->Fit(&expoFit,(verbose <= 1 ? "QNR EX0" : "NR EX0"));
           if (verbose) {
               std::cout << "Fit to " << npoints << " points: " << expoFit.GetParameter(2) << " +/- " << expoFit.GetParError(2) << std::endl;
           }
@@ -392,7 +397,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
           if (i != imax) eval(w, mc_s, mc_b, data, rTry, true, clsTarget);
       } 
   }
-
+ 
   if (!plot_.empty() && limitPlot_.get()) {
       TCanvas *c1 = new TCanvas("c1","c1");
       limitPlot_->Sort();
@@ -499,6 +504,27 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     r->setConstant(true);
   }
 
+  //set value of "globalConstrained" nuisances to the value of the corresponding global observable and set them constant
+  //also fill the RooArgLists which can be passed to the test statistic  in order to produce the correct behaviour
+  //this is only supported currently for the optimized version of the LHC-type test statistic
+  RooArgList allnuis(*mc_s->GetNuisanceParameters());
+  RooArgList allgobs(*mc_s->GetGlobalObservables());
+  RooArgList gobsParams;
+  RooArgList gobs;
+  if (testStat_ == "LHC" && optimizeTestStatistics_) {
+    for (int i=0; i<allnuis.getSize(); ++i) {
+      RooRealVar *nuis = (RooRealVar*)allnuis.at(i);
+      if (nuis->getAttribute("globalConstrained")) {
+        RooRealVar *glob = (RooRealVar*)allgobs.find(TString::Format("%s_In",nuis->GetName()));
+        if (glob) {
+          nuis->setVal(glob->getVal());
+          nuis->setConstant();
+          gobsParams.add(*nuis);
+          gobs.add(*glob);
+        }
+      }
+    }
+  }
 
   std::auto_ptr<RooFitResult> fitMu, fitZero;
   if (fitNuisances_ && mc_s->GetNuisanceParameters() && withSystematics) {
@@ -608,7 +634,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     if (testStat_ == "LHC") {
        ((ProfileLikelihoodTestStat&)*setup.qvar).SetOneSided(true);
         if (optimizeTestStatistics_) {
-            setup.qvar.reset(new ProfiledLikelihoodTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(),  *setup.modelConfig.GetSnapshot(), verbose-1));
+            setup.qvar.reset(new ProfiledLikelihoodTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(),  *setup.modelConfig.GetSnapshot(),gobsParams,gobs, verbose-1));
         }
     }
   }
@@ -732,7 +758,7 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
         delete c1;
     }
     if (saveHybridResult_) {
-        TString name = TString::Format("HypoTestResult_r%g_%u", rVal, RooRandom::integer(std::numeric_limits<UInt_t>::max() - 1));
+        TString name = TString::Format("HypoTestResult_mh%g_r%g_%u", mass_, rVal, RooRandom::integer(std::numeric_limits<UInt_t>::max() - 1));
         writeToysHere->WriteTObject(new HypoTestResult(*hcResult), name);
         if (verbose) std::cout << "Hybrid result saved as " << name << " in " << writeToysHere->GetFile()->GetName() << " : " << writeToysHere->GetPath() << std::endl;
     }
@@ -863,7 +889,7 @@ RooStats::HypoTestResult * HybridNew::readToysFromFile(double rValue) {
     TDirectory *toyDir = readToysFromHere->GetDirectory("toys");
     if (!toyDir) throw std::logic_error("Cannot use readHypoTestResult: empty toy dir in input file empty");
     if (verbose) std::cout << "Reading toys for r = " << rValue << std::endl;
-    TString prefix = TString::Format("HypoTestResult_r%g_",rValue);
+    TString prefix = TString::Format("HypoTestResult_mh%g_r%g_",mass_,rValue);
     std::auto_ptr<RooStats::HypoTestResult> ret;
     TIter next(toyDir->GetListOfKeys()); TKey *k;
     while ((k = (TKey *) next()) != 0) {
@@ -901,8 +927,8 @@ void HybridNew::readGrid(TDirectory *toyDir) {
     TIter next(toyDir->GetListOfKeys()); TKey *k;
     while ((k = (TKey *) next()) != 0) {
         TString name(k->GetName());
-        if (name.Index("HypoTestResult_r") != 0 || name.Index("_", name.Index("_")+1) == -1) continue;
-        name.ReplaceAll("HypoTestResult_r","");
+        if (name.Index(TString::Format("HypoTestResult_mh%g_r",mass_)) != 0 || name.Index("_", name.Index("_")+1) == -1) continue;
+        name.ReplaceAll(TString::Format("HypoTestResult_mh%g_r",mass_),"");
         name.Remove(name.Index("_"),name.Length());
         double rVal = atof(name.Data());
         if (verbose > 2) std::cout << "  Do " << k->GetName() << " -> " << name << " --> " << rVal << std::endl;

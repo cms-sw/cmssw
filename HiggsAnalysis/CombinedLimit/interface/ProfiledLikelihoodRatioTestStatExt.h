@@ -39,8 +39,8 @@ class ProfiledLikelihoodTestStatOpt : public RooStats::TestStatistic {
         ProfiledLikelihoodTestStatOpt(const RooArgSet & observables,
                 RooAbsPdf &pdf, 
                 const RooArgSet *nuisances, 
-                const RooArgSet & params,
-                int verbosity=0) ; 
+                const RooArgSet & params, const RooArgList &gobsParams, const RooArgList &gobs, int verbosity=0) ; 
+
         virtual Double_t Evaluate(RooAbsData& data, RooArgSet& nullPOI) ;
 
         virtual const TString GetVarName() const { return "- log (#lambda)"; }
@@ -52,6 +52,7 @@ class ProfiledLikelihoodTestStatOpt : public RooStats::TestStatistic {
         RooAbsPdf *pdf_;
         RooArgSet snap_, poi_, nuisances_; 
         std::auto_ptr<RooArgSet> params_;
+        RooArgList gobsParams_, gobs_;
         Int_t verbosity_;
 
         double minNLL(RooAbsPdf &pdf, RooAbsData &data) ;
