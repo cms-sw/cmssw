@@ -117,7 +117,7 @@ class ShapeBuilder(ModelBuilder):
                                 raise RuntimeError, "Mismatch in normalizations for observed data in bin %s: text %f, shape %f" % (b,self.DC.obs[b],norm)
                     else:
                         if self.DC.exp[b][p] == -1: self.DC.exp[b][p] = norm
-                        elif abs(norm-self.DC.exp[b][p]) > 0.01*max(1,self.DC.exp[b][p]): 
+                        elif self.DC.exp[b][p] > 0 and abs(norm-self.DC.exp[b][p]) > 0.01*max(1,self.DC.exp[b][p]): 
                             raise RuntimeError, "Mismatch in normalizations for bin %s, process %s: rate %f, shape %f" % (b,p,self.DC.exp[b][p],norm)
         if shapeTypes.count("TH1"):
             self.out.maxbins = max(shapeBins)
