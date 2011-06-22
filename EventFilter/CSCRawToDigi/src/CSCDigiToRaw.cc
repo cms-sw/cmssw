@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2010/05/04 02:36:24 $
- *  $Revision: 1.41 $
+ *  $Date: 2011/06/11 05:56:10 $
+ *  $Revision: 1.42 $
  *  \author A. Tumanov - Rice
  *  But long, long ago...
  */
@@ -60,7 +60,7 @@ namespace cscd2r {
     return result;
   }
 
-  // need to specialize for pretriggers, sine they don't have a getBX
+  // need to specialize for pretriggers, since they don't have a getBX()
   template<>
   bool accept(const CSCDetId & cscId, const CSCCLCTPreTriggerCollection & lcts,
          int bxMin, int bxMax)
@@ -175,6 +175,7 @@ void CSCDigiToRaw::add(const CSCWireDigiCollection& wireDigis,
 void CSCDigiToRaw::add(const CSCComparatorDigiCollection & comparatorDigis,
                        const CSCCLCTDigiCollection & clctDigis)
 {
+  add(clctDigis);
   for (CSCComparatorDigiCollection::DigiRangeIterator j=comparatorDigis.begin(); j!=comparatorDigis.end(); ++j)
     {
       CSCDetId cscDetId=(*j).first;
@@ -256,7 +257,6 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
   add(stripDigis, preTriggers);
   add(wireDigis, alctDigis);
   add(comparatorDigis, clctDigis);
-  add(clctDigis);
   add(correlatedLCTDigis);
   
   int l1a=e.id().event(); //need to add increments or get it from lct digis 
