@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Apr 29 13:26:29 CDT 2011
-// $Id: DQMRootOutputModule.cc,v 1.8 2011/05/16 19:18:20 chrjones Exp $
+// $Id: DQMRootOutputModule.cc,v 1.9 2011/05/17 17:19:43 chrjones Exp $
 //
 
 // system include files
@@ -173,7 +173,6 @@ namespace {
 
 class DQMRootOutputModule : public edm::OutputModule {
 public:
-  // We do not take ownership of passed stream.
   explicit DQMRootOutputModule(edm::ParameterSet const& pset);
   virtual ~DQMRootOutputModule();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -186,6 +185,7 @@ private:
   virtual void startEndFile();
   virtual void finishEndFile();
   std::string m_fileName;
+  std::string m_logicalFileName;
   std::auto_ptr<TFile> m_file;
   std::vector<boost::shared_ptr<TreeHelperBase> > m_treeHelpers;
   
@@ -255,6 +255,7 @@ makeHelper(unsigned int iTypeIndex,
 DQMRootOutputModule::DQMRootOutputModule(edm::ParameterSet const& pset):
 edm::OutputModule(pset),
 m_fileName(pset.getUntrackedParameter<std::string>("fileName")),
+m_logicalFileName(pset.getUntrackedParameter<std::string>("logicalFileName","")),
 m_file(0),
 m_treeHelpers(kNIndicies,boost::shared_ptr<TreeHelperBase>()),
 m_presentHistoryIndex(0),
@@ -270,7 +271,7 @@ m_indicesTree(0)
   edm::Service<edm::JobReport> jr;
   cms::Digest branchHash;
   m_jrToken = jr->outputFileOpened(m_fileName,
-                                   std::string(),
+                                   m_logicalFileName,
                                    std::string(),
                                    "DQMRootOutputModule",
                                    pset.getParameter<std::string>("@module_label"),
@@ -532,6 +533,9 @@ DQMRootOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   edm::ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
+
+  //NOTE: when actually filling this in, do not forget to add a untracked PSet 'dataset'
+  // which is used for bookkeeping by the DMWM
 }
 
 
