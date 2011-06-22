@@ -40,6 +40,15 @@ RooDataSet *CombDataSetFactory::doneUnbinned(const char *name, const char *title
     using namespace RooFit; 
     RooDataSet *ret = 0;
     if (weight_) {
+        // must back-fill weight for datasets which didn't have it
+        for (std::map<std::string, RooDataSet *>::iterator it = mapUB_.begin(), ed = mapUB_.end(); it != ed; ++it) {
+            RooDataSet *data = it->second;
+            if (!data->isWeighted()) {
+                weight_->setVal(1.0);
+                data->addColumn(*weight_);
+                it->second = new RooDataSet(data->GetName(), data->GetTitle(), data, *data->get(), /*cut=*/(char*)0, weight_->GetName());
+            }
+        }
         RooArgSet varsPlusWeight(vars_); varsPlusWeight.add(*weight_);
         ret = new RooDataSet(name,title,varsPlusWeight,Index(*cat_),Import(mapUB_),WeightVar(*weight_));
     } else {
