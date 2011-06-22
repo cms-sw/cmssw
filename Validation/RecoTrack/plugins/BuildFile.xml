@@ -1,5 +1,6 @@
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/Framework"/>
+<use   name="CommonTools/UtilAlgos"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="clhep"/>
@@ -14,6 +15,8 @@
 <use   name="MagneticField/Engine"/>
 <use   name="SimDataFormats/Vertex"/>
 <use   name="SimDataFormats/TrackingAnalysis"/>
+<use   name="SimDataFormats/PileupSummaryInfo"/>
+<use   name="SimDataFormats/EncodedEventId"/>
 <use   name="SimTracker/Records"/>
 <use   name="RecoLocalTracker/ClusterParameterEstimator"/>
 <use   name="rootcintex"/>
