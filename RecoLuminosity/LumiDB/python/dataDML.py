@@ -885,7 +885,8 @@ def guessTrgDataIdByRun(schema,runnum):
         del qHandle
         raise 
     del qHandle
-    
+    if len(trgids)==0:
+        return result
     result=max(trgids)
     return result
 
