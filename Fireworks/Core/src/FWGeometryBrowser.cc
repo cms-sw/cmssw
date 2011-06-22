@@ -117,7 +117,7 @@ FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager, FWColorManager *c
    gVirtualX->SelectInput(GetId(), kKeyPressMask | kKeyReleaseMask | kExposureMask |
                           kPointerMotionMask | kStructureNotifyMask | kFocusChangeMask |
                           kEnterWindowMask | kLeaveWindowMask);
-
+   DontCallClose();
 }
 
 FWGeometryBrowser::~FWGeometryBrowser()

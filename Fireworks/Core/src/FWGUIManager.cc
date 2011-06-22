@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.236 2011/03/22 18:10:19 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.237 2011/06/21 05:22:04 amraktad Exp $
 
 
 //
@@ -711,7 +711,8 @@ FWGUIManager::showInvMassDialog()
 void
 FWGUIManager::showGeometryBrowser()
 {
-   m_geoBrowser->browse();
+   if ( m_geoBrowser->geoManager() == 0)
+       m_geoBrowser->browse();
    m_geoBrowser->MapRaised();
 }
 
