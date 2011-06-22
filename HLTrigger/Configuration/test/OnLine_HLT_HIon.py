@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V137 (CMSSW_4_2_0_HLT8)
+# /dev/CMSSW_4_2_0/HIon/V140 (CMSSW_4_2_0_HLT10)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V137')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V140')
 )
 
 process.streams = cms.PSet( 
@@ -4908,7 +4908,7 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltOfflineBeamSpot_*_*',
       'keep *_hltOnlineBeamSpot_*_*',
       'keep *_hltOverlapFilterIsoEle15IsoPFTau15_*_*',
-      'keep *_hltOverlapFilterIsoEle18IsoPFTau20_*_*',
+      'keep *_hltOverlapFilterIsoEle18LooseIsoPFTau20_*_*',
       'keep *_hltOverlapFilterIsoMu15IsoPFTau15_*_*',
       'keep *_hltPFTau15TrackLooseIso_*_*',
       'keep *_hltPFTau15Track_*_*',
@@ -5084,7 +5084,7 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep *_hltMuonRPCDigis_*_*',
       'keep *_hltOnlineBeamSpot_*_*',
       'keep *_hltOverlapFilterIsoEle15IsoPFTau15_*_*',
-      'keep *_hltOverlapFilterIsoEle18IsoPFTau20_*_*',
+      'keep *_hltOverlapFilterIsoEle18LooseIsoPFTau20_*_*',
       'keep *_hltOverlapFilterIsoMu15IsoPFTau15_*_*',
       'keep *_hltPFTau15TrackLooseIso_*_*',
       'keep *_hltPFTau15Track_*_*',
