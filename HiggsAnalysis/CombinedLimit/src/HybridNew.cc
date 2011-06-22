@@ -717,6 +717,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
 std::pair<double,double> 
 HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, double clsTarget) {
     std::auto_ptr<HypoTestResult> hcResult(evalGeneric(hc));
+    applyExpectedQuantile(*hcResult);
     if (hcResult.get() == 0) {
         std::cerr << "Hypotest failed" << std::endl;
         return std::pair<double, double>(-1,-1);
@@ -746,6 +747,7 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
             std::auto_ptr<HypoTestResult> more(evalGeneric(hc));
             if (testStat_ == "LHC" || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
             hcResult->Append(more.get());
+            applyExpectedQuantile(*hcResult);
             clsMid    = (CLs_ ? hcResult->CLs()      : hcResult->CLsplusb());
             clsMidErr = (CLs_ ? hcResult->CLsError() : hcResult->CLsplusbError());
             if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << clsMid << " +/- " << clsMidErr << std::endl;
@@ -755,6 +757,7 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
             std::auto_ptr<HypoTestResult> more(evalGeneric(hc));
             if (testStat_ == "LHC" || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
             hcResult->Append(more.get());
+            applyExpectedQuantile(*hcResult);
             clsMid    = (CLs_ ? hcResult->CLs()      : hcResult->CLsplusb());
             clsMidErr = (CLs_ ? hcResult->CLsError() : hcResult->CLsplusbError());
             if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << clsMid << " +/- " << clsMidErr << std::endl;
@@ -785,22 +788,20 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
     return std::pair<double, double>(clsMid, clsMidErr);
 } 
 
+void HybridNew::applyExpectedQuantile(RooStats::HypoTestResult &hcres) {
+  
+  if (expectedFromGrid_) {
+      std::vector<Double_t> btoys = hcres.GetNullDistribution()->GetSamplingDistribution();
+      std::sort(btoys.begin(), btoys.end());
+      Double_t testStat = btoys[std::min<int>(floor((1.-quantileForExpectedFromGrid_) * btoys.size()+0.5), btoys.size())];
+      hcres.SetTestStatisticData(testStat);
+  }
+  
+}
+
 RooStats::HypoTestResult * HybridNew::evalGeneric(RooStats::HybridCalculator &hc, bool noFork) {
-    HypoTestResult *hcres = 0;
-    if (fork_ && !noFork) hcres = evalWithFork(hc);
-    else hcres = hc.GetHypoTest();
-    
-    //if we are the parent and expectedFromGrid was asked, re-set the test statistic value from
-    //background-only quantiles
-    if (expectedFromGrid_ && !noFork) {
-        std::vector<Double_t> btoys = hcres->GetNullDistribution()->GetSamplingDistribution();
-        std::sort(btoys.begin(), btoys.end());
-        Double_t testStat = btoys[std::min<int>(floor((1.-quantileForExpectedFromGrid_) * btoys.size()+0.5), btoys.size())];
-        hcres->SetTestStatisticData(testStat);
-    }
-    
-    
-    return hcres;
+    if (fork_ && !noFork) return evalWithFork(hc);
+    else return hc.GetHypoTest();
 }
 
 RooStats::HypoTestResult * HybridNew::evalWithFork(RooStats::HybridCalculator &hc) {

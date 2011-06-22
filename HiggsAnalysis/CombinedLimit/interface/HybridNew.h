@@ -83,6 +83,7 @@ private:
   std::pair<double,double> eval(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double rVal, bool adaptive=false, double clsTarget=-1) ;
   std::auto_ptr<RooStats::HybridCalculator> create(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double rVal, Setup &setup);
   std::pair<double,double> eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive=false, double clsTarget=-1) ;
+  void applyExpectedQuantile(RooStats::HypoTestResult &hcres);
   RooStats::HypoTestResult *evalGeneric(RooStats::HybridCalculator &hc, bool forceNoFork=false);
   RooStats::HypoTestResult *evalWithFork(RooStats::HybridCalculator &hc);
   // RooStats::HypoTestResult *evalFrequentist(RooStats::HybridCalculator &hc);  // cross-check implementation, 
