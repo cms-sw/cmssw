@@ -157,6 +157,11 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
 	hCSCHaloData_SegmentdT = dqm->book1D("CSCHaloData_SegmentdT","",100,-100,100);
 	hCSCHaloData_FreeInverseBeta = dqm->book1D("CSCHaloData_FreeInverseBeta","",80,-4,4);
 	hCSCHaloData_FreeInverseBetaVsSegmentdT = dqm->book2D("CSCHaloData_FreeInverseBetaVsSegmentdT","",100,-100,100,80,-4,4);
+	// MLR
+	hCSCHaloData_NFlatHaloSegments = dqm->book1D("CSCHaloData_NFlatHaloSegments","",20,0,20);
+	hCSCHaloData_SegmentsInBothEndcaps = dqm->book1D("CSCHaloData_SegmentsInBothEndcaps","",2,0,2);
+	hCSCHaloData_NFlatSegmentsInBothEndcaps = dqm->book1D("CSCHaloData_NFlatSegmentsInBothEndcaps","",20,0,20);
+	// End MLR
       }
     else 
       {
@@ -183,6 +188,11 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
 	hCSCHaloData_SegmentdT = dqm->book1D("CSCHaloData_SegmentdT","",100,-100,100);
 	hCSCHaloData_FreeInverseBeta = dqm->book1D("CSCHaloData_FreeInverseBeta","",80,-4,4);
 	hCSCHaloData_FreeInverseBetaVsSegmentdT = dqm->book2D("CSCHaloData_FreeInverseBetaVsSegmentdT","",100,-100,100,80,-4,4);
+	// MLR
+	hCSCHaloData_NFlatHaloSegments = dqm->book1D("CSCHaloData_NFlatHaloSegments","",20,0,20);
+	hCSCHaloData_SegmentsInBothEndcaps = dqm->book1D("CSCHaloData_SegmentsInBothEndcaps","",2,0,2);
+	hCSCHaloData_NFlatSegmentsInBothEndcaps = dqm->book1D("CSCHaloData_NFlatSegmentsInBothEndcaps","",20,0,20);
+	// End MLR
       }
 
     // GlobalHaloData
@@ -563,8 +573,12 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       hCSCHaloData_NTracksSmallBeta          ->Fill( CSCData.NTracksSmallBeta()	         );
       hCSCHaloData_NTracksSmallBetaAndSmalldT->Fill( CSCData.NTracksSmallBetaAndSmalldT());
       hCSCHaloData_NTracksSmalldTvsNHaloTracks->Fill( CSCData.GetTracks().size(), CSCData.NTracksSmalldT()  );  
-
-
+      // MLR
+      hCSCHaloData_NFlatHaloSegments->Fill(CSCData.NFlatHaloSegments());
+      hCSCHaloData_SegmentsInBothEndcaps->Fill(CSCData.GetSegmentsInBothEndcaps());
+      if (CSCData.GetSegmentsInBothEndcaps())
+	hCSCHaloData_NFlatSegmentsInBothEndcaps->Fill(CSCData.NFlatHaloSegments());
+      // End MLR
   }
 
   //Get EcalHaloData 
