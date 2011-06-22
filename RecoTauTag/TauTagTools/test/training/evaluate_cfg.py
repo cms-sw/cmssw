@@ -275,6 +275,8 @@ process.load("RecoTauTag.Configuration.HPSTancTaus_cfi")
 process.hpsTancTausDiscriminationByTanc.transforms = custom_transform.transforms
 process.combinatoricRecoTausTancTransform.transforms = \
         custom_transform.transforms
+process.hpsTancTausDiscriminationByTancVLoose.Prediscriminants.tancCut.cut = \
+        custom_transform.cuts.vlooseCut
 process.hpsTancTausDiscriminationByTancLoose.Prediscriminants.tancCut.cut = \
         custom_transform.cuts.looseCut
 process.hpsTancTausDiscriminationByTancMedium.Prediscriminants.tancCut.cut = \
@@ -308,6 +310,7 @@ discriminators['shrinkingConePFTauProducer'] = [
 
 discriminators['hpsTancTaus'] = [
     'hpsTancTausDiscriminationByTanc',
+    'hpsTancTausDiscriminationByTancVLoose',
     'hpsTancTausDiscriminationByTancLoose',
     'hpsTancTausDiscriminationByTancMedium',
     'hpsTancTausDiscriminationByTancTight',
@@ -360,4 +363,4 @@ process.path = cms.Path(process.main)
 process.schedule = cms.Schedule(
     process.path
 )
-process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))

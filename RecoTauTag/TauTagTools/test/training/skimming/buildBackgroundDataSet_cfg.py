@@ -27,6 +27,7 @@ process.source = cms.Source("PoolSource", fileNames = readFiles,
 filterType ="filterWJets_cfi"
 sampleId = -999
 conditions="ErrorParsingCLI"
+_hltProcess = "HLT"
 
 if not hasattr(sys, "argv"):
     print "ERROR: Can't extract CLI arguments!"
@@ -41,6 +42,7 @@ else:
     sampleId = int(rawOptions.split(',')[1])
     print "Found %i for sample id" % sampleId
     conditions = rawOptions.split(',')[2]
+    _hltProcess = rawOptions.split(',')[3]
 
 print "Loading filter type"
 
@@ -138,26 +140,15 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = '%s::All' % conditions
 
-# Local re-reco: Produce tracker rechits, pf rechits and pf clusters
-process.localReReco = cms.Sequence(process.siPixelRecHits+
-                                   process.siStripMatchedRecHits+
-                                   process.particleFlowCluster)
-
-# Track re-reco
-process.globalReReco =  cms.Sequence(process.offlineBeamSpot+
-                                     process.recopixelvertexing+
-                                     process.ckftracks+
-                                     process.caloTowersRec+
-                                     process.vertexreco+
-                                     process.recoJets+
-                                     process.muonrecoComplete+
-                                     process.electronGsfTracking+
-                                     process.metreco)
-
-# Particle Flow re-processing
-process.pfReReco = cms.Sequence(process.particleFlowReco+
-                                process.ak5PFJets+
-                                process.kt6PFJets)
+# Make our own PF collection
+process.particleFlow = cms.EDProducer(
+    "PFCandidateCollectionCopier",
+    src = cms.InputTag("particleFlow"),
+    cut = cms.string(''),
+    embedTracks = cms.bool(True),
+    embedGsfTracks = cms.bool(True),
+    embedMuons = cms.bool(True)
+)
 
 process.kt6PFJets.doRhoFastjet = True
 process.kt6PFJets.Rho_EtaMax = cms.double( 4.4)
@@ -165,10 +156,10 @@ process.kt6PFJets.Rho_EtaMax = cms.double( 4.4)
 process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesDA_cfi")
 
 process.rereco = cms.Sequence(
-    process.localReReco*
-    process.globalReReco*
-    process.pfReReco*
-    process.offlinePrimaryVerticesDA
+    process.particleFlow
+    *process.ak5PFJets
+    *process.kt6PFJets
+    *process.offlinePrimaryVerticesDA
 )
 
 #################################################################
@@ -201,6 +192,11 @@ process.atLeastOneHLTJet = cms.EDFilter(
     src = cms.InputTag('hltMatchedJets'),
     minNumber = cms.uint32(1)
 )
+
+# If we are using MC, turn off the trigger requirement
+if mc_mode:
+    print "Disabling trigger match requirement"
+    process.atLeastOneHLTJet.minNumber = 0
 
 # Get all jets that are NOT matched to HLT trigger jets
 process.nonHLTMatchedJets = cms.EDProducer(
@@ -242,7 +238,7 @@ process.backgroundJetsCandRefs = cms.EDProducer(
         cms.InputTag('nonHLTMatchedJets'),
     )
 )
-if process.filterConfig.useUnbiasedHLTMatchedJets:
+if process.filterConfig.useUnbiasedHLTMatchedJets.value():
     # <-- defined in filterType.py
     process.backgroundJetsCandRefs.src.append(
         cms.InputTag('nonBiasedTriggerJets'))
@@ -272,6 +268,9 @@ process.removeBiasedJets = cms.Sequence(
     process.atLeastOneBackgroundJet
 )
 
+if mc_mode:
+    process.removeBiasedJets.remove(process.nonBiasedTriggerJets)
+    print process.removeBiasedJets
 
 # Plot discriminants
 process.plotBackgroundJets = cms.EDAnalyzer(
@@ -418,7 +417,8 @@ process.selectBackground = cms.Path(
 
 # Store the trigger stuff in the event
 from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger
-switchOnTrigger(process, sequence="selectBackground", outputModule='')
+switchOnTrigger(process, sequence="selectBackground", outputModule='',
+                hltProcess=_hltProcess)
 
 # Keep only a subset of data
 poolOutputCommands = cms.untracked.vstring(
@@ -432,11 +432,16 @@ poolOutputCommands = cms.untracked.vstring(
     'keep *_kt6PFJets_*_TANC', # for PU subtraction
     'keep *_offlinePrimaryVertices_*_TANC',
     'keep *_offlinePrimaryVerticesDA_*_TANC',
-    'keep *_offlineBeamSpot_*_TANC',
-    'keep recoTracks_generalTracks_*_TANC',
-    'keep recoTracks_electronGsfTracks_*_TANC',
-    'keep recoPFCandidates_particleFlow_*_TANC',
-    'keep *_preselectedBackgroundJets_*_TANC',
+    #'keep *_offlineBeamSpot_*_TANC',
+    'keep *_particleFlow_*_TANC',
+    #'keep recoTracks_generalTracks_*_TANC',
+    #'keep recoTracks_electronGsfTracks_*_TANC',
+    'keep *_genParticles_*_*', # this product is okay, since we dont' need it in bkg
+    'keep *_selectedTrueHadronicTaus_*_*',
+    'keep *_preselectedSignalJets_*_*',
+    #'keep *_signalJetsRecoTauPiZeros_*_*',
+    # These two products are needed to make signal content a superset
+    'keep *_preselectedBackgroundJets_*_*',
     'keep *_eventSampleFlag_*_*'
     #'keep *_backgroundJetsRecoTauPiZeros_*_TANC',
 )
@@ -461,4 +466,4 @@ process.write = cms.OutputModule(
 process.out = cms.EndPath(process.write)
 
 # Print out trigger information
-#process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )

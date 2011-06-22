@@ -97,7 +97,7 @@ discriminantConfiguration.FlightPathSignificance.discSrc = cms.VInputTag(
     "hpsTancTausDiscriminationByFlightPathBackground",
 )
 
-_MIN_PT = 15
+_MIN_PT = 10
 
 process.signalExists = cms.EDFilter(
     "CandCollectionExistFilter",
@@ -142,6 +142,7 @@ process.trainer = cms.EDAnalyzer(
     backgroundSrc = cms.InputTag("selectedBackground"),
     computerName = cms.string(_computer_name),
     dbLabel = cms.string("trainer"),
+    backgroundWeightFunction = cms.string("jetRef().pt()"),
     discriminantOptions = discriminantConfiguration
 )
 
