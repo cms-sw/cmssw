@@ -609,10 +609,35 @@ def toCSVLumiByLSXing(lumidata,scalefactor,filename):
     
 def toScreenLSTrg(trgdata,iresults=None,isverbose=False):
     '''
-    input:[[run,cmslsnum,timestamp,deadfrac,name:(prescale,count)]]
+    input:{run:[[cmslsnum,deadfrac,deadtimecount,bitzero_count,bitzero_prescale,[(name,count,presc),]],..]
     '''
-    print trgdata
+    result=[]
+    for run in trgdata.keys():
+        perrundata=trgdata[run]
+        deadfrac=0.0
+        bitdataStr='n/a'
+        for lsdata in perrundata:
+            cmslsnum=lsdata[0]
+            deadfra=lsdata[1]
+            bitdata=lsdata[5]# already sorted by name
+            flatbitdata=["("+x[0]+',%d'%x[1]+',%d'%x[2]+")" for x in bitdata if x[0]!='False']
+            #print 'flatbit ',flatbitdata
+            bitdataStr=', '.join(flatbitdata)
+            #print 'bitdataStr ',bitdataStr
+            if isverbose:
+                result.append([str(run),str(cmslsnum),'%.2f'%(deadfrac),bitdataStr])
+            else:
+                result.append([str(run),str(cmslsnum),'%.2f'%(deadfrac)])
+    print ' ==  = '
+    if isverbose:
+        labels = [('Run', 'LS', 'dfrac','(bit,count,presc)')]
+    else:
+        labels = [('Run', 'LS', 'dfrac')]
+    print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
+                               prefix = '| ', postfix = ' |', justify = 'left',
+                               delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,70) )
 
+    
 def toCSVLSTrg(trgdata,ofilename,iresults=None,isverbose=False):
     '''
     input:[[run,cmslsnum,timestamp,deadfrac,name:(prescale,count)]]

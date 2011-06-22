@@ -82,9 +82,9 @@ def trgForRange(schema,inputRange,trgbitname=None,trgbitnamepattern=None,withL1C
             trgbitnamepattern match trgbitname (optional)
             datatag : data version
     output
-            result [(run,cmslsnum,deadtimecount,bitzero_count,bitzero_prescale,deadfrac,{bitname:[prescale,counts]}]]
+            result {run:[cmslsnum,deadfrac,deadtimecount,bitzero_count,bitzero_prescale,[(bitname,prescale,counts)]]}
     '''
-    result=[]
+    result={}
     withprescaleblob=True
     withtrgblob=True
     for run in inputRange.keys():
@@ -93,19 +93,27 @@ def trgForRange(schema,inputRange,trgbitname=None,trgbitnamepattern=None,withL1C
             result[run]=[]#if no LS is selected for a run
             continue
         trgdataid=dataDML.guessTrgDataIdByRun(schema,run)
-        print 'trgdataid ',trgdataid
         if trgdataid is None:
             continue #run non exist
         trgdata=dataDML.trgLSById(schema,trgdataid,trgbitname=trgbitname,trgbitnamepattern=trgbitnamepattern,withL1Count=withL1Count,withPrescale=withPrescale)
         #(runnum,{cmslsnum:[deadtimecount(0),bitzerocount(1),bitzeroprescale(2),deadfrac(3),[(bitname,trgcount,prescale)](4)]})
+        result[run]=[]
         if trgdata and trgdata[1]:
+            lsdict={}
             for cmslsnum in sorted(trgdata[1]):
+                lsdata=[]
                 deadtimecount=trgdata[1][cmslsnum][0]
                 bitzerocount=trgdata[1][cmslsnum][1]
                 bitzeroprescale=trgdata[1][cmslsnum][2]
                 deadfrac=trgdata[1][cmslsnum][3]
                 allbitsinfo=trgdata[1][cmslsnum][4]
-                result.append((run,cmslsnum,deadtimecount,bitzerocount,bitzeroprescale,deadfrac,allbitsinfo))
+                lsdata.append(cmslsnum)
+                lsdata.append(deadfrac)
+                lsdata.append(deadtimecount)
+                lsdata.append(bitzerocount)
+                lsdata.append(bitzeroprescale)
+                lsdata.append(allbitsinfo)
+                result[run].append(lsdata)
     return result
 
 def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,datatag=None):
