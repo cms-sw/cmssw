@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V140 (CMSSW_4_2_0_HLT10)
+# /dev/CMSSW_4_2_0/GRun/V141 (CMSSW_4_2_0_HLT10)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V140')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V141')
 )
 
 process.streams = cms.PSet( 
@@ -5728,16 +5728,6 @@ process.hltBLifetimeL3FilterbbPhi = cms.EDFilter( "HLTJetTag",
     MaxTag = cms.double( 99999.0 ),
     MinJets = cms.int32( 2 ),
     saveTags = cms.bool( True )
-)
-process.hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    daqPartitions = cms.uint32( 1 ),
-    ignoreL1Mask = cms.bool( True ),
-    invert = cms.bool( False ),
-    bunchCrossings = cms.vint32( 0, -1, 1 ),
-    physicsLoBits = cms.uint64( 0x1 ),
-    physicsHiBits = cms.uint64( 0x0 ),
-    technicalBits = cms.uint64( 0x7f )
 )
 process.hltL1sL1Dijet44Central = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
@@ -31365,7 +31355,6 @@ process.HLTBtagIPSequenceL3Hbb = cms.Sequence( process.HLTDoLocalPixelSequence +
 process.HLTRecopixelvertexing3DbbPhiSequence = cms.Sequence( process.hltPixelTracks + process.hltPixelVertices3DbbPhi )
 process.HLTBTagIPSequenceL25bbPhi = cms.Sequence( process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexing3DbbPhiSequence + process.hltSelector4Jets + process.hltBLifetimeL25JetsbbPhi + process.hltBLifetimeL25AssociatorbbPhi + process.hltBLifetimeL25TagInfosbbPhi + process.hltBLifetimeL25BJetTagsbbPhi )
 process.HLTBTagIPSequenceL3bbPhi = cms.Sequence( process.HLTDoLocalPixelSequence + process.HLTDoLocalStripSequence + process.hltBLifetimeRegionalPixelSeedGeneratorbbPhi + process.hltBLifetimeRegionalCkfTrackCandidatesbbPhi + process.hltBLifetimeRegionalCtfWithMaterialTracksbbPhi + process.hltBLifetimeL3AssociatorbbPhi + process.hltBLifetimeL3TagInfosbbPhi + process.hltBLifetimeL3BJetTagsbbPhi )
-process.HLTBeginSequenceBPTX = cms.Sequence( process.hltTriggerType + process.HLTL1UnpackerSequence + process.hltBPTXCoincidence + process.HLTBeamSpot )
 process.HLTDoCaloSequencePF = cms.Sequence( process.hltEcalRawToRecHitFacility + process.hltEcalRegionalRestFEDs + process.hltEcalRecHitAll + process.HLTDoLocalHcalSequence + process.hltTowerMakerForPF )
 process.HLTRecoJetSequenceAK5UncorrectedPF = cms.Sequence( process.HLTDoCaloSequencePF + process.hltAntiKT5CaloJetsPF )
 process.HLTRecoJetSequencePrePF = cms.Sequence( process.HLTRecoJetSequenceAK5UncorrectedPF + process.hltAntiKT5CaloJetsPFEt5 )
@@ -31591,7 +31580,7 @@ process.HLT_DiJet60_MET45_v6 = cms.Path( process.HLTBeginSequence + process.hltL
 process.HLT_DiCentralJet20_MET80_v4 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM30 + process.hltPreDiCentralJet20MET80 + process.HLTRegionalRecoJetSequenceAK5Corrected + process.hlt2CenJet20CentralRegional + process.HLTRecoMETSequence + process.hltMET80 + process.HLTEndSequence )
 process.HLT_DiCentralJet20_BTagIP_MET65_v5 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM30 + process.hltPreDiCentralJet20BTagIPMET65 + process.HLTRecoMETSequence + process.hltMET65 + process.HLTRecoJetSequenceAK5Corrected + process.hltBJetHbb + process.HLTBtagIPSequenceL25Hbb + process.hltBLifetimeL25FilterHbb + process.HLTBtagIPSequenceL3Hbb + process.hltBLifetimeL3FilterHbbTight + process.HLTEndSequence )
 process.HLT_CentralJet46_CentralJet38_DiBTagIP3D_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleJet36Central + process.hltPreCentralJet46CentralJet38DiBTagIP3D + process.HLTRecoJetSequenceAK5Corrected + process.hltSingleJet46Eta2p6 + process.hltDoubleJet38Eta2p6 + process.HLTBTagIPSequenceL25bbPhi + process.hltBLifetimeL25FilterbbPhi + process.HLTBTagIPSequenceL3bbPhi + process.hltBLifetimeL3FilterbbPhi + process.HLTEndSequence )
-process.HLT_CentralJet60_CentralJet53_DiBTagIP3D_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1Dijet44Central + process.hltPreJet60Jet53DiBtag + process.HLTRecoJetSequenceAK5Corrected + process.hltSingleJet60Eta2p6 + process.hltDoubleJet53Eta2p6 + process.HLTBTagIPSequenceL25bbPhi + process.hltBLifetimeL25FilterbbPhi + process.HLTBTagIPSequenceL3bbPhi + process.hltBLifetimeL3FilterbbPhi + process.HLTEndSequence )
+process.HLT_CentralJet60_CentralJet53_DiBTagIP3D_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1Dijet44Central + process.hltPreJet60Jet53DiBtag + process.HLTRecoJetSequenceAK5Corrected + process.hltSingleJet60Eta2p6 + process.hltDoubleJet53Eta2p6 + process.HLTBTagIPSequenceL25bbPhi + process.hltBLifetimeL25FilterbbPhi + process.HLTBTagIPSequenceL3bbPhi + process.hltBLifetimeL3FilterbbPhi + process.HLTEndSequence )
 process.HLT_QuadJet40_v7 = cms.Path( process.HLTBeginSequence + process.hltL1sL1QuadJet20Central + process.hltPreQuadJet40 + process.HLTRecoJetSequenceAK5Corrected + process.hltQuadJet40Central + process.HLTEndSequence )
 process.HLT_QuadJet40_IsoPFTau40_v9 = cms.Path( process.HLTBeginSequence + process.hltL1sL1QuadJet20Central + process.hltPreQuadJet40IsoPFTau40 + process.HLTRecoJetSequenceAK5Corrected + process.hltQuadJet40IsoPFTau40 + process.HLTRecoJetSequencePrePF + process.HLTPFJetTriggerSequenceForTaus + process.HLTPFTauTightIsoSequence + process.hltPFTau5Track + process.hltPFTauTightIsoTrackPt5Discriminator + process.hltSelectedPFTausTightIsoTrackPt5 + process.hltConvPFTausTightIsoTrackPt5 + process.hltPFTau5Track5 + process.hltSelectedPFTausTightIsoTrackPt5Isolation + process.hltConvPFTausTightIsoTrackPt5Isolation + process.hltFilterPFTauTrack5TightIsoL1QuadJet20Central + process.hltFilterPFTauTrack5TightIsoL1QuadJet20CentralPFTau40 + process.HLTEndSequence )
 process.HLT_QuadJet45_IsoPFTau45_v4 = cms.Path( process.HLTBeginSequence + process.hltL1sL1QuadJet20Central + process.hltPreQuadJet45IsoPFTau45 + process.HLTRecoJetSequenceAK5Corrected + process.hltQuadJet45IsoPFTau45 + process.HLTRecoJetSequencePrePF + process.HLTPFJetTriggerSequenceForTaus + process.HLTPFTauTightIsoSequence + process.hltPFTau5Track + process.hltPFTauTightIsoTrackPt5Discriminator + process.hltSelectedPFTausTightIsoTrackPt5 + process.hltConvPFTausTightIsoTrackPt5 + process.hltPFTau5Track5 + process.hltSelectedPFTausTightIsoTrackPt5Isolation + process.hltConvPFTausTightIsoTrackPt5Isolation + process.hltFilterPFTauTrack5TightIsoL1QuadJet20Central + process.hltFilterPFTauTrack5TightIsoL1QuadJet20CentralPFTau45 + process.HLTEndSequence )
