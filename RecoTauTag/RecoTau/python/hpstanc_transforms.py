@@ -7,7 +7,7 @@ transforms = cms.VPSet(cms.PSet(
         min = cms.double(-0.998333333333)
     ),
     nCharged = cms.uint32(3)
-), 
+),
     cms.PSet(
         nPiZeros = cms.uint32(1),
         transform = cms.PSet(
@@ -16,7 +16,7 @@ transforms = cms.VPSet(cms.PSet(
             min = cms.double(-0.998333333333)
         ),
         nCharged = cms.uint32(1)
-    ), 
+    ),
     cms.PSet(
         nPiZeros = cms.uint32(0),
         transform = cms.PSet(
@@ -25,7 +25,7 @@ transforms = cms.VPSet(cms.PSet(
             min = cms.double(-0.998333333333)
         ),
         nCharged = cms.uint32(1)
-    ), 
+    ),
     cms.PSet(
         nPiZeros = cms.uint32(2),
         transform = cms.PSet(
@@ -35,3 +35,10 @@ transforms = cms.VPSet(cms.PSet(
         ),
         nCharged = cms.uint32(1)
     ))
+
+cuts = cms.PSet(
+    vlooseCut = cms.double(0.9),
+    looseCut = cms.double(0.95),
+    mediumCut = cms.double(0.97),
+    tightCut = cms.double(0.985),
+)
