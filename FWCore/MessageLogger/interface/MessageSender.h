@@ -38,7 +38,7 @@ public:
     MessageSender &
     operator<< ( T const & t )
   {
-    (*errorobj_p) << t;
+    if (valid()) (*errorobj_p) << t;
     return *this;
   }
 
