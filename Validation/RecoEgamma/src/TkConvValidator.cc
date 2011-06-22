@@ -96,8 +96,8 @@
  **  
  **
  **  $Id: TkConvValidator
- **  $Date: 2011/02/28 20:08:39 $ 
- **  $Revision: 1.12 $
+ **  $Date: 2011/03/03 20:53:30 $ 
+ **  $Revision: 1.13 $
  **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/
@@ -725,7 +725,7 @@ void  TkConvValidator::beginJob() {
 
 
   edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
-  theEventSetup.get<TrackAssociatorRecord>().get("myTrackAssociatorByHits",theHitsAssociator);
+  theEventSetup.get<TrackAssociatorRecord>().get("trackAssociatorByHitsForConversionValidation",theHitsAssociator);
   theTrackAssociator_ = (TrackAssociatorBase *) theHitsAssociator.product();
 
 

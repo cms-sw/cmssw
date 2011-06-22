@@ -296,7 +296,7 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
   // parError the 4x4 parameter error matrix of the RecHit
 
   
-  LocalTrajectoryError error(asSMatrix<5>(mat));
+  LocalTrajectoryError error(mat);
   
   // Create the TrajectoryStateOnSurface
   TrajectoryStateOnSurface tsos(param, error, seg[last]->det()->surface(),&*BField);

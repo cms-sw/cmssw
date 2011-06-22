@@ -19,7 +19,7 @@ CastorChannelCoder::CastorChannelCoder (const float fOffset [16], const float fS
   }
 }
 
-double CastorChannelCoder::charge (const reco::castor::QieShape& fShape, int fAdc, int fCapId) const {
+double CastorChannelCoder::charge (const QieShape& fShape, int fAdc, int fCapId) const {
   int range = (fAdc >> 6) & 0x3;
   double charge = fShape.linearization (fAdc) / mSlope [fCapId][range] + mOffset [fCapId][range];
 //   std::cout << "CastorChannelCoder::charge-> " << fAdc << '/' << fCapId 
@@ -27,7 +27,7 @@ double CastorChannelCoder::charge (const reco::castor::QieShape& fShape, int fAd
   return charge;
 }
 
-int CastorChannelCoder::adc (const reco::castor::QieShape& fShape, double fCharge, int fCapId) const {
+int CastorChannelCoder::adc (const QieShape& fShape, double fCharge, int fCapId) const {
 
   int adc = -1; //nothing found yet
   // search for the range

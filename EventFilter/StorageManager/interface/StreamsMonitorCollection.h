@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.h,v 1.11.10.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: StreamsMonitorCollection.h,v 1.12 2011/03/07 15:31:32 mommsen Exp $
 /// @file: StreamsMonitorCollection.h 
 
 #ifndef EventFilter_StorageManager_StreamsMonitorCollection_h
@@ -28,8 +28,8 @@ namespace stor {
    * A collection of MonitoredQuantities of output streams
    *
    * $Author: mommsen $
-   * $Revision: 1.11.10.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.12 $
+   * $Date: 2011/03/07 15:31:32 $
    */
   
   class StreamsMonitorCollection : public MonitorCollection
@@ -80,11 +80,11 @@ namespace stor {
 
     explicit StreamsMonitorCollection(const utils::Duration_t& updateInterval);
 
-    const StreamRecordPtr getNewStreamRecord();
+    StreamRecordPtr getNewStreamRecord();
 
-    const StreamRecordList& getStreamRecordsMQ() const {
-      return streamRecords_;
-    }
+    void getStreamRecords(StreamRecordList&) const;
+
+    bool streamRecordsExist() const;
 
     const MonitoredQuantity& getAllStreamsFileCountMQ() const {
       return allStreamsFileCount_;

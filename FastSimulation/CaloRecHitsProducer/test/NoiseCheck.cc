@@ -18,6 +18,7 @@
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+#include "CLHEP/GenericFunctions/Erf.hh"
 
 #include <iostream>
 #include <sstream>
@@ -31,19 +32,19 @@ NoiseCheck::~NoiseCheck(){
 
   // Computing the Sigma
   TF1 * f1 = new TF1("f1","[0]*exp(-0.5*((x-[1])/[2])**2)",-1.,1.);
-  f1->SetParameter(1,0);
-  f1->SetParameter(2,0.1);
-
 
   for(unsigned ih=0;ih<EEDetId::kSizeForDenseIndexing;++ih)
     {
       EEDetId myDetId(EEDetId::unhashIndex(ih));
+      f1->SetParameter(1,0);
+      f1->SetParameter(2,0.1);
       individual_histos[ih]->getTH1F()->Fit("f1","RQ");
+
       float sigma=fabs(f1->GetParameter(2));
       float r=std::sqrt((myDetId.ix()-50)*(myDetId.ix()-50)+(myDetId.iy()-50)*(myDetId.iy()-50));      
       bool positiveSide= (myDetId.ix()>50.5);
       ICRatio->Fill(IC[ih]/ICMC[ih]);
-
+      std::cout << myDetId <<" " << ih << " " << sigma << std::endl;
       if(myDetId.zside()>0)
  	{
 	  EEPlus->Fill(myDetId.ix()-50,myDetId.iy()-50,sigma);
@@ -94,10 +95,41 @@ NoiseCheck::~NoiseCheck(){
 	}      
     }
   
-
+  std::cout << counter << " N events analyzer " << std::endl;
   std::cout << " Calling save histos " << std::endl;
   dbe->save(rootFileName);
-  std::cout << "done " << std::endl;
+  std::cout << " done " << std::endl;
+
+  std::cout << " Endcap + " << std::endl;
+  double nevents=HitMultiplicityP->getTH1F()->GetEntries();
+  double neventspositive=HitMultiplicityP->getTH1F()->GetEntries()-HitMultiplicityP->getTH1F()->GetBinContent(1);
+  double nhitsp=RecHitEPICMCZADC->getTH1F()->GetEntries();
+  double nhitsperevent = nhitsp/neventspositive;
+  std::cout << " N events " << nevents << " with>0 "  <<neventspositive << std::endl;
+  std::cout << " N hits " << nhitsp << " N hits / event " << nhitsperevent << std::endl;
+  double hotfraction = 2.*nhitsperevent/14648;
+  std::cout << " Hot fraction " << hotfraction << std::endl;
+  double sigma=2.7;
+  double threshold=sigma*std::sqrt(2.)*TMath::ErfInverse(1.-hotfraction*2.);
+  std::cout << " Threshold " << threshold << std::endl;
+  Genfun::Erf myErf; 
+  std::cout << " Recomputed hot fraction " << (0.5-0.5*myErf(threshold/sigma/sqrt(2.))) << std::endl;
+  std::cout <<  " Old thresholds " << (0.5-0.5*myErf(5.1/sigma/sqrt(2.))) << std::endl;
+
+  std::cout << " Endcap - " << std::endl;
+  nevents=HitMultiplicityN->getTH1F()->GetEntries();
+  neventspositive=HitMultiplicityN->getTH1F()->GetEntries()-HitMultiplicityN->getTH1F()->GetBinContent(1);
+  nhitsp=RecHitENICMCZADC->getTH1F()->GetEntries();
+  nhitsperevent = nhitsp/neventspositive;
+  std::cout << " N events " << nevents << " with>0 "  <<neventspositive << std::endl;
+  std::cout << " N hits " << nhitsp << " N hits / event " << nhitsperevent << std::endl;
+  hotfraction = 2.*nhitsperevent/14648;
+  std::cout << " Hot fraction " << hotfraction << std::endl;
+  threshold=sigma*std::sqrt(2.)*TMath::ErfInverse(1.-hotfraction*2.);
+  std::cout << " Threshold " << threshold << std::endl;
+  std::cout << " Recomputed hot fraction " << (0.5-0.5*myErf(threshold/sigma/sqrt(2.))) << std::endl;
+
+
 ;}
 typedef math::XYZVector XYZPoint;
 
@@ -141,8 +173,8 @@ void  NoiseCheck::beginJobAnalyze(const edm::EventSetup & c){
   OCCPNR = dbe->bookProfile("OCCPNR","EE+ profile ; Negative side ",55,0,55,100,0,1000);
   OCCNNR = dbe->bookProfile("OCCNNR","EE- profile ; Negative side ",55,0,55,100,0,1000);
   OCCNPR = dbe->bookProfile("OCCNPR","EE- profile ; Positive side ",55,0,55,100,0,1000);
-  HitMultiplicityP = dbe->book1D("HitMultiplicityP"," Multiplicity ; Positive side ", 100,0,1000);
-  HitMultiplicityN = dbe->book1D("HitMultiplicityN"," Multiplicity ; Negative side ", 100,0,1000);
+  HitMultiplicityP = dbe->book1D("HitMultiplicityP"," Multiplicity ; Positive side ", 1000,0,1000);
+  HitMultiplicityN = dbe->book1D("HitMultiplicityN"," Multiplicity ; Negative side ", 1000,0,1000);
   RecHitEP = dbe->book1D("RecHitEP"," RecHit E ; Positive side ", 1100,-10,100);
   RecHitEN = dbe->book1D("RecHitEN"," RecHit E; Negative side ", 1100,-10,100);
   RecHitEPZ = dbe->book1D("RecHitEPZ"," RecHit E ; Positive side ", 300,-1,2);
@@ -151,6 +183,8 @@ void  NoiseCheck::beginJobAnalyze(const edm::EventSetup & c){
   RecHitENCZ = dbe->book1D("RecHitENCZ"," RecHit E; Negative side ", 300,-1,2);
   RecHitEPICMCZ = dbe->book1D("RecHitEPICMCZ"," RecHit E ; Positive side ", 300,-1,2);
   RecHitENICMCZ = dbe->book1D("RecHitENICMCZ"," RecHit E; Negative side ", 300,-1,2);
+  RecHitEPICMCZADC = dbe->book1D("RecHitEPICMCZADC"," RecHit E ; Positive side ", 300,-1,9);
+  RecHitENICMCZADC = dbe->book1D("RecHitENICMCZADC"," RecHit E; Negative side ", 300,-1,9);
   edm::ESHandle<EcalIntercalibConstants> pIcal;
   c.get<EcalIntercalibConstantsRcd>().get(pIcal);
   const EcalIntercalibConstants* ical = pIcal.product();
@@ -224,6 +258,7 @@ void  NoiseCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	   RecHitEP->Fill(rhit->energy());
 	   RecHitEPZ->Fill(rhit->energy());
 	   RecHitEPICMCZ->Fill(rhit->energy()/ICMC[myDetId.hashedIndex()]);
+	   RecHitEPICMCZADC->Fill(rhit->energy()/ICMC[myDetId.hashedIndex()]/adcToGeV_);
 	   OCCP->Fill(myDetId.ix()-50,myDetId.iy()-50);
 	   if(rhit->energy()>threshold_*ICMC[myDetId.hashedIndex()])
 	     {
@@ -240,6 +275,7 @@ void  NoiseCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	   RecHitEN->Fill(rhit->energy());
 	   RecHitENZ->Fill(rhit->energy());
 	   RecHitENICMCZ->Fill(rhit->energy()/ICMC[myDetId.hashedIndex()]);
+	   RecHitENICMCZADC->Fill(rhit->energy()/ICMC[myDetId.hashedIndex()]/adcToGeV_);
 	   OCCN->Fill(myDetId.ix()-50,myDetId.iy()-50);
 	   if(rhit->energy()>threshold_*ICMC[myDetId.hashedIndex()])
 	     {
@@ -266,26 +302,26 @@ void  NoiseCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      {
        if (scit->position().eta()<-1.4)
 	 {
-	   std::cout << " Found a supercluster E = " << scit->energy();
+	   //	   std::cout << " Found a supercluster E = " << scit->energy();
 	   reco::CaloCluster_iterator bcit=scit->clustersBegin();
 	   reco::CaloCluster_iterator bcitend=scit->clustersEnd();
-	   std::cout << " Cells " << std::endl;
+	   //	   std::cout << " Cells " << std::endl;
 	   for(;bcit!=bcitend;++bcit)
 	     {
-	       std::cout << " Basic cluster E " << (*bcit)->energy() << std::endl;
+	       //	       std::cout << " Basic cluster E " << (*bcit)->energy() << std::endl;
 	       const std::vector< std::pair<DetId, float> > & hits = (*bcit)->hitsAndFractions();
 	       unsigned size=hits.size();
 	       for(unsigned ihit=0;ihit<size;++ihit)
 		 {		   
-		   std::cout << ihit << " DetId / hash" << EEDetId(hits[ihit].first) << " " ;
-		   std::cout <<  EEDetId(hits[ihit].first).hashedIndex() << " "  << " Frac " << hits[ihit].second << " E ";
+//		   std::cout << ihit << " DetId / hash" << EEDetId(hits[ihit].first) << " " ;
+//		   std::cout <<  EEDetId(hits[ihit].first).hashedIndex() << " "  << " Frac " << hits[ihit].second << " E ";
 		   rhit=hrechit_EE_col.product()->begin();
 		   bool found=false;
 		   for(;rhit!=rhitend&&!found;++rhit)
 		     {
 		       if(hits[ihit].first==rhit->id())			 
 			 {
-			   std::cout << rhit->energy() << std::endl;
+			   //			   std::cout << rhit->energy() << std::endl;
 			   found=true;
 			 }
 		     }

@@ -1,23 +1,177 @@
 //----------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified: 24/03/2011
+//----------Modified: 08/04/2010
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaGui.h"
 #include <cstdlib>
 
-//--------------------------------------
-//  TEcnaGui.cc
-//  Class creation: 03 Dec 2002
-//  Documentation: see TEcnaGui.h
-//--------------------------------------
-
 ClassImp(TEcnaGui)
 //______________________________________________________________________________
 //
+// TEcnaGui.
+//
+// This class provides a dialog box for ECNA (Ecal Correlated Noise Analysis)
+// in the framework of ROOT Graphical User Interface (GUI)
+//
+//   In the following, "Stin", "Stex", "Stas" means:
+//
+//                 "Stin" = "Tower"  if the subdetector is "EB"  
+//                        = "SC"     if the subdetector is "EE"
+//
+//                 "Stex" = "SM"     if the subdetector is "EB"
+//                        = "Dee"    if the subdetector is "EE"
+//
+//                 "Stas" = "EB"     if the subdetector is "EB"
+//                        = "EE"     if the subdetector is "EE"  
+//
+//
+//==================== GUI DIALOG BOX PRESENTATION ==================
+// 
+// line# 
+//   
+//
+//   1      Analysis                      (button + input widget)
+//          First requested event number  (button + input widget)
+//          Run number                    (button + input widget)
+//
+//   2      Number of samples             (button + input widget)
+//          Last requested event number   (button + input widget)
+//          Clean                         (menu)
+//          Submit                        (menu)
+//
+//   3      Stex number                   (button + input widget)
+//          Stex Stin numbering           (button)
+//          Calculations                  (menu)
+//
+//........................................................................
+//
+//   4      Number of events                  (menu)
+//   5      Pedestals                         (menu) 
+//   6      Total Noise                       (menu) 
+//   7      Low  Frequency Noise              (menu)
+//   8      High Frequency Noise              (menu)
+//   9      Mean of Cor(s,s')                 (menu)
+//  10      Sigma of Cor(s,s')                (menu)
+//  11      Mean LF |Cor(c,c')| in (tow,tow') (menu)
+//  12      Mean LH |Cor(c,c')| in (tow,tow') (menu)
+//
+//........................................................................
+//
+//  13      Stin                 (button + input widget)
+//          Stin'                (button + input widget)
+//  14      Stin Xtal Numbering  (button) 
+//
+//  15      Low  Frequency Cor(Xtal Stin, Xtal Stin')   (menu)
+//  16      High Frequency Cor(Xtal Stin, Xtal Stin')   (menu)
+//
+//...........................................................................
+//
+//  17      Channel number in Stin        (button + input widget)
+//          Sample number                 (button + input widget)
+//
+//
+//  18      Correlations between samples        (menu)
+//  19      Covariances between samples         (menu)
+//  20      Expectation values of the samples   (menu)
+//  21      Sigmas of the samples               (menu)
+//
+//  22      ADC sample values for (Xtal,Sample) (menu)
+//
+//............................................................................
+//
+//  23      List of run file name for history plots     (button + input widget)
+//
+//  24      Menu for history plots                      (menu)         
+//............................................................................
+//
+//  25      LOG X          (check button: OFF: LIN scale / ON: LOG scale) 
+//          LOG Y          (check button: OFF: LIN scale / ON: LOG scale) 
+//          Y projection   (check button: OFF: X = variable
+//                                             Y = quantity
+//                                        ON : X = quantity
+//                                             Y = distribution of the variable)
+//............................................................................
+//
+//  26      General Title for Plots  (button + input widget)
+//
+//  27      Colors         (check button: ON = Rainbow,   OFF = ECNAColor )
+//          Exit                 (button)
+//
+//  28      Clone Last Canvas    (button)
+//          ROOT version         (button)
+//          Help                 (button)
+//
+//===============================================================================
+//
+// Example of main program using the class TEcnaGui:
+//
+//%~%~%~%~%~%~%~%~%~%~%~%~%~~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~
+//
+//   //----------------------- EcnaGuiEB.cc ---------------
+//   //
+//   //         E.C.N.A.  dialog box (GUI) for barrel
+//   //
+//   //----------------------------------------------------
+//   #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaGui.h"
+//   #include <cstdlib>
+//   
+//   #include "Riostream.h"
+//   #include "TROOT.h"
+//   #include "TGApplication.h"
+//   #include "TGClient.h"
+//   #include "TRint.h"
+//   
+//   #include <stdlib.h>
+//   #include <string>
+//   #include "TSystem.h"
+//   #include "TObject.h"
+//   #include "TGWindow.h"
+//   
+//   extern void InitGui();
+//   VoidFuncPtr_t initfuncs[] = { InitGui, 0 };
+//   TROOT root("GUI","GUI test environnement", initfuncs);
+//   
+//   using namespace std;
+//   
+//   int main(int argc, char **argv)
+//   {
+//     cout << "*EcnaGuiEB> Starting ROOT session" << endl;
+//     TRint theApp("App", &argc, argv);
+//     cout << "*EcnaGuiEB> Starting new CNA session. Opening dialog box" << endl;
+//     TEcnaGui* mainWin = new TEcnaGui(gClient->GetRoot(), 390, 680, "EB");
+//     cout << "*EcnaGuiEB> CNA session: preparing to run application." << endl;
+//   
+//     Bool_t retVal = kTRUE;
+//     theApp.Run(retVal);
+//     cout << "*EcnaGuiEB> End of CNA session. Closing dialog box." << endl;
+//     delete mainWin;
+//     cout << "*EcnaGuiEB> Terminating ROOT session." << endl;
+//     theApp.Terminate(0);
+//     cout << "*EcnaGuiEB> Exiting main program." << endl;
+//     exit(0);
+//   }
+//
+//%~%~%~%~%~%~%~%~%~%~%~%~%~~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~%~
+//
+//...........................................................................
+//
+//   Location of the ECNA web page:
+//
+//   http://cms-fabbro.web.cern.ch/cms-fabbro/cna_new/Correlated_Noise_Analysis/ECNA_main_page.htm
+//
+//------------------------------ TEcnaGui.cc ----------------------------
+//
+//   Gui box + methods for ECNA (Ecal Correlated Noise Analysis)
+//
+//   For questions or comments, please send e-mail to Bernard Fabbro:
+//             
+//   bernard.fabbro@cea.fr 
+//
+//----------------------------------------------------------------------
 
   TEcnaGui::~TEcnaGui()
 {
-  //destructor
+//destructor
 
 #define DEST
 #ifdef DEST
@@ -25,7 +179,7 @@ ClassImp(TEcnaGui)
   // cout << "            fCnew = " << fCnew << ", fCdelete = " << fCdelete << endl;
  
   //.... general variables 
-  //if ( fHistos             != 0 ) {delete fHistos;             fCdelete++;}
+  if ( fHistos             != 0 ) {delete fHistos;             fCdelete++;}
 
   //if ( fCnaParHistos       != 0 ) {delete fCnaParHistos;       fCdelete++;}
   //if ( fCnaParPaths        != 0 ) {delete fCnaParPaths;        fCdelete++;}
@@ -46,6 +200,15 @@ ClassImp(TEcnaGui)
   if ( fVoidFrame          != 0 ) {delete fVoidFrame;          fCdelete++;}
 
   //..... specific frames + buttons + menus
+  
+  //++++++++++++++++++++++++++++++++++++ Frame: Python Source (Pyf) (Button + EntryField)
+  //if ( fPyfFrame            != 0 ) {delete fPyfFrame;            fCdelete++;}
+  //if ( fPyfBut              != 0 ) {delete fPyfBut;              fCdelete++;}
+  //if ( fLayoutPyfBut        != 0 ) {delete fLayoutPyfBut;        fCdelete++;}
+  //if ( fEntryPyfNumber      != 0 ) {delete fEntryPyfNumber;      fCdelete++;}
+  //if ( fPyfText             != 0 ) {fPyfText->Delete();          fCdelete++;}
+  //if ( fLayoutPyfFieldText  != 0 ) {delete fLayoutPyfFieldText;  fCdelete++;}
+  //if ( fLayoutPyfFieldFrame != 0 ) {delete fLayoutPyfFieldFrame; fCdelete++;}
 
   //++++++++++++++++++++++++++++++ Horizontal frame Analysis + First requested evt number + Run number
   if ( fAnaNorsRunFrame       != 0 ) {delete fAnaNorsRunFrame;       fCdelete++;}
@@ -76,7 +239,7 @@ ClassImp(TEcnaGui)
   if ( fRunText        != 0 ) {fRunText->Delete();         fCdelete++;}
   if ( fLayoutRunField != 0 ) {delete fLayoutRunField;     fCdelete++;}
 
-  //+++++++++++++++++++++++++++++ Horizontal frame Nb Of Samples + last requested events + Clean + Submit
+ //+++++++++++++++++++++++++++++ Horizontal frame Nb Of Samples + last requested events + Clean + Submit
   if ( fFevLevStexFrame       != 0 ) {delete fFevLevStexFrame;       fCdelete++;}
   if ( fLayoutFevLevStexFrame != 0 ) {delete fLayoutFevLevStexFrame; fCdelete++;}
 
@@ -104,7 +267,7 @@ ClassImp(TEcnaGui)
   if ( fMenuSubmit         != 0 ) {delete fMenuSubmit;         fCdelete++;}
   if ( fMenuBarSubmit      != 0 ) {fMenuBarSubmit->Delete();   fCdelete++;}
 
-  //+++++++++++++++++++++++++++++++++++++++++++++++++  Horizontal Frame:Stex number + NbOfReqEvts
+ //+++++++++++++++++++++++++++++++++++++++++++++++++  Horizontal Frame:Stex number + NbOfReqEvts
   if ( fCompStRqFrame       != 0 ) {delete fCompStRqFrame;       fCdelete++;}
   if ( fLayoutCompStRqFrame != 0 ) {delete fLayoutCompStRqFrame; fCdelete++;}
 
@@ -431,8 +594,8 @@ ClassImp(TEcnaGui)
   if ( fMenuCorssAll     != 0 ) {delete fMenuCorssAll;       fCdelete++;}
   if ( fMenuBarCorssAll  != 0 ) {fMenuBarCorssAll->Delete(); fCdelete++;}
 
-  //if ( fMenuCovssAll     != 0 ) {delete fMenuCovssAll;       fCdelete++;}
-  //if ( fMenuBarCovssAll  != 0 ) {fMenuBarCovssAll->Delete(); fCdelete++;}
+  if ( fMenuCovssAll     != 0 ) {delete fMenuCovssAll;       fCdelete++;}
+  if ( fMenuBarCovssAll  != 0 ) {fMenuBarCovssAll->Delete(); fCdelete++;}
 
   if ( fLayoutTxSubFrame != 0 ) {delete fLayoutTxSubFrame;   fCdelete++;}
 
@@ -480,15 +643,11 @@ ClassImp(TEcnaGui)
   if ( fMenuCovss        != 0 ) {delete fMenuCovss;         fCdelete++;}
   if ( fMenuBarCovss     != 0 ) {fMenuBarCovss->Delete();   fCdelete++;}
 
-  if ( fMenuD_MSp_SpNb    != 0 ) {delete fMenuD_MSp_SpNb;       fCdelete++;}
-  if ( fMenuBarD_MSp_SpNb != 0 ) {fMenuBarD_MSp_SpNb->Delete(); fCdelete++;}
-  if ( fMenuD_MSp_SpDs    != 0 ) {delete fMenuD_MSp_SpDs;       fCdelete++;}
-  if ( fMenuBarD_MSp_SpDs != 0 ) {fMenuBarD_MSp_SpDs->Delete(); fCdelete++;}
+  if ( fMenuD_MSp_Samp    != 0 ) {delete fMenuD_MSp_Samp;       fCdelete++;}
+  if ( fMenuBarD_MSp_Samp != 0 ) {fMenuBarD_MSp_Samp->Delete(); fCdelete++;}
 
-  if ( fMenuD_SSp_SpNb    != 0 ) {delete fMenuD_SSp_SpNb;       fCdelete++;}
-  if ( fMenuBarD_SSp_SpNb != 0 ) {fMenuBarD_SSp_SpNb->Delete(); fCdelete++;}
-  if ( fMenuD_SSp_SpDs    != 0 ) {delete fMenuD_SSp_SpDs;       fCdelete++;}
-  if ( fMenuBarD_SSp_SpDs != 0 ) {fMenuBarD_SSp_SpDs->Delete(); fCdelete++;}
+  if ( fMenuD_SSp_Samp    != 0 ) {delete fMenuD_SSp_Samp;       fCdelete++;}
+  if ( fMenuBarD_SSp_Samp != 0 ) {fMenuBarD_SSp_Samp->Delete(); fCdelete++;}
 
   if ( fLayoutChSubFrame != 0 ) {delete fLayoutChSubFrame;  fCdelete++;}
 
@@ -607,130 +766,61 @@ ClassImp(TEcnaGui)
   // cout << "TEcnaGui> Leaving destructor" << endl;
   // cout << "            fCnew = " << fCnew << ", fCdelete = " << fCdelete << endl;
 
-  // cout << "[Info Management] CLASS: TEcnaGui.           DESTROY OBJECT: this = " << this << endl;
+ // cout << "[Info Management] CLASS: TEcnaGui.           DESTROY OBJECT: this = " << this << endl;
 
 }
 //   end of destructor
 
 //===================================================================
 //
-//                   Constructors
+//                   Constructor with arguments
 //
 //===================================================================
-
-TEcnaGui::TEcnaGui()
+TEcnaGui::TEcnaGui(const TGWindow *p, UInt_t w, UInt_t h, const TString SubDet):
+  TGMainFrame(p, w, h) 
 {
-  Init();
-}
+//Constructor with arguments. Gui box making
 
-TEcnaGui::TEcnaGui(TEcnaObject* pObjectManager, const TString SubDet, const TGWindow *p, UInt_t w, UInt_t h):
-TGMainFrame(p, w, h) 
-{
-  // cout << "[Info Management] CLASS: TEcnaGui.           CREATE OBJECT: this = " << this << endl;
+ // cout << "[Info Management] CLASS: TEcnaGui.           CREATE OBJECT: this = " << this << endl;
 
   // cout << "TEcnaGui> Entering constructor with arguments" << endl;
   // cout << "            fCnew = " << fCnew << ", fCdelete = " << fCdelete << endl;
 
-  fObjectManager = (TEcnaObject*)pObjectManager;
-  Long_t i_this = (Long_t)this;
-  pObjectManager->RegisterPointer("TEcnaGui", i_this);
+//========================= GENERAL INITIALISATION 
 
-  Int_t MaxCar = fgMaxCar;
-  fSubDet.Resize(MaxCar); 
-  fSubDet = SubDet.Data();
-
-  //............................ fCnaParCout
-  fCnaParCout = 0;
-  Int_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
-  if( iCnaParCout == 0 )
-    {fCnaParCout = new TEcnaParCout(pObjectManager); /*fCnew++*/}
-  else
-    {fCnaParCout = (TEcnaParCout*)iCnaParCout;}
-
-  //fCnaParPaths = 0; fCnaParPaths = new TEcnaParPaths();                        //fCnew++;
-  //fCnaParPaths->GetPaths();
-  //if( fCnaParPaths->GetPaths() == kTRUE )
-  // {
-  //fCnaParPaths->GetCMSSWParameters();
-
-  //............................ fCnaParPaths
-  fCnaParPaths = 0;
-  Int_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
-  if( iCnaParPaths == 0 )
-    {fCnaParPaths = new TEcnaParPaths(pObjectManager); /*fCnew++*/}
-  else
-    {fCnaParPaths = (TEcnaParPaths*)iCnaParPaths;}
-
-  fCnaParPaths->GetPaths();
-  fCnaParPaths->GetCMSSWParameters();
-
-  //............................ fEcal  => to be changed in fParEcal
-  fEcal = 0;
-  Int_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
-  if( iParEcal == 0 )
-    {fEcal = new TEcnaParEcal(pObjectManager, SubDet.Data()); /*fCnew++*/}
-  else
-    {fEcal = (TEcnaParEcal*)iParEcal;}
-
-  //............................ fEcalNumbering
-  fEcalNumbering = 0;
-  Int_t iEcalNumbering = pObjectManager->GetPointerValue("TEcnaNumbering");
-  if( iEcalNumbering == 0 )
-    {fEcalNumbering = new TEcnaNumbering(pObjectManager, SubDet.Data()); /*fCnew++*/}
-  else
-    {fEcalNumbering = (TEcnaNumbering*)iEcalNumbering;}
-
-  //............................ fCnaParHistos
-  fCnaParHistos = 0;
-  Int_t iCnaParHistos = pObjectManager->GetPointerValue("TEcnaParHistos");
-  if( iCnaParHistos == 0 )
-    {fCnaParHistos = new TEcnaParHistos(pObjectManager, SubDet.Data()); /*fCnew++*/}
-  else
-    {fCnaParHistos = (TEcnaParHistos*)iCnaParHistos;}
-
-  //............................ fCnaWrite
-  fCnaWrite = 0;
-  Int_t iCnaWrite = pObjectManager->GetPointerValue("TEcnaWrite");
-  if( iCnaWrite == 0 )
-    {fCnaWrite = new TEcnaWrite(pObjectManager, SubDet.Data()); /*fCnew++*/}
-  else
-    {fCnaWrite = (TEcnaWrite*)iCnaWrite;}
-
-  //............................ fHistos
-  //fHistos     = 0;
-  //fHistos = new TEcnaHistos(fSubDet.Data(), fCnaParPaths, fCnaParCout,
-  //		              fEcal, fCnaParHistos, fEcalNumbering, fCnaWrite);       fCnew++;
-
-  fHistos = 0;
-  Int_t iHistos = pObjectManager->GetPointerValue("TEcnaHistos");
-  if( iHistos == 0 )
-    {fHistos = new TEcnaHistos(pObjectManager, SubDet.Data()); /*fCnew++*/}
-  else
-    {fHistos = (TEcnaHistos*)iHistos;}
-
-  //fMyRootFile = 0;
-
-  Init();
-}
-
-void TEcnaGui::Init()
-{
-  //========================= GENERAL INITIALISATION 
   fCnew        = 0;
   fCdelete     = 0;
   fCnewRoot    = 0;
   fCdeleteRoot = 0;
 
+  fCnaP = (TGWindow *)p;
+  fCnaW = w;
+  fCnaH = h;
 
-  Int_t fgMaxCar = (Int_t)512;
+  fgMaxCar = (Int_t)512;
   fTTBELL = '\007';
 
   //........................ init View and Cna parameters
+  Int_t MaxCar = fgMaxCar;
+  fSubDet.Resize(MaxCar); 
+  fSubDet = SubDet.Data();
 
   //............................................................................
 
   if( fSubDet == "EB" ){fStexName = "SM";  fStinName = "tower";}
   if( fSubDet == "EE" ){fStexName = "Dee"; fStinName = "SC";}
+
+  fCnaParPaths   = 0; fCnaParPaths   = new TEcnaParPaths();                        //fCnew++;
+  fEcal          = 0; fEcal          = new TEcnaParEcal(fSubDet.Data());           //fCnew++;
+  fEcalNumbering = 0; fEcalNumbering = new TEcnaNumbering(fSubDet.Data(), fEcal);  //fCnew++;
+  fCnaParHistos  = 0;
+  fCnaParHistos  = new TEcnaParHistos(fSubDet.Data(), fEcal, fEcalNumbering );      //fCnew++;
+  fCnaParCout = 0;
+  fCnaWrite   = 0;
+  fHistos     = 0;
+  fHistos = new TEcnaHistos(fSubDet.Data(), fCnaParPaths, fCnaParCout,
+			    fEcal, fCnaParHistos, fEcalNumbering, fCnaWrite);       fCnew++;
+  fMyRootFile = 0;
 
   //................. Init Keys
   InitKeys();
@@ -781,7 +871,7 @@ void TEcnaGui::Init()
   fEntryRunNumber = 0;
   fLayoutRunField = 0;
 
-  //+++++++++++++++++++++++++ Horizontal frame Nb Of Samples + Last requested evt number + Clean + submit
+ //+++++++++++++++++++++++++ Horizontal frame Nb Of Samples + Last requested evt number + Clean + submit
   fFevLevStexFrame       = 0;
   fLayoutFevLevStexFrame = 0;
   //-------------------------------- Sub-Frame: Nb Of Requesred Samples (Button+Entry Field)  
@@ -1139,8 +1229,8 @@ void TEcnaGui::Init()
   fMenuCorssAll    = 0;
   fMenuBarCorssAll = 0;
 
-  //fMenuCovssAll    = 0;
-  //fMenuBarCovssAll = 0;
+  fMenuCovssAll    = 0;
+  fMenuBarCovssAll = 0;
 
   //----------------------------------- SubFrame Stin_B (Button + EntryField)
   fTySubFrame       = 0;
@@ -1183,15 +1273,11 @@ void TEcnaGui::Init()
   fMenuCovss    = 0; 
   fMenuBarCovss = 0;
 
-  fMenuD_MSp_SpNb    = 0;
-  fMenuBarD_MSp_SpNb = 0;
-  fMenuD_MSp_SpDs    = 0;
-  fMenuBarD_MSp_SpDs = 0;
+  fMenuD_MSp_Samp    = 0;
+  fMenuBarD_MSp_Samp = 0;
 
-  fMenuD_SSp_SpNb    = 0;
-  fMenuBarD_SSp_SpNb = 0;
-  fMenuD_SSp_SpDs    = 0;
-  fMenuBarD_SSp_SpDs = 0;
+  fMenuD_SSp_Samp    = 0;
+  fMenuBarD_SSp_Samp = 0;
 
   //------------------------------------ SubFrame Sample (Button + EntryField)
   fSampFrame = 0;
@@ -1280,7 +1366,7 @@ void TEcnaGui::Init()
   fAnaButC  = 1;
   fRunButC  = 2;
 
-  //.................. Init codes Menu bars (all the numbers must be different)
+   //.................. Init codes Menu bars (all the numbers must be different)
 
   fMenuSubmit8nmC  = 2011;
   fMenuSubmit1nhC  = 2012;
@@ -1379,20 +1465,12 @@ void TEcnaGui::Init()
   fMenuCovssSurf4C     = 239;
   fMenuCovssAsciiFileC = 230;
  
-  fMenuD_MSp_SpNbLineFullC    = 411;
-  fMenuD_MSp_SpNbLineSameC    = 412;
-  fMenuD_MSp_SpNbLineAllStinC = 413;
-  fMenuD_MSp_SpDsLineFullC    = 414;
-  fMenuD_MSp_SpDsLineSameC    = 415;
-  fMenuD_MSp_SpDsLineAllStinC = 416;
+  fMenuD_MSp_SampLineFullC = 411;
+  fMenuD_MSp_SampLineSameC = 412;
 
-  fMenuD_SSp_SpNbLineFullC    = 421;
-  fMenuD_SSp_SpNbLineSameC    = 422;
-  fMenuD_SSp_SpNbLineAllStinC = 423;
-  fMenuD_SSp_SpDsLineFullC    = 424;
-  fMenuD_SSp_SpDsLineSameC    = 425;
-  fMenuD_SSp_SpDsLineAllStinC = 426;
-
+  fMenuD_SSp_SampLineFullC = 421;
+  fMenuD_SSp_SampLineSameC = 422;
+  
   fMenuLFCorccColzC = 51;
   fMenuLFCorccLegoC = 52;
 
@@ -1427,7 +1505,7 @@ void TEcnaGui::Init()
   fMenuH_SCs_DatePolmSameC  = 842;
   fMenuH_SCs_DatePolmSamePC = 843;
 
-  //...................... Init Button codes: Root version, Help, Exit
+ //...................... Init Button codes: Root version, Help, Exit
   fButStexNbC = 90;
   fButChNbC   = 91;
   fButCloneC  = 95;
@@ -1436,7 +1514,7 @@ void TEcnaGui::Init()
   fButExitC   = 98;
 
   //=================================== LIN/LOG + Y proj + Color palette flags
-  Int_t MaxCar = fgMaxCar;
+  MaxCar = fgMaxCar;
   fMemoScaleX.Resize(MaxCar);   
   fMemoScaleX = "LIN";
 
@@ -1467,36 +1545,20 @@ void TEcnaGui::Init()
   fOptPlotSameP = "SAME n";
 
   MaxCar = fgMaxCar;
-  fOptPlotSameInStin.Resize(MaxCar);
-  fOptPlotSameInStin = "SAME in Stin";
-
-  MaxCar = fgMaxCar;
   fOptAscii.Resize(MaxCar);
   fOptAscii = "ASCII";
 
-}  // end of Init()
+  //================================================================================================
 
+  //-------------------------------------------------------------------------
+  //
+  //
+  //                      B O X     M A K I N G
+  //
+  //
+  //-------------------------------------------------------------------------
 
-
-//================================================================================================
-
-//-------------------------------------------------------------------------
-//
-//
-//                      B O X     M A K I N G
-//
-//
-//-------------------------------------------------------------------------
-
-void TEcnaGui::DialogBox()
-{
-  // Gui box making
-
-  //fCnaP = (TGWindow *)p;
-  //fCnaW = w;
-  //fCnaH = h;
-
-  //......................... Background colors
+//......................... Background colors
 
   //TColor* my_color = new TColor();
   //Color_t orange  = (Color_t)my_color->GetColor("#FF6611");  // orange
@@ -1541,13 +1603,41 @@ void TEcnaGui::DialogBox()
   AddFrame(fVoidFrame, fLayoutGeneral);
 
   //......................... Pads border
+
   Int_t xB1 = 0;
 
   //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   //
-  //                 SECTOR 1:  Submit, File Parameters, Calculations, ...
+  //                 SECTOR 1:  Python-source, Submit, File Parameters, Calculations
   //
   //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  //TString xPyfButText = " Source file for python (DBS)";
+
+  //Int_t pyf_buf_lenght = 220;
+
+  //fPyfFrame = new TGCompositeFrame(this,60,20, kHorizontalFrame, kSunkenFrame); fCnew++;
+  
+  //fPyfBut= new TGTextButton(fPyfFrame, xPyfButText);                        fCnew++;
+  //fPyfBut->Connect("Clicked()","TEcnaGui", this, "DoButtonPyf()");
+  //fPyfBut->SetToolTipText
+  //  ("Click here to register the name of the file written on the right");
+  //fPyfBut->SetBackgroundColor(SubDetColor);
+  //fLayoutPyfBut =
+  //  new TGLayoutHints(kLHintsTop | kLHintsLeft, xB1,xB1,xB1,xB1);     fCnew++;
+  //fPyfFrame->AddFrame(fPyfBut,  fLayoutPyfBut);
+
+  //fEntryPyfNumber = new TGTextBuffer();                               fCnew++;
+  //fPyfText = new TGTextEntry(fPyfFrame, fEntryPyfNumber);             fCnew++;
+  //fPyfText->SetToolTipText("File containing the data file names \n of the python file source sector.\n Click here and enter the name of this file");
+  //fPyfText->Resize(pyf_buf_lenght, fPyfText->GetDefaultHeight());
+  //fPyfText->Connect("ReturnPressed()", "TEcnaGui", this, "DoButtonPyf()");
+  //fLayoutPyfFieldText =
+  //  new TGLayoutHints(kLHintsBottom | kLHintsLeft, xB1,xB1,xB1,xB1);  fCnew++;
+  //fPyfFrame->AddFrame(fPyfText, fLayoutPyfFieldText);
+
+  //fLayoutPyfFieldFrame =
+  //  new TGLayoutHints(kLHintsTop | kLHintsLeft, xB1,xB1,xB1,xB1);     fCnew++;
+  //AddFrame(fPyfFrame, fLayoutPyfFieldFrame);
 
   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //
@@ -1557,7 +1647,7 @@ void TEcnaGui::DialogBox()
   fAnaNorsRunFrame = new TGCompositeFrame(this,60,20,kHorizontalFrame,
 					  GetDefaultFrameBackground());   fCnew++;
 
-  //=================================== ANALYSIS NAME (type of analysis)
+ //=================================== ANALYSIS NAME (type of analysis)
   TString xAnaButText  = " Analysis ";
   Int_t typ_of_ana_buf_lenght = 80;
   fAnaFrame =  new TGCompositeFrame(fAnaNorsRunFrame,60,20, kHorizontalFrame,
@@ -1609,7 +1699,7 @@ void TEcnaGui::DialogBox()
     new TGLayoutHints(kLHintsBottom | kLHintsLeft, xB1,xB1,xB1,xB1);  fCnew++;
   fFevFrame->AddFrame(fFevText, fLayoutFevFieldText);
 
-  //=================================== RUN
+ //=================================== RUN
   TString xRunButText  = " Run ";
   Int_t run_buf_lenght = 65;
   fRunFrame = new TGCompositeFrame(fAnaNorsRunFrame,0,0,
@@ -1649,7 +1739,7 @@ void TEcnaGui::DialogBox()
   fFevLevStexFrame = new TGCompositeFrame(this,60,20,kHorizontalFrame,
 					  GetDefaultFrameBackground());            fCnew++;
 
-  //=================================== Number Of Requested Samples
+ //=================================== Number Of Requested Samples
   TString xNorsButText  = "Nb Samp in File";
   Int_t nors_buf_lenght = 45;
   fNorsFrame = new TGCompositeFrame(fFevLevStexFrame,0,0, kHorizontalFrame,
@@ -1744,7 +1834,7 @@ void TEcnaGui::DialogBox()
   //
   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   fCompStRqFrame = new TGCompositeFrame(this,60,20,kHorizontalFrame,
-					GetDefaultFrameBackground());              fCnew++;
+				       GetDefaultFrameBackground());              fCnew++;
 
   //----------------------------------- STEX NUMBER
   TString xSumoButText;
@@ -1817,7 +1907,7 @@ void TEcnaGui::DialogBox()
   //
   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   fCompStnbFrame = new TGCompositeFrame(this,60,20,kHorizontalFrame,
-					GetDefaultFrameBackground());              fCnew++;
+				       GetDefaultFrameBackground());              fCnew++;
 
 
   // ---------------------------------STEX STIN NUMBERING VIEW BUTTON
@@ -1859,7 +1949,7 @@ void TEcnaGui::DialogBox()
   //--------------------------------- Calculations Menu
   TString xMenuBarComput  = "Calculations  ";
   fMenuComput = new TGPopupMenu(gClient->GetRoot());                              fCnew++;
-  fMenuComput->AddEntry("Standard ( Pedestals, Noises, Cor(s,s') )",fMenuComputStdC);
+  fMenuComput->AddEntry("Standard ( Pedestals, Noises, Cor(s,s) )",fMenuComputStdC);
   fMenuComput->AddEntry("Standard + |Cor(t,t')|  (long time)",fMenuComputSttC);
   fMenuComput->AddEntry("Standard + |Cor(t,t')| + |Cor(c,c')|  (long time + big file)",fMenuComputSccC);
 
@@ -2274,7 +2364,7 @@ void TEcnaGui::DialogBox()
     new TGLayoutHints(kLHintsTop | kLHintsRight, xB1,xB1,xB1,xB1);                    fCnew++;
   fStexHozFrame->AddFrame(fVmmD_HFN_ChNbFrame, fLayoutVmmD_HFN_ChNbFrame);
 
-  //########################################### Composite frame for MEAN COR(s,s')
+  //########################################### Composite frame for MEAN OF COR(s,s')
   fVmmD_MCs_ChNbFrame = new TGCompositeFrame
     (fStexHozFrame,60,20, kHorizontalFrame, kSunkenFrame);                            fCnew++;
 
@@ -2328,8 +2418,8 @@ void TEcnaGui::DialogBox()
     new TGLayoutHints(kLHintsTop | kLHintsRight, xB1,xB1,xB1,xB1);                            fCnew++;
   fVmmD_MCs_ChNbFrame->AddFrame(fVminD_MCs_ChNbFrame, fLayoutVminD_MCs_ChNbFrame);
 
-  //...................................... Frame for Mean cor(s,s')
-  TString xMenuD_MCs_ChNb = "     Mean cor(s,s') ";
+  //...................................... Frame for Mean of cor(s,s')
+  TString xMenuD_MCs_ChNb = "     Mean of cor(s,s') ";
   fMenuD_MCs_ChNb = new TGPopupMenu(gClient->GetRoot());                                   fCnew++;
   fMenuD_MCs_ChNb->AddEntry(xHistoChannels,fMenuD_MCs_ChNbFullC);
   fMenuD_MCs_ChNb->AddEntry(xHistoChannelsSame,fMenuD_MCs_ChNbSameC);
@@ -2434,6 +2524,7 @@ void TEcnaGui::DialogBox()
     (fStexUpFrame,60,20, kHorizontalFrame, kSunkenFrame);                            fCnew++;
  
   //............ Menu Low and High Frequency correlations between channels for each Stin of Stex
+
   //...................................... Frame for Ymax
   fVmaxLHFccFrame = new TGCompositeFrame
     (fVmmLHFccFrame,60,20, kHorizontalFrame, kSunkenFrame);                          fCnew++;
@@ -2444,7 +2535,7 @@ void TEcnaGui::DialogBox()
   fVmaxLHFccBut->SetBackgroundColor(SubDetColor);
   fLayoutVmaxLHFccBut =
     new TGLayoutHints(kLHintsTop | kLHintsLeft, xB1,xB1,xB1,xB1);                    fCnew++;
-  fVmaxLHFccFrame->AddFrame(fVmaxLHFccBut,  fLayoutVmaxLHFccBut);
+  //fVmaxLHFccFrame->AddFrame(fVmaxLHFccBut,  fLayoutVmaxLHFccBut);
   fEntryVmaxLHFccNumber = new TGTextBuffer();                                        fCnew++;
   fVmaxLHFccText = new TGTextEntry(fVmaxLHFccFrame, fEntryVmaxLHFccNumber);          fCnew++;
   fVmaxLHFccText->SetToolTipText("Click and enter ymax");
@@ -2454,10 +2545,10 @@ void TEcnaGui::DialogBox()
 
   fLayoutVmaxLHFccFieldText =
     new TGLayoutHints(kLHintsBottom | kLHintsRight, xB1,xB1,xB1,xB1);                fCnew++;
-  fVmaxLHFccFrame->AddFrame(fVmaxLHFccText, fLayoutVmaxLHFccFieldText);
+  //fVmaxLHFccFrame->AddFrame(fVmaxLHFccText, fLayoutVmaxLHFccFieldText);
   fLayoutVmaxLHFccFrame =
     new TGLayoutHints(kLHintsTop | kLHintsRight, xB1,xB1,xB1,xB1);                   fCnew++;
-  fVmmLHFccFrame->AddFrame(fVmaxLHFccFrame, fLayoutVmaxLHFccFrame);
+  //fVmmLHFccFrame->AddFrame(fVmaxLHFccFrame, fLayoutVmaxLHFccFrame);
 
   //...................................... Frame for Ymin
   fVminLHFccFrame = new TGCompositeFrame
@@ -2469,7 +2560,7 @@ void TEcnaGui::DialogBox()
   fVminLHFccBut->SetBackgroundColor(SubDetColor);
   fLayoutVminLHFccBut =
     new TGLayoutHints(kLHintsTop | kLHintsLeft, xB1,xB1,xB1,xB1);                    fCnew++;
-  fVminLHFccFrame->AddFrame(fVminLHFccBut,  fLayoutVminLHFccBut);
+  //fVminLHFccFrame->AddFrame(fVminLHFccBut,  fLayoutVminLHFccBut);
   fEntryVminLHFccNumber = new TGTextBuffer();                                        fCnew++;
   fVminLHFccText = new TGTextEntry(fVminLHFccFrame, fEntryVminLHFccNumber);          fCnew++;
   fVminLHFccText->SetToolTipText("Click and enter ymin");
@@ -2478,20 +2569,22 @@ void TEcnaGui::DialogBox()
   fVminLHFccText->Connect("ReturnPressed()", "TEcnaGui", this, "DoButtonVminLHFcc()");
   fLayoutVminLHFccFieldText =
     new TGLayoutHints(kLHintsBottom | kLHintsRight, xB1,xB1,xB1,xB1);                fCnew++;
-  fVminLHFccFrame->AddFrame(fVminLHFccText, fLayoutVminLHFccFieldText);
+  //fVminLHFccFrame->AddFrame(fVminLHFccText, fLayoutVminLHFccFieldText);
   fLayoutVminLHFccFrame =
     new TGLayoutHints(kLHintsTop | kLHintsRight, xB1,xB1,xB1,xB1);                   fCnew++;
-  fVmmLHFccFrame->AddFrame(fVminLHFccFrame, fLayoutVminLHFccFrame);
+  //fVmmLHFccFrame->AddFrame(fVminLHFccFrame, fLayoutVminLHFccFrame);
 
   //........................................... Frame
-  TString xMenuLHFcc = "GeoView LF,HF Cor(c,c') (expert)";
   TString xLFccViewSorS;
-  if( fSubDet == "EB" ){xLFccViewSorS = "Low Frequency Cor(c,c'), tower place -> Cor matrix";}
-  if( fSubDet == "EE" ){xLFccViewSorS = "Low Frequency Cor(c,c'), SC place -> Cor matrix";}
+  if( fSubDet == "EB" ){xLFccViewSorS = "Low Frequency Cor(c,c'), 2D view SM ";}
+  if( fSubDet == "EE" ){xLFccViewSorS = "Low Frequency Cor(c,c'), 2D view Dee";}
   TString xHFccViewSorS;
-  if( fSubDet == "EB" ){xHFccViewSorS = "High Frequency Cor(c,c'), tower place -> Cor matrix";}
-  if( fSubDet == "EE" ){xHFccViewSorS = "High Frequency Cor(c,c'), SC place -> Cor matrix";}
+  if( fSubDet == "EB" ){xHFccViewSorS = "High Frequency Cor(c,c'), 2D view SM ";}
+  if( fSubDet == "EE" ){xHFccViewSorS = "High Frequency Cor(c,c'), 2D view Dee";}
 
+  TString xMenuLHFcc;
+  if( fSubDet == "EB" ){xMenuLHFcc = "LF, HF Cor(c,c') for each tower";}
+  if( fSubDet == "EE" ){xMenuLHFcc = "LF, HF Cor(c,c') for each SC";}
   fMenuLHFcc = new TGPopupMenu(gClient->GetRoot());                                  fCnew++;
   fMenuLHFcc->AddEntry(xLFccViewSorS,fMenuLFccColzC);
   fMenuLHFcc->AddEntry(xHFccViewSorS,fMenuHFccColzC);
@@ -2499,10 +2592,10 @@ void TEcnaGui::DialogBox()
   fMenuBarLHFcc = new TGMenuBar(fVmmLHFccFrame, 1, 1, kHorizontalFrame);             fCnew++;
   fMenuBarLHFcc->AddPopup(xMenuLHFcc, fMenuLHFcc, fLayoutGeneral);
   fLayoutMenuBarLHFcc = new TGLayoutHints(kLHintsRight, xB1,xB1,xB1,xB1);            fCnew++;
-  fVmmLHFccFrame->AddFrame(fMenuBarLHFcc, fLayoutMenuBarLHFcc);
-  fLayoutVmmLHFccFrame =
+  //fVmmLHFccFrame->AddFrame(fMenuBarLHFcc, fLayoutMenuBarLHFcc);
+   fLayoutVmmLHFccFrame =
     new TGLayoutHints(kLHintsTop | kLHintsRight, xB1,xB1,xB1,xB1);                   fCnew++;
-  fStexUpFrame->AddFrame(fVmmLHFccFrame, fLayoutVmmLHFccFrame);
+   fStexUpFrame->AddFrame(fVmmLHFccFrame, fLayoutVmmLHFccFrame);
 
   //################################# Composite frame Low Freq Cor(c,c') for each pair of Stins
   fVmmLFccMosFrame = new TGCompositeFrame
@@ -2737,28 +2830,27 @@ void TEcnaGui::DialogBox()
 
   //===================== Menus relative to the Stin A ======================
   TString xMenuBarCorGlob;
-  if ( fSubDet == "EB" ){xMenuBarCorGlob = " GeoView Cor(s,s') (expert)";}
-  if ( fSubDet == "EE" ){xMenuBarCorGlob = " GeoView Cor(s,s') (expert)";}
+  if ( fSubDet == "EB" ){xMenuBarCorGlob = " Cor(s,s') in Xtals (Tower view)";}
+  if ( fSubDet == "EE" ){xMenuBarCorGlob = " Cor(s,s') in Xtals (SC view)";}
 
   TString xMenuBarCovGlob;
-  if ( fSubDet == "EB" ){xMenuBarCovGlob = " GeoView Cov(s,s') (expert)";}
-  if ( fSubDet == "EE" ){xMenuBarCovGlob = " GeoView Cov(s,s') (expert)";}
+  if ( fSubDet == "EB" ){xMenuBarCovGlob = " Cov(s,s') in Xtals (Tower view)";}
+  if ( fSubDet == "EE" ){xMenuBarCovGlob = " Cov(s,s') in Xtals (SC view)";}
 
   //................. Menu correlations between samples for all the channels. Global view
   fMenuCorssAll = new TGPopupMenu(gClient->GetRoot());                      fCnew++;
-  fMenuCorssAll->AddEntry(" Cor(s,s'), Xtal place -> Cor matrix",fMenuCorssAllColzC);
-  fMenuCorssAll->AddEntry(" Cov(s,s'), Xtal place -> Cov matrix",fMenuCovssAllColzC);
+  fMenuCorssAll->AddEntry("2D, COLZ",fMenuCorssAllColzC);
   fMenuCorssAll->Connect("Activated(Int_t)", "TEcnaGui", this, "HandleMenu(Int_t)");
   fMenuBarCorssAll =  new TGMenuBar(fTxSubFrame, 1, 1, kHorizontalFrame);   fCnew++;
   fMenuBarCorssAll->AddPopup(xMenuBarCorGlob, fMenuCorssAll, fLayoutGeneral);
-  fTxSubFrame->AddFrame(fMenuBarCorssAll, fLayoutTopLeft);
+  //fTxSubFrame->AddFrame(fMenuBarCorssAll, fLayoutTopLeft);
 
   //................. Menu covariances between samples for all the channels. Global view
-  //fMenuCovssAll = new TGPopupMenu(gClient->GetRoot());                      fCnew++;
-  //fMenuCovssAll->AddEntry(" Cov(s,s'), Xtal place -> Cov matrix",fMenuCovssAllColzC);
-  //fMenuCovssAll->Connect("Activated(Int_t)", "TEcnaGui", this, "HandleMenu(Int_t)");
-  //fMenuBarCovssAll =  new TGMenuBar(fTxSubFrame, 1, 1, kHorizontalFrame);   fCnew++;
-  //fMenuBarCovssAll->AddPopup(xMenuBarCovGlob, fMenuCovssAll, fLayoutGeneral);
+  fMenuCovssAll = new TGPopupMenu(gClient->GetRoot());                      fCnew++;
+  fMenuCovssAll->AddEntry("2D, COLZ",fMenuCovssAllColzC);
+  fMenuCovssAll->Connect("Activated(Int_t)", "TEcnaGui", this, "HandleMenu(Int_t)");
+  fMenuBarCovssAll =  new TGMenuBar(fTxSubFrame, 1, 1, kHorizontalFrame);   fCnew++;
+  fMenuBarCovssAll->AddPopup(xMenuBarCovGlob, fMenuCovssAll, fLayoutGeneral);
   //fTxSubFrame->AddFrame(fMenuBarCovssAll, fLayoutTopLeft);
 
   //------------------ Add Stin A frame to the subframe 
@@ -2863,8 +2955,8 @@ void TEcnaGui::DialogBox()
 
   TString xMenuBarCorss    = " Correlations between samples";
   TString xMenuBarCovss    = " Covariances between samples";
-  TString xMenuBarEvs      = " Sample means";
-  TString xMenuBarSigs     = " Sample sigmas";
+  TString xMenuBarEvs      = " Expectation values of the samples";
+  TString xMenuBarSigs     = " Sigmas of the samples";
 
   //=================================== CHANNEL (CRYSTAL)
   fChSubFrame = new TGCompositeFrame
@@ -2941,25 +3033,23 @@ void TEcnaGui::DialogBox()
 
   //...................... Menu expectation values of the samples
 
-  fMenuD_MSp_SpNb = new TGPopupMenu(gClient->GetRoot());                      fCnew++;
-  fMenuD_MSp_SpNb->AddEntry("1D Histo ",fMenuD_MSp_SpNbLineFullC);
-  fMenuD_MSp_SpNb->AddEntry("1D Histo SAME",fMenuD_MSp_SpNbLineSameC);
-  fMenuD_MSp_SpNb->AddEntry("1D Histo 25 Xtals",fMenuD_MSp_SpNbLineAllStinC);
-  fMenuD_MSp_SpNb->Connect("Activated(Int_t)", "TEcnaGui", this, "HandleMenu(Int_t)");
-  fMenuBarD_MSp_SpNb = new TGMenuBar(fChSubFrame, 1, 1, kHorizontalFrame);    fCnew++;
-  fMenuBarD_MSp_SpNb->AddPopup(xMenuBarEvs, fMenuD_MSp_SpNb, fLayoutTopLeft);
-  fChSubFrame->AddFrame(fMenuBarD_MSp_SpNb, fLayoutTopLeft);
+  fMenuD_MSp_Samp = new TGPopupMenu(gClient->GetRoot());                      fCnew++;
+  fMenuD_MSp_Samp->AddEntry("1D Histo ",fMenuD_MSp_SampLineFullC);
+  fMenuD_MSp_Samp->AddEntry("1D Histo SAME",fMenuD_MSp_SampLineSameC);
+  fMenuD_MSp_Samp->Connect("Activated(Int_t)", "TEcnaGui", this, "HandleMenu(Int_t)");
+  fMenuBarD_MSp_Samp = new TGMenuBar(fChSubFrame, 1, 1, kHorizontalFrame);    fCnew++;
+  fMenuBarD_MSp_Samp->AddPopup(xMenuBarEvs, fMenuD_MSp_Samp, fLayoutTopLeft);
+  fChSubFrame->AddFrame(fMenuBarD_MSp_Samp, fLayoutTopLeft);
 
   //...................... Menu sigmas/variances of the samples
 
-  fMenuD_SSp_SpNb = new TGPopupMenu(gClient->GetRoot());                     fCnew++;
-  fMenuD_SSp_SpNb->AddEntry("1D Histo ",fMenuD_SSp_SpNbLineFullC);
-  fMenuD_SSp_SpNb->AddEntry("1D Histo SAME",fMenuD_SSp_SpNbLineSameC);
-  fMenuD_SSp_SpNb->AddEntry("1D Histo 25 Xtals",fMenuD_SSp_SpNbLineAllStinC);
-  fMenuD_SSp_SpNb->Connect("Activated(Int_t)", "TEcnaGui", this, "HandleMenu(Int_t)");
-  fMenuBarD_SSp_SpNb = new TGMenuBar(fChSubFrame, 1, 1, kHorizontalFrame);   fCnew++;
-  fMenuBarD_SSp_SpNb->AddPopup(xMenuBarSigs, fMenuD_SSp_SpNb, fLayoutTopLeft);
-  fChSubFrame->AddFrame(fMenuBarD_SSp_SpNb, fLayoutTopLeft);
+  fMenuD_SSp_Samp = new TGPopupMenu(gClient->GetRoot());                     fCnew++;
+  fMenuD_SSp_Samp->AddEntry("1D Histo ",fMenuD_SSp_SampLineFullC);
+  fMenuD_SSp_Samp->AddEntry("1D Histo SAME",fMenuD_SSp_SampLineSameC);
+  fMenuD_SSp_Samp->Connect("Activated(Int_t)", "TEcnaGui", this, "HandleMenu(Int_t)");
+  fMenuBarD_SSp_Samp = new TGMenuBar(fChSubFrame, 1, 1, kHorizontalFrame);   fCnew++;
+  fMenuBarD_SSp_Samp->AddPopup(xMenuBarSigs, fMenuD_SSp_Samp, fLayoutTopLeft);
+  fChSubFrame->AddFrame(fMenuBarD_SSp_Samp, fLayoutTopLeft);
 
   //------------------ Add Channel subframe to the frame 
   fLayoutChSubFrame =  new TGLayoutHints
@@ -3004,8 +3094,8 @@ void TEcnaGui::DialogBox()
     (kLHintsTop | kLHintsCenterX, xB1, xB1, xB1, xB1);                fCnew++;
   AddFrame(fChSpFrame, fLayoutChSpFrame);
 
-  //====================== Menu histogram of the distribution
-  //                       for a given (channel, sample)
+ //====================== Menu histogram of the distribution
+ //                       for a given (channel, sample)
   fMenuAdcProj = new TGPopupMenu(gClient->GetRoot());                 fCnew++;
   fMenuAdcProj->AddEntry("1D Histo ",fMenuAdcProjSampLineFullC);
   fMenuAdcProj->AddEntry("1D Histo SAME",fMenuAdcProjSampLineSameC);
@@ -3074,9 +3164,9 @@ void TEcnaGui::DialogBox()
   fMenuHistory->AddEntry("1D, High Frequency Noise SAME",fMenuH_HFN_DatePolmSameC);
   fMenuHistory->AddEntry("1D, High Frequency Noise SAME n",fMenuH_HFN_DatePolmSamePC);
   fMenuHistory->AddSeparator();
-  fMenuHistory->AddEntry("1D, Mean cor(s,s') ",fMenuH_MCs_DatePolmFullC);
-  fMenuHistory->AddEntry("1D, Mean cor(s,s') SAME",fMenuH_MCs_DatePolmSameC);
-  fMenuHistory->AddEntry("1D, Mean cor(s,s') SAME n",fMenuH_MCs_DatePolmSamePC);
+  fMenuHistory->AddEntry("1D, Mean of cor(s,s') ",fMenuH_MCs_DatePolmFullC);
+  fMenuHistory->AddEntry("1D, Mean of cor(s,s') SAME",fMenuH_MCs_DatePolmSameC);
+  fMenuHistory->AddEntry("1D, Mean of cor(s,s') SAME n",fMenuH_MCs_DatePolmSamePC);
   fMenuHistory->AddSeparator();
   fMenuHistory->AddEntry("1D, Sigma of cor(s,s') ",fMenuH_SCs_DatePolmFullC);
   fMenuHistory->AddEntry("1D, Sigma of cor(s,s') SAME",fMenuH_SCs_DatePolmSameC);
@@ -3095,17 +3185,13 @@ void TEcnaGui::DialogBox()
   //
   //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-  //GContext_t   norm = GetDefaultGC()();
-  //FontStruct_t font = GetDefaultFontStruct();
-
   //========================== LinLog frame: buttons: LinX/LogX, LinY/LogY, Projection on Y Axis
 
   fLinLogFrame = new TGCompositeFrame(this,60,20, kHorizontalFrame, kSunkenFrame);    fCnew++;
 
-
   //-------------------------- Lin X <-> Log X
   TString xLogxButText     = " LOG X ";
-  fButLogx = new TGCheckButton(fLinLogFrame, xLogxButText, fButLogxC);             fCnew++;
+  fButLogx = new TGCheckButton(fLinLogFrame, xLogxButText, fButLogxC);                fCnew++;
   fButLogx->Connect("Clicked()","TEcnaGui", this, "DoButtonLogx()");
   fButLogx->SetBackgroundColor(SubDetColor);
   fLayoutLogxBut = new TGLayoutHints(kLHintsTop | kLHintsLeft, xB1, xB1, xB1, xB1);   fCnew++;
@@ -3113,7 +3199,7 @@ void TEcnaGui::DialogBox()
 
   //-------------------------- Lin Y <-> Log Y
   TString xLogyButText     = " LOG Y ";
-  fButLogy = new TGCheckButton(fLinLogFrame, xLogyButText, fButLogyC);             fCnew++;
+  fButLogy = new TGCheckButton(fLinLogFrame, xLogyButText, fButLogyC);                fCnew++;
   fButLogy->Connect("Clicked()","TEcnaGui", this, "DoButtonLogy()");
   fButLogy->SetBackgroundColor(SubDetColor);
   fLayoutLogyBut = new TGLayoutHints(kLHintsTop | kLHintsLeft, xB1, xB1, xB1, xB1);   fCnew++;
@@ -3121,7 +3207,7 @@ void TEcnaGui::DialogBox()
 
   //-------------------------- Projection
   TString xProjyButText     = " Y projection ";
-  fButProjy = new TGCheckButton(fLinLogFrame, xProjyButText, fButProjyC);           fCnew++;
+  fButProjy = new TGCheckButton(fLinLogFrame, xProjyButText, fButProjyC);             fCnew++;
   fButProjy->Connect("Clicked()","TEcnaGui", this, "DoButtonProjy()");
   fButProjy->SetBackgroundColor(SubDetColor);
   fLayoutProjyBut = new TGLayoutHints(kLHintsTop | kLHintsLeft, xB1, xB1, xB1, xB1);  fCnew++;
@@ -3166,7 +3252,7 @@ void TEcnaGui::DialogBox()
 
   //-------------------------- Black/Red/Blue <-> Rainbow
   TString xColPalButText     = " Colors ";
-  fButColPal = new TGCheckButton(fColorExitFrame, xColPalButText, fButColPalC);          fCnew++;
+  fButColPal = new TGCheckButton(fColorExitFrame, xColPalButText, fButColPalC);       fCnew++;
   fButColPal->Connect("Clicked()","TEcnaGui", this, "DoButtonColPal()");
   fButColPal->SetBackgroundColor(SubDetColor);
   fLayoutColPalBut = new TGLayoutHints(kLHintsTop | kLHintsLeft, xB1, xB1, xB1, xB1); fCnew++;
@@ -3181,7 +3267,7 @@ void TEcnaGui::DialogBox()
   fColorExitFrame->AddFrame(fButExit, fLayoutExitBut);
  
   fLayoutColorExitFrame =  new TGLayoutHints(kLHintsTop | kLHintsExpandX,
-					     xB1, xB1, xB1, xB1);     fCnew++;
+					    xB1, xB1, xB1, xB1);     fCnew++;
 
   //AddFrame(fVoidFrame, fLayoutBottRight);
   AddFrame(fColorExitFrame, fLayoutColorExitFrame);
@@ -3227,7 +3313,6 @@ void TEcnaGui::DialogBox()
   SetBackgroundColor(SubDetColor);
   SetIconName("CNA");
   MapWindow();
-  // } // end of if( fCnaParPaths-GetPaths() == kTRUE )
 }
 //   end of constructor with arguments
 
@@ -3588,7 +3673,7 @@ void TEcnaGui::DoButtonVmaxD_Ped_ChNb()
 
 void TEcnaGui::DoButtonVminD_TNo_ChNb()
 {
-//Registration of Ymin for mean sample sigmas (noise)
+//Registration of Ymin for mean of sample sigmas (noise)
 
   char* bufferchain;
   bufferchain = (char*)fVminD_TNo_ChNbText->GetBuffer()->GetString();
@@ -3604,7 +3689,7 @@ void TEcnaGui::DoButtonVminD_TNo_ChNb()
 
 void TEcnaGui::DoButtonVmaxD_TNo_ChNb()
 {
-//Registration of Ymax for mean sample sigmas (noise)
+//Registration of Ymax for mean of sample sigmas (noise)
 
   char* bufferchain;
   bufferchain = (char*)fVmaxD_TNo_ChNbText->GetBuffer()->GetString();
@@ -3620,7 +3705,7 @@ void TEcnaGui::DoButtonVmaxD_TNo_ChNb()
 
 void TEcnaGui::DoButtonVminD_MCs_ChNb()
 {
-//Registration of Ymin for mean cor(s,s')
+//Registration of Ymin for mean of cor(s,s')
 
   char* bufferchain;
   bufferchain = (char*)fVminD_MCs_ChNbText->GetBuffer()->GetString();
@@ -3629,14 +3714,14 @@ void TEcnaGui::DoButtonVminD_MCs_ChNb()
 
   fCnaCommand++;
   cout << "   *TEcnaGui [" << fCnaCommand
-       << "]> Registration of Ymin for plot 'mean cor(s,s')' -> "
+       << "]> Registration of Ymin for plot 'mean of cor(s,s')' -> "
        << fKeyVminD_MCs_ChNb << endl;
 }
 //-------------------------------------------------------------------
 
 void TEcnaGui::DoButtonVmaxD_MCs_ChNb()
 {
-//Registration of Ymax for mean cor(s,s')
+//Registration of Ymax for mean of cor(s,s')
 
   char* bufferchain;
   bufferchain = (char*)fVmaxD_MCs_ChNbText->GetBuffer()->GetString();
@@ -3645,7 +3730,7 @@ void TEcnaGui::DoButtonVmaxD_MCs_ChNb()
 
   fCnaCommand++;
   cout << "   *TEcnaGui [" << fCnaCommand
-       << "]> Registration of Ymax for plot 'mean cor(s,s')' -> "
+       << "]> Registration of Ymax for plot 'mean of cor(s,s')' -> "
        << fKeyVmaxD_MCs_ChNb << endl;
 }
 //-------------------------------------------------------------------
@@ -4165,7 +4250,7 @@ void TEcnaGui::DoButtonClone()
   cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Clone last canvas. " << endl;
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());      /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());      /*fCnew++*/ ;}
   fHistos->PlotCloneOfCurrentCanvas();
 }
 //-------------------------------------------------------------------
@@ -4298,24 +4383,24 @@ void TEcnaGui::HandleMenu(Int_t id)
   if( id == fMenuD_HFN_ChNbHocoVecoC   ){ViewSorSHighFrequencyNoise();}
   if( id == fMenuD_HFN_ChNbAsciiFileC  ){ViewHistoSorSHighFrequencyNoiseOfCrystals(fOptAscii);}
 
-  //.................... Mean Corss in Stex                 (HandleMenu)
+  //.................... Mean of Corss in Stex                 (HandleMenu)
   if( id == fMenuD_MCs_ChNbFullC )
     {
-      if( fMemoProjY == "normal"      ){ViewHistoSorSMeanCorssOfCrystals(fOptPlotFull);}
-      if( fMemoProjY == "Y projection"){ViewHistoSorSMeanCorssDistribution(fOptPlotFull);}
+      if( fMemoProjY == "normal"      ){ViewHistoSorSMeanOfCorssOfCrystals(fOptPlotFull);}
+      if( fMemoProjY == "Y projection"){ViewHistoSorSMeanOfCorssDistribution(fOptPlotFull);}
     }
   if( id == fMenuD_MCs_ChNbSameC )
     {
-      if( fMemoProjY == "normal"      ){ViewHistoSorSMeanCorssOfCrystals(fOptPlotSame);}
-      if( fMemoProjY == "Y projection"){ViewHistoSorSMeanCorssDistribution(fOptPlotSame);}
+      if( fMemoProjY == "normal"      ){ViewHistoSorSMeanOfCorssOfCrystals(fOptPlotSame);}
+      if( fMemoProjY == "Y projection"){ViewHistoSorSMeanOfCorssDistribution(fOptPlotSame);}
     }
   if( id == fMenuD_MCs_ChNbSamePC)
     {
-      if( fMemoProjY == "normal"      ){ViewHistoSorSMeanCorssOfCrystals(fOptPlotSameP);}
-      if( fMemoProjY == "Y projection"){ViewHistoSorSMeanCorssDistribution(fOptPlotSameP);}
+      if( fMemoProjY == "normal"      ){ViewHistoSorSMeanOfCorssOfCrystals(fOptPlotSameP);}
+      if( fMemoProjY == "Y projection"){ViewHistoSorSMeanOfCorssDistribution(fOptPlotSameP);}
     }
-  if( id == fMenuD_MCs_ChNbHocoVecoC   ){ViewSorSMeanCorss();}
-  if( id == fMenuD_MCs_ChNbAsciiFileC  ){ViewHistoSorSMeanCorssOfCrystals(fOptAscii);}
+  if( id == fMenuD_MCs_ChNbHocoVecoC   ){ViewSorSMeanOfCorss();}
+  if( id == fMenuD_MCs_ChNbAsciiFileC  ){ViewHistoSorSMeanOfCorssOfCrystals(fOptAscii);}
 
   //.................... Sigma of Corss in the Stex                 (HandleMenu)
   if( id == fMenuD_SCs_ChNbFullC )
@@ -4393,41 +4478,18 @@ void TEcnaGui::HandleMenu(Int_t id)
   if( id == fMenuCorssAllColzC ){ViewStinCorrelationSamples(cKeyStinANumber);}
   if( id == fMenuCovssAllColzC ){ViewStinCovarianceSamples(cKeyStinANumber);}
      
-  //..................................... Sample means (pedestals)       (HandleMenu) 
-  if( id == fMenuD_MSp_SpNbLineFullC )
-    {
-      if( fMemoProjY == "normal"      ){ViewHistoCrystalSampleMeans(cKeyStinANumber, fKeyChanNumber, fOptPlotFull);}
-      if( fMemoProjY == "Y projection"){ViewHistoCrystalSampleMeansDistribution(cKeyStinANumber, fKeyChanNumber, fOptPlotFull);}
-    }
-
-  if( id == fMenuD_MSp_SpNbLineSameC )
-    {
-      if( fMemoProjY == "normal"      ){ViewHistoCrystalSampleMeans(cKeyStinANumber, fKeyChanNumber, fOptPlotSame);}
-      if( fMemoProjY == "Y projection"){ViewHistoCrystalSampleMeansDistribution(cKeyStinANumber, fKeyChanNumber, fOptPlotSame);}
-    }
-  if( id == fMenuD_MSp_SpNbLineAllStinC )
-    {
-      if( fMemoProjY == "normal"      ){ViewHistoCrystalSampleMeans(cKeyStinANumber, fKeyChanNumber, fOptPlotSameInStin);}
-      if( fMemoProjY == "Y projection"){ViewHistoCrystalSampleMeansDistribution(cKeyStinANumber, fKeyChanNumber, fOptPlotSameInStin);}
-    }
-    
-  //..................................... Sample sigmas
-  if( id == fMenuD_SSp_SpNbLineFullC )
-    {
-      if( fMemoProjY == "normal"      ){ViewHistoCrystalSampleSigmas(cKeyStinANumber, fKeyChanNumber, fOptPlotFull);}
-      if( fMemoProjY == "Y projection"){ViewHistoCrystalSampleSigmasDistribution(cKeyStinANumber, fKeyChanNumber, fOptPlotFull);}
-    }
-  if( id == fMenuD_SSp_SpNbLineSameC )
-    {
-      if( fMemoProjY == "normal"      ){ViewHistoCrystalSampleSigmas(cKeyStinANumber, fKeyChanNumber, fOptPlotSame);}
-      if( fMemoProjY == "Y projection"){ViewHistoCrystalSampleSigmasDistribution(cKeyStinANumber, fKeyChanNumber, fOptPlotSame);}
-    }
-   if( id == fMenuD_SSp_SpNbLineAllStinC )
-    {
-      if( fMemoProjY == "normal"      ){ViewHistoCrystalSampleSigmas(cKeyStinANumber, fKeyChanNumber, fOptPlotSameInStin);}
-      if( fMemoProjY == "Y projection"){ViewHistoCrystalSampleSigmasDistribution(cKeyStinANumber, fKeyChanNumber, fOptPlotSameInStin);}
-    }
-   
+  //..................................... Expectation values of the samples (pedestals)       (HandleMenu)
+  if( id == fMenuD_MSp_SampLineFullC )
+    {ViewHistoCrystalSampleMeans(cKeyStinANumber, fKeyChanNumber, fOptPlotFull);}
+  if( id == fMenuD_MSp_SampLineSameC )
+    {ViewHistoCrystalSampleMeans(cKeyStinANumber, fKeyChanNumber, fOptPlotSame);}
+  
+  //..................................... Sigmas of the samples
+  if( id == fMenuD_SSp_SampLineFullC )
+    {ViewHistoCrystalSigmasOfSamples(cKeyStinANumber, fKeyChanNumber, fOptPlotFull);}
+  if( id == fMenuD_SSp_SampLineSameC )
+    {ViewHistoCrystalSigmasOfSamples(cKeyStinANumber, fKeyChanNumber, fOptPlotSame);}
+  
   //..................................... Evolution in time (ViewHistime, except EvolSamp -> Viewhisto)
   if(   id == fMenuH_Ped_DatePolmFullC || id == fMenuH_Ped_DatePolmSameC  
      || id == fMenuH_TNo_DatePolmFullC || id == fMenuH_TNo_DatePolmSameC || id == fMenuH_TNo_DatePolmSamePC
@@ -4548,32 +4610,32 @@ void TEcnaGui::HandleMenu(Int_t id)
 							  cKeyStinANumber, fKeyChanNumber, fOptPlotSameP);}
 	    }
 	  
-	  //........................................ Mean Corss                 (HandleMenu / ViewHistime)
+	  //........................................ Mean of Corss                 (HandleMenu / ViewHistime)
 	  if( id == fMenuH_MCs_DatePolmFullC )
 	    {
 	      if( fMemoProjY == "normal"      )
-		{ViewHistimeCrystalMeanCorss(fKeyFileNameRunList.Data(),
+		{ViewHistimeCrystalMeanOfCorss(fKeyFileNameRunList.Data(),
 					       cKeyStinANumber, fKeyChanNumber, fOptPlotFull);}
 	      if( fMemoProjY == "Y projection")
-		{ViewHistimeCrystalMeanCorssRuns(fKeyFileNameRunList.Data(),
+		{ViewHistimeCrystalMeanOfCorssRuns(fKeyFileNameRunList.Data(),
 						   cKeyStinANumber, fKeyChanNumber, fOptPlotFull);}
 	    }
 	  if( id == fMenuH_MCs_DatePolmSameC )
 	    {
 	      if( fMemoProjY == "normal"      )
-		{ViewHistimeCrystalMeanCorss(fKeyFileNameRunList.Data(),
+		{ViewHistimeCrystalMeanOfCorss(fKeyFileNameRunList.Data(),
 					       cKeyStinANumber, fKeyChanNumber, fOptPlotSame);}
 	      if( fMemoProjY == "Y projection")
-		{ViewHistimeCrystalMeanCorssRuns(fKeyFileNameRunList.Data(),
+		{ViewHistimeCrystalMeanOfCorssRuns(fKeyFileNameRunList.Data(),
 						   cKeyStinANumber, fKeyChanNumber, fOptPlotSame);}
 	    }
 	  if( id == fMenuH_MCs_DatePolmSamePC )
 	    {
 	      if( fMemoProjY == "normal"      )
-		{ViewHistimeCrystalMeanCorss(fKeyFileNameRunList.Data(),
+		{ViewHistimeCrystalMeanOfCorss(fKeyFileNameRunList.Data(),
 					       cKeyStinANumber, fKeyChanNumber, fOptPlotSameP);}
 	      if( fMemoProjY == "Y projection")
-		{ViewHistimeCrystalMeanCorssRuns(fKeyFileNameRunList.Data(),
+		{ViewHistimeCrystalMeanOfCorssRuns(fKeyFileNameRunList.Data(),
 						   cKeyStinANumber, fKeyChanNumber, fOptPlotSameP);}
 	    }
 	  
@@ -4776,15 +4838,17 @@ void TEcnaGui::SubmitOnBatchSystem(const TString QueueCode)
 	{
 	  cout << "*TEcnaGui> Script for python file building was executed with error code = "
 	       << i_exec_python << "." << endl
-	       << "           python file: " << fPythonFileName.Data() << ".py" << endl
+	       << "           Check if CMSSW version in command below is the same as in file ~/ECNA/CMSSW_parameters"
+	       << endl
 	       << "           Command: " << CnaExecPythonCommand.Data() << endl
+	       << "           Run number = " << fConfirmRunNumber << endl
 	       << fTTBELL << endl;
 	}
       else
 	{
 	  cout << "*TEcnaGui> Script for python file building was successfully executed." << endl
-	       << "           python file: " << fPythonFileName.Data() << ".py" << endl
-	       << "           (Command: " << CnaExecPythonCommand.Data() << ")" << endl;
+	       << "          python file: " << fPythonFileName.Data() << ".py" << endl
+	       << "          (Command: " << CnaExecPythonCommand.Data() << ")" << endl;
 
 	  //========================================================== Job submission script
 	  TString CnaSubmitCommand = ModulesdataPath;
@@ -4793,11 +4857,11 @@ void TEcnaGui::SubmitOnBatchSystem(const TString QueueCode)
 	  TString SubmitScriptName = "EcnaSystemScriptSubmit";
 	  const Text_t *t_SubmitScriptName= (const Text_t *)SubmitScriptName.Data();
 	  CnaSubmitCommand.Append(t_SubmitScriptName);
-	  CnaSubmitCommand.Append(' ');
 
 	  //......................................... Script for job submission: arguments
-	  const Text_t *t_cmssw_base = (const Text_t *)fCnaParPaths->CMSSWBase().Data();
-	  CnaSubmitCommand.Append(t_cmssw_base);
+	  const Text_t *t_cmssw_version = (const Text_t *)fCnaParPaths->CMSSWVersion().Data();
+	  CnaSubmitCommand.Append(' ');
+	  CnaSubmitCommand.Append(t_cmssw_version);
 	  CnaSubmitCommand.Append(' ');
 
 	  const Text_t *t_cmssw_subsystem = (const Text_t *)fCnaParPaths->CMSSWSubsystem().Data();
@@ -4823,6 +4887,11 @@ void TEcnaGui::SubmitOnBatchSystem(const TString QueueCode)
 	      cout << "*TEcnaGui> Script for job submission was executed with error code = "
 		   << i_exec_submit << "."  << endl
 		   << "          Command: " << CnaExecSubmitCommand.Data() << endl
+		   << "          The following CMSSW parameters may be wrong:" << endl
+		   << "          CMSSW version, subsystem name, subdirectory name in test/" << endl
+		   << "          Check these parameters in file $HOME/ECNA/cmssw_parameters" << endl
+		   << "          and make change if necessary."  << endl
+		   << "          Then, exit and restart before SUBMIT again." << endl
 		   << fTTBELL << endl;
 	    }
 	  else
@@ -4874,7 +4943,7 @@ void TEcnaGui::SubmitOnBatchSystem(const TString QueueCode)
 //==========================================================================
 void TEcnaGui::CleanBatchFiles(const TString clean_code)
 {
-  //Clean python files, submission scripts,...
+  //Clean of python files, submission scripts,...
 
   fCnaCommand++;
   cout << "   *TEcnaGui [" << fCnaCommand
@@ -4898,7 +4967,7 @@ void TEcnaGui::CleanBatchFiles(const TString clean_code)
       //......................................... arguments -> test/slc... path
       //.......................... get the path "test/slc4_ia32_gcc345"
       // /afs/cern.ch/user/U/USERNAME/cmssw/CMSSW_X_Y_Z/test/slc4_ia32_gcc345/
-      TString TestslcPath = fCnaParPaths->PathTestScramArch();
+      TString TestslcPath = fCnaParPaths->PathTestSlc();
       CnaCleanSubmissionCommand.Append(' ');
       const Text_t *t_modules_data_path = (const Text_t *)TestslcPath.Data();
       CnaCleanSubmissionCommand.Append(t_modules_data_path);
@@ -4943,7 +5012,7 @@ void TEcnaGui::CleanBatchFiles(const TString clean_code)
       //......................................... arguments -> test/slc... path
       //.......................... get the path "test/slc4_ia32_gcc345"
       // /afs/cern.ch/user/U/USERNAME/cmssw/CMSSW_X_Y_Z/test/slc4_ia32_gcc345/
-      TString TestslcPath = fCnaParPaths->PathTestScramArch();
+      TString TestslcPath = fCnaParPaths->PathTestSlc();
       CnaCleanJobreportCommand.Append(' ');
       const Text_t *t_modules_data_path = (const Text_t *)TestslcPath.Data();
       CnaCleanJobreportCommand.Append(t_modules_data_path);
@@ -5050,25 +5119,40 @@ void TEcnaGui::Calculations(const TString calc_code)
 
 		  //....................... READ the "ADC" (AdcPed.., AdcLaser..., ...) file
 		  TEcnaRun* MyRun = 0; 
-		  if ( MyRun == 0 ){MyRun = new TEcnaRun(fObjectManager, fSubDet.Data(), n_samp_fic);  fCnew++;}
+		  if ( MyRun == 0 ){MyRun = new TEcnaRun(fSubDet.Data(), n_samp_fic);       fCnew++;}
 
 		  MyRun->GetReadyToReadData(fKeyAnaType.Data(),    fKeyRunNumber,
 					    fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, nStex);
 
-		  if( MyRun->ReadSampleAdcValues(fKeyNbOfSampForCalc) == kTRUE )
+		  if( MyRun->ReadEventDistributions(fKeyNbOfSampForCalc) == kTRUE )
 		    {
 		      cout << "*TEcnaGui::Calculations> File "
-			   << MyRun->GetRootFileNameShort() << " found. Starting calculations."
+			   << MyRun->GetRootFileNameShort() << " has been found. Starting calculations."
 			   << endl;
-
-		      MyRun->GetReadyToCompute();
-
 		      //............... Calculations
 		      if( calc_code == "Std" ||
 			  ( (calc_code == "Scc" || calc_code == "Stt") && fConfirmCalcScc == 1 ) )
 			{
 			  //-------------- Standard calculations: pedestals, noises, correlations between samples
-			  MyRun->StandardCalculations();
+			  MyRun->GetReadyToCompute();
+
+			  MyRun->SampleMeans();
+			  MyRun->SampleSigmas();
+			  MyRun->CorrelationsBetweenSamples();
+	  
+			  MyRun->Pedestals();                          // Mean, Noise => mean over Xtal's
+			  MyRun->TotalNoise();
+			  MyRun->LowFrequencyNoise();
+			  MyRun->HighFrequencyNoise();
+			  MyRun->MeanOfCorrelationsBetweenSamples();
+			  MyRun->SigmaOfCorrelationsBetweenSamples();
+
+			  MyRun->AveragedPedestals();                   // Averaged => mean over Stin's
+			  MyRun->AveragedTotalNoise();
+			  MyRun->AveragedLowFrequencyNoise();
+			  MyRun->AveragedHighFrequencyNoise();
+			  MyRun->AveragedMeanOfCorrelationsBetweenSamples();
+			  MyRun->AveragedSigmaOfCorrelationsBetweenSamples();
 			}
 		      if( (calc_code == "Scc" || calc_code == "Stt") && fConfirmCalcScc == 1 )
 			{
@@ -5078,13 +5162,11 @@ void TEcnaGui::Calculations(const TString calc_code)
 			      //       "correlations" between Xtals and Stins (long time, big file)
 			      cout << "*TEcnaGui::Calculations> Please, wait." << endl;
 			  
-			      MyRun->Expert1Calculations();    //   (long time, big file)
-			      // <=> MyRun->LowFrequencyCorrelationsBetweenChannels();     //   (big file)
-			      //     MyRun->HighFrequencyCorrelationsBetweenChannels();    //   (big file) 
+			      MyRun->LowFrequencyCorrelationsBetweenChannels();     //   (big file)
+			      MyRun->HighFrequencyCorrelationsBetweenChannels();    //   (big file) 
 			  
-			      MyRun->Expert2Calculations();    //   (fast because expert1 has been called)
-			      // <=> MyRun->LowFrequencyMeanCorrelationsBetweenStins();
-			      //     MyRun->HighFrequencyMeanCorrelationsBetweenStins();
+			      MyRun->LowFrequencyMeanCorrelationsBetweenStins();
+			      MyRun->HighFrequencyMeanCorrelationsBetweenStins();
 			    }
 		      
 			  if( calc_code == "Stt" )
@@ -5092,13 +5174,14 @@ void TEcnaGui::Calculations(const TString calc_code)
 			      //---Additional calculations:
 			      //   "correlations" between Stins (long time, "normal" size file)
 			      cout << "*TEcnaGui::Calculations> Please, wait." << endl;
-
-			      MyRun->Expert2Calculations();    //  (long time but not big file)
-
-			      // Explanation/example: if MyRun->LowFrequencyCorrelationsBetweenChannels() (expert1)
-			      // has not been called by the user, it is automatically called by
-			      // MyRun->LowFrequencyMeanCorrelationsBetweenStins()
-			      // but the corresponding file is not written (idem for "HighFrequency")
+			  
+			      // if MyRun->LowFrequencyCorrelationsBetweenChannels() is not called by the user,
+			      // it is automatically called by MyRun->LowFrequencyMeanCorrelationsBetweenStins()
+			      // but the corresponding file is not written.
+			      //  (idem for "HighFrequency")
+			  
+			      MyRun->HighFrequencyMeanCorrelationsBetweenStins();
+			      MyRun->LowFrequencyMeanCorrelationsBetweenStins();
 			    }
 			}
 		      //.......................... WRITE results in file 
@@ -5251,12 +5334,11 @@ void TEcnaGui::MessageCnaCommandReplyB(const TString first_same_plot)
 //                  View  Matrix
 //
 //==========================================================================
-//---------------------------- Cortt
 void TEcnaGui::ViewMatrixLowFrequencyMeanCorrelationsBetweenStins(const TString option_plot)
 {
   // Plot of Low Frequency Mean Cor(c,c') for each pair of Stins
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
@@ -5269,8 +5351,8 @@ void TEcnaGui::ViewMatrixLowFrequencyMeanCorrelationsBetweenStins(const TString 
 
   fHistos->SetHistoMin(fKeyVminLFccMos);
   fHistos->SetHistoMax(fKeyVmaxLFccMos);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->PlotMatrix("Cor", "MttLF", option_plot);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);    
+  fHistos->LowFrequencyMeanCorrelationsBetweenStins(option_plot);
 
   MessageCnaCommandReplyB(option_plot);
 }
@@ -5278,7 +5360,7 @@ void TEcnaGui::ViewMatrixHighFrequencyMeanCorrelationsBetweenStins(const TString
 {
   // Plot of Low Frequency Mean Cor(c,c') for each pair of Stins
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
@@ -5291,19 +5373,19 @@ void TEcnaGui::ViewMatrixHighFrequencyMeanCorrelationsBetweenStins(const TString
 
   fHistos->SetHistoMin(fKeyVminHFccMos);
   fHistos->SetHistoMax(fKeyVmaxHFccMos);
-  fHistos->GeneralTitle(fKeyGeneralTitle); 
-  fHistos->PlotMatrix("Cor", "MttHF", option_plot);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);    
+  fHistos->HighFrequencyMeanCorrelationsBetweenStins(option_plot);
 
   MessageCnaCommandReplyB(option_plot);
 }
-//---------------------------------------------- Corcc
+//-------------------------------------------------------------
 void TEcnaGui::ViewMatrixLowFrequencyCorrelationsBetweenChannels(const Int_t&  cStexStin_A,
-								 const Int_t&  cStexStin_B,
-								 const TString option_plot)
+								const Int_t&  cStexStin_B,
+								const TString option_plot)
 {
   // Low Frequency Correlation matrix (crystal of Stin X, crystal of Stin X) for each Stin
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
   
@@ -5317,17 +5399,18 @@ void TEcnaGui::ViewMatrixLowFrequencyCorrelationsBetweenChannels(const Int_t&  c
 
   fHistos->SetHistoMin(fKeyVminLHFcc);
   fHistos->SetHistoMax(fKeyVmaxLHFcc); 
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->PlotMatrix("Cor", "MccLF", cStexStin_A, cStexStin_B, option_plot);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);  
+  fHistos->LowFrequencyCorrelationsBetweenChannels(cStexStin_A, cStexStin_B, option_plot);
+
   MessageCnaCommandReplyB(option_plot);
 }
 
 void TEcnaGui::ViewMatrixHighFrequencyCorrelationsBetweenChannels(const Int_t&  cStexStin_A, const Int_t& cStexStin_B,
-								  const TString option_plot)
+								 const TString option_plot)
 {
 // High Frequency Correlation matrix (crystal of Stin X, crystal of Stin X) for each Stin
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
   
@@ -5341,65 +5424,18 @@ void TEcnaGui::ViewMatrixHighFrequencyCorrelationsBetweenChannels(const Int_t&  
 
   fHistos->SetHistoMin(fKeyVminLHFcc);
   fHistos->SetHistoMax(fKeyVmaxLHFcc); 
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->PlotMatrix("Cor", "MccHF", cStexStin_A, cStexStin_B, option_plot);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);      
+  fHistos->HighFrequencyCorrelationsBetweenChannels(cStexStin_A, cStexStin_B, option_plot);
   
   MessageCnaCommandReplyB(option_plot);
 }
 
-void TEcnaGui::ViewStexLowFrequencyCorcc()
-{
-  //===> big matrix
-
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
-  fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
-			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
-
-  fCnaCommand++;
-  cout << "   *TEcnaGui [" << fCnaCommand
-       << "]> LF Correlations between channels for each " << fStinName.Data()
-       << " in " << fStexName.Data() << ". 2D histo. "
-       << fStexName.Data() << ": " << fKeyStexNumber;
-  MessageCnaCommandReplyA("DUMMY");
-
-  fHistos->SetHistoMin(fKeyVminLHFcc);
-  fHistos->SetHistoMax(fKeyVmaxLHFcc);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->PlotMatrix("Cor", "MccLF", "COLZ");
-
-  MessageCnaCommandReplyB("DUMMY");
-}
-
-void TEcnaGui::ViewStexHighFrequencyCorcc()
-{
-  //===> big matrix
-
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;} 
-  fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
-			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
-
-  fCnaCommand++;
-  cout << "   *TEcnaGui [" << fCnaCommand
-       << "]> HF Correlations between channels for each " << fStinName.Data()
-       << " in " << fStexName.Data() << ". 2D histo. "
-       << fStexName.Data() << ": " << fKeyStexNumber;
-  MessageCnaCommandReplyA("DUMMY");
-
-  fHistos->SetHistoMin(fKeyVminLHFcc);
-  fHistos->SetHistoMax(fKeyVmaxLHFcc);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->PlotMatrix("Cor", "MccHF", "COLZ");
-
-  MessageCnaCommandReplyB("DUMMY");
-}
-
-//---------------------------- Corss, Covss
 void TEcnaGui::ViewMatrixCorrelationSamples(const Int_t&  cStexStin_A, const Int_t& i0StinEcha,
 					   const TString option_plot)
 {
 // Plot of correlation matrix between samples for a given channel
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
   
@@ -5413,11 +5449,10 @@ void TEcnaGui::ViewMatrixCorrelationSamples(const Int_t&  cStexStin_A, const Int
        << ", option: " << option_plot;
   MessageCnaCommandReplyA(option_plot);
 
-  fHistos->GeneralTitle(fKeyGeneralTitle);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
   fHistos->SetHistoMin(fKeyVminD_MCs_ChNb);
-  fHistos->SetHistoMax(fKeyVmaxD_MCs_ChNb);
-  fHistos->PlotMatrix("Cor", "Mss", cStexStin_A, i0StinEcha, option_plot);
-
+  fHistos->SetHistoMax(fKeyVmaxD_MCs_ChNb); 
+  fHistos->CorrelationsBetweenSamples(cStexStin_A, i0StinEcha, option_plot);
 
   MessageCnaCommandReplyB(option_plot);
 }
@@ -5427,7 +5462,7 @@ void TEcnaGui::ViewMatrixCovarianceSamples(const Int_t&  cStexStin_A, const Int_
 {
 // Plot of covariance matrix between samples for a given channel
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
@@ -5441,10 +5476,10 @@ void TEcnaGui::ViewMatrixCovarianceSamples(const Int_t&  cStexStin_A, const Int_
        << ", option: " << option_plot;
   MessageCnaCommandReplyA(option_plot);
 
-  fHistos->SetHistoMin(fKeyVminD_TNo_ChNb);  // same as mean sample sigmas
+  fHistos->SetHistoMin(fKeyVminD_TNo_ChNb);  // same as mean of sample sigmas
   fHistos->SetHistoMax(fKeyVmaxD_TNo_ChNb);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->PlotMatrix("Cov", "Mss", cStexStin_A, i0StinEcha, option_plot);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);       
+  fHistos->CovariancesBetweenSamples(cStexStin_A, i0StinEcha, option_plot);
 
   MessageCnaCommandReplyB(option_plot);
 }
@@ -5460,7 +5495,7 @@ void TEcnaGui::ViewStinCorrelationSamples(const Int_t& cStexStin)
 {
   // Plot of (sample,sample) correlation matrices for all the crystal of a given Stin  
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
   
@@ -5472,7 +5507,7 @@ void TEcnaGui::ViewStinCorrelationSamples(const Int_t& cStexStin)
 
   fHistos->SetHistoMin(fKeyVminD_MCs_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_MCs_ChNb);
-  fHistos->GeneralTitle(fKeyGeneralTitle);  
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);  
   fHistos->CorrelationsBetweenSamples(cStexStin);
   
   MessageCnaCommandReplyB("DUMMY");
@@ -5482,7 +5517,7 @@ void TEcnaGui::ViewStinCovarianceSamples(const Int_t& cStexStin)
 {
   // Plot of (sample,sample) covariance matrices for all the crystal of a given Stin  
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
   
@@ -5492,9 +5527,9 @@ void TEcnaGui::ViewStinCovarianceSamples(const Int_t& cStexStin)
        << fStinName.Data() << " " << cStexStin;
   MessageCnaCommandReplyA("DUMMY");
 
-  fHistos->SetHistoMin(fKeyVminD_TNo_ChNb);   // same as mean sample sigmas
+  fHistos->SetHistoMin(fKeyVminD_TNo_ChNb);   // same as mean of sample sigmas
   fHistos->SetHistoMax(fKeyVmaxD_TNo_ChNb);
-  fHistos->GeneralTitle(fKeyGeneralTitle);    
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);    
   fHistos->CovariancesBetweenSamples(cStexStin);
   
   MessageCnaCommandReplyB("DUMMY");
@@ -5507,7 +5542,7 @@ void TEcnaGui::ViewStinCovarianceSamples(const Int_t& cStexStin)
 
 void TEcnaGui::ViewSorSNumberOfEvents()
 {
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;} 
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;} 
 
   if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() )
     {
@@ -5524,7 +5559,7 @@ void TEcnaGui::ViewSorSNumberOfEvents()
 			      fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, 0);
       fCnaCommand++;
       cout << "   *TEcnaGui [" << fCnaCommand
-	   << "]> Average Number of Events. 2D histo for "
+	   << "]> Averaged Number of Events. 2D histo for "
 	   << fSubDet.Data();
     }
 
@@ -5532,18 +5567,16 @@ void TEcnaGui::ViewSorSNumberOfEvents()
 
   fHistos->SetHistoMin(fKeyVminD_NOE_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_NOE_ChNb); 
-  fHistos->GeneralTitle(fKeyGeneralTitle);    
-  if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() )
-    {fHistos->PlotDetector("NOE", "SM");}
-  if( fKeyStexNumber == 0 )
-    {fHistos->PlotDetector("NOE", "EB");}
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);    
+  if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() ){fHistos->StexHocoVecoNumberOfEvents();}
+  if( fKeyStexNumber == 0 ){fHistos->StasHocoVecoAveragedNumberOfEvents();}
 
   MessageCnaCommandReplyB("DUMMY");
 }
 
 void TEcnaGui::ViewSorSPedestals()
 {
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;} 
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;} 
 
   if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() )
     {
@@ -5567,19 +5600,17 @@ void TEcnaGui::ViewSorSPedestals()
 
   fHistos->SetHistoMin(fKeyVminD_Ped_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_Ped_ChNb); 
-  fHistos->GeneralTitle(fKeyGeneralTitle);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
      
-  if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() )
-    {fHistos->PlotDetector("Ped", "SM");}
-  if( fKeyStexNumber == 0 )
-    {fHistos->PlotDetector("Ped", "EB");}
+  if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() ){fHistos->StexHocoVecoPedestals();}
+  if( fKeyStexNumber == 0 ){fHistos->StasHocoVecoAveragedPedestals();}
 
   MessageCnaCommandReplyB("DUMMY");
 }
 
 void TEcnaGui::ViewSorSTotalNoise()
 {
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;} 
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;} 
 
   if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() )
     {
@@ -5596,26 +5627,56 @@ void TEcnaGui::ViewSorSTotalNoise()
 			      fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, 0);
       fCnaCommand++;
       cout << "   *TEcnaGui [" << fCnaCommand
-	   << "]> Average total noise. 2D histo for "
+	   << "]> Averaged total noise. 2D histo for "
 	   << fSubDet.Data();
     }
   MessageCnaCommandReplyA("DUMMY");
 
   fHistos->SetHistoMin(fKeyVminD_TNo_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_TNo_ChNb); 
-  fHistos->GeneralTitle(fKeyGeneralTitle);      
-  if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() )
-    {fHistos->PlotDetector("TNo", "SM");}
-  if( fKeyStexNumber == 0 )
-    {fHistos->PlotDetector("TNo", "EB");}
-  
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);      
+  if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() ){fHistos->StexHocoVecoTotalNoise();}
+  if( fKeyStexNumber == 0 ){fHistos->StasHocoVecoAveragedTotalNoise();}
+
   MessageCnaCommandReplyB("DUMMY");
 }
 
+void TEcnaGui::ViewSorSMeanOfCorss()
+{
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;} 
+
+  if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() )
+    {
+      fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
+			      fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);      
+      fCnaCommand++;
+      cout << "   *TEcnaGui [" << fCnaCommand
+	   << "]> Mean of cor(s,s'). 2D histo. "
+	   << fStexName.Data() << ": " << fKeyStexNumber;
+    }
+  if( fKeyStexNumber == 0 )
+    {
+      fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
+			      fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, 0);
+      fCnaCommand++;
+      cout << "   *TEcnaGui [" << fCnaCommand
+	   << "]> Averaged mean of cor(s,s'). 2D histo for "
+	   << fSubDet.Data();
+    }
+  MessageCnaCommandReplyA("DUMMY");
+
+  fHistos->SetHistoMin(fKeyVminD_MCs_ChNb);
+  fHistos->SetHistoMax(fKeyVmaxD_MCs_ChNb);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);     
+  if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() ){fHistos->StexHocoVecoMeanOfCorss();}
+  if( fKeyStexNumber == 0 ){fHistos->StasHocoVecoAveragedMeanOfCorss();}
+
+  MessageCnaCommandReplyB("DUMMY");
+}
 
 void TEcnaGui::ViewSorSLowFrequencyNoise()
 {
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
 
   if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() )
     {
@@ -5632,25 +5693,23 @@ void TEcnaGui::ViewSorSLowFrequencyNoise()
 			      fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, 0);
       fCnaCommand++;
       cout << "   *TEcnaGui [" << fCnaCommand
-	   << "]> Average low frequency noise. 2D histo for "
+	   << "]> Averaged low frequency noise. 2D histo for "
 	   << fSubDet.Data();
     }
   MessageCnaCommandReplyA("DUMMY");
 
   fHistos->SetHistoMin(fKeyVminD_LFN_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_LFN_ChNb);
-  fHistos->GeneralTitle(fKeyGeneralTitle);     
-  if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() )
-    {fHistos->PlotDetector("LFN", "SM");}
-  if( fKeyStexNumber == 0 )
-    {fHistos->PlotDetector("LFN", "EB");}
-  
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);     
+  if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() ){fHistos->StexHocoVecoLowFrequencyNoise();}
+  if( fKeyStexNumber == 0 ){fHistos->StasHocoVecoAveragedLowFrequencyNoise();}
+
   MessageCnaCommandReplyB("DUMMY");
 }
 
 void TEcnaGui::ViewSorSHighFrequencyNoise()
 {
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
 
   if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() )
     {
@@ -5667,68 +5726,23 @@ void TEcnaGui::ViewSorSHighFrequencyNoise()
 			      fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, 0);
       fCnaCommand++;
       cout << "   *TEcnaGui [" << fCnaCommand
-	   << "]> Average high frequency noise. 2D histo for "
+	   << "]> Averaged high frequency noise. 2D histo for "
 	   << fSubDet.Data();
     }
   MessageCnaCommandReplyA("DUMMY");
 
   fHistos->SetHistoMin(fKeyVminD_HFN_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_HFN_ChNb); 
-  fHistos->GeneralTitle(fKeyGeneralTitle);       
-  if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() )
-    {
-      fHistos->PlotDetector("HFN", "SM");
-    }
-  if( fKeyStexNumber == 0 )
-    {
-      fHistos->PlotDetector("HFN", "EB");
-    }
-  
-  MessageCnaCommandReplyB("DUMMY");
-}
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);       
+  if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() ){fHistos->StexHocoVecoHighFrequencyNoise();}
+  if( fKeyStexNumber == 0 ){fHistos->StasHocoVecoAveragedHighFrequencyNoise();}
 
-void TEcnaGui::ViewSorSMeanCorss()
-{
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;} 
-
-  if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() )
-    {
-      fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
-			      fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);      
-      fCnaCommand++;
-      cout << "   *TEcnaGui [" << fCnaCommand
-	   << "]> Mean cor(s,s'). 2D histo. "
-	   << fStexName.Data() << ": " << fKeyStexNumber;
-    }
-  if( fKeyStexNumber == 0 )
-    {
-      fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
-			      fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, 0);
-      fCnaCommand++;
-      cout << "   *TEcnaGui [" << fCnaCommand
-	   << "]> Average mean cor(s,s'). 2D histo for "
-	   << fSubDet.Data();
-    }
-  MessageCnaCommandReplyA("DUMMY");
-
-  fHistos->SetHistoMin(fKeyVminD_MCs_ChNb);
-  fHistos->SetHistoMax(fKeyVmaxD_MCs_ChNb);
-  fHistos->GeneralTitle(fKeyGeneralTitle);     
-  if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() )
-    {
-      fHistos->PlotDetector("MCs", "SM");
-    }
-  if( fKeyStexNumber == 0 )
-    {
-      fHistos->PlotDetector("MCs", "EB");
-    }
-  
   MessageCnaCommandReplyB("DUMMY");
 }
 
 void TEcnaGui::ViewSorSSigmaOfCorss()
 {
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
 
   if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() )
     {
@@ -5745,26 +5759,61 @@ void TEcnaGui::ViewSorSSigmaOfCorss()
 			      fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, 0);
       fCnaCommand++;
       cout << "   *TEcnaGui [" << fCnaCommand
-	   << "]> Average sigma of Cor(s,s'). 2D histo for "
+	   << "]> Averaged sigma of Cor(s,s'). 2D histo for "
 	   << fSubDet.Data();
     }
   MessageCnaCommandReplyA("DUMMY");
 
   fHistos->SetHistoMin(fKeyVminD_SCs_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_SCs_ChNb);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() )
-    {
-      fHistos->PlotDetector("SCs", "SM");
-    }
-  if( fKeyStexNumber == 0 )
-    {
-      fHistos->PlotDetector("SCs", "EB");
-    }
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
+  if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() ){fHistos->StexHocoVecoSigmaOfCorss();}
+  if( fKeyStexNumber == 0 ){fHistos->StasHocoVecoAveragedSigmaOfCorss();}
 
   MessageCnaCommandReplyB("DUMMY");
 }
 
+void TEcnaGui::ViewStexLowFrequencyCorcc()
+{
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
+  fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
+			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
+
+  fCnaCommand++;
+  cout << "   *TEcnaGui [" << fCnaCommand
+       << "]> LF Correlations between channels for each " << fStinName.Data()
+       << " in " << fStexName.Data() << ". 2D histo. "
+       << fStexName.Data() << ": " << fKeyStexNumber;
+  MessageCnaCommandReplyA("DUMMY");
+
+  fHistos->SetHistoMin(fKeyVminLHFcc);
+  fHistos->SetHistoMax(fKeyVmaxLHFcc);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
+  fHistos->StexHocoVecoLHFCorcc("LF");
+
+  MessageCnaCommandReplyB("DUMMY");
+}
+
+void TEcnaGui::ViewStexHighFrequencyCorcc()
+{
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;} 
+  fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
+			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
+
+  fCnaCommand++;
+  cout << "   *TEcnaGui [" << fCnaCommand
+       << "]> HF Correlations between channels for each " << fStinName.Data()
+       << " in " << fStexName.Data() << ". 2D histo. "
+       << fStexName.Data() << ": " << fKeyStexNumber;
+  MessageCnaCommandReplyA("DUMMY");
+
+  fHistos->SetHistoMin(fKeyVminLHFcc);
+  fHistos->SetHistoMax(fKeyVmaxLHFcc);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
+  fHistos->StexHocoVecoLHFCorcc("HF");
+
+  MessageCnaCommandReplyB("DUMMY");
+}
 //=======================================================================================
 //
 //                        ViewStinCrystalNumbering
@@ -5784,8 +5833,8 @@ void TEcnaGui::ViewStinCrystalNumbering(const Int_t& StexStinEcna)
        << "]> Crystal numbering for " << " " << fStexName.Data() << " "
        << fKeyStexNumber << ", " << fStinName.Data() << " " << StinNumber << endl;
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;} 
-  fHistos->GeneralTitle(fKeyGeneralTitle);
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;} 
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
   fHistos->StinCrystalNumbering(fKeyStexNumber, StinNumber);
 }
 //---------------->  end of ViewStinCrystalNumbering()
@@ -5806,8 +5855,8 @@ void TEcnaGui::ViewStexStinNumbering()
        << "]> " << fStinName.Data() << " numbering for " << fStexName.Data()
        << " " << fKeyStexNumber << endl;
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
-  fHistos->GeneralTitle(fKeyGeneralTitle);
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
   fHistos->StexStinNumbering(fKeyStexNumber);
 }
 //---------------->  end of ViewStexStinNumbering()
@@ -5818,12 +5867,13 @@ void TEcnaGui::ViewStexStinNumbering()
 //
 //===============================================================================
 //......................... Nb of evts
+
 void TEcnaGui::ViewHistoSorSNumberOfEventsOfCrystals(const TString first_same_plot)
 {
 // Plot the 1D histogram of the number of events (found in the data)
 // as a function of crystals (grouped by Stins)
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
@@ -5836,8 +5886,8 @@ void TEcnaGui::ViewHistoSorSNumberOfEventsOfCrystals(const TString first_same_pl
   fHistos->SetHistoMax(fKeyVmaxD_NOE_ChNb);
   fHistos->SetHistoScaleY(fKeyScaleY);  fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->Plot1DHisto("Xtal", "NOE", "SM", first_same_plot);  // "SM" not active since fFapStexNumber is defined "outside"
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
+  fHistos->StexXtalsNumberOfEvents(first_same_plot);
 
   MessageCnaCommandReplyB(first_same_plot);
 }
@@ -5846,7 +5896,7 @@ void TEcnaGui::ViewHistoSorSNumberOfEventsDistribution(const TString first_same_
 {
 // Plot the 1D histogram of the number of events distribution for a Stex
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
@@ -5859,18 +5909,19 @@ void TEcnaGui::ViewHistoSorSNumberOfEventsDistribution(const TString first_same_
   fHistos->SetHistoMax(fKeyVmaxD_NOE_ChNb); 
   fHistos->SetHistoScaleY(fKeyScaleY);  fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->Plot1DHisto("NOE", "NOX", "SM", first_same_plot);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
+  fHistos->StexNumberOfEventsXtals(first_same_plot);
 
   MessageCnaCommandReplyB(first_same_plot);
 }
 
-//........................... Pedestals
+//........................... Ev
+
 void TEcnaGui::ViewHistoSorSPedestalsOfCrystals(const TString first_same_plot)
 {
 // Plot the 1D histogram of the pedestals as a function of crystals (grouped by Stins)
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
@@ -5883,8 +5934,8 @@ void TEcnaGui::ViewHistoSorSPedestalsOfCrystals(const TString first_same_plot)
   fHistos->SetHistoMax(fKeyVmaxD_Ped_ChNb);
   fHistos->SetHistoScaleY(fKeyScaleY);    fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->Plot1DHisto("Xtal", "Ped", "SM", first_same_plot);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
+  fHistos->StexXtalsPedestals(first_same_plot);
 
   MessageCnaCommandReplyB(first_same_plot);
 }
@@ -5893,7 +5944,7 @@ void TEcnaGui::ViewHistoSorSPedestalsDistribution(const TString first_same_plot)
 {
 // Plot the 1D histogram of the pedestals distribution for a Stex
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
@@ -5906,18 +5957,17 @@ void TEcnaGui::ViewHistoSorSPedestalsDistribution(const TString first_same_plot)
   fHistos->SetHistoMax(fKeyVmaxD_Ped_ChNb);
   fHistos->SetHistoScaleY(fKeyScaleY);    fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->Plot1DHisto("Ped", "NOX", "SM", first_same_plot);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
+  fHistos->StexPedestalsXtals(first_same_plot);
 
   MessageCnaCommandReplyB(first_same_plot);
 }
 
-//............................... Total noise
 void TEcnaGui::ViewHistoSorSTotalNoiseOfCrystals(const TString first_same_plot)
 {
-// Plot the 1D histogram of the mean sample sigmas as a function of crystals (grouped by Stins)
+// Plot the 1D histogram of the mean of sample sigmas as a function of crystals (grouped by Stins)
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
@@ -5930,17 +5980,17 @@ void TEcnaGui::ViewHistoSorSTotalNoiseOfCrystals(const TString first_same_plot)
   fHistos->SetHistoMax(fKeyVmaxD_TNo_ChNb);
   fHistos->SetHistoScaleY(fKeyScaleY);    fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->Plot1DHisto("Xtal", "TNo", "SM", first_same_plot);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
+  fHistos->StexXtalsTotalNoise(first_same_plot);
 
   MessageCnaCommandReplyB(first_same_plot);
 }
 
 void TEcnaGui::ViewHistoSorSTotalNoiseDistribution(const TString first_same_plot)
 {
-// Plot the 1D histogram of the mean sample sigmas distribution for a Stex
+// Plot the 1D histogram of the mean of sample sigmas distribution for a Stex
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);  
 
@@ -5953,19 +6003,65 @@ void TEcnaGui::ViewHistoSorSTotalNoiseDistribution(const TString first_same_plot
   fHistos->SetHistoMax(fKeyVmaxD_TNo_ChNb);  
   fHistos->SetHistoScaleY(fKeyScaleY);    fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->Plot1DHisto("TNo", "NOX", "SM", first_same_plot);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
+  fHistos->StexTotalNoiseXtals(first_same_plot);
 
   MessageCnaCommandReplyB(first_same_plot);
 }
 
+void TEcnaGui::ViewHistoSorSMeanOfCorssOfCrystals(const TString first_same_plot)
+{
+// Plot the 1D histogram of the mean of cor(s,s') as a function of crystals (grouped by Stins)
 
-//............................ Low frequency noise
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
+  fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
+			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
+
+  fCnaCommand++;
+  cout << "   *TEcnaGui [" << fCnaCommand
+       << "]> Mean of cor(s,s')";
+  MessageCnaCommandReplyA(first_same_plot);
+
+  fHistos->SetHistoMin(fKeyVminD_MCs_ChNb);
+  fHistos->SetHistoMax(fKeyVmaxD_MCs_ChNb);
+  fHistos->SetHistoScaleY(fKeyScaleY);  fHistos->SetHistoScaleX(fKeyScaleX);
+  fHistos->SetHistoColorPalette(fKeyColPal);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
+  fHistos->StexXtalsMeanOfCorss(first_same_plot);
+
+  MessageCnaCommandReplyB(first_same_plot);
+}
+
+void TEcnaGui::ViewHistoSorSMeanOfCorssDistribution(const TString first_same_plot)
+{
+// Plot the 1D histogram of the mean of cor(s,s') sigmas distribution for a Stex
+
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
+  fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
+			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
+
+  fCnaCommand++;
+  cout << "   *TEcnaGui [" << fCnaCommand
+       << "]> Mean of cor(s,s') distribution";
+  MessageCnaCommandReplyA(first_same_plot);
+
+  fHistos->SetHistoMin(fKeyVminD_MCs_ChNb);
+  fHistos->SetHistoMax(fKeyVmaxD_MCs_ChNb);
+  fHistos->SetHistoScaleY(fKeyScaleY);    fHistos->SetHistoScaleX(fKeyScaleX);
+  fHistos->SetHistoColorPalette(fKeyColPal);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
+  fHistos->StexMeanOfCorssXtals(first_same_plot);
+
+  MessageCnaCommandReplyB(first_same_plot);
+}
+
+//............................ Sig
+
 void TEcnaGui::ViewHistoSorSLowFrequencyNoiseOfCrystals(const TString first_same_plot)
 {
 // Plot the 1D histogram of the pedestals as a function of crystals (grouped by Stins)
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
@@ -5978,8 +6074,8 @@ void TEcnaGui::ViewHistoSorSLowFrequencyNoiseOfCrystals(const TString first_same
   fHistos->SetHistoMax(fKeyVmaxD_LFN_ChNb);
   fHistos->SetHistoScaleY(fKeyScaleY);    fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->Plot1DHisto("Xtal", "LFN", "SM", first_same_plot);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
+  fHistos->StexXtalsLowFrequencyNoise(first_same_plot);
 
   MessageCnaCommandReplyB(first_same_plot);
 }
@@ -5988,7 +6084,7 @@ void TEcnaGui::ViewHistoSorSLowFrequencyNoiseDistribution(const TString first_sa
 {
 // Plot the 1D histogram of the pedestals distribution for a Stex
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
@@ -6001,18 +6097,17 @@ void TEcnaGui::ViewHistoSorSLowFrequencyNoiseDistribution(const TString first_sa
   fHistos->SetHistoMax(fKeyVmaxD_LFN_ChNb);
   fHistos->SetHistoScaleY(fKeyScaleY);    fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->Plot1DHisto("LFN", "NOX", "SM", first_same_plot);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
+  fHistos->StexLowFrequencyNoiseXtals(first_same_plot);
 
   MessageCnaCommandReplyB(first_same_plot);
 }
 
-//............................ High frequency noise
 void TEcnaGui::ViewHistoSorSHighFrequencyNoiseOfCrystals(const TString first_same_plot)
 {
-// Plot the 1D histogram of the mean sample sigmas as a function of crystals (grouped by Stins)
+// Plot the 1D histogram of the mean of sample sigmas as a function of crystals (grouped by Stins)
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
@@ -6025,17 +6120,17 @@ void TEcnaGui::ViewHistoSorSHighFrequencyNoiseOfCrystals(const TString first_sam
   fHistos->SetHistoMax(fKeyVmaxD_HFN_ChNb);
   fHistos->SetHistoScaleY(fKeyScaleY);    fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->Plot1DHisto("Xtal", "HFN", "SM", first_same_plot);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
+  fHistos->StexXtalsHighFrequencyNoise(first_same_plot);
 
   MessageCnaCommandReplyB(first_same_plot);
 }
 
 void TEcnaGui::ViewHistoSorSHighFrequencyNoiseDistribution(const TString first_same_plot)
 {
-// Plot the 1D histogram of the mean sample sigmas distribution for a Stex
+// Plot the 1D histogram of the mean of sample sigmas distribution for a Stex
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
@@ -6048,64 +6143,17 @@ void TEcnaGui::ViewHistoSorSHighFrequencyNoiseDistribution(const TString first_s
   fHistos->SetHistoMax(fKeyVmaxD_HFN_ChNb);  
   fHistos->SetHistoScaleY(fKeyScaleY);  fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->Plot1DHisto("HFN", "NOX", "SM", first_same_plot);
-
-  MessageCnaCommandReplyB(first_same_plot);
-}
-
-//............................ Correlations between samples
-void TEcnaGui::ViewHistoSorSMeanCorssOfCrystals(const TString first_same_plot)
-{
-// Plot the 1D histogram of the mean cor(s,s') as a function of crystals (grouped by Stins)
-
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
-  fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
-			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
-
-  fCnaCommand++;
-  cout << "   *TEcnaGui [" << fCnaCommand
-       << "]> Mean cor(s,s')";
-  MessageCnaCommandReplyA(first_same_plot);
-
-  fHistos->SetHistoMin(fKeyVminD_MCs_ChNb);
-  fHistos->SetHistoMax(fKeyVmaxD_MCs_ChNb);
-  fHistos->SetHistoScaleY(fKeyScaleY);  fHistos->SetHistoScaleX(fKeyScaleX);
-  fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->Plot1DHisto("Xtal", "MCs", "SM", first_same_plot);
-
-  MessageCnaCommandReplyB(first_same_plot);
-}
-
-void TEcnaGui::ViewHistoSorSMeanCorssDistribution(const TString first_same_plot)
-{
-// Plot the 1D histogram of the mean cor(s,s') sigmas distribution for a Stex
-
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
-  fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
-			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
-
-  fCnaCommand++;
-  cout << "   *TEcnaGui [" << fCnaCommand
-       << "]> Mean cor(s,s') distribution";
-  MessageCnaCommandReplyA(first_same_plot);
-
-  fHistos->SetHistoMin(fKeyVminD_MCs_ChNb);
-  fHistos->SetHistoMax(fKeyVmaxD_MCs_ChNb);
-  fHistos->SetHistoScaleY(fKeyScaleY);    fHistos->SetHistoScaleX(fKeyScaleX);
-  fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->Plot1DHisto("MCs", "NOX", "SM", first_same_plot);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
+  fHistos->StexHighFrequencyNoiseXtals(first_same_plot);
 
   MessageCnaCommandReplyB(first_same_plot);
 }
 
 void TEcnaGui::ViewHistoSorSSigmaOfCorssOfCrystals(const TString first_same_plot)
 {
-// Plot the 1D histogram of the mean cor(s,s') as a function of crystals (grouped by Stins)
+// Plot the 1D histogram of the mean of cor(s,s') as a function of crystals (grouped by Stins)
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
@@ -6118,17 +6166,17 @@ void TEcnaGui::ViewHistoSorSSigmaOfCorssOfCrystals(const TString first_same_plot
   fHistos->SetHistoMax(fKeyVmaxD_SCs_ChNb);
   fHistos->SetHistoScaleY(fKeyScaleY);    fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->Plot1DHisto("Xtal", "SCs", "SM", first_same_plot);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
+  fHistos->StexXtalsSigmaOfCorss(first_same_plot);
 
   MessageCnaCommandReplyB(first_same_plot);
 }
 
 void TEcnaGui::ViewHistoSorSSigmaOfCorssDistribution(const TString first_same_plot)
 {
-// Plot the 1D histogram of the mean cor(s,s') sigmas distribution for a Stex
+// Plot the 1D histogram of the mean of cor(s,s') sigmas distribution for a Stex
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
@@ -6141,25 +6189,25 @@ void TEcnaGui::ViewHistoSorSSigmaOfCorssDistribution(const TString first_same_pl
   fHistos->SetHistoMax(fKeyVmaxD_SCs_ChNb);
   fHistos->SetHistoScaleY(fKeyScaleY);    fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->Plot1DHisto("SCs", "NOX", "SM", first_same_plot);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
+  fHistos->StexSigmaOfCorssXtals(first_same_plot);
 
   MessageCnaCommandReplyB(first_same_plot);
 }
 
 //........................................................................................................
-void TEcnaGui::ViewHistoCrystalSampleMeans(const Int_t&  cStexStin_A, const Int_t& crystal,
-					   const TString first_same_plot)
+void TEcnaGui::ViewHistoCrystalSampleMeans(const Int_t& cStexStin_A, const Int_t& crystal,
+							 const TString first_same_plot)
 {
-// Plot the 1D histogram of the mean sample ADC for a crystal
+// Plot the 1D histogram of the mean of the sample ADC for a crystal
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
   fCnaCommand++;
   cout << "   *TEcnaGui [" << fCnaCommand
-       << "]> Sample means"
+       << "]> Expectation values of the samples"
        << ". Analysis: " << fKeyAnaType << ", Run: " << fKeyRunNumber
        << ", 1st req. evt#: " << fKeyFirstReqEvtNumber << ", last req. evt#: " << fKeyLastReqEvtNumber
        << ", Stex: " << fKeyStexNumber << ", " << fStinName.Data() << ": " << cStexStin_A << ", crystal" << crystal
@@ -6169,48 +6217,22 @@ void TEcnaGui::ViewHistoCrystalSampleMeans(const Int_t&  cStexStin_A, const Int_
   fHistos->SetHistoMax(fKeyVmaxD_Ped_ChNb);
   fHistos->SetHistoScaleY(fKeyScaleY);    fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->Plot1DHisto("Sample#", "SampleMean", cStexStin_A, crystal, first_same_plot);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
+  fHistos->XtalSamplesEv(cStexStin_A, crystal, first_same_plot);
 }
 
-//........................................................................................................
-void TEcnaGui::ViewHistoCrystalSampleMeansDistribution(const Int_t&  cStexStin_A, const Int_t& crystal,
-						       const TString first_same_plot)
-{
-// Plot the 1D histogram distribution of the mean sample ADC for a crystal
-
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
-  fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
-			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
-
-  fCnaCommand++;
-  cout << "   *TEcnaGui [" << fCnaCommand
-       << "]> Sample means"
-       << ". Analysis: " << fKeyAnaType << ", Run: " << fKeyRunNumber
-       << ", 1st req. evt#: " << fKeyFirstReqEvtNumber << ", last req. evt#: " << fKeyLastReqEvtNumber
-       << ", Stex: " << fKeyStexNumber << ", " << fStinName.Data() << ": " << cStexStin_A << ", crystal" << crystal
-       << ", option: " << first_same_plot << endl;
-
-  fHistos->SetHistoMin(fKeyVminD_Ped_ChNb);
-  fHistos->SetHistoMax(fKeyVmaxD_Ped_ChNb);
-  fHistos->SetHistoScaleY(fKeyScaleY);    fHistos->SetHistoScaleX(fKeyScaleX);
-  fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->Plot1DHisto("SampleMean", "NbOfSamples", cStexStin_A, crystal, first_same_plot);
-}
-
-void TEcnaGui::ViewHistoCrystalSampleSigmas(const Int_t&  cStexStin_A, const Int_t& crystal,
-					    const TString first_same_plot)
+void TEcnaGui::ViewHistoCrystalSigmasOfSamples(const Int_t&  cStexStin_A, const Int_t& crystal,
+					      const TString first_same_plot)
 {
 // Plot the 1D histogram of the sigmas of the sample ADC for a crystal
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
   fCnaCommand++;
   cout << "   *TEcnaGui [" << fCnaCommand
-       << "]> Sample sigmas"
+       << "]> Sigmas of the samples"
        << ". Analysis: " << fKeyAnaType << ", Run: " << fKeyRunNumber
        << ", 1st req. evt#: " << fKeyFirstReqEvtNumber << ", last req. evt#: " << fKeyLastReqEvtNumber
        << ", Stex: " << fKeyStexNumber << ", " << fStinName.Data() << ": " << cStexStin_A << ", crystal:" << crystal
@@ -6220,43 +6242,18 @@ void TEcnaGui::ViewHistoCrystalSampleSigmas(const Int_t&  cStexStin_A, const Int
   fHistos->SetHistoMax(fKeyVmaxD_TNo_ChNb); 
   fHistos->SetHistoScaleY(fKeyScaleY);    fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->Plot1DHisto("Sample#", "SampleSigma", cStexStin_A, crystal, first_same_plot);
-}
-
-void TEcnaGui::ViewHistoCrystalSampleSigmasDistribution(const Int_t&  cStexStin_A, const Int_t& crystal,
-							const TString first_same_plot)
-{
-// Plot the 1D histogram distribution of the sigmas of the sample ADC for a crystal
-
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
-  fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
-			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
-
-  fCnaCommand++;
-  cout << "   *TEcnaGui [" << fCnaCommand
-       << "]> Sample sigmas"
-       << ". Analysis: " << fKeyAnaType << ", Run: " << fKeyRunNumber
-       << ", 1st req. evt#: " << fKeyFirstReqEvtNumber << ", last req. evt#: " << fKeyLastReqEvtNumber
-       << ", Stex: " << fKeyStexNumber << ", " << fStinName.Data() << ": " << cStexStin_A << ", crystal:" << crystal
-       << ", option: " << first_same_plot << endl;
-
-  fHistos->SetHistoMin(fKeyVminD_TNo_ChNb);
-  fHistos->SetHistoMax(fKeyVmaxD_TNo_ChNb); 
-  fHistos->SetHistoScaleY(fKeyScaleY);    fHistos->SetHistoScaleX(fKeyScaleX);
-  fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->Plot1DHisto("SampleSigma", "NbOfSamples", cStexStin_A, crystal, first_same_plot);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
+  fHistos->XtalSamplesSigma(cStexStin_A, crystal, first_same_plot);
 }
 
 //............................ Sample values
+
 void TEcnaGui::ViewHistoCrystalSampleValues(const Int_t& cStexStin_A, const Int_t& crystal,
-					    const Int_t& sample,     const TString first_same_plot)
+					   const Int_t& sample,     const TString first_same_plot)
 {
 // Plot the 1D histogram of the pedestals as a function of the event number for a crystal
 
-  Int_t n1Sample = sample+1;
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
@@ -6266,23 +6263,23 @@ void TEcnaGui::ViewHistoCrystalSampleValues(const Int_t& cStexStin_A, const Int_
        << ". Analysis: " << fKeyAnaType << ", Run: " << fKeyRunNumber
        << ", 1st req. evt#: " << fKeyFirstReqEvtNumber << ", last req. evt#: " << fKeyLastReqEvtNumber
        << ", Stex: " << fKeyStexNumber << ", " << fStinName.Data() << ": " << cStexStin_A << ", crystal: " << crystal
-       << ", sample: " << n1Sample << ", option: " << first_same_plot << endl;
+       << ", sample: " << sample << ", option: " << first_same_plot << endl;
 
   fHistos->SetHistoMin(fKeyVminD_Ped_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_Ped_ChNb); 
   fHistos->SetHistoScaleY(fKeyScaleY);    fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->Plot1DHisto("Event#", "AdcValue", cStexStin_A, crystal, n1Sample, first_same_plot);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
+
+  fHistos->XtalSampleValues(cStexStin_A, crystal, sample, first_same_plot);
 }
 
 void TEcnaGui::ViewHistoSampleEventDistribution(const Int_t& cStexStin_A, const Int_t& crystal,
-						const Int_t& sample,      const TString first_same_plot)
+					       const Int_t& sample,     const TString first_same_plot)
 {
 // Plot the 1D histogram of the ADC event distribution for a sample
 
-  Int_t n1Sample = sample+1;
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
@@ -6292,24 +6289,25 @@ void TEcnaGui::ViewHistoSampleEventDistribution(const Int_t& cStexStin_A, const 
        << ". Analysis: " << fKeyAnaType << ", Run: " << fKeyRunNumber
        << ", 1st req. evt#: " << fKeyFirstReqEvtNumber << ", last req. evt#: " << fKeyLastReqEvtNumber
        << ", Stex: " << fKeyStexNumber << ", " << fStinName.Data() << ": " << cStexStin_A << ", crystal: " << crystal
-       << ", sample " << n1Sample << ", option: " << first_same_plot << endl;
+       << " Sample " << sample << ", option: " << first_same_plot << endl;
  
   fHistos->SetHistoMin(fKeyVminD_Ped_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_Ped_ChNb);
   fHistos->SetHistoScaleY(fKeyScaleY);    fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
-  fHistos->Plot1DHisto("AdcValue", "NbOfEvts", cStexStin_A, crystal, n1Sample, first_same_plot);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
+  fHistos->SampleADCEvents(cStexStin_A, crystal, sample, first_same_plot);
 }
 
-//------------------------------------------------------- Evolution in time (as a function of run date)
+//.................. Evolution in time (as a function of run date)
+
 void TEcnaGui::ViewHistimeCrystalPedestals(const TString  run_par_file_name,
-					   const Int_t&   cStexStin_A, const Int_t& i0StinEcha,
-					   const TString  first_same_plot)
+					  const Int_t&   cStexStin_A, const Int_t& i0StinEcha,
+					  const TString  first_same_plot)
 {
 // Plot the graph of Pedestals evolution for a given channel
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
   cout << "   *TEcnaGui [" << fCnaCommand
@@ -6322,19 +6320,19 @@ void TEcnaGui::ViewHistimeCrystalPedestals(const TString  run_par_file_name,
   fHistos->SetHistoMax(fKeyVmaxD_Ped_ChNb); 
   fHistos->SetHistoScaleY(fKeyScaleY);  fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, 0,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
-  fHistos->PlotHistory("Time", "Ped", run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
+  fHistos->XtalTimePedestals(run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
 }
 
 void TEcnaGui::ViewHistimeCrystalPedestalsRuns(const TString  run_par_file_name,
-					       const Int_t&   cStexStin_A, const Int_t& i0StinEcha,
-					       const TString  first_same_plot)
+					      const Int_t&   cStexStin_A, const Int_t& i0StinEcha,
+					      const TString  first_same_plot)
 {
 // Plot the graph of Pedestals evolution for a given channel
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
   cout << "   *TEcnaGui [" << fCnaCommand
@@ -6347,20 +6345,20 @@ void TEcnaGui::ViewHistimeCrystalPedestalsRuns(const TString  run_par_file_name,
   fHistos->SetHistoMax(fKeyVmaxD_Ped_ChNb); 
   fHistos->SetHistoScaleY(fKeyScaleY);  fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, 0,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
-  fHistos->PlotHistory("Ped", "NOR", run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
+  fHistos->XtalPedestalsRuns(run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
 }
 
 //....................................................................................................
 void TEcnaGui::ViewHistimeCrystalTotalNoise(const TString  run_par_file_name,
-					    const Int_t&   cStexStin_A,    const Int_t&  i0StinEcha,
-					    const TString  first_same_plot)
+					   const Int_t&   cStexStin_A,    const Int_t&  i0StinEcha,
+					   const TString  first_same_plot)
 {
 // Plot the graph of total noise evolution for a given channel
   
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
   cout << "   *TEcnaGui [" << fCnaCommand
@@ -6373,19 +6371,19 @@ void TEcnaGui::ViewHistimeCrystalTotalNoise(const TString  run_par_file_name,
   fHistos->SetHistoMax(fKeyVmaxD_TNo_ChNb); 
   fHistos->SetHistoScaleY(fKeyScaleY);  fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, 0,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
-  fHistos->PlotHistory("Time", "TNo", run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
+  fHistos->XtalTimeTotalNoise(run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
 }
 
 void TEcnaGui::ViewHistimeCrystalTotalNoiseRuns(const TString  run_par_file_name,
-						const Int_t&   cStexStin_A,    const Int_t&  i0StinEcha,
-						const TString  first_same_plot)
+					       const Int_t&   cStexStin_A,    const Int_t&  i0StinEcha,
+					       const TString  first_same_plot)
 {
 // Plot the graph of total noise evolution for a given channel
   
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
   cout << "   *TEcnaGui [" << fCnaCommand
@@ -6398,19 +6396,19 @@ void TEcnaGui::ViewHistimeCrystalTotalNoiseRuns(const TString  run_par_file_name
   fHistos->SetHistoMax(fKeyVmaxD_TNo_ChNb); 
   fHistos->SetHistoScaleY(fKeyScaleY);  fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, 0,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
-  fHistos->PlotHistory("TNo", "NOR", run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
+  fHistos->XtalTotalNoiseRuns(run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
 }
 //....................................................................................................
 void TEcnaGui::ViewHistimeCrystalLowFrequencyNoise(const TString  run_par_file_name,
-						   const Int_t&   cStexStin_A,    const Int_t&  i0StinEcha,
-						   const TString  first_same_plot)
+						  const Int_t&   cStexStin_A,    const Int_t&  i0StinEcha,
+						  const TString  first_same_plot)
 {
 // Plot the graph of Low Frequency Noise evolution for a given channel
   
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
   cout << "   *TEcnaGui [" << fCnaCommand
@@ -6423,19 +6421,19 @@ void TEcnaGui::ViewHistimeCrystalLowFrequencyNoise(const TString  run_par_file_n
   fHistos->SetHistoMax(fKeyVmaxD_LFN_ChNb); 
   fHistos->SetHistoScaleY(fKeyScaleY);  fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, 0,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
-  fHistos->PlotHistory("Time", "LFN", run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
+  fHistos->XtalTimeLowFrequencyNoise(run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
 }
 
 void TEcnaGui::ViewHistimeCrystalLowFrequencyNoiseRuns(const TString  run_par_file_name,
-						       const Int_t&   cStexStin_A,    const Int_t&  i0StinEcha,
-						       const TString  first_same_plot)
+						      const Int_t&   cStexStin_A,    const Int_t&  i0StinEcha,
+						      const TString  first_same_plot)
 {
 // Plot the graph of Low Frequency Noise evolution for a given channel
   
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
   cout << "   *TEcnaGui [" << fCnaCommand
@@ -6448,19 +6446,19 @@ void TEcnaGui::ViewHistimeCrystalLowFrequencyNoiseRuns(const TString  run_par_fi
   fHistos->SetHistoMax(fKeyVmaxD_LFN_ChNb); 
   fHistos->SetHistoScaleY(fKeyScaleY);  fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, 0,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
-  fHistos->PlotHistory("LFN", "NOR", run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
+  fHistos->XtalLowFrequencyNoiseRuns(run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
 }
 //....................................................................................................
 void TEcnaGui::ViewHistimeCrystalHighFrequencyNoise(const TString  run_par_file_name,
-						    const Int_t&   cStexStin_A,    const Int_t&  i0StinEcha,
-						    const TString  first_same_plot)
+						   const Int_t&   cStexStin_A,    const Int_t&  i0StinEcha,
+						   const TString  first_same_plot)
 {
 // Plot the graph of High Frequency Noise evolution for a given channel
   
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
   cout << "   *TEcnaGui [" << fCnaCommand
@@ -6473,19 +6471,19 @@ void TEcnaGui::ViewHistimeCrystalHighFrequencyNoise(const TString  run_par_file_
   fHistos->SetHistoMax(fKeyVmaxD_HFN_ChNb); 
   fHistos->SetHistoScaleY(fKeyScaleY);  fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, 0,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
-  fHistos->PlotHistory("Time", "HFN", run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
+  fHistos->XtalTimeHighFrequencyNoise(run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
 }
 
 void TEcnaGui::ViewHistimeCrystalHighFrequencyNoiseRuns(const TString  run_par_file_name,
-							const Int_t&   cStexStin_A,    const Int_t&  i0StinEcha,
-							const TString  first_same_plot)
+						       const Int_t&   cStexStin_A,    const Int_t&  i0StinEcha,
+						       const TString  first_same_plot)
 {
 // Plot the graph of High Frequency Noise evolution for a given channel
   
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
   cout << "   *TEcnaGui [" << fCnaCommand
@@ -6498,23 +6496,23 @@ void TEcnaGui::ViewHistimeCrystalHighFrequencyNoiseRuns(const TString  run_par_f
   fHistos->SetHistoMax(fKeyVmaxD_HFN_ChNb); 
   fHistos->SetHistoScaleY(fKeyScaleY);  fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, 0,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
-  fHistos->PlotHistory("HFN", "NOR", run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
+  fHistos->XtalHighFrequencyNoiseRuns(run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
 }
 //....................................................................................................
-void TEcnaGui::ViewHistimeCrystalMeanCorss(const TString  run_par_file_name,
-					   const Int_t&   cStexStin_A,    const Int_t& i0StinEcha,
-					   const TString  first_same_plot)
+void TEcnaGui::ViewHistimeCrystalMeanOfCorss(const TString  run_par_file_name,
+					    const Int_t&   cStexStin_A,    const Int_t& i0StinEcha,
+					    const TString  first_same_plot)
 {
-// Plot the graph for Mean Corss evolution for a given channel
+// Plot the graph for Mean of Corss evolution for a given channel
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
   cout << "   *TEcnaGui [" << fCnaCommand
-       << "]> Mean corss history"
+       << "]> Mean of corss history"
        << ". Run parameters file name: " << run_par_file_name
        << ", " << fStinName.Data() << ": " << cStexStin_A << ", channel: " << i0StinEcha
        << ", option: " << first_same_plot << endl;
@@ -6523,23 +6521,23 @@ void TEcnaGui::ViewHistimeCrystalMeanCorss(const TString  run_par_file_name,
   fHistos->SetHistoMax(fKeyVmaxD_MCs_ChNb);
   fHistos->SetHistoScaleY(fKeyScaleY);  fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, 0,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
-  fHistos->PlotHistory("Time", "MCs", run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
+  fHistos->XtalTimeMeanOfCorss(run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
 }
 
-void TEcnaGui::ViewHistimeCrystalMeanCorssRuns(const TString  run_par_file_name,
-					       const Int_t&   cStexStin_A,    const Int_t& i0StinEcha,
-					       const TString  first_same_plot)
+void TEcnaGui::ViewHistimeCrystalMeanOfCorssRuns(const TString  run_par_file_name,
+						const Int_t&   cStexStin_A,    const Int_t& i0StinEcha,
+						const TString  first_same_plot)
 {
-// Plot the graph for Mean Corss evolution for a given channel
+// Plot the graph for Mean of Corss evolution for a given channel
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
   cout << "   *TEcnaGui [" << fCnaCommand
-       << "]> Mean corss history distribution"
+       << "]> Mean of corss history distribution"
        << ". Run parameters file name: " << run_par_file_name
        << ", " << fStinName.Data() << ": " << cStexStin_A << ", channel: " << i0StinEcha
        << ", option: " << first_same_plot << endl;
@@ -6548,19 +6546,19 @@ void TEcnaGui::ViewHistimeCrystalMeanCorssRuns(const TString  run_par_file_name,
   fHistos->SetHistoMax(fKeyVmaxD_MCs_ChNb);
   fHistos->SetHistoScaleY(fKeyScaleY);  fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, 0,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
-  fHistos->PlotHistory("MCs", "NOR", run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
+  fHistos->XtalMeanOfCorssRuns(run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
 }
 //....................................................................................................
 void TEcnaGui::ViewHistimeCrystalSigmaOfCorss(const TString run_par_file_name,
-					      const Int_t&  cStexStin_A, const Int_t& i0StinEcha,
-					      const TString first_same_plot)
+					     const Int_t&  cStexStin_A, const Int_t& i0StinEcha,
+					     const TString first_same_plot)
 {
 // Plot the graph of Mean Corss evolution for a given channel
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/;}
 
   fCnaCommand++;
   cout << "   *TEcnaGui [" << fCnaCommand
@@ -6573,19 +6571,19 @@ void TEcnaGui::ViewHistimeCrystalSigmaOfCorss(const TString run_par_file_name,
   fHistos->SetHistoMax(fKeyVmaxD_SCs_ChNb);
   fHistos->SetHistoScaleY(fKeyScaleY);  fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, 0,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
-  fHistos->PlotHistory("Time", "SCs", run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
+  fHistos->XtalTimeSigmaOfCorss(run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
 }
 
 void TEcnaGui::ViewHistimeCrystalSigmaOfCorssRuns(const TString run_par_file_name,
-						  const Int_t&  cStexStin_A, const Int_t& i0StinEcha,
-						  const TString first_same_plot)
+						 const Int_t&  cStexStin_A, const Int_t& i0StinEcha,
+						 const TString first_same_plot)
 {
 // Plot the graph of Mean Corss evolution for a given channel
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/;}
+  if( fHistos == 0 ){fHistos = new TEcnaHistos(fSubDet.Data());       /*fCnew++*/;}
 
   fCnaCommand++;
   cout << "   *TEcnaGui [" << fCnaCommand
@@ -6598,10 +6596,10 @@ void TEcnaGui::ViewHistimeCrystalSigmaOfCorssRuns(const TString run_par_file_nam
   fHistos->SetHistoMax(fKeyVmaxD_SCs_ChNb);
   fHistos->SetHistoScaleY(fKeyScaleY);  fHistos->SetHistoScaleX(fKeyScaleX);
   fHistos->SetHistoColorPalette(fKeyColPal);
-  fHistos->GeneralTitle(fKeyGeneralTitle);
+  fHistos->SetGeneralTitle(fKeyGeneralTitle);
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, 0,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
-  fHistos->PlotHistory("SCs", "NOR", run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
+  fHistos->XtalSigmaOfCorssRuns(run_par_file_name, cStexStin_A, i0StinEcha, first_same_plot);
 }
 
 //====================================================================================================
@@ -6613,7 +6611,7 @@ void TEcnaGui::InitKeys()
   
   //fKeyPyf = "";
 
-  fKeyAnaType = "StdPeg12";
+  fKeyAnaType = "StdPed12";
   Int_t MaxCar = fgMaxCar;
   fKeyRunListInitCode.Resize(MaxCar);
   fKeyRunListInitCode = "0123";
@@ -6668,7 +6666,7 @@ void TEcnaGui::InitKeys()
   //.... ymin and ymax values => values which are displayed on the dialog box
 
   fKeyVminD_NOE_ChNb = (Double_t)0.; 
-  fKeyVmaxD_NOE_ChNb = fKeyReqNbOfEvts + fKeyReqNbOfEvts/3;
+  fKeyVmaxD_NOE_ChNb = (Double_t)1000.;
  
   fKeyVminD_Ped_ChNb = (Double_t)0.; 
   fKeyVmaxD_Ped_ChNb = (Double_t)0.;

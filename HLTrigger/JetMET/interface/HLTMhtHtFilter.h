@@ -28,7 +28,7 @@ class HLTMhtHtFilter : public HLTFilter {
 
    private:
       edm::InputTag inputJetTag_; // input tag identifying jets
-      bool saveTag_;              // whether to save this tag
+      bool saveTags_;              // whether to save this tag
       double minMht_;
       std::vector<double> minPtJet_;
       int minNJet_;

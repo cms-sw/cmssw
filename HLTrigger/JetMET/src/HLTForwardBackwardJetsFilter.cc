@@ -1,6 +1,6 @@
 /** \class HLTForwardBackwardJetsFilter
  *
- * $Id: HLTForwardBackwardJetsFilter.cc,v 1.2 2011/02/11 20:55:24 wdd Exp $
+ * $Id: HLTForwardBackwardJetsFilter.cc,v 1.3 2011/02/16 17:30:07 wdd Exp $
  *
  *
  */
@@ -28,7 +28,7 @@
 HLTForwardBackwardJetsFilter::HLTForwardBackwardJetsFilter(const edm::ParameterSet& iConfig)
 {
    inputTag_    = iConfig.getParameter< edm::InputTag > ("inputTag");
-   saveTag_     = iConfig.getUntrackedParameter<bool>("saveTag");
+   saveTags_     = iConfig.getParameter<bool>("saveTags");
    minPt_       = iConfig.getParameter<double> ("minPt");
    minEta_ = iConfig.getParameter<double> ("minEta"); 
    maxEta_ = iConfig.getParameter<double> ("maxEta"); 
@@ -43,7 +43,7 @@ void
 HLTForwardBackwardJetsFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltIterativeCone5CaloJetsRegional"));
-  desc.addUntracked<bool>("saveTag",false);
+  desc.add<bool>("saveTags",false);
   desc.add<double>("minPt",15.0);
   desc.add<double>("minEta",3.0);
   desc.add<double>("maxEta",5.1);
@@ -58,7 +58,7 @@ HLTForwardBackwardJetsFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
   // The filter object
   std::auto_ptr<trigger::TriggerFilterObjectWithRefs> 
     filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTag_) filterobject->addCollectionTag(inputTag_);
+  if (saveTags_) filterobject->addCollectionTag(inputTag_);
 
   edm::Handle<reco::CaloJetCollection> recocalojets;
   iEvent.getByLabel(inputTag_,recocalojets);

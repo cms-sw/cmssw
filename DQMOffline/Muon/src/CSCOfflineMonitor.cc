@@ -802,9 +802,6 @@ void CSCOfflineMonitor::finalize() {
   hRHEff2 = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hRHEff2");
   hStripEff2 = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hStripEff2");
   hWireEff2 = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hWireEff2");
-
-  hOStripsAndWiresAndCLCT= dbe->get("CSC/CSCOfflineMonitor/Occupancy/hOStripsAndWiresAndCLCT");
-  hOWiresAndCLCT= dbe->get("CSC/CSCOfflineMonitor/Occupancy/hOWiresAndCLCT");
   hStripReadoutEff2 = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hStripReadoutEff2");
 
   hALCTgetBX2DMeans = dbe->get("CSC/CSCOfflineMonitor/BXMonitor/hALCTgetBX2DMeans");

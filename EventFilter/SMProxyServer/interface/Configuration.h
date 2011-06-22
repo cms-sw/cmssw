@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.1.4.2 2011/03/07 12:01:12 mommsen Exp $
+// $Id: Configuration.h,v 1.2 2011/03/07 15:41:54 mommsen Exp $
 /// @file: Configuration.h 
 
 #ifndef EventFilter_SMProxyServer_Configuration_h
@@ -63,13 +63,28 @@ namespace smproxy
   };
 
   /**
+   * Data structure to hold configuration parameters
+   * that are used to send sentinel alarms
+   */
+  struct AlarmParams
+  {
+    bool sendAlarms_;           // enable alarms to be sent
+    double corruptedEventRate_; // rate of recently received corrupted events
+
+    AlarmParams():
+    sendAlarms_(false) {};      // Initialize default to false, as this struct
+                                // might be used before it is actual values
+                                // are read from the configuration
+  };
+
+  /**
    * Class for managing configuration information from the infospace
    * and providing local copies of that information that are updated
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.1.4.2 $
-   * $Date: 2011/03/07 12:01:12 $
+   * $Revision: 1.2 $
+   * $Date: 2011/03/07 15:41:54 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -126,7 +141,14 @@ namespace smproxy
      * cache from the infospace (see the updateAllParams() method).
      */
     struct QueueConfigurationParams getQueueConfigurationParams() const;
-
+    
+    /**
+     * Returns a copy of the alarm parameters.  These values
+     * will be current as of the most recent global update of the local
+     * cache from the infospace (see the updateAllParams() method).
+     */
+    struct AlarmParams getAlarmParams() const;
+    
     /**
      * Updates the local copy of all configuration parameters from
      * the infospace.
@@ -147,25 +169,29 @@ namespace smproxy
     void setDQMProcessingDefaults();
     void setDQMArchivingDefaults();
     void setQueueConfigurationDefaults();
+    void setAlarmDefaults();
 
     void setupDataRetrieverInfoSpaceParams(xdata::InfoSpace*);
     void setupEventServingInfoSpaceParams(xdata::InfoSpace*);
     void setupDQMProcessingInfoSpaceParams(xdata::InfoSpace*);
     void setupDQMArchivingInfoSpaceParams(xdata::InfoSpace*);
     void setupQueueConfigurationInfoSpaceParams(xdata::InfoSpace*);
+    void setupAlarmInfoSpaceParams(xdata::InfoSpace* infoSpace);
 
     void updateLocalDataRetrieverData();
     void updateLocalEventServingData();
     void updateLocalDQMProcessingData();
     void updateLocalDQMArchivingData();
     void updateLocalQueueConfigurationData();
+    void updateLocalAlarmData();
 
     struct DataRetrieverParams dataRetrieverParamCopy_;
     struct stor::EventServingParams eventServeParamCopy_;
     struct stor::DQMProcessingParams dqmProcessingParamCopy_;
     struct DQMArchivingParams dqmArchivingParamCopy_;
     struct QueueConfigurationParams queueConfigParamCopy_;
-
+    struct AlarmParams alarmParamCopy_;
+    
     mutable boost::mutex generalMutex_;
     
     xdata::Vector<xdata::String> smRegistrationList_;
@@ -196,6 +222,8 @@ namespace smproxy
     xdata::UnsignedInteger32 registrationQueueSize_;
     xdata::Double monitoringSleepSec_;  // seconds
 
+    xdata::Boolean sendAlarms_;
+    xdata::Double corruptedEventRate_; // Hz
   };
 
   typedef boost::shared_ptr<Configuration> ConfigurationPtr;

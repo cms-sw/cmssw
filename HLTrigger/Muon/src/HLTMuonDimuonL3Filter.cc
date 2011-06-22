@@ -23,6 +23,10 @@
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 
+#include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -54,11 +58,13 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig) :
    min_PtBalance_ (iConfig.getParameter<double> ("MinPtBalance")),
    max_PtBalance_ (iConfig.getParameter<double> ("MaxPtBalance")),
    nsigma_Pt_   (iConfig.getParameter<double> ("NSigmaPt")), 
-   saveTag_  (iConfig.getUntrackedParameter<bool> ("SaveTag")) 
+   max_DCAMuMu_  (iConfig.getParameter<double>("MaxDCAMuMu")),
+   max_YPair_   (iConfig.getParameter<double>("MaxRapidityPair")),
+   saveTags_  (iConfig.getParameter<bool>("saveTags")) 
 {
 
    LogDebug("HLTMuonDimuonL3Filter")
-      << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt1/MinPt2/MinInvMass/MaxInvMass/MinAcop/MaxAcop/MinPtBalance/MaxPtBalance/NSigmaPt : " 
+      << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt1/MinPt2/MinInvMass/MaxInvMass/MinAcop/MaxAcop/MinPtBalance/MaxPtBalance/NSigmaPt/MaxDzMuMu/MaxRapidityPair : " 
       << candTag_.encode()
       << " " << fast_Accept_
       << " " << max_Eta_
@@ -70,7 +76,9 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig) :
       << " " << min_InvMass_ << " " << max_InvMass_
       << " " << min_Acop_ << " " << max_Acop_
       << " " << min_PtBalance_ << " " << max_PtBalance_
-      << " " << nsigma_Pt_;
+      << " " << nsigma_Pt_
+      << " " << max_DCAMuMu_
+      << " " << max_YPair_;
 
    //register your products
    produces<trigger::TriggerFilterObjectWithRefs>();
@@ -85,24 +93,27 @@ HLTMuonDimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descript
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("BeamSpotTag",edm::InputTag("hltOfflineBeamSpot"));
   desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL3MuonCandidates"));
-  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltDiMuonL2PreFiltered0"));
+  //  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltDiMuonL2PreFiltered0"));
+  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag(""));
   desc.add<bool>("FastAccept",false);
   desc.add<double>("MaxEta",2.5);
   desc.add<int>("MinNhits",0);
   desc.add<double>("MaxDr",2.0);
   desc.add<double>("MaxDz",9999.0);
-  desc.add<int>("ChargeOpt",-1);
+  desc.add<int>("ChargeOpt",0);
   desc.add<double>("MinPtPair",0.0);
-  desc.add<double>("MinPtMax",0.0);
-  desc.add<double>("MinPtMin",0.0);
-  desc.add<double>("MinInvMass",1.5);
-  desc.add<double>("MaxInvMass",14.5);
-  desc.add<double>("MinAcop",-999.0);
-  desc.add<double>("MaxAcop",999.0);
+  desc.add<double>("MinPtMax",3.0);
+  desc.add<double>("MinPtMin",3.0);
+  desc.add<double>("MinInvMass",2.8);
+  desc.add<double>("MaxInvMass",3.4);
+  desc.add<double>("MinAcop",-1.0);
+  desc.add<double>("MaxAcop",3.15);
   desc.add<double>("MinPtBalance",-1.0);
   desc.add<double>("MaxPtBalance",999999.0);
   desc.add<double>("NSigmaPt",0.0);
-  desc.addUntracked<bool>("SaveTag",false);
+  desc.add<bool>("saveTags",false);
+  desc.add<double>("MaxDCAMuMu",99999.9);
+  desc.add<double>("MaxRapidityPair",999999.0);
   descriptions.add("hltMuonDimuonL3Filter",desc);
 }
 
@@ -127,7 +138,7 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // get hold of trks
    Handle<RecoChargedCandidateCollection> mucands;
-   if(saveTag_)filterproduct->addCollectionTag(candTag_);
+   if(saveTags_)filterproduct->addCollectionTag(candTag_);
    iEvent.getByLabel (candTag_,mucands);
    // sort them by L2Track
    std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > L2toL3s;
@@ -145,6 +156,10 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<BeamSpot> recoBeamSpotHandle;
    iEvent.getByLabel(beamspotTag_,recoBeamSpotHandle);
    beamSpot = *recoBeamSpotHandle;
+
+   // Needed for DCA calculation
+   ESHandle<MagneticField> bFieldHandle;
+   iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
   
    // needed to compare to L2
    vector<RecoChargedCandidateRef> vl2cands;
@@ -187,11 +202,10 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        
        // Pt threshold cut
        double pt1 = tk1->pt();
-       double err1 = tk1->error(0);
-       double abspar1 = fabs(tk1->parameter(0));
+       //       double err1 = tk1->error(0);
+       //       double abspar1 = fabs(tk1->parameter(0));
        double ptLx1 = pt1;
-       // convert 50% efficiency threshold to 90% efficiency threshold
-       if (abspar1>0) ptLx1 += nsigma_Pt_*err1/abspar1*pt1;
+       // Don't convert to 90% efficiency threshold
        LogDebug("HLTMuonDimuonL3Filter") << " ... 1st muon in loop, pt1= "
 					 << pt1 << ", ptLx1= " << ptLx1;
        std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_it2 = L2toL3s_it1;
@@ -222,11 +236,10 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      
 	      // Pt threshold cut
 	      double pt2 = tk2->pt();
-	      double err2 = tk2->error(0);
-	      double abspar2 = fabs(tk2->parameter(0));
+        //	      double err2 = tk2->error(0);
+        //	      double abspar2 = fabs(tk2->parameter(0));
 	      double ptLx2 = pt2;
-	      // convert 50% efficiency threshold to 90% efficiency threshold
-	      if (abspar2>0) ptLx2 += nsigma_Pt_*err2/abspar2*pt2;
+	      // Don't convert to 90% efficiency threshold
 	      LogDebug("HLTMuonDimuonL3Filter") << " ... 2nd muon in loop, pt2= "
 						<< pt2 << ", ptLx2= " << ptLx2;
 	      
@@ -274,6 +287,26 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      if (invmass<min_InvMass_) continue;
 	      if (invmass>max_InvMass_) continue;
 
+              // Delta Z between the two muons
+              //double DeltaZMuMu = fabs(tk2->dz(beamSpot.position())-tk1->dz(beamSpot.position()));
+              //if ( DeltaZMuMu > max_DzMuMu_) continue;
+
+	      // DCA between the two muons
+	      TransientTrack mu1TT(*tk1, &(*bFieldHandle));
+	      TransientTrack mu2TT(*tk2, &(*bFieldHandle));
+	      TrajectoryStateClosestToPoint mu1TS = mu1TT.impactPointTSCP();
+	      TrajectoryStateClosestToPoint mu2TS = mu2TT.impactPointTSCP();
+	      if (mu1TS.isValid() && mu2TS.isValid()) {
+		ClosestApproachInRPhi cApp;
+		cApp.calculate(mu1TS.theState(), mu2TS.theState());
+		if (!cApp.status()
+		    || cApp.distance() > max_DCAMuMu_) continue;
+	      }
+              
+              // Max dimuon |rapidity|
+              double rapidity = fabs(p.Rapidity());
+              if ( rapidity > max_YPair_) continue;
+              
 	      // Add this pair
 	      n++;
 	      LogDebug("HLTMuonDimuonL3Filter") << " Track1 passing filter: pt= " << tk1->pt() << ", eta: " << tk1->eta();

@@ -13,7 +13,6 @@
 <use   name="clhep"/>
 <use   name="rootmath"/>
 <use   name="roottmva"/>
-<flags   LDFLAGS="-lTMVA"/>
 <export>
   <lib   name="1"/>
 </export>

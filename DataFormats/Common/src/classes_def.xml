@@ -18,7 +18,13 @@
    <![CDATA[edm::EDProductGetter::assignEDProductGetter(prodGetter_);
       ]]>
  </ioread>
- <class name="edm::RefCore::CheckTransientOnWrite" ClassVersion="3"/>
+ <class name="edm::RefCore::CheckTransientOnWrite" ClassVersion="4">
+   <field name="transient_" transient="true"/>
+ </class>
+ <ioread sourceClass = "edm::RefCore::CheckTransientOnWrite" version="[1-]" targetClass="bool" source = "" target="transient_">
+    <![CDATA[transient_=false;
+    ]]>
+ </ioread>
  <class name="edm::ConstPtrCache" ClassVersion="10">
    <field name="ptr_" transient="true"/>
  </class>

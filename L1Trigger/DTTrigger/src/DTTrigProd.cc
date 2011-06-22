@@ -4,8 +4,8 @@
  *     Main EDProducer for the DTTPG
  *
  *
- *   $Date: 2010/05/14 12:57:28 $
- *   $Revision: 1.16 $
+ *   $Date: 2010/11/11 16:32:49 $
+ *   $Revision: 1.17 $
  *
  *   \author C. Battilana
  *
@@ -71,7 +71,9 @@ void DTTrigProd::beginRun(edm::Run& iRun, const edm::EventSetup& iEventSetup) {
   
   ESHandle< DTConfigManager > dtConfig ;
   iEventSetup.get< DTConfigManagerRcd >().get( dtConfig ) ;
-  
+
+  my_CCBValid = dtConfig->CCBConfigValidity();
+
   if (!my_trig) {
     my_trig = new DTTrig(my_params);
     my_trig->createTUs(iEventSetup);
@@ -83,29 +85,36 @@ void DTTrigProd::beginRun(edm::Run& iRun, const edm::EventSetup& iEventSetup) {
       my_trig->dumpLuts(my_lut_btic, dtConfig.product());
     }	
   }
+
+
   
 }
 
 
 void DTTrigProd::produce(Event & iEvent, const EventSetup& iEventSetup){
 
-  my_trig->triggerReco(iEvent,iEventSetup);
-  my_BXoffset = my_trig->getBXOffset();
+  // SV check if CCB configuration is valid, otherwise just produce empty collections
+  if(!my_CCBValid)  {
+    if (my_debug)
+      cout << "[DTTrigProd] CCB configuration is not valid for this run, emulator will not run ! " << endl;
+  }  else  {
+    my_trig->triggerReco(iEvent,iEventSetup);
+    my_BXoffset = my_trig->getBXOffset();
   
-  if (my_debug)
-    cout << "[DTTrigProd] Trigger algorithm run for " <<iEvent.id() << endl;
+    if (my_debug)
+      cout << "[DTTrigProd] Trigger algorithm run for " <<iEvent.id() << endl;
   
-  // Convert Phi Segments
-  SectCollPhiColl myPhiSegments;
-  myPhiSegments = my_trig->SCPhTrigs();
-  vector<L1MuDTChambPhDigi> outPhi;
+    // Convert Phi Segments
+    SectCollPhiColl myPhiSegments;
+    myPhiSegments = my_trig->SCPhTrigs();
+    vector<L1MuDTChambPhDigi> outPhi;
 
-  SectCollPhiColl_iterator SCPCend = myPhiSegments.end();
-  for (SectCollPhiColl_iterator it=myPhiSegments.begin();it!=SCPCend;++it){
-    int step = (*it).step() - my_BXoffset; // Shift correct BX to 0 (needed for DTTF data processing)
-    int sc_sector = (*it).SCId().sector();
-    if (my_DTTFnum == true) sc_sector--; // Modified for DTTF numbering [0-11]
-    outPhi.push_back(L1MuDTChambPhDigi(step,
+    SectCollPhiColl_iterator SCPCend = myPhiSegments.end();
+    for (SectCollPhiColl_iterator it=myPhiSegments.begin();it!=SCPCend;++it){
+      int step = (*it).step() - my_BXoffset; // Shift correct BX to 0 (needed for DTTF data processing)
+      int sc_sector = (*it).SCId().sector();
+      if (my_DTTFnum == true) sc_sector--; // Modified for DTTF numbering [0-11]
+        outPhi.push_back(L1MuDTChambPhDigi(step,
 				       (*it).ChamberId().wheel(),
 				       sc_sector,
 				       (*it).ChamberId().station(),
@@ -115,31 +124,31 @@ void DTTrigProd::produce(Event & iEvent, const EventSetup& iEventSetup){
 				       !(*it).isFirst(),
 				       0
 				       ));
-  }
-
-  // Convert Theta Segments
-  SectCollThetaColl myThetaSegments;
-  myThetaSegments = my_trig->SCThTrigs();
-  vector<L1MuDTChambThDigi> outTheta;
-  
-  SectCollThetaColl_iterator SCTCend = myThetaSegments.end();
-  for (SectCollThetaColl_iterator it=myThetaSegments.begin();it!=SCTCend;++it){
-    int pos[7], qual[7];
-    for (int i=0; i<7; i++){
-      pos[i] =(*it).position(i);
-      qual[i]=(*it).quality(i);
     }
-    int step =(*it).step() - my_BXoffset; // Shift correct BX to 0 (needed for DTTF data processing)
-    int sc_sector =  (*it).SCId().sector();
-    if (my_DTTFnum == true) sc_sector--; // Modified for DTTF numbering [0-11]
-    outTheta.push_back(L1MuDTChambThDigi( step,
+
+    // Convert Theta Segments
+    SectCollThetaColl myThetaSegments;
+    myThetaSegments = my_trig->SCThTrigs();
+    vector<L1MuDTChambThDigi> outTheta;
+  
+    SectCollThetaColl_iterator SCTCend = myThetaSegments.end();
+    for (SectCollThetaColl_iterator it=myThetaSegments.begin();it!=SCTCend;++it){
+      int pos[7], qual[7];
+      for (int i=0; i<7; i++){
+        pos[i] =(*it).position(i);
+        qual[i]=(*it).quality(i);
+      }
+      int step =(*it).step() - my_BXoffset; // Shift correct BX to 0 (needed for DTTF data processing)
+      int sc_sector =  (*it).SCId().sector();
+      if (my_DTTFnum == true) sc_sector--; // Modified for DTTF numbering [0-11]
+      outTheta.push_back(L1MuDTChambThDigi( step,
 					 (*it).ChamberId().wheel(),
 					 sc_sector,
 					 (*it).ChamberId().station(),
 					 pos,
 					 qual
 					 ));
-  }
+    }
 
    // Write everything into the event
    std::auto_ptr<L1MuDTChambPhContainer> resultPhi (new L1MuDTChambPhContainer);
@@ -148,6 +157,6 @@ void DTTrigProd::produce(Event & iEvent, const EventSetup& iEventSetup){
    std::auto_ptr<L1MuDTChambThContainer> resultTheta (new L1MuDTChambThContainer);
    resultTheta->setContainer(outTheta);
    iEvent.put(resultTheta);
-
+  }
 }
 

@@ -73,8 +73,6 @@ public:
 private:
   const SiStripRecHitMatcher* theMatcher; 
   const StripClusterParameterEstimator* theCPE;
-
-private:
   TSiStripMatchedRecHit (const GeomDet * geom, const TrackingRecHit * rh, 
 			 const SiStripRecHitMatcher *matcher,
 			 const StripClusterParameterEstimator* cpe,
@@ -102,7 +100,7 @@ private:
     if (computeCoarseLocalPosition) ComputeCoarseLocalPosition();
   }
 
-private:
+   
     void ComputeCoarseLocalPosition(){
       if (!theCPE || !theMatcher) return;
       const SiStripMatchedRecHit2D *orig = static_cast<const SiStripMatchedRecHit2D *> (trackingRecHit_);

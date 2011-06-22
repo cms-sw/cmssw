@@ -1,19 +1,39 @@
-//----------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
+//---------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified:24/03/201&
-
+//----------Modified:17/03/2010
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParHistos.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNumbering.h"
-
-//--------------------------------------
-//  TEcnaParHistos.cc
-//  Class creation: 19 May 2005
-//  Documentation: see TEcnaParHistos.h
-//--------------------------------------
 
 ClassImp(TEcnaParHistos)
 //______________________________________________________________________________
 //
+// TEcnaParHistos.
+//
+//    Values of different parameters for plots in the framework of TEcnaHistos
+//    (see description of this class)
+//
+//    Examples of parameters:  ymin and ymax values for histos, title sizes,
+//                             margins for plots, etc...
+//                             
+//
+//-------------------------------------------------------------------------
+//
+//        For more details on other classes of the CNA package:
+//
+//                 http://www.cern.ch/cms-fabbro/cna
+//
+//-------------------------------------------------------------------------
+//
+
+//---------------------- TEcnaParHistos.cc -------------------------------
+//  
+//   Creation (first version): 19 May 2005
+//
+//   For questions or comments, please send e-mail to Bernard Fabbro:
+//             
+//   fabbro@hep.saclay.cea.fr 
+//
+//------------------------------------------------------------------------
 
   TEcnaParHistos::~TEcnaParHistos()
 {
@@ -39,40 +59,9 @@ TEcnaParHistos::TEcnaParHistos()
   Init();
 }
 
-TEcnaParHistos::TEcnaParHistos(TEcnaObject* pObjectManager, const TString SubDet)
-{
-// Constructor without argument
-
-  //cout << "[Info Management] CLASS: TEcnaParHistos.     CREATE OBJECT: this = " << this << endl;
-
-  Init();
-  Long_t i_this = (Long_t)this;
-  pObjectManager->RegisterPointer("TEcnaParHistos", i_this);
-
-  //............................ fEcal  => to be changed in fParEcal
-  fEcal = 0;
-  Int_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
-  if( iParEcal == 0 )
-    {fEcal = new TEcnaParEcal(pObjectManager, SubDet.Data()); /*fCnew++*/}
-  else
-    {fEcal = (TEcnaParEcal*)iParEcal;}
-
-  //............................ fEcalNumbering
-  fEcalNumbering = 0;
-  Int_t iEcalNumbering = pObjectManager->GetPointerValue("TEcnaNumbering");
-  if( iEcalNumbering == 0 )
-    {fEcalNumbering = new TEcnaNumbering(pObjectManager, SubDet.Data()); /*fCnew++*/}
-  else
-    {fEcalNumbering = (TEcnaNumbering*)iEcalNumbering;}
-
-  SetEcalSubDetector(SubDet.Data());
-}
-
-
-
 TEcnaParHistos::TEcnaParHistos(const TString SubDet,
-			       const TEcnaParEcal* pEcal,
-			       const TEcnaNumbering*  pEcalNumbering)
+			     const TEcnaParEcal* pEcal,
+			     const TEcnaNumbering*  pEcalNumbering)
 {
 // Constructor with argument
 
@@ -106,36 +95,7 @@ void  TEcnaParHistos::Init()
   fMaxNbOfRunsInLists = (Int_t)5000;    // Maximum number of runs in the ListOfRun files
                                         // used for the stability/evolution plots.
 
-  //........................ init code plot type                      (Init)
-  Int_t MaxCar = fgMaxCar;
-  fOnlyOnePlot.Resize(MaxCar);
-  fOnlyOnePlot = "ONLYONE";
-
-  MaxCar = fgMaxCar;
-  fSeveralPlot.Resize(MaxCar);
-  fSeveralPlot = "SAME";
-
-  MaxCar = fgMaxCar;
-  fSameOnePlot.Resize(MaxCar);
-  fSameOnePlot = "SAME n";
-
-  MaxCar = fgMaxCar;
-  fAllXtalsInStinPlot.Resize(MaxCar);
-  fAllXtalsInStinPlot = "SAME in Stin";
-
-  fPlotAllXtalsInStin = 0;
-
 }// end of Init()
-
-void TEcnaParHistos::SetEcalSubDetector(const TString SubDet)
-{
- // Set Subdetector (EB or EE)
-
-  Int_t MaxCar = fgMaxCar;
-  fFlagSubDet.Resize(MaxCar);
-  fFlagSubDet = fEcal->GetEcalSubDetector();
-}
-
 
 void TEcnaParHistos::SetEcalSubDetector(const TString SubDet,
 				       const TEcnaParEcal* pEcal,
@@ -160,59 +120,45 @@ void TEcnaParHistos::SetEcalSubDetector(const TString SubDet,
     {fEcalNumbering = (TEcnaNumbering*)pEcalNumbering;}
 }
 
-
 Int_t TEcnaParHistos::MaxNbOfRunsInLists(){return fMaxNbOfRunsInLists;}
 
-//---------------------------------------------------------------------------------------------
-// HistoCode list modification (06/10/09)
-//
-//    D = Detector Plot    ChNb = Channel Number
-//                         ChDs = Channel Distribution (Y projection)
-//
-//    H = History  Plot    Date = date in format YYMMJJ hhmmss
-//                         RuDs = Run distribution
-//
-//      old code             new code
-//
-// *  1 H1NbOfEvtsGlobal     D_NOE_ChNb    NOE  = Number Of Events
-// *  2 H1NbOfEvtsProj       D_NOE_ChDs    
-// *  3 H1EvEvGlobal         D_Ped_ChNb    Ped  = Pedestal
-// *  4 H1EvEvProj           D_Ped_ChDs
-// *  5 H1EvSigGlobal        D_TNo_ChNb    TNo  = Total Noise
-// *  6 H1EvSigProj          D_TNo_ChDs
-// *  7 H1SigEvGlobal        D_LFN_ChNb    LFN  = Low Frequency noise
-// *  8 H1SigEvProj          D_LFN_ChDs
-// *  9 H1SigSigGlobal       D_HFN_ChNb    HFN  = High Frequency noise
-// * 10 H1SigSigProj         D_HFN_ChDs
-// * 11 H1EvCorssGlobal      D_MCs_ChNb    MCs  = Mean correlations between samples
-// * 12 H1EvCorssProj        D_MCs_ChDs
-// * 13 H1SigCorssGlobal     D_SCs_ChNb    SCs  = Sigma of the correlations between samples
-// * 14 H1SigCorssProj       D_SCs_ChDs
-// * 15 Ev                   D_MSp_SpNb    MSp  = Mean samples
-// * 16 EvProj               D_MSp_SpDs
-// * 17 Sigma                D_SSp_SpNb    SSp  = Sigma of the samples
-// * 18 SigmaProj            D_SSp_SpDs
-// * 19 SampTime             D_Adc_EvNb    Adc  = ADC count as a function of Event number
-// * 20 AdcProj              D_Adc_EvDs
-// * 21 EvolEvEv             H_Ped_Date    
-// * 22 EvolEvEvProj         H_Ped_RuDs    
-// * 23 EvolEvSig            H_TNo_Date
-// * 24 EvolEvSigProj        H_TNo_RuDs   
-// * 25 EvolSigEv            H_LFN_Date 
-// * 26 EvolSigEvProj        H_LFN_RuDs 
-// * 27 EvolSigSig           H_HFN_Date 
-// * 28 EvolSigSigProj       H_HFN_RuDs 
-// * 29 EvolEvCorss          H_MCs_Date   
-// * 30 EvolEvCorssProj      H_MCs_RuDs   
-// * 31 EvolSigCorss         H_SCs_Date   
-// * 32 EvolSigCorssProj     H_SCs_RuDs   
-//
 //===========================================================================
 //
 //    SetCanvasWidth, SetCanvasHeight,
 //    CanvasFormatW, CanvasFormatH,
 //
 //===========================================================================
+// *  1 H1NbOfEvtsGlobal     D_NOE_ChNb    NOE = Number Of Events
+// *  2 H1NbOfEvtsProj       D_NOE_ChDs    
+// *  3 H1EvEvGlobal         D_Ped_ChNb    Ped = Pedestal
+// *  4 H1EvEvProj           D_Ped_ChDs
+// *  5 H1EvSigGlobal        D_TNo_ChNb    TNo = Total Noise
+// *  6 H1EvSigProj          D_TNo_ChDs
+// *  7 H1SigEvGlobal        D_LFN_ChNb    LFN = Low Frequency noise
+// *  8 H1SigEvProj          D_LFN_ChDs
+// *  9 H1SigSigGlobal       D_HFN_ChNb    HFN = High Frequency noise
+// * 10 H1SigSigProj         D_HFN_ChDs
+// * 11 H1EvCorssGlobal      D_MCs_ChNb    MCs = Mean of the correlations between samples
+// * 12 H1EvCorssProj        D_MCs_ChDs
+// * 13 H1SigCorssGlobal     D_SCs_ChNb    Scs = Sigma of the correlations between samples
+// * 14 H1SigCorssProj       D_SCs_ChDs
+// * 15 Ev                   D_MSp_Samp    MSp = Mean of the samples
+// * 16 Sigma                D_SSp_Samp    SSp = Sigma of the samples
+// * 17 SampTime             D_Adc_EvNb    Adc = ADC count as a function of Event number
+// * 18 AdcProj              D_Adc_EvDs    EvDs = Event distribution
+// * 19 EvolEvEv             H_Ped_Date    Date = date in format YYMMJJ hhmmss
+// * 20 EvolEvEvProj         H_Ped_RuDs    RuDs = Run distribution
+// * 21 EvolEvSig            H_TNo_Date
+// * 22 EvolEvSigProj        H_TNo_RuDs   
+// * 23 EvolSigEv            H_LFN_Date 
+// * 24 EvolSigEvProj        H_LFN_RuDs 
+// * 25 EvolSigSig           H_HFN_Date 
+// * 26 EvolSigSigProj       H_HFN_RuDs 
+// * 27 EvolEvCorss          H_MCs_Date   
+// * 28 EvolEvCorssProj      H_MCs_RuDs   
+// * 29 EvolSigCorss         H_SCs_Date   
+// * 30 EvolSigCorssProj     H_SCs_RuDs   
+
 UInt_t TEcnaParHistos::SetCanvasWidth(const TString HistoCode, const TString opt_plot)
 {
 //........................................ Taille/format canvas
@@ -226,8 +172,8 @@ UInt_t TEcnaParHistos::SetCanvasWidth(const TString HistoCode, const TString opt
       HistoCode == "H_Ped_Date" || HistoCode == "H_TNo_Date" ||
       HistoCode == "H_MCs_Date" || HistoCode == "H_LFN_Date" ||
       HistoCode == "H_HFN_Date" || HistoCode == "H_SCs_Date" ||
-      (HistoCode == "D_MSp_SpNb" && opt_plot != "ONLYONE")   || 
-      (HistoCode == "D_SSp_SpNb" && opt_plot != "ONLYONE") )
+      (HistoCode == "D_MSp_Samp" && opt_plot != "ONLYONE")   || 
+      (HistoCode == "D_SSp_Samp" && opt_plot != "ONLYONE") )
     {	     
       canv_w = CanvasFormatH("moyen");    // format 29.7*21 ( = 21*29.7 en paysage)
     }
@@ -236,7 +182,6 @@ UInt_t TEcnaParHistos::SetCanvasWidth(const TString HistoCode, const TString opt
        HistoCode == "D_Ped_ChDs" || HistoCode == "D_LFN_ChDs" ||
        HistoCode == "D_TNo_ChDs" || HistoCode == "D_HFN_ChDs" ||
        HistoCode == "D_MCs_ChDs" || HistoCode == "D_SCs_ChDs" ||
-       HistoCode == "D_MSp_SpDs" || HistoCode == "D_SSp_SpDs" ||
        HistoCode == "H_Ped_RuDs" || HistoCode == "H_TNo_RuDs" ||
        HistoCode == "H_MCs_RuDs" || HistoCode == "H_LFN_RuDs" ||
        HistoCode == "H_HFN_RuDs" || HistoCode == "H_SCs_RuDs") && opt_plot != "ONLYONE" )
@@ -260,8 +205,8 @@ UInt_t TEcnaParHistos::SetCanvasHeight(const TString HistoCode, const TString op
       HistoCode == "H_Ped_Date" || HistoCode == "H_TNo_Date" ||
       HistoCode == "H_MCs_Date" || HistoCode == "H_LFN_Date" ||
       HistoCode == "H_HFN_Date" || HistoCode == "H_SCs_Date" ||
-      (HistoCode == "D_MSp_SpNb" && opt_plot != "ONLYONE")   ||
-      (HistoCode == "D_SSp_SpNb" && opt_plot != "ONLYONE") )
+      (HistoCode == "D_MSp_Samp" && opt_plot != "ONLYONE")   ||
+      (HistoCode == "D_SSp_Samp" && opt_plot != "ONLYONE") )
     {
       canv_h = CanvasFormatW("moyen");    // format 29.7*21 ( = 21*29.7 en paysage)
     }
@@ -270,7 +215,6 @@ UInt_t TEcnaParHistos::SetCanvasHeight(const TString HistoCode, const TString op
        HistoCode == "D_Ped_ChDs" || HistoCode == "D_LFN_ChDs" ||
        HistoCode == "D_TNo_ChDs" || HistoCode == "D_HFN_ChDs" ||
        HistoCode == "D_MCs_ChDs" || HistoCode == "D_SCs_ChDs" ||
-       HistoCode == "D_MSp_SpDs" || HistoCode == "D_SSp_SpDs" ||
        HistoCode == "H_Ped_RuDs" || HistoCode == "H_TNo_RuDs" ||
        HistoCode == "H_MCs_RuDs" || HistoCode == "H_LFN_RuDs" ||
        HistoCode == "H_HFN_RuDs" || HistoCode == "H_SCs_RuDs") && opt_plot != "ONLYONE" )
@@ -344,8 +288,8 @@ Double_t TEcnaParHistos::BoxLeftX(const TString chtype)
   if ( chtype == "bottom_left_box_evol" ) {value = 0.015;}
   if ( chtype == "bottom_mid_box"       ) {value = 0.250;}
   if ( chtype == "bottom_right_box"     ) {value = 0.455;}
-  if ( chtype == "bottom_right_box_evol") {value = 0.540;}
-  if ( chtype == "bottom_right_box_evpr") {value = 0.540;}
+  if ( chtype == "bottom_right_box_evol") {value = 0.620;}
+  if ( chtype == "bottom_right_box_evpr") {value = 0.580;}
 
   if ( chtype == "several_plots_box"    ) {value = 0.015;}
   if ( chtype == "several_evol_box"     ) {value = 0.015;}
@@ -380,8 +324,8 @@ Double_t TEcnaParHistos::BoxRightX(const TString chtype)
   if ( chtype == "bottom_right_box_evpr") {value = 0.985;}
 
   if ( chtype == "several_plots_box"    ) {value = 0.985;}
-  if ( chtype == "several_evol_box"     ) {value = 0.635;}
-  if ( chtype == "several_evpr_box"     ) {value = 0.635;}
+  if ( chtype == "several_evol_box"     ) {value = 0.615;}
+  if ( chtype == "several_evpr_box"     ) {value = 0.615;}
   
  return value;
 }
@@ -1127,10 +1071,10 @@ Float_t TEcnaParHistos::DeeNameOffsetX(const Int_t& DeeNumber)
 {
   Float_t offset = 0;
 
-  if( DeeNumber == 1 ){offset = 8.;}
+  if( DeeNumber == 1 ){offset = 6.9;}
   if( DeeNumber == 2 ){offset = 0.;}
   if( DeeNumber == 3 ){offset = 7.6;}
-  if( DeeNumber == 4 ){offset = -0.5;}
+  if( DeeNumber == 4 ){offset = 0.5;}
   
   return offset;
 }
@@ -1650,18 +1594,7 @@ TPaveText* TEcnaParHistos::SetPaveTowersXY(const Int_t& SMtower_X, const Int_t& 
   return com_top_mid;
 }
 
-
-TPaveText* TEcnaParHistos::SetPaveCrystal(const Int_t& StexCrys, const Int_t& StexStinA,
-					  const Int_t& StinEcha)
-{
-  Int_t arg_AlreadyRead = 0;
-  Int_t flag_all_samples = 0;
-  return SetPaveCrystal(StexCrys, StexStinA, StinEcha, arg_AlreadyRead, flag_all_samples);
-}
-
-TPaveText* TEcnaParHistos::SetPaveCrystal(const Int_t& StexCrys, const Int_t& StexStinA,
-					  const Int_t& StinEcha, const Int_t& arg_AlreadyRead,
-					  const Int_t& flag_all_samples)
+TPaveText* TEcnaParHistos::SetPaveCrystal(const Int_t& StexCrys, const Int_t& StexStinA, const Int_t& StinEcha)
 {
 // Tower + StinEcha comment. StexCrys range: [1,max]
 
@@ -1694,32 +1627,21 @@ TPaveText* TEcnaParHistos::SetPaveCrystal(const Int_t& StexCrys, const Int_t& St
 
   if( fFlagSubDet == "EB" )
     {
-      if( arg_AlreadyRead == 0 || (arg_AlreadyRead == 1 && flag_all_samples == 0 ) )
-	{sprintf(f_in, "Channel: %d ", StinEcha);}      // EB => range = [0,24]
-      if( arg_AlreadyRead == 1 && flag_all_samples == 1 )
-	{sprintf(f_in, "Channel: 0 to %d", fEcal->MaxCrysInStin()-1 );}
+      sprintf(f_in, "Channel: %d ", StinEcha);
+      com_top_right->AddText(f_in); 
+      sprintf(f_in, "Crystal in SM: %d ", StexCrys);
       com_top_right->AddText(f_in);
-      if( arg_AlreadyRead == 0 || (arg_AlreadyRead == 1 && flag_all_samples == 0 ) )
-	{sprintf(f_in, "Crystal in SM: %d ", StexCrys);
-	  com_top_right->AddText(f_in);}
     }
 
   if( fFlagSubDet == "EE" )
     {
-      Int_t StinEchap = StinEcha+1;
-      if( arg_AlreadyRead == 0 || (arg_AlreadyRead == 1 && flag_all_samples == 0 ) )
-	{sprintf(f_in, "Xtal in SC: %d ", StinEchap);} // EE => range = [1,25]
-      if( arg_AlreadyRead == 1 && flag_all_samples == 1 )
-	{sprintf(f_in, "Xtal in SC: 1 to %d", fEcal->MaxCrysInStin());}
+      sprintf(f_in, "Crystal in SC: %d ", StinEcha+1);     // EE => range = [1,25]
       com_top_right->AddText(f_in);
-      if( arg_AlreadyRead == 0 || (arg_AlreadyRead == 1 && flag_all_samples == 0 ) )
-	{
-	  Int_t IX_Dee_crys = StexCrys/fEcal->MaxCrysIYInDee() + 1;
-	  Int_t IY_Dee_crys = StexCrys%fEcal->MaxCrysIYInDee();
-	  if( IY_Dee_crys == 0 ){IX_Dee_crys--; IY_Dee_crys = fEcal->MaxCrysIYInDee();}     
-	  sprintf(f_in, "(IX,IY)[Xtal]=(%d,%d)", IX_Dee_crys, IY_Dee_crys);
-	  com_top_right->AddText(f_in);
-	}
+      Int_t IX_Dee_crys = StexCrys/fEcal->MaxCrysIYInDee() + 1;
+      Int_t IY_Dee_crys = StexCrys%fEcal->MaxCrysIYInDee();
+      if( IY_Dee_crys == 0 ){IX_Dee_crys--; IY_Dee_crys = fEcal->MaxCrysIYInDee();}     
+      sprintf(f_in, "(IX,IY)[Xtal]=(%d,%d)", IX_Dee_crys, IY_Dee_crys);
+      com_top_right->AddText(f_in);
     }
 
   delete [] f_in;                                           fCdelete++;
@@ -1769,8 +1691,7 @@ TPaveText* TEcnaParHistos::SetPaveCrystalSample(const Int_t& StexCrys, const Int
 
   if( fFlagSubDet == "EE" )
     {
-      Int_t StinEchap = StinEcha+1;
-      sprintf(f_in, " Channel: %d ", StinEchap);    // EE => range = [1,25]
+      sprintf(f_in, " Channel: %d ", StinEcha+1);    // EE => range = [1,25]
       com_top_right->AddText(f_in); 
       Int_t IX_Dee_crys = StexCrys/fEcal->MaxCrysIYInDee() + 1;
       Int_t IY_Dee_crys = StexCrys%fEcal->MaxCrysIYInDee();
@@ -1779,8 +1700,7 @@ TPaveText* TEcnaParHistos::SetPaveCrystalSample(const Int_t& StexCrys, const Int
       com_top_right->AddText(f_in);
     }
 
-  Int_t iSample_p = iSample+1;
-  sprintf(f_in, " Sample: %d ", iSample_p);
+  sprintf(f_in, " Sample: %d ", iSample+1);
   com_top_right->AddText(f_in);
 
   delete [] f_in;                                           fCdelete++;
@@ -2100,6 +2020,7 @@ TPaveText* TEcnaParHistos::SetPaveStinsXY(const Int_t& StexStin_X, const Int_t& 
 //               GetHistoType, GetQuantityName
 //
 //===========================================================================
+
 TString TEcnaParHistos::GetHistoType(const TString HistoCode)
 {
 // Type of the quantity as a function of the quantity code
@@ -2112,24 +2033,22 @@ TString TEcnaParHistos::GetHistoType(const TString HistoCode)
 
   //.(1a)............................ Global
   if ( HistoCode == "D_NOE_ChNb" || HistoCode == "D_Ped_ChNb" ||
-       HistoCode == "D_TNo_ChNb" || HistoCode == "D_LFN_ChNb" || HistoCode == "D_HFN_ChNb" ||
-       HistoCode == "D_MCs_ChNb" || HistoCode == "D_SCs_ChNb" )
+       HistoCode == "D_TNo_ChNb" || HistoCode == "D_MCs_ChNb" ||
+       HistoCode == "D_LFN_ChNb" || HistoCode == "D_HFN_ChNb" || 
+       HistoCode == "D_SCs_ChNb" )
     {HistoType = "Global";}   // X coordinate = Xtals for SM or Dee
                               //                Tower for EB
                               //                SC    for EE
   //.(1b)............................ Proj  
   if ( HistoCode == "D_NOE_ChDs" || HistoCode == "D_Ped_ChDs" ||
-       HistoCode == "D_TNo_ChDs" || HistoCode == "D_LFN_ChDs" || HistoCode == "D_HFN_ChDs" || 
-       HistoCode == "D_MCs_ChDs" || HistoCode == "D_SCs_ChDs" )
+       HistoCode == "D_TNo_ChDs" || HistoCode == "D_MCs_ChDs" ||
+       HistoCode == "D_LFN_ChDs" || HistoCode == "D_HFN_ChDs" || 
+       HistoCode == "D_SCs_ChDs" )
     {HistoType = "Proj";}    // X coordinate = bin number
   
   //.(2)............................ H1Basic
-  if ( HistoCode == "D_MSp_SpNb" || HistoCode == "D_SSp_SpNb" )
+  if ( HistoCode == "D_MSp_Samp" || HistoCode == "D_SSp_Samp" )
     {HistoType = "H1Basic";}  // X coordinate = sample number
-
-  //.(2)............................ H1BasicProj
-  if ( HistoCode == "D_MSp_SpDs" || HistoCode == "D_SSp_SpDs" )
-    {HistoType = "H1BasicProj";}  // X coordinate = total noise
 
   //.(3a)............................ SampGlobal
   if ( HistoCode == "D_Adc_EvNb" ){HistoType = "SampGlobal";}  // X coordinate = event number
@@ -2170,7 +2089,6 @@ TString TEcnaParHistos::GetXVarHisto(const TString HistoCode, const TString SubD
   if( HistoType == "Proj" ){XVarHisto = "Bin number";}
 
   if( HistoType == "H1Basic"){XVarHisto = "Sample number";}
-  if( HistoType == "H1BasicProj"){XVarHisto = "Total noise";}
 
   if( HistoType == "SampGlobal" ){XVarHisto = "Event number";}
 
@@ -2215,7 +2133,6 @@ TString TEcnaParHistos::GetYVarHisto(const TString HistoCode, const TString SubD
     }
 
   if( HistoType == "H1Basic"){YVarHisto = "ADC count";}
-  if( HistoType == "H1BasicProj"){YVarHisto = "Number of samples";}
 
   if( HistoType == "SampGlobal" ){YVarHisto = "ADC count";}
 
@@ -2265,12 +2182,10 @@ TString TEcnaParHistos::GetQuantityName(const TString chqcode)
   if(chqcode == "D_HFN_ChDs"){chqname = "High Freq. Noise";}
   if(chqcode == "D_SCs_ChNb"){chqname = "Sigma Cor(s,s')";}
   if(chqcode == "D_SCs_ChDs"){chqname = "Sigma Cor(s,s')";}
-  if(chqcode == "D_MSp_SpNb"){chqname = "Sample means";}
-  if(chqcode == "D_MSp_SpDs"){chqname = "Sample means";}
-  if(chqcode == "D_SSp_SpNb"){chqname = "Sample sigmas";}
-  if(chqcode == "D_SSp_SpDs"){chqname = "Sample sigmas";}
-  if(chqcode == "D_Adc_EvNb"){chqname = "Sample ADC";}
+  if(chqcode == "D_MSp_Samp"){chqname = "Sample means";}
+  if(chqcode == "D_SSp_Samp"){chqname = "Sample sigmas";}
   if(chqcode == "D_Adc_EvDs"){chqname = "Sample ADC distribution";}
+  if(chqcode == "D_Adc_EvNb"){chqname = "Sample ADC";}
   if(chqcode == "H_Ped_Date"){chqname = "Pedestal";}
   if(chqcode == "H_TNo_Date"){chqname = "Total Noise";}
   if(chqcode == "H_MCs_Date"){chqname = "Mean Cor(s,s')";}
@@ -2310,13 +2225,11 @@ Double_t TEcnaParHistos::GetYminDefaultValue(const TString chqcode)
   if(chqcode == "D_HFN_ChDs"){vmin = (Double_t)0.1;}
   if(chqcode == "D_SCs_ChDs"){vmin = (Double_t)0.1;}
 
-  if(chqcode == "D_MSp_SpNb"){vmin = (Double_t)0.;}
-  if(chqcode == "D_MSp_SpDs"){vmin = (Double_t)0.1;}
-  if(chqcode == "D_SSp_SpNb"){vmin = (Double_t)0.;}
-  if(chqcode == "D_SSp_SpDs"){vmin = (Double_t)0.1;}
+  if(chqcode == "D_MSp_Samp"){vmin = (Double_t)0.;}
+  if(chqcode == "D_SSp_Samp"){vmin = (Double_t)0.;}
 
   if(chqcode == "D_Adc_EvNb"){vmin = (Double_t)0.;}
-  if(chqcode == "D_Adc_EvDs"){vmin = (Double_t)0.1;}
+  if(chqcode == "D_Adc_EvDs"){vmin = (Double_t)0.;}
 
   if(chqcode == "H_Ped_Date"){vmin = (Double_t)0.;}
   if(chqcode == "H_TNo_Date"){vmin = (Double_t)0.;}
@@ -2361,13 +2274,11 @@ Double_t TEcnaParHistos::GetYmaxDefaultValue(const TString chqcode)
       if(chqcode == "D_MCs_ChDs"){vmax = (Double_t)5000.;}
       if(chqcode == "D_SCs_ChDs"){vmax = (Double_t)5000.;}
       
-      if(chqcode == "D_MSp_SpNb"){vmax = (Double_t)500.;}
-      if(chqcode == "D_MSp_SpDs"){vmax = (Double_t)10.;}
-      if(chqcode == "D_SSp_SpNb"){vmax = (Double_t)5.;}
-      if(chqcode == "D_SSp_SpDs"){vmax = (Double_t)10.;}
+      if(chqcode == "D_MSp_Samp"){vmax = (Double_t)500.;}
+      if(chqcode == "D_SSp_Samp"){vmax = (Double_t)5.;}
      
       if(chqcode == "D_Adc_EvNb"){vmax = (Double_t)500.;}
-      if(chqcode == "D_Adc_EvDs"){vmax = (Double_t)150.;}
+      if(chqcode == "D_Adc_EvDs"){vmax = (Double_t)500.;}
 
       if(chqcode == "H_Ped_Date"){vmax = (Double_t)500.;}
       if(chqcode == "H_TNo_Date"){vmax = (Double_t)5.;}
@@ -2406,13 +2317,11 @@ Double_t TEcnaParHistos::GetYmaxDefaultValue(const TString chqcode)
       if(chqcode == "D_MCs_ChDs"){vmax = (Double_t)1000.;}
       if(chqcode == "D_SCs_ChDs"){vmax = (Double_t)1000.;}
 
-      if(chqcode == "D_MSp_SpNb"){vmax = (Double_t)500.;}
-      if(chqcode == "D_MSp_SpDs"){vmax = (Double_t)1000.;}
-      if(chqcode == "D_SSp_SpNb"){vmax = (Double_t)5.;}
-      if(chqcode == "D_SSp_SpDs"){vmax = (Double_t)100.;}
+      if(chqcode == "D_MSp_Samp"){vmax = (Double_t)500.;}
+      if(chqcode == "D_SSp_Samp"){vmax = (Double_t)5.;}
       
       if(chqcode == "D_Adc_EvNb"){vmax = (Double_t)500.;}
-      if(chqcode == "D_Adc_EvDs"){vmax = (Double_t)1000.;}
+      if(chqcode == "D_Adc_EvDs"){vmax = (Double_t)500.;}
 
       if(chqcode == "H_Ped_Date"){vmax = (Double_t)500.;}
       if(chqcode == "H_TNo_Date"){vmax = (Double_t)5.;}
@@ -2430,398 +2339,4 @@ Double_t TEcnaParHistos::GetYmaxDefaultValue(const TString chqcode)
     }
   return vmax;
 }
-
-//---------------------------------------------------------------------------------------
-//
-//             BuildStandardDetectorCode, BuildStandardPlotOption,
-//             BuildStandardHistoCode,    GetTechHistoCode
-//
-//---------------------------------------------------------------------------------------
-//----------------------- BuildStandardDetectorCode
-TString TEcnaParHistos::BuildStandardDetectorCode(const TString UserDetector)
-{
-  TString StandardDetectorCode = "?";
-
-  if( UserDetector == "Super-module" || UserDetector == "SuperModule" ||
-      UserDetector == "super-module" || UserDetector == "SM" )
-    {StandardDetectorCode = "SM";}
-
-   if( UserDetector == "DEE" || UserDetector == "Dee" )
-    {StandardDetectorCode = "Dee";}
-
-   if( UserDetector == "Ecal barrel" || UserDetector == "EcalBarrel" || 
-       UserDetector == "ecal barrel" || UserDetector == "Barrel"     || UserDetector == "barrel" || 
-       UserDetector == "EB" )
-    {StandardDetectorCode = "EB";}
-
-   if( UserDetector == "Ecal endcap" || UserDetector == "EcalEndcap" || 
-       UserDetector == "ecal endcap" || UserDetector == "Endcap"     || UserDetector == "endcap" || 
-       UserDetector == "EE" )
-    {StandardDetectorCode = "EE";}
-
-   if( StandardDetectorCode == "?" )
-    {
-      cout << "*TEcnaParHistos::BuildStandardDetectorCode(...)> UserDetector = " << UserDetector
-	   << " : code not found (NB: relevant codes can be added in method TEcnaParHistos::BuildStandardDetectorCode)."
-	   << fTTBELL << endl;
-    }
-  return StandardDetectorCode;
-}
-
-//----------------------- BuildStandardPlotOption
-TString TEcnaParHistos::BuildStandardPlotOption(const TString CallingMethod, const TString UserPlotOption)
-{
-  TString StandardPlotOption = "?";
-
-  if( CallingMethod == "1D" || CallingMethod == "2DS" || CallingMethod == "Time" )
-    {
-      if( UserPlotOption ==  "ONLY ONE" || UserPlotOption ==  "ONLY ONE" ||
-	  UserPlotOption ==  "Only one" || UserPlotOption ==  "OnlyOne"  ||
-	  UserPlotOption ==  ""         || UserPlotOption ==  " "        ||
-	  UserPlotOption ==  "ONLYONE"  || UserPlotOption == fOnlyOnePlot )
-	{StandardPlotOption = fOnlyOnePlot;}
-
-      if( UserPlotOption == "SAME" || UserPlotOption ==  "Same" || UserPlotOption == fSeveralPlot )
-	{StandardPlotOption = fSeveralPlot;}
-
-      if( UserPlotOption ==  "SAME n" || UserPlotOption ==  "Same n" || UserPlotOption == fSameOnePlot )
-	{StandardPlotOption = fSameOnePlot;}
-
-      if( UserPlotOption == fAllXtalsInStinPlot )  // called with 1D after call with 1DX (special case "SAME in Stin")
-	{StandardPlotOption = fAllXtalsInStinPlot;}
-    }
-
-  if( CallingMethod == "1DX" )
-    {
-      if( UserPlotOption == "ALL XTALS IN TOWER" || UserPlotOption == "ALL CHANNELS IN TOWER" ||
-	  UserPlotOption == "AllXtalsInTower"    || UserPlotOption == "AllChannelsInTower" ||
-	  UserPlotOption == "ALL XTALS IN TOW"   || UserPlotOption == "ALL CHANNELS IN TOW" ||
-	  UserPlotOption == "AllXtalsInTow"      || UserPlotOption == "AllChannelsInTow" ||
-	  UserPlotOption == "ALL XTALS IN SC"    || UserPlotOption == "ALL CHANNELS IN SC" ||
-	  UserPlotOption == "AllXtalsInSC"       || UserPlotOption == "AllChannelsInSC" ||
-	  UserPlotOption == "SAME IN TOWER"      || UserPlotOption == "SameInTower" || 
-	  UserPlotOption == "SAME IN TOW"        || UserPlotOption == "SameInTow" || 
-	  UserPlotOption == "SAME IN SC"         || UserPlotOption == "SameInSC"  ||
-	  UserPlotOption == "Same in tower"      || UserPlotOption == "Same in tow" ||
-	  UserPlotOption == "Same in SC"         || UserPlotOption == "SameInSC" ||
-	  UserPlotOption ==  ""                  || UserPlotOption ==  " " ||
-	  UserPlotOption == fAllXtalsInStinPlot )
-	{StandardPlotOption = fAllXtalsInStinPlot;}
-    }
-
-  if( CallingMethod == "2D" )
-    {
-      if( UserPlotOption ==  "COLZ" ||
-	  UserPlotOption ==  ""     ||
-	  UserPlotOption ==  " "      ){StandardPlotOption = "COLZ";}
-      if( UserPlotOption ==  "BOX"    ){StandardPlotOption = "BOX";}
-      if( UserPlotOption ==  "TEXT"   ){StandardPlotOption = "TEXT";}
-      if( UserPlotOption ==  "CONTZ"  ){StandardPlotOption = "CONTZ";}
-      if( UserPlotOption ==  "LEGO2Z" ){StandardPlotOption = "LEGO2Z";}
-      if( UserPlotOption ==  "SURF1Z" ){StandardPlotOption = "SURF1Z";}
-      if( UserPlotOption ==  "SURF2Z" ){StandardPlotOption = "SURF2Z";}
-      if( UserPlotOption ==  "SURF3Z" ){StandardPlotOption = "SURF3Z";}
-      if( UserPlotOption ==  "SURF4"  ){StandardPlotOption = "SURF4";}
-      if( UserPlotOption ==  "ASCII"  ){StandardPlotOption = "ASCII";}
-    }
-
-  //...................................................
-  if( StandardPlotOption == "?" )
-    {
-      cout << "*TEcnaParHistos::BuildStandardPlotOption(...)> UserPlotOption = " << UserPlotOption
-	   << " : code not found (NB: relevant codes can be added in method TEcnaParHistos::BuildStandardPlotOption)."
-	   << fTTBELL << endl;
-    }
-  return StandardPlotOption;
-}
-
-//----------------------- BuildStandardHistoCode
-TString TEcnaParHistos::BuildStandardHistoCode(const TString CallingMethod, const TString UserHistoCode)
-{
-  //........................... user code -> standard code
-  TString StandardHistoCode = "?";
-
-  if( CallingMethod == "1D" || CallingMethod == "2DS" || CallingMethod == "Time" )
-    {
-      //======================================== Histos
-      if( UserHistoCode == "Number of events" || UserHistoCode == "Nb of evts" || 
-	  UserHistoCode == "NumberbOfEvents"  || UserHistoCode == "NbOfEvts"   ||
-	  UserHistoCode == "number of events" || UserHistoCode == "noe" ||
-	  UserHistoCode == "NOE" )
-	{StandardHistoCode = "NOE";}
- 
-      if( UserHistoCode == "Pedestals" || UserHistoCode == "Pedestal" ||
-	  UserHistoCode == "pedestals" || UserHistoCode == "pedestal" ||
-	  UserHistoCode == "ped"       || UserHistoCode == "Ped" )
-	{StandardHistoCode = "Ped";}
-
-      if( UserHistoCode == "Total noise" || UserHistoCode == "TotalNoise" ||
-	  UserHistoCode == "total noise" || UserHistoCode == "TN" ||
-	  UserHistoCode == "tn"          || UserHistoCode == "TNo" )
-	{StandardHistoCode = "TNo";}
-
-      if( UserHistoCode == "Low frequency noise" || UserHistoCode == "LowFrequencyNoise" ||
-	  UserHistoCode == "LF noise"            || UserHistoCode == "LFNoise" || 
-	  UserHistoCode == "low frequency noise" || UserHistoCode == "lfn" ||
-	  UserHistoCode == "LFN")
-	{StandardHistoCode = "LFN";}
-
-      if( UserHistoCode == "High frequency noise" || UserHistoCode == "HighFrequencyNoise" ||
-	  UserHistoCode == "HF noise"             || UserHistoCode == "HFNoise" || 
-	  UserHistoCode == "high frequency noise" ||
-	  UserHistoCode == "hfn" || UserHistoCode == "HFN")
-	{StandardHistoCode = "HFN";}
-
-      if( UserHistoCode == "Mean correlations between samples" ||  
-	  UserHistoCode == "MeanCorrelationsBetweenSamples" || 
-	  UserHistoCode == "Correlations between samples" ||  
-	  UserHistoCode == "CorrelationsBetweenSamples" || 
-	  UserHistoCode == "Mean corss" || UserHistoCode == "MeanCorss" ||   
-	  UserHistoCode == "Corss" || UserHistoCode == "corss" ||   
-	  UserHistoCode == "Css"   || UserHistoCode == "css" ||
-	  UserHistoCode == "mean correlations between samples" ||
-	  UserHistoCode == "mcs" || UserHistoCode == "MCs" )
-	{StandardHistoCode = "MCs";}
-
-      if( UserHistoCode == "Sigma of correlations between samples" ||  
-	  UserHistoCode == "SigmaOfCorrelationsBetweenSamples" || 
-	  UserHistoCode == "Sigma corss" || UserHistoCode == "SigmaCorss" ||   
-	  UserHistoCode == "SigCorss" || UserHistoCode == "sigcorss" ||   
-	  UserHistoCode == "SCss"   || UserHistoCode == "scss" ||
-	  UserHistoCode == "sigma of correlations between samples" ||
-	  UserHistoCode == "scs" || UserHistoCode == "SCs")
-	{StandardHistoCode = "SCs";}
-
-      if( UserHistoCode == "Number of crystals" || UserHistoCode == "NumberOfCrystals" ||
-	  UserHistoCode == "Nb of crystals" || UserHistoCode == "NbOfCrystals" ||
-	  UserHistoCode == "Number of xtals" || UserHistoCode == "NumberOfXtals" ||
-	  UserHistoCode == "Nb of xtals" || UserHistoCode == "NbOfXtals" ||
-	  UserHistoCode == "nox" || UserHistoCode == "NOX" )
-	{StandardHistoCode = "NOX";}
-
-      if( UserHistoCode == "Number of samples" || UserHistoCode == "NumberOfSamples" ||
-	  UserHistoCode == "Nb of samples" || UserHistoCode == "NbOfSamples" ||
-	  UserHistoCode == "nos" || UserHistoCode == "NOS" )
-	{StandardHistoCode = "NOS";}
-
-      if( UserHistoCode == "Sample number" || UserHistoCode == "SampleNumber" ||
-	  UserHistoCode == "Sample#" || UserHistoCode == "Samp#" ||
-	  UserHistoCode == "Sample" || UserHistoCode == "sample" ||
-	  UserHistoCode == "Smp" )
-	{StandardHistoCode = "Smp";}
-
-      if( UserHistoCode == "Sample mean" || UserHistoCode == "SampleMean" ||
-	  UserHistoCode == "Sample average" || UserHistoCode == "SampleAverage" || 
-	  UserHistoCode == "SampMean" || UserHistoCode == "SampAverage" ||
-	  UserHistoCode == "MSp" )
-	{StandardHistoCode = "MSp";}
-
-      if( UserHistoCode == "Sample sigma"      || UserHistoCode == "SampleSigma" ||
-	  UserHistoCode == "Sigma of samples"  || UserHistoCode == "SigmaOfSamples" ||
-	  UserHistoCode == "SampSigma"         || 
-	  UserHistoCode == "SSp"      )
-	{StandardHistoCode = "SSp";}
-
-      if( UserHistoCode == "Event" || UserHistoCode == "event" ||
-	  UserHistoCode == "Event number" || UserHistoCode == "event number" || 
-	  UserHistoCode == "EventNumber"  || UserHistoCode == "Event#" || 
-	  UserHistoCode == "EvtNumber"    || UserHistoCode == "Evt#" ||
-	  UserHistoCode == "Evt number"   || UserHistoCode == "evt number" ||
-	  UserHistoCode == "Evt" )
-	{StandardHistoCode = "Evt";}
-
-      if( UserHistoCode == "ADC value" || UserHistoCode == "ADCValue" || 
-	  UserHistoCode == "Adc value" || UserHistoCode == "AdcValue" ||
-	  UserHistoCode == "Sample ADC" || UserHistoCode == "SampleAdc" || 
-	  UserHistoCode == "ADC" || UserHistoCode == "Adc"  )
-	{StandardHistoCode = "Adc";}
-
-      if( UserHistoCode == "date" || UserHistoCode == "Date" || UserHistoCode == "time" ||
-	  UserHistoCode == "Time" )
-	{StandardHistoCode = "Time";}
-
-      if( UserHistoCode == "Number of runs" || UserHistoCode == "NumberOfRuns" ||
-	  UserHistoCode == "Nb of runs" || UserHistoCode == "NbOfRuns" ||
-	  UserHistoCode == "nor" || UserHistoCode == "NOR" )
-	{StandardHistoCode = "NOR";}
-
-      //======================================== X_Quantity as number of xtal, tower, SC
-      if( UserHistoCode == "Tower" || UserHistoCode == "tower" || UserHistoCode == "tow" ||
-	  UserHistoCode == "Tower number" || UserHistoCode == "tower number" || UserHistoCode == "tow nb" ||
-	  UserHistoCode == "Tower#" || UserHistoCode == "tower#" || UserHistoCode == "tow#" ||
-	  UserHistoCode == "Tow#" || UserHistoCode == "Tow" )
-	{StandardHistoCode = "Tow";}
-
-      if( UserHistoCode == "Super crystal" || UserHistoCode == "SuperCrystal" || UserHistoCode == "SuperXtal" || 
-	  UserHistoCode == "Super crystal number" || UserHistoCode == "SuperCrystalNumber" ||
-	  UserHistoCode == "SuperXtalNumber" || 
-	  UserHistoCode == "Super crystal nb" || UserHistoCode == "SuperCrystal#" ||
-	  UserHistoCode == "SuperXtal#" ||
-	  UserHistoCode == "SC#" || UserHistoCode == "SC" )
-	{StandardHistoCode = "SC";}
-
-      if( UserHistoCode == "Crystal" || UserHistoCode == "crystal" || UserHistoCode == "Xtal" || 
-	  UserHistoCode == "Crystal number" || UserHistoCode == "crystal number" || UserHistoCode == "Xtal number" || 
-	  UserHistoCode == "Crystal#" || UserHistoCode == "crystal#" || UserHistoCode == "Xtal#" ||
-	  UserHistoCode == "Xtal" )
-	{StandardHistoCode = "Xtal";}
-
-      if( StandardHistoCode == "Tow" || StandardHistoCode == "SC" || StandardHistoCode == "Xtal" )
-	{StandardHistoCode = "XtalORStin";} // management by means of fFapStexNumber ( >0 => Xtal ; =0 => Tow .OR. SC )
-    }
-
-  if( CallingMethod == "2D" )
-    {
-      //======================================== Correlation or covariance (CorOrCov)
-      if( UserHistoCode == "Correlation" || UserHistoCode == "Correlations" ||
-	  UserHistoCode == "correlation" || UserHistoCode == "correlations" ||
-	  UserHistoCode == "Correl"      || UserHistoCode == "correl" ||
-	  UserHistoCode == "cor"         || UserHistoCode == "Cor" )
-	{StandardHistoCode = "Cor";}
-
-      if( UserHistoCode == "Covariance" || UserHistoCode == "Covariances" ||
-	  UserHistoCode == "covariance" || UserHistoCode == "covariances" ||
-	  UserHistoCode == "Covar"      || UserHistoCode == "covar" ||
-	  UserHistoCode == "cov"        || UserHistoCode == "Cov" )
-	{StandardHistoCode = "Cov";}
-
-      //======================================== Quantity for correlations (BetweenWhat)
-      if( UserHistoCode == "LF towers"    || UserHistoCode == "LF between towers" ||
-	  UserHistoCode == "LFTowers"     || UserHistoCode == "LFBetweenTowers" ||
-	  UserHistoCode == "LFTow"        || UserHistoCode == "lftow" ||
-	  UserHistoCode == "LFtt"         || UserHistoCode == "lftt"  ||
-	  UserHistoCode == "LF SCs"       || UserHistoCode == "LF between SCs" ||
-	  UserHistoCode == "LFSCs"        || UserHistoCode == "LFBetweenSCs" ||
-	  UserHistoCode == "LFSuperXtals" || UserHistoCode == "lfsc" ||
-	  UserHistoCode == "LFSC"         || UserHistoCode == "lfsx" ||
-	  UserHistoCode == "MttLF" )
-	{StandardHistoCode = "MttLF";}
-
-      if( UserHistoCode == "HF towers"    || UserHistoCode == "HF between towers" ||
-	  UserHistoCode == "HFTowers"     || UserHistoCode == "HFBetweenTowers" ||
-	  UserHistoCode == "HFTow"        || UserHistoCode == "hftow" || 
-	  UserHistoCode == "HFtt"         || UserHistoCode == "hftt"  ||
-	  UserHistoCode == "HF SCs"       || UserHistoCode == "HF between SCs" ||
-	  UserHistoCode == "HFSCs"        || UserHistoCode == "HFBetweenSCs" ||
-	  UserHistoCode == "HFSuperXtals" || UserHistoCode == "hfsc" ||
-	  UserHistoCode == "HFSC"         || UserHistoCode == "hfsx" ||
-	  UserHistoCode == "MttHF" )
-	{StandardHistoCode = "MttHF";}
-
-      if( UserHistoCode == "LF channels" || UserHistoCode == "LF between channels" ||
-	  UserHistoCode == "LFChannels"  || UserHistoCode == "LFBetweenChannels" ||
-	  UserHistoCode == "LFChan"      || UserHistoCode == "lfchan" || 
-	  UserHistoCode == "LFcc"        || UserHistoCode == "lfcc"   || UserHistoCode == "MccLF" )
-	{StandardHistoCode = "MccLF";}
-
-      if( UserHistoCode == "HF channels" || UserHistoCode == "HF between channels" ||
-	  UserHistoCode == "HFChannels"  || UserHistoCode == "HFBetweenChannels" ||
-	  UserHistoCode == "HFChan"      || UserHistoCode == "hfchan" || 
-	  UserHistoCode == "HFcc"        || UserHistoCode == "hfcc"   || UserHistoCode == "MccHF" )
-	{StandardHistoCode = "MccHF";}
-
-      if( UserHistoCode == "Samples" || UserHistoCode == "Between samples" || 
-	  UserHistoCode == "samples" || UserHistoCode == "between samples" ||
-	  UserHistoCode == "BetweenSamples" ||
-	  UserHistoCode == "Samp" || UserHistoCode == "samp" ||
-	  UserHistoCode == "ss" || UserHistoCode == "Mss" )
-	{StandardHistoCode = "Mss";}
-    }
-
-  //---------------------------------------------
-  if( StandardHistoCode == "?" )
-    {
-      cout << "*TEcnaParHistos::BuildStandardHistoCode(...)> UserHistoCode = " << UserHistoCode
-	   << " : code not found (NB: relevant codes can be added in method TEcnaParHistos::BuildStandardHistoCode)."
-	   << fTTBELL << endl;
-    }
-  return StandardHistoCode;
-}
-
-//.......................................................................
-TString TEcnaParHistos::GetTechHistoCode(const TString StandardHistoCode)
-{
-  TString TechHistoCode = "?";
-
-  //.................... standard code -> technical code for ViewMatrix, ViewStex, ViewStas
-  if( StandardHistoCode == "NOE" ){TechHistoCode = "D_NOE_ChNb";}
-  if( StandardHistoCode == "Ped" ){TechHistoCode = "D_Ped_ChNb";}
-  if( StandardHistoCode == "TNo" ){TechHistoCode = "D_TNo_ChNb";}
-  if( StandardHistoCode == "LFN" ){TechHistoCode = "D_LFN_ChNb";}
-  if( StandardHistoCode == "HFN" ){TechHistoCode = "D_HFN_ChNb";}
-  if( StandardHistoCode == "MCs" ){TechHistoCode = "D_MCs_ChNb";}
-  if( StandardHistoCode == "SCs" ){TechHistoCode = "D_SCs_ChNb";}
-
-  if( TechHistoCode == "?" )
-    {
-      cout << "*TEcnaParHistos::GetTechHistoCode(...)> StandardHistoCode = " << StandardHistoCode
-	   << " : code not found " << fTTBELL << endl;
-    }
-  return TechHistoCode;
-}
-
-//.......................................................................................................
-TString TEcnaParHistos::GetTechHistoCode(const TString X_Quantity, const TString Y_Quantity)
-{
-  //........................... (X,Y) standard codes -> technical code
-  TString TechHistoCode = "?";
-
-  //........................... Matrix or Histo type
-  if ( X_Quantity == "XtalORStin" && Y_Quantity == "NOE" ){TechHistoCode = "D_NOE_ChNb";}
-  if ( X_Quantity == "XtalORStin" && Y_Quantity == "Ped" ){TechHistoCode = "D_Ped_ChNb";}
-  if ( X_Quantity == "XtalORStin" && Y_Quantity == "TNo" ){TechHistoCode = "D_TNo_ChNb";}
-  if ( X_Quantity == "XtalORStin" && Y_Quantity == "LFN" ){TechHistoCode = "D_LFN_ChNb";}
-  if ( X_Quantity == "XtalORStin" && Y_Quantity == "HFN" ){TechHistoCode = "D_HFN_ChNb";}
-  if ( X_Quantity == "XtalORStin" && Y_Quantity == "MCs" ){TechHistoCode = "D_MCs_ChNb";}
-  if ( X_Quantity == "XtalORStin" && Y_Quantity == "SCs" ){TechHistoCode = "D_SCs_ChNb";}
-
-  if ( X_Quantity == "NOE" && Y_Quantity == "NOX" ){TechHistoCode = "D_NOE_ChDs";}
-  if ( X_Quantity == "Ped" && Y_Quantity == "NOX" ){TechHistoCode = "D_Ped_ChDs";}
-  if ( X_Quantity == "TNo" && Y_Quantity == "NOX" ){TechHistoCode = "D_TNo_ChDs";}
-  if ( X_Quantity == "LFN" && Y_Quantity == "NOX" ){TechHistoCode = "D_LFN_ChDs";}
-  if ( X_Quantity == "HFN" && Y_Quantity == "NOX" ){TechHistoCode = "D_HFN_ChDs";}
-  if ( X_Quantity == "MCs" && Y_Quantity == "NOX" ){TechHistoCode = "D_MCs_ChDs";}
-  if ( X_Quantity == "SCs" && Y_Quantity == "NOX" ){TechHistoCode = "D_SCs_ChDs";}
-
-  if ( X_Quantity == "Smp" && Y_Quantity == "MSp" ){TechHistoCode = "D_MSp_SpNb";}
-  if ( X_Quantity == "MSp" && Y_Quantity == "NOS" ){TechHistoCode = "D_MSp_SpDs";}
-  if ( X_Quantity == "Smp" && Y_Quantity == "SSp" ){TechHistoCode = "D_SSp_SpNb";}
-  if ( X_Quantity == "SSp" && Y_Quantity == "NOS" ){TechHistoCode = "D_SSp_SpDs";}
-
-  if ( X_Quantity == "Evt" && Y_Quantity == "Adc" ){TechHistoCode = "D_Adc_EvNb";}
-  if ( X_Quantity == "Adc" && Y_Quantity == "NOE" ){TechHistoCode = "D_Adc_EvDs";}
-
-  //................................ Histime type
-  if( X_Quantity == "Time" && Y_Quantity == "Ped" ){TechHistoCode = "H_Ped_Date";}
-  if( X_Quantity == "Ped"  && Y_Quantity == "NOR" ){TechHistoCode = "H_Ped_RuDs";}
-
-  if( X_Quantity == "Time" && Y_Quantity == "TNo" ){TechHistoCode = "H_TNo_Date";}
-  if( X_Quantity == "TNo"  && Y_Quantity == "NOR" ){TechHistoCode = "H_TNo_RuDs";}
-
-  if( X_Quantity == "Time" && Y_Quantity == "LFN" ){TechHistoCode = "H_LFN_Date";}
-  if( X_Quantity == "LFN"  && Y_Quantity == "NOR" ){TechHistoCode = "H_LFN_RuDs";}
-
-  if( X_Quantity == "Time" && Y_Quantity == "HFN" ){TechHistoCode = "H_HFN_Date";}
-  if( X_Quantity == "HFN"  && Y_Quantity == "NOR" ){TechHistoCode = "H_HFN_RuDs";}
-
-  if( X_Quantity == "Time" && Y_Quantity == "MCs" ){TechHistoCode = "H_MCs_Date";}
-  if( X_Quantity == "MCs"  && Y_Quantity == "NOR" ){TechHistoCode = "H_MCs_RuDs";}
-
-  if( X_Quantity == "Time" && Y_Quantity == "SCs" ){TechHistoCode = "H_SCs_Date";}
-  if( X_Quantity == "SCs"  && Y_Quantity == "NOR" ){TechHistoCode = "H_SCs_RuDs";}
-
-  if( TechHistoCode == "?" )
-    {
-      cout << "TEcnaParHistos::GetTechHistoCode(...)> HistoCode not found. X_Quantity = " << X_Quantity
-	   << ", Y_Quantity = "<< Y_Quantity << endl;
-    }
-  return TechHistoCode;
-}
-
-TString TEcnaParHistos::GetCodeOnlyOnePlot(){return fOnlyOnePlot;}
-TString TEcnaParHistos::GetCodeSeveralPlot(){return fSeveralPlot;}
-TString TEcnaParHistos::GetCodeSameOnePlot(){return fSameOnePlot;}
-TString TEcnaParHistos::GetCodeAllXtalsInStinPlot(){return fAllXtalsInStinPlot;}
-Int_t   TEcnaParHistos::GetCodePlotAllXtalsInStin(){return fPlotAllXtalsInStin;}
-
 //================== End of TEcnaParHistos.cc ========================

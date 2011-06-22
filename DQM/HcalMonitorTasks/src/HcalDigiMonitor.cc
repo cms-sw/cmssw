@@ -404,7 +404,8 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 	  // repeat for minbias triggers
 	  for (unsigned int k=0;k<MinBiasHLTBits_.size();++k)
 	    {
-	      if (triggerNames.triggerName(i)==MinBiasHLTBits_[k] && hltRes->accept(i))
+	      // if (triggerNames.triggerName(i)==MinBiasHLTBits_[k] && hltRes->accept(i))
+	      if (triggerNames.triggerName(i).find(MinBiasHLTBits_[k])!=std::string::npos && hltRes->accept(i))
 		{ 
 		  passedMinBiasHLT_=true;
 		  break;
@@ -1389,6 +1390,15 @@ void HcalDigiMonitor::zeroCounters()
 	      hfHists.tssumminus[i][j]=0;
 	    }
 	}
+
+      if (i<15)
+	{
+	  hbHists.fibbcnoff[i]=0;
+	  heHists.fibbcnoff[i]=0;
+	  hoHists.fibbcnoff[i]=0;
+	  hfHists.fibbcnoff[i]=0;
+	}
+
       if (i<200)
 	{
 	  hbHists.adc[i]=0;

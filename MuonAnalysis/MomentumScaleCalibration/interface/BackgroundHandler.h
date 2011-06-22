@@ -78,8 +78,7 @@ public:
   std::pair<double, double> backgroundFunction( const bool doBackgroundFit,
 						const double * parval, const int resTotNum, const int ires,
 						const bool * resConsidered, const double * ResMass, const double ResHalfWidth[],
-						/* const int MuonType, const double & mass, const double & resEta ); */
-						const int MuonType, const double & mass, const double & eta1, const double & eta2 );
+						const int MuonType, const double & mass, const double & resEta );
 private:
   /// Used to check the consistency of passed parameters
   void consistencyCheck( const std::vector<int> & identifiers,

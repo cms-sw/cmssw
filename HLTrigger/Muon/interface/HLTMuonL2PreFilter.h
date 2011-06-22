@@ -60,7 +60,7 @@ class HLTMuonL2PreFilter : public HLTFilter {
     double nSigmaPt_;
 
     /// should we save the input collection ?
-    bool saveTag_;
+    bool saveTags_;
 };
 
 #endif //HLTMuonL2PreFilter_h

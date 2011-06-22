@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.33 2010/09/14 15:15:15 kukartse Exp $
+// $Id: Muon.h,v 1.34 2010/09/29 13:24:25 wreece Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -17,7 +17,7 @@
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
 
-  \version  $Id: Muon.h,v 1.33 2010/09/14 15:15:15 kukartse Exp $
+  \version  $Id: Muon.h,v 1.34 2010/09/29 13:24:25 wreece Exp $
 */
 
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -181,10 +181,13 @@ namespace pat {
 	void initImpactParameters(void); // init IP defaults in a constructor
 	double dB(IpType type = None) const;
 	double edB(IpType type = None) const;
-	void   setDB ( double dB, double edB, IpType type = None ) 
-	{ dB_ = dB; edB_ = edB; if (type == None) cachedDB_ = true;
-	  ip_[type] = dB; eip_[type] = edB; cachedIP_[type] = true;}
-	
+	void   setDB ( double dB, double edB, IpType type = None ) { 
+	  if (type == None) {
+	    dB_ = dB; edB_ = edB; 
+	    cachedDB_ = true;
+	  }
+	  ip_[type] = dB; eip_[type] = edB; cachedIP_[type] = true;
+	}
 
       /// numberOfValidHits returns the number of valid hits on the global track.
       unsigned int numberOfValidHits() const;

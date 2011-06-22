@@ -1,6 +1,6 @@
 # FFTJet clustering tree dumper configuration
 
-import os, errno
+import os, errno, sys
 import FWCore.ParameterSet.Config as cms
 
 from RecoJets.FFTJetProducers.fftjetcommon_cfi import *
@@ -15,7 +15,8 @@ def mkdir_p(path):
 
 # Output directory for the trees
 clustering_trees_outdir = "./ClusteringTrees"
-mkdir_p(clustering_trees_outdir)
+if (sys.argv[0] == "cmsRun"):
+    mkdir_p(clustering_trees_outdir)
 
 # Base name for the output files
 trees_basename = "clustree"
