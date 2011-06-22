@@ -16,7 +16,8 @@ PFTauQualityCuts = cms.PSet(
         maxTrackChi2                 = cms.double(100.), # require track Chi2
         maxTransverseImpactParameter = cms.double(0.03), # w.r.t. PV
         maxDeltaZ                    = cms.double(0.2),  # w.r.t. PV
-        minTrackVertexWeight         = cms.double(10e-4), # Tracks weight in vertex
+        #minTrackVertexWeight         = cms.double(10e-4), # Tracks weight in vertex
+        minTrackVertexWeight         = cms.double(-1), # Tracks weight in vertex
         minTrackPixelHits            = cms.uint32(0),    # pixel-only hits (note that these cuts are turned off,
         # the tracking cuts might be higher)
         minTrackHits                 = cms.uint32(3),    # total track hits
