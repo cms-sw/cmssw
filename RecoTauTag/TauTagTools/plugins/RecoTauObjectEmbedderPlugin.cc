@@ -88,6 +88,7 @@ void RecoTauObjectEmbedder<T>::operator()(PFTau& tau) const {
         );
   } else {
     tau.setbremsRecoveryEOverPLead(-10);
+    tau.setalternatLorentzVect(reco::Candidate::LorentzVector());
   }
 }
 }}  // end namespace reco::tau
