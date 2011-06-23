@@ -17,7 +17,7 @@
 // part of the code was inspired by http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/YGao/LhcTrackAnalyzer/
 // part of the code was inspired by 
 // other inputs from Andrea Giammanco, Gaelle Boudoul, Andrea Venturi, Steven Lowette, Gavril Giurgiu
-// $Id: TrackerDpgAnalysis.cc,v 1.10 2011/04/05 13:20:25 delaer Exp $
+// $Id: TrackerDpgAnalysis.cc,v 1.8 2010/07/27 15:14:31 delaer Exp $
 //
 //
 
@@ -60,6 +60,7 @@
 #include <Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h>
 #include <Geometry/CommonTopologies/interface/PixelTopology.h>
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
@@ -851,7 +852,7 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
          angle_ = *angleIt;
          thickness_ =  ((((DSViter->id()>>25)&0x7f)==0xd) ||
                        ((((DSViter->id()>>25)&0x7f)==0xe) && (((DSViter->id()>>5)&0x7)>4))) ? 500 : 300;
-         stripLength_ = static_cast<const StripGeomDetUnit*>(tracker_->idToDet(detid))->specificTopology().stripLength();
+         stripLength_ = static_cast<const StripGeomDetUnit*>(tracker_->idToDet(iter->geographicalId()))->specificTopology().stripLength();
          int nstrips  = static_cast<const StripGeomDetUnit*>(tracker_->idToDet(detid))->specificTopology().nstrips();
          maxCharge_ = siStripClusterInfo->maxCharge();
          // signal and noise with gain corrections
@@ -1060,12 +1061,12 @@ std::vector<double> TrackerDpgAnalysis::onTrackAngles(edm::Handle<edmNew::DetSet
   for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=clusters->begin(); DSViter!=clusters->end();DSViter++ ) {
     edmNew::DetSet<SiStripCluster>::const_iterator begin=DSViter->begin();
     edmNew::DetSet<SiStripCluster>::const_iterator end  =DSViter->end();
-    std::pair< std::multimap<uint32_t,std::pair<LocalPoint,double> >::const_iterator,
-               std::multimap<uint32_t,std::pair<LocalPoint,double> >::const_iterator> range =  
-      onTrackPositions.equal_range(DSViter->id());
-    const GeomDetUnit* gdu = static_cast<const GeomDetUnit*>(tracker_->idToDet(DSViter->id()));
     for(edmNew::DetSet<SiStripCluster>::const_iterator iter=begin;iter!=end;++iter) {
       angle = 0.;
+      std::pair< std::multimap<uint32_t,std::pair<LocalPoint,double> >::const_iterator,
+                 std::multimap<uint32_t,std::pair<LocalPoint,double> >::const_iterator> range =  
+        onTrackPositions.equal_range(iter->geographicalId());
+      const GeomDetUnit* gdu = static_cast<const GeomDetUnit*>(tracker_->idToDet(iter->geographicalId()));
       for(std::multimap<uint32_t,std::pair<LocalPoint,double> >::const_iterator cl = range.first; cl!= range.second; ++cl) {
         if(fabs(gdu->topology().measurementPosition(cl->second.first).x()-iter->barycenter())<2) {
 	  angle = cl->second.second;
@@ -1114,11 +1115,11 @@ std::vector<int> TrackerDpgAnalysis::onTrack(edm::Handle<edmNew::DetSetVector<Si
   for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=clusters->begin(); DSViter!=clusters->end();DSViter++ ) {
     edmNew::DetSet<SiStripCluster>::const_iterator begin=DSViter->begin();
     edmNew::DetSet<SiStripCluster>::const_iterator end  =DSViter->end();
-    std::pair< std::multimap<uint32_t,std::pair<int,int> >::const_iterator,
-               std::multimap<uint32_t,std::pair<int,int> >::const_iterator> range =  
-      onTrackPositions.equal_range(DSViter->id());
     for(edmNew::DetSet<SiStripCluster>::const_iterator iter=begin;iter!=end;++iter) {
       thetrackid = -1;
+      std::pair< std::multimap<uint32_t,std::pair<int,int> >::const_iterator,
+                 std::multimap<uint32_t,std::pair<int,int> >::const_iterator> range =  
+        onTrackPositions.equal_range(iter->geographicalId());
       for(std::multimap<uint32_t,std::pair<int,int> >::const_iterator cl = range.first; cl!= range.second; ++cl) {
         if(fabs(cl->second.first-iter->barycenter())<2) {
 	  thetrackid = cl->second.second;

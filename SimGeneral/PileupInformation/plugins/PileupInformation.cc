@@ -29,6 +29,8 @@ PileupInformation::PileupInformation(const edm::ParameterSet & config)
     pTcut_1_                = config.getParameter<double>("pTcut_1");
     pTcut_2_                = config.getParameter<double>("pTcut_2");
 
+    PileupInfoLabel_        = config.getParameter<std::string>("PileupMixingLabel");
+
     trackingTruth_  = config.getParameter<std::string>("TrackingParticlesLabel");
 
     simHitLabel_            = config.getParameter<std::string>("simHitLabel");
@@ -54,7 +56,7 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
   std::auto_ptr<std::vector<PileupSummaryInfo> > PSIVector(new std::vector<PileupSummaryInfo>);
 
   edm::Handle< PileupMixingContent > MixingPileup;  // Get True pileup information from MixingModule
-  event.getByLabel("mix", MixingPileup);
+  event.getByLabel(PileupInfoLabel_, MixingPileup);
 
   std::vector<int> BunchCrossings;
   std::vector<int> Interactions_Xing;

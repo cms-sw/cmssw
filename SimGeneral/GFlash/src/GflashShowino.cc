@@ -67,15 +67,8 @@ void GflashShowino::evaluateLengths() {
   if (std::fabs(eta) < Gflash::EtaMax[Gflash::kESPM]) {
     thePathLengthOnEcal   = theHelix->getPathLengthAtRhoEquals(Gflash::RFrontCrystalEB);
     thePathLengthAtShower = theHelix->getPathLengthAtRhoEquals(thePosition.getRho());
-    double pathLengthAtHcalBack = theHelix->getPathLengthAtRhoEquals(Gflash::Rmax[Gflash::kHB]);
-    if (pathLengthAtHcalBack>0) {
-      theStepLengthToOut  = std::min(300.,pathLengthAtHcalBack - thePathLengthAtShower);
-    }
-    else {
-      theStepLengthToOut  = 200.;
-    }
+    theStepLengthToOut    = std::min(300.,theHelix->getPathLengthAtRhoEquals(Gflash::Rmax[Gflash::kHB]) - thePathLengthAtShower);
     theStepLengthToHcal   = theHelix->getPathLengthAtRhoEquals(Gflash::Rmin[Gflash::kHB]) - thePathLengthAtShower;
-
   }
   else if (std::fabs(eta) < Gflash::EtaMax[Gflash::kENCA] ) {
     double zsign = (eta > 0) ? 1.0 : -1.0 ; 
@@ -88,10 +81,11 @@ void GflashShowino::evaluateLengths() {
     //@@@extend for HF later
     theStepLengthToOut = 200.0;
   }
-  
+
   thePathLength = thePathLengthAtShower;
 
 }
+
 
 Gflash3Vector& GflashShowino::simulateFirstInteractionPoint(int fastSimShowerType, Gflash3Vector &position) {
 

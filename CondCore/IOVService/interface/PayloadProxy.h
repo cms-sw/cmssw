@@ -31,6 +31,8 @@ namespace cond {
     typedef  std::vector<ObjId> ObjIds;
     struct Stats {
       int nProxy;
+      int nRefresh;
+      int nArefresh;
       int nMake;
       int nLoad;
       ObjIds ids;
@@ -43,8 +45,15 @@ namespace cond {
 
     // errorPolicy=true will throw on load, false will set interval and token to invalid
     BasePayloadProxy(cond::DbSession& session,
+                     bool errorPolicy);
+
+    // errorPolicy=true will throw on load, false will set interval and token to invalid
+    BasePayloadProxy(cond::DbSession& session,
                      const std::string & token,
                      bool errorPolicy);
+
+    void loadIov( const std::string iovToken );
+    void loadTag( const std::string tag );
     
     virtual ~BasePayloadProxy();
 
@@ -101,6 +110,11 @@ namespace cond {
   class PayloadProxy : public BasePayloadProxy {
   public:
  
+    PayloadProxy(cond::DbSession& session,
+                 bool errorPolicy,
+                 const char * source=0) :
+      BasePayloadProxy(session, errorPolicy) {}
+
     PayloadProxy(cond::DbSession& session,
                  const std::string & token,
                  bool errorPolicy,

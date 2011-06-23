@@ -10,6 +10,8 @@ _defaultTriggerMatchers      = [ 'cleanMuonTriggerMatchHLTMu20'
                                , 'cleanTauTriggerMatchHLTDoubleIsoPFTau20Trk5'
                                , 'cleanJetTriggerMatchHLTJet240'
                                , 'metTriggerMatchHLTMET100'
+                               , 'cleanMuonTriggerMatchHLTMu17CentralJet30'
+                               , 'cleanJetTriggerMatchHLTMu17CentralJet30'
                                ]
 _defaultTriggerProducer      = 'patTrigger'
 _defaultTriggerEventProducer = 'patTriggerEvent'

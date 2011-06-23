@@ -88,6 +88,7 @@ class pp(Scenario):
 
         skims = ['SiStripCalZeroBias',
                  'TkAlMinBias',
+                 'DtCalib',
                  'MuAlCalIsolatedMu',
                  'SiStripPCLHistos']
         step = stepALCAPRODUCER(skims)

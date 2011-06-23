@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/04/11 13:55:05 $
- *  $Revision: 1.40 $
+ *  $Date: 2011/04/11 13:49:33 $
+ *  $Revision: 1.38.6.2 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -723,19 +723,16 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       VertexCollection vertexCollection = *(vertexHandle.product());
       int vertex_number     = vertexCollection.size();
       VertexCollection::const_iterator v = vertexCollection.begin();
-      for ( ; v != vertexCollection.end(); ++v) {
-	double vertex_chi2    = v->normalizedChi2();
-	double vertex_ndof    = v->ndof();
-	bool   fakeVtx        = v->isFake();
-	double vertex_Z       = v->z();
-	
-	if (  !fakeVtx
-	      && vertex_number>=_nvtx_min
-	      && vertex_ndof   >_vtxndof_min
-	      && vertex_chi2   <_vtxchi2_max
-	      && fabs(vertex_Z)<_vtxz_max ) 
-	  bPrimaryVertex = true;
-      }
+      double vertex_chi2    = v->normalizedChi2();
+      double vertex_ndof    = v->ndof();
+      bool   fakeVtx        = v->isFake();
+      double vertex_Z       = v->z();
+      
+      if (  !fakeVtx
+	    && vertex_number>=_nvtx_min
+	    && vertex_ndof   >_vtxndof_min
+	    && vertex_chi2   <_vtxchi2_max
+	    && fabs(vertex_Z)<_vtxz_max ) bPrimaryVertex = true;
     }
   }
   // ==========================================================
@@ -849,8 +846,7 @@ void METAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
   bool bLumiSecPlot=false;
   if (DirName.find("All")) bLumiSecPlot=true;
 
-  if (_trig_JetMB)
-    fillMonitorElement(iEvent,DirName,"",met, bLumiSecPlot);
+  if (_trig_JetMB) fillMonitorElement(iEvent,DirName,"",met, bLumiSecPlot);
   if (_trig_HighPtJet)
     fillMonitorElement(iEvent,DirName,"HighPtJet",met,false);
   if (_trig_LowPtJet)
@@ -865,6 +861,7 @@ void METAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
     fillMonitorElement(iEvent,DirName,"Ele",met,false);
   if (_trig_Muon)
     fillMonitorElement(iEvent,DirName,"Muon",met,false);
+
 }
 
 // ***********************************************************

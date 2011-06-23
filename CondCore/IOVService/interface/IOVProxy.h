@@ -59,8 +59,12 @@ namespace cond {
     IOVProxy();
     ~IOVProxy();
     
+    explicit IOVProxy(cond::DbSession& dbSession);
+
     IOVProxy(cond::DbSession& dbSession,
              const std::string & token );
+
+    void load( const std::string & token );
     
     struct IterHelp {
       typedef IOVElementProxy result_type;

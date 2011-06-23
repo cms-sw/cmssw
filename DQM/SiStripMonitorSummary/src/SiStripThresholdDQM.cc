@@ -73,12 +73,23 @@ void SiStripThresholdDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
 
     
   for( int istrip=0;istrip<nStrip;++istrip){
+    try{      
       if( CondObj_fillId_ =="onlyProfile" || CondObj_fillId_ =="ProfileAndCumul"){
 	if(WhichThreshold=="Low")
 	  selModME_.ProfileDistr->Fill(istrip+1,thresholdHandle_->getData(istrip,ThresholdRange).getLth());
 	if(WhichThreshold=="High")
 	  selModME_.ProfileDistr->Fill(istrip+1,thresholdHandle_->getData(istrip,ThresholdRange).getHth());
       }
+    } 
+    catch(cms::Exception& e){
+      edm::LogError("SiStripThresholdDQM")          
+	<< "[SiStripThresholdDQM::fillMEsForDet] cms::Exception accessing thresholdHandle_->getData(istrip,ThresholdRange) for strip "  
+	<< istrip 
+	<< " and detid " 
+	<< selDetId_  
+	<< " :  " 
+	<< e.what() ;
+    }
   }// istrip
   
     
@@ -146,6 +157,7 @@ void SiStripThresholdDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_
     
     for( int istrip=0;istrip<nStrip;++istrip){
     
+      try{ 
 	if( CondObj_fillId_ =="onlyProfile" || CondObj_fillId_ =="ProfileAndCumul"){
 	  if(WhichThreshold=="Low"){
 	    selME_.SummaryOfProfileDistr->Fill(istrip+1,thresholdHandle_->getData(istrip,ThresholdRange).getLth());
@@ -156,6 +168,16 @@ void SiStripThresholdDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_
 	    if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")) fillTkMap(selDetId_, thresholdHandle_->getData(istrip,ThresholdRange).getHth());
 	  }
 	}
+      } 
+      catch(cms::Exception& e){
+	edm::LogError("SiStripThresholdDQM")          
+	  << "[SiStripThresholdDQM::fillMEsForLayer] cms::Exception accessing thresholdHandle_->getData(istrip,ThresholdRange) for strip "  
+	  << istrip 
+	  << " and detid " 
+	  << selDetId_  
+	  << " :  " 
+	  << e.what() ;
+      }
     }// istrip	
 
 
@@ -183,8 +205,20 @@ void SiStripThresholdDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_
   
     for( int istrip=0;istrip<nStrip;++istrip){
     
+      try{
 	meanLowThreshold = meanLowThreshold + thresholdHandle_->getData(istrip,ThresholdRange).getLth();
 	meanHighThreshold = meanHighThreshold + thresholdHandle_->getData(istrip,ThresholdRange).getHth();
+      }
+      catch(cms::Exception& e){
+	edm::LogError("SiStripNoisesDQM")          
+	  << "[SiStripNoisesDQM::fillMEsForLayer] cms::Exception accessing thresholdHandle_->getThreshold(istrip,ThresholdRange) for strip "  
+	  << istrip 
+	  << "and detid " 
+	  << selDetId_  
+	  << " :  " 
+	  << e.what() ;      
+      }
+    
     }//istrip
   
   

@@ -29,3 +29,23 @@ class WorkFlow(object):
             cmd+=' -n '+str(nEvtDefault)+' '
         return cmd
 
+
+class WorkFlowConnector(object):
+    def __init__(self):
+        self.moduleName=''
+        self.tier=''
+        self.fileName=''
+    
+class WorkFlowBlock(object):
+    def __init__(self, name,cmdDict):
+        self.nameId = name
+        self.command = ''#made from the cmdDict
+
+        ##I/O of the block
+        self.ins=None
+        self.outs=None
+
+    def getProcess(self):
+        #get ConfigBuilder to give a process back
+        return None
+    

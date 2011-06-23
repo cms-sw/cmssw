@@ -37,12 +37,14 @@ class MatrixReader(object):
                              'relval_highstats': 'hi-'  ,
                              'relval_pileup': 'PU-'  ,
                              'relval_generator': 'gen-'  ,
+                             'relval_production': 'prod-'  ,
                              }
 
         self.files = ['relval_standard' ,
                       'relval_highstats',
                       'relval_pileup',
                       'relval_generator',
+                      'relval_production',
                       ]
 
         self.relvalModule = None
@@ -131,7 +133,10 @@ class MatrixReader(object):
                     raise MatrixException(msg)
 
                 if (not input) and (stepIndex!=0) and (not 'filein' in opts):
-                    opts+=' --filein file:step%d.root '%(stepIndex,)
+                    if 'HARVESTING' in opts:
+                        opts+=' --filein file:step%d_inDQM.root '%(stepIndex,)
+                    else:
+                        opts+=' --filein file:step%d.root '%(stepIndex,)
                 if (not input) and (not 'fileout' in opts):
                     opts+=' --fileout file:step%d.root '%(stepIndex+1,)
                 

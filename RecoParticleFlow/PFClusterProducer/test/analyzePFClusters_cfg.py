@@ -5,7 +5,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
 )
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:clustering_reco.root')
+    fileNames = cms.untracked.vstring('file:clustering.root')
 )
 
 process.pfClusterAnalyzer = cms.EDAnalyzer("PFClusterAnalyzer",

@@ -177,7 +177,8 @@ def reconfigurePF2PATTaus(process,
 
       tauCollectionToSelect = None
       if tauType != 'hpsPFTau' :
-          tauCollectionToSelect = cms.InputTag(clonedDisc.PFTauProducer.value()+postfix)
+          tauCollectionToSelect = "pfTausBase"+postfix
+          #cms.InputTag(clonedDisc.PFTauProducer.value()+postfix)
       else:
           tauCollectionToSelect = "hpsPFTauProducer"+postfix
       # Adapt this discriminator for the cloned prediscriminators
@@ -200,7 +201,8 @@ def reconfigurePF2PATTaus(process,
       tauCollectionToSelect = None
 
       if tauType != 'hpsPFTau' :
-          tauCollectionToSelect = cms.InputTag(clonedDisc.PFTauProducer.value()+postfix)
+          tauCollectionToSelect = cms.InputTag("pfTausBase"+postfix)
+          #cms.InputTag(clonedDisc.PFTauProducer.value()+postfix)
       else:
           tauCollectionToSelect = cms.InputTag("hpsPFTauProducer"+postfix)
       #Adapt our cloned discriminator to the new prediscriminants
@@ -229,7 +231,7 @@ def adaptPFTaus(process,tauType = 'shrinkingConePFTau', postfix = ""):
         reconfigurePF2PATTaus(process, tauType, postfix=postfix)
     else:
         reconfigurePF2PATTaus(process, tauType,
-                              ["DiscriminationByLooseIsolation"],
+                              ["DiscriminationByLooseChargedIsolation","DiscriminationByLooseIsolation"],
                               ["DiscriminationByDecayModeFinding"],
                               postfix=postfix)
     applyPostfix(process,"patTaus", postfix).tauSource = cms.InputTag("pfTaus"+postfix)
@@ -278,9 +280,8 @@ def addPFCandidates(process,src,patLabel='PFParticles',cut="",postfix=""):
         applyPostfix(process, "selectedPatCandidateSummary", postfix),
         filter+applyPostfix(process, "selectedPatCandidateSummary", postfix)
     )
-
-    tmpCountPatCandidates = applyPostfix(process, "countPatCandidates", postfix)
-    tmpCountPatCandidates+=counter
+    index = len( applyPostfix( process, "patDefaultSequence", postfix ).moduleNames() )
+    applyPostfix( process, "patDefaultSequence", postfix ).insert( index, counter )
     # summary tables
     applyPostfix(process, "patCandidateSummary", postfix).candidates.append(cms.InputTag('pat' + patLabel))
     applyPostfix(process, "selectedPatCandidateSummary", postfix).candidates.append(cms.InputTag('selectedPat' + patLabel))

@@ -1,11 +1,6 @@
 #ifndef RecoTauTag_TauTagTools_PFTauQualityCutWrapper_h
 #define RecoTauTag_TauTagTools_PFTauQualityCutWrapper_h
 
-/*
- * THIS CLASS IS DEPRECATED!!
- *
- */
-
 #include "RecoTauTag/TauTagTools/interface/TauTagTools.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
@@ -43,7 +38,6 @@ class PFTauQualityCutWrapper {
 
       /// retrieve filtered isolation charged objects from the pfTau
       void isolationChargedObjects(const reco::PFTau&, const reco::Vertex&, std::vector<reco::LeafCandidate>&);
-      void isolationPUObjects(const reco::PFTau&, const reco::Vertex&, std::vector<reco::LeafCandidate>&);
       /// retrieve filtered isolation gamma objects from the pfTau
       void isolationGammaObjects(const reco::PFTau&, std::vector<reco::LeafCandidate>&);
 

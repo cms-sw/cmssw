@@ -7,7 +7,7 @@ process.RPCCabling.connect = 'sqlite_file:RPCEMap3.db'
 process.load("EventFilter.RPCRawToDigi.rpcUnpacker_cfi")
 
 # set maxevents; -1 -> take all
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2))
 
 #process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring( 'file:input.root'))
 process.source = cms.Source ("NewEventStreamFileReader",fileNames = cms.untracked.vstring( 'file:input.dat'))

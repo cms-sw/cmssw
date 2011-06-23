@@ -5,7 +5,7 @@ dtSegmentSelectionResiduals = cms.PSet(
     minHitsPhi = cms.int32(8),
     minHitsZ = cms.int32(4),
     maxChi2 = cms.double(1000.0),
-    maxAnglePhi = cms.double(999.),
+    maxAnglePhi = cms.double(25.),
     maxAngleZ = cms.double(999.)
 )
 

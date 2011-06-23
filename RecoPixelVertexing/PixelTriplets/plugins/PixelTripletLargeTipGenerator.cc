@@ -229,7 +229,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(
          Range rangeRPhi = predictionRPhi(curvature, p3_r);
          correction.correctRPhiRange(rangeRPhi);
 
-         double phiErr = nSigmaPhi * sqrt((*th)->globalPositionError().phierr(p3));
+         double phiErr = nSigmaPhi * (*th)->errorGlobalRPhi();
          if (!checkPhiInRange(p3_phi, rangeRPhi.first/p3_r - phiErr, rangeRPhi.second/p3_r + phiErr))
            continue;
 
@@ -254,9 +254,9 @@ void PixelTripletLargeTipGenerator::hitTriplets(
          }
          correction.correctRZRange(rangeRZ);
 
-         double err = nSigmaRZ * sqrt(barrelLayer
-				? hit->globalPositionError().czz()
-				: hit->globalPositionError().rerr(p3));
+         double err = nSigmaRZ * barrelLayer
+				? hit->errorGlobalZ()
+				: hit->errorGlobalR();
          rangeRZ.first -= err, rangeRZ.second += err;
 
          if (!rangeRZ.inside(barrelLayer ? p3_z : p3_r))

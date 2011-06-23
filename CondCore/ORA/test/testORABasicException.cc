@@ -2,7 +2,7 @@
 #include "CondCore/ORA/interface/Container.h"
 #include "CondCore/ORA/interface/Transaction.h"
 #include "CondCore/ORA/interface/Exception.h"
-#include "CondCore/ORA/test/Serializer.h"
+#include "CondCore/ORA/test/TestBase.h"
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
@@ -15,58 +15,58 @@ namespace {
     try {
       db.create();
     } catch ( const ora::Exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     } catch ( const std::exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     }
     try {
       db.drop();
     } catch ( const ora::Exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     } catch ( const std::exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     }
     try {
       db.createContainer<std::string>( contName );
     } catch ( const ora::Exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     } catch ( const std::exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     }
     try {
       db.createContainer<std::string>();
     } catch ( const ora::Exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     } catch ( const std::exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     }
     try {
       db.dropContainer( contName );
     } catch ( const ora::Exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     } catch ( const std::exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     }
     try {
       db.insertItem( contName, obj );
     } catch ( const ora::Exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     } catch ( const std::exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     }
     try {
       db.insert( contName, data );
     } catch ( const ora::Exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     } catch ( const std::exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     }
     try {
       db.insert( data );
     } catch ( const ora::Exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     } catch ( const std::exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     }
   }
   
@@ -77,23 +77,23 @@ namespace {
     try {
       db.updateItem( oid, obj );
     } catch ( const ora::Exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     } catch ( const std::exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     }
     try {
       db.update( oid, data );
     } catch ( const ora::Exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     } catch ( const std::exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     }
     try {
       db.erase( oid );
     } catch ( const ora::Exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     } catch ( const std::exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     }
   }
   
@@ -101,46 +101,46 @@ namespace {
     try {
       db.exists();
     } catch ( const ora::Exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     } catch ( const std::exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     }
     try {
       db.containers();
     } catch ( const ora::Exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     } catch ( const std::exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     }
     std::string contName( "NewCont");
     try {
       db.containerHandle( contName );
     } catch ( const ora::Exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     } catch ( const std::exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     }
     try {
       db.containerHandle( 1 );
     } catch ( const ora::Exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     } catch ( const std::exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     }
     ora::OId oid;
     try {
       db.fetchItem( oid );
     } catch ( const ora::Exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     } catch ( const std::exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     }
     try {
       db.fetch<std::string>( oid );
     } catch ( const ora::Exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     } catch ( const std::exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     }
   }
   
@@ -151,79 +151,65 @@ namespace {
     try {
       db.transaction();
     } catch ( const ora::Exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     } catch ( const std::exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     }
     try {
       db.flush();
     } catch ( const ora::Exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     } catch ( const std::exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
+      std::cout << "* Error: "<<e.what()<<std::endl;
     }
   }
 }
 
-int main(int argc, char** argv){
+class TestORABasicException : public ora::TestBase {
+  public:
+    TestORABasicException(): 
+      TestBase( "testORABasicException" ){
+    }
 
-  // writing...  
-  std::string authpath("/afs/cern.ch/cms/DB/conddb");
-  std::string pathenv(std::string("CORAL_AUTH_PATH=")+authpath);
-  ::putenv(const_cast<char*>(pathenv.c_str()));
-    //std::string connStr( "sqlite_file:test.db" );
-    std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_UNIT_TESTS" );
-    ora::Serializer serializer( "ORA_TEST" );
-    serializer.lock( connStr, std::string(argv[0]) );
-  ora::Database db;
-  try {
-    // NOT CONNECTED
-    bool connected = db.isConnected();
-    std::string okConn("");
-    if( !connected ) okConn = "NOT ";
-    std::cout << "# Database is "<<okConn<<" connected.Connstr=["<<db.connectionString()<<"]"<<std::endl;
-    testAllFunction( db );
-    try {
+    virtual ~TestORABasicException(){
+    }
+
+    void execute( const std::string& connStr ){
+      ora::Database db;
+      std::cout <<"####### Case0: Database NOT connected."<<std::endl; 
+      bool connected = db.isConnected();
+      std::string okConn("");
+      if( !connected ) okConn = "NOT ";
+      std::cout << "# Database is "<<okConn<<" connected.Connstr=["<<db.connectionString()<<"]"<<std::endl;
+      testAllFunction( db );
       db.disconnect();
-    } catch ( const ora::Exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
-    } catch ( const std::exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
-    }
-    try {
+      std::cout <<"####### Case1: Connect to an invalid database."<<std::endl; 
       std::string invalidConnection("invalid");
-      db.connect( invalidConnection );
-    } catch ( const ora::Exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
-    } catch ( const std::exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
-    }
-    db.connect( connStr );
-    connected = db.isConnected();
-    okConn = std::string("");
-    if( !connected ) okConn = "NOT ";
-    std::cout << "# Database is now "<<okConn<<" connected.Connstr=["<<db.connectionString()<<"]"<<std::endl;
-    testAllFunction( db );
-    std::cout << "# Starting read only transaction..."<<std::endl;
-    db.transaction().start();
-    //testDbWRFunc( db );
-    //testDbUPFunc( db );
-    std::cout << "# committing" << std::endl;
-    db.transaction().commit();
-    try {
+      try{
+	db.connect( invalidConnection );
+      } catch ( const ora::Exception& e ){
+	std::cout << "# Expected Error: "<<e.what()<<std::endl;
+      } catch ( const std::exception& e ){
+	std::cout << "# Expected Error: "<<e.what()<<std::endl;
+      } 
+      std::cout <<"####### Case2: Connect to a valid database. Transaction not started."<<std::endl; 
+      db.connect( connStr );
+      connected = db.isConnected();
+      okConn = std::string("");
+      if( !connected ) okConn = "NOT ";
+      std::cout << "# Database is now "<<okConn<<" connected.Connstr=["<<db.connectionString()<<"]"<<std::endl;
+      testAllFunction( db );
+      std::cout <<"####### Case3: ReadOnly Transaction started."<<std::endl; 
+      db.transaction().start();
+      testDbWRFunc( db );
+      testDbUPFunc( db );
+      std::cout << "# committing" << std::endl;
+      db.transaction().commit();
       std::cout << "# disconnecting..."<<std::endl;
       db.disconnect();
-    } catch ( const ora::Exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
-    } catch ( const std::exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
-    }
-    
-    ::sleep(1);
-    try{
-      //db.configuration().setMessageVerbosity( coral::Debug );
+      ::sleep(1);
+      std::cout <<"####### Case4: Update Transaction started."<<std::endl; 
       db.connect( connStr );
-      std::cout << "# Starting write transaction" << std::endl;
       db.transaction().start( false );
       std::cout << "# Transaction started\n# Dropping database" << std::endl;
       if(db.exists()) db.drop();
@@ -232,16 +218,11 @@ int main(int argc, char** argv){
       std::cout << "# Transaction committed\n# Closing session" << std::endl;
       db.disconnect();
       std::cout << "# Session closed" << std::endl;
-    } catch ( const ora::Exception& e ){
-      std::cout << "# Error: "<<e.what()<<std::endl;
-    }catch ( const std::exception& e){
-      std::cout << "# Error: "<<e.what()<<std::endl;
     }
-  }catch ( const ora::Exception& e ){
-    std::cout << "# Test Error: "<<e.what()<<std::endl;
-  }catch ( const std::exception& e){
-    std::cout << "# Test Error: "<<e.what()<<std::endl;
-  }
+};
 
+int main(int argc, char** argv){
+  TestORABasicException test;
+  test.run();
 }
 

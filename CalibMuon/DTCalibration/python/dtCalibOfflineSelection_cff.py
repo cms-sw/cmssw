@@ -4,20 +4,13 @@ from L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskAlgoTrigConfig_cff impor
 from L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff import *
 es_prefer_l1GtTriggerMaskAlgoTrig = cms.ESPrefer("L1GtTriggerMaskAlgoTrigTrivialProducer","l1GtTriggerMaskAlgoTrig")
 es_prefer_l1GtTriggerMaskTechTrig = cms.ESPrefer("L1GtTriggerMaskTechTrigTrivialProducer","l1GtTriggerMaskTechTrig")
-
-import copy
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-hltL1SingleMuOpen = copy.deepcopy(hltHighLevel)
-hltL1SingleMuOpen.HLTPaths = ['HLT_L1SingleMuOpen*']
-
 from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import *
+
+# Good coll. --> '0 AND (40 OR 41) AND NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND NOT 43) OR (43 AND NOT 42))'
 l1tech = hltLevel1GTSeed.clone()
 l1tech.L1TechTriggerSeeding = cms.bool(True)
 
-l1Algo = hltLevel1GTSeed.clone()
-l1Algo.L1TechTriggerSeeding = cms.bool(False)
-
-bptx = l1tech.clone()
+bptx =l1tech.clone()
 bptx.L1SeedsLogicalExpression = cms.string('0')
 
 bscAnd = l1tech.clone()
@@ -25,9 +18,6 @@ bscAnd.L1SeedsLogicalExpression = cms.string('40 OR 41')
 
 beamHaloVeto = l1tech.clone()
 beamHaloVeto.L1SeedsLogicalExpression = cms.string('NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND NOT 43) OR (43 AND NOT 42))')
-
-l1SingleMuOpen = l1Algo.clone()
-l1SingleMuOpen.L1SeedsLogicalExpression = cms.string('L1_SingleMuOpen')
 
 #l1Coll = cms.Sequence(bptx + beamHaloVeto)
 l1Coll = cms.Sequence(bptx)
@@ -68,34 +58,16 @@ hltDTActivityFilter = cms.EDFilter( "HLTDTActivityFilter",
 
 #from CalibMuon.DTCalibration.DTCalibMuonSelection_cfi import *
 
-goodMuonsPt15 = cms.EDFilter("CandViewSelector",
-    src = cms.InputTag("muons"),
-    cut = cms.string('(isGlobalMuon = 1 | isTrackerMuon = 1) & abs(eta) < 1.2 & pt > 15.0'),
-    filter = cms.bool(True) 
-)
-muonSelectionPt15 = cms.Sequence(goodMuonsPt15)
-
-goodMuonsPt5 = cms.EDFilter("CandViewSelector",
+goodMuons = cms.EDFilter("CandViewSelector",
     src = cms.InputTag("muons"),
     cut = cms.string('(isGlobalMuon = 1 | isTrackerMuon = 1) & abs(eta) < 1.2 & pt > 5.0'),
-    filter = cms.bool(True)
+    filter = cms.bool(True) 
 )
-muonSelectionPt5 = cms.Sequence(goodMuonsPt5)
+muonSelection = cms.Sequence(goodMuons)
 
-offlineSelectionPt15 = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelectionPt15)
-offlineSelectionALCARECOPt15 = cms.Sequence(muonSelectionPt15)
-offlineSelectionPt5 = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelectionPt5)
-offlineSelectionALCARECOPt5 = cms.Sequence(muonSelectionPt5)
-
-offlineSelection = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelectionPt15)
-offlineSelectionALCARECO = cms.Sequence(muonSelectionPt15)
-#offlineSelectionCosmics = cms.Sequence(l1SingleMuOpen)
-offlineSelectionCosmics = cms.Sequence(hltL1SingleMuOpen)
-
-dtCalibOfflineSelectionPt15 = cms.Sequence(offlineSelectionPt15)
-dtCalibOfflineSelectionALCARECOPt15 = cms.Sequence(offlineSelectionALCARECOPt15)
-dtCalibOfflineSelectionPt5 = cms.Sequence(offlineSelectionPt5)
-dtCalibOfflineSelectionALCARECOPt5 = cms.Sequence(offlineSelectionALCARECOPt5)
+offlineSelection = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelection)
+offlineSelectionALCARECO = cms.Sequence(muonSelection)
+offlineSelectionCosmics = cms.Sequence(muonSelection)
 
 dtCalibOfflineSelection = cms.Sequence(offlineSelection)
 dtCalibOfflineSelectionALCARECO = cms.Sequence(offlineSelectionALCARECO)

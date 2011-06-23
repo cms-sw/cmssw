@@ -257,10 +257,11 @@ struct RecoMuonValidator::MuonME {
   };
 
 //
-//Fill hists booked, simRef and recoRef are associated by hits
+//Fill hists booked, simRef and muonRef are associated by hits
 //
-  void fill(const TrackingParticle* simRef, const Track* recoRef)
+  void fill(const TrackingParticle* simRef, const Muon* muonRef)
   {
+
     const double simP   = simRef->p();
     const double simPt  = simRef->pt();
     const double simEta = doAbsEta_ ? fabs(simRef->eta()) : simRef->eta();
@@ -285,6 +286,59 @@ struct RecoMuonValidator::MuonME {
     hSimDz_->Fill(simDz);
     hNSimHits_->Fill(nSimHits);
 */
+
+    const double recoQ   = muonRef->charge();
+    if ( simQ*recoQ < 0 ) {
+      hMisQPt_ ->Fill(simPt );
+      hMisQEta_->Fill(simEta);
+    }
+
+    const double recoP   = muonRef->p(); 
+    const double recoPt  = muonRef->pt();
+    const double recoEta = muonRef->eta();
+    const double recoPhi = muonRef->phi();
+    const double recoQPt = recoQ/recoPt;
+
+    const double errP   = (recoP-simP)/simP;
+    const double errPt  = (recoPt-simPt)/simPt;
+    const double errEta = (recoEta-simEta)/simEta;
+    const double errPhi = (recoPhi-simPhi)/simPhi;
+    const double errQPt = (recoQPt-simQPt)/simQPt;
+
+    hP_  ->Fill(simP);
+    hPt_ ->Fill(simPt );
+    hEta_->Fill(simEta);   
+    hPhi_->Fill(simPhi);
+
+    hErrP_  ->Fill(errP  );
+    hErrPt_ ->Fill(errPt );
+    hErrEta_->Fill(errEta);
+    hErrPhi_->Fill(errPhi);
+
+    if(fabs(simEta) > 0. && fabs(simEta) < 0.8) {
+      hErrPBarrel_->Fill(errP);
+      hErrPtBarrel_->Fill(errPt);
+    } else if (fabs(simEta) > 0.8 && fabs(simEta) < 1.2) {
+      hErrPOverlap_->Fill(errP);
+      hErrPtOverlap_->Fill(errPt);
+    } else if (fabs(simEta) > 1.2 ){
+      hErrPEndcap_->Fill(errP);
+      hErrPtEndcap_->Fill(errPt);
+    }
+
+    hErrP_vs_Eta_  ->Fill(simEta, errP  );
+    hErrPt_vs_Eta_ ->Fill(simEta, errPt );
+    hErrQPt_vs_Eta_->Fill(simEta, errQPt);
+
+    hErrP_vs_P_   ->Fill(simP  , errP  );
+    hErrPt_vs_Pt_ ->Fill(simPt , errPt );
+    hErrQPt_vs_Pt_->Fill(simQPt, errQPt);
+
+    hErrEta_vs_Eta_->Fill(simEta, errEta);
+
+    //access from track
+    reco::TrackRef recoRef = muonRef->track();
+    if (recoRef.isNonnull()) {
 
     // Number of reco-hits
     const int nRecoHits = recoRef->numberOfValidHits();
@@ -313,62 +367,13 @@ struct RecoMuonValidator::MuonME {
     hChi2Norm_vs_Eta_->Fill(simEta, recoChi2Norm);
     hChi2Prob_vs_Eta_->Fill(simEta, recoChi2Prob);
 
-    const double recoQ   = recoRef->charge();
-    if ( simQ*recoQ < 0 ) {
-      hMisQPt_ ->Fill(simPt );
-      hMisQEta_->Fill(simEta);
-    }
-
-    const double recoP   = recoRef->p(); 
-    const double recoPt  = recoRef->pt();
-    const double recoEta = recoRef->eta();
-    const double recoPhi = recoRef->phi();
-    const double recoQPt = recoQ/recoPt;
-
     const double recoDxy = recoRef->dxy();
     const double recoDz  = recoRef->dz();
 
-    const double errP   = (recoP-simP)/simP;
-    const double errPt  = (recoPt-simPt)/simPt;
-    const double errEta = (recoEta-simEta)/simEta;
-    const double errPhi = (recoPhi-simPhi)/simPhi;
-    const double errQPt = (recoQPt-simQPt)/simQPt;
-
     const double errDxy = (recoDxy-simDxy)/simDxy;
     const double errDz  = (recoDz-simDz)/simDz;
-
-    hP_  ->Fill(simP);
-    hPt_ ->Fill(simPt );
-    hEta_->Fill(simEta);   
-    hPhi_->Fill(simPhi);
-
-    hErrP_  ->Fill(errP  );
-    hErrPt_ ->Fill(errPt );
-    hErrEta_->Fill(errEta);
-    hErrPhi_->Fill(errPhi);
     hErrDxy_->Fill(errDxy);
     hErrDz_ ->Fill(errDz );
-
-    if(fabs(simEta) > 0. && fabs(simEta) < 0.8) {
-      hErrPBarrel_->Fill(errP);
-      hErrPtBarrel_->Fill(errPt);
-    } else if (fabs(simEta) > 0.8 && fabs(simEta) < 1.2) {
-      hErrPOverlap_->Fill(errP);
-      hErrPtOverlap_->Fill(errPt);
-    } else if (fabs(simEta) > 1.2 ){
-      hErrPEndcap_->Fill(errP);
-      hErrPtEndcap_->Fill(errPt);
-    }
-
-    hErrP_vs_Eta_  ->Fill(simEta, errP  );
-    hErrPt_vs_Eta_ ->Fill(simEta, errPt );
-    hErrQPt_vs_Eta_->Fill(simEta, errQPt);
-
-    hErrP_vs_P_   ->Fill(simP  , errP  );
-    hErrPt_vs_Pt_ ->Fill(simPt , errPt );
-    hErrQPt_vs_Pt_->Fill(simQPt, errQPt);
-
-    hErrEta_vs_Eta_->Fill(simEta, errEta);
 
     const double pullPt  = (recoPt-simPt)/recoRef->ptError();
     const double pullQPt = (recoQPt-simQPt)/recoRef->qoverpError();
@@ -391,6 +396,7 @@ struct RecoMuonValidator::MuonME {
     hPullPhi_vs_Eta_->Fill(simEta, pullPhi);
 
     hPullEta_vs_Pt_->Fill(simPt, pullEta);
+    }
   };
 };
 
@@ -815,10 +821,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
         const Muon* Mu = MuRefV.begin()->first.get();
         if (!selector_(*Mu)) continue;
 
-        reco::TrackRef muonTrack = Mu->track();
-
-        if (muonTrack.isNonnull()) 
-        muonME_->fill(&*simTP, &*muonTrack);
+        muonME_->fill(&*simTP, Mu); 
       }
     }
   }

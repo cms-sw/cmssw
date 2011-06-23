@@ -28,7 +28,7 @@ ConversionTrackPairFinder::~ConversionTrackPairFinder() {
 
 
 
-std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr>  ConversionTrackPairFinder::run(std::vector<reco::TransientTrack> outInTrk,  
+ std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr, CompareTwoTracksVectors>  ConversionTrackPairFinder::run(std::vector<reco::TransientTrack> outInTrk,  
 													const edm::Handle<reco::TrackCollection>& outInTrkHandle,
 													const edm::Handle<reco::TrackCaloClusterPtrAssociation>& outInTrackSCAssH, 
 													std::vector<reco::TransientTrack> inOutTrk, 
@@ -42,7 +42,7 @@ std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr>  ConversionTr
   std::vector<reco::TransientTrack>  selectedOutInTk;
   std::vector<reco::TransientTrack>  selectedInOutTk;
   std::vector<reco::TransientTrack>  allSelectedTk;
-  std::map<reco::TransientTrack,  reco::CaloClusterPtr>  scTrkAssocMap; 
+  std::map<reco::TransientTrack,  reco::CaloClusterPtr,CompareTwoTracks> scTrkAssocMap; 
   std::multimap<int,reco::TransientTrack,std::greater<int> >  auxMap; 
  
   bool oneLeg=false;
@@ -141,9 +141,9 @@ std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr>  ConversionTr
   
   std::vector<reco::TransientTrack > thePair(2);
   std::vector<std::vector<reco::TransientTrack> > allPairs;
-  std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr > allPairSCAss;
-  std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr > allPairOrdInPtSCAss;
 
+  std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr, CompareTwoTracksVectors > allPairSCAss;
+  std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr, CompareTwoTracksVectors> allPairOrdInPtSCAss;
   std::map<reco::TransientTrack,  reco::CaloClusterPtr>::const_iterator iMap1;
   std::map<reco::TransientTrack,  reco::CaloClusterPtr>::const_iterator iMap2;
 

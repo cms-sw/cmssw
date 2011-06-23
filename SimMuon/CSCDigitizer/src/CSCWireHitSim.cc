@@ -7,8 +7,7 @@
 
 
 CSCWireHitSim::CSCWireHitSim(CSCDriftSim* driftSim) 
-: theRandFlat(0),
-  theDriftSim(driftSim),
+: theDriftSim(driftSim),
   theGasIonizer( new CSCGasCollisions() ) ,
   theNewWireHits()
 {
@@ -16,7 +15,6 @@ CSCWireHitSim::CSCWireHitSim(CSCDriftSim* driftSim)
 
 
 CSCWireHitSim::~CSCWireHitSim() {
-  delete theRandFlat;
   delete theGasIonizer;
 }
 
@@ -69,7 +67,7 @@ CSCWireHitSim::getIonizationClusters(const PSimHit & simHit,
 
   std::vector<LocalPoint> positions;
   std::vector<int> electrons;
-  theGasIonizer->simulate( simHit, positions, electrons );
+  theGasIonizer->simulate( simHit, layer, positions, electrons );
 
   std::vector<LocalPoint> results; // start empty
 
@@ -83,11 +81,7 @@ CSCWireHitSim::getIonizationClusters(const PSimHit & simHit,
       // push the point for each electron at this point
       
       for( int ie = 1;  ie <= electrons[j-1]; ++ie ) {
-        // probability of getting attached
-        float f_att = 0.5;
-        if(theRandFlat->fire() > f_att) {
-          results.push_back(*pointItr);
-        }
+        results.push_back(*pointItr);
       }
     }
   }
@@ -105,7 +99,6 @@ void CSCWireHitSim::setParticleDataTable(const ParticleDataTable * pdt)
 
 void CSCWireHitSim::setRandomEngine(CLHEP::HepRandomEngine& engine)
 {
-  theRandFlat = new CLHEP::RandFlat(engine);
   theDriftSim->setRandomEngine(engine);
   theGasIonizer->setRandomEngine(engine);
 }

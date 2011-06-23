@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import *
+from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadTrack
 from  RecoTauTag.RecoTau.PFRecoTauDiscriminationByTrackIsolation_cfi  import pfRecoTauDiscriminationByTrackIsolation
 lowptpfTauDiscrByTrackIsolation = pfRecoTauDiscriminationByTrackIsolation.clone()
 lowptpfTauDiscrByTrackIsolation.PFTauProducer  = cms.InputTag('pfLayer0Taus')
@@ -9,8 +11,8 @@ lowptpfTauDiscrByTrackIsolation.ApplyRelativeSumPtCut = cms.bool(False)
 lowptpfTauDiscrByTrackIsolation.maximumSumPtCut                       = cms.double(1.0)
 lowptpfTauDiscrByTrackIsolation.applyOccupancyCut                     = cms.bool(False)
 lowptpfTauDiscrByTrackIsolation.qualityCuts.isolationQualityCuts.minTrackPt=cms.double(0.0)
-
-lowptpfTauDiscrByRelTrackIsolation = pfRecoTauDiscriminationByTrackIsolation.clone()
+ 
+lowptpfTauDiscrByRelTrackIsolation = pfRecoTauDiscriminationByTrackIsolation.clone() 
 lowptpfTauDiscrByRelTrackIsolation.PFTauProducer  = cms.InputTag('pfLayer0Taus')
 lowptpfTauDiscrByRelTrackIsolation.Prediscriminants.leadTrack.Producer = cms.InputTag('fixedConePFTauDiscriminationByLeadingTrackFinding')
 lowptpfTauDiscrByRelTrackIsolation.ApplySumPtCut = cms.bool(False)
@@ -41,7 +43,7 @@ DiscrLowPtTau = cms.EDProducer(
                       ),
     ),
     PassValue = cms.double(1.),
-    FailValue = cms.double(0.)
+    FailValue = cms.double(0.)   
     )
 
 

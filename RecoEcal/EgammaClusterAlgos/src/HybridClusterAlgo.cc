@@ -9,7 +9,6 @@
 #include "RecoEcal/EgammaCoreTools/interface/ClusterEtLess.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
-
 //The real constructor
 HybridClusterAlgo::HybridClusterAlgo(double eb_str, 
 				     int step, 
@@ -23,6 +22,9 @@ HybridClusterAlgo::HybridClusterAlgo(double eb_str,
 				     double eThresA,
 				     double eThresB,
 				     std::vector<int> severityToExclude,
+				     //double severityRecHitThreshold,
+				     //int severitySpikeId,
+				     //double severitySpikeThreshold,
 				     bool excludeFromCluster
 				     ) :
   

@@ -30,5 +30,5 @@ cleaningAlgoConfig = cms.PSet(
   # mark double spike if e6e2< e6e2thresh
   e6e2thresh=cms.double(0.04),
   # ignore rechits flagged kOutOfTime above this energy threshold in EB
-  ignoreOutOfTimeThresh=cms.double(2.0)
+  ignoreOutOfTimeThresh=cms.double(1e9)
     )

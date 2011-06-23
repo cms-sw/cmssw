@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 import RecoTauTag.RecoTau.RecoTauCleanerPlugins as cleaners
 from RecoTauTag.RecoTau.TauDiscriminatorTools import adaptTauDiscriminator, \
         producerIsTauTypeMapper
-from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
 import copy
 
 from RecoTauTag.RecoTau.hpstanc_transforms import transforms
@@ -203,7 +202,7 @@ hpsTancRequireDecayMode.decayMode.Producer = cms.InputTag(
 hpsTancTausDiscriminationByFlightPath = cms.EDProducer(
     "PFRecoTauDiscriminationByFlight",
     PFTauProducer = cms.InputTag("hpsTancTaus"),
-    vertexSource = PFTauQualityCuts.primaryVertexSrc,
+    vertexSource = cms.InputTag("offlinePrimaryVertices"),
     beamspot = cms.InputTag("offlineBeamSpot"),
     refitPV = cms.bool(True),
     Prediscriminants = cms.PSet(
@@ -222,28 +221,21 @@ hpsTancTausDiscriminationByVLooseIsolation = \
             PFTauProducer = cms.InputTag("hpsTancTaus"),
             Prediscriminants = hpsTancRequireDecayMode
         )
-hpsTancTausDiscriminationByVLooseIsolation.Prediscriminants = hpsTancRequireDecayMode
-
 hpsTancTausDiscriminationByLooseIsolation = \
         hpsPFTauDiscriminationByLooseIsolation.clone(
             PFTauProducer = cms.InputTag("hpsTancTaus"),
             Prediscriminants = hpsTancRequireDecayMode
         )
-hpsTancTausDiscriminationByLooseIsolation.Prediscriminants = hpsTancRequireDecayMode
-
 hpsTancTausDiscriminationByMediumIsolation = \
         hpsPFTauDiscriminationByMediumIsolation.clone(
             PFTauProducer = cms.InputTag("hpsTancTaus"),
             Prediscriminants = hpsTancRequireDecayMode
         )
-hpsTancTausDiscriminationByMediumIsolation.Prediscriminants = hpsTancRequireDecayMode
-
 hpsTancTausDiscriminationByTightIsolation = \
         hpsPFTauDiscriminationByTightIsolation.clone(
             PFTauProducer = cms.InputTag("hpsTancTaus"),
             Prediscriminants = hpsTancRequireDecayMode
         )
-hpsTancTausDiscriminationByTightIsolation.Prediscriminants = hpsTancRequireDecayMode
 
 _tancPrediscriminants = _leadPionPrediscriminant.clone(
     hpsSelect = cms.PSet(

@@ -29,7 +29,6 @@
 
 #include "xdata/UnsignedInteger32.h"
 
-
 class FUShmDQMOutputService : public evf::ServiceWeb
 {
  public:
@@ -82,12 +81,11 @@ class FUShmDQMOutputService : public evf::ServiceWeb
   xdata::UnsignedInteger32 nbUpdates_;
   char host_name_[255];
 
+  const std::string input;
+  const std::string dqm;
+
   static bool fuIdsInitialized_;
   static uint32 fuGuidValue_;
-
-  const std::string dqm;
-  const std::string in;
-
 };
 
 #endif

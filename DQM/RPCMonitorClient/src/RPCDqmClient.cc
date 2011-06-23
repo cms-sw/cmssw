@@ -96,7 +96,7 @@ void  RPCDqmClient::endRun(const edm::Run& r, const edm::EventSetup& c){
   if(offlineDQM_) this->getMonitorElements(r, c);
 
   float   rpcevents = minimumEvents_;
-  if(RPCEvents_) rpcevents = RPCEvents_->getEntries();
+  if(RPCEvents_) rpcevents = RPCEvents_ ->getBinContent(1);
   
   if(rpcevents < minimumEvents_) return;
   
@@ -116,6 +116,7 @@ void  RPCDqmClient::getMonitorElements(const edm::Run& r, const edm::EventSetup&
   c.get<MuonGeometryRecord>().get(rpcGeo);
   
   //dbe_->setCurrentFolder(prefixDir_);
+  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
    
   //loop on all geometry and get all histos
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
@@ -129,8 +130,7 @@ void  RPCDqmClient::getMonitorElements(const edm::Run& r, const edm::EventSetup&
 	 
 	 //Get Occupancy ME for roll
 	 RPCGeomServ RPCname(detId);	   
-	 RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
-	 
+
 	 //loop on clients
 	 for( unsigned int cl = 0; cl<clientModules_.size(); cl++ ){
 	   
@@ -155,6 +155,7 @@ void  RPCDqmClient::getMonitorElements(const edm::Run& r, const edm::EventSetup&
     (*it)->getMonitorElements(myMeVect, myDetIds);
   }
 
+  delete folderStr;
  
 }
  
@@ -188,7 +189,7 @@ void RPCDqmClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::
     (*it)->endLuminosityBlock( lumiSeg, c);
   
   float   rpcevents = minimumEvents_;
-  if(RPCEvents_) rpcevents = RPCEvents_->getEntries();
+  if(RPCEvents_) rpcevents = RPCEvents_ ->getBinContent(1);
   
   if( rpcevents < minimumEvents_) return;
 

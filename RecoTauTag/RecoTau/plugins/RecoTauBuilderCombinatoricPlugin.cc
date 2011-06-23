@@ -9,7 +9,6 @@
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauConstructor.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 
@@ -66,7 +65,7 @@ RecoTauBuilderCombinatoricPlugin::operator()(
 
   // Update the primary vertex used by the quality cuts.  The PV is supplied by
   // the base class.
-  qcuts_.setPV(primaryVertex(jet));
+  qcuts_.setPV(primaryVertex());
 
   // Get PFCHs from this jet.  They are already sorted by descending Pt
   PFCandPtrs pfchs;
@@ -301,14 +300,7 @@ RecoTauBuilderCombinatoricPlugin::operator()(
                 cleanPiZeros.end(), cleanPiZeros.end())
             );
 
-        std::auto_ptr<reco::PFTau> tauPtr = tau.get(true);
-
-	// Set event vertex position for tau
-	reco::VertexRef primaryVertexRef = primaryVertex(jet);
-	if ( primaryVertexRef.isNonnull() )
-	  tauPtr->setVertex(primaryVertexRef->position());
-
-        output.push_back(tauPtr);
+        output.push_back(tau.get(true));
       }
     }
   }

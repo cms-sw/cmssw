@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 addPileupInfo = cms.EDProducer("PileupInformation",
 
     TrackingParticlesLabel = cms.string('mergedtruth'),
+    PileupMixingLabel = cms.string('mix'),
     simHitLabel = cms.string('g4SimHits'),
     volumeRadius = cms.double(1200.0),
     vertexDistanceCut = cms.double(0.003),

@@ -101,9 +101,9 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 
      
   // local amplitude of detector channels (from processed PSimHit)
-  locAmpl.clear();
+//  locAmpl.clear();
   detAmpl.clear();
-  locAmpl.insert(locAmpl.begin(),numStrips,0.);
+//  locAmpl.insert(locAmpl.begin(),numStrips,0.);
   // total amplitude of detector channels
   detAmpl.insert(detAmpl.begin(),numStrips,0.);
 
@@ -115,6 +115,8 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
   std::vector<std::pair<const PSimHit*, int > >::const_iterator simHitIterEnd = input.end();
   if(theFlatDistribution->fire()>inefficiency) {
     for (;simHitIter != simHitIterEnd; ++simHitIter) {
+      locAmpl.clear();
+      locAmpl.insert(locAmpl.begin(),numStrips,0.);
       // check TOF
       if ( std::fabs( ((*simHitIter).first)->tof() - cosmicShift - det->surface().toGlobal(((*simHitIter).first)->localPosition()).mag()/30.) < tofCut && ((*simHitIter).first)->energyLoss()>0) {
         localFirstChannel = numStrips;

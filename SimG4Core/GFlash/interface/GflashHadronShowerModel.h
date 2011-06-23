@@ -41,7 +41,6 @@ private:
 
 private:  
 
-  G4bool theWatcherOn;
   edm::ParameterSet theParSet;
   GflashHadronShowerProfile *theProfile;
   GflashPiKShowerProfile *thePiKProfile;

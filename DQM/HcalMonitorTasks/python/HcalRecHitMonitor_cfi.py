@@ -35,7 +35,7 @@ hcalRecHitMonitor=cms.EDAnalyzer("HcalRecHitMonitor",
                                                                                       "HLT_L1Tech_BSC_minBias",
                                                                                       "HLT_L1Tech_BSC_minBias_OR",
                                                                                       "HLT_L1Tech_BSC_minBias_threshold1_v2",
-                                                                                      "HLT_ZeroBias_v1"),
+                                                                                      "HLT_ZeroBias"),
                                  
                                  # Energy thresholds for some BPTX plots
                                  energyThreshold              = cms.untracked.double(2.),

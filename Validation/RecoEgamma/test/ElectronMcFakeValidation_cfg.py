@@ -15,10 +15,11 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
 process.source.fileNames.extend(dbs.search())
 
+process.load("Validation.RecoEgamma.electronIsoFromDeps_cff")
 process.load("Validation.RecoEgamma.ElectronMcFakeValidator_cfi")
 
 process.electronMcFakeValidator.OutputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
 
-process.p = cms.Path(process.electronMcFakeValidator*process.dqmStoreStats)
+process.p = cms.Path(process.electronIsoFromDeps*process.electronMcFakeValidator*process.dqmStoreStats)
 
 

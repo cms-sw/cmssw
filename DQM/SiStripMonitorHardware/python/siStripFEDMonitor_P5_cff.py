@@ -17,7 +17,7 @@ siStripFEDMonitor.BadActiveChannelStatusBitsHistogramConfig.Enabled = True
 #Sub sets of FE problems
 siStripFEDMonitor.FEOverflowsHistogramConfig.Enabled = True
 siStripFEDMonitor.FEMissingHistogramConfig.Enabled = True
-siStripFEDMonitor.BadMajorityAddressesHistogramConfig.Enabled = False
+siStripFEDMonitor.BadMajorityAddressesHistogramConfig.Enabled = True
 #Sub sets of DAQ problems
 siStripFEDMonitor.DataMissingHistogramConfig.Enabled = True
 siStripFEDMonitor.BadIDsHistogramConfig.Enabled = True
@@ -30,7 +30,7 @@ siStripFEDMonitor.TkHistoMapHistogramConfig.Enabled = True
 #Detailed FED level expert histograms
 siStripFEDMonitor.FEOverflowsDetailedHistogramConfig.Enabled = True
 siStripFEDMonitor.FEMissingDetailedHistogramConfig.Enabled = True
-siStripFEDMonitor.BadMajorityAddressesDetailedHistogramConfig.Enabled = True
+siStripFEDMonitor.BadMajorityAddressesDetailedHistogramConfig.Enabled = False
 siStripFEDMonitor.BadAPVStatusBitsDetailedHistogramConfig.Enabled = True
 siStripFEDMonitor.APVErrorBitsDetailedHistogramConfig.Enabled = True
 siStripFEDMonitor.APVAddressErrorBitsDetailedHistogramConfig.Enabled = True
@@ -114,8 +114,8 @@ siStripFEDMonitor.nFEDsWithFEBadMajorityAddressesHistogramConfig = cms.untracked
 siStripFEDMonitor.nUnconnectedChannelsHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(True),
   NBins = cms.untracked.uint32(250),
-  Min = cms.untracked.double(0),
-  Max = cms.untracked.double(500)
+  Min = cms.untracked.double(6000),
+  Max = cms.untracked.double(8000)
 )
 siStripFEDMonitor.nAPVStatusBitHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(False),

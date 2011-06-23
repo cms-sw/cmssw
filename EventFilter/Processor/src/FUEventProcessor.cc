@@ -110,6 +110,10 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , vp_(0)
   , cpustat_(0)
   , ratestat_(0)
+  , master_message_prg_(0,MSQM_MESSAGE_TYPE_PRG)
+  , master_message_prr_(MAX_MSG_SIZE,MSQS_MESSAGE_TYPE_PRR)
+  , slave_message_prr_(sizeof(prg),MSQS_MESSAGE_TYPE_PRR)
+  , master_message_trr_(MAX_MSG_SIZE,MSQS_MESSAGE_TYPE_TRR)
 {
   using namespace utils;
 
@@ -1043,8 +1047,6 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 
 
   
-  MsgBuf msg1(0,MSQM_MESSAGE_TYPE_PRG);
-  MsgBuf msg2(MAX_MSG_SIZE,MSQS_MESSAGE_TYPE_PRR);
   if(running){  
     try{
       lsid = applicationInfoSpace_->find("lumiSectionIndex");
@@ -1082,11 +1084,11 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		{
 		  nblive_++;
 		  try{
-		    subs_[i].post(msg1,true);
+		    subs_[i].post(master_message_prg_,true);
 		    
-		    unsigned long retval = subs_[i].rcvNonBlocking(msg2,true);
-		    if(retval == (unsigned long) msg2->mtype){
-		      prg* p = (struct prg*)(msg2->mtext);
+		    unsigned long retval = subs_[i].rcvNonBlocking(master_message_prr_,true);
+		    if(retval == (unsigned long) master_message_prr_->mtype){
+		      prg* p = (struct prg*)(master_message_prr_->mtext);
 		      subs_[i].setParams(p);
 		      spMStates_[i] = p->Ms;
 		      spmStates_[i] = p->ms;
@@ -1131,7 +1133,7 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		  nbdead_++;
 		}
 	    }
-	  if(nbp->value_>32){//have some slaves already processed more than one event ? (eventually make this == number of raw cells)
+	  if(nbp->value_>64){//have some slaves already processed more than one event ? (eventually make this == number of raw cells)
 	    for(unsigned int i = 0; i < subs_.size(); i++)
 	      {
 		if(subs_[i].params().nbp == 0){ // a slave has processed 0 events 
@@ -1139,7 +1141,7 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		  if(subs_[i].alive()>0 && subs_[i].params().ms == 0) // the process is seen alive but in us=Invalid(0)
 		    {
 		      subs_[i].found_invalid();//increase the "found_invalid" counter
-		      if(subs_[i].nfound_invalid() > 60){ //wait x monitor cycles (~1 min a goot time ?) before doing something about a stuck slave
+		      if(subs_[i].nfound_invalid() > 60){ //wait x monitor cycles (~1 min a good time ?) before doing something about a stuck slave
 			MsgBuf msg3(NUMERIC_MESSAGE_SIZE,MSQM_MESSAGE_TYPE_FSTOP);	// send a force-stop signal		
 			subs_[i].post(msg3,false);
 			std::ostringstream ost1;
@@ -1261,7 +1263,6 @@ bool FUEventProcessor::scalers(toolbox::task::WorkLoop* wl)
 //______________________________________________________________________________
 bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
 {
-  MsgBuf msg(MAX_MSG_SIZE,MSQS_MESSAGE_TYPE_TRR);
   evtProcessor_.resetPackedTriggerReport();
   bool atLeastOneProcessUpdatedSuccessfully = false;
   int msgCount = 0;
@@ -1269,30 +1270,47 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
     {
       if(subs_[i].alive()>0)
 	{
-
 	  int ret = 0;
-	  try{
-	    ret = subs_[i].rcv(msg,false);
-	    msgCount++;
-	  }
-	  catch(evf::Exception &e)
+	  if(subs_[i].check_postponed_trigger_update(master_message_trr_,
+						     evtProcessor_.getLumiSectionReferenceIndex()))
 	    {
-	      std::cout << "exception in msgrcv on " << i 
-			<< " " << subs_[i].alive() << " " << strerror(errno) << std::endl;
-	      continue;
-	      //do nothing special
+	      ret = MSQS_MESSAGE_TYPE_TRR;
+	      std::cout << "using postponed report from slot " << i << " for ls " << evtProcessor_.getLumiSectionReferenceIndex() << std::endl;
 	    }
-	  
-
+	  else{
+	    bool insync = false;
+	    bool exception_caught = false;
+	    while(!insync){
+	      try{
+		ret = subs_[i].rcv(master_message_trr_,false);
+	      }
+	      catch(evf::Exception &e)
+		{
+		  std::cout << "exception in msgrcv on " << i 
+			    << " " << subs_[i].alive() << " " << strerror(errno) << std::endl;
+		  exception_caught = true;
+		  break;
+		  //do nothing special
+		}
+	      if(ret==MSQS_MESSAGE_TYPE_TRR) {
+		TriggerReportStatic *trp = (TriggerReportStatic *)master_message_trr_->mtext;
+		if(trp->lumiSection >= evtProcessor_.getLumiSectionReferenceIndex()){
+		  insync = true;
+		}
+	      }
+	    }
+	    if(exception_caught) continue;
+	  }
+	  msgCount++;
 	  if(ret==MSQS_MESSAGE_TYPE_TRR) {
-	    TriggerReportStatic *trp = (TriggerReportStatic *)msg->mtext;
+	    TriggerReportStatic *trp = (TriggerReportStatic *)master_message_trr_->mtext;
 	    if(trp->lumiSection > evtProcessor_.getLumiSectionReferenceIndex()){
 	      std::cout << "postpone handling of msg from slot " << i << " with Ls " <<  trp->lumiSection
 			<< " should be " << evtProcessor_.getLumiSectionReferenceIndex() << std::endl;
-	      subs_[i].post(msg,false);
+	      subs_[i].add_postponed_trigger_update(master_message_trr_);
 	    }else{
 	      atLeastOneProcessUpdatedSuccessfully = true;
-	      evtProcessor_.sumAndPackTriggerReport(msg);
+	      evtProcessor_.sumAndPackTriggerReport(master_message_trr_);
 	    }
 	  }
 	  else std::cout << "msgrcv returned error " << errno << std::endl;
@@ -1333,10 +1351,9 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
 
 bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 {
-  MsgBuf msg;
   try{
-    myProcess_->rcvSlave(msg,true); //will receive only messages from Master
-    switch(msg->mtype)
+    myProcess_->rcvSlave(slave_message_monitoring_,true); //will receive only messages from Master
+    switch(slave_message_monitoring_->mtype)
       {
       case MSQM_MESSAGE_TYPE_MCS:
 	{
@@ -1359,9 +1376,9 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	  }  catch(xdata::exception::Exception e){}
 	  if(dqmp!=0)
 	    dqm = (xdata::UnsignedInteger32*)dqmp;
-	  MsgBuf msg1(sizeof(prg),MSQS_MESSAGE_TYPE_PRR);
+
 	  // 	  monitorInfoSpace_->lock();  
-	  prg * data           = (prg*)msg1->mtext;
+	  prg * data           = (prg*)slave_message_prr_->mtext;
 	  data->ls             = evtProcessor_.lsid_;
 	  data->eols           = evtProcessor_.lastLumiUsingEol_;
 	  data->ps             = evtProcessor_.psid_;
@@ -1372,7 +1389,7 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	  if(dqm) data->dqm    = dqm->value_; else data->dqm = 0;
 	  data->trp            = scalersUpdates_;
 	  //	  monitorInfoSpace_->unlock();  
-	  myProcess_->postSlave(msg1,true);
+	  myProcess_->postSlave(slave_message_prr_,true);
 	  if(exitOnError_.value_)
 	  { 
 	    // after each monitoring cycle check if we are in inconsistent state and exit if configured to do so  
@@ -1401,7 +1418,7 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	  xgi::Output out;
 	  unsigned int bytesToSend = 0;
 	  MsgBuf msg1(NUMERIC_MESSAGE_SIZE,MSQS_MESSAGE_TYPE_WEB);
-	  std::string query = msg->mtext;
+	  std::string query = slave_message_monitoring_->mtext;
 	  size_t pos = query.find_first_of("&");
 	  std::string method;
 	  std::string args;
@@ -1625,16 +1642,20 @@ void FUEventProcessor::stopSlavesAndAcknowledge()
   MsgBuf msg(0,MSQM_MESSAGE_TYPE_STOP);
   MsgBuf msg1(MAX_MSG_SIZE,MSQS_MESSAGE_TYPE_STOP);
 
+  std::vector<bool> processes_to_stop(nbSubProcesses_.value_,false);
   for(unsigned int i = 0; i < subs_.size(); i++)
     {
       pthread_mutex_lock(&stop_lock_);
-      if(subs_[i].alive()>0)subs_[i].post(msg,false);
+      if(subs_[i].alive()>0){
+	processes_to_stop[i] = true;
+	subs_[i].post(msg,false);
+      }
       pthread_mutex_unlock(&stop_lock_);
     }
   for(unsigned int i = 0; i < subs_.size(); i++)
     {
       pthread_mutex_lock(&stop_lock_);
-      if(subs_[i].alive()>0){
+      if(processes_to_stop[i]){
 	try{
 	  subs_[i].rcv(msg1,false);
 	}
@@ -1783,6 +1804,7 @@ void FUEventProcessor::updater(xgi::Input *in,xgi::Output *out)
   mDiv(out,"st",fsm_.stateName()->toString());
   mDiv(out,"ru",runNumber_.toString());
   mDiv(out,"nsl",nbSubProcesses_.value_);
+  mDiv(out,"nsr",nbSubProcessesReporting_.value_);
   mDiv(out,"cl");
   *out << getApplicationDescriptor()->getClassName() 
        << (nbSubProcesses_.value_ > 0 ? "MP " : " ");
@@ -1857,7 +1879,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.129 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.130 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

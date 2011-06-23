@@ -86,7 +86,7 @@ Measurement1D InvariantMassFromVertex::invariantMass(const CachingVertex<5>& ver
 
   LorentzVector totalP4 = p4(vertex, masses);
   double u = uncertainty(totalP4, vertex, masses);
-  std::cout << u<<std::endl;
+  // std::cout << u<<std::endl;
   return Measurement1D(totalP4.M(), u );
 
 }

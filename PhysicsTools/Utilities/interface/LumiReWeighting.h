@@ -21,41 +21,43 @@
 #include <boost/shared_ptr.hpp>
 #include <vector>
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Selector.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Common/interface/Handle.h"
-
-
 namespace edm {
+  class EventBase;
   class LumiReWeighting {
   public:
     LumiReWeighting( std::string generatedFile,
 		     std::string dataFile,
-		     std::string histName1,
-		     std::string histName2);
+		     std::string GenHistName,
+		     std::string DataHistName);
     
     LumiReWeighting( std::vector< float > MC_distr, std::vector< float > Lumi_distr);
 
+    LumiReWeighting ( ) { } ;
 
-    double weight( int npv ) const;
+    double weight( int npv ) ;
 
-    double weight( const edm::Event &e ) const;
+    double weight( const edm::EventBase &e ) ;
 
+    double weightOOT( const edm::EventBase &e ) ;
 
-    
+    void weightOOT_init(); 
+
   protected:
 
     std::string generatedFileName_;
     std::string dataFileName_;
-    std::string histName1_;
-    std::string histName2_;
+    std::string GenHistName_;
+    std::string DataHistName_;
     boost::shared_ptr<TFile>     generatedFile_;
     boost::shared_ptr<TFile>     dataFile_;
     boost::shared_ptr<TH1F>      weights_;
+
+    double WeightOOTPU_[25][25];
+
+    int  OldLumiSection_;
+    bool Reweight_4_2_2p2_;
+    bool FirstWarning_;
+
   };
 }
 

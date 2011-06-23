@@ -68,6 +68,9 @@
 //
 // 19 mf 11/30/10	Add a messageDrop->snapshot() when establishing
 //    crj		module ctors, to cure bug 75836.
+//
+// 20 fwyzard 7/06/11   Add support fro dropping LogError messages
+//                      on a per-module basis (needed at HLT)
 
 // system include files
 // user include files
@@ -111,17 +114,19 @@ MessageLogger( ParameterSet const & iPS
 	, nonModule_debugEnabled(false)
 	, nonModule_infoEnabled(true)
 	, nonModule_warningEnabled(true)
+	, nonModule_errorEnabled(true)                          // change log 20
 {
   // prepare cfg validation string for later use
   MessageServicePSetValidation validator;
   messageServicePSetValidatationResults_ = validator(iPS);	// change log 12
   
-  typedef std::vector<std::string>  vString;
-  vString  empty_vString;
-  vString  debugModules;
+  typedef std::vector<std::string> vString;
+  vString empty_vString;
+  vString debugModules;
   vString suppressDebug;
-  vString suppressWarning;
   vString suppressInfo;
+  vString suppressWarning;
+  vString suppressError;                                        // change log 20
 
   try {								// change log 13
     // decide whether a summary should be placed in job report
@@ -141,12 +146,15 @@ MessageLogger( ParameterSet const & iPS
 
     suppressWarning = 
     	  iPS.getUntrackedParameter<vString>("suppressWarning", empty_vString);
+
+    suppressError =                                             // change log 20
+    	  iPS.getUntrackedParameter<vString>("suppressError", empty_vString);
   } catch (cms::Exception& e) {					// change log 13
   }
   
   // Use these lists to prepare a map to use in tracking suppression 
 
-  // Do suppressDebug first and suppressWarning last to get proper order
+  // Do suppressDebug first and suppressError last to get proper order
   for( vString::const_iterator it  = suppressDebug.begin();
                                it != suppressDebug.end(); ++it ) {
     suppression_levels_[*it] = ELseverityLevel::ELsev_success;
@@ -160,6 +168,11 @@ MessageLogger( ParameterSet const & iPS
   for( vString::const_iterator it  = suppressWarning.begin();
                                it != suppressWarning.end(); ++it ) {
     suppression_levels_[*it] = ELseverityLevel::ELsev_warning;
+  }
+
+  for( vString::const_iterator it  = suppressError.begin();     // change log 20
+                               it != suppressError.end(); ++it ) {
+    suppression_levels_[*it] = ELseverityLevel::ELsev_error;
   }
   
   // set up for tracking whether current module is debug-enabled 
@@ -276,8 +289,9 @@ MessageLogger::establishModule(ModuleDescription const & desc,
   nonModule_debugEnabled   = messageDrop->debugEnabled;
   nonModule_infoEnabled    = messageDrop->infoEnabled;
   nonModule_warningEnabled = messageDrop->warningEnabled;
+  nonModule_errorEnabled   = messageDrop->errorEnabled;         // change log 20
 
-      //  std::cerr << "establishModule( " << desc.moduleName() << ")\n";
+  // std::cerr << "establishModule( " << desc.moduleName() << ")\n";
   // Change Log 17
   messageDrop->setModuleWithPhase( desc.moduleName(), desc.moduleLabel(), 
   				&desc, whichPhase );
@@ -300,9 +314,11 @@ MessageLogger::establishModule(ModuleDescription const & desc,
                                            && (it->second < ELseverityLevel::ELsev_success );
     messageDrop->infoEnabled    = (it->second < ELseverityLevel::ELsev_info );
     messageDrop->warningEnabled = (it->second < ELseverityLevel::ELsev_warning );
+    messageDrop->errorEnabled   = (it->second < ELseverityLevel::ELsev_error );
   } else {
     messageDrop->infoEnabled    = true;
     messageDrop->warningEnabled = true;
+    messageDrop->errorEnabled   = true;
   }
 } // establishModule
 
@@ -314,8 +330,9 @@ MessageLogger::establishModuleCtor(ModuleDescription const & desc,
   nonModule_debugEnabled   = messageDrop->debugEnabled;
   nonModule_infoEnabled    = messageDrop->infoEnabled;
   nonModule_warningEnabled = messageDrop->warningEnabled;
+  nonModule_errorEnabled   = messageDrop->errorEnabled;         // change log 20
 
-      // std::cerr << "establishModuleCtor( " << desc.moduleName() << ")\n";
+  // std::cerr << "establishModuleCtor( " << desc.moduleName() << ")\n";
   // Change Log 17
   messageDrop->setModuleWithPhase( desc.moduleName(), desc.moduleLabel(), 
   				0, whichPhase );
@@ -338,9 +355,11 @@ MessageLogger::establishModuleCtor(ModuleDescription const & desc,
                                            && (it->second < ELseverityLevel::ELsev_success );
     messageDrop->infoEnabled    = (it->second < ELseverityLevel::ELsev_info );
     messageDrop->warningEnabled = (it->second < ELseverityLevel::ELsev_warning );
+    messageDrop->errorEnabled   = (it->second < ELseverityLevel::ELsev_error );
   } else {
     messageDrop->infoEnabled    = true;
     messageDrop->warningEnabled = true;
+    messageDrop->errorEnabled   = true;
   }
   messageDrop->snapshot();				// Change Log 18 
 } // establishModuleCtor
@@ -357,6 +376,7 @@ MessageLogger::unEstablishModule(ModuleDescription const & /*unused*/,
   messageDrop->debugEnabled   = nonModule_debugEnabled;
   messageDrop->infoEnabled    = nonModule_infoEnabled;
   messageDrop->warningEnabled = nonModule_warningEnabled;
+  messageDrop->errorEnabled   = nonModule_errorEnabled; // change log 20
 }
 
 void
@@ -379,9 +399,11 @@ MessageLogger::establish(const char* state)
                                            && (it->second < ELseverityLevel::ELsev_success );
     messageDrop->infoEnabled    = (it->second < ELseverityLevel::ELsev_info );
     messageDrop->warningEnabled = (it->second < ELseverityLevel::ELsev_warning );
+    messageDrop->errorEnabled   = (it->second < ELseverityLevel::ELsev_error );
   } else {
     messageDrop->infoEnabled    = true;
     messageDrop->warningEnabled = true;
+    messageDrop->errorEnabled   = true;
   }
 }
 

@@ -33,6 +33,15 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     bool readAOD_;
     //std::string outputFile_ ;
 
+    edm::InputTag isoFromDepsTk03Tag_ ;
+    edm::InputTag isoFromDepsTk04Tag_ ;
+    edm::InputTag isoFromDepsEcalFull03Tag_ ;
+    edm::InputTag isoFromDepsEcalFull04Tag_ ;
+    edm::InputTag isoFromDepsEcalReduced03Tag_ ;
+    edm::InputTag isoFromDepsEcalReduced04Tag_ ;
+    edm::InputTag isoFromDepsHcal03Tag_ ;
+    edm::InputTag isoFromDepsHcal04Tag_ ;
+
     TrajectoryStateTransform transformer_ ;
     edm::ESHandle<TrackerGeometry> pDD ;
     edm::ESHandle<MagneticField> theMagField ;

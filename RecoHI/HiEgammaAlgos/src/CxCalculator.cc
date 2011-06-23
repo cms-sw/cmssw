@@ -20,46 +20,22 @@ using namespace ROOT::Math::VectorUtil;
 
 #define PI 3.141592653589793238462643383279502884197169399375105820974945
 
-
-double CxCalculator::getJurassicArea( double r1, double r2, double width) {
-   
-   float theta1 = asin( width / r1);
-   float theta2 = asin( width / r2);
-   float theA   = sqrt ( r1*r1 + r2*r2 - 2 * r1 * r2 * cos ( theta1 - theta2) );
-   float area1 =  0.5 * r1*r1 * ( 3.141592 - 2 * theta1 )   ;
-   float area2 =  0.5 * r2*r2 * ( 3.141592 - 2 * theta2 )   ;
-   float area3 =  width * theA;
-   float finalArea = 2 * ( area1 - area2 - area3);
-   return finalArea;
-}
-
-
-
 CxCalculator::CxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag barrelLabel, edm::InputTag endcapLabel)
 {
 //InputTag("islandBasicClusters:islandBarrelBasicClusters")
 //InputTag("islandBasicClusters:islandEndcapBasicClusters")
    Handle<BasicClusterCollection> pEBclusters;
    iEvent.getByLabel(barrelLabel, pEBclusters);
-   if(pEBclusters.isValid())
-     fEBclusters_ = pEBclusters.product(); 
-   else
-     fEBclusters_ = NULL;
+   fEBclusters_ = pEBclusters.product(); 
 
    Handle<BasicClusterCollection> pEEclusters;
    iEvent.getByLabel(endcapLabel, pEEclusters);
-   if(pEEclusters.isValid())
-     fEEclusters_ = pEEclusters.product(); 
-   else
-     fEEclusters_ = NULL;
+   fEEclusters_ = pEEclusters.product(); 
 
    ESHandle<CaloGeometry> geometryHandle;
    iSetup.get<CaloGeometryRecord>().get(geometryHandle);
-   if(geometryHandle.isValid())
-     geometry_ = geometryHandle.product();
-   else
-     geometry_ = NULL;
 
+   geometry_ = geometryHandle.product();
 } 
 
 double CxCalculator::getCx(const reco::SuperClusterRef cluster, double x, double threshold)
@@ -68,12 +44,12 @@ double CxCalculator::getCx(const reco::SuperClusterRef cluster, double x, double
    using namespace reco;
 
    if(!fEBclusters_) {       
-//       LogError("CxCalculator") << "Error! Can't get EBclusters for event.";
+      LogError("CxCalculator") << "Error! Can't get EBclusters for event.";
       return -100;
    }
 
    if(!fEEclusters_) {       
-//       LogError("CxCalculator") << "Error! Can't get EEclusters for event.";
+      LogError("CxCalculator") << "Error! Can't get EEclusters for event.";
       return -100;
    }
 
@@ -191,18 +167,18 @@ double CxCalculator::getCCx(const reco::SuperClusterRef cluster, double x, doubl
 {
    using namespace edm;
    using namespace reco;
-   
-   
+
+
    if(!fEBclusters_) {       
-      //       LogError("CxCalculator") << "Error! Can't get EBclusters for event.";
+      LogError("CxCalculator") << "Error! Can't get EBclusters for event.";
       return -100;
    }
-   
+
    if(!fEEclusters_) {       
-      //       LogError("CxCalculator") << "Error! Can't get EEclusters for event.";
+      LogError("CxCalculator") << "Error! Can't get EEclusters for event.";
       return -100;
    }
-   
+
    double SClusterEta = cluster->eta();
    double SClusterPhi = cluster->phi();
    double TotalEt = 0;
@@ -230,12 +206,12 @@ double CxCalculator::getCCx(const reco::SuperClusterRef cluster, double x, doubl
       math::XYZVector ClusPoint(clu->x(),clu->y(),clu->z());
       double eta = ClusPoint.eta();
       double phi = ClusPoint.phi();
-      
+
       double dEta = fabs(eta-SClusterEta);
       double dPhi = fabs(phi-SClusterPhi);
       while (dPhi>2*PI) dPhi-=2*PI;
       if (dPhi>PI) dPhi=2*PI-dPhi;
-      
+
       if (dEta<x*0.1) {
          double et = clu->energy()/cosh(eta);
          if (et<threshold) et=0;
@@ -248,143 +224,6 @@ double CxCalculator::getCCx(const reco::SuperClusterRef cluster, double x, doubl
 
    return CCx;
 }
-
-
-
-
-double CxCalculator::getJc(const reco::SuperClusterRef cluster, double r1, double r2, double jWidth, double threshold)
-{
-   using namespace edm;
-   using namespace reco;
-   if(!fEBclusters_) {
-      //       LogError("CxCalculator") << "Error! Can't get EBclusters for event.";                                                    
-      return -100;
-   }
-   if(!fEEclusters_) {
-      return -100;
-   }
-   double SClusterEta = cluster->eta();
-   double SClusterPhi = cluster->phi();
-   double TotalEt = 0;
-   
-   for(BasicClusterCollection::const_iterator iclu = fEBclusters_->begin();
-       iclu != fEBclusters_->end(); ++iclu) {
-      const BasicCluster *clu = &(*iclu);
-      math::XYZVector ClusPoint(clu->x(),clu->y(),clu->z());
-      double eta = ClusPoint.eta();
-      double phi = ClusPoint.phi();
-      
-      double dEta = fabs(eta-SClusterEta);
-      double dPhi = phi-SClusterPhi;
-      if ( dPhi < -PI )    dPhi = dPhi + 2*PI ;
-      if ( dPhi >  PI )    dPhi = dPhi - 2*PI ;
-      if ( fabs(dPhi) > PI )   cout << " error!!! dphi > 2pi   : " << dPhi << endl;
-      double dR = sqrt(dEta*dEta+dPhi*dPhi);
-      
-      // Jurassic Cone /////
-      if ( dR > r1 ) continue;
-      if ( dR < r2 ) continue;
-      if ( fabs(dEta) <  jWidth)  continue;
-      //////////////////////
-      double theEt = clu->energy()/cosh(eta);
-      if (theEt<threshold) continue;
-      TotalEt += theEt;
-   }
-   
-   for(BasicClusterCollection::const_iterator iclu = fEEclusters_->begin();
-       iclu != fEEclusters_->end(); ++iclu) {
-      const BasicCluster *clu = &(*iclu);
-      math::XYZVector ClusPoint(clu->x(),clu->y(),clu->z());
-      double eta = ClusPoint.eta();
-      double phi = ClusPoint.phi();
-      double dEta = fabs(eta-SClusterEta);
-      double dPhi = phi-SClusterPhi;
-      if ( dPhi < -PI )    dPhi = dPhi + 2*PI ;
-      if ( dPhi >  PI )    dPhi = dPhi - 2*PI ;
-      if ( fabs(dPhi) >PI )   cout << " error!!! dphi > 2pi   : " << dPhi << endl;
-      double dR = sqrt(dEta*dEta+dPhi*dPhi);
-      // Jurassic Cone /////                                                                                                  
-      if ( dR > r1 ) continue;
-      if ( dR < r2 ) continue;
-      if ( fabs(dEta) <  jWidth)  continue;
-      //////////////////////          
-      double theEt = clu->energy()/cosh(eta);
-      if (theEt<threshold) continue;
-      TotalEt += theEt;
-   }
-   return TotalEt;
-}
-
-
-double CxCalculator::getJcc(const reco::SuperClusterRef cluster, double r1, double r2, double jWidth, double threshold)
-{
-                   
-   using namespace edm;
-   using namespace reco;
-   if(!fEBclusters_) {
-      //       LogError("CxCalculator") << "Error! Can't get EBclusters for event.";                                                         
-      return -100;
-   }
-   if(!fEEclusters_) {
-      return -100;
-   }
-   double SClusterEta = cluster->eta();
-   double SClusterPhi = cluster->phi();
-   double TotalEt = 0;
-
-   for(BasicClusterCollection::const_iterator iclu = fEBclusters_->begin();
-       iclu != fEBclusters_->end(); ++iclu) {
-      const BasicCluster *clu = &(*iclu);
-      math::XYZVector ClusPoint(clu->x(),clu->y(),clu->z());
-      double eta = ClusPoint.eta();
-      double phi = ClusPoint.phi();
-
-      double dEta = fabs(eta-SClusterEta);
-      double dPhi = phi-SClusterPhi;
-      if ( dPhi < -PI )    dPhi = dPhi + 2*PI ;
-      if ( dPhi >  PI )    dPhi = dPhi - 2*PI ;
-      double dR = sqrt(dEta*dEta+dPhi*dPhi);
-
-      //////// phi strip /////////                                                                                               
-      if ( fabs(dEta) > r1 ) continue;
-      if ( fabs(dPhi) <r1 ) continue;
-      //////////////////////                                                                                                      
-      
-      double theEt = clu->energy()/cosh(eta);
-      if (theEt<threshold) continue;
-      TotalEt += theEt;
-   }
-   for(BasicClusterCollection::const_iterator iclu = fEEclusters_->begin();
-       iclu != fEEclusters_->end(); ++iclu) {
-      const BasicCluster *clu = &(*iclu);
-      math::XYZVector ClusPoint(clu->x(),clu->y(),clu->z());
-      double eta = ClusPoint.eta();
-      double phi = ClusPoint.phi();
-      double dEta = fabs(eta-SClusterEta);
-      double dPhi = phi-SClusterPhi;
-      if ( dPhi < -PI )    dPhi = dPhi + 2*PI ;
-      if ( dPhi >  PI )    dPhi = dPhi - 2*PI ;
-      double dR = sqrt(dEta*dEta+dPhi*dPhi);
-      
-      //////// phi strip /////////                                                                                       
-      if ( fabs(dEta) > r1 ) continue;
-      if ( fabs(dPhi) < r1 ) continue;
-      //////////////////////  
-      
-      double theEt = clu->energy()/cosh(eta);
-      if (theEt<threshold) continue;
-      TotalEt += theEt;
-   }
-   
-   double areaStrip = 4*PI*r1 -  4*r1*r1; 
-   double areaJura  = getJurassicArea(r1,r2, jWidth) ;
-   double theCJ     = getJc(cluster,r1,  r2, jWidth, threshold);
-   cout << "areJura = " << areaJura << endl;
-   cout << "areaStrip " << areaStrip << endl;
-   double theCCJ   = theCJ - TotalEt * areaJura / areaStrip ;
-   return theCCJ;
-}
-
 
 
 double CxCalculator::getCCxRemoveSC(const reco::SuperClusterRef cluster, double x, double threshold)

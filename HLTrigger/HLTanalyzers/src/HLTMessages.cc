@@ -1,8 +1,6 @@
 #include "HLTMessages.h"
 
 const char * kSubEventMap                 = "subevent map";
-const char * kHLTjets                     = "uncorrected HLT jets";
-const char * kHLTCorjets                  = "corrected HLT jets";
 const char * kRecjets                     = "uncorrected reconstructed jets";
 const char * kRecCorjets                  = "corrected reconstructed jets";
 const char * kGenjets                     = "generator jets";
@@ -14,7 +12,6 @@ const char * kRecoPFJets                  = "reco particle flow jets";
 const char * kMuon                        = "muon candidates";
 const char * kTaus                        = "tau candidates";
 const char * kPFTaus                      = "pftau candidates";
-const char * kPFTausTightCone             = "pftau candidates tight cone";
 const char * kPFJets                      = "particle flow jets";
 const char * kRecoPFTaus                            = "reco pftau candidates";
 const char * ktheRecoPFTauDiscrByTanCOnePercent     = "reco PFTau Discriminator By TanC One Percent"; 
@@ -48,14 +45,13 @@ const char * kIsoMap3                     = "L3 muon isolation map";
 const char * kMulinks                     = "L3 muon link";
 const char * kOniaPixelCands              = "Pixel track candidates in resonance with a L3 muon";
 const char * kOniaTrackCands              = "Strip track candidates in resonance with a L3 muon";
-const char * kDimuvtxcands3               = "L3 dimuon vertex";
 
 const char * kBTagJets                    = "L2 b-jet collection";
 const char * kBTagCorrectedJets           = "L2 calibrated b-jet collection";
 const char * kBTagLifetimeBJetsL25        = "L2.5 b-jet lifetime tags";
 const char * kBTagLifetimeBJetsL3         = "L3 b-jet lifetime tags";
-const char * kBTagLifetimeBJetsL25SingleTrack = "L2.5 b-jet lifetime tags (SingleTrack)";
-const char * kBTagLifetimeBJetsL3SingleTrack  = "L3 b-jet lifetime tags (SingleTrack)";
+const char * kBTagLifetimeBJetsL25Relaxed = "L2.5 b-jet lifetime tags (relaxed)";
+const char * kBTagLifetimeBJetsL3Relaxed  = "L3 b-jet lifetime tags (relaxed)";
 const char * kBTagSoftmuonBJetsL25        = "L2.5 b-jet soft muon tags";
 const char * kBTagSoftmuonBJetsL3         = "L3 b-jet soft muon tags";
 const char * kBTagPerformanceBJetsL25     = "L2.5 b-jet perf. meas. tag";
@@ -99,6 +95,4 @@ const char * kIsoPixelTracksL3            = "L3 Iso Pixel Tracks";
 const char * kIsoPixelTracksL2            = "L2 Iso Pixel Tracks";
 const char * kIsoPixelTrackVertices       = "Pixel Vertices";
 const char * kPixelTracksL3               = "L3 Pixel Tracks"; 
-const char * kRecoVerticesHLT             = "Reconstructed vertices, HLT"; 
-const char * kRecoVerticesOffline0        = "Reconstructed vertices, Offline0";
-const char * kRecoVerticesOffline1        = "Reconstructed vertices, Offline1";
+const char * kRecoVertices                = "Reconstructed vertices"; 

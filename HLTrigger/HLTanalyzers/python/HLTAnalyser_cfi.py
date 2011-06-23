@@ -31,12 +31,10 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     ### reconstructed objects
     genjets                         = cms.InputTag("iterativeCone5GenJets"),
     genmet                          = cms.InputTag("genMet"),
-    hltjets                         = cms.InputTag("hltAntiKT5CaloJets"),
-    hltcorjets                      = cms.InputTag("hltAntiKT5L2L3CorrCaloJets"),
-    recjets                         = cms.InputTag("ak5CaloJets"),
-    reccorjets                      = cms.InputTag("ak5CaloCorJets"),
+    recjets                         = cms.InputTag("hltAntiKT5CaloJets"),
+    reccorjets                      = cms.InputTag("hltAntiKT5L2L3CorrCaloJets"),
     recmet                          = cms.InputTag("hltMet"),
-    ht                              = cms.InputTag("hltJet40Ht"),
+    ht                              = cms.InputTag("hltHtMet"),
     recoPFJets                      = cms.InputTag("ak5PFJets"),
     calotowers                      = cms.InputTag("hltTowerMakerForAll"),
     muon                            = cms.InputTag("muons"),
@@ -51,7 +49,6 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     MuNoVtxCandTag2                 = cms.InputTag("hltL2MuonCandidatesNoVtx"),
     OniaPixelTag                    = cms.InputTag("hltMuTrackJpsiPixelTrackCands"),
     OniaTrackTag                    = cms.InputTag("hltMuTrackJpsiCtfTrackCands"),
-    DiMuVtx                         = cms.InputTag("hltDisplacedmumuVtxProducerLowMass"),
 
     ### egamma OpenHLT objects                             
     CandIso                         = cms.InputTag("hltL1IsoRecoEcalCandidate"),
@@ -60,8 +57,8 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     EcalNonIso                      = cms.InputTag("hltL1NonIsolatedPhotonEcalIsol"),
     HcalIsoPho                      = cms.InputTag("hltL1IsolatedPhotonHcalIsol"),
     HcalNonIsoPho                   = cms.InputTag("hltL1NonIsolatedPhotonHcalIsol"),
-    IsoPhoTrackIsol                 = cms.InputTag("hltL1IsolatedPhotonHollowTrackIsol"),
-    NonIsoPhoTrackIsol              = cms.InputTag("hltL1NonIsolatedPhotonHollowTrackIsol"),
+    IsoPhoTrackIsol                 = cms.InputTag("hltL1IsoPhotonHollowTrackIsol"),
+    NonIsoPhoTrackIsol              = cms.InputTag("hltL1NonIsoPhotonHollowTrackIsol"),
     HcalIsoEle                      = cms.InputTag("hltL1IsolatedPhotonHcalIsol"),
     HcalNonIsoEle                   = cms.InputTag("hltL1NonIsolatedPhotonHcalIsol"),
     SpikeCleaningIsol               = cms.InputTag("hltL1IsoR9shape"),
@@ -84,7 +81,6 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     ### tau OpenHLT related objects
     HLTTau                          = cms.InputTag("TauOpenHLT"),
     HLTPFTau                        = cms.InputTag("hltPFTaus"),
-    HLTPFTauTightCone               = cms.InputTag("hltPFTausTightIso"),
     minPtChargedHadronsForTaus      = cms.double(1.5),
     minPtGammassForTaus             = cms.double(1.5),
 
@@ -106,8 +102,8 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     CorrectedBJetsL2                = cms.InputTag("hltAntiKT5L2L3CorrCaloJets"),
     LifetimeBJetsL25                = cms.InputTag("openHltBLifetimeL25BJetTags"),
     LifetimeBJetsL3                 = cms.InputTag("openHltBLifetimeL3BJetTags"),
-    LifetimeBJetsL25SingleTrack     = cms.InputTag("openHltBLifetimeL25BJetTagsSingleTrack"),
-    LifetimeBJetsL3SingleTrack      = cms.InputTag("openHltBLifetimeL3BJetTagsSingleTrack"),
+    SoftmuonBJetsL25                = cms.InputTag("openHltBSoftmuonL25BJetTags"),
+    SoftmuonBJetsL3                 = cms.InputTag("openHltBSoftmuonL3BJetTags"),
     PerformanceBJetsL25             = cms.InputTag("openHltBSoftmuonL25BJetTags"),
     PerformanceBJetsL3              = cms.InputTag("openHltBPerfMeasL3BJetTags"),
 
@@ -159,16 +155,5 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
         GenJetMin     = cms.double(0.0),
         Monte         = cms.bool(True),
         Debug         = cms.bool(False)
-    ),
-
-    JetIDParams  = cms.PSet(
-         useRecHits      = cms.bool(True),
-         hbheRecHitsColl = cms.InputTag("hltHbhereco"),
-         hoRecHitsColl   = cms.InputTag("hltHoreco"),
-         hfRecHitsColl   = cms.InputTag("hltHfreco"),
-         #ebRecHitsColl   = cms.InputTag("EcalRecHitsEB"),
-         #eeRecHitsColl   = cms.InputTag("EcalRecHitsEE")
-         ebRecHitsColl   = cms.InputTag("hltEcalRecHitAll", "EcalRecHitsEB"),
-         eeRecHitsColl   = cms.InputTag("hltEcalRecHitAll", "EcalRecHitsEE")
-     )                            
+    )
 )

@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Common
 // Class  :     EventBase
-// 
+//
 /**\class EventBase EventBase.h FWCore/Common/interface/EventBase.h
 
  Description: Base class for Events in both the full and light framework
@@ -40,19 +40,20 @@
 
 namespace edm {
 
+   class ProcessHistory;
    class TriggerResults;
    class TriggerNames;
 
    class EventBase {
-      
+
    public:
       EventBase();
       virtual ~EventBase();
-      
+
       // ---------- const member functions ---------------------
       template<typename T>
       bool getByLabel(InputTag const&, Handle<T>&) const;
-      
+
       // AUX functions.
       edm::EventID id() const {return eventAuxiliary().id();}
       edm::Timestamp time() const {return eventAuxiliary().time();}
@@ -66,6 +67,7 @@ namespace edm {
 
       virtual TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const = 0;
       virtual TriggerResultsByName triggerResultsByName(std::string const& process) const = 0;
+      virtual ProcessHistory const& processHistory() const = 0;
 
    protected:
 
@@ -73,16 +75,16 @@ namespace edm {
 
    private:
       //EventBase(EventBase const&); // allow default
-      
+
       //EventBase const& operator=(EventBase const&); // allow default
-      
+
       virtual BasicHandle getByLabelImpl(WrapperInterfaceBase const* wrapperInterfaceBase, std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const = 0;
       // ---------- member data --------------------------------
-      
+
    };
 
    template<typename T>
-   bool 
+   bool
    EventBase::getByLabel(InputTag const& tag, Handle<T>& result) const {
       result.clear();
       BasicHandle bh = this->getByLabelImpl(edm::Wrapper<T>::getInterface(), typeid(edm::Wrapper<T>), typeid(T), tag);

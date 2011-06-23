@@ -3,7 +3,6 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include <algorithm>
 

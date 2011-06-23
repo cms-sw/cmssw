@@ -23,6 +23,7 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
 
  Float_t maxPT=1500.;
 
+ char* fastSim = "IS_FSIM";
 
  //=============================================
 
@@ -134,27 +135,27 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    //===== For each monitored type as defined in muonValidation_cff.py 
  
    //===== reco muon distributions: GLB
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Glb/ErrPt",rh1);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Glb/ErrPt",sh1);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/ErrPt",rh1);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/ErrPt",sh1);
  //  if(! rh1 && sh1) continue;
    rh1->GetYaxis()->SetTitle("GlobalMuon(GLB) #Delta p_{T}/p_{T}");
    rh1->GetYaxis()->SetTitleSize(0.05);
    rh1->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Glb/ErrP",rh2);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Glb/ErrP",sh2);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/ErrP",rh2);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/ErrP",sh2);
    rh2->GetYaxis()->SetTitle("GlobalMuon(GLB) #Delta p/p");
    rh2->GetYaxis()->SetTitleSize(0.05);
    rh2->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Glb/ErrPt_vs_Eta_Sigma",rh3);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Glb/ErrPt_vs_Eta_Sigma",sh3);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/ErrPt_vs_Eta_Sigma",rh3);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/ErrPt_vs_Eta_Sigma",sh3);
    rh3->GetYaxis()->SetTitle("GlobalMuon(GLB) #Delta p_{T}/p_{T} vs #sigma(#eta)");
    rh3->GetYaxis()->SetTitleSize(0.05);
    rh3->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Glb/ErrPt_vs_Pt_Sigma",rh4);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Glb/ErrPt_vs_Pt_Sigma",sh4);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/ErrPt_vs_Pt_Sigma",rh4);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/ErrPt_vs_Pt_Sigma",sh4);
    rh4->GetYaxis()->SetTitle("GlobalMuon(GLB) #Delta p_{T}/p_{T} vs #sigma(p_{T})");
    rh4->GetYaxis()->SetTitleSize(0.05);
    rh4->GetYaxis()->SetTitleOffset(1.2);
@@ -165,7 +166,7 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    NormalizeHistograms(rh1,sh1);
    NormalizeHistograms(rh2,sh2);
    NormalizeHistograms(rh3,sh3);
-   NormalizeHistograms(rh4,sh4);
+   NormalizeHistogramsPeakRegion(rh4,sh4);
 
    plot4histos(canvas,
 	       sh1,rh1,sh2,rh2,
@@ -189,27 +190,27 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    delete canvas;
 
    //==== efficiencies and fractions GLB
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Glb/EffP",rh1);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Glb/EffP",sh1);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/EffP",rh1);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/EffP",sh1);
    //if(! rh1 && sh1) continue;
    rh1->GetYaxis()->SetTitle("GlobalMuon(GLB) #epsilon vs. p");
    rh1->GetYaxis()->SetTitleSize(0.05);
    rh1->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Glb/EffEta",rh2);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Glb/EffEta",sh2);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/EffEta",rh2);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/EffEta",sh2);
    rh2->GetYaxis()->SetTitle("GlobalMuon(GLB) #epsilon vs. #eta");
    rh2->GetYaxis()->SetTitleSize(0.05);
    rh2->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Glb/FractP",rh3);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Glb/FractP",sh3);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/FractP",rh3);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/FractP",sh3);
    rh3->GetYaxis()->SetTitle("GlobalMuon(GLB) fraction vs. p");
    rh3->GetYaxis()->SetTitleSize(0.05);
    rh3->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Glb/FractEta",rh4);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Glb/FractEta",sh4);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/FractEta",rh4);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Glb"+fastSim+"/FractEta",sh4);
    rh4->GetYaxis()->SetTitle("GlobalMuon(GLB) fraction vs. #eta");
    rh4->GetYaxis()->SetTitleSize(0.05);
    rh4->GetYaxis()->SetTitleOffset(1.2);
@@ -220,7 +221,7 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    NormalizeHistograms(rh1,sh1);
    NormalizeHistograms(rh2,sh2);
    NormalizeHistograms(rh3,sh3);
-   NormalizeHistograms(rh4,sh4);
+   NormalizeHistogramsPeakRegion(rh4,sh4);
 
    plot4histos(canvas,
                sh1,rh1,sh2,rh2,
@@ -244,27 +245,27 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    delete canvas;
 
    //===== reco muon distributions: GLBPF
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_GlbPF/ErrPt",rh1);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_GlbPF/ErrPt",sh1);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/ErrPt",rh1);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/ErrPt",sh1);
   // if(! rh1 && sh1) continue;
    rh1->GetYaxis()->SetTitle("PFGlobalMuon(GLBPF) #Delta p_{T}/p_{T}");
    rh1->GetYaxis()->SetTitleSize(0.05);
    rh1->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_GlbPF/ErrP",rh2);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_GlbPF/ErrP",sh2);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/ErrP",rh2);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/ErrP",sh2);
    rh2->GetYaxis()->SetTitle("PFGlobalMuon(GLBPF) #Delta p/p");
    rh2->GetYaxis()->SetTitleSize(0.05);
    rh2->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_GlbPF/ErrPt_vs_Eta_Sigma",rh3);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_GlbPF/ErrPt_vs_Eta_Sigma",sh3);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/ErrPt_vs_Eta_Sigma",rh3);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/ErrPt_vs_Eta_Sigma",sh3);
    rh3->GetYaxis()->SetTitle("PFGlobalMuon(GLBPF) #Delta p_{T}/p_{T} vs #sigma(#eta)");
    rh3->GetYaxis()->SetTitleSize(0.05);
    rh3->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_GlbPF/ErrPt_vs_Pt_Sigma",rh4);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_GlbPF/ErrPt_vs_Pt_Sigma",sh4);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/ErrPt_vs_Pt_Sigma",rh4);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/ErrPt_vs_Pt_Sigma",sh4);
    rh4->GetYaxis()->SetTitle("PFGlobalMuon(GLBPF) #Delta p_{T}/p_{T} vs #sigma(p_{T})");
    rh4->GetYaxis()->SetTitleSize(0.05);
    rh4->GetYaxis()->SetTitleOffset(1.2);
@@ -275,7 +276,7 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    NormalizeHistograms(rh1,sh1);
    NormalizeHistograms(rh2,sh2);
    NormalizeHistograms(rh3,sh3);
-   NormalizeHistograms(rh4,sh4);
+   NormalizeHistogramsPeakRegion(rh4,sh4);
 
    plot4histos(canvas,
                sh1,rh1,sh2,rh2,
@@ -299,27 +300,27 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    delete canvas;
 
    //==== efficiencies and fractions GLBPF
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_GlbPF/EffP",rh1);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_GlbPF/EffP",sh1);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/EffP",rh1);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/EffP",sh1);
    //if(! rh1 && sh1) continue;
    rh1->GetYaxis()->SetTitle("PFGlobalMuon(GLBPF) #epsilon vs. p");
    rh1->GetYaxis()->SetTitleSize(0.05);
    rh1->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_GlbPF/EffEta",rh2);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_GlbPF/EffEta",sh2);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/EffEta",rh2);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/EffEta",sh2);
    rh2->GetYaxis()->SetTitle("PFGlobalMuon(GLBPF) #epsilon vs. #eta");
    rh2->GetYaxis()->SetTitleSize(0.05);
    rh2->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_GlbPF/FractP",rh3);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_GlbPF/FractP",sh3);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/FractP",rh3);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/FractP",sh3);
    rh3->GetYaxis()->SetTitle("PFGlobalMuon(GLBPF) fraction vs. p");
    rh3->GetYaxis()->SetTitleSize(0.05);
    rh3->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_GlbPF/FractEta",rh4);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_GlbPF/FractEta",sh4);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/FractEta",rh4);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_GlbPF"+fastSim+"/FractEta",sh4);
    rh4->GetYaxis()->SetTitle("PFGlobalMuon(GLBPF) fraction vs. #eta");
    rh4->GetYaxis()->SetTitleSize(0.05);
    rh4->GetYaxis()->SetTitleOffset(1.2);
@@ -330,7 +331,7 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    NormalizeHistograms(rh1,sh1);
    NormalizeHistograms(rh2,sh2);
    NormalizeHistograms(rh3,sh3);
-   NormalizeHistograms(rh4,sh4);
+   NormalizeHistogramsPeakRegion(rh4,sh4);
 
    plot4histos(canvas,
                sh1,rh1,sh2,rh2,
@@ -355,27 +356,27 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
 
 
    //===== reco muon distributions: STA
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Sta/ErrPt",rh1);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Sta/ErrPt",sh1);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/ErrPt",rh1);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/ErrPt",sh1);
   // if(! rh1 && sh1) continue;
    rh1->GetYaxis()->SetTitle("StandAloneMuon(STA) #Delta p_{T}/p_{T}");
    rh1->GetYaxis()->SetTitleSize(0.05);
    rh1->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Sta/ErrP",rh2);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Sta/ErrP",sh2);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/ErrP",rh2);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/ErrP",sh2);
    rh2->GetYaxis()->SetTitle("StandAloneMuon(STA) #Delta p/p");
    rh2->GetYaxis()->SetTitleSize(0.05);
    rh2->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Sta/ErrPt_vs_Eta_Sigma",rh3);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Sta/ErrPt_vs_Eta_Sigma",sh3);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/ErrPt_vs_Eta_Sigma",rh3);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/ErrPt_vs_Eta_Sigma",sh3);
    rh3->GetYaxis()->SetTitle("StandAloneMuon(STA) #Delta p_{T}/p_{T} vs #sigma(#eta)");
    rh3->GetYaxis()->SetTitleSize(0.05);
    rh3->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Sta/ErrPt_vs_Pt_Sigma",rh4);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Sta/ErrPt_vs_Pt_Sigma",sh4);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/ErrPt_vs_Pt_Sigma",rh4);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/ErrPt_vs_Pt_Sigma",sh4);
    rh4->GetYaxis()->SetTitle("StandAloneMuon(STA) #Delta p_{T}/p_{T} vs #sigma(p_{T})");
    rh4->GetYaxis()->SetTitleSize(0.05);
    rh4->GetYaxis()->SetTitleOffset(1.2);
@@ -386,7 +387,7 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    NormalizeHistograms(rh1,sh1);
    NormalizeHistograms(rh2,sh2);
    NormalizeHistograms(rh3,sh3);
-   NormalizeHistograms(rh4,sh4);
+   NormalizeHistogramsPeakRegion(rh4,sh4);
 
    plot4histos(canvas,
                sh1,rh1,sh2,rh2,
@@ -410,27 +411,27 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    delete canvas;
 
    //==== efficiencies and fractions STA
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Sta/EffP",rh1);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Sta/EffP",sh1);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/EffP",rh1);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/EffP",sh1);
   // if(! rh1 && sh1) continue;
    rh1->GetYaxis()->SetTitle("StandAloneMuon(STA) #epsilon vs. p");
    rh1->GetYaxis()->SetTitleSize(0.05);
    rh1->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Sta/EffEta",rh2);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Sta/EffEta",sh2);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/EffEta",rh2);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/EffEta",sh2);
    rh2->GetYaxis()->SetTitle("StandAloneMuon(STA) #epsilon vs. #eta");
    rh2->GetYaxis()->SetTitleSize(0.05);
    rh2->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Sta/FractP",rh3);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Sta/FractP",sh3);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/FractP",rh3);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/FractP",sh3);
    rh3->GetYaxis()->SetTitle("StandAloneMuon(STA) fraction vs. p");
    rh3->GetYaxis()->SetTitleSize(0.05);
    rh3->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Sta/FractEta",rh4);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Sta/FractEta",sh4);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/FractEta",rh4);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Sta"+fastSim+"/FractEta",sh4);
    rh4->GetYaxis()->SetTitle("StandAloneMuon(STA) fraction vs. #eta");
    rh4->GetYaxis()->SetTitleSize(0.05);
    rh4->GetYaxis()->SetTitleOffset(1.2);
@@ -441,7 +442,7 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    NormalizeHistograms(rh1,sh1);
    NormalizeHistograms(rh2,sh2);
    NormalizeHistograms(rh3,sh3);
-   NormalizeHistograms(rh4,sh4);
+   NormalizeHistogramsPeakRegion(rh4,sh4);
 
    plot4histos(canvas,
                sh1,rh1,sh2,rh2,
@@ -464,139 +465,28 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    delete l;
    delete canvas;
 
-   //===== reco muon distributions: STAPF
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_StaPF/ErrPt",rh1);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_StaPF/ErrPt",sh1);
-  // if(! rh1 && sh1) continue;
-   rh1->GetYaxis()->SetTitle("PFStandAloneMuon(STAPF) #Delta p_{T}/p_{T}");
-   rh1->GetYaxis()->SetTitleSize(0.05);
-   rh1->GetYaxis()->SetTitleOffset(1.2);
-
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_StaPF/ErrP",rh2);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_StaPF/ErrP",sh2);
-   rh2->GetYaxis()->SetTitle("PFStandAloneMuon(STAPF) #Delta p/p");
-   rh2->GetYaxis()->SetTitleSize(0.05);
-   rh2->GetYaxis()->SetTitleOffset(1.2);
-
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_StaPF/ErrPt_vs_Eta_Sigma",rh3);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_StaPF/ErrPt_vs_Eta_Sigma",sh3);
-   rh3->GetYaxis()->SetTitle("PFStandAloneMuon(STAPF) #Delta p_{T}/p_{T} vs #sigma(#eta)");
-   rh3->GetYaxis()->SetTitleSize(0.05);
-   rh3->GetYaxis()->SetTitleOffset(1.2);
-
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_StaPF/ErrPt_vs_Pt_Sigma",rh4);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_StaPF/ErrPt_vs_Pt_Sigma",sh4);
-   rh4->GetYaxis()->SetTitle("PFStandAloneMuon(STAPF) #Delta p_{T}/p_{T} vs #sigma(p_{T})");
-   rh4->GetYaxis()->SetTitleSize(0.05);
-   rh4->GetYaxis()->SetTitleOffset(1.2);
-
-   canvas = new TCanvas("RecHistosStaPF","Distributions for PFStandAloneMuons (STAPF)",1000,1050);
-
-   // Normalize to the same number of "new" events:
-   NormalizeHistograms(rh1,sh1);
-   NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rh3,sh3);
-   NormalizeHistograms(rh4,sh4);
-
-   plot4histos(canvas,
-               sh1,rh1,sh2,rh2,
-               sh3,rh3,sh4,rh4,
-               te,"UU",-1);
-
-   canvas->cd();
-
-   l = new TLegend(0.20,0.48,0.90,0.53);
-   l->SetTextSize(0.016);
-   l->SetLineColor(1);
-   l->SetLineWidth(1);
-   l->SetLineStyle(1);
-   l->SetFillColor(0);
-   l->SetBorderSize(3);
-   l->AddEntry(rh1,refLabel,"LPF");
-   l->AddEntry(sh1,newLabel,"LPF");
-   l->Draw();
-   canvas->Print(newDir+"/muonRecoStaPF.pdf");
-   delete l;
-   delete canvas;
-
-   //==== efficiencies and fractions STAPF
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_StaPF/EffP",rh1);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_StaPF/EffP",sh1);
-  // if(! rh1 && sh1) continue;
-   rh1->GetYaxis()->SetTitle("PFStandAloneMuon(STAPF) #epsilon vs. p");
-   rh1->GetYaxis()->SetTitleSize(0.05);
-   rh1->GetYaxis()->SetTitleOffset(1.2);
-
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_StaPF/EffEta",rh2);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_StaPF/EffEta",sh2);
-   rh2->GetYaxis()->SetTitle("PFStandAloneMuon(STAPF) #epsilon vs. #eta");
-   rh2->GetYaxis()->SetTitleSize(0.05);
-   rh2->GetYaxis()->SetTitleOffset(1.2);
-
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_StaPF/FractP",rh3);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_StaPF/FractP",sh3);
-   rh3->GetYaxis()->SetTitle("PFStandAloneMuon(STAPF) fraction vs. p");
-   rh3->GetYaxis()->SetTitleSize(0.05);
-   rh3->GetYaxis()->SetTitleOffset(1.2);
-
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_StaPF/FractEta",rh4);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_StaPF/FractEta",sh4);
-   rh4->GetYaxis()->SetTitle("PFStandAloneMuon(STAPF) fraction vs. #eta");
-   rh4->GetYaxis()->SetTitleSize(0.05);
-   rh4->GetYaxis()->SetTitleOffset(1.2);
-
-   canvas = new TCanvas("RecEffHistosStaPF","Distributions for PFStandAloneMuons (STAPF), efficiencies and fractions",1000,1050);
-
-   // Normalize to the same number of "new" events:
-   NormalizeHistograms(rh1,sh1);
-   NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rh3,sh3);
-   NormalizeHistograms(rh4,sh4);
-
-   plot4histos(canvas,
-               sh1,rh1,sh2,rh2,
-               sh3,rh3,sh4,rh4,
-               te,"UU",-1);
-
-   canvas->cd();
-
-   l = new TLegend(0.20,0.48,0.90,0.53);
-   l->SetTextSize(0.016);
-   l->SetLineColor(1);
-   l->SetLineWidth(1);
-   l->SetLineStyle(1);
-   l->SetFillColor(0);
-   l->SetBorderSize(3);
-   l->AddEntry(rh1,refLabel,"LPF");
-   l->AddEntry(sh1,newLabel,"LPF");
-   l->Draw();
-   canvas->Print(newDir+"/muonRecoStaPFEff.pdf");
-   delete l;
-   delete canvas;
-
-
    //===== reco muon distributions: TRK
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Trk/ErrPt",rh1);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Trk/ErrPt",sh1);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/ErrPt",rh1);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/ErrPt",sh1);
   // if(! rh1 && sh1) continue;
    rh1->GetYaxis()->SetTitle("TrackerMuon(TRK) #Delta p_{T}/p_{T}");
    rh1->GetYaxis()->SetTitleSize(0.05);
    rh1->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Trk/ErrP",rh2);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Trk/ErrP",sh2);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/ErrP",rh2);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/ErrP",sh2);
    rh2->GetYaxis()->SetTitle("TrackerMuon(TRK) #Delta p/p");
    rh2->GetYaxis()->SetTitleSize(0.05);
    rh2->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Trk/ErrPt_vs_Eta_Sigma",rh3);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Trk/ErrPt_vs_Eta_Sigma",sh3);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/ErrPt_vs_Eta_Sigma",rh3);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/ErrPt_vs_Eta_Sigma",sh3);
    rh3->GetYaxis()->SetTitle("TrackerMuon(TRK) #Delta p_{T}/p_{T} vs #sigma(#eta)");
    rh3->GetYaxis()->SetTitleSize(0.05);
    rh3->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Trk/ErrPt_vs_Pt_Sigma",rh4);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Trk/ErrPt_vs_Pt_Sigma",sh4);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/ErrPt_vs_Pt_Sigma",rh4);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/ErrPt_vs_Pt_Sigma",sh4);
    rh4->GetYaxis()->SetTitle("TrackerMuon(TRK) #Delta p_{T}/p_{T} vs #sigma(p_{T})");
    rh4->GetYaxis()->SetTitleSize(0.05);
    rh4->GetYaxis()->SetTitleOffset(1.2);
@@ -607,7 +497,7 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    NormalizeHistograms(rh1,sh1);
    NormalizeHistograms(rh2,sh2);
    NormalizeHistograms(rh3,sh3);
-   NormalizeHistograms(rh4,sh4);
+   NormalizeHistogramsPeakRegion(rh4,sh4);
 
    plot4histos(canvas,
                sh1,rh1,sh2,rh2,
@@ -632,27 +522,27 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
 
 
    //==== efficiencies and fractions TRK
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Trk/EffP",rh1);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Trk/EffP",sh1);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/EffP",rh1);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/EffP",sh1);
   // if(! rh1 && sh1) continue;
    rh1->GetYaxis()->SetTitle("TrackerMuon(TRK) #epsilon vs. p");
    rh1->GetYaxis()->SetTitleSize(0.05);
    rh1->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Trk/EffEta",rh2);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Trk/EffEta",sh2);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/EffEta",rh2);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/EffEta",sh2);
    rh2->GetYaxis()->SetTitle("TrackerMuon(TRK) #epsilon vs. #eta");
    rh2->GetYaxis()->SetTitleSize(0.05);
    rh2->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Trk/FractP",rh3);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Trk/FractP",sh3);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/FractP",rh3);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/FractP",sh3);
    rh3->GetYaxis()->SetTitle("TrackerMuon(TRK) fraction vs. p");
    rh3->GetYaxis()->SetTitleSize(0.05);
    rh3->GetYaxis()->SetTitleOffset(1.2);
 
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Trk/FractEta",rh4);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Trk/FractEta",sh4);
+   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/FractEta",rh4);
+   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_Trk"+fastSim+"/FractEta",sh4);
    rh4->GetYaxis()->SetTitle("TrackerMuon(TRK) fraction vs. #eta");
    rh4->GetYaxis()->SetTitleSize(0.05);
    rh4->GetYaxis()->SetTitleOffset(1.2);
@@ -663,7 +553,7 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    NormalizeHistograms(rh1,sh1);
    NormalizeHistograms(rh2,sh2);
    NormalizeHistograms(rh3,sh3);
-   NormalizeHistograms(rh4,sh4);
+   NormalizeHistogramsPeakRegion(rh4,sh4);
 
    plot4histos(canvas,
                sh1,rh1,sh2,rh2,
@@ -686,116 +576,6 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
    delete l;
    delete canvas;
 
-   //===== reco muon distributions: TRKPF
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_TrkPF/ErrPt",rh1);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_TrkPF/ErrPt",sh1);
-   //if(! rh1 && sh1) continue;
-   rh1->GetYaxis()->SetTitle("PFTrackerMuon(TRKPF) #Delta p_{T}/p_{T}");
-   rh1->GetYaxis()->SetTitleSize(0.05);
-   rh1->GetYaxis()->SetTitleOffset(1.2);
-
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_TrkPF/ErrP",rh2);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_TrkPF/ErrP",sh2);
-   rh2->GetYaxis()->SetTitle("PFTrackerMuon(TRKPF) #Delta p/p");
-   rh2->GetYaxis()->SetTitleSize(0.05);
-   rh2->GetYaxis()->SetTitleOffset(1.2);
-
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_TrkPF/ErrPt_vs_Eta_Sigma",rh3);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_TrkPF/ErrPt_vs_Eta_Sigma",sh3);
-   rh3->GetYaxis()->SetTitle("PFTrackerMuon(TRKPF) #Delta p_{T}/p_{T} vs #sigma(#eta)");
-   rh3->GetYaxis()->SetTitleSize(0.05);
-   rh3->GetYaxis()->SetTitleOffset(1.2);
-
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_TrkPF/ErrPt_vs_Pt_Sigma",rh4);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_TrkPF/ErrPt_vs_Pt_Sigma",sh4);
-   rh4->GetYaxis()->SetTitle("PFTrackerMuon(TRKPF) #Delta p_{T}/p_{T} vs #sigma(p_{T})");
-   rh4->GetYaxis()->SetTitleSize(0.05);
-   rh4->GetYaxis()->SetTitleOffset(1.2);
-
-   canvas = new TCanvas("RecHistosTrkPF","Distributions for PFTrackerMuons (TRKPF)",1000,1050);
-
-   // Normalize to the same number of "new" events:
-   NormalizeHistograms(rh1,sh1);
-   NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rh3,sh3);
-   NormalizeHistograms(rh4,sh4);
-
-   plot4histos(canvas,
-               sh1,rh1,sh2,rh2,
-               sh3,rh3,sh4,rh4,
-               te,"UU",-1);
-
-   canvas->cd();
-
-   l = new TLegend(0.20,0.48,0.90,0.53);
-   l->SetTextSize(0.016);
-   l->SetLineColor(1);
-   l->SetLineWidth(1);
-   l->SetLineStyle(1);
-   l->SetFillColor(0);
-   l->SetBorderSize(3);
-   l->AddEntry(rh1,refLabel,"LPF");
-   l->AddEntry(sh1,newLabel,"LPF");
-   l->Draw();
-   canvas->Print(newDir+"/muonRecoTrkPF.pdf");
-   delete l;
-   delete canvas;
-
-   //==== efficiencies and fractions TRKPF
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_TrkPF/EffP",rh1);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_TrkPF/EffP",sh1);
-   //if(! rh1 && sh1) continue;
-   rh1->GetYaxis()->SetTitle("PFTrackerMuon(TRKPF) #epsilon vs. p");
-   rh1->GetYaxis()->SetTitleSize(0.05);
-   rh1->GetYaxis()->SetTitleOffset(1.2);
-
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_TrkPF/EffEta",rh2);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_TrkPF/EffEta",sh2);
-   rh2->GetYaxis()->SetTitle("PFTrackerMuon(TRKPF) #epsilon vs. #eta");
-   rh2->GetYaxis()->SetTitleSize(0.05);
-   rh2->GetYaxis()->SetTitleOffset(1.2);
-
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_TrkPF/FractP",rh3);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_TrkPF/FractP",sh3);
-   rh3->GetYaxis()->SetTitle("PFTrackerMuon(TRKPF) fraction vs. p");
-   rh3->GetYaxis()->SetTitleSize(0.05);
-   rh3->GetYaxis()->SetTitleOffset(1.2);
-
-   rdir->GetObject(collname1+"/RecoMuon_MuonAssoc_TrkPF/FractEta",rh4);
-   sdir->GetObject(collname2+"/RecoMuon_MuonAssoc_TrkPF/FractEta",sh4);
-   rh4->GetYaxis()->SetTitle("PFTrackerMuon(TRKPF) fraction vs. #eta");
-   rh4->GetYaxis()->SetTitleSize(0.05);
-   rh4->GetYaxis()->SetTitleOffset(1.2);
-
-   canvas = new TCanvas("RecEffHistosTrkPF","Distributions for PFTrackerMuons (TRKPF), efficiencies and fractions",1000,1050);
-
-   // Normalize to the same number of "new" events:
-   NormalizeHistograms(rh1,sh1);
-   NormalizeHistograms(rh2,sh2);
-   NormalizeHistograms(rh3,sh3);
-   NormalizeHistograms(rh4,sh4);
-
-   plot4histos(canvas,
-               sh1,rh1,sh2,rh2,
-               sh3,rh3,sh4,rh4,
-               te,"UU",-1);
-
-   canvas->cd();
-
-   l = new TLegend(0.20,0.48,0.90,0.53);
-   l->SetTextSize(0.016);
-   l->SetLineColor(1);
-   l->SetLineWidth(1);
-   l->SetLineStyle(1);
-   l->SetFillColor(0);
-   l->SetBorderSize(3);
-   l->AddEntry(rh1,refLabel,"LPF");
-   l->AddEntry(sh1,newLabel,"LPF");
-   l->Draw();
-   canvas->Print(newDir+"/muonRecoTrkPFEff.pdf");
-   delete l;
-   delete canvas;
-
  //// Merge pdf histograms together into larger files, and name them based on the collection names
  gSystem->Exec("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=merged.pdf "
 	       +newDir+"/muonRecoGlb.pdf "
@@ -804,12 +584,8 @@ void RecoMuonValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE"
                +newDir+"/muonRecoGlbPFEff.pdf "
                +newDir+"/muonRecoSta.pdf "
                +newDir+"/muonRecoStaEff.pdf "
-               +newDir+"/muonRecoStaPF.pdf "
-               +newDir+"/muonRecoStaPFEff.pdf "
                +newDir+"/muonRecoTrk.pdf "
-               +newDir+"/muonRecoTrkEff.pdf "
-               +newDir+"/muonRecoTrkPF.pdf "
-               +newDir+"/muonRecoTrkPFEff.pdf ");
+               +newDir+"/muonRecoTrkEff.pdf ");
  gSystem->Exec("mv merged.pdf "+newDir+"/../"+myName+".pdf");
  gSystem->Exec("rm -r "+newDir);
  
@@ -826,6 +602,27 @@ void NormalizeHistograms(TH1F* h1, TH1F* h2)
   if ( h1->Integral() != 0 && h2->Integral() != 0 ){
       scale2 = (float)h1->Integral()/(float)h2->Integral();
     
+      //h1->Sumw2();
+      //h2->Sumw2();
+      h2->Scale(scale2);
+    }
+}
+
+/*in case histogram ranges are very different*/
+void NormalizeHistogramsPeakRegion(TH1F* h1, TH1F* h2)
+{
+  if (h1==0 || h2==0) return;
+  float scale2 = -9999.9;
+  //identify the peak region
+  int bin_start, bin_end;
+  int bin_tot = 0;
+  bin_tot = (h1->GetXaxis()->GetNbins() > h2->GetXaxis()->GetNbins()) ? h1->GetXaxis()->GetNbins() : h2->GetXaxis()->GetNbins();
+  bin_start = 0.1*bin_tot;
+  bin_end = 0.2*bin_tot; 
+
+  if ( h1->Integral(bin_start,bin_end) != 0 && h2->Integral(bin_start,bin_end) != 0 ){
+      scale2 = (float)h1->Integral(bin_start,bin_end)/(float)h2->Integral(bin_start,bin_end);
+
       //h1->Sumw2();
       //h2->Sumw2();
       h2->Scale(scale2);

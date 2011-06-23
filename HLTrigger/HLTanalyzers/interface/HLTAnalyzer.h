@@ -70,15 +70,12 @@ private:
   HLTAlCa     alca_analysis_; 
   HLTTrack    track_analysis_;
   HLTInfo     hlt_analysis_;
-  RECOVertex  vrt_analysisHLT_;
-  RECOVertex  vrt_analysisOffline0_;
-  RECOVertex  vrt_analysisOffline1_;
+  RECOVertex  vrt_analysis_;
 
   int firstLumi_, lastLumi_, towerThreshold_;
   double xSection_, filterEff_, treeWeight;
 
   edm::InputTag recjets_,reccorjets_,genjets_,recmet_,genmet_,ht_,recoPFJets_,calotowers_,hltresults_,genEventInfo_;
-  edm::InputTag hltjets_, hltcorjets_;
   edm::InputTag muon_;
   std::string l1extramc_, l1extramu_;
   edm::InputTag m_l1extramu;
@@ -95,8 +92,8 @@ private:
   edm::InputTag gctBitCounts_,gctRingSums_;
 
   edm::InputTag MuCandTag2_,MuIsolTag2_,MuNoVtxCandTag2_,MuCandTag3_,MuIsolTag3_;
-  edm::InputTag oniaPixelTag_,oniaTrackTag_,DiMuVtx_;
-  edm::InputTag HLTTau_, PFTau_, PFTauTightCone_;
+  edm::InputTag oniaPixelTag_,oniaTrackTag_;
+  edm::InputTag HLTTau_, PFTau_;
   edm::InputTag PFJets_;
   
   //offline reco tau collection and discriminators
@@ -115,8 +112,8 @@ private:
   edm::InputTag m_correctedBJets;
   edm::InputTag m_lifetimeBJetsL25;
   edm::InputTag m_lifetimeBJetsL3;
-  edm::InputTag m_lifetimeBJetsL25SingleTrack;
-  edm::InputTag m_lifetimeBJetsL3SingleTrack;
+  edm::InputTag m_softmuonBJetsL25;
+  edm::InputTag m_softmuonBJetsL3;
   edm::InputTag m_performanceBJetsL25;
   edm::InputTag m_performanceBJetsL3;
 
@@ -164,9 +161,7 @@ private:
   edm::InputTag PixelTracksTagL3_; 
 
   // Reco vertex collection
-  edm::InputTag VertexTagHLT_;
-  edm::InputTag VertexTagOffline0_;
-  edm::InputTag VertexTagOffline1_;
+  edm::InputTag VertexTag_;
 
   int errCnt;
   const int errMax(){return 100;}

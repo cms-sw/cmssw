@@ -27,7 +27,7 @@ namespace cond {
       int execute();
   };
 
-  static size_t sinceTillColumnSize = 12;
+  static size_t sinceTillColumnSize = 20;
   static size_t sinceTillTSColumnSize = 20;
 
   std::string printValidityHeader( cond::TimeType timeType ){
@@ -41,15 +41,20 @@ namespace cond {
         headerLine << "  "<<std::setw(sinceTillColumnSize)<<"";
         break;
       case timestamp:
-        std::cout <<std::setw(sinceTillTSColumnSize)<<"Since (time)"<<std::setw(sinceTillTSColumnSize)<<"  Till (time)  ";  
+        std::cout <<std::setw(sinceTillColumnSize)<<"Since "<<std::setw(sinceTillTSColumnSize)<<"   Since (time)";
+        std::cout <<std::setw(sinceTillColumnSize)<<"  Till "<<std::setw(sinceTillTSColumnSize)<<"   Till (time)";
 	std::cout <<" ";
-        headerLine << std::setw(sinceTillTSColumnSize)<<"";
+        headerLine << std::setw(sinceTillColumnSize)<<"";
+        headerLine << "  "<<std::setw(sinceTillTSColumnSize)<<"";
+        headerLine << "  "<<std::setw(sinceTillColumnSize)<<"";
         headerLine << "  "<<std::setw(sinceTillTSColumnSize)<<"";
         break; 
       case lumiid:
-        std::cout <<std::setw(sinceTillColumnSize)<<"Since (runn)"<<std::setw(sinceTillColumnSize)<<"  Since (lumi)";
-        std::cout <<std::setw(sinceTillColumnSize)<<"  Till (runn)"<<std::setw(sinceTillColumnSize)<<"   Till (lumi)";
+        std::cout <<std::setw(sinceTillColumnSize)<<"Since "<<std::setw(sinceTillColumnSize)<<"   Since (runn) "<<std::setw(sinceTillColumnSize)<<"   Since (lumi)";
+        std::cout <<std::setw(sinceTillColumnSize)<<"  Till "<<std::setw(sinceTillColumnSize)<<"   Till (runn) "<<std::setw(sinceTillColumnSize)<<"   Till (lumi)";
         headerLine << std::setw(sinceTillColumnSize)<<"";
+        headerLine << "  "<<std::setw(sinceTillColumnSize)<<"";
+        headerLine << "  "<<std::setw(sinceTillColumnSize)<<"";
         headerLine << "  "<<std::setw(sinceTillColumnSize)<<"";
         headerLine << "  "<<std::setw(sinceTillColumnSize)<<"";
         headerLine << "  "<<std::setw(sinceTillColumnSize)<<"";
@@ -76,10 +81,12 @@ namespace cond {
        break;
      case timestamp:
        val << cond::time::to_boost(validity);
-       std::cout <<std::setw(sinceTillTSColumnSize)<< val.str().substr(0,20);
+       std::cout <<std::setw(sinceTillColumnSize)<< validity;
+       std::cout <<"  "<<std::setw(sinceTillTSColumnSize)<< val.str().substr(0,20);
        break; 
      case lumiid:
-       std::cout <<std::setw(sinceTillColumnSize)<< cond::time::unpack(validity).first;
+       std::cout <<std::setw(sinceTillColumnSize)<<validity;
+       std::cout <<"  "<<std::setw(sinceTillColumnSize)<< cond::time::unpack(validity).first;
        std::cout <<"  "<<std::setw(sinceTillColumnSize)<< cond::time::unpack(validity).second;
        break; 
      case hash:

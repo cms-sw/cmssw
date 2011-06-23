@@ -108,37 +108,17 @@ combinatoricRecoTaus.modifiers.append(tautagInfoModifer)
 
 recoTauPileUpVertices = cms.EDFilter(
     "RecoTauPileUpVertexSelector",
-    src = PFTauQualityCuts.primaryVertexSrc,
+    src = cms.InputTag("offlinePrimaryVertices"),
     minTrackSumPt = cms.double(5),
     filter = cms.bool(False),
 )
 
-# Temp
-from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesDA_cfi import \
-        offlinePrimaryVerticesDA
-from RecoJets.Configuration.RecoPFJets_cff import kt6PFJets
-kt6PFJets.Rho_EtaMax = cms.double(2.5)
-kt6PFJets.doRhoFastjet = True
-
-recoTauCommonSequence = cms.Sequence()
-
-# Only add the DA vertices if we are in a release where they are not produced
-# automatically.
-import RecoTauTag.Configuration.tools.recoTauConfTools as recoTauConfTools
-if recoTauConfTools.cmssw_version() < (4, 2, 0):
-    print "INFO: Adding DA vertex production to the PFTau sequence"
-    recoTauCommonSequence += offlinePrimaryVerticesDA
-    print "INFO: Adding kt6PFJet producer to the PFTau sequence"
-    recoTauCommonSequence += kt6PFJets
-
-recoTauCommonMainSequence = cms.Sequence(
+recoTauCommonSequence = cms.Sequence(
     ak5PFJetTracksAssociatorAtVertex *
     recoTauAK5PFJets08Region*
     recoTauPileUpVertices*
     pfRecoTauTagInfoProducer
 )
-
-recoTauCommonSequence += recoTauCommonMainSequence
 
 # Not run in RECO, but included for the benefit of PAT
 recoTauClassicFixedConeSequence = cms.Sequence(
