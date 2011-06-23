@@ -267,7 +267,8 @@ def customise(process):
 
   process.particleFlow =  cms.EDProducer('PFCandidateMixer',
           col1 = cms.untracked.InputTag("dimuonsGlobal","forMixing"),
-          col2 = cms.untracked.InputTag("particleFlowORG", "")
+          col2 = cms.untracked.InputTag("particleFlowORG", ""),
+          trackCol = cms.untracked.InputTag("tmfTracks")
   )
 
   process.filterEmptyEv.src = cms.untracked.InputTag("generator","","EmbeddedRECO")
