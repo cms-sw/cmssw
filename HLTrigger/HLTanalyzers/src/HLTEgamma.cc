@@ -120,17 +120,20 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
 	helehovereh       = new float[kMaxhEle];
 	heleR9ID          = new float[kMaxhEle];
 
-	hhfelept         = new float[kMaxhEle];
-	hhfeleeta        = new float[kMaxhEle]; 
-	hhfclustere9e25  = new float[kMaxhEle]; 
-	hhfcluster2Dcut  = new float[kMaxhEle]; 
-	hhfclustereta    = new float[kMaxhEle];  
-	hhfclusterphi    = new float[kMaxhEle];  
+	hhfelept          = new float[kMaxhEle];
+	hhfeleeta         = new float[kMaxhEle]; 
+	hhfclustere9e25   = new float[kMaxhEle];
+	hhfclustere1e9    = new float[kMaxhEle];
+	hhfclustereCOREe9 = new float[kMaxhEle];
+	hhfclustereSeL    = new float[kMaxhEle];
+	hhfcluster2Dcut   = new float[kMaxhEle]; 
+	hhfclustereta     = new float[kMaxhEle];  
+	hhfclusterphi     = new float[kMaxhEle];  
 
 
 	nele        = 0;
 	nphoton     = 0;
-  nhltecalactiv     = 0;
+	nhltecalactiv     = 0;
 	nhltgam     = 0;
 	nhltele     = 0;
 	nhlthfele   = 0;
@@ -228,11 +231,14 @@ void HLTEgamma::setup(const edm::ParameterSet& pSet, TTree* HltTree)
 	HltTree->Branch("ohHFElePt",          hhfelept,           "ohHFElePt[NohHFEle]/F");
 	HltTree->Branch("ohHFEleEta",         hhfeleeta,          "ohHFEleEta[NohHFEle]/F");  
 	HltTree->Branch("NohHFECALClus",      &nhlthfeclus,       "NohHFECALClus/I"); 
-	HltTree->Branch("ohHFEleClustere9e25", hhfclustere9e25,   "ohHFEleClustere9e25[NohHFECALClus]/F");  
-	HltTree->Branch("ohHFEleCluster2Dcut", hhfcluster2Dcut,   "ohHFEleCluster2Dcut[NohHFECALClus]/F");  
-	HltTree->Branch("ohHFEleClusterEta",   hhfclustereta,     "ohHFEleClusterEta[NohHFECALClus]/F");   
-	HltTree->Branch("ohHFEleClusterPhi",   hhfclusterphi,     "ohHFEleClusterPhi[NohHFECALClus]/F");   
-
+	
+    HltTree->Branch("ohHFEleClustere9e25",   hhfclustere9e25,   "ohHFEleClustere9e25[NohHFECALClus]/F");
+    HltTree->Branch("ohHFEleClustere1e9",    hhfclustere1e9,    "ohHFEleClustere1e9[NohHFECALClus]/F");
+    HltTree->Branch("ohHFEleClustereCOREe9", hhfclustereCOREe9, "ohHFEleClustereCOREe9[NohHFECALClus]/F");
+    HltTree->Branch("ohHFEleClustereSeL",    hhfclustereSeL,    "ohHFEleClustereSeL[NohHFECALClus]/F");
+    HltTree->Branch("ohHFEleCluster2Dcut",   hhfcluster2Dcut,   "ohHFEleCluster2Dcut[NohHFECALClus]/F");
+    HltTree->Branch("ohHFEleClusterEta",     hhfclustereta,     "ohHFEleClusterEta[NohHFECALClus]/F");
+    HltTree->Branch("ohHFEleClusterPhi",     hhfclusterphi,     "ohHFEleClusterPhi[NohHFECALClus]/F");
 }
 
 void HLTEgamma::clear(void)
@@ -292,11 +298,15 @@ void HLTEgamma::clear(void)
 
 	std::memset(hhfelept,         '\0', kMaxhEle  * sizeof(float));
 	std::memset(hhfeleeta,        '\0', kMaxhEle  * sizeof(float));
-	std::memset(hhfclustere9e25,  '\0', kMaxhEle  * sizeof(float));
-	std::memset(hhfcluster2Dcut,  '\0', kMaxhEle  * sizeof(float));
-	std::memset(hhfclustereta,    '\0', kMaxhEle  * sizeof(float)); 
-	std::memset(hhfclusterphi,    '\0', kMaxhEle  * sizeof(float)); 
-
+	
+    std::memset(hhfclustere9e25,    '\0', kMaxhEle  * sizeof(float));
+    std::memset(hhfclustere1e9,     '\0', kMaxhEle  * sizeof(float));
+    std::memset(hhfclustereCOREe9,  '\0', kMaxhEle  * sizeof(float));
+    std::memset(hhfclustereSeL,     '\0', kMaxhEle  * sizeof(float));
+    std::memset(hhfcluster2Dcut,    '\0', kMaxhEle  * sizeof(float));
+    std::memset(hhfclustereta,      '\0', kMaxhEle  * sizeof(float));
+    std::memset(hhfclusterphi,      '\0', kMaxhEle  * sizeof(float));
+	
 	nele      = 0;
 	nphoton   = 0;
 	nhltgam   = 0;
@@ -552,36 +562,52 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
 		heleR9ID[u]       = theHLTElectrons[u].r9ID;
 	}
 
-	if(electronHFElectrons.isValid()) {
-		for (reco::RecoEcalCandidateCollection::const_iterator hfelecand = electronHFElectrons->begin(); 
-				hfelecand!= electronHFElectrons->end(); hfelecand++) { 
-			hhfelept[nhlthfele] = hfelecand->pt();
-			hhfeleeta[nhlthfele] = hfelecand->eta(); 
-			nhlthfele++;
-		}
-	}
-	if(electronHFECALClusters.isValid()) { 
-		//    for(reco::SuperClusterCollection::const_iterator hfeleclus = electronHFECALClusters->begin();
-		//	hfeleclus!= electronHFECALClusters->end(); hfeleclus++) {
+    if(electronHFElectrons.isValid()) {
+        for (reco::RecoEcalCandidateCollection::const_iterator hfelecand = electronHFElectrons->begin(); hfelecand!=electronHFElectrons->end(); hfelecand++) {
+            hhfelept[nhlthfele] = hfelecand->pt();
+            hhfeleeta[nhlthfele] = hfelecand->eta();
 
-		for (unsigned int i=0; i < electronHFECALClusters->size(); ++i) {
-			const reco::SuperCluster& hfECALSuperCluster=(*electronHFECALClusters)[i];    
-			reco::SuperClusterRef hfECALSuperClusterRef=edm::Ref<reco::SuperClusterCollection>(electronHFECALClusters,i);
-			const reco::HFEMClusterShapeRef clusShapeRef=electronHFClusterAssociation->find(hfECALSuperClusterRef)->val;
-			const reco::HFEMClusterShape& clusShape=*clusShapeRef;
+            nhlthfele++;
 
-			float hfClustere9e25 = (clusShape.eCOREe9()-(clusShape.eSeL()*1.125));
-			float hfCluster2Dcut = clusShape.eLong3x3()/clusShape.eLong5x5();
+            if(electronHFECALClusters.isValid()) {
 
-			hhfclustere9e25[nhlthfeclus] = hfClustere9e25;
-			hhfcluster2Dcut[nhlthfeclus] = hfCluster2Dcut;
-			hhfclustereta[nhlthfeclus] = hfECALSuperCluster.eta();
-			hhfclusterphi[nhlthfeclus] = hfECALSuperCluster.phi(); 
+                const reco::RecoEcalCandidate& HFcan = (*hfelecand);
+                reco::SuperClusterRef theClusRef=HFcan.superCluster();
+                const reco::SuperCluster& hfECALSuperCluster=*theClusRef;
+                const reco::HFEMClusterShapeRef clusShapeRef=(*electronHFClusterAssociation).find(theClusRef)->val;
+                const reco::HFEMClusterShape& clusShape=*clusShapeRef;
 
-			nhlthfeclus++;
-		}
-	}
-	}
+
+                float hfCluster2Dcut   =(clusShape.eCOREe9()-(clusShape.eSeL()*1.125));
+                float hfClustere9e25   = clusShape.eLong3x3()/clusShape.eLong5x5();
+                float hfClustere1e9    = clusShape.eLong1x1()/clusShape.eLong3x3();
+                float hfClustereCOREe9 = clusShape.eCOREe9();
+                float hfClustereSeL    = clusShape.eSeL();
+
+                hhfcluster2Dcut[nhlthfeclus]   = hfCluster2Dcut;
+                hhfclustere9e25[nhlthfeclus]   = hfClustere9e25;
+                hhfclustere1e9[nhlthfeclus]    = hfClustere1e9;
+                hhfclustereCOREe9[nhlthfeclus] = hfClustereCOREe9;
+                hhfclustereSeL[nhlthfeclus]    = hfClustereSeL;
+                hhfclustereta[nhlthfeclus]     = hfECALSuperCluster.eta();
+                hhfclusterphi[nhlthfeclus]     = hfECALSuperCluster.phi();
+
+            } else {
+
+                hhfcluster2Dcut[nhlthfeclus]   = 0.0;
+                hhfclustere9e25[nhlthfeclus]   = 0.0;
+                hhfclustere1e9[nhlthfeclus]    = 0.0;
+                hhfclustereCOREe9[nhlthfeclus] = 0.0;
+                hhfclustereSeL[nhlthfeclus]    = 0.0;
+                hhfclustereta[nhlthfeclus]     = 0.0;
+                hhfclusterphi[nhlthfeclus]     = 0.0;
+
+            }
+
+            nhlthfeclus++;
+        }
+    }
+}
 
 	void HLTEgamma::MakeL1IsolatedPhotons(
 			std::vector<OpenHLTPhoton> & theHLTPhotons,

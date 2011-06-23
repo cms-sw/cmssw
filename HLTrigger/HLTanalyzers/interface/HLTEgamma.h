@@ -202,10 +202,10 @@ private:
   bool *elIsEcalDriven;  
   int *heleNewSC;
   int nele, nphoton, nhltecalactiv, nhltgam, nhltele, nhlthfele, nhlthfeclus;
-
+  
   float *hhfelept, *hhfeleeta, *hhfclustere9e25, *hhfcluster2Dcut, *hhfclustereta, *hhfclusterphi; 
-
-
+  float *hhfclustere1e9, *hhfclustereCOREe9, *hhfclustereSeL;
+  
   struct OpenHLTPhoton {
     float Et;
     float eta;
