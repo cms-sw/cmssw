@@ -753,7 +753,7 @@ def hlttrgMappingByrun(schema,runnum):
 
 def hltLSById(schema,dataid,hltpathname=None,hltpathpattern=None,withL1Pass=False,withHLTAccept=False):
     '''
-    result (runnum, {cmslsnum:[(pathname,hltcount,prescale)](0)]} 
+    result (runnum, {cmslsnum:[(pathname,prescale,1lpass,hltaccept)](0)]} 
     '''
     #print 'entering hltLSById '
     #t0=time.time()
