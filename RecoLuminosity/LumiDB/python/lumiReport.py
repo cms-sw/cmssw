@@ -617,7 +617,6 @@ def toScreenLSTrg(trgdata,iresults=None,isverbose=False):
             ll=[str(run),'n/a','n/a','n/a']
             if isverbose:
                 ll.append('n/a')
-            print ll
             result.append(ll)
             continue
         perrundata=trgdata[run]
@@ -653,9 +652,25 @@ def toCSVLSTrg(trgdata,ofilename,iresults=None,isverbose=False):
     print trgdata
 def toScreenConfTrg(trgconfdata,iresults=None,isverbose=False):
     '''
-    input:[[run,l1key,bitnames]]
+    input:{run:[datasource,normbitname,[allbits]]}
     '''
-    print trgdata
+    labels=[('Run','source','bit names')]
+    result=[]
+    for  run in sorted(trgconfdata):
+        if trgconfdata[run] is None:
+            ll=[str(run),'n/a','n/a','n/a']
+            continue
+        source=trgconfdata[run][0]
+        source=source.split('/')[-1]
+        #normbit=trgconfdata[run][1]
+        allbits=trgconfdata[run][2]
+        bitnames=', '.join(allbits)
+        result.append([str(run),source,bitnames])
+
+    print ' ==  = '
+    print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
+                               prefix = '| ', postfix = ' |', justify = 'left',
+                               delim = ' | ', wrapfunc = lambda x: wrap_onspace_strict(x,60) )
 
 def toCSVConfTrg(trgconfdata,ofilename,iresults=None,isverbose=False):
     '''

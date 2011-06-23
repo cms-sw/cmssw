@@ -59,9 +59,23 @@ def trgbitsForRange(schema,runlist,datatag=None):
     '''
     input: runlist [run],(required)
            datatag: data version (optional)
-    output: {runnumber:[bitnames]}
+    output: {runnumber:[datasource,normbit,[bitname,..]]}
     '''
-    pass
+    result={}
+    for run in runlist:
+        trgdataid=dataDML.guessTrgDataIdByRun(schema,run)
+        if not trgdataid :
+            result[run]=None
+            continue
+        if not result.has_key(run):
+            result[run]=[]
+        trgconf=dataDML.trgRunById(schema,trgdataid)
+        datasource=trgconf[1]
+        bitzeroname=trgconf[2]
+        bitnamedict=trgconf[3]
+        bitnames=[x[1] for x in bitnamedict if x[1]!='False']
+        result[run].extend([datasource,bitzeroname,bitnames])
+    return result
 
 def hltForRange(schema,inputRange,hltpathname=None,hltpathpattern=None,datatag=None):
     '''
