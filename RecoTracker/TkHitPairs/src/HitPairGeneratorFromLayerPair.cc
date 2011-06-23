@@ -76,6 +76,8 @@ void HitPairGeneratorFromLayerPair::hitPairs(
 
     innerHits.clear();
     innerHitsMap.hits(phiRange.min(), phiRange.max(), innerHits);
+    LogDebug("HitPairGeneratorFromLayerPair")<<
+      "preparing for combination of: "<<innerHits.size()<<" inner and: "<<outerHits.second-outerHits.first<<" outter";
     for ( vector<Hit>::const_iterator ih=innerHits.begin(), ieh = innerHits.end(); ih < ieh; ++ih) {  
       GlobalPoint innPos = (*ih)->globalPosition();
       float r_reduced = std::sqrt( sqr(innPos.x()-region.origin().x())+sqr(innPos.y()-region.origin().y()));
@@ -103,4 +105,5 @@ void HitPairGeneratorFromLayerPair::hitPairs(
     }
     delete checkRZ;
   }
+  LogDebug("HitPairGeneratorFromLayerPair")<<" total number of pairs provided back: "<<result.size();
 }

@@ -42,3 +42,9 @@ JacobianCartesianToCurvilinear(const GlobalTrajectoryParameters& globalParameter
   theJacobian = theJacobian * R;
   //dbg::dbg_trace(1,"Ca2Cu", globalParameters.vector(),theJacobian);
 }
+const AlgebraicMatrix JacobianCartesianToCurvilinear::jacobian_old() const{
+  return asHepMatrix(theJacobian);
+}
+const AlgebraicMatrix56& JacobianCartesianToCurvilinear::jacobian() const{
+  return theJacobian;
+}

@@ -22,7 +22,6 @@
 #include "FastSimulation/Event/interface/NoPrimaryVertexGenerator.h"
 
 #include "FastSimDataFormats/NuclearInteractions/interface/FSimVertexType.h"
-//#include "FastSimulation/Utilities/interface/Histos.h"
 
 using namespace HepPDT;
 
@@ -124,15 +123,6 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
   // Initialize the Particle filter
   myFilter = new KineParticleFilter(kine);
 
-  // Get the Famos Histos pointer
-  //  myHistos = Histos::instance();
-
-  // Initialize a few histograms
-  /*
-  myHistos->book("hvtx",100,-0.1,0.1);
-  myHistos->book("hvty",100,-0.1,0.1);
-  myHistos->book("hvtz",100,-500.,500.);
-  */
 }
  
 FBaseSimEvent::~FBaseSimEvent(){
@@ -152,9 +142,6 @@ FBaseSimEvent::~FBaseSimEvent(){
   delete theFSimVerticesType;
   delete myFilter;
 
-  //Write the histograms
-  //  myHistos->put("histos.root");
-  //  delete myHistos;
 }
 
 void 
@@ -606,7 +593,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
       
       int theTrack = testStable && p->end_vertex() ? 
 	// The particle is scheduled to decay
-	addSimTrack(&part,originVertex, nGenParts()-offset,p->end_vertex()) :
+	addSimTrack(&part,originVertex, nGenParts()-offset,0,p->end_vertex()) : // the 0 is for the event id (0 = hard scattering)
         // The particle is not scheduled to decay 
 	addSimTrack(&part,originVertex, nGenParts()-offset);
 
@@ -783,7 +770,7 @@ FBaseSimEvent::addParticles(const reco::GenParticleCollection& myGenParticles) {
 }
 
 int 
-FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig, 
+FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig, int ievt, 
 			   const HepMC::GenVertex* ev) { 
   
   // Check that the particle is in the Famos "acceptance"
@@ -818,12 +805,18 @@ FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig,
     // No proper decay time is scheduled
     FSimTrack(p,iv,ig,trackId,this);
 
+  // Attach the vertex index for pile-up handling
+  EncodedEventId eventId(0,ievt); // bunch crossing number is always zero, because FastSim doesn't have out-of-time pileup
+  (*theSimTracks)[trackId].setEventId(eventId);
+  (*theSimTracks)[trackId].setVertexIndex((*theSimTracks)[trackId].vertIndex()+ievt);
+
+
   return trackId;
 
 }
 
 int
-FBaseSimEvent::addSimVertex(const XYZTLorentzVector& v, int im, FSimVertexType::VertexType type) {
+FBaseSimEvent::addSimVertex(const XYZTLorentzVector& v, int im, FSimVertexType::VertexType type, int ievt) {
   
   // Check that the vertex is in the Famos "acceptance"
   if ( !myFilter->accept(v) ) return -1;
@@ -843,6 +836,10 @@ FBaseSimEvent::addSimVertex(const XYZTLorentzVector& v, int im, FSimVertexType::
   (*theSimVertices)[vertexId] = FSimVertex(v,im,vertexId,this);
 
   (*theFSimVerticesType)[vertexId] = FSimVertexType(type);
+
+  // Attach the event id for pile-up handling
+  EncodedEventId eventId(0,ievt); // bunch crossing number is always zero, because FastSim doesn't have out-of-time pileup
+  (*theSimVertices)[vertexId].setEventId(eventId);
 
   return vertexId;
 

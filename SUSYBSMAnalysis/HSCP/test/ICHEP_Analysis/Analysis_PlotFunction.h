@@ -183,7 +183,10 @@ void DrawSuperposedHistos(TH1** Histos, std::vector<string> legend, string Style
         Histos[i]->SetStats(kFALSE);
         Histos[i]->GetXaxis()->SetTitle(Xlegend.c_str());
         Histos[i]->GetYaxis()->SetTitle(Ylegend.c_str());
+        Histos[i]->GetXaxis()->SetTitleOffset(1.1);
         Histos[i]->GetYaxis()->SetTitleOffset(1.70);
+        Histos[i]->GetXaxis()->SetNdivisions(505);
+        Histos[i]->GetYaxis()->SetNdivisions(505);
         if(xmin!=xmax)Histos[i]->SetAxisRange(xmin,xmax,"X");
         if(ymin!=ymax)Histos[i]->SetAxisRange(ymin,ymax,"Y");
         Histos[i]->SetFillColor(0);

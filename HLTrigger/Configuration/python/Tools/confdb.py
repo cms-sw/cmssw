@@ -377,9 +377,6 @@ if 'GlobalTag' in %%(dict)s:
 if 'hltTrigReport' in %%(dict)s:
     %%(process)shltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
-if 'hltDQMHLTScalers' in %%(dict)s:
-    %%(process)shltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults', '', '%(name)s' )
-
 if 'hltPreExpressSmart' in %%(dict)s:
     %%(process)shltPreExpressSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
@@ -389,6 +386,10 @@ if 'hltPreHLTMONSmart' in %%(dict)s:
 if 'hltPreDQMSmart' in %%(dict)s:
     %%(process)shltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
+if 'hltDQMHLTScalers' in %%(dict)s:
+    %%(process)shltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)shltDQMHLTScalers.processname         = '%(name)s'
+    
 if 'hltDQML1SeedLogicScalers' in %%(dict)s:
     %%(process)shltDQML1SeedLogicScalers.processname = '%(name)s'
 """ % self.config.__dict__
@@ -770,7 +771,7 @@ if 'GlobalTag' in %%(dict)s:
      #self.options['paths'].append( "-HLT_Jet15U_HcalNoiseFiltered_v*" )
      #self.options['paths'].append( "-HLT_L1DoubleMuOpen_Tight" )
      #self.options['paths'].append( "-HLT_L1MuOpen_AntiBPTX" )
-      self.options['paths'].append( "-HLT_L1MuOpen_AntiBPTX_v*" )
+      self.options['paths'].append( "-HLT_L1SingleMuOpen_AntiBPTX_v*" )
       self.options['paths'].append( "-HLT_JetE30_NoBPTX*_v*" )
      #self.options['paths'].append( "-HLT_Mu0_TkMu0_OST_Jpsi" )
      #self.options['paths'].append( "-HLT_Mu0_TkMu0_OST_Jpsi_Tight_v*" )

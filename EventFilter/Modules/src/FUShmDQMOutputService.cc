@@ -18,7 +18,7 @@
  * - DQMServices/NodeROOT/src/SenderBase.cc
  * - DQMServices/NodeROOT/src/ReceiverBase.cc
  *
- * $Id: FUShmDQMOutputService.cc,v 1.19 2010/03/11 15:40:12 meschi Exp $
+ * $Id: FUShmDQMOutputService.cc,v 1.21 2011/04/14 15:24:51 mommsen Exp $
  */
 
 #include "EventFilter/Modules/interface/FUShmDQMOutputService.h"
@@ -48,7 +48,6 @@ using namespace std;
  * Initialize the static variables for the filter unit indentifiers.
  */
 bool FUShmDQMOutputService::fuIdsInitialized_ = false;
-uint32 FUShmDQMOutputService::fuProcId_ = 0;
 uint32 FUShmDQMOutputService::fuGuidValue_ = 0;
 
 /**
@@ -60,6 +59,9 @@ FUShmDQMOutputService::FUShmDQMOutputService(const edm::ParameterSet &pset,
   , updateNumber_(0)
   , shmBuffer_(0)
   , nbUpdates_(0)
+  , dqm("DQM")
+  , in("INPUT")
+
 {
 
   // specify the routine to be called after event processing.  This routine
@@ -122,9 +124,7 @@ FUShmDQMOutputService::FUShmDQMOutputService(const edm::ParameterSet &pset,
     crc = crc32(crc, buf, guidString.length());
     fuGuidValue_ = crc;
 
-    fuProcId_ = getpid();
-    //std::cout << "DQMOutput GUID value = 0x" << std::hex << fuGuidValue_ << std::dec
-    //          << " for PID = " << fuProcId_ << std::endl;
+    //std::cout << "DQMOutput GUID value = 0x" << std::hex << fuGuidValue_ << std::endl;
   }
 }
 
@@ -153,8 +153,6 @@ void FUShmDQMOutputService::publish(xdata::InfoSpace *is)
 
 void FUShmDQMOutputService::postEndLumi(edm::LuminosityBlock const &lb, edm::EventSetup const &es)
 {
-  std::string dqm = "DQM";
-  std::string in = "INPUT";
   evf::MicroStateService *mss = 0;
   try{
     mss = edm::Service<evf::MicroStateService>().operator->();
@@ -287,7 +285,7 @@ void FUShmDQMOutputService::postEndLumi(edm::LuminosityBlock const &lb, edm::Eve
     }
 
     // write the filter unit UUID and PID into the message
-    dqmMsgBuilder.setFUProcessId(fuProcId_);
+    dqmMsgBuilder.setFUProcessId(getpid());
     dqmMsgBuilder.setFUGuid(fuGuidValue_);
 
     // send the message
@@ -407,7 +405,7 @@ void FUShmDQMOutputService::writeShmDQMData(DQMEventMsgBuilder const& dqmMsgBuil
       << " Error writing to shared memory as shm is not available";
   } else {
     bool ret = shmBuffer_->writeDqmEventData(runid, eventid, (unsigned int)crc,
-                                             fuProcId_, fuGuidValue_, buffer, size);
+                                             getpid(), fuGuidValue_, buffer, size);
     if(!ret) edm::LogError("FUShmDQMOutputService") << " Error with writing data to ShmBuffer";
   }
 

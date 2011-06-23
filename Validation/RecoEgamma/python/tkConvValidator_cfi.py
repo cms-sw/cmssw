@@ -3,12 +3,12 @@ from Validation.RecoEgamma.tpSelection_cfi import *
 
 from SimTracker.TrackAssociation.TrackAssociatorByHits_cfi import *
 import SimTracker.TrackAssociation.TrackAssociatorByHits_cfi
-myTrackAssociatorByHits = SimTracker.TrackAssociation.TrackAssociatorByHits_cfi.TrackAssociatorByHits.clone()
-myTrackAssociatorByHits.ComponentName = cms.string('myTrackAssociatorByHits')
-myTrackAssociatorByHits.SimToRecoDenominator = 'reco'
-myTrackAssociatorByHits.Quality_SimToReco = 0.5
-myTrackAssociatorByHits.Purity_SimToReco = 0.5
-myTrackAssociatorByHits.Cut_RecoToSim = 0.5
+trackAssociatorByHitsForConversionValidation = SimTracker.TrackAssociation.TrackAssociatorByHits_cfi.TrackAssociatorByHits.clone()
+trackAssociatorByHitsForConversionValidation.ComponentName = cms.string('trackAssociatorByHitsForConversionValidation')
+trackAssociatorByHitsForConversionValidation.SimToRecoDenominator = 'reco'
+trackAssociatorByHitsForConversionValidation.Quality_SimToReco = 0.5
+trackAssociatorByHitsForConversionValidation.Purity_SimToReco = 0.5
+trackAssociatorByHitsForConversionValidation.Cut_RecoToSim = 0.5
 
 import PhysicsTools.RecoAlgos.trackingParticleSelector_cfi
 tpSelecForEfficiency = PhysicsTools.RecoAlgos.trackingParticleSelector_cfi.trackingParticleSelector.clone()

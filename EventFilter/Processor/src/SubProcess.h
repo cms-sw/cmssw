@@ -21,11 +21,13 @@ namespace evf{
       , pid_(-1)
       , alive_(-1000)
       , restart_countdown_(0)
+      , restart_count_(0)
       , save_nbp_(0)
       , save_nba_(0)
       , save_ndqm_(0)
       , save_scalers_(0)
       , reported_inconsistent_(false)
+      , nfound_invalid_(0)
       {}
     SubProcess(int ind, pid_t pid)
       : ind_(ind)
@@ -34,11 +36,13 @@ namespace evf{
       , mqm_(new MasterQueue(monitor_queue_offset_+ind))
       , mqs_(new MasterQueue(ind))
       , restart_countdown_(0)
+      , restart_count_(0)
       , save_nbp_(0)
       , save_nba_(0)
       , save_ndqm_(0)
       , save_scalers_(0)
       , reported_inconsistent_(false)
+      , nfound_invalid_(0)
       {
 	mqm_->drain();
 	mqs_->drain();
@@ -50,7 +54,9 @@ namespace evf{
       , mqm_(b.mqm_)
       , mqs_(b.mqs_)
       , restart_countdown_(b.restart_countdown_)
+      , restart_count_(b.restart_count_)
       , reported_inconsistent_(b.reported_inconsistent_)
+      , nfound_invalid_(b.nfound_invalid_)
       {
       }
     SubProcess &operator=(const SubProcess &b);
@@ -121,9 +127,12 @@ namespace evf{
     bool inInconsistentState() const {return reported_inconsistent_;}
     void setReasonForFailed(std::string r){reasonForFailed_ = r;}
     void setReportedInconsistent(){reported_inconsistent_ = true;}
-    unsigned int &countdown(){return restart_countdown_;}
+    int &countdown(){return restart_countdown_;}    
+    unsigned int &restartCount(){return restart_count_;}
     int get_save_nbp() const {return save_nbp_;}
     int get_save_nba() const {return save_nba_;}
+    void found_invalid() {nfound_invalid_++;}
+    unsigned int nfound_invalid() const { return nfound_invalid_;}
     static const unsigned int monitor_queue_offset_ = 200;
 
   private:
@@ -136,13 +145,15 @@ namespace evf{
     SlaveQueue*                    sqs_; 
     std::string reasonForFailed_;
     struct prg prg_;
-    unsigned int restart_countdown_;
+    int restart_countdown_;
+    unsigned int restart_count_;
 
     int save_nbp_;
     int save_nba_;
     unsigned int save_ndqm_;
     unsigned int save_scalers_;
     bool reported_inconsistent_;
+    unsigned int nfound_invalid_;
   };
 
 

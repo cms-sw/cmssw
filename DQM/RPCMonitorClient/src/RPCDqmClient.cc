@@ -96,7 +96,7 @@ void  RPCDqmClient::endRun(const edm::Run& r, const edm::EventSetup& c){
   if(offlineDQM_) this->getMonitorElements(r, c);
 
   float   rpcevents = minimumEvents_;
-  if(RPCEvents_) rpcevents = RPCEvents_ -> getIntValue();
+  if(RPCEvents_) rpcevents = RPCEvents_->getEntries();
   
   if(rpcevents < minimumEvents_) return;
   
@@ -188,7 +188,7 @@ void RPCDqmClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::
     (*it)->endLuminosityBlock( lumiSeg, c);
   
   float   rpcevents = minimumEvents_;
-  if(RPCEvents_) rpcevents = RPCEvents_ -> getIntValue();
+  if(RPCEvents_) rpcevents = RPCEvents_->getEntries();
   
   if( rpcevents < minimumEvents_) return;
 

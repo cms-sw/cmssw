@@ -1265,8 +1265,8 @@ void HcalBeamMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     ring2status=0;
   else
     ring2status=1-1.*badring2/ring2totalchannels_;
-  HFlumi_Ring2Status_vs_LS->Fill(currentLS,ring2status);
-
+  HFlumi_Ring2Status_vs_LS->Fill(currentLS,ring2status);  
+  
   // Good status:  ring1 and ring2 status both > 90%
   int totalstatus=0;
   if (ring1status>0.9 && ring2status>0.9)

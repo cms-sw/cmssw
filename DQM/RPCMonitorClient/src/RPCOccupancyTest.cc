@@ -73,7 +73,7 @@ void RPCOccupancyTest::clientOperation(edm::EventSetup const& iSetup) {
   edm::LogVerbatim ("rpceventsummary") <<"[RPCOccupancyTest]: Client Operation";
 
    MonitorElement * RPCEvents = dbe_->get(prefixDir_ +"/RPCEvents");  
-   rpcevents_ = RPCEvents -> getIntValue(); 
+   rpcevents_ = RPCEvents -> getEntries(); 
 
      
  //Loop on MEs

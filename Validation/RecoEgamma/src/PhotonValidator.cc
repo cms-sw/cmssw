@@ -79,8 +79,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2011/03/01 15:37:16 $ 
- **  $Revision: 1.73 $
+ **  $Date: 2011/03/10 19:18:01 $ 
+ **  $Revision: 1.74 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -1316,7 +1316,7 @@ void  PhotonValidator::beginJob() {
 
 
   edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
-  theEventSetup.get<TrackAssociatorRecord>().get("myTrackAssociatorByHits",theHitsAssociator);
+  theEventSetup.get<TrackAssociatorRecord>().get("trackAssociatorByHitsForPhotonValidation",theHitsAssociator);
   theTrackAssociator_ = (TrackAssociatorBase *) theHitsAssociator.product();
 
   thePhotonMCTruthFinder_ = new PhotonMCTruthFinder();  

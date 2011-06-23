@@ -12,7 +12,6 @@ void GsfElectron::init()
   passCutBasedPreselection_ = false ;
   passMvaPreslection_ = false ;
   ambiguous_ = true ;
-  mva_ = -999999999. ;
   fbrem_ = 0 ;
   class_ = UNKNOWN ;
  }
@@ -36,7 +35,7 @@ GsfElectron::GsfElectron
  : chargeInfo_(chargeInfo),
    core_(core),
    trackClusterMatching_(tcm), trackExtrapolations_(te),
-   closestCtfTrack_(ctfInfo),
+   //closestCtfTrack_(ctfInfo),
    fiducialFlags_(ff), showerShape_(ss), conversionRejection_(crv)
  {
   init() ;
@@ -45,6 +44,8 @@ GsfElectron::GsfElectron
   setVertex(math::XYZPoint(te.positionAtVtx.x(),te.positionAtVtx.y(),te.positionAtVtx.z())) ;
   setPdgId(-11*charge) ;
   /*if (ecalDrivenSeed())*/ corrections_.ecalEnergy = superCluster()->energy() ;
+  assert(ctfInfo.ctfTrack==(GsfElectron::core()->ctfTrack())) ;
+  assert(ctfInfo.shFracInnerHits==(GsfElectron::core()->ctfGsfOverlap())) ;
  }
 
 GsfElectron::GsfElectron
@@ -55,8 +56,7 @@ GsfElectron::GsfElectron
    core_(core),
    trackClusterMatching_(electron.trackClusterMatching_),
    trackExtrapolations_(electron.trackExtrapolations_),
-   closestCtfTrack_(electron.closestCtfTrack_),
-   ambiguousGsfTracks_(electron.ambiguousGsfTracks_),
+   //closestCtfTrack_(electron.closestCtfTrack_),
    fiducialFlags_(electron.fiducialFlags_),
    showerShape_(electron.showerShape_),
    dr03_(electron.dr03_), dr04_(electron.dr04_),
@@ -64,11 +64,14 @@ GsfElectron::GsfElectron
    passCutBasedPreselection_(electron.passCutBasedPreselection_),
    passMvaPreslection_(electron.passMvaPreslection_),
    ambiguous_(electron.ambiguous_),
-   mva_(electron.mva_),
+   ambiguousGsfTracks_(electron.ambiguousGsfTracks_),
+   //mva_(electron.mva_),
    fbrem_(electron.fbrem_),
    class_(electron.class_),
    corrections_(electron.corrections_)
  {
+  assert(electron.core()->ctfTrack()==core->ctfTrack()) ;
+  assert(electron.core()->ctfGsfOverlap()==core->ctfGsfOverlap()) ;
  }
 
 GsfElectron::GsfElectron
@@ -83,8 +86,7 @@ GsfElectron::GsfElectron
    core_(core),
    trackClusterMatching_(electron.trackClusterMatching_),
    trackExtrapolations_(electron.trackExtrapolations_),
-   closestCtfTrack_(electron.closestCtfTrack_),
-   ambiguousGsfTracks_(ambiguousTracks),
+   //closestCtfTrack_(electron.closestCtfTrack_),
    fiducialFlags_(electron.fiducialFlags_),
    showerShape_(electron.showerShape_),
    dr03_(electron.dr03_), dr04_(electron.dr04_),
@@ -92,14 +94,17 @@ GsfElectron::GsfElectron
    passCutBasedPreselection_(electron.passCutBasedPreselection_),
    passMvaPreslection_(electron.passMvaPreslection_),
    ambiguous_(electron.ambiguous_),
-   mva_(electron.mva_),
+   ambiguousGsfTracks_(ambiguousTracks),
+   //mva_(electron.mva_),
    fbrem_(electron.fbrem_),
    class_(electron.class_),
    corrections_(electron.corrections_)
  {
   trackClusterMatching_.electronCluster = electronCluster ;
-  closestCtfTrack_.ctfTrack = closestCtfTrack ;
+  //closestCtfTrack_.ctfTrack = closestCtfTrack ;
   conversionRejection_.partner = conversionPartner ;
+  assert(closestCtfTrack==core->ctfTrack()) ;
+  assert(electron.core()->ctfGsfOverlap()==core->ctfGsfOverlap()) ;
   // TO BE DONE
   // Check that the new edm references are really
   // the clones of the former references, and therefore other attributes
@@ -171,8 +176,8 @@ void GsfElectron::setP4
       corrections_.fromSuperClusterP4Error = error ;
       break ;
     case P4_COMBINATION:
-      corrections_.electronP4 = p4 ;
-      corrections_.electronMomentumError = error ;
+      corrections_.combinedP4 = p4 ;
+      corrections_.combinedP4Error = error ;
       break ;
     case P4_PFLOW_COMBINATION:
       corrections_.pflowP4 = p4 ;
@@ -193,7 +198,7 @@ const Candidate::LorentzVector &  GsfElectron::p4( P4Kind kind ) const
   switch(kind)
    {
     case P4_FROM_SUPER_CLUSTER: return corrections_.fromSuperClusterP4 ;
-    case P4_COMBINATION: return corrections_.electronP4 ;
+    case P4_COMBINATION: return corrections_.combinedP4 ;
     case P4_PFLOW_COMBINATION: return corrections_.pflowP4 ;
     default: throw cms::Exception("GsfElectron")<<"unexpected p4 kind: "<<kind ;
    }
@@ -205,7 +210,7 @@ float GsfElectron::p4Error( P4Kind kind ) const
   switch(kind)
    {
     case P4_FROM_SUPER_CLUSTER: return corrections_.fromSuperClusterP4Error ;
-    case P4_COMBINATION: return corrections_.electronMomentumError ;
+    case P4_COMBINATION: return corrections_.combinedP4Error ;
     case P4_PFLOW_COMBINATION: return corrections_.pflowP4Error ;
     default: throw cms::Exception("GsfElectron")<<"unexpected p4 kind: "<<kind ;
    }
