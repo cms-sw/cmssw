@@ -718,7 +718,7 @@ def toScreenLSHlt(hltdata,iresults=None,isverbose=False):
     if isverbose:
         labels = [('Run', 'LS', '(hltpath,presc)')]
     else:
-        labels = [('Run', 'LS', '(hltpath,presc,l1pass,hltaccept')]
+        labels = [('Run', 'LS', '(hltpath,presc,l1pass,hltaccept)')]
     print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'left',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,70) )
