@@ -1,4 +1,5 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+#include "CondFormats/DataRecord/interface/SiPixelQualityFromDbRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondTools/SiPixel/test/SiPixelBadModuleReader.h"
@@ -27,7 +28,9 @@
 
 
 SiPixelBadModuleReader::SiPixelBadModuleReader( const edm::ParameterSet& iConfig ):
-  printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug",1)){}
+  printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug",1)),
+  whichRcd(iConfig.getUntrackedParameter<std::string>("RcdName"))
+{}
   // txtFileName_(iConfig.getUntrackedParameter<std::string>("OutputFile","BadModuleSummary.txt")){}
   
 
@@ -36,7 +39,11 @@ SiPixelBadModuleReader::~SiPixelBadModuleReader(){}
 void SiPixelBadModuleReader::analyze( const edm::Event& e, const edm::EventSetup& iSetup){
   
   edm::ESHandle<SiPixelQuality> SiPixelBadModule_;
-  iSetup.get<SiPixelQualityRcd>().get(SiPixelBadModule_);
+  if(whichRcd == "SiPixelQualityRcd") 
+    iSetup.get<SiPixelQualityRcd>().get(SiPixelBadModule_);
+  if(whichRcd == "SiPixelQualityFromDbRcd") 
+    iSetup.get<SiPixelQualityFromDbRcd>().get(SiPixelBadModule_);
+  
   edm::ESHandle<SiPixelFedCablingMap> map;
   iSetup.get<SiPixelFedCablingMapRcd>().get(map);
   edm::LogInfo("SiPixelBadModuleReader") << "[SiPixelBadModuleReader::analyze] End Reading SiPixelBadModule" << std::endl;

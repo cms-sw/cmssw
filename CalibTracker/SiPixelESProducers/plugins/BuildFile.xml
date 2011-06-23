@@ -2,6 +2,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/SiPixelObjects"/>
+<use   name="CondFormats/SiStripObjects"/>
 <use   name="Geometry/Records"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="CalibTracker/SiPixelESProducers"/>

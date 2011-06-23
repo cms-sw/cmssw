@@ -26,7 +26,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     timetype = cms.untracked.string('runnumber'),
     connect = cms.string('sqlite_file:prova.db'),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('SiPixelQualityRcd'),
+        record = cms.string('SiPixelQualityFromDbRcd'),
         tag = cms.string('SiPixelQuality_v07_mc')
     ))
 )
@@ -161,7 +161,7 @@ process.prod = cms.EDAnalyzer("SiPixelBadModuleByHandBuilder",
             detid = cms.uint32(302125060)
         )),
  
-    Record = cms.string('SiPixelQualityRcd'),
+    Record = cms.string('SiPixelQualityFromDbRcd'),
     SinceAppendMode = cms.bool(True),
     IOVMode = cms.string('Run'),
     printDebug = cms.untracked.bool(True),

@@ -37,7 +37,7 @@ process.QualityReader = cms.ESSource("PoolDBESSource",
     ),
     timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
-        record = cms.string('SiPixelQualityRcd'),
+        record = cms.string('SiPixelQualityFromDbRcd'),
         tag = cms.string('SiPixelQuality_v03')
     )),
     connect = cms.string('sqlite_file:Quality_v03.db')
@@ -46,7 +46,8 @@ process.QualityReader = cms.ESSource("PoolDBESSource",
 process.es_prefer_QualityReader = cms.ESPrefer("PoolDBESSource","QualityReader")
 
 process.BadModuleReader = cms.EDAnalyzer("SiPixelBadModuleReader",
-    printDebug = cms.untracked.uint32(1)
+    printDebug = cms.untracked.uint32(1),
+    RcdName = cms.untracked.string("SiPixelQualityFromDbRcd") 
 )
 
 process.p = cms.Path(process.BadModuleReader)

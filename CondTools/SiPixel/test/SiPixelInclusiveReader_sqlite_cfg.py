@@ -68,7 +68,7 @@ process.PoolDBESSourceForReader = cms.ESSource("PoolDBESSource",
             tag = cms.string('SiPixelTemplateDBObject')
         ),
         cms.PSet(
-           record = cms.string('SiPixelQualityRcd'),
+           record = cms.string('SiPixelQualityFromDbRcd'),
            tag = cms.string('SiPixelQuality_test')
         ),
         cms.PSet(

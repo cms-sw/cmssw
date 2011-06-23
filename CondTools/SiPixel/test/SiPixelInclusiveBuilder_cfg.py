@@ -80,7 +80,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
             tag = cms.string('SiPixelTemplateDBObject')
         ),
         cms.PSet(
-           record = cms.string('SiPixelQualityRcd'),
+           record = cms.string('SiPixelQualityFromDbRcd'),
            tag = cms.string('SiPixelQuality_test')
         ),
         cms.PSet(
@@ -183,7 +183,7 @@ process.QualityObjectMaker = cms.EDAnalyzer("SiPixelBadModuleByHandBuilder",
             errortype = cms.string('whole'),
             detid = cms.uint32(344014348)
         )),
-    Record = cms.string('SiPixelQualityRcd'),
+    Record = cms.string('SiPixelQualityFromDbRcd'),
     SinceAppendMode = cms.bool(True),
     IOVMode = cms.string('Run'),
     printDebug = cms.untracked.bool(True),

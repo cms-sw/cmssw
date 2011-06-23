@@ -19,6 +19,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
+#include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
@@ -86,9 +87,12 @@ class SiPixelQuality {
 
 //--------------- Interface for the user -----------------//
 //------- designed to match SiStripQuality methods ----------//
-
-
-
+  //method copied from the SiStripQuality
+  void add(const SiStripDetVOff*);
+  //----------------------------------------
+  //number of Bad modules
+  int BadModuleNumber();   
+  
   bool IsModuleBad(const uint32_t & detid) const;  //returns True if module disabled
   bool IsModuleUsable(const uint32_t& detid) const;  //returns True if module NOT disabled
   bool IsRocBad(const uint32_t& detid, const short& rocNb) const;  //returns True if ROC is disabled

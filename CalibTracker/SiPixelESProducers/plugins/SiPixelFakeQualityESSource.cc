@@ -32,7 +32,7 @@ SiPixelFakeQualityESSource::SiPixelFakeQualityESSource(const edm::ParameterSet& 
 	//the following line is needed to tell the framework what
 	// data is being produced
 	setWhatProduced(this);
-	findingRecord<SiPixelQualityRcd>();
+	findingRecord<SiPixelQualityFromDbRcd>();
 }
 
 SiPixelFakeQualityESSource::~SiPixelFakeQualityESSource()
@@ -43,7 +43,7 @@ SiPixelFakeQualityESSource::~SiPixelFakeQualityESSource()
 
 }
 
-std::auto_ptr<SiPixelQuality> SiPixelFakeQualityESSource::produce(const SiPixelQualityRcd & )
+std::auto_ptr<SiPixelQuality> SiPixelFakeQualityESSource::produce(const SiPixelQualityFromDbRcd & )
 {
 
 

@@ -6,6 +6,7 @@
 <use   name="DataFormats/FEDRawData"/>
 <use   name="DataFormats/SiPixelDigi"/>
 <use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/SiStripObjects"/>
 <use   name="root"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="boost"/>

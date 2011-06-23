@@ -54,6 +54,25 @@ void SiPixelQuality::addDisabledModule(std::vector<SiPixelQuality::disabledModul
 
 } 
 
+void SiPixelQuality::add(const SiStripDetVOff* Voff) {
+  
+  //Get vector of Voff dets
+  std::vector<uint32_t> vdets;
+  Voff->getDetIds(vdets);
+
+  std::vector<uint32_t>::const_iterator iter=vdets.begin();
+  std::vector<uint32_t>::const_iterator iterEnd=vdets.end();
+
+  for(;iter!=iterEnd;++iter){
+    SiPixelQuality::disabledModuleType BadModule;  
+    BadModule.DetID = *iter;
+    BadModule.errorType = 0;
+    BadModule.BadRocs = 65535; //NOTE: here all module is bad - no difference for half modules
+    if(IsModuleUsable(BadModule.DetID))
+      addDisabledModule(BadModule);
+    
+  }
+}
 
 // bool SiPixelQuality::removeDisabledModule(const uint32_t & detid){
 //   std::vector<disabledModuleType>::const_iterator iter = std::lower_bound(theDisabledModules.begin(),theDisabledModules.end(),detid,SiPixelQuality::BadComponentStrictWeakOrdering());
@@ -74,6 +93,12 @@ bool SiPixelQuality::IsModuleUsable(const uint32_t& detid) const {
    if (iter != disabledModules.end() && iter->DetID==detid && iter->errorType ==0)
     return false;
   return true;
+}
+
+int SiPixelQuality::BadModuleNumber() {
+  std::vector<SiPixelQuality::disabledModuleType>disabledModules = theDisabledModules;
+  //does not distinguish between partially dead or not 
+  return disabledModules.size();
 }
 
 //ask if module is bad

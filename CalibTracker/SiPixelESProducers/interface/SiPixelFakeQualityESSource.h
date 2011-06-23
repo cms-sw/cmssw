@@ -28,7 +28,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
-#include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelQualityFromDbRcd.h"
 // #include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
 //
 // class decleration
@@ -42,7 +42,7 @@ class SiPixelFakeQualityESSource : public edm::ESProducer, public edm::EventSetu
   
   //      typedef edm::ESProducts<> ReturnType;
   
-  virtual std::auto_ptr<SiPixelQuality>  produce(const SiPixelQualityRcd &);
+  virtual std::auto_ptr<SiPixelQuality>  produce(const SiPixelQualityFromDbRcd &);
   
  protected:
   

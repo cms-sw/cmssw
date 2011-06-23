@@ -15,6 +15,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
 #include "CondFormats/DataRecord/interface/SiPixelPerformanceSummaryRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+#include "CondFormats/DataRecord/interface/SiPixelQualityFromDbRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"
 #include "CondFormats/DataRecord/interface/SiPixelCPEGenericErrorParmRcd.h"
@@ -41,7 +42,7 @@ REGISTER_PLUGIN(SiPixelLorentzAngleRcd,SiPixelLorentzAngle);
 REGISTER_PLUGIN(SiPixelLorentzAngleSimRcd,SiPixelLorentzAngle);
 REGISTER_PLUGIN(SiPixelCalibConfigurationRcd,SiPixelCalibConfiguration);
 REGISTER_PLUGIN(SiPixelPerformanceSummaryRcd,SiPixelPerformanceSummary);
-REGISTER_PLUGIN(SiPixelQualityRcd,SiPixelQuality);
+REGISTER_PLUGIN(SiPixelQualityFromDbRcd,SiPixelQuality);
 REGISTER_PLUGIN(SiPixelCPEGenericErrorParmRcd,SiPixelCPEGenericErrorParm);
 REGISTER_PLUGIN(SiPixelTemplateDBObjectRcd,SiPixelTemplateDBObject);
 REGISTER_PLUGIN(SiPixelTemplateDBObject38TRcd,SiPixelTemplateDBObject);
@@ -51,3 +52,5 @@ REGISTER_PLUGIN(SiPixelTemplateDBObject0TRcd,SiPixelTemplateDBObject);
 REGISTER_PLUGIN(PixelCaenChannelIsOnRcd, PixelDCSObject<bool>);
 REGISTER_PLUGIN(PixelCaenChannelIMonRcd, PixelDCSObject<float>);
 REGISTER_PLUGIN(PixelCaenChannelRcd, PixelDCSObject<CaenChannel>);
+
+REGISTER_PLUGIN(SiPixelDetVOffRcd,SiStripDetVOff);
