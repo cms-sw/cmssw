@@ -5,6 +5,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #--- Dummy replacements of HLT modules ---#
 import FastSimulation.HighLevelTrigger.DummyModule_cfi
+
 hltEcalPreshowerDigis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltEcalRawToRecHitFacility = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltESRawToRecHitFacility = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
@@ -50,7 +51,10 @@ hltBLifetimeRegionalPixelSeedGeneratorRAzr = FastSimulation.HighLevelTrigger.Dum
 hltBLifetimeRegionalPixelSeedGeneratorHbb = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltBLifetimeRegionalPixel3DSeedGeneratorJet30Hbb = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltBLifetimeRegionalPixel3D1stTrkSeedGeneratorJet20Hbb = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltBLifetimeBTagIP3D1stTrkRegionalPixelSeedGeneratorJet20Hbb = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltBLifetimeDiBTagIP3D1stTrkRegionalPixelSeedGeneratorJet20Hbb = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltBLifetimeRegionalPixelSeedGeneratorbbPhi = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltBLifetimeRegionalPixelSeedGeneratorGammaB = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 
 hltMumuPixelSeedFromL2Candidate = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltMumukPixelSeedFromL2Candidate = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
