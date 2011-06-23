@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Dec  9 16:14:56 CET 2009
-// $Id$
+// $Id: PFCandidateMixer.cc,v 1.1 2010/03/17 16:14:09 fruboes Exp $
 //
 //
 
@@ -35,6 +35,8 @@
 
 #include <DataFormats/ParticleFlowCandidate/interface/PFCandidate.h>
 #include <DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h>
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 //
 // class decleration
@@ -52,6 +54,7 @@ class PFCandidateMixer : public edm::EDProducer {
       
       edm::InputTag _col1;
       edm::InputTag _col2;
+      edm::InputTag _trackCol;
       // ----------member data ---------------------------
 };
 
@@ -69,7 +72,8 @@ class PFCandidateMixer : public edm::EDProducer {
 //
 PFCandidateMixer::PFCandidateMixer(const edm::ParameterSet& iConfig):
    _col1(iConfig.getUntrackedParameter<edm::InputTag>("col1") ),
-   _col2(iConfig.getUntrackedParameter<edm::InputTag>("col2") )
+   _col2(iConfig.getUntrackedParameter<edm::InputTag>("col2") ),
+  _trackCol(iConfig.getUntrackedParameter<edm::InputTag>("trackCol") )
 {
 
    produces< std::vector< reco::PFCandidate >  >(); 
@@ -96,7 +100,10 @@ PFCandidateMixer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    using namespace reco;
 
-  
+   Handle< std::vector<reco::Track> > trackCol;
+   iEvent.getByLabel( _trackCol, trackCol);
+
+ 
    std::vector< Handle<PFCandidateCollection> > colVec; 
    Handle<PFCandidateCollection> pfIn1;
    Handle<PFCandidateCollection> pfIn2;
@@ -110,6 +117,8 @@ PFCandidateMixer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    std::vector< Handle<PFCandidateCollection> >::iterator itCol= colVec.begin();
    std::vector< Handle<PFCandidateCollection> >::iterator itColE= colVec.end();
+
+   int iCol = 0;
    for (;itCol!=itColE; ++itCol){
      if (!itCol->isValid()) {
        std::cout << "Whoops!" << std::endl;
@@ -117,8 +126,30 @@ PFCandidateMixer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      PFCandidateConstIterator it = (*itCol)->begin();
      PFCandidateConstIterator itE = (*itCol)->end();
      for (;it!=itE;++it) {
-       pOut->push_back(*it);
+       PFCandidate cand(*it);
+       size_t i = 0;
+       if (it->trackRef().isNonnull()) {
+         for (  ; i < trackCol->size(); ++i){
+           if ( reco::deltaR( *(it->trackRef()), trackCol->at(i) )<0.001 ) break; 
+         } 
+       } 
+       if ( i<trackCol->size()){ // ref was found, overwrite in PFCand
+         reco::TrackRef trref(trackCol,i);
+         cand.setTrackRef(trref);
+         //std::cout << " YY track ok"<<std::endl;
+
+       } else { // keep orginall ref
+         if (it->trackRef().isNonnull()) {
+           std::cout << " XXXXXXXXXXX track not found " 
+                 << " col " << iCol
+                 << " ch " << it->charge()
+                 << " id " << it->pdgId() 
+                 <<  std::endl;
+         }
+       }
+       pOut->push_back(cand);
      }
+     ++iCol;
    }
     
 
