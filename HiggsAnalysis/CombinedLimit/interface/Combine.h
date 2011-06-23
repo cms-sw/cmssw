@@ -48,6 +48,7 @@ private:
   bool saveWorkspace_;
   std::string workspaceName_;
   std::string modelConfigName_, modelConfigNameB_;
+  bool validateModel_;
   bool saveToys_;
   float mass_;
 

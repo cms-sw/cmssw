@@ -93,6 +93,7 @@ Combine::Combine() :
       ("modelConfigNameB", po::value<std::string>(&modelConfigNameB_)->default_value("%s_bonly"), "Name of the ModelConfig for b-only hypothesis.\n"
                                                                                                   "If not present, it will be made from the singal model taking zero signal strength.\n"
                                                                                                   "A '%s' in the name will be replaced with the modelConfigName.")
+      ("validateModel,V", "Perform some sanity checks on the model and abort if they fail.")
       ("saveToys",   "Save results of toy MC in output file")
       ;
     miscOptions_.add_options()
@@ -123,6 +124,7 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   }
   mass_ = vm["mass"].as<float>();
   saveToys_ = vm.count("saveToys");
+  validateModel_ = vm.count("validateModel");
 }
 
 bool Combine::mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) {
@@ -358,11 +360,15 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     utils::setAllConstant(*nuisances, true);
   }
 
+  bool validModel = utils::checkModel(*mc, validateModel_);
+  if (verbose) std::cout << "Sanity checks on the model: " << (validModel ? "OK" : "FAIL") << std::endl;
+
   // make sure these things are set consistently with what we expect
   if (mc->GetNuisanceParameters() && withSystematics) utils::setAllConstant(*mc->GetNuisanceParameters(), false);
   if (mc->GetGlobalObservables()) utils::setAllConstant(*mc->GetGlobalObservables(), true);
   if (mc_bonly->GetNuisanceParameters() && withSystematics) utils::setAllConstant(*mc_bonly->GetNuisanceParameters(), false);
   if (mc_bonly->GetGlobalObservables()) utils::setAllConstant(*mc_bonly->GetGlobalObservables(), true);
+
 
   w->saveSnapshot("clean", w->allVars());
 

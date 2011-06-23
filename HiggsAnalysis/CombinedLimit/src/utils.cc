@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include <iostream>
+#include <sstream>
 #include <cmath>
 #include <vector>
 #include <string>
@@ -205,4 +206,59 @@ bool utils::setAllConstant(const RooAbsCollection &coll, bool constant) {
         }
     }
     return changed;
+}
+
+bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
+    bool ok = true; std::ostringstream errors; 
+    std::auto_ptr<TIterator> iter;
+    RooAbsPdf *pdf = model.GetPdf(); if (pdf == 0) throw std::invalid_argument("Model without Pdf");
+    RooArgSet allowedToFloat; 
+    if (model.GetObservables() == 0) { 
+        ok = false; errors << "ERROR: model does not define observables.\n"; 
+        std::cout << errors.str() << std::endl;
+        if (throwOnFail) throw std::invalid_argument(errors.str()); else return false; 
+    } else {
+        allowedToFloat.add(*model.GetObservables());
+    }
+    if (model.GetParametersOfInterest() == 0) { 
+        ok = false; errors << "ERROR: model does not define parameters of interest.\n";  
+    } else {
+        iter.reset(model.GetParametersOfInterest()->createIterator());
+        for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+            RooRealVar *v = dynamic_cast<RooRealVar *>(a);
+            if (!v) { ok = false; errors << "ERROR: parameter of interest " << a->GetName() << " is a " << a->ClassName() << " and not a RooRealVar\n"; continue; }
+            if (v->isConstant()) { ok = false; errors << "ERROR: parameter of interest " << a->GetName() << " is constant\n"; continue; }
+            if (!pdf->dependsOn(*v)) { ok = false; errors << "ERROR: pdf does not depend on parameter of interest " << a->GetName() << "\n"; continue; }
+            allowedToFloat.add(*v);
+        }
+    }
+    if (model.GetNuisanceParameters() != 0) { 
+        iter.reset(model.GetNuisanceParameters()->createIterator());
+        for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+            RooRealVar *v = dynamic_cast<RooRealVar *>(a);
+            if (!v) { ok = false; errors << "ERROR: nuisance parameter " << a->GetName() << " is a " << a->ClassName() << " and not a RooRealVar\n"; continue; }
+            if (v->isConstant()) { ok = false; errors << "ERROR: nuisance parameter " << a->GetName() << " is constant\n"; continue; }
+            if (!pdf->dependsOn(*v)) { errors << "WARNING: pdf does not depend on nuisance parameter " << a->GetName() << "\n"; continue; }
+            allowedToFloat.add(*v);
+        }
+    }
+    if (model.GetGlobalObservables() != 0) { 
+        iter.reset(model.GetGlobalObservables()->createIterator());
+        for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+            RooRealVar *v = dynamic_cast<RooRealVar *>(a);
+            if (!v) { ok = false; errors << "ERROR: global observable " << a->GetName() << " is a " << a->ClassName() << " and not a RooRealVar\n"; continue; }
+            if (!v->isConstant()) { ok = false; errors << "ERROR: global observable " << a->GetName() << " is not constant\n"; continue; }
+            if (!pdf->dependsOn(*v)) { errors << "WARNING: pdf does not depend on global observable " << a->GetName() << "\n"; continue; }
+        }
+    }
+    std::auto_ptr<RooArgSet> params(pdf->getParameters(*model.GetObservables()));
+    iter.reset(params->createIterator());
+    for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+        if (a->isConstant() || allowedToFloat.contains(*a)) continue;
+        errors << "WARNING: pdf parameter " << a->GetName() << " (type " << a->ClassName() << ") is not allowed to float (it's not nuisance, poi, observable or global observable\n"; 
+    }
+    iter.reset();
+    std::cout << errors.str() << std::endl;
+    if (!ok && throwOnFail) throw std::invalid_argument(errors.str()); 
+    return ok;
 }

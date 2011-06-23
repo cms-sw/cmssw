@@ -36,5 +36,13 @@ namespace utils {
 
     /// set all RooRealVars to constants. return true if at least one changed status
     bool setAllConstant(const RooAbsCollection &coll, bool constant=true) ;
+
+    /// Performs the following checks:
+    ///  - global observables, if any, are RooRealVars and are const
+    ///  - nuisances, if any, are RooRealVars and are floating
+    ///  - parameters of interest are all RooRealVars and are floating
+    ///  - there are no other floating parameters except observables, nuisances and POI
+    bool checkModel(const RooStats::ModelConfig &model, bool throwOnFail=false) ;
+
 }
 #endif
