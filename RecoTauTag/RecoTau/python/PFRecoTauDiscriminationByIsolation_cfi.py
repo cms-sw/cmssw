@@ -31,6 +31,7 @@ pfRecoTauDiscriminationByIsolation = cms.EDProducer(
     applyDeltaBetaCorrection = cms.bool(False),
     particleFlowSrc = cms.InputTag("particleFlow"),
     vertexSrc = PFTauQualityCuts.primaryVertexSrc,
+
     # This must correspond to the cone size of the algorithm which built the
     # tau. (or if customOuterCone option is used, the custom cone size)
     isoConeSizeForDeltaBeta = cms.double(0.5),

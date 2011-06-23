@@ -51,23 +51,44 @@ class PFRecoTauDiscriminationByIsolation :
           customIsoCone_ = -1;
         }
 
-        qcuts_.reset(new tau::RecoTauQualityCuts(
-            qualityCutsPSet_.getParameter<edm::ParameterSet>(
-            "isolationQualityCuts")));
+        // Check for legacy HLT configuration and apply workaround. FIXME
+        // This should be removed once the HLT configs are updated.
+        if (pset.exists("PVProducer")) {
+          edm::LogWarning("DeprecationOfParameter") << "The parameter "
+            << "PVProducer of PFRecoTauDiscriminationByIsolation "
+            << "is deprecated, and should be moved to the qualityCuts "
+            << "configuration PSet.  A workaround is being applied, but please "
+            << "update your configuration.  The vertex selected as the primary "
+            << "vertex will be the one with the highest pt in the event."
+            << std::endl;
+          // Move the selected PV collection to the new location
+          if (qualityCutsPSet_.exists("primaryVertexSrc")) {
+            edm::LogWarning("DeprecationOfParameter") << "Overwriting existing "
+              << "PV source: " << qualityCutsPSet_.getParameter<edm::InputTag>(
+                  "primaryVertexSrc")
+              << " in the quality cut PSet!" << std::endl;
+          }
+          qualityCutsPSet_.addParameter<edm::InputTag>("primaryVertexSrc",
+              pset.getParameter<edm::InputTag>("PVProducer"));
+          qualityCutsPSet_.addParameter<std::string>("pvFindingAlgo",
+              "highestPtInEvent");
+        }
+
+        // Get the quality cuts specific to the isolation region
+        edm::ParameterSet isolationQCuts = qualityCutsPSet_.getParameterSet(
+            "isolationQualityCuts");
+
+        qcuts_.reset(new tau::RecoTauQualityCuts(isolationQCuts));
+
         vertexAssociator_.reset(
             new tau::RecoTauVertexAssociator(qualityCutsPSet_));
 
         applyDeltaBeta_ = false;
         if (pset.exists("applyDeltaBetaCorrection")) {
-
-          edm::ParameterSet isoQCuts =
-            qualityCutsPSet_.getParameter<edm::ParameterSet>(
-            "isolationQualityCuts");
-
           // Factorize the isolation QCuts into those that are used to
           // select PU and those that are not.
           std::pair<edm::ParameterSet, edm::ParameterSet> puFactorizedIsoQCuts =
-            reco::tau::factorizePUQCuts(isoQCuts);
+            reco::tau::factorizePUQCuts(isolationQCuts);
 
           // Determine the pt threshold for the PU tracks
           // First check if the user specifies explicitly the cut.
@@ -79,7 +100,7 @@ class PFRecoTauDiscriminationByIsolation :
             // Secondly take it from the minGammaEt
             puFactorizedIsoQCuts.second.addParameter<double>(
                 "minTrackPt",
-                isoQCuts.getParameter<double>("minGammaEt"));
+                isolationQCuts.getParameter<double>("minGammaEt"));
           }
 
           pileupQcutsPUTrackSelection_.reset(new tau::RecoTauQualityCuts(

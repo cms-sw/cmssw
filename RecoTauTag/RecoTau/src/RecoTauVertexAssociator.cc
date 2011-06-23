@@ -69,7 +69,7 @@ RecoTauVertexAssociator::RecoTauVertexAssociator(
 
   // Sanity check, will remove once HLT module configs are updated.
   if (!pset.exists("primaryVertexSrc") || !pset.exists("pvFindingAlgo")) {
-    edm::LogWarning("NoVertexFindingMethodSpecified") 
+    edm::LogWarning("NoVertexFindingMethodSpecified")
       << "The PSet passed to the RecoTauVertexAssociator was"
       << " incorrectly configured. The vertex will be taken as the "
       << "highest Pt vertex from the offlinePrimaryVertices collection."
@@ -111,7 +111,13 @@ void RecoTauVertexAssociator::setEvent(const edm::Event& evt) {
 
 reco::VertexRef
 RecoTauVertexAssociator::associatedVertex(const PFTau& tau) const {
-  return associatedVertex(*tau.jetRef());
+  reco::PFJetRef jetRef = tau.jetRef();
+
+  // FIXME workaround for HLT which does not use updated data format
+  if (jetRef.isNull())
+    jetRef = tau.pfTauTagInfoRef()->pfjetRef();
+
+  return associatedVertex(*jetRef);
 }
 
 reco::VertexRef

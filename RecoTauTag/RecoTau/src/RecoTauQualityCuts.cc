@@ -204,14 +204,31 @@ RecoTauQualityCuts::RecoTauQualityCuts(const edm::ParameterSet &qcuts) {
   // Check if there are any remaining unparsed QCuts
   if (passedOptionSet.size()) {
     std::string unParsedOptions;
+    bool thereIsABadParameter = false;
     BOOST_FOREACH(const std::string& option, passedOptionSet) {
+      // Workaround for HLT - TODO FIXME
+      if (option == "useTracksInsteadOfPFHadrons") {
+        // Crash if true - no one should have this option enabled.
+        if (qcuts.getParameter<bool>("useTracksInsteadOfPFHadrons")) {
+          throw cms::Exception("DontUseTracksInQcuts")
+            << "The obsolete exception useTracksInsteadOfPFHadrons "
+            << "is set to true in the quality cut config." << std::endl;
+        }
+        continue;
+      }
+
+      // If we get to this point, there is a real unknown parameter
+      thereIsABadParameter = true;
+
       unParsedOptions += option;
       unParsedOptions += "\n";
     }
-    throw cms::Exception("BadQualityCutConfig")
-      << " The PSet passed to the RecoTauQualityCuts class had"
-      << " the following unrecognized options: " << std::endl
-      << unParsedOptions;
+    if (thereIsABadParameter) {
+      throw cms::Exception("BadQualityCutConfig")
+        << " The PSet passed to the RecoTauQualityCuts class had"
+        << " the following unrecognized options: " << std::endl
+        << unParsedOptions;
+    }
   }
 
   // Make sure there are at least some quality cuts
