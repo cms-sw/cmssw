@@ -102,6 +102,8 @@ def trgForRange(schema,inputRange,trgbitname=None,trgbitnamepattern=None,withL1C
         if trgdata and trgdata[1]:
             lsdict={}
             for cmslsnum in sorted(trgdata[1]):
+                if lslist is not None and cmslsnum not in lslist:
+                    continue
                 lsdata=[]
                 deadtimecount=trgdata[1][cmslsnum][0]
                 bitzerocount=trgdata[1][cmslsnum][1]
