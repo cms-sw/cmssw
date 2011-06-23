@@ -14,6 +14,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/IfExistsDescription.h"
+#include "FWCore/ParameterSet/interface/IllegalParameters.h"
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -143,7 +144,9 @@ namespace edm {
       // Try again
       if (validatedLabels.size() != parameterNames.size()) {
 
-        throwIllegalParameters(parameterNames, validatedLabels);
+        if (IllegalParameters::throwAnException()) {
+          throwIllegalParameters(parameterNames, validatedLabels);
+        }
       }
     }
   }

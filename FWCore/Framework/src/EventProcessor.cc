@@ -36,6 +36,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/IllegalParameters.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
@@ -598,6 +599,7 @@ namespace edm {
                                                 std::make_pair(itPS->getUntrackedParameter<std::string>("type", "*"),
                                                                itPS->getUntrackedParameter<std::string>("label", "")));
     }
+    IllegalParameters::setThrowAnException(optionsPset.getUntrackedParameter<bool>("throwIfIllegalParameter", true));
 
     std::auto_ptr<eventsetup::EventSetupsController> espController(new eventsetup::EventSetupsController);
 
