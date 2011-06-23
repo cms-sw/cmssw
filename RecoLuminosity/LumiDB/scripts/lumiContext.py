@@ -187,6 +187,19 @@ if __name__ == '__main__':
             lumiReport.toScreenLSTrg(result,iresults,isdetail)
         else:
             lumiReport.toCSVLSTrg(result,options.outputfile,iresults,isdetail)
+    if options.action == 'hltbyls':
+        withL1Pass=False
+        withHLTAccept=False
+        if options.verbose:
+            withL1Pass=True
+            withHLTAccept=True
+        session.transaction().start(True)
+        result=lumiCalcAPI.hltForRange(session.nominalSchema(),irunlsdict,hltpathname=sname,hltpathpattern=spattern,withL1Pass=withL1Pass,withHLTAccept=withHLTAccept)
+        session.transaction().commit()
+        if not options.outputfile:
+            lumiReport.toScreenLSHlt(result,iresults=iresults,isverbose=options.verbose)
+        else:
+            lumiReport.toCSVLSHlt(result,options.outputfile,iresults,options.verbose)
     if options.action == 'trgconf':
         session.transaction().start(True)
         result=lumiCalcAPI.trgbitsForRange(session.nominalSchema(),irunlsdict,datatag=None)        

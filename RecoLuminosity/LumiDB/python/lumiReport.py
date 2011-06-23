@@ -680,10 +680,49 @@ def toCSVConfTrg(trgconfdata,ofilename,iresults=None,isverbose=False):
 
 def toScreenLSHlt(hltdata,iresults=None,isverbose=False):
     '''
-    input:[[run,cmslsnum,timestamp,deadfrac,name:(prescale,count)]]
+    input:{runnumber:[(cmslsnum,[(hltpath,hltprescale,l1pass,hltaccept),...]),(cmslsnum,[])})}
     '''
-    print hltdata
-
+    result=[]
+    for run in hltdata.keys():
+        if hltdata[run] is None:            
+            ll=[str(run),'n/a','n/a']
+            continue
+        perrundata=hltdata[run]
+        for lsdata in perrundata:
+            cmslsnum=lsdata[0]
+            allpathinfo=lsdata[1]
+            allpathresult=[]
+            for thispathinfo in allpathinfo:
+                thispathname=thispathinfo[0]
+                thispathpresc=thispathinfo[1]
+                thisl1pass=None
+                thishltaccept=None
+                thispathresult=[]
+                thispathresult.append(thispathname)
+                thispathresult.append('%d'%thispathpresc)
+                if isverbose:
+                    if thispathinfo[2] :
+                        thisl1pass=thispathinfo[2]
+                        thispathresult.append('%d'%thisl1pass)
+                    else:
+                        thispathresult.append('n/a')
+                    if thispathinfo[3]:
+                        thishltaccept=thispathinfo[3]
+                        thispathresult.append('%d'%thishltaccept)
+                    else:
+                        thispathresult.append('n/a')
+                thispathresultStr='('+','.join(thispathresult)+')'
+                allpathresult.append(thispathresultStr)
+            result.append([str(run),str(cmslsnum),', '.join(allpathresult)])
+    print ' ==  = '
+    if isverbose:
+        labels = [('Run', 'LS', '(hltpath,presc)')]
+    else:
+        labels = [('Run', 'LS', '(hltpath,presc,l1pass,hltaccept')]
+    print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
+                               prefix = '| ', postfix = ' |', justify = 'left',
+                               delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,70) )
+    
 def toCSVLSHlt(hltdata,ofilename,iresults=None,isverbose=False):
     '''
     input:[[run,cmslsnum,timestamp,deadfrac,name:(prescale,count)]]

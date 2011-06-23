@@ -77,16 +77,45 @@ def trgbitsForRange(schema,runlist,datatag=None):
         result[run].extend([datasource,bitzeroname,bitnames])
     return result
 
-def hltForRange(schema,inputRange,hltpathname=None,hltpathpattern=None,datatag=None):
+def hltForRange(schema,inputRange,hltpathname=None,hltpathpattern=None,withL1Pass=False,withHLTAccept=False, datatag=None):
     '''
     input:
            inputRange: {run:[cmsls]} (required)
            hltpathname: exact match hltpathname  (optional) 
            hltpathpattern: regex match hltpathpattern (optional)
            datatag : data version
-    output: {runnumber:{hltpath:[[cmslsnum,l1pass,hltaccept,hltprescale]]})}
+    output: {runnumber:[(cmslsnum,[(hltpath,hltprescale,l1pass,hltaccept),...]),(cmslsnum,[])})}
     '''
-    pass
+    result={}
+    for run in inputRange.keys():
+        lslist=inputRange[run]
+        if lslist is not None and len(lslist)==0:
+            result[run]=[]#if no LS is selected for a run
+            continue
+        hltdataid=dataDML.guessHltDataIdByRun(schema,run)
+        if hltdataid is None:
+            result[run]=None
+            continue #run non exist
+        hltdata=dataDML.hltLSById(schema,hltdataid,hltpathname=hltpathname,hltpathpattern=hltpathpattern,withL1Pass=withL1Pass,withHLTAccept=withHLTAccept)
+        #(runnum,{cmslsnum:[(pathname,prescale,l1pass,hltaccept),...]})
+        result[run]=[]
+        if hltdata and hltdata[1]:
+            for cmslsnum in sorted(hltdata[1]):
+                if lslist is not None and cmslsnum not in lslist:
+                    continue
+                lsdata=[]
+                for perpathdata in hltdata[1][cmslsnum]:
+                    pathname=perpathdata[0]
+                    prescale=perpathdata[1]
+                    l1pass=None
+                    hltaccept=None
+                    if withL1Pass:
+                        l1pass=perpathdata[2]
+                    if withHLTAccept:
+                        hltaccept=perpathdata[3]
+                    lsdata.append((pathname,prescale,l1pass,hltaccept))
+                result[run].append((cmslsnum,lsdata))
+    return result
 
 def trgForRange(schema,inputRange,trgbitname=None,trgbitnamepattern=None,withL1Count=False,withPrescale=False,datatag=None):
     '''
