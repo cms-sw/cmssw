@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Dec  9 16:14:56 CET 2009
-// $Id: PFCandidateMixer.cc,v 1.1 2010/03/17 16:14:09 fruboes Exp $
+// $Id: PFCandidateMixer.cc,v 1.2 2011/06/23 13:48:54 fruboes Exp $
 //
 //
 
@@ -127,9 +127,9 @@ PFCandidateMixer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      PFCandidateConstIterator itE = (*itCol)->end();
      for (;it!=itE;++it) {
        PFCandidate cand(*it);
-       size_t i = 0;
+       size_t i = trackCol->size();
        if (it->trackRef().isNonnull()) {
-         for (  ; i < trackCol->size(); ++i){
+         for (i = 0; i < trackCol->size(); ++i){
            if ( reco::deltaR( *(it->trackRef()), trackCol->at(i) )<0.001 ) break; 
          } 
        } 
