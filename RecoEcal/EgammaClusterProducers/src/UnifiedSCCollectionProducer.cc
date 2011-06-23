@@ -281,7 +281,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
 	  // new collection, add it
 	  if (!foundTheSame){	      
 	    basicClusters.push_back(*bc);
-	    edm::LogError("found BC to add");
+	    LogTrace("UnifiedSC")<<"found BC to add that was not associated to any SC";
 	  }
 	  
 	} // loop on original clean BC collection
