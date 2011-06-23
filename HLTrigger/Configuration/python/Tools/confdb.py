@@ -34,7 +34,7 @@ class HLTProcess(object):
     "HLT_JetE30_NoBPTX*_v*",
     "HLT_JetE50_NoBPTX*_v*",
     "HLT_JetE50_NoBPTX3BX_NoHalo_v*",
-  
+
   # TODO: paths not supported by FastSim, but for which a recovery should be attempted
     "HLT_Mu3_Track3_Jpsi_v*",
     "HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v*",
@@ -521,7 +521,7 @@ if 'hltPreDQMSmart' in %%(dict)s:
 if 'hltDQMHLTScalers' in %%(dict)s:
     %%(process)shltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults', '', '%(name)s' )
     %%(process)shltDQMHLTScalers.processname         = '%(name)s'
-    
+
 if 'hltDQML1SeedLogicScalers' in %%(dict)s:
     %%(process)shltDQML1SeedLogicScalers.processname = '%(name)s'
 """ % self.config.__dict__
@@ -908,6 +908,15 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorbbPhi" )
       self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesbbPhi" )
       self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksbbPhi" )
+      self.options['modules'].append( "-hltBLifetimeBTagIP3D1stTrkRegionalPixelSeedGeneratorJet20Hbb" )
+      self.options['modules'].append( "-hltBLifetimeBTagIP3D1stTrkRegionalCkfTrackCandidatesJet20Hbb" )
+      self.options['modules'].append( "-hltBLifetimeBTagIP3D1stTrkRegionalCtfWithMaterialTracksJet20Hbb" )
+      self.options['modules'].append( "-hltBLifetimeDiBTagIP3D1stTrkRegionalPixelSeedGeneratorJet20Hbb" )
+      self.options['modules'].append( "-hltBLifetimeDiBTagIP3D1stTrkRegionalCkfTrackCandidatesJet20Hbb" )
+      self.options['modules'].append( "-hltBLifetimeDiBTagIP3D1stTrkRegionalCtfWithMaterialTracksJet20Hbb" )
+      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorGammaB" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesGammaB" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksGammaB" )
 
       self.options['modules'].append( "-hltPixelTracksForMinBias" )
       self.options['modules'].append( "-hltPixelTracksForHighMult" )
