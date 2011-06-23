@@ -5,8 +5,8 @@
 
 /** \class HcalPulseShapes
   *  
-  * $Date: 2006/10/13 19:32:34 $
-  * $Revision: 1.1 $
+  * $Date: 2006/10/27 19:46:53 $
+  * $Revision: 1.2 $
   * \author J. Mans - Minnesota
   */
 class HcalPulseShapes {
@@ -22,6 +22,7 @@ public:
     float operator()(double time) const;
     float at(double time) const;
     float integrate(double tmin, double tmax) const;
+    int nbins() const {return nbin_;}
   private:
     std::vector<float> shape_;
     int nbin_;
