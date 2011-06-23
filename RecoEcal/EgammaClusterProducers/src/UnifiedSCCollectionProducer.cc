@@ -242,6 +242,51 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
         } // end loop over clean SC _________________________________________________
         //
         //
+
+	// Final check: in the endcap BC may exist that are not associated to SC,
+	// we need to recover them as well (e.g. multi5x5 algo)
+	// This is should be optimized (SA, 20110621)
+
+
+	// loop on original clean BC collection and see if the BC is missing from the new one
+	for (reco::BasicClusterCollection::const_iterator bc = pCleanBC->begin();
+	     bc!=pCleanBC->end();
+	     ++bc){
+	  
+	  bool foundTheSame = false;
+	  for (reco::BasicClusterCollection::const_iterator cleanonly_bc = basicClusters.begin();
+	       cleanonly_bc!=basicClusters.end();
+	       ++cleanonly_bc){	    
+	    
+	    const std::vector<std::pair<DetId,float> > & chits = bc->hitsAndFractions();
+	    int chitsSize =  chits.size();
+	    
+	    const std::vector<std::pair<DetId,float> > & uhits = cleanonly_bc->hitsAndFractions();
+	    int uhitsSize =  uhits.size();
+	    
+	    
+	    if (cleanonly_bc->seed()==bc->seed() && chitsSize == uhitsSize) {
+	        foundTheSame = true;
+		for (int i=0; i< chitsSize; ++i) {
+		  if (uhits[i].first != chits[i].first ) { 
+		    foundTheSame=false;    
+		    break;
+		  }
+		}
+	    }
+	    	    
+	  } // loop on new clean BC collection
+	  
+	  // clean basic cluster is not associated to SC and does not belong to the 
+	  // new collection, add it
+	  if (!foundTheSame){	      
+	    basicClusters.push_back(*bc);
+	    edm::LogError("found BC to add");
+	  }
+	  
+	} // loop on original clean BC collection
+
+
         // at this point we have the basic cluster collection ready
         // 
         int bcSize = (int) basicClusters.size();
@@ -368,50 +413,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
         } // end loop over clean SC _________________________________________________
 
 
-	// Final check: in the endcap BC may exist that are not associated to SC,
-	// we need to recover them as well
-	// This is should be optimized (SA, 20110621)
 
-
-	// loop on original clean BC collection and see if the BC is missing from the new one
-	for (reco::BasicClusterCollection::const_iterator bc = pCleanBC->begin();
-	     bc!=pCleanBC->end();
-	     ++bc){
-	  
-	  bool foundTheSame = false;
-	  for (reco::BasicClusterCollection::const_iterator cleanonly_bc = basicClusters.begin();
-	       cleanonly_bc!=basicClusters.end();
-	       ++cleanonly_bc){
-	    
-	    
-	    const std::vector<std::pair<DetId,float> > & chits = bc->hitsAndFractions();
-	    int chitsSize =  chits.size();
-	    
-	    const std::vector<std::pair<DetId,float> > & uhits = cleanonly_bc->hitsAndFractions();
-	    int uhitsSize =  uhits.size();
-	    
-	    
-	    if (cleanonly_bc->seed()==bc->seed() && chitsSize == uhitsSize) {
-	        foundTheSame = true;
-		for (int i=0; i< chitsSize; ++i) {
-		  if (uhits[i].first != chits[i].first ) { 
-		    foundTheSame=false;    
-		    break;
-		  }
-		}
-
-	    }
-	    
-	    
-	  } // loop on new clean BC collection
-	  
-	  // clean basic cluster is not associated to SC and does not belong to the 
-	  // new collection, add it
-	  if (!foundTheSame){	      
-	    basicClusters.push_back(*bc);
-	  }
-	  
-	} // loop on original clean BC collection
 
 
 
