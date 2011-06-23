@@ -18,6 +18,7 @@
 #include "TF1.h"
 #include "TGraphErrors.h"
 #include "TGraphAsymmErrors.h"
+#include "TMultiGraph.h"
 #include "TPaveText.h"
 #include "tdrstyle.C"
 
@@ -77,34 +78,38 @@ void Analysis_Step5()
 //   SelectionPlot(InputDir);
 //   PredictionAndControlPlot(InputDir);
 
-
-   InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type0/";   CutIndex = 24;//41
+/*
+   InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type0/";   CutIndex = 4;//25;//24;//41
 //   Make2DPlot_Core(InputDir,CutIndex);
 //   CutFlow(InputDir);
 //   SelectionPlot(InputDir, CutIndex);
    MassPrediction(InputDir, CutIndex, "Mass");
-   MassPrediction(InputDir, CutIndex, "MassTOF");
-   MassPrediction(InputDir, CutIndex, "MassComb");    
-   PredictionAndControlPlot(InputDir, CutIndex);
+//   MassPrediction(InputDir, CutIndex, "MassTOF");
+//   MassPrediction(InputDir, CutIndex, "MassComb");    
+//   PredictionAndControlPlot(InputDir, CutIndex);
 // SignalMassPlot(InputDir,0);return;
 // GetSystematicOnPrediction(InputDir);
 
-   InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type2/";   CutIndex = 82;//18;
+   InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type2/";   CutIndex = 14;//²38;//83;// 82;//18;
 //   Make2DPlot_Core(InputDir,CutIndex);
 //   CutFlow(InputDir);
 //   SelectionPlot(InputDir, CutIndex);
    MassPrediction(InputDir, CutIndex, "Mass");
-   MassPrediction(InputDir, CutIndex, "MassTOF");
-   MassPrediction(InputDir, CutIndex, "MassComb");     
-   PredictionAndControlPlot(InputDir, CutIndex);
+//   MassPrediction(InputDir, CutIndex, "MassTOF");
+//   MassPrediction(InputDir, CutIndex, "MassComb");     
+//   PredictionAndControlPlot(InputDir, CutIndex);
 // SignalMassPlot(InputDir,0);return;
 // GetSystematicOnPrediction(InputDir);
 
+*/
+  InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type0/";   CutIndex = 64;/*65;*//*39;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
+//  InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type2/";   CutIndex = 31;/*211;*//*167;95;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
 
-  InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type0/";   CutIndex = 29;/*39;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
-  InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type2/";   CutIndex = 167;/*95;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
+
+   InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type0/";   CutIndex = 64;   Make2DPlot_Core(InputDir,CutIndex);
 
 
+// 31, 65, 44, 64
 
    return;
 }
@@ -144,6 +149,7 @@ void GetSystematicOnPrediction(string InputPattern){
    TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile, "H_P");
 
    int    ArrN[6];  ArrN[0] = 0; ArrN[1] = 0; ArrN[2] = 0;  ArrN[3] = 0;  ArrN[4] = 0; ArrN[5] = 0;
+   double ArrPred[5][6][20];  double ArrErr[5][6][20];  int ArrPredN[5][6];  for(unsigned int i=0;i<5;i++){for(unsigned int j=0;j<6;j++){ArrPredN[i][j]=0;}}
    double ArrMean[6][20];
    double ArrSigma[6][20];
    double ArrDist[6][20];
@@ -151,6 +157,7 @@ void GetSystematicOnPrediction(string InputPattern){
    double ArrSum[6][20];
    double ArrSyst[6][20];
    double ArrStat[6][20];
+   double ArrStatB[6][20];
    double ArrPt[6][20];
    double ArrI[6][20];
    double ArrT[6][20];
@@ -242,8 +249,7 @@ void GetSystematicOnPrediction(string InputPattern){
      double Sigma = 0;
      double Mean = 0;
 
-
-     for(unsigned int p=0;p<5;p++){
+     for(unsigned int p=0;p<4;p++){
         Pred[p] = -1;
         Err [p] = -1;
         if(p==0){
@@ -251,21 +257,17 @@ void GetSystematicOnPrediction(string InputPattern){
             Pred[p] = (A*F*G)/(E*E);
             Err [p] =  Pred [p] * sqrt( 1/A + 1/F + 1/G + 4/E);
          }else if(p==1){
-            if(C<25 || B<25 || A<25)continue;
-            Pred[p] = ((C*B)/A);
-            Err [p] =  Pred[p] * sqrt( 1/C+1/B+1/A );
+            if(A<25 || H<25 || E<25)continue;
+            Pred[p] = ((A*H)/E);
+            Err [p] =  Pred[p] * sqrt( 1/A+1/H+1/E );
          }else if (p==2){
-            if(C<25 || H<25 || G<25)continue;
-            Pred[p] = ((C*H)/G);
-            Err [p] =  Pred[p] * sqrt( 1/C+ 1/H+ 1/G );
+            if(B<25 || G<25 || E<25)continue;
+            Pred[p] = ((B*G)/E); 
+            Err [p] =  Pred[p] * sqrt( 1/B+ 1/G+ 1/E );
          }else if (p==3){
-            if(H<25 || B<25 || F<25)continue;
-            Pred[p] = ((H*B)/F);
-            Err [p] =  Pred[p] * sqrt( 1/H + 1/B + 1/F );
-         }else if (p==4){
-            if(F<25 || A<25 || E<25)continue;
-            Pred[p] = ((H*A)/E);
-            Err [p] =  Pred[p] * sqrt( 1/H + 1/A + 1/E );            
+            if(F<25 || C<25 || E<25)continue;
+            Pred[p] = ((F*C)/E);
+            Err [p] =  Pred[p] * sqrt( 1/F + 1/C + 1/E );
          }
 
          if(Pred[p]>=0){
@@ -273,27 +275,34 @@ void GetSystematicOnPrediction(string InputPattern){
             Mean  += Pred[p]/pow(Err [p],2);
             Sigma += 1      /pow(Err [p],2);
          }         
+
+         ArrPred [p][Plot[i]][ArrN[Plot[i]]] = Pred[p];
+         ArrErr  [p][Plot[i]][ArrN[Plot[i]]] = Err [p];
+         if(Pred[p]>=0)ArrPredN[p][Plot[i]]++;
      }
+
      Mean  = Mean/Sigma;
      Sigma = sqrt(Sigma);
      
      double Dist    = fabs(Pred[0] - Mean);
-     double Sum=0, Stat=0, Syst=0;
+     double Sum=0, Stat=0, Syst=0, StatB=0;
 
-     for(unsigned int p=0;p<5;p++){
+     for(unsigned int p=0;p<4;p++){
        if(Pred[p]>=0){
-           Sum  += pow(Pred[p]-Mean,2);
-           Stat += pow(Err [p],2);
+           Sum   += pow(Pred[p]-Mean,2);
+           Stat  += pow(Err [p],2);
+           StatB += Err [p];
         }
      }
-     Sum  = sqrt(Sum/N);
-     Stat = sqrt(Stat/N);
+     Sum  = sqrt(Sum/(N-1));
+     Stat = sqrt(Stat)/N;
+     StatB= StatB/N;
      Syst = sqrt(Sum*Sum - Stat*Stat);
 
-     printf("pT>%6.2f I> %6.2f TOF>%6.2f : ", HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1));
-     printf("A =%6.2E, B=%6.2E, C=%6.2E, D=%6.2E E =%6.2E, F=%6.2E, G=%6.2E, H=%6.2E\n", A,B,C,D, E, F, G, H);
+//     printf("pT>%6.2f I> %6.2f TOF>%6.2f : ", HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1));
+//     printf("A =%6.2E, B=%6.2E, C=%6.2E, D=%6.2E E =%6.2E, F=%6.2E, G=%6.2E, H=%6.2E\n", A,B,C,D, E, F, G, H);
 
-     for(unsigned int p=0;p<5;p++){printf("Method %i --> P =%6.2E+-%6.2E\n", p,Pred[p], Err [p]);}
+//     for(unsigned int p=0;p<4;p++){printf("Method %i --> P =%6.2E+-%6.2E\n", p,Pred[p], Err [p]);}
      printf("--> N = %1.0f Mean = %8.2E  Sigma=%8.2E  Dist=%8.2E  Sum=%8.2E  Stat=%8.2E  Syst=%8.2E\n", N, Mean, Sigma/Mean, Dist/Mean, Sum/Mean, Stat/Mean, Syst/Mean);
       if(N>0){
       ArrMean   [Plot[i]][ArrN[Plot[i]]] = Mean;
@@ -302,6 +311,7 @@ void GetSystematicOnPrediction(string InputPattern){
       ArrSum    [Plot[i]][ArrN[Plot[i]]] = Sum/Mean;
       ArrSyst   [Plot[i]][ArrN[Plot[i]]] = Syst/Mean;
       ArrStat   [Plot[i]][ArrN[Plot[i]]] = Stat/Mean;
+      ArrStatB  [Plot[i]][ArrN[Plot[i]]] = StatB/Mean;
       ArrPt     [Plot[i]][ArrN[Plot[i]]] = HCuts_Pt ->GetBinContent(CutIndex+1); ;
       ArrI      [Plot[i]][ArrN[Plot[i]]] = HCuts_I  ->GetBinContent(CutIndex+1); ;
       ArrT      [Plot[i]][ArrN[Plot[i]]] = HCuts_TOF->GetBinContent(CutIndex+1); ;
@@ -310,13 +320,95 @@ void GetSystematicOnPrediction(string InputPattern){
     }
 
 
+   TGraphErrors* graph_T0 = new TGraphErrors(ArrPredN[0][0],ArrT [0],ArrPred[0][0],0,ArrErr[0][0]);   graph_T0->SetLineColor(1);  graph_T0->SetMarkerColor(1);   graph_T0->SetMarkerStyle(20);
+   TGraphErrors* graph_T1 = new TGraphErrors(ArrPredN[1][0],ArrT [0],ArrPred[1][0],0,ArrErr[1][0]);   graph_T1->SetLineColor(2);  graph_T1->SetMarkerColor(2);   graph_T1->SetMarkerStyle(21); 
+   TGraphErrors* graph_T2 = new TGraphErrors(ArrPredN[2][0],ArrT [0],ArrPred[2][0],0,ArrErr[2][0]);   graph_T2->SetLineColor(4);  graph_T2->SetMarkerColor(4);   graph_T2->SetMarkerStyle(22);
+   TGraphErrors* graph_T3 = new TGraphErrors(ArrPredN[3][0],ArrT [0],ArrPred[3][0],0,ArrErr[3][0]);   graph_T3->SetLineColor(8);  graph_T3->SetMarkerColor(8);   graph_T3->SetMarkerStyle(23);
+
+   TGraphErrors* graph_I0 = new TGraphErrors(ArrPredN[0][1],ArrI [1],ArrPred[0][1],0,ArrErr[0][1]);   graph_I0->SetLineColor(1);  graph_I0->SetMarkerColor(1);   graph_I0->SetMarkerStyle(20);
+   TGraphErrors* graph_I1 = new TGraphErrors(ArrPredN[1][1],ArrI [1],ArrPred[1][1],0,ArrErr[1][1]);   graph_I1->SetLineColor(2);  graph_I1->SetMarkerColor(2);   graph_I1->SetMarkerStyle(21);
+   TGraphErrors* graph_I2 = new TGraphErrors(ArrPredN[2][1],ArrI [1],ArrPred[2][1],0,ArrErr[2][1]);   graph_I2->SetLineColor(4);  graph_I2->SetMarkerColor(4);   graph_I2->SetMarkerStyle(22);
+   TGraphErrors* graph_I3 = new TGraphErrors(ArrPredN[3][1],ArrI [1],ArrPred[3][1],0,ArrErr[3][1]);   graph_I3->SetLineColor(8);  graph_I3->SetMarkerColor(8);   graph_I3->SetMarkerStyle(23);
+
+   TGraphErrors* graph_P0 = new TGraphErrors(ArrPredN[0][2],ArrPt[2],ArrPred[0][2],0,ArrErr[0][2]);   graph_P0->SetLineColor(1);  graph_P0->SetMarkerColor(1);   graph_P0->SetMarkerStyle(20);
+   TGraphErrors* graph_P1 = new TGraphErrors(ArrPredN[1][2],ArrPt[2],ArrPred[1][2],0,ArrErr[1][2]);   graph_P1->SetLineColor(2);  graph_P1->SetMarkerColor(2);   graph_P1->SetMarkerStyle(21);
+   TGraphErrors* graph_P2 = new TGraphErrors(ArrPredN[2][2],ArrPt[2],ArrPred[2][2],0,ArrErr[2][2]);   graph_P2->SetLineColor(4);  graph_P2->SetMarkerColor(4);   graph_P2->SetMarkerStyle(22);
+   TGraphErrors* graph_P3 = new TGraphErrors(ArrPredN[3][2],ArrPt[2],ArrPred[3][2],0,ArrErr[3][2]);   graph_P3->SetLineColor(8);  graph_P3->SetMarkerColor(8);   graph_P3->SetMarkerStyle(23);
+
+   TLegend* LEG = new TLegend(0.50,0.65,0.80,0.90);
+   LEG->SetFillColor(0); 
+   LEG->SetBorderSize(0);
+   LEG->AddEntry(graph_T0, "D=AFG/EE"    ,"LP");
+   LEG->AddEntry(graph_T1, "D=AH/E"      ,"LP");
+   LEG->AddEntry(graph_T2, "D=BG/E"      ,"LP");
+   LEG->AddEntry(graph_T3, "D=FC/E"      ,"LP");
+
+   TCanvas* c1;
+   c1 = new TCanvas("c1", "c1",600,600);
+   c1->SetLogy(true);
+   TMultiGraph* MGTOF = new TMultiGraph();
+   MGTOF->Add(graph_T0      ,"LP");   
+   MGTOF->Add(graph_T1      ,"LP");
+   MGTOF->Add(graph_T2      ,"LP");
+   MGTOF->Add(graph_T3      ,"LP");
+   MGTOF->Draw("A");
+   MGTOF->SetTitle("");
+   MGTOF->GetXaxis()->SetTitle("1/#beta cut");
+   MGTOF->GetYaxis()->SetTitle("Number of expected backgrounds");
+   MGTOF->GetYaxis()->SetTitleOffset(1.70);
+   MGTOF->GetYaxis()->SetRangeUser(1,1E5);
+   LEG->Draw();
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"TOF_Value","true");
+   delete c1;
+
+   c1 = new TCanvas("c1", "c1",600,600);
+   TMultiGraph* MGI = new TMultiGraph();
+   c1->SetLogy(true);
+   MGI->Add(graph_I0      ,"LP");
+   MGI->Add(graph_I1      ,"LP");
+   MGI->Add(graph_I2      ,"LP");
+   MGI->Add(graph_I3      ,"LP");
+   MGI->Draw("A");
+   MGI->SetTitle("");
+   MGI->GetXaxis()->SetTitle("I_{as} cut");
+   MGI->GetYaxis()->SetTitle("Number of expected backgrounds");
+   MGI->GetYaxis()->SetTitleOffset(1.70);
+   MGI->GetYaxis()->SetRangeUser(1,1E5);
+   LEG->Draw();
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"I_Value","true");
+   delete c1;
+
+   c1 = new TCanvas("c1", "c1",600,600);
+   c1->SetLogy(true);
+   TMultiGraph* MGP = new TMultiGraph();
+   MGP->Add(graph_P0      ,"LP");
+   MGP->Add(graph_P1      ,"LP");
+   MGP->Add(graph_P2      ,"LP");
+   MGP->Add(graph_P3      ,"LP");
+   MGP->Draw("A");
+   MGP->SetTitle("");
+   MGP->GetXaxis()->SetTitle("p_{T} cut");
+   MGP->GetYaxis()->SetTitle("Number of expected backgrounds");
+   MGP->GetYaxis()->SetTitleOffset(1.70);
+   MGP->GetYaxis()->SetRangeUser(1,1E5);
+   LEG->Draw();
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"P_Value","true");
+   delete c1;
+
+
+
+
+
     for(unsigned int p=0;p<3;p++){
       string Title; string Name;
-      if(p==0){ Title = "1/#beta cut";  Name="TOF_";}
-      if(p==1){ Title = "dEdx cut";     Name="I_";}
-      if(p==2){ Title = "p_{T} cut";    Name="pT_";}
+      if(p==0){ Title = "1/#beta cut";  Name="TOF_";  }
+      if(p==1){ Title = "dEdx cut";     Name="I_";    }
+      if(p==2){ Title = "p_{T} cut";    Name="pT_";    }
 
-      TCanvas* c1;
+
       c1 = new TCanvas("c1","c1", 600, 600);
       TGraph* graph_s;
       if(p==0)graph_s = new TGraph(ArrN[p],ArrT [p],ArrSigma[p]);
@@ -355,7 +447,7 @@ void GetSystematicOnPrediction(string InputPattern){
       graph_sum->GetXaxis()->SetTitle(Title.c_str());
       
       graph_sum->Draw("AC*");
-      graph_sum->GetYaxis()->SetRangeUser(0,1);
+      graph_sum->GetYaxis()->SetRangeUser(0,0.25);
 
       if(p==2){
          TGraph* graph_sum2 = new TGraph(ArrN[p+1],ArrPt[p+1],ArrSum[p+1]);
@@ -367,12 +459,20 @@ void GetSystematicOnPrediction(string InputPattern){
          graph_sum3->SetLineColor(4);
          graph_sum3->SetMarkerColor(4);
          graph_sum3->Draw("C*");
-
+/*
          TGraph* graph_sum4 = new TGraph(ArrN[p+3],ArrPt[p+3],ArrSum[p+3]);
          graph_sum4->SetLineColor(8);
          graph_sum4->SetMarkerColor(8);
          graph_sum4->Draw("C*");
+*/
 
+          TLegend* LEG = new TLegend(0.50,0.65,0.80,0.90);
+          LEG->SetFillColor(0);
+          LEG->SetBorderSize(0);
+          LEG->AddEntry(graph_sum,  "I_{as}>0.25 & 1/#beta>1.05", "L");
+          LEG->AddEntry(graph_sum2, "I_{as}>0.05 & 1/#beta>1.05", "L");
+          LEG->AddEntry(graph_sum3, "I_{as}>0.10 & 1/#beta>1.10", "L");
+          LEG->Draw();
       }
       SaveCanvas(c1,SavePath,Name+"Sum","true");
       delete c1;
@@ -391,7 +491,7 @@ void GetSystematicOnPrediction(string InputPattern){
       graph_stat->GetXaxis()->SetTitle(Title.c_str());
       
       graph_stat->Draw("AC*");
-      graph_stat->GetYaxis()->SetRangeUser(0,1);
+      graph_stat->GetYaxis()->SetRangeUser(0,0.25);
 
       if(p==2){
          TGraph* graph_stat2 = new TGraph(ArrN[p+1],ArrPt[p+1],ArrStat[p+1]);
@@ -403,15 +503,120 @@ void GetSystematicOnPrediction(string InputPattern){
          graph_stat3->SetLineColor(4);
          graph_stat3->SetMarkerColor(4);
          graph_stat3->Draw("C*");
-
+/*
          TGraph* graph_stat4 = new TGraph(ArrN[p+3],ArrPt[p+3],ArrStat[p+3]);
          graph_stat4->SetLineColor(8);
          graph_stat4->SetMarkerColor(8);
          graph_stat4->Draw("C*");
+*/
 
+          TLegend* LEG = new TLegend(0.50,0.65,0.80,0.90);
+          LEG->SetFillColor(0);
+          LEG->SetBorderSize(0);
+          LEG->AddEntry(graph_stat,  "I_{as}>0.25 & 1/#beta>1.05", "L");
+          LEG->AddEntry(graph_stat2, "I_{as}>0.05 & 1/#beta>1.05", "L");
+          LEG->AddEntry(graph_stat3, "I_{as}>0.10 & 1/#beta>1.10", "L");
+          LEG->Draw();
       }
       SaveCanvas(c1,SavePath,Name+"Stat","true");
       delete c1;
+
+
+
+
+      c1 = new TCanvas("c1","c1", 600, 600);
+      TGraph* graph_statB;
+      if(p==0)graph_statB = new TGraph(ArrN[p],ArrT [p],ArrStat[p]);
+      if(p==1)graph_statB = new TGraph(ArrN[p],ArrI [p],ArrStat[p]);
+      if(p==2)graph_statB = new TGraph(ArrN[p+2],ArrPt[p+2],ArrStatB[p+2]);
+      graph_statB->SetTitle("");
+      graph_statB->GetYaxis()->SetTitle("Prediction #sigma_{Stat}/#mu");
+      graph_statB->GetYaxis()->SetTitleOffset(1.70);
+      graph_statB->GetXaxis()->SetTitle(Title.c_str());
+      
+      graph_statB->Draw("AC*");
+      graph_statB->GetYaxis()->SetRangeUser(0,0.25);
+
+      if(p==2){
+         TGraph* graph_statB2 = new TGraph(ArrN[p+1],ArrPt[p+1],ArrStatB[p+1]);
+         graph_statB2->SetLineColor(2);
+         graph_statB2->SetMarkerColor(2);
+         graph_statB2->Draw("C*");
+
+         TGraph* graph_statB3 = new TGraph(ArrN[p+0],ArrPt[p+0],ArrStatB[p+0]);
+         graph_statB3->SetLineColor(4);
+         graph_statB3->SetMarkerColor(4);
+         graph_statB3->Draw("C*");
+/*
+         TGraph* graph_statB4 = new TGraph(ArrN[p+3],ArrPt[p+3],ArrStat[p+3]);
+         graph_statB4->SetLineColor(8);
+         graph_statB4->SetMarkerColor(8);
+         graph_statB4->Draw("C*");
+*/
+
+          TLegend* LEG = new TLegend(0.50,0.65,0.80,0.90);
+          LEG->SetFillColor(0);
+          LEG->SetBorderSize(0);
+          LEG->AddEntry(graph_statB,  "I_{as}>0.25 & 1/#beta>1.05", "L");
+          LEG->AddEntry(graph_statB2, "I_{as}>0.05 & 1/#beta>1.05", "L");
+          LEG->AddEntry(graph_statB3, "I_{as}>0.10 & 1/#beta>1.10", "L");
+          LEG->Draw();
+      }
+      SaveCanvas(c1,SavePath,Name+"StatB","true");
+      delete c1;
+
+
+
+
+
+
+
+
+
+      c1 = new TCanvas("c1","c1", 600, 600);
+      TGraph* graph_syst;
+      if(p==0)graph_syst = new TGraph(ArrN[p],ArrT [p],ArrSyst[p]);
+      if(p==1)graph_syst = new TGraph(ArrN[p],ArrI [p],ArrSyst[p]);
+      if(p==2)graph_syst = new TGraph(ArrN[p+2],ArrPt[p+2],ArrSyst[p+2]);
+      graph_syst->SetTitle("");
+      graph_syst->GetYaxis()->SetTitle("Prediction #sigma_{Syst}/#mu");
+      graph_syst->GetYaxis()->SetTitleOffset(1.70);
+      graph_syst->GetXaxis()->SetTitle(Title.c_str());
+
+      graph_syst->Draw("AC*");
+      graph_syst->GetXaxis()->SetRangeUser(40,100);
+      graph_syst->GetYaxis()->SetRangeUser(0,0.25);
+
+      if(p==2){
+         TGraph* graph_syst2 = new TGraph(ArrN[p+1],ArrPt[p+1],ArrSyst[p+1]);
+         graph_syst2->SetLineColor(2);
+         graph_syst2->SetMarkerColor(2);
+         graph_syst2->Draw("C*");
+
+         TGraph* graph_syst3 = new TGraph(ArrN[p+0],ArrPt[p+0],ArrSyst[p+0]);
+         graph_syst3->SetLineColor(4);
+         graph_syst3->SetMarkerColor(4);
+         graph_syst3->Draw("C*");
+/*
+         TGraph* graph_syst4 = new TGraph(ArrN[p+3],ArrPt[p+3],ArrSyst[p+3]);
+         graph_syst4->SetLineColor(8);
+         graph_syst4->SetMarkerColor(8);
+         graph_syst4->Draw("C*");
+*/
+
+          TLegend* LEG = new TLegend(0.50,0.65,0.80,0.90);
+          LEG->SetFillColor(0);
+          LEG->SetBorderSize(0);
+          LEG->AddEntry(graph_syst,  "I_{as}>0.25 & 1/#beta>1.05", "L");
+          LEG->AddEntry(graph_syst2, "I_{as}>0.05 & 1/#beta>1.05", "L");
+          LEG->AddEntry(graph_syst3, "I_{as}>0.10 & 1/#beta>1.10", "L");
+          LEG->Draw();
+      }
+
+
+      SaveCanvas(c1,SavePath,Name+"Syst","true");
+      delete c1;
+
 
     }
 }
@@ -603,10 +808,10 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
    if(CtrlPt_S2_Is->Integral()>0)CtrlPt_S2_Is->Scale(1/CtrlPt_S2_Is->Integral());
    if(CtrlPt_S3_Is->Integral()>0)CtrlPt_S3_Is->Scale(1/CtrlPt_S3_Is->Integral());
    if(CtrlPt_S4_Is->Integral()>0)CtrlPt_S4_Is->Scale(1/CtrlPt_S4_Is->Integral());
-   Histos[0] = CtrlPt_S1_Is;                     legend.push_back(" 25<p_{T}< 35 GeV");
-   Histos[1] = CtrlPt_S2_Is;                     legend.push_back(" 35<p_{T}< 50 GeV");
-   Histos[2] = CtrlPt_S3_Is;                     legend.push_back(" 50<p_{T}<100 GeV");
-   Histos[3] = CtrlPt_S4_Is;                     legend.push_back("100<p_{T}");
+// Histos[0] = CtrlPt_S1_Is;                     legend.push_back(" 25<p_{T}< 35 GeV");
+   Histos[0] = CtrlPt_S2_Is;                     legend.push_back(" 35<p_{T}< 50 GeV");
+   Histos[1] = CtrlPt_S3_Is;                     legend.push_back(" 50<p_{T}<100 GeV");
+   Histos[2] = CtrlPt_S4_Is;                     legend.push_back("100<p_{T}");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend, "arbitrary units", 0,0.5, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
@@ -616,14 +821,14 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
 
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   if(CtrlPt_S1_Im->Integral()>0)CtrlPt_S1_Im->Scale(1/CtrlPt_S1_Im->Integral());
+ if(CtrlPt_S1_Im->Integral()>0)CtrlPt_S1_Im->Scale(1/CtrlPt_S1_Im->Integral());
    if(CtrlPt_S2_Im->Integral()>0)CtrlPt_S2_Im->Scale(1/CtrlPt_S2_Im->Integral());
    if(CtrlPt_S3_Im->Integral()>0)CtrlPt_S3_Im->Scale(1/CtrlPt_S3_Im->Integral());
    if(CtrlPt_S4_Im->Integral()>0)CtrlPt_S4_Im->Scale(1/CtrlPt_S4_Im->Integral());
-   Histos[0] = CtrlPt_S1_Im;                     legend.push_back(" 25<p_{T}< 35 GeV");
-   Histos[1] = CtrlPt_S2_Im;                     legend.push_back(" 35<p_{T}< 50 GeV");
-   Histos[2] = CtrlPt_S3_Im;                     legend.push_back(" 50<p_{T}<100 GeV");
-   Histos[3] = CtrlPt_S4_Im;                     legend.push_back("100<p_{T}");
+// Histos[0] = CtrlPt_S1_Im;                     legend.push_back(" 25<p_{T}< 35 GeV");
+   Histos[0] = CtrlPt_S2_Im;                     legend.push_back(" 35<p_{T}< 50 GeV");
+   Histos[1] = CtrlPt_S3_Im;                     legend.push_back(" 50<p_{T}<100 GeV");
+   Histos[2] = CtrlPt_S4_Im;                     legend.push_back("100<p_{T}");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxM_Legend, "arbitrary units", 3.0,10, 0,0);
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
@@ -637,10 +842,10 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
    if(CtrlPt_S2_TOF->Integral()>0)CtrlPt_S2_TOF->Scale(1/CtrlPt_S2_TOF->Integral());
    if(CtrlPt_S3_TOF->Integral()>0)CtrlPt_S3_TOF->Scale(1/CtrlPt_S3_TOF->Integral());
    if(CtrlPt_S4_TOF->Integral()>0)CtrlPt_S4_TOF->Scale(1/CtrlPt_S4_TOF->Integral());
-   Histos[0] = CtrlPt_S1_TOF;                    legend.push_back(" 25<p_{T}< 35 GeV");
-   Histos[1] = CtrlPt_S2_TOF;                    legend.push_back(" 35<p_{T}< 50 GeV");
-   Histos[2] = CtrlPt_S3_TOF;                    legend.push_back(" 50<p_{T}<100 GeV");
-   Histos[3] = CtrlPt_S4_TOF;                    legend.push_back("100<p_{T}");
+// Histos[0] = CtrlPt_S1_TOF;                    legend.push_back(" 25<p_{T}< 35 GeV");
+   Histos[0] = CtrlPt_S2_TOF;                    legend.push_back(" 35<p_{T}< 50 GeV");
+   Histos[1] = CtrlPt_S3_TOF;                    legend.push_back(" 50<p_{T}<100 GeV");
+   Histos[2] = CtrlPt_S4_TOF;                    legend.push_back("100<p_{T}");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,1.4, 0,0); 
    DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
@@ -1106,8 +1311,10 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    Data_PIm_075->SetStats(kFALSE);
    Data_PIm_075->GetXaxis()->SetTitle("p (GeV/c)");
    Data_PIm_075->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
-   Data_PIm_075->SetAxisRange(0,15,"Y");
-   Data_PIm_075->SetAxisRange(0,1250,"X");
+//   Data_PIm_075->SetAxisRange(0,15,"Y");
+//   Data_PIm_075->SetAxisRange(0,1250,"X");
+   Data_PIm_075->SetAxisRange(3,10,"Y");
+   Data_PIm_075->SetAxisRange(0,2000,"X");
    Data_PIm_075->SetMarkerSize (0.6);
    Data_PIm_075->SetMarkerColor(Color[4]);
    Data_PIm_075->SetMarkerStyle(Marker[4]);
@@ -1133,6 +1340,13 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    Data_PIm_All->SetFillColor(Color[0]);
    Data_PIm_All->Draw("same");
 
+   for(double m=100;m<1000;m+=100){
+      TF1* MassLine = GetMassLine(m);
+      MassLine->SetLineColor(1);
+      MassLine->SetLineWidth(1);
+      MassLine->Draw("same");
+   }
+
    leg = new TLegend(0.80,0.93,0.80 - 0.30,0.93 - 6*0.03);
    leg->SetHeader(LegendFromType(InputPattern).c_str());
    leg->SetFillColor(0);
@@ -1157,7 +1371,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
 //   GetPredictionRescale(InputPattern,Rescale, RMS, RecomputeRescale);
 //   RMS = fabs(1.0-Rescale)/2.0;
    Rescale = 1.0;
-   RMS     = 0.15;
+   RMS     = 0.05;
 
    string outpath = InputPattern;
    MakeDirectories(outpath);
@@ -1190,6 +1404,10 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       Perr = 0; for(int i=Pred->GetXaxis()->FindBin(140.0);i<Pred->GetXaxis()->FindBin(2000.0);i++){ Perr += pow(Pred->GetBinError(i),2); }  Perr = sqrt(Perr);
       printf("%3.0f<M<%3.0f --> D=%9.3f P = %9.3f +- %6.3f(stat) +- %6.3f(syst) (=%6.3f)\n", 140.0,2000.0, D, P, Perr, P*(2*RMS),sqrt(Perr*Perr + pow(P*(2*RMS),2)));
 
+      D = Data->Integral( Data->GetXaxis()->FindBin(330.0),  Data->GetXaxis()->FindBin(2000.0));
+      P = Pred->Integral( Pred->GetXaxis()->FindBin(330.0),  Pred->GetXaxis()->FindBin(2000.0));
+      Perr = 0; for(int i=Pred->GetXaxis()->FindBin(330.0);i<Pred->GetXaxis()->FindBin(2000.0);i++){ Perr += pow(Pred->GetBinError(i),2); }  Perr = sqrt(Perr);
+      printf("%3.0f<M<%3.0f --> D=%9.3f P = %9.3f +- %6.3f(stat) +- %6.3f(syst) (=%6.3f)\n", 330.0,2000.0, D, P, Perr, P*(2*RMS),sqrt(Perr*Perr + pow(P*(2*RMS),2)));
 
 
 

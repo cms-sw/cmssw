@@ -46,6 +46,7 @@ struct stAllInfo{
    double Eff_SYSTI;
    double Eff_SYSTM;
    double Eff_SYSTT;
+   double Index;
    double WP_Pt;
    double WP_I;
    double WP_TOF;
@@ -63,6 +64,7 @@ struct stAllInfo{
       fscanf(pFile,"MassMean  : %lf\n",&MassMean);
       fscanf(pFile,"MassSigma : %lf\n",&MassSigma);
       fscanf(pFile,"MassCut   : %lf\n",&MassCut);
+      fscanf(pFile,"Index     : %lf\n",&Index);
       fscanf(pFile,"WP_Pt     : %lf\n",&WP_Pt);
       fscanf(pFile,"WP_I      : %lf\n",&WP_I);
       fscanf(pFile,"WP_TOF    : %lf\n",&WP_TOF);
@@ -113,7 +115,7 @@ void GetSignalMeanHSCPPerEvent(string InputPattern, unsigned int CutIndex);
 double FindIntersection(TGraph* obs, TGraph* th, double Min, double Max, double Step, double ThUncertainty=0, bool debug=false);
 int ReadXSection(string InputFile, double* Mass, double* XSec, double* Low, double* High,  double* ErrLow, double* ErrHigh);
 TCutG* GetErrorBand(string name, int N, double* Mass, double* Low, double* High);
-
+void CheckSignalUncertainty(FILE* pFile, string InputPattern);
 
 //double PlotMinScale = 0.1;
 //double PlotMaxScale = 50000;
@@ -121,8 +123,8 @@ TCutG* GetErrorBand(string name, int N, double* Mass, double* Low, double* High)
 //double PlotMinScale = 2;
 //double PlotMaxScale = 800;
 
-double PlotMinScale = 0.01;
-double PlotMaxScale = 50;
+double PlotMinScale = 0.003;
+double PlotMaxScale = 60;
 
 
 
@@ -231,6 +233,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    fprintf(pFile,"\\end{document}\n\n");
 
 
+   CheckSignalUncertainty(pFile,TkPattern);
+   CheckSignalUncertainty(pFile,MuPattern);
+
+
    TGraph* GMStauXSec = MakePlot(NULL,TkPattern,"","GMSB Stau        ", 0, "GMStau100"    , "GMStau126"    , "GMStau156"    , "GMStau200"    , "GMStau247"    , "GMStau308"    );
 //   TGraph* PPStauXSec = MakePlot(NULL,TkPattern,"","Pair Prod. Stau  ", 0, "PPStau100"    , "PPStau126"    , "PPStau156"    , "PPStau200"    , "PPStau247"    , "PPStau308"    );
 //   TGraph* DCStauXSec = MakePlot(NULL,TkPattern,"","DiChamp    Stau  ", 0, "DCStau121"    , "DCStau182"    , "DCStau242"    , "DCStau302"                                      );
@@ -337,21 +343,22 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    if(syst!="")return;
 
 
+
    string outpath = string("Results/EXCLUSION/");
    MakeDirectories(outpath);
 
    GluinoXSec      ->SetLineColor(4);  GluinoXSec      ->SetMarkerColor(4);   GluinoXSec      ->SetLineWidth(1);   GluinoXSec      ->SetLineStyle(3);  GluinoXSec      ->SetMarkerStyle(1);
    Mu_Obs_GluinoF1 ->SetLineColor(4);  Mu_Obs_GluinoF1 ->SetMarkerColor(4);   Mu_Obs_GluinoF1 ->SetLineWidth(2);   Mu_Obs_GluinoF1 ->SetLineStyle(1);  Mu_Obs_GluinoF1 ->SetMarkerStyle(22);
    Mu_Obs_GluinoF5 ->SetLineColor(4);  Mu_Obs_GluinoF5 ->SetMarkerColor(4);   Mu_Obs_GluinoF5 ->SetLineWidth(2);   Mu_Obs_GluinoF5 ->SetLineStyle(1);  Mu_Obs_GluinoF5 ->SetMarkerStyle(23);
-//   Mu_Obs_GluinoNF1->SetLineColor(4);  Mu_Obs_GluinoNF1->SetMarkerColor(4);   Mu_Obs_GluinoNF1->SetLineWidth(2);   Mu_Obs_GluinoNF1->SetLineStyle(1);  Mu_Obs_GluinoNF1->SetMarkerStyle(26);
+   Mu_Obs_GluinoNF1->SetLineColor(4);  Mu_Obs_GluinoNF1->SetMarkerColor(4);   Mu_Obs_GluinoNF1->SetLineWidth(2);   Mu_Obs_GluinoNF1->SetLineStyle(1);  Mu_Obs_GluinoNF1->SetMarkerStyle(26);
    Tk_Obs_GluinoF1 ->SetLineColor(4);  Tk_Obs_GluinoF1 ->SetMarkerColor(4);   Tk_Obs_GluinoF1 ->SetLineWidth(2);   Tk_Obs_GluinoF1 ->SetLineStyle(1);  Tk_Obs_GluinoF1 ->SetMarkerStyle(22);
    Tk_Obs_GluinoF5 ->SetLineColor(4);  Tk_Obs_GluinoF5 ->SetMarkerColor(4);   Tk_Obs_GluinoF5 ->SetLineWidth(2);   Tk_Obs_GluinoF5 ->SetLineStyle(1);  Tk_Obs_GluinoF5 ->SetMarkerStyle(23);
-//   Tk_Obs_GluinoNF1->SetLineColor(4);  Tk_Obs_GluinoNF1->SetMarkerColor(4);   Tk_Obs_GluinoNF1->SetLineWidth(2);   Tk_Obs_GluinoNF1->SetLineStyle(1);  Tk_Obs_GluinoNF1->SetMarkerStyle(26);
+   Tk_Obs_GluinoNF1->SetLineColor(4);  Tk_Obs_GluinoNF1->SetMarkerColor(4);   Tk_Obs_GluinoNF1->SetLineWidth(2);   Tk_Obs_GluinoNF1->SetLineStyle(1);  Tk_Obs_GluinoNF1->SetMarkerStyle(26);
    StopXSec        ->SetLineColor(2);  StopXSec        ->SetMarkerColor(2);   StopXSec        ->SetLineWidth(1);   StopXSec        ->SetLineStyle(2);  StopXSec        ->SetMarkerStyle(1);
    Mu_Obs_Stop     ->SetLineColor(2);  Mu_Obs_Stop     ->SetMarkerColor(2);   Mu_Obs_Stop     ->SetLineWidth(2);   Mu_Obs_Stop     ->SetLineStyle(1);  Mu_Obs_Stop     ->SetMarkerStyle(21);
-//   Mu_Obs_StopN    ->SetLineColor(2);  Mu_Obs_StopN    ->SetMarkerColor(2);   Mu_Obs_StopN    ->SetLineWidth(2);   Mu_Obs_StopN    ->SetLineStyle(1);  Mu_Obs_StopN    ->SetMarkerStyle(25);
+   Mu_Obs_StopN    ->SetLineColor(2);  Mu_Obs_StopN    ->SetMarkerColor(2);   Mu_Obs_StopN    ->SetLineWidth(2);   Mu_Obs_StopN    ->SetLineStyle(1);  Mu_Obs_StopN    ->SetMarkerStyle(25);
    Tk_Obs_Stop     ->SetLineColor(2);  Tk_Obs_Stop     ->SetMarkerColor(2);   Tk_Obs_Stop     ->SetLineWidth(2);   Tk_Obs_Stop     ->SetLineStyle(1);  Tk_Obs_Stop     ->SetMarkerStyle(21);
-//   Tk_Obs_StopN    ->SetLineColor(2);  Tk_Obs_StopN    ->SetMarkerColor(2);   Tk_Obs_StopN    ->SetLineWidth(2);   Tk_Obs_StopN    ->SetLineStyle(1);  Tk_Obs_StopN    ->SetMarkerStyle(25);
+   Tk_Obs_StopN    ->SetLineColor(2);  Tk_Obs_StopN    ->SetMarkerColor(2);   Tk_Obs_StopN    ->SetLineWidth(2);   Tk_Obs_StopN    ->SetLineStyle(1);  Tk_Obs_StopN    ->SetMarkerStyle(25);
    GMStauXSec      ->SetLineColor(1);  GMStauXSec      ->SetMarkerColor(1);   GMStauXSec      ->SetLineWidth(1);   GMStauXSec      ->SetLineStyle(1);  GMStauXSec      ->SetMarkerStyle(1);
    Mu_Obs_GMStau   ->SetLineColor(1);  Mu_Obs_GMStau   ->SetMarkerColor(1);   Mu_Obs_GMStau   ->SetLineWidth(2);   Mu_Obs_GMStau   ->SetLineStyle(1);  Mu_Obs_GMStau   ->SetMarkerStyle(20);
    Tk_Obs_GMStau   ->SetLineColor(1);  Tk_Obs_GMStau   ->SetMarkerColor(1);   Tk_Obs_GMStau   ->SetLineWidth(2);   Tk_Obs_GMStau   ->SetLineStyle(1);  Tk_Obs_GMStau   ->SetMarkerStyle(20);
@@ -426,9 +433,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    MGTk->Add(GMStauXSec      ,"L");
    MGTk->Add(Tk_Obs_GluinoF1      ,"LP");
    MGTk->Add(Tk_Obs_GluinoF5      ,"LP");
-//   MGTk->Add(Tk_Obs_GluinoNF1     ,"LP");
+   MGTk->Add(Tk_Obs_GluinoNF1     ,"LP");
    MGTk->Add(Tk_Obs_Stop          ,"LP");
-//   MGTk->Add(Tk_Obs_StopN         ,"LP");
+   MGTk->Add(Tk_Obs_StopN         ,"LP");
    MGTk->Add(Tk_Obs_GMStau        ,"LP");
    MGTk->Draw("A");
    GluinoXSecErr->Draw("f");
@@ -450,9 +457,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    LEGTk->SetBorderSize(0);
    LEGTk->AddEntry(Tk_Obs_GluinoF1 , "gluino; 10% #tilde{g}g"    ,"LP");
    LEGTk->AddEntry(Tk_Obs_GluinoF5 , "gluino; 50% #tilde{g}g"    ,"LP");
-//   LEGTk->AddEntry(Tk_Obs_GluinoNF1, "gluino; 10% #tilde{g}g; ch. suppr.","LP");
+   LEGTk->AddEntry(Tk_Obs_GluinoNF1, "gluino; 10% #tilde{g}g; ch. suppr.","LP");
    LEGTk->AddEntry(Tk_Obs_Stop     , "stop"            ,"LP");
-//   LEGTk->AddEntry(Tk_Obs_StopN    , "stop; ch. suppr.","LP");
+   LEGTk->AddEntry(Tk_Obs_StopN    , "stop; ch. suppr.","LP");
    LEGTk->AddEntry(Tk_Obs_GMStau   , "GMSB stau"       ,"LP");
    LEGTk->Draw();
 
@@ -467,6 +474,71 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 
    return; 
 }
+
+
+void CheckSignalUncertainty(FILE* pFile, string InputPattern){
+
+   std::vector<string> Models;
+   Models.push_back("Gluino300_f1");
+   Models.push_back("Gluino400_f1");
+   Models.push_back("Gluino500_f1");
+   Models.push_back("Gluino600_f1");
+   Models.push_back("Gluino700_f1");
+   Models.push_back("Gluino800_f1");
+   Models.push_back("Gluino900_f1");
+   Models.push_back("Gluino1000_f1");
+   Models.push_back("Gluino300_f5");
+   Models.push_back("Gluino400_f5");
+   Models.push_back("Gluino500_f5");
+   Models.push_back("Gluino600_f5");
+   Models.push_back("Gluino700_f5");
+   Models.push_back("Gluino800_f5");
+   Models.push_back("Gluino900_f5");
+   Models.push_back("Gluino1000_f5");
+   Models.push_back("Gluino300N_f1");
+   Models.push_back("Gluino400N_f1");
+   Models.push_back("Gluino500N_f1");
+   Models.push_back("Gluino600N_f1");
+   Models.push_back("Gluino700N_f1");
+   Models.push_back("Gluino800N_f1");
+   Models.push_back("Gluino900N_f1");
+   Models.push_back("Gluino1000N_f1");
+   Models.push_back("Stop130");
+   Models.push_back("Stop200");
+   Models.push_back("Stop300");
+   Models.push_back("Stop400");
+   Models.push_back("Stop500");
+   Models.push_back("Stop600");
+   Models.push_back("Stop700");
+   Models.push_back("Stop800");
+   Models.push_back("Stop130N");
+   Models.push_back("Stop200N");
+   Models.push_back("Stop300N");
+   Models.push_back("Stop400N");
+   Models.push_back("Stop500N");
+   Models.push_back("Stop600N");
+   Models.push_back("Stop700N");
+   Models.push_back("Stop800N");
+   Models.push_back("GMStau100");
+   Models.push_back("GMStau126");
+   Models.push_back("GMStau156");
+   Models.push_back("GMStau200");
+   Models.push_back("GMStau247");
+   Models.push_back("GMStau308");
+
+
+   fprintf(pFile, "%20s   Eff   --> PScale |  EstimScale | DiscrimScale | TOFScale || TotalUncertainty\n","Model");
+   for(unsigned int s=0;s<Models.size();s++){
+        stAllInfo tmp(InputPattern+"/EXCLUSION" + "/"+Models[s]+".txt");
+        double P = tmp.Eff - tmp.Eff_SYSTP;
+        double I = tmp.Eff - tmp.Eff_SYSTI;
+        double M = tmp.Eff - tmp.Eff_SYSTM;
+        double T = tmp.Eff - tmp.Eff_SYSTT;
+        fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f || %7.3f\n",+Models[s].c_str(), tmp.Eff, P/tmp.Eff, I/tmp.Eff, M/tmp.Eff, T/tmp.Eff, sqrt(P*P + I*I + M*M + T*T)/tmp.Eff);
+   }
+}
+
+
 
 
 TGraph* MakePlot(FILE* pFile, string InputPattern, string syst, string ModelName, int XSectionType, string Mass0, string Mass1, string Mass2, string Mass3, string Mass4, string Mass5, string Mass6, string Mass7, string Mass8, string Mass9){
@@ -500,14 +572,14 @@ TGraph* MakePlot(FILE* pFile, string InputPattern, string syst, string ModelName
    }
 */
 
-   if(XSectionType>0 && syst=="")for(unsigned int i=0;i<N;i++)printf("%-18s %5.0f --> Pt>%+6.1f & I>%+5.2f & TOF>%+4.2f & M>%3.0f--> NData=%2.0f  NPred=%6.1E+-%6.1E  NSign=%6.1E (Eff=%3.2f)\n",ModelName.c_str(),Infos[i].Mass,Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].WP_TOF,Infos[i].MassCut, Infos[i].NData, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NSign, Infos[i].Eff);
+   if(XSectionType>0 && syst=="")for(unsigned int i=0;i<N;i++)printf("%-18s %5.0f --> Pt>%+6.1f & I>%+5.3f & TOF>%+4.3f & M>%3.0f--> NData=%2.0f  NPred=%6.1E+-%6.1E  NSign=%6.1E (Eff=%3.2f)\n",ModelName.c_str(),Infos[i].Mass,Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].WP_TOF,Infos[i].MassCut, Infos[i].NData, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NSign, Infos[i].Eff);
 
 
 
    if(XSectionType>0){
    for(unsigned int i=0;i<N;i++){
-      if(Infos[i].WP_TOF==-1) fprintf(pFile,"%-20s & %4.0f & %6.0f & %5.2f & / & %4.0f & %6.3f $\\pm$ %6.3f & %2.0f & %4.3f & %6.1E & %6.1E & %6.1E \\\\\n", ModelName.c_str(), Infos[i].Mass,  Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].MassCut, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NData, Infos[i].Eff, Infos[i].XSec_Th,Infos[i].XSec_Exp, Infos[i].XSec_Obs);
-      else                    fprintf(pFile,"%-20s & %4.0f & %6.0f & %5.2f & %4.2f & %4.0f & %6.3f $\\pm$ %6.3f & %2.0f & %4.3f & %6.1E & %6.1E & %6.1E \\\\\n", ModelName.c_str(), Infos[i].Mass,  Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].WP_TOF,Infos[i].MassCut, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NData, Infos[i].Eff, Infos[i].XSec_Th,Infos[i].XSec_Exp, Infos[i].XSec_Obs);
+      if(Infos[i].WP_TOF==-1) fprintf(pFile,"%-20s & %4.0f & %6.0f & %5.3f & / & %4.0f & %6.3f $\\pm$ %6.3f & %2.0f & %4.3f & %6.1E & %6.1E & %6.1E \\\\\n", ModelName.c_str(), Infos[i].Mass,  Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].MassCut, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NData, Infos[i].Eff, Infos[i].XSec_Th,Infos[i].XSec_Exp, Infos[i].XSec_Obs);
+      else                    fprintf(pFile,"%-20s & %4.0f & %6.0f & %5.3f & %4.3f & %4.0f & %6.3f $\\pm$ %6.3f & %2.0f & %4.3f & %6.1E & %6.1E & %6.1E \\\\\n", ModelName.c_str(), Infos[i].Mass,  Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].WP_TOF,Infos[i].MassCut, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NData, Infos[i].Eff, Infos[i].XSec_Th,Infos[i].XSec_Exp, Infos[i].XSec_Obs);
    }}
    
    TGraph* graph = NULL;
@@ -529,6 +601,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    toReturn.MassMean  = 0;
    toReturn.MassSigma = 0;
    toReturn.MassCut   = 0;
+   toReturn.Index     = 0;
    toReturn.WP_Pt     = 0;
    toReturn.WP_I      = 0;
    toReturn.WP_TOF    = 0;
@@ -549,7 +622,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
 
 
    double RescaleFactor = 1.0;
-   double RescaleError  = 0.3;
+   double RescaleError  = 0.1;
 
    double RatioValue[] = {Ratio_0C, Ratio_1C, Ratio_2C};
 
@@ -733,9 +806,9 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
      double ExpLimit = 99999999;
      double ObsLimit = 99999999;
      LimitResult CLMResults;
-     CLMResults = roostats_clm(IntegratedLuminosity, IntegratedLuminosity*0.036, Eff, Eff*0.15,NPred, NPred*RescaleError, 1);   ExpLimit=CLMResults.GetExpectedLimit();
+     CLMResults = roostats_clm(IntegratedLuminosity, IntegratedLuminosity*0.036, Eff, Eff*0.10,NPred, NPred*RescaleError, 1);   ExpLimit=CLMResults.GetExpectedLimit();
      if(toReturn.XSec_Exp<=ExpLimit){fprintf(pFile  ,"\n"); printf("\n"); continue;}
-     ObsLimit =  roostats_cl95(IntegratedLuminosity, IntegratedLuminosity*0.036, Eff, Eff*0.15,NPred, NPred*RescaleError              , NData, false, 1, "bayesian", "");
+     ObsLimit =  roostats_cl95(IntegratedLuminosity, IntegratedLuminosity*0.036, Eff, Eff*0.10,NPred, NPred*RescaleError              , NData, false, 1, "bayesian", "");
 
      fprintf(pFile ," --> %+7.2E expected (%+7.4E observed) --> Current Best Limit\n",ExpLimit, ObsLimit);
      fprintf(stdout," --> %+7.2E expected (%+7.4E observed) --> Current Best Limit\n",ExpLimit, ObsLimit);
@@ -744,6 +817,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
      toReturn.MassMean  = Mean;
      toReturn.MassSigma = Width;
      toReturn.MassCut   = MinRange;
+     toReturn.Index     = CutIndex;
      toReturn.WP_Pt     = HCuts_Pt ->GetBinContent(CutIndex+1);
      toReturn.WP_I      = HCuts_I  ->GetBinContent(CutIndex+1);
      toReturn.WP_TOF    = HCuts_TOF->GetBinContent(CutIndex+1);
@@ -768,6 +842,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
      fprintf(pFile2,"MassMean  : %f\n",toReturn.MassMean);
      fprintf(pFile2,"MassSigma : %f\n",toReturn.MassSigma);
      fprintf(pFile2,"MassCut   : %f\n",toReturn.MassCut);
+     fprintf(pFile2,"Index     : %f\n",toReturn.Index);
      fprintf(pFile2,"WP_Pt     : %f\n",toReturn.WP_Pt);
      fprintf(pFile2,"WP_I      : %f\n",toReturn.WP_I);
      fprintf(pFile2,"WP_TOF    : %f\n",toReturn.WP_TOF);
@@ -793,6 +868,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
   fprintf(pFile2,"MassMean  : %f\n",toReturn.MassMean);
   fprintf(pFile2,"MassSigma : %f\n",toReturn.MassSigma);
   fprintf(pFile2,"MassCut   : %f\n",toReturn.MassCut);
+  fprintf(pFile2,"Index     : %f\n",toReturn.Index);
   fprintf(pFile2,"WP_Pt     : %f\n",toReturn.WP_Pt);
   fprintf(pFile2,"WP_I      : %f\n",toReturn.WP_I);
   fprintf(pFile2,"WP_TOF    : %f\n",toReturn.WP_TOF);
