@@ -12,18 +12,18 @@ SiStripAnalyser = cms.EDAnalyzer("SiStripAnalyser",
     PrintFaultyModuleList    = cms.untracked.bool(True),                                
     RawDataTag               = cms.untracked.InputTag("source"),                              
     TrackRatePSet            = cms.PSet(
-           Name     = cms.string("NumberOfTracks_"),
+           Name     = cms.string("NumberOfGoodTracks_"),
                   LowerCut = cms.double(1.0),
                   UpperCut = cms.double(1000.0),
                ),
                                             TrackChi2PSet            = cms.PSet(
-           Name     = cms.string("Chi2oNDF_"),
+           Name     = cms.string("GoodTrackChi2oNDF_"),
                   LowerCut = cms.double(0.0),
                   UpperCut = cms.double(25.0),
                ),
                                             TrackHitPSet            = cms.PSet(
-           Name     = cms.string("NumberOfRecHitsPerTrack_"),
-                  LowerCut = cms.double(3.0),
+           Name     = cms.string("GoodTrackNumberOfRecHitsPerTrack_"),
+                  LowerCut = cms.double(5.0),
                   UpperCut = cms.double(20.0),
                ),
     TkmapParameters = cms.PSet(
