@@ -253,7 +253,7 @@ void PixelTBMSettings::writeASCII(std::string dir) const {
 
 void PixelTBMSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 					     PixelNameTranslation* trans,
-					     bool physics) const{
+					     bool physics, bool doResets) const{
 
     PixelHdwAddress theROC=*(trans->getHdwAddress(rocid_));
 
@@ -264,8 +264,10 @@ void PixelTBMSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
     int tbmchannelB=15; 
     int hubaddress=theROC.hubaddress();
 
-    pixelFEC->injectrsttbm(mfec, 1);
-    pixelFEC->injectrstroc(mfec,1);
+    if (doResets) {
+      pixelFEC->injectrsttbm(mfec, 1);
+      pixelFEC->injectrstroc(mfec,1);
+    }
     pixelFEC->enablecallatency(mfec,0);
     pixelFEC->disableexttrigger(mfec,0);
     pixelFEC->injecttrigger(mfec,0);
@@ -274,7 +276,7 @@ void PixelTBMSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
     //pixelFEC->synccontrolregister(mfec);
 
     //Reset TBM and reset ROC
-    pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 2, 0x14, 0);
+    if (doResets)    pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 2, 0x14, 0);
     //setting speed to 40MHz
     pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 0, 1, 0);
     // setting the mode, we should always stay in the CAL mode
@@ -303,7 +305,7 @@ void PixelTBMSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
     //pre-calibration, stay always in this mode
     pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannelB, hubaddress, 4, 1, 0xc0, 0);
     //Reset TBM and reset ROC
-    pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannelB, hubaddress, 4, 2, 0x14, 0);
+    if (doResets)    pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannelB, hubaddress, 4, 2, 0x14, 0);
     //Enable token and analog output
     if (singlemode_){
       pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannelB, hubaddress, 4, 4, 0x3, 0);
