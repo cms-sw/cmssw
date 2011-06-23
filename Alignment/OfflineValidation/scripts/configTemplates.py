@@ -739,7 +739,7 @@ process.TrackRefitter2 = process.TrackRefitter1.clone(
 # what Chang did...
 process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
 
-process.cosmicValidation = cms.EDFilter("CosmicSplitterValidation",
+process.cosmicValidation = cms.EDAnalyzer("CosmicSplitterValidation",
 	ifSplitMuons = cms.bool(False),
 	ifTrackMCTruth = cms.bool(False),	
 	checkIfGolden = cms.bool(False),	
