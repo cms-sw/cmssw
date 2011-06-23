@@ -52,7 +52,7 @@ namespace edm {
         boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs = boost::shared_ptr<EventSelectionIDVector>(),
         boost::shared_ptr<BranchListIndexes> branchListIndexes = boost::shared_ptr<BranchListIndexes>(),
         boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(),
-        boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>());
+        DelayedReader* reader = 0);
 
     void clearEventPrincipal();
 

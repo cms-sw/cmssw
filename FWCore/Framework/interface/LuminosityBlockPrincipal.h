@@ -12,15 +12,15 @@ is the DataBlock.
 
 ----------------------------------------------------------------------*/
 
-#include <vector>
-
-#include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunID.h"
-#include "FWCore/Framework/interface/NoDelayedReader.h"
 #include "FWCore/Framework/interface/Principal.h"
+
+#include "boost/shared_ptr.hpp"
+
+#include <vector>
 
 namespace edm {
   class RunPrincipal;
@@ -39,7 +39,7 @@ namespace edm {
 
     void fillLuminosityBlockPrincipal(
         boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(),
-        boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>());
+        DelayedReader* reader = 0);
 
     RunPrincipal const& runPrincipal() const {
       return *runPrincipal_;

@@ -29,7 +29,6 @@ namespace edm {
   struct InputSourceDescription;
   class LuminosityBlock;
   class LuminosityBlockPrincipal;
-  class NoDelayedReader;
   class OutputModule;
   class OutputModuleDescription;
   class OutputWorker;

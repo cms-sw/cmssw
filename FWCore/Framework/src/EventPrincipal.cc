@@ -7,6 +7,7 @@
 #include "DataFormats/Provenance/interface/ProductIDToBranchID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/Group.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
@@ -46,8 +47,8 @@ namespace edm {
         boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs,
         boost::shared_ptr<BranchListIndexes> branchListIndexes,
         boost::shared_ptr<BranchMapper> mapper,
-        boost::shared_ptr<DelayedReader> rtrv) {
-    fillPrincipal(aux.processHistoryID(), mapper, rtrv);
+        DelayedReader* reader) {
+    fillPrincipal(aux.processHistoryID(), mapper, reader);
     aux_ = aux;
     luminosityBlockPrincipal_ = lbp;
     if(eventSelectionIDs) {
@@ -143,10 +144,11 @@ namespace edm {
     if(g.branchDescription().produced()) return; // nothing to do.
     if(g.product()) return; // nothing to do.
     if(g.productUnavailable()) return; // nothing to do.
+    if(!reader()) return; // nothing to do.
 
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(g.branchDescription());
-    WrapperHolder edp(store()->getProduct(bk, g.productData().getInterface(), this));
+    WrapperHolder edp(reader()->getProduct(bk, g.productData().getInterface(), this));
 
     // Now fix up the Group
     checkUniquenessAndType(edp, &g);

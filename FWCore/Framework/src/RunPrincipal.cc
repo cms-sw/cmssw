@@ -3,6 +3,7 @@
 #include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/Group.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -18,11 +19,11 @@ namespace edm {
   void
   RunPrincipal::fillRunPrincipal(
     boost::shared_ptr<BranchMapper> mapper,
-    boost::shared_ptr<DelayedReader> rtrv) {
+    DelayedReader* reader) {
     if(productRegistry().anyProductProduced()) {
       checkProcessHistory();
     }
-    fillPrincipal(aux_->processHistoryID(), mapper, rtrv);
+    fillPrincipal(aux_->processHistoryID(), mapper, reader);
     if(productRegistry().anyProductProduced()) {
       addToProcessHistory();
     }
@@ -67,10 +68,11 @@ namespace edm {
   void
   RunPrincipal::resolveProductImmediate(Group const& g) const {
     if(g.branchDescription().produced()) return; // nothing to do.
+    if(!reader()) return; // nothing to do.
 
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(g.branchDescription());
-    WrapperHolder edp(store()->getProduct(bk, g.productData().getInterface(), this));
+    WrapperHolder edp(reader()->getProduct(bk, g.productData().getInterface(), this));
 
     // Now fix up the Group
     if(edp.isValid()) {

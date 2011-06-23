@@ -14,6 +14,7 @@ RootTree.h // used by ROOT input sources
 #include "Rtypes.h"
 #include "TBranch.h"
 
+#include "boost/scoped_ptr.hpp"
 #include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 
@@ -85,7 +86,7 @@ namespace edm {
     EntryNumber const& entries() const {return entries_;}
     void setEntryNumber(EntryNumber theEntryNumber);
     std::vector<std::string> const& branchNames() const {return branchNames_;}
-    boost::shared_ptr<DelayedReader> rootDelayedReader() const;
+    DelayedReader* rootDelayedReader() const;
     template <typename T>
     void fillAux(T*& pAux) {
       auxBranch_->SetAddress(&pAux);
@@ -147,7 +148,7 @@ namespace edm {
     EntryNumber switchOverEntry_;
     unsigned int learningEntries_;
     unsigned int cacheSize_;
-    boost::shared_ptr<DelayedReader> rootDelayedReader_;
+    boost::scoped_ptr<DelayedReader> rootDelayedReader_;
 
     TBranch* branchEntryInfoBranch_; //backwards compatibility
     // below for backward compatibility

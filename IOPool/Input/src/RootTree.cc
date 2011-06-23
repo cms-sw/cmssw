@@ -69,10 +69,10 @@ namespace edm {
     return false;
   }
 
-  boost::shared_ptr<DelayedReader>
+  DelayedReader*
   RootTree::rootDelayedReader() const {
     rootDelayedReader_->reset();
-    return rootDelayedReader_;
+    return rootDelayedReader_.get();
   }  
 
   void

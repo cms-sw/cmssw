@@ -172,7 +172,7 @@ namespace edm {
                           boost::shared_ptr<EventSelectionIDVector>(new EventSelectionIDVector), // UGH use subprocess specific parameter
                           boost::shared_ptr<BranchListIndexes>(new BranchListIndexes), // UGH figure this out
                           principal.branchMapperPtr(),
-                          principal.store());
+                          principal.reader());
     propagateProducts(InEvent, principal, ep);
     typedef OccurrenceTraits<EventPrincipal, BranchActionBegin> Traits;
     schedule_->processOneOccurrence<Traits>(ep, esInfo_->es_);
@@ -194,7 +194,7 @@ namespace edm {
     boost::shared_ptr<RunAuxiliary> aux(new RunAuxiliary(principal.aux()));
     aux->setProcessHistoryID(principal.processHistoryID());
     boost::shared_ptr<RunPrincipal> rpp(new RunPrincipal(aux, preg_, *processConfiguration_));
-    rpp->fillRunPrincipal(principal.branchMapperPtr(), principal.store());
+    rpp->fillRunPrincipal(principal.branchMapperPtr(), principal.reader());
     principalCache_.insert(rpp);
     parentToChildPhID_.insert(std::make_pair(principal.aux().processHistoryID(), principal.processHistoryID()));
     parentToChildPhID_.insert(std::make_pair(principal.processHistoryID(), rpp->processHistoryID()));
@@ -246,7 +246,7 @@ namespace edm {
     boost::shared_ptr<LuminosityBlockAuxiliary> aux(new LuminosityBlockAuxiliary(principal.aux()));
     aux->setProcessHistoryID(principal.processHistoryID());
     boost::shared_ptr<LuminosityBlockPrincipal> lbpp(new LuminosityBlockPrincipal(aux, preg_, *processConfiguration_, principalCache_.runPrincipalPtr()));
-    lbpp->fillLuminosityBlockPrincipal(principal.branchMapperPtr(), principal.store());
+    lbpp->fillLuminosityBlockPrincipal(principal.branchMapperPtr(), principal.reader());
     principalCache_.insert(lbpp);
     parentToChildPhID_.insert(std::make_pair(principal.aux().processHistoryID(), principal.processHistoryID()));
     parentToChildPhID_.insert(std::make_pair(principal.processHistoryID(), lbpp->processHistoryID()));

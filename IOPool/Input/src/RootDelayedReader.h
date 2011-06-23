@@ -42,8 +42,8 @@ namespace edm {
 
   private:
     virtual WrapperHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const;
-    virtual void mergeReaders_(boost::shared_ptr<DelayedReader> other) {nextReader_ = other;}
-    virtual void reset_() {nextReader_.reset();}
+    virtual void mergeReaders_(DelayedReader* other) {nextReader_ = other;}
+    virtual void reset_() {nextReader_ = 0;}
     BranchMap const& branches() const {return tree_.branches();}
     EntryNumber const& entryNumber() const {return tree_.entryNumber();}
     iterator branchIter(BranchKey const& k) const {return branches().find(k);}
@@ -53,7 +53,7 @@ namespace edm {
     // the file containing the branch from being reclaimed.
     RootTree const& tree_;
     boost::shared_ptr<InputFile> filePtr_;
-    boost::shared_ptr<DelayedReader> nextReader_;
+    DelayedReader* nextReader_;
     FileFormatVersion const& fileFormatVersion_;
   }; // class RootDelayedReader
   //------------------------------------------------------------

@@ -7,7 +7,6 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
-#include "FWCore/Framework/interface/NoDelayedReader.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -31,7 +30,7 @@ namespace edm {
     groups_(reg->constProductList().size(), SharedGroupPtr()),
     preg_(reg),
     branchMapperPtr_(new BranchMapper),
-    store_(new NoDelayedReader),
+    reader_(),
     productPtrs_(),
     branchType_(bt) {
     //Now that these have been set, we can create the list of Branches we need.
@@ -130,7 +129,7 @@ namespace edm {
     processHistoryPtr_->clear();
     processHistoryID_ = processHistoryPtr_->id();
     branchMapperPtr_->reset();
-    store_->reset();
+    reader_ = 0;
     for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
       (*i)->resetProductData();
     }
@@ -139,12 +138,12 @@ namespace edm {
 
   // Set the principal for the Event, Lumi, or Run.
   void
-  Principal::fillPrincipal(ProcessHistoryID const& hist, boost::shared_ptr<BranchMapper> mapper, boost::shared_ptr<DelayedReader> rtrv) {
+  Principal::fillPrincipal(ProcessHistoryID const& hist, boost::shared_ptr<BranchMapper> mapper, DelayedReader* reader) {
     if(mapper) {
       branchMapperPtr_ = mapper;
     }
-    if(rtrv) {
-      store_ = rtrv;
+    if(reader) {
+      reader_ = reader;
     }
     if(hist.isValid()) {
       ProcessHistoryRegistry& history(*ProcessHistoryRegistry::instance());
@@ -589,7 +588,7 @@ namespace edm {
       assert(indexO!=ProductRegistry::kInvalidIndex);
       groups_[index].swap(other.groups_[indexO]);
     }
-    store_->mergeReaders(other.store());
+    reader_->mergeReaders(other.reader());
     branchMapperPtr_->mergeMappers(other.branchMapperPtr());
   }
 

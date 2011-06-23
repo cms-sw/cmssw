@@ -19,7 +19,6 @@ is the DataBlock.
 
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
-#include "FWCore/Framework/interface/NoDelayedReader.h"
 #include "FWCore/Framework/interface/Principal.h"
 
 namespace edm {
@@ -37,7 +36,7 @@ namespace edm {
 
     void fillRunPrincipal(
         boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(),
-        boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>());
+        DelayedReader* reader = 0);
 
     RunAuxiliary const& aux() const {
       return *aux_;

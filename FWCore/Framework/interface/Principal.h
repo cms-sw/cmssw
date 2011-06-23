@@ -76,7 +76,7 @@ namespace edm {
 
     void addOnDemandGroup(boost::shared_ptr<ConstBranchDescription> bd);
 
-    void fillPrincipal(ProcessHistoryID const& hist, boost::shared_ptr<BranchMapper> mapper, boost::shared_ptr<DelayedReader> rtrv);
+    void fillPrincipal(ProcessHistoryID const& hist, boost::shared_ptr<BranchMapper> mapper, DelayedReader* reader);
 
     void clearPrincipal();
 
@@ -142,7 +142,7 @@ namespace edm {
 
     boost::shared_ptr<BranchMapper> branchMapperPtr() const {return branchMapperPtr_;}
 
-    boost::shared_ptr<DelayedReader> store() const {return store_;}
+    DelayedReader* reader() const {return reader_;}
 
     void maybeFlushCache(TypeID const& tid, InputTag const& tag) const;
 
@@ -230,8 +230,8 @@ namespace edm {
     boost::shared_ptr<BranchMapper> branchMapperPtr_;
 
     // Pointer to the 'source' that will be used to obtain EDProducts
-    // from the persistent store.
-    boost::shared_ptr<DelayedReader> store_;
+    // from the persistent store. This 'source' is owned by the input source.
+    DelayedReader* reader_;
 
     // Used to check for duplicates.  The same product instance must not be in more than one group.
     mutable std::set<void const*> productPtrs_;
