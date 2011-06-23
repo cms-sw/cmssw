@@ -12,15 +12,15 @@ from HLTrigger.HLTanalyzers.HLT_FULL_cff import *
 # L2.5 reco modules
 
 ###### Use corrected jets same as 5E32 Menu
-BJetinputjetCollection="hltAntiKT5L2L3CorrCaloJets"
+BJetinputjetCollection="hltCaloJetCorrected"
 
-openHltBLifetimeL25Associator = copy.deepcopy(hltBLifetimeL25Associator)
+openHltBLifetimeL25Associator = copy.deepcopy(hltBLifetimeL25AssociatorSingleTop)
 openHltBLifetimeL25Associator.jets = cms.InputTag(BJetinputjetCollection)
 
-openHltBLifetimeL25TagInfos = copy.deepcopy(hltBLifetimeL25TagInfos)
+openHltBLifetimeL25TagInfos = copy.deepcopy(hltBLifetimeL25TagInfosSingleTop)
 openHltBLifetimeL25TagInfos.jetTracks = cms.InputTag("openHltBLifetimeL25Associator")
 
-openHltBLifetimeL25BJetTags = copy.deepcopy(hltBLifetimeL25BJetTags)
+openHltBLifetimeL25BJetTags = copy.deepcopy(hltBLifetimeL25BJetTagsSingleTop)
 openHltBLifetimeL25BJetTags.tagInfos = cms.VInputTag(cms.InputTag("openHltBLifetimeL25TagInfos"))
 
 # Modules specific to Single Track TC
@@ -37,13 +37,13 @@ hltESPTrackCounting3D1st = cms.ESProducer( "TrackCountingESProducer",
 
 hltBLifetimeL25BJetTagsSingleTrack = cms.EDProducer( "JetTagProducer",
                                                      jetTagComputer = cms.string( "hltESPTrackCounting3D1st" ),
-                                                     tagInfos = cms.VInputTag( 'hltBLifetimeL25TagInfos' )
+                                                     tagInfos = cms.VInputTag( 'hltBLifetimeL25TagInfosSingleTop' )
                                                      )
 
 
 hltBLifetimeL3BJetTagsSingleTrack = cms.EDProducer( "JetTagProducer",
                                                     jetTagComputer = cms.string( "hltESPTrackCounting3D1st" ),
-                                                    tagInfos = cms.VInputTag( 'hltBLifetimeL3TagInfos' )
+                                                    tagInfos = cms.VInputTag( 'hltBLifetimeL3TagInfosSingleTop' )
                                                     )
 
 # Single Track TC
@@ -60,23 +60,23 @@ OpenHLTBLifetimeL25recoSequence = cms.Sequence(
         openHltBLifetimeL25BJetTags )
 
 # L3 reco modules
-openHltBLifetimeRegionalPixelSeedGenerator = copy.deepcopy(hltBLifetimeRegionalPixelSeedGenerator)
+openHltBLifetimeRegionalPixelSeedGenerator = copy.deepcopy(hltBLifetimeRegionalPixelSeedGeneratorSingleTop)
 openHltBLifetimeRegionalPixelSeedGenerator.RegionFactoryPSet.RegionPSet.JetSrc = cms.InputTag(BJetinputjetCollection)
 
-openHltBLifetimeRegionalCkfTrackCandidates = copy.deepcopy(hltBLifetimeRegionalCkfTrackCandidates)
+openHltBLifetimeRegionalCkfTrackCandidates = copy.deepcopy(hltBLifetimeRegionalCkfTrackCandidatesSingleTop)
 openHltBLifetimeRegionalCkfTrackCandidates.src = cms.InputTag("openHltBLifetimeRegionalPixelSeedGenerator")
 
-openHltBLifetimeRegionalCtfWithMaterialTracks = copy.deepcopy(hltBLifetimeRegionalCtfWithMaterialTracks)
+openHltBLifetimeRegionalCtfWithMaterialTracks = copy.deepcopy(hltBLifetimeRegionalCtfWithMaterialTracksSingleTop)
 openHltBLifetimeRegionalCtfWithMaterialTracks.src = cms.InputTag("openHltBLifetimeRegionalCkfTrackCandidates")
 
-openHltBLifetimeL3Associator = copy.deepcopy(hltBLifetimeL3Associator)
+openHltBLifetimeL3Associator = copy.deepcopy(hltBLifetimeL3AssociatorSingleTop)
 openHltBLifetimeL3Associator.jets   = cms.InputTag(BJetinputjetCollection)
 openHltBLifetimeL3Associator.tracks = cms.InputTag("openHltBLifetimeRegionalCtfWithMaterialTracks")
 
-openHltBLifetimeL3TagInfos = copy.deepcopy(hltBLifetimeL3TagInfos)
+openHltBLifetimeL3TagInfos = copy.deepcopy(hltBLifetimeL3TagInfosSingleTop)
 openHltBLifetimeL3TagInfos.jetTracks = cms.InputTag("openHltBLifetimeL3Associator")
 
-openHltBLifetimeL3BJetTags = copy.deepcopy(hltBLifetimeL3BJetTags)
+openHltBLifetimeL3BJetTags = copy.deepcopy(hltBLifetimeL3BJetTagsSingleTop)
 openHltBLifetimeL3BJetTags.tagInfos = cms.VInputTag(cms.InputTag("openHltBLifetimeL3TagInfos"))
 
 # Single Track TC
