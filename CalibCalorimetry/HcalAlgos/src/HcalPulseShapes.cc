@@ -108,30 +108,30 @@ void HcalPulseShapes::computeHPDShape(HcalPulseShapes::Shape& sh)
 }
 
 void HcalPulseShapes::computeHFShape(HcalPulseShapes::Shape& sh) {
-
-  //  cout << endl << " ===== computeShapeHF  !!! " << endl << endl;
-
-  const float ts = 3.0;           // time constant in   t * exp(-(t/ts)**2)
-
   // first create pulse shape over a range of time 0 ns to 255 ns in 1 ns steps
   int nbin = 256;
   sh.setNBin(nbin);
   std::vector<float> ntmp(nbin,0.0);  // 
 
-  int j;
-  float norm;
+  const float k0=0.7956; // shape parameters
+  const float p2=1.355;
+  const float p4=2.327;
+  const float p1=4.3;    // position parameter
 
-  // HF SHAPE
-  norm = 0.0;
-  for( j = 0; j < 3 * ts && j < nbin; j++){
-    ntmp[j] = ((float)j)*exp(-((float)(j*j))/(ts*ts));
+  float norm = 0.0;
+
+  for(int j = 0; j < 25 && j < nbin; ++j){
+
+    float r0 = j-p1;
+    float sigma0 = (r0<0) ? p2 : p2*p4;
+    r0 /= sigma0;
+    if(r0 < k0) ntmp[j] = exp(-0.5*r0*r0);
+    else ntmp[j] = exp(0.5*k0*k0-k0*r0);
     norm += ntmp[j];
   }
   // normalize pulse area to 1.0
-  for( j = 0; j < 3 * ts && j < nbin; j++){
+  for(int j = 0; j < 25 && j < nbin; ++j){
     ntmp[j] /= norm;
-
-    //    cout << " nt [" << j << "] = " <<  ntmp[j] << endl;
     sh.setShapeBin(j,ntmp[j]);
   }
 }
