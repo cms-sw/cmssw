@@ -7,3 +7,4 @@
 <use   name="CondCore/DBCommon"/>
 <use   name="CondCore/IOVService"/>
 <use   name="CondCore/MetaDataService"/>
+<bin file="HcalShapeIntegrator.cpp"/>
