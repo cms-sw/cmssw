@@ -48,7 +48,7 @@ void HLTJetCollForElePlusJets::fillDescriptions(edm::ConfigurationDescriptions& 
     //Only for VBF
     desc.add<double> ("MinSoftJetPt", 25.);
     desc.add<double> ("MinDeltaEta", -1.);    
-    descriptions.add("hltJetCollectionForElePlusJets", desc);
+    descriptions.add("hltJetCollForElePlusJets", desc);
 }
 
 //
