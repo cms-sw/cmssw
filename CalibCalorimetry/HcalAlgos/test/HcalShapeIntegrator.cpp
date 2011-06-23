@@ -23,7 +23,6 @@ int main()
       if(diff > maxdiff) {
         maxdiff = diff;
         maxtime = t;
-std::cout << t << " " << v1 << " " << v2 << " " << diff <<  std::endl;
       }
     }
   }
