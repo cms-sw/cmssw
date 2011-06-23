@@ -28,6 +28,7 @@ namespace geometryDetails {
 template <class T>
 class TkRotation {
 public:
+  typedef Vector3DBase< T, GlobalTag>  GlobalVector;
 
   TkRotation() : 
     R11( 1), R12( 0), R13( 0), 
