@@ -5,6 +5,7 @@
  *
  */
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "HLTrigger/JetMET/interface/HLTJetCollectionsFilter.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -25,6 +26,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 typedef std::vector<edm::RefVector<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> > > JetCollectionVector;
+
 //
 // constructors and destructor
 //
@@ -111,3 +113,6 @@ HLTJetCollectionsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   
   return accept;
 }
+
+//define this as a plug-in
+DEFINE_FWK_MODULE(HLTJetCollectionsFilter);
