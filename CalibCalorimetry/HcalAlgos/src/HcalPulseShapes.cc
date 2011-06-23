@@ -152,10 +152,7 @@ void HcalPulseShapes::Shape::setShapeBin(int i, float f) {
 
 float HcalPulseShapes::Shape::operator()(double t) const {
   // shape is in 1 ns steps
-  int i=(int)(t+0.5);
-  float rv=0;
-  if (i>=0 && i<nbin_) rv=shape_[i];
-  return rv;
+  return at(t);
 }
 
 float HcalPulseShapes::Shape::at(double t) const {
@@ -175,6 +172,5 @@ float HcalPulseShapes::Shape::integrate(double t1, double t2) const {
     float hiedge = at(t+int_delta_ns);
     intval += (loedge+hiedge)*int_delta_ns/2.0;
   }
-
   return (float)intval;
 }
