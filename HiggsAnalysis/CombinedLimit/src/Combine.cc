@@ -98,6 +98,7 @@ Combine::Combine() :
       ;
     miscOptions_.add_options()
       ("optimizeSimPdf", po::value<bool>(&optSimPdf_)->default_value(false), "Turn on special optimizations of RooSimultaneous")
+      ("rebuildSimPdf", po::value<bool>(&rebuildSimPdf_)->default_value(false), "Rebuild simultaneous pdf from scratch to make sure constraints are correct (not needed in CMS workspaces)")
       ("compile", "Compile expressions instead of interpreting them")
       ("tempDir", po::value<bool>(&makeTempDir_)->default_value(false), "Run the program from a temporary directory (automatically on for text datacards or if 'compile' is activated)")
       ; 
@@ -251,6 +252,11 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     if (POI->getSize() > 1) std::cerr << "ModelConfig '" << modelConfigName_ << "' defines more than one parameter of interest. This is not supported in some statistical methods." << std::endl;
     if (mc->GetObservables() == 0) throw std::invalid_argument("ModelConfig '"+modelConfigName_+"' does not define observables.");
     if (mc->GetPdf() == 0) throw std::invalid_argument("ModelConfig '"+modelConfigName_+"' does not define a pdf.");
+    if (rebuildSimPdf_ && typeid(*mc->GetPdf()) == typeid(RooSimultaneous)) {
+        RooSimultaneous *newpdf = utils::rebuildSimPdf(*mc->GetObservables(), dynamic_cast<RooSimultaneous*>(mc->GetPdf()));
+        w->import(*newpdf);
+        mc->SetPdf(*newpdf);
+    }
     if (optSimPdf_ && typeid(*mc->GetPdf()) == typeid(RooSimultaneous)) {
         RooSimultaneousOpt *optpdf = new RooSimultaneousOpt(static_cast<RooSimultaneous&>(*mc->GetPdf()), TString(mc->GetPdf()->GetName())+"_opt");
         w->import(*optpdf);

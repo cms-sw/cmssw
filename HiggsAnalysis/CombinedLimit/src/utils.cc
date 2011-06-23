@@ -262,3 +262,38 @@ bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
     if (!ok && throwOnFail) throw std::invalid_argument(errors.str()); 
     return ok;
 }
+
+RooSimultaneous * utils::rebuildSimPdf(const RooArgSet &observables, RooSimultaneous *sim) {
+    RooArgList constraints;
+    RooAbsCategoryLValue *cat = (RooAbsCategoryLValue *) sim->indexCat().Clone();
+    int nbins = cat->numBins((const char *)0);
+    TObjArray factorizedPdfs(nbins); 
+    RooArgSet newOwned;
+    for (int ic = 0, nc = nbins; ic < nc; ++ic) {
+        cat->setBin(ic);
+        RooAbsPdf *pdfi = sim->getPdf(cat->getLabel());
+        if (pdfi == 0) { factorizedPdfs[ic] = 0; continue; }
+        RooAbsPdf *newpdf = factorizePdf(observables, *pdfi, constraints);
+        factorizedPdfs[ic] = newpdf;
+        if (newpdf == 0) { continue; }
+        if (newpdf != pdfi) { newOwned.add(*newpdf); }
+    }
+    RooSimultaneous *ret = new RooSimultaneous(TString::Format("%s_reloaded", sim->GetName()), "", (RooAbsCategoryLValue&) sim->indexCat());
+    for (int ic = 0, nc = nbins; ic < nc; ++ic) {
+        cat->setBin(ic);
+        RooAbsPdf *newpdf = (RooAbsPdf *) factorizedPdfs[ic];
+        if (newpdf) {
+            if (constraints.getSize() > 0) {
+                RooArgList allfactors(constraints); allfactors.add(*newpdf);
+                RooProdPdf *newerpdf = new RooProdPdf(TString::Format("%s_plus_constr", newpdf->GetName()), "", allfactors);
+                ret->addPdf(*newerpdf, cat->getLabel());
+                newOwned.add(*newerpdf);
+            } else {
+                ret->addPdf(*newpdf, cat->getLabel());
+            }
+        }
+    }
+    ret->addOwnedComponents(newOwned);
+    delete cat;
+    return ret;
+}

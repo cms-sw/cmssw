@@ -6,6 +6,7 @@ struct RooAbsData;
 struct RooAbsPdf;
 struct RooArgSet;
 struct RooArgList;
+struct RooSimultaneous;
 struct RooAbsCollection;
 struct RooWorkspace;
 namespace RooStats { class ModelConfig; }
@@ -43,6 +44,8 @@ namespace utils {
     ///  - parameters of interest are all RooRealVars and are floating
     ///  - there are no other floating parameters except observables, nuisances and POI
     bool checkModel(const RooStats::ModelConfig &model, bool throwOnFail=false) ;
+
+    RooSimultaneous * rebuildSimPdf(const RooArgSet &observables, RooSimultaneous *pdf) ;
 
 }
 #endif
