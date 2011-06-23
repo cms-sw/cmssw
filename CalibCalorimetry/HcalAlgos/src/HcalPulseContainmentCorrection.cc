@@ -18,10 +18,10 @@
 
 template <>
 RecoFCcorFactorAlgo<HcalPulseShapes::Shape>::RecoFCcorFactorAlgo(int num_samples, double fixedphase_ns)
+: fixedphasens_(fixedphase_ns),
+  shape_(HcalPulseShapes().hbShape()),
+  integrator_(&shape_) 
 {
-  fixedphasens_ = fixedphase_ns;
-  HcalPulseShapes shapes;
-  shape_=shapes.hbShape();
   const int binsize_ns = 25;
 
   // First set up controlling parameters for calculating the correction factor:
@@ -69,7 +69,8 @@ RecoFCcorFactorAlgo<HcalPulseShapes::Shape>::calcpair(double truefc)
   double tmin      = -shift_ns;
   double tmax      = tmin+integrationwindowns_;
 
-  double integral  = shape_.integrate( tmin, tmax );
+  //double integral  = shape_.integrate( tmin, tmax );
+  double integral = integrator_(tmin, tmax);
   double corfactor = 1.0/integral;
   double recofc    = (double)truefc * integral;
 

@@ -1,4 +1,5 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalShapeIntegrator.h"
 #include <algorithm> // for "max","min"
 #include <math.h>
 #include <iostream>
@@ -131,5 +132,6 @@ private:
   double integrationwindowns_;
   double time0shiftns_;
   S shape_;
+  HcalShapeIntegrator integrator_;
 };
 
