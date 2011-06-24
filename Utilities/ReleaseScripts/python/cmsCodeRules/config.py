@@ -128,11 +128,14 @@ Configuration[ruleName]['exceptPaths'] = ['Utilities/RFIOAdaptor/*BuildFile.xml:
 					  'Utilities/DCacheAdaptor/*BuildFile.xml:.*:_FILE_OFFSET_BITS=',
 					  'Utilities/XrdAdaptor/*BuildFile.xml:.*:_FILE_OFFSET_BITS=',
 					  'Utilities/StorageFactory/*BuildFile.xml:.*:_FILE_OFFSET_BITS=',
+                                          'Utilities/LStoreAdaptor/BuildFile.xml:.*:_FILE_OFFSET_BITS=',
 					  'DQM/EcalEndcapMonitorClient/plugins/BuildFile.xml:.*:"WITH_ECAL_COND_DB"',
                                           'DQM/EcalBarrelMonitorClient/plugins/BuildFile.xml:.*:"WITH_ECAL_COND_DB"',
 					  'DQM/CSCMonitorModule/*BuildFile.xml:.*:="DQMGLOBAL"',
 					  'DQMServices/Core/*BuildFile.xml:.*:="-DWITHOUT_CMS_FRAMEWORK=0"',
-					  'L1Trigger/CSCTrackFinder/BuildFile.xml:.*:="-O1"',
+                                          'L1Trigger/CSCTrackFinder/BuildFile.xml:.*:ADD_SUBDIR=',
+                                          'MagneticField/Interpolation/BuildFile.xml:.*:="-Wno-format"',
+                                          'MagneticField/Interpolation/test/BuildFile.xml:.*:="-Wno-format"',
 					 ]
 Configuration[ruleName]['skip']  = [comment]
 Configuration[ruleName]['filter'] = '<\s*(f|F)(l|L)(a|A)(g|G)(s|S)\s+' #should be regular expression
