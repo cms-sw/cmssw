@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.24 2010/02/22 20:51:12 kukartse Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.25 2011/02/15 10:41:16 rofierzy Exp $
 //
 //
 
@@ -159,6 +159,10 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
     if ((*objectName == "MCParams") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceMCParams);
       findingRecord <HcalMCParamsRcd> ();
+    }
+    if ((*objectName == "FlagHFDigiTimeParams") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceFlagHFDigiTimeParams);
+      findingRecord <HcalFlagHFDigiTimeParamsRcd> ();
     }
   }
 }
@@ -412,3 +416,26 @@ std::auto_ptr<HcalMCParams> HcalHardcodeCalibrations::produceMCParams (const Hca
   return result;
 }
 
+
+std::auto_ptr<HcalFlagHFDigiTimeParams> HcalHardcodeCalibrations::produceFlagHFDigiTimeParams (const HcalFlagHFDigiTimeParamsRcd&) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceFlagHFDigiTimeParams-> ...";
+  std::auto_ptr<HcalFlagHFDigiTimeParams> result (new HcalFlagHFDigiTimeParams ());
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
+  
+  std::vector<float> coef;
+  coef.push_back(0.93);
+  coef.push_back(-0.38275);
+  coef.push_back(-0.012667);
+
+  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+    HcalFlagHFDigiTimeParam item(cell->rawId(),
+				 1, //firstsample
+				 3, // samplestoadd
+				 2, //expectedpeak
+				 40., // min energy threshold
+				 coef // coefficients
+				 );
+    result->addValues(item,h2mode_);
+  }
+  return result;
+} // produceFlagHFDigiTimeParams;

@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalTextCalibrations.cc,v 1.18 2010/04/26 19:17:00 devildog Exp $
+// $Id: HcalTextCalibrations.cc,v 1.19 2011/02/15 10:41:18 rofierzy Exp $
 //
 //
 
@@ -19,7 +19,7 @@
 
 #include "HcalTextCalibrations.h"
 //
-// class decleration
+// class declaration
 //
 
 using namespace cms;
@@ -122,13 +122,17 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalTextCalibrations::produceMCParams);
       findingRecord <HcalMCParamsRcd> ();
     }
+    else if (objectName == "FlagHFDigiTimeParams") {
+      setWhatProduced (this, &HcalTextCalibrations::produceFlagHFDigiTimeParams);
+      findingRecord <HcalFlagHFDigiTimeParamsRcd> ();
+    }
     else {
       std::cerr << "HcalTextCalibrations-> Unknown object name '" << objectName 
 		<< "', known names are: "
 		<< "Pedestals PedestalWidths Gains GainWidths QIEData ChannelQuality ElectronicsMap "
 		<< "ZSThresholds RespCorrs LUTCorrs PFCorrs TimeCorrs L1TriggerObjects "
 		<< "ValidationCorrs LutMetadata DcsValues DcsMap CholeskyMatrices CovarianceMatrices "
-		<< "RecoParams LongRecoParams MCParams "
+		<< "RecoParams LongRecoParams FlagHFDigiTimeParams MCParams "
 		<< std::endl;
     }
   }
@@ -255,4 +259,8 @@ std::auto_ptr<HcalLongRecoParams> HcalTextCalibrations::produceLongRecoParams (c
 
 std::auto_ptr<HcalMCParams> HcalTextCalibrations::produceMCParams (const HcalMCParamsRcd&) {
   return produce_impl<HcalMCParams> (mInputs ["MCParams"]);
+}
+
+std::auto_ptr<HcalFlagHFDigiTimeParams> HcalTextCalibrations::produceFlagHFDigiTimeParams (const HcalFlagHFDigiTimeParamsRcd&) {
+  return produce_impl<HcalFlagHFDigiTimeParams> (mInputs ["FlagHFDigiTimeParams"]);
 }
