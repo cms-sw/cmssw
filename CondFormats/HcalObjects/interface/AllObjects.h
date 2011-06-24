@@ -28,5 +28,6 @@
 #include "CondFormats/HcalObjects/interface/HcalRecoParams.h"
 #include "CondFormats/HcalObjects/interface/HcalLongRecoParams.h"
 #include "CondFormats/HcalObjects/interface/HcalMCParams.h"
+#include "CondFormats/HcalObjects/interface/HcalFlagHFDigiTimeParams.h"
 
 #endif
