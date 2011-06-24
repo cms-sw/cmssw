@@ -177,8 +177,13 @@ void HLTEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   const int nPDs = 10;
   MonitorElement* Pass_Hists[nPDs];
   int nPathsPD[nPDs];
-  double PDResult[nPDs] = {1.0};
-  int nTotPD[nPDs] = {0};
+  double PDResult[nPDs];
+  int nTotPD[nPDs];
+  for( int i = 0; i < nPDs; i++ ) {
+    PDResult[i] = 1.0;
+    nTotPD[i] = 0.0;
+  }
+  bool isCollision = true;
 
   for( int i = 0; i < nPDs; i++ ) {
     if( i == 0 ) Pass_Hists[i] = dbe_->get("HLT/FourVector/PathsSummary/HLT_SingleElectron_Pass_Any"); // SingleElectron
@@ -192,6 +197,8 @@ void HLTEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     if( i == 8 ) Pass_Hists[i] = dbe_->get("HLT/FourVector/PathsSummary/HLT_Jet_Pass_Any"); // Jet
     if( i == 9 ) Pass_Hists[i] = dbe_->get("HLT/FourVector/PathsSummary/HLT_MET_Pass_Any"); // MET
 
+    if( Pass_Hists[i] ) {
+      if( i == 5 && !isCollision ) continue;
       nPathsPD[i] = Pass_Hists[i]->getNbinsX();
       int noBins = 2;
       if( i == 1 ) noBins = 3; // the last trigger is low rate
@@ -216,6 +223,10 @@ void HLTEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       if( nTotPD[i] == 0 ) {
         if( ilumi > 5 ) PDResult[i] = 0.0; 
       }
+    }
+    else {
+      isCollision = false;
+    }
   }
   
   for (int k = 0; k < nPDs; k++) {
