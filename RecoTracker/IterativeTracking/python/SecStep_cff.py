@@ -63,7 +63,7 @@ secTriplets.ClusterCheckPSet.ClusterCollectionLabel = 'secClusters'
       
 
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-secTriplets.SeedComparitorPSet.ComponentName = 'LowPtClusterShapeSeedComparitor'
+secTriplets.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.ComponentName = 'LowPtClusterShapeSeedComparitor'
 
 # Use modified pixel-triplet code that works best for large impact parameters
 #secTriplets.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyCreator'

@@ -27,7 +27,7 @@ newSeedFromTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.gl
     )
     )
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-newSeedFromTriplets.SeedComparitorPSet.ComponentName = 'LowPtClusterShapeSeedComparitor'
+newSeedFromTriplets.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.ComponentName = 'LowPtClusterShapeSeedComparitor'
 
 # building
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
