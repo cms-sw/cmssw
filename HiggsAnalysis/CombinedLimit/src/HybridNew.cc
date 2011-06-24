@@ -117,6 +117,12 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
     if (vm.count("frequentist")) {
         genNuisances_ = 0; genGlobalObs_ = withSystematics; fitNuisances_ = withSystematics;
         if (vm["testStat"].defaulted()) testStat_ = "LHC";
+        if (vm["toys"].as<int>() > 0 and vm.count("toysFrequentist")) {
+            if (vm["fitNuisances"].defaulted() && withSystematics) {
+                std::cout << "When tossing frequenst toys outside the HybridNew, the nuisances will not be refitted for each toy by default. This can be changed by specifying explicitly the fitNuisances option" << std::endl;
+                fitNuisances_ = false;
+            }
+        }
     }
     if (vm.count("singlePoint")) {
         if (doSignificance_) throw std::invalid_argument("HybridNew: Can't use --significance and --singlePoint at the same time");
@@ -460,6 +466,7 @@ std::pair<double, double> HybridNew::eval(RooWorkspace *w, RooStats::ModelConfig
         if (result.get() == 0) { 
             std::cerr << "HypoTestResults for r = " << rVal << " not found in file" << std::endl;
         } else {
+            if (expectedFromGrid_) applyExpectedQuantile(*result);
             ret.first  = CLs_ ? result->CLs()      : result->CLsplusb();
             ret.second = CLs_ ? result->CLsError() : result->CLsplusbError();
         }
@@ -717,7 +724,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
 std::pair<double,double> 
 HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, double clsTarget) {
     std::auto_ptr<HypoTestResult> hcResult(evalGeneric(hc));
-    applyExpectedQuantile(*hcResult);
+    if (expectedFromGrid_) applyExpectedQuantile(*hcResult);
     if (hcResult.get() == 0) {
         std::cerr << "Hypotest failed" << std::endl;
         return std::pair<double, double>(-1,-1);
@@ -747,7 +754,7 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
             std::auto_ptr<HypoTestResult> more(evalGeneric(hc));
             if (testStat_ == "LHC" || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
             hcResult->Append(more.get());
-            applyExpectedQuantile(*hcResult);
+            if (expectedFromGrid_) applyExpectedQuantile(*hcResult);
             clsMid    = (CLs_ ? hcResult->CLs()      : hcResult->CLsplusb());
             clsMidErr = (CLs_ ? hcResult->CLsError() : hcResult->CLsplusbError());
             if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << clsMid << " +/- " << clsMidErr << std::endl;
@@ -757,7 +764,7 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
             std::auto_ptr<HypoTestResult> more(evalGeneric(hc));
             if (testStat_ == "LHC" || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
             hcResult->Append(more.get());
-            applyExpectedQuantile(*hcResult);
+            if (expectedFromGrid_) applyExpectedQuantile(*hcResult);
             clsMid    = (CLs_ ? hcResult->CLs()      : hcResult->CLsplusb());
             clsMidErr = (CLs_ ? hcResult->CLsError() : hcResult->CLsplusbError());
             if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << clsMid << " +/- " << clsMidErr << std::endl;
@@ -789,7 +796,6 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
 } 
 
 void HybridNew::applyExpectedQuantile(RooStats::HypoTestResult &hcres) {
-  
   if (expectedFromGrid_) {
       std::vector<Double_t> btoys = hcres.GetNullDistribution()->GetSamplingDistribution();
       std::sort(btoys.begin(), btoys.end());
@@ -922,14 +928,15 @@ RooStats::HypoTestResult * HybridNew::readToysFromFile(double rValue) {
     TDirectory *toyDir = readToysFromHere->GetDirectory("toys");
     if (!toyDir) throw std::logic_error("Cannot use readHypoTestResult: empty toy dir in input file empty");
     if (verbose) std::cout << "Reading toys for r = " << rValue << std::endl;
-    TString prefix = TString::Format("HypoTestResult_mh%g_r%g_",mass_,rValue);
+    TString prefix1 = TString::Format("HypoTestResult_mh%g_r%g_",mass_,rValue);
+    TString prefix2 = TString::Format("HypoTestResult_r%g_",rValue);
     std::auto_ptr<RooStats::HypoTestResult> ret;
     TIter next(toyDir->GetListOfKeys()); TKey *k;
     while ((k = (TKey *) next()) != 0) {
-        if (TString(k->GetName()).Index(prefix) != 0) continue;
+        if (TString(k->GetName()).Index(prefix1) != 0 && TString(k->GetName()).Index(prefix2) != 0) continue;
         RooStats::HypoTestResult *toy = dynamic_cast<RooStats::HypoTestResult *>(toyDir->Get(k->GetName()));
         if (toy == 0) continue;
-        if (verbose) std::cout << " - " << k->GetName() << std::endl;
+        if (verbose > 1) std::cout << " - " << k->GetName() << std::endl;
         if (ret.get() == 0) {
             ret.reset(new RooStats::HypoTestResult(*toy));
         } else {
@@ -937,6 +944,12 @@ RooStats::HypoTestResult * HybridNew::readToysFromFile(double rValue) {
         }
     }
 
+    if (ret.get() == 0) {
+        std::cout << "ERROR: signal strength value " << rValue << " not found in input root file.\n";
+        if (verbose > 0) toyDir->ls();
+        std::cout << "ERROR: signal strength value " << rValue << " not found in input root file" << std::endl;
+        throw std::invalid_argument("Missing input");
+    }
     if (verbose > 0) {
         std::cout <<
             "\tCLs      = " << ret->CLs()      << " +/- " << ret->CLsError()      << "\n" <<
@@ -960,9 +973,15 @@ void HybridNew::readGrid(TDirectory *toyDir) {
     TIter next(toyDir->GetListOfKeys()); TKey *k;
     while ((k = (TKey *) next()) != 0) {
         TString name(k->GetName());
-        if (name.Index(TString::Format("HypoTestResult_mh%g_r",mass_)) != 0 || name.Index("_", name.Index("_")+1) == -1) continue;
-        name.ReplaceAll(TString::Format("HypoTestResult_mh%g_r",mass_),"");
-        name.Remove(name.Index("_"),name.Length());
+        if (name.Index("HypoTestResult_mh") == 0) {
+            if (name.Index(TString::Format("HypoTestResult_mh%g_r",mass_)) != 0 || name.Index("_", name.Index("_")+1) == -1) continue;
+            name.ReplaceAll(TString::Format("HypoTestResult_mh%g_r",mass_),"");
+            name.Remove(name.Index("_"),name.Length());
+        } else if (name.Index("HypoTestResult_r") == 0) {
+            if (name.Index("_", name.Index("_")+1) == -1) continue;
+            name.ReplaceAll(TString::Format("HypoTestResult_r"),"");
+            name.Remove(name.Index("_"),name.Length());
+        } else continue;
         double rVal = atof(name.Data());
         if (verbose > 2) std::cout << "  Do " << k->GetName() << " -> " << name << " --> " << rVal << std::endl;
         RooStats::HypoTestResult *toy = dynamic_cast<RooStats::HypoTestResult *>(toyDir->Get(k->GetName()));

@@ -43,6 +43,7 @@ private:
   std::string prior_;
   bool hintUsesStatOnly_;
   bool toysNoSystematics_;
+  bool toysFrequentist_;
 
   // input-output related variables
   bool saveWorkspace_;
