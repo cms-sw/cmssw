@@ -176,7 +176,10 @@ def unpackBlobtoArray(iblob,itemtypecode):
     if itemtypecode not in ['c','b','B','u','h','H','i','I','l','L','f','d']:
         raise RuntimeError('unsupported typecode '+itemtypecode)
     result=array.array(itemtypecode)
-    result.fromstring(iblob.readline())
+    blobstr=iblob.readline()
+    if not blobstr :
+        return None
+    result.fromstring(blobstr)
     return result
 
 def packListstrtoCLOB(iListstr,separator=','):
