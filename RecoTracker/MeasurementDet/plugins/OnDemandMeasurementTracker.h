@@ -90,6 +90,8 @@ public:
 			 const RefGetter & theGetter,
 			 bool stayUnpacked = false)const;
 
+  mutable std::vector<uint32_t> theRawInactiveStripDetIds;
+      
 };
 
 #endif
