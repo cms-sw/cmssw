@@ -2101,7 +2101,7 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if(useEGElectrons_) {
     bool foundElectrons = iEvent.getByLabel(egammaElectronsTag_,egammaElectronHandle_);
     if ( foundElectrons) {
-      std::cout << " Found collection " << std::endl;
+      //      std::cout << " Found collection " << std::endl;
       egammaElectrons_ = *egammaElectronHandle_;
     } else
       {
