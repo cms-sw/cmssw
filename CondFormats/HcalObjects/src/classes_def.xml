@@ -120,6 +120,10 @@
  <class name="std::vector<HcalMCParam>"/>
  <class name="HcalMCParams" class_version="0"/>
 
+ <class name="HcalFlagHFDigiTimeParam"/>
+ <class name="std::vector<HcalFlagHFDigiTimeParam>"/>
+ <class name="HcalFlagHFDigiTimeParams" class_version="0"/>
+
  <class pattern="*HcalCondObjectContainer*">
   <field name="HBcontainer" mapping="blob" />
   <field name="HEcontainer" mapping="blob" />

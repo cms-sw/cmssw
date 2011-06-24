@@ -75,6 +75,11 @@ namespace {
     
     HcalMCParams myMCParams;
     std::vector<HcalMCParam> myMCParamsVec;
+
+    // HF noise DB objects
+    HcalFlagHFDigiTimeParams myHcalFlagHFDigiTimeParams;
+    std::vector<HcalFlagHFDigiTimeParam> myHcalFlagHFDigiTimeParamVec;
+
   };
 }
 
