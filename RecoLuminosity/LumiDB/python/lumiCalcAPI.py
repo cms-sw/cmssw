@@ -39,21 +39,20 @@ def lslengthsec(numorbit, numbx):
     '''
     l = numorbit * numbx * 25.0e-09
     return l
-def hltpathsForRange(schema,runlist):
+def hltpathsForRange(schema,runlist,hltpathname=None,hltpathpattern=None):
     '''
     input: runlist [run],     (required)      
            datatag: data version (optional)
-    output : {runnumber,{hltpath:(l1bitname,l1seedexpr)}}
+    output : {runnumber,[(hltpath,l1seedexpr,l1bitname)...]}
     '''
     result={}
-    if isinstance(inputRange,list):
-        for run in runlist:
-            extendedmap={}
-            hlttrgmap=dataDML.hlttrgMappingByrun(run)
-            for hltpath,l1seedexpr in  hlttrgmap.items():
-                l1bitname=hltTrgSeedMapper(hltpath,l1seedexpr)
-                extendedmap[hltpath]=(l1bitname,l1seedexpr)
-            result[run]=extendedmap
+    for run in runlist:
+        hlttrgmap=dataDML.hlttrgMappingByrun(schema,run,hltpathname=hltpathname,hltpathpattern=hltpathpattern)
+        result[run]=[]
+        for hltpath in sorted(hlttrgmap):
+            l1seedexpr=hlttrgmap[hltpath]
+            l1bitname=hltTrgSeedMapper.findUniqueSeed(hltpath,l1seedexpr)
+            result[run].append((hltpath,l1seedexpr,l1bitname))
     return result
 def trgbitsForRange(schema,runlist,datatag=None):
     '''

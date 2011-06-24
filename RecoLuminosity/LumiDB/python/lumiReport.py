@@ -728,11 +728,35 @@ def toCSVLSHlt(hltdata,ofilename,iresults=None,isverbose=False):
     input:[[run,cmslsnum,timestamp,deadfrac,name:(prescale,count)]]
     '''
     print hltdata
+    
 def toScreenConfHlt(hltconfdata,iresults=None,isverbose=False):
     '''
-    input:[[run,hltkey,pathnames]]
+    input : {runnumber,[(hltpath,l1seedexpr,l1bitname),...]}
     '''
-    print hltconfdata
+    labels=[('Run','hltpath','l1seedexpr','l1bit')]
+    result=[]
+    for run in sorted(hltconfdata):
+        pathdata=hltconfdata[run]
+        if pathdata is None:
+            ll=[str(run),'n/a','n/a','n/a']
+            continue
+        for thispathinfo in pathdata:
+            thispath=thispathinfo[0]
+            thispath=' '.join([thispath[i:i+25] for i in range(0,len(thispath),25)])
+            thisseed=thispathinfo[1]
+            thisseed=''.join(thisseed.split(' '))
+            thisseed=' '.join([thisseed[i:i+25] for i in range(0,len(thisseed),25)])
+            thisbit=thispathinfo[2]
+            if not thisbit:
+                thisbit='n/a'
+            else:
+                thisbit=' '.join([thisbit[i:i+25] for i in range(0,len(thisbit),25)])
+            result.append([str(run),thispath,thisseed,thisbit])
+    print ' ==  = '
+    print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
+                               prefix = '| ', postfix = ' |', justify = 'left',
+                               delim = ' | ', wrapfunc = lambda x: wrap_onspace(x,25) )
+
 
 def toCSVConfHlt(hltconfdata,ofilename,iresults=None,isverbose=False):
     '''

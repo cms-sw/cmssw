@@ -714,15 +714,17 @@ def hltRunById(schema,dataid,hltpathname=None,hltpathpattern=None):
     del qHandle
     return result
 
-def hlttrgMappingByrun(schema,runnum):
+def hlttrgMappingByrun(schema,runnum,hltpathname=None,hltpathpattern=None):
     '''
-    select m.hltkey,m.hltpathname,m.l1seed from cmsrunsummary r,trghltmap m where r.runnum=:runnum and m.hltkey=r.hltkey
+    select m.hltkey,m.hltpathname,m.l1seed from cmsrunsummary r,trghltmap m where r.runnum=:runnum and m.hltkey=r.hltkey and [m.hltpathname=:hltpathname] 
     output: {hltpath:l1seed}
     '''
     result={}
     queryHandle=schema.newQuery()
     r=nameDealer.cmsrunsummaryTableName()
     m=nameDealer.trghltMapTableName()
+    if hltpathpattern and hltpathpattern in ['*','all','All','ALL']:
+        hltpathpattern=None
     try:
         queryHandle.addToTableList(r)
         queryHandle.addToTableList(m)
@@ -732,19 +734,29 @@ def hlttrgMappingByrun(schema,runnum):
         #queryHandle.addToOutputList(m+'.HLTKEY','hltkey')
         queryHandle.addToOutputList(m+'.HLTPATHNAME','hltpathname')
         queryHandle.addToOutputList(m+'.L1SEED','l1seed')
-        queryHandle.setCondition(r+'.RUNNUM=:runnum and '+m+'.HLTKEY='+r+'.HLTKEY',queryCondition)
+        conditionStr=r+'.RUNNUM=:runnum and '+m+'.HLTKEY='+r+'.HLTKEY'
+        if hltpathname:
+            hltpathpattern=None
+            conditionStr+=m+'.HLTPATHNAME=:hltpathname'
+            queryCondition.extend('hltpathname','string')
+            queryCondition['hltpathname'].setData(hltpathname)
+        queryHandle.setCondition(conditionStr,queryCondition)
         queryResult=coral.AttributeList()
         #queryResult.extend('hltkey','string')
-        queryResult.extend('hltpathname','string')
+        queryResult.extend('pname','string')
         queryResult.extend('l1seed','string')
         queryHandle.defineOutput(queryResult)
         cursor=queryHandle.execute()
         while cursor.next():
             #hltkey=cursor.currentRow()['hltkey'].data()
-            hltpathname=cursor.currentRow()['hltpathname'].data()
+            pname=cursor.currentRow()['pname'].data()
             l1seed=cursor.currentRow()['l1seed'].data()
             if not result.has_key(hltpathname):
-                result[hltpathname]=l1seed
+                if hltpathpattern:
+                    if fnmatch.fnmatch(pname,hltpathpattern):
+                        result[pname]=l1seed
+                else:
+                    result[pname]=l1seed
     except :
         del queryHandle
         raise

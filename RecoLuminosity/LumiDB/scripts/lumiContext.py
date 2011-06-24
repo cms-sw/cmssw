@@ -208,10 +208,14 @@ if __name__ == '__main__':
             lumiReport.toScreenConfTrg(result,iresults,options.verbose)
         else:
             lumiReport.toCSVConfTrg(result,options.outputfile,iresults,options.verbose)
-    if options.action == 'hltbyls':
-        pass
     if options.action == 'hltconf':
-        pass
+        session.transaction().start(True)
+        result=lumiCalcAPI.hltpathsForRange(session.nominalSchema(),irunlsdict,hltpathname=sname,hltpathpattern=spattern)
+        session.transaction().commit()
+        if not options.outputfile:
+            lumiReport.toScreenConfHlt(result)
+        else:
+            print result
     if options.action == 'beambyls':
         pass
     del session
