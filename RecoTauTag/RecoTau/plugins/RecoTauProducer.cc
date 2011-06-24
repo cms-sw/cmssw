@@ -190,7 +190,7 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
         builder != builders_.end(); ++builder) {
       // Get a ptr_vector of taus from the builder
       reco::tau::RecoTauBuilderPlugin::output_type taus(
-          (*builder)(jetRegionRef, piZeros, uniqueRegionalCands));
+          (*builder)(jetRef, piZeros, uniqueRegionalCands));
       // Make sure all taus have their jetref set correctly
       std::for_each(taus.begin(), taus.end(),
           boost::bind(&reco::PFTau::setjetRef, _1, jetRef));
