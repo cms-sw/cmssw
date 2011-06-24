@@ -3,6 +3,7 @@
 #include <algorithm> // for "max","min"
 #include <math.h>
 #include <iostream>
+#include <boost/scoped_ptr.hpp>
 
 // Function generates a lookup map for a passed-in function (via templated object algoObject,
 // which must contain method "calcpair" that spits out (x,y) pair from a type float seed.
@@ -124,13 +125,12 @@ class RecoFCcorFactorAlgo {
 public:
   RecoFCcorFactorAlgo(int    num_samples,
                       double fixedphase_ns);
-  ~RecoFCcorFactorAlgo() {delete integrator_;}
   std::pair<double,double> calcpair(double);
 private:
   double fixedphasens_;
   double integrationwindowns_;
   double time0shiftns_;
   S shape_;
-  const HcalShapeIntegrator * integrator_;
+  const boost::scoped_ptr<HcalShapeIntegrator> integrator_;
 };
 
