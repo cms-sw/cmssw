@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Dec  9 16:14:56 CET 2009
-// $Id: PFCandidateMixer.cc,v 1.2 2011/06/23 13:48:54 fruboes Exp $
+// $Id: PFCandidateMixer.cc,v 1.3 2011/06/23 16:15:49 aburgmei Exp $
 //
 //
 
@@ -127,13 +127,24 @@ PFCandidateMixer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      PFCandidateConstIterator itE = (*itCol)->end();
      for (;it!=itE;++it) {
        PFCandidate cand(*it);
-       size_t i = trackCol->size();
+       size_t i = 0;
+       bool found = false;
+       double minDR = 9999.;
+       int iMinDr = -1;
        if (it->trackRef().isNonnull()) {
-         for (i = 0; i < trackCol->size(); ++i){
-           if ( reco::deltaR( *(it->trackRef()), trackCol->at(i) )<0.001 ) break; 
+         for ( i = 0 ; i < trackCol->size(); ++i){
+           if ( reco::deltaR( *(it->trackRef()), trackCol->at(i) )<0.001 ) {
+                found = true;
+                break; 
+           }
+           double dr = reco::deltaR( *(it->trackRef()), trackCol->at(i) );
+           if ( dr < minDR) {
+              iMinDr = i;
+              minDR = dr;
+           } 
          } 
        } 
-       if ( i<trackCol->size()){ // ref was found, overwrite in PFCand
+       if ( found ){ // ref was found, overwrite in PFCand
          reco::TrackRef trref(trackCol,i);
          cand.setTrackRef(trref);
          //std::cout << " YY track ok"<<std::endl;
@@ -144,7 +155,23 @@ PFCandidateMixer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                  << " col " << iCol
                  << " ch " << it->charge()
                  << " id " << it->pdgId() 
+                 << " pt " << it->pt() 
+                 << " track: eta " << it->trackRef()->eta()
+                 << " pt:  " << it->trackRef()->pt()
+                 << " charge:  " << it->trackRef()->charge()
                  <<  std::endl;
+           std::cout << " minDR=" << minDR << std::endl; 
+           if ( iMinDr > 0 ) {
+                std::cout 
+                     << " closest track pt=" << trackCol->at(iMinDr).pt()
+                     << " ch=" << trackCol->at(iMinDr).charge()
+                     <<  std::endl; 
+           } 
+           edm::Provenance prov=iEvent.getProvenance(it->trackRef().id());
+           edm::InputTag tag(prov.moduleLabel(),  prov.productInstanceName(),   prov.processName());
+           std::cout << " trackref in PFCand came from: "   << tag.encode() << std::endl;
+ 
+           
          }
        }
        pOut->push_back(cand);
