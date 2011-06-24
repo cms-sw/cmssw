@@ -71,11 +71,23 @@ process.HighPuritySelector = Alignment.CommonAlignmentProducer.AlignmentTrackSel
 ##NOT in PATH yet, to be commented in, if necessay
 ##
 #########################################################    
+############################################################################
+##Produce Primary Vertex Collection needed for later analysis
+############################################################################
+#process.load('TrackingTools/TransientTrack/TransientTrackBuilder_cfi')
+#process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
+#process.offlinePrimaryVertices.TrackLabel = 'ALCARECOTkAlMinBias'
+
 process.oneGoodVertexFilter = cms.EDFilter("VertexSelector",
                                            src = cms.InputTag("offlinePrimaryVertices"),
                                            cut = cms.string("!isFake && ndof > 4 && abs(z) <= 15 && position.Rho <= 2"), # tracksSize() > 3 for the older cut
                                            filter = cms.bool(True),   # otherwise it won't filter the events, just produce an empty vertex collection.
                                            )
+
+
+
+process.FilterGoodEvents=cms.Sequence(#process.HighPuritySelector*
+process.oneGoodVertexFilter)
 
 
 process.noScraping= cms.EDFilter("FilterOutScraping",
@@ -361,8 +373,8 @@ process.maxEvents = cms.untracked.PSet(
 process.load("Alignment.OfflineValidation.TrackerGeometryCompare_cfi")
   # the input "IDEAL" is special indicating to use the ideal geometry of the release
 
-process.TrackerGeometryCompare.inputROOTFile1 = '.oO[referenceGeometry]Oo.'
-process.TrackerGeometryCompare.inputROOTFile2 = '.oO[comparedGeometry]Oo.'
+process.TrackerGeometryCompare.inputROOTFile1 = '.oO[comparedGeometry]Oo.'
+process.TrackerGeometryCompare.inputROOTFile2 = '.oO[referenceGeometry]Oo.'
 process.TrackerGeometryCompare.outputFile = ".oO[workdir]Oo./.oO[name]Oo..Comparison_common.oO[common]Oo..root"
 process.TrackerGeometryCompare.levels = [ .oO[levels]Oo. ]
 
@@ -427,7 +439,8 @@ scriptTemplate="""
 #!/bin/bash
 #init
 ulimit -v 3072000
-export STAGE_SVCCLASS=cmscafuser
+#export STAGE_SVCCLASS=cmscafuser
+source /afs/cern.ch/cms/caf/setup.sh
 source /afs/cern.ch/cms/sw/cmsset_default.sh
 cd .oO[CMSSW_BASE]Oo./src
 eval `scramv1 ru -sh`
@@ -610,7 +623,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.StandardSequences.Geometry_cff')
 
 # including global tag
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 # setting global tag
 #process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
 process.GlobalTag.connect="frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
@@ -770,21 +783,7 @@ def alternateTemplate( templateName, alternateTemplateName ):
     # = eval("configTemplates.%s"%"alternateTemplate")
 
 
-LorentzAngleForDECO="""
-process.stripLorentzAngle = cms.ESSource("PoolDBESSource",
-#  CondDBSetup,
- DBParameters = cms.PSet(
-           messageLevel = cms.untracked.int32(2),
-                     authenticationPath =
-                     cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-                           ),
-  connect = cms.string('sqlite_file:/afs/cern.ch/user/b/benhoob/public/LorentzAngle/SiStripLorentzAngle_Deco.db'),
-  toGet = cms.VPSet(cms.PSet(record = cms.string('SiStripLorentzAngleRcd'),
-  tag = cms.string('SiStripLorentzAngle_Deco') ))
-  )
 
-process.es_prefer_stripLorentzAngle = cms.ESPrefer("PoolDBESSource", "stripLorentzAngle")
-"""
 ###
 otherTemplate = """
 schum schum
@@ -1012,6 +1011,9 @@ reportEvery = cms.untracked.int32(1000) # every 1000th only
 ))
 process.MessageLogger.statistics.append('cout')
 
+#Physics declared
+process.load('HLTrigger.special.hltPhysicsDeclared_cfi')
+process.hltPhysicsDeclared.L1GtReadoutRecordTag = 'gtDigis'  
 
 #-- Track hit filter
 # TrackerTrackHitFilter takes as input the tracks/trajectories coming out from TrackRefitter1
@@ -1101,7 +1103,8 @@ process.TFileService.fileName = '.oO[outputFile]Oo.'
  ##
  ## PATH
  ##
-process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.HitFilteredTracks
+process.p = cms.Path(#process.triggerSelection*
+process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.HitFilteredTracks
                      *process.AlignmentTrackSelector*process.TrackRefitter2*process.seqTrackerOfflineValidation.oO[offlineValidationMode]Oo.)
 
 
@@ -1259,6 +1262,72 @@ process.p = cms.Path(process.offlineBeamSpot*process.AliMomConstraint1*process.T
 
 
 """
+TrackSelectionCosmicsDuringCollisions = """
+##### For Tracks:
+process.AlignmentTrackSelector.applyBasicCuts = True
+# Note that pMin is overridden and set to zero in
+# the offlineTemplate0T
+process.AlignmentTrackSelector.pMin    = 4.
+process.AlignmentTrackSelector.pMax    = 9999.
+process.AlignmentTrackSelector.ptMin   = 0.
+process.AlignmentTrackSelector.ptMax   = 9999.
+process.AlignmentTrackSelector.etaMin  = -999.
+process.AlignmentTrackSelector.etaMax  = 999.
+process.AlignmentTrackSelector.nHitMin = 8
+process.AlignmentTrackSelector.nHitMin2D = 2
+process.AlignmentTrackSelector.chi2nMax = 999.
+process.AlignmentTrackSelector.applyMultiplicityFilter = False
+process.AlignmentTrackSelector.maxMultiplicity = 1
+process.AlignmentTrackSelector.applyNHighestPt = False
+process.AlignmentTrackSelector.nHighestPt = 1
+process.AlignmentTrackSelector.seedOnlyFrom = 0 
+process.AlignmentTrackSelector.applyIsolationCut = False
+process.AlignmentTrackSelector.minHitIsolation = 0.8
+process.AlignmentTrackSelector.applyChargeCheck = False
+process.AlignmentTrackSelector.minHitChargeStrip = 50.
+#process.AlignmentTrackSelector.trackQualities = ["highPurity"]
+#process.AlignmentTrackSelector.iterativeTrackingSteps = ["iter1","iter2"]
+
+##### For Hits:
+process.TrackerTrackHitFilter.useTrajectories= True  # this is needed only if you require some selections; but it will work even if you don't ask for them
+process.TrackerTrackHitFilter.minimumHits = 8
+process.TrackerTrackHitFilter.commands = cms.vstring("keep PXB","keep PXE","keep TIB","keep TID","keep TOB","keep TEC")
+process.TrackerTrackHitFilter.detsToIgnore = [
+     # see https://hypernews.cern.ch/HyperNews/CMS/get/tracker-performance/484.html
+    # TIB / TID
+    #369136710, 369136714, 402668822,
+    # TOB
+    #436310989, 436310990, 436299301, 436299302,
+    # TEC
+    #470340521, 470063045, 470063046, 470114669, 470114670, 470161093, 470161094, 470164333, 470164334, 470312005, 470312006, 470312009, 470067405, 470067406, 470128813
+]
+process.TrackerTrackHitFilter.replaceWithInactiveHits = True
+process.TrackerTrackHitFilter.stripAllInvalidHits = False
+process.TrackerTrackHitFilter.rejectBadStoNHits = True
+process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 18.0")
+process.TrackerTrackHitFilter.rejectLowAngleHits= True
+process.TrackerTrackHitFilter.TrackAngleCut= 0.35 # in rads, starting from the module surface
+process.TrackerTrackHitFilter.usePixelQualityFlag= True
+
+#######################################
+##Trigger settings for Cosmics during collisions
+#######################################
+process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
+process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
+process.L1T1=process.hltLevel1GTSeed.clone()
+process.L1T1.L1TechTriggerSeeding = cms.bool(True)
+process.L1T1.L1SeedsLogicalExpression=cms.string('25') 
+process.hltHighLevel = cms.EDFilter("HLTHighLevel",
+    TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+    HLTPaths = cms.vstring('HLT_TrackerCosmics'),
+    eventSetupPathsKey = cms.string(''),
+    andOr = cms.bool(False),
+    throw = cms.bool(True)
+)
+
+
+process.triggerSelection=cms.Sequence(process.L1T1*process.hltHighLevel)
+"""
 TrackSelectionCosmicsData = """
 ##### For Tracks:
 process.AlignmentTrackSelector.applyBasicCuts = True
@@ -1305,8 +1374,210 @@ process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 18.0")
 process.TrackerTrackHitFilter.rejectLowAngleHits= True
 process.TrackerTrackHitFilter.TrackAngleCut= 0.35 # in rads, starting from the module surface
 process.TrackerTrackHitFilter.usePixelQualityFlag= True
+#process.TrackerTrackHitFilter.PxlCorrClusterChargeCut = 10000.0
+process.triggerSelection=cms.Sequence(process.hltPhysicsDeclared)
 """
+TrackSelectionCosmicsDataBPIX = """
+##### For Tracks:
+process.AlignmentTrackSelector.applyBasicCuts = True
+# Note that pMin is overridden and set to zero in
+# the offlineTemplate0T
+process.AlignmentTrackSelector.pMin    = 4.
+process.AlignmentTrackSelector.pMax    = 9999.
+process.AlignmentTrackSelector.ptMin   = 0.
+process.AlignmentTrackSelector.ptMax   = 9999.
+process.AlignmentTrackSelector.etaMin  = -999.
+process.AlignmentTrackSelector.etaMax  = 999.
+process.AlignmentTrackSelector.nHitMin = 8
+process.AlignmentTrackSelector.nHitMin2D = 2
+process.AlignmentTrackSelector.chi2nMax = 999.
+process.AlignmentTrackSelector.applyMultiplicityFilter = False
+process.AlignmentTrackSelector.maxMultiplicity = 1
+process.AlignmentTrackSelector.applyNHighestPt = False
+process.AlignmentTrackSelector.nHighestPt = 1
+process.AlignmentTrackSelector.seedOnlyFrom = 0 
+process.AlignmentTrackSelector.applyIsolationCut = False
+process.AlignmentTrackSelector.minHitIsolation = 0.8
+process.AlignmentTrackSelector.applyChargeCheck = False
+process.AlignmentTrackSelector.minHitChargeStrip = 50.
+process.AlignmentTrackSelector.minHitsPerSubDet = cms.PSet(
+         inTEC = cms.int32(0),
+         inTOB = cms.int32(0),
+         inFPIX = cms.int32(0),
+        inTID = cms.int32(0),
+         inBPIX = cms.int32(1),
+         inTIB = cms.int32(0),
+         inPIXEL = cms.int32(0),
+         inTIDplus = cms.int32(0),
+         inTIDminus = cms.int32(0),
+         inTECplus = cms.int32(0),
+         inTECminus = cms.int32(0),
+         inFPIXplus = cms.int32(0),
+         inFPIXminus = cms.int32(0),
+         inENDCAP = cms.int32(0),
+         inENDCAPplus = cms.int32(0),
+         inENDCAPminus = cms.int32(0),
+     )
+#process.AlignmentTrackSelector.trackQualities = ["highPurity"]
+#process.AlignmentTrackSelector.iterativeTrackingSteps = ["iter1","iter2"]
 
+##### For Hits:
+process.TrackerTrackHitFilter.useTrajectories= True  # this is needed only if you require some selections; but it will work even if you don't ask for them
+process.TrackerTrackHitFilter.minimumHits = 8
+process.TrackerTrackHitFilter.commands = cms.vstring("keep PXB","keep PXE","keep TIB","keep TID","keep TOB","keep TEC")
+process.TrackerTrackHitFilter.detsToIgnore = [
+     # see https://hypernews.cern.ch/HyperNews/CMS/get/tracker-performance/484.html
+    # TIB / TID
+    #369136710, 369136714, 402668822,
+    # TOB
+    #436310989, 436310990, 436299301, 436299302,
+    # TEC
+    #470340521, 470063045, 470063046, 470114669, 470114670, 470161093, 470161094, 470164333, 470164334, 470312005, 470312006, 470312009, 470067405, 470067406, 470128813
+]
+process.TrackerTrackHitFilter.replaceWithInactiveHits = True
+process.TrackerTrackHitFilter.stripAllInvalidHits = False
+process.TrackerTrackHitFilter.rejectBadStoNHits = True
+process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 18.0")
+process.TrackerTrackHitFilter.rejectLowAngleHits= True
+process.TrackerTrackHitFilter.TrackAngleCut= 0.35 # in rads, starting from the module surface
+process.TrackerTrackHitFilter.usePixelQualityFlag= True
+
+process.triggerSelection=cms.Sequence(process.hltPhysicsDeclared)
+"""
+TrackSelectionCosmicsDataFPIXplus = """
+##### For Tracks:
+process.AlignmentTrackSelector.applyBasicCuts = True
+# Note that pMin is overridden and set to zero in
+# the offlineTemplate0T
+process.AlignmentTrackSelector.pMin    = 4.
+process.AlignmentTrackSelector.pMax    = 9999.
+process.AlignmentTrackSelector.ptMin   = 0.
+process.AlignmentTrackSelector.ptMax   = 9999.
+process.AlignmentTrackSelector.etaMin  = -999.
+process.AlignmentTrackSelector.etaMax  = 999.
+process.AlignmentTrackSelector.nHitMin = 8
+process.AlignmentTrackSelector.nHitMin2D = 2
+process.AlignmentTrackSelector.chi2nMax = 999.
+process.AlignmentTrackSelector.applyMultiplicityFilter = False
+process.AlignmentTrackSelector.maxMultiplicity = 1
+process.AlignmentTrackSelector.applyNHighestPt = False
+process.AlignmentTrackSelector.nHighestPt = 1
+process.AlignmentTrackSelector.seedOnlyFrom = 0 
+process.AlignmentTrackSelector.applyIsolationCut = False
+process.AlignmentTrackSelector.minHitIsolation = 0.8
+process.AlignmentTrackSelector.applyChargeCheck = False
+process.AlignmentTrackSelector.minHitChargeStrip = 50.
+process.AlignmentTrackSelector.minHitsPerSubDet = cms.PSet(
+         inTEC = cms.int32(0),
+         inTOB = cms.int32(0),
+         inFPIX = cms.int32(0),
+        inTID = cms.int32(0),
+         inBPIX = cms.int32(0),
+         inTIB = cms.int32(0),
+         inPIXEL = cms.int32(0),
+         inTIDplus = cms.int32(0),
+         inTIDminus = cms.int32(0),
+         inTECplus = cms.int32(0),
+         inTECminus = cms.int32(0),
+         inFPIXplus = cms.int32(1),
+         inFPIXminus = cms.int32(0),
+         inENDCAP = cms.int32(0),
+         inENDCAPplus = cms.int32(0),
+         inENDCAPminus = cms.int32(0),
+     )
+#process.AlignmentTrackSelector.trackQualities = ["highPurity"]
+#process.AlignmentTrackSelector.iterativeTrackingSteps = ["iter1","iter2"]
+
+##### For Hits:
+process.TrackerTrackHitFilter.useTrajectories= True  # this is needed only if you require some selections; but it will work even if you don't ask for them
+process.TrackerTrackHitFilter.minimumHits = 8
+process.TrackerTrackHitFilter.commands = cms.vstring("keep PXB","keep PXE","keep TIB","keep TID","keep TOB","keep TEC")
+process.TrackerTrackHitFilter.detsToIgnore = [
+     # see https://hypernews.cern.ch/HyperNews/CMS/get/tracker-performance/484.html
+    # TIB / TID
+    #369136710, 369136714, 402668822,
+    # TOB
+    #436310989, 436310990, 436299301, 436299302,
+    # TEC
+    #470340521, 470063045, 470063046, 470114669, 470114670, 470161093, 470161094, 470164333, 470164334, 470312005, 470312006, 470312009, 470067405, 470067406, 470128813
+]
+process.TrackerTrackHitFilter.replaceWithInactiveHits = True
+process.TrackerTrackHitFilter.stripAllInvalidHits = False
+process.TrackerTrackHitFilter.rejectBadStoNHits = True
+process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 18.0")
+process.TrackerTrackHitFilter.rejectLowAngleHits= True
+process.TrackerTrackHitFilter.TrackAngleCut= 0.35 # in rads, starting from the module surface
+process.TrackerTrackHitFilter.usePixelQualityFlag= True
+
+process.triggerSelection=cms.Sequence(process.hltPhysicsDeclared)
+"""
+TrackSelectionCosmicsDataFPIXminus = """
+##### For Tracks:
+process.AlignmentTrackSelector.applyBasicCuts = True
+# Note that pMin is overridden and set to zero in
+# the offlineTemplate0T
+process.AlignmentTrackSelector.pMin    = 4.
+process.AlignmentTrackSelector.pMax    = 9999.
+process.AlignmentTrackSelector.ptMin   = 0.
+process.AlignmentTrackSelector.ptMax   = 9999.
+process.AlignmentTrackSelector.etaMin  = -999.
+process.AlignmentTrackSelector.etaMax  = 999.
+process.AlignmentTrackSelector.nHitMin = 8
+process.AlignmentTrackSelector.nHitMin2D = 2
+process.AlignmentTrackSelector.chi2nMax = 999.
+process.AlignmentTrackSelector.applyMultiplicityFilter = False
+process.AlignmentTrackSelector.maxMultiplicity = 1
+process.AlignmentTrackSelector.applyNHighestPt = False
+process.AlignmentTrackSelector.nHighestPt = 1
+process.AlignmentTrackSelector.seedOnlyFrom = 0 
+process.AlignmentTrackSelector.applyIsolationCut = False
+process.AlignmentTrackSelector.minHitIsolation = 0.8
+process.AlignmentTrackSelector.applyChargeCheck = False
+process.AlignmentTrackSelector.minHitChargeStrip = 50.
+process.AlignmentTrackSelector.minHitsPerSubDet = cms.PSet(
+         inTEC = cms.int32(0),
+         inTOB = cms.int32(0),
+         inFPIX = cms.int32(0),
+        inTID = cms.int32(0),
+         inBPIX = cms.int32(0),
+         inTIB = cms.int32(0),
+         inPIXEL = cms.int32(0),
+         inTIDplus = cms.int32(0),
+         inTIDminus = cms.int32(0),
+         inTECplus = cms.int32(0),
+         inTECminus = cms.int32(0),
+         inFPIXplus = cms.int32(0),
+         inFPIXminus = cms.int32(1),
+         inENDCAP = cms.int32(0),
+         inENDCAPplus = cms.int32(0),
+         inENDCAPminus = cms.int32(0),
+     )
+#process.AlignmentTrackSelector.trackQualities = ["highPurity"]
+#process.AlignmentTrackSelector.iterativeTrackingSteps = ["iter1","iter2"]
+
+##### For Hits:
+process.TrackerTrackHitFilter.useTrajectories= True  # this is needed only if you require some selections; but it will work even if you don't ask for them
+process.TrackerTrackHitFilter.minimumHits = 8
+process.TrackerTrackHitFilter.commands = cms.vstring("keep PXB","keep PXE","keep TIB","keep TID","keep TOB","keep TEC")
+process.TrackerTrackHitFilter.detsToIgnore = [
+     # see https://hypernews.cern.ch/HyperNews/CMS/get/tracker-performance/484.html
+    # TIB / TID
+    #369136710, 369136714, 402668822,
+    # TOB
+    #436310989, 436310990, 436299301, 436299302,
+    # TEC
+    #470340521, 470063045, 470063046, 470114669, 470114670, 470161093, 470161094, 470164333, 470164334, 470312005, 470312006, 470312009, 470067405, 470067406, 470128813
+]
+process.TrackerTrackHitFilter.replaceWithInactiveHits = True
+process.TrackerTrackHitFilter.stripAllInvalidHits = False
+process.TrackerTrackHitFilter.rejectBadStoNHits = True
+process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 18.0")
+process.TrackerTrackHitFilter.rejectLowAngleHits= True
+process.TrackerTrackHitFilter.TrackAngleCut= 0.35 # in rads, starting from the module surface
+process.TrackerTrackHitFilter.usePixelQualityFlag= True
+
+process.triggerSelection=cms.Sequence(process.hltPhysicsDeclared)
+"""
 TrackSelectionMinBiasData = """
 ##### For Tracks:collisions taken in deco mode
 
@@ -1316,6 +1587,65 @@ process.AlignmentTrackSelector.applyBasicCuts = True
 process.AlignmentTrackSelector.pMin    = 3
 process.AlignmentTrackSelector.pMax    = 9999.
 process.AlignmentTrackSelector.ptMin   = 0.65
+process.AlignmentTrackSelector.ptMax   = 9999.
+process.AlignmentTrackSelector.etaMin  = -999.
+process.AlignmentTrackSelector.etaMax  = 999.
+process.AlignmentTrackSelector.nHitMin = 8
+process.AlignmentTrackSelector.nHitMin2D = 2
+process.AlignmentTrackSelector.chi2nMax = 999.
+process.AlignmentTrackSelector.applyMultiplicityFilter = False
+process.AlignmentTrackSelector.maxMultiplicity = 1
+process.AlignmentTrackSelector.applyNHighestPt = False
+process.AlignmentTrackSelector.nHighestPt = 1
+process.AlignmentTrackSelector.seedOnlyFrom = 0 
+process.AlignmentTrackSelector.applyIsolationCut = False
+process.AlignmentTrackSelector.minHitIsolation = 0.8
+process.AlignmentTrackSelector.applyChargeCheck = False
+process.AlignmentTrackSelector.minHitChargeStrip = 50.
+#process.AlignmentTrackSelector.trackQualities = ["highPurity"]
+#process.AlignmentTrackSelector.iterativeTrackingSteps = ["iter1","iter2"]
+
+##### For Hits:
+process.TrackerTrackHitFilter.useTrajectories= True  # this is needed only if you require some selections; but it will work even if you don't ask for them
+process.TrackerTrackHitFilter.minimumHits = 8
+process.TrackerTrackHitFilter.commands = cms.vstring("keep PXB","keep PXE","keep TIB","keep TID","keep TOB","keep TEC")
+process.TrackerTrackHitFilter.detsToIgnore = [
+     # see https://hypernews.cern.ch/HyperNews/CMS/get/tracker-performance/484.html
+    # TIB / TID
+    #369136710, 369136714, 402668822,
+    # TOB
+    #436310989, 436310990, 436299301, 436299302,
+
+    # TEC
+    #470340521, 470063045, 470063046, 470114669, 470114670, 470161093, 470161094, 470164333, 470164334, 470312005, 470312006, 470312009, 470067405, 470067406, 470128813
+]
+process.TrackerTrackHitFilter.replaceWithInactiveHits = True
+process.TrackerTrackHitFilter.stripAllInvalidHits = False
+process.TrackerTrackHitFilter.rejectBadStoNHits = True
+process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 12.0")
+process.TrackerTrackHitFilter.rejectLowAngleHits= True
+process.TrackerTrackHitFilter.TrackAngleCut= 0.17 # in rads, starting from the module surface
+process.TrackerTrackHitFilter.usePixelQualityFlag= True
+
+##############
+##Trigger sequence
+#############
+#bit 0 is selecting bunch crossing
+#bit 40 MinBias trigger
+
+
+process.triggerSelection=cms.Sequence(process.oneGoodVertexFilter)
+
+"""
+TrackSelectionIsolatedMuons = """
+##### For Tracks:collisions taken in deco mode
+
+process.AlignmentTrackSelector.applyBasicCuts = True
+# Note that pMin is overridden and set to zero in
+# the offlineTemplate0T
+process.AlignmentTrackSelector.pMin    = 0
+process.AlignmentTrackSelector.pMax    = 9999.
+process.AlignmentTrackSelector.ptMin   = 3.
 process.AlignmentTrackSelector.ptMax   = 9999.
 process.AlignmentTrackSelector.etaMin  = -999.
 process.AlignmentTrackSelector.etaMax  = 999.
@@ -1359,9 +1689,9 @@ process.TrackerTrackHitFilter.usePixelQualityFlag= True
 ##Trigger sequence
 #############
 #bit 0 is selecting bunch crossing
-#bit 40 MinBias trigger
+#bit xy for muons trigger
 
 
-process.triggerSelection=cms.Sequence(process.bptxAnd*process.bit40)
+process.triggerSelection=cms.Sequence(process.bptxAnd)
 
 """
