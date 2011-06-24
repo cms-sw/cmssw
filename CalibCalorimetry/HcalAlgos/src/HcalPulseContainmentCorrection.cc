@@ -20,7 +20,7 @@ template <>
 RecoFCcorFactorAlgo<HcalPulseShapes::Shape>::RecoFCcorFactorAlgo(int num_samples, double fixedphase_ns)
 : fixedphasens_(fixedphase_ns),
   shape_(HcalPulseShapes().hbShape()),
-  integrator_(&shape_) 
+  integrator_(new HcalShapeIntegrator(&shape_)) 
 {
   const int binsize_ns = 25;
 
@@ -70,7 +70,8 @@ RecoFCcorFactorAlgo<HcalPulseShapes::Shape>::calcpair(double truefc)
   double tmax      = tmin+integrationwindowns_;
 
   //double integral  = shape_.integrate( tmin, tmax );
-  double integral = integrator_(tmin, tmax);
+  double integral = (integrator_) ? (*integrator_)(tmin, tmax) 
+                                  : shape_.integrate( tmin, tmax );
   double corfactor = 1.0/integral;
   double recofc    = (double)truefc * integral;
 

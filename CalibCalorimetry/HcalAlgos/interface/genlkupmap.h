@@ -124,14 +124,13 @@ class RecoFCcorFactorAlgo {
 public:
   RecoFCcorFactorAlgo(int    num_samples,
                       double fixedphase_ns);
-
+  ~RecoFCcorFactorAlgo() {delete integrator_;}
   std::pair<double,double> calcpair(double);
-
 private:
   double fixedphasens_;
   double integrationwindowns_;
   double time0shiftns_;
   S shape_;
-  HcalShapeIntegrator integrator_;
+  const HcalShapeIntegrator * integrator_;
 };
 
