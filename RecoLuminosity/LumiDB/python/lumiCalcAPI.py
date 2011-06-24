@@ -39,6 +39,7 @@ def lslengthsec(numorbit, numbx):
     '''
     l = numorbit * numbx * 25.0e-09
     return l
+
 def hltpathsForRange(schema,runlist,hltpathname=None,hltpathpattern=None):
     '''
     input: runlist [run],     (required)      
@@ -74,6 +75,40 @@ def trgbitsForRange(schema,runlist,datatag=None):
         bitnamedict=trgconf[3]
         bitnames=[x[1] for x in bitnamedict if x[1]!='False']
         result[run].extend([datasource,bitzeroname,bitnames])
+    return result
+
+def beamForRange(schema,inputRange,withBeamIntensity=False):
+    '''
+    input:
+           inputRange: {run:[cmsls]} (required)
+    output : {runnumber:[(lumicmslnum,cmslsnum,beamenergy,beamstatus,[(ibx,b1,b2)])...](4)}
+    '''
+    result={}
+    for run in inputRange.keys():
+        lslist=inputRange[run]
+        if lslist is not None and len(lslist)==0:
+            result[run]=[]#if no LS is selected for a run
+            continue
+        lumidataid=dataDML.guessLumiDataIdByRun(schema,run)
+        if lumidataid is None:
+            result[run]=None
+            continue #run non exist
+        lumidata=dataDML.beamInfoById(schema,lumidataid,withBeamIntensity=withBeamIntensity)
+        #(runnum,[(lumilsnum(0),cmslsnum(1),beamstatus(2),beamenergy(3),beaminfolist(4)),..])
+        result[run]=[]
+        if lumidata and lumidata[1]:
+            for perlsdata in sorted(lumidata[1]):
+                lumilsnum=perlsdata[0]
+                cmslsnum=perlsdata[1]
+                if lslist is not None and cmslsnum not in lslist:
+                    continue
+                beamstatus=perlsdata[2]
+                beamenergy=perlsdata[3]
+                beamintInfolist=None
+                beaminforesult=[]
+                if withBeamIntensity:
+                    beamintInfolist=perlsdata[4]
+                result[run].append((lumilsnum,cmslsnum,beamstatus,beamenergy,beaminforesult))        
     return result
 
 def hltForRange(schema,inputRange,hltpathname=None,hltpathpattern=None,withL1Pass=False,withHLTAccept=False, datatag=None):

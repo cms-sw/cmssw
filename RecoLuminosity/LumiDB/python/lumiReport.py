@@ -764,3 +764,43 @@ def toCSVConfHlt(hltconfdata,ofilename,iresults=None,isverbose=False):
     '''
     print hltconfdata
 
+def toScreenLSBeam(beamdata,iresults=None,dumpIntensity=False,minIntensity=0.1):
+    '''
+    input: {run:[(lumilsnum(0),cmslsnum(1),beamstatus(2),beamenergy(3),beaminfolist(4)),..]}
+    beaminfolist:[(bxidx,b1,b2)]
+    '''
+    labels=[('Run','LS','beamstatus','egev')]
+    if dumpIntensity:
+        labels=[('Run','LS','beamstatus','egev','(bxidx,b1,b2)')]
+    result=[]
+    for run in sorted(beamdata):
+        perrundata=beamdata[run]
+        if perrundata is None:            
+            ll=[str(run),'n/a','n/a']
+            if dumpIntensity:
+                ll.extend('n/a')
+            continue
+        for lsdata in perrundata:
+            lumilsnum=lsdata[0]
+            cmslsnum=lsdata[1]
+            beamstatus=lsdata[2]
+            beamenergy=lsdata[3]
+            if not dumpIntensity:
+                result.append([str(run),str(lumilsnum)+':'+str(cmslsnum),beamstatus,'%.2f'%beamenergy])
+                continue
+            allbxinfo=lsdata[4]
+            allbxresult=[]
+            for thisbxinfo in allbxinfo:
+                thisbxresultStr='(n/a,n/a,n/a)'
+                bxidx=thisbxinfo[0]
+                b1=thisbxinfo[1]
+                b2=thisbxinfo[2]
+                if bxidx is not None and b1 is not None and b2 is not None and b1>minIntensity and b2>minIntensity:
+                    thisbxresultStr='('+','.join(['%d'%bxidx,'%.3e'%b1,'%.3e'%b2])+')'
+                allbxresult.append(thisbxresultStr)
+            allbxresultStr=' '.join(allbxresult)
+            result.append([str(run),str(lumilsnum)+':'+str(cmslsnum),beamstatus,'%.2f'%beamenergy,allbxresultStr])
+    print ' ==  = '
+    print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
+                               prefix = '| ', postfix = ' |', justify = 'left',
+                               delim = ' | ', wrapfunc = lambda x: wrap_onspace(x,25) )

@@ -557,12 +557,13 @@ def lumiLSById(schema,dataid,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',with
         raise 
     del qHandle
     return (runnum,result)
-def beamInfoById(schema,dataid):
+def beamInfoById(schema,dataid,withBeamIntensity=False):
     '''
-    result (runnum,{lumilsnum,[cmslsnum(0),beamstatus(1),beamenergy(2),beam1intensity(3),beam2intensity(4)]})
+    result (runnum,[(lumilsnum(0),cmslsnum(1),beamstatus(2),beamenergy(3),beaminfolist(4),..])
+         beaminfolist=[(bxidx,beam1intensity,beam2intensity)]
     '''
     runnum=0
-    result={}
+    result=[]
     qHandle=schema.newQuery()
     try:
         qHandle.addToTableList(nameDealer.lumisummaryv2TableName())
@@ -571,9 +572,10 @@ def beamInfoById(schema,dataid):
         qHandle.addToOutputList('LUMILSNUM','lumilsnum')
         qHandle.addToOutputList('BEAMSTATUS','beamstatus')
         qHandle.addToOutputList('BEAMENERGY','beamenergy')
-        qHandle.addToOutputList('CMSBXINDEXBLOB','bxindexblob')
-        qHandle.addToOutputList('BEAMINTENSITYBLOB_1','beam1intensity')
-        qHandle.addToOutputList('BEAMINTENSITYBLOB_2','beam2intensity')
+        if withBeamIntensity:
+            qHandle.addToOutputList('CMSBXINDEXBLOB','bxindexblob')
+            qHandle.addToOutputList('BEAMINTENSITYBLOB_1','beam1intensity')
+            qHandle.addToOutputList('BEAMINTENSITYBLOB_2','beam2intensity')
         qConditionStr='DATA_ID=:dataid'
         qCondition=coral.AttributeList()
         qCondition.extend('dataid','unsigned long long')
@@ -584,9 +586,10 @@ def beamInfoById(schema,dataid):
         qResult.extend('lumilsnum','unsigned int')
         qResult.extend('beamstatus','string')
         qResult.extend('beamenergy','float')
-        qResult.extend('bxindexblob','blob')
-        qResult.extend('beam1intensity','blob')
-        qResult.extend('beam2intensity','blob')
+        if withBeamIntensity:
+            qResult.extend('bxindexblob','blob')
+            qResult.extend('beam1intensity','blob')
+            qResult.extend('beam2intensity','blob')
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
@@ -596,12 +599,29 @@ def beamInfoById(schema,dataid):
             lumilsnum=cursor.currentRow()['lumilsnum'].data()
             beamstatus=cursor.currentRow()['beamstatus'].data()
             beamenergy=cursor.currentRow()['beamenergy'].data()
-            bxindexblob=cursor.currentRow()['bxindexblob'].data()
-            beam1intensity=cursor.currentRow()['beam1intensity'].data()
-            beam2intensity=cursor.currentRow()['beam2intensity'].data()
-            if not result.has_key(lumilsnum):
-                result[lumilsnum]=[]
-            result[lumilsnum].extend([lumilsnum,beamstatus,beamenergy,bxindexblob,beam1intensity,beam2intensity])
+            bxindexblob=None
+            beaminfotupleList=[]
+            if withBeamIntensity:
+                bxindexblob=cursor.currentRow()['bxindexblob'].data()
+                beam1intensityblob=cursor.currentRow()['beam1intensity'].data()
+                beam2intensityblob=cursor.currentRow()['beam2intensity'].data()
+                bxindexArray=None
+                beam1intensityArray=None
+                beam2intensityArray=None
+                if bxindexblob:
+                    bxindexArray=CommonUtil.unpackBlobtoArray(bxindexblob,'h')
+                if beam1intensityblob:
+                    beam1intensityArray=CommonUtil.unpackBlobtoArray(beam1intensityblob,'f')
+                if beam2intensityblob:
+                    beam2intensityArray=CommonUtil.unpackBlobtoArray(beam2intensityblob,'f')
+                if bxindexArray and beam1intensityArray and beam2intensityArray:
+                    for idx,bxindex in enumerate(bxindexArray):
+                        beaminfotuple=(bxindex,beam1intensityArray[idx],beam2intensityArray[idx])                    
+                        beaminfotupleList.append(beaminfotuple)
+                    del bxindexArray[:]
+                    del beam1intensityArray[:]
+                    del beam2intensityArray[:]
+            result.append((lumilsnum,cmslsnum,beamstatus,beamenergy,beaminfotupleList))
     except :
         del qHandle
         raise

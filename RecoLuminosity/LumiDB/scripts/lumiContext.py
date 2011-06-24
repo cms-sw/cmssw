@@ -217,6 +217,12 @@ if __name__ == '__main__':
         else:
             print result
     if options.action == 'beambyls':
-        pass
+        session.transaction().start(True)
+        result=lumiCalcAPI.beamForRange(session.nominalSchema(),irunlsdict,withBeamIntensity=False)
+        session.transaction().commit()
+        if not options.outputfile:
+            lumiReport.toScreenLSBeam(result,irunlsdict,dumpIntensity=False)
+        else:
+            print result
     del session
     del svc 
