@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.57 2010/09/20 11:56:02 rofierzy Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.58 2011/02/15 10:41:14 rofierzy Exp $
 //
 #include <vector>
 #include <string>
@@ -81,6 +81,26 @@ std::vector <unsigned int> splitStringToIntByComma (const std::string& fLine) {
       if (!empty) {
 	std::string itemString (fLine, start, i-start);
 	result.push_back (atoi (itemString.c_str()) );
+	empty = true;
+      }
+      start = i+1;
+    }
+    else {
+      if (empty) empty = false;
+    }
+  }
+  return result;
+}
+
+std::vector <float> splitStringToFloatByComma (const std::string& fLine) {
+  std::vector <float> result;
+  int start = 0;
+  bool empty = true;
+  for (unsigned i = 0; i <= fLine.size (); i++) {
+    if (fLine [i] == ',' || i == fLine.size ()) {
+      if (!empty) {
+	std::string itemString (fLine, start, i-start);
+	result.push_back (atof (itemString.c_str()) );
 	empty = true;
       }
       start = i+1;
@@ -1421,6 +1441,75 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalDcsMap& fObject
 	     );
     fOutput << buf << std::endl;
     ++line_counter;
+  }
+  return true;
+}
+
+
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalFlagHFDigiTimeParams* fObject)
+{
+  if (!fObject) fObject = new HcalFlagHFDigiTimeParams();
+  char buffer [1024];
+  while (fInput.getline(buffer, 1024)) {
+    if (buffer [0] == '#') continue; //ignore comment
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size()==0) continue; // blank line
+    if (items.size () != 9) {
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain at 9 least items: eta, phi, depth, subdet, firstSample, samplesToAdd, ExpectedPeak, MinEnergy, and a set of comma-separated coefficients" << std::endl;
+      continue;
+    }
+    // expects (ieta, iphi, depth, subdet) as first four arguments
+    DetId id = HcalDbASCIIIO::getId (items);
+    std::vector<float> coef= splitStringToFloatByComma(items[8].c_str());
+
+    /*
+      HcalFlagHFDigiTimeParam constructor:
+    HcalFlagHFDigiTimeParam(unsigned long fId, 
+			    unsigned int fFirstSample, 
+			    unsigned int fSamplesToAdd, 
+			    unsigned int fExpectedPeak, 
+			    float        fminEThreshold, 
+			    std::vector<float> fcoef)
+    */
+
+    HcalFlagHFDigiTimeParam* fCondObject = new HcalFlagHFDigiTimeParam(id, 
+								       atoi (items [4].c_str()), //firstSample
+								       atoi (items [5].c_str()), //samplesToAdd
+								       atoi (items [6].c_str()), //expectedPeak
+								       atof (items [7].c_str()), // minEThreshold
+								       coef // coefficients
+								  );
+    fObject->addValues(*fCondObject);
+    delete fCondObject;
+  }
+  return true;
+} // getObject (HcalFlagHFDigiTime)
+
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalFlagHFDigiTimeParams& fObject)
+{
+  char buffer [1024];
+  sprintf (buffer, "# %15s %15s %15s %15s  %10s %10s %10s %10s %15s\n", "eta", "phi", "dep", "det", "FirstSample", "SamplesToAdd", "ExpectedPeak","MinEnergy","Coefficients");
+  fOutput << buffer;
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       channel++) {
+    // Dump out channel (ieta,iphi,depth,subdet) info
+    HcalDbASCIIIO::dumpId (fOutput, *channel);
+    // Dump out values for channel
+    sprintf (buffer, " %10u %10u %10u %10f",
+	     fObject.getValues (*channel)->HFdigiflagFirstSample(), 
+	     fObject.getValues (*channel)->HFdigiflagSamplesToAdd(), 
+	     fObject.getValues (*channel)->HFdigiflagExpectedPeak(), 
+	     fObject.getValues (*channel)->HFdigiflagMinEThreshold() 
+	     );
+
+    std::vector<float> coef=fObject.getValues(*channel)->HFdigiflagCoefficients();
+    for (std::vector<float>::size_type x=0;x<coef.size();++x)
+      sprintf(buffer, "%f,",coef[x]); // comma-separated values
+    sprintf(buffer,"\n");
+    fOutput << buffer;
   }
   return true;
 }

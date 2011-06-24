@@ -13,7 +13,7 @@
    \class HcalDbASCIIIO
    \brief IO for ASCII instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbASCIIIO.h,v 1.17 2010/04/26 18:51:50 devildog Exp $
+   $Id: HcalDbASCIIIO.h,v 1.18 2011/02/15 10:41:09 rofierzy Exp $
    
 Text file formats for different data types is as following:
 - # in first column comments the line
@@ -86,6 +86,10 @@ namespace HcalDbASCIIIO {
   bool dumpObject (std::ostream& fOutput, const HcalCholeskyMatrices& fObject);
   bool getObject (std::istream& fInput, HcalCovarianceMatrices* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalCovarianceMatrices& fObject);
+  // Getting/Dumping Hcal Flag information
+  bool getObject (std::istream& fInput, HcalFlagHFDigiTimeParams* fObject);
+  bool dumpObject (std::ostream& fOutput, const HcalFlagHFDigiTimeParams& fObject);
+
   DetId getId (const std::vector <std::string> & items);
   void dumpId (std::ostream& fOutput, DetId id);
 } 
