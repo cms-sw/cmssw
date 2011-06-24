@@ -129,6 +129,9 @@ namespace edmtest
       dumpIt(new HcalLongRecoParams, new HcalLongRecoParamsRcd, e,context,"LongRecoParams");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("MCParams")) != mDumpRequest.end())
       dumpIt(new HcalMCParams, new HcalMCParamsRcd, e,context,"MCParams");
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("FlagHFDigiTimeParams")) != mDumpRequest.end())
+      dumpIt(new HcalFlagHFDigiTimeParams, new HcalFlagHFDigiTimeParamsRcd, e,context,"FlagHFDigiTimeParams");
+
     
   }
   DEFINE_FWK_MODULE(HcalDumpConditions);
