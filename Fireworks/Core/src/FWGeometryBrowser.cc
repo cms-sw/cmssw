@@ -1,18 +1,18 @@
-
-
+#include <iostream>
 #include <boost/bind.hpp>
 
 #include "Fireworks/Core/interface/FWGeometryBrowser.h"
+#include "Fireworks/Core/interface/FWGeoTopNode.h"
+#include "Fireworks/Core/interface/FWGeometryTableManager.h"
+#include "Fireworks/TableWidget/interface/FWTableWidget.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
-#include "Fireworks/TableWidget/interface/FWTableWidget.h"
-
 #include "Fireworks/Core/interface/FWParameterSetterBase.h"
-#include "Fireworks/Core/interface/FWGeometryTableManager.h"
-#include "Fireworks/Core/interface/fwLog.h"
-
+#include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/src/FWPopupMenu.cc"
 #include "Fireworks/Core/src/FWColorSelect.h"
+
+#include "Fireworks/Core/interface/fwLog.h"
 
 #include "TFile.h"
 #include "TGFileDialog.h"
@@ -28,22 +28,24 @@
 #include "TGeoManager.h"
 #include "TEveScene.h"
 
-bool geodebug = 0;
+bool geodebug = 1;
 
 enum GeoMenuOptions {
    kSetTopNode,
+   kVisOn,
+   kVisOff,
    kInspectMaterial,
    kInspectShape
 };
 
-#include <iostream>
 FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager, FWColorManager *colorManager)
    : TGMainFrame(gClient->GetRoot(), 600, 500),
      m_mode(this, "Mode:", 1l, 0l, 1l),
      m_filter(this,"Materials:",std::string()),
      m_autoExpand(this,"AutoExpand:", 3l, 0l, 1000l),
      m_visLevel(this,"VisLevel:", 3l, 0l, 100l),
-     m_maxDaughters(this,"MaxChildren:", 999l, 0l, 1000l), // debug
+     m_maxDaughters(this,"MaxChildren:", 4l, 0l, 1000l), // debug
+     m_path(this, "Path",std::string("/cms:World_1")),
      m_guiManager(guiManager),
      m_colorManager(colorManager),
      m_tableManager(0),
@@ -51,20 +53,19 @@ FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager, FWColorManager *c
      m_settersFrame(0),
      m_geoManager(0),
      m_eveTopNode(0),
-     m_colorPopup(0),
-     m_path("/cms:World_1")
+     m_colorPopup(0)
 {
    m_mode.addEntry(0, "Node");
    m_mode.addEntry(1, "Volume");
    
    m_tableManager = new FWGeometryTableManager(this);
 
-   m_mode.changed_.connect(boost::bind(&FWGeometryTableManager::updateMode,m_tableManager));
-   m_autoExpand.changed_.connect(boost::bind(&FWGeometryTableManager::updateAutoExpand,m_tableManager));
-   m_maxDaughters.changed_.connect(boost::bind(&FWGeometryTableManager::updateAutoExpand,m_tableManager));
+   m_mode.changed_.connect(boost::bind(&FWGeometryBrowser::refreshTable3D, this));
+   m_autoExpand.changed_.connect(boost::bind(&FWGeometryBrowser::refreshTable3D, this));
+   m_maxDaughters.changed_.connect(boost::bind(&FWGeometryBrowser::refreshTable3D, this));
+   m_visLevel.changed_.connect(boost::bind(&FWGeometryBrowser::refreshTable3D,this));
+
    m_filter.changed_.connect(boost::bind(&FWGeometryTableManager::updateFilter,m_tableManager));
-   m_maxDaughters.changed_.connect(boost::bind(&FWGeometryTableManager::updateAutoExpand,m_tableManager));
- 
 
    TGHorizontalFrame* hp =  new TGHorizontalFrame(this);
    AddFrame(hp,new TGLayoutHints(kLHintsLeft, 4, 2, 2, 2));
@@ -111,8 +112,6 @@ FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager, FWColorManager *c
 
 
    m_colorManager->colorsHaveChanged_.connect(boost::bind(&FWGeometryBrowser::backgroundChanged,this));
-
-   m_visLevel.changed_.connect(boost::bind(&FWGeometryBrowser::updateVisLevel,this));
 
    gVirtualX->SelectInput(GetId(), kKeyPressMask | kKeyReleaseMask | kExposureMask |
                           kPointerMotionMask | kStructureNotifyMask | kFocusChangeMask |
@@ -237,6 +236,10 @@ FWGeometryBrowser::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t i
    {
       FWPopupMenu* m_modelPopup = new FWPopupMenu();
       m_modelPopup->AddEntry("Set As Top Node", kSetTopNode);
+      m_modelPopup->AddSeparator();
+      m_modelPopup->AddEntry("Rnr Off For All Children", kVisOff);
+      m_modelPopup->AddEntry("Rnr On For All Children", kVisOn);
+      m_modelPopup->AddSeparator();
       m_modelPopup->AddEntry("InspectMaterial", kInspectMaterial);
       m_modelPopup->AddEntry("InspectShape", kInspectShape);
 
@@ -257,6 +260,22 @@ void FWGeometryBrowser::chosenItem(int x)
       switch (x) {
          case kSetTopNode:
             cdSelected();
+            break;
+         case kVisOff:
+            for (int d = 0; d < ni.m_node->GetNdaughters(); ++d )
+            {
+               ni.m_node->GetDaughter(d)->SetVisibility(false);
+               ni.m_node->GetDaughter(d)->VisibleDaughters(false);
+               refreshTable3D();
+            }
+            break;
+         case kVisOn:
+            for (int d = 0; d < ni.m_node->GetNdaughters(); ++d )
+            {
+               ni.m_node->GetDaughter(d)->SetVisibility(true);
+               ni.m_node->GetDaughter(d)->VisibleDaughters(true);
+               refreshTable3D();
+            }
             break;
          case kInspectMaterial:
             gv->InspectMaterial();
@@ -281,17 +300,13 @@ void FWGeometryBrowser::backgroundChanged()
    m_tableManager->setBackgroundToWhite(backgroundIsWhite);
    fClient->NeedRedraw(m_tableWidget);
    fClient->NeedRedraw(this);
-
 }
 
-void  FWGeometryBrowser::nodeColorChangeRequested(Color_t col)
+void FWGeometryBrowser::nodeColorChangeRequested(Color_t col)
 {
    FWGeometryTableManager::NodeInfo& ni = m_tableManager->refSelected();
-   TGeoVolume* gv = ni.m_node->GetVolume();
-   gv->SetLineColor(col);
- m_eveTopNode->ElementChanged(true, true);
-         gEve->RegisterRedraw3D();
-
+   ni.m_node->GetVolume()->SetLineColor(col);
+   refreshTable3D();
 }
 
 bool FWGeometryBrowser::HandleKey(Event_t *event)
@@ -321,7 +336,6 @@ void
 FWGeometryBrowser::readFile()
 {
    try {
-
       if ( ! m_geometryFile )
          throw std::runtime_error("No root file.");
   
@@ -331,41 +345,45 @@ FWGeometryBrowser::readFile()
          throw std::runtime_error("Can't find TGeoManager object in selected file.");
 
       m_geoManager = (TGeoManager*) m_geometryFile->Get("cmsGeo;1");
-      MapRaised();
-      loadGeometry();
 
+      m_geoManager->cd(m_path.value().c_str());
+      printf(" Set Path to [%s], curren node %s \n", m_path.value().c_str(), m_geoManager->GetCurrentNode()->GetName());
+      m_topGeoNode =  m_geoManager->GetCurrentNode();
+
+      m_tableManager->loadGeometry();
+
+      // FWTopNode
+      if (!m_eveTopNode)
+      {
+         m_eveTopNode = new FWGeoTopNode(this);
+         const char* n = Form("%s level[%d] size[%d] \n",m_geoManager->GetCurrentNode()->GetName(), getVisLevel(), (int)m_tableManager->refEntries().size());                            
+         m_eveTopNode->SetElementName(n);
+         TEveElementList* scenes = gEve->GetScenes();
+         for (TEveElement::List_i it = scenes->BeginChildren(); it != scenes->EndChildren(); ++it)
+         {
+            TEveScene* s = ((TEveScene*)(*it));
+            TString name = s->GetElementName();
+            if (name.Contains("3D"))
+            {
+               s->AddElement(m_eveTopNode);
+               printf("Add top node to %s scene \n", s->GetName());
+            }
+         }
+         // gEve->AddGlobalElement(m_eveTopNode);
+      }
+      else
+      {
+         m_eveTopNode->ElementChanged();
+      }
+
+      gEve->Redraw3D();
+      MapRaised();
    }
    catch (std::runtime_error &e)
    {
       fwLog(fwlog::kError) << "Failed to load simulation geomtery.\n";
       updateStatusBar("Failed to load simulation geomtery from file");
    }
-}
-
-
-void 
-FWGeometryBrowser::loadGeometry()
-{ 
-   // 3D scene
-   if (m_eveTopNode) m_eveTopNode->Destroy();
-
-
-   m_eveTopNode = new TEveGeoTopNode(m_geoManager, m_geoManager->GetCurrentNode());
-   m_topGeoNode = m_geoManager->GetCurrentNode();
-   TEveElementList* scenes = gEve->GetScenes();
-   for (TEveElement::List_i it = scenes->BeginChildren(); it != scenes->EndChildren(); ++it)
-   {
-      TEveScene* s = ((TEveScene*)(*it));
-      TString name = s->GetElementName();
-      if (name.Contains("3D"))
-      {
-         s->AddElement(m_eveTopNode);
-         printf("Add top node to %s scene \n", s->GetName());
-      }
-   }
-   gEve->Redraw3D();
-
-   m_tableManager->loadGeometry();
 }
 
 
@@ -400,47 +418,47 @@ void FWGeometryBrowser::updateStatusBar(const char* status) {
    m_statBar->SetText(status, 0);
 }
 
-void FWGeometryBrowser::updateVisLevel()
-{
-   if (m_eveTopNode) 
-   {
-      m_eveTopNode->SetVisLevel(m_visLevel.value());
-      m_eveTopNode->ElementChanged();
-      gEve->RegisterRedraw3D();
-   }
-}
-
 //______________________________________________________________________________
 
 
 void FWGeometryBrowser::cdSelected()
 {
-   m_tableManager->selectedPath(m_path);
+   std::string p;
+   m_tableManager->selectedPath(p);
+   m_path.set(p);
    updatePath();
 }
 
 void FWGeometryBrowser::cdTop()
 {
-   m_path = "/cms:World_1";
-   updatePath();
+   m_path.set("/cms:World_1");
+   updatePath(); 
 }
 
 void FWGeometryBrowser::cdUp()
 {
-   if ( m_path != "/cms:World_1")
+   if ( m_path.value() != "/cms:World_1")
    {
-      size_t del = m_path.find_last_of('/');
-      m_path = m_path.substr(0, del);
+      size_t del = m_path.value().find_last_of('/');
+      m_path.set(m_path.value().substr(0, del));
       updatePath();
    }
 }
 
 
-void  FWGeometryBrowser::updatePath()
+void FWGeometryBrowser::updatePath()
 {
-   m_geoManager->cd(m_path.c_str());
-   printf("BEGIN Set Path to [%s], curren node %s \n", m_path.c_str(), m_geoManager->GetCurrentNode()->GetName());
+   m_geoManager->cd(m_path.value().c_str());
+   printf(" Set Path to [%s], curren node %s \n", m_path.value().c_str(), m_geoManager->GetCurrentNode()->GetName());
    m_topGeoNode =  m_geoManager->GetCurrentNode();
-   loadGeometry(); 
-   printf("END Set Path to [%s], curren node %s \n", m_path.c_str(), m_geoManager->GetCurrentNode()->GetName()); 
+
+   refreshTable3D();
+   //loadGeometry(); 
+   printf("END Set Path to [%s], curren node %s \n", m_path.value().c_str(), m_geoManager->GetCurrentNode()->GetName()); 
+}
+
+void FWGeometryBrowser::refreshTable3D()
+{
+   m_tableManager->setTableContent();
+   gEve->FullRedraw3D(true, true);
 }

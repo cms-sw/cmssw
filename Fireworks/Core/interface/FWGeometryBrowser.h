@@ -23,7 +23,6 @@ class TGTextEntry;
 class TGComboBox;
 class TGStatusBar;
 class TGeoManager;
-class TEveGeoTopNode;
 
 class FWGUIManager;
 class FWColorManager;
@@ -31,6 +30,7 @@ class FWTableWidget;
 class FWGeometryTableManager;
 class FWConfiguration;
 class FWColorPopup;
+class FWGeoTopNode;
 
 class FWParameterBase;
 
@@ -57,7 +57,7 @@ public:
    void browse();
    void readFile();
    void updateStatusBar(const char* status);
-   void updateVisLevel();
+   //   void updateVisLevel();
 
    void cdSelected();
    void cdTop();
@@ -68,9 +68,10 @@ public:
    std::string getFilter ()  const { return m_filter.value(); }
    int getAutoExpand()       const { return m_autoExpand.value(); }
    int getMaxDaughters()     const { return m_maxDaughters.value(); }
+   int getVisLevel()         const  {return m_visLevel.value(); }
 
    TGeoManager*   geoManager() { return m_geoManager; }
-
+   FWGeometryTableManager*  getTableManager() { return m_tableManager;} 
    virtual void setFrom(const FWConfiguration&);
    Bool_t HandleKey(Event_t *event);
    // ---------- const member functions --------------------- 
@@ -88,7 +89,8 @@ private:
    FWStringParameter       m_filter; 
    FWLongParameter         m_autoExpand;
    FWLongParameter         m_visLevel;  
-   FWLongParameter         m_maxDaughters; 
+   FWLongParameter         m_maxDaughters;
+   FWStringParameter       m_path;  
 #endif
 
    FWGUIManager           *m_guiManager;
@@ -104,11 +106,9 @@ private:
    int                     m_selectedIdx;
 
    TGeoManager            *m_geoManager;
-   TEveGeoTopNode         *m_eveTopNode;
+   FWGeoTopNode           *m_eveTopNode;
 
    FWColorPopup           *m_colorPopup;
-
-   std::string m_path;
 
 #ifndef __CINT__
    std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
@@ -118,6 +118,8 @@ private:
    void loadGeometry();
 
    void backgroundChanged();
+
+   void refreshTable3D();
 
 
    ClassDef(FWGeometryBrowser, 0);

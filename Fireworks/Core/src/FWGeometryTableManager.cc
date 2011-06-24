@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.11 2011/06/21 05:22:04 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.12 2011/06/22 22:57:45 amraktad Exp $
 //
 
 //#define PERFTOOL
@@ -238,9 +238,9 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
 
       renderer->setIsOpen(data.m_expanded);
       if (data.m_node->GetNdaughters())
-         renderer->setIndentation(10*data.m_level);
+         renderer->setIndentation(20*data.m_level);
       else
-         renderer->setIndentation(10*data.m_level + FWTextTreeCellRenderer::iconWidth());
+         renderer->setIndentation(20*data.m_level + FWTextTreeCellRenderer::iconWidth());
 
       return renderer;
    }
@@ -251,18 +251,19 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
       renderer->setIndentation(0);
       if (iCol == kColor)
       {
-         m_colorBoxRenderer.setData(gn.GetVolume()->GetLineColor(), isSelected);
+         m_colorBoxRenderer.setData(data.m_node->GetVolume()->GetLineColor(), isSelected);
+         //         m_colorBoxRenderer.setData(data.m_color, isSelected);
          return  &m_colorBoxRenderer;
       }
       else if (iCol == kVisSelf )
       {
-         const char* txt = gn.IsVisible() ? "on" : "off";
+         const char* txt = gn.IsVisible() ? "On" : "-";
          renderer->setData( txt,  isSelected);
          return renderer;
       }
       else if (iCol == kVisChild )
       {
-         renderer->setData( gn.IsVisDaughters() ? "on" : "off",  isSelected);
+         renderer->setData( gn.IsVisDaughters() ? "On" : "-",  isSelected);
          return renderer;
       }
       else if (iCol == kMaterial )
@@ -385,16 +386,9 @@ void FWGeometryTableManager::loadGeometry()
 void FWGeometryTableManager::setTableContent()
 {
    // Prepare data for cell render.
-  
+   if (! m_browser->m_topGeoNode) return;
    m_browser->updateStatusBar("Set table content ...");
 
-#ifdef PERFTOOL  
-   if (m_filterOff)
-      ProfilerStart(Form("SetTableContent filter OFF"));
-   else  
-      ProfilerStart(Form("SetTableContent filter ON");
-
-#endif
    bool debug = 1;
    
    // clear entries
@@ -405,14 +399,19 @@ void FWGeometryTableManager::setTableContent()
    // add top node to init
    NodeInfo topNodeInfo;
    topNodeInfo.m_node   = m_browser->m_topGeoNode;//geoManager()->GetCurrentNode();
-   printf("SET TABLE content current node %s\n", m_browser->geoManager()->GetCurrentNode()->GetName());
+   printf("SET TABLE content current node %s\n", topNodeInfo.name());
 
    topNodeInfo.m_level  = 0;
    topNodeInfo.m_parent = -1;
    m_entries.push_back(topNodeInfo);
 
    importChildren(0, true);
-   
+   for (Entries_i i = m_entries.begin(); i != m_entries.end(); ++i)
+   {
+      if (i->m_level > m_browser->getAutoExpand()) i->m_expanded = false;
+   }   
+
+
    if (debug)
       checkHierarchy();
  
@@ -482,7 +481,7 @@ FWGeometryTableManager::getNNodesTotal(TGeoNode* geoNode, int level, int& off, b
    }
    
    int nV = vi.size();
-   if (level <  m_browser->getAutoExpand())
+   if (level <  TMath::Max(m_browser->getAutoExpand(), m_browser->getVisLevel()))
    {
       off += nV;
       for (int i = 0; i < nV; ++i )
@@ -505,8 +504,8 @@ void FWGeometryTableManager::importChildren(int parent_idx, bool recurse)
    TGeoNode* parentGeoNode = parent.m_node; 
    int       parentLevel   = parent.m_level;   
    if (debug) printf("%s START level[%d] >  %s[%d]   \033[0m\n" ,greenTxt,  parentLevel+1, parentGeoNode->GetName(), parent_idx);
-
    parent.m_expanded = true;
+  
    
    // get indices of accepted nodes
    int nD = getNdaughtersLimited(parentGeoNode);
@@ -563,7 +562,7 @@ void FWGeometryTableManager::importChildren(int parent_idx, bool recurse)
    {
       // change of autoExpand parameter
       int dOff = 0;
-      if ((parentLevel+1) < m_browser->getAutoExpand())
+      if ((parentLevel+1) < TMath::Max(m_browser->getAutoExpand(), m_browser->getVisLevel()))
       {
          for (int n = 0; n != nV; ++n)
          {
@@ -675,25 +674,11 @@ void FWGeometryTableManager::updateFilter()
    setTableContent();
 }
 
-void FWGeometryTableManager::updateAutoExpand()
-{
-   if (!m_browser->geoManager()) return;
-   
-   setTableContent();
-}
-
-void FWGeometryTableManager::updateMode()
-{
-   if (!m_browser->geoManager()) return;
-   
-   setTableContent();
-}
-
 int FWGeometryTableManager::getNdaughtersLimited(TGeoNode* geoNode) const
 {
    // used for debugging of table
-   //  return TMath::Min(geoNode->GetNdaughters(), m_browser->getMaxDaughters());
-   return  geoNode->GetNdaughters();
+  return TMath::Min(geoNode->GetNdaughters(), m_browser->getMaxDaughters());
+  // return  geoNode->GetNdaughters();
 }
 
 FWGeometryTableManager::NodeInfo& FWGeometryTableManager::refSelected()

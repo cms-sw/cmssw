@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.8 2011/06/21 05:22:04 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.9 2011/06/22 22:57:45 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -41,7 +41,7 @@ class FWGeometryTableManager : public FWTableManagerBase
 {
    friend class FWGeometryBrowser;
 
-protected:
+public:
    enum   ECol { kName, kColor,  kVisSelf, kVisChild, kMaterial, kPosition, kBBoxSize, kNumCol };
 
    struct NodeInfo
@@ -60,6 +60,9 @@ protected:
 
       const char* name() const;
    };
+
+   typedef std::vector<NodeInfo> Entries_v;
+   typedef Entries_v::iterator Entries_i;
    
 private:
    struct Match
@@ -116,9 +119,11 @@ public:
    void setSelection(int row, int column, int mask); 
    virtual void implSort(int, bool) {}
 
-protected:   
+
    // geo stuff
    NodeInfo& refSelected();
+   Entries_v& refEntries() {return m_entries;}
+
    void loadGeometry();
    void setBackgroundToWhite(bool);
    void  selectedPath(std::string&);
@@ -147,13 +152,11 @@ private:
    void checkHierarchy();
 
    // signal callbacks
-   void updateMode();
+   //   void updateMode();
    void updateFilter();
-   void updateAutoExpand();
+   // void updateAutoExpand();
 
    // ---------- member data --------------------------------
-   typedef std::vector<NodeInfo> Entries_v;
-   typedef Entries_v::iterator Entries_i;
    
    typedef boost::unordered_map<TGeoVolume*, Match>  Volumes_t;
    typedef Volumes_t::iterator               Volumes_i;
