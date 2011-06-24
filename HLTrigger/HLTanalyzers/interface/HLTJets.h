@@ -122,10 +122,12 @@ private:
     float *tauEta, *tauPt, *tauPhi; 
     //PFTau
     int nohPFTau;
+    int *ohpfTauProngs;
     float *ohpfTauEta,*ohpfTauPhi,*ohpfTauPt,*ohpfTauJetPt,*ohpfTauLeadTrackPt,*ohpfTauLeadPionPt;
     float *ohpfTauTrkIso, *ohpfTauGammaIso;
     //PFTau with tight cone
     int nohPFTauTightCone;
+    int *ohpfTauTightConeProngs;
     float *ohpfTauTightConeEta,*ohpfTauTightConePhi,*ohpfTauTightConePt,*ohpfTauTightConeJetPt,*ohpfTauTightConeLeadTrackPt,*ohpfTauTightConeLeadPionPt;
     float *ohpfTauTightConeTrkIso, *ohpfTauTightConeGammaIso;
     //PFJets
