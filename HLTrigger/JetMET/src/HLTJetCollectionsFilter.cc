@@ -5,7 +5,6 @@
  *
  */
 
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "HLTrigger/JetMET/interface/HLTJetCollectionsFilter.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -113,6 +112,3 @@ HLTJetCollectionsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   
   return accept;
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(HLTJetCollectionsFilter);
