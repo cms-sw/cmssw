@@ -122,11 +122,9 @@ recoTauCommonSequence = cms.Sequence()
 # Only add the DA vertices if we are in a release where they are not produced
 # automatically.
 import RecoTauTag.Configuration.tools.recoTauConfTools as recoTauConfTools
-if recoTauConfTools.cmssw_version() < (4, 2, 0):
+if recoTauConfTools.cmssw_version() < ('4', '2', '0'):
     print "INFO: Adding DA vertex production to the PFTau sequence"
     recoTauCommonSequence += offlinePrimaryVerticesDA
-    print "INFO: Adding kt6PFJet producer to the PFTau sequence"
-    recoTauCommonSequence += kt6PFJets
 
 recoTauCommonMainSequence = cms.Sequence(
     ak5PFJetTracksAssociatorAtVertex *
