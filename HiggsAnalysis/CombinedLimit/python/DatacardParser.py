@@ -11,6 +11,7 @@ class Datacard():
                            # errline: map bin -> (process -> value)
         self.shapeMap = {} # map channel -> (process -> [fname, hname, hname_syst])
         self.hasShape = False
+        self.flatParamNuisances = {}
 
 def parseCard(file, options):
     ret = Datacard()
@@ -114,6 +115,7 @@ def parseCard(file, options):
             ret.systs.append([lsyst,nofloat,pdf,args,[]])
             continue
         elif pdf == "flatParam":
+            ret.flatParamNuisances[lsyst] = True
             #for flat parametric uncertainties, code already does the right thing as long as they are non-constant RooRealVars linked to the model
             continue
         else:

@@ -45,6 +45,9 @@ class ShapeBuilder(ModelBuilder):
                     bgpdfs.add(pdf); bgcoeffs.add(coeff)
             sum_s = ROOT.RooAddPdf("pdf_bin%s"       % b, "",   pdfs,   coeffs)
             sum_b = ROOT.RooAddPdf("pdf_bin%s_bonly" % b, "", bgpdfs, bgcoeffs)
+            if b in self.pdfModes: 
+                sum_s.setAttribute('forceGenBinned' if self.pdfModes[b] == 'binned' else 'forceGenUnbinned')
+                sum_b.setAttribute('forceGenBinned' if self.pdfModes[b] == 'binned' else 'forceGenUnbinned')
             if len(self.DC.systs):
                 # rename the pdfs
                 sum_s.SetName("pdf_bin%s_nuis" % b); sum_b.SetName("pdf_bin%s_bonly_nuis" % b)
@@ -55,6 +58,9 @@ class ShapeBuilder(ModelBuilder):
                 # then make RooProdPdf and import it
                 pdf_s = ROOT.RooProdPdf("pdf_bin%s"       % b, "", sumPlusNuis_s) 
                 pdf_b = ROOT.RooProdPdf("pdf_bin%s_bonly" % b, "", sumPlusNuis_b) 
+                if b in self.pdfModes: 
+                    pdf_s.setAttribute('forceGenBinned' if self.pdfModes[b] == 'binned' else 'forceGenUnbinned')
+                    pdf_b.setAttribute('forceGenBinned' if self.pdfModes[b] == 'binned' else 'forceGenUnbinned')
                 self.out._import(pdf_s, ROOT.RooFit.RenameConflictNodes(b))
                 self.out._import(pdf_b, ROOT.RooFit.RecycleConflictNodes(), ROOT.RooFit.Silence())
             else:
@@ -67,7 +73,8 @@ class ShapeBuilder(ModelBuilder):
             for (postfixIn,postfixOut) in [ ("","_s"), ("_bonly","_b") ]:
                 simPdf = ROOT.RooSimultaneous("model"+postfixOut, "model"+postfixOut, self.out.binCat)
                 for b in self.DC.bins:
-                    simPdf.addPdf(self.out.pdf("pdf_bin%s%s" % (b,postfixIn)), b)
+                    pdfi = self.out.pdf("pdf_bin%s%s" % (b,postfixIn))
+                    simPdf.addPdf(pdfi, b)
                 self.out._import(simPdf)
         else:
             self.out._import(self.out.pdf("pdf_bin%s"       % self.DC.bins[0]).clone("model_s"), ROOT.RooFit.Silence())
@@ -78,6 +85,7 @@ class ShapeBuilder(ModelBuilder):
     ## --------------------------------------
     def prepareAllShapes(self):
         shapeTypes = []; shapeBins = []; shapeObs = {}
+        self.pdfModes = {}
         for ib,b in enumerate(self.DC.bins):
             for p in [self.options.dataname]+self.DC.exp[b].keys():
                 if len(self.DC.obs) == 0 and p == self.options.dataname: continue
@@ -89,23 +97,28 @@ class ShapeBuilder(ModelBuilder):
                         self.doSet("CMS_fakeObsSet","CMS_fakeObs");
                         shapeObs["CMS_fakeObsSet"] = self.out.set("CMS_fakeObsSet")
                     if p == self.options.dataname:
+                        self.pdfModes[b] = 'binned'
                         shapeTypes.append("RooDataHist")
                     else:
                         shapeTypes.append("RooAbsPdf");
                 elif shape.ClassName().startswith("TH1"):
                     shapeTypes.append("TH1"); shapeBins.append(shape.GetNbinsX())
                     norm = shape.Integral()
+                    if p == self.options.dataname: self.pdfModes[b] = 'binned'
                 elif shape.InheritsFrom("RooDataHist"):
                     shapeTypes.append("RooDataHist"); 
                     shapeBins.append(shape.numEntries())
                     shapeObs[self.argSetToString(shape.get())] = shape.get()
                     norm = shape.sumEntries()
+                    if p == self.options.dataname: self.pdfModes[b] = 'binned'
                 elif shape.InheritsFrom("RooDataSet"):
                     shapeTypes.append("RooDataSet"); 
                     shapeObs[self.argSetToString(shape.get())] = shape.get()
                     norm = shape.sumEntries()
+                    if p == self.options.dataname: self.pdfModes[b] = 'unbinned'
                 elif shape.InheritsFrom("TTree"):
                     shapeTypes.append("TTree"); 
+                    if p == self.options.dataname: self.pdfModes[b] = 'unbinned'
                 elif shape.InheritsFrom("RooAbsPdf"):
                     shapeTypes.append("RooAbsPdf");
                 else: raise RuntimeError, "Currently supporting only TH1s, RooDataHist and RooAbsPdfs"
@@ -209,6 +222,9 @@ class ShapeBuilder(ModelBuilder):
                   normname = "%s_norm" % (oname)
                   norm = wsp.arg(normname)
                   if norm: 
+                    if normname in self.DC.flatParamNuisances: 
+                        self.DC.flatParamNuisances[normname] = False # don't warn if not found
+                        norm.setAttribute("flatParam")
                     norm.SetName("shape_%s_%s%s_norm" % (process,channel, "_"))
                     self.out._import(norm, ROOT.RooFit.RecycleConflictNodes()) 
                 if self.options.verbose: print "import (%s,%s) -> %s\n" % (finalNames[0],objname,ret.GetName())

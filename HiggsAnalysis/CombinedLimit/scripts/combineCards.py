@@ -15,7 +15,7 @@ from HiggsAnalysis.CombinedLimit.DatacardParser import *
 obsline = []; obskeyline = [] ;
 keyline = []; expline = []; systlines = {}
 signals = []; backgrounds = []; shapeLines = []
-paramSysts = {}
+paramSysts = {}; flatParamNuisances = {}
 cmax = 5 # column width
 for ich,fname in enumerate(args):
     label = "ch%d" % (ich+1)
@@ -70,6 +70,9 @@ for ich,fname in enumerate(args):
         else:
             pdfargs = [ str(x) for x in pdfargs ]
             systlines[lsyst] = [pdf,pdfargs,systeffect,nofloat]
+    # flat params
+    for K in DC.flatParamNuisances.iterkeys(): 
+        flatParamNuisances[K] = True
     # put shapes, if available
     if len(DC.shapeMap):
         for b in DC.bins:
@@ -155,3 +158,6 @@ for name in sysnamesSorted:
     print hfmt % ("%-21s   %s  %s" % (name, pdf, " ".join(pdfargs))), "  ".join([cfmt % x for x in systline])
 for (pname, pargs) in paramSysts.items():
     print "%-12s  param  %s" %  (pname, " ".join(pargs))
+
+for pname in flatParamNuisances.iterkeys(): 
+    print "%-12s  flatParam" % pname

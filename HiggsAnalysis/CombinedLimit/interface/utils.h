@@ -4,6 +4,7 @@
 struct RooDataHist;
 struct RooAbsData;
 struct RooAbsPdf;
+struct RooAbsArg;
 struct RooArgSet;
 struct RooArgList;
 struct RooSimultaneous;
@@ -47,5 +48,6 @@ namespace utils {
 
     RooSimultaneous * rebuildSimPdf(const RooArgSet &observables, RooSimultaneous *pdf) ;
 
+    void copyAttributes(const RooAbsArg &from, RooAbsArg &to) ;
 }
 #endif

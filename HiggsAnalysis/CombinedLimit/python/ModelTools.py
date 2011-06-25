@@ -222,6 +222,9 @@ class ModelBuilder(ModelBuilderBase):
     def doModelConfigs(self):
         if not self.options.bin: raise RuntimeException
         if self.options.out == None: raise RuntimeException
+        for nuis,warn in self.DC.flatParamNuisances.iteritems():
+            if self.out.var(nuis): self.out.var(nuis).setAttribute("flatParam")
+            elif warn: stderr.write("Missing variable %s declared as flatParam\n" % nuis)
         mc_s = ROOT.RooStats.ModelConfig("ModelConfig",       self.out)
         mc_b = ROOT.RooStats.ModelConfig("ModelConfig_bonly", self.out)
         for (l,mc) in [ ('s',mc_s), ('b',mc_b) ]:

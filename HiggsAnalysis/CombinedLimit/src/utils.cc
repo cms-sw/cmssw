@@ -96,6 +96,7 @@ RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, Roo
         else if (newFactors.getSize() == 1) return (RooAbsPdf *) newFactors.first()->Clone(TString::Format("%s_obsOnly", pdf.GetName()));
         RooProdPdf *ret = new RooProdPdf(TString::Format("%s_obsOnly", pdf.GetName()), "", newFactors);
         ret->addOwnedComponents(newOwned);
+        copyAttributes(pdf, *ret);
         return ret;
     } else if (id == typeid(RooSimultaneous) || id == typeid(RooSimultaneousOpt)) {
         RooSimultaneous *sim  = dynamic_cast<RooSimultaneous *>(&pdf);
@@ -127,6 +128,7 @@ RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, Roo
             newret->addOwnedComponents(RooArgSet(*ret));
             ret = newret;
         }
+        copyAttributes(pdf, *ret);
         return ret;
     } else if (pdf.dependsOn(observables)) {
         return &pdf;
@@ -178,7 +180,6 @@ RooAbsPdf *utils::fullClonePdf(const RooAbsPdf *pdf, RooArgSet &holder, bool clo
   RooArgSet tmp("RealBranchNodeList") ;
   pdf->branchNodeServerList(&tmp);
   tmp.snapshot(holder, cloneLeafNodes); 
-  
   // Find the top level FUNC in the snapshot list
   return (RooAbsPdf*) holder.find(pdf->GetName());
 }
@@ -255,6 +256,7 @@ bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
     iter.reset(params->createIterator());
     for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
         if (a->isConstant() || allowedToFloat.contains(*a)) continue;
+        if (a->getAttribute("flatParam")) continue;
         errors << "WARNING: pdf parameter " << a->GetName() << " (type " << a->ClassName() << ") is not allowed to float (it's not nuisance, poi, observable or global observable\n"; 
     }
     iter.reset();
@@ -276,7 +278,7 @@ RooSimultaneous * utils::rebuildSimPdf(const RooArgSet &observables, RooSimultan
         RooAbsPdf *newpdf = factorizePdf(observables, *pdfi, constraints);
         factorizedPdfs[ic] = newpdf;
         if (newpdf == 0) { continue; }
-        if (newpdf != pdfi) { newOwned.add(*newpdf); }
+        if (newpdf != pdfi) { newOwned.add(*newpdf);  }
     }
     RooSimultaneous *ret = new RooSimultaneous(TString::Format("%s_reloaded", sim->GetName()), "", (RooAbsCategoryLValue&) sim->indexCat());
     for (int ic = 0, nc = nbins; ic < nc; ++ic) {
@@ -287,6 +289,7 @@ RooSimultaneous * utils::rebuildSimPdf(const RooArgSet &observables, RooSimultan
                 RooArgList allfactors(constraints); allfactors.add(*newpdf);
                 RooProdPdf *newerpdf = new RooProdPdf(TString::Format("%s_plus_constr", newpdf->GetName()), "", allfactors);
                 ret->addPdf(*newerpdf, cat->getLabel());
+                copyAttributes(*newpdf, *newerpdf);
                 newOwned.add(*newerpdf);
             } else {
                 ret->addPdf(*newpdf, cat->getLabel());
@@ -294,6 +297,19 @@ RooSimultaneous * utils::rebuildSimPdf(const RooArgSet &observables, RooSimultan
         }
     }
     ret->addOwnedComponents(newOwned);
+    copyAttributes(*sim, *ret);
     delete cat;
     return ret;
+}
+
+void utils::copyAttributes(const RooAbsArg &from, RooAbsArg &to) {
+    if (&from == &to) return;
+    const std::set<std::string> attribs = from.attributes();
+    if (!attribs.empty()) {
+        for (std::set<std::string>::const_iterator it = attribs.begin(), ed = attribs.end(); it != ed; ++it) to.setAttribute(it->c_str());
+    }
+    const std::map<std::string, std::string> strattribs = from.stringAttributes();
+    if (!strattribs.empty()) {
+        for (std::map<std::string,std::string>::const_iterator it = strattribs.begin(), ed = strattribs.end(); it != ed; ++it) to.setStringAttribute(it->first.c_str(), it->second.c_str());
+    }
 }
