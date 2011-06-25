@@ -1291,6 +1291,13 @@ namespace edm {
     return &cache;
   }
 
+  EventPrincipal*
+  RootFile::clearAndReadCurrentEvent(EventPrincipal& cache,
+                             boost::shared_ptr<LuminosityBlockPrincipal> lb) {
+    cache.clearEventPrincipal();
+    return readCurrentEvent(cache, lb);
+  }
+
   void
   RootFile::setAtEventEntry(IndexIntoFile::EntryNumber_t entry) {
     eventTree_.setEntryNumber(entry);
