@@ -9599,6 +9599,26 @@ public:
          bool jetID,
          std::vector<int> ohEleIts);
 
+	int OpenHlt1ElectronSamHarperPassed_Reshuffled(float Et,
+												   float hoverebarrel=999.,
+												   float hovereendcap=999.,
+												   float clusshapebarrel=999.,
+												   float clusshapeendcap=999.,
+												   float detabarrel=999.,
+												   float detaendcap=999.,
+												   float dphibarrel=999.,
+												   float dphiendcap=999.,
+												   float HisooverETbarrel=999.,
+												   float HisooverETendcap=999.,
+												   float EisooverETbarrel=999.,
+												   float EisooverETendcap=999.,
+												   float Tisoratiobarrel=999.,
+												   float Tisoratioendcap=999.,
+												   float Tisobarrel=999.,
+												   float Tisoendcap=999.,
+												   int L1iso=0);
+	
+	
    int OpenHlt1ElectronSamHarperPassed(
          float Et,
          int L1iso,

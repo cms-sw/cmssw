@@ -14462,6 +14462,49 @@ bool OHltTree::OpenHLT_EleX_R9cut(const float& Et, const float& r9barrel)
 					 ) >= 1;
 }
 
+
+int OHltTree::OpenHlt1ElectronSamHarperPassed_Reshuffled(float Et,
+											   float hoverebarrel,
+											   float hovereendcap,
+											   float clusshapebarrel,
+											   float clusshapeendcap,
+											   float detabarrel,
+											   float detaendcap,
+											   float dphibarrel,
+											   float dphiendcap,
+											   float HisooverETbarrel,
+											   float HisooverETendcap,
+											   float EisooverETbarrel,
+											   float EisooverETendcap,
+											   float Tisoratiobarrel,
+											   float Tisoratioendcap,
+											   float Tisobarrel,
+											   float Tisoendcap,
+											   int L1iso){
+	return OpenHlt1ElectronSamHarperPassed(Et,
+										   L1iso,
+										   Tisobarrel,
+										   Tisoendcap,
+										   Tisoratiobarrel,
+										   Tisoratioendcap,
+										   HisooverETbarrel,
+										   HisooverETendcap,
+										   EisooverETbarrel,
+										   EisooverETendcap,
+										   hoverebarrel,
+										   hovereendcap,
+										   clusshapebarrel,
+										   clusshapeendcap,
+										   999.,
+										   999.,
+										   detabarrel,
+										   detaendcap,
+										   dphibarrel,
+										   dphiendcap);
+}//End OpenHlt1ElectronSamHarperPassed_Reshuffled
+
+
+
 int OHltTree::OpenHlt1ElectronSamHarperPassed(
 					      float Et,
 					      int L1iso,
