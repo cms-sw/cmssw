@@ -78,11 +78,12 @@ public:
 
    virtual void addTo(FWConfiguration&) const;
    void nodeColorChangeRequested(Color_t);
-   TGeoNode* m_topGeoNode;
 
+   //   TGeoNode* m_topGeoNode;
 private:
    FWGeometryBrowser(const FWGeometryBrowser&);
    const FWGeometryBrowser& operator=(const FWGeometryBrowser&);
+
 
 #ifndef __CINT__
    FWEnumParameter         m_mode;
@@ -118,7 +119,7 @@ private:
    void loadGeometry();
 
    void backgroundChanged();
-
+   void levelChanged();
    void refreshTable3D();
 
 

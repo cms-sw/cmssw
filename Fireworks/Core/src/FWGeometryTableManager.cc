@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.12 2011/06/22 22:57:45 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.13 2011/06/24 22:09:21 amraktad Exp $
 //
 
 //#define PERFTOOL
@@ -110,7 +110,9 @@ FWGeometryTableManager::FWGeometryTableManager(FWGeometryBrowser* browser)
      m_selectedIdx(0),
      m_selectedColumn(-1),
      m_browser(browser),
-     m_filterOff(true)
+     m_filterOff(true),
+     m_topGeoNodeIdx(-1),
+     m_levelOffset(0)
 { 
    m_colorBoxRenderer.m_width  =  50;
    m_colorBoxRenderer.m_height =  m_renderer.height();
@@ -237,10 +239,12 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
       renderer->setIsParent((gn.GetNdaughters() > 0) && (m_filterOff || m_volumes[gn.GetVolume()].accepted()));
 
       renderer->setIsOpen(data.m_expanded);
+      int level = data.m_level - m_levelOffset;
+
       if (data.m_node->GetNdaughters())
-         renderer->setIndentation(20*data.m_level);
+         renderer->setIndentation(20*level);
       else
-         renderer->setIndentation(20*data.m_level + FWTextTreeCellRenderer::iconWidth());
+         renderer->setIndentation(20*level + FWTextTreeCellRenderer::iconWidth());
 
       return renderer;
    }
@@ -251,8 +255,8 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
       renderer->setIndentation(0);
       if (iCol == kColor)
       {
-         m_colorBoxRenderer.setData(data.m_node->GetVolume()->GetLineColor(), isSelected);
-         //         m_colorBoxRenderer.setData(data.m_color, isSelected);
+         // m_colorBoxRenderer.setData(data.m_node->GetVolume()->GetLineColor(), isSelected);
+         m_colorBoxRenderer.setData(data.m_color, isSelected);
          return  &m_colorBoxRenderer;
       }
       else if (iCol == kVisSelf )
@@ -309,15 +313,20 @@ void FWGeometryTableManager::firstColumnClicked(int row)
    visualPropertiesChanged();
 }
 
+//______________________________________________________________________________
+
 void FWGeometryTableManager::recalculateVisibility()
 {
    m_row_to_index.clear();
+
+  
+
 
    for ( size_t i = 0,  e = m_entries.size(); i != e; ++i )
    {   
       NodeInfo &data = m_entries[i];
       // printf("visiblity for %s \n", data.m_node->GetName() );
-      if (data.m_parent == -1)
+      if ( (m_topGeoNodeIdx == -1 && data.m_parent == -1) || (m_topGeoNodeIdx >= 0 && (int)i == m_topGeoNodeIdx) )
       {
          data.m_visible = true;
       }
@@ -335,12 +344,11 @@ void FWGeometryTableManager::recalculateVisibility()
    // printf("entries %d \n", m_entries.size());
 } 
 
+//______________________________________________________________________________
 
 void FWGeometryTableManager::redrawTable() 
 {
-   printf("redrawTable:: change selection \n");
    changeSelection(0, 0);
-
 
    recalculateVisibility();
    dataChanged();
@@ -367,26 +375,15 @@ void FWGeometryTableManager::checkUniqueVolume(TGeoVolume* v)
 
 void FWGeometryTableManager::loadGeometry()
 {
-   m_row_to_index.clear();
-   m_entries.clear();
-   m_volumes.clear();
-
-   // fill table
-   checkUniqueVolume(m_browser->geoManager()->GetCurrentNode()->GetVolume());
+    // fill table
+   checkUniqueVolume(m_browser->geoManager()->GetTopNode()->GetVolume());
    if (!m_filterOff)
       updateFilter();
    
    m_browser->updateStatusBar(Form("FWGeometryTableManager::loadGeometry() %d unique volumes", (int)m_volumes.size()));
    
-   setTableContent();
-}
-//______________________________________________________________________________
-
-
-void FWGeometryTableManager::setTableContent()
-{
+ 
    // Prepare data for cell render.
-   if (! m_browser->m_topGeoNode) return;
    m_browser->updateStatusBar("Set table content ...");
 
    bool debug = 1;
@@ -398,7 +395,7 @@ void FWGeometryTableManager::setTableContent()
 
    // add top node to init
    NodeInfo topNodeInfo;
-   topNodeInfo.m_node   = m_browser->m_topGeoNode;//geoManager()->GetCurrentNode();
+   topNodeInfo.m_node   = m_browser->geoManager()->GetTopNode();
    printf("SET TABLE content current node %s\n", topNodeInfo.name());
 
    topNodeInfo.m_level  = 0;
@@ -481,7 +478,7 @@ FWGeometryTableManager::getNNodesTotal(TGeoNode* geoNode, int level, int& off, b
    }
    
    int nV = vi.size();
-   if (level <  TMath::Max(m_browser->getAutoExpand(), m_browser->getVisLevel()))
+   if (level <  (m_levelOffset + TMath::Max(m_browser->getAutoExpand(), m_browser->getVisLevel())))
    {
       off += nV;
       for (int i = 0; i < nV; ++i )
@@ -498,8 +495,10 @@ void FWGeometryTableManager::importChildren(int parent_idx, bool recurse)
    
    int nEntries = (int)m_entries.size();
    assert( parent_idx < nEntries);
- 
+
    // parnt index not valid in recursive import:  save parent info here
+   m_entries[parent_idx].m_imported = true;
+
    NodeInfo& parent        = m_entries[parent_idx];
    TGeoNode* parentGeoNode = parent.m_node; 
    int       parentLevel   = parent.m_level;   
@@ -555,6 +554,8 @@ void FWGeometryTableManager::importChildren(int parent_idx, bool recurse)
       nodeInfo.m_node =   parentGeoNode->GetDaughter(childIdx);
       nodeInfo.m_level =  parentLevel + 1;
       nodeInfo.m_parent = parent_idx;
+      // 3D
+      nodeInfo.m_color =  nodeInfo.m_node->GetVolume()->GetLineColor();
       if (debug)  printf(" add %s\n", nodeInfo.name());
    }
    
@@ -562,7 +563,7 @@ void FWGeometryTableManager::importChildren(int parent_idx, bool recurse)
    {
       // change of autoExpand parameter
       int dOff = 0;
-      if ((parentLevel+1) < TMath::Max(m_browser->getAutoExpand(), m_browser->getVisLevel()))
+      if ((parentLevel+1) < (m_levelOffset + TMath::Max(m_browser->getAutoExpand(), m_browser->getVisLevel())))
       {
          for (int n = 0; n != nV; ++n)
          {
@@ -648,7 +649,7 @@ void FWGeometryTableManager::checkChildMatches(TGeoVolume* vol,  std::vector<TGe
 // callbacks ______________________________________________________________________________
 
 void FWGeometryTableManager::updateFilter()
-{
+{/*
    std::string filterExp =  m_browser->getFilter();
    m_filterOff =  filterExp.empty();
 
@@ -671,12 +672,13 @@ void FWGeometryTableManager::updateFilter()
 #ifdef PERFTOOL
    ProfilerStop();
 #endif
-   setTableContent();
+setTableContent();*/
 }
 
 int FWGeometryTableManager::getNdaughtersLimited(TGeoNode* geoNode) const
 {
-   // used for debugging of table
+   // used for debugging of table and 3D view
+
   return TMath::Min(geoNode->GetNdaughters(), m_browser->getMaxDaughters());
   // return  geoNode->GetNdaughters();
 }
@@ -686,14 +688,14 @@ FWGeometryTableManager::NodeInfo& FWGeometryTableManager::refSelected()
    return  m_entries[m_selectedIdx];
 }
 
-void FWGeometryTableManager::selectedPath(std::string& path)
+void FWGeometryTableManager::setTopNodePathFromSelected(std::string& path)
 {
    std::vector<std::string> relPath;
    int idx = m_selectedIdx;
    while(idx >= 0)
    { 
       relPath.push_back( m_entries[idx].name());
-      printf("push %s \n",m_entries[idx].name() );
+      // printf("push %s \n",m_entries[idx].name() );
       idx  =  m_entries[idx].m_parent;
    }
 
@@ -702,6 +704,57 @@ void FWGeometryTableManager::selectedPath(std::string& path)
    {
       path +="/";
       path += relPath[ns-i -1];
-      printf("push_back add to path %s\n", path.c_str());
+      // printf("push_back add to path %s\n", path.c_str());
+   }
+}
+
+//______________________________________________________________________________
+
+void  FWGeometryTableManager::checkImportLevel()
+{
+   // callback of auto_expand and visLevel setters signal
+
+   int level = TMath::Max(m_browser->getAutoExpand(), m_browser->getVisLevel()) + m_levelOffset -1;
+   // check import
+
+   bool ok = false;
+   while(!ok)
+   {
+      ok  = true; 
+      printf("check while \n");
+      for ( size_t i = 0,  e = m_entries.size(); i != e; ++i )
+      {  
+         if ( m_entries[i].m_visible && (m_entries[i].m_imported == false && m_entries[i].m_level < level))
+         {
+            printf("recursive sub import %d %d \n", (int)i, (int)e); fflush(stdout);
+            importChildren(i, true);
+            ok = false;
+            break;
+         }   
+      }
+   }
+
+   // collapse
+   int ae = m_browser->getAutoExpand() +  m_levelOffset;
+   for (Entries_i i = m_entries.begin(); i != m_entries.end(); ++i)
+   {
+      if (i->m_level  > ae ) i->m_expanded = false;
+   }   
+
+}
+
+void  FWGeometryTableManager::topGeoNodeChanged(TGeoNode* iNode)
+{
+   m_topGeoNodeIdx = -1;
+   m_levelOffset =0;
+   for ( size_t i = 0,  e = m_entries.size(); i != e; ++i )
+   {  
+      if (m_entries[i].m_node == iNode )
+      {
+         m_topGeoNodeIdx = i;
+         m_levelOffset = m_entries[i].m_level;
+         printf("To node idx %d \n", m_topGeoNodeIdx ); fflush(stdout);
+         break;
+      }
    }
 }

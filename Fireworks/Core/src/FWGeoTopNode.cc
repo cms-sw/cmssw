@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel  
 //         Created:  Thu Jun 23 01:24:51 CEST 2011
-// $Id$
+// $Id: FWGeoTopNode.cc,v 1.1 2011/06/24 22:09:21 amraktad Exp $
 //
 
 // system include files
@@ -49,16 +49,6 @@ FWGeoTopNode::~FWGeoTopNode()
 }
 
 int ns = 0;
-//______________________________________________________________________________
-void FWGeoTopNode::Paint(Option_t*)
-{
-   ns = 0;
-   // printf("FWGeoTopNode::Paint \n");
-   TGeoHMatrix mtx;
-   paintChildNodesRecurse(-1, mtx, true);
-   //printf("paint end %d shapes %d \n", (int)m_geoBrowser->getTableManager()->refEntries().size(), ns);
-
-}
 
 //______________________________________________________________________________
 void FWGeoTopNode::ComputeBBox()
@@ -85,10 +75,26 @@ void FWGeoTopNode::setupBuffMtx(TBuffer3D& buff, TGeoHMatrix& mat)
    buff.fLocalFrame = kTRUE;
 }
 
+//______________________________________________________________________________
+void FWGeoTopNode::Paint(Option_t*)
+{
+   ns = 0;
+   // printf("FWGeoTopNode::Paint \n");
+   int parentIdx = m_geoBrowser->getTableManager()->getTopGeoNodeIdx();
+   TGeoHMatrix mtx;
+   if (parentIdx >= 0)
+   {
+      FWGeometryTableManager::NodeInfo& data =m_geoBrowser->getTableManager()->refEntries()[parentIdx];
+      if (data.m_node->IsVisible())
+         paintShape(data, mtx);
+   }
+   paintChildNodesRecurse(parentIdx, mtx, true);
+   //printf("paint end %d shapes %d \n", (int)m_geoBrowser->getTableManager()->refEntries().size(), ns);
+
+}
 // ______________________________________________________________________
 void FWGeoTopNode::paintChildNodesRecurse(int idx, TGeoHMatrix& parentMtx, bool visDaughters)
 {
-   static const TEveException eh("TEveGeoShape::Paint ");
    FWGeometryTableManager::Entries_v& entries = m_geoBrowser->getTableManager()->refEntries();
    int size = entries.size();
 
@@ -101,44 +107,86 @@ void FWGeoTopNode::paintChildNodesRecurse(int idx, TGeoHMatrix& parentMtx, bool 
          TGeoHMatrix nm = parentMtx;
          nm.Multiply(node->GetMatrix());
 
-         if (entries[i].m_level >m_geoBrowser->getVisLevel() ) break;
+         if (entries[i].m_level >(m_geoBrowser->getVisLevel() + entries[m_geoBrowser->getTableManager()->getTopGeoNodeIdx()].m_level) ) break;
 
-         TGeoShape* shape = node->GetVolume()->GetShape();
-         TGeoCompositeShape* compositeShape = dynamic_cast<TGeoCompositeShape*>(shape);
-         if (compositeShape)
-         {
-            // printf("%s has composite shape \n", (*i).name());
-         }
-         else if (entries[i].m_node->IsVisible() && visDaughters)
-         {
-            TBuffer3D& buff = (TBuffer3D&) shape->GetBuffer3D (TBuffer3D::kCore, kFALSE);
-            setupBuffMtx(buff, nm);
-            buff.fID           = node->GetVolume();
-            buff.fColor        = node->GetVolume()->GetLineColor();
-            buff.fTransparency =  node->GetVolume()->GetTransparency();
-            nm.GetHomogenousMatrix(buff.fLocalMaster);
-            buff.fLocalFrame   = kTRUE; // Always enforce local frame (no geo manager).
+         if (entries[i].m_node->IsVisible() && visDaughters)
+            paintShape(entries[i], nm);
 
-            Int_t sections = TBuffer3D::kBoundingBox | TBuffer3D::kShapeSpecific;
-            shape->GetBuffer3D(sections, kTRUE);
-
-           
-            Int_t reqSec = gPad->GetViewer3D()->AddObject(buff);
-            ns++;
-
-            if (reqSec != TBuffer3D::kNone) {
-               // This shouldn't happen, but I suspect it does sometimes.
-               if (reqSec & TBuffer3D::kCore)
-                  Warning(eh, "Core section required again for shape='%s'. This shouldn't happen.", GetName());
-               shape->GetBuffer3D(reqSec, kTRUE);
-               reqSec = gPad->GetViewer3D()->AddObject(buff);
-            }
-
-            if (reqSec != TBuffer3D::kNone)  
-               Warning(eh, "Extra section required: reqSec=%d, shape=%s.", reqSec, GetName());
-         }
          paintChildNodesRecurse(i, nm, visDaughters && node->IsVisDaughters());
       }
    }
 }
 
+
+// ______________________________________________________________________
+void FWGeoTopNode::paintShape(FWGeometryTableManager::NodeInfo& data, TGeoHMatrix& nm)
+{ 
+   static const TEveException eh("FWGeoTopNode::paintShape ");
+  
+
+   TGeoShape* shape = data.m_node->GetVolume()->GetShape();
+   TGeoCompositeShape* compositeShape = dynamic_cast<TGeoCompositeShape*>(shape);
+   if (compositeShape)
+   {
+      Double_t halfLengths[3] = { compositeShape->GetDX(), compositeShape->GetDY(), compositeShape->GetDZ() };
+
+      TBuffer3D buff(TBuffer3DTypes::kComposite);
+      buff.fID           = data.m_node->GetVolume();
+      buff.fColor        = data.m_color;
+      buff.fTransparency = data.m_node->GetVolume()->GetTransparency(); 
+
+      nm.GetHomogenousMatrix(buff.fLocalMaster);        
+      RefMainTrans().SetBuffer3D(buff);
+      buff.fLocalFrame   = kTRUE; // Always enforce local frame (no geo manager).
+      buff.SetAABoundingBox(compositeShape->GetOrigin(), halfLengths);
+      buff.SetSectionsValid(TBuffer3D::kCore|TBuffer3D::kBoundingBox);
+
+      Bool_t paintComponents = kTRUE;
+
+      // Start a composite shape, identified by this buffer
+      if (TBuffer3D::GetCSLevel() == 0)
+         paintComponents = gPad->GetViewer3D()->OpenComposite(buff);
+
+      TBuffer3D::IncCSLevel();
+
+      // Paint the boolean node - will add more buffers to viewer
+      TGeoHMatrix xxx;
+      TGeoMatrix *gst = TGeoShape::GetTransform();
+      TGeoShape::SetTransform(&xxx);
+      if (paintComponents) compositeShape->GetBoolNode()->Paint("");
+      TGeoShape::SetTransform(gst);
+      // Close the composite shape
+      if (TBuffer3D::DecCSLevel() == 0)
+         gPad->GetViewer3D()->CloseComposite();
+
+   }
+   else
+   {
+      TBuffer3D& buff = (TBuffer3D&) shape->GetBuffer3D (TBuffer3D::kCore, kFALSE);
+      setupBuffMtx(buff, nm);
+      buff.fID           = data.m_node->GetVolume();
+      buff.fColor        = data.m_color;//node->GetVolume()->GetLineColor();
+      buff.fTransparency =  data.m_node->GetVolume()->GetTransparency();
+
+      nm.GetHomogenousMatrix(buff.fLocalMaster);
+      buff.fLocalFrame   = kTRUE; // Always enforce local frame (no geo manager).
+
+      Int_t sections = TBuffer3D::kBoundingBox | TBuffer3D::kShapeSpecific;
+      shape->GetBuffer3D(sections, kTRUE);
+
+           
+      Int_t reqSec = gPad->GetViewer3D()->AddObject(buff);
+      ns++;
+
+      if (reqSec != TBuffer3D::kNone) {
+         // This shouldn't happen, but I suspect it does sometimes.
+         if (reqSec & TBuffer3D::kCore)
+            Warning(eh, "Core section required again for shape='%s'. This shouldn't happen.", GetName());
+         shape->GetBuffer3D(reqSec, kTRUE);
+         reqSec = gPad->GetViewer3D()->AddObject(buff);
+      }
+
+      if (reqSec != TBuffer3D::kNone)  
+         Warning(eh, "Extra section required: reqSec=%d, shape=%s.", reqSec, GetName());
+   }
+}

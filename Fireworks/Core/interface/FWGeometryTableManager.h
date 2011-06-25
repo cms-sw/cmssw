@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.9 2011/06/22 22:57:45 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.10 2011/06/24 22:09:21 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -57,6 +57,9 @@ public:
       Bool_t      m_imported;
       Bool_t      m_visible;
       Bool_t      m_expanded;
+
+      // 3D
+      Color_t     m_color;
 
       const char* name() const;
    };
@@ -126,8 +129,9 @@ public:
 
    void loadGeometry();
    void setBackgroundToWhite(bool);
-   void  selectedPath(std::string&);
+   void setTopNodePathFromSelected(std::string&);
 
+   int getTopGeoNodeIdx() const  { return m_topGeoNodeIdx; }
 
 private:
    FWGeometryTableManager(const FWGeometryTableManager&); // stop default
@@ -147,14 +151,16 @@ private:
    void checkChildMatches(TGeoVolume* v,  std::vector<TGeoVolume*>&);
    int  getNdaughtersLimited(TGeoNode*) const;
    void getNNodesTotal(TGeoNode* geoNode, int level,int& off, bool debug) const;
-   void setTableContent();
+   //   void setTableContent();
    void importChildren(int parent_idx, bool recurse);
    void checkHierarchy();
 
+
    // signal callbacks
-   //   void updateMode();
    void updateFilter();
-   // void updateAutoExpand();
+   void checkImportLevel();
+   void topGeoNodeChanged(TGeoNode*);
+
 
    // ---------- member data --------------------------------
    
@@ -172,13 +178,15 @@ private:
    
    // geo stuff
    FWGeometryBrowser*   m_browser;
-   TEveGeoTopNode*    m_eveTopNode;
+   //   TEveGeoTopNode*    m_eveTopNode;
       
    mutable Volumes_t  m_volumes;
    Entries_v          m_entries;
 
    bool               m_filterOff; //cached
-   
+  
+   int m_topGeoNodeIdx; 
+   int m_levelOffset;
    sigc::signal<void,int,int> indexSelected_;
 };
 

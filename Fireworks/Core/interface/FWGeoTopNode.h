@@ -16,9 +16,10 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel
 //         Created:  Thu Jun 23 01:25:00 CEST 2011
-// $Id$
+// $Id: FWGeoTopNode.h,v 1.1 2011/06/24 22:09:21 amraktad Exp $
 //
 
+#include "Fireworks/Core/interface/FWGeometryTableManager.h"
 #include "TEveElement.h"
 #include "TAtt3D.h"
 #include "TAttBBox.h"
@@ -28,6 +29,8 @@ class TGeoHMatrix;
 class FWGeometryTableManager;
 class FWGeometryBrowser;
 class TBuffer3D;
+class TGeoNode;
+
 
 class FWGeoTopNode : public TEveElementList,
                      public TAtt3D,
@@ -48,7 +51,7 @@ private:
    void setupBuffMtx(TBuffer3D& buff,TGeoHMatrix& mat);
 
    void paintChildNodesRecurse(int idx, TGeoHMatrix& mtx, bool visDaughters);
-
+   void  paintShape(FWGeometryTableManager::NodeInfo& nodeInfo, TGeoHMatrix& nm);
    FWGeometryBrowser       *m_geoBrowser;
 };
 
