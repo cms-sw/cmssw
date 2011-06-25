@@ -564,19 +564,19 @@ namespace edm {
       }
       fileIter_ = fileIterBegin_;
       initFile(false);
-      rootFile_->setAtEventEntry(0);
+      rootFile_->setAtEventEntry(-1);
     }
-    EventPrincipal* ep = rootFile_->readCurrentEvent(rootFile_->secondaryEventPrincipal());
+    rootFile_->nextEventEntry();
+    EventPrincipal* ep = rootFile_->clearAndReadCurrentEvent(rootFile_->secondaryEventPrincipal());
     if(ep == 0) {
       ++fileIter_;
       if(fileIter_ == fileIterEnd_) {
         return 0;
       }
       initFile(false);
-      rootFile_->setAtEventEntry(0);
+      rootFile_->setAtEventEntry(-1);
       return readOneSequential();
     }
-    rootFile_->nextEventEntry();
     return ep;
   }
 
@@ -590,7 +590,7 @@ namespace edm {
          fileIter_->fileName() <<
          " does not contain specified event:\n" << id << "\n";
     }
-    EventPrincipal* ep = rootFile_->readCurrentEvent(rootFile_->secondaryEventPrincipal());
+    EventPrincipal* ep = rootFile_->clearAndReadCurrentEvent(rootFile_->secondaryEventPrincipal());
     assert(ep != 0);
     return ep;
   }
@@ -619,17 +619,17 @@ namespace edm {
         throw Exception(errors::NotFound) <<
            "RootInputFileSequence::readOneRandom(): Secondary Input file " << fileIter_->fileName() << " contains no events.\n";
       }
-      rootFile_->setAtEventEntry(flatDistribution_->fireInt(eventsRemainingInFile_));
+      rootFile_->setAtEventEntry(flatDistribution_->fireInt(eventsRemainingInFile_) - 1);
     }
+    rootFile_->nextEventEntry();
 
-    EventPrincipal* ep = rootFile_->readCurrentEvent(rootFile_->secondaryEventPrincipal());
+    EventPrincipal* ep = rootFile_->clearAndReadCurrentEvent(rootFile_->secondaryEventPrincipal());
     if(ep == 0) {
-      rewindFile();
-      ep = rootFile_->readCurrentEvent(rootFile_->secondaryEventPrincipal());
+      rootFile_->setAtEventEntry(0);
+      ep = rootFile_->clearAndReadCurrentEvent(rootFile_->secondaryEventPrincipal());
       assert(ep != 0);
     }
     --eventsRemainingInFile_;
-    rootFile_->nextEventEntry();
     return ep;
   }
 
@@ -672,21 +672,21 @@ namespace edm {
         throw Exception(errors::NotFound) <<
            "RootInputFileSequence::readManyRandom_(): Secondary Input file " << fileIter_->fileName() << " contains no events.\n";
       }
-      rootFile_->setAtEventEntry(flatDistribution_->fireInt(eventsRemainingInFile_));
+      rootFile_->setAtEventEntry(flatDistribution_->fireInt(eventsRemainingInFile_) - 1);
     }
     fileSeqNumber = fileIter_ - fileIterBegin_;
     for(int i = 0; i < number; ++i) {
+      rootFile_->nextEventEntry();
       boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(rootFile_->productRegistry(), processConfiguration()));
       EventPrincipal* ev = rootFile_->readCurrentEvent(*ep);
       if(ev == 0) {
-        rewindFile();
+        rootFile_->setAtEventEntry(0);
         ev = rootFile_->readCurrentEvent(*ep);
         assert(ev != 0);
       }
       assert(ev == ep.get());
       result.push_back(ep);
       --eventsRemainingInFile_;
-      rootFile_->nextEventEntry();
     }
   }
 
@@ -700,11 +700,12 @@ namespace edm {
     if(fileIter_ == fileIterEnd_ || !rootFile_) {
       fileIter_ = fileIterBegin_;
       initFile(false);
-      rootFile_->setAtEventEntry(0);
+      rootFile_->setAtEventEntry(-1);
     }
     fileSeqNumber = fileIter_ - fileIterBegin_;
     unsigned int numberRead = 0;
     for(int i = 0; i < number; ++i) {
+      rootFile_->nextEventEntry();
       boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(rootFile_->productRegistry(), processConfiguration()));
       EventPrincipal* ev = rootFile_->readCurrentEvent(*ep);
       if(ev == 0) {
@@ -715,7 +716,7 @@ namespace edm {
             return;
           }
           initFile(false);
-          rootFile_->setAtEventEntry(0);
+          rootFile_->setAtEventEntry(-1);
           return readManySequential(number, result, fileSeqNumber);
         }
         return;
@@ -723,7 +724,6 @@ namespace edm {
       assert(ev == ep.get());
       result.push_back(ep);
       ++numberRead;
-      rootFile_->nextEventEntry();
     }
   }
 
