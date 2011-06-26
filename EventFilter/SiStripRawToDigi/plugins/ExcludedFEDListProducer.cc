@@ -79,7 +79,7 @@ namespace sistrip {
 	// The FEDData contains a vector<unsigned char>. Check the size of this vector:
 	
 	if( input.size() == 0 ) {
-	  std::cout << "Input size == 0 for FED number " << static_cast<int>(*ifed) << std::endl;
+	  // std::cout << "Input size == 0 for FED number " << static_cast<int>(*ifed) << std::endl;
 	  // get the cabling connections for this FED
 	  const std::vector<FedChannelConnection>& conns = cabling_->connections(*ifed);
 	  // Mark FED modules as bad
@@ -95,9 +95,9 @@ namespace sistrip {
 
     std::auto_ptr< DetIdCollection > detids( new DetIdCollection(detids_) );
 
-    for( unsigned int it = 0; it < detids->size(); ++it ) {
-      std::cout << "detId = " << (*detids)[it]() << std::endl;
-    }
+    // for( unsigned int it = 0; it < detids->size(); ++it ) {
+    //   std::cout << "detId = " << (*detids)[it]() << std::endl;
+    // }
 
     event.put(detids);
   }
