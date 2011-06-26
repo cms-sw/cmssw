@@ -140,23 +140,26 @@ RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, Roo
 }
 
 void utils::factorizePdf(RooStats::ModelConfig &model, RooAbsPdf &pdf, RooArgList &obsTerms, RooArgList &constraints, bool debug) {
+    return factorizePdf(*model.GetObservables(), pdf, obsTerms, constraints, debug);
+}
+void utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgList &obsTerms, RooArgList &constraints, bool debug) {
     const std::type_info & id = typeid(pdf);
     if (id == typeid(RooProdPdf)) {
         RooProdPdf *prod = dynamic_cast<RooProdPdf *>(&pdf);
         RooArgList list(prod->pdfList());
         for (int i = 0, n = list.getSize(); i < n; ++i) {
             RooAbsPdf *pdfi = (RooAbsPdf *) list.at(i);
-            factorizePdf(model, *pdfi, obsTerms, constraints);
+            factorizePdf(observables, *pdfi, obsTerms, constraints);
         }
     } else if (id == typeid(RooSimultaneous)) {
         RooSimultaneous *sim  = dynamic_cast<RooSimultaneous *>(&pdf);
         RooAbsCategoryLValue *cat = (RooAbsCategoryLValue *) sim->indexCat().Clone();
         for (int ic = 0, nc = cat->numBins((const char *)0); ic < nc; ++ic) {
             cat->setBin(ic);
-            factorizePdf(model, *sim->getPdf(cat->getLabel()), obsTerms, constraints);
+            factorizePdf(observables, *sim->getPdf(cat->getLabel()), obsTerms, constraints);
         }
         delete cat;
-    } else if (pdf.dependsOn(*model.GetObservables())) {
+    } else if (pdf.dependsOn(observables)) {
         if (!obsTerms.contains(pdf)) obsTerms.add(pdf);
     } else {
         if (!constraints.contains(pdf)) constraints.add(pdf);
@@ -164,8 +167,12 @@ void utils::factorizePdf(RooStats::ModelConfig &model, RooAbsPdf &pdf, RooArgLis
 }
 
 RooAbsPdf *utils::makeNuisancePdf(RooStats::ModelConfig &model, const char *name) { 
+    return utils::makeNuisancePdf(*model.GetPdf(), *model.GetObservables(), name);
+}
+
+RooAbsPdf *utils::makeNuisancePdf(RooAbsPdf &pdf, const RooArgSet &observables, const char *name) { 
     RooArgList obsTerms, constraints;
-    factorizePdf(model, *model.GetPdf(), obsTerms, constraints);
+    factorizePdf(observables, pdf, obsTerms, constraints);
     return new RooProdPdf(name,"", constraints);
 }
 

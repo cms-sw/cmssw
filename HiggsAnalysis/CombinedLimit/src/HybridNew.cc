@@ -34,6 +34,7 @@
 #include "../interface/ProfiledLikelihoodRatioTestStat.h"
 #include "../interface/SimplerLikelihoodRatioTestStatExt.h"
 #include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
+#include "../interface/ToyMCSamplerOpt.h"
 #include "../interface/utils.h"
 #include "../interface/ProfileLikelihood.h"
 
@@ -64,6 +65,7 @@ bool HybridNew::importanceSamplingAlt_  = false;
 std::string HybridNew::algo_ = "logSecant";
 bool HybridNew::optimizeProductPdf_     = true;
 bool HybridNew::optimizeTestStatistics_ = true;
+bool HybridNew::newToyMCSampler_        = false;
 std::string HybridNew::plot_;
 std::string HybridNew::minimizerAlgo_ = "Minuit2";
 float       HybridNew::minimizerTolerance_ = 1e-2;
@@ -104,6 +106,7 @@ LimitAlgo("HybridNew specific options") {
         ("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer used for profiling")
         ("plot",   boost::program_options::value<std::string>(&plot_), "Save a plot of the result (test statistics distributions or limit scan)")
         ("frequentist", "Shortcut to switch to Frequentist mode (--generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1)")
+        ("newToyMCSampler", boost::program_options::value<bool>(&newToyMCSampler_)->default_value(newToyMCSampler_), "Use new ToyMC sampler with support for mixed binned-unbinned generation")
     ;
 }
 
@@ -647,8 +650,17 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
         }
     }
   }
-  
-  setup.toymcsampler.reset(new ToyMCSampler(*setup.qvar, nToys_));
+
+  RooAbsPdf *nuisancePdf = 0;
+  if (withSystematics && (genNuisances_ || (newToyMCSampler_ && genGlobalObs_))) {
+    nuisancePdf = utils::makeNuisancePdf(*mc_s);
+    setup.cleanupList.addOwned(*nuisancePdf);
+  }
+  if (newToyMCSampler_) { 
+    setup.toymcsampler.reset(new ToyMCSamplerOpt(*setup.qvar, nToys_, nuisancePdf));
+  } else {
+    setup.toymcsampler.reset(new ToyMCSampler(*setup.qvar, nToys_));
+  }
 
   if (!mc_b->GetPdf()->canBeExtended()) setup.toymcsampler->SetNEventsPerToy(1);
   
@@ -660,10 +672,8 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
 
   std::auto_ptr<HybridCalculator> hc(new HybridCalculator(data,setup.modelConfig, setup.modelConfig_bonly, setup.toymcsampler.get()));
   if (genNuisances_ && withSystematics) {
-    RooAbsPdf *nuisancePdf = utils::makeNuisancePdf(*mc_s);
     hc->ForcePriorNuisanceNull(*nuisancePdf);
     hc->ForcePriorNuisanceAlt(*nuisancePdf);
-    setup.cleanupList.addOwned(*nuisancePdf);
   } else if (genGlobalObs_ && !genNuisances_) {
       hc->ForcePriorNuisanceNull(*w->pdf("__HybridNew_fake_nuisPdf__"));
       hc->ForcePriorNuisanceAlt(*w->pdf("__HybridNew_fake_nuisPdf__"));
