@@ -21,6 +21,8 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 
 #include <iomanip>
 #include <algorithm>
@@ -208,12 +210,14 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
     // 19 Mar 2010 adding the KF track from Gamma Conv. 
     // They are linked to the GSF tracks they are not considered
     // anymore in the following ecal cluster locking 
+    if (DebugSetLinksDetailed) {
+      cout<<"#########################################################"<<endl;
+      cout<<"#####           Process Block:                      #####"<<endl;
+      cout<<"#########################################################"<<endl;
+      cout<<block<<endl;
+    }      
 
-    //     cout<<"#########################################################"<<endl;
-    //     cout<<"#####           Process Block:                      #####"<<endl;
-    //     cout<<"#########################################################"<<endl;
-    //     cout<<block<<endl;
-    
+
     for(unsigned int iEle=0; iEle<trackIs.size(); iEle++) {
       std::multimap<double, unsigned int> gsfElems;
       block.associatedElements( trackIs[iEle],  linkData,
@@ -260,10 +264,14 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	      const reco::PFBlockElementTrack * kfEle =  
 		dynamic_cast<const reco::PFBlockElementTrack*>((&elements[(trackIs[iEle])])); 	
 	      reco::TrackRef refKf = kfEle->trackRef();
+	      // add nExHits = 0
+	      int nexhits = refKf->trackerExpectedHitsInner().numberOfLostHits();  
+
 	      unsigned int Algo = 0;
 	      if (refKf.isNonnull()) 
 		Algo = refKf->algo(); 
-	      if(Algo < 9) {
+	      // if(Algo < 9) {
+	      if(Algo < 9 && nexhits == 0) {
 		localactive[ecalKf_index] = false;
 	      }
 	      else {
@@ -1685,6 +1693,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	myExtra.setMVA(mvaValue);
 	electronExtra_.push_back(myExtra);
 
+
 	// IMPORTANT Additional conditions
 	if(mvaValue > mvaEleCut_) {
 	  // Check if the ecal cluster is isolated. 
@@ -1737,11 +1746,21 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 		unsigned int Algo = whichTrackAlgo(trackref);
 		// iter0, iter1, iter2, iter3 = Algo < 3
 		// algo 4,5,6,7
-		if(Algo < 3) {
+		int nexhits = trackref->trackerExpectedHitsInner().numberOfLostHits();  
+		// probably we could now remove the algo request?? 
+		if(Algo < 3 && nexhits == 0) {
+		  //if(Algo < 3) {
 		  if(DebugIDOutputs) 
 		    cout << " The ecalGsf cluster is not isolated: >0 KF extra with algo < 3" << endl;
 
 		  float p_trk = trackref->p();
+
+		  // expected number of inner hits
+		
+		  if(DebugIDOutputs) 
+		    cout << "  p_trk " <<  p_trk
+			 << " nexhits " << nexhits << endl;
+
 		  SumExtraKfP += p_trk;
 		  iextratrack++;
 		  // Check if these extra tracks are HCAL linked
@@ -1760,11 +1779,12 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	  if( iextratrack > 0) {
 	    if(iextratrack > 3 || HOverHE > 0.05 || (SumExtraKfP/Ene_ecalgsf) > 1. 
 	       || (ETtotal > 50. && iextratrack > 1 && (Ene_hcalgsf/Ene_ecalgsf) > 0.1) ) {
-
 	      if(DebugIDOutputs) 
 		cout << " *****This electron candidate is discarded: Non isolated  # tracks "		
 		     << iextratrack << " HOverHE " << HOverHE 
 		     << " SumExtraKfP/Ene_ecalgsf " << SumExtraKfP/Ene_ecalgsf 
+		     << " SumExtraKfP " << SumExtraKfP 
+		     << " Ene_ecalgsf " << Ene_ecalgsf
 		     << " ETtotal " << ETtotal
 		     << " Ene_hcalgsf/Ene_ecalgsf " << Ene_hcalgsf/Ene_ecalgsf
 		     << endl;
@@ -1823,7 +1843,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	if (DebugIDOutputs) {
 	  cout << " **** BDT observables ****" << endl;
 	  cout << " < Normalization > " << endl;
-	  cout << " lnPt_gsf " << lnPt_gsf 
+	  cout << " Pt_gsf " << Pt_gsf << " Pin " << Ein_gsf  << " Pout " << Eout_gsf
 	       << " Eta_gsf " << Eta_gsf << endl;
 	  cout << " < PureTracking > " << endl;
 	  cout << " dPtOverPt_gsf " << dPtOverPt_gsf 
@@ -1839,8 +1859,8 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	       << " EtotBremPinPoutMode " << EtotBremPinPoutMode
 	       << " DEtaGsfEcalClust " << DEtaGsfEcalClust 
 	       << " SigmaEtaEta " << SigmaEtaEta
-	       << " HOverHE " << HOverHE 
-	       << " HOverPin " << HOverPin
+	       << " HOverHE " << HOverHE << " Hcal energy " << Ene_hcalgsf
+	       << " HOverPin " << HOverPin 
 	       << " lateBrem " << lateBrem
 	       << " firstBrem " << firstBrem << endl;
 	  cout << " !!!!!!!!!!!!!!!! the BDT output !!!!!!!!!!!!!!!!!: direct " << mvaValue 
@@ -1858,6 +1878,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	cout << " No clusters associated to the gsf " << endl;
       BDToutput_[cgsf] = -2.;      
     }  
+    DebugIDOutputs = false;
   } // End Loop on Map1   
   return;
 }
@@ -2402,7 +2423,16 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	temp_Candidate.setPositionAtECALEntrance(posGsfEcalEntrance);
 	// Add Vertex
 	temp_Candidate.setVertexSource(PFCandidate::kGSFVertex);
-
+	
+	// save the superclusterRef when available
+	if(RefGSF->extra().isAvailable() && RefGSF->extra()->seedRef().isAvailable()) {
+	  reco::ElectronSeedRef seedRef=  RefGSF->extra()->seedRef().castTo<reco::ElectronSeedRef>();
+	  if(seedRef.isAvailable() && seedRef->isEcalDriven()) {
+	    reco::SuperClusterRef scRef = seedRef->caloCluster().castTo<reco::SuperClusterRef>();
+	    if(scRef.isNonnull())  
+	      temp_Candidate.setSuperClusterRef(scRef);
+	  }
+	}
 
 	if( DebugIDCandidates ) 
 	  cout << "SetCandidates:: I am after doing candidate " <<endl;
@@ -2431,8 +2461,27 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	  GsfElectronEqual myEqual(RefGSF);
 	  std::vector<reco::GsfElectron>::const_iterator itcheck=find_if(theGsfElectrons_->begin(),theGsfElectrons_->end(),myEqual);
 	  if(itcheck!=theGsfElectrons_->end()) {
-	    if(BDToutput_[cgsf] >= -1.)  // bypass the mva only if the reconstruction went fine
+	    if(BDToutput_[cgsf] >= -1.)  {
+	      // bypass the mva only if the reconstruction went fine
 	      bypassmva=true;
+
+	      if( DebugIDCandidates ) {
+	      	if(BDToutput_[cgsf] < -0.1) {
+		  float esceg = itcheck->caloEnergy();		
+		  cout << " Attention By pass the mva " << BDToutput_[cgsf] 
+		       << " SuperClusterEnergy " << esceg
+		       << " PF Energy " << Eene << endl;
+		  
+		  cout << " hoe " << itcheck->hcalOverEcal()
+		       << " tkiso04 " << itcheck->dr04TkSumPt()
+		       << " ecaliso04 " << itcheck->dr04EcalRecHitSumEt()
+		       << " hcaliso04 " << itcheck->dr04HcalTowerSumEt()
+		       << " tkiso03 " << itcheck->dr03TkSumPt()
+		       << " ecaliso03 " << itcheck->dr03EcalRecHitSumEt()
+		       << " hcaliso03 " << itcheck->dr03HcalTowerSumEt() << endl;
+		}
+	      } // end DebugIDCandidates
+	    }
 	  }
 	}
 	
@@ -2488,10 +2537,25 @@ void PFElectronAlgo::SetActive(const reco::PFBlockRef&  blockRef,
   for (map<unsigned int,vector<unsigned int> >::iterator igsf = associatedToGsf_.begin();
        igsf != associatedToGsf_.end(); igsf++,cgsf++) {
 
-    // lock only the elements that pass the BDT cut
-    if(BDToutput_[cgsf] < mvaEleCut_) continue;
-
     unsigned int gsf_index =  igsf->first;
+    const reco::PFBlockElementGsfTrack * GsfEl  =  
+      dynamic_cast<const reco::PFBlockElementGsfTrack*>((&elements[gsf_index]));
+    reco::GsfTrackRef RefGSF = GsfEl->GsftrackRef();
+
+    // lock only the elements that pass the BDT cut
+    bool bypassmva=false;
+    if(useEGElectrons_) {
+      GsfElectronEqual myEqual(RefGSF);
+      std::vector<reco::GsfElectron>::const_iterator itcheck=find_if(theGsfElectrons_->begin(),theGsfElectrons_->end(),myEqual);
+      if(itcheck!=theGsfElectrons_->end()) {
+	if(BDToutput_[cgsf] >= -1.) 
+	  bypassmva=true;
+      }
+    }
+
+    if(BDToutput_[cgsf] < mvaEleCut_ && bypassmva == false) continue;
+
+    
     active[gsf_index] = false;  // lock the gsf
     vector<unsigned int> assogsf_index = igsf->second;
     for  (unsigned int ielegsf=0;ielegsf<assogsf_index.size();ielegsf++) {

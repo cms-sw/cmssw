@@ -263,7 +263,8 @@ class PFBlockAlgo {
   int muAssocToTrack( const reco::TrackRef& trackref,
 		      const edm::OrphanHandle<reco::MuonCollection>& muonh) const;
 
-  void fillFromPhoton(const reco::Photon & photon, reco::PFBlockElementSuperCluster * pfbe);
+  template< template<typename> class T>
+    void fillFromPhoton(const T<reco::PhotonCollection> &, unsigned isc, reco::PFBlockElementSuperCluster * pfbe);
 
   std::auto_ptr< reco::PFBlockCollection >    blocks_;
   
@@ -503,7 +504,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	  superClusters_.push_back(scRef);
 	  reco::PFBlockElementSuperCluster * sce =
 	    new reco::PFBlockElementSuperCluster((*egphh)[isc].superCluster());
-	  fillFromPhoton((*egphh)[isc],sce);
+	  fillFromPhoton(egphh,isc,sce);
 	  elements_.push_back(sce);
 	}
       else
@@ -513,7 +514,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	  if(itcheck!=elements_.end())
 	    {
 	      reco::PFBlockElementSuperCluster* thePFBE=dynamic_cast<reco::PFBlockElementSuperCluster*>(*itcheck);
-	      fillFromPhoton((*egphh)[isc],thePFBE);
+	      fillFromPhoton(egphh,isc,thePFBE);
 	      thePFBE->setFromPhoton(true);
 	      //	      std::cout << " Updating element to add Photon information " << photonSelector_->passPhotonSelection((*egphh)[isc]) << std::endl;
 
@@ -1001,6 +1002,16 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 }
 
 
+template< template<typename> class T>
+  void PFBlockAlgo::fillFromPhoton(const T<reco::PhotonCollection> & egh, unsigned isc, reco::PFBlockElementSuperCluster * pfbe) {
+  reco::PhotonRef photonRef(egh,isc);
+    pfbe->setTrackIso(photonRef->trkSumPtHollowConeDR04());
+    pfbe->setEcalIso(photonRef->ecalRecHitSumEtConeDR04());
+    pfbe->setHcalIso(photonRef->hcalTowerSumEtConeDR04());
+    pfbe->setHoE(photonRef->hadronicOverEm());
+    pfbe->setPhotonRef(photonRef);
+    pfbe->setFromPhoton(true);
+  }
 
 #endif
 
