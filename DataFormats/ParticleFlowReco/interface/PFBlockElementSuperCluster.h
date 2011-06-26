@@ -5,6 +5,7 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 namespace reco {
   
@@ -34,6 +35,9 @@ namespace reco {
     /// \return reference to the corresponding cluster
     SuperClusterRef  superClusterRef() const {return superClusterRef_;}
 
+    /// \return reference to seeding photon
+    PhotonRef photonRef() const {return photonRef_;}
+
     void Dump(std::ostream& out = std::cout, 
               const char* tab = " " ) const;
 
@@ -54,6 +58,9 @@ namespace reco {
 
     /// set provenance
     void setFromPhoton(bool val) {fromPhoton_=val;}
+
+    /// set photonRef
+    void setPhotonRef(const PhotonRef & ref) {photonRef_ = ref ;}
 
     /// \return the track isolation
     float trackIso() const {return trackIso_;}
@@ -76,7 +83,8 @@ namespace reco {
   private:
     /// reference to the corresponding cluster
     SuperClusterRef  superClusterRef_;
-    
+    PhotonRef photonRef_;
+
     float trackIso_;
     float ecalIso_;
     float hcalIso_;

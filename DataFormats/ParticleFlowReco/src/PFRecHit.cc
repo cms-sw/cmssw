@@ -296,6 +296,7 @@ ostream& reco::operator<<(ostream& out, const reco::PFRecHit& hit) {
   out<<"hit id:"<<hit.detId()
      <<" l:"<<hit.layer()
      <<" E:"<<hit.energy()
+     <<" t:"<<hit.time()
      <<" rep:"<<posxyz.Rho()<<","<<posxyz.Eta()<<","<<posxyz.Phi()<<"| N:";
   //     <<" SEED: "<<hit.seedState_;
   for(unsigned i=0; i<hit.neighbours8_.size(); i++ ) {
