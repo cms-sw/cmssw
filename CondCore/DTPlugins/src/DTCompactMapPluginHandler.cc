@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/02/08 15:47:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/02/11 08:00:09 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -131,7 +131,7 @@ DTReadOutMapping* DTCompactMapPluginHandler::expandMap( const DTReadOutMapping& 
         qua =  robEntry.slId;
         lay =  robEntry.layerId;
         cel =  robEntry.cellId;
-        fullMap->insertReadOutGeometryLink( ddu, ros, rob, tdc, tch,
+        fullMap->insertReadOutGeometryLink( ddu, ros, rch, tdc, tch,
                                                  wha, sta, sea,
                                                  qua, lay, cel );
 
