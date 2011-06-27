@@ -16,16 +16,18 @@ process.source = cms.Source("PoolSource",
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = 'GR_R_42_V14::All'
 
-process.myProducerLabel = cms.EDProducer(
-    'SiStripExcludedFEDListProducer',
-    ProductLabel = cms.InputTag("source")
-)
+process.load('EventFilter.SiStripRawToDigi.ExcludedFEDListProducer_cfi')
+
+# process.myProducerLabel = cms.EDProducer(
+#     'SiStripExcludedFEDListProducer',
+#     ProductLabel = cms.InputTag("source")
+# )
 
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('myOutputFile.root')
 )
 
   
-process.p = cms.Path(process.myProducerLabel)
+process.p = cms.Path(process.SiStripExcludedFEDListProducer)
 
 process.e = cms.EndPath(process.out)
