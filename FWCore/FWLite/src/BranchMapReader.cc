@@ -33,6 +33,8 @@
 namespace fwlite {
   namespace internal {
 
+    static const edm::BranchDescription kDefaultBranchDescription;
+
     BMRStrategy::BMRStrategy(TFile* file, int fileVersion)
       : currentFile_(file), eventTree_(0), luminosityBlockTree_(0), runTree_(0),
         eventEntry_(-1), luminosityBlockEntry_(-1), runEntry_(-1), fileVersion_(fileVersion) {
@@ -61,7 +63,7 @@ namespace fwlite {
       }
       virtual bool updateMap() { return true; }
       virtual edm::BranchID productToBranchID(edm::ProductID const& pid);
-      virtual edm::BranchDescription const productToBranch(edm::ProductID const& pid);
+      virtual edm::BranchDescription const& productToBranch(edm::ProductID const& pid);
       virtual std::vector<edm::BranchDescription> const& getBranchDescriptions();
 
       TBranch* getBranchRegistry(edm::ProductRegistry** pReg);
@@ -120,12 +122,12 @@ namespace fwlite {
       throw edm::Exception(edm::errors::UnimplementedFeature) << "Unsupported EDM file version";
     }
 
-    edm::BranchDescription const
+    edm::BranchDescription const &
     Strategy::productToBranch(edm::ProductID const& pid) {
       edm::BranchID bid = productToBranchID(pid);
       bidToDesc::const_iterator bdi = branchDescriptionMap_.find(bid);
       if(branchDescriptionMap_.end() == bdi) {
-        return edm::BranchDescription();
+        return kDefaultBranchDescription;
       }
       return bdi->second;
     }
@@ -592,7 +594,7 @@ bool BranchMapReader::updateFile(TFile* file) {
   return isNew;
 }
 
-edm::BranchDescription const
+edm::BranchDescription const &
 BranchMapReader::productToBranch(edm::ProductID const& pid) {
   return strategy_->productToBranch(pid);
 }
