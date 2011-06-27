@@ -698,9 +698,12 @@ namespace evf{
   {
     //    trh_.printReportTable();
     scalersUpdateAttempted_++;
+    //@@EM commented out on
+    // @@EM 21.06.2011 - this flashlist is too big to be handled by LAS 
+    /*
     try{
       //      scalersInfoSpace_->unlock();
-      scalersInfoSpace_->fireItemGroupChanged(names_,0);
+      // scalersInfoSpace_->fireItemGroupChanged(names_,0); 
       ::usleep(10);
       //      scalersInfoSpace_->lock();
     }
@@ -710,6 +713,12 @@ namespace evf{
 	//	localLog(e.what());
 	return false;
       }
+    */
+    //@@EM added on 21.06.2011 
+    // refresh the microstate legenda every 10 lumisections
+    if(scalersUpdateAttempted_%10 == 0)
+      monitorLegendaInfoSpace_->fireItemGroupChanged(namesStatusLegenda_,0);
+    
     //if there is no state listener then do not attempt to send to monitorreceiver
     if(rcms_==0) return false;
     try{
