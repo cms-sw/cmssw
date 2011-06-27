@@ -117,6 +117,33 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
+  // Produces an IntProduct instance whose value is the event number,
+  // rather than the value of a configured parameter.
+  //
+  class EventNumberIntProducer : public edm::EDProducer {
+  public:
+    explicit EventNumberIntProducer(edm::ParameterSet const&) {
+      produces<IntProduct>();
+    }
+    EventNumberIntProducer() {
+      produces<IntProduct>();
+    }
+    virtual ~EventNumberIntProducer() {}
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+
+  private:
+  };
+
+  void
+  EventNumberIntProducer::produce(edm::Event& e, edm::EventSetup const&) {
+    // EventSetup is not used.
+    std::auto_ptr<IntProduct> p(new IntProduct(e.id().event()));
+    e.put(p);
+  }
+
+
+  //--------------------------------------------------------------------
+  //
   // Produces a TransientIntProduct instance.
   //
   class TransientIntProducer : public edm::EDProducer {
@@ -962,6 +989,7 @@ using edmtest::FailingProducer;
 using edmtest::NonAnalyzer;
 using edmtest::NonProducer;
 using edmtest::IntProducer;
+using edmtest::EventNumberIntProducer;
 using edmtest::TransientIntProducer;
 using edmtest::IntProducerFromTransient;
 using edmtest::Int16_tProducer;
@@ -988,6 +1016,7 @@ DEFINE_FWK_MODULE(FailingProducer);
 DEFINE_FWK_MODULE(NonAnalyzer);
 DEFINE_FWK_MODULE(NonProducer);
 DEFINE_FWK_MODULE(IntProducer);
+DEFINE_FWK_MODULE(EventNumberIntProducer);
 DEFINE_FWK_MODULE(TransientIntProducer);
 DEFINE_FWK_MODULE(IntProducerFromTransient);
 DEFINE_FWK_MODULE(Int16_tProducer);
