@@ -179,6 +179,7 @@ int main(int argc, char **argv) {
 
   TString massName = TString::Format("mH%g.", iMass);
   TString toyName  = "";  if (runToys > 0 || seed != 123456 || vm.count("saveToys")) toyName  = TString::Format("%d.", seed);
+  if (vm.count("expectedFromGrid") && !vm["expectedFromGrid"].defaulted()) toyName += TString::Format("quant%.3f.", vm["expectedFromGrid"].as<float>());
   TString fileName = "higgsCombine" + name + "."+whichMethod+"."+massName+toyName+"root";
   TFile *test = new TFile(fileName, "RECREATE"); outputFile = test;
   TTree *t = new TTree("limit", "limit");
