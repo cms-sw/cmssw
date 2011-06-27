@@ -4,6 +4,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromRegionHits.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Provenance/interface/RunID.h"
@@ -23,7 +24,12 @@ void TSGFromOrderedHits::init()
         OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet);
 
   if (theGenerator) delete theGenerator;
-  theGenerator = new SeedGeneratorFromRegionHits( hitsGenerator, theConfig);
+  edm::ParameterSet creatorPSet;
+  creatorPSet.addParameter<std::string>("propagator","PropagatorWithMaterial");
+  theGenerator = new SeedGeneratorFromRegionHits(hitsGenerator, 0, 
+						 SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
+						 );
+
 }
 
 TSGFromOrderedHits::~TSGFromOrderedHits()
