@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.41 2010/09/14 15:20:20 kukartse Exp $
+// $Id: PATMuonProducer.cc,v 1.42 2011/03/15 22:21:49 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -153,7 +153,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   for (size_t j = 0; j<isolationValueLabels_.size(); ++j) {
     iEvent.getByLabel(isolationValueLabels_[j].second, isolationValues[j]);
   }  
-  
+
   // prepare the MC matching
   GenAssociations  genMatches(genMatchSrc_.size());
   if (addGenMatch_) {
@@ -211,7 +211,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       //const reco::IsolaPFCandidate& pfmu = *i;
       const reco::MuonRef& muonRef = pfmu.muonRef();
       assert( muonRef.isNonnull() );
-      
+
       MuonBaseRef muonBaseRef(muonRef);
       Muon aMuon(muonBaseRef);
 
@@ -255,11 +255,10 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	  aMuon.setNormChi2( norm_chi2 );
 	}
       }
-
       reco::PFCandidateRef pfRef(pfMuons,index);
       //reco::PFCandidatePtr ptrToMother(pfMuons,index);
       reco::CandidateBaseRef pfBaseRef( pfRef ); 
-      
+
       aMuon.setPFCandidateRef( pfRef  );     
       if( embedPFCandidate_ ) aMuon.embedPFCandidate();
       fillMuon( aMuon, muonBaseRef, pfBaseRef, genMatches, deposits, isolationValues );
@@ -276,7 +275,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       iEvent.getByLabel(pickySrc_, pickyMap);
       iEvent.getByLabel(tpfmsSrc_, tpfmsMap);
     }
-    
+
     // embedding of muon MET corrections
     edm::Handle<edm::ValueMap<reco::MuonMETCorrectionData> > caloMETMuonCorrs;
     //edm::ValueMap<reco::MuonMETCorrectionData> caloMETmuCorValueMap;
@@ -290,7 +289,6 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       iEvent.getByLabel(tcMETMuonCorrs_, tcMETMuonCorrs);
       //tcMETmuCorValueMap  = *tcMETmuCorValueMap_h;
     }
-
     for (edm::View<reco::Muon>::const_iterator itMuon = muons->begin(); itMuon != muons->end(); ++itMuon) {
       // construct the Muon from the ref -> save ref to original object
       unsigned int idx = itMuon - muons->begin();
@@ -408,11 +406,10 @@ void PATMuonProducer::fillMuon( Muon& aMuon, const MuonBaseRef& muonRef, const r
   // as the pat::Muon momentum
   if (useParticleFlow_) 
     aMuon.setP4( aMuon.pfCandidateRef()->p4() );
-
   if (embedTrack_) aMuon.embedTrack();
   if (embedStandAloneMuon_) aMuon.embedStandAloneMuon();
   if (embedCombinedMuon_) aMuon.embedCombinedMuon();
-  
+
   // store the match to the generated final state muons
   if (addGenMatch_) {
     for(size_t i = 0, n = genMatches.size(); i < n; ++i) {      
@@ -421,25 +418,32 @@ void PATMuonProducer::fillMuon( Muon& aMuon, const MuonBaseRef& muonRef, const r
     }
     if (embedGenMatch_) aMuon.embedGenParticle();
   }
-  
   if (efficiencyLoader_.enabled()) {
     efficiencyLoader_.setEfficiencies( aMuon, muonRef );
   }
 
   for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
     if(useParticleFlow_) {
-      reco::CandidatePtr source = aMuon.pfCandidateRef()->sourceCandidatePtr(0);      
-      aMuon.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[source]);
+      if (deposits[j]->contains(baseRef.id()))
+	aMuon.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[baseRef]);
+      else {
+	reco::CandidatePtr source = aMuon.pfCandidateRef()->sourceCandidatePtr(0); 
+	aMuon.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[source]);
+      }
     }
     else{
       aMuon.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[muonRef]);
     }
   }
-
+  
   for (size_t j = 0; j<isolationValues.size(); ++j) {
     if(useParticleFlow_) {
-      reco::CandidatePtr source = aMuon.pfCandidateRef()->sourceCandidatePtr(0);      
-      aMuon.setIsolation(isolationValueLabels_[j].first, (*isolationValues[j])[source]);
+      if (isolationValues[j]->contains(baseRef.id()))
+	aMuon.setIsolation(isolationValueLabels_[j].first, (*isolationValues[j])[baseRef]);
+      else {
+	reco::CandidatePtr source = aMuon.pfCandidateRef()->sourceCandidatePtr(0);      
+	aMuon.setIsolation(isolationValueLabels_[j].first, (*isolationValues[j])[source]);
+      }
     }
     else{
       aMuon.setIsolation(isolationValueLabels_[j].first, (*isolationValues[j])[muonRef]);
