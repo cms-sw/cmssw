@@ -193,7 +193,7 @@ void PixelTripletHLTGenerator::hitTriplets(
           if (crossingRange.empty())  continue;
         }
 
-	float phiErr = nSigmaPhi*hit->errorGlobalRPhi();
+	float phiErr = nSigmaPhi*hit->errorGlobalRPhi()/p3_r;
         for (int icharge=-1; icharge <=1; icharge+=2) {
           Range rangeRPhi = predictionRPhi(p3_r, icharge);
           correction.correctRPhiRange(rangeRPhi);

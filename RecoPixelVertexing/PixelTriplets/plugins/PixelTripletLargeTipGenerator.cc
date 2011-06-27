@@ -229,7 +229,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(
          Range rangeRPhi = predictionRPhi(curvature, p3_r);
          correction.correctRPhiRange(rangeRPhi);
 
-         double phiErr = nSigmaPhi * (*th)->errorGlobalRPhi();
+         double phiErr = nSigmaPhi * (*th)->errorGlobalRPhi()/p3_r;
          if (!checkPhiInRange(p3_phi, rangeRPhi.first/p3_r - phiErr, rangeRPhi.second/p3_r + phiErr))
            continue;
 
