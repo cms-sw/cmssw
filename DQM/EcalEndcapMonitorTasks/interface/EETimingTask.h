@@ -4,8 +4,8 @@
 /*
  * \file EETimingTask.h
  *
- * $Date: 2010/08/11 14:21:54 $
- * $Revision: 1.17 $
+ * $Date: 2011/06/27 09:44:05 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -92,6 +92,6 @@ bool initCaloGeometry_;
 
 };
 
-const float EETimingTask::shiftProf2D = 150.;
+const float EETimingTask::shiftProf2D = 50.;
 
 #endif

@@ -4,8 +4,8 @@
 /*
  * \file EBTimingTask.h
  *
- * $Date: 2009/12/11 16:13:19 $
- * $Revision: 1.16 $
+ * $Date: 2011/06/27 09:44:05 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -82,6 +82,6 @@ bool init_;
 
 };
 
-const float EBTimingTask::shiftProf2D = 150.;
+const float EBTimingTask::shiftProf2D = 50.;
 
 #endif
