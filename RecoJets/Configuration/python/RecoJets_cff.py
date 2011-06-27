@@ -38,7 +38,8 @@ ca6CaloJetsPUCorr           =ca6CaloJets.clone           (doPUOffsetCorr = doPil
 #compute areas for Fastjet PU subtraction  
 kt6CaloJets.doRhoFastjet = True
 kt6CaloJets.doAreaFastjet = True
-kt6CaloJets.voronoiRfact = 0.9
+#use active areas and not Voronoi tessellation for the moment
+#kt6CaloJets.voronoiRfact = 0.9
 ak5CaloJets.doAreaFastjet = True
 ak7CaloJets.doAreaFastjet = True
 

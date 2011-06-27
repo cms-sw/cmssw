@@ -14,6 +14,12 @@ namespace cond {
     typedef PayloadProxy<DataT> super;
 
     PayloadProxy(cond::DbSession& session,
+		 bool errorPolicy, const char * source=0) :
+      super(session, errorPolicy) {
+      m_name = source;
+    }
+
+    PayloadProxy(cond::DbSession& session,
 		 const std::string & token, bool errorPolicy, const char * source=0) :
       super(session, token, errorPolicy) {
       m_name = source;

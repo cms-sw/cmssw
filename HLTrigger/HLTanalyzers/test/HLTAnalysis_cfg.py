@@ -7,7 +7,7 @@ isData=1 # =1 running on real data, =0 running on MC
 
 
 OUTPUT_HIST='openhlt.root'
-NEVTS=200
+NEVTS=-1
 MENU="GRun" # GRun for data or MC with >= CMSSW_3_8_X
 isRelval=0 # =0 for running on MC RelVals, =0 for standard production MC, no effect for data 
 
@@ -38,11 +38,10 @@ if (isData):
     # GLOBAL_TAG='GR_R_311_V0::All' # Temporary tag for running in CMSSW_3_11_X
 ##    GLOBAL_TAG='L1HLTST311_V0::All'
     ## Use the same GLOBAL TAG as in the master table
-#    GLOBAL_TAG='TESTL1_GR_P::All'    
-    GLOBAL_TAG='GR_H_V20::All'
+    GLOBAL_TAG='TESTL1_GR_P::All'    
 else:
-    GLOBAL_TAG='START311_V2::All'
-    if (MENU == "GRun"): GLOBAL_TAG= 'START311_V2::All'
+    GLOBAL_TAG='START39_V8::All'
+    if (MENU == "GRun"): GLOBAL_TAG= 'START39_V8::All'
     
 ##################################################################
 
@@ -56,21 +55,10 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(False)
 )
 
-## process.source = cms.Source("PoolSource",
-##                             fileNames = cms.untracked.vstring(
-##     '/store/data/Run2011A/MuOnia/RAW/v1/000/165/364/1C94C2CB-9382-E011-9913-0030487CD6E8.root'
-##                                 )
-##                             )
-
 process.source = cms.Source("PoolSource",
-   fileNames = cms.untracked.vstring(
-    '/store/data/Run2011A/MuOnia/RECO/PromptReco-v4/000/165/205/86911218-C782-E011-81F3-0019B9F72CE5.root',
-    ),
-   secondaryFileNames =  cms.untracked.vstring(
-    '/store/data/Run2011A/MuOnia/RAW/v1/000/165/205/800B07D2-F680-E011-B2C3-003048F117B4.root',
-    '/store/data/Run2011A/MuOnia/RAW/v1/000/165/205/1C677B58-FA80-E011-A39D-003048F11CF0.root',
-    '/store/data/Run2011A/MuOnia/RAW/v1/000/165/205/0E702227-0281-E011-8081-000423D98950.root'
-   )
+    fileNames = cms.untracked.vstring(
+    '/store/data/Run2010B/Jet/RAW/v1/000/149/181/326E0028-28E2-DF11-8EF5-001D09F2546F.root'
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -99,15 +87,8 @@ process.load("HLTrigger.HLTanalyzers.HLTopen_cff")
 process.DQM = cms.Service( "DQM",)
 process.DQMStore = cms.Service( "DQMStore",)
 
-#offline vertices with deterministic annealing. Should become the default as of 4_2_0_pre7. Requires > V01-04-04      RecoVertex/PrimaryVertexProducer
-##process.load("RecoVertex.Configuration.RecoVertex_cff")
-##from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
-##process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
-##process.offlinePrimaryVerticesDA = process.offlinePrimaryVertices.clone()
-
 # Define the analyzer modules
 process.load("HLTrigger.HLTanalyzers.HLTAnalyser_cfi")
-##process.analyzeThis = cms.Path( process.offlinePrimaryVerticesDA + process.HLTBeginSequence + process.hltanalysis )
 process.analyzeThis = cms.Path( process.HLTBeginSequence + process.hltanalysis )
 
 process.hltanalysis.RunParameters.HistogramFile=OUTPUT_HIST
@@ -116,21 +97,13 @@ process.hltanalysis.filterEff=FILTEREFF
 process.hltanalysis.l1GtReadoutRecord = cms.InputTag( 'hltGtDigis','',process.name_() ) # get gtDigis extract from the RAW
 process.hltanalysis.hltresults = cms.InputTag( 'TriggerResults','',WhichHLTProcess)
 process.hltanalysis.HLTProcessName = WhichHLTProcess
-process.hltanalysis.ht = "hltJet40Ht"
+process.hltanalysis.ht = "hltJet30Ht"
 process.hltanalysis.genmet = "genMetTrue"
-process.hltanalysis.PrimaryVerticesHLT = cms.InputTag('pixelVertices')
-process.hltanalysis.OfflinePrimaryVertices0 = cms.InputTag('offlinePrimaryVertices')
-process.hltanalysis.OfflinePrimaryVertices1 = cms.InputTag('offlinePrimaryVerticesDA')
-
-
 
 # Switch on ECAL alignment to be consistent with full HLT Event Setup
 process.EcalBarrelGeometryEP.applyAlignment = True
 process.EcalEndcapGeometryEP.applyAlignment = True
 process.EcalPreshowerGeometryEP.applyAlignment = True
-
-# Add tight isolation PF taus
-process.HLTPFTauSequence += process.hltPFTausTightIso
 
 if (MENU == "GRun"):
     # get the objects associated with the menu

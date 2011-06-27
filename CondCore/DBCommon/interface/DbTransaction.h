@@ -1,5 +1,6 @@
 #ifndef CondCore_DBCommon_DbTransaction_H
 #define CondCore_DBCommon_DbTransaction_H
+
 //
 // Package:     DBCommon
 // Class  :     DbTransaction

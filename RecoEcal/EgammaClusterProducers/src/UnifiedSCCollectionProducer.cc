@@ -98,11 +98,29 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
   evt.getByLabel(cleanScCollection_, pCleanSC);
   if (!(pCleanSC.isValid())) 
     {
-  
-      edm::LogError("MissingInput") << "could not handle clean super clusters";
+      
+      edm::LogError("MissingInput") << "could not find clean super clusters";
       return;
     }
   
+  evt.getByLabel(cleanBcCollection_, pCleanBC);
+  if (!(pCleanBC.isValid())) 
+    {
+      
+      edm::LogError("MissingInput") << "could not find " << cleanBcCollection_;
+      return;
+    }
+
+  evt.getByLabel(uncleanBcCollection_, pUncleanBC);
+  if (!(pUncleanBC.isValid())) 
+    {
+      
+      edm::LogError("MissingInput") << "could not find " <<  uncleanBcCollection_;
+      return;
+    }
+
+
+
         evt.getByLabel(uncleanScCollection_, pUncleanSC);
         if (!(pUncleanSC.isValid())) 
         {
@@ -128,7 +146,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
         int uncleanSize = pUncleanSC->size();
         int cleanSize =   pCleanSC->size();
 	
-	LogDebug("UnifiedSC") << "Size of Clean Collection: " << cleanSize 
+	LogTrace("UnifiedSC") << "Size of Clean Collection: " << cleanSize 
                         << ", uncleanSize: " << uncleanSize;
 
 
@@ -160,10 +178,14 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
                                 // if the clusters are exactly the same then because the clustering
                                 // algorithm works in a deterministic way, the order of the rechits
                                 // will be the same
+			        foundTheSame = true;
                                 for (int i=0; i< chitsSize; ++i) {
-                                        if (uhits[i].first != chits[i].first ) { break;}
+                                        if (uhits[i].first != chits[i].first ) { 
+					  foundTheSame=false;    
+					  break;
+					}
                                 }
-                                foundTheSame = true;
+                                
                         }
                         if (foundTheSame) { // ok you have found it:
                                 // this supercluster belongs to both collections
@@ -220,12 +242,57 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
         } // end loop over clean SC _________________________________________________
         //
         //
+
+	// Final check: in the endcap BC may exist that are not associated to SC,
+	// we need to recover them as well (e.g. multi5x5 algo)
+	// This is should be optimized (SA, 20110621)
+
+
+	// loop on original clean BC collection and see if the BC is missing from the new one
+	for (reco::BasicClusterCollection::const_iterator bc = pCleanBC->begin();
+	     bc!=pCleanBC->end();
+	     ++bc){
+	  
+	  bool foundTheSame = false;
+	  for (reco::BasicClusterCollection::const_iterator cleanonly_bc = basicClusters.begin();
+	       cleanonly_bc!=basicClusters.end();
+	       ++cleanonly_bc){	    
+	    
+	    const std::vector<std::pair<DetId,float> > & chits = bc->hitsAndFractions();
+	    int chitsSize =  chits.size();
+	    
+	    const std::vector<std::pair<DetId,float> > & uhits = cleanonly_bc->hitsAndFractions();
+	    int uhitsSize =  uhits.size();
+	    
+	    
+	    if (cleanonly_bc->seed()==bc->seed() && chitsSize == uhitsSize) {
+	        foundTheSame = true;
+		for (int i=0; i< chitsSize; ++i) {
+		  if (uhits[i].first != chits[i].first ) { 
+		    foundTheSame=false;    
+		    break;
+		  }
+		}
+	    }
+	    	    
+	  } // loop on new clean BC collection
+	  
+	  // clean basic cluster is not associated to SC and does not belong to the 
+	  // new collection, add it
+	  if (!foundTheSame){	      
+	    basicClusters.push_back(*bc);
+	    LogTrace("UnifiedSC")<<"found BC to add that was not associated to any SC";
+	  }
+	  
+	} // loop on original clean BC collection
+
+
         // at this point we have the basic cluster collection ready
         // 
         int bcSize = (int) basicClusters.size();
         int bcSizeUncleanOnly = (int) basicClustersUncleanOnly.size();
 
-	LogDebug("UnifiedSC") << "Found cleaned SC: " << cleanSize 
+	LogTrace("UnifiedSC") << "Found cleaned SC: " << cleanSize 
 			      <<  " uncleaned SC: "   << uncleanSize ;
         //
         // export the clusters to the event from the clean clusters
@@ -241,7 +308,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
         }
         reco::BasicClusterCollection basicClustersProd = *bccHandle;
 
-	LogDebug("UnifiedSC")<< "Got the BasicClusters from the event again" ;
+	LogTrace("UnifiedSC")<< "Got the BasicClusters from the event again" ;
         //
         // export the clusters to the event: from the unclean only clusters
         std::auto_ptr< reco::BasicClusterCollection> 
@@ -256,7 +323,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
 	  return;
         }
         reco::BasicClusterCollection basicClustersUncleanOnlyProd = *bccHandleUncleanOnly;
-	LogDebug("UnifiedSC")<< "Got the BasicClusters from the event again  (Unclean Only)" ;
+	LogTrace("UnifiedSC")<< "Got the BasicClusters from the event again  (Unclean Only)" ;
         //
 
         // now we can build the SC collection
@@ -346,7 +413,12 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
         } // end loop over clean SC _________________________________________________
 
 
-	LogDebug("UnifiedSC")<< "New SC collection was created";
+
+
+
+
+
+	LogTrace("UnifiedSC")<< "New SC collection was created";
 
         std::auto_ptr< reco::SuperClusterCollection> 
                 superClusters_p(new reco::SuperClusterCollection);
@@ -354,7 +426,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
 
         evt.put(superClusters_p, scCollection_);
 	
-	LogDebug("UnifiedSC") << "Clusters (Basic/Super) added to the Event! :-)";
+	LogTrace("UnifiedSC") << "Clusters (Basic/Super) added to the Event! :-)";
 
         std::auto_ptr< reco::SuperClusterCollection> 
                 superClustersUncleanOnly_p(new reco::SuperClusterCollection);
@@ -367,29 +439,29 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
         // print the new collection SC quantities
 
 	// print out the clean collection SC
-	LogDebug("UnifiedSC") << "Clean Collection SC ";
+	LogTrace("UnifiedSC") << "Clean Collection SC ";
 	for (int i=0; i < cleanSize; ++i) {
 	  reco::SuperClusterRef cscRef( pCleanSC, i );
-	  LogDebug("UnifiedSC") << " >>> clean    #" << i << "; Energy: " << cscRef->energy()
+	  LogTrace("UnifiedSC") << " >>> clean    #" << i << "; Energy: " << cscRef->energy()
                                 << " eta: " << cscRef->eta() 
                                 << " sc seed detid: " << cscRef->seed()->seed().rawId()
                                 << std::endl;
                 }
                 // the unclean SC
-                LogDebug("UnifiedSC") << "Unclean Collection SC ";
+                LogTrace("UnifiedSC") << "Unclean Collection SC ";
                 for (int i=0; i < uncleanSize; ++i) {
                         reco::SuperClusterRef uscRef( pUncleanSC, i );
-                        LogDebug("UnifiedSC") << " >>> unclean  #" << i << "; Energy: " << uscRef->energy()
+                        LogTrace("UnifiedSC") << " >>> unclean  #" << i << "; Energy: " << uscRef->energy()
                                 << " eta: " << uscRef->eta() 
                                 << " sc seed detid: " << uscRef->seed()->seed().rawId();
                 }
                 // the new collection
-                LogDebug("UnifiedSC")<< "The new SC clean collection with size "<< superClusters.size()  << std::endl;
+                LogTrace("UnifiedSC")<< "The new SC clean collection with size "<< superClusters.size()  << std::endl;
 
                 int new_unclean = 0, new_clean=0;
                 for (int i=0; i < (int) superClusters.size(); ++i) {
                         const reco::SuperCluster & nsc = superClusters[i];
-                        LogDebug("UnifiedSC") << "SC was got" << std::endl
+                        LogTrace("UnifiedSC") << "SC was got" << std::endl
                                 << " ---> energy: " << nsc.energy() << std::endl
                                 << " ---> eta: " << nsc.eta() << std::endl
                                 << " ---> inClean: " << nsc.isInClean() << std::endl
@@ -402,10 +474,10 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
                         if (nsc.isInUnclean()) ++new_unclean;
                         if (nsc.isInClean()) ++new_clean;
                 }
-                LogDebug("UnifiedSC")<< "The new SC unclean only collection with size "<< superClustersUncleanOnly.size();
+                LogTrace("UnifiedSC")<< "The new SC unclean only collection with size "<< superClustersUncleanOnly.size();
                 for (int i=0; i < (int) superClustersUncleanOnly.size(); ++i) {
                         const reco::SuperCluster nsc = superClustersUncleanOnly[i];
-                        LogDebug ("UnifiedSC") << " >>> newSC    #" << i << "; Energy: " << nsc.energy()
+                        LogTrace ("UnifiedSC") << " >>> newSC    #" << i << "; Energy: " << nsc.energy()
                                 << " eta: " << nsc.eta()  << " isClean=" 
                                 << nsc.isInClean() << " isUnclean=" << nsc.isInUnclean()
                                 << " sc seed detid: " << nsc.seed()->seed().rawId();
@@ -413,7 +485,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
                         if (nsc.isInClean()) ++new_clean;      
                 }
                 if ( (new_unclean != uncleanSize) || (new_clean != cleanSize) ) {
-                        LogDebug("UnifiedSC") << ">>>>!!!!!! MISMATCH: new unclean/ old unclean= " 
+                        LogTrace("UnifiedSC") << ">>>>!!!!!! MISMATCH: new unclean/ old unclean= " 
                                 << new_unclean << " / " << uncleanSize 
                                 << ", new clean/ old clean" << new_clean << " / " << cleanSize;
                 }

@@ -43,8 +43,6 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
-#include "DataFormats/EgammaReco/interface/HFEMClusterShape.h"
-#include "DataFormats/EgammaReco/interface/HFEMClusterShapeAssociation.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -103,7 +101,6 @@ public:
       const edm::Handle<reco::RecoEcalCandidateIsolationMap> & electronR9IDNonIsoMap,
       const edm::Handle<reco::SuperClusterCollection>        & electronHFClusterHandle, 
       const edm::Handle<reco::RecoEcalCandidateCollection>   & electronHFElectronHandle,  
-      const edm::Handle<reco::HFEMClusterShapeAssociationCollection> & electronHFClusterAssociation,  
       TTree* tree);
 
 private:
@@ -180,10 +177,9 @@ private:
   int *elmishits; 
   float *eldist, *eldcot;  
   float *photonpt, *photonphi, *photoneta, *photonet, *photone;
-  float *photontrkiso, *photonecaliso, *photonhcaliso, *photonhovere, *photonClusShap, *photonr9id;
 
   float *hphotet, *hphoteta, *hphotphi, *hphoteiso, *hphothiso, *hphottiso, *hphothovereh;
-  float *heleet, *heleeta, *helephi, *helevtxz, *heleE, *helep, *helehiso, *heletiso, *helehovereh, *heleeiso;
+  float *heleet, *heleeta, *helephi, *heleE, *helep, *helehiso, *heletiso, *helehovereh, *heleeiso;
   float *hphotClusShap, *heleClusShap, *heleDeta, *heleDphi;
   float *hphotR9, *heleR9, *hphotR9ID, *heleR9ID;
   int *hphotl1iso, *helel1iso, *helePixelSeeds;
@@ -192,7 +188,7 @@ private:
   int *heleNewSC;
   int nele, nphoton, nhltgam, nhltele, nhlthfele, nhlthfeclus;
 
-  float *hhfelept, *hhfeleeta, *hhfclustere9e25, *hhfcluster2Dcut, *hhfclustereta, *hhfclusterphi; 
+  float *hhfelept, *hhfeleeta, *hhfclustere9e25, *hhfcluster2Dcut; 
 
 
   struct OpenHLTPhoton {
@@ -216,7 +212,6 @@ private:
     float phi;
     float E;
     float p;
-	 float vtxZ;
     float hcalIsol;
     float trackIsol;
     float ecalIsol;

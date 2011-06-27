@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
-// $Id: HcalO2OManager.cc,v 1.39 2011/04/19 11:41:12 innocent Exp $
+// $Id: HcalO2OManager.cc,v 1.40 2011/05/24 20:15:43 cerminar Exp $
 //
 
 
@@ -92,7 +92,6 @@ int HcalO2OManager::getListOfPoolIovs(std::vector<uint32_t> & out,
   // FIXME: how to add auth_path authentication to this? See v1.25 for the functionality using old API  
   std::cout << "===> WARNING! auth_path is specified as " << auth_path;
   std::cout << " but is not used explicitely. Is it being used at all?"  << std::endl;
-  bool details=false;
   cond::DbConnection conn;
   //conn.configure( cond::CmsDefaults );
   conn.configuration().setAuthenticationPath(auth_path);

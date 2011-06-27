@@ -363,15 +363,21 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
   if(isLumi) nbEolDiscarded_++;
 
   if (!shutDown && !isLumi) {
-    resources_[fuResourceId]->release();
-    lock();
-    freeResourceIds_.push(fuResourceId);
-    assert(freeResourceIds_.size()<=resources_.size());
-    unlock();
+    if(fuResourceId >= nbResources()){
+      LOG4CPLUS_WARN(log_,"cell " << cell->index() << " in state " << state 
+		     << " scheduled for discard has no associated FU resource ");
+    }
+    else{
+      resources_[fuResourceId]->release();
+      lock();
+      freeResourceIds_.push(fuResourceId);
+      assert(freeResourceIds_.size()<=resources_.size());
+      unlock();
     
-    if (!isHalting_) {
-      sendDiscard(buResourceId);
-      if(!isStopping_)sendAllocate();
+      if (!isHalting_) {
+	sendDiscard(buResourceId);
+	if(!isStopping_)sendAllocate();
+      }
     }
   }
   

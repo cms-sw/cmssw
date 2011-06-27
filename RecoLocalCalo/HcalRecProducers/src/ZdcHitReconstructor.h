@@ -2,6 +2,7 @@
 #define ZDCHITRECONSTRUCTOR_H 1
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -25,8 +26,8 @@
 
     /** \class ZdcHitReconstructor
 	
-    $Date: 2011/02/23 22:51:18 $
-    $Revision: 1.3 $
+    $Date: 2011/02/22 20:44:52 $
+    $Revision: 1.2 $
     \author E. Garcia - CSU
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */

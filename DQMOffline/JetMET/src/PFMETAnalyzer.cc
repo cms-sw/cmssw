@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/04/11 13:55:05 $
- *  $Revision: 1.36 $
+ *  $Date: 2011/04/11 13:49:18 $
+ *  $Revision: 1.34.6.2 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -443,15 +443,15 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if (HLTPathsJetMBByName_.size()==0) _trig_JetMB=triggerResults.size()-1;
 
     //
-    if (_verbose) std::cout << "triggerNames size" << " " << triggerNames.size() << std::endl;
-    if (_verbose) std::cout << _hlt_HighPtJet << " " << triggerNames.triggerIndex(_hlt_HighPtJet) << std::endl;
-    if (_verbose) std::cout << _hlt_LowPtJet  << " " << triggerNames.triggerIndex(_hlt_LowPtJet)  << std::endl;
-    if (_verbose) std::cout << _hlt_MinBias   << " " << triggerNames.triggerIndex(_hlt_MinBias)   << std::endl;
-    if (_verbose) std::cout << _hlt_HighMET   << " " << triggerNames.triggerIndex(_hlt_HighMET)   << std::endl;
-    if (_verbose) std::cout << _hlt_LowMET    << " " << triggerNames.triggerIndex(_hlt_LowMET)    << std::endl;
-    if (_verbose) std::cout << _hlt_Ele       << " " << triggerNames.triggerIndex(_hlt_Ele)       << std::endl;
-    if (_verbose) std::cout << _hlt_Muon      << " " << triggerNames.triggerIndex(_hlt_Muon)      << std::endl;
-    if (_verbose) std::cout << _hlt_PhysDec   << " " << triggerNames.triggerIndex(_hlt_PhysDec)   << std::endl;
+    //if (_verbose) std::cout << "triggerNames size" << " " << triggerNames.size() << std::endl;
+    //if (_verbose) std::cout << _hlt_HighPtJet << " " << triggerNames.triggerIndex(_hlt_HighPtJet) << std::endl;
+    //if (_verbose) std::cout << _hlt_LowPtJet  << " " << triggerNames.triggerIndex(_hlt_LowPtJet)  << std::endl;
+    //if (_verbose) std::cout << _hlt_MinBias   << " " << triggerNames.triggerIndex(_hlt_MinBias)   << std::endl;
+    //if (_verbose) std::cout << _hlt_HighMET   << " " << triggerNames.triggerIndex(_hlt_HighMET)   << std::endl;
+    //if (_verbose) std::cout << _hlt_LowMET    << " " << triggerNames.triggerIndex(_hlt_LowMET)    << std::endl;
+    //if (_verbose) std::cout << _hlt_Ele       << " " << triggerNames.triggerIndex(_hlt_Ele)       << std::endl;
+    //if (_verbose) std::cout << _hlt_Muon      << " " << triggerNames.triggerIndex(_hlt_Muon)      << std::endl;
+    //if (_verbose) std::cout << _hlt_PhysDec   << " " << triggerNames.triggerIndex(_hlt_PhysDec)   << std::endl;
 
     if ( _HighPtJetEventFlag->on() && _HighPtJetEventFlag->accept( iEvent, iSetup ) ) 
       _trig_HighPtJet=1;
@@ -685,19 +685,16 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       VertexCollection vertexCollection = *(vertexHandle.product());
       int vertex_number     = vertexCollection.size();
       VertexCollection::const_iterator v = vertexCollection.begin();
-      for ( ; v != vertexCollection.end(); ++v) {
-	double vertex_chi2    = v->normalizedChi2();
-	double vertex_ndof    = v->ndof();
-	bool   fakeVtx        = v->isFake();
-	double vertex_Z       = v->z();
-	
-	if (  !fakeVtx
-	      && vertex_number>=_nvtx_min
-	      && vertex_ndof   >_vtxndof_min
-	      && vertex_chi2   <_vtxchi2_max
-	      && fabs(vertex_Z)<_vtxz_max )
-	  bPrimaryVertex = true;
-      }
+      double vertex_chi2    = v->normalizedChi2();
+      double vertex_ndof    = v->ndof();
+      bool   fakeVtx        = v->isFake();
+      double vertex_Z       = v->z();
+      
+      if (  !fakeVtx
+	    && vertex_number>=_nvtx_min
+	    && vertex_ndof   >_vtxndof_min
+	    && vertex_chi2   <_vtxchi2_max
+	    && fabs(vertex_Z)<_vtxz_max ) bPrimaryVertex = true;
     }
   }
   // ==========================================================
@@ -858,8 +855,7 @@ void PFMETAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
   bool bLumiSecPlot=false;
   if (DirName.find("All")) bLumiSecPlot=true;
 
-  if (_trig_JetMB)
-    fillMonitorElement(iEvent,DirName,"",pfmet, bLumiSecPlot);
+  if (_trig_JetMB) fillMonitorElement(iEvent,DirName,"",pfmet, bLumiSecPlot);
   if (_trig_HighPtJet)
     fillMonitorElement(iEvent,DirName,"HighPtJet",pfmet,false);
   if (_trig_LowPtJet)
@@ -874,6 +870,7 @@ void PFMETAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
     fillMonitorElement(iEvent,DirName,"Ele",pfmet,false);
   if (_trig_Muon)
     fillMonitorElement(iEvent,DirName,"Muon",pfmet,false);
+
 }
 
 // ***********************************************************

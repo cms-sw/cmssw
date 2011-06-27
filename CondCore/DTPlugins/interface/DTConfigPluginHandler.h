@@ -5,8 +5,8 @@
  *  Description:
  *       Class to hold configuration identifier for chambers
  *
- *  $Date: 2010/03/18 15:59:00 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2010/05/14 11:43:02 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -31,7 +31,7 @@
 //              -- Class Interface --
 //              ---------------------
 
-class DTConfigPluginHandler:public DTConfigAbstractHandler {
+class DTConfigPluginHandler: public DTConfigAbstractHandler {
 
  public:
 

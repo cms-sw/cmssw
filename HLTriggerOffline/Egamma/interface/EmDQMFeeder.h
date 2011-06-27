@@ -12,7 +12,7 @@
 //
 // Original Author:  Thomas Reis,40 4-B24,+41227671567,
 //         Created:  Tue Mar 15 12:24:11 CET 2011
-// $Id: EmDQMFeeder.h,v 1.1 2011/05/18 16:32:39 treis Exp $
+// $Id: EmDQMFeeder.h,v 1.2 2011/05/20 15:09:35 treis Exp $
 //
 //
 
@@ -22,6 +22,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <math.h>
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 

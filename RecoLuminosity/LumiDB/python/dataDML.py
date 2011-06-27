@@ -11,31 +11,27 @@ import array
 #==============================
 def runList(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=None,nominalEnergy=None,energyFlut=0.2,requiretrg=True,requirehlt=True):
     '''
-    select runnum,starttime from cmsrunsummary r,lumidata l,trgdata t,hltdata h where r.runnum=l.runnum and l.runnum=t.runnum and t.runnum=h.runnum and r.fillnum=:fillnum and r.runnum>:runmin and r.runnum<:runmax and r.amodetag=:amodetag and regexp_like(r.l1key,:l1keypattern) and regexp_like(hltkey,:hltkeypattern) and l.nominalEnergy>=:nominalEnergy*(1-energyFlut) and l.nominalEnergy<=:nominalEnergy*(1+energyFlut)
+    select runnum from cmsrunsummary r,lumidata l,trgdata t,hltdata h where r.runnum=l.runnum and l.runnum=t.runnum and t.runnum=h.runnum and r.fillnum=:fillnum and r.runnum>:runmin and r.runnum<:runmax and r.starttime>=:startT and r.stopTime<=:stopT and r.amodetag=:amodetag and regexp_like(r.l1key,:l1keypattern) and regexp_like(hltkey,:hltkeypattern) and l.nominalEnergy>=:nominalEnergy*(1-energyFlut) and l.nominalEnergy<=:nominalEnergy*(1+energyFlut)
     '''
     result=[]
-    timelesslist=[]
     qHandle=schema.newQuery()
     r=nameDealer.cmsrunsummaryTableName()
     l=nameDealer.lumidataTableName()
     t=nameDealer.trgdataTableName()
     h=nameDealer.hltdataTableName()
-    lute=lumiTime.lumiTime()
     try:
         qHandle.addToTableList(r)
         qHandle.addToTableList(l)
-        qConditionStr=r+'.runnum='+l+'.runnum'
         if requiretrg:
             qHandle.addToTableList(t)
-            qConditionStr+=' and '+l+'.runnum='+t+'.runnum'
         if requirehlt:
             qHandle.addToTableList(h)
-            qConditionStr+=' and '+l+'.runnum='+h+'.runnum'
+        qConditionStr=r+'.runnum='+l+'.runnum and '+l+'.runnum='+t+'.runnum and '+t+'.runnum='+h+'.runnum'
         qCondition=coral.AttributeList()        
         if fillnum:
             qConditionStr+=' and '+r+'.fillnum=:fillnum'
             qCondition.extend('fillnum','unsigned int')
-            qCondition['fillnum'].setData(int(fillnum))
+            qCondition['fillnum'].setData(fillnum)
         if runmin:
             qConditionStr+=' and '+r+'.runnum>=:runmin'
             qCondition.extend('runmin','unsigned int')
@@ -44,22 +40,14 @@ def runList(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l
             qConditionStr+=' and '+r+'.runnum<=:runmax'
             qCondition.extend('runmax','unsigned int')
             qCondition['runmax'].setData(runmax)
-        #if startT:
-        #    timeformat='%m/%d/%y %H:%M:%S'
-        #    qConditionStr+=' and '+r+'.starttime>=:startT'
-        #    qCondition.extend('startT','time stamp')
-        #    t=lumiTime.lumiTime()
-        #    start=t.StrToDatetime(startT,customfm=timeformat)
-        #    startCoralTimestamp=coral.TimeStamp(start.year,start.month,start.day,start.hour,start.minute,start.second,0)
-        #    qCondition['startT'].setData(startCoralTimestamp)            
-        #if stopT:
-        #    timeformat='%m/%d/%y %H:%M:%S'
-        #    qConditionStr+=' and '+r+'.stoptime<=:stopT'            
-        #    qCondition.extend('stopT','time stamp')
-        #    t=lumiTime.lumiTime()
-        #    stop=t.StrToDatetime(stopT,customfm=timeformat)
-        #    stopCoralTimestamp=coral.TimeStamp(stop.year,stop.month,stop.day,stop.hour,stop.minute,stop.second,0)
-        #    qCondition['stopT'].setData(stopCoralTimestamp)
+        if startT:
+            qConditionStr+=' and '+r+'.starttime>=:startT'
+            qCondition.extend('start','time stamp')
+            qCondition['startT'].setData(startT)
+        if stopT:
+            qConditionStr+=' and '+r+'.stoptime<=:stopT'
+            qCondition.extend('stop','time stamp')
+            qCondition['stop'].setData(stopT)
         if amodetag:
             qConditionStr+=' and '+r+'.amodetag=:amodetag'
             qCondition.extend('amodetag','string')
@@ -82,36 +70,12 @@ def runList(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l
             qCondition['emax'].setData(emax)
         qResult=coral.AttributeList()
         qResult.extend('runnum','unsigned int')
-        qResult.extend('starttime','string')
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         qHandle.addToOutputList(r+'.RUNNUM','runnum')
-        qHandle.addToOutputList('TO_CHAR('+r+'.STARTTIME,\'MM/DD/YY HH24:MI:SS\')','starttime')
         cursor=qHandle.execute()
-        
         while cursor.next():
-            starttimeStr=cursor.currentRow()['starttime'].data()
-            runnum=cursor.currentRow()['runnum'].data()
-            minTime=None
-            maxTime=None
-            if startT and stopT:
-                minTime=lute.StrToDatetime(startT,customfm='%m/%d/%y %H:%M:%S')
-                maxTime=lute.StrToDatetime(stopT,customfm='%m/%d/%y %H:%M:%S')
-                runTime=lute.StrToDatetime(starttimeStr,customfm='%m/%d/%y %H:%M:%S')
-                if runTime>=minTime and runTime<=maxTime:
-                    result.append(runnum)
-            elif startT is not None:
-                minTime=lute.StrToDatetime(startT,customfm='%m/%d/%y %H:%M:%S')
-                runTime=lute.StrToDatetime(starttimeStr,customfm='%m/%d/%y %H:%M:%S')
-                if runTime>=minTime:
-                    result.append(runnum)
-            elif stopT is not None:
-                maxTime=lute.StrToDatetime(stopT,customfm='%m/%d/%y %H:%M:%S')
-                runTime=lute.StrToDatetime(starttimeStr,customfm='%m/%d/%y %H:%M:%S')
-                if runTime<=maxTime:
-                    result.append(runnum)
-            else:
-                result.append(runnum)
+            result.append(cursor.currentRow()['runnum'].data())
     except :
         del qHandle
         raise
@@ -176,7 +140,7 @@ def mostRecentLuminorms(schema,branchfilter):
     select e.name,max(n.data_id),r.revision_id , n.amodetag,n.norm_1,n.egev_1,n.norm_2,n.egev_2 from luminorms_entries e,luminorms_rev r,luminorms n where n.entry_id=e.entry_id and n.data_id=r.data_id and r.revision_id>=min(branchfilter) and r.revision_id<=max(branchfilter) group by e.entry_name,r.revision_id,n.amodetag,n.norm_1,n.egev_1,n.norm_2,n.egev_2;
     output {norm_name:[data_id,amodetag,norm_1,egev_1,norm_2,egev_2]}
     '''
-    #print branchfilter
+    print branchfilter
     result={}
     entry2datamap={}
     branchmin=0
@@ -304,13 +268,13 @@ def trgRunById(schema,dataid):
         cursor=qHandle.execute()
         while cursor.next():
             runnum=cursor.currentRow()['runnum'].data()
-            #print 'runnum ',runnum
+            print 'runnum ',runnum
             source=cursor.currentRow()['source'].data()
-            #print 'source ',source
+            print 'source ',source
             bitzeroname=cursor.currentRow()['bitzeroname'].data()
-            #print 'bitzeroname ',bitzeroname
+            print 'bitzeroname ',bitzeroname
             bitnameclob=cursor.currentRow()['bitnameclob'].data()
-            #print 'bitnameclob ',bitnameclob
+            print 'bitnameclob ',bitnameclob
             #print 'bitnameclob ',bitnameclob
             result.extend([runnum,source,bitzeroname,bitnameclob])
     except :
@@ -335,7 +299,7 @@ def trgLSById(schema,dataid,withblobdata=False):
         qHandle.addToOutputList('BITZEROPRESCALE','bitzeroprescale')
         qHandle.addToOutputList('DEADFRAC','deadfrac')
         if withblobdata:
-            qHandle.addToOutputList('PRESCALEBLOB','prescalesblob')
+            qHandle.addToOutputList('PRESCALESBLOB','prescalesblob')
             qHandle.addToOutputList('TRGCOUNTBLOB','trgcountblob')
         qConditionStr='DATA_ID=:dataid'
         qCondition=coral.AttributeList()
@@ -370,8 +334,8 @@ def trgLSById(schema,dataid,withblobdata=False):
             prescalesblob=None
             trgcountblob=None
             if withblobdata:
-                prescalesblob=cursor.currentRow()['prescalesblob'].data()
-                trgcountblob=cursor.currentRow()['trgcountblob'].data()
+                prescalesblob=cursor.currentRow()['prescalesblob']
+                trgcountblob=cursor.currentRow()['trgcountblob']
                 result[cmslsnum].extend([prescalesblob,trgcountblob])
     except:
         del qHandle
@@ -380,7 +344,7 @@ def trgLSById(schema,dataid,withblobdata=False):
     return (runnum,result)
 def lumiRunById(schema,dataid):
     '''
-    result [runnum(0),datasource(1),nominalegev(2)]
+    result [runnum(0),datasource(1)]
     '''
     result=[]
     qHandle=schema.newQuery()
@@ -388,7 +352,6 @@ def lumiRunById(schema,dataid):
         qHandle.addToTableList(nameDealer.lumidataTableName())
         qHandle.addToOutputList('RUNNUM','runnum')
         qHandle.addToOutputList('SOURCE','datasource')
-        qHandle.addToOutputList('NOMINALEGEV','nominalegev')
         qConditionStr='DATA_ID=:dataid'
         qCondition=coral.AttributeList()
         qCondition.extend('dataid','unsigned long long')
@@ -396,23 +359,21 @@ def lumiRunById(schema,dataid):
         qResult=coral.AttributeList()
         qResult.extend('runnum','unsigned int')
         qResult.extend('datasource','string')
-        qResult.extend('nominalegev','float')
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
         while cursor.next():
             runnum=cursor.currentRow()['runnum'].data()
             datasource=cursor.currentRow()['datasource'].data()
-            nominalegev=cursor.currentRow()['nominalegev'].data()
             result.extend([runnum,datasource])
     except :
         del qHandle
         raise    
     del qHandle
     return result
-def lumiLSById(schema,dataid,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',withBeamIntensity=False):
+def lumiLSById(schema,dataid,beamstatus=None,beamenergy=None,beamenergyFluc=0.2,withBXInfo=False,bxAlgo='OCC1',withBeamIntensity=False):
     '''    
-    result (runnum,{lumilsnum,[cmslsnum(0),instlumi(1),instlumierr(2),instlumiqlty(3),beamstatus(4),beamenergy(5),numorbit(6),startorbit(7),(bxvalueblob,bxerrblob)(8),(bxindexblob,beam1intensity,beam2intensity)(9)]})
+    result (runnum,{lumilsnum,[cmslsnum(0),instlumi(1),instlumierr(2),instlumiqlty(3),beamstatus(4),beamenergy(5),numorbit(6),startorbit(7),bxvalueblob(8),bxerrblob(9),bxindexblob(10),beam1intensity(11),beam2intensity(12)]})
     '''
     runnum=0
     result={}
@@ -422,18 +383,17 @@ def lumiLSById(schema,dataid,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',with
     if beamstatus and beamstatus not in ['STABLE BEAMS',]:
         raise ValueError('unknown beam status '+beamstatus)
     try:
-        lls=nameDealer.lumisummaryv2TableName()
-        qHandle.addToTableList(lls)
+        qHandle.addToTableList(nameDealer.lumisummaryv2TableName())
         qHandle.addToOutputList('RUNNUM','runnum')
-        qHandle.addToOutputList('LUMILSNUM','lumilsnum')
         qHandle.addToOutputList('CMSLSNUM','cmslsnum')
+        qHandle.addToOutputList('LUMILSNUM','lumilsnum')
         qHandle.addToOutputList('INSTLUMI','instlumi')
         qHandle.addToOutputList('INSTLUMIERROR','instlumierr')
         qHandle.addToOutputList('INSTLUMIQUALITY','instlumiqlty')
         qHandle.addToOutputList('BEAMSTATUS','beamstatus')
         qHandle.addToOutputList('BEAMENERGY','beamenergy')
         qHandle.addToOutputList('NUMORBIT','numorbit')
-        qHandle.addToOutputList('STARTORBIT','startorbit')
+        qHandle.addToOutputList('STARTORBIT','startorbit')       
         if withBXInfo:
             qHandle.addToOutputList('BXLUMIVALUE_'+bxAlgo,'bxvalue')
             qHandle.addToOutputList('BXLUMIERROR_'+bxAlgo,'bxerror')
@@ -445,15 +405,22 @@ def lumiLSById(schema,dataid,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',with
         qConditionStr='DATA_ID=:dataid'
         qCondition=coral.AttributeList()
         qCondition.extend('dataid','unsigned long long')
-        qCondition['dataid'].setData(int(dataid))
+        qCondition['dataid'].setData(dataid)
         if beamstatus:
             qConditionStr+=' and BEAMSTATUS=:beamstatus'
             qCondition.extend('beamstatus','string')
             qCondition['beamstatus'].setData(beamstatus)
+        if beamenergy:
+            emin=float(beamenergy)*(1.0-beamenergyFluc)
+            emax=float(beamenergy)*(1.0+beamenergyFluc)
+            qConditionStr+=' and BEAMENERGY>=:emin and  BEAMENERGY<=:emax'
+            qCondition.extend('beamenergy','float')
+            qCondition['emin'].setData(emin)
+            qCondition['emax'].setData(emax)
         qResult=coral.AttributeList()
         qResult.extend('runnum','unsigned int')
-        qResult.extend('lumilsnum','unsigned int')
         qResult.extend('cmslsnum','unsigned int')
+        qResult.extend('lumilsnum','unsigned int')
         qResult.extend('instlumi','float')
         qResult.extend('instlumierr','float')
         qResult.extend('instlumiqlty','short')
@@ -473,36 +440,30 @@ def lumiLSById(schema,dataid,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',with
         cursor=qHandle.execute()
         while cursor.next():
             runnum=cursor.currentRow()['runnum'].data()
-            lumilsnum=cursor.currentRow()['lumilsnum'].data()
             cmslsnum=cursor.currentRow()['cmslsnum'].data()
+            lumilsnum=cursor.currentRow()['lumilsnum'].data()
             instlumi=cursor.currentRow()['instlumi'].data()
             instlumierr=cursor.currentRow()['instlumierr'].data()
             instlumiqlty=cursor.currentRow()['instlumiqlty'].data()
-            bs=cursor.currentRow()['beamstatus'].data()
-            begev=cursor.currentRow()['beamenergy'].data()
+            beamstatus=cursor.currentRow()['beamstatus'].data()
+            beamenergy=cursor.currentRow()['beamenergy'].data()
             numorbit=cursor.currentRow()['numorbit'].data()
             startorbit=cursor.currentRow()['startorbit'].data()
-            bxinfo=None
             bxvalueblob=None
             bxerrblob=None
             if withBXInfo:
                 bxvalueblob=cursor.currentRow()['bxvalue'].data()
-                bxerrblob=cursor.currentRow()['bxerror'].data()
-                if bxvalueblob and bxerrblob:
-                    bxinfo=(bxvalueblob,bxerrblob)
+                bxerrblob==cursor.currentRow()['bxerror'].data()
             bxindexblob=None
             beam1intensity=None
             beam2intensity=None
-            beaminfo=None
             if withBeamIntensity:
                 bxindexblob=cursor.currentRow()['bxindexblob'].data()
                 beam1intensity=cursor.currentRow()['beam1intensity'].data()
                 beam2intensity=cursor.currentRow()['beam2intensity'].data()
-                if bxindexblob :
-                    beaminfo=(bxindexblob,beam1intensity,beam2intensity)
             if not result.has_key(lumilsnum):
                 result[lumilsnum]=[]
-            result[lumilsnum].extend([cmslsnum,instlumi,instlumierr,instlumiqlty,bs,begev,numorbit,startorbit,bxinfo,beaminfo])           
+            result[lumilsnum].extend([cmslsnum,instlumi,instlumierr,instlumiqlty,beamstatus,beamenergy,numorbit,startorbit,bxvalueblob,bxerrblob,bxindexblob,beam1intensity,beam2intensity])           
     except :
         del qHandle
         raise 
@@ -721,85 +682,7 @@ def hltLSById(schema,dataid):
         raise
     del qHandle
     return (runnum,result)
-def guessLumiDataIdByRun(schema,runnum):
-    result=None
-    lumiids=[]
-    qHandle=schema.newQuery()
-    try:
-        qHandle.addToTableList(nameDealer.lumidataTableName())
-        qHandle.addToOutputList('DATA_ID','lumidataid')
-        qConditionStr='RUNNUM=:runnum '
-        qCondition=coral.AttributeList()
-        qCondition.extend('runnum','unsigned int')
-        qCondition['runnum'].setData(runnum)
-        qResult=coral.AttributeList()
-        qResult.extend('lumidataid','unsigned long long')
-        qHandle.defineOutput(qResult)
-        qHandle.setCondition(qConditionStr,qCondition)
-        cursor=qHandle.execute()
-        while cursor.next():
-            lumidataid=cursor.currentRow()['lumidataid'].data()
-            lumiids.append(lumidataid)
-    except :
-        del qHandle
-        raise 
-    del qHandle
-    result=max(lumiids)
-    return result
-
-def guessTrgDataIdByRun(schema,runnum):
-    result=None
-    trgids=[]
-    qHandle=schema.newQuery()
-    try:
-        qHandle.addToTableList(nameDealer.trgdataTableName())
-        qHandle.addToOutputList('DATA_ID','trgdataid')
-        qConditionStr='RUNNUM=:runnum '
-        qCondition=coral.AttributeList()
-        qCondition.extend('runnum','unsigned int')
-        qCondition['runnum'].setData(runnum)
-        qResult=coral.AttributeList()
-        qResult.extend('trgdataid','unsigned long long')
-        qHandle.defineOutput(qResult)
-        qHandle.setCondition(qConditionStr,qCondition)
-        cursor=qHandle.execute()
-        while cursor.next():
-            trgdataid=cursor.currentRow()['trgdataid'].data()
-            trgids.append(trgdataid)
-    except :
-        del qHandle
-        raise 
-    del qHandle
-    
-    result=max(trgids)
-    return result
-
-def guessHltDataIdByRun(schema,runnum):
-    result=None
-    hltids=[]
-    qHandle=schema.newQuery()
-    try:
-        qHandle.addToTableList(nameDealer.hltdataTableName())
-        qHandle.addToOutputList('DATA_ID','hltdataid')
-        qConditionStr='RUNNUM=:runnum '
-        qCondition=coral.AttributeList()
-        qCondition.extend('runnum','unsigned int')
-        qCondition['runnum'].setData(runnum)
-        qResult=coral.AttributeList()
-        qResult.extend('hltdataid','unsigned long long')
-        qHandle.defineOutput(qResult)
-        qHandle.setCondition(qConditionStr,qCondition)
-        cursor=qHandle.execute()
-        while cursor.next():
-            hltdataid=cursor.currentRow()['hltdataid'].data()
-            hltids.append(hltdataid)
-    except :
-        del qHandle
-        raise 
-    del qHandle
-    result=max(hltids)
-    return result
-def guessAllDataIdByRun(schema,runnum):
+def guessDataIdByRun(schema,runnum):
     '''
     get dataids by runnumber, if there are duplicates, pick max(dataid).Bypass full version lookups
     result (lumidataid(0),trgdataid(1),hltdataid(2)) 
@@ -837,10 +720,8 @@ def guessAllDataIdByRun(schema,runnum):
         del qHandle
         raise 
     del qHandle
-    if len(lumiids)>0 and len(trgids)>0 and len(hltids)>0:
-        return (max(lumiids),max(trgids),max(hltids))
-    else:
-        return (None,None,None)
+    return (max(lumiids),max(trgids),max(hltids))
+
 def guessnormIdByContext(schema,amodetag,egev1):
     '''
     get norm dataids by amodetag, egev if there are duplicates, pick max(dataid).Bypass full version lookups
@@ -848,19 +729,15 @@ def guessnormIdByContext(schema,amodetag,egev1):
     '''
     luminormids=[]
     qHandle=schema.newQuery()
-    egevmin=egev1*0.95
-    egevmax=egev1*1.05
     try:
         qHandle.addToTableList( nameDealer.luminormTableName() )
         qHandle.addToOutputList('DATA_ID','normdataid')
-        qConditionStr='AMODETAG=:amodetag AND EGEV_1>=:egevmin AND  EGEV_1<=:egevmax'
+        qConditionStr='AMODETAG=:amodetag AND EGEV_1=:egev1'
         qCondition=coral.AttributeList()
         qCondition.extend('amodetag','string')
-        qCondition.extend('egevmin','unsigned int')
-        qCondition.extend('egevmax','unsigned int')
+        qCondition.extend('egev1','unsigned int')
         qCondition['amodetag'].setData(amodetag)
-        qCondition['egevmin'].setData(int(egevmin))
-        qCondition['egevmax'].setData(int(egevmax))
+        qCondition['egev1'].setData(egev1)
         qResult=coral.AttributeList()
         qResult.extend('normdataid','unsigned long long')
         qHandle.defineOutput(qResult)
@@ -1003,7 +880,7 @@ def addNormToBranch(schema,normname,amodetag,norm1,egev1,optionalnormdata,branch
     output:
        (revision_id,entry_id,data_id)
     '''
-    #print 'branchinfo ',branchinfo
+    print 'branchinfo ',branchinfo
     norm2=None
     if optionalnormdata.has_key('norm2'):
         norm2=optionalnormdata['norm2']

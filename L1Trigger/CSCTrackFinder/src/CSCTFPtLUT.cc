@@ -40,7 +40,7 @@ bool CSCTFPtLUT::lut_read_in = false;
 
 
 CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es) 
-    : read_pt_lut(false),
+    : read_pt_lut(true),
       isBinary(false)
 {
 	pt_method = 28;

@@ -6,7 +6,7 @@
 //
 // Original Author:  Thomas Reis,40 4-B24,+41227671567,
 //         Created:  Tue Mar 15 12:24:11 CET 2011
-// $Id: EmDQMFeeder.cc,v 1.15 2011/05/20 15:13:52 treis Exp $
+// $Id: EmDQMFeeder.cc,v 1.16 2011/05/24 07:56:33 treis Exp $
 //
 //
 
@@ -135,14 +135,28 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
                   edm::LogWarning("EmDQMFeeder") << "Pathname: '" << pathName << "':  Unable to determine a minimum Et. Will not include this path in the validation.";
                continue;
             }
-	    paramSet.addUntrackedParameter("PtMin", iConfig.getUntrackedParameter<double>("PtMin",0.));
-	    paramSet.addUntrackedParameter("PtMax", iConfig.getUntrackedParameter<double>("PtMax",1000.));
+
+            // set the x axis of the et plots to some reasonable value based
+            // on the primary et cut determined from the path name
+            double ptMax = iConfig.getUntrackedParameter<double>("PtMax",1000.);
+            double ptMin = iConfig.getUntrackedParameter<double>("PtMin",0.);
+            if (ptMax < (1.2*genEtMin)) {
+               paramSet.addUntrackedParameter<double>("PtMax", (10*ceil(0.12 * genEtMin)));
+               paramSet.addUntrackedParameter<double>("PtMin", (10*ceil(0.12 * genEtMin) - ptMax + ptMin));
+            }
+	    else {
+               paramSet.addUntrackedParameter<double>("PtMax", ptMax);
+               paramSet.addUntrackedParameter<double>("PtMin", ptMin);
+            }
+
 	    paramSet.addUntrackedParameter("EtaMax", iConfig.getUntrackedParameter<double>("EtaMax", 2.7));
 	    paramSet.addUntrackedParameter("PhiMax", iConfig.getUntrackedParameter<double>("PhiMax", 3.15));
 	    paramSet.addUntrackedParameter("Nbins", iConfig.getUntrackedParameter<unsigned int>("Nbins",40));
 	    paramSet.addUntrackedParameter("minEtForEtaEffPlot", iConfig.getUntrackedParameter<unsigned int>("minEtForEtaEffPlot", 15));
 	    paramSet.addUntrackedParameter("useHumanReadableHistTitles", iConfig.getUntrackedParameter<bool>("useHumanReadableHistTitles", false));
             paramSet.addUntrackedParameter("mcMatchedOnly", iConfig.getUntrackedParameter<bool>("mcMatchedOnly", true));
+
+            // verbosity of output messages when running
             paramSet.addUntrackedParameter<unsigned int>("verbosity", verbosity_);
 
 	    //preselction cuts 
@@ -272,7 +286,8 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 
             // do not include this path when an empty filterPSet is detected.
             if (!filterPSet.empty()) {
-               if (!hltConfig_.modulePSet(moduleLabel).exists("saveTags")) {
+               std::string lastModuleName = filterPSet.getParameter<edm::InputTag>("HLTCollectionLabels").label();
+               if (!hltConfig_.modulePSet(lastModuleName).exists("saveTags")) {
                   // make sure that 'theHLTOutputTypes' of the last filter of a photon path is set to trigger::TriggerPhoton
                   // this is coupled to the parameter 'saveTag = true'
                   if ((j == TYPE_SINGLE_PHOTON || j == TYPE_DOUBLE_PHOTON) && pathName.rfind("Ele") == std::string::npos) {

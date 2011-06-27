@@ -28,14 +28,14 @@
  \code
  TFile f("foo.root");
  fwlite::Event ev(&f);
- 
+
  edm::InputTag fooTag("myFoos");
  for(ev.toBeing(); ! ev.atEnd(); ++ev) {
     edm::Handle<std::vector<Foo> > foos;
     ev.getByLabel(fooTag, foos);
  }
  \endcode
- 
+
 */
 //
 // Original Author:  Chris Jones
@@ -108,9 +108,9 @@ namespace fwlite {
 
          /// Go to the very first Event.
          Event const& toBegin();
-      
+
          // ---------- const member functions ---------------------
-         ///Return the branch name in the TFile which contains the data 
+         ///Return the branch name in the TFile which contains the data
          virtual std::string const getBranchNameFor(std::type_info const&,
                                                     char const* iModuleLabel,
                                                     char const* iProductInstanceLabel,
@@ -124,7 +124,7 @@ namespace fwlite {
          ///Properly setup for edm::Ref, etc and then call TTree method
          void       draw(Option_t* opt);
          Long64_t   draw(char const* varexp, const TCut& selection, Option_t* option = "", Long64_t nentries = 1000000000, Long64_t firstentry = 0);
-         Long64_t   draw(char const* varexp, char const* selection, Option_t* option = "", Long64_t nentries = 1000000000, Long64_t firstentry = 0); 
+         Long64_t   draw(char const* varexp, char const* selection, Option_t* option = "", Long64_t nentries = 1000000000, Long64_t firstentry = 0);
          Long64_t   scan(char const* varexp = "", char const* selection = "", Option_t* option = "", Long64_t nentries = 1000000000, Long64_t firstentry = 0);
 
          bool isValid() const;
@@ -150,6 +150,8 @@ namespace fwlite {
 
          virtual edm::TriggerResultsByName triggerResultsByName(std::string const& process) const;
 
+         virtual edm::ProcessHistory const& processHistory() const {return history();}
+
          fwlite::LuminosityBlock const& getLuminosityBlock() const;
          fwlite::Run             const& getRun() const;
 
@@ -166,7 +168,7 @@ namespace fwlite {
 
          Event const& operator=(Event const&); // stop default
 
-         const edm::ProcessHistory& history() const;
+         edm::ProcessHistory const& history() const;
          void updateAux(Long_t eventIndex) const;
          void fillParameterSetRegistry() const;
          void setGetter(boost::shared_ptr<edm::EDProductGetter> getter) { return dataHelper_.setGetter(getter);}

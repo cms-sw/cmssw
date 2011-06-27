@@ -28,12 +28,15 @@ hcalDigiMonitor=cms.EDAnalyzer("HcalDigiMonitor",
                                                                                     "HLT_L1Tech_BSC_minBias",
                                                                                     "HLT_L1Tech_BSC_minBias_OR",
                                                                                     "HLT_L1Tech_BSC_minBias_threshold1_v2",
-                                                                                    "HLT_ZeroBias_v1"),
+                                                                                    "HLT_ZeroBias"),
                                
                                # disable testing of HO ring 2
                                excludeHORing2  = cms.untracked.bool(True),
+                               excludeHO1P02          = cms.untracked.bool(True),
 
                                hfRechitLabel                = cms.untracked.InputTag("hfreco"),
+
+                               BadChannelStatusMask   = cms.untracked.int32((1<<5) | (1<<1)), # dead cells mask: up to 03.01.2001 dead cells masks keep changing... expect a final version soon.
 
                                # problem checks
                                checkForMissingDigis   = cms.untracked.bool(False),

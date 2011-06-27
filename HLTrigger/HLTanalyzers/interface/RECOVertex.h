@@ -21,7 +21,7 @@ public:
   RECOVertex(); 
   ~RECOVertex();
 
-  void setup(const edm::ParameterSet& pSet, TTree* tree, std::string vertexType);
+  void setup(const edm::ParameterSet& pSet, TTree* tree);
   void clear(void);
 
   /** Analyze the Data */

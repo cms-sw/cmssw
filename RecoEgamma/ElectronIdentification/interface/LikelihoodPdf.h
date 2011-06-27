@@ -36,8 +36,6 @@ class LikelihoodPdf {
 
 
  private:
-
-  float normalization(const PhysicsTools::Calibration::HistogramF *thePdf);
   
   std::string _name;
   std::string _species;

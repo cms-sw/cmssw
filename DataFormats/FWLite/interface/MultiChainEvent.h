@@ -32,6 +32,7 @@
 namespace edm {
   class WrapperHolder;
   class ProductRegistry;
+  class ProcessHistory;
   class BranchDescription;
   class EDProductGetter;
   class EventAux;
@@ -95,6 +96,7 @@ class MultiChainEvent: public EventBase
 
       std::vector<edm::BranchDescription> const& getBranchDescriptions() const;
       std::vector<std::string> const& getProcessHistory() const;
+      edm::ProcessHistory const& processHistory() const;
       TFile* getTFile() const {
         return event1_->getTFile();
       }

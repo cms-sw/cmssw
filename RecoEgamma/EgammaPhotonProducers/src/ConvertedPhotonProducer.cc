@@ -273,8 +273,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
     
     
     ///// Find the +/- pairs
-    //  std::map<std::vector<reco::TransientTrack>, const reco::SuperCluster*> allPairs;
-    std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr> allPairs;
+    std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr, CompareTwoTracksVectors> allPairs;
     allPairs = theTrackPairFinder_->run(t_outInTrk, outInTrkHandle, outInTrkSCAssocHandle, t_inOutTrk, inOutTrkHandle, inOutTrkSCAssocHandle  );
     //LogDebug("ConvertedPhotonProducer")  << "ConvertedPhotonProducer  allPairs.size " << allPairs.size() << "\n";      
 
@@ -309,7 +308,7 @@ void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,
 						 const edm::Handle<edm::View<reco::CaloCluster> > & bcHandle,
 						 const edm::Handle<CaloTowerCollection> & hcalTowersHandle, 
 						 const edm::Handle<reco::TrackCollection>  & generalTrkHandle,
-						 std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr>& allPairs,
+						 std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr, CompareTwoTracksVectors>& allPairs,
 						 reco::ConversionCollection & outputConvPhotonCollection)
 
 {

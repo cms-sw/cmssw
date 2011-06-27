@@ -2,7 +2,7 @@
 //
 // Package:     FWLite
 // Class  :     MultiChainEvent
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -17,16 +17,17 @@
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 
 namespace fwlite {
 
   namespace internal {
-    
+
     class MultiProductGetter : public edm::EDProductGetter {
 public:
       MultiProductGetter(MultiChainEvent const* iEvent) : event_(iEvent) {}
-      
+
       virtual edm::WrapperHolder
       getIt(edm::ProductID const& iID) const {
 
@@ -34,10 +35,9 @@ public:
       }
 private:
       MultiChainEvent const* event_;
-      
+
     };
   }
-
 
 //
 // constants, enums and typedefs
@@ -73,24 +73,24 @@ private:
     std::cout << "***If your secondary files are sorted with a run-range within a file, (almost always the case) " << std::endl;
     std::cout << "***please use the option useSecFileMapSorted=true in this constructor. " << std::endl;
     std::cout << "    > usage: MultiChainEvent(primaryFiles, secondaryFiles, true);" << std::endl;
-    std::cout << "------------------------------------------------------------------------" << std::endl;    
-    
+    std::cout << "------------------------------------------------------------------------" << std::endl;
+
   }
 
   if (useSecFileMapSorted_) {
 
-    std::cout << "------------------------------------------------------------------------" << std::endl;    
+    std::cout << "------------------------------------------------------------------------" << std::endl;
     std::cout << "This MultiChainEvent is now creating a (run_range)_2 ---> file_index_2 map" << std::endl;
     std::cout << "for the 2-file solution. " << std::endl;
     std::cout << "This is assuming the files you are giving me are sorted by run,event pairs within each secondary file." << std::endl;
     std::cout << "If this is not true (rarely the case), set this option to false." << std::endl;
     std::cout << "    > usage: MultiChainEvent(primaryFiles, secondaryFiles, false);" << std::endl;
-    std::cout << "------------------------------------------------------------------------" << std::endl;    
+    std::cout << "------------------------------------------------------------------------" << std::endl;
     // speed up secondary file access with a (run,event)_1 ---> index_2 map
-    
+
 
     // Loop over events, when a new file is encountered, store the first run number from this file,
-    // and the last run number from the last file. 
+    // and the last run number from the last file.
     TFile * lastFile = 0;
     std::pair<event_id_range,Long64_t> eventRange;
     bool firstFile = true;
@@ -116,7 +116,7 @@ private:
       }
       // otherwise, cache the "second" event id in the cached event range.
       // Upon the discovery of a new file, this will be used as the
-      // "last" event id in the cached event range. 
+      // "last" event id in the cached event range.
       else {
 	eventRange.first.second = event2_->event()->id();
 	eventRange.second = event2_->eventIndex();
@@ -173,7 +173,7 @@ MultiChainEvent::~MultiChainEvent()
 // member functions
 //
 
-const MultiChainEvent& 
+const MultiChainEvent&
 MultiChainEvent::operator++()
 {
    event1_->operator++();
@@ -182,7 +182,7 @@ MultiChainEvent::operator++()
 
 ///Go to the event at index iIndex
 bool
-MultiChainEvent::to(Long64_t iIndex) 
+MultiChainEvent::to(Long64_t iIndex)
 {
   return event1_->to(iIndex);
 }
@@ -190,21 +190,21 @@ MultiChainEvent::to(Long64_t iIndex)
 
 ///Go to event with event id "id"
 bool
-MultiChainEvent::to(edm::EventID id) 
+MultiChainEvent::to(edm::EventID id)
 {
   return to(id.run(), id.luminosityBlock(), id.event());
 }
 
 ///Go to event with given run , lumi (if non-zero), and event number
 bool
-MultiChainEvent::to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event) 
+MultiChainEvent::to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event)
 {
    return event1_->to(run, lumi, event);
 }
 
 ///Go to event with given run and event number
 bool
-MultiChainEvent::to(edm::RunNumber_t run, edm::EventNumber_t event) 
+MultiChainEvent::to(edm::RunNumber_t run, edm::EventNumber_t event)
 {
    return to(run, 0U, event);
 }
@@ -212,32 +212,32 @@ MultiChainEvent::to(edm::RunNumber_t run, edm::EventNumber_t event)
 
 ///Go to the event at index iIndex
 bool
-MultiChainEvent::toSec(Long64_t iIndex) 
+MultiChainEvent::toSec(Long64_t iIndex)
 {
    return event2_->to(iIndex);
 }
 
 // Go to event with event id "id"
 bool
-MultiChainEvent::toSec (const edm::EventID &id) 
+MultiChainEvent::toSec (const edm::EventID &id)
 {
    // First try this file.
-   if (event2_->event_->to(id)) 
+   if (event2_->event_->to(id))
    {
-      // Found it, return. 
+      // Found it, return.
       return true;
    }
    // Second, assume that the secondary files are each in run/event
    // order.  So, let's loop over all files and see if we can figure
    // out where the event ought to be.
-   for (sec_file_range_index_map::const_iterator mBegin = 
+   for (sec_file_range_index_map::const_iterator mBegin =
             secFileMapSorted_.begin(),
             mEnd = secFileMapSorted_.end(),
             mit = mBegin;
-         mit != mEnd; 
-         ++mit) 
+         mit != mEnd;
+         ++mit)
    {
-      if (id < mit->first.first || id > mit->first.second) 
+      if (id < mit->first.first || id > mit->first.second)
       {
          // We don't expect this event to be in this file, so don't
          // bother checking it right now.
@@ -269,33 +269,33 @@ MultiChainEvent::toSec (const edm::EventID &id)
    }
    // if we're still here, then there really is no matching event in
    // the secondary files.  Throw.
-   throw cms::Exception("ProductNotFound") << "Cannot find id " 
-                                           << id.run() << ", " 
-                                           << id.event() 
-                                           << " in secondary list. Exiting." 
+   throw cms::Exception("ProductNotFound") << "Cannot find id "
+                                           << id.run() << ", "
+                                           << id.event()
+                                           << " in secondary list. Exiting."
                                            << std::endl;
    // to make the compiler happy
    return false;
 }
-  
+
 ///Go to event with given run, lumi, and event number
-bool 
-MultiChainEvent::toSec(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event) 
+bool
+MultiChainEvent::toSec(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event)
 {
   return toSec(edm::EventID(run, lumi, event));
 }
 
 // Go to the very first Event
 ///Go to event with given run and event number
-bool 
-MultiChainEvent::toSec(edm::RunNumber_t run, edm::EventNumber_t event) 
+bool
+MultiChainEvent::toSec(edm::RunNumber_t run, edm::EventNumber_t event)
 {
   return toSec(edm::EventID(run, 0U, event));
 }
 
 // Go to the very first Event
-const MultiChainEvent& 
-MultiChainEvent::toBegin() 
+const MultiChainEvent&
+MultiChainEvent::toBegin()
 {
    event1_->toBegin();
    return *this;
@@ -304,10 +304,10 @@ MultiChainEvent::toBegin()
 //
 // const member functions
 //
-std::string const 
-MultiChainEvent::getBranchNameFor(std::type_info const& iType, 
-                             char const* iModule, 
-                             char const* iInstance, 
+std::string const
+MultiChainEvent::getBranchNameFor(std::type_info const& iType,
+                             char const* iModule,
+                             char const* iInstance,
                              char const* iProcess) const
 {
   return event1_->getBranchNameFor(iType,iModule,iInstance,iProcess);
@@ -325,18 +325,24 @@ MultiChainEvent::getProcessHistory() const
   return event1_->getProcessHistory();
 }
 
+edm::ProcessHistory const&
+MultiChainEvent::processHistory() const
+{
+  return event1_->processHistory();
+}
+
 edm::EventAuxiliary const&
 MultiChainEvent::eventAuxiliary() const
 {
    return event1_->eventAuxiliary();
 }
-   
-bool 
+
+bool
 MultiChainEvent::getByLabel(
                        std::type_info const& iType,
-                       char const* iModule, 
-                       char const* iInstance, 
-                       char const* iProcess, 
+                       char const* iModule,
+                       char const* iInstance,
+                       char const* iProcess,
                        void* iValue) const
 {
   bool ret1 = event1_->getByLabel(iType, iModule, iInstance, iProcess, iValue);
@@ -348,7 +354,7 @@ MultiChainEvent::getByLabel(
   return true;
 }
 
-edm::WrapperHolder MultiChainEvent::getByProductID(edm::ProductID const&iID) const 
+edm::WrapperHolder MultiChainEvent::getByProductID(edm::ProductID const&iID) const
 {
   // First try the first file
   edm::WrapperHolder edp = event1_->getByProductID(iID);
@@ -364,7 +370,7 @@ edm::WrapperHolder MultiChainEvent::getByProductID(edm::ProductID const&iID) con
 }
 
 
-bool 
+bool
 MultiChainEvent::isValid() const
 {
   return event1_->isValid();
@@ -374,13 +380,13 @@ MultiChainEvent::operator bool() const
   return *event1_;
 }
 
-bool 
-MultiChainEvent::atEnd() const 
+bool
+MultiChainEvent::atEnd() const
 {
   return event1_->atEnd();
 }
 
-Long64_t 
+Long64_t
 MultiChainEvent::size() const
 {
   return event1_->size();
@@ -436,8 +442,8 @@ MultiChainEvent::triggerResultsByName(std::string const& process) const {
 //
 // static member functions
 //
-void 
-MultiChainEvent::throwProductNotFoundException(std::type_info const& iType, 
+void
+MultiChainEvent::throwProductNotFoundException(std::type_info const& iType,
                                           char const* iModule,
                                           char const* iInstance,
                                           char const* iProcess) {

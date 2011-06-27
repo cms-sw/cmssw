@@ -32,7 +32,7 @@ void RPCEfficiency::beginJob(){
  
 }
 
-int distsector(int sector1,int sector2){
+int distsector_tmp(int sector1,int sector2){
  
   if(sector1==13) sector1=4;
   if(sector1==14) sector1=10;
@@ -611,13 +611,13 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      
 	      DTChamberId dtid3 = segMB3->chamberId();  
 	        
-	      if(distsector(dtid3.sector(),DTId.sector())<=1 
+	      if(distsector_tmp(dtid3.sector(),DTId.sector())<=1 
 		 && dtid3.station()==3
 		 && dtid3.wheel()==DTId.wheel()
 		 && DTSegmentCounter[dtid3] == 1
 		 && segMB3->dimension()==4){
   
-		if(debug) std::cout<<"MB4  \t \t \t \t distsector ="<<distsector(dtid3.sector(),DTId.sector())<<std::endl;
+		if(debug) std::cout<<"MB4  \t \t \t \t distsector_tmp ="<<distsector_tmp(dtid3.sector(),DTId.sector())<<std::endl;
   
 		const GeomDet* gdet3=dtGeo->idToDet(segMB3->geographicalId());
 		const BoundPlane & DTSurface3 = gdet3->surface();

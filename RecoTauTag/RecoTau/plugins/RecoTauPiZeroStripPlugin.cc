@@ -26,7 +26,6 @@
 
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
-#include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
 #include "RecoTauTag/RecoTau/interface/CombinatoricGenerator.h"
 
 namespace reco { namespace tau {
@@ -52,8 +51,9 @@ class RecoTauPiZeroStripPlugin : public RecoTauPiZeroBuilderPlugin {
     virtual void beginEvent();
 
   private:
+    // PV needed for quality cuts
+    edm::InputTag pvSrc_;
     RecoTauQualityCuts qcuts_;
-    RecoTauVertexAssociator vertexAssociator_;
 
     std::vector<int> inputPdgIds_; //type of candidates to clusterize
     double etaAssociationDistance_;//eta Clustering Association Distance
@@ -69,9 +69,9 @@ class RecoTauPiZeroStripPlugin : public RecoTauPiZeroBuilderPlugin {
 
 RecoTauPiZeroStripPlugin::RecoTauPiZeroStripPlugin(
     const edm::ParameterSet& pset):RecoTauPiZeroBuilderPlugin(pset),
-    qcuts_(pset.getParameter<edm::ParameterSet>("qualityCuts").
-        getParameter<edm::ParameterSet>("signalQualityCuts")),
-    vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts")) {
+    qcuts_(pset.getParameter<edm::ParameterSet>("qualityCuts"))
+{
+  pvSrc_ = pset.getParameter<edm::InputTag>("primaryVertexSrc");
   inputPdgIds_ = pset.getParameter<std::vector<int> >(
       "stripCandidatesParticleIds");
   etaAssociationDistance_ = pset.getParameter<double>(
@@ -88,7 +88,11 @@ RecoTauPiZeroStripPlugin::RecoTauPiZeroStripPlugin(
 
 // Update the primary vertex
 void RecoTauPiZeroStripPlugin::beginEvent() {
-  vertexAssociator_.setEvent(*evt());
+  edm::Handle<reco::VertexCollection> pvHandle;
+  evt()->getByLabel(pvSrc_, pvHandle);
+  if (pvHandle->size()) {
+    qcuts_.setPV(reco::VertexRef(pvHandle, 0));
+  }
 }
 
 RecoTauPiZeroStripPlugin::return_type RecoTauPiZeroStripPlugin::operator()(
@@ -99,7 +103,6 @@ RecoTauPiZeroStripPlugin::return_type RecoTauPiZeroStripPlugin::operator()(
   PiZeroVector output;
 
   // Get the candidates passing our quality cuts
-  qcuts_.setPV(vertexAssociator_.associatedVertex(jet));
   PFCandPtrs candsVector = qcuts_.filterRefs(pfCandidates(jet, inputPdgIds_));
   //PFCandPtrs candsVector = qcuts_.filterRefs(pfGammas(jet));
 

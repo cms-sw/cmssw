@@ -40,7 +40,6 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauPluginsCommon.h"
-#include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -56,11 +55,9 @@ class RecoTauBuilderPlugin : public RecoTauEventHolderPlugin {
     typedef std::auto_ptr<output_type> return_type;
 
     explicit RecoTauBuilderPlugin(const edm::ParameterSet& pset):
-      RecoTauEventHolderPlugin(pset),
-      // The vertex association configuration is specified with the
-      // quality cuts.
-      vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts")) {
+      RecoTauEventHolderPlugin(pset){
         pfCandSrc_ = pset.getParameter<edm::InputTag>("pfCandSrc");
+        pvSrc_ = pset.getParameter<edm::InputTag>("primaryVertexSrc");
       };
 
     virtual ~RecoTauBuilderPlugin() {}
@@ -76,20 +73,20 @@ class RecoTauBuilderPlugin : public RecoTauEventHolderPlugin {
     const edm::Handle<PFCandidateCollection>& getPFCands() const {
       return pfCands_; };
 
-    /// Get primary vertex associated to this jet
-    reco::VertexRef primaryVertex(const reco::PFJetRef& jet) const {
-      return vertexAssociator_.associatedVertex(*jet);
-    }
+    /// Get primary vertex associated to this event
+    const reco::VertexRef& primaryVertex() const { return pv_; }
 
     // Hook called by base class at the beginning of each event. Used to update
     // handle to PFCandidates
     virtual void beginEvent();
 
   private:
+    edm::InputTag pvSrc_;
+    reco::VertexRef pv_;
+
     edm::InputTag pfCandSrc_;
     // Handle to PFCandidates needed to build Refs
     edm::Handle<PFCandidateCollection> pfCands_;
-    reco::tau::RecoTauVertexAssociator vertexAssociator_;
 
 };
 

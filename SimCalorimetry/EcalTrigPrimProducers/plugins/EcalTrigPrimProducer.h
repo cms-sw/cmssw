@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
  
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/EDProduct.h"
  
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
   

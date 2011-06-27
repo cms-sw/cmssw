@@ -68,6 +68,7 @@ class CondDBESSource : public edm::eventsetup::DataProxyProvider,
     int nData;
     int nSet;
     int nRun;
+    int nLumi;
     int nRefresh;
     int nActualRefresh;
   };
@@ -75,6 +76,7 @@ class CondDBESSource : public edm::eventsetup::DataProxyProvider,
   Stats stats;
 
   unsigned int lastRun;
+  unsigned int lastLumi;
   bool doRefresh;
 
   bool doDump;

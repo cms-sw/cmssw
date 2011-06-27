@@ -36,7 +36,7 @@ class CrystalPad
   CrystalPad(unsigned number, 
 	     const std::vector<XYZPoint>& corners,
 	     const Transform3D&,
-	     double scaf=1.,bool bothdirections=false);
+	     double scaf=1.);
 
   CrystalPad(const CrystalPad& right);
 

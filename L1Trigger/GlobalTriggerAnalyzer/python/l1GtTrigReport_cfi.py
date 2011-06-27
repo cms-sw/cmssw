@@ -26,7 +26,7 @@ l1GtTrigReport = cms.EDAnalyzer("L1GtTrigReport",
     #   Level 100 All Partitions:   TriggerKey, AlgorithmKey, Passed, Rejected, Error
     #   Level 101 All Partitions:   Level 100 + PrescaleFactors + Mask
     #   ... 
-    PrintVerbosity = cms.untracked.int32(10),
+    PrintVerbosity = cms.untracked.int32(2),
     
     # print output
     #   0 std::cout

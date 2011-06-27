@@ -11,6 +11,10 @@ from PhysicsTools.HepMCCandAlgos.genParticleCandidatesFast_cfi import *
 # Famos PileUp Producer
 from FastSimulation.PileUpProducer.PileUpProducer_cff import *
 
+# PileupSummaryInfo
+from SimGeneral.PileupInformation.AddPileupSummary_cfi import *
+addPileupInfo.PileupMixingLabel = 'famosPileUp'
+
 # Famos SimHits producer
 from FastSimulation.EventProducer.FamosSimHits_cff import *
 
@@ -68,6 +72,7 @@ from FastSimulation.ParticleFlow.ParticleFlowFastSim_cff import *
 from RecoJets.Configuration.RecoJetsGlobal_cff import *
 #from RecoJets.Configuration.JetIDProducers_cff import *
 from RecoMET.Configuration.RecoMET_cff import *
+metreco.remove(BeamHaloId)
 
 caloJetMet = cms.Sequence(
     recoJets+
@@ -252,6 +257,7 @@ famosBTaggingSequence = cms.Sequence(
 famosSimulationSequence = cms.Sequence(
     offlineBeamSpot+
     famosPileUp+
+    addPileupInfo+ ###PLACEHOLDER: to be activated after Mike's fixes to SimGeneral/PileupInformation/plugin
     famosSimHits+
     MuonSimHits+
     mix
