@@ -1,5 +1,5 @@
 //
-// $Id: TriggerObjectStandAlone.cc,v 1.11 2011/05/24 15:56:25 vadler Exp $
+// $Id: TriggerObjectStandAlone.cc,v 1.12 2011/06/21 23:27:27 vadler Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
@@ -168,7 +168,7 @@ std::vector< std::string > TriggerObjectStandAlone::pathsOrAlgorithms( bool path
   std::vector< std::string > paths;
   // Loop over usage vector and fill corresponding paths into temp vector
   for ( unsigned iPath = 0; iPath < pathNames_.size(); ++iPath ) {
-    if ( ( pathLastFilterAccepted_.at( iPath ) || pathLastFilterAccepted ) && ( pathL3FilterAccepted_.at( iPath ) || pathLastFilterAccepted ) ) paths.push_back( pathNames_.at( iPath ) );
+    if ( ( ! pathLastFilterAccepted || pathLastFilterAccepted_.at( iPath ) ) && ( ! pathL3FilterAccepted || pathL3FilterAccepted_.at( iPath ) ) ) paths.push_back( pathNames_.at( iPath ) ); // order matters in order to protect from empty vectors in old data
   }
   // Return temp vector
   return paths;
