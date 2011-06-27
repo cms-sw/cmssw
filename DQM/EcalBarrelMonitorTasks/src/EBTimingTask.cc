@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2011/02/14 08:01:28 $
- * $Revision: 1.66 $
+ * $Date: 2011/06/27 09:44:05 $
+ * $Revision: 1.68 $
  * \author G. Della Ricca
  *
 */
@@ -147,12 +147,12 @@ void EBTimingTask::setup(void){
     meTimeSummaryMap_->setAxisTitle("time (ns)", 3);
 
     sprintf(histo, "EBTMT timing projection eta");
-    meTimeSummaryMapProjEta_ = dqmStore_->bookProfile(histo, histo, 34, -85., 85., 50, -50., 50., "s");
+    meTimeSummaryMapProjEta_ = dqmStore_->bookProfile(histo, histo, 34, -85., 85., 50, -25., 25., "s");
     meTimeSummaryMapProjEta_->setAxisTitle("jeta", 1);
     meTimeSummaryMapProjEta_->setAxisTitle("time (ns)", 2);
 
     sprintf(histo, "EBTMT timing projection phi");
-    meTimeSummaryMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 72, 0., 360., 50, -50., 50., "s");
+    meTimeSummaryMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 72, 0., 360., 50, -25., 25., "s");
     meTimeSummaryMapProjPhi_->setAxisTitle("jphi", 1);
     meTimeSummaryMapProjPhi_->setAxisTitle("time (ns)", 2);
 
