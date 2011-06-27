@@ -105,6 +105,7 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
   
   int deadevt_; // running count of events processed since last dead cell check
   int is_RBX_loss_;
+  int rbxlost[132];
   int alarmer_counter_;
   unsigned int NumBadHB, NumBadHE, NumBadHO, NumBadHF, NumBadHFLUMI, NumBadHO0, NumBadHO12;
   edm::InputTag digiLabel_;
