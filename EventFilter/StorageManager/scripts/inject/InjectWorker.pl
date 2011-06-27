@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.71 2011/06/20 13:49:49 babar Exp $
+# $Id: InjectWorker.pl,v 1.72 2011/06/20 15:42:41 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -345,10 +345,10 @@ sub setup_main_db {
     $sql =
         "insert into CMS_STOMGR.STREAMS "
       . "(RUNNUMBER, LUMISECTION, STREAM, INSTANCE,"
-      . " CTIME,                      FILECOUNT, EOLS)"
+      . " CTIME,                           EOLS, FILECOUNT)"
       . " values "
       . "(        ?,           ?,      ?,        ?,"
-      . " TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'), ?,    ?)";
+      . " TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'), ?,         ?)";
     $sths->{endOfLumi} = $heap->{dbh}->prepare($sql)
       or die "Error: Prepare failed for $sql: " . $heap->{dbh}->errstr;
 
