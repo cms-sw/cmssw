@@ -324,7 +324,7 @@ namespace fwlite {
     edm::WrapperHolder
     DataGetterHelper::getByProductID(edm::ProductID const& iID, Long_t index) const
     {
-        edm::BranchDescription bDesc = branchMap_->productToBranch(iID);
+        const edm::BranchDescription& bDesc = branchMap_->productToBranch(iID);
         std::map<edm::ProductID,boost::shared_ptr<internal::Data> >::const_iterator itFound = idToData_.find(iID);
         if(itFound == idToData_.end()) {
 
