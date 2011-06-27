@@ -351,6 +351,7 @@
   <use   name="xerces-c"/>
 </bin>
 <bin   name="solveCalibSys" file="solveCalibSys.cpp">
+  <use   name="Calibration/EcalCalibAlgos"/>
   <use   name="CalibCalorimetry/CaloMiscalibTools"/>
   <use   name="Calibration/Tools"/>
   <use   name="clhep"/>
