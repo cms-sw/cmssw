@@ -118,7 +118,7 @@ void EBTimingTask::setup(void){
       dqmStore_->tag(meTime_[i], i+1);
 
       sprintf(histo, "EBTMT timing %s", Numbers::sEB(i+1).c_str());
-      meTimeMap_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 50, 25., 75., "s");
+      meTimeMap_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 50, -25.+shiftProf2D, 25.+shiftProf2D, "s");
       meTimeMap_[i]->setAxisTitle("ieta", 1);
       meTimeMap_[i]->setAxisTitle("iphi", 2);
       meTimeMap_[i]->setAxisTitle("time (ns)", 3);
@@ -141,7 +141,7 @@ void EBTimingTask::setup(void){
     meTimeSummary1D_->setAxisTitle("time (ns)", 1);
 
     sprintf(histo, "EBTMT timing map");
-    meTimeSummaryMap_ = dqmStore_->bookProfile2D(histo, histo, 72, 0., 360., 34, -85, 85, 50, 25., 75., "s");
+    meTimeSummaryMap_ = dqmStore_->bookProfile2D(histo, histo, 72, 0., 360., 34, -85, 85, 50, -25.+shiftProf2D, 25.+shiftProf2D, "s");
     meTimeSummaryMap_->setAxisTitle("jphi", 1);
     meTimeSummaryMap_->setAxisTitle("jeta", 2);
     meTimeSummaryMap_->setAxisTitle("time (ns)", 3);
@@ -303,12 +303,12 @@ void EBTimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
         if ( xval > 0.480 ) {
           if ( meTime ) meTime->Fill(yval);
-          if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval+50.);
+          if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval+shiftProf2D);
           if ( meTimeSummary1D_ ) meTimeSummary1D_->Fill(yval);
 
           float xebeta = id.ieta() - 0.5 * id.zside();
           float xebphi = id.iphi() - 0.5;
-          if ( meTimeSummaryMap_ ) meTimeSummaryMap_->Fill(xebphi, xebeta, yval+50.);
+          if ( meTimeSummaryMap_ ) meTimeSummaryMap_->Fill(xebphi, xebeta, yval+shiftProf2D);
           if ( meTimeSummaryMapProjEta_ ) meTimeSummaryMapProjEta_->Fill(xebeta, yval);
           if ( meTimeSummaryMapProjPhi_ ) meTimeSummaryMapProjPhi_->Fill(xebphi, yval);
         }
