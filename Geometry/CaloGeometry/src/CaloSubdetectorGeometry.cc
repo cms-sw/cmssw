@@ -156,7 +156,7 @@ CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
    for( uint32_t i ( 0 ) ; i != m_validIds.size() ; ++i )
    {
       Tr3D tr ;
-      const CaloCellGeometry* ptr ( getGeometry( m_validIds[i] ) ) ;
+      const CaloCellGeometry* ptr ( cellGeomPtr( i ) ) ;
       assert( 0 != ptr ) ;
       ptr->getTransform( tr, ( Pt3DVec* ) 0 ) ;
 
