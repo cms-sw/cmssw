@@ -244,6 +244,8 @@ CaloGeometryAnalyzer::cmpset( const CaloSubdetectorGeometry* geom ,
    }
    else
    {
+      if( 2 < abs( base.size() - over.size() ) ) 
+      {
       DetSet inBaseNotOver ;
       DetSet inOverNotBase ;
       std::set_difference( base.begin(), base.end(), 
@@ -324,8 +326,9 @@ CaloGeometryAnalyzer::cmpset( const CaloSubdetectorGeometry* geom ,
 	 }
       }
       std::cout<<"------------- done with mismatch printout ---------------"<<std::endl ;
+      }
    }
-   assert( over == base ) ;
+//   assert( over == base ) ;
 }
 
 EEDetId
@@ -421,7 +424,7 @@ CaloGeometryAnalyzer::checkDiff( int            i1      ,
 				 XorYorZ        iXYZ    ,
 				 double         diff      )
 {
-   if( 3.0 < fabs( diff ) ) 
+   if( 3.5 < fabs( diff ) ) 
    {
       std::cout<<"For a volume "<<( kCenter==iCtrCor ? "CENTER" : "CORNER" )
 	       <<", & "
@@ -1031,8 +1034,6 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	       subdetn == HcalZDCDetId::SubdetectorId )
       {
 	 f << "  // " << HcalZDCDetId(*i) << std::endl;
-	    
-
 	 const double sign ( HcalZDCDetId(*i).zside() ) ;
 	 const GlobalPoint gp ( cell->getPosition().x(),
 				cell->getPosition().y(),

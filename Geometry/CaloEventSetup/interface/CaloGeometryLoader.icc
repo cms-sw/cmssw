@@ -135,7 +135,7 @@ CaloGeometryLoader<T>::makeGeometry( const DDCompactView*  cpv        ,
 
       const HepGeom::Transform3D atr ( 0 == at ? ht3d :
 				 ( 0 == globalT ? at->transform()*ht3d :
-				   globalT->transform()*at->transform()*ht3d ) ) ;
+				   at->transform()*globalT->transform()*ht3d ) ) ;
 
       fillGeom( geom, parameters, atr, id ) ;
    }
