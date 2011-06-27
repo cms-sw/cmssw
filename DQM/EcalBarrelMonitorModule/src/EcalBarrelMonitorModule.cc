@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2010/08/08 08:46:04 $
- * $Revision: 1.201 $
+ * $Date: 2010/09/09 15:02:31 $
+ * $Revision: 1.202 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -354,9 +354,9 @@ void EcalBarrelMonitorModule::endJob(void) {
   if ( debug_ ) std::cout << "EcalBarrelMonitorModule: endJob, ievt = " << ievt_ << std::endl;
 
   if ( dqmStore_ ) {
-    meStatus_ = dqmStore_->get(prefixME_ + "/EventInfo/STATUS");
-    meRun_ = dqmStore_->get(prefixME_ + "/EventInfo/RUN");
-    meEvt_ = dqmStore_->get(prefixME_ + "/EventInfo/EVT");
+    meStatus_ = dqmStore_->get(prefixME_ + "/EcalInfo/STATUS");
+    meRun_ = dqmStore_->get(prefixME_ + "/EcalInfo/RUN");
+    meEvt_ = dqmStore_->get(prefixME_ + "/EcalInfo/EVT");
   }
 
   // end-of-run
