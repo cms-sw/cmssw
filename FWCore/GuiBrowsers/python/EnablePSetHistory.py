@@ -95,8 +95,8 @@ def new_setLooper_(self, lpr):
 cms.Process.old_setLooper_=cms.Process.setLooper_
 cms.Process.setLooper_=new_setLooper_
 
-def new_history(self):
-    return self.__dict__['_Process__history']+self.dumpModificationsWithObjects()
+def new_history(self, removeDuplicates=False):
+    return self.__dict__['_Process__history']+self.dumpModificationsWithObjects(removeDuplicates)
 cms.Process.history=new_history
 
 def new_resetHistory(self):
@@ -345,10 +345,16 @@ def new_dumpModifications(self, comments=True, process=True, module=False, seque
     return '\n'.join(text)+'\n'
 cms.Process.dumpModifications=new_dumpModifications
 
-def new_dumpModificationsWithObjects(self):
+def new_dumpModificationsWithObjects(self, removeDuplicates=False):
     modifications = []
+    last_modification=""
     for name, o in self.items_():
-        for m in self.recurseDumpModifications_(name, o):            
+        for m in self.recurseDumpModifications_(name, o):
+            # remove duplicate modifications
+            if removeDuplicates and last_modification==m['name']:
+                modifications.pop()
+            last_modification=m['name']
+            # add changes
             text = 'process.%s = %s' % (m['name'], m['dump'])
             modifications += [(text,[o])]
     return modifications
