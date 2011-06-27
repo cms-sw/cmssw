@@ -48,13 +48,13 @@ def mergeProcess(*inputFiles, **options):
     if dqmFormat:
         process.source = Source("DQMRootSource")
         process.Merged = OutputModule("DQMRootOutputModule")
+        process.add_(Service("DQMStore"))
     else:
         process.source = Source("PoolSource")
         process.Merged = OutputModule("PoolOutputModule")
         if dropDQM:
             process.source.inputCommands = CfgTypes.untracked.vstring('keep *','drop *_EDMtoMEConverter_*_*')
     process.source.fileNames = CfgTypes.untracked(CfgTypes.vstring())
-    process.add_(Service("DQMStore"))
     for entry in inputFiles:
         process.source.fileNames.append(str(entry))
  
