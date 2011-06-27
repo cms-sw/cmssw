@@ -147,7 +147,7 @@ int FUShmReader::fillRawData(EventID& eID,
   if(evtNumber_==0) 
     std::cout << getpid() << " ShmReader got event number zero !!! " 
 	      << std::endl;
-  return evtNumber_;
+  return 1;
 }
 
 

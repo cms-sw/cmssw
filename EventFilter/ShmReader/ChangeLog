@@ -1,3 +1,8 @@
+2011-06-27  Emilio Meschi <Emilio.Meschi@cern.ch>
+
+	* tag V01-05-08
+	* always return 1 from fillRawData for Event type (>0 only checked)
+
 2011-05-11  Emilio Meschi <Emilio.Meschi@cern.ch>
 
 	* tag V01-05-07
