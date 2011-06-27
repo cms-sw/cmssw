@@ -18,13 +18,15 @@ process.OtherThing = cms.EDProducer("OtherThingProducer",
     debugLevel = cms.untracked.int32(1)
 )
 
+process.EventNumber = cms.EDProducer("EventNumberIntProducer")
+
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('SecondaryInputTest.root')
 )
 
 process.source = cms.Source("EmptySource")
 
-process.p = cms.Path(process.Thing*process.OtherThing)
+process.p = cms.Path(process.Thing*process.OtherThing*process.EventNumber)
 process.ep = cms.EndPath(process.output)
 
 

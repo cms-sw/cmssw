@@ -6,8 +6,10 @@
 
 #include "IOPool/SecondaryInput/test/SecondaryProducer.h"
 #include "DataFormats/Common/interface/ConvertHandle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
+#include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
@@ -56,6 +58,17 @@ namespace edm {
     typedef Wrapper<TC> WTC;
 
     EventNumber_t en = eventPrincipal.id().event();
+    // Check that secondary source products are retrieved from the same event as the EventAuxiliary
+    BasicHandle bhandle = eventPrincipal.getByType(TypeID(typeid(edmtest::IntProduct)));
+    assert(bhandle.isValid());
+    Handle<edmtest::IntProduct> handle;
+    convert_handle<edmtest::IntProduct>(bhandle, handle);
+    assert(static_cast<EventNumber_t>(handle->value) == en);
+
+    // Check that primary source products are retrieved from the same event as the EventAuxiliary
+    e.getByType<edmtest::IntProduct>(handle);
+    assert(static_cast<EventNumber_t>(handle->value) == e.id().event());
+
     BasicHandle bh = eventPrincipal.getByType(TypeID(typeid(TC)));
     assert(bh.isValid());
     if(!(bh.interface()->dynamicTypeInfo() == typeid(TC))) {
