@@ -125,7 +125,10 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
     // add a sign to the etaring
     int etabin = (r.z() > 0) ? etaring : -etaring;
     // Next line is premature depth 1 and 2 can coexist for large z-extent
-    HcalDetId bestId(bc,etabin,phibin,((fabs(r.z())>=z_short)?(2):(1)));
+
+//    HcalDetId bestId(bc,etabin,phibin,((fabs(r.z())>=z_short)?(2):(1)));
+// above line is no good with finite precision
+    HcalDetId bestId(bc,etabin,phibin,((fabs(r.z()) - z_short >-0.1)?(2):(1)));
     return bestId;
   } else {
 
