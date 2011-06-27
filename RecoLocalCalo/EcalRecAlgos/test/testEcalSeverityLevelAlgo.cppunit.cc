@@ -34,11 +34,11 @@ void testEcalSeverityLevelAlgo::setUp(){
 
 
   fMask.push_back(0x0001); // good->good
-  fMask.push_back(0x0022); // poorreco,poorcalib->problematic
+  fMask.push_back(0x0072); // poorreco,poorcalib,noisy,saturated->problematic
   fMask.push_back(0x0380); // LERecovered,TowRecovered,NeighRecovrd->recovered
   fMask.push_back(0x0004); // outoftime->time 
   fMask.push_back(0xC000); // weird,diweird->weird
-  fMask.push_back(0x1858); // faultyhw,noisy,saturated,dead,killed,->bad
+  fMask.push_back(0x0C08); // faultyhw,dead,killed,->bad
 
 
   std::vector<uint32_t> dbMask;
@@ -67,12 +67,16 @@ void testEcalSeverityLevelAlgo::testSeverity(){
   EcalRecHit rh2(id,0,0);
   rh2.setFlag(EcalRecHit::kPoorReco);
   rh2.setFlag(EcalRecHit::kPoorCalib);
+  rh2.setFlag(EcalRecHit::kNoisy);
+  rh2.setFlag(EcalRecHit::kSaturated);
   CPPUNIT_ASSERT(algo_->severityLevel(rh2) == EcalSeverityLevel::kProblematic);
+  CPPUNIT_ASSERT(algo_->severityLevel(rh2) != EcalSeverityLevel::kBad);
+  CPPUNIT_ASSERT(algo_->severityLevel(rh2) != EcalSeverityLevel::kGood);
+  CPPUNIT_ASSERT(algo_->severityLevel(rh2) != EcalSeverityLevel::kWeird);
 
   EcalRecHit rh3(id,0,0);
   rh3.setFlag(EcalRecHit::kLeadingEdgeRecovered);
   rh3.setFlag(EcalRecHit::kTowerRecovered);
-  std::cout << algo_->severityLevel(rh3) << std::endl;
 
   CPPUNIT_ASSERT(algo_->severityLevel(rh3) == EcalSeverityLevel::kRecovered);
 
@@ -91,8 +95,6 @@ void testEcalSeverityLevelAlgo::testSeverity(){
   
   EcalRecHit rh6(id,0,0);
   rh6.setFlag(EcalRecHit::kFaultyHardware);
-  rh6.setFlag(EcalRecHit::kNoisy);
-  rh6.setFlag(EcalRecHit::kSaturated);
   rh6.setFlag(EcalRecHit::kDead);
   rh6.setFlag(EcalRecHit::kKilled);
 
