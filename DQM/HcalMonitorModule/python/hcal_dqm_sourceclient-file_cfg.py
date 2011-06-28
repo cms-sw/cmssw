@@ -122,7 +122,7 @@ process.dqmSaver.saveByRun = 1
 # lxplus
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = "GR09_P_V5::All" 
-process.GlobalTag.globaltag = "GR_P_V14::All"
+process.GlobalTag.globaltag = "GR_P_V20::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 process.prefer("GlobalTag")
 
