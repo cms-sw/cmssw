@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:04 CDT 2009
-// $Id: FWModelContextMenuHandler.cc,v 1.20 2011/06/15 03:07:30 amraktad Exp $
+// $Id: FWModelContextMenuHandler.cc,v 1.21 2011/06/21 05:19:22 amraktad Exp $
 //
 
 // system include files
@@ -253,11 +253,10 @@ FWModelContextMenuHandler::showSelectedModelContext(Int_t iX, Int_t iY, FWViewCo
    }
 
 
-   if(0 && m_selectionManager->selected().size()==1) {
+   if( m_selectionManager->selected().size()==1 ) {
       {
          using namespace Reflex;
          ROOT::Reflex::Type rtype(ROOT::Reflex::Type::ByName(id.item()->modelType()->GetName()));
-         printf("id.item()->modelType()->GetName() %s \n",id.item()->modelType()->GetName());
          ROOT::Reflex::Object o(rtype, const_cast<void *>(id.item()->modelData(id.index())));
          EMEMBERQUERY inh =  INHERITEDMEMBERS_ALSO;
          if ( rtype.FunctionMemberByName("print",Type(Type::ByName("void (std::ostream&)"), CONST), 0 , inh))
