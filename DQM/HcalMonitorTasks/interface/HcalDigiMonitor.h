@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2010/11/17 19:17:30 $
-  * $Revision: 1.65 $
+  * $Date: 2011/05/31 13:48:08 $
+  * $Revision: 1.66 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -107,7 +107,10 @@ private:  ///Methods, variables accessible only within class code
   int shapeThreshHF_;
   int shapeThreshHO_;
 
-  int mindigisize_, maxdigisize_;
+  int mindigisizeHBHE_, maxdigisizeHBHE_;
+  int mindigisizeHO_, maxdigisizeHO_;
+  int mindigisizeHF_, maxdigisizeHF_;
+
   bool digi_checkoccupancy_;
   bool digi_checkcapid_;
   bool digi_checkdigisize_;

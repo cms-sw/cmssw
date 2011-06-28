@@ -44,8 +44,14 @@ hcalDigiMonitor=cms.EDAnalyzer("HcalDigiMonitor",
                                checkDigiSize          = cms.untracked.bool(True),
                                checkADCsum            = cms.untracked.bool(True),
                                checkDVerr             = cms.untracked.bool(True),
-                               minDigiSize            = cms.untracked.int32(6),
-                               maxDigiSize            = cms.untracked.int32(10),
+                               # min/max values are inclusive, so digis are considered
+                               # good if >= minDigiSize and <=badDigiSize
+                               minDigiSizeHBHE        = cms.untracked.int32(10),
+                               maxDigiSizeHBHE        = cms.untracked.int32(10),
+                               minDigiSizeHO          = cms.untracked.int32(10),
+                               maxDigiSizeHO          = cms.untracked.int32(10),
+                               minDigiSizeHF          = cms.untracked.int32(4),
+                               maxDigiSizeHF          = cms.untracked.int32(6),
                                
                                # block orbit test
                                shutOffOrbitTest       = cms.untracked.bool(False),

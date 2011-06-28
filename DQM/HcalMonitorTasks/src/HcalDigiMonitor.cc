@@ -51,8 +51,13 @@ HcalDigiMonitor::HcalDigiMonitor(const edm::ParameterSet& ps)
   digi_checkdigisize_  = ps.getUntrackedParameter<bool>("checkDigiSize",true);
   digi_checkadcsum_    = ps.getUntrackedParameter<bool>("checkADCsum",true);
   digi_checkdverr_     = ps.getUntrackedParameter<bool>("checkDVerr",true);
-  mindigisize_ = ps.getUntrackedParameter<int>("minDigiSize",10);
-  maxdigisize_ = ps.getUntrackedParameter<int>("maxDigiSize",10);
+  mindigisizeHBHE_     = ps.getUntrackedParameter<int>("minDigiSizeHBHE",1);
+  maxdigisizeHBHE_     = ps.getUntrackedParameter<int>("maxDigiSizeHBHE",10);
+  mindigisizeHO_       = ps.getUntrackedParameter<int>("minDigiSizeHO",1);
+  maxdigisizeHO_       = ps.getUntrackedParameter<int>("maxDigiSizeHO",10);
+  mindigisizeHF_       = ps.getUntrackedParameter<int>("minDigiSizeHF",1);
+  maxdigisizeHF_       = ps.getUntrackedParameter<int>("maxDigiSizeHF",10);
+
 
   badChannelStatusMask_   = ps.getUntrackedParameter<int>("BadChannelStatusMask",
                                                           ps.getUntrackedParameter<int>("BadChannelStatusMask",
@@ -61,7 +66,12 @@ HcalDigiMonitor::HcalDigiMonitor(const edm::ParameterSet& ps)
     {
       std::cout <<"<HcalDigiMonitor> Checking for the following problems:"<<std::endl; 
       if (digi_checkcapid_) std::cout <<"\tChecking that cap ID rotation is correct;"<<std::endl;
-      if (digi_checkdigisize_) std::cout <<"\tChecking that digi size is between ["<<mindigisize_<<" - "<<maxdigisize_<<"];"<<std::endl;
+      if (digi_checkdigisize_)
+	{
+	  std::cout <<"\tChecking that HBHE digi size is between ["<<mindigisizeHBHE_<<" - "<<maxdigisizeHBHE_<<"];"<<std::endl;
+	  std::cout <<"\tChecking that HO digi size is between ["<<mindigisizeHO_<<" - "<<maxdigisizeHO_<<"];"<<std::endl;
+	  std::cout <<"\tChecking that HF digi size is between ["<<mindigisizeHF_<<" - "<<maxdigisizeHF_<<"];"<<std::endl;
+	}
       if (digi_checkadcsum_) std::cout <<"\tChecking that ADC sum of digi is greater than 0;"<<std::endl; 
       if (digi_checkdverr_) std::cout <<"\tChecking that data valid bit is true and digi error bit is false;\n"<<std::endl;
     }
@@ -787,22 +797,41 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
   int ADCcount=0;
 
   int shapeThresh=0;
-  if (digi.id().subdet()==HcalBarrel)
-      shapeThresh=shapeThreshHB_;
-  else if (digi.id().subdet()==HcalEndcap)
-      shapeThresh=shapeThreshHE_;
-  else if (digi.id().subdet()==HcalOuter)
-      shapeThresh=shapeThreshHO_;
-  else if (digi.id().subdet()==HcalForward)
-      shapeThresh=shapeThreshHF_;
   
+  int mindigisize=1;
+  int maxdigisize=10;
+
+  if (digi.id().subdet()==HcalBarrel)
+    {
+      shapeThresh=shapeThreshHB_;
+      mindigisize=mindigisizeHBHE_;
+      maxdigisize=maxdigisizeHBHE_;
+    }
+  else if (digi.id().subdet()==HcalEndcap)
+    {
+      shapeThresh=shapeThreshHE_;
+      mindigisize=mindigisizeHBHE_;
+      maxdigisize=maxdigisizeHBHE_;
+    }
+  else if (digi.id().subdet()==HcalOuter)
+    {
+      shapeThresh=shapeThreshHO_;
+      mindigisize=mindigisizeHO_;
+      maxdigisize=maxdigisizeHO_;
+    }
+  else if (digi.id().subdet()==HcalForward)
+    {
+      shapeThresh=shapeThreshHF_;
+      mindigisize=mindigisizeHF_;
+      maxdigisize=maxdigisizeHF_;
+    }
   int iEta = digi.id().ieta();
   int iPhi = digi.id().iphi();
   int iDepth = digi.id().depth();
   int calcEta = CalcEtaBin(digi.id().subdet(),iEta,iDepth);
-	  
+
   // Check that digi size is correct
-  if (digi.size()<mindigisize_ || digi.size()>maxdigisize_)
+  if (digi.size()<mindigisize || digi.size()>maxdigisize)
     {
       if (digi_checkdigisize_) err|=0x1;
       ++baddigisize[calcEta][iPhi-1][iDepth-1];
