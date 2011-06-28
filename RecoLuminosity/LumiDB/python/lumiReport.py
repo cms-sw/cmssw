@@ -115,53 +115,6 @@ def toCSVTotDelivered(lumidata,filename,resultlines,scalefactor,isverbose):
     sortedresult=sorted(result,key=lambda x : int(x[0]))
     r.writeRow(fieldnames)
     r.writeRows(sortedresult)
-#def toScreenLSDelivered(lumidata,resultlines,isverbose):
-#    result=[]
-#    for run in sorted(lumidata):
-#        rundata=lumidata[run]
-#        if rundata is None:
-#            result.append([str(run),'n/a','n/a','n/a','n/a','n/a','n/a'])
-#            continue
-#        for lsdata in rundata:
-#            if lsdata is None or len(lsdata)==0:
-#                result.append([str(run),'n/a','n/a','n/a','n/a','n/a','n/a'])
-#                continue
-#            else:
-#                lumils=lsdata[0]
-#                cmsls=lsdata[1]
-#                lsts=lsdata[2]
-#                beamstatus=lsdata[3]
-#                beamenergy=lsdata[4]
-#                delivered=lsdata[5]
-#                result.append([str(run),str(lumils),str(cmsls),'%.3f'%delivered,lsts.strftime('%m/%d/%y %H:%M:%S'),beamstatus,'%.1f'%beamenergy])
-#    labels = [('Run','lumils','cmsls','Delivered(/ub)','UTCTime','Beam Status','E(GeV)')]
-#    print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
-#                               prefix = '| ', postfix = ' |', justify = 'right',
-#                               delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
-         
-#def toCSVLSDelivered(lumidata,filename,resultlines,isverbose):
-#    result=[]
-#    fieldnames=['Run','lumils','cmsls','Delivered(/ub)','UTCTime','BeamStatus','E(GeV)']
-#    r=csvReporter.csvReporter(filename)
-#    for run in sorted(lumidata):
-#        rundata=lumidata[run]
-#        if rundata is None:
-#            result.append([run,'n/a','n/a','n/a','n/a','n/a','n/a'])
-#            continue
-#        for lsdata in rundata:
-#            if lsdata is None:
-#                result.append([run,'n/a','n/a','n/a','n/a','n/a','n/a'])
-#                continue
-#            else:
-#                lumils=lsdata[0]
-#                cmsls=lsdata[1]
-#                lsts=lsdata[2]
-#                beamstatus=lsdata[3]
-#                beamenergy=lsdata[4]
-#                delivered=lsdata[5]
-#                result.append([run,lumils,cmsls,delivered,lsts,beamstatus,beamenergy])
-#    r.writeRow(fieldnames)
-#    r.writeRows(result)
 
 def toScreenOverview(lumidata,resultlines,scalefactor,isverbose):
     '''
@@ -643,13 +596,31 @@ def toScreenLSTrg(trgdata,iresults=None,isverbose=False):
     print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'left',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,70) )
-
     
-def toCSVLSTrg(trgdata,ofilename,iresults=None,isverbose=False):
+def toCSVLSTrg(trgdata,filename,iresults=[],isverbose=False):
     '''
-    input:[[run,cmslsnum,timestamp,deadfrac,name:(prescale,count)]]
+    input:{run:[[cmslsnum,deadfrac,deadtimecount,bitzero_count,bitzero_prescale,[(name,count,presc),]],..]
     '''
-    print trgdata
+    result=[]
+    r=csvReporter,csvReporter(filename)
+    fieldnames=['Run','LS','dfrac','dcount','bit,count,presc']
+    for rline in iresults:
+        result.append(rline)
+    for run sorted(intrgdata):
+        lsdata=trgdata[run]
+        if lsdata is None:
+            result.append([run,'n/a','n/a','n/a','n/a'])
+            continue
+        cmslsnum=lsdata[0]
+        deadfrac=lsdata[1]
+        dcount=lsdata[2]
+        bitdata=lsdata[5]
+        flatbitdata=[x[0]+',%d'%x[1]+',%d'%x[2] for x in bitdata if x[0]!='False']
+        bitdataStr=';'.join(flatbitdata)
+        result.append(run,cmslsnum,deadfrac,dcount,bitdataStr)
+    r.writeRow(fieldnames)
+    r.writeRows(result)
+    
 def toScreenConfTrg(trgconfdata,iresults=None,isverbose=False):
     '''
     input:{run:[datasource,normbitname,[allbits]]}
@@ -672,11 +643,26 @@ def toScreenConfTrg(trgconfdata,iresults=None,isverbose=False):
                                prefix = '| ', postfix = ' |', justify = 'left',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace_strict(x,60) )
 
-def toCSVConfTrg(trgconfdata,ofilename,iresults=None,isverbose=False):
+def toCSVConfTrg(trgconfdata,filename,iresults=[],isverbose=False):
     '''
-    input:[[run,l1key,bitnames]]
+    input {run:[datasource,normbitname,[allbits]]}
     '''
-    print trgconfdata
+    result=[]
+    r=csvReporter,csvReporter(filename)
+    fieldnames=['Run','source','bit names']
+    for rline in iresults:
+        result.append(rline)
+    for run sorted(trgconfdata):
+        rundata=trgconfdata[run]
+        if rundata is None:
+            result.append([run,'n/a','n/a'])
+            continue
+        datasource=rundata[0]
+        bitdata=rundata[2]
+        bitnames=','.join(bitdata)
+        result.append([run,datasource,bitnames])
+    r.writeRow(fieldnames)
+    r.writeRows(result)
 
 def toScreenLSHlt(hltdata,iresults=None,isverbose=False):
     '''
