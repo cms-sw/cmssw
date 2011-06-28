@@ -119,13 +119,6 @@ from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesDA_cfi import \
 
 recoTauCommonSequence = cms.Sequence()
 
-# Only add the DA vertices if we are in a release where they are not produced
-# automatically.
-import RecoTauTag.Configuration.tools.recoTauConfTools as recoTauConfTools
-if recoTauConfTools.cmssw_version() < ('4', '2', '0'):
-    print "INFO: Adding DA vertex production to the PFTau sequence"
-    recoTauCommonSequence += offlinePrimaryVerticesDA
-
 recoTauCommonMainSequence = cms.Sequence(
     ak5PFJetTracksAssociatorAtVertex *
     recoTauAK5PFJets08Region*
