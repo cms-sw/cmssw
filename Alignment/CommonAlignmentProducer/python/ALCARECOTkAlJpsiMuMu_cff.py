@@ -14,17 +14,15 @@ ALCARECOTkAlJpsiMuMuHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clo
 # "BPIX","FPIX","ESp","ESm"
 import DPGAnalysis.Skims.skim_detstatus_cfi
 ALCARECOTkAlJpsiMuMuDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatus.clone(
-    DetectorType = cms.vstring('TIBTID','TOB','TECp','TECm','BPIX','FPIX'),
+    DetectorType = cms.vstring('TIBTID','TOB','TECp','TECm','BPIX','FPIX',
+                               'DT0','DTp','DTm','CSCp','CSCm'),
     ApplyFilter  = cms.bool(True),
     AndOr        = cms.bool(True),
     DebugOn      = cms.untracked.bool(False)
 )
 
-ALCARECOTkAlJpsiMuMuGoodMuonSelector = cms.EDFilter("MuonSelector",
-    src = cms.InputTag("muons"),
-    cut = cms.string('isGlobalMuon = 1'),
-    filter = cms.bool(True)                                
-)
+import Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi
+ALCARECOTkAlJpsiMuMuGoodMuons = Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi.TkAlGoodIdMuonSelector.clone()
 
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 ALCARECOTkAlJpsiMuMu = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
@@ -36,7 +34,8 @@ ALCARECOTkAlJpsiMuMu.etaMin = -3.5
 ALCARECOTkAlJpsiMuMu.etaMax = 3.5
 ALCARECOTkAlJpsiMuMu.nHitMin = 0
 
-ALCARECOTkAlJpsiMuMu.GlobalSelector.muonSource = 'ALCARECOTkAlJpsiMuMuGoodMuonSelector'
+ALCARECOTkAlJpsiMuMu.GlobalSelector.muonSource = 'ALCARECOTkAlJpsiMuMuGoodMuons'
+# To not loose non-prompt J/Psi, do not apply any isolation
 ALCARECOTkAlJpsiMuMu.GlobalSelector.applyIsolationtest = False
 ALCARECOTkAlJpsiMuMu.GlobalSelector.applyGlobalMuonFilter = True
 
@@ -48,7 +47,5 @@ ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.applyChargeFilter = False
 ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.charge = 0
 ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.acoplanarDistance = 1 ##radian
-ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.PDGMass = 3.096
-ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.numberOfCandidates = 5
 
-seqALCARECOTkAlJpsiMuMu = cms.Sequence(ALCARECOTkAlJpsiMuMuHLT+ALCARECOTkAlJpsiMuMuDCSFilter+ALCARECOTkAlJpsiMuMuGoodMuonSelector+ALCARECOTkAlJpsiMuMu)
+seqALCARECOTkAlJpsiMuMu = cms.Sequence(ALCARECOTkAlJpsiMuMuHLT+ALCARECOTkAlJpsiMuMuDCSFilter+ALCARECOTkAlJpsiMuMuGoodMuons+ALCARECOTkAlJpsiMuMu)
