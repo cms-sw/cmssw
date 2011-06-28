@@ -70,41 +70,89 @@ class Pythia8Hadronizer : public BaseHadronizer {
 	/// Events to print if verbosity
 	unsigned int		maxEventsToPrint;
 
-    string LHEInputFileName;
+	string LHEInputFileName;
 
-    /// Switch User Hook flag
-    bool            useUserHook;
+	/// Switch User Hook flag
+	bool            useUserHook;
 
-    std::auto_ptr<LHAupLesHouches>      lhaUP;
+	std::auto_ptr<LHAupLesHouches>      lhaUP;
 
 	std::auto_ptr<Pythia>	pythia;
 	std::auto_ptr<Pythia>   decayer;
 	Event*			pythiaEvent;
 	HepMC::I_Pythia8	toHepMC;   
 
+	enum { PP, PPbar, ElectronPositron };
+	int    fInitialState ; // pp, ppbar, or e-e+
+
+	double fBeam1PZ;
+	double fBeam2PZ;
+
 };
 
 
 Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
-        BaseHadronizer(params),
-	parameters(params.getParameter<edm::ParameterSet>("PythiaParameters")),
-	comEnergy(params.getParameter<double>("comEnergy")),
-	pythiaPylistVerbosity(params.getUntrackedParameter<int>("pythiaPylistVerbosity", 0)),
-	pythiaHepMCVerbosity(params.getUntrackedParameter<bool>("pythiaHepMCVerbosity", false)),
-	maxEventsToPrint(params.getUntrackedParameter<int>("maxEventsToPrint", 0)),
+    BaseHadronizer(params),
+    parameters(params.getParameter<edm::ParameterSet>("PythiaParameters")),
+    comEnergy(params.getParameter<double>("comEnergy")),
+    pythiaPylistVerbosity(params.getUntrackedParameter<int>("pythiaPylistVerbosity", 0)),
+    pythiaHepMCVerbosity(params.getUntrackedParameter<bool>("pythiaHepMCVerbosity", false)),
+    maxEventsToPrint(params.getUntrackedParameter<int>("maxEventsToPrint", 0)),
     LHEInputFileName(params.getUntrackedParameter<string>("LHEInputFileName","")),
-    useUserHook(false)
+    useUserHook(false),
+    fInitialState(PP)
 {
     if( params.exists( "useUserHook" ) )
       useUserHook = params.getParameter<bool>("useUserHook");
     randomEngine = &getEngineReference();
 
-	//Old code that used Pythia8 own random engine
-	//edm::Service<edm::RandomNumberGenerator> rng;
-	//uint32_t seed = rng->mySeed();
-	//Pythia8::Rndm::init(seed);
+    //Old code that used Pythia8 own random engine
+    //edm::Service<edm::RandomNumberGenerator> rng;
+    //uint32_t seed = rng->mySeed();
+    //Pythia8::Rndm::init(seed);
 
     RandomP8* RP8 = new RandomP8();
+
+    // J.Y.: the following 3 parameters are hacked "for a reason"
+    //
+    if ( params.exists( "PPbarInitialState" ) )
+    {
+      if ( fInitialState == PP )
+      {
+        fInitialState = PPbar;
+        edm::LogInfo("GeneratorInterface|Pythia6Interface")
+        << "Pythia6 will be initialized for PROTON-ANTIPROTON INITIAL STATE. "
+        << "This is a user-request change from the DEFAULT PROTON-PROTON initial state." << std::endl;
+        std::cout << "Pythia6 will be initialized for PROTON-ANTIPROTON INITIAL STATE." << std::endl;
+        std::cout << "This is a user-request change from the DEFAULT PROTON-PROTON initial state." << std::endl;
+      }
+      else
+      {   
+        // probably need to throw on attempt to override ?
+      }
+    }   
+    else if ( params.exists( "ElectronPositronInitialState" ) )
+    {
+      if ( fInitialState == PP )
+      {
+        fInitialState = ElectronPositron;
+        edm::LogInfo("GeneratorInterface|Pythia6Interface")
+        << "Pythia6 will be initialized for ELECTRON-POSITRON INITIAL STATE. "
+        << "This is a user-request change from the DEFAULT PROTON-PROTON initial state." << std::endl;
+        std::cout << "Pythia6 will be initialized for ELECTRON-POSITRON INITIAL STATE." << std::endl; 
+        std::cout << "This is a user-request change from the DEFAULT PROTON-PROTON initial state." << std::endl;
+      }
+      else
+      {   
+         // probably need to throw on attempt to override ?
+      }
+    }
+    else if ( params.exists( "ElectronProtonInitialState" ) || params.exists( "PositronProtonInitialState" ) )
+    {
+      // throw on unknown initial state !
+      throw edm::Exception(edm::errors::Configuration,"Pythia6Interface")
+        <<" UNKNOWN INITIAL STATE. \n The allowed initial states are: PP, PPbar, ElectronPositron \n";
+    }
 
     pythia.reset(new Pythia);
     decayer.reset(new Pythia);
@@ -151,13 +199,32 @@ bool Pythia8Hadronizer::readSettings( int )
 bool Pythia8Hadronizer::initializeForInternalPartons()
 {
 
-	pythiaEvent = &pythia->event;
+    pythiaEvent = &pythia->event;
 
-	pythia->init(2212, 2212, comEnergy);
+    //pythia->init(2212, 2212, comEnergy);
 
-	pythia->settings.listChanged();
+    if ( fInitialState == PP ) // default
+    {
+      pythia->init(2212, 2212, comEnergy);
+    }
+    else if ( fInitialState == PPbar )
+    {
+      pythia->init(2212, -2212, comEnergy);
+    }
+    else if ( fInitialState == ElectronPositron )
+    {
+      pythia->init(11, -11, comEnergy);
+    }    
+    else 
+    {
+      // throw on unknown initial state !
+      throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
+             <<" UNKNOWN INITIAL STATE. \n The allowed initial states are: PP, PPbar, ElectronPositron \n";
+    }
 
-	return true;
+    pythia->settings.listChanged();
+
+    return true;
 }
 
 

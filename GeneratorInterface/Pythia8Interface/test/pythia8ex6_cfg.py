@@ -1,3 +1,5 @@
+# Different initial state: electron - positron collider
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
@@ -13,11 +15,11 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     comEnergy = cms.double(7000.),
     #PPbarInitialState  = cms.PSet(),
+    ElectronPositronInitialState  = cms.PSet(),
     #useUserHook = cms.bool(True),
     PythiaParameters = cms.PSet(
-        pythia8_example02 = cms.vstring('HardQCD:all = on',
-                                        'PhaseSpace:pTHatMin = 20.'),
-        parameterSets = cms.vstring('pythia8_example02')
+        pythia8_example06 = cms.vstring('WeakSingleBoson:ffbar2gmZ = on'),
+        parameterSets = cms.vstring('pythia8_example06')
     )
 )
 
@@ -43,7 +45,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.GEN = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('pythia8ex2.root')
+    fileName = cms.untracked.string('pythia8ex6.root')
 )
 
 process.p = cms.Path(process.generator)
