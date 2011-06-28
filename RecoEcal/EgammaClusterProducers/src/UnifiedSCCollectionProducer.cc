@@ -288,8 +288,10 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
 
 
         // at this point we have the basic cluster collection ready
-        // 
-        int bcSize = (int) basicClusters.size();
+        // Up to index   basicClusterOwner.size() we have the BC owned by a SC
+        // The remaining are BCs not owned by a SC
+
+        int bcSize = (int) basicClusterOwner.size();
         int bcSizeUncleanOnly = (int) basicClustersUncleanOnly.size();
 
 	LogTrace("UnifiedSC") << "Found cleaned SC: " << cleanSize 
