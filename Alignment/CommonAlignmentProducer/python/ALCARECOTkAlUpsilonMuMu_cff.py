@@ -14,16 +14,17 @@ ALCARECOTkAlUpsilonMuMuHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.
 # "BPIX","FPIX","ESp","ESm"
 import DPGAnalysis.Skims.skim_detstatus_cfi
 ALCARECOTkAlUpsilonMuMuDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatus.clone(
-    DetectorType = cms.vstring('TIBTID','TOB','TECp','TECm','BPIX','FPIX'),
+    DetectorType = cms.vstring('TIBTID','TOB','TECp','TECm','BPIX','FPIX',
+                               'DT0','DTp','DTm','CSCp','CSCm'),
     ApplyFilter  = cms.bool(True),
     AndOr        = cms.bool(True),
     DebugOn      = cms.untracked.bool(False)
 )
 
-ALCARECOTkAlUpsilonMuMuGoodMuonSelector = cms.EDFilter("MuonSelector",
-    src = cms.InputTag("muons"),
-    cut = cms.string('isGlobalMuon = 1'),
-    filter = cms.bool(True)                                
+import Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi
+ALCARECOTkAlUpsilonMuMuGoodMuons = Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi.TkAlGoodIdMuonSelector.clone()
+ALCARECOTkAlUpsilonMuMuRelCombIsoMuons = Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi.TkAlRelCombIsoMuonSelector.clone(
+    src = 'ALCARECOTkAlUpsilonMuMuGoodMuons'
 )
 
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
@@ -36,7 +37,8 @@ ALCARECOTkAlUpsilonMuMu.etaMin = -3.5
 ALCARECOTkAlUpsilonMuMu.etaMax = 3.5
 ALCARECOTkAlUpsilonMuMu.nHitMin = 0
 
-ALCARECOTkAlUpsilonMuMu.GlobalSelector.muonSource = 'ALCARECOTkAlUpsilonMuMuGoodMuonSelector'
+ALCARECOTkAlUpsilonMuMu.GlobalSelector.muonSource = 'ALCARECOTkAlUpsilonMuMuRelCombIsoMuons'
+# Isolation is shifted to the muon preselection, and then applied intrinsically if applyGlobalMuonFilter = True
 ALCARECOTkAlUpsilonMuMu.GlobalSelector.applyIsolationtest = False
 ALCARECOTkAlUpsilonMuMu.GlobalSelector.applyGlobalMuonFilter = True
 
@@ -48,7 +50,5 @@ ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.applyChargeFilter = True
 ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.charge = 0
 ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.acoplanarDistance = 1 ##radian
-ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.PDGMass = 9.460
-ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.numberOfCandidates = 5
 
-seqALCARECOTkAlUpsilonMuMu = cms.Sequence(ALCARECOTkAlUpsilonMuMuHLT+ALCARECOTkAlUpsilonMuMuDCSFilter+ALCARECOTkAlUpsilonMuMuGoodMuonSelector+ALCARECOTkAlUpsilonMuMu)
+seqALCARECOTkAlUpsilonMuMu = cms.Sequence(ALCARECOTkAlUpsilonMuMuHLT+ALCARECOTkAlUpsilonMuMuDCSFilter+ALCARECOTkAlUpsilonMuMuGoodMuons+ALCARECOTkAlUpsilonMuMuRelCombIsoMuons+ALCARECOTkAlUpsilonMuMu)
