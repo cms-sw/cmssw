@@ -184,7 +184,7 @@ fftjet_jet_maker = cms.EDProducer(
     #
     # The function which calculates the factor to be multiplied by
     # the membership function
-    memberFactorCalcPeak = fftjet_peakfunctor_const_one
+    memberFactorCalcPeak = fftjet_peakfunctor_const_one,
     #
     # The following parameters must be specified if "maxIterations" value
     # is larger than 1. They are used in the iterative mode only.
@@ -192,4 +192,12 @@ fftjet_jet_maker = cms.EDProducer(
     #  recoScaleRatioCalcJet = ,
     #  memberFactorCalcJet = ,
     #  jetDistanceCalc = ,
+    #
+    # Are we going to perform 4-vector pile-up subtraction?
+    # Note that recoScaleCalcJet, recoScaleRatioCalcJet, and
+    # memberFactorCalcJet must be defined so that we can do this.
+    subtractPileup = cms.bool(False),
+    #
+    # Source of the pile-up energy flow data
+    pileupLabel = cms.InputTag("pileupbuilder", "FFTJetPileupBuilder")
 )

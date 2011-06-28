@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Sun Jun 20 14:32:36 CDT 2010
-// $Id: FFTJetProducer.cc,v 1.1 2010/12/06 17:33:19 igv Exp $
+// $Id: FFTJetProducer.cc,v 1.2 2010/12/07 00:19:43 igv Exp $
 //
 //
 
@@ -131,6 +131,8 @@ FFTJetProducer::FFTJetProducer(const edm::ParameterSet& ps)
       init_param(double, convergenceDistance),
       init_param(bool, assignConstituents),
       init_param(bool, resumConstituents),
+      init_param(bool, subtractPileup),
+      init_param(edm::InputTag, pileupLabel),
       init_param(double, fixedScale),
       init_param(double, minStableScale),
       init_param(double, maxStableScale),
@@ -197,7 +199,8 @@ void FFTJetProducer::loadSparseTreeData(const edm::Event& iEvent)
         throw cms::Exception("FFTJetBadConfig") 
             << "The stored clustering tree is not sparse" << std::endl;
 
-    sparsePeakTreeFromStorable(*input, iniScales.get(), getEventScale(), &sparseTree);
+    sparsePeakTreeFromStorable(*input, iniScales.get(),
+                               getEventScale(), &sparseTree);
     sparseTree.sortNodes();
 }
 
@@ -382,30 +385,32 @@ void FFTJetProducer::buildGridAlg()
 }
 
 
-void FFTJetProducer::loadEnergyFlow(const edm::Event& iEvent)
+bool FFTJetProducer::loadEnergyFlow(
+    const edm::Event& iEvent, const edm::InputTag& label,
+    std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >& flow)
 {
     edm::Handle<DiscretizedEnergyFlow> input;
-    iEvent.getByLabel(treeLabel, input);
+    iEvent.getByLabel(label, input);
 
     // Make sure that the grid is compatible with the stored one
-    bool rebuildGrid = energyFlow.get() == NULL;
+    bool rebuildGrid = flow.get() == NULL;
     if (!rebuildGrid)
         rebuildGrid = 
-            !(energyFlow->nEta() == input->nEtaBins() &&
-              energyFlow->nPhi() == input->nPhiBins() &&
-              energyFlow->etaMin() == input->etaMin() &&
-              energyFlow->etaMax() == input->etaMax() &&
-              energyFlow->phiBin0Edge() == input->phiBin0Edge());
+            !(flow->nEta() == input->nEtaBins() &&
+              flow->nPhi() == input->nPhiBins() &&
+              flow->etaMin() == input->etaMin() &&
+              flow->etaMax() == input->etaMax() &&
+              flow->phiBin0Edge() == input->phiBin0Edge());
     if (rebuildGrid)
     {
         // We should not get here very often...
-        energyFlow = std::auto_ptr<fftjet::Grid2d<Real> >(
+        flow = std::auto_ptr<fftjet::Grid2d<Real> >(
             new fftjet::Grid2d<Real>(
                 input->nEtaBins(), input->etaMin(), input->etaMax(),
                 input->nPhiBins(), input->phiBin0Edge(), input->title()));
-        buildGridAlg();
     }
-    energyFlow->blockSet(input->data(), input->nEtaBins(), input->nPhiBins());
+    flow->blockSet(input->data(), input->nEtaBins(), input->nPhiBins());
+    return rebuildGrid;
 }
 
 
@@ -560,9 +565,13 @@ void FFTJetProducer::writeJets(edm::Event& iEvent,
     // Area of a single eta-phi cell for jet area calculations.
     // Set it to 0 in case the module configuration does not allow
     // us to calculate jet areas reliably.
-    const double cellArea = useGriddedAlgorithm && 
-                            recombinationDataCutoff < 0.0 ?
+    double cellArea = useGriddedAlgorithm && 
+                      recombinationDataCutoff < 0.0 ?
         energyFlow->etaBinWidth() * energyFlow->phiBinWidth() : 0.0;
+
+    if (subtractPileup)
+        cellArea = pileupEnergyFlow->etaBinWidth() *
+                   pileupEnergyFlow->phiBinWidth();
 
     // allocate output jet collection
     std::auto_ptr<OutputCollection> jets(new OutputCollection());
@@ -571,7 +580,7 @@ void FFTJetProducer::writeJets(edm::Event& iEvent,
 
     for (unsigned ijet=0; ijet<nJets; ++ijet)
     {
-        const RecoFFTJet& myjet(recoJets[ijet]);
+        RecoFFTJet& myjet(recoJets[ijet]);
 
         // Check if we should resum jet constituents
         VectorLike jet4vec(myjet.vec());
@@ -585,6 +594,13 @@ void FFTJetProducer::writeJets(edm::Event& iEvent,
             jet4vec = sum;
         }
 
+        // Subtract the pile-up
+        if (subtractPileup)
+        {
+            jet4vec -= pileup[ijet];
+            myjet.setPileup(pileup[ijet].Pt());
+        }
+
         // Write the specifics to the jet (simultaneously sets 4-vector,
         // vertex, constituents). These are overridden functions that will
         // call the appropriate specific code.
@@ -593,7 +609,10 @@ void FFTJetProducer::writeJets(edm::Event& iEvent,
                       constituents[ijet+1], iSetup);
 
         // calcuate the jet area
-        jet.setJetArea(cellArea*myjet.ncells());
+        double ncells = myjet.ncells();
+        if (subtractPileup)
+            ncells = cellCountsVec[ijet];
+        jet.setJetArea(cellArea*ncells);
 
         // add jet to the list
         jets->push_back(OutputJet(jet, jetToStorable<float>(myjet)));
@@ -656,7 +675,10 @@ void FFTJetProducer::produce(edm::Event& iEvent,
     if (useGriddedAlgorithm)
     {
         if (reuseExistingGrid)
-            loadEnergyFlow(iEvent);
+        {
+            if (loadEnergyFlow(iEvent, treeLabel, energyFlow))
+                buildGridAlg();
+        }
         else
             discretizeEnergyFlow();
     }
@@ -708,6 +730,14 @@ void FFTJetProducer::produce(edm::Event& iEvent,
             determineGriddedConstituents();
         else
             determineVectorConstituents();
+    }
+
+    // Figure out the pile-up
+    if (subtractPileup)
+    {
+        loadEnergyFlow(iEvent, pileupLabel, pileupEnergyFlow);
+        determinePileup();
+        assert(pileup.size() == recoJets.size());
     }
 
     // Write out the results
@@ -882,10 +912,154 @@ void FFTJetProducer::beginJob()
 }
 
 
+void FFTJetProducer::setJetStatusBit(RecoFFTJet* jet,
+                                     const int mask, const bool value)
+{
+    int status = jet->status();
+    if (value)
+        status |= mask;
+    else
+        status &= ~mask;
+    jet->setStatus(status);
+}
+
+
+void FFTJetProducer::determinePileup()
+{
+    // This function works with crisp clustering only
+    if (!isCrisp)
+        assert(!"Pile-up subtraction for fuzzy clustering "
+               "is not implemented yet");
+
+    // Clear the pileup vector
+    const unsigned nJets = recoJets.size();
+    pileup.resize(nJets);
+    if (nJets == 0)
+        return;
+    const VectorLike zero;
+    for (unsigned i=0; i<nJets; ++i)
+        pileup[i] = zero;
+
+    // Pileup energy flow grid
+    const fftjet::Grid2d<Real>& g(*pileupEnergyFlow);
+    const unsigned nEta = g.nEta();
+    const unsigned nPhi = g.nPhi();
+    const double cellArea = g.etaBinWidth() * g.phiBinWidth();
+
+    // Various calculators
+    fftjet::Functor1<double,RecoFFTJet>& scaleCalc(*recoScaleCalcJet);
+    fftjet::Functor1<double,RecoFFTJet>& ratioCalc(*recoScaleRatioCalcJet);
+    fftjet::Functor1<double,RecoFFTJet>& factorCalc(*memberFactorCalcJet);
+
+    // Make sure we have enough memory
+    memFcns2dVec.resize(nJets);
+    fftjet::AbsKernel2d** memFcns2d = &memFcns2dVec[0];
+
+    doubleBuf.resize(nJets*4U + nJets*nPhi);
+    double* recoScales = &doubleBuf[0];
+    double* recoScaleRatios = recoScales + nJets;
+    double* memFactors = recoScaleRatios + nJets;
+    double* dEta = memFactors + nJets;
+    double* dPhiBuf = dEta + nJets;
+
+    cellCountsVec.resize(nJets);
+    unsigned* cellCounts = &cellCountsVec[0];
+
+    // Go over jets and collect the necessary info
+    for (unsigned ijet=0; ijet<nJets; ++ijet)
+    {
+        const RecoFFTJet& jet(recoJets[ijet]);
+        const fftjet::Peak& peak(jet.precluster());
+
+        // Make sure we are using 2-d membership functions.
+        // Pile-up subtraction scheme for 3-d functions should be different.
+        fftjet::AbsMembershipFunction* m3d = 
+            dynamic_cast<fftjet::AbsMembershipFunction*>(
+                peak.membershipFunction());
+        if (m3d == 0)
+            m3d = dynamic_cast<fftjet::AbsMembershipFunction*>(
+                jetMembershipFunction.get());
+        if (m3d)
+        {
+            assert(!"Pile-up subtraction for 3-d membership functions "
+                   "is not implemented yet");
+        }
+        else
+        {
+            fftjet::AbsKernel2d* m2d =
+                dynamic_cast<fftjet::AbsKernel2d*>(
+                    peak.membershipFunction());
+            if (m2d == 0)
+                m2d = dynamic_cast<fftjet::AbsKernel2d*>(
+                    jetMembershipFunction.get());
+            assert(m2d);
+            memFcns2d[ijet] = m2d;
+        }
+        recoScales[ijet] = scaleCalc(jet);
+        recoScaleRatios[ijet] = ratioCalc(jet);
+        memFactors[ijet] = factorCalc(jet);
+        cellCounts[ijet] = 0U;
+
+        const double jetPhi = jet.vec().Phi();
+        for (unsigned iphi=0; iphi<nPhi; ++iphi)
+        {
+            double dphi = g.phiBinCenter(iphi) - jetPhi;
+            while (dphi > M_PI)
+                dphi -= (2.0*M_PI);
+            while (dphi < -M_PI)
+                dphi += (2.0*M_PI);
+            dPhiBuf[iphi*nJets+ijet] = dphi;
+        }
+    }
+
+    // Go over all grid points and integrate
+    // the pile-up energy density
+    VBuilder vMaker;
+    for (unsigned ieta=0; ieta<nEta; ++ieta)
+    {
+        const double eta(g.etaBinCenter(ieta));
+        const Real* databuf = g.data() + ieta*nPhi;
+
+        // Figure out dEta for each jet
+        for (unsigned ijet=0; ijet<nJets; ++ijet)
+            dEta[ijet] = eta - recoJets[ijet].vec().Eta();
+
+        for (unsigned iphi=0; iphi<nPhi; ++iphi)
+        {
+            double maxW(0.0);
+            unsigned maxWJet(nJets);
+            const double* dPhi = dPhiBuf + iphi*nJets;
+
+            for (unsigned ijet=0; ijet<nJets; ++ijet)
+            {
+                if (recoScaleRatios[ijet] > 0.0)
+                    memFcns2d[ijet]->setScaleRatio(recoScaleRatios[ijet]);
+                const double f = memFactors[ijet]*
+                    (*memFcns2d[ijet])(dEta[ijet], dPhi[ijet],
+                                       recoScales[ijet]);
+                if (f > maxW)
+                {
+                    maxW = f;
+                    maxWJet = ijet;
+                }
+            }
+
+            if (maxWJet < nJets)
+            {
+                pileup[maxWJet] += vMaker(cellArea*databuf[iphi],
+                                          eta, g.phiBinCenter(iphi));
+                cellCounts[maxWJet]++;
+            }
+        }
+    }
+}
+
+
 // ------------ method called once each job just after ending the event loop
 void FFTJetProducer::endJob()
 {
 }
+
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(FFTJetProducer);

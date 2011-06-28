@@ -21,7 +21,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Sun Jun 20 14:32:36 CDT 2010
-// $Id: FFTJetProducer.h,v 1.1 2010/12/06 17:33:19 igv Exp $
+// $Id: FFTJetProducer.h,v 1.2 2010/12/07 00:19:43 igv Exp $
 //
 //
 
@@ -158,10 +158,13 @@ private:
     template<class Real>
     void loadSparseTreeData(const edm::Event&);
 
-    // The following methods do most of the work
+    // The following methods do most of the work.
+    // The following function tells us if the grid was rebuilt.
+    static bool loadEnergyFlow(
+        const edm::Event& iEvent, const edm::InputTag& label,
+        std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >& flow);
     void buildGridAlg();
     void prepareRecombinationScales();
-    void loadEnergyFlow(const edm::Event& iEvent);
     bool checkConvergence(const std::vector<RecoFFTJet>& previousIterResult,
                           std::vector<RecoFFTJet>& thisIterResult);
     void determineGriddedConstituents();
@@ -174,6 +177,10 @@ private:
     template <typename Jet>
     void makeProduces(const std::string& alias, const std::string& tag);
 
+    // The following function builds the pile-up estimate
+    // for each jet
+    void determinePileup();
+
     // The following function returns the number of iterations
     // performed. If this number equals to or less than "maxIterations"
     // then the iterations have converged. If the number larger than
@@ -181,6 +188,9 @@ private:
     // however, that only "maxIterations" iterations would still be
     // performed).
     unsigned iterateJetReconstruction();
+
+    // A function to set jet status bits
+    static void setJetStatusBit(RecoFFTJet* jet, int mask, bool value);
 
     //
     // ----------member data ---------------------------
@@ -214,6 +224,14 @@ private:
     // This might make sense if FFTJet is used in the crisp, gridded
     // mode to determine jet areas, and vector recombination is desired.
     const bool resumConstituents;
+
+    // Are we going to subtract the pile-up? Note that
+    // pile-up subtraction does not modify eta and phi moments.
+    const bool subtractPileup;
+
+    // Label for the pile-up energy flow. Must be specified
+    // if the pile-up is subtracted.
+    const edm::InputTag pileupLabel;
 
     // Scale for the peak selection (if the scale is fixed)
     const double fixedScale;
@@ -310,6 +328,20 @@ private:
 
     // Vectors of constituents
     std::vector<std::vector<reco::CandidatePtr> > constituents;
+
+    // Vector of pile-up. We will subtract it from the
+    // 4-vectors of reconstructed jets.
+    std::vector<fftjetcms::VectorLike> pileup;
+
+    // The pile-up transverse energy density discretization grid.
+    // Note that this is _density_, not energy. To get energy, 
+    // multiply by cell area.
+    std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> > pileupEnergyFlow;
+
+    // Memory buffers related to pile-up subtraction
+    std::vector<fftjet::AbsKernel2d*> memFcns2dVec;
+    std::vector<double> doubleBuf;
+    std::vector<unsigned> cellCountsVec;
 };
 
 #endif // RecoJets_FFTJetProducers_FFTJetProducer_h
