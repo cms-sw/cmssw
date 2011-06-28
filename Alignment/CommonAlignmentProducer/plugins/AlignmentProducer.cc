@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.51 $
-///  last update: $Date: 2011/03/05 19:57:00 $
+///  Revision   : $Revision: 1.52 $
+///  last update: $Date: 2011/05/23 21:01:48 $
 ///  by         : $Author: mussgill $
 
 #include "AlignmentProducer.h"
@@ -134,6 +134,8 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
 // Delete new objects
 AlignmentProducer::~AlignmentProducer()
 {
+  delete theAlignmentAlgo;
+
   delete theAlignmentParameterStore;
   delete theAlignableExtras;
   delete theAlignableTracker;
