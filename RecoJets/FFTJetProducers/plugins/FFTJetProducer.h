@@ -227,6 +227,7 @@ private:
 
     // Are we going to subtract the pile-up? Note that
     // pile-up subtraction does not modify eta and phi moments.
+    const bool calculatePileup;
     const bool subtractPileup;
 
     // Label for the pile-up energy flow. Must be specified

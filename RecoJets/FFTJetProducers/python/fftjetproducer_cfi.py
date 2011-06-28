@@ -193,10 +193,13 @@ fftjet_jet_maker = cms.EDProducer(
     #  memberFactorCalcJet = ,
     #  jetDistanceCalc = ,
     #
-    # Are we going to perform 4-vector pile-up subtraction?
+    # Are we going to estimate the pile-up using actual jet shapes?
     # Note that recoScaleCalcJet, recoScaleRatioCalcJet, and
-    # memberFactorCalcJet must be defined so that we can do this.
-    subtractPileup = cms.bool(False),
+    # memberFactorCalcJet must be defined if we want to do this.
+    calculatePileup = cms.bool(False),
+    #
+    # If the pile-up is estimated, do we want to subtract it as a 4-vector?
+    subtractPileup = cms.bool(True),
     #
     # Source of the pile-up energy flow data
     pileupLabel = cms.InputTag("pileupbuilder", "FFTJetPileupBuilder")

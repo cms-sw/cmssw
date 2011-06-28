@@ -131,6 +131,7 @@ FFTJetProducer::FFTJetProducer(const edm::ParameterSet& ps)
       init_param(double, convergenceDistance),
       init_param(bool, assignConstituents),
       init_param(bool, resumConstituents),
+      init_param(bool, calculatePileup),
       init_param(bool, subtractPileup),
       init_param(edm::InputTag, pileupLabel),
       init_param(double, fixedScale),
@@ -221,10 +222,14 @@ void FFTJetProducer::selectPreclusters(
         preclusters->push_back(
             sparseTree.uncheckedNode(pnodes[i]).getCluster());
 
-    // Set the status word to indicate the resolution scheme used
+    // Remember the node id in the precluster and set
+    // the status word to indicate the resolution scheme used
     fftjet::Peak* clusters = nNodes ? &(*preclusters)[0] : 0;
     for (unsigned i=0; i<nNodes; ++i)
+    {
+        clusters[i].setCode(pnodes[i]);
         clusters[i].setStatus(resolution);
+    }
 }
 
 
@@ -569,7 +574,7 @@ void FFTJetProducer::writeJets(edm::Event& iEvent,
                       recombinationDataCutoff < 0.0 ?
         energyFlow->etaBinWidth() * energyFlow->phiBinWidth() : 0.0;
 
-    if (subtractPileup)
+    if (calculatePileup)
         cellArea = pileupEnergyFlow->etaBinWidth() *
                    pileupEnergyFlow->phiBinWidth();
 
@@ -595,9 +600,10 @@ void FFTJetProducer::writeJets(edm::Event& iEvent,
         }
 
         // Subtract the pile-up
-        if (subtractPileup)
+        if (calculatePileup)
         {
-            jet4vec -= pileup[ijet];
+            if (subtractPileup)
+                jet4vec -= pileup[ijet];
             myjet.setPileup(pileup[ijet].Pt());
         }
 
@@ -610,7 +616,7 @@ void FFTJetProducer::writeJets(edm::Event& iEvent,
 
         // calcuate the jet area
         double ncells = myjet.ncells();
-        if (subtractPileup)
+        if (calculatePileup)
             ncells = cellCountsVec[ijet];
         jet.setJetArea(cellArea*ncells);
 
@@ -733,7 +739,7 @@ void FFTJetProducer::produce(edm::Event& iEvent,
     }
 
     // Figure out the pile-up
-    if (subtractPileup)
+    if (calculatePileup)
     {
         loadEnergyFlow(iEvent, pileupLabel, pileupEnergyFlow);
         determinePileup();
