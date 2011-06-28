@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoJets.JetProducers.CaloJetParameters_cfi import *
-from RecoJets.JetProducers.AnomalousCellParameters_cfi import *
-
 hltak5CaloJets = cms.EDProducer( "FastjetJetProducer", 
     Active_Area_Repeats = cms.int32(1),
     doOutputJets = cms.bool(True),
