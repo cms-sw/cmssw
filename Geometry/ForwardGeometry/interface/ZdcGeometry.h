@@ -41,7 +41,7 @@ class ZdcGeometry : public CaloSubdetectorGeometry
       explicit ZdcGeometry(const ZdcTopology * topology);
       virtual ~ZdcGeometry();
   
-      virtual DetId getClosestCell(const GlobalPoint& r) const ;
+//      virtual DetId getClosestCell(const GlobalPoint& r) const ;
 
       static std::string producerTag() { return "ZDC" ; }
 

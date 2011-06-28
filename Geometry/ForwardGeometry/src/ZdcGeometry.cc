@@ -31,7 +31,7 @@ ZdcGeometry::~ZdcGeometry()
 {
    if( m_ownsTopology ) delete theTopology ;
 }
-
+/*
 DetId ZdcGeometry::getClosestCell(const GlobalPoint& r) const
 {
    DetId returnId ( 0 ) ;
@@ -49,7 +49,7 @@ DetId ZdcGeometry::getClosestCell(const GlobalPoint& r) const
    }
    return returnId ;
 }
-
+*/
 unsigned int
 ZdcGeometry::alignmentTransformIndexLocal( const DetId& id )
 {
