@@ -128,11 +128,11 @@ class ShapeBuilder(ModelBuilder):
                         if len(self.DC.obs):
                             if self.DC.obs[b] == -1: self.DC.obs[b] = norm
                             elif abs(norm-self.DC.obs[b]) > 0.01:
-                                raise RuntimeError, "Mismatch in normalizations for observed data in bin %s: text %f, shape %f" % (b,self.DC.obs[b],norm)
+                                if not self.options.noCheckNorm: raise RuntimeError, "Mismatch in normalizations for observed data in bin %s: text %f, shape %f" % (b,self.DC.obs[b],norm)
                     else:
                         if self.DC.exp[b][p] == -1: self.DC.exp[b][p] = norm
                         elif self.DC.exp[b][p] > 0 and abs(norm-self.DC.exp[b][p]) > 0.01*max(1,self.DC.exp[b][p]): 
-                            raise RuntimeError, "Mismatch in normalizations for bin %s, process %s: rate %f, shape %f" % (b,p,self.DC.exp[b][p],norm)
+                            if not self.options.noCheckNorm: raise RuntimeError, "Mismatch in normalizations for bin %s, process %s: rate %f, shape %f" % (b,p,self.DC.exp[b][p],norm)
         if shapeTypes.count("TH1"):
             self.out.maxbins = max(shapeBins)
             if self.options.verbose: stderr.write("Will use binning variable th1x with %d bins\n" % self.out.maxbins)
