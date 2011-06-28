@@ -86,8 +86,12 @@ HLT_HT400_AlphaT0p52_v*
 HLT_HT450_v*
 HLT_HT450_AlphaT0p51_v* 
 HLT_HT450_AlphaT0p52_v* 
+HLT_HT450_JetPt60_DPhi2p94_v*
 HLT_HT500_v*
+HLT_HT500_JetPt60_DPhi2p94_v*
 HLT_HT550_v*
+HLT_HT550_JetPt60_DPhi2p94_v*
+HLT_HT600_v*
 HLT_HT2000_v*
 HLT_PFMHT150_v*
 HLT_MET65_v*
@@ -261,6 +265,7 @@ HLT_BTagMu_DiJet40_Mu5_v*
 HLT_BTagMu_DiJet70_Mu5_v*
 HLT_BTagMu_DiJet110_Mu5_v*
 HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT150_v*
+HLT_Mu3_Ele8_CaloIdT_CaloIsoVL_v*
 HLT_Mu8_R005_MR200_v*
 HLT_Mu8_R025_MR200_v*
 HLT_Mu8_R029_MR200_v*
@@ -323,6 +328,7 @@ HLT_Ele8_CaloIdT_TrkIdT_DiJet30_v*
 HLT_Ele8_CaloIdT_TrkIdT_TriJet30_v*
 HLT_Ele8_CaloIdT_TrkIdT_QuadJet30_v*
 HLT_Ele8_CaloIdL_CaloIsoVL_Jet40_v*
+HLT_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_v*
 HLT_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT250_v*
 HLT_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT250_PFMHT25_v*
 HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R005_MR200_v*

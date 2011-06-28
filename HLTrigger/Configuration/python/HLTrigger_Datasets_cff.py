@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V141
+# /dev/CMSSW_4_2_0/GRun/V143
 
 import FWCore.ParameterSet.Config as cms
 
@@ -94,6 +94,7 @@ streamA_datasetElectronHad_selector.triggerConditions = cms.vstring('HLT_DoubleE
     'HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R029_MR200_v1', 
     'HLT_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT250_PFMHT25_v1', 
     'HLT_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT250_v6', 
+    'HLT_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_v1', 
     'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3_Jet20_v1', 
     'HLT_Ele15_CaloIdVT_TrkIdT_Jet35_Jet25_Deta3_Jet20_v2', 
     'HLT_Ele17_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3p5_Jet25_v2', 
@@ -164,9 +165,13 @@ streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_DiJet130_PT130_v
     'HLT_HT400_v7', 
     'HLT_HT450_AlphaT0p51_v1', 
     'HLT_HT450_AlphaT0p52_v1', 
+    'HLT_HT450_JetPt60_DPhi2p94_v1', 
     'HLT_HT450_v7', 
+    'HLT_HT500_JetPt60_DPhi2p94_v1', 
     'HLT_HT500_v7', 
+    'HLT_HT550_JetPt60_DPhi2p94_v1', 
     'HLT_HT550_v7', 
+    'HLT_HT600_v1', 
     'HLT_R014_MR150_CentralJet40_BTagIP_v6', 
     'HLT_R014_MR150_v5', 
     'HLT_R017_MR450_CentralJet40_BTagIP_v1', 
@@ -284,6 +289,7 @@ streamA_datasetMuEG_selector.triggerConditions = cms.vstring('HLT_DoubleMu5_Ele8
     'HLT_Mu15_Photon20_CaloIdL_v7', 
     'HLT_Mu17_Ele8_CaloIdL_v6', 
     'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_v1', 
+    'HLT_Mu3_Ele8_CaloIdT_CaloIsoVL_v1', 
     'HLT_Mu5_DoubleEle8_CaloIdT_TrkIdVL_v1', 
     'HLT_Mu5_Ele8_CaloIdT_TrkIdVL_Ele8_CaloIdL_TrkIdVL_v1', 
     'HLT_Mu8_Ele17_CaloIdL_v6', 
