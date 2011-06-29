@@ -176,12 +176,12 @@ elif sys.argv[1]=='2':
         JobName = "HscpLimits"
         LaunchOnCondor.Jobs_RunHere = 1
         LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)
-#        ComputeLimits('"Results/dedxASmi/combined/Eta25/PtMin35/Type0/"', '""')
-#        ComputeLimits('"Results/dedxASmi/combined/Eta25/PtMin35/Type2/"', '""')
-#        ComputeLimits('"Results/dedxASmi/combined/Eta20/PtMin35/Type0/"', '""')
-#        ComputeLimits('"Results/dedxASmi/combined/Eta20/PtMin35/Type2/"', '""')
+        ComputeLimits('"Results/dedxASmi/combined/Eta25/PtMin35/Type0/"', '""')
+        ComputeLimits('"Results/dedxASmi/combined/Eta25/PtMin35/Type2/"', '""')
+        ComputeLimits('"Results/dedxASmi/combined/Eta20/PtMin35/Type0/"', '""')
+        ComputeLimits('"Results/dedxASmi/combined/Eta20/PtMin35/Type2/"', '""')
         ComputeLimits('"Results/dedxASmi/combined/Eta15/PtMin35/Type0/"', '""')
-#        ComputeLimits('"Results/dedxASmi/combined/Eta15/PtMin35/Type2/"', '""')
+        ComputeLimits('"Results/dedxASmi/combined/Eta15/PtMin35/Type2/"', '""')
 
 #        ComputeLimits('"Results/dedxASmi/combined/Eta25/PtMin35/Type0/"', '"_SystP"')
 #        ComputeLimits('"Results/dedxASmi/combined/Eta25/PtMin35/Type2/"', '"_SystP"')

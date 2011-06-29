@@ -66,6 +66,18 @@ process.dedxNPProd.UseCalibration      = cms.bool(True)
 process.dedxNPASmi.UseCalibration      = cms.bool(True)
 
 
+process.dedxHarm2.MeVperADCStrip = cms.double(3.61e-06*294)
+process.dedxTru40.MeVperADCStrip = cms.double(3.61e-06*294) 
+process.dedxProd.MeVperADCStrip = cms.double(3.61e-06*294)   
+process.dedxASmi.MeVperADCStrip = cms.double(3.61e-06*294)   
+process.dedxNPHarm2.MeVperADCStrip = cms.double(3.61e-06*294)
+process.dedxNPTru40.MeVperADCStrip = cms.double(3.61e-06*294)
+process.dedxNSHarm2.MeVperADCStrip = cms.double(3.61e-06*294)
+process.dedxNSTru40.MeVperADCStrip = cms.double(3.61e-06*294)
+process.dedxNPProd.MeVperADCStrip = cms.double(3.61e-06*294)  
+process.dedxNPASmi.MeVperADCStrip = cms.double(3.61e-06*294)   
+
+
 process.load("RecoLocalMuon.DTSegment.dt4DSegments_MTPatternReco4D_LinearDriftFromDBLoose_cfi")
 process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.AlphaMaxPhi = 1.0
 process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.AlphaMaxTheta = 0.9

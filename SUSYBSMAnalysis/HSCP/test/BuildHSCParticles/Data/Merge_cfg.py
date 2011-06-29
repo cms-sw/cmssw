@@ -15,28 +15,13 @@ process.HSCPHLTDuplicate = cms.EDFilter("HSCPHLTFilter",
    RemoveDuplicates = cms.bool(True),
    TriggerProcess   = cms.string("HLT"),
    MuonTrigger1Mask    = cms.int32(1),  #Activated
-   MuonTrigger2Mask    = cms.int32(1),  #Activated
-   CaloMetTriggerMask  = cms.int32(1),  #Activated
    PFMetTriggerMask    = cms.int32(1),  #Activated
-)
-
-
-
-process.HSCPHLTFilterCALOMET = cms.EDFilter("HSCPHLTFilter",
-   RemoveDuplicates = cms.bool(False),
-   TriggerProcess   = cms.string("HLT"),
-   MuonTrigger1Mask    = cms.int32(0),  #Activated
-   MuonTrigger2Mask    = cms.int32(0),  #Activated
-   CaloMetTriggerMask  = cms.int32(1),  #Activated
-   PFMetTriggerMask    = cms.int32(0),  #Activated
 )
 
 process.HSCPHLTFilterPFMET = cms.EDFilter("HSCPHLTFilter",
    RemoveDuplicates = cms.bool(False),
    TriggerProcess   = cms.string("HLT"),
    MuonTrigger1Mask    = cms.int32(0),  #Activated
-   MuonTrigger2Mask    = cms.int32(0),  #Activated
-   CaloMetTriggerMask  = cms.int32(0),  #Activated
    PFMetTriggerMask    = cms.int32(1),  #Activated
 )
 
@@ -45,27 +30,13 @@ process.HSCPHLTFilterSingleMU = cms.EDFilter("HSCPHLTFilter",
    RemoveDuplicates = cms.bool(False),
    TriggerProcess  = cms.string("HLT"),
    MuonTrigger1Mask    = cms.int32(1),  #Activated
-   MuonTrigger2Mask    = cms.int32(0),  #Activated
-   CaloMetTriggerMask  = cms.int32(0),  #Activated
    PFMetTriggerMask    = cms.int32(0),  #Activated
 )
-
-process.HSCPHLTFilterDoubleMU = cms.EDFilter("HSCPHLTFilter",
-   RemoveDuplicates = cms.bool(False),
-   TriggerProcess  = cms.string("HLT"),
-   MuonTrigger1Mask    = cms.int32(0),  #Activated
-   MuonTrigger2Mask    = cms.int32(1),  #Activated
-   CaloMetTriggerMask  = cms.int32(0),  #Activated
-   PFMetTriggerMask    = cms.int32(0),  #Activated
-)
-
 
 
 process.Filter      = cms.Path(process.HSCPHLTDuplicate   )
-process.HscpPathCaloMet = cms.Path(process.HSCPHLTFilterCALOMET   )
 process.HscpPathPFMet = cms.Path(process.HSCPHLTFilterPFMET   )
 process.HscpPathSingleMu  = cms.Path(process.HSCPHLTFilterSingleMU    )
-process.HscpPathDoubleMu  = cms.Path(process.HSCPHLTFilterDoubleMU    )
 
 
 process.Out = cms.OutputModule("PoolOutputModule",
@@ -107,6 +78,6 @@ process.Out = cms.OutputModule("PoolOutputModule",
 
 process.endPath = cms.EndPath(process.Out)
 
-process.schedule = cms.Schedule(process.Filter, process.HscpPathCaloMet, process.HscpPathPFMet, process.HscpPathSingleMu, process.HscpPathDoubleMu, process.endPath)
+process.schedule = cms.Schedule(process.Filter, process.HscpPathPFMet, process.HscpPathSingleMu, process.endPath)
 
 

@@ -6,16 +6,11 @@ import os
 import sys
 import LaunchOnCondor
 
+Jobs = ["DCStau121","DCStau182","DCStau242","DCStau302","Gluino200","Gluino200N","Gluino300","Gluino300N","Gluino400","Gluino400N","Gluino500","Gluino500N","Gluino600","Gluino600N","Gluino700","Gluino700N", "Gluino800","Gluino800N", "Gluino900","Gluino900N", "Gluino1000","Gluino1000N","PPStau100","PPStau126","PPStau156","PPStau200","PPStau247","PPStau308","Stop130","Stop130N","Stop200","Stop200N","Stop300","Stop300N","Stop400","Stop400N", "Stop500","Stop500N", "Stop600","Stop600N", "Stop700","Stop700N", "Stop800","Stop800N","GMStau100","GMStau126","GMStau156","GMStau200","GMStau247","GMStau308"]
+
 FarmDirectory = "MERGE"
-InputFiles    = LaunchOnCondor.GetListOfFiles('"file:','/storage/data/cms/store/user/quertenmont/10_09_11_HSCP/FWLite_MC/MB/*.root','",');
-LaunchOnCondor.SendCMSMergeJob(FarmDirectory, "MC_MB", InputFiles, '"XXX_OUTPUT_XXX.root"', '"keep *"')
+for JobName in Jobs:
+	LaunchOnCondor.ListToFile(LaunchOnCondor.GetListOfFiles('"file:','/storage/data/cms/store/user/quertenmont/11_05_05_HSCP2011/FWLite_Sign/'+ JobName + '/HSCP_*.root','",'), FarmDirectory + "InputFile.txt") 
+	LaunchOnCondor.SendCMSJobs(FarmDirectory, JobName, "Merge_cfg.py", FarmDirectory + "InputFile.txt", 1, [])
 
-InputFiles    = LaunchOnCondor.GetListOfFiles('"file:','/storage/data/cms/store/user/quertenmont/10_09_11_HSCP/FWLite_MC/QCDPT30/*.root','",');
-LaunchOnCondor.SendCMSMergeJob(FarmDirectory, "MC_QCD30", InputFiles, '"XXX_OUTPUT_XXX.root"', '"keep *"')
-
-InputFiles    = LaunchOnCondor.GetListOfFiles('"file:','/storage/data/cms/store/user/quertenmont/10_09_11_HSCP/FWLite_MC/QCDPT80/*.root','",');
-LaunchOnCondor.SendCMSMergeJob(FarmDirectory, "MC_QCD80", InputFiles, '"XXX_OUTPUT_XXX.root"', '"keep *"')
-
-InputFiles    = LaunchOnCondor.GetListOfFiles('"file:','/storage/data/cms/store/user/quertenmont/10_09_11_HSCP/FWLite_MC/PPMUX/*.root','",');
-LaunchOnCondor.SendCMSMergeJob(FarmDirectory, "MC_PPMUX", InputFiles, '"XXX_OUTPUT_XXX.root"', '"keep *"')
-
+os.system("rm " +  FarmDirectory + "InputFile.txt")

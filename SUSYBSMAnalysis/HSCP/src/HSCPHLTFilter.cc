@@ -56,9 +56,7 @@ HSCPHLTFilter::HSCPHLTFilter(const edm::ParameterSet& iConfig)
 
    TriggerProcess        = iConfig.getParameter<std::string>         ("TriggerProcess");
    MuonTrigger1Mask       = iConfig.getParameter<int>                 ("MuonTrigger1Mask");
-   MuonTrigger2Mask       = iConfig.getParameter<int>                 ("MuonTrigger2Mask");
    PFMetTriggerMask        = iConfig.getParameter<int>                 ("PFMetTriggerMask");
-   CaloMetTriggerMask        = iConfig.getParameter<int>                 ("CaloMetTriggerMask");
 
    CountEvent = 0;
    MaxPrint = 10000;
@@ -115,97 +113,89 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
    bool MuonTrigger1 = false;
-   bool MuonTrigger2 = false;
    bool PFMetTrigger  = false;
-   bool CaloMetTrigger  = false;
 
 
    // HLT TRIGGER BASED ON 1 MUON!
-   if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu24_v2")){
-      if(tr.accept(tr.triggerIndex("HLT_Mu24_v2"))){MuonTrigger1 = true;}
+   if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu30_v5")){
+      if(tr.accept(tr.triggerIndex("HLT_Mu30_v5"))){MuonTrigger1 = true;}
    }else{
-      if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu24_v1")){
-         if(tr.accept(tr.triggerIndex("HLT_Mu24_v1"))){MuonTrigger1 = true;}
+      if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu30_v4")){
+         if(tr.accept(tr.triggerIndex("HLT_Mu30_v4"))){MuonTrigger1 = true;}
       }else{
-         printf("HSCPHLTFilter --> HLT_Mu24_v1  not found\n");
-         for(unsigned int i=0;i<tr.size();i++){
-            printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
-         }fflush(stdout);
-         exit(0);
-      }
-   }
-
-
-   // HLT TRIGGER BASED ON 2 MUONS!
-   if(TrIndex_Unknown != tr.triggerIndex("HLT_DoubleMu7_v2")){
-      if(tr.accept(tr.triggerIndex("HLT_DoubleMu7_v2"))){MuonTrigger2 = true;}
-   }else{ 
-      if(TrIndex_Unknown != tr.triggerIndex("HLT_DoubleMu7_v1")){
-         if(tr.accept(tr.triggerIndex("HLT_DoubleMu7_v1"))){MuonTrigger2 = true;}
-      }else{
-         printf("HSCPHLTFilter --> HLT_DoubleMu7_v1  not found\n");
-         for(unsigned int i=0;i<tr.size();i++){
-            printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
-         }fflush(stdout);
-         exit(0);
+         if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu30_v3")){
+            if(tr.accept(tr.triggerIndex("HLT_Mu30_v3"))){MuonTrigger1 = true;}
+         }else{
+            if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu30_v2")){
+               if(tr.accept(tr.triggerIndex("HLT_Mu30_v2"))){MuonTrigger1 = true;}
+            }else{
+               if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu30_v1")){
+                  if(tr.accept(tr.triggerIndex("HLT_Mu30_v1"))){MuonTrigger1 = true;}
+               }else{
+                  printf("HSCPHLTFilter --> HLT_Mu30_v1  not found\n");
+                  for(unsigned int i=0;i<tr.size();i++){
+                     printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
+                  }fflush(stdout);
+                  exit(0);
+               }
+            }
+         }
       }
    }
 
    // HLT TRIGGER BASED ON PF MET!
-   if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v4")){
-      if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v4"))){PFMetTrigger = true;}
+   if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v9")){
+      if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v9"))){PFMetTrigger = true;}
    }else{
-      if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v3")){
-         if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v3"))){PFMetTrigger = true;}
-      }else{ 
-         if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v2")){
-            if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v2"))){PFMetTrigger = true;}  
+      if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v8")){
+         if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v8"))){PFMetTrigger = true;}
+      }else{
+         if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v7")){
+            if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v7"))){PFMetTrigger = true;}
          }else{
-            if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v1")){
-               if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v1"))){PFMetTrigger = true;}
+            if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v6")){
+               if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v6"))){PFMetTrigger = true;}
             }else{
-               printf("HSCPHLTFilter --> HLT_PFMHT150_v2 or v1  not found\n");
-               for(unsigned int i=0;i<tr.size();i++){
-                  printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
-               }fflush(stdout);
-               exit(0);
+               if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v5")){
+                  if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v5"))){PFMetTrigger = true;}
+               }else{
+                  if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v4")){
+                     if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v4"))){PFMetTrigger = true;}
+                  }else{
+                     if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v3")){
+                        if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v3"))){PFMetTrigger = true;}
+                     }else{ 
+                        if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v2")){
+                           if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v2"))){PFMetTrigger = true;}  
+                        }else{
+                           if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v1")){
+                              if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v1"))){PFMetTrigger = true;}
+                           }else{
+                              printf("HSCPHLTFilter --> HLT_PFMHT150_v2 or v1  not found\n");
+                              for(unsigned int i=0;i<tr.size();i++){
+                                 printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
+                              }fflush(stdout);
+                              exit(0);
+                          }
+                       }
+                    }
+                 }  
+              }
            }
         }
      }
    }
-
-   // HLT TRIGGER BASED ON Calo MET!
-   if(TrIndex_Unknown != tr.triggerIndex("HLT_MET120_v4")){
-      if(tr.accept(tr.triggerIndex("HLT_MET120_v4"))){CaloMetTrigger = true;}
-   }else{
-      if(TrIndex_Unknown != tr.triggerIndex("HLT_MET120_v3")){
-         if(tr.accept(tr.triggerIndex("HLT_MET120_v3"))){CaloMetTrigger = true;}
-      }else{ 
-         if(TrIndex_Unknown != tr.triggerIndex("HLT_MET120_v2")){
-            if(tr.accept(tr.triggerIndex("HLT_MET120_v2"))){CaloMetTrigger = true;}  
-         }else{
-            if(TrIndex_Unknown != tr.triggerIndex("HLT_MET120_v1")){
-               if(tr.accept(tr.triggerIndex("HLT_MET120_v1"))){CaloMetTrigger = true;}
-            }else{
-               printf("HSCPHLTFilter --> HLT_MET120_v2 or v1  not found\n");
-               for(unsigned int i=0;i<tr.size();i++){
-                  printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
-               }fflush(stdout);
-               exit(0);
-           }
-        }
-     }
-   }
-
 
    //printf("Bits = %1i %1i %1i X Mask = %+2i %+2i %+2i -->",MuonTrigger,CaloMetTrigger,CaloMetTrigger,MuonTriggerMask,CaloMetTriggerMask,CaloMetTriggerMask);
 
    if(MuonTrigger1Mask==0)MuonTrigger1=false;
-   if(MuonTrigger2Mask==0)MuonTrigger2=false;
    if(PFMetTriggerMask ==0)PFMetTrigger =false;
-   if(CaloMetTriggerMask ==0)CaloMetTrigger =false;
 
-   bool d =  (MuonTrigger1 | MuonTrigger2 | PFMetTrigger | CaloMetTrigger);
+   if(MuonTrigger1Mask<0)MuonTrigger1=!MuonTrigger1;
+   if(PFMetTriggerMask <0)PFMetTrigger =!PFMetTrigger;
+
+
+   bool d =  (MuonTrigger1 | PFMetTrigger);
    /* printf("%i\n",d);*/return d;
 
 }

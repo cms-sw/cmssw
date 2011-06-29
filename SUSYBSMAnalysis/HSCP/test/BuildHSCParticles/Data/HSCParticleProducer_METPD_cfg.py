@@ -35,8 +35,8 @@ process.load("SUSYBSMAnalysis.HSCP.HSCPTreeBuilder_cff")
 process.HSCPHLTFilter = cms.EDFilter("HSCPHLTFilter",
    TriggerProcess  = cms.string("HLT"),
    RemoveDuplicates    = cms.bool(False),
-   MuonTrigger1Mask    = cms.int32(1),  #Activated
-   PFMetTriggerMask    = cms.int32(1),  #Activated
+   MuonTrigger1Mask    = cms.int32(-1),  #Activated
+   PFMetTriggerMask    = cms.int32(1),   #Activated
 )
 
 ########################################################################  SPECIAL CASE FOR DATA
