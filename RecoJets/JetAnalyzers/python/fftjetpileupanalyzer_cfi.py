@@ -23,6 +23,9 @@ fftjet_pileup_analyzer = cms.EDAnalyzer(
     fastJetRhoLabel = cms.InputTag(""),
     fastJetSigmaLabel = cms.InputTag(""),
     #
+    # Label for the energy discretization grid
+    gridLabel = cms.InputTag("fftjetpatreco", "FFTJetPatternRecognition"),
+    #
     # Output ntuple name/title
     ntupleName = cms.string("FFTJetPileupAnalyzer"),
     ntupleTitle = cms.string("FFTJetPileupAnalyzer ntuple"),
@@ -32,5 +35,6 @@ fftjet_pileup_analyzer = cms.EDAnalyzer(
     collectPileup = cms.bool(True),
     collectFastJetRho = cms.bool(False),
     collectSummaries = cms.bool(True),
+    collectGrids = cms.bool(False),
     verbosePileupInfo = cms.bool(False)
 )

@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Thu Apr 21 15:52:11 CDT 2011
-// $Id: FFTJetPileupAnalyzer.cc,v 1.1 2011/04/27 01:16:35 igv Exp $
+// $Id: FFTJetPileupAnalyzer.cc,v 1.2 2011/04/30 21:49:19 igv Exp $
 //
 //
 
@@ -40,6 +40,8 @@
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "RecoJets/FFTJetAlgorithms/interface/DiscretizedEnergyFlow.h"
 
 #define init_param(type, varname) varname (ps.getParameter< type >( #varname ))
 
@@ -69,6 +71,7 @@ private:
     edm::InputTag summaryLabel;
     edm::InputTag fastJetRhoLabel;
     edm::InputTag fastJetSigmaLabel;
+    edm::InputTag gridLabel;
     std::string pileupLabel;
     std::string ntupleName;
     std::string ntupleTitle;
@@ -76,6 +79,7 @@ private:
     bool collectSummaries;
     bool collectFastJetRho;
     bool collectPileup;
+    bool collectGrids;
     bool verbosePileupInfo;
 
     std::vector<float> ntupleData;
@@ -92,6 +96,7 @@ FFTJetPileupAnalyzer::FFTJetPileupAnalyzer(const edm::ParameterSet& ps)
       init_param(edm::InputTag, summaryLabel),
       init_param(edm::InputTag, fastJetRhoLabel),
       init_param(edm::InputTag, fastJetSigmaLabel),
+      init_param(edm::InputTag, gridLabel),
       init_param(std::string, pileupLabel),
       init_param(std::string, ntupleName),
       init_param(std::string, ntupleTitle),
@@ -99,6 +104,7 @@ FFTJetPileupAnalyzer::FFTJetPileupAnalyzer(const edm::ParameterSet& ps)
       init_param(bool, collectSummaries),
       init_param(bool, collectFastJetRho),
       init_param(bool, collectPileup),
+      init_param(bool, collectGrids),
       init_param(bool, verbosePileupInfo),
       nt(0),
       counter(0),
@@ -244,6 +250,34 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
 
         ntupleData.push_back(*fjrho);
         ntupleData.push_back(*fjsigma);
+    }
+
+    if (collectGrids)
+    {
+        edm::Handle<fftjetcms::DiscretizedEnergyFlow> input;
+        iEvent.getByLabel(gridLabel, input);
+
+        // Make sure the input grid is reasonable
+        const double* data = input->data();
+        assert(data);
+        assert(input->phiBin0Edge() == 0.0);
+        const unsigned nEta = input->nEtaBins();
+        const unsigned nPhi = input->nPhiBins();
+
+        // Generate a name for the output histogram
+        std::ostringstream os;
+        os << "FFTJetGrid_" << counter << '_'
+           << totalNpu << '_' << runnumber << '_' << eventnumber;
+        const std::string& newname(os.str());
+
+        // Make a histogram and copy the grid data into it
+        edm::Service<TFileService> fs;
+        TH2F* h = fs->make<TH2F>(newname.c_str(), newname.c_str(),
+                                 nEta, input->etaMin(), input->etaMax(),
+                                 nPhi, 0.0, 2.0*M_PI);
+        for (unsigned ieta=0; ieta<nEta; ++ieta)
+            for (unsigned iphi=0; iphi<nPhi; ++iphi)
+                h->SetBinContent(ieta+1U, iphi+1U, data[ieta*nPhi + iphi]);
     }
 
     assert(ntupleData.size() == static_cast<unsigned>(nt->GetNvar()));
