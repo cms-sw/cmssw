@@ -26,16 +26,16 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
 #include "DataFormats/JetReco/interface/FFTJetPileupSummary.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
@@ -72,6 +72,7 @@ private:
     edm::InputTag fastJetRhoLabel;
     edm::InputTag fastJetSigmaLabel;
     edm::InputTag gridLabel;
+    edm::InputTag srcPVs;
     std::string pileupLabel;
     std::string ntupleName;
     std::string ntupleTitle;
@@ -80,12 +81,16 @@ private:
     bool collectFastJetRho;
     bool collectPileup;
     bool collectGrids;
+    bool collectVertexInfo;
     bool verbosePileupInfo;
+
+    double vertexNdofCut;
 
     std::vector<float> ntupleData;
     TNtuple* nt;
-    unsigned long counter;
     int totalNpu;
+    int totalNPV;
+    unsigned long counter;
 };
 
 //
@@ -97,6 +102,7 @@ FFTJetPileupAnalyzer::FFTJetPileupAnalyzer(const edm::ParameterSet& ps)
       init_param(edm::InputTag, fastJetRhoLabel),
       init_param(edm::InputTag, fastJetSigmaLabel),
       init_param(edm::InputTag, gridLabel),
+      init_param(edm::InputTag, srcPVs),
       init_param(std::string, pileupLabel),
       init_param(std::string, ntupleName),
       init_param(std::string, ntupleTitle),
@@ -105,10 +111,13 @@ FFTJetPileupAnalyzer::FFTJetPileupAnalyzer(const edm::ParameterSet& ps)
       init_param(bool, collectFastJetRho),
       init_param(bool, collectPileup),
       init_param(bool, collectGrids),
+      init_param(bool, collectVertexInfo),
       init_param(bool, verbosePileupInfo),
+      init_param(double, vertexNdofCut),
       nt(0),
-      counter(0),
-      totalNpu(-1)
+      totalNpu(-1),
+      totalNPV(-1),
+      counter(0)
 {
 }
 
@@ -170,11 +179,18 @@ void FFTJetPileupAnalyzer::analyzePileup(
 // ------------ method called once each job just before starting event loop
 void FFTJetPileupAnalyzer::beginJob()
 {
-    std::string vars = "cnt:run:event:nbx:npu:sumptLowCut:sumptHiCut";
+    // Come up with the list of variables
+    std::string vars = "cnt:run:event";
+    if (collectPileup)
+        vars += ":nbx:npu:sumptLowCut:sumptHiCut";
     if (collectSummaries)
         vars += ":estimate:pileup:uncert:uncertCode";
     if (collectFastJetRho)
         vars += ":fjrho:fjsigma";
+    if (collectVertexInfo)
+        vars += ":nPV";
+
+    // Book the ntuple
     edm::Service<TFileService> fs;
     nt = fs->make<TNtuple>(ntupleName.c_str(), ntupleTitle.c_str(),
                            vars.c_str());
@@ -189,29 +205,26 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
     ntupleData.clear();
     ntupleData.push_back(counter);
     totalNpu = -1;
+    totalNPV = -1;
 
     const long runnumber = iEvent.id().run();
     const long eventnumber = iEvent.id().event();
     ntupleData.push_back(runnumber);
     ntupleData.push_back(eventnumber);
 
-    // Get pileup information
-    bool gotPileup = false;
+    // Get pileup information from the pile-up information module
     if (collectPileup)
     {
         edm::Handle<std::vector<PileupSummaryInfo> > puInfo;
         if (iEvent.getByLabel(pileupLabel, puInfo))
-        {
             analyzePileup(*puInfo);
-            gotPileup = true;
+        else
+        {
+            ntupleData.push_back(-1);
+            ntupleData.push_back(-1);
+            ntupleData.push_back(0.f);
+            ntupleData.push_back(0.f);
         }
-    }
-    if (!gotPileup)
-    {
-        ntupleData.push_back(-1);
-        ntupleData.push_back(-1);
-        ntupleData.push_back(0.f);
-        ntupleData.push_back(0.f);
     }
 
     if (collectHistos)
@@ -282,6 +295,22 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
         for (unsigned ieta=0; ieta<nEta; ++ieta)
             for (unsigned iphi=0; iphi<nPhi; ++iphi)
                 h->SetBinContent(ieta+1U, iphi+1U, data[ieta*nPhi + iphi]);
+    }
+
+    if (collectVertexInfo)
+    {
+        edm::Handle<reco::VertexCollection> pvCollection;
+        iEvent.getByLabel(srcPVs, pvCollection);
+        totalNPV = 0;
+        if (!pvCollection->empty())
+            for (reco::VertexCollection::const_iterator pv = pvCollection->begin();
+                 pv != pvCollection->end(); ++pv)
+            {
+                const double ndof = pv->ndof();
+                if (!pv->isFake() && ndof > vertexNdofCut)
+                    ++totalNPV;
+            }
+        ntupleData.push_back(totalNPV);
     }
 
     assert(ntupleData.size() == static_cast<unsigned>(nt->GetNvar()));

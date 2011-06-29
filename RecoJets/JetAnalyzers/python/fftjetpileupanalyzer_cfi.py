@@ -26,6 +26,12 @@ fftjet_pileup_analyzer = cms.EDAnalyzer(
     # Label for the energy discretization grid
     gridLabel = cms.InputTag("fftjetpatreco", "FFTJetPatternRecognition"),
     #
+    # Label for the collection of primary vertices
+    srcPVs = cms.InputTag("offlinePrimaryVertices"),
+    #
+    # Cut on the nDoF of the primary vertices
+    vertexNdofCut = cms.double(4.0),
+    #
     # Output ntuple name/title
     ntupleName = cms.string("FFTJetPileupAnalyzer"),
     ntupleTitle = cms.string("FFTJetPileupAnalyzer ntuple"),
@@ -36,5 +42,6 @@ fftjet_pileup_analyzer = cms.EDAnalyzer(
     collectFastJetRho = cms.bool(False),
     collectSummaries = cms.bool(True),
     collectGrids = cms.bool(False),
+    collectVertexInfo = cms.bool(False),
     verbosePileupInfo = cms.bool(False)
 )
