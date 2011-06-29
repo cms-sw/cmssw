@@ -37,18 +37,12 @@ EwkMuDQM::EwkMuDQM( const ParameterSet & cfg ) :
       // Input collections
       trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
       muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
-<<<<<<< EwkMuDQM.cc
-      metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("pfmet"))),
-      jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("ak5PFJets"))),
-      vertexTag_(cfg.getUntrackedParameter<edm::InputTag> ("VertexTag", edm::InputTag("offlinePrimaryVertices"))),
-=======
       metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("pfmet"))),
       jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("ak5PFJets"))),
       vertexTag_(cfg.getUntrackedParameter<edm::InputTag> ("VertexTag", edm::InputTag("offlinePrimaryVertices"))),
       trigPathNames_(cfg.getUntrackedParameter<std::vector <std::string> >("TrigPathNames")),           
 
 
->>>>>>> 1.12
 
       // Main cuts 
       ptCut_(cfg.getUntrackedParameter<double>("PtCut", 25.)),
@@ -119,8 +113,8 @@ void EwkMuDQM::init_histograms() {
             eta_after_ = theDbe->book1D("ETA_LASTCUT",chtitle,50,-2.5,2.5);
 
             snprintf(chtitle, 255, "Muon transverse distance to beam spot [cm]");
-            dxy_before_ = theDbe->book1D("DXY_BEFORECUTS",chtitle,100,-0.5,0.5);
-            dxy_after_ = theDbe->book1D("DXY_LASTCUT",chtitle,100,-0.5,0.5);
+            dxy_before_ = theDbe->book1D("DXY_BEFORECUTS",chtitle,1000,-0.5,0.5);
+            dxy_after_ = theDbe->book1D("DXY_LASTCUT",chtitle,1000,-0.5,0.5);
 
             snprintf(chtitle, 255, "Quality-muon flag");
             goodewkmuon_before_ = theDbe->book1D("GOODEWKMUON_BEFORECUTS",chtitle,2,-0.5,1.5);
@@ -144,7 +138,7 @@ void EwkMuDQM::init_histograms() {
                   iso_after_ = theDbe->book1D("ISO_LASTCUT",chtitle,100, 0., 20.);
             }
 
-            snprintf(chtitle, 255, "HLT_Mu* Trigger response");
+            snprintf(chtitle, 255, "Trigger response (boolean of muon triggers)");
             trig_before_ = theDbe->book1D("TRIG_BEFORECUTS",chtitle,2,-0.5,1.5);
             trig_after_ = theDbe->book1D("TRIG_LASTCUT",chtitle,2,-0.5,1.5);
 
@@ -160,6 +154,7 @@ void EwkMuDQM::init_histograms() {
             acop_before_ = theDbe->book1D("ACOP_BEFORECUTS",chtitle,50,0.,M_PI);
             acop_after_ = theDbe->book1D("ACOP_LASTCUT",chtitle,50,0.,M_PI);
 
+            /* Clearing space:
             snprintf(chtitle, 255, "Z rejection: number of muons above %.2f GeV", ptThrForZ1_);
             nz1_before_ = theDbe->book1D("NZ1_BEFORECUTS",chtitle,10,-0.5,9.5);
             nz1_after_ = theDbe->book1D("NZ1_LASTCUT",chtitle,10,-0.5,9.5);
@@ -167,6 +162,7 @@ void EwkMuDQM::init_histograms() {
             snprintf(chtitle, 255, "Z rejection: number of muons above %.2f GeV", ptThrForZ2_);
             nz2_before_ = theDbe->book1D("NZ2_BEFORECUTS",chtitle,10,-0.5,9.5);
             nz2_after_ = theDbe->book1D("NZ2_LASTCUT",chtitle,10,-0.5,9.5);
+            */
 
             snprintf(chtitle, 255, "Number of jets (%s) above %.2f GeV", jetTag_.label().data(), eJetMin_);
             njets_before_ = theDbe->book1D("NJETS_BEFORECUTS",chtitle,10,-0.5,9.5);
@@ -180,12 +176,18 @@ void EwkMuDQM::init_histograms() {
             ptmuonZ_after_= theDbe->book1D("PT_AFTERZCUT",chtitle,100,0.,100.);
 
             snprintf(chtitle, 255, "Number of Valid Primary Vertices");
-            npvs_before_ = theDbe->book1D("NPVs_BEFORECUTS",chtitle,10,-0.5,9.5);
-            npvs_after_ = theDbe->book1D("NPVs_LASTCUT",chtitle,10,-0.5,9.5);
+            npvs_before_ = theDbe->book1D("NPVs_BEFORECUTS",chtitle,30,-0.5,29.5);
+            npvs_after_ = theDbe->book1D("NPVs_LASTCUT",chtitle,30,-0.5,29.5);
 
             snprintf(chtitle, 255, "Muon Charge");
             muoncharge_before_ = theDbe->book1D("MUONCHARGE_BEFORECUTS",chtitle,3,-1.5,1.5);
             muoncharge_after_ = theDbe->book1D("MUONCHARGE_LASTCUT",chtitle,3,-1.5,1.5);
+
+            // Adding these to replace the NZ ones (more useful, since they are more general?)     
+            snprintf(chtitle, 255, "Number of muons in the event");
+            nmuons_ = theDbe->book1D("NMuons",chtitle,10,-0.5,9.5);
+            snprintf(chtitle, 255, "Number of muons passing the quality criteria");
+            ngoodmuons_ = theDbe->book1D("NGoodMuons",chtitle,10,-0.5,9.5);
 
       }
 }
@@ -250,9 +252,10 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 
       LogTrace("") << "> Z rejection: muons above " << ptThrForZ1_ << " [GeV]: " << nmuonsForZ1;
       LogTrace("") << "> Z rejection: muons above " << ptThrForZ2_ << " [GeV]: " << nmuonsForZ2;
-      nz1_before_->Fill(nmuonsForZ1);
+      /*nz1_before_->Fill(nmuonsForZ1);
       nz2_before_->Fill(nmuonsForZ2);
-  
+      */
+
       // MET
       Handle<View<MET> > metCollection;
       if (!ev.getByLabel(metTag_, metCollection)) {
@@ -289,8 +292,6 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 	return;
       }
       const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
-<<<<<<< EwkMuDQM.cc
-=======
       //  LogWarning("")<<"Loop over triggers";
 
 
@@ -316,29 +317,7 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
       }     
       trig_before_->Fill(trigger_fired);
 
->>>>>>> 1.12
 
-<<<<<<< EwkMuDQM.cc
-      for (unsigned int i=0; i<triggerResults->size(); i++)
-      {
-              const std::string trigName = trigNames.triggerName(i);
-              size_t found = trigName.find("HLT_Mu");
-              if ( found == std::string::npos) continue;
-
-              bool prescaled=false;    
-              for (unsigned int ps= 0; ps<  hltConfigProvider_.prescaleSize(); ps++){
-                  const unsigned int prescaleValue = hltConfigProvider_.prescaleValue(ps, trigName) ;
-                  if (prescaleValue != 1) prescaled =true;
-              }
-              if(prescaled) continue;    
-
-              if( triggerResults->accept(i) )   trigger_fired=true;
-      }     
-      trig_before_->Fill(trigger_fired);
-
-
-=======
->>>>>>> 1.12
 
 
 
@@ -372,8 +351,8 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
       // Histograms per event shouldbe done only once, so keep track of them
       bool hlt_hist_done = false;
       bool met_hist_done = false;
-      bool nz1_hist_done = false;
-      bool nz2_hist_done = false;
+      //bool nz1_hist_done = false;
+      //bool nz2_hist_done = false;
       bool njets_hist_done = false;
       bool pv_hist_done = false;
       bool charge_hist_done = false;
@@ -383,10 +362,16 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
       bool muon_sel[NFLAGS];
       bool muon4Z=false;
 
+      double number_of_muons=0;
+      double number_of_goodMuons=0;
+
+
       for (unsigned int i=0; i<muonCollectionSize; i++) {
             for (int j=0; j<NFLAGS; ++j) {
                   muon_sel[j] = false;
             }
+
+            number_of_muons++;
 
             const Muon& mu = muonCollection->at(i);
             if (!mu.isGlobalMuon()) continue;
@@ -426,7 +411,7 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
             if (!mu.isTrackerMuon()) quality=false;
             if (nMatches<nMatchesCut_) quality=false;
             muon_sel[3]=quality;
-
+            if(quality) number_of_goodMuons++;
 
             pt_before_->Fill(pt);
             eta_before_->Fill(eta);
@@ -529,12 +514,14 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
                         met_hist_done = true;
                   if (!muon_sel[8] || flags_passed==NFLAGS) 
                         acop_after_->Fill(acop);
+                  /* Clearing some space
                   if (!muon_sel[9] || flags_passed==NFLAGS) 
                         if (!nz1_hist_done) nz1_after_->Fill(nmuonsForZ1);
                         nz1_hist_done = true;
                   if (!muon_sel[9] || flags_passed==NFLAGS) 
                         if (!nz2_hist_done) nz2_after_->Fill(nmuonsForZ2);
                         nz2_hist_done = true;
+                  */
                   if (!muon_sel[10] || flags_passed==NFLAGS) { 
                         if (!njets_hist_done) njets_after_->Fill(njets);
                         njets_hist_done = true;
@@ -575,9 +562,8 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
       }
 
 
-
-
-      
+      nmuons_->Fill(number_of_muons);
+      ngoodmuons_->Fill(number_of_goodMuons);
 
       return;
 
