@@ -105,10 +105,11 @@ class WorkFlowRunner(Thread):
             cmd += "--query='find file where dataset like "+self.wf.input.dataSet
             if run: cmd += " and run=" + run
             cmd += "' "
-            cmd += ' > %s 2>&1; ' % ('step1_'+self.wf.nameId+'-dbsquery.log',)
+            #cmd += ' > %s 2>&1; ' % ('step1_'+self.wf.nameId+'-dbsquery.log',)
+            cmd += ' > %s 2>&1; ' % ('step1_dbsquery.log',)
             retStep1 = self.doCmd(cmd)
             if retStep1 == 0:
-                lf = open(wfDir+'/step1_'+self.wf.nameId+'-dbsquery.log', 'r')
+                lf = open(wfDir+'/step1_dbsquery.log', 'r')
                 lines = lf.readlines()
                 lf.close()
                 if not lines or len(lines)==0 :
