@@ -187,8 +187,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 
    TCanvas* c1;
 
-   string MuPattern  = "Results/dedxASmi/combined/Eta25/PtMin35/Type2/";
-   string TkPattern  = "Results/dedxASmi/combined/Eta25/PtMin35/Type0/";
+   string MuPattern  = "Results/dedxASmi/combined/Eta15/PtMin35/Type2/";
+   string TkPattern  = "Results/dedxASmi/combined/Eta15/PtMin35/Type0/";
 
    FILE* pFile = fopen((string("Analysis_Step6_Result") + syst + ".txt").c_str(),"w");
 

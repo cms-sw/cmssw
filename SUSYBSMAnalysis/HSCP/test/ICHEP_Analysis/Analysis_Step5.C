@@ -78,7 +78,7 @@ void Analysis_Step5()
 //   SelectionPlot(InputDir);
 //   PredictionAndControlPlot(InputDir);
 
-/*
+
    InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type0/";   CutIndex = 4;//25;//24;//41
 //   Make2DPlot_Core(InputDir,CutIndex);
 //   CutFlow(InputDir);
@@ -90,23 +90,31 @@ void Analysis_Step5()
 // SignalMassPlot(InputDir,0);return;
 // GetSystematicOnPrediction(InputDir);
 
+   InputDir = "Results/dedxASmi/combined/Eta20/PtMin35/Type0/";   CutIndex = 4;//25;//24;//41
+   MassPrediction(InputDir, CutIndex, "Mass");
+
+   InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type0/";   CutIndex = 4;//25;//24;//41
+   MassPrediction(InputDir, CutIndex, "Mass");
+
+
+
    InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type2/";   CutIndex = 14;//²38;//83;// 82;//18;
 //   Make2DPlot_Core(InputDir,CutIndex);
 //   CutFlow(InputDir);
 //   SelectionPlot(InputDir, CutIndex);
-   MassPrediction(InputDir, CutIndex, "Mass");
+//   MassPrediction(InputDir, CutIndex, "Mass");
 //   MassPrediction(InputDir, CutIndex, "MassTOF");
 //   MassPrediction(InputDir, CutIndex, "MassComb");     
 //   PredictionAndControlPlot(InputDir, CutIndex);
 // SignalMassPlot(InputDir,0);return;
 // GetSystematicOnPrediction(InputDir);
 
-*/
-  InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type0/";   CutIndex = 64;/*65;*//*39;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
+
+  InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type0/";   CutIndex = 30;/*65;*//*39;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
 //  InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type2/";   CutIndex = 31;/*211;*//*167;95;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
 
 
-   InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type0/";   CutIndex = 64;   Make2DPlot_Core(InputDir,CutIndex);
+//   InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type0/";   CutIndex = 64;   Make2DPlot_Core(InputDir,CutIndex);
 
 
 // 31, 65, 44, 64
@@ -1458,6 +1466,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    TH1D* PredErr = (TH1D*) Pred->Clone("PredErr");
    for(unsigned int i=0;i<(unsigned int)Pred->GetNbinsX();i++){
       double error = sqrt(pow(PredErr->GetBinError(i),2) + pow(PredErr->GetBinContent(i)*2*RMS,2));
+//      double error = sqrt(PredErr->GetBinError(i) + pow(PredErr->GetBinContent(i)*2*RMS,2));
       PredErr->SetBinError(i,error);       
       if(PredErr->GetBinContent(i)<Min && i>5){for(unsigned int j=i+1;j<(unsigned int)PredErr->GetNbinsX();j++)PredErr->SetBinContent(j,0);}
    }
