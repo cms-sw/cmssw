@@ -5,8 +5,8 @@ import sys
 import fileinput
 import string
 
-NewVersion='4_3_0_pre6'
-RefVersion='4_3_0_pre5'
+NewVersion='4_3_0_pre7'
+RefVersion='4_3_0_pre6'
 NewRelease='CMSSW_'+NewVersion
 RefRelease='CMSSW_'+RefVersion
 #NewRelease='Summer09'
@@ -43,9 +43,11 @@ GetFilesFrom='GUI'       # --> Copy root files from the DQM GUI server
 GetRefsFrom='GUI'
 
 #DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_2_x/'
-DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_3_x/'
+#DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_3_x/'
+DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_4_3_x/'
 #DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_2_x/'
-DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_3_x/'
+#DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_3_x/'
+DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_4_3_x/'
 CastorRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
 if ((GetFilesFrom=='GUI')|(GetRefsFrom=='GUI')):
     print "*** Did you remind doing:"
@@ -58,22 +60,22 @@ if ((GetFilesFrom=='GUI')|(GetRefsFrom=='GUI')):
 
 
 # These are only needed if you copy any root file from the DQM GUI:
-NewLabel='MC_43_V3'
+NewLabel='MC_43_V4'
 if (NewCondition=='STARTUP'):
-    NewLabel='START43_V3'
-RefLabel='MC_43_V1'
+    NewLabel='START43_V4'
+RefLabel='MC_43_V3'
 if (RefCondition=='STARTUP'):
-    RefLabel='START43_V1'
+    RefLabel='START43_V3'
 
 
 ValidateHLT=True
 ValidateRECO=True
 ValidateISO=True
+ValidateDQM=True
 if (NewFastSim|RefFastSim):
     ValidateDQM=False
 #    ValidateRECO=False
-else:
-    ValidateDQM=True
+
 
 #NewFormat='GEN-SIM-RECO'
 #RefFormat='GEN-SIM-RECO'
@@ -144,6 +146,7 @@ for sample in samples :
         if (os.path.isfile(NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root')==True):
             print "New file found at: "+NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root'+' -> Use that one'
         elif (GetFilesFrom=='GUI'):
+            print "New file on the GUI: "+DqmGuiNewRepository+'DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '
 #            os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+DqmGuiNewRepository+'DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root ')
             os.system('/usr/bin/curl -O -L --capath $X509_CERT_DIR --key $X509_USER_PROXY --cert $X509_USER_PROXY '+DqmGuiNewRepository+'DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root ')
             os.system('mv DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
@@ -161,6 +164,7 @@ for sample in samples :
         if (os.path.isfile(RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root')==True):
             print "Reference file found at: "+RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root'+' -> Use that one'
         elif (GetRefsFrom=='GUI'):
+            print "Ref file on the GUI: "+DqmGuiRefRepository+'DQM_V0001_R000000001__'+sample+'__'+RefRelease+'-'+RefLabel+'__'+RefFormat+'.root '
             print '*** Getting reference file from the DQM GUI server'
 #            os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+DqmGuiRefRepository+'DQM_V0001_R000000001__'+sample+'__'+RefRelease+'-'+RefLabel+'__'+RefFormat+'.root ')
             os.system('/usr/bin/curl -O -L --capath $X509_CERT_DIR --key $X509_USER_PROXY --cert $X509_USER_PROXY '+DqmGuiRefRepository+'DQM_V0001_R000000001__'+sample+'__'+RefRelease+'-'+RefLabel+'__'+RefFormat+'.root ')
