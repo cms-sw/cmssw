@@ -184,27 +184,23 @@ void testRef::getTest() {
 
    ProductID const pid(1, 1);
 
-   IntCollection const* wptr = dynamic_cast<IntCollection const*>(wrapper.product());
+   IntCollection const* wptr = reinterpret_cast<IntCollection const*>(wrapper.product());
 
    OrphanHandle<IntCollection> handle(wptr, pid);
 
    Ref<IntCollection> ref0(handle, 0);
    ref0.refCore().setProductGetter(&tester);
    ref0.refCore().setProductPtr(0);
-   ref0.setPtr(0);
    CPPUNIT_ASSERT(!ref0.hasProductCache());
-   CPPUNIT_ASSERT(!ref0.hasCache());
 
    Ref<IntCollection> ref1(handle, 1);
    ref1.refCore().setProductGetter(&tester);
    ref1.refCore().setProductPtr(0);
-   ref1.setPtr(0);
 
    Ref<IntCollection> ref2(pid, 1, &tester);
 
    CPPUNIT_ASSERT(0 == ref0->value_);
    CPPUNIT_ASSERT(ref0.hasProductCache());
-   CPPUNIT_ASSERT(ref0.hasCache());
    CPPUNIT_ASSERT(1 == ref1->value_);
    CPPUNIT_ASSERT(1 == ref2->value_);
    CPPUNIT_ASSERT(1 == (*ref1).value_);

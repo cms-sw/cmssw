@@ -270,9 +270,6 @@ namespace edm {
     /// Returns true if container referenced by the Ref has been cached
     bool hasProductCache() const {return product_.productPtr() != 0;}
 
-    /// Returns true if the referenced item from the container has been cached
-    bool hasCache() const {return product_.clientCache() != 0;}
-
     /// Checks if collection is in memory or available
     /// in the Event. No type checking is done.
     bool isAvailable() const {return product_.isAvailable();}
@@ -281,10 +278,6 @@ namespace edm {
     bool isTransient() const {return product_.isTransient();}
 
     RefCore const& refCore() const {return product_;}
-    
-    void setPtr(T const* iPtr) {
-      product_.mutableClientCache() = iPtr;
-    }
     
     //Used by ROOT storage
     CMS_CLASS_VERSION(10)
@@ -318,7 +311,7 @@ namespace edm {
     checkTypeAtCompileTime(handle.product());
     assert(key() == itemKey);
         
-    if (setNow) {product_.mutableClientCache()=getPtr_<C, T, F>(product_, index_);}
+    if (setNow) {getPtr_<C, T, F>(product_, index_);}
   }
 
   /// General purpose constructor from orphan handle.
@@ -329,7 +322,7 @@ namespace edm {
     checkTypeAtCompileTime(handle.product());
     assert(key() == itemKey);
         
-    if (setNow) {product_.mutableClientCache()=getPtr_<C, T, F>(product_, index_);}
+    if (setNow) {getPtr_<C, T, F>(product_, index_);}
   }
 
   /// Constructor from RefVector and index into the collection
@@ -340,7 +333,7 @@ namespace edm {
     checkTypeAtCompileTime(refvector.product());
     assert(key() == itemKey);
         
-    if (setNow) {product_.mutableClientCache()=getPtr_<C, T, F>(product_, index_);}
+    if (setNow) {getPtr_<C, T, F>(product_, index_);}
   }
 
   /// Constructor for refs to object that is not in an event.
@@ -357,7 +350,7 @@ namespace edm {
     checkTypeAtCompileTime(product);
     assert(key() == (product != 0 ? itemKey : key_traits<key_type>::value));
         
-    if (setNow && product != 0) {product_.mutableClientCache() = getPtr_<C, T, F>(product_, index_);}
+    if (setNow && product != 0) {getPtr_<C, T, F>(product_, index_);}
   }
 
   /// constructor from test handle.
@@ -369,7 +362,7 @@ namespace edm {
     checkTypeAtCompileTime(handle.product());
     assert(key() == itemKey);
         
-    if (setNow) {product_.mutableClientCache() = getPtr_<C, T, F>(product_, index_);}
+    if (setNow) {getPtr_<C, T, F>(product_, index_);}
   }
 
   /// Constructor from RefProd<C> and key
@@ -378,9 +371,6 @@ namespace edm {
   Ref<C, T, F>::Ref(RefProd<C> const& refProd, key_type itemKey) :
       product_(refProd.id(), refProd.refCore().productPtr(), refProd.refCore().productGetter(), refProd.refCore().isTransient()), index_(itemKey) {
     assert(index() == itemKey);
-    if (0 != refProd.refCore().productPtr()) {
-      product_.mutableClientCache() =getPtr_<C, T, F>(product_, index_);
-    }
   }
 
   /// Accessor for product collection
@@ -397,7 +387,7 @@ namespace edm {
   inline
   T const&
   Ref<C, T, F>::operator*() const {
-    return *getPtr<C, T, F>(product_, index_, product_.mutableClientCache());
+    return *getPtr<C, T, F>(product_, index_);
   }
 
   /// Member dereference operator
@@ -405,7 +395,7 @@ namespace edm {
   inline
   T const*
   Ref<C, T, F>::operator->() const {
-    return getPtr<C, T, F>(product_, index_, product_.mutableClientCache());
+    return getPtr<C, T, F>(product_, index_);
   }
 
   template <typename C, typename T, typename F>
