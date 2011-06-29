@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.331 $"
+__version__ = "$Revision: 1.332 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -67,6 +67,70 @@ def dumpPython(process,name):
                 return "process."+name+" = " + theObject.dumpPython()+"\n"
         else:
                 return "process."+name+" = " + theObject.dumpPython()+"\n"
+def filesFromList(fileName,s=None):
+	import os
+	import FWCore.ParameterSet.Config as cms
+	prim=[]
+	sec=[]
+	for line in open(fileName,'r'):
+		if line.count(".root")>=2:
+			#two files solution...
+			entries=line.replace("\n","").split()
+			if not entries[0] in prim:
+				prim.append(entries[0])
+			if not entries[1] in sec:
+				sec.append(entries[1])
+		elif (line.find(".root")!=-1):
+			entry=line.replace("\n","")
+			if not entry in prim:
+				prim.append(entry)
+	if s:
+		if not hasattr(s,"fileNames"):
+			s.fileNames=cms.untracked.vstring(prim)
+		else:
+			s.fileNames.extend(prim)
+		if len(sec)!=0:
+			if not hasattr(s,"secondaryFileNames"):
+				s.secondaryFileNames=cms.untracked.vstring(sec)
+			else:
+				s.secondaryFileNames.extend(sec)
+	print "found files: ",prim
+	if len(sec)!=0:
+		print "found parent files:",sec
+	return (prim,sec)
+	
+def filesFromDBSQuery(query,s=None):
+	import os
+	import FWCore.ParameterSet.Config as cms
+	prim=[]
+	sec=[]
+	print "the query is",query
+	for line in os.popen('dbs search --query "%s"'%(query)):
+		if line.count(".root")>=2:
+			#two files solution...
+			entries=line.replace("\n","").split()
+			if not entries[0] in prim:
+				prim.append(entries[0])
+			if not entries[1] in sec:
+				sec.append(entries[1])
+		elif (line.find(".root")!=-1):
+			entry=line.replace("\n","")
+			if not entry in prim:
+				prim.append(entry)
+	if s:
+		if not hasattr(s,"fileNames"):
+			s.fileNames=cms.untracked.vstring(prim)
+		else:
+			s.fileNames.extend(prim)
+		if len(sec)!=0:
+			if not hasattr(s,"secondaryFileNames"):
+				s.secondaryFileNames=cms.untracked.vstring(sec)
+			else:
+				s.secondaryFileNames.extend(sec)
+	print "found files: ",prim
+	if len(sec)!=0:
+		print "found parent files:",sec
+	return (prim,sec)
 
 
 class ConfigBuilder(object):
@@ -222,23 +286,40 @@ class ConfigBuilder(object):
     def addSource(self):
         """Here the source is built. Priority: file, generator"""
         self.addedObjects.append(("Input source","source"))
+
+	def filesFromOption(self):
+		for entry in self._options.filein.split(','):
+			print "entry",entry
+			if entry.startswith("filelist:"):
+				filesFromList(entry[9:],s)
+			elif entry.startswith("dbs:"):
+				filesFromDBSQuery(entry[4:],s)
+			else:
+				self.process.source.fileNames.append(self._options.dirin+entry)
+		if self._options.secondfilein:
+			if not hasattr(self.process.source,"secondaryFileNames"):
+				raise Execption("--secondfilein not compatible with "+self._options.filetype+"input type")
+			for entry in self._options.secondfilein.split(','):
+				print "entry",entry
+				if entry.startswith("filelist:"):
+					self.process.source.secondaryFileNames.extend((filesFromList(entry[9:]))[0])
+				elif entry.startswith("dbs:"):
+					self.process.source.secondaryFileNames.extend((filesFromDBSQuery(entry[4:]))[0])
+				else:
+					self.process.source.secondaryFileNames.append(self._options.dirin+entry)
+		
         if self._options.filein:
-           if self._options.filetype == "EDM":
-               self.process.source=cms.Source("PoolSource",
-                                              fileNames = cms.untracked.vstring())
-	       for entry in self._options.filein.split(','):
-		       self.process.source.fileNames.append(self._options.dirin+entry)
-               if self._options.secondfilein:
-		       for entry in self._options.secondfilein.split(','):
-			       self.process.source.secondaryFileNames = cms.untracked.vstring(self._options.dirin+entry)
+	   if self._options.filetype == "EDM":
+		   self.process.source=cms.Source("PoolSource",
+						  fileNames = cms.untracked.vstring(),
+						  secondaryFileNames= cms.untracked.vstring())
+		   filesFromOption(self)
 	   elif self._options.filetype == "DAT":
 		   sel.process.source=cms.Source("NewEventStreamFileReader",fileNames = cms.untracked.vstring())
-		   for entry in self._options.filein.split(','):
-			   self.process.source.fileNames.append(self._options.dirin+entry)
+		   filesFromOption(self)
            elif self._options.filetype == "LHE":
 		   self.process.source=cms.Source("LHESource", fileNames = cms.untracked.vstring())
-		   for entry in self._options.filein.split(','):
-			   self.process.source.fileNames.append(self._options.dirin+entry)
+		   filesFromOption(self)
            elif self._options.filetype == "MCDB":
                self.process.source=cms.Source("MCDBSource",
 					      articleID = cms.uint32(int(self._options.filein.replace('mcdb:',''))),
@@ -246,32 +327,15 @@ class ConfigBuilder(object):
 	   elif self._options.filetype == "DQM":
 		   self.process.source=cms.Source("DQMRootSource",
 						  fileNames = cms.untracked.vstring())
-		   for entry in self._options.filein.split(','):
-			   self.process.source.fileNames.append(self._options.dirin+entry)
+		   filesFromOption(self)
 			   
            if ('HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys()) and (not self._options.filetype == "DQM"):
                self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
 
 	if self._options.dbsquery!='':
                self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
-               import os
-               print "the query is",self._options.dbsquery
-               for line in os.popen('dbs search --query "%s"'%(self._options.dbsquery,)):
-                       if line.count(".root")>=2:
-                               #two files solution...
-                               entries=line.replace("\n","").split()
-			       if not entries[0] in self.process.source.fileNames.value():
-				       self.process.source.fileNames.append(entries[0])
-			       if not entries[1] in self.process.source.secondaryFileNames.value():
-				       self.process.source.secondaryFileNames.append(entries[1])
-				       
-                       elif (line.find(".root")!=-1):
-			       entry=line.replace("\n","")
-			       if not entry in self.process.source.fileNames.value():
-				       self.process.source.fileNames.append(entry)
-               print "found files: ",self.process.source.fileNames.value()
-               if self.process.source.secondaryFileNames.__len__()!=0:
-                       print "found parent files:",self.process.source.secondaryFileNames.value()
+	       filesFromDBSQuery(self._options.dbsquery,self.process.source)
+
 
 	if self._options.inputCommands:
 		self.process.source.inputCommands = cms.untracked.vstring()
@@ -1494,7 +1558,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.331 $"),
+                                            (version=cms.untracked.string("$Revision: 1.332 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
