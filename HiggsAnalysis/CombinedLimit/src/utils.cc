@@ -151,7 +151,7 @@ void utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgLis
             RooAbsPdf *pdfi = (RooAbsPdf *) list.at(i);
             factorizePdf(observables, *pdfi, obsTerms, constraints);
         }
-    } else if (id == typeid(RooSimultaneous)) {
+    } else if (id == typeid(RooSimultaneous) || id == typeid(RooSimultaneousOpt)) {
         RooSimultaneous *sim  = dynamic_cast<RooSimultaneous *>(&pdf);
         RooAbsCategoryLValue *cat = (RooAbsCategoryLValue *) sim->indexCat().Clone();
         for (int ic = 0, nc = cat->numBins((const char *)0); ic < nc; ++ic) {
