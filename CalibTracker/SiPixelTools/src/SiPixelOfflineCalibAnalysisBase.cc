@@ -14,11 +14,11 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.1 2010/08/10 08:46:12 ursl Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.2 2010/08/10 08:57:54 ursl Exp $
 //
 //
 
-#include "SiPixelOfflineCalibAnalysisBase.h"
+#include "CalibTracker/SiPixelTools/interface/SiPixelOfflineCalibAnalysisBase.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
