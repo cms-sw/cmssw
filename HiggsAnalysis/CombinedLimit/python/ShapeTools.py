@@ -95,6 +95,7 @@ class ShapeBuilder(ModelBuilder):
                 if shape == None: # counting experiment
                     if not self.out.var("CMS_fakeObs"): 
                         self.doVar("CMS_fakeObs[0,1]");
+                        self.out.var("CMS_fakeObs").setBins(1);
                         self.doSet("CMS_fakeObsSet","CMS_fakeObs");
                         shapeObs["CMS_fakeObsSet"] = self.out.set("CMS_fakeObsSet")
                     if p == self.options.dataname:
