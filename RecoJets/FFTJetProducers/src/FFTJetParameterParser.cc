@@ -9,6 +9,7 @@
 #include "RecoJets/FFTJetAlgorithms/interface/ScaleCalculators.h"
 #include "RecoJets/FFTJetAlgorithms/interface/EtaAndPtDependentPeakSelector.h"
 #include "RecoJets/FFTJetAlgorithms/interface/EtaDependentPileup.h"
+#include "RecoJets/FFTJetAlgorithms/interface/PileupGrid2d.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -122,26 +123,60 @@ std::auto_ptr<fftjet::Grid2d<Real> >
 fftjet_Grid2d_parser(const edm::ParameterSet& ps)
 {
     typedef std::auto_ptr<fftjet::Grid2d<Real> > return_type;
+    fftjet::Grid2d<Real> *g = 0;
 
-    const unsigned nEtaBins = ps.getParameter<unsigned>("nEtaBins");
-    const Real etaMin = ps.getParameter<Real>("etaMin");
-    const Real etaMax = ps.getParameter<Real>("etaMax");
-    const unsigned nPhiBins = ps.getParameter<unsigned>("nPhiBins");
-    const Real phiBin0Edge = ps.getParameter<Real>("phiBin0Edge");
-    const std::string title = ps.getUntrackedParameter<std::string>(
-        "title","");
+    // Check if the grid should be read from file
+    if (ps.exists("file"))
+    {
+        const std::string file = ps.getParameter<std::string>("file");
+        std::ifstream in(file.c_str(),
+	                 std::ios_base::in | std::ios_base::binary);
+        if (!in.is_open())
+	    throw cms::Exception("FFTJetBadConfig")
+	        << "Failed to open file " << file << std::endl;
+        g = fftjet::Grid2d<Real>::read(in);
+	if (g == 0)
+	    throw cms::Exception("FFTJetBadConfig")
+	        << "Failed to read file " << file << std::endl;
+    }
+    else
+    {
+        const unsigned nEtaBins = ps.getParameter<unsigned>("nEtaBins");
+        const Real etaMin = ps.getParameter<Real>("etaMin");
+        const Real etaMax = ps.getParameter<Real>("etaMax");
+        const unsigned nPhiBins = ps.getParameter<unsigned>("nPhiBins");
+        const Real phiBin0Edge = ps.getParameter<Real>("phiBin0Edge");
+        const std::string& title = ps.getUntrackedParameter<std::string>(
+            "title", "");
 
-    if (nEtaBins == 0 || nPhiBins == 0 || etaMin >= etaMax)
-        return return_type(NULL);
+        if (nEtaBins == 0 || nPhiBins == 0 || etaMin >= etaMax)
+            return return_type(NULL);
+        
+        g = new fftjet::Grid2d<Real>(
+            nEtaBins,
+            etaMin,
+            etaMax,
+            nPhiBins,
+            phiBin0Edge,
+            title.c_str()
+        );
 
-    return return_type(new fftjet::Grid2d<Real>(
-        nEtaBins,
-        etaMin,
-        etaMax,
-        nPhiBins,
-        phiBin0Edge,
-        title.c_str()
-    ));
+        // Check if the grid data is provided
+        if (ps.exists("data"))
+	{
+	    const std::vector<Real>& data = 
+	        ps.getParameter<std::vector<Real> >("data");
+            if (data.size() == nEtaBins*nPhiBins)
+	        g->blockSet(&data[0], nEtaBins, nPhiBins);
+            else
+	    {
+	        delete g;
+                g = 0;
+            }
+        }
+    }
+
+    return return_type(g);
 }
 
 
@@ -928,6 +963,18 @@ fftjet_PileupCalculator_parser(const edm::ParameterSet& ps)
             return return_type(new EtaDependentPileup(*ip));
         else
             return return_type(NULL);
+    }
+
+    if (!fcn_type.compare("PileupGrid2d"))
+    {
+        std::auto_ptr<fftjet::Grid2d<Real> > grid = 
+	    fftjet_Grid2d_parser(
+		ps.getParameter<edm::ParameterSet>("Grid2d"));
+        const fftjet::Grid2d<Real>* g = grid.get();
+        if (g)
+	    return return_type(new PileupGrid2d(*g));
+        else
+	    return return_type(NULL);
     }
 
     return return_type(NULL);
