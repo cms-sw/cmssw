@@ -168,6 +168,7 @@ hpsPFTauDiscriminationByIsolationSeqDBSumPtCorr = cms.Sequence(
 hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminationByVLooseIsolationDBSumPtCorr.clone(
     ApplyDiscriminationByTrackerIsolation = True,
     ApplyDiscriminationByECALIsolation = True,
+    deltaBetaFactor = "%0.4f"%(0.0772/0.1687),
     applyOccupancyCut = False,
     applySumPtCut = True,
     maximumSumPtCut = 3.0,
@@ -178,6 +179,7 @@ hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr.qualityCuts.isolation
 hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr.clone(
     ApplyDiscriminationByTrackerIsolation = True,
     ApplyDiscriminationByECALIsolation = True,
+    deltaBetaFactor = "%0.4f"%(0.0772/0.1687),
     applyOccupancyCut = False,
     applySumPtCut = True,
     maximumSumPtCut = 2.0,
@@ -188,6 +190,7 @@ hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr.qualityCuts.isolationQ
 hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr.clone(
     ApplyDiscriminationByTrackerIsolation = True,
     ApplyDiscriminationByECALIsolation = True,
+    deltaBetaFactor = "%0.4f"%(0.0772/0.1687),
     applyOccupancyCut = False,
     applySumPtCut = True,
     maximumSumPtCut = 1.0,
@@ -198,6 +201,7 @@ hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr.qualityCuts.isolation
 hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminationByTightIsolationDBSumPtCorr.clone(
     ApplyDiscriminationByTrackerIsolation = True,
     ApplyDiscriminationByECALIsolation = True,
+    deltaBetaFactor = "%0.4f"%(0.0772/0.1687),
     applyOccupancyCut = False,
     applySumPtCut = True,
     maximumSumPtCut = 0.8,
