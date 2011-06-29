@@ -4,16 +4,11 @@
   <version ClassVersion="10" checksum="641105393"/>
    <field name="prodPtr_" transient = "true"/>
    <field name="prodGetter_" transient = "true"/>
-   <field name="clientCache_" transient = "true"/>
  </class>
  <ioread sourceClass = "edm::RefCore" version="[1-]" targetClass="edm::RefCore" source = "" target="prodPtr_">
      <![CDATA[prodPtr_=0;
          ]]>
  </ioread>
-  <ioread sourceClass = "edm::RefCore" version="[1-]" targetClass="edm::RefCore" source = "" target="clientCache_">
-    <![CDATA[clientCache_=0;
-    ]]>
-  </ioread>
  <ioread sourceClass = "edm::RefCore" version="[1-]" targetClass="edm::RefCore" source="" target="prodGetter_">
    <![CDATA[edm::EDProductGetter::assignEDProductGetter(prodGetter_);
       ]]>
