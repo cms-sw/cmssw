@@ -25,6 +25,8 @@ namespace fftjetcms {
             double eta, double phi,
             const reco::FFTJetPileupSummary& summary) const;
 
+        inline virtual bool isPhiDependent() const {return false;}
+
     private:
         fftjet::LinearInterpolator2d interp_;
         double etaMin_;

@@ -20,6 +20,8 @@ namespace fftjetcms {
         virtual double operator()(
             double eta, double phi,
             const reco::FFTJetPileupSummary& summary) const = 0;
+
+        virtual bool isPhiDependent() const = 0;
     };
 }
 
