@@ -510,9 +510,9 @@ TtFullHadKinFitter::KinFit::fit(const std::vector<pat::Jet>& jets){
     for(int cnt=0; cnt<TMath::Factorial(combi.size()); ++cnt){
       // take into account indistinguishability of the two jets from the two W decays,
       // and the two decay branches, this reduces the combinatorics by a factor of 2*2*2
-      if( (combi[TtFullHadEvtPartons::LightQ] < combi[TtFullHadEvtPartons::LightQBar] ||
-	   combi[TtFullHadEvtPartons::LightP] < combi[TtFullHadEvtPartons::LightPBar] ||
-	   combi[TtFullHadEvtPartons::B]      < combi[TtFullHadEvtPartons::BBar]      ||
+      if( ((combi[TtFullHadEvtPartons::LightQ] < combi[TtFullHadEvtPartons::LightQBar] &&
+	    combi[TtFullHadEvtPartons::LightP] < combi[TtFullHadEvtPartons::LightPBar] &&
+	    combi[TtFullHadEvtPartons::B]      < combi[TtFullHadEvtPartons::BBar]    ) ||
 	   useOnlyMatch_) && doBTagging(jets, bJetCounter, combi) ) {
 
 	std::vector<pat::Jet> jetCombi;
