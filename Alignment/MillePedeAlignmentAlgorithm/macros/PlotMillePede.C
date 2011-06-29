@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/02/11 10:49:02 $
+// last change    : $Date: 2011/05/31 05:31:11 $
 // by             : $Author: flucke $
 
 #include "PlotMillePede.h"
@@ -1516,6 +1516,7 @@ void PlotMillePede::AddAdditionalSel(const char *selection)
     // Add to title for hists as well :
     if (fAdditionalSelTitle.Length()) fAdditionalSelTitle += ", ";
     const TString sel(selection);
+    // stereo/rphi etc. selections:
     if (sel == "StripDoubleOr1D") {
       fAdditionalSel += "(Id&3)==0";
       fAdditionalSelTitle += "Double sided or 1D layer/ring";
@@ -1525,7 +1526,18 @@ void PlotMillePede::AddAdditionalSel(const char *selection)
     } else if (sel == "StripStereo"){
       fAdditionalSel += "(Id&3)==1";
       fAdditionalSelTitle += "Stereo";
-    } else { // genericaly add
+    // anti stereo/rphi etc. selections:
+    } else if (sel == "NotStripDoubleOr1D") {
+      fAdditionalSel += "(Id&3)!=0";
+      fAdditionalSelTitle += "!(Double sided or 1D layer/ring)";
+    } else if (sel == "NotStripRphi") {
+      fAdditionalSel += "(Id&3)!=2";
+      fAdditionalSelTitle += "!R#phi";
+    } else if (sel == "NotStripStereo"){
+      fAdditionalSel += "(Id&3)!=1";
+      fAdditionalSelTitle += "!Stereo";
+      // genericaly add
+    } else {
       fAdditionalSel += selection;
       fAdditionalSelTitle += selection;
     }
