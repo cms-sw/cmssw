@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Thu Apr 21 15:52:11 CDT 2011
-// $Id: FFTJetPileupAnalyzer.cc,v 1.2 2011/04/30 21:49:19 igv Exp $
+// $Id: FFTJetPileupAnalyzer.cc,v 1.3 2011/06/29 03:13:18 igv Exp $
 //
 //
 
@@ -275,6 +275,10 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
         TH2F* h = fs->make<TH2F>(newname.c_str(), newname.c_str(),
                                  nEta, input->etaMin(), input->etaMax(),
                                  nPhi, 0.0, 2.0*M_PI);
+        h->GetXaxis()->SetTitle("Eta");
+        h->GetYaxis()->SetTitle("Phi");
+        h->GetZaxis()->SetTitle("Transverse Energy");
+
         for (unsigned ieta=0; ieta<nEta; ++ieta)
             for (unsigned iphi=0; iphi<nPhi; ++iphi)
                 h->SetBinContent(ieta+1U, iphi+1U, data[ieta*nPhi + iphi]);
