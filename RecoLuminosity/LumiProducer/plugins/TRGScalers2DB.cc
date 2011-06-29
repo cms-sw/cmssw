@@ -843,7 +843,6 @@ namespace lumi{
     trgrundata.entry_name=runnumberStr;
     trgrundata.source=source;
     trgrundata.runnumber=irunnumber;
-    trgrundata.bitzeroname=algonames[0];
     std::string bitnames;
     TriggerNameResult_Algo::iterator bitnameIt;
     TriggerNameResult_Algo::iterator bitnameItBeg=algonames.begin();
@@ -862,6 +861,7 @@ namespace lumi{
       bitnames+=*techbitnameIt;
     }
     std::cout<<"\tbitnames "<<bitnames<<std::endl;
+    trgrundata.bitzeroname=technames[4];
     trgrundata.bitnames=bitnames;
     trgrundata.entry_id=revisionDML.getEntryInBranchByName(lumisession->nominalSchema(),lumi::LumiNames::trgdataTableName(),runnumberStr,branch_name);
     if(trgrundata.entry_id==0){
