@@ -43,6 +43,8 @@ CXXFLAGS     = -O3 -Wall -fPIC -DSTANDALONE -I. $(ROOTCXXFLAGS)
 ROOTLIBS     = $(shell $(ROOTSYS)/bin/root-config --libs)
 
 OBJS         = $(TMPDIR)/JetCorrectorParameters.o \
+	       $(TMPDIR)/SimpleJetCorrectionUncertainty.o \
+	       $(TMPDIR)/JetCorrectionUncertainty.o \
 	       $(TMPDIR)/SimpleJetCorrector.o \
                $(TMPDIR)/FactorizedJetCorrector.o \
                $(TMPDIR)/JetMETObjects_dict.o
@@ -75,6 +77,16 @@ $(TMPDIR)/JetCorrectorParameters.o: interface/JetCorrectorParameters.h \
 	$(CXX) $(CXXFLAGS) -c src/JetCorrectorParameters.cc \
 	-o $(TMPDIR)/JetCorrectorParameters.o 
 
+$(TMPDIR)/SimpleJetCorrectionUncertainty.o: interface/SimpleJetCorrectionUncertainty.h \
+				    src/SimpleJetCorrectionUncertainty.cc
+	$(CXX) $(CXXFLAGS) -c src/SimpleJetCorrectionUncertainty.cc \
+	-o $(TMPDIR)/SimpleJetCorrectionUncertainty.o 
+
+$(TMPDIR)/JetCorrectionUncertainty.o: interface/JetCorrectionUncertainty.h \
+				    src/JetCorrectionUncertainty.cc
+	$(CXX) $(CXXFLAGS) -c src/JetCorrectionUncertainty.cc \
+	-o $(TMPDIR)/JetCorrectionUncertainty.o 
+
 $(TMPDIR)/SimpleJetCorrector.o: interface/SimpleJetCorrector.h \
 				    src/SimpleJetCorrector.cc
 	$(CXX) $(CXXFLAGS) -c src/SimpleJetCorrector.cc \
@@ -91,6 +103,8 @@ $(TMPDIR)/JetMETObjects_dict.o: $(TMPDIR)/JetMETObjects_dict.cc
 	-o $(TMPDIR)/JetMETObjects_dict.o
 
 $(TMPDIR)/JetMETObjects_dict.cc: interface/JetCorrectorParameters.h \
+			         interface/SimpleJetCorrectionUncertainty.h \
+			         interface/JetCorrectionUncertainty.h \
 				 interface/SimpleJetCorrector.h \
 				 interface/FactorizedJetCorrector.h \
 				 interface/Linkdef.h
