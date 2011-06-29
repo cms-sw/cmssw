@@ -64,10 +64,6 @@ namespace edm {
       return isNull() ? 0 : this->operator->();
     }
 
-    RefCore const& refCore() const {
-      return product_;
-    }
-
     /// Checks for null
     bool isNull() const {return !isNonnull(); }
 
@@ -93,10 +89,16 @@ namespace edm {
     //Needed for ROOT storage
     CMS_CLASS_VERSION(10)
   private:
-    View<T> const* viewPtr() const {
-      return reinterpret_cast<const View<T>*>(product_.clientCache());
+    //NOTE: Access to RefCore should be private since we modify the use of productPtr
+    RefCore const& refCore() const {
+      return product_;
     }
-    //needs to be mutable so we can modify the 'clientCache' it holds
+    
+    View<T> const* viewPtr() const {
+      return reinterpret_cast<const View<T>*>(product_.productPtr());
+    }
+    //needs to be mutable so we can modify the 'productPtr' it holds
+    // so that 'procutPtr' can hold our View
     mutable RefCore product_;
   };
 }
@@ -129,7 +131,7 @@ namespace edm {
   inline
   RefToBaseProd<T>::RefToBaseProd(Handle<View<T> > const& handle) :
     product_(handle->id(), 0, handle->productGetter(), false){
-    product_.mutableClientCache()=new View<T>(* handle);
+    product_.setProductPtr(new View<T>(* handle));
     assert(handle->productGetter() == 0);
   }
 
@@ -137,14 +139,14 @@ namespace edm {
   inline
   RefToBaseProd<T>::RefToBaseProd(const View<T>& view) :
     product_(view.id(), 0, view.productGetter(), false) {
-      product_.mutableClientCache()=new View<T>(view);
+      product_.setProductPtr(new View<T>(view));
   }
 
   template<typename T>
   inline
   RefToBaseProd<T>::RefToBaseProd(const RefToBaseProd<T>& ref) :
     product_(ref.product_) {
-      product_.mutableClientCache() =ref.viewPtr() ? (new View<T>(* ref)) : 0;
+      product_.setProductPtr(ref.viewPtr() ? (new View<T>(* ref)) : 0);
   }
 
   template<typename T>
@@ -166,7 +168,7 @@ namespace edm {
   template<typename T>
   inline
   View<T> const* RefToBaseProd<T>::operator->() const {
-    if(product_.clientCache() == 0) {
+    if(product_.productPtr() == 0) {
       if(product_.isNull()) {
         Exception::throwThis(errors::InvalidReference,
           "attempting get view from a null RefToBaseProd.\n");
@@ -176,7 +178,7 @@ namespace edm {
       helper_vector_ptr helpers;
       WrapperHolder it = product_.productGetter()->getIt(id);
       it.fillView(id, pointers, helpers);
-      product_.mutableClientCache() = (new View<T>(pointers, helpers));
+      product_.setProductPtr((new View<T>(pointers, helpers)));
     }
     return viewPtr();
   }
@@ -227,7 +229,7 @@ namespace edm {
     typedef reftobase::RefVectorHolder<ref_vector> holder_type;
     helper_vector_ptr helpers(new holder_type);
     detail::reallyFillView(* ref.product(), ref.id(), pointers, * helpers);
-    product_.mutableClientCache()=(new View<T>(pointers, helpers));
+    product_.setProductPtr(new View<T>(pointers, helpers));
   }
 
   template<typename T>
@@ -240,7 +242,7 @@ namespace edm {
     typedef reftobase::RefVectorHolder<ref_vector> holder_type;
     helper_vector_ptr helpers(new holder_type);
     detail::reallyFillView(* handle, handle.id(), pointers, * helpers);
-    product_.mutableClientCache()=(new View<T>(pointers, helpers));
+    product_.setProductPtr(new View<T>(pointers, helpers));
   }
 
   /// Constructor from Ref.
@@ -257,7 +259,7 @@ namespace edm {
     typedef reftobase::RefVectorHolder<ref_vector> holder_type;
     helper_vector_ptr helpers(new holder_type);
     detail::reallyFillView(* ref.product(), ref.id(), pointers, * helpers);
-    product_.mutableClientCache()=(new View<T>(pointers, helpers));
+    product_.setProductPtr(new View<T>(pointers, helpers));
   }
 
   /// Constructor from RefToBase.
@@ -271,7 +273,7 @@ namespace edm {
     std::vector<void const*> pointers;
     helper_vector_ptr helpers(ref.holder_->makeVectorBaseHolder().release());
     helpers->reallyFillView(ref.product(), ref.id(), pointers);
-    product_.mutableClientCache()=(new View<T>(pointers, helpers));
+    product_.setProductPtr(new View<T>(pointers, helpers));
   }
 
 }
