@@ -169,7 +169,8 @@ namespace lumi{
     nls=maxls-minls+1;
     hltresult.reserve(nls);//
     //fix all size
-    for(unsigned int i=1;i<=nls;++i){
+    for(unsigned int i=minls;i<=maxls;++i){
+      if (i==0) continue; //skip ls=0
       std::map<unsigned int, HLTV32DB::hltinfo> allpaths;
       HltPathMap::iterator aIt;
       HltPathMap::iterator aItBeg=hltpathmap.begin();
