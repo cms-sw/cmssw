@@ -1,8 +1,8 @@
  /** \file DQMOffline/Trigger/HLTMuonMatchAndPlot.cc
  *
- *  $Author: klukas $
- *  $Date: 2011/05/23 13:07:46 $
- *  $Revision: 1.26 $
+ *  $Author: eulisse $
+ *  $Date: 2011/05/27 13:38:19 $
+ *  $Revision: 1.27 $
  */
 
 
@@ -104,7 +104,10 @@ void HLTMuonMatchAndPlot::beginRun(const edm::Run& iRun,
 
   string baseDir = destination_;
   if (baseDir[baseDir.size() - 1] != '/') baseDir += '/';
-  dbe_->setCurrentFolder(baseDir + hltPath_);
+  string pathSansSuffix = hltPath_;
+  if (hltPath_.rfind("_v") < hltPath_.length())
+    pathSansSuffix = hltPath_.substr(0, hltPath_.rfind("_v"));
+  dbe_->setCurrentFolder(baseDir + pathSansSuffix);
 
   // Form is book1D(name, binningType, title) where 'binningType' is used 
   // to fetch the bin settings from binParams_.
