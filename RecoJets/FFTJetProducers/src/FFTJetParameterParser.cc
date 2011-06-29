@@ -8,6 +8,7 @@
 #include "RecoJets/FFTJetAlgorithms/interface/JetConvergenceDistance.h"
 #include "RecoJets/FFTJetAlgorithms/interface/ScaleCalculators.h"
 #include "RecoJets/FFTJetAlgorithms/interface/EtaAndPtDependentPeakSelector.h"
+#include "RecoJets/FFTJetAlgorithms/interface/EtaDependentPileup.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -526,7 +527,24 @@ fftjet_LinearInterpolator1d_parser(const edm::ParameterSet& ps)
             new fftjet::LinearInterpolator1d(
                 &data[0], data.size(), xmin, xmax, flow, fhigh));
 }
-    
+
+
+std::auto_ptr<fftjet::LinearInterpolator2d>
+fftjet_LinearInterpolator2d_parser(const edm::ParameterSet& ps)
+{
+    const std::string file = ps.getParameter<std::string>("file");
+    std::ifstream in(file.c_str(),
+                     std::ios_base::in | std::ios_base::binary);
+    if (!in.is_open())
+        throw cms::Exception("FFTJetBadConfig")
+            << "Failed to open file " << file << std::endl;
+    fftjet::LinearInterpolator2d* ip = fftjet::LinearInterpolator2d::read(in);
+    if (!ip)
+        throw cms::Exception("FFTJetBadConfig")
+            << "Failed to read file " << file << std::endl;
+    return std::auto_ptr<fftjet::LinearInterpolator2d>(ip);
+}
+
 
 std::auto_ptr<fftjet::Functor1<double,fftjet::Peak> >
 fftjet_PeakFunctor_parser(const edm::ParameterSet& ps)
@@ -887,6 +905,29 @@ fftjet_Function_parser(const edm::ParameterSet& ps)
                 break;
         }
         return return_type(new Polynomial(coeffs));
+    }
+
+    return return_type(NULL);
+}
+
+
+std::auto_ptr<AbsPileupCalculator>
+fftjet_PileupCalculator_parser(const edm::ParameterSet& ps)
+{
+    typedef std::auto_ptr<AbsPileupCalculator> return_type;
+
+    const std::string fcn_type = ps.getParameter<std::string>("Class");
+
+    if (!fcn_type.compare("EtaDependentPileup"))
+    {
+        std::auto_ptr<fftjet::LinearInterpolator2d> interp = 
+            fftjet_LinearInterpolator2d_parser(
+                ps.getParameter<edm::ParameterSet>("Interpolator2d"));
+        const fftjet::LinearInterpolator2d* ip = interp.get();
+        if (ip)
+            return return_type(new EtaDependentPileup(*ip));
+        else
+            return return_type(NULL);
     }
 
     return return_type(NULL);
