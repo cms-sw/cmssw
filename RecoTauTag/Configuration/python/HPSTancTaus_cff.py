@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import RecoTauTag.RecoTau.RecoTauCleanerPlugins as cleaners
-from RecoTauTag.RecoTau.TauDiscriminatorTools import adaptTauDiscriminator, \
-        producerIsTauTypeMapper
+from RecoTauTag.RecoTau.TauDiscriminatorTools import adaptTauDiscriminator, producerIsTauTypeMapper
 from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
 import copy
 
@@ -10,22 +9,18 @@ from RecoTauTag.RecoTau.hpstanc_transforms import transforms, cuts
 # Apply the TaNC to the input tau collection
 from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
 
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingPionPtCut_cfi import \
-        pfRecoTauDiscriminationByLeadingPionPtCut
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingPionPtCut_cfi import pfRecoTauDiscriminationByLeadingPionPtCut
 # Common discrimination by lead pion
-combinatoricRecoTausDiscriminationByLeadingPionPtCut = \
-        pfRecoTauDiscriminationByLeadingPionPtCut.clone(
+combinatoricRecoTausDiscriminationByLeadingPionPtCut = pfRecoTauDiscriminationByLeadingPionPtCut.clone(
             PFTauProducer = cms.InputTag("combinatoricRecoTaus")
         )
 
 # Steering file that loads the TaNC database, if necessary.  If unused it will
 # be 'None'
-from RecoTauTag.Configuration.RecoTauMVAConfiguration_cfi \
-        import TauTagMVAComputerRecord, esPreferLocalTancDB
+from RecoTauTag.Configuration.RecoTauMVAConfiguration_cfi import TauTagMVAComputerRecord, esPreferLocalTancDB
 
 # Build the tanc discriminates
-from RecoTauTag.RecoTau.RecoTauDiscriminantConfiguration import \
-        discriminantConfiguration
+from RecoTauTag.RecoTau.RecoTauDiscriminantConfiguration import discriminantConfiguration
 
 combinatoricRecoTausDiscriminationByTanc = cms.EDProducer(
     "RecoTauMVADiscriminator",
@@ -68,8 +63,7 @@ combinatoricRecoTausTancTransform = cms.EDProducer(
     Prediscriminants = noPrediscriminants
 )
 
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationByHPSSelection_cfi import \
-        hpsSelectionDiscriminator
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByHPSSelection_cfi import hpsSelectionDiscriminator
 
 combinatoricRecoTausHPSSelector = hpsSelectionDiscriminator.clone(
     src = cms.InputTag("combinatoricRecoTaus"),
@@ -104,9 +98,9 @@ hpsTancTaus = cms.EDProducer(
 )
 
 # Rerun the leading pion cut on our clean taus
-hpsTancTausDiscriminationByLeadingPionPtCut = \
-        combinatoricRecoTausDiscriminationByLeadingPionPtCut.clone(
-            PFTauProducer = cms.InputTag("hpsTancTaus"))
+hpsTancTausDiscriminationByLeadingPionPtCut = combinatoricRecoTausDiscriminationByLeadingPionPtCut.clone(
+    PFTauProducer = cms.InputTag("hpsTancTaus")
+    )
 
 _leadPionPrediscriminant = cms.PSet(
     BooleanOperator = cms.string("and"),
@@ -118,87 +112,72 @@ _leadPionPrediscriminant = cms.PSet(
 )
 
 # Build the HPS selection discriminator
-hpsTancTausDiscriminationByDecayModeSelection = \
-        combinatoricRecoTausHPSSelector.clone(
-            PFTauProducer = cms.InputTag("hpsTancTaus"),
-        )
+hpsTancTausDiscriminationByDecayModeSelection = combinatoricRecoTausHPSSelector.clone(
+    PFTauProducer = cms.InputTag("hpsTancTaus")
+    )
 
 from RecoTauTag.Configuration.HPSPFTaus_cff import requireDecayMode,\
-        hpsPFTauDiscriminationByVLooseIsolation,\
-        hpsPFTauDiscriminationByLooseIsolation,\
-        hpsPFTauDiscriminationByMediumIsolation,\
-        hpsPFTauDiscriminationByTightIsolation
+     hpsPFTauDiscriminationByVLooseIsolation,\
+     hpsPFTauDiscriminationByLooseIsolation,\
+     hpsPFTauDiscriminationByMediumIsolation,\
+     hpsPFTauDiscriminationByTightIsolation
 
 # Build the lead track and lepton discriminators
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackFinding_cfi import\
-        pfRecoTauDiscriminationByLeadingTrackFinding
-hpsTancTausDiscriminationByLeadingTrackFinding = copy.deepcopy(
-    pfRecoTauDiscriminationByLeadingTrackFinding)
-adaptTauDiscriminator(hpsTancTausDiscriminationByLeadingTrackFinding,
-                      "hpsTancTaus", newTauTypeMapper=producerIsTauTypeMapper)
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackFinding_cfi import pfRecoTauDiscriminationByLeadingTrackFinding
+hpsTancTausDiscriminationByLeadingTrackFinding = pfRecoTauDiscriminationByLeadingTrackFinding.clone(
+    PFTauProducer = cms.InputTag("hpsTancTaus")
+    )
 
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackPtCut_cfi import \
-        pfRecoTauDiscriminationByLeadingTrackPtCut
-hpsTancTausDiscriminationByLeadingTrackPtCut = copy.deepcopy(
-    pfRecoTauDiscriminationByLeadingTrackPtCut)
-adaptTauDiscriminator(hpsTancTausDiscriminationByLeadingTrackPtCut,
-                      "hpsTancTaus", newTauTypeMapper=producerIsTauTypeMapper)
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackPtCut_cfi import pfRecoTauDiscriminationByLeadingTrackPtCut
+hpsTancTausDiscriminationByLeadingTrackPtCut = pfRecoTauDiscriminationByLeadingTrackPtCut.clone(
+    PFTauProducer = cms.InputTag("hpsTancTaus")
+    )
 
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectron_cfi import \
-        pfRecoTauDiscriminationAgainstElectron
-#hpsTancTausDiscriminationAgainstElectron = copy.deepcopy(
-    #pfRecoTauDiscriminationAgainstElectron)
-#adaptTauDiscriminator(hpsTancTausDiscriminationAgainstElectron,
-                      #"hpsTancTaus", newTauTypeMapper=producerIsTauTypeMapper)
-
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon_cfi import \
-        pfRecoTauDiscriminationAgainstMuon
-#hpsTancTausDiscriminationAgainstMuon = copy.deepcopy(
-    #pfRecoTauDiscriminationAgainstMuon)
-#adaptTauDiscriminator(hpsTancTausDiscriminationAgainstMuon,
-                      #"hpsTancTaus", newTauTypeMapper=producerIsTauTypeMapper)
 
 # Build lepton discriminants
-def _setupDiscriminator(disc):
-    adaptTauDiscriminator(
-        disc, "hpsTancTaus", newTauTypeMapper=producerIsTauTypeMapper)
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectron_cfi import pfRecoTauDiscriminationAgainstElectron
 
-hpsTancTausDiscriminationByLooseElectronRejection = copy.deepcopy(pfRecoTauDiscriminationAgainstElectron)
-_setupDiscriminator(hpsTancTausDiscriminationByLooseElectronRejection)
-hpsTancTausDiscriminationByLooseElectronRejection.Prediscriminants = noPrediscriminants
-hpsTancTausDiscriminationByLooseElectronRejection.PFElectronMVA_maxValue = cms.double(0.6)
+hpsTancTausDiscriminationByLooseElectronRejection = pfRecoTauDiscriminationAgainstElectron.clone(
+    PFTauProducer = cms.InputTag("hpsTancTaus"),
+    Prediscriminants = noPrediscriminants,
+    PFElectronMVA_maxValue = cms.double(0.6)
+    )
 
-hpsTancTausDiscriminationByMediumElectronRejection = copy.deepcopy(pfRecoTauDiscriminationAgainstElectron)
-_setupDiscriminator(hpsTancTausDiscriminationByMediumElectronRejection)
-hpsTancTausDiscriminationByMediumElectronRejection.Prediscriminants = noPrediscriminants
-hpsTancTausDiscriminationByMediumElectronRejection.ApplyCut_EcalCrackCut = cms.bool(True)
+hpsTancTausDiscriminationByMediumElectronRejection = pfRecoTauDiscriminationAgainstElectron.clone(
+    PFTauProducer = cms.InputTag("hpsTancTaus"),
+    Prediscriminants = noPrediscriminants,
+    ApplyCut_EcalCrackCut = cms.bool(True)
+    )
 
-hpsTancTausDiscriminationByTightElectronRejection = copy.deepcopy(pfRecoTauDiscriminationAgainstElectron)
-_setupDiscriminator(hpsTancTausDiscriminationByTightElectronRejection)
-hpsTancTausDiscriminationByTightElectronRejection.Prediscriminants = noPrediscriminants
-hpsTancTausDiscriminationByTightElectronRejection.ApplyCut_EcalCrackCut = cms.bool(True)
-hpsTancTausDiscriminationByTightElectronRejection.ApplyCut_BremCombined = cms.bool(True)
+hpsTancTausDiscriminationByTightElectronRejection = pfRecoTauDiscriminationAgainstElectron.clone(
+    PFTauProducer = cms.InputTag("hpsTancTaus"),
+    Prediscriminants = noPrediscriminants,
+    ApplyCut_EcalCrackCut = cms.bool(True),
+    ApplyCut_BremCombined = cms.bool(True)
+    )
 
-hpsTancTausDiscriminationByLooseMuonRejection = copy.deepcopy(pfRecoTauDiscriminationAgainstMuon)
-_setupDiscriminator(hpsTancTausDiscriminationByLooseMuonRejection)
-hpsTancTausDiscriminationByLooseMuonRejection.Prediscriminants = noPrediscriminants
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon_cfi import pfRecoTauDiscriminationAgainstMuon
 
-hpsTancTausDiscriminationByTightMuonRejection = copy.deepcopy(pfRecoTauDiscriminationAgainstMuon)
-_setupDiscriminator(hpsTancTausDiscriminationByTightMuonRejection)
-hpsTancTausDiscriminationByTightMuonRejection.Prediscriminants = noPrediscriminants
-hpsTancTausDiscriminationByTightMuonRejection.discriminatorOption = cms.string('noAllArbitrated')
+hpsTancTausDiscriminationByLooseMuonRejection = pfRecoTauDiscriminationAgainstMuon.clone(
+    PFTauProducer = cms.InputTag("hpsTancTaus"),
+    Prediscriminants = noPrediscriminants
+   )
 
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstCaloMuon_cfi import \
-        pfRecoTauDiscriminationAgainstCaloMuon
-hpsTancTausDiscriminationAgainstCaloMuon = copy.deepcopy(
-    pfRecoTauDiscriminationAgainstCaloMuon)
-adaptTauDiscriminator(hpsTancTausDiscriminationAgainstCaloMuon,
-                      "hpsTancTaus", newTauTypeMapper=producerIsTauTypeMapper)
+hpsTancTausDiscriminationByTightMuonRejection = pfRecoTauDiscriminationAgainstMuon.clone(
+    PFTauProducer = cms.InputTag("hpsTancTaus"),
+    Prediscriminants = noPrediscriminants,
+    discriminatorOption = cms.string('noAllArbitrated')
+    )
+
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstCaloMuon_cfi import pfRecoTauDiscriminationAgainstCaloMuon
+hpsTancTausDiscriminationAgainstCaloMuon = pfRecoTauDiscriminationAgainstCaloMuon.clone(
+    PFTauProducer = cms.InputTag("hpsTancTaus")
+    )
+hpsTancTausDiscriminationAgainstCaloMuon.Prediscriminants.leadTrack.Producer = cms.InputTag("hpsTancTausDiscriminationByLeadingTrackFinding")
 
 # Update the decay mode prediscriminant
 hpsTancRequireDecayMode = requireDecayMode.clone()
-hpsTancRequireDecayMode.decayMode.Producer = cms.InputTag(
-    "hpsTancTausDiscriminationByDecayModeSelection")
+hpsTancRequireDecayMode.decayMode.Producer = cms.InputTag("hpsTancTausDiscriminationByDecayModeSelection")
 
 hpsTancTausDiscriminationByFlightPath = cms.EDProducer(
     "PFRecoTauDiscriminationByFlight",

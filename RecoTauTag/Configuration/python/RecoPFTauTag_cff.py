@@ -108,25 +108,19 @@ combinatoricRecoTaus.modifiers.append(tautagInfoModifer)
 
 recoTauPileUpVertices = cms.EDFilter(
     "RecoTauPileUpVertexSelector",
-    src = PFTauQualityCuts.primaryVertexSrc,
+    src = cms.InputTag("offlinePrimaryVertices"),
     minTrackSumPt = cms.double(5),
     filter = cms.bool(False),
 )
 
-# Temp
-from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesDA_cfi import \
-        offlinePrimaryVerticesDA
 
-recoTauCommonSequence = cms.Sequence()
-
-recoTauCommonMainSequence = cms.Sequence(
+recoTauCommonSequence = cms.Sequence(
     ak5PFJetTracksAssociatorAtVertex *
     recoTauAK5PFJets08Region*
     recoTauPileUpVertices*
     pfRecoTauTagInfoProducer
 )
 
-recoTauCommonSequence += recoTauCommonMainSequence
 
 # Not run in RECO, but included for the benefit of PAT
 recoTauClassicFixedConeSequence = cms.Sequence(
