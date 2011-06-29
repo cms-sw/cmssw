@@ -1,6 +1,8 @@
 #include "../interface/CachingNLL.h"
 #include "../interface/utils.h"
 #include <stdexcept>
+#include <RooCategory.h>
+#include <RooDataSet.h>
 
 cacheutils::ArgSetChecker::ArgSetChecker(const RooAbsCollection *set) 
 {
@@ -165,14 +167,18 @@ cacheutils::CachingAddNLL::evaluate() const
     }
     // then flip sign
     ret = -ret;
+    // std::cout << "AddNLL for " << pdf_->GetName() << ": " << ret << std::endl;
     // and add extended term: expected - observed*log(expected);
     ret += (sumCoeff - UInt_t(sumWeights_) * log( sumCoeff));
+    // std::cout << "     plus extended term: " << ret << std::endl;
     return ret;
 }
 
 void 
 cacheutils::CachingAddNLL::setData(const RooAbsData &data) 
 {
+    //std::cout << "Setting data for pdf " << pdf_->GetName() << std::endl;
+    //utils::printRAD(&data);
     data_ = &data;
     setValueDirty();
     sumWeights_ = 0.0;
@@ -183,6 +189,9 @@ cacheutils::CachingAddNLL::setData(const RooAbsData &data)
         data.get(i);
         *itw = data.weight();
         sumWeights_ += *itw;
+    }
+    for (std::vector<CachingPdf>::iterator itp = pdfs_.begin(), edp = pdfs_.end(); itp != edp; ++itp) {
+        itp->setDataDirty();
     }
 }
 
@@ -248,8 +257,10 @@ cacheutils::CachingSimNLL::setup_()
 
     
     std::auto_ptr<RooAbsCategoryLValue> catClone((RooAbsCategoryLValue*) simpdf->indexCat().Clone());
-    dataSets_.reset(dataOriginal_->split(simpdf->indexCat(), true));
     pdfs_.resize(catClone->numBins(NULL), 0);
+    //dataSets_.reset(dataOriginal_->split(pdfOriginal_->indexCat(), true));
+    datasets_.resize(pdfs_.size(), 0);
+    splitWithWeights(*dataOriginal_, simpdf->indexCat(), true);
     //std::cout << "Pdf " << simpdf->GetName() <<" is a SimPdf over category " << catClone->GetName() << ", with " << pdfs_.size() << " bins" << std::endl;
     for (int ib = 0, nb = pdfs_.size(); ib < nb; ++ib) {
         catClone->setBin(ib);
@@ -262,9 +273,10 @@ cacheutils::CachingSimNLL::setup_()
             throw std::invalid_argument(errormsg);
         }
         if (pdf != 0) {
-            RooAbsData *data = (RooAbsData *) dataSets_->FindObject(catClone->getLabel());
-            //std::cout << "   bin " << ib << " (label " << catClone->getLabel() << ") has pdf " << pdf->GetName() << " of type " << pdf->ClassName() << " and " << (data ? data->numEntries() : -1) << " dataset entries" << std::endl;
-            if (data == 0) { std::cerr << "Error: no data" << std::endl; continue; }
+            RooAbsData *data = (RooAbsData *) datasets_[ib]; //dataSets_->FindObject(catClone->getLabel());
+            //RooAbsData *data = (RooAbsData *) dataSets_->FindObject(catClone->getLabel());
+            std::cout << "   bin " << ib << " (label " << catClone->getLabel() << ") has pdf " << pdf->GetName() << " of type " << pdf->ClassName() << " and " << (data ? data->numEntries() : -1) << " dataset entries" << std::endl;
+            if (data == 0) { throw std::logic_error("Error: no data"); }
             pdfs_[ib] = new CachingAddNLL(catClone->getLabel(), "", pdf, data);
         }
     }   
@@ -279,7 +291,9 @@ cacheutils::CachingSimNLL::evaluate() const
     for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it) {
         if (*it != 0) ret += (*it)->getVal();
     }
+    //std::cout << "SimNLL for " << pdfOriginal_->GetName() << ": " << ret << std::endl;
     if (constrainPdf_.get()) ret -= constrainPdf_->getLogVal(nuis_);
+    //std::cout << "    plus constrain terms: " << ret << std::endl;
     return ret;
 }
 
@@ -287,16 +301,39 @@ void
 cacheutils::CachingSimNLL::setData(const RooAbsData &data) 
 {
     dataOriginal_ = &data;
-    dataSets_.reset(dataOriginal_->split(pdfOriginal_->indexCat(), true));
+    //std::cout << "combined data has " << data.numEntries() << " dataset entries (sumw " << data.sumEntries() << ", weighted " << data.isWeighted() << ")" << std::endl;
+    //utils::printRAD(&data);
+    //dataSets_.reset(dataOriginal_->split(pdfOriginal_->indexCat(), true));
+    splitWithWeights(*dataOriginal_, pdfOriginal_->indexCat(), true);
     for (int ib = 0, nb = pdfs_.size(); ib < nb; ++ib) {
         CachingAddNLL *canll = pdfs_[ib];
         if (canll == 0) continue;
-        RooAbsData *data = (RooAbsData *) dataSets_->FindObject(canll->GetName());
-        if (data == 0) { std::cerr << "Error: no data" << std::endl; continue; }
+        RooAbsData *data = datasets_[ib];
+        //RooAbsData *data = (RooAbsData *) dataSets_->FindObject(canll->GetName());
+        if (data == 0) { throw std::logic_error("Error: no data"); }
+        std::cout << "   bin " << ib << " (label " << canll->GetName() << ") has pdf " << canll->pdf()->GetName() << " of type " << canll->pdf()->ClassName() <<
+                     " and " << (data ? data->numEntries() : -1) << " dataset entries (sumw " << data->sumEntries() << ", weighted " << data->isWeighted() << ")" << std::endl;
         canll->setData(*data);
-    }   
+    }
 }
 
+void cacheutils::CachingSimNLL::splitWithWeights(const RooAbsData &data, const RooAbsCategory& splitCat, Bool_t createEmptyDataSets) {
+    RooCategory *cat = dynamic_cast<RooCategory *>(data.get()->find(splitCat.GetName()));
+    if (cat == 0) throw std::logic_error("Error: no category");
+    int nb = cat->numBins((const char *)0), ne = data.numEntries();
+    RooArgSet obs(*data.get()); obs.remove(*cat, true, true);
+    RooArgSet obsplus(obs);
+    RooRealVar weight("_weight_","",1);
+    if (data.isWeighted()) obsplus.add(weight);
+    for (int ib = 0; ib < nb; ++ib) {
+        if (datasets_[ib] == 0) datasets_[ib] = new RooDataSet("", "", obsplus, data.isWeighted() ? "_weight_" : (const char*)0);
+        else datasets_[ib]->reset();
+    }
+    for (int i = 0; i < ne; ++i) {
+        data.get(i); int ib = cat->getBin();
+        datasets_[ib]->add(obs, data.weight());
+    }
+}
 
 RooArgSet* 
 cacheutils::CachingSimNLL::getObservables(const RooArgSet* depList, Bool_t valueOnly) const 

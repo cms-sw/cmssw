@@ -31,6 +31,7 @@ class CachingPdf {
         ~CachingPdf() ;
         const std::vector<Double_t> & eval(const RooAbsData &data) ;
         const RooAbsPdf *pdf() const { return pdf_; }
+        void  setDataDirty() { lastData_ = 0; }
     private:
         const RooArgSet *obs_;
         RooAbsPdf *pdfOriginal_;
@@ -54,6 +55,7 @@ class CachingAddNLL : public RooAbsReal {
         virtual RooArgSet* getObservables(const RooArgSet* depList, Bool_t valueOnly = kTRUE) const ;
         virtual RooArgSet* getParameters(const RooArgSet* depList, Bool_t stripDisconnected = kTRUE) const ;
         double  sumWeights() const { return sumWeights_; }
+        const RooAbsPdf *pdf() const { return pdf_; }
     private:
         void setup_();
         RooAddPdf *pdf_;
@@ -77,6 +79,7 @@ class CachingSimNLL  : public RooAbsReal {
         void setData(const RooAbsData &data) ;
         virtual RooArgSet* getObservables(const RooArgSet* depList, Bool_t valueOnly = kTRUE) const ;
         virtual RooArgSet* getParameters(const RooArgSet* depList, Bool_t stripDisconnected = kTRUE) const ;
+        void splitWithWeights(const RooAbsData &data, const RooAbsCategory& splitCat, Bool_t createEmptyDataSets) ;
     private:
         void setup_();
         RooSimultaneous   *pdfOriginal_;
@@ -86,8 +89,9 @@ class CachingSimNLL  : public RooAbsReal {
         RooArgSet piecesForCloning_;
         std::auto_ptr<RooSimultaneous>  factorizedPdf_;
         std::auto_ptr<RooProdPdf>       constrainPdf_;
-        std::auto_ptr<TList>            dataSets_;
         std::vector<CachingAddNLL*>     pdfs_;
+        std::auto_ptr<TList>            dataSets_;
+        std::vector<RooDataSet *>       datasets_;
 };
 
 }

@@ -1,5 +1,6 @@
 #include "../interface/ToyMCSamplerOpt.h"
 #include "../interface/utils.h"
+#include <memory>
 #include <RooSimultaneous.h>
 #include <RooRealVar.h>
 #include <RooDataHist.h>
@@ -9,6 +10,7 @@
 ToyMCSamplerOpt::ToyMCSamplerOpt(RooStats::TestStatistic& ts, Int_t ntoys, RooAbsPdf *globalObsPdf) :
     ToyMCSampler(ts, ntoys),
     globalObsPdf_(globalObsPdf),
+    globalObsValues_(0), globalObsIndex_(-1),
     weightVar_(0),
     _allVars(0)
 {
@@ -18,6 +20,7 @@ ToyMCSamplerOpt::ToyMCSamplerOpt(RooStats::TestStatistic& ts, Int_t ntoys, RooAb
 ToyMCSamplerOpt::ToyMCSamplerOpt(const RooStats::ToyMCSampler &base) :
     ToyMCSampler(base),
     globalObsPdf_(0),
+    globalObsValues_(0), globalObsIndex_(-1),
     weightVar_(0),
     _allVars(0)
 {
@@ -26,6 +29,7 @@ ToyMCSamplerOpt::ToyMCSamplerOpt(const RooStats::ToyMCSampler &base) :
 ToyMCSamplerOpt::ToyMCSamplerOpt(const ToyMCSamplerOpt &other) :
     ToyMCSampler(other),
     globalObsPdf_(0),
+    globalObsValues_(0), globalObsIndex_(-1),
     weightVar_(0),
     _allVars(0)
 {
@@ -39,6 +43,7 @@ ToyMCSamplerOpt::~ToyMCSamplerOpt()
     }
     genCache_.clear();
     delete _allVars;
+    delete globalObsValues_;
 }
 
 
@@ -55,6 +60,7 @@ toymcoptutils::SinglePdfGenInfo::SinglePdfGenInfo(RooAbsPdf &pdf, RooArgSet& obs
    observables_.add(*obs);
    delete obs;
 #if ROOT_VERSION_CODE > ROOT_VERSION(5,29,99)
+    #error no
    if (mode_ == Unbinned) spec_ = protoData ? pdf.prepareMultiGen(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true)) 
                                             : pdf.prepareMultiGen(observables_, RooFit::Extended());
 #endif
@@ -73,12 +79,14 @@ toymcoptutils::SinglePdfGenInfo::generate(const RooDataSet* protoData, int force
     RooAbsData *ret = 0;
     if (mode_ == Unbinned) {
 #if ROOT_VERSION_CODE > ROOT_VERSION(5,29,99)
+        #error no
         ret = pdf_->generate(*spec_);
 #else
         ret = pdf_->generate(observables_, RooFit::Extended());
 #endif
     } else {
 #if ROOT_VERSION_CODE > ROOT_VERSION(5,29,99)
+        #error no
         ret = protoData ? pdf_->generateBinned(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true))
                         : pdf_->generateBinned(observables_, RooFit::Extended());
 #else
@@ -124,6 +132,7 @@ toymcoptutils::SimPdfGenInfo::~SimPdfGenInfo()
         delete *it;
     }
     pdfs_.clear();
+    //for (std::map<std::string,RooDataSet*>::iterator it = datasetPieces_.begin(), ed = datasetPieces_.end(); it != ed; ++it) {
     for (std::map<std::string,RooAbsData*>::iterator it = datasetPieces_.begin(), ed = datasetPieces_.end(); it != ed; ++it) {
         delete it->second;
     }
@@ -156,13 +165,22 @@ toymcoptutils::SimPdfGenInfo::generate(RooRealVar *&weightVar, const RooDataSet*
                 delete data;
                 data = wdata;
                 //std::cout << "DataSet is " << std::endl; utils::printRAD(data);
-            }
+            } 
             //if (data->isWeighted()) needsWeights = true;
         }
         ret = new RooDataSet("gen", "", observables_, RooFit::Index((RooCategory&)*cat_), RooFit::Link(datasetPieces_) /*, RooFit::OwnLinked()*/);
+        //ret = new RooDataSet("gen", "", observables_, RooFit::Index((RooCategory&)*cat_), RooFit::Import(datasetPieces_) /*, RooFit::OwnLinked()*/);
     } else ret = pdfs_[0]->generate(protoData, forceEvents);
     //std::cout << "Dataset generated from sim pdf (weighted? " << ret->isWeighted() << ")" << std::endl; utils::printRAD(ret);
     return ret;
+}
+
+void
+ToyMCSamplerOpt::SetPdf(RooAbsPdf& pdf) 
+{
+    ToyMCSampler::SetPdf(pdf);
+    delete _allVars; _allVars = 0; 
+    delete globalObsValues_; globalObsValues_ = 0; globalObsIndex_ = -1;
 }
 
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,29,0)
@@ -185,17 +203,20 @@ RooAbsData* ToyMCSamplerOpt::GenerateToyData(RooArgSet& /*nullPOI*/) const {
       // has problem for sim pdfs
       RooSimultaneous* simPdf = dynamic_cast<RooSimultaneous*>(fPdf);
       if(globalObsPdf_ || !simPdf){
-	RooDataSet *one = (globalObsPdf_ ? globalObsPdf_ : fPdf)->generate(*fGlobalObservables, 1);
-	
-	const RooArgSet *values = one->get();
+        if (globalObsValues_ == 0 || globalObsIndex_ == globalObsValues_->numEntries()) {
+            delete globalObsValues_;
+            globalObsValues_ = (globalObsPdf_ ? globalObsPdf_ : fPdf)->generate(*fGlobalObservables, fNToys);
+            globalObsIndex_  = 0;
+        }
+	const RooArgSet *values = globalObsValues_->get(globalObsIndex_++);
+        //std::cout << "Generated for " << fPdf->GetName() << std::endl; values->Print("V");
 	if (!_allVars) {
-	  _allVars = (globalObsPdf_ ? globalObsPdf_ : fPdf)->getVariables();
+	  _allVars = fPdf->getObservables(*fGlobalObservables);
 	}
 	*_allVars = *values;
-	delete one;
 
       } else {
-
+#if 0
 	if (_pdfList.size()==0) {
 	  TIterator* citer = simPdf->indexCat().typeIterator() ;
 	  RooCatType* tt = NULL;
@@ -217,9 +238,29 @@ RooAbsData* ToyMCSamplerOpt::GenerateToyData(RooArgSet& /*nullPOI*/) const {
 	  **oiter = *tmp->get(0) ;
 	  delete tmp ;	  
 	}	
-      }
-   } 
-   
+#else
+        //try fix for sim pdf
+        TIterator* iter = simPdf->indexCat().typeIterator() ;
+        RooCatType* tt = NULL;
+        while((tt=(RooCatType*) iter->Next())) {
+
+            // Get pdf associated with state from simpdf
+            RooAbsPdf* pdftmp = simPdf->getPdf(tt->GetName()) ;
+
+            // Generate only global variables defined by the pdf associated with this state
+            RooArgSet* globtmp = pdftmp->getObservables(*fGlobalObservables) ;
+            RooDataSet* tmp = pdftmp->generate(*globtmp,1) ;
+
+            // Transfer values to output placeholder
+            *globtmp = *tmp->get(0) ;
+
+            // Cleanup
+            delete globtmp ;
+            delete tmp ;
+        }
+#endif
+      } 
+}
 
    RooAbsData* data = NULL;
 
