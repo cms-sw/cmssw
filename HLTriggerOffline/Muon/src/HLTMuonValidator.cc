@@ -1,6 +1,6 @@
 /** \file HLTMuonValidator.cc
- *  $Date: 2011/04/29 21:42:28 $
- *  $Revision: 1.27 $
+ *  $Date: 2011/06/06 18:52:13 $
+ *  $Revision: 1.28 $
  */
 
 
@@ -154,7 +154,10 @@ HLTMuonValidator::initializeHists()
     cutsMinPt_[path] = cutMinPt;
 
     string baseDir = "HLT/Muon/Distributions/";
-    dbe_->setCurrentFolder(baseDir + path);
+    string pathSansSuffix = path;
+    if (path.rfind("_v") < path.length())
+      pathSansSuffix = path.substr(0, path.rfind("_v"));
+    dbe_->setCurrentFolder(baseDir + pathSansSuffix);
 
     if (dbe_->get(baseDir + path + "/CutMinPt") == 0) {
 
