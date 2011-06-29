@@ -741,7 +741,7 @@ void FFTJetProducer::produce(edm::Event& iEvent,
     // Figure out the pile-up
     if (calculatePileup)
     {
-        loadEnergyFlow(iEvent, pileupLabel, pileupEnergyFlow);
+        determinePileupDensity(iEvent, pileupLabel, pileupEnergyFlow);
         determinePileup();
         assert(pileup.size() == recoJets.size());
     }
@@ -783,6 +783,15 @@ FFTJetProducer::parse_recoScaleCalcPeak(const edm::ParameterSet& ps)
 {
     return fftjet_PeakFunctor_parser(
         ps.getParameter<edm::ParameterSet>("recoScaleCalcPeak"));
+}
+
+
+// Pile-up density calculator
+std::auto_ptr<fftjetcms::AbsPileupCalculator>
+FFTJetProducer::parse_pileupDensityCalc(const edm::ParameterSet& ps)
+{
+    return fftjet_PileupCalculator_parser(
+        ps.getParameter<edm::ParameterSet>("pileupDensityCalc"));
 }
 
 
@@ -881,6 +890,17 @@ void FFTJetProducer::beginJob()
         buildGridAlg();
     }
 
+    // Create the grid subsequently used for pile-up subtraction
+    if (calculatePileup)
+    {
+        pileupEnergyFlow = fftjet_Grid2d_parser(
+            ps.getParameter<edm::ParameterSet>("PileupGridConfiguration"));
+        checkConfig(pileupEnergyFlow, "invalid pileup density grid");
+
+        pileupDensityCalc = parse_pileupDensityCalc(ps);
+        checkConfig(pileupDensityCalc, "invalid pile-up density calculator");
+    }
+
     // Parse the calculator of the recombination scale
     recoScaleCalcPeak = parse_recoScaleCalcPeak(ps);
     checkConfig(recoScaleCalcPeak, "invalid spec for the "
@@ -927,6 +947,43 @@ void FFTJetProducer::setJetStatusBit(RecoFFTJet* jet,
     else
         status &= ~mask;
     jet->setStatus(status);
+}
+
+
+void FFTJetProducer::determinePileupDensity(
+    const edm::Event& iEvent, const edm::InputTag& label,
+    std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >& density)
+{
+    edm::Handle<reco::FFTJetPileupSummary> summary;
+    iEvent.getByLabel(label, summary);
+
+    const reco::FFTJetPileupSummary& s(*summary);
+    const AbsPileupCalculator& calc(*pileupDensityCalc);
+    const bool phiDependent = calc.isPhiDependent();
+
+    fftjet::Grid2d<Real>& g(*density);
+    const unsigned nEta = g.nEta();
+    const unsigned nPhi = g.nPhi();
+
+    for (unsigned ieta=0; ieta<nEta; ++ieta)
+    {
+        const double eta(g.etaBinCenter(ieta));
+
+        if (phiDependent)
+        {
+            for (unsigned iphi=0; iphi<nPhi; ++iphi)
+            {
+                const double phi(g.phiBinCenter(iphi));
+                g.uncheckedSetBin(ieta, iphi, calc(eta, phi, s));
+            }
+        }
+        else
+        {
+            const double pil = calc(eta, 0.0, s);
+            for (unsigned iphi=0; iphi<nPhi; ++iphi)
+                g.uncheckedSetBin(ieta, iphi, pil);
+        }
+    }
 }
 
 

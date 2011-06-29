@@ -45,6 +45,7 @@
 
 // local FFTJet-related definitions
 #include "RecoJets/FFTJetAlgorithms/interface/fftjetTypedefs.h"
+#include "RecoJets/FFTJetAlgorithms/interface/AbsPileupCalculator.h"
 #include "RecoJets/FFTJetProducers/interface/FFTJetInterface.h"
 
 namespace fftjetcms {
@@ -137,6 +138,10 @@ protected:
     virtual std::auto_ptr<fftjet::Functor2<double,RecoFFTJet,RecoFFTJet> >
     parse_jetDistanceCalc(const edm::ParameterSet&);
 
+    // Pile-up density calculator
+    virtual std::auto_ptr<fftjetcms::AbsPileupCalculator>
+    parse_pileupDensityCalc(const edm::ParameterSet& ps);
+
     // The following function performs most of the precluster selection
     // work in this module. You might want to reuse it if only a slight
     // modification of the "selectPreclusters" method is desired.
@@ -176,6 +181,13 @@ private:
 
     template <typename Jet>
     void makeProduces(const std::string& alias, const std::string& tag);
+
+    // The following function scans the pile-up density
+    // and fills the pile-up grid. Can be overriden if
+    // necessary.
+    virtual void determinePileupDensity(
+        const edm::Event& iEvent, const edm::InputTag& label,
+        std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >& density);
 
     // The following function builds the pile-up estimate
     // for each jet
@@ -338,6 +350,9 @@ private:
     // Note that this is _density_, not energy. To get energy, 
     // multiply by cell area.
     std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> > pileupEnergyFlow;
+
+    // The functor that calculates the pile-up density
+    std::auto_ptr<fftjetcms::AbsPileupCalculator> pileupDensityCalc;
 
     // Memory buffers related to pile-up subtraction
     std::vector<fftjet::AbsKernel2d*> memFcns2dVec;
