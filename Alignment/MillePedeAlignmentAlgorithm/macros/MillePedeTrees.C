@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2010/10/26 21:34:25 $
+// last change    : $Date: 2011/02/11 10:49:02 $
 // by             : $Author: flucke $
 
 #include "TTree.h"
@@ -807,6 +807,20 @@ TString MillePedeTrees::Name(const TString &pos) const
     ::Error("MillePedeTrees::Name", "unknown position %s", pos.Data());
     return "";
   }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+TString MillePedeTrees::NamePos(UInt_t iPos) const
+{
+  switch (iPos) {
+  case 0: return "x";
+  case 1: return "y";
+  case 2: return "z";
+  }
+
+  ::Error("MillePedeTrees::NamePos", "unknown position %d", iPos);
+  return "";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
