@@ -112,6 +112,7 @@ HLTTrackClusterRemover::HLTTrackClusterRemover(const ParameterSet& iConfig):
     stripClusters_(doStrip_ ? iConfig.getParameter<InputTag>("stripClusters") : InputTag("NONE")),
     pixelClusters_(doPixel_ ? iConfig.getParameter<InputTag>("pixelClusters") : InputTag("NONE")),
     mergeOld_(false),
+    oldRemovalInfo_(edm::InputTag()),
     makeProducts_(true)
 {
 
