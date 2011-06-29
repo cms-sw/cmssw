@@ -82,6 +82,8 @@ step1['RunElectron2011A']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2011A-v
 step1['RunPhoton2011A']={'INPUT':InputInfo(dataSet='/Photon/Run2011A-v1/RAW',label='photon2011A',run=Run2011A,events=100000)}
 step1['RunJet2011A']={'INPUT':InputInfo(dataSet='/Jet/Run2011A-v1/RAW',label='jet2011A',run=Run2011A,events=100000)}
 
+step1['RunHI2010']={'INPUT':InputInfo(dataSet='/HIAllPhysics/HIRun2010-v1/RAW',label='hi201',run=150119,events=100000,location='STD')}
+
 #### Standard release validation samples ####
 
 stCond={'--conditions':'auto:startup'}
@@ -374,6 +376,10 @@ step2['RECOD']=merge([{'--scenario':'pp',},dataReco])
 step2['RECOVALSKIM']=merge([{'--scenario':'pp','--customise':'Configuration/DataProcessing/RecoTLR.customiseVALSKIM','-s':'RAW2DIGI,L1Reco,RECO,DQM'},step2['RECOD']])
 step2['RECOVALSKIMALCA']=merge([{'--scenario':'pp','--customise':'Configuration/DataProcessing/RecoTLR.customiseVALSKIM'},step2['RECOD']])
 
+step2['RECOHID']=merge([{'--scenario':'HeavyIons',
+                         '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBiasHI+HcalCalMinBias,DQM',
+                         '--customise':'Configuration/DataProcessing/RecoTLR.customiseCommonHI'},step2['RECOD']])
+
 step2['TIER0']=merge([{'--scenario':'pp',
                        '--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt',
                        '-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@AllForPrompt,L1HwVal,DQM,ENDJOB',
@@ -447,6 +453,7 @@ step3['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
                    '--filein':'file:step2_inDQM.root',
                    '--data':'',
                    '--scenario':'pp'}
+
 # step4
 step4Defaults = { 'cfg'           : 'step4',
                   '-s'            : 'ALCA:TkAlMuonIsolated+TkAlMinBias+EcalCalElectron+HcalCalIsoTrk+MuAlOverlaps',
@@ -497,6 +504,20 @@ step4['ALCASPLIT']={'-s':'ALCAOUTPUT:@AllForPrompt',
                     '--triggerResultsProcess':'RECO',
                     '--filein':'file:step2_inALCARECO.root'}
 
+step4['SKIMD']={'-s':'SKIM:all',
+                '--conditions':'auto:com10',
+                '--data':'',
+                '--scenario':'pp',
+                '--filein':'file:step2.root',
+                '--secondfilein':'filelist:step1_dbsquery.log'}
+
+
+step4['SKIMCOSD']={'-s':'SKIM:all',
+                   '--conditions':'auto:com10',
+                   '--data':'',
+                   '--scenario':'cosmics',
+                   '--filein':'file:step2.root',
+                   '--secondfilein':'filelist:step1_dbsquery.log'}
                  
 
 #### for special wfs ###

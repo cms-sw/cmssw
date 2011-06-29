@@ -31,13 +31,13 @@ workflows[4.15] = ['', ['RunPhoton2010B','RECOD']]
 workflows[4.16] = ['', ['RunJet2010B','RECOD']]
 
 
-workflows[4.17] = ['', ['RunMinBias2011A','RECOD','HARVESTD']]
+workflows[4.17] = ['', ['RunMinBias2011A','RECOD','HARVESTD','SKIMD']]
 workflows[4.18] = ['', ['RunMu2011A','RECOD']]
 workflows[4.19] = ['', ['RunElectron2011A','RECOD']]
 workflows[4.20] = ['', ['RunPhoton2011A','RECOD']]
 workflows[4.21] = ['', ['RunJet2011A','RECOD']]
 
-workflows[4.22] = ['', ['RunCosmics2011A','RECOCOSD','ALCACOSD']]
+workflows[4.22] = ['', ['RunCosmics2011A','RECOCOSD','ALCACOSD','SKIMCOSD']]
 
 #workflows[4.23] = ['',[]
 #workflows[4.24] = ['',['WMuSkim2011A','RECOVALSKIM']]
@@ -45,6 +45,8 @@ workflows[4.22] = ['', ['RunCosmics2011A','RECOCOSD','ALCACOSD']]
 #workflows[4.26] = ['',['ZMuSkim2011A','RECOVALSKIM']]
 #workflows[4.27] = ['',['ZElSkim2011A','RECOVALSKIM']]
 #workflows[4.28] = ['',['HighMet2011A','RECOVALSKIM']]
+
+workflows[4.51] = ['',['RunHI2010','RECOHID']]
 
 ### fastsim ###
 #workflows[5.1] = ['TTbar', ['TTbarFS1']]
