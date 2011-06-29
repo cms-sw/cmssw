@@ -182,7 +182,7 @@ TtFullHadSignalSel::TtFullHadSignalSel(const std::vector<pat::Jet>& jets)
     if(jet->bDiscriminator("softMuonBJetTags")                     > 0.3  ) ++SM_Bjets_;
     
     if(jet->nConstituents() > 0){
-      if( jet->daughterPtr(0).productGetter()->getIt(jet->daughterPtr(0).id()) != 0 ){
+      //if( jet->daughterPtr(0).productGetter()->getIt(jet->daughterPtr(0).id()) != 0 ){
 	etaetaMoments_.push_back(         jet->etaetaMoment() );
 	etaphiMoments_.push_back(std::abs(jet->etaphiMoment()));
 	phiphiMoments_.push_back(         jet->phiphiMoment() );
@@ -212,7 +212,7 @@ TtFullHadSignalSel::TtFullHadSignalSel(const std::vector<pat::Jet>& jets)
 	  jets_etaphiMomentNoB_ += std::abs(jet->etaphiMoment());
 	  jets_phiphiMomentNoB_ +=          jet->phiphiMoment();
 	}
-      }
+	//}
     }
 
     for(std::vector<pat::Jet>::const_iterator jet2 = jet+1; jet2 != jets.end(); ++jet2){
