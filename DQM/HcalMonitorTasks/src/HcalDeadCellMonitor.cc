@@ -505,7 +505,7 @@ void HcalDeadCellMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
   ProblemsInLastNLB_HBHEHF_alarm->Reset();
 
   //increase the number of LS counting, for alarmer. Only make alarms for HBHE
-  if(hbhedcsON == true && hfdcsON == true)
+  if(hbhedcsON == true && hfdcsON == true && HBpresent_ == 1 && HEpresent_ == 1 && HFpresent_ == 1)
     ++alarmer_counter_;
   else 
     alarmer_counter_ = 0;
