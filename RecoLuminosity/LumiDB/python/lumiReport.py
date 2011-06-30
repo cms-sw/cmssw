@@ -735,17 +735,20 @@ def toCSVLSHlt(hltdata,filename,iresults=None,isverbose=False):
                     hltprescale='n/a'
                 else:
                     hltprescale='%d'%hltprescale
-                l1pass=mybit[2]
-                if l1pass is None:
-                    l1pass='n/a'
+                if isverbose:
+                    l1pass=mybit[2]
+                    if l1pass is None:
+                        l1pass='n/a'
+                    else:
+                        l1pass='%d'%l1pass
+                    hltaccept=mybit[3]
+                    if hltaccept is None:
+                        hltaccept='n/a'
+                    else:
+                        hltaccept='%d'%hltaccept
+                    mybitStr=','.join([hltpath,hltprescale,l1pass,hltaccept])
                 else:
-                    l1pass='%d'%l1pass
-                hltaccept=mybit[3]
-                if hltaccept is None:
-                    hltaccept='n/a'
-                else:
-                    hltaccept='%d'%hltaccept
-                mybitStr=','.join([hltpath,hltprescale,l1pass,hltaccept])
+                    mybitStr=','.join([hltpath,hltprescale])
                 allbitsresult.append(mybitStr)
             allbitsresult=';'.join(allbitsresult)
             result.append([run,cmslsnum,allbitsresult])
