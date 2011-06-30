@@ -709,11 +709,48 @@ def toScreenLSHlt(hltdata,iresults=None,isverbose=False):
                                prefix = '| ', postfix = ' |', justify = 'left',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,70) )
     
-def toCSVLSHlt(hltdata,ofilename,iresults=None,isverbose=False):
+def toCSVLSHlt(hltdata,filename,iresults=None,isverbose=False):
     '''
-    input:[[run,cmslsnum,timestamp,deadfrac,name:(prescale,count)]]
+    input:{runnumber:[(cmslsnum,[(hltpath,hltprescale,l1pass,hltaccept),...]),(cmslsnum,[])})}
     '''
-    print hltdata
+    result=[]
+    r=csvReporter.csvReporter(filename)
+    fieldnames=['Run','LS','hltpath,hltprescale,l1pass,hltaccept;...']
+    for rline in iresults:
+        result.append(rline)
+    for run in sorted(hltdata):
+        lsdata=hltdata[run]
+        if lsdata is None:
+            result.append([run,'n/a','n/a'])
+            continue
+        for thislsdata in lsdata:
+            cmslsnum=thislsdata[0]
+            bitsdata=thislsdata[1]
+            allbitsresult=[]
+            for mybit in bitsdata:
+                hltpath=mybit[0]
+                if not hltpath: continue
+                hltprescale=mybit[1]
+                if hltprescale is None:
+                    hltprescale='n/a'
+                else:
+                    hltprescale='%d'%hltprescale
+                l1pass=mybit[2]
+                if l1pass is None:
+                    l1pass='n/a'
+                else:
+                    l1pass='%d'%l1pass
+                hltaccept=mybit[3]
+                if hltaccept is None:
+                    hltaccept='n/a'
+                else:
+                    hltaccept='%d'%hltaccept
+                mybitStr=','.join([hltpath,hltprescale,hltprescale,l1pass,hltaccept])
+                allbitsresult.append(mybitStr)
+            allbitsresult=';'.join(allbitsresult)
+            result.append([run,cmslsnum,allbitsresult])
+    r.writeRow(fieldnames)
+    r.writeRows(result)
     
 def toScreenConfHlt(hltconfdata,iresults=None,isverbose=False):
     '''
