@@ -745,7 +745,7 @@ def toCSVLSHlt(hltdata,filename,iresults=None,isverbose=False):
                     hltaccept='n/a'
                 else:
                     hltaccept='%d'%hltaccept
-                mybitStr=','.join([hltpath,hltprescale,hltprescale,l1pass,hltaccept])
+                mybitStr=','.join([hltpath,hltprescale,l1pass,hltaccept])
                 allbitsresult.append(mybitStr)
             allbitsresult=';'.join(allbitsresult)
             result.append([run,cmslsnum,allbitsresult])
