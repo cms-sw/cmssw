@@ -30,19 +30,23 @@ double quantErr(size_t n, double *vals, double q) {
 }
 
 enum BandType { Mean, Median, Quantile, Observed, Asimov, CountToys, MeanCPUTime, AdHoc };
-double band_safety_crop = 0;
+double band_safety_crop = 0; bool use_precomputed_quantiles = false;
 TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType type, double width=0.68) {
     if (file == 0) return 0;
     TTree *t = (TTree *) file->Get("limit");
     if (t == 0) t = (TTree *) file->Get("test"); // backwards compatibility
     if (t == 0) { std::cerr << "TFile " << file->GetName() << " does not contain the tree" << std::endl; return 0; }
-    Double_t mass, limit, limitErr = 0; Float_t t_cpu, t_real; Int_t syst, iChannel, iToy, iMass;
+    Double_t mass, limit, limitErr = 0; Float_t t_cpu, t_real; Int_t syst, iChannel, iToy, iMass; Float_t quant = -1;
     t->SetBranchAddress("mh", &mass);
     t->SetBranchAddress("limit", &limit);
     if (t->GetBranch("limitErr")) t->SetBranchAddress("limitErr", &limitErr);
     if (t->GetBranch("t_cpu") != 0) {
         t->SetBranchAddress("t_cpu", &t_cpu);
         t->SetBranchAddress("t_real", &t_real);
+    }
+    if (use_precomputed_quantiles) {
+        if (t->GetBranch("quantileExpected") == 0) { std::cerr << "TFile " << file->GetName() << " does not have precomputed quantiles" << std::endl; return 0; }
+        t->SetBranchAddress("quantileExpected", &quant);
     }
     t->SetBranchAddress("syst", &syst);
     t->SetBranchAddress("iChannel", &iChannel);
@@ -52,16 +56,31 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
     std::map<int,std::vector<double> >  errors;
     for (size_t i = 0, n = t->GetEntries(); i < n; ++i) {
         t->GetEntry(i);
+        //printf("%6d mh=%.1f  limit=%8.3f +/- %8.3f toy=%5d quant=% .3f\n", i, mass, limit, limitErr, iToy, quant);
         if (syst != doSyst)           continue;
         if (iChannel != whichChannel) continue;
         if      (type == Asimov)   { if (iToy != -1) continue; }
         else if (type == Observed) { if (iToy !=  0) continue; }
-        else if (iToy <= 0) continue;
+        else if (iToy <= 0 && !use_precomputed_quantiles) continue;
         if (limit == 0) continue; 
         iMass = int(mass);
         if (type == MeanCPUTime) { 
             if (limit < 0) continue; 
             limit = t_cpu; 
+        }
+        if (use_precomputed_quantiles) {
+            if (type == CountToys)   return 0;
+            if (type == Mean)        return 0;
+            //std::cout << "Quantiles. What should I do " << (type == Observed ? " obs" : " exp") << std::endl;
+            if (type == Observed && quant > 0) continue;
+            if (type == Median) {
+                if (fabs(quant - 0.5) > 0.005 && fabs(quant - (1-width)/2) > 0.005 && fabs(quant - (1+width)/2) > 0.005) {
+                    //std::cout << " don't care about " << quant << std::endl;
+                    continue;
+                } else {
+                    //std::cout << " will use " << quant << std::endl;
+                }
+            }
         }
         dataset[iMass].push_back(limit);
         errors[iMass].push_back(limitErr);
@@ -86,6 +105,10 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
         }
         double mean = 0; for (int j = 0; j < nd; ++j) mean += data[j]; mean /= nd;
         double summer68 = data[floor(nd * 0.5*(1-width)+0.5)], winter68 =  data[std::min(int(floor(nd * 0.5*(1+width)+0.5)), nd-1)];
+        if (use_precomputed_quantiles && type == Median) {
+            if (data.size() != 3) { std::cerr << "Error for expected quantile for mass " << it->first << ": size of data is " << data.size() << std::endl; continue; }
+            mean = median = data[1]; summer68 = data[0]; winter68 = data[2];
+        }
         double x = mean;
         switch (type) {
             case MeanCPUTime:
@@ -173,11 +196,11 @@ void makeLine(TDirectory *bands, TString name, TString filename,  int doSyst, in
 void makeBands(TDirectory *bands, TString name, TString filename, int channel=0, bool quantiles=false) {
     TFile *in = TFile::Open(filename);
     if (in == 0) { std::cerr << "Filename " << filename << " missing" << std::endl; return; }
-    for (int s = 0; s <= 1; ++s) {
+    for (int s = 1; s <= 1; ++s) {
         makeBand(bands, name, in, s, channel, Mean);
         makeBand(bands, name, in, s, channel, Median);
-        makeBand(bands, name, in, s, channel, CountToys);
         makeBand(bands, name, in, s, channel, Observed);
+        //makeBand(bands, name, in, s, channel, CountToys);
     }
     if (quantiles) {
         double quants[5] = { 0.025, 0.16, 0.5, 0.84, 0.975 };
