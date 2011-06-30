@@ -7,15 +7,15 @@
 
 /** \class CaloRecHit
  * 
- * $Date: 2009/03/29 02:07:54 $
- * $Revision: 1.6 $
+ * $Date: 2010/06/14 14:28:30 $
+ * $Revision: 1.7 $
  *\author J. Mans - Minnesota
  */
 class CaloRecHit {
 public:
   CaloRecHit(); // for persistence
   explicit CaloRecHit(const DetId& id, float energy, float time, uint32_t flags = 0, uint32_t aux=0);
-  virtual ~CaloRecHit();
+
   float energy() const { return energy_; }
   float time() const { return time_; }
   const DetId& detid() const { return id_; }

@@ -8,8 +8,6 @@ CaloRecHit::CaloRecHit(const DetId& id, float energy, float time, uint32_t flags
 	id_(id),energy_(energy), time_(time), flags_(flags), aux_(aux) {
 }
 
-CaloRecHit::~CaloRecHit() {
-}
 
 static const uint32_t masks[] = {
   0x00000000u,0x00000001u,0x00000003u,0x00000007u,0x0000000fu,0x0000001fu,
