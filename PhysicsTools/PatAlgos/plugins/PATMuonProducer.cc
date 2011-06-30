@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.42 2011/03/15 22:21:49 gpetrucc Exp $
+// $Id: PATMuonProducer.cc,v 1.43 2011/06/27 15:57:48 bellan Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -186,7 +186,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	<< "No beam spot available from EventSetup, not adding high level selection \n";
     }
     beamPoint = reco::TrackBase::Point ( beamSpot.x0(), beamSpot.y0(), beamSpot.z0() );
-    if( pvHandle.isValid() ) {
+    if( pvHandle.isValid() && !pvHandle->empty() ) {
       primaryVertex = pvHandle->at(0);
       primaryVertexIsValid = true;
     } else {

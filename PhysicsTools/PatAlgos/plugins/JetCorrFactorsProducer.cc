@@ -57,23 +57,26 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& cfg):
     }
     else{
       throw cms::Exception("No primaryVertices specified") 
-	<< "The configured correction levels contain an L1Offset or L1FastJet correction, which re-. \n"
-	<< "quires the number of offlinePrimaryVertices. Please specify this collection \n"
-	<< "as additional optional parameter primaryVertices in the jetCorrFactors_cfi. \n";
+	<< "The configured correction levels contain an L1Offset or L1FastJet correction, \n"
+	<< "which requires the number of offlinePrimaryVertices. Please specify this col- \n"
+	<< "lection as additional optional parameter primaryVertices in the jetCorrFactors\n"
+	<< "module. \n";
     }
   }
   // if the std::string L1FastJet can be found in levels an additional
   // parameter rho is needed, which should pass on the energy density 
   // parameter for the corresponding jet collection.
   if(useRho_){
-    if(cfg.existsAs<edm::InputTag>("rho")){
-      rho_=cfg.getParameter<edm::InputTag>("rho");
-    }
-    else{
-      throw cms::Exception("No parameter rho specified") 
-	<< "The configured correction levels contain an L1FastJet correction, which re-. \n"
-	<< "quires the energy density parameter rho. Please specify this collection as   \n"
-	<< "additional optional parameter rho in the jetCorrFactors_cfi. \n";
+    if(std::find(levels.begin(), levels.end(), "L1FastJet")!=levels.end()){
+      if(cfg.existsAs<edm::InputTag>("rho")){
+	rho_=cfg.getParameter<edm::InputTag>("rho");
+      }
+      else{
+	throw cms::Exception("No parameter rho specified") 
+	  << "The configured correction levels contain a L1FastJet correction, which re- \n"
+	  << "quires the energy density parameter rho. Please specify this collection as \n"
+	  << "additional optional parameter rho in the jetCorrFactors module. \n";
+      }
     }
   }
   produces<JetCorrFactorsMap>();

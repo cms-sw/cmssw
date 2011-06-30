@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.48 2011/05/31 16:33:30 rwolf Exp $
+// $Id: PATElectronProducer.cc,v 1.49 2011/06/27 15:57:48 bellan Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -246,7 +246,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
       beamPoint = reco::TrackBase::Point ( x0, y0, z0 );
     } else {
-      if ( pvHandle.isValid() ) {
+      if ( pvHandle.isValid() && !pvHandle->empty() ) {
 	primaryVertex = pvHandle->at(0);
 	primaryVertexIsValid = true;
       } else {
