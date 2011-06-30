@@ -33,3 +33,12 @@ siStripQualityESProducer.PrintDebugOutput = cms.bool(False)
 # Default is "False".
 siStripQualityESProducer.UseEmptyRunInfo = cms.bool(False)
 
+from CalibTracker.SiPixelESProducers.SiPixelQualityESProducer_cfi import *
+siPixelQualityESProducer.ListOfRecordToMerge = cms.VPSet(
+        cms.PSet( record = cms.string("SiPixelQualityFromDbRcd"),
+                  tag    = cms.string("")
+                  ),
+        cms.PSet( record = cms.string("SiPixelDetVOffRcd"),
+                  tag    = cms.string("")
+                  )
+        )
