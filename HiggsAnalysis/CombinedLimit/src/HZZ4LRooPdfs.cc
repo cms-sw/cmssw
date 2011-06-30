@@ -10,7 +10,7 @@
 
 namespace RooFit{
 	
-  //  void readFile();
+   void readFile();
 
   const Double_t FracEventsNoBrem_4mu = 0.703618;
   const Double_t FracEventsNoBrem_4e = 0.583196;
@@ -1510,7 +1510,7 @@ Double_t RooFourMuMassShapePdf2::evaluate() const
 	
   using namespace RooFit;
 
-  //  if( BR[0][0] == 0 ){ readFile(); }
+   if( BR[0][0] == 0 ){ readFile(); }
 
 	
 	Double_t mHreq = mH;
@@ -1592,7 +1592,7 @@ Double_t RooFourEMassShapePdf2::evaluate() const
 {
   using namespace RooFit;
 	
-  //	if( BR[0][0] == 0 ){ readFile(); }
+ 	if( BR[0][0] == 0 ){ readFile(); }
 
 	
 	Double_t mHreq = mH;
@@ -1675,7 +1675,7 @@ Double_t RooTwoETwoMuMassShapePdf2::evaluate() const
 {
   using namespace RooFit;
 
-  //if( BR[0][0] == 0 ){ readFile(); }
+ if( BR[0][0] == 0 ){ readFile(); }
 	
 	
 	Double_t mHreq = mH;
