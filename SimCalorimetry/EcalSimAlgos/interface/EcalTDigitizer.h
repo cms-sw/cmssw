@@ -10,22 +10,20 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-class CaloHitRespoNew ;
+class EcalHitResponse ;
 
 template< class Traits >
 class EcalTDigitizer
 {
    public:
-      /// these are the types that need to be defined in the Traits
-      /// class.  The ElectronicsSim needs to have an interface
-      /// that you'll see in the run() method
+
       typedef typename Traits::ElectronicsSim ElectronicsSim ;
       typedef typename Traits::Digi           Digi           ;
       typedef typename Traits::DigiCollection DigiCollection ;
 
-      typedef CaloHitRespoNew CaloHitResponse ;
+//      typedef CaloTSamplesBase<float> EcalSamples ;
 
-      EcalTDigitizer< Traits >( CaloHitResponse* hitResponse    ,
+      EcalTDigitizer< Traits >( EcalHitResponse* hitResponse    ,
 				ElectronicsSim*  electronicsSim ,
 				bool             addNoise         ) ;
 
@@ -36,7 +34,7 @@ class EcalTDigitizer
 
    private:
 
-      CaloHitResponse* m_hitResponse    ;
+      EcalHitResponse* m_hitResponse    ;
       ElectronicsSim*  m_electronicsSim ;
       bool             m_addNoise         ;
 };

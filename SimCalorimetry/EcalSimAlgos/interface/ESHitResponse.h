@@ -1,24 +1,32 @@
-#ifndef EcalSimAlgos_CaloHitResponse_h
-#define EcalSimAlgos_CaloHitResponse_h
+#ifndef EcalSimAlgos_ESHitResponse_h
+#define EcalSimAlgos_ESHitResponse_h
 
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
+#include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalHitResponse.h"
 
-class ESHitResponse : public CaloHitResponse
+class ESHitResponse : public EcalHitResponse
 {
    public:
 
-      ESHitResponse( const CaloVSimParameterMap* parameterMap,
-		     const CaloVShape*           shape) :
-	 CaloHitResponse( parameterMap, shape ) {}
-      ESHitResponse( const CaloVSimParameterMap* parameterMap,
-		     const CaloShapes*           shapes        ) :
-	 CaloHitResponse( parameterMap, shapes ) {}
+      typedef CaloTSamples<float,3> ESSamples ;
 
-      virtual ~ESHitResponse() {}
+      ESHitResponse( const CaloVSimParameterMap* parameterMap , 
+		     const CaloVShape*           shape          ) ;
 
-      const AnalogSignalMap& signalMap() const { return theAnalogSignalMap ; }
+      virtual ~ESHitResponse() ;
+
+      virtual bool keepBlank() const { return false ; }
+
+      virtual const EcalSamples* operator[]( unsigned int i ) const ;
+
+   protected:
+
+      virtual EcalSamples* vSam( unsigned int i ) ;
+
+   private:
+
+      std::vector<ESSamples> m_vSam ;
 };
-
 #endif
 
 

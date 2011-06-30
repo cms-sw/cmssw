@@ -1,8 +1,11 @@
 #ifndef EcalSimAlgos_EcalTDigitizer_icc
 #define EcalSimAlgos_EcalTDigitizer_icc
 
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalTDigitizer.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalHitResponse.h"
+
 template <class Traits>
-EcalTDigitizer<Traits>::EcalTDigitizer( CaloHitResponse* hitResponse    ,
+EcalTDigitizer<Traits>::EcalTDigitizer( EcalHitResponse* hitResponse    ,
 					ElectronicsSim*  electronicsSim ,
 					bool             addNoise         ) :
    m_hitResponse    ( hitResponse    ) ,
@@ -21,18 +24,20 @@ void
 EcalTDigitizer<Traits>::run( MixCollection<PCaloHit>& input  ,
 			     DigiCollection&          output   )
 {
-   m_hitResponse->run( input );
+   m_hitResponse->run( input )  ;
 
-   m_electronicsSim->newEvent();
+   m_electronicsSim->newEvent() ;
 
    const unsigned int ssize ( m_hitResponse->samplesSize() ) ;
    output.reserve( ssize ) ;
 
+   if( m_addNoise ) Traits::addNoiseHits( m_hitResponse ) ;
+
    for( unsigned int i ( 0 ) ; i != ssize ; ++i )
    {
-      CaloSamples analogSignal ( (*m_hitResponse)[i] ) ;
+      EcalSamples& analogSignal ( (*m_hitResponse)[ i ] ) ;
       if( m_addNoise              ||    // digitize if real or adding noise
-	  !analogSignal.isBlank()    )
+	  !analogSignal.zero()       )
       {
 	 output.push_back( analogSignal.id() ) ;
 	 Digi digi ( output.back() ) ;  // why does this work without &

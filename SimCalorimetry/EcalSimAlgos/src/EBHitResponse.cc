@@ -4,6 +4,7 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloSimParameters.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVHitFilter.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
+#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -15,9 +16,7 @@ EBHitResponse::EBHitResponse( const CaloVSimParameterMap* parameterMap ,
 			      const APDSimParameters*     apdPars  = 0 , 
 			      const CaloVShape*           apdShape = 0   ) :
 
-   CaloHitResponse( parameterMap,
-		    shape       ,
-		    EBDetId( 1, 1 ) ),
+   EcalHitResponse( parameterMap, shape ) ,
 
    m_apdOnly  ( apdOnly  ) ,
    m_apdPars  ( apdPars  ) ,
@@ -39,12 +38,28 @@ EBHitResponse::EBHitResponse( const CaloVSimParameterMap* parameterMap ,
       m_timeOffVec[ i ] +=
 	 ranGauss()->fire( 0 , apdParameters()->timeOffWidth() ) ;
    }
+
+   const EBDetId detId ( EBDetId::detIdFromDenseIndex( 0 ) ) ;
+   const CaloSimParameters& parameters ( parameterMap->simParameters( detId ) ) ;
+
+   const unsigned int rSize ( parameters.readoutFrameSize() ) ;
+   const unsigned int nPre  ( parameters.binOfMaximum() - 1 ) ;
+
+   const unsigned int size ( EBDetId::kSizeForDenseIndexing ) ;
+
+   m_vSam.reserve( size ) ;
+
+   for( unsigned int i ( 0 ) ; i != size ; ++i )
+   {
+      m_vSam.push_back(
+	 EBSamples( CaloGenericDetId( detId.det(), detId.subdetId(), i ) ,
+		    rSize, nPre ) ) ;
+   }
 }
 
 EBHitResponse::~EBHitResponse()
 {
 }
-
 
 const APDSimParameters*
 EBHitResponse::apdParameters() const
@@ -85,12 +100,12 @@ EBHitResponse::putAPDSignal( const DetId& detId  ,
 
    double binTime ( tzero ) ;
 
-   CaloSamples& result ( *findSignal( detId ) );
+   EcalSamples& result ( *findSignal( detId ) );
 
-   for( int bin ( 0 ) ; bin != result.size(); ++bin )
+   for( unsigned int bin ( 0 ) ; bin != result.size(); ++bin )
    {
-      result[bin] += (*apdShape())(binTime)*signal;
-      binTime += BUNCHSPACE;
+      result[bin] += (*apdShape())(binTime)*signal ;
+      binTime += BUNCHSPACE ;
    }
 }
 
@@ -218,4 +233,34 @@ EBHitResponse::run( MixCollection<PCaloHit>& hits )
 	 }
       }
    }
+}
+
+unsigned int
+EBHitResponse::samplesSize() const
+{
+   return m_vSam.size() ;
+}
+
+unsigned int
+EBHitResponse::samplesSizeAll() const
+{
+   return m_vSam.size() ;
+}
+
+const EcalHitResponse::EcalSamples* 
+EBHitResponse::operator[]( unsigned int i ) const
+{
+   return &m_vSam[ i ] ;
+}
+
+EcalHitResponse::EcalSamples* 
+EBHitResponse::vSam( unsigned int i )
+{
+   return &m_vSam[ i ] ;
+}
+
+EcalHitResponse::EcalSamples* 
+EBHitResponse::vSamAll( unsigned int i )
+{
+   return &m_vSam[ i ] ;
 }

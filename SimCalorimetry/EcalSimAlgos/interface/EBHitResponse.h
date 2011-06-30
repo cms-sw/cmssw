@@ -1,24 +1,17 @@
 #ifndef EcalSimAlgos_EBHitResponse_h
 #define EcalSimAlgos_EBHitResponse_h
 
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloHitRespoNew.h"
+#include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalHitResponse.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
-
-/**
-
- \class EBHitResponse
-
- \brief Creates electronics signals from EB hits , including APD
-
-*/
 
 class APDSimParameters ;
 
-class EBHitResponse : public CaloHitRespoNew
+class EBHitResponse : public EcalHitResponse
 {
    public:
 
-      typedef CaloHitRespoNew CaloHitResponse ;
+      typedef CaloTSamples<float,10> EBSamples ;
 
       typedef std::vector<double> VecD ;
 
@@ -40,7 +33,17 @@ class EBHitResponse : public CaloHitRespoNew
 
       virtual void run( MixCollection<PCaloHit>& hits ) ;
 
+      virtual unsigned int samplesSize() const ;
+
+      virtual const EcalSamples* operator[]( unsigned int i ) const ;
+
    protected:
+
+      virtual unsigned int samplesSizeAll() const ;
+
+      virtual EcalSamples* vSamAll( unsigned int i ) ;
+
+      virtual EcalSamples* vSam( unsigned int i ) ;
 
       void putAPDSignal( const DetId& detId, double npe, double time ) ;
 
@@ -76,6 +79,8 @@ class EBHitResponse : public CaloHitRespoNew
       std::vector<double> m_apdTimeVec ;
 
       const double pcub, pqua, plin, pcon, pelo, pehi, pasy, pext, poff, pfac ;
+
+      std::vector<EBSamples> m_vSam ;
 };
 #endif
 
