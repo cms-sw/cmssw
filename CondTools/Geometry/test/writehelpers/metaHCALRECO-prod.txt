@@ -1,7 +1,6 @@
 destDB oracle://cms_orcon_prod/CMS_COND_34X_GEOMETRY
 tag HCALRECO_Geometry_TagXX
 inputtag 
-tag 
 since 
 till 
 Timetype runnumber
