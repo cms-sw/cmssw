@@ -6,6 +6,7 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
+#include "DataFormats/Scalers/interface/DcsStatus.h"
 
 // Channel status DB stuff
 
@@ -107,6 +108,7 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
   int is_RBX_loss_;
   int rbxlost[132];
   int alarmer_counter_;
+  bool hbhedcsON, hfdcsON;
   unsigned int NumBadHB, NumBadHE, NumBadHO, NumBadHF, NumBadHFLUMI, NumBadHO0, NumBadHO12;
   edm::InputTag digiLabel_;
   edm::InputTag hbheRechitLabel_, hoRechitLabel_, hfRechitLabel_;

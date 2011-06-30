@@ -403,6 +403,7 @@ void HcalDeadCellMonitor::reset()
   deadevt_=0;
   is_RBX_loss_ = 0;
   alarmer_counter_ = 0;
+  hbhedcsON = true; hfdcsON = true;
   ProblemsVsLB->Reset(); ProblemsVsLB_HB->Reset(); ProblemsVsLB_HE->Reset(); ProblemsVsLB_HO->Reset(); ProblemsVsLB_HF->Reset(); ProblemsVsLB_HBHEHF->Reset();
   RBX_loss_VS_LB->Reset();
   ProblemsInLastNLB_HBHEHF_alarm->Reset();
@@ -503,8 +504,11 @@ void HcalDeadCellMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
 
   ProblemsInLastNLB_HBHEHF_alarm->Reset();
 
-  //increase the number of LS counting, for alarmer
-  ++alarmer_counter_;
+  //increase the number of LS counting, for alarmer. Only make alarms for HBHE
+  if(hbhedcsON == true && hfdcsON == true)
+    ++alarmer_counter_;
+  else 
+    alarmer_counter_ = 0;
 
   // Here is where we determine whether or not to process an event
   // Not enough events
@@ -590,6 +594,31 @@ void HcalDeadCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   edm::Handle<HBHERecHitCollection> hbhe_rechit;
   edm::Handle<HORecHitCollection> ho_rechit;
   edm::Handle<HFRecHitCollection> hf_rechit;
+ 
+  /////////////////////////////////////////////////////////////////
+  // check if detectors whether they were ON
+  edm::Handle<DcsStatusCollection> dcsStatus;
+  e.getByLabel("scalersRawToDigi", dcsStatus);
+  
+  if (dcsStatus.isValid() && dcsStatus->size() != 0) 
+    {      
+      if ((*dcsStatus)[0].ready(DcsStatus::HBHEa) &&
+	  (*dcsStatus)[0].ready(DcsStatus::HBHEb) &&   
+	  (*dcsStatus)[0].ready(DcsStatus::HBHEc))
+	{	
+	  hbhedcsON = true;
+	  if (debug_) std::cout << "hbhe on" << std::endl;
+	} 
+      else hbhedcsON = false;
+
+      if ((*dcsStatus)[0].ready(DcsStatus::HF))
+	{
+	  hfdcsON = true;
+	  if (debug_) std::cout << "hf on" << std::endl;
+	} 
+      else hfdcsON = false;
+    }
+  ///////////////////////////////////////////////////////////////
 
   if (!(e.getByLabel(digiLabel_,hbhe_digi)))
     {
@@ -1197,7 +1226,7 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
 
   for(int i=0; i<132; i++)
     {
-      if(occupancy_RBX[i]==0)
+      if(occupancy_RBX[i]==0 && is_RBX_loss_ == 1)
 	{
 	  if(i<=35)            //HB
 	    { counter_HB ++ ; RBX_loss_HB = 72*(counter_HB); }
@@ -1208,13 +1237,12 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
 	  
 	  if(excludeHO1P02_==true && i==109) NumBadHO1P02 = 72; // exclude HO1P02
 	}
-      
+            
       if(occupancy_RBX[i]>0)
 	RBX_loss_VS_LB->Fill(currentLS, i, 0);
-      if(occupancy_RBX[i]==0)
+      if(occupancy_RBX[i]==0 && is_RBX_loss_ == 1)
 	RBX_loss_VS_LB->Fill(currentLS, i, 1);
-    }
-  
+    }  
   
   if (deadevt_ >= 10 && deadevt_<minDeadEventCount_) // maybe not enough events to run the standard test
     if( is_RBX_loss_ == 1 )                          // but enough to detect RBX loss
