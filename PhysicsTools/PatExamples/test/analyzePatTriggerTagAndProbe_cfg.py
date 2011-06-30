@@ -13,8 +13,7 @@ process.options = cms.untracked.PSet(
 ## Declare input
 from PhysicsTools.PatExamples.samplesCERN_cff import zjetsTrigger
 process.source = cms.Source( "PoolSource",
-    #fileNames = zjetsTrigger
-    fileNames = cms.untracked.vstring('file:/tmp/vadler/patTuple_zjets_trigger.root')
+    fileNames = zjetsTrigger
 )
 
 process.maxEvents = cms.untracked.PSet(
