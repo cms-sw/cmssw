@@ -877,6 +877,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "hltCsc2DRecHits" )
       self.options['modules'].append( "hltDt1DRecHits" )
       self.options['modules'].append( "hltRpcRecHits" )
+      self.options['modules'].append( "-hltScalersRawToDigi" )
 
       self.options['sequences'].append( "-HLTL1IsoEgammaRegionalRecoTrackerSequence" )
       self.options['sequences'].append( "-HLTL1NonIsoEgammaRegionalRecoTrackerSequence" )
