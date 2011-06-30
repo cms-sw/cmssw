@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.49 2011/06/27 15:57:48 bellan Exp $
+// $Id: PATElectronProducer.cc,v 1.50 2011/06/30 16:23:39 rwolf Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -617,8 +617,7 @@ void PATElectronProducer::fillElectron2( Electron& anElectron,
     else {
       anElectron.setIsolation(isolationValueLabels_[j].first,
 			      (*isolationValues[j])[candPtrForIsolation->sourceCandidatePtr(0)]);
-    }
-    
+    }    
   }
 }
 
