@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Components.DQMMessageLogger_cfi import *
 from DQMServices.Components.DQMDcsInfo_cfi import *
 
-from DQMOffline.Ecal.ecal_dqm_source_offline_cff import *
+from DQMOffline.Ecal.ecal_dqm_source_offline_HI_cff import *
 from DQM.HcalMonitorModule.hcal_dqm_source_fileT0_HeavyIons_cff import *
 from DQM.SiStripMonitorClient.SiStripSourceConfigTier0_HeavyIons_cff import *
 from DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff import *
