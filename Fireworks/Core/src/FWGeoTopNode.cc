@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel  
 //         Created:  Thu Jun 23 01:24:51 CEST 2011
-// $Id: FWGeoTopNode.cc,v 1.1 2011/06/24 22:09:21 amraktad Exp $
+// $Id: FWGeoTopNode.cc,v 1.2 2011/06/25 04:29:24 amraktad Exp $
 //
 
 // system include files
@@ -48,8 +48,6 @@ FWGeoTopNode::~FWGeoTopNode()
 {
 }
 
-int ns = 0;
-
 //______________________________________________________________________________
 void FWGeoTopNode::ComputeBBox()
 {
@@ -58,7 +56,6 @@ void FWGeoTopNode::ComputeBBox()
    BBoxCheckPoint(a,a,a);
    BBoxCheckPoint(-a, -a, -a);
 }
-
 
 //______________________________________________________________________________
 void FWGeoTopNode::setupBuffMtx(TBuffer3D& buff, TGeoHMatrix& mat)
@@ -78,8 +75,6 @@ void FWGeoTopNode::setupBuffMtx(TBuffer3D& buff, TGeoHMatrix& mat)
 //______________________________________________________________________________
 void FWGeoTopNode::Paint(Option_t*)
 {
-   ns = 0;
-   // printf("FWGeoTopNode::Paint \n");
    int parentIdx = m_geoBrowser->getTableManager()->getTopGeoNodeIdx();
    TGeoHMatrix mtx;
    if (parentIdx >= 0)
@@ -88,32 +83,37 @@ void FWGeoTopNode::Paint(Option_t*)
       if (data.m_node->IsVisible())
          paintShape(data, mtx);
    }
-   paintChildNodesRecurse(parentIdx, mtx, true);
-   //printf("paint end %d shapes %d \n", (int)m_geoBrowser->getTableManager()->refEntries().size(), ns);
-
+   paintChildNodesRecurse(parentIdx, mtx);
 }
+
 // ______________________________________________________________________
-void FWGeoTopNode::paintChildNodesRecurse(int idx, TGeoHMatrix& parentMtx, bool visDaughters)
+void FWGeoTopNode::paintChildNodesRecurse(int idx, TGeoHMatrix& parentMtx)
 {
    FWGeometryTableManager::Entries_v& entries = m_geoBrowser->getTableManager()->refEntries();
-   int size = entries.size();
+   int maxLevel = m_geoBrowser->getVisLevel() + m_geoBrowser->getTableManager()->getLevelOffset();
 
+   int cnt = idx+1;
+   FWGeometryTableManager::Entries_i sit = entries.begin();
+   std::advance(sit, cnt);
 
-   for (int i=0; i < size; ++i)
+   for (FWGeometryTableManager::Entries_i it = sit; it!=entries.end(); ++it)
    {
-      if (entries[i].m_parent == idx )
-      {
-         TGeoNode* node = entries[i].m_node;
-         TGeoHMatrix nm = parentMtx;
-         nm.Multiply(node->GetMatrix());
+      if (it->m_parent != idx) break;
 
-         if (entries[i].m_level >(m_geoBrowser->getVisLevel() + entries[m_geoBrowser->getTableManager()->getTopGeoNodeIdx()].m_level) ) break;
+      if (it->m_level > maxLevel) continue;
 
-         if (entries[i].m_node->IsVisible() && visDaughters)
-            paintShape(entries[i], nm);
+      TGeoNode* node = it->m_node;
+      TGeoHMatrix nm = parentMtx;
+      nm.Multiply(node->GetMatrix());
 
-         paintChildNodesRecurse(i, nm, visDaughters && node->IsVisDaughters());
-      }
+      if (it->m_node->IsVisible())
+         paintShape(*it, nm);
+
+      if (node->IsVisDaughters())
+         paintChildNodesRecurse(cnt, nm);
+      
+
+      cnt++;
    }
 }
 
@@ -176,7 +176,6 @@ void FWGeoTopNode::paintShape(FWGeometryTableManager::NodeInfo& data, TGeoHMatri
 
            
       Int_t reqSec = gPad->GetViewer3D()->AddObject(buff);
-      ns++;
 
       if (reqSec != TBuffer3D::kNone) {
          // This shouldn't happen, but I suspect it does sometimes.
