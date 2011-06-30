@@ -2,7 +2,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTester.cc,v 1.12 2011/04/21 16:25:35 kovitang Exp $
+// $Id: JPTJetTester.cc,v 1.13 2011/06/05 17:59:17 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -757,7 +757,8 @@ if (!mEvent.isRealData()){
  
       JPTJet  correctedJet = *jet;
       //double scale = corrector->correction(jet->p4()); 
-      double scale = corrector->correction(*jet);
+      //double scale = corrector->correction(*jet);
+      double scale = corrector->correction(*jet,mEvent,mSetup);
       correctedJet.scaleEnergy(scale); 
       mCorrJetPt->Fill(correctedJet.pt());
       mCorrJetPt_80->Fill(correctedJet.pt());     
@@ -893,7 +894,8 @@ if (!mEvent.isRealData()){
 	for (JPTJetCollection::const_iterator jet = jptJets->begin(); jet !=jptJets ->end(); jet++) {
 	  JPTJet  correctedJet = *jet;
 	  //double scale = corrector->correction(jet->p4());
-	  double scale = corrector->correction(*jet);
+	  //double scale = corrector->correction(*jet);
+          double scale = corrector->correction(*jet,mEvent,mSetup);
 	  correctedJet.scaleEnergy(scale);
 	  double CorrJetPt = correctedJet.pt();
 	  double CorrdR = deltaR (genJet.eta(), genJet.phi(), correctedJet.eta(), correctedJet.phi());

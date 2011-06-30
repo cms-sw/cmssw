@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.26 2011/04/21 12:31:27 kovitang Exp $
+// $Id: CaloJetTester.cc,v 1.27 2011/06/05 17:59:16 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -752,7 +752,8 @@ if (!mEvent.isRealData()){
   {
   //const math::XYZTLorentzVector theJet = jet->p4();
       CaloJet  correctedJet = *jet;
-      double scale = corrector->correction(jet->p4()); 
+      //double scale = corrector->correction(jet->p4());
+      double scale = corrector->correction(*jet,mEvent,mSetup); 
       correctedJet.scaleEnergy(scale); 
       mCorrJetPt->Fill(correctedJet.pt());
       mCorrJetPt_80->Fill(correctedJet.pt());
@@ -866,7 +867,8 @@ if (!mEvent.isRealData()){
 	double CorrJetPtBest = 0;
 	for (CaloJetCollection::const_iterator jet = caloJets->begin(); jet !=caloJets ->end(); jet++) {
 	  CaloJet  correctedJet = *jet;
-	  double scale = corrector->correction(jet->p4()); 
+	  //double scale = corrector->correction(jet->p4()); 
+          double scale = corrector->correction(*jet,mEvent,mSetup);
 	  correctedJet.scaleEnergy(scale);
 	  double CorrJetPt = correctedJet.pt();
 	  double CorrdR = deltaR (genJet.eta(), genJet.phi(), correctedJet.eta(), correctedJet.phi());
