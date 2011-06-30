@@ -16,7 +16,7 @@
 //        Vladimir Rekovic, July 2010
 //
 //
-// $Id: TrigResRateMon.h,v 1.2 2010/09/29 23:07:07 rekovic Exp $
+// $Id: TrigResRateMon.h,v 1.3 2011/06/22 20:06:32 slaunwhj Exp $
 //
 //
 
@@ -113,6 +113,21 @@ class TrigResRateMon : public edm::EDAnalyzer {
       void countHLTGroupBXHitsEndLumiBlock(const int & lumi);
 
   void fillHltMatrix(const edm::TriggerNames & triggerNames, const edm::Event& iEvent, const edm::EventSetup& iSetup);
+
+
+  // JMS counts
+  // need to fill counts per path with the prescales
+  void fillCountsPerPath(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void bookCountsPerPath();
+  void printCountsPerPathThisLumi();
+  void clearCountsPerPath();
+  void fillXsecPerDataset();
+
+  // JMS lumi average
+  void addLumiToAverage (double lumi);
+  void clearLumiAverage ();
+  
+
       void normalizeHLTMatrix();
 
       int getTriggerTypeParsePathName(const std::string & pathname);
@@ -162,6 +177,12 @@ class TrigResRateMon : public edm::EDAnalyzer {
 
       std::vector<std::string> fGroupName;
 
+
+  // Keep track of rates and average lumi
+  std::vector<unsigned> countsPerPath;
+  double averageInstLumi;
+  MonitorElement * meAverageLumiPerLS;
+  
 
       unsigned int nLS_; 
       double LSsize_ ;
@@ -238,6 +259,10 @@ class TrigResRateMon : public edm::EDAnalyzer {
       std::vector <std::pair<std::string, std::vector<int> > > fPathBxTempCountPair;
       std::vector <std::pair<std::string, float> > fGroupTempCountPair;
       std::vector <std::pair<std::string, float> > fGroupL1TempCountPair;
+
+
+      // This variable contains the list of PD, then the list of paths per PD
+  
       std::vector <std::pair<std::string, std::vector<std::string> > > fGroupNamePathsPair;
 
       std::vector<std::string> specialPaths_;
@@ -256,6 +281,107 @@ class TrigResRateMon : public edm::EDAnalyzer {
       // helper class to store the data path
 
       edm::Handle<edm::TriggerResults> triggerResults_;
+
+
+  // create a class that can store all the strings
+  // associated with a primary dataset
+  // the 
+  class DatasetInfo {
+
+  public:
+    std::string datasetName;
+    std::vector<std::string> pathNames;
+    // this tells you the name of the monitor element
+    // that has the counts per path saved
+    std::string countsPerPathME_Name;
+
+    // name of monitor element that has xsec per path saved
+    std::string xsecPerPathME_Name;
+
+
+    // counts per path
+
+    std::map<std::string, unsigned int> countsPerPath;
+    
+    //empty default constructor
+    DatasetInfo () {};
+
+    // do we need a copy constructor?
+
+    // function to set the paths and
+    // create zeroed counts per path
+    
+    void setPaths (std::vector<std::string> inputPaths){
+      pathNames = inputPaths;
+      for (std::vector<std::string>::const_iterator iPath = pathNames.begin();
+           iPath != pathNames.end();
+           iPath++) {
+        countsPerPath[*iPath] = 0;
+      }
+    }//end setPaths
+
+    void clearCountsPerPath () {
+      std::map<std::string, unsigned int>::iterator iCounts;
+      for (iCounts = countsPerPath.begin();
+           iCounts != countsPerPath.end();
+           iCounts++){
+        iCounts->second = 0;
+      }
+      
+    }// end clearCountsPerPath
+
+    // put this here so that external people
+    // don't care how you store counts
+    void incrementCountsForPath (std::string targetPath){
+      countsPerPath[targetPath]++;
+    }
+    
+    void incrementCountsForPath (std::string targetPath, unsigned preScale){
+      countsPerPath[targetPath] += preScale;
+    }
+    
+    void printCountsPerPath () const {
+      std::map<std::string, unsigned int>::const_iterator iCounts;
+      for (iCounts = countsPerPath.begin();
+           iCounts != countsPerPath.end();
+           iCounts++){
+        std::cout << datasetName
+                  << "   " << iCounts->first
+                  << "   " << iCounts->second
+                  << std::endl;
+      }
+      
+    }// end clearCountsPerPath
+
+    void fillXsecPlot (MonitorElement * myXsecPlot, double currentInstLumi, double secondsPerLS) {
+
+      
+      for (unsigned iPath = 0;
+           iPath < pathNames.size();
+           iPath++) {
+        std::string thisPathName = pathNames[iPath];
+        unsigned thisPathCounts = countsPerPath[thisPathName];
+
+        double xsec = 1.0;
+        if (currentInstLumi > 0) {
+          xsec = thisPathCounts / (currentInstLumi*secondsPerLS);
+        } else if ( secondsPerLS > 0) {
+          xsec = thisPathCounts / secondsPerLS;
+        } else {
+          xsec = thisPathCounts;
+        }
+            
+        myXsecPlot->Fill(iPath, xsec);
+        //std::cout << datasetName << "  " << thisPathName << " filled with xsec  " << xsec << std::endl;
+        
+      }
+    }
+
+    
+  };
+
+  // create a vector of the information
+    std::vector<DatasetInfo> primaryDataSetInformation;
 
       class PathInfo {
 

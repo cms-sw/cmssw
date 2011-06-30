@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: TrigResRateMon_cfi.py,v 1.3 2010/09/02 10:00:02 rekovic Exp $
+# $Id: TrigResRateMon_cfi.py,v 1.4 2010/09/02 10:37:17 rekovic Exp $
 trRateMon = cms.EDAnalyzer("TrigResRateMon",
     dirname = cms.untracked.string("HLT/TrigResults/"),
     muonRecoCollectionName = cms.untracked.string("muons"),
@@ -12,8 +12,8 @@ trRateMon = cms.EDAnalyzer("TrigResRateMon",
     ptMin = cms.untracked.double(0.0),
 		Nbins = cms.untracked.uint32(50),
     referenceBX= cms.untracked.uint32(1),
-		NLuminositySegments= cms.untracked.uint32(2000),
-		LuminositySegmentSize= cms.untracked.double(23),
+		NLuminositySegments= cms.untracked.uint32(1000),
+		LuminositySegmentSize= cms.untracked.double(23.3),
 		NbinsOneOverEt = cms.untracked.uint32(10000),
 
 		muonEtaMax = cms.untracked.double(2.1),

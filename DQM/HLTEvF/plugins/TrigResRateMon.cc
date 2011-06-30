@@ -1,9 +1,10 @@
-// $Id: TrigResRateMon.cc,v 1.12 2010/09/29 23:07:08 rekovic Exp $
+// $Id: TrigResRateMon.cc,v 1.13 2011/06/22 20:06:04 slaunwhj Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "TString.h"
 #include "DQM/HLTEvF/interface/TrigResRateMon.h"
 #include "FWCore/Common/interface/TriggerNames.h"
+#include "DataFormats/Scalers/interface/LumiScalers.h"
 
 #include <map>
 #include <utility>
@@ -252,68 +253,50 @@ TrigResRateMon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   fillHltMatrix(triggerNames, iEvent, iSetup);
 
+
+
+
+  /////////////////////////////////////////////////////////
+  //
+  //  Experimental Testing Area
+  //  Try to get the lumi information for these events 
+  //
+  ////////////////////////////////////////////////////////////
+
+  edm::Handle<LumiScalersCollection> lumiScalers;
+  bool lumiHandleOK = iEvent.getByLabel(InputTag("hltScalersRawToDigi","",""), lumiScalers);
+
+  if (jmsDebug) std::cout << "Tried to get lumi handle result = " << lumiHandleOK << std::endl;
+  
+  if (lumiHandleOK) {
+    if (jmsDebug) std::cout << "LumiScalers size is:  " << lumiScalers->size()  << std::endl;
+
+    if (lumiScalers->size()) {
+      LumiScalersCollection::const_iterator it3 = lumiScalers->begin();
+      unsigned int lumisection = it3->sectionNumber();
+      if(lumisection){
+
+        if (jmsDebug) std::cout << "Instanteous Lumi is " << it3->instantLumi() << std::endl;
+        if (jmsDebug) std::cout << "Instanteous Lumi Error is " <<it3->instantLumiErr() << std::endl;
+        if (jmsDebug) std::cout << "Lumi Fill is " <<it3->lumiFill() << std::endl;
+        if (jmsDebug) std::cout << "Lumi Fill is " <<it3->lumiRun() << std::endl;
+        if (jmsDebug) std::cout << "Live Lumi Fill is " <<it3->liveLumiFill() << std::endl;
+        if (jmsDebug) std::cout << "Live Lumi Run is " <<it3->liveLumiRun() << std::endl;
+
+        addLumiToAverage(it3->instantLumi());
+        
+        
+      } // end
+    }// end if lumi scalers exist
+    
+  }// end if lumi handle ok
+
+  
+  fillCountsPerPath(iEvent, iSetup);
+
+
+  
   return;
-
-
-  // Loop over paths
-  // --------------------
-  for(PathInfoCollection::iterator v = hltPathsDiagonal_.begin(); v!= hltPathsDiagonal_.end(); ++v ) { 
-
-    /*
-    LogTrace("TrigResRateMon") << " unique path " << v->getPath() << endl;
-
-    unsigned int pathByIndex = triggerNames.triggerIndex(v->getPath());
-
-    // path must be in the menu
-    if(pathByIndex >= triggerResults_->size() ) continue;
-
-  
-    // Fill HLTPassed Matrix and HLTPassFail Matrix
-    // --------------------------------------------------------
-
-    if(triggerResults->accept(pathByIndex)){
-  
-      int pathBinNumber = ME_HLT_BX->getTH2F()->GetYaxis()->FindBin(v->getPath().c_str());      
-      ME_HLT_BX->Fill(bx,pathBinNumber-1);
-
-      //if(hasHLTPassed(fCustomBXPath,triggerNames)) {
-
-        ME_HLT_CUSTOM_BX->Fill(bx,pathBinNumber-1);
-
-      //}
-
-    } // end if accept
-
-    */
-  
-    /*
-    // Fill histogram of filter ocupancy for each HLT path
-    // ---------------------------------
-    unsigned int lastModule = triggerResults->index(pathByIndex);
-
-    //check if hlt passed
-    bool hltPathPassed = triggerResults->accept(pathByIndex);
-  
-    //go through the list of filters
-    for(unsigned int filt = 0; filt < v->filtersAndIndices.size(); filt++){
-      
-      int binNumber = v->getFiltersHisto()->getTH1()->GetXaxis()->FindBin(v->filtersAndIndices[filt].first.c_str());      
-      
-      // if hlt path passed, then all the modules passed
-      // otherwise the module that issued the decision is the first fail
-      // this means that all modules before it passed
-      if(hltPathPassed) {
-
-        v->getFiltersHisto()->Fill(binNumber-1);//binNumber1 = 0 = first filter
-      }
-      else if(v->filtersAndIndices[filt].second < lastModule){
-        v->getFiltersHisto()->Fill(binNumber-1);//binNumber1 = 0 = first filter
-      }
-  
-    } // end for filt
-    */
-
-  } // end for diag paths
 
 }
 
@@ -362,15 +345,20 @@ void TrigResRateMon::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
     processname_ = "FU";
 
+    
     if (!hltConfig_.init(run, c, processname_, changed)){
 
-      LogDebug("TrigResRateMon") << "HLTConfigProvider failed to initialize.";
+      if (jmsDebug) std::cout << "HLTConfigProvider failed to initialize.";
 
+    } else {
+      if (jmsDebug) std::cout << "Initialized HLTConfigProvider with name FU " << std::endl;
     }
 
     // check if trigger name in (new) config
     //  cout << "Available TriggerNames are: " << endl;
     //  hltConfig_.dump("Triggers");
+  } else {
+    if (jmsDebug) std::cout << "Initialized HLTConfigProvider with name HLT " << std::endl;
   }
 
   if (1) {
@@ -385,7 +373,11 @@ void TrigResRateMon::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
     const unsigned int n(hltConfig_.size());
 
+    // JMS fill the counts per path
+    bookCountsPerPath();
+    clearLumiAverage();
 
+    meAverageLumiPerLS = dbe->book1D("InstLumiVsLS", "Instantaneous Luminosity vs LumiSec;LS;#mub^{-1}*s^{-1}", nLS_, 0.5, nLS_+0.5);
     if (plotAll_){
 
       for (unsigned int j=0; j!=n; ++j) {
@@ -649,6 +641,12 @@ void TrigResRateMon::beginRun(const edm::Run& run, const edm::EventSetup& c)
       vector<string> datasetPaths = hltConfig_.datasetContent(datasetNames[i]);
       fGroupNamePathsPair.push_back(make_pair(datasetNames[i],datasetPaths));
 
+      DatasetInfo tempDS;
+      tempDS.datasetName = datasetNames[i];
+      tempDS.setPaths(datasetPaths);
+      tempDS.countsPerPathME_Name = pathsSummaryFolder_ + "HLT_" + datasetNames[i] + "_Pass_Any";
+      tempDS.xsecPerPathME_Name = pathsSummaryFolder_ + "HLT_" + datasetNames[i] + "_Xsec";
+      primaryDataSetInformation.push_back(tempDS);
     }
 
     // push stream A and its PDs
@@ -729,21 +727,21 @@ void TrigResRateMon::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
        }//end for modulesName
 
-       dbe_->setCurrentFolder(pathsSummaryFilterCountsFolder_.c_str()); 
+       // dbe_->setCurrentFolder(pathsSummaryFilterCountsFolder_.c_str()); 
 
-       //int nbin_sub = 5;
-       int nbin_sub = v->filtersAndIndices.size()+2;
+//        //int nbin_sub = 5;
+//        int nbin_sub = v->filtersAndIndices.size()+2;
     
-       // count plots for subfilter
-       MonitorElement* filters = dbe_->book1D("Filters_" + v->getPath(), 
-                              "Filters_" + v->getPath(),
-                              nbin_sub+1, -0.5, 0.5+(double)nbin_sub);
+//        // count plots for subfilter
+//        MonitorElement* filters = dbe_->book1D("Filters_" + v->getPath(), 
+//                               "Filters_" + v->getPath(),
+//                               nbin_sub+1, -0.5, 0.5+(double)nbin_sub);
        
-       for(unsigned int filt = 0; filt < v->filtersAndIndices.size(); filt++){
+//        for(unsigned int filt = 0; filt < v->filtersAndIndices.size(); filt++){
 
-         filters->setBinLabel(filt+1, (v->filtersAndIndices[filt]).first);
+//          filters->setBinLabel(filt+1, (v->filtersAndIndices[filt]).first);
 
-       }
+//        }
 
        // book Count vs LS
        dbe_->setCurrentFolder(pathsIndividualHLTPathsPerLSFolder_.c_str());
@@ -752,7 +750,7 @@ void TrigResRateMon::beginRun(const edm::Run& run, const edm::EventSetup& c)
                               nLS_, 0,nLS_);
        tempME->setAxisTitle("Luminosity Section");
 
-       v->setFilterHistos(filters);
+       //v->setFilterHistos(filters);
 
     } // end for paths
 
@@ -964,6 +962,10 @@ void TrigResRateMon::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
   } // end if(1) dummy
 
+
+  
+  
+  
  if(doCombineRuns_) fIsSetup = true;
 
  return;
@@ -998,10 +1000,21 @@ void TrigResRateMon::setupHltMatrix(const std::string& label, vector<std::string
     MonitorElement* ME = dbe_->book2D(h_name.c_str(), h_title.c_str(),
                            paths.size(), -0.5, paths.size()-0.5, paths.size(), -0.5, paths.size()-0.5);
 
+    // This is counts per path per for a specific PD
     h_name= "HLT_"+label+"_Pass_Any";
     h_title = "HLT_"+label+"_Pass (x=Pass, Any=Pass) normalized to HLT_Any Pass";
     MonitorElement* ME_Any = dbe_->book1D(h_name.c_str(), h_title.c_str(),
                            paths.size(), -0.5, paths.size()-0.5);
+
+    // Make a similar histogram that is xsec per path for a specific PD
+    // this is actually a profile of the average xsec per path 
+    h_name= "HLT_"+label+"_Xsec";
+    h_title = "HLT_"+label+"_Xsec -- Average Xsec per path";
+
+    TProfile tempProfile(h_name.c_str(), h_title.c_str(),
+                         paths.size(), -0.5, paths.size()-0.5);
+    MonitorElement* ME_Xsec = dbe_->bookProfile(h_name.c_str(), &tempProfile);
+
 
     dbe_->setCurrentFolder(pathsSummaryHLTCorrelationsFolder_.c_str());
     h_name= "HLT_"+label+"_PassPass_Normalized";
@@ -1061,7 +1074,7 @@ void TrigResRateMon::setupHltMatrix(const std::string& label, vector<std::string
       ME_Normalized->getTH2F()->GetYaxis()->SetBinLabel(i+1, (paths[i]).c_str());
       ME_Normalized_Any->getTH1F()->GetXaxis()->SetBinLabel(i+1, (paths[i]).c_str());
       ME_Any->getTH1F()->GetXaxis()->SetBinLabel(i+1, (paths[i]).c_str());
-
+      ME_Xsec->getTProfile()->GetXaxis()->SetBinLabel(i+1, (paths[i]).c_str());
     }
     
 }
@@ -1350,6 +1363,142 @@ void TrigResRateMon::fillHltMatrix(const edm::TriggerNames & triggerNames, const
 
 }
 
+void TrigResRateMon::fillCountsPerPath(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
+
+  if (jmsDebug) std::cout << "Filling counts per path" << std::endl;
+  
+  if (!triggerResults_.isValid()) {
+    if (jmsDebug) std::cout << "Trigger Results not valid, sorry" << std::endl;
+    return;
+  }
+  
+  for (unsigned iName = 0; iName < hltConfig_.size(); iName++) {
+    if ( triggerResults_ -> accept ( iName ) ){
+      countsPerPath[iName]++;
+    }         
+  }
+
+  // loop over all pds
+  for (std::vector<DatasetInfo>::iterator iDS = primaryDataSetInformation.begin();
+       iDS != primaryDataSetInformation.end();
+       iDS++) {
+
+    // now loop over all paths in the PD
+    
+    for (std::vector<std::string>::iterator iPath = iDS->pathNames.begin();
+         iPath != iDS->pathNames.end();
+         iPath++){
+      
+      unsigned trigIndex = hltConfig_.triggerIndex(*iPath);
+      // did you pass the trigger?
+      if ( triggerResults_ -> accept ( trigIndex ) ){
+
+        
+        std::pair<int,int> psValueCombo =  hltConfig_.prescaleValues(iEvent, iSetup, *iPath);
+
+        // if ps OK, 
+        if ( (psValueCombo.first > 0) && (psValueCombo.second > 0) ){
+          iDS->incrementCountsForPath(*iPath, psValueCombo.first*psValueCombo.second);
+        } else {
+          iDS->incrementCountsForPath(*iPath);
+        }
+        
+      } 
+    }// end for each path
+      
+  }// end for each pd
+
+  
+
+  
+}
+
+void TrigResRateMon::bookCountsPerPath() {
+
+  
+  for (unsigned iName = 0; iName < hltConfig_.size(); iName++) {
+    
+    countsPerPath.push_back(0);
+    
+  }  
+
+  
+}
+
+void TrigResRateMon::printCountsPerPathThisLumi() {
+
+  std::cout << "===> COUNTS THIS LUMI <===" << std::endl;
+  
+  for (unsigned iName = 0; iName < hltConfig_.size() ; iName++) {
+    std::cout << hltConfig_.triggerName(iName)
+              << "  =  " << countsPerPath[iName]
+              << std::endl;        
+  }  
+
+    // loop over all pds
+  for (std::vector<DatasetInfo>::const_iterator iDS = primaryDataSetInformation.begin();
+       iDS != primaryDataSetInformation.end();
+       iDS++) {
+
+    iDS->printCountsPerPath();
+
+  }
+
+  
+}
+
+void TrigResRateMon::clearCountsPerPath() {
+
+  
+  for (unsigned iName = 0; iName < hltConfig_.size() ; iName++) {
+    
+    countsPerPath[iName] = 0;
+    
+  }
+
+  for (std::vector<DatasetInfo>::iterator iDS = primaryDataSetInformation.begin();
+       iDS != primaryDataSetInformation.end();
+       iDS++) {
+    iDS->clearCountsPerPath();
+  }
+
+  
+}
+
+void TrigResRateMon::clearLumiAverage() {
+
+  averageInstLumi = 0;
+    
+}
+
+void TrigResRateMon::addLumiToAverage(double lumi) {
+
+  if (averageInstLumi == 0) {
+    averageInstLumi = lumi;
+  } else {
+    averageInstLumi = (averageInstLumi + lumi) / 2;
+  }
+    
+}
+
+void TrigResRateMon::fillXsecPerDataset() {
+  
+  for (std::vector<DatasetInfo>::iterator iDS = primaryDataSetInformation.begin();
+       iDS != primaryDataSetInformation.end();
+       iDS++) {
+    MonitorElement * thisXsecPlot = dbe_->get(iDS->xsecPerPathME_Name);
+    if (thisXsecPlot){
+      iDS->fillXsecPlot(thisXsecPlot, averageInstLumi, LSsize_);
+    } else {
+      if (jmsDebug) std::cout << "sorry but couldn't find this xsec plot"<< iDS->datasetName << std::endl;
+    }
+  }
+  
+  
+}
+
+
 void TrigResRateMon::setupHltBxPlots()
 {
 
@@ -1458,6 +1607,11 @@ void TrigResRateMon::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, c
    //if(lumi < 74 || lumi > 77) fLumiFlag = false;
    //else fLumiFlag = true;
 
+  if (jmsDebug) std::cout << "Inside begin lumi block" << std::endl;
+  
+  clearCountsPerPath();
+  clearLumiAverage();
+
 }
 
 void TrigResRateMon::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c)
@@ -1472,6 +1626,17 @@ void TrigResRateMon::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, con
   //countHLTGroupBXHitsEndLumiBlock(lumi);
 
   normalizeHLTMatrix();
+
+  if (jmsDebug) printCountsPerPathThisLumi();
+  if (jmsDebug) std::cout << "Average lumi is " << averageInstLumi << std::endl;
+  fillXsecPerDataset();
+
+  // keep track of what you thought the lumi was
+  // assign an error of 6%
+  TH1F* tempLumiPerLS = meAverageLumiPerLS->getTH1F();
+  tempLumiPerLS->SetBinContent(lumi, averageInstLumi);
+  tempLumiPerLS->SetBinError(lumi, averageInstLumi*0.06);
+  
 
 }
 
@@ -2013,7 +2178,6 @@ bool TrigResRateMon::hasHLTPassed(const string& pathname, const edm::TriggerName
   if(pathByIndex >= triggerResults_->size() ) return rc; // path is not in the menu
 
   rc  = triggerResults_->accept(pathByIndex);
-
   return rc;
 
 }
