@@ -9,11 +9,11 @@ hltTauMonitor = cms.EDAnalyzer("HLTTauDQMSource",
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
             DQMFolder             = cms.untracked.string('HLT/TauOnline/Inclusive/DoubleTau'),
             Filter                = cms.untracked.VInputTag(
-                                        cms.InputTag("hltL1sDoubleIsoTau40Trk5","",hltTauDQMProcess), 
-                                        cms.InputTag("hltFilterL2EtCutDoublePFIsoTau40Trk5","",hltTauDQMProcess),
-                                        cms.InputTag("hltDoublePFTauTightIso40Track","",hltTauDQMProcess),
-                                        cms.InputTag("hltDoublePFTauTightIso40Track5","",hltTauDQMProcess),
-                                        cms.InputTag("hltFilterDoubleIsoPFTau40Trk5LeadTrack5IsolationL1HLTMatched","",hltTauDQMProcess)
+                                        cms.InputTag("hltL1sDoubleTauJet40eta2p17orDoubleJet52Central","",hltTauDQMProcess), 
+                                        cms.InputTag("hltFilterL2EtCutDoublePFIsoTau45Trk5","",hltTauDQMProcess),
+                                        cms.InputTag("hltDoublePFTauTightIso45Track","",hltTauDQMProcess),
+                                        cms.InputTag("hltDoublePFTauTightIso45Track5","",hltTauDQMProcess),
+                                        cms.InputTag("hltFilterDoubleIsoPFTau45Trk5LeadTrack5IsolationL1HLTMatched","",hltTauDQMProcess)
                                         ),
             MatchDeltaR           = cms.untracked.vdouble(0.5,0.2,0.2,0.2,0.2),    #One per filter
             NTriggeredTaus        = cms.untracked.vuint32(2,2,2,2,2,2), #The first one is for the ref events
@@ -26,12 +26,12 @@ hltTauMonitor = cms.EDAnalyzer("HLTTauDQMSource",
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
             DQMFolder             = cms.untracked.string('HLT/TauOnline/Inclusive/EleTau'),
             Filter                = cms.untracked.VInputTag(
-                                        cms.InputTag("hltL1sL1SingleEG12","",hltTauDQMProcess), 
+                                        cms.InputTag("hltL1sL1SingleEG15","",hltTauDQMProcess), 
                                         cms.InputTag("hltEle18CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilter","",hltTauDQMProcess),
-                                        cms.InputTag("hltPFTau20","",hltTauDQMProcess),
-                                        cms.InputTag("hltPFTau20Track","",hltTauDQMProcess),
-                                        cms.InputTag("hltPFTau20TrackLooseIso","",hltTauDQMProcess),
-                                        cms.InputTag("hltOverlapFilterIsoEle18IsoPFTau20","",hltTauDQMProcess)
+                                        cms.InputTag("hltPFTauTightIso20","",hltTauDQMProcess),
+                                        cms.InputTag("hltPFTauTightIso20Track","",hltTauDQMProcess),
+                                        cms.InputTag("hltPFTauTightIso20TrackTightIso","",hltTauDQMProcess),
+                                        cms.InputTag("hltOverlapFilterIsoEle18TightIsoPFTau20","",hltTauDQMProcess)
                                         ),
             MatchDeltaR           = cms.untracked.vdouble(0.5,0.2,0.2,0.2,0.2,0.2),    #One per filter
             NTriggeredTaus        = cms.untracked.vuint32(1,0,0,1,1,1,1), #The first one is for the ref events
@@ -61,10 +61,10 @@ hltTauMonitor = cms.EDAnalyzer("HLTTauDQMSource",
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryAOD","",hltTauDQMProcess),
             DQMFolder             = cms.untracked.string('HLT/TauOnline/Inclusive/Summary'),
             Filter                = cms.untracked.VInputTag(
-                                        cms.InputTag("hltFilterDoubleIsoPFTau40Trk5LeadTrack5IsolationL1HLTMatched","",hltTauDQMProcess),
-                                        cms.InputTag("hltOverlapFilterIsoEle18IsoPFTau20","",hltTauDQMProcess),
+                                        cms.InputTag("hltFilterDoubleIsoPFTau45Trk5LeadTrack5IsolationL1HLTMatched","",hltTauDQMProcess),
+                                        cms.InputTag("hltOverlapFilterIsoEle18TightIsoPFTau20","",hltTauDQMProcess),
                                         cms.InputTag("hltOverlapFilterIsoMu15IsoPFTau15","",hltTauDQMProcess),
-                                        cms.InputTag("hltFilterSingleIsoPFTau35Trk20MET60LeadTrack20IsolationL1HLTMatched","",hltTauDQMProcess)
+                                        cms.InputTag("hltFilterSingleIsoPFTau35Trk20MET70LeadTrack20IsolationL1HLTMatched","",hltTauDQMProcess)
                                         ),
             PathName              = cms.untracked.vstring(
                                         'DoubleIsoTau',
@@ -82,12 +82,12 @@ hltTauMonitor = cms.EDAnalyzer("HLTTauDQMSource",
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
             DQMFolder             = cms.untracked.string('HLT/TauOnline/Inclusive/SingleTau'),
             Filter                = cms.untracked.VInputTag(
-                                        cms.InputTag("hltL1sSingleIsoTau35Trk20MET60","",hltTauDQMProcess), 
-                                        cms.InputTag("hltFilterL2EtCutSingleIsoPFTau35Trk20MET60","",hltTauDQMProcess),
+                                        cms.InputTag("hltL1sL1SingleJet52ETM30","",hltTauDQMProcess), 
+                                        cms.InputTag("hltFilterL2EtCutSingleIsoPFTau35Trk20MET70","",hltTauDQMProcess),
                                         cms.InputTag("hltPFTauTightIso35","",hltTauDQMProcess),
                                         cms.InputTag("hltPFTauTightIso35Track","",hltTauDQMProcess),
                                         cms.InputTag("hltFilterSingleIsoPFTau35Trk20LeadTrackPt20","",hltTauDQMProcess),
-                                        cms.InputTag("hltFilterSingleIsoPFTau35Trk20MET60LeadTrack20IsolationL1HLTMatched","",hltTauDQMProcess)
+                                        cms.InputTag("hltFilterSingleIsoPFTau35Trk20MET70LeadTrack20IsolationL1HLTMatched","",hltTauDQMProcess)
                                         ),
             MatchDeltaR           = cms.untracked.vdouble(0.5,0.2,0.2,0.2,0.2,0.2),    #One per filter
             NTriggeredTaus        = cms.untracked.vuint32(1,1,1,1,1,1,1), #The first one is for the ref events
@@ -135,11 +135,11 @@ hltTauElectronMonitor = cms.EDAnalyzer("HLTTauDQMSource",
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
             DQMFolder             = cms.untracked.string('HLT/TauOnline/Electrons/DoubleTau'),
             Filter                = cms.untracked.VInputTag(
-                                        cms.InputTag("hltL1sDoubleIsoTau40Trk5","",hltTauDQMProcess), 
-                                        cms.InputTag("hltFilterL2EtCutDoublePFIsoTau40Trk5","",hltTauDQMProcess),
-                                        cms.InputTag("hltDoublePFTauTightIso40Track","",hltTauDQMProcess),
-                                        cms.InputTag("hltDoublePFTauTightIso40Track5","",hltTauDQMProcess),
-                                        cms.InputTag("hltFilterDoubleIsoPFTau40Trk5LeadTrack5IsolationL1HLTMatched","",hltTauDQMProcess)
+                                        cms.InputTag("hltL1sDoubleTauJet40eta2p17orDoubleJet52Central","",hltTauDQMProcess), 
+                                        cms.InputTag("hltFilterL2EtCutDoublePFIsoTau45Trk5","",hltTauDQMProcess),
+                                        cms.InputTag("hltDoublePFTauTightIso45Track","",hltTauDQMProcess),
+                                        cms.InputTag("hltDoublePFTauTightIso45Track5","",hltTauDQMProcess),
+                                        cms.InputTag("hltFilterDoubleIsoPFTau45Trk5LeadTrack5IsolationL1HLTMatched","",hltTauDQMProcess)
                                         ),
             MatchDeltaR           = cms.untracked.vdouble(0.5,0.2,0.2,0.2,0.2),    #One per filter
             NTriggeredTaus        = cms.untracked.vuint32(2,2,2,2,2,2), #The first one is for the ref events
@@ -152,12 +152,12 @@ hltTauElectronMonitor = cms.EDAnalyzer("HLTTauDQMSource",
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
             DQMFolder             = cms.untracked.string('HLT/TauOnline/Electrons/SingleTau'),
             Filter                = cms.untracked.VInputTag(
-                                        cms.InputTag("hltL1sSingleIsoTau35Trk20MET60","",hltTauDQMProcess), 
-                                        cms.InputTag("hltFilterL2EtCutSingleIsoPFTau35Trk20MET60","",hltTauDQMProcess),
+                                        cms.InputTag("hltL1sL1SingleJet52ETM30","",hltTauDQMProcess), 
+                                        cms.InputTag("hltFilterL2EtCutSingleIsoPFTau35Trk20MET70","",hltTauDQMProcess),
                                         cms.InputTag("hltPFTauTightIso35","",hltTauDQMProcess),
                                         cms.InputTag("hltPFTauTightIso35Track","",hltTauDQMProcess),
                                         cms.InputTag("hltFilterSingleIsoPFTau35Trk20LeadTrackPt20","",hltTauDQMProcess),
-                                        cms.InputTag("hltFilterSingleIsoPFTau35Trk20MET60LeadTrack20IsolationL1HLTMatched","",hltTauDQMProcess)
+                                        cms.InputTag("hltFilterSingleIsoPFTau35Trk20MET70LeadTrack20IsolationL1HLTMatched","",hltTauDQMProcess)
                                         ),
             MatchDeltaR           = cms.untracked.vdouble(0.5,0.2,0.2,0.2,0.2,0.2),    #One per filter
             NTriggeredTaus        = cms.untracked.vuint32(1,1,1,1,1,1,1), #The first one is for the ref events
@@ -198,8 +198,8 @@ hltTauElectronMonitor = cms.EDAnalyzer("HLTTauDQMSource",
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryAOD","",hltTauDQMProcess),
             DQMFolder             = cms.untracked.string('HLT/TauOnline/Electrons/Summary'),
             Filter                = cms.untracked.VInputTag(
-                                        cms.InputTag("hltFilterDoubleIsoPFTau40Trk5LeadTrack5IsolationL1HLTMatched","",hltTauDQMProcess),
-                                        cms.InputTag("hltFilterSingleIsoPFTau35Trk20MET60LeadTrack20IsolationL1HLTMatched","",hltTauDQMProcess)
+                                        cms.InputTag("hltFilterDoubleIsoPFTau45Trk5LeadTrack5IsolationL1HLTMatched","",hltTauDQMProcess),
+                                        cms.InputTag("hltFilterSingleIsoPFTau35Trk20MET70LeadTrack20IsolationL1HLTMatched","",hltTauDQMProcess)
                                         ),
             PathName              = cms.untracked.vstring(
                                         'DoubleIsoTau',
