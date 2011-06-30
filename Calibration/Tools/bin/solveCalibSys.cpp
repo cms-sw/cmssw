@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Calibration/Tools/interface/matrixSaver.h"
-#include "Calibration/EcalCalibAlgos/interface/BlockSolver.h"
+#include "Calibration/Tools/interface/BlockSolver.h"
 
 //#include "Calibration/EcalAlCaRecoProducers/interface/trivialParser.h"
 //#include "Calibration/EcalAlCaRecoProducers/bin/trivialParser.h"

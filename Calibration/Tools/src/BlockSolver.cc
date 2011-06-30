@@ -1,11 +1,11 @@
 /** 
-    $Date: 2008/02/25 17:52:25 $
-    $Revision: 1.2 $
-    $Id: BlockSolver.cc,v 1.2 2008/02/25 17:52:25 malberti Exp $ 
-    \author $Author: malberti $
+    $Date: 2008/09/11 15:22:43 $
+    $Revision: 1.3 $
+    $Id: BlockSolver.cc,v 1.3 2008/09/11 15:22:43 govoni Exp $ 
+    \author $Author: govoni $
 */
 
-#include "Calibration/EcalCalibAlgos/interface/BlockSolver.h"
+#include "Calibration/Tools/interface/BlockSolver.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 int 
 BlockSolver::operator () (const CLHEP::HepMatrix & matrix, 

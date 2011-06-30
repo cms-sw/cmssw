@@ -1,12 +1,12 @@
 /**
-    $Date: 2009/02/23 14:18:15 $
-    $Revision: 1.9 $
-    $Id: IMACalibBlock.cc,v 1.9 2009/02/23 14:18:15 argiro Exp $ 
-    \author $Author: argiro $
+    $Date: 2010/09/07 16:53:35 $
+    $Revision: 1.10 $
+    $Id: IMACalibBlock.cc,v 1.10 2010/09/07 16:53:35 govoni Exp $ 
+    \author $Author: govoni $
 */
 
 #include "Calibration/EcalCalibAlgos/interface/IMACalibBlock.h"
-#include "Calibration/EcalCalibAlgos/interface/BlockSolver.h"
+#include "Calibration/Tools/interface/BlockSolver.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TH1F.h"
 #include "TFile.h"
