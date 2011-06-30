@@ -715,7 +715,9 @@ def toCSVLSHlt(hltdata,filename,iresults=None,isverbose=False):
     '''
     result=[]
     r=csvReporter.csvReporter(filename)
-    fieldnames=['Run','LS','hltpath,hltprescale,l1pass,hltaccept;...']
+    fieldnames=['Run','LS','hltpath,hltprescale']
+    if isverbose:
+        fieldnames[-1]+=',l1pass,hltaccept'
     for rline in iresults:
         result.append(rline)
     for run in sorted(hltdata):
