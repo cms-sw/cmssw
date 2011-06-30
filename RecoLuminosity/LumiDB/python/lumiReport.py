@@ -606,7 +606,7 @@ def toCSVLSTrg(trgdata,filename,iresults=[],isverbose=False):
     fieldnames=['Run','LS','dfrac','dcount','bit,count,presc']
     for rline in iresults:
         result.append(rline)
-    for run sorted(intrgdata):
+    for run in sorted(trgdata):
         lsdata=trgdata[run]
         if lsdata is None:
             result.append([run,'n/a','n/a','n/a','n/a'])
@@ -652,7 +652,7 @@ def toCSVConfTrg(trgconfdata,filename,iresults=[],isverbose=False):
     fieldnames=['Run','source','bit names']
     for rline in iresults:
         result.append(rline)
-    for run sorted(trgconfdata):
+    for run in sorted(trgconfdata):
         rundata=trgconfdata[run]
         if rundata is None:
             result.append([run,'n/a','n/a'])
