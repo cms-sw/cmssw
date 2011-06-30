@@ -1480,14 +1480,17 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	bool letMuonEatCaloEnergy = false;
 
 	if(thisIsAnIsolatedMuon){
-	  double totalCaloEnergy = totalHcal;
+	  // The factor 1.3 is the e/pi factor in HCAL...
+	  double totalCaloEnergy = totalHcal / 1.30;
 	  unsigned iEcal = 0;
 	  if( !sortedEcals.empty() ) { 
 	    iEcal = sortedEcals.begin()->second; 
 	    PFClusterRef eclusterref = elements[iEcal].clusterRef();
 	    totalCaloEnergy += eclusterref->energy();
 	  }
-	  if(muonRef->pt() > totalCaloEnergy) letMuonEatCaloEnergy = true;
+	  // std::cout << "muon p / total calo = " << muonRef->p() << " "  << (pfCandidates_->back()).p() << " " << totalCaloEnergy << std::endl;
+	  //if(muonRef->p() > totalCaloEnergy ) letMuonEatCaloEnergy = true;
+	  if( (pfCandidates_->back()).p() > totalCaloEnergy ) letMuonEatCaloEnergy = true;
 	}
 
 	if(letMuonEatCaloEnergy) muonHcal = totalHcal;
@@ -2626,7 +2629,6 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
   // Except if it is a muon, of course ! 
   bool thisIsAMuon = PFMuonAlgo::isMuon(elt);
   bool thisIsAnIsolatedMuon = PFMuonAlgo::isIsolatedMuon(elt);
-
   bool thisIsAGlobalTightMuon = PFMuonAlgo::isGlobalTightMuon(elt);
   bool thisIsATrackerTightMuon = PFMuonAlgo::isTrackerTightMuon(elt);
 
@@ -3639,13 +3641,48 @@ PFAlgo::postMuonCleaning( const edm::Handle<reco::MuonCollection>& muonh,
     unsigned iHad = 1E9;
     for(unsigned i=0; i<pfCandidates_->size(); i++) {
       const PFCandidate& pfc = (*pfCandidates_)[i];
+      if ( !pfc.trackRef().isNonnull() ) continue;
+
       if ( pfc.trackRef().isNonnull() && pfc.trackRef() == trackerMu ) { 
 	hadron = true;
 	iHad = i;
       }
-      if ( !pfc.muonRef().isNonnull() || pfc.muonRef() != muonRef ) continue;
-      used = true;
-      if ( used ) break;
+
+      // The pf candidate is not associated to a muon
+      // if ( !pfc.muonRef().isNonnull() || pfc.muonRef() != muonRef ) continue; ! This test is buggy !     
+      if ( !pfc.muonRef().isNonnull() ) continue;
+      
+      // Check if the muon is used... 
+      if ( pfc.muonRef()->track() == trackerMu || pfc.muonRef()->combinedMuon() == combinedMu ) {
+	if ( printout ) { 
+	  std::cout << "This muon is already used ..." << std::endl;
+	  std::cout << pfc << std::endl;
+	  std::cout << muonRef->p() << " " << muonRef->pt() << " " << muonRef->eta() << " " << muonRef->phi() << std::endl;
+	}
+	used = true;
+      } 
+      else {
+	// Check if the stand-alone muon is not a spurious copy of an existing muon 
+	// (Protection needed for HLT)
+	if ( pfc.muonRef()->isStandAloneMuon() && muonRef->isStandAloneMuon() ) { 
+	  double dEta = pfc.muonRef()->standAloneMuon()->eta() - standAloneMu->eta();
+	  double dPhi = pfc.muonRef()->standAloneMuon()->phi() - standAloneMu->phi();
+	  double dR = sqrt(dEta*dEta + dPhi*dPhi);
+	  if ( printout ) { 
+	    std::cout << "StandAlone to be added ? " << std::endl;
+	    std::cout << " eta = " << pfc.muonRef()->standAloneMuon()->eta() << " " << standAloneMu->eta() << std::endl;
+	    std::cout << " phi = " << pfc.muonRef()->standAloneMuon()->phi() << " " << standAloneMu->phi() << std::endl;
+	    std::cout << " pt = " << pfc.muonRef()->standAloneMuon()->pt() << " " << standAloneMu->pt() << std::endl;
+	    std::cout << " Delta R = " << dR << std::endl;
+	  }
+	  if ( dR < 0.005 ) { 
+	    used = true;
+	    if ( printout ) std::cout << "Not removed !" << std::endl;
+	  }
+	}
+      } 
+      if ( used ) break; 
+
     }
 
     if ( used ) continue;
