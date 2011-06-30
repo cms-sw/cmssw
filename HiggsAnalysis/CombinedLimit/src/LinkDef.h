@@ -6,6 +6,7 @@
 #include "../interface/TH1Keys.h"
 #include "../interface/RooSimultaneousOpt.h"
 #include "../interface/HZZ4LRooPdfs.h"
+#include "../interface/th1fmorph.h"
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -18,6 +19,7 @@
 #pragma link C++ class CombDataSetFactory+;
 #pragma link C++ class TH1Keys+;
 #pragma link C++ class RooSimultaneousOpt+;
+#pragma link C++ function th1fmorph;
 #pragma link C++ class RooqqZZPdf+;
 #pragma link C++ class RooggZZPdf+;
 #pragma link C++ class RooFourMuMassShapePdf2+;
