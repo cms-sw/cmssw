@@ -27,6 +27,10 @@
 #include "TEveGeoNode.h"
 #include "TGeoManager.h"
 #include "TEveScene.h"
+// #define PERFTOOL
+#ifdef PERFTOOL 
+#include <google/profiler.h>
+#endif
 
 bool geodebug = 1;
 
@@ -35,7 +39,8 @@ enum GeoMenuOptions {
    kVisOn,
    kVisOff,
    kInspectMaterial,
-   kInspectShape
+   kInspectShape,
+   kTableDebug
 };
 
 FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager, FWColorManager *colorManager)
@@ -43,7 +48,7 @@ FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager, FWColorManager *c
      m_mode(this, "Mode:", 1l, 0l, 1l),
      m_filter(this,"Materials:",std::string()),
      m_autoExpand(this,"AutoExpand:", 3l, 0l, 1000l),
-     m_visLevel(this,"VisLevel:", 3l, 0l, 100l),
+     m_visLevel(this,"VisLevel:", 3l, 1l, 100l),
      m_maxDaughters(this,"MaxChildren:", 4l, 0l, 1000l), // debug
      m_path(this, "Path",std::string("/cms:World_1")),
      m_guiManager(guiManager),
@@ -85,7 +90,11 @@ FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager, FWColorManager *c
       hp->AddFrame(rb);
       rb->Connect("Clicked()","FWGeometryBrowser",this,"cdUp()");
    }
-
+   {
+      TGTextButton* rb = new TGTextButton (hp, "print");
+      hp->AddFrame(rb);
+      rb->Connect("Clicked()","FWGeometryBrowser",this,"printTable()");
+   }
    m_settersFrame = new TGHorizontalFrame(this);
    this->AddFrame( m_settersFrame);
    m_settersFrame->SetCleanup(kDeepCleanup);
@@ -149,10 +158,13 @@ FWGeometryBrowser::resetSetters()
 void
 FWGeometryBrowser::makeSetter(TGCompositeFrame* frame, FWParameterBase* param) 
 {
+   return; 
+
    boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(param) );
    ptr->attach(param, this);
  
    TGFrame* pframe = ptr->build(frame, false);
+   ptr->setEnabled(false);
    frame->AddFrame(pframe, new TGLayoutHints(kLHintsExpandX));
 
    m_setters.push_back(ptr);
@@ -208,7 +220,6 @@ FWGeometryBrowser::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t i
          }
          m_colorPopup->SetName("Selected");
          m_colorPopup->ResetColors(colors, m_colorManager->backgroundColorIndex()==FWColorManager::kBlackIndex);
-         // m_colorPopup->SetSelection(id.item()->modelInfo(id.index()).displayProperties().color());
          m_colorPopup->PlacePopup(x, y, m_colorPopup->GetDefaultWidth(), m_colorPopup->GetDefaultHeight());
        
          return;
@@ -218,13 +229,10 @@ FWGeometryBrowser::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t i
        
          if (iColumn ==  FWGeometryTableManager::kVisSelf)
          {
-            ni.m_node->SetVisibility(!ni.m_node->IsVisible());
-            // printf("set visiblity %s [%d] \n",ni.name(), ni.m_node->IsVisible() );
-         }
+            ni.m_node->SetVisibility(!ni.m_node->IsVisible());         }
          if (iColumn ==  FWGeometryTableManager::kVisChild)
          {
             ni.m_node->VisibleDaughters(!ni.m_node->IsVisDaughters());
-            // printf("set visiblity daughterts %s [%d] \n",ni.name(), ni.m_node->IsVisDaughters() );
          }
       }
         
@@ -244,6 +252,7 @@ FWGeometryBrowser::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t i
       m_modelPopup->AddSeparator();
       m_modelPopup->AddEntry("InspectMaterial", kInspectMaterial);
       m_modelPopup->AddEntry("InspectShape", kInspectShape);
+      m_modelPopup->AddEntry("Table Debug", kTableDebug);
 
       m_modelPopup->PlaceMenu(x,y,true,true);
       m_modelPopup->Connect("Activated(Int_t)",
@@ -285,6 +294,11 @@ void FWGeometryBrowser::chosenItem(int x)
          case kInspectShape:
             gv->InspectShape();
             break;
+         case kTableDebug:
+            // std::cout << "node name " << ni.name() << "parent " <<m_tableManager->refEntries()[ni.m_parent].name() <<  std::endl;
+            // printf("node expanded [%d] imported[%d] children[%d]\n", ni.m_expanded,m_tableManager->nodeImported(m_tableManager->m_selectedIdx) ,  ni.m_node->GetNdaughters());
+            m_tableManager->printChildren( m_tableManager->m_selectedIdx);
+            break;
       }
    }
 }
@@ -307,7 +321,6 @@ void FWGeometryBrowser::backgroundChanged()
 void FWGeometryBrowser::nodeColorChangeRequested(Color_t col)
 {
    FWGeometryTableManager::NodeInfo& ni = m_tableManager->refSelected();
-   //   ni.m_node->GetVolume()->SetLineColor(col);
    ni.m_color = col;
    refreshTable3D();
 }
@@ -351,8 +364,6 @@ FWGeometryBrowser::readFile()
    
       m_tableManager->loadGeometry();
 
-      updatePath();
-
       m_eveTopNode = new FWGeoTopNode(this);
       const char* n = Form("%s level[%d] size[%d] \n",m_geoManager->GetCurrentNode()->GetName(), getVisLevel(), (int)m_tableManager->refEntries().size());                            
       m_eveTopNode->SetElementName(n);
@@ -367,7 +378,6 @@ FWGeometryBrowser::readFile()
             printf("Add top node to %s scene \n", s->GetName());
          }
       }
-      // gEve->AddGlobalElement(m_eveTopNode);
 
       gEve->Redraw3D();
       MapRaised();
@@ -379,6 +389,12 @@ FWGeometryBrowser::readFile()
    }
 }
 
+void
+FWGeometryBrowser::print()
+{
+   // print all entries
+   m_tableManager->printChildren(-1);
+}
 
 void
 FWGeometryBrowser::browse()
@@ -409,6 +425,7 @@ FWGeometryBrowser::browse()
 
 void FWGeometryBrowser::updateStatusBar(const char* status) {
    m_statBar->SetText(status, 0);
+   fClient->NeedRedraw(this);
 }
 
 //______________________________________________________________________________
@@ -417,39 +434,63 @@ void FWGeometryBrowser::updateStatusBar(const char* status) {
 void FWGeometryBrowser::cdSelected()
 {
    std::string p;
-   m_tableManager->setTopNodePathFromSelected(p);
+   m_tableManager->getNodePath(m_tableManager->m_selectedIdx, p);
    m_path.set(p);
-   updatePath();
+
+   updatePath(m_tableManager->m_selectedIdx);
 }
 
 void FWGeometryBrowser::cdTop()
 {
    m_path.set("/cms:World_1");
-   updatePath(); 
+   updatePath(-1); 
 }
 
 void FWGeometryBrowser::cdUp()
-{
-   if ( m_path.value() != "/cms:World_1")
+{   
+
+   if ( m_tableManager->getTopGeoNodeIdx() != -1)
    {
       size_t del = m_path.value().find_last_of('/');
-      m_path.set(m_path.value().substr(0, del));
-      updatePath();
+      std::string xxx = m_path.value().substr(0, del);
+
+
+      int pIdx   = m_tableManager->refEntries()[m_tableManager->getTopGeoNodeIdx()].m_parent;
+      std::string p;
+      m_tableManager->getNodePath(pIdx, p);
+      m_path.set(p);
+
+      if (m_path.value().compare(xxx))
+      {
+         fwLog(fwlog::kError) << m_path.value() << "does not match " << xxx << std::endl;
+         return;
+      }
+      updatePath( pIdx);
    }
 }
 
-
-void FWGeometryBrowser::updatePath()
+int ccnt = 0;
+void FWGeometryBrowser::updatePath(int parentIdx)
 {
+#ifdef PERFTOOL  
+   ProfilerStart(Form("cdPath%d.prof", ccnt++));
+#endif
+
    m_geoManager->cd(m_path.value().c_str());
-   printf(" Set Path to [%s], curren node %s \n", m_path.value().c_str(), m_geoManager->GetCurrentNode()->GetName());
+   TGeoNode* topNode = m_geoManager->GetCurrentNode();
+   printf(" Set Path to [%s], curren node %s \n", m_path.value().c_str(), topNode->GetName());
 
-
-   m_tableManager->topGeoNodeChanged(m_geoManager->GetCurrentNode());
-   //m_tableManager->checkImportLevel();
-
+   m_tableManager->topGeoNodeChanged(parentIdx);
+   m_tableManager->checkImportLevel();
    refreshTable3D();
-   printf("END Set Path to [%s], curren node %s \n", m_path.value().c_str(), m_geoManager->GetCurrentNode()->GetName()); 
+   // printf("END Set Path to [%s], curren node %s \n", m_path.value().c_str(), topNode->GetName()); 
+
+
+#ifdef PERFTOOL  
+   ProfilerStop();
+#endif   
+   updateStatusBar(Form("entires[%d] levelOffset[%d] path %s", (int)m_tableManager->refEntries().size(),  m_tableManager->getLevelOffset(), m_path.value().c_str()));
+
 }
 
 //______________________________________________________________________________

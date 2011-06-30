@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.10 2011/06/24 22:09:21 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.11 2011/06/25 04:29:24 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -32,10 +32,8 @@
 
 class FWTableCellRendererBase;
 class FWGeometryBrowser;
-
 class TGeoManager;
 class TGeoNode;
-class TEveGeoTopNode;
 
 class FWGeometryTableManager : public FWTableManagerBase
 {
@@ -47,14 +45,13 @@ public:
    struct NodeInfo
    {
       NodeInfo():m_node(0), m_parent(-1), m_level(-1), 
-                 m_imported(false), m_visible(false), m_expanded(false)
+                 m_visible(false), m_expanded(false)
       {}  
 
       TGeoNode*   m_node;
       Int_t       m_parent;
       Short_t     m_level;
 
-      Bool_t      m_imported;
       Bool_t      m_visible;
       Bool_t      m_expanded;
 
@@ -122,16 +119,19 @@ public:
    void setSelection(int row, int column, int mask); 
    virtual void implSort(int, bool) {}
 
-
+   void printChildren(int) const;
+   bool nodeImported(int idx) const;
+   int    getAutoExpandEntry();
    // geo stuff
    NodeInfo& refSelected();
    Entries_v& refEntries() {return m_entries;}
 
    void loadGeometry();
    void setBackgroundToWhite(bool);
-   void setTopNodePathFromSelected(std::string&);
+   void getNodePath(int, std::string&);
 
-   int getTopGeoNodeIdx() const  { return m_topGeoNodeIdx; }
+   int getTopGeoNodeIdx() const { return m_geoTopNodeIdx; }
+   int getLevelOffset() const { return m_levelOffset; }
 
 private:
    FWGeometryTableManager(const FWGeometryTableManager&); // stop default
@@ -147,11 +147,9 @@ private:
    
    // geo
    void checkUniqueVolume(TGeoVolume* v); 
-   // void checkChildMatches(TGeoVolume* v, bool& res);
    void checkChildMatches(TGeoVolume* v,  std::vector<TGeoVolume*>&);
    int  getNdaughtersLimited(TGeoNode*) const;
    void getNNodesTotal(TGeoNode* geoNode, int level,int& off, bool debug) const;
-   //   void setTableContent();
    void importChildren(int parent_idx, bool recurse);
    void checkHierarchy();
 
@@ -159,7 +157,7 @@ private:
    // signal callbacks
    void updateFilter();
    void checkImportLevel();
-   void topGeoNodeChanged(TGeoNode*);
+   void topGeoNodeChanged(int);
 
 
    // ---------- member data --------------------------------
@@ -171,6 +169,7 @@ private:
    mutable FWTextTreeCellRenderer m_renderer;  
    mutable ColorBoxRenderer       m_colorBoxRenderer;  
 
+public:
    std::vector<int>  m_row_to_index;
    int               m_selectedRow;
    int               m_selectedIdx;
@@ -178,16 +177,14 @@ private:
    
    // geo stuff
    FWGeometryBrowser*   m_browser;
-   //   TEveGeoTopNode*    m_eveTopNode;
       
    mutable Volumes_t  m_volumes;
    Entries_v          m_entries;
 
    bool               m_filterOff; //cached
-  
    int m_topGeoNodeIdx; 
    int m_levelOffset;
-   sigc::signal<void,int,int> indexSelected_;
+   int  m_geoTopNodeIdx;
 };
 
 #endif

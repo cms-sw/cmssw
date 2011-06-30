@@ -59,10 +59,12 @@ public:
    void updateStatusBar(const char* status);
    //   void updateVisLevel();
 
+   void print();
+
    void cdSelected();
    void cdTop();
    void cdUp();
-   void updatePath();
+   void updatePath(int);
 
    bool getVolumeMode()      const { return m_mode.value(); }
    std::string getFilter ()  const { return m_filter.value(); }
