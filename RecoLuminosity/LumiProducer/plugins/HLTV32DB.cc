@@ -167,6 +167,7 @@ namespace lumi{
     //std::cout<<"nls "<<nls<<std::endl; 
     HltResult hltresult;
     nls=maxls-minls+1;
+    std::cout<<"nls "<<nls<<std::endl;
     hltresult.reserve(nls);//
     //fix all size
     for(unsigned int i=minls;i<=maxls;++i){
@@ -214,17 +215,8 @@ namespace lumi{
     while( jqcursor.next() ){
       const coral::AttributeList& row=jqcursor.currentRow();
       unsigned int currentLumiSection=row["lsnumber"].data<unsigned int>();
-      if(currentLumiSection==0){
+      if (currentLumiSection==0){
 	lscountfromzero=true;
-      }
-      if(lscountfromzero){
-	std::map<unsigned int,hltinfo>& allpathinfo=hltresult.at(currentLumiSection);
-	unsigned int pathid=row["pathid"].data<unsigned int>();
-	//std::cout<<"look for path id "<<pathid<<std::endl;
-	hltinfo& pathcontent=allpathinfo[pathid];
-	pathcontent.hltinput=row["l1pass"].data<unsigned int>();
-	pathcontent.hltaccept=row["paccept"].data<unsigned int>();
-	pathcontent.prescale=row["psvalue"].data<unsigned int>();
       }else{
 	std::map<unsigned int,hltinfo>& allpathinfo=hltresult.at(currentLumiSection-1);
 	unsigned int pathid=row["pathid"].data<unsigned int>();
@@ -236,7 +228,7 @@ namespace lumi{
       }
     }
     if(lscountfromzero) {
-      std::cout<<"hlt ls count from 0 !"<<std::endl;
+      std::cout<<"hlt ls count from 0 , we skip/dodge/parry it!"<<std::endl;
     }
     delete jq;
     srcsession->transaction().commit();
