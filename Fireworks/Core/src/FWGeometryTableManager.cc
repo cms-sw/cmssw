@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.14 2011/06/25 04:29:24 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.15 2011/06/30 04:53:30 amraktad Exp $
 //
 
 //#define PERFTOOL
@@ -510,7 +510,7 @@ FWGeometryTableManager::getNNodesTotal(TGeoNode* geoNode, int level, int& off, b
    }
    
    int nV = vi.size();
-   if (level <  (m_levelOffset + TMath::Max(m_browser->getAutoExpand(), m_browser->getVisLevel())))
+   //   if (level <  (m_levelOffset + TMath::Max(m_browser->getAutoExpand(), m_browser->getVisLevel())))
    {
       off += nV;
       for (int i = 0; i < nV; ++i )
@@ -597,7 +597,7 @@ void FWGeometryTableManager::importChildren(int parent_idx, bool recurse)
 
       // change of autoExpand parameter
       int dOff = 0;
-      if ((parentLevel+1) < (m_levelOffset + TMath::Max(m_browser->getAutoExpand(), m_browser->getVisLevel())))
+      // if ((parentLevel+1) < (m_levelOffset + TMath::Max(m_browser->getAutoExpand(), m_browser->getVisLevel())))
       {
          for (int n = 0; n != nV; ++n)
          {

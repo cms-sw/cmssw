@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.11 2011/06/25 04:29:24 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.12 2011/06/30 04:53:31 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -188,3 +188,11 @@ public:
 };
 
 #endif
+
+inline int FWGeometryTableManager::getNdaughtersLimited(TGeoNode* geoNode) const
+{
+   // used for debugging of table and 3D view
+
+   // return TMath::Min(geoNode->GetNdaughters(), m_browser->getMaxDaughters());
+  return  geoNode->GetNdaughters();
+}
