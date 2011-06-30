@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Wed Apr 20 13:52:23 CDT 2011
-// $Id: FFTJetPileupProcessor.cc,v 1.0 2011/04/20 00:19:43 igv Exp $
+// $Id: FFTJetPileupProcessor.cc,v 1.1 2011/04/27 00:57:01 igv Exp $
 //
 //
 
@@ -82,6 +82,10 @@ private:
 
     // Number of percentile points to use
     unsigned nPercentiles;
+
+    // Bin range. Both values of 0 means use the whole range.
+    unsigned convolverMinBin;
+    unsigned convolverMaxBin;
 };
 
 //
@@ -89,7 +93,9 @@ private:
 //
 FFTJetPileupProcessor::FFTJetPileupProcessor(const edm::ParameterSet& ps)
     : FFTJetInterface(ps),
-      nPercentiles(ps.getParameter<unsigned>("nPercentiles"))
+      nPercentiles(ps.getParameter<unsigned>("nPercentiles")),
+      convolverMinBin(ps.getParameter<unsigned>("convolverMinBin")),
+      convolverMaxBin(ps.getParameter<unsigned>("convolverMaxBin"))
 {
     // Build the discretization grid
     energyFlow = fftjet_Grid2d_parser(
@@ -128,6 +134,12 @@ void FFTJetPileupProcessor::buildKernelConvolver(const edm::ParameterSet& ps)
         throw cms::Exception("FFTJetBadConfig")
             << "invalid kernel scales" << std::endl;
 
+    if (convolverMinBin || convolverMaxBin)
+        if (convolverMinBin >= convolverMaxBin || 
+            convolverMaxBin > energyFlow->nEta())
+            throw cms::Exception("FFTJetBadConfig")
+                << "invalid convolver bin range" << std::endl;
+
     // FFT assumes that the grid extent in eta is 2*Pi. Adjust the
     // kernel scale in eta to compensate.
     kernelEtaScale *= (2.0*M_PI/(energyFlow->etaMax() - energyFlow->etaMin()));
@@ -145,7 +157,8 @@ void FFTJetPileupProcessor::buildKernelConvolver(const edm::ParameterSet& ps)
     // 2d convolver
     convolver = std::auto_ptr<fftjet::AbsConvolverBase<Real> >(
         new fftjet::FrequencyKernelConvolver<Real,Complex>(
-            engine.get(), kernel2d.get()));
+            engine.get(), kernel2d.get(),
+            convolverMinBin, convolverMaxBin));
 }
 
 
@@ -166,7 +179,10 @@ void FFTJetPileupProcessor::produce(
     const unsigned nScales = filterScales->size();
     const double* scales = &(*filterScales)[0];
     Real* convData = const_cast<Real*>(convolvedFlow->data());
-    const unsigned dataLen = convolvedFlow->nEta()*convolvedFlow->nPhi();
+    Real* sortData = convData + convolverMinBin*convolvedFlow->nPhi();
+    const unsigned dataLen = convolverMaxBin ? 
+        (convolverMaxBin - convolverMinBin)*convolvedFlow->nPhi() :
+        convolvedFlow->nEta()*convolvedFlow->nPhi();
 
     // We will fill the following histo
     std::auto_ptr<TH2D> pTable(new TH2D("FFTJetPileupProcessor",
@@ -188,7 +204,7 @@ void FFTJetPileupProcessor::produce(
             convolvedFlow->nEta(), convolvedFlow->nPhi());
 
         // Sort the convolved data
-        std::sort(convData, convData+dataLen);
+        std::sort(sortData, sortData+dataLen);
 
         // Determine the percentile points
         for (unsigned iper=0; iper<nPercentiles; ++iper)
@@ -199,7 +215,7 @@ void FFTJetPileupProcessor::produce(
             const double dindex = q*(dataLen-1U);
             const unsigned ilow = static_cast<unsigned>(std::floor(dindex));
             const double percentile = fftjet::lin_interpolate_1d(
-                ilow, ilow+1U, convData[ilow], convData[ilow+1U], dindex);
+                ilow, ilow+1U, sortData[ilow], sortData[ilow+1U], dindex);
 
             // Store the calculated percentile
             pTable->SetBinContent(iscale+1U, iper+1U, percentile);
