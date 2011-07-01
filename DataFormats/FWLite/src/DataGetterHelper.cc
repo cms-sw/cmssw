@@ -350,9 +350,9 @@ namespace fwlite {
     edm::WrapperHolder
     DataGetterHelper::getByProductID(edm::ProductID const& iID, Long_t index) const
     {
-        const edm::BranchDescription& bDesc = branchMap_->productToBranch(iID);
         std::map<edm::ProductID,boost::shared_ptr<internal::Data> >::const_iterator itFound = idToData_.find(iID);
         if(itFound == idToData_.end()) {
+            edm::BranchDescription const& bDesc = branchMap_->productToBranch(iID);
 
             if (!bDesc.branchID().isValid()) {
                 return edm::WrapperHolder();
@@ -376,19 +376,18 @@ namespace fwlite {
             KeyToDataMap::iterator itData = data_.find(k);
             if(data_.end() == itData) {
                 //ask for the data
-                void* dummy = 0;
+                edm::WrapperHolder holder;
                 getByLabel(type.TypeInfo(),
                             k.module(),
                             k.product(),
                             k.process(),
-                            &dummy, index);
-                if (0 == dummy) {
-                    return edm::WrapperHolder();
+                            holder, index);
+                if(!holder.isValid()) {
+                    return holder;
                 }
                 itData = data_.find(k);
                 assert(itData != data_.end());
-                //assert(0!=dummy);
-                assert(dummy == itData->second->obj_.Address());
+                assert(holder.wrapper() == itData->second->obj_.Address());
             }
             itFound = idToData_.insert(std::make_pair(iID,itData->second)).first;
         }
@@ -404,9 +403,8 @@ namespace fwlite {
             }
         }
         //return itFound->second->pProd_;
-        return edm::WrapperHolder(itFound->second->pProd_, bDesc.getInterface(), edm::WrapperHolder::NotOwned);
+        return edm::WrapperHolder(itFound->second->pProd_, itFound->second->interface_, edm::WrapperHolder::NotOwned);
     }
-
 
     const edm::ProcessHistory& DataGetterHelper::history() const {
         return historyGetter_->history();
