@@ -113,7 +113,7 @@ for b,p,sig in DC1.keyline:
     if p in  ['ggH', 'qqH']:
         eff = rate/xsbr1[p]
         rate = eff * xsbr[p]
-    if rate != 0 and alpha != 1: 
+    if rate != 0: 
         histo = ofile.Get("histo_%s" % p);
         histo.Scale(rate/histo.Integral())
         ofile.WriteTObject(histo,"histo_%s" % p,"Overwrite");
@@ -156,7 +156,7 @@ pidline = []; signals = []; backgrounds = []
 for (b,p,s) in keyline:
     if s:
         if p not in signals: signals.append(p)
-        pidline.append(-signals.index(p))
+        pidline.append(-len(DC1.signals)+signals.index(p)+1)
     else:
         if p not in backgrounds: backgrounds.append(p)
         pidline.append(1+backgrounds.index(p))
