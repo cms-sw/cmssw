@@ -2,7 +2,7 @@
 #ifndef EcalSimAlgos_EcalCoder_h
 #define EcalSimAlgos_EcalCoder_h 1
 
-#include "CalibFormats/CaloObjects/interface/CaloSamples.h"
+#include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
@@ -22,6 +22,8 @@ class DetId;
 class EcalCoder
 {
    public:
+
+      typedef CaloTSamples<float,10> EcalSamples ;
       
       typedef CorrelatedNoisifier<EcalCorrMatrix> Noisifier ;
 
@@ -53,8 +55,8 @@ class EcalCoder
       void setIntercalibConstants( const EcalIntercalibConstantsMC* ical ) ; 
  
 
-      /// from CaloSamples to EcalDataFrame
-      virtual void analogToDigital( const CaloSamples& clf , 
+      /// from EcalSamples to EcalDataFrame
+      virtual void analogToDigital( const EcalSamples& clf , 
 				    EcalDataFrame&     df    ) const;
  
    private:
@@ -63,7 +65,7 @@ class EcalCoder
       double fullScaleEnergy( const DetId & did ) const ;
 
       /// produce the pulse-shape
-      void encode( const CaloSamples& caloSamples , 
+      void encode( const EcalSamples& ecalSamples , 
 		   EcalDataFrame&     df            ) const ;
 
 //      double decode( const EcalMGPASample& sample , 

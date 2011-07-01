@@ -1,7 +1,7 @@
 #ifndef EcalSimAlgos_ESElectronicsSimFast_h
 #define EcalSimAlgos_ESElectronicsSimFast_h 1
 
-#include "CalibFormats/CaloObjects/interface/CaloSamples.h"
+#include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/EcalDigi/interface/ESSample.h"
 #include "CondFormats/ESObjects/interface/ESPedestals.h"
@@ -15,7 +15,9 @@ namespace CLHEP {
 class ESElectronicsSimFast
 {
    public:
-  
+
+      typedef CaloTSamples<float,3> ESSamples ;
+
       enum { MAXADC = 4095,
 	     MINADC =    0 } ;
   
@@ -28,9 +30,9 @@ class ESElectronicsSimFast
 
       void setMIPToGeV( double MIPToGeV ) ;
 
-      virtual void analogToDigital( const CaloSamples& cs, 
-				    ESDataFrame&       df,
-				    bool               isNoise ) const;
+      void analogToDigital( ESSamples&   cs , 
+			    ESDataFrame& df ,
+			    bool         isNoise = false ) const ;
 
    private :
 

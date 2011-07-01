@@ -9,6 +9,7 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "CalibFormats/CaloObjects/interface/CaloTSamplesBase.h"
 
 class EcalHitResponse ;
 
@@ -20,23 +21,30 @@ class EcalTDigitizer
       typedef typename Traits::ElectronicsSim ElectronicsSim ;
       typedef typename Traits::Digi           Digi           ;
       typedef typename Traits::DigiCollection DigiCollection ;
-
-//      typedef CaloTSamplesBase<float> EcalSamples ;
+      typedef typename Traits::EcalSamples    EcalSamples    ;
 
       EcalTDigitizer< Traits >( EcalHitResponse* hitResponse    ,
 				ElectronicsSim*  electronicsSim ,
 				bool             addNoise         ) ;
 
-      ~EcalTDigitizer< Traits >() ;
+      virtual ~EcalTDigitizer< Traits >() ;
 
-      void run( MixCollection<PCaloHit>& input ,
-		DigiCollection&          output  ) ;
+      virtual void run( MixCollection<PCaloHit>& input ,
+			DigiCollection&          output  ) ;
+
+   protected:
+
+      bool addNoise() const ;
+
+      const EcalHitResponse* hitResponse() const ;
+
+      const ElectronicsSim* elecSim() const ;
 
    private:
 
       EcalHitResponse* m_hitResponse    ;
       ElectronicsSim*  m_electronicsSim ;
-      bool             m_addNoise         ;
+      bool             m_addNoise       ;
 };
 
 #endif

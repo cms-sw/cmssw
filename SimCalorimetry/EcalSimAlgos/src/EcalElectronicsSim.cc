@@ -43,8 +43,8 @@ EcalElectronicsSim::~EcalElectronicsSim()
 }
 
 void 
-EcalElectronicsSim::analogToDigital( CaloSamples&   clf , 
-				     EcalDataFrame& df    ) const 
+EcalElectronicsSim::analogToDigital( EcalElectronicsSim::EcalSamples& clf , 
+				     EcalDataFrame&                   df    ) const 
 {
    //PG input signal is in pe.  Converted in GeV
    amplify( clf ) ;
@@ -53,7 +53,7 @@ EcalElectronicsSim::analogToDigital( CaloSamples&   clf ,
 }
 
 void 
-EcalElectronicsSim::amplify( CaloSamples& clf ) const 
+EcalElectronicsSim::amplify( EcalElectronicsSim::EcalSamples& clf ) const 
 {
    const double fac ( m_simMap->simParameters( clf.id() ).photoelectronsToAnalog() ) ;
    if( 0 != m_gaussQDistribution ) 

@@ -254,6 +254,12 @@ EBHitResponse::operator[]( unsigned int i ) const
 }
 
 EcalHitResponse::EcalSamples* 
+EBHitResponse::operator[]( unsigned int i )
+{
+   return &m_vSam[ i ] ;
+}
+
+EcalHitResponse::EcalSamples* 
 EBHitResponse::vSam( unsigned int i )
 {
    return &m_vSam[ i ] ;
@@ -261,6 +267,12 @@ EBHitResponse::vSam( unsigned int i )
 
 EcalHitResponse::EcalSamples* 
 EBHitResponse::vSamAll( unsigned int i )
+{
+   return &m_vSam[ i ] ;
+}
+
+const EcalHitResponse::EcalSamples* 
+EBHitResponse::vSamAll( unsigned int i ) const
 {
    return &m_vSam[ i ] ;
 }

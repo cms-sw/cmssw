@@ -3,7 +3,7 @@
 #define EcalSimAlgos_EcalElectronicsSim_h 1
 
 
-#include "CalibFormats/CaloObjects/interface/CaloSamples.h"
+#include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
 #include "CLHEP/Random/RandGaussQ.h"
 
 
@@ -21,6 +21,8 @@ class EcalElectronicsSim
 {
    public:
 
+      typedef CaloTSamples<float,10> EcalSamples ;
+
       EcalElectronicsSim( const EcalSimParameterMap* parameterMap      , 
 			  EcalCoder*                 coder             , 
 			  bool                       applyConstantTerm , 
@@ -28,15 +30,15 @@ class EcalElectronicsSim
 
       ~EcalElectronicsSim() ;
 
-      /// from CaloSamples to EcalDataFrame
-      void analogToDigital( CaloSamples& clf, EcalDataFrame& df ) const ;
+      /// from EcalSamples to EcalDataFrame
+      void analogToDigital( EcalSamples& clf, EcalDataFrame& df ) const ;
 
       void newEvent() {}
 
    private:
 
       /// input signal is in pe.  Converted in GeV
-      void amplify( CaloSamples & clf ) const ;
+      void amplify( EcalSamples& clf ) const ;
 
       /// map of parameters
 

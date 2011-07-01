@@ -196,8 +196,9 @@ EcalHitResponse::putAnalogSignal( const PCaloHit& inputHit )
 EcalHitResponse::EcalSamples* 
 EcalHitResponse::findSignal( const DetId& detId )
 {
-   EcalSamples* result ( vSamAll( CaloGenericDetId( detId ).denseIndex() ) ) ;
-   if( result->zero() ) m_index.push_back( result - vSamAll(0) ) ;
+   const unsigned int di ( CaloGenericDetId( detId ).denseIndex() ) ;
+   EcalSamples* result ( vSamAll( di ) ) ;
+   if( !result->zero() ) m_index.push_back( di ) ;
    return result ;
 }
 
@@ -254,8 +255,21 @@ EcalHitResponse::index()
    return m_index ; 
 }
 
+const EcalHitResponse::VecInd& 
+EcalHitResponse::index() const
+{
+   return m_index ; 
+}
+
 const CaloVHitFilter* 
 EcalHitResponse::hitFilter() const 
 { 
    return m_hitFilter ; 
+}
+
+const EcalHitResponse::EcalSamples* 
+EcalHitResponse::findDetId( const DetId& detId ) const
+{
+   const unsigned int di ( CaloGenericDetId( detId ).denseIndex() ) ;
+   return vSamAll( di ) ;
 }

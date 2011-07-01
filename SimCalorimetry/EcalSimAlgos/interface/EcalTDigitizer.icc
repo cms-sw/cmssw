@@ -26,25 +26,47 @@ EcalTDigitizer<Traits>::run( MixCollection<PCaloHit>& input  ,
 {
    m_hitResponse->run( input )  ;
 
-   m_electronicsSim->newEvent() ;
-
    const unsigned int ssize ( m_hitResponse->samplesSize() ) ;
    output.reserve( ssize ) ;
 
-   if( m_addNoise ) Traits::addNoiseHits( m_hitResponse ) ;
-
    for( unsigned int i ( 0 ) ; i != ssize ; ++i )
    {
-      EcalSamples& analogSignal ( (*m_hitResponse)[ i ] ) ;
+      EcalSamples& analogSignal ( *dynamic_cast<EcalSamples*>( (*m_hitResponse)[ i ]) ) ;
       if( m_addNoise              ||    // digitize if real or adding noise
 	  !analogSignal.zero()       )
       {
-	 output.push_back( analogSignal.id() ) ;
+//	 Digi digi ( analogSignal.id() ) ;
+//	 m_electronicsSim->analogToDigital( analogSignal , digi ) ;
+//	 output.push_back( digi ) ;
+	 output.push_back( analogSignal.id().rawId() ) ;
 	 Digi digi ( output.back() ) ;  // why does this work without &
 	 m_electronicsSim->analogToDigital( analogSignal , digi ) ;
       }
    }
 }
+
+
+template <class Traits>
+bool
+EcalTDigitizer<Traits>::addNoise() const 
+{
+   return m_addNoise ;
+}
+
+template <class Traits>
+const EcalHitResponse* 
+EcalTDigitizer<Traits>::hitResponse() const
+{
+   return m_hitResponse ;
+}
+
+template <class Traits>
+const typename Traits::ElectronicsSim*
+EcalTDigitizer<Traits>::elecSim() const 
+{
+   return m_electronicsSim ;
+}
+
 
 #endif
 

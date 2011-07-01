@@ -1,4 +1,4 @@
-#include "SimCalorimetry/EcalSimAlgos/interface/EEHitResponse.h" 
+#include "SimCalorimetry/EcalSimAlgos/interface/ESHitResponse.h" 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloSimParameters.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVHitFilter.h"
@@ -11,8 +11,10 @@ ESHitResponse::ESHitResponse( const CaloVSimParameterMap* parameterMap ,
 			      const CaloVShape*           shape          ) :
    EcalHitResponse( parameterMap , shape )
 {
+   assert( 0 != parameterMap ) ;
+   assert( 0 != shape ) ;
    const ESDetId detId ( ESDetId::detIdFromDenseIndex( 0 ) ) ;
-   const CaloSimParameters& parameters ( *parameterMap( detId ) ) ;
+   const CaloSimParameters& parameters ( parameterMap->simParameters( detId ) ) ;
 
    const unsigned int rSize ( parameters.readoutFrameSize() ) ;
    const unsigned int nPre  ( parameters.binOfMaximum() - 1 ) ;
@@ -34,19 +36,25 @@ ESHitResponse::~ESHitResponse()
 }
 
 unsigned int
-EBHitResponse::samplesSize() const
+ESHitResponse::samplesSize() const
 {
    return index().size() ;
 }
 
 unsigned int
-EBHitResponse::samplesSizeAll() const
+ESHitResponse::samplesSizeAll() const
 {
-   return m_vSam().size() ;
+   return ESDetId::kSizeForDenseIndexing ;
 }
 
 const EcalHitResponse::EcalSamples* 
 ESHitResponse::operator[]( unsigned int i ) const
+{
+   return &m_vSam[ index()[ i ] ] ;
+}
+
+EcalHitResponse::EcalSamples* 
+ESHitResponse::operator[]( unsigned int i )
 {
    return &m_vSam[ index()[ i ] ] ;
 }
@@ -59,6 +67,12 @@ ESHitResponse::vSam( unsigned int i )
 
 EcalHitResponse::EcalSamples* 
 ESHitResponse::vSamAll( unsigned int i )
+{
+   return &m_vSam[ i ] ;
+}
+
+const EcalHitResponse::EcalSamples* 
+ESHitResponse::vSamAll( unsigned int i ) const
 {
    return &m_vSam[ i ] ;
 }

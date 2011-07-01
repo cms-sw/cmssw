@@ -58,9 +58,9 @@ ESElectronicsSimFast::setMIPToGeV( double MIPToGeV )
 }
 
 void 
-ESElectronicsSimFast::analogToDigital( const CaloSamples& cs, 
-				       ESDataFrame&       df, 
-				       bool               isNoise ) const
+ESElectronicsSimFast::analogToDigital( ESSamples&   cs, 
+				       ESDataFrame& df, 
+				       bool         isNoise ) const
 {
    assert( 0 != m_peds &&
 	   0 != m_mips &&
@@ -82,7 +82,7 @@ ESElectronicsSimFast::analogToDigital( const CaloSamples& cs,
    const double ADCGeV   ( isNoise ? 1. : MIPADC/m_MIPToGeV ) ;
 
    int adc = 0 ;
-   for(int i ( 0 ) ; i != cs.size(); ++i ) 
+   for( unsigned int i ( 0 ) ; i != cs.size(); ++i ) 
    {
       const double noi ( isNoise || (!m_addNoise) ? 0 :
 			 sigma*m_ranGau->fire() ) ;

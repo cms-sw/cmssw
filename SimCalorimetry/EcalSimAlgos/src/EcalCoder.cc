@@ -67,7 +67,7 @@ EcalCoder::fullScaleEnergy( const DetId & detId ) const
 }
 
 void 
-EcalCoder::analogToDigital( const CaloSamples& clf , 
+EcalCoder::analogToDigital( const EcalSamples& clf , 
 			    EcalDataFrame&     df    ) const 
 {
    df.setSize( clf.size() ) ;
@@ -75,19 +75,19 @@ EcalCoder::analogToDigital( const CaloSamples& clf ,
 }
 
 void 
-EcalCoder::encode( const CaloSamples& caloSamples , 
+EcalCoder::encode( const EcalSamples& ecalSamples , 
 		   EcalDataFrame&     df            ) const
 {
    assert( 0 != m_peds ) ;
 
-   const unsigned int csize ( caloSamples.size() ) ;
+   const unsigned int csize ( ecalSamples.size() ) ;
 
   
-   DetId detId = caloSamples.id();             
+   DetId detId = ecalSamples.id();             
    double Emax = fullScaleEnergy(detId);       
 
    //....initialisation
-   if ( caloSamples[5] > 0. ) LogDebug("EcalCoder") << "Input caloSample" << "\n" << caloSamples;
+   if ( ecalSamples[5] > 0. ) LogDebug("EcalCoder") << "Input caloSample" << "\n" << ecalSamples;
   
    double LSB[NGAINS+1];
    double pedestals[NGAINS+1];
@@ -175,14 +175,14 @@ EcalCoder::encode( const CaloSamples& caloSamples ,
 	
 	 // noiseframe filled with zeros if !m_addNoise
 	 const double signal ( pedestals[igain] +
-			       caloSamples[i] /( LSB[igain]*icalconst ) +
+			       ecalSamples[i] /( LSB[igain]*icalconst ) +
 			       trueRMS[igain]*noiseframe[igain-1][i]      ) ;
 	 
 	 const int isignal ( signal ) ;
 	 const int tmpadc ( signal - (double)isignal < 0.5 ?
 			    isignal : isignal + 1 ) ;
 	 // LogDebug("EcalCoder") << "DetId " << detId.rawId() << " gain " << igain << " caloSample " 
-	 //                       <<  caloSamples[i] << " pededstal " << pedestals[igain] 
+	 //                       <<  ecalSamples[i] << " pededstal " << pedestals[igain] 
 	 //                       << " noise " << widths[igain] << " conversion factor " << LSB[igain] 
 	 //                       << " result (ped,tmpadc)= " << ped << " " << tmpadc;
          
@@ -229,12 +229,12 @@ EcalCoder::encode( const CaloSamples& caloSamples ,
 
    if ( isSaturated ) 
    {
-      for (int i = 0 ; i < caloSamples.size() ; ++i) 
+      for (unsigned int i = 0 ; i < ecalSamples.size() ; ++i) 
       {
 	 if ( df.sample(i).gainId() == 0 ) 
 	 {
-	    int hyst = i+1+2;
-	    for ( int j = i+1; j < hyst && j < caloSamples.size(); ++j ) 
+	    unsigned int hyst = i+1+2;
+	    for ( unsigned int j = i+1; j < hyst && j < ecalSamples.size(); ++j ) 
 	    {
 	       df.setSample(j, EcalMGPASample(MAXADC, 0));   
 	    }

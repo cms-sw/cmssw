@@ -3,7 +3,8 @@
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalElectronicsSim.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSim.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSimFast.h"
+#include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
@@ -21,7 +22,7 @@ class EBDigitizerTraits
       /// the electronics simulation
       typedef EcalElectronicsSim ElectronicsSim;
 
-      void addNoiseHits( EcalHitResponse* hr ) const { } ;      
+      typedef CaloTSamples<float,10> EcalSamples ;
 };
 
 class EEDigitizerTraits 
@@ -33,23 +34,21 @@ class EEDigitizerTraits
       typedef EEDataFrame Digi;
       /// the electronics simulation
       typedef EcalElectronicsSim ElectronicsSim;
-      
-      void addNoiseHits( EcalHitResponse* hr ) const { } ;
+
+      typedef CaloTSamples<float,10> EcalSamples ;
 };
 
 class ESDigitizerTraits 
 {
    public:
       /// the digis collection
-      typedef ESDigiCollection DigiCollection;
+      typedef ESDigiCollection DigiCollection ;
       /// the dataframes
-      typedef ESDataFrame Digi;
+      typedef ESDataFrame Digi ;
       /// the electronics simulation
-      typedef ESElectronicsSim ElectronicsSim;
+      typedef ESElectronicsSimFast ElectronicsSim ;
 
-      ESDigitizerTraits() ;
-
-      void addNoiseHits( EcalHitResponse* hr ) ;
+      typedef CaloTSamples<float,3> EcalSamples ;
 };
 
 

@@ -56,7 +56,11 @@ class EcalHitResponse
 
       virtual unsigned int samplesSize() const = 0 ;
 
+      virtual EcalSamples* operator[]( unsigned int i ) = 0;
+
       virtual const EcalSamples* operator[]( unsigned int i ) const = 0;
+
+      const EcalSamples* findDetId( const DetId& detId ) const ;
 
    protected:
 
@@ -66,7 +70,7 @@ class EcalHitResponse
 
       virtual EcalSamples* vSamAll( unsigned int i ) = 0 ;
 
-      virtual void allocateSamples() = 0 ;
+      virtual const EcalSamples* vSamAll( unsigned int i ) const = 0 ;
 
       virtual void putAnalogSignal( const PCaloHit& inputHit) ;
 
@@ -96,6 +100,8 @@ class EcalHitResponse
 
       VecInd& index() ;
 
+      const VecInd& index() const ;
+
       const CaloVHitFilter* hitFilter() const ;
 
    private:
@@ -107,8 +113,8 @@ class EcalHitResponse
       const CaloVHitFilter*          m_hitFilter     ;
       const CaloSubdetectorGeometry* m_geometry      ;
 
-      const CLHEP::RandPoissonQ*     m_RandPoisson   ;
-      const CLHEP::RandGaussQ*       m_RandGauss     ;
+      mutable CLHEP::RandPoissonQ*   m_RandPoisson   ;
+      mutable CLHEP::RandGaussQ*     m_RandGauss     ;
 
       int    m_minBunch   ;
       int    m_maxBunch   ;

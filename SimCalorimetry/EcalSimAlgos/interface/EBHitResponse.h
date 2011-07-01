@@ -35,6 +35,8 @@ class EBHitResponse : public EcalHitResponse
 
       virtual unsigned int samplesSize() const ;
 
+      virtual EcalSamples* operator[]( unsigned int i ) ;
+
       virtual const EcalSamples* operator[]( unsigned int i ) const ;
 
    protected:
@@ -42,6 +44,8 @@ class EBHitResponse : public EcalHitResponse
       virtual unsigned int samplesSizeAll() const ;
 
       virtual EcalSamples* vSamAll( unsigned int i ) ;
+
+      virtual const EcalSamples* vSamAll( unsigned int i ) const ;
 
       virtual EcalSamples* vSam( unsigned int i ) ;
 
