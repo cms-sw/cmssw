@@ -139,6 +139,7 @@ FFTJetPileupProcessor::FFTJetPileupProcessor(const edm::ParameterSet& ps)
         new fftjet::EquidistantInLogSpace(minScale, maxScale, nScales));
 
     produces<TH2D>(outputLabel);
+    produces<double>(outputLabel);
 }
 
 
@@ -245,6 +246,9 @@ void FFTJetPileupProcessor::produce(
     }
 
     iEvent.put(pTable, outputLabel);
+
+    std::auto_ptr<double> etSum(new double(g.sum()));
+    iEvent.put(etSum, outputLabel);
 }
 
 
