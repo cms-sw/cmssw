@@ -24,7 +24,7 @@ ALCARECOMuAlGlobalCosmicsDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcssta
 import Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi
 
 ALCARECOMuAlGlobalCosmics = Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi.AlignmentMuonSelector.clone(
-    src = cms.InputTag("muonsBarrelOnly"),
+    src = cms.InputTag("cosmicMuons"),
     filter = True, # not strictly necessary, but provided for symmetry with MuAlStandAloneCosmics
     nHitMinGB = 1,
     ptMin = 10.0,
