@@ -523,7 +523,7 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
   if (gencut_ >= reqNum && !mcMatchedOnly) total->Fill(numOfHLTCollectionLabels+1.5); // this isn't really needed anymore keep for backward comp.
   if (gencut_ >= reqNum) totalmatch->Fill(numOfHLTCollectionLabels+1.5); // this isn't really needed anymore keep for backward comp.
 	  
-
+  bool accepted = true;  // flags that the event has been accepted by all filters before
   ////////////////////////////////////////////////////////////
   //            Loop over filter modules                    //
   ////////////////////////////////////////////////////////////
@@ -534,21 +534,23 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
           edm::LogError("EmDQM") << "There are less generated particles than the module '" << theHLTCollectionLabels[n].label() << "' requires.";
        continue;
     }
+    std::vector<reco::Particle> sortedGenForFilter(sortedGen);
+    sortedGenForFilter.erase(sortedGenForFilter.begin() + nCandCuts.at(n), sortedGenForFilter.end());
 
     // These numbers are from the Parameter Set, such as:
     //   theHLTOutputTypes = cms.uint32(100)
     switch(theHLTOutputTypes[n]) 
     {
       case trigger::TriggerL1NoIsoEG: // Non-isolated Level 1
-        fillHistos<l1extra::L1EmParticleCollection>(triggerObj,event,n,sortedGen);break;
+        fillHistos<l1extra::L1EmParticleCollection>(triggerObj,event,n,sortedGenForFilter,accepted);break;
       case trigger::TriggerL1IsoEG: // Isolated Level 1
-        fillHistos<l1extra::L1EmParticleCollection>(triggerObj,event,n,sortedGen);break;
+        fillHistos<l1extra::L1EmParticleCollection>(triggerObj,event,n,sortedGenForFilter,accepted);break;
       case trigger::TriggerPhoton: // Photon 
-        fillHistos<reco::RecoEcalCandidateCollection>(triggerObj,event,n,sortedGen);break;
+        fillHistos<reco::RecoEcalCandidateCollection>(triggerObj,event,n,sortedGenForFilter,accepted);break;
       case trigger::TriggerElectron: // Electron 
-        fillHistos<reco::ElectronCollection>(triggerObj,event,n,sortedGen);break;
+        fillHistos<reco::ElectronCollection>(triggerObj,event,n,sortedGenForFilter,accepted);break;
       case trigger::TriggerCluster: // TriggerCluster
-        fillHistos<reco::RecoEcalCandidateCollection>(triggerObj,event,n,sortedGen);break;
+        fillHistos<reco::RecoEcalCandidateCollection>(triggerObj,event,n,sortedGenForFilter,accepted);break;
       default: 
         throw(cms::Exception("Release Validation Error") << "HLT output type not implemented: theHLTOutputTypes[n]" );
     }
@@ -560,11 +562,12 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
 // fillHistos                                                                 //
 //   Called by analyze method.                                                //
 ////////////////////////////////////////////////////////////////////////////////
-template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& triggerObj,const edm::Event& iEvent ,unsigned int n,std::vector<reco::Particle>& sortedGen)
+template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& triggerObj,const edm::Event& iEvent ,unsigned int n,std::vector<reco::Particle>& sortedGen, bool &accepted)
 {
   std::vector<edm::Ref<T> > recoecalcands;
   if ( ( triggerObj->filterIndex(theHLTCollectionLabels[n])>=triggerObj->size() )){ // only process if available
     hltCollectionLabelsMissed.insert(theHLTCollectionLabels[n].encode());
+    accepted = false;
     return;
   }
 
@@ -588,6 +591,7 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
   
 
   if (recoecalcands.size() < 1){ // stop if no object passed the previous filter
+    accepted = false;
     return;
   }
 
@@ -602,7 +606,7 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
   for (unsigned int j=0; j<recoecalcands.size(); j++){
     if(!( recoecalcands.at(j).isAvailable())){
       if (verbosity >= OUTPUT_ERRORS)
-         edm::LogError("EmDQMInvalidRefs") << "Event content inconsistent: TriggerEventWithRefs contains invalid Refs. Invalid refs for: " << theHLTCollectionLabels[n].label() << ". The Collection that this module uses may has been dropped in the event.";
+         edm::LogError("EmDQMInvalidRefs") << "Event content inconsistent: TriggerEventWithRefs contains invalid Refs. Invalid refs for: " << theHLTCollectionLabels[n].label() << ". The collection that this module uses may has been dropped in the event.";
       return;
     }
   }
@@ -731,7 +735,10 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
 	matchThis = true;
       }
     }
-    if ( !matchThis ) continue; // only plot matched candidates
+    if ( !matchThis ) {
+      accepted = false;
+      continue; // only plot matched candidates
+    }
     // fill coordinates of mc particle matching trigger object
     ethistmatch[n] ->Fill( sortedGen[i].et()  );
     if (sortedGen[i].et() > plotMinEtForEtaEffPlot) {
@@ -762,8 +769,10 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
   }
   // fill total mc matched efficiency
   //if (mtachedMcParts >= reqNum ) 
-  if (mtachedMcParts >= nCandCuts.at(n) ) 
+  if (mtachedMcParts >= nCandCuts.at(n) && accepted == true) 
     totalmatch->Fill(n+0.5);
+  else
+    accepted = false;
   
 
 }
