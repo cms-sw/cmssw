@@ -1,6 +1,6 @@
 # Author     : Gero Flucke
 # Date       :   July 19th, 2007
-# last update: $Date: 2010/03/17 18:17:18 $ by $Author: mussgill $
+# last update: $Date: 2011/02/09 09:10:11 $ by $Author: cerminar $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -8,12 +8,14 @@ import FWCore.ParameterSet.Config as cms
 OutALCARECOTkAlCosmics_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOTkAlCosmicsCTF', 
-            'pathALCARECOTkAlCosmicsCosmicTF')
+            'pathALCARECOTkAlCosmicsCosmicTF',
+            'pathALCARECOTkAlCosmicsRegional')
     ),
     outputCommands = cms.untracked.vstring(
 #        'keep *_ALCARECOTkAlCosmics*_*_*', # keeps also 0T ones if in same job
         'keep *_ALCARECOTkAlCosmicsCTF_*_*', 
         'keep *_ALCARECOTkAlCosmicsCosmicTF_*_*', 
+        'keep *_ALCARECOTkAlCosmicsRegional_*_*', 
         'keep siStripDigis_DetIdCollection_*_*',
         'keep L1AcceptBunchCrossings_*_*_*',
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',

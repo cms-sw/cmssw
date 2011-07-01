@@ -1,4 +1,4 @@
-# last update: $Date: 2009/07/10 13:24:47 $ by $Author: flucke $
+# last update: $Date: 2010/03/16 17:08:51 $ by $Author: mussgill $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -6,7 +6,8 @@ import FWCore.ParameterSet.Config as cms
 OutALCARECOTkAlCosmics0THLT_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOTkAlCosmicsCTF0THLT', 
-            'pathALCARECOTkAlCosmicsCosmicTF0THLT')
+            'pathALCARECOTkAlCosmicsCosmicTF0THLT', 
+            'pathALCARECOTkAlCosmicsRegional0THLT')
     ),
     outputCommands = cms.untracked.vstring()
 )

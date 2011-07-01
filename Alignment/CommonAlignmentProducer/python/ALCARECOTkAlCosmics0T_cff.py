@@ -1,6 +1,6 @@
 # Author     : Gero Flucke
 # Date       :   July 19th, 2007
-# last update: $Date: 2010/03/16 17:08:51 $ by $Author: mussgill $
+# last update: $Date: 2010/03/17 18:17:34 $ by $Author: mussgill $
 import FWCore.ParameterSet.Config as cms
 
 # DCS partitions
@@ -40,6 +40,13 @@ ALCARECOTkAlCosmicsCosmicTF0T = ALCARECOTkAlCosmicsCTF0T.clone(
     src = 'cosmictrackfinderP5' ## different for CTF
     )
 
+# AlCaReco for track based alignment using Cosmic muons reconstructed by Regional Cosmic Tracking
+# (same cuts)
+ALCARECOTkAlCosmicsRegional0T = ALCARECOTkAlCosmicsCTF0T.clone(
+    src = 'regionalCosmicTracks'
+    )
+
 #________________________________Sequences____________________________________
 seqALCARECOTkAlCosmicsCTF0T = cms.Sequence(ALCARECOTkAlCosmicsCTF0T)
 seqALCARECOTkAlCosmicsCosmicTF0T = cms.Sequence(ALCARECOTkAlCosmicsCosmicTF0T)
+seqALCARECOTkAlCosmicsRegional0T = cms.Sequence(ALCARECOTkAlCosmicsRegional0T)
