@@ -112,6 +112,7 @@ double JetPlusTrackCorrector::correction( const reco::Jet& fJet, const reco::Jet
   theSumPtWithoutEff = 0.;
   theSumEnergyWithEff = 0.;
   theSumEnergyWithoutEff = 0.;
+  theSumPtForBeta = 0.;
   
   // Corrected 4-momentum for jet
   corrected = fJet.p4();
@@ -417,6 +418,9 @@ void JetPlusTrackCorrector::matchTracks( const JetTracks& jet_tracks,
     TrackRefs::const_iterator jtrk = jet_tracks.vertex_.end();
 
     for ( ; itrk != jtrk; ++itrk ) {
+
+      if ( useTrackQuality_ && (*itrk)->quality(trackQuality_) ) 
+           theSumPtForBeta += (**itrk).pt();           
      
       if ( failTrackQuality(itrk) ) { continue; }
 
