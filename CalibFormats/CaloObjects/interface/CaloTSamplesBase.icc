@@ -164,6 +164,20 @@ CaloTSamplesBase< Ttype >::operator+=( Ttype value )
 }
 
 template <class Ttype> 
+CaloTSamplesBase<Ttype>& 
+CaloTSamplesBase< Ttype >::operator+=( const CaloTSamplesBase<Ttype>& cs ) 
+{
+   assert( m_size == cs.size() ) ;
+   assert( capacity() == cs.capacity() ) ;
+
+   for( uint32_t i ( 0 ) ; i != m_size ; ++i )
+   {
+      (*data( i )) += (*cs.cdata( i ) ) ;
+   }
+   return *this ;
+}
+
+template <class Ttype> 
 std::ostream& 
 operator<<( std::ostream& s, 
 	    const CaloTSamplesBase<Ttype>& sam )

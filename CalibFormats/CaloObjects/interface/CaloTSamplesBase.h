@@ -43,6 +43,8 @@ class CaloTSamplesBase
 
       CaloTSamplesBase<Ttype>& operator+=( Ttype value ) ;
 
+      CaloTSamplesBase<Ttype>& operator+=( const CaloTSamplesBase<Ttype>& cs ) ;
+
       virtual uint32_t capacity() const = 0 ;
 
    private:
