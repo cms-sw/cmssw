@@ -25,13 +25,14 @@ namespace fftjetcms {
         double eta, double /* phi */,
         const reco::FFTJetPileupSummary& summary) const
     {
+        double value = 0.0;
         const double rho = summary.pileupRho();
         if (eta < etaMin_)
             eta = etaMin_;
         if (eta > etaMax_)
             eta = etaMax_;
         if (rho >= rhoMin_ && rho <= rhoMax_)
-            return interp_(eta, rho);
+            value = interp_(eta, rho);
         else
         {
             double x0, x1;
@@ -47,7 +48,8 @@ namespace fftjetcms {
             }
             const double z0 = interp_(eta, x0);
             const double z1 = interp_(eta, x1);
-            return z0 + (z1 - z0)*((rho - x0)/(x1 - x0));
+            value = z0 + (z1 - z0)*((rho - x0)/(x1 - x0));
         }
+        return value > 0.0 ? value : 0.0;
     }
 }
