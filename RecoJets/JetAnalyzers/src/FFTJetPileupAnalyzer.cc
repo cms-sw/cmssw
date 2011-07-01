@@ -81,11 +81,12 @@ private:
     bool collectFastJetRho;
     bool collectPileup;
     bool collectGrids;
-    bool collectGridEt;
+    bool collectGridDensity;
     bool collectVertexInfo;
     bool verbosePileupInfo;
 
     double vertexNdofCut;
+    double pileupEtaPhiArea;
 
     std::vector<float> ntupleData;
     TNtuple* nt;
@@ -112,10 +113,11 @@ FFTJetPileupAnalyzer::FFTJetPileupAnalyzer(const edm::ParameterSet& ps)
       init_param(bool, collectFastJetRho),
       init_param(bool, collectPileup),
       init_param(bool, collectGrids),
-      init_param(bool, collectGridEt),
+      init_param(bool, collectGridDensity),
       init_param(bool, collectVertexInfo),
       init_param(bool, verbosePileupInfo),
       init_param(double, vertexNdofCut),
+      init_param(double, pileupEtaPhiArea),
       nt(0),
       totalNpu(-1),
       totalNPV(-1),
@@ -189,8 +191,8 @@ void FFTJetPileupAnalyzer::beginJob()
         vars += ":estimate:pileup:uncert:uncertCode";
     if (collectFastJetRho)
         vars += ":fjrho:fjsigma";
-    if (collectGridEt)
-        vars += ":gridEt";
+    if (collectGridDensity)
+        vars += ":gridEtDensity";
     if (collectVertexInfo)
         vars += ":nPV";
 
@@ -269,7 +271,7 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
         ntupleData.push_back(*fjsigma);
     }
 
-    if (collectGrids || collectGridEt)
+    if (collectGrids || collectGridDensity)
     {
         edm::Handle<fftjetcms::DiscretizedEnergyFlow> input;
         iEvent.getByLabel(gridLabel, input);
@@ -303,10 +305,10 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
                     h->SetBinContent(ieta+1U, iphi+1U, data[ieta*nPhi + iphi]);
         }
 
-        if (collectGridEt)
+        if (collectGridDensity)
         {
             const double etSum = std::accumulate(data, data+nEta*nPhi, 0.0);
-            ntupleData.push_back(etSum);
+            ntupleData.push_back(etSum/pileupEtaPhiArea);
         }
     }
 

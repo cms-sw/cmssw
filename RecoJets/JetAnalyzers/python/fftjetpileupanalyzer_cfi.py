@@ -5,6 +5,7 @@
 #
 # I. Volobouev, April 27, 2011
 #
+import math
 import FWCore.ParameterSet.Config as cms
 
 fftjet_pileup_analyzer = cms.EDAnalyzer(
@@ -32,6 +33,9 @@ fftjet_pileup_analyzer = cms.EDAnalyzer(
     # Cut on the nDoF of the primary vertices
     vertexNdofCut = cms.double(4.0),
     #
+    # Conversion factor from sum Et into average density
+    pileupEtaPhiArea = cms.double((2.0*5.2)*(2.0*math.pi)),
+    #
     # Output ntuple name/title
     ntupleName = cms.string("FFTJetPileupAnalyzer"),
     ntupleTitle = cms.string("FFTJetPileupAnalyzer ntuple"),
@@ -42,7 +46,7 @@ fftjet_pileup_analyzer = cms.EDAnalyzer(
     collectFastJetRho = cms.bool(False),
     collectSummaries = cms.bool(True),
     collectGrids = cms.bool(False),
-    collectGridEt = cms.bool(False),
+    collectGridDensity = cms.bool(False),
     collectVertexInfo = cms.bool(False),
     verbosePileupInfo = cms.bool(False)
 )
