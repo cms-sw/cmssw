@@ -109,7 +109,7 @@ namespace edm {
 
     friend class PtrVectorItr<T>;
     PtrVector() : PtrVectorBase() {}
-    explicit PtrVector(ProductID const& id) : PtrVectorBase(id) {}
+    explicit PtrVector(ProductID const& iId) : PtrVectorBase(iId) {}
     PtrVector(PtrVector<T> const& iOther): PtrVectorBase(iOther) {}
 
     template <typename U>

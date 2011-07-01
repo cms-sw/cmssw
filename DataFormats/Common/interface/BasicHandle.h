@@ -51,9 +51,9 @@ namespace edm {
       prov_(h.prov_),
       whyFailed_(h.whyFailed_){}
 
-    BasicHandle(void const* prod, WrapperInterfaceBase const* interface, Provenance const* prov) :
-      product_(WrapperHolder(prod, interface, WrapperHolder::NotOwned)),
-      prov_(prov) {
+    BasicHandle(void const* iProd, WrapperInterfaceBase const* iInterface, Provenance const* iProv) :
+      product_(WrapperHolder(iProd, iInterface, WrapperHolder::NotOwned)),
+      prov_(iProv) {
     }
 
     BasicHandle(ProductData const& productData) :

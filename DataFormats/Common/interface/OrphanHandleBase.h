@@ -31,9 +31,9 @@ namespace edm {
       product_(), id_(ProductID()) {
     }
 
-    OrphanHandleBase(void const* prod, ProductID const& id) :
-      product_(prod), id_(id) {
-      assert(prod);
+    OrphanHandleBase(void const* iProd, ProductID const& iId) :
+      product_(iProd), id_(iId) {
+      assert(iProd);
     }
 
     ~OrphanHandleBase() {}

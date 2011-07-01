@@ -137,9 +137,9 @@ namespace edm {
         bool isValid() const { return i != 0; }
         bool isInvalid() const { return i == 0; }
 
-        void throwInvalidReference(bool isInvalid, char const* why) const {
-          if (isInvalid) {
-            Exception::throwThis(errors::InvalidReference, "Trying to ", why, " an invalid RefToBaseVector<T>::const_iterator");
+        void throwInvalidReference(bool iIsInvalid, char const* iWhy) const {
+          if (iIsInvalid) {
+            Exception::throwThis(errors::InvalidReference, "Trying to ", iWhy, " an invalid RefToBaseVector<T>::const_iterator");
           }
         }
 

@@ -65,9 +65,9 @@ namespace edm {
     // be done to throw an exception if an attempt is made to put any object
     // containing this Ptr into an event(or run or lumi).
     template<typename C>
-    Ptr(C const* product, key_type itemKey, bool /*setNow*/ = true):
-    core_(ProductID(), product != 0 ? getItem_(product,itemKey) : 0, 0, true),
-    key_(product != 0 ? itemKey : key_traits<key_type>::value) {}
+    Ptr(C const* iProduct, key_type iItemKey, bool /*setNow*/ = true):
+    core_(ProductID(), iProduct != 0 ? getItem_(iProduct,iItemKey) : 0, 0, true),
+    key_(iProduct != 0 ? iItemKey : key_traits<key_type>::value) {}
 
     // Constructor from test handle.
     // An exception will be thrown if an attempt is made to persistify
@@ -99,8 +99,8 @@ namespace edm {
      associated with a given product (denoted by that product's
      ProductID). */
 
-    explicit Ptr(ProductID const& id) :
-    core_(id, 0, 0, false),
+    explicit Ptr(ProductID const& iId) :
+    core_(iId, 0, 0, false),
     key_(key_traits<key_type>::value)
     { }
 
@@ -214,9 +214,9 @@ namespace edm {
 
   template<typename T>
   template<typename C>
-  T const* Ptr<T>::getItem_(C const* product, key_type iKey) {
-    assert (product != 0);
-    typename C::const_iterator it = product->begin();
+  T const* Ptr<T>::getItem_(C const* iProduct, key_type iKey) {
+    assert (iProduct != 0);
+    typename C::const_iterator it = iProduct->begin();
     std::advance(it,iKey);
     T const* address = detail::GetProduct<C>::address(it);
     return address;

@@ -98,7 +98,7 @@ namespace edm {
       return reinterpret_cast<const View<T>*>(product_.productPtr());
     }
     //needs to be mutable so we can modify the 'productPtr' it holds
-    // so that 'procutPtr' can hold our View
+    // so that 'productPtr' can hold our View
     mutable RefCore product_;
   };
 }
@@ -173,11 +173,11 @@ namespace edm {
         Exception::throwThis(errors::InvalidReference,
           "attempting get view from a null RefToBaseProd.\n");
       }
-      ProductID id = product_.id();
+      ProductID tId = product_.id();
       std::vector<void const*> pointers;
       helper_vector_ptr helpers;
-      WrapperHolder it = product_.productGetter()->getIt(id);
-      it.fillView(id, pointers, helpers);
+      WrapperHolder it = product_.productGetter()->getIt(tId);
+      it.fillView(tId, pointers, helpers);
       product_.setProductPtr((new View<T>(pointers, helpers)));
     }
     return viewPtr();

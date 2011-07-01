@@ -18,7 +18,7 @@ namespace edm {
       }
       RefVectorHolder(REFV const& refs) : RefVectorHolderBase(), refs_(refs) {
       }
-      explicit RefVectorHolder(ProductID const& id) : RefVectorHolderBase(), refs_(id) {
+      explicit RefVectorHolder(ProductID const& iId) : RefVectorHolderBase(), refs_(iId) {
       }
       virtual ~RefVectorHolder() { }
       void swap(RefVectorHolder& other);
@@ -244,12 +244,12 @@ namespace edm {
     };
 
     template<typename REFV>
-    void RefVectorHolder<REFV>::reallyFillView(void const* prod, ProductID const& id , std::vector<void const*> & pointers) {
+    void RefVectorHolder<REFV>::reallyFillView(void const* iProd, ProductID const& iId , std::vector<void const*> & oPointers) {
       typedef
 	typename boost::mpl::if_c<has_fillView<typename REFV::collection_type>::value,
 	RefVectorHolderDoFillView<REFV>,
 	RefVectorHolderNoFillView<REFV> >::type maybe_filler;
-      maybe_filler::reallyFillView(*this, prod, id, pointers);
+      maybe_filler::reallyFillView(*this, iProd, iId, oPointers);
     }
   }
 }

@@ -60,7 +60,7 @@ namespace edm {
 
 
 
-    RefVector(ProductID const& id) : refVector_(id) {}
+    RefVector(ProductID const& iId) : refVector_(iId) {}
     /// Add a Ref<C, T> to the RefVector
     void push_back(value_type const& ref) {
       refVector_.pushBack(ref.refCore(), ref.key());

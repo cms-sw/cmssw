@@ -211,16 +211,16 @@ namespace edm {
     //  Event. The given ProductID must be the id of the collection in
     //  the Event.
     
-    Ref(ProductID const& productID, T const* /*item*/, key_type item_key, C const* product) :
-      product_(productID, product, 0, false), index_(item_key)
+    Ref(ProductID const& iProductID, T const* /*item*/, key_type iItemKey, C const* iProduct) :
+      product_(iProductID, iProduct, 0, false), index_(iItemKey)
     { }
 
     /// Constructor that creates an invalid ("null") Ref that is
     /// associated with a given product (denoted by that product's
     /// ProductID).
 
-    explicit Ref(ProductID const& id) :
-      product_(id, 0, 0, false), index_(key_traits<key_type>::value)
+    explicit Ref(ProductID const& iId) :
+      product_(iId, 0, 0, false), index_(key_traits<key_type>::value)
     { }
 
     /// Constructor from RefProd<C> and key
@@ -283,8 +283,8 @@ namespace edm {
     CMS_CLASS_VERSION(10)
     //  private:
     // Constructor from member of RefVector
-    Ref(RefCore const& refCore, key_type const& key) : 
-      product_(refCore), index_(key) {
+    Ref(RefCore const& iRefCore, key_type const& iKey) : 
+      product_(iRefCore), index_(iKey) {
     }
 
   private:
@@ -345,12 +345,12 @@ namespace edm {
   //  and persistified.  It is this Ref itself that cannot be persistified.
   template <typename C, typename T, typename F>
   inline
-  Ref<C, T, F>::Ref(C const* product, key_type itemKey, bool setNow) :
-    product_(ProductID(), product, 0, true), index_(product != 0 ? itemKey : key_traits<key_type>::value) {
-    checkTypeAtCompileTime(product);
-    assert(key() == (product != 0 ? itemKey : key_traits<key_type>::value));
+  Ref<C, T, F>::Ref(C const* iProduct, key_type iItemKey, bool iSetNow) :
+    product_(ProductID(), iProduct, 0, true), index_(iProduct != 0 ? iItemKey : key_traits<key_type>::value) {
+    checkTypeAtCompileTime(iProduct);
+    assert(key() == (iProduct != 0 ? iItemKey : key_traits<key_type>::value));
         
-    if (setNow && product != 0) {getPtr_<C, T, F>(product_, index_);}
+    if (iSetNow && iProduct != 0) {getPtr_<C, T, F>(product_, index_);}
   }
 
   /// constructor from test handle.

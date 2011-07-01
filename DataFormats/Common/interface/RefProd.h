@@ -72,9 +72,9 @@ namespace edm {
     //  any object containing this RefProd.  Also, in the future work will
     //  be done to throw an exception if an attempt is made to put any object
     //  containing this RefProd into an event(or run or lumi).
-    RefProd(C const* product) :
-      product_(ProductID(), product, 0, true) {
-      checkTypeAtCompileTime(product);
+    RefProd(C const* iProduct) :
+      product_(ProductID(), iProduct, 0, true) {
+      checkTypeAtCompileTime(iProduct);
     }
 
     /// General purpose constructor from test handle.
