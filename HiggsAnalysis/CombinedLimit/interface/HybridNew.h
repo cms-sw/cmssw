@@ -35,7 +35,7 @@ public:
   }
   
   // I don't understand why if it's declared private it gcc does not like it
-  enum WorkingMode { MakeLimit, MakeSignificance, MakePValues, MakeTestStatistics };
+  enum WorkingMode { MakeLimit, MakeSignificance, MakePValues, MakeTestStatistics, MakeSignificanceTestStatistics };
 private:
   static WorkingMode workingMode_;
   static unsigned int nToys_;
@@ -49,6 +49,7 @@ private:
   static std::string gridFile_;
   static bool expectedFromGrid_; 
   static float quantileForExpectedFromGrid_;
+  static bool fullGrid_; 
   static unsigned int nCpu_, fork_;
   static bool importanceSamplingNull_, importanceSamplingAlt_;
   static std::string algo_;

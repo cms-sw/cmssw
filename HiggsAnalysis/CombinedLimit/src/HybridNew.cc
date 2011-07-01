@@ -59,6 +59,7 @@ bool HybridNew::saveHybridResult_  = false;
 bool HybridNew::readHybridResults_ = false; 
 bool  HybridNew::expectedFromGrid_ = false; 
 float HybridNew::quantileForExpectedFromGrid_ = 0.5; 
+bool  HybridNew::fullGrid_ = false; 
 std::string HybridNew::gridFile_ = "";
 bool HybridNew::importanceSamplingNull_ = false;
 bool HybridNew::importanceSamplingAlt_  = false;
@@ -107,6 +108,7 @@ LimitAlgo("HybridNew specific options") {
         ("plot",   boost::program_options::value<std::string>(&plot_), "Save a plot of the result (test statistics distributions or limit scan)")
         ("frequentist", "Shortcut to switch to Frequentist mode (--generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1)")
         ("newToyMCSampler", boost::program_options::value<bool>(&newToyMCSampler_)->default_value(newToyMCSampler_), "Use new ToyMC sampler with support for mixed binned-unbinned generation")
+        ("fullGrid", "Evaluate p-values at all grid points, without optimitations")
     ;
 }
 
@@ -133,7 +135,8 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
         workingMode_ = ( vm.count("onlyTestStat") ? MakeTestStatistics : MakePValues );
         rValue_ = vm["singlePoint"].as<float>();
     } else if (vm.count("onlyTestStat")) {
-        throw std::invalid_argument("HybridNew: --onlyTestStat works only with --singlePoint");
+        if (doSignificance_) workingMode_ = MakeSignificanceTestStatistics;
+        else throw std::invalid_argument("HybridNew: --onlyTestStat works only with --singlePoint or --significance");
     } else if (doSignificance_) {
         workingMode_ = MakeSignificance;
     } else {
@@ -143,6 +146,7 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
     readHybridResults_ = vm.count("readHybridResults") || vm.count("grid");
     if (readHybridResults_ && !(vm.count("toysFile") || vm.count("grid")))     throw std::invalid_argument("HybridNew: must have 'toysFile' or 'grid' option to have 'readHybridResults'\n");
     mass_ = vm["mass"].as<float>();
+    fullGrid_ = vm.count("fullGrid");
     validateOptions(); 
 }
 
@@ -184,7 +188,9 @@ bool HybridNew::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mode
         case MakeLimit:            return runLimit(w, mc_s, mc_b, data, limit, limitErr, hint);
         case MakeSignificance:     return runSignificance(w, mc_s, mc_b, data, limit, limitErr, hint);
         case MakePValues:          return runSinglePoint(w, mc_s, mc_b, data, limit, limitErr, hint);
-        case MakeTestStatistics:   return runTestStatistics(w, mc_s, mc_b, data, limit, limitErr, hint);
+        case MakeTestStatistics:   
+        case MakeSignificanceTestStatistics: 
+                                   return runTestStatistics(w, mc_s, mc_b, data, limit, limitErr, hint);
     }
     assert("Shouldn't get here" == 0);
 }
@@ -259,7 +265,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
             if (!toyDir) throw std::logic_error("Cannot use readHypoTestResult: empty toy dir in input file empty");
             readGrid(toyDir);
         }
-        updateGridData(w, mc_s, mc_b, data, true, clsTarget);
+        updateGridData(w, mc_s, mc_b, data, !fullGrid_, clsTarget);
       } else readAllToysFromFile(); 
 
       useGrid();
@@ -273,7 +279,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
           if (y-3*max(ey,0.01) >= clsTarget) { rMin = x; clsMin = CLs_t(y,ey); }
           if (fabs(y-clsTarget) < minDist) { limit = x; minDist = fabs(y-clsTarget); }
           rMax = x; clsMax = CLs_t(y,ey);    
-          if (y+3*max(ey,0.01) <= clsTarget) break; 
+          if (y+3*max(ey,0.01) <= clsTarget && !fullGrid_) break; 
       }
       if (verbose > 0) std::cout << " after scan x ~ " << limit << ", bounds [ " << rMin << ", " << rMax << "]" << std::endl;
       limitErr = std::max(limit-rMin, rMax-limit);
@@ -507,7 +513,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   r->setMax(rVal); r->setVal(rVal); 
   if (testStat_ == "LHC" || testStat_ == "Profile") {
     r->setConstant(false); r->setMin(0); 
-    if (workingMode_ == MakeSignificance) {
+    if (workingMode_ == MakeSignificance || workingMode_ == MakeSignificanceTestStatistics) {
         rVal = 0;
         r->setVal(0);
         r->removeMax(); 
@@ -1096,6 +1102,7 @@ void HybridNew::useGrid() {
         } else {
             val = CLs_t(itg->second->CLsplusb(), itg->second->CLsplusbError());
         }
+        if (val.first == -1) continue;
         limitPlot_->Set(n+1);
         limitPlot_->SetPoint(     n, itg->first, val.first); 
         limitPlot_->SetPointError(n, 0,          val.second);
