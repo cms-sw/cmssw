@@ -33,9 +33,6 @@ fftjet_pileup_analyzer = cms.EDAnalyzer(
     # Cut on the nDoF of the primary vertices
     vertexNdofCut = cms.double(4.0),
     #
-    # Conversion factor from sum Et into average density
-    pileupEtaPhiArea = cms.double((2.0*5.2)*(2.0*math.pi)),
-    #
     # Output ntuple name/title
     ntupleName = cms.string("FFTJetPileupAnalyzer"),
     ntupleTitle = cms.string("FFTJetPileupAnalyzer ntuple"),

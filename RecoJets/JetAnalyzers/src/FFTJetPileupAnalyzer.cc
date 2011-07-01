@@ -86,7 +86,6 @@ private:
     bool verbosePileupInfo;
 
     double vertexNdofCut;
-    double pileupEtaPhiArea;
 
     std::vector<float> ntupleData;
     TNtuple* nt;
@@ -117,7 +116,6 @@ FFTJetPileupAnalyzer::FFTJetPileupAnalyzer(const edm::ParameterSet& ps)
       init_param(bool, collectVertexInfo),
       init_param(bool, verbosePileupInfo),
       init_param(double, vertexNdofCut),
-      init_param(double, pileupEtaPhiArea),
       nt(0),
       totalNpu(-1),
       totalNPV(-1),
@@ -271,7 +269,7 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
         ntupleData.push_back(*fjsigma);
     }
 
-    if (collectGrids || collectGridDensity)
+    if (collectGrids)
     {
         edm::Handle<fftjetcms::DiscretizedEnergyFlow> input;
         iEvent.getByLabel(gridLabel, input);
@@ -283,33 +281,32 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
         const unsigned nEta = input->nEtaBins();
         const unsigned nPhi = input->nPhiBins();
 
-        if (collectGrids)
-        {
-            // Generate a name for the output histogram
-            std::ostringstream os;
-            os << "FFTJetGrid_" << counter << '_'
-               << totalNpu << '_' << runnumber << '_' << eventnumber;
-            const std::string& newname(os.str());
+        // Generate a name for the output histogram
+        std::ostringstream os;
+        os << "FFTJetGrid_" << counter << '_'
+           << totalNpu << '_' << runnumber << '_' << eventnumber;
+        const std::string& newname(os.str());
 
-            // Make a histogram and copy the grid data into it
-            edm::Service<TFileService> fs;
-            TH2F* h = fs->make<TH2F>(newname.c_str(), newname.c_str(),
-                                     nEta, input->etaMin(), input->etaMax(),
-                                     nPhi, 0.0, 2.0*M_PI);
-            h->GetXaxis()->SetTitle("Eta");
-            h->GetYaxis()->SetTitle("Phi");
-            h->GetZaxis()->SetTitle("Transverse Energy");
+        // Make a histogram and copy the grid data into it
+        edm::Service<TFileService> fs;
+        TH2F* h = fs->make<TH2F>(newname.c_str(), newname.c_str(),
+                                 nEta, input->etaMin(), input->etaMax(),
+                                 nPhi, 0.0, 2.0*M_PI);
+        h->GetXaxis()->SetTitle("Eta");
+        h->GetYaxis()->SetTitle("Phi");
+        h->GetZaxis()->SetTitle("Transverse Energy");
 
-            for (unsigned ieta=0; ieta<nEta; ++ieta)
-                for (unsigned iphi=0; iphi<nPhi; ++iphi)
-                    h->SetBinContent(ieta+1U, iphi+1U, data[ieta*nPhi + iphi]);
-        }
+        for (unsigned ieta=0; ieta<nEta; ++ieta)
+            for (unsigned iphi=0; iphi<nPhi; ++iphi)
+                h->SetBinContent(ieta+1U, iphi+1U, data[ieta*nPhi + iphi]);
+    }
 
-        if (collectGridDensity)
-        {
-            const double etSum = std::accumulate(data, data+nEta*nPhi, 0.0);
-            ntupleData.push_back(etSum/pileupEtaPhiArea);
-        }
+    if (collectGridDensity)
+    {
+        edm::Handle<double> etSum;
+        iEvent.getByLabel(histoLabel, etSum);
+
+        ntupleData.push_back(*etSum);
     }
 
     if (collectVertexInfo)
