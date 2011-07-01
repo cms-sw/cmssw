@@ -89,7 +89,7 @@ ora::Configuration& ora::Database::configuration(){
 }
 
 bool ora::Database::connect( const std::string& connectionString,
-                             bool readOnly){
+                             bool readOnly ){
   return m_impl->m_session->connect( connectionString, readOnly );
 }
 
@@ -148,6 +148,18 @@ bool ora::Database::drop(){
     dropped = true;
   }
   return dropped;
+}
+
+void ora::Database::setAccessPermission( const std::string& principal, bool forWrite ){
+  if( exists()){
+    open();
+    m_impl->m_session->setAccessPermission( principal, forWrite );
+    const std::map<int, Handle<DatabaseContainer> >& conts = m_impl->m_session->containers();
+    for(std::map<int, Handle<DatabaseContainer> >::const_iterator iC = conts.begin();
+        iC != conts.end(); iC++ ){
+      iC->second->setAccessPermission( principal, forWrite );
+    }
+  }
 }
 
 void ora::Database::open( bool writingAccess /*=false*/){

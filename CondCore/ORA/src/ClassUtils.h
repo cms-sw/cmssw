@@ -30,6 +30,8 @@ namespace ora {
 
     bool isType( const Reflex::Type& type, const Reflex::Type& baseType );
 
+    bool checkMappedType( const Reflex::Type& type, const std::string& mappedTypeName );
+
     bool findBaseType( Reflex::Type& type, Reflex::Type& baseType, Reflex::OffsetFunction& func );
 
     std::string demangledName( const std::type_info& typeInfo );

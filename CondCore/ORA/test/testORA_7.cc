@@ -180,11 +180,13 @@ namespace ora {
       if(!db.exists()){
 	db.create();
       }
+
       std::set< std::string > conts = db.containers();
       if( conts.find( "Cont0" )!= conts.end() ) db.dropContainer( "Cont0" );
       if( conts.find( "testORA::SiStripNoises" )!= conts.end() ) db.dropContainer( "testORA::SiStripNoises" );
       //
       db.createContainer<SB>("Cont0");
+
       ora::Container contH0 = db.containerHandle( "Cont0" );
       std::vector<boost::shared_ptr<SB> > buff;
       for( unsigned int i=0;i<10;i++){
@@ -194,7 +196,9 @@ namespace ora {
       }
       contH0.flush();
       buff.clear();
+
       ora::Container cont2 = db.createContainer<SiStripNoises>();
+
       std::vector<boost::shared_ptr<SiStripNoises> > buff2;
       for( unsigned int i=0;i<10;i++){
 	boost::shared_ptr<SiStripNoises> obj( new SiStripNoises(i) );

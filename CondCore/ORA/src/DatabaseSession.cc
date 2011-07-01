@@ -1,4 +1,5 @@
 #include "CondCore/ORA/interface/Exception.h"
+#include "CondCore/ORA/interface/Monitoring.h"
 #include "DatabaseSession.h"
 #include "IDatabaseSchema.h"
 #include "Sequences.h"
@@ -50,7 +51,8 @@ ora::DatabaseSession::DatabaseSession():
   m_mappingDb(),
   m_transactionCache(),
   m_containerUpdateTable(),
-  m_configuration(){
+  m_configuration(),
+  m_monitoring(0){
   // for the private connection pool does not make sense to have a real pool... 
   m_connectionPool->configuration().setConnectionTimeOut(0);
 }
@@ -64,7 +66,8 @@ ora::DatabaseSession::DatabaseSession(boost::shared_ptr<ConnectionPool>& connect
   m_mappingDb(),
   m_transactionCache(),
   m_containerUpdateTable(),
-  m_configuration(){
+  m_configuration(),
+  m_monitoring(0){
 }
 
 ora::DatabaseSession::~DatabaseSession(){
@@ -76,6 +79,9 @@ bool ora::DatabaseSession::connect( const std::string& connectionString,
   m_dbSession = m_connectionPool->connect( connectionString, readOnly?coral::ReadOnly:coral::Update );
   if(m_dbSession.isValid()) {
     m_connectionString = connectionString;
+    if( ora::Monitoring::isEnabled() ){
+      m_monitoring = ora::Monitoring::get().startSession( connectionString );
+    }
   }
   return isConnected();
 }
@@ -95,6 +101,7 @@ void ora::DatabaseSession::disconnect(){
   clearTransaction();
   m_dbSession.close();
   m_connectionString.clear();
+  if(m_monitoring) m_monitoring->stop();
 }
 
 bool ora::DatabaseSession::isConnected(){
@@ -112,6 +119,9 @@ void ora::DatabaseSession::startTransaction( bool readOnly ){
     m_contIdSequence.reset( new NamedSequence( MappingRules::sequenceNameForContainerId(), *m_schema ));
     m_mappingDb.reset( new MappingDatabase( *m_schema ));
     m_transactionCache.reset( new TransactionCache );
+    if(m_monitoring) {
+      m_monitoring->newTransaction();
+    }
   }
 }
 
@@ -120,6 +130,9 @@ void ora::DatabaseSession::commitTransaction(){
     m_schema->containerHeaderTable().updateNumberOfObjects( m_containerUpdateTable.table() );
     m_dbSession.get().transaction().commit();
     clearTransaction();
+    if(m_monitoring) {
+      m_monitoring->stopTransaction();
+    }
   }
 }
 
@@ -127,6 +140,9 @@ void ora::DatabaseSession::rollbackTransaction(){
   if( m_transactionCache.get() ){
     m_dbSession.get().transaction().rollback();
     clearTransaction();
+    if(m_monitoring) {
+      m_monitoring->stopTransaction(false);
+    }
   }
 }
 
@@ -157,8 +173,24 @@ void ora::DatabaseSession::create( const std::string& userSchemaVersion ){
 }
 
 void ora::DatabaseSession::drop(){
+  if(!testDropPermission()){
+    throwException("Drop permission has been denied for the current user.",
+		   "DatabaseSession::drop");
+  }
   m_schema->drop();
-  m_transactionCache->setDbExists( false );
+  m_transactionCache->dropDatabase();
+}
+
+void ora::DatabaseSession::setAccessPermission( const std::string& principal, 
+						bool forWrite ){
+  m_schema->setAccessPermission( principal, forWrite );
+}
+    
+bool ora::DatabaseSession::testDropPermission(){
+  if(!m_transactionCache->dropPermissionLoaded()){
+    m_transactionCache->setDropPermission( m_schema->testDropPermission() );
+  }
+  return m_transactionCache->dropPermission();
 }
 
 void ora::DatabaseSession::open(){

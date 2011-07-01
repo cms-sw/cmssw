@@ -94,6 +94,11 @@ void ora::Container::extendSchema( const std::type_info& typeInfo ){
   m_dbContainer->extendSchema( type );
 }
 
+void ora::Container::setAccessPermission( const std::string& principal, 
+					  bool forWrite ){
+  m_dbContainer->setAccessPermission( principal, forWrite );
+}
+
 ora::Object ora::Container::fetchItem(int itemId){
   return Object( m_dbContainer->fetchItem(itemId), m_dbContainer->type() );
 }

@@ -77,6 +77,8 @@ namespace ora {
 
     void extendSchema( const Reflex::Type& dependentType );
 
+    void setAccessPermission( const std::string& principal, bool forWrite );
+
     Handle<IteratorBuffer> iteratorBuffer();
 
     bool lock();

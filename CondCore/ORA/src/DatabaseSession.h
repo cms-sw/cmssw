@@ -25,6 +25,7 @@ namespace ora {
   class TransactionCache;
   class DatabaseContainer;
   class DatabaseUtilitySession;
+  class SessionMonitoringData;
 
   class ContainerUpdateTable {
     public:
@@ -68,6 +69,10 @@ namespace ora {
     void create( const std::string& userSchemaVersion = std::string("") );
 
     void drop();
+
+    void setAccessPermission( const std::string& principal, bool forWrite );
+
+    bool testDropPermission();
 
     void open();
    
@@ -133,6 +138,7 @@ namespace ora {
     std::auto_ptr<TransactionCache> m_transactionCache;
     ContainerUpdateTable m_containerUpdateTable;
     Configuration m_configuration;
+    SessionMonitoringData* m_monitoring;
   };
   
 

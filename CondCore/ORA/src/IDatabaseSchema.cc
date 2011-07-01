@@ -1,10 +1,39 @@
 #include "IDatabaseSchema.h"
 #include "OraDatabaseSchema.h"
 #include "PoolDatabaseSchema.h"
+// externals
+#include "RelationalAccess/ISchema.h"
+#include "RelationalAccess/ITable.h"
+#include "RelationalAccess/ITablePrivilegeManager.h"
 
 std::string ora::poolSchemaVersion(){
   static std::string s_version("POOL");
   return s_version;
+}
+
+void ora::setTableAccessPermission( coral::ITable& table, 
+				    const std::string& principal, 
+				    bool forWrite ){
+  table.privilegeManager().grantToUser( principal, coral::ITablePrivilegeManager::Select );
+  if(forWrite){
+    table.privilegeManager().grantToUser( principal, coral::ITablePrivilegeManager::Update );
+    table.privilegeManager().grantToUser( principal, coral::ITablePrivilegeManager::Insert );
+    table.privilegeManager().grantToUser( principal, coral::ITablePrivilegeManager::Delete );
+  } 
+}
+
+ora::IDatabaseTable::IDatabaseTable( coral::ISchema& schema ):
+  m_schema( schema ){
+}
+
+coral::ISchema& ora::IDatabaseTable::schema(){
+  return m_schema;
+}
+
+void ora::IDatabaseTable::setAccessPermission( const std::string& principal, 
+					       bool forWrite ){
+  coral::ITable& coralHandle = m_schema.tableHandle( name() );
+  setTableAccessPermission( coralHandle, principal, forWrite );
 }
 
 std::string ora::IMainTable::versionParameterName(){
@@ -15,6 +44,14 @@ std::string ora::IMainTable::versionParameterName(){
 std::string ora::IMainTable::userSchemaVersionParameterName(){
   static std::string s_name("USER_SCHEMA_VERSION");
   return s_name;
+}
+
+ora::IMainTable::IMainTable( coral::ISchema& schema ):
+  IDatabaseTable( schema ){
+}
+
+ora::ISequenceTable::ISequenceTable( coral::ISchema& schema ):
+  IDatabaseTable( schema ){
 }
 
 ora::MappingRawElement::MappingRawElement():
@@ -95,6 +132,13 @@ ora::ContainerHeaderData& ora::ContainerHeaderData::operator=( const ContainerHe
   return *this;
 }
 
+ora::IContainerHeaderTable::IContainerHeaderTable( coral::ISchema& schema ):
+  IDatabaseTable( schema ){
+}
+
+ora::INamingServiceTable::INamingServiceTable( coral::ISchema& schema ):
+  IDatabaseTable( schema ){
+}
 
 ora::IDatabaseSchema* ora::IDatabaseSchema::createSchemaHandle( coral::ISchema& schema ){
   IDatabaseSchema* dbSchema = 0;

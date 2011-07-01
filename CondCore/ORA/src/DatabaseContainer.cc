@@ -398,12 +398,21 @@ void ora::DatabaseContainer::create(){
 }
 
 void ora::DatabaseContainer::drop(){
+  if(!m_schema->dbSession().testDropPermission()){
+    throwException("Drop permission has been denied for the current user.",
+		   "DatabaseContainer::drop");
+  }
   m_schema->drop();
   m_containerUpdateTable.remove( m_schema->containerId() );
 }
 
 void ora::DatabaseContainer::extendSchema( const Reflex::Type& dependentType ){
   m_schema->extendIfRequired( dependentType );
+}
+
+void ora::DatabaseContainer::setAccessPermission( const std::string& principal, 
+						  bool forWrite ){
+  m_schema->setAccessPermission( principal, forWrite );
 }
 
 void* ora::DatabaseContainer::fetchItem(int itemId){

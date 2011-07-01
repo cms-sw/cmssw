@@ -9,19 +9,29 @@
 
 namespace coral {
   class ISchema;
+  class ITable;
 }
 
 namespace ora {
 
   std::string poolSchemaVersion();
 
+  void setTableAccessPermission( coral::ITable& table, const std::string& principal, bool forWrite );
+
   class IDatabaseTable {
     public:
+    explicit IDatabaseTable( coral::ISchema& schema ); 
     virtual ~IDatabaseTable(){}
 
+    virtual std::string name() = 0;
     virtual bool exists() = 0;
-    virtual void create() = 0;
+    virtual void create( ) = 0;
     virtual void drop() = 0;
+    virtual void setAccessPermission( const std::string& principal, bool forWrite );
+    coral::ISchema& schema();
+  private:
+    coral::ISchema& m_schema;
+    
   };
 
   class IMainTable: public IDatabaseTable {
@@ -29,6 +39,7 @@ namespace ora {
     static std::string versionParameterName();
     static std::string userSchemaVersionParameterName();
     public:
+    explicit IMainTable( coral::ISchema& schema ); 
     virtual ~IMainTable(){}
     virtual void setParameter( const std::string& paramName, const std::string& paramValue ) = 0;
     virtual bool getParameters( std::map<std::string,std::string>& destination ) = 0;
@@ -37,6 +48,7 @@ namespace ora {
 
   class ISequenceTable : public IDatabaseTable{
     public:
+    explicit ISequenceTable( coral::ISchema& schema ); 
     virtual ~ISequenceTable(){
     }
 
@@ -82,6 +94,7 @@ namespace ora {
   
   class IContainerHeaderTable: public IDatabaseTable  {
     public:
+    explicit IContainerHeaderTable( coral::ISchema& schema ); 
     virtual ~IContainerHeaderTable(){
     }
     virtual bool getContainerData( std::map<std::string, ContainerHeaderData>& destination ) = 0;
@@ -116,6 +129,7 @@ namespace ora {
 
   class INamingServiceTable: public IDatabaseTable  {
     public:
+    explicit INamingServiceTable( coral::ISchema& schema ); 
     virtual ~INamingServiceTable(){
     }
     virtual void setObjectName( const std::string& name, int contId, int itemId ) = 0;
@@ -140,6 +154,7 @@ namespace ora {
     virtual bool exists() = 0;
     virtual void create( const std::string& userSchemaVersion ) = 0;
     virtual void drop() = 0;
+    virtual void setAccessPermission( const std::string& userName, bool forWrite ) = 0;
 
     virtual IMainTable& mainTable() = 0;
     virtual ISequenceTable& sequenceTable() = 0;
@@ -149,6 +164,7 @@ namespace ora {
     virtual IDatabaseTable& classVersionTable() = 0;
     virtual IMappingSchema& mappingSchema() = 0;
     virtual INamingServiceTable& namingServiceTable() = 0;
+    virtual bool testDropPermission() = 0;
     coral::ISchema& storageSchema();
     
     private:

@@ -51,6 +51,17 @@ bool ora::ClassUtils::isType( const Reflex::Type& type,
   return ret;
 }
 
+bool ora::ClassUtils::checkMappedType( const Reflex::Type& type, 
+				       const std::string& mappedTypeName ){
+  if( isTypeString( type ) ){
+    return (mappedTypeName=="std::basic_string<char>" || mappedTypeName=="basic_string<char>" || mappedTypeName=="std::string" || mappedTypeName=="string");
+  } else if ( type.IsEnum() ){
+    return mappedTypeName=="int";
+  } else {
+    return type.Name(Reflex::SCOPED)==mappedTypeName;
+  }
+}
+
 bool ora::ClassUtils::findBaseType( Reflex::Type& type, Reflex::Type& baseType, Reflex::OffsetFunction& func ){
   bool found = false;
   for ( unsigned int i=0;i<type.BaseSize() && !found; i++){

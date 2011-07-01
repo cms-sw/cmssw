@@ -37,6 +37,8 @@ namespace ora {
 
     const std::map<int, Handle<DatabaseContainer> >& containers();
 
+    void dropDatabase();
+
     std::map<std::string,std::string>& dbParams();
 
     void setUtility( Handle<DatabaseUtilitySession>& utility );
@@ -51,6 +53,9 @@ namespace ora {
 
     boost::shared_ptr<void> getNamedReference( const std::string& name );
 
+    void setDropPermission( bool allowed );
+    bool dropPermissionLoaded();
+    bool dropPermission();
 
     private:
     void cleanUpNamedRefCache();
@@ -63,6 +68,7 @@ namespace ora {
     Handle<DatabaseUtilitySession> m_utility;
     bool m_loaded;
     std::map<std::string,boost::weak_ptr<void> > m_namedRefCache;
+    std::pair<bool,bool> m_dropPermission;
   };
 }
 

@@ -41,6 +41,8 @@ namespace ora {
 
     void evolve( const Reflex::Type& dependentClass, MappingTree& baseMapping );
     
+    void setAccessPermission( const std::string& principal, bool forWrite );
+    
     const Reflex::Type& type();
 
     MappingTree& mapping( bool writeEnabled=false);
@@ -73,6 +75,7 @@ namespace ora {
     void initClassDict();
     bool loadMappingForDependentClass( const Reflex::Type& dependentClass );
     void extend( const Reflex::Type& dependentClass );
+    void getTableHierarchy( const std::set<std::string>& containerMappingVersions, std::vector<std::string>& destination );
     private:
 
     int m_containerId;

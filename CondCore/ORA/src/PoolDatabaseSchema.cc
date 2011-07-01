@@ -30,7 +30,7 @@ std::string ora::PoolMainTable::tableName(){
 }
 
 ora::PoolMainTable::PoolMainTable( coral::ISchema& dbSchema ):
-  m_schema( dbSchema ){
+  IMainTable( dbSchema ){
 }
 
 ora::PoolMainTable::~PoolMainTable(){
@@ -49,12 +49,16 @@ std::string ora::PoolMainTable::schemaVersion(){
   return poolSchemaVersion();
 }
 
+std::string ora::PoolMainTable::name(){
+  return tableName();
+}
+
 bool ora::PoolMainTable::exists(){
-  return m_schema.existsTable( tableName() );
+  return schema().existsTable( tableName() );
 }
 
 void ora::PoolMainTable::create(){
-  if( m_schema.existsTable( tableName() )){
+  if( schema().existsTable( tableName() )){
     throwException( "POOL database main table already exists in this schema.",
                     "PoolMainTable::create");
   }
@@ -62,7 +66,7 @@ void ora::PoolMainTable::create(){
 }
 
 void ora::PoolMainTable::drop(){
-  m_schema.dropIfExistsTable( tableName() );
+  schema().dropIfExistsTable( tableName() );
 }
 
 std::string ora::PoolSequenceTable::tableName(){
@@ -81,7 +85,7 @@ std::string ora::PoolSequenceTable::sequenceValueColumn(){
 }
 
 ora::PoolSequenceTable::PoolSequenceTable( coral::ISchema& schema ):
-  m_schema( schema),
+  ISequenceTable( schema),
   m_dbCache( 0 ){
 }
 
@@ -102,7 +106,7 @@ ora::PoolSequenceTable::add( const std::string& sequenceName ){
   iAttribute->data< std::string >() = sequenceName;
   ++iAttribute;
   iAttribute->data< int >() = 0;
-  m_schema.tableHandle( tableName() ).dataEditor().insertRow( insertData );
+  schema().tableHandle( tableName() ).dataEditor().insertRow( insertData );
   return true;
 }
 
@@ -123,7 +127,7 @@ ora::PoolSequenceTable::getLastId( const std::string& sequenceName,
   }
   
   // otherwise, look up into the regular sequence table.
-  std::auto_ptr< coral::IQuery > query( m_schema.tableHandle( tableName() ).newQuery() );
+  std::auto_ptr< coral::IQuery > query( schema().tableHandle( tableName() ).newQuery() );
   query->limitReturnedRows( 1, 0 );
   query->addToOutputList( sequenceValueColumn() );
   query->defineOutputType( sequenceValueColumn(), coral::AttributeSpecification::typeNameForType<int>() );
@@ -164,7 +168,7 @@ void ora::PoolSequenceTable::sinchronize( const std::string& sequenceName,
   iAttribute->data< std::string >() = sequenceName;
   ++iAttribute;
   iAttribute->data< int >() = lastValue;
-  m_schema.tableHandle( tableName() ).dataEditor().updateRows( setClause,whereClause,updateData );
+  schema().tableHandle( tableName() ).dataEditor().updateRows( setClause,whereClause,updateData );
 }
 
 void ora::PoolSequenceTable::erase( const std::string& sequenceName ){
@@ -172,7 +176,11 @@ void ora::PoolSequenceTable::erase( const std::string& sequenceName ){
   whereData.extend<std::string>(sequenceNameColumn());
   whereData[ sequenceNameColumn() ].data<std::string>() = sequenceName;
   std::string whereClause( sequenceNameColumn() + " = :" + sequenceNameColumn() );
-  m_schema.tableHandle( tableName() ).dataEditor().deleteRows( whereClause, whereData );
+  schema().tableHandle( tableName() ).dataEditor().deleteRows( whereClause, whereData );
+}
+
+std::string ora::PoolSequenceTable::name(){
+  return tableName();
 }
 
 bool ora::PoolSequenceTable::exists(){
@@ -180,11 +188,11 @@ bool ora::PoolSequenceTable::exists(){
     throwException("Sequence Table handle has not been initialized.","PoolSequenceTable::exists");
   }
   // ????
-  return m_schema.existsTable( tableName() );
+  return schema().existsTable( tableName() );
 }
 
 void ora::PoolSequenceTable::create(){
-  if( m_schema.existsTable( tableName() )){
+  if( schema().existsTable( tableName() )){
     throwException( "POOL database sequence table already exists in this schema.",
                     "PoolSequenceTable::create");
   }
@@ -192,7 +200,7 @@ void ora::PoolSequenceTable::create(){
 }
 
 void ora::PoolSequenceTable::drop(){
-  m_schema.dropIfExistsTable( tableName() );
+  schema().dropIfExistsTable( tableName() );
 }
 
 std::string ora::PoolMappingVersionTable::tableName(){
@@ -211,18 +219,22 @@ std::string ora::PoolMappingVersionTable::containerNameColumn(){
 }
 
 ora::PoolMappingVersionTable::PoolMappingVersionTable( coral::ISchema& dbSchema  ):
-  m_schema( dbSchema ){
+  IDatabaseTable( dbSchema ){
 }
 
 ora::PoolMappingVersionTable::~PoolMappingVersionTable(){
 }
 
+std::string ora::PoolMappingVersionTable::name(){
+  return tableName();
+}
+
 bool ora::PoolMappingVersionTable::exists(){
-  return m_schema.existsTable( tableName() );
+  return schema().existsTable( tableName() );
 }
 
 void ora::PoolMappingVersionTable::create(){
-  if( m_schema.existsTable( tableName() )){
+  if( schema().existsTable( tableName() )){
     throwException( "POOL database mapping version table already exists in this schema.",
                     "PoolMappingVersionTable::create");
   }
@@ -230,9 +242,8 @@ void ora::PoolMappingVersionTable::create(){
 }
 
 void ora::PoolMappingVersionTable::drop(){
-  m_schema.dropIfExistsTable( tableName() );
+  schema().dropIfExistsTable( tableName() );
 }
-
 
 std::string ora::PoolMappingElementTable::tableName(){
   static std::string s_table("POOL_OR_MAPPING_ELEMENTS");
@@ -285,18 +296,22 @@ std::string ora::PoolMappingElementTable::columnNameColumn(){
 }
 
 ora::PoolMappingElementTable::PoolMappingElementTable( coral::ISchema& dbSchema  ):
-  m_schema( dbSchema ){
+  IDatabaseTable( dbSchema ){
 }
 
 ora::PoolMappingElementTable::~PoolMappingElementTable(){
 }
 
+std::string ora::PoolMappingElementTable::name(){
+  return tableName();
+}
+
 bool ora::PoolMappingElementTable::exists(){
-  return m_schema.existsTable( tableName() );
+  return schema().existsTable( tableName() );
 }
 
 void ora::PoolMappingElementTable::create(){
-  if( m_schema.existsTable( tableName() )){
+  if( schema().existsTable( tableName() )){
     throwException( "POOL database mapping element table already exists in this schema.",
                     "PoolMappingElementTable::create");
   }
@@ -304,7 +319,7 @@ void ora::PoolMappingElementTable::create(){
 }
 
 void ora::PoolMappingElementTable::drop(){
-  m_schema.dropIfExistsTable( tableName() );
+  schema().dropIfExistsTable( tableName() );
 }
 
 ora::PoolDbCacheData::PoolDbCacheData():
@@ -466,7 +481,7 @@ std::string ora::PoolContainerHeaderTable::homogeneousContainerType(){
 }
 
 ora::PoolContainerHeaderTable::PoolContainerHeaderTable( coral::ISchema& dbSchema ):
-  m_schema(dbSchema),
+  IContainerHeaderTable(dbSchema),
   m_dbCache( 0 ){
 }
 
@@ -484,7 +499,7 @@ bool ora::PoolContainerHeaderTable::getContainerData( std::map<std::string,
   }
   bool ret = false;
   m_dbCache->clear();
-  coral::ITable& containerTable = m_schema.tableHandle( tableName() );
+  coral::ITable& containerTable = schema().tableHandle( tableName() );
   std::auto_ptr<coral::IQuery> query( containerTable.newQuery());
   coral::AttributeList outputBuffer;
   outputBuffer.extend<int>( containerIdColumn() );
@@ -549,7 +564,7 @@ void ora::PoolContainerHeaderTable::addContainer( int containerId,
   dataToInsert[ baseMappingVersionColumn() ].data<std::string>() = contData.m_mappingVersion;
   dataToInsert[ numberOfWrittenObjectsColumn() ].data<unsigned int>() = nobj;
   dataToInsert[ numberOfDeletedObjectsColumn() ].data<unsigned int>() = nobj;
-  coral::ITable& containerTable = m_schema.tableHandle( tableName() );
+  coral::ITable& containerTable = schema().tableHandle( tableName() );
   containerTable.dataEditor().insertRow( dataToInsert );
   **/
   throwException( "Cannot create new Containers into POOL database.","PoolContainerHeaderTable::addContainer");  
@@ -565,13 +580,13 @@ void ora::PoolContainerHeaderTable::removeContainer( int id ){
   coral::AttributeList whereData;
   whereData.extend< int >( containerIdColumn() );
   whereData.begin()->data< int >() = id + 1; //POOL starts counting from 1!;
-  coral::ITable& containerTable = m_schema.tableHandle( tableName() );
+  coral::ITable& containerTable = schema().tableHandle( tableName() );
   containerTable.dataEditor().deleteRows(whereClause.str(),whereData);
 }
 
 bool ora::PoolContainerHeaderTable::lockContainer( int id, ContainerHeaderData& dest ){
   bool ret = false;
-  coral::ITable& containerTable = m_schema.tableHandle( tableName() );
+  coral::ITable& containerTable = schema().tableHandle( tableName() );
   std::auto_ptr<coral::IQuery> query( containerTable.newQuery());
   query->addToOutputList( classNameColumn()  );
   query->defineOutputType( classNameColumn() , coral::AttributeSpecification::typeNameForType<std::string>() );
@@ -624,7 +639,7 @@ void ora::PoolContainerHeaderTable::updateNumberOfObjects( const std::map<int,un
     updateData.extend<unsigned int>( numberOfDeletedObjectsColumn()  );
     updateData.extend<int>( containerIdColumn() );
 
-    coral::ITable& containerTable = m_schema.tableHandle( tableName() );
+    coral::ITable& containerTable = schema().tableHandle( tableName() );
     std::auto_ptr<coral::IBulkOperation> bulkUpdate( containerTable.dataEditor().bulkUpdateRows( setClause.str(), whereClause.str(), updateData,(int)numberOfObjectsForContainerIds.size()+1));
 
     for( std::map<int,unsigned int>::const_iterator iCont = numberOfObjectsForContainerIds.begin();
@@ -644,12 +659,16 @@ void ora::PoolContainerHeaderTable::updateNumberOfObjects( const std::map<int,un
   }
 }
 
+std::string ora::PoolContainerHeaderTable::name(){
+  return tableName();
+}
+
 bool ora::PoolContainerHeaderTable::exists(){
-  return m_schema.existsTable( tableName() );
+  return schema().existsTable( tableName() );
 }
 
 void ora::PoolContainerHeaderTable::create(){
-  if( m_schema.existsTable( tableName() )){
+  if( schema().existsTable( tableName() )){
     throwException( "POOL database container header table already exists in this schema.",
                     "PoolContainerHeaderTable::create");
   }
@@ -657,7 +676,7 @@ void ora::PoolContainerHeaderTable::create(){
 }
 
 void ora::PoolContainerHeaderTable::drop(){
-  m_schema.dropIfExistsTable( tableName() );
+  schema().dropIfExistsTable( tableName() );
 }
 
 std::string ora::PoolClassVersionTable::tableName(){
@@ -682,18 +701,22 @@ std::string ora::PoolClassVersionTable::mappingVersionColumn(){
 }
 
 ora::PoolClassVersionTable::PoolClassVersionTable( coral::ISchema& dbSchema  ):
-  m_schema( dbSchema ){
+  IDatabaseTable( dbSchema ){
 }
 
 ora::PoolClassVersionTable::~PoolClassVersionTable(){
 }
 
+std::string ora::PoolClassVersionTable::name(){
+  return tableName();
+}
+
 bool ora::PoolClassVersionTable::exists(){
-  return m_schema.existsTable( tableName() );
+  return schema().existsTable( tableName() );
 }
 
 void ora::PoolClassVersionTable::create(){
-  if( m_schema.existsTable( tableName() )){
+  if( schema().existsTable( tableName() )){
     throwException( "POOL database class version table already exists in this schema.",
                     "PoolClassVersionTable::create");
   }
@@ -701,7 +724,7 @@ void ora::PoolClassVersionTable::create(){
 }
 
 void ora::PoolClassVersionTable::drop(){
-  m_schema.dropIfExistsTable( tableName() );
+  schema().dropIfExistsTable( tableName() );
 }
 
 namespace ora {
@@ -1144,7 +1167,7 @@ std::string& ora::CondMetadataTable::timetypeColumn(){
 
 ora::CondMetadataTable::CondMetadataTable( coral::ISchema& dbSchema, 
                                            PoolDbCache& dbCache ):
-  m_schema( dbSchema ),
+  INamingServiceTable( dbSchema ),
   m_dbCache( dbCache ){
 }
 
@@ -1162,7 +1185,7 @@ void ora::CondMetadataTable::setObjectName( const std::string& name,
   dataToInsert[ objectNameColumn() ].data<std::string>() = name;
   dataToInsert[ tokenColumn() ].data<std::string>()  = token;
   dataToInsert[ timetypeColumn() ].data<int>()  = -1; // is it fine ???
-  coral::ITable& containerTable = m_schema.tableHandle( tableName() );
+  coral::ITable& containerTable = schema().tableHandle( tableName() );
   containerTable.dataEditor().insertRow( dataToInsert );  
 }
 
@@ -1171,19 +1194,19 @@ bool ora::CondMetadataTable::eraseObjectName( const std::string& name ){
   whereData.extend<std::string>( objectNameColumn() );
   whereData.begin()->data<std::string>() = name;
   std::string condition = objectNameColumn() + " = :" + objectNameColumn();
-  return m_schema.tableHandle( tableName() ).dataEditor().deleteRows( condition, whereData )>0;
+  return schema().tableHandle( tableName() ).dataEditor().deleteRows( condition, whereData )>0;
 }
 
 bool ora::CondMetadataTable::eraseAllNames(){
   std::string condition("");
   coral::AttributeList whereData;
-  return m_schema.tableHandle( tableName() ).dataEditor().deleteRows( condition, whereData )>0;
+  return schema().tableHandle( tableName() ).dataEditor().deleteRows( condition, whereData )>0;
 }
 
 bool ora::CondMetadataTable::getObjectByName( const std::string& name, 
                                               std::pair<int,int>& destination ){
   bool ret = false;
-  coral::ITable& containerTable = m_schema.tableHandle( tableName() );
+  coral::ITable& containerTable = schema().tableHandle( tableName() );
   std::auto_ptr<coral::IQuery> query( containerTable.newQuery());
   coral::AttributeList outputBuffer;
   outputBuffer.extend<std::string>( tokenColumn() );
@@ -1212,7 +1235,7 @@ bool ora::CondMetadataTable::getNamesForObject( int contId,
                                                 int itemId, 
                                                 std::vector<std::string>& destination ){
   bool ret = false;
-  coral::ITable& containerTable = m_schema.tableHandle( tableName() );
+  coral::ITable& containerTable = schema().tableHandle( tableName() );
   std::auto_ptr<coral::IQuery> query( containerTable.newQuery());
   coral::AttributeList outputBuffer;
   outputBuffer.extend<std::string>( objectNameColumn() );
@@ -1241,7 +1264,7 @@ bool ora::CondMetadataTable::getNamesForContainer( int contId,
                                                    std::vector<std::string>& destination ){
   
   bool ret = false;
-  coral::ITable& containerTable = m_schema.tableHandle( tableName() );
+  coral::ITable& containerTable = schema().tableHandle( tableName() );
   std::auto_ptr<coral::IQuery> query( containerTable.newQuery());
   coral::AttributeList outputBuffer;
   outputBuffer.extend<std::string>( objectNameColumn() );
@@ -1269,7 +1292,7 @@ bool ora::CondMetadataTable::getNamesForContainer( int contId,
 bool ora::CondMetadataTable::getAllNames( std::vector<std::string>& destination ){
   
   bool ret = false;
-  coral::ITable& containerTable = m_schema.tableHandle( tableName() );
+  coral::ITable& containerTable = schema().tableHandle( tableName() );
   std::auto_ptr<coral::IQuery> query( containerTable.newQuery());
   coral::AttributeList outputBuffer;
   outputBuffer.extend<std::string>( objectNameColumn() );
@@ -1285,12 +1308,16 @@ bool ora::CondMetadataTable::getAllNames( std::vector<std::string>& destination 
   return ret;
 }
  
+std::string ora::CondMetadataTable::name(){
+  return tableName();
+}
+
 bool ora::CondMetadataTable::exists(){
-  return m_schema.existsTable( tableName() );
+  return schema().existsTable( tableName() );
 }
 
 void ora::CondMetadataTable::create(){
-  if( m_schema.existsTable( tableName() )){
+  if( schema().existsTable( tableName() )){
     throwException( "Metadata table already exists in this schema.",
                     "CondMetadataTable::create");
   }
@@ -1298,7 +1325,7 @@ void ora::CondMetadataTable::create(){
 }
 
 void ora::CondMetadataTable::drop(){
-  if( !m_schema.existsTable( tableName() )){
+  if( !schema().existsTable( tableName() )){
     throwException( "Metadata table does not exists in this schema.",
                     "CondMetadataTable::drop");
   }
@@ -1361,6 +1388,17 @@ void ora::PoolDatabaseSchema::drop(){
   m_containerHeaderTable.drop();
   m_mappingVersionTable.drop();
   m_mainTable.drop(); 
+}
+
+void ora::PoolDatabaseSchema::setAccessPermission( const std::string& principal, 
+						   bool forWrite ){
+  m_mainTable.setAccessPermission( principal, forWrite );  
+  m_sequenceTable.setAccessPermission( principal, forWrite );  
+  m_mappingVersionTable.setAccessPermission( principal, forWrite );  
+  m_mappingElementTable.setAccessPermission( principal, forWrite );  
+  m_containerHeaderTable.setAccessPermission( principal, forWrite );  
+  m_classVersionTable.setAccessPermission( principal, forWrite ); 
+  m_metadataTable.setAccessPermission( principal, forWrite ); 
 }
 
 ora::IMainTable& ora::PoolDatabaseSchema::mainTable(){

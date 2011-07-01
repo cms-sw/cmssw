@@ -64,6 +64,11 @@ void ora::ObjectStreamerBase::buildBaseDataMembers( DataElement& dataElement,
       MappingElement::iterator iDataMemberMapping = m_mapping.find( dataMemberName );
       if ( iDataMemberMapping != m_mapping.end() ) {
         MappingElement& dataMemberMapping = iDataMemberMapping->second;
+	if( !ClassUtils::checkMappedType(dataMemberType,dataMemberMapping.variableType()) ){
+	  throwException( "Data member \""+dataMemberName +"\" type \"" + dataMemberType.Name(Reflex::SCOPED|Reflex::FINAL) +
+			  "\" does not match with the expected type in the mapping \""+dataMemberMapping.variableType()+"\".",
+			  "ObjectStreamerBase::buildBaseDataMembers" );
+	}
         processDataMember( dataMemberElement, relationalData, dataMemberType, dataMemberMapping, operationBuffer );
       } else {
         if( !isLoosePersistencyDataMember( dataMember ) ){
@@ -113,6 +118,11 @@ bool ora::ObjectStreamerBase::buildDataMembers( DataElement& dataElement,
     MappingElement::iterator idataMemberMapping = m_mapping.find( dataMemberName );
     if ( idataMemberMapping != m_mapping.end() ) {
       MappingElement& dataMemberMapping = idataMemberMapping->second;
+      if( !ClassUtils::checkMappedType(dataMemberType,dataMemberMapping.variableType())){
+        throwException( "Data member  \""+dataMemberName +"\" type \"" + dataMemberType.Name(Reflex::SCOPED|Reflex::FINAL) +
+                        "\" does not match with the expected type in the mapping \""+dataMemberMapping.variableType()+"\".",
+                        "ObjectStreamerBase::buildDataMembers" );
+      }
       processDataMember( dataMemberElement, relationalData, dataMemberType, dataMemberMapping, operationBuffer );
     } else {
       if(!isLoosePersistencyDataMember( dataMember ) ){

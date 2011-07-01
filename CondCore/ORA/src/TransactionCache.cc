@@ -9,7 +9,8 @@ ora::TransactionCache::TransactionCache():
   m_dbParams(),
   m_utility(),
   m_loaded( false ),
-  m_namedRefCache(){
+  m_namedRefCache(),
+  m_dropPermission(false,false){
 }
 
 ora::TransactionCache::~TransactionCache(){
@@ -29,6 +30,8 @@ void ora::TransactionCache::clear(){
   m_dbParams.clear();
   m_loaded = false;
   m_namedRefCache.clear();
+  m_dropPermission.first = false;
+  m_dropPermission.second = false;
 }
 
 void ora::TransactionCache::setDbExists( bool exists ){
@@ -79,6 +82,17 @@ const std::map<int,ora::Handle<ora::DatabaseContainer> >& ora::TransactionCache:
   return m_containersById;  
 }
 
+void ora::TransactionCache::dropDatabase(){
+  m_dbExists.second = true;
+  m_dbExists.second = false;
+  m_containersById.clear();
+  m_containersByName.clear();
+  m_dbParams.clear();
+  m_namedRefCache.clear();  
+  m_dropPermission.first = false;
+  m_dropPermission.second = false;
+}
+
 std::map<std::string,std::string>& ora::TransactionCache::dbParams(){
   return m_dbParams;
 }
@@ -124,4 +138,17 @@ boost::shared_ptr<void> ora::TransactionCache::getNamedReference( const std::str
     ret = iEntry->second.lock();
   }
   return ret;
+}
+
+void ora::TransactionCache::setDropPermission( bool allowed ){
+  m_dropPermission.first = true;
+  m_dropPermission.second = allowed;
+}
+
+bool ora::TransactionCache::dropPermissionLoaded(){
+  return m_dropPermission.first;
+}
+
+bool ora::TransactionCache::dropPermission(){
+  return m_dropPermission.second;
 }

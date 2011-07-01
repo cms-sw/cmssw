@@ -57,7 +57,8 @@ void ora::MappingToSchema::createTable( const TableInfo& tableInfo ){
       if( !refCols.empty() ) description.createForeignKey( fkName, columnsForFk, tableInfo.m_parentTableName, refCols );
     }
   }
-  m_schema.createTable( description ).privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select );
+  m_schema.createTable( description );
+  //.privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select );
   
 }
 

@@ -69,6 +69,8 @@ namespace ora {
 
     template <typename T> void extendSchema();
 
+    void setAccessPermission( const std::string& principal, bool forWrite );
+
     ContainerIterator iterator();
 
     Object fetchItem( int itemId );

@@ -213,6 +213,10 @@ int main (int argc, char** argv)
 
         if(cmd.userCommand()==listCont.name){
           transaction.start();
+          if( ! db.exists() ){
+	    std::cout << "ORA database does not exists in \""<<connectionString<<"\"."<<std::endl;
+	    return 0;
+	  }
           std::set<std::string> conts = db.containers();
 
           std::cout << "ORA database in \""<<connectionString<<"\" has "<<conts.size()<<" container(s)."<<std::endl;

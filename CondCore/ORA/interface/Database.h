@@ -75,6 +75,9 @@ namespace ora {
 
     /// 
     bool drop();
+
+    ///
+    void setAccessPermission( const std::string& principal, bool forWrite );
     
     /// 
     std::set< std::string > containers();

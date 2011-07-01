@@ -32,16 +32,6 @@ namespace ora {
     }
   }
   
-  //void getTableHierarchyFromMapping( const MappingTree& source,
-  //                                   std::map<std::string,
-  //                                   std::set<std::string> >& tableList ){
-  //  getTableHierarchyFromMappingElement( source.element(), tableList );
-  //  for( std::map<std::string, MappingElement >::const_iterator iDepEl = source.dependentElements().begin();
-  //       iDepEl != source.dependentElements().end(); iDepEl++ ){
-  //    getTableHierarchyFromMappingElement( iDepEl->second, tableList );
-  //  }
-  //}
-
   void addFromTableHierarchy( const std::string& tableName,
                               std::map<std::string, std::set<std::string> >& tableList,
                               std::vector<std::string>& orderedList ){
@@ -126,10 +116,7 @@ void ora::ContainerSchema::create(){
   m_loaded = true;
 }
 
-void ora::ContainerSchema::drop(){
-
-  std::set<std::string> containerMappingVersions;
-  m_session.mappingDatabase().getMappingVersionsForContainer( m_containerId, containerMappingVersions );
+void ora::ContainerSchema::getTableHierarchy( const std::set<std::string>& containerMappingVersions, std::vector<std::string>& destination ){
   // building the table hierarchy
   std::map< std::string, std::set<std::string> > tableHierarchy;
   std::set<std::string> topLevelTables; // should be strictly only one!
@@ -141,11 +128,18 @@ void ora::ContainerSchema::drop(){
         getTableHierarchyFromMappingElement( mapping.topElement(), tableHierarchy );
      }
   }
-  std::vector<std::string> orderedTableList;
   for(std::set<std::string>::const_iterator iMainT = topLevelTables.begin();
       iMainT != topLevelTables.end(); ++iMainT ){
-    addFromTableHierarchy( *iMainT, tableHierarchy, orderedTableList );
+    addFromTableHierarchy( *iMainT, tableHierarchy, destination );
   }
+}
+
+void ora::ContainerSchema::drop(){
+
+  std::set<std::string> containerMappingVersions;
+  m_session.mappingDatabase().getMappingVersionsForContainer( m_containerId, containerMappingVersions );
+  std::vector<std::string> orderedTableList;
+  getTableHierarchy( containerMappingVersions, orderedTableList );
 
   // getting the dependent class list...
   std::set<std::string> depClasses;
@@ -206,6 +200,18 @@ void ora::ContainerSchema::evolve( const Reflex::Type& dependentClass, MappingTr
   iDep->second->setVersion( newMappingVersion );
   m_session.mappingDatabase().storeMapping( *iDep->second );
   m_session.mappingDatabase().insertClassVersion( dependentClass, 1, m_containerId, newMappingVersion, false );
+}
+
+void ora::ContainerSchema::setAccessPermission( const std::string& principal, 
+						bool forWrite ){
+  std::set<std::string> containerMappingVersions;
+  m_session.mappingDatabase().getMappingVersionsForContainer( m_containerId, containerMappingVersions );
+  std::vector<std::string> orderedTableList;
+  getTableHierarchy( containerMappingVersions, orderedTableList );
+  for( std::vector<std::string>::const_iterator iT = orderedTableList.begin();
+       iT != orderedTableList.end(); iT++ ){
+    setTableAccessPermission( m_session.schema().storageSchema().tableHandle( *iT ), principal, forWrite );
+  }
 }
 
 const Reflex::Type& ora::ContainerSchema::type(){

@@ -56,11 +56,10 @@ namespace ora {
     bool getParameters( std::map<std::string,std::string>& destination );
     std::string schemaVersion();
     public:
+    std::string name();
     bool exists();
     void create();
     void drop();
-    private:
-    coral::ISchema& m_schema;
   };
 
   
@@ -78,11 +77,11 @@ namespace ora {
     void sinchronize( const std::string& sequenceName, int lastValue );
     void erase( const std::string& sequenceName );
     public:
+    std::string name();
     bool exists();
     void create();
     void drop();    
     private:
-    coral::ISchema& m_schema;
     PoolDbCache* m_dbCache;
   };
 
@@ -95,11 +94,10 @@ namespace ora {
     explicit PoolMappingVersionTable( coral::ISchema& dbSchema  );
     virtual ~PoolMappingVersionTable();
     public:
+    std::string name();
     bool exists();
     void create();
     void drop();
-    private:
-    coral::ISchema& m_schema;
   };
   
   class PoolMappingElementTable: public IDatabaseTable {
@@ -118,11 +116,10 @@ namespace ora {
     explicit PoolMappingElementTable( coral::ISchema& dbSchema  );
     virtual ~PoolMappingElementTable();
     public:
+    std::string name();
     bool exists();
     void create();
     void drop();
-    private:
-    coral::ISchema& m_schema;
   };
   
   class PoolContainerHeaderTable: public IContainerHeaderTable {
@@ -149,11 +146,11 @@ namespace ora {
     void decrementNumberOfObjects( int id  );
     void updateNumberOfObjects( const std::map<int,unsigned int>& numberOfObjectsForContainerIds );
     public:
+    std::string name();
     bool exists();
     void create();
     void drop();
     private:
-    coral::ISchema& m_schema;
     PoolDbCache* m_dbCache;
   };
 
@@ -167,11 +164,10 @@ namespace ora {
     explicit PoolClassVersionTable( coral::ISchema& dbSchema  );
     virtual ~PoolClassVersionTable();
     public:
+    std::string name();
     bool exists();
     void create();
     void drop();
-    private:
-    coral::ISchema& m_schema;
   };
 
   class PoolMappingSchema: public IMappingSchema {
@@ -219,11 +215,11 @@ namespace ora {
     bool getNamesForContainer( int contId, std::vector<std::string>& destination );
     bool getAllNames( std::vector<std::string>& destination );
    public:
+    std::string name();
     bool exists();
     void create();
     void drop();    
   private:
-    coral::ISchema& m_schema; 
     PoolDbCache& m_dbCache;
   };
   
@@ -237,6 +233,7 @@ namespace ora {
     bool exists();
     void create( const std::string& userSchemaVersion );
     void drop();
+    void setAccessPermission( const std::string& principal, bool forWrite );
 
     IMainTable& mainTable();
     ISequenceTable& sequenceTable();
@@ -246,6 +243,9 @@ namespace ora {
     IDatabaseTable& classVersionTable();
     IMappingSchema& mappingSchema();
     INamingServiceTable& namingServiceTable();
+    bool testDropPermission(){
+      return false;
+    }
 
     private:
     coral::ISchema& m_schema;

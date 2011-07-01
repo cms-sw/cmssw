@@ -490,7 +490,7 @@ void ora::CArrayMapping::process( MappingElement& parentElement,
   }
   m_tableRegister.insertTable(arrayTable);
   ora::MappingElement& me = parentElement.appendSubElement( ora::MappingElement::CArrayMappingElementType(),
-                                                            attributeName, attributeName, arrayTable );
+                                                            attributeName, className, arrayTable );
   const std::vector<std::string>& parentColumns = parentElement.columnNames();
   if( parentColumns.empty()){
     throwException( "No column name found in the parent mapping element.","CArrayMapping::process");
