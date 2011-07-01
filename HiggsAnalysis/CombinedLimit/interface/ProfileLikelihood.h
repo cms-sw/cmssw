@@ -52,6 +52,9 @@ protected:
   /// Try first a plain fit
   static bool        preFit_;
 
+  /// Report p-value instead of significance
+  static bool reportPVal_;
+
   static std::string plot_;
 
   bool runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc, RooAbsData &data, double &limit, double &limitErr);

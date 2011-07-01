@@ -28,6 +28,7 @@ float       ProfileLikelihood::maxOutlierFraction_ = 0.25;
 int         ProfileLikelihood::maxOutliers_ = 3;
 bool        ProfileLikelihood::preFit_ = false;
 bool        ProfileLikelihood::useMinos_ = false;
+bool        ProfileLikelihood::reportPVal_ = false;
 std::string ProfileLikelihood::plot_ = "";
 
 ProfileLikelihood::ProfileLikelihood() :
@@ -44,12 +45,14 @@ ProfileLikelihood::ProfileLikelihood() :
         ("plot",   boost::program_options::value<std::string>(&plot_)->default_value(plot_), "Save a plot of the negative log of the profiled likelihood into the specified file")
         ("preFit", "Attept a fit before running the ProfileLikelihood calculator")
         ("useMinos", "Compute PL limit using Minos directly, bypassing the ProfileLikelihoodCalculator")
+        ("pvalue", "Report p-value instead of significance (when running with --significance)")
     ;
 }
 
 void ProfileLikelihood::applyOptions(const boost::program_options::variables_map &vm) 
 {
     useMinos_ = vm.count("useMinos");
+    reportPVal_ = vm.count("pvalue");
 }
 
 ProfileLikelihood::MinimizerSentry::MinimizerSentry(std::string &minimizerAlgo, double tolerance) :
@@ -208,12 +211,16 @@ bool ProfileLikelihood::runSignificance(RooWorkspace *w, RooStats::ModelConfig *
 
   limit = result->Significance();
   if (limit == 0 && signbit(limit)) {
-      std::cerr << "ProfileLikelihoodCalculator failed (returned significance -0)" << std::endl;
-      return false;
+    //..... This is not an error, it just means we have a deficit of events.....
+    std::cerr << "The minimum of the likelihood is for r <= 0, so the significance is zero" << std::endl;
+    limit = 0;
   }
+  if (reportPVal_) limit = 1.0 - result->CLb();
+
   std::cout << "\n -- Profile Likelihood -- " << "\n";
-  std::cout << "Significance: " << limit << std::endl;
+  std::cout << (reportPVal_ ? "p-value of background: " : "Significance: ") << limit << std::endl;
   if (verbose > 0) std::cout << "       (CLb = " << result->CLb() << ")" << std::endl;
+  if (verbose > 0 && reportPVal_) std::cout << "       (Significance = " << result->Significance() << ")" << std::endl;
   return true;
 }
 
