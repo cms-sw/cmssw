@@ -186,7 +186,7 @@ namespace edm {
     makeProductID(ConstBranchDescription const& desc) const;
 
     //override used by EventBase class
-    virtual BasicHandle getByLabelImpl(WrapperInterfaceBase const* wrapperInterfaceBase, std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;
+    virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;
 
     // commit_() is called to complete the transaction represented by
     // this PrincipalGetAdapter. The friendships required seems gross, but any

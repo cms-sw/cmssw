@@ -29,8 +29,6 @@
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Common/interface/ConvertHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Common/interface/WrapperInterface.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -78,7 +76,7 @@ namespace edm {
 
       //EventBase const& operator=(EventBase const&); // allow default
 
-      virtual BasicHandle getByLabelImpl(WrapperInterfaceBase const* wrapperInterfaceBase, std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const = 0;
+      virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const = 0;
       // ---------- member data --------------------------------
 
    };
@@ -87,7 +85,7 @@ namespace edm {
    bool
    EventBase::getByLabel(InputTag const& tag, Handle<T>& result) const {
       result.clear();
-      BasicHandle bh = this->getByLabelImpl(edm::Wrapper<T>::getInterface(), typeid(edm::Wrapper<T>), typeid(T), tag);
+      BasicHandle bh = this->getByLabelImpl(typeid(edm::Wrapper<T>), typeid(T), tag);
       convert_handle(bh, result);  // throws on conversion error
       if (bh.failedToGet()) {
          return false;

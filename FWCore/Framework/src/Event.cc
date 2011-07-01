@@ -187,7 +187,7 @@ namespace edm {
   }
 
   BasicHandle
-  Event::getByLabelImpl(WrapperInterfaceBase const*, std::type_info const&, std::type_info const& iProductType, const InputTag& iTag) const {
+  Event::getByLabelImpl(std::type_info const&, std::type_info const& iProductType, const InputTag& iTag) const {
     BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType), iTag);
     if(h.isValid()) {
       addToGotBranchIDs(*(h.provenance()));

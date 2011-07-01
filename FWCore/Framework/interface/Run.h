@@ -112,7 +112,7 @@ namespace edm {
     runPrincipal();
 
     // Override version from RunBase class
-    virtual BasicHandle getByLabelImpl(WrapperInterfaceBase const* wrapperInterfaceBase, std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;
+    virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;
 
     typedef std::vector<std::pair<WrapperHolder, ConstBranchDescription const*> > ProductPtrVec;
     ProductPtrVec& putProducts() {return putProducts_;}
