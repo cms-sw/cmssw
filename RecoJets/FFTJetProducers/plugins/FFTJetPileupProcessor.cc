@@ -80,6 +80,10 @@ private:
     // Filtering scales
     std::auto_ptr<fftjet::EquidistantInLogSpace> filterScales;
 
+    // Eta-dependent factors to use for flattening the distribution
+    // _after_ the filtering
+    std::vector<double> etaFlatteningFactors;
+
     // Number of percentile points to use
     unsigned nPercentiles;
 
@@ -93,6 +97,8 @@ private:
 //
 FFTJetPileupProcessor::FFTJetPileupProcessor(const edm::ParameterSet& ps)
     : FFTJetInterface(ps),
+      etaFlatteningFactors(
+          ps.getParameter<std::vector<double> >("etaFlatteningFactors")),
       nPercentiles(ps.getParameter<unsigned>("nPercentiles")),
       convolverMinBin(ps.getParameter<unsigned>("convolverMinBin")),
       convolverMaxBin(ps.getParameter<unsigned>("convolverMaxBin"))
@@ -105,6 +111,17 @@ FFTJetPileupProcessor::FFTJetPileupProcessor(const edm::ParameterSet& ps)
     // Copy of the grid which will be used for convolutions
     convolvedFlow = std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >(
         new fftjet::Grid2d<fftjetcms::Real>(*energyFlow));
+
+    // Make sure the size of flattening factors is appropriate
+    if (!etaFlatteningFactors.empty())
+    {
+        if (etaFlatteningFactors.size() != convolvedFlow->nEta())
+            throw cms::Exception("FFTJetBadConfig")
+                << "ERROR in FFTJetPileupProcessor constructor:"
+                " number of elements in the \"etaFlatteningFactors\""
+                " vector is inconsistent with the iscretization grid binning"
+                << std::endl;
+    }
 
     // Build the FFT engine(s), pattern recognition kernel(s),
     // and the kernel convolver
@@ -202,6 +219,11 @@ void FFTJetPileupProcessor::produce(
         convolver->convolveWithKernel(
             scales[iscale], convData,
             convolvedFlow->nEta(), convolvedFlow->nPhi());
+
+        // Apply the flattening factors
+        if (!etaFlatteningFactors.empty())
+            convolvedFlow->scaleData(&etaFlatteningFactors[0],
+                                     etaFlatteningFactors.size());
 
         // Sort the convolved data
         std::sort(sortData, sortData+dataLen);
