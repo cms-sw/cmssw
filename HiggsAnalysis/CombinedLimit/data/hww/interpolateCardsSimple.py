@@ -65,6 +65,11 @@ if options.xsbr:
     ggXS = file2map(path+"YR-XS-ggH.txt")
     qqXS = file2map(path+"YR-XS-vbfH.txt")
     br   = file2map(path+"YR-BR3.txt")
+    # create points at 450, 550 by interpolation
+    for M in (450,550):
+        ggXS[M] = dict([ (key, 0.5*(ggXS[M+10][key] + ggXS[M-10][key])) for key in ggXS[M+10].iterkeys() ])
+        qqXS[M] = dict([ (key, 0.5*(qqXS[M+10][key] + qqXS[M-10][key])) for key in qqXS[M+10].iterkeys() ])
+        br[M] = dict([ (key, 0.5*(br[M+10][key] + br[M-10][key])) for key in br[M+10].iterkeys() ])
     xsbr1['ggH'] = ggXS[mass1]['XS_pb'] * br[mass1]['H_evmv']
     xsbr2['ggH'] = ggXS[mass2]['XS_pb'] * br[mass2]['H_evmv']
     xsbr ['ggH'] = ggXS[mass ]['XS_pb'] * br[mass ]['H_evmv']
