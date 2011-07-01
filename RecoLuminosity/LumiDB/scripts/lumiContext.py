@@ -184,9 +184,9 @@ if __name__ == '__main__':
         result=lumiCalcAPI.trgForRange(session.nominalSchema(),irunlsdict,trgbitname=sname,trgbitnamepattern=spattern,withL1Count=True,withPrescale=True)
         session.transaction().commit()
         if not options.outputfile:
-            lumiReport.toScreenLSTrg(result,iresults,isdetail)
+            lumiReport.toScreenLSTrg(result,iresults=iresults,isverbose=isdetail)
         else:
-            lumiReport.toCSVLSTrg(result,options.outputfile,iresults,isdetail)
+            lumiReport.toCSVLSTrg(result,options.outputfile,iresults=iresults,isverbose=isdetail)
     if options.action == 'hltbyls':
         withL1Pass=False
         withHLTAccept=False

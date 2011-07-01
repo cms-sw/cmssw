@@ -560,11 +560,13 @@ def toCSVLumiByLSXing(lumidata,scalefactor,filename):
     r.writeRow(fieldnames)
     r.writeRows(result)
     
-def toScreenLSTrg(trgdata,iresults=None,isverbose=False):
+def toScreenLSTrg(trgdata,iresults=[],isverbose=False):
     '''
     input:{run:[[cmslsnum,deadfrac,deadtimecount,bitzero_count,bitzero_prescale,[(name,count,presc),]],..]
     '''
     result=[]
+    for r in iresults:
+        result.append(r)
     for run in trgdata.keys():
         if trgdata[run] is None:
             ll=[str(run),'n/a','n/a','n/a']
@@ -581,7 +583,6 @@ def toScreenLSTrg(trgdata,iresults=None,isverbose=False):
             deadcount=lsdata[2]
             bitdata=lsdata[5]# already sorted by name
             flatbitdata=["("+x[0]+',%d'%x[1]+',%d'%x[2]+")" for x in bitdata if x[0]!='False']
-            #print 'flatbit ',flatbitdata
             bitdataStr=', '.join(flatbitdata)
             #print 'bitdataStr ',bitdataStr
             if isverbose:
@@ -602,22 +603,31 @@ def toCSVLSTrg(trgdata,filename,iresults=[],isverbose=False):
     input:{run:[[cmslsnum,deadfrac,deadtimecount,bitzero_count,bitzero_prescale,[(name,count,presc),]],..]
     '''
     result=[]
-    r=csvReporter,csvReporter(filename)
-    fieldnames=['Run','LS','dfrac','dcount','bit,count,presc']
+    r=csvReporter.csvReporter(filename)
+    fieldnames=['Run','LS','dfrac','dcount','bit,cout,presc']
     for rline in iresults:
         result.append(rline)
     for run in sorted(trgdata):
-        lsdata=trgdata[run]
-        if lsdata is None:
-            result.append([run,'n/a','n/a','n/a','n/a'])
+        rundata=trgdata[run]
+        if rundata is None:
+            ll=[run,'n/a','n/a','n/a',]
+            if isverbose:
+                ll.append('n/a')
+            result.append(ll)
             continue
-        cmslsnum=lsdata[0]
-        deadfrac=lsdata[1]
-        dcount=lsdata[2]
-        bitdata=lsdata[5]
-        flatbitdata=[x[0]+',%d'%x[1]+',%d'%x[2] for x in bitdata if x[0]!='False']
-        bitdataStr=';'.join(flatbitdata)
-        result.append(run,cmslsnum,deadfrac,dcount,bitdataStr)
+        deadfrac=0.0
+        bitdataStr='n/a'
+        for lsdata in rundata:
+            cmslsnum=lsdata[0]
+            deadfrac=lsdata[1]
+            dcount=lsdata[2]
+            bitdata=lsdata[5]
+            flatbitdata=[x[0]+',%d'%x[1]+',%d'%x[2] for x in bitdata if x[0]!='False']
+            bitdataStr=';'.join(flatbitdata)
+            if isverbose:                
+                result.append([run,cmslsnum,deadfrac,dcount,bitdataStr])
+            else:
+                result.append([run,cmslsnum,deadfrac,dcount])
     r.writeRow(fieldnames)
     r.writeRows(result)
     
@@ -672,7 +682,7 @@ def toCSVConfTrg(trgconfdata,filename,iresults=[],isverbose=False):
     r.writeRow(fieldnames)
     r.writeRows(result)
 
-def toScreenLSHlt(hltdata,iresults=None,isverbose=False):
+def toScreenLSHlt(hltdata,iresults=[],isverbose=False):
     '''
     input:{runnumber:[(cmslsnum,[(hltpath,hltprescale,l1pass,hltaccept),...]),(cmslsnum,[])})}
     '''
@@ -767,7 +777,7 @@ def toCSVLSHlt(hltdata,filename,iresults=None,isverbose=False):
     r.writeRow(fieldnames)
     r.writeRows(result)
     
-def toScreenConfHlt(hltconfdata,iresults=None,isverbose=False):
+def toScreenConfHlt(hltconfdata,iresults=[],isverbose=False):
     '''
     input : {runnumber,[(hltpath,l1seedexpr,l1bitname),...]}
     '''
