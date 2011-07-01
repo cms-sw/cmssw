@@ -252,7 +252,7 @@ class Handle
       iOther.data_ = temp;
       ErrorThrower* tempE = errorThrower_;
       errorThrower_ = iOther.errorThrower_;
-      iOther.errorThrower = tempE;
+      iOther.errorThrower_ = tempE;
    }
    private:
       void check() const { if(errorThrower_) { errorThrower_->throwIt();} }
