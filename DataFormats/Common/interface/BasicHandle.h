@@ -2,7 +2,7 @@
 #define DataFormats_Common_BasicHandle_h
 
 /*----------------------------------------------------------------------
-  
+
 Handle: Shared "smart pointer" for reference to EDProducts and
 their Provenances.
 
@@ -20,7 +20,7 @@ Handles can have:
 To check validity, one can use the isValid() function.
 
 If failedToGet() returns true then the requested data is not available
-If failedToGet() returns false but isValid() is also false then no attempt 
+If failedToGet() returns false but isValid() is also false then no attempt
   to get data has occurred
 
 ----------------------------------------------------------------------*/
@@ -56,6 +56,11 @@ namespace edm {
       prov_(iProv) {
     }
 
+    BasicHandle(WrapperHolder const& iWrapperHolder, Provenance const* iProv) :
+      product_(iWrapperHolder),
+      prov_(iProv) {
+    }
+
     BasicHandle(ProductData const& productData) :
       product_(WrapperHolder(productData.wrapper_, productData.getInterface())),
       prov_(&productData.prov_) {
@@ -66,7 +71,7 @@ namespace edm {
     product_(),
     prov_(0),
     whyFailed_(iWhyFailed) {}
-    
+
     ~BasicHandle() {}
 
     void swap(BasicHandle& other) {
@@ -76,7 +81,6 @@ namespace edm {
       swap(whyFailed_,other.whyFailed_);
     }
 
-    
     BasicHandle& operator=(BasicHandle const& rhs) {
       BasicHandle temp(rhs);
       this->swap(temp);
@@ -90,7 +94,7 @@ namespace edm {
     bool failedToGet() const {
       return 0 != whyFailed_.get();
     }
-    
+
     WrapperInterfaceBase const* interface() const {
       return product_.interface();
     }
