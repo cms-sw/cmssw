@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: checkdeps,v 1.13 2011/04/19 21:08:49 gowdy Exp $
+# $Id: checkdeps,v 1.14 2011/04/29 12:30:55 muzaffar Exp $
 #
 # Created by: David Lange
 #             LLNL
@@ -325,7 +325,7 @@ sub checkDeleted() {
                 if (!-e "${dev}/${rfile}"){$radd=1;}
                 &checkDeleted($rfile,$dev,$rel,$deleted,$radd);
             }
-            elsif($add){$deleted->{$rfile}=1;}
+            elsif($add || (!-e "${dev}/${rfile}")){$deleted->{$rfile}=1;}
         }
     }
 }
