@@ -1,16 +1,12 @@
 # FFTJet pile-up processor module configuration for PFJets
 
-import math
 import FWCore.ParameterSet.Config as cms
 
 from RecoJets.FFTJetProducers.fftjetcommon_cfi import *
-import RecoJets.FFTJetProducers.pileup_shape_Fall10_L1Hybrid_AK5PF_v1_cfi as pf_ps
+import RecoJets.FFTJetProducers.pileup_shape_Summer11_PF_v1_cfi as pf_ps
 
-# Number of bins to use in phi
-fftjet_pileup_phi_bins = 128
-
-# A good ratio is about 1.2 for PFJets, could be larger for CaloJets
-fftjet_pileup_phi_to_eta_ratio = 1.2
+# A good ratio is about 1.1 for PFJets, could be larger for CaloJets
+fftjet_pileup_phi_to_eta_ratio = 1.1
 
 # Note that for the grid below we do not really care that
 # convolution results will wrap around in eta
@@ -18,7 +14,7 @@ fftjet_pileup_grid_pf = cms.PSet(
     nEtaBins = cms.uint32(pf_ps.fftjet_pileup_eta_bins),
     etaMin = cms.double(-pf_ps.fftjet_pileup_eta_max),
     etaMax = cms.double(pf_ps.fftjet_pileup_eta_max),
-    nPhiBins = cms.uint32(fftjet_pileup_phi_bins),
+    nPhiBins = cms.uint32(pf_ps.fftjet_pileup_phi_bins),
     phiBin0Edge = cms.double(0.0),
     title = cms.untracked.string("FFTJet Pileup Grid")
 )
@@ -27,8 +23,8 @@ fftjet_pileup_processor_pf = cms.EDProducer(
     "FFTJetPileupProcessor",
     #
     # The main eta and phi scale factors for the filters
-    kernelEtaScale = cms.double(math.sqrt(1.0/fftjet_pileup_phi_to_eta_ratio)),
-    kernelPhiScale = cms.double(math.sqrt(fftjet_pileup_phi_to_eta_ratio)),
+    kernelEtaScale = cms.double(1.0),
+    kernelPhiScale = cms.double(fftjet_pileup_phi_to_eta_ratio),
     #
     # Label for the produced objects
     outputLabel = cms.string("FFTJetPileupPF"),
@@ -46,18 +42,27 @@ fftjet_pileup_processor_pf = cms.EDProducer(
     # only when "doPVCorrection" is True
     srcPVs = cms.InputTag("offlinePrimaryVertices"),
     #
-    # Eta-dependent magnitude factors for the data. These can be used
-    # to flatten the expected pileup shape.
-    etaDependentMagnutideFactors = cms.vdouble(pf_ps.fftjet_pileup_magnitude_factors),
+    # Eta-dependent magnitude factors for the data (applied before filtering)
+    etaDependentMagnutideFactors = cms.vdouble(),
+    #
+    # Eta-dependent magnitude factors for the data (applied after filtering)
+    etaFlatteningFactors = cms.vdouble(pf_ps.fftjet_pileup_magnitude_factors),
     #
     # Configuration for the energy discretization grid
     GridConfiguration = fftjet_pileup_grid_pf,
     #
+    # Convolution range
+    convolverMinBin = cms.uint32(pf_ps.fftjet_pileup_min_eta_bin),
+    convolverMaxBin = cms.uint32(pf_ps.fftjet_pileup_max_eta_bin),
+    #
+    # Conversion factor from the Et sum to the Et density
+    pileupEtaPhiArea = cms.double(pf_ps.fftjet_pileup_eta_phi_area),
+    #
     # The set of scales used by the filters. Here, just one scale
     # is configured
     nScales = cms.uint32(1),
-    minScale = cms.double(0.1),
-    maxScale = cms.double(0.1),
+    minScale = cms.double(pf_ps.fftjet_pileup_bandwidth),
+    maxScale = cms.double(pf_ps.fftjet_pileup_bandwidth),
     #
     # The number of percentile points to use
     nPercentiles = cms.uint32(51),

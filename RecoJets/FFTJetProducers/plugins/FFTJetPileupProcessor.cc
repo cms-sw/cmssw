@@ -90,6 +90,9 @@ private:
     // Bin range. Both values of 0 means use the whole range.
     unsigned convolverMinBin;
     unsigned convolverMaxBin;
+
+    // Density conversion factor
+    double pileupEtaPhiArea;
 };
 
 //
@@ -101,7 +104,8 @@ FFTJetPileupProcessor::FFTJetPileupProcessor(const edm::ParameterSet& ps)
           ps.getParameter<std::vector<double> >("etaFlatteningFactors")),
       nPercentiles(ps.getParameter<unsigned>("nPercentiles")),
       convolverMinBin(ps.getParameter<unsigned>("convolverMinBin")),
-      convolverMaxBin(ps.getParameter<unsigned>("convolverMaxBin"))
+      convolverMaxBin(ps.getParameter<unsigned>("convolverMaxBin")),
+      pileupEtaPhiArea(ps.getParameter<double>("pileupEtaPhiArea"))
 {
     // Build the discretization grid
     energyFlow = fftjet_Grid2d_parser(
@@ -247,7 +251,7 @@ void FFTJetPileupProcessor::produce(
 
     iEvent.put(pTable, outputLabel);
 
-    std::auto_ptr<double> etSum(new double(g.sum()));
+    std::auto_ptr<double> etSum(new double(g.sum()/pileupEtaPhiArea));
     iEvent.put(etSum, outputLabel);
 }
 
