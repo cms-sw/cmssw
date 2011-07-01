@@ -7,6 +7,10 @@ simHcalDigis = cms.EDProducer("HcalRealisticZS",
     HElevel = cms.int32(-999),
     HOlevel = cms.int32(-999),
     HFlevel = cms.int32(-999),
+    HBregion = cms.vint32(0,9),
+    HEregion = cms.vint32(0,9),
+    HOregion = cms.vint32(0,9),
+    HFregion = cms.vint32(0,5),
     useConfigZSvalues = cms.int32(1)
 )
 

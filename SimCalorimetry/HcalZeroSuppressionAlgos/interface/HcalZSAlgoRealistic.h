@@ -9,14 +9,14 @@
   * up consecutive 2 samples in a slice of 10 time samples, beginning with (start) 
   * sample. If any of the sums are greater then the threshold, keep the event.
   *
-  * $Date: 2009/10/29 17:28:49 $
-  * $Revision: 1.5 $
+  * $Date: 2009/10/31 00:02:39 $
+  * $Revision: 1.6 $
   * \author S. Sengupta - Minnesota
   */
 class HcalZSAlgoRealistic : public HcalZeroSuppressionAlgo {
 public:
-  HcalZSAlgoRealistic(bool markAndPass);
-  HcalZSAlgoRealistic(bool markAndPass, int levelHB, int levelHE, int levelHO, int levelHF);
+  HcalZSAlgoRealistic(bool markAndPass, std::pair<int,int> HBsearchTS, std::pair<int,int> HEsearchTS, std::pair<int,int> HOsearchTS, std::pair<int,int> HFsearchTS);
+  HcalZSAlgoRealistic(bool markAndPass, int levelHB, int levelHE, int levelHO, int levelHF, std::pair<int,int> HBsearchTS, std::pair<int,int> HEsearchTS, std::pair<int,int> HOsearchTS, std::pair<int,int> HFsearchTS);
   
 protected:
   virtual bool shouldKeep(const HBHEDataFrame& digi) const;
@@ -25,9 +25,10 @@ protected:
 private:
   bool usingDBvalues; 
   int thresholdHB_, thresholdHE_, thresholdHO_, thresholdHF_;
-  bool keepMe(const HBHEDataFrame& inp, int threshold, uint32_t hbhezsmask) const;
-  bool keepMe(const HODataFrame& inp, int threshold, uint32_t hozsmask) const;
-  bool keepMe(const HFDataFrame& inp, int threshold, uint32_t hfzsmask) const;
+  std::pair<int,int> HBsearchTS_,  HEsearchTS_, HOsearchTS_, HFsearchTS_;
+  bool keepMe(const HBHEDataFrame& inp, int start, int finish, int threshold, uint32_t hbhezsmask) const;
+  bool keepMe(const HODataFrame& inp, int start, int finish, int threshold, uint32_t hozsmask) const;
+  bool keepMe(const HFDataFrame& inp, int start, int finish, int threshold, uint32_t hfzsmask) const;
 };
 
 #endif

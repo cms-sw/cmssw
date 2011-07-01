@@ -17,22 +17,74 @@ HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const& conf):
   inputLabel_(conf.getParameter<edm::InputTag>("digiLabel"))
 {
   bool markAndPass=conf.getParameter<bool>("markAndPass");
+
+
+  std::vector<int> tmp = conf.getParameter<std::vector<int> >("HBregion");
+
+  if(tmp[0]<0 || tmp[0]>9 || tmp[1]<0 || tmp[1]>9 || tmp[0]>tmp[1]) {
+    edm::LogError("HcalZeroSuppression") << "ZS(HB) region error: " 
+					 << tmp[0] << ":" <<tmp[1];
+    tmp[0]=0; tmp[1]=9;
+  }
+
+  std::pair<int,int> HBsearchTS (tmp[0],tmp[1]);
   
-    algo_=std::auto_ptr<HcalZSAlgoRealistic>(new HcalZSAlgoRealistic(markAndPass));
+  tmp = conf.getParameter<std::vector<int> >("HEregion");
+  if(tmp[0]<0 || tmp[0]>9 || tmp[1]<0 || tmp[1]>9 || tmp[0]>tmp[1]) {
+    edm::LogError("HcalZeroSuppression") << "ZS(HE) region error: " 
+					 << tmp[0] << ":" <<tmp[1];
+    tmp[0]=0; tmp[1]=9;
+  }
+  std::pair<int,int> HEsearchTS (tmp[0],tmp[1]);
+  
+  tmp = conf.getParameter<std::vector<int> >("HOregion");
+  if(tmp[0]<0 || tmp[0]>9 || tmp[1]<0 || tmp[1]>9 || tmp[0]>tmp[1]) {
+    edm::LogError("HcalZeroSuppression") << "ZS(HO) region error: " 
+					 << tmp[0] << ":" <<tmp[1];
+    tmp[0]=0; tmp[1]=9;
+  }
+  std::pair<int,int> HOsearchTS (tmp[0],tmp[1]);
+  
+  tmp = conf.getParameter<std::vector<int> >("HFregion");
+  if(tmp[0]<0 || tmp[0]>9 || tmp[1]<0 || tmp[1]>9 || tmp[0]>tmp[1]) {
+    edm::LogError("HcalZeroSuppression") << "ZS(HF) region error: " 
+					 << tmp[0] << ":" <<tmp[1];
+    tmp[0]=0; tmp[1]=9;
+  }
+  std::pair<int,int> HFsearchTS (tmp[0],tmp[1]);
+      
   
     //this constructor will be called if useConfigZSvalues is set to 1 in
     //HcalZeroSuppressionProducers/python/hcalDigisRealistic_cfi.py
     //which means that channel-by-channel ZS thresholds from DB will NOT be used
-    if ( conf.getParameter<int>("useConfigZSvalues") )
-      algo_=std::auto_ptr<HcalZSAlgoRealistic>(new HcalZSAlgoRealistic(markAndPass,
-							   conf.getParameter<int>("HBlevel"),
-							   conf.getParameter<int>("HElevel"),
-							   conf.getParameter<int>("HOlevel"),
-							   conf.getParameter<int>("HFlevel")));
+    if ( conf.getParameter<int>("useConfigZSvalues") ) {
 
-  produces<HBHEDigiCollection>();
-  produces<HODigiCollection>();
-  produces<HFDigiCollection>();
+      algo_=std::auto_ptr<HcalZSAlgoRealistic>
+	(new HcalZSAlgoRealistic (markAndPass,
+				  conf.getParameter<int>("HBlevel"),
+				  conf.getParameter<int>("HElevel"),
+				  conf.getParameter<int>("HOlevel"),
+				  conf.getParameter<int>("HFlevel"), 
+				  HBsearchTS,
+				  HEsearchTS,
+				  HOsearchTS,
+				  HFsearchTS
+				  ));
+      
+    }
+    else {
+
+      algo_=std::auto_ptr<HcalZSAlgoRealistic>
+	(new HcalZSAlgoRealistic(markAndPass,				  
+				 HBsearchTS,
+				 HEsearchTS,
+				 HOsearchTS,
+				 HFsearchTS));    
+    }
+
+    produces<HBHEDigiCollection>();
+    produces<HODigiCollection>();
+    produces<HFDigiCollection>();
     
 }
     
