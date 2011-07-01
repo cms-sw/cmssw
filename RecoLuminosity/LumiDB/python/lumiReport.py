@@ -631,19 +631,23 @@ def toCSVLSTrg(trgdata,filename,iresults=[],isverbose=False):
     r.writeRow(fieldnames)
     r.writeRows(result)
     
-def toScreenConfTrg(trgconfdata,iresults=None,isverbose=False):
+def toScreenConfTrg(trgconfdata,iresults=[],isverbose=False):
     '''
     input:{run:[datasource,normbitname,[allbits]]}
     '''
-    labels=[('Run','source','bit names')]
     if isverbose:
-        labels.append('normbitname')
+        labels=[('Run','source','bitnames','normbit')]
+    else:
+        labels=[('Run','source','bitnames')]
+
     result=[]
+    for r in iresults:
+        result.append(r)
     for  run in sorted(trgconfdata):
         if trgconfdata[run] is None:
             ll=[str(run),'n/a','n/a']
             if isverbose:
-                ll.extend('n/a')
+                ll.append('n/a')
             result.append(ll)
             continue
         source=trgconfdata[run][0]
@@ -666,19 +670,30 @@ def toCSVConfTrg(trgconfdata,filename,iresults=[],isverbose=False):
     input {run:[datasource,normbitname,[allbits]]}
     '''
     result=[]
-    r=csvReporter,csvReporter(filename)
-    fieldnames=['Run','source','bit names']
+    r=csvReporter.csvReporter(filename)
+    fieldnames=['Run','source','bitnames']
+    if isverbose:
+        fieldnames.append('normbit')
     for rline in iresults:
         result.append(rline)
     for run in sorted(trgconfdata):
         rundata=trgconfdata[run]
         if rundata is None:
-            result.append([run,'n/a','n/a'])
+            ll=[run,'n/a','n/a']
+            if isverbose:
+                ll.append('n/a')
+            result.append(ll)            
             continue
         datasource=rundata[0]
-        bitdata=rundata[2]
+        if datasource:
+            datasource=datasource.split('/')[-1]
+        normbit=rundata[1]
+        bitdata=rundata[2]        
         bitnames=','.join(bitdata)
-        result.append([run,datasource,bitnames])
+        if isverbose:
+            result.append([run,datasource,bitnames,normbit])
+        else:
+            result.append([run,datasource,bitnames])
     r.writeRow(fieldnames)
     r.writeRows(result)
 
