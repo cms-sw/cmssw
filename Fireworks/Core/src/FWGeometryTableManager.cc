@@ -284,27 +284,6 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
 }
 
 //______________________________________________________________________________
-
-bool FWGeometryTableManager::nodeImported(int idx) const  
-{
-   if (m_entries[idx].m_node->GetVolume()->GetNdaughters())
-   {
-      if (idx != (int)m_entries.size())
-      {
-         return m_entries[idx+1].m_parent == idx; 
-      }
-      else
-      {
-         return false;
-      }
-   }
-   else
-   {
-      return true;
-   }
-}
-
-//______________________________________________________________________________
 void FWGeometryTableManager::firstColumnClicked(int row)
 {
    if (row == -1)
@@ -316,10 +295,6 @@ void FWGeometryTableManager::firstColumnClicked(int row)
    std::advance(it, idx);
    NodeInfo& data = *it;
    data.m_expanded = !data.m_expanded;
-   if (data.m_expanded  && nodeImported(idx) == false)
-   {
-      importChildren(idx, false);
-   }
 
    recalculateVisibility();
    dataChanged();
@@ -510,7 +485,6 @@ FWGeometryTableManager::getNNodesTotal(TGeoNode* geoNode, int level, int& off, b
    }
    
    int nV = vi.size();
-   //   if (level <  (m_levelOffset + TMath::Max(m_browser->getAutoExpand(), m_browser->getVisLevel())))
    {
       off += nV;
       for (int i = 0; i < nV; ++i )
@@ -523,7 +497,7 @@ FWGeometryTableManager::getNNodesTotal(TGeoNode* geoNode, int level, int& off, b
 
 //______________________________________________________________________________
 
-void FWGeometryTableManager::importChildren(int parent_idx, bool recurse)
+void FWGeometryTableManager::importChildren(int parent_idx, bool /*recurse*/)
 {
    bool debug = 0;
    
@@ -591,41 +565,21 @@ void FWGeometryTableManager::importChildren(int parent_idx, bool recurse)
       if (debug)  printf(" add %s\n", nodeInfo.name());
    }
    
-   if (recurse)
+  
+   // change of autoExpand parameter
+   int dOff = 0;
    {
-
-
-      // change of autoExpand parameter
-      int dOff = 0;
-      // if ((parentLevel+1) < (m_levelOffset + TMath::Max(m_browser->getAutoExpand(), m_browser->getVisLevel())))
+      for (int n = 0; n != nV; ++n)
       {
-         for (int n = 0; n != nV; ++n)
+         importChildren(parent_idx + n + 1 + dOff, true);       
+         if (parentGeoNode->GetNdaughters() > 0)
          {
-            importChildren(parent_idx + n + 1 + dOff, recurse);       
-            if (parentGeoNode->GetNdaughters() > 0)
-            {
-               getNNodesTotal(parentGeoNode->GetDaughter(vi[n]), parentLevel+1, dOff, debug);
-            }
-            
+            getNNodesTotal(parentGeoNode->GetDaughter(vi[n]), parentLevel+1, dOff, debug);
          }
+            
       }
    }
-   else
-   {
-      // expand on double-click, possibly shift parents
-      if (debug)  printf("\ncheck shhift for level  evel %d  import %s ", parent.m_level +1,parentGeoNode->GetName() ); 
-      
-      for (int i = (parent_idx + nV + 1); i < nEntries; ++i)
-      {
-         if (m_entries[i].m_parent > m_entries[parent_idx].m_parent)
-         {
-            if (debug)  printf("%s %s", redTxt,  m_entries[i].name());       
-            m_entries[i].m_parent +=  nV;
-            
-         }
-      }      
-      if (debug) printf(" \033[0m\n");   
-   }
+
    fflush(stdout);
 }// end importChildren
 
@@ -707,13 +661,6 @@ void FWGeometryTableManager::updateFilter()
 setTableContent();*/
 }
 
-int FWGeometryTableManager::getNdaughtersLimited(TGeoNode* geoNode) const
-{
-   // used for debugging of table and 3D view
-
-  return TMath::Min(geoNode->GetNdaughters(), m_browser->getMaxDaughters());
-  // return  geoNode->GetNdaughters();
-}
 
 FWGeometryTableManager::NodeInfo& FWGeometryTableManager::refSelected()
 {
@@ -741,43 +688,16 @@ void FWGeometryTableManager::getNodePath(int idx, std::string& path)
 
 //______________________________________________________________________________
 
-void  FWGeometryTableManager::checkImportLevel()
+void  FWGeometryTableManager::checkExpandLevel()
 {
-   /*
-     while(true)
-     {     
-     int x = getAutoExpandEntry();
-     if ( x == -1 )
-     break;
-
-     //  printf("going to import %s \n", m_entries[x].name());
-     importChildren(x, false);
-     }   
-
-     // check expabd state
-     int ae = m_browser->getAutoExpand() +  m_levelOffset;
-     int cnt = 0;
-     for (Entries_i i = m_entries.begin(); i != m_entries.end(); ++i)
-     {
-     if (nodeImported(cnt))
-     i->m_expanded =  (i->m_level  < ae );
-     cnt++;
-     }  */
-}
-
-int FWGeometryTableManager::getAutoExpandEntry()
-{
-   /*
-   int level = TMath::Max(m_browser->getAutoExpand(), m_browser->getVisLevel()) + m_levelOffset -1;
-   for ( size_t i = 0,  e = m_entries.size(); i != e; ++i )
-   {  
-      // printf("autoexpand check %s \n",  m_entries[i].name());
-      if ( m_entries[i].m_visible && nodeImported(i) == false && m_entries[i].m_level < level)
-      {
-         return i;
-      }
-      }*/
-   return -1;
+   // check expabd state
+   int ae = m_browser->getAutoExpand() +  m_levelOffset;
+   int cnt = 0;
+   for (Entries_i i = m_entries.begin(); i != m_entries.end(); ++i)
+   {
+      i->m_expanded =  (i->m_level  < ae );
+      cnt++;
+   } 
 }
 
 //______________________________________________________________________________

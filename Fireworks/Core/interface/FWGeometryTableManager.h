@@ -22,16 +22,17 @@
 #include <sigc++/sigc++.h>
 #include <boost/tr1/unordered_map.hpp>
 
+#include "Fireworks/Core/interface/FWGeometryBrowser.h"
+
 #include "Fireworks/TableWidget/interface/FWTableManagerBase.h"
 #include "Fireworks/TableWidget/interface/FWTextTreeCellRenderer.h"
-
 #include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
 #include "Fireworks/TableWidget/interface/FWTableCellRendererBase.h"
 
 #include "TGeoNode.h"
 
 class FWTableCellRendererBase;
-class FWGeometryBrowser;
+// class FWGeometryBrowser;
 class TGeoManager;
 class TGeoNode;
 
@@ -121,7 +122,6 @@ public:
 
    void printChildren(int) const;
    bool nodeImported(int idx) const;
-   int    getAutoExpandEntry();
    // geo stuff
    NodeInfo& refSelected();
    Entries_v& refEntries() {return m_entries;}
@@ -156,7 +156,7 @@ private:
 
    // signal callbacks
    void updateFilter();
-   void checkImportLevel();
+   void checkExpandLevel();
    void topGeoNodeChanged(int);
 
 
@@ -187,12 +187,13 @@ public:
    int  m_geoTopNodeIdx;
 };
 
-#endif
 
 inline int FWGeometryTableManager::getNdaughtersLimited(TGeoNode* geoNode) const
 {
    // used for debugging of table and 3D view
 
-   // return TMath::Min(geoNode->GetNdaughters(), m_browser->getMaxDaughters());
-  return  geoNode->GetNdaughters();
+   return TMath::Min(geoNode->GetNdaughters(), m_browser->getMaxDaughters());
+   //return  geoNode->GetNdaughters();
 }
+
+#endif

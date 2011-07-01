@@ -59,7 +59,7 @@ public:
    void updateStatusBar(const char* status);
    //   void updateVisLevel();
 
-   void print();
+   void printTable();
 
    void cdSelected();
    void cdTop();
@@ -121,7 +121,7 @@ private:
    void loadGeometry();
 
    void backgroundChanged();
-   void levelChanged();
+   void autoExpandChanged();
    void refreshTable3D();
 
 
