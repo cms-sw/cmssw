@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HLT/V542 (CMSSW_4_2_0_HLT15)
+# /dev/CMSSW_4_2_0/HLT/V543 (CMSSW_4_2_0_HLT15)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V542')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V543')
 )
 
 streams = cms.PSet( 
@@ -7104,7 +7104,8 @@ hltIter1PFJetPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
         extraHitRPhitolerance = cms.double( 0.032 ),
         useMultScattering = cms.bool( True ),
         ComponentName = cms.string( "PixelTripletHLTGenerator" ),
-        extraHitRZtolerance = cms.double( 0.037 )
+        extraHitRZtolerance = cms.double( 0.037 ),
+        SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
       ),
       SeedingLayers = cms.string( "hltIter1ESPPixelLayerTriplets" )
     ),
@@ -7263,7 +7264,10 @@ hltIter2PFJetPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
     OrderedHitsFactoryPSet = cms.PSet( 
       maxElement = cms.uint32( 0 ),
       ComponentName = cms.string( "StandardHitPairGenerator" ),
-      GeneratorPSet = cms.PSet(  maxElement = cms.uint32( 100000 ) ),
+      GeneratorPSet = cms.PSet( 
+        maxElement = cms.uint32( 100000 ),
+        SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
+      ),
       SeedingLayers = cms.string( "hltIter2ESPPixelLayerPairs" )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
@@ -7389,7 +7393,8 @@ hltIter3PFJetMixedSeedsA = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProduce
         extraHitRPhitolerance = cms.double( 0.032 ),
         useMultScattering = cms.bool( True ),
         ComponentName = cms.string( "PixelTripletHLTGenerator" ),
-        extraHitRZtolerance = cms.double( 0.037 )
+        extraHitRZtolerance = cms.double( 0.037 ),
+        SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
       ),
       SeedingLayers = cms.string( "hltIter3ESPLayerTripletsA" )
     ),
@@ -7434,7 +7439,8 @@ hltIter3PFJetMixedSeedsB = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProduce
         extraHitRPhitolerance = cms.double( 0.032 ),
         useMultScattering = cms.bool( True ),
         ComponentName = cms.string( "PixelTripletHLTGenerator" ),
-        extraHitRZtolerance = cms.double( 0.037 )
+        extraHitRZtolerance = cms.double( 0.037 ),
+        SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
       ),
       SeedingLayers = cms.string( "hltIter3ESPLayerTripletsB" )
     ),
@@ -7597,7 +7603,10 @@ hltIter4PFJetPixelLessSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProd
     OrderedHitsFactoryPSet = cms.PSet( 
       maxElement = cms.uint32( 0 ),
       ComponentName = cms.string( "StandardHitPairGenerator" ),
-      GeneratorPSet = cms.PSet(  maxElement = cms.uint32( 100000 ) ),
+      GeneratorPSet = cms.PSet( 
+        maxElement = cms.uint32( 100000 ),
+        SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
+      ),
       SeedingLayers = cms.string( "hltIter4ESPPixelLayerPairs" )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
