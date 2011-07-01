@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V149 (CMSSW_4_2_0_HLT14)
+# /dev/CMSSW_4_2_0/GRun/V150 (CMSSW_4_2_0_HLT15)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V149')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V150')
 )
 
 process.streams = cms.PSet( 
@@ -5263,7 +5263,8 @@ process.hltPixelTracks = cms.EDProducer( "PixelTrackProducer",
         extraHitRPhitolerance = cms.double( 0.06 ),
         useMultScattering = cms.bool( True ),
         ComponentName = cms.string( "PixelTripletHLTGenerator" ),
-        extraHitRZtolerance = cms.double( 0.06 )
+        extraHitRZtolerance = cms.double( 0.06 ),
+        SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
       )
     ),
     FitterPSet = cms.PSet( 
@@ -7375,7 +7376,8 @@ process.hltL3TrajSeedIOHit = cms.EDProducer( "TSGFromL2Muon",
               extraHitRPhitolerance = cms.double( 0.06 ),
               useMultScattering = cms.bool( True ),
               ComponentName = cms.string( "PixelTripletHLTGenerator" ),
-              extraHitRZtolerance = cms.double( 0.06 )
+              extraHitRZtolerance = cms.double( 0.06 ),
+              SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
             ),
             SeedingLayers = cms.string( "hltESPPixelLayerTriplets" )
           ),
@@ -7628,6 +7630,7 @@ process.hltPFJetCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
 process.hltPFlowTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTrackSelector",
     src = cms.InputTag( "hltPFJetCtfWithMaterialTracks" ),
     beamspot = cms.InputTag( "hltOnlineBeamSpot" ),
+    useVertices = cms.bool( True ),
     vertices = cms.InputTag( "hltPixelVertices" ),
     copyExtras = cms.untracked.bool( True ),
     copyTrajectories = cms.untracked.bool( True ),
@@ -7742,6 +7745,7 @@ process.hltIter1PFJetCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
 process.hltIter1PFlowTrackSelectionHighPurityLoose = cms.EDProducer( "AnalyticalTrackSelector",
     src = cms.InputTag( "hltIter1PFJetCtfWithMaterialTracks" ),
     beamspot = cms.InputTag( "hltOnlineBeamSpot" ),
+    useVertices = cms.bool( True ),
     vertices = cms.InputTag( "hltPixelVertices" ),
     copyExtras = cms.untracked.bool( True ),
     copyTrajectories = cms.untracked.bool( True ),
@@ -7769,6 +7773,7 @@ process.hltIter1PFlowTrackSelectionHighPurityLoose = cms.EDProducer( "Analytical
 process.hltIter1PFlowTrackSelectionHighPurityTight = cms.EDProducer( "AnalyticalTrackSelector",
     src = cms.InputTag( "hltIter1PFJetCtfWithMaterialTracks" ),
     beamspot = cms.InputTag( "hltOnlineBeamSpot" ),
+    useVertices = cms.bool( True ),
     vertices = cms.InputTag( "hltPixelVertices" ),
     copyExtras = cms.untracked.bool( True ),
     copyTrajectories = cms.untracked.bool( True ),
@@ -7898,6 +7903,7 @@ process.hltIter2PFJetCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
 process.hltIter2PFlowTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTrackSelector",
     src = cms.InputTag( "hltIter2PFJetCtfWithMaterialTracks" ),
     beamspot = cms.InputTag( "hltOnlineBeamSpot" ),
+    useVertices = cms.bool( True ),
     vertices = cms.InputTag( "hltPixelVertices" ),
     copyExtras = cms.untracked.bool( True ),
     copyTrajectories = cms.untracked.bool( True ),
@@ -8073,6 +8079,7 @@ process.hltIter3PFJetCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
 process.hltIter3PFlowTrackSelectionHighPurityLoose = cms.EDProducer( "AnalyticalTrackSelector",
     src = cms.InputTag( "hltIter3PFJetCtfWithMaterialTracks" ),
     beamspot = cms.InputTag( "hltOnlineBeamSpot" ),
+    useVertices = cms.bool( True ),
     vertices = cms.InputTag( "hltPixelVertices" ),
     copyExtras = cms.untracked.bool( True ),
     copyTrajectories = cms.untracked.bool( True ),
@@ -8100,6 +8107,7 @@ process.hltIter3PFlowTrackSelectionHighPurityLoose = cms.EDProducer( "Analytical
 process.hltIter3PFlowTrackSelectionHighPurityTight = cms.EDProducer( "AnalyticalTrackSelector",
     src = cms.InputTag( "hltIter3PFJetCtfWithMaterialTracks" ),
     beamspot = cms.InputTag( "hltOnlineBeamSpot" ),
+    useVertices = cms.bool( True ),
     vertices = cms.InputTag( "hltPixelVertices" ),
     copyExtras = cms.untracked.bool( True ),
     copyTrajectories = cms.untracked.bool( True ),
@@ -8229,6 +8237,7 @@ process.hltIter4PFJetCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
 process.hltIter4PFlowTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTrackSelector",
     src = cms.InputTag( "hltIter4PFJetCtfWithMaterialTracks" ),
     beamspot = cms.InputTag( "hltOnlineBeamSpot" ),
+    useVertices = cms.bool( True ),
     vertices = cms.InputTag( "hltPixelVertices" ),
     copyExtras = cms.untracked.bool( True ),
     copyTrajectories = cms.untracked.bool( True ),
@@ -28110,7 +28119,8 @@ process.hltPixelTracksForHighMult = cms.EDProducer( "PixelTrackProducer",
         useMultScattering = cms.bool( True ),
         ComponentName = cms.string( "PixelTripletHLTGenerator" ),
         extraHitRZtolerance = cms.double( 0.06 ),
-        maxElement = cms.uint32( 10000 )
+        maxElement = cms.uint32( 10000 ),
+        SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
       )
     ),
     FitterPSet = cms.PSet( 
@@ -28311,7 +28321,8 @@ process.hltHITPixelTracksHB = cms.EDProducer( "PixelTrackProducer",
         extraHitRPhitolerance = cms.double( 0.06 ),
         useMultScattering = cms.bool( True ),
         ComponentName = cms.string( "PixelTripletHLTGenerator" ),
-        extraHitRZtolerance = cms.double( 0.06 )
+        extraHitRZtolerance = cms.double( 0.06 ),
+        SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
       )
     ),
     FitterPSet = cms.PSet( 
@@ -28351,7 +28362,8 @@ process.hltHITPixelTracksHE = cms.EDProducer( "PixelTrackProducer",
         extraHitRPhitolerance = cms.double( 0.06 ),
         useMultScattering = cms.bool( True ),
         ComponentName = cms.string( "PixelTripletHLTGenerator" ),
-        extraHitRZtolerance = cms.double( 0.06 )
+        extraHitRZtolerance = cms.double( 0.06 ),
+        SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
       ),
       SeedingLayers = cms.string( "hltESPPixelLayerTripletsHITHE" )
     ),
@@ -28454,7 +28466,8 @@ process.hltHITPixelTripletSeedGeneratorHE = cms.EDProducer( "SeedGeneratorFromRe
         extraHitRPhitolerance = cms.double( 0.06 ),
         useMultScattering = cms.bool( True ),
         phiPreFiltering = cms.double( 0.3 ),
-        extraHitRZtolerance = cms.double( 0.06 )
+        extraHitRZtolerance = cms.double( 0.06 ),
+        SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
       ),
       SeedingLayers = cms.string( "hltESPPixelLayerTriplets" )
     ),
@@ -28600,7 +28613,8 @@ process.hltHITPixelTripletSeedGeneratorHB = cms.EDProducer( "SeedGeneratorFromRe
         extraHitRPhitolerance = cms.double( 0.06 ),
         useMultScattering = cms.bool( True ),
         phiPreFiltering = cms.double( 0.3 ),
-        extraHitRZtolerance = cms.double( 0.06 )
+        extraHitRZtolerance = cms.double( 0.06 ),
+        SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
       ),
       SeedingLayers = cms.string( "hltESPPixelLayerTriplets" )
     ),

@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V149 (CMSSW_4_2_0_HLT14)
+# /dev/CMSSW_4_2_0/HIon/V150 (CMSSW_4_2_0_HLT15)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V149')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V150')
 )
 
 process.streams = cms.PSet( 
@@ -2682,7 +2682,8 @@ process.hltPixelTracksForHITrackTrigger = cms.EDProducer( "PixelTrackProducer",
         extraHitRPhitolerance = cms.double( 0.06 ),
         useMultScattering = cms.bool( True ),
         ComponentName = cms.string( "PixelTripletHLTGenerator" ),
-        extraHitRZtolerance = cms.double( 0.06 )
+        extraHitRZtolerance = cms.double( 0.06 ),
+        SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
       ),
       SeedingLayers = cms.string( "hltESPHIPixelLayerTriplets" )
     ),
