@@ -354,6 +354,22 @@ MultiChainEvent::getByLabel(
   return true;
 }
 
+bool
+MultiChainEvent::getByLabel(
+                       std::type_info const& iType,
+                       char const* iModule,
+                       char const* iInstance,
+                       char const* iProcess,
+                       edm::WrapperHolder& holder) const {
+  bool ret1 = event1_->getByLabel(iType, iModule, iInstance, iProcess, holder);
+  if(!ret1) {
+    (const_cast<MultiChainEvent*>(this))->toSec(event1_->id());
+    bool ret2 = event2_->getByLabel(iType, iModule, iInstance, iProcess, holder);
+    if(!ret2) return false;
+  }
+  return true;
+}
+
 edm::WrapperHolder MultiChainEvent::getByProductID(edm::ProductID const&iID) const
 {
   // First try the first file

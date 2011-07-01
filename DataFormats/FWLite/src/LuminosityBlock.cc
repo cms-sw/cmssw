@@ -232,6 +232,19 @@ LuminosityBlock::getByLabel(
     return dataHelper_.getByLabel(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel, oData, lumiIndex);
 }
 
+bool
+LuminosityBlock::getByLabel(std::type_info const& iInfo,
+                            char const* iModuleLabel,
+                            char const* iProductInstanceLabel,
+                            char const* iProcessLabel,
+                            edm::WrapperHolder& holder) const {
+    if(atEnd()) {
+        throw cms::Exception("OffEnd") << "You have requested data past the last lumi";
+    }
+    Long_t lumiIndex = branchMap_->getLuminosityBlockEntry();
+    return dataHelper_.getByLabel(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel, holder, lumiIndex);
+}
+
 edm::LuminosityBlockAuxiliary const&
 LuminosityBlock::luminosityBlockAuxiliary() const
 {

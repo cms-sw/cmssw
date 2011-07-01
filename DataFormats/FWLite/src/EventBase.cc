@@ -15,6 +15,7 @@
 
 // user include files
 #include "DataFormats/FWLite/interface/EventBase.h"
+#include "DataFormats/Common/interface/WrapperHolder.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -33,31 +34,15 @@ namespace fwlite
    {
    }
 
-   edm::BasicHandle 
-   EventBase::getByLabelImpl(edm::WrapperInterfaceBase const* wrapperInterfaceBase, std::type_info const& iWrapperInfo, std::type_info const& /*iProductInfo*/, const edm::InputTag& iTag) const 
-   {
-      void* prod = 0;
-      void* prodPtr = &prod;
-      getByLabel(iWrapperInfo, 
-                 iTag.label().c_str(), 
+   edm::BasicHandle
+   EventBase::getByLabelImpl(std::type_info const& iWrapperInfo, std::type_info const& /*iProductInfo*/, const edm::InputTag& iTag) const {
+      edm::WrapperHolder edp;
+      getByLabel(iWrapperInfo,
+                 iTag.label().c_str(),
                  iTag.instance().empty()?static_cast<char const*>(0):iTag.instance().c_str(),
                  iTag.process().empty()?static_cast<char const*> (0):iTag.process().c_str(),
-                 prodPtr);
-      if(0==prod) {
-         edm::TypeID productType(iWrapperInfo);
-         boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound));
-         *whyFailed
-         << "getByLabel: Found zero products matching all criteria\n"
-         << "Looking for type: " << productType << "\n"
-         << "Looking for module label: " << iTag.label() << "\n"
-         << "Looking for productInstanceName: " << iTag.instance() << "\n"
-         << (iTag.process().empty() ? "" : "Looking for process: ") << iTag.process() << "\n";
-         
-         edm::BasicHandle failed(whyFailed);
-         return failed;
-      }
-      edm::WrapperHolder edp(prod, wrapperInterfaceBase, edm::WrapperHolder::NotOwned);
-      if(!edp.isPresent()) {
+                 edp);
+      if(!edp.isValid() || !edp.isPresent()) {
          edm::TypeID productType(iWrapperInfo);
          boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound));
          *whyFailed
@@ -70,8 +55,8 @@ namespace fwlite
          edm::BasicHandle failed(whyFailed);
          return failed;
       }
-   
-      edm::BasicHandle value(prod, wrapperInterfaceBase, &s_prov);
+
+      edm::BasicHandle value(edp, &s_prov);
       return value;
    }
 }

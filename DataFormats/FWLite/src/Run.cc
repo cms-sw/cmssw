@@ -230,6 +230,19 @@ Run::getByLabel(
     return dataHelper_.getByLabel(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel, oData, runIndex);
 }
 
+bool
+Run::getByLabel(std::type_info const& iInfo,
+                char const* iModuleLabel,
+                char const* iProductInstanceLabel,
+                char const* iProcessLabel,
+                edm::WrapperHolder& holder) const {
+    if(atEnd()) {
+        throw cms::Exception("OffEnd") << "You have requested data past the last run";
+    }
+    Long_t runIndex = branchMap_->getRunEntry();
+    return dataHelper_.getByLabel(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel, holder, runIndex);
+}
+
 edm::RunAuxiliary const&
 Run::runAuxiliary() const
 {

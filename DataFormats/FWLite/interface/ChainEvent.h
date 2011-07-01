@@ -72,8 +72,8 @@ namespace fwlite {
                                                  char const*) const;
 
       // This function should only be called by fwlite::Handle<>
-      virtual bool getByLabel(std::type_info const&, char const*,
-                              char const*, char const*, void*) const;
+      virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const;
+      virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, edm::WrapperHolder&) const;
       //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
       bool isValid() const;

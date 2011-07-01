@@ -14,6 +14,7 @@
 #include <iostream>
 #include "Reflex/Type.h"
 #include "Reflex/Object.h"
+#include "Reflex/Member.h"
 
 // user include files
 #include "DataFormats/FWLite/interface/DataGetterHelper.h"
@@ -262,6 +263,9 @@ namespace fwlite {
                 newData->pObj_ = obj.Address();
                 newData->pProd_ = 0;
                 branch->SetAddress(&(newData->pObj_));
+                newData->interface_ = 0;
+                Reflex::Member getTheInterface = rType.FunctionMemberByName(std::string("getInterface"));
+                getTheInterface.Invoke(newData->interface_);
                 theData = newData;
             }
             itFind = data_.insert(std::make_pair(newKey, theData)).first;
@@ -320,6 +324,28 @@ namespace fwlite {
         else return true;
     }
 
+    bool
+    DataGetterHelper::getByLabel(std::type_info const& iInfo,
+                    char const* iModuleLabel,
+                    char const* iProductInstanceLabel,
+                    char const* iProcessLabel,
+                    edm::WrapperHolder& holder, Long_t index) const {
+
+        // Maintain atEnd() check in parent classes
+
+        internal::Data& theData =
+            DataGetterHelper::getBranchDataFor(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel);
+
+        if(0 != theData.branch_) {
+            if(index != theData.lastProduct_) {
+                //haven't gotten the data for this event
+                getBranchData(getter_.get(), index, theData);
+            }
+        }
+
+        holder = edm::WrapperHolder(theData.obj_.Address(), theData.interface_, edm::WrapperHolder::NotOwned);
+        return holder.isValid();
+    }
 
     edm::WrapperHolder
     DataGetterHelper::getByProductID(edm::ProductID const& iID, Long_t index) const

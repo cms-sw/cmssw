@@ -84,6 +84,7 @@ namespace fwlite {
             Reflex::Object obj_; // For wrapped object
             void * pObj_; // pointer to pProd_.  ROOT requires the address of the pointer be stable
             void * pProd_; // pointer to wrapped product
+            edm::WrapperInterfaceBase * interface_;
 
             ~Data() {
                obj_.Destruct();

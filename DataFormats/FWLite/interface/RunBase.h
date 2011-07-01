@@ -42,6 +42,13 @@ namespace fwlite
                                   char const*,
                                   char const*,
                                   void*) const = 0;
+         virtual bool getByLabel(
+                                  std::type_info const&,
+                                  char const*,
+                                  char const*,
+                                  char const*,
+                                  edm::WrapperHolder&) const = 0;
+
          using edm::RunBase::getByLabel;
 
 //          virtual std::string const getBranchNameFor (std::type_info const&,
@@ -60,7 +67,7 @@ namespace fwlite
 
       private:
 
-         virtual edm::BasicHandle getByLabelImpl(edm::WrapperInterfaceBase const*, std::type_info const&, std::type_info const&, const edm::InputTag&) const;
+         virtual edm::BasicHandle getByLabelImpl(std::type_info const&, std::type_info const&, const edm::InputTag&) const;
    };
 } // fwlite namespace
 

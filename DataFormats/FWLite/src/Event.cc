@@ -272,7 +272,6 @@ Event::getBranchNameFor(std::type_info const& iInfo,
     return dataHelper_.getBranchNameFor(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel);
 }
 
-
 bool
 Event::getByLabel(
                   std::type_info const& iInfo,
@@ -287,6 +286,18 @@ Event::getByLabel(
     return dataHelper_.getByLabel(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel, oData, eventIndex);
 }
 
+bool
+Event::getByLabel(std::type_info const& iInfo,
+                  char const* iModuleLabel,
+                  char const* iProductInstanceLabel,
+                  char const* iProcessLabel,
+                  edm::WrapperHolder& holder) const {
+    if(atEnd()) {
+        throw cms::Exception("OffEnd") << "You have requested data past the last event";
+    }
+    Long_t eventIndex = branchMap_.getEventEntry();
+    return dataHelper_.getByLabel(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel, holder, eventIndex);
+}
 
 edm::EventAuxiliary const&
 Event::eventAuxiliary() const {
