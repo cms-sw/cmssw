@@ -11135,24 +11135,40 @@ public:
          bool jetID,
          std::vector<int> ohEleIts);
 
-	int OpenHlt1ElectronSamHarperPassed_Reshuffled(float Et,
-												   float hoverebarrel=999.,
-												   float hovereendcap=999.,
-												   float clusshapebarrel=999.,
-												   float clusshapeendcap=999.,
-												   float detabarrel=999.,
-												   float detaendcap=999.,
-												   float dphibarrel=999.,
-												   float dphiendcap=999.,
-												   float HisooverETbarrel=999.,
-												   float HisooverETendcap=999.,
-												   float EisooverETbarrel=999.,
-												   float EisooverETendcap=999.,
-												   float Tisoratiobarrel=999.,
-												   float Tisoratioendcap=999.,
-												   float Tisobarrel=999.,
-												   float Tisoendcap=999.,
-												   int L1iso=0);
+  /*  int OpenHlt1ElectronPassed(float Et, */
+/* 			      std::vector<double> caloId,// hoverebarrel, hovereendcap, clusshapebarrel, clusshapeendcap, */
+/* 			      std::vector<double> caloIso,//HisooverETbarrel,HisooverETendcap, EisooverETbarrel, EisooverETendcap, */
+/* 			      std::vector<double> trkId,//detabarrel,detaendcap, dphibarrel,dphiendcap, */
+/* 			      std::vector<double> trkIso//Tisoratiobarrel, Tisoratioendcap, */
+/* 			      ); */
+	
+   int OpenHlt1ElectronPassed(float Et,
+			      std::map< TString, float> caloId,
+			      std::map< TString, float> caloIso,
+			      std::map< TString, float> trkId,
+			      std::map< TString, float> trkIso
+			      );
+	
+ 
+
+   int OpenHlt1ElectronSamHarperPassed_Reshuffled(float Et,
+						  float hoverebarrel=999.,
+						  float hovereendcap=999.,
+						  float clusshapebarrel=999.,
+						  float clusshapeendcap=999.,
+						  float detabarrel=999.,
+						  float detaendcap=999.,
+						  float dphibarrel=999.,
+						  float dphiendcap=999.,
+						  float HisooverETbarrel=999.,
+						  float HisooverETendcap=999.,
+						  float EisooverETbarrel=999.,
+						  float EisooverETendcap=999.,
+						  float Tisoratiobarrel=999.,
+						  float Tisoratioendcap=999.,
+						  float Tisobarrel=999.,
+						  float Tisoendcap=999.,
+						  int L1iso=0);
 	
 	
    int OpenHlt1ElectronSamHarperPassed(
@@ -11802,6 +11818,8 @@ public:
       return nLumiSections;
    }
 
+   void initEGammaWPMap();
+
 private:
 
    int nTrig;
@@ -11827,6 +11845,12 @@ private:
 
    std::map<TString, std::vector<TString> > map_L1SeedsOfStandardHLTPath; // mapping to all seeds
    std::map<TString, std::vector<int> > map_RpnTokenIdOfStandardHLTPath; // mapping to algo token
+
+   // EGamma triggers working points
+   std::map<TString, std::map< TString, float> > map_EGammaCaloId; 
+   std::map<TString, std::map< TString, float> > map_EleCaloIso; 
+   std::map<TString, std::map< TString, float> > map_EleTrkId; 
+   std::map<TString, std::map< TString, float> > map_EleTrkIso;
 
    TRandom3 random; // for random prescale method
    
@@ -12028,6 +12052,86 @@ OHltTree::OHltTree(TTree *tree, OHltMenu *menu)
    //SetMapL1SeedsOfStandardHLTPath(menu);
 
    std::cout<<"Succeeded initialising OHltTree. nEntries: "<<fChain->GetEntries()<<std::endl;
+
+   initEGammaWPMap();
+}
+
+void OHltTree::initEGammaWPMap(){
+
+  //EGCaloId 
+  //default values
+  (map_EGammaCaloId[""])["hoverebarrel"] = 999. ;
+  (map_EGammaCaloId[""])["hovereendcap"] = 999.  ;
+  (map_EGammaCaloId[""])["clusshapebarrel"] = 999. ;
+  (map_EGammaCaloId[""])["clusshapeendcap"] = 999. ;
+  // IdVL
+  (map_EGammaCaloId["CaloIdVL"])["hoverebarrel"] = 0.15 ;
+  (map_EGammaCaloId["CaloIdVL"])["hovereendcap"] = 0.10 ;
+  (map_EGammaCaloId["CaloIdVL"])["clusshapebarrel"] = 0.024;
+  (map_EGammaCaloId["CaloIdVL"])["clusshapeendcap"] = 0.040;
+  // IdL
+  (map_EGammaCaloId["CaloIdL"])["hoverebarrel"] = 0.15 ;
+  (map_EGammaCaloId["CaloIdL"])["hovereendcap"] = 0.10 ;
+  (map_EGammaCaloId["CaloIdL"])["clusshapebarrel"] = 0.014;
+  (map_EGammaCaloId["CaloIdL"])["clusshapeendcap"] = 0.035;
+  // IdT
+  (map_EGammaCaloId["CaloIdT"])["hoverebarrel"] = 0.10 ;
+  (map_EGammaCaloId["CaloIdT"])["hovereendcap"] = 0.075;
+  (map_EGammaCaloId["CaloIdT"])["clusshapebarrel"] = 0.011;
+  (map_EGammaCaloId["CaloIdT"])["clusshapeendcap"] = 0.031;
+  // IdVT
+  (map_EGammaCaloId["CaloIdVT"])["hoverebarrel"] = 0.05 ;
+  (map_EGammaCaloId["CaloIdVT"])["hovereendcap"] = 0.05 ;
+  (map_EGammaCaloId["CaloIdVT"])["clusshapebarrel"] = 0.011;
+  (map_EGammaCaloId["CaloIdVT"])["clusshapeendcap"] = 0.031;
+
+  //EleCaloIso 
+  //default values
+  (map_EleCaloIso[""])["HisooverETbarrel"] = 999.;
+  (map_EleCaloIso[""])["HisooverETendcap"] = 999.;
+  (map_EleCaloIso[""])["EisooverETbarrel"] = 999.;
+  (map_EleCaloIso[""])["EisooverETendcap"] = 999.;
+  // CaloIsoVL
+  (map_EleCaloIso["CaloIsoVL"])["HisooverETbarrel"] = 0.200;
+  (map_EleCaloIso["CaloIsoVL"])["HisooverETendcap"] = 0.200;
+  (map_EleCaloIso["CaloIsoVL"])["EisooverETbarrel"] = 0.200;
+  (map_EleCaloIso["CaloIsoVL"])["EisooverETendcap"] = 0.200;
+  // CaloIsoT
+  (map_EleCaloIso["CaloIsoT"])["HisooverETbarrel"] = 0.125;
+  (map_EleCaloIso["CaloIsoT"])["HisooverETendcap"] = 0.075;
+  (map_EleCaloIso["CaloIsoT"])["EisooverETbarrel"] = 0.125;
+  (map_EleCaloIso["CaloIsoT"])["EisooverETendcap"] = 0.075;
+
+  //EleTrkId  
+  // EleTrkIdVL// default values
+  (map_EleTrkId[""])["detabarrel"] = 999.;
+  (map_EleTrkId[""])["detaendcap"] = 999.;
+  (map_EleTrkId[""])["dphibarrel"] = 999.;
+  (map_EleTrkId[""])["dphiendcap"] = 999.;
+  // EleTrkIdVL
+  (map_EleTrkId["TrkIdVL"])["detabarrel"] = 0.01;
+  (map_EleTrkId["TrkIdVL"])["detaendcap"] = 0.01;
+  (map_EleTrkId["TrkIdVL"])["dphibarrel"] = 0.15;
+  (map_EleTrkId["TrkIdVL"])["dphiendcap"] = 0.10;
+  // EleTrkIdT
+  (map_EleTrkId["TrkIdT"])["detabarrel"] = 0.008;
+  (map_EleTrkId["TrkIdT"])["detaendcap"] = 0.008;
+  (map_EleTrkId["TrkIdT"])["dphibarrel"] = 0.07;
+  (map_EleTrkId["TrkIdT"])["dphiendcap"] = 0.05;
+
+  //EleTrkIso 
+  //default
+  (map_EleTrkIso[""])["Tisoratiobarrel"] = 999.;
+  (map_EleTrkIso[""])["Tisoratioendcap"] = 999.;
+  //EleTrkIsoVL
+  (map_EleTrkIso["TrkIsoVL"])["Tisoratiobarrel"] = 0.2;
+  (map_EleTrkIso["TrkIsoVL"])["Tisoratioendcap"] = 0.2;
+  //EleTrkIsoT
+  (map_EleTrkIso["TrkIsoT"])["Tisoratiobarrel"] = 0.125;
+  (map_EleTrkIso["TrkIsoT"])["Tisoratioendcap"] = 0.075;
+
+
+
 }
 
 OHltTree::~OHltTree()
