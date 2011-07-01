@@ -385,6 +385,31 @@ ALCARECOTkAlCosmicsCosmicTF0THLTDQM = hltMonBitSummary.clone(
 )
 ALCARECOTkAlCosmicsCosmicTF0TDQM = cms.Sequence( ALCARECOTkAlCosmicsCosmicTF0TTrackingDQM + ALCARECOTkAlCosmicsCosmicTF0TTkAlDQM +ALCARECOTkAlCosmicsCosmicTF0THLTDQM)
 
+#############################
+### TkAlCosmicsRegional0T ###
+#############################
+__selectionName = 'TkAlCosmicsRegional0T'
+ALCARECOTkAlCosmicsRegional0TTrackingDQM = ALCARECOTkAlCosmicsCTF0TTrackingDQM.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
+)
+ALCARECOTkAlCosmicsRegional0TTkAlDQM = ALCARECOTkAlCosmicsCTF0TTkAlDQM.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    ReferenceTrackProducer = 'cosmictrackfinderP5',
+    AlgoName = 'ALCARECO'+__selectionName
+)
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0THLT_cff import ALCARECOTkAlCosmics0THLT
+ALCARECOTkAlCosmicsRegional0THLTDQM = hltMonBitSummary.clone(
+    directory = "AlCaReco/"+__selectionName+"/HLTSummary",
+    histLabel = __selectionName,
+    HLTPaths = ["HLT_.*L1.*"],
+    eventSetupPathsKey =  ALCARECOTkAlCosmics0THLT.eventSetupPathsKey.value()
+)
+ALCARECOTkAlCosmicsRegional0TDQM = cms.Sequence( ALCARECOTkAlCosmicsRegional0TTrackingDQM + ALCARECOTkAlCosmicsRegional0TTkAlDQM +ALCARECOTkAlCosmicsRegional0THLTDQM)
+
 ##########################################################################
 ###### DQM modules for cosmic data taking with momentum measurement ######
 ##########################################################################
@@ -439,3 +464,28 @@ ALCARECOTkAlCosmicsCosmicTFHLTDQM = hltMonBitSummary.clone(
     eventSetupPathsKey =  ALCARECOTkAlCosmicsHLT.eventSetupPathsKey.value()
 )
 ALCARECOTkAlCosmicsCosmicTFDQM = cms.Sequence( ALCARECOTkAlCosmicsCosmicTFTrackingDQM + ALCARECOTkAlCosmicsCosmicTFTkAlDQM+ALCARECOTkAlCosmicsCosmicTFHLTDQM)
+
+###########################
+### TkAlCosmicsRegional ###
+###########################
+__selectionName = 'TkAlCosmicsRegional'
+ALCARECOTkAlCosmicsRegionalTrackingDQM = ALCARECOTkAlCosmicsCTFTrackingDQM.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot"
+)
+ALCARECOTkAlCosmicsRegionalTkAlDQM = ALCARECOTkAlCosmicsRegional0TTkAlDQM.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    ReferenceTrackProducer = ALCARECOTkAlCosmicsRegional0TTkAlDQM.ReferenceTrackProducer,
+    AlgoName = 'ALCARECO'+__selectionName
+)
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmicsHLT_cff import ALCARECOTkAlCosmicsHLT
+ALCARECOTkAlCosmicsRegionalHLTDQM = hltMonBitSummary.clone(
+    directory = "AlCaReco/"+__selectionName+"/HLTSummary",
+    histLabel = __selectionName,
+    HLTPaths = ["HLT_.*L1.*"],
+    eventSetupPathsKey =  ALCARECOTkAlCosmicsHLT.eventSetupPathsKey.value()
+)
+ALCARECOTkAlCosmicsRegionalDQM = cms.Sequence( ALCARECOTkAlCosmicsRegionalTrackingDQM + ALCARECOTkAlCosmicsRegionalTkAlDQM+ALCARECOTkAlCosmicsRegionalHLTDQM)
