@@ -226,6 +226,7 @@ class JetPlusTrackCorrector {
   double getSumPtWithoutEff() {return theSumPtWithoutEff;}
   double getSumEnergyWithEff() {return theSumEnergyWithEff;}
   double getSumEnergyWithoutEff() {return theSumEnergyWithoutEff;}
+  double getSumPtForBeta() {return theSumPtForBeta;}
 
 
   /// Can jet be JPT-corrected?
@@ -435,6 +436,7 @@ class JetPlusTrackCorrector {
   mutable float theSumPtWithoutEff;
   mutable float theSumEnergyWithEff;
   mutable float theSumEnergyWithoutEff;
+  mutable float theSumPtForBeta;
   
 };
 
