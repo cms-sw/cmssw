@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.12 2011/06/30 04:53:31 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.14 2011/07/01 00:01:19 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -41,42 +41,57 @@ class FWGeometryTableManager : public FWTableManagerBase
    friend class FWGeometryBrowser;
 
 public:
-   enum   ECol { kName, kColor,  kVisSelf, kVisChild, kMaterial, kPosition, kBBoxSize, kNumCol };
+   enum   ECol { kName, kColor,  kVisSelf, kVisChild, kMaterial, kBBoxSize,  /*, kPosition*/kNumCol };
+
+   enum Bits
+   {
+      kVisible         =  BIT(0),
+      kExpanded        =  BIT(1),
+      kMatches         =  BIT(2),
+      kChildMatches    =  BIT(3),
+      kFilterCached    =  BIT(4),
+      kVolumeUnique    =  BIT(5) // not yet used
+   };
 
    struct NodeInfo
    {
       NodeInfo():m_node(0), m_parent(-1), m_level(-1), 
-                 m_visible(false), m_expanded(false)
+                 m_flags(0)
       {}  
 
       TGeoNode*   m_node;
       Int_t       m_parent;
       Short_t     m_level;
-
-      Bool_t      m_visible;
-      Bool_t      m_expanded;
+      UChar_t     m_flags;
 
       // 3D
       Color_t     m_color;
 
       const char* name() const;
+
+      void setBit(UChar_t f)    { m_flags  |= f;}
+      void resetBit(UChar_t f)  { m_flags &= ~f; }
+      bool testBit(UChar_t f) const  { return (m_flags & f) == f; }
+      bool testBitAny(UChar_t f) const  { return (m_flags & f) != 0; }
    };
 
-   typedef std::vector<NodeInfo> Entries_v;
-   typedef Entries_v::iterator Entries_i;
-   
-private:
    struct Match
    {
       bool m_matches;
       bool m_childMatches;
       
-      Match() : m_matches(true), m_childMatches(true) {}
+      Match() : m_matches(false), m_childMatches(false) {}
    
       bool accepted() { return m_matches || m_childMatches; }
    };
 
+   typedef std::vector<NodeInfo> Entries_v;
+   typedef Entries_v::iterator Entries_i;
    
+   typedef boost::unordered_map<TGeoVolume*, Match>  Volumes_t;
+   typedef Volumes_t::iterator               Volumes_i; 
+
+private: 
    // AMT: this could be a common base class with FWCollectionSummaryModelCellRenderer ..
    class ColorBoxRenderer : public FWTableCellRendererBase
    { 
@@ -133,6 +148,8 @@ public:
    int getTopGeoNodeIdx() const { return m_geoTopNodeIdx; }
    int getLevelOffset() const { return m_levelOffset; }
 
+   void assertNodeFilterCache(NodeInfo& data);
+
 private:
    FWGeometryTableManager(const FWGeometryTableManager&); // stop default
    const FWGeometryTableManager& operator=(const FWGeometryTableManager&); // stop default
@@ -159,17 +176,14 @@ private:
    void checkExpandLevel();
    void topGeoNodeChanged(int);
 
-
+   const std::string& getFilterMessage() const { return m_filterMessage; }
    // ---------- member data --------------------------------
    
-   typedef boost::unordered_map<TGeoVolume*, Match>  Volumes_t;
-   typedef Volumes_t::iterator               Volumes_i;
    
    // table stuff
    mutable FWTextTreeCellRenderer m_renderer;  
    mutable ColorBoxRenderer       m_colorBoxRenderer;  
 
-public:
    std::vector<int>  m_row_to_index;
    int               m_selectedRow;
    int               m_selectedIdx;
@@ -184,7 +198,9 @@ public:
    bool               m_filterOff; //cached
    int m_topGeoNodeIdx; 
    int m_levelOffset;
-   int  m_geoTopNodeIdx;
+   int m_geoTopNodeIdx;
+
+   std::string m_filterMessage;
 };
 
 

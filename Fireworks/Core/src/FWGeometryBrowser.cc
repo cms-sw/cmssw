@@ -27,7 +27,7 @@
 #include "TEveGeoNode.h"
 #include "TGeoManager.h"
 #include "TEveScene.h"
-// #define PERFTOOL
+//#define PERFTOOL
 #ifdef PERFTOOL 
 #include <google/profiler.h>
 #endif
@@ -72,7 +72,7 @@ FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager, FWColorManager *c
 
    m_maxDaughters.changed_.connect(boost::bind(&FWGeometryBrowser::refreshTable3D, this)); // debug
 
-   m_filter.changed_.connect(boost::bind(&FWGeometryTableManager::updateFilter,m_tableManager)); // ?? not implemented
+   m_filter.changed_.connect(boost::bind(&FWGeometryBrowser::updateFilter, this)); // ?? not implemented
 
    TGHorizontalFrame* hp =  new TGHorizontalFrame(this);
    AddFrame(hp,new TGLayoutHints(kLHintsLeft, 4, 2, 2, 2));
@@ -90,7 +90,7 @@ FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager, FWColorManager *c
       hp->AddFrame(rb);
       rb->Connect("Clicked()","FWGeometryBrowser",this,"cdUp()");
    }
-   {
+   if (0){
       TGTextButton* rb = new TGTextButton (hp, "print");
       hp->AddFrame(rb);
       rb->Connect("Clicked()","FWGeometryBrowser",this,"printTable()");
@@ -319,7 +319,7 @@ void FWGeometryBrowser::backgroundChanged()
       m_tableWidget->SetLineSeparatorColor(0x000000);
    } else {
       m_tableWidget->SetBackgroundColor(0x000000);
-       m_tableWidget->SetLineSeparatorColor(0xffffff);
+      m_tableWidget->SetLineSeparatorColor(0xffffff);
    }
    m_tableManager->setBackgroundToWhite(backgroundIsWhite);
    fClient->NeedRedraw(m_tableWidget);
@@ -369,12 +369,19 @@ FWGeometryBrowser::readFile()
          throw std::runtime_error("Can't find TGeoManager object in selected file.");
 
       m_geoManager = (TGeoManager*) m_geometryFile->Get("cmsGeo;1");
-   
+
+ #ifdef PERFTOOL  
+   ProfilerStart("load");
+#endif  
       m_tableManager->loadGeometry();
 
       m_eveTopNode = new FWGeoTopNode(this);
       const char* n = Form("%s level[%d] size[%d] \n",m_geoManager->GetCurrentNode()->GetName(), getVisLevel(), (int)m_tableManager->refEntries().size());                            
       m_eveTopNode->SetElementName(n);
+
+#ifdef PERFTOOL  
+   ProfilerStop();
+#endif
       TEveElementList* scenes = gEve->GetScenes();
       for (TEveElement::List_i it = scenes->BeginChildren(); it != scenes->EndChildren(); ++it)
       {
@@ -387,7 +394,7 @@ FWGeometryBrowser::readFile()
          }
       }
 
-      gEve->Redraw3D();
+      gEve->FullRedraw3D(1,1);
       MapRaised();
    }
    catch (std::runtime_error &e)
@@ -430,9 +437,18 @@ FWGeometryBrowser::browse()
    readFile();
 }
 
+//______________________________________________________________________________
 
-void FWGeometryBrowser::updateStatusBar(const char* status) {
-   m_statBar->SetText(status, 0);
+void FWGeometryBrowser::updateStatusBar(const char* txt) {
+   if (!txt) {
+      if (m_filter.value().empty())
+         txt = Form("level:%d ", m_tableManager->getLevelOffset());
+      else
+         txt = Form("level:%d filter: %s", m_tableManager->getLevelOffset(), m_tableManager->getFilterMessage().c_str());
+
+   }
+
+   m_statBar->SetText(txt, 0);
    fClient->NeedRedraw(this);
 }
 
@@ -509,8 +525,16 @@ void FWGeometryBrowser::updatePath(int parentIdx)
       title = "..." + title;
    }
    SetWindowName( Form("GeometryBrowser: %-10s",title.c_str())); 
-   updateStatusBar(Form("entires[%d] levelOffset[%d] ", (int)m_tableManager->refEntries().size(),  m_tableManager->getLevelOffset()));
+   updateStatusBar();
 
+}
+//______________________________________________________________________________
+
+void FWGeometryBrowser::updateFilter()
+{
+   m_tableManager->updateFilter();
+   refreshTable3D();
+   updateStatusBar();
 }
 
 //______________________________________________________________________________
@@ -530,6 +554,6 @@ void FWGeometryBrowser::refreshTable3D()
    if ( m_eveTopNode) {
       //      printf("refresh \n");
       m_eveTopNode->ElementChanged();
-      gEve->Redraw3D();
+      gEve->FullRedraw3D(false, true);
    }
 }

@@ -56,8 +56,8 @@ public:
    void chosenItem(int);
    void browse();
    void readFile();
-   void updateStatusBar(const char* status);
-   //   void updateVisLevel();
+   void updateStatusBar(const char* status = 0);
+   void updateFilter();
 
    void printTable();
 
@@ -81,7 +81,6 @@ public:
    virtual void addTo(FWConfiguration&) const;
    void nodeColorChangeRequested(Color_t);
 
-   //   TGeoNode* m_topGeoNode;
 private:
    FWGeometryBrowser(const FWGeometryBrowser&);
    const FWGeometryBrowser& operator=(const FWGeometryBrowser&);

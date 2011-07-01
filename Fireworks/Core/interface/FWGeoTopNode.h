@@ -16,7 +16,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel
 //         Created:  Thu Jun 23 01:25:00 CEST 2011
-// $Id: FWGeoTopNode.h,v 1.3 2011/06/30 04:50:07 amraktad Exp $
+// $Id: FWGeoTopNode.h,v 1.4 2011/07/01 00:03:58 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWGeometryTableManager.h"
@@ -57,6 +57,7 @@ private:
    // cached
    FWGeometryTableManager::Entries_v* m_entries;
    int m_maxLevel;
+   bool m_filterOff;
 };
 
 
