@@ -5,14 +5,37 @@
 #include <iostream>
 #include <ostream>
 
+static
+void throwInvalidRefFromNullOrInvalidRef(const edm::TypeID& id) {
+  throw edm::Exception(edm::errors::InvalidReference,
+                  "BadRefCore")
+  << "RefCore: Request to resolve a null or invalid reference to a product of type '"
+  << id
+	<< "' has been detected.\n"
+  << "Please modify the calling code to test validity before dereferencing.\n";  
+}
+
+static
+void throwInvalidRefFromNoCache(const edm::TypeID& id, edm::ProductID const& prodID) {
+  throw edm::Exception(edm::errors::InvalidReference,
+                  "BadRefCore")
+  << "RefCore: A request to resolve a reference to a product of type '"
+  << id
+  << "' with ProductID '" << prodID
+	<< "' cannot be satisfied.\n"
+	<< "The reference has neither a valid product pointer nor an EDProductGetter.\n"
+	<< "The calling code must be modified to establish a functioning EDProducterGetter\n"
+  << "for the context in which this call is mode\n";
+  
+}
+
 namespace edm {
 
   RefCore::RefCore(ProductID const& theId, void const* prodPtr, EDProductGetter const* prodGetter, bool transient) :
-      prodPtr_(prodPtr),
-      prodGetter_(prodGetter),
+      cachePtr_(prodPtr?prodPtr:prodGetter),
       processIndex_(theId.processIndex()),
       productIndex_(theId.productIndex()),
-      transient_(transient)
+      transient_(transient,prodPtr!=0 || prodGetter==0)
       {}
 
   WrapperHolder
@@ -34,24 +57,12 @@ namespace edm {
     ProductID tId = id();
     assert (!isTransient());
     if (!tId.isValid()) {
-      throw Exception(errors::InvalidReference,
-		      "BadRefCore")
-        << "RefCore: Request to resolve a null or invalid reference to a product of type '"
-        << TypeID(type)
-	<< "' has been detected.\n"
-        << "Please modify the calling code to test validity before dereferencing.\n";
+      throwInvalidRefFromNullOrInvalidRef(TypeID(type));
     }
 
-    if (productPtr() == 0 && productGetter() == 0) {
-      throw Exception(errors::InvalidReference,
-		      "BadRefCore")
-        << "RefCore: A request to resolve a reference to a product of type '"
-        << TypeID(type)
-        << "' with ProductID '" << tId
-	<< "' cannot be satisfied.\n"
-	<< "The reference has neither a valid product pointer nor an EDProductGetter.\n"
-	<< "The calling code must be modified to establish a functioning EDProducterGetter\n"
-        << "for the context in which this call is mode\n";
+    //if (productPtr() == 0 && productGetter() == 0) {
+    if (cachePtr_ == 0) {
+      throwInvalidRefFromNoCache(TypeID(type),tId);
     }
     WrapperHolder product = productGetter()->getIt(tId);
     if (!product.isValid()) {
@@ -99,7 +110,8 @@ namespace edm {
 
   void
   RefCore::setProductGetter(EDProductGetter const* prodGetter) const {
-      prodGetter_ = prodGetter;
+    cachePtr_ = prodGetter;
+    setCacheIsProductPtr(false);
   }
 
   void
@@ -138,11 +150,13 @@ namespace edm {
         setId(productToBeInserted.id());
       }
     }
-    if (productGetter() == 0 && productToBeInserted.productGetter() != 0) {
-      setProductGetter(productToBeInserted.productGetter());
-    }
+    //Since productPtr and productGetter actually share the same pointer internally,
+    // we want to be sure that if the productPtr is set we use that one and only if
+    // it isn't set do we set the productGetter if available
     if (productPtr() == 0 && productToBeInserted.productPtr() != 0) {
       setProductPtr(productToBeInserted.productPtr());
+    } else if (productPtr() == 0 && productGetter() == 0 && productToBeInserted.productGetter() != 0) {
+      setProductGetter(productToBeInserted.productGetter());
     }
   }
   

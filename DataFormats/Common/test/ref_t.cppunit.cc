@@ -190,12 +190,13 @@ void testRef::getTest() {
 
    Ref<IntCollection> ref0(handle, 0);
    ref0.refCore().setProductGetter(&tester);
-   ref0.refCore().setProductPtr(0);
+   //only have to set ProductGetter since they share the same ptr
+   //ref0.refCore().setProductPtr(0); 
    CPPUNIT_ASSERT(!ref0.hasProductCache());
 
    Ref<IntCollection> ref1(handle, 1);
    ref1.refCore().setProductGetter(&tester);
-   ref1.refCore().setProductPtr(0);
+   //ref1.refCore().setProductPtr(0);
 
    Ref<IntCollection> ref2(pid, 1, &tester);
 
@@ -207,7 +208,7 @@ void testRef::getTest() {
 
    RefProd<IntCollection> refProd0(handle);
    refProd0.refCore().setProductGetter(&tester);
-   refProd0.refCore().setProductPtr(0);
+   //refProd0.refCore().setProductPtr(0);
 
    RefProd<IntCollection> refProd2(pid, &tester);
 

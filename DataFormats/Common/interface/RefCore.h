@@ -16,15 +16,19 @@ RefCore: The component of edm::Ref containing the product ID and product getter.
 namespace edm {
   class RefCore {
   public:
-    RefCore() :  prodPtr_(0),prodGetter_(0),processIndex_(0),productIndex_(0), transient_() {}
+    RefCore() :  cachePtr_(0),processIndex_(0),productIndex_(0), transient_() {}
 
     RefCore(ProductID const& theId, void const* prodPtr, EDProductGetter const* prodGetter, bool transient);
 
     ProductID id() const {return ProductID(processIndex_,productIndex_);}
 
-    void const* productPtr() const {return prodPtr_;}
+    /**If productPtr is not 0 then productGetter will be 0 since only one is available at a time */
+    void const* productPtr() const {return cacheIsProductPtr()?cachePtr_:static_cast<void const*>(0);}
 
-    void setProductPtr(void const* prodPtr) const { prodPtr_=prodPtr;}
+    void setProductPtr(void const* prodPtr) const { 
+      cachePtr_=prodPtr;
+      setCacheIsProductPtr(true);
+    }
 
     // Checks for null
     bool isNull() const {return !isNonnull(); }
@@ -41,7 +45,8 @@ namespace edm {
     bool isAvailable() const;
 
     EDProductGetter const* productGetter() const {
-      return prodGetter_;
+      return (!cacheIsProductPtr())? static_cast<EDProductGetter const*>(cachePtr_):
+      static_cast<EDProductGetter const*>(0);
     }
 
     void setProductGetter(EDProductGetter const* prodGetter) const;
@@ -63,8 +68,11 @@ namespace edm {
     void pushBackItem(RefCore const& productToBeInserted, bool checkPointer);
 
     struct CheckTransientOnWrite {
-      explicit CheckTransientOnWrite(bool iValue=false): transient_(iValue) {}
+      explicit CheckTransientOnWrite(bool iValue=false, bool iIsProductPtr=false): 
+      transient_(iValue),
+      cacheIsProductPtr_(iIsProductPtr){}
       bool transient_;
+      mutable bool cacheIsProductPtr_; //transient
     };
  private:
     void setId(ProductID const& iId) {
@@ -72,9 +80,13 @@ namespace edm {
       productIndex_ = iId.productIndex();
     }
     void setTransient() {transient_.transient_ = true;}
+    void setCacheIsProductPtr(bool iState) const {transient_.cacheIsProductPtr_=iState;}
+    bool cacheIsProductPtr() const {
+      return transient_.cacheIsProductPtr_;
+    }
 
-    mutable void const* prodPtr_;               // transient
-    mutable EDProductGetter const* prodGetter_; // transient
+    
+    mutable void const* cachePtr_;               // transient
     //The following are what is stored in a ProductID
     ProcessIndex processIndex_;
     ProductIndex productIndex_;
@@ -105,9 +117,9 @@ namespace edm {
   RefCore::swap(RefCore & other) {
     std::swap(processIndex_, other.processIndex_);
     std::swap(productIndex_, other.productIndex_);
-    std::swap(prodPtr_, other.prodPtr_);
-    std::swap(prodGetter_, other.prodGetter_);
+    std::swap(cachePtr_, other.cachePtr_);
     std::swap(transient_.transient_, other.transient_.transient_);
+    std::swap(transient_.cacheIsProductPtr_, other.transient_.cacheIsProductPtr_);
   }
 
   inline void swap(edm::RefCore & lhs, edm::RefCore & rhs) {
