@@ -72,8 +72,7 @@ edm::EventBase::getByLabel<FWGenericObject>(edm::InputTag const& tag,
 
    ROOT::Reflex::Type wrapperType = ROOT::Reflex::Type::ByName(wrapperName);
 
-   BasicHandle bh = this->getByLabelImpl(Wrapper<FWGenericObject>::getInterface(),
-                                         wrapperType.TypeInfo(),
+   BasicHandle bh = this->getByLabelImpl(wrapperType.TypeInfo(),
                                          result.type().TypeInfo(),
                                          tag);
    convert_handle(bh, result);  // throws on conversion error
