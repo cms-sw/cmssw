@@ -35,23 +35,23 @@ namespace cond {
       headerLine<<std::setfill('-');
       switch ( timeType ){
       case runnumber:
-	std::cout <<std::setw(sinceTillColumnSize)<<"Since"<<std::setw(sinceTillColumnSize)<<"  Till";
-	std::cout <<" ";
+	std::cout <<std::setw(sinceTillColumnSize)<<"Since"<<"  "<<std::setw(sinceTillColumnSize)<<"Till";
+	//std::cout <<" ";
         headerLine << std::setw(sinceTillColumnSize)<<"";
         headerLine << "  "<<std::setw(sinceTillColumnSize)<<"";
         break;
       case timestamp:
-        std::cout <<std::setw(sinceTillColumnSize)<<"Since "<<std::setw(sinceTillTSColumnSize)<<"   Since (time)";
-        std::cout <<std::setw(sinceTillColumnSize)<<"  Till "<<std::setw(sinceTillTSColumnSize)<<"   Till (time)";
-	std::cout <<" ";
+        std::cout <<std::setw(sinceTillColumnSize)<<"Since"<<"  "<<std::setw(sinceTillTSColumnSize)<<"Since (time)";
+        std::cout <<"  "<<std::setw(sinceTillColumnSize)<<"Till"<<"  "<<std::setw(sinceTillTSColumnSize)<<"Till (time)";
+	//std::cout <<" ";
         headerLine << std::setw(sinceTillColumnSize)<<"";
         headerLine << "  "<<std::setw(sinceTillTSColumnSize)<<"";
         headerLine << "  "<<std::setw(sinceTillColumnSize)<<"";
         headerLine << "  "<<std::setw(sinceTillTSColumnSize)<<"";
         break; 
       case lumiid:
-        std::cout <<std::setw(sinceTillColumnSize)<<"Since "<<std::setw(sinceTillColumnSize)<<"   Since (runn) "<<std::setw(sinceTillColumnSize)<<"   Since (lumi)";
-        std::cout <<std::setw(sinceTillColumnSize)<<"  Till "<<std::setw(sinceTillColumnSize)<<"   Till (runn) "<<std::setw(sinceTillColumnSize)<<"   Till (lumi)";
+        std::cout <<std::setw(sinceTillColumnSize)<<"Since"<<"  "<<std::setw(sinceTillColumnSize)<<"Since (runn)"<<"  "<<std::setw(sinceTillColumnSize)<<"Since (lumi)";
+        std::cout <<"  "<<std::setw(sinceTillColumnSize)<<"Till"<<"  "<<std::setw(sinceTillColumnSize)<<"Till (runn)"<<"  "<<std::setw(sinceTillColumnSize)<<"Till (lumi)";
         headerLine << std::setw(sinceTillColumnSize)<<"";
         headerLine << "  "<<std::setw(sinceTillColumnSize)<<"";
         headerLine << "  "<<std::setw(sinceTillColumnSize)<<"";
@@ -60,12 +60,12 @@ namespace cond {
         headerLine << "  "<<std::setw(sinceTillColumnSize)<<"";
         break; 
       case hash:
-	std::cout <<std::setw(sinceTillColumnSize)<<"Since"<<std::setw(sinceTillColumnSize)<<"  Till  ";
+	std::cout <<std::setw(sinceTillColumnSize)<<"Since"<<"  "<<std::setw(sinceTillColumnSize)<<"Till  ";
         headerLine << std::setw(sinceTillColumnSize)<<"";
         headerLine << "  "<<std::setw(sinceTillColumnSize)<<"";
         break;
       case userid:
-	std::cout <<std::setw(sinceTillColumnSize)<<"Since"<<std::setw(sinceTillColumnSize)<<"  Till  ";
+	std::cout <<std::setw(sinceTillColumnSize)<<"Since"<<"  "<<std::setw(sinceTillColumnSize)<<"Till  ";
         headerLine << std::setw(sinceTillColumnSize)<<"";
         headerLine << "  "<<std::setw(sinceTillColumnSize)<<"";
         break; 
@@ -82,7 +82,11 @@ namespace cond {
      case timestamp:
        val << cond::time::to_boost(validity);
        std::cout <<std::setw(sinceTillColumnSize)<< validity;
-       std::cout <<"  "<<std::setw(sinceTillTSColumnSize)<< val.str().substr(0,20);
+       if( validity != cond::timeTypeSpecs[timestamp].endValue ){
+	 std::cout <<"  "<<std::setw(sinceTillTSColumnSize)<< val.str().substr(0,20);
+       } else {
+	 std::cout <<"  "<<std::setw(sinceTillTSColumnSize)<< "Infinity";
+       }
        break; 
      case lumiid:
        std::cout <<std::setw(sinceTillColumnSize)<<validity;
@@ -171,8 +175,8 @@ int cond::ListIOVUtilities::execute(){
       std::cout <<"\tTimeType: " << cond::timeTypeSpecs[iov.timetype()].name<<std::endl;
       std::cout <<"\t";
       std::string headerValLine = printValidityHeader( cond::timeTypeSpecs[iov.timetype()].type );
-      std::cout << std::setw(13)<<"   Payload token";
-      std::cout << std::setw(maxClassSize)<<"  Payload Class";
+      std::cout << "  "<<std::setw(13)<<"Payload token";
+      std::cout << "  "<<std::setw(maxClassSize)<<"Payload Class";
       std::cout << std::endl;
       std::cout << std::setfill('-');
       std::cout <<"\t"<<headerValLine;

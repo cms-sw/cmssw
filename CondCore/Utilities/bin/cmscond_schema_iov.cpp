@@ -41,15 +41,22 @@ int cond::SchemaIOVUtilities::execute(){
     ora::ScopedTransaction trans( db.transaction() );
     trans.start(false);
     if( !db.exists() ){
+      std::cout << "INFO: Creating database "<<std::endl;
       db.create(cond::DbSession::COND_SCHEMA_VERSION);
+      db.setAccessPermission(cond::DbSession::CONDITIONS_GENERAL_READER, false );
+      db.setAccessPermission( cond::DbSession::CONDITIONS_GENERAL_WRITER, true );
     } 
+
     std::set<std::string> conts = db.containers();
     if( conts.find( cond::IOVNames::container() )!=conts.end() ){
       std::cout << "WARNING: container \"" << cond::IOVNames::container() << "\" already exists in the database."<<std::endl;
       return 0;
     }
           
+    std::cout << "INFO: Creating container \"" << cond::IOVNames::container() << "\"."<<std::endl;
     db.createContainer( cond::IOVNames::container(), cond::IOVNames::container() );
+    db.setAccessPermission(cond::DbSession::CONDITIONS_GENERAL_READER, false );
+    db.setAccessPermission( cond::DbSession::CONDITIONS_GENERAL_WRITER, true );
     trans.commit();
     return 0;
   } 
@@ -66,6 +73,7 @@ int cond::SchemaIOVUtilities::execute(){
       std::cout << "WARNING: container \"" << cond::IOVNames::container() << "\" does not exist in the database."<<std::endl;
       return 0;
     }
+    std::cout << "INFO: Dropping container \"" << cond::IOVNames::container() << "\"."<<std::endl;
     db.dropContainer( cond::IOVNames::container() );
     trans.commit();
     return 0;
