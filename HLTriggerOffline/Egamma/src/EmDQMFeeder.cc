@@ -6,7 +6,7 @@
 //
 // Original Author:  Thomas Reis,40 4-B24,+41227671567,
 //         Created:  Tue Mar 15 12:24:11 CET 2011
-// $Id: EmDQMFeeder.cc,v 1.17 2011/05/26 08:54:26 treis Exp $
+// $Id: EmDQMFeeder.cc,v 1.18 2011/06/15 07:07:56 treis Exp $
 //
 //
 
@@ -277,7 +277,11 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
                   // if ncandcut is -1 (when parsing for the number of particles in the name of the L1seed filter fails),
                   // fall back to setting ncandcut to the number of particles needed for the given path.
                   if (filterPSet.getParameter<int>("ncandcut") < 0) filterPSet.addParameter<int>("ncandcut", paramSet.getParameter<int>("cutnum"));
-                  
+                  else if (filterPSet.getParameter<int>("ncandcut") > paramSet.getParameter<int>("cutnum")) {
+                    paramSet.addParameter<int>("cutnum", filterPSet.getParameter<int>("ncandcut"));
+                    paramSet.addParameter<unsigned>("reqNum", (unsigned)filterPSet.getParameter<int>("ncandcut"));
+                  }
+
                   filterVPSet.push_back(filterPSet);
                }
                else
@@ -321,7 +325,6 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
    } else {
       // if init returns FALSE, initialisation has NOT succeeded, which indicates a problem
       // with the file and/or code and needs to be investigated!
-      //edm::LogError("EmDQMFeeder") << " HLT config extraction failure with process name '" << processName_ << "'.";
       if (verbosity_ >= OUTPUT_ERRORS)
          edm::LogError("EmDQMFeeder") << " HLT config extraction failure with process name '" << triggerObject_.process() << "'.";
       // In this case, all access methods will return empty values!
@@ -625,8 +628,7 @@ EmDQMFeeder::makePSetForEgammaGenericFilter(const std::string& moduleName)
   //--------------------
 
   // parameter saveTag determines the output type
-  //if (hltConfig_.saveTags(moduleName)) // more elegant but only implemented in newer versions
-  if (hltConfig_.modulePSet(moduleName).exists("saveTags") && hltConfig_.modulePSet(moduleName).getParameter<bool>("saveTags"))
+  if (hltConfig_.saveTags(moduleName))
      retPSet.addParameter<int>("theHLTOutputTypes", trigger::TriggerPhoton);  
   else
      retPSet.addParameter<int>("theHLTOutputTypes", trigger::TriggerCluster);
@@ -699,8 +701,7 @@ EmDQMFeeder::makePSetForEgammaGenericQuadraticFilter(const std::string& moduleNa
   //--------------------
 
   // parameter saveTag determines the output type
-  //if (hltConfig_.saveTags(moduleName)) // more elegant but only implemented in newer versions
-  if (hltConfig_.modulePSet(moduleName).exists("saveTags") && hltConfig_.modulePSet(moduleName).getParameter<bool>("saveTags"))
+  if (hltConfig_.saveTags(moduleName))
      retPSet.addParameter<int>("theHLTOutputTypes", trigger::TriggerPhoton);  
   else
      retPSet.addParameter<int>("theHLTOutputTypes", trigger::TriggerCluster);
