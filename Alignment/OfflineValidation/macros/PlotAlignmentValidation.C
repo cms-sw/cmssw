@@ -548,7 +548,9 @@ TH1* PlotAlignmentValidation::addHists(const char *selection, const TString &res
 {
   enum ResidType {
     xPrimeRes, yPrimeRes, xPrimeNormRes, yPrimeNormRes, xRes, yRes, xNormRes, /*yResNorm*/
-    ResXvsXProfile,  ResXvsYProfile, ResYvsXProfile, ResYvsYProfile
+    ResXvsXProfile,  ResXvsYProfile, ResYvsXProfile, ResYvsYProfile,
+    ResXprimevsXProfile,  ResXprimevsYProfile, ResYprimevsXProfile, ResYprimevsYProfile,
+    ResXbvsXProfile,  ResXbvsYProfile, ResYavsXProfile, ResYavsYProfile
  };
   ResidType rType = xPrimeRes;
   if (residType == "xPrime") rType = xPrimeRes;
@@ -563,6 +565,14 @@ TH1* PlotAlignmentValidation::addHists(const char *selection, const TString &res
   else if (residType == "ResYvsXProfile") rType = ResYvsXProfile;
   else if (residType == "ResXvsYProfile") rType = ResXvsYProfile;
   else if (residType == "ResYvsYProfile") rType = ResYvsYProfile;
+  else if (residType == "ResXprimevsXProfile") rType = ResXprimevsXProfile;
+  else if (residType == "ResYprimevsXProfile") rType = ResYprimevsXProfile;
+  else if (residType == "ResXprimevsYProfile") rType = ResXprimevsYProfile;
+  else if (residType == "ResYprimevsYProfile") rType = ResYprimevsYProfile;
+  else if (residType == "ResXbvsXProfile") rType = ResXbvsXProfile;
+  else if (residType == "ResYavsXProfile") rType = ResYavsXProfile;
+  else if (residType == "ResXbvsYProfile") rType = ResXbvsYProfile;
+  else if (residType == "ResYavsYProfile") rType = ResYavsYProfile;
   else {
     std::cout << "PlotAlignmentValidation::addHists: Unknown residual type "
 	      << residType << std::endl; 
@@ -626,6 +636,14 @@ TH1* PlotAlignmentValidation::addHists(const char *selection, const TString &res
     case ResXvsYProfile: hName = treeMem->profileNameResXvsY.c_str();    break;
     case ResYvsXProfile: hName = treeMem->profileNameResYvsX.c_str();    break;
     case ResYvsYProfile: hName = treeMem->profileNameResYvsY.c_str();    break;
+    case ResXprimevsXProfile: hName = treeMem->profileNameResXprimevsX.c_str();    break;
+    case ResXprimevsYProfile: hName = treeMem->profileNameResXprimevsY.c_str();    break;
+    case ResYprimevsXProfile: hName = treeMem->profileNameResYprimevsX.c_str();    break;
+    case ResYprimevsYProfile: hName = treeMem->profileNameResYprimevsY.c_str();    break;
+    case ResXbvsXProfile: hName = treeMem->profileNameResXbvsX.c_str();    break;
+    case ResXbvsYProfile: hName = treeMem->profileNameResXbvsY.c_str();    break;
+    case ResYavsXProfile: hName = treeMem->profileNameResYavsX.c_str();    break;
+    case ResYavsYProfile: hName = treeMem->profileNameResYavsY.c_str();    break;
     }
     TH1 *newHist = static_cast<TH1*>(f->FindKeyAny(hName)->ReadObj());
     if (!newHist) {
