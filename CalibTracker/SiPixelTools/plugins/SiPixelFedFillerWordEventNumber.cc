@@ -13,14 +13,14 @@ Implementation:
 //
 // Original Author:  Andres Carlos FLOREZ B
 //         Created:  Thu Jun 26 09:02:02 CEST 2008
-// $Id: SiPixelFedFillerWordEventNumber.cc,v 1.4 2010/01/13 09:35:59 ursl Exp $
+// $Id: SiPixelFedFillerWordEventNumber.cc,v 1.5 2010/01/22 15:56:08 argiro Exp $
 //
 //
 
 
 // system include files
 #include <memory>
-#include "CalibTracker/SiPixelTools/interface/SiPixelFedFillerWordEventNumber.h"
+#include "SiPixelFedFillerWordEventNumber.h"
 
 //======= constructors and destructor
 SiPixelFedFillerWordEventNumber ::SiPixelFedFillerWordEventNumber (const edm::ParameterSet& iConfig)
