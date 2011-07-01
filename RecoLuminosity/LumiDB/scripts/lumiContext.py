@@ -213,7 +213,7 @@ if __name__ == '__main__':
         result=lumiCalcAPI.hltpathsForRange(session.nominalSchema(),irunlsdict,hltpathname=sname,hltpathpattern=spattern)
         session.transaction().commit()
         if not options.outputfile:
-            lumiReport.toScreenConfHlt(result,options.outputfile,iresults,options.verbose)
+            lumiReport.toScreenConfHlt(result,iresults,options.verbose)
         else:
             lumiReport.toCSVConfHlt(result,options.outputfile,iresults,options.verbose)
     if options.action == 'beambyls':

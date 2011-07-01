@@ -773,6 +773,14 @@ def toScreenConfHlt(hltconfdata,iresults=None,isverbose=False):
     '''
     labels=[('Run','hltpath','l1seedexpr','l1bit')]
     result=[]
+    for r in iresults:
+        pp=r[1]
+        pp=' '.join([pp[i:i+25] for i in range(0,len(pp),25)])
+        sdepr=r[2]
+        sdepr=' '.join([sdepr[i:i+25] for i in range(0,len(sdepr),25)])
+        lb=r[3]
+        lb=' '.join([lb[i:i+25] for i in range(0,len(lb),25)])
+        result.append([r[0],pp,sdepr,lb])
     for run in sorted(hltconfdata):
         pathdata=hltconfdata[run]
         if pathdata is None:
