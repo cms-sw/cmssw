@@ -81,6 +81,7 @@ private:
     bool collectFastJetRho;
     bool collectPileup;
     bool collectGrids;
+    bool collectGridEt;
     bool collectVertexInfo;
     bool verbosePileupInfo;
 
@@ -111,6 +112,7 @@ FFTJetPileupAnalyzer::FFTJetPileupAnalyzer(const edm::ParameterSet& ps)
       init_param(bool, collectFastJetRho),
       init_param(bool, collectPileup),
       init_param(bool, collectGrids),
+      init_param(bool, collectGridEt),
       init_param(bool, collectVertexInfo),
       init_param(bool, verbosePileupInfo),
       init_param(double, vertexNdofCut),
@@ -187,6 +189,8 @@ void FFTJetPileupAnalyzer::beginJob()
         vars += ":estimate:pileup:uncert:uncertCode";
     if (collectFastJetRho)
         vars += ":fjrho:fjsigma";
+    if (collectGridEt)
+        vars += ":gridEt";
     if (collectVertexInfo)
         vars += ":nPV";
 
@@ -265,7 +269,7 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
         ntupleData.push_back(*fjsigma);
     }
 
-    if (collectGrids)
+    if (collectGrids || collectGridEt)
     {
         edm::Handle<fftjetcms::DiscretizedEnergyFlow> input;
         iEvent.getByLabel(gridLabel, input);
@@ -277,24 +281,33 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
         const unsigned nEta = input->nEtaBins();
         const unsigned nPhi = input->nPhiBins();
 
-        // Generate a name for the output histogram
-        std::ostringstream os;
-        os << "FFTJetGrid_" << counter << '_'
-           << totalNpu << '_' << runnumber << '_' << eventnumber;
-        const std::string& newname(os.str());
+        if (collectGrids)
+        {
+            // Generate a name for the output histogram
+            std::ostringstream os;
+            os << "FFTJetGrid_" << counter << '_'
+               << totalNpu << '_' << runnumber << '_' << eventnumber;
+            const std::string& newname(os.str());
 
-        // Make a histogram and copy the grid data into it
-        edm::Service<TFileService> fs;
-        TH2F* h = fs->make<TH2F>(newname.c_str(), newname.c_str(),
-                                 nEta, input->etaMin(), input->etaMax(),
-                                 nPhi, 0.0, 2.0*M_PI);
-        h->GetXaxis()->SetTitle("Eta");
-        h->GetYaxis()->SetTitle("Phi");
-        h->GetZaxis()->SetTitle("Transverse Energy");
+            // Make a histogram and copy the grid data into it
+            edm::Service<TFileService> fs;
+            TH2F* h = fs->make<TH2F>(newname.c_str(), newname.c_str(),
+                                     nEta, input->etaMin(), input->etaMax(),
+                                     nPhi, 0.0, 2.0*M_PI);
+            h->GetXaxis()->SetTitle("Eta");
+            h->GetYaxis()->SetTitle("Phi");
+            h->GetZaxis()->SetTitle("Transverse Energy");
 
-        for (unsigned ieta=0; ieta<nEta; ++ieta)
-            for (unsigned iphi=0; iphi<nPhi; ++iphi)
-                h->SetBinContent(ieta+1U, iphi+1U, data[ieta*nPhi + iphi]);
+            for (unsigned ieta=0; ieta<nEta; ++ieta)
+                for (unsigned iphi=0; iphi<nPhi; ++iphi)
+                    h->SetBinContent(ieta+1U, iphi+1U, data[ieta*nPhi + iphi]);
+        }
+
+        if (collectGridEt)
+        {
+            const double etSum = std::accumulate(data, data+nEta*nPhi, 0.0);
+            ntupleData.push_back(etSum);
+        }
     }
 
     if (collectVertexInfo)

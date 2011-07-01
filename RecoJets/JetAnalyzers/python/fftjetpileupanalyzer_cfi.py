@@ -42,6 +42,7 @@ fftjet_pileup_analyzer = cms.EDAnalyzer(
     collectFastJetRho = cms.bool(False),
     collectSummaries = cms.bool(True),
     collectGrids = cms.bool(False),
+    collectGridEt = cms.bool(False),
     collectVertexInfo = cms.bool(False),
     verbosePileupInfo = cms.bool(False)
 )
