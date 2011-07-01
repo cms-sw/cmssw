@@ -626,17 +626,25 @@ def toScreenConfTrg(trgconfdata,iresults=None,isverbose=False):
     input:{run:[datasource,normbitname,[allbits]]}
     '''
     labels=[('Run','source','bit names')]
+    if isverbose:
+        labels.append('normbitname')
     result=[]
     for  run in sorted(trgconfdata):
         if trgconfdata[run] is None:
-            ll=[str(run),'n/a','n/a','n/a']
+            ll=[str(run),'n/a','n/a']
+            if isverbose:
+                ll.extend('n/a')
+            result.append(ll)
             continue
         source=trgconfdata[run][0]
         source=source.split('/')[-1]
-        #normbit=trgconfdata[run][1]
+        normbit=trgconfdata[run][1]
         allbits=trgconfdata[run][2]
         bitnames=', '.join(allbits)
-        result.append([str(run),source,bitnames])
+        if isverbose:
+            result.append([str(run),source,bitnames,normbit])
+        else:
+            result.append([str(run),source,bitnames])
 
     print ' ==  = '
     print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
@@ -669,6 +677,8 @@ def toScreenLSHlt(hltdata,iresults=None,isverbose=False):
     input:{runnumber:[(cmslsnum,[(hltpath,hltprescale,l1pass,hltaccept),...]),(cmslsnum,[])})}
     '''
     result=[]
+    for r in iresults:
+        result.append(r)
     for run in hltdata.keys():
         if hltdata[run] is None:            
             ll=[str(run),'n/a','n/a']
@@ -766,7 +776,7 @@ def toScreenConfHlt(hltconfdata,iresults=None,isverbose=False):
     for run in sorted(hltconfdata):
         pathdata=hltconfdata[run]
         if pathdata is None:
-            ll=[str(run),'n/a','n/a','n/a']
+            result.append([str(run),'n/a','n/a','n/a'])
             continue
         for thispathinfo in pathdata:
             thispath=thispathinfo[0]
@@ -786,11 +796,30 @@ def toScreenConfHlt(hltconfdata,iresults=None,isverbose=False):
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace(x,25) )
 
 
-def toCSVConfHlt(hltconfdata,ofilename,iresults=None,isverbose=False):
+def toCSVConfHlt(hltconfdata,filename,iresults=None,isverbose=False):
     '''
-    input:[[run,hltkey,pathnames]]
+    input:{runnumber,[(hltpath,l1seedexpr,l1bitname),...]}
     '''
-    print hltconfdata
+    result=[]
+    r=csvReporter.csvReporter(filename)
+    fieldnames=['Run','hltpath','l1seedexpr','l1bit']
+    result=[]
+    for rline in iresults:
+        result.append(rline)
+    for run in sorted(hltconfdata):
+        pathdata=hltconfdata[run]
+        if pathdata is None:
+            result.append([str(run),'n/a','n/a','n/a'])
+            continue
+        for thispathinfo in pathdata:
+            thispath=thispathinfo[0]
+            thisseed=thispathinfo[1]
+            thisbit=thispathinfo[2]
+            if not thisbit:
+                thisbit='n/a'
+            result.append([str(run),thispath,thisseed,thisbit])
+    r.writeRow(fieldnames)
+    r.writeRows(result)
 
 def toScreenLSBeam(beamdata,iresults=None,dumpIntensity=False,minIntensity=0.1):
     '''
@@ -832,3 +861,45 @@ def toScreenLSBeam(beamdata,iresults=None,dumpIntensity=False,minIntensity=0.1):
     print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'left',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace(x,25) )
+
+def toCSVLSBeam(beamdata,filename,resultlines,dumpIntensity=False,isverbose=False):
+    '''
+    input: {run:[(lumilsnum(0),cmslsnum(1),beamstatus(2),beamenergy(3),beaminfolist(4)),..]}
+    beaminfolist:[(bxidx,b1,b2)]
+    '''
+    result=[]
+    r=csvReporter.csvReporter(filename)
+    fieldnames=['Run','LS','beamstatus','egev']
+    if dumpIntensity:
+        fieldnames.append('(bxidx,b1,b2)')
+    for rline in resultlines:
+        result.append(rline)        
+    for run in sorted(beamdata):
+        perrundata=beamdata[run]
+        if perrundata is None:            
+            ll=[str(run),'n/a','n/a']
+            if dumpIntensity:
+                ll.extend('n/a')
+            continue
+        for lsdata in perrundata:
+            lumilsnum=lsdata[0]
+            cmslsnum=lsdata[1]
+            beamstatus=lsdata[2]
+            beamenergy=lsdata[3]
+            if not dumpIntensity:
+                result.append([str(run),str(lumilsnum)+':'+str(cmslsnum),beamstatus,'%.2f'%beamenergy])
+                continue
+            allbxinfo=lsdata[4]
+            allbxresult=[]
+            for thisbxinfo in allbxinfo:
+                thisbxresultStr='(n/a,n/a,n/a)'
+                bxidx=thisbxinfo[0]
+                b1=thisbxinfo[1]
+                b2=thisbxinfo[2]
+                if bxidx is not None and b1 is not None and b2 is not None and b1>minIntensity and b2>minIntensity:
+                    thisbxresultStr='('+','.join(['%d'%bxidx,'%.3e'%b1,'%.3e'%b2])+')'
+                allbxresult.append(thisbxresultStr)
+            allbxresultStr=' '.join(allbxresult)
+            result.append([str(run),str(lumilsnum)+':'+str(cmslsnum),beamstatus,'%.2f'%beamenergy,allbxresultStr])
+    r.writeRow(fieldnames)
+    r.writeRows(result)

@@ -31,7 +31,7 @@ def parseInputFiles(inputfilename,dbrunlist,optaction):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description = "Additional information needed in the lumi calculation",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    allowedActions = ['hltbyls','hltconf','trgconf','trgbyls', 'beambyls','hltl1map']
+    allowedActions = ['hltbyls','hltconf','trgconf','trgbyls', 'beambyls']
     amodetagChoices = [ "PROTPHYS","IONPHYS" ]
     beamModeChoices = ["stable"]
     #
@@ -141,7 +141,7 @@ if __name__ == '__main__':
         else:
             print '\trun selections == '
             print '\tinput selection file: ',options.inputfile
-            print '\tbeam mode: ',options.beammode
+            print '\tbeam mode: ',options.beammode 
             print '\tfill: ',options.fillnum
             print '\tamodetag: ',options.amodetag
             print '\tbegin: ',options.begin
@@ -213,16 +213,16 @@ if __name__ == '__main__':
         result=lumiCalcAPI.hltpathsForRange(session.nominalSchema(),irunlsdict,hltpathname=sname,hltpathpattern=spattern)
         session.transaction().commit()
         if not options.outputfile:
-            lumiReport.toScreenConfHlt(result)
+            lumiReport.toScreenConfHlt(result,options.outputfile,iresults,options.verbose)
         else:
-            print result
+            lumiReport.toCSVConfHlt(result,options.outputfile,iresults,options.verbose)
     if options.action == 'beambyls':
         session.transaction().start(True)
         result=lumiCalcAPI.beamForRange(session.nominalSchema(),irunlsdict,withBeamIntensity=False)
         session.transaction().commit()
         if not options.outputfile:
-            lumiReport.toScreenLSBeam(result,irunlsdict,dumpIntensity=False)
+            lumiReport.toScreenLSBeam(result,iresults=iresults,dumpIntensity=False)
         else:
-            print result
+            lumiReport.toCSVLSBeam(result,options.outputfile,iresults=iresults,dumpIntensity=False,isverbose=options.verbose)
     del session
     del svc 
