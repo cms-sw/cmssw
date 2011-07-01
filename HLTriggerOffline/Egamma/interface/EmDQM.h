@@ -142,7 +142,7 @@ private:
   DQMStore * dbe;
   std::string dirname_;
 
-  template <class T> void fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& ,const edm::Event& ,unsigned int, std::vector<reco::Particle>& );
+  template <class T> void fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& ,const edm::Event& ,unsigned int, std::vector<reco::Particle>&, bool & );
   GreaterByPt<reco::Particle> pTComparator_;
   GreaterByPt<reco::GenParticle> pTGenComparator_;
   
