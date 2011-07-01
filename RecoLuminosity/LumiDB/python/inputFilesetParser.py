@@ -1,5 +1,13 @@
 import os,csv
 from RecoLuminosity.LumiDB import csvSelectionParser,selectionParser,CommonUtil
+def filehasHeader(f):
+    line=f.readline()
+    comps=line.split(',')
+    if comps and comps[0].lower()=='run':
+        return True
+    else:
+        return False
+    
 class inputFilesetParser(object):
     def __init__(self,inputfilename):
         filelist=inputfilename.split('+')
@@ -20,7 +28,8 @@ class inputFilesetParser(object):
             header=''
             for f in self.__inputresultfiles:
                 ifile=open(f)
-                hasHeader=csv.Sniffer().has_header(ifile.read(1024))
+                hasHeader=filehasHeader(ifile)
+                #hasHeader=csv.Sniffer().has_header(ifile.read(1024)) #sniffer doesn't work well , replace with custom
                 ifile.seek(0)
                 csvReader=csv.reader(ifile,delimiter=',')
                 irow=0
