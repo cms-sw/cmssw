@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.18 2011/07/01 23:33:54 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.19 2011/07/02 03:37:47 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -40,7 +40,7 @@
 #include "TGFrame.h"
 
 static const char* redTxt   = "\033[01;31m";
-static const char* greenTxt = "\033[01;32m";
+//static const char* greenTxt = "\033[01;32m";
 // static const char* cyanTxt  = "\033[22;36m";
 // static const char* whiteTxt = "\033[0m";
 
@@ -412,12 +412,10 @@ void FWGeometryTableManager::redrawTable()
 
 void FWGeometryTableManager::loadGeometry()
 {
-  
 #ifdef PERFTOOL_GEO_TABLE  
    ProfilerStart("loadGeo");
 #endif
    
- 
    // Prepare data for cell render.
    m_browser->updateStatusBar("Set table content ...");
    
@@ -439,23 +437,20 @@ void FWGeometryTableManager::loadGeometry()
       updateFilter();  
 
    // add top node to init
+ 
+   int nTotal = 0;
    NodeInfo topNodeInfo;
    topNodeInfo.m_node   = m_browser->geoManager()->GetTopNode();
-
    topNodeInfo.m_level  = 0;
    topNodeInfo.m_parent = -1;
-   m_entries.push_back(topNodeInfo);
+
+   getNNodesTotal(topNodeInfo.m_node , nTotal);
+   m_entries.resize(nTotal+1);
+   m_entries[0] = topNodeInfo;
 
    importChildren(0);
-   for (Entries_i i = m_entries.begin(); i != m_entries.end(); ++i)
-   {
-      if (i->m_level > m_browser->getAutoExpand()) i->resetBit(kExpanded);
-   }   
 
-
-   if (0)
-      checkHierarchy();
- 
+   // checkHierarchy();
    
 #ifdef PERFTOOL_GEO_TABLE  
    ProfilerStop();
@@ -465,7 +460,7 @@ void FWGeometryTableManager::loadGeometry()
 //==============================================================================
 
 void
-FWGeometryTableManager::getNNodesTotal(TGeoNode* geoNode, int level, int& off) const
+FWGeometryTableManager::getNNodesTotal(TGeoNode* geoNode, int& off) const
 {   
    // Get number of nested children recursively.
    
@@ -474,7 +469,7 @@ FWGeometryTableManager::getNNodesTotal(TGeoNode* geoNode, int level, int& off) c
    off += nD;
    for (int i = 0; i < nD; ++i )
    {
-      getNNodesTotal(geoNode->GetDaughter(i), level+1, off);
+      getNNodesTotal(geoNode->GetDaughter(i), off);
    }
 }
 
@@ -482,55 +477,26 @@ FWGeometryTableManager::getNNodesTotal(TGeoNode* geoNode, int level, int& off) c
 
 void FWGeometryTableManager::importChildren(int parent_idx)
 {
-   bool debug = 0;
-   
-   int nEntries = (int)m_entries.size();
-   assert( parent_idx < nEntries);
-
-   // parnt index not valid in recursive import:  save parent info here
-
    NodeInfo& parent        = m_entries[parent_idx];
    TGeoNode* parentGeoNode = parent.m_node; 
-   int       parentLevel   = parent.m_level;   
-   if (debug) printf("%s START level[%d] >  %s[%d]   \033[0m\n" ,greenTxt,  parentLevel+1, parentGeoNode->GetName(), parent_idx);
-
+   int       parentLevel   = parent.m_level; 
    
-   //  int nV = getNdaughtersLimited(parentGeoNode);
    int nV = parentGeoNode->GetNdaughters();
-   Entries_i it = m_entries.begin();
-   std::advance(it, parent_idx+1);
-   m_entries.insert(it, nV, NodeInfo());
-   nEntries += nV; 
-   //   if (debug)  printf(" accpted %d of %d entries size %d \n", nV, nD, (int)m_entries.size());
-   
-   // child nodes setup
+   int dOff = 0; 
    for (int n = 0; n != nV; ++n)
-   {
-      NodeInfo &nodeInfo = m_entries[parent_idx + 1 + n ];
-      nodeInfo.m_node =   parentGeoNode->GetDaughter(n);
-      nodeInfo.m_level =  parentLevel + 1;
-      nodeInfo.m_parent = parent_idx;
-      // 3D
-      nodeInfo.m_color =  nodeInfo.m_node->GetVolume()->GetLineColor();
-      if (debug)  printf(" add %s\n", nodeInfo.name());
-   }
-   
-   // change of autoExpand parameter
-   int dOff = 0;
-   {
-      for (int n = 0; n != nV; ++n)
-      {
-         importChildren(parent_idx + n + 1 + dOff);       
-         if (parentGeoNode->GetNdaughters() > 0)
-         {
-            getNNodesTotal(parentGeoNode->GetDaughter(n), parentLevel+1, dOff);
-         }
-            
-      }
-   }
-
-   fflush(stdout);
-}// end importChildren
+   {         
+      NodeInfo& data = m_entries[parent_idx + n + 1 + dOff];    
+      data.m_node =   parentGeoNode->GetDaughter(n);
+      data.m_level =  parentLevel + 1;
+      data.m_parent = parent_idx;
+      data.m_color =  data.m_node->GetVolume()->GetLineColor();
+      if (data.m_level <=  m_browser->getAutoExpand()) data.setBit(kExpanded);
+      
+ 
+      importChildren(parent_idx + n + 1 + dOff);         
+      getNNodesTotal(parentGeoNode->GetDaughter(n), dOff);            
+   }  
+}
 
 //==============================================================================
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.15 2011/07/01 23:33:53 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.16 2011/07/02 03:37:46 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -55,17 +55,17 @@ public:
 
    struct NodeInfo
    {
-      NodeInfo():m_node(0), m_parent(-1), m_level(-1), 
+      NodeInfo():m_node(0), m_parent(-1), m_color(0), m_level(-1), 
                  m_flags(0)
       {}  
 
       TGeoNode*   m_node;
       Int_t       m_parent;
-      Short_t     m_level;
+      Color_t     m_color;
+      UChar_t     m_level;
       UChar_t     m_flags;
 
-      // 3D
-      Color_t     m_color;
+
 
       const char* name() const;
 
@@ -166,7 +166,7 @@ private:
    //oid checkUniqueVolume(); 
    void checkChildMatches(TGeoVolume* v,  std::vector<TGeoVolume*>&);
    int  getNdaughtersLimited(TGeoNode*) const;
-   void getNNodesTotal(TGeoNode* geoNode, int level,int& off) const;
+   void getNNodesTotal(TGeoNode* geoNode, int& off) const;
    void importChildren(int parent_idx);
    void checkHierarchy();
 
