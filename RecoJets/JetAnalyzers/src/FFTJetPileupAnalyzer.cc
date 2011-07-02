@@ -173,12 +173,10 @@ void FFTJetPileupAnalyzer::analyzePileup(
         sumpt_Lo += losum;
         sumpt_Hi += hisum;
 
-        if (bx >= -1 && bx <= 1)
-        {
-            npu_by_Bx[bx + 1] = npu;
-            sumpt_Lo_by_Bx[bx + 1] = losum;
-            sumpt_Hi_by_Bx[bx + 1] = hisum;
-        }
+        const unsigned idx = bx < 0 ? 0U : (bx == 0 ? 1U : 2U);
+        npu_by_Bx[idx] += npu;
+        sumpt_Lo_by_Bx[idx] += losum;
+        sumpt_Hi_by_Bx[idx] += hisum;
 
         if (verbosePileupInfo)
             std::cout << "ibx " << ibx << " bx " << bx
@@ -229,9 +227,9 @@ void FFTJetPileupAnalyzer::beginJob()
         vars += ":nbx:npu:sumptLowCut:sumptHiCut";
     if (collectOOTPileup)
     {
-        vars += ":npu_bxm1:sumptLowCut_bxm1:sumptHiCut_bxm1";
-        vars += ":npu_bx0:sumptLowCut_bx0:sumptHiCut_bx0";
-        vars += ":npu_bxp1:sumptLowCut_bxp1:sumptHiCut_bxp1";
+        vars += ":npu_negbx:sumptLowCut_negbx:sumptHiCut_negbx";
+        vars += ":npu_0bx:sumptLowCut_0bx:sumptHiCut_0bx";
+        vars += ":npu_posbx:sumptLowCut_posbx:sumptHiCut_posbx";
     }
     if (collectSummaries)
         vars += ":estimate:pileup:uncert:uncertCode";
