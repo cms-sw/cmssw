@@ -16,7 +16,11 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Mon Mar 22 12:08:40 CET 2010
-// $Id: FWViewType.h,v 1.17 2011/06/01 22:35:55 amraktad Exp $
+<<<<<<< FWViewType.h
+// $Id: FWViewType.h,v 1.18 2011/07/01 00:03:58 amraktad Exp $
+=======
+// $Id: FWViewType.h,v 1.16 2011/01/26 11:47:06 amraktad Exp $
+>>>>>>> 1.16
 //
 #include <string>
 
@@ -31,8 +35,12 @@ public:
 
    static static_initializer init_statics;
    
+<<<<<<< FWViewType.h
    //   enum EType { kRhoPhi, kRhoZ, k3D, kISpy, kLego, kLegoHF, kGlimpse,	    
 enum EType { k3D, kRhoPhi, kRhoZ, kISpy, kLego, kLegoHF, kGlimpse,
+=======
+   enum EType { k3D, kRhoPhi, kRhoZ, kISpy, kLego, kLegoHF, kGlimpse,
+>>>>>>> 1.16
                 kTable, kTableL1, kTableHLT,
                 kRhoPhiPF, kLegoPFECAL,
                 kTypeSize };
