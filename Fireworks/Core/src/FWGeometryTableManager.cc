@@ -8,16 +8,16 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.17 2011/07/01 00:01:20 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.18 2011/07/01 23:33:54 amraktad Exp $
 //
 
-//#define PERFTOOL
+//#define PERFTOOL_GEO_TABLE
 
 // user include files
 #include <iostream>
 #include <boost/bind.hpp>
 #include <stack>
-#ifdef PERFTOOL 
+#ifdef PERFTOOL_GEO_TABLE 
 #include <google/profiler.h>
 #endif
 #include "Fireworks/Core/interface/FWGeometryTableManager.h"
@@ -41,8 +41,8 @@
 
 static const char* redTxt   = "\033[01;31m";
 static const char* greenTxt = "\033[01;32m";
-static const char* cyanTxt  = "\033[22;36m";
-//static const char* whiteTxt = "\033[0m";
+// static const char* cyanTxt  = "\033[22;36m";
+// static const char* whiteTxt = "\033[0m";
 
 const char* FWGeometryTableManager::NodeInfo::name() const
 {
@@ -236,7 +236,8 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
 
    if (iCol == kName)
    {
-      int nD = getNdaughtersLimited(data.m_node);
+      //int nD = getNdaughtersLimited(data.m_node);
+      int nD = data.m_node->GetNdaughters();
       if (m_browser->getVolumeMode())
          renderer->setData(Form("%s [%d]", gn.GetVolume()->GetName(), nD), isSelected);
       else    
@@ -409,23 +410,10 @@ void FWGeometryTableManager::redrawTable()
 
 //==============================================================================
 
-void FWGeometryTableManager::checkUniqueVolume(TGeoVolume* v)
-{
-   Volumes_i it  = m_volumes.find(v);
-   if (it == m_volumes.end())
-   {
-      m_volumes.insert(std::make_pair(v, Match()));
-   }
-   for (int i =0, nD = v->GetNdaughters(); i != nD; ++i) {
-      checkUniqueVolume(v->GetNode(i)->GetVolume());
-   }
-}
-//==============================================================================
-
 void FWGeometryTableManager::loadGeometry()
 {
   
-#ifdef PERFTOOL  
+#ifdef PERFTOOL_GEO_TABLE  
    ProfilerStart("loadGeo");
 #endif
    
@@ -439,8 +427,14 @@ void FWGeometryTableManager::loadGeometry()
    m_volumes.clear();
    m_levelOffset = 0;
 
-   // fill table
-   checkUniqueVolume(m_browser->geoManager()->GetTopNode()->GetVolume());
+   // set volume table for filters
+   boost::unordered_map<TGeoVolume*, Match>  pipi(m_browser->geoManager()->GetListOfVolumes()->GetSize());
+   m_volumes.swap(pipi);
+   TIter next( m_browser->geoManager()->GetListOfVolumes());
+   TGeoVolume* v;
+   while ((v = (TGeoVolume*) next()) != 0)
+      m_volumes.insert(std::make_pair(v, Match()));
+
    if (!m_filterOff)
       updateFilter();  
 
@@ -452,19 +446,18 @@ void FWGeometryTableManager::loadGeometry()
    topNodeInfo.m_parent = -1;
    m_entries.push_back(topNodeInfo);
 
-   importChildren(0, true);
+   importChildren(0);
    for (Entries_i i = m_entries.begin(); i != m_entries.end(); ++i)
    {
       if (i->m_level > m_browser->getAutoExpand()) i->resetBit(kExpanded);
    }   
 
 
-   if (1)
+   if (0)
       checkHierarchy();
  
-   redrawTable();
    
-#ifdef PERFTOOL  
+#ifdef PERFTOOL_GEO_TABLE  
    ProfilerStop();
 #endif
 }
@@ -472,34 +465,22 @@ void FWGeometryTableManager::loadGeometry()
 //==============================================================================
 
 void
-FWGeometryTableManager::getNNodesTotal(TGeoNode* geoNode, int level, int& off, bool debug) const
+FWGeometryTableManager::getNNodesTotal(TGeoNode* geoNode, int level, int& off) const
 {   
    // Get number of nested children recursively.
    
-   if (debug) printf("getNNodesTotal %s %s (c:%d)\033[22;0m \n", cyanTxt, geoNode->GetName(), level);
-   
-   int nD =  getNdaughtersLimited(geoNode);
-   std::vector<int> vi; vi.reserve(nD);
-   vi.reserve(nD);
-   for (int n = 0; n != nD; ++n)
+   // int nD =  getNdaughtersLimited(geoNode);
+   int nD =  geoNode->GetNdaughters();
+   off += nD;
+   for (int i = 0; i < nD; ++i )
    {
-      vi.push_back(n);
-   }
-   
-   int nV = vi.size();
-   {
-      off += nV;
-      for (int i = 0; i < nV; ++i )
-      {
-         getNNodesTotal(geoNode->GetDaughter(vi[i]), level+1, off, false);
-      }
-      if (debug) printf("%d \n", off);
+      getNNodesTotal(geoNode->GetDaughter(i), level+1, off);
    }
 }
 
 //______________________________________________________________________________
 
-void FWGeometryTableManager::importChildren(int parent_idx, bool /*recurse*/)
+void FWGeometryTableManager::importChildren(int parent_idx)
 {
    bool debug = 0;
    
@@ -514,19 +495,8 @@ void FWGeometryTableManager::importChildren(int parent_idx, bool /*recurse*/)
    if (debug) printf("%s START level[%d] >  %s[%d]   \033[0m\n" ,greenTxt,  parentLevel+1, parentGeoNode->GetName(), parent_idx);
 
    
-   // get indices of accepted nodes
-   int nD = getNdaughtersLimited(parentGeoNode);
-   std::vector<int> vi; 
-   vi.reserve(nD);
-
-   // TOD0:: OBSOLETE
-   for (int n = 0; n != nD; ++n)
-   {
-      vi.push_back(n);         
-   }
-   int nV =  vi.size();
-   
-   // add  accepted nodes
+   //  int nV = getNdaughtersLimited(parentGeoNode);
+   int nV = parentGeoNode->GetNdaughters();
    Entries_i it = m_entries.begin();
    std::advance(it, parent_idx+1);
    m_entries.insert(it, nV, NodeInfo());
@@ -536,9 +506,8 @@ void FWGeometryTableManager::importChildren(int parent_idx, bool /*recurse*/)
    // child nodes setup
    for (int n = 0; n != nV; ++n)
    {
-      int childIdx = vi[n];
       NodeInfo &nodeInfo = m_entries[parent_idx + 1 + n ];
-      nodeInfo.m_node =   parentGeoNode->GetDaughter(childIdx);
+      nodeInfo.m_node =   parentGeoNode->GetDaughter(n);
       nodeInfo.m_level =  parentLevel + 1;
       nodeInfo.m_parent = parent_idx;
       // 3D
@@ -551,10 +520,10 @@ void FWGeometryTableManager::importChildren(int parent_idx, bool /*recurse*/)
    {
       for (int n = 0; n != nV; ++n)
       {
-         importChildren(parent_idx + n + 1 + dOff, true);       
+         importChildren(parent_idx + n + 1 + dOff);       
          if (parentGeoNode->GetNdaughters() > 0)
          {
-            getNNodesTotal(parentGeoNode->GetDaughter(vi[n]), parentLevel+1, dOff, debug);
+            getNNodesTotal(parentGeoNode->GetDaughter(n), parentLevel+1, dOff);
          }
             
       }

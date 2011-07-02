@@ -23,12 +23,13 @@
 #include "TGMenu.h"
 #include "KeySymbols.h"
 
+// #define PERFTOOL_BROWSER
+
 #include "TEveManager.h"
 #include "TEveGeoNode.h"
 #include "TGeoManager.h"
 #include "TEveScene.h"
-//#define PERFTOOL
-#ifdef PERFTOOL 
+#ifdef PERFTOOL_BROWSER 
 #include <google/profiler.h>
 #endif
 
@@ -370,18 +371,19 @@ FWGeometryBrowser::readFile()
 
       m_geoManager = (TGeoManager*) m_geometryFile->Get("cmsGeo;1");
 
- #ifdef PERFTOOL  
-   ProfilerStart("load");
+#ifdef PERFTOOL_BROWSER  
+      ProfilerStart("load.browser.prof");
 #endif  
       m_tableManager->loadGeometry();
+
+#ifdef PERFTOOL_BROWSER  
+      ProfilerStop();
+#endif
 
       m_eveTopNode = new FWGeoTopNode(this);
       const char* n = Form("%s level[%d] size[%d] \n",m_geoManager->GetCurrentNode()->GetName(), getVisLevel(), (int)m_tableManager->refEntries().size());                            
       m_eveTopNode->SetElementName(n);
 
-#ifdef PERFTOOL  
-   ProfilerStop();
-#endif
       TEveElementList* scenes = gEve->GetScenes();
       for (TEveElement::List_i it = scenes->BeginChildren(); it != scenes->EndChildren(); ++it)
       {
@@ -393,8 +395,7 @@ FWGeometryBrowser::readFile()
             // printf("Add top node to %s scene \n", s->GetName());
          }
       }
-
-      gEve->FullRedraw3D(1,1);
+      refreshTable3D();
       MapRaised();
    }
    catch (std::runtime_error &e)
@@ -496,7 +497,7 @@ void FWGeometryBrowser::cdUp()
 int ccnt = 0;
 void FWGeometryBrowser::updatePath(int parentIdx)
 {
-#ifdef PERFTOOL  
+#ifdef PERFTOOL_BROWSER  
    ProfilerStart(Form("cdPath%d.prof", ccnt++));
 #endif
 
@@ -510,7 +511,7 @@ void FWGeometryBrowser::updatePath(int parentIdx)
    // printf("END Set Path to [%s], curren node %s \n", m_path.value().c_str(), topNode->GetName()); 
 
 
-#ifdef PERFTOOL  
+#ifdef PERFTOOL_BROWSER  
    ProfilerStop();
 #endif  
    std::string title =  m_path.value();

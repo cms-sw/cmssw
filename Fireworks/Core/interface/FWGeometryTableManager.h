@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.14 2011/07/01 00:01:19 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.15 2011/07/01 23:33:53 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -163,11 +163,11 @@ private:
    void recalculateVisibility();
    
    // geo
-   void checkUniqueVolume(TGeoVolume* v); 
+   //oid checkUniqueVolume(); 
    void checkChildMatches(TGeoVolume* v,  std::vector<TGeoVolume*>&);
    int  getNdaughtersLimited(TGeoNode*) const;
-   void getNNodesTotal(TGeoNode* geoNode, int level,int& off, bool debug) const;
-   void importChildren(int parent_idx, bool recurse);
+   void getNNodesTotal(TGeoNode* geoNode, int level,int& off) const;
+   void importChildren(int parent_idx);
    void checkHierarchy();
 
 
@@ -207,9 +207,7 @@ private:
 inline int FWGeometryTableManager::getNdaughtersLimited(TGeoNode* geoNode) const
 {
    // used for debugging of table and 3D view
-
    return TMath::Min(geoNode->GetNdaughters(), m_browser->getMaxDaughters());
-   //return  geoNode->GetNdaughters();
 }
 
 #endif
