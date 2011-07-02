@@ -40,10 +40,16 @@ fftjet_pileup_analyzer = cms.EDAnalyzer(
     # Settings for the types of info we are collecting
     collectHistos = cms.bool(False),
     collectPileup = cms.bool(True),
+    collectOOTPileup = cms.bool(False),
     collectFastJetRho = cms.bool(False),
     collectSummaries = cms.bool(True),
     collectGrids = cms.bool(False),
     collectGridDensity = cms.bool(False),
     collectVertexInfo = cms.bool(False),
-    verbosePileupInfo = cms.bool(False)
+    verbosePileupInfo = cms.bool(False),
+    #
+    # There is a bug somewhere in the module which builds
+    # PileupSummaryInfo (it shows up in some events with OOP pileup).
+    # The following kind-of helps avoiding crazy energy values.
+    crazyEnergyCut = cms.double(2000.0)
 )

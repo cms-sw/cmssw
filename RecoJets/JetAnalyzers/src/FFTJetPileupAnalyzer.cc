@@ -80,12 +80,14 @@ private:
     bool collectSummaries;
     bool collectFastJetRho;
     bool collectPileup;
+    bool collectOOTPileup;
     bool collectGrids;
     bool collectGridDensity;
     bool collectVertexInfo;
     bool verbosePileupInfo;
 
     double vertexNdofCut;
+    double crazyEnergyCut;
 
     std::vector<float> ntupleData;
     TNtuple* nt;
@@ -111,11 +113,13 @@ FFTJetPileupAnalyzer::FFTJetPileupAnalyzer(const edm::ParameterSet& ps)
       init_param(bool, collectSummaries),
       init_param(bool, collectFastJetRho),
       init_param(bool, collectPileup),
+      init_param(bool, collectOOTPileup),
       init_param(bool, collectGrids),
       init_param(bool, collectGridDensity),
       init_param(bool, collectVertexInfo),
       init_param(bool, verbosePileupInfo),
       init_param(double, vertexNdofCut),
+      init_param(double, crazyEnergyCut),
       nt(0),
       totalNpu(-1),
       totalNPV(-1),
@@ -136,13 +140,19 @@ void FFTJetPileupAnalyzer::analyzePileup(
     const std::vector<PileupSummaryInfo>& info)
 {
     const unsigned nBx = info.size();
-    ntupleData.push_back(static_cast<float>(nBx));
+    if (collectPileup)
+        ntupleData.push_back(static_cast<float>(nBx));
 
     double sumpt_Lo = 0.0, sumpt_Hi = 0.0;
+    totalNpu = 0;
+
+    int npu_by_Bx[3] = {0,};
+    double sumpt_Lo_by_Bx[3] = {0.0,}, sumpt_Hi_by_Bx[3] = {0.0,};
 
     if (verbosePileupInfo)
         std::cout << "\n**** Pileup info begin" << std::endl;
 
+    bool isCrazy = false;
     for (unsigned ibx = 0; ibx < nBx; ++ibx)
     {
         const PileupSummaryInfo& puInfo(info[ibx]);
@@ -154,12 +164,20 @@ void FFTJetPileupAnalyzer::analyzePileup(
         const double losum = std::accumulate(lopt.begin(), lopt.end(), 0.0);
         const double hisum = std::accumulate(hipt.begin(), hipt.end(), 0.0);
 
-        // Note that the following only works for in-time pileup
-        if (ibx == 0)
+        if (losum >= crazyEnergyCut)
+            isCrazy = true;
+        if (hisum >= crazyEnergyCut)
+            isCrazy = true;
+
+        totalNpu += npu;
+        sumpt_Lo += losum;
+        sumpt_Hi += hisum;
+
+        if (bx >= -1 && bx <= 1)
         {
-            totalNpu = npu;
-            sumpt_Lo = losum;
-            sumpt_Hi = hisum;
+            npu_by_Bx[bx + 1] = npu;
+            sumpt_Lo_by_Bx[bx + 1] = losum;
+            sumpt_Hi_by_Bx[bx + 1] = hisum;
         }
 
         if (verbosePileupInfo)
@@ -172,9 +190,33 @@ void FFTJetPileupAnalyzer::analyzePileup(
     if (verbosePileupInfo)
         std::cout << "**** Pileup info end\n" << std::endl;
 
-    ntupleData.push_back(totalNpu);
-    ntupleData.push_back(sumpt_Lo);
-    ntupleData.push_back(sumpt_Hi);
+    if (isCrazy)
+    {
+        totalNpu = -1;
+        sumpt_Lo = 0.0;
+        sumpt_Hi = 0.0;
+        for (unsigned ibx = 0; ibx < 3; ++ibx)
+        {
+            npu_by_Bx[ibx] = -1;
+            sumpt_Lo_by_Bx[ibx] = 0.0;
+            sumpt_Hi_by_Bx[ibx] = 0.0;
+        }
+    }
+
+    if (collectPileup)
+    {
+        ntupleData.push_back(totalNpu);
+        ntupleData.push_back(sumpt_Lo);
+        ntupleData.push_back(sumpt_Hi);
+    }
+
+    if (collectOOTPileup)
+        for (unsigned ibx = 0; ibx < 3; ++ibx)
+        {
+            ntupleData.push_back(npu_by_Bx[ibx]);
+            ntupleData.push_back(sumpt_Lo_by_Bx[ibx]);
+            ntupleData.push_back(sumpt_Hi_by_Bx[ibx]);
+        }
 }
 
 
@@ -185,6 +227,12 @@ void FFTJetPileupAnalyzer::beginJob()
     std::string vars = "cnt:run:event";
     if (collectPileup)
         vars += ":nbx:npu:sumptLowCut:sumptHiCut";
+    if (collectOOTPileup)
+    {
+        vars += ":npu_bxm1:sumptLowCut_bxm1:sumptHiCut_bxm1";
+        vars += ":npu_bx0:sumptLowCut_bx0:sumptHiCut_bx0";
+        vars += ":npu_bxp1:sumptLowCut_bxp1:sumptHiCut_bxp1";
+    }
     if (collectSummaries)
         vars += ":estimate:pileup:uncert:uncertCode";
     if (collectFastJetRho)
@@ -217,17 +265,27 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
     ntupleData.push_back(eventnumber);
 
     // Get pileup information from the pile-up information module
-    if (collectPileup)
+    if (collectPileup || collectOOTPileup)
     {
         edm::Handle<std::vector<PileupSummaryInfo> > puInfo;
         if (iEvent.getByLabel(pileupLabel, puInfo))
             analyzePileup(*puInfo);
         else
         {
-            ntupleData.push_back(-1);
-            ntupleData.push_back(-1);
-            ntupleData.push_back(0.f);
-            ntupleData.push_back(0.f);
+            if (collectPileup)
+            {
+                ntupleData.push_back(-1);
+                ntupleData.push_back(-1);
+                ntupleData.push_back(0.f);
+                ntupleData.push_back(0.f);
+            }
+            if (collectOOTPileup)
+                for (unsigned ibx = 0; ibx < 3; ++ibx)
+                {
+                    ntupleData.push_back(-1);
+                    ntupleData.push_back(0.f);
+                    ntupleData.push_back(0.f);
+                }
         }
     }
 
