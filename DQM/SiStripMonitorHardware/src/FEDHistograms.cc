@@ -30,7 +30,12 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
   getConfigForHistogram(feOverflows_,"FEOverflows",iConfig,pDebugStream);
   getConfigForHistogram(feMissing_,"FEMissing",iConfig,pDebugStream);
   getConfigForHistogram(badMajorityAddresses_,"BadMajorityAddresses",iConfig,pDebugStream);
-  
+  getConfigForHistogram(badMajorityInPartition_,"BadMajorityInPartition",iConfig,pDebugStream);
+  getConfigForHistogram(feMajFracTIB_,"FeMajFracTIB",iConfig,pDebugStream);
+  getConfigForHistogram(feMajFracTOB_,"FeMajFracTOB",iConfig,pDebugStream);
+  getConfigForHistogram(feMajFracTECB_,"FeMajFracTECB",iConfig,pDebugStream);
+  getConfigForHistogram(feMajFracTECF_,"FeMajFracTECF",iConfig,pDebugStream);
+
   getConfigForHistogram(dataMissing_,"DataMissing",iConfig,pDebugStream);
   getConfigForHistogram(badIDs_,"BadIDs",iConfig,pDebugStream);
   getConfigForHistogram(badDAQPacket_,"BadDAQPacket",iConfig,pDebugStream);
@@ -167,6 +172,7 @@ void FEDHistograms::fillFEDHistograms(FEDErrors & aFedErr,
   if (lFedLevelErrors.BadActiveChannelStatusBit) fillHistogram(badActiveChannelStatusBits_,lFedId);
 
   std::vector<FEDErrors::FELevelErrors> & lFeVec = aFedErr.getFELevelErrors();
+  
   for (unsigned int iFe(0); iFe<lFeVec.size(); iFe++){
     fillFEHistograms(lFedId,lFeVec[iFe]);
   }
@@ -184,6 +190,8 @@ void FEDHistograms::fillFEDHistograms(FEDErrors & aFedErr,
 
 }
 
+
+
 //fill a histogram if the pointer is not NULL (ie if it has been booked)
 void FEDHistograms::fillFEHistograms(const unsigned int aFedId, 
 				     const FEDErrors::FELevelErrors & aFeLevelErrors)
@@ -197,17 +205,19 @@ void FEDHistograms::fillFEHistograms(const unsigned int aFedId,
   else if (aFeLevelErrors.Missing) fillHistogram(feMissingDetailedMap_[aFedId],lFeId);
   else if (aFeLevelErrors.BadMajorityAddress) fillHistogram(badMajorityAddressDetailedMap_[aFedId],lFeId);
   
-  if (aFeLevelErrors.TimeDifference != 0){
-    if (aFeLevelErrors.SubDetID == 2 || aFeLevelErrors.SubDetID == 3 || aFeLevelErrors.SubDetID == 4) fillHistogram(feTimeDiffTIB_,aFeLevelErrors.TimeDifference);
-    else if (aFeLevelErrors.SubDetID == 5)fillHistogram(feTimeDiffTOB_,aFeLevelErrors.TimeDifference);
-    else if (aFeLevelErrors.SubDetID == 0)fillHistogram(feTimeDiffTECB_,aFeLevelErrors.TimeDifference);
-    else if (aFeLevelErrors.SubDetID == 1)fillHistogram(feTimeDiffTECF_,aFeLevelErrors.TimeDifference);
 
+  if (aFeLevelErrors.TimeDifference != 0) {
+    if (aFeLevelErrors.SubDetID == 2 || aFeLevelErrors.SubDetID == 3 || aFeLevelErrors.SubDetID == 4)
+      fillHistogram(feTimeDiffTIB_,aFeLevelErrors.TimeDifference);
+    else if (aFeLevelErrors.SubDetID == 5)
+      fillHistogram(feTimeDiffTOB_,aFeLevelErrors.TimeDifference);
+    else if (aFeLevelErrors.SubDetID == 0)
+      fillHistogram(feTimeDiffTECB_,aFeLevelErrors.TimeDifference);
+    else if (aFeLevelErrors.SubDetID == 1)
+      fillHistogram(feTimeDiffTECF_,aFeLevelErrors.TimeDifference);
     fillHistogram(apveAddress_,aFeLevelErrors.Apve);
-    fillHistogram(feMajAddress_,aFeLevelErrors.FeMaj);
-
+    fillHistogram(feMajAddress_,aFeLevelErrors.FeMaj);  
   }
-
 }
 
 //fill a histogram if the pointer is not NULL (ie if it has been booked)
@@ -246,7 +256,27 @@ if ( (badStatusBitsDetailed_.enabled && aAPVErr.APVStatusBit) ||
  if (aAPVErr.APVAddressError) fillHistogram(apvAddressErrorDetailedMap_[aFedId],lChId);
 }
 
+void FEDHistograms::fillMajorityHistograms(const unsigned int aPart,
+					   const float aValue,
+					   const std::vector<unsigned int> & aFedIdVec){
+  if (aPart==0) fillHistogram(feMajFracTIB_,aValue);
+  else if (aPart==1) fillHistogram(feMajFracTOB_,aValue);
+  else if (aPart==2) fillHistogram(feMajFracTECB_,aValue);
+  else if (aPart==3) fillHistogram(feMajFracTECF_,aValue);
 
+  for (unsigned int iFed(0); iFed<aFedIdVec.size(); ++iFed){
+    fillHistogram(badMajorityInPartition_,aFedIdVec[iFed]);
+  }
+
+}
+
+bool FEDHistograms::feMajHistosEnabled(){
+  return ( feMajFracTIB_.enabled ||
+	   feMajFracTOB_.enabled ||
+	   feMajFracTECB_.enabled ||
+	   feMajFracTECF_.enabled ||
+	   badMajorityInPartition_.enabled );
+}
 
 void FEDHistograms::fillLumiHistograms(const FEDErrors::LumiErrors & aLumErr){
   if (lumiErrorFraction_.enabled && lumiErrorFraction_.monitorEle) {
@@ -394,6 +424,23 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 		"Number of FEDs with missing FE unit payloads per event",
 		"# FEDs with missing FEs");
 
+  bookHistogram(feMajFracTIB_,"FeMajFracTIB",
+		"Fraction of FEs matching majority address in TIB partition",
+		101,0,1.01,"n(majAddrFE)/n(totFE)");
+
+  bookHistogram(feMajFracTOB_,"FeMajFracTOB",
+		"Fraction of FEs matching majority address in TOB partition",
+		101,0,1.01,"n(majAddrFE)/n(totFE)");
+
+  bookHistogram(feMajFracTECB_,"FeMajFracTECB",
+		"Fraction of FEs matching majority address in TECB partition",
+		101,0,1.01,"n(majAddrFE)/n(totFE)");
+
+  bookHistogram(feMajFracTECF_,"FeMajFracTECF",
+		"Fraction of FEs matching majority address in TECF partition",
+		101,0,1.01,"n(majAddrFE)/n(totFE)");
+
+
   dqm_->setCurrentFolder(lBaseDir+"/FrontEndLevel/APVe");
 
   bookHistogram(feTimeDiffTIB_,"FETimeDiffTIB",
@@ -442,6 +489,11 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 
   bookHistogram(badMajorityAddresses_,"BadMajorityAddresses",
 		"Number of buffers with one or more FE with a bad majority APV address",
+		siStripFedIdMax-siStripFedIdMin+1,
+		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
+
+  bookHistogram(badMajorityInPartition_,"BadMajorityInPartition",
+		"Number of buffers with >=1 FE with FEaddress != majority in partition",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
 

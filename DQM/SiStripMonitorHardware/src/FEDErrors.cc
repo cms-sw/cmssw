@@ -336,7 +336,9 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
 			      unsigned int & aCounterUnpacker,
 			      const bool aDoMeds,
 			      MonitorElement *aMedianHist0,
-			      MonitorElement *aMedianHist1
+			      MonitorElement *aMedianHist1,
+			      const bool aDoFEMaj,
+			      std::vector<std::vector<std::pair<unsigned int,unsigned int> > > & aFeMajFrac
 			      )
 {
   //try to construct the basic buffer object (do not check payload)
@@ -371,7 +373,7 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
     //so analyze FE and channels to fill histograms.
 
     //fe check... 
-    fillFEErrors(buffer.get());
+    fillFEErrors(buffer.get(),aDoFEMaj,aFeMajFrac);
     
     //channel checks
     fillChannelErrors(buffer.get(),
@@ -420,7 +422,9 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
   return !(anyFEDErrors());
 }
 
-bool FEDErrors::fillFEErrors(const sistrip::FEDBuffer* aBuffer)
+bool FEDErrors::fillFEErrors(const sistrip::FEDBuffer* aBuffer,
+			     const bool aDoFEMaj,
+			     std::vector<std::vector<std::pair<unsigned int,unsigned int> > > & aFeMajFrac)
 {
   bool foundOverflow = false;
   bool foundBadMajority = false;
@@ -513,6 +517,18 @@ bool FEDErrors::fillFEErrors(const sistrip::FEDBuffer* aBuffer)
     if (debugHeader){
 
       lFeErr.FeMaj = debugHeader->feUnitMajorityAddress(iFE);
+
+      if (aDoFEMaj){
+	if (lFeErr.SubDetID == 2 || lFeErr.SubDetID == 3 || lFeErr.SubDetID == 4)
+	  aFeMajFrac[0].push_back(std::pair<unsigned int, unsigned int>(fedID_,lFeErr.FeMaj));
+	else if (lFeErr.SubDetID == 5)
+	  aFeMajFrac[1].push_back(std::pair<unsigned int, unsigned int>(fedID_,lFeErr.FeMaj));
+	else if (lFeErr.SubDetID == 0)
+	  aFeMajFrac[2].push_back(std::pair<unsigned int, unsigned int>(fedID_,lFeErr.FeMaj));
+	else if (lFeErr.SubDetID == 1)
+	  aFeMajFrac[3].push_back(std::pair<unsigned int, unsigned int>(fedID_,lFeErr.FeMaj));
+      }
+
 
       if (aBuffer->apveAddress()){
 	lFeErr.TimeDifference = //0;

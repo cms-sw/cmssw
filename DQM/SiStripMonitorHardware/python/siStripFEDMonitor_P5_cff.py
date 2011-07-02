@@ -18,6 +18,11 @@ siStripFEDMonitor.BadActiveChannelStatusBitsHistogramConfig.Enabled = True
 siStripFEDMonitor.FEOverflowsHistogramConfig.Enabled = True
 siStripFEDMonitor.FEMissingHistogramConfig.Enabled = True
 siStripFEDMonitor.BadMajorityAddressesHistogramConfig.Enabled = True
+siStripFEDMonitor.BadMajorityInPartitionHistogramConfig.Enabled = False
+siStripFEDMonitor.FeMajFracTIBHistogramConfig.Enabled = False
+siStripFEDMonitor.FeMajFracTOBHistogramConfig.Enabled = False
+siStripFEDMonitor.FeMajFracTECBHistogramConfig.Enabled = False
+siStripFEDMonitor.FeMajFracTECFHistogramConfig.Enabled = False
 #Sub sets of DAQ problems
 siStripFEDMonitor.DataMissingHistogramConfig.Enabled = True
 siStripFEDMonitor.BadIDsHistogramConfig.Enabled = True

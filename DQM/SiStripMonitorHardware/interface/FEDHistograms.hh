@@ -63,6 +63,12 @@ public:
 			  bool fullDebug
 			  );
 
+  void fillMajorityHistograms(const unsigned int aPart,
+			      const float aValue,
+			      const std::vector<unsigned int> & aFedIdVec);
+
+  bool feMajHistosEnabled();
+
   void fillLumiHistograms(const FEDErrors::LumiErrors & aLumErr);
 
   bool cmHistosEnabled();
@@ -135,7 +141,8 @@ private:
     dataMissing_, 
     dataPresent_, 
     feOverflows_, 
-    badMajorityAddresses_, 
+    badMajorityAddresses_,
+    badMajorityInPartition_,
     feMissing_, 
     anyFEProblems_;
 
@@ -146,6 +153,11 @@ private:
 
   HistogramConfig apveAddress_;
   HistogramConfig feMajAddress_;
+
+  HistogramConfig feMajFracTIB_;
+  HistogramConfig feMajFracTOB_;
+  HistogramConfig feMajFracTECB_;
+  HistogramConfig feMajFracTECF_;
 
   HistogramConfig medianAPV0_;
   HistogramConfig medianAPV1_;
