@@ -20,8 +20,8 @@ shift $(($OPTIND - 1))
 # Environment
 #==============================================================================
 
-release=CMSSW_3_11_0_ONLINE
-version=010
+release=CMSSW_4_2_3_ONLINE
+version=011
 
 #cd ~zrwan/CMSSW_3_11_0/cronjob
 cd /nfshome0/popcondev/L1Job/${release}/validate-o2o-wbm
