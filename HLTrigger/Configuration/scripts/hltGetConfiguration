@@ -51,7 +51,16 @@ parser.add_argument('--l1',
                     type    = options.ConnectionL1TMenu,
                     default = None,
                     metavar = 'MENU', 
-                    help    = 'Override the L1 menu, using the payload "L1GtTriggerMenu_<%(metavar)s>_mc" from the database.\nThe default behaviour is to run with the L1 menu from the GlobalTag' )
+                    help    = 'Override the L1 menu, using the given payload from the database. %(metavar)s should have the format "L1GtTriggerMenu_MENU_mc".\nThe default behaviour is to run with the L1 menu from the GlobalTag' )
+parser.add_argument('--l1-emulator',
+                    dest    = 'emulator',
+                    action  = 'store',
+                    metavar = 'EMULATOR',
+                    nargs   = '?',
+                    choices = [ 'none', 'gt' ], 
+                    default = 'none',
+                    const   = 'gt',
+                    help    = 'Run the GT L1 emulator. Trigger primitives, GMT, GCT are taken from the data.\nThe default behaviour is to not run the L1 emulator.\nIf the option is used without arguments, "gt" is assumed.' )
 parser.add_argument('--unprescale', 
                     dest    = 'unprescale', 
                     action  = 'store_true', 

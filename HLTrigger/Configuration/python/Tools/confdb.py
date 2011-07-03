@@ -271,6 +271,9 @@ if 'hltPreHLTMONOutputSmart' in %(dict)s:
       # if requested, override the L1 self from the GlobalTag (using the same connect as the GlobalTag itself)
       self.overrideL1Menu()
 
+      # if requested, run (part of) the L1 emulator
+      self.runL1Emulator()
+
       # request summary informations from the MessageLogger
       self.updateMessageLogger()
 
@@ -484,6 +487,28 @@ if 'GlobalTag' in %%(dict)s:
       if not self.config.l1.connect:
         self.config.l1.connect = '%(connect)s/CMS_COND_31X_L1T'
       self.loadAdditionalConditions( 'override the L1 menu', self.config.l1.__dict__ )
+
+
+  def runL1Emulator(self):
+    # if requested, run (part of) the L1 emulator
+    if self.config.emulator is not 'none':
+      # FIXME this fragment used "process" explicitly
+      # FIXME this fragment implements the "gt" option - the others are missing
+      self.data += """
+# run the L1 emulator
+process.load( 'Configuration.StandardSequences.RawToDigi_Data_cff' )
+process.load( 'Configuration.StandardSequences.SimL1Emulator_cff' )
+
+# customize the L1 emulator to run only the GT, and take the GCT and GMT from data
+import L1Trigger.Configuration.L1Trigger_custom
+process = L1Trigger.Configuration.L1Trigger_custom.customiseL1OnlyGtEmulatorFromRaw( process )
+process = L1Trigger.Configuration.L1Trigger_custom.customiseResetPrescalesAndMasks( process )
+
+# customize the HLT to use the emulated results
+import HLTrigger.Configuration.customizeHLTforL1Emulator
+process = HLTrigger.Configuration.customizeHLTforL1Emulator.switchToL1Emulator( process )
+process = HLTrigger.Configuration.customizeHLTforL1Emulator.switchToSimGtDigis( process )
+"""
 
 
   def overrideOutput(self):
