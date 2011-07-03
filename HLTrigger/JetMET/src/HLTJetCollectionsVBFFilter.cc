@@ -79,6 +79,8 @@ HLTJetCollectionsVBFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
   const JetCollectionVector & theCaloJetCollections = *theCaloJetCollectionsHandle;
   // filter decision
   bool accept(false);
+  std::vector < Ref<CaloJetCollection> > goodJetRefs;
+  
   for(unsigned int collection = 0; collection < theCaloJetCollections.size(); ++ collection) {
     
     const reco::CaloJetRefVector & refVector =  theCaloJetCollections[collection];
@@ -89,6 +91,9 @@ HLTJetCollectionsVBFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
     // 3rd Jet check decision
     bool goodThirdJet(false);
     if ( minNJets_ < 3 ) goodThirdJet = true;
+    
+    //empty the good jets collection
+    goodJetRefs.clear();
             
     Ref<CaloJetCollection> refOne;
     Ref<CaloJetCollection> refTwo;
@@ -115,9 +120,9 @@ HLTJetCollectionsVBFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
         
         thereAreVBFJets = true;
         refOne = Ref<CaloJetCollection> (refVector, distance(refVector.begin(), jetOne));
-        filterobject->addObject(TriggerJet, refOne);
+        goodJetRefs.push_back(refOne);
         refTwo = Ref<CaloJetCollection> (refVector, distance(refVector.begin(), jetTwo));
-        filterobject->addObject(TriggerJet, refTwo);
+        goodJetRefs.push_back(refTwo);
         
         firstJetIndex = (int) (jetOne - refVector.begin());
         secondJetIndex= (int) (jetTwo - refVector.begin());
@@ -141,7 +146,7 @@ HLTJetCollectionsVBFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
         if (jetThreeRef->pt() >= thirdJetPt_ && fabs(jetThreeRef->eta()) <= maxAbsThirdJetEta_) {
           goodThirdJet = true;
           refThree = Ref<CaloJetCollection> (refVector, distance(refVector.begin(), jetThree));
-          filterobject->addObject(TriggerJet, refThree);
+          goodJetRefs.push_back(refThree);
           break;
         }
       }
@@ -152,6 +157,11 @@ HLTJetCollectionsVBFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
       break;
     }
 
+  }
+
+  //fill the filter object
+  for (unsigned int refIndex = 0; refIndex < goodJetRefs.size(); ++refIndex) {
+    filterobject->addObject(TriggerJet, goodJetRefs.at(refIndex));
   }
 
   // put filter object into the Event
