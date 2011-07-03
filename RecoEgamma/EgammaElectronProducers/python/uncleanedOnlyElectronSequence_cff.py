@@ -1,6 +1,6 @@
 
-import copy
-from PhysicsTools.PatAlgos.tools.helpers import *
+#import copy
+#from PhysicsTools.PatAlgos.tools.helpers import *
 
 #
 # Tracking
@@ -45,9 +45,9 @@ uncleanedOnlyCkfOutInTracksFromConversions = ckfOutInTracksFromConversions.clone
 
 from RecoEgamma.EgammaPhotonProducers.ckfInOutTracksFromConversions_cfi import *
 uncleanedOnlyCkfInOutTracksFromConversions = ckfInOutTracksFromConversions.clone(
-    src = cms.InputTag("conversionTrackCandidates","inOutTracksFromConversions"),
-    producer = cms.string('conversionTrackCandidates'),
-    ComponentName = cms.string('ckfInOutTracksFromConversions')
+    src = cms.InputTag("uncleanedOnlyConversionTrackCandidates","inOutTracksFromConversions"),
+    producer = cms.string('uncleanedOnlyConversionTrackCandidates'),
+    ComponentName = cms.string('uncleanedOnlyCkfInOutTracksFromConversions')
     )
 
 uncleanedOnlyCkfTracksFromConversions = cms.Sequence(uncleanedOnlyConversionTrackCandidates*uncleanedOnlyCkfOutInTracksFromConversions*uncleanedOnlyCkfInOutTracksFromConversions)
