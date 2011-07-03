@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HIon/V151 (CMSSW_4_2_0_HLT15)
+# /dev/CMSSW_4_2_0/HIon/V152 (CMSSW_4_2_0_HLT15)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V151')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V152')
 )
 
 streams = cms.PSet( 
@@ -287,6 +287,9 @@ hltESSL3AbsoluteCorrectionService = cms.ESSource( "LXXXCorrectionService",
   useCondDB = cms.untracked.bool( True )
 )
 
+CastorDbProducer = cms.ESProducer( "CastorDbProducer",
+  appendToDataLabel = cms.string( "" )
+)
 hltESPTrajectoryFilterIT = cms.ESProducer( "TrajectoryFilterESProducer",
   ComponentName = cms.string( "hltESPTrajectoryFilterIT" ),
   appendToDataLabel = cms.string( "" ),

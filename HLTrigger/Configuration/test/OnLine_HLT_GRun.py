@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V151 (CMSSW_4_2_0_HLT15)
+# /dev/CMSSW_4_2_0/GRun/V152 (CMSSW_4_2_0_HLT15)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V151')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V152')
 )
 
 process.streams = cms.PSet( 
@@ -1717,6 +1717,9 @@ process.magfield = cms.ESSource( "XMLIdealGeometryESSource",
       'MagneticField/GeomBuilder/data/MagneticFieldParameters_07_2pi.xml' )
 )
 
+process.CastorDbProducer = cms.ESProducer( "CastorDbProducer",
+  appendToDataLabel = cms.string( "" )
+)
 process.hltESPTrajectoryFilterIT = cms.ESProducer( "TrajectoryFilterESProducer",
   ComponentName = cms.string( "hltESPTrajectoryFilterIT" ),
   appendToDataLabel = cms.string( "" ),
