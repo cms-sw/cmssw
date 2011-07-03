@@ -18,14 +18,10 @@ __attribute__((visibility("hidden"))) void dummy()
   int dummyInt = 0;
   dexay_(&dummyInt, &dummyFloat);
   phyfix_();
-  spinhiggs_();
   taupi0_();
   taupi0_();
-  inietc_();
   inimas_();
-  iniphx_();
   initdk_();
   taupi0_();
   dekay_();
-  plzapx_();
 }
