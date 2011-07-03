@@ -3,7 +3,7 @@
 <use   name="hepmc"/>
 <use   name="heppdt"/>
 <use   name="SimGeneral/HepPDTRecord"/>
-<use   name="tauolapp"/>
+<use   name="tauola"/>
 <use   name="photos"/>
 <use   name="clhep"/>
 <use   name="evtgenlhc"/>
