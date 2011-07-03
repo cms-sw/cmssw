@@ -491,7 +491,7 @@ if 'GlobalTag' in %%(dict)s:
 
   def runL1Emulator(self):
     # if requested, run (part of) the L1 emulator
-    if self.config.emulator is not 'none':
+    if self.config.emulator:
       # FIXME this fragment used "process" explicitly
       # FIXME this fragment implements the "gt" option - the others are missing
       self.data += """
