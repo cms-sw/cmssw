@@ -405,7 +405,11 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
     if (mes.DetFraction) mes.DetFraction->Fill(tot_eff_fac);
     float tot_ston_fac = tot_ston_stat/ybin;
     if (mes.SToNFlag) mes.SToNFlag->Fill(tot_ston_fac);
-    gflag = std::min(tot_eff_fac,tot_ston_fac);    
+    if (tot_ston_fac < 0){
+      gflag = tot_eff_fac;    
+    }else{
+      gflag = std::min(tot_eff_fac,tot_ston_fac);    
+    }
     if (mes.SummaryFlag) mes.SummaryFlag->Fill(gflag);
   }
 }    
