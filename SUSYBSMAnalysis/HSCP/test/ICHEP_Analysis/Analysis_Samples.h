@@ -43,7 +43,7 @@
 #define SID_DS302    37
 
 
-double               IntegratedLuminosity = 715.041013013; //705.273820; //342.603275; //204.160928; //191.04;
+double               IntegratedLuminosity = 802.112979531; //715.041013013; //705.273820; //342.603275; //204.160928; //191.04;
 float                Event_Weight = 1;
 int                  MaxEntry = -1;
 
@@ -146,14 +146,16 @@ void GetMCDefinition(std::vector<stMC>& MC){
 
 
 void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName){
-   std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_06_20/";
+   std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_06_28/";
 
    if(SampleName=="Data"){
         inputFiles.push_back(BaseDirectory + "Data_RunA_160000_163250.root");
         inputFiles.push_back(BaseDirectory + "Data_RunA_163251_163500.root");
-        inputFiles.push_back(BaseDirectory + "Data_RunA_163501_164000.root");                                                                                
-        inputFiles.push_back(BaseDirectory + "Data_RunA_165000_166033.root"); 
-        inputFiles.push_back(BaseDirectory + "Data_RunA_166034_166893.root");
+        inputFiles.push_back(BaseDirectory + "Data_RunA_165001_166033.root");                                                                                
+        inputFiles.push_back(BaseDirectory + "Data_RunA_166034_166500.root"); 
+        inputFiles.push_back(BaseDirectory + "Data_RunA_166501_166893.root");
+        inputFiles.push_back(BaseDirectory + "Data_RunA_166894_167151.root");
+
 //   }else if(SampleName=="MC_MB"){
 //      inputFiles.push_back(BaseDirectory + "MC_MB.root");
 //   }else if(SampleName=="MC_PPMUX"){

@@ -98,11 +98,11 @@ void Analysis_Step5()
 
 
 
-   InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type2/";   CutIndex = 14;//²38;//83;// 82;//18;
+   InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type2/";   CutIndex = 14;//²38;//83;// 82;//18;
 //   Make2DPlot_Core(InputDir,CutIndex);
 //   CutFlow(InputDir);
 //   SelectionPlot(InputDir, CutIndex);
-//   MassPrediction(InputDir, CutIndex, "Mass");
+    MassPrediction(InputDir, CutIndex, "Mass");
 //   MassPrediction(InputDir, CutIndex, "MassTOF");
 //   MassPrediction(InputDir, CutIndex, "MassComb");     
 //   PredictionAndControlPlot(InputDir, CutIndex);
@@ -110,7 +110,7 @@ void Analysis_Step5()
 // GetSystematicOnPrediction(InputDir);
 
 
-  InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type0/";   CutIndex = 30;/*65;*//*39;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
+  InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type0/";   CutIndex = 28;/*65;*//*39;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
 //  InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type2/";   CutIndex = 31;/*211;*//*167;95;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
 
 
