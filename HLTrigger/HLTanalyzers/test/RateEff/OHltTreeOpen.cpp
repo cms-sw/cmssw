@@ -74,6 +74,7 @@ void getMuThresholds(double L3pt, vector<double> &thresholds){
   else if (L3pt == 24.) thresholds.push_back(12.);
   else if (L3pt == 30.) thresholds.push_back(12.);
   else if (L3pt == 40.) thresholds.push_back(16.);
+  else if (L3pt == 60.) thresholds.push_back(16.);
   else if (L3pt == 100.) thresholds.push_back(16.);  
 
   thresholds.push_back(L3pt);
@@ -124,7 +125,7 @@ bool isIsoMuX_eta2pXTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL   = TPRegexp(pattern).MatchS(triggerName);
       double thresholdL3Mu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       getMuThresholds(thresholdL3Mu, thresholds);
-      double thresholdEta  = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdEta  = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       thresholds.push_back(2. + thresholdEta/10.);
       delete subStrL;
       return true;
@@ -3200,6 +3201,19 @@ void OHltTree::CheckOpenHlt(
 	    }
 	}
     }	
+  else if (isIsoMuX_eta2pXTrigger(triggerName, thresholds))
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+        {
+          if (prescaleResponse(menu, cfg, rcounter, it))
+            {
+              if (OpenHlt1MuonPassed(thresholds[0], thresholds[1], thresholds[2], 2., 1, thresholds[3], thresholds[3])>=1)
+                {
+                  triggerBit[it] = true;
+                }
+            }
+        }
+    }
  else if (isIsoMuXTrigger(triggerName, thresholds))
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -3213,21 +3227,6 @@ void OHltTree::CheckOpenHlt(
 	    }
 	}
     }	
-
-  else if (isIsoMuX_eta2pXTrigger(triggerName, thresholds))
-    {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-	{
-	  if (prescaleResponse(menu, cfg, rcounter, it))
-	    {
-	      if (OpenHlt1MuonPassed(thresholds[0], thresholds[1], thresholds[2], 2., 1, thresholds[3], thresholds[3])>=1)
-		{
-		  triggerBit[it] = true;
-		}
-	    }
-	}
-    }	
-
  
   else if (triggerName.CompareTo("OpenHLT_Mu0_L1MuOpen") == 0)
     {
@@ -3639,14 +3638,13 @@ void OHltTree::CheckOpenHlt(
         {  
           if (prescaleResponse(menu, cfg, rcounter, it))  
             {  
-              if (OpenHlt1MuonPassed(0., 10., 20., 2., 1, 2.1, 2.1)>=1)  
+              if (OpenHlt1MuonPassed(0., 12., 20., 2., 1, 2.1, 2.1)>=1)  
                 {  
                   triggerBit[it] = true;  
                 }  
             }  
         }  
     }  
-
 	
   /* Quarkonia */
   else if (triggerName.CompareTo("OpenHLT_DoubleMu2_Bs") == 0)
