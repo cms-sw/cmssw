@@ -38,80 +38,27 @@ bool isSingleEleTrigger(TString triggerName, double& thresholdEle, TString& calo
   else return false;
 }
 
+bool isSinglePhotonTrigger(TString triggerName, double& thresholdPhoton, TString& caloId,  TString& iso){
+	
+  TString patternPhoton = "(OpenHLT_Photon([0-9]+)_?(CaloId[VLT]+)?_?((Iso[VLT]+)?))$";
 
+  TPRegexp matchThresholdPhoton(patternPhoton);
 
+  if (matchThresholdPhoton.MatchB(triggerName))
+    {
+      TObjArray *subStrL   = TPRegexp(patternPhoton).MatchS(triggerName);
+      thresholdPhoton = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      caloId  = ((TObjString *)subStrL->At(3))->GetString();
+      iso     = ((TObjString *)subStrL->At(4))->GetString();
+      delete subStrL;
 
-
-
-
-
-/**
- * matches pattern with trigger name
- * returns result as boolean
- * returns by reference vector of matched strings 
- *   (bracketed groups in regex in order of appearance)
- */
-bool triggerNamePatternMatch(
-      const string& triggerName,
-      const string& pattern,
-      vector<string>& vecMatch)
-{
-   vecMatch.clear();
-
-   TPRegexp re(pattern);
-
-   // does the regular expression match the triggerName given? 
-   bool doesMatch= re.MatchB(triggerName);
-
-   // if so, extract matches
-   if (doesMatch)
-   {
-      // retrieve matches as object array
-      TObjArray *objArrMatches = re.MatchS(triggerName);
-
-      // extract match objects from array (skip index 0 = whole match)
-      // convert each into a string and push back into a vector
-      for (int i= 1; i <= objArrMatches->GetLast(); ++i)
-      {
-         TObject& objMatch= *(objArrMatches->At(i));
-         TObjString& objStrMatch= dynamic_cast<TObjString&>(objMatch);
-         vecMatch.push_back(objStrMatch.GetString().Data());
-      }
-
-      // delete object array
-      delete objArrMatches;
-   }
-
-   // return match result
-   return doesMatch;
+      return true;
+    }
+  else return false;
 }
 
 
-bool triggerNamePatternMatch(
-      const string& triggerName,
-      const string& pattern,
-      vector<double>& vecDblMatch)
-{
-   // get result with vector of strings containing matches
-   vector<string> vecMatch;
-   bool result= triggerNamePatternMatch(triggerName, pattern, vecMatch);
-   
-   // convert matches to doubles
-   vecDblMatch.clear();
-   for (vector<string>::iterator
-         it= vecMatch.begin();
-         it!=vecMatch.end(); ++it)
-   {
-      istringstream iss(*it);
-      double x= 0;
-      iss >> x;
-      vecDblMatch.push_back(x);
-   }
-   
-   return result;
-}
-
-//define L1, L2, L3 sets of thresholds for *standard* muons
+//define L1, L2, L3 sets of thresholds for *standard* muons -Lucie : should be moved to .h ?
 void getMuThresholds(double L3pt, vector<double> &thresholds){
 
   thresholds.push_back(0.);
@@ -1920,11 +1867,14 @@ void OHltTree::CheckOpenHlt(
 {
   TString triggerName = menu->GetTriggerName(it);
   vector<double> thresholds;
-  double thresholdEle = 0 ;
+  double thresholdEle    = 0 ;
+  double thresholdPhoton = 0 ;
   TString caloId  = "" ;
   TString caloIso = "" ;
   TString trkId   = "" ;
   TString trkIso  = "" ;
+  TString iso = "" ;
+
   //////////////////////////////////////////////////////////////////
   // Check OpenHLT L1 bits for L1 rates
 	
@@ -2008,6 +1958,25 @@ void OHltTree::CheckOpenHlt(
 				       map_EleTrkId[trkId],
 				       map_EleTrkIso[trkIso]
 				       ) >= 1)	
+	      
+		triggerBit[it] = true;
+	      }
+	  }
+      }
+
+
+  /*SinglePhoton*/
+
+  else if (isSinglePhotonTrigger(triggerName, thresholdPhoton, caloId, iso)){
+    
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+	if (prescaleResponse(menu, cfg, rcounter, it))
+	  {
+	    // if (OpenHlt1PhotonPassed(thresholdPhoton, 
+// 				       map_EGammaCaloId[caloId],
+// 				       map_PhotonIso[iso]
+// 				       ) >= 1)	
 	      
 		triggerBit[it] = true;
 	      }
@@ -14516,47 +14485,6 @@ bool OHltTree::OpenHLT_EleX_R9cut(const float& Et, const float& r9barrel)
 }
 
 
-int OHltTree::OpenHlt1ElectronSamHarperPassed_Reshuffled(float Et,
-											   float hoverebarrel,
-											   float hovereendcap,
-											   float clusshapebarrel,
-											   float clusshapeendcap,
-											   float detabarrel,
-											   float detaendcap,
-											   float dphibarrel,
-											   float dphiendcap,
-											   float HisooverETbarrel,
-											   float HisooverETendcap,
-											   float EisooverETbarrel,
-											   float EisooverETendcap,
-											   float Tisoratiobarrel,
-											   float Tisoratioendcap,
-											   float Tisobarrel,
-											   float Tisoendcap,
-											   int L1iso){
-	return OpenHlt1ElectronSamHarperPassed(Et,
-										   L1iso,
-										   Tisobarrel,
-										   Tisoendcap,
-										   Tisoratiobarrel,
-										   Tisoratioendcap,
-										   HisooverETbarrel,
-										   HisooverETendcap,
-										   EisooverETbarrel,
-										   EisooverETendcap,
-										   hoverebarrel,
-										   hovereendcap,
-										   clusshapebarrel,
-										   clusshapeendcap,
-										   999.,
-										   999.,
-										   detabarrel,
-										   detaendcap,
-										   dphibarrel,
-										   dphiendcap);
-}//End OpenHlt1ElectronSamHarperPassed_Reshuffled
-
-
 
 int OHltTree::OpenHlt1ElectronSamHarperPassed(
 					      float Et,
@@ -14676,112 +14604,6 @@ int OHltTree::OpenHlt1ElectronSamHarperPassed(
 	
   return rc;
 }
-
-//Lucie
-// int OHltTree::OpenHlt1ElectronPassed(float Et,
-// 				     vector<double> caloId,
-// 				     vector<double> caloIso,
-// 				     vector<double> trkId,
-// 				     vector<double> trkIso
-// 					      )
-// {
-//   float barreleta = 1.479;
-//   float endcapeta = 2.65;
-//   float Tisobarrel = 999.;
-//   float Tisoendcap = 999.;
-//   int L1iso = 0;	
-
-//   int rc = 0;
-//   // Loop over all oh electrons
-//   for (int i=0; i<NohEle; i++)
-//     {
-//       float ohEleHoverE = ohEleHforHoverE[i]/ohEleE[i];
-//       int isbarrel = 0;
-//       int isendcap = 0;
-//       if (TMath::Abs(ohEleEta[i]) < barreleta)
-// 	isbarrel = 1;
-//       if (barreleta < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i])
-// 	  < endcapeta)
-// 	isendcap = 1;
-		
-//       if (ohEleEt[i] > Et)
-// 	{
-// 	  if (TMath::Abs(ohEleEta[i]) < endcapeta)
-// 	    {
-// 	      if (ohEleNewSC[i]<=1)
-// 		{
-// 		  if (ohElePixelSeeds[i]>0)
-// 		    {
-// 		      if (ohEleL1iso[i] >= L1iso)
-// 			{ // L1iso is 0 or 1 
-// 			  if (ohEleL1Dupl[i] == false)
-// 			    { // remove double-counted L1 SCs 
-// 			      if ( (isbarrel && ((ohEleHiso[i]/ohEleEt[i])
-// 						 < caloIso[0]))
-// 				   || (isendcap && ((ohEleHiso[i]/ohEleEt[i])
-// 						    < caloIso[1])))
-// 				{
-// 				  if ( (isbarrel && ((ohEleEiso[i]/ohEleEt[i])
-// 						     < caloIso[2])) || (isendcap
-// 									      && ((ohEleEiso[i]/ohEleEt[i])
-// 										  < caloIso[3])))
-// 				    {
-// 				      if ( ((isbarrel) && (ohEleHoverE < caloId[0]))
-// 					   || ((isendcap) && (ohEleHoverE
-// 							      < caloId[1])))
-// 					{
-// 					  if ( (isbarrel && (((ohEleTiso[i] < Tisobarrel
-// 							       && ohEleTiso[i] != -999.) || (Tisobarrel
-// 											     == 999.)))) || (isendcap
-// 													     && (((ohEleTiso[i] < Tisoendcap
-// 														   && ohEleTiso[i] != -999.)
-// 														  || (Tisoendcap == 999.)))))
-// 					    {
-// 					      if (((isbarrel) && (ohEleTiso[i]/ohEleEt[i]
-// 								  < trkIso[0])) || ((isendcap)
-// 											  && (ohEleTiso[i]/ohEleEt[i]
-// 											      < trkIso[1])))
-// 						{
-// 						  if ( (isbarrel && ohEleClusShap[i]
-// 							< caloId[2]) || (isendcap
-// 									       && ohEleClusShap[i]
-// 									       < caloId[3]))
-// 						    {
-// 						      if ( isbarrel || isendcap)
-// 							{
-// 							  if ( (isbarrel
-// 								&& TMath::Abs(ohEleDeta[i])
-// 								< trkId[0])
-// 							       || (isendcap
-// 								   && TMath::Abs(ohEleDeta[i])
-// 								   < trkId[1]))
-// 							    {
-// 							      if ( (isbarrel && ohEleDphi[i]
-// 								    < trkId[2])
-// 								   || (isendcap
-// 								       && ohEleDphi[i]
-// 								       < trkId[3]))
-// 								{
-// 								  rc++;
-// 								}
-// 							    }
-// 							}
-// 						    }
-// 						}
-// 					    }
-// 					}
-// 				    }
-// 				}
-// 			    }
-// 			}
-// 		    }
-// 		}
-// 	    }
-// 	}
-//     }
-	
-//   return rc;
-// }
 
 int OHltTree::OpenHlt1ElectronPassed(float Et,
 				     std::map< TString, float> caloId,

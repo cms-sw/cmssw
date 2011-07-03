@@ -11135,12 +11135,6 @@ public:
          bool jetID,
          std::vector<int> ohEleIts);
 
-  /*  int OpenHlt1ElectronPassed(float Et, */
-/* 			      std::vector<double> caloId,// hoverebarrel, hovereendcap, clusshapebarrel, clusshapeendcap, */
-/* 			      std::vector<double> caloIso,//HisooverETbarrel,HisooverETendcap, EisooverETbarrel, EisooverETendcap, */
-/* 			      std::vector<double> trkId,//detabarrel,detaendcap, dphibarrel,dphiendcap, */
-/* 			      std::vector<double> trkIso//Tisoratiobarrel, Tisoratioendcap, */
-/* 			      ); */
 	
    int OpenHlt1ElectronPassed(float Et,
 			      std::map< TString, float> caloId,
@@ -11148,27 +11142,6 @@ public:
 			      std::map< TString, float> trkId,
 			      std::map< TString, float> trkIso
 			      );
-	
- 
-
-   int OpenHlt1ElectronSamHarperPassed_Reshuffled(float Et,
-						  float hoverebarrel=999.,
-						  float hovereendcap=999.,
-						  float clusshapebarrel=999.,
-						  float clusshapeendcap=999.,
-						  float detabarrel=999.,
-						  float detaendcap=999.,
-						  float dphibarrel=999.,
-						  float dphiendcap=999.,
-						  float HisooverETbarrel=999.,
-						  float HisooverETendcap=999.,
-						  float EisooverETbarrel=999.,
-						  float EisooverETendcap=999.,
-						  float Tisoratiobarrel=999.,
-						  float Tisoratioendcap=999.,
-						  float Tisobarrel=999.,
-						  float Tisoendcap=999.,
-						  int L1iso=0);
 	
 	
    int OpenHlt1ElectronSamHarperPassed(
@@ -11851,6 +11824,7 @@ private:
    std::map<TString, std::map< TString, float> > map_EleCaloIso; 
    std::map<TString, std::map< TString, float> > map_EleTrkId; 
    std::map<TString, std::map< TString, float> > map_EleTrkIso;
+   std::map<TString, std::map< TString, float> > map_PhotonIso;
 
    TRandom3 random; // for random prescale method
    
@@ -12130,7 +12104,28 @@ void OHltTree::initEGammaWPMap(){
   (map_EleTrkIso["TrkIsoT"])["Tisoratiobarrel"] = 0.125;
   (map_EleTrkIso["TrkIsoT"])["Tisoratioendcap"] = 0.075;
 
-
+  //PhotonIso 
+  //default values
+  (map_PhotonIso[""])["Tiso"] = 999. ;
+  (map_PhotonIso[""])["Eiso"] = 999.  ;
+  (map_PhotonIso[""])["HisoBR"] = 999. ;
+  (map_PhotonIso[""])["HisoEC"] = 999. ;
+  // IdVL
+  (map_PhotonIso["IsoVL"])["Tiso"] = 4.0 ;
+  (map_PhotonIso["IsoVL"])["Eiso"] = 6.0 ;
+  (map_PhotonIso["IsoVL"])["HisoBR"] = 4.0 ;
+  (map_PhotonIso["IsoVL"])["HisoEC"] = 4.0 ;
+  // IdL
+  (map_PhotonIso["IsoL"])["Tiso"] = 3.5 ;
+  (map_PhotonIso["IsoL"])["Eiso"] = 5.5 ;
+  (map_PhotonIso["IsoL"])["HisoBR"] = 3.5 ;
+  (map_PhotonIso["IsoL"])["HisoEC"] = 3.5 ;
+  // IdT
+  (map_PhotonIso["IsoT"])["Tiso"] = 3.0 ;
+  (map_PhotonIso["IsoT"])["Eiso"] = 5.0 ;
+  (map_PhotonIso["IsoT"])["HisoBR"] = 3.0 ;
+  (map_PhotonIso["IsoT"])["HisoEC"] = 3.0 ;
+ 
 
 }
 
