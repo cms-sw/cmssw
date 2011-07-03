@@ -30,14 +30,21 @@ double quantErr(size_t n, double *vals, double q) {
 }
 
 enum BandType { Mean, Median, Quantile, Observed, Asimov, CountToys, MeanCPUTime, AdHoc };
-double band_safety_crop = 0; bool use_precomputed_quantiles = false;
+double band_safety_crop = 0; bool use_precomputed_quantiles = false; bool zero_is_valid = false;
 TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType type, double width=0.68) {
+    bool isLandS = false;
     if (file == 0) return 0;
     TTree *t = (TTree *) file->Get("limit");
     if (t == 0) t = (TTree *) file->Get("test"); // backwards compatibility
+    if (t == 0) { 
+        if (t = (TTree *) file->Get("T")) { 
+            isLandS = true; 
+            std::cerr << "Reading L&S tree from " << file->GetName() << std::endl; 
+        }
+    }
     if (t == 0) { std::cerr << "TFile " << file->GetName() << " does not contain the tree" << std::endl; return 0; }
     Double_t mass, limit, limitErr = 0; Float_t t_cpu, t_real; Int_t syst, iChannel, iToy, iMass; Float_t quant = -1;
-    t->SetBranchAddress("mh", &mass);
+    t->SetBranchAddress((isLandS ? "mH" : "mh"), &mass);
     t->SetBranchAddress("limit", &limit);
     if (t->GetBranch("limitErr")) t->SetBranchAddress("limitErr", &limitErr);
     if (t->GetBranch("t_cpu") != 0) {
@@ -48,9 +55,13 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
         if (t->GetBranch("quantileExpected") == 0) { std::cerr << "TFile " << file->GetName() << " does not have precomputed quantiles" << std::endl; return 0; }
         t->SetBranchAddress("quantileExpected", &quant);
     }
-    t->SetBranchAddress("syst", &syst);
-    t->SetBranchAddress("iChannel", &iChannel);
-    t->SetBranchAddress("iToy", &iToy);
+    if (!isLandS) {
+        t->SetBranchAddress("syst", &syst);
+        t->SetBranchAddress("iChannel", &iChannel);
+        t->SetBranchAddress("iToy", &iToy);
+    } else {
+        syst = 1; iChannel = 0; iToy = 0;
+    }
 
     std::map<int,std::vector<double> >  dataset;
     std::map<int,std::vector<double> >  errors;
@@ -62,7 +73,7 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
         if      (type == Asimov)   { if (iToy != -1) continue; }
         else if (type == Observed) { if (iToy !=  0) continue; }
         else if (iToy <= 0 && !use_precomputed_quantiles) continue;
-        if (limit == 0) continue; 
+        if (limit == 0 && !zero_is_valid) continue; 
         iMass = int(mass);
         if (type == MeanCPUTime) { 
             if (limit < 0) continue; 
