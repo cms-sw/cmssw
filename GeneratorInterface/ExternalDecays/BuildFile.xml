@@ -5,7 +5,6 @@
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="tauolapp"/>
 <use   name="photos"/>
-<use   name="pythia6"/>
 <use   name="clhep"/>
 <use   name="evtgenlhc"/>
 <export>
