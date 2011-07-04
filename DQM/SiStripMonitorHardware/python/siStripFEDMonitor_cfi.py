@@ -20,6 +20,7 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
   #lumi histogram
   ErrorFractionByLumiBlockHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(False) ),          
   #Global/summary histograms
+  FedEventSizeHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),                
   DataPresentHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   AnyFEDErrorsHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   AnyDAQProblemsHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
@@ -241,5 +242,11 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
     NBins = cms.untracked.uint32(600),
     Min = cms.untracked.double(0),
     Max = cms.untracked.double(3600)
-  )
-)
+  ),
+  FedMaxEventSizevsTimeHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(600),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(3600)                
+  )                             
+ )

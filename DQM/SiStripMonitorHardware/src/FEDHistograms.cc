@@ -19,6 +19,9 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
 			       std::ostringstream* pDebugStream
 			       )
 {
+  getConfigForHistogram(fedEventSize_,"FedEventSize",iConfig,pDebugStream);
+  getConfigForHistogram(fedMaxEventSizevsTime_,"FedMaxEventSizevsTime",iConfig,pDebugStream);
+
   getConfigForHistogram(dataPresent_,"DataPresent",iConfig,pDebugStream);
   getConfigForHistogram(anyFEDErrors_,"AnyFEDErrors",iConfig,pDebugStream);
   getConfigForHistogram(anyDAQProblems_,"AnyDAQProblems",iConfig,pDebugStream);
@@ -105,8 +108,11 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
 
 void FEDHistograms::fillCountersHistograms(const FEDErrors::FEDCounters & fedLevelCounters, 
 					   const FEDErrors::ChannelCounters & chLevelCounters, 
+					   const unsigned int aMaxSize,
 					   const double aTime )
 {
+  fillHistogram(fedMaxEventSizevsTime_,aTime,aMaxSize);
+
   fillHistogram(nFEDErrors_,fedLevelCounters.nFEDErrors);
   fillHistogram(nFEDDAQProblems_,fedLevelCounters.nDAQProblems);
   fillHistogram(nFEDsWithFEProblems_,fedLevelCounters.nFEDsWithFEProblems);
@@ -144,10 +150,13 @@ void FEDHistograms::fillCountersHistograms(const FEDErrors::FEDCounters & fedLev
 }
 
 void FEDHistograms::fillFEDHistograms(FEDErrors & aFedErr, 
+				      const unsigned int aEvtSize,
 				      bool lFullDebug)
 {
   const FEDErrors::FEDLevelErrors & lFedLevelErrors = aFedErr.getFEDLevelErrors();
   const unsigned int lFedId = aFedErr.fedID();
+
+  fillHistogram(fedEventSize_,lFedId,aEvtSize);
 
   if (lFedLevelErrors.DataPresent) fillHistogram(dataPresent_,lFedId);
 
@@ -313,6 +322,17 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
   debugHistosBooked_.resize(siStripFedIdMax+1,false);
 
   //book histos
+  bookProfile(fedEventSize_,
+	      "FedEventSize",
+	      "Average FED buffer Size (B) per Event",
+	      siStripFedIdMax-siStripFedIdMin+1,
+	      siStripFedIdMin-0.5,siStripFedIdMax+0.5,
+	      0,
+	      42241, //total number of channels
+	      "FED-ID",
+	      "<FED buffer Size> (B)"
+	      );
+
 
   bookHistogram(dataPresent_,"DataPresent",
 		"Number of events where the data from a FED is seen",
@@ -569,6 +589,15 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 
 
   dqm_->setCurrentFolder(lBaseDir+"/ErrorsVsTime");
+
+  bookProfile(fedMaxEventSizevsTime_,
+	      "FedMaxEventSizevsTime",
+	      "Max FED buffer Size (B) per Event vs time",
+	      0,
+	      42241, //total number of channels
+	      "Time",
+	      "Max FED buffer Size (B)"
+	      );
 
   bookProfile(nTotalBadChannelsvsTime_,
 	      "nTotalBadChannelsvsTime",

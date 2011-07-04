@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.39 2010/04/21 10:40:19 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.40 2011/07/02 16:07:05 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -110,6 +110,7 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
   //FED errors
   //need class member for lumi histograms
   FEDErrors fedErrors_;
+  unsigned int maxFedBufferSize_;
 };
 
 
@@ -127,7 +128,8 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
     writeDQMStore_(iConfig.getUntrackedParameter<bool>("WriteDQMStore",false)),
     dqmStoreFileName_(iConfig.getUntrackedParameter<std::string>("DQMStoreFileName","DQMStore.root")),
     dqm_(0),
-    cablingCacheId_(0)
+    cablingCacheId_(0),
+    maxFedBufferSize_(0)
 {
   //print config to debug log
   std::ostringstream debugStream;
@@ -214,7 +216,9 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
     lFeMajFrac[2].reserve(768);
     lFeMajFrac[3].reserve(760);
   }
-  
+
+  maxFedBufferSize_ = 0;
+
   //loop over siStrip FED IDs
   for (unsigned int fedId = FEDNumbering::MINSiStripFEDID; 
        fedId <= FEDNumbering::MAXSiStripFEDID; 
@@ -229,7 +233,7 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
     //first check if data exists
     bool lDataExist = fedErrors_.checkDataPresent(fedData);
     if (!lDataExist) {
-      fedHists_.fillFEDHistograms(fedErrors_,lFullDebug);
+      fedHists_.fillFEDHistograms(fedErrors_,0,lFullDebug);
       continue;
     }
 
@@ -252,8 +256,13 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
     bool lFailUnpackerFEDcheck = fedErrors_.failUnpackerFEDCheck();
 
     fedErrors_.incrementFEDCounters();
-    fedHists_.fillFEDHistograms(fedErrors_,lFullDebug);
+    unsigned int lSize = fedData.size();
+    if (lSize > maxFedBufferSize_){
+      maxFedBufferSize_ = lSize;
+    }
+    //std::cout << " -- " << fedId << " " << lSize << std::endl;
 
+    fedHists_.fillFEDHistograms(fedErrors_,lSize,lFullDebug);
 
     bool lFailMonitoringFEDcheck = fedErrors_.failMonitoringFEDCheck();
     if (lFailMonitoringFEDcheck) lNTotBadFeds++;
@@ -345,9 +354,8 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 
   //fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(), nEvt_);
   //time in seconds since beginning of the run or event number
-  if (fillWithEvtNum_) fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(),FEDErrors::getChannelErrorsCounters(),iEvent.id().event());
-  else fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(),FEDErrors::getChannelErrorsCounters(),iEvent.orbitNumber()/11223.);
-
+  if (fillWithEvtNum_) fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(),FEDErrors::getChannelErrorsCounters(),maxFedBufferSize_,iEvent.id().event());
+  else fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(),FEDErrors::getChannelErrorsCounters(),maxFedBufferSize_,iEvent.orbitNumber()/11223.);
 
   nEvt_++;
 

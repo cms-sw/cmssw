@@ -7,6 +7,7 @@ siStripFEDMonitor.PrintDebugMessages = 0
 #lumi histogram
 siStripFEDMonitor.ErrorFractionByLumiBlockHistogramConfig.Enabled = True
 #Global/summary histograms
+siStripFEDMonitor.FedEventSizeHistogramConfig.Enabled = False
 siStripFEDMonitor.DataPresentHistogramConfig.Enabled = True
 siStripFEDMonitor.AnyFEDErrorsHistogramConfig.Enabled = True
 siStripFEDMonitor.AnyDAQProblemsHistogramConfig.Enabled = True
@@ -219,6 +220,12 @@ siStripFEDMonitor.nUnlockedvsTimeHistogramConfig = cms.untracked.PSet(
   #Max = cms.untracked.double(3600)
 )
 siStripFEDMonitor.nOutOfSyncvsTimeHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(False),
+  #NBins = cms.untracked.uint32(600),
+  #Min = cms.untracked.double(0),
+  #Max = cms.untracked.double(3600)
+)
+siStripFEDMonitor.FedMaxEventSizevsTimeHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(False),
   #NBins = cms.untracked.uint32(600),
   #Min = cms.untracked.double(0),

@@ -42,10 +42,12 @@ public:
 		  );
 
   void fillCountersHistograms(const FEDErrors::FEDCounters & aFedLevelCounters, 
-			      const FEDErrors::ChannelCounters & aChLevelCounters, 
+			      const FEDErrors::ChannelCounters & aChLevelCounters,
+			      const unsigned int aMaxSize,
 			      const double aTime);
 
-  void fillFEDHistograms(FEDErrors & aFedError, 
+  void fillFEDHistograms(FEDErrors & aFedError,
+			 const unsigned int aEvtSize,
 			 bool lFullDebug
 			 );
 
@@ -94,6 +96,9 @@ protected:
 private:
 
   //counting histograms (histogram of number of problems per event)
+  HistogramConfig fedEventSize_;
+  HistogramConfig fedMaxEventSizevsTime_;
+
   HistogramConfig nFEDErrors_, 
     nFEDDAQProblems_, 
     nFEDsWithFEProblems_, 
