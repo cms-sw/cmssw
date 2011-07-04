@@ -1088,6 +1088,13 @@ std::pair<double,double> HybridNew::updateGridPoint(RooWorkspace *w, RooStats::M
         double testStat = setup.qvar->Evaluate(data, nullPOI);
         point->second->SetTestStatisticData(testStat + (isProfile ? -EPS : EPS));
     }
+    if (verbose > 1) {
+        std::cout << "At r = " << rValue_ << ":\n" << 
+            "\tCLs      = " << point->second->CLs()      << " +/- " << point->second->CLsError()      << "\n" <<
+            "\tCLb      = " << point->second->CLb()      << " +/- " << point->second->CLbError()      << "\n" <<
+            "\tCLsplusb = " << point->second->CLsplusb() << " +/- " << point->second->CLsplusbError() << "\n" <<
+            std::endl;
+    }
     return CLs_ ? CLs_t(point->second->CLs(), point->second->CLsError()) : CLs_t(point->second->CLsplusb(), point->second->CLsplusbError());
 }
 void HybridNew::useGrid() {
@@ -1103,6 +1110,7 @@ void HybridNew::useGrid() {
             val = CLs_t(itg->second->CLsplusb(), itg->second->CLsplusbError());
         }
         if (val.first == -1) continue;
+        if (val.first != 1 and val.second == 0) continue;
         limitPlot_->Set(n+1);
         limitPlot_->SetPoint(     n, itg->first, val.first); 
         limitPlot_->SetPointError(n, 0,          val.second);

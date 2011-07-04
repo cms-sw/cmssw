@@ -232,6 +232,7 @@ void makeBands(TDirectory *bands, TString name, TString filename, int channel=0,
 }
 
 int findBin(TGraphAsymmErrors *g, double x) {
+    if (g == 0) return -1;
     for (int i = 0; i < g->GetN(); ++i) {
         double xi = g->GetX()[i];
         if ((xi - g->GetErrorXlow(i) <= x) && (x <= xi + g->GetErrorXhigh(i))) {

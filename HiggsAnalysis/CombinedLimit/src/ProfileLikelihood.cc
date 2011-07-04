@@ -19,7 +19,7 @@
 
 using namespace RooStats;
 
-std::string ProfileLikelihood::minimizerAlgo_ = "Minuit2";
+std::string ProfileLikelihood::minimizerAlgo_ = "Minuit2,minimize";
 float       ProfileLikelihood::minimizerTolerance_ = 1e-2;
 int         ProfileLikelihood::tries_ = 1;
 int         ProfileLikelihood::maxTries_ = 1;

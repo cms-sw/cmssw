@@ -6,6 +6,8 @@ import ROOT
 parser = OptionParser(usage="usage: %prog [options] workspace min max \nrun with --help to get list of options")
 parser.add_option("-o", "--out",      dest="out",      default="TestGrid",  type="string", help="output file prefix")
 parser.add_option("--lsf",            dest="lsf",      default=False, action="store_true", help="Run on LSF instead of GRID (can be changed in .cfg file)")
+parser.add_option("--glidein",        dest="glide",    default=False, action="store_true", help="Use glide-in scheduler instead of glite")
+parser.add_option("--server",         dest="server",   default=False, action="store_true", help="Use crab server")
 parser.add_option("-q", "--queue",    dest="queue",    default="8nh80",   type="string", help="LSF queue to use (can be changed in .cfg file)")
 parser.add_option("-O", "--options",  dest="options",  default="--freq",  type="string", help="options to use for combine")
 parser.add_option("-n", "--points",   dest="points",   default=10,  type="int",  help="Points to choose in the range (note: both endpoints are included)")
@@ -15,6 +17,7 @@ parser.add_option("-j", "--jobs",     dest="j",        default=10,  type="int", 
 parser.add_option("-I", "--interleave", dest="interl", default=1, type="int",    help="If >1, excute only 1/I of the points in each job")
 parser.add_option("-v", "--verbose",  dest="v",        default=0, type="int",    help="Verbosity")
 parser.add_option("-r", "--random",   dest="random",   default=False, action="store_true", help="Use random seeds for the jobs")
+parser.add_option("-P", "--priority", dest="prio",     default=False, action="store_true", help="Use PriorityUser role")
 #parser.add_option("--fork",           dest="fork",     default=1,   type="int",  help="Cores to use (leave to 1)") # no fork in batch jobs for now
 (options, args) = parser.parse_args()
 if len(args) != 3:
@@ -80,12 +83,16 @@ if not os.path.exists("combine"):
     print "Creating a symlink to the combine binary"
     os.system("cp -s $(which combine) .")
 
+sched = "glite"
+if options.lsf: sched = "lsf"
+if options.glide: sched = "glidein"
 print "Creating crab cfg ",options.out+".cfg"
 cfg = open(options.out+".cfg", "w")
 cfg.write("""
 [CRAB]
 jobtype = cmssw
 scheduler = {sched}
+use_server = {srv}
 
 [LSF]
 queue = {queue}
@@ -101,4 +108,12 @@ number_of_jobs = {jobs}
 script_exe = {out}.sh
 additional_input_files = combine,{wsp}
 return_data = 1
-""".format(wsp=workspace, out=options.out, sched=("lsf" if options.lsf else "glite"), queue=options.queue, jobs=options.j, total=options.t))
+""".format(wsp=workspace, out=options.out, sched=sched, srv=(1 if options.server else 0), queue=options.queue, jobs=options.j, total=options.t))
+
+if options.prio: cfg.write("""
+[GRID]
+rb               = CERN
+proxy_server     = myproxy.cern.ch
+role             = priorityuser
+retry_count      = 0
+""")
