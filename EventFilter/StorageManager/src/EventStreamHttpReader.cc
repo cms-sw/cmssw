@@ -1,4 +1,4 @@
-// $Id: EventStreamHttpReader.cc,v 1.48 2011/04/07 08:01:40 mommsen Exp $
+// $Id: EventStreamHttpReader.cc,v 1.49 2011/04/07 08:43:59 mommsen Exp $
 /// @file: EventStreamHttpReader.cc
 
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -67,7 +67,7 @@ namespace edm
 
     if (dqmStore_)
     {
-      dqmStore_->cd();
+      dqmStore_->setCurrentFolder("/SM_SMPS_Stats");
       MonitorElement* me = dqmStore_->bookInt("droppedEventsCount");
       me->Fill(droppedEvents);
     }
