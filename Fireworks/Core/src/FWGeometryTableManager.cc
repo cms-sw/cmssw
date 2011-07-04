@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.20 2011/07/02 05:28:06 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.21 2011/07/04 18:01:36 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -531,13 +531,13 @@ void FWGeometryTableManager::checkChildMatches(TGeoVolume* vol,  std::vector<TGe
       for (std::vector<TGeoVolume*>::iterator i = pstack.begin(); i!= pstack.end(); ++i)
       {
          Match& pm =  m_volumes[*i];
-         pm.m_childMatches = true;         
+         pm.m_childMatches = true; 
       }
    }
 
    pstack.push_back(vol);
 
-   int nD = TMath::Min(m_browser->getMaxDaughters(), vol->GetNdaughters());
+   int nD =  vol->GetNdaughters();//TMath::Min(m_browser->getMaxDaughters(), vol->GetNdaughters());
    for (int i = 0; i!=nD; ++i)
       checkChildMatches(vol->GetNode(i)->GetVolume(), pstack);
    
@@ -566,7 +566,6 @@ void FWGeometryTableManager::updateFilter()
       else {
          i->second.m_matches = false;
       }
-      //printf(" %d ", i->second.m_matches );
       i->second.m_childMatches = false;
    }  
 
@@ -586,7 +585,7 @@ FWGeometryTableManager::NodeInfo& FWGeometryTableManager::refSelected()
    return  m_entries[m_selectedIdx];
 }
 
-void FWGeometryTableManager::getNodePath(int idx, std::string& path)
+void FWGeometryTableManager::getNodePath(int idx, std::string& path) const
 {
    std::vector<std::string> relPath;
    while(idx >= 0)
@@ -636,9 +635,11 @@ void  FWGeometryTableManager::topGeoNodeChanged(int idx)
 
 void FWGeometryTableManager::printChildren(int idx) const
 {
-  
    //   static double pnt[3];
-
+  std::string path;
+  getNodePath(idx, path);
+  printf("My %s parent %s path  %d \n",m_entries[idx].name(),path.c_str(), m_entries[idx].m_parent );
+  /*
    for (int i =0, k = m_entries.size(); i < k; ++i)
    {
      const  NodeInfo&  ni = m_entries[i];
@@ -651,6 +652,5 @@ void FWGeometryTableManager::printChildren(int idx) const
 
          printChildren(i);
       }
-   }
-
+      }*/
 }

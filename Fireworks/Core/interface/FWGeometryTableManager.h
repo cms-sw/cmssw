@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.16 2011/07/02 03:37:46 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.17 2011/07/02 05:28:06 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -143,7 +143,7 @@ public:
 
    void loadGeometry();
    void setBackgroundToWhite(bool);
-   void getNodePath(int, std::string&);
+   void getNodePath(int, std::string&) const;
 
    int getTopGeoNodeIdx() const { return m_geoTopNodeIdx; }
    int getLevelOffset() const { return m_levelOffset; }
