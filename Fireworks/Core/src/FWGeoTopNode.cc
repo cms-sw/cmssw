@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel  
 //         Created:  Thu Jun 23 01:24:51 CEST 2011
-// $Id: FWGeoTopNode.cc,v 1.4 2011/07/01 23:33:53 amraktad Exp $
+// $Id: FWGeoTopNode.cc,v 1.5 2011/07/02 03:37:47 amraktad Exp $
 //
 
 // system include files
@@ -60,7 +60,7 @@ void FWGeoTopNode::ComputeBBox()
 }
 
 //______________________________________________________________________________
-void FWGeoTopNode::setupBuffMtx(TBuffer3D& buff, TGeoHMatrix& mat)
+void FWGeoTopNode::setupBuffMtx(TBuffer3D& buff, const TGeoHMatrix& mat)
 {
    const Double_t *r = mat.GetRotationMatrix();
    const Double_t *t = mat.GetTranslation();
@@ -77,45 +77,52 @@ void FWGeoTopNode::setupBuffMtx(TBuffer3D& buff, TGeoHMatrix& mat)
 //______________________________________________________________________________
 void FWGeoTopNode::Paint(Option_t*)
 {
-   int topIdx = m_geoBrowser->getTableManager()->getTopGeoNodeIdx();
-   FWGeometryTableManager::Entries_i sit = m_entries->begin(); 
+  int topIdx = m_geoBrowser->getTableManager()->getTopGeoNodeIdx();
+  FWGeometryTableManager::Entries_i sit = m_entries->begin(); 
 
-
-   m_maxLevel = m_geoBrowser->getVisLevel() + m_geoBrowser->getTableManager()->getLevelOffset() -1;
-   m_filterOff = m_geoBrowser->getFilter().empty();
-
-   TGeoHMatrix mtx;
-   if (topIdx >= 0)
-   {
-      std::advance(sit, topIdx);
-
+  m_maxLevel = m_geoBrowser->getVisLevel() + m_geoBrowser->getTableManager()->getLevelOffset() -1;
+  m_filterOff = m_geoBrowser->getFilter().empty();
+  TGeoHMatrix mtx;
+  if (topIdx >= 0)
+  {
+    std::advance(sit, topIdx);
+    {
       // init matrix
       int pIdx = sit->m_parent;
+      int level = sit->m_level;
+      int* pl = new int[level];
       while (pIdx != -1)
       {
-         mtx.Multiply(m_entries->at(pIdx).m_node->GetMatrix());
-         pIdx = m_entries->at(pIdx).m_parent;
+	pl[ m_entries->at(pIdx).m_level] = pIdx;
+	pIdx = m_entries->at(pIdx).m_parent;
       }
 
-      // paint this node
-      if (sit->m_node->IsVisible())
-      {
-         bool draw = true;
-         if ( m_filterOff == false) {
-            m_geoBrowser->getTableManager()->assertNodeFilterCache(*sit);
-            draw = sit->testBit(FWGeometryTableManager::kMatches);
-         }
-
-         if (draw)
-            paintShape(*sit, mtx);
+      for (int i = 0; i < level; ++i ) {
+	TGeoNode* node = m_entries->at(pl[i]).m_node;
+	// printf("parents %d = %s \n", pl[i], node->GetName() );
+	mtx.Multiply(node->GetMatrix());
       }
-   }
+      delete [] pl;
 
-   //  printf("xxxxxx FWGeoTopNode::Paint() top node with IDX %d xxxxxxxxxxxxxxxxxxxxxxx\n",topIdx );
+      mtx.Multiply(sit->m_node->GetMatrix());
+    }
 
+    // paint this node
+    if (sit->m_node->IsVisible())
+    {
+      bool draw = true;
+      if ( m_filterOff == false) {
+	m_geoBrowser->getTableManager()->assertNodeFilterCache(*sit);
+	draw = sit->testBit(FWGeometryTableManager::kMatches);
+      }
 
-   if (sit->m_node->IsVisDaughters())
-      paintChildNodesRecurse(sit, mtx);
+      if (draw)
+	paintShape(*sit, mtx);
+    }
+  }
+
+  if (sit->m_node->IsVisDaughters())
+    paintChildNodesRecurse(sit, mtx);
 }
 
 // ______________________________________________________________________
@@ -158,7 +165,7 @@ void FWGeoTopNode::paintChildNodesRecurse(FWGeometryTableManager::Entries_i pIt,
 }
 
 // ______________________________________________________________________
-void FWGeoTopNode::paintShape(FWGeometryTableManager::NodeInfo& data, TGeoHMatrix& nm)
+void FWGeoTopNode::paintShape(FWGeometryTableManager::NodeInfo& data, const TGeoHMatrix& nm)
 { 
    static const TEveException eh("FWGeoTopNode::paintShape ");
   
@@ -167,6 +174,7 @@ void FWGeoTopNode::paintShape(FWGeometryTableManager::NodeInfo& data, TGeoHMatri
    TGeoCompositeShape* compositeShape = dynamic_cast<TGeoCompositeShape*>(shape);
    if (compositeShape)
    {
+      // printf("!!!!!!!!!!!!!!!!!!!! composite shape\n");
       Double_t halfLengths[3] = { compositeShape->GetDX(), compositeShape->GetDY(), compositeShape->GetDZ() };
 
       TBuffer3D buff(TBuffer3DTypes::kComposite);
@@ -175,7 +183,7 @@ void FWGeoTopNode::paintShape(FWGeometryTableManager::NodeInfo& data, TGeoHMatri
       buff.fTransparency = data.m_node->GetVolume()->GetTransparency(); 
 
       nm.GetHomogenousMatrix(buff.fLocalMaster);        
-      RefMainTrans().SetBuffer3D(buff);
+      // RefMainTrans().SetBuffer3D(buff);
       buff.fLocalFrame   = kTRUE; // Always enforce local frame (no geo manager).
       buff.SetAABoundingBox(compositeShape->GetOrigin(), halfLengths);
       buff.SetSectionsValid(TBuffer3D::kCore|TBuffer3D::kBoundingBox);
@@ -196,7 +204,7 @@ void FWGeoTopNode::paintShape(FWGeometryTableManager::NodeInfo& data, TGeoHMatri
       TGeoShape::SetTransform(gst);
       // Close the composite shape
       if (TBuffer3D::DecCSLevel() == 0)
-         gPad->GetViewer3D()->CloseComposite();
+      gPad->GetViewer3D()->CloseComposite();
 
    }
    else
