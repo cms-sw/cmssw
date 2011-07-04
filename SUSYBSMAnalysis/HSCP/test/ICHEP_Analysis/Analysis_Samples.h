@@ -43,7 +43,9 @@
 #define SID_DS302    37
 
 
+int                  RunningPeriods = 2;
 double               IntegratedLuminosity = 802.112979531; //715.041013013; //705.273820; //342.603275; //204.160928; //191.04;
+double               IntegratedLuminosityBeforeTriggerChange = 324.787493137; // Total luminosity taken before RPC L1 trigger change (went into effect on run 165970)
 float                Event_Weight = 1;
 int                  MaxEntry = -1;
 
@@ -145,8 +147,9 @@ void GetMCDefinition(std::vector<stMC>& MC){
 }
 
 
-void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName){
-   std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_06_28/";
+void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName, int period=0){
+  //std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_06_28/";
+   std::string BaseDirectory = "dcap://cmsdca.fnal.gov:24125/pnfs/cms/WAX/11/store/user/farrell3/EDMFiles/";
 
    if(SampleName=="Data"){
         inputFiles.push_back(BaseDirectory + "Data_RunA_160000_163250.root");
@@ -169,7 +172,8 @@ void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName)
 //         inputFiles.push_back(BaseDirectory + "MC_QCD80_B.root");
 //      }
    }else{
-      inputFiles.push_back(BaseDirectory + SampleName + ".root");
+     if (period==0) inputFiles.push_back(BaseDirectory + SampleName + ".root");
+     if (period==1) inputFiles.push_back(BaseDirectory + SampleName + "_RPCL1Extended.root");
    }
 }
 
