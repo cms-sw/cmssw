@@ -218,7 +218,8 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
 	float phiTrk = topol.stripAngle(measTrkPos.x());
 	float r_0 = topol.originToIntersection();
 	
-	resXTopol = (phiTrk-phiHit)*r_0;
+//	resXTopol = (phiTrk-phiHit)*r_0;
+        resXTopol = (tan(phiTrk)-tan(phiHit))*r_0;
 	//resYTopol = measTrkPos.y()*localStripLengthTrk - measHitPos.y()*localStripLengthHit;
 	float cosPhiHit(cos(phiHit)), cosPhiTrk(cos(phiTrk)),
 	      sinPhiHit(sin(phiHit)), sinPhiTrk(sin(phiTrk));
