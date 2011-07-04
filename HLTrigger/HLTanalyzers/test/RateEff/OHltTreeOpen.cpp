@@ -9936,6 +9936,20 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
             }
         }
     }
+  else if (triggerName.CompareTo("OpenHLT_IsoMu20_DiCentralJet34") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+        {
+          if (prescaleResponse(menu, cfg, rcounter, it))
+            {
+              if (OpenHlt1MuonPassed(0., 10., 20., 2., 1)>=1
+                  && OpenHlt1CorJetPassed( 34, 2.6)>=2)
+                {
+                  triggerBit[it] = true;
+                }
+            }
+        }
+    }
   else if (triggerName.CompareTo("OpenHLT_IsoMu17_TriCentralJet30") == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
