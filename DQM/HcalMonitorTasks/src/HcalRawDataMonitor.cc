@@ -101,6 +101,14 @@ HcalRawDataMonitor::HcalRawDataMonitor(const edm::ParameterSet& ps) {
     }
   }
 
+  // Properly initialze bylumi counters.
+  NumBadHB=0;
+  NumBadHE=0;
+  NumBadHO=0;
+  NumBadHF=0;
+  NumBadHFLUMI=0;
+  NumBadHO0=0;
+  NumBadHO12=0;
 
 } // HcalRawDataMonitor::HcalRawDataMonitor()
 
