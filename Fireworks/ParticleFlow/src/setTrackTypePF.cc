@@ -19,12 +19,12 @@ namespace fireworks {
 
      using namespace reco;
 
-     switch (pfCand.particleId() ) {
-     case PFCandidate::e: track->SetLineStyle(5); break;
-     case PFCandidate::mu: track->SetLineStyle(6); break;
-     case PFCandidate::h0: track->SetLineStyle(3); break;
-     case PFCandidate::gamma:  track->SetLineStyle(7); break;
-     default: break;
-     }
+   //   switch (pfCand.particleId() ) {
+   //   case PFCandidate::e: track->SetLineStyle(5); break;
+   //   case PFCandidate::mu: track->SetLineStyle(6); break;
+   //   case PFCandidate::h0: track->SetLineStyle(3); break;
+   //   case PFCandidate::gamma:  track->SetLineStyle(7); break;
+   //   default: break;
+   //   }
    }
 }
