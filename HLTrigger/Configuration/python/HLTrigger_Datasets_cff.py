@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V154
+# /dev/CMSSW_4_2_0/GRun/V155
 
 import FWCore.ParameterSet.Config as cms
 
@@ -465,8 +465,8 @@ streamA_datasetSingleMu_selector.triggerConditions = cms.vstring('HLT_IsoMu12_v7
     'HLT_IsoMu17_eta2p1_v1', 
     'HLT_IsoMu17_v11', 
     'HLT_IsoMu20_eta2p1_v1', 
-    'HLT_IsoMu24_v7', 
-    'HLT_IsoMu30_v7', 
+    'HLT_IsoMu24_eta2p1_v1', 
+    'HLT_IsoMu30_eta2p1_v1', 
     'HLT_L1SingleMu10_v4', 
     'HLT_L1SingleMu20_v4', 
     'HLT_L2Mu10_v5', 
@@ -480,6 +480,7 @@ streamA_datasetSingleMu_selector.triggerConditions = cms.vstring('HLT_IsoMu12_v7
     'HLT_Mu3_v7', 
     'HLT_Mu40_v3', 
     'HLT_Mu5_v7', 
+    'HLT_Mu60_v1', 
     'HLT_Mu8_v5')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTau_selector
