@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel  
 //         Created:  Thu Jun 23 01:24:51 CEST 2011
-// $Id: FWGeoTopNode.cc,v 1.5 2011/07/02 03:37:47 amraktad Exp $
+// $Id: FWGeoTopNode.cc,v 1.6 2011/07/04 19:47:14 amraktad Exp $
 //
 
 // system include files
@@ -43,20 +43,10 @@ FWGeoTopNode::FWGeoTopNode(FWGeometryBrowser* t):
    m_maxLevel(0)
 {
    m_entries = &(m_geoBrowser->getTableManager()->refEntries());
-   ComputeBBox();
 }
 
 FWGeoTopNode::~FWGeoTopNode()
 {
-}
-
-//______________________________________________________________________________
-void FWGeoTopNode::ComputeBBox()
-{
-   BBoxInit();
-   float a  =100;
-   BBoxCheckPoint(a,a,a);
-   BBoxCheckPoint(-a, -a, -a);
 }
 
 //______________________________________________________________________________
