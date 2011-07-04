@@ -1,3 +1,9 @@
+2011-07-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-03-02
+	* Put merge count and dropped event counts into dedicated subdirectory
+	  '/SM_SMPS_Stats' instead of root (or some random directory).
+
 2011-06-21 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-03-01
