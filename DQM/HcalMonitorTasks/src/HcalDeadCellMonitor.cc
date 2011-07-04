@@ -350,10 +350,10 @@ void HcalDeadCellMonitor::setup()
   if (makeDiagnostics_)
     {
       dbe_->setCurrentFolder(subdir_+"DiagnosticPlots");
-      HBDeadVsEvent=dbe_->book1D("HBDeadVsEvent","HB Total Dead Cells Vs Event", NLumiBlocks_,-0.5,NLumiBlocks_-0.5);
-      HEDeadVsEvent=dbe_->book1D("HEDeadVsEvent","HE Total Dead Cells Vs Event", NLumiBlocks_,-0.5,NLumiBlocks_-0.5);
-      HODeadVsEvent=dbe_->book1D("HODeadVsEvent","HO Total Dead Cells Vs Event", NLumiBlocks_,-0.5,NLumiBlocks_-0.5);
-      HFDeadVsEvent=dbe_->book1D("HFDeadVsEvent","HF Total Dead Cells Vs Event", NLumiBlocks_,-0.5,NLumiBlocks_-0.5);
+      HBDeadVsEvent=dbe_->book1D("HBDeadVsEvent","HB Total Dead Cells Vs Event", NLumiBlocks_/10,-0.5,NLumiBlocks_-0.5);
+      HEDeadVsEvent=dbe_->book1D("HEDeadVsEvent","HE Total Dead Cells Vs Event", NLumiBlocks_/10,-0.5,NLumiBlocks_-0.5);
+      HODeadVsEvent=dbe_->book1D("HODeadVsEvent","HO Total Dead Cells Vs Event", NLumiBlocks_/10,-0.5,NLumiBlocks_-0.5);
+      HFDeadVsEvent=dbe_->book1D("HFDeadVsEvent","HF Total Dead Cells Vs Event", NLumiBlocks_/10,-0.5,NLumiBlocks_-0.5);
     }
 
   this->reset();
