@@ -36,12 +36,6 @@ struct TkOffTreeVariables
     profileNameResXvsX = profileNameResXvsY
       = profileNameResYvsX
       = profileNameResYvsY = "";
-    profileNameResXprimevsX = profileNameResXprimevsY
-      = profileNameResYprimevsX
-      = profileNameResYprimevsY = "";
-    profileNameResXbvsX = profileNameResXbvsY
-      = profileNameResYavsX
-      = profileNameResYavsY = "";
     
   }
   /// set those values to empty that are affected by merging
@@ -59,12 +53,6 @@ struct TkOffTreeVariables
 
     meanResXvsX = meanResXvsY = meanResYvsX = meanResYvsY
       = rmsResXvsX = rmsResXvsY = rmsResYvsX = rmsResYvsY = 0.;
-
-    meanResXprimevsX = meanResXprimevsY = meanResYprimevsX = meanResYprimevsY
-      = rmsResXprimevsX = rmsResXprimevsY = rmsResYprimevsX = rmsResYprimevsY = 0.;
-
-    meanResXbvsX = meanResXbvsY = meanResYavsX = meanResYavsY
-      = rmsResXbvsX = rmsResXbvsY = rmsResYavsX = rmsResYavsY = 0.;
    
     // variable Int_t's
     entries = 0;
@@ -108,17 +96,7 @@ struct TkOffTreeVariables
   Float_t rmsResXvsX, rmsResXvsY, rmsResYvsX, rmsResYvsY;
   
   std::string profileNameResXvsX, profileNameResXvsY, profileNameResYvsX, profileNameResYvsY; 
-
-  Float_t meanResXprimevsX, meanResXprimevsY, meanResYprimevsX, meanResYprimevsY;
-  Float_t rmsResXprimevsX, rmsResXprimevsY, rmsResYprimevsX, rmsResYprimevsY;
   
-  std::string profileNameResXprimevsX, profileNameResXprimevsY, profileNameResYprimevsX, profileNameResYprimevsY; 
-
-
-  Float_t meanResXbvsX, meanResXbvsY, meanResYavsX, meanResYavsY;
-  Float_t rmsResXbvsX, rmsResXbvsY, rmsResYavsX, rmsResYavsY;
-  
-  std::string profileNameResXbvsX, profileNameResXbvsY, profileNameResYavsX, profileNameResYavsY; 
 };
   
 #endif

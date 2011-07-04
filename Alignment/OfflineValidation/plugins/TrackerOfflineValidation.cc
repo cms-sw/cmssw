@@ -95,11 +95,7 @@ private:
 		      ResXprimeHisto(), NormResXprimeHisto(), 
 		      ResYprimeHisto(), NormResYprimeHisto(),
                       ResXvsXProfile(), ResXvsYProfile(),
-                      ResYvsXProfile(), ResYvsYProfile(),
-                      ResXbvsXProfile(), ResXbvsYProfile(),
-                      ResYavsXProfile(), ResYavsYProfile(),
-                      ResXprimevsXProfile(), ResXprimevsYProfile(),
-                      ResYprimevsXProfile(), ResYprimevsYProfile() {} 
+                      ResYvsXProfile(), ResYvsYProfile() {} 
     TH1* ResHisto;
     TH1* NormResHisto;
     TH1* ResYHisto;
@@ -113,16 +109,6 @@ private:
     TProfile* ResXvsYProfile;
     TProfile* ResYvsXProfile;
     TProfile* ResYvsYProfile;
-
-    TProfile* ResXbvsXProfile;
-    TProfile* ResXbvsYProfile;
-    TProfile* ResYavsXProfile;
-    TProfile* ResYavsYProfile;
-
-    TProfile* ResXprimevsXProfile;
-    TProfile* ResXprimevsYProfile;
-    TProfile* ResYprimevsXProfile;
-    TProfile* ResYprimevsYProfile;
 
     TH1* LocalX;
     TH1* LocalY;
@@ -656,11 +642,7 @@ TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali,
     yprimehistoname, yprimehistotitle, normyprimehistoname, normyprimehistotitle,
     localxname, localxtitle, localyname, localytitle,
     resxvsxprofilename, resxvsxprofiletitle, resyvsxprofilename, resyvsxprofiletitle,
-    resxvsyprofilename, resxvsyprofiletitle, resyvsyprofilename, resyvsyprofiletitle, 
-    resxprimevsxprofilename, resxprimevsxprofiletitle, resyprimevsxprofilename, resyprimevsxprofiletitle,
-    resxprimevsyprofilename, resxprimevsyprofiletitle, resyprimevsyprofilename, resyprimevsyprofiletitle, 
-    resxbvsxprofilename, resxbvsxprofiletitle, resyavsxprofilename, resyavsxprofiletitle,
-    resxbvsyprofilename, resxbvsyprofiletitle, resyavsyprofilename, resyavsyprofiletitle; 
+    resxvsyprofilename, resxvsyprofiletitle, resyvsyprofilename, resyvsyprofiletitle; 
   
   std::string wheel_or_layer;
 
@@ -711,33 +693,6 @@ TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali,
     resyvsxprofiletitle << "V Residual vs u for module " << id.rawId() << "; u_{tr,r} ;(v_{tr} - v_{hit})/tan#beta  [cm]";
     resxvsyprofiletitle << "U Residual vs v for module " << id.rawId() << "; v_{tr,r} ;(u_{tr} - u_{hit})/tan#alpha [cm]";
     resyvsyprofiletitle << "V Residual vs v for module " << id.rawId() << "; v_{tr,r} ;(v_{tr} - v_{hit})/tan#beta  [cm]";
-
-    resxprimevsxprofilename << "p_residuals_xprime_vs_x_subdet_" << subdetandlayer.first 
-		       << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
-    resyprimevsxprofilename << "p_residuals_yprime_vs_x_subdet_" << subdetandlayer.first 
-		       << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
-    resxprimevsyprofilename << "p_residuals_xprime_vs_y_subdet_" << subdetandlayer.first 
-		       << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
-    resyprimevsyprofilename << "p_residuals_yprime_vs_y_subdet_" << subdetandlayer.first 
-		       << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
-    resxprimevsxprofiletitle << "U' Residual vs u for module " << id.rawId() << "; u_{tr,r} ;(u_{tr} - u_{hit})'/tan#alpha [cm]";
-    resyprimevsxprofiletitle << "V' Residual vs u for module " << id.rawId() << "; u_{tr,r} ;(v_{tr} - v_{hit})'/tan#beta  [cm]";
-    resxprimevsyprofiletitle << "U' Residual vs v for module " << id.rawId() << "; v_{tr,r} ;(u_{tr} - u_{hit})'/tan#alpha [cm]";
-    resyprimevsyprofiletitle << "V' Residual vs v for module " << id.rawId() << "; v_{tr,r} ;(v_{tr} - v_{hit})'/tan#beta  [cm]";
-
-
-    resxbvsxprofilename << "p_residuals_xb_vs_x_subdet_" << subdetandlayer.first 
-		       << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
-    resyavsxprofilename << "p_residuals_ya_vs_x_subdet_" << subdetandlayer.first 
-		       << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
-    resxbvsyprofilename << "p_residuals_xb_vs_y_subdet_" << subdetandlayer.first 
-		       << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
-    resyavsyprofilename << "p_residuals_ya_vs_y_subdet_" << subdetandlayer.first 
-		       << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
-    resxbvsxprofiletitle << "U Residual_beta vs u for module "  << id.rawId() << "; u_{tr,r} ;(u_{tr} - u_{hit})/tan#beta  [cm]";
-    resyavsxprofiletitle << "V Residual_alpha vs u for module " << id.rawId() << "; u_{tr,r} ;(v_{tr} - v_{hit})/tan#alpha [cm]";
-    resxbvsyprofiletitle << "U Residual_beta vs v for module "  << id.rawId() << "; v_{tr,r} ;(u_{tr} - u_{hit})/tan#beta  [cm]";
-    resyavsyprofiletitle << "V Residual_alpha vs v for module " << id.rawId() << "; v_{tr,r} ;(v_{tr} - v_{hit})/tan#alpha [cm]";
   }
   
   if( this->isDetOrDetUnit( subtype ) ) {
@@ -785,20 +740,6 @@ TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali,
       histStruct.ResXvsYProfile = this->bookTProfile(moduleLevelHistsTransient, tfd,
 						     resxvsyprofilename.str().c_str(),resxvsyprofiletitle.str().c_str(),
 						     nbins, xmin, xmax, ymin, ymax);
-      histStruct.ResXprimevsXProfile = this->bookTProfile(moduleLevelHistsTransient, tfd,
-						     resxprimevsxprofilename.str().c_str(),resxprimevsxprofiletitle.str().c_str(),
-						     nbins, xmin, xmax, ymin, ymax);
-      histStruct.ResXprimevsYProfile = this->bookTProfile(moduleLevelHistsTransient, tfd,
-						     resxprimevsyprofilename.str().c_str(),resxprimevsyprofiletitle.str().c_str(),
-						     nbins, xmin, xmax, ymin, ymax);
-
-
-      histStruct.ResXbvsXProfile = this->bookTProfile(moduleLevelHistsTransient, tfd,
-						     resxbvsxprofilename.str().c_str(),resxbvsxprofiletitle.str().c_str(),
-						     nbins, xmin, xmax, ymin, ymax);
-      histStruct.ResXbvsYProfile = this->bookTProfile(moduleLevelHistsTransient, tfd,
-						     resxbvsyprofilename.str().c_str(),resxbvsyprofiletitle.str().c_str(),
-						     nbins, xmin, xmax, ymin, ymax);
     }
 
     if( this->isPixel(subdetandlayer.first) || stripYResiduals_ ) {
@@ -825,20 +766,6 @@ TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali,
 						       nbins, xmin, xmax, ymin, ymax);
 	histStruct.ResYvsYProfile = this->bookTProfile(moduleLevelHistsTransient, tfd,
 						       resyvsyprofilename.str().c_str(),resyvsyprofiletitle.str().c_str(),
-						       nbins, xmin, xmax, ymin, ymax);
-	histStruct.ResYprimevsXProfile = this->bookTProfile(moduleLevelHistsTransient, tfd,
-						       resyprimevsxprofilename.str().c_str(),resyprimevsxprofiletitle.str().c_str(),
-						       nbins, xmin, xmax, ymin, ymax);
-	histStruct.ResYprimevsYProfile = this->bookTProfile(moduleLevelHistsTransient, tfd,
-						       resyprimevsyprofilename.str().c_str(),resyprimevsyprofiletitle.str().c_str(),
-						       nbins, xmin, xmax, ymin, ymax);
-
-
-	histStruct.ResYavsXProfile = this->bookTProfile(moduleLevelHistsTransient, tfd,
-						       resyavsxprofilename.str().c_str(),resyavsxprofiletitle.str().c_str(),
-						       nbins, xmin, xmax, ymin, ymax);
-	histStruct.ResYavsYProfile = this->bookTProfile(moduleLevelHistsTransient, tfd,
-						       resyavsyprofilename.str().c_str(),resyavsyprofiletitle.str().c_str(),
 						       nbins, xmin, xmax, ymin, ymax);
       }
     }
@@ -1195,22 +1122,21 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  if ( fabs(tgalpha)!=0 ){
 	    histStruct.LocalX->Fill(itH->localXnorm, tgalpha*tgalpha); 
 	    histStruct.LocalY->Fill(itH->localYnorm, tgalpha*tgalpha); 
+           if (this->isEndCap(detid.subdetId()) && !this->isPixel(detid.subdetId())) {
+             if((itH->resX)*(itH->resXprime)>0){
+            histStruct.ResXvsXProfile->Fill(itH->localXnorm, itH->resXprime/tgalpha, tgalpha*tgalpha);
+            histStruct.ResXvsYProfile->Fill(itH->localYnorm, itH->resXprime/tgalpha, tgalpha*tgalpha);
+             } else {
+            histStruct.ResXvsXProfile->Fill(itH->localXnorm, (-1)*itH->resXprime/tgalpha, tgalpha*tgalpha);
+            histStruct.ResXvsYProfile->Fill(itH->localYnorm, (-1)*itH->resXprime/tgalpha, tgalpha*tgalpha);
+               }
+
+          }else {  
+
 	    histStruct.ResXvsXProfile->Fill(itH->localXnorm, itH->resX/tgalpha, tgalpha*tgalpha); 
 	    histStruct.ResXvsYProfile->Fill(itH->localYnorm, itH->resX/tgalpha, tgalpha*tgalpha); 
+          }
 
-            if((itH->resX)*(itH->resXprime)>0){
-            histStruct.ResXprimevsXProfile->Fill(itH->localXnorm, itH->resXprime/tgalpha, tgalpha*tgalpha);
-            histStruct.ResXprimevsYProfile->Fill(itH->localYnorm, itH->resXprime/tgalpha, tgalpha*tgalpha);
-             } else {
-            histStruct.ResXprimevsXProfile->Fill(itH->localXnorm, (-1)*itH->resXprime/tgalpha, tgalpha*tgalpha);
-            histStruct.ResXprimevsYProfile->Fill(itH->localYnorm, (-1)*itH->resXprime/tgalpha, tgalpha*tgalpha);
-            }
-
-	  }
-	  float tgbeta = tan(itH->localBeta);
-	  if( fabs(tgbeta)!=0 ) {
-	    histStruct.ResXbvsXProfile->Fill(itH->localXnorm, itH->resX/tgbeta, tgbeta*tgbeta); 
-	    histStruct.ResXbvsYProfile->Fill(itH->localYnorm, itH->resX/tgbeta, tgbeta*tgbeta); 
 	  }
 	}
 
@@ -1237,20 +1163,21 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  if ( moduleLevelProfiles_ && itH->inside ) {
 	    float tgbeta = tan(itH->localBeta);
 	    if ( fabs(tgbeta)!=0 ){
+           if (this->isEndCap(detid.subdetId()) && !this->isPixel(detid.subdetId())) {
+            
+            if((itH->resY)*(itH->resYprime)>0){
+            histStruct.ResYvsXProfile->Fill(itH->localXnorm, itH->resYprime/tgbeta, tgbeta*tgbeta);
+            histStruct.ResYvsYProfile->Fill(itH->localYnorm, itH->resYprime/tgbeta, tgbeta*tgbeta);
+             } else {
+            histStruct.ResYvsXProfile->Fill(itH->localXnorm, (-1)*itH->resYprime/tgbeta, tgbeta*tgbeta);
+            histStruct.ResYvsYProfile->Fill(itH->localYnorm, (-1)*itH->resYprime/tgbeta, tgbeta*tgbeta);
+               }
+
+          }else {  
+
 	      histStruct.ResYvsXProfile->Fill(itH->localXnorm, itH->resY/tgbeta, tgbeta*tgbeta); 
 	      histStruct.ResYvsYProfile->Fill(itH->localYnorm, itH->resY/tgbeta, tgbeta*tgbeta); 
-	      if((itH->resY)*(itH->resYprime)>0){
-            histStruct.ResYprimevsXProfile->Fill(itH->localXnorm, itH->resYprime/tgbeta, tgbeta*tgbeta);
-            histStruct.ResYprimevsYProfile->Fill(itH->localYnorm, itH->resYprime/tgbeta, tgbeta*tgbeta);
-             } else {
-            histStruct.ResYprimevsXProfile->Fill(itH->localXnorm, (-1)*itH->resYprime/tgbeta, tgbeta*tgbeta);
-            histStruct.ResYprimevsYProfile->Fill(itH->localYnorm, (-1)*itH->resYprime/tgbeta, tgbeta*tgbeta);
               }
-	    }
-	    float tgalpha = tan(itH->localAlpha);
-	    if ( fabs(tgalpha)!=0 ){
-	      histStruct.ResYavsXProfile->Fill(itH->localXnorm, itH->resY/tgalpha, tgalpha*tgalpha); 
-	      histStruct.ResYavsYProfile->Fill(itH->localYnorm, itH->resY/tgalpha, tgalpha*tgalpha); 
 	    }
 	  }
 
@@ -1756,56 +1683,6 @@ TrackerOfflineValidation::fillTree(TTree& tree,
 	treeMem.meanResYvsY = h->GetMean();
 	treeMem.rmsResYvsY  = h->GetRMS();
 	treeMem.profileNameResYvsY = h->GetName();
-      }
-      if (it->second.ResXprimevsXProfile) {
-	TH1 *h = it->second.ResXprimevsXProfile;
-	treeMem.meanResXprimevsX = h->GetMean();
-	treeMem.rmsResXprimevsX  = h->GetRMS();
-	treeMem.profileNameResXprimevsX = h->GetName();
-      } 
-      if (it->second.ResXprimevsYProfile) {
-	TH1 *h = it->second.ResXprimevsYProfile;
-	treeMem.meanResXprimevsY = h->GetMean();
-	treeMem.rmsResXprimevsY  = h->GetRMS();
-	treeMem.profileNameResXprimevsY = h->GetName();
-      } 
-      if (it->second.ResYprimevsXProfile) {
-	TH1 *h = it->second.ResYprimevsXProfile;
-	treeMem.meanResYprimevsX = h->GetMean();
-	treeMem.rmsResYprimevsX  = h->GetRMS();
-	treeMem.profileNameResYprimevsX = h->GetName();
-      } 
-      if (it->second.ResYprimevsYProfile) {
-	TH1 *h = it->second.ResYprimevsYProfile;
-	treeMem.meanResYprimevsY = h->GetMean();
-	treeMem.rmsResYprimevsY  = h->GetRMS();
-	treeMem.profileNameResYprimevsY = h->GetName();
-      }
-
-
-      if (it->second.ResXbvsXProfile) {
-	TH1 *h = it->second.ResXbvsXProfile;
-	treeMem.meanResXbvsX = h->GetMean();
-	treeMem.rmsResXbvsX  = h->GetRMS();
-	treeMem.profileNameResXbvsX = h->GetName();
-      } 
-      if (it->second.ResXbvsYProfile) {
-	TH1 *h = it->second.ResXbvsYProfile;
-	treeMem.meanResXbvsY = h->GetMean();
-	treeMem.rmsResXbvsY  = h->GetRMS();
-	treeMem.profileNameResXbvsY = h->GetName();
-      } 
-      if (it->second.ResYavsXProfile) {
-	TH1 *h = it->second.ResYavsXProfile;
-	treeMem.meanResYavsX = h->GetMean();
-	treeMem.rmsResYavsX  = h->GetRMS();
-	treeMem.profileNameResYavsX = h->GetName();
-      } 
-      if (it->second.ResYavsYProfile) {
-	TH1 *h = it->second.ResYavsYProfile;
-	treeMem.meanResYavsY = h->GetMean();
-	treeMem.rmsResYavsY  = h->GetRMS();
-	treeMem.profileNameResYavsY = h->GetName();
       }
     }
 
