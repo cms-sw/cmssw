@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.19 2011/07/02 03:37:47 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.20 2011/07/02 05:28:06 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -269,14 +269,14 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
       }
       else if (iCol == kVisSelf )
       {
-         //         const char* txt = gn.IsVisible() ? "On" : "-";
-         const char* txt = (m_filterOff || m_volumes[gn.GetVolume()].m_matches) ? "On" : "-";
-         renderer->setData( txt,  isSelected);
+	 bool v = (m_filterOff) ? gn.IsVisible() : data.testBit(kMatches);
+         renderer->setData( v ? "On" : "-",  isSelected);
          return renderer;
       }
       else if (iCol == kVisChild )
       {
-         renderer->setData( gn.IsVisDaughters() ? "On" : "-",  isSelected);
+	 bool v = (m_filterOff) ? gn.IsVisDaughters() : data.testBit(kChildMatches);
+         renderer->setData( v ? "On" : "-",  isSelected);
          return renderer;
       }
       else if (iCol == kMaterial )
