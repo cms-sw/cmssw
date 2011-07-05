@@ -60,6 +60,7 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 
   std::vector<int> BunchCrossings;
   std::vector<int> Interactions_Xing;
+  std::vector<float> TrueInteractions_Xing;
 
   const PileupMixingContent* MixInfo = MixingPileup.product();
 
@@ -67,11 +68,14 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 
     const std::vector<int> bunchCrossing = MixInfo->getMix_bunchCrossing();
     const std::vector<int> interactions = MixInfo->getMix_Ninteractions();
+    const std::vector<float> TrueInteractions = MixInfo->getMix_TrueInteractions();
+
 
     for(int ib=0; ib<(int)bunchCrossing.size(); ++ib){
       //      std::cout << " bcr, nint " << bunchCrossing[ib] << " " << interactions[ib] << std::endl;
       BunchCrossings.push_back(bunchCrossing[ib]);
       Interactions_Xing.push_back(interactions[ib]);
+      TrueInteractions_Xing.push_back(TrueInteractions[ib]);
     }
   }
   else{ //If no Mixing Truth, work with SimVertices  (probably should throw an exception, but...)
@@ -131,6 +135,7 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 	//std::cout << " bcr, nint from VTX " << (*viter) << " " << (*liter) << std::endl;
 	BunchCrossings.push_back((*viter));
 	Interactions_Xing.push_back((*liter));
+	TrueInteractions_Xing.push_back(-1.);  // no idea what the true number is
       }
 
     } // end of "did we find vertices?"
@@ -175,10 +180,11 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 
   std::vector<int>::iterator BXIter;
   std::vector<int>::iterator InteractionsIter = Interactions_Xing.begin();
+  std::vector<float>::iterator TInteractionsIter = TrueInteractions_Xing.begin();
 
   // loop over the bunch crossings and interactions we have extracted 
 
-  for( BXIter = BunchCrossings.begin(); BXIter != BunchCrossings.end(); ++BXIter, ++InteractionsIter) {
+  for( BXIter = BunchCrossings.begin(); BXIter != BunchCrossings.end(); ++BXIter, ++InteractionsIter, ++TInteractionsIter) {
 
     //std::cout << "looking for BX: " << (*BXIter) << std::endl;
 
@@ -284,7 +290,8 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 						      sumpT_highpT,
 						      ntrks_lowpT,
 						      ntrks_highpT,
-						      (*BXIter)
+						      (*BXIter),
+						      (*TInteractionsIter)
 						      );
 
     //std::cout << " " << std::endl;
