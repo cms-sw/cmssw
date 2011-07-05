@@ -86,30 +86,14 @@ HLTHemiDPhiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   //***********************************
-  // Get the 2 sets of hemisphere axes
+  // Get the set of hemisphere axes
    
    TLorentzVector j1R(hemispheres->at(0).x(),hemispheres->at(0).y(),hemispheres->at(0).z(),hemispheres->at(0).t());
    TLorentzVector j2R(hemispheres->at(1).x(),hemispheres->at(1).y(),hemispheres->at(1).z(),hemispheres->at(1).t());
-   TLorentzVector j1Rp(hemispheres->at(2).x(),hemispheres->at(2).y(),hemispheres->at(2).z(),hemispheres->at(2).t());
-   TLorentzVector j2Rp(hemispheres->at(3).x(),hemispheres->at(3).y(),hemispheres->at(3).z(),hemispheres->at(3).t());
-  
-  // Decide which of the combinations to take
-  
+
+   // compute the dPhi between them
   double dphi = 50.;
-  if(j1R.Pt() > 0.1 && !(j1Rp.Pt() > 0.1)) {  // check if first two are not empty
-       dphi = deltaPhi(j1R.Phi(),j2R.Phi()); 
-  }
-  else if(j1Rp.Pt() > 0.1 && !(j1R.Pt() > 0.1)) { // check if second two are not empty
-       dphi = deltaPhi(j1Rp.Phi(),j2Rp.Phi()); 
-  }
-  else if(j1Rp.Pt() > 0.1 && j1R.Pt() > 0.1) { // check if both are not empty
-    // Decide which one of the two has minimal mass
-    if ((j1R.M2()+j2R.M2()) < (j1Rp.M2()+j2Rp.M2())  ) {dphi = deltaPhi(j1R.Phi(),j2R.Phi());} 
-      else  {dphi = deltaPhi(j1Rp.Phi(),j2Rp.Phi());}
-  
-  }
-  
-  
+  dphi = deltaPhi(j1R.Phi(),j2R.Phi()); 
   
   // Dphi requirement  
 

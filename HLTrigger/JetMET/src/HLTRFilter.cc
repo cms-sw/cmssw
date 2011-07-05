@@ -30,7 +30,6 @@ HLTRFilter::HLTRFilter(const edm::ParameterSet& iConfig) :
   inputMetTag_ (iConfig.getParameter<edm::InputTag>("inputMetTag")),
   min_R_       (iConfig.getParameter<double>       ("minR"   )),
   min_MR_      (iConfig.getParameter<double>       ("minMR"   )),
-  DoRPrime_    (iConfig.getParameter<bool>       ("doRPrime"   )),
   accept_NJ_    (iConfig.getParameter<bool>       ("acceptNJ"   ))
 
 {
@@ -39,7 +38,6 @@ HLTRFilter::HLTRFilter(const edm::ParameterSet& iConfig) :
 		<< inputMetTag_.encode() << " "
 		<< min_R_ << " "
 		<< min_MR_ << " "
-		<< DoRPrime_ << " "
 		<< accept_NJ_ << ".";
 
    //register your products
@@ -98,89 +96,50 @@ HLTRFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    //***********************************
-   //Calculate R or R prime
+   //Calculate R 
 
-   TLorentzVector j1R(hemispheres->at(0).x(),hemispheres->at(0).y(),hemispheres->at(0).z(),hemispheres->at(0).t());
-   TLorentzVector j2R(hemispheres->at(1).x(),hemispheres->at(1).y(),hemispheres->at(1).z(),hemispheres->at(1).t());
-   TLorentzVector j1Rp(hemispheres->at(2).x(),hemispheres->at(2).y(),hemispheres->at(2).z(),hemispheres->at(2).t());
-   TLorentzVector j2Rp(hemispheres->at(3).x(),hemispheres->at(3).y(),hemispheres->at(3).z(),hemispheres->at(3).t());
+   TLorentzVector ja(hemispheres->at(0).x(),hemispheres->at(0).y(),hemispheres->at(0).z(),hemispheres->at(0).t());
+   TLorentzVector jb(hemispheres->at(1).x(),hemispheres->at(1).y(),hemispheres->at(1).z(),hemispheres->at(1).t());
 
-   if(j1R.Pt() > 0.1) { // some good R combination was found
-
-     j1R.SetPtEtaPhiM(j1R.Pt(),j1R.Eta(),j1R.Phi(),0.0);
-     j2R.SetPtEtaPhiM(j2R.Pt(),j2R.Eta(),j2R.Phi(),0.0);
-  
-     if(j2R.Pt() > j1R.Pt()){
-       TLorentzVector temp = j1R;
-       j1R = j2R;
-       j2R = temp;
-     }
-  
-     double num = j1R.P()-j2R.P();
-     double den = j1R.Pz()-j2R.Pz();
-     if(fabs(num)<fabs(den)) {
-
-       //now we can calculate MTR
-       TVector3 met;
-       met.SetPtEtaPhi((inputMet->front()).pt(),0.0,(inputMet->front()).phi());
-       double MTR = sqrt(0.5*(met.Mag()*(j1R.Pt()+j2R.Pt()) - met.Dot(j1R.Vect()+j2R.Vect())));
-
-       //calculate MR
-       double MR=0;
-       double temp = (j1R.P()*j2R.Pz()-j2R.P()*j1R.Pz())*(j1R.P()*j2R.Pz()-j2R.P()*j1R.Pz());
-       temp /= (j1R.Pz()-j2R.Pz())*(j1R.Pz()-j2R.Pz())-(j1R.P()-j2R.P())*(j1R.P()-j2R.P());    
-       MR = 2.*sqrt(temp);
-       if(MR>=min_MR_ && float(MTR)/float(MR)>=min_R_) return true;
-     }
-   }
-
-   if(j1Rp.Pt() > 0.1) { // some good R' combination was found  
+   if(ja.Pt() > 0.1) { // some good R combination was found
      
-     j1Rp.SetPtEtaPhiM(j1Rp.Pt(),j1Rp.Eta(),j1Rp.Phi(),0.0);
-     j2Rp.SetPtEtaPhiM(j2Rp.Pt(),j2Rp.Eta(),j2Rp.Phi(),0.0);
-
-     if(j2Rp.Pt() > j1Rp.Pt()){
-       TLorentzVector temp = j1Rp;
-       j1Rp = j2Rp;
-       j2Rp = temp;
+     ja.SetPtEtaPhiM(ja.Pt(),ja.Eta(),ja.Phi(),0.0);
+     jb.SetPtEtaPhiM(jb.Pt(),jb.Eta(),jb.Phi(),0.0);
+     
+     if(ja.Pt() > jb.Pt()){
+       TLorentzVector temp = ja;
+       ja = jb;
+       jb = temp;
      }
+     
+     double A = ja.P();
+     double B = jb.P();
+     double az = ja.Pz();
+     double bz = jb.Pz();
+     TVector3 jaT, jbT;
+     jaT.SetXYZ(ja.Px(),ja.Py(),0.0);
+     jbT.SetXYZ(jb.Px(),jb.Py(),0.0);
+     double ATBT = (jaT+jbT).Mag2();
 
-     double num = j1Rp.P()-j2Rp.P();
-     double den = j1Rp.Pz()-j2Rp.Pz();
-     if(fabs(num)>fabs(den)) {
-       //now we can calculate MTR
+     double MR = sqrt((A+B)*(A+B)-(az+bz)*(az+bz)-
+			(jbT.Dot(jbT)-jaT.Dot(jaT))*(jbT.Dot(jbT)-jaT.Dot(jaT))/(jaT+jbT).Mag2());
 
-       TVector3 met;
-       met.SetPtEtaPhi((inputMet->front()).pt(),0.0,(inputMet->front()).phi());
-       double MTR = sqrt(0.5*(met.Mag()*(j1Rp.Pt()+j2Rp.Pt()) - met.Dot(j1Rp.Vect()+j2Rp.Vect())));
+     double mybeta = (jbT.Dot(jbT)-jaT.Dot(jaT))/
+       sqrt(ATBT*((A+B)*(A+B)-(az+bz)*(az+bz)));
 
-       double jaP = j1Rp.Pt()*j1Rp.Pt() +j1Rp.Pz()*j2Rp.Pz()-j1Rp.P()*j2Rp.P();
-       double jbP = j2Rp.Pt()*j2Rp.Pt() +j1Rp.Pz()*j2Rp.Pz()-j1Rp.P()*j2Rp.P();
-       jbP *= -1.;
-       double den = sqrt((j1Rp.P()-j2Rp.P())*(j1Rp.P()-j2Rp.P())-(j1Rp.Pz()-j2Rp.Pz())*(j1Rp.Pz()-j2Rp.Pz()));
-       
-       jaP /= den;
-       jbP /= den;
-    
-       double temp = jaP*met.Dot(j2Rp.Vect())/met.Mag() + jbP*met.Dot(j1Rp.Vect())/met.Mag();
-       temp = temp*temp;
-    
-       den = (met.Dot(j1Rp.Vect()+j2Rp.Vect())/met.Mag())*(met.Dot(j1Rp.Vect()+j2Rp.Vect())/met.Mag())-(jaP-jbP)*(jaP-jbP);
-    
-       if(den <= 0.0) return false;
-       
-       temp /= den;
-       temp = 2.*sqrt(temp);
-       
-       double bR = (jaP-jbP)/(met.Dot(j1Rp.Vect()+j2Rp.Vect())/met.Mag());
-       double gR = 1./sqrt(1.-bR*bR);
-    
-       temp *= gR;
+     double mygamma = 1./sqrt(1.-mybeta*mybeta);
 
-       double MRp = temp;
+     //use gamma times MRstar
+     MR *= mygamma;
 
-       if(MRp>=min_MR_ && float(MTR)/float(MRp)>=min_R_) return true;
-     }
+     //now we can calculate MTR
+     TVector3 met;
+     met.SetPtEtaPhi((inputMet->front()).pt(),0.0,(inputMet->front()).phi());
+     double MTR = sqrt(0.5*(met.Mag()*(ja.Pt()+jb.Pt()) - met.Dot(ja.Vect()+jb.Vect())));
+     
+     //filter events
+     if(MR>=min_MR_ && float(MTR)/float(MR)>=min_R_) return true;
+     
    }
 
    // filter decision

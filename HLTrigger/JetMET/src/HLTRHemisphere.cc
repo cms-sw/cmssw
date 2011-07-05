@@ -106,8 +106,8 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //Make the hemispheres
   XYZTLorentzVector j1R(0.1, 0., 0., 0.1);
   XYZTLorentzVector j2R(0.1, 0., 0., 0.1);
-  XYZTLorentzVector j1Rp = j1R;
-  XYZTLorentzVector j2Rp = j2R;
+  //  XYZTLorentzVector j1Rp = j1R;
+  //  XYZTLorentzVector j2Rp = j2R;
   double M_minR  = 9999999999.0;
   double M_minRp = 9999999999.0;
   int j_count;
@@ -128,22 +128,27 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     double M_temp = j_temp1.M2()+j_temp2.M2();
     double beta_temp = fabs(j_temp1.P()-j_temp2.P())/fabs(j_temp1.Pz()-j_temp2.Pz());
-    if(M_temp < M_minR && beta_temp < 1.){
+    //    if(M_temp < M_minR && beta_temp < 1.){
+    //      M_minR = M_temp;
+    //      j1R = j_temp1;
+    //      j2R = j_temp2;
+    //    }
+    //    if(M_temp < M_minRp && 1./beta_temp < 1.){
+    //      M_minRp = M_temp;
+    //      j1Rp = j_temp1;
+    //      j2Rp = j_temp2;
+    //    }
+    if(M_temp < M_minR) {
       M_minR = M_temp;
-      j1R = j_temp1;
-      j2R = j_temp2;
-    }
-    if(M_temp < M_minRp && 1./beta_temp < 1.){
-      M_minRp = M_temp;
-      j1Rp = j_temp1;
-      j2Rp = j_temp2;
+      j1R = j_temp1; 
+      j2R = j_temp2; 
     }
   }
 
   Hemispheres->push_back(j1R);
   Hemispheres->push_back(j2R);
-  Hemispheres->push_back(j1Rp);
-  Hemispheres->push_back(j2Rp);
+  //  Hemispheres->push_back(j1Rp);
+  //  Hemispheres->push_back(j2Rp);
 
   iEvent.put(Hemispheres);
   return true;
