@@ -25,6 +25,7 @@ Usage:
   -i | --input INPUT        Use the specified RAW data file as input
   -n | --size  EVENTS       Run on EVENTS events (-1 for all, default is 100)
   -j | --jobs  JOBS         Run JOBS jobs in parallel (default is 4)
+  -x | --extra OPTIONS      Pass OPTIONS directly to hltGetConfiguration
   -h | --help               Print this help message and exit.
 
 
@@ -36,12 +37,19 @@ Usage:
   (used for online menus). If no version is specified, the latest one is automatically used.
   If \"run:\" is used instead, the actual HLT menu for the given run number is looked up and used.
 
+  It's possible to pass arbitrary command line options to hltGetConfiguration, using \"-x --option\".
+  To pass multiple options, enclose them in quotes, or use \"-x\" more than once. 
 
 Exmples:
 
   $NAME /dev/CMSSW_4_2_0/GRun
 
       will test the latest version of the GRun menu.
+
+
+  $NAME /dev/CMSSW_4_2_0/GRun -x --l1-emulator
+
+      will test the latest version of the GRun, running the L1 emulator.
 
 
   $NAME /users/fwyzard/physics/HLT/V6 -s orcoff:/cdaq/physics/Run2011/1e33/v1.3/HLT/V6
@@ -52,7 +60,7 @@ Exmples:
 "
 
 # parse command line argument and options
-OPTS=$(getopt -n "$NAME" -o "s:d:i:j:n:h" -l "setup:,dir:,input:,jobs:,size:,help" -- "$@")
+OPTS=$(getopt -n "$NAME" -o "s:d:i:j:n:x:h" -l "setup:,dir:,input:,jobs:,size:,extra:,help" -- "$@")
 
 # invalid options
 if [ $? != 0 ]; then 
@@ -68,6 +76,7 @@ INPUT=""
 SIZE=100
 JOBS=4
 WORKDIR="hltintegration"
+EXTRA=""
 
 # parse options
 while true; do
@@ -106,6 +115,10 @@ while true; do
       fi
       shift 2
       ;;
+    "-x" | "--extra" )
+      EXTRA="$EXTRA $2"
+      shift 2
+      ;;
     "--" )
       shift
       break
@@ -140,7 +153,7 @@ log "Will run $(echo $TRIGGERS | wc -w) HLT paths over $SIZE events, with $JOBS 
 
 # create all dumps
 log "Extracting full menu dump"
-hltGetConfiguration "$MENU" --full --offline --data $INPUT --unprescale --process "TEST" > hlt.py
+hltGetConfiguration "$MENU" --full --offline --data $INPUT --unprescale --process "TEST" $EXTRA > hlt.py
 # adapt the number of events
 sed -i -e "s/input = cms.untracked.int32( .* )/input = cms.untracked.int32( $SIZE )/" hlt.py
 
@@ -150,7 +163,7 @@ hltCheckPrescaleModules -w hlt.py
 log "Extracting single path dumps"
 for TRIGGER in $TRIGGERS; do
   log "\t$TRIGGER"
-  hltGetConfiguration "$MENU" --full --offline --data $INPUT --unprescale --process "TEST" --no-output --paths "$TRIGGER" > "$TRIGGER".py
+  hltGetConfiguration "$MENU" --full --offline --data $INPUT --unprescale --process "TEST" --no-output --paths "$TRIGGER" $EXTRA > "$TRIGGER".py
   # adapt the number of events
   sed -i -e "s/input = cms.untracked.int32( .* )/input = cms.untracked.int32( $SIZE )/" "$TRIGGER".py
 done
