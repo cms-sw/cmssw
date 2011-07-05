@@ -147,6 +147,7 @@ private:
     // Members needed for storing grids externally
     std::ofstream externalGridStream;
     bool storeGridsExternally;
+    fftjet::Grid2d<float>* extGrid;
 };
 
 //
@@ -159,7 +160,8 @@ FFTJetPatRecoProducer::FFTJetPatRecoProducer(const edm::ParameterSet& ps)
       makeClusteringTree(ps.getParameter<bool>("makeClusteringTree")),
       verifyDataConversion(ps.getUntrackedParameter<bool>("verifyDataConversion",false)),
       storeDiscretizationGrid(ps.getParameter<bool>("storeDiscretizationGrid")),
-      sparsify(ps.getParameter<bool>("sparsify"))
+      sparsify(ps.getParameter<bool>("sparsify")),
+      extGrid(0)
 {
     // register your products
     if (makeClusteringTree)
@@ -360,6 +362,7 @@ FFTJetPatRecoProducer::~FFTJetPatRecoProducer()
     // do anything here that needs to be done at desctruction time
     // (e.g. close files, deallocate resources etc.)
     delete clusteringTree;
+    delete extGrid;
 }
 
 
@@ -480,10 +483,11 @@ void FFTJetPatRecoProducer::produce(
 
     if (storeGridsExternally)
     {
-        const fftjet::Grid2d<float>* f = convert_Grid2d_to_float(*energyFlow);
-        const bool status = f->write(externalGridStream);
-        delete f;
-        if (!status)
+        if (extGrid)
+            copy_Grid2d_data(extGrid, *energyFlow);
+        else
+            extGrid = convert_Grid2d_to_float(*energyFlow);
+        if (!extGrid->write(externalGridStream))
         {
             throw cms::Exception("FFTJetPatRecoProducer::produce")
                 << "Failed to write grid data into an external file"
