@@ -36,8 +36,7 @@ class pp(Scenario):
 
         """
 
-        skims = ['SiStripCalZeroBias',
-                 'TkAlMinBias',
+        skims = ['TkAlMinBias',
                  'TkAlMuonIsolated',
                  'MuAlCalIsolatedMu',
                  'MuAlOverlaps',
