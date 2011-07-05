@@ -38,9 +38,9 @@ bool isSingleEleTrigger(TString triggerName, double& thresholdEle, TString& calo
   else return false;
 }
 
-bool isSinglePhotonTrigger(TString triggerName, double& thresholdPhoton, TString& caloId,  TString& iso){
+bool isSinglePhotonTrigger(TString triggerName, double& thresholdPhoton, TString& r9Id, TString& caloId,  TString& photonIso){
 	
-  TString patternPhoton = "(OpenHLT_Photon([0-9]+)_?(CaloId[VLT]+)?_?((Iso[VLT]+)?))$";
+  TString patternPhoton = "(OpenHLT_Photon([0-9]+)_?(R9Id)?_?(CaloId[VLT]+)?_?((Iso[VLT]+)?))$";
 
   TPRegexp matchThresholdPhoton(patternPhoton);
 
@@ -48,14 +48,17 @@ bool isSinglePhotonTrigger(TString triggerName, double& thresholdPhoton, TString
     {
       TObjArray *subStrL   = TPRegexp(patternPhoton).MatchS(triggerName);
       thresholdPhoton = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      caloId  = ((TObjString *)subStrL->At(3))->GetString();
-      iso     = ((TObjString *)subStrL->At(4))->GetString();
+      r9Id    = ((TObjString *)subStrL->At(3))->GetString();
+      caloId  = ((TObjString *)subStrL->At(4))->GetString();
+      photonIso     = ((TObjString *)subStrL->At(5))->GetString();
       delete subStrL;
 
       return true;
     }
   else return false;
 }
+
+
 
 
 //define L1, L2, L3 sets of thresholds for *standard* muons -Lucie : should be moved to .h ?
@@ -1874,7 +1877,8 @@ void OHltTree::CheckOpenHlt(
   TString caloIso = "" ;
   TString trkId   = "" ;
   TString trkIso  = "" ;
-  TString iso = "" ;
+  TString photonIso = "" ;
+  TString r9Id = "" ;
 
   //////////////////////////////////////////////////////////////////
   // Check OpenHLT L1 bits for L1 rates
@@ -1968,16 +1972,17 @@ void OHltTree::CheckOpenHlt(
 
   /*SinglePhoton*/
 
-  else if (isSinglePhotonTrigger(triggerName, thresholdPhoton, caloId, iso)){
+  else if (isSinglePhotonTrigger(triggerName, thresholdPhoton, r9Id, caloId, photonIso)){
     
     if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
 	if (prescaleResponse(menu, cfg, rcounter, it))
 	  {
-	    // if (OpenHlt1PhotonPassed(thresholdPhoton, 
-// 				       map_EGammaCaloId[caloId],
-// 				       map_PhotonIso[iso]
-// 				       ) >= 1)	
+	    if (OpenHlt1PhotonPassed(thresholdPhoton,
+				     map_PhotonR9ID[r9Id],
+				     map_EGammaCaloId[caloId],
+				     map_PhotonIso[photonIso]
+				     ) >= 1)	
 	      
 		triggerBit[it] = true;
 	      }
@@ -6373,6 +6378,63 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
 	
   /* Photons */
 	
+else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") == 0 )
+   {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+         if (prescaleResponse(menu, cfg, rcounter, it))
+         {
+            //return the highest Pt photon id, return -999, if there is no qualified photon
+	   std::vector<int> photonIndicesVector = VectorOpenHlt1PhotonSamHarperPassed(30., 0, // ET, L1isolation
+                  999,
+                  999, // Track iso barrel, Track iso endcap
+                  999,
+                  999, // Track/pT iso barrel, Track/pT iso endcap
+                  999,
+                  999, // H iso barrel, H iso endcap
+                  999,
+                  999, // E iso barrel, E iso endcap
+                  0.05,
+                  0.05, // H/E barrel, H/E endcap
+                  0.011,
+                  0.031, // cluster shape barrel, cluster shape endcap
+                  999,
+                  999, // R9 barrel, R9 endcap
+                  999.,
+                  999., // Deta barrel, Deta endcap
+                  999.,
+                  999. // Dphi barrel, Dphi endcap
+										      ) ;
+	     if (photonIndicesVector.size()>=1){
+
+          
+	       for (int j = 0; j < NohBJetL2Corrected; j++)
+		 {//loop over jets
+		   if (ohBJetL2CorrectedEt[j] > 20. && fabs(ohBJetL2CorrectedEta[j]) < 2.6)
+		     {// ET and eta cuts
+		       //                        if (ohBJetIPL25Tag[j] >= 0)
+		     if (true)
+		       {// Level 2.5 b tag
+			 if (ohBJetIPL3Tag[j] >= 3.3)
+			   {// Level 3 b tag
+			     double deltaEta = fabs(ohBJetL2CorrectedEta[j]-ohPhotEta[photonIndicesVector[0]]);
+			     double deltaPhi = fabs(ohBJetL2CorrectedPhi[j]-ohPhotPhi[photonIndicesVector[0]]) < 3.14159 ? ( fabs(ohBJetL2CorrectedPhi[j]-ohPhotPhi[photonIndicesVector[0]])):( fabs(ohBJetL2CorrectedPhi[j]-ohPhotPhi[photonIndicesVector[0]]) - 3.14159);
+			     double deltaR = sqrt(deltaEta*deltaEta+deltaPhi*deltaPhi);
+			     if (deltaR > 0)
+			       {
+				 triggerBit[it] = true;
+				 break;
+			       }
+			   }
+		       }
+		   }// ET and eta cuts
+		 }//end loop over jets
+	     }
+	 }
+      }
+   }
+
+
   else if (triggerName.CompareTo("OpenHLT_Photon20_CaloIdVL_IsoL_v1") == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -7097,38 +7159,37 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
    * - Tisobarrel=0.001, Tisoendcap=5.0 ? -- check with Mass.
    */
   // to be removed
-  else if (triggerName.CompareTo("OpenHLT_Photon65_CaloEleId_Isol") == 0)
-    {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-	{
-	  if (prescaleResponse(menu, cfg, rcounter, it))
-	    {
-	      if (OpenHlt1PhotonSamHarperPassed( 65., 0, // ET, L1isolation
-						 0.001,
-						 5.0, // Track iso barrel, Track iso endcap ???
-						 0.2,
-						 0.1, // Track/pT iso barrel, Track/pT iso endcap
-						 0.2,
-						 0.1, // H iso barrel, H iso endcap
-						 0.2,
-						 0.1, // E iso barrel, E iso endcap
-						 0.05,
-						 0.05, // H/E barrel, H/E endcap
-						 0.014,
-						 0.035, // cluster shape barrel, cluster shape endcap
-						 999.,//0.98,
-						 999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//999.,//1.0, // R9 barrel, R9 endcap
-						 999.,
-						 999., // Deta barrel, Deta endcap
-						 999.,
-						 999. // Dphi barrel, Dphi endcap
-						 )>=1)
-		{
-		  triggerBit[it] = true;
-		}
-	    }
-	}
-    }
+//   else if (triggerName.CompareTo("OpenHLT_Photon65_CaloEleId_Isol") == 0)
+//     {
+//       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+// 	{
+// 	  if (prescaleResponse(menu, cfg, rcounter, it))
+// 	    {
+// 	      if (OpenHlt1PhotonSamHarperPassed( 65., 0, // ET, L1isolation
+// 						 0.001,
+// 						 5.0, // Track iso barrel, Track iso endcap ???
+// 						 0.2,
+// 						 0.1, // Track/pT iso barrel, Track/pT iso endcap
+// 						 0.2,
+// 						 0.1, // H iso barrel, H iso endcap
+// 						 0.2,
+// 						 0.1, // E iso barrel, E iso endcap
+// 						 0.05,
+// 						 0.05, // H/E barrel, H/E endcap
+// 						 0.014,
+// 						 0.035, // cluster shape barrel, cluster shape endcap
+// 						 999.,//0.98,
+// 						 999.,
+// 						 999., // Deta barrel, Deta endcap
+// 						 999.,
+// 						 999. // Dphi barrel, Dphi endcap
+// 						 )>=1)
+// 		{
+// 		  triggerBit[it] = true;
+// 		}
+// 	    }
+// 	}
+//     }
 	
 	
   else if (triggerName.CompareTo("OpenHLT_DoublePhoton32_CaloIdL_v1") == 0)
@@ -14254,6 +14315,83 @@ int OHltTree::OpenHlt1PhotonSamHarperPassed(
 	
   return rc;
 }
+
+//Lucie
+int OHltTree::OpenHlt1PhotonPassed(
+				   float Et,
+				   std::map< TString, float> r9Id,
+				   std::map< TString, float> caloId,
+				   std::map< TString, float> photonIso
+				   )
+{
+  float barreleta = 1.479;
+  float endcapeta = 2.65;
+  int L1iso = 0;
+	
+  int rc = 0;
+  // Loop over all oh electrons
+  for (int i=0; i<NohPhot; i++)
+    {
+      float ohPhotE = ohPhotEt[i] / (sin(2*atan(exp(-1.0*ohPhotEta[i]))));
+      float ohPhotHoverE = ohPhotHforHoverE[i]/ohPhotE;
+      int isbarrel = 0;
+      int isendcap = 0;
+      if (TMath::Abs(ohPhotEta[i]) < barreleta)
+	isbarrel = 1;
+      if (barreleta < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i])
+	  < endcapeta)
+	isendcap = 1;
+		
+      float quadraticEcalIsol = ohPhotEiso[i] - (0.012 * ohPhotEt[i]);
+      float quadraticHcalIsol = ohPhotHiso[i] - (0.005 * ohPhotEt[i]);
+      float quadraticTrackIsol = ohPhotTiso[i] - (0.002 * ohPhotEt[i]);
+		
+      if (ohPhotEt[i] > Et)
+	{
+	  if (TMath::Abs(ohPhotEta[i]) < endcapeta)
+	    {
+	      if (ohPhotL1iso[i] >= L1iso)
+		{ // L1iso is 0 or 1 
+		  if (ohPhotL1Dupl[i] == false)
+		    { // remove double-counted L1 SCs 
+		      if ( (isbarrel && (quadraticHcalIsol < photonIso["HisoBR"]))
+			   || (isendcap && (quadraticHcalIsol < photonIso["HisoEC"] )))
+			{
+			  if ( (isbarrel && (quadraticEcalIsol <  photonIso["Eiso"]))
+			       || (isendcap && (quadraticEcalIsol
+						< photonIso["Eiso"])))
+			    {
+			      if ( ((isbarrel) && (ohPhotHoverE < caloId["hoverebarrel"]))
+				   || ((isendcap) && (ohPhotHoverE < caloId["hovereendcap"])))
+				{
+				  if (((isbarrel) && (quadraticTrackIsol < photonIso["Tiso"]))
+				      || ((isendcap) && (quadraticTrackIsol
+							 < photonIso["Tiso"] )))
+				    {
+				      if ( (isbarrel && ohPhotClusShap[i]
+					    < caloId["clusshapebarrel"]) || (isendcap
+								   && ohPhotClusShap[i] < caloId["clusshapeendcap"]))
+					{
+					  if ( (isbarrel && ohPhotR9[i] < r9Id["HoverEEB"])
+					       || (isendcap && ohPhotR9[i] < r9Id["HoverEEC"]))
+					    {
+					      rc++;
+					    }
+					}
+				    }
+				}
+			    }
+			}
+		    }
+		}
+	    }
+	}
+    }
+	
+  return rc;
+}
+
+
 
 vector<int> OHltTree::VectorOpenHlt1PhotonSamHarperPassed(
 							  float Et,
