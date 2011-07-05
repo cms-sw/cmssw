@@ -1,3 +1,5 @@
 <use   name="PhysicsTools/Utilities"/>
-<use   name="rootrint"/>
+<use   name="rootgraphics"/>
 <bin   name="WMuNuValidatorMacro" file="WMuNuValidatorMacro.cpp"/>
+
+  <flags   LDFLAGS="-lRint"/>
