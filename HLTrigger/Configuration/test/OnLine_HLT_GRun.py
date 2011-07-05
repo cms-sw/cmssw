@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V157 (CMSSW_4_2_0_HLT16)
+# /dev/CMSSW_4_2_0/GRun/V159 (CMSSW_4_2_0_HLT15)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V157')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V159')
 )
 
 process.streams = cms.PSet( 
@@ -4900,11 +4900,7 @@ process.hltAntiKT5CaloJets = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False ),
-    doAreaDiskApprox = cms.bool( False ),
-    voronoiRfact = cms.double( -9.0 ),
-    useDeterministicSeed = cms.bool( False ),
-    minSeed = cms.uint32( 0 )
+    sumRecHits = cms.bool( False )
 )
 process.hltCaloJetIDPassed = cms.EDProducer( "HLTJetIDProducer",
     jetsInput = cms.InputTag( "hltAntiKT5CaloJets" ),
@@ -5091,11 +5087,7 @@ process.hltAntiKT5CaloJetsRegional = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False ),
-    doAreaDiskApprox = cms.bool( False ),
-    voronoiRfact = cms.double( -9.0 ),
-    useDeterministicSeed = cms.bool( False ),
-    minSeed = cms.uint32( 0 )
+    sumRecHits = cms.bool( False )
 )
 process.hltCaloJetL1MatchedRegional = cms.EDProducer( "HLTJetL1MatchProducer",
     jetsInput = cms.InputTag( "hltAntiKT5CaloJetsRegional" ),
@@ -6314,7 +6306,7 @@ process.hltL1sL1TripleJet363612Central = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 3 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_TripleJet36_36_12_Central" ),
+    L1SeedsLogicalExpression = cms.string( "L1_TripleJet_36_36_12_Central" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
@@ -6470,11 +6462,7 @@ process.hltAntiKT5CaloJetsPF = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False ),
-    doAreaDiskApprox = cms.bool( False ),
-    voronoiRfact = cms.double( -9.0 ),
-    useDeterministicSeed = cms.bool( False ),
-    minSeed = cms.uint32( 0 )
+    sumRecHits = cms.bool( False )
 )
 process.hltAntiKT5CaloJetsPFEt5 = cms.EDFilter( "EtMinCaloJetSelector",
     src = cms.InputTag( "hltAntiKT5CaloJetsPF" ),
@@ -8915,11 +8903,7 @@ process.hltAntiKT5PFJets = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False ),
-    doAreaDiskApprox = cms.bool( False ),
-    voronoiRfact = cms.double( -9.0 ),
-    useDeterministicSeed = cms.bool( False ),
-    minSeed = cms.uint32( 0 )
+    sumRecHits = cms.bool( False )
 )
 process.hltAntiKT5ConvPFJets = cms.EDProducer( "PFJetToCaloProducer",
     Source = cms.InputTag( "hltAntiKT5PFJets" )
@@ -9382,11 +9366,7 @@ process.hltStoppedHSCPIterativeCone5CaloJets = cms.EDProducer( "FastjetJetProduc
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False ),
-    doAreaDiskApprox = cms.bool( False ),
-    voronoiRfact = cms.double( -9.0 ),
-    useDeterministicSeed = cms.bool( False ),
-    minSeed = cms.uint32( 0 )
+    sumRecHits = cms.bool( False )
 )
 process.hltStoppedHSCPControl1CaloJetEnergy30 = cms.EDFilter( "HLT1CaloJetEnergy",
     inputTag = cms.InputTag( "hltStoppedHSCPIterativeCone5CaloJets" ),
@@ -21361,11 +21341,7 @@ process.hltIconeTau1Regional = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False ),
-    doAreaDiskApprox = cms.bool( False ),
-    voronoiRfact = cms.double( -9.0 ),
-    useDeterministicSeed = cms.bool( False ),
-    minSeed = cms.uint32( 0 )
+    sumRecHits = cms.bool( False )
 )
 process.hltCaloTowersTau2Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -21406,11 +21382,7 @@ process.hltIconeTau2Regional = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False ),
-    doAreaDiskApprox = cms.bool( False ),
-    voronoiRfact = cms.double( -9.0 ),
-    useDeterministicSeed = cms.bool( False ),
-    minSeed = cms.uint32( 0 )
+    sumRecHits = cms.bool( False )
 )
 process.hltCaloTowersTau3Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -21451,11 +21423,7 @@ process.hltIconeTau3Regional = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False ),
-    doAreaDiskApprox = cms.bool( False ),
-    voronoiRfact = cms.double( -9.0 ),
-    useDeterministicSeed = cms.bool( False ),
-    minSeed = cms.uint32( 0 )
+    sumRecHits = cms.bool( False )
 )
 process.hltCaloTowersTau4Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -21496,11 +21464,7 @@ process.hltIconeTau4Regional = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False ),
-    doAreaDiskApprox = cms.bool( False ),
-    voronoiRfact = cms.double( -9.0 ),
-    useDeterministicSeed = cms.bool( False ),
-    minSeed = cms.uint32( 0 )
+    sumRecHits = cms.bool( False )
 )
 process.hltCaloTowersCentral1Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -21541,11 +21505,7 @@ process.hltIconeCentral1Regional = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False ),
-    doAreaDiskApprox = cms.bool( False ),
-    voronoiRfact = cms.double( -9.0 ),
-    useDeterministicSeed = cms.bool( False ),
-    minSeed = cms.uint32( 0 )
+    sumRecHits = cms.bool( False )
 )
 process.hltCaloTowersCentral2Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -21586,11 +21546,7 @@ process.hltIconeCentral2Regional = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False ),
-    doAreaDiskApprox = cms.bool( False ),
-    voronoiRfact = cms.double( -9.0 ),
-    useDeterministicSeed = cms.bool( False ),
-    minSeed = cms.uint32( 0 )
+    sumRecHits = cms.bool( False )
 )
 process.hltCaloTowersCentral3Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -21631,11 +21587,7 @@ process.hltIconeCentral3Regional = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False ),
-    doAreaDiskApprox = cms.bool( False ),
-    voronoiRfact = cms.double( -9.0 ),
-    useDeterministicSeed = cms.bool( False ),
-    minSeed = cms.uint32( 0 )
+    sumRecHits = cms.bool( False )
 )
 process.hltCaloTowersCentral4Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -21676,11 +21628,7 @@ process.hltIconeCentral4Regional = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False ),
-    doAreaDiskApprox = cms.bool( False ),
-    voronoiRfact = cms.double( -9.0 ),
-    useDeterministicSeed = cms.bool( False ),
-    minSeed = cms.uint32( 0 )
+    sumRecHits = cms.bool( False )
 )
 process.hltL2TauJets = cms.EDProducer( "L2TauJetsMerger",
     EtMin = cms.double( 20.0 ),
@@ -25911,7 +25859,7 @@ process.hltL1sL1EG5DoubleJet20Central = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 3 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_ EG5_DoubleJet20_Central" ),
+    L1SeedsLogicalExpression = cms.string( "L1_EG5_DoubleJet20_Central" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
@@ -29165,7 +29113,7 @@ process.hltL1sHcalPhiSym = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 3 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleEG10 OR L1_DoubleEG2_FwdVeto OR L1_DoubleEG3 OR L1_DoubleEG5 OR L1_DoubleEG8 OR L1_DoubleEG_12_5 OR L1_DoubleIsoEG10 OR L1_SingleEG12 OR L1_SingleEG12_Eta2p17 OR L1_SingleEG15 OR L1_SingleEG20 OR L1_SingleEG30 OR L1_SingleEG5 OR L1_SingleIsoEG12 OR L1_SingleIsoEG12_Eta2p17 OR L1_SingleMu7 OR L1_SingleMu10 OR L1_SingleMu12 OR L1_SingleMu16 OR L1_SingleMu20 OR L1_SingleMu3 OR L1_SingleMu25 OR L1_DoubleMu0 OR L1_DoubleMu3 OR L1_DoubleMu5" ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleEG10 OR L1_DoubleEG2_FwdVeto OR L1_DoubleEG3 OR L1_DoubleEG5 OR L1_DoubleEG8 OR L1_DoubleEG_12_5 OR L1_DoubleIsoEG10 OR L1_SingleEG12 OR L1_SingleEG12_Eta1p39 OR L1_SingleEG15 OR L1_SingleEG20 OR L1_SingleEG30 OR L1_SingleEG5 OR L1_SingleIsoEG12 OR L1_SingleIsoEG12_Eta2p17 OR L1_SingleMu7 OR L1_SingleMu10 OR L1_SingleMu12 OR L1_SingleMu16 OR L1_SingleMu20 OR L1_SingleMu3 OR L1_SingleMu25 OR L1_DoubleMu0 OR L1_DoubleMu3 OR L1_DoubleMu5" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
@@ -29181,7 +29129,7 @@ process.hltL1sHcalNZS = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 3 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet16 OR L1_SingleJet36 OR L1_SingleJet52 OR L1_SingleJet68 OR L1_SingleJet92 OR L1_SingleJet128 OR L1_SingleTauJet68 OR L1_SingleMu3 OR L1_SingleMu7 OR L1_SingleMu10 OR L1_SingleMu12 OR L1_SingleMu16 OR L1_SingleMu20 OR L1_SingleIsoEG12 OR L1_SingleEG5 OR L1_SingleEG12 OR L1_SingleEG15 OR L1_SingleEG20 OR L1_SingleEG30 OR L1_ZeroBias" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet16 OR L1_SingleJet36 OR L1_SingleJet52 OR L1_SingleJet68 OR L1_SingleJet92 OR L1_SingleJet128 OR L1_SingleMu3 OR L1_SingleMu7 OR L1_SingleMu10 OR L1_SingleMu12 OR L1_SingleMu16 OR L1_SingleMu20 OR L1_SingleIsoEG12 OR L1_SingleEG5 OR L1_SingleEG12 OR L1_SingleEG15 OR L1_SingleEG20 OR L1_SingleEG30 OR L1_ZeroBias" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
