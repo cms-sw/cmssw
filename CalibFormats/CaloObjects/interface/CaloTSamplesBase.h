@@ -23,9 +23,6 @@ class CaloTSamplesBase
 
       virtual ~CaloTSamplesBase<Ttype>() ;
 
-      void setSize(  uint32_t size ) ;
-      void setPre(   uint32_t pre  ) ;
-      void setDetId( DetId detId   ) ;
       void setZero() ;
 
       DetId    id()   const ;

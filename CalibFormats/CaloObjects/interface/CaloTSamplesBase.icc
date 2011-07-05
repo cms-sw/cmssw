@@ -47,34 +47,6 @@ CaloTSamplesBase< Ttype >::~CaloTSamplesBase()
 
 template <class Ttype> 
 void 
-CaloTSamplesBase< Ttype >::setSize( uint32_t size )
-{
-   assert( size == m_size ||
-	   0    == m_size    ) ; // cannot resize
-   assert( capacity() <= size ) ;
-   m_size = size ;
-}
-
-template <class Ttype> 
-void 
-CaloTSamplesBase< Ttype >::setPre(   uint32_t pre  )
-{
-   assert( pre == m_pre ||
-	   0   == m_pre   ) ;
-   assert( capacity() <= pre ) ;
-}
-
-template <class Ttype> 
-void 
-CaloTSamplesBase< Ttype >::setDetId( DetId detId   )
-{
-   assert( detId == m_id ||
-	   0     == m_id.rawId() ) ;
-   m_id = detId ;
-}
-
-template <class Ttype> 
-void 
 CaloTSamplesBase< Ttype >::setZero()
 {
    std::fill( data(0), data(0) + capacity(), 0 ) ;
