@@ -2266,8 +2266,8 @@ void OHltTree::CheckOpenHlt(
 		}
 				
 	      // Now put them together
-	      if ((rcDijetCand > 0) && (rcHFplusEnergy < 50) && (rcHFminusEnergy
-								 < 50))
+	      if ((rcDijetCand > 0) && (rcHFplusEnergy < 200) && (rcHFminusEnergy
+								 < 200))
 		triggerBit[it] = true;
 	    }
 	}
@@ -3383,7 +3383,7 @@ void OHltTree::CheckOpenHlt(
 	}
     }
 
-  else if (triggerName.CompareTo("OpenHLT_DoubleMu4_Acoplanarity03") == 0)
+  else if (triggerName.CompareTo("OpenHLT_DoubleMu6_Acoplanarity03") == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	{
@@ -3391,7 +3391,7 @@ void OHltTree::CheckOpenHlt(
 	    {
 	      int rc = 0;
 	      float ptl2 = 3.0;
-	      float ptl3 = 4.0;
+	      float ptl3 = 6.0;
 	      float drl3 = 2.0;
 	      float etal3 = 2.15;
 	      float etal2 = 2.15;
