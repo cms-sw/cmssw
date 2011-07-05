@@ -374,6 +374,7 @@ namespace edm
     
     std::vector<int> bunchCrossingList;
     std::vector<int> numInteractionList;
+    std::vector<float> TrueInteractionList;
     
     //Makin' a list:
     for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
@@ -383,12 +384,14 @@ namespace edm
       }
       else {
         numInteractionList.push_back(((pileup_[0])[bunchCrossing-minBunch_]).size());
+        TrueInteractionList.push_back((TrueNumInteractions_[0])[bunchCrossing-minBunch_]);	
       }
     }
 
     
     PileupMixing_ = std::auto_ptr< PileupMixingContent >(new PileupMixingContent( bunchCrossingList,
-										  numInteractionList));
+										  numInteractionList,
+										  TrueInteractionList));
 
     e.put(PileupMixing_);
 
