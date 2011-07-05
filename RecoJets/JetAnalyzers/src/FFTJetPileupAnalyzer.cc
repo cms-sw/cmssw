@@ -236,7 +236,7 @@ void FFTJetPileupAnalyzer::beginJob()
     if (collectFastJetRho)
         vars += ":fjrho:fjsigma";
     if (collectGridDensity)
-        vars += ":gridEtDensity";
+        vars += ":gridEtDensity:gridEtDensityMixed";
     if (collectVertexInfo)
         vars += ":nPV";
 
@@ -359,10 +359,11 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
 
     if (collectGridDensity)
     {
-        edm::Handle<double> etSum;
+        edm::Handle<std::pair<double,double> > etSum;
         iEvent.getByLabel(histoLabel, etSum);
 
-        ntupleData.push_back(*etSum);
+        ntupleData.push_back(etSum->first);
+        ntupleData.push_back(etSum->second);
     }
 
     if (collectVertexInfo)
