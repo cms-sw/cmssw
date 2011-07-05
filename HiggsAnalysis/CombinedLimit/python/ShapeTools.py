@@ -11,6 +11,8 @@ class ShapeBuilder(ModelBuilder):
         if options.libs:
             for lib in options.libs:
                 ROOT.gSystem.Load(lib)
+    	self.wspnames = {}
+    	self.wsp = None
     ## ------------------------------------------
     ## -------- ModelBuilder interface ----------
     ## ------------------------------------------
@@ -212,17 +214,19 @@ class ShapeBuilder(ModelBuilder):
         if not file: raise RuntimeError, "Cannot open file %s (from pattern %s)" % (finalNames[0],names[0])
         if ":" in objname: # workspace:obj or ttree:xvar or th1::xvar
             (wname, oname) = objname.split(":")
-            wsp = file.Get(wname)
-            if not wsp: raise RuntimeError, "Failed to find %s in file %s (from pattern %s, %s)" % (wname,finalNames[0],names[1],names[0])
-            if wsp.ClassName() == "RooWorkspace":
-                ret = wsp.data(oname)
-                if not ret: ret = wsp.pdf(oname)
+            if (file,wname) not in self.wspnames : 
+		self.wspnames[(file,wname)] = file.Get(wname)
+	    self.wsp = self.wspnames[(file,wname)]
+            if not self.wsp: raise RuntimeError, "Failed to find %s in file %s (from pattern %s, %s)" % (wname,finalNames[0],names[1],names[0])
+            if self.wsp.ClassName() == "RooWorkspace":
+                ret = self.wsp.data(oname)
+                if not ret: ret = self.wsp.pdf(oname)
                 if not ret: raise RuntimeError, "Object %s in workspace %s in file %s does not exist or it's neither a data nor a pdf" % (oname, wname, finalNames[0])
                 ret.SetName("shape_%s_%s%s" % (process,channel, "_"+syst if syst else ""))
                 _cache[(channel,process,syst)] = ret
                 if not syst:
                   normname = "%s_norm" % (oname)
-                  norm = wsp.arg(normname)
+                  norm = self.wsp.arg(normname)
                   if norm: 
                     if normname in self.DC.flatParamNuisances: 
                         self.DC.flatParamNuisances[normname] = False # don't warn if not found
@@ -231,33 +235,33 @@ class ShapeBuilder(ModelBuilder):
                     self.out._import(norm, ROOT.RooFit.RecycleConflictNodes()) 
                 if self.options.verbose: print "import (%s,%s) -> %s\n" % (finalNames[0],objname,ret.GetName())
                 return ret;
-            elif wsp.ClassName() == "TTree":
+            elif self.wsp.ClassName() == "TTree":
                 ##If it is a tree we will convert it in RooDataSet . Then we can decide if we want to build a
                 ##RooKeysPdf or if we want to use it as an unbinned dataset 
-                if not wsp: raise RuntimeError, "Failed to find %s in file %s (from pattern %s, %s)" % (wname,finalNames[0],names[1],names[0])
-                self.doVar("%s[%f,%f]" % (oname,wsp.GetMinimum(oname),wsp.GetMaximum(oname)))
+                if not self.wsp: raise RuntimeError, "Failed to find %s in file %s (from pattern %s, %s)" % (wname,finalNames[0],names[1],names[0])
+                self.doVar("%s[%f,%f]" % (oname,self.wsp.GetMinimum(oname),self.wsp.GetMaximum(oname)))
                 #Check if it is weighted
                 self.doVar("__WEIGHT__[0.,1000.]")
-                rds = ROOT.RooDataSet("shape_%s_%s%s" % (process,channel, "_"+syst if syst else ""), "shape_%s_%s%s" % (process,channel, "_"+syst if syst else ""),wsp,ROOT.RooArgSet(self.out.var(oname)),"","__WEIGHT__")
+                rds = ROOT.RooDataSet("shape_%s_%s%s" % (process,channel, "_"+syst if syst else ""), "shape_%s_%s%s" % (process,channel, "_"+syst if syst else ""),self.wsp,ROOT.RooArgSet(self.out.var(oname)),"","__WEIGHT__")
                 rds.var = oname
                 _cache[(channel,process,syst)] = rds
                 if self.options.verbose: print "import (%s,%s) -> %s\n" % (finalNames[0],wname,rds.GetName())
                 return rds
-            elif wsp.InheritsFrom("TH1"):
+            elif self.wsp.InheritsFrom("TH1"):
                 ##If it is a Histogram we will convert it in RooDataSet preserving the bins 
-                if not wsp: raise RuntimeError, "Failed to find %s in file %s (from pattern %s, %s)" % (wname,finalNames[0],names[1],names[0])
+                if not self.wsp: raise RuntimeError, "Failed to find %s in file %s (from pattern %s, %s)" % (wname,finalNames[0],names[1],names[0])
                 name = "shape_%s_%s%s" % (process,channel, "_"+syst if syst else "")
                 # don't make it twice
                 for X in _neverDelete:
                     if X.InheritsFrom("TNamed") and X.GetName() == name: return X
-                self.doVar("%s[%f,%f]" % (oname,wsp.GetXaxis().GetXmin(),wsp.GetXaxis().GetXmax()))
-                rds = ROOT.RooDataHist(name, name, ROOT.RooArgList(self.out.var(oname)), wsp)
+                self.doVar("%s[%f,%f]" % (oname,self.wsp.GetXaxis().GetXmin(),self.wsp.GetXaxis().GetXmax()))
+                rds = ROOT.RooDataHist(name, name, ROOT.RooArgList(self.out.var(oname)), self.wsp)
                 rds.var = oname
                 if self.options.verbose: stderr.write("import (%s,%s) -> %s\n" % (finalNames[0],wname,rds.GetName()))
                 _neverDelete.append(rds)
                 return rds
             else:
-                raise RuntimeError, "Object %s in file %s has unrecognized type %s" (wname, finalNames[0], wsp.ClassName())
+                raise RuntimeError, "Object %s in file %s has unrecognized type %s" (wname, finalNames[0], self.wsp.ClassName())
         else: # histogram
             ret = file.Get(objname);
             if not ret: 
