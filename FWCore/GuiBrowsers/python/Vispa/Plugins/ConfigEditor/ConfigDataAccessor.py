@@ -83,15 +83,17 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         if isinstance(pth, list):
             for i in pth:
                 self._readRecursive(next_mother, i)
-	if hasattr(sqt,"_SequenceCollection"):
+        if hasattr(sqt,"_SequenceCollection"):
             # since CMSSW_3_11_X
             if isinstance(pth, (sqt._ModuleSequenceType)):
               if isinstance(pth._seq, (sqt._SequenceCollection)):
                 for o in pth._seq._collection:
                     self._readRecursive(next_mother, o)
+              else:
+                  self._readRecursive(next_mother, pth._seq)
             elif isinstance(pth, sqt._UnarySequenceOperator):
                 self._readRecursive(next_mother, pth._operand)
-	else:
+        else:
             # for backwards-compatibility with CMSSW_3_10_X
             for i in dir(pth):
                 o = getattr(pth, i)

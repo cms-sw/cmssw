@@ -457,15 +457,24 @@ except:
 from FWCore.ParameterSet.SequenceTypes import _SequenceNegation, _SequenceIgnore
 
 def new__SequenceNegation_name(self):
-    return '~'+str(self._operand._name())
+    if self._operand:
+        return '~'+str(self._operand._name())
+    else:
+        return '~()'
 _SequenceNegation._name = new__SequenceNegation_name    
 
 def new__SequenceIgnore_name(self):
-    return '-'+str(self._operand._name())
+    if self._operand:
+        return '-'+str(self._operand._name())
+    else:
+        return '-()'
 _SequenceIgnore._name = new__SequenceIgnore_name
 
 def new_Sequence_name(self):
-    return '('+str(self._seq._name())+')'
+    if self._seq:
+        return '('+str(self._seq._name())+')'
+    else:
+        return '()'
 cms.Sequence._name = new_Sequence_name
 
 def new__Module_name(self):
