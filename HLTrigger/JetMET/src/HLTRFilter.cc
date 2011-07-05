@@ -55,7 +55,6 @@ HLTRFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<edm::InputTag>("inputMetTag",edm::InputTag("hltMet"));
   desc.add<double>("minR",0.3);
   desc.add<double>("minMR",100.0);
-  desc.add<bool>("doRPrime",false);
   desc.add<bool>("acceptNJ",true);
   descriptions.add("hltRFilter",desc);
 }
