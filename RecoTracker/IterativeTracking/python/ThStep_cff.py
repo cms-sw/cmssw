@@ -6,12 +6,13 @@ import FWCore.ParameterSet.Config as cms
 
 
 thClusters = cms.EDProducer("TrackClusterRemover",
+    clusterLessSolution = cms.bool(True),
     oldClusterRemovalInfo = cms.InputTag("secClusters"),
     TrackQuality = cms.string('highPurity'),
     trajectories = cms.InputTag("secWithMaterialTracks"),
     overrideTrkQuals = cms.InputTag('secStep'),                         
-    pixelClusters = cms.InputTag("secClusters"),
-    stripClusters = cms.InputTag("secClusters"),
+    pixelClusters = cms.InputTag("siPixelClusters"),
+    stripClusters = cms.InputTag("siStripClusters"),
     Common = cms.PSet(
         maxChi2 = cms.double(30.0)
     )
@@ -27,14 +28,14 @@ thClusters = cms.EDProducer("TrackClusterRemover",
 )
 
 # TRACKER HITS
-import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
-thPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone(
-    src = 'thClusters'
-    )
-import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
-thStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone(
-    ClusterProducer = 'thClusters'
-    )
+#import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
+#thPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone(
+#    src = 'thClusters'
+#    )
+#import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
+#thStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone(
+#    ClusterProducer = 'thClusters'
+#    )
 
 # Propagator taking into account momentum uncertainty in multiple scattering calculation.
 
@@ -60,7 +61,8 @@ thlayertripletsa = cms.ESProducer("SeedingLayersESProducer",
         'FPix2_pos+TID3_pos+TEC1_pos', 'FPix2_neg+TID3_neg+TEC1_neg',
         'FPix2_pos+TEC2_pos+TEC3_pos', 'FPix2_neg+TEC2_neg+TEC3_neg'),
     TEC = cms.PSet(
-        matchedRecHits = cms.InputTag("thStripRecHits","matchedRecHit"),
+        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+        skipClusters = cms.InputTag('thClusters'),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         minRing = cms.int32(1),
@@ -70,11 +72,13 @@ thlayertripletsa = cms.ESProducer("SeedingLayersESProducer",
         useErrorsFromParam = cms.bool(True),
         hitErrorRPhi = cms.double(0.0051),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedTriplets'),
-        HitProducer = cms.string('thPixelRecHits'),
+        HitProducer = cms.string('siPixelRecHits'),
+        skipClusters = cms.InputTag('thClusters'),
         hitErrorRZ = cms.double(0.0036)
     ),
     TID = cms.PSet(
-        matchedRecHits = cms.InputTag("thStripRecHits","matchedRecHit"),
+        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+        skipClusters = cms.InputTag('thClusters'),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         minRing = cms.int32(1),
@@ -84,7 +88,8 @@ thlayertripletsa = cms.ESProducer("SeedingLayersESProducer",
         useErrorsFromParam = cms.bool(True),
         hitErrorRPhi = cms.double(0.0027),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedTriplets'),
-        HitProducer = cms.string('thPixelRecHits'),
+        HitProducer = cms.string('siPixelRecHits'),
+        skipClusters = cms.InputTag('thClusters'),
         hitErrorRZ = cms.double(0.006)
     )
 )
@@ -102,8 +107,8 @@ thTripletsA.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyC
 thTripletsA.RegionFactoryPSet.RegionPSet.ptMin = 0.25
 thTripletsA.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
 thTripletsA.RegionFactoryPSet.RegionPSet.originRadius = 2.0
-thTripletsA.ClusterCheckPSet.PixelClusterCollectionLabel = 'thClusters'
-thTripletsA.ClusterCheckPSet.ClusterCollectionLabel = 'thClusters'
+thTripletsA.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClusters'
+thTripletsA.ClusterCheckPSet.ClusterCollectionLabel = 'siStripClusters'
       
 
 thlayertripletsb = cms.ESProducer("SeedingLayersESProducer",
@@ -114,11 +119,13 @@ thlayertripletsb = cms.ESProducer("SeedingLayersESProducer",
         useErrorsFromParam = cms.bool(True),
         hitErrorRPhi = cms.double(0.0027),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedTriplets'),
-        HitProducer = cms.string('thPixelRecHits'),
+        HitProducer = cms.string('siPixelRecHits'),
+        skipClusters = cms.InputTag('thClusters'),
         hitErrorRZ = cms.double(0.006)
     ),
     TIB = cms.PSet(
-        matchedRecHits = cms.InputTag("thStripRecHits","matchedRecHit"),
+        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+        skipClusters = cms.InputTag('thClusters'),
         TTRHBuilder = cms.string('WithTrackAngle')
     )
 )
@@ -136,8 +143,8 @@ thTripletsB.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyC
 thTripletsB.RegionFactoryPSet.RegionPSet.ptMin = 0.35
 thTripletsB.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
 thTripletsB.RegionFactoryPSet.RegionPSet.originRadius = 2.0
-thTripletsB.ClusterCheckPSet.PixelClusterCollectionLabel = 'thClusters'
-thTripletsB.ClusterCheckPSet.ClusterCollectionLabel = 'thClusters'
+thTripletsB.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClusters'
+thTripletsB.ClusterCheckPSet.ClusterCollectionLabel = 'siStripClusters'
 
 import RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi
 thTriplets = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone()
@@ -151,8 +158,9 @@ thTriplets.seedCollections = cms.VInputTag(
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 thMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
     ComponentName = 'thMeasurementTracker',
-    pixelClusterProducer = 'thClusters',
-    stripClusterProducer = 'thClusters'
+    pixelClusterProducer = 'siPixelClusters',
+    stripClusterProducer = 'siStripClusters',
+    skipClusters = cms.InputTag('thClusters')
     )
 
 # QUALITY CUTS DURING TRACK BUILDING
@@ -170,7 +178,8 @@ thCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProd
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
 thCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
     ComponentName = 'thCkfTrajectoryBuilder',
-    MeasurementTrackerName = 'thMeasurementTracker',
+    MeasurementTrackerName = '',
+    clustersToSkip = cms.InputTag('thClusters'),
     trajectoryFilterName = 'thCkfTrajectoryFilter',
     propagatorAlong = cms.string('PropagatorWithMaterialPtMin01'),
     propagatorOpposite = cms.string('PropagatorWithMaterialOppositePtMin01')
@@ -189,7 +198,6 @@ import RecoTracker.TrackProducer.TrackProducer_cfi
 thWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     AlgorithmName = cms.string('iter3'),
     src = 'thTrackCandidates',
-    clusterRemovalInfo = 'thClusters',
 )
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
@@ -294,7 +302,6 @@ thStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clo
 
 
 thirdStep = cms.Sequence(thClusters*
-                         thPixelRecHits*thStripRecHits*
                          thTripletsA*thTripletsB*thTriplets*
                          thTrackCandidates*
                          thWithMaterialTracks*

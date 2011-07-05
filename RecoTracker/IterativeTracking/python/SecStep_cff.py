@@ -5,12 +5,13 @@ import FWCore.ParameterSet.Config as cms
 ###############################################
 
 secClusters = cms.EDProducer("TrackClusterRemover",
+    clusterLessSolution = cms.bool(True),
     oldClusterRemovalInfo = cms.InputTag("newClusters"),
     trajectories = cms.InputTag("preFilterStepOneTracks"),
     overrideTrkQuals = cms.InputTag('firstSelector','preMergingFirstStepTracksWithQuality'),                         
     TrackQuality = cms.string('highPurity'),
-    pixelClusters = cms.InputTag("newClusters"),
-    stripClusters = cms.InputTag("newClusters"),
+    pixelClusters = cms.InputTag("siPixelClusters"),
+    stripClusters = cms.InputTag("siStripClusters"),
     Common = cms.PSet(
         maxChi2 = cms.double(30.0)
     )
@@ -27,22 +28,24 @@ secClusters = cms.EDProducer("TrackClusterRemover",
 )
 
 # TRACKER HITS
-import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
-secPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone(
-    src = 'secClusters'
-    )
-import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
-secStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone(
-    ClusterProducer = 'secClusters'
-    )
+#import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
+#secPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone(
+#    src = 'secClusters'
+#    )
+#import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
+#secStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone(
+#    ClusterProducer = 'secClusters'
+#    )
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
 seclayertriplets = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.pixellayertriplets.clone(
     ComponentName = 'SecLayerTriplets'
     )
-seclayertriplets.BPix.HitProducer = 'secPixelRecHits'
-seclayertriplets.FPix.HitProducer = 'secPixelRecHits'
+seclayertriplets.BPix.HitProducer = 'siPixelRecHits'
+seclayertriplets.BPix.skipClusters = cms.InputTag('secClusters')
+seclayertriplets.FPix.HitProducer = 'siPixelRecHits'
+seclayertriplets.FPix.skipClusters = cms.InputTag('secClusters')
 
 
 # SEEDS
@@ -58,8 +61,8 @@ secTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeed
     )
     )
 secTriplets.OrderedHitsFactoryPSet.SeedingLayers = 'SecLayerTriplets'
-secTriplets.ClusterCheckPSet.PixelClusterCollectionLabel = 'secClusters'
-secTriplets.ClusterCheckPSet.ClusterCollectionLabel = 'secClusters'
+secTriplets.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClusters'
+secTriplets.ClusterCheckPSet.ClusterCollectionLabel = 'siStripClusters'
       
 
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
@@ -74,8 +77,9 @@ secTriplets.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.ComponentNam
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 secMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
     ComponentName = 'secMeasurementTracker',
-    pixelClusterProducer = 'secClusters',
-    stripClusterProducer = 'secClusters'
+    skipClusters = cms.InputTag('secClusters'),
+    pixelClusterProducer = 'siPixelClusters',
+    stripClusterProducer = 'siStripClusters'
     )
 
 # QUALITY CUTS DURING TRACK BUILDING
@@ -93,8 +97,9 @@ secCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESPro
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
 secCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
     ComponentName = 'secCkfTrajectoryBuilder',
-    MeasurementTrackerName = 'secMeasurementTracker',
-    trajectoryFilterName = 'secCkfTrajectoryFilter'
+    MeasurementTrackerName = '',
+    trajectoryFilterName = 'secCkfTrajectoryFilter',
+    clustersToSkip = cms.InputTag('secClusters')
     )
 
 # MAKING OF TRACK CANDIDATES
@@ -110,8 +115,7 @@ secTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandi
 import RecoTracker.TrackProducer.TrackProducer_cfi
 secWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     AlgorithmName = cms.string('iter2'),
-    src = 'secTrackCandidates',
-    clusterRemovalInfo = 'secClusters'
+    src = 'secTrackCandidates'
     )
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
@@ -216,7 +220,6 @@ secStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.cl
 
 
 secondStep = cms.Sequence(secClusters*
-                          secPixelRecHits*secStripRecHits*
                           secTriplets*
                           secTrackCandidates*
                           secWithMaterialTracks*

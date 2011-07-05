@@ -6,12 +6,13 @@ import FWCore.ParameterSet.Config as cms
 
 
 fourthClusters = cms.EDProducer("TrackClusterRemover",
+    clusterLessSolution = cms.bool(True),
     oldClusterRemovalInfo = cms.InputTag("thClusters"),
     trajectories = cms.InputTag("thWithMaterialTracks"),
     overrideTrkQuals = cms.InputTag('thStep'),                         
     TrackQuality = cms.string('highPurity'),
-    pixelClusters = cms.InputTag("thClusters"),
-    stripClusters = cms.InputTag("thClusters"),
+    pixelClusters = cms.InputTag("siPixelClusters"),
+    stripClusters = cms.InputTag("siStripClusters"),
     Common = cms.PSet(
         maxChi2 = cms.double(30.0)
     )
@@ -28,14 +29,14 @@ fourthClusters = cms.EDProducer("TrackClusterRemover",
 
 
 # TRACKER HITS
-import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
-import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
-fourthPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone(
-    src = 'fourthClusters'
-    )
-fourthStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone(
-    ClusterProducer = 'fourthClusters'
-    )
+#import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
+#import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
+#fourthPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone(
+#    src = 'fourthClusters'
+#    )
+#fourthStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone(
+#    ClusterProducer = 'fourthClusters'
+#    )
 
 
 # SEEDING LAYERS
@@ -49,17 +50,20 @@ fourthlayerpairs = cms.ESProducer("SeedingLayersESProducer",
         'TEC1_neg+TEC2_neg','TEC2_neg+TEC3_neg','TEC3_neg+TEC4_neg','TEC3_neg+TEC5_neg','TEC4_neg+TEC5_neg'),
     TIB = cms.PSet(
         TTRHBuilder = cms.string('WithTrackAngle'),
-        matchedRecHits = cms.InputTag("fourthStripRecHits","matchedRecHit")
+        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+        skipClusters = cms.InputTag('fourthClusters')
     ),
     TID = cms.PSet(
-        matchedRecHits = cms.InputTag("fourthStripRecHits","matchedRecHit"),
+        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+        skipClusters = cms.InputTag('fourthClusters'),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         minRing = cms.int32(1),
         maxRing = cms.int32(2)
     ),
     TEC = cms.PSet(
-        matchedRecHits = cms.InputTag("fourthStripRecHits","matchedRecHit"),
+        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+        skipClusters = cms.InputTag('fourthClusters'),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         minRing = cms.int32(1),
@@ -75,14 +79,15 @@ fourthPLSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'FourthLayerPairs'
 fourthPLSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.5
 fourthPLSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 12.0
 fourthPLSeeds.RegionFactoryPSet.RegionPSet.originRadius = 2.0
-fourthPLSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = 'fourthClusters'
-fourthPLSeeds.ClusterCheckPSet.ClusterCollectionLabel = 'fourthClusters'
+fourthPLSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClusters'
+fourthPLSeeds.ClusterCheckPSet.ClusterCollectionLabel = 'siStripClusters'
      
 # TRACKER DATA CONTROL
 fourthMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
     ComponentName = 'fourthMeasurementTracker',
-    pixelClusterProducer = 'fourthClusters',
-    stripClusterProducer = 'fourthClusters'
+    pixelClusterProducer = 'siPixelClusters',
+    stripClusterProducer = 'siStripClusters',
+    skipClusters = cms.InputTag('thClusters')
     )
 
 # QUALITY CUTS DURING TRACK BUILDING
@@ -100,7 +105,8 @@ fourthCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterES
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
 fourthCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
     ComponentName = 'fourthCkfTrajectoryBuilder',
-    MeasurementTrackerName = 'fourthMeasurementTracker',
+    MeasurementTrackerName = '',
+    clustersToSkip = cms.InputTag('fourthClusters'),
     trajectoryFilterName = 'fourthCkfTrajectoryFilter',
     minNrOfHitsForRebuild = 4
     )
@@ -116,7 +122,6 @@ fourthTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCa
 import RecoTracker.TrackProducer.TrackProducer_cfi
 fourthWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'fourthTrackCandidates',
-    clusterRemovalInfo = 'fourthClusters',
     AlgorithmName = cms.string('iter4')
     )
 
@@ -168,7 +173,6 @@ pixellessSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multi
 
 
 fourthStep = cms.Sequence(fourthClusters*
-                          fourthPixelRecHits*fourthStripRecHits*
                           fourthPLSeeds*
                           fourthTrackCandidates*
                           fourthWithMaterialTracks*

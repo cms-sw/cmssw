@@ -5,12 +5,13 @@ import FWCore.ParameterSet.Config as cms
 #######################################################################
 
 fifthClusters = cms.EDProducer("TrackClusterRemover",
+    clusterLessSolution = cms.bool(True),
     oldClusterRemovalInfo = cms.InputTag("fourthClusters"),
     trajectories = cms.InputTag("fourthWithMaterialTracks"),
     overrideTrkQuals = cms.InputTag('pixellessSelector','pixellessStep'),                         
     TrackQuality = cms.string('highPurity'),
-    pixelClusters = cms.InputTag("fourthClusters"),
-    stripClusters = cms.InputTag("fourthClusters"),
+    pixelClusters = cms.InputTag("siPixelClusters"),
+    stripClusters = cms.InputTag("siStripClusters"),
     Common = cms.PSet(
         maxChi2 = cms.double(30.0)
     )
@@ -26,14 +27,14 @@ fifthClusters = cms.EDProducer("TrackClusterRemover",
 )
 
 # TRACKER HITS
-import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
-import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
-fifthPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone(
-    src = 'fifthClusters'
-    )
-fifthStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone(
-    ClusterProducer = 'fifthClusters'
-    )
+#import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
+#import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
+#fifthPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone(
+#    src = 'fifthClusters'
+#    )
+#fifthStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone(
+#    ClusterProducer = 'fifthClusters'
+#    )
 
 # SEEDING LAYERS
 fifthlayerpairs = cms.ESProducer("SeedingLayersESProducer",
@@ -49,12 +50,14 @@ fifthlayerpairs = cms.ESProducer("SeedingLayersESProducer",
         'TEC5_neg+TEC6_neg', 'TEC6_neg+TEC7_neg'),
 
     TOB = cms.PSet(
-        matchedRecHits = cms.InputTag("fifthStripRecHits","matchedRecHit"),
+        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+        skipClusters = cms.InputTag('fifthClusters'),
         TTRHBuilder = cms.string('WithTrackAngle')
     ),
 
     TEC = cms.PSet(
-        matchedRecHits = cms.InputTag("fifthStripRecHits","matchedRecHit"),
+        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+        skipClusters = cms.InputTag('fifthClusters'),
         #    untracked bool useSimpleRphiHitsCleaner = false
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
@@ -69,16 +72,17 @@ fifthSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'fifthlayerPairs'
 fifthSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 fifthSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 30.0
 fifthSeeds.RegionFactoryPSet.RegionPSet.originRadius = 6.0
-fifthSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = 'fifthClusters'
-fifthSeeds.ClusterCheckPSet.ClusterCollectionLabel = 'fifthClusters'
+fifthSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClusters'
+fifthSeeds.ClusterCheckPSet.ClusterCollectionLabel = 'siStripClusters'
    
 
 # TRACKER DATA CONTROL
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 fifthMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
     ComponentName = 'fifthMeasurementTracker',
-    pixelClusterProducer = 'fifthClusters',
-    stripClusterProducer = 'fifthClusters'
+    skipClusters = cms.InputTag('fifthClusters'),
+    pixelClusterProducer = 'siPixelClusters',
+    stripClusterProducer = 'siStripClusters'
     )
 
 # QUALITY CUTS DURING TRACK BUILDING (for inwardss and outwards track building steps)
@@ -108,7 +112,8 @@ fifthCkfInOutTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilt
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
 fifthCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
     ComponentName = 'fifthCkfTrajectoryBuilder',
-    MeasurementTrackerName = 'fifthMeasurementTracker',
+    MeasurementTrackerName = '',
+    clustersToSkip = cms.InputTag('fifthClusters'),
     trajectoryFilterName = 'fifthCkfTrajectoryFilter',
     inOutTrajectoryFilterName = 'fifthCkfInOutTrajectoryFilter',
     useSameTrajFilter = False,
@@ -153,7 +158,6 @@ fifthRKTrajectorySmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.RKT
 import RecoTracker.TrackProducer.TrackProducer_cfi
 fifthWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'fifthTrackCandidates',
-    clusterRemovalInfo = 'fifthClusters',
     AlgorithmName = cms.string('iter5'),
     Fitter = 'fifthFittingSmootherWithOutlierRejection',
     )
@@ -207,7 +211,6 @@ tobtecSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTra
 
 
 fifthStep = cms.Sequence( fifthClusters*
-                          fifthPixelRecHits*fifthStripRecHits*
                           fifthSeeds*
                           fifthTrackCandidates*
                           fifthWithMaterialTracks*

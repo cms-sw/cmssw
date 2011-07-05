@@ -26,6 +26,8 @@ newSeedFromTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.gl
     )
     )
     )
+newSeedFromTriplets.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClusters'
+newSeedFromTriplets.ClusterCheckPSet.ClusterCollectionLabel = 'siStripClusters'
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 newSeedFromTriplets.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.ComponentName = 'LowPtClusterShapeSeedComparitor'
 
@@ -68,46 +70,51 @@ newClusters = cms.EDProducer("TrackClusterRemover",
     TrackQuality = cms.string('highPurity'),                         
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
+    clusterLessSolution= cms.bool(True),
     Common = cms.PSet(
         maxChi2 = cms.double(30.0)
     )
 )
 
 # make corresponding rechits
-import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
-import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
-newPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone(
-    src = cms.InputTag("newClusters")
-    )
-newStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone(
-    ClusterProducer = 'newClusters'
-    )
+#import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
+#import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
+#newPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone(
+#    src = cms.InputTag("newClusters")
+#    )
+#newStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone(
+#    ClusterProducer = 'newClusters'
+#    )
 
 
 # seeding 
 newMixedLayerPairs = RecoTracker.TkSeedingLayers.MixedLayerPairs_cfi.mixedlayerpairs.clone(
     ComponentName = 'newMixedLayerPairs'
     )
-newMixedLayerPairs.BPix.HitProducer = 'newPixelRecHits'
-newMixedLayerPairs.FPix.HitProducer = 'newPixelRecHits'
-newMixedLayerPairs.TEC.matchedRecHits = cms.InputTag("newStripRecHits","matchedRecHit")
+newMixedLayerPairs.BPix.HitProducer = 'siPixelRecHits'
+newMixedLayerPairs.BPix.skipClusters = cms.InputTag('newClusters')
+newMixedLayerPairs.FPix.HitProducer = 'siPixelRecHits'
+newMixedLayerPairs.FPix.skipClusters = cms.InputTag('newClusters')
+#newMixedLayerPairs.TEC.matchedRecHits = cms.InputTag("newStripRecHits","matchedRecHit")
+newMixedLayerPairs.TEC.matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit')
+newMixedLayerPairs.TEC.skipClusters = cms.InputTag('newClusters')
 
 from RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff import *
 newSeedFromPairs = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff.globalSeedsFromPairsWithVertices.clone()
 newSeedFromPairs.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 newSeedFromPairs.RegionFactoryPSet.RegionPSet.originRadius = 0.05
 newSeedFromPairs.OrderedHitsFactoryPSet.SeedingLayers = cms.string('newMixedLayerPairs')
-newSeedFromPairs.ClusterCheckPSet.PixelClusterCollectionLabel = 'newClusters'
-newSeedFromPairs.ClusterCheckPSet.ClusterCollectionLabel = 'newClusters'
+newSeedFromPairs.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClusters'
+newSeedFromPairs.ClusterCheckPSet.ClusterCollectionLabel = 'siStripClusters'
    
-
 
 # building 
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 newMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
     ComponentName = 'newMeasurementTracker',
-    pixelClusterProducer = 'newClusters',
-    stripClusterProducer = 'newClusters'
+    skipClusters = cms.InputTag('newClusters'),
+    pixelClusterProducer = 'siPixelClusters',
+    stripClusterProducer = 'siStripClusters'
     )
 
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
@@ -121,8 +128,9 @@ stepOneTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESPr
 
 stepOneCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
     ComponentName = 'stepOneCkfTrajectoryBuilder',
-    MeasurementTrackerName = 'newMeasurementTracker',
-    trajectoryFilterName = 'stepOneTrajectoryFilter'
+    MeasurementTrackerName = '',
+    trajectoryFilterName = 'stepOneTrajectoryFilter',
+    clustersToSkip = cms.InputTag('newClusters')
     )
 
 stepOneTrackCandidateMaker = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
@@ -135,7 +143,6 @@ stepOneTrackCandidateMaker = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTr
 preFilterStepOneTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     AlgorithmName = 'iter1',
     src = 'stepOneTrackCandidateMaker',
-    clusterRemovalInfo = 'newClusters'
     )
 
 ### BOTH STEPS TOGETHER ###
@@ -191,7 +198,7 @@ firstStepTracksWithQuality = RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 
 # Final sequence
 firstStep = cms.Sequence(newSeedFromTriplets*newTrackCandidateMaker*preFilterZeroStepTracks*zeroSelector*
-                         newClusters*newPixelRecHits*newStripRecHits*
+                         newClusters*
                          newSeedFromPairs*stepOneTrackCandidateMaker*preFilterStepOneTracks*
                          firstSelector*firstStepTracksWithQuality)
 
