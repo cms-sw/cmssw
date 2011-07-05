@@ -61,6 +61,11 @@ class ESDigiCollection : public EcalDigiCollection
 	 EcalDigiCollection(istride, EcalPreshower){}
       void swap(ESDigiCollection& other) {this->EcalDigiCollection::swap(other);}
 
+      void push_back( unsigned int i ) 
+      {
+	 DataFrameContainer::push_back( i ) ;
+      }
+
       void push_back( const Digi& digi ) 
       {
 	 uint16_t esdata[NSAMPLE] ;
