@@ -67,6 +67,9 @@ fftjet_pileup_processor_pf = cms.EDProducer(
     # The number of percentile points to use
     nPercentiles = cms.uint32(51),
     #
+    # Files for mixing in external grids
+    externalGridFiles = cms.vstring(),
+    #
     # Anomalous calo tower definition (comes from JetProducers default)
     anomalous = fftjet_anomalous_tower_default,
     #

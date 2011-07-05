@@ -5,13 +5,10 @@ import math
 import FWCore.ParameterSet.Config as cms
 
 from RecoJets.FFTJetProducers.fftjetcommon_cfi import *
-import RecoJets.FFTJetProducers.pileup_shape_Fall10_L1Hybrid_AK5Calo_v1_cfi as calo_ps
+import RecoJets.FFTJetProducers.pileup_shape_Summer11_Calo_v1_cfi as calo_ps
 
-# Number of bins to use in phi
-fftjet_pileup_phi_bins = 128
-
-# A good ratio is about 1.2 for PFJets, could be larger for CaloJets
-fftjet_pileup_phi_to_eta_ratio = 1.2
+# A good ratio is about 1.1 for PFJets, could be larger for CaloJets
+fftjet_pileup_phi_to_eta_ratio = 1.1
 
 # Note that for the grid below we do not really care that
 # convolution results will wrap around in eta
@@ -19,7 +16,7 @@ fftjet_pileup_grid_calo = cms.PSet(
     nEtaBins = cms.uint32(calo_ps.fftjet_pileup_eta_bins),
     etaMin = cms.double(-calo_ps.fftjet_pileup_eta_max),
     etaMax = cms.double(calo_ps.fftjet_pileup_eta_max),
-    nPhiBins = cms.uint32(fftjet_pileup_phi_bins),
+    nPhiBins = cms.uint32(calo_ps.fftjet_pileup_phi_bins),
     phiBin0Edge = cms.double(0.0),
     title = cms.untracked.string("FFTJet Pileup Grid")
 )
@@ -54,6 +51,10 @@ fftjet_pileup_processor_calo = cms.EDProducer(
     # Configuration for the energy discretization grid
     GridConfiguration = fftjet_pileup_grid_calo,
     #
+    # Convolution range
+    convolverMinBin = cms.uint32(calo_ps.fftjet_pileup_min_eta_bin),
+    convolverMaxBin = cms.uint32(calo_ps.fftjet_pileup_max_eta_bin),
+    #
     # The set of scales used by the filters. The scales will be generated
     # uniformly in the log space. The settings below correspond to 5% 
     # bandwidth increase for each scale.
@@ -63,6 +64,9 @@ fftjet_pileup_processor_calo = cms.EDProducer(
     #
     # The number of percentile points to use
     nPercentiles = cms.uint32(50),
+    #
+    # Files for mixing in external grids
+    externalGridFiles = cms.vstring(),
     #
     # Anomalous calo tower definition (comes from JetProducers default)
     anomalous = fftjet_anomalous_tower_default,

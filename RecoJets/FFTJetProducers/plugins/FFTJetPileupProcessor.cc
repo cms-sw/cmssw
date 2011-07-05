@@ -18,6 +18,7 @@
 //
 
 #include <cmath>
+#include <fstream>
 
 // FFTJet headers
 #include "fftjet/FrequencyKernelConvolver.hh"
@@ -34,6 +35,8 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
+
+#include "RecoJets/FFTJetAlgorithms/interface/gridConverters.h"
 
 // parameter parser header
 #include "RecoJets/FFTJetProducers/interface/FFTJetParameterParser.h"
@@ -64,6 +67,7 @@ private:
     FFTJetPileupProcessor& operator=(const FFTJetPileupProcessor&);
 
     void buildKernelConvolver(const edm::ParameterSet&);
+    void mixExtraGrid();
 
     // The FFT engine
     std::auto_ptr<MyFFTEngine> engine;
@@ -93,6 +97,11 @@ private:
 
     // Density conversion factor
     double pileupEtaPhiArea;
+
+    // Variable related to mixing additional grids
+    std::vector<std::string> externalGridFiles;
+    std::ifstream gridStream;
+    unsigned currentFileNum;
 };
 
 //
@@ -105,7 +114,9 @@ FFTJetPileupProcessor::FFTJetPileupProcessor(const edm::ParameterSet& ps)
       nPercentiles(ps.getParameter<unsigned>("nPercentiles")),
       convolverMinBin(ps.getParameter<unsigned>("convolverMinBin")),
       convolverMaxBin(ps.getParameter<unsigned>("convolverMaxBin")),
-      pileupEtaPhiArea(ps.getParameter<double>("pileupEtaPhiArea"))
+      pileupEtaPhiArea(ps.getParameter<double>("pileupEtaPhiArea")),
+      externalGridFiles(ps.getParameter<std::vector<std::string> >("externalGridFiles")),
+      currentFileNum(externalGridFiles.size() + 1U)
 {
     // Build the discretization grid
     energyFlow = fftjet_Grid2d_parser(
@@ -196,8 +207,16 @@ void FFTJetPileupProcessor::produce(
     loadInputCollection(iEvent);
     discretizeEnergyFlow();
 
-    // Various useful variables
+    // Determine the average Et density for this event.
+    // Needs to be done here, before mixing in another grid.
     const fftjet::Grid2d<Real>& g(*energyFlow);
+    std::auto_ptr<double> etSum(new double(g.sum()/pileupEtaPhiArea));
+
+    // Mix an extra grid (if requested)
+    if (!externalGridFiles.empty())
+        mixExtraGrid();
+
+    // Various useful variables
     const unsigned nScales = filterScales->size();
     const double* scales = &(*filterScales)[0];
     Real* convData = const_cast<Real*>(convolvedFlow->data());
@@ -250,9 +269,55 @@ void FFTJetPileupProcessor::produce(
     }
 
     iEvent.put(pTable, outputLabel);
-
-    std::auto_ptr<double> etSum(new double(g.sum()/pileupEtaPhiArea));
     iEvent.put(etSum, outputLabel);
+}
+
+
+void FFTJetPileupProcessor::mixExtraGrid()
+{
+    const unsigned nFiles = externalGridFiles.size();
+    if (currentFileNum > nFiles)
+    {
+        // This is the first time this function is called
+        currentFileNum = 0;
+        gridStream.open(externalGridFiles[currentFileNum].c_str(),
+                        std::ios_base::in | std::ios_base::binary);
+        if (!gridStream.is_open())
+            throw cms::Exception("FFTJetBadConfig")
+                << "ERROR in FFTJetPileupProcessor::mixExtraGrid():"
+                " failed to open external grid file "
+                << externalGridFiles[currentFileNum] << std::endl;
+    }
+
+    const fftjet::Grid2d<float>* g = fftjet::Grid2d<float>::read(gridStream);
+
+    // If we can't read the grid, we need to switch to another file
+    for (unsigned ntries=0; ntries<nFiles && g == 0; ++ntries)
+    {
+        gridStream.close();
+        currentFileNum = (currentFileNum + 1U) % nFiles;
+        gridStream.open(externalGridFiles[currentFileNum].c_str(),
+                        std::ios_base::in | std::ios_base::binary);
+        if (!gridStream.is_open())
+            throw cms::Exception("FFTJetBadConfig")
+                << "ERROR in FFTJetPileupProcessor::mixExtraGrid():"
+                " failed to open external grid file "
+                << externalGridFiles[currentFileNum] << std::endl;
+        g = fftjet::Grid2d<float>::read(gridStream);
+    }
+
+    if (g)
+    {
+        add_Grid2d_data(energyFlow.get(), *g);
+        delete g;
+    }
+    else
+    {
+        // Too bad, no useful file found
+        throw cms::Exception("FFTJetBadConfig")
+            << "ERROR in FFTJetPileupProcessor::mixExtraGrid():"
+            " no valid grid records found" << std::endl;
+    }
 }
 
 
