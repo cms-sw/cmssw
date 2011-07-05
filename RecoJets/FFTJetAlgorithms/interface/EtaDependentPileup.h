@@ -17,7 +17,8 @@ namespace fftjetcms {
     class EtaDependentPileup : public AbsPileupCalculator
     {
     public:
-        explicit EtaDependentPileup(const fftjet::LinearInterpolator2d& i);
+        EtaDependentPileup(const fftjet::LinearInterpolator2d& i,
+                           double inputRhoFactor, double outputRhoFactor);
 
         inline virtual ~EtaDependentPileup() {}
 
@@ -29,6 +30,8 @@ namespace fftjetcms {
 
     private:
         fftjet::LinearInterpolator2d interp_;
+        double inputRhoFactor_;
+        double outputRhoFactor_;
         double etaMin_;
         double etaMax_;
         double rhoMin_;

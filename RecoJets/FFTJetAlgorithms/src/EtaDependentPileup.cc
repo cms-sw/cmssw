@@ -4,8 +4,11 @@
 
 namespace fftjetcms {
     EtaDependentPileup::EtaDependentPileup(
-        const fftjet::LinearInterpolator2d& interp)
+        const fftjet::LinearInterpolator2d& interp,
+        const double inputRhoFactor, const double outputRhoFactor)
         : interp_(interp),
+          inputRhoFactor_(inputRhoFactor),
+          outputRhoFactor_(outputRhoFactor),
           etaMin_(interp.xMin()),
           etaMax_(interp.xMax()),
           rhoMin_(interp.yMin()),
@@ -26,7 +29,7 @@ namespace fftjetcms {
         const reco::FFTJetPileupSummary& summary) const
     {
         double value = 0.0;
-        const double rho = summary.pileupRho();
+        const double rho = summary.pileupRho()*inputRhoFactor_;
         if (eta < etaMin_)
             eta = etaMin_;
         if (eta > etaMax_)
@@ -50,6 +53,6 @@ namespace fftjetcms {
             const double z1 = interp_(eta, x1);
             value = z0 + (z1 - z0)*((rho - x0)/(x1 - x0));
         }
-        return value > 0.0 ? value : 0.0;
+        return (value > 0.0 ? value : 0.0)*outputRhoFactor_;
     }
 }

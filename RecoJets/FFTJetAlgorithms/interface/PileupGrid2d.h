@@ -19,8 +19,9 @@ namespace fftjetcms {
     class PileupGrid2d : public AbsPileupCalculator
     {
     public:
-        inline explicit PileupGrid2d(const fftjet::Grid2d<Real>& g)
-	    : grid_(g) {}
+        inline explicit PileupGrid2d(const fftjet::Grid2d<Real>& g,
+                                     const double rhoFactor)
+	    : grid_(g), rhoFactor_(rhoFactor) {}
 
         inline virtual ~PileupGrid2d() {}
 
@@ -28,13 +29,15 @@ namespace fftjetcms {
             const double eta, const double phi,
             const reco::FFTJetPileupSummary& summary) const
 	{
-	    return summary.pileupRho() * grid_.coordValue(eta, phi);
+	    return rhoFactor_ * summary.pileupRho() *
+                   grid_.coordValue(eta, phi);
 	}
 
         inline virtual bool isPhiDependent() const {return true;}
 
     private:
 	fftjet::Grid2d<Real> grid_;
+        double rhoFactor_;
     };
 }
 

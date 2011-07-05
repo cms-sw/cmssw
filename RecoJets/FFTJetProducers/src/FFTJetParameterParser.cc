@@ -958,9 +958,13 @@ fftjet_PileupCalculator_parser(const edm::ParameterSet& ps)
         std::auto_ptr<fftjet::LinearInterpolator2d> interp = 
             fftjet_LinearInterpolator2d_parser(
                 ps.getParameter<edm::ParameterSet>("Interpolator2d"));
+        const double inputRhoFactor = ps.getParameter<double>("inputRhoFactor");
+        const double outputRhoFactor = ps.getParameter<double>("outputRhoFactor");
+
         const fftjet::LinearInterpolator2d* ip = interp.get();
         if (ip)
-            return return_type(new EtaDependentPileup(*ip));
+            return return_type(new EtaDependentPileup(
+                                   *ip, inputRhoFactor, outputRhoFactor));
         else
             return return_type(NULL);
     }
@@ -970,9 +974,11 @@ fftjet_PileupCalculator_parser(const edm::ParameterSet& ps)
         std::auto_ptr<fftjet::Grid2d<Real> > grid = 
 	    fftjet_Grid2d_parser(
 		ps.getParameter<edm::ParameterSet>("Grid2d"));
+        const double rhoFactor = ps.getParameter<double>("rhoFactor");
+
         const fftjet::Grid2d<Real>* g = grid.get();
         if (g)
-	    return return_type(new PileupGrid2d(*g));
+	    return return_type(new PileupGrid2d(*g, rhoFactor));
         else
 	    return return_type(NULL);
     }
