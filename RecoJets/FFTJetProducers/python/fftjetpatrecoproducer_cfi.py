@@ -27,6 +27,10 @@ fftjet_patreco_producer = cms.EDProducer(
     # Are we going to store the discretized energy flow?
     storeDiscretizationGrid = cms.bool(False),
     #
+    # Are we going to dump discretized energy flow into an external file?
+    # Empty file name means "no".
+    externalGridFile = cms.string(""),
+    #
     # Configuration for the preliminary peak finder.
     # Its main purpose is to reject peaks produced by the FFT round-off noise.
     peakFinderMaxEta = cms.double(fftjet_standard_eta_range),

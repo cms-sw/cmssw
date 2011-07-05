@@ -13,10 +13,11 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Tue Jun 15 12:45:45 CDT 2010
-// $Id: FFTJetPatRecoProducer.cc,v 1.1 2010/12/06 17:33:19 igv Exp $
+// $Id: FFTJetPatRecoProducer.cc,v 1.2 2010/12/07 00:19:43 igv Exp $
 //
 //
 
+#include <fstream>
 
 // FFTJet headers
 #include "fftjet/ProximityClusteringTree.hh"
@@ -51,6 +52,9 @@
 
 // functions which manipulate storable trees
 #include "RecoJets/FFTJetAlgorithms/interface/clusteringTreeConverters.h"
+
+// functions which manipulate energy discretization grids
+#include "RecoJets/FFTJetAlgorithms/interface/gridConverters.h"
 
 // useful utilities collected in the second base
 #include "RecoJets/FFTJetProducers/interface/FFTJetInterface.h"
@@ -139,6 +143,10 @@ private:
     FFTJetPatRecoProducer();
     FFTJetPatRecoProducer(const FFTJetPatRecoProducer&);
     FFTJetPatRecoProducer& operator=(const FFTJetPatRecoProducer&);
+
+    // Members needed for storing grids externally
+    std::ofstream externalGridStream;
+    bool storeGridsExternally;
 };
 
 //
@@ -156,7 +164,7 @@ FFTJetPatRecoProducer::FFTJetPatRecoProducer(const edm::ParameterSet& ps)
     // register your products
     if (makeClusteringTree)
     {
-      if (storeInSinglePrecision())
+        if (storeInSinglePrecision())
             produces<reco::PattRecoTree<float,reco::PattRecoPeak<float> > >(outputLabel);
         else
             produces<reco::PattRecoTree<double,reco::PattRecoPeak<double> > >(outputLabel);
@@ -164,7 +172,20 @@ FFTJetPatRecoProducer::FFTJetPatRecoProducer(const edm::ParameterSet& ps)
     if (storeDiscretizationGrid)
         produces<DiscretizedEnergyFlow>(outputLabel);
 
-    if (!makeClusteringTree && !storeDiscretizationGrid)
+    // Check if we want to write the grids into an external file
+    const std::string externalGridFile(ps.getParameter<std::string>("externalGridFile"));
+    storeGridsExternally = externalGridFile.size() > 0;
+    if (storeGridsExternally)
+    {
+        externalGridStream.open(externalGridFile.c_str(), std::ios_base::out | 
+                                                          std::ios_base::binary);
+        if (!externalGridStream.is_open())
+            throw cms::Exception("FFTJetBadConfig")
+                << "FFTJetPatRecoProducer failed to open file "
+                << externalGridFile << std::endl;
+    }
+
+    if (!makeClusteringTree && !storeDiscretizationGrid && !storeGridsExternally)
     {
         throw cms::Exception("FFTJetBadConfig")
             << "FFTJetPatRecoProducer is not configured to produce anything"
@@ -456,6 +477,19 @@ void FFTJetPatRecoProducer::produce(
 
         iEvent.put(flow, outputLabel);
     }
+
+    if (storeGridsExternally)
+    {
+        const fftjet::Grid2d<float>* f = convert_Grid2d_to_float(*energyFlow);
+        const bool status = f->write(externalGridStream);
+        delete f;
+        if (!status)
+        {
+            throw cms::Exception("FFTJetPatRecoProducer::produce")
+                << "Failed to write grid data into an external file"
+                << std::endl;
+        }
+    }
 }
 
 
@@ -468,6 +502,8 @@ void FFTJetPatRecoProducer::beginJob()
 // ------------ method called once each job just after ending the event loop
 void FFTJetPatRecoProducer::endJob()
 {
+    if (storeGridsExternally)
+        externalGridStream.close();
 }
 
 
