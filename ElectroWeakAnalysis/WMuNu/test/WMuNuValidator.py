@@ -3,14 +3,11 @@ import FWCore.ParameterSet.Config as cms
 # Process, how many events, inout files, ...
 process = cms.Process("wmnsel")
 process.maxEvents = cms.untracked.PSet(
-      input = cms.untracked.int32(200)
+      input = cms.untracked.int32(-1)
       #input = cms.untracked.int32(100)
 )
 process.source = cms.Source("PoolSource",
-      #fileNames = cms.untracked.vstring("file:/data4/RelValWM_CMSSW_3_1_0-STARTUP31X_V1-v1_GEN-SIM-RECO/40BFAA1A-5466-DE11-B792-001D09F29533.root")
-      #fileNames = cms.untracked.vstring("file:/data4/Wmunu-Summer09-MC_31X_V2_preproduction_311-v1/0011/F4C91F77-766D-DE11-981F-00163E1124E7.root")
-       fileNames = cms.untracked.vstring("file:/data4/Wmunu_Summer09-MC_31X_V3_AODSIM-v1/0009/F82D4260-507F-DE11-B5D6-00093D128828.root")
-
+       fileNames = cms.untracked.vstring('/store/data/Run2011A/SingleMu/AOD/PromptReco-v4/000/167/786/401AE9B7-F8A1-E011-93CB-003048F1C832.root')
 )
 
 # Debug/info printouts

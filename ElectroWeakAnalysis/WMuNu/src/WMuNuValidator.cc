@@ -179,7 +179,7 @@ void WMuNuValidator::init_histograms() {
 
             snprintf(chname, 255, "DXY%s", chsuffix[i].data());
             snprintf(chtitle, 255, "Muon transverse distance to beam spot [cm]");
-            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,-0.5,0.5);
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,1000,-0.5,0.5);
 
             snprintf(chname, 255, "CHI2%s", chsuffix[i].data());
             snprintf(chtitle, 255, "Normalized Chi2, global track fit");
@@ -265,7 +265,7 @@ void WMuNuValidator::init_histograms() {
 
             snprintf(chtitle, 255, "Number of Valid Primary Vertices");
             snprintf(chname, 255, "NPVS%s", chsuffix[i].data());
-            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,15,-0.5,14.5);
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,25,-0.5,24.5);
 
             snprintf(chtitle, 255, "Muon Charge");
             snprintf(chname, 255, "MuonCharge%s", chsuffix[i].data());
@@ -411,44 +411,33 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
 
       fill_histogram("NPVS_BEFORECUTS",nvvertex);
 
-
-      bool trigger_fired = false;
-
-      if( muonTrig_.size() == 0){
-      LogWarning("") << ">>> You are not requesting any trigger !!!";
-      trigger_fired = true;
-      } 
-      else{
       // Trigger
-      Handle<TriggerResults> triggerResults;
-      if (!ev.getByLabel(trigTag_, triggerResults)) {
-      LogWarning("") << ">>> TRIGGER collection does not exist !!!";
-      return 0;
+      bool trigger_fired = false;
+      if ( muonTrig_.size()==0){
+            LogDebug("") << ">>> Careful, you are not requesting any trigger, event will be always fired";
+      trigger_fired = true;
       }
-      const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
-
-      for (unsigned int i=0; i<triggerResults->size(); i++)
-      {
-        
-        std::string trigName = trigNames.triggerName(i);
-                  cout<<trigName<<"   "<<triggerResults->accept(i)<<endl;
-        for (unsigned int j = 0; j < muonTrig_.size(); j++)
-          {
-            LogDebug("") <<"\t"<<trigName<<"   -->Trigger bit: "<<triggerResults->accept(i);
-            if ( trigName == muonTrig_.at(j) && triggerResults->accept(i))
-            {
-              trigger_fired = true;
+      else {
+            Handle<TriggerResults> triggerResults;
+            if (!ev.getByLabel(trigTag_, triggerResults)) {
+                  LogDebug("") << ">>> TRIGGER collection does not exist !!!";
+            return 0;
             }
-          }
-      }
-      
-      LogTrace("") << ">>> Trigger bit: " << trigger_fired << " for one of ( " ;
-      for (unsigned int k = 0; k < muonTrig_.size(); k++)
-      {
-        LogTrace("") << muonTrig_.at(k) << " ";
-      }
-      LogTrace("") << ")";
-      }     
+            const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
+            LogDebug("")<<"Fired Triggers: ";
+
+            for (unsigned int i=0; i<triggerResults->size(); i++)
+            {
+                  std::string trigName = trigNames.triggerName(i);
+                  for (unsigned int j = 0; j < muonTrig_.size(); j++) {
+                       if ( trigName == muonTrig_.at(j) && triggerResults->accept(i)) {
+                              trigger_fired = true;
+                       LogDebug("") <<"\t"<<trigName<<"   -->Trigger bit: "<<triggerResults->accept(i);
+
+                  }
+            }
+            }
+      } // Optionally you now have an OR of several triggers... Take care with the efficiencies in the analysis...
       fill_histogram("TRIG_BEFORECUTS",trigger_fired);
 
       // Loop to reject/control Z->mumu is done separately
