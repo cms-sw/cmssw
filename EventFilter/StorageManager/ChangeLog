@@ -1,3 +1,8 @@
+2011-07-05 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-03-03
+	* Better way to book merge count and dropped event counts from Luis I. Lopera.
+
 2011-07-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-03-02
