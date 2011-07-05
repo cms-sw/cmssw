@@ -33,8 +33,7 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
 
 	/// Booking of MonitoringElement for one RPCDetId (= roll)
 	//	std::map<std::string, MonitorElement*> bookRollME(RPCDetId& , const edm::EventSetup&, std::string );		
-	void bookRollME(RPCDetId& , const edm::EventSetup&, const std::string &, std::map<std::string,
-MonitorElement*> &);
+	void bookRollME(RPCDetId& , const edm::EventSetup&, const std::string &, std::map<std::string, MonitorElement*> &);
 
 	/// Booking of MonitoringElement at Sector/Ring level
 	//	std::map<std::string, MonitorElement*> bookSectorRingME(std::string);
@@ -69,7 +68,7 @@ MonitorElement*> &);
 	DQMStore * dbe;
 	bool dcs_;
 	float muPtCut_, muEtaCut_;
-
+	bool useRollInfo_;
  	MonitorElement * noiseRPCEvents_ ;
 	MonitorElement * muonRPCEvents_ ;
 
@@ -79,12 +78,12 @@ MonitorElement*> &);
 	int numberOfDisks_, numberOfInnerRings_;
 	//	int muonCounter_, noiseCounter_;
 
-	std::map< uint32_t, std::map<std::string, MonitorElement*> >   meMuonCollection;
+	std::map< std::string, std::map<std::string, MonitorElement*> >   meMuonCollection;
 	std::map<std::string, MonitorElement*>  wheelDiskMuonCollection;
 	std::map<std::string, MonitorElement*>  regionMuonCollection;
 	std::map<std::string, MonitorElement*> sectorRingMuonCollection;
 	
-	std::map<uint32_t, std::map<std::string, MonitorElement*> > meNoiseCollection;
+	std::map<std::string, std::map<std::string, MonitorElement*> > meNoiseCollection;
 	std::map<std::string, MonitorElement*> wheelDiskNoiseCollection;
 	std::map<std::string, MonitorElement*>  regionNoiseCollection;
 	std::map<std::string, MonitorElement*> sectorRingNoiseCollection;

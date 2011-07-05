@@ -25,9 +25,10 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
   RootFileName  = pset.getUntrackedParameter<std::string>("RootFileName", "RPCMonitorDigiDQM.root"); 
 
   useMuonDigis_=  pset.getUntrackedParameter<bool>("UseMuon", true);
+  useRollInfo_=  pset.getUntrackedParameter<bool>("UseRollInfo", false);
   muonLabel_ = pset.getParameter<edm::InputTag>("MuonLabel");
   muPtCut_  = pset.getUntrackedParameter<double>("MuonPtCut", 3.0); 
-  muEtaCut_ = pset.getUntrackedParameter<double>("MuonEtaCut", 1.6); 
+  muEtaCut_ = pset.getUntrackedParameter<double>("MuonEtaCut", 1.9); 
  
   subsystemFolder_ = pset.getUntrackedParameter<std::string>("RPCFolder", "RPC");
   globalFolder_ = pset.getUntrackedParameter<std::string>("GlobalFolder", "SummaryHistograms");
@@ -106,16 +107,25 @@ void RPCMonitorDigi::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
     if(dynamic_cast< RPCChamber* >( *it ) != 0 ){
       RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
       std::vector< const RPCRoll*> roles = (ch->rolls());
-      for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-	RPCDetId rpcId = (*r)->id();
-	//booking all histograms
+      if(useRollInfo_){
+	for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
+	  RPCDetId rpcId = (*r)->id();
+	  //booking all histograms
+	  RPCGeomServ rpcsrv(rpcId);
+	  std::string nameID = rpcsrv.name();
+	  if(useMuonDigis_) bookRollME(rpcId ,iSetup, muonFolder_, meMuonCollection[nameID]);
+	  bookRollME(rpcId, iSetup, noiseFolder_, meNoiseCollection[nameID]);
+	  
+	  // 	if(useMuonDigis_) meMuonCollection[(uint32_t)rpcId] = bookRollME(rpcId,iSetup,  muonFolder_);
+	  // 	meNoiseCollection[(uint32_t)rpcId] = bookRollME(rpcId,iSetup,  noiseFolder_);
+	}
+      }else{
+	RPCDetId rpcId = roles[0]->id(); //any roll would do - here I just take the first one
 	RPCGeomServ rpcsrv(rpcId);
-	std::string nameRoll = rpcsrv.name();
-	if(useMuonDigis_) bookRollME(rpcId,iSetup, muonFolder_, meMuonCollection[(uint32_t)rpcId]);
-	bookRollME(rpcId,iSetup, noiseFolder_, meNoiseCollection[(uint32_t)rpcId]);
-
-// 	if(useMuonDigis_) meMuonCollection[(uint32_t)rpcId] = bookRollME(rpcId,iSetup,  muonFolder_);
-// 	meNoiseCollection[(uint32_t)rpcId] = bookRollME(rpcId,iSetup,  noiseFolder_);
+	std::string nameID = rpcsrv.chambername();
+	if(useMuonDigis_) bookRollME(rpcId,iSetup, muonFolder_, meMuonCollection[nameID]);
+	bookRollME(rpcId, iSetup, noiseFolder_, meNoiseCollection[nameID]);
+	
       }
     }
   }//end loop on geometry to book all MEs
@@ -235,7 +245,7 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
   
   if(recHitMap.size()==0) return;
 
-  std::map<uint32_t, std::map<std::string, MonitorElement*> >  meRollCollection ;
+  std::map<std::string, std::map<std::string, MonitorElement*> >  meRollCollection ;
   std::map<std::string, MonitorElement*>   meWheelDisk ;
   std::map<std::string, MonitorElement*>   meRegion ;
   std::map<std::string, MonitorElement*>   meSectorRing;  
@@ -263,15 +273,19 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
   for ( std::map<RPCDetId , std::vector<RPCRecHit> >::const_iterator detIdIter = recHitMap.begin(); detIdIter !=  recHitMap.end() ;  detIdIter++){
     
     RPCDetId detId = (*detIdIter).first;
-    int id=detId();
+    // int id=detId();
     
     //get roll number
     rpcdqm::utils rpcUtils;
     int nr = rpcUtils.detId2RollNr(detId);
-    std::map<std::string, MonitorElement*>  meMap = meRollCollection[id];
+ 
     
     RPCGeomServ geoServ(detId);
-    std::string nameRoll = geoServ.name();
+    std::string nameRoll = "";
+
+
+    if(useRollInfo_) nameRoll = geoServ.name();
+    else nameRoll = geoServ.chambername();
 
     int region=(int)detId.region();
     int wheelOrDiskNumber;
@@ -279,6 +293,8 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
     int ring = 0 ;
     int sector  = detId.sector();
     int layer = 0;
+    int totalRolls = 3;
+    int roll = detId.roll();
     if(region == 0) {
       wheelOrDiskType = "Wheel";  
       wheelOrDiskNumber = (int)detId.ring();
@@ -287,19 +303,34 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
       if(station == 1){
 	if(detId.layer() == 1){
 	  layer = 1; //RB1in
+	  totalRolls = 2;
 	}else{
 	  layer = 2; //RB1out
+	  totalRolls = 2;
 	}
+	if(roll == 3) roll =2; // roll=3 is Forward
       }else if(station == 2){
       	if(detId.layer() == 1){
 	  layer = 3; //RB2in
-	}else{
+	  if( abs(wheelOrDiskNumber) ==2 && roll == 3) {
+	    roll = 2; //W -2, +2 RB2in has only 2 rolls
+	    totalRolls = 2;
+	  }
+       	}else{
 	  layer = 4; //RB2out
+	  if( abs(wheelOrDiskNumber) !=2 && roll == 3){
+	    roll = 2;//W -1, 0, +1 RB2out has only 2 rolls
+	    totalRolls = 2;
+	  }
 	}
       }else if (station == 3){
 	layer = 5; //RB3
+	totalRolls = 2;
+	if(roll == 3) roll =2;
       }else{
 	layer = 6; //RB4
+	totalRolls = 2;
+	if(roll == 3) roll =2;
       }
 
     }else {
@@ -314,6 +345,8 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
 
     std::set<int> bxSet ;
     int numDigi = 0;
+
+    std::map<std::string, MonitorElement*>  meMap = meRollCollection[nameRoll];
 
     //Loop on recHits
     for(std::vector<RPCRecHit>::const_iterator recHitIter = recHits.begin(); recHitIter != recHits.end(); recHitIter++){
@@ -332,7 +365,10 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
       os<<"Occupancy_"<<nameRoll;
       if(meMap[os.str()]) {
 	for(int s=firstStrip; s<= lastStrip; s++){
-	  meMap[os.str()]->Fill(s);
+	  if(useRollInfo_) { meMap[os.str()]->Fill(s);}
+	  else{ 
+	    int nstrips =   meMap[os.str()]->getNbinsX()/totalRolls;
+	    meMap[os.str()]->Fill(s + nstrips*(roll-1)); }
 	}
       }
       

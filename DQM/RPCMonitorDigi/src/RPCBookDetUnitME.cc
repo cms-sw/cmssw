@@ -21,8 +21,22 @@ void RPCMonitorDigi::bookRollME(RPCDetId & detId, const edm::EventSetup & iSetup
 
   /// Name components common to current RPCDetId  
   RPCGeomServ RPCname(detId);
-  std::string nameRoll = RPCname.name();
-  
+  std::string nameRoll = "";
+ 
+  if (RPCMonitorDigi::useRollInfo_) {
+    nameRoll = RPCname.name();
+  }else{
+    nameRoll = RPCname.chambername();
+  }
+
+    if(detId.region() != 0 || //Endcaps
+       (abs(detId.ring()) == 2 && detId.station()== 2 && detId.layer() != 1) ||  //Wheel -/+2 RB2out
+       (abs(detId.ring()) != 2 && detId.station()== 2 && detId.layer() == 1)){nstrips *= 3;} //Wheel -1,0,+1 RB2in
+    else {
+      nstrips *= 2;
+    }
+
+
   std::stringstream os;
   os.str("");
   os<<"Occupancy_"<<nameRoll;
@@ -89,11 +103,11 @@ void RPCMonitorDigi::bookSectorRingME(const std::string &recHitType, std::map<st
 	os<<"Occupancy_Wheel_"<<wheel<<"_Sector_"<<sector;
     
 	if (sector==9 || sector==11)
-	  meMap[os.str()] = dbe->book2D(os.str(), os.str(), 96, 0.5,96.5, 15, 0.5, 15.5);
+	  meMap[os.str()] = dbe->book2D(os.str(), os.str(),  90, 0.5,  90.5, 15, 0.5, 15.5);
 	else  if (sector==4) 
-	  meMap[os.str()] = dbe->book2D(os.str(), os.str(),  96, 0.5, 96.5, 21, 0.5, 21.5);
+	  meMap[os.str()] = dbe->book2D(os.str(), os.str(),  90, 0.5,  90.5, 21, 0.5, 21.5);
 	else
-	  meMap[os.str()] = dbe->book2D(os.str(), os.str(), 96, 0.5,  96.5, 17, 0.5, 17.5);
+	  meMap[os.str()] = dbe->book2D(os.str(), os.str(),  90, 0.5,  90.5, 17, 0.5, 17.5);
 	
 	meMap[os.str()]->setAxisTitle("strip", 1);
 	rpcdqm::utils rpcUtils;
@@ -293,10 +307,12 @@ int  RPCMonitorDigi::stripsInRoll(RPCDetId & id, const edm::EventSetup & iSetup)
 
   const RPCRoll * rpcRoll = rpcgeo->roll(id);
 
-  if (rpcRoll)
-    return  rpcRoll->nstrips();
-  else 
-    return 1;
+  if (!rpcRoll) return 1;
+
+  return  rpcRoll->nstrips();
+
+  
+
 }
 
 
