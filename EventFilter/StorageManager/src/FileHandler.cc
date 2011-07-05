@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.27 2011/03/07 15:31:32 mommsen Exp $
+// $Id: FileHandler.cc,v 1.28 2011/06/01 13:49:02 mommsen Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -6,7 +6,10 @@
 #include <EventFilter/StorageManager/interface/I2OChain.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include <FWCore/Version/interface/GetReleaseVersion.h>
+
+#include "boost/shared_array.hpp"
 
 #include <errno.h>
 #include <iostream>
@@ -210,6 +213,7 @@ namespace stor {
     fileRecord_->isOpen = false;
     fileRecord_->whyClosed = reason;
     checkFileSizeMatch(closedFileName, openFileSize);
+    checkAdler32(closedFileName);
   }
   
   
@@ -263,6 +267,48 @@ namespace stor {
       std::ostringstream msg;
       msg << "Unable to change permissions of " << fileName
         << " to read only: " << strerror(errno);
+      XCEPT_RAISE(stor::exception::DiskWriting, msg.str());
+    }
+  }
+  
+  
+  void FileHandler::checkAdler32(const std::string& fileName) const
+  {
+    if (!diskWritingParams_.checkAdler32_) return;
+
+    std::ifstream file(fileName.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
+    if (!file.is_open())
+    {
+      std::ostringstream msg;
+      msg << "File " << fileName << " could not be opened.\n";
+      XCEPT_RAISE(stor::exception::DiskWriting, msg.str());
+    }
+    
+    std::ifstream::pos_type size = file.tellg();
+    file.seekg (0, std::ios::beg);
+    
+    boost::shared_array<char> ptr(new char[1024*1024]);
+    uint32_t a = 1, b = 0;
+    
+    std::ifstream::pos_type rsize = 0;
+    while(rsize < size)
+    {
+      file.read(ptr.get(), 1024*1024);
+      rsize += 1024*1024;
+      if(file.gcount()) 
+        cms::Adler32(ptr.get(), file.gcount(), a, b);
+      else 
+        break;
+    }
+    file.close();
+    
+    uint32 adler = (b << 16) | a;
+    if (adler != adler_)
+    {
+      std::ostringstream msg;
+      msg << "Disk resident file " << fileName <<
+        " has Adler32 checksum " << std::hex << adler <<
+        ", while the expected checkum is " << std::hex << adler_;
       XCEPT_RAISE(stor::exception::DiskWriting, msg.str());
     }
   }

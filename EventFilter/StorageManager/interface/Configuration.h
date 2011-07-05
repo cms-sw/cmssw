@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.29 2011/04/19 16:01:55 mommsen Exp $
+// $Id: Configuration.h,v 1.30 2011/06/01 13:47:01 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -42,6 +42,7 @@ namespace stor
     utils::Duration_t fileClosingTestInterval_;
     double fileSizeTolerance_;
     std::string faultyEventsStream_;
+    bool checkAdler32_;
 
     typedef std::vector<std::string> OtherDiskPaths;
     OtherDiskPaths otherDiskPaths_;
@@ -159,8 +160,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.29 $
-   * $Date: 2011/04/19 16:01:55 $
+   * $Revision: 1.30 $
+   * $Date: 2011/06/01 13:47:01 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -348,6 +349,7 @@ namespace stor
     xdata::Integer fileClosingTestInterval_;  // seconds
     xdata::Double fileSizeTolerance_;
     xdata::String faultyEventsStream_;
+    xdata::Boolean checkAdler32_;
 
     xdata::Integer activeConsumerTimeout_;  // seconds
     xdata::Integer consumerQueueSize_;

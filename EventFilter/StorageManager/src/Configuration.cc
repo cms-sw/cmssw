@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.44 2011/04/19 16:01:53 mommsen Exp $
+// $Id: Configuration.cc,v 1.45 2011/06/01 13:49:02 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -181,6 +181,7 @@ namespace stor
     diskWriteParamCopy_.fileClosingTestInterval_ = boost::posix_time::seconds(5);
     diskWriteParamCopy_.fileSizeTolerance_ = 0.0;
     diskWriteParamCopy_.faultyEventsStream_ = "";
+    diskWriteParamCopy_.checkAdler32_ = false;
 
     previousStreamCfg_ = diskWriteParamCopy_.streamConfiguration_;
 
@@ -281,6 +282,7 @@ namespace stor
     fileClosingTestInterval_ = diskWriteParamCopy_.fileClosingTestInterval_.total_seconds();
     fileSizeTolerance_ = diskWriteParamCopy_.fileSizeTolerance_;
     faultyEventsStream_ = diskWriteParamCopy_.faultyEventsStream_;
+    checkAdler32_ = diskWriteParamCopy_.checkAdler32_;
 
     utils::getXdataVector(diskWriteParamCopy_.otherDiskPaths_, otherDiskPaths_);
 
@@ -301,6 +303,7 @@ namespace stor
                                  &fileClosingTestInterval_);
     infoSpace->fireItemAvailable("fileSizeTolerance", &fileSizeTolerance_);
     infoSpace->fireItemAvailable("faultyEventsStream", &faultyEventsStream_);
+    infoSpace->fireItemAvailable("checkAdler32", &checkAdler32_);
 
     // special handling for the stream configuration string (we
     // want to note when it changes to see if we need to reconfigure
@@ -453,6 +456,7 @@ namespace stor
       boost::posix_time::seconds( static_cast<int>(fileClosingTestInterval_) );
     diskWriteParamCopy_.fileSizeTolerance_ = fileSizeTolerance_;
     diskWriteParamCopy_.faultyEventsStream_ = faultyEventsStream_;
+    diskWriteParamCopy_.checkAdler32_ = checkAdler32_;
 
     utils::getStdVector(otherDiskPaths_, diskWriteParamCopy_.otherDiskPaths_);
 

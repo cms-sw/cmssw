@@ -1,4 +1,4 @@
-// $Id: FileHandler.h,v 1.17 2011/03/07 15:31:31 mommsen Exp $
+// $Id: FileHandler.h,v 1.18 2011/06/01 13:49:01 mommsen Exp $
 /// @file: FileHandler.h 
 
 #ifndef EventFilter_StorageManager_FileHandler_h
@@ -25,8 +25,8 @@ namespace stor {
    * Abstract representation of a physical file
    *
    * $Author: mommsen $
-   * $Revision: 1.17 $
-   * $Date: 2011/03/07 15:31:31 $
+   * $Revision: 1.18 $
+   * $Date: 2011/06/01 13:49:01 $
    */
 
   class FileHandler
@@ -159,6 +159,11 @@ namespace stor {
      */
     void makeFileReadOnly(const std::string& fileName) const;
 
+    /**
+     * Compare Adler32 checksum of file with calculated one
+     */
+    void checkAdler32(const std::string& fileName) const;
+    
     /**
      * Rename the file
      */
