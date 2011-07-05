@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel  
 //         Created:  Thu Jun 23 01:24:51 CEST 2011
-// $Id: FWGeoTopNode.cc,v 1.6 2011/07/04 19:47:14 amraktad Exp $
+// $Id: FWGeoTopNode.cc,v 1.7 2011/07/04 20:11:25 amraktad Exp $
 //
 
 // system include files
@@ -126,14 +126,15 @@ void FWGeoTopNode::paintChildNodesRecurse(FWGeometryTableManager::Entries_i pIt,
    {
       if (it->m_level < pLevel ) return;
 
-      if (it->m_level == (pLevel) && it->m_level <= m_maxLevel )
+      if (it->m_level == (pLevel)  )
       {
-         TGeoNode* node = it->m_node;
-         TGeoHMatrix nm = parentMtx;
-         nm.Multiply(node->GetMatrix());
 
-         if (m_filterOff)
+         if (m_filterOff && it->m_level <= m_maxLevel)
          {
+            TGeoNode* node = it->m_node;
+            TGeoHMatrix nm = parentMtx;
+            nm.Multiply(node->GetMatrix());
+
             if (it->m_node->IsVisible())
                paintShape(*it, nm);
 
@@ -143,7 +144,11 @@ void FWGeoTopNode::paintChildNodesRecurse(FWGeometryTableManager::Entries_i pIt,
          }
          else
          {
+            TGeoNode* node = it->m_node;
+            TGeoHMatrix nm = parentMtx;
+            nm.Multiply(node->GetMatrix());
             m_geoBrowser->getTableManager()->assertNodeFilterCache(*it);
+
             if (it->testBit(FWGeometryTableManager::kMatches) )
                paintShape(*it, nm);
 
