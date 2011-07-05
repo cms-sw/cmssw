@@ -195,6 +195,7 @@
         <useCompressionDQM  xsi:type="xsd:boolean">true</useCompressionDQM>
         <compressionLevelDQM xsi:type="xsd:integer">1</compressionLevelDQM>
         <faultyEventsStream  xsi:type="xsd:string">smFaultyEvents</faultyEventsStream>
+        <checkAdler32       xsi:type="xsd:boolean">true</checkAdler32>
       </properties>
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterStorageManager.so</xc:Module>
