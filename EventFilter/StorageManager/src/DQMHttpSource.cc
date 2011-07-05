@@ -1,4 +1,4 @@
-// $Id: DQMHttpSource.cc,v 1.26 2011/04/04 16:05:37 mommsen Exp $
+// $Id: DQMHttpSource.cc,v 1.27 2011/07/04 10:21:53 mommsen Exp $
 /// @file: DQMHttpSource.cc
 
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -68,8 +68,11 @@ namespace edm
   {
     boost::mutex::scoped_lock sl(mutex_);
     
-    dqmStore->setCurrentFolder("/SM_SMPS_Stats");
-    MonitorElement* me = dqmStore->bookInt("mergeCount");
+    MonitorElement* me = dqmStore->get("SM_SMPS_Stats/mergeCount");
+    if (!me){
+      dqmStore->setCurrentFolder("SM_SMPS_Stats");
+      me = dqmStore->bookInt("mergeCount");
+    }
     me->Fill(dqmEventMsgView.mergeCount());
 
     edm::StreamDQMDeserializer deserializeWorker;

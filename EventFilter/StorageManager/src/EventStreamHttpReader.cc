@@ -1,4 +1,4 @@
-// $Id: EventStreamHttpReader.cc,v 1.49 2011/04/07 08:43:59 mommsen Exp $
+// $Id: EventStreamHttpReader.cc,v 1.50 2011/07/04 10:21:53 mommsen Exp $
 /// @file: EventStreamHttpReader.cc
 
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -24,6 +24,7 @@ namespace edm
   dqmStore_(0),
   dqmStoreAvailabiltyChecked_(false),
   dropOldLumisectionEvents_(pset.getUntrackedParameter<bool>("dropOldLumisectionEvents", false)),
+  consumerName_(pset.getUntrackedParameter<std::string>("consumerName")),
   lastLS_(0)
   {
     // Default in StreamerInputSource is 'false'
@@ -67,8 +68,11 @@ namespace edm
 
     if (dqmStore_)
     {
-      dqmStore_->setCurrentFolder("/SM_SMPS_Stats");
-      MonitorElement* me = dqmStore_->bookInt("droppedEventsCount");
+      MonitorElement* me = dqmStore_->get("SM_SMPS_Stats/droppedEventsCount_" + consumerName_ );
+      if (!me){
+        dqmStore_->setCurrentFolder("SM_SMPS_Stats");
+        me = dqmStore_->bookInt("droppedEventsCount_" + consumerName_ );
+      }
       me->Fill(droppedEvents);
     }
 

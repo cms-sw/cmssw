@@ -1,4 +1,4 @@
-// $Id: EventStreamHttpReader.h,v 1.26 2011/04/04 16:05:37 mommsen Exp $
+// $Id: EventStreamHttpReader.h,v 1.27 2011/04/07 08:43:59 mommsen Exp $
 /// @file: EventStreamHttpReader.h
 
 #ifndef StorageManager_EventStreamHttpReader_h
@@ -27,8 +27,8 @@ namespace edm
     framework input source. Currently we inherit from InputSource.
 
     $Author: mommsen $
-    $Revision: 1.26 $
-    $Date: 2011/04/04 16:05:37 $
+    $Revision: 1.27 $
+    $Date: 2011/04/07 08:43:59 $
   */
 
   class EventStreamHttpReader : public edm::StreamerInputSource
@@ -52,6 +52,7 @@ namespace edm
     bool dqmStoreAvailabiltyChecked_;
 
     const bool dropOldLumisectionEvents_;
+    const std::string consumerName_;
     unsigned int lastLS_;
 
   };
