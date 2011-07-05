@@ -213,7 +213,7 @@ void FFTJetPileupProcessor::produce(
     const double densityBeforeMixing = g.sum()/pileupEtaPhiArea;
 
     // Mix an extra grid (if requested)
-    double densityAfterMixing = 0.0;
+    double densityAfterMixing = -1.0;
     if (!externalGridFiles.empty())
     {
         mixExtraGrid();
