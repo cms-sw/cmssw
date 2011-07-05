@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.21 2011/07/04 18:01:36 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.22 2011/07/04 22:34:51 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -459,19 +459,6 @@ void FWGeometryTableManager::loadGeometry()
 
 //==============================================================================
 
-void
-FWGeometryTableManager::getNNodesTotal(TGeoNode* geoNode, int& off) const
-{   
-   // Get number of nested children recursively.
-   
-   // int nD =  getNdaughtersLimited(geoNode);
-   int nD =  geoNode->GetNdaughters();
-   off += nD;
-   for (int i = 0; i < nD; ++i )
-   {
-      getNNodesTotal(geoNode->GetDaughter(i), off);
-   }
-}
 
 //______________________________________________________________________________
 

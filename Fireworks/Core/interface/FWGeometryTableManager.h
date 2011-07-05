@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.17 2011/07/02 05:28:06 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.18 2011/07/04 22:34:51 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -150,6 +150,8 @@ public:
 
    void assertNodeFilterCache(NodeInfo& data);
 
+  static  void getNNodesTotal(TGeoNode* geoNode, int& off);
+
 private:
    FWGeometryTableManager(const FWGeometryTableManager&); // stop default
    const FWGeometryTableManager& operator=(const FWGeometryTableManager&); // stop default
@@ -165,8 +167,7 @@ private:
    // geo
    //oid checkUniqueVolume(); 
    void checkChildMatches(TGeoVolume* v,  std::vector<TGeoVolume*>&);
-   int  getNdaughtersLimited(TGeoNode*) const;
-   void getNNodesTotal(TGeoNode* geoNode, int& off) const;
+   //   int  getNdaughtersLimited(TGeoNode*) const;
    void importChildren(int parent_idx);
    void checkHierarchy();
 
@@ -204,10 +205,15 @@ private:
 };
 
 
-inline int FWGeometryTableManager::getNdaughtersLimited(TGeoNode* geoNode) const
-{
-   // used for debugging of table and 3D view
-   return TMath::Min(geoNode->GetNdaughters(), m_browser->getMaxDaughters());
+
+inline void FWGeometryTableManager::getNNodesTotal(TGeoNode* geoNode, int& off)
+{   
+   int nD =  geoNode->GetNdaughters();
+   off += nD;
+   for (int i = 0; i < nD; ++i )
+   {
+      getNNodesTotal(geoNode->GetDaughter(i), off);
+   }
 }
 
 #endif

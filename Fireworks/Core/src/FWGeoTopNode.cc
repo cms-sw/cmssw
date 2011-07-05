@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel  
 //         Created:  Thu Jun 23 01:24:51 CEST 2011
-// $Id: FWGeoTopNode.cc,v 1.7 2011/07/04 20:11:25 amraktad Exp $
+// $Id: FWGeoTopNode.cc,v 1.8 2011/07/05 19:18:49 amraktad Exp $
 //
 
 // system include files
@@ -67,98 +67,98 @@ void FWGeoTopNode::setupBuffMtx(TBuffer3D& buff, const TGeoHMatrix& mat)
 //______________________________________________________________________________
 void FWGeoTopNode::Paint(Option_t*)
 {
-  int topIdx = m_geoBrowser->getTableManager()->getTopGeoNodeIdx();
-  FWGeometryTableManager::Entries_i sit = m_entries->begin(); 
+   int topIdx = m_geoBrowser->getTableManager()->getTopGeoNodeIdx();
+   FWGeometryTableManager::Entries_i sit = m_entries->begin(); 
 
-  m_maxLevel = m_geoBrowser->getVisLevel() + m_geoBrowser->getTableManager()->getLevelOffset() -1;
-  m_filterOff = m_geoBrowser->getFilter().empty();
-  TGeoHMatrix mtx;
-  if (topIdx >= 0)
-  {
-    std::advance(sit, topIdx);
-    {
-      // init matrix
-      int pIdx = sit->m_parent;
-      int level = sit->m_level;
-      int* pl = new int[level];
-      while (pIdx != -1)
+   m_maxLevel = m_geoBrowser->getVisLevel() + m_geoBrowser->getTableManager()->getLevelOffset() -1;
+   m_filterOff = m_geoBrowser->getFilter().empty();
+   TGeoHMatrix mtx;
+   if (topIdx >= 0)
+   {
+      std::advance(sit, topIdx);
       {
-	pl[ m_entries->at(pIdx).m_level] = pIdx;
-	pIdx = m_entries->at(pIdx).m_parent;
+         // init matrix
+         int pIdx = sit->m_parent;
+         int level = sit->m_level;
+         int* pl = new int[level];
+         while (pIdx != -1)
+         {
+            pl[ m_entries->at(pIdx).m_level] = pIdx;
+            pIdx = m_entries->at(pIdx).m_parent;
+         }
+
+         for (int i = 0; i < level; ++i ) {
+            TGeoNode* node = m_entries->at(pl[i]).m_node;
+            // printf("parents %d = %s \n", pl[i], node->GetName() );
+            mtx.Multiply(node->GetMatrix());
+         }
+         delete [] pl;
+
+         mtx.Multiply(sit->m_node->GetMatrix());
       }
 
-      for (int i = 0; i < level; ++i ) {
-	TGeoNode* node = m_entries->at(pl[i]).m_node;
-	// printf("parents %d = %s \n", pl[i], node->GetName() );
-	mtx.Multiply(node->GetMatrix());
+      // paint this node
+      if (sit->m_node->IsVisible())
+      {
+         bool draw = true;
+         if ( m_filterOff == false) {
+            m_geoBrowser->getTableManager()->assertNodeFilterCache(*sit);
+            draw = sit->testBit(FWGeometryTableManager::kMatches);
+         }
+
+         if (draw)
+            paintShape(*sit, mtx);
       }
-      delete [] pl;
+   }
 
-      mtx.Multiply(sit->m_node->GetMatrix());
-    }
-
-    // paint this node
-    if (sit->m_node->IsVisible())
-    {
-      bool draw = true;
-      if ( m_filterOff == false) {
-	m_geoBrowser->getTableManager()->assertNodeFilterCache(*sit);
-	draw = sit->testBit(FWGeometryTableManager::kMatches);
-      }
-
-      if (draw)
-	paintShape(*sit, mtx);
-    }
-  }
-
-  if (sit->m_node->IsVisDaughters())
-    paintChildNodesRecurse(sit, mtx);
+   if (sit->m_node->IsVisDaughters())
+      paintChildNodesRecurse( sit, mtx);
 }
 
 // ______________________________________________________________________
 
-void FWGeoTopNode::paintChildNodesRecurse(FWGeometryTableManager::Entries_i pIt, TGeoHMatrix& parentMtx)
+void FWGeoTopNode::paintChildNodesRecurse (FWGeometryTableManager::Entries_i pIt, const TGeoHMatrix& parentMtx)
 { 
-   int pLevel = pIt->m_level + 1;
+   TGeoNode* parentNode =  pIt->m_node;
+   int nD = parentNode->GetNdaughters();
 
+   int dOff=0;
    pIt++;
-   for (FWGeometryTableManager::Entries_i it = pIt; it!=m_entries->end(); ++it)
+
+   FWGeometryTableManager::Entries_i it;
+   for (int n = 0; n != nD; ++n)
    {
-      if (it->m_level < pLevel ) return;
+      it =  pIt;
+      std::advance(it,n + dOff);
 
-      if (it->m_level == (pLevel)  )
+      TGeoHMatrix nm = parentMtx;
+      nm.Multiply(it->m_node->GetMatrix());
+
+  
+      if (m_filterOff)
       {
+         if (it->m_node->IsVisible())
+            paintShape(*it, nm);
 
-         if (m_filterOff && it->m_level <= m_maxLevel)
-         {
-            TGeoNode* node = it->m_node;
-            TGeoHMatrix nm = parentMtx;
-            nm.Multiply(node->GetMatrix());
+         if (it->m_node->IsVisDaughters() && it->m_level < m_maxLevel )
+            paintChildNodesRecurse(it, nm);
 
-            if (it->m_node->IsVisible())
-               paintShape(*it, nm);
-
-            if (it->m_node->IsVisDaughters())
-               paintChildNodesRecurse(it, nm);
-
-         }
-         else
-         {
-            TGeoNode* node = it->m_node;
-            TGeoHMatrix nm = parentMtx;
-            nm.Multiply(node->GetMatrix());
-            m_geoBrowser->getTableManager()->assertNodeFilterCache(*it);
-
-            if (it->testBit(FWGeometryTableManager::kMatches) )
-               paintShape(*it, nm);
-
-            if (it->testBit(FWGeometryTableManager::kChildMatches) )
-               paintChildNodesRecurse(it, nm);
-         }
       }
+      else
+      {
+         m_geoBrowser->getTableManager()->assertNodeFilterCache(*it);
+         if (it->testBit(FWGeometryTableManager::kMatches) )
+            paintShape(*it, nm);
+
+         if (it->testBit(FWGeometryTableManager::kChildMatches) )
+            paintChildNodesRecurse(it, nm);
+      }
+
+
+      FWGeometryTableManager::getNNodesTotal(parentNode->GetDaughter(n), dOff);  
    }
 }
-
+  
 // ______________________________________________________________________
 void FWGeoTopNode::paintShape(FWGeometryTableManager::NodeInfo& data, const TGeoHMatrix& nm)
 { 
