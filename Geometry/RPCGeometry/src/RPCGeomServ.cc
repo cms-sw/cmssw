@@ -123,6 +123,100 @@ RPCGeomServ::name()
   }
   return _n;
 }
+ 
+
+std::string 
+RPCGeomServ::chambername()
+{
+  if (_n.size()<1){
+    std::string buf;
+    
+    if (_id->region()==0){
+      buf="W";
+      {
+	std::stringstream os;
+	os << std::setw(2)<<std::setfill('+')<<_id->ring()
+	   <<std::setfill(' ')<<"_";
+	buf += os.str();
+      }
+      
+      {
+	std::stringstream os;
+	os <<"RB"<<_id->station();
+	if (_id->station()<=2) {
+	  if (_id->layer()==1)
+	    os<<"in";
+	  else
+	    os<<"out";
+	}
+	//os<<"_";
+	buf += os.str();
+      }
+      
+      
+      {
+	std::stringstream os;
+	//	os <<"S"<<std::setw(2)<<std::setfill('0')
+	//   <<_id->sector()<<std::setfill(' ');
+	if (_id->station()>2){
+	  if (_id->sector()== 4 && _id->station()==4){
+	    if ( _id->subsector()==1){
+	      os<<"--";
+	    }
+	    else if ( _id->subsector()==2){
+	      os <<"-";
+	    }
+	    else if ( _id->subsector()==3){
+	      os <<"+";
+	    }
+	    else if ( _id->subsector()==4){
+	      os <<"++";
+	    }
+	  }
+	  
+	  if(_id->station()==3){
+	    if (_id->subsector()==1)
+	      os <<"-";
+	    else
+	      os <<"+";
+	  }else if(_id->station()==4 && _id->sector()!=9 && _id->sector()!=11 && _id->sector()!=4){
+	    if (_id->subsector()==1)
+	      os <<"-";
+	    else
+	      os <<"+";
+	  }
+	}
+	
+	os<<"_";
+	os <<"S"<<std::setw(2)<<std::setfill('0')
+	   <<_id->sector()<<std::setfill(' ');
+	buf += os.str();
+      }
+      
+    }
+    else {
+      buf="RE";
+      
+      {
+	std::stringstream os;
+	os << std::setw(2)<<std::setfill('+')<<_id->station()*_id->region()
+	   <<std::setfill(' ')<<"_";
+	buf += os.str();    
+      }
+      
+      {
+	std::stringstream os;
+	os <<"R"<<_id->ring();
+	os <<"_CH"<<std::setw(2)<<std::setfill('0')<<this->segment();
+	buf += os.str();
+      } 
+
+      
+    }
+    _n=buf;
+  }
+  return _n;
+}
 
 std::string 
 RPCGeomServ::shortname()
