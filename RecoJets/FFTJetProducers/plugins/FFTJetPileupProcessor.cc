@@ -154,7 +154,7 @@ FFTJetPileupProcessor::FFTJetPileupProcessor(const edm::ParameterSet& ps)
         new fftjet::EquidistantInLogSpace(minScale, maxScale, nScales));
 
     produces<TH2D>(outputLabel);
-    produces<double>(outputLabel);
+    produces<std::pair<double,double> >(outputLabel);
 }
 
 
@@ -210,11 +210,15 @@ void FFTJetPileupProcessor::produce(
     // Determine the average Et density for this event.
     // Needs to be done here, before mixing in another grid.
     const fftjet::Grid2d<Real>& g(*energyFlow);
-    std::auto_ptr<double> etSum(new double(g.sum()/pileupEtaPhiArea));
+    const double densityBeforeMixing = g.sum()/pileupEtaPhiArea;
 
     // Mix an extra grid (if requested)
+    double densityAfterMixing = 0.0;
     if (!externalGridFiles.empty())
+    {
         mixExtraGrid();
+        densityAfterMixing = g.sum()/pileupEtaPhiArea;
+    }
 
     // Various useful variables
     const unsigned nScales = filterScales->size();
@@ -269,6 +273,9 @@ void FFTJetPileupProcessor::produce(
     }
 
     iEvent.put(pTable, outputLabel);
+
+    std::auto_ptr<std::pair<double,double> > etSum(
+        new std::pair<double,double>(densityBeforeMixing, densityAfterMixing));
     iEvent.put(etSum, outputLabel);
 }
 
