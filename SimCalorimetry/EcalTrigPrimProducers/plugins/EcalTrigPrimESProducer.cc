@@ -411,7 +411,7 @@ void EcalTrigPrimESProducer::parseTextFile()
       if (flagPrint_){
         std::cout << "" << st1 << std::endl;
 	std::cout << "" << st2 << std::endl;
-	std::cout << " "<< std::endl;  
+	std::cout << ""<< std::endl;  
       }
       
       //std::cout<<std::endl ;
@@ -508,7 +508,7 @@ void EcalTrigPrimESProducer::parseTextFile()
 	   std::cout<<"0x"<<std::hex<< data << std::endl;
 	  }
 	  else if (i==1){
-	    std::cout<<" "<<std::hex<< data << std::endl;
+	    std::cout<<""<<std::hex<< data << std::endl;
 	  }
 	  else if (i>1){
 	    std::ostringstream oss;
@@ -649,6 +649,7 @@ void EcalTrigPrimESProducer::parseTextFile()
       
       if(flagPrint_){
         std::cout << st6 << std::endl;
+	std::cout<<std::endl;
       }
        
       //std::cout<<std::endl ;
@@ -709,7 +710,8 @@ void EcalTrigPrimESProducer::parseTextFile()
       
       if(flagPrint_)
         std::cout<<std::endl ;
-      
+        std::cout<<std::endl ;
+	
       mapLut_[id] = param ;
     }
   }
