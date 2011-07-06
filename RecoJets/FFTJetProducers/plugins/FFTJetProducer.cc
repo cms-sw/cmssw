@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Sun Jun 20 14:32:36 CDT 2010
-// $Id: FFTJetProducer.cc,v 1.2 2010/12/07 00:19:43 igv Exp $
+// $Id: FFTJetProducer.cc,v 1.5 2011/06/29 02:45:33 igv Exp $
 //
 //
 
@@ -621,7 +621,13 @@ void FFTJetProducer::writeJets(edm::Event& iEvent,
         jet.setJetArea(cellArea*ncells);
 
         // add jet to the list
-        jets->push_back(OutputJet(jet, jetToStorable<float>(myjet)));
+        FFTJet<float> fj(jetToStorable<float>(myjet));
+        if (calculatePileup)
+        {
+            fj.setPileup(pileup[ijet]);
+            fj.setNCells(ncells);
+        }
+        jets->push_back(OutputJet(jet, fj));
     }
 
     // put the collection into the event
