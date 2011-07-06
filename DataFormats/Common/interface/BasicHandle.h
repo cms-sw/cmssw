@@ -52,7 +52,7 @@ namespace edm {
       whyFailed_(h.whyFailed_){}
 
     BasicHandle(void const* iProd, WrapperInterfaceBase const* iInterface, Provenance const* iProv) :
-      product_(WrapperHolder(iProd, iInterface, WrapperHolder::NotOwned)),
+      product_(WrapperHolder(iProd, iInterface)),
       prov_(iProv) {
     }
 
@@ -62,7 +62,7 @@ namespace edm {
     }
 
     BasicHandle(ProductData const& productData) :
-      product_(WrapperHolder(productData.wrapper_, productData.getInterface())),
+      product_(WrapperHolder(productData.wrapper_.get(), productData.getInterface())),
       prov_(&productData.prov_) {
     }
 
@@ -105,10 +105,6 @@ namespace edm {
 
     WrapperHolder wrapperHolder() const {
       return product_;
-    }
-
-    boost::shared_ptr<void const> product() const {
-      return product_.product();
     }
 
     Provenance const* provenance() const {
