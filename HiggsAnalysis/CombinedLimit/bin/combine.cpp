@@ -16,6 +16,7 @@
 #include "../interface/BayesianFlatPrior.h"
 #include "../interface/MarkovChainMC.h"
 #include "../interface/FeldmanCousins.h"
+#include "../interface/MaxLikelihoodFit.h"
 #include "../interface/ProfilingTools.h"
 #include <map>
 
@@ -44,6 +45,7 @@ int main(int argc, char **argv) {
   algo = new MarkovChainMC();  methods.insert(make_pair(algo->name(), algo));
   algo = new HybridNew();  methods.insert(make_pair(algo->name(), algo));
   algo = new FeldmanCousins();  methods.insert(make_pair(algo->name(), algo));
+  algo = new MaxLikelihoodFit();  methods.insert(make_pair(algo->name(), algo));
   
   string methodsDesc("Method to extract upper limit. Supported methods are: ");
   for(map<string, LimitAlgo *>::const_iterator i = methods.begin(); i != methods.end(); ++i) {

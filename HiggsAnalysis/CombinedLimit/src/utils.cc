@@ -23,6 +23,7 @@
 #include <RooProdPdf.h>
 #include <RooSimultaneous.h>
 #include <RooWorkspace.h>
+#include <RooPlot.h>
 #include <RooStats/ModelConfig.h>
 
 void utils::printRDH(RooAbsData *data) {
@@ -320,3 +321,45 @@ void utils::copyAttributes(const RooAbsArg &from, RooAbsArg &to) {
         for (std::map<std::string,std::string>::const_iterator it = strattribs.begin(), ed = strattribs.end(); it != ed; ++it) to.setStringAttribute(it->first.c_str(), it->second.c_str());
     }
 }
+std::vector<RooPlot *>
+utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signalSel, const char *backgroundSel) {
+    std::vector<RooPlot *> ret;
+    RooArgList constraints;
+    RooAbsPdf *facpdf = factorizePdf(*data.get(0), const_cast<RooAbsPdf &>(pdf), constraints);
+
+    const std::type_info & id = typeid(*facpdf);
+    if (id == typeid(RooSimultaneous)) {
+        const RooSimultaneous *sim  = dynamic_cast<const RooSimultaneous *>(&pdf);
+        const RooAbsCategoryLValue &cat = (RooAbsCategoryLValue &) sim->indexCat();
+        TList *datasets = data.split(cat, true);
+        TIter next(datasets);
+        for (RooAbsData *ds = (RooAbsData *) next(); ds != 0; ds = (RooAbsData *) next()) {
+            RooAbsPdf *pdfi  = sim->getPdf(ds->GetName());
+            std::auto_ptr<RooArgSet> obs(pdfi->getObservables(ds));
+            if (obs->getSize() == 0) break;
+            RooRealVar *x = dynamic_cast<RooRealVar *>(obs->first());
+            if (x == 0) continue;
+            ret.push_back(x->frame(RooFit::Title(ds->GetName())));
+            ret.back()->SetName(ds->GetName());
+            ds->plotOn(ret.back());
+            if (signalSel && strlen(signalSel))         pdfi->plotOn(ret.back(), RooFit::LineColor(209), RooFit::Components(signalSel));
+            if (backgroundSel && strlen(backgroundSel)) pdfi->plotOn(ret.back(), RooFit::LineColor(206), RooFit::Components(backgroundSel));
+            pdfi->plotOn(ret.back());
+            delete ds;
+        }
+        delete datasets;
+    } else if (pdf.canBeExtended()) {
+        std::auto_ptr<RooArgSet> obs(pdf.getObservables(&data));
+        RooRealVar *x = dynamic_cast<RooRealVar *>(obs->first());
+        if (x != 0) {
+            ret.push_back(x->frame());
+            ret.back()->SetName("data");
+            data.plotOn(ret.back());
+            pdf.plotOn(ret.back());
+        }
+    }
+    if (facpdf != &pdf) { delete facpdf; }
+    return ret;
+
+}
+

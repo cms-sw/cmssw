@@ -44,6 +44,7 @@ private:
   bool hintUsesStatOnly_;
   bool toysNoSystematics_;
   bool toysFrequentist_;
+  float expectSignal_;
 
   // input-output related variables
   bool saveWorkspace_;

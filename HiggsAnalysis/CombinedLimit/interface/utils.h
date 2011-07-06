@@ -1,6 +1,7 @@
 #ifndef HiggsAnalysis_CombinedLimit_utils_h
 #define HiggsAnalysis_CombinedLimit_utils_h
 
+#include <vector>
 struct RooDataHist;
 struct RooAbsData;
 struct RooAbsPdf;
@@ -10,6 +11,7 @@ struct RooArgList;
 struct RooSimultaneous;
 struct RooAbsCollection;
 struct RooWorkspace;
+struct RooPlot;
 namespace RooStats { class ModelConfig; }
 namespace utils {
     void printRDH(RooAbsData *data) ;
@@ -51,5 +53,11 @@ namespace utils {
     RooSimultaneous * rebuildSimPdf(const RooArgSet &observables, RooSimultaneous *pdf) ;
 
     void copyAttributes(const RooAbsArg &from, RooAbsArg &to) ;
+
+    /// set style for plots
+    void tdrStyle() ;
+    
+    /// make plots, if possible
+    std::vector<RooPlot *> makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signalSel=0, const char *backgroundSel=0);
 }
 #endif
