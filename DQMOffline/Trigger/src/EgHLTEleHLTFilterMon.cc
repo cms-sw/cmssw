@@ -16,13 +16,13 @@ EleHLTFilterMon::EleHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
   filterBit_(filterBit)
 {
   bool doChargeSep = true;
-  bool monHLTFailedEle = true;
+  bool monHLTFailedEle = false;
   bool doFakeRate=false;
   bool doTagAndProbe=false;
 
   eleMonElems_.push_back(new MonElemContainer<OffEle>());
   //---Morse-------
-  eleMonElems_.push_back(new MonElemContainer<OffEle>("_cut"," cut, debug hists ",new EgHLTDQMVarCut<OffEle>(~0x0,&OffEle::cutCode)));
+  //eleMonElems_.push_back(new MonElemContainer<OffEle>("_cut"," cut, debug hists ",new EgHLTDQMVarCut<OffEle>(~0x0,&OffEle::cutCode)));
   //-----------------
   if(doChargeSep){
     eleMonElems_.push_back(new MonElemContainer<OffEle>("_posCharge"," q=+1 ",new ChargeCut<OffEle>(1)));

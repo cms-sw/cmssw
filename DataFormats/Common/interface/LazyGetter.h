@@ -377,7 +377,7 @@ namespace edm {
     LazyGetter<T>::LazyGetter(uint32_t nregions,const boost::shared_ptr< LazyUnpacker<T> > & unpacker) : unpacker_(unpacker), record_(), register_()
     {
       //Reserve 100,000 to absorb event-by-event fluctuations.
-      record_.reserve(100000);
+      record_.reserve(200000);
       register_.reserve(nregions);
       for (uint32_t iregion=0;iregion<nregions;iregion++) {
 	register_.push_back(RegionIndex<T>(iregion,0,0,this));

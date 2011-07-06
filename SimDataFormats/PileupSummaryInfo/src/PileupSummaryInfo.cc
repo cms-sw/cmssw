@@ -8,7 +8,7 @@
 //
 // Original Author:  Mike Hildreth, Notre Dame
 //         Created:  
-// $Id: PileupSummaryInfo.cc,v 1.2 2010/08/02 02:54:47 mikeh Exp $
+// $Id: PileupSummaryInfo.cc,v 1.3 2011/03/07 05:57:38 mikeh Exp $
 //
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
@@ -31,7 +31,9 @@ PileupSummaryInfo::PileupSummaryInfo( const int num_PU_vertices,
   instLumi_.clear();
   eventInfo_.clear();
 
-  for( int ivtx = 0; ivtx<num_PU_vertices ; ++ivtx) {
+  int NLoop = zpositions.size();
+
+  for( int ivtx = 0; ivtx<NLoop ; ++ivtx) {
     zpositions_.push_back(zpositions[ivtx]); 
     sumpT_lowpT_.push_back(sumpT_lowpT[ivtx]);
     sumpT_highpT_.push_back(sumpT_highpT[ivtx]);
@@ -60,7 +62,9 @@ PileupSummaryInfo::PileupSummaryInfo( const int num_PU_vertices,
   eventInfo_.clear();
   bunchCrossing_ = bunchCrossing;
 
-  for( int ivtx = 0; ivtx<num_PU_vertices ; ++ivtx) {
+  int NLoop = zpositions.size();
+
+  for( int ivtx = 0; ivtx<NLoop ; ++ivtx) {
     zpositions_.push_back(zpositions[ivtx]); 
     sumpT_lowpT_.push_back(sumpT_lowpT[ivtx]);
     sumpT_highpT_.push_back(sumpT_highpT[ivtx]);

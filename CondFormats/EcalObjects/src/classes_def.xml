@@ -20,6 +20,7 @@
 <class name="EcalIntercalibErrors"/>
 <class name="EcalIntercalibConstantsMC"/>
 
+<class name="EcalTimeOffsetConstant"/>
 <class name="EcalTimeCalibConstants"/>
 <class name="EcalTimeCalibErrors"/>
 

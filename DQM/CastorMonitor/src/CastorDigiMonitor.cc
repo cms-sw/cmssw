@@ -8,7 +8,7 @@
 //********** Date  : 29.08.2008 (first version) ******// 
 //****************************************************//
 ////---- digi values in Castor r/o channels 
-
+//// last revision: 31.05.2011 (Panos Katsas) to remove selecting N events for filling the histograms
 
 //==================================================================//
 //======================= Constructor ==============================//
@@ -51,8 +51,8 @@ void CastorDigiMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     m_dbe->setCurrentFolder(baseFolder_);
   
     ////---- book the following histograms 
-    std::string type = "Castor All Digi Values";
-    castHists.ALLPEDS =  m_dbe->book1D(type,type,20,0,20);
+    std::string type = "Castor Digis ADC counts";
+    castHists.ALLPEDS =  m_dbe->book1D(type,type,130,0,130);
     
     ////---- LEAVE IT OUT FOR THE MOMENT
     //type = "Castor Pedestal Mean Reference Values - from CondDB";
@@ -153,20 +153,22 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis, co
      
  
       ////---- fill ALL Digi Values each 1000 events
-      if(ievt_ %1000 == 0 )
-      { 
+       
+       //      if(ievt_ %1000 == 0 )           // PK: skip limited number of events
+      //   { 
       for (int i=0; i<digi.size(); i++) {
-	if(doFCpeds_) pedVals_.push_back(tool[i]);
+	if(doFCpeds_) pedVals_.push_back(tool[i]); // default is FALSE
 	else pedVals_.push_back(digi.sample(i).adc());
 	detID_.push_back(digi.id());
 	capID_.push_back(digi.sample(i).capid());
 	castHists.ALLPEDS->Fill(pedVals_[i]);
       }
       
-     }
+      //      }      
 
       ////---- do histograms for every channel once per 100 events
-      if( ievt_%100 == 0 && doPerChannel_) perChanHists(detID_,capID_,pedVals_,castHists.PEDVALS, baseFolder_);
+      //      if( ievt_%100 == 0 && doPerChannel_) perChanHists(detID_,capID_,pedVals_,castHists.PEDVALS, baseFolder_);
+      if( doPerChannel_) perChanHists(detID_,capID_,pedVals_,castHists.PEDVALS, baseFolder_); // PK: no special event selection done
 
     }
   } 

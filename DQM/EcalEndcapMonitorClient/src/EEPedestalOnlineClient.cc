@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2010/08/30 13:14:08 $
- * $Revision: 1.109 $
+ * $Date: 2010/10/17 18:07:58 $
+ * $Revision: 1.110 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -80,6 +80,7 @@ EEPedestalOnlineClient::EEPedestalOnlineClient(const edm::ParameterSet& ps) {
   expectedMean_ = 200.0;
   discrepancyMean_ = 25.0;
   RMSThreshold_ = 4.0;
+  RMSThresholdInternal_ = 8.0;
 
 }
 
@@ -352,6 +353,9 @@ void EEPedestalOnlineClient::analyze(void) {
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, 2. );
         }
 
+        // OOT pileup affects the region near beam pipe mostly. Use higher threshold for these crystals
+        int radius = sqrt(pow(jx-50,2)+pow(jy-50,2));
+
         bool update03;
 
         float num03;
@@ -367,7 +371,7 @@ void EEPedestalOnlineClient::analyze(void) {
           val = 1.;
           if ( std::abs(mean03 - expectedMean_) > discrepancyMean_ )
             val = 0.;
-          if ( rms03 > RMSThreshold_ )
+          if ( (radius >= 20. && rms03 > RMSThreshold_) || (radius < 20. && rms03 > RMSThresholdInternal_) )
             val = 0.;
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(ix, iy, val);
 

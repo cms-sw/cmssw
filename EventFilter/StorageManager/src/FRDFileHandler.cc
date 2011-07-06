@@ -1,4 +1,4 @@
-// $Id: FRDFileHandler.cc,v 1.15.4.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: FRDFileHandler.cc,v 1.16 2011/03/07 15:31:32 mommsen Exp $
 /// @file: FRDFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/FRDFileHandler.h>
@@ -47,7 +47,6 @@ namespace stor {
       writer_.reset(); // Destruct the writer to flush the file stream
     }
     moveFileToClosed(reason);
-    writeToSummaryCatalog();
     updateDatabase();
   }
   

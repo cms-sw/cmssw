@@ -11,8 +11,8 @@
 /*
  * \file HcalRecHitClient.cc
  * 
- * $Date: 2010/11/10 20:01:34 $
- * $Revision: 1.50 $
+ * $Date: 2010/11/17 19:17:43 $
+ * $Revision: 1.51 $
  * \author J. Temple
  * \brief Dead Cell Client class
  */
@@ -46,6 +46,9 @@ HcalRecHitClient::HcalRecHitClient(std::string myname, const edm::ParameterSet& 
   minevents_    = ps.getUntrackedParameter<int>("RecHit_minevents",
 						ps.getUntrackedParameter<int>("minevents",1));
   enoughevents_=false;
+  Online_                = ps.getUntrackedParameter<bool>("online",false);
+
+  ProblemCells=0;
   ProblemCellsByDepth=0;
 }
 

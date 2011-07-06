@@ -405,11 +405,13 @@ class ConfigEditorTabController(BrowserTabController):
     
     def _updateCode(self,propertyView=True):
         logging.debug(__name__ + ": _updateCode")
+        self.tab().propertyView().setEnabled(False)
         self.toolDataAccessor().updateToolList()
         self.tab().editorTableView().setDataObjects(self.toolDataAccessor().topLevelObjects())
         if self.tab().editorTableView().updateContent():
             self.tab().editorTableView().restoreSelection()
         self.updateContent(False,propertyView)
+        self.tab().propertyView().setEnabled(True)
 
     def importConfig(self,filename):
         logging.debug(__name__ + ": importConfig")

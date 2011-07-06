@@ -1,7 +1,7 @@
 
-<var name="TEST_RELEASE" value="4_2_0_pre8">
-<var name="TEST_GLOBAL_TAG" value="MC_42_V7">
-<var name="TEST_GLOBAL_STARTUP_TAG" value="START42_V7">
+<var name="TEST_RELEASE" value="4_2_0_pre5">
+<var name="TEST_GLOBAL_TAG" value="MC_42_V3">
+<var name="TEST_GLOBAL_STARTUP_TAG" value="START42_V3">
 <var name="TEST_GLOBAL_VERSION" value="v1">
 
 The value of OVAL_ENVNAME is automatically set by Oval to the name
@@ -26,9 +26,9 @@ The VAL_* variables are configuration variables for electronValidation.csh,
 which compares the histograms from two releases. electronValidation.csh relies
 on the ROOT script electronValidation.C.
 
-<var name="VAL_NEW_RELEASE" value="4_2_0_pre8">
-<var name="VAL_REF_RELEASE" value="4_2_0_pre7">
-<var name="VAL_COMMENT" value="Non-data-backward-compatible electrons cleaning.">
+<var name="VAL_NEW_RELEASE" value="4_2_0_pre5_df_3">
+<var name="VAL_REF_RELEASE" value="4_2_0_pre5_df_2">
+<var name="VAL_COMMENT" value="Cleaning EgammaCandidates.">
 
 <var name="STORE_RELEASE" value="${VAL_NEW_RELEASE}">
 
@@ -88,8 +88,8 @@ This set of targets is currently used for the validation of electrons.
   ${TEST_AFS_DIR}/RelValZEE-START-RECO.root
   ${TEST_AFS_DIR}/RelValQCD_Pt_80_120-MC-RECO.root
   </file>
-  <!--var name="DBS_STRATEGY" value="local"-->
-  <!--var name="DBS_COND" value="MC"-->
+  <var name="DBS_STRATEGY" value="local">
+  <var name="DBS_COND" value="MC">
 
   <environment name="FullPt35">
     <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
@@ -140,7 +140,7 @@ This set of targets is currently used for the validation of electrons.
     <var name="DBS_SAMPLE" value="RelValZEE">
     <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
     <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
-    <!--var name="DBS_COND" value="START"-->
+    <var name="DBS_COND" value="START">
     <executable name="electronDbsDiscovery.py">
     <executable name="cmsRun" args="${VAL_CONFIGURATION}">
     <executable name="electronStore.csh" args="${TEST_OUTPUT_FILE} ${TEST_OUTPUT_LOGS}">
@@ -407,8 +407,7 @@ with the local modified code.
       When one need to redo a raw file from scratch.
       <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
       <var name="TEST_OUTPUT_FILE" value="${TEST_AFS_DIR}/${DBS_SAMPLE}-MC-RAW.root">
-      <!--executable name="cmsDriver.py" args="SingleElectronPt35.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun,RAW2DIGI,L1Reco --geometry DB --conditions=auto:mc --eventcontent=FEVTDEBUGHLT --datatier 'GEN-SIM-DIGI-RAW-HLTDEBUG' -n 9000 --relval 9000,250 --fileout ${TEST_OUTPUT_FILE}"-->
-      <executable name="cmsDriver.py" args="SingleElectronPt35.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun --geometry DB --conditions=auto:mc --eventcontent=FEVTDEBUGHLT --datatier 'GEN-SIM-DIGI-RAW-HLTDEBUG' -n 9000 --relval 9000,250 --fileout ${TEST_OUTPUT_FILE}">
+      <executable name="cmsDriver.py" args="SingleElectronPt35.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun --geometry DB --conditions=auto:mc --eventcontent=FEVTDEBUGHLT --datatier 'GEN-SIM-DIGI-RAW-HLTDEBUG' -n 100 --relval 9000,250 --fileout ${TEST_OUTPUT_FILE}">
     </environment>
 
     <environment name="RedoTTbar">

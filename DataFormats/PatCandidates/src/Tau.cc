@@ -1,5 +1,5 @@
 //
-// $Id: Tau.cc,v 1.16 2010/02/22 14:10:03 mbluj Exp $
+// $Id: Tau.cc,v 1.17 2010/09/27 15:24:08 mbluj Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
@@ -29,7 +29,6 @@ Tau::Tau() :
 {
 }
 
-
 /// constructor from reco::BaseTau
 Tau::Tau(const reco::BaseTau & aTau) :
     Lepton<reco::BaseTau>(aTau),
@@ -53,7 +52,6 @@ Tau::Tau(const reco::BaseTau & aTau) :
     const reco::CaloTau * caloTau = dynamic_cast<const reco::CaloTau *>(&aTau);
     if (caloTau != 0) caloSpecific_.push_back(pat::tau::TauCaloSpecific(*caloTau));
 }
-
 
 /// constructor from ref to reco::BaseTau
 Tau::Tau(const edm::RefToBase<reco::BaseTau> & aTauRef) :
@@ -103,12 +101,26 @@ Tau::Tau(const edm::Ptr<reco::BaseTau> & aTauRef) :
     if (caloTau != 0) caloSpecific_.push_back(pat::tau::TauCaloSpecific(*caloTau));
 }
 
-
-
 /// destructor
 Tau::~Tau() {
 }
 
+std::ostream& 
+reco::operator<<(std::ostream& out, const pat::Tau& obj) 
+{
+  if(!out) return out;
+  
+  out << "\tpat::Tau: ";
+  out << std::setiosflags(std::ios::right);
+  out << std::setiosflags(std::ios::fixed);
+  out << std::setprecision(3);
+  out << " E/pT/eta/phi " 
+      << obj.energy()<<"/"
+      << obj.pt()<<"/"
+      << obj.eta()<<"/"
+      << obj.phi();
+  return out; 
+}
 
 /// override the reco::BaseTau::isolationTracks method, to access the internal storage of the track
 const reco::TrackRefVector & Tau::isolationTracks() const {

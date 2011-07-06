@@ -65,6 +65,7 @@ namespace edm {
 
       virtual TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const = 0;
       virtual TriggerResultsByName triggerResultsByName(std::string const& process) const = 0;
+      virtual ProcessHistory const& processHistory() const = 0;
 
    protected:
 

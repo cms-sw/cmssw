@@ -110,7 +110,12 @@ MeasurementTracker::MeasurementTracker(const edm::ParameterSet&              con
   this->initializePixelStatus(pixelQuality, pixelCabling, pixelQualityFlags, pixelQualityDebugFlags);
   //the measurement tracking is set to skip clusters, the other option is set from outside
   selfUpdateSkipClusters_=conf.exists("skipClusters");
-
+  if (selfUpdateSkipClusters_)
+    {
+      edm::InputTag skip=conf.getParameter<edm::InputTag>("skipClusters");
+      if (skip==edm::InputTag("")) selfUpdateSkipClusters_=false;
+    }
+  
   LogDebug("MeasurementTracker")<<"skipping clusters: "<<selfUpdateSkipClusters_;
 }
 

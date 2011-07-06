@@ -24,6 +24,8 @@
   <class name="edm::Wrapper<reco::CaloJetFwdPtrVector>"/>
 
   <class name="reco::JPTJet"/>
+  <class name="std::vector<reco::CaloJetRefVector>"/>
+  <class name="edm::Wrapper<std::vector<reco::CaloJetRefVector> >"/>
   <class name="reco::JPTJet::Specific"/>
   <class name="std::vector<reco::JPTJet>"/>
   <class name="edm::RefProd<std::vector<reco::JPTJet> >"/>

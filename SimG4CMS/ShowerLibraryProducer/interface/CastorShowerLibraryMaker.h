@@ -16,8 +16,6 @@
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 
-#include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
-
 #include "G4RunManager.hh"
 #include "G4SDManager.hh"
 #include "G4Step.hh"
@@ -132,9 +130,6 @@ private:
   std::vector<int> PGParticleIDs; //p. gun particle IDs
   bool DoHadSL; // true if hadronic SL should be produced
   bool DoEmSL;  // true if electromag. SL should be produced
-  bool InsideCastor; // true if particle step inside CASTOR
-  bool DeActivatePhysicsProcess; //cfg parameter: True if phys. proc. should be off from IP to Castor
-  std::vector<G4PrimaryParticle*> thePrims; // list of primaries for this event
   
   // Pointers for user defined class objects to be stored to Root file
   CastorShowerLibraryInfo   *emInfo;
@@ -147,10 +142,6 @@ private:
   std::map<int,std::set<int> > MapOfSecondaries; // map to hold all secondaries ID keyed by
                                                  // the PDG code of the primary
 
-  std::map<int,G4ThreeVector> PrimaryMomentum;
-  std::map<int,G4ThreeVector> PrimaryPosition;
-  double                MaxEta; // limits the eta region, the lower limit is given by the SL bins
-  double                MaxPhi; // limits the phi region, the lower limit is given by the SL bins
 // private methods
   int FindEnergyBin(double e);
   int FindEtaBin(double eta);
@@ -159,11 +150,9 @@ private:
   bool IsSLReady();
   void GetKinematics(G4PrimaryParticle* ,
        double& px, double& py, double& pz, double& pInit, double& eta, double& phi);
-  void GetKinematics(int ,
-       double& px, double& py, double& pz, double& pInit, double& eta, double& phi);
 
-  std::vector<G4PrimaryParticle*>  GetPrimary(const G4Event * );
-  bool FillShowerEvent(CaloG4HitCollection* ,CastorShowerEvent*, int);
+  std::vector<G4PrimaryParticle*>  GetPrimary(const EndOfEvent * );
+  bool FillShowerEvent(G4HCofThisEvent* ,CastorShowerEvent*, int);
   void InitSLHolder(ShowerLib& );
 
   void printSLstatus(int , int, int);
@@ -173,8 +162,6 @@ private:
   bool         SLisEBinFilled(int ebin);
   bool         SLisEtaBinFilled(int ebin, int etabin);
   bool         SLisPhiBinFilled(int ebin, int etabin, int phibin);
-  void KillSecondaries(const G4Step * step);
-  void GetMissingEnergy(CaloG4HitCollection* ,double& ,double& );
 
   // Root pointers
   TFile* theFile;

@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAModuleHelper.h,v 1.1 2008/12/14 15:05:22 saout Exp $
+// $Id: MVAModuleHelper.h,v 1.2 2010/10/20 20:39:10 wmtan Exp $
 //
 
 #include <functional>
@@ -27,6 +27,7 @@
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
 #include "PhysicsTools/MVAComputer/interface/Calibration.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputerCache.h"
+#include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
 
 namespace PhysicsTools {
 
@@ -108,9 +109,9 @@ template<class Record, typename Object, class Filler>
 void MVAModuleHelper<Record, Object, Filler>::setEventSetup(
 						const edm::EventSetup &setup)
 {
-	edm::ESHandle<MVAComputerContainer> handle;
+	edm::ESHandle<PhysicsTools::Calibration::MVAComputerContainer> handle;
 	setup.get<Record>().get(handle);
-	const MVAComputerContainer *container = handle.product();
+	const PhysicsTools::Calibration::MVAComputerContainer *container = handle.product();
 	if (cache.update(container, label.c_str()) && cache)
 		init(container);
 }
@@ -119,9 +120,9 @@ template<class Record, typename Object, class Filler>
 void MVAModuleHelper<Record, Object, Filler>::setEventSetup(
 			const edm::EventSetup &setup, const char *esLabel)
 {
-	edm::ESHandle<MVAComputerContainer> handle;
+	edm::ESHandle<PhysicsTools::Calibration::MVAComputerContainer> handle;
 	setup.get<Record>().get(esLabel, handle);
-	const MVAComputerContainer *container = handle.product();
+	const PhysicsTools::Calibration::MVAComputerContainer *container = handle.product();
 	if (cache.update(container, label.c_str()) && cache)
 		init(container);
 }

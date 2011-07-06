@@ -76,6 +76,7 @@ namespace evf{
     , lumiSectionIndex_(1)
     , prescaleSetIndex_(0)
     , lastLumiPrescaleIndex_(0)
+    , lastLumiUsingEol_(0)
     , lsTimedOut_(false)
     , lsToBeRecovered_(true)
     , scalersUpdateAttempted_(0)
@@ -113,6 +114,7 @@ namespace evf{
     applicationInfoSpace_->fireItemAvailable("lumiSectionIndex",        &lumiSectionIndex_);
     applicationInfoSpace_->fireItemAvailable("prescaleSetIndex",        &prescaleSetIndex_);
     applicationInfoSpace_->fireItemAvailable("lastLumiPrescaleIndex",   &lastLumiPrescaleIndex_);
+    applicationInfoSpace_->fireItemAvailable("lastLumiUsingEol",        &lastLumiUsingEol_);
     applicationInfoSpace_->fireItemAvailable("lsTimedOut",              &lsTimedOut_);
     applicationInfoSpace_->fireItemAvailable("lsToBeRecovered",         &lsToBeRecovered_);
 
@@ -127,6 +129,7 @@ namespace evf{
     scalersInfoSpace_->fireItemAvailable("lumiSectionIndex",      &lumiSectionIndex_);
     scalersInfoSpace_->fireItemAvailable("prescaleSetIndex",      &prescaleSetIndex_);
     scalersInfoSpace_->fireItemAvailable("lastLumiPrescaleIndex", &lastLumiPrescaleIndex_);
+    scalersInfoSpace_->fireItemAvailable("lastLumiUsingEol",      &lastLumiUsingEol_);
     scalersLegendaInfoSpace_->fireItemAvailable("scalersLegenda", trh_.getPathLegenda());    
 
     scalersComplete_.addColumn("instance", "unsigned int 32");
@@ -695,9 +698,12 @@ namespace evf{
   {
     //    trh_.printReportTable();
     scalersUpdateAttempted_++;
+    //@@EM commented out on
+    // @@EM 21.06.2011 - this flashlist is too big to be handled by LAS 
+    /*
     try{
       //      scalersInfoSpace_->unlock();
-      scalersInfoSpace_->fireItemGroupChanged(names_,0);
+      // scalersInfoSpace_->fireItemGroupChanged(names_,0); 
       ::usleep(10);
       //      scalersInfoSpace_->lock();
     }
@@ -707,6 +713,12 @@ namespace evf{
 	//	localLog(e.what());
 	return false;
       }
+    */
+    //@@EM added on 21.06.2011 
+    // refresh the microstate legenda every 10 lumisections
+    if(scalersUpdateAttempted_%10 == 0)
+      monitorLegendaInfoSpace_->fireItemGroupChanged(namesStatusLegenda_,0);
+    
     //if there is no state listener then do not attempt to send to monitorreceiver
     if(rcms_==0) return false;
     try{

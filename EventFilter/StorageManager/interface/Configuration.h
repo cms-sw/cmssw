@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.27 2011/03/07 15:31:31 mommsen Exp $
+// $Id: Configuration.h,v 1.29 2011/04/19 16:01:55 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -33,7 +33,6 @@ namespace stor
     std::string fileName_;
     std::string filePath_;
     std::string dbFilePath_;
-    std::string fileCatalog_;
     std::string setupLabel_;
     int nLogicalDisk_;
     int maxFileSizeMB_;
@@ -63,6 +62,7 @@ namespace stor
     utils::Duration_t readyTimeDQM_;
     bool useCompressionDQM_;
     int compressionLevelDQM_;
+    unsigned int discardDQMUpdatesForOlderLS_;
   };
 
   /**
@@ -159,8 +159,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.27 $
-   * $Date: 2011/03/07 15:31:31 $
+   * $Revision: 1.29 $
+   * $Date: 2011/04/19 16:01:55 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -339,7 +339,6 @@ namespace stor
     xdata::String filePath_;
     xdata::String dbFilePath_;
     xdata::Vector<xdata::String> otherDiskPaths_;
-    xdata::String fileCatalog_;
     xdata::String setupLabel_;
     xdata::Integer nLogicalDisk_;
     xdata::Integer maxFileSize_;
@@ -361,6 +360,7 @@ namespace stor
     xdata::Integer readyTimeDQM_;  // seconds
     xdata::Boolean useCompressionDQM_;
     xdata::Integer compressionLevelDQM_;
+    xdata::UnsignedInteger32 discardDQMUpdatesForOlderLS_;
 
     xdata::UnsignedInteger32 commandQueueSize_;
     xdata::UnsignedInteger32 dqmEventQueueSize_;

@@ -5,22 +5,7 @@
 #include "TString.h"
 #include "TFile.h"
 #include "TTree.h"
-
-#include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaObject.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaResultType.h"
-
-///-----------------------------------------------------------
-///   TEcnaRootFile.h
-///   Update: 16/02/2011
-///   Authors:   FX Gentit, B.Fabbro (bernard.fabbro@cea.fr)
-///              DSM/IRFU/SPP CEA-Saclay
-///   Copyright: Those valid for CEA sofware
-///
-///   ECNA web page:
-///     http://cms-fabbro.web.cern.ch/cms-fabbro/
-///     cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
-///-----------------------------------------------------------
-///
 
 class TEcnaRootFile : public TObject {
 
@@ -40,20 +25,13 @@ public:
                                   // of one ASCII file
 
   TBranch         *fCnaResultsBranch;  // Branch of the individual results
-  TEcnaResultType *fCnaIndivResult;    // One of the individual results
+  TEcnaResultType  *fCnaIndivResult;    // One of the individual results
                                        // in the branch fCnaResultsBranch
 
   TEcnaRootFile();
-  TEcnaRootFile(TEcnaObject*, const Text_t*, TString);
-  TEcnaRootFile(TEcnaObject*, const Text_t*);
-
   TEcnaRootFile(const Text_t*);
   TEcnaRootFile(const Text_t*, TString);
-
   ~TEcnaRootFile();
-
-  void   ReStart(const Text_t*);
-  void   ReStart(const Text_t*, TString);
   void   CloseFile();
   Bool_t OpenR(const Text_t* = "");
   Bool_t OpenW(const Text_t* = "");
