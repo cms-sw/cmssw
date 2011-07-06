@@ -155,7 +155,7 @@ fftjet_noise_membership_smallconst = cms.PSet(
 fftjet_convergence_jet_distance = cms.PSet(
     Class = cms.string("JetConvergenceDistance"),
     etaToPhiBandwidthRatio = cms.double(1.0/fftjet_phi_to_eta_bw_ratio),
-    relativePtBandwidth = cms.double(10.0)
+    relativePtBandwidth = cms.double(1.0)
 )
 
 #

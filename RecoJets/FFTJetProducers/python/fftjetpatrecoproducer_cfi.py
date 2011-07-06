@@ -93,7 +93,7 @@ fftjet_patreco_producer = cms.EDProducer(
     etaDependentMagnutideFactors = cms.vdouble(),
     #
     # Configuration for the energy discretization grid
-    GridConfiguration = fftjet_grid_256_72,
+    GridConfiguration = fftjet_grid_256_128,
     #
     # Configuration for the peak selector determining which peaks
     # are kept when the clustering tree is constructed

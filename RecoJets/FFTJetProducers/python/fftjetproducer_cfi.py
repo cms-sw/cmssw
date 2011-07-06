@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoJets.FFTJetProducers.fftjetcommon_cfi import *
 
+fftjet_default_recombination_scale = 0.5
+
 # FFTJet jet producer configuration
 fftjet_jet_maker = cms.EDProducer(
     "FFTJetProducer",
@@ -11,6 +13,8 @@ fftjet_jet_maker = cms.EDProducer(
     treeLabel = cms.InputTag("fftjetpatreco", "FFTJetPatternRecognition"),
     #
     # Do we have the complete event at the lowest clustering tree scale?
+    # Note that sparse clustering tree removes it by default, even if
+    # it is inserted by the pattern recognition module.
     insertCompleteEvent = cms.bool(fftjet_insert_complete_event),
     completeEventScale = cms.double(fftjet_complete_event_scale),
     #
@@ -51,7 +55,7 @@ fftjet_jet_maker = cms.EDProducer(
     #
     # If we do not reuse an existing grid, we need to provide
     # the grid configuration
-    GridConfiguration = fftjet_grid_256_72,
+    GridConfiguration = fftjet_grid_256_128,
     #
     # Maximum number of iterations allowed for the iterative jet
     # fitting. One-shot method is used if this number is 0 or 1.
@@ -68,7 +72,7 @@ fftjet_jet_maker = cms.EDProducer(
     # cutoff in order to declare that the jet reconstruction has
     # converged. The distance function is defined by the "jetDistanceCalc"
     # parameter. Used only if "maxIterations" is larger than 1.
-    convergenceDistance = cms.double(0.001),
+    convergenceDistance = cms.double(1.0e-6),
     #
     # Are we going to produce the set of constituents for each jet?
     # If we are not doing this, the code will run faster.
@@ -120,9 +124,10 @@ fftjet_jet_maker = cms.EDProducer(
     unlikelyBgWeight = cms.double(0.0),
     #
     # The data cutoff for the gridded algorithms. Set this cutoff
-    # to some negative number if you want to calculate jet areas.
-    # Set it to 0 or some positive number if you want to improve
-    # the code speed.
+    # to some negative number if you want to calculate jet areas
+    # (this can also be done by turning on pile-up calculation
+    # as a separate step.) Set it to 0 or some positive number
+    # if you want to improve the code speed.
     recombinationDataCutoff = cms.double(0.0),
     #
     # The built-in precluster selection for subsequent jet reconstruction
@@ -172,7 +177,7 @@ fftjet_jet_maker = cms.EDProducer(
     # The recombination scale function
     recoScaleCalcPeak = cms.PSet(
         Class = cms.string("ConstDouble"),
-        value = cms.double(0.5)
+        value = cms.double(fftjet_default_recombination_scale)
     ),
     #
     # The function which calculates eta-to-phi bandwidth ratio
@@ -192,6 +197,14 @@ fftjet_jet_maker = cms.EDProducer(
     #  recoScaleRatioCalcJet = ,
     #  memberFactorCalcJet = ,
     #  jetDistanceCalc = ,
+    #
+    recoScaleCalcJet = cms.PSet(
+        Class = cms.string("ConstDouble"),
+        value = cms.double(fftjet_default_recombination_scale)
+    ),
+    recoScaleRatioCalcJet = fftjet_peakfunctor_const_one,
+    memberFactorCalcJet = fftjet_peakfunctor_const_one,
+    jetDistanceCalc = fftjet_convergence_jet_distance,
     #
     # Are we going to estimate the pile-up using actual jet shapes?
     # Note that the following _must_ be defined if we want to do this:

@@ -47,7 +47,7 @@ fftjet_eflow_smoother = cms.EDProducer(
     etaDependentMagnutideFactors = cms.vdouble(),
     #
     # Configuration for the energy discretization grid
-    GridConfiguration = fftjet_grid_256_72,
+    GridConfiguration = fftjet_grid_256_128,
     #
     # The set of scales to use
     InitialScales = fftjet_patreco_scales_50,
