@@ -3,7 +3,7 @@
    Implementation of class EcalSeverityLevelAlgo
 
    \author Stefano Argiro
-   \version $Id: EcalSeverityLevelAlgo.cc,v 1.41 2011/05/11 14:38:31 argiro Exp $
+   \version $Id: EcalSeverityLevelAlgo.cc,v 1.42 2011/06/30 17:53:46 vlimant Exp $
    \date 10 Jan 2011
 */
 
@@ -22,29 +22,59 @@
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 
 EcalSeverityLevelAlgo::EcalSeverityLevelAlgo(const edm::ParameterSet& p){
-  flagMask_      = p.getParameter< std::vector<uint32_t> >("flagMask");
-  dbstatusMask_  = p.getParameter< std::vector<uint32_t> >("dbstatusMask");
+  
+  
   timeThresh_    = p.getParameter< double> ("timeThresh");
   chStatus_ =0;	    
 
-  if (p.exists("flagMaskPSet")){
-    const edm::ParameterSet & ps=p.getParameter< edm::ParameterSet >("flagMaskPSet");
-    std::vector<std::string> severities = ps.getParameterNames();
-    std::vector<std::string> flags;
-    std::cout<<" got "<<severities.size()<<" subnames"<<std::endl;
-    for (uint is=0;is!=severities.size();++is){
-      EcalSeverityLevel::SeverityLevel snum=(EcalSeverityLevel::SeverityLevel)StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severities[is]);
-      flags=ps.getParameter<std::vector<std::string> >(severities[is]);
-      uint32_t mask=0;
-      for (uint ifi=0;ifi!=flags.size();++ifi){
-	EcalRecHit::Flags f=(EcalRecHit::Flags)StringToEnumValue<EcalRecHit::Flags>(flags[ifi]);
-	//manipulate the mask
-	mask|=(0x1<<f);
-      }
-      std::cout<<flagMask_[snum]<<" "<<mask<<std::endl;
-      flagMask_[snum]=mask;
+  const edm::ParameterSet & ps=p.getParameter< edm::ParameterSet >("flagMask");
+  std::vector<std::string> severities = ps.getParameterNames();
+  std::vector<std::string> flags;
+ 
+  flagMask_.resize(severities.size());
+
+  // read configuration of severities
+
+  for (uint is=0;is!=severities.size();++is){
+
+    EcalSeverityLevel::SeverityLevel snum=
+      (EcalSeverityLevel::SeverityLevel) StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severities[is]);
+    flags=ps.getParameter<std::vector<std::string> >(severities[is]);
+    uint32_t mask=0;
+    for (uint ifi=0;ifi!=flags.size();++ifi){
+      EcalRecHit::Flags f=
+	(EcalRecHit::Flags)StringToEnumValue<EcalRecHit::Flags>(flags[ifi]);
+      //manipulate the mask
+      mask|=(0x1<<f);
     }
+    flagMask_[snum]=mask;
   }
+  // read configuration of dbstatus
+
+  const edm::ParameterSet & dbps=
+    p.getParameter< edm::ParameterSet >("dbstatusMask");
+  std::vector<std::string> dbseverities = dbps.getParameterNames();
+  std::vector<uint32_t>    dbflags;
+ 
+  dbstatusMask_.resize(dbseverities.size());
+
+  for (uint is=0;is!=dbseverities.size();++is){
+
+    EcalSeverityLevel::SeverityLevel snum=
+      (EcalSeverityLevel::SeverityLevel) StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severities[is]);
+    
+    dbflags=dbps.getParameter<std::vector<uint32_t> >(severities[is]);
+    uint32_t mask=0;
+    for (uint ifi=0;ifi!=dbflags.size();++ifi){
+      int f= dbflags[ifi];
+      
+      //manipulate the mask
+      mask|=(0x1<<f);
+    }
+    dbstatusMask_[snum]=mask;
+  }
+
+  
 
 }
 

@@ -27,33 +27,52 @@ public:
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testEcalSeverityLevelAlgo);
 
+using std::string;
+
 void testEcalSeverityLevelAlgo::setUp(){
 
   edm::ParameterSet ps;
-  std::vector<uint32_t> fMask;
+ 
 
-
-  fMask.push_back(0x0001); // good->good
-  fMask.push_back(0x0072); // poorreco,poorcalib,noisy,saturated->problematic
-  fMask.push_back(0x0380); // LERecovered,TowRecovered,NeighRecovrd->recovered
-  fMask.push_back(0x0004); // outoftime->time 
-  fMask.push_back(0xC000); // weird,diweird->weird
-  fMask.push_back(0x0C08); // faultyhw,dead,killed,->bad
-
-
-  std::vector<uint32_t> dbMask;
-  dbMask.push_back(0x0001);// good-> good;
-  dbMask.push_back(0x07FE);// status 1..10 -> problematic
-  dbMask.push_back(0x0000);// nothing->recovered
-  dbMask.push_back(0x0000);// nothing->time
-  dbMask.push_back(0x0000);// nothing->weird
-  dbMask.push_back(0xFC00);// status 11..16 ->bad
-
-
-  ps.addParameter< std::vector<uint32_t> > ("flagMask",fMask);
-  ps.addParameter< std::vector<uint32_t> > ("dbstatusMask",dbMask);
   ps.addParameter< double> ("timeThresh",2.0);
   
+  edm::ParameterSet flagmaskps;
+  std::vector<std::string> kGoodv,kProblematicv,kRecoveredv,
+                           kTimev,kWeirdv,kBadv; 
+  kGoodv.push_back("kGood");
+  kProblematicv.push_back("kPoorReco");
+  kProblematicv.push_back("kPoorCalib");
+  kProblematicv.push_back("kNoisy");
+  kProblematicv.push_back("kSaturated");
+  kRecoveredv.push_back("kLeadingEdgeRecovered");
+  kRecoveredv.push_back("kTowerRecovered");
+  kTimev.push_back("kOutOfTime");
+  kWeirdv.push_back("kWeird");
+  kWeirdv.push_back("kDiWeird");
+  kBadv.push_back("kFaultyHardware");
+  kBadv.push_back("kDead");
+  kBadv.push_back("kKilled");
+
+  flagmaskps.addParameter<std::vector<string> > ("kGood",kGoodv);
+  flagmaskps.addParameter<std::vector<string> > ("kProblematic",kProblematicv);
+  flagmaskps.addParameter<std::vector<string> > ("kRecovered",kRecoveredv);
+  flagmaskps.addParameter<std::vector<string> > ("kTime",kTimev);
+  flagmaskps.addParameter<std::vector<string> > ("kWeird",kWeirdv);
+  flagmaskps.addParameter<std::vector<string> > ("kBad",kBadv);
+
+  ps.addParameter<edm::ParameterSet>("flagMask",flagmaskps);
+
+  edm::ParameterSet dbmaskps;
+  std::vector<uint32_t> kGoods,kProblematics,kRecovereds,
+                           kTimes,kWeirds,kBads;
+
+  kGoods.push_back(0);
+  for (int i =1;  i<=10; ++i) kProblematics.push_back(i);
+  for (int i =11; i<=16; ++i) kBads.push_back(i);
+  
+  ps.addParameter<edm::ParameterSet>("dbstatusMask",dbmaskps);
+
+
   algo_=new EcalSeverityLevelAlgo(ps);
 }
 void testEcalSeverityLevelAlgo::testSeverity(){

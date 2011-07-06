@@ -27,8 +27,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
-    '/store/data/Run2010B/Photon/RAW/v1/000/149/461/20267BC1-5BE5-DF11-A701-0030487CD17C.root',
-    '/store/data/Run2010B/Photon/RAW/v1/000/149/459/F62F5CAD-09E5-DF11-A3FD-0030487CD76A.root'
+    'file:/build/argiro/Run2010B_EGMonitor_RAW_v1_000_149_509_a.root'
     )
 )
 
@@ -38,7 +37,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.285 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('reco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -58,7 +57,7 @@ process.RECOoutput = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 
 # Other statements
-process.GlobalTag.globaltag = 'START311_V1::All'
+process.GlobalTag.globaltag = 'GR_R_43_V2::All'
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
