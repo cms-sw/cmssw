@@ -597,14 +597,14 @@ void FFTJetProducer::writeJets(edm::Event& iEvent,
             for (unsigned i=0; i<nCon; ++i)
                 sum += cn[i]->p4();
             jet4vec = sum;
+            setJetStatusBit(&myjet, CONSTITUENTS_RESUMMED, true);
         }
 
         // Subtract the pile-up
-        if (calculatePileup)
+        if (calculatePileup && subtractPileup)
         {
-            if (subtractPileup)
-                jet4vec -= pileup[ijet];
-            myjet.setPileup(pileup[ijet].Pt());
+            jet4vec -= pileup[ijet];
+            setJetStatusBit(&myjet, PILEUP_SUBTRACTED, true);
         }
 
         // Write the specifics to the jet (simultaneously sets 4-vector,
@@ -617,11 +617,15 @@ void FFTJetProducer::writeJets(edm::Event& iEvent,
         // calcuate the jet area
         double ncells = myjet.ncells();
         if (calculatePileup)
+        {
             ncells = cellCountsVec[ijet];
+            setJetStatusBit(&myjet, PILEUP_CALCULATED, true);
+        }
         jet.setJetArea(cellArea*ncells);
 
         // add jet to the list
         FFTJet<float> fj(jetToStorable<float>(myjet));
+        fj.setFourVec(jet4vec);
         if (calculatePileup)
         {
             fj.setPileup(pileup[ijet]);

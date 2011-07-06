@@ -21,7 +21,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Sun Jun 20 14:32:36 CDT 2010
-// $Id: FFTJetProducer.h,v 1.2 2010/12/07 00:19:43 igv Exp $
+// $Id: FFTJetProducer.h,v 1.5 2011/06/29 02:45:33 igv Exp $
 //
 //
 
@@ -61,6 +61,15 @@ class FFTJetProducer : public edm::EDProducer,
 public:
     typedef fftjet::RecombinedJet<fftjetcms::VectorLike> RecoFFTJet;
     typedef fftjet::SparseClusteringTree<fftjet::Peak,long> SparseTree;
+
+    // Masks for the status bits
+    enum StatusBits
+    {
+        RESOLUTION = 0xff,
+        CONSTITUENTS_RESUMMED = 0x100,
+        PILEUP_CALCULATED = 0x200,
+        PILEUP_SUBTRACTED = 0x400
+    };
 
     enum Resolution
     {
