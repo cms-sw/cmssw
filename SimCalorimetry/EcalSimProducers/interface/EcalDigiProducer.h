@@ -12,6 +12,7 @@
 #include "DataFormats/Math/interface/Error.h"
 #include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalCorrelatedNoiseMatrix.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSim.h"
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalTDigitizer.h"
@@ -20,22 +21,24 @@
 
 typedef EcalTDigitizer<EBDigitizerTraits> EBDigitizer  ;
 typedef EcalTDigitizer<EEDigitizerTraits> EEDigitizer  ;
-typedef CaloTDigitizer<ESDigitizerTraits> ESDigitizer  ;
+typedef CaloTDigitizer<ESOldDigitizerTraits> ESOldDigitizer  ;
 
+class ESDigitizer ;
 
 class APDSimParameters ;
-class CaloHitRespoNew ;
-class ESHitResponse ;
 class EBHitResponse ;
+class EEHitResponse ;
+class ESHitResponse ;
+class CaloHitResponse ;
 class EcalSimParameterMap ;
 class EcalCoder ;
 class EcalElectronicsSim ;
 class ESElectronicsSim ;
 class ESElectronicsSimFast ;
-class ESFastTDigitizer ;
 class CaloGeometry ;
 class EBDigiCollection ;
 class EEDigiCollection ;
+class ESDigiCollection ;
 
 class EcalDigiProducer : public edm::EDProducer
 {
@@ -60,8 +63,6 @@ class EcalDigiProducer : public edm::EDProducer
 
       void checkCalibrations(const edm::EventSetup& eventSetup) ;
 
-
-
       const APDShape m_APDShape ;
       const EBShape  m_EBShape  ;
       const EEShape  m_EEShape  ;
@@ -82,19 +83,20 @@ class EcalDigiProducer : public edm::EDProducer
       const std::string          m_apdDigiTag    ;
       const APDSimParameters*    m_apdParameters ;
 
-      EBHitResponse*   m_APDResponse ;
-      EBHitResponse*   m_EBResponse ;
-      CaloHitRespoNew* m_EEResponse ;
-      ESHitResponse*   m_ESResponse ;
+      EBHitResponse* m_APDResponse ;
+      EBHitResponse* m_EBResponse ;
+      EEHitResponse* m_EEResponse ;
+      ESHitResponse* m_ESResponse ;
+      CaloHitResponse* m_ESOldResponse ;
 
       const bool m_addESNoise ;
 
       const bool m_doFastES   ;
 
       ESElectronicsSim*     m_ESElectronicsSim     ;
-      ESDigitizer*          m_ESDigitizer          ;
+      ESOldDigitizer*       m_ESOldDigitizer       ;
       ESElectronicsSimFast* m_ESElectronicsSimFast ;
-      ESFastTDigitizer*     m_ESDigitizerFast      ;
+      ESDigitizer*          m_ESDigitizer          ;
 
       EBDigitizer*          m_APDDigitizer ;
       EBDigitizer*          m_BarrelDigitizer ;

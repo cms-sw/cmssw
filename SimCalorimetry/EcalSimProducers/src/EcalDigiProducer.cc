@@ -1,6 +1,8 @@
 #include "SimCalorimetry/EcalSimProducers/interface/EcalDigiProducer.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/ESHitResponse.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBHitResponse.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EEHitResponse.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/ESHitResponse.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/APDSimParameters.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
@@ -8,7 +10,8 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalElectronicsSim.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSimFast.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSim.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/ESFastTDigitizer.h"
+//#include "SimCalorimetry/EcalSimAlgos/interface/ESFastTDigitizer.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/ESDigitizer.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -90,8 +93,10 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params ) :
 				     m_apdParameters ,
 				     &m_APDShape       ) ) ,
 
-   m_EEResponse ( new CaloHitRespoNew( m_ParameterMap, &m_EEShape, EcalEndcapGeometry::detIdFromLocalAlignmentIndex(0) ) ) ,
-   m_ESResponse ( new ESHitResponse( m_ParameterMap, &m_ESShape ) ) ,//, EcalPreshowerGeometry::detIdFromLocalAlignmentIndex(0) ) ) ,
+   m_EEResponse ( new EEHitResponse( m_ParameterMap,
+				     &m_EEShape       ) ) ,
+   m_ESResponse ( new ESHitResponse( m_ParameterMap, &m_ESShape ) ) ,
+   m_ESOldResponse ( new CaloHitResponse( m_ParameterMap, &m_ESShape ) ) ,
 
    m_addESNoise           ( params.getParameter<bool> ("doESNoise") ) ,
    m_doFastES             ( params.getParameter<bool> ("doFast"   ) ) ,
@@ -99,18 +104,18 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params ) :
    m_ESElectronicsSim     ( m_doFastES ? 0 :
 			    new ESElectronicsSim( m_addESNoise ) ) ,
 	 
-   m_ESDigitizer          ( m_doFastES ? 0 :
-			    new ESDigitizer( m_ESResponse       , 
-					     m_ESElectronicsSim ,
-					     m_addESNoise         ) ) ,
+   m_ESOldDigitizer       ( m_doFastES ? 0 :
+			    new ESOldDigitizer( m_ESOldResponse    , 
+						m_ESElectronicsSim ,
+						m_addESNoise         ) ) ,
    
    m_ESElectronicsSimFast ( !m_doFastES ? 0 :
 			    new ESElectronicsSimFast( m_addESNoise ) ) ,
 
-   m_ESDigitizerFast      ( !m_doFastES ? 0 :
-			    new ESFastTDigitizer( m_ESResponse           ,
-						  m_ESElectronicsSimFast ,
-						  m_addESNoise            ) ) ,
+   m_ESDigitizer          ( !m_doFastES ? 0 :
+			    new ESDigitizer( m_ESResponse           ,
+					     m_ESElectronicsSimFast ,
+					     m_addESNoise            ) ) ,
 
    m_APDDigitizer      ( 0 ) ,
    m_BarrelDigitizer   ( 0 ) ,
@@ -254,11 +259,12 @@ EcalDigiProducer::~EcalDigiProducer()
    delete m_EBCorrNoise[2]       ; 
    delete m_EECorrNoise[2]       ; 
 
-   delete m_ESDigitizerFast      ;
-   delete m_ESElectronicsSimFast ;
    delete m_ESDigitizer          ;
+   delete m_ESElectronicsSimFast ;
+   delete m_ESOldDigitizer       ;
    delete m_ESElectronicsSim     ;
 
+   delete m_ESOldResponse        ; 
    delete m_ESResponse           ; 
    delete m_EEResponse           ; 
    delete m_EBResponse           ; 
@@ -374,12 +380,13 @@ EcalDigiProducer::produce( edm::Event&            event      ,
       std::auto_ptr<MixCollection<PCaloHit> >  preshowerHits( ESHits ) ;
       if (!m_doFastES) 
       {
-	 m_ESDigitizer->run( *preshowerHits   , 
-			     *preshowerResult   ) ; 
+	 m_ESOldDigitizer->run( *preshowerHits   , 
+				*preshowerResult   ) ; 
       }
       else
       {
-	 m_ESDigitizerFast->run(*preshowerHits, *preshowerResult); 
+	 m_ESDigitizer->run( *preshowerHits,
+			     *preshowerResult ) ; 
       }
       edm::LogInfo("EcalDigi") << "ES Digis: " << preshowerResult->size();
    }
@@ -464,8 +471,8 @@ EcalDigiProducer::checkCalibrations( const edm::EventSetup& eventSetup )
    if( 0 != m_APDCoder ) m_APDCoder->setFullScaleEnergy( EBscale ,
 							 EEscale   ) ;
 
-   if( 0 != m_ESDigitizer     ||
-       0 != m_ESDigitizerFast    )
+   if( 0 != m_ESOldDigitizer ||
+       0 != m_ESDigitizer       )
    {
       // ES condition objects
       edm::ESHandle<ESGain>                hesgain      ;
@@ -498,7 +505,7 @@ EcalDigiProducer::checkCalibrations( const edm::EventSetup& eventSetup )
       }
       else
       {
-	 m_ESDigitizerFast->setGain(           ESGain     ) ;
+	 m_ESDigitizer->setGain(               ESGain     ) ;
 	 m_ESElectronicsSimFast->setPedestals( espeds     ) ;
 	 m_ESElectronicsSimFast->setMIPs(      esmips     ) ;
 	 m_ESElectronicsSimFast->setMIPToGeV(  ESMIPToGeV ) ;
@@ -531,8 +538,9 @@ EcalDigiProducer::updateGeometry()
       m_Geometry->getSubdetectorGeometry( DetId::Ecal, EcalBarrel    ) ) ;
    m_EEResponse->setGeometry(
       m_Geometry->getSubdetectorGeometry( DetId::Ecal, EcalEndcap    ) ) ;
-   if( 0 != m_ESResponse ) m_ESResponse->setGeometry( m_Geometry ) ;
-
+   m_ESResponse->setGeometry(
+      m_Geometry->getSubdetectorGeometry( DetId::Ecal, EcalPreshower    ) ) ;
+   m_ESOldResponse->setGeometry( m_Geometry ) ;
 
    const std::vector<DetId>* theESDets ( 
       0 != m_Geometry->getSubdetectorGeometry(DetId::Ecal, EcalPreshower) ?
@@ -540,13 +548,14 @@ EcalDigiProducer::updateGeometry()
 
    if( !m_doFastES ) 
    {
-      if( 0 != m_ESDigitizer && 0 != theESDets )
-	 m_ESDigitizer->setDetIds( *theESDets ) ;
+      if( 0 != m_ESOldDigitizer &&
+	  0 != theESDets             )
+	 m_ESOldDigitizer->setDetIds( *theESDets ) ;
    }
    else
    {
-//      std::cout<<"*******about to set fast detids***, address="<<theESDets<<std::endl ;
-      if( 0 != m_ESDigitizerFast && 0 != theESDets)
-	 m_ESDigitizerFast->setDetIds( *theESDets ) ; 
+      if( 0 != m_ESDigitizer &&
+	  0 != theESDets         )
+	 m_ESDigitizer->setDetIds( *theESDets ) ; 
    }
 }
