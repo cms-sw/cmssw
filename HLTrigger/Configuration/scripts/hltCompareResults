@@ -29,7 +29,7 @@ for TRIGGER in $TRIGGERS; do
   RESULT=$(cat "hlt.log"      | awk "/TrigReport ---------- Modules in Path: $TRIGGER ------------/"'{ while ($1 == "TrigReport") { print; getline; } }' | sed -e's|TrigReport     1 ....|TrigReport     1 xxxx|')
   SINGLE=$(cat "$TRIGGER.log" | awk "/TrigReport ---------- Modules in Path: $TRIGGER ------------/"'{ while ($1 == "TrigReport") { print; getline; } }' | sed -e's|TrigReport     1 ....|TrigReport     1 xxxx|')
   if [ "$RESULT" != "$SINGLE" ]; then
-    err "ERROR: Inconsitencies found comparing the result of the trigger $TRIGGER run as part of the whole menu, or standalone.\nPlease compare the contents of 'hlt.log' and '$TRIGGER.log' for details."
+    err "ERROR: Inconsistencies found comparing the result of the trigger $TRIGGER run as part of the whole menu, or standalone.\nPlease compare the contents of 'hlt.log' and '$TRIGGER.log' for details."
     STATUS=1
   fi
   read VISIT PASS LAST <<< $(echo "$RESULT" | tail -n1 | awk '{ print $4, $5, $8; }')
