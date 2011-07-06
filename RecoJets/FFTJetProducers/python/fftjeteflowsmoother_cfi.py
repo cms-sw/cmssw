@@ -46,8 +46,13 @@ fftjet_eflow_smoother = cms.EDProducer(
     # factors above).
     etaDependentMagnutideFactors = cms.vdouble(),
     #
-    # Configuration for the energy discretization grid
+    # Configuration for the energy discretization grid. Don't forget
+    # to modify "etConversionFactor" appropriately if you change this.
     GridConfiguration = fftjet_grid_256_128,
+    #
+    # Conversion factor to get from the grid values to Et.
+    # This is number of bins in phi divided by bin width in eta.
+    etConversionFactor = cms.double(128.0/(4.0*math.pi/256.0)),
     #
     # The set of scales to use
     InitialScales = fftjet_patreco_scales_50,
@@ -62,9 +67,5 @@ fftjet_eflow_smoother = cms.EDProducer(
     completeEventScale = cms.double(fftjet_complete_event_scale),
     #
     # The power of the scale multiplied by the smoothed Et
-    scalePower = cms.double(2.0),
-    #
-    # Conversion factor to get from the grid values to Et.
-    # This is number of bins in phi divided by bin width in eta.
-    etConversionFactor = cms.double(128.0/(4.0*math.pi/256.0))
+    scalePower = cms.double(2.0)
 )
