@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.18 2011/05/16 19:18:20 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.19 2011/07/06 18:17:43 chrjones Exp $
 //
 
 // system include files
@@ -541,11 +541,13 @@ DQMRootSource::endLuminosityBlock(edm::LuminosityBlock& iLumi) {
 void 
 DQMRootSource::endRun(edm::Run& iRun){
   //std::cout <<"DQMRootSource::endRun"<<std::endl;
-  RunLumiToRange runLumiRange = m_runlumiToRange[*m_presentIndexItr];
-  //NOTE: it is possible to have an endRun when all we have stored is lumis
-  if(runLumiRange.m_lumi == 0 && 
-     runLumiRange.m_run == iRun.id().run()) {
-    readElements();
+  if(m_presentIndexItr != m_orderedIndices.end()) {
+    RunLumiToRange runLumiRange = m_runlumiToRange[*m_presentIndexItr];
+    //NOTE: it is possible to have an endRun when all we have stored is lumis
+    if(runLumiRange.m_lumi == 0 && 
+       runLumiRange.m_run == iRun.id().run()) {
+      readElements();
+    }
   }
   //NOTE: the framework will call endRun before closeFile in the case
   // where the frameworks is terminating
