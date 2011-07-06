@@ -57,6 +57,7 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 	muonl2pterr = new float[kMaxMuonL2];
 	muonl2iso = new int[kMaxMuonL2];
         muonl2nhits = new int[kMaxMuonL2]; 
+        muonl2nstat = new int[kMaxMuonL2]; 
  	muonl21idx = new int[kMaxMuonL2];
 	const int kMaxMuonL3 = 500;
 	muonl3pt = new float[kMaxMuonL3];
@@ -146,6 +147,7 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 	HltTree->Branch("ohMuL2Dz",muonl2dz,"ohMuL2Dz[NohMuL2]/F");
 	HltTree->Branch("ohMuL2VtxZ",muonl2vtxz,"ohMuL2VtxZ[NohMuL2]/F");
         HltTree->Branch("ohMuL2Nhits",muonl2nhits,"ohMuL2Nhits[NohMuL2]/I");   
+        HltTree->Branch("ohMuL2Nstat",muonl2nstat,"ohMuL2Nstat[NohMuL2]/I");   
 	HltTree->Branch("ohMuL2L1idx",muonl21idx,"ohMuL2L1idx[NohMuL2]/I");   
 	HltTree->Branch("NohMuL3",&nmu3cand,"NohMuL3/I");
 	HltTree->Branch("ohMuL3Pt",muonl3pt,"ohMuL3Pt[NohMuL3]/F");
@@ -309,6 +311,7 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
 			muonl2dz[imu2c] = tk->dz(BSPosition);
 			muonl2vtxz[imu2c] = tk->dz();
                         muonl2nhits[imu2c] = tk->numberOfValidHits(); 
+			muonl2nstat[imu2c] = tk->hitPattern().muonStationsWithAnyHits();
 
 			// At present we do not cut on this, but on a 90% CL value "ptLx" defined here below
 			// We should change this in the future and cut directly on "pt", to avoid unnecessary complications and risks
