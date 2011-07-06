@@ -27,8 +27,11 @@ protected:
   static int         minimizerStrategy_;
   static std::string minos_;
 
-  static std::string plot_, signalPdfNames_, backgroundPdfNames_;
   static float preFitValue_;
+
+  static std::string out_; 
+  static bool        makePlots_;
+  static std::string signalPdfNames_, backgroundPdfNames_;
 };
 
 
