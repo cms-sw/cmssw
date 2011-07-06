@@ -82,6 +82,7 @@ namespace reco {
         inline void setFourVec(const math::XYZTLorentzVector& p) {vec_ = p;}
         inline void setCode(const int c) {code_ = c;}
         inline void setStatus(const int c) {status_ = c;}
+        inline void setNCells(const double nc) {ncells_ = nc;}
 
     private:
         PattRecoPeak<Real> peak_;
