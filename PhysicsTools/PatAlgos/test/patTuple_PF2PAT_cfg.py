@@ -9,7 +9,6 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 #)
 
 
-# process.load("CommonTools.ParticleFlow.Sources.source_ZtoMus_DBS_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False))
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
@@ -20,15 +19,14 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 
 # Configure PAT to use PF2PAT instead of AOD sources
-# this function will modify the PAT sequences. It is currently 
-# not possible to run PF2PAT+PAT and standart PAT at the same time
+# this function will modify the PAT sequences. 
 from PhysicsTools.PatAlgos.tools.pfTools import *
 
 postfix = "PFlow"
 jetAlgo="AK5"
 usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix) 
-# to run second PF2PAT+PAT with differnt postfix uncomment the following lines
-# and add it to path
+# to run second PF2PAT+PAT with different postfix uncomment the following lines
+# and add the corresponding sequence to the path
 #postfix2 = "PFlow2"
 #jetAlgo2="AK7"
 #usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo2, runOnMC=True, postfix=postfix2) 
@@ -78,7 +76,6 @@ getattr(process,"pfNoMuon"+postfix).verbose = False
 #    '/store/relval/CMSSW_3_5_0_pre1/RelValTTbar/GEN-SIM-RECO/STARTUP3X_V14-v1/0006/14920B0A-0DE8-DE11-B138-002618943926.root'
 #   ]                                     ##  (e.g. 'file:AOD.root')
 #                                         ##
-#   process.maxEvents.input = ...         ##  (e.g. -1 to run on all events)
 #                                         ##
 #   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
 #                                         ##
