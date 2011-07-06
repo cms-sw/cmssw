@@ -66,5 +66,5 @@ fftjet_eflow_smoother = cms.EDProducer(
     #
     # Conversion factor to get from the grid values to Et.
     # This is number of bins in phi divided by bin width in eta.
-    etConversionFactor = cms.double(72.0/0.087)
+    etConversionFactor = cms.double(128.0/(4.0*math.pi/256.0))
 )
