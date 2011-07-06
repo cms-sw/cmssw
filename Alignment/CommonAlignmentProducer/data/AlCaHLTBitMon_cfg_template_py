@@ -69,5 +69,6 @@ process.EDMtoMEConverter.convertOnEndLumi = True
 process.EDMtoMEConverter.convertOnEndRun = True
 
 process.p2 = cms.Path(
+    process.hltMonBits*
     process.dqmSaver
 )
