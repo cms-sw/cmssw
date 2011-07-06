@@ -113,6 +113,8 @@ oparser.add_option("-g","--generate_new",dest="generate", action="store_true",de
 (options,args)=oparser.parse_args()
 
 import ROOT
+#Keep ROOT from trying to use X11
+ROOT.gROOT.SetBatch(True)
 if options.library is None:
     if 0 != ROOT.gSystem.Load("libFWCoreFWLite"):
         raise RuntimeError("failed to load libFWCoreFWLite")
