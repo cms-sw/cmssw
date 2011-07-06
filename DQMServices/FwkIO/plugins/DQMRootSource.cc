@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.17 2011/05/16 19:10:53 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.18 2011/05/16 19:18:20 chrjones Exp $
 //
 
 // system include files
@@ -355,7 +355,10 @@ class DQMRootSource : public edm::InputSource
 void 
 DQMRootSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<std::vector<std::string> >("fileNames");
+  desc.addUntracked<std::vector<std::string> >("fileNames")
+    ->setComment("Names of files to be processed.");
+  desc.addUntracked<std::string>("overrideCatalog",std::string())
+    ->setComment("An alternate file catalog to use instead of the standard site one.");
   descriptions.addDefault(desc);
 }
 //
@@ -364,7 +367,7 @@ DQMRootSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSourceDescription& iDesc):
 edm::InputSource(iPSet,iDesc),
 m_catalog(iPSet.getUntrackedParameter<std::vector<std::string> >("fileNames"), 
-          iPSet.getUntrackedParameter<std::string>("overrideCatalog", std::string())),
+          iPSet.getUntrackedParameter<std::string>("overrideCatalog")),
 m_nextItemType(edm::InputSource::IsFile),
 m_fileIndex(0),
 m_trees(kNIndicies,static_cast<TTree*>(0)),
