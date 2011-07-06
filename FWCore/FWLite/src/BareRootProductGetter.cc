@@ -125,7 +125,7 @@ BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
     //ROOT WORKAROUND: Create new objects so any internal data cache will get cleared
     void* address = buffer->class_->New();
 
-    edm::WrapperHolder prod = edm::WrapperHolder(address, interface, edm::WrapperHolder::Owned);
+    edm::WrapperHolder prod = edm::WrapperHolder(address, interface);
     if(!prod.isValid()) {
       cms::Exception("FailedConversion")
       << "failed to convert a '" << buffer->class_->GetName()
@@ -195,7 +195,7 @@ BareRootProductGetter::createNewBuffer(edm::ProductID const& iID) const {
 
   //static TClass* edproductTClass = TClass::GetClass(typeid(edm::WrapperHolder));
   //edm::WrapperHolder* prod = reinterpret_cast<edm::WrapperHolder*>(rootClassType->DynamicCast(edproductTClass, address, true));
-  edm::WrapperHolder prod = edm::WrapperHolder(address, bdesc.getInterface(), edm::WrapperHolder::NotOwned);
+  edm::WrapperHolder prod = edm::WrapperHolder(address, bdesc.getInterface());
   if(!prod.isValid()) {
      cms::Exception("FailedConversion")
         << "failed to convert a '" << fullName

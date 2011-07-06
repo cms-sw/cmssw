@@ -149,7 +149,7 @@ testPtrVector::get() {
 
   edm::Wrapper<IntCollection> wrapper(ptr);
   TestGetter tester;
-  tester.hold_ = edm::WrapperHolder(&wrapper, wrapper.getInterface(), edm::WrapperHolder::NotOwned);
+  tester.hold_ = edm::WrapperHolder(&wrapper, wrapper.getInterface());
 
   edm::ProductID const pid(1, 1);
 

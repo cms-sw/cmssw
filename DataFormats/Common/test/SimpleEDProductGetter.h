@@ -19,7 +19,7 @@ public:
   template<typename T>
   void
   addProduct(edm::ProductID const& id, std::auto_ptr<T> p) {
-    database[id] = edm::WrapperHolder(new edm::Wrapper<T>(p), edm::Wrapper<T>::getInterface(), edm::WrapperHolder::Owned);
+    database[id] = edm::WrapperHolder(new edm::Wrapper<T>(p), edm::Wrapper<T>::getInterface());
   }
 
   size_t size() const {

@@ -343,7 +343,7 @@ namespace fwlite {
             }
         }
 
-        holder = edm::WrapperHolder(theData.obj_.Address(), theData.interface_, edm::WrapperHolder::NotOwned);
+        holder = edm::WrapperHolder(theData.obj_.Address(), theData.interface_);
         return holder.isValid();
     }
 
@@ -403,7 +403,7 @@ namespace fwlite {
             }
         }
         //return itFound->second->pProd_;
-        return edm::WrapperHolder(itFound->second->pProd_, itFound->second->interface_, edm::WrapperHolder::NotOwned);
+        return edm::WrapperHolder(itFound->second->pProd_, itFound->second->interface_);
     }
 
     const edm::ProcessHistory& DataGetterHelper::history() const {

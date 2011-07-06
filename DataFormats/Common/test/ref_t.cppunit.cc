@@ -180,7 +180,7 @@ void testRef::getTest() {
 
    edm::Wrapper<IntCollection> wrapper(ptr);
    TestGetter tester;
-   tester.hold_ = WrapperHolder(&wrapper, wrapper.getInterface(), WrapperHolder::NotOwned);
+   tester.hold_ = WrapperHolder(&wrapper, wrapper.getInterface());
 
    ProductID const pid(1, 1);
 

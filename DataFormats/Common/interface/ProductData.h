@@ -13,7 +13,7 @@ is the storage unit of such information.
 
 namespace edm {
   class ConstBranchDescription;
-  class WrapperHolder;
+  class WrapperOwningHolder;
   struct ProductData {
     ProductData();
 

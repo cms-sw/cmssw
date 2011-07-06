@@ -8,18 +8,12 @@
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Provenance/interface/WrapperInterfaceBase.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <typeinfo>
 #include <vector>
 
 namespace edm {
   class WrapperHolder {
   public:
-    enum Ownership {
-      Owned,
-      NotOwned
-    };
     struct EDProductDeleter {
       explicit EDProductDeleter(WrapperInterfaceBase const* interface);
       void operator()(void const* wrapper) const;
@@ -28,14 +22,10 @@ namespace edm {
 
     WrapperHolder();
 
-    WrapperHolder(void const* wrapper, WrapperInterfaceBase const* interface, Ownership ownershipPolicy);
-
-    WrapperHolder(boost::shared_ptr<void const> wrapper, WrapperInterfaceBase const* interface);
-
-    boost::shared_ptr<void const> makeWrapper(void const* wrapper, WrapperInterfaceBase const* interface, Ownership ownershipPolicy);
+    WrapperHolder(void const* wrapper, WrapperInterfaceBase const* interface);
 
     bool isValid() const {
-      return wrapper() && interface_ != 0;
+      return wrapper_ != 0 && interface_ != 0;
     }
 
     void fillView(ProductID const& id,
@@ -84,10 +74,6 @@ namespace edm {
     }
 
     void const* wrapper() const {
-      return wrapper_.get();
-    }
-
-    boost::shared_ptr<void const> product() const {
       return wrapper_;
     }
 
@@ -97,11 +83,11 @@ namespace edm {
 
     void reset() {
       interface_ = 0;
-      wrapper_.reset();
+      wrapper_ = 0;
     }
 
   private:  
-    boost::shared_ptr<void const> wrapper_;
+    void const* wrapper_;
     WrapperInterfaceBase const* interface_;
   };
 
