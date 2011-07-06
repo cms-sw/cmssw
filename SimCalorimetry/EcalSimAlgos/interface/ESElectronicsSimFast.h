@@ -34,6 +34,8 @@ class ESElectronicsSimFast
 			    ESDataFrame& df ,
 			    bool         isNoise = false ) const ;
 
+      void newEvent() {}
+
    private :
 
       bool m_addNoise ;

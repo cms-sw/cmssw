@@ -1,4 +1,4 @@
-#include "SimCalorimetry/EcalSimAlgos/interface/ESFastTDigitizer.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/ESDigitizer.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSimFast.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/ESHitResponse.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
@@ -12,13 +12,11 @@
 #include <gsl/gsl_sf_erf.h>
 #include <gsl/gsl_sf_result.h>
 
-ESFastTDigitizer::ESFastTDigitizer( ESHitResponse*        hitResponse    , 
-				    ESElectronicsSimFast* electronicsSim ,
-				    bool                  addNoise         ) :
-   m_hitResponse ( hitResponse    ) ,
-   m_elecSim     ( electronicsSim ) ,
+ESDigitizer::ESDigitizer( EcalHitResponse*      hitResponse    , 
+			  ESElectronicsSimFast* electronicsSim ,
+			  bool                  addNoise         ) :
+   EcalTDigitizer< ESDigitizerTraits >( hitResponse, electronicsSim, addNoise ) ,
    m_detIds      ( 0              ) ,
-   m_addNoise    ( addNoise       ) ,
    m_engine      ( 0              ) ,
    m_ranGeneral  ( 0              ) ,
    m_ranPois     ( 0              ) ,
@@ -30,23 +28,20 @@ ESFastTDigitizer::ESFastTDigitizer( ESHitResponse*        hitResponse    ,
    m_meanNoisy   ( 0              ) ,
    m_trip        (                )
 {
-   assert( 0 != m_hitResponse ) ; // sanity check
-   assert( 0 != m_elecSim     ) ; // sanity check
-
    m_trip.reserve( 2500 ) ; 
 
    edm::Service<edm::RandomNumberGenerator> rng ;
    if( !rng.isAvailable() )
    {
       throw cms::Exception( "Configuration" )
-	 << "ESFastTDigitizer requires the RandomNumberGeneratorService\n"
+	 << "ESDigitizer requires the RandomNumberGeneratorService\n"
 	 "which is not present in the configuration file.  You must add the service\n"
 	 "in the configuration file or remove the modules that require it.";
    }
    m_engine = &rng->getEngine() ;
 }
 
-ESFastTDigitizer::~ESFastTDigitizer() 
+ESDigitizer::~ESDigitizer() 
 {
    delete m_ranGeneral ;
    delete m_ranPois    ;
@@ -55,7 +50,7 @@ ESFastTDigitizer::~ESFastTDigitizer()
 
 /// tell the digitizer which cells exist; cannot change during a run
 void 
-ESFastTDigitizer::setDetIds( const std::vector<DetId>& detIds )
+ESDigitizer::setDetIds( const std::vector<DetId>& detIds )
 {
    assert( 0       == m_detIds ||
 	   &detIds == m_detIds    ) ; // sanity check; don't allow to change midstream
@@ -63,7 +58,7 @@ ESFastTDigitizer::setDetIds( const std::vector<DetId>& detIds )
 }
 
 void 
-ESFastTDigitizer::setGain( const int gain ) 
+ESDigitizer::setGain( const int gain ) 
 {
    if( 0 != m_ESGain )
    {
@@ -76,10 +71,10 @@ ESFastTDigitizer::setGain( const int gain )
 
       assert( 1 == gain ||
 	      2 == gain    ) ; // legal values
-
+      
       m_ESGain = gain ;
-
-      if( m_addNoise ) 
+      
+      if( addNoise() ) 
       {
 	 assert( 0 != m_engine ) ; // sanity check
 
@@ -99,7 +94,7 @@ ESFastTDigitizer::setGain( const int gain )
 
 	 gsl_sf_result result ;
 	 int status  = gsl_sf_erf_Q_e( zsThresh, &result ) ;
-	 if( status != 0 ) std::cerr << "ESFastTDigitizer::could not compute gaussian tail probability for the threshold chosen" << std::endl ;
+	 if( status != 0 ) std::cerr << "ESDigitizer::could not compute gaussian tail probability for the threshold chosen" << std::endl ;
 
 	 const double probabilityLeft ( result.val ) ;
 	 m_meanNoisy = probabilityLeft * m_detIds->size() ;
@@ -136,7 +131,7 @@ ESFastTDigitizer::setGain( const int gain )
 	    double t_histoSup ( 0 ) ;
 
 	    std::vector<double> t_refHistos ;
-	    t_refHistos.reserve(2500) ;
+	    t_refHistos.reserve( 2500 ) ;
 
 	    int thisBin = -2 ;
 	    while( !( histofile.eof() ) )
@@ -191,33 +186,33 @@ ESFastTDigitizer::setGain( const int gain )
 
 /// turns hits into digis
 void 
-ESFastTDigitizer::run( MixCollection<PCaloHit>& input  ,
-		       ESDigiCollection&        output   )
+ESDigitizer::run( MixCollection<PCaloHit>& input  ,
+		  ESDigiCollection&        output   )
 {
     assert( 0 != m_detIds         &&
 	    0 != m_detIds->size() &&
-	    ( !m_addNoise         ||
+	    ( !addNoise()         ||
 	      ( 0 != m_engine     &&
 		0 != m_ranPois    &&
 		0 != m_ranFlat    &&
 		0 != m_ranGeneral        ) ) ) ; // sanity check
 
-    m_hitResponse->run( input ) ;
-
     // reserve space for how many digis we expect, with some cushion
-    output.reserve( 2*( (int) m_meanNoisy ) + m_hitResponse->nSignals() ) ;
+    output.reserve( 2*( (int) m_meanNoisy ) + hitResponse()->samplesSize() ) ;
+
+    EcalTDigitizer< ESDigitizerTraits >::run( input, output ) ;
 
     // random generation of channel above threshold
     std::vector<DetId> abThreshCh ;
-    if( m_addNoise ) createNoisyList( abThreshCh ) ;
+    if( addNoise() ) createNoisyList( abThreshCh ) ;
 
-    // first make a raw digi for evey cell where we have noise
+    // first make a raw digi for every cell where we have noise
     for( std::vector<DetId>::const_iterator idItr ( abThreshCh.begin() ) ;
 	 idItr != abThreshCh.end(); ++idItr ) 
     {
-       if( 0 ==  m_hitResponse->findSignal( *idItr ) ) // only if no true hit!
+       if( hitResponse()->findDetId( *idItr )->zero() ) // only if no true hit!
        {
-	  CaloSamples analogSignal ( *idItr , 3 ) ; // space for the noise hit
+	  ESHitResponse::ESSamples analogSignal ( *idItr, 3 ) ; // space for the noise hit
 	  uint32_t myBin ( (uint32_t) m_trip.size()*m_ranGeneral->fire() ) ;
 	  if( myBin == m_trip.size() ) --myBin ; // guard against roundup
 	  assert( myBin < m_trip.size() ) ;
@@ -226,33 +221,18 @@ ESFastTDigitizer::run( MixCollection<PCaloHit>& input  ,
 	  analogSignal[ 1 ] = m_histoInf + m_histoWid*trip.second ;
 	  analogSignal[ 2 ] = m_histoInf + m_histoWid*trip.third  ;
 	  ESDataFrame digi( *idItr ) ;
-	  m_elecSim->analogToDigital( analogSignal ,
-				      digi         ,
-				      true           ) ;	
+	  const_cast<ESElectronicsSimFast*>(elecSim())->
+	     analogToDigital( analogSignal ,
+			      digi         ,
+			      true           ) ;	
 	  output.push_back( digi ) ;  
        }
     }
-
-    const CaloHitResponse::AnalogSignalMap& sigs ( m_hitResponse->signalMap() ) ;
-
-    // now for real hits
-    for( CaloHitResponse::AnalogSignalMap::const_iterator itr ( sigs.begin() ) ;
-	 itr != sigs.end() ; ++itr ) 
-    {
-       ESDataFrame digi( itr->first ) ;
-       m_elecSim->analogToDigital( itr->second ,
-				   digi        ,
-				   false         ) ;	
-       output.push_back( digi ) ;  
-    }
-
-    // free up some memory
-    m_hitResponse->clear() ;
 }
 
 // preparing the list of channels where the noise has to be generated
 void 
-ESFastTDigitizer::createNoisyList( std::vector<DetId>& abThreshCh )
+ESDigitizer::createNoisyList( std::vector<DetId>& abThreshCh )
 {
    const unsigned int nChan ( m_ranPois->fire() ) ;
    abThreshCh.reserve( nChan ) ;
@@ -277,4 +257,3 @@ ESFastTDigitizer::createNoisyList( std::vector<DetId>& abThreshCh )
       abThreshCh.push_back( id ) ;
    }
 }
-  

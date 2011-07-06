@@ -6,6 +6,9 @@
 //#include "CLHEP/Random/RandGaussQ.h"
 #include <iostream>
 
+//#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
+
+
 EcalCoder::EcalCoder( bool                  addNoise     , 
 		      EcalCoder::Noisifier* ebCorrNoise0 ,
 		      EcalCoder::Noisifier* eeCorrNoise0 ,
@@ -72,6 +75,21 @@ EcalCoder::analogToDigital( const EcalSamples& clf ,
 {
    df.setSize( clf.size() ) ;
    encode( clf, df );
+/*   std::cout<<"   **Id=" ;
+   if( CaloGenericDetId( clf.id() ).isEB() )
+   {
+      std::cout<<EBDetId( clf.id() ) ;
+   }
+   else
+   {
+      std::cout<<EEDetId( clf.id() ) ;
+   }
+   std::cout<<", size="<<df.size();
+   for( int i ( 0 ) ; i != df.size() ; ++i )
+   {
+      std::cout<<", "<<df[i];
+   }
+   std::cout<<std::endl ;*/
 }
 
 void 

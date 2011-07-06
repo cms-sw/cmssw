@@ -82,6 +82,7 @@ ESElectronicsSimFast::analogToDigital( ESSamples&   cs,
    const double ADCGeV   ( isNoise ? 1. : MIPADC/m_MIPToGeV ) ;
 
    int adc = 0 ;
+//   std::cout<<"   **Id="<<ESDetId(df.id())<<", size="<<df.size();
    for( unsigned int i ( 0 ) ; i != cs.size(); ++i ) 
    {
       const double noi ( isNoise || (!m_addNoise) ? 0 :
@@ -113,5 +114,7 @@ ESElectronicsSimFast::analogToDigital( ESSamples&   cs,
       }
 
       df.setSample( i, ESSample( adc ) ) ;
+//      std::cout<<", "<<df[i];
    }
+//   std::cout<<std::endl ;
 }

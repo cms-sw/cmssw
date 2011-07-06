@@ -16,7 +16,7 @@
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h" 
-#include<iostream>
+#include <iostream>
 
 
 
@@ -145,7 +145,7 @@ EcalHitResponse::blankOutUsedSamples()  // blank out previously used elements
 void 
 EcalHitResponse::run( MixCollection<PCaloHit>& hits ) 
 {
-   if( 0 != m_index.size() ) blankOutUsedSamples() ;
+   blankOutUsedSamples() ;
 
    for( MixCollection<PCaloHit>::MixItr hitItr ( hits.begin() ) ;
 	hitItr != hits.end() ; ++hitItr )
@@ -198,7 +198,7 @@ EcalHitResponse::findSignal( const DetId& detId )
 {
    const unsigned int di ( CaloGenericDetId( detId ).denseIndex() ) ;
    EcalSamples* result ( vSamAll( di ) ) ;
-   if( !result->zero() ) m_index.push_back( di ) ;
+   if( result->zero() ) m_index.push_back( di ) ;
    return result ;
 }
 

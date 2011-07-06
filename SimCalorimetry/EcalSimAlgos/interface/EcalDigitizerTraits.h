@@ -4,6 +4,7 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalElectronicsSim.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSimFast.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSim.h"
 #include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
@@ -49,6 +50,19 @@ class ESDigitizerTraits
       typedef ESElectronicsSimFast ElectronicsSim ;
 
       typedef CaloTSamples<float,3> EcalSamples ;
+};
+
+class ESOldDigitizerTraits 
+{
+   public:
+      /// the digis collection
+      typedef ESDigiCollection DigiCollection ;
+      /// the dataframes
+      typedef ESDataFrame Digi ;
+      /// the electronics simulation
+      typedef ESElectronicsSim ElectronicsSim ;
+
+//      typedef CaloTSamples<float,3> EcalSamples ;
 };
 
 

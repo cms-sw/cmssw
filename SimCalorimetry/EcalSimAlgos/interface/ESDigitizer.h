@@ -1,18 +1,9 @@
-#ifndef EcalSimAlgos_ESFastTDigitizer_h
-#define EcalSimAlgos_ESFastTDigitizer_h
+#ifndef EcalSimAlgos_ESDigitizer_h
+#define EcalSimAlgos_ESDigitizer_h
 
-/*  Based on CaloTDigitizer
-    Turns hits into digis.  Assumes that 
-    there's an ESElectronicsSimFast class with the
-    interface analogToDigital(const CaloSamples &, Digi &);
-*/
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalTDigitizer.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalDigitizerTraits.h"
 
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-
-class ESHitResponse ;
-class ESElectronicsSimFast ;
 namespace CLHEP {
    class RandGeneral ;
    class RandPoissonQ ;
@@ -21,31 +12,30 @@ namespace CLHEP {
 
 #include <vector>
 
-class ESFastTDigitizer
+class ESDigitizer : public EcalTDigitizer< ESDigitizerTraits >
 {
    public:
-  
-      ESFastTDigitizer( ESHitResponse*        hitResponse    , 
-			ESElectronicsSimFast* electronicsSim ,
-			bool                  addNoise         ) ;
 
-      ~ESFastTDigitizer() ;
+      typedef ESDigitizerTraits::ElectronicsSim ElectronicsSim ;
+
+      ESDigitizer( EcalHitResponse* hitResponse    ,
+		   ElectronicsSim*  electronicsSim ,
+		   bool             addNoise         ) ;
+
+      virtual ~ESDigitizer() ;
+
+      virtual void run( MixCollection<PCaloHit>& input ,
+			DigiCollection&          output  ) ;
 
       void setDetIds( const std::vector<DetId>& detIds ) ;
 
       void setGain( const int gain ) ;
-  
-      void run( MixCollection<PCaloHit>& input , 
-		ESDigiCollection&        output  ) ;
-  
+
    private:
 
       void createNoisyList( std::vector<DetId>& abThreshCh ) ;  
 
-      ESHitResponse*            m_hitResponse ;
-      ESElectronicsSimFast*     m_elecSim     ; 
       const std::vector<DetId>* m_detIds      ;
-      bool                      m_addNoise    ;
       CLHEP::HepRandomEngine*   m_engine      ;
       CLHEP::RandGeneral*       m_ranGeneral  ;
       CLHEP::RandPoissonQ*      m_ranPois     ;
