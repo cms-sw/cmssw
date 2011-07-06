@@ -102,9 +102,9 @@ void RPCEfficiencySecond::beginRun(const edm::Run&, const edm::EventSetup& iSetu
 //  if(debug) std::cout<<"Booking EffDistros"<<std::endl;
 //  dbe->setCurrentFolder(folderPath);
 
-  if(debug) std::cout<<"Booking statistics2"<<std::endl;
-  dbe->setCurrentFolder(folderPath);
-  statistics2 = dbe->book1D("AllStatistics","Analyzed Events DT and CSC Segments",33,0.5,33.5);
+//   if(debug) std::cout<<"Booking statistics2"<<std::endl;
+//   dbe->setCurrentFolder(folderPath);
+//   statistics2 = dbe->book1D("AllStatistics","Analyzed Events DT and CSC Segments",33,0.5,33.5);
   
   //Barrel 
   
@@ -410,84 +410,52 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
    
-  std::string label,folder;
-  folder = folderPath;
-  label = folder + "MuonSegEff/Statistics";
-  if(debug) std::cout<<"Getting statistcs="<<label<<std::endl;
-  statistics = dbe->get(label);
-  if(debug && !statistics){
+  // std::string label,folder;
+ //  folder = folderPath;
+//   label = folder + "MuonSegEff/Statistics";
+//   if(debug) std::cout<<"Getting statistcs="<<label<<std::endl;
+//   statistics = dbe->get(label);
+//   if(debug && !statistics){
  
-    std::cout<<"Statistics Doesn't exist Not access to a monitor element"<<std::endl;
-    std::cout<<label<<std::endl;
-    edm::LogWarning("Missing rpcSource in the sequence") << " Statistics Doesn't exist.";
-    return;
-  }
-  if(debug) std::cout<<"Cloning statistcs"<<std::endl;
-  for(int i=1;i<=33;i++){
-    if(debug) std::cout<<statistics->getBinContent(i)<<std::endl;
-    statistics2->setBinContent(i,statistics->getBinContent(i));
-  }
+//     std::cout<<"Statistics Doesn't exist Not access to a monitor element"<<std::endl;
+//     std::cout<<label<<std::endl;
+//     edm::LogWarning("Missing rpcSource in the sequence") << " Statistics Doesn't exist.";
+//     return;
+//   }
+//   if(debug) std::cout<<"Cloning statistcs"<<std::endl;
+//   for(int i=1;i<=33;i++){
+//     if(debug) std::cout<<statistics->getBinContent(i)<<std::endl;
+//     statistics2->setBinContent(i,statistics->getBinContent(i));
+//   }
    
-  statistics2->setBinLabel(1,"Events ",1);
-  statistics2->setBinLabel(2,"Events with DT seg",1);
-  statistics2->setBinLabel(3,"1 DT seg",1);
-  statistics2->setBinLabel(4,"2 DT seg",1);
-  statistics2->setBinLabel(5,"3 DT seg",1);
-  statistics2->setBinLabel(6,"4 DT seg",1);
-  statistics2->setBinLabel(7,"5 DT seg",1);
-  statistics2->setBinLabel(8,"6 DT seg",1);
-  statistics2->setBinLabel(9,"7 DT seg",1);
-  statistics2->setBinLabel(10,"8 DT seg",1);
-  statistics2->setBinLabel(11,"9 DT seg",1);
-  statistics2->setBinLabel(12,"10 DT seg",1);
-  statistics2->setBinLabel(13,"11 DT seg",1);
-  statistics2->setBinLabel(14,"12 DT seg",1);
-  statistics2->setBinLabel(15,"13 DT seg",1);
-  statistics2->setBinLabel(16,"14 DT seg",1);
-  statistics2->setBinLabel(17,"15 DT seg",1);
-  statistics2->setBinLabel(18,"Events with CSC seg",1);
-  statistics2->setBinLabel(16+3,"1 CSC seg",1);
-  statistics2->setBinLabel(16+4,"2 CSC seg",1);
-  statistics2->setBinLabel(16+5,"3 CSC seg",1);
-  statistics2->setBinLabel(16+6,"4 CSC seg",1);
-  statistics2->setBinLabel(16+7,"5 CSC seg",1);
-  statistics2->setBinLabel(16+8,"6 CSC seg",1);
-  statistics2->setBinLabel(16+9,"7 CSC seg",1);
-  statistics2->setBinLabel(16+10,"8 CSC seg",1);
-  statistics2->setBinLabel(16+11,"9 CSC seg",1);
-  statistics2->setBinLabel(16+12,"10 CSC seg",1);
-  statistics2->setBinLabel(16+13,"11 CSC seg",1);
-  statistics2->setBinLabel(16+14,"12 CSC seg",1);
-  statistics2->setBinLabel(16+15,"13 CSC seg",1);
-  statistics2->setBinLabel(16+16,"14 CSC seg",1);
-  statistics2->setBinLabel(16+17,"15 CSC seg",1);
+
    
   //Cloning Residuals.
  
-  folder = folderPath+"MuonSegEff/Residuals/Barrel/";
+//   folder = folderPath+"MuonSegEff/Residuals/Barrel/";
    
-  label = folder + "GlobalResidualsClu1La1"; hGlobalResClu1La1 = dbe->get(label);
-  label = folder + "GlobalResidualsClu1La2"; hGlobalResClu1La2 = dbe->get(label);
-  label = folder + "GlobalResidualsClu1La3"; hGlobalResClu1La3 = dbe->get(label);
-  label = folder + "GlobalResidualsClu1La4"; hGlobalResClu1La4 = dbe->get(label);
-  label = folder + "GlobalResidualsClu1La5"; hGlobalResClu1La5 = dbe->get(label);
-  label = folder + "GlobalResidualsClu1La6"; hGlobalResClu1La6 = dbe->get(label);
+//   label = folder + "GlobalResidualsClu1La1"; hGlobalResClu1La1 = dbe->get(label);
+//   label = folder + "GlobalResidualsClu1La2"; hGlobalResClu1La2 = dbe->get(label);
+//   label = folder + "GlobalResidualsClu1La3"; hGlobalResClu1La3 = dbe->get(label);
+//   label = folder + "GlobalResidualsClu1La4"; hGlobalResClu1La4 = dbe->get(label);
+//   label = folder + "GlobalResidualsClu1La5"; hGlobalResClu1La5 = dbe->get(label);
+//   label = folder + "GlobalResidualsClu1La6"; hGlobalResClu1La6 = dbe->get(label);
 
-  label = folder + "GlobalResidualsClu2La1"; hGlobalResClu2La1 = dbe->get(label);
-  label = folder + "GlobalResidualsClu2La2"; hGlobalResClu2La2 = dbe->get(label);
-  label = folder + "GlobalResidualsClu2La3"; hGlobalResClu2La3 = dbe->get(label);
-  label = folder + "GlobalResidualsClu2La4"; hGlobalResClu2La4 = dbe->get(label);
-  label = folder + "GlobalResidualsClu2La5"; hGlobalResClu2La5 = dbe->get(label);
-  label = folder + "GlobalResidualsClu2La6"; hGlobalResClu2La6 = dbe->get(label);
+//   label = folder + "GlobalResidualsClu2La1"; hGlobalResClu2La1 = dbe->get(label);
+//   label = folder + "GlobalResidualsClu2La2"; hGlobalResClu2La2 = dbe->get(label);
+//   label = folder + "GlobalResidualsClu2La3"; hGlobalResClu2La3 = dbe->get(label);
+//   label = folder + "GlobalResidualsClu2La4"; hGlobalResClu2La4 = dbe->get(label);
+//   label = folder + "GlobalResidualsClu2La5"; hGlobalResClu2La5 = dbe->get(label);
+//   label = folder + "GlobalResidualsClu2La6"; hGlobalResClu2La6 = dbe->get(label);
 
-  label = folder + "GlobalResidualsClu3La1"; hGlobalResClu3La1 = dbe->get(label);
-  label = folder + "GlobalResidualsClu3La2"; hGlobalResClu3La2 = dbe->get(label);
-  label = folder + "GlobalResidualsClu3La3"; hGlobalResClu3La3 = dbe->get(label);
-  label = folder + "GlobalResidualsClu3La4"; hGlobalResClu3La4 = dbe->get(label);
-  label = folder + "GlobalResidualsClu3La5"; hGlobalResClu3La5 = dbe->get(label);
-  label = folder + "GlobalResidualsClu3La6"; hGlobalResClu3La6 = dbe->get(label);
+//   label = folder + "GlobalResidualsClu3La1"; hGlobalResClu3La1 = dbe->get(label);
+//   label = folder + "GlobalResidualsClu3La2"; hGlobalResClu3La2 = dbe->get(label);
+//   label = folder + "GlobalResidualsClu3La3"; hGlobalResClu3La3 = dbe->get(label);
+//   label = folder + "GlobalResidualsClu3La4"; hGlobalResClu3La4 = dbe->get(label);
+//   label = folder + "GlobalResidualsClu3La5"; hGlobalResClu3La5 = dbe->get(label);
+//   label = folder + "GlobalResidualsClu3La6"; hGlobalResClu3La6 = dbe->get(label);
   
-  if(debug) std::cout<<"Clonning for Barrel"<<std::endl;
+  //  if(debug) std::cout<<"Clonning for Barrel"<<std::endl;
    
  //  for(int i=1;i<=101;i++){
 //     if(debug) std::cout<<"Global Residual"<<hGlobalResClu1La1->getBinContent(i)<<std::endl;
@@ -513,37 +481,37 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 //     hGlobal2ResClu3La6->setBinContent(i,hGlobalResClu3La6->getBinContent(i));
 //   }
  
-  if(debug) std::cout<<"Clonning the EndCap"<<std::endl;
-  folder = folderPath+"MuonSegEff/Residuals/EndCap/";
-  if(debug) std::cout<<folder<<std::endl;
+//   if(debug) std::cout<<"Clonning the EndCap"<<std::endl;
+//   folder = folderPath+"MuonSegEff/Residuals/EndCap/";
+//   if(debug) std::cout<<folder<<std::endl;
    
-  label = folder + "GlobalResidualsClu1R3C"; hGlobalResClu1R3C = dbe->get(label); 
-  //if(!hGlobalResClu1R3C)std::cout<<"hGlobal2ResClu1R3C dont exist"<<std::endl;
-  //std::cout<<label<<std::endl;
-  label = folder + "GlobalResidualsClu1R3B"; hGlobalResClu1R3B = dbe->get(label);
-  //if(!hGlobalResClu1R3B)std::cout<<"hGlobal2ResClu1R3B dont exist"<<std::endl;
-  //std::cout<<label<<std::endl;
-  label = folder + "GlobalResidualsClu1R3A"; hGlobalResClu1R3A = dbe->get(label); 
-  label = folder + "GlobalResidualsClu1R2C"; hGlobalResClu1R2C = dbe->get(label); 
-  label = folder + "GlobalResidualsClu1R2B"; hGlobalResClu1R2B = dbe->get(label); 
-  label = folder + "GlobalResidualsClu1R2A"; hGlobalResClu1R2A = dbe->get(label); 
+//   label = folder + "GlobalResidualsClu1R3C"; hGlobalResClu1R3C = dbe->get(label); 
+//   //if(!hGlobalResClu1R3C)std::cout<<"hGlobal2ResClu1R3C dont exist"<<std::endl;
+//   //std::cout<<label<<std::endl;
+//   label = folder + "GlobalResidualsClu1R3B"; hGlobalResClu1R3B = dbe->get(label);
+//   //if(!hGlobalResClu1R3B)std::cout<<"hGlobal2ResClu1R3B dont exist"<<std::endl;
+//   //std::cout<<label<<std::endl;
+//   label = folder + "GlobalResidualsClu1R3A"; hGlobalResClu1R3A = dbe->get(label); 
+//   label = folder + "GlobalResidualsClu1R2C"; hGlobalResClu1R2C = dbe->get(label); 
+//   label = folder + "GlobalResidualsClu1R2B"; hGlobalResClu1R2B = dbe->get(label); 
+//   label = folder + "GlobalResidualsClu1R2A"; hGlobalResClu1R2A = dbe->get(label); 
   		 								   	   
-  label = folder + "GlobalResidualsClu2R3C"; hGlobalResClu2R3C = dbe->get(label); 
-  label = folder + "GlobalResidualsClu2R3B"; hGlobalResClu2R3B = dbe->get(label); 
-  label = folder + "GlobalResidualsClu2R3A"; hGlobalResClu2R3A = dbe->get(label); 
-  label = folder + "GlobalResidualsClu2R2C"; hGlobalResClu2R2C = dbe->get(label); 
-  label = folder + "GlobalResidualsClu2R2B"; hGlobalResClu2R2B = dbe->get(label); 
-  label = folder + "GlobalResidualsClu2R2A"; hGlobalResClu2R2A = dbe->get(label); 
+//   label = folder + "GlobalResidualsClu2R3C"; hGlobalResClu2R3C = dbe->get(label); 
+//   label = folder + "GlobalResidualsClu2R3B"; hGlobalResClu2R3B = dbe->get(label); 
+//   label = folder + "GlobalResidualsClu2R3A"; hGlobalResClu2R3A = dbe->get(label); 
+//   label = folder + "GlobalResidualsClu2R2C"; hGlobalResClu2R2C = dbe->get(label); 
+//   label = folder + "GlobalResidualsClu2R2B"; hGlobalResClu2R2B = dbe->get(label); 
+//   label = folder + "GlobalResidualsClu2R2A"; hGlobalResClu2R2A = dbe->get(label); 
 	 									   	   
-  label = folder + "GlobalResidualsClu3R3C"; hGlobalResClu3R3C = dbe->get(label); 
-  label = folder + "GlobalResidualsClu3R3B"; hGlobalResClu3R3B = dbe->get(label); 
-  label = folder + "GlobalResidualsClu3R3A"; hGlobalResClu3R3A = dbe->get(label); 
-  label = folder + "GlobalResidualsClu3R2C"; hGlobalResClu3R2C = dbe->get(label); 
-  label = folder + "GlobalResidualsClu3R2B"; hGlobalResClu3R2B = dbe->get(label); 
-  label = folder + "GlobalResidualsClu3R2A"; hGlobalResClu3R2A = dbe->get(label); 
+//   label = folder + "GlobalResidualsClu3R3C"; hGlobalResClu3R3C = dbe->get(label); 
+//   label = folder + "GlobalResidualsClu3R3B"; hGlobalResClu3R3B = dbe->get(label); 
+//   label = folder + "GlobalResidualsClu3R3A"; hGlobalResClu3R3A = dbe->get(label); 
+//   label = folder + "GlobalResidualsClu3R2C"; hGlobalResClu3R2C = dbe->get(label); 
+//   label = folder + "GlobalResidualsClu3R2B"; hGlobalResClu3R2B = dbe->get(label); 
+//   label = folder + "GlobalResidualsClu3R2A"; hGlobalResClu3R2A = dbe->get(label); 
  
 
-  if(debug) std::cout<<"Going for!"<<std::endl;
+  // if(debug) std::cout<<"Going for!"<<std::endl;
   /*for(int i=1;i<=101;i++){
     if(debug) std::cout<<i<<std::endl;
     hGlobal2ResClu1R3C->setBinContent(i,hGlobalResClu1R3C->getBinContent(i)); std::cout<<"hGlobal2ResClu1R3C"<<std::endl;
@@ -651,12 +619,12 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 // 	  }
 // 	}
 	 
-	if(meCollection.find(rpcId.rawId())==meCollection.end()){
-	 	if(debug) std::cout<<"WARNING!!! Empty RecHit collection map"<<std::endl;
-	}
- 
+
 	if(debug){
-	  std::cout<<rpcId<<std::endl;
+	  if(meCollection.find(rpcId.rawId())==meCollection.end()){
+	    std::cout<<"WARNING!!! Empty RecHit collection map"<<std::endl;
+	  }
+ 	  std::cout<<rpcId<<std::endl;
 	  //printing indexes
 	  std::cout<<"indexWheel=";
 	  for(int j=0;j<5;j++){
@@ -682,33 +650,32 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   	
 	if(rpcId.region()==0){
 	  std::stringstream meIdRPC,  meIdDT; //,  bxDistroId;
-	  std::string      meIdPRO, meIdRPC2, meIdDT2; //, bxDistroId2;
+	  // std::string      meIdPRO, 
+	  // std::string meIdRPC2, meIdDT2; //, bxDistroId2;
 	  
-	  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
+	  //  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
 	  
-	  std::string folder = folderPath+"MuonSegEff";
+	  // std::string folder = folderPath+"MuonSegEff";
 
-	  if(debug) std::cout<<"Setting the folder "<<folder<<std::endl;
+	  //if(debug) std::cout<<"Setting the folder "<<folder<<std::endl;
 
-	  meIdRPC<<folder<<"/RPCDataOccupancyFromDT_"<<rpcId.rawId();
-	  meIdDT<<folder<<"/ExpectedOccupancyFromDT_"<<rpcId.rawId();
+	  meIdRPC<<folderPath<<"MuonSegEff/RPCDataOccupancyFromDT_"<<rpcId.rawId();
+	  meIdDT<<folderPath<<"MuonSegEff/ExpectedOccupancyFromDT_"<<rpcId.rawId();
 	  //	  bxDistroId<<folder<<"/BXDistribution_"<<rpcId.rawId();
       
 	  // std::string folder2 = folderPath+"RollByRoll/" +  folderStr->folderStructure(rpcId); 
 
-	  delete folderStr;
+	  // delete folderStr;
 
-	  meIdRPC2 = "RPCDataOccupancyFromDT_" + rpcsrv.name();	
-	  meIdDT2 =  "ExpectedOccupancyFromDT_"+ rpcsrv.name();
-	  // bxDistroId2 = "BXDistribution_"+ rpcsrv.name();
+	 //  meIdRPC2 = "RPCDataOccupancyFromDT_" + rpcsrv.name();	
+// 	  meIdDT2 =  "ExpectedOccupancyFromDT_"+ rpcsrv.name();
 	  
-	  meIdPRO = "Profile_"+ rpcsrv.name();
+	  // meIdPRO = "Profile_"+ rpcsrv.name();
 	  
 	  histoRPC = dbe->get(meIdRPC.str());
 	  histoDT = dbe->get(meIdDT.str());
-	  histoPRO = dbe->get(meIdPRO);
-	  // BXDistribution = dbe->get(bxDistroId.str());
-
+	  //  histoPRO = dbe->get(meIdPRO);
+	 
 	  int NumberWithOutPrediction=0;
 	  double p = 0.;
 	  double o = 0.;
@@ -723,27 +690,13 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  float averageeff = 0.;
 	  float averageerr = 0.;
 	  int NumberStripsPointed = 0;
-	  
-	  //	  if(debug) std::cout<<"Cloning BX"<<std::endl; //problema con sector 9 y sector 11
-
-	  //	  for(int i=1;i<=11;i++){
-// 	    if(debug) std::cout<<i<<"-"<<BXDistribution->getBinContent(i)<<std::endl;
-// 	    meMap[bxDistroId2]->setBinContent(i,BXDistribution->getBinContent(i));
-// 	  }
+	 
 	  
 	  if(histoRPC && histoDT){ // && BXDistribution){
 	    if(debug) std::cout <<rpcsrv.name()<<std::endl;
 	    
 	    for(int i=1;i<=int((*r)->nstrips());++i){
-	    //   if(debug) std::cout<<"Cloning histoDT "<<meIdDT2<<std::endl;
-// 	      meMap[meIdDT2]->setBinContent(i,histoDT->getBinContent(i));
-// 	      if(debug) std::cout<<"Cloning histoRPC:"<<meIdRPC2<<std::endl;
-// 	      meMap[meIdRPC2]->setBinContent(i,histoRPC->getBinContent(i));
-	      
-// 	      if(meMap.find(meIdPRO)==meMap.end()){
-// 		std::cout<<"Empty Map"<<std::endl;
-// 	      }
-
+	  
 	      if(histoDT->getBinContent(i)!=0){
 		if(debug) std::cout<<"Inside the If"<<std::endl;
 		buffef = float(histoRPC->getBinContent(i))/float(histoDT->getBinContent(i));
@@ -766,9 +719,6 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	      averageeff = (sumbuffef/float(NumberStripsPointed))*100.;
 	      averageerr = sqrt(sumbuffer/float(NumberStripsPointed))*100.;
 	    }
-	    
-// 	    mybxhisto = 50.+BXDistribution->getMean()*10;
-// 	    mybxerror = BXDistribution->getRMS()*10;
 	    
 	  } //////////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	  
@@ -826,10 +776,10 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  		yBin = rollNumber.detId2RollNr((*r)->id());
 
 	      		if((*r)->id().ring()==2) Wheel2Summary->setBinContent(xBin,yBin,averageeff);
-	      		if((*r)->id().ring()==1) Wheel1Summary->setBinContent(xBin,yBin,averageeff);
-	      		if((*r)->id().ring()==0) Wheel0Summary->setBinContent(xBin,yBin,averageeff);
-	      		if((*r)->id().ring()==-1) Wheelm1Summary->setBinContent(xBin,yBin,averageeff);
-	      		if((*r)->id().ring()==-2) Wheelm2Summary->setBinContent(xBin,yBin,averageeff);
+	      		else if((*r)->id().ring()==1) Wheel1Summary->setBinContent(xBin,yBin,averageeff);
+	      		else if((*r)->id().ring()==0) Wheel0Summary->setBinContent(xBin,yBin,averageeff);
+	      		else if((*r)->id().ring()==-1) Wheelm1Summary->setBinContent(xBin,yBin,averageeff);
+	      		else if((*r)->id().ring()==-2) Wheelm2Summary->setBinContent(xBin,yBin,averageeff);
 
 	  }
  	  
@@ -1049,22 +999,23 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	}else{//EndCap
 
 	  std::stringstream meIdRPC,meIdCSC; //, bxDistroId;
-	  std::string      meIdPRO, meIdRPC2, meIdCSC2; //, bxDistroId2;
+	  std::string      meIdPRO;
+	  // std::string   meIdRPC2, meIdCSC2; //, bxDistroId2;
 	  
-	  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
-
-	  std::string folder = folderPath+"MuonSegEff";
+	  // RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
+	 
+	  //  std::string folder = folderPath+"MuonSegEff";
 	  
-	  meIdRPC<<folder<<"/RPCDataOccupancyFromCSC_"<<rpcId.rawId();
-	  meIdCSC<<folder<<"/ExpectedOccupancyFromCSC_"<<rpcId.rawId();
+	  meIdRPC<<folderPath<<"MuonSegEff/RPCDataOccupancyFromCSC_"<<rpcId.rawId();
+	  meIdCSC<<folderPath<<"MuonSegEff/ExpectedOccupancyFromCSC_"<<rpcId.rawId();
 	  //  bxDistroId<<folder<<"/BXDistribution_"<<rpcId.rawId();
 		
 	  // std::string folder2 = folderPath+"RollByRoll/" +  folderStr->folderStructure(rpcId); 
 	  
-	  delete folderStr;
+	  // delete folderStr;
 
-	  meIdRPC2 = "RPCDataOccupancyFromCSC_" + rpcsrv.name();	
-	  meIdCSC2 =  "ExpectedOccupancyFromCSC_"+ rpcsrv.name();
+// 	  meIdRPC2 = "RPCDataOccupancyFromCSC_" + rpcsrv.name();	
+// 	  meIdCSC2 =  "ExpectedOccupancyFromCSC_"+ rpcsrv.name();
 	  //	  bxDistroId2 = "BXDistribution_"+ rpcsrv.name();
 
 	  meIdPRO = "Profile_"+ rpcsrv.name();
@@ -1149,18 +1100,18 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  
 	  if(rpcId.region()==1){
 	    if(rpcId.station()==1 && rpcId.ring()==2){ ExGregD1R2->Fill(rpcsrv.segment(),p);OcGregD1R2->Fill(rpcsrv.segment(),o);} 
-	    if(rpcId.station()==1 && rpcId.ring()==3){ ExGregD1R3->Fill(rpcsrv.segment(),p);OcGregD1R3->Fill(rpcsrv.segment(),o);}
-	    if(rpcId.station()==2 && rpcId.ring()==2){ ExGregD2R2->Fill(rpcsrv.segment(),p);OcGregD2R2->Fill(rpcsrv.segment(),o);}
-	    if(rpcId.station()==2 && rpcId.ring()==3){ ExGregD2R3->Fill(rpcsrv.segment(),p);OcGregD2R3->Fill(rpcsrv.segment(),o);}
-	    if(rpcId.station()==3 && rpcId.ring()==2){ ExGregD3R2->Fill(rpcsrv.segment(),p);OcGregD3R2->Fill(rpcsrv.segment(),o);}
-	    if(rpcId.station()==3 && rpcId.ring()==3){ ExGregD3R3->Fill(rpcsrv.segment(),p);OcGregD3R3->Fill(rpcsrv.segment(),o);}
+	    else if(rpcId.station()==1 && rpcId.ring()==3){ ExGregD1R3->Fill(rpcsrv.segment(),p);OcGregD1R3->Fill(rpcsrv.segment(),o);}
+	    else if(rpcId.station()==2 && rpcId.ring()==2){ ExGregD2R2->Fill(rpcsrv.segment(),p);OcGregD2R2->Fill(rpcsrv.segment(),o);}
+	    else if(rpcId.station()==2 && rpcId.ring()==3){ ExGregD2R3->Fill(rpcsrv.segment(),p);OcGregD2R3->Fill(rpcsrv.segment(),o);}
+	    else if(rpcId.station()==3 && rpcId.ring()==2){ ExGregD3R2->Fill(rpcsrv.segment(),p);OcGregD3R2->Fill(rpcsrv.segment(),o);}
+	    else if(rpcId.station()==3 && rpcId.ring()==3){ ExGregD3R3->Fill(rpcsrv.segment(),p);OcGregD3R3->Fill(rpcsrv.segment(),o);}
 	  }else if(rpcId.region()==-1){
 	    if(rpcId.station()==1 && rpcId.ring()==2){ ExGregDm1R2->Fill(rpcsrv.segment(),p);OcGregDm1R2->Fill(rpcsrv.segment(),o);} 
-	    if(rpcId.station()==1 && rpcId.ring()==3){ ExGregDm1R3->Fill(rpcsrv.segment(),p);OcGregDm1R3->Fill(rpcsrv.segment(),o);}
-	    if(rpcId.station()==2 && rpcId.ring()==2){ ExGregDm2R2->Fill(rpcsrv.segment(),p);OcGregDm2R2->Fill(rpcsrv.segment(),o);}
-	    if(rpcId.station()==2 && rpcId.ring()==3){ ExGregDm2R3->Fill(rpcsrv.segment(),p);OcGregDm2R3->Fill(rpcsrv.segment(),o);}
-	    if(rpcId.station()==3 && rpcId.ring()==2){ ExGregDm3R2->Fill(rpcsrv.segment(),p);OcGregDm3R2->Fill(rpcsrv.segment(),o);}
-	    if(rpcId.station()==3 && rpcId.ring()==3){ ExGregDm3R3->Fill(rpcsrv.segment(),p);OcGregDm3R3->Fill(rpcsrv.segment(),o);}
+	    else if(rpcId.station()==1 && rpcId.ring()==3){ ExGregDm1R3->Fill(rpcsrv.segment(),p);OcGregDm1R3->Fill(rpcsrv.segment(),o);}
+	    else if(rpcId.station()==2 && rpcId.ring()==2){ ExGregDm2R2->Fill(rpcsrv.segment(),p);OcGregDm2R2->Fill(rpcsrv.segment(),o);}
+	    else if(rpcId.station()==2 && rpcId.ring()==3){ ExGregDm2R3->Fill(rpcsrv.segment(),p);OcGregDm2R3->Fill(rpcsrv.segment(),o);}
+	    else if(rpcId.station()==3 && rpcId.ring()==2){ ExGregDm3R2->Fill(rpcsrv.segment(),p);OcGregDm3R2->Fill(rpcsrv.segment(),o);}
+	    else if(rpcId.station()==3 && rpcId.ring()==3){ ExGregDm3R3->Fill(rpcsrv.segment(),p);OcGregDm3R3->Fill(rpcsrv.segment(),o);}
 	  }
 	    
 	  std::string camera = rpcsrv.name();
@@ -1780,13 +1731,15 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 //    NoPredictionD3far->setAxisTitle("%",2);
   }
   
-  if(debug) std::cout<<"Saving RootFile"<<std::endl;
-  if(SaveFile)dbe->save(NameFile);
+
+  if(SaveFile){
+    std::cout<<"Saving RootFile"<<std::endl;
+    dbe->save(NameFile);
+  }
+  
   if(debug) std::cout<<"RPCEFFICIENCY SECOND DONE"<<std::endl;
   
 }
 
-void RPCEfficiencySecond::endJob(){
-  
-}
+void RPCEfficiencySecond::endJob(){}
 

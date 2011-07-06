@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring: use RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2011/05/19 12:17:58 $
- *  $Revision: 1.10 $
+ *  $Date: 2011/05/20 09:03:22 $
+ *  $Revision: 1.11 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -45,51 +45,51 @@ class RPCEfficiencySecond : public edm::EDAnalyzer {
  /*  TFile * theFile; */
 /*   TFile * theFileout; */
 
-  MonitorElement * statistics;
-  MonitorElement * statistics2;
+ /*  MonitorElement * statistics; */
+/*   MonitorElement * statistics2; */
 
-  MonitorElement * hGlobalResClu1La1;
-  MonitorElement * hGlobalResClu1La2;
-  MonitorElement * hGlobalResClu1La3;
-  MonitorElement * hGlobalResClu1La4;
-  MonitorElement * hGlobalResClu1La5;
-  MonitorElement * hGlobalResClu1La6;
+/*   MonitorElement * hGlobalResClu1La1; */
+/*   MonitorElement * hGlobalResClu1La2; */
+/*   MonitorElement * hGlobalResClu1La3; */
+/*   MonitorElement * hGlobalResClu1La4; */
+/*   MonitorElement * hGlobalResClu1La5; */
+/*   MonitorElement * hGlobalResClu1La6; */
 
-  MonitorElement * hGlobalResClu2La1;
-  MonitorElement * hGlobalResClu2La2;
-  MonitorElement * hGlobalResClu2La3;
-  MonitorElement * hGlobalResClu2La4;
-  MonitorElement * hGlobalResClu2La5;
-  MonitorElement * hGlobalResClu2La6;
+/*   MonitorElement * hGlobalResClu2La1; */
+/*   MonitorElement * hGlobalResClu2La2; */
+/*   MonitorElement * hGlobalResClu2La3; */
+/*   MonitorElement * hGlobalResClu2La4; */
+/*   MonitorElement * hGlobalResClu2La5; */
+/*   MonitorElement * hGlobalResClu2La6; */
 
-  MonitorElement * hGlobalResClu3La1;
-  MonitorElement * hGlobalResClu3La2;
-  MonitorElement * hGlobalResClu3La3;
-  MonitorElement * hGlobalResClu3La4;
-  MonitorElement * hGlobalResClu3La5;
-  MonitorElement * hGlobalResClu3La6;
+/*   MonitorElement * hGlobalResClu3La1; */
+/*   MonitorElement * hGlobalResClu3La2; */
+/*   MonitorElement * hGlobalResClu3La3; */
+/*   MonitorElement * hGlobalResClu3La4; */
+/*   MonitorElement * hGlobalResClu3La5; */
+/*   MonitorElement * hGlobalResClu3La6; */
 
-  //Endcap  
-  MonitorElement * hGlobalResClu1R3C;
-  MonitorElement * hGlobalResClu1R3B;
-  MonitorElement * hGlobalResClu1R3A;
-  MonitorElement * hGlobalResClu1R2C;
-  MonitorElement * hGlobalResClu1R2B; 
-  MonitorElement * hGlobalResClu1R2A;
+/*   //Endcap   */
+/*   MonitorElement * hGlobalResClu1R3C; */
+/*   MonitorElement * hGlobalResClu1R3B; */
+/*   MonitorElement * hGlobalResClu1R3A; */
+/*   MonitorElement * hGlobalResClu1R2C; */
+/*   MonitorElement * hGlobalResClu1R2B;  */
+/*   MonitorElement * hGlobalResClu1R2A; */
 
-  MonitorElement * hGlobalResClu2R3C;
-  MonitorElement * hGlobalResClu2R3B;
-  MonitorElement * hGlobalResClu2R3A;
-  MonitorElement * hGlobalResClu2R2C;
-  MonitorElement * hGlobalResClu2R2B;
-  MonitorElement * hGlobalResClu2R2A;
+/*   MonitorElement * hGlobalResClu2R3C; */
+/*   MonitorElement * hGlobalResClu2R3B; */
+/*   MonitorElement * hGlobalResClu2R3A; */
+/*   MonitorElement * hGlobalResClu2R2C; */
+/*   MonitorElement * hGlobalResClu2R2B; */
+/*   MonitorElement * hGlobalResClu2R2A; */
 
-  MonitorElement * hGlobalResClu3R3C;
-  MonitorElement * hGlobalResClu3R3B;
-  MonitorElement * hGlobalResClu3R3A;
-  MonitorElement * hGlobalResClu3R2C;
-  MonitorElement * hGlobalResClu3R2B;
-  MonitorElement * hGlobalResClu3R2A;
+/*   MonitorElement * hGlobalResClu3R3C; */
+/*   MonitorElement * hGlobalResClu3R3B; */
+/*   MonitorElement * hGlobalResClu3R3A; */
+/*   MonitorElement * hGlobalResClu3R2C; */
+/*   MonitorElement * hGlobalResClu3R2B; */
+/*   MonitorElement * hGlobalResClu3R2A; */
 
 /*   MonitorElement * hGlobal2ResClu1La1; */
 /*   MonitorElement * hGlobal2ResClu1La2; */
