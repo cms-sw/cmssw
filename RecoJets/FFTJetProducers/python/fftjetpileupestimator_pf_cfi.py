@@ -1,9 +1,7 @@
-# MC-calibrated pile-up estimator for PFJets
+# MC-mix calibrated pile-up estimator for PFJets
 
 import FWCore.ParameterSet.Config as cms
-import RecoJets.FFTJetProducers.pileup_calib_pf_cfi as calib_pf
-
-pileup_estimator_eta_range = 5.0
+import RecoJets.FFTJetProducers.mixed_calib_pf_ttbar_result as calib_pf
 
 # FFTJet puleup estimator module configuration
 fftjet_pileup_estimator_pf = cms.EDProducer(
@@ -15,9 +13,9 @@ fftjet_pileup_estimator_pf = cms.EDProducer(
     # Label for the produced objects
     outputLabel = cms.string("FFTJetPileupEstimatePF"),
     #
-    # Conversion factor from total pile-up Pt to its density.
-    # The constant in the numerator is 1/(4 Pi)
-    ptToDensityFactor = cms.double(0.07957747/pileup_estimator_eta_range),
+    # Conversion factor from the calibration curve value
+    # to the mean transverse energy density
+    ptToDensityFactor = cms.double(1.0),
     #
     # Fixed cdf value (optimized for PFJets)
     cdfvalue = cms.double(0.5),
