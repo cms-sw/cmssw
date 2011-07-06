@@ -304,10 +304,10 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
   const GlobalPoint vtx = origin();
   GlobalVector dir = direction();
   
-  if (detLayer->subDetector() == GeomDetEnumerators::PixelBarrel){
+  if (detLayer->subDetector() == GeomDetEnumerators::PixelBarrel || (!theUseEtaPhi  && detLayer->location() == GeomDetEnumerators::barrel)){
     const BarrelDetLayer& bl = dynamic_cast<const BarrelDetLayer&>(*detLayer);
     est = estimator(&bl,es);
-  } else if (detLayer->subDetector() == GeomDetEnumerators::PixelEndcap) {
+  } else if (detLayer->subDetector() == GeomDetEnumerators::PixelEndcap || (!theUseEtaPhi  && detLayer->location() == GeomDetEnumerators::endcap)) {
     const ForwardDetLayer& fl = dynamic_cast<const ForwardDetLayer&>(*detLayer);
     est = estimator(&fl,es);
   }

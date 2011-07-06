@@ -43,6 +43,12 @@ class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
       m_deltaPhi     = regionPSet.getParameter<double>("deltaPhiRegion");
       m_jetSrc       = regionPSet.getParameter<edm::InputTag>("JetSrc");
       m_vertexSrc    = regionPSet.getParameter<edm::InputTag>("vertexSrc");
+      if (regionPSet.exists("searchOpt")){
+	m_searchOpt    = regionPSet.getParameter<bool>("searchOpt");
+      }
+      else{
+	m_searchOpt = false;
+      }
       m_measurementTracker ="";
       m_howToUseMeasurementTracker=0;
       if (regionPSet.exists("measurementTrackerName")){
@@ -98,7 +104,8 @@ class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
                                                                                                m_deltaPhi,
 											       m_howToUseMeasurementTracker,
 											       true,
-											       m_measurementTracker);
+											       m_measurementTracker,
+											       m_searchOpt);
           result.push_back(etaphiRegion);
       }
 
@@ -117,6 +124,7 @@ class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
   edm::InputTag m_vertexSrc;
   std::string m_measurementTracker;
   double m_howToUseMeasurementTracker;
+  bool m_searchOpt;
 };
 
 #endif
