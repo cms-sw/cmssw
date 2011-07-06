@@ -160,12 +160,14 @@ sed -i -e "s/input = cms.untracked.int32( .* )/input = cms.untracked.int32( $SIZ
 # check the prescale modules
 hltCheckPrescaleModules -w hlt.py
 
-log "Extracting single path dumps"
+log "Preparing single-path configurations"
 for TRIGGER in $TRIGGERS; do
   log "\t$TRIGGER"
-  hltGetConfiguration "$MENU" --full --offline --data $INPUT --unprescale --process "TEST" --no-output --paths "$TRIGGER" $EXTRA > "$TRIGGER".py
-  # adapt the number of events
-  sed -i -e "s/input = cms.untracked.int32( .* )/input = cms.untracked.int32( $SIZE )/" "$TRIGGER".py
+  cat > "$TRIGGER".py << @EOF
+from hlt import *
+
+process.schedule = cms.Schedule( process.$TRIGGER )
+@EOF
 done
 
 # if a separate setup is requested, create the setup_cff.py file and patch all dumps to use it
