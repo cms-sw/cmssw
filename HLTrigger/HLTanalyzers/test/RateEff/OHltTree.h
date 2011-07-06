@@ -11483,6 +11483,13 @@ public:
 	 double etal2 = 2.5,
 	 double etal3 = 2.5);
 
+   int OpenHlt1MuonPassed(
+			  std::vector<double>,
+			  double dr,
+			  int iso,
+			  double etal2 = 2.5,
+			  double etal3 = 2.5);
+
    int OpenHlt2MuonPassed(
          double ptl1,
          double ptl2,
@@ -11844,6 +11851,8 @@ public:
 
    void initEGammaWPMap();
 
+   void initMuThresholdMap();
+
 private:
 
    int nTrig;
@@ -11877,6 +11886,9 @@ private:
    std::map<TString, std::map< TString, float> > map_EleTrkIso;
    std::map<TString, std::map< TString, float> > map_PhotonIso;
    std::map<TString, std::map< TString, float> > map_PhotonR9ID;
+
+   //Mu map
+   std::map<double, std::vector<double> > map_muThresholds; 
 
    TRandom3 random; // for random prescale method
    
@@ -12080,6 +12092,7 @@ OHltTree::OHltTree(TTree *tree, OHltMenu *menu)
    std::cout<<"Succeeded initialising OHltTree. nEntries: "<<fChain->GetEntries()<<std::endl;
 
    initEGammaWPMap();
+   initMuThresholdMap();
 }
 
 void OHltTree::initEGammaWPMap(){
@@ -12186,6 +12199,62 @@ void OHltTree::initEGammaWPMap(){
   (map_PhotonR9ID["R9Id"])["HoverEEB"] = 0.15;
   (map_PhotonR9ID["R9Id"])["HoverEEC"] = 0.10;
  
+}
+
+void OHltTree::initMuThresholdMap(){
+
+  map_muThresholds[3.].push_back(0.); 
+  map_muThresholds[3.].push_back(0.);
+  map_muThresholds[3.].push_back(3.);
+
+  map_muThresholds[5.].push_back(0.);
+  map_muThresholds[5.].push_back(3.);
+  map_muThresholds[5.].push_back(5.);
+
+  map_muThresholds[8.].push_back(0.);
+  map_muThresholds[8.].push_back(3.);
+  map_muThresholds[8.].push_back(8.);
+
+  map_muThresholds[12.].push_back(0.);
+  map_muThresholds[12.].push_back(7.);
+  map_muThresholds[12.].push_back(12.);
+
+  map_muThresholds[13.].push_back(0.);
+  map_muThresholds[13.].push_back(7.);
+  map_muThresholds[13.].push_back(13.);
+
+  map_muThresholds[15.].push_back(0.);
+  map_muThresholds[15.].push_back(10.);
+  map_muThresholds[15.].push_back(15.);
+
+  map_muThresholds[17.].push_back(0.);
+  map_muThresholds[17.].push_back(10.);
+  map_muThresholds[17.].push_back(17.);
+
+  map_muThresholds[20.].push_back(0.);
+  map_muThresholds[20.].push_back(12.);
+  map_muThresholds[20.].push_back(20.);
+
+  map_muThresholds[24.].push_back(0.);
+  map_muThresholds[24.].push_back(12.);
+  map_muThresholds[24.].push_back(24.);
+
+  map_muThresholds[30.].push_back(0.);
+  map_muThresholds[30.].push_back(12.);
+  map_muThresholds[30.].push_back(30.);
+
+  map_muThresholds[40.].push_back(0.);
+  map_muThresholds[40.].push_back(16.);
+  map_muThresholds[40.].push_back(24.);
+
+  map_muThresholds[60.].push_back(0.);
+  map_muThresholds[60.].push_back(16.);
+  map_muThresholds[60.].push_back(60.);
+
+  map_muThresholds[100.].push_back(0.);
+  map_muThresholds[100.].push_back(16.);
+  map_muThresholds[100.].push_back(100.);
+
 }
 
 OHltTree::~OHltTree()

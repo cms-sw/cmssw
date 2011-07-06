@@ -27,7 +27,7 @@ bool isSingleEleTrigger(TString triggerName, vector<double>& thresholdEle, vecto
     {
       TObjArray *subStrL   = TPRegexp(patternEle).MatchS(triggerName);
       thresholdEle.push_back((((TObjString *)subStrL->At(2))->GetString()).Atof());
-      caloId .push_back(((TObjString *)subStrL->At(3))->GetString());
+      caloId.push_back(((TObjString *)subStrL->At(3))->GetString());
       caloIso.push_back(((TObjString *)subStrL->At(4))->GetString());
       trkId.push_back(((TObjString *)subStrL->At(5))->GetString());
       trkIso.push_back(((TObjString *)subStrL->At(6))->GetString());
@@ -150,42 +150,16 @@ bool isAsymDoublePhotonTrigger(TString triggerName, vector<double>& thresholdPho
   else return false;
 }
 
-
-
-
-//define L1, L2, L3 sets of thresholds for *standard* muons -Lucie : should be moved to .h ?
-void getMuThresholds(double L3pt, vector<double> &thresholds){
-
-  thresholds.push_back(0.);
-
-  if (L3pt == 3.) thresholds.push_back(0.);
-  else if (L3pt == 5.) thresholds.push_back(3.);
-  else if (L3pt == 8.) thresholds.push_back(3.);
-  else if (L3pt == 12.) thresholds.push_back(7.);
-  else if (L3pt == 13.) thresholds.push_back(7.);
-  else if (L3pt == 15.) thresholds.push_back(10.);
-  else if (L3pt == 17.) thresholds.push_back(10.);
-  else if (L3pt == 20.) thresholds.push_back(12.);
-  else if (L3pt == 24.) thresholds.push_back(12.);
-  else if (L3pt == 30.) thresholds.push_back(12.);
-  else if (L3pt == 40.) thresholds.push_back(16.);
-  else if (L3pt == 60.) thresholds.push_back(16.);
-  else if (L3pt == 100.) thresholds.push_back(16.);  
-
-  thresholds.push_back(L3pt);
-}
-
-
 bool isMuXTrigger(TString triggerName, vector<double> &thresholds)
 {
- TString pattern = "(OpenHLT_Mu([0-9]+)){1}$";
+  TString pattern = "(OpenHLT_Mu([0-9]+)){1}$";
   TPRegexp matchThreshold(pattern);
 
   if (matchThreshold.MatchB(triggerName))
     {
       TObjArray *subStrL   = TPRegexp(pattern).MatchS(triggerName);
       double thresholdL3Mu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      getMuThresholds(thresholdL3Mu, thresholds);
+      thresholds.push_back(thresholdL3Mu);
       delete subStrL;
       return true;
     }
@@ -202,7 +176,7 @@ bool isIsoMuXTrigger(TString triggerName, vector<double> &thresholds)
     {
       TObjArray *subStrL   = TPRegexp(pattern).MatchS(triggerName);
       double thresholdL3Mu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      getMuThresholds(thresholdL3Mu, thresholds);
+      thresholds.push_back(thresholdL3Mu);
       delete subStrL;
       return true;
     }
@@ -219,8 +193,8 @@ bool isIsoMuX_eta2pXTrigger(TString triggerName, vector<double> &thresholds)
     {
       TObjArray *subStrL   = TPRegexp(pattern).MatchS(triggerName);
       double thresholdL3Mu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      getMuThresholds(thresholdL3Mu, thresholds);
       double thresholdEta  = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdL3Mu);
       thresholds.push_back(2. + thresholdEta/10.);
       delete subStrL;
       return true;
@@ -239,7 +213,7 @@ bool isMuX_MuXTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL    = TPRegexp(pattern).MatchS(triggerName);
       double thresholdL3Mu0 = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       double thresholdL3Mu1 = (((TObjString *)subStrL->At(3))->GetString()).Atof();
-      getMuThresholds(thresholdL3Mu0, thresholds);
+      thresholds.push_back(thresholdL3Mu0);
       thresholds.push_back(thresholdL3Mu1);
       delete subStrL;
       return true;
@@ -258,7 +232,7 @@ bool isMuX_HTXTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL   = TPRegexp(pattern).MatchS(triggerName);
       double thresholdL3Mu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       double thresholdHT   = (((TObjString *)subStrL->At(3))->GetString()).Atof();
-      getMuThresholds(thresholdL3Mu, thresholds);
+      thresholds.push_back(thresholdL3Mu);
       thresholds.push_back(thresholdHT);
       delete subStrL;
       return true;
@@ -928,7 +902,7 @@ bool isMuX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
       double thresholdL3Mu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       double thresholdR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       double thresholdMR = (((TObjString *)subStrL->At(4))->GetString()).Atof();
-      getMuThresholds(thresholdL3Mu, thresholds);
+      thresholds.push_back(thresholdL3Mu);
       thresholds.push_back(thresholdR/100.);
       thresholds.push_back(thresholdMR);
       delete subStrL;
@@ -994,7 +968,7 @@ bool isMuX_MR0XTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdL3Mu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       double thresholdMR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
-      getMuThresholds(thresholdL3Mu, thresholds);
+      thresholds.push_back(thresholdL3Mu);
       thresholds.push_back(thresholdMR);
       delete subStrL;
       return true;
@@ -1669,7 +1643,7 @@ bool isHTX_MuX_pfMHTXTrigger(
       double thresholdL3Mu  = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       double thresholdpfMHT = (((TObjString *)subStrL->At(4))->GetString()).Atof();
       thresholds.push_back(thresholdHT);
-      getMuThresholds(thresholdL3Mu, thresholds);
+      thresholds.push_back(thresholdL3Mu);
       thresholds.push_back(thresholdpfMHT);
       delete subStrL;
       return true;
@@ -2978,9 +2952,9 @@ void OHltTree::CheckOpenHlt(
 	{
 	  if (prescaleResponse(menu, cfg, rcounter, it))
 	    {
-	      if (OpenHlt1MuonPassed(thresholds[0], thresholds[1], thresholds[2], 2., 0)>=1)
+	      if (OpenHlt1MuonPassed(map_muThresholds[thresholds[0]], 2., 0)>=1)
 		{
-		  if (OpenHltRPassed(thresholds[3], thresholds[4], false, 7, 40.)>0)
+		  if (OpenHltRPassed(thresholds[1], thresholds[1], false, 7, 40.)>0)
 		    triggerBit[it] = true;
 		}
 	    }
@@ -2992,9 +2966,9 @@ void OHltTree::CheckOpenHlt(
 	{
 	  if (prescaleResponse(menu, cfg, rcounter, it))
 	    {
-	      if (OpenHlt1MuonPassed(thresholds[0], thresholds[1], thresholds[2], 2., 0)>=1)
+	      if (OpenHlt1MuonPassed(map_muThresholds[thresholds[0]], 2., 0)>=1)
 		{
-		  if (OpenHltRPassed(thresholds[3], thresholds[4], false, 7, 40.)>0)
+		  if (OpenHltRPassed(thresholds[1], thresholds[2], false, 7, 40.)>0)
 		    triggerBit[it] = true;
 		}
 	    }
@@ -3380,7 +3354,7 @@ void OHltTree::CheckOpenHlt(
 	{
 	  if (prescaleResponse(menu, cfg, rcounter, it))
 	    {
-	      if (OpenHlt1MuonPassed(thresholds[0], thresholds[1], thresholds[2], 2., 0)>=1)
+	      if (OpenHlt1MuonPassed(map_muThresholds[thresholds[0]], 2., 0)>=1)
 		{
 		  triggerBit[it] = true;
 		}
@@ -3393,7 +3367,7 @@ void OHltTree::CheckOpenHlt(
         {
           if (prescaleResponse(menu, cfg, rcounter, it))
             {
-              if (OpenHlt1MuonPassed(thresholds[0], thresholds[1], thresholds[2], 2., 1, thresholds[3], thresholds[3])>=1)
+              if (OpenHlt1MuonPassed(map_muThresholds[thresholds[0]], 2., 1, thresholds[1], thresholds[1])>=1)
                 {
                   triggerBit[it] = true;
                 }
@@ -3406,7 +3380,7 @@ void OHltTree::CheckOpenHlt(
 	{
 	  if (prescaleResponse(menu, cfg, rcounter, it))
 	    {
-	      if (OpenHlt1MuonPassed(thresholds[0], thresholds[1], thresholds[2], 2., 1)>=1)
+	      if (OpenHlt1MuonPassed(map_muThresholds[thresholds[0]], 2., 1)>=1)
 		{
 		  triggerBit[it] = true;
 		}
@@ -16726,120 +16700,129 @@ int OHltTree::OpenHlt1MuonPassed(
   return rcL1L2L3;
 }
 
-// int OHltTree::OpenHlt1MuonEtaRestrictedPassed(  
-// 					      double ptl1,  
-// 					      double ptl2,  
-// 					      double ptl3,  
-// 					      double dr,  
-// 					      int iso, 
-// 					      double etal3)
-// {
-//   int rcL1 = 0; 
-//   int rcL2 = 0; 
-//   int rcL3 = 0; 
-//   int rcL1L2L3 = 0; 
-//   int NL1Mu = 8; 
-//   int L1MinimalQuality = 4; 
-//   int L1MaximalQuality = 7; 
-//   int doL1L2matching = 0; 
-         
-//   // Loop over all oh L3 muons and apply cuts 
-//   for (int i=0; i<NohMuL3; i++) 
-//     { 
-//       int bestl1l2drmatchind = -1; 
-//       double bestl1l2drmatch = 999.0; 
-                 
-//       if (fabs(ohMuL3Eta[i]) < etal3) 
-//         { // L3 eta cut   
-//           if (ohMuL3Pt[i] > ptl3) 
-//             { // L3 pT cut         
-//               if (ohMuL3Dr[i] < dr) 
-//                 { // L3 DR cut 
-//                   if (ohMuL3Iso[i] >= iso) 
-//                     { // L3 isolation 
-//                       rcL3++; 
-                                                 
-//                       // Begin L2 muons here.  
-//                       // Get best L2<->L3 match, then  
-//                       // begin applying cuts to L2 
-//                       int j = ohMuL3L2idx[i]; // Get best L2<->L3 match 
-                                                 
-//                       if ( (fabs(ohMuL2Eta[j])<2.5)) 
-//                         { // L2 eta cut 
-//                           if (ohMuL2Pt[j] > ptl2) 
-//                             { // L2 pT cut 
-//                               if (ohMuL2Iso[j] >= iso) 
-//                                 { // L2 isolation 
-//                                   rcL2++; 
-                                                                         
-//                                   // Begin L1 muons here. 
-//                                   // Require there be an L1Extra muon Delta-R 
-//                                   // matched to the L2 candidate, and that it have  
-//                                   // good quality and pass nominal L1 pT cuts  
-//                                   for (int k = 0; k < NL1Mu; k++) 
-//                                     { 
-//                                       if ( (L1MuPt[k] < ptl1)) // L1 pT cut 
-//                                         continue; 
-                                                                                 
-//                                       double deltaphi = fabs(ohMuL2Phi[j]-L1MuPhi[k]); 
-//                                       if (deltaphi > 3.14159) 
-//                                         deltaphi = (2.0 * 3.14159) - deltaphi; 
-                                                                                 
-//                                       double deltarl1l2 = 
-//                                         sqrt((ohMuL2Eta[j]-L1MuEta[k]) 
-//                                              *(ohMuL2Eta[j]-L1MuEta[k]) 
-//                                              + (deltaphi*deltaphi)); 
-//                                       if (deltarl1l2 < bestl1l2drmatch) 
-//                                         { 
-//                                           bestl1l2drmatchind = k; 
-//                                           bestl1l2drmatch = deltarl1l2; 
-//                                         } 
-//                                     } // End loop over L1Extra muons 
-                                                                         
-//                                   if (doL1L2matching == 1) 
-//                                     { 
-//                                       // Cut on L1<->L2 matching and L1 quality 
-//                                       if ((bestl1l2drmatch > 0.3) 
-//                                           || (L1MuQal[bestl1l2drmatchind] 
-//                                               < L1MinimalQuality) 
-//                                           || (L1MuQal[bestl1l2drmatchind] 
-//                                               > L1MaximalQuality)) 
-//                                         { 
-//                                           rcL1 = 0; 
-//                                           cout << "Failed L1-L2 match/quality" << endl; 
-//                                           cout << "L1-L2 delta-eta = " 
-//                                                << L1MuEta[bestl1l2drmatchind] << ", " 
-//                                                << ohMuL2Eta[j] << endl; 
-//                                           cout << "L1-L2 delta-pho = " 
-//                                                << L1MuPhi[bestl1l2drmatchind] << ", " 
-//                                                << ohMuL2Phi[j] << endl; 
-//                                           cout << "L1-L2 delta-R = " << bestl1l2drmatch 
-//                                                << endl; 
-//                                         } 
-//                                       else 
-//                                         { 
-//                                           cout << "Passed L1-L2 match/quality" << endl; 
-//                                           L3MuCandIDForOnia[rcL1L2L3] = i; 
-//                                           rcL1++; 
-//                                           rcL1L2L3++; 
-//                                         } // End L1 matching and quality cuts          
-//                                     } 
-//                                   else 
-//                                     { 
-//                                       L3MuCandIDForOnia[rcL1L2L3] = i; 
-//                                       rcL1L2L3++; 
-//                                     } 
-//                                 } // End L2 isolation cut  
-//                             } // End L2 eta cut 
-//                         } // End L2 pT cut 
-//                     } // End L3 isolation cut 
-//                 } // End L3 DR cut 
-//             } // End L3 pT cut 
-//         } // End L3 eta cut 
-//     } // End loop over L3 muons                
-         
-//   return rcL1L2L3; 
-// } 
+int OHltTree::OpenHlt1MuonPassed(
+				 vector<double> muThresholds,
+				 double dr,
+				 int iso,
+				 double etal2,
+				 double etal3
+				 )
+{
+  // This example implements the new (CMSSW_2_X) flat muon pT cuts.
+  // To emulate the old behavior, the cuts should be written
+  // L2:        ohMuL2Pt[i]+3.9*ohMuL2PtErr[i]*ohMuL2Pt[i]
+  // L3:        ohMuL3Pt[i]+2.2*ohMuL3PtErr[i]*ohMuL3Pt[i]
+	
+  int rcL1 = 0;
+  int rcL2 = 0;
+  int rcL3 = 0;
+  int rcL1L2L3 = 0;
+  int NL1Mu = 8;
+  int L1MinimalQuality = 1;
+  int L1MaximalQuality = 7;
+  int doL1L2matching = 0;
+	
+  for (int ic = 0; ic < 10; ic++)
+    L3MuCandIDForOnia[ic] = -1;
+	
+  // Loop over all oh L3 muons and apply cuts
+  for (int i=0; i<NohMuL3; i++)
+    {
+      int bestl1l2drmatchind = -1;
+      double bestl1l2drmatch = 999.0;
+		
+      if (fabs(ohMuL3Eta[i]) < etal3)
+	{ // L3 eta cut  
+	  if (ohMuL3Pt[i] > muThresholds[2])
+	    { // L3 pT cut        
+	      if (ohMuL3Dr[i] < dr)
+		{ // L3 DR cut
+		  if (ohMuL3Iso[i] >= iso)
+		    { // L3 isolation
+		      rcL3++;
+						
+		      // Begin L2 muons here. 
+		      // Get best L2<->L3 match, then 
+		      // begin applying cuts to L2
+		      int j = ohMuL3L2idx[i]; // Get best L2<->L3 match
+						
+		      if ( (fabs(ohMuL2Eta[j])<etal2))
+			{ // L2 eta cut
+			  if (ohMuL2Pt[j] >  muThresholds[1] )
+			    { // L2 pT cut
+			      if (ohMuL2Iso[j] >= iso)
+				{ // L2 isolation
+				  rcL2++;
+									
+				  // Begin L1 muons here.
+				  // Require there be an L1Extra muon Delta-R
+				  // matched to the L2 candidate, and that it have 
+				  // good quality and pass nominal L1 pT cuts 
+				  for (int k = 0; k < NL1Mu; k++)
+				    {
+				      if ( (L1MuPt[k] < muThresholds[0])) // L1 pT cut
+					continue;
+										
+				      double deltaphi = fabs(ohMuL2Phi[j]-L1MuPhi[k]);
+				      if (deltaphi > 3.14159)
+					deltaphi = (2.0 * 3.14159) - deltaphi;
+										
+				      double deltarl1l2 =
+					sqrt((ohMuL2Eta[j]-L1MuEta[k])
+					     *(ohMuL2Eta[j]-L1MuEta[k])
+					     + (deltaphi*deltaphi));
+				      if (deltarl1l2 < bestl1l2drmatch)
+					{
+					  bestl1l2drmatchind = k;
+					  bestl1l2drmatch = deltarl1l2;
+					}
+				    } // End loop over L1Extra muons
+									
+				  if (doL1L2matching == 1)
+				    {
+				      // Cut on L1<->L2 matching and L1 quality
+				      if ((bestl1l2drmatch > 0.3)
+					  || (L1MuQal[bestl1l2drmatchind]
+					      < L1MinimalQuality)
+					  || (L1MuQal[bestl1l2drmatchind]
+					      > L1MaximalQuality))
+					{
+					  rcL1 = 0;
+					  cout << "Failed L1-L2 match/quality" << endl;
+					  cout << "L1-L2 delta-eta = "
+					       << L1MuEta[bestl1l2drmatchind] << ", "
+					       << ohMuL2Eta[j] << endl;
+					  cout << "L1-L2 delta-pho = "
+					       << L1MuPhi[bestl1l2drmatchind] << ", "
+					       << ohMuL2Phi[j] << endl;
+					  cout << "L1-L2 delta-R = " << bestl1l2drmatch
+					       << endl;
+					}
+				      else
+					{
+					  cout << "Passed L1-L2 match/quality" << endl;
+					  L3MuCandIDForOnia[rcL1L2L3] = i;
+					  rcL1++;
+					  rcL1L2L3++;
+					} // End L1 matching and quality cuts	      
+				    }
+				  else
+				    {
+				      L3MuCandIDForOnia[rcL1L2L3] = i;
+				      rcL1L2L3++;
+				    }
+				} // End L2 isolation cut 
+			    } // End L2 eta cut
+			} // End L2 pT cut
+		    } // End L3 isolation cut
+		} // End L3 DR cut
+	    } // End L3 pT cut
+	} // End L3 eta cut
+    } // End loop over L3 muons		      
+	
+  return rcL1L2L3;
+}
+
 
 //// Separating between Jets and Muon.....
 int OHltTree::OpenHlt1MuonIsoJetPassed(
@@ -16989,117 +16972,6 @@ int OHltTree::OpenHlt1MuonIsoJetPassed(
   return rcL1L2L3;
 	
 }
-
-// int OHltTree::OpenHlt2MuonPassed(
-// 				 double ptl1,
-// 				 double ptl2,
-// 				 double ptl3,
-// 				 double dr,
-// 				 int iso)
-// {
-//   // Note that the dimuon paths generally have different L1 requirements than 
-//   // the single muon paths. Therefore this example is implemented in a separate
-//   // function.
-//   //
-//   // This example implements the new (CMSSW_2_X) flat muon pT cuts. 
-//   // To emulate the old behavior, the cuts should be written 
-//   // L2:        ohMuL2Pt[i]+3.9*ohMuL2PtErr[i]*ohMuL2Pt[i] 
-//   // L3:        ohMuL3Pt[i]+2.2*ohMuL3PtErr[i]*ohMuL3Pt[i] 
-	
-//   int rcL1 = 0;
-//   int rcL2 = 0;
-//   int rcL3 = 0;
-//   int rcL1L2L3 = 0;
-//   int NL1Mu = 8;
-//   int L1MinimalQuality = 3;
-//   int L1MaximalQuality = 7;
-//   int doL1L2matching = 0;
-	
-//   // Loop over all oh L3 muons and apply cuts 
-//   for (int i=0; i<NohMuL3; i++)
-//     {
-//       int bestl1l2drmatchind = -1;
-//       double bestl1l2drmatch = 999.0;
-		
-//       if (fabs(ohMuL3Eta[i]) < 2.5)
-// 	{ // L3 eta cut   
-// 	  if (ohMuL3Pt[i] > ptl3)
-// 	    { // L3 pT cut         
-// 	      if (ohMuL3Dr[i] < dr)
-// 		{ // L3 DR cut 
-// 		  if (ohMuL3Iso[i] >= iso)
-// 		    { // L3 isolation 
-// 		      rcL3++;
-						
-// 		      // Begin L2 muons here.  
-// 		      // Get best L2<->L3 match, then  
-// 		      // begin applying cuts to L2 
-// 		      int j = ohMuL3L2idx[i]; // Get best L2<->L3 match 
-						
-// 		      if ( (fabs(ohMuL2Eta[j])<2.5))
-// 			{ // L2 eta cut 
-// 			  if (ohMuL2Pt[j] > ptl2)
-// 			    { // L2 pT cut 
-// 			      if (ohMuL2Iso[j] >= iso)
-// 				{ // L2 isolation  
-// 				  rcL2++;
-									
-// 				  // Begin L1 muons here. 
-// 				  // Require there be an L1Extra muon Delta-R 
-// 				  // matched to the L2 candidate, and that it have  
-// 				  // good quality and pass nominal L1 pT cuts  
-// 				  for (int k = 0; k < NL1Mu; k++)
-// 				    {
-// 				      if ( (L1MuPt[k] < ptl1)) // L1 pT cut 
-// 					continue;
-										
-// 				      double deltaphi = fabs(ohMuL2Phi[j]-L1MuPhi[k]);
-// 				      if (deltaphi > 3.14159)
-// 					deltaphi = (2.0 * 3.14159) - deltaphi;
-										
-// 				      double deltarl1l2 =
-// 					sqrt((ohMuL2Eta[j]-L1MuEta[k])
-// 					     *(ohMuL2Eta[j]-L1MuEta[k])
-// 					     + (deltaphi*deltaphi));
-// 				      if (deltarl1l2 < bestl1l2drmatch)
-// 					{
-// 					  bestl1l2drmatchind = k;
-// 					  bestl1l2drmatch = deltarl1l2;
-// 					}
-// 				    } // End loop over L1Extra muons 
-									
-// 				  if (doL1L2matching == 1)
-// 				    {
-// 				      // Cut on L1<->L2 matching and L1 quality 
-// 				      if ((bestl1l2drmatch > 0.3)
-// 					  || (L1MuQal[bestl1l2drmatchind]
-// 					      < L1MinimalQuality)
-// 					  || (L1MuQal[bestl1l2drmatchind]
-// 					      > L1MaximalQuality))
-// 					{
-// 					  rcL1 = 0;
-// 					}
-// 				      else
-// 					{
-// 					  rcL1++;
-// 					  rcL1L2L3++;
-// 					} // End L1 matching and quality cuts        
-// 				    }
-// 				  else
-// 				    {
-// 				      rcL1L2L3++;
-// 				    }
-// 				} // End L2 isolation cut 
-// 			    } // End L2 eta cut
-// 			} // End L2 pT cut 
-// 		    } // End L3 isolation cut 
-// 		} // End L3 DR cut 
-// 	    } // End L3 pT cut 
-// 	} // End L3 eta cut 
-//     } // End loop over L3 muons                  
-	
-//   return rcL1L2L3;
-// }
 
 int OHltTree::OpenHlt1L2MuonPassed(double ptl1, double ptl2, double dr)
 {
