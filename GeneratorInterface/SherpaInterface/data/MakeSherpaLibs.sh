@@ -6,8 +6,8 @@
 #  uses:        the required SHERPA data cards (+ libraries) [see below]
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        28th April 2011
-#  version:     3.3
+#  date:        6th July 2011
+#  version:     3.4
 #  changed: 	Martin Niegel, KIT, 2011/06/07
 #		Fix for Sherpa 1.3.0
 #
@@ -20,7 +20,7 @@
 
 print_help() {
     echo "" && \
-    echo "MakeSherpaLibs version 3.0" && echo && \
+    echo "MakeSherpaLibs version 3.4" && echo && \
     echo "options: -d  path       (optional) path to your SHERPA installation (otherwise the SHERPA" && \
     echo "                         package belonging to the release under '\$CMSSW_BASE' is used)" && \
     echo "                         -> ( "${shr}" )" && \
@@ -37,6 +37,7 @@ print_help() {
     echo "         -D  filename   (optional) name of data card file ( "${cfdc}" )" && \
     echo "         -L  filename   (optional) name of library file ( "${cflb}" )" && \
     echo "         -C  filename   (optional) name of cross section file ( "${cfcr}" )" && \
+    echo "         -A             switch on multiple interactions in Run.dat card ( "${FLGAMISIC}" )" && \
     echo "         -h             display this help and exit" && echo
 }
 
@@ -158,9 +159,10 @@ cfdc=""                            # custom data card file name
 cflb=""                            # custom library file name
 cfcr=""                            # custom cross section file name
 fin=${HDIR}                        # output path for SHERPA libraries & cross sections
+FLGAMISIC="FALSE"                  # switch on multiple interactions for production
 
 # get & evaluate options
-while getopts :d:i:p:o:f:D:L:C:h OPT
+while getopts :d:i:p:o:f:D:L:C:Ah OPT
 do
   case $OPT in
   d) shr=$OPTARG ;;
@@ -171,6 +173,7 @@ do
   D) cfdc=$OPTARG ;;
   L) cflb=$OPTARG ;;
   C) cfcr=$OPTARG ;;
+  A) FLGAMISIC="TRUE" ;;
   h) print_help && exit 0 ;;
   \?)
     shift `expr $OPTIND - 1`
@@ -214,7 +217,7 @@ if [ "${SHERPA_LIBRARY_PATH}" = "" ]; then export SHERPA_LIBRARY_PATH=${shr}/lib
 
 
 # find 'Run' directory
-shrun=${HDIR}/SHERPATMP
+shrun=${HDIR}/SHERPATMP_${prc}
 mkdir -p ${shrun}
 pth=${shrun}/${pth} #SHERPA 1.3.0 needs full path, MN 070611
 
@@ -402,7 +405,7 @@ if [ "${lbo}" = "LIBS" ] || [ "${lbo}" = "LBCR" ]; then
   if [ "${FLGCOMIX}" == "FALSE" ]; then
   testfile=`find ${shr} -type f -name libSherpaMain.so.0.0.0`
   echo "testfile: "${testfile}
-  testbit=`echo ${testfile} | grep -i -c "ELF 32"`
+  testbit=`file ${testfile} | grep -i -c "ELF 32"`
   echo "testbit: "${testbit}
   if [ ${testbit} -ge 1 ]; then
 ##  cp ${shr}/share/SHERPA-MC/makelibs .
@@ -514,16 +517,22 @@ if [ "${lbo}" = "LIBS" ]; then
 elif [ "${lbo}" = "LBCR" ]; then
 #  tar -czf ${crdlfile} ${FILES}
 #  md5sum ${crdlfile} > ${crdfmd5s}
-#  sed -e 's:MI_HANDLER.*:MI_HANDLER   = Amisic                ! Amisic / None:' < Run.dat > Run.dat.tmp
-#  mv Run.dat.tmp Run.dat
+# switch on multiple interactions
+  if [ "${FLGAMISIC}" = "TRUE" ]; then
+    sed -e 's:MI_HANDLER.*:MI_HANDLER   = Amisic:' < Run.dat > Run.dat.tmp
+    mv Run.dat.tmp Run.dat
+  fi
   tar -czf ${crdefile} ${FILES}
   md5sum ${crdefile} > ${evtfmd5s}
   mv ${crdefile} ${shrun}/
 elif [ "${lbo}" = "CRSS" ]; then
 #  tar -czf ${crdcfile} ${FILES}
 #  md5sum ${crdcfile} > ${crdfmd5s}
-#  sed -e 's:MI_HANDLER.*:MI_HANDLER   = Amisic                ! Amisic / None:' < Run.dat > Run.dat.tmp
-#  mv Run.dat.tmp Run.dat
+# switch on multiple interactions
+  if [ "${FLGAMISIC}" = "TRUE" ]; then
+    sed -e 's:MI_HANDLER.*:MI_HANDLER   = Amisic:' < Run.dat > Run.dat.tmp
+    mv Run.dat.tmp Run.dat
+  fi
   tar -czf ${crdefile} ${FILES}
   md5sum ${crdefile} > ${evtfmd5s}
   mv ${crdefile} ${shrun}/
@@ -551,4 +560,5 @@ mv *.tgz ${fin}/
 
 # go back to original directory
 cd ${HDIR}
-rm -rf ./SHERPATMP
+rm -rf ${shrun}
+

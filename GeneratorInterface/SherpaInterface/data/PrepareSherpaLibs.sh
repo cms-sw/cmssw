@@ -6,8 +6,8 @@
 #  uses:        SHERPA datacards, libs and cross sections
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2009/12/09
-#  version:     2.8
+#  date:        6th July 2011
+#  version:     3.0
 #  changed: 	Martin Niegel, KIT, 2011/06/07
 #		Fix for Sherpa 1.3.0
 
@@ -18,7 +18,7 @@
 
 function print_help() {
     echo "" && \
-    echo "PrepareSherpaLibs version 2.8" && echo && \
+    echo "PrepareSherpaLibs version 3.0" && echo && \
     echo "options: -i  path       path to SHERPA datacard, library & cross section files" && \
     echo "                         can also be in WWW (http://...) or SE (srm://...)" && \
     echo "                         -> ( "${datadir}" )" && \
@@ -49,18 +49,20 @@ function build_python_cfi() {
   if [ -e ${shpacfifile} ]; then rm ${shpacfifile}; fi
   touch ${shpacfifile}
 
-  echo "import FWCore.ParameterSet.Config as cms"             >> ${shpacfifile}
-  echo "import os"                                            >> ${shpacfifile} 
-  echo ""                                                     >> ${shpacfifile}
-  echo "source = cms.Source(\"EmptySource\")"                 >> ${shpacfifile}
-  echo ""                                                     >> ${shpacfifile}
-  echo "generator = cms.EDFilter(\"SherpaGeneratorFilter\","  >> ${shpacfifile}
-  echo "  maxEventsToPrint = cms.untracked.int32(0),"           >> ${shpacfifile}
-  echo "  filterEfficiency = cms.untracked.double(1.0),"        >> ${shpacfifile}
-  echo "  crossSection = cms.untracked.double(-1),"             >> ${shpacfifile}
-  echo "  libDir    = cms.untracked.string(os.getcwd()+'/"${MYLIBDIR}"')," >> ${shpacfifile}
-  echo "  resultDir = cms.untracked.string('Result'),"        >> ${shpacfifile}
-  echo "  SherpaParameters = cms.PSet(parameterSets = cms.vstring(" >> ${shpacfifile}
+  echo "import FWCore.ParameterSet.Config as cms"                          >> ${shpacfifile}
+  echo "import os"                                                         >> ${shpacfifile} 
+  echo ""                                                                  >> ${shpacfifile}
+  echo "source = cms.Source(\"EmptySource\")"                              >> ${shpacfifile}
+  echo ""                                                                  >> ${shpacfifile}
+  echo "generator = cms.EDFilter(\"SherpaGeneratorFilter\","               >> ${shpacfifile}
+  echo "  maxEventsToPrint = cms.untracked.int32(0),"                      >> ${shpacfifile}
+  echo "  filterEfficiency = cms.untracked.double(1.0),"                   >> ${shpacfifile}
+  echo "  crossSection = cms.untracked.double(-1),"                        >> ${shpacfifile}
+  echo "  Path = cms.untracked.string(os.getcwd()+'/"${MYLIBDIR}"'),"      >> ${shpacfifile}
+  echo "  PathPiece = cms.untracked.string(os.getcwd()+'/"${MYLIBDIR}"')," >> ${shpacfifile}
+  echo "  ResultDir = cms.untracked.string('Result'),"                     >> ${shpacfifile}
+  echo "  default_weight = cms.untracked.double(1.0),"                     >> ${shpacfifile}
+  echo "  SherpaParameters = cms.PSet(parameterSets = cms.vstring("        >> ${shpacfifile}
   fcnt=0
   for file in `ls *.dat`; do
     let fcnt=${fcnt}+1
@@ -105,15 +107,15 @@ function build_python_cfi() {
   echo "ProductionFilterSequence = cms.Sequence(generator)"   >> ${shpacfifile}
   echo ""                                                     >> ${shpacfifile}
 
-  cat > sherpa_custom_cff.py << EOF
-import FWCore.ParameterSet.Config as cms
-
-def customise(process):
-
-	process.genParticles.abortOnUnknownPDGCode = False
-
-	return(process)
-EOF
+#  cat > sherpa_custom_cff.py << EOF
+#import FWCore.ParameterSet.Config as cms
+#
+#def customise(process):
+#
+#	process.genParticles.abortOnUnknownPDGCode = False
+#
+#	return(process)
+#EOF
 
 }
 

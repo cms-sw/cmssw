@@ -41,8 +41,10 @@ public:
   
 private:
   
-  std::string SherpaLibDir;
+  std::string SherpaPath;
+  std::string SherpaPathPiece;
   std::string SherpaResultDir;
+  double default_weight;
   edm::ParameterSet	SherpaParameter;
   unsigned int	maxEventsToPrint;
   
@@ -63,8 +65,10 @@ private:
 
 SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   BaseHadronizer(params),
-  SherpaLibDir(params.getUntrackedParameter<std::string>("libDir","Sherpa_Process")),
-  SherpaResultDir(params.getUntrackedParameter<std::string>("resultDir","Result")),
+  SherpaPath(params.getUntrackedParameter<std::string>("Path","SherpaRun")),
+  SherpaPathPiece(params.getUntrackedParameter<std::string>("PathPiece","SherpaRun")),
+  SherpaResultDir(params.getUntrackedParameter<std::string>("ResultDir","Result")),
+  default_weight(params.getUntrackedParameter<double>("default_weight",1.)),
   SherpaParameter(params.getParameter<edm::ParameterSet>("SherpaParameters")),
   maxEventsToPrint(params.getUntrackedParameter<int>("maxEventsToPrint", 0))
 {
@@ -77,7 +81,7 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
     // ...and read the parameters for each set given in vstrings
     std::vector<std::string> pars = SherpaParameter.getParameter<std::vector<std::string> >(setNames[i]);
     std::cout << "Write Sherpa parameter set " << setNames[i] <<" to "<<setNames[i]<<".dat "<<std::endl;
-    std::string datfile =  SherpaLibDir + "/" + setNames[i] +".dat";
+    std::string datfile =  SherpaPath + "/" + setNames[i] +".dat";
     std::ofstream os(datfile.c_str());  
     // Loop over all strings and write the according *.dat
     for(std::vector<std::string>::const_iterator itPar = pars.begin(); itPar != pars.end(); ++itPar ) {
@@ -89,11 +93,10 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   //name of executable  (only for demonstration, could also be empty)
   std::string shRun  = "./Sherpa";
   //Path where the Sherpa libraries are stored
-  std::string shPath = "PATH=" + SherpaLibDir;
+  std::string shPath = "PATH=" + SherpaPath;
   // new for Sherpa 1.3.0, suggested by authors
-  std::string shPathPiece = "PATH_PIECE=" + SherpaLibDir; 
+  std::string shPathPiece = "PATH_PIECE=" + SherpaPathPiece; 
   //Path where results are stored 
-  // std::string shRes  = "RESULT_DIRECTORY=" + SherpaLibDir + "/" + SherpaResultDir; // for Sherpa <=1.1.3
   std::string shRes  = "RESULT_DIRECTORY=" + SherpaResultDir; // from Sherpa 1.2.0 on
   //Name of the external random number class
   std::string shRng  = "EXTERNAL_RNG=CMS_SHERPA_RNG";
@@ -172,13 +175,19 @@ bool SherpaHadronizer::generatePartonsAndHadronize()
     SHERPA::HepMC2_Interface* hm2i = ioh->GetHepMC2Interface();
     //get the event weight from blobs
     ATOOLS::Blob_List* blobs = Generator.GetEventHandler()-> GetBlobs();
-    ATOOLS::Blob * sp(blobs->FindFirst(ATOOLS::btp::Signal_Process));
+    ATOOLS::Blob* sp(blobs->FindFirst(ATOOLS::btp::Signal_Process));
     double weight((*sp)["Weight"]->Get<double>());
-    //in case of unweighted events sherpa puts the max weight as event weight. 
-    //This is not optimal, we want 1 for unweighted events, so we check 
-    //whether we are producing unweighted events ("EVENT_GENERATION_MODE" == "1")
-    if ( ATOOLS::ToType<int>( ATOOLS::rpa.gen.Variable("EVENT_GENERATION_MODE") ) == 1 )
-      weight = 1.;
+    double ef((*sp)["Enhance"]->Get<double>());
+    // in case of unweighted events sherpa puts the max weight as event weight. 
+    // this is not optimal, we want 1 for unweighted events, so we check 
+    // whether we are producing unweighted events ("EVENT_GENERATION_MODE" == "1")
+    if ( ATOOLS::ToType<int>( ATOOLS::rpa.gen.Variable("EVENT_GENERATION_MODE") ) == 1 ) {
+      if (ef > 0.) {
+        weight = default_weight/ef;
+      } else {
+        weight = -1234.;
+      }
+    }
     //create and empty event and then hand it to SherpaIOHandler to fill it
     HepMC::GenEvent* evt = new HepMC::GenEvent();
     hm2i->Sherpa2HepMC(blobs, *evt, weight);
