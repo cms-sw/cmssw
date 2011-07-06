@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.19 2011/07/05 23:38:42 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.20 2011/07/06 18:48:11 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -30,6 +30,7 @@
 #include "Fireworks/TableWidget/interface/FWTableCellRendererBase.h"
 
 #include "TGeoNode.h"
+#include "TGeoVolume.h"
 
 class FWTableCellRendererBase;
 // class FWGeometryBrowser;
@@ -63,10 +64,11 @@ public:
       UChar_t     m_level;
       UChar_t     m_flags;
 
-
-
       const char* name() const;
       const char* nameIndent() const;
+
+      bool isVisible(bool x) const { return x ?  m_node->GetVolume()->IsVisible() : m_node->IsVisible(); }
+      bool isVisDaughters(bool x) const  { return x ?  m_node->GetVolume()->IsVisDaughters() :  m_node->IsVisDaughters(); }
 
       void setBit(UChar_t f)    { m_flags  |= f;}
       void resetBit(UChar_t f)  { m_flags &= ~f; }
@@ -108,7 +110,6 @@ private:
       Pixel_t m_color;      
       bool    m_isSelected;
       TGGC*   m_colorContext;
-
    };
 
 public:
@@ -149,6 +150,7 @@ public:
 
    void assertNodeFilterCache(NodeInfo& data);
 
+   void setDaughterVolumesVisible(bool);
    static  void getNNodesTotal(TGeoNode* geoNode, int& off);
 
 private:

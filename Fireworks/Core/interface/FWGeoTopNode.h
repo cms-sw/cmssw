@@ -16,7 +16,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel
 //         Created:  Thu Jun 23 01:25:00 CEST 2011
-// $Id: FWGeoTopNode.h,v 1.6 2011/07/04 20:11:25 amraktad Exp $
+// $Id: FWGeoTopNode.h,v 1.7 2011/07/06 18:47:00 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWGeometryTableManager.h"
@@ -46,7 +46,7 @@ private:
 
    void paintChildNodesRecurse(FWGeometryTableManager::Entries_i pIt, const TGeoHMatrix& mtx);
    void  paintShape(FWGeometryTableManager::NodeInfo& nodeInfo, const TGeoHMatrix& nm);
-   FWGeometryBrowser       *m_geoBrowser;
+   FWGeometryBrowser       *m_browser;
 
    // cached
    FWGeometryTableManager::Entries_v* m_entries;

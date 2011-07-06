@@ -46,7 +46,7 @@ enum GeoMenuOptions {
 
 FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager, FWColorManager *colorManager)
    : TGMainFrame(gClient->GetRoot(), 600, 500),
-     m_mode(this, "Mode:", 0l, 0l, 1l),
+     m_mode(this, "Mode:", 1l, 0l, 1l),
      m_filter(this,"Materials:",std::string()),
      m_autoExpand(this,"AutoExpand:", 1l, 0l, 100l),
      m_visLevel(this,"VisLevel:", 3l, 1l, 100l),
@@ -229,12 +229,18 @@ FWGeometryBrowser::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t i
          bool elementChanged = false;
          if (iColumn ==  FWGeometryTableManager::kVisSelf)
          {
-            ni.m_node->SetVisibility(!ni.m_node->IsVisible());    
+            if (getVolumeMode())
+               ni.m_node->GetVolume()->SetVisibility(!ni.isVisible(getVolumeMode()));   
+            else
+               ni.m_node->SetVisibility(!ni.isVisible(getVolumeMode()));    
             elementChanged = true;
          }
          if (iColumn ==  FWGeometryTableManager::kVisChild)
          {
-            ni.m_node->VisibleDaughters(!ni.m_node->IsVisDaughters());  
+            if (getVolumeMode())
+               ni.m_node->GetVolume()->VisibleDaughters(!ni.isVisDaughters(getVolumeMode()));   
+            else
+               ni.m_node->VisibleDaughters(!ni.isVisDaughters(getVolumeMode()));  
             elementChanged = true;
          }
 
@@ -274,27 +280,31 @@ void FWGeometryBrowser::chosenItem(int x)
 {
    FWGeometryTableManager::NodeInfo& ni = m_tableManager->refSelected();
    TGeoVolume* gv = ni.m_node->GetVolume();
+   bool visible = true;
    if (gv)
    {
       switch (x) {
          case kSetTopNode:
             cdSelected();
             break;
+
          case kVisOff:
-            for (int d = 0; d < ni.m_node->GetNdaughters(); ++d )
+            visible = false;
+         case kVisOn: 
+            if (getVolumeMode())
             {
-               ni.m_node->GetDaughter(d)->SetVisibility(false);
-               ni.m_node->GetDaughter(d)->VisibleDaughters(false);
-               refreshTable3D();
+               m_tableManager->setDaughterVolumesVisible(visible);
             }
-            break;
-         case kVisOn:
-            for (int d = 0; d < ni.m_node->GetNdaughters(); ++d )
+            else
             {
-               ni.m_node->GetDaughter(d)->SetVisibility(true);
-               ni.m_node->GetDaughter(d)->VisibleDaughters(true);
-               refreshTable3D();
+               for (int d = 0; d < ni.m_node->GetNdaughters(); ++d )
+               {
+              
+                  ni.m_node->GetDaughter(d)->SetVisibility(visible);
+                  ni.m_node->GetDaughter(d)->VisibleDaughters(visible);
+               }
             }
+            refreshTable3D();
             break;
          case kInspectMaterial:
             gv->InspectMaterial();
@@ -330,6 +340,7 @@ void FWGeometryBrowser::nodeColorChangeRequested(Color_t col)
 {
    FWGeometryTableManager::NodeInfo& ni = m_tableManager->refSelected();
    ni.m_color = col;
+   ni.m_node->GetVolume()->SetLineColor(col);
    refreshTable3D();
 }
 

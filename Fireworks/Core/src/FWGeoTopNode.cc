@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel  
 //         Created:  Thu Jun 23 01:24:51 CEST 2011
-// $Id: FWGeoTopNode.cc,v 1.8 2011/07/05 19:18:49 amraktad Exp $
+// $Id: FWGeoTopNode.cc,v 1.9 2011/07/05 23:38:42 amraktad Exp $
 //
 
 // system include files
@@ -39,10 +39,11 @@
 #include "TVirtualGeoPainter.h"
 
 FWGeoTopNode::FWGeoTopNode(FWGeometryBrowser* t):
-   m_geoBrowser(t),
-   m_maxLevel(0)
+   m_browser(t),
+   m_maxLevel(0),
+   m_filterOff(0)
 {
-   m_entries = &(m_geoBrowser->getTableManager()->refEntries());
+   m_entries = &(m_browser->getTableManager()->refEntries());
 }
 
 FWGeoTopNode::~FWGeoTopNode()
@@ -67,11 +68,13 @@ void FWGeoTopNode::setupBuffMtx(TBuffer3D& buff, const TGeoHMatrix& mat)
 //______________________________________________________________________________
 void FWGeoTopNode::Paint(Option_t*)
 {
-   int topIdx = m_geoBrowser->getTableManager()->getTopGeoNodeIdx();
+   int topIdx = m_browser->getTableManager()->getTopGeoNodeIdx();
    FWGeometryTableManager::Entries_i sit = m_entries->begin(); 
 
-   m_maxLevel = m_geoBrowser->getVisLevel() + m_geoBrowser->getTableManager()->getLevelOffset() -1;
-   m_filterOff = m_geoBrowser->getFilter().empty();
+   m_maxLevel = m_browser->getVisLevel() + m_browser->getTableManager()->getLevelOffset() -1;
+   m_filterOff = m_browser->getFilter().empty();
+   m_modeVolume =  m_browser->getVolumeMode();
+
    TGeoHMatrix mtx;
    if (topIdx >= 0)
    {
@@ -98,11 +101,11 @@ void FWGeoTopNode::Paint(Option_t*)
       }
 
       // paint this node
-      if (sit->m_node->IsVisible())
+      if (sit->isVisible(m_browser->getVolumeMode()))
       {
          bool draw = true;
          if ( m_filterOff == false) {
-            m_geoBrowser->getTableManager()->assertNodeFilterCache(*sit);
+            m_browser->getTableManager()->assertNodeFilterCache(*sit);
             draw = sit->testBit(FWGeometryTableManager::kMatches);
          }
 
@@ -111,7 +114,7 @@ void FWGeoTopNode::Paint(Option_t*)
       }
    }
 
-   if (sit->m_node->IsVisDaughters())
+   if (sit->isVisDaughters(m_browser->getVolumeMode()))
       paintChildNodesRecurse( sit, mtx);
 }
 
@@ -137,16 +140,16 @@ void FWGeoTopNode::paintChildNodesRecurse (FWGeometryTableManager::Entries_i pIt
   
       if (m_filterOff)
       {
-         if (it->m_node->IsVisible())
+         if (it->isVisible(m_browser->getVolumeMode()))
             paintShape(*it, nm);
 
-         if (it->m_node->IsVisDaughters() && it->m_level < m_maxLevel )
+         if (it->isVisDaughters(m_browser->getVolumeMode()) && it->m_level < m_maxLevel )
             paintChildNodesRecurse(it, nm);
 
       }
       else
       {
-         m_geoBrowser->getTableManager()->assertNodeFilterCache(*it);
+         m_browser->getTableManager()->assertNodeFilterCache(*it);
          if (it->testBit(FWGeometryTableManager::kMatches) )
             paintShape(*it, nm);
 
@@ -174,7 +177,8 @@ void FWGeoTopNode::paintShape(FWGeometryTableManager::NodeInfo& data, const TGeo
 
       TBuffer3D buff(TBuffer3DTypes::kComposite);
       buff.fID           = data.m_node->GetVolume();
-      buff.fColor        = data.m_color;
+      //   buff.fColor        = data.m_color;
+      buff.fColor        =  m_browser->getVolumeMode() ? data.m_node->GetVolume()->GetLineColor(): data.m_color;
       buff.fTransparency = data.m_node->GetVolume()->GetTransparency(); 
 
       nm.GetHomogenousMatrix(buff.fLocalMaster);        
@@ -207,7 +211,7 @@ void FWGeoTopNode::paintShape(FWGeometryTableManager::NodeInfo& data, const TGeo
       TBuffer3D& buff = (TBuffer3D&) shape->GetBuffer3D (TBuffer3D::kCore, kFALSE);
       setupBuffMtx(buff, nm);
       buff.fID           = data.m_node->GetVolume();
-      buff.fColor        = data.m_color;//node->GetVolume()->GetLineColor();
+      buff.fColor        =  m_browser->getVolumeMode() ? data.m_node->GetVolume()->GetLineColor(): data.m_color;
       buff.fTransparency =  data.m_node->GetVolume()->GetTransparency();
 
       nm.GetHomogenousMatrix(buff.fLocalMaster);

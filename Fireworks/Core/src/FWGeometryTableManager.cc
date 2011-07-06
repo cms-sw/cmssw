@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.23 2011/07/05 23:38:42 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.24 2011/07/06 18:48:11 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -277,13 +277,13 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
       }
       else if (iCol == kVisSelf )
       {
-	 bool v = (m_filterOff) ? gn.IsVisible() : data.testBit(kMatches);
+	 bool v = (m_filterOff) ? data.isVisible(m_browser->getVolumeMode()) : data.testBit(kMatches);
          renderer->setData( v ? "On" : "-",  isSelected);
          return renderer;
       }
       else if (iCol == kVisChild )
       {
-	 bool v = (m_filterOff) ? gn.IsVisDaughters() : data.testBit(kChildMatches);
+	 bool v = (m_filterOff) ? data.isVisDaughters(m_browser->getVolumeMode()) : data.testBit(kChildMatches);
          renderer->setData( v ? "On" : "-",  isSelected);
          return renderer;
       }
@@ -412,6 +412,8 @@ void FWGeometryTableManager::recalculateVisibilityVolumeRec(int pIdx)
    int nD = parentNode->GetNdaughters();
    int dOff=0;
 
+   // printf("----------- parent %s\n", parentNode->GetName() );
+
    std::vector<int> vi; 
    vi.reserve(nD);
 
@@ -428,20 +430,26 @@ void FWGeometryTableManager::recalculateVisibilityVolumeRec(int pIdx)
          if (neighbourVolume == data.m_node->GetVolume())
          {
             toAdd = false;
+            // printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
             break;
          }
       }
 
-      if (m_filterOff)
+      if (toAdd)
       {
-         m_row_to_index.push_back(idx);
-         if (data.testBit(kExpanded)) recalculateVisibilityNodeRec(idx);
-      }
-      else
-      {
-         assertNodeFilterCache(data);
-         if (data.testBitAny(kMatches | kChildMatches)) m_row_to_index.push_back(idx); 
-         if (data.testBit(kChildMatches)) recalculateVisibilityNodeRec(idx);
+         vi.push_back(n);
+         if (m_filterOff)
+         {
+            //    std::cout << data.nameIndent() << std::endl;
+            m_row_to_index.push_back(idx);
+            if (data.testBit(kExpanded)) recalculateVisibilityNodeRec(idx);
+         }
+         else
+         {
+            assertNodeFilterCache(data);
+            if (data.testBitAny(kMatches | kChildMatches)) m_row_to_index.push_back(idx); 
+            if (data.testBit(kChildMatches)) recalculateVisibilityNodeRec(idx);
+         }
       }
       FWGeometryTableManager::getNNodesTotal(parentNode->GetDaughter(n), dOff);
    }
@@ -696,4 +704,31 @@ void FWGeometryTableManager::printChildren(int idx) const
          printChildren(i);
       }
       }*/
+}
+
+void FWGeometryTableManager::setDaughterVolumesVisible(bool v)
+{
+   int visPos = 0;
+   for( std::vector<int>::iterator i=m_row_to_index.begin(); i !=  m_row_to_index.end() ; ++i, ++visPos)
+      if (*i == m_selectedIdx) break;
+
+   int level = m_entries[m_selectedIdx].m_level + 1;
+
+   std::vector<int>::iterator sit = m_row_to_index.begin();
+   std::advance(sit, visPos + 1);
+
+   for( std::vector<int>::iterator i=sit; i !=  m_row_to_index.end() ; ++i)
+   {
+      NodeInfo& data = m_entries[*i];
+      if (data.m_level < level)
+         return;
+
+      if (data.m_level == level) {
+         //  printf("daughter volume %s \n", data.m_node->GetVolume()->GetName() );
+         data.m_node->GetVolume()->SetVisibility(v);
+         data.m_node->GetVolume()->VisibleDaughters(v);
+      }
+   }
+
+
 }
