@@ -425,18 +425,29 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
             }
             const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
             LogDebug("")<<"Fired Triggers: ";
+            for (unsigned int i=0; i<triggerResults->size() && !trigger_fired; i++)
+                   {
+                    const std::string trigName = trigNames.triggerName(i);
+                    bool found=false; unsigned int index=0;
+                    do{
+                          size_t trigPath = trigName.find(muonTrig_[index]);
+                          if ( trigPath == std::string::npos) found=true;
+                          index++;
+                    } while (found==false &&  index<muonTrig_.size()) ;
+                    if(!found) continue;
+/*
+                    bool prescaled=false;
+                    for (unsigned int ps= 0; ps<  hltConfigProvider_.prescaleSize(); ps++){
+                    const unsigned int prescaleValue = hltConfigProvider_.prescaleValue(ps, trigName) ;
+                    if (prescaleValue != 1) prescaled =true;
+                    }
+                    if(prescaled) continue;
+*/
 
-            for (unsigned int i=0; i<triggerResults->size(); i++)
-            {
-                  std::string trigName = trigNames.triggerName(i);
-                  for (unsigned int j = 0; j < muonTrig_.size(); j++) {
-                       if ( trigName == muonTrig_.at(j) && triggerResults->accept(i)) {
-                              trigger_fired = true;
-                       LogDebug("") <<"\t"<<trigName<<"   -->Trigger bit: "<<triggerResults->accept(i);
+                    if( triggerResults->accept(i) )   trigger_fired=true;
+                    LogDebug("") <<"\t"<<trigName<<"   -->Trigger bit: "<<triggerResults->accept(i);
+          }
 
-                  }
-            }
-            }
       } // Optionally you now have an OR of several triggers... Take care with the efficiencies in the analysis...
       fill_histogram("TRIG_BEFORECUTS",trigger_fired);
 
