@@ -67,6 +67,7 @@ namespace fftjetcms {
         double hessian[3] = {0., 0., 0.};
         const StoredPeak& p(jet.f_precluster());
         p.hessian(hessian);
+        const double pileupPt = jet.f_pileup().Pt();
 
         return RecoFFTJet(fftjet::Peak(p.eta(), p.phi(), p.magnitude(),
                                        hessian, p.driftSpeed(),
@@ -82,7 +83,7 @@ namespace fftjetcms {
                           jet.f_centroidEta(), jet.f_centroidPhi(),
                           jet.f_etaWidth(), jet.f_phiWidth(),
                           jet.f_etaPhiCorr(), jet.f_fuzziness(),
-                          0.0, 0.0, jet.f_convergenceDistance());
+                          pileupPt, 0.0, jet.f_convergenceDistance());
     }
 }
 
