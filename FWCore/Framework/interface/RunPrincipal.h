@@ -75,7 +75,7 @@ namespace edm {
 
     void put(
         ConstBranchDescription const& bd,
-        WrapperHolder const& edp,
+        WrapperOwningHolder const& edp,
         ProductProvenance& productProvenance);
 
     void readImmediate() const;

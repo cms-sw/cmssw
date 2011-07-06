@@ -15,7 +15,7 @@
 #include "FWCore/TFWLiteSelector/interface/TFWLiteSelectorBasic.h"
 
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
-#include "DataFormats/Common/interface/WrapperHolder.h"
+#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
@@ -61,7 +61,7 @@ namespace edm {
       void setTree(TTree* iTree) {eventTree_ = iTree;}
       void set(boost::shared_ptr<ProductRegistry const> iReg) { reg_ = iReg;}
      private:
-      virtual WrapperHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const;
+      virtual WrapperOwningHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const;
       virtual std::auto_ptr<EventEntryDescription> getProvenance_(BranchKey const&) const {
         return std::auto_ptr<EventEntryDescription>();
       }
@@ -72,7 +72,7 @@ namespace edm {
       boost::shared_ptr<ProductRegistry const>(reg_);
     };
 
-    WrapperHolder
+    WrapperOwningHolder
     FWLiteDelayedReader::getProduct_(BranchKey const& k, WrapperInterfaceBase const* /*interface*/, EDProductGetter const* /*ep*/) const {
       ProductRegistry::ProductList::const_iterator itFind= reg_->productList().find(k);
       if(itFind == reg_->productList().end()) {
@@ -93,7 +93,7 @@ namespace edm {
         throw cms::Exception("MissingDictionary")
         << "could not find dictionary for type '" << fullName << "'"
         << "\n Please make sure all the necessary libraries are available.";
-        return WrapperHolder();
+        return WrapperOwningHolder();
       }
 
       //use reflex to create an instance of it
@@ -106,7 +106,7 @@ namespace edm {
 
 
       branch->GetEntry(entry_);
-      return WrapperHolder(address, bDesc.getInterface(), WrapperHolder::Owned);
+      return WrapperOwningHolder(address, bDesc.getInterface());
     }
 
     struct TFWLiteSelectorMembers {

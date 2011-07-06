@@ -169,7 +169,7 @@ void test_ep::setUp() {
     typedef edmtest::DummyProduct PRODUCT_TYPE;
     typedef edm::Wrapper<PRODUCT_TYPE> WDP;
 
-    edm::WrapperHolder product(new WDP(std::auto_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)), WDP::getInterface(), edm::WrapperHolder::Owned);
+    edm::WrapperOwningHolder product(new WDP(std::auto_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)), WDP::getInterface());
 
     std::string tag("rick");
     assert(branchDescriptions_[tag]);

@@ -23,6 +23,7 @@ pointer to a Group, when queried.
 #include "DataFormats/Common/interface/OutputHandle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/WrapperHolder.h"
+#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProductTransientIndex.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
@@ -51,7 +52,7 @@ namespace edm {
     typedef std::vector<boost::shared_ptr<Group> > GroupCollection;
     typedef boost::filter_iterator<FilledGroupPtr, GroupCollection::const_iterator> const_iterator;
     typedef ProcessHistory::const_iterator ProcessNameConstIterator;
-    typedef boost::shared_ptr<Group const> SharedConstGroupPtr;
+    typedef Group const* ConstGroupPtr;
     typedef std::vector<BasicHandle> BasicHandleVec;
     typedef GroupCollection::size_type      size_type;
 
@@ -146,9 +147,12 @@ namespace edm {
 
     void maybeFlushCache(TypeID const& tid, InputTag const& tag) const;
 
-    SharedConstGroupPtr const getGroup(BranchID const& oid,
+    ConstGroupPtr const getGroup(BranchID const& oid,
                                        bool resolveProd,
                                        bool fillOnDemand) const;
+
+    ProductData const* findGroupByTag(TypeID const& typeID, InputTag const& tag) const;
+
   protected:
     ProcessHistory& processHistoryUpdate() {
       return *processHistoryPtr_;
@@ -162,7 +166,7 @@ namespace edm {
     Group* getExistingGroup(BranchID const& branchID);
     Group* getExistingGroup(Group const& g);
 
-    SharedConstGroupPtr const getGroupByIndex(ProductTransientIndex const& oid,
+    ConstGroupPtr const getGroupByIndex(ProductTransientIndex const& oid,
                                               bool resolveProd,
                                               bool fillOnDemand) const;
 
@@ -174,11 +178,11 @@ namespace edm {
     void resolveProduct(Group const& g, bool fillOnDemand) const {resolveProduct_(g, fillOnDemand);}
 
     // throws if the pointed to product is already in the Principal.
-    void checkUniquenessAndType(WrapperHolder const& prod, Group const* group) const;
+    void checkUniquenessAndType(WrapperOwningHolder const& prod, Group const* group) const;
 
-    void putOrMerge(WrapperHolder const& prod, Group const* group) const;
+    void putOrMerge(WrapperOwningHolder const& prod, Group const* group) const;
 
-    void putOrMerge(WrapperHolder const& prod, ProductProvenance& prov, Group* group);
+    void putOrMerge(WrapperOwningHolder const& prod, ProductProvenance& prov, Group* group);
 
     void setProcessHistory(Principal const& principal);
 
@@ -195,14 +199,13 @@ namespace edm {
                      SelectorBase const& selector,
                      BasicHandle& result) const;
 
-    bool findGroupByLabel(TypeID const& typeID,
-                          TypeLookup const& typeLookup,
-                          std::string const& moduleLabel,
-                          std::string const& productInstanceName,
-                          std::string const& processName,
-                          size_t& cachedOffset,
-                          int& fillCount,
-                          BasicHandle& result) const;
+    ProductData const* findGroupByLabel(TypeID const& typeID,
+                                        TypeLookup const& typeLookup,
+                                        std::string const& moduleLabel,
+                                        std::string const& productInstanceName,
+                                        std::string const& processName,
+                                        size_t& cachedOffset,
+                                        int& fillCount) const;
 
     size_t findGroups(TypeID const& typeID,
                       TypeLookup const& typeLookup,
@@ -245,12 +248,13 @@ namespace edm {
   getProductByTag(Principal const& ep, InputTag const& tag) {
     TypeID tid = TypeID(typeid(PROD));
     ep.maybeFlushCache(tid, tag);
-    BasicHandle bh = ep.getByLabel(tid, tag.label(), tag.instance(), tag.process(), tag.cachedOffset(), tag.fillCount());
-    if(bh.interface() &&
-       (!(bh.interface()->dynamicTypeInfo() == typeid(PROD)))) {
-      handleimpl::throwConvertTypeError(typeid(PROD), bh.interface()->dynamicTypeInfo());
+    ProductData const* result = ep.findGroupByTag(tid, tag);
+
+    if(result->getInterface() &&
+       (!(result->getInterface()->dynamicTypeInfo() == typeid(PROD)))) {
+      handleimpl::throwConvertTypeError(typeid(PROD), result->getInterface()->dynamicTypeInfo());
     }
-    return boost::static_pointer_cast<Wrapper<PROD> const>(bh.product());
+    return boost::static_pointer_cast<Wrapper<PROD> const>(result->wrapper_);
   }
 }
 #endif

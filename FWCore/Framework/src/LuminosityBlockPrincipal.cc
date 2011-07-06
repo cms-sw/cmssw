@@ -36,7 +36,7 @@ namespace edm {
   void
   LuminosityBlockPrincipal::put(
         ConstBranchDescription const& bd,
-        WrapperHolder const& edp,
+        WrapperOwningHolder const& edp,
         ProductProvenance& productProvenance) {
 
     assert(bd.produced());
@@ -72,7 +72,7 @@ namespace edm {
 
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(g.branchDescription());
-    WrapperHolder edp(reader()->getProduct(bk, g.productData().getInterface(), this));
+    WrapperOwningHolder edp(reader()->getProduct(bk, g.productData().getInterface(), this));
 
     // Now fix up the Group
     if(edp.isValid()) {

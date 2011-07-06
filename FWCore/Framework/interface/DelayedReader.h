@@ -8,7 +8,7 @@ uses input sources to retrieve EDProducts from external storage.
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Common/interface/WrapperHolder.h"
+#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 
 #include <memory>
 
@@ -19,13 +19,13 @@ namespace edm {
   class DelayedReader {
   public:
     virtual ~DelayedReader();
-    WrapperHolder getProduct(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) {
+    WrapperOwningHolder getProduct(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) {
       return getProduct_(k, interface, ep);
     }
     void mergeReaders(DelayedReader* other) {mergeReaders_(other);}
     void reset() {reset_();}
   private:
-    virtual WrapperHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const = 0;
+    virtual WrapperOwningHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const = 0;
     virtual void mergeReaders_(DelayedReader*) = 0;
     virtual void reset_() = 0;
   };

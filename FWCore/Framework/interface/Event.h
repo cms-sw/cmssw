@@ -18,7 +18,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/BasicHandle.h"
-#include "DataFormats/Common/interface/WrapperHolder.h"
+#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
@@ -173,7 +173,7 @@ namespace edm {
     virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
     virtual TriggerResultsByName triggerResultsByName(std::string const& process) const;
 
-    typedef std::vector<std::pair<WrapperHolder, ConstBranchDescription const*> > ProductPtrVec;
+    typedef std::vector<std::pair<WrapperOwningHolder, ConstBranchDescription const*> > ProductPtrVec;
 
   private:
     EventPrincipal const&
@@ -243,7 +243,7 @@ namespace edm {
     typedef Event::ProductPtrVec ptrvec_t;
     void do_it(ptrvec_t& /*ignored*/,
                ptrvec_t& used,
-               WrapperHolder const& edp,
+               WrapperOwningHolder const& edp,
                ConstBranchDescription const* desc) const {
       used.push_back(std::make_pair(edp, desc));
     }
@@ -255,7 +255,7 @@ namespace edm {
 
     void do_it(ptrvec_t& used,
                ptrvec_t& /*ignored*/,
-               WrapperHolder const& edp,
+               WrapperOwningHolder const& edp,
                ConstBranchDescription const* desc) const {
       used.push_back(std::make_pair(edp, desc));
     }
@@ -312,7 +312,7 @@ namespace edm {
     ConstBranchDescription const& desc =
       provRecorder_.getBranchDescription(TypeID(*product), productInstanceName);
 
-    WrapperHolder edp(new Wrapper<PROD>(product), Wrapper<PROD>::getInterface(), WrapperHolder::Owned);
+    WrapperOwningHolder edp(new Wrapper<PROD>(product), Wrapper<PROD>::getInterface());
 
     typename boost::mpl::if_c<detail::has_donotrecordparents<PROD>::value,
       RecordInParentless<PROD>,

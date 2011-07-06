@@ -17,7 +17,7 @@ Test of the EventPrincipal class.
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/WrapperInterfaceBase.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Common/interface/WrapperHolder.h"
+#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -126,7 +126,7 @@ void testGenericHandle::getbyLabelTest() {
   typedef edm::Wrapper<DP> WDP;
 
   std::auto_ptr<DP> pr(new DP);
-  edm::WrapperHolder pprod(new WDP(pr), WDP::getInterface(), edm::WrapperHolder::Owned);
+  edm::WrapperOwningHolder pprod(new WDP(pr), WDP::getInterface());
   std::string label("fred");
   std::string productInstanceName("Rick");
 

@@ -2,7 +2,7 @@
 ----------------------------------------------------------------------*/
 
 #include "RootDelayedReader.h"
-#include "DataFormats/Common/interface/WrapperHolder.h"
+#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 
 #include "TROOT.h"
@@ -24,14 +24,14 @@ namespace edm {
   RootDelayedReader::~RootDelayedReader() {
   }
 
-  WrapperHolder
+  WrapperOwningHolder
   RootDelayedReader::getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const {
     iterator iter = branchIter(k);
     if (!found(iter)) {
       if (nextReader_) {
         return nextReader_->getProduct(k, interface, ep);
       } else {
-        return WrapperHolder();
+        return WrapperOwningHolder();
       }
     }
     roottree::BranchInfo const& branchInfo = getBranchInfo(iter);
@@ -40,7 +40,7 @@ namespace edm {
       if (nextReader_) {
         return nextReader_->getProduct(k, interface, ep);
       } else {
-        return WrapperHolder();
+        return WrapperOwningHolder();
       }
     }
     setRefCoreStreamer(ep, !fileFormatVersion_.splitProductIDs(), !fileFormatVersion_.productIDIsInt());
@@ -53,7 +53,7 @@ namespace edm {
     br->SetAddress(&p);
     tree_.getEntry(br, entryNumber());
     setRefCoreStreamer(!fileFormatVersion_.splitProductIDs());
-    WrapperHolder edp(p, interface, WrapperHolder::Owned);
+    WrapperOwningHolder edp(p, interface);
     return edp;
   }
 }

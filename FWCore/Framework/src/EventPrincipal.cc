@@ -98,7 +98,7 @@ namespace edm {
   void
   EventPrincipal::put(
         ConstBranchDescription const& bd,
-        WrapperHolder const& edp,
+        WrapperOwningHolder const& edp,
         ProductProvenance const& productProvenance) {
 
     assert(bd.produced());
@@ -125,7 +125,7 @@ namespace edm {
     branchMapperPtr()->insert(productProvenance);
     Group* g = getExistingGroup(bd.branchID());
     assert(g);
-    WrapperHolder const edp(product, g->productData().getInterface(), WrapperHolder::Owned);
+    WrapperOwningHolder const edp(product, g->productData().getInterface());
     checkUniquenessAndType(edp, g);
     // Group assumes ownership
     g->putProduct(edp, productProvenance);
@@ -148,7 +148,7 @@ namespace edm {
 
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(g.branchDescription());
-    WrapperHolder edp(reader()->getProduct(bk, g.productData().getInterface(), this));
+    WrapperOwningHolder edp(reader()->getProduct(bk, g.productData().getInterface(), this));
 
     // Now fix up the Group
     checkUniquenessAndType(edp, &g);
@@ -192,8 +192,8 @@ namespace edm {
   BasicHandle
   EventPrincipal::getByProductID(ProductID const& pid) const {
     BranchID bid = pidToBid(pid);
-    SharedConstGroupPtr const& g = getGroup(bid, true, true);
-    if(g.get() == 0) {
+    ConstGroupPtr const g = getGroup(bid, true, true);
+    if(g == 0) {
       boost::shared_ptr<cms::Exception> whyFailed(new Exception(errors::ProductNotFound, "InvalidID"));
       *whyFailed
         << "get by product ID: no product with given id: " << pid << "\n";

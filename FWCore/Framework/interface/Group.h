@@ -10,6 +10,7 @@ is the storage unit of such information.
 
 #include "DataFormats/Common/interface/ProductData.h"
 #include "DataFormats/Common/interface/WrapperHolder.h"
+#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 
@@ -47,7 +48,7 @@ namespace edm {
     boost::shared_ptr<void const> product() const { return productData().wrapper_; }
 
     // Retrieves the wrapped product and type. (non-owning);
-    WrapperHolder wrapper() const { return WrapperHolder(productData().wrapper_.get(), productData().getInterface(), WrapperHolder::NotOwned); }
+    WrapperHolder wrapper() const { return WrapperHolder(productData().wrapper_.get(), productData().getInterface()); }
 
     // Retrieves pointer to the per event(lumi)(run) provenance.
     ProductProvenance* productProvenancePtr() const {
@@ -93,12 +94,12 @@ namespace edm {
     ProductID const& productID() const {return productData().prov_.productID();}
 
     // Puts the product and its per event(lumi)(run) provenance into the Group.
-    void putProduct(WrapperHolder const& edp, ProductProvenance const& productProvenance) {
+    void putProduct(WrapperOwningHolder const& edp, ProductProvenance const& productProvenance) {
       putProduct_(edp, productProvenance);
     }
 
     // Puts the product into the Group.
-    void putProduct(WrapperHolder const& edp) const {
+    void putProduct(WrapperOwningHolder const& edp) const {
       putProduct_(edp);
     }
 
@@ -108,20 +109,20 @@ namespace edm {
     }
 
     // merges the product with the pre-existing product
-    void mergeProduct(WrapperHolder const& edp, ProductProvenance& productProvenance) {
+    void mergeProduct(WrapperOwningHolder const& edp, ProductProvenance& productProvenance) {
       mergeProduct_(edp, productProvenance);
     }
 
-    void mergeProduct(WrapperHolder const& edp) const {
+    void mergeProduct(WrapperOwningHolder const& edp) const {
       mergeProduct_(edp);
     }
 
     // Merges two instances of the product.
-    void mergeTheProduct(WrapperHolder const& edp) const;
+    void mergeTheProduct(WrapperOwningHolder const& edp) const;
 
-    void reallyCheckType(WrapperHolder const& prod) const;
+    void reallyCheckType(WrapperOwningHolder const& prod) const;
 
-    void checkType(WrapperHolder const& prod) const {
+    void checkType(WrapperOwningHolder const& prod) const {
       checkType_(prod);
     }
 
@@ -135,12 +136,12 @@ namespace edm {
     virtual void swap_(Group& rhs) = 0;
     virtual bool onDemand_() const = 0;
     virtual bool productUnavailable_() const = 0;
-    virtual void putProduct_(WrapperHolder const& edp, ProductProvenance const& productProvenance) = 0;
-    virtual void putProduct_(WrapperHolder const& edp) const = 0;
-    virtual void mergeProduct_(WrapperHolder const&  edp, ProductProvenance& productProvenance) = 0;
-    virtual void mergeProduct_(WrapperHolder const& edp) const = 0;
+    virtual void putProduct_(WrapperOwningHolder const& edp, ProductProvenance const& productProvenance) = 0;
+    virtual void putProduct_(WrapperOwningHolder const& edp) const = 0;
+    virtual void mergeProduct_(WrapperOwningHolder const&  edp, ProductProvenance& productProvenance) = 0;
+    virtual void mergeProduct_(WrapperOwningHolder const& edp) const = 0;
     virtual bool putOrMergeProduct_() const = 0;
-    virtual void checkType_(WrapperHolder const& prod) const = 0;
+    virtual void checkType_(WrapperOwningHolder const& prod) const = 0;
     virtual void resetStatus() = 0;
   };
 
@@ -160,7 +161,7 @@ namespace edm {
       // The following is const because we can add an EDProduct to the
       // cache after creation of the Group, without changing the meaning
       // of the Group.
-      void setProduct(WrapperHolder const& prod) const;
+      void setProduct(WrapperOwningHolder const& prod) const;
       bool productIsUnavailable() const {return productIsUnavailable_;}
       void setProductUnavailable() const {productIsUnavailable_ = true;}
 
@@ -170,12 +171,12 @@ namespace edm {
         edm::swap(productData_, other.productData_);
         std::swap(productIsUnavailable_, other.productIsUnavailable_);
       }
-      virtual void putProduct_(WrapperHolder const& edp, ProductProvenance const& productProvenance);
-      virtual void putProduct_(WrapperHolder const& edp) const;
-      virtual void mergeProduct_(WrapperHolder const& edp, ProductProvenance& productProvenance);
-      virtual void mergeProduct_(WrapperHolder const& edp) const;
+      virtual void putProduct_(WrapperOwningHolder const& edp, ProductProvenance const& productProvenance);
+      virtual void putProduct_(WrapperOwningHolder const& edp) const;
+      virtual void mergeProduct_(WrapperOwningHolder const& edp, ProductProvenance& productProvenance);
+      virtual void mergeProduct_(WrapperOwningHolder const& edp) const;
       virtual bool putOrMergeProduct_() const;
-      virtual void checkType_(WrapperHolder const&) const {}
+      virtual void checkType_(WrapperOwningHolder const&) const {}
       virtual void resetStatus() {productIsUnavailable_ = false;}
       virtual bool onDemand_() const {return false;}
       virtual bool productUnavailable_() const;
@@ -208,12 +209,12 @@ namespace edm {
       GroupStatus const& status() const {return status_();}
       GroupStatus& status() {return status_();}
     private:
-      virtual void putProduct_(WrapperHolder const& edp, ProductProvenance const& productProvenance);
-      virtual void putProduct_(WrapperHolder const& edp) const;
-      virtual void mergeProduct_(WrapperHolder const& edp, ProductProvenance& productProvenance);
-      virtual void mergeProduct_(WrapperHolder const& edp) const;
+      virtual void putProduct_(WrapperOwningHolder const& edp, ProductProvenance const& productProvenance);
+      virtual void putProduct_(WrapperOwningHolder const& edp) const;
+      virtual void mergeProduct_(WrapperOwningHolder const& edp, ProductProvenance& productProvenance);
+      virtual void mergeProduct_(WrapperOwningHolder const& edp) const;
       virtual bool putOrMergeProduct_() const;
-      virtual void checkType_(WrapperHolder const& prod) const {
+      virtual void checkType_(WrapperOwningHolder const& prod) const {
         reallyCheckType(prod);
       }
       virtual GroupStatus const& status_() const = 0;

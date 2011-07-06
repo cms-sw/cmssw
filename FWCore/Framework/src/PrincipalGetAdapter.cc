@@ -24,8 +24,8 @@ namespace edm {
 
 
   void
-  principal_get_adapter_detail::deleter::operator()(std::pair<WrapperHolder, ConstBranchDescription const*> const p) const {
-    WrapperHolder* edp = const_cast<WrapperHolder*>(&p.first);
+  principal_get_adapter_detail::deleter::operator()(std::pair<WrapperOwningHolder, ConstBranchDescription const*> const p) const {
+    WrapperOwningHolder* edp = const_cast<WrapperOwningHolder*>(&p.first);
     edp->reset();
   }
 

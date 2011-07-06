@@ -288,12 +288,12 @@ namespace edm {
   SubProcess::propagateProducts(BranchType type, Principal const& parentPrincipal, Principal& principal) const {
     Selections const& keptVector = keptProducts()[type];
     for(Selections::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
-      boost::shared_ptr<Group const> parentGroup = parentPrincipal.getGroup((*it)->branchID(), false, false);
-      if(parentGroup) {
+      Group const* parentGroup = parentPrincipal.getGroup((*it)->branchID(), false, false);
+      if(parentGroup != 0) {
         // Make copy of parent group data
         ProductData parentData = parentGroup->productData();
-        boost::shared_ptr<Group const> group = principal.getGroup((*it)->branchID(), false, false);
-        if(group) {
+        Group const* group = principal.getGroup((*it)->branchID(), false, false);
+        if(group != 0) {
           // Swap copy with this group data
           ProductData& thisData = const_cast<ProductData&>(group->productData());
           thisData.swap(parentData);

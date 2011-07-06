@@ -41,7 +41,7 @@ namespace edm {
     virtual ~RootDelayedReader();
 
   private:
-    virtual WrapperHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const;
+    virtual WrapperOwningHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const;
     virtual void mergeReaders_(DelayedReader* other) {nextReader_ = other;}
     virtual void reset_() {nextReader_ = 0;}
     BranchMap const& branches() const {return tree_.branches();}

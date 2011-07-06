@@ -123,7 +123,7 @@ Event::put<GenericObjectOwner>(std::auto_ptr<GenericObjectOwner> product, std::s
    product.release();
 
    //static Reflex::Type s_edproductType(Reflex::Type::ByTypeInfo(typeid(EDProduct)));
-   WrapperHolder wp(oWrapper.Address(), desc.getInterface(), WrapperHolder::NotOwned);
+   WrapperOwningHolder wp(oWrapper.Address(), desc.getInterface());
    putProducts().push_back(std::make_pair(wp, &desc));
    
    // product.release(); // The object has been copied into the Wrapper.

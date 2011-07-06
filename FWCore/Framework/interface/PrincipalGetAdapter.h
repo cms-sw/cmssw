@@ -105,7 +105,7 @@ namespace edm {
 
   namespace principal_get_adapter_detail {
     struct deleter {
-      void operator()(std::pair<WrapperHolder, ConstBranchDescription const*> const p) const;
+      void operator()(std::pair<WrapperOwningHolder, ConstBranchDescription const*> const p) const;
     };
     void
     throwOnPutOfNullProduct(char const* principalType, TypeID const& productType, std::string const& productInstanceName);

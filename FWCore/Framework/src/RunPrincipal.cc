@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 
-#include "DataFormats/Common/interface/WrapperHolder.h"
+#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
@@ -36,7 +36,7 @@ namespace edm {
   void
   RunPrincipal::put(
         ConstBranchDescription const& bd,
-        WrapperHolder const& edp,
+        WrapperOwningHolder const& edp,
         ProductProvenance& productProvenance) {
 
     assert(bd.produced());
@@ -72,7 +72,7 @@ namespace edm {
 
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(g.branchDescription());
-    WrapperHolder edp(reader()->getProduct(bk, g.productData().getInterface(), this));
+    WrapperOwningHolder edp(reader()->getProduct(bk, g.productData().getInterface(), this));
 
     // Now fix up the Group
     if(edp.isValid()) {

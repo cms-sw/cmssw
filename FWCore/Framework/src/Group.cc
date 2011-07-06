@@ -22,7 +22,7 @@ namespace edm {
 
   void
   ProducedGroup::putProduct_(
-        WrapperHolder const& edp,
+        WrapperOwningHolder const& edp,
         ProductProvenance const& productProvenance) {
     if(product()) {
       throw Exception(errors::InsertFailure)
@@ -44,7 +44,7 @@ namespace edm {
 
   void
   ProducedGroup::mergeProduct_(
-        WrapperHolder const& edp,
+        WrapperOwningHolder const& edp,
         ProductProvenance& productProvenance) {
     assert(provenance()->productProvenanceValid());
     assert(status() == Present);
@@ -58,18 +58,18 @@ namespace edm {
   }
 
   void
-  ProducedGroup::mergeProduct_(WrapperHolder const&) const {
+  ProducedGroup::mergeProduct_(WrapperOwningHolder const&) const {
     assert(0);
   }
 
   void
-  ProducedGroup::putProduct_(WrapperHolder const&) const {
+  ProducedGroup::putProduct_(WrapperOwningHolder const&) const {
     assert(0);
   }
 
   void
   InputGroup::putProduct_(
-        WrapperHolder const& edp,
+        WrapperOwningHolder const& edp,
         ProductProvenance const& productProvenance) {
     assert(!product());
     assert(!provenance()->productProvenanceValid());
@@ -80,13 +80,13 @@ namespace edm {
 
   void
   InputGroup::mergeProduct_(
-        WrapperHolder const&,
+        WrapperOwningHolder const&,
         ProductProvenance&) {
     assert(0);
   }
 
   void
-  InputGroup::mergeProduct_(WrapperHolder const& edp) const {
+  InputGroup::mergeProduct_(WrapperOwningHolder const& edp) const {
     mergeTheProduct(edp);
   }
 
@@ -96,13 +96,13 @@ namespace edm {
   }
 
   void
-  InputGroup::putProduct_(WrapperHolder const& edp) const {
+  InputGroup::putProduct_(WrapperOwningHolder const& edp) const {
     assert(!product());
     setProduct(edp);
   }
 
   void
-  Group::mergeTheProduct(WrapperHolder const& edp) const {
+  Group::mergeTheProduct(WrapperOwningHolder const& edp) const {
     if(wrapper().isMergeable()) {
       wrapper().mergeProduct(edp.wrapper());
     } else if(wrapper().hasIsProductEqual()) {
@@ -129,7 +129,7 @@ namespace edm {
   }
 
   void
-  InputGroup::setProduct(WrapperHolder const& prod) const {
+  InputGroup::setProduct(WrapperOwningHolder const& prod) const {
     assert (!product());
     if(!prod.isValid() || !prod.isPresent()) {
       setProductUnavailable();
@@ -192,7 +192,7 @@ namespace edm {
   }
 
   void
-  Group::reallyCheckType(WrapperHolder const& prod) const {
+  Group::reallyCheckType(WrapperOwningHolder const& prod) const {
     // Check if the types match.
     TypeID typeID(prod.dynamicTypeInfo());
     if(typeID != branchDescription().typeID()) {

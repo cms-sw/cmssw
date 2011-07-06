@@ -210,20 +210,20 @@ namespace edm {
     processHistoryID_ = processHistoryPtr_->id();
   }
 
-  Principal::SharedConstGroupPtr const
+  Principal::ConstGroupPtr const
   Principal::getGroup(BranchID const& bid, bool resolveProd, bool fillOnDemand) const {
     ProductTransientIndex index = preg_->indexFrom(bid);
     if(index == ProductRegistry::kInvalidIndex){
-       return SharedConstGroupPtr();
+       return ConstGroupPtr();
     }
     return getGroupByIndex(index, resolveProd, fillOnDemand);
   }
 
-  Principal::SharedConstGroupPtr const
+  Principal::ConstGroupPtr const
   Principal::getGroupByIndex(ProductTransientIndex const& index, bool resolveProd, bool fillOnDemand) const {
 
-    SharedConstGroupPtr const& g = groups_[index];
-    if(0 == g.get()) {
+    ConstGroupPtr const g = groups_[index].get();
+    if(0 == g) {
       return g;
     }
     if(resolveProd && !g->productUnavailable()) {
@@ -265,18 +265,15 @@ namespace edm {
                         size_t& cachedOffset,
                         int& fillCount) const {
 
-    BasicHandle result;
+    ProductData const* result = findGroupByLabel(productType,
+                                                 preg_->productLookup(),
+                                                 label,
+                                                 productInstanceName,
+                                                 processName,
+                                                 cachedOffset,
+                                                 fillCount);
 
-    bool found = findGroupByLabel(productType,
-                                  preg_->productLookup(),
-                                  label,
-                                  productInstanceName,
-                                  processName,
-                                  cachedOffset,
-                                  fillCount,
-                                  result);
-
-    if(!found) {
+    if(result == 0) {
       boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound));
       *whyFailed
         << "getByLabel: Found zero products matching all criteria\n"
@@ -286,7 +283,7 @@ namespace edm {
         << (processName.empty() ? "" : "Looking for process: ") << processName << "\n";
       return BasicHandle(whyFailed);
     }
-    return result;
+    return BasicHandle(*result);
   }
 
 
@@ -378,7 +375,7 @@ namespace edm {
       if(selector.match(*(it->branchDescription()))) {
 
         //now see if the data is actually available
-        SharedConstGroupPtr const& group = getGroupByIndex(it->index(), false, false);
+        ConstGroupPtr const& group = getGroupByIndex(it->index(), false, false);
         // Skip product if not available.
         if(group && !group->productUnavailable()) {
           this->resolveProduct(*group, true);
@@ -423,7 +420,7 @@ namespace edm {
       if(selector.match(*(it->branchDescription()))) {
 
         //now see if the data is actually available
-        SharedConstGroupPtr const& group = getGroupByIndex(it->index(), false, false);
+        ConstGroupPtr const& group = getGroupByIndex(it->index(), false, false);
         // Skip product if not available.
         if(group && !group->productUnavailable()) {
           this->resolveProduct(*group, true);
@@ -447,16 +444,14 @@ namespace edm {
     return count;
   }
 
-  bool
+  ProductData const*
   Principal::findGroupByLabel(TypeID const& typeID,
                               TransientProductLookupMap const& typeLookup,
                               std::string const& moduleLabel,
                               std::string const& productInstanceName,
                               std::string const& processName,
                               size_t& cachedOffset,
-                              int& fillCount,
-                              BasicHandle& result) const {
-    assert(!result.isValid());
+                              int& fillCount) const {
 
     typedef TransientProductLookupMap TypeLookup;
     bool isCached = (fillCount > 0 && fillCount == typeLookup.fillCount());
@@ -474,7 +469,7 @@ namespace edm {
       if(toBeCached) {
         cachedOffset = typeLookup.end() - typeLookup.begin();
       }
-      return false;
+      return 0;
     }
 
     if(!processName.empty()) {
@@ -497,20 +492,20 @@ namespace edm {
         }
         if(!processFound) {
           cachedOffset = typeLookup.end() - typeLookup.begin();
-          return false;
+          return 0;
         }
       } // end if(toBeCached)
     }
 
     for(TypeLookup::const_iterator it = range.first; it != range.second; ++it) {
       if(it->isFirst() && it != range.first) {
-        return false;
+        return 0;
       }
       if(!processName.empty() && processName != it->branchDescription()->processName()) {
         continue;
       }
       //now see if the data is actually available
-      SharedConstGroupPtr const& group = getGroupByIndex(it->index(), false, false);
+      ConstGroupPtr const& group = getGroupByIndex(it->index(), false, false);
       // Skip product if not available.
       if(group && !group->productUnavailable()) {
         this->resolveProduct(*group, true);
@@ -518,18 +513,28 @@ namespace edm {
         // Unscheduled execution can fail to produce the EDProduct so check
         if(!group->productUnavailable() && !group->onDemand()) {
           // Found the match
-          result = BasicHandle(group->productData());
-          return true;
+          return &group->productData();
         }
       }
     }
-    return false;
+    return 0;
+  }
+
+  ProductData const*
+  Principal::findGroupByTag(TypeID const& typeID, InputTag const& tag) const {
+    return findGroupByLabel(typeID,
+                            preg_->productLookup(),
+                            tag.label(),
+                            tag.instance(),
+                            tag.process(),
+                            tag.cachedOffset(),
+                            tag.fillCount());
   }
 
   OutputHandle
   Principal::getForOutput(BranchID const& bid, bool getProd) const {
-    SharedConstGroupPtr const& g = getGroup(bid, getProd, false);
-    if(g.get() == 0) {
+    ConstGroupPtr const g = getGroup(bid, getProd, false);
+    if(g == 0) {
         throw edm::Exception(edm::errors::LogicError, "Principal::getForOutput\n")
          << "No entry is present for this branch.\n"
          << "The branch id is " << bid << "\n"
@@ -538,13 +543,13 @@ namespace edm {
     if(!g->provenance() || (!g->product() && !g->productProvenancePtr())) {
       return OutputHandle();
     }
-    return OutputHandle(WrapperHolder(g->product().get(), g->productData().getInterface(), WrapperHolder::NotOwned), &g->branchDescription(), g->productProvenancePtr());
+    return OutputHandle(WrapperHolder(g->product().get(), g->productData().getInterface()), &g->branchDescription(), g->productProvenancePtr());
   }
 
   Provenance
   Principal::getProvenance(BranchID const& bid) const {
-    SharedConstGroupPtr const& g = getGroup(bid, false, true);
-    if(g.get() == 0) {
+    ConstGroupPtr const g = getGroup(bid, false, true);
+    if(g == 0) {
       throw edm::Exception(edm::errors::ProductNotFound, "InvalidID")
         << "getProvenance: no product with given branch id: "<< bid << "\n";
     }
@@ -612,14 +617,14 @@ namespace edm {
   }
 
   void
-  Principal::checkUniquenessAndType(WrapperHolder const& prod, Group const* g) const {
+  Principal::checkUniquenessAndType(WrapperOwningHolder const& prod, Group const* g) const {
     if(!prod.isValid()) return;
     // These are defensive checks against things that should never happen, but have.
     // Checks that the same physical product has not already been put into the event.
     bool alreadyPresent = !productPtrs_.insert(prod.wrapper()).second;
     if(alreadyPresent) {
       g->checkType(prod);
-      const_cast<WrapperHolder&>(prod).reset();
+      const_cast<WrapperOwningHolder&>(prod).reset();
       throw edm::Exception(errors::EventCorruption)
           << "Product on branch " << g->branchDescription().branchName() << " occurs twice in the same event.\n";
     }
@@ -628,7 +633,7 @@ namespace edm {
   }
 
   void
-  Principal::putOrMerge(WrapperHolder const& prod, Group const* g) const {
+  Principal::putOrMerge(WrapperOwningHolder const& prod, Group const* g) const {
     bool willBePut = g->putOrMergeProduct();
     if(willBePut) {
       checkUniquenessAndType(prod, g);
@@ -640,7 +645,7 @@ namespace edm {
   }
 
   void
-  Principal::putOrMerge(WrapperHolder const& prod, ProductProvenance& prov, Group* g) {
+  Principal::putOrMerge(WrapperOwningHolder const& prod, ProductProvenance& prov, Group* g) {
     bool willBePut = g->putOrMergeProduct();
     if(willBePut) {
       checkUniquenessAndType(prod, g);

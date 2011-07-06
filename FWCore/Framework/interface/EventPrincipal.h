@@ -13,6 +13,7 @@ is the DataBlock.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/WrapperHolder.h"
+#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
@@ -39,7 +40,7 @@ namespace edm {
     typedef EventAuxiliary Auxiliary;
     typedef Principal Base;
 
-    typedef Base::SharedConstGroupPtr SharedConstGroupPtr;
+    typedef Base::ConstGroupPtr ConstGroupPtr;
     static int const invalidBunchXing = EventAuxiliary::invalidBunchXing;
     static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
     EventPrincipal(
@@ -119,7 +120,7 @@ namespace edm {
 
     void put(
         ConstBranchDescription const& bd,
-        WrapperHolder const& edp,
+        WrapperOwningHolder const& edp,
         ProductProvenance const& productProvenance);
 
     void putOnRead(
