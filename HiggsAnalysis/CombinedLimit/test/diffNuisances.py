@@ -83,8 +83,10 @@ elif options.format == 'latex':
     else:
         fmtstring = "%-40s &  %15s & %15s & %6s \\\\"
         print "\\begin{tabular}{|l|r|r|r|} \\hline ";
-        what = r"$(x_\text{out} - x_\text{in})/\sigma_{\text{in}}$, $\sigma_{\text{out}}/\sigma_{\text{in}}$"
-        print (fmtstring % ('name', '$b$-only fit '+what, '$s+b$ fit '+what, r'$\rho(\theta, \mu)$')), " \\hline"
+        #what = r"$(x_\text{out} - x_\text{in})/\sigma_{\text{in}}$, $\sigma_{\text{out}}/\sigma_{\text{in}}$"
+        what = r"\Delta x/\sigma_{\text{in}}$, $\sigma_{\text{out}}/\sigma_{\text{in}}$"
+        print  fmtstring % ('',     '$b$-only fit', '$s+b$ fit', '') 
+        print (fmtstring % ('name', what, what, r'$\rho(\theta, \mu)$')), " \\hline"
 elif options.format == 'twiki':
     pmsub  = (r"(\S+) \+/- (\S+)", r"\1 &plusmn; \2")
     sigsub = ("sig", r"&sigma;")
@@ -113,7 +115,12 @@ elif options.format == 'html':
         what = "&Delta;x/&sigma;<sub>in</sub>, &sigma;<sub>out</sub>/&sigma;<sub>in</sub>";
         print "<tr><th>nuisance</th><th>background fit<br/>%s </th><th>signal fit<br/>%s</th><th>&rho;(&mu;, &theta;)</tr>" % (what,what)
         fmtstring = "<tr><td><tt>%-40s</tt> </td><td> %-15s </td><td> %-15s </td><td> %-15s </td></tr>"
-for (n,v) in table.iteritems():
+
+names = table.keys()
+names.sort()
+for n in names:
+    v = table[n]
+    if options.format == "latex": n = n.replace(r"_", r"\_")
     if pmsub  != None: v = [ re.sub(pmsub[0],  pmsub[1],  i) for i in v ]
     if sigsub != None: v = [ re.sub(sigsub[0], sigsub[1], i) for i in v ]
     if options.abs:
