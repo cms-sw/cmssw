@@ -12186,8 +12186,6 @@ void OHltTree::initEGammaWPMap(){
   (map_PhotonR9ID["R9Id"])["HoverEEB"] = 0.15;
   (map_PhotonR9ID["R9Id"])["HoverEEC"] = 0.10;
  
-
-
 }
 
 OHltTree::~OHltTree()

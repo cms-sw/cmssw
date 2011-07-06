@@ -17,7 +17,7 @@ using namespace std;
 
 typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > PtEtaPhiELorentzVector;
 
-bool isSingleEleTrigger(TString triggerName, double& thresholdEle, TString& caloId, TString& caloIso, TString& trkId, TString& trkIso){
+bool isSingleEleTrigger(TString triggerName, vector<double>& thresholdEle, vector<TString>& caloId, vector<TString>& caloIso, vector<TString>& trkId, vector<TString>& trkIso){
 	
   TString patternEle = "(OpenHLT_Ele([0-9]+)_?(CaloId[VLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?((TrkIso[VLT]+)?))$";
 
@@ -26,11 +26,11 @@ bool isSingleEleTrigger(TString triggerName, double& thresholdEle, TString& calo
   if (matchThresholdEle.MatchB(triggerName))
     {
       TObjArray *subStrL   = TPRegexp(patternEle).MatchS(triggerName);
-      thresholdEle = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      caloId  = ((TObjString *)subStrL->At(3))->GetString();
-      caloIso = ((TObjString *)subStrL->At(4))->GetString();
-      trkId   = ((TObjString *)subStrL->At(5))->GetString();
-      trkIso  = ((TObjString *)subStrL->At(6))->GetString();
+      thresholdEle.push_back((((TObjString *)subStrL->At(2))->GetString()).Atof());
+      caloId .push_back(((TObjString *)subStrL->At(3))->GetString());
+      caloIso.push_back(((TObjString *)subStrL->At(4))->GetString());
+      trkId.push_back(((TObjString *)subStrL->At(5))->GetString());
+      trkIso.push_back(((TObjString *)subStrL->At(6))->GetString());
       delete subStrL;
 
       return true;
@@ -38,7 +38,54 @@ bool isSingleEleTrigger(TString triggerName, double& thresholdEle, TString& calo
   else return false;
 }
 
-bool isSinglePhotonTrigger(TString triggerName, double& thresholdPhoton, TString& r9Id, TString& caloId,  TString& photonIso){
+bool isDoubleEleTrigger(TString triggerName, vector<double>& thresholdEle, vector<TString>& caloId, vector<TString>& caloIso, vector<TString>& trkId, vector<TString>& trkIso){
+	
+  TString patternEle = "(OpenHLT_DoubleEle([0-9]+)_?(CaloId[VLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?((TrkIso[VLT]+)?))$";
+
+  TPRegexp matchThresholdEle(patternEle);
+
+  if (matchThresholdEle.MatchB(triggerName))
+    {
+      TObjArray *subStrL   = TPRegexp(patternEle).MatchS(triggerName);
+      thresholdEle.push_back((((TObjString *)subStrL->At(2))->GetString()).Atof());
+      caloId .push_back(((TObjString *)subStrL->At(3))->GetString());
+      caloIso.push_back(((TObjString *)subStrL->At(4))->GetString());
+      trkId.push_back(((TObjString *)subStrL->At(5))->GetString());
+      trkIso.push_back(((TObjString *)subStrL->At(6))->GetString());
+      delete subStrL;
+
+      return true;
+    }
+  else return false;
+}
+
+bool isAsymDoubleEleTrigger(TString triggerName, vector<double>& thresholdEle, vector<TString>& caloId, vector<TString>& caloIso, vector<TString>& trkId, vector<TString>& trkIso){
+	
+  TString patternEle = "(OpenHLT_Ele([0-9]+)_?(CaloId[VLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?(TrkIso[VLT]+)?_Ele([0-9]+)_?(CaloId[VLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?((TrkIso[VLT]+)?))$";
+
+  TPRegexp matchThresholdEle(patternEle);
+
+  if (matchThresholdEle.MatchB(triggerName))
+    {
+      TObjArray *subStrL   = TPRegexp(patternEle).MatchS(triggerName);
+      thresholdEle.push_back((((TObjString *)subStrL->At(2))->GetString()).Atof());
+      caloId .push_back(((TObjString *)subStrL->At(3))->GetString());
+      caloIso.push_back(((TObjString *)subStrL->At(4))->GetString());
+      trkId.push_back(((TObjString *)subStrL->At(5))->GetString());
+      trkIso.push_back(((TObjString *)subStrL->At(6))->GetString());
+      thresholdEle.push_back((((TObjString *)subStrL->At(7))->GetString()).Atof());
+      caloId .push_back(((TObjString *)subStrL->At(8))->GetString());
+      caloIso.push_back(((TObjString *)subStrL->At(9))->GetString());
+      trkId.push_back(((TObjString *)subStrL->At(10))->GetString());
+      trkIso.push_back(((TObjString *)subStrL->At(11))->GetString());
+      delete subStrL;
+
+      return true;
+    }
+  else return false;
+}
+
+bool isSinglePhotonTrigger(TString triggerName, vector<double>& thresholdPhoton, vector<TString>& r9Id, vector<TString>& caloId,  vector<TString>& photonIso){
 	
   TString patternPhoton = "(OpenHLT_Photon([0-9]+)_?(R9Id)?_?(CaloId[VLT]+)?_?((Iso[VLT]+)?))$";
 
@@ -47,10 +94,55 @@ bool isSinglePhotonTrigger(TString triggerName, double& thresholdPhoton, TString
   if (matchThresholdPhoton.MatchB(triggerName))
     {
       TObjArray *subStrL   = TPRegexp(patternPhoton).MatchS(triggerName);
-      thresholdPhoton = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      r9Id    = ((TObjString *)subStrL->At(3))->GetString();
-      caloId  = ((TObjString *)subStrL->At(4))->GetString();
-      photonIso     = ((TObjString *)subStrL->At(5))->GetString();
+      thresholdPhoton.push_back((((TObjString *)subStrL->At(2))->GetString()).Atof());
+      r9Id.push_back(((TObjString *)subStrL->At(3))->GetString());
+      caloId.push_back(((TObjString *)subStrL->At(4))->GetString());
+      photonIso.push_back(((TObjString *)subStrL->At(5))->GetString());
+      delete subStrL;
+
+      return true;
+    }
+  else return false;
+}
+
+bool isDoublePhotonTrigger(TString triggerName, vector<double>& thresholdPhoton, vector<TString>& r9Id, vector<TString>& caloId,  vector<TString>& photonIso){
+	
+  TString patternPhoton = "(OpenHLT_DoublePhoton([0-9]+)_?(R9Id)?_?(CaloId[VLT]+)?_?((Iso[VLT]+)?))$";
+
+  TPRegexp matchThresholdPhoton(patternPhoton);
+
+  if (matchThresholdPhoton.MatchB(triggerName))
+    {
+      TObjArray *subStrL   = TPRegexp(patternPhoton).MatchS(triggerName);
+      thresholdPhoton.push_back((((TObjString *)subStrL->At(2))->GetString()).Atof());
+      r9Id.push_back(((TObjString *)subStrL->At(3))->GetString());
+      caloId.push_back(((TObjString *)subStrL->At(4))->GetString());
+      photonIso.push_back(((TObjString *)subStrL->At(5))->GetString());
+      delete subStrL;
+
+      return true;
+    }
+  else return false;
+}
+
+
+bool isAsymDoublePhotonTrigger(TString triggerName, vector<double>& thresholdPhoton, vector<TString>& r9Id, vector<TString>& caloId,  vector<TString>& photonIso){
+	
+  TString patternPhoton = "(OpenHLT_Photon([0-9]+)_?(R9Id)?_?(CaloId[VLT]+)?_?(Iso[VLT]+)?_Photon([0-9]+)_?(R9Id)?_?(CaloId[VLT]+)?_?((Iso[VLT]+)?))$";
+
+  TPRegexp matchThresholdPhoton(patternPhoton);
+
+  if (matchThresholdPhoton.MatchB(triggerName))
+    {
+      TObjArray *subStrL   = TPRegexp(patternPhoton).MatchS(triggerName);
+      thresholdPhoton.push_back((((TObjString *)subStrL->At(2))->GetString()).Atof());
+      r9Id.push_back(((TObjString *)subStrL->At(3))->GetString());
+      caloId.push_back(((TObjString *)subStrL->At(4))->GetString());
+      photonIso.push_back(((TObjString *)subStrL->At(5))->GetString());
+      thresholdPhoton.push_back((((TObjString *)subStrL->At(6))->GetString()).Atof());
+      r9Id.push_back(((TObjString *)subStrL->At(7))->GetString());
+      caloId.push_back(((TObjString *)subStrL->At(8))->GetString());
+      photonIso.push_back(((TObjString *)subStrL->At(9))->GetString());
       delete subStrL;
 
       return true;
@@ -1871,14 +1963,14 @@ void OHltTree::CheckOpenHlt(
 {
   TString triggerName = menu->GetTriggerName(it);
   vector<double> thresholds;
-  double thresholdEle    = 0 ;
-  double thresholdPhoton = 0 ;
-  TString caloId  = "" ;
-  TString caloIso = "" ;
-  TString trkId   = "" ;
-  TString trkIso  = "" ;
-  TString photonIso = "" ;
-  TString r9Id = "" ;
+  vector<double> thresholdEle;
+  vector<double> thresholdPhoton;
+  vector<TString> caloId; 
+  vector<TString> caloIso;
+  vector<TString> trkId;  
+  vector<TString> trkIso; 
+  vector<TString> photonIso;
+  vector<TString> r9Id;
 
   //////////////////////////////////////////////////////////////////
   // Check OpenHLT L1 bits for L1 rates
@@ -1957,12 +2049,57 @@ void OHltTree::CheckOpenHlt(
       {
 	if (prescaleResponse(menu, cfg, rcounter, it))
 	  {
-	    if (OpenHlt1ElectronPassed(thresholdEle, 
-				       map_EGammaCaloId[caloId],
-				       map_EleCaloIso[caloIso],
-				       map_EleTrkId[trkId],
-				       map_EleTrkIso[trkIso]
+	    if (OpenHlt1ElectronPassed(thresholdEle[0], 
+				       map_EGammaCaloId[caloId[0]],
+				       map_EleCaloIso[caloIso[0]],
+				       map_EleTrkId[trkId[0]],
+				       map_EleTrkIso[trkIso[0]]
 				       ) >= 1)	
+	      
+		triggerBit[it] = true;
+	      }
+	  }
+      }
+
+  /*DoubleEle*/
+
+  else if (isAsymDoubleEleTrigger(triggerName, thresholdEle, caloId, caloIso, trkId, trkIso)){
+    
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+	if (prescaleResponse(menu, cfg, rcounter, it))
+	  {
+	    if ((OpenHlt1ElectronPassed(thresholdEle[1], 
+				       map_EGammaCaloId[caloId[1]],
+				       map_EleCaloIso[caloIso[1]],
+				       map_EleTrkId[trkId[1]],
+				       map_EleTrkIso[trkIso[1]]
+				       ) >= 2)	&&
+		(OpenHlt1ElectronPassed(thresholdEle[0], 
+				       map_EGammaCaloId[caloId[0]],
+				       map_EleCaloIso[caloIso[0]],
+				       map_EleTrkId[trkId[0]],
+				       map_EleTrkIso[trkIso[0]]
+				       ) >= 1)
+		)
+	      
+		triggerBit[it] = true;
+	      }
+	  }
+      }
+
+  else if (isDoubleEleTrigger(triggerName, thresholdEle, caloId, caloIso, trkId, trkIso)){
+    
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+	if (prescaleResponse(menu, cfg, rcounter, it))
+	  {
+	    if (OpenHlt1ElectronPassed(thresholdEle[0], 
+				       map_EGammaCaloId[caloId[0]],
+				       map_EleCaloIso[caloIso[0]],
+				       map_EleTrkId[trkId[0]],
+				       map_EleTrkIso[trkIso[0]]
+				       ) >= 2)	
 	      
 		triggerBit[it] = true;
 	      }
@@ -1978,12 +2115,56 @@ void OHltTree::CheckOpenHlt(
       {
 	if (prescaleResponse(menu, cfg, rcounter, it))
 	  {
-	    if (OpenHlt1PhotonPassed(thresholdPhoton,
-				     map_PhotonR9ID[r9Id],
-				     map_EGammaCaloId[caloId],
-				     map_PhotonIso[photonIso]
+	    if (OpenHlt1PhotonPassed(thresholdPhoton[0],
+				     map_PhotonR9ID[r9Id[0]],
+				     map_EGammaCaloId[caloId[0]],
+				     map_PhotonIso[photonIso[0]]
 				     ) >= 1)	
 	      
+		triggerBit[it] = true;
+	      }
+	  }
+      }
+
+
+  else if (isDoublePhotonTrigger(triggerName, thresholdPhoton, r9Id, caloId, photonIso)){
+    
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+	if (prescaleResponse(menu, cfg, rcounter, it))
+	  {
+	    if (OpenHlt1PhotonPassed(thresholdPhoton[0],
+				     map_PhotonR9ID[r9Id[0]],
+				     map_EGammaCaloId[caloId[0]],
+				     map_PhotonIso[photonIso[0]]
+				     ) >= 2)	
+	      
+		triggerBit[it] = true;
+	      }
+	  }
+      }
+
+ /*DoublePhoton*/
+
+  else if (isAsymDoublePhotonTrigger(triggerName, thresholdPhoton, r9Id, caloId, photonIso)){
+    
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+	if (prescaleResponse(menu, cfg, rcounter, it))
+	  {
+	     if ((OpenHlt1PhotonPassed(thresholdPhoton[1],
+				     map_PhotonR9ID[r9Id[1]],
+				     map_EGammaCaloId[caloId[1]],
+				     map_PhotonIso[photonIso[1]]
+				     ) >= 2) 	&&
+	      
+		(OpenHlt1PhotonPassed(thresholdPhoton[0],
+				     map_PhotonR9ID[r9Id[0]],
+				     map_EGammaCaloId[caloId[0]],
+				     map_PhotonIso[photonIso[0]]
+				      ) >= 1)
+		 )
+
 		triggerBit[it] = true;
 	      }
 	  }
@@ -5321,7 +5502,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
     }
 
   //2011-06-08
-  else if (triggerName.CompareTo("HLT_Ele100_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v1") 
+  else if (triggerName.CompareTo("OpenHLT_Ele100_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v1") 
            == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -7022,7 +7203,7 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
    }
 
 		//2011-06-09
-   else if (triggerName.CompareTo("HLT_Photon36_CaloIdVL_Photon22_CaloIdVL_v1") == 0)
+   else if (triggerName.CompareTo("OpenHLT_Photon36_CaloIdVL_Photon22_CaloIdVL_v1") == 0)
    {
 	   if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	   {
@@ -7046,7 +7227,7 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 	
 	
 //2011-06-08
-   else if (triggerName.CompareTo("HLT_Photon44_CaloIdL_Photon34_CaloIdL_v1") == 0)
+   else if (triggerName.CompareTo("OpenHLT_Photon44_CaloIdL_Photon34_CaloIdL_v1") == 0)
    {
            if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
            {
@@ -14755,6 +14936,7 @@ int OHltTree::OpenHlt1ElectronSamHarperPassed(
   return rc;
 }
 
+//Lucie
 int OHltTree::OpenHlt1ElectronPassed(float Et,
 				     std::map< TString, float> caloId,
 				     std::map< TString, float> caloIso,
