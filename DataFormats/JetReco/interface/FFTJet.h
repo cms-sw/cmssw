@@ -6,7 +6,7 @@
  *
  * \author Igor Volobouev, TTU
  *
- * \version   $Id: FFTJet.h,v 1.0 2010/11/11 23:09:47 igv Exp $
+ * \version   $Id: FFTJet.h,v 1.1 2010/11/22 23:27:56 igv Exp $
  ************************************************************/
 
 #ifndef DataFormats_JetReco_FFTJet_h
@@ -38,7 +38,7 @@ namespace reco {
                       double recoScaleRatio, double membershipFactor,
                       int code, int status)
           : peak_(peak),            
-            vec_(vec),             
+            vec_(vec),
             ncells_(ncells),          
             etSum_(etSum),           
             centroidEta_(centroidEta),     
@@ -58,8 +58,10 @@ namespace reco {
 
         inline virtual ~FFTJet() {}
 
+        // inspectors
         inline const PattRecoPeak<Real>& f_precluster() const {return peak_;}
         inline const math::XYZTLorentzVector& f_vec() const {return vec_;}
+        inline const math::XYZTLorentzVector& f_pileup() const {return pileup_;}
         inline Real f_ncells() const {return ncells_;}
         inline Real f_etSum() const {return etSum_;}
         inline Real f_centroidEta() const {return centroidEta_;}
@@ -72,12 +74,19 @@ namespace reco {
         inline Real f_recoScale() const {return recoScale_;}
         inline Real f_recoScaleRatio() const {return recoScaleRatio_;}
         inline Real f_membershipFactor() const {return membershipFactor_;}
-        inline int f_code() const {return code_;}
-        inline int f_status() const {return status_;}
+        inline int  f_code() const {return code_;}
+        inline int  f_status() const {return status_;}
+
+        // modifiers
+        inline void setPileup(const math::XYZTLorentzVector& p) {pileup_ = p;}
+        inline void setFourVec(const math::XYZTLorentzVector& p) {vec_ = p;}
+        inline void setCode(const int c) {code_ = c;}
+        inline void setStatus(const int c) {status_ = c;}
 
     private:
         PattRecoPeak<Real> peak_;
         math::XYZTLorentzVector vec_;
+        math::XYZTLorentzVector pileup_;
         Real ncells_;
         Real etSum_;
         Real centroidEta_;
