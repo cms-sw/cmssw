@@ -308,7 +308,33 @@ private:
 	ClassDef(RooRelBWUF,1) // Your description goes here...                                                                                                    
 };
 
+//////////////////////////////////////////////
 
+class RooRelBWUFParam : public RooAbsPdf {
+public:
+	RooRelBWUFParam() {} ;
+	RooRelBWUFParam(const char *name, const char *title,
+					RooAbsReal& _m4l,
+					RooAbsReal& _mH,
+					RooAbsReal& _scaleParam);
+	RooRelBWUFParam(const RooRelBWUFParam& other, const char* name=0) ;
+	virtual TObject* clone(const char* newname) const { return new RooRelBWUFParam(*this,newname); }
+	inline virtual ~RooRelBWUFParam() { }
+	
+protected:
+	
+	RooRealProxy m4l ;
+	RooRealProxy mH ;
+	RooRealProxy scaleParam ;
+	
+	Double_t evaluate() const ;
+	
+private:
+	
+	std::string FileLoc;
+	
+	ClassDef(RooRelBWUFParam,1) // Your description goes here...                                                                                                    
+};
 
 
 

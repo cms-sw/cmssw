@@ -19,6 +19,7 @@ namespace RooFit{
 	Double_t Lgg_7(Double_t mHstar);
 	Double_t HiggsWidth(Int_t ID,Double_t mHrequested);
 	Double_t pdf1(double mHstar,double mHreq);
+	Double_t pdf1Param(double mHstar,double mHreq,double x);
 	Double_t rho(double r, TString proc);
 	Double_t Sigma(double mHreq, TString proc);
 	
@@ -1241,11 +1242,30 @@ namespace RooFit{
 		
 		Double_t ggLum = Lgg_7(mHstar);
 		
-		Double_t pdf = Gamma_gg*Gamma_ZZ*ggLum/( pow(pow(mHstar,2)-pow(mHreq,2),2 )+pow(mHstar,2)*pow(Gamma_TOT,2) );
+		Double_t pdf = Gamma_gg*Gamma_ZZ*ggLum*mHstar/( pow(pow(mHstar,2)-pow(mHreq,2),2 )+pow(mHstar,2)*pow(Gamma_TOT,2) );
 		
 		return pdf;
 		
 	}
+
+	Double_t pdf1Param(Double_t mHstar, Double_t mHreq, Double_t x)
+	{
+		
+		Double_t Gamma_gg = HiggsWidth(7,mHstar);
+		Double_t Gamma_ZZ = HiggsWidth(11,mHstar);
+		Double_t Gamma_TOT = HiggsWidth(0,mHstar);
+		Double_t Gamma_TOTFixed = HiggsWidth(0,mHreq);
+		
+		Double_t ggLum = Lgg_7(mHstar);
+		
+		//Double_t pdf = Gamma_gg*Gamma_ZZ*ggLum/( pow(pow(mHstar,2)-pow(mHreq,2),2 )+pow(mHstar,2)*pow(Gamma_TOT,2) );
+		Double_t numerator = Gamma_gg*pow(Gamma_ZZ, x)*pow(Gamma_TOTFixed, (1.-x))*ggLum*mHstar;
+		Double_t pdf = numerator/( pow(pow(mHstar,2)-pow(mHreq,2),2 )+pow(mHstar,2)*pow(Gamma_TOT,2) );
+		
+		return pdf;
+		
+	}
+	
 	
 	Double_t Sigma(Double_t mH, TString proc)
 	{
@@ -1762,6 +1782,58 @@ Double_t RooRelBWUF::evaluate() const
 	return pdf_1_NoBrem;
 	//*/
 }
+
+/************RooRelBWUFParam*************/
+
+ClassImp(RooRelBWUFParam)
+
+
+RooRelBWUFParam::RooRelBWUFParam(const char *name, const char *title,
+					   RooAbsReal& _m4l,
+					   RooAbsReal& _mH,
+					   RooAbsReal& _scaleParam) :
+RooAbsPdf(name,title),
+m4l("m4l","m4l",this,_m4l),
+mH("mH","mH",this,_mH),
+scaleParam("scaleParam","scaleParam",this,_scaleParam)
+{
+}
+
+RooRelBWUFParam::RooRelBWUFParam(const RooRelBWUFParam& other, const char* name) :
+RooAbsPdf(other,name),
+m4l("m4l",this,other.m4l),
+mH("mH",this,other.mH),
+scaleParam("scaleParam",this,other.scaleParam)
+{
+}
+
+Double_t RooRelBWUFParam::evaluate() const
+{
+	using namespace RooFit;
+	
+	if( BR[0][0] == 0 ){ readFile(); }
+	
+	
+	Double_t mHreq = mH;
+	Double_t mStar = m4l;
+	Double_t x = scaleParam;
+	
+	
+	/*
+	 Double_t Gamma_gg = HiggsWidth(7,x);
+	 Double_t Gamma_ZZ = HiggsWidth(11,x);
+	 Double_t Gamma_TOT = HiggsWidth(0,x);
+	 
+	 Double_t pdf = Gamma_gg*Gamma_ZZ/( pow(pow(x,2)-pow(mHreq,2),2 )+pow(x,2)*pow(Gamma_TOT,2) );
+	 
+	 return pdf;
+	 */
+	///*
+	Double_t pdf_1_NoBrem = pdf1Param(mStar,mHreq,x);
+	return pdf_1_NoBrem;
+	//*/
+}
+
 /***********************RooFourMuMassRes*************/
 
 ClassImp(RooFourMuMassRes)
