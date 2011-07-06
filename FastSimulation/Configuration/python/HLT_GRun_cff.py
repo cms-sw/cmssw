@@ -4575,7 +4575,7 @@ hltAntiKT5ConvPFJets = cms.EDProducer( "PFJetToCaloProducer",
 )
 hltPFTauJetTracksAssociator = cms.EDProducer( "JetTracksAssociatorAtVertex",
     jets = cms.InputTag( "hltAntiKT5PFJets" ),
-    tracks = cms.InputTag( "hltPFJetCtfWithMaterialTracks" ),
+    tracks = cms.InputTag( "hltIter4Merged" ),
     coneSize = cms.double( 0.5 )
 )
 hltPFTauTagInfo = cms.EDProducer( "PFRecoTauTagInfoProducer",

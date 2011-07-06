@@ -12,9 +12,8 @@ from FastSimulation.Tracking.HLTGeneralTracks_cfi import *
 #from RecoJets.JetAssociationProducers.trackExtrapolator_cfi import *
 
 hltIter4Merged = HLTgeneralTracks.clone()
-hltPFJetCtfWithMaterialTracks = HLTgeneralTracks.clone()
+#hltPFJetCtfWithMaterialTracks = HLTgeneralTracks.clone()
 
 
 HLTIterativeTracking = cms.Sequence(hltIter4Merged
-                                    +hltPFJetCtfWithMaterialTracks
                                     )
