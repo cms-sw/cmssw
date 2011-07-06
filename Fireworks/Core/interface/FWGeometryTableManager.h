@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.18 2011/07/04 22:34:51 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.19 2011/07/05 23:38:42 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -45,12 +45,10 @@ public:
 
    enum Bits
    {
-      kVisible         =  BIT(0),
       kExpanded        =  BIT(1),
       kMatches         =  BIT(2),
       kChildMatches    =  BIT(3),
-      kFilterCached    =  BIT(4),
-      kVolumeUnique    =  BIT(5) // not yet used
+      kFilterCached    =  BIT(4)
    };
 
    struct NodeInfo
@@ -68,6 +66,7 @@ public:
 
 
       const char* name() const;
+      const char* nameIndent() const;
 
       void setBit(UChar_t f)    { m_flags  |= f;}
       void resetBit(UChar_t f)  { m_flags &= ~f; }
@@ -150,7 +149,7 @@ public:
 
    void assertNodeFilterCache(NodeInfo& data);
 
-  static  void getNNodesTotal(TGeoNode* geoNode, int& off);
+   static  void getNNodesTotal(TGeoNode* geoNode, int& off);
 
 private:
    FWGeometryTableManager(const FWGeometryTableManager&); // stop default
@@ -162,12 +161,13 @@ private:
    // table mng
    void changeSelection(int iRow, int iColumn);
    void redrawTable();
+
    void recalculateVisibility();
+   void recalculateVisibilityNodeRec(int);
+   void recalculateVisibilityVolumeRec(int);
    
    // geo
-   //oid checkUniqueVolume(); 
    void checkChildMatches(TGeoVolume* v,  std::vector<TGeoVolume*>&);
-   //   int  getNdaughtersLimited(TGeoNode*) const;
    void importChildren(int parent_idx);
    void checkHierarchy();
 
@@ -177,7 +177,7 @@ private:
    void checkExpandLevel();
    void topGeoNodeChanged(int);
 
-   const std::string& getFilterMessage() const { return m_filterMessage; }
+   const std::string& getStatusMessage() const { return m_statusMessage; }
    // ---------- member data --------------------------------
    
    
@@ -197,11 +197,13 @@ private:
    Entries_v          m_entries;
 
    bool               m_filterOff; //cached
+   int                m_numVolumesMatched; //cached
+
    int m_topGeoNodeIdx; 
    int m_levelOffset;
    int m_geoTopNodeIdx;
 
-   std::string m_filterMessage;
+   std::string m_statusMessage;
 };
 
 

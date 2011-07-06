@@ -46,7 +46,7 @@ enum GeoMenuOptions {
 
 FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager, FWColorManager *colorManager)
    : TGMainFrame(gClient->GetRoot(), 600, 500),
-     m_mode(this, "Mode:", 1l, 0l, 1l),
+     m_mode(this, "Mode:", 0l, 0l, 1l),
      m_filter(this,"Materials:",std::string()),
      m_autoExpand(this,"AutoExpand:", 1l, 0l, 100l),
      m_visLevel(this,"VisLevel:", 3l, 1l, 100l),
@@ -163,7 +163,6 @@ FWGeometryBrowser::makeSetter(TGCompositeFrame* frame, FWParameterBase* param)
    ptr->attach(param, this);
  
    TGFrame* pframe = ptr->build(frame, false);
-   ptr->setEnabled(false);
    frame->AddFrame(pframe, new TGLayoutHints(kLHintsExpandX));
 
    m_setters.push_back(ptr);
@@ -441,13 +440,8 @@ FWGeometryBrowser::browse()
 //______________________________________________________________________________
 
 void FWGeometryBrowser::updateStatusBar(const char* txt) {
-   if (!txt) {
-      if (m_filter.value().empty())
-         txt = Form("level:%d ", m_tableManager->getLevelOffset());
-      else
-         txt = Form("level:%d filter: %s", m_tableManager->getLevelOffset(), m_tableManager->getFilterMessage().c_str());
-
-   }
+   if (!txt) 
+      txt = m_tableManager->getStatusMessage().c_str();
 
    m_statBar->SetText(txt, 0);
    fClient->NeedRedraw(this);

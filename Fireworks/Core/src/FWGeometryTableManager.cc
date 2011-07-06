@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.22 2011/07/04 22:34:51 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.23 2011/07/05 23:38:42 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -47,6 +47,13 @@ static const char* redTxt   = "\033[01;31m";
 const char* FWGeometryTableManager::NodeInfo::name() const
 {
    return m_node->GetName();
+}
+
+const char* FWGeometryTableManager::NodeInfo::nameIndent() const
+{
+   std::string x(m_level*3 , ' ');
+   x += m_node->GetName();
+   return x.c_str();
 }
 
 FWGeometryTableManager::ColorBoxRenderer::ColorBoxRenderer():
@@ -111,6 +118,7 @@ FWGeometryTableManager::FWGeometryTableManager(FWGeometryBrowser* browser)
      m_selectedColumn(-1),
      m_browser(browser),
      m_filterOff(true),
+     m_numVolumesMatched(-1),
      m_levelOffset(0),
      m_geoTopNodeIdx(-1)
 { 
@@ -343,59 +351,102 @@ void FWGeometryTableManager::assertNodeFilterCache(NodeInfo& data)
 }
 
 //______________________________________________________________________________
-
+      
 void FWGeometryTableManager::recalculateVisibility()
 {
-   //  printf(" FWGeometryTableManager::recalculateVisibility %d \n", m_filterOff);
-
    m_row_to_index.clear();
-   for ( size_t i = 0,  e = m_entries.size(); i != e; ++i )
-   {   
-      NodeInfo &data = m_entries[i];
-      if ( (m_geoTopNodeIdx == -1 && data.m_parent == -1) || (  (int)i == m_geoTopNodeIdx) )
-      {
-         data.setBit(kVisible);
-         m_row_to_index.push_back(i);
-         //    printf("top node %d visible %s OFFF %d\n",(int)i, data.name(),m_levelOffset );
-         ++i;
-         while (i < e)
-         {
-            NodeInfo &cd = m_entries[i];
-            if (cd.m_level >  m_levelOffset) {
-               bool visible = false;
-               if (m_filterOff) {
-                  visible =  m_entries[cd.m_parent].testBit(kExpanded | kVisible);
-               }
-               else {
-                  assertNodeFilterCache(cd);
-                  visible = cd.testBitAny(kChildMatches | kMatches);
-               }
-               if (visible) {
-                  // printf("expanded %s %d \n", m_entries[pIdx].name(),m_entries[pIdx].testBit(kExpanded ) );
-                  cd.setBit(kVisible);
-                  m_row_to_index.push_back(i);
-               }
-               else
-               {
-                  cd.resetBit(kVisible);
-               }
-               i++; 
+   int i = m_geoTopNodeIdx > 0 ? m_geoTopNodeIdx : 0;
+   m_row_to_index.push_back(i);
 
-               if (i == e) return;
-            }
-            else
-            {
-               break;
-            }
+   NodeInfo& data = m_entries[i];
+   if (m_filterOff && data.testBit(kExpanded) == false)
+      return;
+
+   if (!m_filterOff)
+   {
+      assertNodeFilterCache(data);
+      if (!data.testBit(kChildMatches))
+         return;
+   }
+   
+   if (m_browser->getVolumeMode())
+      recalculateVisibilityVolumeRec(i);
+   else
+      recalculateVisibilityNodeRec(i);
+
+   //   printf ("table size %d \n", (int)m_row_to_index.size());
+}
+
+
+void FWGeometryTableManager::recalculateVisibilityNodeRec( int pIdx)
+{
+   TGeoNode* parentNode = m_entries[pIdx].m_node;
+   int nD = parentNode->GetNdaughters();
+   int dOff=0;
+   for (int n = 0; n != nD; ++n)
+   {
+      int idx = pIdx + 1 + n + dOff;
+      NodeInfo& data = m_entries[idx];
+
+      if (m_filterOff)
+      {
+         m_row_to_index.push_back(idx);
+         if (data.testBit(kExpanded)) recalculateVisibilityNodeRec(idx);
+      }
+      else
+      {
+         assertNodeFilterCache(data);
+         if (data.testBitAny(kMatches | kChildMatches)) m_row_to_index.push_back(idx); 
+         if (data.testBit(kChildMatches)) recalculateVisibilityNodeRec(idx);
+      }
+
+      FWGeometryTableManager::getNNodesTotal(parentNode->GetDaughter(n), dOff);
+   }
+} 
+
+//______________________________________________________________________________
+
+void FWGeometryTableManager::recalculateVisibilityVolumeRec(int pIdx)
+{
+   TGeoNode* parentNode = m_entries[pIdx].m_node;
+   int nD = parentNode->GetNdaughters();
+   int dOff=0;
+
+   std::vector<int> vi; 
+   vi.reserve(nD);
+
+
+   for (int n = 0; n != nD; ++n)
+   {
+      int idx = pIdx + 1 + n + dOff;
+      NodeInfo& data = m_entries[idx];
+
+      bool toAdd = true;
+      for (std::vector<int>::iterator u = vi.begin(); u != vi.end(); ++u )
+      {
+         TGeoVolume* neighbourVolume =  parentNode->GetDaughter(*u)->GetVolume();
+         if (neighbourVolume == data.m_node->GetVolume())
+         {
+            toAdd = false;
+            break;
          }
       }
-      else 
+
+      if (m_filterOff)
       {
-         m_entries[i].resetBit(kVisible);
+         m_row_to_index.push_back(idx);
+         if (data.testBit(kExpanded)) recalculateVisibilityNodeRec(idx);
       }
+      else
+      {
+         assertNodeFilterCache(data);
+         if (data.testBitAny(kMatches | kChildMatches)) m_row_to_index.push_back(idx); 
+         if (data.testBit(kChildMatches)) recalculateVisibilityNodeRec(idx);
+      }
+      FWGeometryTableManager::getNNodesTotal(parentNode->GetDaughter(n), dOff);
    }
-   // printf("recalculateVisibility size %d \n", (int)m_row_to_index.size());
-} 
+}
+
 
 //______________________________________________________________________________
 
@@ -404,6 +455,12 @@ void FWGeometryTableManager::redrawTable()
    changeSelection(0, 0);
 
    recalculateVisibility();
+
+   if (m_filterOff)  
+      m_statusMessage = Form("level:%d  rows %d ",   getLevelOffset(), (int)m_row_to_index.size());
+   else
+      m_statusMessage = Form("level:%d  rows %d volumes %d (%.2f %%) selected ", getLevelOffset(), (int)m_row_to_index.size(), m_numVolumesMatched, 100.0* m_numVolumesMatched/m_volumes.size());
+
    dataChanged();
    visualPropertiesChanged();
 }
@@ -543,12 +600,12 @@ void FWGeometryTableManager::updateFilter()
    if (m_filterOff || !m_browser->geoManager()) return;
    
    // update volume-match entries
-   int numMatched = 0;
+    m_numVolumesMatched = 0;
    for (Volumes_i i = m_volumes.begin(); i!= m_volumes.end(); ++i) 
    {
       if (strcasestr(i->first->GetMaterial()->GetName(), filterExp.c_str()) > 0) {
          i->second.m_matches = true;
-         numMatched++;
+         m_numVolumesMatched++;
       }
       else {
          i->second.m_matches = false;
@@ -563,7 +620,6 @@ void FWGeometryTableManager::updateFilter()
    for (Entries_i ni = m_entries.begin(); ni != m_entries.end(); ++ni)
       ni->resetBit(kFilterCached);
 
-   m_filterMessage = Form("%d volumes (%.2f %%) selected ",  numMatched, 100.0* numMatched/m_volumes.size());
 }
 
 
