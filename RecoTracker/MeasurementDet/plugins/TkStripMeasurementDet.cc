@@ -116,16 +116,19 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
     }
   }// end block with DetSet
   else{
-    const_iterator rightCluster = 
-      std::find_if( beginCluster, endCluster, StripClusterAboveU( utraj));
-
-    if ( rightCluster != beginCluster) {
+    result.reserve(size());
+    uint rightCluster = beginClusterI_;
+    for (; rightCluster!= endClusterI_;++rightCluster){
+      SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle_,rightCluster);
+      if (clusterref->barycenter() > utraj) break;
+    }
+    
+    if ( rightCluster != beginClusterI_) {
       // there are hits on the left of the utraj
-      const_iterator leftCluster = rightCluster;
-      while ( --leftCluster >=  beginCluster) {
-        if (isMasked(*leftCluster)) continue;
-
-	SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle_,leftCluster-regionalHandle_->begin_record());
+      uint leftCluster = rightCluster;
+      while ( --leftCluster >=  beginClusterI_) {
+	SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle_,leftCluster);
+        if (isMasked(*clusterref)) continue;
 	if (accept(clusterref)){
 	RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
 	bool isCompatible(false);
@@ -143,10 +146,9 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
       }
     }
     
-    for ( ; rightCluster != endCluster; rightCluster++) {
-      if (isMasked(*rightCluster)) continue;
-      //std::cout << "=====making ref in fastMeas rigth " << std::endl;
-      SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle_,rightCluster-regionalHandle_->begin_record());
+    for ( ; rightCluster != endClusterI_; ++rightCluster) {
+      SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle_,rightCluster);
+      if (isMasked(*clusterref)) continue;
       if (accept(clusterref)){
       RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
       bool isCompatible(false);
@@ -258,14 +260,14 @@ TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
       else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on"<<geomDet().geographicalId().rawId()<<" key: "<<cluster.key();
     }
   }else{
-    result.reserve(endCluster - beginCluster);
-    for (const_iterator ci = beginCluster ; ci != endCluster; ci++) {      
-      if (isMasked(*ci)) continue;
-      SiStripRegionalClusterRef clusterRef = edm::makeRefToLazyGetter(regionalHandle_,ci-regionalHandle_->begin_record());     
+    result.reserve(size());
+    for (uint ci = beginClusterI_ ; ci!= endClusterI_;++ci){
+      SiStripRegionalClusterRef clusterRef = edm::makeRefToLazyGetter(regionalHandle_,ci);
+      if (isMasked(*clusterRef)) continue;
       if (accept(clusterRef))
 	result.push_back( buildRecHit( clusterRef, ts));
       else LogDebug("TkStripMeasurementDet")<<"skipping this reg str from last iteration on"<<geomDet().geographicalId().rawId()<<" key: "<<clusterRef.key();
-    }
+      }
   }
   return result;
 
@@ -301,10 +303,10 @@ TkStripMeasurementDet::simpleRecHits( const TrajectoryStateOnSurface& ts, std::v
       else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on"<<geomDet().geographicalId().rawId()<<" key: "<<cluster.key();
     }
   }else{
-    result.reserve(endCluster - beginCluster);
-    for (const_iterator ci = beginCluster ; ci != endCluster; ci++) {      
-      if (isMasked(*ci)) continue;
-      SiStripRegionalClusterRef clusterRef = edm::makeRefToLazyGetter(regionalHandle_,ci-regionalHandle_->begin_record());     
+    result.reserve(size());
+    for (uint ci = beginClusterI_ ; ci!= endClusterI_;++ci){
+      SiStripRegionalClusterRef clusterRef = edm::makeRefToLazyGetter(regionalHandle_,ci);
+      if (isMasked(*clusterRef)) continue;
       if (accept(clusterRef))
 	buildSimpleRecHit( clusterRef, ts,result);
       else LogDebug("TkStripMeasurementDet")<<"skipping this reg str from last iteration on"<<geomDet().geographicalId().rawId()<<" key: "<<clusterRef.key();
