@@ -11,6 +11,3 @@
 <use name="pythia6"/>
 <use name="sherpa"/>
 <flags EDM_PLUGIN="1"/>
-<export>
-	<lib name="GeneratorInterfaceSherpaInterface"/>
-</export>
