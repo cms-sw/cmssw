@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V163 (CMSSW_4_2_0_HLT15)
+# /dev/CMSSW_4_2_0/GRun/V165 (CMSSW_4_2_0_HLT15)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V163')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V165')
 )
 
 process.streams = cms.PSet( 
@@ -1601,7 +1601,7 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
     DumpStat = cms.untracked.bool( False ),
     BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
-    globaltag = cms.string( "GR_H_V20::All" ),
+    globaltag = cms.string( "GR_H_V22::All" ),
     DBParameters = cms.PSet( 
       authenticationPath = cms.untracked.string( "." ),
       connectionRetrialTimeOut = cms.untracked.int32( 60 ),
@@ -3693,7 +3693,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 20, 15, 10, 1, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_QuadJet60_v6" ),
-        prescales = cms.vuint32( 20, 15, 10, 7, 5, 3, 2, 1 )
+        prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_JetE30_NoBPTX_v5" ),
         prescales = cms.vuint32( 24, 24, 24, 24, 24, 24, 120, 1 )
@@ -3972,7 +3972,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 25, 20, 15, 10, 7, 5, 3, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_IsoPFTau35_Trk20_v4" ),
-        prescales = cms.vuint32( 660, 550, 440, 310, 220, 160, 110, 1 )
+        prescales = cms.vuint32( 11, 11, 11, 11, 11, 11, 11, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_BTagMu_DiJet20_Mu5_v7" ),
         prescales = cms.vuint32( 35, 35, 35, 500, 380, 270, 190, 1 )
@@ -4017,7 +4017,10 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 60, 50, 40, 30, 20, 15, 10, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Mu12_DiCentralJet30_BTagIP3D_v3" ),
-        prescales = cms.vuint32( 30, 25, 20, 15, 10, 7, 5, 1 )
+        prescales = cms.vuint32( 30, 25, 20, 15, 1, 1, 1, 1 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_Mu12_DiCentralJet20_BTagIP3D1stTrack_v1" ),
+        prescales = cms.vuint32( 30, 25, 20, 15, 10, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Mu17_CentralJet30_BTagIP_v7" ),
         prescales = cms.vuint32( 60, 50, 40, 30, 20, 15, 10, 1 )
@@ -33595,7 +33598,7 @@ import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
 # from CMSSW_4_4_0_pre3: additional ESProducer in cfg files
-if cmsswVersion > "CMSSW_4_3":
+if cmsswVersion > "CMSSW_4_4":
     process.hltSiPixelQualityESProducer = cms.ESProducer("SiPixelQualityESProducer",
         ListOfRecordToMerge = cms.VPSet(
             cms.PSet( record = cms.string("SiPixelQualityFromDbRcd"),

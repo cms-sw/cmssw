@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V163 (CMSSW_4_2_0_HLT15)
+# /dev/CMSSW_4_2_0/HIon/V165 (CMSSW_4_2_0_HLT15)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V163')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V165')
 )
 
 process.streams = cms.PSet( 
@@ -257,7 +257,7 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
     DumpStat = cms.untracked.bool( False ),
     BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
-    globaltag = cms.string( "GR_H_V20::All" ),
+    globaltag = cms.string( "GR_H_V22::All" ),
     DBParameters = cms.PSet( 
       authenticationPath = cms.untracked.string( "." ),
       connectionRetrialTimeOut = cms.untracked.int32( 60 ),
@@ -5857,7 +5857,7 @@ import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
 # from CMSSW_4_4_0_pre3: additional ESProducer in cfg files
-if cmsswVersion > "CMSSW_4_3":
+if cmsswVersion > "CMSSW_4_4":
     process.hltSiPixelQualityESProducer = cms.ESProducer("SiPixelQualityESProducer",
         ListOfRecordToMerge = cms.VPSet(
             cms.PSet( record = cms.string("SiPixelQualityFromDbRcd"),
