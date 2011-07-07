@@ -522,13 +522,23 @@ namespace edm {
 
   ProductData const*
   Principal::findGroupByTag(TypeID const& typeID, InputTag const& tag) const {
-    return findGroupByLabel(typeID,
-                            preg_->productLookup(),
-                            tag.label(),
-                            tag.instance(),
-                            tag.process(),
-                            tag.cachedOffset(),
-                            tag.fillCount());
+    ProductData const* productData =
+        findGroupByLabel(typeID,
+                         preg_->productLookup(),
+                         tag.label(),
+                         tag.instance(),
+                         tag.process(),
+                         tag.cachedOffset(),
+                         tag.fillCount());
+    if(productData == 0) {
+      throw edm::Exception(edm::errors::ProductNotFound, "Principal::findProductByTag")
+        << "Found zero products matching all criteria\n"
+        << "Looking for type: " << typeID << "\n"
+        << "Looking for module label: " << tag.label() << "\n"
+        << "Looking for productInstanceName: " << tag.instance() << "\n"
+        << (tag.process().empty() ? "" : "Looking for process: ") << tag.process() << "\n";
+    }
+    return productData;
   }
 
   OutputHandle
