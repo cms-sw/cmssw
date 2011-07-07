@@ -202,6 +202,15 @@ namespace reweight {
 
     };
 
+    double ShiftWeight( float pvnum ) {
+
+      int ibin = int(pvnum);
+
+      if(ibin<25 && ibin>0) { return Pweight_[ibin]; }
+      else { return 0;}
+
+    };
+
   private:
 
     double Pweight_[25];
