@@ -164,7 +164,8 @@ AlignmentTwoBodyDecayTrackSelector::checkMass(const Tracks& cands) const
   
   std::map<const reco::Track*,unsigned int> uniqueTrackIndex;
   std::map<const reco::Track*,unsigned int>::iterator it;
-  for (unsigned int i=0;
+  if (candCollection.size() > theCandNumber) return result;
+      for (unsigned int i=0;
        i<candCollection.size() && i<theCandNumber;
        i++) {
     constTrackPair & trackPair = candCollection[i].second;
@@ -253,6 +254,7 @@ AlignmentTwoBodyDecayTrackSelector::checkMETMass(const Tracks& cands,const edm::
   
   std::map<const reco::Track*,unsigned int> uniqueTrackIndex;
   std::map<const reco::Track*,unsigned int>::iterator it;
+  if (candCollection.size() > theCandNumber) return result;
   for (unsigned int i=0;
        i<candCollection.size() && i<theCandNumber;
        i++) {
