@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.25 2011/07/06 21:02:06 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.26 2011/07/07 00:06:32 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -33,9 +33,7 @@
 #include "TGeoMatrix.h"
 #include "TGeoShape.h"
 #include "TGeoBBox.h"
-#include "TEveManager.h"
-#include "TEveGeoNode.h"
-#include "TEveScene.h"
+#include "TGeoMatrix.h"
 
 #include "TGFrame.h"
 
@@ -728,6 +726,27 @@ void FWGeometryTableManager::setDaughterVolumesVisible(bool v)
          data.m_node->GetVolume()->VisibleDaughters(v);
       }
    }
+}
 
+//______________________________________________________________________________
+void FWGeometryTableManager::getNodeMatrix(NodeInfo& data, TGeoHMatrix& mtx) const
+{
+   // utility used by browser and FWGeoNode
 
+   int pIdx  = data.m_parent;
+   int level = data.m_level;
+   int* pl = new int[level];
+   while (pIdx != -1)
+   {
+      pl[ m_entries.at(pIdx).m_level] = pIdx;
+      pIdx = m_entries.at(pIdx).m_parent;
+   }
+
+   for (int i = 0; i < level; ++i ) {
+      TGeoNode* node = m_entries.at(pl[i]).m_node;
+      mtx.Multiply(node->GetMatrix());
+   }
+   delete [] pl;
+
+   mtx.Multiply(data.m_node->GetMatrix());
 }

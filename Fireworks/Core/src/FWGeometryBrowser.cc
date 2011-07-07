@@ -17,6 +17,7 @@
 #include "TFile.h"
 #include "TGFileDialog.h"
 #include "TGeoNode.h"
+#include "TGeoMatrix.h"
 #include "TGStatusBar.h"
 #include "TGButton.h"
 #include "TGLabel.h"
@@ -24,11 +25,15 @@
 #include "KeySymbols.h"
 
 // #define PERFTOOL_BROWSER
-
+#include "TGeoShape.h"
+#include "TGeoBBox.h"
 #include "TEveManager.h"
 #include "TEveGeoNode.h"
 #include "TGeoManager.h"
 #include "TEveScene.h"
+#include "TEveViewer.h"
+#include "TGLViewer.h"
+#include "TGLCamera.h"
 #ifdef PERFTOOL_BROWSER 
 #include <google/profiler.h>
 #endif
@@ -41,6 +46,7 @@ enum GeoMenuOptions {
    kVisOff,
    kInspectMaterial,
    kInspectShape,
+   kCamera,
    kTableDebug
 };
 
@@ -264,9 +270,11 @@ FWGeometryBrowser::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t i
       m_modelPopup->AddEntry("Rnr Off For All Children", kVisOff);
       m_modelPopup->AddEntry("Rnr On For All Children", kVisOn);
       m_modelPopup->AddSeparator();
+      m_modelPopup->AddEntry("Set Camera Center", kCamera);
+      m_modelPopup->AddSeparator();
       m_modelPopup->AddEntry("InspectMaterial", kInspectMaterial);
       m_modelPopup->AddEntry("InspectShape", kInspectShape);
-      m_modelPopup->AddEntry("Table Debug", kTableDebug);
+      //  m_modelPopup->AddEntry("Table Debug", kTableDebug);
 
       m_modelPopup->PlaceMenu(x,y,true,true);
       m_modelPopup->Connect("Activated(Int_t)",
@@ -306,6 +314,33 @@ void FWGeometryBrowser::chosenItem(int x)
             }
             refreshTable3D();
             break;
+
+         case kCamera:
+         {
+            TGeoHMatrix mtx;
+            m_tableManager->getNodeMatrix( m_tableManager->refSelected(), mtx);
+
+            static double pnt[3];
+            TGeoBBox* bb = static_cast<TGeoBBox*>( m_tableManager->refSelected().m_node->GetVolume()->GetShape());
+            const double* origin = bb->GetOrigin();
+            mtx.LocalToMaster(origin, pnt);
+
+            TEveElementList* vl = gEve->GetViewers();
+            for (TEveElement::List_i it = vl->BeginChildren(); it != vl->EndChildren(); ++it)
+            {
+               TEveViewer* v = ((TEveViewer*)(*it));
+               TString name = v->GetElementName();
+               if (name.Contains("3D"))
+               {
+                  v->GetGLViewer()->SetDrawCameraCenter(true);
+                  TGLCamera& cam = v->GetGLViewer()->CurrentCamera();
+                  cam.SetExternalCenter(true);
+                  cam.SetCenterVec(pnt[0], pnt[1], pnt[2]);
+               }
+            }
+
+            break;
+         }
          case kInspectMaterial:
             gv->InspectMaterial();
             break;
@@ -494,8 +529,8 @@ void FWGeometryBrowser::setPath(int parentIdx, std::string& path)
 #endif
 
    m_geoManager->cd(path.c_str());
-   TGeoNode* topNode = m_geoManager->GetCurrentNode();
-   printf(" Set Path to [%s], curren node %s \n", path.c_str(), topNode->GetName());
+   // TGeoNode* topNode = m_geoManager->GetCurrentNode();
+   // printf(" Set Path to [%s], curren node %s \n", path.c_str(), topNode->GetName());
 
    m_tableManager->topGeoNodeChanged(parentIdx);
    m_tableManager->checkExpandLevel();

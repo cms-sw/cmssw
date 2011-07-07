@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.21 2011/07/06 21:02:06 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.22 2011/07/07 00:06:32 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -150,7 +150,10 @@ public:
    void assertNodeFilterCache(NodeInfo& data);
 
    void setDaughterVolumesVisible(bool);
+
+   void getNodeMatrix(NodeInfo& nodeInfo, TGeoHMatrix& mat) const;
    static  void getNNodesTotal(TGeoNode* geoNode, int& off);
+
 
 private:
    FWGeometryTableManager(const FWGeometryTableManager&); // stop default

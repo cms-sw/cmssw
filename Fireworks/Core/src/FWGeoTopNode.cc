@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel  
 //         Created:  Thu Jun 23 01:24:51 CEST 2011
-// $Id: FWGeoTopNode.cc,v 1.10 2011/07/06 21:02:06 amraktad Exp $
+// $Id: FWGeoTopNode.cc,v 1.11 2011/07/07 00:06:32 amraktad Exp $
 //
 
 // system include files
@@ -50,6 +50,7 @@ FWGeoTopNode::~FWGeoTopNode()
 {
 }
 
+
 //______________________________________________________________________________
 void FWGeoTopNode::setupBuffMtx(TBuffer3D& buff, const TGeoHMatrix& mat)
 {
@@ -64,7 +65,6 @@ void FWGeoTopNode::setupBuffMtx(TBuffer3D& buff, const TGeoHMatrix& mat)
 
    buff.fLocalFrame = kTRUE;
 }
-
 //______________________________________________________________________________
 void FWGeoTopNode::Paint(Option_t*)
 {
@@ -78,26 +78,7 @@ void FWGeoTopNode::Paint(Option_t*)
    if (topIdx >= 0)
    {
       std::advance(sit, topIdx);
-      {
-         // init matrix
-         int pIdx = sit->m_parent;
-         int level = sit->m_level;
-         int* pl = new int[level];
-         while (pIdx != -1)
-         {
-            pl[ m_entries->at(pIdx).m_level] = pIdx;
-            pIdx = m_entries->at(pIdx).m_parent;
-         }
-
-         for (int i = 0; i < level; ++i ) {
-            TGeoNode* node = m_entries->at(pl[i]).m_node;
-            // printf("parents %d = %s \n", pl[i], node->GetName() );
-            mtx.Multiply(node->GetMatrix());
-         }
-         delete [] pl;
-
-         mtx.Multiply(sit->m_node->GetMatrix());
-      }
+       m_browser->getTableManager()->getNodeMatrix(*sit, mtx);
 
       // paint this node
       if (sit->isVisible(m_browser->getVolumeMode()))
