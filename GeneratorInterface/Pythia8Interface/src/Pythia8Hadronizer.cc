@@ -88,6 +88,8 @@ class Pythia8Hadronizer : public BaseHadronizer {
 	double fBeam1PZ;
 	double fBeam2PZ;
 
+        UserHooks* UserHookPointer;
+
 };
 
 
@@ -100,7 +102,8 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
     maxEventsToPrint(params.getUntrackedParameter<int>("maxEventsToPrint", 0)),
     LHEInputFileName(params.getUntrackedParameter<string>("LHEInputFileName","")),
     useUserHook(false),
-    fInitialState(PP)
+    fInitialState(PP),
+    UserHookPointer(0)
 {
     if( params.exists( "useUserHook" ) )
       useUserHook = params.getParameter<bool>("useUserHook");
@@ -168,7 +171,10 @@ Pythia8Hadronizer::~Pythia8Hadronizer()
 
 bool Pythia8Hadronizer::readSettings( int )
 {
-    if(useUserHook) pythia->setUserHooksPtr(new PtHatReweightUserHook());
+    if(useUserHook) {
+      UserHookPointer = new PtHatReweightUserHook();
+      pythia->setUserHooksPtr(UserHookPointer);
+    }
 
 	for(ParameterCollector::const_iterator line = parameters.begin();
 	    line != parameters.end(); ++line) {
@@ -464,6 +470,13 @@ void Pythia8Hadronizer::finalizeEvent()
   event()->set_signal_process_id(pythia->info.code());
   event()->set_event_scale(pythia->info.pTHat());	//FIXME
 
+  // Putting pdf info into the HepMC record
+  // There is the overloaded pythia8 HepMCInterface method fill_next_event
+  // that does this, but CMSSW GeneratorInterface does not fill HepMC
+  // record according to the HepMC convention (stores f(x) instead of x*f(x)
+  // and converts gluon PDG ID to zero). For this reason we use the
+  // method fill_next_event (above) that does NOT this and fill pdf info here
+  //
   int id1 = pythia->info.id1();
   int id2 = pythia->info.id2();
   if (id1 == 21) id1 = 0;
@@ -475,7 +488,22 @@ void Pythia8Hadronizer::finalizeEvent()
   double pdf2 = pythia->info.pdf2() / pythia->info.x2();
   event()->set_pdf_info(HepMC::PdfInfo(id1,id2,x1,x2,Q,pdf1,pdf2));
 
-  event()->weights().push_back(pythia->info.weight());
+  // Storing weights. Will be moved to pythia8 HepMCInterface
+  //
+  if (lhe && std::abs(lheRunInfo()->getHEPRUP()->IDWTUP) == 4)
+    // translate mb to pb (CMS/Gen "convention" as of May 2009)
+    event()->weights().push_back( pythia->info.weight() * 1.0e9 );
+  else
+    event()->weights().push_back( pythia->info.weight() );
+  //
+  // Below is the weight to be used in the case of reweighting by UserHook
+  // This is a temporary solution. It requires the explicit conversion of
+  // the pointer. In future versions (>150) the additional factor introduced
+  // in the UserHook will be stored by pythia. Also, putting the weights
+  // into the HepMC record will be made in the pythia8 HepMCInterface
+  //
+  if(useUserHook)
+    event()->weights().push_back(1./((PtHatReweightUserHook*)UserHookPointer)->getFactor());
 
   // now create the GenEventInfo product from the GenEvent and fill
   // the missing pieces
