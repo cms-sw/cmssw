@@ -557,7 +557,7 @@ def lumiLSById(schema,dataid,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',with
         raise 
     del qHandle
     return (runnum,result)
-def beamInfoById(schema,dataid,withBeamIntensity=False):
+def beamInfoById(schema,dataid,withBeamIntensity=False,minIntensity=0.1):
     '''
     result (runnum,[(lumilsnum(0),cmslsnum(1),beamstatus(2),beamenergy(3),beaminfolist(4),..])
          beaminfolist=[(bxidx,beam1intensity,beam2intensity)]
@@ -616,8 +616,9 @@ def beamInfoById(schema,dataid,withBeamIntensity=False):
                     beam2intensityArray=CommonUtil.unpackBlobtoArray(beam2intensityblob,'f')
                 if bxindexArray and beam1intensityArray and beam2intensityArray:
                     for idx,bxindex in enumerate(bxindexArray):
-                        beaminfotuple=(bxindex,beam1intensityArray[idx],beam2intensityArray[idx])                    
-                        beaminfotupleList.append(beaminfotuple)
+                        if beam1intensityArray[idx] and beam1intensityArray[idx]>minIntensity and beam2intensityArray[idx] and beam2intensityArray[idx]>minIntensity:
+                            beaminfotuple=(bxindex,beam1intensityArray[idx],beam2intensityArray[idx])                   
+                            beaminfotupleList.append(beaminfotuple)
                     del bxindexArray[:]
                     del beam1intensityArray[:]
                     del beam2intensityArray[:]
