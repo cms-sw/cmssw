@@ -4,6 +4,7 @@
 #include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Common/interface/WrapperHolder.h"
+#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Provenance/interface/WrapperInterfaceBase.h"
@@ -14,12 +15,12 @@
 class SimpleEDProductGetter : public edm::EDProductGetter {
 public:
 
-  typedef std::map<edm::ProductID, edm::WrapperHolder> map_t;
+  typedef std::map<edm::ProductID, edm::WrapperOwningHolder> map_t;
 
   template<typename T>
   void
   addProduct(edm::ProductID const& id, std::auto_ptr<T> p) {
-    database[id] = edm::WrapperHolder(new edm::Wrapper<T>(p), edm::Wrapper<T>::getInterface());
+    database[id] = edm::WrapperOwningHolder(new edm::Wrapper<T>(p), edm::Wrapper<T>::getInterface());
   }
 
   size_t size() const {
@@ -35,7 +36,7 @@ public:
         << " is available from this EDProductGetter\n";
       e.raise();
     }
-    return i->second;
+    return edm::WrapperHolder(i->second.wrapper(), i->second.interface());
   }
 
 private:

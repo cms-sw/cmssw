@@ -21,6 +21,7 @@
 // user include files
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/WrapperHolder.h"
+#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
 
 // system include files
@@ -46,13 +47,13 @@ class BareRootProductGetter : public edm::EDProductGetter {
       // ---------- member functions ---------------------------
 
       struct Buffer {
-        Buffer(edm::WrapperHolder const& iProd, TBranch* iBranch, void* iAddress,
+        Buffer(edm::WrapperOwningHolder const& iProd, TBranch* iBranch, void* iAddress,
                TClass* iClass) :
         product_(iProd), branch_(iBranch), address_(iAddress), eventEntry_(-1),
         class_(iClass) {}
         Buffer() : product_(), branch_(), address_(), eventEntry_(-1),class_(0) {}
 
-        edm::WrapperHolder product_;
+        edm::WrapperOwningHolder product_;
         TBranch* branch_;
         void* address_; //the address to pass to Root since as of 5.13 they cache that info
         Long_t eventEntry_; //the event Entry used with the last GetEntry call
