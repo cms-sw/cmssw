@@ -148,6 +148,42 @@ namespace fftjetcms {
     };
 
 
+    class PeakEtaMagSsqDependent : public fftjet::Functor1<double,fftjet::Peak>
+    {
+    public:
+        inline PeakEtaMagSsqDependent(
+            const fftjet::LinearInterpolator2d* f1,
+            const bool takeOwnership,
+            const fftjet::JetMagnitudeMapper2d<fftjet::Peak>* jmmp,
+            const bool ownjmp, const double fc)
+            : f1_(f1), ownsPointer_(takeOwnership), jmmp_(jmmp),
+              ownsjmmpPointer_(ownjmp), factor_(fc) {}
+
+        inline ~PeakEtaMagSsqDependent()
+        {
+            if (ownsPointer_) delete f1_;
+            if (ownsjmmpPointer_) delete jmmp_;
+        }
+
+        inline double operator()(const fftjet::Peak& r) const
+        {
+            const double scale = r.scale();
+            const double magnitude = r.magnitude();
+            const double pt = scale*scale*factor_*magnitude;
+            const double partonpt = (*jmmp_)(pt,r);
+            return (*f1_)(std::abs(r.eta()),partonpt)  ;
+        }
+
+    private:
+        PeakEtaMagSsqDependent();
+        const fftjet::LinearInterpolator2d* f1_;
+        const bool ownsPointer_;
+        const fftjet::JetMagnitudeMapper2d <fftjet::Peak>* jmmp_;
+        const bool ownsjmmpPointer_;
+        const double factor_;
+    };
+
+
     // Functions dependent on jet eta
     class JetEtaDependent : 
         public fftjet::Functor1<double,fftjet::RecombinedJet<VectorLike> >

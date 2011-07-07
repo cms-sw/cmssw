@@ -14,6 +14,7 @@
 #include "fftjet/LinearInterpolator1d.hh"
 #include "fftjet/LinearInterpolator2d.hh"
 #include "fftjet/SimpleFunctors.hh"
+#include "fftjet/JetMagnitudeMapper2d.hh"
 
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "RecoJets/FFTJetAlgorithms/interface/fftjetTypedefs.h"
@@ -69,6 +70,12 @@ namespace fftjetcms {
 
     std::auto_ptr<AbsPileupCalculator>
     fftjet_PileupCalculator_parser(const edm::ParameterSet& ps);
+
+    std::auto_ptr<fftjet::JetMagnitudeMapper2d<fftjet::Peak> >
+    fftjet_PeakMagnitudeMapper2d_parser(const edm::ParameterSet& ps);
+
+    std::auto_ptr<fftjet::JetMagnitudeMapper2d<fftjet::RecombinedJet<VectorLike> > >
+    fftjet_JetMagnitudeMapper2d_parser(const edm::ParameterSet& ps);
 }
 
 #endif // RecoJets_FFTJetProducers_FFTJetParameterParser_h
