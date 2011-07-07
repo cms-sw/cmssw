@@ -7,6 +7,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBHitResponse.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EEHitResponse.h"
 
 EcalTBDigiProducer::EcalTBDigiProducer( const edm::ParameterSet& params ) :
    EcalDigiProducer( params )
