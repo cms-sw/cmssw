@@ -3,7 +3,6 @@
 #include "DQMServices/Core/interface/QReport.h"
 #include "DQMServices/Core/interface/QTest.h"
 #include "DQMServices/Core/src/DQMError.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "classlib/utils/RegexpMatch.h"
 #include "classlib/utils/Regexp.h"
 #include "classlib/utils/StringOps.h"
