@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V162
+# /dev/CMSSW_4_2_0/GRun/V163
 
 import FWCore.ParameterSet.Config as cms
 
@@ -165,30 +165,20 @@ streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_DiJet130_PT130_v
     'HLT_HT400_v7', 
     'HLT_HT450_AlphaT0p51_v1', 
     'HLT_HT450_AlphaT0p52_v1', 
-    'HLT_HT450_JetPt60_DPhi2p94_v1', 
     'HLT_HT450_v7', 
     'HLT_HT500_JetPt60_DPhi2p94_v1', 
     'HLT_HT500_v7', 
     'HLT_HT550_JetPt60_DPhi2p94_v1', 
     'HLT_HT550_v7', 
     'HLT_HT600_v1', 
-    'HLT_R014_MR150_CentralJet40_BTagIP_v6', 
     'HLT_R014_MR150_v5', 
-    'HLT_R017_MR450_CentralJet40_BTagIP_v1', 
-    'HLT_R017_MR500_CentralJet40_BTagIP_v1', 
     'HLT_R020_MR150_v5', 
     'HLT_R020_MR550_v5', 
-    'HLT_R023_MR350_CentralJet40_BTagIP_v1', 
-    'HLT_R023_MR400_CentralJet40_BTagIP_v1', 
     'HLT_R023_MR550_v1', 
     'HLT_R025_MR150_v5', 
     'HLT_R025_MR450_v5', 
-    'HLT_R029_MR250_CentralJet40_BTagIP_v1', 
-    'HLT_R029_MR300_CentralJet40_BTagIP_v1', 
     'HLT_R029_MR450_v1', 
-    'HLT_R033_MR200_CentralJet40_BTagIP_v1', 
     'HLT_R033_MR350_v5', 
-    'HLT_R036_MR200_CentralJet40_BTagIP_v1', 
     'HLT_R036_MR350_v1', 
     'HLT_R038_MR250_v5', 
     'HLT_R042_MR250_v1')
