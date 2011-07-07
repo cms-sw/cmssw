@@ -95,11 +95,11 @@ AlignmentTwoBodyDecayTrackSelector::select(const Tracks& tracks, const edm::Even
 }
 
 template<class T>
-struct lessTwoBodyDecayMassDiff : public std::binary_function<T,T,bool>
+struct higherTwoBodyDecayPt : public std::binary_function<T,T,bool>
 {
   bool operator()( const T& a, const T& b ) 
   { 
-    return a.first < b.first; 
+    return a.first > b.first ; 
   }
 };
 
@@ -149,7 +149,7 @@ AlignmentTwoBodyDecayTrackSelector::checkMass(const Tracks& cands) const
 	  mother.M() < theMaxMass &&
 	  correctCharge &&
 	  acoplanarTracks) {
-	candCollection.push_back(candCollectionItem(fabs(theMass - mother.M()),
+	candCollection.push_back(candCollectionItem(mother.Pt(),
 						    constTrackPair(trk1, trk2)));
       }
     }
@@ -158,7 +158,9 @@ AlignmentTwoBodyDecayTrackSelector::checkMass(const Tracks& cands) const
   if (candCollection.size()==0) return result;
 
   sort(candCollection.begin(), candCollection.end(), 
-       lessTwoBodyDecayMassDiff<candCollectionItem>());
+       higherTwoBodyDecayPt<candCollectionItem>());
+
+  //  reverse(candCollection.begin(), candCollection.end());
   
   std::map<const reco::Track*,unsigned int> uniqueTrackIndex;
   std::map<const reco::Track*,unsigned int>::iterator it;
@@ -239,7 +241,7 @@ AlignmentTwoBodyDecayTrackSelector::checkMETMass(const Tracks& cands,const edm::
 	  mother.M() < theMaxMass &&
 	  correctCharge &&
 	  acoplanarTracks) {
-	candCollection.push_back(candCollectionItem(fabs(theMass - mother.M()), trk));
+	candCollection.push_back(candCollectionItem(mother.Pt(), trk));
       }
     }
   }
@@ -247,7 +249,7 @@ AlignmentTwoBodyDecayTrackSelector::checkMETMass(const Tracks& cands,const edm::
   if (candCollection.size()==0) return result;
 
   sort(candCollection.begin(), candCollection.end(), 
-       lessTwoBodyDecayMassDiff<candCollectionItem>());
+       higherTwoBodyDecayPt<candCollectionItem>());
   
   std::map<const reco::Track*,unsigned int> uniqueTrackIndex;
   std::map<const reco::Track*,unsigned int>::iterator it;
