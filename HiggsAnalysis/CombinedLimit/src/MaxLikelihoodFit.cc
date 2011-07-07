@@ -20,6 +20,7 @@
 
 using namespace RooStats;
 
+std::string MaxLikelihoodFit::name_       = "";
 std::string MaxLikelihoodFit::minimizerAlgo_ = "Minuit2,minimize";
 float       MaxLikelihoodFit::minimizerTolerance_ = 1e-4;
 int         MaxLikelihoodFit::minimizerStrategy_  = 1;
@@ -50,13 +51,14 @@ MaxLikelihoodFit::MaxLikelihoodFit() :
 void MaxLikelihoodFit::applyOptions(const boost::program_options::variables_map &vm) 
 {
     makePlots_ = vm.count("plots");
+    name_ = vm["name"].defaulted() ?  std::string() : vm["name"].as<std::string>();
 }
 
 bool MaxLikelihoodFit::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
   ProfileLikelihood::MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
   CloseCoutSentry sentry(verbose < 0);
 
-  std::auto_ptr<TFile> fitOut(TFile::Open((out_+"/mlfit.root").c_str(), "RECREATE"));
+  std::auto_ptr<TFile> fitOut(TFile::Open((out_+"/mlfit"+name_+".root").c_str(), "RECREATE"));
 
   RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
 
