@@ -38,8 +38,8 @@ RecoFCcorFactorAlgo<HcalPulseShapes::Shape>::RecoFCcorFactorAlgo(int num_samples
     // bin values for this shift.
     //
     double tmin    = -(double)shift_ns;
-    double bin0val = (double)shape_.integrate(tmin, tmin+binsize_ns);
-    double bin1val = (double)shape_.integrate(tmin+binsize_ns, tmin+2*binsize_ns);
+    double bin0val = (double) (*integrator_)(tmin, tmin+binsize_ns);
+    double bin1val = (double) (*integrator_)(tmin+binsize_ns, tmin+2*binsize_ns);
 
 #if 0
     char s[80];
